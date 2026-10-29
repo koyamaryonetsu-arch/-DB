@@ -2,8 +2,8 @@
 // ・つぶの なまえは 'g5' で はじめる（AX_G5_FINE に まぜる）。どれも p.age（ms）で かく。x の globalAlpha・まぜかたは じぶんで きめて もどす
 // ・G5 の え（axfx-g5-moon.js・axfx-g5-ice.js・axfx-g5-idol.js）が つかう
 // ・画面の 文字は かかない（数字や Z も 線で かく）
-import { softGlow, disc, rnd, lerp, clamp01, easeOut, easeIn, easeInOut, hash, mixHex } from './axkit.js?v=5c89bfcd3c09';
-import { AX_BUDGET } from '../../shared/ax-time.js?v=5c89bfcd3c09';
+import { softGlow, disc, rnd, lerp, clamp01, easeOut, easeIn, easeInOut, hash, mixHex } from './axkit.js?v=894e2368ad04';
+import { AX_BUDGET } from '../../shared/ax-time.js?v=894e2368ad04';
 
 const TAU = Math.PI * 2;
 const env = (p, fin = 120, fout = 200) => clamp01(p.age / Math.max(1, fin)) * clamp01((p.life - p.age) / Math.max(1, fout));

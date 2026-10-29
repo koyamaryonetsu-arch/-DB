@@ -124,7 +124,8 @@ export const MEMORY_TREASURE = {
 export const HOSHIYOMI_RECIPES = [
   { id: 'r_dawn_cloak', tier: 5, out: 'dawn_cloak', ins: ['shade_cloak', 'shade_drop', 'star_sand'] },
   { id: 'r_hoshi_great_staff', tier: 5, out: 'hoshi_great_staff', ins: ['hoshi_staff', 'star_sand', 'star_sand'] },
-  { id: 'r_wise_seed', tier: 5, out: 'seed_mag', ins: ['star_sand', 'star_sand', 'shade_drop'] },
+  // 第50回: 種（強さを 上げる 道具）は れん金で 作れない。おぼえた レシピの ID は そのまま、できる 物を かえた
+  { id: 'r_wise_seed', tier: 5, out: 'elf_drink', ins: ['star_sand', 'star_sand', 'shade_drop'] },
 ];
 
 // 読みがな（あいうえお順の ならびかえ）

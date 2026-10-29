@@ -28,7 +28,7 @@ export const MONSTERS_KUMOI = {
   cloud_sheep: {
     name: '雲ひつじ', lv: 43, hp: 620, mp: 60, str: 152, def: 132, agi: 50, mag: 96, exp: 560, gold: 240,
     race: 'beast', size: 'm', flying: true, hit: 'bite', region: 6,
-    resist: { wind: 1.35, bolt: 1.15, ice: 0.7, poison: 0.5, sleep: 0.2, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_hp', 40] },
+    resist: { wind: 1.35, bolt: 1.15, ice: 0.7, poison: 0.5, sleep: 0.2, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_hp', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_wool_tackle' }, { w: 2, id: 'm_sleep_cloud', cond: 'notRecent:m_sleep_cloud' }, { w: 1, id: 'm_wool_puff', cond: 'notRecent:m_wool_puff' }],
     desc: '雲の毛がもこもこの、空の島のひつじ。ねむり雲で旅人をねむらせる。風がよく効き、ふきとばされやすい。',
   },
@@ -36,7 +36,7 @@ export const MONSTERS_KUMOI = {
   sky_ray: {
     name: '空とびエイ', lv: 44, hp: 660, mp: 80, str: 168, def: 112, agi: 82, mag: 112, exp: 600, gold: 260,
     race: 'beast', size: 'm', flying: true, hit: 'slash', region: 6,
-    resist: { bolt: 0.5, ice: 1.3, wind: 0.8, poison: 0.6, sleep: 0.4, confuse: 0.5 }, drops: { common: ['herb', 5], rare: ['seed_agi', 44] },
+    resist: { bolt: 0.5, ice: 1.3, wind: 0.8, poison: 0.6, sleep: 0.4, confuse: 0.5 }, drops: { common: ['herb', 5], rare: ['seed_agi', 132] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ray_glide' }, { w: 2, id: 'm_ray_sting' }, { w: 1, id: 'm_ray_wave', cond: 'notRecent:m_ray_wave' }],
     desc: '雲の海を、鳥のようにすいすいおよぐ大きなエイ。しっぽの雷でしびれさせる。氷がよく効き、雷は効きにくい。',
   },
@@ -44,7 +44,7 @@ export const MONSTERS_KUMOI = {
   thunder_puff: {
     name: 'かみなりぐも', lv: 44, hp: 480, mp: 160, str: 104, def: 92, agi: 72, mag: 152, exp: 580, gold: 260,
     race: 'spirit', size: 's', flying: true, region: 6,
-    resist: { bolt: 0, wind: 1.4, ice: 1.1, fire: 0.8, poison: 0, sleep: 0.4, confuse: 0.6 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 44] },
+    resist: { bolt: 0, wind: 1.4, ice: 1.1, fire: 0.8, poison: 0, sleep: 0.4, confuse: 0.6 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 132] },
     actions: [{ w: 3, id: 'm_puff_bolt' }, { w: 2, id: 'm_puff_rain', cond: 'notRecent:m_puff_rain' }, { w: 1, id: 'm_puff_charge', cond: 'notRecent:m_puff_charge' }, { w: 1, id: 'attack' }],
     desc: 'ゴロゴロと鳴る、小さな雷雲。いなずまをおとしてくる。風がよく効き、雷はまったく効かない。',
   },
@@ -52,7 +52,7 @@ export const MONSTERS_KUMOI = {
   sky_serpent: {
     name: '雲海へび', lv: 45, hp: 780, mp: 90, str: 178, def: 122, agi: 72, mag: 122, exp: 640, gold: 300,
     race: 'dragon', size: 'm', flying: true, hit: 'bite', region: 6,
-    resist: { wind: 0.5, ice: 1.3, blast: 1.1, poison: 0.5, sleep: 0.4, confuse: 0.4 }, drops: { common: ['jou_herb', 12], rare: ['seed_str', 44] },
+    resist: { wind: 0.5, ice: 1.3, blast: 1.1, poison: 0.5, sleep: 0.4, confuse: 0.4 }, drops: { common: ['jou_herb', 12], rare: ['seed_str', 132] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_serpent_bind' }, { w: 2, id: 'm_serpent_breath', cond: 'notRecent:m_serpent_breath' }, { w: 2, id: 'm_bite' }],
     desc: '雲の海の中を長い体でおよぐへび。体でしめつけて、動きをおそくする。氷がよく効く。',
   },
@@ -62,7 +62,7 @@ export const MONSTERS_KUMOI = {
   stone_keeper: {
     name: '石の守り手', lv: 44, hp: 820, mp: 20, str: 172, def: 180, agi: 36, mag: 40, exp: 660, gold: 280,
     race: 'material', size: 'm', hit: 'slash', region: 6,
-    resist: { blast: 1.3, bolt: 0.85, ice: 0.8, fire: 0.7, poison: 0, sleep: 0, confuse: 0.2, blind: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_def', 40] },
+    resist: { blast: 1.3, bolt: 0.85, ice: 0.8, fire: 0.7, poison: 0, sleep: 0, confuse: 0.2, blind: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_def', 120] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_keeper_stomp', cond: 'notRecent:m_keeper_stomp' }, { w: 1, id: 'm_keeper_wall', cond: 'notRecent:m_keeper_wall' }],
     desc: 'しずみゆく島の古い神殿を、ずっと守ってきた石の像。足ぶみで島ごとゆらす。とてもかたいが、爆発がよく効く。',
   },
@@ -70,7 +70,7 @@ export const MONSTERS_KUMOI = {
   rock_mole: {
     name: '岩もぐら', lv: 43, hp: 580, mp: 30, str: 158, def: 140, agi: 66, mag: 60, exp: 560, gold: 250,
     race: 'beast', size: 's', hit: 'slash', region: 6,
-    resist: { ice: 1.3, bolt: 1.2, blast: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['herb', 5], rare: ['seed_str', 40] },
+    resist: { ice: 1.3, bolt: 1.2, blast: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['herb', 5], rare: ['seed_str', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_mole_drill' }, { w: 2, id: 'm_mole_dirt', cond: 'notRecent:m_mole_dirt' }],
     desc: '大きなツメで岩をほってすすむもぐら。土をかけて目をくらませる。氷がよく効く。',
   },
@@ -80,7 +80,7 @@ export const MONSTERS_KUMOI = {
   gaia_larva: {
     name: 'つちくいムカデ', lv: 45, hp: 660, mp: 30, str: 172, def: 132, agi: 78, mag: 60, exp: 640, gold: 280,
     race: 'beast', size: 'm', hit: 'bite', region: 6,
-    resist: { fire: 1.3, ice: 1.1, poison: 0, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 6], rare: ['seed_hp', 44] },
+    resist: { fire: 1.3, ice: 1.1, poison: 0, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 6], rare: ['seed_hp', 132] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_larva_fang' }, { w: 1, id: 'm_larva_curl', cond: 'notRecent:m_larva_curl' }],
     desc: '島の土を食べて大きくなる、ムカデの子ども。毒のキバでかみつく。炎がよく効く。',
   },
@@ -88,7 +88,7 @@ export const MONSTERS_KUMOI = {
   haniwa_soldier: {
     name: 'はにわ兵', lv: 45, hp: 720, mp: 80, str: 166, def: 150, agi: 50, mag: 124, exp: 660, gold: 290,
     race: 'material', size: 'm', hit: 'slash', region: 6,
-    resist: { ice: 1.3, blast: 1.2, fire: 0.6, poison: 0, sleep: 0, confuse: 0.3 }, drops: { common: ['jou_herb', 12], rare: ['seed_def', 44] },
+    resist: { ice: 1.3, blast: 1.2, fire: 0.6, poison: 0, sleep: 0, confuse: 0.3 }, drops: { common: ['jou_herb', 12], rare: ['seed_def', 132] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_haniwa_spear' }, { w: 1, id: 'm_haniwa_song', cond: 'notRecent:m_haniwa_song' }],
     desc: '古い神殿を守る、土の人形の兵。ふしぎな歌を聞くと、頭がぼーっとする。氷がよく効く。',
   },
@@ -98,7 +98,7 @@ export const MONSTERS_KUMOI = {
   cloud_wraith: {
     name: '雲間のゆうれい', lv: 46, hp: 880, mp: 180, str: 160, def: 116, agi: 84, mag: 176, exp: 1000, gold: 420,
     race: 'undead', size: 'm', flying: true, region: 6,
-    resist: { light: 1.4, dark: 0.3, ice: 0.6, poison: 0, sleep: 0, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 40] },
+    resist: { light: 1.4, dark: 0.3, ice: 0.6, poison: 0, sleep: 0, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 120] },
     actions: [{ w: 3, id: 'm_wraith_chill' }, { w: 2, id: 'm_wraith_mist', cond: 'notRecent:m_wraith_mist' }, { w: 1, id: 'mahoton', cond: 'notRecent:mahoton' }, { w: 2, id: 'attack' }],
     desc: '神殿にしずみこんだ雲の中を、ふわふわただようゆうれい。きりで目をくらませ、つめたい手でふれてくる。光がよく効く。',
   },
@@ -106,7 +106,7 @@ export const MONSTERS_KUMOI = {
   cloud_wyvern: {
     name: '雷雲ワイバーン', lv: 47, hp: 1080, mp: 100, str: 216, def: 142, agi: 86, mag: 142, exp: 1100, gold: 460,
     race: 'dragon', size: 'm', flying: true, hit: 'bite', region: 6,
-    resist: { bolt: 0.3, wind: 0.6, ice: 1.3, poison: 0.5, sleep: 0.3, confuse: 0.4 }, drops: { common: ['jou_herb', 8], rare: ['seed_str', 36] },
+    resist: { bolt: 0.3, wind: 0.6, ice: 1.3, poison: 0.5, sleep: 0.3, confuse: 0.4 }, drops: { common: ['jou_herb', 8], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_wyvern_dive' }, { w: 2, id: 'm_wyvern_thunder', cond: 'notRecent:m_wyvern_thunder' }, { w: 2, id: 'm_wyvern_tail' }],
     desc: '雷雲の中をとぶ、つばさの竜。いかずちのいきをはく。雲の中でしか会えない、強い竜。氷がよく効く。',
   },

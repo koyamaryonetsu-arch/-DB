@@ -6,12 +6,12 @@
 // ・どの 階も 馬車が いっしょに 入れる（wagon: true。広い 通路。data/wagon.js の wagonMapOk）
 // ・みちびきの糸・帰り道の羽は 使える（長いので）。糸は 砂の海の 小島へ もどる（world/escape.js の 出口さがし）
 // ・たのまれごとの 人（ほかの 町）も ここで マップに 足す（attachLab。maps/index.js から よぶ）
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { PLACES } from './overworld.js?v=5c89bfcd3c09';
-import { NORTH_PLACES } from './north.js?v=5c89bfcd3c09';
-import { PORT } from './sea.js?v=5c89bfcd3c09';
-import { MEDAL_SPOT_BY_ID } from './casino.js?v=5c89bfcd3c09';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { PLACES } from './overworld.js?v=894e2368ad04';
+import { NORTH_PLACES } from './north.js?v=894e2368ad04';
+import { PORT } from './sea.js?v=894e2368ad04';
+import { MEDAL_SPOT_BY_ID } from './casino.js?v=894e2368ad04';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const LAB_OPEN_FLAG = 'c4_clear'; // 古代都市の 門が 出てくる（第4章クリア）
@@ -393,15 +393,15 @@ export const LAB_CHESTS = {
   0: [{ id: 'lc_house', x: 6, y: 13, item: 'magic_water', n: 2 }, { id: 'lc_house2', x: 34, y: 23, item: 'small_medal' }],
   1: [{ id: 'lb1_w', x: 4, y: 12, item: 'sand_king_helm' }, { id: 'lb1_n', x: 21, y: 2, item: 'small_medal' }, { id: 'lb1_sw', x: 4, y: 26, item: 'seed_str' }],
   2: [{ id: 'lb2_sw', x: 3, y: 17, item: 'ancient_robe' }, { id: 'lb2_se', x: 40, y: 23, item: 'magic_water', n: 2 }, { id: 'lb2_s', x: 15, y: 30, item: 'small_medal' }],
-  3: [{ id: 'lb3_nw', x: 3, y: 16, item: 'ancient_blade' }, { id: 'lb3_sw', x: 4, y: 25, item: 'seed_hp' }],
+  3: [{ id: 'lb3_nw', x: 3, y: 16, item: 'ancient_blade' }, { id: 'lb3_sw', x: 4, y: 25, item: 'elf_drink' }],
   4: [{ id: 'lb4_pocket', x: 40, y: 25, item: 'small_medal' }, { id: 'lb4_ne', x: 38, y: 7, item: 'seed_agi' }, { id: 'lb4_s', x: 21, y: 24, gold: 5000 }],
   // 宝物庫（スフィンクスの なぞを とくと 開く）
   5: [{ id: 'lb5_v1', x: 17, y: 3, item: 'sphinx_mail' }, { id: 'lb5_v2', x: 26, y: 3, item: 'sphinx_fan' }, { id: 'lb5_v3', x: 21, y: 2, item: 'small_medal' },
-    { id: 'lb5_e', x: 40, y: 20, item: 'seed_mag' }],
+    { id: 'lb5_e', x: 40, y: 20, item: 'revive_flower', n: 2 }],
   6: [{ id: 'lb6_w', x: 3, y: 25, item: 'magic_water', n: 3 }, { id: 'lb6_lib', x: 21, y: 3, item: 'seed_mag' }],
   7: [{ id: 'lb7_n', x: 16, y: 2, item: 'night_claw' }, { id: 'lb7_e', x: 38, y: 23, item: 'ancient_star_staff' }, { id: 'lb7_s', x: 35, y: 29, item: 'small_medal' }],
-  8: [{ id: 'lb8_s', x: 15, y: 30, item: 'dragon_helm' }, { id: 'lb8_w', x: 3, y: 16, item: 'seed_def' }, { id: 'lb8_e', x: 40, y: 13, item: 'small_medal' }],
-  9: [{ id: 'lb9_w', x: 3, y: 9, item: 'guardian_shield' }, { id: 'lb9_e', x: 40, y: 9, item: 'seed_hp' }],
+  8: [{ id: 'lb8_s', x: 15, y: 30, item: 'dragon_helm' }, { id: 'lb8_w', x: 3, y: 16, item: 'elf_drink' }, { id: 'lb8_e', x: 40, y: 13, item: 'small_medal' }],
+  9: [{ id: 'lb9_w', x: 3, y: 9, item: 'guardian_shield' }, { id: 'lb9_e', x: 40, y: 9, item: 'revive_flower', n: 2 }],
   // 古竜を たおすと 出てくる
   10: [{ id: 'lb10_r1', x: 11, y: 6, item: 'small_medal', show: { all: [LAB_FLAGS.boss] } }, { id: 'lb10_r2', x: 20, y: 6, gold: 20000, show: { all: [LAB_FLAGS.boss] } }],
 };

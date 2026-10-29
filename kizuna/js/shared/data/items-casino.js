@@ -1,7 +1,8 @@
 // カジノの 景品と メダル王の ごほうび（items.js で まぜる）
 // ・どれも 店では 買えない（price: 0）。売ると 少しだけ（コインで 買うより ずっと 安い）
 // ・ランク4〜5（第2章の カモメ港の 品より 少し 強い）。40枚・50枚の ごほうびは これからの 章の ランク6
-import { ITEMS_CASINO_R37, CASINO_R37_KANA } from './items-casino-r37.js?v=5c89bfcd3c09';
+import { ITEMS_CASINO_R37, CASINO_R37_KANA } from './items-casino-r37.js?v=894e2368ad04';
+import { ITEMS_SUGOROKU_R50, SUGOROKU_R50_KANA } from './items-sugoroku-r50.js?v=894e2368ad04';
 
 export const ITEMS_CASINO = {
   // ───── カジノの 景品 ─────
@@ -65,3 +66,6 @@ export const CASINO_KANA = {
 // 第37回 B: 宝の地図の 段で ふえる 景品・すごろくの 品（items-casino-r37.js）
 Object.assign(ITEMS_CASINO, ITEMS_CASINO_R37);
 Object.assign(CASINO_KANA, CASINO_R37_KANA);
+// 第50回 D2: すごろくだけの 装備（items-sugoroku-r50.js）
+Object.assign(ITEMS_CASINO, ITEMS_SUGOROKU_R50);
+Object.assign(CASINO_KANA, SUGOROKU_R50_KANA);

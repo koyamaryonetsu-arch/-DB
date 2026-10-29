@@ -3,6 +3,8 @@
 // ・数字（36倍）・赤／黒・奇数／偶数・前半（1〜18）／後半（19〜36）（2倍）・12ずつ（1〜12・13〜24・25〜36。3倍）
 //   倍率は「かけた コインの 何倍が もどるか」（かけた ぶんも ふくむ）。0 が 出ると、数字の 0 いがいは はずれ
 // ・1回に いくつも かけられる。チップは 1・10・100枚
+// ・第50回 N5: となりあう 2つの 数の 間（スプリット 18倍）・4つの 数が あつまる 角（コーナー 9倍）にも かけられる
+//   表は 3列×12行（1・2・3 が 1行め）。0 との 間は なし
 // ・どの かけ方でも もどりは 36/37（約97%。少しだけ 店が 勝つ）
 // ・玉が 止まる 数は サーバーの 乱数（world/casino.js）。ここは 計算だけ
 
@@ -19,7 +21,20 @@ export const numColor = (n) => (n === 0 ? 'green' : RED.has(n) ? 'red' : 'black'
 // 円ばんの ならび（時計まわり。0 から）
 export const WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 
-// かけ方（k）。v … 数字（0〜36）か 12ずつの ばんごう（1〜3）
+// 表で となりあう 2つの 数（'1-2' '1-4' …）と、4つの 数の 角（'1-2-4-5' …）
+const SPLITS = [];
+const CORNERS = [];
+for (let n = 1; n <= 36; n++) {
+  if (n % 3 !== 0) SPLITS.push(`${n}-${n + 1}`); // よこ（同じ 行）
+  if (n <= 33) SPLITS.push(`${n}-${n + 3}`); // たて（つぎの 行）
+  if (n % 3 !== 0 && n <= 32) CORNERS.push(`${n}-${n + 1}-${n + 3}-${n + 4}`);
+}
+export const SPLIT_VALS = SPLITS;
+export const CORNER_VALS = CORNERS;
+const nums = (v) => String(v).split('-').map(Number);
+const has = (n, v) => n > 0 && nums(v).includes(n);
+
+// かけ方（k）。v … 数字（0〜36）か 12ずつの ばんごう（1〜3）か 数の 組（'17-20'）
 export const BET_KINDS = {
   num: { mult: 36, name: (v) => `${v}`, wins: (n, v) => n === v, vals: [...Array(37).keys()] },
   red: { mult: 2, name: () => '赤', wins: (n) => RED.has(n) },
@@ -29,7 +44,11 @@ export const BET_KINDS = {
   low: { mult: 2, name: () => '1〜18', wins: (n) => n >= 1 && n <= 18 },
   high: { mult: 2, name: () => '19〜36', wins: (n) => n >= 19 },
   dozen: { mult: 3, name: (v) => `${(v - 1) * 12 + 1}〜${v * 12}`, wins: (n, v) => n > 0 && Math.ceil(n / 12) === v, vals: [1, 2, 3] },
+  split: { mult: 18, name: (v) => nums(v).join('・'), wins: has, vals: SPLITS },
+  corner: { mult: 9, name: (v) => nums(v).join('・'), wins: has, vals: CORNERS },
 };
+// かけ方の 数字（その 数が 当たりに なる もの。表の 光り方に つかう）
+export const betNums = (k, v) => (k === 'num' ? [v] : k === 'split' || k === 'corner' ? nums(v) : []);
 
 // かける 場所の なまえ（'num:17' 'red' 'dozen:2'）
 export const betKey = (k, v) => (BET_KINDS[k]?.vals ? `${k}:${v}` : k);
@@ -38,7 +57,7 @@ export function parseBetKey(key) {
   const kind = Object.hasOwn(BET_KINDS, k) ? BET_KINDS[k] : null;
   if (!kind) return null;
   if (!kind.vals) return s === undefined ? { k, v: null } : null;
-  const v = Number(s);
+  const v = typeof kind.vals[0] === 'string' ? s : Number(s);
   return kind.vals.includes(v) ? { k, v } : null;
 }
 export const betName = (k, v) => BET_KINDS[k]?.name(v) ?? '';

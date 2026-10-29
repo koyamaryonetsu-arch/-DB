@@ -4,11 +4,11 @@
 // ・sand_castle1・sand_castle2（ダンジョン）… 砂の古城（バルガの 試練。1階に 2つの スイッチを 同時に ふむ しかけ、2階に 船の かじ）
 // ・sand_sea（フィールド・sailable）… 砂の海。すなかぜ号で 砂の 上を すすむ（第2章の 風の海と おなじ しくみ。maps/index.js の sailTile）。
 //   まん中に 砂クジラの ねどこ（砂の うず）。東の はしは まだ 砂嵐（モルガナを たおすまで）
-import { T, parseRows } from '../tiles.js?v=5c89bfcd3c09';
-import { fbm, hash2 } from '../rng.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { DUNA_TOWN_ROWS, CASTLE1_ROWS, CASTLE2_ROWS } from './duna-rows.js?v=5c89bfcd3c09';
-import { DUNA_GATE } from './south.js?v=5c89bfcd3c09';
+import { T, parseRows } from '../tiles.js?v=894e2368ad04';
+import { fbm, hash2 } from '../rng.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { DUNA_TOWN_ROWS, CASTLE1_ROWS, CASTLE2_ROWS } from './duna-rows.js?v=894e2368ad04';
+import { DUNA_GATE } from './south.js?v=894e2368ad04';
 
 const inRect = (x, y, r, pad = 0) => x >= r.x - pad && y >= r.y - pad && x < r.x + r.w + pad && y < r.y + r.h + pad;
 
@@ -285,7 +285,7 @@ export const DUNA_LABELS = [
   { name: '砂の海', x: 4, y: TW.y + TW.h + 2, w: 56, h: 10 },
 ];
 
-export const SANDSEA_CHESTS = SANDSEA_ISLES.map(([x, y], i) => ({ id: `ss_isle${i}`, x: x - 1, y, ...[{ item: 'seed_hp' }, { gold: 3000 }, { item: 'magic_water', n: 2 }, { item: 'seed_str' }][i] }));
+export const SANDSEA_CHESTS = SANDSEA_ISLES.map(([x, y], i) => ({ id: `ss_isle${i}`, x: x - 1, y, ...[{ item: 'elf_drink' }, { gold: 3000 }, { item: 'magic_water', n: 2 }, { item: 'seed_str' }][i] }));
 
 // ───────────── マップを つくる（maps/ch4.js の buildCh4Maps から）─────────────
 const zoneRect = (rects, fallback) => (x, y) => {
@@ -346,7 +346,7 @@ function castle() {
   const C = CASTLE_POS;
   const c1 = castleMap('sand_castle1', '砂の古城　1階', CASTLE1_ROWS, {
     chests: [
-      { id: 'sc1_w', x: 2, y: 10, item: 'seed_def' },
+      { id: 'sc1_w', x: 2, y: 10, item: 'revive_flower', n: 2 },
       { id: 'sc1_e', x: 27, y: 10, gold: 2600 },
       { id: 'sc1_hall', x: 3, y: 17, item: 'moonherb', n: 3 },
     ],
@@ -375,7 +375,7 @@ function castle() {
       ...C.guards.map(([x, y], i) => npc(`castle_guard${i}`, '古城のよろい', [x, y], 'mon:castle_armor', 'c4_rudder_event', { dir: 'down', show: { not: ['c4_castle'] } })),
     ],
     chests: [
-      { id: 'sc2_w', x: 3, y: 8, item: 'seed_mag' },
+      { id: 'sc2_w', x: 3, y: 8, item: 'elf_drink' },
       { id: 'sc2_e', x: 23, y: 8, item: 'revive_flower' },
       { id: 'sc2_hall', x: 22, y: 15, item: 'magic_water', n: 2 },
     ],

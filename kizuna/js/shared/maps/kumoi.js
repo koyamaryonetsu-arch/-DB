@@ -17,12 +17,12 @@
 //   南へ 風の道（w9）が 開く。根の島から 北へ 風の道（w10）で 帰れる（竜でも 行ける）。神殿の 入口は 根が からみついていて、長ソラネの 話（c5_root）で ほどける。
 //   影の城が うかぶと（c5_castle）: 雲の 海の まん中に 影の城（まだ 入れない）・西の 船着き場の 風の道（w1）が とぎれる・しずんでいた 小島が 1つ 出てくる・
 //   空が 夕ぐれの 色に（map.dusk）・曲が kumoi_dusk に。根の島の 魔物は t5_root（B）
-import { T } from '../tiles.js?v=5c89bfcd3c09';
-import { hash2, fbm } from '../rng.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { SEA_PLACES } from './ch2.js?v=5c89bfcd3c09';
-import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=5c89bfcd3c09';
-import { EARTH_OUT, HANONO_GATHER_NPCS, K7 } from './earth.js?v=5c89bfcd3c09';
+import { T } from '../tiles.js?v=894e2368ad04';
+import { hash2, fbm } from '../rng.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { SEA_PLACES } from './ch2.js?v=894e2368ad04';
+import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=894e2368ad04';
+import { EARTH_OUT, HANONO_GATHER_NPCS, K7 } from './earth.js?v=894e2368ad04';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_sky の うしろ。plan-ch5.md の 13 の 名前の 約束）
@@ -308,9 +308,9 @@ const KUMOI_CHESTS = [
   { id: 'k5_sink', x: 10, y: 46, gold: 4800 },
   // c5_shard の あと（雲から 出てきた 島・竜で 行く はなれ小島）
   { id: 'k5_rise', x: 40, y: 51, item: 'seed_hp', show: { all: [K5.shard] } },
-  { id: 'k5_far', x: 70, y: 9, item: 'seed_mag' },
+  { id: 'k5_far', x: 70, y: 9, item: 'elf_drink' },
   // 第5章 Step 6・7: 根の島・影の城の 前の 小島（c5_castle の あと）
-  { id: 'k5_root', x: 65, y: 53, item: 'seed_str' },
+  { id: 'k5_root', x: 65, y: 53, item: 'revive_flower', n: 2 },
   { id: 'k5_shade', x: 45, y: 38, item: 'seed_hp', show: { all: [K7.castle] } },
 ];
 // 影の城が うかんだ あとの 空の 色（クモイ地方・ハネノの 町。昼でも 夕方くらいの 色）
@@ -488,7 +488,7 @@ const HN_NPCS = [
 ];
 const HN_CHESTS = [
   { id: 'hn_sorane', x: HH.sorane.x + HH.sorane.w - 3, y: HH.sorane.y + 1, item: 'magic_water', n: 2 },
-  { id: 'hn_lookout', x: 42, y: 9, item: 'seed_def' },
+  { id: 'hn_lookout', x: 42, y: 9, item: 'elf_drink' },
 ];
 const HN_SIGNS = [{ ...HANONO_POS.sign, text: 'ここは雲の上の町ハネノ。\nハネビトの町。\n「風とともに生き、風に感謝せよ」' }];
 const HB = (B, kind, name) => ({ x: B.door + 1, y: B.y + B.h - 1, kind, name });

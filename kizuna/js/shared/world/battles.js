@@ -1,31 +1,31 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=5c89bfcd3c09';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=5c89bfcd3c09';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=5c89bfcd3c09';
-import { MONSTERS } from '../data/monsters.js?v=5c89bfcd3c09';
-import { ITEMS } from '../data/items.js?v=5c89bfcd3c09';
-import { abilityLabel } from '../ability-label.js?v=5c89bfcd3c09';
-import { JOBS } from '../data/jobs.js?v=5c89bfcd3c09';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=5c89bfcd3c09';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=5c89bfcd3c09';
+import { Battle, normBattleSettings } from '../battle.js?v=894e2368ad04';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=894e2368ad04';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=894e2368ad04';
+import { MONSTERS } from '../data/monsters.js?v=894e2368ad04';
+import { ITEMS } from '../data/items.js?v=894e2368ad04';
+import { abilityLabel } from '../ability-label.js?v=894e2368ad04';
+import { JOBS } from '../data/jobs.js?v=894e2368ad04';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=894e2368ad04';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=894e2368ad04';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=5c89bfcd3c09';
-import { befriendShare } from './recruit-share.js?v=5c89bfcd3c09';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=5c89bfcd3c09';
-import { rollDrops, stealPick } from '../data/loot.js?v=5c89bfcd3c09';
-import { MAPS } from '../maps/index.js?v=5c89bfcd3c09';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=5c89bfcd3c09';
-import { treasureAfterBattle } from './treasure.js?v=5c89bfcd3c09';
-import { wipeGoldLoss, bankGold } from './bank.js?v=5c89bfcd3c09';
-import { lureOn, lureGroup } from './field27.js?v=5c89bfcd3c09';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=5c89bfcd3c09';
-import { growthSummary } from './growth.js?v=5c89bfcd3c09';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=5c89bfcd3c09';
-import { battleTactics } from './tactics.js?v=5c89bfcd3c09';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=894e2368ad04';
+import { befriendShare } from './recruit-share.js?v=894e2368ad04';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=894e2368ad04';
+import { rollDrops, stealPick } from '../data/loot.js?v=894e2368ad04';
+import { MAPS } from '../maps/index.js?v=894e2368ad04';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=894e2368ad04';
+import { treasureAfterBattle } from './treasure.js?v=894e2368ad04';
+import { wipeGoldLoss, bankGold } from './bank.js?v=894e2368ad04';
+import { lureOn, lureGroup } from './field27.js?v=894e2368ad04';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=894e2368ad04';
+import { growthSummary } from './growth.js?v=894e2368ad04';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=894e2368ad04';
+import { battleTactics } from './tactics.js?v=894e2368ad04';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
-import { isNightFor } from './clock.js?v=5c89bfcd3c09';
+import { isNightFor } from './clock.js?v=894e2368ad04';
 // 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
-import { MONSTER_FRIENDS } from '../data/companions.js?v=5c89bfcd3c09';
+import { MONSTER_FRIENDS } from '../data/companions.js?v=894e2368ad04';
 
 let battleSeq = 1;
 

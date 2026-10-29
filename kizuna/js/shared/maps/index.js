@@ -1,26 +1,26 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=5c89bfcd3c09';
-import { makeRng, hash2 } from '../rng.js?v=5c89bfcd3c09';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=5c89bfcd3c09';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=5c89bfcd3c09';
-import { buildTreasureFloor } from './treasure-cave.js?v=5c89bfcd3c09';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=5c89bfcd3c09';
-import { addNightNpcs } from './night-npcs.js?v=5c89bfcd3c09';
-import { attachCasino } from './casino.js?v=5c89bfcd3c09';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=5c89bfcd3c09';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=5c89bfcd3c09';
-import { attachLab } from './labyrinth.js?v=5c89bfcd3c09';
-import { attachTower } from './tower.js?v=5c89bfcd3c09';
-import { attachKumoi } from './kumoi.js?v=5c89bfcd3c09';
-import { attachHoshiyomi } from './hoshiyomi.js?v=5c89bfcd3c09';
-import { attachEarth } from './earth.js?v=5c89bfcd3c09';
-import { attachCastle } from './castle.js?v=5c89bfcd3c09';
-import { attachCastleTop } from './castle-top.js?v=5c89bfcd3c09';
-import { attachFamilyQuests } from './family-quests.js?v=5c89bfcd3c09';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=894e2368ad04';
+import { makeRng, hash2 } from '../rng.js?v=894e2368ad04';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=894e2368ad04';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=894e2368ad04';
+import { buildTreasureFloor } from './treasure-cave.js?v=894e2368ad04';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=894e2368ad04';
+import { addNightNpcs } from './night-npcs.js?v=894e2368ad04';
+import { attachCasino } from './casino.js?v=894e2368ad04';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=894e2368ad04';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=894e2368ad04';
+import { attachLab } from './labyrinth.js?v=894e2368ad04';
+import { attachTower } from './tower.js?v=894e2368ad04';
+import { attachKumoi } from './kumoi.js?v=894e2368ad04';
+import { attachHoshiyomi } from './hoshiyomi.js?v=894e2368ad04';
+import { attachEarth } from './earth.js?v=894e2368ad04';
+import { attachCastle } from './castle.js?v=894e2368ad04';
+import { attachCastleTop } from './castle-top.js?v=894e2368ad04';
+import { attachFamilyQuests } from './family-quests.js?v=894e2368ad04';
 // 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
-import { attachCh6 } from './ch6.js?v=5c89bfcd3c09';
+import { attachCh6 } from './ch6.js?v=894e2368ad04';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -122,7 +122,7 @@ const OVERWORLD_CHESTS = [
   { id: 'ow_north', x: 60, y: 8, item: 'seed_mag' },
   { id: 'ow_east', x: 150, y: 30, item: 'guard_ring' },
   { id: 'ow_beach', x: 46, y: 116, item: 'revive_flower' },
-  { id: 'ow_west', x: 13, y: 40, item: 'seed_def' },
+  { id: 'ow_west', x: 13, y: 40, item: 'revive_flower' },
   { id: 'ow_hill', x: 70, y: 76, gold: 120 },
 ];
 
@@ -482,9 +482,9 @@ export function sparkleLoot(zone, roll) {
   const tables = {
     outskirts: [['herb', 5], ['antidote', 2], ['star_shard', 3]],
     plains: [['herb', 4], ['antidote', 2], ['star_shard', 3], ['moonherb', 1]],
-    forest: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['seed_hp', 0.4]],
-    swamp: [['antidote', 4], ['star_shard', 3], ['seed_def', 0.4]],
-    east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6], ['seed_str', 0.4]],
+    forest: [['herb', 3], ['moonherb', 2], ['star_shard', 3]],
+    swamp: [['antidote', 4], ['star_shard', 3]],
+    east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6]],
   };
   const t = tables[zone] || NORTH_SPARKLE_LOOT[zone] || SOUTH_SPARKLE_LOOT[zone] || tables.plains;
   const total = t.reduce((s, e) => s + e[1], 0);

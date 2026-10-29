@@ -26,7 +26,7 @@ export const MONSTERS_ROAD = {
   star_wolf: {
     name: 'ほしかげオオカミ', lv: 61, hp: 1600, mp: 80, str: 258, def: 188, agi: 168, mag: 150, exp: 1780, gold: 760,
     race: 'beast', size: 'm', hit: 'bite', region: 6,
-    resist: { light: 1.3, dark: 0.6, ice: 0.9, poison: 0.5, sleep: 0.5, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_agi', 36] },
+    resist: { light: 1.3, dark: 0.6, ice: 0.9, poison: 0.5, sleep: 0.5, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_agi', 108] },
     c6tod: { when: 'night', buff: { atk: 1.2, agi: 1.2 }, msg: '夜空の星座が光って、ほしかげオオカミの体が、青白くかがやいた！' },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_sw_fang' }, { w: 2, id: 'm6_sw_pack', cond: 'notRecent:m6_sw_pack' }, { w: 1, id: 'm6_sw_howl', cond: 'notRecent:m6_sw_howl' }],
     desc: '体に星座の線が光る、黒いオオカミ。夜になると、星の光で力が強くなる。光がよく効く。',
@@ -35,7 +35,7 @@ export const MONSTERS_ROAD = {
   sun_ram: {
     name: 'ひなたの星ひつじ', lv: 61, hp: 1880, mp: 100, str: 262, def: 214, agi: 92, mag: 160, exp: 1800, gold: 780,
     race: 'beast', size: 'l', hit: 'bash', region: 6,
-    resist: { dark: 1.3, light: 0.6, fire: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 36] },
+    resist: { dark: 1.3, light: 0.6, fire: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 108] },
     c6tod: { when: 'day', buff: { atk: 1.15, def: 1.25 }, msg: 'お日さまの光をあびて、ひなたの星ひつじの金の毛が、ふわりとかがやいた！' },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_sr_horn' }, { w: 2, id: 'm6_sr_rush', cond: 'notRecent:m6_sr_rush' }, { w: 2, id: 'm6_sr_wool', cond: ['allyHurt', 'notRecent:m6_sr_wool'] }],
     desc: '金色の毛の、大きなひつじ。昼はお日さまの光で、毛がかたくなる。キズはひだまりの毛でなおす。闇がよく効く。',
@@ -44,7 +44,7 @@ export const MONSTERS_ROAD = {
   dust_mole: {
     name: '星くずモグラ', lv: 61, hp: 1460, mp: 100, str: 240, def: 196, agi: 110, mag: 176, exp: 1740, gold: 760,
     race: 'beast', size: 'm', hit: 'claw', region: 6,
-    resist: { wind: 1.35, bolt: 0.8, fire: 0.9, poison: 0.5, sleep: 0.5, blind: 0.3, confuse: 0.5 }, drops: { common: ['magic_water', 12], rare: ['seed_str', 36] },
+    resist: { wind: 1.35, bolt: 0.8, fire: 0.9, poison: 0.5, sleep: 0.5, blind: 0.3, confuse: 0.5 }, drops: { common: ['magic_water', 12], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_dm_claw' }, { w: 2, id: 'm6_dm_dust', cond: 'notRecent:m6_dm_dust' }, { w: 1, id: 'm6_dm_pile', cond: 'notRecent:m6_dm_pile' }],
     desc: '空から落ちた星くずを、ほって集めるモグラ。星くずをまいて、前を見えなくする。風がよく効く。',
   },
@@ -52,7 +52,7 @@ export const MONSTERS_ROAD = {
   warp_wisp: {
     name: 'ゆがみの精', lv: 62, hp: 1140, mp: 200, str: 180, def: 150, agi: 176, mag: 232, exp: 1760, gold: 760,
     race: 'spirit', size: 's', flying: true, region: 6,
-    resist: { blast: 1.35, ice: 0.7, dark: 0.7, poison: 0, sleep: 0.4, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 36] },
+    resist: { blast: 1.35, ice: 0.7, dark: 0.7, poison: 0, sleep: 0.4, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm6_ww_flash' }, { w: 2, id: 'm6_ww_warp', cond: 'notRecent:m6_ww_warp' }, { w: 2, id: 'm6_ww_haste', cond: 'notRecent:m6_ww_haste' }, { w: 1, id: 'attack' }],
     desc: '時のゆがみから生まれた精。すがたが、ぐにゃりとゆらいで見える。みんなの動きをおそくする。爆発がよく効く。',
   },
@@ -62,7 +62,7 @@ export const MONSTERS_ROAD = {
   crab_star: {
     name: '星座ガニ', lv: 63, hp: 2080, mp: 100, str: 284, def: 232, agi: 84, mag: 160, exp: 1880, gold: 800,
     race: 'beast', size: 'l', hit: 'claw', region: 6,
-    resist: { bolt: 1.35, ice: 0.8, fire: 0.8, poison: 0.4, sleep: 0.4, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 40] },
+    resist: { bolt: 1.35, ice: 0.8, fire: 0.8, poison: 0.4, sleep: 0.4, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 120] },
     c6tod: { when: 'day', buff: { def: 1.25 }, msg: 'お日さまの光をあびて、星座ガニのこうらが、ぎらりと光った！' },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_cb_pinch' }, { w: 2, id: 'm6_cb_foam', cond: 'notRecent:m6_cb_foam' }, { w: 1, id: 'm6_cb_shell', cond: 'notRecent:m6_cb_shell' }],
     desc: 'こうらに星座のもようがある、大きなカニ。昼は、こうらがとてもかたくなる。雷がよく効く。',
@@ -71,7 +71,7 @@ export const MONSTERS_ROAD = {
   toki_owl: {
     name: '時わすれフクロウ', lv: 63, hp: 1560, mp: 160, str: 244, def: 176, agi: 150, mag: 240, exp: 1840, gold: 790,
     race: 'beast', size: 'm', flying: true, hit: 'claw', region: 6,
-    resist: { fire: 1.3, wind: 0.7, dark: 0.7, poison: 0.5, sleep: 0, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 36] },
+    resist: { fire: 1.3, wind: 0.7, dark: 0.7, poison: 0.5, sleep: 0, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 108] },
     c6tod: { when: 'night', buff: { atk: 1.2, agi: 1.2 }, msg: '夜空の星座が光って、時わすれフクロウの目が、金色にかがやいた！' },
     actions: [{ w: 3, id: 'm6_no_talon' }, { w: 2, id: 'm6_no_eye', cond: 'notRecent:m6_no_eye' }, { w: 2, id: 'm6_no_song', cond: 'notRecent:m6_no_song' }, { w: 2, id: 'attack' }],
     desc: '夜の古道を見はる、大きなフクロウ。その目を見ると、時をわすれてねむってしまう。夜は強い。炎がよく効く。',
@@ -80,7 +80,7 @@ export const MONSTERS_ROAD = {
   twin_star: {
     name: 'ふたご星の精', lv: 63, hp: 1240, mp: 220, str: 200, def: 166, agi: 156, mag: 244, exp: 1860, gold: 800,
     race: 'spirit', size: 'm', flying: true, region: 6,
-    resist: { ice: 1.35, light: 0.7, dark: 0.7, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 36] },
+    resist: { ice: 1.35, light: 0.7, dark: 0.7, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm6_ts_twin' }, { w: 2, id: 'm6_ts_spark', cond: 'notRecent:m6_ts_spark' }, { w: 2, id: 'm6_ts_swap', cond: ['allyHurt', 'notRecent:m6_ts_swap'] }, { w: 1, id: 'attack' }],
     desc: '光の顔と闇の顔をもつ、ふたごの星の精。2つの光をいっしょにうつ。仲間のキズもなおす。氷がよく効く。',
   },
@@ -88,7 +88,7 @@ export const MONSTERS_ROAD = {
   dust_drake: {
     name: '星くずドラゴン', lv: 64, hp: 2380, mp: 120, str: 302, def: 236, agi: 100, mag: 200, exp: 1960, gold: 840,
     race: 'dragon', size: 'l', hit: 'bite', region: 6,
-    resist: { ice: 1.3, fire: 0.6, light: 0.8, poison: 0.4, sleep: 0.4, confuse: 0.4 }, drops: { common: ['jou_herb', 12], rare: ['seed_hp', 40] },
+    resist: { ice: 1.3, fire: 0.6, light: 0.8, poison: 0.4, sleep: 0.4, confuse: 0.4 }, drops: { common: ['jou_herb', 12], rare: ['seed_hp', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_dd_tail' }, { w: 2, id: 'm6_dd_breath', cond: 'notRecent:m6_dd_breath' }, { w: 1, id: 'm6_dd_roar', cond: 'notRecent:m6_dd_roar' }],
     desc: '空から落ちた星くずを食べて、大きくなった竜。きらきらの星くずのブレスをはく。氷がよく効く。',
   },

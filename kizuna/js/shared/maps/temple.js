@@ -6,9 +6,9 @@
 // ・temple_b3 … 地下3階「水のろう」。水の 柱に とじこめられた 水のみこミラ・ろうの 番人
 // ・temple_hall … 最深部「水鏡の広間」。大きな 水鏡（遠い 空に うかぶ 島が うつる）と 水鏡の魔人モルガナ。魔物は 出ない
 // どの 階も みちびきの糸・帰り道の羽が 使えない（noEscape。ピラミッドと おなじ。ルーラは 洞窟と おなじく 天井に ぶつかる）
-import { T, parseRows } from '../tiles.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { DOME_ROWS, B1_ROWS, B2_ROWS, B3_ROWS, HALL_ROWS } from './temple-rows.js?v=5c89bfcd3c09';
+import { T, parseRows } from '../tiles.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { DOME_ROWS, B1_ROWS, B2_ROWS, B3_ROWS, HALL_ROWS } from './temple-rows.js?v=894e2368ad04';
 
 // ───────────── フラグ ─────────────
 // 物語の すすみぐあい（story-ch4-temple.js の TEMPLE_STEPS）: c4_temple（神殿に 入った）・c4_morgana・c4_star・c4_clear
@@ -220,7 +220,7 @@ function b2() {
       npc('temple_spring', 'いやしの泉', [P.spring.x, P.spring.y], 'spring', 'c4_t_spring', { solid: true }),
     ],
     chests: [
-      { id: 'tb2_w', x: 3, y: 18, item: 'seed_def' },
+      { id: 'tb2_w', x: 3, y: 18, item: 'elf_drink' },
       { id: 'tb2_e', x: 25, y: 7, item: 'revive_flower' },
       { id: 'tb2_spring', x: 20, y: 3, gold: 3600 },
     ],

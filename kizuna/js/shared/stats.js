@@ -1,22 +1,24 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=5c89bfcd3c09';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=5c89bfcd3c09';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=5c89bfcd3c09';
-import { MONSTERS } from './data/monsters.js?v=5c89bfcd3c09';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=5c89bfcd3c09';
-import { ougiLearn } from './data/abilities-ougi.js?v=5c89bfcd3c09';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=894e2368ad04';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=894e2368ad04';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=894e2368ad04';
+import { MONSTERS } from './data/monsters.js?v=894e2368ad04';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=894e2368ad04';
+import { ougiLearn } from './data/abilities-ougi.js?v=894e2368ad04';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
-import { rankIdx } from './data/companions.js?v=5c89bfcd3c09';
+import { rankIdx } from './data/companions.js?v=894e2368ad04';
 // 第44回（ポケモン P1）: レベルで 進化
-import { levelEvolveTo } from './data/companions.js?v=5c89bfcd3c09';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=5c89bfcd3c09';
-import { cleanLook } from './data/looks.js?v=5c89bfcd3c09';
-import { SKILL_UPS } from './data/skill-ups.js?v=5c89bfcd3c09';
-import { jobLabel } from './job-label.js?v=5c89bfcd3c09';
+import { levelEvolveTo } from './data/companions.js?v=894e2368ad04';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=894e2368ad04';
+import { cleanLook } from './data/looks.js?v=894e2368ad04';
+import { SKILL_UPS } from './data/skill-ups.js?v=894e2368ad04';
+import { jobLabel } from './job-label.js?v=894e2368ad04';
 // 第50回 N3: 大事な物の すぐ使う ボタン（はじめて 手に 入れた ときに 自動で えらぶ）
-import { autoQuick } from './data/quick-item.js?v=5c89bfcd3c09';
+import { autoQuick } from './data/quick-item.js?v=894e2368ad04';
+// 第50回 D4: 上の 職業の 技ほど 消費MPが へる（skill-tier.js）
+import { tierMp } from './skill-tier.js?v=894e2368ad04';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=5c89bfcd3c09';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=894e2368ad04';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;
@@ -28,10 +30,14 @@ export const STAT_NAMES = {
 
 // レベルに必要な 累計けいけんち（EXP_RATE: レベル上げの むずかしさ。2.25 = はじめの 版の 2.25倍 ひつよう）
 export const EXP_RATE = 2.25;
+// レベル99より 上は、1つ 上がるのに いる 経験値が 2.5倍（第50回。家族が 決めた。99までは 前の まま）
+export const HIGH_LEVEL = 99;
+export const HIGH_EXP_MULT = 2.5;
+const baseExp = (lv) => (lv <= 1 ? 0 : Math.round((6 * Math.pow(lv - 1, 2.5) + 6 * (lv - 1)) * EXP_RATE));
 export function expForLevel(lv) {
-  if (lv <= 1) return 0;
-  const n = lv - 1;
-  return Math.round((6 * Math.pow(n, 2.5) + 6 * n) * EXP_RATE);
+  if (lv <= HIGH_LEVEL) return baseExp(lv);
+  const b = baseExp(HIGH_LEVEL);
+  return b + Math.round((baseExp(lv) - b) * HIGH_EXP_MULT);
 }
 
 // レベルごとの 基本ステータス（職業の倍率を かける前）
@@ -415,7 +421,7 @@ export function mpCost(char, abilityId) {
   const a = ABILITIES[abilityId];
   if (!a) return 0;
   const p = penaltyFor(char, abilityId);
-  return Math.ceil((a.mp || 0) * p.mpMult);
+  return Math.ceil(tierMp(char, abilityId) * p.mpMult);
 }
 
 // 魔法剣の くみあわせ（こうげき呪文 × 剣技）

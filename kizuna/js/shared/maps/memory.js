@@ -8,10 +8,10 @@
 // ・みちびきの糸・リレミトは 使える（1階の 出口 → 星読みの里の 水しょうの 前）。魔物は 1〜3階 t5_memory・4〜6階 t5_memory_deep（B）
 // ・第38回 A: 1〜6階を 広げた（わき道・宝の へや・思い出の 広場。3階に しなくても よい 2つ目の ランプ台）。
 //   形の 版は MEMORY_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
-import { T, parseRows } from '../tiles.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js?v=5c89bfcd3c09';
-import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js?v=5c89bfcd3c09';
+import { T, parseRows } from '../tiles.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js?v=894e2368ad04';
+import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js?v=894e2368ad04';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const MEMORY_FLOORS = 6;
@@ -119,10 +119,10 @@ const TREASURE_SPOTS = {
 // 2つ目から うしろは 第38回 A の わき道の 宝箱（前からの 宝の 表の 品と、思い出の 迷宮の 魔物の 素材）
 const EXTRA_CHESTS = {
   1: [{ x: 4, y: 14, item: 'magic_water', n: 2 }, { x: 31, y: 9, item: 'star_sand', n: 3 }, { x: 20, y: 2, item: 'seed_agi' }],
-  2: [{ x: 20, y: 6, item: 'seed_agi' }, { x: 31, y: 16, item: 'seed_mag' }, { x: 21, y: 18, item: 'shade_drop', n: 2 }],
-  3: [{ x: 3, y: 12, item: 'revive_flower', n: 2 }, { x: 17, y: 18, item: 'seed_hp' }, { x: 30, y: 4, item: 'magic_water', n: 2 }],
+  2: [{ x: 20, y: 6, item: 'elf_drink' }, { x: 31, y: 16, item: 'seed_mag' }, { x: 21, y: 18, item: 'shade_drop', n: 2 }],
+  3: [{ x: 3, y: 12, item: 'revive_flower', n: 2 }, { x: 17, y: 18, item: 'revive_flower', n: 2 }, { x: 30, y: 4, item: 'magic_water', n: 2 }],
   4: [{ x: 4, y: 10, gold: 9000 }, { x: 30, y: 5, item: 'seed_str' }, { x: 1, y: 15, item: 'shade_drop', n: 3 }],
-  5: [{ x: 2, y: 6, item: 'seed_def' }, { x: 31, y: 2, item: 'revive_flower' }, { x: 4, y: 17, item: 'star_sand', n: 3 }],
+  5: [{ x: 2, y: 6, item: 'elf_drink' }, { x: 31, y: 2, item: 'revive_flower' }, { x: 4, y: 17, item: 'star_sand', n: 3 }],
   6: [{ x: 9, y: 1, item: 'magic_water', n: 2 }, { x: 31, y: 14, item: 'seed_hp' }],
 };
 export function memoryChests(n) {

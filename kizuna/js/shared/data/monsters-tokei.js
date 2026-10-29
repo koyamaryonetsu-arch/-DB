@@ -23,7 +23,7 @@ export const MONSTERS_TOKEI = {
   cog_roller: {
     name: 'ころがり歯車', lv: 64, hp: 1960, mp: 80, str: 290, def: 246, agi: 112, mag: 150, exp: 1960, gold: 820,
     race: 'material', size: 'm', hit: 'bash', region: 6,
-    resist: { bolt: 1.35, fire: 0.8, ice: 0.9, poison: 0, sleep: 0.3, confuse: 0.4 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 40] },
+    resist: { bolt: 1.35, fire: 0.8, ice: 0.9, poison: 0, sleep: 0.3, confuse: 0.4 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6t_cg_roll' }, { w: 2, id: 'm6t_cg_spin', cond: 'notRecent:m6t_cg_spin' }, { w: 1, id: 'm6t_cg_lock', cond: 'notRecent:m6t_cg_lock' }],
     desc: '顔のある大きな歯車。止まった時計塔の中を、ごろごろころがって、体あたりしてくる。雷がよく効く。',
   },
@@ -31,7 +31,7 @@ export const MONSTERS_TOKEI = {
   spring_box: {
     name: 'びっくりばねばこ', lv: 65, hp: 1480, mp: 160, str: 262, def: 196, agi: 168, mag: 226, exp: 1980, gold: 840,
     race: 'demon', size: 'm', hit: 'bash', region: 6,
-    resist: { fire: 1.3, dark: 0.7, ice: 0.9, poison: 0.4, sleep: 0.4, confuse: 0.2 }, drops: { common: ['magic_water', 12], rare: ['seed_agi', 36] },
+    resist: { fire: 1.3, dark: 0.7, ice: 0.9, poison: 0.4, sleep: 0.4, confuse: 0.2 }, drops: { common: ['magic_water', 12], rare: ['seed_agi', 108] },
     actions: [{ w: 3, id: 'm6t_sb_punch' }, { w: 2, id: 'm6t_sb_jump', cond: 'notRecent:m6t_sb_jump' }, { w: 2, id: 'm6t_sb_scare', cond: 'notRecent:m6t_sb_scare' }, { w: 2, id: 'attack' }],
     desc: 'ふたがあくと、ばねの先のピエロが、びよーんととび出す箱。おどかして、混乱させる。炎がよく効く。',
   },
@@ -39,7 +39,7 @@ export const MONSTERS_TOKEI = {
   killer: {
     name: 'キラー', lv: 64, hp: 1320, mp: 40, str: 286, def: 256, agi: 150, mag: 60, exp: 1900, gold: 800,
     race: 'material', size: 'm', flying: true, hit: 'bash', region: 6,
-    resist: { ice: 1.3, fire: 0.6, blast: 0.7, wind: 0.9, poison: 0, sleep: 0, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 36] },
+    resist: { ice: 1.3, fire: 0.6, blast: 0.7, wind: 0.9, poison: 0, sleep: 0, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'm6t_kl_rush' }, { w: 2, id: 'attack' }, { w: 1, id: 'm6t_kl_call', cond: ['callHelp', 'notRecent:m6t_kl_call'] }],
     desc: 'たいほうから、まっすぐとんでくる黒いたま。とっしんがとても強い。たいほうのあいずで、仲間のキラーをよぶ。氷がよく効く。',
   },

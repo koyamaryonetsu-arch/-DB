@@ -1,8 +1,8 @@
 // 第48回 G4: 3年B組の担任（人という字は・出席・チョーク・家庭訪問・体育・愛のお説教・卒業式・夕日に向かって走れ・旅立ちの日に）の 大技の え
 // こわく ない、あたたかい「この、ばかちんが！」の えんしゅつ（ハートの 波・なみだ・夕日）。この ファイルは G4 だけが さわる
 // 時間は shared/data/ax-time-g4.js。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=5c89bfcd3c09';
-import { add, obj, bg, darken, ground, per, solo } from './axfx-g4-kit.js?v=5c89bfcd3c09';
+import { rnd } from './axkit.js?v=894e2368ad04';
+import { add, obj, bg, darken, ground, per, solo } from './axfx-g4-kit.js?v=894e2368ad04';
 
 const SUN = ['#ffb050', '#ffd070', '#fff2c0', '#ff8a3a'];
 const KIDS = ['#2a1a2a', '#1a2030', '#2a1820', '#1a1a28'];

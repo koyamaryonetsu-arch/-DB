@@ -5,21 +5,22 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=5c89bfcd3c09';
-import { JOBS } from '../data/jobs.js?v=5c89bfcd3c09';
-import { MONSTERS } from '../data/monsters.js?v=5c89bfcd3c09';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=5c89bfcd3c09';
-import { repairTreasureMaps } from '../data/treasure.js?v=5c89bfcd3c09';
-import { ensureTmClears } from '../data/casino-tier.js?v=5c89bfcd3c09';
-import { repairSecret } from '../data/secret.js?v=5c89bfcd3c09';
-import { repairAlchemy } from './alchemy.js?v=5c89bfcd3c09';
-import { normBank } from './bank.js?v=5c89bfcd3c09';
-import { cleanWagon } from '../data/wagon.js?v=5c89bfcd3c09';
-import { cleanLookEquip } from '../look-equip.js?v=5c89bfcd3c09';
-import { cleanVehicles } from '../data/vehicles.js?v=5c89bfcd3c09';
-import { repairTrialInfo } from '../data/job-trials.js?v=5c89bfcd3c09';
-import { cleanQuick } from '../data/quick-item.js?v=5c89bfcd3c09';
-import { repairSubAsk } from '../data/subquest-hints.js?v=5c89bfcd3c09';
+import { ITEMS, SLOTS } from '../data/items.js?v=894e2368ad04';
+import { JOBS } from '../data/jobs.js?v=894e2368ad04';
+import { MONSTERS } from '../data/monsters.js?v=894e2368ad04';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=894e2368ad04';
+import { repairTreasureMaps } from '../data/treasure.js?v=894e2368ad04';
+import { ensureTmClears } from '../data/casino-tier.js?v=894e2368ad04';
+import { repairSecret } from '../data/secret.js?v=894e2368ad04';
+import { repairAlchemy } from './alchemy.js?v=894e2368ad04';
+import { normBank } from './bank.js?v=894e2368ad04';
+import { cleanWagon } from '../data/wagon.js?v=894e2368ad04';
+import { cleanLookEquip } from '../look-equip.js?v=894e2368ad04';
+import { cleanVehicles } from '../data/vehicles.js?v=894e2368ad04';
+import { repairTrialInfo } from '../data/job-trials.js?v=894e2368ad04';
+import { cleanQuick } from '../data/quick-item.js?v=894e2368ad04';
+import { repairSubAsk } from '../data/subquest-hints.js?v=894e2368ad04';
+import { cleanStamps } from '../data/stamps.js?v=894e2368ad04';
 
 export const SAVE_VERSION = 4;
 
@@ -141,6 +142,8 @@ export function repairChar(c, id) {
   if (!c.species) cleanVehicles(c);
   // 第50回 N3: 大事な物の すぐ使う ボタン（ない ことも ある。新しい 項目なので 版は 上げない。data/quick-item.js）
   cleanQuick(c);
+  // 第50回 N7: チャットの スタンプ（ない ことも ある。新しい 項目なので 版は 上げない。data/stamps.js）
+  cleanStamps(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {

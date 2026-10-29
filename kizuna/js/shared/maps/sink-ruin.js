@@ -10,10 +10,10 @@
 //   雲の 中は t5_ruin_cloud（B が 作る。plan-ch5.md の 13）
 // ・第38回 A: 1〜7階を 広げた（わき道・宝の へや・見晴らしの 露台。4階に しなくても よい 重さの てんびんの 宝物庫）。
 //   形の 版は RUIN_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
-import { T, parseRows } from '../tiles.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { RUIN_ROWS } from './sink-ruin-rows.js?v=5c89bfcd3c09';
-import { RUIN_TREASURE } from '../data/items-kumoi.js?v=5c89bfcd3c09';
+import { T, parseRows } from '../tiles.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { RUIN_ROWS } from './sink-ruin-rows.js?v=894e2368ad04';
+import { RUIN_TREASURE } from '../data/items-kumoi.js?v=894e2368ad04';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const RUIN_FLOORS = 7;
@@ -130,12 +130,12 @@ const TREASURE_SPOTS = {
 // 2つ目から うしろは 第38回 A の わき道の 宝箱（前からの 宝の 表の 品と、神殿の 魔物の 素材）
 const EXTRA_CHESTS = {
   1: [{ x: 21, y: 3, item: 'magic_water', n: 2 }, { x: 38, y: 6, item: 'cloud_cotton', n: 3 }, { x: 3, y: 2, item: 'seed_mag' }],
-  2: [{ x: 3, y: 5, item: 'seed_hp' }, { x: 38, y: 3, item: 'magic_water', n: 2 }, { x: 17, y: 25, gold: 6000 }],
+  2: [{ x: 3, y: 5, item: 'elf_drink' }, { x: 38, y: 3, item: 'magic_water', n: 2 }, { x: 17, y: 25, gold: 6000 }],
   3: [{ x: 11, y: 20, gold: 7000 }, { x: 37, y: 6, item: 'seed_def' }, { x: 18, y: 25, item: 'land_shard', n: 3 }],
-  4: [{ x: 25, y: 18, item: 'revive_flower', n: 2 }, { x: 34, y: 17, item: 'seed_hp' }, { x: 35, y: 17, item: 'seed_agi' }, { x: 3, y: 22, item: 'magic_water', n: 2 }],
-  5: [{ x: 2, y: 16, item: 'seed_str' }, { x: 38, y: 2, item: 'magic_water', n: 2 }, { x: 36, y: 20, item: 'land_shard', n: 3 }, { x: 11, y: 23, gold: 8000 }],
+  4: [{ x: 25, y: 18, item: 'revive_flower', n: 2 }, { x: 34, y: 17, item: 'revive_flower', n: 2 }, { x: 35, y: 17, item: 'seed_agi' }, { x: 3, y: 22, item: 'magic_water', n: 2 }],
+  5: [{ x: 2, y: 16, item: 'elf_drink' }, { x: 38, y: 2, item: 'magic_water', n: 2 }, { x: 36, y: 20, item: 'land_shard', n: 3 }, { x: 11, y: 23, gold: 8000 }],
   6: [{ x: 27, y: 14, item: 'magic_water', n: 3 }, { x: 39, y: 2, item: 'seed_agi' }, { x: 4, y: 25, item: 'cloud_cotton', n: 3 }, { x: 29, y: 25, gold: 9000 }],
-  7: [{ x: 3, y: 2, item: 'seed_str' }, { x: 38, y: 17, item: 'land_shard', n: 5 }],
+  7: [{ x: 3, y: 2, item: 'revive_flower', n: 2 }, { x: 38, y: 17, item: 'land_shard', n: 5 }],
 };
 export function ruinChests(n) {
   const list = (RUIN_TREASURE[n] || []).slice(0, TREASURE_SPOTS[n].length).map((item, i) => ({ id: `r5_${n}${'ab'[i]}`, x: TREASURE_SPOTS[n][i][0], y: TREASURE_SPOTS[n][i][1], item }));

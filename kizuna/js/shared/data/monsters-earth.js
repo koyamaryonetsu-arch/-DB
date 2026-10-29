@@ -34,7 +34,7 @@ export const MONSTERS_EARTH = {
   [ROOT_SPRITE]: {
     name: '根っこのこびと', lv: 48, hp: 520, mp: 80, str: 150, def: 150, agi: 170, mag: 140, exp: 980, gold: 320,
     race: 'plant', size: 's', hit: 'bite', region: 6,
-    resist: { fire: 1.3, ice: 0.9, wind: 1.1, dark: 0.8, poison: 0.4, sleep: 0.5, confuse: 0.5 }, drops: { common: ['herb', 4], rare: ['seed_agi', 32] },
+    resist: { fire: 1.3, ice: 0.9, wind: 1.1, dark: 0.8, poison: 0.4, sleep: 0.5, confuse: 0.5 }, drops: { common: ['herb', 4], rare: ['seed_agi', 96] },
     actions: [{ w: 3, id: 'm_flee', cond: 'c5:rsFlee' }, { w: 2, id: 'attack' }, { w: 2, id: 'm_rs_root' }, { w: 1, id: 'm_rs_rattle', cond: 'notRecent:m_rs_rattle' }],
     desc: '大きな木の根から生まれた、小さな森のせいれい。頭をからから鳴らして、すぐ逃げてしまう。たおすと大地の根がとれる。炎がよく効く。',
   },
@@ -42,7 +42,7 @@ export const MONSTERS_EARTH = {
   [SKY_GUARD]: {
     name: '天空のまもり兵', lv: 49, hp: 1180, mp: 80, str: 204, def: 176, agi: 58, mag: 168, exp: 1060, gold: 480,
     race: 'material', size: 'l', hit: 'bash', region: 6,
-    resist: { bolt: 1.4, fire: 0.8, ice: 0.8, dark: 0.7, poison: 0, sleep: 0.2, confuse: 0.2, paralyze: 0.8 }, drops: { common: ['magic_water', 10], rare: ['seed_def', 32] },
+    resist: { bolt: 1.4, fire: 0.8, ice: 0.8, dark: 0.7, poison: 0, sleep: 0.2, confuse: 0.2, paralyze: 0.8 }, drops: { common: ['magic_water', 10], rare: ['seed_def', 96] },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_sg_beam', cond: 'notRecent:m_sg_beam' }, { w: 2, id: 'm_sg_arm' },
       // こわれかけると 1回だけ「…マモル…」（ほかの 魔物が いる とき。battle-earth.js の sgGuard）
@@ -58,7 +58,7 @@ export const MONSTERS_EARTH = {
   [PILLBUG]: {
     name: '大地のダンゴムシ', lv: 50, hp: 1500, mp: 60, str: 176, def: 210, agi: 54, mag: 90, exp: 1200, gold: 520,
     race: 'beast', size: 'l', hit: 'bite', region: 6,
-    resist: { fire: 1.3, ice: 0.9, wind: 0.8, blast: 1.1, poison: 0.3, sleep: 0.8, confuse: 0.4, paralyze: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 36] },
+    resist: { fire: 1.3, ice: 0.9, wind: 0.8, blast: 1.1, poison: 0.3, sleep: 0.8, confuse: 0.4, paralyze: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 108] },
     anger: { hits: 3, atk: [1.35, 1.7], big: 0.3 }, shell: 0.75,
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_pb_roll' }, { w: 2, id: 'm_pb_curl', cond: 'notRecent:m_pb_curl' }, { w: 1, id: 'm_pb_stomp', cond: 'notRecent:m_pb_stomp' }],
     desc: '大地の下にすむ、大きなダンゴムシ。たたかれるほどおこり、目が赤くなって強くなる。ねむらせるか、大きな一撃でたおすと、おこらない。こうらがかたい。炎がよく効く。',
@@ -67,7 +67,7 @@ export const MONSTERS_EARTH = {
   [FACELESS]: {
     name: 'かおのない影', lv: 50, hp: 1240, mp: 160, str: 186, def: 130, agi: 84, mag: 196, exp: 1180, gold: 1600,
     race: 'spirit', size: 'l', region: 6,
-    resist: { light: 1.5, dark: 0.2, ice: 0.8, poison: 0, sleep: 0.3, confuse: 0.3, blind: 0.4 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 36] },
+    resist: { light: 1.5, dark: 0.2, ice: 0.8, poison: 0, sleep: 0.3, confuse: 0.3, blind: 0.4 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 108] },
     actions: [
       { w: 3, id: 'm_fs_gold', cond: 'notRecent:m_fs_gold' }, { w: 3, id: 'm_fs_grab' }, { w: 1, id: 'attack' },
       // のみこむ（だれも のみこんで いない・動ける 仲間が 2人いじょう。battle-earth.js の fsSwallow）

@@ -1,19 +1,19 @@
 // 第3章「星の竜がねむる山」の マップ
 // シロガネ地方（フィールド）・氷の洞窟・鉱山・炎の山・竜の試練の神殿・星竜山
 // 町や 村の 形は north-rows.js、ダンジョンの 形は ch3-rows.js（1文字 = 1マス）
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=5c89bfcd3c09';
-import { makeRng } from '../rng.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { SEA_PLACES } from './ch2.js?v=5c89bfcd3c09';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=894e2368ad04';
+import { makeRng } from '../rng.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { SEA_PLACES } from './ch2.js?v=894e2368ad04';
 import {
   buildNorth, northZoneAt, northAreaName, northWeatherAt, northBgmAt, NORTH_PLACES, NORTH_POS, TEMPLE_AREA, LAKE3,
   DRAGON_GATE_Y, DRAGON_GATE_X, ROPE, LANDING_FIELD,
-} from './north.js?v=5c89bfcd3c09';
+} from './north.js?v=894e2368ad04';
 import {
   ICECAVE1_ROWS, ICECAVE2_ROWS, MINE1_ROWS, MINE2_ROWS, MINE3_ROWS, VOLCANO1_ROWS, VOLCANO2_ROWS, VOLCANO3_ROWS,
   TEMPLE_HALL_ROWS, TEMPLE_COURAGE_ROWS, TEMPLE_WISDOM_ROWS, TEMPLE_BOND_ROWS,
   PEAK1_ROWS, PEAK2_ROWS, PEAK3_ROWS, PEAK4_ROWS, PEAK5_ROWS, PEAK_TOP_ROWS,
-} from './ch3-rows.js?v=5c89bfcd3c09';
+} from './ch3-rows.js?v=894e2368ad04';
 
 const VIL = NORTH_PLACES.dragon_village, KAN = NORTH_PLACES.kanatoko, YUN = NORTH_PLACES.yunoha;
 const V = (x, y) => [VIL.x + x, VIL.y + y];
@@ -80,12 +80,12 @@ export function ch3SearchMats(mapId) {
 
 // きらきら（シロガネ地方）の 中み
 export const NORTH_SPARKLE_LOOT = {
-  n_snow: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['ice_crystal', 2], ['seed_def', 0.4]],
-  n_forest: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['ice_crystal', 1.5], ['seed_hp', 0.4]],
+  n_snow: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['ice_crystal', 2]],
+  n_forest: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['ice_crystal', 1.5]],
   n_lake: [['moonherb', 2], ['star_shard', 3], ['ice_crystal', 3], ['magic_water', 0.6]],
-  n_mine: [['herb', 3], ['star_shard', 3], ['iron_shard', 2], ['silver_shard', 1], ['seed_str', 0.4]],
-  n_peak: [['moonherb', 2], ['star_shard', 4], ['ice_crystal', 2], ['magic_water', 0.6], ['seed_mag', 0.4]],
-  n_volcano: [['herb', 3], ['star_shard', 3], ['flame_stone', 3], ['seed_agi', 0.4]],
+  n_mine: [['herb', 3], ['star_shard', 3], ['iron_shard', 2], ['silver_shard', 1]],
+  n_peak: [['moonherb', 2], ['star_shard', 4], ['ice_crystal', 2], ['magic_water', 0.6]],
+  n_volcano: [['herb', 3], ['star_shard', 3], ['flame_stone', 3]],
 };
 
 // ───────────── シロガネ地方 ─────────────
@@ -164,10 +164,10 @@ const NORTH_NPCS = [
 const NORTH_CHESTS = [
   { id: 'n_lake', x: LAKE3.x, y: LAKE3.y, item: 'frost_ring' },
   { id: 'n_fox', x: P.fox.x - 2, y: P.fox.y + 1, item: 'seed_agi' },
-  { id: 'n_spa', x: P.spa.x + 4, y: P.spa.y + 3, item: 'seed_hp' },
+  { id: 'n_spa', x: P.spa.x + 4, y: P.spa.y + 3, item: 'elf_drink' },
   { id: 'n_crater', x: P.crater.x - 2, y: P.crater.y - 1, item: 'magic_water', n: 2 },
   { id: 'n_temple', x: 37, y: 37, item: 'seed_mag' },
-  { id: 'n_valley', x: 66, y: 16, item: 'seed_str' },
+  { id: 'n_valley', x: 66, y: 16, item: 'revive_flower', n: 2 },
   { id: 'n_yuvalley', x: 96, y: 103, item: 'silver_shard', n: 2 },
   { id: 'n_ash', x: 122, y: 79, gold: 900 },
   { id: 'n_minestrip', x: 128, y: 35, item: 'revive_flower' },
@@ -360,7 +360,7 @@ function iceCave() {
     chests: [
       { id: 'ic2_mini', x: 6, y: 11, item: 'frost_blade' },
       { id: 'ic2_ice', x: 36, y: 15, item: 'eternal_ice' },
-      { id: 'ic2_a', x: 30, y: 20, item: 'seed_agi' },
+      { id: 'ic2_a', x: 30, y: 20, item: 'elf_drink' },
       { id: 'ic2_b', x: 26, y: 32, item: 'magic_water' },
       { id: 'ic2_boss', x: 25, y: 3, item: 'ice_crystal', n: 5, show: { all: ['c3_mammoth'] } },
     ],
@@ -479,7 +479,7 @@ function volcano() {
     bgm: 'volcano', theme: 'lava', weather: 'embers', sky3d: { bg: '#1a0604', fog: 0x2a0a04 },
     chests: [
       { id: 'v2_ne', x: 36, y: 8, item: 'fire_robe' },
-      { id: 'v2_w', x: 5, y: 22, item: 'seed_hp' },
+      { id: 'v2_w', x: 5, y: 22, item: 'revive_flower', n: 2 },
       { id: 'v2_e', x: 26, y: 23, item: 'flame_stone', n: 2 },
       { id: 'v2_nw', x: 17, y: 9, item: 'revive_flower' },
       { id: 'v2_hall', x: 13, y: 33, item: 'magic_water' },
@@ -587,7 +587,7 @@ function peak() {
   });
   const p2 = dungeon('peak2', '星竜山　氷のほらあな', PEAK2_ROWS, {
     bgm: 'temple', theme: 'ice',
-    chests: [{ id: 'p2_a', x: 26, y: 15, item: 'star_shard', n: 3 }, { id: 'p2_b', x: 11, y: 3, item: 'seed_def' }, { id: 'p2_c', x: 4, y: 25, item: 'ice_crystal', n: 3 }],
+    chests: [{ id: 'p2_a', x: 26, y: 15, item: 'star_shard', n: 3 }, { id: 'p2_b', x: 11, y: 3, item: 'elf_drink' }, { id: 'p2_c', x: 4, y: 25, item: 'ice_crystal', n: 3 }],
     warps: [
       { x: 15, y: 27, to: { map: 'peak1', x: 17.5, y: 2.6, dir: 'down' } },
       { x: 15, y: 1, to: { map: 'peak3', x: 17.5, y: 29.4, dir: 'up' } },
@@ -624,7 +624,7 @@ function peak() {
   });
   const p5 = dungeon('peak5', '星竜山　頂上への道', PEAK5_ROWS, {
     ...out, weather: 'blizzard',
-    chests: [{ id: 'p5_a', x: 3, y: 17, item: 'seed_agi' }, { id: 'p5_b', x: 24, y: 8, item: 'revive_flower' }],
+    chests: [{ id: 'p5_a', x: 3, y: 17, item: 'revive_flower', n: 2 }, { id: 'p5_b', x: 24, y: 8, item: 'revive_flower' }],
     warps: [
       { x: 14, y: 36, to: { map: 'peak4', x: 24.5, y: 2.4, dir: 'down' } },
       { x: 14, y: 1, to: { map: 'peak_top', x: 13.5, y: 20.4, dir: 'up' } },

@@ -14,13 +14,13 @@ export const MONSTERS_R23 = {
   // ── やせいの 魔物 ──
   donguri: {
     name: 'どんぐりん', lv: 2, hp: 13, str: 11, def: 8, agi: 7, exp: 4, gold: 5,
-    race: 'plant', size: 's', resist: { fire: 1.4, wind: 0.8 }, drops: { common: ['herb', 8], rare: ['seed_hp', 128] },
+    race: 'plant', size: 's', resist: { fire: 1.4, wind: 0.8 }, drops: { common: ['herb', 8], rare: ['seed_hp', 384] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_acorn_roll' }],
     desc: 'かたいぼうしをかぶった、どんぐりの魔物。ころころ転がって体当たりしてくる。',
   },
   hana_pururin: {
     name: 'はなぷるりん', lv: 4, hp: 21, mp: 14, str: 15, def: 8, agi: 9, mag: 10, exp: 7, gold: 8,
-    race: 'slime', size: 's', resist: { fire: 1.4, wind: 0.8, sleep: 0.5 }, drops: { common: ['herb', 6], rare: ['seed_mag', 96] },
+    race: 'slime', size: 's', resist: { fire: 1.4, wind: 0.8, sleep: 0.5 }, drops: { common: ['herb', 6], rare: ['seed_mag', 288] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'hoimi', cond: 'allyHurt' }],
     desc: '頭に花をさかせたぷるりん。花のかおりで仲間の傷をいやす。',
   },
@@ -32,7 +32,7 @@ export const MONSTERS_R23 = {
   },
   koakuma: {
     name: 'こあくま', lv: 9, hp: 40, mp: 30, str: 30, def: 15, agi: 24, mag: 24, exp: 26, gold: 24,
-    race: 'demon', size: 's', flying: true, hit: 'slash', resist: { light: 1.4, dark: 0.6, fire: 0.8, ice: 1.2 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 64] },
+    race: 'demon', size: 's', flying: true, hit: 'slash', resist: { light: 1.4, dark: 0.6, fire: 0.8, ice: 1.2 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 192] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'mera' }, { w: 1, id: 'm_imp_trick' }],
     desc: '小さなつばさとしっぽの、いたずら好きな悪魔。三つまたのやりでつついてくる。',
   },
@@ -44,25 +44,25 @@ export const MONSTERS_R23 = {
   },
   tobiuo: {
     name: 'トビウオン', lv: 12, hp: 52, str: 40, def: 18, agi: 38, exp: 36, gold: 22,
-    race: 'beast', size: 's', flying: true, resist: { bolt: 1.4, wind: 1.2, ice: 0.8 }, drops: { common: ['herb', 6], rare: ['seed_agi', 64] },
+    race: 'beast', size: 's', flying: true, resist: { bolt: 1.4, wind: 1.2, ice: 0.8 }, drops: { common: ['herb', 6], rare: ['seed_agi', 192] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_fin_slash' }],
     desc: '大きなむなびれで海の上を飛ぶ魚。波の間から、とつぜん飛び出してくる。',
   },
   uzumaki_gai: {
     name: 'うずまきガイ', lv: 14, hp: 80, mp: 20, str: 44, def: 50, agi: 12, mag: 26, exp: 50, gold: 34,
-    race: 'material', size: 'm', resist: { ice: 0.6, fire: 1.2, bolt: 1.4, poison: 0, sleep: 0.5 }, drops: { common: ['magic_water', 24], rare: ['seed_def', 48] },
+    race: 'material', size: 'm', resist: { ice: 0.6, fire: 1.2, bolt: 1.4, poison: 0, sleep: 0.5 }, drops: { common: ['magic_water', 24], rare: ['seed_def', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_shell_spin' }, { w: 1, id: 'm_shell_guard', cond: 'notRecent:m_shell_guard' }],
     desc: 'うずまきもようの大きな貝。からの中から、するどい目でこちらをのぞいている。',
   },
   tsurara_sou: {
     name: 'つららソウ', lv: 20, hp: 140, mp: 40, str: 56, def: 40, agi: 24, mag: 50, exp: 86, gold: 44,
-    race: 'plant', size: 'm', resist: { ice: 0.3, fire: 1.6, wind: 0.8 }, drops: { common: ['moonherb', 10], rare: ['seed_mag', 48] },
+    race: 'plant', size: 'm', resist: { ice: 0.3, fire: 1.6, wind: 0.8 }, drops: { common: ['moonherb', 10], rare: ['seed_mag', 144] },
     actions: [{ w: 2, id: 'attack' }, { w: 2, id: 'm_ice_bloom' }, { w: 1, id: 'hyado' }],
     desc: '雪の下でさく、つららの花びらの植物。こおった花びらを、ふぶきのようにまき散らす。',
   },
   hoseki_game: {
     name: 'ほうせきガメ', lv: 23, hp: 230, mp: 20, str: 70, def: 76, agi: 16, mag: 36, exp: 128, gold: 90,
-    race: 'beast', size: 'm', hit: 'bite', resist: { fire: 0.8, ice: 0.8, blast: 1.4, bolt: 1.2, poison: 0.5 }, drops: { common: ['herb', 6], rare: ['seed_def', 32] },
+    race: 'beast', size: 'm', hit: 'bite', resist: { fire: 0.8, ice: 0.8, blast: 1.4, bolt: 1.2, poison: 0.5 }, drops: { common: ['herb', 6], rare: ['seed_def', 96] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_gem_shine' }, { w: 1, id: 'm_shell_guard', cond: 'notRecent:m_shell_guard' }],
     desc: 'こうらに宝石が生えた、のんびり屋のカメ。こうらの宝石から光を放つ。',
   },
@@ -74,7 +74,7 @@ export const MONSTERS_R23 = {
   },
   toge_saboten: {
     name: 'トゲサボテン', lv: 30, hp: 300, mp: 30, str: 104, def: 64, agi: 40, mag: 50, exp: 176, gold: 84,
-    race: 'plant', size: 'm', resist: { fire: 1.4, ice: 1.2, wind: 0.8, poison: 0.5, blind: 0.5 }, drops: { common: ['herb', 6], rare: ['seed_hp', 48] },
+    race: 'plant', size: 'm', resist: { fire: 1.4, ice: 1.2, wind: 0.8, poison: 0.5, blind: 0.5 }, drops: { common: ['herb', 6], rare: ['seed_hp', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_needle_rain' }],
     desc: 'オアシスのそばでおどる、トゲだらけのサボテン。体中のトゲを雨のように飛ばす。',
   },

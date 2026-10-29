@@ -12,18 +12,18 @@
 // きまりは docs/plan-r48-fx.md の「G0 の 決めごと」
 // ・第49回: もとからの 技（ふつうの 職業・ひらめき・合体技）の グループ o1〜o6（shared/data/ax-time-o1.js 〜 o6.js）も まぜる。
 //   anim の なまえは ox_〜（アニメの g1〜g6 は ax_〜）。予算は AX_BUDGET_ORIG（アニメの 大技より 軽い。気は つかわない）。きまりは docs/plan-r49-fx.md
-import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js?v=5c89bfcd3c09';
-import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js?v=5c89bfcd3c09';
-import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js?v=5c89bfcd3c09';
-import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js?v=5c89bfcd3c09';
-import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js?v=5c89bfcd3c09';
-import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js?v=5c89bfcd3c09';
-import { AX_TIME_O1, AX_SKILLS_O1, AX_FAMILIES_O1 } from './data/ax-time-o1.js?v=5c89bfcd3c09';
-import { AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2 } from './data/ax-time-o2.js?v=5c89bfcd3c09';
-import { AX_TIME_O3, AX_SKILLS_O3, AX_FAMILIES_O3 } from './data/ax-time-o3.js?v=5c89bfcd3c09';
-import { AX_TIME_O4, AX_SKILLS_O4, AX_FAMILIES_O4 } from './data/ax-time-o4.js?v=5c89bfcd3c09';
-import { AX_TIME_O5, AX_SKILLS_O5, AX_FAMILIES_O5 } from './data/ax-time-o5.js?v=5c89bfcd3c09';
-import { AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6 } from './data/ax-time-o6.js?v=5c89bfcd3c09';
+import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js?v=894e2368ad04';
+import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js?v=894e2368ad04';
+import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js?v=894e2368ad04';
+import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js?v=894e2368ad04';
+import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js?v=894e2368ad04';
+import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js?v=894e2368ad04';
+import { AX_TIME_O1, AX_SKILLS_O1, AX_FAMILIES_O1 } from './data/ax-time-o1.js?v=894e2368ad04';
+import { AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2 } from './data/ax-time-o2.js?v=894e2368ad04';
+import { AX_TIME_O3, AX_SKILLS_O3, AX_FAMILIES_O3 } from './data/ax-time-o3.js?v=894e2368ad04';
+import { AX_TIME_O4, AX_SKILLS_O4, AX_FAMILIES_O4 } from './data/ax-time-o4.js?v=894e2368ad04';
+import { AX_TIME_O5, AX_SKILLS_O5, AX_FAMILIES_O5 } from './data/ax-time-o5.js?v=894e2368ad04';
+import { AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6 } from './data/ax-time-o6.js?v=894e2368ad04';
 
 // 段階（B 基本・A 上級・S 超級・L 伝説）
 export const AX_TIERS = ['basic', 'advanced', 'super', 'legend'];

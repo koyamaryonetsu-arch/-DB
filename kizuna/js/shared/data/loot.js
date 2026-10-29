@@ -15,23 +15,23 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 //   ・第31回: ボスは ちなんだ レア装備も（kind 'brare'。第32回から かならず: BOSS_RARE_N = 1）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=5c89bfcd3c09';
-import { MONSTERS } from './monsters.js?v=5c89bfcd3c09';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=5c89bfcd3c09';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=5c89bfcd3c09';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=5c89bfcd3c09';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=5c89bfcd3c09';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=5c89bfcd3c09';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=5c89bfcd3c09';
-import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=5c89bfcd3c09';
-import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=5c89bfcd3c09';
-import { EARTH_MAT_DROPS } from './monsters-earth.js?v=5c89bfcd3c09';
-import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=5c89bfcd3c09';
-import { PAST_MAT_DROPS } from './monsters-past.js?v=5c89bfcd3c09';
-import { ROAD_MAT_DROPS } from './monsters-road.js?v=5c89bfcd3c09';
-import { TOKEI_MAT_DROPS } from './monsters-tokei.js?v=5c89bfcd3c09';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=5c89bfcd3c09';
-import { sdFloorOf } from './secret.js?v=5c89bfcd3c09';
+import { ITEMS } from './items.js?v=894e2368ad04';
+import { MONSTERS } from './monsters.js?v=894e2368ad04';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=894e2368ad04';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=894e2368ad04';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=894e2368ad04';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=894e2368ad04';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=894e2368ad04';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=894e2368ad04';
+import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=894e2368ad04';
+import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=894e2368ad04';
+import { EARTH_MAT_DROPS } from './monsters-earth.js?v=894e2368ad04';
+import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=894e2368ad04';
+import { PAST_MAT_DROPS } from './monsters-past.js?v=894e2368ad04';
+import { ROAD_MAT_DROPS } from './monsters-road.js?v=894e2368ad04';
+import { TOKEI_MAT_DROPS } from './monsters-tokei.js?v=894e2368ad04';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=894e2368ad04';
+import { sdFloorOf } from './secret.js?v=894e2368ad04';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -139,11 +139,22 @@ export function rollDrops(species, rng, where = null) {
   return out;
 }
 
+// 第50回: 種・木の実（強さを ずっと 上げる 道具）か
+export function isStatSeed(id) {
+  const e = ITEMS[id]?.effect;
+  return !!e && (e.type === 'seed' || (Array.isArray(e.parts) && e.parts.some((p) => p.type === 'seed')));
+}
+// 第50回: 種・木の実は ぬすみにくい（1回で この 確率まで。ほかの 物が とれない ときの かわりにも ならない）
+export const STEAL_SEED_MAX = 1 / 3;
+
 // ぬすむ ときに とれる 物（ボスの 品は とれない）
 export function stealPick(species, rng) {
   const list = monsterDrops(species);
   const rare = list.find((x) => x.kind === 'rare');
   const common = list.find((x) => x.kind === 'common');
-  if (rare && rng.chance(Math.min(0.5, rare.rate * STEAL_RARE_MULT))) return rare.item;
-  return common?.item || rare?.item || null;
+  const p = (x, cap) => Math.min(isStatSeed(x.item) ? STEAL_SEED_MAX : cap, x.rate * STEAL_RARE_MULT);
+  if (rare && rng.chance(p(rare, 0.5))) return rare.item;
+  if (common && isStatSeed(common.item)) return rng.chance(p(common, 1)) ? common.item : null;
+  if (common) return common.item;
+  return rare && !isStatSeed(rare.item) ? rare.item : null;
 }

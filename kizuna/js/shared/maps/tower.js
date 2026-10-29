@@ -11,10 +11,10 @@
 // ・みちびきの糸・リレミトは 使える（長いので。noEscape なし）。魔物は 1〜4階 t5_tower_low・5〜8階 t5_tower_high（B が 作る）
 // ・第38回 A: 1〜8階を 広げた（わき道・宝の 小べや・見晴らしの 広間。2階に 宝の 屋根うらへの 2つ目の 上り下りの ゆか）。
 //   形の 版は TOWER_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
-import { T, parseRows } from '../tiles.js?v=5c89bfcd3c09';
-import { npc } from './npc.js?v=5c89bfcd3c09';
-import { PLACES } from './overworld.js?v=5c89bfcd3c09';
-import { TOWER_ROWS, TOP_ROWS, STAR_ORDER, STAR_FAKE } from './tower-rows.js?v=5c89bfcd3c09';
+import { T, parseRows } from '../tiles.js?v=894e2368ad04';
+import { npc } from './npc.js?v=894e2368ad04';
+import { PLACES } from './overworld.js?v=894e2368ad04';
+import { TOWER_ROWS, TOP_ROWS, STAR_ORDER, STAR_FAKE } from './tower-rows.js?v=894e2368ad04';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS。plan-ch5.md の 11 の 名前の 約束）
@@ -215,19 +215,19 @@ export const TOWER_CHESTS = {
   1: [{ id: 't5_1a', x: 4, y: 3, item: 'magic_water', n: 2 }, { id: 't5_1b', x: 23, y: 3, item: 'seed_hp' },
     { id: 't5_1c', x: 32, y: 18, item: 'star_shard', n: 3 }, { id: 't5_1d', x: 23, y: 20, item: 'magic_water' }],
   2: [{ id: 't5_2a', x: 21, y: 3, item: 'platinum_helm' }, { id: 't5_2b', x: 27, y: 12, item: 'revive_flower' },
-    { id: 't5_2c', x: 39, y: 2, item: 'seed_str' }, { id: 't5_2d', x: 4, y: 20, item: 'magic_water', n: 2 }],
+    { id: 't5_2c', x: 39, y: 2, item: 'elf_drink' }, { id: 't5_2d', x: 4, y: 20, item: 'magic_water', n: 2 }],
   3: [{ id: 't5_3a', x: 10, y: 3, item: 'seed_agi' }, { id: 't5_3b', x: 19, y: 8, gold: 6000 },
     { id: 't5_3c', x: 35, y: 22, gold: 7000 }, { id: 't5_3d', x: 35, y: 8, item: 'revive_flower' }],
-  4: [{ id: 't5_4a', x: 2, y: 4, item: 'seed_mag' }, { id: 't5_4b', x: 27, y: 4, item: 'magic_water', n: 3 },
+  4: [{ id: 't5_4a', x: 2, y: 4, item: 'revive_flower', n: 2 }, { id: 't5_4b', x: 27, y: 4, item: 'magic_water', n: 3 },
     { id: 't5_4c', x: 37, y: 3, item: 'seed_agi' }, { id: 't5_4d', x: 3, y: 19, item: 'magic_water', n: 2 }],
-  5: [{ id: 't5_5a', x: 4, y: 5, item: 'star_shard', n: 5 }, { id: 't5_5b', x: 25, y: 15, item: 'seed_def' },
+  5: [{ id: 't5_5a', x: 4, y: 5, item: 'star_shard', n: 5 }, { id: 't5_5b', x: 25, y: 15, item: 'elf_drink' },
     { id: 't5_5c', x: 38, y: 5, item: 'star_shard', n: 5 }, { id: 't5_5d', x: 29, y: 21, item: 'seed_hp' }],
   6: [{ id: 't5_6a', x: 28, y: 7, item: 'platinum_shield' }, { id: 't5_6b', x: 3, y: 8, item: 'revive_flower', n: 2 },
-    { id: 't5_6c', x: 38, y: 6, item: 'seed_mag' }, { id: 't5_6d', x: 3, y: 2, item: 'magic_water', n: 2 }],
+    { id: 't5_6c', x: 38, y: 6, item: 'revive_flower', n: 2 }, { id: 't5_6d', x: 3, y: 2, item: 'magic_water', n: 2 }],
   7: [{ id: 't5_7a', x: 10, y: 2, item: 'seed_str' }, { id: 't5_7b', x: 25, y: 11, gold: 8000 },
-    { id: 't5_7c', x: 38, y: 21, item: 'revive_flower', n: 2 }, { id: 't5_7d', x: 3, y: 2, item: 'seed_def' }],
+    { id: 't5_7c', x: 38, y: 21, item: 'revive_flower', n: 2 }, { id: 't5_7d', x: 3, y: 2, item: 'elf_drink' }],
   8: [{ id: 't5_8a', x: 7, y: 22, item: 'magic_water', n: 3 }, { id: 't5_8b', x: 22, y: 22, item: 'seed_hp' },
-    { id: 't5_8c', x: 38, y: 23, item: 'magic_water', n: 3 }, { id: 't5_8d', x: 23, y: 1, item: 'seed_str' }, { id: 't5_8e', x: 6, y: 1, gold: 10000 }],
+    { id: 't5_8c', x: 38, y: 23, item: 'magic_water', n: 3 }, { id: 't5_8d', x: 23, y: 1, item: 'revive_flower', n: 2 }, { id: 't5_8e', x: 6, y: 1, gold: 10000 }],
 };
 
 function addLift(m, L) {

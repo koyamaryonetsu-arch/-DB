@@ -9,14 +9,16 @@
 //   その 人の ゲージは 半分から やり直し（よやくは つづく。ゲージが まだ たまって いない 人は かわらない。dualHurt）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=5c89bfcd3c09';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=5c89bfcd3c09';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=5c89bfcd3c09';
+// 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
+import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=894e2368ad04';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=894e2368ad04';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=894e2368ad04';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=894e2368ad04';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=5c89bfcd3c09';
-import { MONSTERS } from './data/monsters.js?v=5c89bfcd3c09';
+import { deduceElement } from './data/abilities-jobs6.js?v=894e2368ad04';
+import { MONSTERS } from './data/monsters.js?v=894e2368ad04';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=5c89bfcd3c09';
+import { dualFor } from './ability-label.js?v=894e2368ad04';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };
@@ -405,7 +407,10 @@ export function performDual(b, c, cmd, ev) {
       const ab = { name: t.name, effect: eff, target: scope, anim: t.anim };
       const targets = b.targetsFor(c, ab, cmd);
       ev.inMulti = true;
+      // 第50回 D4: 合体技の 補助（バフ・デバフ）は 超級職の 技と おなじ（2だんかい・4回行動。skill-tier.js）
+      if (SUPPORT_TYPES.has(eff.type)) ev.tier = { by: c.id, ...tierMods(DUAL_TIER), healMul: 1 };
       b.applyAbility(c, ab, cmd, ev, 1, targets);
+      delete ev.tier;
       delete ev.inMulti;
       for (const x of targets) hit.add(x.id);
     }

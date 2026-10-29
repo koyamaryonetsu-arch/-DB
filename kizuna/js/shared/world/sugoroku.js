@@ -7,25 +7,27 @@
 //   c.sugoroku = {
 //     run   … あそんでいる とちゅう（null … あそんでいない）。iPhone が ねむっても、つなぎなおしても、ここから つづき
 //       { board, pos, rolls, trail: [通った マス], sw: スイッチ, dice: { double, pick, gold }, stars: [拾った 星のかけらの マス],
-//         bosses: [たおした ボスの ばんごう], gold, coins, got: { id: 数 }, pending: 返事を まっている こと, vault: 宝部屋の 中み, after: [戦いの あとの 文] }
+//         bosses: [たおした ボスの ばんごう], gold, coins, got: { id: 数 }, pending: 返事を まっている こと, vault: 宝部屋の 中み, after: [戦いの あとの 文],
+//         bonus: 1 … ボーナスチャンス（次に 止まった マスの ごほうびが 2倍）/ hunt: 宝探しの 3つの 箱（第50回 D2）}
 //     clears … 盤ごとの ゴールした 回数 { b0: 2, … } / plays … あそんだ 回数 / last … さいごの けっか
 //   }
 //   c.medalsSpent … すごろく券に かえた 小さなメダルの 数（data/casino.js の medalsHeld）
 // 戦いの マス・ボスの マスは ほんとうの 戦い（world/battles.js の startFixedBattle）。
 //   すごろく場の 受付の だいほん（SG_HOOKS.desk）が、まどを とじて 戦い → 終わったら また まどを 開く。盤の ようすは そのまま
 //   負けると その すごろくは おわり（お金は へらない。その場で 元気に なる: encounters の loseOk）
-import { ITEMS } from '../data/items.js?v=5c89bfcd3c09';
-import { addItem, removeItem, itemCount, computeStats, fullHeal } from '../stats.js?v=5c89bfcd3c09';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=5c89bfcd3c09';
+import { ITEMS } from '../data/items.js?v=894e2368ad04';
+import { addItem, removeItem, itemCount, computeStats, fullHeal } from '../stats.js?v=894e2368ad04';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=894e2368ad04';
 import {
   BOARDS, BOARD_BY_ID, nextOptions, DICE, DICE_MAX, TICKET_ITEM, TICKET_COINS, MEDAL_TICKETS, TICKET_BUY_MAX,
-  TRAP_TEXT, SG_HOOKS, MOVE_TYPES, SQ_NAME, SUGOROKU_MAP,
-} from '../data/sugoroku.js?v=5c89bfcd3c09';
-import { tierInfo, casinoTier } from '../data/casino-tier.js?v=5c89bfcd3c09';
-import { coinsOf, COIN_MAX, medalsHeld, medalsSpent } from '../data/casino.js?v=5c89bfcd3c09';
-import { partyOf } from './party.js?v=5c89bfcd3c09';
-import { startFixedBattle } from './battles.js?v=5c89bfcd3c09';
-import { casinoOpen } from './casino.js?v=5c89bfcd3c09';
+  TRAP_TEXT, SG_HOOKS, MOVE_TYPES, SQ_NAME, SUGOROKU_MAP, WHEEL, SG_COINS, SALE_RATE,
+} from '../data/sugoroku.js?v=894e2368ad04';
+import { MONSTERS } from '../data/monsters.js?v=894e2368ad04';
+import { tierInfo, casinoTier } from '../data/casino-tier.js?v=894e2368ad04';
+import { coinsOf, COIN_MAX, medalsHeld, medalsSpent } from '../data/casino.js?v=894e2368ad04';
+import { partyOf } from './party.js?v=894e2368ad04';
+import { startFixedBattle } from './battles.js?v=894e2368ad04';
+import { casinoOpen } from './casino.js?v=894e2368ad04';
 
 const GOLD_MAX = 9999999;
 const TRAIL_MAX = 80;
@@ -54,6 +56,8 @@ export function runOf(c) {
   r.stars = Array.isArray(r.stars) ? r.stars : [];
   r.bosses = Array.isArray(r.bosses) ? r.bosses : [];
   r.got = r.got && typeof r.got === 'object' ? r.got : {};
+  // 宝探しの 中みが ない（こわれた きろく）: 選べないので おしまいに する
+  if (r.pending?.kind === 'hunt' && !(Array.isArray(r.hunt) && r.hunt.length)) r.pending = null;
   return r;
 }
 
@@ -64,12 +68,14 @@ export function publicRun(run) {
   let pending = null;
   if (p) {
     if (p.kind === 'vault') pending = { kind: 'vault', n: (run.vault || []).length || 3 };
+    else if (p.kind === 'hunt') pending = { kind: 'hunt', n: (run.hunt || []).length || 3 };
     else if (p.kind === 'battle') pending = { kind: 'battle', boss: p.boss ?? null, name: p.name, mons: p.mons };
     else pending = { ...p };
   }
   return {
     board: run.board, pos: run.pos, rolls: run.rolls, sw: run.sw ? 1 : 0, dice: { ...run.dice }, stars: run.stars.slice(), bosses: run.bosses.slice(),
     gold: run.gold || 0, coins: run.coins || 0, got: Object.entries(run.got), pending, turn: run.turn || 0, trail: run.trail.slice(-12),
+    bonus: run.bonus ? 1 : 0,
   };
 }
 
@@ -219,12 +225,13 @@ function walkBack(ctx, n) {
   return land(ctx, true);
 }
 
-// とんで 行く（ワープ・竜の背）
-function jump(ctx, to) {
+// とんで 行く（ワープ・竜の背・落とし穴 how: 'fall'・はしご how: 'climb'）
+function jump(ctx, to, how = null) {
   const { run } = ctx;
   run.trail.push(run.pos);
+  if (run.trail.length > TRAIL_MAX) run.trail.splice(0, run.trail.length - TRAIL_MAX);
   run.pos = to;
-  ctx.ops.push({ op: 'jump', to });
+  ctx.ops.push({ op: 'jump', to, ...(how ? { how } : {}) });
   const ns = ctx.b.sq[to];
   if (ns.t === 'star' && !run.stars.includes(to)) {
     run.stars.push(to);
@@ -247,35 +254,81 @@ function aheadSquare(b, run, k) {
 }
 
 // 止まった マスの できごと（moved … 前へ・ワープなどで 来た。動く マスでは もう 動かない）
+// ボーナスチャンスの あと（2倍）の 文
+const twice = (ctx) => (ctx.mult > 1 ? '\n（ボーナスで2倍！）' : '');
+const nameN = (id, n) => `${ITEMS[id].name}${n > 1 ? `を${n}こ` : 'を'}`;
+
 function land(ctx, moved = false) {
   const { run, b, rng } = ctx;
   const sq = b.sq[run.pos];
-  if (moved && MOVE_TYPES.includes(sq.t)) {
+  // はしごは 行き止まりなので、前へ・ワープで 来ても のぼる
+  if (moved && MOVE_TYPES.includes(sq.t) && sq.t !== 'ladder') {
     ctx.say(`${SQ_NAME[sq.t]}のマスに着いた。\n（つづけては動かない）`);
     return settle(ctx);
   }
+  // ボーナスチャンス: 次に 止まった マスの ごほうびが 2倍（止まったら おしまい）
+  ctx.mult = run.bonus ? 2 : 1;
+  run.bonus = 0;
+  const m = ctx.mult;
   switch (sq.t) {
     case 'goal': return finish(ctx, 'goal');
     case 'start': case 'none': case 'star':
       ctx.say(sq.t === 'none' ? 'ひと休みのマス。\nのんびり、ひと休み…' : sq.t === 'start' ? 'スタートのマスにもどってきた。' : 'きらきら光るマスだ。');
       break;
     case 'gold': {
-      const n = gainGold(ctx, rng.int(b.gold[0], b.gold[1]));
-      ctx.say(`ゴールドのマス！\n${fmt(n)}ゴールドを手に入れた！`, 'coin');
+      const n = gainGold(ctx, rng.int(b.gold[0], b.gold[1]) * m);
+      ctx.say(`ゴールドのマス！\n${fmt(n)}ゴールドを手に入れた！${twice(ctx)}`, 'coin');
       break;
     }
     case 'item': {
       const id = weighted(rng, b.items);
-      ctx.say(`道具のマス！\n${ITEMS[id].name}を手に入れた！`, 'item');
-      gainItem(ctx, id);
+      ctx.say(`道具のマス！\n${nameN(id, m)}手に入れた！`, 'item');
+      gainItem(ctx, id, m);
       break;
     }
     case 'chest': {
       const id = weighted(rng, b.chest || b.items);
-      ctx.say(`宝箱のマス！\n宝箱を開けると、${ITEMS[id].name}が入っていた！`, 'chest');
-      gainItem(ctx, id);
+      ctx.say(`宝箱のマス！\n宝箱を開けると、${ITEMS[id].name}${m > 1 ? `が${m}こ` : 'が'}入っていた！`, 'chest');
+      gainItem(ctx, id, m);
       break;
     }
+    // ───── 第50回 D2 ─────
+    case 'bonus':
+      run.rolls += 1;
+      run.bonus = 1;
+      ctx.say('ボーナスチャンス！\nもう1回さいころをふれる！\nさらに、次に止まったマスのごほうびが2倍！', 'sg_bonus');
+      break;
+    case 'wheel': return wheel(ctx, moved);
+    case 'hunt':
+      run.hunt = huntBoxes(ctx);
+      run.pending = { kind: 'hunt', mult: m };
+      ctx.say('宝探しのマス！\n3つの宝箱のどれかに、お宝がねむっている。\nからっぽの箱もあるみたい…');
+      return 'pending';
+    case 'merchant': {
+      const list = rng.shuffle((b.sale || b.shop || []).slice()).slice(0, 3)
+        .map(([id, price]) => ({ id, price: Math.max(1, Math.round(price * SALE_RATE)), was: price }));
+      if (!list.length) break;
+      run.pending = { kind: 'shop', items: list, sale: true };
+      ctx.say('すごろく商人のマス！\n「今日は大売り出し！\nどれでも半額だよ！」', 'sg_merchant');
+      return 'pending';
+    }
+    case 'gift': {
+      const mons = b.giftMons?.length ? b.giftMons : ['pururin'];
+      const sp = mons[rng.int(0, mons.length - 1)];
+      const id = weighted(rng, b.gifts || b.items);
+      ctx.ops.push({ op: 'gift', sp, id });
+      ctx.say(`魔物のおみやげのマス！\n${MONSTERS[sp]?.name || '魔物'}がやってきた。\n…戦う気はないみたい。`);
+      ctx.say(`おみやげに、${nameN(id, m)}くれた！${twice(ctx)}`, 'sg_gift');
+      gainItem(ctx, id, m);
+      break;
+    }
+    case 'cheer': return cheer(ctx);
+    case 'hole':
+      ctx.say('落とし穴のマス！\nヒューン…地下の道に落ちてしまった！\n（地下には宝がいっぱい？）', 'sg_fall');
+      return jump(ctx, sq.to, 'fall');
+    case 'ladder':
+      ctx.say('はしごのマス！\nはしごをのぼって、地上にもどった！', 'sg_ladder');
+      return jump(ctx, sq.to, 'climb');
     case 'inn':
       for (const ch of teamChars(ctx.world, ctx.s)) fullHeal(ch);
       ctx.say('宿屋のマス！\nひと休みして、みんな元気になった！', 'heal');
@@ -293,7 +346,7 @@ function land(ctx, moved = false) {
       return walkBack(ctx, sq.n);
     case 'warp':
       ctx.say('ワープのマス！\nふしぎな光につつまれた…！', 'warp');
-      return jump(ctx, sq.to);
+      return jump(ctx, sq.to, 'warp');
     case 'event': return event(ctx, moved);
     case 'battle': return startBattlePending(ctx, null);
     case 'boss':
@@ -380,14 +433,14 @@ function event(ctx, moved = false) {
   ctx.ops.push({ op: 'event', kind });
   switch (kind) {
     case 'gold': {
-      const n = gainGold(ctx, rng.int(b.gold[0], b.gold[1]) * 2);
-      ctx.say(`？？？のマス！\n空から金貨がふってきた！\n${fmt(n)}ゴールドを手に入れた！`, 'coin');
+      const n = gainGold(ctx, rng.int(b.gold[0], b.gold[1]) * 2 * (ctx.mult || 1));
+      ctx.say(`？？？のマス！\n空から金貨がふってきた！\n${fmt(n)}ゴールドを手に入れた！${twice(ctx)}`, 'coin');
       break;
     }
     case 'item': {
       const id = weighted(rng, b.chest && rng.chance(0.4) ? b.chest : b.items);
-      ctx.say(`？？？のマス！\n道ばたに${ITEMS[id].name}が落ちていた！`, 'item');
-      gainItem(ctx, id);
+      ctx.say(`？？？のマス！\n道ばたに${ITEMS[id].name}${(ctx.mult || 1) > 1 ? 'が2こ' : 'が'}落ちていた！`, 'item');
+      gainItem(ctx, id, ctx.mult || 1);
       break;
     }
     case 'rollUp':
@@ -418,7 +471,7 @@ function event(ctx, moved = false) {
       ctx.say('？？？のマス！\n向かい風だ…2マスもどされた。');
       return walkBack(ctx, 2);
     case 'coins': {
-      const n = gainCoins(ctx, [20, 50, 100, 200, 400][b.tier] || 20);
+      const n = gainCoins(ctx, (SG_COINS[b.tier] || 20) * (ctx.mult || 1));
       ctx.say(`？？？のマス！\nぷるりんがカジノのコインをくれた！\nコインを${fmt(n)}枚手に入れた！`, 'coin');
       break;
     }
@@ -436,7 +489,7 @@ function event(ctx, moved = false) {
         break;
       }
       ctx.say('？？？のマス！\nふしぎな光につつまれて、前のマスへ飛ばされた！', 'warp');
-      return jump(ctx, to);
+      return jump(ctx, to, 'warp');
     }
     case 'ticket':
       ctx.say('？？？のマス！\nなんと、すごろく券が落ちていた！', 'item');
@@ -487,11 +540,90 @@ function vaultBoxes(ctx) {
   const { b, rng } = ctx;
   const pool = b.chest || b.items;
   const rare = pool.filter(([id]) => ['weapon', 'armor', 'shield', 'head', 'acc'].includes(ITEMS[id]?.type));
-  const big = rare.length && rng.chance(0.5) ? { item: rare[rng.int(0, rare.length - 1)][0] } : { item: b.tier >= 4 ? 'gold_nut' : 'star_nut' };
+  // 大当たり: すごろくだけの 装備（半分）か、めずらしい 品（星の鉄など。第50回 D2: 種は もう 入れない）
+  const big = rare.length && rng.chance(0.5) ? { item: rare[rng.int(0, rare.length - 1)][0] } : { item: weighted(rng, b.vault || [[TICKET_ITEM, 1]]) };
   const boxes = [big, { item: weighted(rng, pool) }, { gold: rng.int(b.gold[0], b.gold[1]) * 3 }];
   return rng.shuffle(boxes);
 }
-const boxName = (x) => (x.item ? ITEMS[x.item]?.name || x.item : `${fmt(x.gold)}ゴールド`);
+const boxName = (x) => (x.item ? ITEMS[x.item]?.name || x.item : x.gold ? `${fmt(x.gold)}ゴールド` : 'からっぽ');
+
+// ───────────── 第50回 D2: あたらしい マス ─────────────
+// ルーレット（8つの わく。前へ・ワープで 来た ときは 動く わくに 止まらない）
+function wheel(ctx, moved = false) {
+  const { b, rng, run } = ctx;
+  const m = ctx.mult || 1;
+  const can = WHEEL.map((w, i) => [i, moved && (w.k === 'fwd' || w.k === 'back') ? 0 : w.w]).filter(([, w]) => w > 0);
+  const pick = weighted(rng, can);
+  const k = WHEEL[pick].k;
+  ctx.ops.push({ op: 'wheel', pick });
+  const head = `ルーレットのマス！\nくるくる…「${WHEEL[pick].t}」に止まった！`;
+  switch (k) {
+    case 'gold': {
+      const n = gainGold(ctx, rng.int(b.gold[0], b.gold[1]) * 1.5 * m);
+      ctx.say(`${head}\n${fmt(n)}ゴールドを手に入れた！${twice(ctx)}`, 'coin');
+      break;
+    }
+    case 'item': case 'chest': {
+      const id = weighted(rng, k === 'chest' ? b.chest || b.items : b.items);
+      ctx.say(`${head}\n${nameN(id, m)}手に入れた！`, k === 'chest' ? 'chest' : 'item');
+      gainItem(ctx, id, m);
+      break;
+    }
+    case 'fwd':
+      ctx.say(head);
+      return walk(ctx, 3, { forced: true });
+    case 'back':
+      ctx.say(head);
+      return walkBack(ctx, 2);
+    case 'roll':
+      run.rolls += 1;
+      ctx.say(`${head}\nさいころをふれる回数が1回ふえた！`, 'sparkle');
+      break;
+    case 'coins': {
+      const n = gainCoins(ctx, (SG_COINS[b.tier] || 20) * 2 * m);
+      ctx.say(`${head}\nカジノのコインを${fmt(n)}枚手に入れた！${twice(ctx)}`, 'coin');
+      break;
+    }
+    case 'jackpot':
+    default: {
+      const n = gainGold(ctx, b.gold[1] * 4 * m);
+      const id = weighted(rng, b.chest || b.items);
+      ctx.say(`ルーレットのマス！\nくるくる…★！大当たり！！\n${fmt(n)}ゴールドと、${ITEMS[id].name}を手に入れた！`, 'jackpot');
+      gainItem(ctx, id, m);
+    }
+  }
+  return settle(ctx);
+}
+
+// 宝探しの 3つの 箱（お宝・ゴールド・からっぽ）
+function huntBoxes(ctx) {
+  const { b, rng } = ctx;
+  return rng.shuffle([{ item: weighted(rng, b.chest || b.items) }, { gold: rng.int(b.gold[0], b.gold[1]) * 2 }, { none: true }]);
+}
+
+// 家族の 応援（自分の ほかの キャラの 名前。いなければ すごろく場の みんな）
+function cheer(ctx) {
+  const { world, c, b, rng, run } = ctx;
+  const names = Object.values(world.data?.characters || {}).filter((x) => x && x !== c && x.id !== c.id && typeof x.name === 'string' && x.name).map((x) => x.name);
+  const who = names.length ? names[rng.int(0, names.length - 1)] : 'すごろく場のみんな';
+  ctx.ops.push({ op: 'cheer', name: who });
+  const head = `家族のおうえんのマス！\n${who}の声がとどいた！「がんばれー！」`;
+  const kind = weighted(rng, [['roll', 2], ['heal', 1.5], ['gold', 1.5], ['coins', 1]]);
+  if (kind === 'roll') {
+    run.rolls += 1;
+    ctx.say(`${head}\n元気が出て、さいころをふれる回数が1回ふえた！`, 'sg_cheer');
+  } else if (kind === 'heal') {
+    for (const ch of teamChars(world, ctx.s)) fullHeal(ch);
+    ctx.say(`${head}\nみんなのHPとMPが回復した！`, 'heal');
+  } else if (kind === 'gold') {
+    const n = gainGold(ctx, rng.int(b.gold[0], b.gold[1]) * 2 * (ctx.mult || 1));
+    ctx.say(`${head}\nおこづかいに${fmt(n)}ゴールドもらった！${twice(ctx)}`, 'coin');
+  } else {
+    const n = gainCoins(ctx, (SG_COINS[b.tier] || 20) * (ctx.mult || 1));
+    ctx.say(`${head}\nカジノのコインを${fmt(n)}枚もらった！`, 'coin');
+  }
+  return settle(ctx);
+}
 
 // ───────────── 戦い ─────────────
 function startBattlePending(ctx, boss) {
@@ -500,7 +632,7 @@ function startBattlePending(ctx, boss) {
   if (boss !== null && !def) return settle(ctx);
   const group = def ? def.group : (b.battles || [])[rng.int(0, (b.battles || []).length - 1)];
   if (!group) return settle(ctx);
-  run.pending = { kind: 'battle', boss, group: def ? null : b.battles.indexOf(group), name: def ? def.name : null, mons: group.map(([sp]) => sp) };
+  run.pending = { kind: 'battle', boss, group: def ? null : b.battles.indexOf(group), name: def ? def.name : null, mons: group.map(([sp]) => sp), ...(ctx.mult > 1 ? { mult: ctx.mult } : {}) };
   ctx.say(def ? `${def.name}があらわれた！\n「この先へは、行かせぬぞ…！」` : '戦いのマス！\n魔物があらわれた！');
   return 'pending';
 }
@@ -537,8 +669,8 @@ export function applySugorokuBattle(world, s, c, outcome) {
       ctx.say(`${def.name}は${ITEMS[id].name}を落としていった！`);
       gainItem(ctx, id);
     } else {
-      const n = gainGold(ctx, ctx.b.battleGold * (0.8 + world.rng.next() * 0.4));
-      ctx.say(`すごろくのごほうび！\n${fmt(n)}ゴールドを手に入れた！`);
+      const n = gainGold(ctx, ctx.b.battleGold * (0.8 + world.rng.next() * 0.4) * (p.mult || 1));
+      ctx.say(`すごろくのごほうび！\n${fmt(n)}ゴールドを手に入れた！${p.mult > 1 ? '\n（ボーナスで2倍！）' : ''}`);
     }
     settle(ctx);
   } else if (outcome === 'lose') {
@@ -566,26 +698,45 @@ function finish(ctx, reason) {
   const { c, run, b, rng } = ctx;
   const g = sgOf(c);
   const prizes = [];
+  // ゴールの 景品の ならび（クライアントの おいわいで 1つずつ 見せる。tag: first・big・stars・extra）
+  const reveal = [];
+  let first = false;
   if (reason === 'goal') {
     const goal = b.goal;
     ctx.say(`ゴール！！\n${b.name}をクリアした！`, 'fanfare');
     const n = gainGold(ctx, goal.gold);
-    ctx.say(`ゴールの景品！\n${fmt(n)}ゴールドを手に入れた！`, 'coin');
-    const first = !g.clears[b.id];
+    const cn = goal.coins ? gainCoins(ctx, goal.coins) : 0;
+    ctx.say(`ゴールの景品！\n${fmt(n)}ゴールド${cn ? `と、コイン${fmt(cn)}枚` : ''}を手に入れた！`, 'coin');
+    reveal.push({ gold: n, coins: cn });
+    first = !g.clears[b.id];
     if (first && goal.first && ITEMS[goal.first]) {
       ctx.say(`初めてのゴールのごほうび！\n${ITEMS[goal.first].name}を手に入れた！`, 'jackpot');
-      if (gainItem(ctx, goal.first)) prizes.push(goal.first);
+      if (gainItem(ctx, goal.first)) { prizes.push(goal.first); reveal.push({ id: goal.first, tag: 'first' }); }
+      // はじめての ゴールの おまけ（すごろく券・進化の石・星の鉄など）
+      const fb = (goal.firstBonus || []).filter(([fid, k]) => ITEMS[fid] && gainItem(ctx, fid, k));
+      if (fb.length) {
+        ctx.say(`さらに、初めてのおまけ！\n${fb.map(([fid, k]) => `${ITEMS[fid].name}${k > 1 ? `×${k}` : ''}`).join('と')}をもらった！`, 'item');
+        for (const [fid, k] of fb) reveal.push({ id: fid, n: k, tag: 'first' });
+      }
     }
     const id = weighted(rng, goal.pool);
     ctx.say(`ゴールの大きな景品！\n${ITEMS[id].name}を手に入れた！`, 'jackpot');
-    if (gainItem(ctx, id)) prizes.push(id);
+    if (gainItem(ctx, id)) { prizes.push(id); reveal.push({ id, tag: 'big' }); }
+    if (goal.extra?.length) {
+      const xid = weighted(rng, goal.extra);
+      if (gainItem(ctx, xid)) {
+        ctx.say(`ゴールのおまけ！\n${ITEMS[xid].name}も手に入れた！`, 'item');
+        reveal.push({ id: xid, tag: 'extra' });
+      }
+    }
     if (goal.stars && b.stars.length && run.stars.length >= b.stars.length) {
       const sid = weighted(rng, goal.stars.pool);
       ctx.say(`星のかけらが${b.stars.length}つ光りかがやいた！\nおまけの景品、${ITEMS[sid].name}を手に入れた！`, 'jackpot');
-      if (gainItem(ctx, sid)) prizes.push(sid);
+      if (gainItem(ctx, sid)) { prizes.push(sid); reveal.push({ id: sid, tag: 'stars' }); }
       if (goal.stars.extra && gainItem(ctx, goal.stars.extra)) {
         ctx.say(`さらに、${ITEMS[goal.stars.extra].name}も手に入れた！`, 'item');
         prizes.push(goal.stars.extra);
+        reveal.push({ id: goal.stars.extra, tag: 'stars' });
       }
     }
     g.clears[b.id] = (g.clears[b.id] || 0) + 1;
@@ -596,7 +747,10 @@ function finish(ctx, reason) {
   } else {
     ctx.say('すごろくをやめた。\n手に入れた物は、そのまま持って帰れる。');
   }
-  const summary = { reason, board: b.id, gold: run.gold || 0, coins: run.coins || 0, got: Object.entries(run.got), prizes, at: ctx.world.now() };
+  const summary = {
+    reason, board: b.id, gold: run.gold || 0, coins: run.coins || 0, got: Object.entries(run.got), prizes, at: ctx.world.now(),
+    ...(reason === 'goal' ? { reveal, first } : {}),
+  };
   g.run = null;
   g.last = summary;
   g.lastNew = reason === 'lose';
@@ -654,12 +808,13 @@ export function sugorokuAction(world, s, msg, reply) {
       if (p.kind === 'branch') walk(ctx, p.left, { choice: p.options[i] });
       else {
         ctx.say('竜は大きくはばたいた！', 'warp');
-        jump(ctx, p.options[i]);
+        jump(ctx, p.options[i], 'dragon');
       }
       return reply(true, '', state({ ops: ctx.ops }));
     }
     case 'sgPick': {
       const ctx = makeCtx(world, s);
+      if (ctx.run?.pending?.kind === 'hunt') return huntPick(ctx, msg, reply, state);
       if (ctx.run?.pending?.kind !== 'vault') return reply(false, '', state());
       const boxes = ctx.run.vault || [];
       const i = msg.i;
@@ -718,6 +873,29 @@ export function sugorokuAction(world, s, msg, reply) {
     }
     default: return reply(false, '', state());
   }
+}
+
+// 宝探し: 1つ 開けて、のこりの 箱の 中みも 見せる
+function huntPick(ctx, msg, reply, state) {
+  const { run } = ctx;
+  const boxes = run.hunt || [];
+  const i = msg.i;
+  if (!Number.isInteger(i) || i < 0 || i >= boxes.length) return reply(false, '', state());
+  const m = run.pending.mult || 1;
+  run.pending = null;
+  run.hunt = null;
+  ctx.mult = m;
+  const got = boxes[i];
+  ctx.ops.push({ op: 'hunt', picked: i, boxes: boxes.map(boxName), hit: got.none ? 0 : 1 });
+  if (got.item) {
+    ctx.say(`宝箱を開けた！\nお宝だ！${nameN(got.item, m)}手に入れた！`, 'jackpot');
+    gainItem(ctx, got.item, m);
+  } else if (got.gold) {
+    const n = gainGold(ctx, got.gold * m);
+    ctx.say(`宝箱を開けた！\n${fmt(n)}ゴールドが入っていた！${twice(ctx)}`, 'coin');
+  } else ctx.say('宝箱を開けた！\n…からっぽだった。ざんねん！', 'buzz');
+  settle(ctx);
+  return reply(true, '', state({ ops: ctx.ops }));
 }
 
 function sgRoll(world, s, msg, reply, state) {

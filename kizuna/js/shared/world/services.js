@@ -1,51 +1,54 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { markNewsRead } from '../data/news.js?v=5c89bfcd3c09';
+import { markNewsRead } from '../data/news.js?v=894e2368ad04';
 // 第50回 N4: 困っている人を 知らせた・見た 印
-import { markAsks } from '../data/subquest-hints.js?v=5c89bfcd3c09';
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=5c89bfcd3c09';
-import { normDifficulty } from '../data/difficulty.js?v=5c89bfcd3c09';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=5c89bfcd3c09';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=5c89bfcd3c09';
-import { ABILITIES } from '../data/abilities.js?v=5c89bfcd3c09';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=5c89bfcd3c09';
-import { jobLabel } from '../job-label.js?v=5c89bfcd3c09';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=5c89bfcd3c09';
-import { TACTICS } from '../ai.js?v=5c89bfcd3c09';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=5c89bfcd3c09';
-import { salonInfo, salonAction } from './salon.js?v=5c89bfcd3c09';
-import { breedMonsters, breedPreview } from './breed.js?v=5c89bfcd3c09';
-import { farewellText } from './farewell.js?v=5c89bfcd3c09';
+import { markAsks } from '../data/subquest-hints.js?v=894e2368ad04';
+import { setStamps } from '../data/stamps.js?v=894e2368ad04';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=894e2368ad04';
+import { normDifficulty } from '../data/difficulty.js?v=894e2368ad04';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=894e2368ad04';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=894e2368ad04';
+import { ABILITIES } from '../data/abilities.js?v=894e2368ad04';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=894e2368ad04';
+import { jobLabel } from '../job-label.js?v=894e2368ad04';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=894e2368ad04';
+// 第50回 D4: 上の 職業の 技ほど 回復が 多い（フィールドでも おなじ。skill-tier.js）
+import { skillMods } from '../skill-tier.js?v=894e2368ad04';
+import { TACTICS } from '../ai.js?v=894e2368ad04';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=894e2368ad04';
+import { salonInfo, salonAction } from './salon.js?v=894e2368ad04';
+import { breedMonsters, breedPreview } from './breed.js?v=894e2368ad04';
+import { farewellText } from './farewell.js?v=894e2368ad04';
 // 第43回 C: 魔物あずかり所（world/storage.js）
-import { storageInfo, storageAction, depositMonster, storeText } from './storage.js?v=5c89bfcd3c09';
-import { MONSTERS } from '../data/monsters.js?v=5c89bfcd3c09';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=5c89bfcd3c09';
-import { PLACES } from '../maps/overworld.js?v=5c89bfcd3c09';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=5c89bfcd3c09';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=5c89bfcd3c09';
+import { storageInfo, storageAction, depositMonster, storeText } from './storage.js?v=894e2368ad04';
+import { MONSTERS } from '../data/monsters.js?v=894e2368ad04';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=894e2368ad04';
+import { PLACES } from '../maps/overworld.js?v=894e2368ad04';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=894e2368ad04';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=894e2368ad04';
 // 第6章: 時の砂時計（world/time-glass-use.js）
-import { useTimeGlass } from './time-glass-use.js?v=5c89bfcd3c09';
+import { useTimeGlass } from './time-glass-use.js?v=894e2368ad04';
 // 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
-import { useStarSight } from './star-sight.js?v=5c89bfcd3c09';
+import { useStarSight } from './star-sight.js?v=894e2368ad04';
 // 第6章 Step 5: 星読みの しおり（world/tokei-use.js）
-import { useBookmark } from './tokei-use.js?v=5c89bfcd3c09';
-import { bankInfo, bankAction } from './bank.js?v=5c89bfcd3c09';
-import { forgeInfo, forgeAction } from './forge.js?v=5c89bfcd3c09';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=5c89bfcd3c09';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=5c89bfcd3c09';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=5c89bfcd3c09';
-import { casinoOpen, casinoAction } from './casino.js?v=5c89bfcd3c09';
-import { useEscapeItem, noEscapeText } from './escape.js?v=5c89bfcd3c09';
-import { usePowder } from './powder.js?v=5c89bfcd3c09';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=5c89bfcd3c09';
-import { setLookEquip } from '../look-equip.js?v=5c89bfcd3c09';
-import { jobDoneText } from '../data/job-talk.js?v=5c89bfcd3c09';
-import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=5c89bfcd3c09';
+import { useBookmark } from './tokei-use.js?v=894e2368ad04';
+import { bankInfo, bankAction } from './bank.js?v=894e2368ad04';
+import { forgeInfo, forgeAction } from './forge.js?v=894e2368ad04';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=894e2368ad04';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=894e2368ad04';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=894e2368ad04';
+import { casinoOpen, casinoAction } from './casino.js?v=894e2368ad04';
+import { useEscapeItem, noEscapeText } from './escape.js?v=894e2368ad04';
+import { usePowder } from './powder.js?v=894e2368ad04';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=894e2368ad04';
+import { setLookEquip } from '../look-equip.js?v=894e2368ad04';
+import { jobDoneText } from '../data/job-talk.js?v=894e2368ad04';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=894e2368ad04';
 // 第44回（ポケモン P1）: 進化の 石（world/evolve.js）
-import { useEvoStone } from './evolve.js?v=5c89bfcd3c09';
+import { useEvoStone } from './evolve.js?v=894e2368ad04';
 // 第50回 N6: 家族に 道具を あげる（world/gift.js）
-import { giftTargets, giveItem } from './gift.js?v=5c89bfcd3c09';
+import { giftTargets, giveItem } from './gift.js?v=894e2368ad04';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quick-item.js?v=5c89bfcd3c09';
+import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quick-item.js?v=894e2368ad04';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -514,6 +517,11 @@ export function menuAction(world, s, msg) {
       const r = setQuickPad(c, msg.pad);
       return reply(r.ok, r.text);
     }
+    // 第50回 N7: チャットの スタンプを 変える（data/stamps.js。知らせは なし）
+    case 'stamps': {
+      const r = setStamps(c, msg.list);
+      return reply(r.ok, r.text);
+    }
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');
@@ -537,7 +545,7 @@ export function menuAction(world, s, msg) {
       const texts = [];
       let any = false;
       for (const t of targets) {
-        const r = applyFieldEffect(world, caster, t, a.effect, pen.powMult);
+        const r = applyFieldEffect(world, caster, t, a.effect, pen.powMult, skillMods(caster, msg.id).healMul);
         if (r.ok) any = true;
         texts.push(r.text);
       }
@@ -736,20 +744,21 @@ function fullHealBySpells(world, s) {
         const cost = mpCost(ch, id);
         if (ch.mp < cost) continue;
         const pen = penaltyFor(ch, id);
-        const amt = expectedHeal(ch, a.effect, pen.powMult);
+        const hm = skillMods(ch, id).healMul;
+        const amt = expectedHeal(ch, a.effect, pen.powMult * hm);
         // 役に立つ 回復量（あふれた ぶんは むだ）
         const useful = a.target === 'allies' ? hurt.reduce((x, h) => x + Math.min(lack(h.ch), amt), 0) : Math.min(need, amt);
         if (a.target === 'allies' && hurt.length < 2) continue;
         // MPあたりの 回復が 多い もの。1回で たりる なら 少ない MPの ものを えらぶ
         const enough = a.target === 'allies' ? useful >= totalNeed * 0.8 : amt >= need;
         const score = useful / Math.max(1, cost) + (enough ? 1000 / Math.max(1, cost) : 0);
-        if (!best || score > best.score) best = { ch, id, a, cost, pen, score };
+        if (!best || score > best.score) best = { ch, id, a, cost, pen, hm, score };
       }
     }
     if (!best) break;
     const targets = best.a.target === 'allies' ? hurt.map((h) => h.ch) : [tgt.ch];
     let ok = false;
-    for (const t of targets) if (applyFieldEffect(world, best.ch, t, best.a.effect, best.pen.powMult).ok) ok = true;
+    for (const t of targets) if (applyFieldEffect(world, best.ch, t, best.a.effect, best.pen.powMult, best.hm).ok) ok = true;
     if (!ok) break;
     best.ch.mp -= best.cost;
     any = true;
@@ -807,7 +816,8 @@ function allRefs(world, s) {
   return refs;
 }
 
-function applyFieldEffect(world, user, target, eff, powMult = 1) {
+// hm … 回復の 量の 倍率（技の ランク。skill-tier.js）
+function applyFieldEffect(world, user, target, eff, powMult = 1, hm = 1) {
   const st = computeStats(target);
   switch (eff.type) {
     case 'heal': {
@@ -815,7 +825,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
       if (target.hp >= st.maxHp) return { ok: false, text: `${target.name}のHPは満タンだ` };
       let amt = world.rng.int(eff.base[0], eff.base[1]);
       if (!eff.fixed) amt *= 1 + Math.max(0, Math.min(1, (computeStats(user).heal - (eff.thr ?? 20)) / 150));
-      amt = Math.round(amt * powMult);
+      amt = Math.round(amt * powMult * hm);
       const real = Math.min(st.maxHp - target.hp, amt);
       target.hp += real;
       return { ok: true, text: target.hp >= st.maxHp ? `${target.name}のキズがすっかり回復した！` : `${target.name}のHPが${real}回復した！` };
@@ -833,7 +843,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
     }
     case 'revive': {
       if (target.hp > 0) return { ok: false, text: `${target.name}は生きている` };
-      target.hp = Math.max(1, Math.round(st.maxHp * (eff.hpRatio || 0.25)));
+      target.hp = Math.max(1, Math.min(st.maxHp, Math.round(st.maxHp * (eff.hpRatio || 0.25) * hm)));
       return { ok: true, text: `なんと${target.name}が生き返った！` };
     }
     case 'seed': {
@@ -845,7 +855,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
     }
     case 'multi': {
       // いくつかの 効き目（回復と 治す など）: 1つでも 効けば 使えた ことに する
-      const rs = (eff.parts || []).map((p) => applyFieldEffect(world, user, target, p, powMult)).filter((r) => r.ok);
+      const rs = (eff.parts || []).map((p) => applyFieldEffect(world, user, target, p, powMult, hm)).filter((r) => r.ok);
       return rs.length ? { ok: true, text: rs.map((r) => r.text).join('\n') } : { ok: false, text: target.hp <= 0 ? `${target.name}は死んでいる…` : `${target.name}は元気だ` };
     }
     default:

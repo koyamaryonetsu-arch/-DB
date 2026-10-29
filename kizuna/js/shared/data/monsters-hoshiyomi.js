@@ -26,7 +26,7 @@ export const MONSTERS_HOSHIYOMI = {
   black_agent: {
     name: '黒ずくめの追っ手', lv: 47, hp: 860, mp: 60, str: 196, def: 138, agi: 92, mag: 90, exp: 760, gold: 420,
     race: 'demon', size: 'm', hit: 'slash', region: 6,
-    resist: { bolt: 1.3, dark: 0.7, light: 1.0, poison: 0.4, sleep: 0.4, confuse: 0.5, blind: 0.5 }, drops: { common: ['smoke_ball', 10], rare: ['seed_agi', 40] },
+    resist: { bolt: 1.3, dark: 0.7, light: 1.0, poison: 0.4, sleep: 0.4, confuse: 0.5, blind: 0.5 }, drops: { common: ['smoke_ball', 10], rare: ['seed_agi', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_agent_shot' }, { w: 2, id: 'm_agent_smoke', cond: 'notRecent:m_agent_smoke' }, { w: 1, id: 'm_agent_drug', cond: 'notRecent:m_agent_drug' }],
     desc: '黒い服に黒いぼうしの、あやしい男。だれかを探して、星読みの里のまわりをうろついている。雷がよく効く。',
   },
@@ -34,7 +34,7 @@ export const MONSTERS_HOSHIYOMI = {
   star_owl: {
     name: '星読みフクロウ', lv: 46, hp: 760, mp: 120, str: 176, def: 120, agi: 96, mag: 150, exp: 720, gold: 360,
     race: 'beast', size: 'm', flying: true, hit: 'slash', region: 6,
-    resist: { fire: 1.3, wind: 0.6, dark: 0.8, poison: 0.5, sleep: 0.3, confuse: 0.3 }, drops: { common: ['moon_drop', 10], rare: ['seed_mag', 40] },
+    resist: { fire: 1.3, wind: 0.6, dark: 0.8, poison: 0.5, sleep: 0.3, confuse: 0.3 }, drops: { common: ['moon_drop', 10], rare: ['seed_mag', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_owl_wind' }, { w: 2, id: 'm_owl_gaze', cond: 'notRecent:m_owl_gaze' }, { w: 2, id: 'm_owl_dive' }],
     desc: '星読みの里の夜空を見上げる、大きなフクロウ。星のまなざしで、頭をくらくらさせる。炎がよく効く。',
   },
@@ -42,7 +42,7 @@ export const MONSTERS_HOSHIYOMI = {
   stardust_slime: {
     name: '星くずスライム', lv: 45, hp: 640, mp: 100, str: 160, def: 150, agi: 80, mag: 140, exp: 680, gold: 340,
     race: 'slime', size: 's', region: 6,
-    resist: { dark: 1.3, light: 0.4, ice: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['herb', 5], rare: ['seed_def', 40] },
+    resist: { dark: 1.3, light: 0.4, ice: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['herb', 5], rare: ['seed_def', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_stardust_hop' }, { w: 2, id: 'm_stardust_shine', cond: 'notRecent:m_stardust_shine' }],
     desc: '流れ星のかけらをすいこんだスライム。体の中で星くずがきらきら光る。闇がよく効く。',
   },
@@ -52,7 +52,7 @@ export const MONSTERS_HOSHIYOMI = {
   lonely_ghost: {
     name: 'さびしさのゆうれい', lv: 47, hp: 820, mp: 180, str: 150, def: 118, agi: 88, mag: 186, exp: 780, gold: 380,
     race: 'undead', size: 'm', flying: true, region: 6,
-    resist: { light: 1.4, dark: 0.3, ice: 0.6, poison: 0, sleep: 0, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 40] },
+    resist: { light: 1.4, dark: 0.3, ice: 0.6, poison: 0, sleep: 0, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 120] },
     actions: [{ w: 3, id: 'm_ghost_tear' }, { w: 2, id: 'm_ghost_cling' }, { w: 2, id: 'm_ghost_song', cond: 'notRecent:m_ghost_song' }, { w: 1, id: 'attack' }],
     desc: 'ひとりぼっちのさびしさが、形になったゆうれい。だれかにしがみついて、はなれようとしない。光がよく効く。',
   },
@@ -60,7 +60,7 @@ export const MONSTERS_HOSHIYOMI = {
   lonely_doll: {
     name: 'ひとりぼっちの人形', lv: 46, hp: 780, mp: 60, str: 184, def: 130, agi: 84, mag: 100, exp: 740, gold: 360,
     race: 'material', size: 's', hit: 'slash', region: 6,
-    resist: { fire: 1.3, ice: 0.9, dark: 0.7, poison: 0, sleep: 0.5, confuse: 0.4 }, drops: { common: ['moonherb', 8], rare: ['seed_def', 40] },
+    resist: { fire: 1.3, ice: 0.9, dark: 0.7, poison: 0, sleep: 0.5, confuse: 0.4 }, drops: { common: ['moonherb', 8], rare: ['seed_def', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_doll_spin' }, { w: 1, id: 'm_doll_mend', cond: ['hpBelow:0.6', 'notRecent:m_doll_mend'] }, { w: 2, id: 'm_doll_stare', cond: 'notRecent:m_doll_stare' }],
     desc: '思い出の中にわすれられた、ぬいぐるみの人形。だれかにだきしめてほしくて、くるくる回る。炎がよく効く。',
   },
@@ -68,7 +68,7 @@ export const MONSTERS_HOSHIYOMI = {
   kage_boushi: {
     name: 'かげぼうし', lv: 47, hp: 760, mp: 100, str: 188, def: 112, agi: 108, mag: 130, exp: 780, gold: 370,
     race: 'spirit', size: 'm', region: 6,
-    resist: { light: 1.35, dark: 0.2, bolt: 0.9, poison: 0, sleep: 0.3, confuse: 0.5, blind: 0.3 }, drops: { common: ['herb', 5], rare: ['seed_agi', 40] },
+    resist: { light: 1.35, dark: 0.2, bolt: 0.9, poison: 0, sleep: 0.3, confuse: 0.5, blind: 0.3 }, drops: { common: ['herb', 5], rare: ['seed_agi', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_shade_step' }, { w: 2, id: 'm_shade_melt', cond: 'notRecent:m_shade_melt' }],
     desc: '足もとの影が、ひとりで歩きだしたもの。影をふまれると、体が動かなくなる。光がよく効く。',
   },
@@ -78,7 +78,7 @@ export const MONSTERS_HOSHIYOMI = {
   soul_eater: {
     name: 'たましいすい', lv: 48, hp: 1000, mp: 200, str: 184, def: 126, agi: 90, mag: 200, exp: 940, gold: 440,
     race: 'undead', size: 'm', flying: true, region: 6,
-    resist: { light: 1.6, dark: 0.2, ice: 0.4, fire: 1.1, poison: 0, sleep: 0, confuse: 0.4, blind: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 36] },
+    resist: { light: 1.6, dark: 0.2, ice: 0.4, fire: 1.1, poison: 0, sleep: 0, confuse: 0.4, blind: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm_soul_kiss' }, { w: 2, id: 'm_soul_chill', cond: 'notRecent:m_soul_chill' }, { w: 2, id: 'm_soul_joy', cond: 'notRecent:m_soul_joy' }, { w: 1, id: 'attack' }],
     desc: 'ぼろぼろのマントをまとった、顔の見えないかげ。近づくと、こおりつくようにさむくなり、しあわせな気持ちがすいとられていく。光がとてもよく効く。',
   },
@@ -86,7 +86,7 @@ export const MONSTERS_HOSHIYOMI = {
   homunculus_shade: {
     name: 'ひとがたの影', lv: 48, hp: 1060, mp: 120, str: 196, def: 140, agi: 86, mag: 150, exp: 960, gold: 450,
     race: 'demon', size: 'm', hit: 'slash', region: 6,
-    resist: { light: 1.3, dark: 0.3, fire: 0.9, poison: 0.3, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 36] },
+    resist: { light: 1.3, dark: 0.3, fire: 0.9, poison: 0.3, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_homun_claw' }, { w: 2, id: 'm_homun_blades', cond: 'notRecent:m_homun_blades' }, { w: 1, id: 'm_homun_stone', cond: ['hpBelow:0.75', 'notRecent:m_homun_stone'] }],
     desc: '人の形をまねて生まれた影。むねの赤い石の力で、キズがじわじわとふさがっていく。光がよく効く。',
   },

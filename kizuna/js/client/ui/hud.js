@@ -1,21 +1,24 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=5c89bfcd3c09';
-import { computeStats } from '../../shared/stats.js?v=5c89bfcd3c09';
-import { JOBS } from '../../shared/data/jobs.js?v=5c89bfcd3c09';
-import { jobShort } from '../../shared/job-label.js?v=5c89bfcd3c09';
-import { hasUnreadNews } from '../../shared/data/news.js?v=5c89bfcd3c09';
-import { hasPot } from '../../shared/data/alchemy.js?v=5c89bfcd3c09';
-import { alchemyUI } from './alchemy.js?v=5c89bfcd3c09';
-import { renderMiniMap, openWorldMap } from './menu.js?v=5c89bfcd3c09';
-import { makeCanvas } from '../render/pixel.js?v=5c89bfcd3c09';
-import { ClockBadge } from './clock.js?v=5c89bfcd3c09';
+import { el, bar, askText, ListMenu } from './dom.js?v=894e2368ad04';
+import { computeStats } from '../../shared/stats.js?v=894e2368ad04';
+import { JOBS } from '../../shared/data/jobs.js?v=894e2368ad04';
+import { jobShort } from '../../shared/job-label.js?v=894e2368ad04';
+import { hasUnreadNews } from '../../shared/data/news.js?v=894e2368ad04';
+import { hasPot } from '../../shared/data/alchemy.js?v=894e2368ad04';
+import { alchemyUI } from './alchemy.js?v=894e2368ad04';
+import { renderMiniMap, openWorldMap } from './menu.js?v=894e2368ad04';
+import { makeCanvas } from '../render/pixel.js?v=894e2368ad04';
+import { ClockBadge } from './clock.js?v=894e2368ad04';
 // 第50回 N4: 困っている人の 知らせ・●（ui/subquest-hints.js）
-import { AskWatcher } from './subquest-hints.js?v=5c89bfcd3c09';
-import { hasNewAsk } from '../../shared/data/subquest-hints.js?v=5c89bfcd3c09';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=5c89bfcd3c09';
-import { auraLabel } from '../../shared/data/abilities-field27.js?v=5c89bfcd3c09';
+import { AskWatcher } from './subquest-hints.js?v=894e2368ad04';
+import { hasNewAsk } from '../../shared/data/subquest-hints.js?v=894e2368ad04';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=894e2368ad04';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=894e2368ad04';
+import { DEFAULT_STAMPS, STAMP_EDIT, stampMenuItems } from '../../shared/data/stamps.js?v=894e2368ad04';
+import { openStampEditor } from './stamps.js?v=894e2368ad04';
 
-export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
+// 第50回 N7: スタンプは キャラごとに 変えられる（shared/data/stamps.js。STAMPS は はじめの スタンプ）
+export const STAMPS = DEFAULT_STAMPS;
 
 // パーティーの ならび（じぶん → 家族 → 仲間 → ゲスト）。HUD と メニューで つかう
 export function partyRows(g) {
@@ -187,13 +190,16 @@ export class Hud {
     const back = el('div', { class: 'modal-back', style: { background: 'transparent' }, onclick: () => { g.audio.sfx('cancel'); close(); } });
     const box = el('div', { class: 'win panel stamp-panel' });
     const m = new ListMenu(g.input, {
-      items: STAMPS.map((s) => ({ label: s, value: s })),
+      items: stampMenuItems(g.me),
       cols: 2,
+      fit: true,
       back: '閉じる',
       sound: (x) => g.audio.sfx(x),
       onSelect: (it) => {
-        g.net.send({ t: 'chat', stamp: it.value });
         close();
+        // さいごの 行: スタンプを 変える（とじたら また スタンプの 一覧へ）
+        if (it.value === STAMP_EDIT) return openStampEditor(g).then(() => { if (g.state === 'field' && !g.busy) this.stampMenu(); });
+        g.net.send({ t: 'chat', stamp: it.value });
       },
       onCancel: () => close(),
     });

@@ -7,59 +7,61 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=5c89bfcd3c09';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=5c89bfcd3c09';
+import { makeRng } from './rng.js?v=894e2368ad04';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=894e2368ad04';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
-import { deduceElement } from './data/abilities-jobs6.js?v=5c89bfcd3c09';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=5c89bfcd3c09';
+import { deduceElement } from './data/abilities-jobs6.js?v=894e2368ad04';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=894e2368ad04';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=5c89bfcd3c09';
-import { MONSTERS } from './data/monsters.js?v=5c89bfcd3c09';
-import { ITEMS } from './data/items.js?v=5c89bfcd3c09';
-import { JOBS } from './data/jobs.js?v=5c89bfcd3c09';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=5c89bfcd3c09';
-import { decideMonster, decideAlly } from './ai.js?v=5c89bfcd3c09';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=5c89bfcd3c09';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=894e2368ad04';
+import { MONSTERS } from './data/monsters.js?v=894e2368ad04';
+import { ITEMS } from './data/items.js?v=894e2368ad04';
+import { JOBS } from './data/jobs.js?v=894e2368ad04';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=894e2368ad04';
+import { decideMonster, decideAlly } from './ai.js?v=894e2368ad04';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=894e2368ad04';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=5c89bfcd3c09';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=894e2368ad04';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=5c89bfcd3c09';
-import { shownEquipKey } from './look-equip.js?v=5c89bfcd3c09';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=894e2368ad04';
+import { shownEquipKey } from './look-equip.js?v=894e2368ad04';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=5c89bfcd3c09';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=894e2368ad04';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=5c89bfcd3c09';
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=894e2368ad04';
 // 第5章 Step 4 の ガイアイーター（多部位の 戦い。battle-gaia.js）
-import { setupGaia, gaiaDamage } from './battle-gaia.js?v=5c89bfcd3c09';
+import { setupGaia, gaiaDamage } from './battle-gaia.js?v=894e2368ad04';
 // 第5章 Step 5 の ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js）
-import { setupNocto, noctoDamage } from './battle-nocto.js?v=5c89bfcd3c09';
+import { setupNocto, noctoDamage } from './battle-nocto.js?v=894e2368ad04';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（地われ・手をのばす・HP半分で 終わる・まもる・おこる。battle-earth.js）
-import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js?v=5c89bfcd3c09';
+import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js?v=894e2368ad04';
 // 第5章 Step 9 の ノクト（本気）と 魔王ソリトゥス（3つの 段階・ひとりにする・よびかける・家族の きずな技。battle-final.js）
-import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock } from './battle-final.js?v=5c89bfcd3c09';
+import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock } from './battle-final.js?v=894e2368ad04';
 // 第5章 Step 8 の 影の城の 3人の まぼろし（はじめの ことば・水かさ・風のかべ。battle-phantom.js）
-import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js?v=5c89bfcd3c09';
+import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js?v=894e2368ad04';
 // 第2部 第6章 Step 1・2 の サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）。battle-ch6.js
-import { setupCh6, ch6Damage } from './battle-ch6.js?v=5c89bfcd3c09';
+import { setupCh6, ch6Damage } from './battle-ch6.js?v=894e2368ad04';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
-import { classmateMult } from './battle-r33.js?v=5c89bfcd3c09';
+import { classmateMult } from './battle-r33.js?v=894e2368ad04';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
-import { setupArena, arenaDamage } from './battle-arena.js?v=5c89bfcd3c09';
+import { setupArena, arenaDamage } from './battle-arena.js?v=894e2368ad04';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
-import { abilityFor, isMasc, dualMasc } from './ability-label.js?v=5c89bfcd3c09';
+import { abilityFor, isMasc, dualMasc } from './ability-label.js?v=894e2368ad04';
 // 第48回: 大技（ax_〜）の 時間（ためて はなつ あいだ つぎの 行動を まつ。shared/ax-time.js）
-import { axMarkEvent } from './ax-time.js?v=5c89bfcd3c09';
-import { DUAL_TECHS } from './data/dual.js?v=5c89bfcd3c09';
+import { axMarkEvent } from './ax-time.js?v=894e2368ad04';
+import { DUAL_TECHS } from './data/dual.js?v=894e2368ad04';
 // 第38回 C: バフ・デバフ・かばう は 行動の 回数で 切れる・じわじわ回復は 行動の はじめに・技の レベル（buff-acts.js）
-import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js?v=5c89bfcd3c09';
-export { BUFF_ACTS } from './buff-acts.js?v=5c89bfcd3c09';
-import { bossDmgRate } from './data/boss-r38.js?v=5c89bfcd3c09';
+import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js?v=894e2368ad04';
+export { BUFF_ACTS } from './buff-acts.js?v=894e2368ad04';
+import { bossDmgRate } from './data/boss-r38.js?v=894e2368ad04';
+// 第50回 D4: 上の 職業の 技ほど 補助が 長く・2だんかい・回復が 多い（skill-tier.js。ev.tier に 入れて つかう）
+import { skillMods, evMods } from './skill-tier.js?v=894e2368ad04';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
-export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=5c89bfcd3c09';
+export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=894e2368ad04';
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
@@ -75,15 +77,18 @@ export function stackMult(base, lv) {
 }
 // map（c.buffs か c.debuffs）の st に base の こうかを かさねる。もどりち: { lv, max }（max … もう かさならなかった）
 // left … のこりの 行動の 回数（かけ直すと left に もどる。ずっと つづく こうかに かさねた ときは ずっと）
-export function stackBuff(map, st, base, left = BUFF_ACTS) {
+// n … 1回で 上げる だんかい（第50回 D4: 超級職・伝説の 技は 2。skill-tier.js）
+export function stackBuff(map, st, base, left = BUFF_ACTS, n = 1) {
   const cur = map[st];
   // 前より 強い こうかなら そちらを もとに する（上げる ときは 大きい ほう、下げる ときは 小さい ほう）
   const b0 = cur?.base ?? cur?.mult;
   const keep = b0 !== undefined && (base >= 1 ? b0 >= base : b0 <= base);
   const b = keep ? b0 : base;
   const was = cur ? (cur.lv || 1) : 0;
-  const lv = Math.min(BUFF_STACK, was + 1);
-  map[st] = { mult: stackMult(b, lv), base: b, lv, left: renewLeft(cur, left) };
+  const lv = Math.min(BUFF_STACK, was + n);
+  // のこりは 長い ほう（伝説の 技の 5回の あとに 基本職の 技を かけ直しても へらない）
+  const rest = Number.isFinite(cur?.left) ? cur.left : 0;
+  map[st] = { mult: stackMult(b, lv), base: b, lv, left: Math.max(renewLeft(cur, left), rest) };
   return { lv, max: was >= BUFF_STACK };
 }
 
@@ -663,6 +668,7 @@ export class Battle {
     ev.dur = this.lock;
     delete ev.extraLock;
     delete ev.atbAfter;
+    delete ev.tier;
     this.emit(ev);
     this.cur = null;
     this.checkEnd();
@@ -812,6 +818,8 @@ export class Battle {
           break;
         }
         c.mp -= cost;
+        // 技の ランクの こうか（職業の ある 人だけ。skill-tier.js）
+        if (c.side === 'ally') ev.tier = { by: c.id, ...skillMods(c.penChar, cmd.id) };
         if (a.weapon && c.side === 'ally' && !weaponOk(a, c.weaponCat)) {
           ev.lines.push('しかし武器が合わずうまくいかなかった！');
           break;
@@ -1019,7 +1027,7 @@ export class Battle {
             continue;
           }
           t.alive = true;
-          t.hp = Math.max(1, Math.round(t.maxHp * (eff.hpRatio || 0.25) * (0.5 + powMult / 2)));
+          t.hp = Math.max(1, Math.min(t.maxHp, Math.round(t.maxHp * (eff.hpRatio || 0.25) * (0.5 + powMult / 2) * evMods(c, ev).healMul)));
           t.atb = 0;
           t.status = {};
           ev.lines.push(`なんと${t.name}が生き返った！`);
@@ -1253,7 +1261,7 @@ export class Battle {
         const times = this.regenTimesOf(c, ev);
         for (const t of targets) {
           if (!t.alive) continue;
-          const amt = this.healAmountOf(c, eff, powMult);
+          const amt = this.healAmountOf(c, eff, powMult * evMods(c, ev).healMul);
           t.regen = { amt: Math.max(amt, t.regen?.amt || 0), left: Math.max(times, t.regen?.left || 0) };
           ev.lines.push(`${t.name}は、少しずつ回復する力につつまれた！`);
           ev.upd.push(t);
@@ -1736,7 +1744,7 @@ export class Battle {
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
-    amt = Math.round(amt * powMult * enemyFixedScale(c));
+    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     ev.results = ev.results || [];
@@ -1754,24 +1762,30 @@ export class Battle {
     if (aloneBlock(c, t, ev)) return;
     const k = Math.min(1, powMult);
     // 第38回 C: かかった 人が BUFF_ACTS 回 行動するまで（かけ直すと もどる。前の 版の 時間〈dur〉は つかわない）
+    // 第50回 D4: 上の 職業の 技は 回数が のび、超級職から 1回で 2だんかい（skill-tier.js）
+    const tm = evMods(c, ev);
     const stats = eff.stats || [eff.stat];
     const mult = eff.mult >= 1 ? 1 + (eff.mult - 1) * k : eff.mult;
     // 2回目は さらに 上がる（2だんかいまで。stackBuff）
-    let top = 0, maxed = true;
+    let top = 0, up = 0, maxed = true;
     for (const st of stats) {
       if (st === 'eva') {
-        const lv = Math.min(BUFF_STACK, (t.buffs.eva?.lv || 0) + 1);
-        if (!(t.buffs.eva?.lv >= BUFF_STACK)) maxed = false;
-        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, left: renewLeft(t.buffs.eva) };
+        const was = t.buffs.eva?.lv || 0;
+        const lv = Math.min(BUFF_STACK, was + tm.stages);
+        if (!(was >= BUFF_STACK)) maxed = false;
+        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, left: Math.max(renewLeft(t.buffs.eva, tm.acts), Number.isFinite(t.buffs.eva?.left) ? t.buffs.eva.left : 0) };
         top = Math.max(top, lv);
+        up = Math.max(up, lv - was);
       } else {
-        const r = stackBuff(t.buffs, st, mult);
+        const was = t.buffs[st] ? t.buffs[st].lv || 1 : 0;
+        const r = stackBuff(t.buffs, st, mult, tm.acts, tm.stages);
         if (!r.max) maxed = false;
         top = Math.max(top, r.lv);
+        up = Math.max(up, r.lv - was);
       }
     }
     const names = stats.map(statLabel).join('と');
-    ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
+    ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : up >= 2 ? `${t.name}の${names}がぐーんと上がった！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
     ev.upd.push(t);
   }
 
@@ -1806,9 +1820,11 @@ export class Battle {
       ev.lines.push(`しかし${t.name}には効かなかった！`);
       return;
     }
-    // 2回目は さらに 下がる（2だんかいまで。stackBuff）
-    const sb = stackBuff(t.debuffs, d.stat, d.mult);
-    ev.lines.push(sb.max ? `${t.name}の${statLabel(d.stat)}は、もうこれ以上下がらない！` : sb.lv >= 2 ? `${t.name}の${statLabel(d.stat)}がさらに下がった！` : `${t.name}の${statLabel(d.stat)}が下がった！`);
+    // 2回目は さらに 下がる（2だんかいまで。stackBuff）。第50回 D4: 上の 職業の 技は 回数・だんかいが ふえる
+    const tm = evMods(c, ev);
+    const was = t.debuffs[d.stat] ? t.debuffs[d.stat].lv || 1 : 0;
+    const sb = stackBuff(t.debuffs, d.stat, d.mult, tm.acts, tm.stages);
+    ev.lines.push(sb.max ? `${t.name}の${statLabel(d.stat)}は、もうこれ以上下がらない！` : sb.lv - was >= 2 ? `${t.name}の${statLabel(d.stat)}ががくんと下がった！` : sb.lv >= 2 ? `${t.name}の${statLabel(d.stat)}がさらに下がった！` : `${t.name}の${statLabel(d.stat)}が下がった！`);
     ev.upd.push(t);
   }
 
@@ -1971,6 +1987,7 @@ export class Battle {
     ev.hirameki = { id, name: a.name, actor: c.id };
     ev.name = a.name;
     ev.ability = id;
+    ev.tier = { by: c.id, ...skillMods(c.penChar, id) };
     ev.lines.push(`${c.name}はひらめいた！`);
     ev.extraLock = 900;
     if (a.effect.type === 'mahouken') {
