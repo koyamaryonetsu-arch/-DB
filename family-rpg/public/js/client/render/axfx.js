@@ -295,3 +295,6 @@ useAxGroup('o3', AX_O3, AX_O3_FINE);
 useAxGroup('o4', AX_O4, AX_O4_FINE);
 useAxGroup('o5', AX_O5, AX_O5_FINE);
 useAxGroup('o6', AX_O6, AX_O6_FINE);
+// 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）
+import { AX_O9, AX_O9_FINE } from './axfx-o9.js';
+useAxGroup('o9', AX_O9, AX_O9_FINE);

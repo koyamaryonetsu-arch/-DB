@@ -38,6 +38,11 @@ export const JOB_SAY = {
   plumber: '「ジャンプなら、まかせて！」',
   mustache: '「おひめさまだって、走るのよ！」',
   mario: '「キノコの国は、わたしが守ります」',
+  // 第51回 C3: 幻の職業
+  cosmic_okan: '「宇宙のはてまで、見てるからね！」',
+  chaos_creator: '「こわして、作る。それが世界だ」',
+  dream_stadium: '「スタジアム行き、まもなく発車します！」',
+  weather_god: '「あしたの天気は、わたしが決める！」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

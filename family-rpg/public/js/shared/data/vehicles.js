@@ -37,8 +37,8 @@ export const VEHICLES = {
   limo: { name: '黒い高級車', price: 6000, jobs: ['shacho', 'tatakiage', 'career'], desc: 'ぴかぴかの、長い黒い車。' },
   open_car: { name: 'オープンカー', price: 3500, jobs: ['idol', 'superstar', 'fruit_idol', 'storm_idol'], desc: 'やねのない、ピンクの車。ファンに手をふろう。' },
   trolley: { name: 'トロッコ', price: 1000, jobs: ['railman'], desc: '線路の仕事で使う、手こぎのトロッコ。' },
-  red_train: { name: '赤い電車', price: 4500, jobs: ['train_driver', 'keikyu_driver', 'keikyu_president'], desc: '赤い車体に白い線の、速い電車。' },
-  relief_car: { name: 'リリーフカー', price: 2200, jobs: ['ballplayer', 'major_leaguer', 'nitoryu', 'hall_of_fame'], desc: '野球場で、ピッチャーを運ぶ小さな車。' },
+  red_train: { name: '赤い電車', price: 4500, jobs: ['train_driver', 'keikyu_driver', 'keikyu_president', 'dream_stadium'], desc: '赤い車体に白い線の、速い電車。' },
+  relief_car: { name: 'リリーフカー', price: 2200, jobs: ['ballplayer', 'major_leaguer', 'nitoryu', 'hall_of_fame', 'dream_stadium'], desc: '野球場で、ピッチャーを運ぶ小さな車。' },
   tricycle: { name: '三輪車', price: 500, jobs: ['schoolkid', 'middleschooler', 'highschooler', 'homeroom_3b'], desc: 'なつかしい、赤い三輪車。' },
   town_bus: { name: '町のバス', price: 2500, jobs: ['civil_local', 'civil_national', 'career'], desc: '町の人を乗せて走る、小さなバス。' },
   police_bike: { name: '白バイ', price: 3000, jobs: ['police'], desc: '赤いランプの、白いオートバイ。' },
@@ -50,7 +50,7 @@ export const VEHICLES = {
   bukujutsu: { name: 'ぶくう術', price: 4000, jobs: ['saiyan', 'super_saiyan', 'ss2', 'ss3'], desc: '気をまとって、空を飛ぶ術。' },
   drone: { name: '大きなドローン', price: 2400, jobs: ['youtuber', 'streamer', 'creator'], desc: 'カメラつきの、人を乗せて飛ぶドローン。' },
   kart: { name: 'レーシングカート', price: 2000, jobs: ['gamer', 'pro_gamer', 'plumber', 'mustache', 'mario'], desc: 'ゲームの中から出てきたような、みどりのカート。' },
-  mamachari: { name: 'ママチャリ', price: 700, jobs: ['okan', 'saikyo_okan'], desc: '前のかごに、ネギが入った自転車。' },
+  mamachari: { name: 'ママチャリ', price: 700, jobs: ['okan', 'saikyo_okan', 'cosmic_okan'], desc: '前のかごに、ネギが入った自転車。' },
   spy_car: { name: '黒いスポーツカー', price: 4200, jobs: ['spy', 'assassin', 'black_org'], desc: 'ひくくて速い、なぞの黒い車。' },
   skateboard: { name: 'ターボつきスケボー', price: 1500, jobs: ['shonen_tantei', 'oshiri_tantei', 'meitantei'], desc: 'うしろからけむりが出る、速いスケボー。' },
   propeller: { name: '竹とんぼプロペラ', price: 2000, jobs: ['neko_robot', 'mimi_robot', 'doraemon'], desc: '頭につけると、空を飛べるプロペラ。' },
@@ -63,7 +63,7 @@ export const VEHICLES = {
   gomu_rocket: { name: 'ゴムのロケット', price: 4000, jobs: ['rubber', 'nika'], desc: 'うでをのばして、びよーんと前へとぶ。' },
   ninja_dash: { name: '忍び走り', price: 2800, jobs: ['ninja', 'konoha', 'hokage'], desc: 'うでを後ろにのばして、風より速く走る。' },
   slime: { name: '大きなぷるりん', price: 1800, jobs: ['tamer', 'monster_master'], desc: 'なかよしになった、大きなぷるりん。' },
-  shooting_star: { name: 'ほうき星', price: 4400, jobs: ['fortune', 'summoner', 'star_diva'], desc: '光のしっぽを引いて飛ぶ、小さな星。' },
+  shooting_star: { name: 'ほうき星', price: 4400, jobs: ['fortune', 'summoner', 'star_diva', 'weather_god'], desc: '光のしっぽを引いて飛ぶ、小さな星。' },
   white_horse: { name: '白馬', price: 5000, jobs: ['samurai', 'shogun', 'abarenbo_shogun'], desc: '町を走る上様の、白い馬。' },
   swan_boat: { name: 'スワンボート', price: 1500, jobs: ['comedian', 'm1_champion'], desc: 'こいで進む、白鳥の形のボート。陸でも走る。' },
   kei_truck: { name: '軽トラ', price: 2600, jobs: ['setsubiya', 'ryonetsu', 'facility_genius'], desc: 'にだいに、はしごとエアコンの外の機械をつんだ軽トラ。' },
@@ -74,7 +74,7 @@ export const VEHICLES = {
   broom: { name: '空飛ぶほうき', price: 2800, jobs: ['wizard_student', 'harry'], desc: '魔法学校の生徒の、空飛ぶほうき。' },
   crescent: { name: '三日月', price: 4800, jobs: ['sailor_soldier', 'sailor_moon', 'neo_queen'], desc: '月の光でできた、三日月の乗り物。' },
   hero_pegasus: { name: '勇者の天馬', price: 8000, jobs: ['hero', 'loto_hero'], desc: '金のよろいの、勇者だけの天馬。' },
-  dark_throne: { name: '空飛ぶ玉座', price: 9000, jobs: ['maou', 'hakaishin'], desc: '魔物の王がすわる、空にうかぶいす。' },
+  dark_throne: { name: '空飛ぶ玉座', price: 9000, jobs: ['maou', 'hakaishin', 'chaos_creator'], desc: '魔物の王がすわる、空にうかぶいす。' },
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）

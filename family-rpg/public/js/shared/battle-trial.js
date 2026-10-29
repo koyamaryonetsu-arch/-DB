@@ -38,6 +38,8 @@ export const PHANTOM_ADJ = {
   keikyu_president: [0.64, 0.54], hall_of_fame: [1.02, 0.89],
   // 第43回
   mario: [1.48, 1.26],
+  // 第51回 C3: 幻の職業（sim-trial-tune 8回。天候の神は 天候をあやつる者が まだ ないので 第5のせいれいに ならった 仮。W と まぜた あとで さがし直す）
+  cosmic_okan: [1.06, 1.02], chaos_creator: [0.53, 0.4], dream_stadium: [0.57, 0.51], weather_god: [1.0, 0.9],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

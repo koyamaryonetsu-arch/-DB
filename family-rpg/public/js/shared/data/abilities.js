@@ -67,6 +67,8 @@ import { R43J_ABILITIES } from './abilities-r43j.js';
 import { POKEMON_ABILITIES } from './abilities-pokemon.js';
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
 import { DQM_ABILITIES } from './abilities-dqm.js';
+// 第51回 C3 の 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）の 技（abilities-phantom-c.js）
+import { PHANTOM_ABILITIES_C } from './abilities-phantom-c.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -678,6 +680,8 @@ Object.assign(ABILITIES, R43J_ABILITIES);
 Object.assign(ABILITIES, POKEMON_ABILITIES);
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
 Object.assign(ABILITIES, DQM_ABILITIES);
+// 第51回 C3 の 幻の職業の 技（abilities-phantom-c.js）
+Object.assign(ABILITIES, PHANTOM_ABILITIES_C);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

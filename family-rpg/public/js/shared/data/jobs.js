@@ -17,6 +17,8 @@
 
 import { applyField27Learn } from './abilities-field27.js';
 import { JOB_TAGS } from './job-tags.js';
+// 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
+import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1267,6 +1269,8 @@ export const JOBS = {
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
 export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wizard_student', 'harry', 'sailor_soldier', 'sailor_moon', 'shonen_tantei'];
 
+// 第51回 C3 の 幻の職業（jobs-phantom-c.js）
+Object.assign(JOBS, PHANTOM_JOBS_C);
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
 // 第35回: 職業の タグ（2〜4こ。合体技の 組に 使う。一覧と 意味は data/job-tags.js）
@@ -1444,3 +1448,5 @@ export const JOB_HINTS = {
   // 第43回（男の子は masc.hint）
   mario: 'おてんば姫をきわめた女の人は、キノコの国をおさめるおひめさまになれるらしい…',
 };
+// 第51回 C3 の 幻の職業の うわさ（jobs-phantom-c.js）
+Object.assign(JOB_HINTS, PHANTOM_HINTS_C);

@@ -23,6 +23,8 @@ import { HIRA_R41B_ABILITIES, HIRAMEKI_R41B } from './hirameki-r41b.js';
 import { HIRA_R41A_ABILITIES, HIRAMEKI_R41A } from './hirameki-r41a.js';
 // 第43回: 配管工の 系統（ひげおやじ・マリオ）の ひらめき技（hirameki-r43j.js）
 import { HIRA_R43J_ABILITIES, HIRAMEKI_R43J } from './hirameki-r43j.js';
+// 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）の ひらめき技（hirameki-phantom-c.js）
+import { HIRA_PHANTOM_C_ABILITIES, HIRAMEKI_PHANTOM_C } from './hirameki-phantom-c.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -198,6 +200,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_R41A_ABILITIES,
   // 第43回の ひらめき技（hirameki-r43j.js）
   ...HIRA_R43J_ABILITIES,
+  // 第51回 C3 の 幻の職業の ひらめき技（hirameki-phantom-c.js）
+  ...HIRA_PHANTOM_C_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -253,6 +257,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_R41A,
   // 第43回の ひらめき技（hirameki-r43j.js）
   ...HIRAMEKI_R43J,
+  // 第51回 C3 の 幻の職業の ひらめき技（hirameki-phantom-c.js）
+  ...HIRAMEKI_PHANTOM_C,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）
