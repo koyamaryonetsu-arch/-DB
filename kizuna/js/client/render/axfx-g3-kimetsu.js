@@ -2,7 +2,7 @@
 // 水の呼吸 … 青い 浮世絵の 波（しぶきの つめ・すじ）、炎の呼吸 … 赤〜オレンジの 炎の 刃と 炎の 竜・虎、
 // 日の呼吸 … 赤い 日輪と 金の ふち（ヒノカミ神楽は 型を つなげて 最後に 大きな 日輪）
 // 時間は shared/data/ax-time-g3.js（ここは 見た目だけ）。画面の 文字は ひらがな・記号だけ
-import { G3_STYLE as ST, ribbon, dragon, line, sun, wheel, bg, prop, text, rain, embers, arcPts, spiralPts, per, hitBurst, blast, splashN, glitter } from './axfx-g3-kit.js?v=b006a21bc0e3';
+import { G3_STYLE as ST, ribbon, dragon, line, sun, wheel, bg, prop, text, rain, embers, arcPts, spiralPts, per, hitBurst, blast, splashN, glitter } from './axfx-g3-kit.js?v=060276fb0270';
 
 const WATER = ['#ffffff', '#8fd8ff', '#2f6fe8'];
 const FIRE = ['#fff2a0', '#ffb040', '#ff6a1a', '#ff3a14'];

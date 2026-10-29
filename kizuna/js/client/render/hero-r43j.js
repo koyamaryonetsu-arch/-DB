@@ -26,7 +26,7 @@
 //   drawHat43j(cv, P, H, G, view)  … 赤い ぼうし・王冠（drawHat26 から よぶ。かいたら true）
 //   drawProp43j(cv, P, A, O)       … たての ない 手の もちもの（drawProp26 から よぶ。スパナ。かいたら true）
 //   aura43j(img, filled, bb, f, k, B) … 星の きらきら（hero-aura.js の drawAura から よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=b006a21bc0e3';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=060276fb0270';
 
 export const R43J_JOBS = ['plumber', 'mustache', 'mario'];
 

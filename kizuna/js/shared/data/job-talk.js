@@ -42,6 +42,11 @@ export const JOB_SAY = {
   kishou: '「明日の天気は、晴れのち雨！」',
   otenki_caster: '「全国のお天気です！」',
   tenkou_tsukai: '「空よ、わたしの声を聞け！」',
+  // 第51回 C3: 幻の職業
+  cosmic_okan: '「宇宙のはてまで、見てるからね！」',
+  chaos_creator: '「こわして、作る。それが世界だ」',
+  dream_stadium: '「スタジアム行き、まもなく発車します！」',
+  weather_god: '「あしたの天気は、わたしが決める！」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

@@ -7,7 +7,7 @@
 // ・bg     … 全画面の 背景（夜の 月・夜明けの 日輪・夕方の 浜辺・炎・ちょうちん・すきとおる）
 // ・prop   … 小道具の 絵（ひょうたん・お弁当・たらい・湯のみ・マント・白馬・お庭番・ふすま・目安箱・まとい・紋・剣士の かげ…）
 // つぶの なまえは g3〜（AX_G3_FINE）。画面の 文字は ひらがな・カタカナ・記号だけ
-import { rnd, clamp01, lerp, easeOut, easeIn, easeInOut, hash, softGlow, disc } from './axkit.js?v=b006a21bc0e3';
+import { rnd, clamp01, lerp, easeOut, easeIn, easeInOut, hash, softGlow, disc } from './axkit.js?v=060276fb0270';
 
 const TAU = Math.PI * 2;
 const W0 = 256, H0 = 144;

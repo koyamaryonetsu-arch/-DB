@@ -3,21 +3,23 @@
 // ・ax_beam・ax_slash・ax_orb・ax_boom・ax_holy・ax_ice・ax_water・ax_fire・ax_bolt … はなつ 音（技の def.sfx に 書く。今までの 音の なまえも つかえる）
 // ・グループの 音（client/sfx-ax-g1.js 〜 g6.js。なまえは ax_g1_〜）も この SFX_AX に まざる（いちばん 下）
 // a: Audio（tone・noise を もつ）  T: a.tone の みじかい かきかた
-import { SFX_AX_G1 } from './sfx-ax-g1.js?v=b006a21bc0e3';
-import { SFX_AX_G2 } from './sfx-ax-g2.js?v=b006a21bc0e3';
-import { SFX_AX_G3 } from './sfx-ax-g3.js?v=b006a21bc0e3';
-import { SFX_AX_G4 } from './sfx-ax-g4.js?v=b006a21bc0e3';
-import { SFX_AX_G5 } from './sfx-ax-g5.js?v=b006a21bc0e3';
-import { SFX_AX_G6 } from './sfx-ax-g6.js?v=b006a21bc0e3';
+import { SFX_AX_G1 } from './sfx-ax-g1.js?v=060276fb0270';
+import { SFX_AX_G2 } from './sfx-ax-g2.js?v=060276fb0270';
+import { SFX_AX_G3 } from './sfx-ax-g3.js?v=060276fb0270';
+import { SFX_AX_G4 } from './sfx-ax-g4.js?v=060276fb0270';
+import { SFX_AX_G5 } from './sfx-ax-g5.js?v=060276fb0270';
+import { SFX_AX_G6 } from './sfx-ax-g6.js?v=060276fb0270';
 // 第49回: もとからの 技の グループ（client/sfx-ax-o1.js 〜 o6.js。なまえは ax_o1_〜）
-import { SFX_AX_O1 } from './sfx-ax-o1.js?v=b006a21bc0e3';
-import { SFX_AX_O2 } from './sfx-ax-o2.js?v=b006a21bc0e3';
-import { SFX_AX_O3 } from './sfx-ax-o3.js?v=b006a21bc0e3';
-import { SFX_AX_O4 } from './sfx-ax-o4.js?v=b006a21bc0e3';
-import { SFX_AX_O5 } from './sfx-ax-o5.js?v=b006a21bc0e3';
-import { SFX_AX_O6 } from './sfx-ax-o6.js?v=b006a21bc0e3';
+import { SFX_AX_O1 } from './sfx-ax-o1.js?v=060276fb0270';
+import { SFX_AX_O2 } from './sfx-ax-o2.js?v=060276fb0270';
+import { SFX_AX_O3 } from './sfx-ax-o3.js?v=060276fb0270';
+import { SFX_AX_O4 } from './sfx-ax-o4.js?v=060276fb0270';
+import { SFX_AX_O5 } from './sfx-ax-o5.js?v=060276fb0270';
+import { SFX_AX_O6 } from './sfx-ax-o6.js?v=060276fb0270';
 // 第51回 W: 天気の 職業の 技の 音（なまえは ax_o10_〜）
-import { SFX_AX_O10 } from './sfx-ax-o10.js?v=b006a21bc0e3';
+import { SFX_AX_O10 } from './sfx-ax-o10.js?v=060276fb0270';
+// 第51回 C3: 幻の職業（o9）
+import { SFX_AX_O9 } from './sfx-ax-o9.js?v=060276fb0270';
 const swell = (a, dur, from, to, vol = 0.18, delay = 0) => {
   // だんだん 大きく なる ざわざわ（みじかい ノイズを かさねる）
   const n = Math.max(2, Math.round(dur / 0.12));
@@ -75,8 +77,7 @@ export const SFX_AX = {
 export const SFX_AX_GROUP = {};
 for (const [g, table] of Object.entries({
   g1: SFX_AX_G1, g2: SFX_AX_G2, g3: SFX_AX_G3, g4: SFX_AX_G4, g5: SFX_AX_G5, g6: SFX_AX_G6,
-  o1: SFX_AX_O1, o2: SFX_AX_O2, o3: SFX_AX_O3, o4: SFX_AX_O4, o5: SFX_AX_O5, o6: SFX_AX_O6,
-  o10: SFX_AX_O10,
+  o1: SFX_AX_O1, o2: SFX_AX_O2, o3: SFX_AX_O3, o4: SFX_AX_O4, o5: SFX_AX_O5, o6: SFX_AX_O6, o9: SFX_AX_O9, o10: SFX_AX_O10,
 })) {
   for (const [id, fn] of Object.entries(table)) {
     if (!id.startsWith(`ax_${g}_`)) throw new Error(`sfx-ax-${g}.js: 音の なまえ ${id} は ax_${g}_ で はじめる`);

@@ -1,9 +1,9 @@
 // 第50回 N6: 家族に 道具を あげる（メニューの 道具 → 品物 →「家族にあげる」。サーバーは shared/world/gift.js）
 //   だれに？（同じ 家族サーバーの ほかの キャラ。今 遊んでいなくても よい）→ いくつ？（2こ 以上 ある 時）→「あげますか？」→ あげる
 //   十字キー・タッチ どちらでも（menu.pick・confirmBox は ListMenu）
-import { confirmBox } from './dom.js?v=b006a21bc0e3';
-import { ITEMS } from '../../shared/data/items.js?v=b006a21bc0e3';
-import { itemCount } from '../../shared/stats.js?v=b006a21bc0e3';
+import { confirmBox } from './dom.js?v=060276fb0270';
+import { ITEMS } from '../../shared/data/items.js?v=060276fb0270';
+import { itemCount } from '../../shared/stats.js?v=060276fb0270';
 
 // メニューに「家族にあげる」を 出すか（家族サーバーで、ほかの キャラが いて、あげられる 品の 時）
 export function canGift(g, id) {

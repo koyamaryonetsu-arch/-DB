@@ -3,8 +3,8 @@
 //   魔力で 強く なる 呪文・技: 今の 魔力で どれくらいの ダメージか（相手の 耐性・守りは 考えない）
 //   回復: 今の 回復魔力で どれくらい 回復するか
 // しきは shared/battle.js の calcPhys・calcMagic・heal・healAmountOf と おなじ（ふりはばは 両はし、会心・耐性は 入れない）
-import { abilityFor } from './ability-label.js?v=b006a21bc0e3';
-import { computeStats, penaltyFor } from './stats.js?v=b006a21bc0e3';
+import { abilityFor } from './ability-label.js?v=060276fb0270';
+import { computeStats, penaltyFor } from './stats.js?v=060276fb0270';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 // 倍率の 数（1.0・1.8 の ように 小数 1けた。1より 小さい ときは 0.55 の ように 2けたまで）
