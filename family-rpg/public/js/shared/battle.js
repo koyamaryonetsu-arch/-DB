@@ -56,6 +56,8 @@ export { BUFF_ACTS } from './buff-acts.js';
 import { bossDmgRate } from './data/boss-r38.js';
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2だんかい・回復が 多い（skill-tier.js。ev.tier に 入れて つかう）
 import { skillMods, evMods } from './skill-tier.js';
+// 第51回 C1: 幻の職業の 物理の 技（仲間の 数・ためた 気・影分身で 強く なる。battle-phantom-a.js）
+import { phantomAPhys } from './battle-phantom-a.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -950,6 +952,7 @@ export class Battle {
     }
     switch (eff.type) {
       case 'phys': {
+        if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
           for (let i = 0; i < hits; i++) {

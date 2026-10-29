@@ -289,9 +289,12 @@ import { AX_O3, AX_O3_FINE } from './axfx-o3.js';
 import { AX_O4, AX_O4_FINE } from './axfx-o4.js';
 import { AX_O5, AX_O5_FINE } from './axfx-o5.js';
 import { AX_O6, AX_O6_FINE } from './axfx-o6.js';
+// 第51回 C1: 幻の職業の 技（o7）
+import { AX_O7, AX_O7_FINE } from './axfx-o7.js';
 useAxGroup('o1', AX_O1, AX_O1_FINE);
 useAxGroup('o2', AX_O2, AX_O2_FINE);
 useAxGroup('o3', AX_O3, AX_O3_FINE);
 useAxGroup('o4', AX_O4, AX_O4_FINE);
 useAxGroup('o5', AX_O5, AX_O5_FINE);
 useAxGroup('o6', AX_O6, AX_O6_FINE);
+useAxGroup('o7', AX_O7, AX_O7_FINE);

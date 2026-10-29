@@ -16,6 +16,8 @@ import { SFX_AX_O3 } from './sfx-ax-o3.js';
 import { SFX_AX_O4 } from './sfx-ax-o4.js';
 import { SFX_AX_O5 } from './sfx-ax-o5.js';
 import { SFX_AX_O6 } from './sfx-ax-o6.js';
+// 第51回 C1: 幻の職業の 技の 音（o7）
+import { SFX_AX_O7 } from './sfx-ax-o7.js';
 const swell = (a, dur, from, to, vol = 0.18, delay = 0) => {
   // だんだん 大きく なる ざわざわ（みじかい ノイズを かさねる）
   const n = Math.max(2, Math.round(dur / 0.12));
@@ -73,7 +75,7 @@ export const SFX_AX = {
 export const SFX_AX_GROUP = {};
 for (const [g, table] of Object.entries({
   g1: SFX_AX_G1, g2: SFX_AX_G2, g3: SFX_AX_G3, g4: SFX_AX_G4, g5: SFX_AX_G5, g6: SFX_AX_G6,
-  o1: SFX_AX_O1, o2: SFX_AX_O2, o3: SFX_AX_O3, o4: SFX_AX_O4, o5: SFX_AX_O5, o6: SFX_AX_O6,
+  o1: SFX_AX_O1, o2: SFX_AX_O2, o3: SFX_AX_O3, o4: SFX_AX_O4, o5: SFX_AX_O5, o6: SFX_AX_O6, o7: SFX_AX_O7,
 })) {
   for (const [id, fn] of Object.entries(table)) {
     if (!id.startsWith(`ax_${g}_`)) throw new Error(`sfx-ax-${g}.js: 音の なまえ ${id} は ax_${g}_ で はじめる`);

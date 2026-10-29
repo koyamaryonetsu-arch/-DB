@@ -160,6 +160,11 @@ export const TRIAL_WORDS = {
   hall_of_fame: '記録よりも、みんなの記おくにのこる選手になれ。',
   // 第43回（女の子のピーチ。男の子のマリオは TRIAL_WORDS_MASC）
   mario: 'おひめさまだって、ときには自分で走り出すものよ。',
+  // 第51回 C1（幻の職業）
+  pirate_king: '自由とは、仲間といっしょに、どこまでも行けることだ！',
+  super_hero: '雷も気も、守りたい者がいるから強くなれる。',
+  sun_hokage: '日の呼吸も忍術も、受けついだ人たちの思いでできている。',
+  facility_ai: 'いちばんの最適化は、みんなの笑顔を守ることです。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

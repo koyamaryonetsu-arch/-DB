@@ -148,9 +148,10 @@ test('見なおし: どの 職業にも 攻撃技（基本職は 3つ いじょ�
 
 test('見なおし: 補助の 強さは ランクで そろえる（基本職の 補助は 強すぎない）。敵を 止める 技には 効く わりあい', () => {
   // みんなに かける 補助（1つの 強さ／いくつもの 強さ）・1人に かける 補助 の いちばん 上（ランクごと。自分だけの 補助は のぞく）
-  const ALL_CAP = [1.15, 1.25, 1.4, 1.4];
-  const ALL_MULTI_CAP = [1.12, 1.2, 1.3, 1.35];
-  const ONE_CAP = [1.3, 1.4, 1.5, 1.5];
+  // 第51回: 幻の職業（tier 4）も 伝説と おなじ 上限
+  const ALL_CAP = [1.15, 1.25, 1.4, 1.4, 1.4];
+  const ALL_MULTI_CAP = [1.12, 1.2, 1.3, 1.35, 1.35];
+  const ONE_CAP = [1.3, 1.4, 1.5, 1.5, 1.5];
   const buffsOf = (a) => (a.effect.type === 'multi' ? a.effect.parts.filter((p) => p.type === 'buff' && !p.target) : a.effect.type === 'buff' ? [a.effect] : []);
   let checked = 0;
   for (const j of ALL_JOBS) {
