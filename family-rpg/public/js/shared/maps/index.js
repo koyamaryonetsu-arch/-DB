@@ -122,7 +122,7 @@ const OVERWORLD_CHESTS = [
   { id: 'ow_north', x: 60, y: 8, item: 'seed_mag' },
   { id: 'ow_east', x: 150, y: 30, item: 'guard_ring' },
   { id: 'ow_beach', x: 46, y: 116, item: 'revive_flower' },
-  { id: 'ow_west', x: 13, y: 40, item: 'seed_def' },
+  { id: 'ow_west', x: 13, y: 40, item: 'revive_flower' },
   { id: 'ow_hill', x: 70, y: 76, gold: 120 },
 ];
 
@@ -482,9 +482,9 @@ export function sparkleLoot(zone, roll) {
   const tables = {
     outskirts: [['herb', 5], ['antidote', 2], ['star_shard', 3]],
     plains: [['herb', 4], ['antidote', 2], ['star_shard', 3], ['moonherb', 1]],
-    forest: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['seed_hp', 0.4]],
-    swamp: [['antidote', 4], ['star_shard', 3], ['seed_def', 0.4]],
-    east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6], ['seed_str', 0.4]],
+    forest: [['herb', 3], ['moonherb', 2], ['star_shard', 3]],
+    swamp: [['antidote', 4], ['star_shard', 3]],
+    east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6]],
   };
   const t = tables[zone] || NORTH_SPARKLE_LOOT[zone] || SOUTH_SPARKLE_LOOT[zone] || tables.plains;
   const total = t.reduce((s, e) => s + e[1], 0);

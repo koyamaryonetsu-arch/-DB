@@ -164,7 +164,8 @@ export const GATHER_GIFTS = { nefi: 'gift_royal_charm', sara: 'gift_sandwind_cap
 export const EARTH_RECIPES = [
   { id: 'r_earth_light_sword', tier: 5, out: 'et_alch_sword', ins: ['mem_lightshadow_sword', 'earth_root', 'earth_stone'] },
   { id: 'r_earth_moon_mail', tier: 5, out: 'et_alch_mail', ins: ['mem_moonlight_mail', 'earth_stone', 'earth_stone'] },
-  { id: 'r_root_seed', tier: 5, out: 'seed_agi', ins: ['earth_root', 'earth_root', 'earth_stone'] },
+  // 第50回: 種（強さを 上げる 道具）は れん金で 作れない。おぼえた レシピの ID は そのまま、できる 物を かえた
+  { id: 'r_root_seed', tier: 5, out: 'revive_flower', ins: ['earth_root', 'earth_root', 'earth_stone'] },
 ];
 
 // 読みがな（あいうえお順の ならびかえ）

@@ -119,10 +119,10 @@ const TREASURE_SPOTS = {
 // 2つ目から うしろは 第38回 A の わき道の 宝箱（前からの 宝の 表の 品と、思い出の 迷宮の 魔物の 素材）
 const EXTRA_CHESTS = {
   1: [{ x: 4, y: 14, item: 'magic_water', n: 2 }, { x: 31, y: 9, item: 'star_sand', n: 3 }, { x: 20, y: 2, item: 'seed_agi' }],
-  2: [{ x: 20, y: 6, item: 'seed_agi' }, { x: 31, y: 16, item: 'seed_mag' }, { x: 21, y: 18, item: 'shade_drop', n: 2 }],
-  3: [{ x: 3, y: 12, item: 'revive_flower', n: 2 }, { x: 17, y: 18, item: 'seed_hp' }, { x: 30, y: 4, item: 'magic_water', n: 2 }],
+  2: [{ x: 20, y: 6, item: 'elf_drink' }, { x: 31, y: 16, item: 'seed_mag' }, { x: 21, y: 18, item: 'shade_drop', n: 2 }],
+  3: [{ x: 3, y: 12, item: 'revive_flower', n: 2 }, { x: 17, y: 18, item: 'revive_flower', n: 2 }, { x: 30, y: 4, item: 'magic_water', n: 2 }],
   4: [{ x: 4, y: 10, gold: 9000 }, { x: 30, y: 5, item: 'seed_str' }, { x: 1, y: 15, item: 'shade_drop', n: 3 }],
-  5: [{ x: 2, y: 6, item: 'seed_def' }, { x: 31, y: 2, item: 'revive_flower' }, { x: 4, y: 17, item: 'star_sand', n: 3 }],
+  5: [{ x: 2, y: 6, item: 'elf_drink' }, { x: 31, y: 2, item: 'revive_flower' }, { x: 4, y: 17, item: 'star_sand', n: 3 }],
   6: [{ x: 9, y: 1, item: 'magic_water', n: 2 }, { x: 31, y: 14, item: 'seed_hp' }],
 };
 export function memoryChests(n) {

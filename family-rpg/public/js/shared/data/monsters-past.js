@@ -24,7 +24,7 @@ export const MONSTERS_PAST = {
   moss_deer: {
     name: 'こけむしツノジカ', lv: 57, hp: 1520, mp: 60, str: 242, def: 170, agi: 128, mag: 120, exp: 1500, gold: 640,
     race: 'beast', size: 'l', hit: 'bash', region: 6,
-    resist: { fire: 1.3, wind: 0.8, poison: 0.6, sleep: 0.5, confuse: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_hp', 40] },
+    resist: { fire: 1.3, wind: 0.8, poison: 0.6, sleep: 0.5, confuse: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_hp', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_md_horn' }, { w: 2, id: 'm6_md_stomp', cond: 'notRecent:m6_md_stomp' }, { w: 1, id: 'm6_md_call', cond: 'notRecent:m6_md_call' }],
     desc: '千年前の森にすむ、大きなシカ。こけの生えたツノで、とっしんしてくる。森の仲間をよぶと、みんなの守りが上がる。炎がよく効く。',
   },
@@ -32,7 +32,7 @@ export const MONSTERS_PAST = {
   amber_moth: {
     name: 'こはくのガ', lv: 57, hp: 1080, mp: 160, str: 170, def: 128, agi: 150, mag: 222, exp: 1440, gold: 620,
     race: 'beast', size: 'm', flying: true, region: 6,
-    resist: { wind: 1.35, fire: 1.1, light: 0.7, poison: 0.5, sleep: 0, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 36] },
+    resist: { wind: 1.35, fire: 1.1, light: 0.7, poison: 0.5, sleep: 0, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm6_am_amber' }, { w: 2, id: 'm6_am_wing', cond: 'notRecent:m6_am_wing' }, { w: 2, id: 'm6_am_dust', cond: 'notRecent:m6_am_dust' }, { w: 1, id: 'attack' }],
     desc: 'こはく色のはねのガ。こはくの光をあびると、時が止まったように体がかたまる。りんぷんでねむらせることも。風がよく効く。',
   },
@@ -40,7 +40,7 @@ export const MONSTERS_PAST = {
   elder_sprout: {
     name: '古木の子ども', lv: 58, hp: 1660, mp: 120, str: 222, def: 192, agi: 70, mag: 196, exp: 1560, gold: 660,
     race: 'plant', size: 'm', hit: 'bash', region: 6,
-    resist: { fire: 1.4, ice: 0.9, wind: 0.6, bolt: 0.8, poison: 0.3, sleep: 0.6, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 36] },
+    resist: { fire: 1.4, ice: 0.9, wind: 0.6, bolt: 0.8, poison: 0.3, sleep: 0.6, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_es_root' }, { w: 2, id: 'm6_es_leaf', cond: 'notRecent:m6_es_leaf' }, { w: 2, id: 'm6_es_nut', cond: ['allyHurt', 'notRecent:m6_es_nut'] }],
     desc: '千年前の森の、古い木から生まれた木の子ども。ねっこで足をしばり、木の実で仲間を回復する。炎がよく効く。',
   },
@@ -48,7 +48,7 @@ export const MONSTERS_PAST = {
   toki_hare: {
     name: 'ときうさぎ', lv: 58, hp: 1020, mp: 80, str: 214, def: 120, agi: 232, mag: 140, exp: 1480, gold: 700,
     race: 'beast', size: 's', hit: 'bash', region: 6,
-    resist: { ice: 1.3, wind: 0.8, poison: 0.7, sleep: 0.7, confuse: 0.4 }, drops: { common: ['herb', 4], rare: ['seed_agi', 36] },
+    resist: { ice: 1.3, wind: 0.8, poison: 0.7, sleep: 0.7, confuse: 0.4 }, drops: { common: ['herb', 4], rare: ['seed_agi', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_th_kick' }, { w: 1, id: 'm6_th_hurry', cond: 'notRecent:m6_th_hurry' }, { w: 2, id: 'm6_th_bell', cond: 'notRecent:m6_th_bell' }],
     desc: '首から大きな時計をさげた、白いうさぎ。「いそげ、いそげ」と、いつもあわてている。とても素早い。氷がよく効く。',
   },
@@ -58,7 +58,7 @@ export const MONSTERS_PAST = {
   sand_sprite: {
     name: '砂つぶの精', lv: 56, hp: 980, mp: 160, str: 160, def: 120, agi: 162, mag: 214, exp: 1380, gold: 600,
     race: 'spirit', size: 's', flying: true, region: 6,
-    resist: { ice: 1.3, wind: 0.6, fire: 0.8, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 36] },
+    resist: { ice: 1.3, wind: 0.6, fire: 0.8, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm6_sp_flow' }, { w: 2, id: 'm6_sp_throw', cond: 'notRecent:m6_sp_throw' }, { w: 1, id: 'm6_sp_hide', cond: 'notRecent:m6_sp_hide' }, { w: 2, id: 'attack' }],
     desc: 'さらさらの砂でできた、小さな精。砂をかけて、前を見えなくする。砂の中にかくれると、攻撃が当たりにくい。氷がよく効く。',
   },
@@ -66,7 +66,7 @@ export const MONSTERS_PAST = {
   glass_scorpion: {
     name: '砂時計サソリ', lv: 57, hp: 1420, mp: 80, str: 234, def: 192, agi: 110, mag: 120, exp: 1480, gold: 640,
     race: 'beast', size: 'm', hit: 'claw', region: 6,
-    resist: { ice: 1.3, fire: 0.7, wind: 0.8, poison: 0, sleep: 0.5, confuse: 0.5 }, drops: { common: ['antidote', 4], rare: ['seed_str', 36] },
+    resist: { ice: 1.3, fire: 0.7, wind: 0.8, poison: 0, sleep: 0.5, confuse: 0.5 }, drops: { common: ['antidote', 4], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_gs_tail' }, { w: 2, id: 'm6_gs_claw' }, { w: 1, id: 'm6_gs_shell', cond: 'notRecent:m6_gs_shell' }],
     desc: 'しっぽの先が、小さな砂時計になったサソリ。どくばりでさし、はさみで2回はさむ。氷がよく効く。',
   },
@@ -74,7 +74,7 @@ export const MONSTERS_PAST = {
   sand_golem: {
     name: '砂の番兵', lv: 57, hp: 1740, mp: 60, str: 248, def: 202, agi: 60, mag: 120, exp: 1560, gold: 680,
     race: 'material', size: 'l', hit: 'bash', region: 6,
-    resist: { ice: 1.35, bolt: 0.7, fire: 0.8, wind: 0.7, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 36] },
+    resist: { ice: 1.35, bolt: 0.7, fire: 0.8, wind: 0.7, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_sgl_fist' }, { w: 2, id: 'm6_sgl_pit', cond: 'notRecent:m6_sgl_pit' }, { w: 2, id: 'm6_sgl_mend', cond: ['hpBelow:0.5', 'notRecent:m6_sgl_mend'], limit: 2 }],
     desc: '時のほこらを守る、砂でできた大きな番兵。すなじごくで足をとる。キズは、まわりの砂を集めてなおしてしまう。氷がよく効く。',
   },
@@ -84,7 +84,7 @@ export const MONSTERS_PAST = {
   gear_beetle: {
     name: '歯車カブト', lv: 58, hp: 1500, mp: 60, str: 242, def: 216, agi: 100, mag: 120, exp: 1560, gold: 680,
     race: 'beast', size: 'm', hit: 'bash', region: 6,
-    resist: { bolt: 1.4, fire: 0.9, ice: 0.9, poison: 0.4, sleep: 0.5, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 36] },
+    resist: { bolt: 1.4, fire: 0.9, ice: 0.9, poison: 0.4, sleep: 0.5, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_gb_horn' }, { w: 2, id: 'm6_gb_spin', cond: 'notRecent:m6_gb_spin' }, { w: 1, id: 'm6_gb_wind', cond: 'notRecent:m6_gb_wind' }],
     desc: '背中に歯車のある、大きなカブトムシ。ぜんまいをまくと、攻撃力が上がる。雷がよく効く。',
   },
@@ -92,7 +92,7 @@ export const MONSTERS_PAST = {
   ruin_sentinel: {
     name: 'いにしえの番兵', lv: 59, hp: 1820, mp: 80, str: 254, def: 222, agi: 66, mag: 150, exp: 1640, gold: 720,
     race: 'material', size: 'l', hit: 'slash', region: 6,
-    resist: { blast: 1.35, bolt: 1.1, fire: 0.8, ice: 0.8, dark: 0.7, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_def', 36] },
+    resist: { blast: 1.35, bolt: 1.1, fire: 0.8, ice: 0.8, dark: 0.7, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_def', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_rsn_spear' }, { w: 2, id: 'm6_rsn_beam', cond: 'notRecent:m6_rsn_beam' }, { w: 1, id: 'm6_rsn_guard', cond: 'notRecent:m6_rsn_guard' }],
     desc: '時の神殿を守る、石の番兵。千年前は、まだ作られたばかり。石のやりでつき、目から光をはなつ。爆発がよく効く。',
   },
@@ -100,7 +100,7 @@ export const MONSTERS_PAST = {
   pendulum_bat: {
     name: 'ふりこコウモリ', lv: 58, hp: 1100, mp: 120, str: 202, def: 130, agi: 190, mag: 190, exp: 1500, gold: 660,
     race: 'beast', size: 's', flying: true, hit: 'claw', region: 6,
-    resist: { fire: 1.3, light: 1.2, wind: 0.7, dark: 0.6, poison: 0.5, sleep: 0.5, confuse: 0.3 }, drops: { common: ['herb', 4], rare: ['seed_agi', 36] },
+    resist: { fire: 1.3, light: 1.2, wind: 0.7, dark: 0.6, poison: 0.5, sleep: 0.5, confuse: 0.3 }, drops: { common: ['herb', 4], rare: ['seed_agi', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_pdb_swing' }, { w: 2, id: 'm6_pdb_ring', cond: 'notRecent:m6_pdb_ring' }, { w: 2, id: 'm6_pdb_tick', cond: 'notRecent:m6_pdb_tick' }],
     desc: '時計のふりこのように、体を右へ左へゆらしてとぶコウモリ。キーンという音で、頭が混乱する。炎がよく効く。',
   },
@@ -110,7 +110,7 @@ export const MONSTERS_PAST = {
   chrono_knight: {
     name: 'ときの守り手', lv: 60, hp: 2000, mp: 100, str: 282, def: 226, agi: 90, mag: 170, exp: 1720, gold: 760,
     race: 'material', size: 'l', hit: 'slash', region: 6,
-    resist: { bolt: 1.35, dark: 0.7, ice: 0.8, wind: 0.8, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_hp', 40] },
+    resist: { bolt: 1.35, dark: 0.7, ice: 0.8, wind: 0.8, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_hp', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_ck_blade' }, { w: 2, id: 'm6_ck_slow', cond: 'notRecent:m6_ck_slow' }, { w: 2, id: 'm6_ck_stop', cond: 'notRecent:m6_ck_stop' }],
     desc: '時の神殿のおくを守る、よろいのからくり。時の剣で切りかかり、みんなの動きをおそくする。雷がよく効く。',
   },
@@ -118,7 +118,7 @@ export const MONSTERS_PAST = {
   rewind_ghost: {
     name: 'まきもどしのゆうれい', lv: 59, hp: 1240, mp: 200, str: 180, def: 140, agi: 120, mag: 238, exp: 1620, gold: 720,
     race: 'undead', size: 'm', flying: true, region: 6,
-    resist: { light: 1.5, dark: 0, ice: 0.8, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 36] },
+    resist: { light: 1.5, dark: 0, ice: 0.8, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm6_rg_hand' }, { w: 3, id: 'm6_rg_rewind', cond: ['allyHurt', 'notRecent:m6_rg_rewind'] }, { w: 2, id: 'm6_rg_song', cond: 'notRecent:m6_rg_song' }, { w: 1, id: 'attack' }],
     desc: '時の流れにまよいこんだ、ゆうれい。仲間のキズを「もとにもどれ」で、まきもどしてなおしてしまう。先にたおそう。光がよく効く。',
   },
@@ -126,7 +126,7 @@ export const MONSTERS_PAST = {
   clock_spider: {
     name: 'とけいグモ', lv: 60, hp: 1520, mp: 100, str: 266, def: 182, agi: 130, mag: 170, exp: 1680, gold: 740,
     race: 'beast', size: 'm', hit: 'bite', region: 6,
-    resist: { fire: 1.35, ice: 0.9, poison: 0, sleep: 0.5, confuse: 0.5 }, drops: { common: ['antidote', 4], rare: ['seed_agi', 36] },
+    resist: { fire: 1.35, ice: 0.9, poison: 0, sleep: 0.5, confuse: 0.5 }, drops: { common: ['antidote', 4], rare: ['seed_agi', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm6_cs_fang' }, { w: 2, id: 'm6_cs_web', cond: 'notRecent:m6_cs_web' }, { w: 2, id: 'm6_cs_jump' }],
     desc: '体が時計の文字ばんになっているクモ。秒針の糸で足をとめ、毒のキバでかみつく。炎がよく効く。',
   },

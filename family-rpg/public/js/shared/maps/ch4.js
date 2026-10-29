@@ -110,9 +110,9 @@ export function ch4SearchMats(mapId) {
 
 // きらきら（コガネ地方）の 中み
 export const SOUTH_SPARKLE_LOOT = {
-  s_coast: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['pretty_shell', 2], ['seed_agi', 0.4]],
-  s_dune: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['magic_powder', 2], ['seed_str', 0.4]],
-  s_oasis: [['moonherb', 3], ['star_shard', 3], ['magic_water', 0.6], ['seed_mag', 0.4]],
+  s_coast: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['pretty_shell', 2]],
+  s_dune: [['herb', 3], ['moonherb', 2], ['star_shard', 3], ['magic_powder', 2]],
+  s_oasis: [['moonherb', 3], ['star_shard', 3], ['magic_water', 0.6]],
 };
 
 // ───────────── コガネ地方 ─────────────
@@ -455,7 +455,7 @@ function northWell() {
     ],
     chests: [
       { id: 'nw_a', x: 2, y: 13, item: 'magic_water' },
-      { id: 'nw_b', x: 22, y: 1, item: 'seed_def' },
+      { id: 'nw_b', x: 22, y: 1, item: 'elf_drink' },
       { id: 'nw_c', x: 22, y: 15, item: 'magic_powder', n: 2 },
       { id: 'nw_d', x: 5, y: 24, gold: 500 },
     ],
@@ -536,7 +536,7 @@ function canal() {
   const c2 = canalMap('canal2', 'かれた地下水路　2階', CANAL2_ROWS, {
     chests: [
       { id: 'cn2_ne', x: 36, y: 8, item: 'sand_cloak' },
-      { id: 'cn2_w', x: 5, y: 22, item: 'seed_str' },
+      { id: 'cn2_w', x: 5, y: 22, item: 'revive_flower', n: 2 },
       { id: 'cn2_e', x: 26, y: 23, item: 'moonherb', n: 3 },
       { id: 'cn2_nw', x: 17, y: 9, item: 'revive_flower' },
       { id: 'cn2_hall', x: 13, y: 33, gold: 1200 },
@@ -630,7 +630,7 @@ function pyramid() {
     ],
     chests: [
       { id: 'py1_w', x: 2, y: 10, item: 'magic_water', n: 2 },
-      { id: 'py1_e', x: 29, y: 15, item: 'seed_def' },
+      { id: 'py1_e', x: 29, y: 15, item: 'elf_drink' },
     ],
     signs: [{ x: 15, y: 10, text: '石の文字ばんに、こう書いてある。\n「王の歌を、王のじゅんに。\nまちがえし者は、ミイラのへやへ落ちる」' }],
     warps: [
@@ -691,7 +691,7 @@ function pyramid() {
   const p3 = pyramidMap('pyramid3', '王家のピラミッド　3階', PYR3_ROWS, {
     dark: false,
     chests: [
-      { id: 'py3_a', x: 2, y: 11, item: 'seed_hp' },
+      { id: 'py3_a', x: 2, y: 11, item: 'revive_flower', n: 2 },
       { id: 'py3_b', x: 31, y: 2, item: 'star_shard', n: 3 },
     ],
     signs: [{ x: 2, y: 21, text: '石の文字ばんに、こう書いてある。\n「流れる砂は、矢じるしのむきへ人を運ぶ。\n砂の行き先を目でたどり、のる流れを選べ」' }],

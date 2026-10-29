@@ -197,7 +197,7 @@ const EXTRA_CHESTS = {
 // 第38回の わき道の 宝箱（レイアウトの & の じゅん。id は c5c_<階>s<番>。風の階は 黒い風の羽・炎の階は 影火の石・水の階は 黒しんじゅ と 道具）
 const SIDE_CHESTS = {
   1: [{ item: 'cs_wind_feather', n: 2 }, { item: 'magic_water', n: 2 }],
-  2: [{ item: 'seed_agi' }, { item: 'cs_wind_feather', n: 2 }],
+  2: [{ item: 'elf_drink' }, { item: 'cs_wind_feather', n: 2 }],
   3: [{ item: 'kumo_wataame', n: 3 }, { item: 'cs_wind_feather', n: 2 }],
   4: [{ item: 'cs_wind_feather', n: 3 }, { item: 'magic_water', n: 3 }],
   5: [{ item: 'cs_ember_stone', n: 2 }, { item: 'magic_water', n: 2 }, { gold: 14000 }],
