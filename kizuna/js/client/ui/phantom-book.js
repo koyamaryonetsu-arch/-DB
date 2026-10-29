@@ -1,9 +1,9 @@
 // 第51回 F: メニューの「幻の書」（12の 幻の職業の 条件と すすみぐあい。shared/data/phantom.js の phantomBook）
 //   はじめは ？？？。きわめておく 職業の どちらかを きわめると、名前・きわめておく 職業（✔）・条件の メーターが 見える
 //   一覧（上）と えらんだ 物の 中み（下）。十字キーの 上下で えらぶ・左右で 中みを スクロール。タッチでも おなじ
-import { el } from './dom.js?v=060276fb0270';
-import { phantomBook, bigNum, PHANTOM_JOBS } from '../../shared/data/phantom.js?v=060276fb0270';
-import { JOB_HINTS } from '../../shared/data/jobs.js?v=060276fb0270';
+import { el } from './dom.js?v=847e4bcd6ab2';
+import { phantomBook, bigNum, PHANTOM_JOBS } from '../../shared/data/phantom.js?v=847e4bcd6ab2';
+import { JOB_HINTS } from '../../shared/data/jobs.js?v=847e4bcd6ab2';
 
 const CSS = `
 .pb-view .pb-row .l { white-space: normal; }

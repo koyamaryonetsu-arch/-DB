@@ -191,6 +191,16 @@ export const JOB_TAGS = {
   chaos_creator: ['fist', 'dark', 'alchemy', 'heal'], // はかいと創造の神（はかい・作りかえる・薬局）
   dream_stadium: ['ride', 'sport', 'master', 'work'], // 夢のスタジアム鉄道（観客電車・野球）
   weather_god: ['bolt', 'wind', 'magic', 'light'], // 天候の神（かみなり・晴れ）
+  // 第51回 C1（幻の職業）
+  pirate_king: ['fist', 'laugh', 'money', 'master'], // 海賊王（ゴムのこぶし・自由の技で笑わせる・お宝・一味の船長）
+  super_hero: ['sword', 'bolt', 'fist', 'light'], // 伝説の超勇者（雷の剣・かめはめデイン）
+  sun_hokage: ['fire', 'shinobi', 'sword', 'master'], // 日の火影（ヒノカミ神楽・影分身・里の長）
+  facility_ai: ['machine', 'heal', 'work', 'master'], // 天才しせつ管理者AI（AI・全館空調・処方せん）
+  // 第51回 C2（幻の職業）
+  detective_king: ['detective', 'master', 'magic'], // 名探てい王（先読み）
+  galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
+  grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
+  sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

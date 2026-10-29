@@ -2,8 +2,8 @@
 // ・赤い 電車は 1つの つぶ（g2Train。赤い 車体・白い 帯・まど・ライト・パンタグラフ）。車両の かずで 120キロ（4両）→ 赤い快特（8両）→ 12両
 // ・本物の 会社の マークは かかない（赤い 車体＋白い 帯 まで）
 // ・時間は shared/data/ax-time-g2.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { rnd, lerp } from './axkit.js?v=060276fb0270';
-import { darken, bg, blow, icon, train } from './axfx-g2-kit.js?v=060276fb0270';
+import { rnd, lerp } from './axkit.js?v=847e4bcd6ab2';
+import { darken, bg, blow, icon, train } from './axfx-g2-kit.js?v=847e4bcd6ab2';
 
 const CAR = 30; // 1両の 長さ（s=1）
 const REDS = ['#ffffff', '#ff6a5a', '#ffd23a'];

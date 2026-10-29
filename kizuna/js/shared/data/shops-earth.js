@@ -1,7 +1,7 @@
 // 第5章 Step 7「影の城がうかんだあとのハネノ」の お店（data/shops.js で まぜる）。c5_castle の あと、ハネノの 武器と防具の店・道具屋の 品が かわる
 // （data/story-kumoi.js の c5_shop_hw・c5_shop_ha・c5_shop_hi が フラグで こちらの 店を ひらく）
 // 品ぞろえ（ランク9・店の 品なので ★1）は B（戦い・品）の data/items-earth.js の HANONO9_SHOP_WEAPONS・HANONO9_SHOP_ARMOR・HANONO9_SHOP_TOOLS（plan-ch5.md の 16）。
-import { HANONO9_SHOP_WEAPONS, HANONO9_SHOP_ARMOR, HANONO9_SHOP_TOOLS } from './items-earth.js?v=060276fb0270';
+import { HANONO9_SHOP_WEAPONS, HANONO9_SHOP_ARMOR, HANONO9_SHOP_TOOLS } from './items-earth.js?v=847e4bcd6ab2';
 
 export const SHOPS_EARTH = {
   hanono9_weapon: {

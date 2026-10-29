@@ -4,7 +4,7 @@
 //           テント・玉のりの 玉・くも・月・岩・人の かげ・あせ・ガーンの 線・うずまき・六角・わく・やじるし・竜巻・ヒーローの ヘルメット）
 // ・o2Bg（一しゅんの うすい 背景。a 0.35 まで）・o2Claw（つめあと）・o2Whirl（うずしお・闇の うず）・o2Rays（光の すじ）・o2Text（カタカナの 音）
 // ・毎フレーム グラデーションを 作らない（softGlow の キャッシュ）。画面の 文字は カタカナ・記号だけ（漢字なし）
-import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=060276fb0270';
+import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=847e4bcd6ab2';
 
 const TAU = Math.PI * 2;
 export const envOf = (p, fin = 80, fout = 160) => clamp01(p.age / Math.max(1, p.fin ?? fin)) * clamp01((p.life - p.age) / Math.max(1, p.fout ?? fout));

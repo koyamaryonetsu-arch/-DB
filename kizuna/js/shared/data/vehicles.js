@@ -31,7 +31,7 @@ export const VEHICLES = {
   water_horse: { name: '水の馬', price: 6000, jobs: ['snow_queen', 'fifth_spirit'], desc: '水でできた、すきとおった馬。走るたびに、しぶきが光る。' },
   // 第43回: マリオ・ピーチ（緑の きょうりゅう。絵は client/render/vehicle-r43j.js）
   yoshi: { name: 'ヨッシー', price: 5000, jobs: ['mario'], desc: '緑の体に赤いくらをのせた、なかよしのきょうりゅう。' },
-  book: { name: '空飛ぶ本', price: 2600, jobs: ['mage', 'sage', 'archmage', 'daikenja'], desc: '大きな呪文の本。開くと空にうかぶ。' },
+  book: { name: '空飛ぶ本', price: 2600, jobs: ['mage', 'sage', 'archmage', 'daikenja', 'grand_magus'], desc: '大きな呪文の本。開くと空にうかぶ。' },
   big_ball: { name: '大玉', price: 900, jobs: ['performer'], desc: 'サーカスの大玉。玉の上で、上手に走る。' },
   pogo: { name: 'ホッピング', price: 600, jobs: ['jester'], desc: 'ぴょんぴょんはねる、ばねの乗り物。' },
   taxi: { name: 'タクシー', price: 1800, jobs: ['salaryman', 'bucho'], desc: '会社にいそぐ時の、黄色いタクシー。' },
@@ -49,39 +49,39 @@ export const VEHICLES = {
   roll_chair: { name: 'キャスターつきのいす', price: 300, jobs: ['neet'], desc: '部屋から出なくても、どこへでも行ける…？' },
   dark_wings: { name: '闇のつばさ', price: 3300, jobs: ['chuuni', 'datenshi'], desc: '黒い羽がまう、闇のつばさ。' },
   bukujutsu: { name: 'ぶくう術', price: 4000, jobs: ['saiyan', 'super_saiyan', 'ss2', 'ss3'], desc: '気をまとって、空を飛ぶ術。' },
-  drone: { name: '大きなドローン', price: 2400, jobs: ['youtuber', 'streamer', 'creator'], desc: 'カメラつきの、人を乗せて飛ぶドローン。' },
+  drone: { name: '大きなドローン', price: 2400, jobs: ['youtuber', 'streamer', 'creator', 'facility_ai'], desc: 'カメラつきの、人を乗せて飛ぶドローン。' },
   kart: { name: 'レーシングカート', price: 2000, jobs: ['gamer', 'pro_gamer', 'plumber', 'mustache', 'mario'], desc: 'ゲームの中から出てきたような、みどりのカート。' },
   mamachari: { name: 'ママチャリ', price: 700, jobs: ['okan', 'saikyo_okan', 'cosmic_okan'], desc: '前のかごに、ネギが入った自転車。' },
   spy_car: { name: '黒いスポーツカー', price: 4200, jobs: ['spy', 'assassin', 'black_org'], desc: 'ひくくて速い、なぞの黒い車。' },
-  skateboard: { name: 'ターボつきスケボー', price: 1500, jobs: ['shonen_tantei', 'oshiri_tantei', 'meitantei'], desc: 'うしろからけむりが出る、速いスケボー。' },
+  skateboard: { name: 'ターボつきスケボー', price: 1500, jobs: ['shonen_tantei', 'oshiri_tantei', 'meitantei', 'detective_king'], desc: 'うしろからけむりが出る、速いスケボー。' },
   propeller: { name: '竹とんぼプロペラ', price: 2000, jobs: ['neko_robot', 'mimi_robot', 'doraemon'], desc: '頭につけると、空を飛べるプロペラ。' },
   lotus: { name: 'ハスの葉', price: 1200, jobs: ['kappa', 'hanakappa', 'kinniku_kappa'], desc: '水の上でも、地面の上でもすべる大きな葉。' },
-  sakura_dash: { name: '桜の風', price: 2600, jobs: ['rurouni', 'hitokiri', 'himura', 'hiten'], desc: '桜の花びらをまきあげて、風のように走る。' },
+  sakura_dash: { name: '桜の風', price: 2600, jobs: ['rurouni', 'hitokiri', 'himura', 'hiten', 'sword_saint'], desc: '桜の花びらをまきあげて、風のように走る。' },
   glider: { name: '白いハンググライダー', price: 3600, jobs: ['magician', 'kaito', 'kaito_kid'], desc: '月夜ににあう、白いつばさ。' },
   rock_cart: { name: 'れん成の石車', price: 2400, jobs: ['alchemist', 'state_alchemist', 'fullmetal'], desc: '地面の石をれん成して作った車。' },
   baby_dragon: { name: '子どもの竜', price: 5000, jobs: ['magic_knight', 'dragon_knight', 'magic_swordsman', 'ryumajin'], desc: 'せなかに乗せてくれる、みどりの竜の子。' },
-  pirate_cart: { name: '車輪つきの海賊船', price: 3000, jobs: ['pirate', 'guardian'], desc: '陸の上でも走れる、小さな海賊船。' },
-  gomu_rocket: { name: 'ゴムのロケット', price: 4000, jobs: ['rubber', 'nika'], desc: 'うでをのばして、びよーんと前へとぶ。' },
-  ninja_dash: { name: '忍び走り', price: 2800, jobs: ['ninja', 'konoha', 'hokage'], desc: 'うでを後ろにのばして、風より速く走る。' },
+  pirate_cart: { name: '車輪つきの海賊船', price: 3000, jobs: ['pirate', 'guardian', 'pirate_king'], desc: '陸の上でも走れる、小さな海賊船。' },
+  gomu_rocket: { name: 'ゴムのロケット', price: 4000, jobs: ['rubber', 'nika', 'pirate_king'], desc: 'うでをのばして、びよーんと前へとぶ。' },
+  ninja_dash: { name: '忍び走り', price: 2800, jobs: ['ninja', 'konoha', 'hokage', 'sun_hokage'], desc: 'うでを後ろにのばして、風より速く走る。' },
   slime: { name: '大きなぷるりん', price: 1800, jobs: ['tamer', 'monster_master'], desc: 'なかよしになった、大きなぷるりん。' },
   shooting_star: { name: 'ほうき星', price: 4400, jobs: ['fortune', 'summoner', 'star_diva', 'weather_god'], desc: '光のしっぽを引いて飛ぶ、小さな星。' },
-  white_horse: { name: '白馬', price: 5000, jobs: ['samurai', 'shogun', 'abarenbo_shogun'], desc: '町を走る上様の、白い馬。' },
+  white_horse: { name: '白馬', price: 5000, jobs: ['samurai', 'shogun', 'abarenbo_shogun', 'sword_saint'], desc: '町を走る上様の、白い馬。' },
   swan_boat: { name: 'スワンボート', price: 1500, jobs: ['comedian', 'm1_champion'], desc: 'こいで進む、白鳥の形のボート。陸でも走る。' },
-  kei_truck: { name: '軽トラ', price: 2600, jobs: ['setsubiya', 'ryonetsu', 'facility_genius'], desc: 'にだいに、はしごとエアコンの外の機械をつんだ軽トラ。' },
+  kei_truck: { name: '軽トラ', price: 2600, jobs: ['setsubiya', 'ryonetsu', 'facility_genius', 'facility_ai'], desc: 'にだいに、はしごとエアコンの外の機械をつんだ軽トラ。' },
   commuter_train: { name: '満員電車', price: 2000, jobs: ['shachiku', 'black_star'], desc: '朝の電車。中はぎゅうぎゅう…。' },
   flying_card: { name: '空飛ぶカード', price: 3000, jobs: ['rakuten_cardman'], desc: '大きな赤いカード。ポイントでうかぶ…？' },
   steam_train: { name: '蒸気機関車', price: 6500, jobs: ['kisatsu', 'enbashira', 'hinokami'], desc: 'けむりを上げて走る、黒い機関車。' },
   psy_float: { name: '念力ふわり', price: 3000, jobs: ['esper'], desc: '念力で、自分の体をうかせる。' },
-  broom: { name: '空飛ぶほうき', price: 2800, jobs: ['wizard_student', 'harry'], desc: '魔法学校の生徒の、空飛ぶほうき。' },
-  crescent: { name: '三日月', price: 4800, jobs: ['sailor_soldier', 'sailor_moon', 'neo_queen'], desc: '月の光でできた、三日月の乗り物。' },
-  hero_pegasus: { name: '勇者の天馬', price: 8000, jobs: ['hero', 'loto_hero'], desc: '金のよろいの、勇者だけの天馬。' },
+  broom: { name: '空飛ぶほうき', price: 2800, jobs: ['wizard_student', 'harry', 'grand_magus'], desc: '魔法学校の生徒の、空飛ぶほうき。' },
+  crescent: { name: '三日月', price: 4800, jobs: ['sailor_soldier', 'sailor_moon', 'neo_queen', 'galaxy_queen'], desc: '月の光でできた、三日月の乗り物。' },
+  hero_pegasus: { name: '勇者の天馬', price: 8000, jobs: ['hero', 'loto_hero', 'super_hero'], desc: '金のよろいの、勇者だけの天馬。' },
   dark_throne: { name: '空飛ぶ玉座', price: 9000, jobs: ['maou', 'hakaishin', 'chaos_creator'], desc: '魔物の王がすわる、空にうかぶいす。' },
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=060276fb0270'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=847e4bcd6ab2'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 // 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
-import { PRIZE_VEHICLES } from './vehicles-prize.js?v=060276fb0270'; Object.assign(VEHICLES, PRIZE_VEHICLES);
+import { PRIZE_VEHICLES } from './vehicles-prize.js?v=847e4bcd6ab2'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
