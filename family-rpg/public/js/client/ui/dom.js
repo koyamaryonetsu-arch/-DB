@@ -391,6 +391,41 @@ export class ListMenu {
 // 長おしの 時間（ミリ秒）
 ListMenu.LONG_MS = 500;
 
+// ───────────── 十字キーで スクロール（第50回） ─────────────
+// えらぶ 行が「もどる」だけの 長い 画面（強さの くわしい 画面・全員の 強さ）を、コントローラーの 上下・左右で 動かす。
+// menu の 上下 → ys（たての まど）、左右 → xs（よこに はみ出す 表）。関数でも よい（その ときの まどを かえす）。
+// スクロールできない ときは いつもの うごき
+export function padScroll(menu, { ys = null, xs = null } = {}) {
+  const nav = menu.nav.bind(menu);
+  menu.nav = (a, rep) => {
+    const d = { up: -1, down: 1, left: -1, right: 1 }[a];
+    const tate = a === 'up' || a === 'down';
+    const t = tate ? ys : xs;
+    const box = typeof t === 'function' ? t() : t;
+    if (d && box && scrollStep(box, tate, d, rep)) return;
+    return nav(a, rep);
+  };
+  return menu;
+}
+
+// 1回ぶん スクロール（tate: たて・d: -1 か 1・rep: おしっぱなしの くりかえし）。スクロールできる まど なら true
+export function scrollStep(box, tate, d, rep = false) {
+  const max = tate ? box.scrollHeight - box.clientHeight : box.scrollWidth - box.clientWidth;
+  if (!(max > 1)) return false;
+  const k = tate ? 'scrollTop' : 'scrollLeft';
+  const step = Math.max(40, (tate ? box.clientHeight : box.clientWidth) * (rep ? 0.25 : 0.4));
+  box[k] = Math.max(0, Math.min(max, (box[k] || 0) + d * step));
+  return true;
+}
+
+// el を ふくむ いちばん ちかい たてに スクロールする まど（なければ null）
+export function scrollerOf(node) {
+  for (let e = node; e && e !== document.body; e = e.parentElement) {
+    if (e.scrollHeight > e.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(e).overflowY)) return e;
+  }
+  return null;
+}
+
 // ───────────── おしらせ ─────────────
 export function toast(text, ms = 3200) {
   const box = document.getElementById('toast');
@@ -414,15 +449,21 @@ export function askText(input, { title, placeholder = '', max = 40, initial = ''
     };
     const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => done(field.value.trim()) });
     const cancel = el('button', { class: 'btn', text: 'やめる', onclick: () => done(null) });
+    // コントローラーが つながって いる ときは そうさの ヒント（第50回）
+    let pad = false;
+    try { pad = [...(globalThis.navigator?.getGamepads?.() || [])].some((p) => p?.connected); } catch { /* */ }
     const box = el('div', { class: 'win panel center-panel' },
       el('h2', { text: title }),
       field,
+      pad ? el('div', { class: 'small muted', style: { marginTop: '0.3em' }, text: 'コントローラー：Aで決定・Bでやめる' }) : null,
       el('div', { class: 'row end', style: { marginTop: '0.6em' } }, cancel, ok));
     field.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.isComposing) done(field.value.trim());
       if (e.key === 'Escape') done(null);
     });
-    const h = { onNav: (a) => { if (a === 'b') done(null); } };
+    // コントローラー: A で 決定（書いて いなければ はじめの 文字の まま）・B で やめる。
+    // キーボードは 文字を 書く ので、ここには こない（input.js。Enter・Esc は 上の keydown）
+    const h = { onNav: (a) => { if (a === 'a') done(field.value.trim()); else if (a === 'b') done(null); } };
     input.push(h);
     ui.append(back, box);
     setTimeout(() => field.focus(), 30);

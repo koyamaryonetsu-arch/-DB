@@ -1,7 +1,7 @@
-// ゲームの 難しさ: 目的地の しるし（メイン・たのまれごと）と もらえる 経験値（1・0.75・0.5倍）
+// ゲームの 難しさ: 目的地の しるし（メイン・たのまれごと）と もらえる 経験値（1・0.75・0.5・0.25・0.1倍）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { difficultyOf, normDifficulty, scaleExp, visibleMarks, EXP_RATES } from '../public/js/shared/data/difficulty.js';
+import { difficultyOf, normDifficulty, scaleExp, visibleMarks, EXP_RATES, EXP_RATE_NAMES, EXP_RATE_NOTES } from '../public/js/shared/data/difficulty.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { startFieldBattle } from '../public/js/shared/world/battles.js';
@@ -12,7 +12,7 @@ import { Bot, tickN } from './helpers.js';
 test('難しさの 初めは ふつう（しるしは 出す・経験値 1倍・敵の強さ 1倍）', () => {
   assert.deepEqual(difficultyOf({}), { mainMarks: true, subMarks: true, exp: 1, enemy: 1 });
   assert.deepEqual(difficultyOf({ difficulty: { exp: 3, mainMarks: 'x' } }), { mainMarks: true, subMarks: true, exp: 1, enemy: 1 }, '知らない 値は ふつう');
-  assert.deepEqual(EXP_RATES, [1, 0.75, 0.5]);
+  assert.deepEqual(EXP_RATES, [1, 0.75, 0.5, 0.25, 0.1]);
 });
 
 test('設定を ととのえる: ぜんぶ ふつうに もどすと のこさない', () => {
@@ -31,6 +31,22 @@ test('経験値の 倍率（0 で なければ 1 いじょう）', () => {
   assert.equal(scaleExp({ difficulty: { exp: 0.5 } }, 0), 0);
 });
 
+test('経験値 0.25倍・0.1倍（R50: 家族の ねがい）を えらべる', () => {
+  for (const r of EXP_RATES) {
+    assert.ok(EXP_RATE_NAMES[r], `${r} の 名前`);
+    assert.ok(EXP_RATE_NOTES[r], `${r} の せつめい`);
+  }
+  assert.equal(EXP_RATE_NAMES[0.25], '0.25倍');
+  assert.equal(EXP_RATE_NAMES[0.1], '0.1倍');
+  assert.deepEqual(normDifficulty(undefined, { exp: 0.1 }), { mainMarks: true, subMarks: true, exp: 0.1, enemy: 1 });
+  assert.deepEqual(normDifficulty(undefined, { exp: 0.25 }), { mainMarks: true, subMarks: true, exp: 0.25, enemy: 1 });
+  assert.equal(difficultyOf({ difficulty: { exp: 0.1 } }).exp, 0.1, 'のこった 設定を 読める');
+  assert.equal(scaleExp({ difficulty: { exp: 0.25 } }, 100), 25);
+  assert.equal(scaleExp({ difficulty: { exp: 0.1 } }, 100), 10);
+  assert.equal(scaleExp({ difficulty: { exp: 0.1 } }, 4), 1, '小さくても 1 いじょう');
+  assert.equal(scaleExp({ difficulty: { exp: 0.1 } }, 0), 0);
+});
+
 test('しるしを しぼる: メインだけ・たのまれごとだけ 出さない', () => {
   const marks = [{ kind: 'main' }, { kind: 'sub' }, { kind: 'subReady' }];
   assert.equal(visibleMarks({}, marks).length, 3);
@@ -39,7 +55,7 @@ test('しるしを しぼる: メインだけ・たのまれごとだけ 出さ�
   assert.equal(visibleMarks({ difficulty: { mainMarks: false, subMarks: false } }, marks).length, 0);
 });
 
-async function battleExp(rate) {
+async function battleExp(rate, sp = 'golem') {
   const world = new GameWorld({ offline: true, rng: makeRng(11), rateLimit: false });
   const bot = new Bot(world, 'ユイ');
   await bot.login();
@@ -52,7 +68,7 @@ async function battleExp(rate) {
   const gard = partyOf(world, bot.s).supports.find((x) => x.key === 'npc_gard').char;
   const e0 = c.exp, g0 = gard.exp;
   bot.s.map = 'overworld';
-  const ctx = startFieldBattle(world, bot.s, { id: 'xx', sp: 'golem', group: ['golem'], zone: 'outskirts', table: 'outskirts', busy: false });
+  const ctx = startFieldBattle(world, bot.s, { id: 'xx', sp, group: [sp], zone: 'outskirts', table: 'outskirts', busy: false });
   for (const e of ctx.battle.enemies) { e.hp = 0; e.alive = false; ctx.battle.killed.push(e.species); }
   ctx.battle.checkEnd();
   for (let i = 0; i < 300 && world.battles.size; i++) await tickN(world, 1);
@@ -70,4 +86,17 @@ test('戦いの 経験値: 0.5倍に すると 自分も 仲間も 半分', asyn
   assert.equal(half.gard, Math.round(base * 0.5), '仲間も 半分');
   const q = await battleExp(0.75);
   assert.equal(q.me, Math.round(base * 0.75));
+});
+
+test('戦いの 経験値: 0.25倍・0.1倍 でも 自分も 仲間も へる', async () => {
+  // 経験値の ある 魔物で くらべる（きほんの 倍率の あとに かかる）
+  const sp = 'storm_bird';
+  const normal = await battleExp(1, sp);
+  assert.ok(normal.me > 20);
+  for (const r of [0.25, 0.1]) {
+    const x = await battleExp(r, sp);
+    assert.equal(x.diff.exp, r, 'メニューの 設定で のこる');
+    assert.equal(x.me, Math.max(1, Math.round(normal.me * r)));
+    assert.equal(x.gard, Math.max(1, Math.round(normal.gard * r)), '仲間も');
+  }
 });
