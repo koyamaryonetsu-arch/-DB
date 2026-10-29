@@ -17,8 +17,9 @@ test('職業データ: 上級職は 基本職 2つ（新しい 職業は 1つの
   // 第29回: るろうに剣士（基本職）と 人斬りばっ刀さい（上級職）を 足した
   // 第33回: 手品師・れん金術師（基本職）と かいとう・魔法学校の生徒・国家れん金術師・美少女戦士（上級職）を 足した
   // 第43回: ももの姫（配管工。基本職）と おてんば姫（ひげおやじ。上級職）を 足した
-  assert.equal(JOB_ORDER.length, 27);
-  assert.equal(ADVANCED_ORDER.length, 43);
+  // 第51回 W: 気象予報士（基本職）と お天気キャスター（上級職）を 足した
+  assert.equal(JOB_ORDER.length, 28);
+  assert.equal(ADVANCED_ORDER.length, 44);
   assert.ok(SUPER_ORDER.length >= 14);
   // はじめの 基本職 5つの くみあわせ 10とおりに 1つずつ 上級職
   const pairs = new Set(ADVANCED_ORDER.slice(0, 10).map((j) => JOBS[j].req.slice().sort().join('+')));

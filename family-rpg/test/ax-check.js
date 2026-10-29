@@ -222,7 +222,7 @@ function groupFiles(group) {
     if (out.has(f)) return;
     const src = read(f);
     out.set(f, src);
-    for (const m of src.matchAll(/from '\.\/(axfx-[go]\d-[\w-]+\.js)'/g)) {
+    for (const m of src.matchAll(/from '\.\/(axfx-[go]\d+-[\w-]+\.js)'/g)) {
       if (deep) visit(m[1]);
       else if (!out.has(`../public/js/client/render/${m[1]}`)) out.set(`../public/js/client/render/${m[1]}`, read(`../public/js/client/render/${m[1]}`));
     }
@@ -292,7 +292,7 @@ export function groupReport(group, opts = {}) {
     }
   }
   // 画面の 文字の 漢字（グループの え の ファイル）
-  if (opts.kanji !== false && /^[go]\d$/.test(group) && AX_GROUP_IDS.includes(group)) {
+  if (opts.kanji !== false && /^[go]\d+$/.test(group) && AX_GROUP_IDS.includes(group)) {
     const files = groupFiles(group);
     for (const [f, src] of files) problems.push(...kanjiProblems(src, f.replace('../public/js/', '')));
     // 第49回: もとからの 技は カットインの 帯（k.cutIn）・画面の くらさ（k.dim）を つかわない（plan-r49-fx.md 0章・3章）

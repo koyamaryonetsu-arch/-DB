@@ -23,6 +23,8 @@ import { HIRA_R41B_ABILITIES, HIRAMEKI_R41B } from './hirameki-r41b.js';
 import { HIRA_R41A_ABILITIES, HIRAMEKI_R41A } from './hirameki-r41a.js';
 // 第43回: 配管工の 系統（ひげおやじ・マリオ）の ひらめき技（hirameki-r43j.js）
 import { HIRA_R43J_ABILITIES, HIRAMEKI_R43J } from './hirameki-r43j.js';
+// 第51回 W: 天気の 職業（お天気キャスター・天候をあやつる者）の ひらめき技（hirameki-weather.js）
+import { HIRA_WEATHER_ABILITIES, HIRAMEKI_WEATHER } from './hirameki-weather.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -198,6 +200,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_R41A_ABILITIES,
   // 第43回の ひらめき技（hirameki-r43j.js）
   ...HIRA_R43J_ABILITIES,
+  // 第51回 W の ひらめき技（hirameki-weather.js）
+  ...HIRA_WEATHER_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -253,6 +257,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_R41A,
   // 第43回の ひらめき技（hirameki-r43j.js）
   ...HIRAMEKI_R43J,
+  // 第51回 W の ひらめき技（hirameki-weather.js）
+  ...HIRAMEKI_WEATHER,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）

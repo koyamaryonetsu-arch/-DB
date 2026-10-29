@@ -556,6 +556,7 @@ export function showCreate(game) {
       rurouni: '旅の剣士でござる',
       magician: 'タネも仕かけもない', alchemist: '形を作りかえる',
       plumber: 'ジャンプが得意',
+      kishou: '明日の天気を当てる',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;
