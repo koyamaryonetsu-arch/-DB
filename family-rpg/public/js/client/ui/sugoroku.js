@@ -9,6 +9,7 @@ import { itemInfo } from './counter.js';
 import { request } from './shop.js';
 import { padNav } from './padnav.js';
 import { CasinoCounter, casinoShell, fmt, sendClose, helpBox } from './casino.js';
+import { celebrate, stopFx } from './casino-fx.js';
 import { boardIconURL } from '../render/boards.js';
 import { iconURL, symbolURL } from '../render/casino.js';
 import { SgBoardView, SQ_LOOK, dieURL } from '../render/sugoroku.js';
@@ -366,7 +367,10 @@ function boardScreen(game, info) {
 
     const sfx = (name) => {
       if (!name) return;
-      if (name === 'jackpot' || name === 'fanfare') game.audio.play('jackpot');
+      // 第50回 N5: 当たり・ゴールは コインの 雨と 光（casino-fx.js）
+      if (name === 'fanfare') celebrate(game, { level: 'jackpot', title: 'ゴール！' });
+      else if (name === 'jackpot') { game.audio.play('jackpot'); celebrate(game, { level: 'big', sound: false }); }
+      else if (name === 'win') celebrate(game, { level: 'small' });
       else if (name === 'warp') game.audio.sfx('sparkle');
       else game.audio.sfx(name);
     };
@@ -536,6 +540,7 @@ function boardScreen(game, info) {
       if (closed) return;
       closed = true;
       view.destroy();
+      stopFx();
       game.input.pop(h);
       sh.remove();
       resolve(why);

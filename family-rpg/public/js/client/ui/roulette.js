@@ -3,11 +3,15 @@
 //   チップ（1・10・100枚）を 選んで、かけたい 所を タップ（いくつでも）→「回す」
 //   十字キー・A・B: ボタンや 数字の マスを えらぶ（ui/padnav.js）。A で チップを おく・B で 閉じる
 //   たての 画面（スマホ）: 円ばんが 上・数字の 表は たて ならび / よこの 画面: 円ばんが 左・表は よこ ならび
+//   第50回 N5: 「間・角にかける」を オンに すると、数と 数の 間（18倍）・4つの 数の 角（9倍）にも おける
+//     （表の マスの 上に すきとおった ボタンを ならべる。十字キーでも 数→間→数 と うごける）
+//   回る 演出（玉の 光の 尾・ふちの ランプ・止まる まえの ドキドキ・出た 数の 大写し）と 当たりの 演出（casino-fx.js）
 import { el } from './dom.js';
 import { request } from './shop.js';
 import { padNav } from './padnav.js';
 import { casinoShell, countUp, fmt, sendClose } from './casino.js';
-import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, ROULETTE_MAX_SPOTS, WHEEL, numColor, BET_KINDS, betKey, betName } from '../../shared/data/roulette.js';
+import { celebrate, stopFx, winLevel, casinoSfx } from './casino-fx.js';
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, ROULETTE_MAX_SPOTS, WHEEL, numColor, BET_KINDS, betKey, betName, parseBetKey, betNums, SPLIT_VALS, CORNER_VALS } from '../../shared/data/roulette.js';
 import { coinsOf } from '../../shared/data/casino.js';
 
 const STEP = (Math.PI * 2) / WHEEL.length;
@@ -15,6 +19,8 @@ const WIDX = Object.fromEntries(WHEEL.map((n, i) => [n, i]));
 const COLOR_NAME = { red: '赤', black: '黒', green: '緑' };
 const SPIN_MS = 3800;
 const W = 320; // 円ばんの キャンバス（ドット）
+const LAMPS = 24; // ふちの ランプの 数
+const COLOR_FILL = { red: '#d0283a', black: '#1c1c2a', green: '#1f8a3a' };
 
 // 表の マス（v… たての 表の 行・列 / h… よこの 表の 行・列。span は いくつぶん）
 function tableCells() {
@@ -54,15 +60,18 @@ export function rouletteUI(game, data) {
     const ctx = cv.getContext('2d');
     const msg = el('div', { class: 'cs-msg rl-msg', text: 'チップを選んで、かけたい所をタップ！\nいくつでもかけられるよ。' });
     const histEl = el('div', { class: 'rl-hist' });
+    const wrap = el('div', { class: 'rl-wheelwrap' }, cv, histEl);
     const totalEl = el('div', { class: 'rl-total' });
     const chipBtns = chips.map((c) => el('button', { class: 'btn cs-bet rl-chip', text: `${c}枚`, onclick: () => setChip(c) }));
     const spinBtn = el('button', { class: 'btn primary cs-big rl-spin', text: '回す', onclick: () => spin() });
     const undoBtn = el('button', { class: 'btn rl-small', text: 'ひとつもどす', onclick: () => undoBet() });
     const clearBtn = el('button', { class: 'btn rl-small', text: '全部もどす', onclick: () => clearBets() });
     const againBtn = el('button', { class: 'btn rl-small', text: 'まえと同じ', onclick: () => sameAgain() });
-    const help = el('div', { class: 'detail rl-help', text: `数字は36倍・赤／黒・きすう／ぐうすう・1〜18／19〜36は2倍・12ずつは3倍。\n0が出ると、0の数字いがいは、はずれ。1回に${fmt(maxTotal)}枚までかけられる。` + (game.input.touch ? '' : '\n十字キー: 選ぶ／Z: チップをおく・決定／X: 閉じる') });
+    const help = el('div', { class: 'detail rl-help', text: `数字は36倍・数と数の間は18倍・4つの数の角は9倍・赤／黒・きすう／ぐうすう・1〜18／19〜36は2倍・12ずつは3倍。\n0が出ると、0の数字いがいは、はずれ。1回に${fmt(maxTotal)}枚までかけられる。` + (game.input.touch ? '' : '\n十字キー: 選ぶ／Z: チップをおく・決定／X: 閉じる') });
+    // 「間・角にかける」は 表の あいている 所（よこ: 0 の 下・たて: 0 の 右）
+    const midBtn = el('button', { class: 'rl-midbtn', 'aria-label': '間・角にかける', onclick: () => setMid(!midMode) }, el('span', { text: '間・角に' }), el('span', { text: 'かける' }));
     const wheelBox = el('div', { class: 'win rl-left' },
-      el('div', { class: 'rl-wheelwrap' }, cv, histEl), msg,
+      wrap, msg,
       el('div', { class: 'cs-controls rl-chips' }, el('span', { class: 'small muted', text: 'チップ' }), ...chipBtns),
       el('div', { class: 'cs-controls rl-acts' }, spinBtn, totalEl),
       el('div', { class: 'cs-controls rl-acts2' }, undoBtn, clearBtn, againBtn));
@@ -82,9 +91,58 @@ export function rouletteUI(game, data) {
       cellEls.set(c.key, { b, badge, c });
       table.append(b);
     }
+    // 数と 数の 間・4つの 数の 角（すきとおった ボタン。場所は マスから 計算する）
+    const zones = [];
+    for (const [k, list] of [['split', SPLIT_VALS], ['corner', CORNER_VALS]]) {
+      for (const v of list) {
+        const key = betKey(k, v);
+        const badge = el('span', { class: 'rl-badge' });
+        const b = el('button', { class: `rl-zone rl-${k} no-pad`, 'aria-label': `${betName(k, v)}の${k === 'split' ? '間' : '角'}`, onclick: () => place(key) }, badge);
+        b.addEventListener('pointerenter', () => cover(betNums(k, v)));
+        b.addEventListener('pointerleave', () => cover([]));
+        const c = { k, v, key, nums: betNums(k, v) };
+        cellEls.set(key, { b, badge, c });
+        zones.push({ b, c });
+        table.append(b);
+      }
+    }
+    table.append(midBtn);
+    const numEl = (n) => cellEls.get(betKey('num', n)).b;
+    const layoutZones = () => {
+      for (const z of zones) {
+        const rs = z.c.nums.map((n) => { const e = numEl(n); return { x: e.offsetLeft + e.offsetWidth / 2, y: e.offsetTop + e.offsetHeight / 2, w: e.offsetWidth, h: e.offsetHeight }; });
+        const xs = rs.map((r) => r.x), ys = rs.map((r) => r.y);
+        const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+        const dx = Math.max(...xs) - Math.min(...xs), dy = Math.max(...ys) - Math.min(...ys);
+        // 間: マスの 半分の 大きさ（マスの まん中は 数の ため に のこす）。角: たて・よこ とも 半分
+        const w = Math.max(dx > 1 ? dx * 0.5 : rs[0].w * 0.5, 18), h = Math.max(dy > 1 ? dy * 0.5 : rs[0].h * 0.5, 18);
+        Object.assign(z.b.style, { left: `${cx - w / 2}px`, top: `${cy - h / 2}px`, width: `${w}px`, height: `${h}px` });
+      }
+    };
+    let midMode = false;
+    let coverOn = [];
+    const cover = (list) => {
+      for (const n of coverOn) numEl(n).classList.remove('cover');
+      coverOn = list;
+      for (const n of coverOn) numEl(n).classList.add('cover');
+    };
+    const setMid = (on) => {
+      if (spinning) return;
+      midMode = on;
+      table.classList.toggle('mid', on);
+      for (const z of zones) z.b.classList.toggle('no-pad', !on);
+      if (!on) cover([]);
+      layoutZones();
+      game.audio.sfx('cursor');
+      msg.textContent = on ? '数と数の間（18倍）や、\n4つの数の角（9倍）をタップ！' : 'チップを選んで、かけたい所をタップ！\nいくつでもかけられるよ。';
+      render();
+    };
     const tableBox = el('div', { class: 'win rl-right' }, table, help);
     sh.body.classList.add('rl-body');
     sh.body.append(wheelBox, tableBox);
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => layoutZones()) : null;
+    ro?.observe(table);
+    requestAnimationFrame(layoutZones);
 
     const total = () => Object.values(bets).reduce((a, x) => a + x, 0);
     const render = () => {
@@ -96,6 +154,8 @@ export function rouletteUI(game, data) {
         e.b.classList.toggle('hit', hitKeys.includes(key));
         e.b.classList.toggle('won', e.c.k === 'num' && e.c.v === hit);
       }
+      midBtn.classList.toggle('on', midMode);
+      midBtn.disabled = spinning;
       const t = total();
       totalEl.textContent = t ? `かけた数 ${fmt(t)}枚` : 'まだかけていない';
       spinBtn.disabled = spinning;
@@ -130,9 +190,12 @@ export function rouletteUI(game, data) {
       undo.push([key, add]);
       game.audio.sfx('coin');
       const p = cellEls.get(key).c;
-      msg.textContent = `${betName(p.k, p.v)}に${fmt(add)}枚かけた。（${p.k === 'num' ? '36倍' : `${BET_KINDS[p.k].mult}倍`}）\n「回す」で勝負！`;
+      const where = p.k === 'split' ? 'の間' : p.k === 'corner' ? 'の角' : '';
+      msg.textContent = `${betName(p.k, p.v)}${where}に${fmt(add)}枚かけた。（${BET_KINDS[p.k].mult}倍）\n「回す」で勝負！`;
+      if (p.nums) { cover(p.nums); clearTimeout(coverT); coverT = setTimeout(() => cover([]), 700); }
       render();
     };
+    let coverT = 0;
     const undoBet = () => {
       const u = undo.pop();
       if (!u) return;
@@ -181,6 +244,8 @@ export function rouletteUI(game, data) {
       spinning = true;
       hit = null;
       hitKeys = [];
+      stopFx();
+      cover([]);
       const placed = { ...bets };
       coins -= t;
       sh.setCoins(coins);
@@ -188,8 +253,8 @@ export function rouletteUI(game, data) {
       render();
       game.audio.sfx('confirm');
       const list = Object.entries(placed).map(([key, c]) => {
-        const [k, v] = key.split(':');
-        return v === undefined ? { k, c } : { k, v: Number(v), c };
+        const { k, v } = parseBetKey(key);
+        return v === null ? { k, c } : { k, v, c };
       });
       const res = await request(game, { kind: 'casino', action: 'roulette', bets: list });
       if (closed) return;
@@ -210,7 +275,8 @@ export function rouletteUI(game, data) {
       anim.ball = anim.wheel + anim.landed * STEP - Math.PI / 2; // 今 玉が いる ポケット
       let db = -Math.PI / 2 - anim.ball;
       db = -((((-db) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI * 8;
-      Object.assign(anim, { x: 0, from: { w: anim.wheel, b: anim.ball }, to: { w: anim.wheel + dw, b: anim.ball + db }, skip: false, result: res, placed });
+      Object.assign(anim, { x: 0, from: { w: anim.wheel, b: anim.ball }, to: { w: anim.wheel + dw, b: anim.ball + db }, skip: false, result: res, placed, trail: [], pop: null, beat: 0, win: 0 });
+      wrap.classList.remove('zoom');
     };
 
     const finishSpin = () => {
@@ -228,10 +294,17 @@ export function rouletteUI(game, data) {
       history.length = Math.min(history.length, 8);
       renderHistory();
       const col = COLOR_NAME[numColor(res.n)];
+      // 出た 数を 大きく（円ばんの まん中に ポン）
+      anim.pop = { n: res.n, t0: performance.now() };
+      wrap.classList.remove('tense');
+      wrap.classList.add('zoom');
+      casinoSfx(game, 'pop');
       if (res.win > 0) {
         msg.textContent = `${res.n}（${col}）！\nコインを${fmt(res.win)}枚手に入れた！`;
-        if (res.win >= res.bet * 10) game.audio.play('jackpot');
-        else game.audio.sfx('win');
+        const level = winLevel(res.win / res.bet, { big: 4, jackpot: 20 });
+        anim.win = level === 'tiny' ? 1 : level === 'small' ? 2 : 3;
+        const title = { tiny: '', small: '当たり！', big: '大当たり！', jackpot: 'ジャックポット！' }[level];
+        celebrate(game, { level, title, sub: `${res.n}（${col}）コイン${fmt(res.win)}枚！` });
         countUp(sh, coins, res.coins, () => game.audio.sfx('coin'));
       } else {
         msg.textContent = `${res.n}（${col}）…\nざんねん、はずれ。`;
@@ -264,22 +337,36 @@ export function rouletteUI(game, data) {
         anim.wheel = anim.from.w + (anim.to.w - anim.from.w) * e;
         anim.ball = anim.from.b + (anim.to.b - anim.from.b) * eb;
         anim.ballR = x < 0.7 ? 0 : (x - 0.7) / 0.3;
+        // 玉の 光の 尾（さいきんの 位置）
+        const r = 134 - anim.ballR * 26;
+        anim.trail.unshift([Math.cos(anim.ball) * r, Math.sin(anim.ball) * r]);
+        anim.trail.length = Math.min(anim.trail.length, 9);
         // カラカラ（玉が ポケットを こえる 音）
         if (now - anim.lastTick > 60 + x * 260) {
           anim.lastTick = now;
           if (x < 0.97) game.audio.sfx('reel');
         }
+        // 止まる まえ: 円ばんに 近づいて ドクン…ドクン…
+        if (x > 0.72 && !anim.skip) {
+          if (!wrap.classList.contains('tense')) msg.textContent = '玉が止まる…！';
+          wrap.classList.add('tense');
+          if (now - anim.beat > 520) { anim.beat = now; casinoSfx(game, 'heart'); }
+        }
         if (x >= 1) finishSpin();
       } else {
         anim.wheel += dt * 0.00025; // ゆっくり 回っている
       }
+      anim.now = now;
       drawWheel(ctx, anim);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
 
     render();
-    const nav = padNav(sh.root, { onB: () => close(), sound: (x) => game.audio.sfx(x), start: () => spinBtn });
+    const nav = padNav(sh.root, {
+      onB: () => close(), sound: (x) => game.audio.sfx(x), start: () => spinBtn,
+      onFocus: (e) => { const z = zones.find((q) => q.b === e); cover(z ? z.c.nums : []); },
+    });
     const h = {
       el: sh.root,
       onNav: (a) => {
@@ -296,6 +383,9 @@ export function rouletteUI(game, data) {
       closed = true;
       cancelAnimationFrame(raf);
       clearInterval(sh.countTimer);
+      clearTimeout(coverT);
+      ro?.disconnect();
+      stopFx();
       game.input.pop(h);
       game.audio.sfx('cancel');
       sh.remove();
@@ -311,17 +401,42 @@ export function rouletteUI(game, data) {
 // 円ばんを かく（上の 三角が 当たりの 場所）
 function drawWheel(ctx, a) {
   const c = W / 2;
+  const now = a.now || 0;
+  const x = a.to ? a.x || 0 : 1;
   ctx.clearRect(0, 0, W, W);
   // そとの わく
   ctx.fillStyle = '#5a2a14';
-  ctx.beginPath(); ctx.arc(c, c, 156, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(c, c, 158, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#8a4a1e';
-  ctx.beginPath(); ctx.arc(c, c, 148, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(c, c, 146, 0, Math.PI * 2); ctx.fill();
+  // ふちの ランプ（回る 間は 追いかけっこ・止まる まえは 赤く はやく・当たりは ぜんぶ 点めつ）
+  for (let i = 0; i < LAMPS; i++) {
+    const ang = (i / LAMPS) * Math.PI * 2 - Math.PI / 2;
+    let on, col = '#ffd84a';
+    if (a.to) {
+      const sp = x > 0.72 ? 0.024 : 0.012 * (1 - x) + 0.004;
+      on = (i + Math.floor(now * sp)) % 4 === 0 || (i + Math.floor(now * sp)) % 4 === 1;
+      if (x > 0.72) col = '#ff5a5a';
+    } else if (a.win && a.pop && now - a.pop.t0 < 3000) {
+      on = Math.floor(now / 110) % 2 === i % 2;
+      col = a.win >= 3 ? ['#ffd84a', '#5ae0ff', '#ff5ad8', '#8aff6a'][(i + Math.floor(now / 110)) % 4] : '#ffd84a';
+    } else on = (i + Math.floor(now / 700)) % 2 === 0;
+    const lx = c + Math.cos(ang) * 152, ly = c + Math.sin(ang) * 152;
+    if (on) {
+      ctx.fillStyle = col;
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = on ? '#fffbe0' : '#6a3a18';
+    ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fill();
+  }
   // 玉の 通る 道
   ctx.fillStyle = '#2a1408';
   ctx.beginPath(); ctx.arc(c, c, 140, 0, Math.PI * 2); ctx.fill();
   // ポケット
   const r1 = 124, r0 = 92;
+  const popAge = a.pop ? now - a.pop.t0 : Infinity;
   for (let i = 0; i < WHEEL.length; i++) {
     const n = WHEEL[i];
     const ang = a.wheel + i * STEP - Math.PI / 2;
@@ -330,8 +445,7 @@ function drawWheel(ctx, a) {
     ctx.arc(c, c, r1, ang - STEP / 2, ang + STEP / 2);
     ctx.arc(c, c, r0, ang + STEP / 2, ang - STEP / 2, true);
     ctx.closePath();
-    const col = numColor(n);
-    ctx.fillStyle = col === 'red' ? '#d0283a' : col === 'black' ? '#1c1c2a' : '#1f8a3a';
+    ctx.fillStyle = COLOR_FILL[numColor(n)];
     ctx.fill();
     ctx.strokeStyle = '#e8c060';
     ctx.lineWidth = 1;
@@ -344,6 +458,22 @@ function drawWheel(ctx, a) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(String(n), 0, 0);
+    ctx.restore();
+  }
+  // 当たった ポケットを 光らせる（止まって しばらく）
+  if (a.pop && popAge < 4000) {
+    const ang = a.wheel + WIDX[a.pop.n] * STEP - Math.PI / 2;
+    ctx.save();
+    ctx.globalAlpha = 0.55 + 0.45 * Math.sin(now / 90);
+    ctx.strokeStyle = '#fff6a0';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = '#ffd84a';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.arc(c, c, r1 + 2, ang - STEP / 2, ang + STEP / 2);
+    ctx.arc(c, c, r0 - 2, ang + STEP / 2, ang - STEP / 2, true);
+    ctx.closePath();
+    ctx.stroke();
     ctx.restore();
   }
   // まん中
@@ -374,6 +504,20 @@ function drawWheel(ctx, a) {
     const r = 134 - a.ballR * 26;
     bx = c + Math.cos(a.ball) * r;
     by = c + Math.sin(a.ball) * r;
+    // 光の 尾
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    (a.trail || []).forEach(([tx, ty], i) => {
+      const k = 1 - i / 9;
+      ctx.fillStyle = `rgba(255, 220, 140, ${0.32 * k})`;
+      ctx.beginPath(); ctx.arc(c + tx, c + ty, 7 * k + 1, 0, Math.PI * 2); ctx.fill();
+    });
+    const gl = ctx.createRadialGradient(bx, by, 2, bx, by, 18);
+    gl.addColorStop(0, 'rgba(255, 250, 220, 0.7)');
+    gl.addColorStop(1, 'rgba(255, 220, 120, 0)');
+    ctx.fillStyle = gl;
+    ctx.beginPath(); ctx.arc(bx, by, 18, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
   } else {
     const ang = a.wheel + a.landed * STEP - Math.PI / 2;
     bx = c + Math.cos(ang) * 108;
@@ -393,6 +537,31 @@ function drawWheel(ctx, a) {
   ctx.beginPath();
   ctx.moveTo(c - 11, 2); ctx.lineTo(c + 11, 2); ctx.lineTo(c, 22); ctx.closePath();
   ctx.fill(); ctx.stroke();
+  // 出た 数を まん中に 大きく（ポンと はずんで 出る）
+  if (a.pop) {
+    const t = Math.min(1, popAge / 380);
+    const sc = t < 1 ? 1.25 * Math.sin(t * Math.PI * 0.5) + 0.25 * Math.sin(t * Math.PI) : 1;
+    ctx.save();
+    ctx.translate(c, c);
+    ctx.scale(sc, sc);
+    if (popAge < 1400) {
+      // 光の 輪が ひろがる
+      const k = popAge / 1400;
+      ctx.strokeStyle = `rgba(255, 246, 160, ${1 - k})`;
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(0, 0, 44 + k * 60, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.fillStyle = COLOR_FILL[numColor(a.pop.n)];
+    ctx.strokeStyle = '#ffe9a0';
+    ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 44px DotGothic16, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(a.pop.n), 0, 3);
+    ctx.restore();
+  }
 }
 
 // ───────────── 見た目 ─────────────
@@ -406,7 +575,10 @@ function ensureRouletteStyle() {
 .cs-body.rl-body { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr); }
 .rl-left { display: flex; flex-direction: column; align-items: center; gap: 0.35em; min-height: 0; overflow-y: auto; }
 .rl-wheelwrap { position: relative; width: min(100%, 260px); }
-.rl-wheel { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
+.rl-wheel { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; transition: transform 0.6s ease-out, filter 0.6s; position: relative; z-index: 1; }
+.rl-wheelwrap.tense .rl-wheel { transform: scale(1.07); filter: drop-shadow(0 0 8px rgba(255, 90, 90, 0.8)); transition-duration: 1.2s; }
+.rl-wheelwrap.zoom .rl-wheel { animation: rl-zoom 0.9s ease-out; filter: drop-shadow(0 0 10px rgba(255, 216, 74, 0.9)); }
+@keyframes rl-zoom { 0% { transform: scale(1.07); } 30% { transform: scale(1.16); } 100% { transform: scale(1); } }
 .rl-hist { display: flex; gap: 2px; justify-content: center; flex-wrap: wrap; min-height: 1.3em; margin-top: 2px; }
 .rl-h { min-width: 1.6em; text-align: center; font-size: var(--fs-small); border-radius: 3px; padding: 0 0.15em; color: #fff; }
 .rl-h:first-child { outline: 2px solid var(--accent); }
@@ -435,6 +607,32 @@ function ensureRouletteStyle() {
   font-size: 0.7em; line-height: 1.35; text-align: center; font-variant-numeric: tabular-nums; }
 .rl-badge:empty { display: none; }
 .rl-help { margin: 0; }
+.rl-table { position: relative; }
+.rl-cell.cover { filter: brightness(1.45); box-shadow: inset 0 0 0 3px #7af0ff; }
+.rl-zone { position: absolute; z-index: 2; padding: 0; margin: 0; border: 0; background: transparent; min-width: 0; min-height: 0; font: inherit; color: inherit;
+  pointer-events: none; touch-action: manipulation; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.rl-zone .rl-badge { position: static; font-size: 0.66em; box-shadow: 0 0 0 1px #3a1a08; }
+.rl-table.mid .rl-zone { pointer-events: auto; }
+.rl-table.mid .rl-zone::before { content: ''; position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
+  background: rgba(122, 240, 255, 0.35); border: 2px solid rgba(160, 250, 255, 0.95); box-sizing: border-box; }
+.rl-table.mid .rl-zone.rl-split::before { width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 2px; }
+.rl-table.mid .rl-zone:active::before, .rl-table.mid .rl-zone:hover::before { background: rgba(122, 240, 255, 0.8); }
+.rl-table.mid .rl-zone.bet::before { display: none; }
+.rl-table.mid .rl-cell.rl-num { filter: saturate(0.6) brightness(0.8); }
+.rl-table.mid .rl-cell.rl-num.cover { filter: brightness(1.45); }
+.rl-zone.hit::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: #fff6a0; box-shadow: 0 0 0 2px #fff, 0 0 12px 4px #ffd84a; animation: rl-zhit 0.5s steps(2) infinite; }
+@keyframes rl-zhit { 50% { transform: scale(1.4); background: #ffd84a; } }
+.rl-num .rl-badge { position: static; margin-left: 0.15em; }
+.rl-cell.rl-num { flex-wrap: wrap; align-content: center; }
+.rl-midbtn { grid-row: 4 / span 2; grid-column: 1; writing-mode: vertical-rl; display: flex; align-items: center; justify-content: center; padding: 0; min-width: 0; min-height: 0;
+  font: inherit; font-size: 0.8em; letter-spacing: 0.05em; color: #b8f8ff; background: #173a4a; border: 2px dashed rgba(160, 250, 255, 0.7); border-radius: 4px; cursor: pointer; touch-action: manipulation; }
+.rl-midbtn span { display: inline; }
+.rl-midbtn.on { color: #13252c; background: #7af0ff; border-style: solid; box-shadow: 0 0 10px rgba(122, 240, 255, 0.8); }
+.rl-midbtn:disabled { opacity: 0.5; }
+.rl-midbtn.pad-focus { outline: 3px solid #fff; outline-offset: -1px; }
+.rl-zone.pad-focus { outline: 3px solid #fff; outline-offset: -2px; border-radius: 4px; }
+
 @media (max-aspect-ratio: 1/1) {
   .cs-body.rl-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   .rl-left { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: auto auto auto auto; align-items: center; overflow: visible; }
@@ -447,6 +645,8 @@ function ensureRouletteStyle() {
   .rl-spin.cs-big { min-width: 5em; min-height: 46px; }
   .rl-table { grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(13, minmax(30px, 1fr)); min-height: 0; }
   .rl-cell { grid-row: var(--vr) / span var(--vrs); grid-column: var(--vc) / span var(--vcs); }
+  .rl-midbtn { grid-row: 1; grid-column: 5; writing-mode: horizontal-tb; flex-direction: column; line-height: 1.2; font-size: 0.72em; }
+  .rl-midbtn span { display: block; }
   .rl-help { font-size: 0.8em; }
 }
 @media (max-height: 520px) and (orientation: landscape) {
