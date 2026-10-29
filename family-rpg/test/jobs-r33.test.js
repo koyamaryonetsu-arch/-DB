@@ -603,7 +603,8 @@ test('転職の ひとこと: 新しい 職業は 2行目に ひとこと（は�
   // 第41回 B の 雪の女王・第5のせいれいにも ひとこと（test/jobs-r41b.test.js）
   // 第41回 A の 伝説の 職業にも ひとこと（test/jobs-r41a.test.js）
   // 第43回の 配管工の 系統にも ひとこと（test/jobs-r43.test.js）
-  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit', 'keikyu_president', 'hall_of_fame', 'plumber', 'mustache', 'mario'].includes(j)).sort(), [...NEW].sort());
+  // 第51回 W の 天気の 職業にも ひとこと（test/weather-jobs-r51.test.js）
+  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit', 'keikyu_president', 'hall_of_fame', 'plumber', 'mustache', 'mario', 'kishou', 'otenki_caster', 'tenkou_tsukai'].includes(j)).sort(), [...NEW].sort());
   for (const [j, s] of Object.entries(JOB_SAY)) {
     textOk(s, j);
     assert.ok(s.length <= 24 && s.startsWith('「') && s.endsWith('」'), s);

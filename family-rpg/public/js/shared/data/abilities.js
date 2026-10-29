@@ -67,6 +67,8 @@ import { R43J_ABILITIES } from './abilities-r43j.js';
 import { POKEMON_ABILITIES } from './abilities-pokemon.js';
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
 import { DQM_ABILITIES } from './abilities-dqm.js';
+// 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者の 技（abilities-weather.js）
+import { WEATHER_ABILITIES } from './abilities-weather.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -678,6 +680,8 @@ Object.assign(ABILITIES, R43J_ABILITIES);
 Object.assign(ABILITIES, POKEMON_ABILITIES);
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
 Object.assign(ABILITIES, DQM_ABILITIES);
+// 第51回 W の 天気の 職業（abilities-weather.js）
+Object.assign(ABILITIES, WEATHER_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

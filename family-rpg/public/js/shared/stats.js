@@ -531,6 +531,8 @@ export const STARTER_EQUIP = {
   alchemist: { weapon: 'chalk', armor: 'cloth', shield: null, head: null, acc: null },
   // 第43回: 配管工（ももの姫）は すで（ジャンプと ふみつけ）
   plumber: { weapon: null, armor: 'cloth', shield: null, head: null, acc: null },
+  // 第51回 W: 気象予報士は 天気図を さす かしの杖
+  kishou: { weapon: 'oak_staff', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

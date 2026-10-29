@@ -182,6 +182,10 @@ export const JOB_TAGS = {
   plumber: ['fist', 'work', 'machine'], // 配管工（ジャンプふみつけ・スパナ）
   mustache: ['fist', 'fire', 'work'], // ひげおやじ（ファイアボール）
   mario: ['fist', 'fire', 'ride', 'master'], // マリオ（ヨッシーに乗る）
+  // 第51回 W（基本職・上級職・超級職）
+  kishou: ['bolt', 'ice', 'work'], // 気象予報士（かみなり注意報・にわか雨。天気を 当てる 仕事）
+  otenki_caster: ['bolt', 'light', 'work'], // お天気キャスター（かみなりマーク・ぽかぽか日ざし。歌とおどりは 13職業の 上限）
+  tenkou_tsukai: ['bolt', 'wind', 'ice', 'light'], // 天候をあやつる者（かみなり・台風・雨・太陽とにじ）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

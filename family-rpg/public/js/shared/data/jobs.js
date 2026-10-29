@@ -17,6 +17,8 @@
 
 import { applyField27Learn } from './abilities-field27.js';
 import { JOB_TAGS } from './job-tags.js';
+// 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者（jobs-weather.js）
+import { WEATHER_JOBS } from './jobs-weather.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1270,6 +1272,8 @@ export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wiza
 // 第51回: 幻の職業・天気の職業の 定義を ここで まぜる（各班が 1行ずつ。ALL_JOBS・タグ より 前に）
 //   例: Object.assign(JOBS, PHANTOM_JOBS_A);（import は ファイルの 上に）
 
+// 第51回 W の 天気の 職業（jobs-weather.js）
+Object.assign(JOBS, WEATHER_JOBS);
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
 // 第35回: 職業の タグ（2〜4こ。合体技の 組に 使う。一覧と 意味は data/job-tags.js）
@@ -1282,7 +1286,9 @@ export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jes
   // 第33回
   'magician', 'alchemist',
   // 第43回
-  'plumber'];
+  'plumber',
+  // 第51回 W
+  'kishou'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
   'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku',
@@ -1291,7 +1297,9 @@ export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirat
   // 第33回
   'kaito', 'wizard_student', 'state_alchemist', 'sailor_soldier',
   // 第43回
-  'mustache'];
+  'mustache',
+  // 第51回 W
+  'otenki_caster'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
   'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
@@ -1301,7 +1309,9 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
   // 第41回 B
   'snow_queen',
   // 第43回
-  'mario'];
+  'mario',
+  // 第51回 W
+  'tenkou_tsukai'];
 // 伝説の 職業（超級職の 先）
 export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b',
   // 第40回
@@ -1464,4 +1474,6 @@ export const JOB_HINTS = {
   chaos_creator: 'はかい神と、ものを作る者、2つの道をきわめて、とてつもない一撃を何度も出した者は、はかいと創造の神になれるらしい…',
   dream_stadium: '赤い電車の社長と野球の殿堂入り、2つの道をきわめて、電車と速球をみがいた者は、夢の球場へ走る電車になれるらしい…',
   weather_god: '天気をあやつる者と天地雷鳴士、2つの道をきわめて、晴れと雨とかみなりを使いこなした者は、天気の神になれるらしい…',
+  // 第51回 W
+  tenkou_tsukai: 'お天気キャスターをきわめた者は、空そのものをあやつれるらしい…',
 };

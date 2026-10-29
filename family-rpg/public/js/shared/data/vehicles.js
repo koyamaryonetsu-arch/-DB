@@ -24,7 +24,8 @@ export const VEHICLES = {
 
   // ───── 職業に ちなんだ 乗り物（その 職業に 1度でも なった 人だけ） ─────
   armor_horse: { name: 'よろい馬', price: 2400, jobs: ['warrior', 'battlemaster', 'sword_master'], desc: '鉄のよろいを着た、たくましい馬。' },
-  cloud: { name: '黄色い雲', price: 2800, jobs: ['monk', 'holyfist', 'god_hand'], desc: '心のきれいな人だけが乗れる、ふわふわの雲。' },
+  // 第51回 W: 気象予報士・お天気キャスター・天候をあやつる者も 雲に 乗る
+  cloud: { name: '黄色い雲', price: 2800, jobs: ['monk', 'holyfist', 'god_hand', 'kishou', 'otenki_caster', 'tenkou_tsukai'], desc: '心のきれいな人だけが乗れる、ふわふわの雲。' },
   pegasus: { name: '天馬', price: 4000, jobs: ['priest', 'paladin', 'high_priest'], desc: '白いつばさのある、聖なる馬。' },
   // 第41回 B: 雪の女王・第5のせいれい（水の せいれいの 馬）
   water_horse: { name: '水の馬', price: 6000, jobs: ['snow_queen', 'fifth_spirit'], desc: '水でできた、すきとおった馬。走るたびに、しぶきが光る。' },
