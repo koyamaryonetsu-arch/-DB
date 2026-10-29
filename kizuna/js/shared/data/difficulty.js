@@ -60,7 +60,8 @@ export function scaleExp(c, exp) {
 // 地図の しるしを むずかしさで しぼる（kind: main / sub / subReady）
 export function visibleMarks(c, marks) {
   const d = difficultyOf(c);
-  return marks.filter((m) => (m.kind === 'main' ? d.mainMarks : d.subMarks));
+  // ask … クエストの 画面で 自分で えらんだ 困っている人（第50回 N4）は いつも 出す
+  return marks.filter((m) => (m.kind === 'main' ? d.mainMarks : m.kind === 'ask' || d.subMarks));
 }
 
 // 敵の 強さ（設定の「敵の強さ」）: 魔物 1体の HP（最大と 今）・MP・攻撃・守り・素早さ・魔力（回復の 力も）を rate 倍に する。

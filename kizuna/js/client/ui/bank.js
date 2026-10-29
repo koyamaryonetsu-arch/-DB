@@ -4,15 +4,15 @@
 //   お金: 100・1000・10000ゴールド・全部・金額を入れる → 「〇〇ゴールドですね。よろしいですか？」
 //   道具: ふくろ（預かり所）の 品物を えらぶ → いくつ？ → 預ける（引き出す）
 // 全滅すると 持っている お金は 半分に なるが、預けた お金は へらない
-import { el, esc, askText } from './dom.js?v=99ee8fb62a40';
-import { Counter } from './counter.js?v=99ee8fb62a40';
-import { request } from './shop.js?v=99ee8fb62a40';
-import { itemStats, rankText } from './info.js?v=99ee8fb62a40';
-import { ITEMS } from '../../shared/data/items.js?v=99ee8fb62a40';
-import { itemCount } from '../../shared/stats.js?v=99ee8fb62a40';
-import { BANK_KINDS, BANK_STACK, BANK_GOLD_MAX } from '../../shared/data/facilities.js?v=99ee8fb62a40';
-import { bankGold, bankCount, BAG_STACK } from '../../shared/world/bank.js?v=99ee8fb62a40';
-import { boardIconURL } from '../render/boards.js?v=99ee8fb62a40';
+import { el, esc, askText } from './dom.js?v=5c89bfcd3c09';
+import { Counter } from './counter.js?v=5c89bfcd3c09';
+import { request } from './shop.js?v=5c89bfcd3c09';
+import { itemStats, rankText } from './info.js?v=5c89bfcd3c09';
+import { ITEMS } from '../../shared/data/items.js?v=5c89bfcd3c09';
+import { itemCount } from '../../shared/stats.js?v=5c89bfcd3c09';
+import { BANK_KINDS, BANK_STACK, BANK_GOLD_MAX } from '../../shared/data/facilities.js?v=5c89bfcd3c09';
+import { bankGold, bankCount, BAG_STACK } from '../../shared/world/bank.js?v=5c89bfcd3c09';
+import { boardIconURL } from '../render/boards.js?v=5c89bfcd3c09';
 
 const AGAIN = 'ほかにもご用はありますか？';
 

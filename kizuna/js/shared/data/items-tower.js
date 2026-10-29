@@ -13,4 +13,4 @@ export const TOWER_ITEM_KANA = {
 };
 
 // 第2部 第6章 Step 5: 止まった時計塔の 宝箱（名前の 約束 docs/plan-ch6.md の 15 の TOWER_TREASURE_FLOORS）。中みは items-tokei.js
-export { TOWER_TREASURE_FLOORS, ITEMS_TOKEI, TOKEI_DROPS } from './items-tokei.js?v=99ee8fb62a40';
+export { TOWER_TREASURE_FLOORS, ITEMS_TOKEI, TOKEI_DROPS } from './items-tokei.js?v=5c89bfcd3c09';

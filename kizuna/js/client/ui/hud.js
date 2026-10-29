@@ -1,16 +1,19 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=99ee8fb62a40';
-import { computeStats } from '../../shared/stats.js?v=99ee8fb62a40';
-import { JOBS } from '../../shared/data/jobs.js?v=99ee8fb62a40';
-import { jobShort } from '../../shared/job-label.js?v=99ee8fb62a40';
-import { hasUnreadNews } from '../../shared/data/news.js?v=99ee8fb62a40';
-import { hasPot } from '../../shared/data/alchemy.js?v=99ee8fb62a40';
-import { alchemyUI } from './alchemy.js?v=99ee8fb62a40';
-import { renderMiniMap, openWorldMap } from './menu.js?v=99ee8fb62a40';
-import { makeCanvas } from '../render/pixel.js?v=99ee8fb62a40';
-import { ClockBadge } from './clock.js?v=99ee8fb62a40';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=99ee8fb62a40';
-import { auraLabel } from '../../shared/data/abilities-field27.js?v=99ee8fb62a40';
+import { el, bar, askText, ListMenu } from './dom.js?v=5c89bfcd3c09';
+import { computeStats } from '../../shared/stats.js?v=5c89bfcd3c09';
+import { JOBS } from '../../shared/data/jobs.js?v=5c89bfcd3c09';
+import { jobShort } from '../../shared/job-label.js?v=5c89bfcd3c09';
+import { hasUnreadNews } from '../../shared/data/news.js?v=5c89bfcd3c09';
+import { hasPot } from '../../shared/data/alchemy.js?v=5c89bfcd3c09';
+import { alchemyUI } from './alchemy.js?v=5c89bfcd3c09';
+import { renderMiniMap, openWorldMap } from './menu.js?v=5c89bfcd3c09';
+import { makeCanvas } from '../render/pixel.js?v=5c89bfcd3c09';
+import { ClockBadge } from './clock.js?v=5c89bfcd3c09';
+// 第50回 N4: 困っている人の 知らせ・●（ui/subquest-hints.js）
+import { AskWatcher } from './subquest-hints.js?v=5c89bfcd3c09';
+import { hasNewAsk } from '../../shared/data/subquest-hints.js?v=5c89bfcd3c09';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=5c89bfcd3c09';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=5c89bfcd3c09';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -51,6 +54,7 @@ export class Hud {
     this.mini = makeCanvas(84, 84);
     // 昼・夜の 時計（ちずの 左下）
     this.clock = new ClockBadge(game);
+    this.ask = new AskWatcher(game);
     // 仲間の粉の のこり（ちずの 上に 小さく。data/friend-powder.js）
     this.powder = el('div', { class: 'hud-powder', hidden: true });
     // 魔物よけ（トヘロス・聖水）・魔物よせ（マモノヨセ・笛）の のこり（仲間の粉の 下。data/abilities-field27.js）
@@ -86,6 +90,9 @@ export class Hud {
       this.aura.style.top = pw ? `${this.powder.offsetHeight + 4}px` : '';
       // 第35回: まだ 読んでいない お知らせが あると メニューボタンに ●（data/news.js）
       this.btns.firstChild?.classList.toggle('has-new', hasUnreadNews(this.game.me));
+      // 第50回 N4: 新しく 困っている人が いる 時も（クエストの 画面を 見るまで）
+      if (hasNewAsk(this.game.me)) this.btns.firstChild?.classList.add('has-new');
+      this.ask.update();
       this.updatePotBtn();
     }
     const f = this.game.field;

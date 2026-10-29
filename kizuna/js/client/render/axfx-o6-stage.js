@@ -1,7 +1,7 @@
 // 第49回 O6: 旅芸人・遊び人・スーパースター・お笑い芸人・M-1王者 の え（はなつ ところ）
 // ・ステージの ライト・ハリセン・金だらい・サイコロ・ダーツ・パイ・トロフィー。笑いは カタカナの 「ワハハ」（漢字は 出さない）
 // ・時間は shared/data/ax-time-o6.js。c の 時間は はなつ しゅんかんが 0
-import { wrap, fill, pop, arrows, healGlow, mpDrops, confetti, notes, mark, srcOf, bend, rnd, lerp } from './axfx-o6-kit.js?v=99ee8fb62a40';
+import { wrap, fill, pop, arrows, healGlow, mpDrops, confetti, notes, mark, srcOf, bend, rnd, lerp } from './axfx-o6-kit.js?v=5c89bfcd3c09';
 
 const W = '#ffffff', GOLD = '#ffd23a', YEL = '#ffe040', PINK = '#ff7ad8', HOT = '#ff3a9a', RED = '#ff3a3a', SKY = '#7ae0ff', GRN = '#7dffb0', BLUE = '#4a8aff';
 const RAIN = ['#ff5a5a', '#ffa03a', '#ffe040', '#5ad870', '#4ab8ff', '#a85aff'];

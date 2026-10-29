@@ -1,7 +1,7 @@
 // 第49回 O6: 占い師・大魔道士・天地雷鳴士・星の歌姫・大賢者・大神官 の え（はなつ ところ）
 // ・タロットカードが くるっと めくれる・げんま（炎の 魔神・水の せいれい・岩の きょじん・竜）・夜空と 天の川・賢者の石・結界の ドーム
 // ・時間は shared/data/ax-time-o6.js。c の 時間は はなつ しゅんかんが 0
-import { wrap, fill, pop, arrows, healGlow, mpDrops, mark, srcOf, rnd } from './axfx-o6-kit.js?v=99ee8fb62a40';
+import { wrap, fill, pop, arrows, healGlow, mpDrops, mark, srcOf, rnd } from './axfx-o6-kit.js?v=5c89bfcd3c09';
 
 const W = '#ffffff', GOLD = '#ffd23a', YEL = '#ffe040', RED = '#ff3a3a', SKY = '#7ae0ff', GRN = '#7dffb0', BLUE = '#4a8aff', MOON = '#bfd8ff', PURP = '#a85aff';
 

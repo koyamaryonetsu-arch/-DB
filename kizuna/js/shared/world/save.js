@@ -5,20 +5,21 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=99ee8fb62a40';
-import { JOBS } from '../data/jobs.js?v=99ee8fb62a40';
-import { MONSTERS } from '../data/monsters.js?v=99ee8fb62a40';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=99ee8fb62a40';
-import { repairTreasureMaps } from '../data/treasure.js?v=99ee8fb62a40';
-import { ensureTmClears } from '../data/casino-tier.js?v=99ee8fb62a40';
-import { repairSecret } from '../data/secret.js?v=99ee8fb62a40';
-import { repairAlchemy } from './alchemy.js?v=99ee8fb62a40';
-import { normBank } from './bank.js?v=99ee8fb62a40';
-import { cleanWagon } from '../data/wagon.js?v=99ee8fb62a40';
-import { cleanLookEquip } from '../look-equip.js?v=99ee8fb62a40';
-import { cleanVehicles } from '../data/vehicles.js?v=99ee8fb62a40';
-import { repairTrialInfo } from '../data/job-trials.js?v=99ee8fb62a40';
-import { cleanQuick } from '../data/quick-item.js?v=99ee8fb62a40';
+import { ITEMS, SLOTS } from '../data/items.js?v=5c89bfcd3c09';
+import { JOBS } from '../data/jobs.js?v=5c89bfcd3c09';
+import { MONSTERS } from '../data/monsters.js?v=5c89bfcd3c09';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=5c89bfcd3c09';
+import { repairTreasureMaps } from '../data/treasure.js?v=5c89bfcd3c09';
+import { ensureTmClears } from '../data/casino-tier.js?v=5c89bfcd3c09';
+import { repairSecret } from '../data/secret.js?v=5c89bfcd3c09';
+import { repairAlchemy } from './alchemy.js?v=5c89bfcd3c09';
+import { normBank } from './bank.js?v=5c89bfcd3c09';
+import { cleanWagon } from '../data/wagon.js?v=5c89bfcd3c09';
+import { cleanLookEquip } from '../look-equip.js?v=5c89bfcd3c09';
+import { cleanVehicles } from '../data/vehicles.js?v=5c89bfcd3c09';
+import { repairTrialInfo } from '../data/job-trials.js?v=5c89bfcd3c09';
+import { cleanQuick } from '../data/quick-item.js?v=5c89bfcd3c09';
+import { repairSubAsk } from '../data/subquest-hints.js?v=5c89bfcd3c09';
 
 export const SAVE_VERSION = 4;
 
@@ -189,6 +190,7 @@ export function repairChar(c, id) {
   if (id && !c.species) ensureTmClears(c);
   repairSecret(c); // ひみつのダンジョンの 記録（なくても よい。新しい 項目なので 版は 上げない）
   repairAlchemy(c); // れん金がま（第32回。なくても よい）・もう たおした ボスの 品
+  repairSubAsk(c); // 第50回 N4: 困っている人を 知らせた・見た 印（なくても よい。新しい 項目なので 版は 上げない）
   // 馬車の 仲間（いなくなった 仲間の key は はずす）
   cleanWagon(c);
   cleanStash(c);

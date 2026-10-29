@@ -4,13 +4,15 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=99ee8fb62a40';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=99ee8fb62a40';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=99ee8fb62a40';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=99ee8fb62a40';
-import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=99ee8fb62a40';
-import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=99ee8fb62a40';
-import { labSubQuests } from './sidequests.js?v=99ee8fb62a40';
+import { MAPS } from '../maps/index.js?v=5c89bfcd3c09';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=5c89bfcd3c09';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=5c89bfcd3c09';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=5c89bfcd3c09';
+import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=5c89bfcd3c09';
+import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=5c89bfcd3c09';
+import { labSubQuests } from './sidequests.js?v=5c89bfcd3c09';
+// 第50回 N4: 困っている人（クエストの 画面で えらんだ 人に しるし）
+import { askPinQuest } from './subquest-hints.js?v=5c89bfcd3c09';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -161,8 +163,11 @@ export function questMarks(c, mapId, objective = c?.objective) {
     if (q.find) add([{ npc: q.find }], 'sub', q.name);
     add([{ npc: q.who }], q.ready ? 'subReady' : 'sub', q.name);
   }
-  // おなじ 場所は 1つに（メイン → 報告できる → たのまれごと の じゅん）
-  const rank = { main: 0, subReady: 1, sub: 2 };
+  // 第50回 N4: 困っている人（黄色。クエストの 画面で えらんだ 1人）
+  const ask = askPinQuest(c);
+  if (ask) add([{ npc: ask.npc }], 'ask', ask.who);
+  // おなじ 場所は 1つに（メイン → 報告できる → たのまれごと → 困っている人 の じゅん）
+  const rank = { main: 0, subReady: 1, sub: 2, ask: 3 };
   const seen = new Map();
   for (const m of out) {
     const k = `${m.x},${m.y}`;

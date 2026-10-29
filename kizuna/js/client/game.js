@@ -1,20 +1,20 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=99ee8fb62a40';
-import { GameAudio } from './audio.js?v=99ee8fb62a40';
-import { Field } from './field.js?v=99ee8fb62a40';
-import { Hud, STAMPS } from './ui/hud.js?v=99ee8fb62a40';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=99ee8fb62a40';
-import { ScriptPlayer, wait } from './ui/script.js?v=99ee8fb62a40';
-import { BattleScene } from './battle.js?v=99ee8fb62a40';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=99ee8fb62a40';
-import { showServerDown } from './ui/syncui.js?v=99ee8fb62a40';
-import { toast, confirmBox, el } from './ui/dom.js?v=99ee8fb62a40';
-import { MAPS } from '../shared/maps/index.js?v=99ee8fb62a40';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=99ee8fb62a40';
-import { SkyClient } from './sky.js?v=99ee8fb62a40';
+import { Input } from './input.js?v=5c89bfcd3c09';
+import { GameAudio } from './audio.js?v=5c89bfcd3c09';
+import { Field } from './field.js?v=5c89bfcd3c09';
+import { Hud, STAMPS } from './ui/hud.js?v=5c89bfcd3c09';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=5c89bfcd3c09';
+import { ScriptPlayer, wait } from './ui/script.js?v=5c89bfcd3c09';
+import { BattleScene } from './battle.js?v=5c89bfcd3c09';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=5c89bfcd3c09';
+import { showServerDown } from './ui/syncui.js?v=5c89bfcd3c09';
+import { toast, confirmBox, el } from './ui/dom.js?v=5c89bfcd3c09';
+import { MAPS } from '../shared/maps/index.js?v=5c89bfcd3c09';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=5c89bfcd3c09';
+import { SkyClient } from './sky.js?v=5c89bfcd3c09';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=99ee8fb62a40';
-import { reportError } from './errlog.js?v=99ee8fb62a40';
+import { QuickButton } from './ui/quick-item.js?v=5c89bfcd3c09';
+import { reportError } from './errlog.js?v=5c89bfcd3c09';
 
 export class Game {
   constructor(net) {
@@ -756,7 +756,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=99ee8fb62a40').then(({ offlineStorage }) => {
+      import('./offline.js?v=5c89bfcd3c09').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

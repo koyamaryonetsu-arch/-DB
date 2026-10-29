@@ -1,17 +1,17 @@
 // カジノ（コイン売り場・スロット・ポーカー・景品コーナー）と メダル王の まど
 //   乱数と コインの 計算は サーバー（shared/world/casino.js）。ここは 見せるだけ
 //   キーボード: ←→↑↓ で えらぶ・Z/Enter で 決定・X/Esc で もどる。スマホは ボタンや カードを タップ
-import { el } from './dom.js?v=99ee8fb62a40';
-import { Counter, itemInfo } from './counter.js?v=99ee8fb62a40';
-import { request } from './shop.js?v=99ee8fb62a40';
-import { boardIconURL } from '../render/boards.js?v=99ee8fb62a40';
-import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=99ee8fb62a40';
-import { ITEMS } from '../../shared/data/items.js?v=99ee8fb62a40';
-import { itemCount } from '../../shared/stats.js?v=99ee8fb62a40';
+import { el } from './dom.js?v=5c89bfcd3c09';
+import { Counter, itemInfo } from './counter.js?v=5c89bfcd3c09';
+import { request } from './shop.js?v=5c89bfcd3c09';
+import { boardIconURL } from '../render/boards.js?v=5c89bfcd3c09';
+import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=5c89bfcd3c09';
+import { ITEMS } from '../../shared/data/items.js?v=5c89bfcd3c09';
+import { itemCount } from '../../shared/stats.js?v=5c89bfcd3c09';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
   medalsHeld, medalsGiven, medalsFound, medalsSpent, COIN_PRICE,
-} from '../../shared/data/casino.js?v=99ee8fb62a40';
+} from '../../shared/data/casino.js?v=5c89bfcd3c09';
 
 export function casinoUI(game, kind, data) {
   ensureStyle();
@@ -22,8 +22,8 @@ export function casinoUI(game, kind, data) {
     case 'poker': return pokerUI(game, data);
     case 'prizes': return prizesUI(game, data);
     // 第37回 B: ルーレット・すごろく場（ui/roulette.js・ui/sugoroku.js。この ファイルの 部品を つかうので あとから 読む）
-    case 'roulette': return import('./roulette.js?v=99ee8fb62a40').then((m) => m.rouletteUI(game, data));
-    case 'sugoroku': return import('./sugoroku.js?v=99ee8fb62a40').then((m) => m.sugorokuUI(game, data));
+    case 'roulette': return import('./roulette.js?v=5c89bfcd3c09').then((m) => m.rouletteUI(game, data));
+    case 'sugoroku': return import('./sugoroku.js?v=5c89bfcd3c09').then((m) => m.sugorokuUI(game, data));
     default: return Promise.resolve();
   }
 }

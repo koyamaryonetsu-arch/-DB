@@ -2,7 +2,7 @@
 // 飛天御剣流 … 白い 神速の 太刀すじ。竜巻閃の なかまは 白い 回転 → 竜巻 → 大竜巻、縦の 技は 真上から → 上下 → 天翔る 竜
 // 九頭竜閃は 9本の 白い すじ（真は 9ひきの 金の 竜）。天翔龍閃は 1撃目（神速の 金白の 弧＋竜）→ 真空 → 2撃目
 // 時間は shared/data/ax-time-g3.js（ここは 見た目だけ）。画面の 文字は ひらがな・記号だけ
-import { ribbon, dragon, line, tornado, bg, prop, text, embers, arcPts, per, hitBurst, blast, glitter, rich } from './axfx-g3-kit.js?v=99ee8fb62a40';
+import { ribbon, dragon, line, tornado, bg, prop, text, embers, arcPts, per, hitBurst, blast, glitter, rich } from './axfx-g3-kit.js?v=5c89bfcd3c09';
 
 const WHITE = ['#ffffff', '#e8f4ff', '#bfe4ff'];
 const GOLD = ['#ffffff', '#fff0a0', '#ffd23a'];
