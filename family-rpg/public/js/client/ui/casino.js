@@ -6,6 +6,7 @@ import { Counter, itemInfo } from './counter.js';
 import { request } from './shop.js';
 import { boardIconURL } from '../render/boards.js';
 import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js';
+import { celebrate, stopFx, winLevel, casinoSfx } from './casino-fx.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { itemCount } from '../../shared/stats.js';
 import {
@@ -428,6 +429,9 @@ class Focus {
 // ───────────── スロット ─────────────
 const RW = 296, RH = 248, CELL_W = 80, CELL_H = 72, FR = 16, GAP = 12;
 const SPIN_V = 16; // 1びょうに すすむ 絵がらの 数
+// 第50回 N5: 当たりの 大きさ（役の 倍率）→ 演出（チェリー1つは 光るだけ・7が3つは ジャックポット）
+const SLOT_FX = (p) => (p.mult >= 30 ? 'jackpot' : p.mult >= 10 ? 'big' : p.mult >= 3 ? 'small' : 'tiny');
+const SLOT_FX_MS = { tiny: 1000, small: 1500, big: 2200, jackpot: 2800 };
 
 function slotUI(game, data) {
   return new Promise((resolve) => {
@@ -439,6 +443,9 @@ function slotUI(game, data) {
     let result = null;
     let flashUntil = 0;
     let closed = false;
+    let reachOn = false; // さいごの リールが リーチで 回っている
+    let beat = 0;
+    let fxLevel = null;
     sh.setCoins(coins);
 
     const cv = el('canvas', { class: 'cs-reels', width: RW, height: RH });
@@ -491,13 +498,16 @@ function slotUI(game, data) {
       spinning = true;
       sh.lock(true);
       result = null;
+      flashUntil = 0;
+      fxLevel = null;
+      stopFx();
       renderBets();
       msg.textContent = 'まわれ、まわれ…！';
       game.audio.sfx('coin');
       coins -= bet;
       sh.setCoins(coins);
       const now = performance.now();
-      for (const r of reels) { r.state = 'spin'; r.stopAt = Infinity; }
+      for (const r of reels) { r.state = 'spin'; r.stopAt = Infinity; r.reach = false; }
       const res = await request(game, { kind: 'casino', action: 'slot', bet });
       if (closed) return;
       if (!res.ok || !res.stops) {
@@ -517,7 +527,8 @@ function slotUI(game, data) {
       const reach = res.line[0] === res.line[1] && SLOT_PAYS.some((p) => p.line.every((sym) => sym === res.line[0]));
       reels[0].stopAt = t;
       reels[1].stopAt = t + 420;
-      reels[2].stopAt = t + 840 + (reach ? 900 : 0);
+      // リーチの ときは まん中の リールが 止まってから（止まった ところで 時間を きめる）
+      reels[2].stopAt = reach ? Infinity : t + 840;
       reels.forEach((r, i) => { r.stop = res.stops[i]; });
       result.reach = reach;
     };
@@ -542,7 +553,10 @@ function slotUI(game, data) {
       r.from = r.pos;
       r.target = base + d;
       r.t0 = now;
-      r.dur = (3 * (r.target - r.from) / SPIN_V) * 1000;
+      // 止まるまでの 時間は 長くても 1.6びょう（リーチは 2びょう）。はじめの はやさは 回る はやさと おなじ
+      const dist = r.target - r.from;
+      r.dur = Math.min((3 * dist) / SPIN_V, r.reach ? 2 : 1.6) * 1000;
+      r.k = Math.max(1.2, (SPIN_V * r.dur) / 1000 / dist);
       r.state = 'stopping';
     };
 
@@ -551,12 +565,15 @@ function slotUI(game, data) {
       sh.lock(false);
       const res = result;
       renderBets();
+      reachOn = false;
+      machine.classList.remove('reach');
       if (res.pay) {
-        flashUntil = performance.now() + 1800;
+        fxLevel = SLOT_FX(res.pay);
+        flashUntil = performance.now() + SLOT_FX_MS[fxLevel];
         const back = res.pay.mult === 1;
         msg.textContent = back ? 'チェリーが1つ！\nかけたコインがもどってきた。' : `${res.pay.name}！${res.pay.id === 'seven3' ? '\n大当たり！' : ''}\nコインを${fmt(res.win)}枚手に入れた！`;
-        if (res.pay.mult >= 30) game.audio.play('jackpot');
-        else game.audio.sfx('win');
+        const title = res.pay.id === 'seven3' ? 'ジャックポット！' : { tiny: '', small: '当たり！', big: '大当たり！', jackpot: '超大当たり！' }[fxLevel];
+        celebrate(game, { level: fxLevel, title, sub: back ? '' : `${res.pay.name}！コイン${fmt(res.win)}枚` });
         countUp(sh, coins, res.coins, () => game.audio.sfx('coin'));
       } else {
         msg.textContent = 'はずれ…';
@@ -573,6 +590,7 @@ function slotUI(game, data) {
       last = now;
       let allIdle = true;
       reels.forEach((r, i) => {
+        r.prev = r.pos;
         if (r.state === 'spin') {
           r.pos += SPIN_V * dt;
           if (now >= r.stopAt) beginStop(r, now);
@@ -580,14 +598,24 @@ function slotUI(game, data) {
         }
         if (r.state === 'stopping') {
           const x = Math.min(1, (now - r.t0) / r.dur);
-          r.pos = r.from + (r.target - r.from) * (1 - (1 - x) ** 3);
+          r.pos = r.from + (r.target - r.from) * (1 - (1 - x) ** r.k);
           allIdle = false;
           if (x >= 1) {
             r.pos = r.target;
             r.state = 'bounce';
             r.t0 = now;
             game.audio.sfx('reel');
-            if (i === 1 && result?.reach) game.audio.sfx('reach');
+            if (i === 1 && result?.reach) {
+              // リーチ！ さいごの リールが 光って ドクン…ドクン…
+              game.audio.sfx('reach');
+              casinoSfx(game, 'reach');
+              reachOn = true;
+              beat = now;
+              if (reels[2].state === 'spin') { reels[2].reach = true; reels[2].stopAt = Math.min(reels[2].stopAt, now + 700); }
+              machine.classList.add('reach');
+              msg.textContent = 'リーチ！！\nそろえ、そろえ…！';
+            }
+            if (i === 2 && reachOn) { reachOn = false; machine.classList.remove('reach'); }
           }
         }
         if (r.state === 'bounce') {
@@ -597,8 +625,10 @@ function slotUI(game, data) {
           else allIdle = false;
         }
       });
+      reels.forEach((r) => { r.v = dt > 0 ? Math.abs(r.pos - r.prev) / dt : 0; });
+      if (reachOn && now - beat > 480) { beat = now; casinoSfx(game, 'heart'); }
       if (spinning && result && allIdle) finish();
-      drawReels(ctx, reels, now, now < flashUntil);
+      drawReels(ctx, reels, now, { flash: now < flashUntil ? fxLevel : null, spinning, reach: reachOn, pay: result?.pay || null });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -620,6 +650,7 @@ function slotUI(game, data) {
       closed = true;
       cancelAnimationFrame(raf);
       clearInterval(sh.countTimer);
+      stopFx();
       game.input.pop(h);
       game.audio.sfx('cancel');
       sh.remove();
@@ -631,20 +662,31 @@ function slotUI(game, data) {
 }
 
 // リールを かく（まん中の 列が 当たりの 線）
-function drawReels(ctx, reels, now, flash) {
-  ctx.fillStyle = '#2a0c2e';
+//   fx: { flash: 当たりの 演出（'tiny'〜'jackpot'・null）, spinning, reach: リーチ中, pay: 役 }
+const RAINBOW = ['#ffd84a', '#ff6a8a', '#5ae0ff', '#8aff6a', '#c08aff'];
+function drawReels(ctx, reels, now, fx = {}) {
+  const flash = fx.flash;
+  const big = flash === 'big' || flash === 'jackpot';
+  // リーチ中は 赤く ドクン、ジャックポットは 色が かわる
+  const pulse = 0.5 + 0.5 * Math.sin(now / 76);
+  ctx.fillStyle = fx.reach ? `rgb(${42 + Math.round(pulse * 50)}, 12, 30)` : flash === 'jackpot' ? ['#3a0c3e', '#2a1050', '#401028'][Math.floor(now / 140) % 3] : '#2a0c2e';
   ctx.fillRect(0, 0, RW, RH);
-  // わくの ランプ
-  const on = Math.floor(now / 260) % 2;
+  // わくの ランプ（ふだんは こうご・回る 間は 追いかけっこ・リーチは 赤く はやく・当たりは にじ色）
   for (let i = 0; i < 18; i++) {
     const x = 8 + i * ((RW - 16) / 17);
-    ctx.fillStyle = (i + on) % 2 ? '#ffd84a' : '#8a3a2a';
+    let col;
+    if (flash && flash !== 'tiny') col = (i + Math.floor(now / (big ? 60 : 110))) % 3 ? RAINBOW[(i + Math.floor(now / 90)) % RAINBOW.length] : '#5a2a2a';
+    else if (fx.reach) col = Math.floor(now / 90) % 2 ? '#ff4a4a' : '#ffd84a';
+    else if (fx.spinning) col = (i + Math.floor(now / 70)) % 4 === 0 ? '#fff6c0' : (i + Math.floor(now / 70)) % 4 === 1 ? '#ffd84a' : '#8a3a2a';
+    else col = (i + Math.floor(now / 260) % 2) % 2 ? '#ffd84a' : '#8a3a2a';
+    ctx.fillStyle = col;
     ctx.fillRect(Math.round(x) - 2, 4, 4, 4);
     ctx.fillRect(Math.round(x) - 2, RH - 8, 4, 4);
   }
-  ctx.strokeStyle = '#f2c14e';
+  ctx.strokeStyle = fx.reach ? '#ff6a5a' : '#f2c14e';
   ctx.lineWidth = 2;
   ctx.strokeRect(FR - 5, FR - 5, RW - 2 * FR + 10, RH - 2 * FR + 10);
+  const winCells = flash && fx.pay ? fx.pay.line.map((sym) => sym !== null) : [false, false, false];
   reels.forEach((r, i) => {
     const x0 = FR + i * (CELL_W + GAP), y0 = FR;
     ctx.save();
@@ -653,13 +695,36 @@ function drawReels(ctx, reels, now, flash) {
     ctx.clip();
     ctx.fillStyle = '#f4f2fa';
     ctx.fillRect(x0, y0, CELL_W, CELL_H * 3);
+    // 当たった 目の うしろを 光らせる
+    if (winCells[i]) {
+      ctx.fillStyle = `rgba(255, 216, 74, ${0.35 + 0.35 * pulse})`;
+      ctx.fillRect(x0, y0 + CELL_H, CELL_W, CELL_H);
+    }
     const p = r.draw ?? r.pos;
     const base = Math.floor(p);
     const n = r.strip.length;
+    const fast = (r.v || 0) > 7; // はやく 回っている ときは ぶれて 見える
     for (let k = base - 2; k <= base + 2; k++) {
       const sym = r.strip[((k % n) + n) % n];
       const dy = (p - k) * CELL_H;
-      ctx.drawImage(symbolCanvas(sym), x0 + (CELL_W - 64) / 2, Math.round(y0 + CELL_H + dy + (CELL_H - 64) / 2));
+      const sx = x0 + (CELL_W - 64) / 2, sy = Math.round(y0 + CELL_H + dy + (CELL_H - 64) / 2);
+      if (fast) {
+        ctx.globalAlpha = 0.3;
+        ctx.drawImage(symbolCanvas(sym), sx, sy - 18);
+        ctx.drawImage(symbolCanvas(sym), sx, sy + 18);
+        ctx.globalAlpha = 0.55;
+        ctx.drawImage(symbolCanvas(sym), sx, sy);
+        ctx.globalAlpha = 1;
+      } else if (winCells[i] && Math.abs(dy) < 1 && big) {
+        // 大当たりは 目が ドクンと 大きく
+        const sc = 1 + 0.12 * pulse;
+        ctx.drawImage(symbolCanvas(sym), x0 + CELL_W / 2 - 32 * sc, y0 + CELL_H * 1.5 - 32 * sc, 64 * sc, 64 * sc);
+      } else ctx.drawImage(symbolCanvas(sym), sx, sy);
+    }
+    // 回っている 間の 光の すじ
+    if (fast) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      for (let k = 0; k < 3; k++) ctx.fillRect(x0 + 10 + k * 26, y0, 2, CELL_H * 3);
     }
     // リールの まるみ（上と 下を くらく）
     const g = ctx.createLinearGradient(0, y0, 0, y0 + CELL_H * 3);
@@ -673,11 +738,31 @@ function drawReels(ctx, reels, now, flash) {
     ctx.strokeStyle = '#140818';
     ctx.lineWidth = 3;
     ctx.strokeRect(x0 - 1.5, y0 - 1.5, CELL_W + 3, CELL_H * 3 + 3);
+    // リーチの リールは 赤と 金で 光る
+    if (fx.reach && i === 2) {
+      ctx.save();
+      ctx.strokeStyle = Math.floor(now / 120) % 2 ? '#ff4a4a' : '#ffd84a';
+      ctx.lineWidth = 3 + pulse * 2;
+      ctx.shadowColor = '#ff4a4a';
+      ctx.shadowBlur = 8 + pulse * 10;
+      ctx.strokeRect(x0 - 3, y0 - 3, CELL_W + 6, CELL_H * 3 + 6);
+      ctx.restore();
+    }
+    // 当たった 目の わく
+    if (winCells[i]) {
+      ctx.save();
+      ctx.strokeStyle = Math.floor(now / 120) % 2 ? '#fff6a0' : '#ffb020';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#ffd84a';
+      ctx.shadowBlur = big ? 14 : 6;
+      ctx.strokeRect(x0 + 1.5, y0 + CELL_H + 1.5, CELL_W - 3, CELL_H - 3);
+      ctx.restore();
+    }
   });
   // 当たりの 線
   const ly = FR + CELL_H * 1.5;
   const lit = flash && Math.floor(now / 120) % 2 === 0;
-  ctx.fillStyle = lit ? '#fff080' : 'rgba(232, 48, 58, 0.85)';
+  ctx.fillStyle = lit ? '#fff080' : fx.reach ? '#ff4a4a' : 'rgba(232, 48, 58, 0.85)';
   ctx.fillRect(FR - 2, ly - 2, RW - 2 * FR + 4, 4);
   for (const [x, d] of [[FR - 12, 1], [RW - FR + 12, -1]]) {
     ctx.beginPath();
@@ -686,6 +771,22 @@ function drawReels(ctx, reels, now, flash) {
     ctx.lineTo(x, ly + 8);
     ctx.closePath();
     ctx.fill();
+  }
+  // リーチの 文字
+  if (fx.reach) {
+    ctx.save();
+    ctx.font = 'bold 22px DotGothic16, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const sc = 1 + 0.08 * pulse;
+    ctx.translate(FR + CELL_W + GAP / 2, FR + CELL_H * 0.5);
+    ctx.scale(sc, sc);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#5a0010';
+    ctx.strokeText('リーチ！', 0, 0);
+    ctx.fillStyle = Math.floor(now / 120) % 2 ? '#fff06a' : '#ff8a6a';
+    ctx.fillText('リーチ！', 0, 0);
+    ctx.restore();
   }
 }
 
@@ -819,6 +920,8 @@ function pokerUI(game, data) {
       coins = r.coins;
       sh.setCoins(coins);
       game.audio.sfx('coin');
+      stopFx();
+      cardEls.forEach((e) => e.box.classList.remove('pk-win'));
       lastHand = null;
       hand = r.hand;
       hold = [false, false, false, false, false];
@@ -865,8 +968,10 @@ function pokerUI(game, data) {
       doubles = 0;
       if (r.win > 0) {
         msg.textContent = `${r.result.name}！\nコインを${fmt(r.win)}枚手に入れた！`;
-        if (r.result.mult >= 20) game.audio.play('jackpot');
-        else game.audio.sfx('win');
+        // 役の 大きさで 演出を かえる（フルハウスから 大当たり・ストレートフラッシュから ジャックポット）
+        const level = winLevel(r.result.mult, { big: 10, jackpot: 50 });
+        celebrate(game, { level, title: { tiny: '', small: '当たり！', big: '大当たり！', jackpot: 'ジャックポット！' }[level], sub: r.result.name });
+        cardEls.forEach((e) => e.box.classList.add('pk-win'));
         countUp(sh, coins, r.coins, () => game.audio.sfx('coin'));
         stage = r.stage === 'won' ? 'won' : 'done';
       } else {
@@ -892,6 +997,8 @@ function pokerUI(game, data) {
       }
       coins = r.coins;
       sh.setCoins(coins);
+      stopFx();
+      cardEls.forEach((e) => e.box.classList.remove('pk-win'));
       lastHand = null;
       stage = 'double';
       busy = true;
@@ -923,7 +1030,8 @@ function pokerUI(game, data) {
       const pc = cardName(r.cards[i]);
       if (r.outcome === 'win') {
         msg.textContent = `${pc}！勝ち！\nコインが${fmt(r.win)}枚になった！`;
-        game.audio.sfx('win');
+        const level = winLevel(r.win / bet, { big: 8, jackpot: 64 });
+        celebrate(game, { level: level === 'tiny' ? 'small' : level, title: level === 'jackpot' ? 'ジャックポット！' : level === 'big' ? '大勝ち！' : '勝ち！', sub: `コイン${fmt(r.win)}枚` });
         countUp(sh, coins, r.coins, () => game.audio.sfx('coin'));
       } else if (r.outcome === 'draw') {
         msg.textContent = `${pc}…引き分け。\nコイン${fmt(r.win)}枚はそのまま。`;
@@ -976,6 +1084,7 @@ function pokerUI(game, data) {
       if (closed || busy || stage === 'double') return;
       closed = true;
       clearInterval(sh.countTimer);
+      stopFx();
       game.input.pop(h);
       game.audio.sfx('cancel');
       sh.remove();
@@ -1056,6 +1165,10 @@ body:has(#ui .casino-panel) #hud { visibility: hidden; }
 .pk-card.held canvas { transform: translateY(-5px); box-shadow: 0 0 0 2px var(--accent); }
 .pk-card.flip canvas { transform: scaleX(0.08); }
 .pk-card.picked canvas { box-shadow: 0 0 0 3px #fff; }
+.pk-card.pk-win canvas { box-shadow: 0 0 0 2px #ffd84a, 0 0 14px 4px rgba(255, 216, 74, 0.85); animation: pk-win 0.3s steps(2) 6; }
+@keyframes pk-win { 50% { transform: translateY(-4px); filter: brightness(1.3); } }
+.cs-machine.reach { animation: cs-reach 0.48s ease-in-out infinite; }
+@keyframes cs-reach { 50% { box-shadow: inset 0 0 0 2px #ff4a4a, 0 0 18px 4px rgba(255, 60, 60, 0.75); } }
 .pk-card.pickable:not(:first-child) canvas { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5); }
 .pk-hold { position: absolute; top: 0; z-index: 1; font-size: var(--fs-small); line-height: 1.25; color: var(--accent); visibility: hidden; white-space: nowrap; }
 .pk-card.held .pk-hold { visibility: visible; }
