@@ -308,6 +308,9 @@ export function gameFiles() {
     // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者の 職業・技・ひらめき技・えんしゅつ（o10）
     'public/js/shared/data/jobs-weather.js', 'public/js/shared/data/abilities-weather.js', 'public/js/shared/data/hirameki-weather.js',
     'public/js/client/render/axfx-o10-sky.js', 'public/js/client/render/axfx-o10-storm.js',
+    // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）の 職業・技・ひらめき技・戦いの しかけ（天気・しかる・消す・装備の 作りかえ・観客）
+    'public/js/shared/data/jobs-phantom-c.js', 'public/js/shared/data/abilities-phantom-c.js', 'public/js/shared/data/hirameki-phantom-c.js',
+    'public/js/shared/battle-weather.js', 'public/js/shared/battle-phantom-c.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

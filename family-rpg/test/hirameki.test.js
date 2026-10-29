@@ -1,7 +1,7 @@
 // ひらめき（技を 何回も 使うと 新しい 技を 思いつく）と 合体技（2人の 番を 使う 技）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { JOB_MAX_LEVEL } from '../public/js/shared/data/jobs.js';
+import { JOB_MAX_LEVEL, JOBS } from '../public/js/shared/data/jobs.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { HIRAMEKI, hiraChance, hiraRatio } from '../public/js/shared/data/hirameki.js';
 import { HIRAMEKI_JOBS } from '../public/js/shared/data/hirameki-jobs.js';
@@ -56,7 +56,7 @@ test('ひらめきの データ: 技と 回数が そろっている', () => {
     }
   }
   // 基本職 12こ × 2 と 掛け合わせ技 9こ（第23回の 職業の ひらめき技は hirameki-jobs.js。test/hirameki-r23.test.js。第27回は hirameki-r27.js。test/jobs-r27.test.js。第29回は hirameki-r29.js。test/jobs-r29.test.js）
-  assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].hirameki && !(id in HIRAMEKI_JOBS) && !(id in HIRAMEKI_R27) && !(id in HIRAMEKI_R29) && !(id in HIRAMEKI_R33) && !(id in HIRAMEKI_R40) && !(id in HIRAMEKI_R41B) && !(id in HIRAMEKI_R41A) && !(id in HIRAMEKI_R43J) && !(id in HIRAMEKI_WEATHER)).length, 24);
+  assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].hirameki && !(id in HIRAMEKI_JOBS) && !(id in HIRAMEKI_R27) && !(id in HIRAMEKI_R29) && !(id in HIRAMEKI_R33) && !(id in HIRAMEKI_R40) && !(id in HIRAMEKI_R41B) && !(id in HIRAMEKI_R41A) && !(id in HIRAMEKI_R43J) && !(id in HIRAMEKI_WEATHER) && !(JOBS[ABILITIES[id].job]?.tier >= 4)).length, 24); // 第51回: 幻の職業（tier 4）の ひらめき技は 班ごとの ファイル
   assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].kind === 'combo').length, 9);
   assert.equal(hiraChance(0.99), 0);
   assert.equal(hiraChance(1), 0.2);

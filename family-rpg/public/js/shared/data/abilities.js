@@ -69,6 +69,8 @@ import { POKEMON_ABILITIES } from './abilities-pokemon.js';
 import { DQM_ABILITIES } from './abilities-dqm.js';
 // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者の 技（abilities-weather.js）
 import { WEATHER_ABILITIES } from './abilities-weather.js';
+// 第51回 C3 の 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）の 技（abilities-phantom-c.js）
+import { PHANTOM_ABILITIES_C } from './abilities-phantom-c.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -682,6 +684,8 @@ Object.assign(ABILITIES, POKEMON_ABILITIES);
 Object.assign(ABILITIES, DQM_ABILITIES);
 // 第51回 W の 天気の 職業（abilities-weather.js）
 Object.assign(ABILITIES, WEATHER_ABILITIES);
+// 第51回 C3 の 幻の職業の 技（abilities-phantom-c.js）
+Object.assign(ABILITIES, PHANTOM_ABILITIES_C);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

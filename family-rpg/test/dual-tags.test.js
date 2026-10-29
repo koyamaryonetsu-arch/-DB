@@ -16,8 +16,10 @@ import { DUAL_FX } from '../public/js/client/render/dualfx.js';
 import { checkText } from '../tools/kanji-check.mjs';
 
 test('タグ: どの 職業にも 2〜4こ・知っている タグだけ・同じ タグを 2回 つけない', () => {
-  assert.deepEqual(Object.keys(JOB_TAGS).sort(), [...ALL_JOBS].sort(), 'JOB_TAGS と 職業の 一覧が 同じ（職業を ふやしたら タグも）');
-  for (const j of ALL_JOBS) {
+  // 第51回: 幻の職業（班ごとの jobs-phantom-*.js）も ふくめ、JOBS の ぜんぶの 職業に タグ
+  assert.deepEqual(Object.keys(JOB_TAGS).sort(), Object.keys(JOBS).sort(), 'JOB_TAGS と 職業の 一覧が 同じ（職業を ふやしたら タグも）');
+  for (const j of ALL_JOBS) assert.ok(JOB_TAGS[j], j);
+  for (const j of Object.keys(JOBS)) {
     const tags = JOBS[j].tags;
     assert.ok(Array.isArray(tags), `${JOBS[j].name}: JOBS[id].tags`);
     assert.ok(tags.length >= 2 && tags.length <= 4, `${JOBS[j].name}: ${tags.length}こ`);

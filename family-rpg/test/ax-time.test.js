@@ -71,10 +71,11 @@ test('第48回 G0: 表の かたち（段・ためかた・予算・グループ
   assert.equal(axChargeMs({ kind: 'ki' }, 'super'), 650);
   assert.equal(axChargeMs({ kind: 'holy' }, 'super'), 300);
   assert.equal(axChargeMs({ ms: 900 }, 'basic'), 200, 'kind なしは generic（構え）');
-  // 第51回: o7〜o10（幻の職業・天気の 職業）が うしろに ふえる
+  // 第51回: 幻の職業・天気の 職業の グループ（o7〜o10）は うしろに 足す。g1〜o6 の ならびは そのまま
   assert.deepEqual(AX_GROUP_IDS.slice(0, 12), ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6']);
   for (const g of AX_GROUP_IDS.slice(12)) assert.match(g, /^o\d+$/);
-  assert.ok(AX_GROUP_IDS.includes('o10'));
+  assert.ok(AX_GROUP_IDS.includes('o9') && AX_GROUP_IDS.includes('o10'));
+  assert.equal(new Set(AX_GROUP_IDS).size, AX_GROUP_IDS.length);
   for (const g of AX_GROUP_IDS) assert.ok(AX_GROUPS[g], g);
   assert.deepEqual(CUT_MS, AX_DUAL_CUT_MS, '合体技の カットインの 長さは サーバーと おなじ');
   assert.equal(AX_HIRA_PRE_MS, 700);
@@ -449,11 +450,15 @@ test('第49回 O0: もとからの 技の 予算（AX_BUDGET_ORIG）・名前の
   for (const [n, ms] of Object.entries(AX_DUAL_TOTAL_ORIG)) assert.ok(ms >= AX_DUAL_TOTAL[0] && ms <= AX_DUAL_TOTAL[1], `${n}人`);
   assert.deepEqual(AX_DUAL_PARTS_ORIG[2], AX_BUDGET_ORIG.super.parts);
   assert.equal(AX_DUAL_PARTS_ORIG[4][1], 300);
-  // 名前: o グループは ox_〜 だけ
-  assert.throws(() => axAddTimes('o9', { ax_x9: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
-  assert.throws(() => axAddTimes('o9', {}, { zz_no_such_skill: 'ax_tfix_beam' }), /ox_/);
-  assert.throws(() => axAddTimes('o9', { ox_Bad: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
-  assert.throws(() => useAxGroup('o9', {}, { g1Wrong: () => {} }), /o9/);
+  // 名前: o グループは ox_〜 だけ（ためしの 名前。o9 は 第51回の 本物の グループに なったので、o グループの ためしは この テストの o0、
+  // o グループで ない 名前の ためしは zz9）
+  assert.throws(() => axAddTimes('o0', { ax_x9: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
+  assert.throws(() => axAddTimes('o0', {}, { zz_no_such_skill: 'ax_tfix_beam' }), /ox_/);
+  assert.throws(() => axAddTimes('zz9', { ox_Bad: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
+  assert.throws(() => useAxGroup('o0', {}, { g1Wrong: () => {} }), /o0/);
+  assert.throws(() => useAxGroup('zz9', {}, { g1Wrong: () => {} }), /zz9/);
+  assert.ok(!axIsOrigGroup('zz9'), 'zz9 は o グループで ない');
+  assert.ok(!AX_GROUPS.zz9 || !Object.keys(AX_GROUPS.zz9.time).length, 'まちがった 表は 入らない');
   assert.throws(() => registerAx('ox_nothing', { group: 'o1', play() {} }), /ax-time-o1/);
   // ダ天使の 技（dt_hane・dt_hohoemi…）は 合体技で ない。合体技は DUAL_TECHS で みわける
   for (const id of ['dt_hane', 'dt_hohoemi', 'dt_keiyaku', 'dt_ochita', 'dt_tsubasa', 'dt_darkangel']) {

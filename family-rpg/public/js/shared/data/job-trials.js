@@ -162,6 +162,11 @@ export const TRIAL_WORDS = {
   mario: 'おひめさまだって、ときには自分で走り出すものよ。',
   // 第51回 W
   tenkou_tsukai: '天気は、みんなのくらしを守るためにあやつるのだ。',
+  // 第51回 C3: 幻の職業
+  cosmic_okan: 'しかるのも、ごはんを作るのも、全部愛や。',
+  chaos_creator: 'こわすことをおそれるな。作るための一歩だ。',
+  dream_stadium: '満員のスタンドが、きみの終点で待っている。',
+  weather_god: '空の顔は、心の顔。晴れの日も雨の日もある。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

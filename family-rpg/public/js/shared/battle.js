@@ -43,6 +43,9 @@ import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js';
 import { setupCh6, ch6Damage } from './battle-ch6.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
+// 第51回 C3: 幻の職業の しかる・消す・装備の 作りかえ・観客（battle-phantom-c.js）と 戦いの 天気（battle-weather.js）
+import { phantomCEffect, phantomCDamage } from './battle-phantom-c.js';
+import { weatherMult, weatherTick, weatherSnap } from './battle-weather.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
 import { setupArena, arenaDamage } from './battle-arena.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
@@ -615,6 +618,8 @@ export class Battle {
     // 呪文を はね返す 光が 消える など（battle-temple.js）
     templeTurnStart(this, c, ev);
     towerTurnStart(this, c, ev, cmd);
+    // 第51回 C3: 天気の のこり（かけた 側の 行動で へる。battle-weather.js）
+    weatherTick(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -1447,7 +1452,7 @@ export class Battle {
       }
       case 'nothing': break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
-      default: if (!templeEffect(this, c, a, eff, ev, targets)) towerEffect(this, c, a, eff, ev, targets); break;
+      default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
   }
 
@@ -1605,6 +1610,8 @@ export class Battle {
     const ad = arenaDamage(this, c, t, dmg, info, ev);
     if (ad === null) return;
     dmg = ad;
+    // 第51回 C3: 天気（味方と 敵で 属性の 強さが かわる）・夢のスタジアム鉄道の 観客（battle-phantom-c.js）
+    dmg = phantomCDamage(this, c, t, dmg, info, ev);
     // 第38回 B: 与える ダメージの 倍率（職業の試練の 師しょうのまぼろし。プレイヤーの 技を 使う ので 弱める。battle-trial.js）
     if (c?.dmgRate > 0 && c.side !== t.side && dmg > 0) dmg = Math.max(1, Math.round(dmg * c.dmgRate));
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
@@ -1747,7 +1754,8 @@ export class Battle {
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
-    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c));
+    // 第51回 C3: 雨の 天気は かけた 側の 回復が 強い（battle-weather.js）
+    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c) * weatherMult(this, c.side, 'heal'));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     // 第51回 F: 自分の 技・呪文で 回復した ぶん（道具は ev.ability が ない ので 入らない）
@@ -2239,6 +2247,8 @@ export class Battle {
       mirror: mirrorSnap(this),
       // 水の守りの歌の のこり（battle-temple.js）
       temple: templeSnap(this),
+      // 第51回 C3: 戦いの 天気（battle-weather.js）
+      weather: weatherSnap(this),
       // 敵の 強さ（1 … ふつう。ハードなどの ときは 画面に しるし）
       enemyRate: this.enemyRate,
       speed: this.speed,
