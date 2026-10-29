@@ -42,6 +42,8 @@ import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicle
 import { useEvoStone } from './evolve.js';
 // 第50回 N6: 家族に 道具を あげる（world/gift.js）
 import { giftTargets, giveItem } from './gift.js';
+// 第50回 N3: 大事な物の すぐ使う ボタン
+import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quick-item.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -492,6 +494,24 @@ export function menuAction(world, s, msg) {
     case 'timeGlass': return useTimeGlass(world, s, reply);
     case 'starSight': return useStarSight(world, s, reply);
     case 'bookmark': return useBookmark(world, s, reply);
+    // 第50回 N3: すぐ使う ボタン（HUD・コントローラー・T キー。data/quick-item.js）。メニューの「使う」と おなじ
+    case 'quickUse': {
+      const id = quickItemOf(c);
+      if (!id) return reply(false, 'すぐ使う大事な物がない。\n（メニューの「道具」→「大事な物」で選べる）');
+      const use = quickUseOf(id);
+      if (use === 'timeGlass') return useTimeGlass(world, s, reply);
+      if (use === 'starSight') return useStarSight(world, s, reply);
+      if (use === 'bookmark') return useBookmark(world, s, reply);
+      return reply(false, '今は使えない');
+    }
+    case 'quickSet': {
+      const r = setQuickItem(c, msg.id ?? null);
+      return reply(r.ok, r.text);
+    }
+    case 'quickPad': {
+      const r = setQuickPad(c, msg.pad);
+      return reply(r.ok, r.text);
+    }
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');

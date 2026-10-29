@@ -18,6 +18,7 @@ import { cleanWagon } from '../data/wagon.js';
 import { cleanLookEquip } from '../look-equip.js';
 import { cleanVehicles } from '../data/vehicles.js';
 import { repairTrialInfo } from '../data/job-trials.js';
+import { cleanQuick } from '../data/quick-item.js';
 
 export const SAVE_VERSION = 4;
 
@@ -137,6 +138,8 @@ export function repairChar(c, id) {
   cleanLookEquip(c);
   // 乗り物（第37回。ない ことも ある。新しい 項目なので 版は 上げない。data/vehicles.js）
   if (!c.species) cleanVehicles(c);
+  // 第50回 N3: 大事な物の すぐ使う ボタン（ない ことも ある。新しい 項目なので 版は 上げない。data/quick-item.js）
+  cleanQuick(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {

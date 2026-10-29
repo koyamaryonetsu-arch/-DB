@@ -12,6 +12,8 @@ import { toast, confirmBox, el } from './ui/dom.js';
 import { MAPS } from '../shared/maps/index.js';
 import { applyBattlePrefs, applyUiFont } from './prefs.js';
 import { SkyClient } from './sky.js';
+// 第50回 N3: 大事な物の すぐ使う ボタン
+import { QuickButton } from './ui/quick-item.js';
 import { reportError } from './errlog.js';
 
 export class Game {
@@ -23,6 +25,8 @@ export class Game {
     this.hud = new Hud(this);
     // 昼・夜の 時計と 大鳥フウラ（sky.js）
     this.sky = new SkyClient(this);
+    // 第50回 N3: 大事な物の すぐ使う ボタン（大鳥・竜の ボタンの 下。ui/quick-item.js）
+    this.quick = new QuickButton(this);
     this.menu = new FieldMenu(this);
     this.script = new ScriptPlayer(this);
     this.state = 'boot';
@@ -190,6 +194,7 @@ export class Game {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);
       this.sky.update(dt);
+      this.quick.update();
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
       this.hud.update(dt);
@@ -282,6 +287,7 @@ export class Game {
     else if (a === 'chat') this.hud.chatInput();
     else if (a === 'fly') this.sky.toggle();
     else if (a === 'ride') this.sky.padButton();
+    else if (a === 'quick') this.quick.use();
   }
 
   openMenu(section) {

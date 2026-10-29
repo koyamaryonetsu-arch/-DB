@@ -59,6 +59,8 @@ import { vehicleMenuView } from './vehicles.js';
 import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js';
 // 第50回 N6: 家族に 道具を あげる（ui/gift.js）
 import { canGift, giftFlow } from './gift.js';
+// 第50回 N3: 大事な物の すぐ使う ボタン（data/quick-item.js）
+import { quickItemOf, quickUseOf, quickList, quickLabel, QUICK_PADS, quickPadOf, quickPadName } from '../../shared/data/quick-item.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -457,7 +459,9 @@ export class FieldMenu {
     // れん金がま（第32回）は いちばん上（ui/alchemy.js）
     const pot = alchemyRow(c);
     if (pot) items.unshift(pot);
-    for (const k of c.keyItems) if (!pot || k !== pot.value) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
+    // 第50回 N3: すぐ使う ボタンの 大事な物には「ボタン」の しるし
+    const qk = quickItemOf(c);
+    for (const k of c.keyItems) if (!pot || k !== pot.value) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>${k === qk ? '<span class="tag quick">ボタン</span>' : ''}`, value: k, key: true });
     items.push(...treasureRows(c)); // 宝の地図
     const medal = medalItemRow(c);
     if (medal) items.push(medal);
@@ -560,11 +564,19 @@ export class FieldMenu {
     // 第6章 Step 3・4: ミナモの 星読み（menuUse: 'starSight'。world/star-sight.js）も おなじ 形
     if (it.hourglass || it.menuUse) {
       this.sub.blur();
-      const act = await this.pick(`${it.name}をどうする？`, [{ label: '使う', value: 'use' }, { label: 'やめる', value: null }]);
+      // 第50回 N3: すぐ使う ボタン（HUD・コントローラー・T キー）に する・はずす
+      const onBtn = quickUseOf(entry.value) && quickItemOf(g.me) === entry.value;
+      const acts = [{ label: '使う', value: 'use' }];
+      if (quickUseOf(entry.value)) acts.push(onBtn ? { label: 'すぐ使うボタンからはずす', value: 'qoff' } : { label: 'すぐ使うボタンにする', value: 'qon' });
+      acts.push({ label: 'やめる', value: null });
+      const act = await this.pick(`${it.name}をどうする？`, acts);
       if (act === 'use') {
         this.close();
         g.net.send({ t: 'menu', action: it.menuUse || 'timeGlass' });
         return;
+      }
+      if (act === 'qon' || act === 'qoff') {
+        await this.menuCall({ t: 'menu', action: 'quickSet', id: act === 'qon' ? entry.value : '' });
       }
       backToList();
       return;
@@ -1812,6 +1824,13 @@ export class FieldMenu {
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
+    // 第50回 N3: 大事な物の すぐ使う ボタン（すぐ使える 大事な物を 持っている 人だけ。data/quick-item.js）
+    if (quickList(c).length) {
+      const qk = quickItemOf(c);
+      items.push({ header: true, label: '大事な物のボタン', cls: 'set-hdr' },
+        { label: `すぐ使う大事な物：${qk ? ITEMS[qk].name : 'なし'}`, value: 'quickItem' },
+        { label: `コントローラーのボタン：${quickPadName(quickPadOf(c))}`, value: 'quickPad' });
+    }
     if (g.field.constructor.webgl2()) items.splice(items.findIndex((x) => x.value === 'speed'), 0, { label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     // こまった とき（動けない・画面が 止まった）。不具合の 記録は 家族に コピーして 送れる
     items.push({ header: true, label: 'こまった時', cls: 'set-hdr' },
@@ -1829,7 +1848,7 @@ export class FieldMenu {
         class: 'detail',
         text: g.input.touch
           ? '操作: 画面の左側をさわるとそこにスティックが出る（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）'
-          : '操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット',
+          : `操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット${quickList(c).length ? `、Tで${quickLabel(quickItemOf(c)) || '大事な物'}（すぐ使う）` : ''}`,
       }));
       return box;
     }
@@ -1890,6 +1909,19 @@ export class FieldMenu {
         } else if (it.value === 'silent') {
           g.audio.silentPlay = !g.audio.silentPlay;
           g.audio.sfx('confirm');
+        } else if (it.value === 'quickItem') {
+          // すぐ使う 大事な物を えらぶ（なし も できる）
+          this.sub.blur();
+          const qk = quickItemOf(c);
+          const list = quickList(c).map((k) => ({ label: ITEMS[k].name, right: k === qk ? '今' : '', value: k }));
+          this.pick('すぐ使う大事な物', [...list, { label: 'なし（ボタンを出さない）', value: '' }, { label: 'やめる', value: null }], { start: qk || '' }).then(async (v) => {
+            if (v !== null && v !== undefined && v !== (qk || '') && this.root) await this.menuCall({ t: 'menu', action: 'quickSet', id: v });
+            again(idx);
+          });
+          return;
+        } else if (it.value === 'quickPad') {
+          const now = QUICK_PADS.findIndex((p) => p.b === quickPadOf(c));
+          g.net.send({ t: 'menu', action: 'quickPad', pad: QUICK_PADS[(now + 1) % QUICK_PADS.length].b });
         } else if (it.value === 'rescue') {
           this.close();
           g.rescue();
@@ -1902,7 +1934,7 @@ export class FieldMenu {
       },
     });
     const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
-    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）` + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 
