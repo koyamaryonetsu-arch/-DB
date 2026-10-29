@@ -30,10 +30,14 @@ export const STAT_NAMES = {
 
 // レベルに必要な 累計けいけんち（EXP_RATE: レベル上げの むずかしさ。2.25 = はじめの 版の 2.25倍 ひつよう）
 export const EXP_RATE = 2.25;
+// レベル99より 上は、1つ 上がるのに いる 経験値が 2.5倍（第50回。家族が 決めた。99までは 前の まま）
+export const HIGH_LEVEL = 99;
+export const HIGH_EXP_MULT = 2.5;
+const baseExp = (lv) => (lv <= 1 ? 0 : Math.round((6 * Math.pow(lv - 1, 2.5) + 6 * (lv - 1)) * EXP_RATE));
 export function expForLevel(lv) {
-  if (lv <= 1) return 0;
-  const n = lv - 1;
-  return Math.round((6 * Math.pow(n, 2.5) + 6 * n) * EXP_RATE);
+  if (lv <= HIGH_LEVEL) return baseExp(lv);
+  const b = baseExp(HIGH_LEVEL);
+  return b + Math.round((baseExp(lv) - b) * HIGH_EXP_MULT);
 }
 
 // レベルごとの 基本ステータス（職業の倍率を かける前）

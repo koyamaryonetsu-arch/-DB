@@ -133,8 +133,10 @@ test('あたらしい 仲間モンスター: 落とす物（loot.js の きま�
     const list = monsterDrops(sp);
     const common = list.find((d) => d.kind === 'common'), rare = list.find((d) => d.kind === 'rare'), mat = list.find((d) => d.kind === 'mat');
     assert.ok(common && rare && mat, `${sp}: よく・レア・素材`);
-    assert.ok(rare.n >= 32 && rare.n <= 128 && common.n <= 32, sp);
     const r = ITEMS[rare.item];
+    // 第50回: 種は 前の 1/3 の 出やすさ（96〜384回に 1回）
+    const seed = r.effect?.type === 'seed' || r.effect?.type === 'multi';
+    assert.ok((seed ? rare.n >= 96 && rare.n <= 384 : rare.n >= 32 && rare.n <= 128) && common.n <= 32, sp);
     assert.ok(r.type === 'acc' || SLOTS.includes(r.type) || r.effect?.type === 'seed', `${sp}: レアは 装備か 種`);
     assert.ok(ITEMS[mat.item].type === 'mat' && MAT_DROPS[sp], `${sp}: 素材`);
   }
