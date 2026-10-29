@@ -21,6 +21,7 @@ import { repairTrialInfo } from '../data/job-trials.js';
 import { cleanQuick } from '../data/quick-item.js';
 import { repairSubAsk } from '../data/subquest-hints.js';
 import { cleanStamps } from '../data/stamps.js';
+import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js';
 
 export const SAVE_VERSION = 4;
 
@@ -144,6 +145,8 @@ export function repairChar(c, id) {
   cleanQuick(c);
   // 第50回 N7: チャットの スタンプ（ない ことも ある。新しい 項目なので 版は 上げない。data/stamps.js）
   cleanStamps(c);
+  // 第51回 B: 家族のけいじ板を さいごに 見た 時こく（ない ことも ある。新しい 項目なので 版は 上げない。world/family-board.js）
+  cleanBoardSeen(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {
@@ -208,6 +211,8 @@ export function upgradeSave(raw) {
   const d = { ...src };
   d.characters = hasChars ? { ...src.characters } : {};
   d.board = Array.isArray(src.board) ? src.board : [];
+  // 第51回 B: 家族のけいじ板（自動の 知らせ。world/family-board.js）
+  d.familyBoard = cleanFamilyBoard(src.familyBoard);
   d.createdAt = src.createdAt || Date.now();
   for (let v = from; v < SAVE_VERSION; v++) UPGRADES[v]?.(d);
   for (const [id, c] of Object.entries(d.characters)) {

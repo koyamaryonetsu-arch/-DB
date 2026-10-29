@@ -15,6 +15,8 @@ import { SkyClient } from './sky.js';
 // 第50回 N3: 大事な物の すぐ使う ボタン
 import { QuickButton } from './ui/quick-item.js';
 import { reportError } from './errlog.js';
+// 第51回 B: 家族のけいじ板（ui/family-board.js）
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js';
 
 export class Game {
   constructor(net) {
@@ -527,6 +529,10 @@ export class Game {
         if (this.state === 'field') this.field.bubble(m.sid === this.sid ? this.sid : m.sid, m.stamp || m.text);
         this.audio.sfx('stamp');
         break;
+      // 第51回 B: 家族のけいじ板
+      case 'fboardNew': case 'fboardList': case 'fboardLast':
+        onBoardMsg(this, m);
+        break;
       case 'joined':
         toast(`${m.name}が冒険にやって来た！`);
         break;
@@ -750,6 +756,7 @@ export class Game {
     else if (m.resumed) toast('つなぎ直しました。続きから遊べます');
     // 家族の パーティーで 仲間に なった まもの（いない 間に 酒場へ 来た。world/recruit-share.js）
     for (const text of m.tavernNews || []) toast(text, 7000);
+    boardOnEnter(this);
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }

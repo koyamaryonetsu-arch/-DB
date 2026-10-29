@@ -51,6 +51,8 @@ import { giftTargets, giveItem } from './gift.js';
 import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quick-item.js';
 // 第50回 D3: 景品（星のかけらの こうかん・乗り物券・よびぶえ・修行の書・経験の書。world/prizes-r50.js）
 import { starTradeInfo, starTradeAction, usePrizeItem, PRIZE_USE } from './prizes-r50.js';
+// 第51回 B: 家族のけいじ板（はじめて なった 職業を のせる）
+import { boardJobChange } from './family-board.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -194,6 +196,7 @@ export function serviceAction(world, s, msg) {
       const who = ownChar(s, msg.who);
       if (!who || who.species) return reply(false, 'モンスターは転職できない');
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
+      const first = !who.jobs?.[msg.job];
       const r = changeJob(who, msg.job);
       // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
       // 職業の 名前は なる 人 むけ（男の子の 美少女戦士は「仮面のしんし」。job-label.js）
@@ -208,6 +211,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
+      boardJobChange(world, who, msg.job, first);
       return reply(true, jobDoneText(who.name, jn(msg.job), removed, msg.job, isMasc(who)), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {

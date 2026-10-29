@@ -26,6 +26,8 @@ import { battleTactics } from './tactics.js';
 import { isNightFor } from './clock.js';
 // 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
 import { MONSTER_FRIENDS } from '../data/companions.js';
+// 第51回 B: 家族のけいじ板（ひらめき技・合体技を はじめて 覚えた）
+import { boardHirameki, boardDual } from './family-board.js';
 
 let battleSeq = 1;
 
@@ -310,11 +312,17 @@ function markDuals(world, ctx, evs) {
   for (const ev of evs) {
     const d = ev.dual;
     if (!d?.id) continue;
+    const fresh = [];
     for (const id of d.m || [d.a, d.b]) {
       const who = ctx.actorMap[id];
       const ch = who?.type === 'human' ? who.char : who?.type === 'support' ? world.data.characters[who.owner] : null;
-      if (ch && !ch.dualSeen?.[d.id]) ch.dualSeen = { ...(ch.dualSeen || {}), [d.id]: 1 };
+      if (ch && !ch.dualSeen?.[d.id]) {
+        ch.dualSeen = { ...(ch.dualSeen || {}), [d.id]: 1 };
+        if (!fresh.includes(ch)) fresh.push(ch);
+      }
     }
+    // 第51回 B: はじめて 使った 家族を けいじ板に（1回の 合体技で 1こ）
+    if (fresh.length) boardDual(world, fresh, d.id);
   }
 }
 
@@ -373,6 +381,7 @@ function finishBattle(world, ctx) {
     if (a.hiraNew?.length) {
       ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
       for (const id of a.hiraNew) hiraLines.push(`★ ${ch.name}は「${abilityLabel(id, ch)}」をひらめいた！（これからも使える）`);
+      boardHirameki(world, ch, a.hiraNew);
     }
   }
 

@@ -22,6 +22,8 @@ import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWa
 import { rosterIsFull, befriendFullSteps } from './farewell.js';
 import { hasWagon, dropGoneFamily } from '../data/wagon.js';
 import { takeTavernNews } from './recruit-share.js';
+// 第51回 B: 家族のけいじ板（world/family-board.js）
+import { boardPost, boardMessage } from './family-board.js';
 import { MONSTERS } from '../data/monsters.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
@@ -243,6 +245,11 @@ export class GameWorld {
     this.saveNow({ urgent: true });
   }
 
+  // 第51回 B: 家族のけいじ板に のせる（world/family-board.js。幻の職業の 知らせは F 班が よぶ）
+  boardPost(entry) {
+    return boardPost(this, entry);
+  }
+
   send(s, msg) {
     if (!s || !s.conn) return;
     try {
@@ -297,6 +304,7 @@ export class GameWorld {
       case 'resultDone': return resultDone(this, s);
       case 'party': return this.onParty(s, msg);
       case 'chat': return this.onChat(s, msg);
+      case 'fboard': return boardMessage(this, s, msg);
       case 'explored': return this.onExplored(s, msg);
       case 'warpTo': return this.onMenu(s, { t: 'menu', action: 'useItem', id: 'return_wing', place: msg.place });
       case 'fly': return onFly(this, s, msg); // 風の大鳥（travel.js）

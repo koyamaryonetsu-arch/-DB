@@ -366,6 +366,8 @@ export function gameFiles() {
     'public/js/shared/data/sidequests-work.js', 'public/js/shared/maps/work-quests.js', 'public/js/shared/data/fq-common.js', 'public/js/shared/maps/fq-kit.js', 'public/js/client/render/work-art.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
+    // 第51回 B: 家族のけいじ板
+    'public/js/shared/world/family-board.js', 'public/js/client/ui/family-board.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

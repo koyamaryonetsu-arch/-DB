@@ -65,6 +65,8 @@ import { canGift, giftFlow } from './gift.js';
 // 第50回 N3: 大事な物の すぐ使う ボタン（data/quick-item.js）
 import { quickItemOf, quickUseOf, quickList, quickLabel, QUICK_PADS, quickPadOf, quickPadName } from '../../shared/data/quick-item.js';
 import { openStampEditor } from './stamps.js';
+// 第51回 B: 家族のけいじ板（ui/family-board.js）
+import { familyBoardView, hasBoardUnread } from './family-board.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -89,6 +91,8 @@ const MAIN = [
   { label: 'クエスト', value: 'quest' },
   // 第35回: お知らせ（ui/news.js。まだ 読んでいない 物が あると ●）
   { label: 'お知らせ', value: 'news' },
+  // 第51回 B: 家族のけいじ板（まだ 見ていない 知らせが あると ●）
+  { label: 'けいじ板', value: 'fboard' },
   { label: '設定', value: 'settings' },
   { label: '終わる', value: 'quit' },
 ];
@@ -159,7 +163,7 @@ export class FieldMenu {
     document.getElementById('ui').append(this.backdrop, this.root);
     this.updateHead();
     this.menu = new ListMenu(g.input, {
-      items: MAIN.map((it) => ((it.value === 'news' && hasUnreadNews(g.me)) || (it.value === 'quest' && hasNewAsk(g.me)) ? { ...it, cls: 'has-new' } : it)),
+      items: MAIN.map((it) => ((it.value === 'news' && hasUnreadNews(g.me)) || (it.value === 'quest' && hasNewAsk(g.me)) || (it.value === 'fboard' && hasBoardUnread(g)) ? { ...it, cls: 'has-new' } : it)),
       sound: this.sfx,
       back: null,
       onMove: (it) => this.preview(it.value),
@@ -311,6 +315,7 @@ export class FieldMenu {
         break;
       case 'settings': this.main.append(this.settingsView(false)); break;
       case 'news': this.main.append(newsView(this, false)); break;
+      case 'fboard': this.main.append(familyBoardView(this, false)); break;
       case 'quit': {
         const where = g.net.mode !== 'offline' ? '家族サーバー' : g.net.local?.cloud?.state === 'on' ? 'claude.ai' : 'このブラウザ';
         this.main.append(el('div', { class: 'muted', text: `セーブしてタイトルにもどる。（${where}にセーブされます）` }));
@@ -417,6 +422,7 @@ export class FieldMenu {
         for (const it of this.menu.items) if (it.value === 'news') it.cls = '';
         this.menu.root.querySelector('.item.has-new')?.classList.remove('has-new');
         return this.focusSub(newsView(this, true));
+      case 'fboard': return this.focusSub(familyBoardView(this, true));
       case 'talk':
         this.close();
         return partyTalk(g);
