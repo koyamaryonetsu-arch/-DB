@@ -3,7 +3,7 @@
 // ・o5Text … カタカナの 擬音（ふきだし・ギザギザの 星つき）。o5Arrow … 上向き・下向きの 矢印。o5Line … のびる 線（白線・心電図・手を つなぐ 光）
 // ・o5Steam … 湯気。o5Twister … 竜巻（炎・ジャージ）。o5Bg … 発射の あと 一しゅんの うすい 背景
 // ・毎フレーム グラデーションを 作らない（softGlow の キャッシュ）。画面の 文字は カタカナ・ひらがな・記号だけ（漢字なし）
-import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=5cf16f1946f7';
+import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=acb97b73a32c';
 
 const TAU = Math.PI * 2;
 const OUT = '#3a2414';

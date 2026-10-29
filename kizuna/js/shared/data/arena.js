@@ -7,7 +7,7 @@
 // ・ごほうび: はじめて 勝ちぬいた 時（キャラごと）… first の 品と 小さなメダル。2回目から … repeatGold ゴールドと 小さなメダル 1まい
 // ・キャラに のこす もの（なくても よい。むかしの セーブも そのまま 読める）
 //   c.arena = { r: { [ランク]: { n: 勝ちぬいた 回数, at: はじめて 勝ちぬいた 時こく, with: [いっしょに いた 家族の 名前] } }, rep: 2回目からの メダルの 通し番号 }
-import { SOUTH_PLACES } from '../maps/south.js?v=5cf16f1946f7';
+import { SOUTH_PLACES } from '../maps/south.js?v=acb97b73a32c';
 
 // 第4章クリアの フラグ（maps/temple.js の CLEAR4_FLAG と おなじ）
 export const ARENA_OPEN_FLAG = 'c4_clear';

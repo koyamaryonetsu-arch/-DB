@@ -1,8 +1,8 @@
 // 第49回 O5: 家の 技（ニート・おかん・最強のおかん・クリエイター と 家の 合体技）の え。この ファイルは O5 だけが さわる
 // まくら・ふとん・ポテチ・スリッパ・おたま・ちゃぶ台・買い物かご… こわく ない、わらえる 家の えんしゅつ
 // なかま: スリッパ（最強のスリッパ → 最強のおかんビンタ）・まくら（まくら投げ → 修学旅行）・本気（明日から → 今日から → 一発ぎゃく転）・ごはん（お弁当 → ごはんおかわり）
-import { rnd } from './axkit.js?v=5cf16f1946f7';
-import { add, obj, text, arrow, UP, line, steam, bg, twister, fly, toss, hands, ground, above, pick, per, solo, partyTop, hitFx, tierShake, allyGlow } from './axfx-o5-kit.js?v=5cf16f1946f7';
+import { rnd } from './axkit.js?v=acb97b73a32c';
+import { add, obj, text, arrow, UP, line, steam, bg, twister, fly, toss, hands, ground, above, pick, per, solo, partyTop, hitFx, tierShake, allyGlow } from './axfx-o5-kit.js?v=acb97b73a32c';
 
 const RED = ['#ff4a3a', '#ff9a5a', '#fff0a0'];
 const CONFETTI = ['#ff5a8a', '#ffe060', '#5ac8ff', '#7ae070', '#ffffff', '#ff9a3a'];
