@@ -1563,6 +1563,8 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .menu .item.sk .l, .menu .item.sk-row .l { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.35em; min-width: 0; }
 .menu .item .sk-desc { flex-basis: 100%; font-size: 0.78em; color: var(--muted); line-height: 1.35; white-space: normal; }
 .menu .item.sk.sel .sk-desc { color: #d8d6ee; }
+/* 第50回 N1: 威力の 目安（威力×1.8・今の魔力でダメージ約120〜150）。名前の 下に 小さく 1行 */
+.menu .item .sk-pow { flex-basis: 100%; font-size: 0.78em; color: var(--accent); line-height: 1.35; white-space: normal; font-variant-numeric: tabular-nums; }
 .menu .item.sk-row .ln { flex-basis: 100%; font-size: 0.8em; line-height: 1.35; white-space: normal; }
 .menu .item.sk-row .nm { color: var(--accent); }
 .menu .item.sk-row.locked .nm { color: #6d6c88; }

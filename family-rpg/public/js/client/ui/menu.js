@@ -24,7 +24,7 @@ import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
-import { menuItemText, skillEffectText } from './skillinfo.js';
+import { menuItemText, skillEffectText, skillPowerLine, powStats } from './skillinfo.js';
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
 import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js';
 import '../battle-buffs.js';
@@ -975,6 +975,12 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人・3人・4人でいっしょに出す技。出せるかは、今ついている職業で決まる。出す人みんなの番を使う。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、みんなのゲージがたまった時にいっしょに出す（先にたまった仲間は、ほかの仲間を待つ）。\nよやくで待っている間にダメージを受けると、その人のゲージは半分からやり直し。どんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
+    // 威力の 目安（今の 魔力で。第50回 N1）
+    const st = powStats(c);
+    const powLine = (id) => {
+      const t = skillPowerLine(id, c, { st });
+      return t ? `<span class="sk-pow">${esc(t)}</span>` : '';
+    };
     const items = learned.map((id) => {
       const a = abilityFor(id, c);
       const p = penaltyFor(c, id);
@@ -984,7 +990,7 @@ export class FieldMenu {
       const tt = targetTag(a);
       const slv = skillLevel(c.skillUse, id);
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}<span class="tag slv${slv >= SKILL_LV_MAX ? ' max' : ''}">Lv${slv}</span>${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}<span class="tag slv${slv >= SKILL_LV_MAX ? ' max' : ''}">Lv${slv}</span>${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}${powLine(id)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
@@ -1687,13 +1693,18 @@ export class FieldMenu {
       const src = key === 'self' ? g.me : [...(g.party?.supports || []), ...(g.party?.wagon || [])].find((x) => x.key === key && x.owner === g.me.id);
       if (src) src.autoOff = list;
     };
+    const st = powStats(c);
     const items = [
       { label: '全部使う', value: '__all', disabled: !off.size },
       ...ids.map((id) => {
         const a = abilityFor(id, c);
         const no = off.has(id) || offNames.has(a.name);
+        // MPと 威力の 目安（今の 魔力で。強いか 弱いか わかる ように。第50回 N1）
+        const mp = a.effect?.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`;
+        const pw = skillPowerLine(id, c, { st });
+        const pen = penaltyFor(c, id).penalized;
         return {
-          html: `${esc(a.name)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+          html: `${esc(a.name)}${pen ? '<span class="tag warn">他</span>' : ''}${mp || pw ? `<span class="sk-pow">${esc([mp, pw].filter(Boolean).join('　'))}</span>` : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
           right: no ? '使わない' : '使う',
           rightCls: no ? 'dis' : 'up',
           value: id,
