@@ -11,8 +11,11 @@ import { makeCanvas } from '../render/pixel.js';
 import { ClockBadge } from './clock.js';
 import { powderLabel } from '../../shared/data/friend-powder.js';
 import { auraLabel } from '../../shared/data/abilities-field27.js';
+import { DEFAULT_STAMPS, STAMP_EDIT, stampMenuItems } from '../../shared/data/stamps.js';
+import { openStampEditor } from './stamps.js';
 
-export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
+// 第50回 N7: スタンプは キャラごとに 変えられる（shared/data/stamps.js。STAMPS は はじめの スタンプ）
+export const STAMPS = DEFAULT_STAMPS;
 
 // パーティーの ならび（じぶん → 家族 → 仲間 → ゲスト）。HUD と メニューで つかう
 export function partyRows(g) {
@@ -180,13 +183,16 @@ export class Hud {
     const back = el('div', { class: 'modal-back', style: { background: 'transparent' }, onclick: () => { g.audio.sfx('cancel'); close(); } });
     const box = el('div', { class: 'win panel stamp-panel' });
     const m = new ListMenu(g.input, {
-      items: STAMPS.map((s) => ({ label: s, value: s })),
+      items: stampMenuItems(g.me),
       cols: 2,
+      fit: true,
       back: '閉じる',
       sound: (x) => g.audio.sfx(x),
       onSelect: (it) => {
-        g.net.send({ t: 'chat', stamp: it.value });
         close();
+        // さいごの 行: スタンプを 変える（とじたら また スタンプの 一覧へ）
+        if (it.value === STAMP_EDIT) return openStampEditor(g).then(() => { if (g.state === 'field' && !g.busy) this.stampMenu(); });
+        g.net.send({ t: 'chat', stamp: it.value });
       },
       onCancel: () => close(),
     });
