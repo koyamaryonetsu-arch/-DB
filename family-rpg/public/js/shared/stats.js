@@ -13,6 +13,8 @@ import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
 import { jobLabel } from './job-label.js';
+// 第50回 N3: 大事な物の すぐ使う ボタン（はじめて 手に 入れた ときに 自動で えらぶ）
+import { autoQuick } from './data/quick-item.js';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
 import { jobLevelCap, jobUpStats } from './data/job-trials.js';
 
@@ -789,7 +791,10 @@ export function addItem(char, id, n = 1) {
   const it = ITEMS[id];
   if (!it) return false;
   if (it.type === 'key') {
-    if (!char.keyItems.includes(id)) char.keyItems.push(id);
+    if (!char.keyItems.includes(id)) {
+      char.keyItems.push(id);
+      autoQuick(char, id);
+    }
     return true;
   }
   const e = char.items.find((x) => x.id === id);
