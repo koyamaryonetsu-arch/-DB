@@ -1,7 +1,7 @@
 // 第48回 G1: ネコ型ロボット・耳無しネコ型ロボット・ドラえもん ＋ カッパ・はなかっぱ・筋肉ニンニク の え
 // 時間は shared/data/ax-time-g1.js。c の 時間は はなつ しゅんかんが 0
-import { org, selfAt, N, darken, bg, ball, mark, prop, fist, boom, path, ghost, wind, cone, arc, air, flower, TAU, lerp } from './axfx-g1-lib.js?v=a8edacfcfd44';
-import { kiHit } from './axfx-g1-dbz.js?v=a8edacfcfd44';
+import { org, selfAt, N, darken, bg, ball, mark, prop, fist, boom, path, ghost, wind, cone, arc, air, flower, TAU, lerp } from './axfx-g1-lib.js?v=b006a21bc0e3';
+import { kiHit } from './axfx-g1-dbz.js?v=b006a21bc0e3';
 
 const DORA = { main: '#2a9aff', glow: '#bfe4ff', core: '#ffffff', list: ['#ffffff', '#bfe4ff', '#2a9aff'] };
 const STAR = { main: '#ffffff', glow: '#ffe066', core: '#ffffff', list: ['#ffffff', '#ffe066', '#ffb03a'] };

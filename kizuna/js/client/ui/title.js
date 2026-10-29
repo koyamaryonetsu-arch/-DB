@@ -1,16 +1,16 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { padNav } from './padnav.js?v=a8edacfcfd44';
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=a8edacfcfd44';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=a8edacfcfd44';
-import { jobLabel, jobFor } from '../../shared/job-label.js?v=a8edacfcfd44';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=a8edacfcfd44';
-import { previewCache } from '../render/hero.js?v=a8edacfcfd44';
-import { playerSprite } from '../field.js?v=a8edacfcfd44';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=a8edacfcfd44';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=a8edacfcfd44';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=a8edacfcfd44';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=a8edacfcfd44';
-import { shownEquip } from '../../shared/look-equip.js?v=a8edacfcfd44';
+import { padNav } from './padnav.js?v=b006a21bc0e3';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=b006a21bc0e3';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=b006a21bc0e3';
+import { jobLabel, jobFor } from '../../shared/job-label.js?v=b006a21bc0e3';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=b006a21bc0e3';
+import { previewCache } from '../render/hero.js?v=b006a21bc0e3';
+import { playerSprite } from '../field.js?v=b006a21bc0e3';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=b006a21bc0e3';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=b006a21bc0e3';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=b006a21bc0e3';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=b006a21bc0e3';
+import { shownEquip } from '../../shared/look-equip.js?v=b006a21bc0e3';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -556,6 +556,7 @@ export function showCreate(game) {
       rurouni: '旅の剣士でござる',
       magician: 'タネも仕かけもない', alchemist: '形を作りかえる',
       plumber: 'ジャンプが得意',
+      kishou: '明日の天気を当てる',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

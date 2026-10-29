@@ -4,11 +4,11 @@
 //   千年前の 人たち（past_*）・泉の里の 人たち（spring_*）と、時が 止まった 灰色の すがた（frozen_*）
 // とくべつな え（paintCh6Special）: はじまりの勇者の像（ふつう・うすく 消えかけた）・星の木（大きな 木）・星の木の なえ・やわらかい 土・
 //   星のしずく・テント・いのりの 石・ちびアステル・影の時計師ゼンマイ・ゼンマイの番兵ギアドン（番人の 間の 人の すがた）
-import { Painter } from './pixel.js?v=a8edacfcfd44';
+import { Painter } from './pixel.js?v=b006a21bc0e3';
 // 第6章 Step 3・4: オリハ・コトハ・星くいのよる鳥・ペンデュラ・タイムカプセル・きらきらの石（render/ch6-road-npc-art.js。ここで まぜる）
-import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js?v=a8edacfcfd44';
+import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js?v=b006a21bc0e3';
 // 第6章 Step 5: 止まった時計塔・カリヨン・止まった 魔物・砂時計の かざり（render/ch6-tokei-npc-art.js。ここで まぜる）
-import { paintTokeiSpecial, TOKEI_SPECIALS } from './ch6-tokei-npc-art.js?v=a8edacfcfd44';
+import { paintTokeiSpecial, TOKEI_SPECIALS } from './ch6-tokei-npc-art.js?v=b006a21bc0e3';
 
 const GRAY = { hair: '#9a9aa2', skin: '#c4c6cc', cloth: '#8a8c94', trim: '#b4b6bc' };
 const person = (o) => o;

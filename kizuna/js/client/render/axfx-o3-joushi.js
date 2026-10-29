@@ -1,6 +1,6 @@
 // 第49回 O3: 部長・正社員・社ちく・楽天カードマン（上級職）の 技の え。時間は shared/data/ax-time-o3.js（はなつ しゅんかんが 0）
 // 上級職は 形 ＋ 命中の 輪＋光（plan-r49-fx.md 2章）。ゴルフ・ハンコ・社員証・歯車・トロフィー・栄養ドリンク・赤い カード…
-import { obj, word, strip, arrows, strike, picks, backdrop, UP, rnd, GOLD, HEAL, MP, src, papers, healAt, confetti } from './axfx-o3-lib.js?v=a8edacfcfd44';
+import { obj, word, strip, arrows, strike, picks, backdrop, UP, rnd, GOLD, HEAL, MP, src, papers, healAt, confetti } from './axfx-o3-lib.js?v=b006a21bc0e3';
 
 const RED = '#e8202a';
 const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);

@@ -1,26 +1,26 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=a8edacfcfd44';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=a8edacfcfd44';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=a8edacfcfd44';
-import { MONSTERS } from './data/monsters.js?v=a8edacfcfd44';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=a8edacfcfd44';
-import { ougiLearn } from './data/abilities-ougi.js?v=a8edacfcfd44';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=b006a21bc0e3';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=b006a21bc0e3';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=b006a21bc0e3';
+import { MONSTERS } from './data/monsters.js?v=b006a21bc0e3';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=b006a21bc0e3';
+import { ougiLearn } from './data/abilities-ougi.js?v=b006a21bc0e3';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
-import { rankIdx } from './data/companions.js?v=a8edacfcfd44';
+import { rankIdx } from './data/companions.js?v=b006a21bc0e3';
 // 第44回（ポケモン P1）: レベルで 進化
-import { levelEvolveTo } from './data/companions.js?v=a8edacfcfd44';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=a8edacfcfd44';
-import { cleanLook } from './data/looks.js?v=a8edacfcfd44';
-import { SKILL_UPS } from './data/skill-ups.js?v=a8edacfcfd44';
-import { jobLabel } from './job-label.js?v=a8edacfcfd44';
+import { levelEvolveTo } from './data/companions.js?v=b006a21bc0e3';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=b006a21bc0e3';
+import { cleanLook } from './data/looks.js?v=b006a21bc0e3';
+import { SKILL_UPS } from './data/skill-ups.js?v=b006a21bc0e3';
+import { jobLabel } from './job-label.js?v=b006a21bc0e3';
 // 第50回 N3: 大事な物の すぐ使う ボタン（はじめて 手に 入れた ときに 自動で えらぶ）
-import { autoQuick } from './data/quick-item.js?v=a8edacfcfd44';
+import { autoQuick } from './data/quick-item.js?v=b006a21bc0e3';
 // 第50回 D4: 上の 職業の 技ほど 消費MPが へる（skill-tier.js）
-import { tierMp } from './skill-tier.js?v=a8edacfcfd44';
+import { tierMp } from './skill-tier.js?v=b006a21bc0e3';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=a8edacfcfd44';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=b006a21bc0e3';
 // 第51回 F: 幻の職業の やりこみの 条件（data/phantom.js）
-import { phantomCondsMet } from './data/phantom.js?v=a8edacfcfd44';
+import { phantomCondsMet } from './data/phantom.js?v=b006a21bc0e3';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;
@@ -531,6 +531,8 @@ export const STARTER_EQUIP = {
   alchemist: { weapon: 'chalk', armor: 'cloth', shield: null, head: null, acc: null },
   // 第43回: 配管工（ももの姫）は すで（ジャンプと ふみつけ）
   plumber: { weapon: null, armor: 'cloth', shield: null, head: null, acc: null },
+  // 第51回 W: 気象予報士は 天気図を さす かしの杖
+  kishou: { weapon: 'oak_staff', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

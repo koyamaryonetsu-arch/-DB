@@ -1,26 +1,28 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=a8edacfcfd44';
-import { ITEMS } from '../../shared/data/items.js?v=a8edacfcfd44';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=b006a21bc0e3';
+import { ITEMS } from '../../shared/data/items.js?v=b006a21bc0e3';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=a8edacfcfd44';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=b006a21bc0e3';
 // 第27回の 暴れんぼう将軍（はかまと 羽織・ちょんまげ・せんす）
-import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=a8edacfcfd44';
+import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=b006a21bc0e3';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
-import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=a8edacfcfd44';
+import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=b006a21bc0e3';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
-import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=a8edacfcfd44';
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=b006a21bc0e3';
 // 第40回の 伝説の 職業 2つ（竜魔人・ネオ・クイーン・セレニティ）
-import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=a8edacfcfd44';
+import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=b006a21bc0e3';
 // 第41回 B の 2つの 職業（雪の女王・第5のせいれい）
-import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js?v=a8edacfcfd44';
+import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js?v=b006a21bc0e3';
 // 第41回 A の 伝説の 職業 2つ（京急の社長・野球界の殿堂入り）
-import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js?v=a8edacfcfd44';
+import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js?v=b006a21bc0e3';
 // 第43回の 配管工の 系統（女の子の ももの姫・おてんば姫・ピーチ。男の子は hero-r43j.js の R43J_MASC）
-import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js?v=a8edacfcfd44';
+import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js?v=b006a21bc0e3';
+// 第51回 W の 天気の 職業（気象予報士・お天気キャスター・天候をあやつる者）
+import { WEATHER_OUTFIT, WEATHER_BODY } from './hero-weather.js?v=b006a21bc0e3';
 // 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
-import { PRIZE_ARMOR_LOOK } from './prize-looks.js?v=a8edacfcfd44';
+import { PRIZE_ARMOR_LOOK } from './prize-looks.js?v=b006a21bc0e3';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -208,6 +210,7 @@ Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT, R33_OUTFIT, R40_OU
 Object.assign(JOB_OUTFIT, R41B_OUTFIT);
 Object.assign(JOB_OUTFIT, R41A_OUTFIT);
 Object.assign(JOB_OUTFIT, R43J_OUTFIT);
+Object.assign(JOB_OUTFIT, WEATHER_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -241,6 +244,7 @@ Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY, R33_BODY, R40_BODY);
 Object.assign(JOB_BODY, R41B_BODY);
 Object.assign(JOB_BODY, R41A_BODY);
 Object.assign(JOB_BODY, R43J_BODY);
+Object.assign(JOB_BODY, WEATHER_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 
