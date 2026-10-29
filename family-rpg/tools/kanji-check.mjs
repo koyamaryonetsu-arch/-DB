@@ -217,6 +217,9 @@ export function gameFiles() {
     'public/js/shared/data/items-sugoroku-r50.js', 'public/js/client/render/sugoroku-fx.js', 'public/js/client/render/sugoroku-deco.js',
     // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など）
     'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
+    // 第50回 D3: 景品を 豪華に（カジノ・小さなメダル・星のかけら）
+    'public/js/shared/data/prizes-r50.js', 'public/js/shared/data/items-prize-r50.js', 'public/js/shared/data/vehicles-prize.js',
+    'public/js/shared/data/monsters-prize.js', 'public/js/shared/world/prizes-r50.js', 'public/js/client/ui/prizes.js',
     // たたかいの けっかの まど（ボタンで 1行ずつ）
     'public/js/client/ui/result.js',
     // 第3章「星の竜がねむる山」

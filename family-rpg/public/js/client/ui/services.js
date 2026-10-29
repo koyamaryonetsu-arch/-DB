@@ -21,6 +21,8 @@ import { bankUI } from './bank.js';
 import { forgeUI } from './forge.js';
 import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js';
 import { casinoUI } from './casino.js';
+// 第50回 D3: 星のかけらの こうかんの 見せかた（なかまの 絵・NEW・こうかんの えんしゅつ）
+import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js';
 import { sdBoardUI } from './secret.js';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
 import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js';
@@ -1108,18 +1110,35 @@ function starUI(game, data) {
     s.body.append(main);
     const upd = () => { s.right.textContent = `星のかけら ${itemCount(game.me, 'star_shard')}個`; };
     upd();
+    // 第50回 D3: なかまの 絵・NEW・装備の くらべ・こうかんの えんしゅつ（ui/prizes.js）。お話が 進むと ふえる
+    const rows = () => starTradeRows(game, data);
+    const show = (it) => {
+      detail.innerHTML = '';
+      if (!it || it.header) return;
+      detail.append(el('div', { text: itemDetail(it.value) }));
+      // 装備の くらべ・魔物の 絵・乗り物の せつめい（名前と せつめいは 上と おなじなので はぶく）
+      const box = prizeInfo(game, it.value);
+      box.querySelector('.hd')?.remove();
+      box.querySelector('.detail')?.remove();
+      detail.append(box);
+    };
     const menu = new ListMenu(game.input, {
-      items: data.trades.map((t, i) => ({ label: ITEMS[t.item].name, right: `★${t.shards}`, value: i })),
+      items: rows(),
       sound: (x) => game.audio.sfx(x),
-      onMove: (it) => { detail.textContent = itemDetail(data.trades[it.value].item); },
+      onMove: (it) => show(it),
       onSelect: async (it) => {
-        const t = data.trades[it.value];
+        const t = it.trade;
+        if (!t) return;
         menu.blur();
         if (await confirmBox(game.input, `星のかけら${t.shards}個で${ITEMS[t.item].name}とこうかんする？`, 'はい', 'いいえ', (x) => game.audio.sfx(x))) {
-          const r = await request(game, { kind: 'starTrade', index: it.value });
-          if (r.ok) game.audio.sfx('sparkle');
-          toast(r.text || '');
-          setTimeout(upd, 100);
+          const r = await request(game, { kind: 'starTrade', item: t.item });
+          if (r.ok) prizeFx(game, t.item, { big: t.shards >= 30 });
+          else game.audio.sfx('buzz');
+          toast(`${r.text || ''}${r.ok ? useHint(t.item) : ''}`);
+          setTimeout(() => {
+            upd();
+            menu.setItems(rows(), true);
+          }, 100);
         }
         menu.focus();
       },
@@ -1133,6 +1152,7 @@ function starUI(game, data) {
     };
     s.onClose = close;
     main.append(menu.root, detail);
+    if (data.more) main.append(el('div', { class: 'detail muted', text: '（旅が進むと、こうかんできる品がふえるよ）' }));
     menu.focus();
   });
 }

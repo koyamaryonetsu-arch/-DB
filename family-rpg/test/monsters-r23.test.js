@@ -33,6 +33,8 @@ import { MONSTERS_POKEMON } from '../public/js/shared/data/monsters-pokemon.js';
 import { EVOLVE_FROM, bestiaryAfter } from '../public/js/shared/data/companions.js';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物（test/dqm-r45.test.js）
 import { MONSTERS_DQM } from '../public/js/shared/data/monsters-dqm.js';
+// 第50回 D3: 景品で しか 会えない 魔物
+import { MONSTERS_PRIZE } from '../public/js/shared/data/monsters-prize.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { addR23Art } from '../public/js/client/render/r23-art.js';
 import { computeStats, newMonsterCompanion, gainExp, expForLevel, learnedAbilities, monsterSlots } from '../public/js/shared/stats.js';
@@ -53,7 +55,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length + Object.keys(MONSTERS_PRIZE).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);
