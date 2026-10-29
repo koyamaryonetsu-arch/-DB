@@ -47,6 +47,11 @@ export const JOB_SAY = {
   chaos_creator: '「こわして、作る。それが世界だ」',
   dream_stadium: '「スタジアム行き、まもなく発車します！」',
   weather_god: '「あしたの天気は、わたしが決める！」',
+  // 第51回 C1（幻の職業）
+  pirate_king: '「海賊王に、おれはなった！」',
+  super_hero: '「雷と気、両方まとめて解き放つ！」',
+  sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
+  facility_ai: '「全館、最適化を開始します」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

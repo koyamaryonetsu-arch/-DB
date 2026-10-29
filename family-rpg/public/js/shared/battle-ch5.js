@@ -35,6 +35,8 @@ import { phantomCond, phantomEffect, phantomPlan, phantomPub, phantomTurnStart }
 import { ch6Cond, ch6Effect, ch6Plan, ch6Pub, ch6TurnStart } from './battle-ch6.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
 import { arenaCond, arenaEffect } from './battle-arena.js';
+// 第51回 C1: 幻の職業の 技（気を ためる・影分身・自動最適化。battle-phantom-a.js）
+import { phantomAEffect, phantomATurnStart } from './battle-phantom-a.js';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
@@ -118,6 +120,7 @@ export function towerEffect(b, c, a, eff, ev, targets = []) {
   if (phantomEffect(b, c, a, eff, ev, targets)) return true;
   if (ch6Effect(b, c, a, eff, ev, targets)) return true;
   if (arenaEffect(b, c, a, eff, ev, targets)) return true;
+  if (phantomAEffect(b, c, a, eff, ev)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
   return true;
@@ -155,6 +158,7 @@ export function towerTurnStart(b, c, ev, cmd) {
   finalTurnStart(b, c, ev, cmd);
   phantomTurnStart(b, c, ev, cmd);
   ch6TurnStart(b, c, ev, cmd);
+  phantomATurnStart(b, c, ev, cmd);
   if (c.side !== 'ally' || !c.foresee) return;
   const by = b.get(c.foresee.by);
   if (!by?.alive || cmd?.type === 'incapacitated') {

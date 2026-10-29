@@ -11,6 +11,7 @@ import { HIRAMEKI_R33 } from '../public/js/shared/data/hirameki-r33.js';
 import { HIRAMEKI_R40 } from '../public/js/shared/data/hirameki-r40.js';
 import { HIRAMEKI_R41B } from '../public/js/shared/data/hirameki-r41b.js';
 import { HIRAMEKI_R41A } from '../public/js/shared/data/hirameki-r41a.js';
+import { HIRAMEKI_PHANTOM_A } from '../public/js/shared/data/hirameki-phantom-a.js';
 import { HIRAMEKI_R43J } from '../public/js/shared/data/hirameki-r43j.js';
 // 第51回 W
 import { HIRAMEKI_WEATHER } from '../public/js/shared/data/hirameki-weather.js';

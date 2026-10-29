@@ -21,6 +21,8 @@ import { JOB_TAGS } from './job-tags.js';
 import { WEATHER_JOBS } from './jobs-weather.js';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
 import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js';
+// 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
+import { PHANTOM_JOBS_A } from './jobs-phantom-a.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1267,6 +1269,9 @@ export const JOBS = {
     learn: [[1, 'mr_hip'], [2, 'mr_star'], [3, 'mr_egg'], [5, 'mr_kinoko'], [7, 'mr_kart'], [10, 'mario_sig']],
   },
 };
+
+// 第51回 C1: 幻の職業（jobs-phantom-a.js）
+Object.assign(JOBS, PHANTOM_JOBS_A);
 
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
 export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wizard_student', 'harry', 'sailor_soldier', 'sailor_moon', 'shonen_tantei'];

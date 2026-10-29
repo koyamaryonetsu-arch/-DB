@@ -291,6 +291,8 @@ import { AX_O5, AX_O5_FINE } from './axfx-o5.js';
 import { AX_O6, AX_O6_FINE } from './axfx-o6.js';
 // 第51回 W: 天気の 職業の 技
 import { AX_O10, AX_O10_FINE } from './axfx-o10.js';
+// 第51回 C1: 幻の職業の 技（o7）
+import { AX_O7, AX_O7_FINE } from './axfx-o7.js';
 useAxGroup('o1', AX_O1, AX_O1_FINE);
 useAxGroup('o2', AX_O2, AX_O2_FINE);
 useAxGroup('o3', AX_O3, AX_O3_FINE);
@@ -301,3 +303,4 @@ useAxGroup('o10', AX_O10, AX_O10_FINE);
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）
 import { AX_O9, AX_O9_FINE } from './axfx-o9.js';
 useAxGroup('o9', AX_O9, AX_O9_FINE);
+useAxGroup('o7', AX_O7, AX_O7_FINE);

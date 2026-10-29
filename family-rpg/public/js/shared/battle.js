@@ -61,6 +61,8 @@ import { bossDmgRate } from './data/boss-r38.js';
 import { skillMods, evMods } from './skill-tier.js';
 // 第51回 F: 幻の職業の 記録（家族の キャラの 技の タグの 回数・ダメージ・回復・会心。c.feat → world/phantom.js の addFeats）
 import { abilityTags, newFeat, BIG_HIT } from './data/phantom.js';
+// 第51回 C1: 幻の職業の 物理の 技（仲間の 数・ためた 気・影分身で 強く なる。battle-phantom-a.js）
+import { phantomAPhys } from './battle-phantom-a.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -959,6 +961,7 @@ export class Battle {
     }
     switch (eff.type) {
       case 'phys': {
+        if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
           for (let i = 0; i < hits; i++) {
