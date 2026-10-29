@@ -28,6 +28,8 @@ import { isNightFor } from './clock.js';
 import { MONSTER_FRIENDS } from '../data/companions.js';
 // 第51回 B: 家族のけいじ板（ひらめき技・合体技を はじめて 覚えた）
 import { boardHirameki, boardDual } from './family-board.js';
+// 第51回 F: 幻の職業の 記録（自分の キャラの 戦いの 記録を 足す・条件が 見えた／なれるように なった 知らせ）
+import { addFeats, phantomAfterBattle } from './phantom.js';
 
 let battleSeq = 1;
 
@@ -377,6 +379,7 @@ function finishBattle(world, ctx) {
     const ch = who?.char;
     if (!ch || !a.use || who.type === 'guest' || who.kind === 'family') continue;
     if (who.type === 'human') trialUse.set(ch, trialUseCount(ch.job, ch.skillUse, a.use));
+    if (who.type === 'human') addFeats(ch, a.feat);
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
       ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
@@ -536,6 +539,11 @@ function finishBattle(world, ctx) {
   if (hiraLines.length) for (const m of sessions) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...hiraLines);
   // 宝の地図を 拾う（第1章クリアの あと）
   treasureAfterBattle(world, ctx, sessions, perSession);
+  // 第51回 F: 幻の職業の 条件が 見えた・なれるように なった（1回だけ。掲示板にも。world/phantom.js）
+  for (const m of sessions) {
+    const pn = phantomAfterBattle(world, m.char);
+    if (pn.length) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...pn);
+  }
 
   // シンボル
   if (ctx.opts.symbolId) {

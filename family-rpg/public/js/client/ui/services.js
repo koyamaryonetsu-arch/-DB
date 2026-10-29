@@ -33,6 +33,8 @@ import { rosterSortPref, setRosterSortPref } from '../prefs.js';
 // 第43回 C: 魔物あずかり所（ui/storage.js）と、仲間が いっぱいの 時の えらぶ文（shared/world/farewell.js）
 import { storageUI } from './storage.js';
 import { canBreedRoom, canStore } from '../../shared/world/farewell.js';
+// 第51回 F: 幻の職業の 条件・うわさ（shared/data/phantom.js）
+import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -145,6 +147,8 @@ function jobUI(game) {
       TIER_ORDERS.forEach((all, tier) => {
         // 体で なれない 職業（フルーツジッパー・アラシ）は 出さない
         const order = all.filter((j) => jobBodyOk(j, c.look));
+        // 第51回: まだ 職業の ない ランク（幻の職業の データが ない とき）は 出さない
+        if (!order.length) return;
         const open = order.filter((j) => jobUnlocked(c, j)).length;
         out.push({ header: true, label: tier ? `${TIER_NAMES[tier]}（なれる ${open}/${order.length}）` : TIER_NAMES[tier] });
         // 超級職は ヒントが 出るまで ひみつ
@@ -216,14 +220,16 @@ function jobUI(game) {
         main.innerHTML = '';
         main.append(whoRow);
         renderWho();
-        main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: `${TIER_NAMES[2]}・${TIER_NAMES[3]}` }),
-          el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくる。' }));
+        main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: TIER_NAMES.slice(2).join('・') }),
+          el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくる。\n（幻の職業の条件は、メニューの「幻の書」でも見られる）' }));
         // うわさ: もとの 職業を はじめた ひみつの 職業だけ（名前は ださない）
+        // 第51回: 幻の職業は きわめておく 職業を 1つでも はじめた とき（data/phantom.js の phantomRumors）
         const rumors = [...SUPER_ORDER, ...LEGEND_ORDER].filter((s) => jobHint(s, c) && jobBodyOk(s, c.look) && !jobKnown(c, s)
-          && jobReqSets(s).some((set) => set.some((r) => c.jobs?.[r])));
+          && jobReqSets(s).some((set) => set.some((r) => c.jobs?.[r]))).map((s) => jobHint(s, c));
+        rumors.push(...phantomRumors(c));
         if (rumors.length) {
           const box = el('div', { class: 'small job-rumor' }, el('div', { class: 'gold', text: '神殿のうわさ' }));
-          for (const s of rumors) box.append(el('div', { class: 'jl-desc', text: `・${jobHint(s, c)}` }));
+          for (const s of rumors) box.append(el('div', { class: 'jl-desc', text: `・${s}` }));
           main.append(box);
         }
         return;
@@ -245,7 +251,9 @@ function jobUI(game) {
       main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'small gold', text: TIER_NAMES[job.tier || 0] }), el('div', { class: 'detail', text: job.desc }));
       // なる ための じょうけん・しゅぎょうの すすみぐあい
       // （まだ なれない 超級職は、マスターしていない じょうけんを ？？？？ に する）
-      const secretReq = (job.tier || 0) >= 2 && !open;
+      // 第51回: 幻の職業は きわめておく 職業を 両方 見せる（幻の書と おなじ。技の 名前は なれるまで ひみつ）
+      const secretSkills = (job.tier || 0) >= 2 && !open;
+      const secretReq = secretSkills && job.tier !== 4;
       const reqName = (r) => (secretReq && !jobMastered(c, r) ? '？？？？' : jobLabel(r, c));
       if (job.req) {
         const req = el('div', { class: 'small', style: { margin: '0.4em 0' } });
@@ -263,6 +271,14 @@ function jobUI(game) {
         if (job.reqSuper) {
           const n = superMasteredCount(c.jobs, j);
           req.append(el('div', { class: n >= job.reqSuper ? 'good' : 'muted', text: `　ほかの超級職のマスター　${Math.min(n, job.reqSuper)}/${job.reqSuper}` }));
+        }
+        // 第51回: 幻の職業の やりこみの 条件（どの 職業の 時でも 数える。data/phantom.js）
+        if (job.tier === 4 && PHANTOM_JOBS[j]) {
+          req.append(el('div', { class: 'muted', text: '　やりこみの条件（どの職業の時でも数える）' }));
+          for (const x of PHANTOM_JOBS[j].conds) {
+            const now = Math.min(condNow(c, x), x.goal);
+            req.append(el('div', { class: now >= x.goal ? 'good' : 'muted', text: `　${x.text}　${bigNum(now)}/${bigNum(x.goal)}` }));
+          }
         }
         main.append(req);
       }
@@ -283,8 +299,8 @@ function jobUI(game) {
         const got = lv >= l;
         const row = el('div', { class: `jl-row ${got ? 'good' : 'muted'}` },
           el('span', { class: 'jl-lv', text: `Lv${l}` }),
-          el('span', { class: 'jl-name', text: `${secretReq ? '？？？' : a.name}${got ? '（覚えた）' : ''}` }));
-        if (!secretReq && a?.desc) row.append(el('div', { class: 'jl-desc', text: a.desc }));
+          el('span', { class: 'jl-name', text: `${secretSkills ? '？？？' : a.name}${got ? '（覚えた）' : ''}` }));
+        if (!secretSkills && a?.desc) row.append(el('div', { class: 'jl-desc', text: a.desc }));
         learn.append(row);
       }
       main.append(learn);
@@ -294,7 +310,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}。超級職からは職業の試練で20まで）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影・暴れんぼう将軍・飛天御剣流けい承者・3年B組の担任・竜魔人・「ネオ・クイーン・セレニティ」・第5のせいれい・京急の社長・野球界の殿堂入り）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}。超級職からは職業の試練で20まで）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影・暴れんぼう将軍・飛天御剣流けい承者・3年B組の担任・竜魔人・「ネオ・クイーン・セレニティ」・第5のせいれい・京急の社長・野球界の殿堂入り）。\nさらにその上には、幻の職業もある（2つの職業をきわめて、やりこみの条件をみたすとなれる。メニューの「幻の書」で見られる）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);
@@ -537,6 +553,9 @@ function tavernUI(game, data) {
       if (view === 'breed' && key !== SORT_KEY) return showBreed(key);
       if (TOP_TEXT[key]) {
         main.append(el('h3', { text: { [V_HUMAN]: '人間の仲間', [V_MON]: 'モンスターの仲間', [V_BREED]: 'モンスターの配合' }[key] }), el('div', { class: 'detail', text: TOP_TEXT[key] }));
+        // 第51回 F: 人間の 仲間の 所に、幻の職業の うわさ（2つまで。data/phantom.js）
+        const pr = key === V_HUMAN ? phantomRumors(game.me).slice(0, 2) : [];
+        if (pr.length) main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: pr.map((h) => `・${h}`).join('\n') }));
         if (key === V_BREED) {
           const rumors = breedRumors(game.me, MONSTERS, 3);
           if (rumors.length) main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: rumors.map((h) => `・？？？ … ${h}`).join('\n') }));

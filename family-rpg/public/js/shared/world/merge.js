@@ -4,7 +4,7 @@
 //   ours   … こちらの キャラ（たとえば 家族サーバー）
 //   theirs … とどいた キャラ（たとえば スマホの ひとりで遊ぶサイト）
 //
-// ・けいけんち・ゴールド・たおした 数・職業の 勝った 数・種・技を 使った 回数 … 両方で ふえた（へった）ぶんを たす
+// ・けいけんち・ゴールド・たおした 数・職業の 勝った 数・種・技を 使った 回数・幻の職業の 記録 … 両方で ふえた（へった）ぶんを たす
 // ・ひらめいた 技 … 両方を 合わせる（わすれる ことは ない）
 // ・フラグ・宝箱・行った 場所・大事な物 … 両方を 合わせる（どちらかで 使った 大事な物は なくなる）
 // ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ。ボスの 品は 1つまで）
@@ -26,6 +26,8 @@ import { mergeSecret } from '../data/secret.js';
 import { mergeAlchemy } from './alchemy.js';
 import { mergeArena } from '../data/arena.js';
 import { COIN_MAX } from '../data/casino.js';
+// 第51回 F: 幻の職業の 記録（両方で ふえた ぶんを たす・どちらの 数より 下に しない）
+import { mergeFeats } from './phantom.js';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -155,6 +157,7 @@ function mergeBody(b, a, t, tLater) {
       case 'exp': out.exp = Math.max(add(vb, va, vt), num(va), num(vt)); break;
       case 'gold': out.gold = Math.min(GOLD_MAX, add(vb, va, vt)); break;
       case 'kills': case 'seeds': case 'skillUse': out[k] = eachKey(vb, va, vt, (x, y, z) => add(x, y, z) || undefined); break;
+      case 'feats': out.feats = mergeFeats(vb, va, vt); break;
       case 'hirameki': out.hirameki = [...new Set([...(Array.isArray(va) ? va : []), ...(Array.isArray(vt) ? vt : [])])]; break;
       case 'jobs': out.jobs = mergeJobs(vb, va, vt); break;
       case 'bestiary': out.bestiary = mergeBestiary(vb, va, vt); break;

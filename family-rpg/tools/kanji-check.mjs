@@ -18,6 +18,8 @@ export const EXTRA_KANJI = [
   ...'魔呪剣竜僧侶賢闘紋拳忍賊占騎姫雷炎影闇嵐斬裂閃旋',
   ...'攻撃御威倒逃冒鑑掛殿沼滝塔超洞窟丘',
   ...'猛虎砕華烈爆滅',
+  // 第51回: 幻の職業・幻の書
+  ...'幻',
 ].join('');
 
 export const SCHOOL_KANJI = Object.values(KANJI_BY_GRADE).join('');
@@ -368,6 +370,8 @@ export function gameFiles() {
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板
     'public/js/shared/world/family-board.js', 'public/js/client/ui/family-board.js',
+    // 第51回 F: 幻の職業の 条件・記録・幻の書
+    'public/js/shared/data/phantom.js', 'public/js/shared/world/phantom.js', 'public/js/client/ui/phantom-book.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -67,6 +67,8 @@ import { quickItemOf, quickUseOf, quickList, quickLabel, QUICK_PADS, quickPadOf,
 import { openStampEditor } from './stamps.js';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
 import { familyBoardView, hasBoardUnread } from './family-board.js';
+// 第51回 F: 幻の書（ui/phantom-book.js）
+import { phantomBookView } from './phantom-book.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -87,6 +89,7 @@ const MAIN = [
   // 第37回: 走る時に 乗る 乗り物（ui/vehicles.js）
   { label: '乗り物', value: 'vehicle' },
   { label: '図鑑', value: 'zukan' },
+  { label: '幻の書', value: 'phantom' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
   // 第35回: お知らせ（ui/news.js。まだ 読んでいない 物が あると ●）
@@ -306,6 +309,7 @@ export class FieldMenu {
       case 'tactics': this.main.append(this.tacticsView(false)); break;
       case 'vehicle': this.main.append(vehicleMenuView(this, false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
+      case 'phantom': this.main.append(phantomBookView(this, false)); break;
       case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。\n困っている人（クエストで選んだ人）は黄色のしるし。' })); break;
       case 'quest':
         this.main.append(this.questView());
@@ -416,6 +420,7 @@ export class FieldMenu {
       case 'tactics': return this.openView(() => this.tacticsView(true));
       case 'vehicle': return this.openView(() => vehicleMenuView(this, true));
       case 'zukan': return this.focusSub(this.zukanView(true));
+      case 'phantom': return this.focusSub(phantomBookView(this, true));
       case 'settings': return this.focusSub(this.settingsView(true));
       case 'news':
         // 読んだら メニューの ● を けす

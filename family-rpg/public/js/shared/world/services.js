@@ -53,6 +53,9 @@ import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quic
 import { starTradeInfo, starTradeAction, usePrizeItem, PRIZE_USE } from './prizes-r50.js';
 // 第51回 B: 家族のけいじ板（はじめて なった 職業を のせる）
 import { boardJobChange } from './family-board.js';
+// 第51回 F: 幻の職業（なる 条件の 文・はじめて なった 時の 掲示板）
+import { PHANTOM_JOBS } from '../data/phantom.js';
+import { phantomGot } from './phantom.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -197,13 +200,20 @@ export function serviceAction(world, s, msg) {
       if (!who || who.species) return reply(false, 'モンスターは転職できない');
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const first = !who.jobs?.[msg.job];
+      const firstTime = !who.jobs?.[msg.job];
       const r = changeJob(who, msg.job);
       // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
       // 職業の 名前は なる 人 むけ（男の子の 美少女戦士は「仮面のしんし」。job-label.js）
       const jn = (j) => jobLabel(j, who);
       if (r.body !== undefined) return reply(false, `${jn(msg.job)}には、${BODY_NAMES[r.body]}しかなれない…`);
-      if (r.locked) return reply(false, `まだ${jn(msg.job)}にはなれない…\n（${jobReqText(msg.job, jn)}が必要）`);
+      if (r.locked) {
+        // 幻の職業は やりこみの 条件も（data/phantom.js）
+        const more = PHANTOM_JOBS[msg.job] ? `\n${PHANTOM_JOBS[msg.job].conds.map((x) => `・${x.text}`).join('\n')}` : '';
+        return reply(false, `まだ${jn(msg.job)}にはなれない…\n（${jobReqText(msg.job, jn)}が必要）${more}`);
+      }
       if (!r.ok) return reply(false, '');
+      // 第51回 F: はじめて 幻の職業に なった（自分の キャラ。家族の 掲示板へ）
+      if (firstTime && who === c && JOBS[msg.job].tier === 4) phantomGot(world, who, msg.job);
       // なかまが はずした そうびは ふくろへ
       if (who !== c) {
         for (const e of who.items || []) addItem(c, e.id, e.n);

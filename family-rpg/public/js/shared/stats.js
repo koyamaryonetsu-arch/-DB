@@ -19,6 +19,8 @@ import { autoQuick } from './data/quick-item.js';
 import { tierMp } from './skill-tier.js';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
 import { jobLevelCap, jobUpStats } from './data/job-trials.js';
+// 第51回 F: 幻の職業の やりこみの 条件（data/phantom.js）
+import { phantomCondsMet } from './data/phantom.js';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;
@@ -650,6 +652,8 @@ export function jobUnlocked(char, jobId) {
   if (!j.req) return true;
   // ロトの勇者: 勇者の ほかに 超級職を reqSuper こ マスター
   if (j.reqSuper && superMasteredCount(char.jobs, jobId) < j.reqSuper) return false;
+  // 幻の職業（tier 4）: req の 2つを きわめて、やりこみの 条件も ぜんぶ（一度 なった 人は そのまま なれる）
+  if (j.tier === 4 && !char.jobs?.[jobId] && !phantomCondsMet(char, jobId)) return false;
   return jobReqSets(jobId).some((set) => set.every((r) => jobMastered(char, r)));
 }
 
@@ -700,8 +704,9 @@ export function gainJobBattles(char, n = 1) {
   info.b = (info.b || 0) + n * jobTrainRate(char.job);
   while (info.lv < cap && info.b >= jobBattlesForLevel(info.lv + 1, j.tier || 0)) {
     const learnedBefore = new Set(learnedAbilities(char));
-    const lockedBefore = ALL_JOBS.filter((id) => !jobUnlocked(char, id));
-    const hiddenBefore = ALL_JOBS.filter((id) => !jobKnown(char, id));
+    // 幻の職業（tier 4）の 知らせは world/phantom.js の phantomAfterBattle（2回 出さない）
+    const lockedBefore = ALL_JOBS.filter((id) => JOBS[id].tier !== 4 && !jobUnlocked(char, id));
+    const hiddenBefore = ALL_JOBS.filter((id) => JOBS[id].tier !== 4 && !jobKnown(char, id));
     const before = computeStats(char);
     info.lv++;
     const after = computeStats(char);

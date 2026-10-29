@@ -13,6 +13,8 @@ import {
 } from './party.js';
 // 第51回 B: 家族のけいじ板（入れかえで ぬけた 人の ひらめき技）
 import { boardHirameki } from './family-board.js';
+// 第51回 F: 幻の職業の 記録（馬車に もどる 自分の キャラの ぶん）
+import { addFeats } from './phantom.js';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -519,6 +521,7 @@ function writeBack(world, ctx, a) {
   ch.hp = a.alive ? a.hp : 0;
   ch.mp = a.mp;
   ch.status = a.status?.poison && a.alive ? { poison: true } : {};
+  if (who.type === 'human') addFeats(ch, a.feat);
   if (a.use && who.type !== 'guest' && who.kind !== 'family') {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
