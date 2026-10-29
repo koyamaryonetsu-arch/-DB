@@ -2,6 +2,7 @@
 import { markNewsRead } from '../data/news.js';
 // 第50回 N4: 困っている人を 知らせた・見た 印
 import { markAsks } from '../data/subquest-hints.js';
+import { setStamps } from '../data/stamps.js';
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
@@ -512,6 +513,11 @@ export function menuAction(world, s, msg) {
     }
     case 'quickPad': {
       const r = setQuickPad(c, msg.pad);
+      return reply(r.ok, r.text);
+    }
+    // 第50回 N7: チャットの スタンプを 変える（data/stamps.js。知らせは なし）
+    case 'stamps': {
+      const r = setStamps(c, msg.list);
       return reply(r.ok, r.text);
     }
     case 'cast': {

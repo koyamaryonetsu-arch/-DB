@@ -64,6 +64,7 @@ import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js';
 import { canGift, giftFlow } from './gift.js';
 // 第50回 N3: 大事な物の すぐ使う ボタン（data/quick-item.js）
 import { quickItemOf, quickUseOf, quickList, quickLabel, QUICK_PADS, quickPadOf, quickPadName } from '../../shared/data/quick-item.js';
+import { openStampEditor } from './stamps.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -1837,6 +1838,7 @@ export class FieldMenu {
       { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
+      { label: 'チャットのスタンプを変える', value: 'stamps' }, // 第50回 N7（ui/stamps.js）
     ];
     // 第50回 N3: 大事な物の すぐ使う ボタン（すぐ使える 大事な物を 持っている 人だけ。data/quick-item.js）
     if (quickList(c).length) {
@@ -1936,6 +1938,10 @@ export class FieldMenu {
         } else if (it.value === 'quickPad') {
           const now = QUICK_PADS.findIndex((p) => p.b === quickPadOf(c));
           g.net.send({ t: 'menu', action: 'quickPad', pad: QUICK_PADS[(now + 1) % QUICK_PADS.length].b });
+        } else if (it.value === 'stamps') {
+          this.sub.blur();
+          openStampEditor(g).then(() => again(idx));
+          return;
         } else if (it.value === 'rescue') {
           this.close();
           g.rescue();

@@ -193,6 +193,8 @@ export function gameFiles() {
     'public/js/shared/world/storage.js', 'public/js/client/ui/storage.js',
     // 家族に 道具を あげる（第50回 N6）
     'public/js/shared/world/gift.js', 'public/js/client/ui/gift.js',
+    // チャットの スタンプを 変える（第50回 N7）
+    'public/js/shared/data/stamps.js', 'public/js/client/ui/stamps.js',
     // ポケモンの 魔物・進化（第44回 ポケモン P1）
     'public/js/shared/data/monsters-pokemon.js', 'public/js/shared/data/companions-pokemon.js', 'public/js/shared/data/abilities-pokemon.js',
     'public/js/shared/data/items-pokemon.js', 'public/js/shared/world/evolve.js',
