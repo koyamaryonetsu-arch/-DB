@@ -12,6 +12,7 @@ import { HIRAMEKI_R40 } from '../public/js/shared/data/hirameki-r40.js';
 import { HIRAMEKI_R41B } from '../public/js/shared/data/hirameki-r41b.js';
 import { HIRAMEKI_R41A } from '../public/js/shared/data/hirameki-r41a.js';
 import { HIRAMEKI_R43J } from '../public/js/shared/data/hirameki-r43j.js';
+import { HIRAMEKI_PHANTOM_B } from '../public/js/shared/data/hirameki-phantom-b.js';
 import { DUAL_TECHS, dualOptions } from '../public/js/shared/data/dual.js';
 import { newCharacter, learnedAbilities, gainExp, expForLevel, fullHeal, changeJob, hiraAllowed, oldComboUnlocks, weaponOk } from '../public/js/shared/stats.js';
 import { Battle, DUAL_ASK_MS } from '../public/js/shared/battle.js';
@@ -54,7 +55,7 @@ test('ひらめきの データ: 技と 回数が そろっている', () => {
     }
   }
   // 基本職 12こ × 2 と 掛け合わせ技 9こ（第23回の 職業の ひらめき技は hirameki-jobs.js。test/hirameki-r23.test.js。第27回は hirameki-r27.js。test/jobs-r27.test.js。第29回は hirameki-r29.js。test/jobs-r29.test.js）
-  assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].hirameki && !(id in HIRAMEKI_JOBS) && !(id in HIRAMEKI_R27) && !(id in HIRAMEKI_R29) && !(id in HIRAMEKI_R33) && !(id in HIRAMEKI_R40) && !(id in HIRAMEKI_R41B) && !(id in HIRAMEKI_R41A) && !(id in HIRAMEKI_R43J)).length, 24);
+  assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].hirameki && !(id in HIRAMEKI_JOBS) && !(id in HIRAMEKI_R27) && !(id in HIRAMEKI_R29) && !(id in HIRAMEKI_R33) && !(id in HIRAMEKI_R40) && !(id in HIRAMEKI_R41B) && !(id in HIRAMEKI_R41A) && !(id in HIRAMEKI_R43J) && !(id in HIRAMEKI_PHANTOM_B)).length, 24);
   assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].kind === 'combo').length, 9);
   assert.equal(hiraChance(0.99), 0);
   assert.equal(hiraChance(1), 0.2);

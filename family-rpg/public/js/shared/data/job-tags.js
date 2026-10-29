@@ -182,6 +182,11 @@ export const JOB_TAGS = {
   plumber: ['fist', 'work', 'machine'], // 配管工（ジャンプふみつけ・スパナ）
   mustache: ['fist', 'fire', 'work'], // ひげおやじ（ファイアボール）
   mario: ['fist', 'fire', 'ride', 'master'], // マリオ（ヨッシーに乗る）
+  // 第51回 C2（幻の職業）
+  detective_king: ['detective', 'master', 'magic'], // 名探てい王（先読み）
+  galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
+  grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
+  sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

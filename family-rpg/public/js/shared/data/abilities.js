@@ -67,6 +67,8 @@ import { R43J_ABILITIES } from './abilities-r43j.js';
 import { POKEMON_ABILITIES } from './abilities-pokemon.js';
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
 import { DQM_ABILITIES } from './abilities-dqm.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の 技
+import { PHANTOM_ABILITIES_B } from './abilities-phantom-b.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -678,6 +680,7 @@ Object.assign(ABILITIES, R43J_ABILITIES);
 Object.assign(ABILITIES, POKEMON_ABILITIES);
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
 Object.assign(ABILITIES, DQM_ABILITIES);
+Object.assign(ABILITIES, PHANTOM_ABILITIES_B);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

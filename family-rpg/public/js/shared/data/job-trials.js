@@ -160,12 +160,18 @@ export const TRIAL_WORDS = {
   hall_of_fame: '記録よりも、みんなの記おくにのこる選手になれ。',
   // 第43回（女の子のピーチ。男の子のマリオは TRIAL_WORDS_MASC）
   mario: 'おひめさまだって、ときには自分で走り出すものよ。',
+  // 第51回 C2（幻の職業）
+  detective_king: '真実は、目ではなく心で見ぬくものだ。',
+  galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
+  grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
+  sword_saint: '会心の一撃は、心がすんだときに生まれる。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
   snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
   mario: 'こまっている人がいたら、まずはジャンプだ！',
+  galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

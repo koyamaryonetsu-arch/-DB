@@ -56,6 +56,8 @@ export { BUFF_ACTS } from './buff-acts.js';
 import { bossDmgRate } from './data/boss-r38.js';
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2だんかい・回復が 多い（skill-tier.js。ev.tier に 入れて つかう）
 import { skillMods, evMods } from './skill-tier.js';
+// 第51回 C2: 幻の職業の 先読み・バリア・二重呪文・剣気（battle-r51b.js）
+import { r51bEffect, r51bPerform, r51bAfterCast, barrierDamage, kenkiCrit, kenkiMult, kenkiGain, r51bPub } from './battle-r51b.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -719,6 +721,8 @@ export class Battle {
   perform(c, cmd, ev) {
     // 見通しの目に 読まれた 種類の 行動（battle-ch5.js）
     if (foreseeCheck(this, c, cmd, ev)) return;
+    // 名探てい王に 先読みされた 敵（battle-r51b.js）
+    if (r51bPerform(this, c, cmd, ev)) return;
     // 敵が みんな 砂の 中に もぐっている（ねらえない。battle-ch4.js）
     if (burrowBlock(this, c, cmd, ev)) return;
     // ためてから 出す 大技（ai.js の decideMonster が big を つける）。天才しせつ管理者が いると ダメージが へる（foreseeCut）
@@ -828,7 +832,10 @@ export class Battle {
         if (pen.penalized) ev.penalized = true;
         // 光っている 敵・鏡写し: 呪文を はね返す（battle-temple.js）
         if (reflectSpell(this, c, a, cmd, ev, pen.powMult, targets)) break;
-        this.applyAbility(c, a, cmd, ev, pen.powMult * classmateMult(this, c), targets);
+        const pow = pen.powMult * classmateMult(this, c);
+        this.applyAbility(c, a, cmd, ev, pow, targets);
+        // 大魔導王の 二重呪文（battle-r51b.js）
+        r51bAfterCast(this, c, a, ev, pow, (p) => this.applyAbility(c, a, cmd, ev, p, this.targetsFor(c, a, cmd)));
         break;
       }
       default:
@@ -1444,6 +1451,8 @@ export class Battle {
         break;
       }
       case 'nothing': break;
+      // 先読み・バリア・二重呪文・剣気（幻の職業。battle-r51b.js）
+      case 'yomi': case 'barrier': case 'twinCast': case 'kenki': r51bEffect(this, c, a, eff, ev, targets); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1479,6 +1488,8 @@ export class Battle {
       return 0;
     }
     if (res.crit) ev.lines.push(c.side === 'ally' ? '会心の一撃！' : 'つうこんの一撃！');
+    // 天下むそうの剣聖: 会心で 剣気が 上がる（battle-r51b.js）
+    if (res.crit) kenkiGain(c, ev);
     // phys … 物理の 当たり（影の城の 風のかべ。battle-phantom.js）
     this.damage(c, t, res.dmg, ev, { crit: res.crit, element, nonLethal: eff.nonLethal, phys: true });
     if (eff.forceCrit !== undefined || res.crit) { /* noop */ }
@@ -1518,7 +1529,7 @@ export class Battle {
     const eva = (t.buffs.eva?.add || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };
-    let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0) + (c.crit || 0);
+    let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0) + (c.crit || 0) + kenkiCrit(c);
     const crit = !estimate && (eff.forceCrit || this.rng.chance(critChance));
     // atkFrom: 'def' … 攻撃力と 守備力の まんなかで なぐる（ガーディアンの ようさいの一撃 など。守りが かたいほど 強い）
     const base0 = eff.atkFrom === 'def' ? (effAtk(c) + effDfn(c)) / 2 : effAtk(c);
@@ -1534,7 +1545,7 @@ export class Battle {
       if (base < 1) dmg = estimate ? 0.5 : this.rng.int(0, 1);
       else dmg = base * (estimate ? 1 : this.rng.float(0.875, 1.125));
     }
-    dmg *= (eff.mult ?? 1) * powMult;
+    dmg *= (eff.mult ?? 1) * powMult * kenkiMult(c, eff);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;
@@ -1609,6 +1620,10 @@ export class Battle {
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 第38回 C: バフが 3回行動に なった ぶんの ボスの 調整（data/boss-r38.js）
     if (this.bossDmg < 1 && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = Math.max(1, Math.round(dmg * this.bossDmg));
+    // 銀河の女王の バリア: 敵からの ダメージを すいとる（battle-r51b.js）
+    const bd = barrierDamage(this, c, t, dmg, ev);
+    if (bd === null) return;
+    dmg = bd;
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -2351,6 +2366,8 @@ export function pub(c) {
     ...templePub(c),
     // 見通しの目に 読まれている 種類（battle-ch5.js）
     ...towerPub(c),
+    // バリアの のこり・先読み・剣気・二重呪文（battle-r51b.js）
+    ...r51bPub(c),
   };
 }
 

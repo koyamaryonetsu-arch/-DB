@@ -17,6 +17,8 @@
 
 import { applyField27Learn } from './abilities-field27.js';
 import { JOB_TAGS } from './job-tags.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1266,6 +1268,8 @@ export const JOBS = {
 
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
 export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wizard_student', 'harry', 'sailor_soldier', 'sailor_moon', 'shonen_tantei'];
+
+Object.assign(JOBS, PHANTOM_JOBS_B);
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);

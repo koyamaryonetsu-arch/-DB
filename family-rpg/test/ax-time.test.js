@@ -71,7 +71,10 @@ test('第48回 G0: 表の かたち（段・ためかた・予算・グループ
   assert.equal(axChargeMs({ kind: 'ki' }, 'super'), 650);
   assert.equal(axChargeMs({ kind: 'holy' }, 'super'), 300);
   assert.equal(axChargeMs({ ms: 900 }, 'basic'), 200, 'kind なしは generic（構え）');
-  assert.deepEqual(AX_GROUP_IDS, ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6']);
+  assert.deepEqual(AX_GROUP_IDS.slice(0, 12), ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6']);
+  // 第51回: 幻の職業・天気の 職業の グループ（o7〜o10）は 各班が 足す
+  for (const g of AX_GROUP_IDS.slice(12)) assert.match(g, /^o\d+$/);
+  assert.ok(AX_GROUP_IDS.includes('o8'), 'C2 の o8');
   for (const g of AX_GROUP_IDS) assert.ok(AX_GROUPS[g], g);
   assert.deepEqual(CUT_MS, AX_DUAL_CUT_MS, '合体技の カットインの 長さは サーバーと おなじ');
   assert.equal(AX_HIRA_PRE_MS, 700);
