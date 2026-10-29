@@ -53,6 +53,9 @@ import { fieldUsableAbilities } from '../../shared/fieldskills.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
 import { newsView } from './news.js';
+// 第50回 N4: 困っている人（ui/subquest-hints.js）
+import { askSection, askView } from './subquest-hints.js';
+import { hasNewAsk, availableSubQuests } from '../../shared/data/subquest-hints.js';
 import { hasUnreadNews } from '../../shared/data/news.js';
 import { vehicleMenuView } from './vehicles.js';
 // 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
@@ -151,7 +154,7 @@ export class FieldMenu {
     document.getElementById('ui').append(this.backdrop, this.root);
     this.updateHead();
     this.menu = new ListMenu(g.input, {
-      items: MAIN.map((it) => (it.value === 'news' && hasUnreadNews(g.me) ? { ...it, cls: 'has-new' } : it)),
+      items: MAIN.map((it) => ((it.value === 'news' && hasUnreadNews(g.me)) || (it.value === 'quest' && hasNewAsk(g.me)) ? { ...it, cls: 'has-new' } : it)),
       sound: this.sfx,
       back: null,
       onMove: (it) => this.preview(it.value),
@@ -287,8 +290,13 @@ export class FieldMenu {
       case 'tactics': this.main.append(this.tacticsView(false)); break;
       case 'vehicle': this.main.append(vehicleMenuView(this, false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
-      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
-      case 'quest': this.main.append(this.questView()); break;
+      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。\n困っている人（クエストで選んだ人）は黄色のしるし。' })); break;
+      case 'quest':
+        this.main.append(this.questView());
+        // 第50回 N4: 困っている人を 見たら ● を けす
+        for (const it of this.menu?.items || []) if (it.value === 'quest') it.cls = '';
+        for (const n of this.menu?.root.querySelectorAll('.item.has-new') || []) if (n.textContent.includes('クエスト')) n.classList.remove('has-new');
+        break;
       case 'settings': this.main.append(this.settingsView(false)); break;
       case 'news': this.main.append(newsView(this, false)); break;
       case 'quit': {
@@ -409,6 +417,10 @@ export class FieldMenu {
       case 'map':
         this.close();
         return openWorldMap(g);
+      // 第50回 N4: 困っている人を 1人ずつ（地図に しるし）。いない ときは 右の 見本の まま
+      case 'quest':
+        if (availableSubQuests(g.me).length) this.openView(() => askView(this) || el('div', { class: 'muted', text: '今は、だれも困っていないみたい。' }));
+        return undefined;
       case 'quit':
         this.menu.blur();
         return confirmBox(g.input, 'セーブしてタイトルにもどりますか？', 'はい', 'いいえ', this.sfx).then((ok) => {
@@ -1745,6 +1757,8 @@ export class FieldMenu {
       box.append(el('div', { class: 'kv' }, el('span', {}, el('i', { class: `qdot ${q.ready ? 'ready' : 'sub'}` }), q.name), el('span', { class: q.ready ? 'good' : 'muted', text: q.text })));
     }
     for (const [, n] of done) box.append(el('div', { class: 'kv' }, el('span', { class: 'muted', text: n }), el('span', { class: 'good', text: 'クリア！' })));
+    // 第50回 N4: 困っている人（まだ 受けていない たのまれごと）
+    box.append(askSection(this.game));
     // 第38回 B: 職業の試練（client/ui/job-trials.js）
     const tq = trialQuestBox(c);
     if (tq) box.append(tq);
@@ -2011,7 +2025,7 @@ export async function partyTalk(game) {
 
 // 目標の しるし: ピンク＝次の 行き先、水色＝たのまれごと、みどり＝報告できる。
 // 小さい 地図の 外に ある ときは ふちに 矢じるし
-const QUEST_COLORS = { main: '#ff5fd2', sub: '#5fd8ff', subReady: '#7dff8a' };
+const QUEST_COLORS = { main: '#ff5fd2', sub: '#5fd8ff', subReady: '#7dff8a', ask: '#ffd84a' }; // ask … 困っている人（第50回 N4）
 export function currentObjective(game) {
   return game.visitingLeader?.() ? game.party?.objective : game.me?.objective;
 }

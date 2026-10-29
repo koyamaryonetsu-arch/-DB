@@ -11,6 +11,8 @@ import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js';
 import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js';
 import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js';
 import { labSubQuests } from './sidequests.js';
+// 第50回 N4: 困っている人（クエストの 画面で えらんだ 人に しるし）
+import { askPinQuest } from './subquest-hints.js';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -161,8 +163,11 @@ export function questMarks(c, mapId, objective = c?.objective) {
     if (q.find) add([{ npc: q.find }], 'sub', q.name);
     add([{ npc: q.who }], q.ready ? 'subReady' : 'sub', q.name);
   }
-  // おなじ 場所は 1つに（メイン → 報告できる → たのまれごと の じゅん）
-  const rank = { main: 0, subReady: 1, sub: 2 };
+  // 第50回 N4: 困っている人（黄色。クエストの 画面で えらんだ 1人）
+  const ask = askPinQuest(c);
+  if (ask) add([{ npc: ask.npc }], 'ask', ask.who);
+  // おなじ 場所は 1つに（メイン → 報告できる → たのまれごと → 困っている人 の じゅん）
+  const rank = { main: 0, subReady: 1, sub: 2, ask: 3 };
   const seen = new Map();
   for (const m of out) {
     const k = `${m.x},${m.y}`;

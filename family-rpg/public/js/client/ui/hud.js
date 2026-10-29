@@ -9,6 +9,9 @@ import { alchemyUI } from './alchemy.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
 import { ClockBadge } from './clock.js';
+// 第50回 N4: 困っている人の 知らせ・●（ui/subquest-hints.js）
+import { AskWatcher } from './subquest-hints.js';
+import { hasNewAsk } from '../../shared/data/subquest-hints.js';
 import { powderLabel } from '../../shared/data/friend-powder.js';
 import { auraLabel } from '../../shared/data/abilities-field27.js';
 
@@ -51,6 +54,7 @@ export class Hud {
     this.mini = makeCanvas(84, 84);
     // 昼・夜の 時計（ちずの 左下）
     this.clock = new ClockBadge(game);
+    this.ask = new AskWatcher(game);
     // 仲間の粉の のこり（ちずの 上に 小さく。data/friend-powder.js）
     this.powder = el('div', { class: 'hud-powder', hidden: true });
     // 魔物よけ（トヘロス・聖水）・魔物よせ（マモノヨセ・笛）の のこり（仲間の粉の 下。data/abilities-field27.js）
@@ -86,6 +90,9 @@ export class Hud {
       this.aura.style.top = pw ? `${this.powder.offsetHeight + 4}px` : '';
       // 第35回: まだ 読んでいない お知らせが あると メニューボタンに ●（data/news.js）
       this.btns.firstChild?.classList.toggle('has-new', hasUnreadNews(this.game.me));
+      // 第50回 N4: 新しく 困っている人が いる 時も（クエストの 画面を 見るまで）
+      if (hasNewAsk(this.game.me)) this.btns.firstChild?.classList.add('has-new');
+      this.ask.update();
       this.updatePotBtn();
     }
     const f = this.game.field;

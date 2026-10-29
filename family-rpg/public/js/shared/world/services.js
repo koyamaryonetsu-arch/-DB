@@ -1,5 +1,7 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
 import { markNewsRead } from '../data/news.js';
+// 第50回 N4: 困っている人を 知らせた・見た 印
+import { markAsks } from '../data/subquest-hints.js';
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
@@ -629,6 +631,14 @@ export function menuAction(world, s, msg) {
     // 第35回: お知らせを 読んだ（data/news.js。返事の 知らせ・音は なし）
     case 'newsRead': {
       if (markNewsRead(c, msg.ids)) {
+        world.sendSelf(s);
+        world.markDirty();
+      }
+      return;
+    }
+    // 第50回 N4: 困っている人を 知らせた（told）・クエストの 画面で 見た（seen）。返事の 知らせ・音は なし
+    case 'subAsk': {
+      if (markAsks(c, msg.kind, msg.ids)) {
         world.sendSelf(s);
         world.markDirty();
       }
