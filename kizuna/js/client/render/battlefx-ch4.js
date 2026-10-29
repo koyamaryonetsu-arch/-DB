@@ -2,9 +2,9 @@
 // battlefx.js の play() の さいしょに よばれる（ここに ない anim なら false を かえす）。
 // 敵が みかたに 使う 技は、client/battle-ch4.js が がめんの まん中を ねらって よぶ
 // 第4章 Step 7: 砂の底の神殿と モルガナ（battlefx-temple.js）
-import { playTempleFx } from './battlefx-temple.js?v=894e2368ad04';
+import { playTempleFx } from './battlefx-temple.js?v=0e454fdbf852';
 // 第5章 Step 2: 星の塔と 星の番人アルゴス（battlefx-ch5.js）
-import { playTowerFx } from './battlefx-ch5.js?v=894e2368ad04';
+import { playTowerFx } from './battlefx-ch5.js?v=0e454fdbf852';
 
 const SAND = ['#e8c88a', '#c8a060', '#fff0c8', '#a07a44'];
 const MIRAGE = ['#d8b0ff', '#8a4ac8', '#ffffff'];

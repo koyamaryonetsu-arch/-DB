@@ -1,7 +1,7 @@
 // 第49回 O4: 設備屋・ryonetsu・天才しせつ管理者 の 技の え（スパナ・配管・換気扇・ダクト・エアコン・チラー・ボイラー・メーター・建物の 断面…）
 // ・設備の 仕事の 道具を 1つ 大きく 出して、段が 上がるほど 建物まるごと・画面いっぱいに なる
 // ・時間は shared/data/ax-time-o4.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { obj, hose, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=894e2368ad04';
+import { obj, hose, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=0e454fdbf852';
 
 const PI = Math.PI;
 const COOL = ['#ffffff', '#bfeaff', '#5ac8ff'];

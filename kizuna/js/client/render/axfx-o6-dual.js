@@ -1,7 +1,7 @@
 // 第49回 O6: 合体技（ため なし。合体技の 顔の カットインの あとに 出る）
 // ・対消滅・光と闇（玉が ぶつかる）・炎の竜巻・ふぶきの大うず・いやしの輪・ステージショー・まんざい・光のシャワー・大コラボ配信
 // ・時間は shared/data/ax-time-o6.js。c の 時間は はなつ しゅんかんが 0
-import { wrap, fill, pop, arrows, healGlow, confetti, mark, srcOf, rnd } from './axfx-o6-kit.js?v=894e2368ad04';
+import { wrap, fill, pop, arrows, healGlow, confetti, mark, srcOf, rnd } from './axfx-o6-kit.js?v=0e454fdbf852';
 
 const W = '#ffffff', GOLD = '#ffd23a', YEL = '#ffe040', RED = '#ff3a3a', SKY = '#7ae0ff', GRN = '#7dffb0', BLUE = '#4a8aff', PINK = '#ff7ad8', HOT = '#ff3a9a';
 const LAUGH = ['#ffe040', '#ff9a3a', '#ff7ad8', '#7ae0ff'];

@@ -6,7 +6,7 @@
 //   g6Night（夜空と 満月）・g6Frame（敵の 光の わく）・g6Smell（においの 線）・g6Torn（炎の 竜巻）・g6Spot（スポットライト）・
 //   g6Curt（赤い カーテン）・g6Txt（ドットの 文字。カタカナ・記号だけ）
 // 座標は たたかいの 画面（256 × 144）。時間は ms（はなつ しゅんかんが 0）
-import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash, rnd } from './axkit.js?v=894e2368ad04';
+import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash, rnd } from './axkit.js?v=0e454fdbf852';
 
 const TAU = Math.PI * 2;
 const backOut = (t) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };

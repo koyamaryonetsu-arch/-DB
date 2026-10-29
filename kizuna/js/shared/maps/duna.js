@@ -4,11 +4,11 @@
 // ・sand_castle1・sand_castle2（ダンジョン）… 砂の古城（バルガの 試練。1階に 2つの スイッチを 同時に ふむ しかけ、2階に 船の かじ）
 // ・sand_sea（フィールド・sailable）… 砂の海。すなかぜ号で 砂の 上を すすむ（第2章の 風の海と おなじ しくみ。maps/index.js の sailTile）。
 //   まん中に 砂クジラの ねどこ（砂の うず）。東の はしは まだ 砂嵐（モルガナを たおすまで）
-import { T, parseRows } from '../tiles.js?v=894e2368ad04';
-import { fbm, hash2 } from '../rng.js?v=894e2368ad04';
-import { npc } from './npc.js?v=894e2368ad04';
-import { DUNA_TOWN_ROWS, CASTLE1_ROWS, CASTLE2_ROWS } from './duna-rows.js?v=894e2368ad04';
-import { DUNA_GATE } from './south.js?v=894e2368ad04';
+import { T, parseRows } from '../tiles.js?v=0e454fdbf852';
+import { fbm, hash2 } from '../rng.js?v=0e454fdbf852';
+import { npc } from './npc.js?v=0e454fdbf852';
+import { DUNA_TOWN_ROWS, CASTLE1_ROWS, CASTLE2_ROWS } from './duna-rows.js?v=0e454fdbf852';
+import { DUNA_GATE } from './south.js?v=0e454fdbf852';
 
 const inRect = (x, y, r, pad = 0) => x >= r.x - pad && y >= r.y - pad && x < r.x + r.w + pad && y < r.y + r.h + pad;
 

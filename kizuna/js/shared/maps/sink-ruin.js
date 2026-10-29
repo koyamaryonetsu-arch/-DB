@@ -10,10 +10,10 @@
 //   雲の 中は t5_ruin_cloud（B が 作る。plan-ch5.md の 13）
 // ・第38回 A: 1〜7階を 広げた（わき道・宝の へや・見晴らしの 露台。4階に しなくても よい 重さの てんびんの 宝物庫）。
 //   形の 版は RUIN_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
-import { T, parseRows } from '../tiles.js?v=894e2368ad04';
-import { npc } from './npc.js?v=894e2368ad04';
-import { RUIN_ROWS } from './sink-ruin-rows.js?v=894e2368ad04';
-import { RUIN_TREASURE } from '../data/items-kumoi.js?v=894e2368ad04';
+import { T, parseRows } from '../tiles.js?v=0e454fdbf852';
+import { npc } from './npc.js?v=0e454fdbf852';
+import { RUIN_ROWS } from './sink-ruin-rows.js?v=0e454fdbf852';
+import { RUIN_TREASURE } from '../data/items-kumoi.js?v=0e454fdbf852';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const RUIN_FLOORS = 7;

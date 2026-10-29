@@ -8,21 +8,24 @@
 //   c.medalSpots   … 小さなメダルを 見つけた 場所 { id: 時こく }
 //   c.medalsGiven  … メダル王に わたした 数
 //   c.medalRewards … もらった ごほうび { 5: true, 10: true, … }
-import { ITEMS } from '../data/items.js?v=894e2368ad04';
-import { addItem, itemCount } from '../stats.js?v=894e2368ad04';
+//   c.prizeSeen    … 第50回 D3: 景品の NEW の しるしの ため 見た 品（world/prizes-r50.js）
+import { ITEMS } from '../data/items.js?v=0e454fdbf852';
+import { addItem } from '../stats.js?v=0e454fdbf852';
 import {
   COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS, coinsOf, SLOT_BETS, REELS, slotLine, slotPay,
   POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, prizesFor, MEDAL_REWARDS,
-  medalsFound, medalsGiven, medalsHeld,
-} from '../data/casino.js?v=894e2368ad04';
-import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=894e2368ad04';
-import { MAPS, tileAt, condOk } from '../maps/index.js?v=894e2368ad04';
-import { T } from '../tiles.js?v=894e2368ad04';
+  medalsFound, medalsGiven, medalsHeld, medalRewardOpen,
+} from '../data/casino.js?v=0e454fdbf852';
+// 第50回 D3: 景品の NEW の しるし・なかま・乗り物券の かさなり・メダル王の お話で ふえる ごほうび
+import { casinoPrizeShelf, prizeBlock, prizeHave, medalRewardRows, medalFresh } from './prizes-r50.js?v=0e454fdbf852';
+import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=0e454fdbf852';
+import { MAPS, tileAt, condOk } from '../maps/index.js?v=0e454fdbf852';
+import { T } from '../tiles.js?v=0e454fdbf852';
 // 第37回 B: ルーレット・すごろく場・宝の地図の 段で ふえる 景品
-import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js?v=894e2368ad04';
-import { tierInfo } from '../data/casino-tier.js?v=894e2368ad04';
-import { sugorokuInfo, sugorokuAction } from './sugoroku.js?v=894e2368ad04';
-import { SUGOROKU_MAP } from '../data/sugoroku.js?v=894e2368ad04';
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js?v=0e454fdbf852';
+import { tierInfo } from '../data/casino-tier.js?v=0e454fdbf852';
+import { sugorokuInfo, sugorokuAction } from './sugoroku.js?v=0e454fdbf852';
+import { SUGOROKU_MAP } from '../data/sugoroku.js?v=0e454fdbf852';
 
 // 見つけた 光る 場所は もう 光らない（sparkles の 時こくを ずっと 先に）
 export const MEDAL_TAKEN_AT = 9e15;
@@ -37,7 +40,8 @@ export function casinoOpen(world, s, kind, arg) {
   if (kind === 'medalKing') {
     if (s.map !== 'medal_castle') return null;
     s.casino = 'medal';
-    return { mode: 'medal', ...medalInfo(c) };
+    world.markDirty();
+    return { mode: 'medal', ...medalInfo(c), fresh: medalFresh(c) };
   }
   const mode = CASINO_MODES[arg];
   if (kind !== 'casino' || !mode || s.map !== (MODE_MAP[mode] || 'casino')) return null;
@@ -51,9 +55,12 @@ export function casinoOpen(world, s, kind, arg) {
     case 'prizes': {
       // 宝の地図の クリア数の 段で 景品が ふえる（tier。data/casino-tier.js）
       const t = tierInfo(c);
-      const prizes = prizesFor(c.flags, t.tier);
+      // 第50回 D3: NEW（前に 開いた ときに なかった 品）・なかま（装備・見た目・便利・魔物）・持っている 品
+      const { prizes, fresh, cats } = casinoPrizeShelf(c, t.tier);
       const story = PRIZES.some((p) => p.need && !c.flags?.[p.need]);
-      return { ...base, prizes, more: prizes.length < PRIZES.length, story, tier: t };
+      const have = prizes.filter((p) => prizeHave(c, p.id)).map((p) => p.id);
+      world.markDirty();
+      return { ...base, prizes, more: prizes.length < PRIZES.length, story, tier: t, fresh, cats, have };
     }
     case 'roulette': return { ...base, chips: ROULETTE_CHIPS, maxTotal: ROULETTE_MAX_TOTAL };
     case 'sugoroku': return { ...base, ...sugorokuInfo(world, s) };
@@ -199,7 +206,9 @@ export function casinoAction(world, s, msg) {
       const pr = prizesFor(c.flags, tierInfo(c).tier).find((x) => x.id === msg.id);
       if (!pr || !ITEMS[pr.id]) return reply(false, 'その景品はありません');
       if (coins < pr.coins) return reply(false, 'コインが足りないようです');
-      if (itemCount(c, pr.id) >= 99) return reply(false, 'それ以上は持てないようです');
+      // 99こ まで・乗り物券は 1つだけ（もう 乗り物を 持っていたら もらえない。world/prizes-r50.js）
+      const block = prizeBlock(c, pr.id);
+      if (block) return reply(false, block);
       c.coins = coins - pr.coins;
       addItem(c, pr.id, 1);
       return reply(true, `コイン${fmt(pr.coins)}枚と${ITEMS[pr.id].name}をこうかんした！`, { got: pr.id });
@@ -216,10 +225,10 @@ export function casinoAction(world, s, msg) {
 
 // ───────────── メダル王 ─────────────
 function medalInfo(c) {
-  const got = c.medalRewards && typeof c.medalRewards === 'object' ? c.medalRewards : {};
   return {
     found: medalsFound(c), given: medalsGiven(c), held: medalsHeld(c), total: MEDAL_SPOTS.length,
-    rewards: MEDAL_REWARDS.map((r) => ({ at: r.at, items: r.items, got: !!got[r.at] })),
+    // 第50回 D3: locked … お話が 進むと もらえる ごほうび
+    rewards: medalRewardRows(c),
   };
 }
 
@@ -235,12 +244,14 @@ function medalAction(world, s, msg, reply) {
   const total = medalsGiven(c) + held;
   c.medalRewards = c.medalRewards && typeof c.medalRewards === 'object' ? c.medalRewards : {};
   // あとから ふえた ごほうび（第31回の 35枚）は、もう わたした 数に とどいていれば メダルが なくても もらえる
-  const pending = MEDAL_REWARDS.some((r) => r.at <= total && !c.medalRewards[r.at]);
+  // 第50回 D3: お話が 進むと もらえる ごほうび（need）は、その フラグが つくまで のこしておく
+  const open = (r) => medalRewardOpen(c.flags, r);
+  const pending = MEDAL_REWARDS.some((r) => r.at <= total && !c.medalRewards[r.at] && open(r));
   if (!held && !pending) return reply(false, '小さなメダルを持っていない', { medal: medalInfo(c) });
   c.medalsGiven = total;
   const got = [];
   for (const r of MEDAL_REWARDS) {
-    if (r.at > total || c.medalRewards[r.at]) continue;
+    if (r.at > total || c.medalRewards[r.at] || !open(r)) continue;
     c.medalRewards[r.at] = true;
     for (const [id, n] of r.items) addItem(c, id, n);
     got.push({ at: r.at, items: r.items });

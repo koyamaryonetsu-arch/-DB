@@ -1,7 +1,7 @@
 // 第49回 O2: 闇と ふしぎの 技（中二病・超能力者・ダ天使・魔王）の え。この ファイルは O2 だけが さわる
 // 時間は shared/data/ax-time-o2.js。play の 時間は はなつ しゅんかんが 0。魔王・ダ天使も まるい 形・コミカル寄り（こわすぎない）
-import { rnd } from './axkit.js?v=894e2368ad04';
-import { obj, txt, bg, claw, whirl, rays, hands, ground, above, per, upMark, downMark, fist } from './axfx-o2-kit.js?v=894e2368ad04';
+import { rnd } from './axkit.js?v=0e454fdbf852';
+import { obj, txt, bg, claw, whirl, rays, hands, ground, above, per, upMark, downMark, fist } from './axfx-o2-kit.js?v=0e454fdbf852';
 
 const DARK = { main: '#8a4ae0', glow: '#c8a8f0', core: '#f0e0ff', dark: '#1a0a2a', list: ['#8a5ac8', '#3a2a5a', '#c8a8f0'] };
 const PURPLE = ['#c88aff', '#ffffff', '#8a4ae0'];

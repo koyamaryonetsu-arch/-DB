@@ -3,8 +3,8 @@
 // ・o6Prop … 小道具（ハリセン・マイク・タロット・サイコロ・コントローラー・トロフィー・くす玉 …）を 1つ 大きく かく（とぶ・まわる・ぽんっと 出る）
 // ・o6Text … カタカナの 擬音（ワハハ・プッ・ドーン）と 記号・数字だけ（漢字は 出さない）
 // ・ほか: スポットライト・コメントの 帯・配信の わく・運命の輪・炎の 円すい・うず・夜空の 帯・客席・げんまの すがた・ドット絵・結界の ドーム・グラフ
-import { softGlow, disc, rnd, lerp, clamp01, easeOut, easeIn, mixHex } from './axkit.js?v=894e2368ad04';
-import { AX_BUDGET_ORIG, AX_DUAL_PARTS_ORIG } from '../../shared/ax-time.js?v=894e2368ad04';
+import { softGlow, disc, rnd, lerp, clamp01, easeOut, easeIn, mixHex } from './axkit.js?v=0e454fdbf852';
+import { AX_BUDGET_ORIG, AX_DUAL_PARTS_ORIG } from '../../shared/ax-time.js?v=0e454fdbf852';
 
 const TAU = Math.PI * 2;
 export const env = (p, fin = 120, fout = 200) => clamp01(p.age / Math.max(1, fin)) * clamp01((p.life - p.age) / Math.max(1, fout));

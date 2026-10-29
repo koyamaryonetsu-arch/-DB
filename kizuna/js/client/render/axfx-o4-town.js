@@ -1,6 +1,6 @@
 // 第49回 O4: 地方公務員・国家公務員・警察官・消防士 の 技の え（番号札・スコップ・ゆるキャラ・六法全書・ハンコ・てじょう・ホース…）
 // ・時間は shared/data/ax-time-o4.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { obj, car, hose, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=894e2368ad04';
+import { obj, car, hose, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=0e454fdbf852';
 
 const PI = Math.PI;
 const SNOW = ['#ffffff', '#e6fbff', '#9ae6ff'];

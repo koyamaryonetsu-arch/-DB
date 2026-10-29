@@ -5,22 +5,22 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=894e2368ad04';
-import { JOBS } from '../data/jobs.js?v=894e2368ad04';
-import { MONSTERS } from '../data/monsters.js?v=894e2368ad04';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=894e2368ad04';
-import { repairTreasureMaps } from '../data/treasure.js?v=894e2368ad04';
-import { ensureTmClears } from '../data/casino-tier.js?v=894e2368ad04';
-import { repairSecret } from '../data/secret.js?v=894e2368ad04';
-import { repairAlchemy } from './alchemy.js?v=894e2368ad04';
-import { normBank } from './bank.js?v=894e2368ad04';
-import { cleanWagon } from '../data/wagon.js?v=894e2368ad04';
-import { cleanLookEquip } from '../look-equip.js?v=894e2368ad04';
-import { cleanVehicles } from '../data/vehicles.js?v=894e2368ad04';
-import { repairTrialInfo } from '../data/job-trials.js?v=894e2368ad04';
-import { cleanQuick } from '../data/quick-item.js?v=894e2368ad04';
-import { repairSubAsk } from '../data/subquest-hints.js?v=894e2368ad04';
-import { cleanStamps } from '../data/stamps.js?v=894e2368ad04';
+import { ITEMS, SLOTS } from '../data/items.js?v=0e454fdbf852';
+import { JOBS } from '../data/jobs.js?v=0e454fdbf852';
+import { MONSTERS } from '../data/monsters.js?v=0e454fdbf852';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=0e454fdbf852';
+import { repairTreasureMaps } from '../data/treasure.js?v=0e454fdbf852';
+import { ensureTmClears } from '../data/casino-tier.js?v=0e454fdbf852';
+import { repairSecret } from '../data/secret.js?v=0e454fdbf852';
+import { repairAlchemy } from './alchemy.js?v=0e454fdbf852';
+import { normBank } from './bank.js?v=0e454fdbf852';
+import { cleanWagon } from '../data/wagon.js?v=0e454fdbf852';
+import { cleanLookEquip } from '../look-equip.js?v=0e454fdbf852';
+import { cleanVehicles } from '../data/vehicles.js?v=0e454fdbf852';
+import { repairTrialInfo } from '../data/job-trials.js?v=0e454fdbf852';
+import { cleanQuick } from '../data/quick-item.js?v=0e454fdbf852';
+import { repairSubAsk } from '../data/subquest-hints.js?v=0e454fdbf852';
+import { cleanStamps } from '../data/stamps.js?v=0e454fdbf852';
 
 export const SAVE_VERSION = 4;
 

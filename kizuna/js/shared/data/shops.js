@@ -2,20 +2,22 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=894e2368ad04';
-import { NIGHT_SHOPS } from './night.js?v=894e2368ad04';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=894e2368ad04';
-import { SHOPS_CH4 } from './items-ch4.js?v=894e2368ad04';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=894e2368ad04';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=894e2368ad04';
-import { R33_SHOP_ADD } from './items-r33.js?v=894e2368ad04';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=894e2368ad04';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=894e2368ad04';
-import { SHOPS_EARTH } from './shops-earth.js?v=894e2368ad04';
+// 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=0e454fdbf852';
+import { SHOPS_CH2 } from './items-ch2.js?v=0e454fdbf852';
+import { NIGHT_SHOPS } from './night.js?v=0e454fdbf852';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=0e454fdbf852';
+import { SHOPS_CH4 } from './items-ch4.js?v=0e454fdbf852';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=0e454fdbf852';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=0e454fdbf852';
+import { R33_SHOP_ADD } from './items-r33.js?v=0e454fdbf852';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=0e454fdbf852';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=0e454fdbf852';
+import { SHOPS_EARTH } from './shops-earth.js?v=0e454fdbf852';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=894e2368ad04';
-import { MINAMO_GUEST } from './companions-past.js?v=894e2368ad04';
-import { RION_GUEST } from './companions-tokei.js?v=894e2368ad04';
+import { SHOPS_PAST } from './shops-past.js?v=0e454fdbf852';
+import { MINAMO_GUEST } from './companions-past.js?v=0e454fdbf852';
+import { RION_GUEST } from './companions-tokei.js?v=0e454fdbf852';
 
 export const SHOPS = {
   village: {
@@ -117,6 +119,7 @@ export function shopHello(shop, hasFlag = () => false) {
 }
 
 // ほしのかけら と こうかん
+// 第50回 D3: お話が 進むと ふえる（need。装備・乗り物・便利な道具・めずらしい魔物。種は 入れない。data/prizes-r50.js）
 export const STAR_TRADES = [
   { shards: 2, item: 'magic_water' },
   { shards: 4, item: 'revive_flower' },
@@ -124,7 +127,12 @@ export const STAR_TRADES = [
   { shards: 8, item: 'guard_ring' },
   { shards: 10, item: 'swift_ring' },
   { shards: 15, item: 'star_mail' },
+  ...STAR_TRADES_R50,
 ];
+// 今 ならんでいる こうかん（flags … キャラの フラグ）
+export function starTradesFor(flags = {}) {
+  return STAR_TRADES.filter((t) => !t.need || flags?.[t.need]);
+}
 
 // やどや・きょうかいの ねだん
 export const INN_PRICE = { village: 0, town: 12 };
