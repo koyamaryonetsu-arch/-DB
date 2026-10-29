@@ -6,7 +6,7 @@
 import {
   COL, src, vdir, above, prop, hex, shatter, arrows, dizzy, strike, swing, figure, dust, text, pick,
   hitBurst, blast, glitter, rich, per, line, g3prop,
-} from './axfx-o1-kit.js?v=7c37ebe89b7f';
+} from './axfx-o1-kit.js?v=824fd873af63';
 
 const red = { color: '#ffb0a0', glow: '#ff4a3a', core: '#ffffff' };
 const steel = { color: '#e8f4ff', glow: '#7ac8ff', core: '#ffffff' };

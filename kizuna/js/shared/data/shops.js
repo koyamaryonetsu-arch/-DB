@@ -3,21 +3,21 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=7c37ebe89b7f';
-import { SHOPS_CH2 } from './items-ch2.js?v=7c37ebe89b7f';
-import { NIGHT_SHOPS } from './night.js?v=7c37ebe89b7f';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=7c37ebe89b7f';
-import { SHOPS_CH4 } from './items-ch4.js?v=7c37ebe89b7f';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=7c37ebe89b7f';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=7c37ebe89b7f';
-import { R33_SHOP_ADD } from './items-r33.js?v=7c37ebe89b7f';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=7c37ebe89b7f';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=7c37ebe89b7f';
-import { SHOPS_EARTH } from './shops-earth.js?v=7c37ebe89b7f';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=824fd873af63';
+import { SHOPS_CH2 } from './items-ch2.js?v=824fd873af63';
+import { NIGHT_SHOPS } from './night.js?v=824fd873af63';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=824fd873af63';
+import { SHOPS_CH4 } from './items-ch4.js?v=824fd873af63';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=824fd873af63';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=824fd873af63';
+import { R33_SHOP_ADD } from './items-r33.js?v=824fd873af63';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=824fd873af63';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=824fd873af63';
+import { SHOPS_EARTH } from './shops-earth.js?v=824fd873af63';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=7c37ebe89b7f';
-import { MINAMO_GUEST } from './companions-past.js?v=7c37ebe89b7f';
-import { RION_GUEST } from './companions-tokei.js?v=7c37ebe89b7f';
+import { SHOPS_PAST } from './shops-past.js?v=824fd873af63';
+import { MINAMO_GUEST } from './companions-past.js?v=824fd873af63';
+import { RION_GUEST } from './companions-tokei.js?v=824fd873af63';
 
 export const SHOPS = {
   village: {

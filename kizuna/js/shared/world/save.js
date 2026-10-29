@@ -5,22 +5,23 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=7c37ebe89b7f';
-import { JOBS } from '../data/jobs.js?v=7c37ebe89b7f';
-import { MONSTERS } from '../data/monsters.js?v=7c37ebe89b7f';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=7c37ebe89b7f';
-import { repairTreasureMaps } from '../data/treasure.js?v=7c37ebe89b7f';
-import { ensureTmClears } from '../data/casino-tier.js?v=7c37ebe89b7f';
-import { repairSecret } from '../data/secret.js?v=7c37ebe89b7f';
-import { repairAlchemy } from './alchemy.js?v=7c37ebe89b7f';
-import { normBank } from './bank.js?v=7c37ebe89b7f';
-import { cleanWagon } from '../data/wagon.js?v=7c37ebe89b7f';
-import { cleanLookEquip } from '../look-equip.js?v=7c37ebe89b7f';
-import { cleanVehicles } from '../data/vehicles.js?v=7c37ebe89b7f';
-import { repairTrialInfo } from '../data/job-trials.js?v=7c37ebe89b7f';
-import { cleanQuick } from '../data/quick-item.js?v=7c37ebe89b7f';
-import { repairSubAsk } from '../data/subquest-hints.js?v=7c37ebe89b7f';
-import { cleanStamps } from '../data/stamps.js?v=7c37ebe89b7f';
+import { ITEMS, SLOTS } from '../data/items.js?v=824fd873af63';
+import { JOBS } from '../data/jobs.js?v=824fd873af63';
+import { MONSTERS } from '../data/monsters.js?v=824fd873af63';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=824fd873af63';
+import { repairTreasureMaps } from '../data/treasure.js?v=824fd873af63';
+import { ensureTmClears } from '../data/casino-tier.js?v=824fd873af63';
+import { repairSecret } from '../data/secret.js?v=824fd873af63';
+import { repairAlchemy } from './alchemy.js?v=824fd873af63';
+import { normBank } from './bank.js?v=824fd873af63';
+import { cleanWagon } from '../data/wagon.js?v=824fd873af63';
+import { cleanLookEquip } from '../look-equip.js?v=824fd873af63';
+import { cleanVehicles } from '../data/vehicles.js?v=824fd873af63';
+import { repairTrialInfo } from '../data/job-trials.js?v=824fd873af63';
+import { cleanQuick } from '../data/quick-item.js?v=824fd873af63';
+import { repairSubAsk } from '../data/subquest-hints.js?v=824fd873af63';
+import { cleanStamps } from '../data/stamps.js?v=824fd873af63';
+import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=824fd873af63';
 
 export const SAVE_VERSION = 4;
 
@@ -144,6 +145,8 @@ export function repairChar(c, id) {
   cleanQuick(c);
   // 第50回 N7: チャットの スタンプ（ない ことも ある。新しい 項目なので 版は 上げない。data/stamps.js）
   cleanStamps(c);
+  // 第51回 B: 家族のけいじ板を さいごに 見た 時こく（ない ことも ある。新しい 項目なので 版は 上げない。world/family-board.js）
+  cleanBoardSeen(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {
@@ -208,6 +211,8 @@ export function upgradeSave(raw) {
   const d = { ...src };
   d.characters = hasChars ? { ...src.characters } : {};
   d.board = Array.isArray(src.board) ? src.board : [];
+  // 第51回 B: 家族のけいじ板（自動の 知らせ。world/family-board.js）
+  d.familyBoard = cleanFamilyBoard(src.familyBoard);
   d.createdAt = src.createdAt || Date.now();
   for (let v = from; v < SAVE_VERSION; v++) UPGRADES[v]?.(d);
   for (const [id, c] of Object.entries(d.characters)) {

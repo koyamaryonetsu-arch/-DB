@@ -1,7 +1,7 @@
 // 第5章 Step 9（B9）ノクト（本気）・魔王ソリトゥス・仲間の ノクト・家族の きずな技の エフェクト
 // （battlefx-earth.js の playEarthFx の さいごに よばれる。ない anim なら false）
 // 色: ノクト＝夜の むらさき・ソリトゥス＝まっ黒と つめたい 青白・闇の 口の えんじ・きずな技＝金と 白の 星あかり
-import { ELEMENT_FX } from './battlefx-r27.js?v=7c37ebe89b7f';
+import { ELEMENT_FX } from './battlefx-r27.js?v=824fd873af63';
 
 const NIGHT = ['#14101e', '#2e1e48', '#8a5ae0', '#e6d8ff'];
 const VOID = ['#030208', '#141228', '#36305e', '#7ad8ff'];

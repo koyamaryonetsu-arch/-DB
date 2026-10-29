@@ -1,16 +1,18 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=7c37ebe89b7f';
-import { scaleExp } from '../data/difficulty.js?v=7c37ebe89b7f';
-import { COMPANION_SLOTS } from '../data/companions.js?v=7c37ebe89b7f';
-import { JOBS } from '../data/jobs.js?v=7c37ebe89b7f';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=7c37ebe89b7f';
-import { computeStats, fullHeal } from '../stats.js?v=7c37ebe89b7f';
-import { pub } from '../battle.js?v=7c37ebe89b7f';
+import { MAPS } from '../maps/index.js?v=824fd873af63';
+import { scaleExp } from '../data/difficulty.js?v=824fd873af63';
+import { COMPANION_SLOTS } from '../data/companions.js?v=824fd873af63';
+import { JOBS } from '../data/jobs.js?v=824fd873af63';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=824fd873af63';
+import { computeStats, fullHeal } from '../stats.js?v=824fd873af63';
+import { pub } from '../battle.js?v=824fd873af63';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=7c37ebe89b7f';
+} from './party.js?v=824fd873af63';
+// 第51回 B: 家族のけいじ板（入れかえで ぬけた 人の ひらめき技）
+import { boardHirameki } from './family-board.js?v=824fd873af63';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -362,7 +364,7 @@ export function wagonBattleSwap(world, s, ctx, msg) {
     ({ init, map } = joinInit(s, c, e, outSelf));
   }
   useTurn(b, actor);
-  writeBack(ctx, out);
+  writeBack(world, ctx, out);
   const nc = b.swapAlly(out.id, init);
   if (!nc) return no('できません');
   ctx.actorMap[nc.id] = map;
@@ -421,7 +423,7 @@ function swapAll(world, s, ctx, actor, all, no) {
     let nc;
     if (out) {
       const outKey = ctx.actorMap[out.id].key;
-      writeBack(ctx, out);
+      writeBack(world, ctx, out);
       nc = b.swapAlly(out.id, init);
       const pi = c.partyKeys.indexOf(outKey), wi = c.wagonKeys.indexOf(k);
       if (pi >= 0 && wi >= 0) {
@@ -510,7 +512,7 @@ function afterSwap(world, s, p) {
 }
 
 // たたかいから ぬける 人の HP・MP など（finishBattle と おなじ）
-function writeBack(ctx, a) {
+function writeBack(world, ctx, a) {
   const who = ctx.actorMap[a.id];
   const ch = who?.char;
   if (!ch) return;
@@ -519,7 +521,10 @@ function writeBack(ctx, a) {
   ch.status = a.status?.poison && a.alive ? { poison: true } : {};
   if (a.use && who.type !== 'guest' && who.kind !== 'family') {
     ch.skillUse = { ...a.use };
-    if (a.hiraNew?.length) ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
+    if (a.hiraNew?.length) {
+      ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
+      boardHirameki(world, ch, a.hiraNew);
+    }
   }
   if (!Number.isFinite(ch.hp)) ch.hp = computeStats(ch).maxHp;
 }

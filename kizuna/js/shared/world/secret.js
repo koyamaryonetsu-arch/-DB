@@ -14,18 +14,18 @@
 // ・階の 形は ちょうせんごとに かわる（2026年10月 第32回）: 入口から 始める ときに seed を 作って c.sd.run.seed に 入れ、
 //   マップの ID（'sd_<階>_<seed>'）にも 入れる。いっしょに 下りる 家族は おなじ ID の 階へ 行くので おなじ 形。
 //   ログインしなおしても 場所の ID に seed が のこる。前の 版の 'sd_<階>' に いた 人は、次の 階から 新しい seed
-import { MAPS, isBlocked } from '../maps/index.js?v=7c37ebe89b7f';
-import { fullHeal, addItem } from '../stats.js?v=7c37ebe89b7f';
-import { MONSTERS } from '../data/monsters.js?v=7c37ebe89b7f';
-import { SD_HOOKS } from '../data/story-secret.js?v=7c37ebe89b7f';
-import { partyOf } from './party.js?v=7c37ebe89b7f';
-import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=7c37ebe89b7f';
+import { MAPS, isBlocked } from '../maps/index.js?v=824fd873af63';
+import { fullHeal, addItem } from '../stats.js?v=824fd873af63';
+import { MONSTERS } from '../data/monsters.js?v=824fd873af63';
+import { SD_HOOKS } from '../data/story-secret.js?v=824fd873af63';
+import { partyOf } from './party.js?v=824fd873af63';
+import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=824fd873af63';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
   sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice, sdKeyRewards,
-} from '../data/secret.js?v=7c37ebe89b7f';
-import { ensureSdShop } from '../data/secret-shop.js?v=7c37ebe89b7f';
+} from '../data/secret.js?v=824fd873af63';
+import { ensureSdShop } from '../data/secret-shop.js?v=824fd873af63';
 
 const GUIDE = 'ひみつのダンジョンの案内人';
 const FAIRY = '休み所のようせい';
