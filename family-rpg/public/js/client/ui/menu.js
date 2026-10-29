@@ -1,5 +1,5 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
+import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
@@ -41,7 +41,7 @@ import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
 import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
 import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, EXP_RATE_NOTES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js';
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { rareNameHtml } from './rarity.js';
@@ -191,10 +191,17 @@ export class FieldMenu {
   updateHead() {
     const c = this.game.me;
     this.headParty.innerHTML = '';
-    for (const m of partyRows(this.game)) {
+    const rows = partyRows(this.game);
+    // 第50回 A: 4人いじょうの 旅では、スマホの たてで 体力表示を 小さく（よこ 1列。所持金と 閉じるは 上の 1行。css の .fm-head.many）
+    const head = this.headParty.parentElement;
+    head?.classList.toggle('many', rows.length >= 4);
+    head?.style.setProperty('--n', String(Math.min(6, Math.max(1, rows.length))));
+    for (const m of rows) {
       this.headParty.append(el('div', { class: `fm-mem ${m.hp <= 0 ? 'dead' : ''}` },
         el('div', { class: `n ${m.hpCls}`, text: m.name }),
         el('div', { class: `v ${m.hpCls}` }, el('span', { class: 'k', text: 'H' }), `${Math.max(0, m.hp)}`),
+        // HP の バー（小さい 表示の ときだけ 見える）
+        el('div', { class: `hpb ${m.hpCls}` }, el('i', { style: { width: `${Math.round(Math.max(0, Math.min(1, m.hp / Math.max(1, m.maxHp))) * 100)}%` } })),
         el('div', { class: 'v' }, el('span', { class: 'k', text: 'M' }), `${m.mp}`),
         el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`),
         // 第35回: 短い 職業名（モンスターは なし。スマホの たてでは せまいので 出さない。ui/r35-css.js）
@@ -1385,6 +1392,8 @@ export class FieldMenu {
     box.append(speedNote);
     if (active) {
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
+      // 第50回 C: コントローラーの 上下で 画面を スクロール
+      padScroll(this.sub, { ys: () => scrollerOf(box) || this.main });
       box.append(this.sub.root);
     }
     return box;
@@ -1428,10 +1437,13 @@ export class FieldMenu {
       table.append(tr);
     }
     const box = el('div');
-    box.append(el('h3', { text: '全員の強さ' }), el('div', { class: 'allstat-wrap' }, table),
+    const wrap = el('div', { class: 'allstat-wrap' }, table);
+    box.append(el('h3', { text: '全員の強さ' }), wrap,
       el('div', { class: 'detail', text: '黄色は、その強さが一番高い人。' }));
     if (active) {
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
+      // 第50回 C: コントローラーの 上下で 画面を、左右で よこに 長い 表を スクロール
+      padScroll(this.sub, { ys: () => scrollerOf(box) || this.main, xs: wrap });
       box.append(this.sub.root);
     }
     return box;
@@ -1882,7 +1894,13 @@ export class FieldMenu {
         } else if (it.value === 'dSub') {
           sendDif({ subMarks: !dif.subMarks });
         } else if (it.value === 'dExp') {
-          sendDif({ exp: EXP_RATES[(EXP_RATES.indexOf(dif.exp) + 1) % EXP_RATES.length] });
+          // 5つの 倍率を せつめいつきで 見せて えらぶ
+          this.sub.blur();
+          this.pickExpRate(dif.exp).then(async (r) => {
+            if (r && r !== dif.exp && this.root) await this.menuCall({ t: 'menu', action: 'settings', difficulty: { exp: r } });
+            again(idx);
+          });
+          return;
         } else if (it.value === 'dEnemy') {
           // 4つの 強さを せつめいつきで 見せて えらぶ
           this.sub.blur();
@@ -1954,8 +1972,20 @@ export class FieldMenu {
       },
     });
     const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
-    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
+  }
+
+  // もらえる 経験値を えらぶ まど（5つの 倍率と みじかい せつめい。カーソルは 今の 倍率）。えらんだ 倍率（やめる なら null）
+  pickExpRate(now) {
+    const items = EXP_RATES.map((r) => ({
+      html: `${esc(EXP_RATE_NAMES[r])}${r === now ? '<span class="tag gold">今</span>' : ''}<span class="sk-desc">${esc(EXP_RATE_NOTES[r])}</span>`,
+      right: `${r}倍`,
+      value: r,
+      cls: 'sk',
+    }));
+    const note = '戦いでもらえる経験値が、この倍になる。\n仲間・馬車の仲間も同じ。ゴールド・落とす物は同じ。';
+    return this.pick('もらえる経験値', [...items, { label: 'やめる', value: null }], { wide: true, cls: 'foe-pick', start: now, note: { text: note, cls: 'info' } });
   }
 
   // 敵の 強さを えらぶ まど（4つの 強さと みじかい せつめい。カーソルは 今の 強さ）。えらんだ 倍率（やめる なら null）

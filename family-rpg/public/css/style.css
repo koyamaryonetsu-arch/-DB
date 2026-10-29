@@ -1492,6 +1492,28 @@ body.menu-open #hud { visibility: hidden; }
 .fm-gold { grid-area: gold; justify-self: end; align-self: end; white-space: nowrap; font-size: var(--fs-small); font-variant-numeric: tabular-nums; }
 .fm-gold .k { color: var(--muted); margin-right: 0.5em; }
 .fm-gold .g { color: var(--accent); }
+/* HP の バー（ふだんは 出さない。下の 小さい 表示だけ） */
+.fm-mem .hpb { display: none; height: 3px; margin: 0.1em 0 0.12em; background: rgba(255, 255, 255, 0.14); border-radius: 2px; overflow: hidden; }
+.fm-mem .hpb > i { display: block; height: 100%; background: var(--good); }
+.fm-mem .hpb.orange > i { background: #ff9a2a; }
+.fm-mem .hpb.red > i { background: #ff4a4a; }
+/* 第50回 A: 4人いじょうの 旅（スマホの たて）… 体力表示を 小さく して、メニューの コマンドを ひろく。
+   所持金と 閉じるは 上の 1行、メンバーは よこ 1列（名前・H・バー・M。Lv は 強さの 画面で） */
+@media (max-width: 700px) and (orientation: portrait) {
+  .fm-head.many { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "gold close" "party party"; gap: 0.15em 0.6em; padding: 0.3em 0.55em 0.4em; min-height: 0; }
+  .fm-head.many .closebtn { min-height: 30px; padding: 0 0.75em; font-size: var(--fs-small); }
+  .fm-head.many .fm-gold { justify-self: start; align-self: center; }
+  .fm-head.many .fm-party { grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); line-height: 1.22; }
+  .fm-head.many .fm-mem { padding: 0.05em 0.4em 0; }
+  .fm-head.many .fm-mem:first-child { padding-left: 0.1em; }
+  .fm-head.many .fm-mem .n { font-size: 0.94em; }
+  .fm-head.many .fm-mem .lv { display: none; }
+  .fm-head.many .fm-mem .hpb { display: block; }
+  /* コマンドの 一覧は つぶさない（高さが 足りない ときは 下の せつめいの まどを ちぢめる。文字が 大きい 時も） */
+  .fmenu-panel:not(.sub-open) .fmenu { display: flex; flex-direction: column; }
+  .fmenu-panel:not(.sub-open) .fmenu .side { flex: none; max-height: none; overflow: visible; }
+  .fmenu-panel:not(.sub-open) .fmenu .main { flex: 0 1 calc(54vh - var(--pad-h)); height: auto; min-height: 4.5em; }
+}
 .sort-tabs { align-items: center; }
 .sort-tabs .btn { padding: 0.1em 0.7em; min-height: 32px; }
 .sort-tabs .btn.on { border-color: var(--accent); color: var(--accent); }
