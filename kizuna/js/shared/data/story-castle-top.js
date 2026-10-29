@@ -13,15 +13,15 @@
 //   てっぺんの 祭だん・ハネノの 長ソラネ／ホシミばあちゃん・ホシフル村の ホシミばあちゃんの どれを しらべても、見ていない ところから 続きを 見られる
 // ・クリアの あと: ノクトが ルミナの町の 酒場で 仲間に なる（B9 の NOCTO_COMPANION。unlock c5_clear）・町の 人の ことばが かわる・クモイ地方の 夕ぐれが 晴れる
 // きまった 戦い nocto_2・solitus と 酒場の ノクトは B9（戦い）が 作る（plan-ch5.md の 17）
-import { TOP, END_A, END_B, FONT_FLAG, TOP_POS, CASTLE_TOP_ID } from '../maps/castle-top.js?v=824fd873af63';
-import { memoryShardsAll } from '../maps/memory.js?v=824fd873af63';
-import { LETTER_FLAG } from '../maps/earth.js?v=824fd873af63';
-import { HANONO_POS, KUMOI_POS } from '../maps/kumoi.js?v=824fd873af63';
-import { PLACES } from '../maps/overworld.js?v=824fd873af63';
-import { FEST_DECO } from '../maps/tower.js?v=824fd873af63';
-import { NPC_SUPPORTS } from './shops.js?v=824fd873af63';
-import { isNightFor, advanceClock } from '../world/clock.js?v=824fd873af63';
-import { NOCTO_COMPANION } from './companions-castle.js?v=824fd873af63';
+import { TOP, END_A, END_B, FONT_FLAG, TOP_POS, CASTLE_TOP_ID } from '../maps/castle-top.js?v=a8edacfcfd44';
+import { memoryShardsAll } from '../maps/memory.js?v=a8edacfcfd44';
+import { LETTER_FLAG } from '../maps/earth.js?v=a8edacfcfd44';
+import { HANONO_POS, KUMOI_POS } from '../maps/kumoi.js?v=a8edacfcfd44';
+import { PLACES } from '../maps/overworld.js?v=a8edacfcfd44';
+import { FEST_DECO } from '../maps/tower.js?v=a8edacfcfd44';
+import { NPC_SUPPORTS } from './shops.js?v=a8edacfcfd44';
+import { isNightFor, advanceClock } from '../world/clock.js?v=a8edacfcfd44';
+import { NOCTO_COMPANION } from './companions-castle.js?v=a8edacfcfd44';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

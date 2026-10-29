@@ -7,13 +7,18 @@
 //   （LINE で 送れるように。LINE は 1回に 1万文字まで）
 // 仲間が 多くて 1万文字を こえる ときは KIZUNA-3-（仲間の 空の 項目と ID を はぶいた 形。slimChar / unslimChar）。
 //   仲間 40人（いっぱい）でも 9千文字ほど。こえない ときは 今までどおり KIZUNA-2-（前の 版でも 読める）
+//   第51回: 幻の職業の 記録（feats）は KIZUNA-3 では みじかい 文字（world/phantom.js の packFeats。前の 版も そのまま 読める）
+// 第51回: それでも 1万文字を こえる ときは KIZUNA-4-（KIZUNA-3 の 形に 加えて、ぜんぶ true の flags・chests を 名前の ならびに、
+//   図鑑〈bestiary〉を 同じ 中みごとに まとめた 形。slimChar4 / unslimChar4）。KIZUNA-3 で 入る ときは KIZUNA-3（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=824fd873af63';
-import { dropGoneFamily } from '../data/wagon.js?v=824fd873af63';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=a8edacfcfd44';
+import { dropGoneFamily } from '../data/wagon.js?v=a8edacfcfd44';
+import { packFeats, unpackFeats } from './phantom.js?v=a8edacfcfd44';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
 const PREFIX_V3 = 'KIZUNA-3-';
+const PREFIX_V4 = 'KIZUNA-4-';
 export const CODE_MAX = 400000;
 export const LINE_MAX = 10000;
 export const CHAR_MAX = 12;
@@ -165,11 +170,14 @@ function unslimKills(kills) {
   return out;
 }
 export function slimChar(char) {
+  // 第51回 F: 幻の職業の 記録は みじかい 形（world/phantom.js の packFeats。百文字くらい）
+  if (char?.feats && typeof char.feats === 'object') char = { ...char, feats: packFeats(char.feats) };
   if (!Array.isArray(char?.companions)) return char;
   const companions = slimList(char, char.companions);
   return { ...char, companions, ...(Array.isArray(char.storage) ? { storage: slimList(char, char.storage) } : {}), ...(char.kills ? { kills: slimKills(char.kills) } : {}) };
 }
 export function unslimChar(char) {
+  if (typeof char?.feats === 'string') char.feats = unpackFeats(char.feats);
   if (!Array.isArray(char?.companions)) return char;
   if (Array.isArray(char.kills)) char.kills = unslimKills(char.kills);
   for (const e of [...char.companions, ...(Array.isArray(char.storage) ? char.storage : [])]) {
@@ -184,14 +192,68 @@ export function unslimChar(char) {
   return char;
 }
 
-// キャラクター → コード（LINE の 1回に 入らない ときだけ KIZUNA-3）
+// ───── KIZUNA-4（第51回）: KIZUNA-3 より もっと みじかく ─────
+const isPlain = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+// { a: true, b: true, c: 3 } → ['a', 'b', { c: 3 }]（true で ない 物は さいごに まとめて）
+function slimTrue(o) {
+  if (!isPlain(o)) return o;
+  const keys = [], rest = {};
+  for (const [k, v] of Object.entries(o)) {
+    if (v === true) keys.push(k);
+    else rest[k] = v;
+  }
+  return Object.keys(rest).length ? [...keys, rest] : keys;
+}
+function unslimTrue(a) {
+  if (!Array.isArray(a)) return a;
+  const out = {};
+  for (const x of a) {
+    if (typeof x === 'string') out[x] = true;
+    else if (isPlain(x)) Object.assign(out, x);
+  }
+  return out;
+}
+// 図鑑: { a: { friend: 1 }, b: { friend: 1 } } → [[{ friend: 1 }, 'a', 'b']]
+function slimSame(o) {
+  if (!isPlain(o)) return o;
+  const by = new Map();
+  for (const [k, v] of Object.entries(o)) {
+    const key = JSON.stringify(v);
+    if (!by.has(key)) by.set(key, [v]);
+    by.get(key).push(k);
+  }
+  return [...by.values()];
+}
+function unslimSame(a) {
+  if (!Array.isArray(a)) return a;
+  const out = {};
+  for (const [v, ...ks] of a.filter(Array.isArray)) for (const k of ks) out[k] = JSON.parse(JSON.stringify(v ?? null));
+  return out;
+}
+export function slimChar4(char) {
+  const s = slimChar(char);
+  return { ...s, ...(isPlain(s.flags) ? { flags: slimTrue(s.flags) } : {}), ...(isPlain(s.chests) ? { chests: slimTrue(s.chests) } : {}),
+    ...(isPlain(s.bestiary) ? { bestiary: slimSame(s.bestiary) } : {}) };
+}
+export function unslimChar4(char) {
+  if (Array.isArray(char.flags)) char.flags = unslimTrue(char.flags);
+  if (Array.isArray(char.chests)) char.chests = unslimTrue(char.chests);
+  if (Array.isArray(char.bestiary)) char.bestiary = unslimSame(char.bestiary);
+  return unslimChar(char);
+}
+
+// キャラクター → コード（LINE の 1回に 入らない ときだけ KIZUNA-3、それでも 入らない ときだけ KIZUNA-4）
 export function exportCode(char, now = Date.now()) {
   const json = JSON.stringify({ v: SAVE_VERSION, at: now, char });
   const code = `${PREFIX}${hash(json)}-${pack(json)}`;
   if (code.length <= LINE_MAX) return code;
   const slim = JSON.stringify({ v: SAVE_VERSION, at: now, char: slimChar(char) });
   const code3 = `${PREFIX_V3}${hash(slim)}-${pack(slim)}`;
-  return code3.length < code.length ? code3 : code;
+  const best = code3.length < code.length ? code3 : code;
+  if (best.length <= LINE_MAX) return best;
+  const slim4 = JSON.stringify({ v: SAVE_VERSION, at: now, char: slimChar4(char) });
+  const code4 = `${PREFIX_V4}${hash(slim4)}-${pack(slim4)}`;
+  return code4.length < best.length ? code4 : best;
 }
 
 // コード → キャラクター（こわれていたら reason）
@@ -201,7 +263,8 @@ export function parseCode(text) {
   if (code.length > CODE_MAX) return { ok: false, reason: 'コードが長すぎます' };
   const v1 = code.startsWith(PREFIX_V1);
   const v3 = code.startsWith(PREFIX_V3);
-  if (!v1 && !v3 && !code.startsWith(PREFIX)) return { ok: false, reason: '引っこしコードではないみたい' };
+  const v4 = code.startsWith(PREFIX_V4);
+  if (!v1 && !v3 && !v4 && !code.startsWith(PREFIX)) return { ok: false, reason: '引っこしコードではないみたい' };
   const rest = code.slice(PREFIX.length);
   const dash = rest.indexOf('-');
   if (dash !== 8) return { ok: false, reason: 'コードがこわれているみたい' };
@@ -221,6 +284,7 @@ export function parseCode(text) {
   const c = body?.char;
   if (!c || typeof c !== 'object' || !validId(c.id) || typeof c.name !== 'string') return { ok: false, reason: 'キャラクターが入っていないみたい' };
   if (v3) unslimChar(c);
+  if (v4) unslimChar4(c);
   // むかしの 版の コードも 読める 形に
   const up = upgradeSave({ version: Number(body.v) || 1, characters: { [c.id]: c } });
   const char = up.data.characters[c.id];

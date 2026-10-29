@@ -5,7 +5,7 @@
 //   ランプの あたたかい 光。ゆかは 古い 木の ゆか（ランプの 光の わと 長い 影）
 // ・memory_deep（deco 'memory_deep'）… 4〜6階・ノクトの影の 広間: くらい むらさきの 中に われた 思い出の かけら・大きな 影。
 //   ゆかは 黒い 水の ような ゆか（光の わが うつる）
-import { mix } from './pixel.js?v=824fd873af63';
+import { mix } from './pixel.js?v=a8edacfcfd44';
 
 const BW = 256, BH = 144;
 

@@ -1,6 +1,6 @@
 // 職業データ
 //
-// tier: 0=基本職 1=上級職 2=超級職
+// tier: 0=基本職 1=上級職 2=超級職 3=伝説の職業 4=幻の職業（第51回。req の 2つを きわめて、data/phantom.js の 条件）
 // req:  なるための じょうけん（この 職業を ぜんぶ レベル10＝マスターに する）
 // reqAlt: べつの 道（例: 賢者は 遊び人を マスター するだけでも なれる）。[[職業, …], …]
 // mods: キャラクターの基本ステータスにかける倍率
@@ -15,8 +15,8 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=824fd873af63';
-import { JOB_TAGS } from './job-tags.js?v=824fd873af63';
+import { applyField27Learn } from './abilities-field27.js?v=a8edacfcfd44';
+import { JOB_TAGS } from './job-tags.js?v=a8edacfcfd44';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1267,6 +1267,9 @@ export const JOBS = {
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
 export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wizard_student', 'harry', 'sailor_soldier', 'sailor_moon', 'shonen_tantei'];
 
+// 第51回: 幻の職業・天気の職業の 定義を ここで まぜる（各班が 1行ずつ。ALL_JOBS・タグ より 前に）
+//   例: Object.assign(JOBS, PHANTOM_JOBS_A);（import は ファイルの 上に）
+
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
 // 第35回: 職業の タグ（2〜4こ。合体技の 組に 使う。一覧と 意味は data/job-tags.js）
@@ -1307,10 +1310,15 @@ export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_geniu
   'fifth_spirit',
   // 第41回 A
   'keikyu_president', 'hall_of_fame'];
-export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
-export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
+// 第51回: 幻の職業（伝説の 上。tier 4。なる 条件は「きわめた 職業 2つ（req）」＋やりこみの 条件（data/phantom.js）。docs/plan-r51-phantom.md）
+// 職業の 定義は jobs-phantom-a/b/c.js（C1〜C3）。まだ ない 職業は 一覧に 入れない（PHANTOM_LIVE）
+export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
+  'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god'];
+export const PHANTOM_LIVE = PHANTOM_ORDER.filter((id) => JOBS[id]);
+export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER, ...PHANTOM_LIVE];
+export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業', '幻の職業'];
 // 神殿で ならべる じゅん（ランクごと）
-export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER];
+export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER, PHANTOM_LIVE];
 
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
 // 第38回 B: 超級職・伝説の職業は 職業の試練で Lv10 より 上（JOB_TOP_LEVEL まで）。Lv11 からも つづき（1つごとに 24・26・28…回 ふえる）
@@ -1318,7 +1326,7 @@ export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER
 export const JOB_TOP_LEVEL = 20;
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
 for (let lv = BATTLES.length + 1; lv <= JOB_TOP_LEVEL; lv++) BATTLES.push(BATTLES[lv - 2] + 2 * (lv - 10) + 22);
-const TIER_MULT = [1, 1.4, 1.8, 2.2];
+const TIER_MULT = [1, 1.4, 1.8, 2.2, 2.6];
 // 職業レベルの 上がりにくさ（1.4 … はじめの 版の 1.4倍 たたかう ひつようが ある）。上がった レベルは そのまま
 export const JOB_RATE = 1.4;
 export function jobBattlesForLevel(lv, tier = 0) {
@@ -1443,4 +1451,17 @@ export const JOB_HINTS = {
   hall_of_fame: '二刀流スターと、ほかの超級職を1つきわめた者は、野球の歴史に名をのこせるらしい…',
   // 第43回（男の子は masc.hint）
   mario: 'おてんば姫をきわめた女の人は、キノコの国をおさめるおひめさまになれるらしい…',
+  // 第51回: 幻の職業（きわめておく 職業を 1つでも はじめた 人に、名前を ださずに。数は 言わない。data/phantom.js の phantomRumors）
+  pirate_king: 'ゴムの体で海をかけた者が、海賊の道もきわめて、ゴムゴムの技を何百回も使うと、海の王になれるらしい…',
+  super_hero: 'ロトの勇者が、金色のかみの戦士の力もきわめて、雷の呪文とかめはめ波をうちつづけると、伝説をこえる勇者になれるらしい…',
+  sun_hokage: '日の呼吸と火影、2つの道をきわめて、ヒノカミ神楽と忍術をみがきつづけた者は、日の光をまとう火影になれるらしい…',
+  facility_ai: '建物を見守る天才が、ものを作る力もきわめて、仲間を何度も助けつづけると、建物のすべてを動かす頭脳になれるらしい…',
+  detective_king: '名探ていとおしり探てい、2つの探ていの道をきわめて、推理をかさねた者は、探ていの王になれるらしい…',
+  galaxy_queen: '月の女王と5つめのせいれい、2つの光をきわめて、回復の呪文をとなえつづけた者は、星の海をおさめる女王になれるらしい…',
+  grand_magus: '大魔道士と、いなずまのきずの少年、2つの魔法の道をきわめて、攻撃の呪文をうちつづけた者は、魔法の王になれるらしい…',
+  sword_saint: '飛天御剣流と上様の剣、2つの剣をきわめて、会心の一撃をかさねた者は、天下一の剣聖になれるらしい…',
+  cosmic_okan: '最強のおかんが、熱血先生の道もきわめて、しかりつづけると、宇宙一のおかんになれるらしい…',
+  chaos_creator: 'はかい神と、ものを作る者、2つの道をきわめて、とてつもない一撃を何度も出した者は、はかいと創造の神になれるらしい…',
+  dream_stadium: '赤い電車の社長と野球の殿堂入り、2つの道をきわめて、電車と速球をみがいた者は、夢の球場へ走る電車になれるらしい…',
+  weather_god: '天気をあやつる者と天地雷鳴士、2つの道をきわめて、晴れと雨とかみなりを使いこなした者は、天気の神になれるらしい…',
 };

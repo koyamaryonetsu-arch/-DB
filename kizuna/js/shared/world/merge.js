@@ -4,28 +4,30 @@
 //   ours   … こちらの キャラ（たとえば 家族サーバー）
 //   theirs … とどいた キャラ（たとえば スマホの ひとりで遊ぶサイト）
 //
-// ・けいけんち・ゴールド・たおした 数・職業の 勝った 数・種・技を 使った 回数 … 両方で ふえた（へった）ぶんを たす
+// ・けいけんち・ゴールド・たおした 数・職業の 勝った 数・種・技を 使った 回数・幻の職業の 記録 … 両方で ふえた（へった）ぶんを たす
 // ・ひらめいた 技 … 両方を 合わせる（わすれる ことは ない）
 // ・フラグ・宝箱・行った 場所・大事な物 … 両方を 合わせる（どちらかで 使った 大事な物は なくなる）
 // ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ。ボスの 品は 1つまで）
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=824fd873af63';
-import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=824fd873af63';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=a8edacfcfd44';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=a8edacfcfd44';
 // 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
-import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=824fd873af63';
-import { ITEMS, SLOTS } from '../data/items.js?v=824fd873af63';
-import { STORY_STEPS } from '../data/story.js?v=824fd873af63';
-import { COMPANION_SLOTS } from '../data/companions.js?v=824fd873af63';
-import { STORAGE_MAX } from './party.js?v=824fd873af63';
-import { WAGON_SLOTS } from '../data/wagon.js?v=824fd873af63';
-import { repairChar } from './save.js?v=824fd873af63';
-import { mergeTreasureMaps } from '../data/treasure.js?v=824fd873af63';
-import { mergeSecret } from '../data/secret.js?v=824fd873af63';
-import { mergeAlchemy } from './alchemy.js?v=824fd873af63';
-import { mergeArena } from '../data/arena.js?v=824fd873af63';
-import { COIN_MAX } from '../data/casino.js?v=824fd873af63';
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=a8edacfcfd44';
+import { ITEMS, SLOTS } from '../data/items.js?v=a8edacfcfd44';
+import { STORY_STEPS } from '../data/story.js?v=a8edacfcfd44';
+import { COMPANION_SLOTS } from '../data/companions.js?v=a8edacfcfd44';
+import { STORAGE_MAX } from './party.js?v=a8edacfcfd44';
+import { WAGON_SLOTS } from '../data/wagon.js?v=a8edacfcfd44';
+import { repairChar } from './save.js?v=a8edacfcfd44';
+import { mergeTreasureMaps } from '../data/treasure.js?v=a8edacfcfd44';
+import { mergeSecret } from '../data/secret.js?v=a8edacfcfd44';
+import { mergeAlchemy } from './alchemy.js?v=a8edacfcfd44';
+import { mergeArena } from '../data/arena.js?v=a8edacfcfd44';
+import { COIN_MAX } from '../data/casino.js?v=a8edacfcfd44';
+// 第51回 F: 幻の職業の 記録（両方で ふえた ぶんを たす・どちらの 数より 下に しない）
+import { mergeFeats } from './phantom.js?v=a8edacfcfd44';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -155,6 +157,7 @@ function mergeBody(b, a, t, tLater) {
       case 'exp': out.exp = Math.max(add(vb, va, vt), num(va), num(vt)); break;
       case 'gold': out.gold = Math.min(GOLD_MAX, add(vb, va, vt)); break;
       case 'kills': case 'seeds': case 'skillUse': out[k] = eachKey(vb, va, vt, (x, y, z) => add(x, y, z) || undefined); break;
+      case 'feats': out.feats = mergeFeats(vb, va, vt); break;
       case 'hirameki': out.hirameki = [...new Set([...(Array.isArray(va) ? va : []), ...(Array.isArray(vt) ? vt : [])])]; break;
       case 'jobs': out.jobs = mergeJobs(vb, va, vt); break;
       case 'bestiary': out.bestiary = mergeBestiary(vb, va, vt); break;

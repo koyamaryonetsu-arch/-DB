@@ -1,18 +1,20 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=824fd873af63';
-import { scaleExp } from '../data/difficulty.js?v=824fd873af63';
-import { COMPANION_SLOTS } from '../data/companions.js?v=824fd873af63';
-import { JOBS } from '../data/jobs.js?v=824fd873af63';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=824fd873af63';
-import { computeStats, fullHeal } from '../stats.js?v=824fd873af63';
-import { pub } from '../battle.js?v=824fd873af63';
+import { MAPS } from '../maps/index.js?v=a8edacfcfd44';
+import { scaleExp } from '../data/difficulty.js?v=a8edacfcfd44';
+import { COMPANION_SLOTS } from '../data/companions.js?v=a8edacfcfd44';
+import { JOBS } from '../data/jobs.js?v=a8edacfcfd44';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=a8edacfcfd44';
+import { computeStats, fullHeal } from '../stats.js?v=a8edacfcfd44';
+import { pub } from '../battle.js?v=a8edacfcfd44';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=824fd873af63';
+} from './party.js?v=a8edacfcfd44';
 // 第51回 B: 家族のけいじ板（入れかえで ぬけた 人の ひらめき技）
-import { boardHirameki } from './family-board.js?v=824fd873af63';
+import { boardHirameki } from './family-board.js?v=a8edacfcfd44';
+// 第51回 F: 幻の職業の 記録（馬車に もどる 自分の キャラの ぶん）
+import { addFeats } from './phantom.js?v=a8edacfcfd44';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -519,6 +521,7 @@ function writeBack(world, ctx, a) {
   ch.hp = a.alive ? a.hp : 0;
   ch.mp = a.mp;
   ch.status = a.status?.poison && a.alive ? { poison: true } : {};
+  if (who.type === 'human') addFeats(ch, a.feat);
   if (a.use && who.type !== 'guest' && who.kind !== 'family') {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
