@@ -289,7 +289,8 @@ test('技の せつめい: 相手・MP・威力の 目安・属性・効果（�
   assert.doesNotMatch(battleSkillText('sz_kame', pc), /タップ/, 'タッチで ない ときは 出さない');
   const aura = battleSkillText('sz_aura', pc);
   assert.match(aura, /自分/);
-  assert.match(aura, /効果：攻撃力・素早さ1\.3倍・3回行動のあいだ/);
+  // 第50回 D4: 上級職の 補助は 4回行動（shared/skill-tier.js）
+  assert.match(aura, /効果：攻撃力・素早さ1\.3倍・4回行動のあいだ/);
   assert.match(battleSkillText('sz_kikouha', pc), /敵全体/);
   const mage = { job: 'mage', jobs: { mage: { lv: 1 } } };
   const mera = battleSkillText('mera', mage);

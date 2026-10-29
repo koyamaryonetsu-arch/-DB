@@ -11,6 +11,8 @@ import { ABILITIES } from '../data/abilities.js';
 import { abilityFor, abilityLabel, isMasc } from '../ability-label.js';
 import { jobLabel } from '../job-label.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
+// 第50回 D4: 上の 職業の 技ほど 回復が 多い（フィールドでも おなじ。skill-tier.js）
+import { skillMods } from '../skill-tier.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { salonInfo, salonAction } from './salon.js';
@@ -543,7 +545,7 @@ export function menuAction(world, s, msg) {
       const texts = [];
       let any = false;
       for (const t of targets) {
-        const r = applyFieldEffect(world, caster, t, a.effect, pen.powMult);
+        const r = applyFieldEffect(world, caster, t, a.effect, pen.powMult, skillMods(caster, msg.id).healMul);
         if (r.ok) any = true;
         texts.push(r.text);
       }
@@ -742,20 +744,21 @@ function fullHealBySpells(world, s) {
         const cost = mpCost(ch, id);
         if (ch.mp < cost) continue;
         const pen = penaltyFor(ch, id);
-        const amt = expectedHeal(ch, a.effect, pen.powMult);
+        const hm = skillMods(ch, id).healMul;
+        const amt = expectedHeal(ch, a.effect, pen.powMult * hm);
         // 役に立つ 回復量（あふれた ぶんは むだ）
         const useful = a.target === 'allies' ? hurt.reduce((x, h) => x + Math.min(lack(h.ch), amt), 0) : Math.min(need, amt);
         if (a.target === 'allies' && hurt.length < 2) continue;
         // MPあたりの 回復が 多い もの。1回で たりる なら 少ない MPの ものを えらぶ
         const enough = a.target === 'allies' ? useful >= totalNeed * 0.8 : amt >= need;
         const score = useful / Math.max(1, cost) + (enough ? 1000 / Math.max(1, cost) : 0);
-        if (!best || score > best.score) best = { ch, id, a, cost, pen, score };
+        if (!best || score > best.score) best = { ch, id, a, cost, pen, hm, score };
       }
     }
     if (!best) break;
     const targets = best.a.target === 'allies' ? hurt.map((h) => h.ch) : [tgt.ch];
     let ok = false;
-    for (const t of targets) if (applyFieldEffect(world, best.ch, t, best.a.effect, best.pen.powMult).ok) ok = true;
+    for (const t of targets) if (applyFieldEffect(world, best.ch, t, best.a.effect, best.pen.powMult, best.hm).ok) ok = true;
     if (!ok) break;
     best.ch.mp -= best.cost;
     any = true;
@@ -813,7 +816,8 @@ function allRefs(world, s) {
   return refs;
 }
 
-function applyFieldEffect(world, user, target, eff, powMult = 1) {
+// hm … 回復の 量の 倍率（技の ランク。skill-tier.js）
+function applyFieldEffect(world, user, target, eff, powMult = 1, hm = 1) {
   const st = computeStats(target);
   switch (eff.type) {
     case 'heal': {
@@ -821,7 +825,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
       if (target.hp >= st.maxHp) return { ok: false, text: `${target.name}のHPは満タンだ` };
       let amt = world.rng.int(eff.base[0], eff.base[1]);
       if (!eff.fixed) amt *= 1 + Math.max(0, Math.min(1, (computeStats(user).heal - (eff.thr ?? 20)) / 150));
-      amt = Math.round(amt * powMult);
+      amt = Math.round(amt * powMult * hm);
       const real = Math.min(st.maxHp - target.hp, amt);
       target.hp += real;
       return { ok: true, text: target.hp >= st.maxHp ? `${target.name}のキズがすっかり回復した！` : `${target.name}のHPが${real}回復した！` };
@@ -839,7 +843,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
     }
     case 'revive': {
       if (target.hp > 0) return { ok: false, text: `${target.name}は生きている` };
-      target.hp = Math.max(1, Math.round(st.maxHp * (eff.hpRatio || 0.25)));
+      target.hp = Math.max(1, Math.min(st.maxHp, Math.round(st.maxHp * (eff.hpRatio || 0.25) * hm)));
       return { ok: true, text: `なんと${target.name}が生き返った！` };
     }
     case 'seed': {
@@ -851,7 +855,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
     }
     case 'multi': {
       // いくつかの 効き目（回復と 治す など）: 1つでも 効けば 使えた ことに する
-      const rs = (eff.parts || []).map((p) => applyFieldEffect(world, user, target, p, powMult)).filter((r) => r.ok);
+      const rs = (eff.parts || []).map((p) => applyFieldEffect(world, user, target, p, powMult, hm)).filter((r) => r.ok);
       return rs.length ? { ok: true, text: rs.map((r) => r.text).join('\n') } : { ok: false, text: target.hp <= 0 ? `${target.name}は死んでいる…` : `${target.name}は元気だ` };
     }
     default:

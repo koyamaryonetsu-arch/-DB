@@ -3,6 +3,7 @@ import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
 import { deduceElement } from './data/abilities-jobs6.js';
 import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js';
+import { skillMods } from './skill-tier.js';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
 import { mirageAction, mirrorPlan } from './battle-ch4.js';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
@@ -269,10 +270,11 @@ function usable(b, c) {
 }
 
 // だいたい どれくらい かいふくするか
-function healAmount(c, a) {
-  const e = prim(a);
+// x … { id, a }。第50回 D4: 上の 職業の 技は 回復が 多い（skill-tier.js）
+function healAmount(c, x) {
+  const e = prim(x.a);
   const [mn, mx] = e.base;
-  const base = (mn + mx) / 2;
+  const base = ((mn + mx) / 2) * skillMods(c.penChar, x.id).healMul;
   if (e.fixed) return base;
   return base * (1 + Math.max(0, Math.min(1, ((c.healPow || 0) - (e.thr ?? 20)) / 150)));
 }
@@ -287,7 +289,7 @@ function chooseHeal(b, c, tac, allies, mine) {
   if (hurt.length >= 2 && partyHeals.length) {
     const deficit = hurt.reduce((s, a) => s + (a.maxHp - a.hp), 0) / hurt.length;
     // たりなさに ちかい ものを えらぶ（むだに おおきい わざは つかわない）
-    const best = partyHeals.slice().sort((x, y) => Math.abs(healAmount(c, x.a) - deficit) * mpw(x) - Math.abs(healAmount(c, y.a) - deficit) * mpw(y))[0];
+    const best = partyHeals.slice().sort((x, y) => Math.abs(healAmount(c, x) - deficit) * mpw(x) - Math.abs(healAmount(c, y) - deficit) * mpw(y))[0];
     return { type: 'ability', id: best.id };
   }
   hurt.sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp);
@@ -295,9 +297,9 @@ function chooseHeal(b, c, tac, allies, mine) {
   const deficit = t.maxHp - t.hp;
   const singles = heals.filter(({ a }) => a.target === 'ally' || (a.target === 'self' && t === c));
   if (singles.length) {
-    const enough = singles.filter((x) => healAmount(c, x.a) >= deficit * 0.6);
+    const enough = singles.filter((x) => healAmount(c, x) >= deficit * 0.6);
     const pool = enough.length ? enough : singles;
-    const pick = pool.slice().sort((x, y) => (enough.length ? mpCost(c.penChar, x.id) - mpCost(c.penChar, y.id) : healAmount(c, y.a) - healAmount(c, x.a)))[0];
+    const pick = pool.slice().sort((x, y) => (enough.length ? mpCost(c.penChar, x.id) - mpCost(c.penChar, y.id) : healAmount(c, y) - healAmount(c, x)))[0];
     return { type: 'ability', id: pick.id, target: t.id };
   }
   if (partyHeals.length && t.hp / t.maxHp < 0.35) return { type: 'ability', id: partyHeals[0].id };

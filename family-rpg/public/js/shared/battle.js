@@ -54,6 +54,8 @@ import { DUAL_TECHS } from './data/dual.js';
 import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js';
 export { BUFF_ACTS } from './buff-acts.js';
 import { bossDmgRate } from './data/boss-r38.js';
+// 第50回 D4: 上の 職業の 技ほど 補助が 長く・2だんかい・回復が 多い（skill-tier.js。ev.tier に 入れて つかう）
+import { skillMods, evMods } from './skill-tier.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -75,15 +77,18 @@ export function stackMult(base, lv) {
 }
 // map（c.buffs か c.debuffs）の st に base の こうかを かさねる。もどりち: { lv, max }（max … もう かさならなかった）
 // left … のこりの 行動の 回数（かけ直すと left に もどる。ずっと つづく こうかに かさねた ときは ずっと）
-export function stackBuff(map, st, base, left = BUFF_ACTS) {
+// n … 1回で 上げる だんかい（第50回 D4: 超級職・伝説の 技は 2。skill-tier.js）
+export function stackBuff(map, st, base, left = BUFF_ACTS, n = 1) {
   const cur = map[st];
   // 前より 強い こうかなら そちらを もとに する（上げる ときは 大きい ほう、下げる ときは 小さい ほう）
   const b0 = cur?.base ?? cur?.mult;
   const keep = b0 !== undefined && (base >= 1 ? b0 >= base : b0 <= base);
   const b = keep ? b0 : base;
   const was = cur ? (cur.lv || 1) : 0;
-  const lv = Math.min(BUFF_STACK, was + 1);
-  map[st] = { mult: stackMult(b, lv), base: b, lv, left: renewLeft(cur, left) };
+  const lv = Math.min(BUFF_STACK, was + n);
+  // のこりは 長い ほう（伝説の 技の 5回の あとに 基本職の 技を かけ直しても へらない）
+  const rest = Number.isFinite(cur?.left) ? cur.left : 0;
+  map[st] = { mult: stackMult(b, lv), base: b, lv, left: Math.max(renewLeft(cur, left), rest) };
   return { lv, max: was >= BUFF_STACK };
 }
 
@@ -663,6 +668,7 @@ export class Battle {
     ev.dur = this.lock;
     delete ev.extraLock;
     delete ev.atbAfter;
+    delete ev.tier;
     this.emit(ev);
     this.cur = null;
     this.checkEnd();
@@ -812,6 +818,8 @@ export class Battle {
           break;
         }
         c.mp -= cost;
+        // 技の ランクの こうか（職業の ある 人だけ。skill-tier.js）
+        if (c.side === 'ally') ev.tier = { by: c.id, ...skillMods(c.penChar, cmd.id) };
         if (a.weapon && c.side === 'ally' && !weaponOk(a, c.weaponCat)) {
           ev.lines.push('しかし武器が合わずうまくいかなかった！');
           break;
@@ -1019,7 +1027,7 @@ export class Battle {
             continue;
           }
           t.alive = true;
-          t.hp = Math.max(1, Math.round(t.maxHp * (eff.hpRatio || 0.25) * (0.5 + powMult / 2)));
+          t.hp = Math.max(1, Math.min(t.maxHp, Math.round(t.maxHp * (eff.hpRatio || 0.25) * (0.5 + powMult / 2) * evMods(c, ev).healMul)));
           t.atb = 0;
           t.status = {};
           ev.lines.push(`なんと${t.name}が生き返った！`);
@@ -1253,7 +1261,7 @@ export class Battle {
         const times = this.regenTimesOf(c, ev);
         for (const t of targets) {
           if (!t.alive) continue;
-          const amt = this.healAmountOf(c, eff, powMult);
+          const amt = this.healAmountOf(c, eff, powMult * evMods(c, ev).healMul);
           t.regen = { amt: Math.max(amt, t.regen?.amt || 0), left: Math.max(times, t.regen?.left || 0) };
           ev.lines.push(`${t.name}は、少しずつ回復する力につつまれた！`);
           ev.upd.push(t);
@@ -1736,7 +1744,7 @@ export class Battle {
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
-    amt = Math.round(amt * powMult * enemyFixedScale(c));
+    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     ev.results = ev.results || [];
@@ -1754,24 +1762,30 @@ export class Battle {
     if (aloneBlock(c, t, ev)) return;
     const k = Math.min(1, powMult);
     // 第38回 C: かかった 人が BUFF_ACTS 回 行動するまで（かけ直すと もどる。前の 版の 時間〈dur〉は つかわない）
+    // 第50回 D4: 上の 職業の 技は 回数が のび、超級職から 1回で 2だんかい（skill-tier.js）
+    const tm = evMods(c, ev);
     const stats = eff.stats || [eff.stat];
     const mult = eff.mult >= 1 ? 1 + (eff.mult - 1) * k : eff.mult;
     // 2回目は さらに 上がる（2だんかいまで。stackBuff）
-    let top = 0, maxed = true;
+    let top = 0, up = 0, maxed = true;
     for (const st of stats) {
       if (st === 'eva') {
-        const lv = Math.min(BUFF_STACK, (t.buffs.eva?.lv || 0) + 1);
-        if (!(t.buffs.eva?.lv >= BUFF_STACK)) maxed = false;
-        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, left: renewLeft(t.buffs.eva) };
+        const was = t.buffs.eva?.lv || 0;
+        const lv = Math.min(BUFF_STACK, was + tm.stages);
+        if (!(was >= BUFF_STACK)) maxed = false;
+        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, left: Math.max(renewLeft(t.buffs.eva, tm.acts), Number.isFinite(t.buffs.eva?.left) ? t.buffs.eva.left : 0) };
         top = Math.max(top, lv);
+        up = Math.max(up, lv - was);
       } else {
-        const r = stackBuff(t.buffs, st, mult);
+        const was = t.buffs[st] ? t.buffs[st].lv || 1 : 0;
+        const r = stackBuff(t.buffs, st, mult, tm.acts, tm.stages);
         if (!r.max) maxed = false;
         top = Math.max(top, r.lv);
+        up = Math.max(up, r.lv - was);
       }
     }
     const names = stats.map(statLabel).join('と');
-    ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
+    ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : up >= 2 ? `${t.name}の${names}がぐーんと上がった！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
     ev.upd.push(t);
   }
 
@@ -1806,9 +1820,11 @@ export class Battle {
       ev.lines.push(`しかし${t.name}には効かなかった！`);
       return;
     }
-    // 2回目は さらに 下がる（2だんかいまで。stackBuff）
-    const sb = stackBuff(t.debuffs, d.stat, d.mult);
-    ev.lines.push(sb.max ? `${t.name}の${statLabel(d.stat)}は、もうこれ以上下がらない！` : sb.lv >= 2 ? `${t.name}の${statLabel(d.stat)}がさらに下がった！` : `${t.name}の${statLabel(d.stat)}が下がった！`);
+    // 2回目は さらに 下がる（2だんかいまで。stackBuff）。第50回 D4: 上の 職業の 技は 回数・だんかいが ふえる
+    const tm = evMods(c, ev);
+    const was = t.debuffs[d.stat] ? t.debuffs[d.stat].lv || 1 : 0;
+    const sb = stackBuff(t.debuffs, d.stat, d.mult, tm.acts, tm.stages);
+    ev.lines.push(sb.max ? `${t.name}の${statLabel(d.stat)}は、もうこれ以上下がらない！` : sb.lv - was >= 2 ? `${t.name}の${statLabel(d.stat)}ががくんと下がった！` : sb.lv >= 2 ? `${t.name}の${statLabel(d.stat)}がさらに下がった！` : `${t.name}の${statLabel(d.stat)}が下がった！`);
     ev.upd.push(t);
   }
 
@@ -1971,6 +1987,7 @@ export class Battle {
     ev.hirameki = { id, name: a.name, actor: c.id };
     ev.name = a.name;
     ev.ability = id;
+    ev.tier = { by: c.id, ...skillMods(c.penChar, id) };
     ev.lines.push(`${c.name}はひらめいた！`);
     ev.extraLock = 900;
     if (a.effect.type === 'mahouken') {

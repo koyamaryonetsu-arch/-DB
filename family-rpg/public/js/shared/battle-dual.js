@@ -9,6 +9,8 @@
 //   その 人の ゲージは 半分から やり直し（よやくは つづく。ゲージが まだ たまって いない 人は かわらない。dualHurt）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
+// 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
+import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js';
 import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js';
 import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js';
 import { weaponOk, comboAllowed, penaltyFor } from './stats.js';
@@ -405,7 +407,10 @@ export function performDual(b, c, cmd, ev) {
       const ab = { name: t.name, effect: eff, target: scope, anim: t.anim };
       const targets = b.targetsFor(c, ab, cmd);
       ev.inMulti = true;
+      // 第50回 D4: 合体技の 補助（バフ・デバフ）は 超級職の 技と おなじ（2だんかい・4回行動。skill-tier.js）
+      if (SUPPORT_TYPES.has(eff.type)) ev.tier = { by: c.id, ...tierMods(DUAL_TIER), healMul: 1 };
       b.applyAbility(c, ab, cmd, ev, 1, targets);
+      delete ev.tier;
       delete ev.inMulti;
       for (const x of targets) hit.add(x.id);
     }
