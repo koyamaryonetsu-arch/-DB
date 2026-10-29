@@ -21,9 +21,9 @@ import { BUFF_ACTS } from './buff-acts.js';
 
 export const TIER_MODS = [
   { mpMul: 1, acts: BUFF_ACTS, stages: 1, healMul: 1 },
-  { mpMul: 0.9, acts: BUFF_ACTS + 1, stages: 1, healMul: 1.2 },
-  { mpMul: 0.8, acts: BUFF_ACTS + 1, stages: 2, healMul: 1.45 },
-  { mpMul: 0.7, acts: BUFF_ACTS + 2, stages: 2, healMul: 1.75 },
+  { mpMul: 0.9, acts: BUFF_ACTS + 1, stages: 1, healMul: 1.05 },
+  { mpMul: 0.8, acts: BUFF_ACTS + 1, stages: 2, healMul: 1.1 },
+  { mpMul: 0.7, acts: BUFF_ACTS + 2, stages: 2, healMul: 1.2 },
 ];
 export const DUAL_TIER = 2;
 export const SUPPORT_TYPES = new Set(['buff', 'debuff', 'heal', 'regen', 'revive']);

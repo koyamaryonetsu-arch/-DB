@@ -1,5 +1,5 @@
 // 第50回 D4: 上の 職業の 技ほど 補助・回復が 強い（shared/skill-tier.js）
-//   基本職 そのまま / 上級職 MP−10%・4回行動・回復×1.2 / 超級職 MP−20%・2段階・4回行動・回復×1.45 / 伝説 MP−30%・2段階・5回行動・回復×1.75
+//   基本職 そのまま / 上級職 MP−10%・4回行動・回復×1.05 / 超級職 MP−20%・2段階・4回行動・回復×1.1 / 伝説 MP−30%・2段階・5回行動・回復×1.2
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Battle, BUFF_STACK } from '../public/js/shared/battle.js';
@@ -65,9 +65,9 @@ test('技の ランク: 技の 職業の tier（ひらめき技は その 職業
 
 test('ランクの こうかの 表', () => {
   assert.deepEqual(tierMods(0), { mpMul: 1, acts: 3, stages: 1, healMul: 1 });
-  assert.deepEqual(tierMods(1), { mpMul: 0.9, acts: 4, stages: 1, healMul: 1.2 });
-  assert.deepEqual(tierMods(2), { mpMul: 0.8, acts: 4, stages: 2, healMul: 1.45 });
-  assert.deepEqual(tierMods(3), { mpMul: 0.7, acts: 5, stages: 2, healMul: 1.75 });
+  assert.deepEqual(tierMods(1), { mpMul: 0.9, acts: 4, stages: 1, healMul: 1.05 });
+  assert.deepEqual(tierMods(2), { mpMul: 0.8, acts: 4, stages: 2, healMul: 1.1 });
+  assert.deepEqual(tierMods(3), { mpMul: 0.7, acts: 5, stages: 2, healMul: 1.2 });
   assert.equal(DUAL_TIER, 2);
   // 魔物の 仲間・職業の ない 人は いつも ランク0
   assert.equal(skillMods({ species: 'slime', job: 'priest' }, 'hk_ikari'), TIER_MODS[0]);
@@ -194,12 +194,12 @@ test('回復: ランクで 回復の 量が ふえる（回復の 技・生き�
     }
     return sum / n / pm;
   };
-  // ロトのいのり（伝説・175〜215）は ×1.75
+  // ロトのいのり（伝説・175〜215）は ×1.2
   const legend = avg('loto_hero', 'lt_inori');
-  assert.ok(legend > 175 * 1.75 - 1 && legend < 215 * 1.75 + 1, `伝説 ${legend}`);
-  // ベホマズン（超級職・220〜260）は ×1.45
+  assert.ok(legend > 175 * 1.2 - 1 && legend < 215 * 1.2 + 1, `伝説 ${legend}`);
+  // ベホマズン（超級職・220〜260）は ×1.1
   const hp = avg('high_priest', 'hp_behomazun');
-  assert.ok(hp > 220 * 1.45 - 1 && hp < 260 * 1.45 + 1, `超級職 ${hp}`);
+  assert.ok(hp > 220 * 1.1 - 1 && hp < 260 * 1.1 + 1, `超級職 ${hp}`);
   // ホイミ（基本職）は そのまま
   const [mn, mx] = ABILITIES.hoimi.effect.base;
   const ho = avg('priest', 'hoimi');
@@ -267,7 +267,7 @@ test('せつめいの 文: 本当の MP・2段階・回数・回復の 量', () 
   assert.match(battleSkillText('pl_aegis', pl), /MP7・.*守備力1\.3倍・4回行動のあいだ|MP7・.*守備力1\.25倍・4回行動のあいだ/s);
   const lt = { job: 'loto_hero', jobs: { loto_hero: { lv: 10 } } };
   const pm = penaltyFor(lt, 'lt_inori').powMult;
-  assert.ok(battleSkillText('lt_inori', lt).includes(`HPを約${Math.round(175 * (pm * 1.75))}〜${Math.round(215 * (pm * 1.75))}回復`));
+  assert.ok(battleSkillText('lt_inori', lt).includes(`HPを約${Math.round(175 * (pm * 1.2))}〜${Math.round(215 * (pm * 1.2))}回復`));
   // 基本職は 前の まま
   const pr = { job: 'performer', jobs: { performer: { lv: 10 } } };
   assert.match(battleSkillText('baikiruto', pr), /効果：攻撃力1\.3倍・3回行動のあいだ/);
