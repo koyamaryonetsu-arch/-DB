@@ -269,14 +269,20 @@ test('すごろく: どの 盤も スタートから ゴールまで 行ける�
       assert.ok(SQ_TYPES.includes(s.t));
       assert.ok(squareText(b, s), `${b.id} ${s.t} の 説明`);
       for (const n of s.next) assert.equal(Math.abs(b.sq[n].x - s.x) + Math.abs(b.sq[n].y - s.y), 1, `${b.id} ${s.key}→${b.sq[n].key}`);
-      if (s.t !== 'goal') assert.ok(s.next.length >= 1, `${b.id} ${s.key} は 行き止まり`);
+      // はしご（第50回 D2）は 行き止まりで、上へ のぼる（to）
+      if (s.t === 'ladder') assert.ok(Number.isInteger(s.to) && !s.next.length, `${b.id} ${s.key} の はしご`);
+      else if (s.t !== 'goal') assert.ok(s.next.length >= 1, `${b.id} ${s.key} は 行き止まり`);
       if (s.gate !== undefined) assert.equal(s.next.length, 2, `${b.id} ${s.key}: スイッチの 分かれ道`);
     }
     // スタートから ぜんぶの マスへ（スイッチの どちらでも）
     const reach = new Set([b.start]);
     const q = [b.start];
-    while (q.length) for (const n of b.sq[q.pop()].next) if (!reach.has(n)) { reach.add(n); q.push(n); }
-    for (const s of b.sq) if (s.t === 'warp') reach.add(s.to);
+    // 落とし穴・はしご（第50回 D2）・ワープ・竜の背の 行き先も たどる
+    const jumps = (s) => (['warp', 'dragon', 'hole', 'ladder'].includes(s.t) ? [].concat(s.to) : []);
+    while (q.length) {
+      const s = b.sq[q.pop()];
+      for (const n of [...s.next, ...jumps(s)]) if (!reach.has(n)) { reach.add(n); q.push(n); }
+    }
     assert.equal(reach.size, b.sq.length, `${b.id}: 行けない マスが ある`);
     // どの マスからも、スイッチが どちらでも ゴールへ（ワープ・竜の背でも）
     for (const sw of [0, 1]) {
@@ -286,14 +292,15 @@ test('すごろく: どの 盤も スタートから ゴールまで 行ける�
         grew = false;
         for (const s of b.sq) {
           if (ok.has(s.i)) continue;
-          if (nextOptions(b, s.i, sw).some((n) => ok.has(n))) { ok.add(s.i); grew = true; }
+          const outs = s.t === 'hole' || s.t === 'ladder' ? [].concat(s.to) : nextOptions(b, s.i, sw);
+          if (outs.some((n) => ok.has(n))) { ok.add(s.i); grew = true; }
         }
       }
       assert.equal(ok.size, b.sq.length, `${b.id} sw=${sw}: ゴールへ 行けない マス`);
     }
     // ワープ・竜の背の 行き先は 動く マスでは ない（くりかえさない）・ゴールでは ない
     for (const s of b.sq) {
-      if (s.t === 'warp' || s.t === 'dragon') {
+      if (['warp', 'dragon', 'hole', 'ladder'].includes(s.t)) {
         const tos = Array.isArray(s.to) ? s.to : [s.to];
         assert.ok(tos.length >= 1);
         for (const to of tos) {
@@ -311,7 +318,7 @@ test('すごろく: どの 盤も スタートから ゴールまで 行ける�
         const i = q2.pop();
         const s = b.sq[i];
         if (i === k.i) continue;
-        const outs = [...s.next, ...(s.t === 'warp' || s.t === 'dragon' ? [].concat(s.to) : [])];
+        const outs = [...s.next, ...(['warp', 'dragon', 'hole', 'ladder'].includes(s.t) ? [].concat(s.to) : [])];
         for (const n of outs) if (!seen2.has(n)) { seen2.add(n); q2.push(n); }
       }
       assert.ok(!seen2.has(b.goalAt), `${b.id}: ボス ${k.key} を とばせる`);
@@ -323,7 +330,7 @@ test('すごろく: どの 盤も スタートから ゴールまで 行ける�
   }
   // こわれた 盤は くみたてで わかる
   assert.throws(() => buildBoard({ id: 'x', lanes: [{ id: 'a', at: [0, 0], dirs: 'RR', sq: 'OZ' }] }));
-  assert.throws(() => buildBoard({ id: 'x', lanes: [{ id: 'a', at: [0, 0], dirs: 'R', sq: 'OQ' }] }));
+  assert.throws(() => buildBoard({ id: 'x', lanes: [{ id: 'a', at: [0, 0], dirs: 'R', sq: 'O~' }] }));
   assert.equal(BOARDS_SRC.length, BOARDS.length);
 });
 
@@ -504,7 +511,7 @@ test('すごろく: どの 盤も、でたらめに 遊んでも かならず �
           const die = dice.length && rng.chance(0.5) ? dice[0] : 'normal';
           r = act({ action: 'sgRoll', die, n: die === 'gold' ? rng.int(1, 12) : rng.int(1, 6) });
         } else if (p.kind === 'branch' || p.kind === 'dragon') r = act({ action: 'sgChoose', i: rng.int(0, p.options.length - 1) });
-        else if (p.kind === 'vault') r = act({ action: 'sgPick', i: rng.int(0, 2) });
+        else if (p.kind === 'vault' || p.kind === 'hunt') r = act({ action: 'sgPick', i: rng.int(0, 2) });
         else if (p.kind === 'shop') r = act({ action: 'sgShop', i: rng.chance(0.5) && p.items.length ? 0 : -1 });
         else if (p.kind === 'battle') {
           applySugorokuBattle(world, world.sessions.get([...world.sessions.keys()][0]), c, rng.chance(0.85) ? 'win' : rng.chance(0.5) ? 'flee' : 'lose');

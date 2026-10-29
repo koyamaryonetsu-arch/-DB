@@ -4,6 +4,8 @@
 //   盤（casinoShell）: 盤の 絵（render/sugoroku.js）と、さいころ・分かれ道・宝部屋・お店・戦いの ボタン
 //   戦いの マスで「戦う！」→ まどを とじる → 戦い（サーバーの だいほん）→ 終わると また この まどが 開く（盤は そのまま）
 //   十字キー・A・B: ボタンを えらぶ（ui/padnav.js）。A で 決定・B で 閉じる（ことばは A・B・タップで すすむ）
+// 第50回 D2: 豪華な えんしゅつ（render/sugoroku.js）・すごろくの 音（sfx-sugoroku.js）・あたらしい マス（ルーレット・宝探し・
+//   すごろく商人・おみやげ・応援・落とし穴）・ゴールの 景品を 1つずつ 見せる。うごいて いる ときに タップ／A で 早おくり
 import { el } from './dom.js';
 import { itemInfo } from './counter.js';
 import { request } from './shop.js';
@@ -13,6 +15,8 @@ import { celebrate, stopFx } from './casino-fx.js';
 import { boardIconURL } from '../render/boards.js';
 import { iconURL, symbolURL } from '../render/casino.js';
 import { SgBoardView, SQ_LOOK, dieURL } from '../render/sugoroku.js';
+import { sgSound } from '../sfx-sugoroku.js';
+import { rareNameHtml } from './rarity.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { playerSprite } from '../field.js';
 import { shownEquip } from '../../shared/look-equip.js';
@@ -20,7 +24,7 @@ import { ITEMS } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { itemCount } from '../../shared/stats.js';
 import { coinsOf, medalsHeld } from '../../shared/data/casino.js';
-import { BOARD_BY_ID, DICE, TICKET_ITEM, SQ_NAME, squareText } from '../../shared/data/sugoroku.js';
+import { BOARD_BY_ID, DICE, TICKET_ITEM, SQ_NAME, squareText, WHEEL } from '../../shared/data/sugoroku.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const DIR = (b, from, to) => {
@@ -182,6 +186,8 @@ async function howTo(ct) {
     'さいころをふれる回数には、かぎりがあります。\nなくなると、そこでおしまい。それまでに手に入れた物は持って帰れます。',
     'マスには、ゴールド・道具・宿屋・わな・前へ／後ろへ・？？？などがあります。\n？？？は、止まった時のおたのしみ！',
     '宝の地図をたくさんクリアすると、大きなすごろくがあらわれます。\n分かれ道・戦い・ワープ・スイッチ・ボス・宝部屋・お店…\n上のすごろくほど、しかけもいっぱい！',
+    'ボーナスチャンス・ルーレット・宝探し・すごろく商人・\n魔物のおみやげ・家族のおうえん・落とし穴の下の地下の道…\nたのしいマスもたくさん！ゴールの景品もすごいですよ。',
+    'うごいているときに画面をタップするか、Aボタンをおすと、\nはやおくりできます。',
     '戦いのマスでは、本当に魔物と戦います。\n負けるとすごろくは終わりですが、お金はへりません。',
   ];
   for (const l of lines) {
@@ -257,8 +263,10 @@ function boardScreen(game, info) {
     // 盤を タップ: 光っている マス（分かれ道・竜の背）を 選ぶ・ほかの マスは 説明
     cv.addEventListener('click', (e) => {
       const r = cv.getBoundingClientRect();
+      // うごいて いる ときは 早おくり
+      if (busy) { view.speed = 3; msgDone?.(); return; }
       const s = view.squareAt(e.clientX - r.left, e.clientY - r.top);
-      if (!s || busy) return;
+      if (!s) return;
       const k = view.hl.indexOf(s.i);
       if (k >= 0 && run?.pending) return choose(k);
       if (!msgDone) setMsg(`${SQ_NAME[s.t]}のマス: ${squareText(B, s)}`);
@@ -267,6 +275,7 @@ function boardScreen(game, info) {
     const setMsg = (t) => { msgText.textContent = t; msgMore.hidden = true; };
     // ことば（A・B・タップで すすむ。ms で じどう）
     const say = (t, ms = 2600) => new Promise((res) => {
+      if (view.speed > 1) ms = Math.min(ms, 900);
       msgText.textContent = t;
       msgMore.hidden = false;
       let timer = null;
@@ -284,10 +293,11 @@ function boardScreen(game, info) {
     const renderHud = () => {
       hud.innerHTML = '';
       if (!run) return;
+      // のこりの 回数・ゴールまで・ボーナスは 盤の 上（render/sugoroku.js）。ここは 手に入れた 物
       const items = [
-        el('span', { class: 'sg-chip' }, el('img', { src: dieURL(5), alt: '' }), `のこり ${run.rolls}回`),
         el('span', { class: 'sg-chip gold', text: `+${fmt(run.gold)}G` }),
       ];
+      if (run.bonus) items.push(el('span', { class: 'sg-chip bonus', text: '×2' }));
       if (B.stars.length) items.push(el('span', { class: 'sg-chip star', text: `★ ${run.stars.length}/${B.stars.length}` }));
       if (B.sq.some((s) => s.t === 'switch')) items.push(el('span', { class: 'sg-chip', text: `スイッチ ${run.sw ? 'ON' : 'OFF'}` }));
       const got = run.got.reduce((a, [, n]) => a + n, 0);
@@ -300,14 +310,15 @@ function boardScreen(game, info) {
 
     const renderControls = () => {
       controls.innerHTML = '';
-      extra.innerHTML = '';
       view.hl = [];
       const add = (...b) => controls.append(...b);
+      // おわった あとは けっか（extra）を のこす
       if (summary) {
         add(btn('受付にもどる', () => finish('desk'), 'primary cs-big'));
         refreshNav();
         return;
       }
+      extra.innerHTML = '';
       if (!run) return;
       const p = run.pending;
       if (!p) {
@@ -335,12 +346,12 @@ function boardScreen(game, info) {
           const lab = `${k + 1}. ${p.kind === 'branch' ? DIR(B, p.at, to) : '竜で'} ${SQ_NAME[s.t]}${p.kind === 'branch' ? 'の道' : 'のマスへ'}`;
           add(btn(lab, () => choose(k), 'sg-opt'));
         });
-      } else if (p.kind === 'vault') {
-        for (let k = 0; k < (p.n || 3); k++) add(el('button', { class: 'btn sg-box', onclick: () => { if (!busy) pickBox(k); } }, el('span', { class: 'sg-boxart', text: '宝' }), `宝箱${k + 1}`));
+      } else if (p.kind === 'vault' || p.kind === 'hunt') {
+        for (let k = 0; k < (p.n || 3); k++) add(el('button', { class: `btn sg-box ${p.kind}`, style: `animation-delay: ${k * 0.15}s`, onclick: () => { if (!busy) pickBox(k); } }, el('span', { class: 'sg-boxart', text: '宝' }), `宝箱${k + 1}`));
       } else if (p.kind === 'shop') {
         p.items.forEach((it, k) => {
           const ok = (game.me.gold || 0) >= it.price;
-          const b = btn(`${ITEMS[it.id]?.name || it.id} ${fmt(it.price)}G`, () => buy(k), `sg-opt ${ok ? '' : 'dis'}`);
+          const b = btn(`${ITEMS[it.id]?.name || it.id} ${fmt(it.price)}G${it.was ? `（もとは${fmt(it.was)}G）` : ''}`, () => buy(k), `sg-opt ${ok ? '' : 'dis'} ${it.was ? 'sale' : ''}`);
           b.addEventListener('focus', () => showItem(it.id));
           b.addEventListener('mouseenter', () => showItem(it.id));
           add(b);
@@ -365,15 +376,33 @@ function boardScreen(game, info) {
       if (node) extra.append(node);
     };
 
+    // 音（sg_ … すごろくの 音。sfx-sugoroku.js）
+    const sgs = (name, arg) => { if (!sgSound(game.audio, name, arg)) game.audio.sfx(name); };
+    // ことばの 音と、盤の えんしゅつ（サーバーの sfx の なまえで きめる）
+    const SAY_FX = {
+      coin: ['sg_coins', 'coins'], chest: ['sg_chest', 'chest'], item: ['item', 'item'], heal: ['heal', 'heal'], hurt: ['sg_trap', 'trap'],
+      buzz: ['buzz', 'buzz'], sparkle: ['sg_star', 'star'], win: ['win', 'star'], key: ['key', null], jackpot: [null, 'jackpot'],
+      sg_bonus: ['sg_bonus', 'bonus'], sg_merchant: ['sg_merchant', 'merchant'], sg_gift: ['sg_gift', null], sg_cheer: ['sg_cheer', null],
+      // うごく 音は つぎの jump で ならす
+      warp: [null, null], sg_fall: [null, null], sg_ladder: [null, null],
+    };
     const sfx = (name) => {
       if (!name) return;
-      // 第50回 N5: 当たり・ゴールは コインの 雨と 光（casino-fx.js）
-      if (name === 'fanfare') celebrate(game, { level: 'jackpot', title: 'ゴール！' });
-      else if (name === 'jackpot') { game.audio.play('jackpot'); celebrate(game, { level: 'big', sound: false }); }
-      else if (name === 'win') celebrate(game, { level: 'small' });
-      else if (name === 'warp') game.audio.sfx('sparkle');
-      else game.audio.sfx(name);
+      // 第50回 N5: 当たりは コインの 雨と 光も（casino-fx.js）。ゴールは 盤の 花火（view.celebrate）だけ
+      if (name === 'fanfare') {
+        game.audio.play('jackpot');
+        sgs('sg_fanfare');
+        view.onPop = () => sgs('sg_firework');
+        view.celebrate();
+        return;
+      }
+      if (name === 'jackpot') { game.audio.play('jackpot'); celebrate(game, { level: 'big', sound: false }); }
+      else if (name === 'win') celebrate(game, { level: 'small', sound: false });
+      const [snd, fx] = SAY_FX[name] || [name, null];
+      if (snd) sgs(snd);
+      if (fx) view.burst(fx);
     };
+    const JUMP_SND = { fall: 'sg_fall', climb: 'sg_ladder', dragon: 'sg_warp', warp: 'sg_warp' };
 
     // サーバーの できごとを じゅんに 見せる
     const playOps = async (ops = []) => {
@@ -381,32 +410,49 @@ function boardScreen(game, info) {
         if (closed) return;
         switch (op.op) {
           case 'dice':
-            game.audio.sfx('reel');
-            await view.rollDice(op.dice, op.die === 'gold' ? 12 : 6);
-            game.audio.sfx('confirm');
+            // のこりの 回数は すぐ へらす（さいごに サーバーの ようすで そろう）
+            if (run) { run = { ...run, rolls: Math.max(0, run.rolls - 1) }; view.setRun(run); }
+            await view.rollDice(op.dice, op.die === 'gold' ? 12 : 6, sgs);
             setMsg(op.dice.length > 1 ? `${op.dice.join('と')}で${op.total}！` : `${op.total}が出た！`);
-            await wait(250);
             view.hideDice();
             break;
           case 'move':
-            await view.moveAlong(op.path, () => game.audio.sfx('cursor'));
+            await view.moveAlong(op.path, (n) => sgs('sg_step', op.back ? 0 : n));
+            sgs('sg_land');
             break;
           case 'jump':
-            game.audio.sfx('sparkle');
-            await view.jumpTo(op.to);
+            sgs(JUMP_SND[op.how] || 'sg_warp');
+            await view.jumpTo(op.to, op.how || 'warp');
             break;
           case 'switch':
             if (run) run.sw = op.sw;
+            view.burst('switch');
             break;
           case 'slot':
             await showSlot(op.reels);
             break;
+          case 'wheel':
+            await view.spinWheel(WHEEL.map((w) => w.g), op.pick, sgs);
+            break;
           case 'vault':
+          case 'hunt':
             showVault(op);
+            if (op.op === 'hunt') view.burst(op.hit ? 'chest' : 'buzz');
+            break;
+          case 'gift':
+            view.burst('gift', { sp: op.sp });
+            break;
+          case 'cheer':
+            view.burst('cheer', { name: op.name });
             break;
           case 'say':
             sfx(op.sfx);
-            await say(op.text);
+            // ゴールの あとは 景品の カードを 先に 見せて、ことばは 少し 早く
+            if (op.sfx === 'fanfare') {
+              const over = ops.find((o) => o.op === 'over');
+              if (over?.reveal) showReveal(over);
+            }
+            await say(op.text, revealEl ? 1700 : 2600);
             break;
           case 'over':
             summary = op;
@@ -414,6 +460,34 @@ function boardScreen(game, info) {
           default:
         }
       }
+    };
+
+    // ゴールの 景品（カードが 1まいずつ ぽんと 出る）
+    let revealEl = null;
+    const TAG = { first: '初めて！', big: '大景品', extra: 'おまけ', stars: '星のおまけ' };
+    const showReveal = (over) => {
+      revealEl?.remove();
+      const list = el('div', { class: 'sg-rv-list' });
+      revealEl = el('div', { class: 'sg-reveal', onclick: () => { revealEl?.classList.add('out'); } },
+        el('div', { class: 'sg-rv-title', text: over.first ? '初めてのゴール！' : 'ゴールの景品' }), list);
+      // まず 花火と「ゴール！」を 見せてから
+      const box = revealEl;
+      setTimeout(() => { if (!closed && revealEl === box) wrap.append(box); }, 1500);
+      (over.reveal || []).forEach((x, k) => {
+        setTimeout(() => {
+          if (closed || !revealEl) return;
+          let card;
+          if (x.gold !== undefined) {
+            card = el('div', { class: 'sg-rv-card gold' }, el('span', { class: 'sg-rv-tag', text: '景品' }),
+              el('span', { class: 'sg-rv-name', text: `${fmt(x.gold)}G${x.coins ? `＋コイン${fmt(x.coins)}枚` : ''}` }));
+          } else {
+            card = el('div', { class: `sg-rv-card ${x.tag || ''}` }, el('span', { class: 'sg-rv-tag', text: TAG[x.tag] || '' }),
+              el('span', { class: 'sg-rv-name', html: `${rareNameHtml(x.id)}${x.n > 1 ? ` ×${x.n}` : ''}` }));
+          }
+          list.append(card);
+          sgs('sg_reveal');
+        }, 2100 + k * 520);
+      });
     };
 
     const showSlot = async (reels) => {
@@ -436,7 +510,8 @@ function boardScreen(game, info) {
     const showVault = (op) => {
       extra.innerHTML = '';
       const box = el('div', { class: 'sg-vault' });
-      op.boxes.forEach((name, k) => box.append(el('div', { class: `sg-vbox ${k === op.picked ? 'on' : ''}` }, el('span', { class: 'sg-boxart', text: '宝' }), el('span', { text: name }))));
+      op.boxes.forEach((name, k) => box.append(el('div', { class: `sg-vbox ${k === op.picked ? 'on' : ''} ${name === 'からっぽ' ? 'empty' : ''}`, style: `animation-delay: ${k === op.picked ? 0 : 0.35 + k * 0.12}s` },
+        el('span', { class: 'sg-boxart open', text: name === 'からっぽ' ? '空' : '宝' }), el('span', { text: name }))));
       extra.append(box);
     };
 
@@ -461,28 +536,37 @@ function boardScreen(game, info) {
       busy = true;
       sh.lock(true);
       controls.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+      view.speed = 1;
       const r = await sgReq(game, msgObj);
       if (closed) return;
       await apply(r);
+      view.speed = 1;
       busy = false;
       sh.lock(false);
       renderHud();
       renderControls();
-      if (run?.pending) promptPending();
+      if (run?.pending) promptPending(true);
       else if (run && !summary) setMsg(`のこり${run.rolls}回。\nさいころをふろう！`);
     };
 
-    const promptPending = () => {
+    // fresh … いま 止まった（戦いの ひかり）
+    const promptPending = (fresh = false) => {
       const p = run.pending;
+      if (fresh && p.kind === 'battle') {
+        view.burst('battle');
+        sgs('sg_battle');
+      }
       if (p.kind === 'branch') setMsg('分かれ道だ！\nどちらへ進む？（光っているマスをタップしてもよい）');
       else if (p.kind === 'dragon') setMsg('竜の背！\nどこへ連れていってもらう？');
       else if (p.kind === 'vault') setMsg('宝部屋！\n3つの宝箱から、1つだけ選んで開けよう。');
-      else if (p.kind === 'shop') setMsg('お店のマス！\nすごろくの中だけの品。ゴールドで買える。');
+      else if (p.kind === 'hunt') setMsg('宝探し！\nお宝が入っているのは、どの箱かな？');
+      else if (p.kind === 'shop') setMsg(p.sale ? 'すごろく商人！\nどれでも半額。ゴールドで買える。' : 'お店のマス！\nすごろくの中だけの品。ゴールドで買える。');
       else if (p.kind === 'battle') setMsg(p.name ? `${p.name}が立ちはだかる！` : `${(p.mons || []).map((sp) => MONSTERS[sp]?.name).filter(Boolean).join('と')}があらわれた！`);
     };
 
     const roll = (die, n) => {
       picking = null;
+      setMsg('えいっ！');
       return act({ action: 'sgRoll', die, ...(n ? { n } : {}) });
     };
     const choose = (i) => act({ action: 'sgChoose', i });
@@ -530,7 +614,8 @@ function boardScreen(game, info) {
       el: sh.root,
       onNav: (a) => {
         if (msgDone && (a === 'a' || a === 'b')) { msgDone(); return; }
-        if (busy) return;
+        // うごいて いる ときの A は 早おくり
+        if (busy) { if (a === 'a') view.speed = 3; return; }
         nav.onNav(a);
       },
     };
@@ -616,6 +701,33 @@ function ensureSgStyle() {
 .sg-sum { max-height: 30vh; overflow-y: auto; font-size: var(--fs-small); line-height: 1.5; }
 .sg-sumhead { font-size: 1.05em; }
 .sg-tk { color: #ffe89a; }
+.sg-chip.bonus { background: #e04a9a; color: #fff6a0; animation: sg-blink 0.6s ease-in-out infinite alternate; }
+@keyframes sg-blink { from { filter: brightness(1); } to { filter: brightness(1.35); } }
+.sg-box { animation: sg-wobble 1.2s ease-in-out infinite; }
+.sg-box.hunt .sg-boxart { background: #7a4a1a; }
+@keyframes sg-wobble { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-6deg); } 84% { transform: rotate(6deg); } 92% { transform: rotate(-3deg); } }
+.sg-vbox { animation: sg-pop 0.35s ease-out both; }
+.sg-vbox.empty .sg-boxart { background: #4a4a52; border-color: #8a8a92; }
+.sg-vbox.on { transform: scale(1.12); }
+.sg-vbox.on .sg-boxart { box-shadow: 0 0 10px 3px rgba(255,230,120,0.8); }
+@keyframes sg-pop { from { opacity: 0; transform: scale(0.4) translateY(8px); } to { opacity: 1; transform: none; } }
+.sg-opt.sale { border-color: #ff8ab0; }
+.sg-reveal { position: absolute; left: 8%; right: 8%; top: 18%; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 0.35em;
+  padding: 0.6em 0.5em; border-radius: 10px; background: radial-gradient(ellipse at center, rgba(60,30,90,0.92), rgba(20,10,40,0.9));
+  border: 2px solid #ffe070; box-shadow: 0 0 24px rgba(255,220,100,0.55); animation: sg-pop 0.4s ease-out both; cursor: pointer; }
+.sg-reveal.out { animation: sg-out 0.3s ease-in both; pointer-events: none; }
+@keyframes sg-out { to { opacity: 0; transform: scale(0.9); } }
+.sg-rv-title { color: #ffe84a; font-size: 1.15em; text-shadow: 0 2px 0 #8a2a08; }
+.sg-rv-list { display: flex; flex-direction: column; gap: 0.3em; width: 100%; max-height: 52vh; overflow-y: auto; }
+.sg-rv-card { display: flex; align-items: center; gap: 0.5em; padding: 0.3em 0.5em; border-radius: 6px; background: rgba(255,255,255,0.1); animation: sg-card 0.45s cubic-bezier(.2,1.6,.4,1) both; }
+.sg-rv-card.first { background: rgba(255,120,180,0.22); }
+.sg-rv-card.big { background: rgba(255,216,74,0.22); }
+.sg-rv-card.gold .sg-rv-name { color: #ffe84a; }
+@keyframes sg-card { from { opacity: 0; transform: scale(0.3) rotate(-8deg); } to { opacity: 1; transform: none; } }
+.sg-rv-tag { flex: 0 0 auto; font-size: 0.75em; padding: 0.05em 0.45em; border-radius: 1em; background: #ffe070; color: #3a2208; }
+.sg-rv-card.first .sg-rv-tag { background: #ff8ab0; }
+.sg-rv-card.extra .sg-rv-tag, .sg-rv-card.stars .sg-rv-tag { background: #8ae8ff; }
+.sg-rv-name { flex: 1 1 auto; text-align: left; }
 .sugoroku-panel .btn.pad-focus { outline: 3px solid #fff; outline-offset: 1px; }
 @media (max-aspect-ratio: 1/1) {
   .cs-body.sg-body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }

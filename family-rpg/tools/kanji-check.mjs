@@ -213,6 +213,8 @@ export function gameFiles() {
     'public/js/shared/data/casino-tier.js', 'public/js/shared/data/roulette.js', 'public/js/shared/data/sugoroku.js',
     'public/js/shared/data/items-casino-r37.js', 'public/js/shared/world/sugoroku.js',
     'public/js/client/ui/roulette.js', 'public/js/client/ui/sugoroku.js', 'public/js/client/render/sugoroku.js',
+    // 第50回 D2: すごろくを 豪華に（すごろくだけの 装備・えんしゅつ・盤の かざり）
+    'public/js/shared/data/items-sugoroku-r50.js', 'public/js/client/render/sugoroku-fx.js', 'public/js/client/render/sugoroku-deco.js',
     // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など）
     'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
     // たたかいの けっかの まど（ボタンで 1行ずつ）
