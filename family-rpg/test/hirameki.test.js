@@ -15,6 +15,7 @@ import { HIRAMEKI_PHANTOM_A } from '../public/js/shared/data/hirameki-phantom-a.
 import { HIRAMEKI_R43J } from '../public/js/shared/data/hirameki-r43j.js';
 // 第51回 W
 import { HIRAMEKI_WEATHER } from '../public/js/shared/data/hirameki-weather.js';
+import { HIRAMEKI_PHANTOM_B } from '../public/js/shared/data/hirameki-phantom-b.js';
 import { DUAL_TECHS, dualOptions } from '../public/js/shared/data/dual.js';
 import { newCharacter, learnedAbilities, gainExp, expForLevel, fullHeal, changeJob, hiraAllowed, oldComboUnlocks, weaponOk } from '../public/js/shared/stats.js';
 import { Battle, DUAL_ASK_MS } from '../public/js/shared/battle.js';

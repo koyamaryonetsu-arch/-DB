@@ -172,12 +172,18 @@ export const TRIAL_WORDS = {
   super_hero: '雷も気も、守りたい者がいるから強くなれる。',
   sun_hokage: '日の呼吸も忍術も、受けついだ人たちの思いでできている。',
   facility_ai: 'いちばんの最適化は、みんなの笑顔を守ることです。',
+  // 第51回 C2（幻の職業）
+  detective_king: '真実は、目ではなく心で見ぬくものだ。',
+  galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
+  grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
+  sword_saint: '会心の一撃は、心がすんだときに生まれる。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
   snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
   mario: 'こまっている人がいたら、まずはジャンプだ！',
+  galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

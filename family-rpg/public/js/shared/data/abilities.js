@@ -73,6 +73,8 @@ import { WEATHER_ABILITIES } from './abilities-weather.js';
 import { PHANTOM_ABILITIES_C } from './abilities-phantom-c.js';
 // 第51回 C1 の 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）の 技（abilities-phantom-a.js）
 import { PHANTOM_ABILITIES_A } from './abilities-phantom-a.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の 技
+import { PHANTOM_ABILITIES_B } from './abilities-phantom-b.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -690,6 +692,7 @@ Object.assign(ABILITIES, WEATHER_ABILITIES);
 Object.assign(ABILITIES, PHANTOM_ABILITIES_C);
 // 第51回 C1 の 幻の職業の 技（abilities-phantom-a.js）
 Object.assign(ABILITIES, PHANTOM_ABILITIES_A);
+Object.assign(ABILITIES, PHANTOM_ABILITIES_B);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

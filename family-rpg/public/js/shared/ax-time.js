@@ -30,6 +30,8 @@ import { AX_TIME_O10, AX_SKILLS_O10, AX_FAMILIES_O10 } from './data/ax-time-o10.
 import { AX_TIME_O9, AX_SKILLS_O9, AX_FAMILIES_O9 } from './data/ax-time-o9.js';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）の 技（o7）
 import { AX_TIME_O7, AX_SKILLS_O7, AX_FAMILIES_O7 } from './data/ax-time-o7.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
+import { AX_TIME_O8, AX_SKILLS_O8, AX_FAMILIES_O8 } from './data/ax-time-o8.js';
 
 // 段階（B 基本・A 上級・S 超級・L 伝説）
 export const AX_TIERS = ['basic', 'advanced', 'super', 'legend'];
@@ -92,7 +94,7 @@ export const AX_LOCK_BASE = 1000;
 // 大技の 前に 見せる もの（クライアントと おなじ 数）: 合体技の カットイン（人数ごと）・ひらめきの 電球
 export const AX_DUAL_CUT_MS = { 2: 1000, 3: 1300, 4: 1600 };
 export const AX_HIRA_PRE_MS = 700;
-export const AX_GROUP_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o9', 'o10'];
+export const AX_GROUP_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7', 'o8', 'o9', 'o10'];
 // anim の なまえ: アニメの 大技（g1〜g6）は ax_〜、もとからの 技（o1〜o6。第49回）は ox_〜
 export const AX_ANIM_RE = /^(ax|ox)_[a-z0-9_]+$/;
 export const axIsAxName = (anim) => typeof anim === 'string' && /^(ax|ox)_/.test(anim);
@@ -168,6 +170,7 @@ axAddTimes('o6', AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6);
 axAddTimes('o10', AX_TIME_O10, AX_SKILLS_O10, AX_FAMILIES_O10);
 axAddTimes('o9', AX_TIME_O9, AX_SKILLS_O9, AX_FAMILIES_O9);
 axAddTimes('o7', AX_TIME_O7, AX_SKILLS_O7, AX_FAMILIES_O7);
+axAddTimes('o8', AX_TIME_O8, AX_SKILLS_O8, AX_FAMILIES_O8);
 
 export const axTimeOf = (anim) => (typeof anim === 'string' && AX_TIME[anim]) || null;
 export const axGroupOf = (anim) => OWNER[anim] || null;

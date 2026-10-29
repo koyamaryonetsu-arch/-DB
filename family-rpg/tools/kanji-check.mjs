@@ -314,6 +314,10 @@ export function gameFiles() {
     // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）の 職業・技・ひらめき技・たたかいの しかけ
     'public/js/shared/data/jobs-phantom-a.js', 'public/js/shared/data/abilities-phantom-a.js', 'public/js/shared/data/hirameki-phantom-a.js',
     'public/js/shared/battle-phantom-a.js',
+    // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の 職業・技・たたかいの ことば・えんしゅつ（o8）
+    'public/js/shared/data/jobs-phantom-b.js', 'public/js/shared/data/abilities-phantom-b.js', 'public/js/shared/data/hirameki-phantom-b.js', 'public/js/shared/battle-r51b.js',
+    'public/js/client/render/axfx-o8-kit.js', 'public/js/client/render/axfx-o8-tantei.js', 'public/js/client/render/axfx-o8-ginga.js',
+    'public/js/client/render/axfx-o8-madou.js', 'public/js/client/render/axfx-o8-kensei.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

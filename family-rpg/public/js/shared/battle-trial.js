@@ -42,6 +42,8 @@ export const PHANTOM_ADJ = {
   tenkou_tsukai: [1.24, 1.38],
   // 第51回 C3: 幻の職業（sim-trial-tune 8回。天候の神・天候をあやつる者は 天気を つないだ あとで さがし直した）
   cosmic_okan: [1.06, 1.02], chaos_creator: [0.53, 0.4], dream_stadium: [0.57, 0.51], weather_god: [0.75, 0.3],
+  // 第51回 C2（幻の職業）
+  detective_king: [0.81, 0.58], galaxy_queen: [1.02, 0.79], grand_magus: [0.63, 0.7], sword_saint: [0.47, 0.35],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

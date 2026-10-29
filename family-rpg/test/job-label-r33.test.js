@@ -28,6 +28,8 @@ const NAMES = { sailor_soldier: ['仮面のしんし', '美少女戦士'], sailo
 NAMES.snow_queen = ['雪の王', '雪の女王'];
 // 第43回: 配管工の 系統は 男の子なら 配管工・ひげおやじ・マリオ（test/jobs-r43.test.js）
 Object.assign(NAMES, { plumber: ['配管工', 'ももの姫'], mustache: ['ひげおやじ', 'おてんば姫'], mario: ['マリオ', 'ピーチ'] });
+// 第51回 C2: 銀河の女王は 男の子なら 銀河の王（test/phantom-b-r51.test.js）
+NAMES.galaxy_queen = ['銀河の王', '銀河の女王'];
 
 test('男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」（女の子は 今の まま）', () => {
   assert.deepEqual(Object.keys(JOBS).filter((j) => JOBS[j].masc).sort(), Object.keys(NAMES).sort(), 'masc の ある 職業');

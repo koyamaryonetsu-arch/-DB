@@ -23,6 +23,8 @@ import { WEATHER_JOBS } from './jobs-weather.js';
 import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
 import { PHANTOM_JOBS_A } from './jobs-phantom-a.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1283,6 +1285,8 @@ export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wiza
 Object.assign(JOBS, WEATHER_JOBS);
 // 第51回 C3 の 幻の職業（jobs-phantom-c.js）
 Object.assign(JOBS, PHANTOM_JOBS_C);
+Object.assign(JOBS, PHANTOM_JOBS_B);
+
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
 // 第35回: 職業の タグ（2〜4こ。合体技の 組に 使う。一覧と 意味は data/job-tags.js）

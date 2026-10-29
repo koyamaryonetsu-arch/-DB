@@ -293,6 +293,8 @@ import { AX_O6, AX_O6_FINE } from './axfx-o6.js';
 import { AX_O10, AX_O10_FINE } from './axfx-o10.js';
 // 第51回 C1: 幻の職業の 技（o7）
 import { AX_O7, AX_O7_FINE } from './axfx-o7.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
+import { AX_O8, AX_O8_FINE } from './axfx-o8.js';
 useAxGroup('o1', AX_O1, AX_O1_FINE);
 useAxGroup('o2', AX_O2, AX_O2_FINE);
 useAxGroup('o3', AX_O3, AX_O3_FINE);
@@ -304,3 +306,4 @@ useAxGroup('o10', AX_O10, AX_O10_FINE);
 import { AX_O9, AX_O9_FINE } from './axfx-o9.js';
 useAxGroup('o9', AX_O9, AX_O9_FINE);
 useAxGroup('o7', AX_O7, AX_O7_FINE);
+useAxGroup('o8', AX_O8, AX_O8_FINE);

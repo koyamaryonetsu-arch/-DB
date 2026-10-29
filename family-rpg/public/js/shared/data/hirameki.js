@@ -29,6 +29,8 @@ import { HIRA_WEATHER_ABILITIES, HIRAMEKI_WEATHER } from './hirameki-weather.js'
 import { HIRA_PHANTOM_C_ABILITIES, HIRAMEKI_PHANTOM_C } from './hirameki-phantom-c.js';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）の ひらめき技（hirameki-phantom-a.js）
 import { HIRA_PHANTOM_A_ABILITIES, HIRAMEKI_PHANTOM_A } from './hirameki-phantom-a.js';
+// 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の ひらめき技（hirameki-phantom-b.js）
+import { HIRA_PHANTOM_B_ABILITIES, HIRAMEKI_PHANTOM_B } from './hirameki-phantom-b.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -210,6 +212,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_PHANTOM_C_ABILITIES,
   // 第51回 C1 の ひらめき技（hirameki-phantom-a.js）
   ...HIRA_PHANTOM_A_ABILITIES,
+  // 第51回 C2 の ひらめき技（hirameki-phantom-b.js）
+  ...HIRA_PHANTOM_B_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -271,6 +275,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_PHANTOM_C,
   // 第51回 C1 の ひらめき技（hirameki-phantom-a.js）
   ...HIRAMEKI_PHANTOM_A,
+  // 第51回 C2 の ひらめき技（hirameki-phantom-b.js）
+  ...HIRAMEKI_PHANTOM_B,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）
