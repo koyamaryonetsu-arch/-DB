@@ -19,6 +19,7 @@ import { cleanLookEquip } from '../look-equip.js';
 import { cleanVehicles } from '../data/vehicles.js';
 import { repairTrialInfo } from '../data/job-trials.js';
 import { cleanQuick } from '../data/quick-item.js';
+import { repairSubAsk } from '../data/subquest-hints.js';
 
 export const SAVE_VERSION = 4;
 
@@ -189,6 +190,7 @@ export function repairChar(c, id) {
   if (id && !c.species) ensureTmClears(c);
   repairSecret(c); // ひみつのダンジョンの 記録（なくても よい。新しい 項目なので 版は 上げない）
   repairAlchemy(c); // れん金がま（第32回。なくても よい）・もう たおした ボスの 品
+  repairSubAsk(c); // 第50回 N4: 困っている人を 知らせた・見た 印（なくても よい。新しい 項目なので 版は 上げない）
   // 馬車の 仲間（いなくなった 仲間の key は はずす）
   cleanWagon(c);
   cleanStash(c);
