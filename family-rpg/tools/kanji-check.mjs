@@ -18,6 +18,8 @@ export const EXTRA_KANJI = [
   ...'魔呪剣竜僧侶賢闘紋拳忍賊占騎姫雷炎影闇嵐斬裂閃旋',
   ...'攻撃御威倒逃冒鑑掛殿沼滝塔超洞窟丘',
   ...'猛虎砕華烈爆滅',
+  // 第51回: 幻の職業・幻の書
+  ...'幻',
 ].join('');
 
 export const SCHOOL_KANJI = Object.values(KANJI_BY_GRADE).join('');
@@ -366,6 +368,8 @@ export function gameFiles() {
     'public/js/shared/data/sidequests-work.js', 'public/js/shared/maps/work-quests.js', 'public/js/shared/data/fq-common.js', 'public/js/shared/maps/fq-kit.js', 'public/js/client/render/work-art.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
+    // 第51回 F: 幻の職業の 条件・記録・幻の書
+    'public/js/shared/data/phantom.js', 'public/js/shared/world/phantom.js', 'public/js/client/ui/phantom-book.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

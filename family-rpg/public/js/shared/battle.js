@@ -56,6 +56,8 @@ export { BUFF_ACTS } from './buff-acts.js';
 import { bossDmgRate } from './data/boss-r38.js';
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2だんかい・回復が 多い（skill-tier.js。ev.tier に 入れて つかう）
 import { skillMods, evMods } from './skill-tier.js';
+// 第51回 F: 幻の職業の 記録（家族の キャラの 技の タグの 回数・ダメージ・回復・会心。c.feat → world/phantom.js の addFeats）
+import { abilityTags, newFeat, BIG_HIT } from './data/phantom.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -1625,6 +1627,7 @@ export class Battle {
     }
     t.hp = Math.max(0, t.hp - dmg);
     if (t.shade) mirageSync(this, t);
+    if (t.side === 'enemy' && c?.side === 'ally') this.featDmg(c, dmg, info, ev);
     ev.lines.push(t.side === 'enemy' ? `${t.name}に${dmg}のダメージ！` : `${t.name}は${dmg}のダメージを受けた！`);
     // 属性の 効きぐあい（敵だけ。ためした 属性は 図鑑に のこる）
     const aff = this.noteTried(t, info.element);
@@ -1747,6 +1750,11 @@ export class Battle {
     amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
+    // 第51回 F: 自分の 技・呪文で 回復した ぶん（道具は ev.ability が ない ので 入らない）
+    if (real > 0 && ev.ability && ev.id === c.id) {
+      const f = this.featOf(c);
+      if (f) f.heal += real;
+    }
     ev.results = ev.results || [];
     ev.results.push({ id: t.id, heal: real });
     ev.upd.push(t);
@@ -1940,6 +1948,31 @@ export class Battle {
   countUse(c, key) {
     if (c.side !== 'ally' || !c.use || !key) return;
     c.use[key] = (c.use[key] || 0) + 1;
+    this.featUse(c, key);
+  }
+
+  // ───────────── 第51回 F: 幻の職業の 記録（data/phantom.js）─────────────
+  // 家族の キャラ（kind 'player'）だけ。仲間・魔物・ゲスト・敵は 数えない
+  featOf(c) {
+    if (!c || c.side !== 'ally' || c.kind !== 'player' || c.mon) return null;
+    return c.feat || (c.feat = newFeat());
+  }
+  // 技を 使った: その 技の タグの 回数
+  featUse(c, id) {
+    const tags = abilityTags(id);
+    const f = tags.length ? this.featOf(c) : null;
+    if (f) for (const t of tags) f.use[t] = (f.use[t] || 0) + 1;
+  }
+  // 敵に ダメージを 与えた（呪文・炎・会心・大きな 一撃）
+  featDmg(c, dmg, info, ev) {
+    const f = this.featOf(c);
+    if (!f) return;
+    f.dmg += dmg;
+    if (info.element === 'fire') f.dmgFire += dmg;
+    const a = ev?.id === c.id && ev.ability ? ABILITIES[ev.ability] : null;
+    if (a && (a.kind === 'spell' || a.spellLike)) f.dmgSpell += dmg;
+    if (info.crit) f.crit++;
+    if (dmg >= BIG_HIT) f.big5000++;
   }
 
   // 使った 技で ひらめくか（ひらめいたら その 技の id）
@@ -1988,6 +2021,7 @@ export class Battle {
     ev.name = a.name;
     ev.ability = id;
     ev.tier = { by: c.id, ...skillMods(c.penChar, id) };
+    this.featUse(c, id);
     ev.lines.push(`${c.name}はひらめいた！`);
     ev.extraLock = 900;
     if (a.effect.type === 'mahouken') {

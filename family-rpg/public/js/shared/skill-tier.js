@@ -1,6 +1,6 @@
 // 第50回 D4: 上の 職業の 技ほど 補助・回復が 強い（家族の ねがい「名前が ちがう だけで 効果が おなじ 技が 多すぎる」）
 //
-// 技の ランク … その 技の 職業（ABILITIES[id].job）の tier（0 基本職・1 上級職・2 超級職・3 伝説）
+// 技の ランク … その 技の 職業（ABILITIES[id].job）の tier（0 基本職・1 上級職・2 超級職・3 伝説・4 幻の職業〈第51回〉）
 //   ・ひらめき技 … job が ついて いるので その 職業の ランク
 //   ・job の ない 技 … 覚える 職業（JOBS の learn）の いちばん 上の ランク。掛け合わせ技（combo）は 上級職から ひらめくので 1 より 下に しない
 //   ・仲間の キャラの 技（ノクトの 技 など）・じゃんけんの グー など … 0
@@ -24,7 +24,10 @@ export const TIER_MODS = [
   { mpMul: 0.9, acts: BUFF_ACTS + 1, stages: 1, healMul: 1.05 },
   { mpMul: 0.8, acts: BUFF_ACTS + 1, stages: 2, healMul: 1.1 },
   { mpMul: 0.7, acts: BUFF_ACTS + 2, stages: 2, healMul: 1.2 },
+  // 第51回: 幻の職業（MP −35%・6回行動・2だんかい・回復 ×1.25）
+  { mpMul: 0.65, acts: BUFF_ACTS + 3, stages: 2, healMul: 1.25 },
 ];
+const TOP = TIER_MODS.length - 1;
 export const DUAL_TIER = 2;
 export const SUPPORT_TYPES = new Set(['buff', 'debuff', 'heal', 'regen', 'revive']);
 
@@ -53,7 +56,7 @@ function build() {
     if (a.kind === 'monster') continue;
     let t = a.job && JOBS[a.job] ? JOBS[a.job].tier || 0 : learners[id] ?? 0;
     if (a.kind === 'combo') t = Math.max(1, t, ...(a.requires || []).map((r) => (ABILITIES[r]?.job ? JOBS[ABILITIES[r].job]?.tier || 0 : 0)));
-    if (t) map[id] = Math.min(3, t);
+    if (t) map[id] = Math.min(TOP, t);
   }
   return map;
 }
@@ -64,7 +67,7 @@ export function skillTier(id) {
 }
 
 export function tierMods(tier) {
-  return TIER_MODS[Math.max(0, Math.min(3, tier | 0))];
+  return TIER_MODS[Math.max(0, Math.min(TOP, tier | 0))];
 }
 
 // 職業の ある 人か（家族・酒場の 仲間。魔物の 仲間〈species〉・職業の ない 人は ちがう）

@@ -68,6 +68,8 @@ test('ランクの こうかの 表', () => {
   assert.deepEqual(tierMods(1), { mpMul: 0.9, acts: 4, stages: 1, healMul: 1.05 });
   assert.deepEqual(tierMods(2), { mpMul: 0.8, acts: 4, stages: 2, healMul: 1.1 });
   assert.deepEqual(tierMods(3), { mpMul: 0.7, acts: 5, stages: 2, healMul: 1.2 });
+  // 第51回: 幻の職業
+  assert.deepEqual(tierMods(4), { mpMul: 0.65, acts: 6, stages: 2, healMul: 1.25 });
   assert.equal(DUAL_TIER, 2);
   // 魔物の 仲間・職業の ない 人は いつも ランク0
   assert.equal(skillMods({ species: 'slime', job: 'priest' }, 'hk_ikari'), TIER_MODS[0]);

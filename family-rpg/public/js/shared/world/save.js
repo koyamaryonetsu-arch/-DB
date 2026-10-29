@@ -21,6 +21,7 @@ import { repairTrialInfo } from '../data/job-trials.js';
 import { cleanQuick } from '../data/quick-item.js';
 import { repairSubAsk } from '../data/subquest-hints.js';
 import { cleanStamps } from '../data/stamps.js';
+import { repairFeats } from './phantom.js';
 
 export const SAVE_VERSION = 4;
 
@@ -99,6 +100,8 @@ export function repairChar(c, id) {
   // 技を 使った 回数・ひらめいた 技（知らない 技も けさずに のこす）
   c.skillUse = Object.fromEntries(Object.entries(obj(c.skillUse)).filter(([, v]) => Number.isFinite(v) && v > 0));
   c.hirameki = Array.isArray(c.hirameki) ? [...new Set(c.hirameki.filter((x) => typeof x === 'string'))] : [];
+  // 第51回 F: 幻の職業の 記録（ある 人だけ。引っこしの みじかい 形も もどす。world/phantom.js）
+  repairFeats(c);
   if (!c.species && !Object.keys(c.visited).length) c.visited.village = true;
   const st = stashOf(c);
 

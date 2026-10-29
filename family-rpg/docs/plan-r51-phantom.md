@@ -69,17 +69,25 @@
 | 伝説の超勇者 | `super_hero` | `loto_hero` ＋ `ss3` |
 | 日の火影 | `sun_hokage` | `hinokami` ＋ `hokage` |
 | 天才施設管理者AI | `facility_ai` | `facility_genius` ＋ `creator` |
-| 名探てい王 | `detective_king` | `meitantei` ＋ `oshiri` |
+| 名探てい王 | `detective_king` | `meitantei` ＋ `oshiri_tantei` |
 | 銀河の女王 | `galaxy_queen` | `neo_queen` ＋ `fifth_spirit` |
-| 大魔導王 | `grand_magus` | `daimadoushi` ＋ `harry` |
+| 大魔導王 | `grand_magus` | `archmage`（大魔道士）＋ `harry` |
 | 天下無双の剣聖 | `sword_saint` | `hiten` ＋ `abarenbo_shogun` |
 | 宇宙一のおかん | `cosmic_okan` | `saikyo_okan` ＋ `homeroom_3b` |
 | 破壊と創造の神 | `chaos_creator` | `hakaishin` ＋ `creator` |
 | 夢のスタジアム鉄道 | `dream_stadium` | `keikyu_president` ＋ `hall_of_fame` |
-| 天候の神 | `weather_god` | `tenkou_tsukai` ＋ `tenchi` |
+| 天候の神 | `weather_god` | `tenkou_tsukai` ＋ `summoner`（天地雷鳴士） |
 | 気象予報士 / お天気キャスター / 天候をあやつる者 | `kishou` / `otenki_caster` / `tenkou_tsukai` | 基本 / 上級（kishou）/ 超級（otenki_caster） |
 
-（`pirate`・`creator`・`meitantei`・`oshiri`・`daimadoushi`・`harry`・`saikyo_okan`・`tenchi` は 今の id に 合わせて F が 正しい id に なおす）
+（F が 今の id に なおした: おしり探てい＝`oshiri_tantei`・大魔道士＝`archmage`・天地雷鳴士＝`summoner`。`pirate`〈海賊・上級職〉・`creator`・`meitantei`・`harry`・`saikyo_okan` は そのまま 正しい。
+条件の 表〈数・文〉と きわめておく 職業は `shared/data/phantom.js` の `PHANTOM_JOBS`。各班の 職業の `req` も この 2つに する）
+
+### F が 作った しくみ（各班が 使う 所）
+- `jobs.js`: `PHANTOM_ORDER`（12こ。F が 全部 入れた。各班は ORDER に 足さない）・`PHANTOM_LIVE`（定義の ある 物だけ）。
+  `ALL_JOBS`・`TIER_ORDERS[4]` は `PHANTOM_LIVE`。定義を まぜる 行（`Object.assign(JOBS, PHANTOM_JOBS_A)` など）は、jobs.js の
+  「第51回: 幻の職業・天気の職業の 定義を ここで まぜる」の コメントの 下に 書く（ALL_JOBS・JOB_TAGS より 前で ないと 一覧に 入らない）
+- 神殿の うわさは `jobs.js` の `JOB_HINTS` に F が 12こ 入れた（各班は 書かなくて よい）
+- 技の タグは 技の データから 自動（名前・職業・属性・えんしゅつ。くわしくは `data/phantom.js` の 先頭）。うまく 入らない 技は、技の データに `phantomTags: ['gomu']` などと 書けば 足せる
 
 - 幻の職業は `tier: 4`。`jobs.js` に `PHANTOM_ORDER`、`TIER_NAMES[4] = '幻の職業'`、`TIER_ORDERS` に 足す（F）
 - `req: [a, b]`（2つとも きわめる）と、`phantom.js` の 条件。`reqSuper` などは 使わない
@@ -95,6 +103,11 @@
 - 幻の書: 片方を きわめると 条件が 見える。メーター
 - 掲示板への 知らせ: F は `world.boardPost?.({ kind, by, charId, job, text, detail })` を よぶ（kind: 'phantom_reveal' 条件が 見えた・'phantom_get' なれた）。B が `boardPost` を 作る
 - 引っこしの コード（transfer.js）: 記録が 消えないように。入らなければ 版を 上げる（KIZUNA-4）
+  - F が 作った: KIZUNA-2 は そのまま（記録も JSON で 入る）。KIZUNA-3 では 記録を みじかい 文字（packFeats。base36）に。
+    仲間 40人＋記録 いっぱいで 1万文字を こえる ときだけ KIZUNA-4（flags・chests を 名前の ならび、図鑑を 同じ 中みごとに まとめる）。
+    KIZUNA-1〜3 も 今までどおり 読める
+- データ合わせ（merge.js）: 記録は 両方で ふえた ぶんを たす（どちらの 数より 下に しない）。見つけた しるし（rv・ok）は 両方
+- 数えるのは 家族の キャラ（戦いの kind 'player'。world/battles.js の actorMap の type 'human'）だけ。酒場の 仲間は 幻の職業に なれない
 
 ### 掲示板（B）
 - のせる: 転職（tier 0〜3。B が 転職の ところで のせる）・幻の職業（F から）・ひらめき技／合体技を 覚えた（覚えかたの 文つき）

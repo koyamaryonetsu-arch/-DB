@@ -11,6 +11,8 @@ import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
 } from './party.js';
+// 第51回 F: 幻の職業の 記録（馬車に もどる 自分の キャラの ぶん）
+import { addFeats } from './phantom.js';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -517,6 +519,7 @@ function writeBack(ctx, a) {
   ch.hp = a.alive ? a.hp : 0;
   ch.mp = a.mp;
   ch.status = a.status?.poison && a.alive ? { poison: true } : {};
+  if (who.type === 'human') addFeats(ch, a.feat);
   if (a.use && who.type !== 'guest' && who.kind !== 'family') {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
