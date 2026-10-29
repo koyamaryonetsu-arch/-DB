@@ -51,3 +51,51 @@
   - ひらめき技・合体技の 覚えかた（だれかが 覚えた 時）
 - 家族の ひとことは 作らない（家族が えらばなかった）
 - ネタバレ: 見出しだけ 出して、条件は「見る」を おした 時だけ 出す
+
+## 3. つくりかたの とりきめ（第51回の 班。名前は かえない）
+
+### 班
+- **F（土台）**: 記録・条件・幻の書・転職の しくみ・うわさ。ファイル `shared/data/phantom.js`（条件の 表・タグ・文）、`shared/world/phantom.js`（記録の 足しこみ）、`client/ui/phantom-book.js`
+- **B（掲示板）**: `shared/world/family-board.js`、`client/ui/family-board.js`
+- **C1**: 海賊王・伝説の超勇者・日の火影・天才施設管理者AI → `jobs-phantom-a.js`・`abilities-phantom-a.js`・えんしゅつ o7
+- **C2**: 名探てい王・銀河の女王・大魔導王・天下無双の剣聖 → `jobs-phantom-b.js`・`abilities-phantom-b.js`・えんしゅつ o8
+- **C3**: 宇宙一のおかん・破壊と創造の神・夢のスタジアム鉄道・天候の神 → `jobs-phantom-c.js`・`abilities-phantom-c.js`・えんしゅつ o9
+- **W（天気の職業）**: 気象予報士（基本）→ お天気キャスター（上級）→ 天候をあやつる者（超級）→ `jobs-weather.js`・`abilities-weather.js`・えんしゅつ o10
+
+### 職業の id
+| 職業 | id | きわめておく 職業 |
+|---|---|---|
+| 海賊王 | `pirate_king` | `nika` ＋ `pirate` |
+| 伝説の超勇者 | `super_hero` | `loto_hero` ＋ `ss3` |
+| 日の火影 | `sun_hokage` | `hinokami` ＋ `hokage` |
+| 天才施設管理者AI | `facility_ai` | `facility_genius` ＋ `creator` |
+| 名探てい王 | `detective_king` | `meitantei` ＋ `oshiri` |
+| 銀河の女王 | `galaxy_queen` | `neo_queen` ＋ `fifth_spirit` |
+| 大魔導王 | `grand_magus` | `daimadoushi` ＋ `harry` |
+| 天下無双の剣聖 | `sword_saint` | `hiten` ＋ `abarenbo_shogun` |
+| 宇宙一のおかん | `cosmic_okan` | `saikyo_okan` ＋ `homeroom_3b` |
+| 破壊と創造の神 | `chaos_creator` | `hakaishin` ＋ `creator` |
+| 夢のスタジアム鉄道 | `dream_stadium` | `keikyu_president` ＋ `hall_of_fame` |
+| 天候の神 | `weather_god` | `tenkou_tsukai` ＋ `tenchi` |
+| 気象予報士 / お天気キャスター / 天候をあやつる者 | `kishou` / `otenki_caster` / `tenkou_tsukai` | 基本 / 上級（kishou）/ 超級（otenki_caster） |
+
+（`pirate`・`creator`・`meitantei`・`oshiri`・`daimadoushi`・`harry`・`saikyo_okan`・`tenchi` は 今の id に 合わせて F が 正しい id に なおす）
+
+- 幻の職業は `tier: 4`。`jobs.js` に `PHANTOM_ORDER`、`TIER_NAMES[4] = '幻の職業'`、`TIER_ORDERS` に 足す（F）
+- `req: [a, b]`（2つとも きわめる）と、`phantom.js` の 条件。`reqSuper` などは 使わない
+- 幻の職業の 技の 強さ（skill-tier.js の tier 4）: MP −35%・6回行動・2段階・回復 ×1.25
+- 職業の 定義: `jobs-phantom-<a|b|c>.js` が `PHANTOM_JOBS_<A|B|C>`（id → 職業）を export。`jobs-weather.js` は `WEATHER_JOBS`。jobs.js への 読みこみと ORDER への 追加は 各班が 1行ずつ 足す
+- 技: `abilities-phantom-<a|b|c>.js` が `PHANTOM_ABILITIES_<A|B|C>`、`abilities-weather.js` が `WEATHER_ABILITIES`。abilities.js への 読みこみは 各班が 1行
+- 天気の 技には `weather: 'sun' | 'rain' | 'thunder'` を つける（天候の神の 条件で 数える）
+- えんしゅつ: 各班が 自分の グループ（o7〜o10）を `AX_GROUP_IDS` と 登録の 表に 1行ずつ 足す。`test/ax-time.test.js` の ためしの グループ名 'o9' は 'zz9' に かえる（C3）
+
+### 記録（F）
+- キャラの `c.feats`: `{ use: { タグ: 回数 }, dmg, dmgSpell, dmgFire, heal, crit, big5000 }` など。どの 職業の 時でも 数える
+- タグ（`phantom.js`）: gomu・thunderSpell・kame・hinokami・ninjutsu・support・deduce・healSpell・attackSpell・sword・debuff・train・pitch・sun・rain・thunder
+- 幻の書: 片方を きわめると 条件が 見える。メーター
+- 掲示板への 知らせ: F は `world.boardPost?.({ kind, by, charId, job, text, detail })` を よぶ（kind: 'phantom_reveal' 条件が 見えた・'phantom_get' なれた）。B が `boardPost` を 作る
+- 引っこしの コード（transfer.js）: 記録が 消えないように。入らなければ 版を 上げる（KIZUNA-4）
+
+### 掲示板（B）
+- のせる: 転職（tier 0〜3。B が 転職の ところで のせる）・幻の職業（F から）・ひらめき技／合体技を 覚えた（覚えかたの 文つき）
+- 見出しだけ 出して、くわしくは「見る」で 開く
