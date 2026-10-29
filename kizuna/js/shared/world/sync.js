@@ -5,10 +5,10 @@
 // ・うけとる とき: 両方が おぼえている いちばん 新しい 版を「わかれる まえ」に して merge.js で まとめる
 //   → 家族サーバーで 遊んだ ぶんも、スマホで ひとりで 遊んだ ぶんも なくならない
 // ・「わかれる まえ」が わからない とき（はじめて 合わせる キャラ など）は、両方の 多い ほうを とる
-import { SAVE_VERSION, upgradeSave } from './save.js?v=0e454fdbf852';
-import { pack, unpack, hash, validId, CHAR_MAX } from './transfer.js?v=0e454fdbf852';
-import { mergeChars, canon, charTime } from './merge.js?v=0e454fdbf852';
-import { dropGoneFamily } from '../data/wagon.js?v=0e454fdbf852';
+import { SAVE_VERSION, upgradeSave } from './save.js?v=7c37ebe89b7f';
+import { pack, unpack, hash, validId, CHAR_MAX } from './transfer.js?v=7c37ebe89b7f';
+import { mergeChars, canon, charTime } from './merge.js?v=7c37ebe89b7f';
+import { dropGoneFamily } from '../data/wagon.js?v=7c37ebe89b7f';
 
 const PREFIX = 'KIZUNA-S1-';
 export const SYNC_MAX = 1500000;

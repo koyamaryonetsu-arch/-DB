@@ -3,7 +3,7 @@
 // ・受付（arena_desk）… パーティー みんなで 見る（物語と おなじ。そばに いる 家族も いっしょに 戦う）
 // ・かけ試合の 係（arena_bet）・王者のかべ（arena_wall）・かんばん（arena_sign）・観客 … ひとりずつ
 // 第4章クリアの 前の「大会は お休み」の ことばは story-ch4.js（c4_s_arena・c4_s_fighter・c4_arena_gate）
-import { ARENA_OPEN_FLAG, ARENA_RANKS, rankCleared, bestRank, rankLabel } from './arena.js?v=0e454fdbf852';
+import { ARENA_OPEN_FLAG, ARENA_RANKS, rankCleared, bestRank, rankLabel } from './arena.js?v=7c37ebe89b7f';
 
 export const ARENA_HOOKS = {};
 const call = (k) => [['call', (run) => ARENA_HOOKS[k]?.(run)]];

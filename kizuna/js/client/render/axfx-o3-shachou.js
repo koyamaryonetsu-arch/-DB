@@ -1,6 +1,6 @@
 // 第49回 O3: 社長・キャリア組・たたき上げ社長・ブラックきぎょうの星（超級職）と 合体技の え。時間は shared/data/ax-time-o3.js（はなつ しゅんかんが 0）
 // 超級職は 画面の 1/4 いじょうの 形 ＋ ゆれ・フラッシュ（plan-r49-fx.md 2章）。ジェット機・金の 矢印・札束・ショベルカー・電車…
-import { obj, word, strip, arrows, strike, picks, backdrop, UP, rnd, GOLD, HEAL, MP, src, papers, healAt, confetti } from './axfx-o3-lib.js?v=0e454fdbf852';
+import { obj, word, strip, arrows, strike, picks, backdrop, UP, rnd, GOLD, HEAL, MP, src, papers, healAt, confetti } from './axfx-o3-lib.js?v=7c37ebe89b7f';
 
 const GPAL = { main: '#ffd23a', glow: '#fff0a0', core: '#ffffff', dark: '#a06a0a', list: ['#ffd23a', '#fff6b0', '#ffffff'] };
 const RPAL = { main: '#e8202a', glow: '#ff6a5a', core: '#ffffff', dark: '#1a0a0a', list: ['#ff3a2a', '#1a1a22', '#ffd0c0'] };

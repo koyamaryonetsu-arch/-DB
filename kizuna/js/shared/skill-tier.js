@@ -15,15 +15,15 @@
 //   stages … 1回で 上がる（下がる）だんかい（上限は battle.js の BUFF_STACK・stackMult の まま）
 //   healMul … 回復の 量（回復の 技・じわじわ回復・生き返らせる ときの HP）
 // サーバーでも ブラウザでも つかう（stats.js の mpCost・battle.js・client/ui/skillinfo.js）
-import { ABILITIES, abilityRole } from './data/abilities.js?v=0e454fdbf852';
-import { JOBS } from './data/jobs.js?v=0e454fdbf852';
-import { BUFF_ACTS } from './buff-acts.js?v=0e454fdbf852';
+import { ABILITIES, abilityRole } from './data/abilities.js?v=7c37ebe89b7f';
+import { JOBS } from './data/jobs.js?v=7c37ebe89b7f';
+import { BUFF_ACTS } from './buff-acts.js?v=7c37ebe89b7f';
 
 export const TIER_MODS = [
   { mpMul: 1, acts: BUFF_ACTS, stages: 1, healMul: 1 },
-  { mpMul: 0.9, acts: BUFF_ACTS + 1, stages: 1, healMul: 1.2 },
-  { mpMul: 0.8, acts: BUFF_ACTS + 1, stages: 2, healMul: 1.45 },
-  { mpMul: 0.7, acts: BUFF_ACTS + 2, stages: 2, healMul: 1.75 },
+  { mpMul: 0.9, acts: BUFF_ACTS + 1, stages: 1, healMul: 1.05 },
+  { mpMul: 0.8, acts: BUFF_ACTS + 1, stages: 2, healMul: 1.1 },
+  { mpMul: 0.7, acts: BUFF_ACTS + 2, stages: 2, healMul: 1.2 },
 ];
 export const DUAL_TIER = 2;
 export const SUPPORT_TYPES = new Set(['buff', 'debuff', 'heal', 'regen', 'revive']);

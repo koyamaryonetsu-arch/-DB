@@ -1,8 +1,8 @@
 // 第48回 G6: 鋼の錬金術師（れん金術師・国家れん金術師・はがねのれん金術師）の 大技の え
 // れん成陣（円＋三角・六芒星）・青白い れん成光（いなずま）・石の とげ・柱・かべ・石の 大男・発火布の 指ぱっちん・鋼の 義手
 // 大地のやり・両手でパン！ は 陣なし（両手を 合わせる 白い 光の 輪 → 地面に 手を つく）
-import { spr, circ, spike, golem, tornado, trace, frame, cloud, glitter, along, org, gnd, q, METAL } from './axfx-g6-lib.js?v=0e454fdbf852';
-import { rnd, angleOf } from './axkit.js?v=0e454fdbf852';
+import { spr, circ, spike, golem, tornado, trace, frame, cloud, glitter, along, org, gnd, q, METAL } from './axfx-g6-lib.js?v=7c37ebe89b7f';
+import { rnd, angleOf } from './axkit.js?v=7c37ebe89b7f';
 
 const BLUE = '#4ad8ff', BLUE2 = '#e8fbff';
 const ROCKS = ['#a08060', '#6a5040', '#d8c0a0'];
