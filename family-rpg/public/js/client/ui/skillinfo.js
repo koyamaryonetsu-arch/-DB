@@ -11,7 +11,10 @@ import { SKILL_UPS } from '../../shared/data/skill-ups.js';
 import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js';
 import { targetText, itemDetail } from './info.js';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
-import { BUFF_ACTS, REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js';
+import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js';
+// 第50回 D4: 上の 職業の 技ほど 補助が 長く・2段階・回復が 多い（shared/skill-tier.js）。文は tierText だけで つくる
+import { skillMods, TIER_MODS } from '../../shared/skill-tier.js';
+import { stackMult } from '../../shared/battle.js';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -22,41 +25,49 @@ const num = (x) => (Math.round(x * 10) / 10).toString();
 const range = (b, k = 1) => (Array.isArray(b) ? `${Math.round(b[0] * k)}〜${Math.round(b[1] * k)}` : `${Math.round((b || 0) * k)}`);
 const pct = (x) => `${Math.round(x * 100)}%`;
 
-const ACTS = `${BUFF_ACTS}回行動のあいだ`;
+// 補助の 倍率と 回数（tm: 技の ランクの こうか。2段階の 技は 2段階めの 倍率）
+//   基本職 … 攻撃力1.3倍・3回行動のあいだ ／ 伝説 … 攻撃力1.8倍（2段階）・5回行動のあいだ
+function tierText(m, tm, acts = true) {
+  const st = tm.stages >= 2 ? `${num(stackMult(m, tm.stages))}倍（${tm.stages}段階）` : `${num(m)}倍`;
+  return acts ? `${st}・${tm.acts}回行動のあいだ` : `${st}（${tm.acts}回行動）`;
+}
 
 // 1つの 効果の 威力の 目安（pm: 職業レベル・転職の ペナルティを かけた 威力の 倍率。lv: 技の レベル〈じわじわ回復の 回数〉。道具は 0）
-function partText(e, pm, lv = 0) {
+// tm: 技の ランクの こうか（skill-tier.js。道具・ランク0は TIER_MODS[0]）
+function partText(e, pm, lv = 0, tm = TIER_MODS[0]) {
   if (!e) return '';
   switch (e.type) {
     case 'phys': {
       const m = (e.mult ?? 1) * pm;
       const hits = e.hits > 1 ? `×${e.hits}回${e.random ? '（ランダム）' : ''}` : '';
-      const extra = [e.ignoreDef ? `守りを${pct(e.ignoreDef)}むし` : '', e.status ? `${STATUS[e.status.status] || ''}（${pct(e.status.chance ?? 1)}）` : '', e.debuff ? `${STAT[e.debuff.stat] || ''}${num(e.debuff.mult)}倍（${BUFF_ACTS}回行動）` : ''].filter(Boolean).join('・');
+      const extra = [e.ignoreDef ? `守りを${pct(e.ignoreDef)}むし` : '', e.status ? `${STATUS[e.status.status] || ''}（${pct(e.status.chance ?? 1)}）` : '', e.debuff ? `${STAT[e.debuff.stat] || ''}${tierText(e.debuff.mult, tm, false)}` : ''].filter(Boolean).join('・');
       return `ふつうの攻撃の約${num(m)}倍${hits}${extra ? `・${extra}` : ''}`;
     }
     case 'magic': return `ダメージ約${range(e.base, pm)}${e.stat === 'heal' ? '（回復魔力で上がる）' : (e.thr ?? 20) < 99 ? '（魔力で上がる）' : ''}${e.status ? `・${STATUS[e.status.status] || ''}` : ''}`;
-    case 'heal': return `HPを約${range(e.base, pm)}回復`;
-    case 'regen': return `毎ターンの初めにHPを${range(e.base)}回復・${lv ? regenTimes(lv) : REGEN_BASE}回`;
+    case 'heal': return `HPを約${range(e.base, pm * tm.healMul)}回復`;
+    case 'regen': return `毎ターンの初めにHPを${range(e.base, tm.healMul)}回復・${lv ? regenTimes(lv) : REGEN_BASE}回`;
     case 'mpHeal': return `MPを約${range(e.base)}回復`;
     case 'buff': {
       const st = (e.stats || [e.stat]).map((s) => STAT[s] || s).join('・');
-      return `${e.target === 'enemy' || e.target === 'enemies' ? '敵の' : ''}${st}${e.add ? `+${pct(e.add)}` : `${num(e.mult)}倍`}・${ACTS}`;
+      const foe = e.target === 'enemy' || e.target === 'enemies' ? '敵の' : '';
+      if (e.add) return `${foe}${st}+${pct(Math.min(0.6, e.add * tm.stages))}${tm.stages >= 2 ? `（${tm.stages}段階）` : ''}・${tm.acts}回行動のあいだ`;
+      return `${foe}${st}${tierText(e.mult, tm)}`;
     }
-    case 'debuff': return `敵の${(e.stats || [e.stat]).map((s) => STAT[s] || s).join('・')}${num(e.mult)}倍・${ACTS}${e.chance ? `（${pct(e.chance)}）` : ''}`;
+    case 'debuff': return `敵の${(e.stats || [e.stat]).map((s) => STAT[s] || s).join('・')}${tierText(e.mult, tm)}${e.chance ? `（${pct(e.chance)}）` : ''}`;
     case 'status': return `${STATUS[e.status] || e.status}にする（${pct(e.chance ?? 1)}）${e.also ? `・${STATUS[e.also.status] || ''}` : ''}`;
     case 'atbSet': return `敵の動きを止める（${pct(e.chance ?? 1)}）`;
     case 'cure': return `${(e.statuses || []).map((s) => STATUS[s] || s).join('・')}を治す`;
-    case 'revive': return `生き返らせる（HP${pct(e.hpRatio || 0.25)}）`;
+    case 'revive': return `生き返らせる（HP${pct(Math.min(1, (e.hpRatio || 0.25) * tm.healMul))}）`;
     case 'reviveAll': return 'たおれた味方みんなを生き返らせる';
     case 'charge': return `次の攻撃が${num(e.mult)}倍`;
     case 'drainHp': return `ふつうの攻撃の約${num((e.mult ?? 1) * pm)}倍・HPをすいとる`;
     case 'drainMp': return `MPを${range(e.amount)}すいとる`;
-    case 'cover': return `味方をかばう・${ACTS}${e.defMult ? `（守備力${num(e.defMult)}倍）` : ''}`;
+    case 'cover': return `味方をかばう・${TIER_MODS[0].acts}回行動のあいだ${e.defMult ? `（守備力${num(e.defMult)}倍）` : ''}`;
     case 'steal': return `物をぬすむ（${pct(e.chance ?? 1)}）`;
     case 'dispel': return '敵の強化を消す';
     case 'escape': return '戦いからにげる';
     case 'seed': return `${SEED[e.stat] || ''}が${range(e.amount)}上がる（ずっと）`;
-    case 'multi': return (e.parts || []).map((p) => partText(p, pm, lv)).filter(Boolean).join('＋');
+    case 'multi': return (e.parts || []).map((p) => partText(p, pm, lv, tm)).filter(Boolean).join('＋');
     default: return '';
   }
 }
@@ -66,7 +77,7 @@ export function skillEffectText(id, pc, lv = 1, who = pc) {
   const a = abilityFor(id, who);
   if (!a) return '';
   const pen = pc ? penaltyFor(pc, id) : { powMult: 1 };
-  return partText(a.effect, pen.powMult || 1, lv);
+  return partText(a.effect, pen.powMult || 1, lv, skillMods(pc, id));
 }
 
 // 技の レベル（pc.skillUse か、戦いの slv〈Lv2 いじょうの 技〉から）
@@ -89,7 +100,7 @@ export function battleSkillText(id, pc, { touch = false, who = pc, lv = null } =
   lines.push(`【${abilityTypeText(a)}】${cost === null ? '' : `MP${cost}・`}${targetText(a) || '—'}`);
   const role = abilityRole(a);
   const slv = lv || skillLvFor(pc, id);
-  const pw = partText(a.effect, pm, slv);
+  const pw = partText(a.effect, pm, slv, skillMods(pc, id));
   if (pw) lines.push(`${role === 'dmg' ? '威力' : '効果'}：${pw}`);
   const notes = [];
   if (slv > 1) notes.push(`技Lv${slv}`);

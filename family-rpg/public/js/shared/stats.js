@@ -13,6 +13,8 @@ import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
 import { jobLabel } from './job-label.js';
+// 第50回 D4: 上の 職業の 技ほど 消費MPが へる（skill-tier.js）
+import { tierMp } from './skill-tier.js';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
 import { jobLevelCap, jobUpStats } from './data/job-trials.js';
 
@@ -413,7 +415,7 @@ export function mpCost(char, abilityId) {
   const a = ABILITIES[abilityId];
   if (!a) return 0;
   const p = penaltyFor(char, abilityId);
-  return Math.ceil((a.mp || 0) * p.mpMult);
+  return Math.ceil(tierMp(char, abilityId) * p.mpMult);
 }
 
 // 魔法剣の くみあわせ（こうげき呪文 × 剣技）
