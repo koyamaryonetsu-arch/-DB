@@ -1,7 +1,7 @@
 // 第51回 C2（o8）: 銀河の女王の 技の え（はなつ ところ）。この ファイルは C2 だけが さわる
 // うずまく 銀河・流れ星・星くずの バリア（六角の ドーム）・三日月の ゆりかご・銀河の かんむり
 // 時間は shared/data/ax-time-o8.js。play の 時間は はなつ しゅんかんが 0
-import { prop, text, dome, galaxy, hands, above, sky, per, partyTop, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=e9f7d3379e55';
+import { prop, text, dome, galaxy, hands, above, sky, per, partyTop, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=a02b94650854';
 
 const PURP = '#c8a8ff', VIO = '#7a5ae0', PINK = '#ff9ad8', SKY = '#7ad8ff', W = '#ffffff', YEL = '#ffe680', GRN = '#7dffb0';
 const STARS = [W, YEL, PINK, SKY];

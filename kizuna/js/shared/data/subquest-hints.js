@@ -8,11 +8,11 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=e9f7d3379e55';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=e9f7d3379e55';
-import { ORN } from '../maps/ch6c-side.js?v=e9f7d3379e55';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=e9f7d3379e55';
-import { jobLine } from './fq-common.js?v=e9f7d3379e55';
+import { C6 } from '../maps/past.js?v=a02b94650854';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=a02b94650854';
+import { ORN } from '../maps/ch6c-side.js?v=a02b94650854';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=a02b94650854';
+import { jobLine } from './fq-common.js?v=a02b94650854';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 

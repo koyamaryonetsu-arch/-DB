@@ -6,9 +6,9 @@
 // ・temple_b3 … 地下3階「水のろう」。水の 柱に とじこめられた 水のみこミラ・ろうの 番人
 // ・temple_hall … 最深部「水鏡の広間」。大きな 水鏡（遠い 空に うかぶ 島が うつる）と 水鏡の魔人モルガナ。魔物は 出ない
 // どの 階も みちびきの糸・帰り道の羽が 使えない（noEscape。ピラミッドと おなじ。ルーラは 洞窟と おなじく 天井に ぶつかる）
-import { T, parseRows } from '../tiles.js?v=e9f7d3379e55';
-import { npc } from './npc.js?v=e9f7d3379e55';
-import { DOME_ROWS, B1_ROWS, B2_ROWS, B3_ROWS, HALL_ROWS } from './temple-rows.js?v=e9f7d3379e55';
+import { T, parseRows } from '../tiles.js?v=a02b94650854';
+import { npc } from './npc.js?v=a02b94650854';
+import { DOME_ROWS, B1_ROWS, B2_ROWS, B3_ROWS, HALL_ROWS } from './temple-rows.js?v=a02b94650854';
 
 // ───────────── フラグ ─────────────
 // 物語の すすみぐあい（story-ch4-temple.js の TEMPLE_STEPS）: c4_temple（神殿に 入った）・c4_morgana・c4_star・c4_clear

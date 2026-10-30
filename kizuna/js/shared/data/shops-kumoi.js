@@ -1,7 +1,7 @@
 // 第5章 Step 3「雲の上の町ハネノ」の お店（data/shops.js で まぜる）
 // 品ぞろえ（ランク8）は B（戦い・品）の data/items-kumoi.js の KUMOI_SHOP_WEAPONS・KUMOI_SHOP_ARMOR・KUMOI_SHOP_TOOLS（plan-ch5.md の 13）。
 // （品の ならびは B の data/items-kumoi.js）
-import { KUMOI_SHOP_WEAPONS, KUMOI_SHOP_ARMOR, KUMOI_SHOP_TOOLS } from './items-kumoi.js?v=e9f7d3379e55';
+import { KUMOI_SHOP_WEAPONS, KUMOI_SHOP_ARMOR, KUMOI_SHOP_TOOLS } from './items-kumoi.js?v=a02b94650854';
 
 export const SHOPS_KUMOI = {
   hanono_weapon: {

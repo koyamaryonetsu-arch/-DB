@@ -6,11 +6,11 @@
 // ・つぶの よさん（budget）: 敵が 多い ときも 段の 上限を こえない ように、小さな つぶ（火花・きらきら・けむり・かけら）を へらす。
 //   ためしに 1回 かぞえて から、のこす わりあいを きめて ほんとうに 出す（形の え・わ・ひかりは へらさない）。
 //   どの つぶも はなって おわる 時間（len ＋ 敵全体の ずらし）までに きえる ように いのちを みじかく する
-import { G6_FINE } from './axfx-g6-lib.js?v=e9f7d3379e55';
-import { AX_G6_HARRY } from './axfx-g6-harry.js?v=e9f7d3379e55';
-import { AX_G6_KID } from './axfx-g6-kid.js?v=e9f7d3379e55';
-import { AX_G6_ALCHEMY } from './axfx-g6-alchemy.js?v=e9f7d3379e55';
-import { AX_G6_CONAN } from './axfx-g6-conan.js?v=e9f7d3379e55';
+import { G6_FINE } from './axfx-g6-lib.js?v=a02b94650854';
+import { AX_G6_HARRY } from './axfx-g6-harry.js?v=a02b94650854';
+import { AX_G6_KID } from './axfx-g6-kid.js?v=a02b94650854';
+import { AX_G6_ALCHEMY } from './axfx-g6-alchemy.js?v=a02b94650854';
+import { AX_G6_CONAN } from './axfx-g6-conan.js?v=a02b94650854';
 
 // 段の 同時の つぶの 上限（shared/ax-time.js の AX_BUDGET と おなじ）
 const CAP = { basic: 140, advanced: 200, super: 280, legend: 360 };

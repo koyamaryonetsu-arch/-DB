@@ -2,28 +2,28 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=e9f7d3379e55';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=e9f7d3379e55';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=e9f7d3379e55';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=e9f7d3379e55';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=e9f7d3379e55';
-import { paintCh5Special } from './ch5-art.js?v=e9f7d3379e55';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=e9f7d3379e55';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=e9f7d3379e55';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=e9f7d3379e55';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=e9f7d3379e55';
-import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=e9f7d3379e55';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=e9f7d3379e55';
-import { R26_OLD_LOOK } from './hero-r26.js?v=e9f7d3379e55';
-import { R27_OLD_LOOK } from './hero-r27.js?v=e9f7d3379e55';
-import { R29_OLD_LOOK } from './hero-r29.js?v=e9f7d3379e55';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=e9f7d3379e55';
-import { R40_OLD_LOOK } from './hero-r40.js?v=e9f7d3379e55';
-import { R41B_OLD_LOOK } from './hero-r41b.js?v=e9f7d3379e55';
-import { R41A_OLD_LOOK } from './hero-r41a.js?v=e9f7d3379e55';
-import { R43J_OLD_LOOK } from './hero-r43j.js?v=e9f7d3379e55';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=a02b94650854';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=a02b94650854';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=a02b94650854';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=a02b94650854';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=a02b94650854';
+import { paintCh5Special } from './ch5-art.js?v=a02b94650854';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=a02b94650854';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=a02b94650854';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=a02b94650854';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=a02b94650854';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=a02b94650854';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=a02b94650854';
+import { R26_OLD_LOOK } from './hero-r26.js?v=a02b94650854';
+import { R27_OLD_LOOK } from './hero-r27.js?v=a02b94650854';
+import { R29_OLD_LOOK } from './hero-r29.js?v=a02b94650854';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=a02b94650854';
+import { R40_OLD_LOOK } from './hero-r40.js?v=a02b94650854';
+import { R41B_OLD_LOOK } from './hero-r41b.js?v=a02b94650854';
+import { R41A_OLD_LOOK } from './hero-r41a.js?v=a02b94650854';
+import { R43J_OLD_LOOK } from './hero-r43j.js?v=a02b94650854';
 // 第51回 W の 天気の 職業
-import { WEATHER_OLD_LOOK } from './hero-weather.js?v=e9f7d3379e55';
+import { WEATHER_OLD_LOOK } from './hero-weather.js?v=a02b94650854';
 
 export const CW = 16;
 export const CH = 21;

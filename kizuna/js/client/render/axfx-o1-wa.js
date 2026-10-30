@@ -5,7 +5,7 @@
 import {
   COL, src, above, prop, bg, arrows, dizzy, strike, swing, figure, dust, poof, text, pick,
   hitBurst, blast, glitter, rich, per, line, g3prop,
-} from './axfx-o1-kit.js?v=e9f7d3379e55';
+} from './axfx-o1-kit.js?v=a02b94650854';
 
 const SAKURA = ['#f7a1c4', '#ffd0e4', '#ffffff'];
 const GOLDS = { color: '#fff0a0', glow: '#ffd23a', core: '#ffffff' };

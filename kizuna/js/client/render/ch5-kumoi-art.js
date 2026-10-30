@@ -2,7 +2,7 @@
 // ・ハネビト … せなかに 白い 羽の ある 人々（o.wings … 羽の 色。o.wingSize 'small' … 小さな 羽〈ピピ・子ども〉）
 //   羽は まえ・よこ むきでは からだの うしろ、うしろ むきでは せなかの 上に かく。歩く コマで 少し ゆれる
 // ・長ソラネ（白い ころもと 空色の かざり・大きな 羽）・ハネビトの子ピピ（飛べない 小さな 羽）・町の ハネビト
-import { shade } from './pixel.js?v=e9f7d3379e55';
+import { shade } from './pixel.js?v=a02b94650854';
 
 export const KUMOI_NPC_LOOKS = {
   sorane: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#f0f4fc', robeTrim: '#5aa0d8', female: true, hat: 'circlet', hatGem: '#8ad0f8', wings: '#ffffff' },

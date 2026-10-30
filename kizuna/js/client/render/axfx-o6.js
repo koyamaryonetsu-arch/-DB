@@ -9,11 +9,11 @@
 //   axfx-o6-net.js   … ユーチューバー・ゲーマー・人気配信者・プロゲーマー
 //   axfx-o6-magic.js … 占い師・大魔道士・天地雷鳴士・星の歌姫・大賢者・大神官
 //   axfx-o6-dual.js  … 合体技
-import { AX_O6_FINE_KIT } from './axfx-o6-kit.js?v=e9f7d3379e55';
-import { AX_O6_STAGE } from './axfx-o6-stage.js?v=e9f7d3379e55';
-import { AX_O6_NET } from './axfx-o6-net.js?v=e9f7d3379e55';
-import { AX_O6_MAGIC } from './axfx-o6-magic.js?v=e9f7d3379e55';
-import { AX_O6_DUAL } from './axfx-o6-dual.js?v=e9f7d3379e55';
+import { AX_O6_FINE_KIT } from './axfx-o6-kit.js?v=a02b94650854';
+import { AX_O6_STAGE } from './axfx-o6-stage.js?v=a02b94650854';
+import { AX_O6_NET } from './axfx-o6-net.js?v=a02b94650854';
+import { AX_O6_MAGIC } from './axfx-o6-magic.js?v=a02b94650854';
+import { AX_O6_DUAL } from './axfx-o6-dual.js?v=a02b94650854';
 
 export const AX_O6 = { ...AX_O6_STAGE, ...AX_O6_NET, ...AX_O6_MAGIC, ...AX_O6_DUAL };
 
