@@ -22,6 +22,8 @@ import { addItem, canEquipChar } from '../stats.js';
 import { CH6D_SIDE_STORY, applyCh6dSide } from './sidequests-ch6d.js';
 // クリアの ★5の 武器（B の data/items-tokei.js の C6_CLEAR_WEAPONS。まとめる 時に './items-tokei.js' から）
 import { C6_CLEAR_WEAPONS } from './items-tokei.js';
+// 第53回: 時のまぼろしに 勝った 日（B の encounters-tokei6.js と おなじ 日の かぞえかた）
+import { dayKeyOf } from './encounters-tokei6.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -214,11 +216,13 @@ const lockSteps = (x) => (x.flag(LOCK8) ? N('歯車を止めるレバーだ。',
 // 9階: 止まった時の間（第6章クリアの あと。時のまぼろし toki_phantom は B。1日1回 勝てる）
 const DAY = 86400000;
 export const tokiDay = (now) => Math.floor((now + 9 * 3600000) / DAY); // 日本の 1日（0時で かわる）
+// 勝った 時だけ 今日の しるし（負けても loseOk で 台本は つづく。勝ちは B の world/tokei-phantom.js が c.tokiPhantom.day に 書く。けいじ板も B）
 function phantomWin(run) {
   const c = run.owner.char;
-  c.tokiDay = tokiDay(run.world.now());
+  const now = run.world.now();
+  if (c.tokiPhantom?.day !== dayKeyOf(now)) return;
+  c.tokiDay = tokiDay(now);
   run.world.markDirty();
-  // B: はじめて 勝った 時の 家族のけいじ板（world.boardPost の kind: 'toki_phantom'）は ここで よぶ
 }
 function mirrorSteps() {
   return [['call', async (r) => {
