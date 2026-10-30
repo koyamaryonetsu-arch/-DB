@@ -9,6 +9,9 @@ import { ougiLearn } from './data/abilities-ougi.js';
 import { rankIdx } from './data/companions.js';
 // 第44回（ポケモン P1）: レベルで 進化
 import { levelEvolveTo } from './data/companions.js';
+// 第53回 D: 色ちがいの 仲間（char.color。data/variants.js・data/breed-mix.js）
+import { VARIANT_KINDS, kindOk, colorResist } from './data/variants.js';
+import { COLOR_STAT_RATE } from './data/breed-mix.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
@@ -180,7 +183,10 @@ function monsterCompanionStats(char) {
   const plus = 1 + Math.min(99, char.plus || 0) * 0.01;
   // 第43回 A: 育ち（レベル × ランク）
   const grow = monsterGrowMult(char);
-  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1) * plus * grow + (char.bonus?.[k] || 0);
+  // 第53回 D: 色ちがいの 仲間は 色ちがいの 倍率の 半分だけ 強い（1.3 → 1.15）
+  const vk = kindOk(char.color) ? VARIANT_KINDS[char.color].k : {};
+  const ck = (k) => 1 + ((vk[k] ?? 1) - 1) * COLOR_STAT_RATE;
+  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1) * plus * grow * ck(k) + (char.bonus?.[k] || 0);
   for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
   const eq = equipBonus(char);
   for (const k of STAT_KEYS) s[k] += eq.out[k] || 0;
@@ -198,7 +204,8 @@ function monsterCompanionStats(char) {
   // 武器を もっていれば その 種類（剣の 技などが つかえる）。もっていなければ 'none'（こぶしの 技は つかえる）
   r.weaponCat = eq.weaponCat;
   // しゅぞくの たいせい（つよすぎない ように ぞくせいは 0.3まで）
-  const base = f.resist || MONSTERS[char.species]?.resist || {};
+  // 第53回 D: 色ちがいの 仲間は 色ちがいの 属性（レッド … 火に 強く 氷に 弱い など）
+  const base = colorResist(f.resist || MONSTERS[char.species]?.resist, char.color);
   const res = {};
   for (const [k, v] of Object.entries(base)) res[k] = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark', 'void'].includes(k) ? Math.max(0.3, v) : v;
   for (const [k, v] of Object.entries(eq.resist)) res[k] = (res[k] ?? 1) * v;

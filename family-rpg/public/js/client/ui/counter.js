@@ -7,6 +7,8 @@
 import { el, ListMenu, esc } from './dom.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../../shared/data/variants.js';
 import { jobLabel } from '../../shared/job-label.js';
 import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js';
 import { itemStats, whoCanEquip, rankText } from './info.js';
@@ -276,11 +278,11 @@ export function myTeam(game) {
     if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
       name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
-      species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined,
+      species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined, color: x.color || undefined,
     };
     out.push({
       key: x.key, name: x.name, char, wagon,
-      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
+      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: colorMon(x.species, x.color) }),
       kind: x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x),
     });
   };
@@ -297,7 +299,7 @@ export function partyTeam(game) {
   const supports = new Map((p?.supports || []).map((x) => [x.key, x]));
   const other = (x, tag) => ({
     key: null, mine: false, tag, name: x.name,
-    char: { name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {}, species: x.species || undefined, plus: x.plus || 0 },
+    char: { name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {}, species: x.species || undefined, plus: x.plus || 0, color: x.color || undefined },
     realSt: x.st ? { ...x.st, maxHp: x.maxHp, maxMp: x.maxMp } : null,
   });
   const out = [];

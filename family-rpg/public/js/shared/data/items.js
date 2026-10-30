@@ -287,6 +287,8 @@ import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js'; Object.assig
 import { POKEMON_ITEMS, POKEMON_ITEM_KANA } from './items-pokemon.js'; Object.assign(ITEMS, POKEMON_ITEMS);
 // 第45回（ドラクエふう D1）: 四季のこよみ・竜王のしるし（素材配合の 大事な物。items-dqm.js）
 import { DQM_ITEMS, DQM_ITEM_KANA } from './items-dqm.js'; Object.assign(ITEMS, DQM_ITEMS);
+// 第53回 D: 色の石（配合で 色ちがいの 子。breed-mix.js）
+import { MIX_ITEMS, MIX_ITEM_KANA } from './breed-mix.js'; Object.assign(ITEMS, MIX_ITEMS);
 // 第50回 D3: 景品の 品（カジノ・小さなメダル・星のかけら。items-prize-r50.js）
 import { ITEMS_PRIZE_R50, PRIZE_R50_KANA } from './items-prize-r50.js'; Object.assign(ITEMS, ITEMS_PRIZE_R50);
 assignRarity(ITEMS);
@@ -395,6 +397,7 @@ Object.assign(ITEM_KANA, R33_ITEM_KANA);
 Object.assign(ITEM_KANA, FAMILY_ITEM_KANA);
 Object.assign(ITEM_KANA, POKEMON_ITEM_KANA);
 Object.assign(ITEM_KANA, DQM_ITEM_KANA);
+Object.assign(ITEM_KANA, MIX_ITEM_KANA);
 Object.assign(ITEM_KANA, PRIZE_R50_KANA);
 
 export function itemKana(id) {

@@ -8,6 +8,8 @@ import { heroCanvas, heroLookKey } from './render/hero.js';
 import { shownEquip } from '../shared/look-equip.js';
 import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../shared/data/variants.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { chestVanishes } from '../shared/data/fieldchests.js';
@@ -1396,7 +1398,7 @@ export class Field {
     if (!p || p.leader !== this.game.sid) return [];
     const out = [];
     // 見た目装備（lookEquip）が あれば その 絵（shared/look-equip.js）
-    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: shownEquip(s), mon: s.species || undefined });
+    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) });
     if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, eq: g.equip, guest: true });
     return out;
   }

@@ -32,6 +32,8 @@ import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './co
 import { FRIENDS_DQM, RECIPES_DQM, MATERIAL_RECIPES_DQM } from './companions-dqm.js';
 // 第50回 D3: 景品で しか 会えない 魔物（monsters-prize.js）
 import { FRIENDS_PRIZE } from './monsters-prize.js';
+// 第53回 A: 系統まぜ配合の 表（breed-mix.js）
+import { MIX_TABLE, mixKey } from './breed-mix.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -344,6 +346,7 @@ export const RACE_NAMES = {
 // ・ランク（F→E→D→C→B→A→S→SS→★）。子の ランクは 高いほうの 親と 同じか 1つ上（下がらない）
 // ・子の 候補は 両方の 親で きまる（どちらを 1ぴきめに しても 同じ 子・同じ 候補・同じ ならび）。候補が 2つ いじょうなら 自分で えらぶ
 //   （前の「図鑑に ない 魔物を 先に」は やめた。見たことが ない 子には 目じるし）
+//   第53回 B: 同じ しゅるい・同じ ランクの 中でだけ、図鑑で まだ 見ていない 子を 先に（おすすめが いつも 同じ 子に ならない ように）
 // ・能力の 受けつぎ（両親の 今の 能力の 1/4ずつ）と 生まれる 前の めやすは shared/breed-calc.js
 // 配合の しゅるい（kind）:
 //   'four'     4体配合 … 両親と 祖父母が みんな その しゅぞく（monsters-boss.js の FOUR_RECIPES）
@@ -354,6 +357,8 @@ export const RACE_NAMES = {
 //   'same'     新生配合 … 同じ しゅぞく 2ひき → 同じ しゅぞく（＋が 大きく 上がる。弱く ならない 道）
 //   'parent'   ランクの 高いほうの 親と 同じ しゅぞく
 //   'family'   系統配合 … 両方の 親の 系統の 魔物のうち、ランクが 高いほうの 親と 同じ（親を 育てると 1つ上も）
+//   'mix'      系統まぜ配合（第53回 A）… ちがう 系統の 親 どうし。2つの 系統の「まぜの 子」（breed-mix.js）。ランクは family と 同じ
+//   第53回 C: mix・family は 1つ下の ランクも 候補に 入る（えらべる だけ。low）
 export const RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', '★'];
 const RANK_S = 6;
 // 第43回 A: ランクは「めずらしさ」で きめる（前は 出てくる 場所の 強さ〈しゅぞくの lv〉で、第5章の 魔物が ほとんど S だった）
@@ -477,6 +482,31 @@ export function familyPool(race, MONSTERS) {
   });
 }
 
+// 第53回 A: 系統まぜ配合の 子（2つの 系統の どちらかの 魔物。breed-mix.js の 表 ＋ MONSTER_FRIENDS の mix）
+//   ボス・メタル・SS・きまった 組み合わせ だけの 魔物・進化の すがたは 入れない
+const mixMemo = new Map();
+export function mixPool(raceA, raceB, MONSTERS) {
+  if (!raceA || !raceB || raceA === raceB) return [];
+  const key = mixKey(raceA, raceB);
+  if (mixMemo.has(key)) return mixMemo.get(key);
+  const ids = new Set(MIX_TABLE[key] || []);
+  for (const [sp, f] of Object.entries(MONSTER_FRIENDS)) {
+    const r = MONSTERS[sp]?.race;
+    if (Array.isArray(f.mix) && (r === raceA || r === raceB) && f.mix.includes(r === raceA ? raceB : raceA)) ids.add(sp);
+  }
+  const out = [...ids].filter((sp) => {
+    const m = MONSTERS[sp], f = MONSTER_FRIENDS[sp];
+    return m && f && (m.race === raceA || m.race === raceB) && !m.boss && !m.metal && !f.recipeOnly && !EVOLVE_FROM[sp] && rankIdx(sp, MONSTERS) <= RANK_S;
+  });
+  mixMemo.set(key, out);
+  return out;
+}
+// その 魔物が まぜの 子に なる 相手の 系統（図鑑の ヒント）
+export function mixRacesOf(sp, MONSTERS) {
+  const own = MONSTERS[sp]?.race;
+  return Object.keys(RACE_NAMES).filter((r) => r !== 'human' && r !== own && mixPool(own, r, MONSTERS).includes(sp));
+}
+
 // ボス級（ランク SS）の 仲間（monsters-boss.js）
 export function bossClassList(MONSTERS) {
   return Object.keys(MONSTER_FRIENDS).filter((sp) => MONSTER_FRIENDS[sp].rank === 'SS' && MONSTERS[sp]);
@@ -501,9 +531,17 @@ const recipeLvOk = (r, a, b) => !r.minLv || (lvOf(a) >= r.minLv && lvOf(b) >= r.
 // その 親が 4体配合の 親に なれるか（両親が みんな sp）
 const fourOk = (x, sp) => x.species === sp && Array.isArray(x.lineage?.p) && x.lineage.p.length === 2 && x.lineage.p.every((p) => p === sp);
 
-// ならびの じゅん: きまった 組み合わせ → 新生配合 → そのほか（ランクの 高い じゅん → 強い じゅん → ID）。親より ランクの 低い 子は さいご
-const KIND_PRI = { four: 0, material: 0, special: 1, recipe: 1, same: 2, parent: 3, family: 3 };
+// ならびの じゅん: きまった 組み合わせ → 新生配合 → そのほか（ランクの 高い じゅん → 図鑑で 見ていない じゅん → まぜの 子 → 強い じゅん → ID）。親より ランクの 低い 子は さいご
+//   まぜの 子（mix）は 同じ ランクの 系統配合より 先。ランクの 高い 子を 下げる ことは ない
+const KIND_PRI = { four: 0, material: 0, special: 1, recipe: 1, same: 2, mix: 3, parent: 3, family: 3 };
 export const SPECIAL_KINDS = ['four', 'material', 'special', 'recipe'];
+
+// まぜの 子の ならびの 数（親の 組み合わせ ＋ 子の しゅぞくID から きまる）
+function mixOrd(pairKey, sp) {
+  let h = 0x811c9dc5;
+  for (const ch of `${pairKey}>${sp}`) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193);
+  return h >>> 0;
+}
 
 // 生まれる 子の 候補（a・b は { species, level, plus, lineage }。c … 品を もつ キャラ）
 //   list: しゅぞくID の ならび（いちばん 上が おすすめ）/ items: { sp, kind, rank, item? } / hi: 高いほうの 親の ランク / up: 1つ上の ランクも 入るか
@@ -525,14 +563,24 @@ export function breedCandidates(a, b, MONSTERS, c = null) {
   for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS) && recipeLvOk(r, a, b)) add(r.child, 'special');
   for (const r of BREED_RECIPES) if (!isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'recipe');
   if (spA === spB) add(spA, 'same');
-  const ranks = up ? [hi, hi + 1] : [hi];
-  for (const race of new Set([MONSTERS[spA]?.race, MONSTERS[spB]?.race])) {
+  // 第53回 C: 1つ下の ランクも えらべる（おすすめには ならない。ならびの さいご）
+  const ranks = [...(hi > 0 ? [hi - 1] : []), hi, ...(up ? [hi + 1] : [])];
+  const raceA = MONSTERS[spA]?.race, raceB = MONSTERS[spB]?.race;
+  // 第53回 A: 系統まぜ配合（ちがう 系統の 親 どうし）
+  for (const sp of mixPool(raceA, raceB, MONSTERS)) if (ranks.includes(rankIdx(sp, MONSTERS))) add(sp, 'mix');
+  for (const race of new Set([raceA, raceB])) {
     if (!race) continue;
     for (const sp of familyPool(race, MONSTERS)) if (ranks.includes(rankIdx(sp, MONSTERS))) add(sp, 'family');
   }
   for (const sp of [spA, spB]) if (rankIdx(sp, MONSTERS) === hi) add(sp, 'parent');
+  // 第53回 B: 同じ しゅるい・同じ ランクの 中では、図鑑で まだ 見ていない → 見た → 仲間に した の じゅん。その 次に まぜの 子
+  //   まぜの 子 どうしは 親の 組み合わせで きまる じゅん（mixOrd。同じ 親なら いつも 同じ・親が かわると おすすめも かわる）
+  const know = bestiaryKnow(c);
+  const pairKey = [spA, spB].sort().join('|');
   const items = [...found.values()].sort((x, y) => (x.rank < hi) - (y.rank < hi) || KIND_PRI[x.kind] - KIND_PRI[y.kind]
-    || y.rank - x.rank || (MONSTERS[y.sp].lv || 0) - (MONSTERS[x.sp].lv || 0) || (x.sp < y.sp ? -1 : x.sp > y.sp ? 1 : 0));
+    || y.rank - x.rank || know(x.sp) - know(y.sp) || (x.kind !== 'mix') - (y.kind !== 'mix')
+    || (x.kind === 'mix' && y.kind === 'mix' ? mixOrd(pairKey, x.sp) - mixOrd(pairKey, y.sp) : 0)
+    || (MONSTERS[y.sp].lv || 0) - (MONSTERS[x.sp].lv || 0) || (x.sp < y.sp ? -1 : x.sp > y.sp ? 1 : 0));
   return { list: items.map((x) => x.sp), items, hi, up };
 }
 
@@ -596,6 +644,9 @@ export function recipeHint(child, MONSTERS) {
   if (r) return `${nm(r.a)} ＋ ${nm(r.b)}${r.minLv ? `（どちらもLv${r.minLv}以上）` : ''}`;
   const f = MONSTER_FRIENDS[child];
   if (f?.breedOnly && !f.recipeOnly && MONSTERS[child]) return `${RACE_NAMES[MONSTERS[child].race]} ＋ どの魔物でも（強い親から）`;
+  // 第53回 A: 系統まぜ配合で 生まれる 魔物（「けもの系 ＋ ドラゴン系」。2つまで）
+  const mx = MONSTERS[child] ? mixRacesOf(child, MONSTERS) : [];
+  if (mx.length) return mx.slice(0, 2).map((r) => `${RACE_NAMES[MONSTERS[child].race]} ＋ ${RACE_NAMES[r]}`).join('／');
   return '';
 }
 

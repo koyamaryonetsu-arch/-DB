@@ -14,6 +14,8 @@ import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js';
 import { addDualCss } from '../render/dualfx.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js';
 import { ougiLearn } from '../../shared/data/abilities-ougi.js';
 import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js';
@@ -361,7 +363,7 @@ export class FieldMenu {
     if (!x) return null;
     return {
       key: x.key, name: x.name, level: x.level, exp: x.exp || 0, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
-      species: x.species || undefined, hp: x.hp, mp: x.mp, look: x.look, lookEquip: x.lookEquip, tactics: x.tactics, status: {}, companion: true,
+      species: x.species || undefined, color: x.color || undefined, hp: x.hp, mp: x.mp, look: x.look, lookEquip: x.lookEquip, tactics: x.tactics, status: {}, companion: true,
       plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
       hirameki: x.hirameki || [], skillUse: x.skillUse || {}, favorites: x.favorites || [],
       autoOff: x.autoOff || [],
@@ -375,7 +377,7 @@ export class FieldMenu {
     const mates = this.myMates();
     const title = { skills: 'だれの呪文・技？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
     const items = [{ label: `${g.me.name}（自分）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: shownEquip(g.me) }) },
-      ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : jobLabel(m.job, m)} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: shownEquip(m), mon: m.species || undefined }) }))];
+      ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : jobLabel(m.job, m)} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: shownEquip(m), mon: colorMon(m.species, m.color) }) }))];
     // 強さは「全員」を 一覧で くらべられる
     if (next === 'status') items.unshift({ label: '全員（一覧でくらべる）', value: '__all' });
     // 装備は「みんなさいきょう装備」も ここ（だれかを えらぶ ときと おなじ 場所）
@@ -1417,7 +1419,7 @@ export class FieldMenu {
     const cols = [];
     const add = (x, st, kind) => cols.push({
       name: x.name, level: x.level, hp: x.hp, mp: x.mp, maxHp: st.maxHp ?? x.maxHp, maxMp: st.maxMp ?? x.maxMp, st, kind,
-      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
+      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: colorMon(x.species, x.color) }),
     });
     add(g.me, computeStats(g.me), jobLabel(g.me.job, g.me));
     for (const m of this.myMates()) {
@@ -1467,7 +1469,7 @@ export class FieldMenu {
     const box = el('div');
     const iAmLeader = p?.leader === g.sid;
     const rows = [];
-    const face = (x) => el('img', { class: 'face', src: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }), alt: '' });
+    const face = (x) => el('img', { class: 'face', src: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: colorMon(x.species, x.color) }), alt: '' });
     const row = (x, name, tag, cls = '') => el('div', { class: 'kv party-row' }, el('span', { class: cls }, face(x), name), el('span', { class: 'small muted', text: tag }));
     // ならびの じゅん（リーダーが きめる。先頭ほど 敵に ねらわれやすい）
     const memRows = (p?.members || []).map((m) => row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${jobLabel(m.job, m)} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
@@ -1614,6 +1616,9 @@ export class FieldMenu {
       } else join.append(el('span', { text: '仲間にならない' }));
       if (s.friend) join.append(el('span', { class: 'good', text: '★仲間にした' }));
       if (s.bred) join.append(el('span', { class: 'good', text: '★配合で生んだ' }));
+      // 第53回 D: 配合で 生んだ 色ちがい（図鑑の color_<しゅるい>）
+      const colors = Object.keys(VARIANT_KINDS).filter((k) => s.raw[`color_${k}`] > 0);
+      if (colors.length) join.append(el('span', { class: 'good', text: `★色ちがい：${colors.map((k) => VARIANT_KINDS[k].prefix).join('・')}` }));
       const notes = [
         tier && hint ? `配合でも生まれる（${hint}）` : '',
         // 森の主の あとの 夢（魔物の心）より 前
@@ -1679,7 +1684,7 @@ export class FieldMenu {
     const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name } }];
     // 自分の 仲間（パーティー・馬車）
     for (const s of this.myMates()) {
-      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: shownEquip(s), mon: s.species || undefined }) });
+      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
     if (!active) {

@@ -233,7 +233,8 @@ const CONSUMABLES = [
 // 第50回: 種（強さを 上げる 道具）は 宝の洞窟から 出ない。かわりに めずらしい 回復の 道具（店に ない）
 const TM_GOODIES = ['elf_drink', 'revive_flower'];
 // （かわらずのいしは 装備なので 宝箱には 入れない。カジノ・メダル王）
-const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone'];
+// 第53回 D: 色の石（配合で 色ちがいの 子）も まれに
+const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone', 'color_stone'];
 
 // rng … 宝箱ごとに きまった 乱数（洞窟の seed から）/ kind: 'normal' | 'bossA' | 'bossB'
 // cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）

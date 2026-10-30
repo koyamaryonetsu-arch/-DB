@@ -67,7 +67,9 @@ test('弱く ならない: 子の ランクは 高いほうの 親と 同じか 
     // おすすめ（いちばん 上）は 下がらない
     assert.ok(x.items[0].rank >= hi, `${a.species}＋${b.species} → ${x.items[0].sp}`);
     for (const it of x.items) {
-      if (['family', 'parent', 'same'].includes(it.kind)) assert.ok(it.rank === hi || it.rank === hi + 1, `${a.species}＋${b.species} → ${it.sp}`);
+      // 第53回 C: 系統配合・まぜ配合は 1つ下の ランクも えらべる（下の 行で さいご）
+      if (['family', 'mix'].includes(it.kind)) assert.ok(it.rank >= hi - 1 && it.rank <= hi + 1, `${a.species}＋${b.species} → ${it.sp}`);
+      if (['parent', 'same'].includes(it.kind)) assert.ok(it.rank === hi || it.rank === hi + 1, `${a.species}＋${b.species} → ${it.sp}`);
       if (it.rank < hi) assert.ok(x.items.indexOf(it) > x.items.findLastIndex((z) => z.rank >= hi), '下がる 子は さいご');
     }
     // ＋も 順番で かわらない

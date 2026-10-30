@@ -67,7 +67,7 @@ export function storageInfo(world, s) {
   const c = ensureStorage(ensureCompanions(s.char));
   const busy = new Set([...(c.partyKeys || []), ...(c.wagonKeys || [])]);
   const row = (e, where) => ({
-    key: e.key, name: e.char.name, species: e.species, level: e.char.level || 1, plus: e.char.plus || 0,
+    key: e.key, name: e.char.name, species: e.species, level: e.char.level || 1, plus: e.char.plus || 0, color: e.char.color || undefined,
     spName: MONSTERS[e.species]?.name || '', where,
   });
   return {

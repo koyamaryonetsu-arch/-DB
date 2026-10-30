@@ -6,6 +6,8 @@ import { COMPANION_SLOTS } from '../../shared/data/companions.js';
 import { MAPS } from '../../shared/maps/index.js';
 import { jobLabel } from '../../shared/job-label.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../../shared/data/variants.js';
 import { computeStats } from '../../shared/stats.js';
 import { faceURL } from '../field.js';
 import { wagonSprite } from '../render/wagon.js';
@@ -86,7 +88,7 @@ export function wagonPicURL(dir = 'left') {
 
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」。shared/job-label.js）
 const kindName = (x) => (x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x));
-const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined });
+const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: colorMon(x.species, x.color) });
 
 // じぶんの 仲間の じょうほう（key → 名前・HP など。game.me の companions から）
 function mateInfo(me, key) {

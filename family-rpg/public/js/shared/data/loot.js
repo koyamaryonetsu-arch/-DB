@@ -89,6 +89,8 @@ export const MAT_DROPS = {
   ...ROAD_MAT_DROPS,
   // 第2部 第6章 Step 5（monsters-tokei.js）
   ...TOKEI_MAT_DROPS,
+  // 第53回 D: きらきらぷるりんが まれに 色の石（配合で 色ちがいの 子。data/breed-mix.js）
+  kirakira: ['color_stone', 4],
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

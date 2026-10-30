@@ -203,6 +203,8 @@ export function gameFiles() {
     // ドラクエふうの 魔物（第45回 ドラクエふう D1）
     'public/js/shared/data/monsters-dqm.js', 'public/js/shared/data/companions-dqm.js', 'public/js/shared/data/abilities-dqm.js',
     'public/js/shared/data/items-dqm.js',
+    // 第53回: 系統まぜ配合・色の石
+    'public/js/shared/data/breed-mix.js',
     // 水の 属性（第47回）
     'public/js/shared/data/water.js',
     // みちびきの糸（洞窟から 入り口へ）

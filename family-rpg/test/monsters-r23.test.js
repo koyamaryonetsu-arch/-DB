@@ -323,8 +323,8 @@ test('配合: 系統配合は 両方の 親の 系統。親を 育てるほど 1
   assert.ok(high.list.length > low.list.length, '強い 親ほど 候補が ふえる');
   assert.ok(Math.max(...high.list.map((sp) => rankIdx(sp, MONSTERS))) > Math.max(...low.list.map((sp) => rankIdx(sp, MONSTERS))));
   assert.equal(rankUpNeed(1), 28);
-  // 子の ランクは 高いほうの 親と 同じか 1つ上
-  for (const c of [low, high]) for (const it of c.items) assert.ok(it.rank === c.hi || it.rank === c.hi + 1, it.sp);
+  // 子の ランクは 高いほうの 親と 同じか 1つ上（第53回 C: 1つ下も えらべる。おすすめには ならない）
+  for (const c of [low, high]) for (const it of c.items) assert.ok(it.rank === c.hi || it.rank === c.hi + 1 || (it.rank === c.hi - 1 && c.items[0].rank >= c.hi), it.sp);
   // ちがう 系統どうしは 両方の 系統から
   const mix = breedCandidates(lv('pururin', 10), lv('wolf', 10), MONSTERS);
   assert.ok(mix.list.some((sp) => MONSTERS[sp].race === 'slime') && mix.list.some((sp) => MONSTERS[sp].race === 'beast'));
@@ -335,7 +335,7 @@ test('配合: 系統配合は 両方の 親の 系統。親を 育てるほど 1
   }
 });
 
-test('配合: 生まれる 子は 図鑑で かわらない（見たことが ない 子は 目じるし だけ）。おすすめは いちばん 強い 子', () => {
+test('配合: 見たことが ない 子は 目じるし。おすすめは いちばん 強い 子（第53回 B: 同じ ランクでは まだ 見ていない 子が 先）', () => {
   const A = lv('wolf', 30), B = lv('frog', 30);
   const { list } = breedCandidates(A, B, MONSTERS);
   assert.ok(list.length >= 6, `候補 ${list.length}しゅ`);
@@ -344,8 +344,10 @@ test('配合: 生まれる 子は 図鑑で かわらない（見たことが �
   assert.ok(fresh.unseen && fresh.firstFriend && fresh.unseenCount === list.length);
   const c = { bestiary: { [list[0]]: { seen: 3 } }, kills: { [list[1]]: 2 } };
   const o = breedOutcome(A, B, MONSTERS, c);
-  assert.equal(o.child, list[0], '見たことが あっても 同じ 子');
-  assert.ok(!o.unseen && o.firstFriend && o.unseenCount === list.length - 2);
+  // 第53回 B: 同じ ランクの 中では まだ 見ていない 子が おすすめ（ランクは 下がらない）
+  assert.ok(o.unseen && o.child !== list[0] && o.child !== list[1], '見たことが ある 子は うしろへ');
+  assert.equal(rankIdx(o.child, MONSTERS), rankIdx(list[0], MONSTERS));
+  assert.ok(o.firstFriend && o.unseenCount === list.length - 2);
   // 子を えらぶ（pick）
   const p = breedOutcome(A, B, MONSTERS, c, list[3]);
   assert.equal(p.child, list[3]);
@@ -452,7 +454,9 @@ test('図鑑: あたらしい 魔物も のる（ふつうの 魔物は 強さ�
   // 系統配合だけで 生まれる 魔物の ヒント
   assert.match(recipeHint('mandra', MONSTERS), /^植物系 ＋ どの魔物でも/);
   assert.equal(recipeHint('silver_king', MONSTERS), 'きらきらぷるりん ＋ キングぷるりん');
-  assert.equal(recipeHint('donguri', MONSTERS), '', 'やせいの 魔物には ヒントを 出さない');
+  assert.equal(recipeHint('tsunousagi', MONSTERS), '', 'やせいの 魔物には ヒントを 出さない');
+  // 第53回 A: 系統まぜ配合で 生まれる やせいの 魔物は、その 系統の 組み合わせ
+  assert.equal(recipeHint('donguri', MONSTERS), '植物系 ＋ 物質系');
 });
 
 test('セーブ: むかしの セーブも 読める。あたらしい 魔物の 仲間は セーブ・引っこしコードで のこる。前の 版で しまわれた 仲間も もどる', async () => {

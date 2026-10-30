@@ -8,6 +8,8 @@
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
 import { makeRng } from './rng.js';
+// 第53回 D: 色ちがいの 仲間の 絵（data/variants.js）
+import { colorMon } from './data/variants.js';
 import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
 import { deduceElement } from './data/abilities-jobs6.js';
@@ -2304,7 +2306,7 @@ export function allyFromCharacter(char, init = {}) {
     job: char.job,
     // 顔の 絵は 見た目装備で（shared/look-equip.js。強さは char.equip）
     eq: char.equip ? shownEquipKey(char) : '',
-    mon: char.species || undefined,
+    mon: colorMon(char.species, char.color),
     lv: char.level,
     maxHp: st.maxHp,
     hp: Math.max(0, Math.min(st.maxHp, char.hp ?? st.maxHp)),

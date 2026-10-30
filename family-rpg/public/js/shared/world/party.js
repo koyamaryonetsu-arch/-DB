@@ -188,6 +188,8 @@ function companionInfo(e, activeKeys, partyKeys) {
     ...(e.kind === 'monster' ? { bonus: ch.bonus || null, seeds: ch.seeds || null, lineage: ch.lineage || null, ranked: ch.ranked || 0 } : {}),
     // 第43回 A: 配合の あとの 追いつき（この レベルまで 経験値 3倍）
     ...(e.kind === 'monster' && ch.catchUp > ch.level ? { catchUp: ch.catchUp } : {}),
+    // 第53回 D: 色ちがいの 仲間（data/variants.js の colorMon で 顔の 絵）
+    ...(ch.color ? { color: ch.color } : {}),
   };
 }
 
@@ -607,7 +609,7 @@ export function supportInfo(x) {
     key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp, st: statsOf(st),
     look: x.char.look, equip: x.char.equip, lookEquip: x.char.lookEquip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
     jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
-    plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
+    plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined, color: x.char.color || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
     favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
     // 家族の キャラの マスターした 職業（jobs は おくらない。メニューで パーティーに 関係する ひらめき技を えらぶ ため。stats.js の partyJobSet）

@@ -9,6 +9,8 @@ import { request } from './shop.js';
 import { faceURL } from '../field.js';
 import { boardIconURL } from '../render/boards.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../../shared/data/variants.js';
 
 const AGAIN = 'ほかにもご用はある？';
 
@@ -32,7 +34,7 @@ const HINTS = {
 
 const row = (e) => ({
   value: e.key,
-  face: faceURL({ mon: e.species }),
+  face: faceURL({ mon: colorMon(e.species, e.color) }),
   label: e.name,
   html: `${esc(e.name)}${e.plus ? `<span class="plus">+${e.plus}</span>` : ''} <span class="muted small">${esc(MONSTERS[e.species]?.name || '')} Lv${e.level}</span>`,
   right: e.where,

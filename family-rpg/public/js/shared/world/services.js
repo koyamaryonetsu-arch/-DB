@@ -272,8 +272,9 @@ export function serviceAction(world, s, msg) {
           return;
         }
         case 'breed':
-          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), child: msg.child ? String(msg.child) : null, inherit: msg.inherit ?? null, name: msg.name });
-          if (r.ok) text = `${r.itemName ? `${r.itemName}が光につつまれた…！\n` : ''}${r.name}（${MONSTERS[r.species].name}＋${r.plus}・ランク${r.rank}）が生まれた！${r.newEntry ? `\n${MONSTERS[r.species].name}が図鑑にのった！` : ''}${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
+          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), child: msg.child ? String(msg.child) : null, inherit: msg.inherit ?? null, name: msg.name, color: msg.color ? String(msg.color) : null });
+          // 第53回 D: 色の石を 使うと 色ちがいの 子（colorName）
+          if (r.ok) text = `${r.itemName ? `${r.itemName}が光につつまれた…！\n` : ''}${r.color ? '色の石がにじ色に光った…！\n' : ''}${r.name}（${r.colorName || MONSTERS[r.species].name}＋${r.plus}・ランク${r.rank}）が生まれた！${r.newEntry ? `\n${MONSTERS[r.species].name}が図鑑にのった！` : ''}${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:
           // 馬車の 乗りかえ（world/wagon.js）

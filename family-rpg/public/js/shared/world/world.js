@@ -4,6 +4,8 @@
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
 import { vehicleSnap } from './vehicles.js';
 import { makeRng } from '../rng.js';
+// 第53回 D: 色ちがいの 仲間の 絵（data/variants.js）
+import { colorMon } from '../data/variants.js';
 import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
 import { T, TILE_INFO } from '../tiles.js';
@@ -1114,7 +1116,7 @@ export class GameWorld {
     const p = partyOf(this, s);
     if (!p || p.leader !== s.id) return [];
     return [
-      ...p.supports.map((x) => ({ look: x.char.look, job: x.char.job, eq: equipLook(x.char), mon: x.char.species || undefined, name: x.char.name })),
+      ...p.supports.map((x) => ({ look: x.char.look, job: x.char.job, eq: equipLook(x.char), mon: colorMon(x.char.species, x.char.color), name: x.char.name })),
       ...p.guests.map((g) => ({ look: g.char.look, job: g.char.job, eq: equipLook(g.char), name: g.char.name, guest: g.id })),
     ];
   }
