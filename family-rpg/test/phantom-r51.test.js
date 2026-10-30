@@ -418,7 +418,8 @@ test('引っこしコード: 仲間 40人と 記録 いっぱいでも LINE の 
   assert.equal(c.companions.length, 40);
   c.flags.zz_count = 3;
   const before = exportCode(c);
-  assert.ok(before.startsWith('KIZUNA-3-'), '記録なしは 今までどおり KIZUNA-3');
+  // 第53回: 魔物が ふえて「図鑑 ぜんぶ」の 時は 記録なしでも KIZUNA-4 に なる ことが ある
+  assert.ok(/^KIZUNA-[34]-/.test(before) && before.length < LINE_MAX, '記録なしも LINE の 1回');
   c.feats = toFeats(FULL());
   const code = exportCode(c);
   assert.ok(code.length < LINE_MAX, `コードの 長さ ${code.length}（記録なし ${before.length}）`);

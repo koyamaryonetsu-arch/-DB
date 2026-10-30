@@ -33,6 +33,8 @@ import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js';
 import { playCh4Fx } from './battlefx-ch4.js';
 // 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
 import { playR27Fx, R27_FINE } from './battlefx-r27.js';
+// 第2部 第6章 Step 6: ゼンマイの 大技の とくべつな つぶ（大時計・とびちる 歯車と ガラス。battlefx-tokei6.js）
+import { TOKEI6_FINE } from './battlefx-tokei6.js';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
 import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js';
 import { SECRET_BG } from './secret-art.js';
@@ -1247,6 +1249,7 @@ Object.assign(FINE, R41A_FINE);
 Object.assign(FINE, R43J_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
+Object.assign(FINE, TOKEI6_FINE);
 Object.assign(FINE, AX_FINE);
 
 export class Effects {

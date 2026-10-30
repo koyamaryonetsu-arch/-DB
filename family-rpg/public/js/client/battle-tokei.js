@@ -2,6 +2,8 @@
 // ・カリヨン: 右よこに かねの しるし（のこりの 数。上から。のこり 1つの ときは 赤く ゆれる）。鳴った ときは まわりに 音の わ
 // ・バナー: しるしが あと1つ（身を 守れ）・時のかねが 鳴った（強くするなら 今）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
+// 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
+import { kindOf } from './battle-tokei6.js';
 const CARILLON = 'carillon';
 
 export const TOKEI_SCREEN_ANIMS = ['a6t_bell', 'a6t_cspin', 'a6t_chime'];
@@ -33,7 +35,7 @@ function bellIcon(x, cx, y, s, body, rim) {
 
 // ───────────── たたかいの え（client/battle-ch6.js の ch6Draw から）─────────────
 export function tokeiDraw(scene, x, m, c, px, py, w, h, base) {
-  if (!c?.alive || c.species !== CARILLON || c.bell === undefined) return;
+  if (!c?.alive || kindOf(c) !== CARILLON || c.bell === undefined) return;
   const T = scene.time || 0;
   const max = c.bellMax || 4;
   const bx = Math.min(246, px + w + 6);

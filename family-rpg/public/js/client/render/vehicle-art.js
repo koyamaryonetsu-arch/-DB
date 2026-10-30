@@ -13,6 +13,8 @@ import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, sh
 import { addFamilyVehicleArt } from './family-art.js';
 // 第50回 D3: 景品の 乗り物（色がえで 使い回す）
 import { addPrizeVehicleArt } from './prize-vehicle-art.js';
+// 第2部 第6章 Step 6: ぜんまい馬（千年前でも 乗れる。vehicle-tokei.js）
+import { addTokeiVehicleArt } from './vehicle-tokei.js';
 // 第43回: ヨッシー（マリオ・ピーチ）
 import { addR43jVehicleArt } from './vehicle-r43j.js';
 
@@ -1595,6 +1597,7 @@ addFamilyVehicleArt(ART, { carArt, deckArt, box, seg, wheel, poly, rgba, shade, 
 addR43jVehicleArt(ART, { box, seg, poly, shade, seat });
 // 第50回 D3: 景品の 乗り物（render/prize-vehicle-art.js）
 addPrizeVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, carpetPaint, cloudPaint, rgba, twinkle });
+addTokeiVehicleArt(ART, { horseArt });
 
 export const VEHICLE_ART = ART;
 

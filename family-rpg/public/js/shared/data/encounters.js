@@ -18,6 +18,7 @@ import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters
 import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js';
 import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js';
 import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei.js';
+import { ENCOUNTERS_TOKEI6, FIXED_TOKEI6, ZONE_BG_TOKEI6 } from './encounters-tokei6.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -158,3 +159,7 @@ Object.assign(ZONE_BG, ZONE_BG_ROAD);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TOKEI);
 Object.assign(FIXED_ENCOUNTERS, FIXED_TOKEI);
 Object.assign(ZONE_BG, ZONE_BG_TOKEI);
+// 第2部 第6章 Step 6「時計塔の心臓」・ゼンマイ・リオンの けいこ・時のまぼろし（encounters-tokei6.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TOKEI6);
+Object.assign(FIXED_ENCOUNTERS, FIXED_TOKEI6);
+Object.assign(ZONE_BG, ZONE_BG_TOKEI6);

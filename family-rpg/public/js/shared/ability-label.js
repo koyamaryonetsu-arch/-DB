@@ -32,8 +32,24 @@ const merged = (base, over) => {
   return m;
 };
 
+// 第53回: 魔物 むけの 名前・セリフ・えんしゅつ（by: { 魔物の ID: { name, cast, anim } }。ゼンマイが 家来の 技を 使う とき。
+//   時のまぼろしは もとの ボス〈who.base〉で 見る。強さ・こうかは おなじ）
+const byCache = new WeakMap();
+function byFor(a, sp) {
+  let m = byCache.get(a);
+  if (!m) byCache.set(a, (m = {}));
+  if (!m[sp]) {
+    m[sp] = { ...a, ...a.by[sp] };
+    delete m[sp].by;
+    delete m[sp].masc;
+  }
+  return m[sp];
+}
+
 export function abilityFor(ab, who) {
   const a = typeof ab === 'string' ? ABILITIES[ab] : ab;
+  const sp = a?.by && (who?.base || who?.species);
+  if (sp && a.by[sp]) return byFor(a, sp);
   if (!a || !a.masc || !isMasc(who)) return a;
   return merged(a, a.masc);
 }

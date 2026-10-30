@@ -8,11 +8,13 @@
 import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js';
 // 第2部 第6章 Step 5 の カリヨン（かねの しるし。battle-tokei.js。ここから よぶ）
 import { tokeiDraw, tokeiPresent } from './battle-tokei.js';
+// 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
+import { kindOf, TOKEI6_OWN_TELE, tokei6Draw, tokei6Present } from './battle-tokei6.js';
 
 const SAND = 'sand_clock';
 const GEAR = 'geardon';
 // 前ぶれの バナーを 自分で 出す 魔物（client/battle.js の ふつうの「大技が来る！」を 出さない）
-export const CH6_OWN_TELE = new Set([SAND, GEAR, ...ROAD_OWN_TELE]);
+export const CH6_OWN_TELE = new Set([SAND, GEAR, ...ROAD_OWN_TELE, ...TOKEI6_OWN_TELE]);
 
 export const CH6_SCREEN_ANIMS = ['a6_stomp', 'a6_storm', 'a6_fall', 'a6_steam', 'a6_press', 'a6_rewind_big', 'a6_slow'];
 export const CH6_ALLY_FX = {
@@ -37,9 +39,10 @@ export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
   roadDraw(scene, x, m, c, px, py, w, h, base);
   tokeiDraw(scene, x, m, c, px, py, w, h, base);
+  tokei6Draw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // サンドクロック: 砂の 目もり（右よこ）と 前ぶれの うず
-  if (c.species === SAND && c.sand !== undefined) {
+  if (kindOf(c) === SAND && c.sand !== undefined) {
     const max = c.sandMax || 6;
     const bx = Math.min(250, px + w + 3), by = py + h * 0.2, cell = Math.max(4, Math.min(7, Math.floor((h * 0.6) / max)));
     for (let i = 0; i < max; i++) {
@@ -65,7 +68,7 @@ export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
     }
   }
   // ギアドン: まきもどしまでの わ・雷の 目もり / ギアプレスの 前ぶれ
-  if (c.species === GEAR) {
+  if (kindOf(c) === GEAR) {
     const cx = px + w / 2, cy = py + h * 0.52;
     if (c.gearRec) {
       const r = Math.max(10, w * 0.24);
@@ -117,7 +120,8 @@ export function ch6Present(scene, ev, fx, anim, actor) {
   const g = scene.game;
   roadPresent(scene, ev, fx, anim, actor);
   tokeiPresent(scene, ev, fx, anim, actor);
-  if (fx.type === 'telegraph' && actor?.species === SAND) {
+  tokei6Present(scene, ev, fx, anim, actor);
+  if (fx.type === 'telegraph' && kindOf(actor) === SAND) {
     g.audio.sfx('warn');
     scene.banner('！大砂流の前ぶれ！氷を当てるか、身を守れ！', 'danger');
   } else if (ev.scSand?.lv === 1) {
@@ -132,13 +136,13 @@ export function ch6Present(scene, ev, fx, anim, actor) {
     scene.banner('氷で砂がもどった！', 'combo');
   }
   if (ev.scFall) scene.shake(500, 6);
-  if (fx.type === 'telegraph' && actor?.species === GEAR) {
+  if (fx.type === 'telegraph' && kindOf(actor) === GEAR) {
     g.audio.sfx('warn');
     scene.banner('！ギアプレスの前ぶれ！身を守れ！', 'danger');
   }
   if (ev.gdRecord) {
     g.audio.sfx('warn');
-    scene.banner(`！ギアドンが時を覚えた！雷を${ev.gdRecord.need}回当てて、大歯車をこわせ！`, 'danger');
+    scene.banner(`！${actor?.name || 'ギアドン'}が時を覚えた！雷を${ev.gdRecord.need}回当てて、大歯車をこわせ！`, 'danger');
   }
   if (ev.gdSpark) scene.banner(`大歯車に火花！あと${ev.gdSpark.left}回`, 'combo');
   if (ev.gdBreak) {

@@ -3,6 +3,8 @@
 // ・sidequests-family.js（はじめの 5つ）と sidequests-work.js（第41回の 6つ）の どちらも ここを 使う
 import { JOBS, jobAncestry } from './jobs.js';
 import { FAMILY_VEHICLES } from './vehicles-family.js';
+// 第6章 Step 6: ぜんまい馬（vehicles-tokei.js）も おなじ 形で わたせる
+import { TOKEI_VEHICLES } from './vehicles-tokei.js';
 
 export const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 export const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,9 +43,9 @@ export function needText(q) {
 }
 export const need = (q) => N(...needText(q));
 
-// 乗り物を もらう（パーティーの みんな。もう 持っていたら そのまま）
+// 乗り物を もらう（パーティーの みんな。もう 持っていたら そのまま）。第6章クリアの ぜんまい馬（'zenmai_horse'）も
 export function vehicleSteps(id) {
-  const v = FAMILY_VEHICLES[id];
+  const v = FAMILY_VEHICLES[id] || TOKEI_VEHICLES[id];
   return [
     ['call', (run) => {
       for (const m of run.everyone) {

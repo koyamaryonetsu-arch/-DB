@@ -356,6 +356,10 @@ export function gameFiles() {
     // 第2部 第6章 Step 5（B: 戦い・品）: 止まった時計塔の 魔物・カリヨン（時のかね）・時計塔の 宝箱・ゲストの リオン
     'public/js/shared/data/monsters-tokei.js', 'public/js/shared/data/abilities-tokei.js', 'public/js/shared/data/items-tokei.js', 'public/js/shared/data/encounters-tokei.js',
     'public/js/shared/data/companions-tokei.js', 'public/js/shared/battle-tokei.js', 'public/js/client/battle-tokei.js',
+    // 第2部 第6章 Step 6（B: 戦い・品）: 時計塔 6〜10階の 魔物・ゼンマイ（2だん）・リオンの けいこ・時のまぼろし・宝箱・第6章クリアの 武器・ぜんまい馬
+    'public/js/shared/data/monsters-tokei6.js', 'public/js/shared/data/abilities-tokei6.js', 'public/js/shared/data/items-tokei6.js', 'public/js/shared/data/encounters-tokei6.js',
+    'public/js/shared/data/companions-tokei6.js', 'public/js/shared/data/vehicles-tokei.js', 'public/js/shared/battle-tokei6.js', 'public/js/shared/world/tokei-phantom.js',
+    'public/js/client/battle-tokei6.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',

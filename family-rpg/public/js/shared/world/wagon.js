@@ -338,6 +338,8 @@ export function wagonBattleSwap(world, s, ctx, msg) {
   if (!p || p.leader !== s.id) return no('馬車はリーダーだけが使える');
   if (!wagonHere(ctx.map)) return no('馬車は入り口で待っている！');
   if (b.over || b.pendingEnd) return no('今は入れかえられない');
+  // 第53回: 1人で 戦う けいこ（リオン。encounters の solo）は 入れかえない
+  if (ctx.opts?.solo) return no('これは1人で戦うけいこだ');
   const actor = b.get(msg.actor);
   if (!actor || actor.side !== 'ally' || actor.fled || !actor.alive || actor.controller !== s.id) return no('できません');
   if (!actor.ready) return no('まだ順番が来ていない');

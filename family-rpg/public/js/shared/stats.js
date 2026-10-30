@@ -452,7 +452,8 @@ export function canEquip(jobId, itemId) {
   const job = JOBS[jobId];
   if (!it || !job) return false;
   switch (it.type) {
-    case 'weapon': return job.weapons.includes(it.cat);
+    // 第53回: 第6章クリアの 幻の職業むけの 武器（phantomOk）は、幻の職業（tier 4）なら しゅるいに かかわらず 装備できる
+    case 'weapon': return job.weapons.includes(it.cat) || (!!it.phantomOk && (job.tier || 0) >= 4);
     case 'armor': return job.armor.includes(it.armorType);
     case 'shield': return !!job.shield;
     case 'head': return !it.helm || !!job.helm;

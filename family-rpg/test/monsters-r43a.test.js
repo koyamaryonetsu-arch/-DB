@@ -107,7 +107,9 @@ test('ランクの ちらばり: どの 章にも F〜C が いて、B〜S は �
     const list = by[b];
     for (let r = 0; r <= 3; r++) assert.ok(list.includes(r), `${b}: ${RANKS[r]} が いない`);
     const high = list.filter((r) => r >= 4).length;
-    assert.ok(high <= Math.max(2, list.length * 0.2), `${b}: B〜S ${high}/${list.length}`);
+    // 第53回: 第6章 Step 6 の 時計塔の 魔物は、配合で 足りない B〜S を うめる（docs/plan-r53-breed-more.md の 1）ので 3わりまで
+    const cap = b === '第6章' ? 0.34 : 0.2;
+    assert.ok(high <= Math.max(2, list.length * cap), `${b}: B〜S ${high}/${list.length}`);
   }
   const all = Object.values(by).flat();
   assert.ok(all.filter((r) => r === 6).length <= 10, 'S は 少し');

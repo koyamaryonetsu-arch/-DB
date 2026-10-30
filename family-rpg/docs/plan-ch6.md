@@ -781,3 +781,81 @@
 - けいじ板（B）：止まった時の間で はじめて 勝った 時に `world.boardPost?.({ kind: 'toki_phantom', by, charId, title, detail })`
 - 作業中の 仮の データ：A は `data/ch6d-stub.js`（B の 物が まだ ない 時だけ たす）。まとめる 時に 消す
 - タイル ID：A は 今 使っている いちばん 大きい ID の つぎから
+
+### 実装メモ（B … 戦い・品。第6章 Step 6。2026年10月30日）
+
+> ネタバレ注意：ゼンマイの しかけが 書いてあります。
+
+- 名前の約束（17）のとおり：きまった戦い `zenmai`（魔物の ID も同じ・`boss: true`・`canFlee: false`・`loseOk` なし・曲 `boss6`・背景 `tokei`）、`rion_spar1`〜`rion_spar3`（`loseOk: true`・**`solo: true`**）、`toki_phantom`（`loseOk: true`・`pick(now)` … その日の敵）。出現表 `t6_tower_high`（背景 `tokei`）。宝 `TOKEI_TREASURE_HIGH`・`C6_CLEAR_WEAPONS`（どちらも `data/items-tokei.js` から出している。中みは `items-tokei6.js`）。乗り物 `zenmai_horse`
+- **ファイルの名前**：Step 5 の `tokei` の 続きなので `tokei6`（`data/monsters-tokei6.js`・`abilities-tokei6.js`・`encounters-tokei6.js`・`companions-tokei6.js`・`items-tokei6.js`・`vehicles-tokei.js`、しくみ `shared/battle-tokei6.js`・`world/tokei-phantom.js`、がめん `client/battle-tokei6.js`、絵 `render/ch6-tokei6-art.js`・`render/vehicle-tokei.js`、エフェクト `render/battlefx-tokei6.js`）
+- よびだし：`battle-ch6.js` の `ch6TurnStart`（はじめに `tokei6TurnStart`・さいごに `tokei6TurnEnd`）・`ch6Effect`・`ch6Plan`・`ch6Pub`・`setupCh6`、`battle.js` の `checkPhase`（`tokei6Phase`）、`battle-ch5.js` の `towerKill`（`tokei6Kill`）。がめんは `client/battle-ch6.js` の `ch6Draw`・`ch6Present`、エフェクトは `battlefx-tokei.js` の さいごから
+- シミュレーター `tools/sim-ch6.mjs` の `zenmai`（`CH6_LV.zenmai = 68`・`CH6_KIT.zenmai`）・`spar`（リオンの けいこ）・`phantom`（時のまぼろし）、`tools/sim.js` の `ch6tower2`。テスト `test/ch6-step6-b.test.js`（21こ）
+
+#### ゼンマイ（`zenmai`。Lv68・HP49500・攻撃1020・**1回行動**・速さ0.96）
+
+- **1だんめ**（HP50%まで）：家来の しかけを じゅんばんに使う（砂が落ちきる → まきもどし → 時のふりこ → 時のかね → また砂…）。しかけの 中みは **今の まま**（`battle-ch6.js` の sand・gear、`battle-road.js` の pend、`battle-tokei.js` の bell）。ゼンマイの `c.c6` に「今の しかけ だけ」の数をおいて `c.sand` などを1つずつ作る（3つのファイルの `confOf`・`bellConf` が `m.c6` を先に見る形にした。1行ずつ）。数は `ch6.zen.stages`（砂3・時を覚えるまで2・まきもどしまで3・雷2回・ふりこのはば2・時止め2・かね4）。**砂は氷で もどらない**（`ice: 0`。もどせると いつまでも 次へ進まないので、前ぶれの間に氷を当てて止めるだけ）
+  - しかけの おわり：大砂流（または氷で止めた）・まきもどし（または雷でこわした）・大ふりこ・時のかね → 次のしかけへ（`ev.zenStage`）。ふりこが おわると止まっていた人も動き出し、ゲージの速さももとに
+  - 家来の技は **同じ ID** のまま使う。名前・セリフ・えんしゅつだけゼンマイのもの（`ability-label.js` の `abilityFor` に **`by: { 魔物の ID: {...} }`** を足した。時のまぼろしは `who.base` で見る）。がめんの目もり・バナーも家来のものをそのまま出す（pub の `kindAs`。client の `kindOf`）
+- **2だんめ**：まわりに **歯車 3つ**（べつの敵・数えない形。ほのおの歯車＝氷・水の歯車＝雷・影の歯車＝光が 弱点2.2、ほかの属性は0.1。HP600・ほぼ動かない）。**文字ばんの針**が ゼンマイが1回動くたびに1時間進む（4時から。動けない番も）。12時になった番は かならず **「時の大ほうかい」**（みんなに物理×2.25・守り6わりむし。身を守ると半分）→ 針は4時にもどる。**歯車をこわすと針が3時間もどる**（4時より前にはもどらない）。こわれた歯車はゼンマイが6回動くとまた回り出す。ゼンマイがたおれると歯車も消える（`minionsFall`）
+  - 名前は「時の**大ほうかい**」（崩壊は小学校の漢字でない）
+- オート：**ふつうのオート**は大ほうかいが自分の次の番より先に来る時、HPが8わりより少なければ6わりで身を守る（`AUTO_GUARD`・`collapseBefore`）。**知っている人**（`b.knowsCh6`）は 1だんめは家来の時と同じ（ch6Plan がそのまま見る）、2だんめは **針が10時を こえたら歯車を弱点でこわす**（1回でこわせる物を先に。`tokei6Know`）・こわせない時は大ほうかいの前に身を守る。合体技は針が9時いじょうではしない（sim の `dualPlan`）。`b.c6NoGear` … 歯車をねらわない人
+- 落とす物：かならず **影の時計のお守り**（アクセ・1人1つ・ボーナス合計188＞時のかねのお守り174）と **影の時計師のつえ**（レア度5・今までで いちばん強いつえ・行動でMP+1）
+
+#### 強さ（`node tools/sim-ch6.mjs 60 zenmai`。超級職4人・職業Lv10・60回。★はカリヨンの品＋時計塔6〜10階の宝）
+
+| Lv | 完全オート | 知らない（合体技はする） | 知っている |
+|---|---|---|---|
+| 67 | 0% | 28% | 87% |
+| **68** | **0%** | **43%** | **83%** |
+| 69 | 0% | 47% | 88% |
+
+- 知っている人のしかけを1つだけしない（Lv68）：歯車をねらわない 68%（大ほうかい 0.3 → 1.3回）・守らない 73%・氷を使わない 82%・合体技だけしない 0%。**歯車をねらうのが いちばん大事**
+- 決めかた：はじめ（HP66000・攻撃1200・速さ0.8・針は1時から）は 知っている人も 25%（長い戦いで MPがつきて、10時のあとに弱点の技が使えなかった）。HPを49500に、速さを0.96に、針を4時からにして（2だんめで大ほうかいが1〜2回来る長さ）、大ほうかいを×2.25にした
+- 出現表（`node tools/sim.js 100 ch6tower2`。せんし・そうりょ・まほう・ぶとう・里のランク10）：Lv66 94%（のこりHP70%）・Lv67 97%（71%）・Lv68 93%（67%）。1〜5階（95%・75%くらい）より少しきびしい。はじめは時計ゆうれいの呪文が強すぎた（2体で0%）ので、ふつうの魔物の呪文の強さ（1人130〜150・みんな70〜85）に合わせた
+
+#### 新しい魔物（7しゅ。どれも仲間になる・`region: 6`・**系統配合の子にもなる**〈`noFamily` をつけない。plan-r53 の 1〉）
+
+| 魔物（ID） | 系統 | ランク | 絵 | 仲間 | 出やすさ |
+|---|---|---|---|---|---|
+| 時計ゆうれい（`tokei_ghost`） | ゾンビ | **A** | 新しい | 1/30 | 13% |
+| かねの精（`bell_sprite`） | せいれい | **A** | 新しい | 1/24 | 9% |
+| 秒針の精（`second_sprite`） | せいれい | **B** | ゆがみの精の色がえ | 1/22 | 17% |
+| 大時計の番人（`clock_golem`） | 物質 | **S** | 新しい | 1/32 | 2.4% |
+| ぜんまい草（`zenmai_fern`） | 植物 | **B** | 新しい | 1/22 | 18% |
+| ねじまき小あくま（`wind_devil`） | 悪魔 | **B** | 小あくまの色がえ | 1/24 | 12% |
+| からくりがいこつ（`clock_bones`） | ゾンビ | **B** | がいこつの色がえ（1回だけ起き上がる） | 1/20 | 20% |
+
+- 色がえの3しゅは `art`・`tint` で今の絵を使う（色ちがい `variants.js` は仲間にならないので使わない）。ランクの表は作りなおした（第6章 F4 E9 D3 C5 **B7 A2 S1**）。`test/monsters-r43a.test.js` の「第6章の B〜S は 2わりまで」は、配合で足りない所をうめるので 第6章だけ 3わりまでにした
+- レアのドロップは種でなく千年前の里の店の装備（種の数は第50回の上限に とどいている）。素材は時の砂・古い歯車
+
+#### 品
+
+- 宝箱（`TOKEI_TREASURE_HIGH`。ぜんぶ ★5・オレンジ・`src: 'tokei'`。かけ算 6階1.50 → 10階1.54〈5階は1.49〉）：6階 時の針の指輪・かねの音のやり／7階 ふりこのマント・歯車のバット／8階 大歯車のかぶと・大歯車のツメ／9階 時の心臓の道着・時の心臓のつえ（MP+1）／10階 時の守りのたて・時の心臓の剣
+- **第6章クリアの武器**（`C6_CLEAR_WEAPONS`。`src: 'clear6'`「時計塔のてっぺんでしか手に入らない」・レア度5・かけ算1.58）：千年の紋章の剣（戦う職業）・時の歯車のツメ（素手の職業）・星読みの時のつえ（呪文と回復）・秒をきざむ短剣（わざ）・**千年の時のつるぎ**（幻の職業むけ。`phantomOk` … 幻の職業〈tier 4〉なら武器のしゅるいに かかわらず装備できる。`stats.js` の `canEquip` に1行）。`c6ClearPick(JOBS[職業])` … その職業におすすめの1つ（A の えらぶ画面用）
+- 時のまぼろしの素材 **まぼろしの時の砂**（`TOKI_PHANTOM_REWARD`。勝つと1日1回2つ・まぼろしも ときどき落とす）と れん金（3つ → 時のまぼろしの指輪・影の時計のお守り＋2つ → まぼろしの時計のお守り）
+
+#### ぜんまい馬（`zenmai_horse`。`data/vehicles-tokei.js`）
+
+- `past: true` … 千年前のマップ（`map.past`）でも乗れる。**ほかの乗り物は千年前では乗らない**（`rideShown` に `past` を足した。`client/field.js` の自分・ほかの人の2か所）。乗り物屋では売らない（`jobs: []`・`gift`）。絵は茶色の馬の形で真ちゅう色・鉄のよろい
+- わたし方：`data/fq-common.js` の `vehicleSteps('zenmai_horse')`（パーティーのみんな）が使えるようにした
+
+#### リオンのけいこ・時のまぼろし
+
+- リオン（`rion_spar1`〜`3`。数えない形・`person: 'rion'` … がめんはリオンの見た目〈`RION_GUEST.look`〉の人の絵）：Lv64・68・72、だんだん強い（2は HP40%で攻撃↑、3は「光をためる」→「光の大剣」の前ぶれ・HP50%で攻撃↑）。**1人で戦う**（`startFixedBattle` が `enc.solo` を見る … はじめた人だけ・仲間とゲストは入らない・とちゅうから入れない・馬車の入れかえもしない）。`node tools/sim-ch6.mjs 40 spar 68`（ふつうのオート・1人）：1回目 ぜんぶ100%／2回目 勇者100%・大賢者88%・ゴッドハンド65%・大神官93%／3回目 90%・80%・**0%**・78%（ゴッドハンドはオートだとMPがつきる。手で守れば勝てる）
+- 時のまぼろし（`toki_ph_<ボス>`。数えない形）：第6章のボス6体（サンドクロック・ギアドン・星くいのよる鳥・ペンデュラ・カリヨン・ゼンマイ）の強いすがた。**日本の1日ごとに かわる**（`tokiPhantomBase`）。しかけはもとのまま・紫の色がえ。`node tools/sim-ch6.mjs 30 phantom 72`（ゼンマイのころの★＋クリアの武器）：知っている人 57〜100%・知らない人 0〜43%
+- 勝つと（`world/tokei-phantom.js` の `tokiPhantomAfter`。`finishBattle` から）：その日はじめてなら素材（キャラごとに `c.tokiPhantom = { day, wins }`）。2回目からは「また明日」。そのキャラが**はじめて勝った時**だけ `world.boardPost({ kind: 'toki_phantom', … })`（札の名前「時のまぼろし」は このファイルで `BOARD_KINDS` に足す）
+
+#### がめん・絵・エフェクト
+
+- ゼンマイ：1だんめは頭の上に しかけの じゅんばん（砂時計・歯車・ふりこ・かね。今のしかけが光る）と家来の目もり。2だんめは左上に **時計の文字ばん**（10〜12時は赤い帯・10時をこえると針がふるえて、ゼンマイのまわりに赤い時のわ）。歯車の上に弱点のしるし（氷・雷・光）。バナー：しかけがかわった・針が動き出した・10時／11時・歯車をこわした（今は〇時）・大ほうかい・歯車がまた回り出した
+- 絵：時計ゆうれい（顔がかいちゅう時計・下へすきとおる）・かねの精（金のかねから顔・はね）・大時計の番人（むねに文字ばんの からくりの大男）・ぜんまい草（くるくるまいた わか葉）・**ゼンマイ**（110×122・`npc: 0.6`。影のマント・白い仮面とかためがね・歯車のぼうし・長い時計の針のつえ・うしろに大きな文字ばん）・歯車（3色は tint）
+- エフェクト：**時の大ほうかい**＝がめんいっぱいの大時計（とくべつなつぶ `zclock`）の針がぐるぐる回って12時に重なる → ひび → まっしろ → ガラスと歯車がとびちる（`zshard`・`zcog`。`battlefx.js` の FINE に `TOKEI6_FINE` をまぜた）。ぜんまいの嵐・影の歯車・時のかね（ゼンマイ）・大時計のベルもがめんのまん中に大きく。PNG はブラウザ（Playwright）でたしかめた
+
+#### A とまとめる時
+
+- 台本：`['showMon', 'zenmai']` → `['battle', 'zenmai']`（勝ったら `c6_zenmai`）。宝箱は `TOKEI_TREASURE_HIGH[階]`、てっぺんは `C6_CLEAR_WEAPONS`（えらぶ画面で `c6ClearPick` をおすすめに使える）。乗り物は `vehicleSteps('zenmai_horse')`
+- リオンのけいこは `['battle', 'rion_sparN']`（1人で戦う。負けても台本はつづく）。**勝ったかどうかは台本の battle では分からない**ので、ひらめき技のヒントを出す A は `startFixedBattle` の かえり値（'win'）を見る `call` にするのが よい
+- 止まった時の間は `['call', tokiPhantomRun]`（`world/tokei-phantom.js`。今日の相手と ごほうびのようすを言ってから えらぶ）か `['battle', 'toki_phantom']`。どちらでも ごほうびは1日1回
+- A の仮のファイル `data/ch6d-stub.js` の出現表・きまった戦い・宝・乗り物は消す
+- B が1〜数行ずつ足したファイル：`data/monsters.js`・`abilities.js`・`encounters.js`・`companions.js`・`items.js`・`items-tokei.js`（さいごに export を1行）・`loot.js`・`alchemy.js`・`rare-loot.js`（`SRC_TEXT.clear6`）・`vehicles.js`・`fq-common.js`・`monster-ranks.js`（作りなおし）・`shared/stats.js`（`phantomOk`）・`ability-label.js`（`by`）・`battle.js`・`battle-ch5.js`・`battle-ch6.js`・`battle-road.js`（`confOf`・`applyTimes` の export）・`battle-tokei.js`（`bellConf`）・`world/battles.js`（solo・pick・時のまぼろし）・`world/wagon.js`（solo の入れかえ）・`client/battle.js`・`battle-ch4.js`・`battle-ch6.js`・`battle-road.js`・`battle-tokei.js`（`kindOf`）・`client/field.js`（千年前の乗り物）・`render/battlefx.js`・`battlefx-tokei.js`・`monsters.js`・`vehicle-art.js`・`tools/sim.js`・`sim-ch6.mjs`・`gen-monster-ranks.mjs`・`kanji-check.mjs`
+- 直したテスト：`ch6-battle`・`ch6-road-battle`・`ch5-castle-battle`・`ch5-final-battle`（いちばん強い剣・つえ・ツメから Step 6 の品をのぞく）・`monsters-r23`（魔物の数）・`monsters-r43a`（第6章のB〜S）・`field-r27`・`phantom-r51`（図鑑ぜんぶ＋仲間40人の引っこしコードは魔物がふえて KIZUNA-4 になることもある。どちらも LINE の1回で もとどおり）

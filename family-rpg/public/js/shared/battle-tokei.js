@@ -22,7 +22,8 @@ export const BELL = 'm6t_cr_bell';
 // かねが この 数（のこりの しるし）より 近い ときは、オートは 強くする 技を 使わない（鳴ると 消えて むだに なる）
 export const QUIET_AT = 2;
 
-const bellConf = (m) => MONSTERS[m?.species]?.ch6?.bell || null;
+// c6 … その 戦いだけの しかけの 数（ゼンマイ。battle-tokei6.js）
+const bellConf = (m) => (m?.c6 || MONSTERS[m?.species]?.ch6)?.bell || null;
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || {} : a?.effect || {});
 const FOES = new Set(['enemy', 'group', 'enemies']);
 

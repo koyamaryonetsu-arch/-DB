@@ -33,6 +33,8 @@ import { finalCond, finalEffect, finalCheck, finalKill, finalPlan, finalPub, fin
 import { phantomCond, phantomEffect, phantomPlan, phantomPub, phantomTurnStart } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2: サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）。battle-ch6.js。ここから よぶ
 import { ch6Cond, ch6Effect, ch6Plan, ch6Pub, ch6TurnStart } from './battle-ch6.js';
+// 第2部 第6章 Step 6: ゼンマイの 歯車が こわれると 針が もどる（battle-tokei6.js）
+import { tokei6Kill } from './battle-tokei6.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
 import { arenaCond, arenaEffect } from './battle-arena.js';
 // 第51回 C1: 幻の職業の 技（気を ためる・影分身・自動最適化。battle-phantom-a.js）
@@ -270,6 +272,7 @@ export function towerKill(b, t, ev) {
   noctoKill(b, t, ev);
   earthKill(b, t, ev);
   finalKill(b, t, ev);
+  tokei6Kill(b, t, ev);
   if (t.side !== 'enemy' || !confOf(t)) return;
   for (const x of b.allies) {
     if (x.foresee?.by !== t.id) continue;
