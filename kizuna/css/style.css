@@ -1061,7 +1061,7 @@ img.face { image-rendering: pixelated; }
 .b-bottom { display: flex; gap: 6px; min-height: 10em; }
 /* 第52回: たてむきの 大きな「← もどる」（ふだんは 出さない。@media (max-aspect-ratio: 1/1) の 中で 出す） */
 .b-backbar { display: none; flex: none; justify-content: flex-start; }
-.b-backbig { min-width: 46%; min-height: 3.1em; font-size: 1.15em; font-weight: bold; border-width: 2px; border-color: var(--accent); color: var(--accent); background: rgba(10, 12, 40, 0.92); border-radius: 10px; }
+.b-backbig { min-width: 40%; min-height: 2.5em; padding: 0.1em 0.8em; font-size: 1.05em; font-weight: bold; border-width: 2px; border-color: var(--accent); color: var(--accent); background: rgba(10, 12, 40, 0.92); border-radius: 10px; }
 .b-backbig:active { background: rgba(255, 214, 107, 0.3); transform: scale(0.97); }
 .b-cmd { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; }
 .b-cmd .menu { overflow-y: auto; max-height: 12.5em; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.5em; align-content: start; }
@@ -1159,6 +1159,8 @@ img.face { image-rendering: pixelated; }
   .b-msg { flex: none; height: 5.6em; min-height: 0; }
   /* 第52回: もどれる ときは コマンドの わくの 外・左下に 大きな「← もどる」（わくの 中の 小さい もどるは かくす） */
   #battle.has-back .b-backbar { display: flex; }
+  /* 第54回: たてに みじかい 画面では もっと うすく（技の 一覧を つぶさない） */
+  @media (max-height: 700px) { .b-backbig { min-height: 2.1em; font-size: 0.95em; } }
   #battle.has-back .b-cmd .menu .backchip, #battle.has-back .b-tabs .bt-back { display: none; }
   .b-tools { top: 6px; transform: none; }
 }

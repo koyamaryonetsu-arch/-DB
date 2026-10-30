@@ -1,7 +1,7 @@
 // 第48回 G2: ナルト（木の葉の忍び・七代目火影）と 合体技「忍びの影分身」の 大技の え
 // ・時間は shared/data/ax-time-g2.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { rnd, lerp } from './axkit.js?v=bf896afe56a6';
-import { darken, bg, pop, ninja, blow, icon } from './axfx-g2-kit.js?v=bf896afe56a6';
+import { rnd, lerp } from './axkit.js?v=66b0267ceac2';
+import { darken, bg, pop, ninja, blow, icon } from './axfx-g2-kit.js?v=66b0267ceac2';
 
 const BLUE = { deep: '#1a4ad8', mid: '#3a8cff', light: '#9ad8ff', core: '#ffffff' };
 const RCOL = [BLUE.deep, BLUE.mid, BLUE.light, BLUE.core];

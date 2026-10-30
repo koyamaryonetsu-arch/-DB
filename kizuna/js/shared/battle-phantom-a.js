@@ -11,9 +11,9 @@
 //   autoBoost { acts }      … 天才しせつ管理者AIの 自動最適化を 強くする（c.autoBoost。自分の 行動 acts 回）
 // 行動の はじめ（battle-ch5.js の towerTurnStart から よぶ）
 //   天才しせつ管理者AI（jobs の passive.autoOpt）… 自分の 番の たびに、仲間全員の 力を 1つ じゅんばんに 上げる（自動最適化）
-import { JOBS } from './data/jobs.js?v=bf896afe56a6';
-import { stackBuff } from './battle.js?v=bf896afe56a6';
-import { BUFF_ACTS } from './buff-acts.js?v=bf896afe56a6';
+import { JOBS } from './data/jobs.js?v=66b0267ceac2';
+import { stackBuff } from './battle.js?v=66b0267ceac2';
+import { BUFF_ACTS } from './buff-acts.js?v=66b0267ceac2';
 
 export const KI_MAX = 3;
 export const CLONE_MAX = 6;

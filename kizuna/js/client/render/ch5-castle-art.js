@@ -1,6 +1,6 @@
 // 第5章 Step 8 の とくべつな え（render/ch5-earth-art.js の paintEarthSpecial から paintCastleSpecial）
 // ・ice_statue … 影の城 6階・7階の 氷の像（すきとおった 青い 竜の 像。向いている 方へ つめたい 息。2コマで 息が ゆれる）
-import { Painter } from './pixel.js?v=bf896afe56a6';
+import { Painter } from './pixel.js?v=66b0267ceac2';
 
 const IC = { d: '#2a5a8a', b: '#5a9ad0', m: '#8ac4f0', l: '#c8ecff', w: '#ffffff', base: '#4a4a5e', baseL: '#6a6a80', baseD: '#2e2e3e' };
 const BREATH = ['#e8f8ff', '#b8e4ff'];

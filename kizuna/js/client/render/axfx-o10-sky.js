@@ -2,8 +2,8 @@
 // 気象予報士 … 小さな 雲・天気マーク・温度計（空の ほんの 一部が かわる）
 // お天気キャスター … 天気図・テレビの わく・マイク・かさ・前線（テレビの 天気予報が そのまま 空に なる）
 // 時間は shared/data/ax-time-o10.js。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=bf896afe56a6';
-import { obj, text, rain, rays, front, sky, arrow, UP, above, ground, hands, partyTop, pick, hitFx, strike, tierShake, allyGlow, splashAt } from './axfx-o10-kit.js?v=bf896afe56a6';
+import { rnd } from './axkit.js?v=66b0267ceac2';
+import { obj, text, rain, rays, front, sky, arrow, UP, above, ground, hands, partyTop, pick, hitFx, strike, tierShake, allyGlow, splashAt } from './axfx-o10-kit.js?v=66b0267ceac2';
 
 const W = '#ffffff', YEL = '#ffe040', PALE = '#fff6b0', RAIN = '#9ad8ff', WATER = '#3a8ae0', HEAT = '#ff8a3a', SUN = '#ffd060', HEAL = '#7dffb0';
 const BOLT_COLS = [W, PALE, YEL];

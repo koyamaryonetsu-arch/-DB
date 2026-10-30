@@ -3,29 +3,29 @@
 // ・まぼろしの 分身: 本物の 足もとの 小さな 影・分身が 消える ときの えんしゅつ・まぼろしが もどる 前ぶれ
 // ・ボスの 大技（砂嵐・砂の大うず・砂しぶき・大ジャンプ）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
 // ・砂に もぐる（Step 6 の 砂クジラ）: もぐった 敵は 砂の 山に なって ねらえない。砂が もり上がると 山が ゆれて 前ぶれ
-import { ITEMS } from '../shared/data/items.js?v=bf896afe56a6';
-import { BW, BH } from './render/battlefx.js?v=bf896afe56a6';
+import { ITEMS } from '../shared/data/items.js?v=66b0267ceac2';
+import { BW, BH } from './render/battlefx.js?v=66b0267ceac2';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js?v=bf896afe56a6';
+import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js?v=66b0267ceac2';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { TOWER_SCREEN_ANIMS, TOWER_ALLY_FX, towerPresent } from './battle-ch5.js?v=bf896afe56a6';
+import { TOWER_SCREEN_ANIMS, TOWER_ALLY_FX, towerPresent } from './battle-ch5.js?v=66b0267ceac2';
 // 第5章 Step 3・4 の クモイ地方・古い神殿の 魔物と ガイアイーター（battle-gaia.js）
-import { GAIA_SCREEN_ANIMS, GAIA_ALLY_FX } from './battle-gaia.js?v=bf896afe56a6';
+import { GAIA_SCREEN_ANIMS, GAIA_ALLY_FX } from './battle-gaia.js?v=66b0267ceac2';
 // 第5章 Step 5 の 星読みの里・思い出の迷宮の 魔物と ノクトの影（battle-nocto.js）
-import { NOCTO_SCREEN_ANIMS, NOCTO_ALLY_FX } from './battle-nocto.js?v=bf896afe56a6';
+import { NOCTO_SCREEN_ANIMS, NOCTO_ALLY_FX } from './battle-nocto.js?v=66b0267ceac2';
 // 第5章 Step 6・7 の 根の島・大地の神殿の 魔物と ノクト（1回目。battle-earth.js）
-import { EARTH_SCREEN_ANIMS, EARTH_ALLY_FX } from './battle-earth.js?v=bf896afe56a6';
+import { EARTH_SCREEN_ANIMS, EARTH_ALLY_FX } from './battle-earth.js?v=66b0267ceac2';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（battle-final.js）
-import { FINAL_SCREEN_ANIMS, FINAL_ALLY_FX } from './battle-final.js?v=bf896afe56a6';
+import { FINAL_SCREEN_ANIMS, FINAL_ALLY_FX } from './battle-final.js?v=66b0267ceac2';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（battle-phantom.js）
-import { PHANTOM_SCREEN_ANIMS, PHANTOM_ALLY_FX } from './battle-phantom.js?v=bf896afe56a6';
+import { PHANTOM_SCREEN_ANIMS, PHANTOM_ALLY_FX } from './battle-phantom.js?v=66b0267ceac2';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（battle-ch6.js）
-import { CH6_SCREEN_ANIMS, CH6_ALLY_FX } from './battle-ch6.js?v=bf896afe56a6';
+import { CH6_SCREEN_ANIMS, CH6_ALLY_FX } from './battle-ch6.js?v=66b0267ceac2';
 // 第2部 第6章 Step 3・4 の 魔物と 星くいのよる鳥・ペンデュラ（battle-road.js）
-import { ROAD_SCREEN_ANIMS, ROAD_ALLY_FX } from './battle-road.js?v=bf896afe56a6';
+import { ROAD_SCREEN_ANIMS, ROAD_ALLY_FX } from './battle-road.js?v=66b0267ceac2';
 // 第2部 第6章 Step 5 の 時計塔の 魔物と カリヨン（battle-tokei.js）
-import { TOKEI_SCREEN_ANIMS, TOKEI_ALLY_FX } from './battle-tokei.js?v=bf896afe56a6';
-import { TOKEI6_SCREEN_ANIMS, TOKEI6_ALLY_FX } from './battle-tokei6.js?v=bf896afe56a6';
+import { TOKEI_SCREEN_ANIMS, TOKEI_ALLY_FX } from './battle-tokei.js?v=66b0267ceac2';
+import { TOKEI6_SCREEN_ANIMS, TOKEI6_ALLY_FX } from './battle-tokei6.js?v=66b0267ceac2';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
