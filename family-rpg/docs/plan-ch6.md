@@ -755,3 +755,13 @@
   - `tools/kanji-check.mjs` は A と B の 両方が 数行たしている（A は Step 3・4 の A の 行の すぐ 下）
 - B との 約束：出現表 `t6_tower_low`（1〜5階。`spawnCounts` は A の マップ）・きまった 戦い `carillon`（`boss: true`・`canFlee: false`・`bgm: 'boss6'`。勝つと 台本が 続く）・背景 `tokei`・`TOWER_TREASURE_FLOORS`（{ 1〜5: [2こ] }。宝箱の id は `k6_<階>c<i>`）・`RION_GUEST`（`GUESTS.rion`。`c6_clock` で 入って Step 5 の あいだ ずっと）。中ボスの 大きな NPC の 絵は A の `carillon_npc`、`showMon` の 絵は B
 - まとめの ファイルに 足した 行：`shared/tiles.js`（タイル 289〜306 の ID と `def` 19行）・`shared/world/world.js`（import と `stepTokei` の 3行）・`shared/world/services.js`（import と `'bookmark'` の 3行）・`shared/world/time-glass.js`（`GLASS_TEXT.tower`・`gap` と `timeSpot` の 6行）・`shared/data/story-ch6.js`（import・`CH6_STEPS`・`OLD_C6_OBJ.kanata`・行き先・会話・すすみ・`applyCh6c`）・`shared/data/story-ch6b.js`（`C6B_OBJ.kanata`・`ch6StaleObjective`・カナタの 場面の さいご・`elderCh6b`）・`shared/data/sidequests-ch6.js`（3か所）・`shared/data/items-ch6-key.js`（4行）・`shared/maps/ch6.js`（Step 5 の attach）・`client/render/tiles-ch6.js`（`TK_*` を まぜる 8か所）・`client/render/ch6-art.js`（3行）・`client/render/themes.js`（`partOfProp` の 1行と import）・`client/audio-ch6.js`（`tokei`）・`client/time-shift.js`（かざりの 光）・`tools/kanji-check.mjs`（`gameFiles()` の 3行）。`maps/index.js`・`data/story.js`・`data/items.js`・`data/shops.js`・`data/sidequests.js`・`data/progress.js`・`party-talk.js`・`quest-targets.js`・`client/ui/menu.js`・`render/field3d.js` は かえていない
+
+## 16. Step 6 を 作る 前の 見なおし（第53回の 素案。2026年10月30日。家族に 聞く）
+
+> 13-3〜13-7 は 家族の 答え（ぜんぶ おすすめ）の まま。そのあとに 足した しくみ（幻の職業・家族のけいじ板・天気・配合の 見なおし）と 合わせる 所だけ
+
+- **時計塔の 魔物（6〜8しゅ）を、配合で 足りない 系統・ランクに 入れる**（`docs/plan-r53-breed-more.md`。ゾンビの A・せいれいの B と A・物質の S など）。どれも 仲間に なる
+- **クリアのあとの「時のまぼろし」**（1日1回）に 勝ったら、家族のけいじ板に のせる（「パパが 時のまぼろしに 勝った！」。勝ち方は「見る」で）
+- **リオンの けいこ試合**（より道）の ごほうびの「ひらめき技の ヒント」は、けいじ板の ひらめき技の 知らせと つなげる
+- **第6章クリアの ★5の 武器**は、幻の職業でも 使える ように（職業ごとに えらべる 4しゅの ほかに、幻の職業むけの 1しゅ）
+- おすすめの レベルは 66〜68 の まま（回復の のびを ひかえめに した あとの ボスの めやすで 合わせる）
