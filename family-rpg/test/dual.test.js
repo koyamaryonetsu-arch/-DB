@@ -163,8 +163,8 @@ test('オートで ねらう 合体技は もう ない（前の セーブに �
   assert.equal(b.command(b.allies[0].id, { type: 'setAutoDual', id: 'dt_honoo_tatsumaki' }, 's1').ok, false, 'えらぶ コマンドも ない');
 });
 
-test('合体技の 強さ: 2人が ふつうに 技を 出した ときの 合計より ずっと 強い（人数で 上がる）', () => {
-  assert.ok(DUAL_POWER[2] >= 1.6 && DUAL_POWER[2] <= 2, `2人技 ${DUAL_POWER[2]}倍`);
+test('合体技の 強さ: 2人が ふつうに 技を 出した ときの 合計より ずっと 強い（人数で 上がる。第55回で 2.4・3・4倍に）', () => {
+  assert.ok(DUAL_POWER[2] >= 1.6 && DUAL_POWER[2] <= 2.6, `2人技 ${DUAL_POWER[2]}倍`);
   assert.ok(DUAL_POWER[3] >= 2.1, `3人技 ${DUAL_POWER[3]}倍`);
   assert.ok(DUAL_POWER[4] >= 2.8, `4人技 ${DUAL_POWER[4]}倍`);
   // 炎の竜巻: メラ＋バギの ころより、メラゾーマ＋バギマの ほうが 強い（2人が 強くなるほど 強い）

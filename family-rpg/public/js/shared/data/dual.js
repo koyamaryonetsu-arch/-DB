@@ -284,7 +284,7 @@ export const DUAL_TECHS = {
   // 第31回: きずな技だった ミナデインが 合体技に。勇者の 系統が 1人 いれば、のこりの 3人は だれでも よい（家族が 決めた れいがい）。
   // 合体技で いちばん 強い 敵1体の 雷（k 1.4 は 合体技で いちばん 大きい。ボスへは さいだいHPの 35%まで・MPも 多め。tools/sim-dual.mjs minadein）
   dt_minadein: {
-    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.35,
+    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.42,
     parts: [{ type: 'power', kind: 'magic', element: 'bolt', k: 1.4, say: 'みんなの力が、1つの大きな雷になった！' }],
     desc: '勇者が天にかかげた手に、仲間みんなの力が集まる。勇者の系統の人が1人いれば、あとの3人はだれでもよい。敵1体に、合体技でいちばん強い雷をおとす。', anim: 'minadein',
   },
