@@ -1,6 +1,6 @@
 // 第49回 O3: 会社員・アルバイト（基本職）の 技の え。時間は shared/data/ax-time-o3.js（はなつ しゅんかんが 0）
 // 名刺・かばん・コーヒー・時計・カレンダー・ダンボール・レジ・台車… を 1つ 大きく 出す。画面の 文字は カタカナ・記号だけ
-import { obj, word, strip, arrows, strike, picks, UP, rnd, GOLD, HEAL, MP, src, papers, healAt } from './axfx-o3-lib.js?v=847e4bcd6ab2';
+import { obj, word, strip, arrows, strike, picks, UP, rnd, GOLD, HEAL, MP, src, papers, healAt } from './axfx-o3-lib.js?v=e9f7d3379e55';
 
 export const AX_O3_KAISHA = {
   // ── 会社員

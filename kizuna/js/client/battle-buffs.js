@@ -4,8 +4,8 @@
 //   数は のこりの 行動の 回数（かかった 人が 行動するたびに 1 へる）。ずっと つづく ものは 数なし
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（r35-css.js と おなじ やりかた）
 //   .tag.slv … 技の レベルの 札（メニューの「呪文・技」・戦いの 技の 一覧。Lv5 は .max で 金色）
-import { el } from './ui/dom.js?v=847e4bcd6ab2';
-import { buffMarks, regenMark, statusNames } from './ui/info.js?v=847e4bcd6ab2';
+import { el } from './ui/dom.js?v=e9f7d3379e55';
+import { buffMarks, regenMark, statusNames } from './ui/info.js?v=e9f7d3379e55';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }

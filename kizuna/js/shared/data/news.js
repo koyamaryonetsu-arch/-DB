@@ -8,6 +8,12 @@
 // { id, date: 'YYYY-MM-DD', title, text }
 export const NEWS = [
   {
+    id: 'r52-back',
+    date: '2026-10-30',
+    title: '戦いのもどるボタン',
+    text: 'スマホをたてに持って戦う時、呪文や特技、ねらう相手を選ぶ画面では、コマンドのわくの外の左下に、大きな「← もどる」が出るようになりました。',
+  },
+  {
     id: 'r51-phantom',
     date: '2026-10-29',
     title: '幻の職業',

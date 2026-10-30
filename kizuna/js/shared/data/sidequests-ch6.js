@@ -7,11 +7,11 @@
 //  3. ちびアステルのたからもの … 千年前の ちびアステルが きらきらの石を 集めている（千年前の フィールドで 5つ）→ わたす
 //     → 今の ほしみの丘に アステルが おりてくる「…思い出した」→ 星竜のうろこ（★5）
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests.js の labSubQuests・labDoneQuests から（ch6SubQuests・ch6DoneQuests）
-import { C6 } from '../maps/past.js?v=847e4bcd6ab2';
-import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=847e4bcd6ab2';
-import { SHOPS } from './shops.js?v=847e4bcd6ab2';
+import { C6 } from '../maps/past.js?v=e9f7d3379e55';
+import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=e9f7d3379e55';
+import { SHOPS } from './shops.js?v=e9f7d3379e55';
 // 第6章 Step 5（A）: トキネの砂時計のかざり（sidequests-ch6c.js。ここで まぜる）
-import { ch6cSubQuests, ch6cDoneQuests, applyCh6cSide } from './sidequests-ch6c.js?v=847e4bcd6ab2';
+import { ch6cSubQuests, ch6cDoneQuests, applyCh6cSide } from './sidequests-ch6c.js?v=e9f7d3379e55';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

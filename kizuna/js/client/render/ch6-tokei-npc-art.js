@@ -3,7 +3,7 @@
 // ・carillon_npc … かねつきのからくり カリヨン（5階の 広間の すがた。大きな ハンマーを もった からくり人形）
 // ・stop_mon_a・stop_mon_b … 止まった 部屋の 止まった 魔物（灰色の 歯車虫・ふりこコウモリ）
 // ・toki_orn … トキネの 砂時計の かざり（小さな 金の 砂時計。光る）
-import { Painter } from './pixel.js?v=847e4bcd6ab2';
+import { Painter } from './pixel.js?v=e9f7d3379e55';
 
 const BR = { d: '#5a3e18', b: '#a07a30', l: '#d8b050', hl: '#f8e090' };
 const ST = { dd: '#2e2418', d: '#4a3c2c', b: '#6e5a44', l: '#8e7a62', ln: '#3a2e22' };

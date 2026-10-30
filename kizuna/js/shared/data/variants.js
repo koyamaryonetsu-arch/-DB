@@ -12,7 +12,7 @@
 //   ・強さ: もとの 魔物に しゅるいの 倍率（k）を かける。レベルは もとと おなじ（ひみつのダンジョンでは 階の レベルまで 強くなる）
 //   ・経験値・お金: しゅるいの 倍率（exp・gold）。落とす 物は もとと おなじ（素材〈loot.js の MAT_DROPS〉は 落とさない）
 //   ・仲間に ならない（noBefriend。MONSTER_FRIENDS にも 入れない）。図鑑には 出ない（見た・たおした 記録は 色ちがいの ID で のこる）
-import { MONSTERS } from './monsters.js?v=847e4bcd6ab2';
+import { MONSTERS } from './monsters.js?v=e9f7d3379e55';
 
 // しゅるい（名前の 前に つける ことば・色・強さ）
 export const VARIANT_KINDS = {
