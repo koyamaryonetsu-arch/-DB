@@ -111,7 +111,7 @@ export function hourOf(n, has) {
 }
 export const hourWord = (h) => `${h % 12 === 0 ? 12 : h % 12}時`;
 // 針の 橋の とびら（その マスを 通る 時こくの どれかの とき 橋）
-function handGates(n) {
+export function handGates(n) {
   const c = CLOCKS[n];
   const cover = new Map();
   for (let h = 0; h < 12; h++) for (const p of handCells(c, h)) {
