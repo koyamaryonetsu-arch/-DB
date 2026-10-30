@@ -12,7 +12,8 @@
 //   ・強さ: もとの 魔物に しゅるいの 倍率（k）を かける。レベルは もとと おなじ（ひみつのダンジョンでは 階の レベルまで 強くなる）
 //   ・経験値・お金: しゅるいの 倍率（exp・gold）。落とす 物は もとと おなじ（素材〈loot.js の MAT_DROPS〉は 落とさない）
 //   ・仲間に ならない（noBefriend。MONSTER_FRIENDS にも 入れない）。図鑑には 出ない（見た・たおした 記録は 色ちがいの ID で のこる）
-import { MONSTERS } from './monsters.js?v=a9ce9cd0de1b';
+//   ・第53回 D: 配合で「色の石」を 使うと 色ちがいの 仲間が 生まれる（下の colorKinds・colorMon。仲間は もとの しゅぞくに color を つける）
+import { MONSTERS } from './monsters.js?v=ba9bc083e891';
 
 // しゅるい（名前の 前に つける ことば・色・強さ）
 export const VARIANT_KINDS = {
@@ -61,8 +62,7 @@ export function makeVariant(baseId, kind) {
   const m = MONSTERS[baseId];
   const v = VARIANT_KINDS[kind];
   if (!m || !v || m.variant) return null;
-  const resist = { ...(m.resist || {}) };
-  for (const [el, x] of Object.entries(v.resist || {})) resist[el] = x < 1 ? Math.min(resist[el] ?? 1, x) : Math.max(resist[el] ?? 1, x);
+  const resist = colorResist(m.resist, kind);
   return {
     ...m,
     name: `${v.prefix}${m.name}`,
@@ -89,6 +89,22 @@ export function registerVariant(baseId, kind) {
   Object.defineProperty(MONSTERS, id, { value: data, enumerable: false, configurable: true, writable: true });
   return id;
 }
+
+// その しゅるいが あるか（'__proto__' などは だめ）
+export const kindOk = (kind) => typeof kind === 'string' && Object.prototype.hasOwnProperty.call(VARIANT_KINDS, kind);
+// 属性の 強さ・弱さに 色ちがいの しゅるいを かさねる（効きにくい ほうは 小さい ほう・弱い ほうは 大きい ほう）
+export function colorResist(base, kind) {
+  const resist = { ...(base || {}) };
+  if (!kindOk(kind)) return resist;
+  for (const [el, x] of Object.entries(VARIANT_KINDS[kind].resist || {})) resist[el] = x < 1 ? Math.min(resist[el] ?? 1, x) : Math.max(resist[el] ?? 1, x);
+  return resist;
+}
+
+// 第53回 D: 色ちがいの 仲間（配合で 色の石を 使う。world/breed.js の char.color。しゅぞくは もとの 魔物の まま）
+// その 魔物に とうろく ずみの 色ちがいの しゅるい（敵に 出る 色ちがいが ある 魔物だけ。新しい 色ちがいを 足すと ふえる）
+export const colorKinds = (sp) => Object.keys(VARIANT_KINDS).filter((k) => Object.prototype.hasOwnProperty.call(MONSTERS, variantId(sp, k)));
+// 色ちがいの 仲間の 絵の ID（顔・ついてくる 絵・戦い。色が ない・作れない ときは もとの ID）
+export const colorMon = (sp, kind) => (sp && kindOk(kind) ? registerVariant(sp, kind) || sp : sp || undefined);
 
 // 色ちがいなら { base, kind }（ちがえば null）
 export function variantOf(sp) {

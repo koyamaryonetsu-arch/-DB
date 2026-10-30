@@ -3,12 +3,14 @@
 // 「どうする？」→ 魔物をあずける／魔物をひきとる／やめる
 //   あずける: 仲間の 魔物を えらぶ（パーティー・馬車に いても よい。装備は ふくろへ）→「〇〇をあずかるね。いい？」
 //   ひきとる: あずかり中の 魔物を えらぶ → 酒場へ（仲間が いっぱい〈40〉なら できない）
-import { el, esc } from './dom.js?v=a9ce9cd0de1b';
-import { Counter } from './counter.js?v=a9ce9cd0de1b';
-import { request } from './shop.js?v=a9ce9cd0de1b';
-import { faceURL } from '../field.js?v=a9ce9cd0de1b';
-import { boardIconURL } from '../render/boards.js?v=a9ce9cd0de1b';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a9ce9cd0de1b';
+import { el, esc } from './dom.js?v=ba9bc083e891';
+import { Counter } from './counter.js?v=ba9bc083e891';
+import { request } from './shop.js?v=ba9bc083e891';
+import { faceURL } from '../field.js?v=ba9bc083e891';
+import { boardIconURL } from '../render/boards.js?v=ba9bc083e891';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ba9bc083e891';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../../shared/data/variants.js?v=ba9bc083e891';
 
 const AGAIN = 'ほかにもご用はある？';
 
@@ -32,7 +34,7 @@ const HINTS = {
 
 const row = (e) => ({
   value: e.key,
-  face: faceURL({ mon: e.species }),
+  face: faceURL({ mon: colorMon(e.species, e.color) }),
   label: e.name,
   html: `${esc(e.name)}${e.plus ? `<span class="plus">+${e.plus}</span>` : ''} <span class="muted small">${esc(MONSTERS[e.species]?.name || '')} Lv${e.level}</span>`,
   right: e.where,

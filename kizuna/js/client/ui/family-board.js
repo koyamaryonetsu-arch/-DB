@@ -2,8 +2,8 @@
 //   一覧は 見出しだけ（だれが・何を・いつ）。なりかた・覚えかたは その 行で「見る」を おした 時だけ 出る（ネタバレ よけ）
 //   まだ 見ていない 知らせが あると メニューに ●（キャラごとの c.boardSeen）。
 //   だれかの 知らせが のると、遊んでいる 人に 小さな 知らせ（戦いの 間は 戦いが おわってから）
-import { el, esc, toast } from './dom.js?v=a9ce9cd0de1b';
-import { boardRows, boardUnread, boardWhen } from '../../shared/world/family-board.js?v=a9ce9cd0de1b';
+import { el, esc, toast } from './dom.js?v=ba9bc083e891';
+import { boardRows, boardUnread, boardWhen } from '../../shared/world/family-board.js?v=ba9bc083e891';
 
 export const BOARD_TOAST = '家族のけいじ板に、\n新しい知らせがあります';
 const TOAST_GAP = 8000;

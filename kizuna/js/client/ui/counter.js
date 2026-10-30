@@ -4,17 +4,19 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js?v=a9ce9cd0de1b';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=a9ce9cd0de1b';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a9ce9cd0de1b';
-import { jobLabel } from '../../shared/job-label.js?v=a9ce9cd0de1b';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=a9ce9cd0de1b';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=a9ce9cd0de1b';
-import { faceURL } from '../field.js?v=a9ce9cd0de1b';
-import { boardIconURL } from '../render/boards.js?v=a9ce9cd0de1b';
-import { partyRows } from './hud.js?v=a9ce9cd0de1b';
-import { shownEquip } from '../../shared/look-equip.js?v=a9ce9cd0de1b';
-import { rareNameHtml } from './rarity.js?v=a9ce9cd0de1b';
+import { el, ListMenu, esc } from './dom.js?v=ba9bc083e891';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=ba9bc083e891';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ba9bc083e891';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../../shared/data/variants.js?v=ba9bc083e891';
+import { jobLabel } from '../../shared/job-label.js?v=ba9bc083e891';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=ba9bc083e891';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=ba9bc083e891';
+import { faceURL } from '../field.js?v=ba9bc083e891';
+import { boardIconURL } from '../render/boards.js?v=ba9bc083e891';
+import { partyRows } from './hud.js?v=ba9bc083e891';
+import { shownEquip } from '../../shared/look-equip.js?v=ba9bc083e891';
+import { rareNameHtml } from './rarity.js?v=ba9bc083e891';
 
 const TYPE_MS = 18;
 
@@ -276,11 +278,11 @@ export function myTeam(game) {
     if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
       name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
-      species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined,
+      species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined, color: x.color || undefined,
     };
     out.push({
       key: x.key, name: x.name, char, wagon,
-      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
+      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: colorMon(x.species, x.color) }),
       kind: x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x),
     });
   };
@@ -297,7 +299,7 @@ export function partyTeam(game) {
   const supports = new Map((p?.supports || []).map((x) => [x.key, x]));
   const other = (x, tag) => ({
     key: null, mine: false, tag, name: x.name,
-    char: { name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {}, species: x.species || undefined, plus: x.plus || 0 },
+    char: { name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {}, species: x.species || undefined, plus: x.plus || 0, color: x.color || undefined },
     realSt: x.st ? { ...x.st, maxHp: x.maxHp, maxMp: x.maxMp } : null,
   });
   const out = [];

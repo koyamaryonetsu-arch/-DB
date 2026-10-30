@@ -29,9 +29,9 @@
 //   pitch       … 野球の 職業の 投げる 技（えんしゅつ ball・消える魔球・三しん、名前に 球）と、名前に 速球・直球・魔球
 //   sun・rain・thunder … 天気の 技（技の データの weather: 'sun'|'rain'|'thunder'。W 班が つける）
 //   幻の職業の 技も 名前・職業で 入る（例: かめはめデイン は kame）。技に phantomTags: ['gomu', …] を 書くと それも 足す
-import { ABILITIES, abilityRole } from './abilities.js?v=a9ce9cd0de1b';
-import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js?v=a9ce9cd0de1b';
-import { jobLabel } from '../job-label.js?v=a9ce9cd0de1b';
+import { ABILITIES, abilityRole } from './abilities.js?v=ba9bc083e891';
+import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js?v=ba9bc083e891';
+import { jobLabel } from '../job-label.js?v=ba9bc083e891';
 
 export const PHANTOM_TAGS = ['gomu', 'thunderSpell', 'kame', 'hinokami', 'ninjutsu', 'support', 'deduce', 'healSpell', 'attackSpell',
   'sword', 'debuff', 'train', 'pitch', 'sun', 'rain', 'thunder'];

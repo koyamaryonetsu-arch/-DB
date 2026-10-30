@@ -1,40 +1,44 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=a9ce9cd0de1b';
-import { ITEMS } from '../../shared/data/items.js?v=a9ce9cd0de1b';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=a9ce9cd0de1b';
-import { ABILITIES } from '../../shared/data/abilities.js?v=a9ce9cd0de1b';
-import { abilityFor } from '../../shared/ability-label.js?v=a9ce9cd0de1b';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=a9ce9cd0de1b';
-import { salonUI } from './salon.js?v=a9ce9cd0de1b';
-import { vehicleShopUI } from './vehicles.js?v=a9ce9cd0de1b';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=a9ce9cd0de1b';
-import { jobUpKeys } from '../../shared/data/job-trials.js?v=a9ce9cd0de1b';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a9ce9cd0de1b';
-import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=a9ce9cd0de1b';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=a9ce9cd0de1b';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=a9ce9cd0de1b';
-import { TACTICS } from '../../shared/ai.js?v=a9ce9cd0de1b';
-import { itemDetail, gearText } from './info.js?v=a9ce9cd0de1b';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=a9ce9cd0de1b';
-import { shopUI, churchUI } from './shop.js?v=a9ce9cd0de1b';
-import { bankUI } from './bank.js?v=a9ce9cd0de1b';
-import { forgeUI } from './forge.js?v=a9ce9cd0de1b';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=a9ce9cd0de1b';
-import { casinoUI } from './casino.js?v=a9ce9cd0de1b';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=ba9bc083e891';
+import { ITEMS } from '../../shared/data/items.js?v=ba9bc083e891';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=ba9bc083e891';
+import { ABILITIES } from '../../shared/data/abilities.js?v=ba9bc083e891';
+import { abilityFor } from '../../shared/ability-label.js?v=ba9bc083e891';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=ba9bc083e891';
+import { salonUI } from './salon.js?v=ba9bc083e891';
+import { vehicleShopUI } from './vehicles.js?v=ba9bc083e891';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=ba9bc083e891';
+import { jobUpKeys } from '../../shared/data/job-trials.js?v=ba9bc083e891';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ba9bc083e891';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=ba9bc083e891';
+// 第53回 A・D: 系統まぜ配合の うわさ・色の石
+import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=ba9bc083e891';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=ba9bc083e891';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=ba9bc083e891';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=ba9bc083e891';
+import { TACTICS } from '../../shared/ai.js?v=ba9bc083e891';
+import { itemDetail, gearText } from './info.js?v=ba9bc083e891';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=ba9bc083e891';
+import { shopUI, churchUI } from './shop.js?v=ba9bc083e891';
+import { bankUI } from './bank.js?v=ba9bc083e891';
+import { forgeUI } from './forge.js?v=ba9bc083e891';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=ba9bc083e891';
+import { casinoUI } from './casino.js?v=ba9bc083e891';
 // 第50回 D3: 星のかけらの こうかんの 見せかた（なかまの 絵・NEW・こうかんの えんしゅつ）
-import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=a9ce9cd0de1b';
-import { sdBoardUI } from './secret.js?v=a9ce9cd0de1b';
+import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=ba9bc083e891';
+import { sdBoardUI } from './secret.js?v=ba9bc083e891';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=a9ce9cd0de1b';
-import { shownEquip } from '../../shared/look-equip.js?v=a9ce9cd0de1b';
-import { jobAskText } from '../../shared/data/job-talk.js?v=a9ce9cd0de1b';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=a9ce9cd0de1b';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=a9ce9cd0de1b';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=ba9bc083e891';
+import { shownEquip } from '../../shared/look-equip.js?v=ba9bc083e891';
+import { jobAskText } from '../../shared/data/job-talk.js?v=ba9bc083e891';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=ba9bc083e891';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=ba9bc083e891';
 // 第43回 C: 魔物あずかり所（ui/storage.js）と、仲間が いっぱいの 時の えらぶ文（shared/world/farewell.js）
-import { storageUI } from './storage.js?v=a9ce9cd0de1b';
-import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=a9ce9cd0de1b';
+import { storageUI } from './storage.js?v=ba9bc083e891';
+import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=ba9bc083e891';
 // 第51回 F: 幻の職業の 条件・うわさ（shared/data/phantom.js）
-import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=a9ce9cd0de1b';
+import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=ba9bc083e891';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -338,7 +342,7 @@ function tavernUI(game, data) {
     s.body.append(side, main);
     let info = data;
     const sfx = (x) => game.audio.sfx(x);
-    const face = (e) => faceURL({ look: e.look, job: e.job, eq: shownEquip(e), mon: e.species || undefined });
+    const face = (e) => faceURL({ look: e.look, job: e.job, eq: shownEquip(e), mon: colorMon(e.species, e.color) });
     const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${jobLabel(e.job, e)} Lv${e.level}`);
     const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
     const ARRANGE_KEY = '#arrange';
@@ -501,6 +505,8 @@ function tavernUI(game, data) {
     const KIND_TEXT = {
       four: '★ 4体配合！', material: '★ 素材配合！', rank: '★ ランク配合！', special: '★ めずらしい組み合わせ！', recipe: '★ めずらしい組み合わせ！',
       same: '★ 新生配合（「+」が大きく上がる）',
+      // 第53回 A: ちがう 系統どうしの まぜの 子
+      mix: '★ まぜ配合（ちがう系統の子）',
     };
     const trendText = (f) => `${TREND_MARK[f.trend]} ${f.lowRank ? 'ランクが下がる' : f.trend === 'down' ? '親より弱くなるかも' : f.trend === 'up' ? '育てると親より強くなる' : '育てると親と同じくらい'}`;
     const breedRules = () => el('div', { class: 'detail', text: [
@@ -510,6 +516,8 @@ function tavernUI(game, data) {
       '・「+」が多いほどよく育ち、レベルの上限も上がる',
       '・同じ種類の2ひきだと、同じ魔物のまま「+」が大きく上がる',
       '・生まれる子が何種類かある時は、自分で選べる。どちらを1ぴきめにしても同じ',
+      `・${MIX_RUMOR}`,
+      '・色の石を持っていると、色ちがいの子が生まれることがある',
       '・親の2ひきは旅立っていく（装備はふくろにもどる）',
     ].join('\n') });
     // 配合の 画面の 右（スマホの たてでは 下）: 1ぴきめ・2ひきめ と 生まれる 子の みほん
@@ -540,7 +548,7 @@ function tavernUI(game, data) {
         main.append(breedRules());
         // 酒場の うわさ（まだ 見たことがない 配合だけの 魔物の ヒント）
         const rumors = breedRumors(game.me, MONSTERS, 3);
-        if (rumors.length) main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: rumors.map((h) => `・？？？ … ${h}`).join('\n') }));
+        main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: [`・${MIX_RUMOR}`, ...rumors.map((h) => `・？？？ … ${h}`)].join('\n') }));
       }
     };
     const TOP_TEXT = {
@@ -558,7 +566,7 @@ function tavernUI(game, data) {
         if (pr.length) main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: pr.map((h) => `・${h}`).join('\n') }));
         if (key === V_BREED) {
           const rumors = breedRumors(game.me, MONSTERS, 3);
-          if (rumors.length) main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: rumors.map((h) => `・？？？ … ${h}`).join('\n') }));
+          main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: [`・${MIX_RUMOR}`, ...rumors.map((h) => `・？？？ … ${h}`)].join('\n') }));
         }
         return;
       }
@@ -582,7 +590,7 @@ function tavernUI(game, data) {
           : `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\n別れた人間の仲間は、あとでまたさそえる（レベル1から）。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
-      const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
+      const pv = e.species ? followerSprite({ mon: colorMon(e.species, e.color) }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
       const img = el('canvas', { width: pv.width, height: pv.height, class: e.species ? 'tv-face' : 'tv-face hero' });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（仲間になるとこのレベル）` : who(e) }));
@@ -799,10 +807,10 @@ function tavernUI(game, data) {
       const note = el('div', { class: 'small good', style: { minHeight: '1.3em' } });
       const say = (ch) => { note.textContent = ch ? `${KIND_TEXT[ch.kind] || ''}${ch.item ? `（${ITEMS[ch.item]?.name || ''}がなくなる）` : ''}` : ''; };
       say(pv.choices[0]);
-      return choose(game, `生まれる子を選んでね（${pv.choices.length}種）\n↓…親より弱くなるかも`, [
+      return choose(game, `生まれる子を選んでね（${pv.choices.length}種）\n↓…親より弱くなるかも　ランク↓…ランクが1つ下`, [
         ...pv.choices.map((ch) => ({
           face: childFace(ch.sp, ch.unseen), value: ch.sp,
-          html: `${ch.unseen ? '？？？' : esc(MONSTERS[ch.sp]?.name || '')} <span class="muted small">ランク${ch.rank} ＋${ch.plus}</span>${ch.unseen ? '<span class="tag good">NEW</span>' : ''}`,
+          html: `${ch.unseen ? '？？？' : esc(MONSTERS[ch.sp]?.name || '')} <span class="muted small">ランク${ch.rank} ＋${ch.plus}</span>${ch.unseen ? '<span class="tag good">NEW</span>' : ''}${ch.low ? '<span class="tag warn">ランク↓</span>' : ''}`,
           right: TREND_MARK[ch.trend], rightCls: TREND_CLS[ch.trend],
         })),
         { label: 'やめる', value: null },
@@ -830,18 +838,31 @@ function tavernUI(game, data) {
           pv = r.preview;
         }
       }
+      // 第53回 D: 色の石が あって、色ちがいが ある 子なら、使うか えらぶ（色の石は 配合した ときだけ なくなる）
+      let color = null;
+      if (pv.stone > 0 && pv.colors?.length) {
+        const v = await choose(game, `色の石を使う？（のこり${pv.stone}こ）\n色ちがいの子は、属性の強さ・弱さがかわる`, [
+          { label: '使わない', value: '#none' },
+          ...pv.colors.map((x) => ({ label: pv.unseen ? `${VARIANT_KINDS[x.kind]?.prefix || ''}？？？` : x.name, value: x.kind, right: '色の石' })),
+          { label: 'やめる', value: null },
+        ]);
+        if (!v) return null;
+        if (v !== '#none') color = pv.colors.find((x) => x.kind === v) || null;
+      }
       const inherit = pv.skills.a.length || pv.skills.b.length ? await pickSkills(pv) : { a: [], b: [] };
       if (!inherit) return null;
       // まだ 見たことがない 子は 名前も ひみつ（空のままなら 種族の 名前。酒場で あとから 変えられる）
       const label = childLabel(pv);
+      // 色ちがいの 名前（8文字まで。長い 時は しゅぞくの 名前）
+      const shown = color && color.name.length <= 8 ? color.name : pv.childName;
       const nm = await askText(game.input, pv.unseen
         ? { title: '生まれる子の名前（空のままなら種族の名前）', max: 8, initial: '', placeholder: '？？？' }
-        : { title: `生まれる${pv.childName}の名前`, max: 8, initial: pv.childName });
+        : { title: `生まれる${color ? color.name : pv.childName}の名前`, max: 8, initial: shown });
       if (nm === null) return null;
       const A = entries.get(a), B = entries.get(b);
-      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || label}（${label} ランク${pv.rank} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）${pv.itemName ? `\n※ ${pv.itemName}を使う（なくなる）` : ''}`, '配合する', 'やめる', sfx);
+      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || label}（${color && !pv.unseen ? color.name : label} ランク${pv.rank} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）${pv.itemName ? `\n※ ${pv.itemName}を使う（なくなる）` : ''}${color ? '\n※ 色の石を使う（なくなる）' : ''}`, '配合する', 'やめる', sfx);
       if (!ok) return null;
-      return doReq({ action: 'breed', a, b, child: pv.child, inherit, name: nm || (pv.unseen ? '' : pv.childName) });
+      return doReq({ action: 'breed', a, b, child: pv.child, inherit, name: nm || (pv.unseen ? '' : shown), color: color?.kind || null });
     };
     // 配合の 画面で えらんだ: 1ぴきめ → 2ひきめ（配合へ）。1ぴきめを もう一度 えらぶと はずす
     const breedPick = async (key) => {

@@ -7,11 +7,11 @@
 // ・とちゅうで 切れた などで のこった フラグは、だれも 星読みを していない とき、古道の 階を 歩くと 消える
 //
 // 星の もや（maps/hoshimichi.js の map.mist）: 本当の 道 いがいの もやを ふむと、もやの 入口へ もどされる（どの 人も 1人ずつ）
-import { MAPS } from '../maps/index.js?v=a9ce9cd0de1b';
-import { STARSIGHT } from '../maps/hoshimichi.js?v=a9ce9cd0de1b';
-import { hasKeyItem } from '../stats.js?v=a9ce9cd0de1b';
-import { ScriptRun } from './scripts.js?v=a9ce9cd0de1b';
-import { partyOf } from './party.js?v=a9ce9cd0de1b';
+import { MAPS } from '../maps/index.js?v=ba9bc083e891';
+import { STARSIGHT } from '../maps/hoshimichi.js?v=ba9bc083e891';
+import { hasKeyItem } from '../stats.js?v=ba9bc083e891';
+import { ScriptRun } from './scripts.js?v=ba9bc083e891';
+import { partyOf } from './party.js?v=ba9bc083e891';
 
 export const STAR_ITEM = 'c6s_star_reading';
 export const STAR_STEPS = 40;

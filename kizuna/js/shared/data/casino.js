@@ -10,7 +10,7 @@ export const COIN_MAX = 99999; // 持てる コインの 数
 export const COIN_BUY_MAX = 9999; // 1回に 買える 数
 export const COIN_PACKS = [10, 50, 100, 500, 1000];
 // 第50回 D3: 景品を 豪華に（data/prizes-r50.js の 品を PRIZES・MEDAL_REWARDS の うしろに まぜる）
-import { PRIZES_R50, MEDAL_REWARDS_R50 } from './prizes-r50.js?v=a9ce9cd0de1b';
+import { PRIZES_R50, MEDAL_REWARDS_R50 } from './prizes-r50.js?v=ba9bc083e891';
 
 // コインの 数（こわれた セーブでも 0〜COIN_MAX の 整数）
 export function coinsOf(c) {
@@ -255,6 +255,8 @@ export const PRIZES = [
   { id: 'thunder_stone', coins: 1500, need: 'c2_clear' },
   { id: 'moon_stone', coins: 2000, need: 'c2_clear' },
   { id: 'everstone', coins: 800, need: 'c2_clear' },
+  // 第53回 D: 色の石（配合で 色ちがいの 子。data/breed-mix.js）
+  { id: 'color_stone', coins: 2500, need: 'c2_clear' },
   // 第37回 B: 宝の地図の クリア数の 段（tier。data/casino-tier.js）で ふえる 景品。上の 段ほど めずらしい 種・★4〜★5
   { id: 'seed_mp', coins: 1000, tier: 1 },
   { id: 'seed_heal', coins: 1000, tier: 1 },

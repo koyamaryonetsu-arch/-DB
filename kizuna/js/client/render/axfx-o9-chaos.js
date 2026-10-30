@@ -1,8 +1,8 @@
 // 第51回 C3（o9）: はかいと創造の神 の え（8技）。c の 時間は はなつ しゅんかんが 0
 // ・はかい … 白い 光・消しゴムで まっ白に けす（o9Erase）・むらさきと 黒の つぶ
 // ・創造   … 青い 点線の 設計図から 色が つく 装備（o9Gear）・金の 火花・生まれる 星（o9Galaxy）
-import { txt, line, bg, boom, blessing, arrows, N, org } from './axfx-o4-kit.js?v=a9ce9cd0de1b';
-import { sky, galaxy, erase, gear, party, O9_GEARS } from './axfx-o9-kit.js?v=a9ce9cd0de1b';
+import { txt, line, bg, boom, blessing, arrows, N, org } from './axfx-o4-kit.js?v=ba9bc083e891';
+import { sky, galaxy, erase, gear, party, O9_GEARS } from './axfx-o9-kit.js?v=ba9bc083e891';
 
 const VOID = ['#ffffff', '#e8d8ff', '#b48aff', '#5a2a8a'];
 const MAKE = ['#ffffff', '#fff6b0', '#ffd23a', '#5ac8ff'];

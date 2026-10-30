@@ -6,13 +6,13 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=a9ce9cd0de1b';
-import { ITEMS, SLOTS } from './items.js?v=a9ce9cd0de1b';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=a9ce9cd0de1b';
-import { makeRng } from '../rng.js?v=a9ce9cd0de1b';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=a9ce9cd0de1b';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=a9ce9cd0de1b';
-import { curveK } from './tm-curve.js?v=a9ce9cd0de1b';
+import { MONSTERS } from './monsters.js?v=ba9bc083e891';
+import { ITEMS, SLOTS } from './items.js?v=ba9bc083e891';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=ba9bc083e891';
+import { makeRng } from '../rng.js?v=ba9bc083e891';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=ba9bc083e891';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=ba9bc083e891';
+import { curveK } from './tm-curve.js?v=ba9bc083e891';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）
@@ -233,7 +233,8 @@ const CONSUMABLES = [
 // 第50回: 種（強さを 上げる 道具）は 宝の洞窟から 出ない。かわりに めずらしい 回復の 道具（店に ない）
 const TM_GOODIES = ['elf_drink', 'revive_flower'];
 // （かわらずのいしは 装備なので 宝箱には 入れない。カジノ・メダル王）
-const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone'];
+// 第53回 D: 色の石（配合で 色ちがいの 子）も まれに
+const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone', 'color_stone'];
 
 // rng … 宝箱ごとに きまった 乱数（洞窟の seed から）/ kind: 'normal' | 'bossA' | 'bossB'
 // cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）

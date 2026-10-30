@@ -5,11 +5,11 @@
 //   ・あずけた 魔物は 戦わない・育たない。酒場の 配合の 親には なれる（world/breed.js。「あずかり中」の しるし）
 //   ・戦いの あとに 仲間が いっぱいの 時の「あずかり所へ送る」（world/farewell.js・scripts.js の 'befriend'）
 //   ・酒場で 人間の 仲間を さそう 時に いっぱいの 時の「あずかり所へ送る」（world/services.js の 'recruit' の store）
-import { MONSTERS } from '../data/monsters.js?v=a9ce9cd0de1b';
-import { ROSTER_MAX } from '../data/companions.js?v=a9ce9cd0de1b';
-import { SLOTS } from '../data/items.js?v=a9ce9cd0de1b';
-import { addItem, fullHeal } from '../stats.js?v=a9ce9cd0de1b';
-import { ensureCompanions, ensureStorage, storedOf, companionOf, afterRosterChange, STORAGE_MAX } from './party.js?v=a9ce9cd0de1b';
+import { MONSTERS } from '../data/monsters.js?v=ba9bc083e891';
+import { ROSTER_MAX } from '../data/companions.js?v=ba9bc083e891';
+import { SLOTS } from '../data/items.js?v=ba9bc083e891';
+import { addItem, fullHeal } from '../stats.js?v=ba9bc083e891';
+import { ensureCompanions, ensureStorage, storedOf, companionOf, afterRosterChange, STORAGE_MAX } from './party.js?v=ba9bc083e891';
 
 export const STORAGE_KEEPER = '魔物あずかり所のモモ';
 
@@ -67,7 +67,7 @@ export function storageInfo(world, s) {
   const c = ensureStorage(ensureCompanions(s.char));
   const busy = new Set([...(c.partyKeys || []), ...(c.wagonKeys || [])]);
   const row = (e, where) => ({
-    key: e.key, name: e.char.name, species: e.species, level: e.char.level || 1, plus: e.char.plus || 0,
+    key: e.key, name: e.char.name, species: e.species, level: e.char.level || 1, plus: e.char.plus || 0, color: e.char.color || undefined,
     spName: MONSTERS[e.species]?.name || '', where,
   });
   return {

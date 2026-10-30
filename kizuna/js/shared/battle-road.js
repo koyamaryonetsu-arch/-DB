@@ -16,13 +16,13 @@
 //   その 人の ゲージが 0 に なって、ペンデュラが pend.stop 回 動くまで（ふりこが はしから もどり始めるまで）止まる。身を 守っていると 止まらない。
 //   右の はしに 来ると「大ふりこ」の 前ぶれ → 次の 番に 大ふりこ（みんなに 物理の 大技。身を 守ると 半分）
 // ・知っている 人（シミュレーター。b.knowsCh6）は roadKnow（b.c6NoLight・b.c6NoGuard … しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=a9ce9cd0de1b';
-import { STAR_EATER, PENDULA } from './data/monsters-road.js?v=a9ce9cd0de1b';
-import { BUFF_ACTS } from './buff-acts.js?v=a9ce9cd0de1b';
+import { MONSTERS } from './data/monsters.js?v=ba9bc083e891';
+import { STAR_EATER, PENDULA } from './data/monsters-road.js?v=ba9bc083e891';
+import { BUFF_ACTS } from './buff-acts.js?v=ba9bc083e891';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=a9ce9cd0de1b';
+import { atbRate } from './battle.js?v=ba9bc083e891';
 // 第2部 第6章 Step 5: カリヨン（時のかね）。battle-tokei.js（ここから よぶ）
-import { setupTokei, tokeiTurnStart, tokeiEffect, tokeiPub } from './battle-tokei.js?v=a9ce9cd0de1b';
+import { setupTokei, tokeiTurnStart, tokeiEffect, tokeiPub } from './battle-tokei.js?v=ba9bc083e891';
 
 export { STAR_EATER, PENDULA };
 export const AIM = 'm6_se_aim';

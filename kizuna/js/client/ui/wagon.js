@@ -1,16 +1,18 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast, ListMenu } from './dom.js?v=a9ce9cd0de1b';
-import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js?v=a9ce9cd0de1b';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=a9ce9cd0de1b';
-import { MAPS } from '../../shared/maps/index.js?v=a9ce9cd0de1b';
-import { jobLabel } from '../../shared/job-label.js?v=a9ce9cd0de1b';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a9ce9cd0de1b';
-import { computeStats } from '../../shared/stats.js?v=a9ce9cd0de1b';
-import { faceURL } from '../field.js?v=a9ce9cd0de1b';
-import { wagonSprite } from '../render/wagon.js?v=a9ce9cd0de1b';
-import { request } from './shop.js?v=a9ce9cd0de1b';
-import { shownEquip } from '../../shared/look-equip.js?v=a9ce9cd0de1b';
+import { el, esc, toast, ListMenu } from './dom.js?v=ba9bc083e891';
+import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js?v=ba9bc083e891';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=ba9bc083e891';
+import { MAPS } from '../../shared/maps/index.js?v=ba9bc083e891';
+import { jobLabel } from '../../shared/job-label.js?v=ba9bc083e891';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ba9bc083e891';
+// 第53回 D: 色ちがいの 仲間の 絵
+import { colorMon } from '../../shared/data/variants.js?v=ba9bc083e891';
+import { computeStats } from '../../shared/stats.js?v=ba9bc083e891';
+import { faceURL } from '../field.js?v=ba9bc083e891';
+import { wagonSprite } from '../render/wagon.js?v=ba9bc083e891';
+import { request } from './shop.js?v=ba9bc083e891';
+import { shownEquip } from '../../shared/look-equip.js?v=ba9bc083e891';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）
@@ -86,7 +88,7 @@ export function wagonPicURL(dir = 'left') {
 
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」。shared/job-label.js）
 const kindName = (x) => (x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x));
-const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined });
+const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: colorMon(x.species, x.color) });
 
 // じぶんの 仲間の じょうほう（key → 名前・HP など。game.me の companions から）
 function mateInfo(me, key) {
