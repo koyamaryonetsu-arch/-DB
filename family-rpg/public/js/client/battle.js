@@ -331,7 +331,17 @@ export class BattleScene {
     // 技・道具の せつめいの まど（第27回: 戦いの メッセージとは 別。戦いが 進んでも 消えない・上書きされない）
     this.infoEl = el('div', { class: 'win b-info' });
     const bottom = el('div', { class: 'b-bottom' }, this.cmdEl, this.infoEl, this.msgEl);
-    root.append(top, this.stage, bottom);
+    // 第52回: スマホ たてむきの 大きな「← もどる」（コマンドの わくの 外・左下。css の .b-backbar。もどれる 時だけ 出る）
+    this.backBar = el('div', { class: 'b-backbar' }, el('button', {
+      class: 'btn b-backbig',
+      'aria-label': 'もどる',
+      text: '← もどる',
+      onclick: (e) => {
+        e.stopPropagation();
+        this.menu?.cancel();
+      },
+    }));
+    root.append(top, this.stage, bottom, this.backBar);
     this.statusBoxes = new Map();
     this.renderStatus(true);
     this.renderCmdIdle();
@@ -495,6 +505,7 @@ export class BattleScene {
   }
 
   closeMenus() {
+    this.root?.classList.remove('has-back');
     if (this.ended) this.closeTactics();
     this.closeFavPop();
     this.menu?.blur();
@@ -588,6 +599,8 @@ export class BattleScene {
     });
     this.cmdEl.append(m.root);
     this.menu = m;
+    // もどれる メニューの ときだけ、たてむきの 大きな「← もどる」を 出す
+    this.root?.classList.toggle('has-back', !!onCancel);
     if (start >= 0) this.restoreScroll(m, keep);
     m.focus();
     // さくせんの まどが ひらいている 間は、キーは そちらへ（とじたら こちらに もどる）
