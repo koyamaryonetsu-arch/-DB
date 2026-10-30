@@ -145,7 +145,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
   const pos = Math.max(0, Math.min(sups.length, selfPosOf(world, party)));
   entries.push(...sups.slice(0, pos), ...humans, ...sups.slice(pos));
   for (const e of entries) allies.push(e.ally);
-  const guests = opts.solo ? [] : party.guests;
+  // 第54回: 味方が 5人（PARTY_MAX）そろって いる ときは、ゲストは 戦いに 入らない（6人目は いらない）
+  const guests = opts.solo ? [] : party.guests.slice(0, Math.max(0, PARTY_MAX - allies.length));
   for (const g of guests) allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
   const b = new Battle({
     id: 'b' + (battleSeq++),
