@@ -10,7 +10,7 @@ export const COIN_MAX = 99999; // 持てる コインの 数
 export const COIN_BUY_MAX = 9999; // 1回に 買える 数
 export const COIN_PACKS = [10, 50, 100, 500, 1000];
 // 第50回 D3: 景品を 豪華に（data/prizes-r50.js の 品を PRIZES・MEDAL_REWARDS の うしろに まぜる）
-import { PRIZES_R50, MEDAL_REWARDS_R50 } from './prizes-r50.js?v=a02b94650854';
+import { PRIZES_R50, MEDAL_REWARDS_R50 } from './prizes-r50.js?v=a9ce9cd0de1b';
 
 // コインの 数（こわれた セーブでも 0〜COIN_MAX の 整数）
 export function coinsOf(c) {

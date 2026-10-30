@@ -1,7 +1,7 @@
 // 第51回 C2（o8）: 名探てい王の 技の え（はなつ ところ）。この ファイルは C2 だけが さわる
 // 金の 虫めがね・先を 見とおす 目・かいちゅう時計・「？」が「！」に かわる しゅんかん・光る サッカーボール
 // 時間は shared/data/ax-time-o8.js。play の 時間は はなつ しゅんかんが 0
-import { prop, text, hands, above, sky, per, partyTop, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=a02b94650854';
+import { prop, text, hands, above, sky, per, partyTop, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=a9ce9cd0de1b';
 
 const GOLD = '#ffd23a', NAVY = '#1a3a8a', BLUE = '#3a7ae0', SKY = '#9ad8ff', W = '#ffffff', RED = '#ff4a5a';
 

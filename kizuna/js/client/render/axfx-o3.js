@@ -6,10 +6,10 @@
 // ・職業ごとに 分けた: axfx-o3-kaisha.js（会社員・アルバイト）・axfx-o3-joushi.js（部長・正社員・社ちく・楽天カードマン）・
 //   axfx-o3-shachou.js（社長・キャリア組・たたき上げ社長・ブラックきぎょうの星・合体技）。絵と つぶの かきかたは axfx-o3-lib.js
 // ・どの え も さいごに balance（もとからの 技の 予算 AX_BUDGET_ORIG の つぶの かず: 敵1体でも 下限 いじょう、敵5体でも 上限 いか）
-import { AX_O3_FINE as FINE, withBalance } from './axfx-o3-lib.js?v=a02b94650854';
-import { AX_O3_KAISHA } from './axfx-o3-kaisha.js?v=a02b94650854';
-import { AX_O3_JOUSHI } from './axfx-o3-joushi.js?v=a02b94650854';
-import { AX_O3_SHACHOU } from './axfx-o3-shachou.js?v=a02b94650854';
+import { AX_O3_FINE as FINE, withBalance } from './axfx-o3-lib.js?v=a9ce9cd0de1b';
+import { AX_O3_KAISHA } from './axfx-o3-kaisha.js?v=a9ce9cd0de1b';
+import { AX_O3_JOUSHI } from './axfx-o3-joushi.js?v=a9ce9cd0de1b';
+import { AX_O3_SHACHOU } from './axfx-o3-shachou.js?v=a9ce9cd0de1b';
 
 export const AX_O3 = withBalance({ ...AX_O3_KAISHA, ...AX_O3_JOUSHI, ...AX_O3_SHACHOU });
 

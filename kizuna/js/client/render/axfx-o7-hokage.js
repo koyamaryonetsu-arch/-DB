@@ -1,8 +1,8 @@
 // 第51回 C1（o7）: 日の火影の 技の え（影分身・ヒノカミ神楽の 炎の 太刀・日輪らせん丸・きつね・炎の 結界）
 // ・影分身は オレンジの 服に 黄色い かみの 忍び（o7Obj の ninja）。ボンと けむりで 出て、それぞれ 炎の 刀で まう
 // ・看板の 技は 夜の 空 → 分身たちが 敵を かこんで 炎の 輪を えがく → さいごに 夜明けの 光
-import { obj, fly, text, bg, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow } from './axfx-o7-kit.js?v=a02b94650854';
-import { rnd } from './axkit.js?v=a02b94650854';
+import { obj, fly, text, bg, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow } from './axfx-o7-kit.js?v=a9ce9cd0de1b';
+import { rnd } from './axkit.js?v=a9ce9cd0de1b';
 
 const FIRE = ['#ffffff', '#ffd23a', '#ff7a1a', '#c8302a'];
 const SUN = '#ff8a1a';

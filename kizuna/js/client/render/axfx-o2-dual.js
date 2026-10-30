@@ -1,7 +1,7 @@
 // 第49回 O2: 合体技（ため なし。顔の カットインの あとに 出る）の え。この ファイルは O2 だけが さわる
 // 時間は shared/data/ax-time-o2.js（2人 1600・3人 1900）。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=a02b94650854';
-import { add, obj, txt, bg, claw, rays, hands, ground, above, per, upMark, fist, punchHit } from './axfx-o2-kit.js?v=a02b94650854';
+import { rnd } from './axkit.js?v=a9ce9cd0de1b';
+import { add, obj, txt, bg, claw, rays, hands, ground, above, per, upMark, fist, punchHit } from './axfx-o2-kit.js?v=a9ce9cd0de1b';
 
 const DARK = { main: '#8a4ae0', glow: '#c8a8f0', core: '#f0e0ff', dark: '#1a0a2a', list: ['#8a5ac8', '#3a2a5a', '#c8a8f0'] };
 const BLAST = { main: '#ff9a2a', glow: '#ffd66b', core: '#ffffff', dark: '#8a3a0a', list: ['#ffffff', '#ffd66b', '#ff8a2a'] };

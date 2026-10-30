@@ -6,14 +6,14 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=a02b94650854';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=a02b94650854';
+import { ITEMS, baseItemId } from '../data/items.js?v=a9ce9cd0de1b';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=a9ce9cd0de1b';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
-} from '../data/alchemy.js?v=a02b94650854';
-import { partyOf } from './party.js?v=a02b94650854';
-import { bossRareOf } from '../data/rare-loot.js?v=a02b94650854';
+} from '../data/alchemy.js?v=a9ce9cd0de1b';
+import { partyOf } from './party.js?v=a9ce9cd0de1b';
+import { bossRareOf } from '../data/rare-loot.js?v=a9ce9cd0de1b';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;

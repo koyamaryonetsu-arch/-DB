@@ -4,7 +4,7 @@
 //   t5_castle_fire  … 5〜8階「炎の階」（火の粉オオカミ・ろうそくおばけ・黒ほのおの騎士。かおのない影も 少し）
 //   t5_castle_water … 9〜12階「水の階」（鏡くらげ・水かげの大へび・あわの歌姫。かおのない影も 少し）
 // 4階・8階の 休み所と、まぼろしの いる 部屋は 魔物が 出ない（A8 の マップ）
-import { registerVariant } from './variants.js?v=a02b94650854';
+import { registerVariant } from './variants.js?v=a9ce9cd0de1b';
 
 // 色ちがい（data/variants.js）: 階の おくで まれに 出る（経験値と お金が 多い）
 export const PHANTOM_VARIANTS = [registerVariant('mill_keeper', 'dark'), registerVariant('blackflame_knight', 'shadow'), registerVariant('shade_serpent', 'dark')];

@@ -2,9 +2,9 @@
 // ・しかる 技は ぎざぎざの ふきだし「コラーッ」・音の 輪・雷。しかられた 敵には 汗と「シュン…」（反省して 止まる）
 // ・家族に かける 技は ごはん・お弁当・ハート・ほうき（axfx-o5 の 小物を かりる）
 // ・宇宙の しるし: うずまきの 銀河・星（axfx-o9-kit.js）
-import { obj as o4, txt, rings, boom, blessing, arrows, N, org } from './axfx-o4-kit.js?v=a02b94650854';
-import { obj as o5, fly, toss } from './axfx-o5-kit.js?v=a02b94650854';
-import { sky, galaxy, bubble, zabuton, party } from './axfx-o9-kit.js?v=a02b94650854';
+import { obj as o4, txt, rings, boom, blessing, arrows, N, org } from './axfx-o4-kit.js?v=a9ce9cd0de1b';
+import { obj as o5, fly, toss } from './axfx-o5-kit.js?v=a9ce9cd0de1b';
+import { sky, galaxy, bubble, zabuton, party } from './axfx-o9-kit.js?v=a9ce9cd0de1b';
 
 const GOLD = ['#ffffff', '#fff6b0', '#ffd23a', '#ffb020'];
 const PINK = ['#ffffff', '#ffc8dc', '#ff7aa8'];

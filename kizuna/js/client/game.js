@@ -1,22 +1,22 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=a02b94650854';
-import { GameAudio } from './audio.js?v=a02b94650854';
-import { Field } from './field.js?v=a02b94650854';
-import { Hud, STAMPS } from './ui/hud.js?v=a02b94650854';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=a02b94650854';
-import { ScriptPlayer, wait } from './ui/script.js?v=a02b94650854';
-import { BattleScene } from './battle.js?v=a02b94650854';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=a02b94650854';
-import { showServerDown } from './ui/syncui.js?v=a02b94650854';
-import { toast, confirmBox, el } from './ui/dom.js?v=a02b94650854';
-import { MAPS } from '../shared/maps/index.js?v=a02b94650854';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=a02b94650854';
-import { SkyClient } from './sky.js?v=a02b94650854';
+import { Input } from './input.js?v=a9ce9cd0de1b';
+import { GameAudio } from './audio.js?v=a9ce9cd0de1b';
+import { Field } from './field.js?v=a9ce9cd0de1b';
+import { Hud, STAMPS } from './ui/hud.js?v=a9ce9cd0de1b';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=a9ce9cd0de1b';
+import { ScriptPlayer, wait } from './ui/script.js?v=a9ce9cd0de1b';
+import { BattleScene } from './battle.js?v=a9ce9cd0de1b';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=a9ce9cd0de1b';
+import { showServerDown } from './ui/syncui.js?v=a9ce9cd0de1b';
+import { toast, confirmBox, el } from './ui/dom.js?v=a9ce9cd0de1b';
+import { MAPS } from '../shared/maps/index.js?v=a9ce9cd0de1b';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=a9ce9cd0de1b';
+import { SkyClient } from './sky.js?v=a9ce9cd0de1b';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=a02b94650854';
-import { reportError } from './errlog.js?v=a02b94650854';
+import { QuickButton } from './ui/quick-item.js?v=a9ce9cd0de1b';
+import { reportError } from './errlog.js?v=a9ce9cd0de1b';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=a02b94650854';
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=a9ce9cd0de1b';
 
 export class Game {
   constructor(net) {
@@ -763,7 +763,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=a02b94650854').then(({ offlineStorage }) => {
+      import('./offline.js?v=a9ce9cd0de1b').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

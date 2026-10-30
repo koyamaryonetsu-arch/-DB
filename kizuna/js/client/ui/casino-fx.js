@@ -3,7 +3,7 @@
 //     level: 'tiny'（光るだけ）・'small'（当たり！ 約1びょう）・'big'（大当たり！ 約2びょう）・'jackpot'（約2.6びょう）
 //   タップを じゃましない（pointer-events: none）。つぎの 勝負を はじめると stopFx() で すぐ 消える
 //   casinoSfx(game, id) … カジノだけの 音（audio.js の tone・noise で その場で 作る）
-import { el } from './dom.js?v=a02b94650854';
+import { el } from './dom.js?v=a9ce9cd0de1b';
 
 const DUR = { tiny: 700, small: 1100, big: 2100, jackpot: 2600 };
 const COINS = { tiny: 0, small: 16, big: 46, jackpot: 90 };

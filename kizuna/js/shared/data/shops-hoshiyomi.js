@@ -1,7 +1,7 @@
 // 第5章 Step 5「星読みの里」の お店（data/shops.js で まぜる）。よろず屋に 武器・防具・道具の 3人
 // 品ぞろえは B（戦い・品）の data/items-hoshiyomi.js の HOSHIYOMI_SHOP_WEAPONS・HOSHIYOMI_SHOP_ARMOR・HOSHIYOMI_SHOP_TOOLS（plan-ch5.md の 14）。
 // 品の ならびは B の data/items-hoshiyomi.js
-import { HOSHIYOMI_SHOP_WEAPONS, HOSHIYOMI_SHOP_ARMOR, HOSHIYOMI_SHOP_TOOLS } from './items-hoshiyomi.js?v=a02b94650854';
+import { HOSHIYOMI_SHOP_WEAPONS, HOSHIYOMI_SHOP_ARMOR, HOSHIYOMI_SHOP_TOOLS } from './items-hoshiyomi.js?v=a9ce9cd0de1b';
 
 export const SHOPS_HOSHIYOMI = {
   hoshiyomi_weapon: {

@@ -3,7 +3,7 @@
 //   t6_tower_low … 時計塔 1〜5階（千年前だけ。おすすめ Lv64〜66）。3階の 休み所・5階の 中ボスの 間は 魔物が 出ない（A の マップ）
 // 新しい 絵の 魔物は 3しゅ（ころがり歯車・びっくりばねばこ・キラー）。のこりは 時のいせきの からくりの 魔物の
 // 色ちがい「ぜんまい〇〇」（variants.js の 'clock'。真ちゅう色・体が かたい・雷に 少し 弱い）
-import { registerVariant } from './variants.js?v=a02b94650854';
+import { registerVariant } from './variants.js?v=a9ce9cd0de1b';
 
 // 色ちがい（data/variants.js）: ぜんまいじかけ 4しゅ と、まれに 出る ゴールドころがり歯車（お金が 多い）
 export const TOKEI_VARIANTS = [

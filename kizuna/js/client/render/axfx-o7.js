@@ -4,11 +4,11 @@
 // ・カットインの 帯・画面の くらさは つかわない。画面の 文字に 漢字は 出さない（「人」だけ OK）
 // ・分けた ファイル: axfx-o7-pirate.js（海賊王）・axfx-o7-hero.js（伝説の超勇者）・axfx-o7-hokage.js（日の火影）・axfx-o7-ai.js（天才しせつ管理者AI）。
 //   小さな どうぐと つぶの かきかたは axfx-o7-kit.js。どの え も さいごに balance（段の つぶの かず）
-import { AX_O7_PIRATE } from './axfx-o7-pirate.js?v=a02b94650854';
-import { AX_O7_HERO } from './axfx-o7-hero.js?v=a02b94650854';
-import { AX_O7_HOKAGE } from './axfx-o7-hokage.js?v=a02b94650854';
-import { AX_O7_AI } from './axfx-o7-ai.js?v=a02b94650854';
-import { AX_O7_FINE as FINE, withBalance } from './axfx-o7-kit.js?v=a02b94650854';
+import { AX_O7_PIRATE } from './axfx-o7-pirate.js?v=a9ce9cd0de1b';
+import { AX_O7_HERO } from './axfx-o7-hero.js?v=a9ce9cd0de1b';
+import { AX_O7_HOKAGE } from './axfx-o7-hokage.js?v=a9ce9cd0de1b';
+import { AX_O7_AI } from './axfx-o7-ai.js?v=a9ce9cd0de1b';
+import { AX_O7_FINE as FINE, withBalance } from './axfx-o7-kit.js?v=a9ce9cd0de1b';
 
 export const AX_O7 = withBalance({ ...AX_O7_PIRATE, ...AX_O7_HERO, ...AX_O7_HOKAGE, ...AX_O7_AI });
 

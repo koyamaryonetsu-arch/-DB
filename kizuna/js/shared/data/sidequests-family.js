@@ -16,16 +16,16 @@
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
 //  6〜11. 第41回（data/sidequests-work.js）
-import { medalSteps } from './story-lab.js?v=a02b94650854';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=a02b94650854';
-import { FAMILY_ITEMS } from './items-family.js?v=a02b94650854';
+import { medalSteps } from './story-lab.js?v=a9ce9cd0de1b';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=a9ce9cd0de1b';
+import { FAMILY_ITEMS } from './items-family.js?v=a9ce9cd0de1b';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=a02b94650854';
+} from '../maps/family-quests.js?v=a9ce9cd0de1b';
 // 職業の 系統・ヒント・乗り物の どうぐ（data/fq-common.js。第41回で 分けた）
-import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=a02b94650854';
+import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=a9ce9cd0de1b';
 // 第41回: ふえた 6つの たのまれごと（data/sidequests-work.js）
-import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=a02b94650854';
+import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=a9ce9cd0de1b';
 
 export { jobLine, jobLineNames, lineMember, partyHasLine };
 
