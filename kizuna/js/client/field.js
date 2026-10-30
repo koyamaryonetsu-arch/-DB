@@ -1,29 +1,29 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=ba9bc083e891';
-import { T, TILE_INFO } from '../shared/tiles.js?v=ba9bc083e891';
-import { PLACES } from '../shared/maps/overworld.js?v=ba9bc083e891';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=ba9bc083e891';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=ba9bc083e891';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=ba9bc083e891';
-import { shownEquip } from '../shared/look-equip.js?v=ba9bc083e891';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=ba9bc083e891';
-import { MONSTERS } from '../shared/data/monsters.js?v=ba9bc083e891';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=bf896afe56a6';
+import { T, TILE_INFO } from '../shared/tiles.js?v=bf896afe56a6';
+import { PLACES } from '../shared/maps/overworld.js?v=bf896afe56a6';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=bf896afe56a6';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=bf896afe56a6';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=bf896afe56a6';
+import { shownEquip } from '../shared/look-equip.js?v=bf896afe56a6';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=bf896afe56a6';
+import { MONSTERS } from '../shared/data/monsters.js?v=bf896afe56a6';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=ba9bc083e891';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=ba9bc083e891';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=ba9bc083e891';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=ba9bc083e891';
-import { boardCanvas } from './render/boards.js?v=ba9bc083e891';
-import { el } from './ui/dom.js?v=ba9bc083e891';
-import { syncTreasureGates } from './ui/treasure.js?v=ba9bc083e891';
-import { skyNpcSprite } from './render/sky-art.js?v=ba9bc083e891';
-import { wagonDraws } from './render/wagon.js?v=ba9bc083e891';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=ba9bc083e891';
-import { Weather } from './render/weather.js?v=ba9bc083e891';
-import { flySpeed } from '../shared/data/sky.js?v=ba9bc083e891';
-import { timeFlag } from '../shared/world/clock.js?v=ba9bc083e891';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=ba9bc083e891';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=ba9bc083e891';
+import { colorMon } from '../shared/data/variants.js?v=bf896afe56a6';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=bf896afe56a6';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=bf896afe56a6';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=bf896afe56a6';
+import { boardCanvas } from './render/boards.js?v=bf896afe56a6';
+import { el } from './ui/dom.js?v=bf896afe56a6';
+import { syncTreasureGates } from './ui/treasure.js?v=bf896afe56a6';
+import { skyNpcSprite } from './render/sky-art.js?v=bf896afe56a6';
+import { wagonDraws } from './render/wagon.js?v=bf896afe56a6';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=bf896afe56a6';
+import { Weather } from './render/weather.js?v=bf896afe56a6';
+import { flySpeed } from '../shared/data/sky.js?v=bf896afe56a6';
+import { timeFlag } from '../shared/world/clock.js?v=bf896afe56a6';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=bf896afe56a6';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=bf896afe56a6';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -230,7 +230,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=ba9bc083e891');
+          const { Field3D } = await import('./render/field3d.js?v=bf896afe56a6');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -1378,12 +1378,14 @@ export class Field {
       air: !!(sky?.flying || sky?.anim),
       cart: !!this.riding,
       hidden: !!this.hideMe || !!sky?.ridingAlong?.(),
+      // 第6章 Step 6: 千年前は ぜんまい馬だけ（data/vehicles.js）
+      past: !!this.map?.past,
     });
   }
 
   // ほかの 人: サーバーの いちの じょうほう（vh … 走って 乗っている 時だけ とどく）
   otherVehicle(o) {
-    return rideShown(o?.vh, { running: !!o?.moving, ship: !!this.map && this.isOnWater(o.x, o.y), air: !!o?.air });
+    return rideShown(o?.vh, { running: !!o?.moving, ship: !!this.map && this.isOnWater(o.x, o.y), air: !!o?.air, past: !!this.map?.past });
   }
 
   // 人を のせた 乗り物の 絵（コマは 時間で。3コマの 乗り物も ある）

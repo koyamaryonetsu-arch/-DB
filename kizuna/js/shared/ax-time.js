@@ -12,26 +12,26 @@
 // きまりは docs/plan-r48-fx.md の「G0 の 決めごと」
 // ・第49回: もとからの 技（ふつうの 職業・ひらめき・合体技）の グループ o1〜o6（shared/data/ax-time-o1.js 〜 o6.js）も まぜる。
 //   anim の なまえは ox_〜（アニメの g1〜g6 は ax_〜）。予算は AX_BUDGET_ORIG（アニメの 大技より 軽い。気は つかわない）。きまりは docs/plan-r49-fx.md
-import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js?v=ba9bc083e891';
-import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js?v=ba9bc083e891';
-import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js?v=ba9bc083e891';
-import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js?v=ba9bc083e891';
-import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js?v=ba9bc083e891';
-import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js?v=ba9bc083e891';
-import { AX_TIME_O1, AX_SKILLS_O1, AX_FAMILIES_O1 } from './data/ax-time-o1.js?v=ba9bc083e891';
-import { AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2 } from './data/ax-time-o2.js?v=ba9bc083e891';
-import { AX_TIME_O3, AX_SKILLS_O3, AX_FAMILIES_O3 } from './data/ax-time-o3.js?v=ba9bc083e891';
-import { AX_TIME_O4, AX_SKILLS_O4, AX_FAMILIES_O4 } from './data/ax-time-o4.js?v=ba9bc083e891';
-import { AX_TIME_O5, AX_SKILLS_O5, AX_FAMILIES_O5 } from './data/ax-time-o5.js?v=ba9bc083e891';
-import { AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6 } from './data/ax-time-o6.js?v=ba9bc083e891';
+import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js?v=bf896afe56a6';
+import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js?v=bf896afe56a6';
+import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js?v=bf896afe56a6';
+import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js?v=bf896afe56a6';
+import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js?v=bf896afe56a6';
+import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js?v=bf896afe56a6';
+import { AX_TIME_O1, AX_SKILLS_O1, AX_FAMILIES_O1 } from './data/ax-time-o1.js?v=bf896afe56a6';
+import { AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2 } from './data/ax-time-o2.js?v=bf896afe56a6';
+import { AX_TIME_O3, AX_SKILLS_O3, AX_FAMILIES_O3 } from './data/ax-time-o3.js?v=bf896afe56a6';
+import { AX_TIME_O4, AX_SKILLS_O4, AX_FAMILIES_O4 } from './data/ax-time-o4.js?v=bf896afe56a6';
+import { AX_TIME_O5, AX_SKILLS_O5, AX_FAMILIES_O5 } from './data/ax-time-o5.js?v=bf896afe56a6';
+import { AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6 } from './data/ax-time-o6.js?v=bf896afe56a6';
 // 第51回 W: 天気の 職業（気象予報士・お天気キャスター・天候をあやつる者）の 技
-import { AX_TIME_O10, AX_SKILLS_O10, AX_FAMILIES_O10 } from './data/ax-time-o10.js?v=ba9bc083e891';
+import { AX_TIME_O10, AX_SKILLS_O10, AX_FAMILIES_O10 } from './data/ax-time-o10.js?v=bf896afe56a6';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）
-import { AX_TIME_O9, AX_SKILLS_O9, AX_FAMILIES_O9 } from './data/ax-time-o9.js?v=ba9bc083e891';
+import { AX_TIME_O9, AX_SKILLS_O9, AX_FAMILIES_O9 } from './data/ax-time-o9.js?v=bf896afe56a6';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）の 技（o7）
-import { AX_TIME_O7, AX_SKILLS_O7, AX_FAMILIES_O7 } from './data/ax-time-o7.js?v=ba9bc083e891';
+import { AX_TIME_O7, AX_SKILLS_O7, AX_FAMILIES_O7 } from './data/ax-time-o7.js?v=bf896afe56a6';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
-import { AX_TIME_O8, AX_SKILLS_O8, AX_FAMILIES_O8 } from './data/ax-time-o8.js?v=ba9bc083e891';
+import { AX_TIME_O8, AX_SKILLS_O8, AX_FAMILIES_O8 } from './data/ax-time-o8.js?v=bf896afe56a6';
 
 // 段階（B 基本・A 上級・S 超級・L 伝説）
 export const AX_TIERS = ['basic', 'advanced', 'super', 'legend'];

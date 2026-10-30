@@ -3,7 +3,10 @@
 // ・carillon_npc … かねつきのからくり カリヨン（5階の 広間の すがた。大きな ハンマーを もった からくり人形）
 // ・stop_mon_a・stop_mon_b … 止まった 部屋の 止まった 魔物（灰色の 歯車虫・ふりこコウモリ）
 // ・toki_orn … トキネの 砂時計の かざり（小さな 金の 砂時計。光る）
-import { Painter } from './pixel.js?v=ba9bc083e891';
+// 第6章 Step 6:
+// ・zenmai_horse_npc … てっぺんの 小べやの からくりの 馬（真ちゅうの 体・せなかに ぜんまい。コマで ぜんまいが 少し 回る）
+// ・toki_mirror … 止まった時の間の 時の かがみ（砂時計の わくの 大きな かがみ。中で 影が ゆれる）
+import { Painter } from './pixel.js?v=bf896afe56a6';
 
 const BR = { d: '#5a3e18', b: '#a07a30', l: '#d8b050', hl: '#f8e090' };
 const ST = { dd: '#2e2418', d: '#4a3c2c', b: '#6e5a44', l: '#8e7a62', ln: '#3a2e22' };
@@ -109,6 +112,44 @@ function paintOrnament(f) {
   return { p, oc: '#3a2a10' };
 }
 
+// からくりの 馬（30×24。真ちゅうの 体と 鉄の 足・せなかの ぜんまい）
+function paintHorse(f) {
+  const p = new Painter(30, 24);
+  p.ellipse(15, 22.5, 11, 1.4, '#140e08');
+  // 足
+  for (const x of [8, 11, 19, 22]) { p.vline(x, 14, 21, '#5a5a66'); p.set(x, 21, '#2a2a32'); }
+  // 体
+  p.ellipse(15, 11, 9, 5, BR.b); p.ellipse(14, 10, 7, 3.5, BR.l); p.hline(8, 22, 15, BR.d);
+  for (const x of [10, 15, 20]) p.set(x, 12, BR.hl);
+  // 首と 頭
+  for (let k = 0; k < 6; k++) p.rect(21 + Math.floor(k / 2), 9 - k, 3, 2, BR.b);
+  p.rect(23, 1, 6, 4, BR.b); p.hline(23, 28, 1, BR.l); p.set(27, 2, '#1a1010'); p.set(28, 4, BR.d);
+  p.vline(24, 0, 1, BR.d);
+  // たてがみ・しっぽ（鉄の 細い 板）
+  for (let k = 0; k < 4; k++) p.set(21 + k, 4 + k, '#8a8a98');
+  p.vline(6, 9, 15, '#8a8a98'); p.set(5, 15, '#8a8a98');
+  // せなかの ぜんまい
+  const a = (f % 2) * (Math.PI / 4);
+  p.vline(14, 3, 6, BR.d);
+  for (let k = -3; k <= 3; k++) p.set(Math.round(14 + Math.cos(a) * k), Math.round(3 + Math.sin(a) * k * 0.6), BR.hl);
+  gear(p, 15, 11, 2, BR.d, BR.hl, '#3a2a10', 6, f * 0.5);
+  return { p, oc: '#140e08' };
+}
+// 時の かがみ（24×36。砂時計の 形の わく・中に ゆれる 影）
+function paintMirror(f) {
+  const p = new Painter(24, 36);
+  p.ellipse(12, 34.5, 9, 1.4, '#140e08');
+  p.rect(3, 30, 18, 4, BR.d); p.hline(3, 20, 30, BR.l);
+  p.rect(4, 1, 16, 2, BR.b); p.hline(4, 19, 1, BR.hl);
+  p.ellipse(12, 16, 8, 13, BR.b); p.ellipse(12, 16, 7, 12, '#3a3a6a'); p.ellipse(12, 16, 5.5, 10.5, '#5a5aa0');
+  const sx = f % 2 ? 1 : -1;
+  p.ellipse(12 + sx, 14, 2.5, 3, '#2a2a4a'); p.ellipse(12 + sx, 20, 3.5, 4, '#2a2a4a');
+  p.set(11 + sx, 13, '#e8e0ff'); p.set(13 + sx, 13, '#e8e0ff');
+  for (const [x, y] of [[8, 6], [16, 9], [9, 24], [15, 26]]) p.set(x, y, '#e8e0ff');
+  p.vline(4, 3, 29, BR.d); p.vline(19, 3, 29, BR.d);
+  return { p, oc: '#140e08' };
+}
+
 export function paintTokeiSpecial(kind, dir, f) {
   switch (kind) {
     case 'clock_tower': return paintClockTower(f);
@@ -116,7 +157,9 @@ export function paintTokeiSpecial(kind, dir, f) {
     case 'stop_mon_a': return paintStopMonA();
     case 'stop_mon_b': return paintStopMonB();
     case 'toki_orn': return paintOrnament(f);
+    case 'zenmai_horse_npc': return paintHorse(f);
+    case 'toki_mirror': return paintMirror(f);
     default: return null;
   }
 }
-export const TOKEI_SPECIALS = ['clock_tower', 'carillon_npc', 'stop_mon_a', 'stop_mon_b', 'toki_orn'];
+export const TOKEI_SPECIALS = ['clock_tower', 'carillon_npc', 'stop_mon_a', 'stop_mon_b', 'toki_orn', 'zenmai_horse_npc', 'toki_mirror'];

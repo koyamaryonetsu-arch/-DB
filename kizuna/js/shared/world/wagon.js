@@ -1,20 +1,20 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=ba9bc083e891';
-import { scaleExp } from '../data/difficulty.js?v=ba9bc083e891';
-import { COMPANION_SLOTS } from '../data/companions.js?v=ba9bc083e891';
-import { JOBS } from '../data/jobs.js?v=ba9bc083e891';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=ba9bc083e891';
-import { computeStats, fullHeal } from '../stats.js?v=ba9bc083e891';
-import { pub } from '../battle.js?v=ba9bc083e891';
+import { MAPS } from '../maps/index.js?v=bf896afe56a6';
+import { scaleExp } from '../data/difficulty.js?v=bf896afe56a6';
+import { COMPANION_SLOTS } from '../data/companions.js?v=bf896afe56a6';
+import { JOBS } from '../data/jobs.js?v=bf896afe56a6';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=bf896afe56a6';
+import { computeStats, fullHeal } from '../stats.js?v=bf896afe56a6';
+import { pub } from '../battle.js?v=bf896afe56a6';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=ba9bc083e891';
+} from './party.js?v=bf896afe56a6';
 // 第51回 B: 家族のけいじ板（入れかえで ぬけた 人の ひらめき技）
-import { boardHirameki } from './family-board.js?v=ba9bc083e891';
+import { boardHirameki } from './family-board.js?v=bf896afe56a6';
 // 第51回 F: 幻の職業の 記録（馬車に もどる 自分の キャラの ぶん）
-import { addFeats } from './phantom.js?v=ba9bc083e891';
+import { addFeats } from './phantom.js?v=bf896afe56a6';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -338,6 +338,8 @@ export function wagonBattleSwap(world, s, ctx, msg) {
   if (!p || p.leader !== s.id) return no('馬車はリーダーだけが使える');
   if (!wagonHere(ctx.map)) return no('馬車は入り口で待っている！');
   if (b.over || b.pendingEnd) return no('今は入れかえられない');
+  // 第53回: 1人で 戦う けいこ（リオン。encounters の solo）は 入れかえない
+  if (ctx.opts?.solo) return no('これは1人で戦うけいこだ');
   const actor = b.get(msg.actor);
   if (!actor || actor.side !== 'ally' || actor.fled || !actor.alive || actor.controller !== s.id) return no('できません');
   if (!actor.ready) return no('まだ順番が来ていない');

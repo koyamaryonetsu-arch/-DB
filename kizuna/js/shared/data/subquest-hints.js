@@ -8,11 +8,12 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=ba9bc083e891';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=ba9bc083e891';
-import { ORN } from '../maps/ch6c-side.js?v=ba9bc083e891';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=ba9bc083e891';
-import { jobLine } from './fq-common.js?v=ba9bc083e891';
+import { C6 } from '../maps/past.js?v=bf896afe56a6';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=bf896afe56a6';
+import { ORN } from '../maps/ch6c-side.js?v=bf896afe56a6';
+import { RS } from './sidequests-ch6d.js?v=bf896afe56a6';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=bf896afe56a6';
+import { jobLine } from './fq-common.js?v=bf896afe56a6';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -51,6 +52,7 @@ const build = () => [
   { id: 'recipe', name: '千年前のレシピ', open: [C6.flow], start: RC.start, done: RC.done, place: 'ルミナの町', who: '酒場のコック', npc: 'cook', hint: 'この町に伝わる料理の、いちばん最初の味を知りたがっている。' },
   { id: 'chibi', name: 'ちびアステルのたからもの', open: [C6.flow], start: CT.start, done: CT.done, place: '千年前の泉の里', who: 'ちびアステル', npc: 'chibi_astel', hint: 'きらきらした物が大好きで、何かを集めたがっているみたい。' },
   { id: 'orn', name: 'トキネの砂時計のかざり', open: ['c6_kanata'], start: ORN.start, done: ORN.done, place: '今の星見の丘', who: 'トキネ', npc: 'tokine_c6', hint: '大事な物を、どこかに落としてしまったらしい。' },
+  { id: 'rion_spar', name: 'リオンの剣のけいこ', open: ['c6_clear'], start: RS.start, done: RS.done, place: '千年前の泉の里', who: 'リオン', npc: 'rion_spar', hint: 'もっと強くなりたくて、けいこの相手を探しているらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）

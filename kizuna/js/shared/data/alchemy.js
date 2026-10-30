@@ -11,16 +11,17 @@
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
 //   第36回: かくさない。本だな・れん金のメモ・かじ屋の 親方で わかる（親方は 生まれ変わりの レシピを 先に 教える）。
 //   町の 人・本だな・宝箱・はなす にも ヒント（secret-hints.js）
-import { ITEMS, baseItemId } from './items.js?v=ba9bc083e891';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=ba9bc083e891';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=ba9bc083e891';
-import { isShopGear } from './items-rare.js?v=ba9bc083e891';
+import { ITEMS, baseItemId } from './items.js?v=bf896afe56a6';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=bf896afe56a6';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=bf896afe56a6';
+import { isShopGear } from './items-rare.js?v=bf896afe56a6';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=ba9bc083e891';
-import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=ba9bc083e891';
-import { EARTH_RECIPES } from './items-earth.js?v=ba9bc083e891';
-import { CASTLE_RECIPES } from './items-castle.js?v=ba9bc083e891';
-import { PAST_RECIPES } from './items-past.js?v=ba9bc083e891';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=bf896afe56a6';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=bf896afe56a6';
+import { EARTH_RECIPES } from './items-earth.js?v=bf896afe56a6';
+import { CASTLE_RECIPES } from './items-castle.js?v=bf896afe56a6';
+import { PAST_RECIPES } from './items-past.js?v=bf896afe56a6';
+import { TOKEI6_RECIPES } from './items-tokei6.js?v=bf896afe56a6';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -96,6 +97,8 @@ export const RECIPES = [
   ...CASTLE_RECIPES,
   // 第2部 第6章 Step 1・2: 時の砂・古い歯車で ★5 → もっと 強い ★5（items-past.js）
   ...PAST_RECIPES,
+  // 第2部 第6章 Step 6: まぼろしの時の砂（時のまぼろし。1日1回）で ★5 → もっと 強い ★5（items-tokei6.js）
+  ...TOKEI6_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。第36回から かくさない）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), reborn: true })),
 ];

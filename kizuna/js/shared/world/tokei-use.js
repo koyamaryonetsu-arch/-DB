@@ -3,12 +3,16 @@
 // ・もう 読んだ 階は、しおりに のこった 短い ことばだけ（なんどでも）
 // ・時計塔の 外では 使えない
 // だいほんを はじめるので、だいほんの しくみ scripts.js を 読む（story-ch6c.js は ここを 読まない）
-import { MAPS } from '../maps/index.js?v=ba9bc083e891';
-import { BM } from '../maps/tokei.js?v=ba9bc083e891';
-import { hasKeyItem } from '../stats.js?v=ba9bc083e891';
-import { ScriptRun } from './scripts.js?v=ba9bc083e891';
-import { partyOf } from './party.js?v=ba9bc083e891';
-import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js?v=ba9bc083e891';
+import { MAPS } from '../maps/index.js?v=bf896afe56a6';
+import { BM } from '../maps/tokei.js?v=bf896afe56a6';
+import { hasKeyItem } from '../stats.js?v=bf896afe56a6';
+import { ScriptRun } from './scripts.js?v=bf896afe56a6';
+import { partyOf } from './party.js?v=bf896afe56a6';
+import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js?v=bf896afe56a6';
+// 第6章 Step 6: 6〜10階の ページ（story-ch6d.js）
+import { TK6_HINTS } from '../data/story-ch6d.js?v=bf896afe56a6';
+
+const HINTS = { ...TK_HINTS, ...TK6_HINTS };
 
 export const BOOK_TEXT = {
   none: '星読みのしおりを持っていない。',
@@ -20,7 +24,7 @@ export function useBookmark(world, s, reply) {
   if (!hasKeyItem(s.char, BOOKMARK)) return reply(false, BOOK_TEXT.none);
   if (s.busy) return reply(false, BOOK_TEXT.busy);
   const n = MAPS[s.map]?.tkFloor;
-  const hint = TK_HINTS[n];
+  const hint = HINTS[n];
   if (!hint) return reply(false, BOOK_TEXT.outside);
   const owner = world.hostOf?.(s) || s;
   const read = !!owner.char.flags[BM(n)];

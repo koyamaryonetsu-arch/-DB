@@ -5,9 +5,14 @@
 // ・止まった 部屋の ゆか（296）・止まった 水（297。灰色で さざなみも 止まっている）
 // ・止まった 大きな 歯車（298）・回って 道に なった 歯車（299）・時の すきま（300。光る ゆか。3コマ）
 // ・歯車の とびら（301）・大きな かね（302）・灰色の 木（303）・灰色の 草（304）・星の塔の 新しい かべ画（305。うすく 半分）・かべの 大時計（306）
+// 第6章 Step 6「時計塔の心臓」:
+// ・ふりこの やいばが 通る ゆか（307。みぞと きず）/ ふりこの やいば（308。銀の 大きな 半月の やいば）
+// ・歯車の ゆか（309 北へ・310 南へ。歯が ながれる 3コマ）/ 止めた 歯車の ゆか（311）
+// ・歯車の ハンドル（312。針の 形）/ 回っている ハンドル（313。光る）/ 歯車の おもり（314）
+// ・止まった時の間の とびら（315。むらさき）/ 大時計の あと（316。星の 光の かべ）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=ba9bc083e891';
-import { prand } from './pixel.js?v=ba9bc083e891';
+import { T } from '../../shared/tiles.js?v=bf896afe56a6';
+import { prand } from './pixel.js?v=bf896afe56a6';
 
 const BR = { d: '#5a3e18', b: '#a07a30', l: '#d8b050', hl: '#f8e090' }; // 金の 真ちゅう
 const FL = { b: '#6e5a46', l: '#86705a', d: '#56463a', ln: '#3e322a' }; // 塔の ゆか（くすんだ 茶色の 石）
@@ -210,6 +215,85 @@ function paintMuralNew(p, v, f, m = 0) {
   void v; void f;
 }
 
+// ───── 第6章 Step 6 ─────
+// ふりこの やいばが 通る ゆか（まん中に 横の みぞ・やいばの きず）
+function paintPendFloor(p, v) {
+  floorBase(p, v);
+  p.rect(0, 6, 16, 4, '#4a3c30'); p.hline(0, 15, 6, '#3a2e24'); p.hline(0, 15, 9, '#5e4e40');
+  const r = prand(v * 13 + 2);
+  for (let i = 0; i < 3; i++) { const x = Math.floor(r() * 13); p.hline(x, x + 2, 7 + (i % 2), '#7a6a5a'); }
+}
+// ふりこの やいば（ゆかの 上を 横ぎる 銀の やいば）
+function paintPendBlade(p, v) {
+  paintPendFloor(p, v);
+  for (let x = 0; x < 16; x++) {
+    const h = Math.round(4 - Math.abs(x - 7.5) * 0.35);
+    p.vline(x, 8 - h, 8 + h, '#b8bcc8');
+    p.set(x, 8 - h, '#e8ecf4'); p.set(x, 8 + h, '#7a7e8a');
+  }
+  p.hline(1, 14, 8, '#d8dce8');
+  p.ellipse(8, 8, 1.6, 1.6, BR.b);
+}
+// 歯車の ゆか（ならんだ 歯車の 歯が dir の むきへ ながれる。f … コマ）
+export const GEAR_FRAMES = 3;
+function paintGearFlow(p, v, f, dir) {
+  p.rect(0, 0, 16, 16, BR.d);
+  p.rect(1, 0, 14, 16, '#7a5a24');
+  const k = (f % GEAR_FRAMES) * 2;
+  for (let i = 0; i < 4; i++) {
+    const y = (((i * 4 + (dir > 0 ? k : -k)) % 16) + 16) % 16;
+    p.hline(2, 13, y, BR.b); p.hline(3, 12, (y + 1) % 16, BR.l);
+  }
+  // むきの しるし（三角）
+  const ty = dir < 0 ? 5 : 10;
+  for (let j = 0; j < 3; j++) p.hline(8 - j, 7 + j, ty + (dir < 0 ? j : -j), BR.hl);
+  p.vline(0, 0, 15, '#3a2a10'); p.vline(15, 0, 15, '#3a2a10');
+  void v;
+}
+// 止めた 歯車の ゆか（歯が かみあって 止まっている）
+function paintGearStill(p, v) {
+  paintGearFlat(p, v);
+  p.rect(6, 6, 4, 4, '#5a3e18'); p.set(7, 7, BR.hl);
+}
+// 歯車の ハンドル（ゆかに うめた 針の 形の ハンドル）/ 回っている ハンドル（光る）
+function paintCrank(p, v, on) {
+  floorBase(p, v);
+  p.ellipse(8, 8, 6.5, 6.5, on ? '#f8e090' : BR.d);
+  p.ellipse(8, 8, 5.5, 5.5, on ? BR.l : BR.b);
+  const a = on ? Math.PI / 4 : -Math.PI / 6;
+  for (let k = -4; k <= 5; k++) p.set(Math.round(8 + Math.cos(a) * k), Math.round(8 + Math.sin(a) * k), '#3a2a10');
+  p.ellipse(8, 8, 1.6, 1.6, '#c83a2a');
+  if (on) for (const [x, y] of [[1, 1], [14, 2], [2, 14], [13, 13]]) p.set(x, y, '#fff4c8');
+}
+// 歯車の おもり（鉄の おもり。上に 金の わ）
+function paintWeight(p, v) {
+  floorBase(p, v);
+  p.ellipse(8, 14, 6, 1.4, FL.ln);
+  p.rect(3, 6, 10, 8, '#5a5a66'); p.hline(3, 12, 6, '#8a8a98'); p.vline(12, 6, 13, '#3a3a44');
+  p.ellipse(8, 4, 2.5, 2, BR.b); p.ellipse(8, 4, 1.2, 0.8, '#5a5a66');
+  p.hline(5, 10, 10, '#46464f');
+}
+// 止まった時の間の とびら（むらさきの 光の とびら。こおった 砂時計の もよう）
+function paintTimeDoor(p, v) {
+  p.rect(0, 0, 16, 16, '#2a2040');
+  p.rect(1, 0, 14, 16, '#4a3a7a');
+  p.rect(2, 2, 12, 14, '#6a5a9a');
+  p.vline(7, 2, 15, '#3a2e5a'); p.vline(8, 2, 15, '#8a7ab8');
+  p.hline(5, 10, 5, '#c8bef0'); p.hline(5, 10, 11, '#c8bef0');
+  for (let y = 6; y < 11; y++) { const w = Math.abs(y - 8); p.set(7 - w, y, '#e8e0ff'); p.set(8 + w, y, '#e8e0ff'); }
+  p.hline(1, 14, 1, '#8a7ab8');
+  void v;
+}
+// 大時計の あと（星の 光に なった かべ）
+function paintFaceStars(p, v) {
+  p.rect(0, 0, 16, 16, '#1a1a3a');
+  p.hline(0, 15, 15, '#0e0e22');
+  const r = prand(v * 19 + 11);
+  for (let i = 0; i < 7; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 15), i % 3 ? '#c8d0ff' : '#fff4c8');
+  p.ellipse(8, 7.5, 6, 6, '#2a2a5a'); p.ellipse(8, 7.5, 5, 5, '#1a1a3a');
+  p.set(8, 2, '#ffffff'); p.set(13, 7, '#ffffff'); p.set(8, 13, '#ffffff'); p.set(3, 7, '#ffffff');
+}
+
 export const TK_PAINTERS = {
   [T.CLOCK_PIT]: (p, v) => paintPit(p, v),
   [T.HAND_BRIDGE]: (p, v) => paintHand(p, v),
@@ -229,18 +313,30 @@ export const TK_PAINTERS = {
   [T.FROZEN_GRASS]: (p, v) => grayGrass(p, v),
   [T.MURAL_NEW]: (p, v, f, m) => paintMuralNew(p, v, f, m),
   [T.CLOCK_FACE]: (p, v) => paintClockFace(p, v),
+  // 第6章 Step 6
+  [T.PEND_FLOOR]: (p, v) => paintPendFloor(p, v),
+  [T.PEND_BLADE]: (p, v) => paintPendBlade(p, v),
+  [T.GEAR_N]: (p, v, f) => paintGearFlow(p, v, f, -1),
+  [T.GEAR_S]: (p, v, f) => paintGearFlow(p, v, f, 1),
+  [T.GEAR_STILL]: (p, v) => paintGearStill(p, v),
+  [T.GEAR_CRANK]: (p, v) => paintCrank(p, v, false),
+  [T.GEAR_CRANK_ON]: (p, v) => paintCrank(p, v, true),
+  [T.GEAR_WEIGHT]: (p, v) => paintWeight(p, v),
+  [T.TIME_DOOR]: (p, v) => paintTimeDoor(p, v),
+  [T.FACE_STARS]: (p, v) => paintFaceStars(p, v),
 };
-export const TK_FRAMES = { [T.TIME_GAP]: GAP_FRAMES };
-export const TK_SPEED = { [T.TIME_GAP]: 260 };
+export const TK_FRAMES = { [T.TIME_GAP]: GAP_FRAMES, [T.GEAR_N]: GEAR_FRAMES, [T.GEAR_S]: GEAR_FRAMES };
+export const TK_SPEED = { [T.TIME_GAP]: 260, [T.GEAR_N]: 200, [T.GEAR_S]: 200 };
 
 // ───── 2.5D ─────
 // 文字ばんの あなは ふかい。止まった 水は 少し ひくい
 export const TK_FLOOR_H = { [T.CLOCK_PIT]: -0.8, [T.STOP_WATER]: -0.06 };
 export function tkBlockSpec(id, v) {
   switch (id) {
-    case T.CLOCK_PAINT: case T.CLOCK_FACE: case T.MURAL_NEW:
+    case T.CLOCK_PAINT: case T.CLOCK_FACE: case T.MURAL_NEW: case T.FACE_STARS:
       return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', id, v, 0] };
     case T.CLOCK_DOOR: return { h: 1.4, top: ['t', T.TOWER_BASE, v, 0], side: ['t', T.TOWER_BASE, v, 0], south: ['t', T.CLOCK_DOOR, 0, 0] };
+    case T.TIME_DOOR: return { h: 1.4, top: ['t', T.TOWER_BASE, v, 0], side: ['t', T.TOWER_BASE, v, 0], south: ['t', T.TIME_DOOR, 0, 0] };
     case T.BIG_GEAR: return { h: 1.1, top: ['t', T.GEAR_FLAT, v, 0], side: ['t', T.BIG_GEAR, v, 0], south: ['t', T.BIG_GEAR, v, 0] };
     default: return null;
   }
@@ -258,6 +354,16 @@ export const TK_PROPS = {
     p.hline(1, 18, 22, BR.d); p.hline(2, 17, 21, BR.l);
     p.ellipse(10, 24, 2, 2, '#3a2a1a'); p.vline(6, 7, 17, BR.hl);
   }],
+  // 第6章 Step 6: ふりこの やいば・歯車の おもり
+  [T.PEND_BLADE]: [16, 22, (p) => {
+    p.vline(8, 0, 9, '#5a5a66');
+    for (let x = 0; x < 16; x++) { const h = Math.round(5 - Math.abs(x - 7.5) * 0.5); p.vline(x, 14 - h, 14 + h, '#b8bcc8'); p.set(x, 14 + h, '#7a7e8a'); }
+    p.hline(1, 14, 13, '#e8ecf4'); p.ellipse(8, 10, 2, 2, BR.b);
+  }],
+  [T.GEAR_WEIGHT]: [14, 16, (p) => {
+    p.rect(1, 5, 12, 10, '#5a5a66'); p.hline(1, 12, 5, '#8a8a98'); p.vline(12, 5, 14, '#3a3a44');
+    p.ellipse(7, 2.5, 3, 2.2, BR.b); p.ellipse(7, 2.5, 1.4, 1, '#5a5a66');
+  }],
   [T.FROZEN_TREE]: [20, 28, (p) => {
     p.rect(9, 18, 3, 10, '#5e5e64'); p.vline(9, 18, 27, '#7a7a80');
     for (const [cx, cy, rx, ry] of [[10, 15, 9, 6], [10, 10, 7, 5], [10, 5, 5, 4]]) {
@@ -268,7 +374,7 @@ export const TK_PROPS = {
 };
 
 // たてた ものでも 色を かえない（赤い にぎり・こわい 目・金の かね。render/themes.js の partOfProp）
-export const TK_PROPS_KEEP = new Set([T.HAND_SWITCH, T.THUD_STONE, T.BIG_BELL]);
+export const TK_PROPS_KEEP = new Set([T.HAND_SWITCH, T.THUD_STONE, T.BIG_BELL, T.PEND_BLADE]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];

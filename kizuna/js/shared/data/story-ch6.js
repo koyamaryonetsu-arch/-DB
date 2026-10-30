@@ -8,26 +8,28 @@
 //   → 時のいせき（今）・時の神殿（千年前）の 7階（c6_ruin）→ 番人の 間で ゼンマイの 番兵 ギアドン（geardon。c6_gear）
 //   → 泉の里の 時が 動き出す・勇者の像が 今に もどる → 「第6章の続きはアップデートで！」（c6_flow。ミナモは はなれる）
 // 魔物・きまった 戦い（sand_clock・geardon）・品・ミナモの 強さは B（戦い・品）が 作る（plan-ch6.md の 9）
-import { MAPS } from '../maps/index.js?v=ba9bc083e891';
-import { PLACES } from '../maps/overworld.js?v=ba9bc083e891';
+import { MAPS } from '../maps/index.js?v=bf896afe56a6';
+import { PLACES } from '../maps/overworld.js?v=bf896afe56a6';
 import {
   C6, HOSHIYO_FLAG, DEW_FLAG, PLANT_FLAG, END_A6, CHIEF_FLAG, PAST_ID, PAST_POS, SPRING, HAMLET,
-} from '../maps/past.js?v=ba9bc083e891';
-import { SHRINE_POS, SF, SAND_FLAG, shrineArrive, shrineMapId } from '../maps/toki-shrine.js?v=ba9bc083e891';
+} from '../maps/past.js?v=bf896afe56a6';
+import { SHRINE_POS, SF, SAND_FLAG, shrineArrive, shrineMapId } from '../maps/toki-shrine.js?v=bf896afe56a6';
 import {
   RUIN_POS, RUIN_OBJS, RF, LEVER_FLAG, OPEN7, BOSS_SEEN, objIndex, objOn, ruinMapId, RUIN_BOSS_ID, RUIN_FLOORS, RUIN_REST,
-} from '../maps/toki-ruin.js?v=ba9bc083e891';
-import { flipSand, shiftSteps } from '../world/time-glass.js?v=ba9bc083e891';
-import { isNightFor, advanceClock } from '../world/clock.js?v=ba9bc083e891';
-import { unstickAll } from '../world/hazards.js?v=ba9bc083e891';
-import { partyOf } from '../world/party.js?v=ba9bc083e891';
-import { TOP_OBJ } from './story-castle-top.js?v=ba9bc083e891';
+} from '../maps/toki-ruin.js?v=bf896afe56a6';
+import { flipSand, shiftSteps } from '../world/time-glass.js?v=bf896afe56a6';
+import { isNightFor, advanceClock } from '../world/clock.js?v=bf896afe56a6';
+import { unstickAll } from '../world/hazards.js?v=bf896afe56a6';
+import { partyOf } from '../world/party.js?v=bf896afe56a6';
+import { TOP_OBJ } from './story-castle-top.js?v=bf896afe56a6';
 // 第6章 Step 3・4（story-ch6b.js）: 星読みの社・星めぐりの古道・ペンデュラ・今の カナタ（ここで まぜる）
 import {
   CH6B_STEPS, C6B_OBJ, CH6B_OBJECTIVE_TARGETS, CH6B_OBJECTIVE_TALK, CH6B_PROGRESS, applyCh6b, elderCh6b, ch6StaleObjective,
-} from './story-ch6b.js?v=ba9bc083e891';
+} from './story-ch6b.js?v=bf896afe56a6';
 // 第6章 Step 5（story-ch6c.js）: 北の山の 止まった時計塔・リオン・カリヨン（ここで まぜる）
-import { CH6C_STEPS, CH6C_OBJECTIVE_TARGETS, CH6C_OBJECTIVE_TALK, CH6C_PROGRESS, applyCh6c } from './story-ch6c.js?v=ba9bc083e891';
+import { CH6C_STEPS, CH6C_OBJECTIVE_TARGETS, CH6C_OBJECTIVE_TALK, CH6C_PROGRESS, applyCh6c } from './story-ch6c.js?v=bf896afe56a6';
+// 第6章 Step 6（story-ch6d.js）: 時計塔の 6〜10階・ゼンマイ・第6章クリア（ここで まぜる）
+import { CH6D_STEPS, CH6D_OBJECTIVE_TARGETS, CH6D_OBJECTIVE_TALK, CH6D_PROGRESS, applyCh6d } from './story-ch6d.js?v=bf896afe56a6';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -36,7 +38,7 @@ const V = (x, y) => [VIL.x + x + 0.5, VIL.y + y + 0.5];
 const TW = PLACES.town;
 
 // ───── 第6章の すすみかた（STORY_STEPS の 第5章の うしろ。plan-ch6.md の 9 の 名前の 約束）─────
-export const CH6_STEPS = [C6.start, C6.shrine, C6.glass, C6.past, C6.tree, C6.rion, C6.ruin, C6.gear, C6.flow, ...CH6B_STEPS, ...CH6C_STEPS];
+export const CH6_STEPS = [C6.start, C6.shrine, C6.glass, C6.past, C6.tree, C6.rion, C6.ruin, C6.gear, C6.flow, ...CH6B_STEPS, ...CH6C_STEPS, ...CH6D_STEPS];
 
 // ───── 目標 ─────
 const RESUME = '時の神殿の番人の間の、時の台座を調べよう（ホシフル村のホシミばあちゃんや、ルミナの町の勇者の像でも、続きが見られる）';
@@ -77,6 +79,8 @@ export const OLD_C6_OBJ = {
   flow: '第6章の続きはアップデートで！',
   // 第6章 Step 4 の さいご（Step 5 が できる 前。c6_kanata）。今の さいごの 文（story-ch6c.js の C6C_OBJ.heart）と おなじ 文
   kanata: '第6章の続きはアップデートで！',
+  // 第6章 Step 5 の さいご（Step 6 が できる 前。c6_heart）。今は 知らない 文なので repairObjective が なおす
+  heart: '第6章の続きはアップデートで！',
 };
 export { ch6StaleObjective };
 
@@ -799,6 +803,7 @@ export const CH6_OBJECTIVE_TARGETS = {
 // Step 3・4 の 行き先（c6_flow の あとの 目標は story-ch6b.js）
 Object.assign(CH6_OBJECTIVE_TARGETS, CH6B_OBJECTIVE_TARGETS);
 Object.assign(CH6_OBJECTIVE_TARGETS, CH6C_OBJECTIVE_TARGETS);
+Object.assign(CH6_OBJECTIVE_TARGETS, CH6D_OBJECTIVE_TARGETS);
 void RUIN_REST;
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -872,10 +877,12 @@ export const CH6_PROGRESS = [
   [C6.flow, C6_OBJ.flow],
   ...CH6B_PROGRESS,
   ...CH6C_PROGRESS,
+  ...CH6D_PROGRESS,
 ];
 // Step 3・4 の 仲間会話（story-ch6b.js）
 Object.assign(CH6_OBJECTIVE_TALK, CH6B_OBJECTIVE_TALK);
 Object.assign(CH6_OBJECTIVE_TALK, CH6C_OBJECTIVE_TALK);
+Object.assign(CH6_OBJECTIVE_TALK, CH6D_OBJECTIVE_TALK);
 
 // ───── story.js から: だいほんを まぜる（ばあちゃん・町の 人の ことば・パーティー全員で 見る イベント）─────
 export function applyCh6(SCRIPTS, STORY_SCRIPTS) {
@@ -892,6 +899,8 @@ export function applyCh6(SCRIPTS, STORY_SCRIPTS) {
   applyCh6b(SCRIPTS, STORY_SCRIPTS);
   // Step 5（story-ch6c.js）: 星の塔の かべ画・止まった時計塔・カリヨン
   applyCh6c(SCRIPTS, STORY_SCRIPTS);
+  // Step 6（story-ch6d.js）: 時計塔の 6〜10階・ゼンマイ・てっぺん・クリアの あと・リオンの けいこ
+  applyCh6d(SCRIPTS, STORY_SCRIPTS);
 }
 
 export { HAMLET, SPRING };

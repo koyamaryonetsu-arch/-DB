@@ -7,15 +7,15 @@
 //   → 塔の 上で 大時計が 動き出す・ゼンマイの 声 →「第6章の続きはアップデートで！」（c6_heart）
 // 魔物・きまった 戦い（carillon）・品・リオンの 強さ（RION_GUEST）は B（戦い・品）が 作る（plan-ch6.md の 15）
 // このファイルは story-ch6.js・story-ch6b.js を 読まない（story-ch6.js・story-ch6b.js が ここを 読んで まぜる）
-import { MAPS } from '../maps/index.js?v=ba9bc083e891';
-import { PAST_ID } from '../maps/past.js?v=ba9bc083e891';
-import { C6B } from '../maps/hoshimichi.js?v=ba9bc083e891';
+import { MAPS } from '../maps/index.js?v=bf896afe56a6';
+import { PAST_ID } from '../maps/past.js?v=bf896afe56a6';
+import { C6B } from '../maps/hoshimichi.js?v=bf896afe56a6';
 import {
   C6C, BELL_NEWS, MURAL6, TF, HOUR, TURN3, OPEN5, WAIT5, TBOSS, TK_POS, TK_OUT, TK_FLOORS, TK_LINK, TK_BOSS_FLOOR, LINK_TOWER,
   MURAL_NEW_AT, VANE_AT, CLOCKS, handCells, hourOf, hourWord, tkMapId,
-} from '../maps/tokei.js?v=ba9bc083e891';
-import { unstickAll } from '../world/hazards.js?v=ba9bc083e891';
-import { partyOf } from '../world/party.js?v=ba9bc083e891';
+} from '../maps/tokei.js?v=bf896afe56a6';
+import { unstickAll } from '../world/hazards.js?v=bf896afe56a6';
+import { partyOf } from '../world/party.js?v=bf896afe56a6';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -38,10 +38,11 @@ export const C6C_OBJ = {
   tf4: '4階。止まった部屋の水の上をわたって、おくの針のスイッチへ。かべの時計の絵を見て、針を合わせよう',
   tf5: '5階。2つの歯車の石を同時にふむと、とびらが開く（ひとりなら、リオンに待ってもらおう）。おくに、ゼンマイの3番目の家来が…',
   bell: '5階の大きなかねを調べよう（続きが見られる）',
-  heart: '第6章の続きはアップデートで！',
+  // Step 6 で「第6章の続きはアップデートで！」から かえた（前の 文は story-ch6.js の OLD_C6_OBJ.heart）
+  heart: '5階のおくの、上へつづく歯車のとびらが開いた。時計塔の心臓…塔のいちばん上をめざそう',
 };
-// 前の 版で セーブした 人の「第6章の続きはアップデートで！」（c6_flow・c6_kanata の さいごの 文）は、今の さいごの 文と おなじ 文なので、
-// すすみぐあい（c6_heart が まだ）で なおす（progress.js の repairObjective。story-ch6b.js・story-ch6.js から 出す）
+// 前の 版で セーブした 人の「第6章の続きはアップデートで！」（c6_flow・c6_kanata・c6_heart の さいごの 文）は、今は 知らない 文なので
+// progress.js の repairObjective が すすみぐあいから なおす。下は 今の 文で すすみぐあいが たりない ときの なおし（story-ch6b.js・story-ch6.js から 出す）
 export function ch6StaleObjective(c) {
   return c?.objective === C6C_OBJ.heart && !c.flags?.[C6C.heart];
 }
@@ -85,7 +86,11 @@ function bellNews() {
     ['objective', C6C_OBJ.news],
   ];
 }
+// Step 6（story-ch6d.js）の ばあちゃん（c6_zenmai の あと。story-ch6d.js が fn を 入れる）
+export const ELDER_LATE = { fn: null };
 export function elderCh6c(x) {
+  const late = ELDER_LATE.fn?.(x);
+  if (late) return late;
   if (x.flag(C6C.heart)) return S('ホシミばあちゃん', 'ゆうべも、星の塔のかねが鳴ったよ。', '…じゃが、こんどは、こわい音ではなかった。\nだれかが、がんばっておる音のようじゃった。');
   if (x.flag(C6C.clock)) return S('ホシミばあちゃん', '千年前の北の山に、時計塔…とな。', '今の星の塔は、その時計塔のあとに建てられたのかもしれんのう。\n…気をつけて行っておいで。');
   if (x.flag(MURAL6)) return S('ホシミばあちゃん', 'かべ画に、大きな時計と、4人の子ども…？', '時の砂時計で、千年前の北の山を見ておいで。');
@@ -204,7 +209,7 @@ async function turnHand(run, n, add) {
   unstickAll(w, owner);
   await run.runSteps([['sfx', 'rumble'], ['sync'], ['shake'], ...N(`ゴゴゴ…ガチャン！\n大時計の針が回って、${hourWord(next)}をさした。`)]);
 }
-function handSteps(x, n) {
+export function handSteps(x, n) {
   const h = hourOf(n, (f) => x.flag(f));
   return [
     ...N('大時計の針のスイッチだ。', `（今、大時計の針は、${hourWord(h)}をさしている）`),
@@ -341,8 +346,9 @@ function endingBell() {
     // ここまでを 見せてから（とちゅうで 切れたら、5階の かね・広間で 続き）
     ['sync'],
     ['flag', C6C.heart], ['sync'],
-    ['chapter', '第6章「時の砂時計」', 'つづく'],
-    ...N('――第6章の続きはアップデートで！――'),
+    // Step 6 から「続きはアップデート」を やめて 第4幕の つづきの 字に（上の 階は story-ch6d.js）
+    ['chapter', '第6章　第4幕', '時計塔の心臓'],
+    ...S('リオン', 'あっ…広間のおくの歯車のとびらが、開いてる！'),
     ['bgm', 'resume'],
     ['objective', C6C_OBJ.heart],
   ];
@@ -384,7 +390,7 @@ export const CH6C_SCRIPTS = {
   },
   c6_tbell_hall: (x) => (midBell(x) ? endingFromBell(x) : []),
   c6_tupper: (x) => (x.flag(C6C.heart)
-    ? N('上へつづく、大きな歯車のとびらだ。', 'ゴウン…ゴウン…。\nとびらの向こうで、大きな時計が動く音がする。\n（この先は、まだ開かない）')
+    ? N('上へつづく、大きな歯車のとびらだ。', 'ゴウン…ゴウン…。\nとびらの向こうで、大きな時計が動く音がする。')
     : N('上へつづく、大きな歯車のとびらだ。', 'かたくとざされている…。')),
 };
 
@@ -404,7 +410,7 @@ export const CH6C_OBJECTIVE_TARGETS = {
   [C6C_OBJ.tf4]: [lever(4, CLOCKS[4].remote), tkAt(4, TK_POS[4].up)],
   [C6C_OBJ.tf5]: [{ ...tkAt(5, TK_POS[5].plate2), unless: OPEN5 }, { ...tkAt(5, TK_POS[5].plate1), unless: OPEN5 }, { npc: 'carillon_npc' }],
   [C6C_OBJ.bell]: [tkAt(5, TK_POS[5].bell)],
-  [C6C_OBJ.heart]: [{ npc: 'elder' }],
+  [C6C_OBJ.heart]: [tkAt(5, TK_POS[5].upper)],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -432,7 +438,7 @@ export const CH6C_OBJECTIVE_TALK = {
     '歯車の石は、同時にふみましょう。ひとりなら、リオンさんが待っていてくれます。かねが鳴ったあとに、守りを。', 'リオンお兄ちゃんに、石で待っててもらおう！'),
   [C6C_OBJ.bell]: T4('5階の大きなかねを調べると、続きが見られる。', 'かねを調べようぜ！',
     '大きなかねを、調べてみましょう。', 'かねを調べると、お話の続きが見られるよ！'),
-  [C6C_OBJ.heart]: T4('時計塔の心臓が、動き出した…。いちばん上で、ゼンマイが待っている。', 'ゼンマイのやつ…てっぺんで待ってろよ！',
+  [C6C_OBJ.heart]: T4('時計塔の心臓が、動き出した…。5階のおくの歯車のとびらから、上の階へ。いちばん上で、ゼンマイが待っている。', 'ゼンマイのやつ…てっぺんで待ってろよ！',
     'リオンさん、すこし強くなりましたね。わたしたちも、もっと強くなりましょう。', 'リオンお兄ちゃん、かっこよかったね！'),
 };
 

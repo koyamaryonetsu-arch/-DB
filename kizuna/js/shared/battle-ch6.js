@@ -16,17 +16,19 @@
 // ・オートの 仲間（ふつう）は、大砂流・ギアプレスが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（AUTO_GUARD。氷・雷は 使い分けない）。
 //   シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は ch6Plan
 //   （b.c6NoIce・b.c6NoBolt・b.c6NoGuard … 知っている 人の しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=ba9bc083e891';
-import { ABILITIES } from './data/abilities.js?v=ba9bc083e891';
-import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=ba9bc083e891';
-import { BUFF_ACTS } from './buff-acts.js?v=ba9bc083e891';
+import { MONSTERS } from './data/monsters.js?v=bf896afe56a6';
+import { ABILITIES } from './data/abilities.js?v=bf896afe56a6';
+import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=bf896afe56a6';
+import { BUFF_ACTS } from './buff-acts.js?v=bf896afe56a6';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=ba9bc083e891';
-import { canUse } from './ai.js?v=ba9bc083e891';
+import { atbRate } from './battle.js?v=bf896afe56a6';
+import { canUse } from './ai.js?v=bf896afe56a6';
 // 第2部 第6章 Step 3・4: 星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・星座の 魔物（昼と 夜）。battle-road.js
-import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=ba9bc083e891';
+import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=bf896afe56a6';
 // 第2部 第6章 Step 5: カリヨン（時のかね。知っている 人・かねの 前の 守り）。battle-tokei.js
-import { tokeiKnow, bellBefore } from './battle-tokei.js?v=ba9bc083e891';
+import { tokeiKnow, bellBefore } from './battle-tokei.js?v=bf896afe56a6';
+// 第2部 第6章 Step 6: ゼンマイ（家来の しかけを じゅんばんに・2だんめの 針と 歯車）。battle-tokei6.js
+import { setupTokei6, tokei6TurnStart, tokei6TurnEnd, tokei6Effect, tokei6Know, tokei6Pub, collapseBefore } from './battle-tokei6.js?v=bf896afe56a6';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';
@@ -40,7 +42,8 @@ const BIG = new Set([FALL, PRESS, ...ROAD_BIG]);
 const FOES = new Set(['enemy', 'group', 'enemies']);
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || {} : a?.effect || {});
 
-const confOf = (m) => MONSTERS[m?.species]?.ch6 || null;
+// c6 … その 戦いだけの しかけの 数（ゼンマイは 今の しかけ だけ。battle-tokei6.js）
+const confOf = (m) => m?.c6 || MONSTERS[m?.species]?.ch6 || null;
 const sandConf = (m) => confOf(m)?.sand || null;
 const gearConf = (m) => confOf(m)?.gear || null;
 
@@ -59,6 +62,7 @@ export function setupCh6(b) {
   }
   for (const k of kinds) if (INTRO[k]) b.emit({ t: 'msg', lines: INTRO[k].slice(), dur: 1300 });
   setupRoad(b);
+  setupTokei6(b);
 }
 
 // ───────────── 魔物の こうどうの じょうけん（battle-ch5.js の towerCond から。'c5:' の あと）─────────────
@@ -74,6 +78,8 @@ export function ch6Cond(b, m, cond) {
 export function ch6TurnStart(b, c, ev, cmd = null) {
   if (c.side !== 'enemy' || !c.alive) return;
   const stuck = cmd?.type === 'incapacitated';
+  // ゼンマイ: しかけが おわったら 次の しかけへ・2だんめの 針（battle-tokei6.js）
+  tokei6TurnStart(b, c, ev, stuck);
   if (c.sand && !c.telegraph) {
     const sc = sandConf(c) || {};
     // HPが へると、砂の いっぱいが へる（はやく 落ちきる）
@@ -111,6 +117,7 @@ export function ch6TurnStart(b, c, ev, cmd = null) {
     ev.upd.push(c);
   }
   roadTurnStart(b, c, ev, cmd);
+  tokei6TurnEnd(b, c);
 }
 
 // ───────────── 技の こうか（battle-ch5.js の towerEffect から）─────────────
@@ -119,7 +126,7 @@ export function ch6Effect(b, c, a, eff, ev, targets = []) {
     case 'scFall': sandFall(b, c, eff, ev); return true;
     case 'gdRecord': record(b, c, ev); return true;
     case 'gdRewind': rewind(b, c, ev); return true;
-    default: return roadEffect(b, c, a, eff, ev, targets);
+    default: return roadEffect(b, c, a, eff, ev, targets) || tokei6Effect(b, c, a, eff, ev);
   }
 }
 
@@ -186,7 +193,8 @@ export function ch6Damage(b, c, t, dmg, info, ev) {
       t.sand.lv = Math.max(t.sand.lv, Math.min(t.sand.max, sc.stopTo ?? 2));
       post.push('こおった砂が、ガラスの首につまった！', `大砂流は、止まった！（砂${t.sand.lv}/${t.sand.max}）`);
       ev.scStop = t.id;
-    } else if (t.sand.lv < t.sand.max) {
+    } else if (t.sand.lv < t.sand.max && (sc.ice ?? 1) > 0) {
+      // ice: 0 … 氷で もどらない（ゼンマイ。前ぶれの 間に 当てて 止める だけ）
       t.sand.lv = Math.min(t.sand.max, t.sand.lv + (sc.ice ?? 1));
       post.push(`氷で砂がこおって、上にもどった！（砂${t.sand.lv}/${t.sand.max}）`);
       ev.scBack = { id: t.id, lv: t.sand.lv };
@@ -233,7 +241,8 @@ export function ch6Plan(b, c, decide) {
   //   （b.c6Naive … シミュレーターで これも しない 人）
   if (!b.knowsCh6) {
     // カリヨンの 時のかねは 前ぶれで なく、かねの しるしで 分かる（battle-tokei.js の bellBefore）
-    const soon = boss.bell ? bellBefore(b, c, boss) : BIG.has(boss.telegraph) && (100 - boss.atb) / atbRate(boss) <= mine;
+    // ゼンマイの 2だんめは 文字ばんの 針で 分かる（battle-tokei6.js の collapseBefore）
+    const soon = boss.zen?.phase === 2 ? collapseBefore(b, c, boss) : boss.bell ? bellBefore(b, c, boss) : BIG.has(boss.telegraph) && (100 - boss.atb) / atbRate(boss) <= mine;
     if (b.c6Naive || !soon) return null;
     return c.hp / c.maxHp < AUTO_GUARD.hp && b.rng.chance(AUTO_GUARD.chance) ? { type: 'defend' } : null;
   }
@@ -247,6 +256,8 @@ export function ch6Plan(b, c, decide) {
   const a = base?.type === 'ability' ? ABILITIES[base.id] : null;
   const saving = a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type) && b.allies.some((x) => !x.fled && (!x.alive || x.hp / x.maxHp < 0.35));
   if (saving) return base;
+  // ゼンマイの 2だんめ（1だんめは 下の 家来と おなじ）
+  if (boss.zen?.phase === 2) return tokei6Know(b, c, boss, base);
   if (boss.stars || boss.pend) return roadKnow(b, c, boss, base, { elemHit });
   if (boss.bell) return tokeiKnow(b, c, boss, base);
   if (boss.sand) {
@@ -255,7 +266,7 @@ export function ch6Plan(b, c, decide) {
       if (ice) return ice;
       if (!b.c6NoGuard) return { type: 'defend' };
     }
-    if (!b.c6NoIce && boss.sand.lv <= 1) {
+    if (!b.c6NoIce && boss.sand.lv <= 1 && (sandConf(boss)?.ice ?? 1) > 0) {
       const ice = elemHit(b, c, boss, 'ice');
       if (ice) return ice;
     }
@@ -294,6 +305,7 @@ export function elemHit(b, c, t, el) {
 export function ch6Pub(c) {
   if (c.side !== 'enemy') return {};
   const o = roadPub(c);
+  tokei6Pub(c, o);
   if (c.sand) {
     o.sand = c.sand.lv;
     o.sandMax = c.sand.max;

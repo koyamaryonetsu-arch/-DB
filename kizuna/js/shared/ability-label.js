@@ -12,9 +12,9 @@
 //  abilityLabel(id か 技, 人) … その 人 むけの 技の 名前（技の 名前を 出す 所は ぜんぶ これ か abilityFor を 使う）
 //  dualFor(id か 合体技, 出す 人たち) / dualLabel … 合体技の おなじ しくみ
 //  人 … キャラ（char）・戦いの 人（combatant。サーバーの c も、クライアントの pub(c) も look を もつ）
-import { ABILITIES } from './data/abilities.js?v=ba9bc083e891';
-import { DUAL_TECHS, groupJobs } from './data/dual.js?v=ba9bc083e891';
-import { isMasc } from './job-label.js?v=ba9bc083e891';
+import { ABILITIES } from './data/abilities.js?v=bf896afe56a6';
+import { DUAL_TECHS, groupJobs } from './data/dual.js?v=bf896afe56a6';
+import { isMasc } from './job-label.js?v=bf896afe56a6';
 
 // 男の子か（見た目の look.body が 1 で ない）。モンスター（仲間の 魔物・敵）は ちがう。
 // look の ない もの（職業だけの { job, jobs }・敵・古い データ）は もとの 技の まま（ちがう 名前を 出さない ため）
@@ -32,8 +32,24 @@ const merged = (base, over) => {
   return m;
 };
 
+// 第53回: 魔物 むけの 名前・セリフ・えんしゅつ（by: { 魔物の ID: { name, cast, anim } }。ゼンマイが 家来の 技を 使う とき。
+//   時のまぼろしは もとの ボス〈who.base〉で 見る。強さ・こうかは おなじ）
+const byCache = new WeakMap();
+function byFor(a, sp) {
+  let m = byCache.get(a);
+  if (!m) byCache.set(a, (m = {}));
+  if (!m[sp]) {
+    m[sp] = { ...a, ...a.by[sp] };
+    delete m[sp].by;
+    delete m[sp].masc;
+  }
+  return m[sp];
+}
+
 export function abilityFor(ab, who) {
   const a = typeof ab === 'string' ? ABILITIES[ab] : ab;
+  const sp = a?.by && (who?.base || who?.species);
+  if (sp && a.by[sp]) return byFor(a, sp);
   if (!a || !a.masc || !isMasc(who)) return a;
   return merged(a, a.masc);
 }

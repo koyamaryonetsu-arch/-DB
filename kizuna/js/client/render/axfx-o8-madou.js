@@ -1,7 +1,7 @@
 // 第51回 C2（o8）: 大魔導王の 技の え（はなつ ところ）。この ファイルは C2 だけが さわる
 // 2つ ならぶ まほうじん（二重呪文）・炎と 氷の 玉が まじわる・赤い 光で 武器を はじく・魔力の いずみ・光の しか・2本の 光の 弓
 // 時間は shared/data/ax-time-o8.js。play の 時間は はなつ しゅんかんが 0
-import { prop, text, seal, hands, above, sky, per, partyTop, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=ba9bc083e891';
+import { prop, text, seal, hands, above, sky, per, partyTop, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=bf896afe56a6';
 
 const FIRE = '#ff7a3a', ICE = '#7ad8ff', VOID = '#c8a8ff', W = '#ffffff', RED = '#ff3a4a', GRN = '#5ae0a0', YEL = '#fff2a0', BLUE = '#4a8aff';
 

@@ -4,6 +4,8 @@
 //   時止めで ねらわれた 人・止まった 人の まどは 光る
 // ・前ぶれ・目が くらんだ・星を 食べた・ふりこが 左右へ・時止め・大ふりこの バナー（ふつうの「大技が来る！」は 出さない … ROAD_OWN_TELE）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
+// 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
+import { kindOf } from './battle-tokei6.js?v=bf896afe56a6';
 const EATER = 'star_eater';
 const PENDULA = 'pendula';
 const AIM = 'm6_se_aim';
@@ -41,7 +43,7 @@ export function roadDraw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
   const T = scene.time || 0;
   // 星くいのよる鳥: 道しるべの 星（右よこ。上から）
-  if (c.species === EATER && c.stars !== undefined) {
+  if (kindOf(c) === EATER && c.stars !== undefined) {
     const max = c.starsMax || 3;
     const bx = Math.min(248, px + w + 4);
     for (let i = 0; i < max; i++) {
@@ -68,7 +70,7 @@ export function roadDraw(scene, x, m, c, px, py, w, h, base) {
     x.globalAlpha = base;
   }
   // ペンデュラ: 時のふりこの 目もり（左上）
-  if (c.species === PENDULA && c.pendPos !== undefined) {
+  if (kindOf(c) === PENDULA && c.pendPos !== undefined) {
     const reach = c.pendReach || 3;
     const gx = Math.max(30, px - 22), gy = Math.max(6, py + 2), r = 26, span = 0.9;
     // 目もりの わ（左 … 青・右 … 赤・まん中 … 白）
@@ -122,7 +124,7 @@ export function roadDraw(scene, x, m, c, px, py, w, h, base) {
 
 // 時止めで ねらわれた 人・止まった 人の まど
 function markWindows(scene) {
-  const p = scene.enemies?.().find((e) => e.species === PENDULA);
+  const p = scene.enemies?.().find((e) => kindOf(e) === PENDULA);
   if (!p || !scene.statusBoxes) return;
   const frozen = new Set(p.alive ? p.pendFrozen || [] : []);
   const aim = p.alive ? p.pendTarget : null;
@@ -139,7 +141,7 @@ export function roadPresent(scene, ev, fx, anim, actor) {
   const g = scene.game;
   const nameOf = (id) => scene.c?.get?.(id)?.name || '';
   // 星くいのよる鳥
-  if (fx.type === 'telegraph' && actor?.species === EATER) {
+  if (fx.type === 'telegraph' && kindOf(actor) === EATER) {
     g.audio.sfx('warn');
     if (ev.ability === DARK_CHARGE) scene.banner('！よぞらのはばたきの前ぶれ！身を守れ！', 'danger');
     else scene.banner('！よる鳥が星をねらっている！光を当てて、目をくらませろ！', 'danger');
@@ -158,7 +160,7 @@ export function roadPresent(scene, ev, fx, anim, actor) {
     }
     scene.roadSide = side;
   }
-  if (fx.type === 'telegraph' && actor?.species === PENDULA) {
+  if (fx.type === 'telegraph' && kindOf(actor) === PENDULA) {
     g.audio.sfx('warn');
     if (ev.ability === BIG_CHARGE) scene.banner('！大ふりこの前ぶれ！身を守れ！', 'danger');
     else if (ev.ability === STOP_CHARGE) scene.banner(`！時止めの前ぶれ！${ev.pdAim?.name || 'ねらわれた人'}は身を守れ！`, 'danger');

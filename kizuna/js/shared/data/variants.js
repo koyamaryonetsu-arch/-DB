@@ -13,7 +13,7 @@
 //   ・経験値・お金: しゅるいの 倍率（exp・gold）。落とす 物は もとと おなじ（素材〈loot.js の MAT_DROPS〉は 落とさない）
 //   ・仲間に ならない（noBefriend。MONSTER_FRIENDS にも 入れない）。図鑑には 出ない（見た・たおした 記録は 色ちがいの ID で のこる）
 //   ・第53回 D: 配合で「色の石」を 使うと 色ちがいの 仲間が 生まれる（下の colorKinds・colorMon。仲間は もとの しゅぞくに color を つける）
-import { MONSTERS } from './monsters.js?v=ba9bc083e891';
+import { MONSTERS } from './monsters.js?v=bf896afe56a6';
 
 // しゅるい（名前の 前に つける ことば・色・強さ）
 export const VARIANT_KINDS = {

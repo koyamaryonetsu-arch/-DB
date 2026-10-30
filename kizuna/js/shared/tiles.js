@@ -73,6 +73,9 @@ export const T = {
   CLOCK_PIT: 289, HAND_BRIDGE: 290, CLOCK_HUB: 291, HAND_SWITCH: 292, CLOCK_PAINT: 293, THUD_FLOOR: 294, THUD_STONE: 295, STOP_FLOOR: 296,
   STOP_WATER: 297, BIG_GEAR: 298, GEAR_FLAT: 299, TIME_GAP: 300, CLOCK_DOOR: 301, BIG_BELL: 302, FROZEN_TREE: 303, FROZEN_GRASS: 304,
   MURAL_NEW: 305, CLOCK_FACE: 306,
+  // 第6章 Step 6「時計塔の心臓」（maps/tokei-high.js・render/tiles-tokei.js）。307 から
+  PEND_FLOOR: 307, PEND_BLADE: 308, GEAR_N: 309, GEAR_S: 310, GEAR_STILL: 311, GEAR_CRANK: 312, GEAR_CRANK_ON: 313, GEAR_WEIGHT: 314,
+  TIME_DOOR: 315, FACE_STARS: 316,
 };
 
 export const TILE_INFO = {};
@@ -386,6 +389,17 @@ def(T.FROZEN_TREE, 'frozen_tree', { solid: true, mapColor: '#8a8c90' }); // 時�
 def(T.FROZEN_GRASS, 'frozen_grass', { mapColor: '#a8aaae' }); // 時が 止まった 灰色の 草（歩ける）
 def(T.MURAL_NEW, 'mural_new', { solid: true, mapColor: '#b8b0a0' }); // 星の塔 1階の 新しい かべ画（うすく、半分しか 見えない）
 def(T.CLOCK_FACE, 'clock_face', { solid: true, mapColor: '#d8c890' }); // かべの 大時計（12時で 止まっている）
+// 第6章 Step 6「時計塔の心臓」（render/tiles-tokei.js）
+def(T.PEND_FLOOR, 'pend_floor', { mapColor: '#6a5848' }); // ふりこの やいばが 通る ゆか（やいばが 向こうに ある 間は 歩ける）
+def(T.PEND_BLADE, 'pend_blade', { solid: true, mapColor: '#b8bcc8' }); // ふりこの やいば（通れない）
+def(T.GEAR_N, 'gear_n', { flow: [0, -1], anim: true, mapColor: '#b08a3a' }); // 歯車の ゆか（北へ 運ばれる）
+def(T.GEAR_S, 'gear_s', { flow: [0, 1], anim: true, mapColor: '#b08a3a' }); // 歯車の ゆか（南へ 運ばれる）
+def(T.GEAR_STILL, 'gear_still', { mapColor: '#8a6a2a' }); // 止めた 歯車の ゆか（歩ける）
+def(T.GEAR_CRANK, 'gear_crank', { mapColor: '#c89a40' }); // 歯車の ハンドル（上に 立つと 針が 回る）
+def(T.GEAR_CRANK_ON, 'gear_crank_on', { light: true, mapColor: '#f0c860' }); // 回っている ハンドル（人か おもりが のっている）
+def(T.GEAR_WEIGHT, 'gear_weight', { solid: true, talkThrough: true, mapColor: '#5a5a66' }); // 歯車の おもり（しらべると 持てる）
+def(T.TIME_DOOR, 'time_door', { solid: true, mapColor: '#6a5a9a' }); // 止まった時の間の とびら
+def(T.FACE_STARS, 'face_stars', { solid: true, light: true, mapColor: '#3a3a7a' }); // 大時計の あと（星の 光に なった かべ）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

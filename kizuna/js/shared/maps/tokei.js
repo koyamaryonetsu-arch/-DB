@@ -12,14 +12,14 @@
 //   2つの 歯車の 石（5階）… 家族 2人なら 1人ずつ 同時に ふむ。ひとりなら リオンに 待ってもらう（WAIT5）
 // ・5階: 鐘つきのからくり カリヨン（carillon。B）→ c6_bell → 塔の 上で 大時計が 動き出す → c6_heart（Step 5 の さいご）
 // ・魔物: 1〜5階 t6_tower_low（B）。休み所・止まった 部屋・しかけの まわり・カリヨンの 広間は 出ない
-import { T, TILE_INFO } from '../tiles.js?v=ba9bc083e891';
-import { npc } from './npc.js?v=ba9bc083e891';
-import { TK_ROWS, TK_W, TK_H, TK3_W, TK3_H, CLOCKS, handCells, rimCell } from './tokei-rows.js?v=ba9bc083e891';
-import { parseRows16, PAST_ID, PAST_POS } from './past.js?v=ba9bc083e891';
-import { TOWER_OUT, towerMapId } from './tower.js?v=ba9bc083e891';
-import { C6B } from './hoshimichi.js?v=ba9bc083e891';
+import { T, TILE_INFO } from '../tiles.js?v=bf896afe56a6';
+import { npc } from './npc.js?v=bf896afe56a6';
+import { TK_ROWS, TK_W, TK_H, TK3_W, TK3_H, CLOCKS, handCells, rimCell } from './tokei-rows.js?v=bf896afe56a6';
+import { parseRows16, PAST_ID, PAST_POS } from './past.js?v=bf896afe56a6';
+import { TOWER_OUT, towerMapId } from './tower.js?v=bf896afe56a6';
+import { C6B } from './hoshimichi.js?v=bf896afe56a6';
 // 宝箱の 中み（B の data/items-tower.js の TOWER_TREASURE_FLOORS。まとめる 時に '../data/items-tower.js' から）
-import { TOWER_TREASURE_FLOORS } from '../data/items-tower.js?v=ba9bc083e891';
+import { TOWER_TREASURE_FLOORS } from '../data/items-tower.js?v=bf896afe56a6';
 
 export const TK_FLOORS = 5; // Step 5 は 5階まで（Step 6 で 10階まで）
 export const TK_REST = 3; // 休み所（時の いずみ）
@@ -111,7 +111,7 @@ export function hourOf(n, has) {
 }
 export const hourWord = (h) => `${h % 12 === 0 ? 12 : h % 12}時`;
 // 針の 橋の とびら（その マスを 通る 時こくの どれかの とき 橋）
-function handGates(n) {
+export function handGates(n) {
   const c = CLOCKS[n];
   const cover = new Map();
   for (let h = 0; h < 12; h++) for (const p of handCells(c, h)) {

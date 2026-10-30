@@ -16,13 +16,13 @@
 //   その 人の ゲージが 0 に なって、ペンデュラが pend.stop 回 動くまで（ふりこが はしから もどり始めるまで）止まる。身を 守っていると 止まらない。
 //   右の はしに 来ると「大ふりこ」の 前ぶれ → 次の 番に 大ふりこ（みんなに 物理の 大技。身を 守ると 半分）
 // ・知っている 人（シミュレーター。b.knowsCh6）は roadKnow（b.c6NoLight・b.c6NoGuard … しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=ba9bc083e891';
-import { STAR_EATER, PENDULA } from './data/monsters-road.js?v=ba9bc083e891';
-import { BUFF_ACTS } from './buff-acts.js?v=ba9bc083e891';
+import { MONSTERS } from './data/monsters.js?v=bf896afe56a6';
+import { STAR_EATER, PENDULA } from './data/monsters-road.js?v=bf896afe56a6';
+import { BUFF_ACTS } from './buff-acts.js?v=bf896afe56a6';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=ba9bc083e891';
+import { atbRate } from './battle.js?v=bf896afe56a6';
 // 第2部 第6章 Step 5: カリヨン（時のかね）。battle-tokei.js（ここから よぶ）
-import { setupTokei, tokeiTurnStart, tokeiEffect, tokeiPub } from './battle-tokei.js?v=ba9bc083e891';
+import { setupTokei, tokeiTurnStart, tokeiEffect, tokeiPub } from './battle-tokei.js?v=bf896afe56a6';
 
 export { STAR_EATER, PENDULA };
 export const AIM = 'm6_se_aim';
@@ -36,7 +36,8 @@ export const SWING = 'm6_pd_big';
 // 身を 守ると 半分に なる 大技（battle-ch6.js の ふつうの オートの 守り AUTO_GUARD）
 export const ROAD_BIG = [DARK, SWING];
 
-const confOf = (m) => MONSTERS[m?.species]?.ch6 || null;
+// c6 … その 戦いだけの しかけの 数（ゼンマイ。battle-tokei6.js）
+const confOf = (m) => m?.c6 || MONSTERS[m?.species]?.ch6 || null;
 const starConf = (m) => confOf(m)?.stars || null;
 const pendConf = (m) => confOf(m)?.pend || null;
 
@@ -86,8 +87,8 @@ export function setupRoad(b) {
 // ───────────── 時のふりこ ─────────────
 // 0 … 左・1 … 右・-1 … まん中
 export const sideOf = (pos) => (pos < 0 ? 0 : pos > 0 ? 1 : -1);
-// 味方と ペンデュラの ゲージの 速さ（c.tmul。時止めの 人は 0）
-function applyTimes(b, boss) {
+// 味方と ペンデュラの ゲージの 速さ（c.tmul。時止めの 人は 0）。ゼンマイの ふりこも（battle-tokei6.js）
+export function applyTimes(b, boss) {
   const pc = pendConf(boss) || {};
   const s = sideOf(boss.pend.pos);
   boss.tmul = s < 0 ? 1 : (pc.boss?.[s] ?? 1);

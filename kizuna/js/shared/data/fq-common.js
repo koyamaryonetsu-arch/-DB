@@ -1,8 +1,10 @@
 // お仕事いらい板の たのまれごとで 使う どうぐ（第39回 C の sidequests-family.js から 分けた。第41回）
 // ・職業の 系統（jobLine）・その 系統の 人（lineMember）・いない 時の ヒント（need）・乗り物を もらう（vehicleSteps）
 // ・sidequests-family.js（はじめの 5つ）と sidequests-work.js（第41回の 6つ）の どちらも ここを 使う
-import { JOBS, jobAncestry } from './jobs.js?v=ba9bc083e891';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=ba9bc083e891';
+import { JOBS, jobAncestry } from './jobs.js?v=bf896afe56a6';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=bf896afe56a6';
+// 第6章 Step 6: ぜんまい馬（vehicles-tokei.js）も おなじ 形で わたせる
+import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=bf896afe56a6';
 
 export const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 export const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,9 +43,9 @@ export function needText(q) {
 }
 export const need = (q) => N(...needText(q));
 
-// 乗り物を もらう（パーティーの みんな。もう 持っていたら そのまま）
+// 乗り物を もらう（パーティーの みんな。もう 持っていたら そのまま）。第6章クリアの ぜんまい馬（'zenmai_horse'）も
 export function vehicleSteps(id) {
-  const v = FAMILY_VEHICLES[id];
+  const v = FAMILY_VEHICLES[id] || TOKEI_VEHICLES[id];
   return [
     ['call', (run) => {
       for (const m of run.everyone) {
