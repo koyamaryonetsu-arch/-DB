@@ -311,7 +311,7 @@ function stopPath(n, water = true) {
 test('名前の 約束（plan-ch6.md の 15）: 物語の すすみ・マップの ID・出現表・きまった 戦い・曲・宝箱・ゲスト・大事な物・タイル', async () => {
   assert.deepEqual(CH6C_STEPS, STEP5);
   const ki = CH6_STEPS.indexOf('c6_kanata');
-  assert.deepEqual(CH6_STEPS.slice(ki + 1), STEP5, 'c6_kanata の うしろ');
+  assert.deepEqual(CH6_STEPS.slice(ki + 1, ki + 5), STEP5, 'c6_kanata の うしろ（そのあとは Step 6）');
   assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c6_kanata') + 1, STORY_STEPS.indexOf('c6_kanata') + 5), STEP5);
   const want = ['tokei_1f', 'tokei_2f', 'tokei_3f', 'tokei_4f', 'tokei_5f'];
   assert.deepEqual(TK_MAPS, want);
@@ -374,7 +374,9 @@ test('名前の 約束（plan-ch6.md の 15）: 物語の すすみ・マップ�
 test('目標: c6_kanata の あとの 目標・フラグごとの 目標・前の 版の「続きはアップデート」は なおる・仲間会話・地図の しるし', () => {
   assert.equal(OLD_C6_OBJ.kanata, '第6章の続きはアップデートで！');
   assert.equal(OLD_C6_OBJ.flow, '第6章の続きはアップデートで！');
-  assert.equal(C6C_OBJ.heart, '第6章の続きはアップデートで！', 'さいごは また「続きはアップデート」');
+  // Step 6 から さいごは「続きはアップデート」では ない（前の 文は OLD_C6_OBJ.heart。test/ch6-step6-a.test.js）
+  assert.equal(OLD_C6_OBJ.heart, '第6章の続きはアップデートで！');
+  assert.notEqual(C6C_OBJ.heart, OLD_C6_OBJ.heart);
   assert.equal(C6B_OBJ.kanata, C6C_OBJ.kanata);
   assert.notEqual(C6B_OBJ.kanata, OLD_C6_OBJ.kanata);
   // 前の 版で c6_kanata まで 遊んだ セーブは、ばあちゃんへの 目標に なおる（c6_flow までの 人は ミナモへ）
@@ -861,10 +863,9 @@ test('通しで: c6_kanata → ばあちゃん → 星の塔の かべ画 → �
   assert.deepEqual(fought.filter((id) => FIXED_ENCOUNTERS[id]), ['carillon'], '戦い');
   for (const f of STEP5) assert.ok(c.flags[f], f);
   assert.equal(c.objective, C6C_OBJ.heart);
-  assert.equal(c.objective, '第6章の続きはアップデートで！');
   assert.ok(c.guests.includes('rion'), 'リオンは Step 6 まで いっしょ');
   for (const w of ['ひとりでに鳴ったんじゃ', '大きな時計の前に、4人の子どもが', 'ぼくがやらなきゃ。…勇者なんだから。', 'リオンが仲間に加わった',
-    '星読みのしおり', 'かねつきのからくりカリヨン', '時計塔の心臓は、もう動き出した', '第6章の続きはアップデートで！']) {
+    '星読みのしおり', 'かねつきのからくりカリヨン', '時計塔の心臓は、もう動き出した', '第4幕']) {
     assert.ok(said(bot, w, from), w);
   }
   for (const id of ['zenmai', 'boss6', 'tokei']) assert.ok(said(bot, `"${id}"`, from), `曲 ${id}`);
@@ -1062,7 +1063,8 @@ test('絵と 音: 時計塔の タイル（2D は 16×16 を ぬる・2.5D）・
   const { CH6_SPECIALS } = await import('../public/js/client/render/ch6-art.js');
   const { _TRACKS, _parse } = await import('../public/js/client/audio.js');
   const HEX = /^#[0-9a-f]{6}$/i;
-  const mine = Object.keys(TK_PAINTERS).map(Number).sort((a, b) => a - b);
+  // 307 からは Step 6（test/ch6-step6-a.test.js）
+  const mine = Object.keys(TK_PAINTERS).map(Number).filter((id) => id < 307).sort((a, b) => a - b);
   assert.deepEqual(mine, Array.from({ length: 18 }, (_, i) => 289 + i));
   for (const id of mine) {
     assert.ok(CH6_TILES.includes(id) && hasTileArt(id) && TILE_INFO[id], `${id}`);

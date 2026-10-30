@@ -9,6 +9,10 @@ import { hasKeyItem } from '../stats.js';
 import { ScriptRun } from './scripts.js';
 import { partyOf } from './party.js';
 import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js';
+// 第6章 Step 6: 6〜10階の ページ（story-ch6d.js）
+import { TK6_HINTS } from '../data/story-ch6d.js';
+
+const HINTS = { ...TK_HINTS, ...TK6_HINTS };
 
 export const BOOK_TEXT = {
   none: '星読みのしおりを持っていない。',
@@ -20,7 +24,7 @@ export function useBookmark(world, s, reply) {
   if (!hasKeyItem(s.char, BOOKMARK)) return reply(false, BOOK_TEXT.none);
   if (s.busy) return reply(false, BOOK_TEXT.busy);
   const n = MAPS[s.map]?.tkFloor;
-  const hint = TK_HINTS[n];
+  const hint = HINTS[n];
   if (!hint) return reply(false, BOOK_TEXT.outside);
   const owner = world.hostOf?.(s) || s;
   const read = !!owner.char.flags[BM(n)];

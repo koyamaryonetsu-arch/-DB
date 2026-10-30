@@ -797,6 +797,8 @@ export class GameWorld {
 
   openChest(s, chest) {
     const c = s.char;
+    // だいほんで 開ける 宝箱（第6章 Step 6 の てっぺんの 宝箱。中みを えらぶ。data/story-ch6d.js）
+    if (chest.script) return runScript(this, s, chest.script);
     if (c.chests[chest.id]) return runSteps(this, s, [['say', null, '宝箱は空っぽだ。']]);
     if (chest.medal) return runSteps(this, s, medalChestSteps(this, s, chest));
     // 手伝いに 来ている ときは、ものがたりの 大事な物は とらない（自分の 冒険で）

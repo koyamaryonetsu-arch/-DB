@@ -13,7 +13,7 @@
 export const TK_W = 40, TK_H = 28;
 export const TK3_W = 42, TK3_H = 22;
 
-function sheet(w, h, draw) {
+export function sheet(w, h, draw) {
   const g = Array.from({ length: h }, (_, y) => Array.from({ length: w }, (_, x) => (x === 0 || y === 0 || x === w - 1 || y === h - 1 ? '#' : '#')));
   const ok = (x, y) => x > 0 && y > 0 && x < w - 1 && y < h - 1;
   const put = (x, y, ch) => { if (ok(x, y)) g[y][x] = ch; };
@@ -46,7 +46,7 @@ export function handCells(c, h) {
   }
   return out;
 }
-function drawClock(d, c) {
+export function drawClock(d, c) {
   const k = c.R + 2;
   for (let y = c.cy - k; y <= c.cy + k; y++) for (let x = c.cx - k; x <= c.cx + k; x++) {
     if (inHub(c, x, y)) d.put(x, y, 'h');
