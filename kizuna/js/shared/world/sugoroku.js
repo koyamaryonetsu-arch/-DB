@@ -15,19 +15,19 @@
 // 戦いの マス・ボスの マスは ほんとうの 戦い（world/battles.js の startFixedBattle）。
 //   すごろく場の 受付の だいほん（SG_HOOKS.desk）が、まどを とじて 戦い → 終わったら また まどを 開く。盤の ようすは そのまま
 //   負けると その すごろくは おわり（お金は へらない。その場で 元気に なる: encounters の loseOk）
-import { ITEMS } from '../data/items.js?v=66b0267ceac2';
-import { addItem, removeItem, itemCount, computeStats, fullHeal } from '../stats.js?v=66b0267ceac2';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=66b0267ceac2';
+import { ITEMS } from '../data/items.js?v=cc4d7c14aec3';
+import { addItem, removeItem, itemCount, computeStats, fullHeal } from '../stats.js?v=cc4d7c14aec3';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=cc4d7c14aec3';
 import {
   BOARDS, BOARD_BY_ID, nextOptions, DICE, DICE_MAX, TICKET_ITEM, TICKET_COINS, MEDAL_TICKETS, TICKET_BUY_MAX,
   TRAP_TEXT, SG_HOOKS, MOVE_TYPES, SQ_NAME, SUGOROKU_MAP, WHEEL, SG_COINS, SALE_RATE,
-} from '../data/sugoroku.js?v=66b0267ceac2';
-import { MONSTERS } from '../data/monsters.js?v=66b0267ceac2';
-import { tierInfo, casinoTier } from '../data/casino-tier.js?v=66b0267ceac2';
-import { coinsOf, COIN_MAX, medalsHeld, medalsSpent } from '../data/casino.js?v=66b0267ceac2';
-import { partyOf } from './party.js?v=66b0267ceac2';
-import { startFixedBattle } from './battles.js?v=66b0267ceac2';
-import { casinoOpen } from './casino.js?v=66b0267ceac2';
+} from '../data/sugoroku.js?v=cc4d7c14aec3';
+import { MONSTERS } from '../data/monsters.js?v=cc4d7c14aec3';
+import { tierInfo, casinoTier } from '../data/casino-tier.js?v=cc4d7c14aec3';
+import { coinsOf, COIN_MAX, medalsHeld, medalsSpent } from '../data/casino.js?v=cc4d7c14aec3';
+import { partyOf } from './party.js?v=cc4d7c14aec3';
+import { startFixedBattle } from './battles.js?v=cc4d7c14aec3';
+import { casinoOpen } from './casino.js?v=cc4d7c14aec3';
 
 const GOLD_MAX = 9999999;
 const TRAIL_MAX = 80;

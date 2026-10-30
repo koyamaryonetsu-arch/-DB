@@ -10,21 +10,22 @@
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
 // 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
-import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=66b0267ceac2';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=66b0267ceac2';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=66b0267ceac2';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=66b0267ceac2';
+import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=cc4d7c14aec3';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=cc4d7c14aec3';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=cc4d7c14aec3';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=cc4d7c14aec3';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=66b0267ceac2';
-import { MONSTERS } from './data/monsters.js?v=66b0267ceac2';
+import { deduceElement } from './data/abilities-jobs6.js?v=cc4d7c14aec3';
+import { MONSTERS } from './data/monsters.js?v=cc4d7c14aec3';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=66b0267ceac2';
+import { dualFor } from './ability-label.js?v=cc4d7c14aec3';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
-export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };
+// 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）
+export const DUAL_POWER = { 2: 2.4, 3: 3.0, 4: 4.0 };
 // 第31回: ボスが 1回で たおれすぎない ように、ボスへの 1回の ダメージは さいだいHPの この わりあいまで（人数ごと。技の bossCap で うわがき）。
 // ミナデインは 0.35（いちばん 強い）。超級職の 4人などで ないと とどかない（tools/sim-dual.mjs minadein）
-export const DUAL_BOSS_CAP = { 2: 0.2, 3: 0.25, 4: 0.3 };
+export const DUAL_BOSS_CAP = { 2: 0.25, 3: 0.3, 4: 0.35 }; // 第55回: 前は 0.2・0.25・0.3
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 // 動けない じょうたい（合体技に 入れない）
@@ -311,7 +312,8 @@ export function skillEstimate(b, m, id, tg, ignoreDef = 0) {
   for (const p of e.type === 'multi' ? e.parts || [] : [e]) {
     if (p.type === 'phys') {
       const eff = { ...p, element: undefined, ignoreDef: Math.max(p.ignoreDef || 0, ignoreDef) };
-      best = Math.max(best, b.calcPhys(m, tg, eff, pen, 'phys', true).dmg * (p.random ? 1 : p.hits || 1));
+      // 第55回: ランダムに 何回も 当たる 技も その 回数で 見つもる（前は 1回ぶん だけ。ほかの 敵に それる ぶん 少し ひく）
+      best = Math.max(best, b.calcPhys(m, tg, eff, pen, 'phys', true).dmg * (p.random ? Math.max(1, (p.hits || 1) * 0.75) : p.hits || 1));
     } else if (p.type === 'magic' && Array.isArray(p.base)) {
       best = Math.max(best, b.calcMagic(m, tg, { ...p, element: undefined }, pen, true).dmg);
     }

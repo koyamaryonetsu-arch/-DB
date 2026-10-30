@@ -2,8 +2,8 @@
 // ・雪の 結晶・氷の 城・ありのままの 雪の うず と 氷の かいだん・4つの せいれい（風・火・水・大地）と 5つめ の しるし
 // ・時間は shared/data/ax-time-g5.js（ここには 見た目だけ）。c の 時間は はなつ しゅんかんが 0
 // ・画面の 文字は かかない（文字の 中に 漢字を 入れない。コメントは よい）
-import { rnd, lerp, clamp01, easeOut, easeInOut, softGlow } from './axkit.js?v=66b0267ceac2';
-import { wrapPlay, sparkleFill, arrows, AX_G5_FINE_KIT } from './axfx-g5-kit.js?v=66b0267ceac2';
+import { rnd, lerp, clamp01, easeOut, easeInOut, softGlow } from './axkit.js?v=cc4d7c14aec3';
+import { wrapPlay, sparkleFill, arrows, AX_G5_FINE_KIT } from './axfx-g5-kit.js?v=cc4d7c14aec3';
 
 const TAU = Math.PI * 2;
 const ICE = '#9ae6ff', ICE2 = '#bfeaff', ICE3 = '#e6f8ff', WHITE = '#ffffff', DEEP = '#2a6ab0';

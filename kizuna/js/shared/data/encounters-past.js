@@ -5,7 +5,7 @@
 //   t6_ruin_up    … 時のいせき 1〜4階（今と 千年前の 両方。歯車カブト・いにしえの番兵・ふりこコウモリ。からくりの守り手・石のガーゴイルも 少し）
 //   t6_ruin_low   … 時のいせき 5〜7階（今と 千年前の 両方。ときの守り手・まきもどしのゆうれい・とけいグモ。上の 階の 魔物と 色ちがいも）
 // ホシフルの里・泉の里の 中、時のいせき 4階の 休み所、番人の間は 魔物が 出ない（A の マップ）
-import { registerVariant } from './variants.js?v=66b0267ceac2';
+import { registerVariant } from './variants.js?v=cc4d7c14aec3';
 
 // 色ちがい（data/variants.js）: まれに 出る（経験値と お金が 多い）
 export const PAST_VARIANTS = [registerVariant('toki_hare', 'gold'), registerVariant('gear_beetle', 'red'), registerVariant('chrono_knight', 'dark'), registerVariant('clock_spider', 'shadow')];

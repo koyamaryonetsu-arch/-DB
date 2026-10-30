@@ -2,8 +2,8 @@
 //   arenaCard … かけ試合の 組み合わせ（4ひきの すがた・オッズ）
 //   arenaBout … かけ試合の ようす（1回戦 2つ と 決勝。短い 戦いの ようすを 1行ずつ。タップで 先へ・「とばす」で さいごまで）
 //   arenaWall … 王者のかべ（家族サーバーでは 家族みんな、ひとりの サイトでは 自分の キャラたち）
-import { el, ListMenu } from './dom.js?v=66b0267ceac2';
-import { monsterCanvas } from '../render/monsters.js?v=66b0267ceac2';
+import { el, ListMenu } from './dom.js?v=cc4d7c14aec3';
+import { monsterCanvas } from '../render/monsters.js?v=cc4d7c14aec3';
 
 const CSS = `
 .arena-panel { display: flex; flex-direction: column; max-height: calc(100% - var(--safe-t) - 16px); }

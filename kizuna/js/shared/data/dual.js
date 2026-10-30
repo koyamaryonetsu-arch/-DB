@@ -24,10 +24,10 @@
 //   今の 職業が その タグを 持つ 人が うけもてる（今の 職業で 判定は そのまま）。
 //   作品の ネタの 技（おかん・カッパ・魔王と はかい神 など）は、前と おなじ「特別な 組」（職業しばり）の まま。
 //   合体技の id・名前・えんしゅつは そのまま（古い セーブ・お気に入り・dualSeen は こわれない）。作品を またぐ 新しい 技を 13こ 足した
-import { ABILITIES } from './abilities.js?v=66b0267ceac2';
-import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=66b0267ceac2';
-import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=66b0267ceac2';
-import { isMasc, jobLabel } from '../job-label.js?v=66b0267ceac2';
+import { ABILITIES } from './abilities.js?v=cc4d7c14aec3';
+import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=cc4d7c14aec3';
+import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=cc4d7c14aec3';
+import { isMasc, jobLabel } from '../job-label.js?v=cc4d7c14aec3';
 
 // その 職業の 技（ひらめき技も）
 const byJob = (...jobs) => Object.keys(ABILITIES).filter((id) => {
@@ -284,7 +284,7 @@ export const DUAL_TECHS = {
   // 第31回: きずな技だった ミナデインが 合体技に。勇者の 系統が 1人 いれば、のこりの 3人は だれでも よい（家族が 決めた れいがい）。
   // 合体技で いちばん 強い 敵1体の 雷（k 1.4 は 合体技で いちばん 大きい。ボスへは さいだいHPの 35%まで・MPも 多め。tools/sim-dual.mjs minadein）
   dt_minadein: {
-    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.35,
+    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.42,
     parts: [{ type: 'power', kind: 'magic', element: 'bolt', k: 1.4, say: 'みんなの力が、1つの大きな雷になった！' }],
     desc: '勇者が天にかかげた手に、仲間みんなの力が集まる。勇者の系統の人が1人いれば、あとの3人はだれでもよい。敵1体に、合体技でいちばん強い雷をおとす。', anim: 'minadein',
   },
