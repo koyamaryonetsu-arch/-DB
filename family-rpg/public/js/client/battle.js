@@ -75,6 +75,8 @@ import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js';
 import { ROAD_SFX } from './battle-road.js';
 // 第2部 第6章 Step 5 の 時計塔の 魔物と カリヨンの 音（battle-tokei.js）
 import { TOKEI_SFX } from './battle-tokei.js';
+// 第2部 第6章 Step 6 の 魔物・ゼンマイ・リオンの けいこの 音と、リオンの 人の 絵（battle-tokei6.js）
+import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -198,6 +200,7 @@ const ANIM_SFX = {
   ...CH6_SFX,
   ...ROAD_SFX,
   ...TOKEI_SFX,
+  ...TOKEI6_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -1702,7 +1705,7 @@ export class BattleScene {
     const sprites = list.map((c) => {
       const frame = Math.floor(this.time / 420 + (c.slot || 0)) % 2;
       // 鏡のうつし身（パーティーの 人の 絵）・水のろう（中の 人）は battle-temple.js
-      const img = templeSprite(c, frame) || gaiaSprite(c, frame) || noctoSprite(c, frame) || monsterCanvas(c.species, frame);
+      const img = templeSprite(c, frame) || gaiaSprite(c, frame) || noctoSprite(c, frame) || tokei6Sprite(c) || monsterCanvas(c.species, frame);
       const r = img.res || 1;
       return { c, img, iw: img.width / r, ih: img.height / r };
     });

@@ -1378,12 +1378,14 @@ export class Field {
       air: !!(sky?.flying || sky?.anim),
       cart: !!this.riding,
       hidden: !!this.hideMe || !!sky?.ridingAlong?.(),
+      // 第6章 Step 6: 千年前は ぜんまい馬だけ（data/vehicles.js）
+      past: !!this.map?.past,
     });
   }
 
   // ほかの 人: サーバーの いちの じょうほう（vh … 走って 乗っている 時だけ とどく）
   otherVehicle(o) {
-    return rideShown(o?.vh, { running: !!o?.moving, ship: !!this.map && this.isOnWater(o.x, o.y), air: !!o?.air });
+    return rideShown(o?.vh, { running: !!o?.moving, ship: !!this.map && this.isOnWater(o.x, o.y), air: !!o?.air, past: !!this.map?.past });
   }
 
   // 人を のせた 乗り物の 絵（コマは 時間で。3コマの 乗り物も ある）

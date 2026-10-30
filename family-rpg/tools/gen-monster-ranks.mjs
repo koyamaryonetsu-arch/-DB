@@ -28,13 +28,14 @@ import { ENCOUNTERS_PHANTOM } from '../public/js/shared/data/encounters-phantom.
 import { ENCOUNTERS_PAST } from '../public/js/shared/data/encounters-past.js';
 import { ENCOUNTERS_ROAD } from '../public/js/shared/data/encounters-road.js';
 import { ENCOUNTERS_TOKEI } from '../public/js/shared/data/encounters-tokei.js';
+import { ENCOUNTERS_TOKEI6 } from '../public/js/shared/data/encounters-tokei6.js';
 import { MONSTER_FRIENDS, JOIN_TIERS, joinTier, RANKS } from '../public/js/shared/data/companions.js';
 
 // 章の まとまり（どの 章の 出現表か。テストの「どの 章にも F〜C」にも 使う）
 const CHAPTER_SRC = [
   ['第3・4章', [ENCOUNTERS_CH3, ENCOUNTERS_CH4, ENCOUNTERS_TEMPLE, ENCOUNTERS_LAB]],
   ['第5章', [ENCOUNTERS_CH5, ENCOUNTERS_KUMOI, ENCOUNTERS_HOSHIYOMI, ENCOUNTERS_EARTH, ENCOUNTERS_PHANTOM]],
-  ['第6章', [ENCOUNTERS_PAST, ENCOUNTERS_ROAD, ENCOUNTERS_TOKEI]],
+  ['第6章', [ENCOUNTERS_PAST, ENCOUNTERS_ROAD, ENCOUNTERS_TOKEI, ENCOUNTERS_TOKEI6]],
 ];
 export const BANDS = ['第1・2章', '第3・4章', '第5章', '第6章'];
 export function zoneBand(zone) {

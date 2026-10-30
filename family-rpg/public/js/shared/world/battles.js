@@ -30,6 +30,8 @@ import { MONSTER_FRIENDS } from '../data/companions.js';
 import { boardHirameki, boardDual } from './family-board.js';
 // 第51回 F: 幻の職業の 記録（自分の キャラの 戦いの 記録を 足す・条件が 見えた／なれるように なった 知らせ）
 import { addFeats, phantomAfterBattle } from './phantom.js';
+// 第53回 B: 第6章 Step 6 の 時のまぼろし（1日1回の ★5の 素材・はじめて 勝った 時の けいじ板）
+import { tokiPhantomAfter } from './tokei-phantom.js';
 
 let battleSeq = 1;
 
@@ -67,6 +69,8 @@ export function joinBattle(world, s, targetSid) {
   if (!ctx || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
   if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
   if (ctx.sids.includes(s.id)) return { ok: false };
+  // 1人で 戦う きまった 戦い（リオンの けいこ。encounters の solo）には 入れない
+  if (ctx.opts.solo) return { ok: false, reason: 'これは1人で戦うけいこだ…' };
   // プレイヤーは 5人まで いっしょに 戦える（world/party.js の PARTY_MAX）
   if (ctx.battle.allies.filter((a) => a.kind !== 'guest').length >= PARTY_MAX) return { ok: false, reason: '戦いの場所がいっぱいだ…' };
   const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
@@ -121,7 +125,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
   const actorMap = {};
   const entries = []; // ならびの じゅん（先頭ほど 敵に ねらわれやすい）
   // なかま: さくせんが「めいれいさせろ」なら もちぬしが コマンドを えらぶ（もちぬしが いない ときは AI）
-  const sups = party.supports.map((sup) => {
+  // 第53回: 1人で 戦う（opts.solo。リオンの けいこ）… 仲間・ゲストは 入らない
+  const sups = (opts.solo ? [] : party.supports).map((sup) => {
     const tac = sup.char.tactics || 'balanced';
     const owner = tac === 'manual' ? sessions.find((m) => m.charId === sup.owner) : null;
     return {
@@ -140,7 +145,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
   const pos = Math.max(0, Math.min(sups.length, selfPosOf(world, party)));
   entries.push(...sups.slice(0, pos), ...humans, ...sups.slice(pos));
   for (const e of entries) allies.push(e.ally);
-  for (const g of party.guests) allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
+  const guests = opts.solo ? [] : party.guests;
+  for (const g of guests) allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
   const b = new Battle({
     id: 'b' + (battleSeq++),
     rng: world.rng,
@@ -211,7 +217,7 @@ function makeBattle(world, sessions, party, enemies, opts) {
   // だれが どの キャラか
   let i = 0;
   for (const e of entries) actorMap[b.allies[i++].id] = e.map;
-  for (const g of party.guests) actorMap[b.allies[i++].id] = { type: 'guest', id: g.id, char: g.char };
+  for (const g of guests) actorMap[b.allies[i++].id] = { type: 'guest', id: g.id, char: g.char };
   // モンスターマスターが いると なかまの まものが つよくなる
   const boost = Math.max(1, ...sessions.map((m) => JOBS[m.char.job]?.passive?.monsterBoost || 1));
   if (boost > 1) {
@@ -259,15 +265,17 @@ export function startFieldBattle(world, s, sym) {
 
 // ストーリーの たたかい（まけると だいほんが とまる）
 // extra … makeBattle に わたす ほかの もの（第38回 B: setup … 戦いを 作った すぐ あとの しかけ。world/job-trials.js）
+// 第53回: enc.solo … はじめた 人 1人だけで 戦う（リオンの けいこ）/ enc.pick(now) … その 日の 敵の むれ（時のまぼろし）
 export function startFixedBattle(world, initiator, participants, encId, extra = {}) {
   const enc = FIXED_ENCOUNTERS[encId];
   const party = partyOf(world, initiator);
-  const sessions = participants.filter((m) => m && m.inWorld);
+  const sessions = (enc.solo ? [initiator] : participants).filter((m) => m && m.inWorld);
   const enemies = [];
-  for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
+  const group = typeof enc.pick === 'function' ? enc.pick(world.now()) : enc.group;
+  for (const [sp, mn] of group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, enemyCurve: !!enc.enemyCurve, loseOk: !!enc.loseOk, ...extra });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, enemyCurve: !!enc.enemyCurve, loseOk: !!enc.loseOk, solo: !!enc.solo, ...extra });
     ctx.resolve = resolve;
   });
 }
@@ -544,6 +552,8 @@ function finishBattle(world, ctx) {
     const pn = phantomAfterBattle(world, m.char);
     if (pn.length) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...pn);
   }
+  // 第53回 B: 時のまぼろし（止まった時の間）に 勝った: 1日1回の 素材・はじめての 勝ちは けいじ板へ（world/tokei-phantom.js）
+  tokiPhantomAfter(world, ctx, sessions, perSession, outcome);
 
   // シンボル
   if (ctx.opts.symbolId) {

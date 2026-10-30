@@ -250,7 +250,7 @@ test('影の城の 宝箱（CASTLE_TREASURE）: 1〜12階に 1〜2こ。ぜん�
   // 12階の 剣は 今の ★5の 剣の 中で いちばん 強い（ソリトゥスの 品〈B9〉より 前。第6章の 千年前・星めぐりの古道・時計塔の 品〈src: 'past'・'pastboss'・'road'・'tokei'〉は もっと あと）
   // 第50回 D3: 第6章の 区切りの あとに ならぶ 景品（data/items-prize-r50.js）も もっと あと
   const prizeR50 = new Set(Object.values(ITEMS_PRIZE_R50));
-  const swords = Object.values(ITEMS).filter((it) => it.type === 'weapon' && it.cat === 'sword' && !it.base && it.rank <= 10 && it.src !== 'alchemy' && it.src !== 'final' && it.src !== 'past' && it.src !== 'pastboss' && it.src !== 'road' && it.src !== 'tokei' && !prizeR50.has(it));
+  const swords = Object.values(ITEMS).filter((it) => it.type === 'weapon' && it.cat === 'sword' && !it.base && it.rank <= 10 && it.src !== 'alchemy' && it.src !== 'final' && it.src !== 'past' && it.src !== 'pastboss' && it.src !== 'road' && it.src !== 'tokei' && it.src !== 'clear6' && !prizeR50.has(it));
   // ソリトゥスの 夜明けの星の剣（B9。src: 'final'）は もっと 強い（いちばん 最後の 品）
   assert.ok(Object.values(ITEMS).filter((it) => it.src === 'final' && it.cat === 'sword').every((s) => s.atk > ITEMS.cs_castle_sword.atk));
   assert.equal(Math.max(...swords.map((s) => s.atk)), ITEMS.cs_castle_sword.atk);

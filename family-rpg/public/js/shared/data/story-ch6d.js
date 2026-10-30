@@ -21,7 +21,7 @@ import { MINAMO_GUEST } from './companions-past.js';
 import { addItem, canEquipChar } from '../stats.js';
 import { CH6D_SIDE_STORY, applyCh6dSide } from './sidequests-ch6d.js';
 // クリアの ★5の 武器（B の data/items-tokei.js の C6_CLEAR_WEAPONS。まとめる 時に './items-tokei.js' から）
-import { C6_CLEAR_WEAPONS } from './ch6d-stub.js';
+import { C6_CLEAR_WEAPONS } from './items-tokei.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -33,7 +33,7 @@ import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
 import { VEHICLES } from '../public/js/shared/data/vehicles.js';
 import { HIRAMEKI } from '../public/js/shared/data/hirameki.js';
 // 6〜10階の 宝箱の 中み・クリアの ★5の 武器（B の data/items-tokei.js。まとめる 時に そちらから）
-import { TOKEI_TREASURE_HIGH, C6_CLEAR_WEAPONS } from '../public/js/shared/data/ch6d-stub.js';
+import { TOKEI_TREASURE_HIGH, C6_CLEAR_WEAPONS } from '../public/js/shared/data/items-tokei.js';
 import { TIME_GLASS } from '../public/js/shared/world/time-glass.js';
 import { recruitNpc } from '../public/js/shared/world/party.js';
 import { dungeonExit } from '../public/js/shared/world/escape.js';
@@ -922,7 +922,7 @@ test('星読みの しおり: 6〜10階と てっぺんで その 階の ヒン�
 // ───────────── 文字・絵 ─────────────
 test('文字: 第6章 Step 6 の ファイルは 文字の ルールの チェックに 入っていて、使えない 漢字・スペースが ない', () => {
   const files = gameFiles().map((f) => f.split('/family-rpg/').pop());
-  const mine = ['public/js/shared/data/story-ch6d.js', 'public/js/shared/data/sidequests-ch6d.js', 'public/js/shared/data/ch6d-stub.js',
+  const mine = ['public/js/shared/data/story-ch6d.js', 'public/js/shared/data/sidequests-ch6d.js',
     'public/js/shared/maps/tokei-high.js', 'public/js/shared/maps/tokei-high-rows.js', 'public/js/shared/world/tokei-gear.js'];
   for (const f of mine) assert.ok(files.includes(f), f);
   for (const f of gameFiles().filter((g) => mine.some((x) => g.endsWith(x)))) assert.deepEqual(checkFile(f).filter((r) => r.kind !== 'kana'), [], f);

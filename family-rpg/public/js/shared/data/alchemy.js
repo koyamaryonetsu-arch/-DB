@@ -21,6 +21,7 @@ import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js';
 import { EARTH_RECIPES } from './items-earth.js';
 import { CASTLE_RECIPES } from './items-castle.js';
 import { PAST_RECIPES } from './items-past.js';
+import { TOKEI6_RECIPES } from './items-tokei6.js';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -96,6 +97,8 @@ export const RECIPES = [
   ...CASTLE_RECIPES,
   // 第2部 第6章 Step 1・2: 時の砂・古い歯車で ★5 → もっと 強い ★5（items-past.js）
   ...PAST_RECIPES,
+  // 第2部 第6章 Step 6: まぼろしの時の砂（時のまぼろし。1日1回）で ★5 → もっと 強い ★5（items-tokei6.js）
+  ...TOKEI6_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。第36回から かくさない）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), reborn: true })),
 ];

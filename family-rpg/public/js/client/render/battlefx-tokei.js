@@ -2,6 +2,9 @@
 // （battlefx-road.js の playRoadFx の さいごに よばれる。ない anim なら false）
 // 色: 歯車＝真ちゅうと 鉄、ばねばこ＝赤と きいろの しまもよう、キラー＝黒と 白い けむり、カリヨン＝金の かねと 音の わ、リオン＝紋章の 光
 // a6t_bell（時のかね）・a6t_cspin・a6t_chime は がめんの まん中に 大きく（client/battle-tokei.js の TOKEI_SCREEN_ANIMS）
+// 第2部 第6章 Step 6 の 魔物・ゼンマイ・リオンの けいこ（battlefx-tokei6.js。ここの さいごから よぶ）
+import { playTokei6Fx } from './battlefx-tokei6.js';
+
 const BRASS = ['#d8a040', '#f0d080', '#8a6a3a', '#ffffff'];
 const IRON = ['#7a8090', '#c8ccd8', '#4a4e5a'];
 const TOY = ['#e84a4a', '#f8d040', '#ffffff', '#4a8ae8'];
@@ -128,6 +131,6 @@ export function playTokeiFx(fx, anim, targets, element, opts = {}, W = 256, H = 
       fx.hitStop(130, 140, 1.5);
       return true;
     default:
-      return false;
+      return playTokei6Fx(fx, anim, targets, element, opts, W, H);
   }
 }

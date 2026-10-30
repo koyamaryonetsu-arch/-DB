@@ -43,6 +43,8 @@ import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock }
 import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）。battle-ch6.js
 import { setupCh6, ch6Damage } from './battle-ch6.js';
+// 第2部 第6章 Step 6: ゼンマイの 2だんめ（歯車・文字ばんの 針。battle-tokei6.js）
+import { tokei6Phase } from './battle-tokei6.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
 // 第51回 C3: 幻の職業の しかる・消す・装備の 作りかえ・観客（battle-phantom-c.js）と 戦いの 天気（battle-weather.js）
@@ -2225,6 +2227,8 @@ export class Battle {
     earthStop(this, t, ev);
     // ノクト（本気）の ことば・ソリトゥスの 段階（battle-final.js）
     finalPhase(this, t, ev);
+    // ゼンマイ: HPが へると 2だんめ（歯車が あらわれ、文字ばんの 針が 動き出す。battle-tokei6.js）
+    tokei6Phase(this, t, ev);
     if (ev.phaseLines && !ev.phaseQueued) {
       ev.phaseQueued = true;
       // メッセージの さいごに つける

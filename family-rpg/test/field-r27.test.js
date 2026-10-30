@@ -182,7 +182,8 @@ test('引っこしコード: 仲間 40人（いっぱい）でも LINE で 1回�
   c.companions[8].char.equip.weapon = 'iron_sword';
   const code = exportCode(c);
   assert.ok(code.length < LINE_MAX, `コードの 長さ ${code.length}`);
-  assert.ok(code.startsWith('KIZUNA-3-'));
+  // 第53回: 魔物が ふえて「図鑑 ぜんぶ」の 時は KIZUNA-4 に なる ことも ある（どちらも LINE の 1回・もとどおりに 読める）
+  assert.ok(/^KIZUNA-[34]-/.test(code));
   const r = parseCode(code);
   assert.equal(r.ok, true, r.reason);
   const want = repairChar(JSON.parse(JSON.stringify(c)));

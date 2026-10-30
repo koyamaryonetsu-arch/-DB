@@ -40,6 +40,7 @@ import { PHANTOM_ABILITIES } from './abilities-phantom.js';
 import { PAST_ABILITIES } from './abilities-past.js';
 import { ROAD_ABILITIES } from './abilities-road.js';
 import { TOKEI_ABILITIES } from './abilities-tokei.js';
+import { TOKEI6_ABILITIES, addZenBy } from './abilities-tokei6.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -656,6 +657,9 @@ Object.assign(ABILITIES, PAST_ABILITIES);
 Object.assign(ABILITIES, ROAD_ABILITIES);
 // 第2部 第6章 Step 5 の 時計塔の 魔物・カリヨン・ゲストの リオンの 技（abilities-tokei.js）
 Object.assign(ABILITIES, TOKEI_ABILITIES);
+// 第2部 第6章 Step 6 の 魔物・ゼンマイ・リオンの けいこの 技（abilities-tokei6.js）。ゼンマイが 家来の 技を 使う ときの 名前（by.zenmai）
+Object.assign(ABILITIES, TOKEI6_ABILITIES);
+addZenBy(ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

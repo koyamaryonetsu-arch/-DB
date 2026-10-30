@@ -358,6 +358,10 @@ export function gameFiles() {
     // 第2部 第6章 Step 5（B: 戦い・品）: 止まった時計塔の 魔物・カリヨン（時のかね）・時計塔の 宝箱・ゲストの リオン
     'public/js/shared/data/monsters-tokei.js', 'public/js/shared/data/abilities-tokei.js', 'public/js/shared/data/items-tokei.js', 'public/js/shared/data/encounters-tokei.js',
     'public/js/shared/data/companions-tokei.js', 'public/js/shared/battle-tokei.js', 'public/js/client/battle-tokei.js',
+    // 第2部 第6章 Step 6（B: 戦い・品）: 時計塔 6〜10階の 魔物・ゼンマイ（2だん）・リオンの けいこ・時のまぼろし・宝箱・第6章クリアの 武器・ぜんまい馬
+    'public/js/shared/data/monsters-tokei6.js', 'public/js/shared/data/abilities-tokei6.js', 'public/js/shared/data/items-tokei6.js', 'public/js/shared/data/encounters-tokei6.js',
+    'public/js/shared/data/companions-tokei6.js', 'public/js/shared/data/vehicles-tokei.js', 'public/js/shared/battle-tokei6.js', 'public/js/shared/world/tokei-phantom.js',
+    'public/js/client/battle-tokei6.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
@@ -374,8 +378,8 @@ export function gameFiles() {
     // 第2部 第6章 Step 5（A: 世界と物語）: 星の塔の かね・止まった時計塔・リオン・カリヨンの 台本・星読みの しおり・トキネの砂時計のかざり
     'public/js/shared/data/story-ch6c.js', 'public/js/shared/data/sidequests-ch6c.js', 'public/js/shared/data/items-ch6c.js',
     'public/js/shared/maps/tokei.js', 'public/js/shared/maps/tokei-rows.js', 'public/js/shared/maps/ch6c-side.js', 'public/js/shared/world/tokei.js', 'public/js/shared/world/tokei-use.js',
-    // 第2部 第6章 Step 6（A: 世界と物語）: 時計塔の 6〜10階・ゼンマイの 台本・てっぺん・第6章クリア・リオンの剣のけいこ（ch6d-stub.js は まとめる 時に 消す）
-    'public/js/shared/data/story-ch6d.js', 'public/js/shared/data/sidequests-ch6d.js', 'public/js/shared/data/ch6d-stub.js',
+    // 第2部 第6章 Step 6（A: 世界と物語）: 時計塔の 6〜10階・ゼンマイの 台本・てっぺん・第6章クリア・リオンの剣のけいこ
+    'public/js/shared/data/story-ch6d.js', 'public/js/shared/data/sidequests-ch6d.js',
     'public/js/shared/maps/tokei-high.js', 'public/js/shared/maps/tokei-high-rows.js', 'public/js/shared/world/tokei-gear.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',

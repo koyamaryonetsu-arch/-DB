@@ -17,7 +17,7 @@ import { parseRows16, PAST_ID, PAST_POS } from './past.js';
 import { towerMapId } from './tower.js';
 import { C6C, TF, TK_POS, tkMapId, handGates, CLOCKS, MURAL_NEW_AT } from './tokei.js';
 // 宝箱の 中み（B の data/items-tokei.js の TOKEI_TREASURE_HIGH。まとめる 時に '../data/items-tokei.js' から）
-import { TOKEI_TREASURE_HIGH } from '../data/ch6d-stub.js';
+import { TOKEI_TREASURE_HIGH } from '../data/items-tokei.js';
 
 export const TH_FLOORS = [6, 7, 8, 9, 10];
 export const TH_REST = [6, 9];

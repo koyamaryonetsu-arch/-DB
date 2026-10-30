@@ -82,6 +82,8 @@ export const VEHICLES = {
 import { FAMILY_VEHICLES } from './vehicles-family.js'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 // 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
 import { PRIZE_VEHICLES } from './vehicles-prize.js'; Object.assign(VEHICLES, PRIZE_VEHICLES);
+// 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
+import { TOKEI_VEHICLES } from './vehicles-tokei.js'; Object.assign(VEHICLES, TOKEI_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
@@ -162,7 +164,11 @@ export function chooseVehicle(c, id) {
 // 今 乗り物の 絵に するか（client/field.js の 自分・ほかの 人）
 //   vehicle … えらんでいる 乗り物、running … 走っている（動いている）、
 //   ship・air・cart・hidden … 船・大鳥や竜・トロッコ・かくれている（そちらが 先）
-export function rideShown(vehicle, { running = false, ship = false, air = false, cart = false, hidden = false } = {}) {
+//   past … 千年前の マップ（map.past）。第53回: 千年前でも 今までどおり どの 乗り物にも 乗れる（まとめ役が 決めた。前から 乗れていた ので へらさない）
+export function rideShown(vehicle, { running = false, ship = false, air = false, cart = false, hidden = false, past = false } = {}) {
   if (!has(vehicle) || !running || ship || air || cart || hidden) return null;
+  void past;
   return vehicle;
 }
+// 千年前でも 乗れるか（メニューの 乗り物の 一らんに 出す）
+export const pastRide = (id) => has(id) && !!VEHICLES[id].past;
