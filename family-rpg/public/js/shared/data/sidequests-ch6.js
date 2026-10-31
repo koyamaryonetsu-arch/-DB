@@ -14,6 +14,8 @@ import { SHOPS } from './shops.js';
 import { ch6cSubQuests, ch6cDoneQuests, applyCh6cSide } from './sidequests-ch6c.js';
 // 第6章 Step 6（A）: リオンの剣のけいこ（sidequests-ch6d.js。だいほんは story-ch6d.js の applyCh6d で まぜる）
 import { ch6dSubQuests, ch6dDoneQuests } from './sidequests-ch6d.js';
+// 第7章 Step 1・2（A）: 時をこえる手紙（sidequests-c7.js。だいほんは story-c7.js の applyCh7 で まぜる）
+import { c7SubQuests, c7DoneQuests } from './sidequests-c7.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -195,7 +197,7 @@ export const CH6_SIDE_QUESTS = [
   { id: 'chibi', name: 'ちびアステルのたからもの', done: CT.done },
 ];
 export function ch6SubQuests(c, f, has) {
-  const out = [...ch6cSubQuests(c, f), ...ch6dSubQuests(c, f)];
+  const out = [...ch6cSubQuests(c, f), ...ch6dSubQuests(c, f), ...c7SubQuests(c, f)];
   if (!f(C6.flow)) return out;
   for (const k of KS) {
     const name = `時のタイムカプセル（${TC_NAMES[k]}）`;
@@ -222,7 +224,7 @@ export function ch6SubQuests(c, f, has) {
   return out;
 }
 export function ch6DoneQuests(c) {
-  return [...CH6_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...ch6cDoneQuests(c), ...ch6dDoneQuests(c)];
+  return [...CH6_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...ch6cDoneQuests(c), ...ch6dDoneQuests(c), ...c7DoneQuests(c)];
 }
 
 // ───────────── だいほんを まぜる（story-ch6b.js の applyCh6b から）─────────────

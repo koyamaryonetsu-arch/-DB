@@ -81,6 +81,8 @@ export const OLD_C6_OBJ = {
   kanata: '第6章の続きはアップデートで！',
   // 第6章 Step 5 の さいご（Step 6 が できる 前。c6_heart）。今は 知らない 文なので repairObjective が なおす
   heart: '第6章の続きはアップデートで！',
+  // 第6章クリアの 文（第7章が できる 前。story-ch6d.js の C6D_OBJ.clear）。今は 知らない 文なので repairObjective が なおす
+  clear: '第6章クリア！千年前の泉の里のリオンや、時計塔の9階の「止まった時の間」をたずねてみよう（第2部第7章は、いつかのアップデートで）',
 };
 export { ch6StaleObjective };
 

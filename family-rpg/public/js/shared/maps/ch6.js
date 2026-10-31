@@ -15,6 +15,8 @@ import { attachCh6Side } from './ch6-side.js';
 import { buildTokeiMaps, TK_MAPS, attachTokeiPast, attachTokeiNow } from './tokei.js';
 import { attachCh6cSide } from './ch6c-side.js';
 import { buildTokeiHighMaps, TH_MAPS, attachTokeiHigh } from './tokei-high.js';
+// 第7章 Step 1・2: 千年前の コガネ地方・緑の王国・みどりの水の神殿（maps/c7.js）
+import { attachCh7 } from './c7.js';
 
 // 第6章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH6_MAPS = [...PAST_MAPS, ...SHRINE_MAPS, ...RUIN_MAPS];
@@ -42,4 +44,6 @@ export function attachCh6(maps) {
   // Step 6: 止まった時計塔の 6〜10階・てっぺん・今の 星の塔 6階の 時の すきま
   Object.assign(maps, buildTokeiHighMaps());
   attachTokeiHigh(maps);
+  // 第7章 Step 1・2: 千年前の コガネ地方・みどりの水の神殿（今の コガネ地方を 作った あと）
+  attachCh7(maps);
 }

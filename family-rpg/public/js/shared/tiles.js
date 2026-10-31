@@ -76,6 +76,8 @@ export const T = {
   // 第6章 Step 6「時計塔の心臓」（maps/tokei-high.js・render/tiles-tokei.js）。307 から
   PEND_FLOOR: 307, PEND_BLADE: 308, GEAR_N: 309, GEAR_S: 310, GEAR_STILL: 311, GEAR_CRANK: 312, GEAR_CRANK_ON: 313, GEAR_WEIGHT: 314,
   TIME_DOOR: 315, FACE_STARS: 316,
+  // 第2部 第7章 Step 1・2「みどりの水の神殿」（maps/c7-temple.js・render/tiles-c7.js）。317 から
+  C7_CUR_N: 317, C7_CUR_E: 318, C7_CUR_S: 319, C7_CUR_W: 320, C7_LOTUS: 321, C7_SAND: 322, C7_SPOUT_FLOOR: 323, C7_SPOUT: 324, C7_GUARD: 325,
 };
 
 export const TILE_INFO = {};
@@ -400,6 +402,16 @@ def(T.GEAR_CRANK_ON, 'gear_crank_on', { light: true, mapColor: '#f0c860' }); // 
 def(T.GEAR_WEIGHT, 'gear_weight', { solid: true, talkThrough: true, mapColor: '#5a5a66' }); // 歯車の おもり（しらべると 持てる）
 def(T.TIME_DOOR, 'time_door', { solid: true, mapColor: '#6a5a9a' }); // 止まった時の間の とびら
 def(T.FACE_STARS, 'face_stars', { solid: true, light: true, mapColor: '#3a3a7a' }); // 大時計の あと（星の 光に なった かべ）
+// 第7章 Step 1・2: 千年前の 神殿の 流れる 水路（あさい 水。のると 流される）・はすの 葉・今の 水路に たまった 砂・水の ふき上げ・番人の 石像
+def(T.C7_CUR_N, 'c7_cur_n', { flow: [0, -1], anim: true, mapColor: '#4aa0c8' }); // 流れる 水路（北へ 流される）
+def(T.C7_CUR_E, 'c7_cur_e', { flow: [1, 0], anim: true, mapColor: '#4aa0c8' }); // 流れる 水路（東へ）
+def(T.C7_CUR_S, 'c7_cur_s', { flow: [0, 1], anim: true, mapColor: '#4aa0c8' }); // 流れる 水路（南へ）
+def(T.C7_CUR_W, 'c7_cur_w', { flow: [-1, 0], anim: true, mapColor: '#4aa0c8' }); // 流れる 水路（西へ）
+def(T.C7_LOTUS, 'c7_lotus', { water: true, anim: true, mapColor: '#5aa860' }); // 水に うかぶ 大きな はすの 葉（歩ける）
+def(T.C7_SAND, 'c7_sand', { solid: true, mapColor: '#c8a868' }); // 今の かれた 水路に たまった 砂の 山（通れない）
+def(T.C7_SPOUT_FLOOR, 'c7_spout_floor', { mapColor: '#5a7a7a' }); // 水が ふき上げる あなの ある ゆか（水が 出ていない 間は 歩ける）
+def(T.C7_SPOUT, 'c7_spout', { solid: true, anim: true, mapColor: '#9ad8f0' }); // ふき上げる 水の 柱（通れない）
+def(T.C7_GUARD, 'c7_guard', { solid: true, mapColor: '#7a8a7a' }); // 神殿の 番人の 石像（石の 箱を かかえている）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
