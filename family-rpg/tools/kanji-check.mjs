@@ -18,6 +18,8 @@ export const EXTRA_KANJI = [
   ...'魔呪剣竜僧侶賢闘紋拳忍賊占騎姫雷炎影闇嵐斬裂閃旋',
   ...'攻撃御威倒逃冒鑑掛殿沼滝塔超洞窟丘',
   ...'猛虎砕華烈爆滅',
+  // 第58回: 家族が 名前を つけた「自動追跡」ボタン
+  ...'跡',
   // 第51回: 幻の職業・幻の書
   ...'幻',
 ].join('');
@@ -194,7 +196,7 @@ export function gameFiles() {
     // 魔物あずかり所（第43回 C）
     'public/js/shared/world/storage.js', 'public/js/client/ui/storage.js',
     // 家族に 道具を あげる（第50回 N6）
-    'public/js/shared/world/gift.js', 'public/js/client/ui/gift.js',
+    'public/js/shared/world/gift.js', 'public/js/client/ui/gift.js', 'public/js/client/ui/follow-btn.js',
     // チャットの スタンプを 変える（第50回 N7）
     'public/js/shared/data/stamps.js', 'public/js/client/ui/stamps.js',
     // ポケモンの 魔物・進化（第44回 ポケモン P1）

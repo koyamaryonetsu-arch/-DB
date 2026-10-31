@@ -14,6 +14,8 @@ import { applyBattlePrefs, applyUiFont } from './prefs.js';
 import { SkyClient } from './sky.js';
 // 第50回 N3: 大事な物の すぐ使う ボタン
 import { QuickButton } from './ui/quick-item.js';
+// 第58回: マルチプレイの 自動追跡（リーダーに ついていく）の ボタン
+import { FollowButton } from './ui/follow-btn.js';
 import { reportError } from './errlog.js';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
 import { onBoardMsg, boardOnEnter } from './ui/family-board.js';
@@ -29,6 +31,7 @@ export class Game {
     this.sky = new SkyClient(this);
     // 第50回 N3: 大事な物の すぐ使う ボタン（大鳥・竜の ボタンの 下。ui/quick-item.js）
     this.quick = new QuickButton(this);
+    this.followBtn = new FollowButton(this);
     this.menu = new FieldMenu(this);
     this.script = new ScriptPlayer(this);
     this.state = 'boot';
@@ -197,6 +200,7 @@ export class Game {
       this.watchStuck(dt, canMove);
       this.sky.update(dt);
       this.quick.update();
+      this.followBtn.update();
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
       this.hud.update(dt);
