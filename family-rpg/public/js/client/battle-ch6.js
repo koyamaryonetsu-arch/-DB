@@ -10,11 +10,13 @@ import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js';
 import { tokeiDraw, tokeiPresent } from './battle-tokei.js';
 // 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
 import { kindOf, TOKEI6_OWN_TELE, tokei6Draw, tokei6Present } from './battle-tokei6.js';
+// 第2部 第7章 第1幕: ウツボきょうだい（いきの しるし・よびもどし）・オクタリア（声うばい・声の貝）。battle-c7.js
+import { C7_OWN_TELE, c7Draw, c7Present } from './battle-c7.js';
 
 const SAND = 'sand_clock';
 const GEAR = 'geardon';
 // 前ぶれの バナーを 自分で 出す 魔物（client/battle.js の ふつうの「大技が来る！」を 出さない）
-export const CH6_OWN_TELE = new Set([SAND, GEAR, ...ROAD_OWN_TELE, ...TOKEI6_OWN_TELE]);
+export const CH6_OWN_TELE = new Set([SAND, GEAR, ...ROAD_OWN_TELE, ...TOKEI6_OWN_TELE, ...C7_OWN_TELE]);
 
 export const CH6_SCREEN_ANIMS = ['a6_stomp', 'a6_storm', 'a6_fall', 'a6_steam', 'a6_press', 'a6_rewind_big', 'a6_slow'];
 export const CH6_ALLY_FX = {
@@ -40,6 +42,7 @@ export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
   roadDraw(scene, x, m, c, px, py, w, h, base);
   tokeiDraw(scene, x, m, c, px, py, w, h, base);
   tokei6Draw(scene, x, m, c, px, py, w, h, base);
+  c7Draw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // サンドクロック: 砂の 目もり（右よこ）と 前ぶれの うず
   if (kindOf(c) === SAND && c.sand !== undefined) {
@@ -121,6 +124,7 @@ export function ch6Present(scene, ev, fx, anim, actor) {
   roadPresent(scene, ev, fx, anim, actor);
   tokeiPresent(scene, ev, fx, anim, actor);
   tokei6Present(scene, ev, fx, anim, actor);
+  c7Present(scene, ev, fx, anim, actor);
   if (fx.type === 'telegraph' && kindOf(actor) === SAND) {
     g.audio.sfx('warn');
     scene.banner('！大砂流の前ぶれ！氷を当てるか、身を守れ！', 'danger');

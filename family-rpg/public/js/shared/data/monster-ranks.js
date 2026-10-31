@@ -168,4 +168,15 @@ export const MONSTER_RANKS = {
   zenmai_fern: 'B', // 出2＋仲3
   wind_devil: 'B', // 出2＋仲3
   clock_bones: 'B', // 出2＋仲3
+  // 第7章（F2 E3 D2 C1 B1 A1 S0）
+  nokonoko: 'F', // 出0＋仲0
+  crow_messenger: 'F', // 出1＋仲0
+  pakkun: 'E', // 出2＋仲0
+  card_soldier: 'E', // 出2＋仲0
+  uzu_eel: 'E', // 出2＋仲0
+  march_broom: 'D', // 出2＋仲1
+  gesso: 'D', // 出2＋仲1
+  teresa: 'C', // 出3＋仲1
+  water_youma: 'B', // 出2＋仲3
+  curse_lump: 'A', // 出3＋仲3
 };

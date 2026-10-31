@@ -33,6 +33,8 @@ export const WATER_SEA = [
   'tobiuo', 'uzumaki_gai', 'hoseki_game', 'kiba_walrus', 'penguin_knight', 'sand_crab', 'crab_star',
   'water_spirit', 'water_dragon', 'prison_guard', 'water_prison', 'mirror_jelly', 'shade_serpent', 'foam_siren', 'star_jelly',
   'ss_kraken', 'giant_squid', 'tm_king', 'tm_serpent', 'morgana', 'morgana_true', 'phantom_morgana',
+  // 第2部 第7章 第1幕（monsters-c7.js）: 神殿の 水の 魔物・ウツボきょうだい・うずの魔女と 声の貝
+  'uzu_eel', 'gesso', 'water_youma', 'c7_gate', 'c7_gate_b', 'c7_temple', 'c7_shell',
 ];
 
 // 3. 炎の 魔物。きまり: 炎が 0.5いか で 氷が 1.2いじょう（この ゲームの 炎の 魔物は みんな 氷に 弱い）。

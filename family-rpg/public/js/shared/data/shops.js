@@ -18,6 +18,7 @@ import { SHOPS_EARTH } from './shops-earth.js';
 import { SHOPS_PAST } from './shops-past.js';
 import { MINAMO_GUEST } from './companions-past.js';
 import { RION_GUEST } from './companions-tokei.js';
+import { KARIM_GUEST } from './companions-c7.js';
 
 export const SHOPS = {
   village: {
@@ -159,3 +160,5 @@ Object.assign(GUESTS, CH3_GUESTS);
 GUESTS.minamo = MINAMO_GUEST;
 // 第2部 第6章 Step 5: 最初の 紋章の 勇者 リオン（A が 台本の guest で 入れる。companions-tokei.js）
 GUESTS.rion = RION_GUEST;
+// 第2部 第7章 第1幕: 千年前の 若い 騎士 カリム（A が 台本の guest で 入れる。companions-c7.js）
+GUESTS.karim = KARIM_GUEST;

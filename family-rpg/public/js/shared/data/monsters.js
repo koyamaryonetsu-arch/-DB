@@ -35,6 +35,7 @@ import { MONSTERS_PAST } from './monsters-past.js';
 import { MONSTERS_ROAD } from './monsters-road.js';
 import { MONSTERS_TOKEI } from './monsters-tokei.js';
 import { MONSTERS_TOKEI6, addTokei6Hidden } from './monsters-tokei6.js';
+import { MONSTERS_C7, addC7Hidden } from './monsters-c7.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -283,6 +284,9 @@ Object.assign(MONSTERS, MONSTERS_TOKEI);
 // 第2部 第6章 Step 6「時計塔の心臓」の 魔物と ゼンマイ（歯車・リオンの けいこ・時のまぼろしは 数えない 形。monsters-tokei6.js）
 Object.assign(MONSTERS, MONSTERS_TOKEI6);
 addTokei6Hidden(MONSTERS);
+// 第2部 第7章 第1幕「緑の王国」の 手下の 魔物・ウツボきょうだい・オクタリア（声の貝は 数えない 形。monsters-c7.js）
+Object.assign(MONSTERS, MONSTERS_C7);
+addC7Hidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);

@@ -11,6 +11,7 @@ import { ITEMS_ROAD } from '../public/js/shared/data/items-road.js';
 // 第6章 Step 5 の 時計塔の 品（items-tokei.js）も おなじ
 import { ITEMS_TOKEI } from '../public/js/shared/data/items-tokei.js';
 import { ITEMS_TOKEI6 } from '../public/js/shared/data/items-tokei6.js';
+import { ITEMS_C7 } from '../public/js/shared/data/items-c7.js';
 // 第50回 D3: 第6章の 区切りの あとに ならぶ 景品（時計塔の 品と おなじ ころ）は のぞく
 import { ITEMS_PRIZE_R50 } from '../public/js/shared/data/items-prize-r50.js';
 import { test } from 'node:test';
@@ -134,7 +135,7 @@ test('品: ノクト（本気）は ふたつの紋章のお守り（1人 1つ�
   // いちばん 強い 剣・いちばん めずらしい 色（レア度 5）
   const sw = ITEMS.solitus_dawn_sword;
   assert.equal(sw.rarity, 5);
-  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id] && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_PRIZE_R50[id]);
+  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id] && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_PRIZE_R50[id]);
   assert.ok(others.every(([, it]) => (it.atk || 0) < sw.atk), `いちばん 強い（${sw.atk}）`);
   assert.ok(sw.atk > ITEMS.et_earth_sword.atk * 1.15);
 });

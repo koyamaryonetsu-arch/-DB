@@ -51,8 +51,10 @@ test('A: 28通りの 系統の 組み合わせ みんなに まぜの 子（い�
     assert.ok(pool.length >= 6, `${a}+${b}: ${pool.length}しゅ`);
     assert.ok(ranks.size >= 4, `${a}+${b}: ランク ${[...ranks].map((r) => RANKS[r]).join('')}`);
     assert.deepEqual(mixPool(b, a, MONSTERS), pool, 'どちら向きでも 同じ');
-    // 表に 書いた 魔物は みんな のこる（書きまちがいが ない）
-    assert.equal(pool.length, new Set(MIX_TABLE[mixKey(a, b)]).size, `${a}+${b}`);
+    // 表に 書いた 魔物は みんな のこる（書きまちがいが ない）。のこりは MONSTER_FRIENDS の mix（第7章から）
+    const tbl = new Set(MIX_TABLE[mixKey(a, b)]);
+    for (const sp of tbl) assert.ok(pool.includes(sp), `${a}+${b}: ${sp}`);
+    for (const sp of pool) if (!tbl.has(sp)) assert.ok(MONSTER_FRIENDS[sp].mix?.includes(MONSTERS[sp].race === a ? b : a), `${a}+${b}: ${sp}`);
     for (const sp of pool) {
       const m = MONSTERS[sp], f = MONSTER_FRIENDS[sp];
       assert.ok([a, b].includes(m.race), `${a}+${b} → ${sp}（${m.race}）`);

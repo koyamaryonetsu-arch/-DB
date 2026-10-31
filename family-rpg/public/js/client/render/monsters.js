@@ -27,6 +27,8 @@ import { addRoadArt } from './ch6-road-art.js';
 import { addTokeiArt } from './ch6-tokei-art.js';
 // 第2部 第6章 Step 6: 時計塔 6〜10階の 魔物・ゼンマイ・歯車（ch6-tokei6-art.js）
 import { addTokei6Art } from './ch6-tokei6-art.js';
+// 第2部 第7章 第1幕: 手下の 魔物・ウツボきょうだい・オクタリア・声の貝（c7-art.js）
+import { addC7Art } from './c7-art.js';
 // 第44回: ポケモン（第1だん 19しゅるい。pokemon-art.js）
 import { addPokemonArt } from './pokemon-art.js';
 // 第45回: ドラクエふう（配合だけの 第2だん 11しゅるい。dqm-art.js）
@@ -861,6 +863,7 @@ addPastArt(MONSTER_ART);
 addRoadArt(MONSTER_ART);
 addTokeiArt(MONSTER_ART);
 addTokei6Art(MONSTER_ART);
+addC7Art(MONSTER_ART);
 addPokemonArt(MONSTER_ART);
 addDqmArt(MONSTER_ART);
 

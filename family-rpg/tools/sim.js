@@ -354,7 +354,16 @@ export const CH6_ROAD_ZONES = [['t6_road_up', 61, 58], ['t6_road_up', 62, 58], [
 export const CH6_TOWER_ZONES = [['t6_tower_low', 64, 58], ['t6_tower_low', 65, 58], ['t6_tower_low', 66, 58]];
 // 第2部 第6章 Step 6「時計塔の心臓」6〜10階: node tools/sim.js [回数] ch6tower2（装備は 里の ランク10〈GEAR 58〉。ゼンマイは tools/sim-ch6.mjs の zenmai）
 export const CH6_TOWER_HIGH_ZONES = [['t6_tower_high', 66, 58], ['t6_tower_high', 67, 58], ['t6_tower_high', 68, 58]];
-if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch6tower' || process.argv[3] === 'ch6tower2')) {
+// 第2部 第7章 第1幕「緑の王国」（Lv68〜70）・みどりの水の神殿（Lv70〜72）: node tools/sim.js [回数] ch7（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch7.mjs）
+export const CH7_ZONES = [['t7_kingdom', 68, 58], ['t7_kingdom', 69, 58], ['t7_kingdom', 70, 58], ['t7_temple', 70, 58], ['t7_temple', 71, 58], ['t7_temple', 72, 58]];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch7') {
+  const rng = makeRng(7171);
+  for (const [table, lv, tier] of CH7_ZONES) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch6tower' || process.argv[3] === 'ch6tower2')) {
   const rng = makeRng(6565);
   for (const [table, lv, tier] of process.argv[3] === 'ch6tower2' ? CH6_TOWER_HIGH_ZONES : CH6_TOWER_ZONES) {
     const res = [];

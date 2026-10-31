@@ -209,6 +209,8 @@ const BOSS_CHANGED = {
   blizzard_mammoth: 0.75, magma_golem: 1.25, flame_knight: 1.25, trial_guardian: 1.2, flame_witch: 1.2, flame_witch_true: 1.25,
   zaid_demon: 1.25, sand_whale: 1.25, morgana: 0.5, morgana_true: 0.5, old_dragon: 1.25, phantom_ignia: 1.25, phantom_morgana: 0.5,
   ar_genie: 1.2, ar_sun: 1.2, ar_moon: 0.75, ar_sharkking: 1.25,
+  // 第2部 第7章 第1幕: 水門の ウツボきょうだい・うずの魔女オクタリア（水の 魔物）
+  c7_gate: 0.5, c7_gate_b: 0.5, c7_temple: 0.5,
 };
 
 test('ボス: 水の 弱点は 1.25まで・もとからの いちばんの 弱点を こえない・作戦の 属性は 水より 効く', () => {

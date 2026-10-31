@@ -19,6 +19,7 @@ import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js'
 import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js';
 import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei.js';
 import { ENCOUNTERS_TOKEI6, FIXED_TOKEI6, ZONE_BG_TOKEI6 } from './encounters-tokei6.js';
+import { ENCOUNTERS_C7, FIXED_C7, ZONE_BG_C7 } from './encounters-c7.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -163,3 +164,7 @@ Object.assign(ZONE_BG, ZONE_BG_TOKEI);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TOKEI6);
 Object.assign(FIXED_ENCOUNTERS, FIXED_TOKEI6);
 Object.assign(ZONE_BG, ZONE_BG_TOKEI6);
+// 第2部 第7章 第1幕「緑の王国」・みどりの水の神殿・ウツボきょうだい・オクタリア（encounters-c7.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C7);
+Object.assign(ZONE_BG, ZONE_BG_C7);

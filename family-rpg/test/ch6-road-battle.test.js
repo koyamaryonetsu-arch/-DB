@@ -39,6 +39,7 @@ import { CH6_OWN_TELE, ch6Draw } from '../public/js/client/battle-ch6.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { Bot } from './helpers.js';
 import { ITEMS_TOKEI6 } from '../public/js/shared/data/items-tokei6.js';
+import { ITEMS_C7 } from '../public/js/shared/data/items-c7.js';
 
 const NEW = Object.keys(MONSTERS_ROAD).filter((id) => !ROAD_BOSSES.includes(id));
 const UP = ['star_wolf', 'sun_ram', 'dust_mole', 'warp_wisp'];
@@ -518,7 +519,7 @@ test('ボスの 品: かならず 1人 1つの ★5（レア度3）と、いち�
   assert.ok(bsum(ITEMS.p6_gear_charm) < bsum(ITEMS.p6r_eater_plume) && bsum(ITEMS.p6r_eater_plume) < bsum(ITEMS.p6r_pendulum_charm));
   // よぞらのツメは いちばん 強い ツメ・さかさ時計のつえは いちばん 強い つえ
   // 第6章 Step 6 の 品（時計塔 6〜10階・ゼンマイ・第6章クリア）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !ITEMS_TOKEI6[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !ITEMS_TOKEI6[id] && !ITEMS_C7[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('claw'), 'p6r_night_claw');
   assert.equal(top('staff'), 'p6r_witch_staff');
   assert.ok(ITEMS.p6r_witch_staff.atk > ITEMS.p6_sand_staff.atk);
