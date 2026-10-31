@@ -11,17 +11,17 @@
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
 //   第36回: かくさない。本だな・れん金のメモ・かじ屋の 親方で わかる（親方は 生まれ変わりの レシピを 先に 教える）。
 //   町の 人・本だな・宝箱・はなす にも ヒント（secret-hints.js）
-import { ITEMS, baseItemId } from './items.js?v=cc4d7c14aec3';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=cc4d7c14aec3';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=cc4d7c14aec3';
-import { isShopGear } from './items-rare.js?v=cc4d7c14aec3';
+import { ITEMS, baseItemId } from './items.js?v=7033f2971814';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=7033f2971814';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=7033f2971814';
+import { isShopGear } from './items-rare.js?v=7033f2971814';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=cc4d7c14aec3';
-import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=cc4d7c14aec3';
-import { EARTH_RECIPES } from './items-earth.js?v=cc4d7c14aec3';
-import { CASTLE_RECIPES } from './items-castle.js?v=cc4d7c14aec3';
-import { PAST_RECIPES } from './items-past.js?v=cc4d7c14aec3';
-import { TOKEI6_RECIPES } from './items-tokei6.js?v=cc4d7c14aec3';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=7033f2971814';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=7033f2971814';
+import { EARTH_RECIPES } from './items-earth.js?v=7033f2971814';
+import { CASTLE_RECIPES } from './items-castle.js?v=7033f2971814';
+import { PAST_RECIPES } from './items-past.js?v=7033f2971814';
+import { TOKEI6_RECIPES } from './items-tokei6.js?v=7033f2971814';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 

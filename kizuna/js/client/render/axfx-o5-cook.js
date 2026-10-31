@@ -1,8 +1,8 @@
 // 第49回 O5: 料理の 技（料理人・パティシエ・三ツ星シェフ と ごはんの 合体技）の え。この ファイルは O5 だけが さわる
 // 包丁の トントン・中華なべの 炎・ケーキの 塔・銀の ふた（クロッシュ）… 見て おなかが すく えんしゅつ
 // なかま: 包丁（包丁さばき → みじん切り → かくし包丁 → 鉄人の包丁）・中華なべの 炎（強火 → フランベ → 大火力いため → 炎のフライパン）・フルコース
-import { rnd } from './axkit.js?v=cc4d7c14aec3';
-import { fireTrail, add, obj, text, arrow, UP, line, steam, bg, twister, fly, toss, hands, ground, above, pick, per, solo, partyTop, hitFx, tierShake, allyGlow } from './axfx-o5-kit.js?v=cc4d7c14aec3';
+import { rnd } from './axkit.js?v=7033f2971814';
+import { fireTrail, add, obj, text, arrow, UP, line, steam, bg, twister, fly, toss, hands, ground, above, pick, per, solo, partyTop, hitFx, tierShake, allyGlow } from './axfx-o5-kit.js?v=7033f2971814';
 
 const VEG = ['#ff8a2a', '#5ac840', '#e8302a', '#ffe040', '#ffffff'];
 const FIRE = ['#ff4a1a', '#ffa020', '#fff27a'];

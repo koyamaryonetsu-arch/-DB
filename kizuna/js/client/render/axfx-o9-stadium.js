@@ -2,9 +2,9 @@
 // ・電車は axfx-o4 の o4Car（よこ向きの 赤い 電車）、ボール・バット・信号・メガホンは o4Obj を かりる
 // ・観客（o9Crowd の 頭の ならび・ウェーブ）と 球場まるごと（o9Stadium）は axfx-o9-kit.js
 // ・観客が ふえる 技は スタンドが にぎやかに、看板の 技は 球場ごと 電車が つっこむ
-import { obj as o4, car, txt, line, bg, boom, blessing, arrows, N, org } from './axfx-o4-kit.js?v=cc4d7c14aec3';
-import { obj as o5 } from './axfx-o5-kit.js?v=cc4d7c14aec3';
-import { crowd, stadium, party } from './axfx-o9-kit.js?v=cc4d7c14aec3';
+import { obj as o4, car, txt, line, bg, boom, blessing, arrows, N, org } from './axfx-o4-kit.js?v=7033f2971814';
+import { obj as o5 } from './axfx-o5-kit.js?v=7033f2971814';
+import { crowd, stadium, party } from './axfx-o9-kit.js?v=7033f2971814';
 
 const RED = ['#ffffff', '#ffd23a', '#ff4a3a', '#c8141e'];
 const BALL = ['#ffffff', '#fff6b0', '#ffd23a'];

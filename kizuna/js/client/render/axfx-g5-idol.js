@@ -2,8 +2,8 @@
 // ・ステージの ライト・ファンの ペンライト・ハート・音符・紙ふぶき。フルーツは パステル 7色、アラシは 5色（赤・黄・緑・青・紫）
 // ・時間は shared/data/ax-time-g5.js（ここには 見た目だけ）。c の 時間は はなつ しゅんかんが 0
 // ・画面の 文字は かかない（文字の 中に 漢字を 入れない。コメントは よい）
-import { rnd, lerp } from './axkit.js?v=cc4d7c14aec3';
-import { wrapPlay, sparkleFill, arrows, lifeFor, FRUITS, FRUIT_COL } from './axfx-g5-kit.js?v=cc4d7c14aec3';
+import { rnd, lerp } from './axkit.js?v=7033f2971814';
+import { wrapPlay, sparkleFill, arrows, lifeFor, FRUITS, FRUIT_COL } from './axfx-g5-kit.js?v=7033f2971814';
 
 const TAU = Math.PI * 2;
 const PINK = '#ff7ad8', HOT = '#ff3a9a', LIGHT = '#ffb0ec', YEL = '#ffe066', SKY = '#9ad1ff', WHITE = '#ffffff', GOLD = '#ffd23a';

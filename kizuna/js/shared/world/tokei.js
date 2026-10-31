@@ -5,9 +5,9 @@
 // ・部屋に 入ると 歩数を 数える（入口の マスから。部屋の 中に 立てる マスの 数が room.steps）。
 //   数えきる 前に 部屋を 出ればよい。止まりが 切れると、時が 動き出して、部屋の 入口（room.back）へ もどされる
 // ・家族は 1人ずつ 数える。部屋を 出る（部屋の 外の マスを ふむ・ほかの マップへ 行く）と 数えなおし
-import { MAPS } from '../maps/index.js?v=cc4d7c14aec3';
+import { MAPS } from '../maps/index.js?v=7033f2971814';
 // 第6章 Step 6: 8階の 歯車の ハンドル（world/tokei-gear.js）
-import { stepGear } from './tokei-gear.js?v=cc4d7c14aec3';
+import { stepGear } from './tokei-gear.js?v=7033f2971814';
 
 export const STOP_TEXT = {
   start: (n) => `止まった部屋だ。\n魔物も水も、時が止まって、ぴくりとも動かない。\n（止まりが切れるまで、あと${n}歩くらい）`,

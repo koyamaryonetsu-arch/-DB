@@ -13,17 +13,17 @@
 // ・パーティーの リーダーが よぶと、なかまに「いっしょに 乗る？」と きく（askRiders）。乗る なかまは リーダーの そばへ、
 //   「ついていく」に なって いっしょに とび、いっしょに おりる・となりの 地方へ いく。乗らない なかまは 地上に のこる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=cc4d7c14aec3';
-import { PLACES } from '../maps/overworld.js?v=cc4d7c14aec3';
-import { SEA_PLACES } from '../maps/ch2.js?v=cc4d7c14aec3';
-import { ABILITIES } from '../data/abilities.js?v=cc4d7c14aec3';
-import { ITEMS } from '../data/items.js?v=cc4d7c14aec3';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=cc4d7c14aec3';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=cc4d7c14aec3';
-import { runScript } from './scripts.js?v=cc4d7c14aec3';
-import { partyOf } from './party.js?v=cc4d7c14aec3';
-import { warpDest } from './services.js?v=cc4d7c14aec3';
-import { advanceClock, clockOwner } from './clock.js?v=cc4d7c14aec3';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=7033f2971814';
+import { PLACES } from '../maps/overworld.js?v=7033f2971814';
+import { SEA_PLACES } from '../maps/ch2.js?v=7033f2971814';
+import { ABILITIES } from '../data/abilities.js?v=7033f2971814';
+import { ITEMS } from '../data/items.js?v=7033f2971814';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=7033f2971814';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=7033f2971814';
+import { runScript } from './scripts.js?v=7033f2971814';
+import { partyOf } from './party.js?v=7033f2971814';
+import { warpDest } from './services.js?v=7033f2971814';
+import { advanceClock, clockOwner } from './clock.js?v=7033f2971814';
 
 const FOLLOW_RANGE = 12;
 

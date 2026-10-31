@@ -4,7 +4,7 @@
 // ・o4Hose … ホースの 水（弧を えがく 太い 水の すじ・ながれる 白い 線）・あわ・冷気
 // ・o4Rings… 音の 輪（ファーン・ピピーッ）、o4Txt … 字（カタカナ・記号・数字だけ）、o4Line … 線（設計図・波形・グラフ）、o4Bg … うすい 背景、o4Pow … ドン！の ぎざぎざ
 // ・どれも ふちどり つき（明るい はいけいでも 見える）。毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
-import { softGlow, disc, clamp01, lerp, easeOut, easeInOut, hash, rnd } from './axkit.js?v=cc4d7c14aec3';
+import { softGlow, disc, clamp01, lerp, easeOut, easeInOut, hash, rnd } from './axkit.js?v=7033f2971814';
 
 const TAU = Math.PI * 2;
 const OUT = '#1c1a2a';

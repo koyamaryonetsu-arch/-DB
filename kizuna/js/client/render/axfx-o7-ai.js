@@ -1,8 +1,8 @@
 // 第51回 C1（o7）: 天才しせつ管理者AIの 技の え（AIチップ・六角形の パネル・照準・ドローン・カプセル・建物・つめたい 風）
 // ・色は 青緑（#20d0c8）。画面の 文字は カタカナ・ローマ字（AI・ON・OK）だけ
 // ・看板の 技は 画面に 方がんの 線 → 建物まるごと 光る → 敵には つめたい 風、仲間には 緑と 青の 光
-import { obj, fly, text, bg, hex, reticle, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow, zap } from './axfx-o7-kit.js?v=cc4d7c14aec3';
-import { rnd } from './axkit.js?v=cc4d7c14aec3';
+import { obj, fly, text, bg, hex, reticle, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow, zap } from './axfx-o7-kit.js?v=7033f2971814';
+import { rnd } from './axkit.js?v=7033f2971814';
 
 const TEAL = '#20d0c8';
 const CYAN = ['#ffffff', '#c8fff8', '#20d0c8'];
