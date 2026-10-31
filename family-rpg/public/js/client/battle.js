@@ -77,6 +77,8 @@ import { ROAD_SFX } from './battle-road.js';
 import { TOKEI_SFX } from './battle-tokei.js';
 // 第2部 第6章 Step 6 の 魔物・ゼンマイ・リオンの けいこの 音と、リオンの 人の 絵（battle-tokei6.js）
 import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js';
+// 第2部 第7章 第1幕 の 魔物・ウツボきょうだい・オクタリア・カリムの 音（battle-c7.js）
+import { C7_SFX } from './battle-c7.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -201,6 +203,7 @@ const ANIM_SFX = {
   ...ROAD_SFX,
   ...TOKEI_SFX,
   ...TOKEI6_SFX,
+  ...C7_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）

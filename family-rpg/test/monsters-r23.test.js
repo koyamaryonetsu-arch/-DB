@@ -45,6 +45,7 @@ import { breedPreview } from '../public/js/shared/world/breed.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { Bot } from './helpers.js';
 import { MONSTERS_TOKEI6 } from '../public/js/shared/data/monsters-tokei6.js';
+import { MONSTERS_C7 } from '../public/js/shared/data/monsters-c7.js';
 
 const NEW = Object.keys(MONSTERS_R23);
 const WILD = NEW.filter((sp) => !MONSTERS_R23[sp].breedOnly);
@@ -56,7 +57,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_TOKEI6).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length + Object.keys(MONSTERS_PRIZE).length);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_TOKEI6).length + Object.keys(MONSTERS_C7).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length + Object.keys(MONSTERS_PRIZE).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);

@@ -9,8 +9,8 @@ import { Painter } from './pixel.js';
 import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js';
 // 第6章 Step 5: 止まった時計塔・カリヨン・止まった 魔物・砂時計の かざり（render/ch6-tokei-npc-art.js。ここで まぜる）
 import { paintTokeiSpecial, TOKEI_SPECIALS } from './ch6-tokei-npc-art.js';
-// 第7章 Step 1・2: カリム・緑の王国の 人たち・みこサラサ・水の魔女マーレ・神殿の 門番（render/c7-art.js。ここで まぜる）
-import { C7_NPC_LOOKS, paintC7Special, C7_SPECIALS } from './c7-art.js';
+// 第7章 Step 1・2: カリム・緑の王国の 人たち・みこサラサ・うずの魔女オクタリア・神殿の 門番（render/c7-art.js。ここで まぜる）
+import { C7_NPC_LOOKS, paintC7Special, C7_SPECIALS } from './c7-npc-art.js';
 
 const GRAY = { hair: '#9a9aa2', skin: '#c4c6cc', cloth: '#8a8c94', trim: '#b4b6bc' };
 const person = (o) => o;

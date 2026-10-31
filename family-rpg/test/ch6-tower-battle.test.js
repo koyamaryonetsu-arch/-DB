@@ -27,6 +27,8 @@ import { MINAMO_GUEST } from '../public/js/shared/data/companions-past.js';
 import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI, TOKEI_VARIANTS } from '../public/js/shared/data/encounters-tokei.js';
 import { TOWER_TREASURE_FLOORS } from '../public/js/shared/data/items-tower.js';
 import { ITEMS_TOKEI, TOKEI_DROPS, TOKEI_ITEM_KANA, TOKEI_K } from '../public/js/shared/data/items-tokei.js';
+// 第7章の 品は もっと あと
+import { ITEMS_C7 } from '../public/js/shared/data/items-c7.js';
 import { ROAD_K } from '../public/js/shared/data/items-road.js';
 import { BELL, QUIET_AT, tokeiQuiet, bellBefore, buffPlan } from '../public/js/shared/battle-tokei.js';
 import { AUTO_GUARD, ch6Plan } from '../public/js/shared/battle-ch6.js';
@@ -438,7 +440,7 @@ test('ボスの 品: カリヨンは かならず 1人 1つの ★5（レア度3
   }
   const bsum = (it) => Object.values(it.bonus || {}).reduce((s, v) => s + Math.max(0, v), 0);
   assert.ok(bsum(ITEMS.p6r_pendulum_charm) < bsum(a), `${bsum(ITEMS.p6r_pendulum_charm)} < ${bsum(a)}`);
-  const top = Object.entries(ITEMS).filter(([, it]) => it.type === 'weapon' && it.cat === 'axe' && !it.base).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'axe' && !it.base && !ITEMS_C7[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top, weapon, 'いちばん 強い オノ');
 });
 

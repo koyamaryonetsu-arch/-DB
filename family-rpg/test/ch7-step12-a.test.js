@@ -1,6 +1,6 @@
 // 第2部 第7章 第1幕「緑の王国」Step 1・2（A: 世界と物語）※ ネタバレ注意（物語の 中みを ためす）
 // 第6章クリア → 今の トキネ（c7_start）→ 今の コガネ地方で 時の砂時計 → 千年前の コガネ地方 → 緑の王国（c7_kingdom。カリムが ゲスト）
-// → 神殿の 前の 門番（c7_gate）→ みどりの水の神殿 1〜8階（c7_temple）→ 水の魔女マーレ → カリムが 酒場の 仲間に（c7_karim）
+// → 神殿の 前の 門番（c7_gate）→ みどりの水の神殿 1〜8階（c7_temple）→ うずの魔女オクタリア → カリムが 酒場の 仲間に（c7_karim）
 // 時をこえる手紙（より道 3つ・神殿 5階の なぞとき）。戦いの 中みは B（戦い・品）。ここでは 戦いは テストの 中で 勝たせる
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -30,7 +30,7 @@ import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/enc
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { NPC_SUPPORTS, GUESTS, SHOPS } from '../public/js/shared/data/shops.js';
 // 宝箱の 中み・手紙の ごほうび（B の data/items-c7.js。まとめる 時に そちらから）
-import { C7_TREASURE, C7_LETTER_REWARDS } from '../public/js/shared/data/c7-stub.js';
+import { C7_TREASURE, C7_LETTER_REWARDS } from '../public/js/shared/data/items-c7.js';
 import { TIME_GLASS, GLASS_TEXT, glassCheck, timeArea } from '../public/js/shared/world/time-glass.js';
 import { DAY_MS, FIRE_HALF } from '../public/js/shared/world/clock.js';
 import { gainExp, expForLevel } from '../public/js/shared/stats.js';
@@ -315,7 +315,7 @@ test('名前の 約束（plan-ch7.md の 3）: 物語の すすみ・マップ�
     for (const s of [...m.actions.map((x) => x.script), ...m.triggers.map((x) => x.script), ...m.npcs.map((x) => x.script)]) if (s) assert.ok(SCRIPTS[s], `${id}: ${s}`);
   }
   assert.ok(ITEMS[MIKO_LETTER]?.type === 'key', '大事な物「みこの手紙」');
-  assert.equal(VILLAIN, '水の魔女マーレ');
+  assert.equal(VILLAIN, 'うずの魔女オクタリア');
 });
 
 // ───────────── 目標 ─────────────
@@ -596,7 +596,7 @@ test('6階の 水の 石: ひとり（千年前の 石で カリムに 待って
 });
 
 // ───────────── 通し ─────────────
-test('通しで: c6_clear → トキネ → 千年前の コガネ地方 → 緑の王国（カリムが ゲスト）→ 門番 → 神殿 → マーレ → カリムが 酒場へ（c7_karim）', { timeout: 300000 }, async () => {
+test('通しで: c6_clear → トキネ → 千年前の コガネ地方 → 緑の王国（カリムが ゲスト）→ 門番 → 神殿 → オクタリア → カリムが 酒場へ（c7_karim）', { timeout: 300000 }, async () => {
   const { world, bot, c } = await setup(7401, 'c6_clear');
   // 今の ほしみの丘の トキネ
   const tok = MAPS.overworld.npcById.tokine_c6;
@@ -651,7 +651,7 @@ test('通しで: c6_clear → トキネ → 千年前の コガネ地方 → 緑
   void world;
 });
 
-test('負けた 時・とちゅうで 切れた 時: 門番・マーレに 負けたら すすまない・さいごの 場面は 台座か 王さまで 続き', { timeout: 200000 }, async () => {
+test('負けた 時・とちゅうで 切れた 時: 門番・オクタリアに 負けたら すすまない・さいごの 場面は 台座か 王さまで 続き', { timeout: 200000 }, async () => {
   {
     const { bot, c } = await setup(7501, 'c7_kingdom');
     await place(bot, C7_FIELD, GATE_BOSS.x, TEMPLE_YARD.y + TEMPLE_YARD.h + 1);
@@ -663,7 +663,7 @@ test('負けた 時・とちゅうで 切れた 時: 門番・マーレに 負�
     const a8 = c7tArrive(8);
     await place(bot, c7tMapId(8), Math.floor(a8.x), Math.floor(a8.y));
     await walkTo(bot, 17, C7T_POS[8].trigger.y, { lose: () => true });
-    assert.ok(!c.flags[WIN7] && !c.flags[C7.karim], 'マーレに 負けた');
+    assert.ok(!c.flags[WIN7] && !c.flags[C7.karim], 'オクタリアに 負けた');
   }
   {
     // 勝った あと 切れた（WIN7 だけ）→ 王さまに 話すと お城の 場面
@@ -738,7 +738,7 @@ test('時をこえる手紙: 千年前で うめる 前は 今に 何も ない�
 test('文字: 第7章 Step 1・2 の ファイルは 文字の ルールの チェックに 入っていて、使えない 漢字・スペースが ない', () => {
   const files = gameFiles().map((f) => f.replace(/\\/g, '/').replace(/^.*?family-rpg\//, ''));
   const mine = ['public/js/shared/data/story-c7.js', 'public/js/shared/data/sidequests-c7.js', 'public/js/shared/data/items-c7-key.js', 'public/js/shared/data/shops-c7.js',
-    'public/js/shared/data/c7-stub.js', 'public/js/shared/maps/c7.js', 'public/js/shared/maps/c7-field.js', 'public/js/shared/maps/c7-kingdom-rows.js',
+    'public/js/shared/maps/c7.js', 'public/js/shared/maps/c7-field.js', 'public/js/shared/maps/c7-kingdom-rows.js',
     'public/js/shared/maps/c7-temple.js', 'public/js/shared/maps/c7-temple-rows.js', 'public/js/shared/maps/c7-flags.js'];
   for (const f of mine) assert.ok(files.some((g) => g.endsWith(f)), f);
   for (const f of gameFiles().filter((g) => mine.some((x) => g.replace(/\\/g, '/').endsWith(x)))) assert.deepEqual(checkFile(f), [], f);
