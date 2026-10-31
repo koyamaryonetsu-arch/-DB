@@ -528,7 +528,9 @@ function drawReels(ctx, reels, now, fx = {}) {
   ctx.strokeStyle = fx.reach ? '#ff6a5a' : '#f2c14e';
   ctx.lineWidth = 2;
   ctx.strokeRect(FR - 5, FR - 5, RW - 2 * FR + 10, RH - 2 * FR + 10);
-  const winCells = flash && fx.pay ? fx.pay.line.map((sym) => sym !== null) : [false, false, false];
+  // 第57回: サーバーの 当たりは { id, name, mult } だけ（line が ない）ので、役の 表から 形を さがす。ない ときは 3つとも 光らせる
+  const payLine = fx.pay ? (fx.pay.line || SLOT_PAYS.find((x) => x.id === fx.pay.id)?.line || [true, true, true]) : null;
+  const winCells = flash && payLine ? payLine.map((sym) => sym !== null) : [false, false, false];
   reels.forEach((r, i) => {
     const x0 = FR + i * (CELL_W + GAP), y0 = FR;
     ctx.save();

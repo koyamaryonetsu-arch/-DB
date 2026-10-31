@@ -644,16 +644,22 @@ export class GameWorld {
   warpFollowers(s, fromMap, fx, fy, to) {
     const p = partyOf(this, s);
     if (!p || p.leader !== s.id) return;
-    const offs = [[0, 1], [-1, 1], [1, 1], [0, 2]];
+    // 第57回: 出入り口（ワープ）の 上には 置かない（すごろく場で 上り階だんの 上に 置かれ、ふみ直せず 出られなかった）
+    const offs = [[0, 1], [-1, 1], [1, 1], [0, 2], [-1, 0], [1, 0], [-1, 2], [1, 2], [0, -1]];
+    const map = MAPS[to.map];
+    const onWarp = (x, y) => (map?.warps || []).some((w) => w.x === Math.floor(x) && w.y === Math.floor(y));
+    const ok = (x, y) => map && !isBlocked(map, Math.floor(x), Math.floor(y), () => false) && !onWarp(x, y);
     let i = 0;
     for (const sid of p.members) {
       const m = this.sessions.get(sid);
       if (!m || m === s || !m.follow || m.busy || m.away || !m.inWorld || m.map !== fromMap) continue;
       if (Math.hypot(m.x - fx, m.y - fy) > 12) continue;
-      const [ox, oy] = offs[i++ % offs.length];
-      const map = MAPS[to.map];
-      let x = to.x + ox, y = to.y + oy;
-      if (isBlocked(map, Math.floor(x), Math.floor(y), () => false)) { x = to.x; y = to.y; }
+      let x = to.x, y = to.y;
+      for (let k = 0; k < offs.length; k++) {
+        const [ox, oy] = offs[(i + k) % offs.length];
+        if (ok(to.x + ox, to.y + oy)) { x = to.x + ox; y = to.y + oy; break; }
+      }
+      i++;
       this.placeSession(m, to.map, x, y, to.dir, true);
     }
   }
