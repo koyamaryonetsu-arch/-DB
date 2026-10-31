@@ -3,7 +3,7 @@
 // ・バナー: しるしが あと1つ（身を 守れ）・時のかねが 鳴った（強くするなら 今）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
 // 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
-import { kindOf } from './battle-tokei6.js?v=7033f2971814';
+import { kindOf } from './battle-tokei6.js?v=31a32b16dd7b';
 const CARILLON = 'carillon';
 
 export const TOKEI_SCREEN_ANIMS = ['a6t_bell', 'a6t_cspin', 'a6t_chime'];

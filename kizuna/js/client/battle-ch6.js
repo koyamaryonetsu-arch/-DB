@@ -5,11 +5,11 @@
 // ・前ぶれ・止めた・こわした・まきもどした ときの バナー（ふつうの「大技が来る！」は 出さない … CH6_OWN_TELE）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
 // 第2部 第6章 Step 3・4 の 星くいのよる鳥・ペンデュラ（battle-road.js。ここから よぶ）
-import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=7033f2971814';
+import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=31a32b16dd7b';
 // 第2部 第6章 Step 5 の カリヨン（かねの しるし。battle-tokei.js。ここから よぶ）
-import { tokeiDraw, tokeiPresent } from './battle-tokei.js?v=7033f2971814';
+import { tokeiDraw, tokeiPresent } from './battle-tokei.js?v=31a32b16dd7b';
 // 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
-import { kindOf, TOKEI6_OWN_TELE, tokei6Draw, tokei6Present } from './battle-tokei6.js?v=7033f2971814';
+import { kindOf, TOKEI6_OWN_TELE, tokei6Draw, tokei6Present } from './battle-tokei6.js?v=31a32b16dd7b';
 
 const SAND = 'sand_clock';
 const GEAR = 'geardon';

@@ -3,7 +3,7 @@
 //   ざんぞうの 人（g1Ghost）・しるし（g1Mark: Z ? ! ×2 ぐるぐる やじるし）・どうぐ（g1Prop）・マンガの 爆発（g1Boom）・大ザル（g1Monkey）
 //   はいけい（g1Bg）・ライト（g1Cone）・タケコプター（g1Copter）・水の 弧（g1Arc）・空気の わ（g1Air）・花（g1Flower）・扇の 気（g1Fan）・光の みち（g1Path）・はかいの 膜（g1Hakai）
 // ・ざひょうは 256×144。p.age（ms）で かく。x の 状態は save/restore で もどす
-import { softGlow, disc, hash, clamp01, lerp, easeOut, easeIn, easeInOut, fadeOut, mixHex } from './axkit.js?v=7033f2971814';
+import { softGlow, disc, hash, clamp01, lerp, easeOut, easeIn, easeInOut, fadeOut, mixHex } from './axkit.js?v=31a32b16dd7b';
 
 export const TAU = Math.PI * 2;
 const ell = (x, cx, cy, rx, ry, rot = 0) => { if (rx > 0.05 && ry > 0.05) { x.beginPath(); x.ellipse(cx, cy, rx, ry, rot, 0, TAU); return true; } return false; };

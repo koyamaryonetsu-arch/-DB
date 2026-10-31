@@ -4,7 +4,7 @@
 // 新しい 魔物 7しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、配合で 足りない ランクに 入れる（tools/gen-monster-ranks.mjs）
 //   めやす: 時計ゆうれい・秒針の精・ぜんまい草・ねじまき小あくま・からくりがいこつ … 12〜20%（B・A）／かねの精 … 6〜12%（A）／大時計の番人 … 6%より 少ない（S）
 // 5階までの 魔物（ころがり歯車・キラー）も 少し まじる
-import { TOKI_PHANTOM_BASES, tokiPhantomId, ZENMAI, RION_SPARS } from './monsters-tokei6.js?v=7033f2971814';
+import { TOKI_PHANTOM_BASES, tokiPhantomId, ZENMAI, RION_SPARS } from './monsters-tokei6.js?v=31a32b16dd7b';
 
 export const ENCOUNTERS_TOKEI6 = {
   t6_tower_high: [

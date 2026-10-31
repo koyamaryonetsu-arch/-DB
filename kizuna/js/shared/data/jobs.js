@@ -15,16 +15,16 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=7033f2971814';
-import { JOB_TAGS } from './job-tags.js?v=7033f2971814';
+import { applyField27Learn } from './abilities-field27.js?v=31a32b16dd7b';
+import { JOB_TAGS } from './job-tags.js?v=31a32b16dd7b';
 // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者（jobs-weather.js）
-import { WEATHER_JOBS } from './jobs-weather.js?v=7033f2971814';
+import { WEATHER_JOBS } from './jobs-weather.js?v=31a32b16dd7b';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
-import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=7033f2971814';
+import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=31a32b16dd7b';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
-import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=7033f2971814';
+import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=31a32b16dd7b';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
-import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=7033f2971814';
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=31a32b16dd7b';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;

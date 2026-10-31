@@ -6,7 +6,7 @@
 // 第6章 Step 6:
 // ・zenmai_horse_npc … てっぺんの 小べやの からくりの 馬（真ちゅうの 体・せなかに ぜんまい。コマで ぜんまいが 少し 回る）
 // ・toki_mirror … 止まった時の間の 時の かがみ（砂時計の わくの 大きな かがみ。中で 影が ゆれる）
-import { Painter } from './pixel.js?v=7033f2971814';
+import { Painter } from './pixel.js?v=31a32b16dd7b';
 
 const BR = { d: '#5a3e18', b: '#a07a30', l: '#d8b050', hl: '#f8e090' };
 const ST = { dd: '#2e2418', d: '#4a3c2c', b: '#6e5a44', l: '#8e7a62', ln: '#3a2e22' };

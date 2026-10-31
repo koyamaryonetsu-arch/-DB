@@ -1,8 +1,8 @@
 // 第51回 C3（o9）: 天候の神 の え（8技）。c の 時間は はなつ しゅんかんが 0
 // ・晴れ … にこにこの 大きな 太陽（o9Sun）・光の すじ。雨 … 雨雲と 雨の すじ（o9Cloud・o9Rain）。かみなり … ぷんぷん顔の 黒い 雲と いなずま
 // ・看板の 天候反転は 晴れ → 雨 → かみなり と 空が くるくる かわってから 一げき
-import { txt, boom, blessing, arrows, N } from './axfx-o4-kit.js?v=7033f2971814';
-import { sky, rain, sun, cloud, rainbow, party, skyY } from './axfx-o9-kit.js?v=7033f2971814';
+import { txt, boom, blessing, arrows, N } from './axfx-o4-kit.js?v=31a32b16dd7b';
+import { sky, rain, sun, cloud, rainbow, party, skyY } from './axfx-o9-kit.js?v=31a32b16dd7b';
 
 const SUN = ['#ffffff', '#fff6b0', '#ffd23a', '#ff8a1a'];
 const WATER = ['#ffffff', '#bfe0ff', '#4aa8ff', '#2f7bff'];

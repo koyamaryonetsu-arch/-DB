@@ -11,8 +11,8 @@
 // ・歯車の ハンドル（312。針の 形）/ 回っている ハンドル（313。光る）/ 歯車の おもり（314）
 // ・止まった時の間の とびら（315。むらさき）/ 大時計の あと（316。星の 光の かべ）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=7033f2971814';
-import { prand } from './pixel.js?v=7033f2971814';
+import { T } from '../../shared/tiles.js?v=31a32b16dd7b';
+import { prand } from './pixel.js?v=31a32b16dd7b';
 
 const BR = { d: '#5a3e18', b: '#a07a30', l: '#d8b050', hl: '#f8e090' }; // 金の 真ちゅう
 const FL = { b: '#6e5a46', l: '#86705a', d: '#56463a', ln: '#3e322a' }; // 塔の ゆか（くすんだ 茶色の 石）

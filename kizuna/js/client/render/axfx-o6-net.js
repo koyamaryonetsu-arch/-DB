@@ -1,7 +1,7 @@
 // 第49回 O6: ユーチューバー・ゲーマー・人気配信者・プロゲーマー の え（はなつ ところ）
 // ・配信の わく・コメントの 帯・登録ボタン・再生回数・スパチャ・コントローラー・ドット絵・ゲーミングキーボード
 // ・時間は shared/data/ax-time-o6.js。c の 時間は はなつ しゅんかんが 0
-import { wrap, fill, pop, arrows, healGlow, mpDrops, confetti, mark, srcOf, bend, rnd, lerp } from './axfx-o6-kit.js?v=7033f2971814';
+import { wrap, fill, pop, arrows, healGlow, mpDrops, confetti, mark, srcOf, bend, rnd, lerp } from './axfx-o6-kit.js?v=31a32b16dd7b';
 
 const W = '#ffffff', GOLD = '#ffd23a', YEL = '#ffe040', PINK = '#ff7ad8', HOT = '#ff3a9a', RED = '#ff2a3a', SKY = '#7ae0ff', GRN = '#7dffb0', BLUE = '#4a8aff', CYAN = '#3ad8ff';
 const RAIN = ['#ff5a5a', '#ffa03a', '#ffe040', '#5ad870', '#4ab8ff', '#a85aff'];
