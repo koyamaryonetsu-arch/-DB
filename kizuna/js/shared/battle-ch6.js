@@ -16,19 +16,21 @@
 // ・オートの 仲間（ふつう）は、大砂流・ギアプレスが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（AUTO_GUARD。氷・雷は 使い分けない）。
 //   シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は ch6Plan
 //   （b.c6NoIce・b.c6NoBolt・b.c6NoGuard … 知っている 人の しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=31a32b16dd7b';
-import { ABILITIES } from './data/abilities.js?v=31a32b16dd7b';
-import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=31a32b16dd7b';
-import { BUFF_ACTS } from './buff-acts.js?v=31a32b16dd7b';
+import { MONSTERS } from './data/monsters.js?v=7040d8c7ec18';
+import { ABILITIES } from './data/abilities.js?v=7040d8c7ec18';
+import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=7040d8c7ec18';
+import { BUFF_ACTS } from './buff-acts.js?v=7040d8c7ec18';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=31a32b16dd7b';
-import { canUse } from './ai.js?v=31a32b16dd7b';
+import { atbRate } from './battle.js?v=7040d8c7ec18';
+import { canUse } from './ai.js?v=7040d8c7ec18';
 // 第2部 第6章 Step 3・4: 星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・星座の 魔物（昼と 夜）。battle-road.js
-import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=31a32b16dd7b';
+import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=7040d8c7ec18';
 // 第2部 第6章 Step 5: カリヨン（時のかね。知っている 人・かねの 前の 守り）。battle-tokei.js
-import { tokeiKnow, bellBefore } from './battle-tokei.js?v=31a32b16dd7b';
+import { tokeiKnow, bellBefore } from './battle-tokei.js?v=7040d8c7ec18';
 // 第2部 第6章 Step 6: ゼンマイ（家来の しかけを じゅんばんに・2だんめの 針と 歯車）。battle-tokei6.js
-import { setupTokei6, tokei6TurnStart, tokei6TurnEnd, tokei6Effect, tokei6Know, tokei6Pub, collapseBefore } from './battle-tokei6.js?v=31a32b16dd7b';
+import { setupTokei6, tokei6TurnStart, tokei6TurnEnd, tokei6Effect, tokei6Know, tokei6Pub, collapseBefore } from './battle-tokei6.js?v=7040d8c7ec18';
+// 第2部 第7章 第1幕: ウツボきょうだい（2ひきで 1組・大うずしお）・オクタリア（声うばい・声の貝）。battle-c7.js
+import { setupC7, c7TurnStart, c7Effect, c7Plan, c7Pub } from './battle-c7.js?v=7040d8c7ec18';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';
@@ -63,6 +65,7 @@ export function setupCh6(b) {
   for (const k of kinds) if (INTRO[k]) b.emit({ t: 'msg', lines: INTRO[k].slice(), dur: 1300 });
   setupRoad(b);
   setupTokei6(b);
+  setupC7(b);
 }
 
 // ───────────── 魔物の こうどうの じょうけん（battle-ch5.js の towerCond から。'c5:' の あと）─────────────
@@ -80,6 +83,8 @@ export function ch6TurnStart(b, c, ev, cmd = null) {
   const stuck = cmd?.type === 'incapacitated';
   // ゼンマイ: しかけが おわったら 次の しかけへ・2だんめの 針（battle-tokei6.js）
   tokei6TurnStart(b, c, ev, stuck);
+  // 第7章の ボス: いきの しるし・よびもどし・声うばい（battle-c7.js）
+  c7TurnStart(b, c, ev, stuck);
   if (c.sand && !c.telegraph) {
     const sc = sandConf(c) || {};
     // HPが へると、砂の いっぱいが へる（はやく 落ちきる）
@@ -126,7 +131,7 @@ export function ch6Effect(b, c, a, eff, ev, targets = []) {
     case 'scFall': sandFall(b, c, eff, ev); return true;
     case 'gdRecord': record(b, c, ev); return true;
     case 'gdRewind': rewind(b, c, ev); return true;
-    default: return roadEffect(b, c, a, eff, ev, targets) || tokei6Effect(b, c, a, eff, ev);
+    default: return roadEffect(b, c, a, eff, ev, targets) || tokei6Effect(b, c, a, eff, ev) || c7Effect(b, c, a, eff, ev);
   }
 }
 
@@ -234,6 +239,9 @@ export function ch6Damage(b, c, t, dmg, info, ev) {
 // （だれかが とても あぶない ときの 回復・生き返りは そのまま）
 export function ch6Plan(b, c, decide) {
   if (c.side !== 'ally' || b.c6Inner) return null;
+  // 第7章の ボス（ウツボきょうだい・オクタリア。battle-c7.js）
+  const c7p = c7Plan(b, c, decide);
+  if (c7p) return c7p;
   const boss = b.aliveEnemies().find((e) => confOf(e));
   if (!boss) return null;
   const mine = 100 / atbRate(c);
@@ -306,6 +314,7 @@ export function ch6Pub(c) {
   if (c.side !== 'enemy') return {};
   const o = roadPub(c);
   tokei6Pub(c, o);
+  c7Pub(c, o);
   if (c.sand) {
     o.sand = c.sand.lv;
     o.sandMax = c.sand.max;

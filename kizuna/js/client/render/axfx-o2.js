@@ -6,12 +6,12 @@
 // ・分けた ファイル: axfx-o2-fist.js（武闘家・聖拳士・ゴッドハンド・ガーディアン）・axfx-o2-beast.js（海賊・魔物使い・モンスターマスター）
 //   axfx-o2-dark.js（中二病・超能力者・ダ天使・魔王）・axfx-o2-dual.js（合体技）。つぶの かきかたは axfx-o2-fine.js、小さな どうぐは axfx-o2-kit.js
 // ・どの え も さいごに balance（段の つぶの かず: 敵1体でも 下限 いじょう、敵5体でも 上限 いか。もとからの 技の 予算 AX_BUDGET_ORIG）
-import { AX_O2_FIST } from './axfx-o2-fist.js?v=31a32b16dd7b';
-import { AX_O2_BEAST } from './axfx-o2-beast.js?v=31a32b16dd7b';
-import { AX_O2_DARK } from './axfx-o2-dark.js?v=31a32b16dd7b';
-import { AX_O2_DUAL } from './axfx-o2-dual.js?v=31a32b16dd7b';
-import { AX_O2_FINE as FINE } from './axfx-o2-fine.js?v=31a32b16dd7b';
-import { withBalance } from './axfx-o2-kit.js?v=31a32b16dd7b';
+import { AX_O2_FIST } from './axfx-o2-fist.js?v=7040d8c7ec18';
+import { AX_O2_BEAST } from './axfx-o2-beast.js?v=7040d8c7ec18';
+import { AX_O2_DARK } from './axfx-o2-dark.js?v=7040d8c7ec18';
+import { AX_O2_DUAL } from './axfx-o2-dual.js?v=7040d8c7ec18';
+import { AX_O2_FINE as FINE } from './axfx-o2-fine.js?v=7040d8c7ec18';
+import { withBalance } from './axfx-o2-kit.js?v=7040d8c7ec18';
 
 export const AX_O2 = withBalance({ ...AX_O2_FIST, ...AX_O2_BEAST, ...AX_O2_DARK, ...AX_O2_DUAL });
 

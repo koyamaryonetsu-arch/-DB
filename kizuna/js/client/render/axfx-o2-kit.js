@@ -1,6 +1,6 @@
 // 第49回 O2: もとからの 技の え で つかう 小さな どうぐ（つぶ o2〜 を 足す・段の つぶの かず に あわせる）。この ファイルは O2 だけが さわる
-import { rnd } from './axkit.js?v=31a32b16dd7b';
-import { AX_BUDGET_ORIG, AX_DUAL_PARTS_ORIG } from '../../shared/ax-time.js?v=31a32b16dd7b';
+import { rnd } from './axkit.js?v=7040d8c7ec18';
+import { AX_BUDGET_ORIG, AX_DUAL_PARTS_ORIG } from '../../shared/ax-time.js?v=7040d8c7ec18';
 
 // つぶを 1つ 足す（kind は o2〜）
 export function add(c, kind, o) {

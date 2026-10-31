@@ -1,8 +1,8 @@
 // 第51回 C1（o7）: 伝説の超勇者の 技の え（金色の 気・勇者の 剣・雷・かめはめデイン）
 // ・気（ki）の ためは ドラゴンボールの g1 だけ。ここでは はなつ ところの 中で 金色の オーラ（k.aura の flame）を かく
 // ・かめはめデイン: 手の あいだに 青い 気の たま（バチバチ）→ 雷を まとった 青白い ビーム → 空から 雷も おちる
-import { obj, fly, text, bg, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow, zap } from './axfx-o7-kit.js?v=31a32b16dd7b';
-import { rnd } from './axkit.js?v=31a32b16dd7b';
+import { obj, fly, text, bg, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow, zap } from './axfx-o7-kit.js?v=7040d8c7ec18';
+import { rnd } from './axkit.js?v=7040d8c7ec18';
 
 const GOLD = ['#ffffff', '#ffe45a', '#ffb02a'];
 const BOLT = ['#ffffff', '#fff27a', '#7ad8ff'];

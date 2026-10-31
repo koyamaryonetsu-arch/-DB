@@ -1,8 +1,8 @@
 // 第51回 W: 天候をあやつる者の 技の え（はなつ ところ）。この ファイルは W だけが さわる
 // 空 ぜんたいが かわる: 大きな いかずち・めぐみの 雨・真夏の 太陽・台風の うず・にじの かけ橋・ゲリラごう雨・3本の かみなり・
 // 晴れ → 雨 → かみなり → にじ（空の大号令）。時間は shared/data/ax-time-o10.js。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=31a32b16dd7b';
-import { obj, text, rain, rays, spiral, rainbow, sky, arrow, UP, above, ground, partyTop, per, hitFx, strike, tierShake, allyGlow, splashAt } from './axfx-o10-kit.js?v=31a32b16dd7b';
+import { rnd } from './axkit.js?v=7040d8c7ec18';
+import { obj, text, rain, rays, spiral, rainbow, sky, arrow, UP, above, ground, partyTop, per, hitFx, strike, tierShake, allyGlow, splashAt } from './axfx-o10-kit.js?v=7040d8c7ec18';
 
 const W = '#ffffff', YEL = '#ffe040', PALE = '#fff6b0', RAIN = '#9ad8ff', WATER = '#3a8ae0', HEAT = '#ff8a3a', SUN = '#ffd060', HEAL = '#7dffb0';
 const BOLT_COLS = [W, PALE, YEL];

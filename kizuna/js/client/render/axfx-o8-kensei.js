@@ -1,7 +1,7 @@
 // 第51回 C2（o8）: 天下むそうの剣聖の 技の え（はなつ ところ）。この ファイルは C2 だけが さわる
 // 白い 刃の きらめき・ひとすじの 光の 一閃・行って 返す 2本の 太刀・しずかな 水の わ・剣気の オーラ・百の 花びら・天下の 大きな 十字
 // 時間は shared/data/ax-time-o8.js。play の 時間は はなつ しゅんかんが 0
-import { prop, text, hands, above, per, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=31a32b16dd7b';
+import { prop, text, hands, above, per, hitFx, allyGlow, bigShake, rnd } from './axfx-o8-kit.js?v=7040d8c7ec18';
 
 const BLADE = '#eef4ff', STEEL = '#9ab8e8', GOLD = '#ffd23a', W = '#ffffff', SAKURA = ['#f7a1c4', '#ffd0e4', '#ffffff'], AQUA = '#8ad8ff';
 

@@ -4,9 +4,11 @@
 // ・star_dew … 星のしずく（千年前の 鏡の湖の ほとりで 手に 入れる）
 // ふつうの 道具・装備は B（data/items-past.js）
 // 第6章 Step 3・4（A）の 大事な物・より道の ごほうびは items-ch6-side.js（ここで まぜる。data/items.js は かえない）
-import { CH6_SIDE_ITEMS, CH6_SIDE_KANA } from './items-ch6-side.js?v=31a32b16dd7b';
+import { CH6_SIDE_ITEMS, CH6_SIDE_KANA } from './items-ch6-side.js?v=7040d8c7ec18';
 // 第6章 Step 5（A）の 大事な物・より道の ごほうびは items-ch6c.js（ここで まぜる）
-import { CH6C_ITEMS, CH6C_KANA } from './items-ch6c.js?v=31a32b16dd7b';
+import { CH6C_ITEMS, CH6C_KANA } from './items-ch6c.js?v=7040d8c7ec18';
+// 第7章 Step 1・2（A）の 大事な物は items-c7-key.js（ここで まぜる）
+import { C7_KEY_ITEMS, C7_KEY_KANA } from './items-c7-key.js?v=7040d8c7ec18';
 export const CH6_KEY_ITEMS = {
   toki_glass: {
     name: '時の砂時計', type: 'key', hourglass: true,
@@ -32,3 +34,6 @@ Object.assign(CH6_KEY_KANA, CH6_SIDE_KANA);
 // 第6章 Step 5（items-ch6c.js）
 Object.assign(CH6_KEY_ITEMS, CH6C_ITEMS);
 Object.assign(CH6_KEY_KANA, CH6C_KANA);
+// 第7章 Step 1・2（items-c7-key.js）: みこの手紙
+Object.assign(CH6_KEY_ITEMS, C7_KEY_ITEMS);
+Object.assign(CH6_KEY_KANA, C7_KEY_KANA);

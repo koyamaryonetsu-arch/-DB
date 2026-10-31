@@ -5,7 +5,7 @@
 // ・前ぶれ・目が くらんだ・星を 食べた・ふりこが 左右へ・時止め・大ふりこの バナー（ふつうの「大技が来る！」は 出さない … ROAD_OWN_TELE）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
 // 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
-import { kindOf } from './battle-tokei6.js?v=31a32b16dd7b';
+import { kindOf } from './battle-tokei6.js?v=7040d8c7ec18';
 const EATER = 'star_eater';
 const PENDULA = 'pendula';
 const AIM = 'm6_se_aim';

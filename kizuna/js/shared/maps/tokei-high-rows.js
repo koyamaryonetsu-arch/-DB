@@ -8,7 +8,7 @@
 //   r 歯車の ゆか（8階。ふだんは 南へ 運ぶ。ハンドルが 回っている 間は 北へ。止めると 歩ける）/ c 歯車の ハンドル / w 歯車の おもり / k 歯車を 止める レバー
 //   z 止まった 部屋の ゆか / W 止まった 水 / s 止まった 魔物 / E 止まりが 切れた ときに もどる 所（9階）
 //   T 止まった時の間の とびら（9階。第6章クリアで 開く）/ K かべ一面の 大時計（10階）/ U 大時計の 下の とびら（10階。てっぺんへ）/ n 星の 窓（てっぺん）
-import { sheet, drawClock, CLOCKS } from './tokei-rows.js?v=31a32b16dd7b';
+import { sheet, drawClock, CLOCKS } from './tokei-rows.js?v=7040d8c7ec18';
 
 export const TH_W = 40, TH_H = 28;
 export const TH6_W = 42, TH6_H = 27; // 今の 星の塔 6階と おなじ

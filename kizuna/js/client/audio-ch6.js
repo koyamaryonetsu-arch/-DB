@@ -47,7 +47,24 @@ const ROAD_CH = ['Em', 'C', 'G', 'D', 'Em', 'C', 'Am', 'B', 'C', 'G', 'D', 'Bm',
 
 const TOKEI_CH = ['Dm', 'Bb', 'C', 'A', 'Dm', 'Gm', 'A', 'A', 'Bb', 'C', 'F', 'Dm', 'Gm', 'A', 'Dm', 'Dm'];
 
+// 第7章 Step 1・2: みどりの水の神殿（ト長調。水が 流れる ような アルペジオと、ゆったり 歩く ベース）
+const C7_TEMPLE_CH = ['G', 'D', 'Em', 'C', 'G', 'Bm', 'C', 'D', 'Em', 'C', 'G', 'D', 'C', 'D', 'G', 'G'];
+
 export const CH6_TRACKS = {
+  c7_temple: {
+    bpm: 90,
+    ch: [
+      { w: 'triangle', v: 0.12, n: bars([
+        'B5:4 D6:4 G6:6 F#6:2', 'A6:4 F#6:4 D6:8', 'E6:4 G6:4 B6:6 A6:2', 'G6:4 E6:4 C6:8',
+        'D6:4 B5:4 G5:4 B5:4', 'F#6:4 D6:4 B5:8', 'C6:4 E6:4 G6:4 E6:4', 'F#6:8 A6:4 F#6:4',
+        'G6:4 E6:4 B5:4 E6:4', 'G6:6 E6:2 C6:8', 'D6:4 B5:4 G5:4 D6:4', 'F#6:4 A6:4 D6:8',
+        'E6:4 G6:4 C6:4 E6:4', 'F#6:4 A6:4 D6:4 F#6:4', 'G6:6 F#6:2 E6:4 D6:4', 'G6:12 r:4',
+      ]) },
+      { w: 'sine', v: 0.05, n: arpFast(C7_TEMPLE_CH, 4) },
+      { w: 'triangle', v: 0.2, n: bassWalk(C7_TEMPLE_CH) },
+      { drums: true, v: 0.12, n: 'k:4 h:2 h:2 s:4 h:4 '.repeat(16) },
+    ],
+  },
   // 第6章 Step 5: 止まった時計塔（ニ短調。こちこちと きざむ 時計の 音と、ぜんまいの ような ベース）
   tokei: {
     bpm: 100,

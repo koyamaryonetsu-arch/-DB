@@ -8,12 +8,13 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=31a32b16dd7b';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=31a32b16dd7b';
-import { ORN } from '../maps/ch6c-side.js?v=31a32b16dd7b';
-import { RS } from './sidequests-ch6d.js?v=31a32b16dd7b';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=31a32b16dd7b';
-import { jobLine } from './fq-common.js?v=31a32b16dd7b';
+import { C6 } from '../maps/past.js?v=7040d8c7ec18';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=7040d8c7ec18';
+import { ORN } from '../maps/ch6c-side.js?v=7040d8c7ec18';
+import { RS } from './sidequests-ch6d.js?v=7040d8c7ec18';
+import { C7, LETTER } from '../maps/c7-flags.js?v=7040d8c7ec18';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=7040d8c7ec18';
+import { jobLine } from './fq-common.js?v=7040d8c7ec18';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -53,6 +54,10 @@ const build = () => [
   { id: 'chibi', name: 'ちびアステルのたからもの', open: [C6.flow], start: CT.start, done: CT.done, place: '千年前の泉の里', who: 'ちびアステル', npc: 'chibi_astel', hint: 'きらきらした物が大好きで、何かを集めたがっているみたい。' },
   { id: 'orn', name: 'トキネの砂時計のかざり', open: ['c6_kanata'], start: ORN.start, done: ORN.done, place: '今の星見の丘', who: 'トキネ', npc: 'tokine_c6', hint: '大事な物を、どこかに落としてしまったらしい。' },
   { id: 'rion_spar', name: 'リオンの剣のけいこ', open: ['c6_clear'], start: RS.start, done: RS.done, place: '千年前の泉の里', who: 'リオン', npc: 'rion_spar', hint: 'もっと強くなりたくて、けいこの相手を探しているらしい。' },
+  // 第7章（千年前の コガネ地方と 今。時をこえる手紙。sidequests-c7.js）
+  { id: 'c7l1', name: '時をこえる手紙（緑の王国の市場）', open: [C7.kingdom], start: LETTER.start(1), done: LETTER.found(1), place: '千年前の緑の王国', who: '王国の子ども', npc: 'c7_kid', hint: 'ずっと先の子どもたちに、とどけたい物があるらしい。' },
+  { id: 'c7l2', name: '時をこえる手紙（ハミルの湖のほとり）', open: [C7.kingdom], start: LETTER.start(2), done: LETTER.found(2), place: '千年前のハミルの湖', who: '湖の漁師', npc: 'c7_fisher', hint: '湖のことを、ずっと先の人に伝えたいらしい。' },
+  { id: 'c7l3', name: '時をこえる手紙（緑の城の庭）', open: [C7.kingdom], start: LETTER.start(3), done: LETTER.found(3), place: '千年前の緑の城', who: '王女ナディア', npc: 'c7_princess', hint: 'ずっと先の、自分の子どもたちに、のこしたい言葉があるらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）

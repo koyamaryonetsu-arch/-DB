@@ -4,7 +4,7 @@
 //   t5_earth_up  … 大地の神殿 1〜4階（天空のまもり兵・根っこのこびと。しずみゆく島の 神殿の 岩の 魔物も）
 //   t5_earth_low … 5〜8階（大地のダンゴムシ・かおのない影・天空のまもり兵・色ちがい。強い・経験値と お金が 多い）
 // 5階の 休み所と 8階の ノクトの 祭だんは 魔物が 出ない（A の マップ）
-import { registerVariant } from './variants.js?v=31a32b16dd7b';
+import { registerVariant } from './variants.js?v=7040d8c7ec18';
 
 // 色ちがい（data/variants.js）: 深い 階の ダーク天空のまもり兵・レッド大地のダンゴムシ・ゴールド根っこのこびと（めったに 出ない。お金が 多い）
 export const EARTH_VARIANTS = [registerVariant('sky_guard', 'dark'), registerVariant('earth_pillbug', 'red'), registerVariant('root_sprite', 'gold')];

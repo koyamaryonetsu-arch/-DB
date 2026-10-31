@@ -7,10 +7,10 @@
 //   ・盤ごとの 背景と かざり（草原・砂ばく・空・黄金・伝説）・地下の 道の ほらあな・のこりの 回数と ゴールまでの マス
 //   ・ルーレット・竜に 乗って 飛ぶ・落とし穴・はしご・ゴールの 花火と 紙ふぶき
 //   ・speed … タップ／A で 3倍の 早さ（ui/sugoroku.js）。時間は ぜんぶ vt（早さを かけた 時間）で すすむ
-import { monsterCanvas } from './monsters.js?v=31a32b16dd7b';
-import { nextOptions } from '../../shared/data/sugoroku.js?v=31a32b16dd7b';
-import { drawDie3D, dieOrient, rotAxis, mul3, Sparks, drawWheel, firework, rocket, confetti } from './sugoroku-fx.js?v=31a32b16dd7b';
-import { drawTile, drawIcon, drawBackdrop, drawProps, drawCave, roundRect } from './sugoroku-deco.js?v=31a32b16dd7b';
+import { monsterCanvas } from './monsters.js?v=7040d8c7ec18';
+import { nextOptions } from '../../shared/data/sugoroku.js?v=7040d8c7ec18';
+import { drawDie3D, dieOrient, rotAxis, mul3, Sparks, drawWheel, firework, rocket, confetti } from './sugoroku-fx.js?v=7040d8c7ec18';
+import { drawTile, drawIcon, drawBackdrop, drawProps, drawCave, roundRect } from './sugoroku-deco.js?v=7040d8c7ec18';
 
 const FONT = "'KizunaDot', 'DotGothic16', monospace";
 

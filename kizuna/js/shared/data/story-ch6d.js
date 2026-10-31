@@ -8,22 +8,22 @@
 //   →「第2部 第7章へ つづく」
 // クリアの あと: 9階の「止まった時の間」（toki_phantom。B。1日1回）・泉の里の リオンの けいこ（sidequests-ch6d.js）・酒場の ミナモ
 // このファイルは story-ch6.js・story-ch6b.js を 読まない（story-ch6.js が ここを 読んで まぜる）
-import { PAST_ID } from '../maps/past.js?v=31a32b16dd7b';
-import { TK_OUT, TF, tkMapId, CLOCKS } from '../maps/tokei.js?v=31a32b16dd7b';
+import { PAST_ID } from '../maps/past.js?v=7040d8c7ec18';
+import { TK_OUT, TF, tkMapId, CLOCKS } from '../maps/tokei.js?v=7040d8c7ec18';
 import {
   C6D, HOLD8, HAVE8, WEIGHT8, LOCK8, ZBOSS, ZSEEN, TOPSEEN, TROOM, TOP_CHEST, TH_POS, LINK6_TOWER, TOP_ID,
-} from '../maps/tokei-high.js?v=31a32b16dd7b';
-import { C6C_OBJ, ELDER_LATE, handSteps } from './story-ch6c.js?v=31a32b16dd7b';
-import { ITEMS } from './items.js?v=31a32b16dd7b';
-import { VEHICLES } from './vehicles.js?v=31a32b16dd7b';
-import { NPC_SUPPORTS } from './shops.js?v=31a32b16dd7b';
-import { MINAMO_GUEST } from './companions-past.js?v=31a32b16dd7b';
-import { addItem, canEquipChar } from '../stats.js?v=31a32b16dd7b';
-import { CH6D_SIDE_STORY, applyCh6dSide } from './sidequests-ch6d.js?v=31a32b16dd7b';
+} from '../maps/tokei-high.js?v=7040d8c7ec18';
+import { C6C_OBJ, ELDER_LATE, handSteps } from './story-ch6c.js?v=7040d8c7ec18';
+import { ITEMS } from './items.js?v=7040d8c7ec18';
+import { VEHICLES } from './vehicles.js?v=7040d8c7ec18';
+import { NPC_SUPPORTS } from './shops.js?v=7040d8c7ec18';
+import { MINAMO_GUEST } from './companions-past.js?v=7040d8c7ec18';
+import { addItem, canEquipChar } from '../stats.js?v=7040d8c7ec18';
+import { CH6D_SIDE_STORY, applyCh6dSide } from './sidequests-ch6d.js?v=7040d8c7ec18';
 // クリアの ★5の 武器（B の data/items-tokei.js の C6_CLEAR_WEAPONS。まとめる 時に './items-tokei.js' から）
-import { C6_CLEAR_WEAPONS } from './items-tokei.js?v=31a32b16dd7b';
+import { C6_CLEAR_WEAPONS } from './items-tokei.js?v=7040d8c7ec18';
 // 第53回: 時のまぼろしに 勝った 日（B の encounters-tokei6.js と おなじ 日の かぞえかた）
-import { dayKeyOf } from './encounters-tokei6.js?v=31a32b16dd7b';
+import { dayKeyOf } from './encounters-tokei6.js?v=7040d8c7ec18';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,8 +41,8 @@ export const C6D_OBJ = {
   tf9: '9階の休み所。いずみで休んで、記録してから上へ。西の止まった部屋のおくに、最後の宝があるらしい',
   tf10: '10階。時計塔の心臓で、ゼンマイが待っている…（準備を整えてから進もう）',
   zenmai: 'てっぺんの小べやへ。宝箱を開けて、止まっているからくりの馬を調べよう',
-  // 第6章の さいご（あとの 章が できたら、この 文は OLD_C6_OBJ に のこす）
-  clear: '第6章クリア！千年前の泉の里のリオンや、時計塔の9階の「止まった時の間」をたずねてみよう（第2部第7章は、いつかのアップデートで）',
+  // 第6章の さいご。第7章の はじまり（今の トキネへ。前の 版の 文は OLD_C6_OBJ.clear）
+  clear: '第6章クリア！今のほしみの丘のトキネが、何か話したそうにしている（第7章のはじまり。千年前の泉の里のリオンや、時計塔の9階の「止まった時の間」もたずねてみよう）',
 };
 
 // パーティー全員で 見る イベント
@@ -443,7 +443,7 @@ export const CH6D_OBJECTIVE_TARGETS = {
   [C6D_OBJ.tf9]: [at(9, TH_POS[9].font), at(9, TH_POS[9].up)],
   [C6D_OBJ.tf10]: [{ npc: 'zenmai_npc' }],
   [C6D_OBJ.zenmai]: [at(10, TH_POS[10].upper), { map: TOP_ID, x: TH_POS.top.chests[0].x, y: TH_POS.top.chests[0].y }, { npc: 'zenmai_horse_npc' }],
-  [C6D_OBJ.clear]: [{ npc: 'rion_spar' }, at(9, TH_POS[9].door)],
+  [C6D_OBJ.clear]: [{ npc: 'tokine_c6' }, { npc: 'rion_spar' }, at(9, TH_POS[9].door)],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -463,8 +463,8 @@ export const CH6D_OBJECTIVE_TALK = {
     'これまでの家来の戦いを、思い出しましょう。大時計の針が12時に近づいたら、まわりの歯車を。', 'みんなで力を合わせて、ゼンマイをたおそう！'),
   [C6D_OBJ.zenmai]: T4('てっぺんの小べやへ。宝箱は1人1つ。それから、止まっているからくりの馬を調べよう。', 'てっぺんだ！宝箱、何が入ってるかな！',
     'てっぺんの小べやに、宝箱と、からくりの馬がいるそうです。', 'てっぺんに、おうまさんがいるって！'),
-  [C6D_OBJ.clear]: T4('第6章クリア！千年前の泉の里で、リオンが剣のけいこの相手を待っている。時計塔9階の「止まった時の間」にも、行ってみよう。', 'やったな！リオンにけいこをつけてもらおうぜ！',
-    'ミナモさんは、ルミナの町の酒場で待っていてくれます。リオンさんにも、会いに行きましょう。', 'ミナモお姉ちゃん、酒場にいるって！'),
+  [C6D_OBJ.clear]: T4('第6章クリア！今のほしみの丘で、トキネが何か話したそうにしている。千年前の泉の里のリオンや、時計塔9階の「止まった時の間」にも、行ってみよう。', 'やったな！トキネが呼んでるってよ、丘へ行こうぜ！',
+    'トキネさんに、会いに行きましょう。砂時計のことで、何かわかったのかもしれません。ミナモさんは、酒場で待っています。', 'トキネちゃんが、待ってるって！ミナモお姉ちゃんは、酒場だよ！'),
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろ。story-ch6.js の CH6_PROGRESS に まぜる）─────
