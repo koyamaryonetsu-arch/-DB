@@ -306,7 +306,7 @@ test('ルーラ: 魔法使い・賢者が 覚え、行った 町へ 仲間と �
 
   c.mp = 30;
   c.visited = { village: true, town: true };
-  assert.deepEqual(warpPlaces(c).sort(), ['town', 'village']);
+  assert.deepEqual(warpPlaces(c).filter((p) => p !== 'pray').sort(), ['town', 'village']); // 第59回: いのりの場所（pray）は べつ
   const g = openGrass(MAPS.overworld);
   world.placeSession(bot.s, 'overworld', g.x + 0.5, g.y + 0.5, 'down', true);
   // 行った ことの ない 所へは 行けない

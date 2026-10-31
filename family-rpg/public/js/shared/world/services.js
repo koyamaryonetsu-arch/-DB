@@ -24,7 +24,7 @@ import { MONSTERS } from '../data/monsters.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT, PRAY_PLACE } from './travel.js';
 // 第6章: 時の砂時計（world/time-glass-use.js）
 import { useTimeGlass } from './time-glass-use.js';
 // 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
@@ -479,7 +479,8 @@ export function menuAction(world, s, msg) {
       if (eff.type === 'alchemyMemo') return useAlchemyMemo(world, s, msg.id, reply);
       if (eff.type === 'warp') {
         // 第6章: 千年前では 使えない（行き先の 町が まだ ない。world/travel.js の PAST_WARP_TEXT）
-        if (MAPS[s.map]?.past) return reply(false, PAST_WARP_TEXT(`${c.name}は${it.name}を空に投げた！`));
+        // 第59回: 「最後にお祈りしたところ」へは 千年前からも 飛べる
+        if (MAPS[s.map]?.past && msg.place !== PRAY_PLACE) return reply(false, PAST_WARP_TEXT(`${c.name}は${it.name}を空に投げた！`));
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
         if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));
         // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
@@ -487,9 +488,11 @@ export function menuAction(world, s, msg) {
         if (!dest) return reply(false, 'どこへ行く？');
         const kind = world.mapKind(s.map);
         if (kind !== 'field' && kind !== 'dungeon') return reply(false, '');
+        const to = dest === PRAY_PLACE ? world.prayDest(s) : warpDest(dest);
+        if (!to) return reply(false, 'どこへ行く？');
         removeItem(c, msg.id, 1);
         // 「ついていく」なかまも いっしょに（travel.js。ルーラと おなじ）
-        warpParty(world, s, warpDest(dest));
+        warpParty(world, s, to);
         return reply(true, `${c.name}は帰り道の羽を空に投げた！`);
       }
       // 夜明けのすず・夕焼けのすず（travel.js）

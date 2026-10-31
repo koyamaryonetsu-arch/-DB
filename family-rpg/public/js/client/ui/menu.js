@@ -725,7 +725,10 @@ export class FieldMenu {
     const g = this.game;
     const helper = g.worldVisited && g.party && g.party.leader !== g.sid;
     const been = helper ? g.worldVisited : new Set(Object.keys(g.me.visited || {}).filter((k) => g.me.visited[k]));
-    return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => been.has(id) && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+    const towns = Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => been.has(id) && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+    // 第59回: 最後にいのった場所（ダンジョンの 泉・教会。手伝っている ときは リーダーの いのりの場所。使えるかは サーバーが きめる）
+    const pray = helper || (g.me.spawn && MAPS[g.me.spawn.map] && !/^(tm_|sd_)/.test(g.me.spawn.map));
+    return pray ? [{ label: '最後にいのった場所', value: 'pray' }, ...towns] : towns;
   }
 
   // 不具合の 記録（この 端末の さいきんの もの）。コピーして 家族に 送れる

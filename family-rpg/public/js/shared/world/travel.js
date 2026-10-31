@@ -29,8 +29,13 @@ const FOLLOW_RANGE = 12;
 
 // ───────────── ルーラ・帰り道の羽の 行き先 ─────────────
 // 行った ことの ある 町・村・港（星見の丘は のぞく）
+// 第59回: 「最後にいのった場所」（いのりの場所。ダンジョンの 泉・教会。world.js の prayDest）
+export const PRAY_PLACE = 'pray';
+export const PRAY_NAME = '最後にいのった場所';
+const hasPray = (c) => !!c?.spawn && typeof c.spawn.map === 'string' && !!MAPS[c.spawn.map] && !/^(tm_|sd_)/.test(c.spawn.map);
 export function warpPlaces(c) {
-  return Object.keys({ ...PLACES, ...SEA_PLACES }).filter((id) => id !== 'shrine' && c?.visited?.[id]);
+  const towns = Object.keys({ ...PLACES, ...SEA_PLACES }).filter((id) => id !== 'shrine' && c?.visited?.[id]);
+  return hasPray(c) ? [PRAY_PLACE, ...towns] : towns;
 }
 
 // 行き先を きめる 人: パーティーで リーダーの 冒険に 来ている ときは リーダー（リーダーと おなじ 行き先に なる）
@@ -39,6 +44,7 @@ export function warpOwner(world, s) {
 }
 
 export function placeName(id) {
+  if (id === PRAY_PLACE) return PRAY_NAME;
   return (PLACES[id] || SEA_PLACES[id])?.name || '';
 }
 
@@ -57,15 +63,18 @@ export const PAST_WARP_TEXT = (head) => `${head}\nしかし、何もおこらな
 export function castRura(world, s, caster, id, msg, reply) {
   const a = ABILITIES[id];
   // 第6章: 千年前では 使えない（MPは へらない。帰りは 時の砂時計で）
-  if (MAPS[s.map]?.past) return reply(false, PAST_WARP_TEXT(`${caster.name}は${a.name}を唱えた！`));
+  const place = typeof msg.place === 'string' ? msg.place : '';
+  // 第59回: 「最後にいのった場所」は 千年前の フィールドからも 飛べる（いのりの場所は 時代を こえて おぼえている）
+  if (MAPS[s.map]?.past && place !== PRAY_PLACE) return reply(false, PAST_WARP_TEXT(`${caster.name}は${a.name}を唱えた！`));
   // 洞窟や 塔の 中では 天井に 頭を ぶつける（MPは へらない）
   if (world.mapKind(s.map) !== 'field') return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし天井に頭をぶつけた！\n（洞窟や塔の中では使えない）`);
-  const place = typeof msg.place === 'string' ? msg.place : '';
   if (!warpPlaces(warpOwner(world, s)).includes(place)) return reply(false, 'どこへ行く？');
+  const to = place === PRAY_PLACE ? world.prayDest(s) : warpDest(place);
+  if (!to) return reply(false, 'どこへ行く？');
   const cost = mpCost(caster, id);
   if (caster.mp < cost) return reply(false, 'MPが足りない！');
   caster.mp -= cost;
-  warpParty(world, s, warpDest(place));
+  warpParty(world, s, to);
   return reply(true, `${caster.name}は${a.name}を唱えた！\n${placeName(place)}へ飛んでいく…！`);
 }
 

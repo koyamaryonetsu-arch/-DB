@@ -713,6 +713,16 @@ export class GameWorld {
     this.broadcastPlayers();
   }
 
+  // 第59回: いのりの場所（ルーラ・帰り道の羽の「最後にお祈りしたところ」）。手伝っている 人は リーダーの いのりの場所。
+  //   使えない（まだ いのって いない・きえた マップ・宝の洞窟・ひみつのダンジョン）ときは null
+  prayDest(s) {
+    const own = this.hostOf(s)?.char.spawn || s.char?.spawn;
+    if (!own || typeof own.map !== 'string' || !MAPS[own.map] || /^(tm_|sd_)/.test(own.map)) return null;
+    const sp = layoutFix(own);
+    const at = standSpot(MAPS[sp.map], sp.x, sp.y, this.hasFlagFn(s));
+    return { map: sp.map, x: at.x, y: at.y, dir: 'down' };
+  }
+
   // note: 目を覚ました ときの おしらせに 足す ことば（全滅で お金が へった など）
   respawn(s, note = '') {
     // ひみつのダンジョンの 階で 全滅: 入口の 広間で 目を覚ます（world/secret.js）

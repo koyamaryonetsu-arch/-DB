@@ -51,7 +51,7 @@ test('帰り道の羽・ルーラ: パーティーでは リーダーが 行っ�
   assert.equal(world.hostOf(kid.s), papa.s);
   // 行き先は リーダーの もの
   assert.equal(warpOwner(world, kid.s), pc);
-  assert.deepEqual(warpPlaces(warpOwner(world, kid.s)).sort(), ['town', 'village']);
+  assert.deepEqual(warpPlaces(warpOwner(world, kid.s)).filter((p) => p !== 'pray').sort(), ['town', 'village']); // 第59回: いのりの場所（pray）は べつ
   assert.equal(warpOwner(world, papa.s), pc, 'リーダーは 自分の きろく');
   const st = partyState(world, partyOf(world, kid.s));
   assert.deepEqual(st.worldVisited.sort(), ['town', 'village'], 'クライアントにも リーダーの 行き先を おくる');
