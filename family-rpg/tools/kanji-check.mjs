@@ -381,6 +381,10 @@ export function gameFiles() {
     // 第2部 第6章 Step 6（A: 世界と物語）: 時計塔の 6〜10階・ゼンマイの 台本・てっぺん・第6章クリア・リオンの剣のけいこ
     'public/js/shared/data/story-ch6d.js', 'public/js/shared/data/sidequests-ch6d.js',
     'public/js/shared/maps/tokei-high.js', 'public/js/shared/maps/tokei-high-rows.js', 'public/js/shared/world/tokei-gear.js',
+    // 第2部 第7章 Step 1・2（A: 世界と物語）: 千年前の コガネ地方・緑の王国・みどりの水の神殿・カリム・水の魔女マーレの 台本・時をこえる手紙
+    'public/js/shared/data/story-c7.js', 'public/js/shared/data/sidequests-c7.js', 'public/js/shared/data/items-c7-key.js', 'public/js/shared/data/shops-c7.js',
+    'public/js/shared/data/c7-stub.js', 'public/js/shared/maps/c7.js', 'public/js/shared/maps/c7-field.js', 'public/js/shared/maps/c7-kingdom-rows.js',
+    'public/js/shared/maps/c7-temple.js', 'public/js/shared/maps/c7-temple-rows.js', 'public/js/shared/maps/c7-flags.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

@@ -9,6 +9,8 @@ import { Painter } from './pixel.js';
 import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js';
 // 第6章 Step 5: 止まった時計塔・カリヨン・止まった 魔物・砂時計の かざり（render/ch6-tokei-npc-art.js。ここで まぜる）
 import { paintTokeiSpecial, TOKEI_SPECIALS } from './ch6-tokei-npc-art.js';
+// 第7章 Step 1・2: カリム・緑の王国の 人たち・みこサラサ・水の魔女マーレ・神殿の 門番（render/c7-art.js。ここで まぜる）
+import { C7_NPC_LOOKS, paintC7Special, C7_SPECIALS } from './c7-art.js';
 
 const GRAY = { hair: '#9a9aa2', skin: '#c4c6cc', cloth: '#8a8c94', trim: '#b4b6bc' };
 const person = (o) => o;
@@ -35,6 +37,7 @@ export const CH6_NPC_LOOKS = {
   past_granny: person({ hair: 5, hairStyle: 'bun', skin: 0, outfit: 'robe', robeMain: '#6a5a4a', robeTrim: '#d8c8a0', female: true, cane: true, hunch: true }),
   ...Object.fromEntries(Object.entries(SPRING).flatMap(([k, o]) => [[`spring_${k}`, o], [`frozen_${k}`, frozen(o)]])),
   ...ROAD_NPC_LOOKS,
+  ...C7_NPC_LOOKS,
 };
 
 // ───────────── とくべつな え ─────────────
@@ -209,7 +212,7 @@ export function paintCh6Special(kind, dir, f) {
     case 'chibi_astel': return paintChibiAstel(dir, f);
     case 'zenmai': return paintZenmai(f);
     case 'geardon_npc': return paintGeardon(f);
-    default: return paintRoadSpecial(kind, dir, f) || paintTokeiSpecial(kind, dir, f);
+    default: return paintRoadSpecial(kind, dir, f) || paintTokeiSpecial(kind, dir, f) || paintC7Special(kind, dir, f);
   }
 }
-export const CH6_SPECIALS = ['hero_statue', 'hero_statue_faded', 'star_tree', 'star_sapling', 'seed_spot', 'star_dew', 'past_tent', 'prayer_stone', 'chibi_astel', 'zenmai', 'geardon_npc', ...ROAD_SPECIALS, ...TOKEI_SPECIALS];
+export const CH6_SPECIALS = ['hero_statue', 'hero_statue_faded', 'star_tree', 'star_sapling', 'seed_spot', 'star_dew', 'past_tent', 'prayer_stone', 'chibi_astel', 'zenmai', 'geardon_npc', ...ROAD_SPECIALS, ...TOKEI_SPECIALS, ...C7_SPECIALS];

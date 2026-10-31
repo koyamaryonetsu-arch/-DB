@@ -333,7 +333,8 @@ test('名前の 約束（plan-ch6.md の 17）: 物語の すすみ・マップ�
   assert.equal(new Set(ids).size, ids.length, 'タイルの ID が かさならない');
   const mine = [T.PEND_FLOOR, T.PEND_BLADE, T.GEAR_N, T.GEAR_S, T.GEAR_STILL, T.GEAR_CRANK, T.GEAR_CRANK_ON, T.GEAR_WEIGHT, T.TIME_DOOR, T.FACE_STARS];
   assert.deepEqual(mine, Array.from({ length: mine.length }, (_, i) => 307 + i));
-  assert.equal(Math.max(...ids), 316);
+  // 317 から 第7章（test/ch7-step12-a.test.js）
+  assert.equal(Math.max(...ids.filter((id) => id < 317)), 316);
   assert.deepEqual(TILE_INFO[T.GEAR_N].flow, [0, -1]);
   assert.deepEqual(TILE_INFO[T.GEAR_S].flow, [0, 1]);
   // パーティー全員で 見る だいほん
