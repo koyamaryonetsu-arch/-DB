@@ -10,19 +10,19 @@
 // 作業中の 仮の データ（B の 物が まだ ない 時だけ たす。まとめる 時に この 行を けす）
 import {
   C7, ARRIVE7, TF7, LEVER3, OPEN6, WAIT6, WIN7, LETTER, LETTER_TEMPLE, MIKO_LETTER, C7_FIELD, PRESENT_FIELD, TEMPLE_DOOR, GATE_BOSS, c7tMapId,
-} from '../maps/c7-flags.js?v=7040d8c7ec18';
-import { C7_POS } from '../maps/c7-field.js?v=7040d8c7ec18';
-import { C7T_POS } from '../maps/c7-temple.js?v=7040d8c7ec18';
-import { MAPS } from '../maps/index.js?v=7040d8c7ec18';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=7040d8c7ec18';
-import { MONSTERS } from './monsters.js?v=7040d8c7ec18';
-import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=7040d8c7ec18';
-import { SHOPS_C7 } from './shops-c7.js?v=7040d8c7ec18';
-import { GLASS_TEXT } from '../world/time-glass.js?v=7040d8c7ec18';
-import { partyOf } from '../world/party.js?v=7040d8c7ec18';
-import { applyC7Side } from './sidequests-c7.js?v=7040d8c7ec18';
-import { innSteps } from './inn.js?v=7040d8c7ec18';
-import { C6D_OBJ } from './story-ch6d.js?v=7040d8c7ec18';
+} from '../maps/c7-flags.js?v=a5c15ff5e061';
+import { C7_POS } from '../maps/c7-field.js?v=a5c15ff5e061';
+import { C7T_POS } from '../maps/c7-temple.js?v=a5c15ff5e061';
+import { MAPS } from '../maps/index.js?v=a5c15ff5e061';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=a5c15ff5e061';
+import { MONSTERS } from './monsters.js?v=a5c15ff5e061';
+import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=a5c15ff5e061';
+import { SHOPS_C7 } from './shops-c7.js?v=a5c15ff5e061';
+import { GLASS_TEXT } from '../world/time-glass.js?v=a5c15ff5e061';
+import { partyOf } from '../world/party.js?v=a5c15ff5e061';
+import { applyC7Side } from './sidequests-c7.js?v=a5c15ff5e061';
+import { innSteps } from './inn.js?v=a5c15ff5e061';
+import { C6D_OBJ } from './story-ch6d.js?v=a5c15ff5e061';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

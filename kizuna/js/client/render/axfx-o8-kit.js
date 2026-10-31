@@ -4,8 +4,8 @@
 // ・o8Dome … 星くずの バリア（六角の もようの ドーム）。o8Galaxy … うずまく 銀河。o8Seal … 2つ ならぶ まほうじん（二重呪文）
 // ・balance … 段の つぶの かず（伝説: 敵1体でも 下限 いじょう、敵5体でも 上限 いか）
 // ・毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
-import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, rnd } from './axkit.js?v=7040d8c7ec18';
-import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=7040d8c7ec18';
+import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, rnd } from './axkit.js?v=a5c15ff5e061';
+import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=a5c15ff5e061';
 
 const TAU = Math.PI * 2;
 const OUT = '#1a1430';

@@ -3,7 +3,7 @@
 // 新しい 絵は 4しゅ（時計ゆうれい・かねの精・大時計の番人・ぜんまい草）＋ ゼンマイ ＋ 歯車（3つの 色は tint）
 // のこりの 3しゅ（秒針の精・ねじまき小あくま・からくりがいこつ）は 今の 絵の 色がえ（monsters-tokei6.js の art・tint）
 // ゼンマイは 台本の showMon でも 大きく 見える 大きさ（110×122）
-import { fit } from './ch3-draw.js?v=7040d8c7ec18';
+import { fit } from './ch3-draw.js?v=a5c15ff5e061';
 
 // ───── 時計ゆうれい ─────
 const GH = {

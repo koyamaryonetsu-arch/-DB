@@ -13,15 +13,15 @@
 //   7階 ふき上げる 水の 通路（a と b が かわるがわる。となりあわない・あいだに 待てる ゆか）→ おくに 休み所
 //   8階 神殿の おくの 広間（千年前だけ）: 神殿の ボス（c7_temple。B）→ さいごの 場面 → c7_karim
 // ・魔物: どの 階も t7_temple（B）。休み所・ボスの 階・しかけの まわりは 出ない
-import { T } from '../tiles.js?v=7040d8c7ec18';
-import { npc } from './npc.js?v=7040d8c7ec18';
-import { parseRows16 } from './past.js?v=7040d8c7ec18';
-import { C7T_ROWS, C7T_W, C7T_H } from './c7-temple-rows.js?v=7040d8c7ec18';
+import { T } from '../tiles.js?v=a5c15ff5e061';
+import { npc } from './npc.js?v=a5c15ff5e061';
+import { parseRows16 } from './past.js?v=a5c15ff5e061';
+import { C7T_ROWS, C7T_W, C7T_H } from './c7-temple-rows.js?v=a5c15ff5e061';
 import {
   C7, TF7, LEVER3, OPEN6, LETTER, LETTER_TEMPLE, WIN7, C7_FIELD, TEMPLE_OUT, c7tMapId, C7T_FLOORS, C7T_NOW_FLOORS, C7T_REST, C7T_BOSS_FLOOR,
-} from './c7-flags.js?v=7040d8c7ec18';
+} from './c7-flags.js?v=a5c15ff5e061';
 // 宝箱の 中み（B の data/items-c7.js の C7_TREASURE。まとめる 時に '../data/items-c7.js' から）
-import { C7_TREASURE } from '../data/items-c7.js?v=7040d8c7ec18';
+import { C7_TREASURE } from '../data/items-c7.js?v=a5c15ff5e061';
 
 export { c7tMapId, C7T_FLOORS, C7T_NOW_FLOORS, C7T_REST, C7T_BOSS_FLOOR };
 export const C7T_PAST_MAPS = Array.from({ length: C7T_FLOORS }, (_, i) => c7tMapId(i + 1));

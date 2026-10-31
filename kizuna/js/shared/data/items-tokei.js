@@ -81,7 +81,7 @@ export const TOWER_TREASURE_FLOORS = {
 export const TOKEI_DROPS = { carillon: ['p6t_bell_charm', 'p6t_bell_axe'] };
 
 // 第2部 第6章 Step 6: 時計塔 6〜10階の 宝箱・第6章クリアの 武器（名前の 約束 docs/plan-ch6.md の 17）。中みは items-tokei6.js
-export { TOKEI_TREASURE_HIGH, C6_CLEAR_WEAPONS, c6ClearPick, TOKEI6_DROPS } from './items-tokei6.js?v=7040d8c7ec18';
+export { TOKEI_TREASURE_HIGH, C6_CLEAR_WEAPONS, c6ClearPick, TOKEI6_DROPS } from './items-tokei6.js?v=a5c15ff5e061';
 
 // 読みがな（あいうえお順の ならびかえ）
 export const TOKEI_ITEM_KANA = {

@@ -19,7 +19,7 @@
 //   AURA41B       … オーラの ほのおの せってい（hero-aura.js の AURA に まぜる）
 //   outfit41b(O, S)                 … 服の つけたし（outfit26 の つけたしから よぶ。足もとまでの ドレス・すける そで・マント）
 //   aura41b(img, filled, bb, f, k, B) … 雪の けっしょう・4つの せいれいの 光（hero-aura.js の drawAura から よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=7040d8c7ec18';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=a5c15ff5e061';
 
 export const R41B_JOBS = ['snow_queen', 'fifth_spirit'];
 

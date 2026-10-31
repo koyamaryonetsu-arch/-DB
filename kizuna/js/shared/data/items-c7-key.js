@@ -1,7 +1,7 @@
 // 第7章 Step 1・2（A: 世界と物語）の 大事な物（items-ch6-key.js で まぜる。data/items.js は かえない）
 // ・c7_miko_letter … みこの手紙（神殿 4階の みこサラサが 書いてくれる。5階の 千年前の 番人の 石の 箱に 入れると なくなる。時をこえる手紙）
 // ふつうの 道具・装備・宝箱の 中み・手紙の ごほうびは B（data/items-c7.js）
-import { MIKO_LETTER } from '../maps/c7-flags.js?v=7040d8c7ec18';
+import { MIKO_LETTER } from '../maps/c7-flags.js?v=a5c15ff5e061';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {

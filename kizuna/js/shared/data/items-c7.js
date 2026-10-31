@@ -12,7 +12,7 @@
 //   強さの かけ算 C7_K: 1階 1.55 → 8階 1.62（第6章の 時計塔 10階 1.54・第6章クリアの 武器 1.58 の 少し 上）
 // ・ボスの 品（src: 'pastboss'）: ボスが かならず 1人 1つの アクセサリー（レア度 3）と、いちばん めずらしい 色（レア度 5）の 武器
 // ・時をこえる手紙の ごほうび（src: 'letter7'「時をこえる手紙でしか手に入らない」）: レア度 4・かけ算 1.58
-import { PAST_SHOP_TOOLS } from './items-past.js?v=7040d8c7ec18';
+import { PAST_SHOP_TOOLS } from './items-past.js?v=a5c15ff5e061';
 
 // 強さの めやす（items-tokei6.js と おなじ。ランク 0〜10）
 const SWORD = [0, 6, 12, 20, 30, 40, 50, 61, 72, 85, 100];

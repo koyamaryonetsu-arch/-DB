@@ -4,8 +4,8 @@
 // ソリトゥスを たおすと、ゆかは 星の塔の 星空の ゆか（SKY_FLOOR）・祭だんは 守り星の かけらの 台（SHARD_ALTAR）に かわる（maps/castle-top.js）
 // render/tiles.js が まぜる。2.5D は render/tex3d.js（TOP_PROPS）。テーマは render/themes.js（TOP_THEMES）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=7040d8c7ec18';
-import { prand } from './pixel.js?v=7040d8c7ec18';
+import { T } from '../../shared/tiles.js?v=a5c15ff5e061';
+import { prand } from './pixel.js?v=a5c15ff5e061';
 
 const FL = { b: '#1c1828', l: '#26203a', d: '#120f1c', ln: '#0c0a14', ghost: '#3a3450', ghost2: '#2e2a40' };
 const AL = { d: '#0e0b16', b: '#221c30', m: '#2e2640', l: '#3e3456', hl: '#4e4468' };
