@@ -8,8 +8,8 @@
 // ・どの かけ方でも もどりは 36/37（約97%。少しだけ 店が 勝つ）
 // ・玉が 止まる 数は サーバーの 乱数（world/casino.js）。ここは 計算だけ
 
-export const ROULETTE_CHIPS = [1, 10, 100];
-export const ROULETTE_MAX_TOTAL = 3000; // 1回に かけられる コインの 合計
+export const ROULETTE_CHIPS = [1, 10, 100, 1000]; // 第60回: 1000枚の チップも
+export const ROULETTE_MAX_TOTAL = 30000; // 1回に かけられる コインの 合計（第60回: 3000 → 30000）
 export const ROULETTE_MAX_SPOTS = 40; // 1回に かけられる 場所の 数
 export const ROULETTE_N = 37; // 0〜36
 

@@ -5,11 +5,11 @@
 //         → 装備品なら「ここで装備していきますか？」→「どなたが装備しますか？」→「今までの〇〇は引き取りましょうか？」
 //   売る: 品物を えらぶ → いくつ？ →「〇〇ゴールドで引き取りましょう。よろしいですか？」はい／いいえ
 // 教会:  おいのりをする／生き返らせる／毒を治す／やめる（寄付の かくにん つき）
-import { rareNameHtml } from './rarity.js?v=a5c15ff5e061';
-import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=a5c15ff5e061';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=a5c15ff5e061';
-import { itemCount } from '../../shared/stats.js?v=a5c15ff5e061';
-import { boardIconURL } from '../render/boards.js?v=a5c15ff5e061';
+import { rareNameHtml } from './rarity.js?v=ce358866dd73';
+import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=ce358866dd73';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=ce358866dd73';
+import { itemCount } from '../../shared/stats.js?v=ce358866dd73';
+import { boardIconURL } from '../render/boards.js?v=ce358866dd73';
 
 // サーバーの へんじを まつ
 export function request(game, msg) {
@@ -86,7 +86,14 @@ async function buyOne(game, ct, id, price = ITEMS[id].price) {
   const eq = EQUIP_TYPES.includes(it.type);
   let qty = 1;
   if (!eq) {
-    const max = Math.min(99, Math.floor(game.me.gold / price));
+    // 1つの 道具は 99個まで（第60回: 10個ずつ 買える ように なったので、持てない 分は 買わせない）
+    const room = 99 - itemCount(game.me, id);
+    if (room < 1) {
+      await ct.say(`${it.name}は、もうこれ以上持てないようですね。`);
+      await ct.tap(1800);
+      return AGAIN;
+    }
+    const max = Math.min(room, Math.floor(game.me.gold / price));
     if (max < 1) {
       await ct.say(`${it.name}は${price}ゴールドです。\nおや？ゴールドが足りないようですね。`);
       await ct.tap(1800);
