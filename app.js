@@ -644,15 +644,19 @@
         name: r.name, company: r.company, address: r.address || '',
         equipment: r.equipment || '', chronicIssues: r.chronic_issues || '', partner: r.partner || '',
         manager: r.manager || '', theaterPhone: r.theater_phone || '',
-        maintenance: r.maintenance || '', gem2: r.gem2 || '', infoNote: r.info_note || ''
+        maintenance: r.maintenance || '', gem2: r.gem2 || '', infoNote: r.info_note || '', homepage: r.homepage || ''
       }));
     },
     async upsertTheater(t) {
       if (this.mode === 'local') { saveTheaterMaster(theaterMaster); return; }
       const payload = { name: t.name, company: t.company, address: t.address || '' };
+      // 劇場カルテ（theater_notes）がある時は、設備・持病・備考の長い文章は送らない（DBが1件ずつの表から作り直す）
+      const karteOn = !!(window.KARTE && await window.KARTE.ready());
       if (theaterKarteSupported) {
-        payload.equipment = t.equipment || '';
-        payload.chronic_issues = t.chronicIssues || '';
+        if (!karteOn) {
+          payload.equipment = t.equipment || '';
+          payload.chronic_issues = t.chronicIssues || '';
+        }
         payload.partner = t.partner || '';
       }
       if (theaterInfoSupported) {
@@ -660,7 +664,7 @@
         payload.theater_phone = t.theaterPhone || '';
         payload.maintenance = t.maintenance || '';
         payload.gem2 = t.gem2 || '';
-        payload.info_note = t.infoNote || '';
+        if (!karteOn) payload.info_note = t.infoNote || '';
       }
       const { error } = await sb.from('theaters').upsert(payload);
       if (error) throw error;
@@ -856,6 +860,13 @@
           });
           if (error) throw error;
         }
+      } else if (['equipment', 'chronic_issues', 'info_note'].indexOf(item.field) !== -1 && window.KARTE && await window.KARTE.ready()) {
+        // 劇場カルテ: 1件として入れる（同じ文がもうあれば入れない）
+        const n = await window.KARTE.noteFromPending(item);
+        const { error: e3 } = await sb.from('theater_info_pending')
+          .update({ status: 'approved', decided_at: new Date().toISOString(), applied_note_id: n ? n.id : null }).eq('id', item.id);
+        if (e3) throw e3;
+        return;
       } else {
         // field: 該当劇場の列に追記（既存は保持・重複語は入れない）。manager/theater_phone は置換
         const col = item.field;
@@ -868,7 +879,10 @@
         const patch = {};
         if (col === 'manager' || col === 'theater_phone') {
           patch[col] = item.value;
-          if (col === 'manager' && cur.manager && cur.manager !== item.value) {
+          if (col === 'manager' && cur.manager && cur.manager !== item.value && window.KARTE && await window.KARTE.ready()) {
+            // 劇場カルテ: 前の支配人は備考の1件に残す
+            await window.KARTE.noteRaw({ company: item.company || '', theater: item.theater, kind: 'note', body: '前の支配人: ' + cur.manager + '（' + item.value + ' に交代）', source_date: item.source_date || '', evidence: item.evidence || '', pending_id: item.id });
+          } else if (col === 'manager' && cur.manager && cur.manager !== item.value) {
             const oldNote = '旧: ' + cur.manager;
             patch.info_note = cur.info_note && cur.info_note.indexOf(oldNote) === -1
               ? cur.info_note + ' / ' + oldNote : (cur.info_note || oldNote);
@@ -4212,6 +4226,8 @@
     if (tiBulkMode) {
       $('tiInfoBox').classList.add('hidden');
       $('tiSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterContactsSupported));
+      if (window.KARTE) window.KARTE.hide();
+      $('tiBulkTable').classList.toggle('karte-on', !!(window.KARTE && window.KARTE.available()));
       renderTiBulkTable();
       return;
     }
@@ -4220,6 +4236,12 @@
     const entry = theaterMaster.find((t) => t.name === theater);
     // 劇場情報ボックス: マスターに存在する劇場のみ編集可（（共通）や未登録名は非表示）
     $('tiInfoBox').classList.toggle('hidden', !entry);
+    // 劇場カルテ（持病・注意 / 機器表 / 不具合の履歴 / 備考 / 設備メモ / 連絡先 のタブ）。（共通）は連絡先だけ
+    const karteOn = !!(window.KARTE && entry);
+    document.querySelectorAll('#tiInfoBox .karte-legacy').forEach((el) => el.classList.toggle('karte-on', !!(window.KARTE && window.KARTE.available())));
+    $('tiSingleWrap').classList.remove('kt-off');
+    if (karteOn) window.KARTE.show({ company: company, theater: theater, box: $('karteBox'), contactsEl: $('tiSingleWrap') });
+    else if (window.KARTE) window.KARTE.hide();
     if (entry) {
       $('tiManager').value = entry.manager || '';
       $('tiPhone').value = entry.theaterPhone || '';
@@ -4247,7 +4269,7 @@
           <td><textarea class="tm-input ti-phone" rows="2" placeholder="例: 080-1237-4363">${escapeHtml(c.phone || '')}</textarea></td>
           <td><textarea class="tm-input ti-email" rows="2" placeholder="例: inoue@japantoa.co.jp">${escapeHtml(c.email || '')}</textarea></td>
           <td><textarea class="tm-input ti-note" rows="2" placeholder="メモ">${escapeHtml(c.note || '')}</textarea></td>
-          <td><button type="button" class="ti-delete-btn">削除</button></td>
+          <td class="ti-ops"><button type="button" class="ti-move-btn" title="別の劇場へ移す">↪ 移す</button><button type="button" class="ti-delete-btn">削除</button></td>
         </tr>
       `).join('');
     }
@@ -4280,6 +4302,7 @@
   }
   function closeTheaterInfoModal() {
     theaterInfoMode = false;
+    if (window.KARTE) window.KARTE.hide();
     $('theaterInfoModal').classList.add('hidden');
     document.querySelector('.table-wrap').classList.remove('hidden');
     document.querySelector('.legend').classList.remove('hidden');
@@ -4325,7 +4348,8 @@
             <button type="button" class="tp-reject danger">却下</button>
           </td>
           <td>${escapeHtml(pendingItemText(it))}
-            ${it.evidence ? `<div class="tp-evidence">出典: ${escapeHtml(it.evidence)}</div>` : ''}</td>
+            ${it.evidence ? `<div class="tp-evidence">出典: ${escapeHtml(it.evidence)}</div>` : ''}
+            ${it.ai_checked_at ? `<div class="tp-ai">🤖 AI: ${({ unsure: '迷う', checking: '判定中' })[it.ai_verdict] || escapeHtml(it.ai_verdict || '')}${it.ai_reason && it.ai_verdict !== 'checking' ? '｜' + escapeHtml(it.ai_reason) : ''}</div>` : ''}</td>
           <td class="tp-conf">${it.confidence != null ? Math.round(Number(it.confidence) * 100) + '%' : ''}</td>
         </tr>`).join('');
       return `<tr class="tp-theater-row"><td colspan="3">🎬 ${escapeHtml(th)}</td></tr>` + rows;
@@ -4600,6 +4624,40 @@
       } catch (err) { onPersistError(err); }
     }
   }
+  // 🤖 AIでまとめて判定（/api/theater-ai task=review をくり返し呼ぶ。1回で3劇場ずつ＝サーバーの5分の上限に余裕を持たせる）
+  let tpAiRunning = false;
+  async function runPendingAiReview() {
+    if (tpAiRunning) return;
+    if (store.mode !== 'supabase') { alert('AIの判定は本番（Supabase）でだけ使えます。'); return; }
+    const todo = theaterPending.filter((x) => !x.ai_checked_at).length;
+    if (!todo) { alert('AIがまだ見ていない候補はありません（残っているのは AI が迷ったものです）。'); return; }
+    tpAiRunning = true;
+    const btn = $('tpAiBtn'), msg = $('tpAiMsg');
+    btn.disabled = true;
+    const sum = { add: 0, dup: 0, wrong: 0, unsure: 0, error: 0 };
+    let token = '';
+    try { const { data } = await sb.auth.getSession(); token = (data && data.session && data.session.access_token) || ''; } catch (e) {}
+    let last = -1, rounds = 0;
+    try {
+      while (rounds++ < 60) {
+        msg.textContent = `AI（Opus）が判定しています…（3劇場ずつ・1回1〜2分。この画面は開いたままにしてください。残り ${last < 0 ? todo : last} 件／ここまで入れた ${sum.add} 件）`;
+        const r = await fetch('/api/theater-ai', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify({ task: 'review', maxGroups: 3 }) });
+        let j = null; try { j = await r.json(); } catch (e) { j = null; }
+        if (!r.ok || !j || !j.ok) throw new Error((j && (j.error + (j.detail ? '（' + j.detail + '）' : ''))) || ('通信に失敗しました（' + r.status + '）'));
+        Object.keys(sum).forEach((k) => { sum[k] += (j.tally && j.tally[k]) || 0; });
+        if (!j.remaining || j.checked === 0 || j.remaining === last) break;
+        last = j.remaining;
+      }
+      msg.textContent = `✅ 判定しました: 劇場カルテに入れた ${sum.add} 件／重複で除いた ${sum.dup} 件／間違いで除いた ${sum.wrong} 件／迷うので残した ${sum.unsure} 件` + (sum.error ? `／うまく反映できなかった ${sum.error} 件` : '');
+    } catch (e) {
+      msg.textContent = '⚠ 途中で止まりました: ' + (e.message || e) + `（ここまで: 入れた ${sum.add}／除いた ${sum.dup + sum.wrong}／残した ${sum.unsure}）`;
+    } finally {
+      tpAiRunning = false; btn.disabled = false;
+      try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) {}
+      renderPendingList();
+      refreshPendingBadge();
+    }
+  }
   async function approveAllPending() {
     if (!theaterPending.length) return;
     if (!confirm(`未確認の${theaterPending.length}件すべてを承認して本登録しますか？`)) return;
@@ -4642,7 +4700,17 @@
     else return;
     Promise.resolve(store.updateTheaterContact(c)).catch(onPersistError);
   }
-  function handleTheaterInfoTableClick(e) {
+  async function handleTheaterInfoTableClick(e) {
+    if (e.target.classList.contains('ti-move-btn') && window.KARTE) {
+      const tr0 = e.target.closest('tr');
+      const c0 = tr0 && tiFindContact(tr0.dataset.contactId);
+      if (!c0) return;
+      try {
+        const to = await window.KARTE.moveContact(c0);
+        if (to) { c0.theater = to.theater; c0.company = to.company; if (store.mode === 'local') saveTheaterContactsLocal(theaterContacts); renderTheaterInfo(); }
+      } catch (err) { onPersistError(err); }
+      return;
+    }
     if (!e.target.classList.contains('ti-delete-btn')) return;
     const tr = e.target.closest('tr');
     if (!tr || !tr.dataset.contactId) return;
@@ -5253,6 +5321,7 @@
   $('tiBody').addEventListener('change', handleTheaterInfoTableInput);
   $('tiBody').addEventListener('click', handleTheaterInfoTableClick);
   $('tiBulkBtn').addEventListener('click', toggleTiBulkMode);
+  if ($('tiExportBtn')) $('tiExportBtn').addEventListener('click', () => { if (window.KARTE) window.KARTE.openExport($('tiCompanySelect').value); });
   $('tiBulkBody').addEventListener('change', handleTiBulkInput);
   // 劇場情報の入力: 打ちながら高さを中身に合わせる（全文が見えるように）
   ['tiBody', 'tiBulkBody', 'tiInfoBox'].forEach((id) => {
@@ -5404,6 +5473,7 @@
   $('tpCloseBtn').addEventListener('click', closeTheaterPendingModal);
   $('tpBody').addEventListener('click', handlePendingClick);
   $('tpApproveAllBtn').addEventListener('click', approveAllPending);
+  if ($('tpAiBtn')) $('tpAiBtn').addEventListener('click', runPendingAiReview);
 
   $('closeContentModal').addEventListener('click', closeContentModal);
   $('contentCancelBtn').addEventListener('click', closeContentModal);
@@ -6095,8 +6165,10 @@
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
       companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },
       // 書類棚(shelf.js)用: 劇場マスタ・案件（見えている分）・ログイン中の人
-      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '' })); } catch (e) { return []; } },
-      cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '' })); } catch (e) { return []; } },
+      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '', manager: t.manager || '', theaterPhone: t.theaterPhone || '', maintenance: t.maintenance || '', gem2: t.gem2 || '', homepage: t.homepage || '' })); } catch (e) { return []; } },
+      cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', receivedDate: c.receivedDate || '', category: c.category || '', status: deriveStatus(c), surveyDate: c.surveyDate || '', workEndDate: c.workEndDate || '', tcPerson: c.tcPerson || '', rPerson: c.rPerson || '' })); } catch (e) { return []; } },
+      // 劇場カルテ(karte.js)用: 不具合の履歴の行から案件を開く
+      openCase: (id) => { try { const c = cases.find((x) => String(x.id) === String(id)); if (c) openModalGuarded(c, 'full'); } catch (e) { console.warn(e); } },
       shortTheater: (name) => shortTheaterName(name),
       userEmail: () => (currentUser && currentUser.email) || ''
     };

@@ -73,6 +73,8 @@
 ├── kotei.js            # 工程表（ガントチャート）の編集。開く/保存は shelf.js が担当
 ├── shelf.js            # 書類棚（工程表・工事写真台帳のフォルダ管理・上書き保存/名前を付けて新規に保存）＋写真台帳
 ├── shelf.css           # 書類棚・写真台帳の見た目（style.css とは別ファイル）
+├── karte.js            # 劇場カルテ（各劇場情報の中身）: タブ・1件ずつの持病/備考/設備メモ・機器表（AI読み取り）・別の劇場へ移す・Excel。window.KARTE
+├── karte.css           # 劇場カルテの見た目
 ├── heatload.js         # 空調負荷計算（書類棚の ❄）。シアター/シアター以外・計算・計算書（A4）。window.HL
 ├── heatload.css        # 空調負荷計算の見た目（#viewHeat の中だけ）
 ├── heatload-xlsx.js    # 空調負荷計算の Excel（式でつながる・黄色＝入力・灰色＝基準値）。window.HLXL
@@ -81,7 +83,8 @@
 ├── api/
 │   ├── case-created.mjs # Supabase webhook → AI判断 → LINE通知
 │   ├── line-webhook.mjs # LINE → Vercel（グループID取得・Phase 2双方向化用）
-│   └── heatload-read.mjs # 空調負荷計算: 機器表・平面図・劇場HP を Opus で読む
+│   ├── heatload-read.mjs # 空調負荷計算: 機器表・平面図・劇場HP を Opus で読む
+│   └── theater-ai.mjs   # 劇場カルテ: 更新確認の候補を Opus で判定して自動で入れる(review)・機器表の読み取り(equipment)
 ├── vendor/
 │   ├── supabase.min.js # @supabase/supabase-js UMD（同梱）
 │   └── jszip.min.js    # JSZip UMD（同梱）
@@ -192,6 +195,13 @@ DBの `theaters` テーブル + フロントの DEFAULT_THEATER_MASTER で管理
 ### 請求書/完了届
 JSZip で Excel テンプレート（templates.js）を直接書き換え。
 赤字(FFFF0000)を黒字(FF000000)に置換、印影位置のVML/画像は保持。
+
+### 劇場カルテ（🏢 各劇場情報）
+- DB（SETUP_THEATER_KARTE.sql）: `theater_notes`（持病・注意=chronic / 備考=note / 設備メモ=equipment を1件ずつ。origin=manual/ai/migrated）・`theater_equipment`（機器表）・`theater_files`（Storage `theater-files`）。すべて @ryonetsu.com だけ
+- `theater_notes` が変わると、DB のトリガーが theaters.equipment / chronic_issues / info_note（「 / 」区切りの長い文章）を作り直す → AI初期対応診断（case-created.mjs）はそのまま読める。アプリは表がある時この3列を送らない
+- 劇場情報更新確認: GAS は拾った候補をすべて theater_info_pending へ（読み取り Sonnet 5.5）→ `/api/theater-ai` task=review（Opus 5.5）がその劇場の今のカルテと見比べて add=自動で入れる / dup・wrong=除く / unsure=残す（ai_verdict・ai_reason）。GAS の reviewTheaterPendingAuto（毎日2時台・19時台）と画面の「🤖 AIでまとめて判定」から呼ぶ。判定中は ai_verdict=checking（10分で解ける）
+- Excel: 1劇場＝1ファイル（カルテ／機器表／不具合の履歴＝その劇場の案件／連絡先）、2つ以上は ZIP
+- テスト: scratchpad の ktest/karte-e2e.js（テストモード）・karte-sb-e2e.js（にせ Supabase: fake-sb.js）・api-test.mjs・gas-theater-test.js。SQL は本物の Postgres で2回流して確認
 
 ### 空調負荷計算（書類棚の ❄）
 - 書類棚の「新しく作る」→「❄ 空調負荷計算」→「🎬 シアター／🏢 シアター以外」を選ぶ。保存は他の書類と同じ（上書き保存／名前を付けて新規に保存）

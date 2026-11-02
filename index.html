@@ -6,6 +6,7 @@
 <title>案件管理</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="shelf.css">
+<link rel="stylesheet" href="karte.css">
 <link rel="stylesheet" href="heatload.css">
 <script src="vendor/supabase.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
@@ -474,7 +475,7 @@
     <div id="theaterInfoModal" class="mode-view hidden">
       <div class="mode-panel">
         <div class="modal-header">
-          <h2>🏢 各劇場情報（支配人・保守契約・パートナー連絡先）</h2>
+          <h2>🏢 各劇場情報（劇場カルテ）</h2>
           <button id="closeTheaterInfoModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
         </div>
         <div class="tm-body">
@@ -486,8 +487,9 @@
               <select id="tiTheaterSelect"></select>
             </label>
             <button type="button" id="tiBulkBtn">📑 全体編集</button>
+            <button type="button" id="tiExportBtn" title="会社・劇場を選んで、劇場カルテを Excel で出します（1劇場＝1ファイル）">📊 Excelで出す</button>
         <button type="button" id="tiColResetBtn" class="mini-btn" title="列幅を既定に戻す">列幅リセット</button>
-            <span class="tm-hint">💡 2022年資料＋メール調査(2026年)を統合した劇場ごとのパートナー連絡先。直接編集→自動保存。ここの内容はAI初期対応診断にも反映されます。</span>
+            <span class="tm-hint">💡 劇場ごとのカルテ（持病・注意・機器表・不具合の履歴・備考・連絡先）。直すと自動で保存します。ここの内容はAI初期対応診断にも使われます。</span>
           </div>
           <div id="tiSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_INFO.md のSQLをSupabaseで1回実行してください。</div>
           <div class="tm-hq-box" id="tiInfoBox">
@@ -504,19 +506,20 @@
               <label class="tm-hq-label">GeM2</label>
               <select id="tiGem2" class="tm-input"><option value=""></option><option value="○">○</option><option value="×">×</option></select>
             </div>
-            <div class="tm-hq-row">
+            <div class="tm-hq-row karte-legacy">
               <label class="tm-hq-label">設備（カルテ）</label>
               <textarea id="tiEquipment" class="tm-input tm-hq-input tm-hq-area" rows="2" placeholder="例: チラー(ダイキンJIZAI)、GHP3系統"></textarea>
             </div>
-            <div class="tm-hq-row">
+            <div class="tm-hq-row karte-legacy">
               <label class="tm-hq-label">持病/注意</label>
               <textarea id="tiChronic" class="tm-input tm-hq-input tm-hq-area" rows="2" placeholder="例: 映写室2系統・夏場能力低下"></textarea>
             </div>
-            <div class="tm-hq-row">
+            <div class="tm-hq-row karte-legacy">
               <label class="tm-hq-label">備考</label>
               <textarea id="tiNote" class="tm-input tm-hq-input tm-hq-area" rows="2" placeholder="例: 施設管理: ◯◯さん 03-xxxx-xxxx"></textarea>
             </div>
           </div>
+          <div id="karteBox" class="hidden"></div>
           <div class="tm-table-wrap" id="tiSingleWrap">
             <table class="tm-table" id="tiTable">
               <thead>
@@ -589,7 +592,8 @@
           <button id="closeTheaterPendingModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
         </div>
         <div class="tm-body">
-          <p class="tm-hint">💡 毎日AM1時に、前日のメール（添付の見積書/報告書/台帳/図面も）から劇場情報を自動抽出します。確信度70%以上は自動反映済み。ここに出るのは確信度70%未満で「念のため人の確認が必要」な候補です。承認すると各劇場情報へ本登録、却下すると破棄します。</p>
+          <p class="tm-hint">💡 メール・LINE・会議の記録から拾った劇場情報の候補です。AI（Opus）がその劇場の今のカルテと見比べて、合っている新しい情報は自動で劇場カルテに入れ、重複・間違いは除きます。ここに残るのは AI が迷ったものです（🤖 の行に迷った理由）。承認すると劇場カルテへ入れ、却下すると捨てます。入れたあとでも、劇場カルテで直す・消す・別の劇場へ移すことができます。</p>
+          <div class="tp-ai-bar"><button type="button" id="tpAiBtn" class="primary">🤖 AIでまとめて判定する（Opus）</button><span id="tpAiMsg" class="tp-ai-msg"></span></div>
           <div id="tpSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_AUTOUPDATE.sql をSupabaseで1回実行してください。</div>
           <div class="tm-table-wrap">
             <table class="tm-table">
@@ -981,5 +985,6 @@
 <script src="heatload.js"></script>
 <script src="heatload-xlsx.js"></script>
 <script src="shelf.js"></script>
+<script src="karte.js"></script>
 </body>
 </html>
