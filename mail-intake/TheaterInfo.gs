@@ -5,9 +5,12 @@
  *       名刺等。画像/PDFは視覚AIで、Excel/WordはDrive変換でテキスト化して）読み、各劇場情報
  *       （設備・持病・備考・支配人・劇場連絡先・パートナー連絡先）の「新しい事実」をAIで抽出する。
  * ※ Excel/Word読取には「Drive」高度サービス(Drive API v2)の有効化が必要（appsscript.jsonに記載）。
- *   - 確信が高く根拠のある事実 → theaters / theater_contacts へ自動反映（追記のみ・重複は入れない）
- *   - 支配人/劇場連絡先の変更、および確信が低いもの → 要確認キュー(theater_info_pending)へ。
- *     Webアプリ「🔎 劇場情報更新確認」で人が承認/却下する。
+ *   - 拾った候補はすべて「劇場情報更新確認」(theater_info_pending) に入れる（読み取りは Sonnet 5.5）。
+ *   - そのあと AI（Opus 5.5）が、その劇場の今の劇場カルテと見比べて判定する（Vercel の /api/theater-ai）:
+ *       合っている新しい情報 → 劇場カルテ（theater_notes / 連絡先 / 支配人・電話）に自動で入れる
+ *       重複・間違い → 除く ／ 迷うもの → 更新確認に残す（理由つき）。人が承認/却下する。
+ *     判定は reviewTheaterPendingAuto()（毎日 2時台・19時台のトリガー。setupTheaterReviewTrigger() で作る）。
+ *     画面の「🤖 AIでまとめて判定する」ボタンからも同じ判定ができる。
  *
  * ※ Code.gs と同じプロジェクトに置く（cfg_ / SUPABASE_URL_ / anthropicText_ / safeJson_ /
  *    buildThreadText_ / getOrCreateLabel_ / normalizeCompany_ / MODEL_ を流用）。
@@ -16,7 +19,10 @@
  */
 
 var TI_DONE_LABEL = '劇場情報確認済';        // 処理済みスレッド（再処理防止）
-var TI_AUTO_CONF = 0.70;                     // 確信度これ以上は自動反映。未満だけ「要確認」で人が承認
+var TI_MIN_CONF = 0.2;                       // これより自信の低い候補は捨てる（ほとんど当て推量のもの）
+var TI_REVIEW_BUDGET_MS = 4.5 * 60 * 1000;   // AI判定（reviewTheaterPendingAuto）の1回の時間の目安
+// 劇場情報の読み取り（添付なし）に使うモデル。以前は Haiku。スクリプトプロパティ ANTHROPIC_THEATER_MODEL で変えられる
+function TI_MODEL_() { return cfg_('ANTHROPIC_THEATER_MODEL', 'claude-sonnet-5-5'); }
 var TI_THREAD_LIMIT = 30;                    // 1回で読むスレッド数上限
 var TI_TIME_BUDGET_MS = 5 * 60 * 1000;       // 実行時間の目安（6分制限の手前で安全停止）。残りは次回処理
 var TI_ATT_MAX_BYTES = 5 * 1024 * 1024;      // これより大きい添付は読まない（API上限・コスト対策）
@@ -39,7 +45,7 @@ function updateTheaterInfoDaily() {
     if (!threads.length) { Logger.log('劇場情報更新: 対象メールなし'); return; }
 
     var startMs = Date.now();
-    var nAuto = 0, nPend = 0, nSkip = 0, nDone = 0;
+    var nPend = 0, nSkip = 0, nDone = 0;
     for (var ti = 0; ti < threads.length; ti++) {
       // Apps Scriptの6分制限に達する前に安全停止（未処理はラベル無し→次回に続きから処理）
       if (Date.now() - startMs > TI_TIME_BUDGET_MS) {
@@ -60,7 +66,7 @@ function updateTheaterInfoDaily() {
             var known = tiTheaterExists_(theater);
             ext.items.forEach(function (it) {
               var r = routeTheaterItem_(it, theater, company, known);
-              if (r === 'auto') nAuto++; else if (r === 'pending') nPend++; else nSkip++;
+              if (r === 'pending') nPend++; else nSkip++;
             });
           }
         }
@@ -70,7 +76,7 @@ function updateTheaterInfoDaily() {
         th.addLabel(lblDone); nDone++; // エラーでも再処理ループを避けるため処理済みにする
       }
     }
-    Logger.log('劇場情報更新: 処理 %s 件 / 自動反映 %s / 要確認 %s / スキップ %s', nDone, nAuto, nPend, nSkip);
+    Logger.log('劇場情報更新: 処理 ' + nDone + ' 件 / 更新確認へ ' + nPend + '（このあと AI が判定） / スキップ ' + nSkip);
   } catch (e) {
     Logger.log('updateTheaterInfoDaily error: ' + e);
   } finally {
@@ -192,10 +198,10 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks, aiOpts) {
     '  "category":string,"maker":string,"vendor":string,"person":string,"phone":string,"email":string,"note":string, // kind=contact',
     '  "confidence":number,"evidence":string,"source_date":string}]}'
   ].join('\n');
-  // 添付が無ければ安いモデル(既定Haiku)。添付ありは視覚対応モデル(既定Sonnet)で本文＋画像/PDFを読む
+  // 添付が無ければ TI_MODEL_（既定 Sonnet 5.5）。添付ありは視覚対応モデル(既定Sonnet)で本文＋画像/PDFを読む
   if (!mediaBlocks || !mediaBlocks.length) {
     // 抽出項目が多いと1200では途中で切れることがあるため余裕を持たせる
-    return safeJson_(anthropicText_(apiKey, sys, text, 2000, aiOpts));
+    return safeJson_(anthropicText_(apiKey, sys, text, 2000, aiOpts || { model: TI_MODEL_(), effort: 'low' }));
   }
   var content = [{ type: 'text', text: text }].concat(mediaBlocks);
   // 呼び方は Code.gs の anthropicText_ に任せる（最新モデルの「考えた内容」を飛ばして答えを読む・
@@ -205,70 +211,23 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks, aiOpts) {
   return safeJson_(txt);
 }
 
-// 1件を 自動反映 / 要確認 / スキップ に振り分ける
-// 方針: 確信度 TI_AUTO_CONF(=70%) 以上なら自動反映。未満だけ要確認キューへ。
-// （劇場がDB未登録でも、自動反映側で必要なら劇場行を作成して反映する）
+// 1件を「更新確認へ入れる(pending)」か「捨てる(skip)」に振り分ける。
+// 方針: 劇場カルテに入れるかどうかは、AI（Opus）がその劇場の今のカルテと見比べて決める（/api/theater-ai）。
+// ここでは形の正しい候補を更新確認に入れるだけ（同じ候補は二重に入れない）。
 function routeTheaterItem_(it, theater, company, theaterKnown) {
-  if (!it || !it.kind) return 'skip';
+  if (!it || !it.kind || !theater) return 'skip';
   var conf = (typeof it.confidence === 'number') ? it.confidence : 0;
-  var auto = conf >= TI_AUTO_CONF;
-
+  if (conf < TI_MIN_CONF) return 'skip';
   if (it.kind === 'contact') {
     if (!it.vendor) return 'skip';
-    if (auto && tiAutoContact_(theater, company, it)) return 'auto';
-    return tiQueuePending_(theater, company, it) ? 'pending' : 'skip'; // 未満/自動失敗は要確認へ
+    return tiQueuePending_(theater, company, it) ? 'pending' : 'skip';
   }
-
-  // field
-  var f = it.field;
   var validFields = { equipment: 1, chronic_issues: 1, info_note: 1, manager: 1, theater_phone: 1 };
-  if (!validFields[f] || !it.value) return 'skip';
-  if (auto && tiAutoField_(theater, company, it)) return 'auto';
-  return tiQueuePending_(theater, company, it) ? 'pending' : 'skip'; // 未満/自動失敗は要確認へ
+  if (!validFields[it.field] || !it.value) return 'skip';
+  return tiQueuePending_(theater, company, it) ? 'pending' : 'skip';
 }
 
-// ===== 自動反映: theaters の列を更新 =====
-// equipment/chronic_issues/info_note は追記（既存保持・重複語は入れない）。manager/theater_phone は置換（旧支配人は備考へ退避）。
-function tiAutoField_(theater, company, it) {
-  var col = it.field;
-  tiEnsureTheaterRow_(theater, company); // 劇場行が無ければ作る（未登録劇場でも反映できるように）
-  if (col === 'manager' || col === 'theater_phone') {
-    var r0 = tiGetTheater_(theater, col === 'manager' ? 'manager,info_note' : col);
-    if (r0 === null) return false;
-    var patch0 = {};
-    patch0[col] = it.value;
-    if (col === 'manager' && r0.manager && r0.manager !== it.value) {
-      var oldNote = '旧: ' + r0.manager;
-      patch0.info_note = (r0.info_note && r0.info_note.indexOf(oldNote) === -1)
-        ? (r0.info_note + ' / ' + oldNote) : (r0.info_note || oldNote);
-    }
-    return tiPatchTheater_(theater, patch0);
-  }
-  // 追記系
-  var row = tiGetTheater_(theater, col);
-  if (row === null) return false; // 取得失敗時は反映しない
-  var cur = String(row[col] || '');
-  var add = tiWithEvidence_(it.value, it);
-  var key = String(it.value || '').slice(0, 40);
-  if (key && cur.indexOf(key) !== -1) return true; // 既に含む → 何もしないが成功扱い
-  var patch = {};
-  patch[col] = cur ? (cur + ' / ' + add) : add;
-  return tiPatchTheater_(theater, patch);
-}
-
-// ===== 自動反映: theater_contacts へ挿入（同一 劇場×業者×担当者 が無ければ） =====
-function tiAutoContact_(theater, company, it) {
-  if (tiContactExists_(theater, it.vendor, it.person)) return true;
-  var note = [it.note, it.evidence].filter(function (x) { return x; }).join(' / ');
-  var body = {
-    company: company || '', theater: theater, category: it.category || '', maker: it.maker || '',
-    vendor: it.vendor || '', person: it.person || '', phone: it.phone || '', email: it.email || '',
-    note: note, sort_order: 8000
-  };
-  return tiSupaInsert_('theater_contacts', body);
-}
-
-// ===== 要確認キューへ投入（同じ候補が既にあれば入れない） =====
+// ===== 更新確認へ入れる（同じ候補が既にあれば入れない） =====
 function tiQueuePending_(theater, company, it) {
   if (tiPendingExists_(theater, it)) return true; // 既にキュー/承認済み → 重複投入しない
   var body = {
@@ -287,42 +246,15 @@ function tiHeaders_() {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   return { apikey: key, Authorization: 'Bearer ' + key };
 }
-function tiWithEvidence_(v, it) {
-  var tag = [it.source_date, it.evidence].filter(function (x) { return x; }).join(' ');
-  return tag ? (v + '（' + tag + '）') : v;
-}
-// 劇場行が theaters に無ければ作成（既にあれば何もしない）
-function tiEnsureTheaterRow_(theater, company) {
-  var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=name&limit=1');
-  if (res && res.length) return;
-  var r = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/theaters', {
-    method: 'post', contentType: 'application/json',
-    headers: Object.assign({ Prefer: 'resolution=ignore-duplicates,return=minimal' }, tiHeaders_()),
-    payload: JSON.stringify({ name: theater, company: company || '' }), muteHttpExceptions: true
-  });
-  if (r.getResponseCode() >= 300) Logger.log('劇場行作成失敗: ' + r.getContentText());
-}
 function tiTheaterExists_(theater) {
   var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=name&limit=1');
   if (res && res.length) return true;
   var c = tiSupaGet_('theater_contacts', 'theater=eq.' + encodeURIComponent(theater) + '&select=id&limit=1');
   return !!(c && c.length);
 }
-function tiGetTheater_(theater, cols) {
-  // cols は列名（"manager" や "manager,info_note"）。安全なリテラルなのでそのまま渡す
-  var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=' + cols + '&limit=1');
-  if (res === null) return null;
-  return res.length ? res[0] : {};
-}
-function tiContactExists_(theater, vendor, person) {
-  var q = 'theater=eq.' + encodeURIComponent(theater) +
-    '&vendor=eq.' + encodeURIComponent(vendor || '') +
-    '&person=eq.' + encodeURIComponent(person || '') + '&select=id&limit=1';
-  var res = tiSupaGet_('theater_contacts', q);
-  return !!(res && res.length);
-}
 function tiPendingExists_(theater, it) {
-  var q = 'theater=eq.' + encodeURIComponent(theater) + '&status=in.(pending,approved)&select=id&limit=1';
+  // 一度 除いた（rejected）候補も入れない（同じ話が別のメールに出ても、AI に何度も見せない）
+  var q = 'theater=eq.' + encodeURIComponent(theater) + '&status=in.(pending,approved,rejected)&select=id&limit=1';
   if (it.kind === 'contact') {
     q += '&vendor=eq.' + encodeURIComponent(it.vendor || '') + '&person=eq.' + encodeURIComponent(it.person || '');
   } else {
@@ -347,15 +279,6 @@ function tiSupaInsert_(table, body) {
   if (res.getResponseCode() >= 300) { Logger.log('INSERT失敗(' + table + '): ' + res.getContentText()); return false; }
   return true;
 }
-function tiPatchTheater_(theater, patch) {
-  var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/theaters?name=eq.' + encodeURIComponent(theater), {
-    method: 'patch', contentType: 'application/json',
-    headers: Object.assign({ Prefer: 'return=minimal' }, tiHeaders_()),
-    payload: JSON.stringify(patch), muteHttpExceptions: true
-  });
-  if (res.getResponseCode() >= 300) { Logger.log('PATCH失敗: ' + res.getContentText()); return false; }
-  return true;
-}
 
 // ===== セットアップ補助 =====
 function setupTheaterInfoTrigger() {
@@ -364,6 +287,45 @@ function setupTheaterInfoTrigger() {
   });
   ScriptApp.newTrigger('updateTheaterInfoDaily').timeBased().atHour(1).everyDays(1).create();
   Logger.log('updateTheaterInfoDaily を毎日1時台に実行するトリガーを作成しました（スクリプトのタイムゾーンに従う）。');
+}
+// ===== AI（Opus）の判定: 更新確認に溜まった候補を、劇場カルテと見比べて自動で振り分ける =====
+// Vercel の /api/theater-ai（task=review）を、1劇場ずつくり返し呼ぶ（1回の呼び出しを短くするため）。
+// 認証は x-flush-key（SUPABASE_SERVICE_ROLE_KEY。確認待ちのLINE通知と同じ方式）。
+function reviewTheaterPendingAuto() {
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  var base = cfg_('APP_API_BASE', 'https://cinema-cases.vercel.app');
+  if (!key) { Logger.log('劇場情報のAI判定: キー未設定'); return; }
+  var start = Date.now(), sum = { add: 0, dup: 0, wrong: 0, unsure: 0, error: 0 }, calls = 0, remaining = -1, stop = '';
+  while (Date.now() - start < TI_REVIEW_BUDGET_MS && calls < 40) {
+    calls++;
+    var res;
+    try {
+      res = UrlFetchApp.fetch(base + '/api/theater-ai', {
+        method: 'post', contentType: 'application/json', headers: { 'x-flush-key': key },
+        payload: JSON.stringify({ task: 'review', maxGroups: 1, maxItems: 15 }), muteHttpExceptions: true
+      });
+    } catch (e) { stop = '呼び出しが時間切れ（残りは次の回）: ' + e; break; }
+    if (res.getResponseCode() >= 300) { stop = '失敗 ' + res.getResponseCode() + ': ' + String(res.getContentText()).slice(0, 200); break; }
+    var j = {};
+    try { j = JSON.parse(res.getContentText()); } catch (e) { stop = '答えを読めません'; break; }
+    Object.keys(sum).forEach(function (k) { sum[k] += (j.tally && j.tally[k]) || 0; });
+    if (j.failed && j.failed.length) Logger.log('劇場情報のAI判定で失敗: ' + j.failed.join(' / '));
+    remaining = Number(j.remaining) || 0;
+    if (!remaining || !j.checked) break;
+  }
+  var n = function (v) { return String(Math.round(Number(v) || 0)); };
+  Logger.log('劇場情報のAI判定: カルテに入れた ' + n(sum.add) + ' / 重複で除いた ' + n(sum.dup) + ' / 間違いで除いた ' + n(sum.wrong) +
+    ' / 迷うので残した ' + n(sum.unsure) + (sum.error ? ' / 反映できなかった ' + n(sum.error) : '') + '（呼び出し ' + calls + ' 回・まだ見ていない ' + (remaining < 0 ? '?' : n(remaining)) + ' 件）' + (stop ? '｜' + stop : ''));
+}
+// 毎日 2時台（メールの劇場情報 1時台のあと）と 19時台（LINE・Plaud 18時台のあと）に AI判定を動かすトリガーを作る
+function setupTheaterReviewTrigger() {
+  var removed = 0;
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'reviewTheaterPendingAuto') { ScriptApp.deleteTrigger(t); removed++; }
+  });
+  ScriptApp.newTrigger('reviewTheaterPendingAuto').timeBased().atHour(2).everyDays(1).inTimezone('Asia/Tokyo').create();
+  ScriptApp.newTrigger('reviewTheaterPendingAuto').timeBased().atHour(19).everyDays(1).inTimezone('Asia/Tokyo').create();
+  Logger.log('劇場情報のAI判定を毎日 2時台・19時台に動かすトリガーを作りました（前のものを ' + removed + ' 件消しました）。');
 }
 // 手動テスト用: 直近メールを1回処理してログを見る
 function testTheaterInfoOnce() { updateTheaterInfoDaily(); }
