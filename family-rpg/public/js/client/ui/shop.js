@@ -86,7 +86,14 @@ async function buyOne(game, ct, id, price = ITEMS[id].price) {
   const eq = EQUIP_TYPES.includes(it.type);
   let qty = 1;
   if (!eq) {
-    const max = Math.min(99, Math.floor(game.me.gold / price));
+    // 1つの 道具は 99個まで（第60回: 10個ずつ 買える ように なったので、持てない 分は 買わせない）
+    const room = 99 - itemCount(game.me, id);
+    if (room < 1) {
+      await ct.say(`${it.name}は、もうこれ以上持てないようですね。`);
+      await ct.tap(1800);
+      return AGAIN;
+    }
+    const max = Math.min(room, Math.floor(game.me.gold / price));
     if (max < 1) {
       await ct.say(`${it.name}は${price}ゴールドです。\nおや？ゴールドが足りないようですね。`);
       await ct.tap(1800);

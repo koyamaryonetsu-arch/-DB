@@ -201,7 +201,7 @@ test('ルーレット: 玉の 止まる 数は サーバーの 乱数。コイ�
   c.coins = 50000;
   assert.equal(act({ action: 'roulette', bets: [{ k: 'red', c: 1 }] }).ok, false, 'まどを 開かないと 回せない');
   const ui = open('roulette');
-  assert.deepEqual(ui.chips, [1, 10, 100]);
+  assert.deepEqual(ui.chips, [1, 10, 100, 1000]);
   const seen = new Array(37).fill(0);
   const N = 1850;
   for (let i = 0; i < N; i++) {

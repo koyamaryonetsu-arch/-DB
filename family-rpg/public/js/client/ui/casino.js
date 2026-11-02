@@ -11,7 +11,7 @@ import { ITEMS } from '../../shared/data/items.js';
 import { itemCount } from '../../shared/stats.js';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
-  medalsHeld, medalsGiven, medalsFound, medalsSpent, COIN_PRICE,
+  medalsHeld, medalsGiven, medalsFound, medalsSpent, COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS,
 } from '../../shared/data/casino.js';
 
 export function casinoUI(game, kind, data) {
@@ -54,14 +54,14 @@ export class CasinoCounter extends Counter {
     }
   }
 
-  // 何枚？（◀▶ で 1枚・▲▼ で 10枚）。やめる・閉じる は 0
+  // 何枚？（◀▶ で 1枚・▲▼ で 10枚。ボタンは 1・10・100・1000・1万）。やめる・閉じる は 0
   async qtyCoins(text, max, price) {
     await this.say(text);
     return this.wait((done) => {
       if (!done) return 0;
       let q = Math.min(10, max);
       const val = el('div', { class: 'ct-qty-val' });
-      const upd = () => { val.textContent = `◀ ${q}枚 ▶　${fmt(q * price)}G`; };
+      const upd = () => { val.textContent = `◀ ${fmt(q)}枚 ▶　${fmt(q * price)}G`; };
       const step = (d) => {
         q = Math.max(1, Math.min(max, q + d));
         this.game.audio.sfx('cursor');
@@ -91,7 +91,8 @@ export class CasinoCounter extends Counter {
       this.choiceBox.innerHTML = '';
       this.choiceBox.classList.add('wide');
       this.choiceBox.append(el('div', { class: 'ct-qty' }, val,
-        el('div', { class: 'row' }, btn('－10', -10), btn('－1', -1), btn('＋1', 1), btn('＋10', 10)),
+        el('div', { class: 'row cs-steps' }, btn('－1万', -10000), btn('－1000', -1000), btn('－100', -100), btn('－10', -10), btn('－1', -1)),
+        el('div', { class: 'row cs-steps' }, btn('＋1', 1), btn('＋10', 10), btn('＋100', 100), btn('＋1000', 1000), btn('＋1万', 10000)),
         el('div', { class: 'row' }, el('button', { class: 'btn', text: 'やめる', onclick: () => finish(0) }), el('button', { class: 'btn primary', text: '決定', onclick: () => finish(q) }))));
       this.game.input.push(h);
     }).then((v) => v || 0);
@@ -112,13 +113,13 @@ async function coinsUI(game, data) {
     await ct.say(line);
     ct.info(helpBox([`コイン1枚 = ${price}ゴールド`, 'コインはスロットとポーカーで使えます。', 'ふやしたコインは、景品コーナーで景品とこうかんできます。', 'コインはゴールドにはもどせません。']));
     const gold = game.me.gold;
-    const rows = (data.packs || [10, 50, 100, 500, 1000]).map((n) => ({ label: `${fmt(n)}枚`, right: `${fmt(n * price)}G`, value: n, rightCls: gold < n * price ? 'dis' : 'gold' }));
+    const rows = (data.packs || COIN_PACKS).map((n) => ({ label: `${fmt(n)}枚`, right: `${fmt(n * price)}G`, value: n, rightCls: gold < n * price ? 'dis' : 'gold' }));
     rows.push({ label: '枚数を決める', value: 'custom' }, { label: 'やめる', value: 'exit' });
     const pick = await ct.pick(rows, { back: null });
     if (ct.closed) break;
     if (!pick || pick.value === 'exit') break;
     let n = pick.value;
-    const canBuy = Math.min(data.buyMax || 9999, Math.floor(game.me.gold / price), (data.coinMax || 99999) - coinsOf(game.me));
+    const canBuy = Math.min(data.buyMax || COIN_BUY_MAX, Math.floor(game.me.gold / price), (data.coinMax || COIN_MAX) - coinsOf(game.me));
     if (n === 'custom') {
       if (canBuy < 1) {
         await ct.say('おや？ゴールドが足りないようですね。');
@@ -980,6 +981,11 @@ body:has(#ui .casino-panel) #hud { visibility: hidden; }
 .cs-side { display: flex; flex-direction: column; gap: 0.45em; min-height: 0; }
 .cs-controls { display: flex; flex-wrap: wrap; gap: 0.4em; justify-content: center; align-items: center; }
 .cs-bet { min-width: 4.4em; min-height: 44px; }
+.cs-bets { flex-wrap: nowrap; }
+.cs-bets > span { flex: none; white-space: nowrap; }
+.cs-bets .cs-bet { min-width: 0; flex: 1 1 0; max-width: 5em; padding-left: 0.1em; padding-right: 0.1em; white-space: nowrap; letter-spacing: -0.02em; font-size: 0.92em; }
+.casino-counter .ct-qty .row.cs-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; max-width: 28em; }
+.casino-counter .ct-qty .row.cs-steps .btn { min-width: 0; padding-left: 0.15em; padding-right: 0.15em; white-space: nowrap; }
 .cs-bet.on { border-color: var(--accent); color: var(--accent); background: rgba(255, 214, 107, 0.14); }
 .cs-big { min-width: 9em; min-height: 50px; font-size: 1.08em; }
 .cs-big.stop { border-color: #ff8a7a; color: #ffb0a0; }
@@ -1016,6 +1022,7 @@ body:has(#ui .casino-panel) #hud { visibility: hidden; }
 .pk-card.pickable:not(:first-child) canvas { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5); }
 .pk-hold { position: absolute; top: 0; z-index: 1; font-size: var(--fs-small); line-height: 1.25; color: var(--accent); visibility: hidden; white-space: nowrap; }
 .pk-card.held .pk-hold { visibility: visible; }
+@media (min-aspect-ratio: 1/1) { .cs-bets > span { display: none; } }
 @media (max-aspect-ratio: 1/1) {
   .cs-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   .cs-side { overflow-y: auto; }

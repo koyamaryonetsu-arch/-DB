@@ -230,12 +230,65 @@ function unslimSame(a) {
   for (const [v, ...ks] of a.filter(Array.isArray)) for (const k of ks) out[k] = JSON.parse(JSON.stringify(v ?? null));
   return out;
 }
+// 第60回: 仲間の 日時（13けたの 数）は 36進の 文字に（8文字。魔物が ふえて 1万文字の すれすれに なったので）
+const TIME_KEYS = ['createdAt', 'lastPlayed', 'joinedAt'];
+function slimTimes(list) {
+  if (!Array.isArray(list)) return list;
+  return list.map((e) => {
+    if (!isPlain(e?.char)) return e;
+    const ch = { ...e.char };
+    for (const k of TIME_KEYS) if (Number.isSafeInteger(ch[k]) && ch[k] > 0) ch[k] = ch[k].toString(36);
+    return { ...e, char: ch };
+  });
+}
+function unslimTimes(list) {
+  if (!Array.isArray(list)) return;
+  for (const e of list) {
+    if (!isPlain(e?.char)) continue;
+    for (const k of TIME_KEYS) {
+      if (typeof e.char[k] !== 'string') continue;
+      const n = parseInt(e.char[k], 36);
+      if (Number.isSafeInteger(n)) e.char[k] = n;
+      else delete e.char[k];
+    }
+  }
+}
+// 第60回: たおした 数（kills）は 図鑑と 同じ 名前が ならぶので、図鑑の ならび順の 数だけに する
+//   { ix: [図鑑の 順の 数（ない 物は null）], rest: 図鑑に ない 魔物（slimKills の 形） }
+const bestiaryOrder = (groups) => (Array.isArray(groups) ? groups.filter(Array.isArray).flatMap(([, ...ks]) => ks) : []);
+function slimKills4(kills, groups) {
+  if (!isPlain(kills)) return null;
+  const order = bestiaryOrder(groups);
+  if (!order.length || Object.values(kills).some((n) => !Number.isFinite(n))) return null;
+  const inB = new Set(order);
+  const ix = order.map((sp) => (Object.hasOwn(kills, sp) ? kills[sp] : null));
+  const rest = {};
+  for (const [sp, n] of Object.entries(kills)) if (!inB.has(sp)) rest[sp] = n;
+  return { ix, rest: slimKills(rest) };
+}
+function unslimKills4(k, groups) {
+  const out = {};
+  const order = bestiaryOrder(groups);
+  k.ix.forEach((n, i) => { if (n !== null && i < order.length && validKey(order[i])) out[order[i]] = n; });
+  const rest = Array.isArray(k.rest) ? unslimKills(k.rest) : {};
+  for (const [sp, n] of Object.entries(rest || {})) if (validKey(sp)) out[sp] = n;
+  return out;
+}
+const validKey = (k) => typeof k === 'string' && !['__proto__', 'constructor', 'prototype'].includes(k);
 export function slimChar4(char) {
-  const s = slimChar(char);
+  const s0 = slimChar(char);
+  const best = isPlain(s0.bestiary) ? slimSame(s0.bestiary) : null;
+  const k4 = best ? slimKills4(char.kills, best) : null;
+  const s = k4 ? { ...s0, kills: k4 } : s0;
   return { ...s, ...(isPlain(s.flags) ? { flags: slimTrue(s.flags) } : {}), ...(isPlain(s.chests) ? { chests: slimTrue(s.chests) } : {}),
-    ...(isPlain(s.bestiary) ? { bestiary: slimSame(s.bestiary) } : {}) };
+    ...(isPlain(s.bestiary) ? { bestiary: slimSame(s.bestiary) } : {}),
+    ...(Array.isArray(s.companions) ? { companions: slimTimes(s.companions) } : {}),
+    ...(Array.isArray(s.storage) ? { storage: slimTimes(s.storage) } : {}) };
 }
 export function unslimChar4(char) {
+  if (isPlain(char.kills) && Array.isArray(char.kills.ix)) char.kills = unslimKills4(char.kills, char.bestiary);
+  unslimTimes(char.companions);
+  unslimTimes(char.storage);
   if (Array.isArray(char.flags)) char.flags = unslimTrue(char.flags);
   if (Array.isArray(char.chests)) char.chests = unslimTrue(char.chests);
   if (Array.isArray(char.bestiary)) char.bestiary = unslimSame(char.bestiary);

@@ -6,9 +6,9 @@
 // ・本物の お金は どこにも 出てこない
 
 export const COIN_PRICE = 20; // コイン 1枚の ねだん（ゴールド）
-export const COIN_MAX = 99999; // 持てる コインの 数
-export const COIN_BUY_MAX = 9999; // 1回に 買える 数
-export const COIN_PACKS = [10, 50, 100, 500, 1000];
+export const COIN_MAX = 9999999; // 持てる コインの 数（第60回: 99999 → 999万9999）
+export const COIN_BUY_MAX = 999999; // 1回に 買える 数（第60回: 9999 → 99万9999）
+export const COIN_PACKS = [10, 100, 1000, 10000, 100000];
 // 第50回 D3: 景品を 豪華に（data/prizes-r50.js の 品を PRIZES・MEDAL_REWARDS の うしろに まぜる）
 import { PRIZES_R50, MEDAL_REWARDS_R50 } from './prizes-r50.js';
 
@@ -19,7 +19,7 @@ export function coinsOf(c) {
 }
 
 // ───────────── スロット ─────────────
-export const SLOT_BETS = [1, 10, 100];
+export const SLOT_BETS = [1, 10, 100, 1000]; // 第60回: 1000枚も
 export const SLOT_SYMBOLS = {
   seven: { name: '7' },
   bar: { name: 'BAR' },
@@ -65,7 +65,7 @@ export function slotLine(stops) {
 }
 
 // ───────────── ポーカー（ジョーカー 1枚 入り 53枚。5枚を くばって 1回 とりかえる）─────────────
-export const POKER_BETS = [1, 10, 100];
+export const POKER_BETS = [1, 10, 100, 1000]; // 第60回: 1000枚も
 export const JOKER = 52;
 export const DOUBLE_MAX = 5; // ダブルアップは 5回まで
 export const SUITS = ['spade', 'heart', 'diamond', 'club'];

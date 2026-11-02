@@ -197,7 +197,7 @@ export class Counter {
     }).then((v) => (v === null || v === undefined ? -1 : v));
   }
 
-  // いくつ？（◀ ▶ か ＋－ で かえる）。やめる・とじる は 0
+  // いくつ？（◀ ▶ か ＋－ で 1つずつ、▲ ▼ か ＋10・－10 で 10ずつ。第60回）。やめる・とじる は 0
   async qty(text, max, price, note = '') {
     await this.say(text);
     return this.wait((done) => {
@@ -206,16 +206,24 @@ export class Counter {
       const val = el('div', { class: 'ct-qty-val' });
       // price が null なら ねだんは 出さない（預かり所など）
       const upd = () => { val.textContent = price === null ? `◀ ${q}個 ▶` : `◀ ${q}個 ▶　${price * q}G`; };
-      const minus = el('button', { class: 'btn', text: '－', onclick: () => { q = q > 1 ? q - 1 : max; this.game.audio.sfx('cursor'); upd(); } });
-      const plus = el('button', { class: 'btn', text: '＋', onclick: () => { q = q < max ? q + 1 : 1; this.game.audio.sfx('cursor'); upd(); } });
+      // 1つずつは はしで 一回り（今までどおり）、10ずつは 10・20・30… に そろえて、はしで 止まる
+      const one = (d) => { q = d < 0 ? (q > 1 ? q - 1 : max) : (q < max ? q + 1 : 1); };
+      const ten = (d) => { q = Math.max(1, Math.min(max, d > 0 ? Math.floor(q / 10) * 10 + 10 : Math.ceil(q / 10) * 10 - 10)); }; // 1 → 10 → 20 …
+      const tap = (fn, d) => () => { fn(d); this.game.audio.sfx('cursor'); upd(); };
+      const minus10 = el('button', { class: 'btn', text: '－10', onclick: tap(ten, -10) });
+      const minus = el('button', { class: 'btn', text: '－', onclick: tap(one, -1) });
+      const plus = el('button', { class: 'btn', text: '＋', onclick: tap(one, 1) });
+      const plus10 = el('button', { class: 'btn', text: '＋10', onclick: tap(ten, 10) });
       const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => finish(q) });
       const no = el('button', { class: 'btn', text: 'やめる', onclick: () => finish(0) });
       const h = {
         onNav: (a) => {
           if (a === 'a') return finish(q);
           if (a === 'b') return finish(0);
-          if (a === 'left' || a === 'down') q = q > 1 ? q - 1 : max;
-          else if (a === 'right' || a === 'up') q = q < max ? q + 1 : 1;
+          if (a === 'left') one(-1);
+          else if (a === 'right') one(1);
+          else if (a === 'down') ten(-10);
+          else if (a === 'up') ten(10);
           else return;
           this.game.audio.sfx('cursor');
           upd();
@@ -234,7 +242,8 @@ export class Counter {
       this.choiceBox.innerHTML = '';
       this.choiceBox.classList.add('wide');
       this.choiceBox.append(el('div', { class: 'ct-qty' }, val, note ? el('div', { class: 'small muted', text: note }) : null,
-        el('div', { class: 'row' }, minus, plus, no, ok)));
+        el('div', { class: 'row' }, minus10, minus, plus, plus10),
+        el('div', { class: 'row' }, no, ok)));
       this.game.input.push(h);
     }).then((v) => v || 0);
   }

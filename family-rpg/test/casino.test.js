@@ -61,7 +61,7 @@ test('カジノ: コインは 1枚20ゴールドで 買える。変な 数・ゴ
   assert.equal(r.ok, true, r.text);
   assert.equal(c.coins, 10);
   assert.equal(c.gold, 1000 - 10 * COIN_PRICE);
-  for (const n of [0, -5, 1.5, 'abc', null, 10000, Infinity]) {
+  for (const n of [0, -5, 1.5, 'abc', null, 1000000, Infinity]) {
     r = act({ action: 'buyCoins', n });
     assert.equal(r.ok, false, `n=${n}`);
   }
@@ -143,7 +143,7 @@ test('スロット: 賭けと 払いもどしは サーバーの 乱数（おな
       log.push(r.stops.join(','));
     }
     // だめな 賭け
-    for (const bet of [0, 5, -10, '10', 1000]) assert.equal(act({ action: 'slot', bet }).ok, false, `bet=${bet}`);
+    for (const bet of [0, 5, -10, '10', 5000]) assert.equal(act({ action: 'slot', bet }).ok, false, `bet=${bet}`);
     c.coins = 0;
     assert.equal(act({ action: 'slot', bet: 1 }).ok, false, 'コインが ない');
     return log;
