@@ -4236,8 +4236,9 @@
     const entry = theaterMaster.find((t) => t.name === theater);
     // 劇場情報ボックス: マスターに存在する劇場のみ編集可（（共通）や未登録名は非表示）
     $('tiInfoBox').classList.toggle('hidden', !entry);
-    // 劇場カルテ（持病・注意 / 機器表 / 不具合の履歴 / 備考 / 設備メモ / 連絡先 のタブ）。（共通）は連絡先だけ
-    const karteOn = !!(window.KARTE && entry);
+    // 劇場カルテ（持病・注意 / 機器表 / 不具合の履歴 / 備考 / 設備メモ / 連絡先 のタブ）。
+    // 会社の（共通）にも出す＝複数劇場の話・どこか分からない話の置き場（カルテで1件ずつ正しい劇場へ移せる）
+    const karteOn = !!(window.KARTE && (entry || theater === tiCommonName(company)));
     document.querySelectorAll('#tiInfoBox .karte-legacy').forEach((el) => el.classList.toggle('karte-on', !!(window.KARTE && window.KARTE.available())));
     $('tiSingleWrap').classList.remove('kt-off');
     if (karteOn) window.KARTE.show({ company: company, theater: theater, box: $('karteBox'), contactsEl: $('tiSingleWrap') });
@@ -4660,11 +4661,12 @@
   }
   async function approveAllPending() {
     if (!theaterPending.length) return;
-    if (!confirm(`未確認の${theaterPending.length}件すべてを承認して本登録しますか？`)) return;
+    const okAll = window.KARTE ? await window.KARTE.ask(`未確認の${theaterPending.length}件すべてを承認して劇場カルテに入れますか？`, { ok: 'すべて承認' }) : confirm(`未確認の${theaterPending.length}件すべてを承認して本登録しますか？`);
+    if (!okAll) return;
     const items = theaterPending.slice();
     for (const it of items) { await approvePending(it, true); }
     renderPendingList();
-    alert('承認が完了しました。');
+    if (window.KARTE) window.KARTE.say('承認が完了しました。'); else alert('承認が完了しました。');
   }
 
   // 劇場情報（支配人・連絡先など）の編集 → theaters に保存
@@ -4717,7 +4719,8 @@
     const c = tiFindContact(tr.dataset.contactId);
     if (!c) return;
     const label = [c.category, c.vendor, c.person].filter(Boolean).join(' / ') || '(未入力)';
-    if (!confirm(`連絡先「${label}」を削除しますか？`)) return;
+    const okDel = window.KARTE ? await window.KARTE.ask(`連絡先「${label}」を削除しますか？`, { ok: '🗑 削除', danger: true }) : confirm(`連絡先「${label}」を削除しますか？`);
+    if (!okDel) return;
     theaterContacts = theaterContacts.filter((x) => String(x.id) !== String(c.id));
     Promise.resolve(store.deleteTheaterContact(c.id)).catch(onPersistError);
     renderTheaterInfo();
