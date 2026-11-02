@@ -266,9 +266,11 @@ async function fetchTheaterNote(theater) {
     const rows = await r.json();
     const t = (Array.isArray(rows) && rows[0]) || null;
     const contacts = await fetchTheaterContacts(theater, t && t.company);
-    if (!t && !contacts.length) return null;
+    const machines = await fetchTheaterEquipment(theater);
+    if (!t && !contacts.length && !machines.length) return null;
     const out = t || {};
     out.contacts = contacts;
+    out.machines = machines;
     return out;
   } catch (e) { console.error('劇場カルテ取得エラー', e); return null; }
 }
@@ -295,6 +297,26 @@ async function fetchTheaterContacts(theater, company) {
   } catch (e) { return []; }
 }
 
+// 劇場カルテの機器表（theater_equipment）。無い環境では黙ってスキップ
+async function fetchTheaterEquipment(theater) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key || !theater) return [];
+  const params = new URLSearchParams({
+    theater: `eq.${theater}`,
+    select: 'system,symbol,kind,maker,model,cool_kw,qty,year,serves,location',
+    order: 'sort_order.asc',
+    limit: '60'
+  });
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/theater_equipment?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (!r.ok) return [];
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows : [];
+  } catch (e) { return []; }
+}
+
 function formatTheaterNote(t) {
   if (!t) return '(この劇場のカルテは未登録)';
   const lines = [];
@@ -306,6 +328,13 @@ function formatTheaterNote(t) {
   if (t.chronic_issues) lines.push('・持病/注意: ' + t.chronic_issues);
   if (t.partner) lines.push('・担当パートナー: ' + t.partner);
   if (t.info_note) lines.push('・備考: ' + t.info_note);
+  if (t.machines && t.machines.length) {
+    lines.push('・機器表（劇場カルテ）:');
+    for (const m of t.machines) {
+      const parts = [m.system, m.symbol, m.kind, m.maker, m.model, m.cool_kw != null ? m.cool_kw + 'kW' : '', m.qty ? m.qty + '台' : '', m.year ? m.year + '年' : '', m.serves, m.location].filter(Boolean).join(' / ');
+      lines.push('   - ' + parts);
+    }
+  }
   if (t.contacts && t.contacts.length) {
     lines.push('・パートナー連絡先（相談先の選定に使う。備考の注意書きは必ず守る）:');
     for (const c of t.contacts) {
