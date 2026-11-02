@@ -384,21 +384,21 @@
     if (!body) { $('ktNewBody').focus(); return; }
     const row = { company: S.company, theater: S.theater, kind, body, source_date: ($('ktNewDate').value || '').slice(0, 7), evidence: '', origin: 'manual', created_by: userName() };
     try { S.notes.push(await api.insert('theater_notes', row)); render(); }
-    catch (e) { alert('保存に失敗しました: ' + (e.message || e)); }
+    catch (e) { say('保存に失敗しました: ' + (e.message || e)); }
   }
   async function saveNote(li) {
     const n = noteById(li.dataset.id); if (!n) return;
     const patch = { body: li.querySelector('.kt-edit-body').value.trim(), source_date: (li.querySelector('.kt-edit-date').value || '').slice(0, 7), evidence: li.querySelector('.kt-edit-ev').value.trim() };
-    if (!patch.body) { alert('中身が空です。消す時は 🗑 を押してください。'); return; }
+    if (!patch.body) { say('中身が空です。消す時は 🗑 を押してください。'); return; }
     try { await api.update('theater_notes', n.id, patch); Object.assign(n, patch); S.editing = null; render(); }
-    catch (e) { alert('保存に失敗しました: ' + (e.message || e)); }
+    catch (e) { say('保存に失敗しました: ' + (e.message || e)); }
   }
   async function delNotes(ids) {
     if (!ids.length) return;
     const one = ids.length === 1 ? noteById(ids[0]) : null;
-    if (!confirm(one ? `「${one.body.slice(0, 40)}」を消しますか？` : `選んだ ${ids.length} 件を消しますか？`)) return;
+    if (!(await ask(one ? `「${one.body.slice(0, 40)}」を消しますか？` : `選んだ ${ids.length} 件を消しますか？`, { ok: '🗑 消す', danger: true }))) return;
     try { await api.remove('theater_notes', ids); S.notes = S.notes.filter((n) => !ids.includes(n.id)); ids.forEach((i) => S.sel.delete(i)); render(); }
-    catch (e) { alert('消せませんでした: ' + (e.message || e)); }
+    catch (e) { say('消せませんでした: ' + (e.message || e)); }
   }
   async function moveNotes(ids) {
     if (!ids.length) return;
@@ -416,13 +416,13 @@
       ids.forEach((i) => S.sel.delete(i));
       toast(`${ids.length} 件を「${to.theater}」の${KINDS[to.kind]}へ移しました`);
       render();
-    } catch (e) { alert('移せませんでした: ' + (e.message || e)); }
+    } catch (e) { say('移せませんでした: ' + (e.message || e)); }
   }
   async function addEqRow() {
     const max = S.equip.reduce((m, r) => Math.max(m, r.sort_order || 0), 0);
     const row = { company: S.company, theater: S.theater, origin: 'manual', sort_order: max + 10, created_by: userName() };
     try { S.equip.push(await api.insert('theater_equipment', row)); render(); const last = S.box.querySelector('tbody tr:last-child input.kt-eq-f'); if (last) last.focus(); }
-    catch (e) { alert('保存に失敗しました: ' + (e.message || e)); }
+    catch (e) { say('保存に失敗しました: ' + (e.message || e)); }
   }
   // 設置年: 和暦（H28・平成28年・R3・S63）や「2012年」を西暦4けたにする
   const normYear = (v) => {
@@ -446,17 +446,17 @@
     const tr = input.closest('tr'); const r = eqById(tr.dataset.id); if (!r) return;
     const col = EQ_COLS.find((c) => c.k === input.dataset.f);
     const v = eqVal(col, input.value);
-    if (col.num && input.value.trim() !== '' && v == null) { alert('数字で入れてください'); input.value = r[col.k] == null ? '' : r[col.k]; return; }
+    if (col.num && input.value.trim() !== '' && v == null) { say('数字で入れてください'); input.value = r[col.k] == null ? '' : r[col.k]; return; }
     try {
       await api.update('theater_equipment', r.id, { [col.k]: v }); r[col.k] = v;
       if (col.k === 'year') { const td = tr.querySelector('.kt-age'); const age = ageOf(v); td.textContent = age == null ? '' : age + '年'; td.className = 'kt-age' + (age == null ? '' : age >= 15 ? ' old15' : age >= 10 ? ' old10' : ''); }
-    } catch (e) { alert('保存に失敗しました: ' + (e.message || e)); }
+    } catch (e) { say('保存に失敗しました: ' + (e.message || e)); }
   }
   async function delEq(ids) {
     if (!ids.length) return;
-    if (!confirm(ids.length === 1 ? 'この行を消しますか？' : `選んだ ${ids.length} 行を消しますか？`)) return;
+    if (!(await ask(ids.length === 1 ? 'この行を消しますか？' : `選んだ ${ids.length} 行を消しますか？`, { ok: '🗑 消す', danger: true }))) return;
     try { await api.remove('theater_equipment', ids); S.equip = S.equip.filter((r) => !ids.includes(r.id)); ids.forEach((i) => S.sel.delete(i)); render(); }
-    catch (e) { alert('消せませんでした: ' + (e.message || e)); }
+    catch (e) { say('消せませんでした: ' + (e.message || e)); }
   }
   async function moveEq(ids) {
     if (!ids.length) return;
@@ -467,21 +467,21 @@
       S.equip = S.equip.filter((r) => !ids.includes(r.id)); ids.forEach((i) => S.sel.delete(i));
       toast(`${ids.length} 行を「${to.theater}」の機器表へ移しました`);
       render();
-    } catch (e) { alert('移せませんでした: ' + (e.message || e)); }
+    } catch (e) { say('移せませんでした: ' + (e.message || e)); }
   }
   async function openFile(fid) {
     const f = S.files.find((x) => x.id === fid); if (!f) return;
     try {
       const url = sbc() ? await api.signedUrl(f.path, 900) : (f.data_url || '');
-      if (!url) { alert('このファイルは、この端末（テスト）には残っていません。'); return; }
+      if (!url) { say('このファイルは、この端末（テスト）には残っていません。'); return; }
       window.open(url, '_blank', 'noopener');
-    } catch (e) { alert('ファイルを開けませんでした: ' + (e.message || e)); }
+    } catch (e) { say('ファイルを開けませんでした: ' + (e.message || e)); }
   }
   async function delFile(fid) {
     const f = S.files.find((x) => x.id === fid); if (!f) return;
-    if (!confirm(`ファイル「${f.name}」を消しますか？（機器表の行は残ります）`)) return;
+    if (!(await ask(`ファイル「${f.name}」を消しますか？（機器表の行は残ります）`, { ok: '🗑 消す', danger: true }))) return;
     try { await api.removeFile(f.path); await api.remove('theater_files', [fid]); S.files = S.files.filter((x) => x.id !== fid); render(); }
-    catch (e) { alert('消せませんでした: ' + (e.message || e)); }
+    catch (e) { say('消せませんでした: ' + (e.message || e)); }
   }
 
   /* ---------- 連絡先を別の劇場へ（app.js の表から呼ぶ） ---------- */
@@ -543,8 +543,8 @@
     const files = Array.from(fileList || []);
     if (!files.length) return;
     for (const f of files) {
-      if (/\.xls$/i.test(f.name)) { alert(`「${f.name}」は古い Excel の形です。Excel で開いて「名前を付けて保存」→「Excel ブック（.xlsx）」にしてから選んでください。`); return; }
-      if (f.size > 25 * 1024 * 1024) { alert(`「${f.name}」は大きすぎます（25MB まで）。`); return; }
+      if (/\.xls$/i.test(f.name)) { say(`「${f.name}」は古い Excel の形です。Excel で開いて「名前を付けて保存」→「Excel ブック（.xlsx）」にしてから選んでください。`); return; }
+      if (f.size > 25 * 1024 * 1024) { say(`「${f.name}」は大きすぎます（25MB まで）。`); return; }
     }
     const dlg = openImportDialog();
     dlg.status('ファイルを置いています…');
@@ -611,9 +611,9 @@
       if (act === 'close-ov') { closeOverlay(); return; }
       if (act !== 'imp-save') return;
       const pickRows = Array.from(ov.querySelectorAll('tbody tr')).filter((tr) => tr.querySelector('.kt-imp-chk').checked).map((tr) => rows[+tr.dataset.i]);
-      if (!pickRows.length) { alert('保存する行を選んでください'); return; }
+      if (!pickRows.length) { say('保存する行を選んでください'); return; }
       const mode = (ov.querySelector('input[name="ktImpMode"]:checked') || {}).value || 'append';
-      if (mode === 'replace' && !confirm(`今の機器表（${S.equip.length} 行）を消して、読み取った ${pickRows.length} 行に入れ替えますか？`)) return;
+      if (mode === 'replace' && !(await ask(`今の機器表（${S.equip.length} 行）を消して、読み取った ${pickRows.length} 行に入れ替えますか？`, { ok: '入れ替える', danger: true }))) return;
       e.target.disabled = true;
       try {
         if (mode === 'replace' && S.equip.length) { await api.remove('theater_equipment', S.equip.map((r) => r.id)); S.equip = []; }
@@ -626,7 +626,7 @@
         S.equip = S.equip.concat(await api.insertMany('theater_equipment', ins));
         closeOverlay(); S.tab = 'machines'; render();
         toast(`機器表に ${ins.length} 行を保存しました`);
-      } catch (err) { e.target.disabled = false; alert('保存に失敗しました: ' + (err.message || err)); }
+      } catch (err) { e.target.disabled = false; say('保存に失敗しました: ' + (err.message || err)); }
     });
     return api2;
   }
@@ -664,7 +664,7 @@
         if (act === 'x') done(null);
         if (act === 'ok') {
           const th = ov.querySelector('#ktPickTh').value;
-          if (!th) { alert('移す先の劇場を選んでください'); return; }
+          if (!th) { say('移す先の劇場を選んでください'); return; }
           done({ company: ov.querySelector('#ktPickCo').value, theater: th, kind: o.withKind ? ov.querySelector('#ktPickKind').value : undefined });
         }
       });
@@ -672,6 +672,22 @@
     });
   }
   function closeOverlay() { document.querySelectorAll('.kt-overlay').forEach((x) => x.remove()); }
+  // 画面の中の確認・お知らせ（ブラウザの confirm/alert は使わない。操作を止めず、Claude in Chrome でも押せる）
+  function ask(msg, o) {
+    o = o || {};
+    return new Promise((resolve) => {
+      const ov = document.createElement('div');
+      ov.className = 'kt-ask-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+      ov.innerHTML = `<div class="kt-ask"><div class="kt-ask-msg">${esc(msg)}</div><div class="kt-ask-btns">${o.alertOnly ? '' : `<button type="button" class="kt-ask-no">${esc(o.cancel || 'やめる')}</button>`}<button type="button" class="kt-ask-yes ${o.danger ? 'danger' : 'primary'}">${esc(o.ok || 'OK')}</button></div></div>`;
+      document.body.appendChild(ov);
+      const done = (v) => { document.removeEventListener('keydown', onKey, true); ov.remove(); resolve(v); };
+      const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); } else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); done(true); } };
+      document.addEventListener('keydown', onKey, true);
+      ov.addEventListener('click', (e) => { if (e.target.closest('.kt-ask-yes')) done(true); else if (e.target.closest('.kt-ask-no') || e.target === ov) done(false); });
+      const y = ov.querySelector('.kt-ask-yes'); if (y) y.focus();
+    });
+  }
+  function say(msg) { return ask(msg, { alertOnly: true, ok: 'OK' }); }
   function toast(msg) {
     const t = document.createElement('div'); t.className = 'kt-toast'; t.textContent = msg; document.body.appendChild(t);
     setTimeout(() => t.classList.add('out'), 2600); setTimeout(() => t.remove(), 3200);
@@ -725,11 +741,11 @@
       if (act === 'all') { const q = norm(ov.querySelector('#ktExQ').value); ths.filter((t) => !q || norm(t.name).includes(q)).forEach((t) => sel.add(t.name)); draw(); }
       if (act === 'none') { sel.clear(); draw(); }
       if (act === 'go') {
-        if (!sel.size) { alert('劇場を選んでください'); return; }
+        if (!sel.size) { say('劇場を選んでください'); return; }
         e.target.disabled = true;
         const msg = ov.querySelector('#ktExMsg');
         try { await exportTheaters(Array.from(sel), (m) => { msg.textContent = m; }); msg.textContent = '✅ ダウンロードしました'; }
-        catch (err) { msg.textContent = ''; alert('Excel を作れませんでした: ' + (err.message || err)); }
+        catch (err) { msg.textContent = ''; say('Excel を作れませんでした: ' + (err.message || err)); }
         e.target.disabled = false;
       }
     });
@@ -905,7 +921,7 @@
       updateSelBar(); return;
     }
     if (e.target.classList.contains('kt-eq-f')) { saveEqCell(e.target); return; }
-    if (e.target.id === 'ktEqFile') { const fl = Array.from(e.target.files || []); const inp = e.target; importEquipment(fl).catch((err) => { console.error(err); alert('読み込めませんでした: ' + (err.message || err)); }).finally(() => { inp.value = ''; }); }
+    if (e.target.id === 'ktEqFile') { const fl = Array.from(e.target.files || []); const inp = e.target; importEquipment(fl).catch((err) => { console.error(err); say('読み込めませんでした: ' + (err.message || err)); }).finally(() => { inp.value = ''; }); }
   });
   document.addEventListener('input', (e) => {
     if (!S.box || !S.box.contains(e.target)) return;
@@ -929,5 +945,5 @@
     bar.firstChild.textContent = `選んだ ${n} ${S.tab === 'machines' ? '行' : '件'}を `;
   }
 
-  window.KARTE = { show, hide, available, ready, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
+  window.KARTE = { show, hide, available, ready, ask, say, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
 })();

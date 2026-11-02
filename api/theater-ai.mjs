@@ -45,6 +45,8 @@ async function sbInsert(table, body) {
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 const enc = encodeURIComponent;
+// 劇場名の「ゆれ」をそろえる鍵（スペース・中黒・ハイフン・長音の有無、大文字小文字を無視）
+const nameKey = (s) => String(s || '').toLowerCase().replace(/[\s　・･\-－ー]/g, '');
 const norm = (s) => String(s || '').replace(/[\s　、。，．・（）()「」『』【】\[\]:：/／\-－ー〜~]/g, '').toLowerCase();
 
 // ---------- 答えの形 ----------
@@ -142,7 +144,8 @@ async function reviewGroup(theater, items, ctx) {
       let verdict = r.verdict;
       let reason = String(r.reason || '').slice(0, 200);
       let target = theater;
-      if (r.theater && ctx.nameSet.has(r.theater)) target = r.theater;
+      const rt = ctx.canon(r.theater);
+      if (rt && ctx.nameSet.has(rt)) target = rt;
       if (verdict === 'add' && !ctx.nameSet.has(target)) { verdict = 'unsure'; reason = '劇場の一覧に無い名前: ' + target + (reason ? '／' + reason : ''); }
       if (verdict === 'add') {
         const res = await applyAdd(it, r, target, company || (ctx.theaterRows[target] && ctx.theaterRows[target].company) || '', notes, target === theater);
@@ -223,10 +226,12 @@ async function runReview(body) {
   let pending = await sbGet(q);
   if (!ids.length) pending = pending.filter((p) => notYet(p, started));
   const allTheaters = await sbGet('theaters?select=name,company,manager,theater_phone&limit=2000');
-  const ctx = { allTheaters, nameSet: new Set(allTheaters.map((t) => t.name)), theaterRows: {} };
-  allTheaters.forEach((t) => { ctx.theaterRows[t.name] = t; });
+  const ctx = { allTheaters, nameSet: new Set(allTheaters.map((t) => t.name)), theaterRows: {}, byKey: {} };
+  allTheaters.forEach((t) => { ctx.theaterRows[t.name] = t; (ctx.byKey[nameKey(t.name)] = ctx.byKey[nameKey(t.name)] || []).push(t.name); });
+  // 一覧に無い名前でも、ゆれだけの違いで1つに決まれば一覧の名前にする（例「109シネマズ川崎」→「109シネマズ 川崎」）
+  ctx.canon = (n) => { if (!n || ctx.nameSet.has(n)) return n || ''; const c = ctx.byKey[nameKey(n)] || []; return c.length === 1 ? c[0] : n; };
   const groups = {};
-  pending.forEach((p) => { const k = p.theater || '（劇場不明）'; (groups[k] = groups[k] || []).push(p); });
+  pending.forEach((p) => { const k = ctx.canon(p.theater) || '（劇場不明）'; (groups[k] = groups[k] || []).push(p); });
   const keys = Object.keys(groups);
   const tally = { add: 0, dup: 0, wrong: 0, unsure: 0, error: 0 };
   let done = 0, failed = [];

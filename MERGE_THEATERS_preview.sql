@@ -1,0 +1,203 @@
+-- ============================================================
+-- 劇場の一覧の名寄せ（見るだけ・何も変えません）
+--   ① 同じ劇場の別の名前（スペースの有無など）を、残す名前に寄せる
+--   ② 残す劇場の会社を、会社の一覧の名前に直す
+--   ③ 複数劇場・どこか分からない話を「会社の（共通）」へ寄せる（カルテで1件ずつ正しい劇場へ移せる）
+--   ④ 中身の無い行を消す
+--   対象: 劇場の一覧（theaters）と、劇場の名前を持つ表（案件 cases は①だけ）
+-- ============================================================
+begin;
+create temp table m (old text primary key, new text, company text, kind text) on commit drop;
+insert into m values
+  ('109シネマズ hat神戸', '109シネマズ HAT神戸', '109シネマズ', 'merge'),
+  ('109シネマズHAT神戸', '109シネマズ HAT神戸', '109シネマズ', 'merge'),
+  ('109シネマズ 神戸', '109シネマズ HAT神戸', '109シネマズ', 'merge'),
+  ('109シネマズ グランベリー', '109シネマズ グランベリーパーク', '109シネマズ', 'merge'),
+  ('109シネマズグランベリーパーク', '109シネマズ グランベリーパーク', '109シネマズ', 'merge'),
+  ('109シネマズ グランベリーパーク南町田', '109シネマズ グランベリーパーク', '109シネマズ', 'merge'),
+  ('109シネマズ南町田', '109シネマズ グランベリーパーク', '109シネマズ', 'merge'),
+  ('109シネマズGP', '109シネマズ グランベリーパーク', '109シネマズ', 'merge'),
+  ('南町田', '109シネマズ グランベリーパーク', '109シネマズ', 'merge'),
+  ('109シネマズ二子玉川', '109シネマズ 二子玉川', '109シネマズ', 'merge'),
+  ('109シネマズ佐賀', '109シネマズ 佐賀', '109シネマズ', 'merge'),
+  ('109シネマズ佐野', '109シネマズ 佐野', '109シネマズ', 'merge'),
+  ('109シネマズ名古屋', '109シネマズ 名古屋', '109シネマズ', 'merge'),
+  ('109シネマズ四日市', '109シネマズ 四日市', '109シネマズ', 'merge'),
+  ('四日市のシネマ施設', '109シネマズ 四日市', '109シネマズ', 'merge'),
+  ('109シネマズ大阪エキスポシティ', '109シネマズ 大阪エキスポシティ', '109シネマズ', 'merge'),
+  ('109シネマズ富谷', '109シネマズ 富谷', '109シネマズ', 'merge'),
+  ('109シネマズ川崎', '109シネマズ 川崎', '109シネマズ', 'merge'),
+  ('109シネマズ広島', '109シネマズ 広島', '109シネマズ', 'merge'),
+  ('109シネマズ木場', '109シネマズ 木場', '109シネマズ', 'merge'),
+  ('109シネマズ湘南', '109シネマズ 湘南', '109シネマズ', 'merge'),
+  ('109シネマズ箕面', '109シネマズ 箕面', '109シネマズ', 'merge'),
+  ('ポレポレシネマズ いわき小名浜', 'ポレポレシネマズいわき小名浜', '109シネマズ', 'merge'),
+  ('movix柏の葉', 'MOVIX柏の葉', 'MOVIX', 'merge'),
+  ('TOHOシネマズ くずは', 'TOHOシネマズ くずはモール', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズくずは', 'TOHOシネマズ くずはモール', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズくずはモール', 'TOHOシネマズ くずはモール', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズサンストリート浜北', 'TOHOシネマズ サンストリート浜北', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 浜北', 'TOHOシネマズ サンストリート浜北', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ浜北', 'TOHOシネマズ サンストリート浜北', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ市川コルトンプラザ', 'TOHOシネマズ 市川コルトンプラザ', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ ニッケコルトンプラザ', 'TOHOシネマズ 市川コルトンプラザ', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 市川', 'TOHOシネマズ 市川コルトンプラザ', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ市川', 'TOHOシネマズ 市川コルトンプラザ', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズららぽーと富士見', 'TOHOシネマズ ららぽーと富士見', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズらぽーと富士見', 'TOHOシネマズ ららぽーと富士見', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 富士見', 'TOHOシネマズ ららぽーと富士見', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ富士見', 'TOHOシネマズ ららぽーと富士見', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズららぽーと横浜', 'TOHOシネマズ ららぽーと横浜', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ八千代緑が丘', 'TOHOシネマズ 八千代緑が丘', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 八千代', 'TOHOシネマズ 八千代緑が丘', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ八千代', 'TOHOシネマズ 八千代緑が丘', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 六本木', 'TOHOシネマズ 六本木ヒルズ', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ天美', 'TOHOシネマズ 天美', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ宇都宮', 'TOHOシネマズ 宇都宮', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ府中', 'TOHOシネマズ 府中', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ新宿', 'TOHOシネマズ 新宿', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ日本橋', 'TOHOシネマズ 日本橋', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ横浜', 'TOHOシネマズ 横浜', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ橿原', 'TOHOシネマズ 橿原', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ池袋', 'TOHOシネマズ 池袋', 'TOHOシネマズ', 'merge'),
+  ('不特定（TOHOシネマズ池袋を推測）', 'TOHOシネマズ 池袋', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 流山', 'TOHOシネマズ 流山おおたかの森', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ流山', 'TOHOシネマズ 流山おおたかの森', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ甲府', 'TOHOシネマズ 甲府', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ福津', 'TOHOシネマズ 福津', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ立川立飛', 'TOHOシネマズ 立川立飛', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ 西宮', 'TOHOシネマズ 西宮OS', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ西新井', 'TOHOシネマズ 西新井', 'TOHOシネマズ', 'merge'),
+  ('西新井シネコン', 'TOHOシネマズ 西新井', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ長崎', 'TOHOシネマズ 長崎', 'TOHOシネマズ', 'merge'),
+  ('TOHOシネマズ鳳', 'TOHOシネマズ 鳳', 'TOHOシネマズ', 'merge'),
+  ('ユナイテッド・シネマとしまえん', 'ユナイテッドシネマとしまえん', 'ユナイテッドシネマ', 'merge'),
+  ('としまえん', 'ユナイテッドシネマとしまえん', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッド・シネマ幕張', 'ユナイテッドシネマ幕張', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッド・シネマ新座', 'ユナイテッドシネマ新座', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッド・シネマ春日部', 'ユナイテッドシネマ春日部', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッド・シネマ水戸', 'ユナイテッドシネマ水戸', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッド・シネマ豊洲', 'ユナイテッドシネマ豊洲', 'ユナイテッドシネマ', 'merge'),
+  ('シネプレ幸手', 'シネプレックス幸手', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッドシネマ幸手', 'シネプレックス幸手', 'ユナイテッドシネマ', 'merge'),
+  ('ユナイテッドシネマ平塚', 'シネプレックス平塚', 'ユナイテッドシネマ', 'merge'),
+  ('グランドシネマサンシャイン', 'グランドシネマサンシャイン 池袋', '佐々木興業', 'merge'),
+  ('ディノスシネマ', 'ディノスシネマズ苫小牧', 'その他', 'merge'),
+  ('コロナワールド 小田原', '小田原コロナシネマワールド', 'コロナワールド', 'merge'),
+  ('コロナワールド小田原', '小田原コロナシネマワールド', 'コロナワールド', 'merge'),
+  ('福山エーガル8シネマ', '福山エーガル8シネマズ', 'その他', 'merge'),
+  ('キネコ国際映画祭', 'キネコ国際映画祭（二子玉川）', 'その他', 'merge'),
+  ('ファミリーズ 庭野', 'ファミリーズ庭野', 'その他', 'merge'),
+  ('（複数劇場）', 'その他（共通）', 'その他', 'common'),
+  ('（複数劇場・本社経理一括）', 'その他（共通）', 'その他', 'common'),
+  ('複数店舗', 'その他（共通）', 'その他', 'common'),
+  ('不明', 'その他（共通）', 'その他', 'common'),
+  ('TOHOシネマズ', 'TOHOシネマズ（共通）', 'TOHOシネマズ', 'common'),
+  ('複数劇場（TOHOシネマズ日本橋、TOHOシネマズ池袋、TOHOシネマズ富士見、TOHOシネマズ流山、TOHOシネマズ八千代）', 'TOHOシネマズ（共通）', 'TOHOシネマズ', 'common'),
+  ('複数劇場（TOHO各店）', 'TOHOシネマズ（共通）', 'TOHOシネマズ', 'common'),
+  ('複数劇場（日本橋、日比谷、水戸、甲府、福津、泉北、橿原、高知、東浦）', 'TOHOシネマズ（共通）', 'TOHOシネマズ', 'common'),
+  ('東急レクリエーション運営シネコン（複数劇場）', '109シネマズ（共通）', '109シネマズ', 'common'),
+  ('複数劇場（東急レクリエーション運営）', '109シネマズ（共通）', '109シネマズ', 'common'),
+  ('ユナイテッドシネマ', 'ユナイテッドシネマ（共通）', 'ユナイテッドシネマ', 'common'),
+  ('複数劇場（としまえん、前橋、平塚）', 'ユナイテッドシネマ（共通）', 'ユナイテッドシネマ', 'common'),
+  ('複数劇場（ユナイテッドシネマ としまえん、ユナイテッドシネマ 前橋、ユナイテッドシネマ 平塚）', 'ユナイテッドシネマ（共通）', 'ユナイテッドシネマ', 'common'),
+  ('複数劇場（水戸・豊洲・新座・わかば・としまえん・幸手）', 'ユナイテッドシネマ（共通）', 'ユナイテッドシネマ', 'common'),
+  ('シネマサンシャイン', '佐々木興業（共通）', '佐々木興業', 'common'),
+  ('コロナワールド', 'コロナワールド（共通）', 'コロナワールド', 'common'),
+  ('["109シネマズ 川崎","109シネマズ 木場","109シネマズ 名古屋"]', '', '', 'delete'),
+  ('109シネマズ 複数店舗（川崎、菖蒲、神戸、木場、広島、湘南、エキスポシティ、箕面、富谷、GP南町田）', '', '', 'delete');
+create temp table k (name text primary key, company text) on commit drop;
+insert into k values
+  ('109シネマズ HAT神戸', '109シネマズ'),
+  ('109シネマズ グランベリーパーク', '109シネマズ'),
+  ('109シネマズ 二子玉川', '109シネマズ'),
+  ('109シネマズ 佐賀', '109シネマズ'),
+  ('109シネマズ 佐野', '109シネマズ'),
+  ('109シネマズ 名古屋', '109シネマズ'),
+  ('109シネマズ 四日市', '109シネマズ'),
+  ('109シネマズ 大阪エキスポシティ', '109シネマズ'),
+  ('109シネマズ 富谷', '109シネマズ'),
+  ('109シネマズ 川崎', '109シネマズ'),
+  ('109シネマズ 広島', '109シネマズ'),
+  ('109シネマズ 木場', '109シネマズ'),
+  ('109シネマズ 湘南', '109シネマズ'),
+  ('109シネマズ 箕面', '109シネマズ'),
+  ('ポレポレシネマズいわき小名浜', '109シネマズ'),
+  ('MOVIX柏の葉', 'MOVIX'),
+  ('TOHOシネマズ くずはモール', 'TOHOシネマズ'),
+  ('TOHOシネマズ サンストリート浜北', 'TOHOシネマズ'),
+  ('TOHOシネマズ 市川コルトンプラザ', 'TOHOシネマズ'),
+  ('TOHOシネマズ ららぽーと富士見', 'TOHOシネマズ'),
+  ('TOHOシネマズ ららぽーと横浜', 'TOHOシネマズ'),
+  ('TOHOシネマズ 八千代緑が丘', 'TOHOシネマズ'),
+  ('TOHOシネマズ 六本木ヒルズ', 'TOHOシネマズ'),
+  ('TOHOシネマズ 天美', 'TOHOシネマズ'),
+  ('TOHOシネマズ 宇都宮', 'TOHOシネマズ'),
+  ('TOHOシネマズ 府中', 'TOHOシネマズ'),
+  ('TOHOシネマズ 新宿', 'TOHOシネマズ'),
+  ('TOHOシネマズ 日本橋', 'TOHOシネマズ'),
+  ('TOHOシネマズ 横浜', 'TOHOシネマズ'),
+  ('TOHOシネマズ 橿原', 'TOHOシネマズ'),
+  ('TOHOシネマズ 池袋', 'TOHOシネマズ'),
+  ('TOHOシネマズ 流山おおたかの森', 'TOHOシネマズ'),
+  ('TOHOシネマズ 甲府', 'TOHOシネマズ'),
+  ('TOHOシネマズ 福津', 'TOHOシネマズ'),
+  ('TOHOシネマズ 立川立飛', 'TOHOシネマズ'),
+  ('TOHOシネマズ 西宮OS', 'TOHOシネマズ'),
+  ('TOHOシネマズ 西新井', 'TOHOシネマズ'),
+  ('TOHOシネマズ 長崎', 'TOHOシネマズ'),
+  ('TOHOシネマズ 鳳', 'TOHOシネマズ'),
+  ('ユナイテッドシネマとしまえん', 'ユナイテッドシネマ'),
+  ('ユナイテッドシネマ幕張', 'ユナイテッドシネマ'),
+  ('ユナイテッドシネマ新座', 'ユナイテッドシネマ'),
+  ('ユナイテッドシネマ春日部', 'ユナイテッドシネマ'),
+  ('ユナイテッドシネマ水戸', 'ユナイテッドシネマ'),
+  ('ユナイテッドシネマ豊洲', 'ユナイテッドシネマ'),
+  ('シネプレックス幸手', 'ユナイテッドシネマ'),
+  ('シネプレックス平塚', 'ユナイテッドシネマ'),
+  ('グランドシネマサンシャイン 池袋', '佐々木興業'),
+  ('ディノスシネマズ苫小牧', 'その他'),
+  ('小田原コロナシネマワールド', 'コロナワールド'),
+  ('福山エーガル8シネマズ', 'その他'),
+  ('キネコ国際映画祭（二子玉川）', 'その他'),
+  ('ファミリーズ庭野', 'その他'),
+  ('TOHOシネマズ 大分わさだ', 'TOHOシネマズ'),
+  ('TOHOシネマズ 有楽町', 'TOHOシネマズ'),
+  ('TOHOシネマズ福岡', 'TOHOシネマズ'),
+  ('シネマサンシャイン ららぽーと沼津', '佐々木興業'),
+  ('シネマサンシャイン三郷', '佐々木興業'),
+  ('コロナシネマワールド 小牧', 'コロナワールド'),
+  ('シネマワールド ららぽーと安城', 'コロナワールド'),
+  ('ユナイテッドシネマ金沢', 'ユナイテッドシネマ'),
+  ('長野グランドシネマズ', 'その他'),
+  ('ミッドランドシネマ名古屋空港', 'その他'),
+  ('テラッソ姫路', 'その他'),
+  ('エニタイムフィットネス戸田店', 'その他'),
+  ('ファミリーズ八幡', 'その他'),
+  ('ファミリーズ矢作', 'その他'),
+  ('ファミリーズ西岡', 'その他'),
+  ('三郷店', 'その他');
+
+-- 何件動くか（表ごと）
+select '劇場の一覧から消える行' as 内容, count(*) as 件数 from public.theaters t join m on m.old = t.name
+union all select '会社を直す劇場', count(*) from public.theaters t join k on k.name = t.name where coalesce(t.company, '') <> k.company
+union all select '案件（cases）の劇場名を書き換える', count(*) from public.cases c join m on m.old = c.theater and m.kind = 'merge'
+union all select 'theater_notes の劇場名を書き換える', count(*) from public.theater_notes x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'theater_contacts の劇場名を書き換える', count(*) from public.theater_contacts x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'theater_equipment の劇場名を書き換える', count(*) from public.theater_equipment x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'theater_files の劇場名を書き換える', count(*) from public.theater_files x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'theater_info_pending の劇場名を書き換える', count(*) from public.theater_info_pending x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'koutei の劇場名を書き換える', count(*) from public.koutei x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'photo_ledgers の劇場名を書き換える', count(*) from public.photo_ledgers x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'heat_loads の劇場名を書き換える', count(*) from public.heat_loads x join m on m.old = x.theater and m.kind <> 'delete'
+union all select 'doc_folders の劇場名を書き換える', count(*) from public.doc_folders x join m on m.old = x.theater and m.kind <> 'delete'
+union all select '登録確認（case_intake_pending）の劇場名を書き換える', count(*) from public.case_intake_pending x join m on m.old = x.theater and m.kind = 'merge'
+union all select 'まとめたあと同じ文になって1つにするカルテ', count(*) from (
+  select row_number() over (partition by coalesce(m.new, n.theater), n.kind, regexp_replace(n.body, '\s', '', 'g') order by n.created_at) as rn
+  from public.theater_notes n left join m on m.old = n.theater and m.kind <> 'delete') s where rn > 1
+union all select 'まとめたあと同じになって1つにする連絡先', count(*) from (
+  select row_number() over (partition by coalesce(m.new, x.theater), coalesce(x.vendor, ''), coalesce(x.person, ''), coalesce(x.phone, ''), coalesce(x.email, '') order by x.created_at) as rn
+  from public.theater_contacts x left join m on m.old = x.theater and m.kind <> 'delete') s where rn > 1
+union all select '消す行（中身なし）にデータが残っている数（0 のはず）', (select count(*) from public.theater_notes x join m on m.old = x.theater and m.kind = 'delete') + (select count(*) from public.theater_contacts x join m on m.old = x.theater and m.kind = 'delete') + (select count(*) from public.cases x join m on m.old = x.theater and m.kind = 'delete')
+union all select '名寄せ表にあるのに劇場の一覧に無い名前（0 のはず）', (select count(*) from m where not exists (select 1 from public.theaters t where t.name = m.old)) + (select count(*) from k where not exists (select 1 from public.theaters t where t.name = k.name));
+rollback;
