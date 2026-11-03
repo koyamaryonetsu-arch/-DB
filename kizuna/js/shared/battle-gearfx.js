@@ -3,9 +3,9 @@
 //   いやし … 行動の おわり（MP回復の 装備と 同じ ところ）
 //   反撃 … ふつうの 攻撃を された とき（noteCounter・resolveCounters。反撃の構えと 同じ しくみ）
 //   使う … 「道具」の コマンドで id 'gear:<部位>'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=9b87e2b1fbb3';
-import { ITEMS } from './data/items.js?v=9b87e2b1fbb3';
-import { gearFxOf, gearUses, fxPower } from './data/gear-fx.js?v=9b87e2b1fbb3';
+import { ABILITIES } from './data/abilities.js?v=0b411da56d70';
+import { ITEMS } from './data/items.js?v=0b411da56d70';
+import { gearFxOf, gearUses, fxPower } from './data/gear-fx.js?v=0b411da56d70';
 
 export const GEAR_USE_PREFIX = 'gear:';
 

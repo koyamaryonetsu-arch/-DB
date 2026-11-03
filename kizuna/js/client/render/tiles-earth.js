@@ -6,8 +6,8 @@
 // render/tiles.js が まぜる。2.5D は render/field3d.js（EARTH_LIQUIDS・EARTH_FLOOR_H・earthBlockSpec）と render/tex3d.js（EARTH_PROPS）
 // テーマ（earth_1 … 1〜2階 土の こげ茶〜 earth_4 … 7〜8階 大地の 心の あかね色）は render/themes.js
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=9b87e2b1fbb3';
-import { prand } from './pixel.js?v=9b87e2b1fbb3';
+import { T } from '../../shared/tiles.js?v=0b411da56d70';
+import { prand } from './pixel.js?v=0b411da56d70';
 
 // 根（こげ茶）・谷（くらやみ）・石（灰土色）・水（あおい）・金の 光
 const RT = { d: '#3e2814', b: '#6a4626', m: '#8a5e34', l: '#a87a48', hl: '#c89a62' };
