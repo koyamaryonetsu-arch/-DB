@@ -31,8 +31,8 @@ import { menuItemText, skillEffectText, skillPowerLine, powStats } from './skill
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
 import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js';
 import '../battle-buffs.js';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml, gearOwnStats, gearOwnText, gearRowHtml } from './info.js';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS, gearScore } from '../../shared/equip-plan.js';
 import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { previewCache } from '../render/hero.js';
@@ -787,7 +787,8 @@ export class FieldMenu {
   // start: はじめに カーソルを おく えらびしの value（えらべない ときは ふつうどおり 上から）
   // head: (m) => 題と リストの 間に 出す もの（装備の ならべかえ など。m … えらぶ リスト）。onSide: (d, m) … 左右（-1・1）
   // onMove: (it) … カーソルを うごかした とき（見た目装備の 見本を かえる など）
-  pick(title, items, { wide = false, cls = '', body = null, note = null, start, head = null, onSide = null, onMove = null } = {}) {
+  // foot: リストの 下に 出す もの（装備の くらべる まど など）
+  pick(title, items, { wide = false, cls = '', body = null, note = null, start, head = null, onSide = null, onMove = null, foot = null } = {}) {
     const g = this.game;
     return new Promise((resolve) => {
       const hasCancel = items.some((i) => i.value === null || i.value === 'cancel');
@@ -816,6 +817,7 @@ export class FieldMenu {
         box.append(body);
       }
       box.append(m.root);
+      if (foot) box.append(foot);
       document.getElementById('ui').append(back, box);
       this.popupOpen = true;
       m.focus();
@@ -1180,18 +1182,23 @@ export class FieldMenu {
     const cur = c.equip?.[slot] || null;
     const before = computeStats(c);
     const changes = (id) => statChanges(before, computeStats({ ...c, equip: { ...(c.equip || {}), [slot]: id } }));
-    const row = (nameHtml, tag, list) => `<span class="eq-nm">${nameHtml}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
+    // 第64回: 1行に 装備 そのものの 強さ（白）と 今の 装備との 差（色）。強い 上から 3つに「おすすめ」
+    const own = (id) => gearOwnStats(c, slot, id);
+    const row = (nameHtml, tag, id, rec = false) => `<span class="eq-nm">${nameHtml}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}${rec ? '<span class="tag eq-rec">おすすめ</span>' : ''}</span><span class="eq-sc">${gearRowHtml(own(id), changes(id))}</span>`;
     // 自分と 仲間（パーティー・馬車）が 装備している 物も 候補（入れかえ）
     const others = this.teamChars().filter((m) => m.key !== who);
     const nameOf = (key) => others.find((m) => m.key === key)?.char.name || '';
     const choices = gearChoices(c, slot, g.me, others);
+    // おすすめ: 今の 装備より 強い 物の 上から 3つ（ふくろの 物だけ。同じ 物は 1つと 数える）
+    const curScore = gearScore(c, slot, cur);
+    const recs = new Set(sortGearChoices(choices, 'power').filter((x) => !x.from && x.id !== cur && x.score > curScore).slice(0, 3).map((x) => x.id));
     let mode = gearSortPref();
     const rows = () => {
       const opts = sortGearChoices(choices, mode).map((x) => (x.from
-        ? { html: row(rareNameHtml(x.id), `${nameOf(x.from)}が装備中`, changes(x.id)), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
-        : { html: row(rareNameHtml(x.id), x.n > 1 ? `×${x.n}` : '', changes(x.id)), value: x.id, cls: 'eq-opt' }));
+        ? { html: row(rareNameHtml(x.id), `${nameOf(x.from)}が装備中`, x.id), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
+        : { html: row(rareNameHtml(x.id), x.n > 1 ? `×${x.n}` : '', x.id, recs.has(x.id)), value: x.id, cls: 'eq-opt' }));
       if (!opts.length) opts.push({ header: true, label: '装備できる物を持っていない', cls: 'eq-none' });
-      if (cur) opts.push({ html: row(esc('外す'), '', changes(null)), value: '__off', cls: 'eq-opt' });
+      if (cur) opts.push({ html: row(esc('外す'), '', null), value: '__off', cls: 'eq-opt' });
       opts.push({ label: 'やめる', value: null });
       return opts;
     };
@@ -1213,7 +1220,15 @@ export class FieldMenu {
       // 左右の キー（スマホは ウインドウの 十字キー）でも 切りかえられる
       !g.input.touch || g.input.padOn ? el('span', { class: 'tab-hint', text: '◀▶で切りかえ' }) : null)) : null;
     const onSide = head ? (d, m) => setMode(keys[(keys.indexOf(mode) + d + keys.length) % keys.length], m) : null;
-    const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, rows(), { wide: true, cls: 'eq-pick', head, onSide });
+    // 第64回: 下に くらべる まど（今の 装備 → えらんでいる 物。どちらも 装備 そのものの 強さ）
+    const curLine = `今：${cur ? ITEMS[cur].name : 'なし'}　${cur ? gearOwnText(own(cur)) : ''}`;
+    const foot = el('div', { class: 'eq-compare small' }, el('div', { class: 'eq-cmp-now', text: curLine }), el('div', { class: 'eq-cmp-new' }));
+    const onMove = (it) => {
+      const v = it?.value;
+      const id = typeof v === 'string' && v.startsWith('swap:') ? others.find((x) => `swap:${x.key}` === v)?.char.equip?.[slot] : v === '__off' ? null : v;
+      foot.lastChild.textContent = v === null || v === undefined ? '' : v === '__off' ? '→ 外す' : id && ITEMS[id] ? `→ ${ITEMS[id].name}　${gearOwnText(own(id))}` : '';
+    };
+    const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, rows(), { wide: true, cls: 'eq-pick', head, onSide, onMove, foot });
     if (!pick) return false;
     if (pick === '__off') {
       g.net.send({ t: 'menu', action: 'unequip', slot, who });

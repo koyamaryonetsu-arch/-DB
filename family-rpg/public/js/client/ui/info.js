@@ -133,6 +133,33 @@ export function statChangesHtml(list, { none = '強さは変わらない' } = {}
   return ch.map((x) => `<span class="sc ${x.d > 0 ? 'up' : 'down'}">${x.n} ${x.b}→${x.a}${x.d > 0 ? `↑${x.d}` : `↓${-x.d}`}</span>`).join('');
 }
 
+// 第64回: 装備 そのものの 強さ（その 部位を 外した 時と くらべて 上がる 分。[{ k, n, v }]）。id が null なら []
+export function gearOwnStats(char, slot, id) {
+  if (!id) return [];
+  const off = computeStats({ ...char, equip: { ...(char?.equip || {}), [slot]: null } });
+  const on = computeStats({ ...char, equip: { ...(char?.equip || {}), [slot]: id } });
+  return STAT_LABELS.map(([k, n]) => ({ k, n, v: (on?.[k] ?? 0) - (off?.[k] ?? 0) })).filter((x) => x.v);
+}
+const signed = (v) => (v > 0 ? `+${v}` : `${v}`);
+// 装備 そのものの 強さを 文に（「攻撃力+12　素早さ+4」。ない 時は none）
+export function gearOwnText(own, none = '強さなし') {
+  return (own || []).length ? own.map((x) => `${x.n}${signed(x.v)}`).join('　') : none;
+}
+// 第64回: 装備の 一覧の 1行（装備 そのものの 強さは 白・今の 装備との 差だけ 色）
+//   own … gearOwnStats・diffs … statChanges（今 → えらんだ 物）
+export function gearRowHtml(own, diffs) {
+  const d = new Map((diffs || []).filter((x) => x.d).map((x) => [x.k, x.d]));
+  const o = new Map((own || []).map((x) => [x.k, x.v]));
+  const keys = STAT_LABELS.filter(([k]) => o.has(k) || d.has(k));
+  if (!keys.length) return '<span class="sc muted">強さは変わらない</span>';
+  return keys.map(([k, n]) => {
+    const v = o.get(k), dv = d.get(k);
+    const own1 = `<span class="eq-own">${n}${v ? signed(v) : ''}</span>`;
+    const diff = dv ? `<span class="eq-d ${dv > 0 ? 'up' : 'down'}">${dv > 0 ? `↑${dv}` : `↓${-dv}`}</span>` : '';
+    return `<span class="sc">${own1}${diff}</span>`;
+  }).join('');
+}
+
 // そうびを かえたら どうなるか（上がる ものも 下がる ものも。b・a は 前と 後）
 export function equipDiff(char, id) {
   const it = ITEMS[id];
