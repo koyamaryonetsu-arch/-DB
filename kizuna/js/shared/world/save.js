@@ -5,24 +5,25 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=29c6a6c68a8c';
-import { JOBS } from '../data/jobs.js?v=29c6a6c68a8c';
-import { MONSTERS } from '../data/monsters.js?v=29c6a6c68a8c';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=29c6a6c68a8c';
-import { repairTreasureMaps } from '../data/treasure.js?v=29c6a6c68a8c';
-import { ensureTmClears } from '../data/casino-tier.js?v=29c6a6c68a8c';
-import { repairSecret } from '../data/secret.js?v=29c6a6c68a8c';
-import { repairAlchemy } from './alchemy.js?v=29c6a6c68a8c';
-import { normBank } from './bank.js?v=29c6a6c68a8c';
-import { cleanWagon } from '../data/wagon.js?v=29c6a6c68a8c';
-import { cleanLookEquip } from '../look-equip.js?v=29c6a6c68a8c';
-import { cleanVehicles } from '../data/vehicles.js?v=29c6a6c68a8c';
-import { repairTrialInfo } from '../data/job-trials.js?v=29c6a6c68a8c';
-import { cleanQuick } from '../data/quick-item.js?v=29c6a6c68a8c';
-import { repairSubAsk } from '../data/subquest-hints.js?v=29c6a6c68a8c';
-import { cleanStamps } from '../data/stamps.js?v=29c6a6c68a8c';
-import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=29c6a6c68a8c';
-import { repairFeats } from './phantom.js?v=29c6a6c68a8c';
+import { repairGearFx } from '../data/gear-fx.js?v=5b9292aca901';
+import { ITEMS, SLOTS } from '../data/items.js?v=5b9292aca901';
+import { JOBS } from '../data/jobs.js?v=5b9292aca901';
+import { MONSTERS } from '../data/monsters.js?v=5b9292aca901';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=5b9292aca901';
+import { repairTreasureMaps } from '../data/treasure.js?v=5b9292aca901';
+import { ensureTmClears } from '../data/casino-tier.js?v=5b9292aca901';
+import { repairSecret } from '../data/secret.js?v=5b9292aca901';
+import { repairAlchemy } from './alchemy.js?v=5b9292aca901';
+import { normBank } from './bank.js?v=5b9292aca901';
+import { cleanWagon } from '../data/wagon.js?v=5b9292aca901';
+import { cleanLookEquip } from '../look-equip.js?v=5b9292aca901';
+import { cleanVehicles } from '../data/vehicles.js?v=5b9292aca901';
+import { repairTrialInfo } from '../data/job-trials.js?v=5b9292aca901';
+import { cleanQuick } from '../data/quick-item.js?v=5b9292aca901';
+import { repairSubAsk } from '../data/subquest-hints.js?v=5b9292aca901';
+import { cleanStamps } from '../data/stamps.js?v=5b9292aca901';
+import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=5b9292aca901';
+import { repairFeats } from './phantom.js?v=5b9292aca901';
 
 export const SAVE_VERSION = 4;
 
@@ -92,6 +93,7 @@ export function repairChar(c, id) {
   if (!c || typeof c !== 'object') return null;
   if (!c.id && id) c.id = id;
   c.name = typeof c.name === 'string' && c.name ? c.name : '勇者';
+  repairGearFx(c); // 第64回 ⑥c: れん金で つけた 装備の 効果
   c.level = Math.max(1, Math.floor(num(c.level, 1)));
   c.exp = Math.max(0, num(c.exp, 0));
   c.gold = Math.max(0, Math.floor(num(c.gold, 0)));

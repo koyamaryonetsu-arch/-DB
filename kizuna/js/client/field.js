@@ -1,30 +1,30 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=29c6a6c68a8c';
-import { T, TILE_INFO } from '../shared/tiles.js?v=29c6a6c68a8c';
-import { PLACES } from '../shared/maps/overworld.js?v=29c6a6c68a8c';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=29c6a6c68a8c';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=29c6a6c68a8c';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=29c6a6c68a8c';
-import { shownEquip } from '../shared/look-equip.js?v=29c6a6c68a8c';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=29c6a6c68a8c';
-import { MONSTERS } from '../shared/data/monsters.js?v=29c6a6c68a8c';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=5b9292aca901';
+import { T, TILE_INFO } from '../shared/tiles.js?v=5b9292aca901';
+import { PLACES } from '../shared/maps/overworld.js?v=5b9292aca901';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=5b9292aca901';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=5b9292aca901';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=5b9292aca901';
+import { shownEquip } from '../shared/look-equip.js?v=5b9292aca901';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=5b9292aca901';
+import { MONSTERS } from '../shared/data/monsters.js?v=5b9292aca901';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=29c6a6c68a8c';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=29c6a6c68a8c';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=29c6a6c68a8c';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=29c6a6c68a8c';
-import { boardCanvas } from './render/boards.js?v=29c6a6c68a8c';
-import { el } from './ui/dom.js?v=29c6a6c68a8c';
-import { syncTreasureGates } from './ui/treasure.js?v=29c6a6c68a8c';
-import { skyNpcSprite } from './render/sky-art.js?v=29c6a6c68a8c';
-import { wagonDraws } from './render/wagon.js?v=29c6a6c68a8c';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=29c6a6c68a8c';
-import { Weather } from './render/weather.js?v=29c6a6c68a8c';
-import { flySpeed } from '../shared/data/sky.js?v=29c6a6c68a8c';
-import { timeFlag } from '../shared/world/clock.js?v=29c6a6c68a8c';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=29c6a6c68a8c';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=29c6a6c68a8c';
-import { huntMatch } from './ui/sources.js?v=29c6a6c68a8c';
+import { colorMon } from '../shared/data/variants.js?v=5b9292aca901';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=5b9292aca901';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=5b9292aca901';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=5b9292aca901';
+import { boardCanvas } from './render/boards.js?v=5b9292aca901';
+import { el } from './ui/dom.js?v=5b9292aca901';
+import { syncTreasureGates } from './ui/treasure.js?v=5b9292aca901';
+import { skyNpcSprite } from './render/sky-art.js?v=5b9292aca901';
+import { wagonDraws } from './render/wagon.js?v=5b9292aca901';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=5b9292aca901';
+import { Weather } from './render/weather.js?v=5b9292aca901';
+import { flySpeed } from '../shared/data/sky.js?v=5b9292aca901';
+import { timeFlag } from '../shared/world/clock.js?v=5b9292aca901';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=5b9292aca901';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=5b9292aca901';
+import { huntMatch } from './ui/sources.js?v=5b9292aca901';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -233,7 +233,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=29c6a6c68a8c');
+          const { Field3D } = await import('./render/field3d.js?v=5b9292aca901');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);

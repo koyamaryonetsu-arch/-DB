@@ -6,14 +6,15 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=29c6a6c68a8c';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=29c6a6c68a8c';
+import { ITEMS, baseItemId } from '../data/items.js?v=5b9292aca901';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=5b9292aca901';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
-} from '../data/alchemy.js?v=29c6a6c68a8c';
-import { partyOf } from './party.js?v=29c6a6c68a8c';
-import { bossRareOf } from '../data/rare-loot.js?v=29c6a6c68a8c';
+} from '../data/alchemy.js?v=5b9292aca901';
+import { partyOf } from './party.js?v=5b9292aca901';
+import { GEAR_FX, fxBlock } from '../data/gear-fx.js?v=5b9292aca901';
+import { bossRareOf } from '../data/rare-loot.js?v=5b9292aca901';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;
@@ -94,11 +95,34 @@ export function potView(c, rate = 1) {
 }
 
 // reply(ok, text, extra)
-export function alchemyAction(world, s, msg, reply) {
+export function alchemyAction(world, s, msg, reply, { ownChar = () => null } = {}) {
   const c = s.char;
   if (!hasPot(c)) return reply(false, 'れん金がまを持っていない。');
   switch (msg.action) {
     case 'status': return reply(true, '', { pot: potView(c, potRate(world, s)) });
+    // 第64回 ⑥c: 装備に 効果を つける（すぐ できる。data/gear-fx.js）
+    case 'enchant': {
+      if (s.busy) return reply(false, '今はできない。');
+      const who = msg.who && msg.who !== 'self' ? ownChar(String(msg.who)) : c;
+      const slot = String(msg.slot || '');
+      const kind = String(msg.fx || '');
+      const f = GEAR_FX[kind];
+      if (!who || !f) return reply(false, 'うまくいかなかった。');
+      const id = who.equip?.[slot];
+      if (!id) return reply(false, 'その場所には、何も装備していない。');
+      const block = fxBlock(id, kind);
+      if (block) return reply(false, block);
+      const lack = f.mats.filter(([m, n]) => itemCount(c, m) < n);
+      if (lack.length) return reply(false, `素材が足りない。\n（${lack.map(([m, n]) => `${ITEMS[m].name}があと${n - itemCount(c, m)}こ`).join('・')}）`, { lack: lack.map(([m, n]) => ({ id: m, need: n, have: itemCount(c, m) })) });
+      for (const [m, n] of f.mats) removeItem(c, m, n);
+      if (!who.gearFx || typeof who.gearFx !== 'object') who.gearFx = {};
+      const base = baseItemId(id);
+      const old = who.gearFx[base];
+      who.gearFx[base] = kind;
+      if (who !== c) world.sendParty(partyOf(world, s));
+      world.markDirty();
+      return reply(true, `れん金がまが、ふしぎな光につつまれた…！\n${who.name}の${ITEMS[base].name}に、${f.name}の力がやどった！${old && old !== kind ? `\n（${GEAR_FX[old].name}の力は消えた）` : ''}`, { enchanted: { who: msg.who || 'self', slot, fx: kind } });
+    }
     case 'put': {
       if (s.busy) return reply(false, '今はできない。');
       if (c.alchemy?.pot) return reply(false, 'れん金がまの中では、まだ何かが完成するのを待っている。', { pot: potView(c, potRate(world, s)) });

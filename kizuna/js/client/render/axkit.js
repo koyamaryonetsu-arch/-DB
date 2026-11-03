@@ -5,7 +5,7 @@
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かけるので、ここでは 気に しない）
 // ・へんじ（return）は「あたる 時間（ms）」。つぎの えんしゅつを その 時間に あわせて ならべられる
 // つかいかたは docs/plan-r48-fx-engine.md の「エンジンの使い方」。
-import { makeCanvas, hexToRgb } from './pixel.js?v=29c6a6c68a8c';
+import { makeCanvas, hexToRgb } from './pixel.js?v=5b9292aca901';
 
 const TAU = Math.PI * 2;
 export const rnd = (a, b) => a + Math.random() * (b - a);
