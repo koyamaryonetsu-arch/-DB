@@ -1,5 +1,7 @@
 // がめんの パーツを つくる どうぐ
 
+import { kanaPad } from './kana-pad.js?v=3a05f52754ef';
+
 export function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -452,21 +454,32 @@ export function askText(input, { title, placeholder = '', max = 40, initial = ''
     // コントローラーが つながって いる ときは そうさの ヒント（第50回）
     let pad = false;
     try { pad = [...(globalThis.navigator?.getGamepads?.() || [])].some((p) => p?.connected); } catch { /* */ }
-    const box = el('div', { class: 'win panel center-panel' },
+    // 第62回: コントローラーの ときは 文字ばん（ui/kana-pad.js）。十字キーで えらんで A で 入れる（タップでも おせる）
+    const sound = (x) => { try { globalThis.__game?.audio?.sfx?.(x); } catch { /* */ } };
+    const kp = pad ? kanaPad(field, { max, numeric, onDone: (v) => done(v), sound }) : null;
+    const box = el('div', { class: `win panel center-panel ${kp ? 'has-kpad' : ''}` },
       el('h2', { text: title }),
       field,
-      pad ? el('div', { class: 'small muted', style: { marginTop: '0.3em' }, text: 'コントローラー：Aで決定・Bでやめる' }) : null,
-      el('div', { class: 'row end', style: { marginTop: '0.6em' } }, cancel, ok));
+      kp ? el('div', { class: 'small muted', style: { marginTop: '0.3em' }, text: 'コントローラー：十字キーで選んでAで入れる・Bで1字けす' }) : null,
+      kp ? kp.root : null,
+      kp ? null : el('div', { class: 'row end', style: { marginTop: '0.6em' } }, cancel, ok));
     field.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.isComposing) done(field.value.trim());
       if (e.key === 'Escape') done(null);
     });
     // コントローラー: A で 決定（書いて いなければ はじめの 文字の まま）・B で やめる。
     // キーボードは 文字を 書く ので、ここには こない（input.js。Enter・Esc は 上の keydown）
-    const h = { onNav: (a) => { if (a === 'a') done(field.value.trim()); else if (a === 'b') done(null); } };
+    const h = { onNav: (a) => {
+      if (kp) {
+        // 書いている（キーボード）時の A・B は 今までどおり。文字ばんの 時は 文字ばんへ
+        if (document.activeElement !== field || !['a', 'b'].includes(a)) { kp.nav(a); return; }
+      }
+      if (a === 'a') done(field.value.trim()); else if (a === 'b') done(null);
+    } };
     input.push(h);
     ui.append(back, box);
-    setTimeout(() => field.focus(), 30);
+    // 文字ばんの 時は 文字の 入力に しない（スマホの キーボードが 出て 文字ばんが かくれない ように）
+    if (!kp) setTimeout(() => field.focus(), 30);
   });
 }
 

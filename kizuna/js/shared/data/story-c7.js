@@ -10,19 +10,19 @@
 // 作業中の 仮の データ（B の 物が まだ ない 時だけ たす。まとめる 時に この 行を けす）
 import {
   C7, ARRIVE7, TF7, LEVER3, OPEN6, WAIT6, WIN7, LETTER, LETTER_TEMPLE, MIKO_LETTER, C7_FIELD, PRESENT_FIELD, TEMPLE_DOOR, GATE_BOSS, c7tMapId,
-} from '../maps/c7-flags.js?v=9b80ceaafaa3';
-import { C7_POS } from '../maps/c7-field.js?v=9b80ceaafaa3';
-import { C7T_POS } from '../maps/c7-temple.js?v=9b80ceaafaa3';
-import { MAPS } from '../maps/index.js?v=9b80ceaafaa3';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=9b80ceaafaa3';
-import { MONSTERS } from './monsters.js?v=9b80ceaafaa3';
-import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=9b80ceaafaa3';
-import { SHOPS_C7 } from './shops-c7.js?v=9b80ceaafaa3';
-import { GLASS_TEXT } from '../world/time-glass.js?v=9b80ceaafaa3';
-import { partyOf } from '../world/party.js?v=9b80ceaafaa3';
-import { applyC7Side } from './sidequests-c7.js?v=9b80ceaafaa3';
-import { innSteps } from './inn.js?v=9b80ceaafaa3';
-import { C6D_OBJ } from './story-ch6d.js?v=9b80ceaafaa3';
+} from '../maps/c7-flags.js?v=3a05f52754ef';
+import { C7_POS } from '../maps/c7-field.js?v=3a05f52754ef';
+import { C7T_POS } from '../maps/c7-temple.js?v=3a05f52754ef';
+import { MAPS } from '../maps/index.js?v=3a05f52754ef';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=3a05f52754ef';
+import { MONSTERS } from './monsters.js?v=3a05f52754ef';
+import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=3a05f52754ef';
+import { SHOPS_C7 } from './shops-c7.js?v=3a05f52754ef';
+import { GLASS_TEXT } from '../world/time-glass.js?v=3a05f52754ef';
+import { partyOf } from '../world/party.js?v=3a05f52754ef';
+import { applyC7Side } from './sidequests-c7.js?v=3a05f52754ef';
+import { innSteps } from './inn.js?v=3a05f52754ef';
+import { C6D_OBJ } from './story-ch6d.js?v=3a05f52754ef';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

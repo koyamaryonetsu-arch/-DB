@@ -1,11 +1,11 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=9b80ceaafaa3';
-import { FORGES } from '../data/facilities.js?v=9b80ceaafaa3';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=9b80ceaafaa3';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=9b80ceaafaa3';
-import { partyOf } from './party.js?v=9b80ceaafaa3';
-import { BAG_STACK } from './bank.js?v=9b80ceaafaa3';
-import { forgePotGift } from './alchemy.js?v=9b80ceaafaa3';
+import { ITEMS } from '../data/items.js?v=3a05f52754ef';
+import { FORGES } from '../data/facilities.js?v=3a05f52754ef';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=3a05f52754ef';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=3a05f52754ef';
+import { partyOf } from './party.js?v=3a05f52754ef';
+import { BAG_STACK } from './bank.js?v=3a05f52754ef';
+import { forgePotGift } from './alchemy.js?v=3a05f52754ef';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
