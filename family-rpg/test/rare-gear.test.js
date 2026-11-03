@@ -172,7 +172,8 @@ test('宝の洞窟: 地図の 名前に ちなんだ 装備が 出る（大地�
     rare++;
     assert.ok(TM_THEME_GROUPS[info.theme].includes(it.grp), `${info.caveName}: ${it.name}`);
   }
-  assert.ok(rare > 250, `主の 宝箱は レアが 出やすい（${rare}/400）`);
+  // 第64回 ⑥d: 主の 宝箱の レアは 75% → 50%（のこりは 素材）
+  assert.ok(rare > 160, `主の 宝箱は レアが 出やすい（${rare}/400）`);
 });
 
 test('宝の洞窟: 地図の レベルが 高いほど 強い（ランクと レア度）。第5章の 地図 Lv10〜12 は 店（ランク7）と おなじ〜1つ上', () => {
@@ -261,13 +262,13 @@ test('ひみつのダンジョン: 専用の ★4〜★5 は ここだけ。深�
   for (let i = 0; i < 3000; i++) if (SD.has(sdSmallReward(40, rng).item)) small++;
   assert.ok(small > 50 && small < 400, `小さな ごほうび ${small}/3000`);
   for (let i = 0; i < 500; i++) assert.ok(!SD.has(sdSmallReward(25, rng).item));
-  // ダンジョンの 中の 魔物（番人は 3回に 1回）
+  // ダンジョンの 中の 魔物（第64回 ⑥d: 番人は 4回に 1回）
   let guard = 0, mob = 0;
   for (let i = 0; i < 3000; i++) {
     if (rollDrops('tm_golem', rng, { map: 'sd_40' }).some((id) => SD.has(id))) guard++;
     if (rollDrops('wolf', rng, { map: 'sd_40' }).some((id) => SD.has(id))) mob++;
   }
-  assert.ok(guard > 800 && guard < 1200, `番人 ${guard}/3000`);
+  assert.ok(guard > 600 && guard < 900, `番人 ${guard}/3000`);
   assert.ok(mob > 5 && mob < 50, `ふつうの 魔物 ${mob}/3000`);
   for (let i = 0; i < 2000; i++) assert.ok(!rollDrops('wolf', rng, { map: 'sd_12' }).some((id) => SD.has(id)), '20階より 上では 出ない');
 });

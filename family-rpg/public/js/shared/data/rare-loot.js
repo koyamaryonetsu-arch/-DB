@@ -196,5 +196,5 @@ export function pickSdGear(rng, f) {
   return null;
 }
 // ひみつのダンジョンの 魔物が 落とす（ふつうの 魔物 150体に 1体・番人 3回に 1回）
-export const SD_DROP_N = 150;
-export const SD_GUARD_DROP_N = 3;
+export const SD_DROP_N = 250; // 第64回 ⑥d: 150 → 250（装備が 手に入りすぎる）
+export const SD_GUARD_DROP_N = 4; // 第64回 ⑥d: 3 → 4
