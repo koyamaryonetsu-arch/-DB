@@ -100,6 +100,13 @@ export function readingResult(s) {
 
 // けっかを 読みおわった（クライアントから）: ここから すこしだけ むてき
 export function resultDone(world, s) {
+  // 第61回: リーダーが とじた → いっしょに たたかった 仲間の けっかの まども とじる
+  const fol = s.resultFollowers;
+  s.resultFollowers = null;
+  for (const sid of fol || []) {
+    const m = world.sessions.get(sid);
+    if (m?.reading) world.send(m, { t: 'resultClose', id: s.resultFollowId });
+  }
   if (!s.reading) return;
   s.reading = false;
   s.invuln = Math.min(s.invuln, AFTER_RESULT_MS);
@@ -568,6 +575,11 @@ function finishBattle(world, ctx) {
       }
     }
   }
+  // 第61回: パーティーで たたかった ときは、仲間の けっかの まどは リーダーが とじた 時に いっしょに とじる
+  //   （リーダーも いっしょに たたかって、リーダーにも 読む 行が ある 時だけ。resultDone で 'resultClose' を 送る）
+  const lead = party ? sessions.find((m) => m.id === party.leader) : null;
+  const leadReads = !!lead && (perSession[lead.id]?.lines || []).length > 0;
+  if (lead) { lead.resultFollowers = []; lead.resultFollowId = ctx.id; }
   for (const m of sessions) {
     m.busy = ctx.resolve ? 'script' : null;
     m.battleId = null;
@@ -577,7 +589,10 @@ function finishBattle(world, ctx) {
     // けっかの まどを 読んでいる あいだは むてき（読みおわると AFTER_RESULT_MS だけ のこる）
     m.reading = r.lines.length > 0;
     m.invuln = m.reading ? RESULT_MAX_MS : 3000;
-    world.send(m, { t: 'battleEnd', id: ctx.id, outcome, lines: r.lines, levelUp: !!r.levelUp, story: !!ctx.resolve });
+    const follow = leadReads && m !== lead && m.reading;
+    if (follow) lead.resultFollowers.push(m.id);
+    world.send(m, { t: 'battleEnd', id: ctx.id, outcome, lines: r.lines, levelUp: !!r.levelUp, story: !!ctx.resolve,
+      ...(follow ? { followLeader: lead.char?.name || 'リーダー' } : {}) });
   }
   if (outcome === 'lose') {
     // 負けても よい 戦いは その場で 立ち上がって 物語の つづきへ

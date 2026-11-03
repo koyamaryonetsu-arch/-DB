@@ -209,6 +209,10 @@ const ANIM_SFX = {
 // ひらめきの 電球（ドット絵ふう）
 const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
 
+// 第61回: リーダーの けっかの まどを まつ 長さの 上限・リーダーが とじても 少しは 見せる 長さ（ミリびょう）
+export const FOLLOW_MAX_MS = 45000;
+export const FOLLOW_SHOW_MS = 1200;
+
 export class BattleScene {
   constructor(game, msg) {
     this.game = game;
@@ -726,7 +730,10 @@ export class BattleScene {
     const detail = (it) => {
       if (!it || it.header) return;
       // 効果・威力の 目安・属性・相手・MP（敵が 1体・自分に かける・全体の 技でも 使う 前に 見える。ui/skillinfo.js）
-      this.info(favHint(battleSkillText(it.value, pc, { touch: this.touchUi(), lv: a.slv?.[it.value] || 1 }), this.touchUi()));
+      // 第61回: スマホの たてむきは みじかく（3行まで。技の 一覧を 広く）
+      const compact = this.compactInfo();
+      const txt = battleSkillText(it.value, pc, { touch: this.touchUi(), lv: a.slv?.[it.value] || 1, compact });
+      this.info(compact ? txt : favHint(txt, this.touchUi()));
       const on = this.favsOf(a).includes(it.value);
       this.infoEl.classList.add('hasfav');
       // 右上に うかべる（文は まわりを 回りこむ。css の .b-info .favbtn）
@@ -747,7 +754,7 @@ export class BattleScene {
       this.rememberPick(a, key, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       // 相手を えらぶ 間も おなじ せつめい（「もう一度タップ」は もう いらない）
-      this.info(battleSkillText(it.value, pc, { lv: a.slv?.[it.value] || 1 }));
+      this.info(battleSkillText(it.value, pc, { lv: a.slv?.[it.value] || 1, compact: this.compactInfo() }));
       const t = ab.target;
       const back = () => this.abilityMenu(ids, page);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
@@ -854,6 +861,11 @@ export class BattleScene {
 
   closeFavPop() {
     this.favPop?.close();
+  }
+
+  // 第61回: スマホの たてむき（技の せつめいを 3行までに みじかく）
+  compactInfo() {
+    return this.touchUi() && !!globalThis.matchMedia?.('(max-aspect-ratio: 1/1)').matches;
   }
 
   // タッチの 画面（「もう一度タップで使う」を 出す）
@@ -1923,7 +1935,9 @@ export class BattleScene {
         list.append(row);
       }
       const more = el('div', { class: 'res-more', text: '▼' });
-      const box = el('div', { class: 'win b-result scroll' }, list, more);
+      // 第61回: パーティーの 仲間は、リーダーが とじた 時に いっしょに とじる（自分では とじない。スクロールは できる）
+      const follow = msg.followLeader ? el('div', { class: 'res-follow', text: `${msg.followLeader}が閉じると、いっしょに閉じます` }) : null;
+      const box = el('div', { class: 'win b-result scroll' }, list, ...(follow ? [follow] : []), more);
       this.root.append(box);
       this.resultBox = box;
       // 音は 1回ずつ: レベルアップの きょく（勝利の きょくの あとに つづけて）・職業レベル・道具
@@ -1943,8 +1957,21 @@ export class BattleScene {
           box.scrollTop += Math.max(40, box.clientHeight * 0.8);
           return;
         }
+        // リーダーを まつ（リーダーが 切れた 時の ために、しばらく たったら 自分でも とじられる）
+        if (follow && !leaderGone && performance.now() < followUntil) return;
         if (sheet.tap(performance.now())?.close) finish();
       };
+      const followUntil = performance.now() + FOLLOW_MAX_MS;
+      let leaderGone = false;
+      if (follow) {
+        const onLeader = () => {
+          leaderGone = true;
+          // まどが 出た すぐ あとなら、少しだけ 見せてから とじる
+          setTimeout(() => finish(), Math.max(0, sheet.readyAt + FOLLOW_SHOW_MS - performance.now()));
+        };
+        if (this.leaderClosed) onLeader();
+        else this.onLeaderClose = onLeader;
+      }
       const h = { el: box, onNav: (a) => { if (a === 'a' || a === 'b') advance(); } };
       // がめんの どこを さわっても すすむ
       const onTap = (e) => {
@@ -1962,11 +1989,18 @@ export class BattleScene {
         g.input.pop(h);
         this.root.removeEventListener('click', onTap);
         this.closeResult = null;
+        this.onLeaderClose = null;
         resolve();
       };
       // 画面が こわされた（つぎの たたかいが はじまった など）ときも とじる
       this.closeResult = finish;
     });
+  }
+
+  // 第61回: リーダーが けっかの まどを とじた（game.js の 'resultClose'）。まだ まどが 出ていなければ 出た 時に とじる
+  leaderClose() {
+    this.leaderClosed = true;
+    this.onLeaderClose?.();
   }
 
   destroy() {

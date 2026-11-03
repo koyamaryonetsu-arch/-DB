@@ -134,6 +134,7 @@ export class GameWorld {
     s.moving = false;
     s.invitedBy = null;
     battleLeave(this, s);
+    resultDone(this, s); // 第61回: けっかを 読んでいる 時に 切れた リーダー → 仲間の まども とじる
     const p = partyOf(this, s);
     if (p && p.members.length > 1) {
       this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}の通信がとぎれた…\nもどってくるまでオートで戦うよ` });
@@ -231,6 +232,7 @@ export class GameWorld {
   leaveWorld(s) {
     if (!s.inWorld) return;
     battleLeave(this, s);
+    resultDone(this, s);
     for (const run of this.runs.values()) {
       if (run.init.id === s.id) run.abort();
     }

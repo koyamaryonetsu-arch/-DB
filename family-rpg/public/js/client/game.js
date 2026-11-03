@@ -508,6 +508,10 @@ export class Game {
         this.battle?.onReject();
         break;
       case 'battleEnd': return this.onBattleEnd(m);
+      // 第61回: リーダーが けっかの まどを とじた（パーティーで いっしょに たたかった 時）
+      case 'resultClose':
+        if (this.battle && (m.id === undefined || this.battle.id === m.id)) this.battle.leaderClose();
+        break;
       case 'invite': {
         // たたかいや かいわの あいだは おわるまで まつ
         for (let i = 0; i < 600 && (this.state !== 'field' || this.busy || this.menuOpen); i++) await wait(200);

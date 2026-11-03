@@ -159,9 +159,9 @@ export function syncParty(world, p) {
     const keep = new Set(lc ? [...lc.partyKeys, ...(lc.wagonKeys || [])].map((k) => `${lc.id}|${k}`) : []);
     for (const id of [...p.famCopies.keys()]) if (!keep.has(id)) p.famCopies.delete(id);
   }
-  // ゲスト
+  // ゲスト（第61回: リーダーの ゲストだけ。さそわれた 人は 1人だけで 入る。ゲストは 自分の パーティーの 時だけ）
   const gids = [];
-  for (const sid of p.members) for (const g of world.sessions.get(sid)?.char?.guests || []) if (!gids.includes(g) && GUESTS[g]) gids.push(g);
+  for (const g of lc?.guests || []) if (!gids.includes(g) && GUESTS[g]) gids.push(g);
   const oldG = new Map(p.guests.map((g) => [g.id, g]));
   p.guests = gids.map((id) => oldG.get(id) || { id, char: guestChar(world, id, lc?.level || 1) }).filter((g) => g.char);
 }
