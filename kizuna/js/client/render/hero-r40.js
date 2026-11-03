@@ -20,7 +20,7 @@
 //   face40(cv, H, B, view, phase) … ひたいの 竜の紋章・三日月（face26 から よぶ）
 //   drawProp40(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。銀水しょうの つえ。かいたら true）
 //   handMark40(cv, A, P, O) … 手の こうの 竜の紋章（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH } from './hero-raster.js?v=41feb4db963f';
+import { mat, ramp, TH } from './hero-raster.js?v=72d256b41f0a';
 
 export const R40_JOBS = ['ryumajin', 'neo_queen'];
 

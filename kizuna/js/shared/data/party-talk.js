@@ -5,14 +5,14 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=41feb4db963f';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=41feb4db963f';
-import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=41feb4db963f';
-import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=41feb4db963f';
-import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=41feb4db963f';
-import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=41feb4db963f';
-import { CH7_OBJECTIVE_TALK } from './story-c7.js?v=41feb4db963f';
-import { nextPartyHint } from './secret-hints.js?v=41feb4db963f';
+import { MONSTERS } from './monsters.js?v=72d256b41f0a';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=72d256b41f0a';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=72d256b41f0a';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=72d256b41f0a';
+import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=72d256b41f0a';
+import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=72d256b41f0a';
+import { CH7_OBJECTIVE_TALK } from './story-c7.js?v=72d256b41f0a';
+import { nextPartyHint } from './secret-hints.js?v=72d256b41f0a';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {

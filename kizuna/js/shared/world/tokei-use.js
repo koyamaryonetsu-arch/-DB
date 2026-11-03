@@ -3,14 +3,14 @@
 // ・もう 読んだ 階は、しおりに のこった 短い ことばだけ（なんどでも）
 // ・時計塔の 外では 使えない
 // だいほんを はじめるので、だいほんの しくみ scripts.js を 読む（story-ch6c.js は ここを 読まない）
-import { MAPS } from '../maps/index.js?v=41feb4db963f';
-import { BM } from '../maps/tokei.js?v=41feb4db963f';
-import { hasKeyItem } from '../stats.js?v=41feb4db963f';
-import { ScriptRun } from './scripts.js?v=41feb4db963f';
-import { partyOf } from './party.js?v=41feb4db963f';
-import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js?v=41feb4db963f';
+import { MAPS } from '../maps/index.js?v=72d256b41f0a';
+import { BM } from '../maps/tokei.js?v=72d256b41f0a';
+import { hasKeyItem } from '../stats.js?v=72d256b41f0a';
+import { ScriptRun } from './scripts.js?v=72d256b41f0a';
+import { partyOf } from './party.js?v=72d256b41f0a';
+import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js?v=72d256b41f0a';
 // 第6章 Step 6: 6〜10階の ページ（story-ch6d.js）
-import { TK6_HINTS } from '../data/story-ch6d.js?v=41feb4db963f';
+import { TK6_HINTS } from '../data/story-ch6d.js?v=72d256b41f0a';
 
 const HINTS = { ...TK_HINTS, ...TK6_HINTS };
 
