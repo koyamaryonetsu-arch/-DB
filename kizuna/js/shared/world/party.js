@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=3a05f52754ef';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=3a05f52754ef';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=3a05f52754ef';
-import { MONSTERS } from '../data/monsters.js?v=3a05f52754ef';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=3a05f52754ef';
-import { SLOTS, ITEMS } from '../data/items.js?v=3a05f52754ef';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=3a05f52754ef';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=3a05f52754ef';
-import { difficultyOf } from '../data/difficulty.js?v=3a05f52754ef';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=727df1143b11';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=727df1143b11';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=727df1143b11';
+import { MONSTERS } from '../data/monsters.js?v=727df1143b11';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=727df1143b11';
+import { SLOTS, ITEMS } from '../data/items.js?v=727df1143b11';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=727df1143b11';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=727df1143b11';
+import { difficultyOf } from '../data/difficulty.js?v=727df1143b11';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -414,7 +414,8 @@ export function companionRelease(world, s, key) {
 
 export function companionRename(world, s, key, name) {
   const c = ensureCompanions(s.char);
-  const e = companionOf(c, key);
+  // 第63回: あずかり所の 魔物も（配合で あずかり所に 生まれた 子に 名前を つける）
+  const e = companionOf(c, key) || (Array.isArray(c.storage) ? c.storage.find((x) => x?.key === key) : null) || null;
   const nm = String(name || '').replace(/[<>&"'\s]/g, '').slice(0, 8);
   if (!e || !nm) return { ok: false, reason: '名前を入れてね' };
   const old = e.char.name;

@@ -5,24 +5,24 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=3a05f52754ef';
-import { JOBS } from '../data/jobs.js?v=3a05f52754ef';
-import { MONSTERS } from '../data/monsters.js?v=3a05f52754ef';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=3a05f52754ef';
-import { repairTreasureMaps } from '../data/treasure.js?v=3a05f52754ef';
-import { ensureTmClears } from '../data/casino-tier.js?v=3a05f52754ef';
-import { repairSecret } from '../data/secret.js?v=3a05f52754ef';
-import { repairAlchemy } from './alchemy.js?v=3a05f52754ef';
-import { normBank } from './bank.js?v=3a05f52754ef';
-import { cleanWagon } from '../data/wagon.js?v=3a05f52754ef';
-import { cleanLookEquip } from '../look-equip.js?v=3a05f52754ef';
-import { cleanVehicles } from '../data/vehicles.js?v=3a05f52754ef';
-import { repairTrialInfo } from '../data/job-trials.js?v=3a05f52754ef';
-import { cleanQuick } from '../data/quick-item.js?v=3a05f52754ef';
-import { repairSubAsk } from '../data/subquest-hints.js?v=3a05f52754ef';
-import { cleanStamps } from '../data/stamps.js?v=3a05f52754ef';
-import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=3a05f52754ef';
-import { repairFeats } from './phantom.js?v=3a05f52754ef';
+import { ITEMS, SLOTS } from '../data/items.js?v=727df1143b11';
+import { JOBS } from '../data/jobs.js?v=727df1143b11';
+import { MONSTERS } from '../data/monsters.js?v=727df1143b11';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=727df1143b11';
+import { repairTreasureMaps } from '../data/treasure.js?v=727df1143b11';
+import { ensureTmClears } from '../data/casino-tier.js?v=727df1143b11';
+import { repairSecret } from '../data/secret.js?v=727df1143b11';
+import { repairAlchemy } from './alchemy.js?v=727df1143b11';
+import { normBank } from './bank.js?v=727df1143b11';
+import { cleanWagon } from '../data/wagon.js?v=727df1143b11';
+import { cleanLookEquip } from '../look-equip.js?v=727df1143b11';
+import { cleanVehicles } from '../data/vehicles.js?v=727df1143b11';
+import { repairTrialInfo } from '../data/job-trials.js?v=727df1143b11';
+import { cleanQuick } from '../data/quick-item.js?v=727df1143b11';
+import { repairSubAsk } from '../data/subquest-hints.js?v=727df1143b11';
+import { cleanStamps } from '../data/stamps.js?v=727df1143b11';
+import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=727df1143b11';
+import { repairFeats } from './phantom.js?v=727df1143b11';
 
 export const SAVE_VERSION = 4;
 
