@@ -285,7 +285,9 @@ export function serviceAction(world, s, msg) {
       // あずかり中の 親から 生まれた 子は あずかり所に いる（world/breed.js。第43回 C）
       if (msg.action === 'breed' && r.ok && r.stored) text = `${text.replace(`\n${r.name}は酒場で待っている。`, '')}\n${r.name}はあずかり所にいる。`;
       if (!r.ok) return reply(false, r.reason || 'できません', { full: !!r.full, tavern: tavernInfo(world, s) });
-      return reply(true, text, { tavern: tavernInfo(world, s) });
+      // 第63回: 配合で 生まれた 子（クライアントが 姿を 見せてから「名前をつける？」と たずねる）
+      const born = msg.action === 'breed' ? { key: r.key, name: r.name, species: r.species, color: r.color || null } : undefined;
+      return reply(true, text, { tavern: tavernInfo(world, s), ...(born ? { born } : {}) });
     }
     case 'board': {
       if (msg.action === 'post') {

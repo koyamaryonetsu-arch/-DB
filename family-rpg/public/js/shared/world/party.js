@@ -414,7 +414,8 @@ export function companionRelease(world, s, key) {
 
 export function companionRename(world, s, key, name) {
   const c = ensureCompanions(s.char);
-  const e = companionOf(c, key);
+  // 第63回: あずかり所の 魔物も（配合で あずかり所に 生まれた 子に 名前を つける）
+  const e = companionOf(c, key) || (Array.isArray(c.storage) ? c.storage.find((x) => x?.key === key) : null) || null;
   const nm = String(name || '').replace(/[<>&"'\s]/g, '').slice(0, 8);
   if (!e || !nm) return { ok: false, reason: '名前を入れてね' };
   const old = e.char.name;
