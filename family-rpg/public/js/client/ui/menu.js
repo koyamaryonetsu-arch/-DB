@@ -1,4 +1,5 @@
 // フィールドの メニュー
+import { HAND_NAMES, handPref, nextHand } from './hand.js';
 import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
@@ -1884,6 +1885,7 @@ export class FieldMenu {
       { label: '動けない・画面が止まった時は（立てなおす）', value: 'rescue' },
       { label: `不具合の記録（${readErrLog().length}件）`, value: 'errlog' });
     if (g.input.touch) {
+      items.push({ label: `ボタンのならび（たて持ち）：${HAND_NAMES[handPref()]}`, value: 'hand' });
       items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
       if (navigator.audioSession) items.push({ label: `マナーモードでも音を出す：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
@@ -1894,7 +1896,7 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? '操作: 画面の左側をさわるとそこにスティックが出る（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）'
+          ? '操作: 画面の左側（左手用は右側、片手は下の半分）をさわるとそこにスティックが出る（指を動かして移動）。「ボタンのならび」で、たて持ちの時のボタンの場所を変えられる。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）'
           : `操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット${quickList(c).length ? `、Tで${quickLabel(quickItemOf(c)) || '大事な物'}（すぐ使う）` : ''}`,
       }));
       return box;
@@ -1955,6 +1957,8 @@ export class FieldMenu {
             again(idx);
           });
           return;
+        } else if (it.value === 'hand') {
+          nextHand();
         } else if (it.value === 'pad') {
           g.input.padOn = !g.input.padOn;
         } else if (it.value === 'awake') {

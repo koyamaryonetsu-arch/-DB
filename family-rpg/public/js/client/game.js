@@ -1,4 +1,5 @@
 // ゲーム ぜんたいの しんこう
+import { applyHand } from './ui/hand.js';
 import { Input } from './input.js';
 import { GameAudio } from './audio.js';
 import { Field } from './field.js';
@@ -58,6 +59,7 @@ export class Game {
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
+    applyHand(); // 第64回: たて持ちの ボタンの ならび（ui/hand.js）
     applyUiFont();
     applyBattlePrefs();
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
