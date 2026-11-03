@@ -6,16 +6,16 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
-import { el, esc } from './dom.js?v=4b290d17419c';
-import { Counter, itemInfo } from './counter.js?v=4b290d17419c';
-import { request } from './shop.js?v=4b290d17419c';
-import { rareNameHtml } from './rarity.js?v=4b290d17419c';
-import { ITEMS, baseItemId, sortItemIds } from '../../shared/data/items.js?v=4b290d17419c';
-import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=4b290d17419c';
-import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=4b290d17419c';
+import { el, esc } from './dom.js?v=9ab5798ef9dd';
+import { Counter, itemInfo } from './counter.js?v=9ab5798ef9dd';
+import { request } from './shop.js?v=9ab5798ef9dd';
+import { rareNameHtml } from './rarity.js?v=9ab5798ef9dd';
+import { ITEMS, baseItemId, sortItemIds } from '../../shared/data/items.js?v=9ab5798ef9dd';
+import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=9ab5798ef9dd';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=9ab5798ef9dd';
 import {
   ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
-} from '../../shared/data/alchemy.js?v=4b290d17419c';
+} from '../../shared/data/alchemy.js?v=9ab5798ef9dd';
 
 // きたえる 回数を 見る 人を 自分の キャラに（道具の 説明・かじ屋の 画面。data/forge.js）
 export function bindAlchemy(game) {

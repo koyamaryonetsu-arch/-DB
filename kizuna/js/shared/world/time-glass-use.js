@@ -1,8 +1,8 @@
 // 時の砂時計を メニューから 使う（第6章。world/services.js の menuAction の 'timeGlass'）
 // きまりは world/time-glass.js（ここは だいほんを はじめる だけ。data/story-ch6.js が time-glass.js を 読むので、
 // scripts.js → story.js → story-ch6.js → time-glass.js の わに ならない ように ファイルを 分けた）
-import { ScriptRun } from './scripts.js?v=4b290d17419c';
-import { glassCheck, glassCompanions, shiftSteps, GLASS_TEXT } from './time-glass.js?v=4b290d17419c';
+import { ScriptRun } from './scripts.js?v=9ab5798ef9dd';
+import { glassCheck, glassCompanions, shiftSteps, GLASS_TEXT } from './time-glass.js?v=9ab5798ef9dd';
 
 // メニューの「道具」→ 時の砂時計 →「使う」（world/services.js の menuAction から）。reply(ok, text)
 export function useTimeGlass(world, s, reply) {

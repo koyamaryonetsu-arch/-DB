@@ -466,6 +466,33 @@ body.touch .hud-obj { bottom: calc(170px + var(--safe-b)); }
 #pad-ab .tbtn { width: 64px; height: 64px; font-size: 22px; }
 #pad-ab .pa { right: 0; top: 8px; }
 #pad-ab .pb { left: 0; bottom: 4px; }
+/* 第64回: たて持ちの ボタンの ならび（ui/hand.js。body の data-hand）。よこ持ちは 今のまま */
+@media (orientation: portrait) {
+  /* 左手用: 左右 はんたい */
+  body[data-hand="left"] #stick { left: auto; right: calc(26px + var(--safe-r)); }
+  body[data-hand="left"] #btn-a { right: auto; left: calc(22px + var(--safe-l)); }
+  body[data-hand="left"] #btn-b { right: auto; left: calc(100px + var(--safe-l)); }
+  body[data-hand="left"] #btn-run { right: auto; left: calc(30px + var(--safe-l)); }
+  body[data-hand="left"] #pad-cross { left: auto; right: calc(10px + var(--safe-r)); }
+  body[data-hand="left"] #pad-ab { right: auto; left: calc(10px + var(--safe-l)); }
+  body[data-hand="left"] #pad-ab .pa { right: auto; left: 0; }
+  body[data-hand="left"] #pad-ab .pb { left: auto; right: 0; }
+  /* 片手（右手）: スティックは 右下。A・B・走るは その 左と 上（親指が とどく 所） */
+  body[data-hand="oneR"] #stick { left: auto; right: calc(18px + var(--safe-r)); bottom: calc(24px + var(--safe-b)); }
+  body[data-hand="oneR"] #btn-a { right: calc(164px + var(--safe-r)); bottom: calc(100px + var(--safe-b)); }
+  body[data-hand="oneR"] #btn-b { right: calc(158px + var(--safe-r)); bottom: calc(22px + var(--safe-b)); }
+  body[data-hand="oneR"] #btn-run { right: calc(52px + var(--safe-r)); bottom: calc(166px + var(--safe-b)); }
+  body[data-hand="oneR"] #pad-cross { left: auto; right: calc(10px + var(--safe-r)); }
+  body[data-hand="oneR"] #pad-ab { right: calc(156px + var(--safe-r)); }
+  /* 片手（左手）: 片手（右手）の 左右 はんたい */
+  body[data-hand="oneL"] #stick { left: calc(18px + var(--safe-l)); bottom: calc(24px + var(--safe-b)); }
+  body[data-hand="oneL"] #btn-a { right: auto; left: calc(164px + var(--safe-l)); bottom: calc(100px + var(--safe-b)); }
+  body[data-hand="oneL"] #btn-b { right: auto; left: calc(158px + var(--safe-l)); bottom: calc(22px + var(--safe-b)); }
+  body[data-hand="oneL"] #btn-run { right: auto; left: calc(52px + var(--safe-l)); bottom: calc(166px + var(--safe-b)); }
+  body[data-hand="oneL"] #pad-ab { right: auto; left: calc(156px + var(--safe-l)); }
+  body[data-hand="oneL"] #pad-ab .pa { right: auto; left: 0; }
+  body[data-hand="oneL"] #pad-ab .pb { left: auto; right: 0; }
+}
 /* パッドが 出ている あいだは、ウインドウを パッドの ない ところへ よせる（たて: うえ・よこ: まんなか） */
 body.pad-on { --pad-h: calc(160px + var(--safe-b)); }
 body.pad-on #ui { bottom: var(--pad-h); }

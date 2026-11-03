@@ -4,11 +4,11 @@
 //   ＝ つぎに その 技を 使うと ひらめきやすい）。家族のけいじ板の ひらめき技の 知らせに のせる（world.boardPost。kind: 'hirameki'）
 // ・すすみぐあいの フラグは ものがたりの もちぬし（リーダー）。戦うのは 話しかけた 人だけ（仲間・ゲスト・家族は 入らない）
 // sidequests-ch6.js の ch6SubQuests・ch6DoneQuests・applyCh6Side と、story-ch6d.js の applyCh6d から まぜる
-import { HIRAMEKI } from './hirameki.js?v=4b290d17419c';
-import { ABILITIES } from './abilities.js?v=4b290d17419c';
-import { learnedAbilities, hiraAllowed, hiraProgress } from '../stats.js?v=4b290d17419c';
-import { abilityLabel } from '../ability-label.js?v=4b290d17419c';
-import { hiraHowText } from '../world/family-board.js?v=4b290d17419c';
+import { HIRAMEKI } from './hirameki.js?v=9ab5798ef9dd';
+import { ABILITIES } from './abilities.js?v=9ab5798ef9dd';
+import { learnedAbilities, hiraAllowed, hiraProgress } from '../stats.js?v=9ab5798ef9dd';
+import { abilityLabel } from '../ability-label.js?v=9ab5798ef9dd';
+import { hiraHowText } from '../world/family-board.js?v=9ab5798ef9dd';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -56,7 +56,7 @@ async function soloBattle(run, enc) {
   const r = await run.flush();
   if (r.aborted) return 'abort';
   // world/battles.js は 戦いの とき だけ 読む（だいほんの データから 戦いの しくみを 先に 読まない）
-  const { startFixedBattle } = await import('../world/battles.js?v=4b290d17419c');
+  const { startFixedBattle } = await import('../world/battles.js?v=9ab5798ef9dd');
   const p = w.parties?.get(s.partyId);
   const keep = p ? { supports: p.supports, guests: p.guests } : null;
   if (p) { p.supports = []; p.guests = []; }

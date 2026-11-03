@@ -2,6 +2,7 @@
 // ・フィールドでは input.dir（いどう）と A/B を つかう
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
 // ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
+import { inStickZone as stickZone } from './ui/hand.js?v=9ab5798ef9dd';
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
@@ -171,7 +172,8 @@ export class Input {
     const field = document.getElementById('field');
     const field3d = document.getElementById('field3d');
     // スティックは さわった ところに でてくる（がめんの ひだり がわ）。はなすと もとの ばしょに もどる
-    const inStickZone = (t) => t.clientX < innerWidth * 0.6;
+    // 第64回: たて持ちの ならび（右手用・左手用・片手。ui/hand.js）で かわる
+    const inStickZone = (t) => stickZone(t.clientX, t.clientY, innerWidth, innerHeight, document.body.dataset.hand);
     const placeStick = (x, y) => {
       const r = touchEl.getBoundingClientRect();
       stickEl.style.left = `${x - r.left - stickEl.offsetWidth / 2}px`;

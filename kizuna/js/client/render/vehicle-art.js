@@ -9,14 +9,14 @@
 //    rider(view, f) … { x, y（人の 絵の ひだりうえ。du）, crop（上から 何ドット 見せるか）, frame（人の コマ） }
 //  ・じめんは 絵の いちばん 下から 2ドット 上（人の 絵と おなじ。2D の かげ・2.5D の 足もとが そろう）
 // テスト（test/vehicles.test.js）は paintVehicle で、すべての 乗り物・むき・コマに 絵が あるかを 見る
-import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, shade } from './pixel.js?v=4b290d17419c';
-import { addFamilyVehicleArt } from './family-art.js?v=4b290d17419c';
+import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, shade } from './pixel.js?v=9ab5798ef9dd';
+import { addFamilyVehicleArt } from './family-art.js?v=9ab5798ef9dd';
 // 第50回 D3: 景品の 乗り物（色がえで 使い回す）
-import { addPrizeVehicleArt } from './prize-vehicle-art.js?v=4b290d17419c';
+import { addPrizeVehicleArt } from './prize-vehicle-art.js?v=9ab5798ef9dd';
 // 第2部 第6章 Step 6: ぜんまい馬（千年前でも 乗れる。vehicle-tokei.js）
-import { addTokeiVehicleArt } from './vehicle-tokei.js?v=4b290d17419c';
+import { addTokeiVehicleArt } from './vehicle-tokei.js?v=9ab5798ef9dd';
 // 第43回: ヨッシー（マリオ・ピーチ）
-import { addR43jVehicleArt } from './vehicle-r43j.js?v=4b290d17419c';
+import { addR43jVehicleArt } from './vehicle-r43j.js?v=9ab5798ef9dd';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
