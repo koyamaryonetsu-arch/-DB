@@ -6,13 +6,13 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=5b9292aca901';
-import { ITEMS, SLOTS } from './items.js?v=5b9292aca901';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=5b9292aca901';
-import { makeRng } from '../rng.js?v=5b9292aca901';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=5b9292aca901';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=5b9292aca901';
-import { curveK } from './tm-curve.js?v=5b9292aca901';
+import { MONSTERS } from './monsters.js?v=9b87e2b1fbb3';
+import { ITEMS, SLOTS } from './items.js?v=9b87e2b1fbb3';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=9b87e2b1fbb3';
+import { makeRng } from '../rng.js?v=9b87e2b1fbb3';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=9b87e2b1fbb3';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=9b87e2b1fbb3';
+import { curveK } from './tm-curve.js?v=9b87e2b1fbb3';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）
@@ -251,7 +251,13 @@ export function chestLoot(rng, lv, kind = 'normal', cave = null) {
     const list = pools.shop(rank);
     return list.length ? { item: rng.pick(list) } : { gold: 100 };
   };
-  if (kind === 'bossA') return rng.chance(0.75) ? rare() : equip();
+  // 第64回 ⑥d: 装備が 手に入りすぎるので へらして、そのぶん きたえる 素材（data/forge.js・data/salvage.js で 使う）
+  const mat = () => {
+    const pool = lv >= 5 ? [['star_shard', 1], ['silver_shard', 2]] : lv >= 3 ? [['silver_shard', 1], ['star_shard', 1], ['iron_shard', 3]] : [['iron_shard', 2], ['beast_fang', 2], ['magic_powder', 2]];
+    const [item, n] = rng.pick(pool);
+    return { item, n };
+  };
+  if (kind === 'bossA') return rng.chance(0.5) ? rare() : mat();
   if (kind === 'bossB') {
     const r = rng.next();
     if (r < 0.45) return { gold: Math.round((400 + lv * 220) * rng.float(0.9, 1.2) * REWARD_GOLD_RATE / 10) * 10 };
@@ -259,9 +265,11 @@ export function chestLoot(rng, lv, kind = 'normal', cave = null) {
     return { item: rng.pick(['revive_flower', 'magic_water']), n: 2 };
   }
   const r = rng.next();
-  const rareP = 0.06 + lv * 0.006;
+  // 第64回 ⑥d: レア装備 0.06+0.006×Lv → 0.04+0.004×Lv・店の 装備 15% → 5%（のこりの 10% は 素材）
+  const rareP = 0.04 + lv * 0.004;
   if (r < rareP) return rare();
-  if (r < rareP + 0.15) return equip();
+  if (r < rareP + 0.05) return equip();
+  if (r < rareP + 0.15) return mat();
   // 第44回（ポケモン P1）: ときどき 進化の 石（地図 Lv3 から。data/items-pokemon.js）/ 第50回: 種の かわりに めずらしい 回復の 道具
   if (r < rareP + 0.28) return lv >= 3 && rng.chance(0.15) ? { item: rng.pick(TM_STONES) } : { item: rng.pick(TM_GOODIES) };
   if (r < rareP + 0.57) return { gold: Math.round((50 + lv * 40) * rng.float(0.7, 1.4) * REWARD_GOLD_RATE / 10) * 10 };

@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=5b9292aca901';
-import { MONSTERS } from './monsters.js?v=5b9292aca901';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=5b9292aca901';
+import { ITEMS, baseItemId } from './items.js?v=9b87e2b1fbb3';
+import { MONSTERS } from './monsters.js?v=9b87e2b1fbb3';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=9b87e2b1fbb3';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -196,5 +196,5 @@ export function pickSdGear(rng, f) {
   return null;
 }
 // ひみつのダンジョンの 魔物が 落とす（ふつうの 魔物 150体に 1体・番人 3回に 1回）
-export const SD_DROP_N = 150;
-export const SD_GUARD_DROP_N = 3;
+export const SD_DROP_N = 250; // 第64回 ⑥d: 150 → 250（装備が 手に入りすぎる）
+export const SD_GUARD_DROP_N = 4; // 第64回 ⑥d: 3 → 4

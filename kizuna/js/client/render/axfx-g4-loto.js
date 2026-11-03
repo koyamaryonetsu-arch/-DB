@@ -1,7 +1,7 @@
 // 第48回 G4: 勇者・ロトの勇者（ギガスラッシュ・ギガデイン・きずなの剣・ロトの剣技・ギガクロスブレイク・テラデイン・ミナデイン…）の 大技の え
 // この ファイルは G4 だけが さわる。時間は shared/data/ax-time-g4.js。play の 時間は はなつ しゅんかんが 0
-import { pal, rnd } from './axkit.js?v=5b9292aca901';
-import { add, bg, darken, hands, ground, per, solo, ringPts } from './axfx-g4-kit.js?v=5b9292aca901';
+import { pal, rnd } from './axkit.js?v=9b87e2b1fbb3';
+import { add, bg, darken, hands, ground, per, solo, ringPts } from './axfx-g4-kit.js?v=9b87e2b1fbb3';
 
 const GOLD = { main: '#ffd23a', glow: '#fff0a0', core: '#ffffff', list: ['#ffd23a', '#fff6b0', '#ffffff'] };
 const DEIN = { color: '#e8f4ff', glow: '#ffd23a', core: '#ffffff' };
