@@ -35,7 +35,7 @@ const TREE = [
   ['esper', '超能力者', 1, ['mage', 'schoolkid']],
   ['shonen_tantei', '少年探てい団', 0],
   ['oshiri_tantei', 'おしり探てい', 1, ['shonen_tantei']],
-  ['meitantei', '名探てい', 1, ['oshiri_tantei']],
+  ['meitantei', '名探てい', 2, ['oshiri_tantei']], // 第64回: 超級職に
   ['creator', 'クリエイター', 1, ['parttimer', 'priest']],
   ['neko_robot', 'ネコ型ロボット', 0],
   ['mimi_robot', '耳無しネコ型ロボット', 1, ['neko_robot']],
@@ -101,14 +101,15 @@ test('第26回の 職業: なれる じゅんばん（基本職は はじめか�
     const c = newCharacter({ id: j, name: 'テスト', job: j });
     assert.equal(c.job, j, `${j} は はじめから`);
   }
-  // 少年探てい団 → おしり探てい → 名探てい（上級職から 上級職）
+  // 少年探てい団 → おしり探てい → 名探てい（第64回: 名探ていは 超級職）
   const t = newCharacter({ id: 't', name: 'コナ', job: 'shonen_tantei' });
   assert.equal(jobUnlocked(t, 'oshiri_tantei'), false);
   master(t, 'shonen_tantei');
   assert.equal(jobUnlocked(t, 'oshiri_tantei'), true);
   assert.equal(jobUnlocked(t, 'meitantei'), false, 'おしり探ていを きわめないと なれない');
-  assert.equal(jobKnown(t, 'meitantei'), true, '上級職なので 神殿に 見えている');
+  assert.equal(jobKnown(t, 'meitantei'), false, '超級職なので おしり探ていを きわめるまで ひみつ');
   master(t, 'oshiri_tantei');
+  assert.equal(jobKnown(t, 'meitantei'), true);
   assert.equal(jobUnlocked(t, 'meitantei'), true);
   assert.equal(changeJob(t, 'meitantei').ok, true);
   // ネコ型ロボット → 耳無し → ドラえもん（超級職は ヒントが 出るまで ひみつ）

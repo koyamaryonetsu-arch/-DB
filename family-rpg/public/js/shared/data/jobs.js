@@ -914,7 +914,7 @@ export const JOBS = {
     learn: [[1, 'os_suiri'], [2, 'os_kunkun'], [3, 'os_pupu'], [5, 'os_brown'], [7, 'os_oyatsu'], [10, 'oshiri_tantei_sig']],
   },
   meitantei: {
-    id: 'meitantei', name: '名探てい', kana: 'めいたんてい', short: '名探てい', tier: 1, req: ['oshiri_tantei'], family: 'magic', color: '#2a4aa8',
+    id: 'meitantei', name: '名探てい', kana: 'めいたんてい', short: '名探てい', tier: 2, req: ['oshiri_tantei'], family: 'magic', color: '#2a4aa8',
     desc: '見た目は子ども、頭脳は大人の名探てい。ふき矢の時計で敵をねむらせ、キック力が上がるくつでボールをけりこむ。どんななぞも、推理で解き明かす。おしり探ていをきわめるとなれる。',
     mods: { hp: 1.05, mp: 1.25, str: 1.05, def: 0.95, agi: 1.25, mag: 1.35, heal: 1.0 },
     weapons: ['boomerang', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
@@ -1305,7 +1305,7 @@ export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jes
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
   'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku',
-  'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'meitantei', 'creator', 'mimi_robot', 'hanakappa',
+  'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'creator', 'mimi_robot', 'hanakappa',
   'hitokiri',
   // 第33回
   'kaito', 'wizard_student', 'state_alchemist', 'sailor_soldier',
@@ -1324,7 +1324,8 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
   // 第43回
   'mario',
   // 第51回 W
-  'tenkou_tsukai'];
+  'tenkou_tsukai', 'meitantei' /* 第64回: 上級職 → 超級職（家族が 決めた） */
+];
 // 伝説の 職業（超級職の 先）
 export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b',
   // 第40回
@@ -1489,6 +1490,7 @@ export const JOB_HINTS = {
   weather_god: '天気をあやつる者と天地雷鳴士、2つの道をきわめて、晴れと雨とかみなりを使いこなした者は、天気の神になれるらしい…',
   // 第51回 W
   tenkou_tsukai: 'お天気キャスターをきわめた者は、空そのものをあやつれるらしい…',
+  meitantei: 'おしりで事件を解く探ていをきわめた者は、どんななぞも見ぬく名探ていになれるらしい…',
 };
 // 第51回 C3 の 幻の職業の うわさ（jobs-phantom-c.js）
 Object.assign(JOB_HINTS, PHANTOM_HINTS_C);
