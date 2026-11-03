@@ -53,12 +53,13 @@ test('C: 名前を 書く まど（askText）は コントローラーの A で 
   const input = fakeInput();
   const p = dom.askText(input, { title: '生まれるスライムの名前', max: 8, initial: 'スライム' });
   assert.equal(input.stack.length, 1);
-  input.emit('up');
+  // 第62回: コントローラーの 時は 文字ばん。はじめは「決定」の 上なので A だけで 決まる
   input.emit('a');
   assert.equal(await p, 'スライム');
   assert.equal(input.stack.length, 0, 'まどを とじたら はずす');
-  // B は やめる
+  // B は 1字けす。何も ない 時の B は やめる（第62回）
   const q = dom.askText(input, { title: 'x', initial: 'あ' });
+  input.emit('b');
   input.emit('b');
   assert.equal(await q, null);
   // まだ 見たことがない 子（空のまま → 種族の 名前に なる）
@@ -74,9 +75,16 @@ test('C: 名前を 書く まど（askText）は コントローラーの A で 
   pads = [{ connected: true }];
   uiEl.children = [];
   const h1 = dom.askText(input, { title: 'x' });
-  assert.ok(texts(uiEl).some((t) => t === 'コントローラー：Aで決定・Bでやめる'));
+  // 第62回: コントローラーの 時は 文字ばん（十字キーで えらんで A で 入れる）
+  assert.ok(texts(uiEl).some((t) => t === 'コントローラー：十字キーで選んでAで入れる・Bで1字けす'));
   input.emit('b');
   await h1;
+  // 文字ばんで「プ」→ 決定: 上（ゅ）・左 … ではなく、ためしに A で 決定の まま
+  uiEl.children = [];
+  const h2 = dom.askText(input, { title: 'x', initial: 'スライム' });
+  input.emit('b');
+  input.emit('a');
+  assert.equal(await h2, 'スライ', 'B で 1字 けして A で 決定');
   pads = [];
 });
 
