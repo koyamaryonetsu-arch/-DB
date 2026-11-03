@@ -1781,6 +1781,15 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 /* 強さは はばを そろえて ならべる（長い ものは そのぶん 広く。文字は きらない） */
 .menu .item.eq-opt .eq-sc { display: flex; flex-wrap: wrap; gap: 0 1em; margin-top: 0.1em; font-size: 0.8em; line-height: 1.4; }
 .menu .item.eq-opt .eq-sc .sc { flex: 0 0 auto; min-width: 10.5em; white-space: nowrap; }
+/* 第64回: 装備 そのものの 強さは 白・今の 装備との 差だけ 色。おすすめは しずかな 印 */
+.menu .item.eq-opt .eq-sc .sc { color: #fff; }
+.eq-sc .eq-d { margin-left: 0.3em; }
+.eq-sc .eq-d.up { color: #7ee08a; }
+.eq-sc .eq-d.down { color: #ff8a7a; }
+.menu .item .tag.eq-rec { font-size: 0.68em; border: 1px solid rgba(255, 214, 107, 0.7); border-radius: 4px; padding: 0 0.35em; color: var(--accent); }
+.eq-compare { margin-top: 0.4em; padding-top: 0.3em; border-top: 1px dashed rgba(255, 255, 255, 0.25); line-height: 1.45; color: #fff; }
+.eq-compare .eq-cmp-now { color: var(--muted); }
+.eq-compare .eq-cmp-new { min-height: 1.45em; }
 .menu .item .tag.eq-tag { font-size: 0.68em; border: 1px solid currentColor; border-radius: 4px; padding: 0 0.35em; color: var(--muted); }
 .menu .item.eq-swap .tag.eq-tag { color: #8fd0ff; }
 .menu .hdr.eq-none { color: var(--muted); font-size: var(--fs-small); padding: 0.3em 0.2em; }

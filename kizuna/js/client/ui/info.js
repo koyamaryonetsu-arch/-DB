@@ -1,18 +1,18 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=9ab5798ef9dd';
-import { abilityTypeText } from '../../shared/data/abilities.js?v=9ab5798ef9dd';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=9ab5798ef9dd';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=9ab5798ef9dd';
-import { jobLabel } from '../../shared/job-label.js?v=9ab5798ef9dd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=9ab5798ef9dd';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=9ab5798ef9dd';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=9ab5798ef9dd';
-import { attackReach } from '../../shared/battle.js?v=9ab5798ef9dd';
-import { maxPlus } from '../../shared/data/forge.js?v=9ab5798ef9dd';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=9ab5798ef9dd';
-import { perkText } from '../../shared/data/items-r31.js?v=9ab5798ef9dd';
-import { BUFF_MARKS } from '../../shared/buff-acts.js?v=9ab5798ef9dd';
-import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=9ab5798ef9dd';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=41feb4db963f';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=41feb4db963f';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=41feb4db963f';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=41feb4db963f';
+import { jobLabel } from '../../shared/job-label.js?v=41feb4db963f';
+import { MONSTERS } from '../../shared/data/monsters.js?v=41feb4db963f';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=41feb4db963f';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=41feb4db963f';
+import { attackReach } from '../../shared/battle.js?v=41feb4db963f';
+import { maxPlus } from '../../shared/data/forge.js?v=41feb4db963f';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=41feb4db963f';
+import { perkText } from '../../shared/data/items-r31.js?v=41feb4db963f';
+import { BUFF_MARKS } from '../../shared/buff-acts.js?v=41feb4db963f';
+import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=41feb4db963f';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -131,6 +131,33 @@ export function statChangesHtml(list, { none = '強さは変わらない' } = {}
   const ch = (list || []).filter((x) => x.d);
   if (!ch.length) return `<span class="sc muted">${none}</span>`;
   return ch.map((x) => `<span class="sc ${x.d > 0 ? 'up' : 'down'}">${x.n} ${x.b}→${x.a}${x.d > 0 ? `↑${x.d}` : `↓${-x.d}`}</span>`).join('');
+}
+
+// 第64回: 装備 そのものの 強さ（その 部位を 外した 時と くらべて 上がる 分。[{ k, n, v }]）。id が null なら []
+export function gearOwnStats(char, slot, id) {
+  if (!id) return [];
+  const off = computeStats({ ...char, equip: { ...(char?.equip || {}), [slot]: null } });
+  const on = computeStats({ ...char, equip: { ...(char?.equip || {}), [slot]: id } });
+  return STAT_LABELS.map(([k, n]) => ({ k, n, v: (on?.[k] ?? 0) - (off?.[k] ?? 0) })).filter((x) => x.v);
+}
+const signed = (v) => (v > 0 ? `+${v}` : `${v}`);
+// 装備 そのものの 強さを 文に（「攻撃力+12　素早さ+4」。ない 時は none）
+export function gearOwnText(own, none = '強さなし') {
+  return (own || []).length ? own.map((x) => `${x.n}${signed(x.v)}`).join('　') : none;
+}
+// 第64回: 装備の 一覧の 1行（装備 そのものの 強さは 白・今の 装備との 差だけ 色）
+//   own … gearOwnStats・diffs … statChanges（今 → えらんだ 物）
+export function gearRowHtml(own, diffs) {
+  const d = new Map((diffs || []).filter((x) => x.d).map((x) => [x.k, x.d]));
+  const o = new Map((own || []).map((x) => [x.k, x.v]));
+  const keys = STAT_LABELS.filter(([k]) => o.has(k) || d.has(k));
+  if (!keys.length) return '<span class="sc muted">強さは変わらない</span>';
+  return keys.map(([k, n]) => {
+    const v = o.get(k), dv = d.get(k);
+    const own1 = `<span class="eq-own">${n}${v ? signed(v) : ''}</span>`;
+    const diff = dv ? `<span class="eq-d ${dv > 0 ? 'up' : 'down'}">${dv > 0 ? `↑${dv}` : `↓${-dv}`}</span>` : '';
+    return `<span class="sc">${own1}${diff}</span>`;
+  }).join('');
 }
 
 // そうびを かえたら どうなるか（上がる ものも 下がる ものも。b・a は 前と 後）

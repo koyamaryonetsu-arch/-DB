@@ -3,22 +3,22 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=9ab5798ef9dd';
-import { SHOPS_CH2 } from './items-ch2.js?v=9ab5798ef9dd';
-import { NIGHT_SHOPS } from './night.js?v=9ab5798ef9dd';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=9ab5798ef9dd';
-import { SHOPS_CH4 } from './items-ch4.js?v=9ab5798ef9dd';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=9ab5798ef9dd';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=9ab5798ef9dd';
-import { R33_SHOP_ADD } from './items-r33.js?v=9ab5798ef9dd';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=9ab5798ef9dd';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=9ab5798ef9dd';
-import { SHOPS_EARTH } from './shops-earth.js?v=9ab5798ef9dd';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=41feb4db963f';
+import { SHOPS_CH2 } from './items-ch2.js?v=41feb4db963f';
+import { NIGHT_SHOPS } from './night.js?v=41feb4db963f';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=41feb4db963f';
+import { SHOPS_CH4 } from './items-ch4.js?v=41feb4db963f';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=41feb4db963f';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=41feb4db963f';
+import { R33_SHOP_ADD } from './items-r33.js?v=41feb4db963f';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=41feb4db963f';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=41feb4db963f';
+import { SHOPS_EARTH } from './shops-earth.js?v=41feb4db963f';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=9ab5798ef9dd';
-import { MINAMO_GUEST } from './companions-past.js?v=9ab5798ef9dd';
-import { RION_GUEST } from './companions-tokei.js?v=9ab5798ef9dd';
-import { KARIM_GUEST } from './companions-c7.js?v=9ab5798ef9dd';
+import { SHOPS_PAST } from './shops-past.js?v=41feb4db963f';
+import { MINAMO_GUEST } from './companions-past.js?v=41feb4db963f';
+import { RION_GUEST } from './companions-tokei.js?v=41feb4db963f';
+import { KARIM_GUEST } from './companions-c7.js?v=41feb4db963f';
 
 export const SHOPS = {
   village: {
