@@ -19,7 +19,27 @@ export const ACTS = {
   buff: { dur: 460, hit: 0.3 },
   roar: { dur: 540, hit: 0.3 },
   charge: { dur: 820, hit: 0.5 },
+  // 第64回: 系統ごとの 体当たり（もっと 大きく わかりやすく。RACE_MOVE）
+  hop: { dur: 600, hit: 0.66 },
+  pounce: { dur: 560, hit: 0.5 },
+  dive: { dur: 620, hit: 0.52 },
+  whip: { dur: 520, hit: 0.45 },
+  slam: { dur: 600, hit: 0.48 },
+  phase: { dur: 560, hit: 0.55 },
+  lurch: { dur: 540, hit: 0.5 },
+  rear: { dur: 640, hit: 0.53 },
+  dash: { dur: 500, hit: 0.42 },
 };
+
+// 第64回: 系統ごとの 体当たりの 動き（空を とぶ 魔物は 急降下）
+//   スライム … はねて ぶつかる・けもの … 飛びかかる・草 … ムチの ように しなる・あくま／物 … 持ち上がって たたきつける
+//   ゆうれい … すうっと 近づく・ゾンビ … よろけて つっこむ・ドラゴン … のけぞって かみつく・人 … かけこむ
+export const RACE_MOVE = { slime: 'hop', beast: 'pounce', plant: 'whip', demon: 'slam', material: 'slam', spirit: 'phase', undead: 'lurch', dragon: 'rear', human: 'dash' };
+export function physMove(actor) {
+  const m = MONSTERS[actor?.species];
+  if (m?.flying) return 'dive';
+  return RACE_MOVE[m?.race] || (actor?.boss ? 'big' : 'lunge');
+}
 
 const ELEM_COL = { fire: '#ff7a3a', ice: '#9ae6ff', water: '#4f8cff', wind: '#9af0b0', bolt: '#fff6b0', dark: '#b07ae0', light: '#fff6b0', blast: '#ffb04a', void: '#c8a8ff' };
 const STATUS_COL = { sleep: '#f7a1d4', poison: '#b06ae0', paralyze: '#ffe066', blind: '#8a8aa0', confuse: '#ffe066', silence: '#9ad8ff' };
@@ -27,7 +47,7 @@ const STATUS_COL = { sleep: '#f7a1d4', poison: '#b06ae0', paralyze: '#ffe066', b
 // なにを したかで うごきを えらぶ
 export function enemyActKind(fx, ab, actor) {
   if (!fx) return null;
-  if (fx.type === 'attack') return actor.boss ? 'big' : 'lunge';
+  if (fx.type === 'attack') return physMove(actor);
   if (fx.type === 'telegraph') return 'charge';
   if (fx.type !== 'ability' || !ab) return null;
   const e = ab.effect || {};
@@ -35,7 +55,7 @@ export function enemyActKind(fx, ab, actor) {
   switch (e.type) {
     case 'phys': case 'drainHp':
       if (anim === 'quake') return 'jump';
-      return anim === 'tackle' || actor.boss || (e.mult || 1) >= 1.6 ? 'big' : 'lunge';
+      return physMove(actor);
     case 'magic': return e.breath || anim === 'breath' ? 'breath' : 'cast';
     case 'status': case 'debuff': case 'drainMp': return anim === 'breath' ? 'breath' : 'shimmy';
     case 'heal': case 'cure': case 'revive': return 'heal';
@@ -92,8 +112,18 @@ export function startEnemyAct(E, a, pt, kind, to, o = {}) {
     }
   }
   switch (kind) {
-    case 'big':
-      E.speedLines(x, y, { delay: hitAt * 0.55, r0: 20, r1: 120, n: 18, life: 260, color: '#ffffff' });
+    case 'big': case 'pounce': case 'dive': case 'rear': case 'dash': case 'lurch':
+      E.speedLines(x, y, { delay: hitAt * 0.6, r0: 20, r1: 130, n: boss ? 22 : 16, life: 260, color: '#ffffff' });
+      break;
+    case 'hop': case 'slam': {
+      // ドスン: 足もとに 地なりの 輪
+      const land = dur * A.hit;
+      E.shock(x, foot, { r0: 6, r1: boss ? 130 : 90, sy: 0.22, color: '#ffffff', w: 2.2, delay: land - 20, life: 380 });
+      E.hitStop(boss ? 220 : 140, land, 2);
+      break;
+    }
+    case 'whip': case 'phase':
+      E.speedLines(x, y, { delay: hitAt * 0.7, r0: 16, r1: 100, n: 12, life: 220, color: kind === 'phase' ? '#c8a8ff' : '#d8ffd0' });
       break;
     case 'jump': {
       const land = dur * 0.64;
@@ -169,7 +199,8 @@ export function actPose(a, ageOverride) {
   switch (a.kind) {
     case 'lunge': case 'big': {
       // うしろに ひいて → こちらへ とびこむ → もどる
-      const k = (a.kind === 'big' ? 1.6 : 1) * B;
+      // 第64回: もっと 大きく（前の 1.6倍）
+      const k = (a.kind === 'big' ? 1.6 : 1) * B * 1.6;
       const peak = 0.24 * k;
       if (t < 0.3) {
         const u = easeOut(t / 0.3);
@@ -186,6 +217,133 @@ export function actPose(a, ageOverride) {
         P.dy = 9 * k * (1 - u);
         P.sx = P.sy = 1 + peak * (1 - u);
         P.ghost = t < 0.6;
+      }
+      break;
+    }
+    // ───── 第64回: 系統ごとの 動き（S … 大きさ。ボスは 1.3倍）─────
+    case 'hop': {
+      const S = B;
+      if (t < 0.18) {
+        const u = easeOut(t / 0.18);
+        P.sy = 1 - 0.22 * u; P.sx = 1 + 0.18 * u; P.dy = 2 * u;
+      } else if (t < 0.5) {
+        const u = (t - 0.18) / 0.32;
+        P.dy = -46 * S * Math.sin((u * Math.PI) / 2); P.sy = 1.12; P.sx = 0.9;
+      } else if (t < 0.66) {
+        const u = easeIn((t - 0.5) / 0.16);
+        P.dy = -46 * S + (46 * S + 16 * S) * u; P.sx = P.sy = 1 + 0.3 * S * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.66) / 0.34);
+        const k = 1 + 0.3 * S * (1 - u);
+        P.dy = 16 * S * (1 - u); P.sy = k * (0.78 + 0.22 * u); P.sx = k * (1.25 - 0.25 * u);
+      }
+      break;
+    }
+    case 'pounce': {
+      if (t < 0.25) {
+        const u = easeOut(t / 0.25);
+        P.dy = 6 * u; P.sy = 1 - 0.16 * u; P.sx = 1 + 0.1 * u;
+      } else if (t < 0.5) {
+        const u = easeIn((t - 0.25) / 0.25);
+        P.dy = 6 - 30 * B * Math.sin(u * Math.PI) + 22 * B * u; P.sx = P.sy = 1 + 0.5 * B * u; P.ghost = true;
+      } else if (t < 0.62) {
+        P.dy = 6 + 22 * B; P.sx = P.sy = 1 + 0.5 * B;
+      } else {
+        const u = easeOut((t - 0.62) / 0.38);
+        P.dy = (6 + 22 * B) * (1 - u); P.sx = P.sy = 1 + 0.5 * B * (1 - u);
+      }
+      break;
+    }
+    case 'dive': {
+      if (t < 0.34) {
+        const u = easeOut(t / 0.34);
+        P.dy = -52 * B * u; P.sx = P.sy = 1 - 0.12 * u;
+      } else if (t < 0.52) {
+        const u = easeIn((t - 0.34) / 0.18);
+        P.dy = -52 * B + (52 * B + 26 * B) * u; P.sx = P.sy = 0.88 + (0.62 * B + 0.12) * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.52) / 0.48);
+        P.dy = 26 * B * (1 - u); P.sx = P.sy = 1 + 0.62 * B * (1 - u);
+      }
+      break;
+    }
+    case 'whip': {
+      if (t < 0.3) {
+        const u = easeOut(t / 0.3);
+        P.dx = -20 * B * u; P.sx = 1 - 0.1 * u; P.sy = 1 + 0.06 * u;
+      } else if (t < 0.48) {
+        const u = easeIn((t - 0.3) / 0.18);
+        P.dx = -20 * B + 44 * B * u; P.sx = 0.9 + 0.35 * u; P.sy = 1.06 - 0.1 * u; P.dy = 10 * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.48) / 0.52);
+        P.dx = 24 * B * (1 - u); P.sx = 1 + 0.25 * (1 - u); P.sy = 1 - 0.04 * (1 - u); P.dy = 10 * (1 - u);
+      }
+      break;
+    }
+    case 'slam': {
+      if (t < 0.34) {
+        const u = easeOut(t / 0.34);
+        P.dy = -28 * B * u; P.sy = 1 + 0.14 * u; P.sx = 1 - 0.06 * u;
+        P.white = 0.35 * u;
+      } else if (t < 0.48) {
+        const u = easeIn((t - 0.34) / 0.14);
+        P.dy = -28 * B + 38 * B * u; P.sy = 1.14 - 0.36 * u; P.sx = 0.94 + 0.34 * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.48) / 0.52);
+        P.dy = 10 * B * (1 - u); P.sy = 0.78 + 0.22 * u; P.sx = 1.28 - 0.28 * u;
+      }
+      break;
+    }
+    case 'phase': {
+      P.ghost = true;
+      if (t < 0.4) {
+        const u = t / 0.4;
+        P.dx = Math.sin(u * Math.PI * 4) * 6 * B; P.sx = P.sy = 1 - 0.12 * u; P.white = 0.25 * u;
+      } else if (t < 0.58) {
+        const u = easeIn((t - 0.4) / 0.18);
+        P.sx = P.sy = 0.88 + (0.65 * B + 0.12) * u; P.dy = 20 * B * u; P.white = 0.25 + 0.3 * u;
+      } else {
+        const u = easeOut((t - 0.58) / 0.42);
+        P.sx = P.sy = 1 + 0.65 * B * (1 - u); P.dy = 20 * B * (1 - u); P.white = 0.55 * (1 - u);
+      }
+      break;
+    }
+    case 'lurch': {
+      if (t < 0.3) {
+        const u = easeOut(t / 0.3);
+        P.dx = -12 * B * u; P.dy = -5 * u; P.sx = 1 - 0.06 * u;
+      } else if (t < 0.5) {
+        const u = easeIn((t - 0.3) / 0.2);
+        P.dx = -12 * B + 18 * B * u; P.dy = -5 + 23 * B * u; P.sx = P.sy = 1 + 0.4 * B * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.5) / 0.5);
+        P.dx = 6 * B * (1 - u); P.dy = 18 * B * (1 - u); P.sx = P.sy = 1 + 0.4 * B * (1 - u);
+      }
+      break;
+    }
+    case 'rear': {
+      if (t < 0.4) {
+        const u = easeOut(t / 0.4);
+        P.dy = -24 * B * u; P.sy = 1 + 0.16 * u; P.sx = 1 - 0.08 * u; P.white = 0.4 * Math.max(0, u - 0.6) / 0.4;
+      } else if (t < 0.54) {
+        const u = easeIn((t - 0.4) / 0.14);
+        P.dy = -24 * B + 48 * B * u; P.sx = P.sy = 1 + 0.55 * B * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.54) / 0.46);
+        P.dy = 24 * B * (1 - u); P.sx = P.sy = 1 + 0.55 * B * (1 - u);
+      }
+      break;
+    }
+    case 'dash': {
+      if (t < 0.24) {
+        const u = easeOut(t / 0.24);
+        P.dx = -18 * B * u; P.sx = 1 - 0.06 * u;
+      } else if (t < 0.44) {
+        const u = easeIn((t - 0.24) / 0.2);
+        P.dx = -18 * B + 18 * B * u; P.dy = 20 * B * u; P.sx = P.sy = 1 + 0.4 * B * u; P.ghost = true;
+      } else {
+        const u = easeOut((t - 0.44) / 0.56);
+        P.dy = 20 * B * (1 - u); P.sx = P.sy = 1 + 0.4 * B * (1 - u);
       }
       break;
     }
