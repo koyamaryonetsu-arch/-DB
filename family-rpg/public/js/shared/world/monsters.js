@@ -285,7 +285,9 @@ export function symbolSnapshot(ms, night = false) {
   const out = [];
   for (const s of ms.symbols.values()) {
     if (s.busy || !symbolVisible(s, night)) continue;
-    out.push({ id: s.id, sp: s.sp, x: Math.round(s.x * 100) / 100, y: Math.round(s.y * 100) / 100, dir: s.dir, st: s.state === 'chase' ? 1 : 0 });
+    // 第64回 ⑥a: いっしょに いる 群れの 魔物（すがたと ちがう 魔物が いる ときだけ。フィールドで さがす 魔物を 赤く 光らせる）
+    const gs = Array.isArray(s.group) ? [...new Set(s.group.map((g) => (Array.isArray(g) ? g[0] : g)).filter((g) => g && g !== s.sp))] : [];
+    out.push({ id: s.id, sp: s.sp, x: Math.round(s.x * 100) / 100, y: Math.round(s.y * 100) / 100, dir: s.dir, st: s.state === 'chase' ? 1 : 0, ...(gs.length ? { gs } : {}) });
   }
   return out;
 }

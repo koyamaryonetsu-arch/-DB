@@ -24,6 +24,9 @@ import { flySpeed } from '../shared/data/sky.js';
 import { timeFlag } from '../shared/world/clock.js';
 import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js';
 import { rideShown, chosenVehicle } from '../shared/data/vehicles.js';
+import { huntMatch } from './ui/sources.js';
+// 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
+const huntTints = new WeakMap();
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -839,7 +842,7 @@ export class Field {
         o = { id: s.id, x: s.x, y: s.y };
         this.syms.set(s.id, o);
       }
-      Object.assign(o, { sp: s.sp, tx: s.x, ty: s.y, dir: s.dir, st: s.st });
+      Object.assign(o, { sp: s.sp, tx: s.x, ty: s.y, dir: s.dir, st: s.st, gs: s.gs || null });
     }
     for (const id of [...this.syms.keys()]) if (!seenS.has(id)) this.syms.delete(id);
   }
@@ -1298,7 +1301,7 @@ export class Field {
       out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: !['starstone', 'windstone', 'firestone'].includes(n.sprite), anchor: n.sprite.startsWith('mon:') ? 2 : undefined });
     }
     for (const s of this.syms.values()) {
-      const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
+      const c = this.huntTint(s, monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true));
       const fly = isFlying(s.sp);
       out.push({ key: 's:' + s.id, canvas: c, x: s.x, y: s.y, flip: s.dir === 'right', anchor: 2, lift: fly ? 0.35 + Math.sin(this.time / 200) * 0.12 : 0 });
     }
@@ -1507,8 +1510,26 @@ export class Field {
     this.drawAt(npcSprite(n.sprite, s.dir, frame), s.x, s.y, camX, camY);
   }
 
+  // 第64回 ⑥a: さがしている 魔物（素材の 入手先で えらんだ。ui/sources.js）は 赤く 点めつ
+  huntTint(s, c) {
+    if (!c || !huntMatch(this.game.hunt, s) || Math.floor(this.time / 320) % 2) return c;
+    let t = huntTints.get(c);
+    if (!t) {
+      t = document.createElement('canvas');
+      t.width = c.width; t.height = c.height;
+      if (c.res) t.res = c.res;
+      const x = t.getContext('2d');
+      x.drawImage(c, 0, 0);
+      x.globalCompositeOperation = 'source-atop';
+      x.fillStyle = 'rgba(255, 40, 30, 0.62)';
+      x.fillRect(0, 0, t.width, t.height);
+      huntTints.set(c, t);
+    }
+    return t;
+  }
+
   drawSym(s, camX, camY) {
-    const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
+    const c = this.huntTint(s, monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true));
     const bob = isFlying(s.sp) ? Math.round(Math.sin(this.time / 200) * 2) - 4 : 0;
     const r = c.res || 1;
     const w = c.width / r, h = c.height / r;

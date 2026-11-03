@@ -8,6 +8,7 @@
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
 //             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
+import { sourcesFlow } from './sources.js';
 import { el, esc } from './dom.js';
 import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js';
 import { request } from './shop.js';
@@ -137,6 +138,7 @@ async function craftOne(game, ct, id) {
   if (lack.mats.length) {
     await ct.say(`${it.name}を作るには、\n${matsText(r.mats)}がいる。\n素材が足りないようだな。`);
     await ct.tap(2400);
+    await sourcesFlow(game, ct, lack.mats); // 第64回 ⑥a: 入手先
     return AGAIN;
   }
   if (lack.gold) {
@@ -329,6 +331,7 @@ async function upgradeLoop(game, ct) {
     if (!lack.ok) {
       await ct.say(`${it.name}を${cost.reborn ? 'もう1回' : `+${cost.n}に`}きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n${lack.mats.length ? '素材が足りないようだな。' : 'ゴールドが足りないようだな。'}`);
       await ct.tap(2600);
+      if (lack.mats.length) await sourcesFlow(game, ct, lack.mats); // 第64回 ⑥a: 入手先
       line = AGAIN;
       continue;
     }

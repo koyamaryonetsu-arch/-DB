@@ -6,6 +6,7 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
+import { sourcesFlow } from './sources.js';
 import { el, esc } from './dom.js';
 import { Counter, itemInfo } from './counter.js';
 import { request } from './shop.js';
@@ -186,6 +187,7 @@ async function recipeLoop(game, ct, busy) {
     if (lack.length) {
       await ct.say(`材料が足りない。\n（${lack.map((x) => `${nameOf(x.id)}があと${x.need - x.have}こ`).join('・')}）`, { narr: true });
       await ct.tap(2400);
+      await sourcesFlow(game, ct, lack); // 第64回 ⑥a: 入手先
       continue;
     }
     const yes = await ct.ask(`${insText(r.ins)}で、\n${nameOf(r.out)}を作る？`);
