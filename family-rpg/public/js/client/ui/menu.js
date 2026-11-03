@@ -1,5 +1,6 @@
 // フィールドの メニュー
 import { HAND_NAMES, handPref, nextHand } from './hand.js';
+import { GEAR_FX, fxText, baseOf as gearBase } from '../../shared/data/gear-fx.js';
 import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
@@ -1150,7 +1151,12 @@ export class FieldMenu {
       onMove: (it) => {
         if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを選ぶ（アクセサリーはそのまま）\n何が何に変わるかを見てから、決められる';
         else if (it.value === '__look') detail.textContent = LOOK_HELP;
-        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value], mons, c)}` : '';
+        else {
+          const eid = c.equip?.[it.value];
+          // 第64回 ⑥c: れん金で つけた 効果（data/gear-fx.js）
+          const fk = eid ? c.gearFx?.[gearBase(eid)] : null;
+          detail.textContent = eid ? `E ${ITEMS[eid].name}（装備している）${fk && GEAR_FX[fk] ? `\nれん金の効果：${fxText(fk, ITEMS[eid].plus || 0)}` : ''}\n${itemDetail(eid, mons, c)}` : '';
+        }
       },
       onSelect: async (it) => {
         const slot = it.value;

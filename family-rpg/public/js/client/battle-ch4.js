@@ -3,6 +3,7 @@
 // ・まぼろしの 分身: 本物の 足もとの 小さな 影・分身が 消える ときの えんしゅつ・まぼろしが もどる 前ぶれ
 // ・ボスの 大技（砂嵐・砂の大うず・砂しぶき・大ジャンプ）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
 // ・砂に もぐる（Step 6 の 砂クジラ）: もぐった 敵は 砂の 山に なって ねらえない。砂が もり上がると 山が ゆれて 前ぶれ
+import { ABILITIES } from '../shared/data/abilities.js';
 import { ITEMS } from '../shared/data/items.js';
 import { BW, BH } from './render/battlefx.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
@@ -44,18 +45,21 @@ export function ch4ItemEntries(scene, a) {
   if (m) out.push({ label: ITEMS[MIRROR_ID].name, right: m.cd > 0 ? `あと${m.cd}` : '', value: MIRROR_ID, disabled: m.cd > 0 });
   const acc = a?.acc && ITEMS[a.acc]?.equipUse ? a.acc : null;
   if (acc) out.push({ label: ITEMS[acc].name, right: a.accUsed ? '使った' : '装備中', value: acc, disabled: !!a.accUsed });
+  // 第64回 ⑥c: れん金で「使う」効果を つけた 装備（何回でも。MP は いらない）
+  for (const u of a?.gearUses || []) out.push({ label: `${ITEMS[u.id]?.name || '装備'}（${ABILITIES[u.ability]?.name || ''}）`, right: '装備中', value: `gear:${u.slot}` });
   return out;
 }
 
 // えらんだ 道具が 第4章の とくべつな 道具なら、そのまま 使う（true）。だれも ねらわない
 export function ch4ItemPick(scene, id) {
-  if (id !== MIRROR_ID && !ITEMS[id]?.equipUse) return false;
+  if (id !== MIRROR_ID && !ITEMS[id]?.equipUse && !String(id).startsWith('gear:')) return false;
   scene.send({ type: 'item', id });
   return true;
 }
 
 // 道具の せつめい（月の鏡は 戦いでの 使いかた）
 export function ch4ItemInfo(id) {
+  if (String(id).startsWith('gear:')) return '装備にこめた力を使う。何回でも使える。MPはいらない。\n（使うと、1回の行動になる）';
   return id === MIRROR_ID ? MIRROR_INFO : ITEMS[id]?.desc || '';
 }
 

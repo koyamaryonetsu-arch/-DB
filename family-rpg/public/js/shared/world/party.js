@@ -613,6 +613,8 @@ export function supportInfo(x) {
     plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined, color: x.char.color || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
     favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
+    // 第64回 ⑥c: れん金で つけた 装備の 効果（家族の キャラの ぶんは 出さない）
+    gearFx: x.kind !== 'family' && x.char.gearFx ? x.char.gearFx : undefined,
     // 家族の キャラの マスターした 職業（jobs は おくらない。メニューで パーティーに 関係する ひらめき技を えらぶ ため。stats.js の partyJobSet）
     mjobs: x.kind === 'family' ? masteredJobs(x.char) : undefined,
     // オートで 使わない 技（作戦。家族の キャラの ぶんは 出さない）

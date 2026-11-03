@@ -5,6 +5,7 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
+import { repairGearFx } from '../data/gear-fx.js';
 import { ITEMS, SLOTS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { MONSTERS } from '../data/monsters.js';
@@ -92,6 +93,7 @@ export function repairChar(c, id) {
   if (!c || typeof c !== 'object') return null;
   if (!c.id && id) c.id = id;
   c.name = typeof c.name === 'string' && c.name ? c.name : '勇者';
+  repairGearFx(c); // 第64回 ⑥c: れん金で つけた 装備の 効果
   c.level = Math.max(1, Math.floor(num(c.level, 1)));
   c.exp = Math.max(0, num(c.exp, 0));
   c.gold = Math.max(0, Math.floor(num(c.gold, 0)));

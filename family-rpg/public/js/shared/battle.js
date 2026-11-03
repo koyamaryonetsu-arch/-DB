@@ -24,6 +24,7 @@ import { decideMonster, decideAlly } from './ai.js';
 import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
 import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js';
+import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse } from './battle-gearfx.js';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
 import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js';
 import { shownEquipKey } from './look-equip.js';
@@ -569,7 +570,7 @@ export class Battle {
       }
       case 'item': {
         // 月の鏡・そうびしたまま 使う 道具（battle-ch4.js）
-        const special = ch4ItemCheck(this, c, cmd.id);
+        const special = ch4ItemCheck(this, c, cmd.id) || gearUseCheck(this, c, cmd.id); // 第64回 ⑥c: 装備の「使う」効果
         if (special) return special;
         const it = ITEMS[cmd.id];
         if (!it || it.type !== 'use' || !it.battle) return { ok: false, reason: '使えない' };
@@ -675,6 +676,7 @@ export class Battle {
       c.atb = ev.atbAfter ?? 0;
     }
     if (c.mpRegen && c.alive && c.side === 'ally') c.mp = Math.min(c.maxMp, c.mp + c.mpRegen); // レア装備: 行動ごとの MP回復
+    gearRegen(this, c, ev); // 第64回 ⑥c: れん金の いやし
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
     // 第48回の 大技: ためて はなつ 時間だけ ev.extraLock を のばす（2回目は ため 半分。ev.fx.ax で クライアントに つたえる）
@@ -764,8 +766,9 @@ export class Battle {
         this.pushCoverMsg(ev);
         if (!t) break;
         ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side };
-        this.physHit(c, t, { mult: 1 }, ev, 'phys');
+        const dmg = this.physHit(c, t, { mult: 1 }, ev, 'phys');
         if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3] }, ev, 1);
+        gearAfterAttack(this, c, t, dmg, ev, true); // 第64回 ⑥c: れん金の 効果（追撃・HP吸収・MP吸収）
         this.afterDamage(c, ev, 'phys');
         break;
       }
@@ -867,14 +870,16 @@ export class Battle {
     // 力ため・気合いためは あたる 敵 みんなに のる（ぜんぶ よけられたら のこる）
     const charge = c.charge || 1;
     let used = false;
+    let dealt = 0;
     for (const { t, mult } of plan) {
       if (!t.alive) continue;
       c.charge = charge;
-      this.physHit(c, t, { mult }, ev, 'phys');
+      dealt += this.physHit(c, t, { mult }, ev, 'phys') || 0;
       if (charge > 1 && c.charge === 1) used = true;
       if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3], quiet: true }, ev, 1);
     }
     c.charge = used ? 1 : charge;
+    gearAfterAttack(this, c, null, dealt, ev, false); // 第64回 ⑥c: HP吸収・MP吸収（追撃は 1体の 時だけ）
     this.afterDamage(c, ev, 'phys');
   }
 
@@ -1514,7 +1519,12 @@ export class Battle {
 
   // 反撃の構えの 相手を 物理で こうげきした（あたっても はずれても。1回の こうどうに 1回だけ やりかえされる）
   noteCounter(c, t, ev) {
-    if (t.stance?.kind !== 'counter' || t.side === c.side) return;
+    // 第64回 ⑥c: れん金の 反撃（ときどき。battle-gearfx.js）
+    if (t.stance?.kind !== 'counter') {
+      gearCounterNote(this, c, t, ev);
+      return;
+    }
+    if (t.side === c.side) return;
     ev.counters = ev.counters || [];
     if (!ev.counters.some((k) => k.by === t.id && k.on === c.id)) ev.counters.push({ by: t.id, on: c.id });
   }
@@ -1523,12 +1533,12 @@ export class Battle {
   resolveCounters(ev) {
     const list = ev.counters;
     delete ev.counters;
-    for (const { by, on } of list || []) {
+    for (const { by, on, gear } of list || []) {
       const t = this.get(by), a = this.get(on);
-      if (!t?.alive || t.stance?.kind !== 'counter' || !a?.alive || t.status.sleep || t.status.paralyze) continue;
+      if (!t?.alive || (!gear && t.stance?.kind !== 'counter') || !a?.alive || t.status.sleep || t.status.paralyze) continue;
       ev.lines.push(`${t.name}の反撃！`);
       ev.counter = (ev.counter || []).concat({ actor: t.id, target: a.id });
-      const res = this.calcPhys(t, a, { mult: t.stance.mult, ignoreDef: t.stance.ignoreDef });
+      const res = this.calcPhys(t, a, gear ? { mult: gear } : { mult: t.stance.mult, ignoreDef: t.stance.ignoreDef });
       if (res.miss) {
         ev.lines.push(`${a.name}はひらりと身をかわした！`);
         ev.results = ev.results || [];
@@ -2133,6 +2143,7 @@ export class Battle {
   useItem(c, cmd, ev) {
     // 月の鏡・そうびしたまま 使う 道具（battle-ch4.js）
     if (ch4UseItem(this, c, cmd, ev)) return;
+    if (gearUse(this, c, cmd, ev)) return; // 第64回 ⑥c: 装備の「使う」効果
     const it = ITEMS[cmd.id];
     ev.name = it.name;
     ev.lines.push(`${c.name}は${it.name}を使った！`);
@@ -2323,6 +2334,8 @@ export function allyFromCharacter(char, init = {}) {
     acc: char.equip?.acc || null,
     onHit: st.onHit,
     crit: st.crit || 0, mpRegen: st.mpRegen || 0, // レア装備: 会心の 出やすさ・行動ごとの MP回復（第31回）
+    // 第64回 ⑥c: れん金で つけた 装備の 効果（味方の 人・仲間。data/gear-fx.js）
+    ...(char.species ? {} : gearFxActor(char)),
     resist: { ...st.resist },
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,
@@ -2407,6 +2420,8 @@ export function pub(c) {
     // そうびしている アクセサリーと、この たたかいで もう 使ったか（魔神のランプ）
     acc: c.side === 'ally' ? c.acc || null : undefined,
     accUsed: c.side === 'ally' ? !!c.equipUsed?.length : undefined,
+    // 第64回 ⑥c: 道具として 使える 装備の 効果（[{ slot, id, ability }]）
+    gearUses: c.side === 'ally' && c.gearUses?.length ? c.gearUses : undefined,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,

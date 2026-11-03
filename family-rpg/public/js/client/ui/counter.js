@@ -287,7 +287,7 @@ export function myTeam(game) {
     if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
       name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
-      species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined, color: x.color || undefined,
+      species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined, color: x.color || undefined, gearFx: x.gearFx || undefined,
     };
     out.push({
       key: x.key, name: x.name, char, wagon,

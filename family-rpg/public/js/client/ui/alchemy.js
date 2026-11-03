@@ -7,11 +7,13 @@
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
 import { sourcesFlow } from './sources.js';
+import { GEAR_FX, GEAR_FX_ORDER, fxBlock, fxText, baseOf } from '../../shared/data/gear-fx.js';
 import { el, esc } from './dom.js';
-import { Counter, itemInfo } from './counter.js';
+import { Counter, itemInfo, myTeam } from './counter.js';
 import { request } from './shop.js';
+import { itemCount } from '../../shared/stats.js';
 import { rareNameHtml } from './rarity.js';
-import { ITEMS, baseItemId, sortItemIds } from '../../shared/data/items.js';
+import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js';
 import { UPGRADE_TYPES } from '../../shared/data/items-forge.js';
 import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js';
 import {
@@ -129,13 +131,74 @@ async function potLoop(game, ct) {
     const cmd = await ct.pick([
       { label: pot ? 'レシピを見る' : 'レシピから作る', value: 'recipe', right: `${known.length + 1}こ` },
       { label: '自分で入れてみる', value: 'try', disabled: !!pot },
+      { label: '装備に効果をつける', value: 'enchant' },
       { label: 'やめる', value: 'exit' },
-    ], { back: null, onMove: (x) => { if (x?.value === 'try') ct.info(el('div', { class: 'detail', text: 'ふくろの物を2〜3こ入れてみる。\nうまくいけば、新しいレシピになる。\n（はずれは入れられない）' })); else if (pot) ct.info(potBox(game, pot)); } });
+    ], { back: null, onMove: (x) => { if (x?.value === 'try') ct.info(el('div', { class: 'detail', text: 'ふくろの物を2〜3こ入れてみる。\nうまくいけば、新しいレシピになる。\n（はずれは入れられない）' })); else if (x?.value === 'enchant') ct.info(el('div', { class: 'detail', text: ENCHANT_HELP })); else if (pot) ct.info(potBox(game, pot)); } });
     if (ct.closed || !cmd || cmd.value === 'exit') return;
+    if (cmd.value === 'enchant') {
+      await enchantLoop(game, ct);
+      line = null;
+      continue;
+    }
     const done = cmd.value === 'recipe' ? await recipeLoop(game, ct, !!pot) : await tryLoop(game, ct);
     if (done) return;
     line = null;
   }
+}
+
+// ───── 第64回 ⑥c: 装備に 効果を つける（data/gear-fx.js。すぐ できる）─────
+const ENCHANT_HELP = '装備（★2から）に、素材で効果をつける。\n入れた素材で効果が決まる。きたえるほど効果が強くなる。\n効果は、つけた人がその装備をつけている時に効く。';
+const SLOT_ORDER = ['weapon', 'armor', 'shield', 'head'];
+async function enchantLoop(game, ct) {
+  const team = myTeam(game);
+  let mate = team[0];
+  if (team.length > 1) {
+    await ct.say('だれの装備に効果をつける？', { narr: true });
+    const p = await ct.pick(team.map((m) => ({ label: m.name, right: m.kind, value: m.key })));
+    if (ct.closed || !p) return;
+    mate = team.find((m) => m.key === p.value);
+  }
+  const ch = mate.char;
+  const fxNow = (id) => (id ? ch.gearFx?.[baseOf(id)] : null);
+  const slots = SLOT_ORDER.filter((sl) => ch.equip?.[sl]).map((sl) => {
+    const id = ch.equip[sl];
+    const k = fxNow(id);
+    return { label: `${SLOT_NAMES[sl]}：${nameOf(id)}`, right: k && GEAR_FX[k] ? GEAR_FX[k].name : fxBlock(id) ? '×' : '', value: sl, disabled: !!fxBlock(id) };
+  });
+  if (!slots.length) {
+    await ct.say(`${ch.name}は、何も装備していない。`, { narr: true });
+    await ct.tap(1600);
+    return;
+  }
+  await ct.say('どの装備に効果をつける？\n（店の品・★1にはつけられない）', { narr: true });
+  const sp = await ct.pick(slots, { onMove: (x) => { const id = x && ch.equip?.[x.value]; ct.info(el('div', { class: 'detail', text: id ? (fxBlock(id) || (fxNow(id) ? `今の効果：${fxText(fxNow(id), ITEMS[id].plus || 0)}` : '今の効果：なし')) : '' })); } });
+  if (ct.closed || !sp) return;
+  const slot = sp.value;
+  const id = ch.equip[slot];
+  const plus = ITEMS[id].plus || 0;
+  const kinds = GEAR_FX_ORDER.filter((k) => GEAR_FX[k].slots.includes(ITEMS[id].type));
+  const have = (m) => itemCount(game.me, m);
+  const lackOf = (k) => GEAR_FX[k].mats.filter(([m, n]) => have(m) < n).map(([m, n]) => ({ id: m, need: n, have: have(m) }));
+  const info = (k) => el('div', { class: 'detail', text: `${fxText(k, plus)}\n${GEAR_FX[k].desc}\nいる素材：${GEAR_FX[k].mats.map(([m, n]) => `${nameOf(m)}${n}こ（${have(m)}）`).join('・')}${fxNow(id) && fxNow(id) !== k ? `\n※ 今の${GEAR_FX[fxNow(id)].name}の力は消える` : ''}` });
+  await ct.say(`${nameOf(id)}に、どの効果をつける？`, { narr: true });
+  const kp = await ct.pick(kinds.map((k) => ({ label: GEAR_FX[k].name, right: lackOf(k).length ? '素材が足りない' : 'つけられる', rightCls: lackOf(k).length ? 'dis' : 'gold', value: k, disabled: fxNow(id) === k })), { onMove: (x) => ct.info(x ? info(x.value) : null) });
+  if (ct.closed || !kp) return;
+  const k = kp.value;
+  const lack = lackOf(k);
+  if (lack.length) {
+    await ct.say(`素材が足りない。\n（${lack.map((x) => `${nameOf(x.id)}があと${x.need - x.have}こ`).join('・')}）`, { narr: true });
+    await ct.tap(2200);
+    await sourcesFlow(game, ct, lack);
+    return;
+  }
+  const yes = await ct.ask(`${GEAR_FX[k].mats.map(([m, n]) => `${nameOf(m)}${n}こ`).join('・')}を使って、\n${ch.name}の${nameOf(id)}に${GEAR_FX[k].name}の力をこめる？`);
+  if (ct.closed || yes !== 0) return;
+  game.audio.sfx('item');
+  const res = await request(game, { kind: 'alchemy', action: 'enchant', who: mate.key, slot, fx: k });
+  if (ct.closed) return;
+  if (res.ok) game.audio.sfx('key');
+  await ct.say(res.text || '', { narr: true });
+  await ct.tap(2400);
 }
 
 // 入れる（ids）。うまく いったら true（画面を 閉じる）

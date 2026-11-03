@@ -351,7 +351,7 @@ export function serviceAction(world, s, msg) {
     case 'bank': return bankAction(world, s, msg, reply);
     case 'forge': return forgeAction(world, s, msg, reply, { equipItem, ownChar });
     // れん金がま（world/alchemy.js）
-    case 'alchemy': return alchemyAction(world, s, msg, reply);
+    case 'alchemy': return alchemyAction(world, s, msg, reply, { ownChar: (who) => ownChar(s, who) });
     default:
   }
 }
