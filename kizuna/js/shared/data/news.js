@@ -8,6 +8,12 @@
 // { id, date: 'YYYY-MM-DD', title, text }
 export const NEWS = [
   {
+    id: 'r64-salvage',
+    date: '2026-11-03',
+    title: '装備の分解',
+    text: 'ふしぎなかじ屋で「分解する」ができるようになりました。いらない装備（★2から）を、きたえる時に使う素材にもどせます。店の品・ボスの品・装備している物は分解できません。',
+  },
+  {
     id: 'r64-sources',
     date: '2026-11-03',
     title: '素材の入手先',

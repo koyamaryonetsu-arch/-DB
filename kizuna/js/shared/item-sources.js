@@ -3,13 +3,13 @@
 //     ダンジョンでしか 出ない ときは ダンジョンの 名前。図鑑で 見た 魔物は 名前、まだの 魔物は ？？？（場所は 出す）
 //   ・店で 売っている（data/shops.js）・宝箱（マップの chests）は そのまま 場所
 //   データから 自動で 作る（魔物や マップが ふえても 書きたさなくて よい）
-import { ITEMS } from './data/items.js?v=7ebee457d31b';
-import { MONSTERS } from './data/monsters.js?v=7ebee457d31b';
-import { MAT_DROPS, DROP_N } from './data/loot.js?v=7ebee457d31b';
-import { ENCOUNTER_TABLES } from './data/encounters.js?v=7ebee457d31b';
-import { NIGHT_ZONES } from './data/night.js?v=7ebee457d31b';
-import { SHOPS } from './data/shops.js?v=7ebee457d31b';
-import { MAPS } from './maps/index.js?v=7ebee457d31b';
+import { ITEMS } from './data/items.js?v=29c6a6c68a8c';
+import { MONSTERS } from './data/monsters.js?v=29c6a6c68a8c';
+import { MAT_DROPS, DROP_N } from './data/loot.js?v=29c6a6c68a8c';
+import { ENCOUNTER_TABLES } from './data/encounters.js?v=29c6a6c68a8c';
+import { NIGHT_ZONES } from './data/night.js?v=29c6a6c68a8c';
+import { SHOPS } from './data/shops.js?v=29c6a6c68a8c';
+import { MAPS } from './maps/index.js?v=29c6a6c68a8c';
 
 let cache = null;
 

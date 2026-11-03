@@ -8,26 +8,28 @@
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
 //             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { sourcesFlow } from './sources.js?v=7ebee457d31b';
-import { el, esc } from './dom.js?v=7ebee457d31b';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=7ebee457d31b';
-import { request } from './shop.js?v=7ebee457d31b';
-import { rankText } from './info.js?v=7ebee457d31b';
-import { rareNameHtml } from './rarity.js?v=7ebee457d31b';
-import { ITEMS } from '../../shared/data/items.js?v=7ebee457d31b';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=7ebee457d31b';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=7ebee457d31b';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=7ebee457d31b';
-import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=7ebee457d31b';
-import { bindAlchemy } from './alchemy.js?v=7ebee457d31b';
-import { computeStats, itemCount } from '../../shared/stats.js?v=7ebee457d31b';
-import { boardIconURL } from '../render/boards.js?v=7ebee457d31b';
+import { sourcesFlow } from './sources.js?v=29c6a6c68a8c';
+import { salvageOf } from '../../shared/data/salvage.js?v=29c6a6c68a8c';
+import { el, esc } from './dom.js?v=29c6a6c68a8c';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=29c6a6c68a8c';
+import { request } from './shop.js?v=29c6a6c68a8c';
+import { rankText } from './info.js?v=29c6a6c68a8c';
+import { rareNameHtml } from './rarity.js?v=29c6a6c68a8c';
+import { ITEMS } from '../../shared/data/items.js?v=29c6a6c68a8c';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=29c6a6c68a8c';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=29c6a6c68a8c';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=29c6a6c68a8c';
+import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=29c6a6c68a8c';
+import { bindAlchemy } from './alchemy.js?v=29c6a6c68a8c';
+import { computeStats, itemCount } from '../../shared/stats.js?v=29c6a6c68a8c';
+import { boardIconURL } from '../render/boards.js?v=29c6a6c68a8c';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
 const HINTS = {
   craft: '素材とゴールドで、店では売っていない装備を作る。\n物語が進むと、作れる物がふえる。',
   upgrade: `店では買えない装備（★2から）をきたえる。1回ごとに攻撃力や守備力が上がる。\n店の品（★1）は、きたえられない。\nきたえられる回数は、装備のランクで決まる。（最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。\nれん金がまで同じ装備を2つ合わせると、回数がふえる。`,
+  salvage: 'いらない装備（★2から）を分解して、素材にもどす。\nきたえる時に使う素材が手に入る。\n店の品（★1）・ボスの品・装備している物は分解できない。',
   exit: '',
 };
 
@@ -79,11 +81,13 @@ export async function forgeUI(game, data) {
     const cmd = await ct.pick([
       { label: '作る', value: 'craft' },
       { label: 'きたえる', value: 'upgrade' },
+      { label: '分解する', value: 'salvage' },
       { label: 'やめる', value: 'exit' },
     ], { back: null, onMove: (x) => ct.info(hint(HINTS[x?.value])) });
     if (ct.closed) return;
     if (!cmd || cmd.value === 'exit') break;
     if (cmd.value === 'craft') await craftLoop(game, ct, data);
+    else if (cmd.value === 'salvage') await salvageLoop(game, ct);
     else await upgradeLoop(game, ct);
     line = 'ほかに何かするか？';
   }
@@ -93,6 +97,39 @@ export async function forgeUI(game, data) {
   await ct.say('またいつでも来てくれ。\n良い素材が手に入ったら、見せてくれよ。');
   await ct.tap(1400);
   ct.close();
+}
+
+// ───────────── 第64回 ⑥b: 分解する（ふくろの 装備 → 素材。data/salvage.js）─────────────
+async function salvageLoop(game, ct) {
+  let line = 'どれを分解する？\n（ふくろの装備だけ。店の品は分解できない）';
+  let idx = 0;
+  while (!ct.closed) {
+    const list = (game.me.items || []).filter((e) => e.n > 0 && salvageOf(e.id));
+    if (!list.length) {
+      ct.list(null);
+      ct.info(null);
+      await ct.say('おや？分解できる装備を持っていないようだな。\n店の品（★1）や、装備している物は分解できないんだ。');
+      await ct.tap(2000);
+      return;
+    }
+    await ct.say(line);
+    const rows = list.map((e, i) => ({ value: i, label: ITEMS[e.id].name, html: `${rareNameHtml(e.id)}${e.n > 1 ? `<span class="cnt">×${e.n}</span>` : ''}`, right: '分解' }));
+    const pick = await ct.pick(rows, {
+      start: Math.min(idx, rows.length - 1),
+      onMove: (x) => ct.info(x ? hint(`分解すると：${matsText(salvageOf(list[x.value].id))}\n（${ITEMS[list[x.value].id].name}はなくなる）`) : null),
+    });
+    if (ct.closed || !pick) return;
+    idx = pick.value;
+    const id = list[pick.value].id;
+    const yes = await ct.ask(`${ITEMS[id].name}を分解すると、\n${matsText(salvageOf(id))}になる。\n分解するか？`);
+    if (ct.closed) return;
+    if (yes !== 0) { line = 'ほかに分解する物はあるか？'; continue; }
+    game.audio.sfx('hammer');
+    const res = await request(game, { kind: 'forge', action: 'salvage', id });
+    await ct.say(res.text || '');
+    await ct.tap(1600);
+    line = 'ほかに分解する物はあるか？';
+  }
 }
 
 // ───────────── 作る ─────────────

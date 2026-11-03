@@ -4,8 +4,8 @@
 // field … フィールドの シンボル（ちいさい え）の 大きさ。ふつうの 魔物は 20。大きな 魔物は すこし 大きく
 // npc … フィールドの 大きな NPC（'mon:<id>'）で かく ときの 大きさ（ないときは 0.5。field.js の bigScale）
 // ボスと 星の竜は ch3-boss-art.js
-import { fit, flipX, spark, snowflake, icicle, flame } from './ch3-draw.js?v=7ebee457d31b';
-import { addCh3BossArt } from './ch3-boss-art.js?v=7ebee457d31b';
+import { fit, flipX, spark, snowflake, icicle, flame } from './ch3-draw.js?v=29c6a6c68a8c';
+import { addCh3BossArt } from './ch3-boss-art.js?v=29c6a6c68a8c';
 
 // ───── 雪原・はやし ─────
 

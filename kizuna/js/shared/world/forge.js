@@ -1,11 +1,12 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=7ebee457d31b';
-import { FORGES } from '../data/facilities.js?v=7ebee457d31b';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=7ebee457d31b';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=7ebee457d31b';
-import { partyOf } from './party.js?v=7ebee457d31b';
-import { BAG_STACK } from './bank.js?v=7ebee457d31b';
-import { forgePotGift } from './alchemy.js?v=7ebee457d31b';
+import { ITEMS } from '../data/items.js?v=29c6a6c68a8c';
+import { FORGES } from '../data/facilities.js?v=29c6a6c68a8c';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=29c6a6c68a8c';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=29c6a6c68a8c';
+import { partyOf } from './party.js?v=29c6a6c68a8c';
+import { BAG_STACK } from './bank.js?v=29c6a6c68a8c';
+import { forgePotGift } from './alchemy.js?v=29c6a6c68a8c';
+import { salvageOf, salvageBlock } from '../data/salvage.js?v=29c6a6c68a8c';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
@@ -86,6 +87,19 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
       // 生まれ変わり（かくし要素）
       if (cost.reborn) return reply(true, `カン！カン！カン！\n…なんと！\n${ITEMS[msg.id].name}は、${ITEMS[cost.to].name}に生まれ変わった！`, { upgraded: cost.to, who: msg.who || null, reborn: true, from: msg.id });
       return reply(true, `カン！カン！カン！\n${ITEMS[msg.id].name}は、${ITEMS[cost.to].name}になった！`, { upgraded: cost.to, who: msg.who || null });
+    }
+    // 第64回 ⑥b: 分解（ふくろの 装備 1つ → 素材。data/salvage.js）
+    case 'salvage': {
+      const id = String(msg.id || '');
+      const block = salvageBlock(id);
+      if (block) return reply(false, block);
+      if (itemCount(c, id) < 1) return reply(false, 'それは持っていないようだな。\n（装備している物は、外してから分解してくれ）');
+      const mats = salvageOf(id);
+      const full = mats.find(([m, n]) => itemCount(c, m) + n > BAG_STACK);
+      if (full) return reply(false, `${ITEMS[full[0]].name}は、もう持ちきれないようだ。`);
+      removeItem(c, id, 1);
+      for (const [m, n] of mats) addItem(c, m, n);
+      return reply(true, `トン、トン、トン…\n${ITEMS[id].name}を分解した！\n${mats.map(([m, n]) => `${ITEMS[m].name}を${n}個`).join('・')}手に入れた！`, { salvaged: id, mats });
     }
     default:
       return reply(false, '');
