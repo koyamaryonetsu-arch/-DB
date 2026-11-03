@@ -2,10 +2,10 @@
 // 四ツ影の1人「炎の魔女イグニア」が 竜守りの村の「炎の守り星」を うばい、星竜山の 万年氷を とかしている。
 // 氷の洞窟（ブリザマンモス）→ 鉱山の町カナトコ（マグマゴーレム）→ 温泉の里ユノハ → 炎の山（炎の騎士フレアード）
 // → 竜の試練の神殿（勇気・ちえ・きずな）→ 竜の門 → 星竜山 → 頂上で イグニアを たおすと 星の竜アステルが 目覚める
-import { NORTH_PLACES } from '../maps/north.js?v=72d256b41f0a';
-import { CART_RIDES, WISDOM_ORDER, WISDOM_FLAGS, BOND_PLATES, TRIAL_FLAGS, VOLCANO_LEVERS } from '../maps/ch3.js?v=72d256b41f0a';
-import { innSteps } from './inn.js?v=72d256b41f0a';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=72d256b41f0a';
+import { NORTH_PLACES } from '../maps/north.js?v=7ebee457d31b';
+import { CART_RIDES, WISDOM_ORDER, WISDOM_FLAGS, BOND_PLATES, TRIAL_FLAGS, VOLCANO_LEVERS } from '../maps/ch3.js?v=7ebee457d31b';
+import { innSteps } from './inn.js?v=7ebee457d31b';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=7ebee457d31b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

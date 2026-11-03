@@ -1,8 +1,8 @@
 // きずなの紋章 ― はじまり
-import { Net } from './client/net.js?v=72d256b41f0a';
-import { Game } from './client/game.js?v=72d256b41f0a';
-import { readLinkHash } from './client/links.js?v=72d256b41f0a';
-import { syncOnSite, confirmAskedServer } from './client/ui/syncui.js?v=72d256b41f0a';
+import { Net } from './client/net.js?v=7ebee457d31b';
+import { Game } from './client/game.js?v=7ebee457d31b';
+import { readLinkHash } from './client/links.js?v=7ebee457d31b';
+import { syncOnSite, confirmAskedServer } from './client/ui/syncui.js?v=7ebee457d31b';
 
 async function boot() {
   // 「連れていく」リンクで 開いた とき（#kizuna=…&server=…）

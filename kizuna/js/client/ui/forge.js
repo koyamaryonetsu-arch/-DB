@@ -8,19 +8,20 @@
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
 //             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { el, esc } from './dom.js?v=72d256b41f0a';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=72d256b41f0a';
-import { request } from './shop.js?v=72d256b41f0a';
-import { rankText } from './info.js?v=72d256b41f0a';
-import { rareNameHtml } from './rarity.js?v=72d256b41f0a';
-import { ITEMS } from '../../shared/data/items.js?v=72d256b41f0a';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=72d256b41f0a';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=72d256b41f0a';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=72d256b41f0a';
-import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=72d256b41f0a';
-import { bindAlchemy } from './alchemy.js?v=72d256b41f0a';
-import { computeStats, itemCount } from '../../shared/stats.js?v=72d256b41f0a';
-import { boardIconURL } from '../render/boards.js?v=72d256b41f0a';
+import { sourcesFlow } from './sources.js?v=7ebee457d31b';
+import { el, esc } from './dom.js?v=7ebee457d31b';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=7ebee457d31b';
+import { request } from './shop.js?v=7ebee457d31b';
+import { rankText } from './info.js?v=7ebee457d31b';
+import { rareNameHtml } from './rarity.js?v=7ebee457d31b';
+import { ITEMS } from '../../shared/data/items.js?v=7ebee457d31b';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=7ebee457d31b';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=7ebee457d31b';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=7ebee457d31b';
+import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=7ebee457d31b';
+import { bindAlchemy } from './alchemy.js?v=7ebee457d31b';
+import { computeStats, itemCount } from '../../shared/stats.js?v=7ebee457d31b';
+import { boardIconURL } from '../render/boards.js?v=7ebee457d31b';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
@@ -137,6 +138,7 @@ async function craftOne(game, ct, id) {
   if (lack.mats.length) {
     await ct.say(`${it.name}を作るには、\n${matsText(r.mats)}がいる。\n素材が足りないようだな。`);
     await ct.tap(2400);
+    await sourcesFlow(game, ct, lack.mats); // 第64回 ⑥a: 入手先
     return AGAIN;
   }
   if (lack.gold) {
@@ -329,6 +331,7 @@ async function upgradeLoop(game, ct) {
     if (!lack.ok) {
       await ct.say(`${it.name}を${cost.reborn ? 'もう1回' : `+${cost.n}に`}きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n${lack.mats.length ? '素材が足りないようだな。' : 'ゴールドが足りないようだな。'}`);
       await ct.tap(2600);
+      if (lack.mats.length) await sourcesFlow(game, ct, lack.mats); // 第64回 ⑥a: 入手先
       line = AGAIN;
       continue;
     }

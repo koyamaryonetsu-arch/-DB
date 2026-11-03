@@ -1,29 +1,32 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=72d256b41f0a';
-import { T, TILE_INFO } from '../shared/tiles.js?v=72d256b41f0a';
-import { PLACES } from '../shared/maps/overworld.js?v=72d256b41f0a';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=72d256b41f0a';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=72d256b41f0a';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=72d256b41f0a';
-import { shownEquip } from '../shared/look-equip.js?v=72d256b41f0a';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=72d256b41f0a';
-import { MONSTERS } from '../shared/data/monsters.js?v=72d256b41f0a';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=7ebee457d31b';
+import { T, TILE_INFO } from '../shared/tiles.js?v=7ebee457d31b';
+import { PLACES } from '../shared/maps/overworld.js?v=7ebee457d31b';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=7ebee457d31b';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=7ebee457d31b';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=7ebee457d31b';
+import { shownEquip } from '../shared/look-equip.js?v=7ebee457d31b';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=7ebee457d31b';
+import { MONSTERS } from '../shared/data/monsters.js?v=7ebee457d31b';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=72d256b41f0a';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=72d256b41f0a';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=72d256b41f0a';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=72d256b41f0a';
-import { boardCanvas } from './render/boards.js?v=72d256b41f0a';
-import { el } from './ui/dom.js?v=72d256b41f0a';
-import { syncTreasureGates } from './ui/treasure.js?v=72d256b41f0a';
-import { skyNpcSprite } from './render/sky-art.js?v=72d256b41f0a';
-import { wagonDraws } from './render/wagon.js?v=72d256b41f0a';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=72d256b41f0a';
-import { Weather } from './render/weather.js?v=72d256b41f0a';
-import { flySpeed } from '../shared/data/sky.js?v=72d256b41f0a';
-import { timeFlag } from '../shared/world/clock.js?v=72d256b41f0a';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=72d256b41f0a';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=72d256b41f0a';
+import { colorMon } from '../shared/data/variants.js?v=7ebee457d31b';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=7ebee457d31b';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=7ebee457d31b';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=7ebee457d31b';
+import { boardCanvas } from './render/boards.js?v=7ebee457d31b';
+import { el } from './ui/dom.js?v=7ebee457d31b';
+import { syncTreasureGates } from './ui/treasure.js?v=7ebee457d31b';
+import { skyNpcSprite } from './render/sky-art.js?v=7ebee457d31b';
+import { wagonDraws } from './render/wagon.js?v=7ebee457d31b';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=7ebee457d31b';
+import { Weather } from './render/weather.js?v=7ebee457d31b';
+import { flySpeed } from '../shared/data/sky.js?v=7ebee457d31b';
+import { timeFlag } from '../shared/world/clock.js?v=7ebee457d31b';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=7ebee457d31b';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=7ebee457d31b';
+import { huntMatch } from './ui/sources.js?v=7ebee457d31b';
+// 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
+const huntTints = new WeakMap();
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -230,7 +233,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=72d256b41f0a');
+          const { Field3D } = await import('./render/field3d.js?v=7ebee457d31b');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -839,7 +842,7 @@ export class Field {
         o = { id: s.id, x: s.x, y: s.y };
         this.syms.set(s.id, o);
       }
-      Object.assign(o, { sp: s.sp, tx: s.x, ty: s.y, dir: s.dir, st: s.st });
+      Object.assign(o, { sp: s.sp, tx: s.x, ty: s.y, dir: s.dir, st: s.st, gs: s.gs || null });
     }
     for (const id of [...this.syms.keys()]) if (!seenS.has(id)) this.syms.delete(id);
   }
@@ -1298,7 +1301,7 @@ export class Field {
       out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: !['starstone', 'windstone', 'firestone'].includes(n.sprite), anchor: n.sprite.startsWith('mon:') ? 2 : undefined });
     }
     for (const s of this.syms.values()) {
-      const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
+      const c = this.huntTint(s, monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true));
       const fly = isFlying(s.sp);
       out.push({ key: 's:' + s.id, canvas: c, x: s.x, y: s.y, flip: s.dir === 'right', anchor: 2, lift: fly ? 0.35 + Math.sin(this.time / 200) * 0.12 : 0 });
     }
@@ -1507,8 +1510,26 @@ export class Field {
     this.drawAt(npcSprite(n.sprite, s.dir, frame), s.x, s.y, camX, camY);
   }
 
+  // 第64回 ⑥a: さがしている 魔物（素材の 入手先で えらんだ。ui/sources.js）は 赤く 点めつ
+  huntTint(s, c) {
+    if (!c || !huntMatch(this.game.hunt, s) || Math.floor(this.time / 320) % 2) return c;
+    let t = huntTints.get(c);
+    if (!t) {
+      t = document.createElement('canvas');
+      t.width = c.width; t.height = c.height;
+      if (c.res) t.res = c.res;
+      const x = t.getContext('2d');
+      x.drawImage(c, 0, 0);
+      x.globalCompositeOperation = 'source-atop';
+      x.fillStyle = 'rgba(255, 40, 30, 0.62)';
+      x.fillRect(0, 0, t.width, t.height);
+      huntTints.set(c, t);
+    }
+    return t;
+  }
+
   drawSym(s, camX, camY) {
-    const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
+    const c = this.huntTint(s, monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true));
     const bob = isFlying(s.sp) ? Math.round(Math.sin(this.time / 200) * 2) - 4 : 0;
     const r = c.res || 1;
     const w = c.width / r, h = c.height / r;
