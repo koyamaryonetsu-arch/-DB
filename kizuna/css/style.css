@@ -1119,6 +1119,7 @@ img.face { image-rendering: pixelated; }
 .b-result .res-lines > .lvup { font-weight: bold; text-shadow: 0 0 10px rgba(255, 214, 107, 0.7); animation: lv-pop 0.9s ease-out; }
 .b-result .res-lines > .res-stats { color: #ffe9b0; font-size: 0.92em; padding-left: 0.8em; }
 /* つぎの 行は ボタンを おすと 出る（▼ が ちかちか） */
+.b-result .res-follow { text-align: center; color: var(--muted); font-size: 0.85em; margin-top: 0.4em; }
 .b-result .res-more { text-align: center; color: var(--accent); line-height: 1; height: 1em; font-size: 0.85em; opacity: 0; }
 .b-result .res-more.on { opacity: 1; animation: blink 0.9s steps(2) infinite; }
 @keyframes res-in { from { opacity: 0; transform: translateY(4px); } }
@@ -1148,7 +1149,8 @@ img.face { image-rendering: pixelated; }
   .b-bottom { flex: 1; flex-direction: column-reverse; min-height: 0; }
   .b-cmd { width: 100%; flex: 1 1 auto; min-height: 0; }
   .b-cmd .menu { max-height: none; flex: 1; min-height: 0; }
-  .b-cmd .menu .item { min-height: 2.8em; font-size: 1.22em; }
+  /* 第61回: 技の 字は 大きく、行は すこし うすく（たくさん 見える） */
+  .b-cmd .menu .item { min-height: 2.45em; font-size: 1.3em; }
   /* 5人の ときは 3人＋2人の 2だん（4人の ときと おなじ たかさ。コマンドが せまく ならない） */
   .b-status[data-n="5"] { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
   .b-status[data-n="5"] .b-mem { grid-column: span 2; padding-left: 0.4em; padding-right: 0.4em; }
@@ -1160,7 +1162,9 @@ img.face { image-rendering: pixelated; }
   /* 第52回: もどれる ときは コマンドの わくの 外・左下に 大きな「← もどる」（わくの 中の 小さい もどるは かくす） */
   #battle.has-back .b-backbar { display: flex; }
   /* 第54回: たてに みじかい 画面では もっと うすく（技の 一覧を つぶさない） */
-  @media (max-height: 700px) { .b-backbig { min-height: 2.1em; font-size: 0.95em; } }
+  /* 第61回: 小さく（左下の わくの 外なので まちがえて おさない） */
+  .b-backbig { min-width: 26%; min-height: 32px; padding: 0 0.8em; font-size: 0.9em; border-width: 1.5px; border-radius: 8px; }
+  @media (max-height: 700px) { .b-backbig { min-height: 30px; } }
   #battle.has-back .b-cmd .menu .backchip, #battle.has-back .b-tabs .bt-back { display: none; }
   .b-tools { top: 6px; transform: none; }
 }
@@ -1798,7 +1802,7 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .b-info .favbtn { float: right; margin: 0 0 0.2em 0.5em; }
 /* たてむき: 上から え・メッセージ・せつめい・コマンド（.b-bottom は column-reverse。DOM は コマンド・せつめい・メッセージ） */
 @media (max-aspect-ratio: 1/1) {
-  .b-info { flex: none; height: auto; max-height: 7.9em; padding-top: 0.3em; padding-bottom: 0.3em; }
+  .b-info { flex: none; height: auto; max-height: 4.9em; padding-top: 0.25em; padding-bottom: 0.25em; line-height: 1.4; }
   /* せつめいが 出ている 間は メッセージを 2行ぶんに（コマンドが せまく ならない） */
   #battle.has-info .b-msg { height: 4.1em; }
 }

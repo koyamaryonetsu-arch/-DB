@@ -3,21 +3,21 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=ce358866dd73';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=ce358866dd73';
-import { ITEMS } from '../../shared/data/items.js?v=ce358866dd73';
-import { JOBS } from '../../shared/data/jobs.js?v=ce358866dd73';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=ce358866dd73';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=ce358866dd73';
-import { targetText, itemDetail } from './info.js?v=ce358866dd73';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=9b80ceaafaa3';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=9b80ceaafaa3';
+import { ITEMS } from '../../shared/data/items.js?v=9b80ceaafaa3';
+import { JOBS } from '../../shared/data/jobs.js?v=9b80ceaafaa3';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=9b80ceaafaa3';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=9b80ceaafaa3';
+import { targetText, itemDetail } from './info.js?v=9b80ceaafaa3';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
-import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=ce358866dd73';
+import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=9b80ceaafaa3';
 // 第50回 N1: 今の 魔力・回復魔力での 威力の 目安（shared/skill-power.js）
-import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=ce358866dd73';
+import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=9b80ceaafaa3';
 export { powStats };
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2段階・回復が 多い（shared/skill-tier.js）。文は tierText だけで つくる
-import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=ce358866dd73';
-import { stackMult } from '../../shared/battle.js?v=ce358866dd73';
+import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=9b80ceaafaa3';
+import { stackMult } from '../../shared/battle.js?v=9b80ceaafaa3';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -126,7 +126,8 @@ export function skillLvFor(pc, id, slv = null) {
 // 呪文・特技の せつめい（pc: 使う 人。{ job, jobs }。touch: タッチの とき「もう一度タップで使う」）
 // who: 名前・説明を きめる 人（look を 見る。男の子の 美少女戦士などは かわる。ability-label.js。look の ない pc なら もとの まま）
 // lv: 技の レベル（第38回 C。じわじわ回復の 回数に かかわる。わからない ときは pc.skillUse から）
-export function battleSkillText(id, pc, { touch = false, who = pc, lv = null } = {}) {
+// compact: スマホの たてむき（第61回）。3行まで: 見出し・威力・せつめいの 1文め（⚠だけ そえる。「もう一度タップ」は 出さない）
+export function battleSkillText(id, pc, { touch = false, who = pc, lv = null, compact = false } = {}) {
   const a = abilityFor(id, who);
   if (!a) return '';
   const lines = [];
@@ -134,10 +135,13 @@ export function battleSkillText(id, pc, { touch = false, who = pc, lv = null } =
   const pm = pen.powMult || 1;
   // 見出し（「炎属性のダメージの呪文」など。属性も ここに 入る）・MP・相手
   const cost = a.effect?.type === 'mahouken' ? null : pc ? mpCost(pc, id) : a.mp || 0;
-  lines.push(`【${abilityTypeText(a)}】${cost === null ? '' : `MP${cost}・`}${targetText(a) || '—'}`);
+  // compact: 「炎属性のダメージの呪文」→「炎・ダメージの呪文」、「今の魔力でダメージ約22〜30」→「ダメージ約22〜30」
+  const type = compact ? abilityTypeText(a).replace(/属性の/, '・') : abilityTypeText(a);
+  lines.push(`【${type}】${cost === null ? '' : `MP${cost}・`}${targetText(a) || '—'}`);
   const role = abilityRole(a);
   const slv = lv || skillLvFor(pc, id);
-  const pw = partText(a.effect, pm, slv, powStats(pc), skillMods(pc, id));
+  const pw0 = partText(a.effect, pm, slv, powStats(pc), skillMods(pc, id));
+  const pw = compact && pw0 ? pw0.replace(/^今の[^で、]{1,8}で/, '') : pw0;
   if (pw) lines.push(`${role === 'dmg' ? '威力' : '効果'}：${pw}`);
   const notes = [];
   if (slv > 1) notes.push(`技Lv${slv}`);
@@ -145,9 +149,27 @@ export function battleSkillText(id, pc, { touch = false, who = pc, lv = null } =
   if (SKILL_UPS[id] && ABILITIES[SKILL_UPS[id]]) notes.push(`${abilityLabel(SKILL_UPS[id], who)}の上位の技`);
   if (pen.penalized) notes.push(`⚠${pen.label}`);
   if (a.kind === 'combo' && pc?.job && JOBS[pc.job] && !comboAllowed(pc, id)) notes.push('⚠今の職業では使えない');
+  if (compact) {
+    const warn = notes.filter((n) => n.startsWith('⚠'));
+    lines.push([firstSentence(a.desc), warn.length ? `（${warn.join('・')}）` : ''].filter(Boolean).join(''));
+    return lines.filter(Boolean).join('\n');
+  }
   lines.push([a.desc || '', notes.length ? `（${notes.join('・')}）` : ''].filter(Boolean).join(''));
   if (touch) lines.push('▶もう一度タップで使う');
   return lines.filter(Boolean).join('\n');
+}
+
+// せつめいの 1文め（「。」まで。かっこの 中の 「。」では 切らない）
+export function firstSentence(desc) {
+  const t = String(desc || '');
+  let depth = 0;
+  for (let i = 0; i < t.length; i++) {
+    const ch = t[i];
+    if (ch === '（' || ch === '「' || ch === '(') depth++;
+    else if ((ch === '）' || ch === '」' || ch === ')') && depth > 0) depth--;
+    else if (ch === '。' && depth === 0) return t.slice(0, i + 1);
+  }
+  return t;
 }
 
 // 戦いの 呪文・特技の 一覧: 長おし・Yキーで お気に入り（第27回）の ひとこと を そえる

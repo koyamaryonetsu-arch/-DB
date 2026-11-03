@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=ce358866dd73';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=ce358866dd73';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=ce358866dd73';
-import { MONSTERS } from '../data/monsters.js?v=ce358866dd73';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=ce358866dd73';
-import { SLOTS, ITEMS } from '../data/items.js?v=ce358866dd73';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=ce358866dd73';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=ce358866dd73';
-import { difficultyOf } from '../data/difficulty.js?v=ce358866dd73';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=9b80ceaafaa3';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=9b80ceaafaa3';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=9b80ceaafaa3';
+import { MONSTERS } from '../data/monsters.js?v=9b80ceaafaa3';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=9b80ceaafaa3';
+import { SLOTS, ITEMS } from '../data/items.js?v=9b80ceaafaa3';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=9b80ceaafaa3';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=9b80ceaafaa3';
+import { difficultyOf } from '../data/difficulty.js?v=9b80ceaafaa3';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -159,9 +159,9 @@ export function syncParty(world, p) {
     const keep = new Set(lc ? [...lc.partyKeys, ...(lc.wagonKeys || [])].map((k) => `${lc.id}|${k}`) : []);
     for (const id of [...p.famCopies.keys()]) if (!keep.has(id)) p.famCopies.delete(id);
   }
-  // ゲスト
+  // ゲスト（第61回: リーダーの ゲストだけ。さそわれた 人は 1人だけで 入る。ゲストは 自分の パーティーの 時だけ）
   const gids = [];
-  for (const sid of p.members) for (const g of world.sessions.get(sid)?.char?.guests || []) if (!gids.includes(g) && GUESTS[g]) gids.push(g);
+  for (const g of lc?.guests || []) if (!gids.includes(g) && GUESTS[g]) gids.push(g);
   const oldG = new Map(p.guests.map((g) => [g.id, g]));
   p.guests = gids.map((id) => oldG.get(id) || { id, char: guestChar(world, id, lc?.level || 1) }).filter((g) => g.char);
 }
