@@ -7,11 +7,11 @@
 //     axfx-g2-onepiece.js  … ワンピース（ゴム人間・ニカ）
 //     axfx-g2-keikyu.js    … 京急（運転士・社長）
 //     axfx-g2-baseball.js  … 野球（二刀流スター・殿堂入り）
-import { G2_FINE } from './axfx-g2-kit.js?v=0b411da56d70';
-import { AX_G2_NARUTO } from './axfx-g2-naruto.js?v=0b411da56d70';
-import { AX_G2_ONEPIECE } from './axfx-g2-onepiece.js?v=0b411da56d70';
-import { AX_G2_KEIKYU } from './axfx-g2-keikyu.js?v=0b411da56d70';
-import { AX_G2_BASEBALL } from './axfx-g2-baseball.js?v=0b411da56d70';
+import { G2_FINE } from './axfx-g2-kit.js?v=49f690cedd1e';
+import { AX_G2_NARUTO } from './axfx-g2-naruto.js?v=49f690cedd1e';
+import { AX_G2_ONEPIECE } from './axfx-g2-onepiece.js?v=49f690cedd1e';
+import { AX_G2_KEIKYU } from './axfx-g2-keikyu.js?v=49f690cedd1e';
+import { AX_G2_BASEBALL } from './axfx-g2-baseball.js?v=49f690cedd1e';
 
 // どの え にも かける しあげ（play を つつむ）
 // ・火花の かず: 敵が おおい ときは へらす（つぶの 上限）、DENSE で ふやす（1体でも 豪華に）

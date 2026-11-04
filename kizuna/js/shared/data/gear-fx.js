@@ -4,8 +4,8 @@
 //     同じ 装備を 2つ 持っていても、その 人が 装備した ときだけ 効く。きたえた +1〜 も 同じ しゅるい
 //   ・強さは 装備の +の 数で 上がる（fxPower）
 //   ・「使う」効果: 戦いの「道具」から 何回でも 使える（1回の 行動を つかう。MP は いらない）
-import { ITEMS } from './items.js?v=0b411da56d70';
-import { isShopGear } from './items-rare.js?v=0b411da56d70';
+import { ITEMS } from './items.js?v=49f690cedd1e';
+import { isShopGear } from './items-rare.js?v=49f690cedd1e';
 
 export const STAR = 'star_shard';
 

@@ -2,7 +2,7 @@
 // render/monsters.js が addTokeiArt を よぶ。かきかたは ch6-road-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // 新しい 絵は 3しゅ ＋ カリヨン（のこりは 時のいせきの 魔物の 色ちがい。variants.js の 'clock'）
 // カリヨンは 台本の showMon でも 大きく 見える 大きさ（104×116）
-import { fit } from './ch3-draw.js?v=0b411da56d70';
+import { fit } from './ch3-draw.js?v=49f690cedd1e';
 
 // ───── ころがり歯車 ─────
 const COG = {
