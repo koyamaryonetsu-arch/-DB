@@ -66,6 +66,17 @@ export const FAMILY_GIFTS = {
     ...GIFT, name: 'まぼろしの金のトランプ', bonus: { agi: 16, mag: 10, hp: 30 }, crit: 0.04, resist: { confuse: 0.5, blind: 0.5 },
     desc: '王都のお祭りのお礼の、金のトランプ。だれでも装備でき、素早さと魔力が上がって会心が出やすく、混乱と目つぶしに強い。',
   },
+  // ───── 第65回 D2（data/sidequests-work2.js）。第64回の きまり（装備の ごほうびは へらす）で ★5 は 2つだけ ─────
+  // 15. 魔物サーカス（魔物使いの 系統）: 団長の なかよしの すず
+  fq_friend_bell: {
+    ...GIFT, name: 'なかよしの金のすず', bonus: { hp: 50, heal: 10, agi: 8 }, resist: { confuse: 0.5, sleep: 0.5, poison: 0.7 },
+    desc: 'サーカスの魔物たちが大すきな、金のすず。だれでも装備でき、HPと回復の力と素早さが上がり、混乱とねむりと毒に強い。',
+  },
+  // 17. からくりゲーム（ゲーマーの 系統）: からくり屋の 金の コントローラー
+  fq_gold_pad: {
+    ...GIFT, name: '名人の金のコントローラー', bonus: { agi: 16, str: 8, mag: 8 }, crit: 0.04, resist: { paralyze: 0.5, confuse: 0.6 },
+    desc: 'ドゥナのからくり屋が作った、金色のコントローラー。だれでも装備でき、素早さと力と魔力が上がって会心が出やすく、マヒと混乱に強い。',
+  },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
 
@@ -81,6 +92,8 @@ export const FAMILY_KEYS = {
   fq_silk_hat: { name: 'マジーロのシルクハット', type: 'key', desc: '手品師マジーロの、黒いシルクハット。中は、ふしぎな空っぽ。' },
   fq_cards: { name: 'マジーロのトランプ', type: 'key', desc: '手品師マジーロの、手品用のトランプ。' },
   fq_dove: { name: '白いハト', type: 'key', desc: '手品師マジーロのハト。シルクハットの中が大すき。' },
+  // 第65回 D2
+  fq_neta_note: { name: 'ふわふわコンビのネタ帳', type: 'key', desc: 'ハネノの若手芸人コンビの、ネタ帳。ボケとツッコミが、ぎっしり書いてある。' },
 };
 
 export const FAMILY_ITEMS = { ...FAMILY_GIFTS, ...FAMILY_KEYS };
@@ -91,5 +104,6 @@ export const FAMILY_ITEM_KANA = {
   fq_mushroom: 'ゆきわりきのこ', fq_salt: 'いわしお', fq_milk: 'やぎのみるく', fq_button: 'ぴかぴかのぼたん', fq_bell: 'きょうかいのちいさなかね',
   fq_star_mic: 'きらめきのすたーまいく', fq_gold_stamp: 'まちづくりのきんのはんこ', fq_homerun_ball: 'きねんのほーむらんぼーる',
   fq_gold_play: 'きんのさいせいぼたん', fq_gold_shamoji: 'たよれるきんのしゃもじ', fq_gold_cards: 'まぼろしのきんのとらんぷ',
+  fq_friend_bell: 'なかよしのきんのすず', fq_gold_pad: 'めいじんのきんのこんとろーらー', fq_neta_note: 'ふわふわこんびのねたちょう',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };

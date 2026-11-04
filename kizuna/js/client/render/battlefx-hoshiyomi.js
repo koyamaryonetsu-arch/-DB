@@ -2,9 +2,9 @@
 // （battlefx-kumoi.js の playKumoiFx の さいごに よばれる。ない anim なら false）
 // 色: 星＝白・黄・水色の きらきら、影＝こい むらさき・黒、なみだと さむけ＝水色・白、赤い 石＝赤
 // ノクトの影: ns_mimic（まねる。影が ゆらめいて 光の わ）・ns_bond_watch（前ぶれ。むらさきの くさりが あつまる）→ ns_bond_break（大技。くさりが はじける）
-import { ELEMENT_FX } from './battlefx-r27.js?v=7c5117cedbee';
+import { ELEMENT_FX } from './battlefx-r27.js?v=cd82616ef3db';
 // 第5章 Step 6・7: 根の島・大地の神殿の 魔物と ノクト（1回目）（battlefx-earth.js）
-import { playEarthFx } from './battlefx-earth.js?v=7c5117cedbee';
+import { playEarthFx } from './battlefx-earth.js?v=cd82616ef3db';
 
 const ICE = ELEMENT_FX.ice.colors, WIND = ELEMENT_FX.wind.colors;
 const STAR = ['#ffffff', '#fff4b0', '#b8d8ff', '#ffd848'];

@@ -16,14 +16,14 @@
 //   （battle-ch6.js の AUTO_GUARD。ほかの ボスと おなじ。b.c6Naive … しない 人）
 // ・知っている 人（シミュレーター tools/sim-ch7.mjs。b.knowsCh6）: 大うずしお・大合唱の 前に 身を 守る（b.c6NoGuard … しない）／
 //   ウツボは HP の 多い ほうを ねらって 2ひきを いっしょに へらす（b.c7NoSplit … しない）／声が 貝に 入ったら 貝を こわす（b.c7NoShell … しない）
-import { MONSTERS } from './data/monsters.js?v=7c5117cedbee';
-import { ABILITIES } from './data/abilities.js?v=7c5117cedbee';
-import { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL } from './data/monsters-c7.js?v=7c5117cedbee';
-import { BUFF_ACTS } from './buff-acts.js?v=7c5117cedbee';
+import { MONSTERS } from './data/monsters.js?v=cd82616ef3db';
+import { ABILITIES } from './data/abilities.js?v=cd82616ef3db';
+import { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL } from './data/monsters-c7.js?v=cd82616ef3db';
+import { BUFF_ACTS } from './buff-acts.js?v=cd82616ef3db';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=7c5117cedbee';
-import { canUse } from './ai.js?v=7c5117cedbee';
-import { AUTO_GUARD } from './battle-ch6.js?v=7c5117cedbee';
+import { atbRate } from './battle.js?v=cd82616ef3db';
+import { canUse } from './ai.js?v=cd82616ef3db';
+import { AUTO_GUARD } from './battle-ch6.js?v=cd82616ef3db';
 
 export { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL };
 export const SWIRL = 'm7g_swirl';
