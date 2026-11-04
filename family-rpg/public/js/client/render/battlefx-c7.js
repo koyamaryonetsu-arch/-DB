@@ -6,6 +6,9 @@
 // a7g_swirl（ふたごの大うずしお）は がめんいっぱいの 大きな うず（とくべつな つぶ c7whirl）→ 2ひきの かげが 回る → 大波。
 // a7t_chorus（うばった声の大合唱）は 貝が ひらいて 金の 声の たまと 音ぷ（c7note）が がめんいっぱいに → むらさきの 音の わ。
 // どちらも がめんの まん中に 大きく（client/battle-c7.js の C7_SCREEN_ANIMS）
+// 第2部 第7章 第2幕 の エフェクト（ここの さいごから よぶ。とくべつな つぶも C7_FINE に まぜる）
+import { playC7sFx, C7S_FINE } from './battlefx-c7s.js';
+
 const WATER = ['#7ad8e8', '#bff4ff', '#2a8aa8', '#ffffff'];
 const EEL = ['#b8d860', '#e8f8a0', '#5a7a2a', '#ffe060'];
 const WITCH = ['#8a4ac8', '#c89aff', '#3a1a5a', '#f0d080'];
@@ -73,7 +76,7 @@ function c7note(x, p, t) {
   x.lineTo(p.x + s * 2, p.y - s * 2.2);
   x.stroke();
 }
-export const C7_FINE = { c7whirl, c7note };
+export const C7_FINE = { c7whirl, c7note, ...C7S_FINE };
 
 // 音ぷを n こ（x・y から ふわっと 上へ・まわりへ）
 function notes(fx, x, y, n, { colors = VOICE, speed = 50, delay = 0, life = 900, size = [2, 3.4], up = 30 } = {}) {
@@ -315,6 +318,7 @@ export function playC7Fx(fx, anim, targets, element, opts = {}, W = 256, H = 144
       }
       return true;
     default:
-      return false;
+      // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・カイ（battlefx-c7s.js）
+      return playC7sFx(fx, anim, targets, element, opts, W, H);
   }
 }

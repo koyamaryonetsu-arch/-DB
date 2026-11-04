@@ -356,9 +356,11 @@ export const CH6_TOWER_ZONES = [['t6_tower_low', 64, 58], ['t6_tower_low', 65, 5
 export const CH6_TOWER_HIGH_ZONES = [['t6_tower_high', 66, 58], ['t6_tower_high', 67, 58], ['t6_tower_high', 68, 58]];
 // 第2部 第7章 第1幕「緑の王国」（Lv68〜70）・みどりの水の神殿（Lv70〜72）: node tools/sim.js [回数] ch7（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch7.mjs）
 export const CH7_ZONES = [['t7_kingdom', 68, 58], ['t7_kingdom', 69, 58], ['t7_kingdom', 70, 58], ['t7_temple', 70, 58], ['t7_temple', 71, 58], ['t7_temple', 72, 58]];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch7') {
+// 第2部 第7章 第2幕 千年前の クモイの 海（Lv72〜74）・しずむ前の島の灯台（Lv74〜76）: node tools/sim.js [回数] ch7s（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch7.mjs）
+export const CH7S_ZONES = [['t7_sea', 72, 58], ['t7_sea', 73, 58], ['t7_sea', 74, 58], ['t7_light', 74, 58], ['t7_light', 75, 58], ['t7_light', 76, 58]];
+if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch7' || process.argv[3] === 'ch7s')) {
   const rng = makeRng(7171);
-  for (const [table, lv, tier] of CH7_ZONES) {
+  for (const [table, lv, tier] of process.argv[3] === 'ch7s' ? CH7S_ZONES : CH7_ZONES) {
     const res = [];
     for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
     summarize(`${table} Lv${lv}`, res);

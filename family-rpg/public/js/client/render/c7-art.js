@@ -4,6 +4,8 @@
 // のこりの 5しゅ（使いのカラス・うずしおウツボ・テレサ・水のようま・のろいだま）は 今の 絵の 色がえ（monsters-c7.js の art・tint）
 // ボスは 台本の showMon でも 大きく 見える 大きさ（ウツボ 100×92・オクタリア 112×124）
 import { fit } from './ch3-draw.js';
+// 第2部 第7章 第2幕: 手下の 魔物・ジョリーホック号・ホック船長（c7s-art.js）
+import { addC7sArt } from './c7s-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）
@@ -373,4 +375,6 @@ export function addC7Art(ART) {
   ART.c7_temple = { size: [112, 124], npc: 0.6, pal: pal(OC), draw: octaria };
   // 声の貝（数えない 魔物）
   ART.c7_shell = { size: [30, 26], pal: Object.values(SH), draw: voiceShell };
+  // 第7章 第2幕（c7s-art.js）
+  addC7sArt(ART);
 }

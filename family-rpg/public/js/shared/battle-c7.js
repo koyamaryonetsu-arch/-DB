@@ -24,6 +24,8 @@ import { BUFF_ACTS } from './buff-acts.js';
 import { atbRate } from './battle.js';
 import { canUse } from './ai.js';
 import { AUTO_GUARD } from './battle-ch6.js';
+// 第2部 第7章 第2幕: ジョリーホック号（しおの満ち引き）・ホック船長（板わたり）。battle-c7s.js
+import { setupC7s, c7sTurnStart, c7sEffect, c7sPlan, c7sPub, c7sDamage, c7sKill } from './battle-c7s.js';
 
 export { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL };
 export const SWIRL = 'm7g_swirl';
@@ -78,11 +80,14 @@ export function setupC7(b) {
     lines.push('2ひきのウツボが、水門の前で、ぐるぐると回っている…！', '（かたほうだけたおしても、もうかたほうが、よびもどしそうだ…！）');
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1300 });
+  // 第7章 第2幕の ボス（battle-c7s.js）
+  setupC7s(b);
 }
 
 // ───────────── 行動の はじめ（battle-ch6.js の ch6TurnStart の はじめ）─────────────
 // 動けない 番も しるしを 数える（しるしが 1つの 番が 動けない ときは、次の 番に）
 export function c7TurnStart(b, c, ev, stuck) {
+  c7sTurnStart(b, c, ev, stuck);
   if (c.twin) twinTurn(b, c, ev, stuck);
   else if (c.witch) witchTurn(b, c, ev, stuck);
 }
@@ -158,7 +163,8 @@ export function c7Effect(b, c, a, eff, ev) {
     case 'c7Call': call(b, c, ev); return true;
     case 'c7Steal': steal(b, c, ev); return true;
     case 'c7Chorus': chorus(b, c, ev); return true;
-    default: return false;
+    // 第7章 第2幕（battle-c7s.js）
+    default: return c7sEffect(b, c, a, eff, ev);
   }
 }
 
@@ -263,6 +269,7 @@ function chorus(b, c, ev) {
 // ───────────── たおれた（battle-ch5.js の towerKill から）─────────────
 // ウツボ: もう 1ぴきが よびもどしの 数を はじめる / 声の貝: 声が もどり、魔女が よろめく
 export function c7Kill(b, t, ev) {
+  c7sKill(b, t, ev);
   if (t.twin) {
     const p = partnerOf(b, t);
     if (!p?.alive) return;
@@ -360,6 +367,9 @@ function bestHit(b, c, t) {
 // 第7章の ボスが いなければ null（ほかの ボスの 考えへ）
 export function c7Plan(b, c, decide) {
   if (c.side !== 'ally' || b.c7Inner) return null;
+  // 第7章 第2幕の ボス（ジョリーホック号・ホック船長。battle-c7s.js）
+  const sp = c7sPlan(b, c, decide);
+  if (sp) return sp;
   const eels = b.aliveEnemies().filter((e) => e.twin);
   const w = witchOf(b);
   if (!eels.length && !w) return null;
@@ -410,6 +420,7 @@ export function c7Plan(b, c, decide) {
 // オクタリア: witchLeft・witchEvery（声うばいまで）・voices（貝の 中の 声）・chorus（次は 大合唱）・p2・shellDown（貝が また できるまで）
 // 声の貝: c7shell・voices
 export function c7Pub(c, o) {
+  c7sPub(c, o);
   if (c.twin) {
     o.twin = 1;
     if (c.twin.sync) {
@@ -432,4 +443,10 @@ export function c7Pub(c, o) {
     o.c7shell = 1;
     o.voices = c.c7w ? c.c7w.voices.length : 0;
   }
+}
+
+// ───────────── ダメージ（battle-ch6.js の ch6Damage の さいご。味方 → 敵 だけ）─────────────
+// 第7章 第2幕: のり上げた ジョリーホック号は 受ける ダメージが ふえる（battle-c7s.js）
+export function c7Damage(b, c, t, dmg, info, ev) {
+  return c7sDamage(b, c, t, dmg, info, ev);
 }

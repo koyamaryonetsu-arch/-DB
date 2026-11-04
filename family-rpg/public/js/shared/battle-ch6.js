@@ -30,7 +30,7 @@ import { tokeiKnow, bellBefore } from './battle-tokei.js';
 // 第2部 第6章 Step 6: ゼンマイ（家来の しかけを じゅんばんに・2だんめの 針と 歯車）。battle-tokei6.js
 import { setupTokei6, tokei6TurnStart, tokei6TurnEnd, tokei6Effect, tokei6Know, tokei6Pub, collapseBefore } from './battle-tokei6.js';
 // 第2部 第7章 第1幕: ウツボきょうだい（2ひきで 1組・大うずしお）・オクタリア（声うばい・声の貝）。battle-c7.js
-import { setupC7, c7TurnStart, c7Effect, c7Plan, c7Pub } from './battle-c7.js';
+import { setupC7, c7TurnStart, c7Effect, c7Plan, c7Pub, c7Damage } from './battle-c7.js';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';
@@ -230,7 +230,8 @@ export function ch6Damage(b, c, t, dmg, info, ev) {
     }
     ev.upd.push(t);
   }
-  return roadDamage(b, c, t, dmg, info, ev);
+  // 第2部 第7章 第2幕: のり上げた 船は ダメージが ふえる（battle-c7.js → battle-c7s.js）
+  return c7Damage(b, c, t, roadDamage(b, c, t, dmg, info, ev), info, ev);
 }
 
 // ───────────── 知っている 人の オート（battle-ch5.js の towerPlan から。b.knowsCh6）─────────────

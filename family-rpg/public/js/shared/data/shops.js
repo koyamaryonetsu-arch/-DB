@@ -19,6 +19,7 @@ import { SHOPS_PAST } from './shops-past.js';
 import { MINAMO_GUEST } from './companions-past.js';
 import { RION_GUEST } from './companions-tokei.js';
 import { KARIM_GUEST } from './companions-c7.js';
+import { KAI_GUEST } from './companions-c7s.js';
 
 export const SHOPS = {
   village: {
@@ -162,3 +163,5 @@ GUESTS.minamo = MINAMO_GUEST;
 GUESTS.rion = RION_GUEST;
 // 第2部 第7章 第1幕: 千年前の 若い 騎士 カリム（A が 台本の guest で 入れる。companions-c7.js）
 GUESTS.karim = KARIM_GUEST;
+// 第2部 第7章 第2幕: 千年前の 海の 小さな 島の 少年 カイ（A が 台本の guest で 入れる。companions-c7s.js）
+GUESTS.kai = KAI_GUEST;

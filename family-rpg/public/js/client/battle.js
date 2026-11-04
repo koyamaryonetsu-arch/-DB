@@ -13,7 +13,7 @@ import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/b
 import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js';
 import { TACTICS } from '../shared/ai.js';
 import { faceURL } from './field.js';
-import { monsterCanvas } from './render/monsters.js';
+import { monsterCanvas, monsterFine } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
 import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js';
 import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js';
@@ -79,9 +79,14 @@ import { TOKEI_SFX } from './battle-tokei.js';
 import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js';
 // 第2部 第7章 第1幕 の 魔物・ウツボきょうだい・オクタリア・カリムの 音（battle-c7.js）
 import { C7_SFX } from './battle-c7.js';
+// 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・カイの 音（battle-c7s.js）
+import { C7S_SFX } from './battle-c7s.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
+// 第65回（第2部 第7章 第2幕から）: 細かく 描いた ボス（render/monsters.js の monsterFine）が いる 間は、がめんの こまかさを 2ばいに
+//   （ふつう 3 → 6。ボスの ドットが ふつうの 魔物と おなじ くらい くっきり 見える）。おもい きかいでは まず これを やめる
+const FINE_RES_MAX = 6;
 
 const whiteCache = new WeakMap();
 function white(img, color = '#ffffff') {
@@ -204,6 +209,7 @@ const ANIM_SFX = {
   ...TOKEI_SFX,
   ...TOKEI6_SFX,
   ...C7_SFX,
+  ...C7S_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -1544,10 +1550,13 @@ export class BattleScene {
   }
 
   // おもくて カクカク する きかいでは え の こまかさを 1だんずつ さげる（3ばい → 2ばい → 1ばい）
+  // 細かく 描いた ボスの ために 上げて いる ときは、まず それを やめる（battleRes は そのまま）
   checkQuality(dt) {
     this.avgDt = this.avgDt ? this.avgDt * 0.9 + dt * 0.1 : 16;
     if (this.res > 1 && this.time > 2500 && this.time - (this.resAt || 0) > 1500 && this.avgDt > 38) {
-      this.res = battleRes = this.res - 1;
+      if (this.res > battleRes) this.fineOff = true;
+      else battleRes = this.res - 1;
+      this.res = battleRes;
       this.resAt = this.time;
       this.avgDt = 16;
       this.canvas.width = BW * this.res;
@@ -1707,6 +1716,16 @@ export class BattleScene {
     this.draw();
   }
 
+  // 第65回: 細かく 描いた ボス（monsterFine が 1より 大きい）が いる 間の がめんの こまかさ
+  fineRes() {
+    const fine = !this.fineOff && this.enemies().some((c) => !(c.dead >= 2) && monsterFine(c.species) > 1);
+    const want = fine ? Math.max(battleRes, Math.min(FINE_RES_MAX, battleRes * 2)) : battleRes;
+    if (want === this.res) return;
+    this.res = want;
+    this.canvas.width = BW * want;
+    this.canvas.height = BH * want;
+  }
+
   // サーバーの「ウェイトモードで 止まっている」と おなじ かんがえかた
   choosingPause() {
     if (!this.waitMode) return false;
@@ -1738,6 +1757,8 @@ export class BattleScene {
   }
 
   draw() {
+    // 細かく 描いた ボスが いる 間は こまかさを 2ばいに（いなく なったら もどす。キャンバスの 大きさが かわるので さいしょに）
+    this.fineRes();
     const x = this.ctx;
     x.imageSmoothingEnabled = false;
     const so = this.fx.shakeOffset;

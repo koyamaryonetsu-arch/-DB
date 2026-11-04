@@ -870,14 +870,25 @@ addDqmArt(MONSTER_ART);
 const cache = new Map();
 
 // え の きまり。宝の洞窟の 主は ほかの 魔物の え を 大きくして 色がえ（monsters-tm.js の art・artScale・tint）
+// 第65回（第2部 第7章 第2幕から）: 細かく 描いた ボス … 自分の え（MONSTER_ART）に artScale（1より 小さい）が ある 魔物は、
+//   え の size（今までの 2倍）の まま かいて、こまかさ（res）を 1/artScale ばいに する（見た目の 大きさは size × artScale。fine）
+//   どちらも「見た目の 大きさ ＝ size × artScale」
 function artOf(sp) {
   // （tint … え そのものに 色の かえかたが ある もの。影の城の まぼろし）
-  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp], tint: MONSTER_ART[sp].tint };
+  if (MONSTER_ART[sp]) {
+    const k = MONSTERS[sp]?.artScale;
+    return { def: MONSTER_ART[sp], tint: MONSTER_ART[sp].tint, fine: k > 0 && k < 1 ? 1 / k : 1 };
+  }
   const md = MONSTERS[sp];
   const base = md?.art && MONSTER_ART[md.art];
   if (!base) return { def: MONSTER_ART.pururin };
   const k = md.artScale || 1;
-  return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint };
+  return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint, fine: 1 };
+}
+
+// 細かく 描いた ボスか（え の こまかさが ふつうの 何ばいか。1 … ふつう）。client/battle.js が がめんの こまかさを 上げる
+export function monsterFine(sp) {
+  return artOf(sp).fine;
 }
 
 // たたかい用の え（small … フィールド用の ちいさい え。数なら その 大きさまで: ついてくる なかま など）
@@ -885,7 +896,7 @@ export function monsterCanvas(sp, frame = 0, small = false) {
   const key = `${sp}:${frame}:${small ? (small === true ? 1 : small) : 0}`;
   let c = cache.get(key);
   if (c) return c;
-  const { def, tint } = artOf(sp);
+  const { def, tint, fine } = artOf(sp);
   let [w, h] = def.size;
   if (small) {
     // フィールド用の ちいさい え（ふつうは 20ドットまで。とくべつな 大きい 魔物は def.field で すこし 大きく）
@@ -897,6 +908,8 @@ export function monsterCanvas(sp, frame = 0, small = false) {
   c = paintVector(w, h, def.pal, (g) => def.draw(g, frame));
   if (def.fade) fadeCanvas(c, h, def.fade);
   if (tint) c = tintCanvas(c, tint);
+  // 細かく 描いた ボス: ドットの 数は size の まま、見た目は 1/fine の 大きさ（フィールド用の ちいさい え は そのまま）
+  if (fine > 1 && !small) c.res = (c.res || 1) * fine;
   cache.set(key, c);
   return c;
 }
@@ -948,8 +961,10 @@ export function paintVector(w, h, pal, draw) {
   return q.toCanvas();
 }
 
+// 見た目の 大きさ（細かく 描いた ボスは size × artScale）
 export function monsterSize(sp) {
-  return artOf(sp).def.size;
+  const { def, fine } = artOf(sp);
+  return fine > 1 ? def.size.map((v) => Math.round(v / fine)) : def.size;
 }
 
 // フィールドの おおきな NPC の 大きさ（'mon:<id>' の え に npc が あれば その ばい。ないときは null → field.js の きまり）

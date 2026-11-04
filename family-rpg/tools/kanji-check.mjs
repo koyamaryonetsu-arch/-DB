@@ -367,6 +367,9 @@ export function gameFiles() {
     // 第2部 第7章 第1幕（B: 戦い・品）: 手下の 魔物・ウツボきょうだい・オクタリア・ゲストの カリム・神殿の 宝箱・時をこえる手紙の ごほうび
     'public/js/shared/data/monsters-c7.js', 'public/js/shared/data/abilities-c7.js', 'public/js/shared/data/items-c7.js', 'public/js/shared/data/encounters-c7.js',
     'public/js/shared/data/companions-c7.js', 'public/js/shared/battle-c7.js', 'public/js/client/battle-c7.js',
+    // 第2部 第7章 第2幕（B: 戦い・品）: 手下の 魔物・ジョリーホック号・ホック船長・ゲストの カイ・灯台の 宝箱・時をこえる手紙の ごほうび・島の 店
+    'public/js/shared/data/monsters-c7s.js', 'public/js/shared/data/abilities-c7s.js', 'public/js/shared/data/items-c7s.js', 'public/js/shared/data/encounters-c7s.js',
+    'public/js/shared/data/companions-c7s.js', 'public/js/shared/battle-c7s.js', 'public/js/client/battle-c7s.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
