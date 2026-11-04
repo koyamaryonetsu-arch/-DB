@@ -208,7 +208,7 @@ const BOSS_CHANGED = {
   dark_treant: 0.75, goldoon: 1.25, giant_squid: 0.5, tm_golem: 1.25, tm_king: 0.5, tm_dragon: 1.25, tm_serpent: 0.5,
   blizzard_mammoth: 0.75, magma_golem: 1.25, flame_knight: 1.25, trial_guardian: 1.2, flame_witch: 1.2, flame_witch_true: 1.25,
   zaid_demon: 1.25, sand_whale: 1.25, morgana: 0.5, morgana_true: 0.5, old_dragon: 1.25, phantom_ignia: 1.25, phantom_morgana: 0.5,
-  ar_genie: 1.2, ar_sun: 1.2, ar_moon: 0.75, ar_sharkking: 1.25,
+  ar_genie: 1.2, ar_fire_drake: 1.25, ar_ice_drake: 0.75, ar_sun: 1.2, ar_moon: 0.75, ar_sharkking: 1.25,
   // 第2部 第7章 第1幕: 水門の ウツボきょうだい・うずの魔女オクタリア（水の 魔物）
   c7_gate: 0.5, c7_gate_b: 0.5, c7_temple: 0.5,
 };

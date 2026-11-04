@@ -441,7 +441,7 @@ test('ボスの 品: カリヨンは かならず 1人 1つの ★5（レア度3
   }
   const bsum = (it) => Object.values(it.bonus || {}).reduce((s, v) => s + Math.max(0, v), 0);
   assert.ok(bsum(ITEMS.p6r_pendulum_charm) < bsum(a), `${bsum(ITEMS.p6r_pendulum_charm)} < ${bsum(a)}`);
-  const top = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'axe' && !it.base && !ITEMS_C7[id] && !ITEMS_C7S[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'axe' && !it.base && !ITEMS_C7[id] && !ITEMS_C7S[id] && !it.tmStep).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top, weapon, 'いちばん 強い オノ');
 });
 

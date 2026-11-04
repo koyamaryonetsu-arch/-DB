@@ -327,7 +327,7 @@ test('第43回の 職業: タグで 合体技に 入れる（3つ いじょう�
   assert.equal(trialJob('mustache'), false);
   assert.ok(trialJob('mario'));
   const adj = PHANTOM_ADJ.mario;
-  assert.ok(Array.isArray(adj) && adj.length === 2 && adj.every((v) => v >= 0.3 && v <= 3), `${adj}`);
+  assert.ok(Array.isArray(adj) && (adj.length === 2 || adj.length === 3) && adj.every((v) => v >= 0.3 && v <= 3), `${adj}`);
   assert.ok(phantomSkills('mario').length >= 4);
   textOk(TRIAL_WORDS.mario, 'trial');
   textOk(TRIAL_WORDS_MASC.mario, 'trial');

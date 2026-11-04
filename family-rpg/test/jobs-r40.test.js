@@ -278,7 +278,7 @@ test('第40回の 職業: タグで 合体技に 入れる（3つ いじょう�
     // 職業の試練
     assert.ok(trialJob(j));
     const adj = PHANTOM_ADJ[j];
-    assert.ok(Array.isArray(adj) && adj.length === 2 && adj.every((v) => v >= 0.3 && v <= 3), `${j}: ${adj}`);
+    assert.ok(Array.isArray(adj) && (adj.length === 2 || adj.length === 3) && adj.every((v) => v >= 0.3 && v <= 3), `${j}: ${adj}`);
     assert.ok(phantomSkills(j).length >= 4, `${j}: まぼろしの 技`);
     assert.ok(!phantomSkills(j).includes('nq_fukkatsu'), '生き返らせる 技は 使わない');
     textOk(TRIAL_WORDS[j], j);

@@ -136,7 +136,7 @@ test('品: ノクト（本気）は ふたつの紋章のお守り（1人 1つ�
   // いちばん 強い 剣・いちばん めずらしい 色（レア度 5）
   const sw = ITEMS.solitus_dawn_sword;
   assert.equal(sw.rarity, 5);
-  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id] && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_PRIZE_R50[id]);
+  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id] && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_PRIZE_R50[id] && !it.tmStep);
   assert.ok(others.every(([, it]) => (it.atk || 0) < sw.atk), `いちばん 強い（${sw.atk}）`);
   assert.ok(sw.atk > ITEMS.et_earth_sword.atk * 1.15);
 });

@@ -275,7 +275,7 @@ function upgradeBox(game, cand) {
   }
   // きたえられる 回数（ランクで きまる ＋ れん金で ふやした 回数）。生まれ変わる 武器は 上限を こえても きたえられる
   // 第65回: 上限まで きたえて ある → 限界とっぱ（★1〜★3）
-  if (cost.limit) box.append(el('div', { class: 'detail forge-reborn', text: `上限（+${it.plus || 0}）まできたえてある。\n限界の石で、限界とっぱ（★${cost.lb}）できるぞ！${cost.lb === 1 ? '\n★1からは、れん金の効果を2つつけられる。' : ''}` }));
+  if (cost.limit) box.append(el('div', { class: 'detail forge-reborn', text: `上限（+${it.plus || 0}）まで。限界の石で★${cost.lb}にできるぞ！\n${cost.lb === 1 ? '★1からは、れん金の効果を2つつけられる。' : 'もう1回きたえたぶん強くなる。'}` }));
   else box.append(el('div', { class: 'small muted forge-limit', text: cost.over
     ? `この装備は+${maxPlus(cand.id)}まで…のはずだが、\nまだきたえられそうだ。（今は+${it.plus || 0}）`
     : `この装備は+${maxPlus(cand.id)}まできたえられる。（今は+${it.plus || 0}）` }));
