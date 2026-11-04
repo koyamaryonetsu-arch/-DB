@@ -1,5 +1,5 @@
 // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（docs/plan-r38.md の B）
-// 上限（Lv10 → 一の試練 15 → 二の試練 20）・Lv11〜 の 強さ（得意な 数値が +1〜2）・しょうごう・試練の番人・修行（技を 使って 勝つ）・
+// 上限（Lv10 → 一の試練 15 → 二の試練 20 → 三の試練 25〈第65回 D1〉）・Lv11〜 の 強さ（得意な 数値が +1〜2）・しょうごう・試練の番人・修行（技を 使って 勝つ）・
 // 師しょうのまぼろし（勝ち・負け・家族も いっしょ）・メニューの とちゅうの 数・古い セーブ・データの 合わせ方
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -104,10 +104,11 @@ async function setup(seed = 1, { name = 'ソラ', world = null, job = 'hero', lv
 }
 
 // ───────────── 上限 ─────────────
-test('上限: 基本職・上級職は Lv10 のまま。超級職・伝説の職業は 一の試練で 15・二の試練で 20', () => {
+test('上限: 基本職・上級職は Lv10 のまま。超級職・伝説の職業は 一の試練で 15・二の試練で 20・三の試練で 25', () => {
   assert.equal(JOB_MAX_LEVEL, 10, 'マスターは Lv10 のまま');
-  assert.equal(JOB_TOP_LEVEL, 20);
-  assert.deepEqual(TRIALS.map((T) => [T.needLv, T.cap, T.uses, T.lv]), [[10, 15, 30, 50], [15, 20, 60, 58]]);
+  assert.equal(JOB_TOP_LEVEL, 25);
+  assert.deepEqual(TRIALS.map((T) => [T.needLv, T.cap, T.uses, T.lv]), [[10, 15, 30, 50], [15, 20, 60, 58], [20, 25, 100, 70]]);
+  assert.equal(TRIALS[2].flag, 'c6_clear', '三の試練は 第6章クリアの あと');
   for (const j of [...JOB_ORDER, ...ADVANCED_ORDER]) {
     assert.equal(trialJob(j), false, j);
     assert.equal(jobCapOf(j, { lv: 10, tr: 2 }), 10, `${j}: 試練は ない`);
@@ -115,19 +116,20 @@ test('上限: 基本職・上級職は Lv10 のまま。超級職・伝説の職
   }
   for (const j of [...SUPER_ORDER, ...LEGEND_ORDER]) {
     assert.equal(trialJob(j), true, j);
-    assert.deepEqual([0, 1, 2, 3].map((tr) => jobCapOf(j, { tr })), [10, 15, 20, 20], j);
-    assert.equal(jobTopCap(j), 20);
+    assert.deepEqual([0, 1, 2, 3, 4].map((tr) => jobCapOf(j, { tr })), [10, 15, 20, 25, 25], j);
+    assert.equal(jobTopCap(j), 25);
   }
 });
 
 test('上限: 必要な 戦いの 数は Lv10 までの つづき（少しずつ ふえる）。Lv10 までは 前と おなじ', () => {
   assert.equal(jobBattlesForLevel(10, 2), Math.round(98 * 1.8 * 1.4));
   const steps = [];
-  for (let lv = 2; lv <= 20; lv++) steps.push(jobBattlesForLevel(lv, 0) - jobBattlesForLevel(lv - 1, 0));
+  for (let lv = 2; lv <= 25; lv++) steps.push(jobBattlesForLevel(lv, 0) - jobBattlesForLevel(lv - 1, 0));
   for (let i = 1; i < steps.length; i++) assert.ok(steps[i] >= steps[i - 1], `Lv${i + 2} の ふえかた ${steps.join(',')}`);
   assert.equal(jobBattlesForLevel(11, 0), Math.round(122 * 1.4));
   assert.equal(jobBattlesForLevel(20, 0), Math.round(428 * 1.4));
-  assert.equal(jobBattlesForLevel(25, 2), jobBattlesForLevel(20, 2), 'Lv20 で 止まる');
+  assert.equal(jobBattlesForLevel(30, 2), jobBattlesForLevel(25, 2), 'Lv25 で 止まる');
+  assert.equal(jobBattlesForLevel(25, 0), Math.round(668 * 1.4));
   // 超級職の Lv11 は Lv10 から 60回くらい（Lv9→10 の 55回の つづき）
   const d = jobBattlesForLevel(11, 2) - jobBattlesForLevel(10, 2);
   assert.ok(d > 55 && d < 70, `${d}`);
@@ -153,7 +155,10 @@ test('上限: 試練を こえないと Lv10 で 止まる・こえると つづ
   assert.equal(jobProgress(c, 'hero').done, true);
   c.jobs.hero.tr = 2;
   assert.deepEqual(gainJobBattles(c, 99999).map((u) => u.lv), [16, 17, 18, 19, 20]);
-  assert.deepEqual(gainJobBattles(c, 99999), [], 'Lv20 で 止まる');
+  assert.deepEqual(gainJobBattles(c, 99999), [], 'Lv20 で 止まる（三の試練の 前）');
+  c.jobs.hero.tr = 3;
+  assert.deepEqual(gainJobBattles(c, 99999).map((u) => u.lv), [21, 22, 23, 24, 25]);
+  assert.deepEqual(gainJobBattles(c, 99999), [], 'Lv25 で 止まる');
   // 基本職は tr が あっても Lv10 まで
   const w = newCharacter({ id: 'w', name: 'w', job: 'warrior', look: {} });
   w.jobs.warrior = { lv: 10, b: 999999, tr: 2 };
@@ -176,7 +181,7 @@ test('マスター: Lv10 より 上でも「マスター」の あつかい（�
 });
 
 // ───────────── Lv11〜 の 強さ ─────────────
-test('強さ: Lv11〜 は その 職業の 得意な 数値 2つが 1レベル +1〜2 だけ（Lv15 で +8・Lv20 で +15）。ほかは かわらない', () => {
+test('強さ: Lv11〜 は その 職業の 得意な 数値 2つが 1レベル +1〜2 だけ（Lv15 で +8・Lv20 で +15・Lv25 で +23）。ほかは かわらない', () => {
   for (const j of [...SUPER_ORDER, ...LEGEND_ORDER]) {
     const keys = jobUpKeys(j);
     assert.equal(keys.length, 2, j);
@@ -184,17 +189,20 @@ test('強さ: Lv11〜 は その 職業の 得意な 数値 2つが 1レベル +
     for (const k of keys) for (const o of ['str', 'def', 'agi', 'mag', 'heal']) if (!keys.includes(o)) assert.ok(mods[k] >= mods[o], `${j}: ${k} は 得意`);
     assert.deepEqual(jobUpStats(j, 10), {});
     let prev = 0;
-    for (let lv = 11; lv <= 20; lv++) {
+    for (let lv = 11; lv <= 25; lv++) {
       const sum = Object.values(jobUpStats(j, lv)).reduce((a, x) => a + x, 0);
       assert.ok(sum - prev >= 1 && sum - prev <= 2, `${j} Lv${lv}: +${sum - prev}`);
       prev = sum;
     }
     assert.equal(Object.values(jobUpStats(j, 15)).reduce((a, x) => a + x, 0), 8);
-    assert.equal(prev, 15, `${j}: Lv20 で 合計 +15`);
+    assert.equal(Object.values(jobUpStats(j, 20)).reduce((a, x) => a + x, 0), 15, `${j}: Lv20 で 合計 +15`);
+    assert.equal(prev, 23, `${j}: Lv25 で 合計 +23`);
+    assert.deepEqual(jobUpStats(j, 30), jobUpStats(j, 25), 'Lv25 で 止まる');
   }
   assert.deepEqual(jobUpKeys('hero'), ['str', 'def']);
   assert.deepEqual(jobUpKeys('daikenja'), ['mag', 'heal']);
   assert.deepEqual(jobUpStats('hero', 20), { str: 10, def: 5 });
+  assert.deepEqual(jobUpStats('hero', 25), { str: 15, def: 8 });
   // キャラの 強さ: Lv10 と Lv20 の ちがいは 得意な 数値だけ（威力・ずっと残る ボーナスも Lv10 で 止まる）
   const c = heroChar(10);
   gainExp(c, expForLevel(50));
@@ -224,6 +232,10 @@ test('しょうごう: Lv15「熟練の〇〇」・Lv20「伝説の〇〇」（�
   assert.equal(titleFor('hero', 20), '伝説の勇者');
   assert.equal(titleFor('loto_hero', 20), '真のロトの勇者');
   assert.equal(titleFor('warrior', 20), '');
+  assert.equal(titleFor('hero', 24), '伝説の勇者');
+  assert.equal(titleFor('hero', 25), '至高の勇者');
+  assert.equal(titleFor('loto_hero', 25), '至高のロトの勇者');
+  assert.equal(titleFor('warrior', 25), '');
   // 男の子の セーラームーンは タキシード仮面
   assert.equal(titleFor('sailor_moon', 15, { look: { body: 0 } }), '熟練のタキシード仮面');
   const c = heroChar(10, { tr: 1 });
@@ -288,6 +300,19 @@ test('試練: 受ける → 修行（今の 職業の 時だけ）→ 師しょ�
   assert.equal(acceptTrial(c).n, 2);
   addTrialUses(c, 'hero', 60);
   assert.equal(clearTrial(c, 'hero').cap, 20);
+  // 三の試練（第65回 D1）: Lv20 から・第6章クリアの あと
+  st = trialState(c);
+  assert.ok(!st.all && st.why === 'lv' && st.next.n === 3, '三の試練は Lv20 から');
+  c.jobs.hero.lv = 20;
+  st = trialState(c);
+  assert.equal(st.why, 'story', '第6章クリアの 前は 受けられない');
+  assert.equal(st.canTake, false);
+  assert.equal(acceptTrial(c), null);
+  c.flags = { ...(c.flags || {}), c6_clear: true };
+  assert.ok(trialState(c).canTake);
+  assert.equal(acceptTrial(c).n, 3);
+  assert.equal(addTrialUses(c, 'hero', 150).need, 100);
+  assert.equal(clearTrial(c, 'hero').cap, 25);
   assert.ok(trialState(c).all);
   // 基本職・上級職は 受けられない
   const w = newCharacter({ id: 'w', name: 'w', job: 'warrior', look: {} });
@@ -296,8 +321,8 @@ test('試練: 受ける → 修行（今の 職業の 時だけ）→ 師しょ�
   assert.equal(acceptTrial(w), null);
 });
 
-test('師しょうのまぼろし: その 職業の 技を 使う 相手（鏡のうつし身の しくみ）。一は Lv50・二は Lv58', () => {
-  for (const n of [1, 2]) {
+test('師しょうのまぼろし: その 職業の 技を 使う 相手（鏡のうつし身の しくみ）。一は Lv50・二は Lv58・三は Lv70', () => {
+  for (const n of [1, 2, 3]) {
     const enc = FIXED_ENCOUNTERS[TRIALS[n - 1].enc];
     assert.ok(enc && enc.loseOk && enc.canFlee === false && enc.boss, `試練${n}`);
     const sp = enc.group[0][0];
@@ -316,8 +341,13 @@ test('師しょうのまぼろし: その 職業の 技を 使う 相手（鏡�
   const c = heroChar(10);
   gainExp(c, expForLevel(50));
   fullHeal(c);
-  for (const [n, lv] of [[1, 50], [2, 58]]) {
-    const b = new Battle({ rng: makeRng(n), allies: [{ char: c, kind: 'player', controller: 's1', auto: true }], enemies: [FIXED_ENCOUNTERS[TRIALS[n - 1].enc].group[0][0]], boss: true, canFlee: false });
+  // 三の試練は Lv72 の 勇者（Lv50 だと すぐ たおれて しまう）
+  const c72 = heroChar(20, { tr: 2 });
+  gainExp(c72, expForLevel(72));
+  fullHeal(c72);
+  for (const [n, lv] of [[1, 50], [2, 58], [3, 70]]) {
+    const me = n === 3 ? c72 : c;
+    const b = new Battle({ rng: makeRng(n), allies: [{ char: me, kind: 'player', controller: 's1', auto: true }], enemies: [FIXED_ENCOUNTERS[TRIALS[n - 1].enc].group[0][0]], boss: true, canFlee: false });
     const m = setupTrialPhantom(b, { job: 'hero', n, who: c });
     assert.equal(m.name, PHANTOM_NAME);
     assert.equal(m.lv, lv);
@@ -448,7 +478,12 @@ test('メニュー: 職業レベルの 字・試練の とちゅう（強さ と
   c.jobs.hero.lv = 15;
   assert.equal(jobLevelText(c, 'hero').text, 'Lv15 ★上限');
   c.jobs.hero = { lv: 20, b: 0, tr: 2 };
-  assert.equal(jobLevelText(c, 'hero').text, 'Lv20 ★きわめた');
+  assert.equal(jobLevelText(c, 'hero').text, 'Lv20 ★上限');
+  assert.deepEqual(trialRows(c), [], '三の試練は 第6章クリアの あと');
+  c.flags = { ...(c.flags || {}), c6_clear: true };
+  assert.equal(trialRows(c)[0].name, '勇者の三の試練');
+  c.jobs.hero = { lv: 25, b: 0, tr: 3 };
+  assert.equal(jobLevelText(c, 'hero').text, 'Lv25 ★きわめた');
   assert.deepEqual(trialRows(c), []);
   const w = newCharacter({ id: 'w', name: 'w', job: 'warrior', look: {} });
   w.jobs.warrior = { lv: 7, b: jobBattlesForLevel(7, 0) };
@@ -582,13 +617,15 @@ test('古い セーブ: 試練の 項目が ない・へんな 数でも 読め�
   c.jobs.warrior = { lv: 12, b: 999, tr: 2, tq: 1 };
   c.jobs.daikenja = { lv: 13, b: 999 };
   c.jobs.god_hand = { lv: 10, b: 99, tq: 2, tn: 5 };
-  c.jobs.maou = { lv: 25, b: 1, tr: 'x' };
+  c.jobs.maou = { lv: 30, b: 1, tr: 'x' };
+  c.jobs.nika = { lv: 22, b: 1, tr: 2 };
   repairChar(c, 'h1');
   assert.deepEqual(c.jobs.hero, { lv: 10, b: 247, tq: 1, tn: 30 });
   assert.deepEqual(c.jobs.warrior, { lv: 10, b: 999 }, '基本職は Lv10 まで・試練の 項目は ない');
   assert.deepEqual(c.jobs.daikenja, { lv: 13, b: 999, tr: 1 }, 'Lv10 より 上なら 一の試練は こえた ことに');
   assert.deepEqual(c.jobs.god_hand, { lv: 10, b: 99 }, '受けられない 試練は けす');
-  assert.deepEqual(c.jobs.maou, { lv: 20, b: 1, tr: 2 });
+  assert.deepEqual(c.jobs.maou, { lv: 25, b: 1, tr: 3 }, 'Lv25 まで（第65回: 三の試練）');
+  assert.deepEqual(c.jobs.nika, { lv: 22, b: 1, tr: 3 }, 'Lv20 より 上なら 三の試練も こえた ことに');
   // 何回 よんでも おなじ
   const snap = JSON.stringify(c.jobs);
   repairChar(c, 'h1');

@@ -203,14 +203,14 @@ test('全滅: マルチプレイでは それぞれ 自分の 持っている �
 });
 
 // ───────────── 作る ─────────────
-test('ふしぎなかじ: レシピは ランク2〜5・店では 売っていない・物語で ふえる', () => {
+test('ふしぎなかじ: レシピは ランク2〜10（第65回 D1: 6〜10）・店では 売っていない・物語で ふえる', () => {
   const ranks = new Set();
   const shopAll = new Set(Object.values(SHOPS).flatMap((sh) => shopItems(sh, () => true)));
   for (const r of RECIPES) {
     const it = ITEMS[r.id];
     assert.ok(it, r.id);
     assert.ok(SLOTS.includes(it.type), `${r.id} は 装備`);
-    assert.ok(it.rank >= 2 && it.rank <= 5, `${r.id} の ランク`);
+    assert.ok(it.rank >= 2 && it.rank <= 10, `${r.id} の ランク`);
     assert.ok(!(it.price > 0) && !shopAll.has(r.id), `${r.id} は 店で 売っていない`);
     assert.ok(r.gold > 0 && r.mats.length, r.id);
     for (const [m, n] of r.mats) assert.ok(ITEMS[m] && n > 0, `${r.id}: ${m}`);
@@ -219,14 +219,15 @@ test('ふしぎなかじ: レシピは ランク2〜5・店では 売ってい�
     assert.ok(sellPrice(r.id) < cost, `${r.id}: 売り値 ${sellPrice(r.id)} < ${cost}`);
     ranks.add(it.rank);
   }
-  assert.deepEqual([...ranks].sort(), [2, 3, 4, 5]);
+  assert.deepEqual([...ranks].sort((a, b) => a - b), [2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.ok(RECIPES.filter((r) => ITEMS[r.id].type === 'acc').length >= 2, 'アクセサリーも 作れる');
   assert.ok(RECIPES.length >= 10);
   const open = (flags) => RECIPES.filter((r) => recipeOpen(r, (f) => flags.includes(f))).map((r) => ITEMS[r.id].rank);
   assert.ok(open([]).every((rk) => rk === 2));
   assert.ok(open(['c1_treant']).includes(3) && !open(['c1_treant']).includes(4));
   assert.ok(open(['c1_treant', 'c2_port', 'c2_clear']).includes(5));
-  assert.deepEqual(Object.keys(RECIPE_OPEN).map(Number), [2, 3, 4, 5]);
+  assert.ok(!open(['c1_treant', 'c2_port', 'c2_clear']).includes(6), 'ランク6は 第3章クリアから');
+  assert.deepEqual(Object.keys(RECIPE_OPEN).map(Number), [2, 3, 4, 5, 6, 7, 8, 9, 10]);
 });
 
 test('ふしぎなかじ: 作ると 素材と ゴールドが へり、装備が ふくろに 入る（すぐに 装備も できる）', async () => {

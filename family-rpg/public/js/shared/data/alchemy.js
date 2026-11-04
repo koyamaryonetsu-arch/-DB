@@ -5,7 +5,8 @@
 //   1つの かまで 1回ずつ。できあがると ふくろに 入って 知らせが 出る（world/alchemy.js の alchemySteps）
 // ・レシピ（RECIPES）… 本だな・かじ屋の 親方・れん金のメモ で 少しずつ わかる。わかった レシピは かまの 画面で 見られる
 //   知らない 組み合わせも 入れられる。当たれば できあがった ときに 新しい レシピと して おぼえる。はずれは 入れられない（もどす）
-//   tier … その章（1〜5）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
+//   tier … その章（1〜7）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
+//   第65回 D1: 第6章（c6_start）・第7章（c7_start）を 足した。それまでの 第6章の レシピ（items-past.js・items-tokei6.js）は tier 5 の まま
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
 //   その 装備の しゅるいごと。c.alchemy.cap）。第35回: 店で 買える 装備（★1）は きたえられない ので、これも できない
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
@@ -22,13 +23,15 @@ import { EARTH_RECIPES } from './items-earth.js';
 import { CASTLE_RECIPES } from './items-castle.js';
 import { PAST_RECIPES } from './items-past.js';
 import { TOKEI6_RECIPES } from './items-tokei6.js';
+// 第65回 D1: 第6章（tier 6）・第7章（tier 7）の レシピ（items-craft-r65.js）
+import { ALCH_R65_RECIPES, ALCH_R65_TIER_FLAG, ALCH_R65_KEEPER } from './items-craft-r65.js';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
 // かまを もらえる しるし（カモメ港に 着いた）
 export const POT_FLAG = 'c2_port_seen';
 // その章の レシピが 本だな・メモ・親方で わかる ように なる しるし
-export const TIER_FLAG = { 1: null, 2: null, 3: 'c3_start', 4: 'c4_start', 5: 'c4_clear' };
+export const TIER_FLAG = { 1: null, 2: null, 3: 'c3_start', 4: 'c4_start', 5: 'c4_clear', ...ALCH_R65_TIER_FLAG };
 // 同じ 武具を 2つ 入れる（きたえる 回数を ふやす）レシピの ID（はじめから 知っている）
 export const MERGE_RECIPE = 'r_merge';
 
@@ -99,6 +102,8 @@ export const RECIPES = [
   ...PAST_RECIPES,
   // 第2部 第6章 Step 6: まぼろしの時の砂（時のまぼろし。1日1回）で ★5 → もっと 強い ★5（items-tokei6.js）
   ...TOKEI6_RECIPES,
+  // 第65回 D1: 第6章・第7章の 素材で よく効く 道具・アクセサリー・★装備（items-craft-r65.js）
+  ...ALCH_R65_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。第36回から かくさない）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), reborn: true })),
 ];
@@ -112,6 +117,8 @@ export const KEEPER_RECIPES = {
   port: ['r_reborn_boomerang', 'r_reborn_staff', 'r_shell_mail', 'r_wind_brooch', 'r_otohime', 'r_dragon_scale'],
   kanatoko: ['r_reborn_bokuto', 'r_flame_axe', 'r_frost_robe', 'r_hephaestus', 'r_star_iron'],
 };
+// 第65回 D1: ルミナの 親方は 第6章・第7章の レシピも（その章まで 進んだ 人だけ。早い 章の レシピを 先に 教える）
+KEEPER_RECIPES.town.push(...ALCH_R65_KEEPER);
 
 // 入れた 物の ならび（もとの 装備の ID で。きたえた 装備も もとの 装備と して あつかう）
 const key = (ids) => ids.map((id) => baseItemId(id)).sort().join('|');

@@ -48,9 +48,9 @@ const givePot = (c) => {
 const toasts = (bot) => bot.msgs.filter((m) => m.t === 'toast').map((m) => m.text);
 
 // ───────────── データ ─────────────
-test('れん金: レシピは 30〜60こ。材料と できる 物が あり、組み合わせは かぶらない。章ごとに ふえる', () => {
-  // （第5章 Step 8 で 影の城の 素材の レシピを 足して 50を こえたので、上を 60に）
-  assert.ok(RECIPES.length + 1 >= 30 && RECIPES.length + 1 <= 60, `${RECIPES.length + 1}こ`);
+test('れん金: レシピは 30〜80こ。材料と できる 物が あり、組み合わせは かぶらない。章ごとに ふえる', () => {
+  // （第5章 Step 8 で 影の城の 素材の レシピを 足して 50を こえたので、上を 60に。第65回 D1 で 第6・7章を 足して 80に）
+  assert.ok(RECIPES.length + 1 >= 30 && RECIPES.length + 1 <= 80, `${RECIPES.length + 1}こ`);
   const keys = new Set();
   for (const r of RECIPES) {
     assert.ok(ITEMS[r.out], `${r.id}: ${r.out}`);
@@ -63,7 +63,7 @@ test('れん金: レシピは 30〜60こ。材料と できる 物が あり、�
     // 同じ 武具 2つ（きたえる 回数）と まちがえない
     assert.ok(!(r.ins.length === 2 && r.ins[0] === r.ins[1] && ['weapon', 'armor', 'shield', 'head'].includes(ITEMS[r.ins[0]].type)), r.id);
   }
-  for (let t = 1; t <= 5; t++) assert.ok(RECIPES.filter((r) => r.tier === t).length >= 2, `第${t}章`);
+  for (let t = 1; t <= 7; t++) assert.ok(RECIPES.filter((r) => r.tier === t).length >= 2, `第${t}章`);
   for (const id of [...STARTER_RECIPES, ...Object.values(KEEPER_RECIPES).flat()]) assert.ok(RECIPE_BY_ID[id], id);
   // 作って 売っても あまり もうからない（材料の ねだんの 1.6倍＋20 まで。★装備と 星の鉄〈材料に 使う 品〉は のぞく）
   for (const r of RECIPES) {
@@ -101,7 +101,7 @@ test('れん金でしか 作れない ★装備: 10〜15こ（★2〜★4）。�
   for (const id of Object.keys(SHOPS)) for (const it of shopItems(SHOPS[id], () => true)) assert.ok(!ALCHEMY_ITEMS[it], it);
   // 章が 進むほど 強い（武器の ランク）
   const rankOf = (tier) => Math.max(...RECIPES.filter((r) => r.tier === tier && ITEMS[r.out].src === 'alchemy').map((r) => ITEMS[r.out].rank));
-  for (let t = 2; t <= 5; t++) assert.ok(rankOf(t) >= rankOf(t - 1), `第${t}章`);
+  for (let t = 2; t <= 7; t++) assert.ok(rankOf(t) >= rankOf(t - 1), `第${t}章`);
 });
 
 test('ボスの 品: かならず 落とす。強さは その章の 店の いちばん よい 品と おなじ くらい ＋ とくせい 1つ（★2）', () => {

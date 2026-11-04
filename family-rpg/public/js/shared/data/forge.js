@@ -17,12 +17,15 @@ import { isShopGear } from './items-rare.js';
 import { CH3_RECIPES } from './items-ch3.js';
 import { REBIRTH } from './items-alchemy.js';
 import { capUp } from './alchemy.js';
+// 第65回 D1: ランク6〜10の レシピ（items-craft-r65.js）
+import { FORGE_R65_OPEN, FORGE_R65_RECIPES } from './items-craft-r65.js';
 
 // ほかの ファイルで あとから 足された 装備にも +1〜 を 作る（なんど よんでも おなじ）
 addUpgradeItems(ITEMS);
 
 // ランクごとに 作れるように なる 物語の しるし（店の 品ぞろえと おなじ ころ）
-export const RECIPE_OPEN = { 2: null, 3: 'c1_treant', 4: 'c2_port', 5: 'c2_clear' };
+//   第65回 D1: ランク6 第3章クリア・7 水の都ドゥーナ・8 第4章クリア・9 影の城が うかぶ・10 千年前の 里（第7章の 品は レシピの open〈c7_karim〉）
+export const RECIPE_OPEN = { 2: null, 3: 'c1_treant', 4: 'c2_port', 5: 'c2_clear', ...FORGE_R65_OPEN };
 
 // レシピ（id … できる 装備 / gold … ゴールド / mats … [素材, 数]）
 export const RECIPES = [
@@ -45,6 +48,8 @@ export const RECIPES = [
   { id: 'dragon_mail', gold: 3600, mats: [['dragon_scale', 5], ['silver_shard', 4]] },
   // 第3章（カナトコの かじ屋 テツジイ。open の フラグで 作れるように なる）
   ...CH3_RECIPES,
+  // 第65回 D1: ランク6〜10（第3章クリア 〜 第7章）
+  ...FORGE_R65_RECIPES,
 ];
 
 export function recipeOf(id) {

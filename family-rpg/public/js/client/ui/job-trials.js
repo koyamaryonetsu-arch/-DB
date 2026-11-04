@@ -6,7 +6,7 @@ import { jobProgress } from '../../shared/stats.js';
 import { jobLabel } from '../../shared/job-label.js';
 import { trialState, trialName, jobTitle, jobTopCap, PHANTOM_NAME } from '../../shared/data/job-trials.js';
 
-// 職業レベルの 右の 字（「Lv7（あと12回）」「Lv10 ★マスター」「Lv12/15（あと40回）」「Lv15 ★上限」「Lv20 ★きわめた」）
+// 職業レベルの 右の 字（「Lv7（あと12回）」「Lv10 ★マスター」「Lv12/15（あと40回）」「Lv15 ★上限」「Lv25 ★きわめた」）
 export function jobLevelText(c, j) {
   const pg = jobProgress(c, j);
   const lv = c.jobs?.[j]?.lv || 1;
@@ -34,7 +34,7 @@ export function trialRows(c) {
   return jobs.map((j) => trialRow(c, j)).filter(Boolean);
 }
 
-// メニューの「強さ」: しょうごう（Lv15・20）と 試練の とちゅう
+// メニューの「強さ」: しょうごう（Lv15・20・25）と 試練の とちゅう
 // self … 自分の キャラ（仲間は 試練を 受けられない ので しょうごうだけ）
 export function trialStatusBox(c, self = true) {
   if (!c || c.species || !JOBS[c.job]) return null;

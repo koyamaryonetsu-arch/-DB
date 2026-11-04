@@ -330,3 +330,49 @@
 - ボスの 名前（ジョリーホック号・ホック船長）が A の 台本と ちがう ときは どちらかに 合わせる
 - B が 1〜数行ずつ 足した ファイル：`data/monsters.js`・`abilities.js`・`encounters.js`・`companions.js`・`items.js`・`loot.js`・`rare-loot.js`（`SRC_TEXT.c7s`）・`shops.js`（`GUESTS.kai`）・`water.js`（`WATER_SEA`）・`monster-ranks.js`（作りなおし）・`shared/battle-c7.js`（第2幕への よびだし・`c7Damage`）・`battle-ch6.js`（`c7Damage` の 1行）・`battle-earth.js`（`TRAP_KINDS`）・`client/battle.js`（`C7S_SFX`・`fineRes`）・`battle-ch4.js`・`battle-c7.js`・`render/monsters.js`（細かく 描いた ボス）・`render/battlefx-c7.js`・`render/c7-art.js`・`tools/sim.js`（`ch7s`）・`sim-ch7.mjs`・`gen-monster-ranks.mjs`（`第7章` に 第2幕）・`kanji-check.mjs`
 - 直した テスト：`monsters-r23`（魔物の 数）・`ch5-castle-battle`・`ch5-final-battle`（いちばん 強い 剣・ソリトゥスの 大きさは 見た目の 大きさで）・`ch6-battle`・`ch6-road-battle`・`ch6-tower-battle`（いちばん 強い 品から 第2幕を のぞく）
+
+## 6. かじ屋・れん金の レシピ・三の試練（第65回 D1）
+
+物語の 敵が Lv68〜76 に なったので、作る・れん金・職業レベルを 物語に 追いつかせた（第64回の「作る ほうへ」の つづき）。
+
+### 6-1. かじ屋の「作る」ランク6〜10（`data/items-craft-r65.js` の `FORGE_R65_RECIPES`・`data/forge.js` の `RECIPE_OPEN`）
+
+- 作れる ころ（店の 品ぞろえと おなじ ころ）: ランク6 `c3_clear`（砂の国の 店の 前）・7 `c4_duna`・8 `c4_clear`（雲の上の町の 前）・9 `c5_castle`・10 `c6_past`（千年前の 里）・
+  ランク10の 第7章の 品は レシピの `open: 'c7_karim'`（`FORGE_R65_C7`）
+- 25しゅ（ランク6〜9 は 4つずつ・ランク10 は 第6章 4つ＋第7章 5つ）。武器 12（9しゅるい: やり・ツメ・おうぎ・つえ・剣・オノ・ムチ・短剣・ブーメラン）・よろい・ローブ・道着・マント・たて・かぶと・ぼうし
+- 強さ（`FORGE_K`。店の 品が 1）: ランク6 1.1・7 1.08・8 1.1・9 1.12・10 1.3・第7章 1.42（第7章の 店 1.06・神殿の 宝箱 1.55〜1.62）。
+  テストで「同じ ランク・同じ しゅるいの 店の 品より 上（同じ ときは ボーナスか とくせい）・店の 1.5倍 まで・★の 品（宝箱・ボス）より 上には ならない」を 見る
+  - 例: 第7章 川波の剣 攻撃142（店 106・神殿の 剣 181）・第6章 時の砂の短剣 94（店 76・★ 131）・ランク6 火炎のやり 50（店 46・★ 50）
+- 素材は その ころの 魔物が 落とす 物（入手先の 画面に 出る）: ランク6 炎の石・氷のかけら／7 貝がら・竜のうろこ／8 雲のわた・大地のかけら・星の砂／
+  9 大地の根・光石・影のしずく／10 時の砂・古い歯車（第7章の 魔物も 落とす）・黒しんじゅ・魔法の聖水・星のかけら。新しい 素材は 作っていない
+- 売り値は ★の 品の 式（レア度 1: ランク6 1280 〜 ランク10 3830）。どれも 使う ゴールドより 安い（作って 売っても もうからない）。分解は 今の きまり（`salvage.js`）の まま（レシピの 素材の 半分まで）
+- ゴールド: ランク6 2400〜3200 → ランク10 8800〜10000 → 第7章 12000〜14500
+
+### 6-2. れん金の 第6章・第7章（`ALCH_R65_RECIPES`・`data/alchemy.js` の `TIER_FLAG` 6: `c6_start`・7: `c7_start`）
+
+- 第6章（5つ）: 時の秘薬（HP300・MP60）・歯車のいやしのかね（全員 HP200。戦いの 中だけ）・時もどしの花（HPまんたんで 生き返る）・
+  砂時計のお守り（アクセサリー。ねむり・マヒに 強い）・時の風のおうぎ（★装備。千年前の 里の おうぎ＋古い歯車＋時の砂）
+- 第7章（5つ）: 森と湖のしずく（HP450・MP100）・水の神殿のすず（全員 HP320）・水の紋章の短剣（★装備。王国の 短剣から。ときどき ねむり）・
+  水門の守りのよろい（★装備。王国の よろいから）・はすの花のブローチ（アクセサリー。マホトーンに 強い）
+- ★装備は レア度4・宝箱の 品より 少し 弱い。素材だけで 作る アクセサリーは 売り値を 安く（240・250。作って 売ると もうかる のを ふせぐ）
+- わかり方は 今の しくみの まま（本だな・れん金のメモ・宝箱の メモ … その章まで 進んだ 人だけ・早い 章から）。ルミナの町の 親方（`KEEPER_RECIPES.town`）にも 4つ 足した
+- それまでの 第6章の レシピ（`items-past.js`・`items-tokei6.js`）は tier 5 の まま（テストが tier 5 を 見ている）
+
+### 6-3. 職業の 三の試練（`data/job-trials.js` の `TRIALS[2]`・`monsters-trial.js` の `trial_phantom3`・`battle-trial.js` の `PHANTOM_ADJ`）
+
+- 受けられる: 超級職から（今までと おなじ）・職業レベル 20・**第6章クリアの あと**（`flag: 'c6_clear'`。まだの ときは 番人が「第6章のたびを終えてから」と 言う。`trialState` の why `'story'`）
+- 修行 100回 → 師しょうのまぼろし Lv70（HP 36000）→ 上限 Lv25。`JOB_TOP_LEVEL` 20 → 25（`jobs.js`。Lv21〜25 の 戦いの 数も 今の 式の つづき。超級職で Lv20→25 は 約600回）
+- Lv21〜 も 得意な 数値 2つが 1レベル +1〜2（Lv25 で 合計 +23）。技・威力・ずっと残る ボーナスは 今までどおり Lv10 で 止まる。マスターの あつかい・幻の職業の 条件（Lv10）は かわらない
+- しょうごう: Lv25「至高の〇〇」（`TITLE_LEVELS` [15, 20, 25]）。メニュー・神殿の 字は `TRIALS` から 作る（「上限がLv15・Lv20・Lv25に上がる」）
+- 古い セーブ: Lv20 より 上の 職業レベルは 三の試練も こえた ことに（`repairTrialInfo` の 今の しくみ）
+- 強さあわせ: `tools/sim-trial.mjs 20 3`（家族 Lv72・オクタリアの ころの ★装備〈`sim-ch7.mjs` の `ch7Party('temple')`〉・試練を 受ける 人は 職業Lv20）。
+  `TRIAL=3 HI=4 tools/sim-trial-tune.mjs` で 70の 職業の 倍率（`PHANTOM_ADJ` の 3つめ）を さがした（めあて 75%）。
+  完全オートの 勝ち: 70職業の 平均 約8わり（ひくい 職業を さがし直した あと。いちばん 下 6わり くらい）。ガーディアン・二刀流スターは 倍率 4（上限）でも 勝ちが 多い
+- 一・二の試練の 倍率が なかった 職業（名探てい・海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）は `[1, 1, 三の倍率]`
+
+### 6-4. ファイル
+
+- 新しい: `data/items-craft-r65.js`（装備・道具・レシピ・読みがな。kanji-check の `gameFiles()` に 入れた）・`test/craft-trial-r65.test.js`
+- かえた: `data/items.js`（まぜる）・`data/forge.js`・`data/alchemy.js`・`data/jobs.js`・`data/job-trials.js`・`data/monsters-trial.js`・`battle-trial.js`・
+  `world/job-trials.js`・`world/growth.js`（コメント）・`client/ui/services.js`・`client/ui/job-trials.js`（コメント）・`data/news.js`・
+  `tools/sim-trial.mjs`・`tools/sim-trial-tune.mjs`・`tools/kanji-check.mjs`・テスト（`forge.test.js`・`alchemy.test.js`・`job-trials.test.js`）
