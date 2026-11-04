@@ -23,6 +23,8 @@ import { partyOf } from '../world/party.js';
 import { applyC7Side } from './sidequests-c7.js';
 import { innSteps } from './inn.js';
 import { C6D_OBJ } from './story-ch6d.js';
+// 第7章 第2幕「海の紋章」Step 3・4（story-c7s.js。カイ・千年前の クモイの 海・しずむ前の島の灯台）
+import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -32,7 +34,7 @@ export const VILLAIN = 'うずの魔女オクタリア';
 export const monOf = (id) => (MONSTERS[id] ? id : FIXED_ENCOUNTERS[id]?.group?.[0]?.[0] || id);
 
 // ───── 第7章の すすみかた（STORY_STEPS の 第6章の うしろ。plan-ch7.md の 3 の 名前の 約束）─────
-export const CH7_STEPS = [C7.start, C7.kingdom, C7.gate, C7.temple, C7.karim];
+export const CH7_STEPS = [C7.start, C7.kingdom, C7.gate, C7.temple, C7.karim, ...CH7S_STEPS];
 
 // ───── 時の砂時計の ことば（今の コガネ地方。トキネの 話を 聞く 前）─────
 GLASS_TEXT.c7wait = '時の砂時計をかざした…\n砂が、かすかに、さらさらと鳴っている…。\n（でも、まだ時をこえる力が足りないようだ）';
@@ -68,11 +70,14 @@ export const C7_OBJ = {
   tf7: '7階。ふき上げる水は、かわりばんこに通路をふさぐ。あいだのゆかで待って、すきに進もう。おくに休み所がある',
   tf8: '8階。神殿のいちばんおくで、うずの魔女オクタリアが待っている…（準備を整えてから進もう）',
   win: '水の守り星の台座を調べよう（緑の城の王さまに話しても、続きが見られる）',
-  // 第7章 Step 2 の さいご（あとの Step が できたら、この 文は OLD_C7_OBJ に のこす）
+  // 第7章 Step 2 の さいご・第2幕の はじまり（前の 版の 文「第7章の続きはアップデートで！」は OLD_C7_OBJ.karim。第2幕の 目標は story-c7s.js の C7S_OBJ）
+  karim: 'カリムがルミナの町の酒場の仲間になった！今のほしみの丘のトキネに会いに行こう（リオンの仲間になる人は、あと1人…）',
+};
+// 今の 目標の 文から 外した 文（セーブに のこっている ことが ある。今は 知らない 文なので repairObjective が なおす）
+export const OLD_C7_OBJ = {
+  // 第7章 Step 2 の さいご（第1幕だけの 版）
   karim: '第7章の続きはアップデートで！',
 };
-// 今の 目標の 文から 外した 文（あとの Step で ふえる）
-export const OLD_C7_OBJ = {};
 
 // パーティー全員で 見る イベント
 export const CH7_STORY_SCRIPTS = ['c7_arrive', 'c7_kingdom_arrive', 'c7_gate_event', 'c7_boss_event', 'c7_tboss_after', 'c7_t8_altar', 'c7_tf1', 'c7_t5_guard_now', 'c7_t5_guard_past'];
@@ -450,10 +455,9 @@ function castleEnding() {
     ['flag', C7.karim], ['sync'],
     ['sfx', 'join'],
     ...N('（カリムが、ルミナの町の酒場の仲間になった！）'),
-    ...S('トキネの声', '（…ねえ、{name}。\nリオンの仲間になる人は、あと1人。千年前のどこかで、きっと待っているわ）'),
+    ...S('トキネの声', '（…ねえ、{name}。\nリオンの仲間になる人は、あと1人。千年前のどこかで、きっと待っているわ）', '（今のほしみの丘で、待っているわね）'),
     ['remove', 'nadia_e'],
     ['objective', C7_OBJ.karim],
-    ...N('第7章の続きはアップデートで！'),
     ['bgm', 'resume'],
   ];
 }
@@ -552,7 +556,9 @@ export const CH7_OBJECTIVE_TARGETS = {
   [C7_OBJ.tf7]: [at(7, P[7].font), at(7, P[7].down)],
   [C7_OBJ.tf8]: [{ npc: 'c7_witch_npc' }],
   [C7_OBJ.win]: [at(8, P[8].altar), { npc: 'c7_king' }],
-  [C7_OBJ.karim]: [{ npc: 'c7_king' }],
+  [C7_OBJ.karim]: [{ npc: 'tokine_c6' }, { npc: 'c7_king' }],
+  // 第2幕（story-c7s.js）
+  ...CH7S_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -592,8 +598,10 @@ export const CH7_OBJECTIVE_TALK = {
     'しっかり準備をしてから、行きましょう。カリムさんが、前に立ってくれます。', 'まじょを、やっつけよう！'),
   [C7_OBJ.win]: T4('水の守り星の台座を調べると、続きが見られる。緑の城の王さまに話してもいい。', '台座を調べようぜ！',
     '台座を調べてみましょう。', 'だいざを調べよう！'),
-  [C7_OBJ.karim]: T4('カリムは、ルミナの町の酒場で待っている。時をこえる手紙のより道も、のこっているかもしれない。', 'カリムは酒場だってよ！また会いに行こうぜ！',
-    'カリムさんは、ルミナの町の酒場にいます。いっしょに旅をしましょう。', 'カリムおにいちゃん、酒場にいるって！'),
+  [C7_OBJ.karim]: T4('カリムは、ルミナの町の酒場で待っている。今のほしみの丘のトキネが、何か話したそうだ。', 'カリムは酒場だってよ！トキネのところへ行こうぜ！',
+    'カリムさんは、ルミナの町の酒場にいます。トキネさんに会いに、ほしみの丘へ行きましょう。', 'トキネおねえちゃんに、あいにいこう！'),
+  // 第2幕（story-c7s.js）
+  ...CH7S_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろ）─────
@@ -616,6 +624,8 @@ export const CH7_PROGRESS = [
   [TF7(8), C7_OBJ.tf8],
   [WIN7, C7_OBJ.win],
   [C7.karim, C7_OBJ.karim],
+  // 第2幕（story-c7s.js）
+  ...CH7S_PROGRESS,
 ];
 
 // ───── story.js から: だいほんを まぜる（今の トキネ・より道「時をこえる手紙」・パーティー全員で 見る イベント）─────
@@ -631,4 +641,6 @@ export function applyCh7(SCRIPTS, STORY_SCRIPTS) {
   }, tokine);
   // より道「時をこえる手紙」（sidequests-c7.js）
   applyC7Side(SCRIPTS);
+  // 第2幕「海の紋章」（story-c7s.js。今の トキネの 第2幕の はじまりは この あとで つつむ）
+  applyCh7s(SCRIPTS, STORY_SCRIPTS);
 }

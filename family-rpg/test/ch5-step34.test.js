@@ -814,7 +814,8 @@ test('絵と 音: クモイ地方・神殿の タイル（2D は 16×16 を ぬ�
   assert.equal(pip.wingSize, 'small');
   assert.ok(count(pip) - count({ ...pip, wings: null }) < count(npcOpts('hanebito_m')) - count({ ...npcOpts('hanebito_m'), wings: null }), 'ピピの 羽は 小さい');
   // 影の城（第5章 Step 7）は 人の 絵では なく とくべつな 絵（render/ch5-earth-art.js）
-  for (const n of [...MAPS.hanono.npcs, ...MAPS.kumoi.npcs]) assert.ok(npcOpts(n.sprite) || n.sprite === 'shadow_castle', n.id);
+  // 第7章 Step 3・4: 時をこえる手紙を 見つける 所（capsule_spot。とくべつな 絵）
+  for (const n of [...MAPS.hanono.npcs, ...MAPS.kumoi.npcs]) assert.ok(npcOpts(n.sprite) || n.sprite === 'shadow_castle' || n.sprite === 'capsule_spot', n.id);
   // 曲（フィールド・町・ダンジョン・ボス）
   for (const id of ['kumoi', 'hanono', 'sink_ruin', 'gaia']) {
     const tr = _TRACKS[id];
