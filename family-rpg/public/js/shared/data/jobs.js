@@ -1346,8 +1346,9 @@ export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER
 
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
 // 第38回 B: 超級職・伝説の職業は 職業の試練で Lv10 より 上（JOB_TOP_LEVEL まで）。Lv11 からも つづき（1つごとに 24・26・28…回 ふえる）
+// 第65回 D1: 三の試練で Lv25 まで（20 → 25。Lv21〜25 も おなじ 式の つづき）
 // JOB_MAX_LEVEL（10）は「マスター」の レベルの まま（なる ための じょうけん・ペナルティが 軽い・ひらめき など）。上限は data/job-trials.js
-export const JOB_TOP_LEVEL = 20;
+export const JOB_TOP_LEVEL = 25;
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
 for (let lv = BATTLES.length + 1; lv <= JOB_TOP_LEVEL; lv++) BATTLES.push(BATTLES[lv - 2] + 2 * (lv - 10) + 22);
 const TIER_MULT = [1, 1.4, 1.8, 2.2, 2.6];

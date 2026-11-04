@@ -2,9 +2,10 @@
 //
 // ・上限: ふつうは Lv10（JOB_MAX_LEVEL。マスター）。超級職（tier 2）・伝説の職業（tier 3）は、その職業の
 //   「〇〇の一の試練」で Lv15、「〇〇の二の試練」で Lv20。TRIALS に 1つ たすと 三の試練も 作れる（jobs.js の JOB_TOP_LEVEL も 上げる）
+//   第65回 D1: 「〇〇の三の試練」（Lv20 から・まぼろし Lv70）で Lv25。第6章を クリアした 人だけ 受けられる（flag。強い まぼろしなので）
 // ・Lv11〜 で 上がる 強さは、その 職業の 得意な 数値（jobUpKeys の 2つ）が +1〜2 だけ（jobUpStats。今の 職業で いる 間だけ）。
 //   新しい 技は ふえない。職業レベルの 威力（jobPower）・得意な 強さの のび（JOB_BOOST）・ずっと残る ボーナス（perLv）は Lv10 で 止まる（stats.js）
-// ・Lv15・Lv20 で しょうごう（jobTitle。メニューの「強さ」に 出る）
+// ・Lv15・Lv20・Lv25 で しょうごう（jobTitle。メニューの「強さ」に 出る）
 // ・試練の 受け方: ルミナの町の 星の神殿の「試練の番人」（world/job-trials.js）。今の 職業で needLv に なっていると 受けられる
 //   1. 修行 … その 職業の 技を、勝った 戦いで 合計 uses 回 使う（とちゅうの 数は メニューの「強さ」の 職業と「クエスト」）
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
@@ -16,11 +17,15 @@ import { jobLabel } from '../job-label.js';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
-// enc … 師しょうのまぼろしの 戦い（monsters-trial.js）/ lv … まぼろしの レベル
+// enc … 師しょうのまぼろしの 戦い（monsters-trial.js）/ lv … まぼろしの レベル / flag … 受けるのに いる 物語の しるし（その キャラの flags）
 export const TRIALS = [
   { n: 1, name: '一の試練', needLv: 10, cap: 15, uses: 30, enc: 'job_trial_1', lv: 50 },
   { n: 2, name: '二の試練', needLv: 15, cap: 20, uses: 60, enc: 'job_trial_2', lv: 58 },
+  // 第65回 D1: 第6章クリアの あと（第7章の 敵は Lv68〜76。まぼろしは Lv70・Lv72 くらいの 家族で 勝てる）
+  { n: 3, name: '三の試練', needLv: 20, cap: 25, uses: 100, enc: 'job_trial_3', lv: 70, flag: 'c6_clear' },
 ];
+// 物語の しるしの 文（試練の番人が 言う）
+export const TRIAL_FLAG_TEXT = { c6_clear: '第6章のたびを終えて' };
 if (TRIALS[TRIALS.length - 1].cap > JOB_TOP_LEVEL) throw new Error('JOB_TOP_LEVEL too small');
 
 const int = (v) => (Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0);
@@ -61,8 +66,8 @@ export function jobUpKeys(id) {
   upCache.set(id, keys);
   return keys;
 }
-// 職業レベル lv の ときの ふえる ぶん（Lv10 まで 0）。1つめは 1レベル +1、2つめは Lv11・13・15・17・19 で +1
-// （1レベルで +1〜2。Lv15 で 合計 +8、Lv20 で 合計 +15）
+// 職業レベル lv の ときの ふえる ぶん（Lv10 まで 0）。1つめは 1レベル +1、2つめは Lv11・13・15・17・19・21・23・25 で +1
+// （1レベルで +1〜2。Lv15 で 合計 +8、Lv20 で 合計 +15、Lv25 で 合計 +23）
 export function jobUpStats(id, lv) {
   const n = Math.max(0, Math.min(int(lv), JOB_TOP_LEVEL) - JOB_MAX_LEVEL);
   const out = {};
@@ -74,11 +79,12 @@ export function jobUpStats(id, lv) {
 }
 
 // ───── しょうごう ─────
-// Lv15「熟練の〇〇」・Lv20「伝説の〇〇」（伝説の職業は「真の〇〇」）。who … その 人（男の子の 名前。job-label.js）
-export const TITLE_LEVELS = [15, 20];
+// Lv15「熟練の〇〇」・Lv20「伝説の〇〇」（伝説の職業は「真の〇〇」）・Lv25「至高の〇〇」（第65回 D1）。who … その 人（男の子の 名前。job-label.js）
+export const TITLE_LEVELS = [15, 20, 25];
 export function titleFor(id, lv, who = null) {
   const name = jobLabel(id, who);
   if (!name || !trialJob(id)) return '';
+  if (lv >= 25) return `至高の${name}`;
   if (lv >= 20) return JOBS[id].tier >= 3 ? `真の${name}` : `伝説の${name}`;
   if (lv >= 15) return `熟練の${name}`;
   return '';
@@ -211,7 +217,8 @@ export function trialUseCount(id, before = {}, after = {}) {
 
 // ───── 試練の じょうたい ─────
 // もどりち: { job, tier, lv, cap, cleared, active（受けている 試練の データ か null）, count, need, ready（修行 おわり）,
-//            next（つぎに 受けられる 試練 か null）, canTake, why（受けられない わけ: 'tier'|'lv'|'done'|'active'）, all（ぜんぶ クリア）}
+//            next（つぎに 受けられる 試練 か null）, canTake, why（受けられない わけ: 'tier'|'lv'|'story'|'done'|'active'）, all（ぜんぶ クリア）}
+//   'story' … 職業レベルは たりているが、物語の しるし（TRIALS の flag）が まだ
 export function trialState(char, id = char?.job) {
   const info = char?.jobs?.[id] || {};
   const lv = info.lv || 1;
@@ -226,7 +233,9 @@ export function trialState(char, id = char?.job) {
   }
   if (cleared >= TRIALS.length) return { ...base, all: true, why: 'done' };
   const next = TRIALS[cleared];
-  return { ...base, next, canTake: lv >= next.needLv, why: lv >= next.needLv ? '' : 'lv' };
+  if (lv < next.needLv) return { ...base, next, why: 'lv' };
+  if (next.flag && !char?.flags?.[next.flag]) return { ...base, next, why: 'story' };
+  return { ...base, next, canTake: true };
 }
 
 // 試練を 受ける（今の 職業）。もどりち: 受けた 試練 か null

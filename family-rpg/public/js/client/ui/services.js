@@ -8,7 +8,7 @@ import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js';
 import { salonUI } from './salon.js';
 import { vehicleShopUI } from './vehicles.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js';
-import { jobUpKeys } from '../../shared/data/job-trials.js';
+import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 // 第53回 D: 色ちがいの 仲間の 絵
 import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js';
@@ -292,7 +292,7 @@ function jobUI(game) {
         main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（${lv > JOB_MAX_LEVEL ? `★上限Lv${pg.cap}` : '★マスター'}）` : `職業レベル ${lv}${pg.cap > JOB_MAX_LEVEL ? `/${pg.cap}` : ''}　次まであと${pg.next}回勝つ` }));
       }
       // 第38回 B: 超級職・伝説の職業は 職業の試練で 上限が 上がる（Lv11〜 は 得意な 数値が 少し のびる）
-      if ((job.tier || 0) >= 2) main.append(el('div', { class: 'small muted', text: `職業の試練（この神殿の「試練の番人」）をこえると、上限がLv15・Lv20に上がる。\nLv11からは、${jobUpKeys(j).map((k) => STAT_NAMES[k]).join('と')}がレベル1つで1〜2ずつのびる。` }));
+      if ((job.tier || 0) >= 2) main.append(el('div', { class: 'small muted', text: `職業の試練（この神殿の「試練の番人」）をこえると、上限が${TRIALS.map((T) => `Lv${T.cap}`).join('・')}に上がる。\nLv11からは、${jobUpKeys(j).map((k) => STAT_NAMES[k]).join('と')}がレベル1つで1〜2ずつのびる。` }));
       // のびざかり（学校の 職業）
       if (job.passive?.train > 1) main.append(el('div', { class: 'small good', text: `のびざかり：戦いに1回勝つと、${job.passive.train}回分の修行になる` }));
       // 覚える技（全部。どんな 技か 短い せつめいつき）→ 強さの かたむき の じゅん

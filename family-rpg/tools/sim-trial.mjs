@@ -1,8 +1,10 @@
 // 第38回 B: 職業の試練の「師しょうのまぼろし」の 強さを 見る（docs/plan-r38.md の B）
-// つかいかた: node tools/sim-trial.mjs [回数] [試練(1|2)] [職業,…]   LOG=1 … 1回だけ ようすを 出す
+// つかいかた: node tools/sim-trial.mjs [回数] [試練(1|2|3)] [職業,…]   LOG=1 … 1回だけ ようすを 出す
 //   パーティー: 試練を 受ける 人（その 職業・職業Lv10〈一〉/Lv15〈二〉・その ころの 店の いちばん よい 装備）＋
-//     仲間 3人（大賢者・ゴッドハンド・大神官。一は ガイアイーターの あと〈sim-gaia.mjs の ★装備〉・二は 大地の神殿の あと〈sim-nocto1.mjs〉）
-//   めやす: 一の試練 Lv50・二の試練 Lv58 で、完全オート（ふつうの オート）の 勝ちが 6〜9割。職業で 大きく ちがわない こと
+//     仲間 3人（大賢者・ゴッドハンド・大神官。一は ガイアイーターの あと〈sim-gaia.mjs の ★装備〉・二は 大地の神殿の あと〈sim-nocto1.mjs〉・
+//     三は 第7章 第1幕の あと〈sim-ch7.mjs の オクタリアの ★装備。第65回 D1〉）
+//   めやす: 一の試練 Lv50・二の試練 Lv58・三の試練 Lv72（まぼろしは Lv70）で、完全オート（ふつうの オート）の 勝ちが 6〜9割。職業で 大きく ちがわない こと
+//   職業: 何も 書かないと 超級職・伝説の職業（ALL=1 … 試練の ある 職業 ぜんぶ〈幻の職業も〉）
 import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { fullHeal, gainJobBattles } from '../public/js/shared/stats.js';
@@ -13,18 +15,23 @@ import { setupTrialPhantom } from '../public/js/shared/battle-trial.js';
 import { jobChar } from './sim-jobs.mjs';
 import { gaiaParty } from './sim-gaia.mjs';
 import { nocto1Party } from './sim-nocto1.mjs';
+import { ch7Party } from './sim-ch7.mjs';
+import { ALL_JOBS } from '../public/js/shared/data/jobs.js';
+import { trialJob } from '../public/js/shared/data/job-trials.js';
 
 const N = Number(process.argv[2] || 20);
 const ONLY_N = process.argv[3] ? Number(process.argv[3]) : null;
 const ONLY_JOBS = process.argv[4] ? process.argv[4].split(',') : null;
 
+// 試練 n の パーティーの レベル（三の試練は まぼろし Lv70・家族 Lv72）
+export const TRIAL_PARTY_LV = { 1: 50, 2: 58, 3: 72 };
 // 試練 n の パーティー（1人目が 試練を 受ける 人）
-export function trialParty(job, n, lv = TRIALS[n - 1].lv) {
-  const me = jobChar(job, lv, n === 1 ? 8 : 9, 'me');
-  const jl = n === 1 ? 10 : 15;
+export function trialParty(job, n, lv = TRIAL_PARTY_LV[n] || TRIALS[n - 1].lv) {
+  const me = jobChar(job, lv, [8, 8, 9, 10][n] || 10, 'me');
+  const jl = TRIALS[n - 1].needLv;
   me.jobs[job] = { lv: jl, b: jobBattlesForLevel(jl, JOBS[job].tier), tr: n - 1 };
   fullHeal(me);
-  const mates = (n === 1 ? gaiaParty(lv, true) : nocto1Party(lv, true)).filter((c) => c.job !== 'hero').slice(0, 3);
+  const mates = (n === 1 ? gaiaParty(lv, true) : n === 2 ? nocto1Party(lv, true) : ch7Party('temple', lv, true)).filter((c) => c.job !== 'hero').slice(0, 3);
   return [me, ...mates];
 }
 
@@ -53,14 +60,14 @@ export function trialFight(job, n, seed, { lv, log = false } = {}) {
 
 const pct = (x) => `${String(Math.round(x * 100)).padStart(3)}%`;
 if (process.argv[1] && process.argv[1].endsWith('sim-trial.mjs')) {
-  const jobs = ONLY_JOBS || [...SUPER_ORDER, ...LEGEND_ORDER];
+  const jobs = ONLY_JOBS || (process.env.ALL ? ALL_JOBS.filter(trialJob) : [...SUPER_ORDER, ...LEGEND_ORDER]);
   if (process.env.LOG) {
     const r = trialFight(jobs[0], ONLY_N || 1, 1, { log: true });
     console.log(r);
   } else {
     for (const n of ONLY_N ? [ONLY_N] : TRIALS.map((T) => T.n)) {
       const all = [];
-      console.log(`■ ${TRIALS[n - 1].name}（Lv${TRIALS[n - 1].lv}・${N}回・完全オート）`);
+      console.log(`■ ${TRIALS[n - 1].name}（まぼろしLv${TRIALS[n - 1].lv}・家族Lv${TRIAL_PARTY_LV[n]}・${N}回・完全オート）`);
       for (const job of jobs) {
         const res = [];
         for (let i = 0; i < N; i++) res.push(trialFight(job, n, 1000 + i));

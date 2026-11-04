@@ -189,6 +189,8 @@ export function gameFiles() {
     'public/js/shared/data/items-forge.js', 'public/js/shared/data/forge.js', 'public/js/shared/data/facilities.js',
     'public/js/shared/world/bank.js', 'public/js/shared/world/forge.js',
     'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
+    // 第65回 D1: かじ屋の ランク6〜10・れん金の 第6・7章の 品
+    'public/js/shared/data/items-craft-r65.js',
     // 馬車
     'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
     // 乗り物（第37回）

@@ -4,7 +4,7 @@
 //     「覚えた：ホイミ、ベホイミ」
 //   マスター・新しい 職業・ヒントは べつの 行（notes。めったに 出ない 大事な 知らせ）
 import { JOB_MAX_LEVEL } from '../data/jobs.js';
-// 第38回 B: Lv15・Lv20 の しょうごう・上限に なった ときの 試練の 知らせ（data/job-trials.js）
+// 第38回 B: Lv15・Lv20（第65回: Lv25 も）の しょうごう・上限に なった ときの 試練の 知らせ（data/job-trials.js）
 import { titleFor, jobTopCap, jobLevelCap, TITLE_LEVELS } from '../data/job-trials.js';
 import { ABILITIES } from '../data/abilities.js';
 import { abilityFor } from '../ability-label.js';

@@ -2,7 +2,7 @@
 // 図鑑・魔物の 数・配合には 出さない（数えない 形。闘技場の 王者と おなじ）。仲間にも ならない
 // ここの 数は もとの 強さ。戦いの はじめに shared/battle-trial.js が、試練の 職業の 得意・苦手（jobs.js の mods）を かけ、
 // その 職業の 技を 使う まぼろし（鏡のうつし身の しくみ。見た目は 白い かみの 師しょう）に かえる
-// めやす（tools/sim-trial.mjs。docs/plan-r38.md の B）: 一の試練 Lv50・二の試練 Lv58 くらいの 超級職 4人で 勝てる
+// めやす（tools/sim-trial.mjs。docs/plan-r38.md の B）: 一の試練 Lv50・二の試練 Lv58・三の試練 Lv70（第65回）くらいの 超級職 4人で 勝てる
 const STATUS = { sleep: 0.15, poison: 0.3, confuse: 0.15, blind: 0.3, silence: 0.3, paralyze: 0.15 };
 
 export const TRIAL_MONSTERS = {
@@ -22,6 +22,15 @@ export const TRIAL_MONSTERS = {
     phases: [{ hpBelow: 0.4, msg: ['師しょうのまぼろしの体から、金色の気があふれ出した！', '「見事だ…！だが、まだ終わらぬ！」…攻撃力が上がった！'], buff: { atk: 1.15 } }],
     desc: '職業の試練で戦う、師しょうのまぼろし。その職業の技を使ってくる。',
   },
+  // 第65回 D1: 三の試練（Lv70。第7章の 家族 Lv72 くらい・完全オートで 勝てる。tools/sim-trial.mjs 3）
+  trial_phantom3: {
+    name: '師しょうのまぼろし', lv: 70, hp: 36000, mp: 999, str: 272, def: 175, agi: 112, mag: 250, dmgRate: 0.55, exp: 30000, gold: 0,
+    race: 'human', size: 'm', boss: true, turns: 2, speed: 0.74, hit: 'slash', art: 'utsushimi',
+    resist: { ...STATUS },
+    actions: [{ w: 1, id: 'attack' }],
+    phases: [{ hpBelow: 0.4, msg: ['師しょうのまぼろしが、にじ色の光につつまれた！', '「その力、最後まで見せてみよ！」…攻撃力が上がった！'], buff: { atk: 1.15 } }],
+    desc: '職業の試練で戦う、師しょうのまぼろし。その職業の技を使ってくる。',
+  },
 };
 
 // きまった 戦い（world/job-trials.js が startFixedBattle で はじめる）。にげられない・負けても お金は へらない（loseOk）
@@ -29,6 +38,7 @@ const TRIAL = (sp) => ({ group: [[sp, 1, 1]], bg: 'mirror_hall', bgm: 'boss', ca
 export const FIXED_TRIAL = {
   job_trial_1: TRIAL('trial_phantom1'),
   job_trial_2: TRIAL('trial_phantom2'),
+  job_trial_3: TRIAL('trial_phantom3'),
 };
 
 // 数えない 形で まぜる（図鑑・魔物の 数・配合の 一覧には 出ない。MONSTERS[id] は ふつうに 引ける）
