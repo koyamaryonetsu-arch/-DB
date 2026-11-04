@@ -117,7 +117,8 @@ function jobUI(game) {
     let who = 'self';
     const mates = () => (game.party?.supports || []).filter((x) => x.kind === 'npc' && x.owner === game.me.id);
     const target = () => {
-      if (who === 'self') return { name: game.me.name, job: game.me.job, jobs: game.me.jobs, look: game.me.look, equip: game.me.equip, lookEquip: game.me.lookEquip };
+      // 第65回: 幻の職業の やりこみの 記録（feats）も（幻の書と 同じ 数を 出す。前は 入れて いなくて 0 の ままだった）
+      if (who === 'self') return { name: game.me.name, job: game.me.job, jobs: game.me.jobs, look: game.me.look, equip: game.me.equip, lookEquip: game.me.lookEquip, feats: game.me.feats };
       return mates().find((x) => x.key === who) || null;
     };
     const whoRow = el('div', { class: 'who-list' });
