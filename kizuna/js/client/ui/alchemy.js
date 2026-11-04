@@ -6,19 +6,19 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
-import { sourcesFlow } from './sources.js?v=49f690cedd1e';
-import { GEAR_FX, GEAR_FX_ORDER, fxBlock, fxText, baseOf } from '../../shared/data/gear-fx.js?v=49f690cedd1e';
-import { el, esc } from './dom.js?v=49f690cedd1e';
-import { Counter, itemInfo, myTeam } from './counter.js?v=49f690cedd1e';
-import { request } from './shop.js?v=49f690cedd1e';
-import { itemCount } from '../../shared/stats.js?v=49f690cedd1e';
-import { rareNameHtml } from './rarity.js?v=49f690cedd1e';
-import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=49f690cedd1e';
-import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=49f690cedd1e';
-import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=49f690cedd1e';
+import { sourcesFlow } from './sources.js?v=519e3f172d9a';
+import { GEAR_FX, GEAR_FX_ORDER, fxBlock, fxText, baseOf } from '../../shared/data/gear-fx.js?v=519e3f172d9a';
+import { el, esc } from './dom.js?v=519e3f172d9a';
+import { Counter, itemInfo, myTeam } from './counter.js?v=519e3f172d9a';
+import { request } from './shop.js?v=519e3f172d9a';
+import { itemCount } from '../../shared/stats.js?v=519e3f172d9a';
+import { rareNameHtml } from './rarity.js?v=519e3f172d9a';
+import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=519e3f172d9a';
+import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=519e3f172d9a';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=519e3f172d9a';
 import {
   ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
-} from '../../shared/data/alchemy.js?v=49f690cedd1e';
+} from '../../shared/data/alchemy.js?v=519e3f172d9a';
 
 // きたえる 回数を 見る 人を 自分の キャラに（道具の 説明・かじ屋の 画面。data/forge.js）
 export function bindAlchemy(game) {

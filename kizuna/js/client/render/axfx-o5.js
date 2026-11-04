@@ -6,11 +6,11 @@
 // ・分けた ファイル: axfx-o5-school.js（小学生・中学生・高校生・学校の 合体技）・axfx-o5-cook.js（料理人・パティシエ・三ツ星シェフ・ごはんの 合体技）・
 //   axfx-o5-home.js（ニート・おかん・最強のおかん・クリエイター・家の 合体技）。つぶの かきかたは axfx-o5-fine.js、小さな どうぐは axfx-o5-kit.js
 // ・どの え も さいごに balance（段の つぶの かず: 敵1体でも 下限 いじょう、敵5体でも 上限 いか）
-import { AX_O5_SCHOOL } from './axfx-o5-school.js?v=49f690cedd1e';
-import { AX_O5_COOK } from './axfx-o5-cook.js?v=49f690cedd1e';
-import { AX_O5_HOME } from './axfx-o5-home.js?v=49f690cedd1e';
-import { AX_O5_FINE as FINE } from './axfx-o5-fine.js?v=49f690cedd1e';
-import { withBalance } from './axfx-o5-kit.js?v=49f690cedd1e';
+import { AX_O5_SCHOOL } from './axfx-o5-school.js?v=519e3f172d9a';
+import { AX_O5_COOK } from './axfx-o5-cook.js?v=519e3f172d9a';
+import { AX_O5_HOME } from './axfx-o5-home.js?v=519e3f172d9a';
+import { AX_O5_FINE as FINE } from './axfx-o5-fine.js?v=519e3f172d9a';
+import { withBalance } from './axfx-o5-kit.js?v=519e3f172d9a';
 
 export const AX_O5 = withBalance({ ...AX_O5_SCHOOL, ...AX_O5_COOK, ...AX_O5_HOME });
 

@@ -1,26 +1,26 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=49f690cedd1e';
-import { makeRng, hash2 } from '../rng.js?v=49f690cedd1e';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=49f690cedd1e';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=49f690cedd1e';
-import { npc } from './npc.js?v=49f690cedd1e';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=49f690cedd1e';
-import { buildTreasureFloor } from './treasure-cave.js?v=49f690cedd1e';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=49f690cedd1e';
-import { addNightNpcs } from './night-npcs.js?v=49f690cedd1e';
-import { attachCasino } from './casino.js?v=49f690cedd1e';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=49f690cedd1e';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=49f690cedd1e';
-import { attachLab } from './labyrinth.js?v=49f690cedd1e';
-import { attachTower } from './tower.js?v=49f690cedd1e';
-import { attachKumoi } from './kumoi.js?v=49f690cedd1e';
-import { attachHoshiyomi } from './hoshiyomi.js?v=49f690cedd1e';
-import { attachEarth } from './earth.js?v=49f690cedd1e';
-import { attachCastle } from './castle.js?v=49f690cedd1e';
-import { attachCastleTop } from './castle-top.js?v=49f690cedd1e';
-import { attachFamilyQuests } from './family-quests.js?v=49f690cedd1e';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=519e3f172d9a';
+import { makeRng, hash2 } from '../rng.js?v=519e3f172d9a';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=519e3f172d9a';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=519e3f172d9a';
+import { npc } from './npc.js?v=519e3f172d9a';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=519e3f172d9a';
+import { buildTreasureFloor } from './treasure-cave.js?v=519e3f172d9a';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=519e3f172d9a';
+import { addNightNpcs } from './night-npcs.js?v=519e3f172d9a';
+import { attachCasino } from './casino.js?v=519e3f172d9a';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=519e3f172d9a';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=519e3f172d9a';
+import { attachLab } from './labyrinth.js?v=519e3f172d9a';
+import { attachTower } from './tower.js?v=519e3f172d9a';
+import { attachKumoi } from './kumoi.js?v=519e3f172d9a';
+import { attachHoshiyomi } from './hoshiyomi.js?v=519e3f172d9a';
+import { attachEarth } from './earth.js?v=519e3f172d9a';
+import { attachCastle } from './castle.js?v=519e3f172d9a';
+import { attachCastleTop } from './castle-top.js?v=519e3f172d9a';
+import { attachFamilyQuests } from './family-quests.js?v=519e3f172d9a';
 // 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
-import { attachCh6 } from './ch6.js?v=49f690cedd1e';
+import { attachCh6 } from './ch6.js?v=519e3f172d9a';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
