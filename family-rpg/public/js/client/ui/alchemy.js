@@ -7,7 +7,7 @@
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
 import { sourcesFlow } from './sources.js';
-import { GEAR_FX, GEAR_FX_ORDER, fxBlock, fxText, baseOf } from '../../shared/data/gear-fx.js';
+import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js';
 import { el, esc } from './dom.js';
 import { Counter, itemInfo, myTeam } from './counter.js';
 import { request } from './shop.js';
@@ -146,8 +146,8 @@ async function potLoop(game, ct) {
   }
 }
 
-// ───── 第64回 ⑥c: 装備に 効果を つける（data/gear-fx.js。すぐ できる）─────
-const ENCHANT_HELP = '装備（★2から）に、素材で効果をつける。\n入れた素材で効果が決まる。きたえるほど効果が強くなる。\n効果は、つけた人がその装備をつけている時に効く。';
+// ───── 第64回 ⑥c・第65回: 装備に 効果を つける（data/gear-fx.js。すぐ できる。効果は ランダム）─────
+const ENCHANT_HELP = '装備（★2から）に、素材で効果をつける。\n効果のしゅるいと強さは、入れてみるまでわからない。レア度が高いほど強い効果が出やすい。\n同じ効果が出ると強くなる。限界とっぱすると、効果を2つつけられる。';
 const SLOT_ORDER = ['weapon', 'armor', 'shield', 'head'];
 async function enchantLoop(game, ct) {
   const team = myTeam(game);
@@ -159,46 +159,56 @@ async function enchantLoop(game, ct) {
     mate = team.find((m) => m.key === p.value);
   }
   const ch = mate.char;
-  const fxNow = (id) => (id ? ch.gearFx?.[baseOf(id)] : null);
+  const listOf = (id) => fxListOf(ch, id);
   const slots = SLOT_ORDER.filter((sl) => ch.equip?.[sl]).map((sl) => {
     const id = ch.equip[sl];
-    const k = fxNow(id);
-    return { label: `${SLOT_NAMES[sl]}：${nameOf(id)}`, right: k && GEAR_FX[k] ? GEAR_FX[k].name : fxBlock(id) ? '×' : '', value: sl, disabled: !!fxBlock(id) };
+    const fx = listOf(id);
+    return { label: `${SLOT_NAMES[sl]}：${nameOf(id)}`, right: fxBlock(id) ? '×' : fx.length ? fxShort(fx) : '効果なし', value: sl, disabled: !!fxBlock(id) };
   });
   if (!slots.length) {
     await ct.say(`${ch.name}は、何も装備していない。`, { narr: true });
     await ct.tap(1600);
     return;
   }
+  const detail = (id) => {
+    if (fxBlock(id)) return fxBlock(id);
+    const fx = listOf(id);
+    const [lo, hi] = fxRange(id);
+    const mats = fxMatsOf(id);
+    return `今の効果（${fx.length}/${fxSlots(ch, id)}）：${fx.length ? fx.map((x) => fxText(x.k, x.v)).join('\n　') : 'なし'}\n出る強さ：+${lo}〜+${hi}（★${fxStars(id)}）\nいる素材：${mats.map(([m, n]) => `${nameOf(m)}${n}こ（${itemCount(game.me, m)}）`).join('・')}`;
+  };
   await ct.say('どの装備に効果をつける？\n（店の品・★1にはつけられない）', { narr: true });
-  const sp = await ct.pick(slots, { onMove: (x) => { const id = x && ch.equip?.[x.value]; ct.info(el('div', { class: 'detail', text: id ? (fxBlock(id) || (fxNow(id) ? `今の効果：${fxText(fxNow(id), ITEMS[id].plus || 0)}` : '今の効果：なし')) : '' })); } });
+  const sp = await ct.pick(slots, { onMove: (x) => { const id = x && ch.equip?.[x.value]; ct.info(el('div', { class: 'detail', text: id ? detail(id) : '' })); } });
   if (ct.closed || !sp) return;
   const slot = sp.value;
   const id = ch.equip[slot];
-  const plus = ITEMS[id].plus || 0;
-  const kinds = GEAR_FX_ORDER.filter((k) => GEAR_FX[k].slots.includes(ITEMS[id].type));
-  const have = (m) => itemCount(game.me, m);
-  const lackOf = (k) => GEAR_FX[k].mats.filter(([m, n]) => have(m) < n).map(([m, n]) => ({ id: m, need: n, have: have(m) }));
-  const info = (k) => el('div', { class: 'detail', text: `${fxText(k, plus)}\n${GEAR_FX[k].desc}\nいる素材：${GEAR_FX[k].mats.map(([m, n]) => `${nameOf(m)}${n}こ（${have(m)}）`).join('・')}${fxNow(id) && fxNow(id) !== k ? `\n※ 今の${GEAR_FX[fxNow(id)].name}の力は消える` : ''}` });
-  await ct.say(`${nameOf(id)}に、どの効果をつける？`, { narr: true });
-  const kp = await ct.pick(kinds.map((k) => ({ label: GEAR_FX[k].name, right: lackOf(k).length ? '素材が足りない' : 'つけられる', rightCls: lackOf(k).length ? 'dis' : 'gold', value: k, disabled: fxNow(id) === k })), { onMove: (x) => ct.info(x ? info(x.value) : null) });
-  if (ct.closed || !kp) return;
-  const k = kp.value;
-  const lack = lackOf(k);
+  const mats = fxMatsOf(id);
+  const lack = mats.filter(([m, n]) => itemCount(game.me, m) < n).map(([m, n]) => ({ id: m, need: n, have: itemCount(game.me, m) }));
   if (lack.length) {
     await ct.say(`素材が足りない。\n（${lack.map((x) => `${nameOf(x.id)}があと${x.need - x.have}こ`).join('・')}）`, { narr: true });
     await ct.tap(2200);
     await sourcesFlow(game, ct, lack);
     return;
   }
-  const yes = await ct.ask(`${GEAR_FX[k].mats.map(([m, n]) => `${nameOf(m)}${n}こ`).join('・')}を使って、\n${ch.name}の${nameOf(id)}に${GEAR_FX[k].name}の力をこめる？`);
+  const yes = await ct.ask(`${mats.map(([m, n]) => `${nameOf(m)}${n}こ`).join('・')}を使って、\n${ch.name}の${nameOf(id)}に力をこめる？\n（どんな力が出るかは、お楽しみ）`);
   if (ct.closed || yes !== 0) return;
   game.audio.sfx('item');
-  const res = await request(game, { kind: 'alchemy', action: 'enchant', who: mate.key, slot, fx: k });
+  const res = await request(game, { kind: 'alchemy', action: 'enchant', who: mate.key, slot });
   if (ct.closed) return;
   if (res.ok) game.audio.sfx('key');
   await ct.say(res.text || '', { narr: true });
   await ct.tap(2400);
+  // 効果が いっぱい: 入れかえるか 前の ままか
+  if (res.ok && res.fxChoose) {
+    const now = res.fxNow || [];
+    await ct.say(`生まれた力：${fxText(res.fxRoll.k, res.fxRoll.v)}\nどうする？`, { narr: true });
+    const rows = [...now.map((x, i) => ({ label: `${GEAR_FX[x.k]?.name || ''}+${x.v}と入れかえる`, value: i })), { label: '前のままにする', value: -1 }];
+    const p = await ct.pick(rows, { back: null, onMove: (x) => ct.info(el('div', { class: 'detail', text: x && x.value >= 0 ? `今：${fxText(now[x.value].k, now[x.value].v)}\n→ ${fxText(res.fxRoll.k, res.fxRoll.v)}` : '生まれた力は消えて、今の効果のまま' })) });
+    const r2 = await request(game, { kind: 'alchemy', action: 'enchantPick', replace: p ? p.value : -1 });
+    if (ct.closed) return;
+    await ct.say(r2.text || '', { narr: true });
+    await ct.tap(2000);
+  }
 }
 
 // 入れる（ids）。うまく いったら true（画面を 閉じる）

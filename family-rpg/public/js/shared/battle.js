@@ -24,7 +24,7 @@ import { decideMonster, decideAlly } from './ai.js';
 import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
 import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js';
-import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse } from './battle-gearfx.js';
+import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse, attackMods } from './battle-gearfx.js';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
 import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js';
 import { shownEquipKey } from './look-equip.js';
@@ -766,7 +766,9 @@ export class Battle {
         this.pushCoverMsg(ev);
         if (!t) break;
         ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side };
-        const dmg = this.physHit(c, t, { mult: 1 }, ev, 'phys');
+        // 第65回: れん金の 属性の 力・キラー（ふつうの 攻撃の 属性と 倍率。battle-gearfx.js）
+        const gm = attackMods(c, t);
+        const dmg = this.physHit(c, t, { mult: gm.mult }, ev, gm.element);
         if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3] }, ev, 1);
         gearAfterAttack(this, c, t, dmg, ev, true); // 第64回 ⑥c: れん金の 効果（追撃・HP吸収・MP吸収）
         this.afterDamage(c, ev, 'phys');
@@ -874,7 +876,8 @@ export class Battle {
     for (const { t, mult } of plan) {
       if (!t.alive) continue;
       c.charge = charge;
-      dealt += this.physHit(c, t, { mult }, ev, 'phys') || 0;
+      const gm = attackMods(c, t);
+      dealt += this.physHit(c, t, { mult: mult * gm.mult }, ev, gm.element) || 0;
       if (charge > 1 && c.charge === 1) used = true;
       if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3], quiet: true }, ev, 1);
     }
@@ -1552,7 +1555,7 @@ export class Battle {
 
   calcPhys(c, t, eff, powMult = 1, element = 'phys', estimate = false) {
     const acc = (eff.acc ?? 1) * (c.status.blind ? 0.4 : 1);
-    const eva = (t.buffs.eva?.add || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1);
+    const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };
     let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0) + (c.crit || 0) + kenkiCrit(c);

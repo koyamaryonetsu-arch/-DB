@@ -1,4 +1,5 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
+import { gearFxStats } from './data/gear-fx.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js';
 import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
@@ -112,6 +113,11 @@ function equipBonus(char) {
     if (it.crit) crit += it.crit;
     if (it.mpRegen) mpRegen += it.mpRegen;
   }
+  // 第65回: れん金で つけた 装備の 効果（攻撃力・守備力・HP・素早さ・会心・属性や 状態に 強い。data/gear-fx.js）
+  const gx = gearFxStats(char);
+  for (const [k, v] of Object.entries(gx.add)) if (v) out[k] = (out[k] || 0) + v;
+  for (const [k, v] of Object.entries(gx.resist)) resist[k] = (resist[k] ?? 1) * v;
+  crit += gx.crit;
   return { out, resist, weaponCat, onHit, crit, mpRegen };
 }
 
