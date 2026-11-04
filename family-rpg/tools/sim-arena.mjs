@@ -5,7 +5,8 @@
 //     店 … GEAR 38（第4章の おわり）・42（ドゥナの ランク7）・45（大迷宮の ★）/ rare42 … sim-rare.mjs の レア装備
 //   伝説の部 ランク6〜8（docs/plan-r37.md の A。家族が 決めた めやす）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）・
 //     その ころの ★装備（6 … ガイアイーターの あと〈sim-gaia.mjs の 装備〉・7 … ノクトの影の あと〈sim-nocto.mjs〉・
-//     8 … 大地の神殿の ノクトの あと〈sim-nocto1.mjs ＋ ノクトの 品〉）で
+//     8 … 大地の神殿の ノクトの あと〈sim-nocto1.mjs ＋ ノクトの 品〉・第65回 C: 9 … 第6章クリアの あと〈sim-ch6.mjs の 時のまぼろしの ころ〉・
+//     10 … 第7章 第1幕の あと〈sim-ch7.mjs の オクタリアの ころ ＋ オクタリアの 品〉）で
 //       完全オート（ふつうの オート）… 3連戦を 勝ちぬく 2割前後
 //       知っている 人 … 大技の 前に 身を 守る・合体技の 組の 弟子を 先に・よろいの 属性を さけて 弱点・砂に もぐったら 守る・
 //                      合体技（ダメージの 合体技）… 7割くらい
@@ -22,6 +23,8 @@ import { kitParty } from './sim-rare.mjs';
 import { gaiaParty } from './sim-gaia.mjs';
 import { noctoParty } from './sim-nocto.mjs';
 import { nocto1Party } from './sim-nocto1.mjs';
+import { ch6Party } from './sim-ch6.mjs';
+import { ch7Party } from './sim-ch7.mjs';
 
 const N = Number(process.argv[2] || 30);
 const ONLY = process.argv[3] ? process.argv[3].split(',').map(Number) : null;
@@ -35,7 +38,14 @@ export function arenaParty(rank, lv, kit = 'shop') {
   if (rank === 6) return gaiaParty(lv, true).map((c) => withGear(c, { god_hand: [null, null, null, null, 'gaia_fang_charm'] }));
   if (rank === 7) return noctoParty(lv, true).map((c) => withGear(c, { hero: [null, null, null, null, 'shade_pendant'] }));
   // ランク8: ノクト（1回目）の 品（大地のかけらのお守り・黒い星のマント）も
-  return nocto1Party(lv, true).map((c) => withGear(c, { daikenja: [null, 'nocto_star_cloak', null, null, null], high_priest: [null, null, null, null, 'nocto_earth_charm'] }));
+  if (rank === 8) return nocto1Party(lv, true).map((c) => withGear(c, { daikenja: [null, 'nocto_star_cloak', null, null, null], high_priest: [null, null, null, null, 'nocto_earth_charm'] }));
+  // 第65回 C: ランク9 … 第6章クリアの ころ（ゼンマイの ころの ★ ＋ 第6章クリアの 武器・影の時計のお守り。sim-ch6.mjs の 時のまぼろしと おなじ）
+  if (rank === 9) return ch6Party('ph_zenmai', lv, true);
+  // ランク10 … 第7章 第1幕の あと（オクタリアの ころの ★ ＋ オクタリアの 品〈声の貝のお守り・三つまたのほこ〉。sim-ch7.mjs）
+  return ch7Party('temple', lv, true).map((c) => withGear(c, {
+    hero: [null, null, null, null, 'c7t_witch_charm'], daikenja: [null, null, null, null, 'c7t_witch_charm'],
+    god_hand: [null, null, null, null, 'c7t_witch_charm'], high_priest: ['c7t_trident', null, null, null, 'c7t_witch_charm'],
+  }));
 }
 function withGear(c, table) {
   const k = table[c.job] || [];
@@ -145,6 +155,8 @@ export const PLAN = {
   6: { lvs: [49, 50, 51], kits: ['rare'] },
   7: { lvs: [52, 53, 54], kits: ['rare'] },
   8: { lvs: [55, 56, 57], kits: ['rare'] },
+  9: { lvs: [65, 66, 68], kits: ['rare'] },
+  10: { lvs: [73, 74, 76], kits: ['rare'] },
 };
 
 if (process.argv[1].endsWith('sim-arena.mjs')) {
@@ -154,7 +166,7 @@ if (process.argv[1].endsWith('sim-arena.mjs')) {
     const r = arenaRun(rank, Number(process.env.LV || ARENA_RANKS[rank - 1].lv), !!process.env.KNOW, Number(process.env.SEED || 1), { log: true, kit: process.env.KIT || (rank >= 6 ? 'rare' : 'shop') });
     console.log(r);
   } else {
-    for (const rank of ONLY || [1, 2, 3, 4, 5, 6, 7, 8]) {
+    for (const rank of ONLY || ARENA_RANKS.map((R) => R.rank)) {
       const R = ARENA_RANKS[rank - 1];
       console.log(`■ ランク${rank}（${R.champ}。おすすめ Lv${R.lv}）`);
       for (const kit of PLAN[rank].kits) {

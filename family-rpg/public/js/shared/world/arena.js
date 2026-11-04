@@ -19,7 +19,7 @@ import { partyOf } from './party.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { ARENA_HOOKS } from '../data/story-arena.js';
 import {
-  ARENA_RANKS, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
+  ARENA_RANKS, ARENA_LEGEND_RANK, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
 } from '../data/arena.js';
 // 第45回: 竜王のしるしを もらえるか（data/companions-dqm.js）
@@ -66,7 +66,9 @@ export async function arenaDesk(run) {
 function bestText(c) {
   const best = Math.max(0, ...ARENA_RANKS.filter((R) => rankCleared(c, R.rank)).map((R) => R.rank));
   if (!best) return 'まずは、ランク1からちょうせんだ！';
-  if (best >= ARENA_RANKS.length) return '伝説のチャンピオンに勝った者が、また来てくれるとは…！';
+  // 第65回 C: ランク10（いちばん 上）・ランク8（伝説のチャンピオン）
+  if (best >= ARENA_RANKS.length) return '星の大王者に勝った、闘技場の大王者が来てくれるとは…！';
+  if (best === ARENA_LEGEND_RANK) return '伝説のチャンピオンに勝った者が、また来てくれるとは…！';
   return `${c.name}は、${rankLabel(best)}まで勝ちぬいているな。`;
 }
 
@@ -176,7 +178,14 @@ export async function runRank(run, n) {
   // 勝ちぬいた
   run.batch.push(['sfx', 'win'], say(CALLER, `勝者、${names().join('と')}！\n${rankLabel(n)}、勝ちぬきだ！！`));
   const lines = clearRewards(run, n);
-  await run.runSteps([...lines, ...backToDesk([say(CLERK, n >= ARENA_RANKS.length ? 'まさか、伝説のチャンピオンに勝つとは…！\nあんたたちこそ、本物の伝説だ！' : 'おめでとう！入口の「王者のかべ」にも、名前がきざまれたぞ！')])]);
+  await run.runSteps([...lines, ...backToDesk([say(CLERK, clearText(n))])]);
+}
+
+// 勝ちぬいた ときの 受付の ことば（第65回 C: ランク8 は 伝説のチャンピオン・ランク10 は いちばん 上）
+function clearText(n) {
+  if (n >= ARENA_RANKS.length) return 'なんと、星の大王者にまで勝つとは…！\nあんたたちこそ、闘技場の大王者だ！';
+  if (n === ARENA_LEGEND_RANK) return 'まさか、伝説のチャンピオンに勝つとは…！\nあんたたちこそ、本物の伝説だ！';
+  return 'おめでとう！入口の「王者のかべ」にも、名前がきざまれたぞ！';
 }
 
 // 王者の すがた（台本の showMon）: 3戦目の グループの リーダー（合体技の 組）か ボスの 魔物
@@ -202,6 +211,10 @@ export function clearRewards(run, n) {
         addItem(c, id, 1);
         out.push(['sfx', 'item'], say(null, `${c.name}は${ITEMS[id].name}を手に入れた！`));
       }
+      // 第65回 C: きたえる 素材（ランク9・10）
+      const mats = (R.first.mats || []).filter(([id, k]) => ITEMS[id] && k > 0);
+      for (const [id, k] of mats) addItem(c, id, k);
+      if (mats.length) out.push(['sfx', 'item'], say(null, `${c.name}は${mats.map(([id, k]) => `${ITEMS[id].name}を${k}個`).join('と')}手に入れた！`));
       c.medalSpots = c.medalSpots && typeof c.medalSpots === 'object' ? c.medalSpots : {};
       for (let i = 1; i <= R.first.medals; i++) if (!c.medalSpots[firstMedalId(n, i)]) c.medalSpots[firstMedalId(n, i)] = now;
       out.push(['sfx', 'key'], say(null, `${c.name}は小さなメダルを${R.first.medals}枚手に入れた！`));

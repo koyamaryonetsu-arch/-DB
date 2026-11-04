@@ -79,7 +79,8 @@ test('第35回 ★（強さ）: 店の 品は ★1。店では 買えない 品�
 });
 
 test('レア装備: 約100こ。名前は かぶらず、読みがな・説明・手に入る 所が ある。★5は ひみつのダンジョンだけ', () => {
-  assert.ok(NEW.length >= 95 && NEW.length <= 120, `${NEW.length}こ`);
+  // 第65回 C: 深い 宝の洞窟（地図 Lv26〜35）の ★5 を 18こ 足した
+  assert.ok(NEW.length >= 95 && NEW.length <= 140, `${NEW.length}こ`);
   const names = new Map();
   for (const [id, it] of Object.entries(ITEMS)) {
     if (it.base) continue;
@@ -151,7 +152,9 @@ test('宝の洞窟: 地図の 名前に ちなんだ 装備が 出る（大地�
       if (theme === 'earth') assert.equal(grp, TM_WORD_GROUP[word], word);
       let n = 0, same = 0;
       for (let i = 0; i < 300; i++) {
-        const lv = 1 + (i % TM_LV_MAX);
+        // （第65回 C: 地図 Lv26 からの 深い 洞窟の 品は 土の 洞窟の なかまに 1だん 2つずつ なので、ことばの なかまの わりあいは Lv25 までで 見る。
+        //   深い 洞窟は test/tm-arena-r65.test.js で 洞窟の しゅるいを たしかめる）
+        const lv = 1 + (i % 25);
         const id = pickTmGear(rng, lv, { theme, word }, i % 2 ? 'bossA' : 'normal');
         const it = ITEMS[id];
         assert.equal(it.src, 'tm', id);

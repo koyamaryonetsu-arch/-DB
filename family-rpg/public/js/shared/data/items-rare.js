@@ -53,6 +53,41 @@ const BA = (armorType, rank) => A(armorType, rank, 2, 1 / RAR_K[2]);
 const BS = (rank) => S(rank, 2, 1 / RAR_K[2]);
 const BH = (rank, helm = false) => H(rank, 2, helm, 1 / RAR_K[2]);
 
+// 第65回 C: 深い 宝の洞窟の 品（ランク10・★5）。step … tmStep（10・11・12）/ rarity … 10 は 3（紫）・11〜12 は 4（オレンジ）
+export const TM_DEEP_K = { 10: 1.57, 11: 1.68, 12: 1.76 };
+const DR = 10;
+const dk = (step) => TM_DEEP_K[step];
+const drar = (step) => (step >= 11 ? 4 : 3);
+const dtm = (grp, step) => ({ src: 'tm', grp, tmStep: step, rank: DR, rarity: drar(step) });
+const DW = (cat, step) => ({ type: 'weapon', cat, atk: Math.round(SWORD[DR] * CAT_K[cat] * dk(step)) });
+const DA = (armorType, step) => ({ type: 'armor', armorType, def: Math.round(CLOTH[DR] * ARMOR_K[armorType] * dk(step)) });
+const DS = (step) => ({ type: 'shield', def: Math.round(CLOTH[DR] * dk(step)) });
+const DH = (step, helm = false) => ({ type: 'head', ...(helm ? { helm: true } : {}), def: Math.round(CLOTH[DR] * (helm ? 0.6 : 0.4) * dk(step)) });
+const DC = () => ({ type: 'acc' });
+const DEEP_GEAR = {
+  // ── 土の 洞窟（大地・岩・まぼろし・ねむり・ひみつ・古代）──
+  tmd_quake_hammer: { ...DW('axe', 10), ...dtm('rock', 10), name: '大地ゆらしの大づち', bonus: { str: 10, hp: 30 }, resist: { paralyze: 0.7 }, desc: '地面をたたくと、大地がゆれるという大づち。力とHPが上がり、マヒしにくい。' },
+  tmd_mirage_mantle: { ...DA('cloth', 10), ...dtm('mirage', 10), name: 'しんきろうのマント', bonus: { agi: 12, mag: 8 }, resist: { blind: 0.5, confuse: 0.7 }, desc: 'ゆらゆらとすがたがゆれて見えるマント。だれでも装備でき、マヌーサと混乱にかかりにくい。' },
+  tmd_dawn_dream_staff: { ...DW('staff', 11), ...dtm('sleep', 11), name: '夜明けのゆめのつえ', bonus: { mag: 22, heal: 14 }, resist: { sleep: 0.4 }, mpRegen: 1, desc: '夜明けに見た、いちばんよいゆめをとじこめたつえ。行動するたびにMPが1回復する。' },
+  tmd_shadow_stitch_claw: { ...DW('claw', 11), ...dtm('secret', 11), name: 'かげぬいのツメ', bonus: { agi: 12 }, crit: 0.04, onHit: { status: 'paralyze', chance: 0.1 }, desc: '敵のかげをぬいとめる、しのびのツメ。会心が出やすく、ときどき敵をマヒさせる。' },
+  tmd_sun_king_crown: { ...DH(12), ...dtm('ancient', 12), name: '太陽の王のかんむり', bonus: { mag: 16, heal: 12, agi: 8, hp: 30 }, mpRegen: 2, desc: '古代の太陽の王国の、金のかんむり。行動するたびにMPが2回復する。' },
+  tmd_earth_king_mail: { ...DA('heavy', 12), ...dtm('rock', 12), name: '大地の王のよろい', bonus: { hp: 40, def: 10 }, resist: { paralyze: 0.5, bolt: 0.85 }, desc: '大地の王が着ていた、山のように重いよろい。HPと守りが上がり、マヒしにくい。' },
+  // ── 氷の 洞窟 ──
+  tmd_snowwolf_fang: { ...DW('dagger', 10), ...dtm('ice', 10), name: '雪オオカミのキバ', bonus: { agi: 10 }, crit: 0.03, resist: { ice: 0.8 }, desc: '雪山の王の、白いオオカミのキバの短剣。会心が出やすく、氷に強い。' },
+  tmd_snowflake_shield: { ...DS(10), ...dtm('ice', 10), name: '雪のかけらのたて', bonus: { hp: 24 }, resist: { ice: 0.6, fire: 0.85 }, desc: '六角形の雪のかけらの形のたて。氷にとても強い。' },
+  tmd_ice_queen_fan: { ...DW('fan', 11), ...dtm('ice', 11), name: '氷の女王のおうぎ', bonus: { mag: 16, agi: 8 }, resist: { ice: 0.75 }, onHit: { status: 'paralyze', chance: 0.1 }, desc: '氷の女王が、ふぶきをよぶおうぎ。ときどき敵をこおらせて動けなくする。' },
+  tmd_polar_gi: { ...DA('gi', 11), ...dtm('ice', 11), name: '白クマの道着', bonus: { str: 10, hp: 30 }, resist: { ice: 0.7 }, desc: '北のはての白クマのように強くなれる道着。力とHPが上がり、氷に強い。' },
+  tmd_blizzard_sword: { ...DW('sword', 12), ...dtm('ice', 12), name: '大ふぶきの剣', bonus: { str: 12, agi: 8 }, resist: { ice: 0.7 }, desc: 'ひとふりで、大ふぶきをよぶ剣。力と素早さが上がり、氷に強い。' },
+  tmd_snow_queen_ring: { ...DC(), ...dtm('ice', 12), name: '雪の女王の指輪', bonus: { mag: 20, heal: 16, agi: 14, hp: 40, def: 10 }, resist: { ice: 0.6, confuse: 0.6 }, desc: '雪の女王の、白くすきとおった指輪。だれでも装備でき、魔力と回復の力が上がる。混乱しにくい。' },
+  // ── 炎の 洞窟 ──
+  tmd_volcano_whip: { ...DW('whip', 10), ...dtm('fire', 10), name: '火の山のムチ', bonus: { str: 8 }, resist: { fire: 0.8 }, onHit: { status: 'poison', chance: 0.15 }, desc: '火の山のけむりをまとったムチ。ときどき敵を毒にする。炎に強い。' },
+  tmd_ember_helm: { ...DH(10, true), ...dtm('fire', 10), name: 'ひのこのかぶと', bonus: { hp: 30 }, resist: { fire: 0.7 }, desc: '火の粉がはねても平気な、赤いかぶと。HPが上がり、炎に強い。' },
+  tmd_phoenix_spear: { ...DW('spear', 11), ...dtm('fire', 11), name: '火の鳥のやり', bonus: { agi: 8, hp: 20 }, resist: { fire: 0.75 }, desc: '火の鳥の羽のように赤くかがやくやり。素早さとHPが上がる。' },
+  tmd_magma_bangle: { ...DC(), ...dtm('fire', 11), name: 'マグマのうでわ', bonus: { str: 20, def: 14, hp: 40, agi: 8 }, resist: { fire: 0.6 }, desc: '火山のおくのマグマが、ひえてかたまったうでわ。だれでも装備でき、力と守りが上がる。' },
+  tmd_sun_axe: { ...DW('axe', 12), ...dtm('fire', 12), name: '太陽のオノ', bonus: { str: 14 }, resist: { fire: 0.7, ice: 0.9 }, desc: '太陽のかけらをはめこんだ、まっかなオノ。力が大きく上がる。' },
+  tmd_flame_dragon_robe: { ...DA('robe', 12), ...dtm('fire', 12), name: '炎竜のローブ', bonus: { mag: 20, heal: 12 }, resist: { fire: 0.6, ice: 0.85 }, desc: '炎の竜のうろこをおりこんだローブ。魔力と回復の力が上がり、炎にとても強い。' },
+};
+
 const GEAR = {
   // ═════ 宝の洞窟（tm）═════
   // ── 大地・岩（守り・HP・マヒに強い）──
@@ -123,6 +158,12 @@ const GEAR = {
   phoenix_plume: { ...H(7, 3), ...tm('fire'), name: '不死鳥の羽根かざり', bonus: { heal: 8, hp: 15 }, resist: { fire: 0.8 }, desc: '何度でもよみがえる鳥の羽根のかざり。回復の力とHPが上がる。' },
   kagutsuchi: { ...W('sword', 8, 4), ...tm('fire'), name: 'カグツチの剣', bonus: { str: 6 }, resist: { fire: 0.8 }, desc: '火の神の名をもつ、赤くかがやく剣。炎に強くなる。' },
   lavastone_ring: { ...C(8, 3), ...tm('fire'), name: 'ようがん石の指輪', bonus: { str: 8, def: 4 }, resist: { fire: 0.7 }, desc: '火山のおくでとれる、熱い石の指輪。力と守りが上がる。' },
+
+  // ═════ 第65回 C: 深い 宝の洞窟（地図 Lv26〜35）の ★5（ランク10）═════
+  // 3だん（tmStep。rare-loot.js の tmGearStep）: 10 … 地図 Lv26〜 / 11 … Lv30〜 / 12 … Lv33〜。強さは TM_DEEP_K（レア度の ぶんも こみ）。
+  //   物語の 宝箱（星めぐりの古道 1.12×1.40・時計塔 1.12×1.50・みどりの水の神殿 1.12×1.55〜1.62）より 少し あとを 追う 強さ
+  //   （第64回: 装備が 手に入りすぎない ように。とくせいで 楽しむ 品）
+  ...DEEP_GEAR,
 
   // ═════ 物語の ボスが かならず 落とす（boss）═════
   // 第32回: かならず 落とす かわりに、その章の 店の いちばん よい 装備と おなじ くらいの 強さ（ランクも おなじ・★2）＋ とくせい 1つ。
@@ -227,6 +268,12 @@ export const RARE_GEAR_KANA = {
   firebird_fan: 'ひのとりのおうぎ', salamander_scale: 'ひとかげのうろこ', lava_axe: 'ようがんのおの', magma_pan: 'まぐまのふらいぱん',
   redrock_mail: 'あかいわのよろい', fire_drake_spear: 'かりゅうのやり', flame_haori: 'ほのおのはおり', fireball_bat: 'ひのたまばっと',
   phoenix_plume: 'ふしちょうのはねかざり', kagutsuchi: 'かぐつちのけん', lavastone_ring: 'ようがんせきのゆびわ',
+  tmd_quake_hammer: 'だいちゆらしのおおづち', tmd_mirage_mantle: 'しんきろうのまんと', tmd_dawn_dream_staff: 'よあけのゆめのつえ',
+  tmd_shadow_stitch_claw: 'かげぬいのつめ', tmd_sun_king_crown: 'たいようのおうのかんむり', tmd_earth_king_mail: 'だいちのおうのよろい',
+  tmd_snowwolf_fang: 'ゆきおおかみのきば', tmd_snowflake_shield: 'ゆきのかけらのたて', tmd_ice_queen_fan: 'こおりのじょおうのおうぎ',
+  tmd_polar_gi: 'しろくまのどうぎ', tmd_blizzard_sword: 'おおふぶきのけん', tmd_snow_queen_ring: 'ゆきのじょおうのゆびわ',
+  tmd_volcano_whip: 'ひのやまのむち', tmd_ember_helm: 'ひのこのかぶと', tmd_phoenix_spear: 'ひのとりのやり', tmd_magma_bangle: 'まぐまのうでわ',
+  tmd_sun_axe: 'たいようのおの', tmd_flame_dragon_robe: 'えんりゅうのろーぶ',
   treant_staff: 'ねじれぎのつえ', goldoon_fist: 'ごるどーんのこぶし', kraken_whip: 'くらーけんのむち', storm_general_helm: 'あらしのしょうぐんのかぶと',
   mammoth_fur: 'まんもすのけがわ', magma_hammer: 'ようがんのおおづち', flare_shield: 'ほのおのきしのたて', guardian_halberd: 'りゅうのばんにんのほこ',
   witch_broom: 'ほのおのまじょのほうき', witch_hat: 'まじょのくろいぼうし', scorpion_whip: 'さそりのしっぽむち', ankh_staff: 'あんくのつえ',

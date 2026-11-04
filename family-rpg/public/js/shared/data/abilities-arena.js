@@ -228,4 +228,114 @@ export const ARENA_ABILITIES = {
     effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 25 }, cast: '{a}は、たてをかまえて、みんなの前に立った！', anim: 'guard',
     desc: '仲間みんなの守備力を上げる。',
   },
+
+  // ───── 第65回 C: ランク9（伝説の部）の 王者: 炎と氷の竜きょうだい（ふたご。息を すったら ブレス・片方を たおすと よびもどしの 声）─────
+  m_ar9_fire_claw: {
+    name: '炎のツメ', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.45, element: 'fire' }, cast: '{a}は、まっかにもえるツメで、{t}を引きさいた！', anim: 'slash_heavy',
+    desc: 'もえるツメで、1人に切りかかる。',
+  },
+  m_ar9_ice_claw: {
+    name: '氷のツメ', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 0.8, hits: 2, element: 'ice' }, cast: '{a}は、こおりのツメで、{t}に2回切りかかった！', anim: 'slash_fast',
+    desc: 'こおりのツメで、すばやく2回切りかかる。',
+  },
+  m_ar9_tail: {
+    name: '竜のしっぽ', kind: 'monster', target: 'enemies',
+    effect: { type: 'phys', mult: 0.72 }, cast: '{a}は、大きなしっぽを、ぶうんとふり回した！', anim: 'hit_all',
+    desc: 'しっぽで、敵みんなをなぎはらう。',
+  },
+  m_ar9_fire_inhale: {
+    name: '炎の前ぶれ', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar9_fire_blast' }, cast: '{a}は、むねいっぱいに、大きく息をすいこんだ…！\n（口のおくが、まっかに光っている！）', anim: 'charge',
+    desc: '次の番に「ほのおの大ブレス」。身を守ろう。',
+  },
+  m_ar9_fire_blast: {
+    name: 'ほのおの大ブレス', kind: 'monster', target: 'enemies',
+    effect: { type: 'magic', element: 'fire', base: [195, 215], thr: 99 }, cast: '{a}の、ほのおの大ブレス！\n闘技場が、まっかな炎につつまれた！', anim: 'fire_wave',
+    desc: '炎のブレスで、敵みんなにとても大きなダメージ。身を守ると少し弱くなる。',
+  },
+  m_ar9_ice_inhale: {
+    name: '氷の前ぶれ', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar9_ice_blast' }, cast: '{a}は、むねいっぱいに、大きく息をすいこんだ…！\n（まわりの空気が、きんきんにひえていく！）', anim: 'charge',
+    desc: '次の番に「こおりの大ブレス」。身を守ろう。',
+  },
+  m_ar9_ice_blast: {
+    name: 'こおりの大ブレス', kind: 'monster', target: 'enemies',
+    effect: { type: 'magic', element: 'ice', base: [195, 215], thr: 99 }, cast: '{a}の、こおりの大ブレス！\n闘技場が、まっ白なふぶきにつつまれた！', anim: 'blizzard',
+    desc: '氷のブレスで、敵みんなにとても大きなダメージ。身を守ると少し弱くなる。',
+  },
+  m_ar9_fire_call: {
+    name: 'よびもどしの声', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar9_fire_revive', chant: 0.12, windup: 40 }, cast: '{a}は、たおれた氷の竜にむかって、大きな声でよびかけ始めた…！', anim: 'charge',
+    desc: '次の番に、たおれた氷の竜を生き返らせる。大きなダメージで止められる。',
+  },
+  m_ar9_fire_revive: {
+    name: 'よびもどしの声', kind: 'monster', target: 'self',
+    effect: { type: 'reviveAll', species: 'ar_ice_drake', hpRatio: 0.3 }, cast: '{a}の声が、闘技場にひびきわたった！', anim: 'revive',
+    desc: 'たおれた氷の竜を生き返らせる。',
+  },
+  m_ar9_ice_call: {
+    name: 'よびもどしの声', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar9_ice_revive', chant: 0.12, windup: 40 }, cast: '{a}は、たおれた炎の竜にむかって、大きな声でよびかけ始めた…！', anim: 'charge',
+    desc: '次の番に、たおれた炎の竜を生き返らせる。大きなダメージで止められる。',
+  },
+  m_ar9_ice_revive: {
+    name: 'よびもどしの声', kind: 'monster', target: 'self',
+    effect: { type: 'reviveAll', species: 'ar_fire_drake', hpRatio: 0.3 }, cast: '{a}の声が、闘技場にひびきわたった！', anim: 'revive',
+    desc: 'たおれた炎の竜を生き返らせる。',
+  },
+
+  // ───── 第65回 C: ランク10（伝説の部）の 王者: 星の大王者レグルスと ひこ星のアルタ・おり姫のベガ
+  //   （属性の よろい〈ランク7と おなじ しくみ〉と 3人の 合体技〈ランク8と おなじ しくみ〉）─────
+  m_ar10_armor: {
+    name: '星のよろい', kind: 'monster', target: 'self',
+    effect: { type: 'arArmor' }, cast: '{a}は、星空にむかって、高くほえた！', anim: 'buff',
+    desc: '炎・氷・雷・風のどれかのよろいをまとう。同じ属性の攻撃はすいこんで回復し、弱点の属性でくだける。',
+  },
+  m_ar10_claw: {
+    name: '大王者のツメ', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.5 }, cast: '{a}は、金色のツメで、{t}を打ちすえた！', anim: 'slash_heavy',
+    desc: '金色のツメで、1人に大ダメージ。',
+  },
+  m_ar10_roar: {
+    name: '星をゆらすおたけび', kind: 'monster', target: 'enemies',
+    effect: { type: 'debuff', stat: 'def', mult: 0.8, dur: 20, chance: 0.6 }, cast: '{a}は、星がゆれるほどの、大きなおたけびを上げた！', anim: 'warcry',
+    desc: 'おたけびで、敵みんなの守備力を下げる。',
+  },
+  m_ar10_spell: {
+    name: '星のよろいの大呪文', kind: 'monster', mp: 10, target: 'enemies',
+    effect: { type: 'arSpell', base: [155, 175], thr: 99 }, cast: '{a}は、よろいの力を、星の大呪文にかえた！', anim: 'blast2',
+    desc: 'まとっているよろいと同じ属性の呪文で、敵みんなにダメージ。',
+  },
+  m_ar10_signal: {
+    name: '大三角の合図', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar10_combo' }, cast: '{a}が、夜空にむかって、たてがみをかがやかせた！\n「アルタ、ベガ、行くぞ！」…3つの星が、三角形にならんだ！', anim: 'charge',
+    desc: '次の番に、3人の合体技。アルタとベガを先にたおすと弱くなる。',
+  },
+  m_ar10_combo: {
+    name: 'ほしぞらトライアングル', kind: 'monster', target: 'enemies',
+    effect: { type: 'arCombo', mult: 1.75, ignoreDef: 0.3 }, cast: '3人の合体技、ほしぞらトライアングル！！\n3つの星の光が、闘技場の空から落ちてくる！', anim: 'slash_heavy',
+    desc: '3人の合体技。敵みんなに、とても大きなダメージ。生きている仲間が少ないほど弱くなり、1人だけでは出せない。',
+  },
+  m_ar10_dive: {
+    name: 'ひこ星のきゅうこうか', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 0.62, hits: 3 }, cast: '{a}は、空の上から、{t}にむかって3回つっこんできた！', anim: 'tackle',
+    desc: '空からつっこんで、1人に3回攻撃する。',
+  },
+  m_ar10_gale: {
+    name: '天の川の風', kind: 'monster', mp: 6, target: 'enemies',
+    effect: { type: 'magic', element: 'wind', base: [120, 140], thr: 99 }, cast: '{a}は、大きなつばさで、天の川の風をおこした！', anim: 'wind2',
+    desc: '風で、敵みんなにダメージ。',
+  },
+  m_ar10_song: {
+    name: 'おり姫の歌', kind: 'monster', mp: 8, target: 'ally',
+    effect: { type: 'heal', base: [900, 1000] }, cast: '{a}は、やさしい歌で、{t}をつつんだ！\n「まだまだ、がんばって！」', anim: 'heal1',
+    desc: '仲間1人のHPを回復する。',
+  },
+  m_ar10_veil: {
+    name: '星のベール', kind: 'monster', target: 'allies',
+    effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 25 }, cast: '{a}は、星の光をおって、みんなにかけた！', anim: 'guard',
+    desc: '仲間みんなの守備力を上げる。',
+  },
 };
