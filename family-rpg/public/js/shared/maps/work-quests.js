@@ -17,6 +17,8 @@ import { SOUTH_PLACES } from './south.js';
 import { PORT } from './sea.js';
 import { openSpot } from './labyrinth.js';
 import { room } from './fq-kit.js';
+// 第65回 D2: たのまれごと 12〜17 の 人（maps/work-quests2.js）
+import { attachWorkQuests2 } from './work-quests2.js';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ（maps/family-quests.js の FQ_OPEN と おなじ）
@@ -174,6 +176,8 @@ export function attachWorkQuests(maps) {
     const [x, y] = fixed ? [base.x + dx, base.y + dy] : openSpot(m, base.x + dx, base.y + dy);
     m.npcs.push(npc(id, name, [x, y], sprite, script, { dir: 'down', ...opts }));
   }
+  // 第65回 D2: 12〜17
+  attachWorkQuests2(maps);
   return maps;
 }
 

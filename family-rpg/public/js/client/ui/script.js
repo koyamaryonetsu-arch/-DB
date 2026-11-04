@@ -76,7 +76,7 @@ export class ScriptPlayer {
     const [op, ...a] = st;
     switch (op) {
       case 'say': return this.say(a[0] ? this.fill(a[0], msg) : null, this.fill(a[1], msg), msg.spectator);
-      case 'choice': return this.choice(this.fill(a[0], msg), a[1], msg.spectator, msg.who);
+      case 'choice': return this.choice(this.fill(a[0], msg), a[1], msg.spectator, msg.who, a[2]);
       case 'fade': return g.fade(a[0] === 'out');
       case 'flash': return g.flash();
       case 'shake':
@@ -292,22 +292,33 @@ export class ScriptPlayer {
     });
   }
 
-  choice(question, options, spectator, who) {
+  // info … えらぶ 物ごとの せつめい（第65回 お仕事いらい板: カーソルを 合わせた はり紙の 職業・ごほうび）。下の 小さな わくに 出す
+  choice(question, options, spectator, who, info = null) {
     const g = this.game;
     if (spectator) {
       return this.say(null, `（${who}が選んでいます…）\n${question}`, true).then(() => 0);
     }
     return new Promise((resolve) => {
-      const box = el('div', { class: 'win choice' });
+      const hasInfo = Array.isArray(info) && info.some(Boolean);
+      const box = el('div', { class: `win choice${hasInfo ? ' has-info' : ''}` });
       if (question) box.append(el('div', { class: 'q', text: question }));
+      const infoBox = hasInfo ? el('div', { class: 'choice-info' }) : null;
+      const showInfo = (i) => {
+        if (!infoBox) return;
+        const t = String(info[i] || '');
+        infoBox.textContent = t;
+        infoBox.classList.toggle('empty', !t);
+      };
       const menu = new ListMenu(g.input, {
         items: options.map((o, i) => ({ label: o, value: i })),
         sound: (s) => g.audio.sfx(s),
         back: null,
         onSelect: (it) => finish(it.value),
         onCancel: () => finish(options.length - 1),
+        onMove: (it, i) => showInfo(it?.value ?? i),
       });
       box.append(menu.root);
+      if (infoBox) { box.append(infoBox); showInfo(menu.idx || 0); }
       document.getElementById('ui').append(box);
       menu.focus();
       const finish = (v) => {

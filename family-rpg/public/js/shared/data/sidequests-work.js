@@ -35,22 +35,22 @@ const accept = (ask, yes, no, flag) => [['choice', ask, ['引き受ける', 'ま
 
 // ───────────── たのまれごとの 一らん（お仕事いらい板の はり紙にも 出る）─────────────
 export const WORK_QUESTS = [
-  { id: 'stage', name: '砂の港ドゥナの歌のステージ', done: WQ.stageDone, roots: ['idol'], job: 'アイドル', town: '砂の港ドゥナ',
+  { id: 'stage', npc: 'fq_stage_boss', name: '砂の港ドゥナの歌のステージ', done: WQ.stageDone, roots: ['idol'], job: 'アイドル', town: '砂の港ドゥナ',
     start: WQ.stageStart, who: '港の世話役ナジャ', where: '砂の港ドゥナのまん中の広場', paper: '港がすっかりさびしくなりました。\n歌とおどりで、港を元気にしてくれる人を探しています。',
     reward: { item: 'fq_star_mic', vehicle: 'live_truck', gold: 4000, medals: 2 } },
-  { id: 'bridge', name: 'オアシスの村の、こわれた橋', done: WQ.bridgeDone, roots: ['civil_local'], job: '地方公務員', town: 'オアシスの村ハミル',
+  { id: 'bridge', npc: 'fq_bridge_officer', name: 'オアシスの村の、こわれた橋', done: WQ.bridgeDone, roots: ['civil_local'], job: '地方公務員', town: 'オアシスの村ハミル',
     start: WQ.bridgeStart, who: '村の役場のサミール', where: 'オアシスの村ハミルの、オアシスの池のそば', paper: 'オアシスの池の橋が、こわれてしまいました。\n村の役場の仕事にくわしい方、手続きを手伝ってください。',
     reward: { item: 'fq_gold_stamp', vehicle: 'road_roller', gold: 4000, medals: 2 } },
-  { id: 'ball', name: 'カモメ港の子ども野球チーム', done: WQ.ballDone, roots: ['ballplayer'], job: 'プロ野球選手', town: 'カモメ港',
+  { id: 'ball', npc: 'fq_ball_cap', name: 'カモメ港の子ども野球チーム', done: WQ.ballDone, roots: ['ballplayer'], job: 'プロ野球選手', town: 'カモメ港',
     start: WQ.ballStart, who: 'キャプテンのタイチ', where: 'カモメ港の南の、すなはま', paper: 'ぼくたちのチームは、いつも負けてばかり。\n野球のコーチをしてくれる人、来てください！',
     reward: { item: 'fq_homerun_ball', vehicle: 'team_bus', gold: 3000, medals: 2 } },
-  { id: 'video', name: 'ハネノの町の名物動画', done: WQ.videoDone, roots: ['youtuber'], job: 'ユーチューバー', town: 'ハネノの町',
+  { id: 'video', npc: 'fq_video_guide', name: 'ハネノの町の名物動画', done: WQ.videoDone, roots: ['youtuber'], job: 'ユーチューバー', town: 'ハネノの町',
     start: WQ.videoStart, who: '観光係のミソラ', where: 'ハネノの町の南の門の近く', paper: '雲の上の町ハネノに、旅人が来てくれません。\n町の名物を動画でしょうかいしてくれる人、ぼしゅう中！',
     reward: { item: 'fq_gold_play', vehicle: 'relay_car', gold: 3000, medals: 2 } },
-  { id: 'inn', name: '湯けむり宿の大そうじ', done: WQ.innDone, roots: ['okan'], job: 'おかん', town: '温泉の里ユノハ',
+  { id: 'inn', npc: 'fq_inn_okami', name: '湯けむり宿の大そうじ', done: WQ.innDone, roots: ['okan'], job: 'おかん', town: '温泉の里ユノハ',
     start: WQ.innStart, who: '宿の大おかみハルエ', where: '温泉の里ユノハの宿屋の2階（1階の右上の階だん）', paper: 'こしをいためて、宿の大そうじも、子どもたちのごはんも作れません。\nたよれるおかん、助けておくれ。',
     reward: { item: 'fq_gold_shamoji', vehicle: 'big_cart', gold: 3000, medals: 2 } },
-  { id: 'magic', name: '王都のお祭りの手品ショー', done: WQ.magicDone, roots: ['magician'], job: '手品師', town: '王都サファラ',
+  { id: 'magic', npc: 'fq_magic_host', name: '王都のお祭りの手品ショー', done: WQ.magicDone, roots: ['magician'], job: '手品師', town: '王都サファラ',
     start: WQ.magicStart, who: 'お祭りの係ファリダ', where: '王都サファラの南の広場', paper: 'お祭りの手品師が、熱を出してしまいました！\nかわりにショーに出てくれる手品師、おねがいします。',
     reward: { item: 'fq_gold_cards', vehicle: 'silk_hat', gold: 4000, medals: 2 } },
 ];
