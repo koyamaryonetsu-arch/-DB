@@ -18,6 +18,8 @@ export const ITEMS_FORGE = {
   wind_feather: { name: '風の羽', type: 'mat', price: 0, sell: 12, desc: '風をまとった鳥の羽。軽い装備の素材になる。' },
   pretty_shell: { name: 'きれいな貝がら', type: 'mat', price: 0, sell: 12, desc: '海辺で拾える、つやつやの貝がら。' },
   silver_shard: { name: '銀のかけら', type: 'mat', price: 0, sell: 30, desc: 'かがやく銀のかけら。強い装備を作るのに使う。' },
+  // 第65回: 限界とっぱ（data/forge.js の upgradeCost。上限まで きたえた 装備を さらに ★1〜★3 に）
+  limit_stone: { name: '限界の石', type: 'mat', price: 0, sell: 150, desc: '上限まできたえた装備の、限界をこえさせるふしぎな石。かじ屋で使う。' },
   dragon_scale: { name: '竜のうろこ', type: 'mat', price: 0, sell: 50, desc: '海へびが落とす、とてもかたい竜のうろこ。' },
 
   // ───── ふしぎなかじで 作る 装備（店では 売っていない）─────
@@ -39,7 +41,7 @@ export const ITEMS_FORGE = {
 // 読みがな（あいうえお順の ならべかえ）
 export const FORGE_KANA = {
   beast_fang: 'けもののきば', iron_shard: 'てつのかけら', magic_powder: 'まほうのこな', wind_feather: 'かぜのはね',
-  pretty_shell: 'きれいなかいがら', silver_shard: 'ぎんのかけら', dragon_scale: 'りゅうのうろこ',
+  pretty_shell: 'きれいなかいがら', silver_shard: 'ぎんのかけら', limit_stone: 'げんかいのいし', dragon_scale: 'りゅうのうろこ',
   fang_spear: 'きばのやり', wolf_claw: 'うるふくろー', jelly_robe: 'ぷるぷるのろーぶ', fang_charm: 'きばのおまもり',
   flame_sword: 'ほのおのけん', feather_hat: 'はねのぼうし', shell_mail: 'かいがらのよろい', wind_brooch: 'かぜのぶろーち',
   thunder_staff: 'かみなりのつえ', dragon_shield: 'りゅうのうろこのたて', shell_necklace: 'かいがらのくびかざり',
@@ -74,6 +76,20 @@ export const UPGRADE_STEP = 0.1;
 
 export function upgradeId(baseId, n) {
   return n > 0 ? `${baseId}+${n}` : baseId;
+}
+
+// 第65回: 限界とっぱ（★1〜★LB_MAX）。上限（ランクの 回数＋れん金で ふやした 回数）まで きたえた 装備を、
+//   かじ屋で 限界の石を 使うか、れん金がまで 上限まで きたえた 同じ 装備を 2つ 合わせると とっぱできる
+//   ・とっぱ 1回ごとに、もう1回 きたえた のと 同じ だけ 強く なる（+5★1 は +6 と 同じ 強さ）
+//   ・★1 から、れん金の 効果を 2つ つけられる（data/gear-fx.js の fxSlots）
+//   ・id は「もとの id+回数_lb★の数」（sword+5_lb1）。れん金で 回数を ふやした あとも ★の まま きたえられる
+export const LB_MAX = 3;
+export function lbId(baseId, n, k) {
+  return k > 0 ? `${upgradeId(baseId, n)}_lb${k}` : upgradeId(baseId, n);
+}
+function lbItem(baseId, base, n, k) {
+  const it = upgradedItem(baseId, base, n + k);
+  return { ...it, plus: n, lb: k, name: `${base.name}+${n}★${k}`, sell: Math.round(baseSell(base) * (1 + 0.3 * n)) };
 }
 
 // もとの 装備の 売り値（items.js の sellPrice と おなじ 式）
@@ -122,6 +138,15 @@ export function addUpgradeItems(table) {
     for (let n = 1; n <= top; n++) {
       const uid = upgradeId(id, n);
       if (!table[uid]) table[uid] = upgradedItem(id, it, n);
+    }
+    // 限界とっぱ（店の 品〈★1〉は きたえられない ので ない）。上限は ランクの 回数〜＋CAP_UP_MAX
+    const lim = upgradeLimit(it);
+    if (!lim) continue;
+    for (let n = lim; n <= lim + CAP_UP_MAX; n++) {
+      for (let k = 1; k <= LB_MAX; k++) {
+        const uid = lbId(id, n, k);
+        if (!table[uid]) table[uid] = lbItem(id, it, n, k);
+      }
     }
   }
   return table;

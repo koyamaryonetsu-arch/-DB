@@ -223,6 +223,10 @@ export function clearRewards(run, n) {
       c.medalSpots = c.medalSpots && typeof c.medalSpots === 'object' ? c.medalSpots : {};
       c.medalSpots[nextRepeatMedal(c)] = now;
       out.push(['sfx', 'item'], say(null, `${c.name}は${fmt(R.repeatGold)}ゴールドと、小さなメダルを1枚手に入れた！`));
+      // 第65回: 限界の石（ランク9・10）
+      const rm = (R.repeatMats || []).filter(([id, k]) => ITEMS[id] && k > 0);
+      for (const [id, k] of rm) addItem(c, id, k);
+      if (rm.length) out.push(say(null, `${c.name}は${rm.map(([id, k]) => `${ITEMS[id].name}を${k}個`).join('と')}手に入れた！`));
     }
     // 第45回: 大事な物（ランク8 の 竜王のしるし。1人 1つ）
     if (R.key && dqKeyDue(c, R.key)) {

@@ -5,7 +5,7 @@
 //   1つ前の ランクを 勝ちぬくと 次へ
 //   1つの ランクは 休みなしの 3連戦（戦いの 間に 回復しない・道具は 使える・にげられない）。3戦目は 王者
 //   負けても お金は へらない（受付の 前で HP・MPが もどる）
-// ・ごほうび: はじめて 勝ちぬいた 時（キャラごと）… first の 品（items）・素材（mats。[品, 数]）と 小さなメダル。2回目から … repeatGold ゴールドと 小さなメダル 1まい
+// ・ごほうび: はじめて 勝ちぬいた 時（キャラごと）… first の 品（items）・素材（mats。[品, 数]）と 小さなメダル。2回目から … repeatGold ゴールドと 小さなメダル 1まい（第65回: ランク9・10 は repeatMats の 限界の石も）
 // ・キャラに のこす もの（なくても よい。むかしの セーブも そのまま 読める）
 //   c.arena = { r: { [ランク]: { n: 勝ちぬいた 回数, at: はじめて 勝ちぬいた 時こく, with: [いっしょに いた 家族の 名前] } }, rep: 2回目からの メダルの 通し番号 }
 import { SOUTH_PLACES } from '../maps/south.js';
@@ -75,13 +75,13 @@ export const ARENA_RANKS = [
   {
     rank: 9, lv: 66, champ: '炎と氷の竜きょうだい', battles: ['ar9_1', 'ar9_2', 'ar9_3'], legend: true, needFlag: 'c6_clear',
     lockText: '（千年前の、大きな時計の戦いを乗りこえると、開くらしい）',
-    first: { items: ['ar_twin_dragon_charm'], mats: [['star_shard', 5], ['silver_shard', 5]], medals: 6 }, repeatGold: 8000,
+    first: { items: ['ar_twin_dragon_charm'], mats: [['star_shard', 5], ['silver_shard', 5], ['limit_stone', 2]], medals: 6 }, repeatGold: 8000, repeatMats: [['limit_stone', 1]],
     hint: '竜が大きく息をすったら、次はブレス。身を守ろう。炎の竜には氷、氷の竜には炎。2ひきを同じころにたおそう。',
   },
   {
     rank: 10, lv: 74, champ: '星の大王者レグルス', battles: ['ar10_1', 'ar10_2', 'ar10_3'], legend: true, needFlag: 'c7_karim',
     lockText: '（緑の王国の、水の神殿の戦いを乗りこえると、開くらしい）',
-    first: { items: ['ar_star_king_brooch'], mats: [['star_shard', 8], ['silver_shard', 6]], medals: 8 }, repeatGold: 10000,
+    first: { items: ['ar_star_king_brooch'], mats: [['star_shard', 8], ['silver_shard', 6], ['limit_stone', 3]], medals: 8 }, repeatGold: 10000, repeatMats: [['limit_stone', 1]],
     hint: 'よろいと同じ属性はすいこまれる。弱点でくだこう。たてがみがかがやいたら合体技の合図。アルタとベガを先にたおそう。',
   },
 ];

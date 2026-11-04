@@ -30,7 +30,7 @@ import { checkText } from '../tools/kanji-check.mjs';
 import { makeRng } from '../public/js/shared/rng.js';
 
 const EQ = ['weapon', 'armor', 'shield', 'head', 'acc'];
-const MATS = ['iron_shard', 'beast_fang', 'magic_powder', 'silver_shard', 'star_shard'];
+const MATS = ['iron_shard', 'beast_fang', 'magic_powder', 'silver_shard', 'star_shard', 'limit_stone'];
 const speciesOf = (zone) => [...new Set(ENCOUNTER_TABLES[zone].flatMap((e) => e.group.map(([sp]) => sp)))];
 
 // ───────────── 宝の地図 ─────────────

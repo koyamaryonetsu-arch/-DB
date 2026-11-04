@@ -7,6 +7,7 @@ import { partyOf } from './party.js';
 import { BAG_STACK } from './bank.js';
 import { forgePotGift } from './alchemy.js';
 import { salvageOf, salvageBlock } from '../data/salvage.js';
+import { LB_MAX } from '../data/items-forge.js';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
@@ -58,6 +59,7 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
         // 第35回: 店で 買える 装備（★1）は きたえられない
         if (isShopForge(msg.id)) return reply(false, 'それは店で売っている品だな。\n店の品（★1）は、きたえられないんだ。');
         const top = maxPlus(msg.id, c);
+        if (top && (ITEMS[msg.id]?.lb || 0) >= LB_MAX) return reply(false, `それは、もう★${LB_MAX}まで限界とっぱしているな。\nこれ以上は、わしにもむりだ。`);
         return reply(false, top ? `それは、これ以上きたえられないな。\n（その装備は+${top}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'それは、きたえられないな。');
       }
       // who … 装備している 人（じぶん か じぶんの 仲間）。ない ときは ふくろの 品
@@ -86,6 +88,8 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
       }
       // 生まれ変わり（かくし要素）
       if (cost.reborn) return reply(true, `カン！カン！カン！\n…なんと！\n${ITEMS[msg.id].name}は、${ITEMS[cost.to].name}に生まれ変わった！`, { upgraded: cost.to, who: msg.who || null, reborn: true, from: msg.id });
+      // 第65回: 限界とっぱ
+      if (cost.limit) return reply(true, `カン！カン！…キィィン！\n${ITEMS[msg.id].name}は、限界をこえて\n${ITEMS[cost.to].name}になった！${cost.lb === 1 ? '\n（れん金の効果を2つつけられるようになった）' : ''}`, { upgraded: cost.to, who: msg.who || null, limit: cost.lb });
       return reply(true, `カン！カン！カン！\n${ITEMS[msg.id].name}は、${ITEMS[cost.to].name}になった！`, { upgraded: cost.to, who: msg.who || null });
     }
     // 第64回 ⑥b: 分解（ふくろの 装備 1つ → 素材。data/salvage.js）

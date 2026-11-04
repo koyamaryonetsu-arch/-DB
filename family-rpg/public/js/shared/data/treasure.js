@@ -264,6 +264,8 @@ const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone', '
 
 // rng … 宝箱ごとに きまった 乱数（洞窟の seed から）/ kind: 'normal' | 'bossA' | 'bossB'
 // cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）
+// 第65回: 主の 宝箱に 限界の石が 入る 地図の レベル
+export const TM_LIMIT_LV = 30;
 export function chestLoot(rng, lv, kind = 'normal', cave = null) {
   const pools = equipPools();
   const rank = equipRankOf(lv);
@@ -283,7 +285,9 @@ export function chestLoot(rng, lv, kind = 'normal', cave = null) {
     const [item, n] = rng.pick(pool);
     return { item, n };
   };
-  if (kind === 'bossA') return rng.chance(0.5) ? rare() : mat();
+  // 第65回: 地図 Lv30 から、主の 宝箱の 素材の かわりに 限界の石が 出る ことが ある（data/forge.js の 限界とっぱ）
+  const stone = () => (lv >= TM_LIMIT_LV && rng.chance(0.6) ? { item: 'limit_stone', n: 1 } : mat());
+  if (kind === 'bossA') return rng.chance(0.5) ? rare() : stone();
   if (kind === 'bossB') {
     const r = rng.next();
     if (r < 0.45) return { gold: Math.round((400 + lv * 220) * rng.float(0.9, 1.2) * REWARD_GOLD_RATE / 10) * 10 };

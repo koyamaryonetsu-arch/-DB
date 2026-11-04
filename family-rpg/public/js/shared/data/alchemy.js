@@ -13,8 +13,8 @@
 //   第36回: かくさない。本だな・れん金のメモ・かじ屋の 親方で わかる（親方は 生まれ変わりの レシピを 先に 教える）。
 //   町の 人・本だな・宝箱・はなす にも ヒント（secret-hints.js）
 import { ITEMS, baseItemId } from './items.js';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js';
+import { UPGRADE_TYPES, CAP_UP_MAX, LB_MAX, lbId, upgradeLimit } from './items-forge.js';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START, REBIRTH } from './items-alchemy.js';
 import { isShopGear } from './items-rare.js';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
 import { KUMOI_RECIPES } from './items-kumoi.js';
@@ -26,7 +26,7 @@ import { TOKEI6_RECIPES } from './items-tokei6.js';
 // 第65回 D1: 第6章（tier 6）・第7章（tier 7）の レシピ（items-craft-r65.js）
 import { ALCH_R65_RECIPES, ALCH_R65_TIER_FLAG, ALCH_R65_KEEPER } from './items-craft-r65.js';
 
-export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
+export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX, LB_MAX };
 
 // かまを もらえる しるし（カモメ港に 着いた）
 export const POT_FLAG = 'c2_port_seen';
@@ -148,6 +148,22 @@ export function isMergePair(ids) {
   const [a, b] = ids.map((id) => ITEMS[id]);
   return !!a && !!b && UPGRADE_TYPES.includes(a.type) && baseItemId(ids[0]) === baseItemId(ids[1]) && !isShopGear(ITEMS[baseItemId(ids[0])]);
 }
+// 第65回: 限界とっぱの 歩数
+export const LB_STEPS = 60;
+// 同じ 武具 2つで 限界とっぱ できるか（{ out, k } / { why: 'capMax'（上限まで きたえて いない）| 'lbMax' | 'rebirth' }）
+export function limitMerge(ids, c = null) {
+  const base = baseItemId(ids[0]);
+  const it = ITEMS[base];
+  if (REBIRTH[base] || Object.values(REBIRTH).some((r) => r.to === base)) return { why: 'rebirth' };
+  const top = upgradeLimit(it) + capUp(c, base);
+  const xs = ids.map((id) => ITEMS[id]);
+  if (xs.some((x) => (x.plus || 0) < top)) return { why: 'capMax' };
+  const k = Math.max(...xs.map((x) => x.lb || 0)) + 1;
+  if (k > LB_MAX) return { why: 'lbMax' };
+  const n = Math.max(...xs.map((x) => x.plus || 0));
+  const out = lbId(base, n, k);
+  return ITEMS[out] ? { out, k } : { why: 'lbMax' };
+}
 // 同じ 店の 武具を 2つ（第35回: 店の 品は きたえられない ので、回数も ふやせない）
 function isShopPair(ids) {
   if (!Array.isArray(ids) || ids.length !== 2 || baseItemId(ids[0]) !== baseItemId(ids[1])) return false;
@@ -161,10 +177,14 @@ export function matchPot(ids, c = null) {
   if (!Array.isArray(ids) || ids.length < 2 || ids.length > 3 || ids.some((id) => !ITEMS[id] || ITEMS[id].type === 'key')) return { ok: false, why: 'bad' };
   if (isMergePair(ids)) {
     const base = baseItemId(ids[0]);
-    if (capUp(c, base) >= CAP_UP_MAX) return { ok: false, why: 'capMax' };
-    // できる 物は きたえた 回数が 多い ほう
-    const out = (ITEMS[ids[0]].plus || 0) >= (ITEMS[ids[1]].plus || 0) ? ids[0] : ids[1];
-    return { ok: true, recipe: MERGE_RECIPE, out, merge: base, steps: potSteps(out, true) };
+    // できる 物は きたえた 回数が 多い ほう（同じ なら ★が 多い ほう）
+    const [a, b] = ids.map((id) => ITEMS[id]);
+    const better = (a.plus || 0) > (b.plus || 0) || ((a.plus || 0) === (b.plus || 0) && (a.lb || 0) >= (b.lb || 0)) ? ids[0] : ids[1];
+    if (capUp(c, base) < CAP_UP_MAX) return { ok: true, recipe: MERGE_RECIPE, out: better, merge: base, steps: potSteps(better, true) };
+    // 第65回: 回数を ぜんぶ ふやした あと、上限まで きたえた 物を 2つ → 限界とっぱ（★が 1つ ふえる）
+    const lb = limitMerge(ids, c);
+    if (lb.why) return { ok: false, why: lb.why };
+    return { ok: true, recipe: MERGE_RECIPE, out: lb.out, merge: base, lb: lb.k, steps: LB_STEPS };
   }
   const r = BY_KEY.get(key(ids));
   if (!r || !ITEMS[r.out]) return { ok: false, why: isShopPair(ids) ? 'shop' : 'none' };

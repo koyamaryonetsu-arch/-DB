@@ -402,7 +402,7 @@ test('漢字: 新しい ファイルは gameFiles() に 入っていて、使え
   assert.deepEqual(bad, []);
   for (const qd of WORK2_QUESTS) for (const t of [qd.name, qd.paper, qd.who, qd.where, qd.job]) assert.deepEqual(checkText(t).filter((p) => p.kind !== 'kana'), [], t);
   const n = NEWS.find((x) => x.id === 'r65-work17');
-  assert.ok(n && NEWS.indexOf(n) < 3, 'お知らせの 上の ほう');
+  assert.ok(n && n.date === '2026-11-04', 'お知らせ（第65回）');
   assert.ok(n.title.length <= 14 && n.text.length <= 170);
   assert.deepEqual(checkText(n.title + n.text).filter((p) => p.kind !== 'kana'), []);
 });

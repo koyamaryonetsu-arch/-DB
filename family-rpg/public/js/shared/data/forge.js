@@ -12,7 +12,7 @@
 //            第35回: 1だん目は れん金がまで「店の 武器＋素材」から 作る（items-alchemy.js の REBIRTH_START・data/alchemy.js）
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
 import { ITEMS, sellPrice } from './items.js';
-import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX } from './items-forge.js';
+import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX, LB_MAX, lbId } from './items-forge.js';
 import { isShopGear } from './items-rare.js';
 import { CH3_RECIPES } from './items-ch3.js';
 import { REBIRTH } from './items-alchemy.js';
@@ -126,13 +126,30 @@ export function forgeTop(id, c = viewerChar()) {
   return Math.max(maxPlus(id, c), rb ? rb.at : 0);
 }
 
+// 第65回: 限界とっぱ（★1〜★3。items-forge.js の LB_MAX）
+export const LIMIT_STONE = 'limit_stone';
+// 生まれ変わりの 武器（2だん目から）も 限界とっぱ しない（かくし要素の 道すじの まま）
+const REBORN_TO = new Set(Object.values(REBIRTH).map((r) => r.to));
+export const lbOf = (id) => ITEMS[id]?.lb || 0;
+// 次に きたえた ときの id（★は そのまま）
+const nextId = (id, n) => lbId(ITEMS[id]?.base || id, n, lbOf(id));
+// 限界とっぱ できるか（上限まで きたえて ある・★が LB_MAX より 少ない・生まれ変わる 武器では ない）
+export function canLimitBreak(id, c = viewerChar()) {
+  const it = ITEMS[id];
+  if (!it || !UPGRADE_TYPES.includes(it.type) || rebirthOf(id) || REBORN_TO.has(it.base || id)) return false;
+  const top = maxPlus(id, c);
+  const plus = it.plus || 0;
+  return top > 0 && plus >= top && lbOf(id) < LB_MAX && !!ITEMS[lbId(it.base || id, plus, lbOf(id) + 1)];
+}
+
 export function canUpgrade(id, c = viewerChar()) {
   const it = ITEMS[id];
   if (!it || !UPGRADE_TYPES.includes(it.type)) return false;
   const plus = it.plus || 0;
   const rb = rebirthOf(id);
   if (rb && plus === rb.at) return true;
-  return plus < forgeTop(id, c) && !!ITEMS[upgradeId(it.base || id, plus + 1)];
+  if (plus < forgeTop(id, c) && ITEMS[nextId(id, plus + 1)]) return true;
+  return canLimitBreak(id, c);
 }
 
 // id を 1回 きたえる ための もの（きたえられない ときは null）
@@ -146,12 +163,19 @@ export function upgradeCost(id, c = viewerChar()) {
   const rb = rebirthOf(id);
   if (rb && n === rb.at + 1) return { from: id, to: rb.to, base, n, gold: rb.gold, mats: rb.mats.map(([m, k]) => [m, k]), over: true, reborn: true };
   const rank = b.rank || 1;
+  // 第65回: 上限まで きたえて ある → 限界とっぱ（限界の石・星のかけら。★が ふえるほど 多く）
+  if (!(n - 1 < forgeTop(id, c) && ITEMS[nextId(id, n)])) {
+    const k = lbOf(id) + 1;
+    const p = n - 1;
+    const gold = Math.max(3000 * k, 10 * (p + k) * rank, Math.round((worth(base) * (UP_GOLD[Math.min(UP_GOLD.length, p) - 1] + 0.5 * k)) / 10) * 10);
+    return { from: id, to: lbId(base, n - 1, k), base, n: n - 1, lb: k, gold, mats: [[LIMIT_STONE, k], ['star_shard', 2 + k]], limit: true };
+  }
   const gold = Math.max(10 * n * rank, Math.round((worth(base) * UP_GOLD[n - 1]) / 10) * 10);
   const mats = [[upgradeMat(b), n + Math.floor((rank - 1) / 2)]];
   if (rank >= 4) mats.push(['silver_shard', n]);
   // +3 からは 星のかけら（回数が すすむほど・ランクが 高いほど 多く）
   if (n >= 3) mats.push(['star_shard', n - 2 + (rank >= 4 ? 1 : 0)]);
-  const out = { from: id, to: upgradeId(base, n), base, n, gold, mats };
+  const out = { from: id, to: nextId(id, n), base, n, gold, mats };
   if (n > maxPlus(id, c)) out.over = true;
   return out;
 }

@@ -149,9 +149,9 @@ test('同じ 武具を 2つ: きたえられる 回数が 1 ふえる（3回ま�
   assert.equal(capUp(c, 'stardust_sword+1'), 2);
   assert.equal(maxPlus('stardust_sword', c), 5);
   assert.equal(maxPlus('stardust_sword', null), 3, 'ほかの 人は かわらない');
-  assert.ok(canUpgrade('stardust_sword+3', c) && !canUpgrade('stardust_sword+3', null));
+  assert.ok(canUpgrade('stardust_sword+3', c) && !upgradeCost('stardust_sword+3', c).limit && upgradeCost('stardust_sword+3', null).limit);
   assert.equal(upgradeCost('stardust_sword+4', c).to, 'stardust_sword+5');
-  assert.equal(upgradeCost('stardust_sword+5', c), null);
+  assert.equal(upgradeCost('stardust_sword+5', c).limit, true, '第65回: 上限の あとは 限界とっぱ');
   assert.equal(rarityOf('stardust_sword+5'), rarityOf('stardust_sword'));
   c.alchemy.cap.stardust_sword = CAP_UP_MAX;
   assert.equal(matchPot(['stardust_sword', 'stardust_sword'], c).why, 'capMax');

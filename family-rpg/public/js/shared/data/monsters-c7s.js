@@ -78,7 +78,7 @@ export const MONSTERS_C7S = {
   //   p2At・p2High … 2だんめ（HP が へると 満ち潮が みじかく なる）/ broadside … いっせいほうげきの 強さ / aground … のり上げて いる 間に 受ける ダメージの ばい
   [C7_REEF]: {
     name: 'ジョリーホック号', lv: 74, hp: 66000, mp: 3000, str: 1380, def: 250, agi: 120, mag: 640, exp: 48000, gold: 14000,
-    race: 'material', size: 'xl', boss: true, turns: 1, speed: 0.8, hit: 'bash', artScale: 0.5, drops: { boss: ['c7r_anchor_charm'], rare: ['c7r_anchor_axe', 1] },
+    race: 'material', size: 'xl', boss: true, turns: 1, speed: 0.8, hit: 'bash', artScale: 0.5, drops: { boss: ['c7r_anchor_charm'], bonus: ['limit_stone'], rare: ['c7r_anchor_axe', 1] },
     resist: { ...BOSS_STATUS, fire: 1.2, bolt: 1.0, ice: 0.9, light: 1.0, dark: 0.9, wind: 1.1 },
     c7s: { kind: 'tide', tide: { high: 4, low: 3, p2At: 0.5, p2High: 3, broadside: { mult: 1.2, ignoreDef: 0.3 }, aground: 1.5 } },
     actions: [{ w: 3, id: 'm7r_cannon' }, { w: 2, id: 'm7r_crew', cond: 'notRecent:m7r_crew' }, { w: 1, id: 'm7r_barrel', cond: 'notRecent:m7r_barrel' }, { w: 1, id: 'm7r_anchor', cond: 'notRecent:m7r_anchor' }],
@@ -95,7 +95,7 @@ export const MONSTERS_C7S = {
   //   wave … ドボンの 大波の 強さ
   [C7_LIGHT]: {
     name: 'ホック船長', lv: 76, hp: 86000, mp: 4000, str: 1650, def: 266, agi: 140, mag: 780, exp: 52000, gold: 15000,
-    race: 'demon', size: 'xl', boss: true, turns: 1, speed: 1.1, hit: 'claw', artScale: 0.5, drops: { boss: ['c7l_hook_charm'], rare: ['c7l_gold_hook', 1] },
+    race: 'demon', size: 'xl', boss: true, turns: 1, speed: 1.1, hit: 'claw', artScale: 0.5, drops: { boss: ['c7l_hook_charm'], bonus: ['limit_stone'], rare: ['c7l_gold_hook', 1] },
     resist: { ...BOSS_STATUS, light: 1.15, bolt: 1.1, dark: 0.75, ice: 0.95, fire: 0.95, wind: 1.0 },
     c7s: { kind: 'captain', plank: { every: 3, p2At: 0.5, p2Every: 2, steps: 1, wave: { mult: 1.35, ignoreDef: 0.3 } } },
     actions: [

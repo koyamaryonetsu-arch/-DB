@@ -53,14 +53,16 @@ test('第65回: 効果の データ・ひく（部位ごと・レア度で 強�
   assert.ok(fxStars(SWORD) >= 2);
 });
 
-test('第65回: 同じ 効果は 値が 上がる・ちがう 効果は ふえる（限界突破で 2つ）・いっぱいなら えらぶ', () => {
+test('第65回: 同じ 効果は 値が 上がる・ちがう 効果は ふえる（限界とっぱで 2つ）・いっぱいなら えらぶ', () => {
   assert.deepEqual(mergeFx([{ k: 'chase', v: 3 }], { k: 'chase', v: 4 }, 1), { kind: 'up', list: [{ k: 'chase', v: 7 }] });
   assert.equal(mergeFx([{ k: 'chase', v: FX_VMAX }], { k: 'chase', v: 4 }, 1).list[0].v, FX_VMAX, '上限');
   assert.equal(mergeFx([{ k: 'chase', v: 3 }], { k: 'drain', v: 2 }, 1).kind, 'full');
   assert.deepEqual(mergeFx([{ k: 'chase', v: 3 }], { k: 'drain', v: 2 }, 2).list, [{ k: 'chase', v: 3 }, { k: 'drain', v: 2 }]);
   assert.deepEqual(mergeFx([], { k: 'atk', v: 2 }, 1), { kind: 'add', list: [{ k: 'atk', v: 2 }] });
   assert.equal(fxSlots({}, SWORD), 1);
-  assert.equal(fxSlots({ limitBreak: { [SWORD]: 1 } }, SWORD), 2);
+  const lim = ITEMS[`${SWORD}+1`] ? Object.keys(ITEMS).find((k) => ITEMS[k].base === SWORD && ITEMS[k].lb === 1) : null;
+  assert.ok(lim, '限界とっぱの 装備が ある');
+  assert.equal(fxSlots({}, lim), 2, '★1 から 2つ');
 });
 
 test('第65回: 強さの まどに 足す 効果（攻撃力・HP・守り・会心・属性や 状態に 強い）', () => {

@@ -273,6 +273,8 @@ export const sdStarRank = (f) => clamp(3 + Math.floor(f / 20), 4, 7);
 export const SD_MEW_FLOOR = 50;
 // 初めて 着いた 休み所の 大きな ごほうび（階の 番号だけで きまる。家族みんな おなじ）
 //   [{ gold } | { item, n } | { medal: true }]
+// 第65回: 限界の石が 出る 階
+export const SD_LIMIT_FROM = 30;
 export function sdBigReward(f) {
   const r = makeRng((sdSeed(f) ^ 0xb16b00b) >>> 0);
   const out = [{ gold: rewardGold(Math.min(50000, 100 * f)) }];
@@ -287,6 +289,8 @@ export function sdBigReward(f) {
     if (list.length) out.push({ item: r.pick(list), n: 1 });
   }
   if (f >= 50 && f % 10 === 0) out.push({ item: 'revive_flower', n: 2 });
+  // 第65回: 30階からの 休み所に 限界の石（data/forge.js の 限界とっぱ）
+  if (f >= SD_LIMIT_FROM) out.push({ item: 'limit_stone', n: f % 10 === 0 ? 2 : 1 });
   // 第31回: 20階からの 休み所は、ここでしか 手に入らない ★4〜★5 の 装備（深いほど 強い。data/rare-loot.js）
   if (f >= SD_GEAR_FROM) {
     const id = pickSdGear(r, f);
@@ -316,6 +320,8 @@ export function sdSmallReward(f, rng) {
     { k: 'star_shard', w: f >= 15 ? 1 : 0 },
     // 第31回: 30階からは ★4〜★5 の 装備も まれに
     { k: 'sdgear', w: f >= 30 ? 1 : 0 },
+    // 第65回: 限界の石
+    { k: 'limit_stone', w: f >= SD_LIMIT_FROM ? 1 : 0 },
   ].filter((x) => x.w > 0);
   const k = rng.weighted(list).k;
   if (k === 'gold') return { gold: rewardGold(Math.min(20000, 20 * f)) };

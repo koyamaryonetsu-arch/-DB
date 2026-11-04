@@ -6,6 +6,7 @@
 //     rare   … めったに 落とさない 物。装備か 種（書かなければ DROP_N.rare）
 //   drops: { boss: ['rock_bangle'] }
 //     boss   … ボスが かならず 落とす 物（1人 1つの 品）
+//     bonus  … ボスが かならず 落とす 素材（第65回。たおす たびに）
 //
 // きまり（長い 物語でも おなじ）
 //   ・1体から 落ちるのは 1つまで。さきに レア、だめなら よく落とす 物
@@ -119,6 +120,10 @@ export function monsterDrops(species) {
   for (const id of Array.isArray(d.boss) ? d.boss : d.boss ? [d.boss] : []) {
     if (ITEMS[id]) out.push({ item: id, kind: 'boss', n: 1, rate: 1 });
   }
+  // 第65回: ボスが かならず 落とす 素材（1人 1つ では ない。たおす たびに。第7章の ボスの 限界の石）
+  for (const id of Array.isArray(d.bonus) ? d.bonus : []) {
+    if (ITEMS[id]) out.push({ item: id, kind: 'bonus', n: 1, rate: 1 });
+  }
   // ボスに ちなんだ レア装備（第32回から かならず）
   const br = bossRareOf(species);
   if (br) out.push({ item: br, kind: 'brare', n: BOSS_RARE_N, rate: 1 / BOSS_RARE_N });
@@ -132,7 +137,7 @@ export function monsterDrops(species) {
 // where … { map }（戦った マップ。ひみつのダンジョンの 中なら ここだけの 装備が 出る）
 export function rollDrops(species, rng, where = null) {
   const list = monsterDrops(species);
-  const out = list.filter((x) => x.kind === 'boss').map((x) => x.item);
+  const out = list.filter((x) => x.kind === 'boss' || x.kind === 'bonus').map((x) => x.item);
   const brare = list.find((x) => x.kind === 'brare');
   if (brare && rng.chance(brare.rate)) out.push(brare.item);
   const rare = list.find((x) => x.kind === 'rare');

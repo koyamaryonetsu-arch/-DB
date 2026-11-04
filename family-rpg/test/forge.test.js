@@ -320,8 +320,9 @@ test('きたえる: きたえられる 回数は ランクで きまる（ラン
   assert.equal(ITEMS.fang_spear.rank, 2);
   assert.equal(maxPlus('fang_spear'), 2);
   assert.ok(canUpgrade('fang_spear+1'));
-  assert.ok(!canUpgrade('fang_spear+2'), '+2 で おしまい');
-  assert.equal(upgradeCost('fang_spear+2'), null);
+  // 第65回: +2 で おしまい（そのあとは 限界の石で 限界とっぱ）
+  assert.equal(upgradeCost('fang_spear+2').limit, true, '+2 で おしまい');
+  assert.equal(upgradeCost('fang_spear+2').to, 'fang_spear+2_lb1');
   // 第35回: 店で 買える 装備（★1）は きたえられない。むかしの セーブで きたえて あった 品（+1〜）も きえない（使えるが、これ以上は きたえられない）
   assert.equal(maxPlus('leather_hat'), 0);
   assert.ok(!canUpgrade('leather_hat'));
@@ -342,7 +343,7 @@ test('きたえる: きたえられる 回数は ランクで きまる（ラン
   assert.equal(c4.to, upgradeId(r5, 4));
   assert.ok(c4.gold > upgradeCost(upgradeId(r5, 2)).gold, '+4 は もっと 高い');
   assert.deepEqual(c4.mats.find(([m]) => m === 'star_shard'), ['star_shard', 3], '+4 には 星のかけら 3個（ランク4から 1個 ふえる）');
-  assert.equal(upgradeCost(upgradeId(r5, 4)), null, '+4 で おしまい');
+  assert.equal(upgradeCost(upgradeId(r5, 4)).limit, true, '+4 で おしまい（第65回: あとは 限界とっぱ）');
   // ランク7の 物が あれば +5 まで
   const r7 = { name: 'テストの剣', type: 'weapon', rank: 7, cat: 'sword', atk: 61, price: 0, rarity: 3 };
   assert.equal(upgradeLimit(r7), 5);
@@ -354,7 +355,7 @@ test('きたえる: 素材と ゴールドは 回数が すすむほど ふえ�
   const c1 = upgradeCost('flame_sword');
   const c2 = upgradeCost('flame_sword+1');
   const c3 = upgradeCost('flame_sword+2');
-  assert.equal(upgradeCost('flame_sword+3'), null, '+3 で おしまい');
+  assert.equal(upgradeCost('flame_sword+3').limit, true, '+3 で おしまい（第65回: あとは 限界とっぱ）');
   assert.equal(c1.to, 'flame_sword+1');
   assert.equal(c3.to, 'flame_sword+3');
   assert.ok(c1.gold < c2.gold && c2.gold < c3.gold, `${c1.gold} < ${c2.gold} < ${c3.gold}`);
@@ -495,7 +496,8 @@ test('素材: 魔物が 落とす・売れる・図鑑に のる・1体から 1�
     assert.ok(sellPrice(id) > 0, `${id} は 売れる`);
     assert.ok(!(it.price > 0), `${id} は 店で 売らない`);
     assert.ok(!/[一-龯]/.test(itemKana(id)), `${id} の 読み`);
-    assert.ok(Object.values(MAT_DROPS).some(([m]) => m === id), `${id} を 落とす 魔物が いる`);
+    // 第65回: 限界の石は ボスが かならず 落とす（drops.bonus）
+    assert.ok(Object.values(MAT_DROPS).some(([m]) => m === id) || Object.values(MONSTERS).some((m) => m.drops?.bonus?.includes(id)), `${id} を 落とす 魔物が いる`);
   }
   for (const [sp, [m, n]] of Object.entries(MAT_DROPS)) {
     assert.ok(MONSTERS[sp], sp);

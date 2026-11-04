@@ -121,7 +121,7 @@ export const MONSTERS_C7 = {
   //   rage … よびもどす たびに 2ひきの 攻撃力に かける 数（rageMax 回まで）/ sync … 大うずしおまでの いき / swirl … 大うずしおの 強さ
   [C7_GATE]: {
     name: 'ウツボのザブン', short: 'ザブン', lv: 70, hp: 29700, mp: 2000, str: 1340, def: 236, agi: 118, mag: 600, exp: 42000, gold: 12000,
-    race: 'dragon', size: 'xl', boss: true, turns: 1, speed: 0.6, hit: 'bite', drops: { boss: ['c7g_twin_charm'], rare: ['c7g_eel_whip', 1] },
+    race: 'dragon', size: 'xl', boss: true, turns: 1, speed: 0.6, hit: 'bite', drops: { boss: ['c7g_twin_charm'], bonus: ['limit_stone'], rare: ['c7g_eel_whip', 1] },
     resist: { ...BOSS_STATUS, bolt: 1.15, light: 1.0, dark: 0.9, ice: 0.95, fire: 0.85, wind: 1.0 },
     c7: { kind: 'twin', twin: { partner: C7_GATE_B, call: 4, callHp: 0.4, rage: 1.1, rageMax: 2, sync: 6, swirl: { mult: 1.0, ignoreDef: 0.35 } } },
     actions: [{ w: 3, id: 'm7g_bite' }, { w: 2, id: 'm7g_tail', cond: 'notRecent:m7g_tail' }, { w: 1, id: 'm7g_spark', cond: 'notRecent:m7g_spark' }, { w: 1, id: 'attack' }],
@@ -146,7 +146,7 @@ export const MONSTERS_C7 = {
   //   regrow … 声の貝が こわれてから また できるまでの 魔女の 行動 / stagger … 貝が こわれた ときの よろめき（守りの かけ算）
   [C7_TEMPLE]: {
     name: 'オクタリア', lv: 72, hp: 77000, mp: 4000, str: 1280, def: 258, agi: 132, mag: 760, exp: 46000, gold: 13000,
-    race: 'demon', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'bash', drops: { boss: ['c7t_witch_charm'], rare: ['c7t_trident', 1] },
+    race: 'demon', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'bash', drops: { boss: ['c7t_witch_charm'], bonus: ['limit_stone'], rare: ['c7t_trident', 1] },
     resist: { ...BOSS_STATUS, light: 1.15, bolt: 1.1, dark: 0.7, ice: 0.95, fire: 0.95, wind: 1.0 },
     minionsFall: [C7_SHELL], fallMsg: '声の貝も、くだけて消えた！',
     c7: {

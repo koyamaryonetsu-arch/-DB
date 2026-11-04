@@ -9,7 +9,7 @@
 import { ITEMS, baseItemId } from '../data/items.js';
 import { addItem, removeItem, itemCount, ownsItem } from '../stats.js';
 import {
-  ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
+  ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, LB_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
 } from '../data/alchemy.js';
 import { partyOf } from './party.js';
@@ -91,7 +91,7 @@ export function potRate(world, s) {
 export function potView(c, rate = 1) {
   const p = c?.alchemy?.pot;
   if (!p || !ITEMS[p.out]) return null;
-  return { out: p.out, left: Math.max(1, Math.ceil(p.left / (rate || 1))), merge: p.merge || null, known: p.recipe === MERGE_RECIPE || knowsRecipe(c, p.recipe), ins: p.ins || [] };
+  return { out: p.out, left: Math.max(1, Math.ceil(p.left / (rate || 1))), merge: p.merge || null, lb: p.lb || null, known: p.recipe === MERGE_RECIPE || knowsRecipe(c, p.recipe), ins: p.ins || [] };
 }
 
 // reply(ok, text, extra)
@@ -168,19 +168,22 @@ export function alchemyAction(world, s, msg, reply, { ownChar = () => null } = {
       const m = matchPot(ids, c);
       if (!m.ok) {
         if (m.why === 'shop') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は店の品（★1）なので、\n2つ合わせても、きたえられる回数はふえない。\n（入れた物は、ふくろにもどした）`);
-        if (m.why === 'capMax') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は、もうこれ以上きたえられる回数をふやせない。\n（ふやせるのは${CAP_UP_MAX}回まで）`);
+        if (m.why === 'capMax') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は、もうこれ以上きたえられる回数をふやせない。\n（ふやせるのは${CAP_UP_MAX}回まで。\n上限まできたえた物を2つ入れると、限界とっぱできる）`);
+        if (m.why === 'lbMax') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は、もう★${LB_MAX}まで限界とっぱしている。\n（入れた物は、ふくろにもどした）`);
+        if (m.why === 'rebirth') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は、生まれ変わる武器なので、\n限界とっぱはできない。\n（入れた物は、ふくろにもどした）`);
         return reply(false, `${insText(ids)}…\nこの組み合わせは、うまくいきそうにない。\n（入れた物は、ふくろにもどした）`);
       }
       for (const [id, n] of need) removeItem(c, id, n);
       const known = m.recipe === MERGE_RECIPE || knowsRecipe(c, m.recipe);
-      rec(c).pot = { out: m.out, recipe: m.recipe, left: m.steps, ins: ids, ...(m.merge ? { merge: m.merge } : {}) };
+      rec(c).pot = { out: m.out, recipe: m.recipe, left: m.steps, ins: ids, ...(m.merge ? { merge: m.merge } : {}), ...(m.lb ? { lb: m.lb } : {}) };
       const name = ITEMS[m.out].name;
       // 第33回: れん金術師が いると 歩数が 半分
       const helper = potHelper(world, s);
       const rate = helper ? POT_FAST_RATE : 1;
       const steps = Math.ceil(m.steps / rate);
       let text;
-      if (m.merge) text = `${insText(ids)}を、れん金がまに入れた！\nあと${steps}歩ほど歩くと、\n${ITEMS[m.merge].name}のきたえられる回数がふえる。`;
+      if (m.lb) text = `${insText(ids)}を、れん金がまに入れた！\nあと${steps}歩ほど歩くと、\n${ITEMS[m.merge].name}が限界とっぱする。（★${m.lb}）`;
+      else if (m.merge) text = `${insText(ids)}を、れん金がまに入れた！\nあと${steps}歩ほど歩くと、\n${ITEMS[m.merge].name}のきたえられる回数がふえる。`;
       else if (known) text = `${insText(ids)}を、れん金がまに入れた！\nあと${steps}歩ほど歩くと、${name}ができる。`;
       else text = `${insText(ids)}を、れん金がまに入れた！\n…うまくいきそうだ！\nあと${steps}歩ほど歩くと、何かができる。`;
       if (helper) text += `\n（${helper.name}のれん金術で、歩数が半分！）`;
@@ -215,7 +218,9 @@ export function finishPot(world, s) {
   if (!it) return null;
   addItem(c, p.out, 1);
   let text;
-  if (p.merge) {
+  if (p.lb) {
+    text = `れん金がまが、まばゆく光った…！\n${it.name}が完成した！\n限界とっぱ！${p.lb === 1 ? '\nれん金の効果を2つつけられるようになった。' : ''}\n（ふくろに入れた）`;
+  } else if (p.merge) {
     const a = rec(c);
     a.cap = a.cap && typeof a.cap === 'object' ? a.cap : {};
     a.cap[p.merge] = Math.min(CAP_UP_MAX, capUp(c, p.merge) + 1);
