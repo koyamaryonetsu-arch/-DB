@@ -4,8 +4,8 @@
 import {
   COL, ELEM, elemOf, src, above, prop, spot, tri, shatter, reticle, arrows, zzz, strike, swing, figure, dust, text, pick,
   hitBurst, blast, glitter, rich, per, line, ribbon, arcPts, g3prop,
-} from './axfx-o1-kit.js?v=519e3f172d9a';
-import { sun as g3sun, tornado as g3tornado } from './axfx-g3-kit.js?v=519e3f172d9a';
+} from './axfx-o1-kit.js?v=7c5117cedbee';
+import { sun as g3sun, tornado as g3tornado } from './axfx-g3-kit.js?v=7c5117cedbee';
 
 const TAU = Math.PI * 2;
 

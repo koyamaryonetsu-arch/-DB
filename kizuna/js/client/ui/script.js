@@ -1,13 +1,13 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=519e3f172d9a';
-import { paintRare } from './rarity.js?v=519e3f172d9a';
-import { ListMenu } from './dom.js?v=519e3f172d9a';
-import { openServiceUI } from './services.js?v=519e3f172d9a';
-import { monsterCanvas } from '../render/monsters.js?v=519e3f172d9a';
-import { npcSprite } from '../field.js?v=519e3f172d9a';
-import { reportError } from '../errlog.js?v=519e3f172d9a';
+import { el } from './dom.js?v=7c5117cedbee';
+import { paintRare } from './rarity.js?v=7c5117cedbee';
+import { ListMenu } from './dom.js?v=7c5117cedbee';
+import { openServiceUI } from './services.js?v=7c5117cedbee';
+import { monsterCanvas } from '../render/monsters.js?v=7c5117cedbee';
+import { npcSprite } from '../field.js?v=7c5117cedbee';
+import { reportError } from '../errlog.js?v=7c5117cedbee';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=519e3f172d9a';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=7c5117cedbee';
 
 const TYPE_MS = 28;
 

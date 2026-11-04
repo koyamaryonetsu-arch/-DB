@@ -6,15 +6,15 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=519e3f172d9a';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=519e3f172d9a';
+import { ITEMS, baseItemId } from '../data/items.js?v=7c5117cedbee';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=7c5117cedbee';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
-} from '../data/alchemy.js?v=519e3f172d9a';
-import { partyOf } from './party.js?v=519e3f172d9a';
-import { GEAR_FX, fxBlock } from '../data/gear-fx.js?v=519e3f172d9a';
-import { bossRareOf } from '../data/rare-loot.js?v=519e3f172d9a';
+} from '../data/alchemy.js?v=7c5117cedbee';
+import { partyOf } from './party.js?v=7c5117cedbee';
+import { GEAR_FX, fxBlock, fxMatsOf, rollFx, fxListOf, mergeFx, fxSlots, fxText } from '../data/gear-fx.js?v=7c5117cedbee';
+import { bossRareOf } from '../data/rare-loot.js?v=7c5117cedbee';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;
@@ -100,28 +100,60 @@ export function alchemyAction(world, s, msg, reply, { ownChar = () => null } = {
   if (!hasPot(c)) return reply(false, 'れん金がまを持っていない。');
   switch (msg.action) {
     case 'status': return reply(true, '', { pot: potView(c, potRate(world, s)) });
-    // 第64回 ⑥c: 装備に 効果を つける（すぐ できる。data/gear-fx.js）
+    // 第64回 ⑥c・第65回: 装備に 効果を つける（すぐ できる。効果は ランダム。data/gear-fx.js）
     case 'enchant': {
       if (s.busy) return reply(false, '今はできない。');
       const who = msg.who && msg.who !== 'self' ? ownChar(String(msg.who)) : c;
       const slot = String(msg.slot || '');
-      const kind = String(msg.fx || '');
-      const f = GEAR_FX[kind];
-      if (!who || !f) return reply(false, 'うまくいかなかった。');
+      if (!who) return reply(false, 'うまくいかなかった。');
       const id = who.equip?.[slot];
       if (!id) return reply(false, 'その場所には、何も装備していない。');
-      const block = fxBlock(id, kind);
+      const block = fxBlock(id);
       if (block) return reply(false, block);
-      const lack = f.mats.filter(([m, n]) => itemCount(c, m) < n);
+      const mats = fxMatsOf(id);
+      const lack = mats.filter(([m, n]) => itemCount(c, m) < n);
       if (lack.length) return reply(false, `素材が足りない。\n（${lack.map(([m, n]) => `${ITEMS[m].name}があと${n - itemCount(c, m)}こ`).join('・')}）`, { lack: lack.map(([m, n]) => ({ id: m, need: n, have: itemCount(c, m) })) });
-      for (const [m, n] of f.mats) removeItem(c, m, n);
-      if (!who.gearFx || typeof who.gearFx !== 'object') who.gearFx = {};
+      for (const [m, n] of mats) removeItem(c, m, n);
       const base = baseItemId(id);
-      const old = who.gearFx[base];
-      who.gearFx[base] = kind;
+      const roll = rollFx(world.rng, id);
+      const now = fxListOf(who, id);
+      const r = mergeFx(now, roll, fxSlots(who, id));
+      const head = `れん金がまが、ふしぎな光につつまれた…！\n${who.name}の${ITEMS[base].name}に、`;
+      if (r.kind === 'full') {
+        // いっぱい: 入れかえるか 前の ままか えらぶ（enchantPick）
+        rec(c).fxPending = { who: msg.who || 'self', slot, base, roll };
+        world.markDirty();
+        return reply(true, `${head}${fxText(roll.k, roll.v)}の力が生まれた！\n（効果はもういっぱい。入れかえるか、前のままにするか選ぼう）`, { fxRoll: roll, fxNow: now, fxChoose: true });
+      }
+      if (!who.gearFx || typeof who.gearFx !== 'object') who.gearFx = {};
+      who.gearFx[base] = r.list;
       if (who !== c) world.sendParty(partyOf(world, s));
       world.markDirty();
-      return reply(true, `れん金がまが、ふしぎな光につつまれた…！\n${who.name}の${ITEMS[base].name}に、${f.name}の力がやどった！${old && old !== kind ? `\n（${GEAR_FX[old].name}の力は消えた）` : ''}`, { enchanted: { who: msg.who || 'self', slot, fx: kind } });
+      const got = r.list.find((x) => x.k === roll.k);
+      const text = r.kind === 'up' ? `${GEAR_FX[roll.k].name}の力がかさなった！\n${fxText(got.k, got.v)}（+${roll.v}）` : `${fxText(roll.k, roll.v)}の力がやどった！`;
+      return reply(true, head + text, { fxRoll: roll, fxNow: r.list, fxKind: r.kind });
+    }
+    // 第65回: 効果が いっぱいの とき: 入れかえる（replace … 入れかえる 効果の 番号）か 前の まま（-1）
+    case 'enchantPick': {
+      const p = c.alchemy?.fxPending;
+      if (!p) return reply(false, '選ぶ効果はない。');
+      delete c.alchemy.fxPending;
+      const who = p.who && p.who !== 'self' ? ownChar(String(p.who)) : c;
+      const id = who?.equip?.[p.slot];
+      if (!who || !id || baseItemId(id) !== p.base) return reply(false, '装備がかわったので、生まれた力は消えてしまった。');
+      const i = Number(msg.replace);
+      const list = fxListOf(who, id);
+      if (!Number.isInteger(i) || i < 0 || i >= list.length) {
+        world.markDirty();
+        return reply(true, `生まれた${GEAR_FX[p.roll.k].name}の力は消えた。\n（前の効果のまま）`, { fxNow: list });
+      }
+      const old = list[i];
+      list[i] = { ...p.roll };
+      if (!who.gearFx || typeof who.gearFx !== 'object') who.gearFx = {};
+      who.gearFx[p.base] = list;
+      if (who !== c) world.sendParty(partyOf(world, s));
+      world.markDirty();
+      return reply(true, `${GEAR_FX[old.k].name}の力が消えて、\n${fxText(p.roll.k, p.roll.v)}の力がやどった！`, { fxNow: list });
     }
     case 'put': {
       if (s.busy) return reply(false, '今はできない。');
