@@ -13,6 +13,7 @@ import { TC, RC, CT } from '../maps/ch6-side.js';
 import { ORN } from '../maps/ch6c-side.js';
 import { RS } from './sidequests-ch6d.js';
 import { C7, LETTER } from '../maps/c7-flags.js';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -58,6 +59,10 @@ const build = () => [
   { id: 'c7l1', name: '時をこえる手紙（緑の王国の市場）', open: [C7.kingdom], start: LETTER.start(1), done: LETTER.found(1), place: '千年前の緑の王国', who: '王国の子ども', npc: 'c7_kid', hint: 'ずっと先の子どもたちに、とどけたい物があるらしい。' },
   { id: 'c7l2', name: '時をこえる手紙（ハミルの湖のほとり）', open: [C7.kingdom], start: LETTER.start(2), done: LETTER.found(2), place: '千年前のハミルの湖', who: '湖の漁師', npc: 'c7_fisher', hint: '湖のことを、ずっと先の人に伝えたいらしい。' },
   { id: 'c7l3', name: '時をこえる手紙（緑の城の庭）', open: [C7.kingdom], start: LETTER.start(3), done: LETTER.found(3), place: '千年前の緑の城', who: '王女ナディア', npc: 'c7_princess', hint: 'ずっと先の、自分の子どもたちに、のこしたい言葉があるらしい。' },
+  // 第7章 第2幕（千年前の クモイの 海と 今。時をこえる手紙。sidequests-c7s.js）
+  { id: 'c7sl1', name: '時をこえる手紙（ナギの村のはま）', open: [C7S.isle], start: LETTER7S.start(1), done: LETTER7S.found(1), place: '千年前のナギの村', who: 'ナギの村の子ども', npc: 'c7s_kid', hint: '千年先の子どもに、とどけたい手紙があるらしい。' },
+  { id: 'c7sl2', name: '時をこえる手紙（貝がらの小島）', open: [C7S.isle], start: LETTER7S.start(2), done: LETTER7S.found(2), place: '千年前の貝がらの小島', who: '小島の漁師', npc: 'c7s_fisher', hint: '海のことを、ずっと先の人に伝えたいらしい。' },
+  { id: 'c7sl3', name: '時をこえる手紙（星見の島）', open: [C7S.isle], start: LETTER7S.start(3), done: LETTER7S.found(3), place: '千年前の星見の島', who: '星見のおじいさん', npc: 'c7s_stargazer', hint: '千年先の、星を見る者へ、のこしたい言葉があるらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）

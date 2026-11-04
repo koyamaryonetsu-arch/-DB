@@ -19,7 +19,7 @@ import { LETTER_SPOTS, LETTER_ASKERS, C7_POS, LAKE7 } from '../public/js/shared/
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import { CH6_STEPS, OLD_C6_OBJ } from '../public/js/shared/data/story-ch6.js';
 import { C6D_OBJ } from '../public/js/shared/data/story-ch6d.js';
-import { CH7_STEPS, C7_OBJ, CH7_OBJECTIVE_TARGETS, CH7_OBJECTIVE_TALK, CH7_STORY_SCRIPTS, KARIM_SUPPORT, VILLAIN } from '../public/js/shared/data/story-c7.js';
+import { CH7_STEPS, C7_OBJ, OLD_C7_OBJ, CH7_OBJECTIVE_TARGETS, CH7_OBJECTIVE_TALK, CH7_STORY_SCRIPTS, KARIM_SUPPORT, VILLAIN } from '../public/js/shared/data/story-c7.js';
 import { C7_SIDE_QUESTS, letterReward, letterName } from '../public/js/shared/data/sidequests-c7.js';
 import { labDoneQuests } from '../public/js/shared/data/sidequests.js';
 import { subQuestHints } from '../public/js/shared/data/subquest-hints.js';
@@ -246,9 +246,10 @@ function solve(n, { start = [], shift = true, from = null, karim = true, family:
 
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（plan-ch7.md の 3）: 物語の すすみ・マップの ID・出現表・きまった 戦い・ゲスト・宝箱・タイル・酒場の カリム', () => {
-  assert.deepEqual(CH7_STEPS, ['c7_start', 'c7_kingdom', 'c7_gate', 'c7_temple', 'c7_karim']);
+  // 第2幕（Step 3・4）の すすみは c7_karim の うしろ（test/ch7-step34-a.test.js）
+  assert.deepEqual(CH7_STEPS.slice(0, 5), ['c7_start', 'c7_kingdom', 'c7_gate', 'c7_temple', 'c7_karim']);
   const ci = STORY_STEPS.indexOf('c6_clear');
-  assert.deepEqual(STORY_STEPS.slice(ci + 1, ci + 6), CH7_STEPS, 'c6_clear の うしろ');
+  assert.deepEqual(STORY_STEPS.slice(ci + 1, ci + 6), CH7_STEPS.slice(0, 5), 'c6_clear の うしろ');
   assert.equal(CH6_STEPS.at(-1), 'c6_clear', '第6章の 一らんは そのまま');
   // マップ（千年前の コガネ地方・神殿 1〜8階。今の がわ 1〜7階）
   const want = [C7_FIELD, ...Array.from({ length: 8 }, (_, i) => `c7_temple_${i + 1}f`), ...Array.from({ length: 7 }, (_, i) => `c7_temple_${i + 1}f_now`)];
@@ -350,7 +351,9 @@ test('目標: 第6章クリアの セーブは 新しい 目標に なおる・�
     assert.ok(CH7_OBJECTIVE_TALK[t], `仲間会話 ${k}`);
     for (const kind of ['self', 'bold', 'kind', 'kid']) assert.ok(talkFor(t, kind) !== `次は「${t.replace(/\n/g, '')}」ですね。`, `${k} ${kind}`);
   }
-  assert.equal(C7_OBJ.karim, '第7章の続きはアップデートで！');
+  // 第1幕の さいごの 文は 第2幕の はじまりへ（前の 版の 文は OLD_C7_OBJ.karim。test/ch7-step34-a.test.js でも ためす）
+  assert.equal(OLD_C7_OBJ.karim, '第7章の続きはアップデートで！');
+  assert.ok(C7_OBJ.karim.includes('トキネ'));
   // 地図の しるし（その 時代の マップだけ。すんだら 消える）
   const mark = (obj, map, extra = []) => questMarks({ flags: flagsOf(...extra), objective: obj }, map).filter((m) => m.kind === 'main');
   const L = C7T_POS[3].lever;
@@ -639,7 +642,7 @@ test('通しで: c6_clear → トキネ → 千年前の コガネ地方 → 緑
   assert.ok(c.flags[WIN7] && c.flags[C7.karim], 'c7_karim');
   assert.ok(!c.guests.includes('karim'), 'カリムは ゲストから はずれる');
   assert.equal(c.objective, C7_OBJ.karim);
-  assert.ok(said(bot, '第7章の続きはアップデートで！'));
+  assert.ok(said(bot, 'リオンの仲間になる人は、あと1人'), '第2幕へ（第1幕の さいごの「続きはアップデートで」は 第2幕の さいごへ）');
   assert.ok(said(bot, 'ルミナの町の酒場の仲間になった'));
   assert.equal(bot.s.map, C7_FIELD, 'さいごは 緑の城');
   // 酒場の 仲間（unlock）
