@@ -20,6 +20,7 @@ import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js'
 import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei.js';
 import { ENCOUNTERS_TOKEI6, FIXED_TOKEI6, ZONE_BG_TOKEI6 } from './encounters-tokei6.js';
 import { ENCOUNTERS_C7, FIXED_C7, ZONE_BG_C7 } from './encounters-c7.js';
+import { ENCOUNTERS_C7S, FIXED_C7S, ZONE_BG_C7S } from './encounters-c7s.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -168,3 +169,7 @@ Object.assign(ZONE_BG, ZONE_BG_TOKEI6);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C7);
 Object.assign(ZONE_BG, ZONE_BG_C7);
+// 第2部 第7章 第2幕「海の紋章」・しずむ前の島の灯台・ジョリーホック号・ホック船長（encounters-c7s.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7S);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C7S);
+Object.assign(ZONE_BG, ZONE_BG_C7S);
