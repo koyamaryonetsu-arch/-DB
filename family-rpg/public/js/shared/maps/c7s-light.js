@@ -21,7 +21,7 @@ import {
   C7S, LF7, EBB3, OPEN6S, LETTER7S, LETTER7S_LIGHT, WIN7S, C7S_SEA, LIGHT_OUT, c7slMapId, C7SL_FLOORS, C7SL_NOW_FLOORS, C7SL_REST, C7SL_BOSS_FLOOR,
 } from './c7s-flags.js';
 // 宝箱の 中み（B の data/items-c7s.js の C7S_TREASURE。まとめる 時に '../data/items-c7s.js' から）
-import { C7S_TREASURE } from '../data/c7s-stub.js';
+import { C7S_TREASURE } from '../data/items-c7s.js';
 
 export { c7slMapId, C7SL_FLOORS, C7SL_NOW_FLOORS, C7SL_REST, C7SL_BOSS_FLOOR };
 export const C7SL_PAST_MAPS = Array.from({ length: C7SL_FLOORS }, (_, i) => c7slMapId(i + 1));

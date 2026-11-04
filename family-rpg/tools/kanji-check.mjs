@@ -394,7 +394,7 @@ export function gameFiles() {
     'public/js/shared/maps/c7.js', 'public/js/shared/maps/c7-field.js', 'public/js/shared/maps/c7-kingdom-rows.js',
     'public/js/shared/maps/c7-temple.js', 'public/js/shared/maps/c7-temple-rows.js', 'public/js/shared/maps/c7-flags.js',
     // 第2部 第7章 Step 3・4（A: 世界と物語）: 千年前の クモイの 海・ナギの村・しずむ前の島の灯台・カイ・かぎ手の船長フックスの 台本・時をこえる手紙
-    'public/js/shared/data/story-c7s.js', 'public/js/shared/data/sidequests-c7s.js', 'public/js/shared/data/shops-c7s.js', 'public/js/shared/data/c7s-stub.js',
+    'public/js/shared/data/story-c7s.js', 'public/js/shared/data/sidequests-c7s.js', 'public/js/shared/data/shops-c7s.js',
     'public/js/shared/maps/c7s-sea.js', 'public/js/shared/maps/c7s-village-rows.js', 'public/js/shared/maps/c7s-light.js', 'public/js/shared/maps/c7s-light-rows.js', 'public/js/shared/maps/c7s-flags.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',

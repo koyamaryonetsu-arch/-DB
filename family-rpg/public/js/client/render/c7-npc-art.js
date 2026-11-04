@@ -3,7 +3,7 @@
 //   王国の 人たち（c7_*）・神殿の みこサラサ・うずの魔女オクタリア（場面の すがた）
 // とくべつな え（paintC7Special）: うずの魔女オクタリア（神殿の 広間の 大きな すがた）・神殿の 門番（オクタリアの 手下。黒い 水の 大ウナギ 2ひき）
 import { Painter } from './pixel.js';
-// 第7章 Step 3・4（第2幕）: カイ・ナギの村の 人たち・灯台守・かぎ手の船長フックス・海賊船（render/c7s-npc-art.js。ここで まぜる）
+// 第7章 Step 3・4（第2幕）: カイ・ナギの村の 人たち・灯台守・ホック船長・海賊船（render/c7s-npc-art.js。ここで まぜる）
 import { C7S_NPC_LOOKS, paintC7sSpecial, C7S_SPECIALS } from './c7s-npc-art.js';
 
 const person = (o) => o;

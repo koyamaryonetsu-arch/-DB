@@ -1,6 +1,6 @@
 // 第2部 第7章 第2幕「海の紋章」Step 3・4（A: 世界と物語）※ ネタバレ注意（物語の 中みを ためす）
 // c7_karim → 今の トキネ（c7_sea）→ 今の クモイ地方で 時の砂時計 → 千年前の クモイの 海 → ナギの村（c7_isle。カイが ゲスト）
-// → しずむ前の島の 海賊船（c7_reef）→ しずむ前の島の灯台 1〜8階（c7_lamp）→ かぎ手の船長フックス → カイが 酒場の 仲間に（c7_kai）・4人が そろう
+// → しずむ前の島の 海賊船（c7_reef）→ しずむ前の島の灯台 1〜8階（c7_lamp）→ ホック船長 → カイが 酒場の 仲間に（c7_kai）・4人が そろう
 // しおの 満ち引き・時をこえる手紙（より道 3つ・灯台 5階の なぞとき）。戦いの 中みは B（戦い・品）。ここでは 戦いは テストの 中で 勝たせる
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -31,7 +31,7 @@ import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/enc
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { NPC_SUPPORTS, GUESTS, SHOPS } from '../public/js/shared/data/shops.js';
 // 灯台の 宝箱の 中み・手紙の ごほうび（B の data/items-c7s.js。まとめる 時に そちらから）
-import { C7S_TREASURE, C7S_LETTER_REWARDS } from '../public/js/shared/data/c7s-stub.js';
+import { C7S_TREASURE, C7S_LETTER_REWARDS } from '../public/js/shared/data/items-c7s.js';
 import { TIME_GLASS, GLASS_TEXT, glassCheck, timeArea } from '../public/js/shared/world/time-glass.js';
 import { DAY_MS, FIRE_HALF } from '../public/js/shared/world/clock.js';
 import { gainExp, expForLevel } from '../public/js/shared/stats.js';
@@ -332,7 +332,7 @@ test('名前の 約束（plan-ch7.md の 4-3）: 物語の すすみ・マップ
     for (const s of [...m.actions.map((x) => x.script), ...m.triggers.map((x) => x.script), ...m.npcs.map((x) => x.script)]) if (s) assert.ok(SCRIPTS[s], `${id}: ${s}`);
   }
   assert.ok(ITEMS[KEEPER_LETTER]?.type === 'key', '大事な物「灯台守の手紙」');
-  assert.equal(VILLAIN7S, 'かぎ手の船長フックス');
+  assert.equal(VILLAIN7S, 'ホック船長');
 });
 
 // ───────────── 目標 ─────────────
@@ -802,7 +802,7 @@ test('時をこえる手紙（海の 地方）: 千年前で うめる 前は �
 // ───────────── 文字・絵 ─────────────
 test('文字: 第7章 Step 3・4 の ファイルは 文字の ルールの チェックに 入っていて、使えない 漢字・スペースが ない・カイの ひみつは 書かない', () => {
   const files = gameFiles().map((f) => f.replace(/\\/g, '/').replace(/^.*?family-rpg\//, ''));
-  const mine = ['public/js/shared/data/story-c7s.js', 'public/js/shared/data/sidequests-c7s.js', 'public/js/shared/data/shops-c7s.js', 'public/js/shared/data/c7s-stub.js',
+  const mine = ['public/js/shared/data/story-c7s.js', 'public/js/shared/data/sidequests-c7s.js', 'public/js/shared/data/shops-c7s.js',
     'public/js/shared/maps/c7s-sea.js', 'public/js/shared/maps/c7s-village-rows.js', 'public/js/shared/maps/c7s-light.js', 'public/js/shared/maps/c7s-light-rows.js', 'public/js/shared/maps/c7s-flags.js',
     'public/js/shared/data/items-c7-key.js'];
   for (const f of mine) assert.ok(files.some((g) => g.endsWith(f)), f);
