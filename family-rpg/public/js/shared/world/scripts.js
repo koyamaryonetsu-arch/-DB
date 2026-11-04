@@ -210,7 +210,8 @@ export class ScriptRun {
           break;
         }
         case 'choice': {
-          this.batch.push(['choice', a[0], a[1]]);
+          // a[3] … えらぶ 物ごとの せつめい（なくても よい。第65回 お仕事いらい板: カーソルを 合わせた はり紙の 職業・ごほうび）
+          this.batch.push(Array.isArray(a[3]) ? ['choice', a[0], a[1], a[3]] : ['choice', a[0], a[1]]);
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const idx = Math.max(0, Math.min(a[1].length - 1, Number(r.choice) || 0));

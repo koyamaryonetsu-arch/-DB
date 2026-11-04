@@ -229,6 +229,11 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
 .choice .q { font-size: var(--fs-small); color: var(--muted); margin-bottom: 0.2em; }
 /* 第35回: えらぶ 物が 多い とき（仲間が いっぱいの ときの さよなら）は この 中で スクロール */
 .choice .menu { max-height: min(52vh, 26em); overflow-y: auto; }
+/* 第65回: えらぶ 物ごとの せつめい（お仕事いらい板の 職業・ごほうび）。スマホの たて画面でも 読める 小さな わく */
+.choice.has-info { width: min(24em, calc(100vw - 16px)); }
+.choice.has-info .menu { max-height: min(40vh, 22em); }
+.choice-info { margin-top: 0.3em; padding: 0.3em 0.45em; border-top: 1px solid var(--muted); font-size: var(--fs-small); line-height: 1.35; white-space: pre-line; min-height: 4.1em; max-height: 6.2em; overflow-y: auto; }
+.choice-info.empty { visibility: hidden; }
 
 /* ───── HUD ───── */
 #hud { position: absolute; inset: 0; pointer-events: none; }

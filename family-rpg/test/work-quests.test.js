@@ -54,7 +54,7 @@ async function rewarded(bot, c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 6つの 新しい たのまれごと・職業の系統（転職の つながりから）・今の 時代の 町だけ・第1部クリアの あとだけ', () => {
   assert.equal(WORK_QUESTS.length, 6);
-  assert.deepEqual(FAMILY_QUESTS.slice(5), WORK_QUESTS);
+  assert.deepEqual(FAMILY_QUESTS.slice(5, 11), WORK_QUESTS);
   assert.deepEqual(WORK_QUESTS.map((x) => x.roots[0]), ['idol', 'civil_local', 'ballplayer', 'youtuber', 'okan', 'magician']);
   for (const qd of WORK_QUESTS) {
     const L = jobLine(qd.roots);
@@ -328,11 +328,12 @@ test('王都のお祭りの手品ショー: シルクハット・トランプ・
 });
 
 // ───── お仕事いらい板（2ページ目）─────
-test('お仕事いらい板: 11まいの はり紙は 2ページ（ページ送り）・2ページ目に 新しい はり紙・読むと その ページに もどる', async () => {
+test('お仕事いらい板: 17まいの はり紙は 3ページ（ページ送り）・2ページ目に 第41回の はり紙・読むと その ページに もどる', async () => {
   assert.equal(BOARD_PAGE, 6);
-  assert.equal(boardPages(), 2);
+  assert.equal(boardPages(), 3);
   for (const qd of WORK_QUESTS) {
     const text = boardPage({ flag: () => false }, qd).map((st) => st[2]).join('\n');
+    // （第65回: 12〜17 が ふえて 3ページ。ここでは 2ページ目の 6〜11 を 見る）
     assert.ok(text.includes(qd.paper) && text.includes(qd.who) && text.includes(ITEMS[qd.reward.item].name) && text.includes(VEHICLES[qd.reward.vehicle].name), qd.id);
     assert.ok(text.includes(`${qd.reward.gold}ゴールド`) && text.includes(`小さなメダル${qd.reward.medals}まい`), qd.id);
     assert.ok(text.includes('【解決できそうな職業】') && text.includes(JOBS[qd.roots[0]].name), qd.id);
@@ -340,16 +341,18 @@ test('お仕事いらい板: 11まいの はり紙は 2ページ（ページ送�
   const { bot, c } = await setup(417);
   c.flags[WQ.innStart] = true;
   c.flags[WQ.ballDone] = true;
-  // つぎのページへ（6）→ 2ページ目の 4まい目（宿）を 読む → 2ページ目に もどる → 前のページへ（5）→ やめる（7）
-  const msgs = await talkTo(bot, 'fq_board', [6, 3, 5, 7]);
+  // つぎのページへ（6）→ 2ページ目の 4まい目（宿）を 読む →「やめる？」に つづける（1）→ 2ページ目に もどる → 前のページへ（7）→ やめる（7）
+  const msgs = await talkTo(bot, 'fq_board', [6, 3, 1, 7, 7]);
   const menus = msgs.filter((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice').map((m) => m.steps.at(-1));
-  assert.equal(menus.length, 4);
-  assert.match(menus[1][1], /2\/2ページ/);
-  assert.deepEqual(menus[1][2], [...FAMILY_QUESTS.slice(6).map((x) => x.name + (x.id === 'inn' ? '（受けている）' : x.id === 'ball' ? '（すんだ）' : '')), '前のページへ', 'やめる']);
+  assert.equal(menus.length, 5);
+  assert.match(menus[1][1], /2\/3ページ/);
+  assert.deepEqual(menus[1][2], [...FAMILY_QUESTS.slice(6, 12).map((x) => x.name + (x.id === 'inn' ? '（受けている）' : x.id === 'ball' ? '（すんだ）' : '')), 'つぎのページへ', '前のページへ', 'やめる']);
   assert.ok(said(msgs, /こしをいためて/), '宿の はり紙を 読んだ');
-  assert.match(menus[2][1], /2\/2ページ/, '読んだら 2ページ目に もどる');
-  assert.match(menus[3][1], /1\/2ページ/);
-  assert.equal(menus[3][2].at(-2), 'つぎのページへ');
+  assert.match(menus[2][1], /やめる？/, '受けている はり紙は「やめる？」');
+  assert.ok(c.flags[WQ.innStart], 'つづける なら そのまま');
+  assert.match(menus[3][1], /2\/3ページ/, '読んだら 2ページ目に もどる');
+  assert.match(menus[4][1], /1\/3ページ/);
+  assert.equal(menus[4][2].at(-2), 'つぎのページへ');
   assert.equal(menus[0][2][5], '砂の港ドゥナの歌のステージ', '1ページ目の さいごは 新しい 1まい目');
   assert.ok(!bot.s.busy);
 });

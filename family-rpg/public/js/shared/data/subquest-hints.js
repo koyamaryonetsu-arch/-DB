@@ -60,11 +60,8 @@ const build = () => [
   { id: 'c7l3', name: '時をこえる手紙（緑の城の庭）', open: [C7.kingdom], start: LETTER.start(3), done: LETTER.found(3), place: '千年前の緑の城', who: '王女ナディア', npc: 'c7_princess', hint: 'ずっと先の、自分の子どもたちに、のこしたい言葉があるらしい。' },
 ];
 
-// お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）
-const FQ_NPC = {
-  theater: 'fq_th_manager', shop: 'fq_shop_owner', cook: 'fq_cook_host', bell: 'fq_bell_sister', rail: 'fq_rail_miner',
-  stage: 'fq_stage_boss', bridge: 'fq_bridge_officer', ball: 'fq_ball_cap', video: 'fq_video_guide', inn: 'fq_inn_okami', magic: 'fq_magic_host',
-};
+// お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）
+// 第65回 D2: お仕事いらい板で 受けた（fq_take_<id>）ものも「受けた」（困っている人から 消えて、クエストの 画面の たのまれごとへ）
 let LIST = null;
 let BY_ID = new Map();
 export function subQuestHints() {
@@ -72,7 +69,7 @@ export function subQuestHints() {
   LIST = build();
   // 第6章の 前に 入れる
   LIST.splice(LIST.findIndex((q) => q.id === 'tc1'), 0, ...FAMILY_QUESTS.map((q) => ({
-    id: `fq_${q.id}`, name: q.name, open: ['c5_clear'], start: q.start, done: q.done, place: q.town, who: q.who, npc: FQ_NPC[q.id],
+    id: `fq_${q.id}`, name: q.name, open: ['c5_clear'], start: (c) => !!(c?.flags?.[q.start] || c?.flags?.[`fq_take_${q.id}`]), done: q.done, place: q.town, who: q.who, npc: q.npc,
     hint: String(q.paper || '').split('\n')[0], roots: q.roots, job: q.job, board: true,
   })));
   BY_ID = new Map(LIST.map((q) => [q.id, q]));

@@ -18,4 +18,7 @@ export const FAMILY_VEHICLES = {
   relay_car: { name: '放送車', price: 8500, jobs: [], gift: true, desc: 'やねに大きなアンテナがある、動画を世界にとどける車。' },
   big_cart: { name: '大きな買い物カート', price: 6000, jobs: [], gift: true, desc: 'ユノハの宿の大おかみがくれた、人が乗れるほど大きな買い物カート。' },
   silk_hat: { name: '大きなシルクハット', price: 9000, jobs: [], gift: true, desc: '手品師マジーロのぶたい道具。人が乗れる大きなシルクハットが、ふわりとうかんで進む。' },
+  // 第65回 D2（data/sidequests-work2.js）
+  weather_balloon: { name: 'お天気の気球', price: 8500, jobs: [], gift: true, desc: '星読みの里の星まつりのお礼の、小さな気球。空の雲や風を見ながら、ふわふわ進む。' },
+  gold_cloud: { name: '金色のふわふわ雲', price: 9000, jobs: [], gift: true, desc: '竜守りの村の大岩をどけたお礼に、空からおりてきた金色の雲。乗るとすいすい進む。' },
 };

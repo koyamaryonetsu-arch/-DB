@@ -38,12 +38,16 @@ const q = (c, name) => subQuests(c).find((x) => x.name === name);
 const NEED = /の人が、パーティーにいてくれたら/;
 
 // ───── しくみ ─────
-test('しくみ: 11の たのまれごと（第39回の 5つ＋第41回の 6つ）・職業の系統は 転職の つながりから出す（手で書かない）', () => {
-  assert.equal(FAMILY_QUESTS.length, 11);
+test('しくみ: 17の たのまれごと（第39回の 5つ＋第41回の 6つ＋第65回の 6つ）・職業の系統は 転職の つながりから出す（手で書かない）', () => {
+  assert.equal(FAMILY_QUESTS.length, 17);
   assert.deepEqual(FAMILY_QUESTS.slice(0, 5).map((x) => x.name), ['劇場の空調をなおせ', 'さびれたおみやげ屋の立て直し', 'カナトコの料理大会', 'ルミナの町の、消えた教会のかね', '鉱山トロッコの線路']);
   // id・名前・フラグ・ごほうびは かさならない。名前に「家族の」は つけない
-  for (const k of ['id', 'name', 'done', 'start']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x[k])).size, 11, k);
-  for (const k of ['item', 'vehicle']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x.reward[k])).size, 11, k);
+  for (const k of ['id', 'name', 'done', 'start', 'npc']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x[k])).size, 17, k);
+  // 第65回の 6つは アクセサリーや 乗り物の ない ものも ある（第64回の きまり）。ある 物は かさならない
+  for (const k of ['item', 'vehicle']) {
+    const list = FAMILY_QUESTS.map((x) => x.reward[k]).filter(Boolean);
+    assert.equal(new Set(list).size, list.length, k);
+  }
   for (const qd of FAMILY_QUESTS) assert.ok(!qd.name.includes('家族の') && qd.who && qd.where && qd.paper && qd.town, qd.id);
   const line = jobLine(['setsubiya']);
   for (const id of ['setsubiya', 'ryonetsu', 'facility_genius']) assert.ok(line.has(id), id);
@@ -385,7 +389,7 @@ test('鉱山トロッコの線路: 鉄道員の系統が いないと 線路を�
 
 // ───── ごほうび ─────
 test('ごほうび: ★5の アクセサリー（ランク10・店で買えない）・たのまれごとでしか もらえない乗り物（乗り物屋に「もらった物」として出る・買えない・乗れる）', () => {
-  assert.equal(Object.keys(FAMILY_GIFTS).length, 11);
+  assert.equal(Object.keys(FAMILY_GIFTS).length, 13); // 第39回 5・第41回 6・第65回 2
   for (const [id, it] of Object.entries(FAMILY_GIFTS)) {
     assert.equal(ITEMS[id], it);
     assert.equal(it.type, 'acc');
@@ -393,7 +397,7 @@ test('ごほうび: ★5の アクセサリー（ランク10・店で買えな�
     assert.ok(!(it.price > 0) && it.sell > 0, `${id} は 店で 買えない`);
     assert.ok(it.desc && it.name);
   }
-  assert.equal(Object.keys(FAMILY_VEHICLES).length, 11);
+  assert.equal(Object.keys(FAMILY_VEHICLES).length, 13); // 第39回 5・第41回 6・第65回 2
   const rich = { job: 'setsubiya', jobs: Object.fromEntries(Object.keys(JOBS).map((j) => [j, {}])), gold: 1e6 };
   for (const id of Object.keys(FAMILY_VEHICLES)) {
     assert.equal(VEHICLES[id], FAMILY_VEHICLES[id], `${id} は 乗り物に まざる`);
@@ -493,18 +497,20 @@ test('掲示板: ルミナの町の広場に いつも 立つ・はり紙に 中
     assert.ok(npcAnywhere({ theater: 'fq_th_manager', shop: 'fq_shop_owner', cook: 'fq_cook_host', bell: 'fq_bell_sister', rail: 'fq_rail_miner' }[qd.id]), `${qd.id} の 会う人`);
   }
   const { bot, c } = await setup(391);
-  // 1まい目（劇場）を 読んで、一らんに もどって、やめる（1ページ目は 6まい＋つぎのページへ＋やめる）
-  const msgs = await talkTo(bot, 'fq_board', [0, 7]);
+  // 1まい目（劇場）を 読んで、「受ける？」に いいえ、一らんに もどって、やめる（1ページ目は 6まい＋つぎのページへ＋やめる）
+  const msgs = await talkTo(bot, 'fq_board', [0, 1, 7]);
   assert.ok(said(msgs, /お仕事いらい板/));
-  assert.ok(said(msgs, /はり紙は11まい。まだすんでいないのは11まい/));
+  assert.ok(said(msgs, /はり紙は17まい。まだすんでいないのは17まい/));
   assert.ok(said(msgs, /劇場が暑くて/));
   assert.ok(said(msgs, /設備屋、ryonetsu[、\n]天才しせつ管理者/), '系統の 職業 ぜんぶ');
   assert.ok(said(msgs, /サファラ劇場の中にいる、支配人ラシードに話しかけよう/));
   assert.ok(said(msgs, /空調名人のバッジ（アクセサリー）\n高所作業車（乗り物）\n5000ゴールド・小さなメダル3まい/));
   const choices = msgs.filter((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice');
-  assert.equal(choices.length, 2, '読んだら 一らんに もどる');
+  assert.equal(choices.length, 3, '読んで「受ける？」のあと 一らんに もどる');
   assert.equal(choices[0].steps.at(-1)[2].length, 8, '6まい＋つぎのページへ＋やめる');
-  assert.match(choices[0].steps.at(-1)[1], /1\/2ページ/);
+  assert.match(choices[0].steps.at(-1)[1], /1\/3ページ/);
+  assert.match(choices[1].steps.at(-1)[1], /うける/);
+  assert.ok(!c.flags.fq_take_theater, 'いいえ なら 受けない');
   assert.ok(!bot.s.busy);
   // 受けている・すんだ の しるし
   c.flags[FQ.acStart] = true;
@@ -513,7 +519,7 @@ test('掲示板: ルミナの町の広場に いつも 立つ・はり紙に 中
   const labels = msgs2.find((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice').steps.at(-1)[2];
   assert.equal(labels[0], '劇場の空調をなおせ（受けている）');
   assert.equal(labels[4], '鉱山トロッコの線路（すんだ）');
-  assert.ok(said(msgs2, /まだすんでいないのは10まい/));
+  assert.ok(said(msgs2, /まだすんでいないのは16まい/));
 });
 test('掲示板: 職業の 系統が 長くても 1行20文字・1ページ2行まで（はみ出さない）', () => {
   for (const qd of FAMILY_QUESTS) {

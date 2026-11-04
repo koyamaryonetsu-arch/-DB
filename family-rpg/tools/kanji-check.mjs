@@ -397,6 +397,8 @@ export function gameFiles() {
     'public/js/shared/data/sidequests-family.js', 'public/js/shared/maps/family-quests.js', 'public/js/shared/data/items-family.js', 'public/js/shared/data/vehicles-family.js', 'public/js/shared/data/encounters-family.js', 'public/js/client/render/family-art.js',
     // 第41回: お仕事いらい板を ふやす（歌のステージ・こわれた橋・子ども野球・名物動画・宿の大そうじ・手品ショー）
     'public/js/shared/data/sidequests-work.js', 'public/js/shared/maps/work-quests.js', 'public/js/shared/data/fq-common.js', 'public/js/shared/maps/fq-kit.js', 'public/js/client/render/work-art.js',
+    // 第65回 D2: お仕事いらい 12〜17（星まつりの天気・自由研究・大岩・魔物サーカス・お笑い大会・からくりゲーム）
+    'public/js/shared/data/sidequests-work2.js', 'public/js/shared/maps/work-quests2.js', 'public/js/client/render/work2-art.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板
