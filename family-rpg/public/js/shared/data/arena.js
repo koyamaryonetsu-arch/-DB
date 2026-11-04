@@ -1,10 +1,11 @@
 // 第37回 A: サファラ闘技場の きまり（ランク・開く 時・ごほうび・かけ試合・王者のかべ）。docs/plan-r37.md の A
 //
 // ・開く 時: 第4章クリア（c4_clear。水が もどった あと）。それまでは「大会は お休み」
-// ・ランク戦: ランク1〜5（第4章の ころの 強さ）と 伝説の部 ランク6〜8（第5章の 進みで 開く）。1つ前の ランクを 勝ちぬくと 次へ
+// ・ランク戦: ランク1〜5（第4章の ころの 強さ）と 伝説の部 ランク6〜8（第5章の 進みで 開く）・ランク9〜10（第65回 C。第6章クリア・第7章 第1幕の あと）。
+//   1つ前の ランクを 勝ちぬくと 次へ
 //   1つの ランクは 休みなしの 3連戦（戦いの 間に 回復しない・道具は 使える・にげられない）。3戦目は 王者
 //   負けても お金は へらない（受付の 前で HP・MPが もどる）
-// ・ごほうび: はじめて 勝ちぬいた 時（キャラごと）… first の 品と 小さなメダル。2回目から … repeatGold ゴールドと 小さなメダル 1まい
+// ・ごほうび: はじめて 勝ちぬいた 時（キャラごと）… first の 品（items）・素材（mats。[品, 数]）と 小さなメダル。2回目から … repeatGold ゴールドと 小さなメダル 1まい
 // ・キャラに のこす もの（なくても よい。むかしの セーブも そのまま 読める）
 //   c.arena = { r: { [ランク]: { n: 勝ちぬいた 回数, at: はじめて 勝ちぬいた 時こく, with: [いっしょに いた 家族の 名前] } }, rep: 2回目からの メダルの 通し番号 }
 import { SOUTH_PLACES } from '../maps/south.js';
@@ -69,7 +70,23 @@ export const ARENA_RANKS = [
     key: 'ryuou_seal',
     hint: '剣を高くかかげたら、3人の合体技の合図。弟子を先にたおすと弱くなる。',
   },
+  // 第65回 C: 伝説の部 ランク9・10（第2部の 強さ）。ごほうびは アクセサリー 1つ（★5）と きたえる 素材（mats）と 小さなメダル
+  //   （第64回: 装備が 手に入りすぎない ように。強い 品は ランクごとに 1つだけ）
+  {
+    rank: 9, lv: 66, champ: '炎と氷の竜きょうだい', battles: ['ar9_1', 'ar9_2', 'ar9_3'], legend: true, needFlag: 'c6_clear',
+    lockText: '（千年前の、大きな時計の戦いを乗りこえると、開くらしい）',
+    first: { items: ['ar_twin_dragon_charm'], mats: [['star_shard', 5], ['silver_shard', 5]], medals: 6 }, repeatGold: 8000,
+    hint: '竜が大きく息をすったら、次はブレス。身を守ろう。炎の竜には氷、氷の竜には炎。2ひきを同じころにたおそう。',
+  },
+  {
+    rank: 10, lv: 74, champ: '星の大王者レグルス', battles: ['ar10_1', 'ar10_2', 'ar10_3'], legend: true, needFlag: 'c7_karim',
+    lockText: '（緑の王国の、水の神殿の戦いを乗りこえると、開くらしい）',
+    first: { items: ['ar_star_king_brooch'], mats: [['star_shard', 8], ['silver_shard', 6]], medals: 8 }, repeatGold: 10000,
+    hint: 'よろいと同じ属性はすいこまれる。弱点でくだこう。たてがみがかがやいたら合体技の合図。アルタとベガを先にたおそう。',
+  },
 ];
+// 伝説のチャンピオン（ランク8）。ことばの きりかえに 使う（ランク9・10 が ふえても 「伝説のチャンピオンに勝った」は ランク8）
+export const ARENA_LEGEND_RANK = 8;
 export const ARENA_MAX_RANK = ARENA_RANKS.length;
 export const rankInfo = (n) => ARENA_RANKS[n - 1] || null;
 export const rankLabel = (n) => (rankInfo(n)?.legend ? `伝説の部・ランク${n}` : `ランク${n}`);

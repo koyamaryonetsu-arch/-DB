@@ -13,6 +13,10 @@
 //   ランク6 砂ザメの王 … 砂に もぐる（次の 番まで ねらえない）→ 砂が もり上がったら 大ジャンプ（battle-ch4.js の burrow）
 //   ランク7 七色の魔導王 … 炎・氷・雷・風の よろい。同じ 属性は すいこんで 回復・弱点で くだける（arena.armor。battle-arena.js）
 //   ランク8 伝説のチャンピオン レオーネ … 2人の 弟子と 3人の 合体技（ランク2と おなじ しくみ。もっと 強い）
+//   第65回 C（第2部の 強さ。え は 今の 魔物の え を 色がえ）:
+//   ランク9 炎と氷の竜きょうだい（炎の竜ヒート・氷の竜クール）… ふたご（ランク4と おなじ しくみ）。息を すったら 次の 番に 大ブレス。
+//                        炎の竜には 氷・氷の竜には 炎が よく 効く。片方を たおすと、もう片方が「よびもどしの声」
+//   ランク10 星の大王者レグルス … 星の よろい（ランク7と おなじ しくみ）と、ひこ星のアルタ・おり姫のベガとの 3人の 合体技（ランク8と おなじ しくみ）
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
 const PIRATE = { sleep: 0.4, confuse: 0.4, blind: 0.5, poison: 0.5, paralyze: 0.4, silence: 0.6 };
 
@@ -180,6 +184,67 @@ export const ARENA_MONSTERS = {
     resist: { ...BOSS_STATUS },
     actions: [{ w: 3, id: 'attack' }, { w: 4, id: 'm_ar8_cheer', cond: 'allyHurt' }, { w: 1, id: 'm_ar8_guard', cond: 'notRecent:m_ar8_guard' }],
     desc: '伝説のチャンピオンの弟子。仲間をはげまして回復し、守りを固める。',
+  },
+
+  // ───── 第65回 C: ランク9（伝説の部。ふたごの 竜）─────
+  ar_fire_drake: {
+    name: '炎の竜ヒート', lv: 68, hp: 18500, mp: 400, str: 600, def: 230, agi: 120, mag: 400, exp: 22000, gold: 6000,
+    race: 'dragon', size: 'l', boss: true, turns: 1, speed: 0.92, hit: 'bite', art: 'dust_drake', artScale: 1.35, tint: { hueTo: 8, sat: 1.4, light: 1.05 },
+    arena: { twin: 'ar_ice_drake' },
+    resist: { ...BOSS_STATUS, fire: 0.3, ice: 1.4 },
+    actions: [
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_ar9_fire_claw' }, { w: 1, id: 'm_ar9_tail', cond: 'notRecent:m_ar9_tail' },
+      { w: 2, id: 'm_ar9_fire_inhale', cond: ['notRecent:m_ar9_fire_inhale', 'notRecent:m_ar9_fire_blast'] },
+      { w: 9, id: 'm_ar9_fire_call', cond: ['deadFriend:ar_ice_drake', 'notRecent:m_ar9_fire_call'] },
+    ],
+    phases: [{ hpBelow: 0.3, msg: ['炎の竜ヒートの体から、ほのおがふき上がった！', '「まだまだ、もえたりないぞ！」…動きが速くなった！'], speed: 1.15 }],
+    desc: '伝説の部、ランク9の王者。炎と氷の竜きょうだいの兄。大きく息をすったら、次の番に炎のブレス。氷がよく効く。氷の竜クールがたおれると、よびもどしの声で生き返らせる。',
+  },
+  ar_ice_drake: {
+    name: '氷の竜クール', lv: 68, hp: 16500, mp: 400, str: 550, def: 220, agi: 140, mag: 400, exp: 22000, gold: 6000,
+    race: 'dragon', size: 'l', boss: true, turns: 1, speed: 0.98, hit: 'bite', art: 'dust_drake', artScale: 1.3, tint: { hueTo: 200, sat: 1.2, light: 1.12 },
+    arena: { twin: 'ar_fire_drake' },
+    resist: { ...BOSS_STATUS, ice: 0.3, fire: 1.4 },
+    actions: [
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_ar9_ice_claw' }, { w: 1, id: 'm_ar9_tail', cond: 'notRecent:m_ar9_tail' },
+      { w: 2, id: 'm_ar9_ice_inhale', cond: ['notRecent:m_ar9_ice_inhale', 'notRecent:m_ar9_ice_blast'] },
+      { w: 9, id: 'm_ar9_ice_call', cond: ['deadFriend:ar_fire_drake', 'notRecent:m_ar9_ice_call'] },
+    ],
+    phases: [{ hpBelow: 0.3, msg: ['氷の竜クールのまわりに、ふぶきがうずをまいた！', '「お兄ちゃんには、負けないよ！」…動きが速くなった！'], speed: 1.15 }],
+    desc: '伝説の部、ランク9の王者。炎と氷の竜きょうだいの妹。大きく息をすったら、次の番に氷のブレス。炎がよく効く。炎の竜ヒートがたおれると、よびもどしの声で生き返らせる。',
+  },
+
+  // ───── 第65回 C: ランク10（伝説の部。合体技の 組 'stars'・星の よろい）─────
+  ar_regulus: {
+    name: '星の大王者レグルス', lv: 76, hp: 38000, mp: 3000, str: 640, def: 250, agi: 130, mag: 600, exp: 40000, gold: 12000,
+    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.62, hit: 'bite', art: 'star_panther', artScale: 1.7, tint: { hueTo: 44, sat: 1.35, light: 1.12 },
+    arena: {
+      team: 'stars', lead: true,
+      armor: { els: ['fire', 'ice', 'bolt', 'wind'], weak: { fire: 'ice', ice: 'fire', bolt: 'wind', wind: 'bolt' }, wait: 2, absorb: 0.6, weakMult: 1.6 },
+    },
+    resist: { ...BOSS_STATUS, light: 0.7, dark: 0.8 },
+    actions: [
+      { w: 8, id: 'm_ar10_armor', cond: 'c5:arNoArmor' },
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_ar10_claw' }, { w: 2, id: 'm_ar10_spell', cond: 'c5:arArmored' },
+      { w: 1, id: 'm_ar10_roar', cond: 'notRecent:m_ar10_roar' },
+      { w: 3, id: 'm_ar10_signal', cond: ['c5:arTeam2', 'notRecent:m_ar10_signal', 'notRecent:m_ar10_combo'] },
+    ],
+    phases: [{ hpBelow: 0.4, msg: ['星の大王者レグルスのたてがみが、まぶしい金色にもえ上がった！', '「見事だ…！だが、王者の星は、まだしずまぬ！」…攻撃力が上がった！'], buff: { atk: 1.15 } }],
+    desc: '伝説の部、ランク10の王者。夜空のしし座からおりてきたという、金色の大王者。炎・氷・雷・風のよろいをまとい、同じ属性の攻撃はすいこんでしまう。弱点（炎⇔氷・雷⇔風）でくだこう。たてがみがかがやいたら、3人の合体技の合図。',
+  },
+  ar_altair: {
+    name: 'ひこ星のアルタ', lv: 74, hp: 8400, mp: 300, str: 550, def: 200, agi: 170, mag: 300, exp: 6000, gold: 2000,
+    race: 'beast', size: 'm', boss: true, turns: 1, speed: 1, hit: 'bite', art: 'comet_bird', artScale: 1.25, tint: { hueTo: 210, sat: 1.2, light: 1.1 }, arena: { team: 'stars' },
+    resist: { ...BOSS_STATUS, wind: 0.6, bolt: 1.2 },
+    actions: [{ w: 3, id: 'attack' }, { w: 4, id: 'm_ar10_dive' }, { w: 2, id: 'm_ar10_gale', cond: 'notRecent:m_ar10_gale' }],
+    desc: '星の大王者の家来。わし座のひこ星。空からすばやくつっこんでくる。',
+  },
+  ar_vega: {
+    name: 'おり姫のベガ', lv: 74, hp: 9400, mp: 600, str: 420, def: 240, agi: 120, mag: 500, exp: 6000, gold: 2000,
+    race: 'spirit', size: 'm', boss: true, turns: 1, speed: 1, hit: 'bash', art: 'foam_siren', artScale: 1.15, tint: { hueTo: 280, sat: 1.15, light: 1.12 }, arena: { team: 'stars' },
+    resist: { ...BOSS_STATUS, light: 0.6, dark: 1.2 },
+    actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ar10_song', cond: ['allyHurt', 'notRecent:m_ar10_song'] }, { w: 1, id: 'm_ar10_veil', cond: 'notRecent:m_ar10_veil' }],
+    desc: '星の大王者の家来。こと座のおり姫。歌で仲間を回復し、星のベールで守りを固める。',
   },
 };
 

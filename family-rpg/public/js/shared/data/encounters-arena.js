@@ -37,4 +37,12 @@ export const FIXED_ARENA = {
   ar8_1: A([['earth_pillbug', 1, 1], ['sky_guard', 1, 1], ['cloud_wyvern', 1, 1]], 56),
   ar8_2: A([['homunculus_shade', 2, 2], ['soul_eater', 1, 1]], 57),
   ar8_3: CHAMP([['ar_disciple1', 1, 1], ['ar_legend', 1, 1], ['ar_disciple2', 1, 1]], 'boss3'),
+  // 第65回 C: ランク9（Lv66。第6章クリアの あと）… 時のいせき・古道・時計塔の 魔物
+  ar9_1: A([['chrono_knight', 1, 1], ['clock_spider', 1, 1], ['toki_owl', 1, 1]], 65),
+  ar9_2: A([['dust_drake', 1, 1], ['twin_star', 2, 2]], 66),
+  ar9_3: CHAMP([['ar_fire_drake', 1, 1], ['ar_ice_drake', 1, 1]], 'boss3'),
+  // ランク10（Lv74。第7章 第1幕の あと）… 緑の王国・みどりの水の神殿の 魔物
+  ar10_1: A([['card_soldier', 2, 2], ['march_broom', 1, 1]], 73),
+  ar10_2: A([['uzu_eel', 1, 1], ['teresa', 1, 1], ['curse_lump', 1, 1]], 74),
+  ar10_3: CHAMP([['ar_altair', 1, 1], ['ar_regulus', 1, 1], ['ar_vega', 1, 1]], 'boss3'),
 };

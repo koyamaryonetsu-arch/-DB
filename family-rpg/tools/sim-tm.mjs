@@ -5,10 +5,10 @@
 import { runBattle, makeChar } from './sim.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
-import { THEME_KEYS, ensureEncounterTable, enemyLvOf, TM_LV_MAX, TM_CAVE_POW } from '../public/js/shared/data/treasure.js';
+import { THEME_KEYS, ensureEncounterTable, enemyLvOf, TM_LV_MAX, tmCavePow } from '../public/js/shared/data/treasure.js';
 
 const N = Number(process.argv[2] || 20);
-const LVS = process.argv[3] ? process.argv[3].split(',').map(Number) : [2, 4, 8, 12, 16, 20, TM_LV_MAX];
+const LVS = process.argv[3] ? process.argv[3].split(',').map(Number) : [2, 4, 8, 12, 16, 20, 25, 26, 30, TM_LV_MAX];
 const TIERS = [1, 4, 7, 10, 14, 20, 23, 33, 38, 42, 45, 48, 50, 52, 56, 58];
 export const tierFor = (lv) => TIERS.filter((t) => t <= lv).pop();
 const party = (lv) => ['warrior', 'priest', 'mage', 'monk'].map((j, i) => makeChar(j, lv, 10, `p${i}`, tierFor(lv)));
@@ -27,7 +27,7 @@ if (process.argv[1].endsWith('sim-tm.mjs')) {
       for (const th of THEME_KEYS) {
         const z = ensureEncounterTable(L, th);
         const rng = makeRng(L * 100 + th.length);
-        for (let i = 0; i < N; i++) res.push(runBattle(party(plv), roll(z, rng), { seed: i, enemyLv: eLv, enemyCurve: curve, enemyPow: curve ? TM_CAVE_POW : 1 }));
+        for (let i = 0; i < N; i++) res.push(runBattle(party(plv), roll(z, rng), { seed: i, enemyLv: eLv, enemyCurve: curve, enemyPow: curve ? tmCavePow(L) : 1 }));
       }
       const w = res.filter((r) => r.outcome === 'win').length / res.length;
       const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;

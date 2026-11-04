@@ -42,7 +42,9 @@ test('宝の洞窟の 主: 第40回の 倍率（その レベルの 魔物の �
   for (const sp of Object.keys(MONSTERS_TM)) {
     assert.ok(tmBossPow(1, sp) > 1, sp);
     // 地図 Lv8 から 上は だんだん 小さく（めやすの 強さが 高い レベルほど 大きく 上がる ぶん）
-    for (let L = 8; L < TM_LV_MAX; L++) assert.ok(tmBossPow(L + 1, sp) <= tmBossPow(L, sp), `${sp} Lv${L}`);
+    // （第65回 C: 地図 Lv26〜35 は べつの だん。Lv26 で 少し 上げて、そこから また だんだん 小さく。test/tm-arena-r65.test.js）
+    for (let L = 8; L < 25; L++) assert.ok(tmBossPow(L + 1, sp) <= tmBossPow(L, sp), `${sp} Lv${L}`);
+    for (let L = 26; L < TM_LV_MAX; L++) assert.ok(tmBossPow(L + 1, sp) <= tmBossPow(L, sp), `${sp} Lv${L}`);
     assert.ok(tmBossPow(TM_LV_MAX, sp) >= 0.5 && tmBossPow(TM_LV_MAX, sp) <= 0.8, `${sp}: ${tmBossPow(TM_LV_MAX, sp)}`);
     assert.equal(tmBossPow(TM_LV_MAX + 5, sp), tmBossPow(TM_LV_MAX, sp));
   }
