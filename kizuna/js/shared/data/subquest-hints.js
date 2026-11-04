@@ -8,13 +8,14 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=cd82616ef3db';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=cd82616ef3db';
-import { ORN } from '../maps/ch6c-side.js?v=cd82616ef3db';
-import { RS } from './sidequests-ch6d.js?v=cd82616ef3db';
-import { C7, LETTER } from '../maps/c7-flags.js?v=cd82616ef3db';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=cd82616ef3db';
-import { jobLine } from './fq-common.js?v=cd82616ef3db';
+import { C6 } from '../maps/past.js?v=ef1c76a45d8a';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=ef1c76a45d8a';
+import { ORN } from '../maps/ch6c-side.js?v=ef1c76a45d8a';
+import { RS } from './sidequests-ch6d.js?v=ef1c76a45d8a';
+import { C7, LETTER } from '../maps/c7-flags.js?v=ef1c76a45d8a';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=ef1c76a45d8a';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=ef1c76a45d8a';
+import { jobLine } from './fq-common.js?v=ef1c76a45d8a';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -58,6 +59,10 @@ const build = () => [
   { id: 'c7l1', name: '時をこえる手紙（緑の王国の市場）', open: [C7.kingdom], start: LETTER.start(1), done: LETTER.found(1), place: '千年前の緑の王国', who: '王国の子ども', npc: 'c7_kid', hint: 'ずっと先の子どもたちに、とどけたい物があるらしい。' },
   { id: 'c7l2', name: '時をこえる手紙（ハミルの湖のほとり）', open: [C7.kingdom], start: LETTER.start(2), done: LETTER.found(2), place: '千年前のハミルの湖', who: '湖の漁師', npc: 'c7_fisher', hint: '湖のことを、ずっと先の人に伝えたいらしい。' },
   { id: 'c7l3', name: '時をこえる手紙（緑の城の庭）', open: [C7.kingdom], start: LETTER.start(3), done: LETTER.found(3), place: '千年前の緑の城', who: '王女ナディア', npc: 'c7_princess', hint: 'ずっと先の、自分の子どもたちに、のこしたい言葉があるらしい。' },
+  // 第7章 第2幕（千年前の クモイの 海と 今。時をこえる手紙。sidequests-c7s.js）
+  { id: 'c7sl1', name: '時をこえる手紙（ナギの村のはま）', open: [C7S.isle], start: LETTER7S.start(1), done: LETTER7S.found(1), place: '千年前のナギの村', who: 'ナギの村の子ども', npc: 'c7s_kid', hint: '千年先の子どもに、とどけたい手紙があるらしい。' },
+  { id: 'c7sl2', name: '時をこえる手紙（貝がらの小島）', open: [C7S.isle], start: LETTER7S.start(2), done: LETTER7S.found(2), place: '千年前の貝がらの小島', who: '小島の漁師', npc: 'c7s_fisher', hint: '海のことを、ずっと先の人に伝えたいらしい。' },
+  { id: 'c7sl3', name: '時をこえる手紙（星見の島）', open: [C7S.isle], start: LETTER7S.start(3), done: LETTER7S.found(3), place: '千年前の星見の島', who: '星見のおじいさん', npc: 'c7s_stargazer', hint: '千年先の、星を見る者へ、のこしたい言葉があるらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

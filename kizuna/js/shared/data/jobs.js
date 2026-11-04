@@ -15,16 +15,16 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=cd82616ef3db';
-import { JOB_TAGS } from './job-tags.js?v=cd82616ef3db';
+import { applyField27Learn } from './abilities-field27.js?v=ef1c76a45d8a';
+import { JOB_TAGS } from './job-tags.js?v=ef1c76a45d8a';
 // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者（jobs-weather.js）
-import { WEATHER_JOBS } from './jobs-weather.js?v=cd82616ef3db';
+import { WEATHER_JOBS } from './jobs-weather.js?v=ef1c76a45d8a';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
-import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=cd82616ef3db';
+import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=ef1c76a45d8a';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
-import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=cd82616ef3db';
+import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=ef1c76a45d8a';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
-import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=cd82616ef3db';
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=ef1c76a45d8a';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1346,8 +1346,9 @@ export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER
 
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
 // 第38回 B: 超級職・伝説の職業は 職業の試練で Lv10 より 上（JOB_TOP_LEVEL まで）。Lv11 からも つづき（1つごとに 24・26・28…回 ふえる）
+// 第65回 D1: 三の試練で Lv25 まで（20 → 25。Lv21〜25 も おなじ 式の つづき）
 // JOB_MAX_LEVEL（10）は「マスター」の レベルの まま（なる ための じょうけん・ペナルティが 軽い・ひらめき など）。上限は data/job-trials.js
-export const JOB_TOP_LEVEL = 20;
+export const JOB_TOP_LEVEL = 25;
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
 for (let lv = BATTLES.length + 1; lv <= JOB_TOP_LEVEL; lv++) BATTLES.push(BATTLES[lv - 2] + 2 * (lv - 10) + 22);
 const TIER_MULT = [1, 1.4, 1.8, 2.2, 2.6];

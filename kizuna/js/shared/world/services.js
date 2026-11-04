@@ -1,61 +1,61 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { markNewsRead } from '../data/news.js?v=cd82616ef3db';
+import { markNewsRead } from '../data/news.js?v=ef1c76a45d8a';
 // 第50回 N4: 困っている人を 知らせた・見た 印
-import { markAsks } from '../data/subquest-hints.js?v=cd82616ef3db';
-import { setStamps } from '../data/stamps.js?v=cd82616ef3db';
-import { SHOPS, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=cd82616ef3db';
-import { normDifficulty } from '../data/difficulty.js?v=cd82616ef3db';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=cd82616ef3db';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=cd82616ef3db';
-import { ABILITIES } from '../data/abilities.js?v=cd82616ef3db';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=cd82616ef3db';
-import { jobLabel } from '../job-label.js?v=cd82616ef3db';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=cd82616ef3db';
+import { markAsks } from '../data/subquest-hints.js?v=ef1c76a45d8a';
+import { setStamps } from '../data/stamps.js?v=ef1c76a45d8a';
+import { SHOPS, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=ef1c76a45d8a';
+import { normDifficulty } from '../data/difficulty.js?v=ef1c76a45d8a';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=ef1c76a45d8a';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=ef1c76a45d8a';
+import { ABILITIES } from '../data/abilities.js?v=ef1c76a45d8a';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=ef1c76a45d8a';
+import { jobLabel } from '../job-label.js?v=ef1c76a45d8a';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=ef1c76a45d8a';
 // 第50回 D4: 上の 職業の 技ほど 回復が 多い（フィールドでも おなじ。skill-tier.js）
-import { skillMods } from '../skill-tier.js?v=cd82616ef3db';
-import { TACTICS } from '../ai.js?v=cd82616ef3db';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=cd82616ef3db';
-import { salonInfo, salonAction } from './salon.js?v=cd82616ef3db';
-import { breedMonsters, breedPreview } from './breed.js?v=cd82616ef3db';
-import { farewellText } from './farewell.js?v=cd82616ef3db';
+import { skillMods } from '../skill-tier.js?v=ef1c76a45d8a';
+import { TACTICS } from '../ai.js?v=ef1c76a45d8a';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=ef1c76a45d8a';
+import { salonInfo, salonAction } from './salon.js?v=ef1c76a45d8a';
+import { breedMonsters, breedPreview } from './breed.js?v=ef1c76a45d8a';
+import { farewellText } from './farewell.js?v=ef1c76a45d8a';
 // 第43回 C: 魔物あずかり所（world/storage.js）
-import { storageInfo, storageAction, depositMonster, storeText } from './storage.js?v=cd82616ef3db';
-import { MONSTERS } from '../data/monsters.js?v=cd82616ef3db';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=cd82616ef3db';
-import { PLACES } from '../maps/overworld.js?v=cd82616ef3db';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=cd82616ef3db';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT, PRAY_PLACE } from './travel.js?v=cd82616ef3db';
+import { storageInfo, storageAction, depositMonster, storeText } from './storage.js?v=ef1c76a45d8a';
+import { MONSTERS } from '../data/monsters.js?v=ef1c76a45d8a';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=ef1c76a45d8a';
+import { PLACES } from '../maps/overworld.js?v=ef1c76a45d8a';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=ef1c76a45d8a';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT, PRAY_PLACE } from './travel.js?v=ef1c76a45d8a';
 // 第6章: 時の砂時計（world/time-glass-use.js）
-import { useTimeGlass } from './time-glass-use.js?v=cd82616ef3db';
+import { useTimeGlass } from './time-glass-use.js?v=ef1c76a45d8a';
 // 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
-import { useStarSight } from './star-sight.js?v=cd82616ef3db';
+import { useStarSight } from './star-sight.js?v=ef1c76a45d8a';
 // 第6章 Step 5: 星読みの しおり（world/tokei-use.js）
-import { useBookmark } from './tokei-use.js?v=cd82616ef3db';
-import { bankInfo, bankAction } from './bank.js?v=cd82616ef3db';
-import { forgeInfo, forgeAction } from './forge.js?v=cd82616ef3db';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=cd82616ef3db';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=cd82616ef3db';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=cd82616ef3db';
-import { casinoOpen, casinoAction } from './casino.js?v=cd82616ef3db';
-import { useEscapeItem, noEscapeText } from './escape.js?v=cd82616ef3db';
-import { usePowder } from './powder.js?v=cd82616ef3db';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=cd82616ef3db';
-import { setLookEquip } from '../look-equip.js?v=cd82616ef3db';
-import { jobDoneText } from '../data/job-talk.js?v=cd82616ef3db';
-import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=cd82616ef3db';
+import { useBookmark } from './tokei-use.js?v=ef1c76a45d8a';
+import { bankInfo, bankAction } from './bank.js?v=ef1c76a45d8a';
+import { forgeInfo, forgeAction } from './forge.js?v=ef1c76a45d8a';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=ef1c76a45d8a';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=ef1c76a45d8a';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=ef1c76a45d8a';
+import { casinoOpen, casinoAction } from './casino.js?v=ef1c76a45d8a';
+import { useEscapeItem, noEscapeText } from './escape.js?v=ef1c76a45d8a';
+import { usePowder } from './powder.js?v=ef1c76a45d8a';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=ef1c76a45d8a';
+import { setLookEquip } from '../look-equip.js?v=ef1c76a45d8a';
+import { jobDoneText } from '../data/job-talk.js?v=ef1c76a45d8a';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=ef1c76a45d8a';
 // 第44回（ポケモン P1）: 進化の 石（world/evolve.js）
-import { useEvoStone } from './evolve.js?v=cd82616ef3db';
+import { useEvoStone } from './evolve.js?v=ef1c76a45d8a';
 // 第50回 N6: 家族に 道具を あげる（world/gift.js）
-import { giftTargets, giveItem } from './gift.js?v=cd82616ef3db';
+import { giftTargets, giveItem } from './gift.js?v=ef1c76a45d8a';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quick-item.js?v=cd82616ef3db';
+import { quickItemOf, quickUseOf, setQuickItem, setQuickPad } from '../data/quick-item.js?v=ef1c76a45d8a';
 // 第50回 D3: 景品（星のかけらの こうかん・乗り物券・よびぶえ・修行の書・経験の書。world/prizes-r50.js）
-import { starTradeInfo, starTradeAction, usePrizeItem, PRIZE_USE } from './prizes-r50.js?v=cd82616ef3db';
+import { starTradeInfo, starTradeAction, usePrizeItem, PRIZE_USE } from './prizes-r50.js?v=ef1c76a45d8a';
 // 第51回 B: 家族のけいじ板（はじめて なった 職業を のせる）
-import { boardJobChange } from './family-board.js?v=cd82616ef3db';
+import { boardJobChange } from './family-board.js?v=ef1c76a45d8a';
 // 第51回 F: 幻の職業（なる 条件の 文・はじめて なった 時の 掲示板）
-import { PHANTOM_JOBS } from '../data/phantom.js?v=cd82616ef3db';
-import { phantomGot } from './phantom.js?v=cd82616ef3db';
+import { PHANTOM_JOBS } from '../data/phantom.js?v=ef1c76a45d8a';
+import { phantomGot } from './phantom.js?v=ef1c76a45d8a';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {

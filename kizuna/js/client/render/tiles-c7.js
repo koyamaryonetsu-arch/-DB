@@ -4,8 +4,10 @@
 // ・水路に たまった 砂（322）… 今の かれた 水路の 砂の 山 / 水の ふき上げ口（323）… 石の ゆかに まるい あな
 // ・ふき上げる 水（324）… 白い 水の 柱（3コマ）/ 番人の 石像（325）… 石の 箱を かかえた 騎士の 石像
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=cd82616ef3db';
-import { prand } from './pixel.js?v=cd82616ef3db';
+import { T } from '../../shared/tiles.js?v=ef1c76a45d8a';
+import { prand } from './pixel.js?v=ef1c76a45d8a';
+// 第7章 Step 3・4（第2幕）: しずむ前の島の灯台・千年前の クモイの 海の タイル（render/tiles-c7s.js。ここで まぜる）
+import { C7S_PAINTERS, C7S_FRAMES, C7S_SPEED, C7S_FLOOR_H, c7sBlockSpec, C7S_PROPS, C7S_PROPS_KEEP, C7S_THEMES } from './tiles-c7s.js?v=ef1c76a45d8a';
 
 const WA = { d: '#1e5a6a', b: '#2e7e8e', l: '#5ab0b8', w: '#d8f4f0' }; // みどりがかった 水
 const ST = { d: '#5a6458', b: '#8a9486', l: '#b4bcae', hl: '#dce2d4', ln: '#454c42' }; // みどりの 石
@@ -110,18 +112,19 @@ export const C7_PAINTERS = {
   [T.C7_SPOUT_FLOOR]: (p, v) => paintSpoutFloor(p, v),
   [T.C7_SPOUT]: (p, v, f) => paintSpout(p, v, f),
   [T.C7_GUARD]: (p, v) => paintGuard(p, v),
+  ...C7S_PAINTERS,
 };
 export const C7_FRAMES = {
-  [T.C7_CUR_N]: CUR_FRAMES, [T.C7_CUR_E]: CUR_FRAMES, [T.C7_CUR_S]: CUR_FRAMES, [T.C7_CUR_W]: CUR_FRAMES, [T.C7_LOTUS]: LOTUS_FRAMES, [T.C7_SPOUT]: SPOUT_FRAMES,
+  [T.C7_CUR_N]: CUR_FRAMES, [T.C7_CUR_E]: CUR_FRAMES, [T.C7_CUR_S]: CUR_FRAMES, [T.C7_CUR_W]: CUR_FRAMES, [T.C7_LOTUS]: LOTUS_FRAMES, [T.C7_SPOUT]: SPOUT_FRAMES, ...C7S_FRAMES,
 };
-export const C7_SPEED = { [T.C7_CUR_N]: 160, [T.C7_CUR_E]: 160, [T.C7_CUR_S]: 160, [T.C7_CUR_W]: 160, [T.C7_LOTUS]: 600, [T.C7_SPOUT]: 140 };
+export const C7_SPEED = { [T.C7_CUR_N]: 160, [T.C7_CUR_E]: 160, [T.C7_CUR_S]: 160, [T.C7_CUR_W]: 160, [T.C7_LOTUS]: 600, [T.C7_SPOUT]: 140, ...C7S_SPEED };
 
 // ───── 2.5D ─────
 // 流れる 水路・はすの 葉は 少し ひくい。砂の 山は ひくい かたまり
-export const C7_FLOOR_H = { [T.C7_CUR_N]: -0.2, [T.C7_CUR_E]: -0.2, [T.C7_CUR_S]: -0.2, [T.C7_CUR_W]: -0.2, [T.C7_LOTUS]: -0.16, [T.C7_SPOUT_FLOOR]: -0.04 };
+export const C7_FLOOR_H = { [T.C7_CUR_N]: -0.2, [T.C7_CUR_E]: -0.2, [T.C7_CUR_S]: -0.2, [T.C7_CUR_W]: -0.2, [T.C7_LOTUS]: -0.16, [T.C7_SPOUT_FLOOR]: -0.04, ...C7S_FLOOR_H };
 export function c7BlockSpec(id, v) {
   if (id === T.C7_SAND) return { h: 0.55, top: ['t', T.C7_SAND, v, 0], side: ['t', T.C7_SAND, v, 0], south: ['t', T.C7_SAND, v, 0] };
-  return null;
+  return c7sBlockSpec(id, v);
 }
 // たてた もの（[はば, 高さ, かく 関数]）: ふき上げる 水の 柱・番人の 石像
 export const C7_PROPS = {
@@ -145,9 +148,10 @@ export const C7_PROPS = {
     // かかえた 石の 箱
     p.rect(4, 11, 8, 5, ST.d); p.hline(4, 11, 11, ST.hl); p.hline(4, 11, 15, ST.ln); p.vline(8, 12, 14, ST.ln);
   }],
+  ...C7S_PROPS,
 };
 // たてた ものでも 色を かえない（水の 柱の 白）
-export const C7_PROPS_KEEP = new Set([T.C7_SPOUT]);
+export const C7_PROPS_KEEP = new Set([T.C7_SPOUT, ...C7S_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -161,4 +165,6 @@ export const C7_THEMES = {
     gem: G([0, '#0a1a1a'], [0.5, '#5ad8c8'], [1, '#ffffff']),
     flame: null,
   },
+  // 第7章 Step 3・4: しずむ前の島の灯台（千年前）
+  ...C7S_THEMES,
 };

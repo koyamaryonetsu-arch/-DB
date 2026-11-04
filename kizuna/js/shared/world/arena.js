@@ -7,23 +7,23 @@
 //   とちゅうで かけつけた 家族（battles.js の joinBattle）も、次の 戦いから 3連戦の なかまに 入る（adopt）
 // ・かけ試合（かけ試合の 係。ひとりずつ）: 4ひきの 魔物の トーナメント。本物の 戦いの しくみで 戦わせる（betDuel）。
 //   オッズは 強さ（data/arena.js の winChances）から。けっかは 短い 戦いの ようす（client/ui/arena.js の arenaBoutUI）で 見せる
-import { Battle } from '../battle.js?v=cd82616ef3db';
-import { decideMonster } from '../ai.js?v=cd82616ef3db';
-import { enemyFixedScale } from '../battle.js?v=cd82616ef3db';
-import { MONSTERS } from '../data/monsters.js?v=cd82616ef3db';
-import { ITEMS } from '../data/items.js?v=cd82616ef3db';
-import { addItem } from '../stats.js?v=cd82616ef3db';
-import { scaleEnemy } from '../data/treasure.js?v=cd82616ef3db';
-import { startFixedBattle } from './battles.js?v=cd82616ef3db';
-import { partyOf } from './party.js?v=cd82616ef3db';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=cd82616ef3db';
-import { ARENA_HOOKS } from '../data/story-arena.js?v=cd82616ef3db';
+import { Battle } from '../battle.js?v=ef1c76a45d8a';
+import { decideMonster } from '../ai.js?v=ef1c76a45d8a';
+import { enemyFixedScale } from '../battle.js?v=ef1c76a45d8a';
+import { MONSTERS } from '../data/monsters.js?v=ef1c76a45d8a';
+import { ITEMS } from '../data/items.js?v=ef1c76a45d8a';
+import { addItem } from '../stats.js?v=ef1c76a45d8a';
+import { scaleEnemy } from '../data/treasure.js?v=ef1c76a45d8a';
+import { startFixedBattle } from './battles.js?v=ef1c76a45d8a';
+import { partyOf } from './party.js?v=ef1c76a45d8a';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=ef1c76a45d8a';
+import { ARENA_HOOKS } from '../data/story-arena.js?v=ef1c76a45d8a';
 import {
-  ARENA_RANKS, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
+  ARENA_RANKS, ARENA_LEGEND_RANK, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
-} from '../data/arena.js?v=cd82616ef3db';
+} from '../data/arena.js?v=ef1c76a45d8a';
 // 第45回: 竜王のしるしを もらえるか（data/companions-dqm.js）
-import { dqKeyDue } from '../data/companions-dqm.js?v=cd82616ef3db';
+import { dqKeyDue } from '../data/companions-dqm.js?v=ef1c76a45d8a';
 
 const say = (who, text) => ['say', who, text];
 const CLERK = '闘技場の受付';
@@ -66,7 +66,9 @@ export async function arenaDesk(run) {
 function bestText(c) {
   const best = Math.max(0, ...ARENA_RANKS.filter((R) => rankCleared(c, R.rank)).map((R) => R.rank));
   if (!best) return 'まずは、ランク1からちょうせんだ！';
-  if (best >= ARENA_RANKS.length) return '伝説のチャンピオンに勝った者が、また来てくれるとは…！';
+  // 第65回 C: ランク10（いちばん 上）・ランク8（伝説のチャンピオン）
+  if (best >= ARENA_RANKS.length) return '星の大王者に勝った、闘技場の大王者が来てくれるとは…！';
+  if (best === ARENA_LEGEND_RANK) return '伝説のチャンピオンに勝った者が、また来てくれるとは…！';
   return `${c.name}は、${rankLabel(best)}まで勝ちぬいているな。`;
 }
 
@@ -176,7 +178,14 @@ export async function runRank(run, n) {
   // 勝ちぬいた
   run.batch.push(['sfx', 'win'], say(CALLER, `勝者、${names().join('と')}！\n${rankLabel(n)}、勝ちぬきだ！！`));
   const lines = clearRewards(run, n);
-  await run.runSteps([...lines, ...backToDesk([say(CLERK, n >= ARENA_RANKS.length ? 'まさか、伝説のチャンピオンに勝つとは…！\nあんたたちこそ、本物の伝説だ！' : 'おめでとう！入口の「王者のかべ」にも、名前がきざまれたぞ！')])]);
+  await run.runSteps([...lines, ...backToDesk([say(CLERK, clearText(n))])]);
+}
+
+// 勝ちぬいた ときの 受付の ことば（第65回 C: ランク8 は 伝説のチャンピオン・ランク10 は いちばん 上）
+function clearText(n) {
+  if (n >= ARENA_RANKS.length) return 'なんと、星の大王者にまで勝つとは…！\nあんたたちこそ、闘技場の大王者だ！';
+  if (n === ARENA_LEGEND_RANK) return 'まさか、伝説のチャンピオンに勝つとは…！\nあんたたちこそ、本物の伝説だ！';
+  return 'おめでとう！入口の「王者のかべ」にも、名前がきざまれたぞ！';
 }
 
 // 王者の すがた（台本の showMon）: 3戦目の グループの リーダー（合体技の 組）か ボスの 魔物
@@ -202,6 +211,10 @@ export function clearRewards(run, n) {
         addItem(c, id, 1);
         out.push(['sfx', 'item'], say(null, `${c.name}は${ITEMS[id].name}を手に入れた！`));
       }
+      // 第65回 C: きたえる 素材（ランク9・10）
+      const mats = (R.first.mats || []).filter(([id, k]) => ITEMS[id] && k > 0);
+      for (const [id, k] of mats) addItem(c, id, k);
+      if (mats.length) out.push(['sfx', 'item'], say(null, `${c.name}は${mats.map(([id, k]) => `${ITEMS[id].name}を${k}個`).join('と')}手に入れた！`));
       c.medalSpots = c.medalSpots && typeof c.medalSpots === 'object' ? c.medalSpots : {};
       for (let i = 1; i <= R.first.medals; i++) if (!c.medalSpots[firstMedalId(n, i)]) c.medalSpots[firstMedalId(n, i)] = now;
       out.push(['sfx', 'key'], say(null, `${c.name}は小さなメダルを${R.first.medals}枚手に入れた！`));
@@ -210,6 +223,10 @@ export function clearRewards(run, n) {
       c.medalSpots = c.medalSpots && typeof c.medalSpots === 'object' ? c.medalSpots : {};
       c.medalSpots[nextRepeatMedal(c)] = now;
       out.push(['sfx', 'item'], say(null, `${c.name}は${fmt(R.repeatGold)}ゴールドと、小さなメダルを1枚手に入れた！`));
+      // 第65回: 限界の石（ランク9・10）
+      const rm = (R.repeatMats || []).filter(([id, k]) => ITEMS[id] && k > 0);
+      for (const [id, k] of rm) addItem(c, id, k);
+      if (rm.length) out.push(say(null, `${c.name}は${rm.map(([id, k]) => `${ITEMS[id].name}を${k}個`).join('と')}手に入れた！`));
     }
     // 第45回: 大事な物（ランク8 の 竜王のしるし。1人 1つ）
     if (R.key && dqKeyDue(c, R.key)) {

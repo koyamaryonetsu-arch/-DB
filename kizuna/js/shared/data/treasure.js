@@ -6,35 +6,48 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=cd82616ef3db';
-import { ITEMS, SLOTS } from './items.js?v=cd82616ef3db';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=cd82616ef3db';
-import { makeRng } from '../rng.js?v=cd82616ef3db';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=cd82616ef3db';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=cd82616ef3db';
-import { curveK } from './tm-curve.js?v=cd82616ef3db';
+import { MONSTERS } from './monsters.js?v=ef1c76a45d8a';
+import { ITEMS, SLOTS } from './items.js?v=ef1c76a45d8a';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=ef1c76a45d8a';
+import { makeRng } from '../rng.js?v=ef1c76a45d8a';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=ef1c76a45d8a';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=ef1c76a45d8a';
+import { curveK } from './tm-curve.js?v=ef1c76a45d8a';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）
-export const TM_LV_MAX = 25;
+// 第65回 C: 25 → 35（物語の 敵が Lv68〜76 に なった。Lv35 の 洞窟の 魔物は Lv79〜82）
+export const TM_LV_MAX = 35;
+// 第65回 C: 地図 Lv26 から、第5章〜第7章 第1幕の 魔物も 出る（TM_THEMES の deep。Lv25 までの 洞窟は 前と おなじ）
+export const TM_DEEP_FROM = 26;
 export const TM_BOSS_LV = 10; // 主の データの レベル（monsters-tm.js）
 
 // 洞窟の しゅるい
 //   pool … 出てくる 魔物（地図の レベルに ちかい ものを えらんで 強くする）/ bosses … 主
+//   deep … 第65回 C: 地図 Lv26（TM_DEEP_FROM）から pool に 足す 魔物（第5章〜第7章 第1幕。物語の ボス・配合だけの 魔物は 入れない）
 export const TM_THEMES = {
   earth: {
     label: '土', words: ['大地', '岩', 'まぼろし', 'ねむり', 'ひみつ', '古代'], dark: true, bg: 'cave', bossBg: 'cave_boss',
     pool: ['goblin', 'wolf', 'hedoron', 'armor_crab', 'skeleton', 'dark_bat', 'rockman', 'shadow_mage', 'coconut', 'ghost_pirate', 'coral_golem', 'storm_soldier'],
+    // 岩・古代の 番兵・からくり・影（雲の上の いせき・大地の神殿・時のいせき・時計塔・緑の王国）
+    deep: ['stone_keeper', 'haniwa_soldier', 'earth_pillbug', 'faceless_shade', 'mill_keeper', 'sand_golem', 'gear_beetle', 'ruin_sentinel',
+      'chrono_knight', 'dust_mole', 'clock_bones', 'clock_golem', 'card_soldier', 'teresa', 'curse_lump'],
     bosses: ['tm_golem', 'tm_knight', 'tm_panther'],
   },
   ice: {
     label: '氷', words: ['氷', '雪', '白銀', '冬', '氷河', 'つらら'], dark: false, bg: 'tm_ice', bossBg: 'tm_ice',
     pool: ['ice_pururin', 'armor_crab', 'dark_bat', 'nemuri', 'marine_slime', 'wind_imp', 'shell_knight', 'sea_serpent', 'coral_golem', 'storm_bird'],
+    // 水・空・夜の 魔物（雲の海・影の城の 水の 間・星めぐりの古道・時計塔・みどりの水の神殿）
+    deep: ['star_jelly', 'sky_serpent', 'cloud_wraith', 'mirror_jelly', 'shade_serpent', 'foam_siren', 'toki_hare', 'star_wolf',
+      'warp_wisp', 'toki_owl', 'twin_star', 'bell_sprite', 'tokei_ghost', 'uzu_eel', 'gesso', 'water_youma'],
     bosses: ['tm_serpent', 'tm_king', 'tm_panther'],
   },
   lava: {
     label: '炎', words: ['炎', '火', 'ようがん', '赤岩', '火の山', '火山'], dark: true, bg: 'tm_lava', bossBg: 'tm_lava',
     pool: ['pururin_beth', 'goblin', 'lamp', 'crow', 'skeleton', 'rockman', 'shadow_mage', 'thunder_imp', 'storm_soldier'],
+    // 火・雷・砂・ねじまきの 魔物（雲の上・影の城の 火の 間・千年前・古道・時計塔・緑の王国）
+    deep: ['cloud_wyvern', 'ember_wolf', 'candle_ghost', 'blackflame_knight', 'sand_sprite', 'glass_scorpion', 'sun_ram', 'dust_drake',
+      'cog_roller', 'spring_box', 'wind_devil', 'nokonoko', 'pakkun', 'crow_messenger', 'march_broom', 'curse_lump'],
     bosses: ['tm_dragon', 'tm_golem', 'tm_knight'],
   },
 };
@@ -91,6 +104,10 @@ export function tmTitle(tm) {
 
 // 第40回: 洞窟の ふつうの 魔物は、その レベルの ふつうの 魔物より 少し 手ごわく（もとの 魔物は 技が 少ないので。HP・攻撃・魔力に かける）
 export const TM_CAVE_POW = 1.15;
+// 第65回 C: 地図 Lv26 からの 魔物（deep）は もとから 技が 多いので、少しだけ ひかえめ（0.95。ほうしゅうは へらさない）
+//   めやす（tools/sim-tm.mjs）: 魔物の レベル＋3 の 4人（店の 装備）で 勝率 9わり 以上・HP残 7わり くらい（Lv26 95%・30 94%・35 94%）
+export const TM_DEEP_POW = 0.95;
+export const tmCavePow = (lv) => (lv >= TM_DEEP_FROM ? TM_DEEP_POW : TM_CAVE_POW);
 // 魔物の 強さ（レベル）。深い 階ほど すこし 強い
 export function enemyLvOf(lv, floor = 1) {
   return 9 + lv * 2 + (floor - 1) * 0.6;
@@ -104,7 +121,10 @@ export function bossLvOf(seed, lv) {
 //   めやす（tools/sim-boss.mjs の tm）: 主の レベル＋3 の 主人公（その ころの 店の 装備・職業Lv10・完全オート）で 勝率 7〜9わり（地図Lv4 88%・8 81%・12 85%・16 72%・20 86%・25 86%。12回ずつ）。
 //   地図 Lv の 間は まっすぐ つなぐ。TM_BOSS_ADJ … 主ごとの ちがいを ならす（ゴーレムは 手下を よぶので ひかえめ・へびと パンサーは 軽いので 多め）
 //   （第32回の 「地図 Lv8 から +30〜105%」 と tmPow は、前の 強くしかた〈(L+6)/(L0+6)〉の ための もの。もう 使わない）
-export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66]];
+//   第65回 C: 地図 Lv26〜35（主は Lv65〜84）を 足した。おなじ めやすで 30回ずつ（node tools/sim-boss.mjs 30 tm 26,28,30,32,35）:
+//     地図Lv26 88%・28 86%・30 87%・32 84%・35 82%（第65回の 今の しくみでは Lv25 の 0.66 は 97%。Lv25 までは かえない）。
+//     倍率の 0.03 の ちがいで 勝率が 1わり 以上 かわる（0.70 で 9わり半・0.76 で 5〜7わり）ので、Lv26 から 少し 上げて 0.74（Lv35 は 0.73）に
+export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66], [26, 0.74], [30, 0.74], [35, 0.73]];
 export const TM_BOSS_ADJ = { tm_golem: 0.85, tm_dragon: 0.9, tm_king: 0.97, tm_knight: 0.97, tm_serpent: 1.06, tm_panther: 1.06 };
 export const TM_POW_FROM = 8;
 export function tmBossPow(lv, species) {
@@ -123,12 +143,18 @@ export function encounterZone(lv, theme) {
   return `tm${lv}${theme[0]}`;
 }
 
+// 出てくる かもしれない 魔物（地図 Lv26 からは deep も）
+export function tmPoolOf(lv, theme) {
+  const th = TM_THEMES[theme];
+  return lv >= TM_DEEP_FROM ? [...th.pool, ...(th.deep || [])] : th.pool.slice();
+}
+
 // 地図の レベルと 洞窟の しゅるいで きまる 魔物の くみあわせ（ENCOUNTER_TABLES に 入れる）
 export function ensureEncounterTable(lv, theme) {
   const zone = encounterZone(lv, theme);
   if (ENCOUNTER_TABLES[zone]) return zone;
   const L = enemyLvOf(lv, 1);
-  const pool = TM_THEMES[theme].pool.filter((sp) => MONSTERS[sp]).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
+  const pool = tmPoolOf(lv, theme).filter((sp) => MONSTERS[sp]).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
   let pick = pool.filter((sp) => MONSTERS[sp].lv <= L + 1 && MONSTERS[sp].lv >= L - 9);
   if (pick.length < 4) pick = pool.slice().sort((a, b) => Math.abs(MONSTERS[a].lv - L) - Math.abs(MONSTERS[b].lv - L)).slice(0, 4).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
   pick = pick.slice(-6);
@@ -212,7 +238,7 @@ export function scaledRewardBonus(battle) {
 // ───────────── 宝箱の なかみ ─────────────
 // 第31回: 地図の 名前（大地・氷・炎 …）に ちなんだ レア装備（data/rare-loot.js）。地図の レベルが 高いほど ランクと レア度が 上がる
 //   ふつうの 宝箱 … レア装備 6〜13%（★2〜★4）・店の 装備 15% ほか / 主の 宝箱（bossA）… 75% レア装備（★3・★4 が 出やすい）、こうふくの靴が まれに
-// 店の 装備の ランク（地図 Lv1〜3 は 3・Lv12 で 7・Lv16 から 9）
+// 店の 装備の ランク（地図 Lv1〜3 は 3・Lv12〜25 で 7・第65回: Lv26 から 9）
 export function equipRankOf(lv) {
   return clamp(tmGearRank(lv) - 1, 3, 9);
 }
@@ -238,6 +264,8 @@ const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone', '
 
 // rng … 宝箱ごとに きまった 乱数（洞窟の seed から）/ kind: 'normal' | 'bossA' | 'bossB'
 // cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）
+// 第65回: 主の 宝箱に 限界の石が 入る 地図の レベル
+export const TM_LIMIT_LV = 30;
 export function chestLoot(rng, lv, kind = 'normal', cave = null) {
   const pools = equipPools();
   const rank = equipRankOf(lv);
@@ -257,7 +285,9 @@ export function chestLoot(rng, lv, kind = 'normal', cave = null) {
     const [item, n] = rng.pick(pool);
     return { item, n };
   };
-  if (kind === 'bossA') return rng.chance(0.5) ? rare() : mat();
+  // 第65回: 地図 Lv30 から、主の 宝箱の 素材の かわりに 限界の石が 出る ことが ある（data/forge.js の 限界とっぱ）
+  const stone = () => (lv >= TM_LIMIT_LV && rng.chance(0.6) ? { item: 'limit_stone', n: 1 } : mat());
+  if (kind === 'bossA') return rng.chance(0.5) ? rare() : stone();
   if (kind === 'bossB') {
     const r = rng.next();
     if (r < 0.45) return { gold: Math.round((400 + lv * 220) * rng.float(0.9, 1.2) * REWARD_GOLD_RATE / 10) * 10 };
@@ -266,7 +296,8 @@ export function chestLoot(rng, lv, kind = 'normal', cave = null) {
   }
   const r = rng.next();
   // 第64回 ⑥d: レア装備 0.06+0.006×Lv → 0.04+0.004×Lv・店の 装備 15% → 5%（のこりの 10% は 素材）
-  const rareP = 0.04 + lv * 0.004;
+  // 第65回 C: Lv25 より 上は Lv25 の 14% の まま（TM_RARE_LV_CAP）
+  const rareP = 0.04 + Math.min(lv, TM_RARE_LV_CAP) * 0.004;
   if (r < rareP) return rare();
   if (r < rareP + 0.05) return equip();
   if (r < rareP + 0.15) return mat();

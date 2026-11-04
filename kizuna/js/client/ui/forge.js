@@ -8,27 +8,27 @@
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
 //             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { sourcesFlow } from './sources.js?v=cd82616ef3db';
-import { salvageOf } from '../../shared/data/salvage.js?v=cd82616ef3db';
-import { el, esc } from './dom.js?v=cd82616ef3db';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=cd82616ef3db';
-import { request } from './shop.js?v=cd82616ef3db';
-import { rankText } from './info.js?v=cd82616ef3db';
-import { rareNameHtml } from './rarity.js?v=cd82616ef3db';
-import { ITEMS } from '../../shared/data/items.js?v=cd82616ef3db';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=cd82616ef3db';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=cd82616ef3db';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=cd82616ef3db';
-import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=cd82616ef3db';
-import { bindAlchemy } from './alchemy.js?v=cd82616ef3db';
-import { computeStats, itemCount } from '../../shared/stats.js?v=cd82616ef3db';
-import { boardIconURL } from '../render/boards.js?v=cd82616ef3db';
+import { sourcesFlow } from './sources.js?v=ef1c76a45d8a';
+import { salvageOf } from '../../shared/data/salvage.js?v=ef1c76a45d8a';
+import { el, esc } from './dom.js?v=ef1c76a45d8a';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=ef1c76a45d8a';
+import { request } from './shop.js?v=ef1c76a45d8a';
+import { rankText } from './info.js?v=ef1c76a45d8a';
+import { rareNameHtml } from './rarity.js?v=ef1c76a45d8a';
+import { ITEMS } from '../../shared/data/items.js?v=ef1c76a45d8a';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=ef1c76a45d8a';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=ef1c76a45d8a';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=ef1c76a45d8a';
+import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=ef1c76a45d8a';
+import { bindAlchemy } from './alchemy.js?v=ef1c76a45d8a';
+import { computeStats, itemCount } from '../../shared/stats.js?v=ef1c76a45d8a';
+import { boardIconURL } from '../render/boards.js?v=ef1c76a45d8a';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
 const HINTS = {
   craft: '素材とゴールドで、店では売っていない装備を作る。\n物語が進むと、作れる物がふえる。',
-  upgrade: `店では買えない装備（★2から）をきたえる。1回ごとに攻撃力や守備力が上がる。\n店の品（★1）は、きたえられない。\nきたえられる回数は、装備のランクで決まる。（最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。\nれん金がまで同じ装備を2つ合わせると、回数がふえる。`,
+  upgrade: `店では買えない装備（★2から）をきたえる。1回ごとに攻撃力や守備力が上がる。\n店の品（★1）は、きたえられない。\nきたえられる回数は、装備のランクで決まる。（最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。\nれん金がまで同じ装備を2つ合わせると、回数がふえる。\n上限まできたえると、限界の石で限界とっぱ（★3まで）。`,
   salvage: 'いらない装備（★2から）を分解して、素材にもどす。\nきたえる時に使う素材が手に入る。\n店の品（★1）・ボスの品・装備している物は分解できない。',
   exit: '',
 };
@@ -274,7 +274,9 @@ function upgradeBox(game, cand) {
     return box;
   }
   // きたえられる 回数（ランクで きまる ＋ れん金で ふやした 回数）。生まれ変わる 武器は 上限を こえても きたえられる
-  box.append(el('div', { class: 'small muted forge-limit', text: cost.over
+  // 第65回: 上限まで きたえて ある → 限界とっぱ（★1〜★3）
+  if (cost.limit) box.append(el('div', { class: 'detail forge-reborn', text: `上限（+${it.plus || 0}）まで。限界の石で★${cost.lb}にできるぞ！\n${cost.lb === 1 ? '★1からは、れん金の効果を2つつけられる。' : 'もう1回きたえたぶん強くなる。'}` }));
+  else box.append(el('div', { class: 'small muted forge-limit', text: cost.over
     ? `この装備は+${maxPlus(cand.id)}まで…のはずだが、\nまだきたえられそうだ。（今は+${it.plus || 0}）`
     : `この装備は+${maxPlus(cand.id)}まできたえられる。（今は+${it.plus || 0}）` }));
   const before = statLines(cand.id);
@@ -352,7 +354,7 @@ async function upgradeLoop(game, ct) {
         value: i,
         label: ITEMS[c.id].name,
         html: `${c.who ? '<span class="tag e">E</span>' : ''}${rareNameHtml(c.id)}${c.who ? `<span class="cnt">${esc(c.whoName)}</span>` : c.n > 1 ? `<span class="cnt">×${c.n}</span>` : ''}`,
-        right: c.seed ? '？？？' : cost ? (cost.reborn ? '？？？' : `+${cost.n}へ${cost.over ? '？' : ''}`) : '最大',
+        right: c.seed ? '？？？' : cost ? (cost.reborn ? '？？？' : cost.limit ? `★${cost.lb}へ` : `+${cost.n}へ${cost.over ? '？' : ''}`) : '最大',
         rightCls: !cost ? 'muted' : lack.ok ? 'gold' : 'dis',
         disabled: !canUpgrade(c.id),
       };
@@ -366,7 +368,7 @@ async function upgradeLoop(game, ct) {
     if (!cost) continue;
     const lack = lackOf(game.me, cost);
     if (!lack.ok) {
-      await ct.say(`${it.name}を${cost.reborn ? 'もう1回' : `+${cost.n}に`}きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n${lack.mats.length ? '素材が足りないようだな。' : 'ゴールドが足りないようだな。'}`);
+      await ct.say(`${it.name}を${cost.reborn ? 'もう1回' : cost.limit ? `★${cost.lb}に` : `+${cost.n}に`}きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n${lack.mats.length ? '素材が足りないようだな。' : 'ゴールドが足りないようだな。'}`);
       await ct.tap(2600);
       if (lack.mats.length) await sourcesFlow(game, ct, lack.mats); // 第64回 ⑥a: 入手先
       line = AGAIN;
@@ -374,6 +376,7 @@ async function upgradeLoop(game, ct) {
     }
     const yes = await ct.ask(cost.reborn
       ? `${it.name}をもう1回きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n…何かが起こりそうだ。きたえるか？`
+      : cost.limit ? `${it.name}を限界とっぱ（★${cost.lb}）するには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\nとっぱするか？`
       : `${it.name}を+${cost.n}にきたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\nきたえるか？`);
     if (ct.closed) return;
     if (yes !== 0) {

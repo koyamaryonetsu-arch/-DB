@@ -78,6 +78,9 @@ export const T = {
   TIME_DOOR: 315, FACE_STARS: 316,
   // 第2部 第7章 Step 1・2「みどりの水の神殿」（maps/c7-temple.js・render/tiles-c7.js）。317 から
   C7_CUR_N: 317, C7_CUR_E: 318, C7_CUR_S: 319, C7_CUR_W: 320, C7_LOTUS: 321, C7_SAND: 322, C7_SPOUT_FLOOR: 323, C7_SPOUT: 324, C7_GUARD: 325,
+  // 第2部 第7章 Step 3・4「しずむ前の島の灯台」と 千年前の クモイの 海（maps/c7s-light.js・c7s-sea.js・render/tiles-c7s.js）。326 から
+  C7S_BOARD: 326, C7S_WET_SAND: 327, C7S_BELL: 328, C7S_WAVE_FLOOR: 329, C7S_WAVE: 330, C7S_KDOOR: 331, C7S_CABINET: 332,
+  C7S_LAMP: 333, C7S_LAMP_ON: 334, C7S_DRY: 335, C7S_REEF: 336,
 };
 
 export const TILE_INFO = {};
@@ -412,6 +415,18 @@ def(T.C7_SAND, 'c7_sand', { solid: true, mapColor: '#c8a868' }); // 今の か�
 def(T.C7_SPOUT_FLOOR, 'c7_spout_floor', { mapColor: '#5a7a7a' }); // 水が ふき上げる あなの ある ゆか（水が 出ていない 間は 歩ける）
 def(T.C7_SPOUT, 'c7_spout', { solid: true, anim: true, mapColor: '#9ad8f0' }); // ふき上げる 水の 柱（通れない）
 def(T.C7_GUARD, 'c7_guard', { solid: true, mapColor: '#7a8a7a' }); // 神殿の 番人の 石像（石の 箱を かかえている）
+// 第7章 Step 3・4: 灯台の うき板・引き潮の ぬれた 砂・しおの 鐘・大波・からくりの とびら・かべの 戸だな・灯台の 大ランプ・今の かわいた 海の そこ・サンゴの 岩
+def(T.C7S_BOARD, 'c7s_board', { water: true, anim: true, mapColor: '#a8784a' }); // 満ち潮の 水に うかぶ 木の うき板（歩ける）
+def(T.C7S_WET_SAND, 'c7s_wet_sand', { mapColor: '#b8a078' }); // 引き潮で 出てきた ぬれた 砂（歩ける）
+def(T.C7S_BELL, 'c7s_bell', { solid: true, mapColor: '#d8b040' }); // しおの 鐘（しらべると しおが 満ちる・引く）
+def(T.C7S_WAVE_FLOOR, 'c7s_wave_floor', { mapColor: '#6a8aa0' }); // 大波が うちよせる 通路（波が 来ていない 間は 歩ける）
+def(T.C7S_WAVE, 'c7s_wave', { solid: true, anim: true, mapColor: '#bfe8f8' }); // うちよせる 大波（通れない）
+def(T.C7S_KDOOR, 'c7s_kdoor', { solid: true, mapColor: '#7a5a3a' }); // さびた からくりの とびら（合言葉で 開く）
+def(T.C7S_CABINET, 'c7s_cabinet', { solid: true, mapColor: '#8a6a4a' }); // かべの 小さな 戸だな（時をこえる手紙を 入れる）
+def(T.C7S_LAMP, 'c7s_lamp', { solid: true, mapColor: '#8a8a9a' }); // 灯台の 大ランプ（火が 消えている）
+def(T.C7S_LAMP_ON, 'c7s_lamp_on', { solid: true, anim: true, light: true, mapColor: '#ffe890' }); // 灯台の 大ランプ（火が ともっている）
+def(T.C7S_DRY, 'c7s_dry', { mapColor: '#b8b0a0' }); // 今の かわいた 海の そこ（貝がらと サンゴの かけら。歩ける）
+def(T.C7S_REEF, 'c7s_reef', { solid: true, water: true, anim: true, mapColor: '#e87a7a' }); // 海の 中の サンゴの 岩（通れない）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

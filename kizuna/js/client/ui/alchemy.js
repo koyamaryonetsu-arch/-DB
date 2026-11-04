@@ -6,19 +6,19 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
-import { sourcesFlow } from './sources.js?v=cd82616ef3db';
-import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js?v=cd82616ef3db';
-import { el, esc } from './dom.js?v=cd82616ef3db';
-import { Counter, itemInfo, myTeam } from './counter.js?v=cd82616ef3db';
-import { request } from './shop.js?v=cd82616ef3db';
-import { itemCount } from '../../shared/stats.js?v=cd82616ef3db';
-import { rareNameHtml } from './rarity.js?v=cd82616ef3db';
-import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=cd82616ef3db';
-import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=cd82616ef3db';
-import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=cd82616ef3db';
+import { sourcesFlow } from './sources.js?v=ef1c76a45d8a';
+import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js?v=ef1c76a45d8a';
+import { el, esc } from './dom.js?v=ef1c76a45d8a';
+import { Counter, itemInfo, myTeam } from './counter.js?v=ef1c76a45d8a';
+import { request } from './shop.js?v=ef1c76a45d8a';
+import { itemCount } from '../../shared/stats.js?v=ef1c76a45d8a';
+import { rareNameHtml } from './rarity.js?v=ef1c76a45d8a';
+import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=ef1c76a45d8a';
+import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=ef1c76a45d8a';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=ef1c76a45d8a';
 import {
-  ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
-} from '../../shared/data/alchemy.js?v=cd82616ef3db';
+  ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, LB_MAX, limitMerge, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
+} from '../../shared/data/alchemy.js?v=ef1c76a45d8a';
 
 // きたえる 回数を 見る 人を 自分の キャラに（道具の 説明・かじ屋の 画面。data/forge.js）
 export function bindAlchemy(game) {
@@ -60,7 +60,8 @@ function potBox(game, pot) {
   box.append(el('div', { class: 'hd', text: 'れん金がまの中' }));
   box.append(el('div', { class: 'al-slots' }, ...(pot.ins || []).map((id) => el('span', { class: 'al-slot', text: nameOf(id) }))));
   box.append(el('div', { html: `できる物: ${pot.known ? rareNameHtml(pot.out) : '？？？'}` }));
-  if (pot.merge) box.append(el('div', { class: 'small', text: `${nameOf(pot.merge)}のきたえられる回数が1ふえる` }));
+  if (pot.lb) box.append(el('div', { class: 'small', text: `${nameOf(pot.merge)}が限界とっぱする（★${pot.lb}）` }));
+  else if (pot.merge) box.append(el('div', { class: 'small', text: `${nameOf(pot.merge)}のきたえられる回数が1ふえる` }));
   box.append(el('div', { class: 'al-steps', text: `あと${pot.left}歩ほど` }));
   box.append(el('div', { class: 'small muted', text: '歩いていると完成する。' }), el('div', { class: 'small muted', text: '（できたら知らせが出て、ふくろに入る）' }));
   return box;
@@ -97,9 +98,15 @@ function mergeChoices(game) {
   const out = [];
   for (const [b, ids] of groups) {
     if (ids.length < 2) continue;
-    ids.sort((x, y) => (ITEMS[y].plus || 0) - (ITEMS[x].plus || 0));
-    // きたえた 回数が いちばん 多い 物と、いちばん 少ない 物（少ない ほうが なくなる）
-    out.push({ base: b, ids: [ids[0], ids[ids.length - 1]], n: ids.length, full: capUp(game.me, b) >= CAP_UP_MAX });
+    ids.sort((x, y) => (ITEMS[y].plus || 0) - (ITEMS[x].plus || 0) || (ITEMS[y].lb || 0) - (ITEMS[x].lb || 0));
+    // 回数を ふやす: きたえた 回数が いちばん 多い 物と、いちばん 少ない 物（少ない ほうが なくなる）
+    if (capUp(game.me, b) < CAP_UP_MAX) {
+      out.push({ base: b, ids: [ids[0], ids[ids.length - 1]], n: ids.length, full: false });
+      continue;
+    }
+    // 第65回: 限界とっぱ（上限まで きたえた 物を 2つ。★の 多い ほうが のこって ★が 1つ ふえる）
+    const lb = limitMerge([ids[0], ids[1]], game.me);
+    out.push({ base: b, ids: [ids[0], ids[1]], n: ids.length, full: !!lb.why, lb: lb.k || 0, why: lb.why || null, out: lb.out || null });
   }
   return out;
 }
@@ -245,7 +252,7 @@ async function recipeLoop(game, ct, busy) {
     const pick = await ct.pick(rows, {
       start: Math.min(idx, rows.length - 1),
       onMove: (x) => ct.info(!x ? null : x.value === MERGE_RECIPE
-        ? el('div', { class: 'detail', text: `同じ武具（武器・よろい・たて・頭）を2つ入れると、きたえられる回数が1ふえる。\n（1つの装備で${CAP_UP_MAX}回まで。レア度は変わらない。きたえた回数が多いほうが残る）` })
+        ? el('div', { class: 'detail', text: `同じ武具（武器・よろい・たて・頭）を2つ入れると、きたえられる回数が1ふえる。\n（1つの装備で${CAP_UP_MAX}回まで。レア度は変わらない。きたえた回数が多いほうが残る）\n${CAP_UP_MAX}回ふやしたあとは、上限まできたえた物を2つ入れると限界とっぱ（★${LB_MAX}まで）。` })
         : recipeBox(game, x.value)),
     });
     if (ct.closed || !pick) return false;
@@ -272,6 +279,21 @@ async function recipeLoop(game, ct, busy) {
   return false;
 }
 
+// 同じ 武具を 2つ: 右の まど（限界とっぱの ときは、できる 物と わけ）
+function mergeInfo(game, m) {
+  const box = el('div', {});
+  const info = itemInfo(game, m.lb ? m.out : m.ids[0]);
+  if (info) box.append(info);
+  const top = maxPlus(m.base, game.me);
+  const note = m.lb
+    ? `限界とっぱ（★${m.lb}）！${m.lb === 1 ? '\nれん金の効果を2つつけられるようになる。' : '\nもう1回きたえたぶん強くなる。'}`
+    : m.why === 'capMax' ? `回数はもうふやせない。\n上限（+${top}）まできたえた物を2つ入れると、限界とっぱできる。`
+      : m.why === 'lbMax' ? `もう★${LB_MAX}まで限界とっぱしている。`
+        : m.why === 'rebirth' ? '生まれ変わる武器は、限界とっぱできない。' : '';
+  if (note) box.append(el('div', { class: 'detail', text: note }));
+  return box;
+}
+
 // 同じ 武具を 2つ
 async function mergeLoop(game, ct) {
   while (!ct.closed) {
@@ -283,14 +305,17 @@ async function mergeLoop(game, ct) {
     }
     const rows = list.map((m, i) => {
       const top = maxPlus(m.base, game.me);
-      return { value: i, html: `${rareNameHtml(m.base)}<span class="cnt">×${m.n}</span>`, right: m.full ? '最大' : `+${top}→+${top + 1}`, rightCls: m.full ? 'muted' : 'gold', disabled: m.full };
+      const right = m.lb ? `★${m.lb}へ` : m.full ? (m.why === 'capMax' ? `+${top}まで` : '最大') : `+${top}→+${top + 1}`;
+      return { value: i, html: `${rareNameHtml(m.base)}<span class="cnt">×${m.n}</span>`, right, rightCls: m.full ? 'muted' : 'gold', disabled: m.full };
     });
     await ct.say('どの武具を入れる？', { narr: true });
-    const pick = await ct.pick(rows, { onMove: (x) => ct.info(x ? itemInfo(game, list[x.value].ids[0]) : null) });
+    const pick = await ct.pick(rows, { onMove: (x) => ct.info(x ? mergeInfo(game, list[x.value]) : null) });
     if (ct.closed || !pick) return false;
     const m = list[pick.value];
     const top = maxPlus(m.base, game.me);
-    const yes = await ct.ask(`${insText(m.ids)}を入れる？\n（${nameOf(m.base)}は+${top}→+${top + 1}まできたえられるようになる）`);
+    const yes = await ct.ask(m.lb
+      ? `${insText(m.ids)}を入れる？\n（${nameOf(m.ids[0])}が限界とっぱして、${nameOf(m.out)}になる）`
+      : `${insText(m.ids)}を入れる？\n（${nameOf(m.base)}は+${top}→+${top + 1}まできたえられるようになる）`);
     if (ct.closed) return false;
     if (yes === 0 && await put(game, ct, m.ids)) return true;
   }

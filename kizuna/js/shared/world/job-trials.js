@@ -1,18 +1,19 @@
 // 第38回 B: 職業の試練（ルミナの町の 星の神殿の「試練の番人」。だいほんは data/story-trials.js、きまりは data/job-trials.js）
-// ・超級職・伝説の職業で、今の 職業の「〇〇の一の試練」（Lv10 から）・「〇〇の二の試練」（Lv15 から）を 受けられる
-// ・1. 修行（その 職業の 技を、勝った 戦いで N回 使う。world/battles.js が 数える）→ 2. 師しょうのまぼろしと 戦う → 上限が 15・20 に
+// ・超級職・伝説の職業で、今の 職業の「〇〇の一の試練」（Lv10 から）・「〇〇の二の試練」（Lv15 から）・
+//   「〇〇の三の試練」（Lv20 から。第6章クリアの あと。第65回 D1）を 受けられる
+// ・1. 修行（その 職業の 技を、勝った 戦いで N回 使う。world/battles.js が 数える）→ 2. 師しょうのまぼろしと 戦う → 上限が 15・20・25 に
 // ・ひとりずつ（自分の 職業）。師しょうのまぼろしの 戦いには、そばに いる 家族も 入る（とちゅうから かけつけても よい）。
 //   勝っても 上限が 上がるのは 試練を 受けた 人だけ。負けても お金は へらない（その場で 立ち上がる）
-import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=cd82616ef3db';
+import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=ef1c76a45d8a';
 import {
-  TRIALS, trialState, acceptTrial, clearTrial, trialName, masterName, trialWords, titleFor, jobUpKeys, jobTopCap,
-} from '../data/job-trials.js?v=cd82616ef3db';
-import { JOBS, TIER_NAMES, JOB_MAX_LEVEL } from '../data/jobs.js?v=cd82616ef3db';
-import { jobLabel } from '../job-label.js?v=cd82616ef3db';
-import { STAT_NAMES } from '../stats.js?v=cd82616ef3db';
-import { startFixedBattle, battleSessions } from './battles.js?v=cd82616ef3db';
-import { partyOf } from './party.js?v=cd82616ef3db';
-import { setupTrialPhantom } from '../battle-trial.js?v=cd82616ef3db';
+  TRIALS, TRIAL_FLAG_TEXT, trialState, acceptTrial, clearTrial, trialName, masterName, trialWords, titleFor, jobUpKeys, jobTopCap,
+} from '../data/job-trials.js?v=ef1c76a45d8a';
+import { JOBS, TIER_NAMES, JOB_MAX_LEVEL } from '../data/jobs.js?v=ef1c76a45d8a';
+import { jobLabel } from '../job-label.js?v=ef1c76a45d8a';
+import { STAT_NAMES } from '../stats.js?v=ef1c76a45d8a';
+import { startFixedBattle, battleSessions } from './battles.js?v=ef1c76a45d8a';
+import { partyOf } from './party.js?v=ef1c76a45d8a';
+import { setupTrialPhantom } from '../battle-trial.js?v=ef1c76a45d8a';
 
 const say = (text) => ['say', TRIAL_KEEPER, text];
 const note = (text) => ['say', null, text];
@@ -41,7 +42,7 @@ export async function keeperTalk(run) {
   if (!c.flags?.trial_seen) {
     steps.push(
       say('わしは試練の番人。\n超級職より上の者に、職業の試練をさずけておる。'),
-      say(`試練をこえると、職業レベルを${JOB_MAX_LEVEL}より上に上げられる。\n一の試練でLv${TRIALS[0].cap}、二の試練でLv${TRIALS[1].cap}までじゃ。`),
+      say(`試練をこえると、職業レベルを${JOB_MAX_LEVEL}より上に上げられる。\n${TRIALS.map((T) => `${T.name}でLv${T.cap}`).join('、')}までじゃ。`),
       say('ただし、新しい技は覚えぬ。\nレベルが上がるたびに、その職業の得意な強さが\n少しずつのびるだけじゃ。'),
     );
     c.flags.trial_seen = true;
@@ -82,6 +83,14 @@ export async function keeperTalk(run) {
     return run.runSteps(steps);
   }
   const T = st.next;
+  if (st.why === 'story') {
+    // 第65回 D1: 三の試練は 物語の しるし（第6章クリア）が いる
+    steps.push(
+      say(`${trialName(id, T.n, c)}の相手は、とても強いまぼろしじゃ。\n強さは、Lv${T.lv}くらいの者と同じくらいある。`),
+      say(`${TRIAL_FLAG_TEXT[T.flag] || 'もっと旅をして'}から、受けに来るがよい。`),
+    );
+    return run.runSteps(steps);
+  }
   if (!st.canTake) {
     steps.push(say(`${trialName(id, T.n, c)}は、${J}の職業レベルが\n${T.needLv}になったら受けられる。（今はLv${st.lv}）`), say('もっと戦って、きたえてくるがよい。'));
     return run.runSteps(steps);

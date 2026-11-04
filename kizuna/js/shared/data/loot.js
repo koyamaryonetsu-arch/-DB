@@ -6,6 +6,7 @@
 //     rare   … めったに 落とさない 物。装備か 種（書かなければ DROP_N.rare）
 //   drops: { boss: ['rock_bangle'] }
 //     boss   … ボスが かならず 落とす 物（1人 1つの 品）
+//     bonus  … ボスが かならず 落とす 素材（第65回。たおす たびに）
 //
 // きまり（長い 物語でも おなじ）
 //   ・1体から 落ちるのは 1つまで。さきに レア、だめなら よく落とす 物
@@ -15,25 +16,26 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 //   ・第31回: ボスは ちなんだ レア装備も（kind 'brare'。第32回から かならず: BOSS_RARE_N = 1）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=cd82616ef3db';
-import { MONSTERS } from './monsters.js?v=cd82616ef3db';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=cd82616ef3db';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=cd82616ef3db';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=cd82616ef3db';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=cd82616ef3db';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=cd82616ef3db';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=cd82616ef3db';
-import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=cd82616ef3db';
-import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=cd82616ef3db';
-import { EARTH_MAT_DROPS } from './monsters-earth.js?v=cd82616ef3db';
-import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=cd82616ef3db';
-import { PAST_MAT_DROPS } from './monsters-past.js?v=cd82616ef3db';
-import { ROAD_MAT_DROPS } from './monsters-road.js?v=cd82616ef3db';
-import { TOKEI_MAT_DROPS } from './monsters-tokei.js?v=cd82616ef3db';
-import { TOKEI6_MAT_DROPS } from './monsters-tokei6.js?v=cd82616ef3db';
-import { C7_MAT_DROPS } from './monsters-c7.js?v=cd82616ef3db';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=cd82616ef3db';
-import { sdFloorOf } from './secret.js?v=cd82616ef3db';
+import { ITEMS } from './items.js?v=ef1c76a45d8a';
+import { MONSTERS } from './monsters.js?v=ef1c76a45d8a';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=ef1c76a45d8a';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=ef1c76a45d8a';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=ef1c76a45d8a';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=ef1c76a45d8a';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=ef1c76a45d8a';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=ef1c76a45d8a';
+import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=ef1c76a45d8a';
+import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=ef1c76a45d8a';
+import { EARTH_MAT_DROPS } from './monsters-earth.js?v=ef1c76a45d8a';
+import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=ef1c76a45d8a';
+import { PAST_MAT_DROPS } from './monsters-past.js?v=ef1c76a45d8a';
+import { ROAD_MAT_DROPS } from './monsters-road.js?v=ef1c76a45d8a';
+import { TOKEI_MAT_DROPS } from './monsters-tokei.js?v=ef1c76a45d8a';
+import { TOKEI6_MAT_DROPS } from './monsters-tokei6.js?v=ef1c76a45d8a';
+import { C7_MAT_DROPS } from './monsters-c7.js?v=ef1c76a45d8a';
+import { C7S_MAT_DROPS } from './monsters-c7s.js?v=ef1c76a45d8a';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=ef1c76a45d8a';
+import { sdFloorOf } from './secret.js?v=ef1c76a45d8a';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -97,6 +99,8 @@ export const MAT_DROPS = {
   ...TOKEI6_MAT_DROPS,
   // 第2部 第7章 第1幕（monsters-c7.js）
   ...C7_MAT_DROPS,
+  // 第2部 第7章 第2幕（monsters-c7s.js）
+  ...C7S_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;
@@ -116,6 +120,10 @@ export function monsterDrops(species) {
   for (const id of Array.isArray(d.boss) ? d.boss : d.boss ? [d.boss] : []) {
     if (ITEMS[id]) out.push({ item: id, kind: 'boss', n: 1, rate: 1 });
   }
+  // 第65回: ボスが かならず 落とす 素材（1人 1つ では ない。たおす たびに。第7章の ボスの 限界の石）
+  for (const id of Array.isArray(d.bonus) ? d.bonus : []) {
+    if (ITEMS[id]) out.push({ item: id, kind: 'bonus', n: 1, rate: 1 });
+  }
   // ボスに ちなんだ レア装備（第32回から かならず）
   const br = bossRareOf(species);
   if (br) out.push({ item: br, kind: 'brare', n: BOSS_RARE_N, rate: 1 / BOSS_RARE_N });
@@ -129,7 +137,7 @@ export function monsterDrops(species) {
 // where … { map }（戦った マップ。ひみつのダンジョンの 中なら ここだけの 装備が 出る）
 export function rollDrops(species, rng, where = null) {
   const list = monsterDrops(species);
-  const out = list.filter((x) => x.kind === 'boss').map((x) => x.item);
+  const out = list.filter((x) => x.kind === 'boss' || x.kind === 'bonus').map((x) => x.item);
   const brare = list.find((x) => x.kind === 'brare');
   if (brare && rng.chance(brare.rate)) out.push(brare.item);
   const rare = list.find((x) => x.kind === 'rare');

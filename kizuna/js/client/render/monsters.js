@@ -1,38 +1,38 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=cd82616ef3db';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cd82616ef3db';
-import { tintCanvas } from './themes.js?v=cd82616ef3db';
-import { addNightArt } from './night-art.js?v=cd82616ef3db';
-import { addRareArt } from './rare-art.js?v=cd82616ef3db';
-import { addCh3Art } from './ch3-art.js?v=cd82616ef3db';
-import { addCh4Art } from './ch4-art.js?v=cd82616ef3db';
-import { addFamilyArt } from './family-art.js?v=cd82616ef3db';
-import { addR23Art } from './r23-art.js?v=cd82616ef3db';
-import { addCh5Art } from './ch5-tower-art.js?v=cd82616ef3db';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=cd82616ef3db';
-import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=cd82616ef3db';
-import { addEarthArt } from './ch5-earth-mon-art.js?v=cd82616ef3db';
-import { addPhantomArt } from './ch5-phantom-art.js?v=cd82616ef3db';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=ef1c76a45d8a';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ef1c76a45d8a';
+import { tintCanvas } from './themes.js?v=ef1c76a45d8a';
+import { addNightArt } from './night-art.js?v=ef1c76a45d8a';
+import { addRareArt } from './rare-art.js?v=ef1c76a45d8a';
+import { addCh3Art } from './ch3-art.js?v=ef1c76a45d8a';
+import { addCh4Art } from './ch4-art.js?v=ef1c76a45d8a';
+import { addFamilyArt } from './family-art.js?v=ef1c76a45d8a';
+import { addR23Art } from './r23-art.js?v=ef1c76a45d8a';
+import { addCh5Art } from './ch5-tower-art.js?v=ef1c76a45d8a';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=ef1c76a45d8a';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=ef1c76a45d8a';
+import { addEarthArt } from './ch5-earth-mon-art.js?v=ef1c76a45d8a';
+import { addPhantomArt } from './ch5-phantom-art.js?v=ef1c76a45d8a';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
-import { addArenaArt } from './arena-art.js?v=cd82616ef3db';
+import { addArenaArt } from './arena-art.js?v=ef1c76a45d8a';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
-import { addFinalArt } from './ch5-final-mon-art.js?v=cd82616ef3db';
+import { addFinalArt } from './ch5-final-mon-art.js?v=ef1c76a45d8a';
 // 第2部 第6章 Step 1・2: 千年前・時の祠・時の遺跡の 魔物と サンドクロック・ギアドン（ch6-past-art.js）
-import { addPastArt } from './ch6-past-art.js?v=cd82616ef3db';
+import { addPastArt } from './ch6-past-art.js?v=ef1c76a45d8a';
 // 第2部 第6章 Step 3・4: 星めぐりの古道の 魔物と 星くいのよる鳥・ペンデュラ（ch6-road-art.js）
-import { addRoadArt } from './ch6-road-art.js?v=cd82616ef3db';
+import { addRoadArt } from './ch6-road-art.js?v=ef1c76a45d8a';
 // 第2部 第6章 Step 5: 止まった時計塔の 魔物と カリヨン（ch6-tokei-art.js）
-import { addTokeiArt } from './ch6-tokei-art.js?v=cd82616ef3db';
+import { addTokeiArt } from './ch6-tokei-art.js?v=ef1c76a45d8a';
 // 第2部 第6章 Step 6: 時計塔 6〜10階の 魔物・ゼンマイ・歯車（ch6-tokei6-art.js）
-import { addTokei6Art } from './ch6-tokei6-art.js?v=cd82616ef3db';
+import { addTokei6Art } from './ch6-tokei6-art.js?v=ef1c76a45d8a';
 // 第2部 第7章 第1幕: 手下の 魔物・ウツボきょうだい・オクタリア・声の貝（c7-art.js）
-import { addC7Art } from './c7-art.js?v=cd82616ef3db';
+import { addC7Art } from './c7-art.js?v=ef1c76a45d8a';
 // 第44回: ポケモン（第1だん 19しゅるい。pokemon-art.js）
-import { addPokemonArt } from './pokemon-art.js?v=cd82616ef3db';
+import { addPokemonArt } from './pokemon-art.js?v=ef1c76a45d8a';
 // 第45回: ドラクエふう（配合だけの 第2だん 11しゅるい。dqm-art.js）
-import { addDqmArt } from './dqm-art.js?v=cd82616ef3db';
+import { addDqmArt } from './dqm-art.js?v=ef1c76a45d8a';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -870,14 +870,25 @@ addDqmArt(MONSTER_ART);
 const cache = new Map();
 
 // え の きまり。宝の洞窟の 主は ほかの 魔物の え を 大きくして 色がえ（monsters-tm.js の art・artScale・tint）
+// 第65回（第2部 第7章 第2幕から）: 細かく 描いた ボス … 自分の え（MONSTER_ART）に artScale（1より 小さい）が ある 魔物は、
+//   え の size（今までの 2倍）の まま かいて、こまかさ（res）を 1/artScale ばいに する（見た目の 大きさは size × artScale。fine）
+//   どちらも「見た目の 大きさ ＝ size × artScale」
 function artOf(sp) {
   // （tint … え そのものに 色の かえかたが ある もの。影の城の まぼろし）
-  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp], tint: MONSTER_ART[sp].tint };
+  if (MONSTER_ART[sp]) {
+    const k = MONSTERS[sp]?.artScale;
+    return { def: MONSTER_ART[sp], tint: MONSTER_ART[sp].tint, fine: k > 0 && k < 1 ? 1 / k : 1 };
+  }
   const md = MONSTERS[sp];
   const base = md?.art && MONSTER_ART[md.art];
   if (!base) return { def: MONSTER_ART.pururin };
   const k = md.artScale || 1;
-  return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint };
+  return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint, fine: 1 };
+}
+
+// 細かく 描いた ボスか（え の こまかさが ふつうの 何ばいか。1 … ふつう）。client/battle.js が がめんの こまかさを 上げる
+export function monsterFine(sp) {
+  return artOf(sp).fine;
 }
 
 // たたかい用の え（small … フィールド用の ちいさい え。数なら その 大きさまで: ついてくる なかま など）
@@ -885,7 +896,7 @@ export function monsterCanvas(sp, frame = 0, small = false) {
   const key = `${sp}:${frame}:${small ? (small === true ? 1 : small) : 0}`;
   let c = cache.get(key);
   if (c) return c;
-  const { def, tint } = artOf(sp);
+  const { def, tint, fine } = artOf(sp);
   let [w, h] = def.size;
   if (small) {
     // フィールド用の ちいさい え（ふつうは 20ドットまで。とくべつな 大きい 魔物は def.field で すこし 大きく）
@@ -897,6 +908,8 @@ export function monsterCanvas(sp, frame = 0, small = false) {
   c = paintVector(w, h, def.pal, (g) => def.draw(g, frame));
   if (def.fade) fadeCanvas(c, h, def.fade);
   if (tint) c = tintCanvas(c, tint);
+  // 細かく 描いた ボス: ドットの 数は size の まま、見た目は 1/fine の 大きさ（フィールド用の ちいさい え は そのまま）
+  if (fine > 1 && !small) c.res = (c.res || 1) * fine;
   cache.set(key, c);
   return c;
 }
@@ -948,8 +961,10 @@ export function paintVector(w, h, pal, draw) {
   return q.toCanvas();
 }
 
+// 見た目の 大きさ（細かく 描いた ボスは size × artScale）
 export function monsterSize(sp) {
-  return artOf(sp).def.size;
+  const { def, fine } = artOf(sp);
+  return fine > 1 ? def.size.map((v) => Math.round(v / fine)) : def.size;
 }
 
 // フィールドの おおきな NPC の 大きさ（'mon:<id>' の え に npc が あれば その ばい。ないときは null → field.js の きまり）

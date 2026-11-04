@@ -1,37 +1,37 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=cd82616ef3db';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=cd82616ef3db';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=cd82616ef3db';
-import { MONSTERS } from '../data/monsters.js?v=cd82616ef3db';
-import { ITEMS } from '../data/items.js?v=cd82616ef3db';
-import { abilityLabel } from '../ability-label.js?v=cd82616ef3db';
-import { JOBS } from '../data/jobs.js?v=cd82616ef3db';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=cd82616ef3db';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=cd82616ef3db';
+import { Battle, normBattleSettings } from '../battle.js?v=ef1c76a45d8a';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=ef1c76a45d8a';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=ef1c76a45d8a';
+import { MONSTERS } from '../data/monsters.js?v=ef1c76a45d8a';
+import { ITEMS } from '../data/items.js?v=ef1c76a45d8a';
+import { abilityLabel } from '../ability-label.js?v=ef1c76a45d8a';
+import { JOBS } from '../data/jobs.js?v=ef1c76a45d8a';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=ef1c76a45d8a';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=ef1c76a45d8a';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=cd82616ef3db';
-import { befriendShare } from './recruit-share.js?v=cd82616ef3db';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=cd82616ef3db';
-import { rollDrops, stealPick } from '../data/loot.js?v=cd82616ef3db';
-import { MAPS } from '../maps/index.js?v=cd82616ef3db';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=cd82616ef3db';
-import { treasureAfterBattle } from './treasure.js?v=cd82616ef3db';
-import { wipeGoldLoss, bankGold } from './bank.js?v=cd82616ef3db';
-import { lureOn, lureGroup } from './field27.js?v=cd82616ef3db';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=cd82616ef3db';
-import { growthSummary } from './growth.js?v=cd82616ef3db';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=cd82616ef3db';
-import { battleTactics } from './tactics.js?v=cd82616ef3db';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=ef1c76a45d8a';
+import { befriendShare } from './recruit-share.js?v=ef1c76a45d8a';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=ef1c76a45d8a';
+import { rollDrops, stealPick } from '../data/loot.js?v=ef1c76a45d8a';
+import { MAPS } from '../maps/index.js?v=ef1c76a45d8a';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=ef1c76a45d8a';
+import { treasureAfterBattle } from './treasure.js?v=ef1c76a45d8a';
+import { wipeGoldLoss, bankGold } from './bank.js?v=ef1c76a45d8a';
+import { lureOn, lureGroup } from './field27.js?v=ef1c76a45d8a';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=ef1c76a45d8a';
+import { growthSummary } from './growth.js?v=ef1c76a45d8a';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=ef1c76a45d8a';
+import { battleTactics } from './tactics.js?v=ef1c76a45d8a';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
-import { isNightFor } from './clock.js?v=cd82616ef3db';
+import { isNightFor } from './clock.js?v=ef1c76a45d8a';
 // 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
-import { MONSTER_FRIENDS } from '../data/companions.js?v=cd82616ef3db';
+import { MONSTER_FRIENDS } from '../data/companions.js?v=ef1c76a45d8a';
 // 第51回 B: 家族のけいじ板（ひらめき技・合体技を はじめて 覚えた）
-import { boardHirameki, boardDual } from './family-board.js?v=cd82616ef3db';
+import { boardHirameki, boardDual } from './family-board.js?v=ef1c76a45d8a';
 // 第51回 F: 幻の職業の 記録（自分の キャラの 戦いの 記録を 足す・条件が 見えた／なれるように なった 知らせ）
-import { addFeats, phantomAfterBattle } from './phantom.js?v=cd82616ef3db';
+import { addFeats, phantomAfterBattle } from './phantom.js?v=ef1c76a45d8a';
 // 第53回 B: 第6章 Step 6 の 時のまぼろし（1日1回の ★5の 素材・はじめて 勝った 時の けいじ板）
-import { tokiPhantomAfter } from './tokei-phantom.js?v=cd82616ef3db';
+import { tokiPhantomAfter } from './tokei-phantom.js?v=ef1c76a45d8a';
 
 let battleSeq = 1;
 

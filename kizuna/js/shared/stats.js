@@ -1,30 +1,30 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { gearFxStats } from './data/gear-fx.js?v=cd82616ef3db';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=cd82616ef3db';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=cd82616ef3db';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=cd82616ef3db';
-import { MONSTERS } from './data/monsters.js?v=cd82616ef3db';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=cd82616ef3db';
-import { ougiLearn } from './data/abilities-ougi.js?v=cd82616ef3db';
+import { gearFxStats } from './data/gear-fx.js?v=ef1c76a45d8a';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=ef1c76a45d8a';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=ef1c76a45d8a';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=ef1c76a45d8a';
+import { MONSTERS } from './data/monsters.js?v=ef1c76a45d8a';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=ef1c76a45d8a';
+import { ougiLearn } from './data/abilities-ougi.js?v=ef1c76a45d8a';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
-import { rankIdx } from './data/companions.js?v=cd82616ef3db';
+import { rankIdx } from './data/companions.js?v=ef1c76a45d8a';
 // 第44回（ポケモン P1）: レベルで 進化
-import { levelEvolveTo } from './data/companions.js?v=cd82616ef3db';
+import { levelEvolveTo } from './data/companions.js?v=ef1c76a45d8a';
 // 第53回 D: 色ちがいの 仲間（char.color。data/variants.js・data/breed-mix.js）
-import { VARIANT_KINDS, kindOk, colorResist } from './data/variants.js?v=cd82616ef3db';
-import { COLOR_STAT_RATE } from './data/breed-mix.js?v=cd82616ef3db';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=cd82616ef3db';
-import { cleanLook } from './data/looks.js?v=cd82616ef3db';
-import { SKILL_UPS } from './data/skill-ups.js?v=cd82616ef3db';
-import { jobLabel } from './job-label.js?v=cd82616ef3db';
+import { VARIANT_KINDS, kindOk, colorResist } from './data/variants.js?v=ef1c76a45d8a';
+import { COLOR_STAT_RATE } from './data/breed-mix.js?v=ef1c76a45d8a';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=ef1c76a45d8a';
+import { cleanLook } from './data/looks.js?v=ef1c76a45d8a';
+import { SKILL_UPS } from './data/skill-ups.js?v=ef1c76a45d8a';
+import { jobLabel } from './job-label.js?v=ef1c76a45d8a';
 // 第50回 N3: 大事な物の すぐ使う ボタン（はじめて 手に 入れた ときに 自動で えらぶ）
-import { autoQuick } from './data/quick-item.js?v=cd82616ef3db';
+import { autoQuick } from './data/quick-item.js?v=ef1c76a45d8a';
 // 第50回 D4: 上の 職業の 技ほど 消費MPが へる（skill-tier.js）
-import { tierMp } from './skill-tier.js?v=cd82616ef3db';
+import { tierMp } from './skill-tier.js?v=ef1c76a45d8a';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=cd82616ef3db';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=ef1c76a45d8a';
 // 第51回 F: 幻の職業の やりこみの 条件（data/phantom.js）
-import { phantomCondsMet } from './data/phantom.js?v=cd82616ef3db';
+import { phantomCondsMet } from './data/phantom.js?v=ef1c76a45d8a';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;

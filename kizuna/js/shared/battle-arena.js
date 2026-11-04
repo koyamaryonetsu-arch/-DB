@@ -1,22 +1,22 @@
 // 第37回 A: サファラ闘技場の 王者たちの しかけ（battle.js・ai.js・battle-ch5.js から 短い よびだしで よぶ。ほかの たたかいは かわらない）
 //
-// ・チームの 合体技（monsters の arena.team。ランク2 砂嵐三兄弟・ランク8 伝説のチャンピオン）
+// ・チームの 合体技（monsters の arena.team。ランク2 砂嵐三兄弟・ランク8 伝説のチャンピオン・第65回 ランク10 星の大王者）
 //   リーダー（arena.lead）が 合図（前ぶれ。cond 'c5:arTeam2' … 組の 2人いじょうが 生きている）→ 次の 番に 合体技（効果 arCombo）。
 //   ダメージは 生きている 組の 数 ÷ はじめの 組の 数 ばい（3人 そろえば そのまま・2人なら 3分の2）。1人だけに なると くずれて 出せない
-// ・属性の よろい（monsters の arena.armor。ランク7 七色の魔導王）
+// ・属性の よろい（monsters の arena.armor。ランク7 七色の魔導王・第65回 ランク10 星の大王者〈合体技の 組の リーダーでも ある〉）
 //   炎・氷・雷・風の どれかを まとう（効果 arArmor。はじめから 1つ まとっている）。よろいと おなじ 属性の 攻撃は すいこんで HPが ふえる
 //   （absorb ばい）。弱点（weak）の 属性で 当てると weakMult ばいの ダメージで よろいが くだける。くだけて から wait 回 動くと また まとう
 //   （cond 'c5:arNoArmor'）。よろいの 大呪文（効果 arSpell）は まとっている よろいと おなじ 属性
 // ・オートの 仲間（ふつう）は 何も かわらない。シミュレーター（tools/sim-arena.mjs）の 知っている 人（b.knowsArena）は、
 //   大技の 前に 身を 守る（arenaPlan）・合体技の 組の 子分を 先に ねらう・よろいの 属性を さけて 弱点を ねらう・
 //   ふたごの 剣士は HPの 多い ほうを ねらって 2人を そろえて たおす（arenaAdjust）
-import { MONSTERS } from './data/monsters.js?v=cd82616ef3db';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=cd82616ef3db';
+import { MONSTERS } from './data/monsters.js?v=ef1c76a45d8a';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=ef1c76a45d8a';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=cd82616ef3db';
+import { atbRate } from './battle.js?v=ef1c76a45d8a';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
-export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo']);
+export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo']);
 const confOf = (m) => MONSTERS[m?.species]?.arena || null;
 const teamOf = (m) => confOf(m)?.team || null;
 const armorConf = (m) => confOf(m)?.armor || null;

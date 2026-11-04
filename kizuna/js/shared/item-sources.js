@@ -3,15 +3,20 @@
 //     ダンジョンでしか 出ない ときは ダンジョンの 名前。図鑑で 見た 魔物は 名前、まだの 魔物は ？？？（場所は 出す）
 //   ・店で 売っている（data/shops.js）・宝箱（マップの chests）は そのまま 場所
 //   データから 自動で 作る（魔物や マップが ふえても 書きたさなくて よい）
-import { ITEMS } from './data/items.js?v=cd82616ef3db';
-import { MONSTERS } from './data/monsters.js?v=cd82616ef3db';
-import { MAT_DROPS, DROP_N } from './data/loot.js?v=cd82616ef3db';
-import { ENCOUNTER_TABLES } from './data/encounters.js?v=cd82616ef3db';
-import { NIGHT_ZONES } from './data/night.js?v=cd82616ef3db';
-import { SHOPS } from './data/shops.js?v=cd82616ef3db';
-import { MAPS } from './maps/index.js?v=cd82616ef3db';
+import { ITEMS } from './data/items.js?v=ef1c76a45d8a';
+import { MONSTERS } from './data/monsters.js?v=ef1c76a45d8a';
+import { MAT_DROPS, DROP_N } from './data/loot.js?v=ef1c76a45d8a';
+import { ENCOUNTER_TABLES } from './data/encounters.js?v=ef1c76a45d8a';
+import { NIGHT_ZONES } from './data/night.js?v=ef1c76a45d8a';
+import { SHOPS } from './data/shops.js?v=ef1c76a45d8a';
+import { MAPS } from './maps/index.js?v=ef1c76a45d8a';
 
 let cache = null;
+
+// 第65回: データから 自動で わからない 入手先（宝の地図・闘技場・ひみつのダンジョンの ごほうび）
+export const EXTRA_SOURCES = {
+  limit_stone: ['宝の地図の洞窟（Lv30から）の主の宝箱', '闘技場のランク9・10のごほうび', 'ひみつのダンジョンの30階からの休み所'],
+};
 
 // 出現表 → その表を 使う 場所（{ map, name, field }）。昼の 表と 夜の 表は 同じ 場所
 function zonePlaces() {
@@ -79,6 +84,7 @@ function build() {
     if (d.common) addDrop(d.common[0], sp, d.common[1] || DROP_N.common, 'common');
     if (d.rare) addDrop(d.rare[0], sp, d.rare[1] || DROP_N.rare, 'rare');
     if (d.boss) for (const id of [].concat(d.boss)) addDrop(id, sp, 1, 'boss');
+    if (d.bonus) for (const id of [].concat(d.bonus)) addDrop(id, sp, 1, 'boss');
   }
   for (const [sp, [id, n]] of Object.entries(MAT_DROPS)) addDrop(id, sp, n || DROP_N.mat, 'mat');
   // 店・宝箱
@@ -105,7 +111,7 @@ export function monsterPlaces(species) {
 
 // その 道具の 入手先。seen(species) … 図鑑で 見たか（見ていない 魔物は 名前を ？？？）
 //   [{ kind: 'monster', species, name, places: [名前], dungeon: ダンジョンでしか 出ない, n, boss },
-//    { kind: 'shop', name }, { kind: 'chest', name }]
+//    { kind: 'shop', name }, { kind: 'chest', name }, { kind: 'note', name }（EXTRA_SOURCES）]
 export function itemSources(id, seen = () => true) {
   const d = data();
   const out = [];
@@ -121,6 +127,7 @@ export function itemSources(id, seen = () => true) {
   }
   for (const name of d.shops.get(id) || []) out.push({ kind: 'shop', name });
   for (const name of d.chests.get(id) || []) out.push({ kind: 'chest', name });
+  for (const name of EXTRA_SOURCES[id] || []) out.push({ kind: 'note', name });
   return out;
 }
 
@@ -128,6 +135,7 @@ export function itemSources(id, seen = () => true) {
 export function sourceText(s, maxPlaces = 2) {
   if (s.kind === 'shop') return `${s.name}で売っている`;
   if (s.kind === 'chest') return `${s.name}の宝箱`;
+  if (s.kind === 'note') return s.name;
   const where = s.places.length ? `（${s.places.slice(0, maxPlaces).join('・')}${s.places.length > maxPlaces ? 'など' : ''}）` : s.boss ? '（ボス）' : '';
   // 落とす 回数の 目安（何体に 1回）
   const often = s.boss ? '' : s.n <= 5 ? 'よく' : s.n <= 12 ? 'ときどき' : 'たまに';

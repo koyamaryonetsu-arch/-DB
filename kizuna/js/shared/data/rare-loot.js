@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=cd82616ef3db';
-import { MONSTERS } from './monsters.js?v=cd82616ef3db';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=cd82616ef3db';
+import { ITEMS, baseItemId } from './items.js?v=ef1c76a45d8a';
+import { MONSTERS } from './monsters.js?v=ef1c76a45d8a';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=ef1c76a45d8a';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -47,6 +47,8 @@ const SRC_TEXT = {
   clear6: '時計塔のてっぺんでしか手に入らない',
   // 第2部 第7章 第1幕（items-c7.js）: みどりの水の神殿の 宝箱・時をこえる手紙の ごほうび
   c7: 'みどりの水の神殿の宝箱でしか手に入らない', letter7: '時をこえる手紙でしか手に入らない',
+  // 第2部 第7章 第2幕（items-c7s.js）: しずむ前の島の灯台の 宝箱（手紙の ごほうびは letter7 の まま）
+  c7s: 'しずむ前の島の灯台の宝箱でしか手に入らない',
   // 第37回 B: カジノの 景品（宝の地図の 段で ふえる）・すごろくの ゴールや 宝箱
   casino: 'カジノの景品でしか手に入らない', sugoroku: 'すごろくでしか手に入らない',
   // 第37回 A: サファラ闘技場の ごほうび（items-arena.js）
@@ -105,11 +107,19 @@ export const TM_THEME_GROUPS = { earth: ['rock', 'mirage', 'sleep', 'secret', 'a
 export function tmGroupOf(theme, word) {
   return TM_THEME_GROUP[theme] || TM_WORD_GROUP[word] || 'rock';
 }
-// 地図の レベル → 装備の ランク（Lv1 2・Lv4 4・Lv6 5・Lv8 6・Lv10 7・Lv12〜 8）
+// 地図の レベル → 装備の ランク（Lv1 2・Lv4 4・Lv6 5・Lv8 6・Lv10 7・Lv12〜25 8・第65回: Lv26〜35 10）
 // 第5章（店は ランク7）で 地図 Lv10〜12 なら、店と おなじ〜1つ 上
-export const tmGearRank = (lv) => clamp(2 + Math.floor((lv || 1) / 2), 2, 8);
+// 第65回 C: 地図 Lv26 から ランク10 の ★5（items-rare.js の 深い 宝の洞窟の 品。ランク9 は とばす〈第6章の 店が もう ランク10〉）
+export const TM_GEAR_DEEP = 26;
+export const tmGearRank = (lv) => ((lv || 1) >= TM_GEAR_DEEP ? 10 : clamp(2 + Math.floor((lv || 1) / 2), 2, 8));
+// 第65回 C: 宝の洞窟の 品の 「だん」（ランクと おなじ ものさし。ランク10 の 中を 3だんに 分ける: 地図 Lv26〜 10・Lv30〜 11・Lv33〜 12）
+//   Lv25 までは ランクと おなじ。品の だんは tmStep（なければ ランク）
+export const tmGearStep = (lv) => ((lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
+export const tmStepOf = (it) => it?.tmStep ?? it?.rank ?? 0;
 // レア度の 出やすさ（normal: ふつうの 宝箱 / bossA: 主の 宝箱）
+//   第65回 C: 地図 Lv26 から（深い 宝の洞窟の 品は レア度 3〜4）: ふつうの 宝箱は 3 が 多め・主の 宝箱は 4 が 多め
 export function tmRarityWeights(lv, kind = 'normal') {
+  if (lv >= TM_GEAR_DEEP) return kind === 'bossA' ? [{ k: 3, w: 2 }, { k: 4, w: 3 }] : [{ k: 3, w: 3 }, { k: 4, w: lv >= 30 ? 2 : 1 }];
   if (kind === 'bossA') return [{ k: 2, w: 2 }, { k: 3, w: 5 }, { k: 4, w: lv >= 6 ? 3 : 1 }];
   return [{ k: 2, w: 6 }, { k: 3, w: lv >= 4 ? 3 : 1 }, { k: 4, w: lv >= 8 ? 1 : 0 }].filter((x) => x.w > 0);
 }
@@ -117,21 +127,23 @@ export function tmRarityWeights(lv, kind = 'normal') {
 export function pickTmGear(rng, lv, cave = null, kind = 'normal') {
   const theme = cave?.theme && TM_THEME_GROUPS[cave.theme] ? cave.theme : 'earth';
   const grp = tmGroupOf(theme, cave?.word);
-  const R = tmGearRank(lv);
+  // だん（Lv25 までは ランク。第65回: Lv26 から ランク10 の 中の 3だん）
+  const R = tmGearStep(lv);
   const weights = tmRarityWeights(lv, kind);
   const rar = rng.weighted(weights).k;
   const top = Math.max(...weights.map((x) => x.k));
-  const ids = rareIds('tm');
+  // 第65回 C: 深い 洞窟（Lv26〜）は 深い 洞窟の 品（tmStep の ある 品）だけ
+  const ids = R >= 10 ? rareIds('tm').filter((id) => ITEMS[id].tmStep) : rareIds('tm');
   const inTheme = (it) => TM_THEME_GROUPS[theme].includes(it.grp);
-  const near = (it, d) => it.rank >= R - d && it.rank <= R;
+  const near = (it, d) => tmStepOf(it) >= R - d && tmStepOf(it) <= R;
   // おなじ なかま・ランクの 近い 物を いちばんに（レア度は となりまで ゆるめる）。なければ 洞窟の しゅるい ぜんぶから
   const tries = [
     (it) => it.grp === grp && it.rarity === rar && near(it, 1),
     (it) => it.grp === grp && Math.abs(it.rarity - rar) <= 1 && it.rarity <= top && near(it, 1),
     (it) => it.grp === grp && it.rarity <= top && near(it, 2),
     (it) => inTheme(it) && it.rarity <= top && near(it, 1),
-    (it) => inTheme(it) && it.rank <= R,
-    (it) => it.rank <= R,
+    (it) => inTheme(it) && tmStepOf(it) <= R,
+    (it) => tmStepOf(it) <= R,
   ];
   for (const ok of tries) {
     const list = ids.filter((id) => ok(ITEMS[id]));
@@ -139,11 +151,14 @@ export function pickTmGear(rng, lv, cave = null, kind = 'normal') {
   }
   return null;
 }
+// 第65回 C: 宝箱の レア装備の 出やすさが 地図の レベルで ふえるのは Lv25 まで（data/treasure.js の chestLoot・こうふくの靴）
+export const TM_RARE_LV_CAP = 25;
 // こうふくの靴（B が 作る。まだ ない ときは 出さない）。主の 宝箱で まれに・ふつうの 宝箱で ごくまれに
 export const LUCKY_SHOES = 'koufuku_kutsu';
+//   第65回 C: 地図 Lv25 より 上は Lv25 の 出やすさの まま（第64回: 装備が 手に入りすぎない ように）
 export function luckyShoesRate(lv, kind = 'normal') {
   if (!ITEMS[LUCKY_SHOES]) return 0;
-  if (kind === 'bossA') return lv >= 4 ? 0.04 + lv * 0.005 : 0;
+  if (kind === 'bossA') return lv >= 4 ? 0.04 + Math.min(lv, TM_RARE_LV_CAP) * 0.005 : 0;
   return lv >= 6 ? 0.03 : 0;
 }
 

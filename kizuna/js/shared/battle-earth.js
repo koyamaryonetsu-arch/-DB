@@ -18,15 +18,15 @@
 // ・オートの 仲間（ふつう）: だれかが 地われ・のみこまれて いたら、回復の あとで「手をのばす」（reachPlan。かんたんで あぶなくない ので）。
 //   ほかは かわらない。シミュレーター（tools/sim-nocto1.mjs）の 知っている 人（b.knowsNocto1）は、影を 先に たおす・
 //   前ぶれで 間に 合わない ときは 身を 守る（earthPlan）
-import { MONSTERS } from './data/monsters.js?v=cd82616ef3db';
-import { ABILITIES } from './data/abilities.js?v=cd82616ef3db';
-import { NOCTO1, NOCTO_CLONE } from './data/monsters-earth.js?v=cd82616ef3db';
+import { MONSTERS } from './data/monsters.js?v=ef1c76a45d8a';
+import { ABILITIES } from './data/abilities.js?v=ef1c76a45d8a';
+import { NOCTO1, NOCTO_CLONE } from './data/monsters-earth.js?v=ef1c76a45d8a';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=cd82616ef3db';
-import { BUFF_ACTS } from './buff-acts.js?v=cd82616ef3db';
-import { canUse } from './ai.js?v=cd82616ef3db';
+import { atbRate, pub } from './battle.js?v=ef1c76a45d8a';
+import { BUFF_ACTS } from './buff-acts.js?v=ef1c76a45d8a';
+import { canUse } from './ai.js?v=ef1c76a45d8a';
 // 合体技の よやくの 組（ノクトの影と おなじ。battle-nocto.js）
-import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js?v=cd82616ef3db';
+import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js?v=ef1c76a45d8a';
 
 export { NOCTO1, NOCTO_CLONE };
 export const REACH = 'reach';
@@ -48,6 +48,9 @@ export const trappedAllies = (b) => b.aliveAllies().filter((x) => x.status?.rift
 const freeAllies = (b) => b.aliveAllies().filter((x) => !x.status?.rift);
 // alone … 第5章 Step 9 の ソリトゥスの「ひとりにする」（battle-final.js。もどすのは「よびかける」）
 const TRAP_NAME = { rift: '地われ', swallow: 'のみこまれ', alone: 'ひとりぼっち' };
+// 第2部 第7章 第2幕: ほかの たたかいの「動けない」しかけ（ホック船長の 板わたり など）。kind → { name, turn(b, c, ev), reach(t, c, by, ev), free(x) }
+//   battle-c7s.js が たたかいの はじめに 足す（ここは 名前と 文だけ 見る。「手をのばす」・回復が とどかない などは 地われと おなじ）
+export const TRAP_KINDS = {};
 const reachable = (x) => x.status?.rift && x.status.rift.kind !== 'alone';
 
 // ───────────── はじめ（battle.js の constructor）─────────────
@@ -167,6 +170,8 @@ function release(b, t, ev) {
 // 落ちて いる 人の 番（battle.js の doIncapacitated）: rift 回めで 自分で もどる
 export function riftTurn(b, c, ev) {
   const s = c.status.rift;
+  const tk = TRAP_KINDS[s.kind];
+  if (tk?.turn) return tk.turn(b, c, ev);
   ev.name = TRAP_NAME[s.kind] || '地われ';
   ev.fx = { type: 'n1RiftTurn', actor: c.id, kind: s.kind };
   s.turns--;
@@ -198,7 +203,9 @@ export function reach(b, c, cmd, ev) {
   const s = t.status.rift;
   const by = b.get(s.by);
   ev.lines.push(`${c.name}は、${t.name}に手をのばした！`);
-  ev.lines.push(s.kind === 'swallow' ? `${t.name}は、その手につかまって、${by?.name || '影'}の中から助け出された！` : `${t.name}は、その手をつかんで、地われからはい上がった！`);
+  const tk = TRAP_KINDS[s.kind];
+  if (tk?.reach) ev.lines.push(...tk.reach(t, c, by, ev));
+  else ev.lines.push(s.kind === 'swallow' ? `${t.name}は、その手につかまって、${by?.name || '影'}の中から助け出された！` : `${t.name}は、その手をつかんで、地われからはい上がった！`);
   release(b, t, ev);
   // 助けられた 人は 少し 早く 番が 来る
   t.atb = Math.max(t.atb || 0, 50);
@@ -362,7 +369,7 @@ export function earthKill(b, t, ev) {
     if (!x.alive || x.status?.rift?.by !== t.id) continue;
     const kind = x.status.rift.kind;
     release(b, x, ev);
-    out.push(kind === 'swallow' ? `のみこまれていた${x.name}が、外に出てきた！` : kind === 'alone' ? `${x.name}は、闇の中からもどってきた！` : `${x.name}は、地われからはい上がった！`);
+    out.push(TRAP_KINDS[kind]?.free ? TRAP_KINDS[kind].free(x) : kind === 'swallow' ? `のみこまれていた${x.name}が、外に出てきた！` : kind === 'alone' ? `${x.name}は、闇の中からもどってきた！` : `${x.name}は、地われからはい上がった！`);
     if (ev) ev.n1Free = { who: x.id, by: null };
   }
   if (n1Conf(t)) {

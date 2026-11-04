@@ -22,16 +22,16 @@
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
 //              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
-import { MONSTERS } from './monsters.js?v=cd82616ef3db';
-import { registerVariant, variantFits, variantId } from './variants.js?v=cd82616ef3db';
-import { ITEMS, SLOTS } from './items.js?v=cd82616ef3db';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=cd82616ef3db';
-import { makeRng } from '../rng.js?v=cd82616ef3db';
-import { rewardGold } from './difficulty.js?v=cd82616ef3db';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=cd82616ef3db';
-import { sdGuardStrength } from './secret-guard.js?v=cd82616ef3db';
+import { MONSTERS } from './monsters.js?v=ef1c76a45d8a';
+import { registerVariant, variantFits, variantId } from './variants.js?v=ef1c76a45d8a';
+import { ITEMS, SLOTS } from './items.js?v=ef1c76a45d8a';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=ef1c76a45d8a';
+import { makeRng } from '../rng.js?v=ef1c76a45d8a';
+import { rewardGold } from './difficulty.js?v=ef1c76a45d8a';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=ef1c76a45d8a';
+import { sdGuardStrength } from './secret-guard.js?v=ef1c76a45d8a';
 // 第45回: 四季のこよみを もらえるか（companions-dqm.js）
-import { dqKeyDue } from './companions-dqm.js?v=cd82616ef3db';
+import { dqKeyDue } from './companions-dqm.js?v=ef1c76a45d8a';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -273,6 +273,8 @@ export const sdStarRank = (f) => clamp(3 + Math.floor(f / 20), 4, 7);
 export const SD_MEW_FLOOR = 50;
 // 初めて 着いた 休み所の 大きな ごほうび（階の 番号だけで きまる。家族みんな おなじ）
 //   [{ gold } | { item, n } | { medal: true }]
+// 第65回: 限界の石が 出る 階
+export const SD_LIMIT_FROM = 30;
 export function sdBigReward(f) {
   const r = makeRng((sdSeed(f) ^ 0xb16b00b) >>> 0);
   const out = [{ gold: rewardGold(Math.min(50000, 100 * f)) }];
@@ -287,6 +289,8 @@ export function sdBigReward(f) {
     if (list.length) out.push({ item: r.pick(list), n: 1 });
   }
   if (f >= 50 && f % 10 === 0) out.push({ item: 'revive_flower', n: 2 });
+  // 第65回: 30階からの 休み所に 限界の石（data/forge.js の 限界とっぱ）
+  if (f >= SD_LIMIT_FROM) out.push({ item: 'limit_stone', n: f % 10 === 0 ? 2 : 1 });
   // 第31回: 20階からの 休み所は、ここでしか 手に入らない ★4〜★5 の 装備（深いほど 強い。data/rare-loot.js）
   if (f >= SD_GEAR_FROM) {
     const id = pickSdGear(r, f);
@@ -316,6 +320,8 @@ export function sdSmallReward(f, rng) {
     { k: 'star_shard', w: f >= 15 ? 1 : 0 },
     // 第31回: 30階からは ★4〜★5 の 装備も まれに
     { k: 'sdgear', w: f >= 30 ? 1 : 0 },
+    // 第65回: 限界の石
+    { k: 'limit_stone', w: f >= SD_LIMIT_FROM ? 1 : 0 },
   ].filter((x) => x.w > 0);
   const k = rng.weighted(list).k;
   if (k === 'gold') return { gold: rewardGold(Math.min(20000, 20 * f)) };

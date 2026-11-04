@@ -1,14 +1,14 @@
 // 第65回: れん金がまで 装備に 効果を つける（家族が 決めた。第64回 ⑥c の 作りなおし）
 //   ・使う 素材は いつも 同じ（武器・防具で 1組ずつ。FX_MATS）。効果の しゅるいと 強さ（+の 値）は ランダム
 //   ・+の 値は レア度が 高いほど 大きく 出やすい（FX_RANGE。同じ レア度でも ランダム）
-//   ・つけられるのは 店で 買えない 装備（★2〜）。ふつうは 1つ。限界突破を 1回 すると 2つ（fxSlots）
+//   ・つけられるのは 店で 買えない 装備（★2〜）。ふつうは 1つ。限界とっぱ（★1〜）すると 2つ（fxSlots）
 //   ・もう 一度 つけると: 同じ 効果が 出たら その 値が 上がる・ちがう 効果なら あいている 所に ふえる。
 //     いっぱいの ときは「入れかえる／前の まま」を えらべる（素材は 使う）
 //   ・効果は「つけた 人の、その 装備の しゅるい」に のこる（char.gearFx[もとの 装備の id] = [{ k, v }]）。
 //     きたえた +1〜 も 同じ しゅるい。きたえると 少し 強く なる（+3 ごとに 値が 1 上がった ぶん）
 //   ・道具として 使える 効果は イオだけ（何回でも。MP は いらない）
-import { ITEMS } from './items.js?v=cd82616ef3db';
-import { isShopGear, starsFor } from './items-rare.js?v=cd82616ef3db';
+import { ITEMS } from './items.js?v=ef1c76a45d8a';
+import { isShopGear, starsFor } from './items-rare.js?v=ef1c76a45d8a';
 
 export const STAR = 'star_shard';
 // 使う 素材（武器・防具〈よろい・たて・頭〉）
@@ -76,9 +76,9 @@ export function fxRange(id) {
   return FX_RANGE[fxStars(id)];
 }
 
-// つけられる 効果の 数（限界突破 1回で 2つ。char.limitBreak[もとの id] … 限界突破の 回数）
+// つけられる 効果の 数（限界とっぱ ★1 から 2つ。items-forge.js の lbId。char は 前の 形の ため のこす）
 export function fxSlots(char, id) {
-  return (char?.limitBreak?.[baseOf(id)] || 0) >= 1 ? 2 : 1;
+  return (ITEMS[id]?.lb || 0) >= 1 ? 2 : 1;
 }
 
 // 強さ（v … +の 値）
@@ -122,8 +122,9 @@ export function fxListOf(char, id) {
   const a = char?.gearFx?.[baseOf(id)];
   return Array.isArray(a) ? a.filter((x) => GEAR_FX[x?.k] && x.v > 0) : [];
 }
-// きたえた 分（+3 ごとに 1）
+// きたえた 分（+3 ごとに 1。限界とっぱの ★も 1回 きたえた ぶんに 数える）
 export const fxValue = (v, plus = 0) => v + Math.floor((plus || 0) / 3);
+export const fxPlus = (id) => (ITEMS[id]?.plus || 0) + (ITEMS[id]?.lb || 0);
 
 // 効果を 1つ ひく（rng … next() が 0〜1）。その 装備の 部位で 出る 効果から
 export function rollFx(rng, id) {
@@ -161,7 +162,7 @@ export function gearFxTotals(char) {
     if (!id || !ITEMS[id]) continue;
     for (const x of fxListOf(char, id)) {
       if (!GEAR_FX[x.k].slots.includes(ITEMS[id].type)) continue;
-      out[x.k] = Math.min(FX_VMAX * 2, (out[x.k] || 0) + fxValue(x.v, ITEMS[id].plus));
+      out[x.k] = Math.min(FX_VMAX * 2, (out[x.k] || 0) + fxValue(x.v, fxPlus(id)));
     }
   }
   return out;
@@ -185,7 +186,7 @@ export function gearUses(char) {
   const id = char?.equip?.weapon;
   if (!id) return [];
   const x = fxListOf(char, id).find((e) => GEAR_FX[e.k].use);
-  return x ? [{ slot: 'weapon', id, kind: x.k, ability: fxPower(x.k, fxValue(x.v, ITEMS[id].plus)).use }] : [];
+  return x ? [{ slot: 'weapon', id, kind: x.k, ability: fxPower(x.k, fxValue(x.v, fxPlus(id))).use }] : [];
 }
 
 // 第64回の 形（{ id: 'chase' }）→ 第65回の 形（{ id: [{ k, v }] }）。へんな ものは すてる

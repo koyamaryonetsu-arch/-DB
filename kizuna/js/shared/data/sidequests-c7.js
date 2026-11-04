@@ -6,11 +6,13 @@
 //   （4 … 神殿 5階の 番人の 手紙は 物語の なぞとき。data/story-c7.js）
 // ・見つけた 時に 1回だけ ごほうび（B の C7_LETTER_REWARDS）。人と 場所は maps/c7-field.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-ch6.js の ch6SubQuests・ch6DoneQuests から（c7SubQuests・c7DoneQuests）
-import { C7, LETTER, LETTER_SIDE } from '../maps/c7-flags.js?v=cd82616ef3db';
-import { LETTER_ASKERS, LETTER_PLACES, LETTER_NOW_PLACES } from '../maps/c7-field.js?v=cd82616ef3db';
-import { ITEMS } from './items.js?v=cd82616ef3db';
+import { C7, LETTER, LETTER_SIDE } from '../maps/c7-flags.js?v=ef1c76a45d8a';
+import { LETTER_ASKERS, LETTER_PLACES, LETTER_NOW_PLACES } from '../maps/c7-field.js?v=ef1c76a45d8a';
+import { ITEMS } from './items.js?v=ef1c76a45d8a';
 // 手紙の ごほうび（B の data/items-c7.js の C7_LETTER_REWARDS。まとめる 時に './items-c7.js' から）
-import { C7_LETTER_REWARDS } from './items-c7.js?v=cd82616ef3db';
+import { C7_LETTER_REWARDS } from './items-c7.js?v=ef1c76a45d8a';
+// 第2幕の 時をこえる手紙（海の 地方。sidequests-c7s.js）も ここから クエストの 画面へ
+import { c7sSubQuests, c7sDoneQuests } from './sidequests-c7s.js?v=ef1c76a45d8a';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -112,6 +114,7 @@ export const C7_SIDE_QUESTS = LETTER_SIDE.map((k) => ({ id: `c7l${k}`, name: let
 export function c7SubQuests(c, f) {
   const out = [];
   if (!f(C7.kingdom)) return out;
+  out.push(...c7sSubQuests(c, f));
   for (const k of LETTER_SIDE) {
     if (!f(LETTER.start(k)) || f(LETTER.found(k))) continue;
     if (!f(LETTER.bury(k))) out.push({ name: letterName(k), who: LETTER_ASKERS[k], find: `c7_bury_${k}`, ready: false, text: `千年前の${LETTER_PLACES[k]}で、いっしょにうめよう`, hint: `千年前の${LETTER_PLACES[k]}で、手紙をうめる場所は、地図のしるしの所。` });
@@ -120,7 +123,7 @@ export function c7SubQuests(c, f) {
   return out;
 }
 export function c7DoneQuests(c) {
-  return C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name);
+  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c)];
 }
 
 // ───── だいほんを まぜる（story-c7.js の applyCh7 から）─────

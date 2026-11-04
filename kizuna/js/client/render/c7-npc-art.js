@@ -2,7 +2,9 @@
 // 人（C7_NPC_LOOKS）: カリム（千年前の 若い 騎士。みどりの マントと 金の ふちの たて）・緑の王・大臣・城の 兵士・騎士団長・王女ナディア・
 //   王国の 人たち（c7_*）・神殿の みこサラサ・うずの魔女オクタリア（場面の すがた）
 // とくべつな え（paintC7Special）: うずの魔女オクタリア（神殿の 広間の 大きな すがた）・神殿の 門番（オクタリアの 手下。黒い 水の 大ウナギ 2ひき）
-import { Painter } from './pixel.js?v=cd82616ef3db';
+import { Painter } from './pixel.js?v=ef1c76a45d8a';
+// 第7章 Step 3・4（第2幕）: カイ・ナギの村の 人たち・灯台守・ホック船長・海賊船（render/c7s-npc-art.js。ここで まぜる）
+import { C7S_NPC_LOOKS, paintC7sSpecial, C7S_SPECIALS } from './c7s-npc-art.js?v=ef1c76a45d8a';
 
 const person = (o) => o;
 export const C7_NPC_LOOKS = {
@@ -24,6 +26,7 @@ export const C7_NPC_LOOKS = {
   c7_priest: person({ hair: 5, hairStyle: 'short', skin: 2, outfit: 'robe', robeMain: '#e8f6f4', robeTrim: '#3aa8a0', hat: 'mitre', hatColor: '#e8f6f4' }),
   c7_miko: person({ hair: '#1a3a4a', hairStyle: 'long', skin: 1, outfit: 'robe', robeMain: '#eefaf6', robeTrim: '#3ab8a0', female: true, hat: 'veil', cape: '#5ad8c8' }),
   c7_witch: person({ hair: '#f0f0f8', hairStyle: 'long', skin: '#c8b0e0', outfit: 'robe', robeMain: '#3a1a4a', robeTrim: '#5ad8c8', female: true, hat: 'circlet', hatGem: '#f2c14e', cape: '#1a0a2a' }),
+  ...C7S_NPC_LOOKS,
 };
 
 // ───────────── とくべつな え ─────────────
@@ -72,7 +75,7 @@ export function paintC7Special(kind, dir, f) {
   switch (kind) {
     case 'c7_witch_npc': return paintWitch(f);
     case 'c7_gate_npc': return paintGateEels(f);
-    default: return null;
+    default: return paintC7sSpecial(kind, dir, f);
   }
 }
-export const C7_SPECIALS = ['c7_witch_npc', 'c7_gate_npc'];
+export const C7_SPECIALS = ['c7_witch_npc', 'c7_gate_npc', ...C7S_SPECIALS];

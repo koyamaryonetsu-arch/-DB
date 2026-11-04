@@ -3,7 +3,7 @@
 // ・受付（arena_desk）… パーティー みんなで 見る（物語と おなじ。そばに いる 家族も いっしょに 戦う）
 // ・かけ試合の 係（arena_bet）・王者のかべ（arena_wall）・かんばん（arena_sign）・観客 … ひとりずつ
 // 第4章クリアの 前の「大会は お休み」の ことばは story-ch4.js（c4_s_arena・c4_s_fighter・c4_arena_gate）
-import { ARENA_OPEN_FLAG, ARENA_RANKS, rankCleared, bestRank, rankLabel } from './arena.js?v=cd82616ef3db';
+import { ARENA_OPEN_FLAG, ARENA_LEGEND_RANK, rankCleared, bestRank, rankLabel } from './arena.js?v=ef1c76a45d8a';
 
 export const ARENA_HOOKS = {};
 const call = (k) => [['call', (run) => ARENA_HOOKS[k]?.(run)]];
@@ -39,7 +39,7 @@ export const ARENA_SCRIPTS = {
 export function fighterTalk(x) {
   if (rankCleared(x.c, 1)) {
     return S('力じまんの戦士', 'お、おまえたちか…！\nおれに勝つとは、なかなかやるじゃないか。',
-      bestRank(x.c) >= ARENA_RANKS.length ? 'しかも、伝説のチャンピオンにまで勝ったって！？\nおれも、もっときたえなおさないとな！' : 'だが、上のランクの王者たちは、おれよりずっと強いぞ。\n気をぬくなよ！');
+      bestRank(x.c) >= ARENA_LEGEND_RANK ? 'しかも、伝説のチャンピオンにまで勝ったって！？\nおれも、もっときたえなおさないとな！' : 'だが、上のランクの王者たちは、おれよりずっと強いぞ。\n気をぬくなよ！');
   }
   return S('力じまんの戦士', 'ついに大会がはじまったぞ！\nおれはランク1の王者、力じまんの戦士さまだ！',
     'ちょうせんしたいなら、受付で申しこみな。\nおれは、3戦目で待っているぜ！');
