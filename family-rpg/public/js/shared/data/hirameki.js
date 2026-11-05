@@ -39,6 +39,8 @@ import { HIRA_R66A_ABILITIES, HIRAMEKI_R66A } from './hirameki-r66a.js';
 import { HIRA_R66C_ABILITIES, HIRAMEKI_R66C } from './hirameki-r66c.js';
 // 第66回 D班: 伝説の職業（月下のき術師・のぶドラ・かっぱの大王・真理のとびらをひらく者・ロゼッタ）の ひらめき技（hirameki-r66d.js）
 import { HIRA_R66D_ABILITIES, HIRAMEKI_R66D } from './hirameki-r66d.js';
+// 第66回 E1班: 公安ゼロ〜世界一の配信者の ひらめき技（hirameki-r66e1.js）
+import { HIRA_R66E1_ABILITIES, HIRAMEKI_R66E1 } from './hirameki-r66e1.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -228,6 +230,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_R66A_ABILITIES,
   // 第66回 D班の ひらめき技（hirameki-r66d.js）
   ...HIRA_R66D_ABILITIES,
+  // 第66回 E1班の ひらめき技（hirameki-r66e1.js）
+  ...HIRA_R66E1_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -297,6 +301,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_R66A,
   // 第66回 D班の ひらめき技（hirameki-r66d.js）
   ...HIRAMEKI_R66D,
+  // 第66回 E1班の ひらめき技（hirameki-r66e1.js）
+  ...HIRAMEKI_R66E1,
 };
 // 第66回 C班の ひらめき技（hirameki-r66c.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R66C_ABILITIES);

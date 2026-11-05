@@ -41,6 +41,8 @@ import { R66A_SFX, R66A_HIT } from './render/battlefx-r66a.js';
 import { R66C_SFX, R66C_HIT, PARTY_ANIMS_R66C } from './render/battlefx-r66c.js';
 // 第66回 D班の 伝説の 職業 5つの 技（render/battlefx-r66d.js。どれも 敵に あたる 技なので みかたの えんしゅつの 表は ない）
 import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js';
+// 第66回 E1班の 技の 音・あたる じかん（render/battlefx-r66e1.js。みかたに 出す 物は ない）
+import { R66E1_SFX, R66E1_HIT } from './render/battlefx-r66e1.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -124,6 +126,7 @@ Object.assign(HIT_DELAY, R66B_HIT);
 Object.assign(HIT_DELAY, R66A_HIT);
 Object.assign(HIT_DELAY, R66C_HIT);
 Object.assign(HIT_DELAY, R66D_HIT);
+Object.assign(HIT_DELAY, R66E1_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -206,6 +209,8 @@ const ANIM_SFX = {
   ...R66A_SFX,
   // 第66回 D班の 伝説の 職業の 技（render/battlefx-r66d.js）
   ...R66D_SFX,
+  // 第66回 E1班の 技（render/battlefx-r66e1.js）
+  ...R66E1_SFX,
   // 第44回の ポケモンの 技（render/battlefx-pokemon.js・sfx-pokemon.js）
   ...PK_SFX,
   // 第45回の ドラクエふうの 魔物の 技（render/battlefx-dqm.js・sfx-dqm.js）

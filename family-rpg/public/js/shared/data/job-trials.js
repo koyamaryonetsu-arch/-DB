@@ -200,6 +200,13 @@ export const TRIAL_WORDS = {
   kappa_king: '大王の力は、川のみんなを守るためにあるのじゃ。',
   truth_gate: '真理とは、すべては一つで、一つはすべてということだ。',
   rosetta: '星は遠くても、いつもあなたを見守っているわ。',
+  // 第66回 E1班
+  koan_zero: 'かげで守る者は、だれにもほめられなくても、まっすぐ立つのだ。',
+  hyper_rescue: '助けに行く者が、まず自分の身を守れ。それがプロだ。',
+  top_streamer: '見てくれる人の数より、ひとりひとりの笑顔を大事にしなさい。',
+  triple_face: 'どの顔の自分も、本当の自分だ。守りたいものは1つ。',
+  hikeshi_god: '火を消す者は、だれよりも熱い心をもて。',
+  world_streamer: '画面のむこうには、世界中の友だちがいる。それをわすれるな。',
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(TRIAL_WORDS, {

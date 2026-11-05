@@ -53,6 +53,9 @@ export const PHANTOM_ADJ = {
   guard_god: [1.13, 0.75, 0.92], kenshin: [0.72, 0.54, 0.75], poke_master: [1.32, 0.92, 1.3], sennen_mage: [1.32, 1.08, 0.95],
   // 第66回 D班（伝説の職業。tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均）
   gekka: [0.99, 0.62, 0.76], nobu_dora: [2.21, 1.72, 2.7], kappa_king: [1.15, 1, 1.24], truth_gate: [0.99, 0.88, 0.94], rosetta: [1.26, 1.35, 1.6],
+  // 第66回 E1班（tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均。火消しの神は 回復・救出・かばうで まぼろしが しぶとい）
+  koan_zero: [1.14, 0.82, 0.96], hyper_rescue: [2.12, 1.82, 2.16], top_streamer: [1.59, 1.82, 2.37],
+  triple_face: [1.15, 1.02, 1.05], hikeshi_god: [0.83, 0.83, 0.91], world_streamer: [1.62, 1.79, 2.15],
 };
 // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23], hatarakikata: [0.95, 0.71, 1.05], ano_kata: [1.2, 1.06, 1.41] });

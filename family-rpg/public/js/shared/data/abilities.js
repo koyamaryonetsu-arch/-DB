@@ -86,6 +86,8 @@ import { R66A_ABILITIES } from './abilities-r66a.js';
 import { R66C_ABILITIES } from './abilities-r66c.js';
 // 第66回 D班: 伝説の職業（月下のき術師・のぶドラ・かっぱの大王・真理のとびらをひらく者・ロゼッタ）の 技
 import { R66D_ABILITIES } from './abilities-r66d.js';
+// 第66回 E1班: 公安ゼロ・トリプルフェイス・ハイパーレスキュー・火消しの神・登録者1000万人・世界一の配信者の 技（abilities-r66e1.js）
+import { R66E1_ABILITIES } from './abilities-r66e1.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -719,6 +721,8 @@ Object.assign(ABILITIES, R66A_ABILITIES);
 Object.assign(ABILITIES, R66C_ABILITIES);
 // 第66回 D班の 伝説の職業の 技（abilities-r66d.js）
 Object.assign(ABILITIES, R66D_ABILITIES);
+// 第66回 E1班（abilities-r66e1.js）
+Object.assign(ABILITIES, R66E1_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -28,6 +28,8 @@ import { playR66aFx, R66A_FINE } from './battlefx-r66a.js';
 import { playR66cFx, R66C_FINE } from './battlefx-r66c.js';
 // 第66回 D班の 伝説の 職業 5つの 技（battlefx-r66d.js）
 import { playR66dFx, R66D_FINE } from './battlefx-r66d.js';
+// 第66回 E1班の 技（battlefx-r66e1.js）
+import { playR66e1Fx, R66E1_FINE } from './battlefx-r66e1.js';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
 import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
@@ -1261,6 +1263,7 @@ Object.assign(FINE, R66B_FINE);
 Object.assign(FINE, R66A_FINE);
 Object.assign(FINE, R66C_FINE);
 Object.assign(FINE, R66D_FINE);
+Object.assign(FINE, R66E1_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
 Object.assign(FINE, TOKEI6_FINE);
@@ -1562,6 +1565,8 @@ export class Effects {
     if (playR66cFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第66回 D班の 伝説の 職業の 技（battlefx-r66d.js。anim は 'r66d_…' と 看板の 技）
     if (playR66dFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第66回 E1班の 技（battlefx-r66e1.js。anim は 'r66e1_…' と 看板の 技）
+    if (playR66e1Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
     if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第27回に 作り直した 呪文・特技（メラ〜メラガイアー・ヒャド系・バギ系・イオ系・デイン系・ホイミ系・補助・剣と こぶしの 技）

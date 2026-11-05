@@ -217,6 +217,13 @@ export const JOB_TAGS = {
   kappa_king: ['fist', 'monster', 'master', 'ice'], // かっぱの大王（はり手・お皿の水）
   truth_gate: ['alchemy', 'fist', 'machine', 'master'], // 真理のとびらをひらく者（れん成・機械のうで）
   rosetta: ['light', 'magic', 'heal', 'master'], // ロゼッタ／ギャラクシーマリオ（流れ星・星のかけら）
+  // 第66回 E1班（超級職・伝説の職業。jobs-r66e1.js。歌とおどりは 13職業の 上限なので 配信者には つけない）
+  koan_zero: ['fist', 'shinobi', 'detective', 'work'], // 公安ゼロ（ボクシング・ひみつの 仕事・調べる・警察官）
+  hyper_rescue: ['ice', 'heal', 'guard', 'ride'], // ハイパーレスキュー（放水・救出・体をはって 守る・とくべつな 車）
+  top_streamer: ['machine', 'money', 'laugh'], // 登録者1000万人（カメラ・投げせん・ドッキリ）
+  triple_face: ['fist', 'henshin', 'shinobi', 'detective'], // トリプルフェイス（ボクシング・3つの 顔・なぞの 組織・探てい）
+  hikeshi_god: ['ice', 'guard', 'heal', 'master'], // 火消しの神（大水・大たて・救出・火消しの かしら）
+  world_streamer: ['machine', 'money', 'light', 'master'], // 世界一の配信者（カメラ・投げせん・トレンドの 光・世界一）
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(JOB_TAGS, {

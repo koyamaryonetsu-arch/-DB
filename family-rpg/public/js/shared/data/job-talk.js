@@ -68,6 +68,13 @@ export const JOB_SAY = {
   kappa_king: '「わしが、かっぱの大王じゃ！」',
   truth_gate: '「とびらの向こうに、答えがあった」',
   rosetta: '「星の子たち、行きましょう」',
+  // 第66回 E1班
+  koan_zero: '「この国は、ぼくが守る」',
+  hyper_rescue: '「助けをまつ人の所へ、すぐ行くぞ！」',
+  top_streamer: '「登録者、1000万人とっぱ！」',
+  triple_face: '「ぼくには、顔が3つある」',
+  hikeshi_god: '「どんな火事も、まかせとけ！」',
+  world_streamer: '「世界のみんな、見てるー？」',
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(JOB_SAY, {
