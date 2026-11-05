@@ -52,7 +52,44 @@ export const JOB_SAY = {
   super_hero: '「雷と気、両方まとめて解き放つ！」',
   sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
   facility_ai: '「全館、最適化を開始します」',
+  // 第66回 B班（伝説の職業）
+  new_kawaii: '「世界中を、かわいくしちゃう！」',
+  smap: '「5人そろって、SMAPです！」',
+  oogosho: '「ほな、今日もいっちょやりまひょか」',
+  five_star_chef: '「最高のひと皿を、あなたに」',
+  // 第66回 A（伝説の職業）
+  guard_god: '「仲間には、指一本ふれさせない」',
+  kenshin: '「光と闇、どちらもわたしの剣だ」',
+  poke_master: '「ポケモンマスターに、なったぞ！」',
+  sennen_mage: '「千年たっても、魔法は楽しい」',
+  // 第66回 D班（伝説の職業。ロゼッタの 男の子は JOB_SAY_MASC）
+  gekka: '「今夜も、月下のショーの始まりです」',
+  nobu_dora: '「ぼく、ドラえもんです。ウフフ」',
+  kappa_king: '「わしが、かっぱの大王じゃ！」',
+  truth_gate: '「とびらの向こうに、答えがあった」',
+  rosetta: '「星の子たち、行きましょう」',
+  // 第66回 E1班
+  koan_zero: '「この国は、ぼくが守る」',
+  hyper_rescue: '「助けをまつ人の所へ、すぐ行くぞ！」',
+  top_streamer: '「登録者、1000万人とっぱ！」',
+  triple_face: '「ぼくには、顔が3つある」',
+  hikeshi_god: '「どんな火事も、まかせとけ！」',
+  world_streamer: '「世界のみんな、見てるー？」',
+  // 第66回 E2
+  esports_king: '「世界一のコンボ、見せてあげる！」',
+  gold_cardman: '「楽天ゴールドカード！」',
+  psychicer: '「きみの心の声、聞こえるよ」',
+  game_god: '「セーブは、こまめにね！」',
+  black_cardman: '「楽天ブラックカード！」',
+  saiki: '「やれやれ…目立ちたくないんだが」',
 };
+// 第66回 C班（伝説の職業。jobs-legend-r66c.js）
+Object.assign(JOB_SAY, {
+  souri: '「国の未来は、わたしにまかせて！」',
+  kaichou: '「うむ。全部、買い取ろう」',
+  hatarakikata: '「定時なので、帰ります！」',
+  ano_kata: '「…すべては、ひみつだよ」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',
@@ -63,6 +100,8 @@ export const JOB_SAY_MASC = {
   plumber: '「さあ、行くぞ！ヤッフー！」',
   mustache: '「このひげが、ぼくのじまんさ」',
   mario: '「ヒアウィーゴー！」',
+  // 第66回 D班: ギャラクシーマリオ
+  rosetta: '「星の世界へ、レッツゴー！」',
 };
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）

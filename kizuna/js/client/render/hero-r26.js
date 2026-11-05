@@ -12,21 +12,23 @@
 //                                    はなかっぱの かお・楽天カードマンの メガネと カード（phase 'over': ぼうしの あと）
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=0e6cd5b18d1a';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=3cac07ff7cd4';
 // 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
-import { drawR27, drawProp27 } from './hero-r27.js?v=0e6cd5b18d1a';
+import { drawR27, drawProp27 } from './hero-r27.js?v=3cac07ff7cd4';
 // 第29回の るろうに剣士の 道の マント・十字の きず（hero-r29.js）
-import { outfit29, drawR29, face29 } from './hero-r29.js?v=0e6cd5b18d1a';
+import { outfit29, drawR29, face29 } from './hero-r29.js?v=3cac07ff7cd4';
 // 第33回の 11この 職業の マント・リボン・めがね・シルクハット・もちもの（hero-r33.js）
-import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=0e6cd5b18d1a';
+import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=3cac07ff7cd4';
 // 第40回の 伝説の 職業 2つの ドレス・ひたいの しるし・つえ（hero-r40.js）
-import { outfit40, face40, drawProp40 } from './hero-r40.js?v=0e6cd5b18d1a';
+import { outfit40, face40, drawProp40 } from './hero-r40.js?v=3cac07ff7cd4';
 // 第41回 B の 雪の女王・第5のせいれいの ドレス・すける マント（hero-r41b.js）
-import { outfit41b } from './hero-r41b.js?v=0e6cd5b18d1a';
+import { outfit41b } from './hero-r41b.js?v=3cac07ff7cd4';
 // 第41回 A の 伝説の 職業 2つの 手ぶくろ・むねの かざり・もちもの（hero-r41a.js）
-import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=0e6cd5b18d1a';
+import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=3cac07ff7cd4';
 // 第43回の 配管工の 系統の つなぎ・手ぶくろ・ドレス・ひげ・ぼうし・スパナ（hero-r43j.js）
-import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r43j.js?v=0e6cd5b18d1a';
+import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r43j.js?v=3cac07ff7cd4';
+// 第66回 B班の 伝説の 職業 4つの ドレス・むねの かざり・マイク・おたま（hero-r66b.js）
+import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js?v=3cac07ff7cd4';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -236,6 +238,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   if (S.r41a) outfit41a(O, S);
   // 第43回: 青い つなぎ・白い 手ぶくろ・ピンクの ドレス
   if (S.r43j) outfit43j(O, S, Lk, fem);
+  // 第66回 B班: パステルの フリル・ハートの ブローチ・金の 星
+  if (S.r66b) outfit66b(O, S);
   return false;
 }
 
@@ -359,6 +363,8 @@ export function drawR26(cv, P, O, layer) {
   if (O.r41a) drawR41a(cv, P, O, layer);
   // 第43回: つなぎの むねあて・ブローチ
   if (O.r43j) drawR43j(cv, P, O, layer);
+  // 第66回 B班: ハートの ブローチ・金の 星 5つ
+  if (O.r66b) drawR66b(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
@@ -1072,6 +1078,8 @@ export function drawHat26(cv, P, H, G, view) {
 // まえ: がめんの みぎの 手、うしろ: ひだりの 手、よこ: その 手（P.facing の ほうへ むける）
 export function drawProp26(cv, P, A, O) {
   const kind = O.body?.prop;
+  // 第66回 B班: マイク・おたま（hero-r66b.js）
+  if (kind && drawProp66b(cv, P, A, O)) return;
   if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O) || drawProp40(cv, P, A, O) || drawProp41a(cv, P, A, O) || drawProp43j(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;

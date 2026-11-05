@@ -28,7 +28,7 @@ export class Net {
       addEventListener('pageshow', () => net.onVisible());
     } else {
       net.mode = 'offline';
-      const { startOffline } = await import('./offline.js?v=0e6cd5b18d1a');
+      const { startOffline } = await import('./offline.js?v=3cac07ff7cd4');
       net.local = startOffline((msg) => net.deliver(msg));
       net.setStatus('ok');
     }

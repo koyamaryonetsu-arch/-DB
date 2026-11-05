@@ -7,75 +7,81 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=0e6cd5b18d1a';
+import { makeRng } from './rng.js?v=3cac07ff7cd4';
 // 第53回 D: 色ちがいの 仲間の 絵（data/variants.js）
-import { colorMon } from './data/variants.js?v=0e6cd5b18d1a';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=0e6cd5b18d1a';
+import { colorMon } from './data/variants.js?v=3cac07ff7cd4';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=3cac07ff7cd4';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
-import { deduceElement } from './data/abilities-jobs6.js?v=0e6cd5b18d1a';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=0e6cd5b18d1a';
+import { deduceElement } from './data/abilities-jobs6.js?v=3cac07ff7cd4';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=3cac07ff7cd4';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=0e6cd5b18d1a';
-import { MONSTERS } from './data/monsters.js?v=0e6cd5b18d1a';
-import { ITEMS } from './data/items.js?v=0e6cd5b18d1a';
-import { JOBS } from './data/jobs.js?v=0e6cd5b18d1a';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=0e6cd5b18d1a';
-import { decideMonster, decideAlly } from './ai.js?v=0e6cd5b18d1a';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=0e6cd5b18d1a';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=3cac07ff7cd4';
+import { MONSTERS } from './data/monsters.js?v=3cac07ff7cd4';
+import { ITEMS } from './data/items.js?v=3cac07ff7cd4';
+import { JOBS } from './data/jobs.js?v=3cac07ff7cd4';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=3cac07ff7cd4';
+import { decideMonster, decideAlly } from './ai.js?v=3cac07ff7cd4';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=3cac07ff7cd4';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=0e6cd5b18d1a';
-import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse, attackMods } from './battle-gearfx.js?v=0e6cd5b18d1a';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=3cac07ff7cd4';
+import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse, attackMods } from './battle-gearfx.js?v=3cac07ff7cd4';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=0e6cd5b18d1a';
-import { shownEquipKey } from './look-equip.js?v=0e6cd5b18d1a';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=3cac07ff7cd4';
+import { shownEquipKey } from './look-equip.js?v=3cac07ff7cd4';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=0e6cd5b18d1a';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=3cac07ff7cd4';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=0e6cd5b18d1a';
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=3cac07ff7cd4';
 // 第5章 Step 4 の ガイアイーター（多部位の 戦い。battle-gaia.js）
-import { setupGaia, gaiaDamage } from './battle-gaia.js?v=0e6cd5b18d1a';
+import { setupGaia, gaiaDamage } from './battle-gaia.js?v=3cac07ff7cd4';
 // 第5章 Step 5 の ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js）
-import { setupNocto, noctoDamage } from './battle-nocto.js?v=0e6cd5b18d1a';
+import { setupNocto, noctoDamage } from './battle-nocto.js?v=3cac07ff7cd4';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（地われ・手をのばす・HP半分で 終わる・まもる・おこる。battle-earth.js）
-import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js?v=0e6cd5b18d1a';
+import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js?v=3cac07ff7cd4';
 // 第5章 Step 9 の ノクト（本気）と 魔王ソリトゥス（3つの 段階・ひとりにする・よびかける・家族の きずな技。battle-final.js）
-import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock } from './battle-final.js?v=0e6cd5b18d1a';
+import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock } from './battle-final.js?v=3cac07ff7cd4';
 // 第5章 Step 8 の 影の城の 3人の まぼろし（はじめの ことば・水かさ・風のかべ。battle-phantom.js）
-import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js?v=0e6cd5b18d1a';
+import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js?v=3cac07ff7cd4';
 // 第2部 第6章 Step 1・2 の サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）。battle-ch6.js
-import { setupCh6, ch6Damage } from './battle-ch6.js?v=0e6cd5b18d1a';
+import { setupCh6, ch6Damage } from './battle-ch6.js?v=3cac07ff7cd4';
 // 第2部 第6章 Step 6: ゼンマイの 2だんめ（歯車・文字ばんの 針。battle-tokei6.js）
-import { tokei6Phase } from './battle-tokei6.js?v=0e6cd5b18d1a';
+import { tokei6Phase } from './battle-tokei6.js?v=3cac07ff7cd4';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
-import { classmateMult } from './battle-r33.js?v=0e6cd5b18d1a';
+import { classmateMult } from './battle-r33.js?v=3cac07ff7cd4';
 // 第51回 C3: 幻の職業の しかる・消す・装備の 作りかえ・観客（battle-phantom-c.js）と 戦いの 天気（battle-weather.js）
-import { phantomCEffect, phantomCDamage } from './battle-phantom-c.js?v=0e6cd5b18d1a';
-import { weatherMult, weatherTick, weatherSnap, skillWeather } from './battle-weather.js?v=0e6cd5b18d1a';
+import { phantomCEffect, phantomCDamage } from './battle-phantom-c.js?v=3cac07ff7cd4';
+import { weatherMult, weatherTick, weatherSnap, skillWeather } from './battle-weather.js?v=3cac07ff7cd4';
+// 第66回 C班: 会長の 黄金のボディーガード（お金で 守る）・働き方改革の星の 定時の 回復（battle-r66c.js）
+import { goldGuard, r66cTurnStart } from './battle-r66c.js?v=3cac07ff7cd4';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
-import { setupArena, arenaDamage } from './battle-arena.js?v=0e6cd5b18d1a';
+import { setupArena, arenaDamage } from './battle-arena.js?v=3cac07ff7cd4';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
-import { abilityFor, isMasc, dualMasc } from './ability-label.js?v=0e6cd5b18d1a';
+import { abilityFor, isMasc, dualMasc } from './ability-label.js?v=3cac07ff7cd4';
 // 第48回: 大技（ax_〜）の 時間（ためて はなつ あいだ つぎの 行動を まつ。shared/ax-time.js）
-import { axMarkEvent } from './ax-time.js?v=0e6cd5b18d1a';
-import { DUAL_TECHS } from './data/dual.js?v=0e6cd5b18d1a';
+import { axMarkEvent } from './ax-time.js?v=3cac07ff7cd4';
+import { DUAL_TECHS } from './data/dual.js?v=3cac07ff7cd4';
 // 第38回 C: バフ・デバフ・かばう は 行動の 回数で 切れる・じわじわ回復は 行動の はじめに・技の レベル（buff-acts.js）
-import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js?v=0e6cd5b18d1a';
-export { BUFF_ACTS } from './buff-acts.js?v=0e6cd5b18d1a';
-import { bossDmgRate } from './data/boss-r38.js?v=0e6cd5b18d1a';
+import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js?v=3cac07ff7cd4';
+export { BUFF_ACTS } from './buff-acts.js?v=3cac07ff7cd4';
+import { bossDmgRate } from './data/boss-r38.js?v=3cac07ff7cd4';
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2だんかい・回復が 多い（skill-tier.js。ev.tier に 入れて つかう）
-import { skillMods, evMods } from './skill-tier.js?v=0e6cd5b18d1a';
+import { skillMods, evMods } from './skill-tier.js?v=3cac07ff7cd4';
 // 第51回 F: 幻の職業の 記録（家族の キャラの 技の タグの 回数・ダメージ・回復・会心。c.feat → world/phantom.js の addFeats）
-import { abilityTags, newFeat, BIG_HIT } from './data/phantom.js?v=0e6cd5b18d1a';
+import { abilityTags, newFeat, BIG_HIT } from './data/phantom.js?v=3cac07ff7cd4';
 // 第51回 C1: 幻の職業の 物理の 技（仲間の 数・ためた 気・影分身で 強く なる。battle-phantom-a.js）
-import { phantomAPhys } from './battle-phantom-a.js?v=0e6cd5b18d1a';
+import { phantomAPhys } from './battle-phantom-a.js?v=3cac07ff7cd4';
 // 第51回 C2: 幻の職業の 先読み・バリア・二重呪文・剣気（battle-r51b.js）
-import { r51bEffect, r51bPerform, r51bAfterCast, barrierDamage, kenkiCrit, kenkiMult, kenkiGain, r51bPub } from './battle-r51b.js?v=0e6cd5b18d1a';
+import { r51bEffect, r51bPerform, r51bAfterCast, barrierDamage, kenkiCrit, kenkiMult, kenkiGain, r51bPub } from './battle-r51b.js?v=3cac07ff7cd4';
+// 第66回 A: ポケモンマスターの 仲間の 魔物と いっしょの 技（monPal。battle-r66a.js）
+import { r66aMonPal } from './battle-r66a.js?v=3cac07ff7cd4';
+// 第66回 E2: セーブと ロード（ゲームの神）・楽天ポイント（楽天ゴールド・ブラックカードマン）。battle-r66e2.js
+import { r66e2Effect, cardPtMult } from './battle-r66e2.js?v=3cac07ff7cd4';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
-export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=0e6cd5b18d1a';
+export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=3cac07ff7cd4';
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
@@ -629,6 +635,8 @@ export class Battle {
     towerTurnStart(this, c, ev, cmd);
     // 第51回 C3: 天気の のこり（かけた 側の 行動で へる。battle-weather.js）
     weatherTick(this, c, ev);
+    // 第66回 C班: 働き方改革の星は 定時で 休んで 回復（battle-r66c.js）
+    r66cTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -980,6 +988,7 @@ export class Battle {
     }
     switch (eff.type) {
       case 'phys': {
+        if (eff.monPal) { r66aMonPal(this, c, a, cmd, ev, powMult, targets); break; }
         if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
@@ -1255,6 +1264,8 @@ export class Battle {
         this.afterDamage(c, ev, 'phys');
         break;
       }
+      // 第66回 C班: お金を はらって 守る（会長。battle-r66c.js）
+      case 'goldGuard': goldGuard(this, c, a, eff, ev, targets, powMult); break;
       case 'steal': {
         if (targets[0]) this.trySteal(c, targets[0], ev, eff.chance ?? 0.6);
         break;
@@ -1477,6 +1488,8 @@ export class Battle {
       case 'nothing': break;
       // 先読み・バリア・二重呪文・剣気（幻の職業。battle-r51b.js）
       case 'yomi': case 'barrier': case 'twinCast': case 'kenki': r51bEffect(this, c, a, eff, ev, targets); break;
+      // セーブ・ロード・楽天ポイント（第66回 E2。battle-r66e2.js）
+      case 'savePoint': case 'loadPoint': case 'cardPoint': r66e2Effect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1575,6 +1588,8 @@ export class Battle {
       else dmg = base * (estimate ? 1 : this.rng.float(0.875, 1.125));
     }
     dmg *= (eff.mult ?? 1) * powMult * kenkiMult(c, eff);
+    // 楽天ポイントが たまるほど 強い 技（第66回 E2。battle-r66e2.js）
+    dmg *= cardPtMult(c, eff);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;

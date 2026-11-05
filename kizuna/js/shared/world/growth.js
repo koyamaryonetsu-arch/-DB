@@ -3,12 +3,12 @@
 //     「ユウ　Lv12→15　戦士Lv3→4！　HP+20　力+9　守り+6」
 //     「覚えた：ホイミ、ベホイミ」
 //   マスター・新しい 職業・ヒントは べつの 行（notes。めったに 出ない 大事な 知らせ）
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=0e6cd5b18d1a';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=3cac07ff7cd4';
 // 第38回 B: Lv15・Lv20（第65回: Lv25 も）の しょうごう・上限に なった ときの 試練の 知らせ（data/job-trials.js）
-import { titleFor, jobTopCap, jobLevelCap, TITLE_LEVELS } from '../data/job-trials.js?v=0e6cd5b18d1a';
-import { ABILITIES } from '../data/abilities.js?v=0e6cd5b18d1a';
-import { abilityFor } from '../ability-label.js?v=0e6cd5b18d1a';
-import { jobLabel } from '../job-label.js?v=0e6cd5b18d1a';
+import { titleFor, jobTopCap, jobLevelCap, TITLE_LEVELS } from '../data/job-trials.js?v=3cac07ff7cd4';
+import { ABILITIES } from '../data/abilities.js?v=3cac07ff7cd4';
+import { abilityFor } from '../ability-label.js?v=3cac07ff7cd4';
+import { jobLabel } from '../job-label.js?v=3cac07ff7cd4';
 
 export const GROW_STATS = ['maxHp', 'maxMp', 'str', 'def', 'agi', 'mag', 'heal'];
 const SHORT = { maxHp: 'HP', maxMp: 'MP', str: '力', def: '守り', agi: '素早さ', mag: '魔力', heal: '回復' };

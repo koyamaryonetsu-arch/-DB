@@ -3,8 +3,8 @@
 //   → 歯車の ゆかが 北へ 流れる（maps/tokei-high.js の とびら。流される うごきは client/field.js・maps/flow.js）
 // ・だれも 立っていなければ HOLD8 は 消える（ハンドルから おりた・ほかの 階へ 行った・ぬけた）
 // ・おもり（WEIGHT8）・止める レバー（LOCK8）は だいほん（data/story-ch6d.js）
-import { MAPS } from '../maps/index.js?v=0e6cd5b18d1a';
-import { HOLD8 } from '../maps/tokei-high.js?v=0e6cd5b18d1a';
+import { MAPS } from '../maps/index.js?v=3cac07ff7cd4';
+import { HOLD8 } from '../maps/tokei-high.js?v=3cac07ff7cd4';
 
 const GEAR_MAP = 'tokei_8f';
 

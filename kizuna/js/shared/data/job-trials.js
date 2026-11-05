@@ -11,9 +11,9 @@
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
 // ・キャラの jobs[職業] に のこす: tr … クリアした 試練の 数 / tq … 受けている 試練（1・2）/ tn … 修行の 数
 //   （家族で 遊んでも 1人ずつ。world/merge.js は 多い ほう、world/save.js が 古い セーブを ととのえる）
-import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=0e6cd5b18d1a';
-import { ABILITIES } from './abilities.js?v=0e6cd5b18d1a';
-import { jobLabel } from '../job-label.js?v=0e6cd5b18d1a';
+import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=3cac07ff7cd4';
+import { ABILITIES } from './abilities.js?v=3cac07ff7cd4';
+import { jobLabel } from '../job-label.js?v=3cac07ff7cd4';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
@@ -184,13 +184,52 @@ export const TRIAL_WORDS = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
   grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
   sword_saint: '会心の一撃は、心がすんだときに生まれる。',
+  // 第66回 B班（伝説の職業）
+  new_kawaii: 'かわいいは、だれかを笑顔にしたときに一番かがやくのよ。',
+  smap: '1人1人ちがう花だから、5つそろうと強いんだ。',
+  oogosho: '笑いは、相手をよく見ることから始まるんや。',
+  five_star_chef: '料理は、食べる人の笑顔を思いうかべて作るものだ。',
+  // 第66回 A（伝説の職業）
+  guard_god: '守るとは、だれよりも前に立ち、だれよりも長く立っていることだ。',
+  kenshin: '光だけでも、闇だけでもない。2つを知る者が、本当の剣士だ。',
+  poke_master: '魔物は道具じゃない。いっしょに旅をする、大切な友だちだ。',
+  sennen_mage: '魔法は、楽しいと思う心で強くなる。千年たっても、同じだよ。',
+  // 第66回 D班（伝説の職業。ロゼッタの 男の子は TRIAL_WORDS_MASC）
+  gekka: '本当のマジックは、見る人を笑顔にするものだ。',
+  nobu_dora: 'ひみつ道具は、友だちのために使うんだよ。',
+  kappa_king: '大王の力は、川のみんなを守るためにあるのじゃ。',
+  truth_gate: '真理とは、すべては一つで、一つはすべてということだ。',
+  rosetta: '星は遠くても、いつもあなたを見守っているわ。',
+  // 第66回 E1班
+  koan_zero: 'かげで守る者は、だれにもほめられなくても、まっすぐ立つのだ。',
+  hyper_rescue: '助けに行く者が、まず自分の身を守れ。それがプロだ。',
+  top_streamer: '見てくれる人の数より、ひとりひとりの笑顔を大事にしなさい。',
+  triple_face: 'どの顔の自分も、本当の自分だ。守りたいものは1つ。',
+  hikeshi_god: '火を消す者は、だれよりも熱い心をもて。',
+  world_streamer: '画面のむこうには、世界中の友だちがいる。それをわすれるな。',
+  // 第66回 E2
+  esports_king: '勝っても負けても「ありがとう」と言える者が、本当の王者だ。',
+  gold_cardman: 'ポイントも力も、毎日のつみ重ねで金色にかがやく。',
+  psychicer: '心の声が聞こえても、選ぶのはやさしい言葉だ。',
+  game_god: 'ゲームは、みんなで楽しむためにある。セーブもわすれずにな。',
+  black_cardman: 'たくさん持つ者ほど、みんなのために使うのだ。',
+  saiki: '大きな力は、こっそりだれかのために使えばいい。',
 };
+// 第66回 C班（伝説の職業。jobs-legend-r66c.js）
+Object.assign(TRIAL_WORDS, {
+  souri: 'リーダーは、いちばん多くの人の声を聞く者だ。',
+  kaichou: 'お金は、みんなを笑顔にするために使うものだ。',
+  hatarakikata: 'よく働き、よく休む。それがいちばん強い。',
+  ano_kata: 'ひみつを守れる者だけが、ほんとうの強さを知る。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
   snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
   mario: 'こまっている人がいたら、まずはジャンプだ！',
   galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
+  // 第66回 D班: ギャラクシーマリオ
+  rosetta: '星から星へ、ジャンプでどこまでも行けるさ！',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

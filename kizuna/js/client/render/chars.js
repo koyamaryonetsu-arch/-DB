@@ -2,28 +2,40 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=0e6cd5b18d1a';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=0e6cd5b18d1a';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=0e6cd5b18d1a';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=0e6cd5b18d1a';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=0e6cd5b18d1a';
-import { paintCh5Special } from './ch5-art.js?v=0e6cd5b18d1a';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=0e6cd5b18d1a';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=0e6cd5b18d1a';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=0e6cd5b18d1a';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=0e6cd5b18d1a';
-import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=0e6cd5b18d1a';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=0e6cd5b18d1a';
-import { R26_OLD_LOOK } from './hero-r26.js?v=0e6cd5b18d1a';
-import { R27_OLD_LOOK } from './hero-r27.js?v=0e6cd5b18d1a';
-import { R29_OLD_LOOK } from './hero-r29.js?v=0e6cd5b18d1a';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=0e6cd5b18d1a';
-import { R40_OLD_LOOK } from './hero-r40.js?v=0e6cd5b18d1a';
-import { R41B_OLD_LOOK } from './hero-r41b.js?v=0e6cd5b18d1a';
-import { R41A_OLD_LOOK } from './hero-r41a.js?v=0e6cd5b18d1a';
-import { R43J_OLD_LOOK } from './hero-r43j.js?v=0e6cd5b18d1a';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=3cac07ff7cd4';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=3cac07ff7cd4';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=3cac07ff7cd4';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=3cac07ff7cd4';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=3cac07ff7cd4';
+import { paintCh5Special } from './ch5-art.js?v=3cac07ff7cd4';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=3cac07ff7cd4';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=3cac07ff7cd4';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=3cac07ff7cd4';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=3cac07ff7cd4';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=3cac07ff7cd4';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=3cac07ff7cd4';
+import { R26_OLD_LOOK } from './hero-r26.js?v=3cac07ff7cd4';
+import { R27_OLD_LOOK } from './hero-r27.js?v=3cac07ff7cd4';
+import { R29_OLD_LOOK } from './hero-r29.js?v=3cac07ff7cd4';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=3cac07ff7cd4';
+import { R40_OLD_LOOK } from './hero-r40.js?v=3cac07ff7cd4';
+import { R41B_OLD_LOOK } from './hero-r41b.js?v=3cac07ff7cd4';
+import { R41A_OLD_LOOK } from './hero-r41a.js?v=3cac07ff7cd4';
+import { R43J_OLD_LOOK } from './hero-r43j.js?v=3cac07ff7cd4';
 // 第51回 W の 天気の 職業
-import { WEATHER_OLD_LOOK } from './hero-weather.js?v=0e6cd5b18d1a';
+import { WEATHER_OLD_LOOK } from './hero-weather.js?v=3cac07ff7cd4';
+// 第66回 B班の 伝説の 職業
+import { R66B_OLD_LOOK } from './hero-r66b.js?v=3cac07ff7cd4';
+// 第66回 A の 伝説の 職業 4つ
+import { R66A_OLD_LOOK } from './hero-r66a.js?v=3cac07ff7cd4';
+// 第66回 C班の 伝説の職業（総理大臣・会長・働き方改革の星・あの方）
+import { R66C_OLD_LOOK } from './hero-r66c.js?v=3cac07ff7cd4';
+// 第66回 D班の 伝説の 職業の 古い え（hero-r66d.js）
+import { R66D_OLD_LOOK } from './hero-r66d.js?v=3cac07ff7cd4';
+// 第66回 E1班の 6つの 職業（hero-r66e1.js）
+import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=3cac07ff7cd4';
+// 第66回 E2 の 6つの 職業の 古い え（hero-r66e2.js）
+import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=3cac07ff7cd4';
 
 export const CW = 16;
 export const CH = 21;
@@ -126,6 +138,12 @@ Object.assign(JOB_LOOK, R41B_OLD_LOOK);
 Object.assign(JOB_LOOK, R41A_OLD_LOOK);
 Object.assign(JOB_LOOK, R43J_OLD_LOOK);
 Object.assign(JOB_LOOK, WEATHER_OLD_LOOK);
+Object.assign(JOB_LOOK, R66B_OLD_LOOK);
+Object.assign(JOB_LOOK, R66A_OLD_LOOK);
+Object.assign(JOB_LOOK, R66C_OLD_LOOK);
+Object.assign(JOB_LOOK, R66D_OLD_LOOK);
+Object.assign(JOB_LOOK, R66E1_OLD_LOOK);
+Object.assign(JOB_LOOK, R66E2_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

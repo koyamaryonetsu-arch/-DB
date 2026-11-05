@@ -201,7 +201,44 @@ export const JOB_TAGS = {
   galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
+  // 第66回 B班（伝説の職業。jobs-legend-r66b.js。歌とおどりは 13職業の 上限〈test/dual-r31.test.js の せーのでジャンプ〉なので つけない）
+  new_kawaii: ['light', 'heal', 'master'], // ニューカワイイ（星の歌姫・フルーツジッパーの 先。歌で みんなを 強く）
+  smap: ['light', 'heal', 'wind', 'master'], // SMAP（星の歌姫・アラシの 先。5人の 歌）
+  oogosho: ['laugh', 'rival', 'master'], // 大御所（M-1王者の 先。お笑い界の トップ）
+  five_star_chef: ['cook', 'fire', 'master', 'heal'], // 五つ星シェフ（三ツ星シェフの 先。料理で 回復）
+  // 第66回 A（伝説の職業。jobs-legend-r66a.js）
+  guard_god: ['guard', 'heal', 'light', 'master'], // 守りの神（ガーディアン＋大神官。光のたて・神のめぐみ）
+  kenshin: ['sword', 'light', 'dark', 'master'], // 光と闇の剣神（光の剣と闇の剣）
+  poke_master: ['monster', 'master', 'rival', 'bolt'], // ポケモンマスター（魔物と友だち・ライバル・10まんボルト）
+  sennen_mage: ['magic', 'master', 'heal', 'ice'], // 千年の大魔法使い（呪文・花畑のいやし・氷の大魔法）
+  // 第66回 D班（伝説の職業。jobs-legend-r66d.js）
+  gekka: ['shinobi', 'sky', 'light', 'rival'], // 月下のき術師（月の光・グライダー。歌とおどりは 13職業の 上限）
+  nobu_dora: ['machine', 'home', 'sky', 'master'], // のぶドラ（ひみつ道具・タケコプター）
+  kappa_king: ['fist', 'monster', 'master', 'ice'], // かっぱの大王（はり手・お皿の水）
+  truth_gate: ['alchemy', 'fist', 'machine', 'master'], // 真理のとびらをひらく者（れん成・機械のうで）
+  rosetta: ['light', 'magic', 'heal', 'master'], // ロゼッタ／ギャラクシーマリオ（流れ星・星のかけら）
+  // 第66回 E1班（超級職・伝説の職業。jobs-r66e1.js。歌とおどりは 13職業の 上限なので 配信者には つけない）
+  koan_zero: ['fist', 'shinobi', 'detective', 'work'], // 公安ゼロ（ボクシング・ひみつの 仕事・調べる・警察官）
+  hyper_rescue: ['ice', 'heal', 'guard', 'ride'], // ハイパーレスキュー（放水・救出・体をはって 守る・とくべつな 車）
+  top_streamer: ['machine', 'money', 'laugh'], // 登録者1000万人（カメラ・投げせん・ドッキリ）
+  triple_face: ['fist', 'henshin', 'shinobi', 'detective'], // トリプルフェイス（ボクシング・3つの 顔・なぞの 組織・探てい）
+  hikeshi_god: ['ice', 'guard', 'heal', 'master'], // 火消しの神（大水・大たて・救出・火消しの かしら）
+  world_streamer: ['machine', 'money', 'light', 'master'], // 世界一の配信者（カメラ・投げせん・トレンドの 光・世界一）
+  // 第66回 E2（超級職・伝説の職業）
+  esports_king: ['machine', 'rival', 'sword', 'magic'], // eスポーツ世界王者（ゲーム機・世界大会・魔法剣）
+  gold_cardman: ['money', 'henshin', 'work', 'master'], // 楽天ゴールドカードマン（金色の全身タイツ・部長）
+  psychicer: ['magic', 'kid', 'sky', 'detective'], // サイキッカー（念力・テレポート・心を読む）
+  game_god: ['machine', 'rival', 'sword', 'magic'], // ゲームの神
+  black_cardman: ['money', 'henshin', 'master'], // 楽天ブラックカードマン（カードマンの頂点）
+  saiki: ['magic', 'kid', 'sky', 'detective'], // さいきくすお（高校生の 超能力者）
 };
+// 第66回 C班（伝説の職業。jobs-legend-r66c.js）
+Object.assign(JOB_TAGS, {
+  souri: ['work', 'master', 'guard'], // 総理大臣（国の仕事・みんなを引っぱる・国を守る）
+  kaichou: ['money', 'work', 'master', 'sky'], // 会長（お金・会社・グループのいちばん上・プライベートジェット）
+  hatarakikata: ['work', 'heal', 'home'], // 働き方改革の星（会社・毎ターン回復・定時で家に帰る）
+  ano_kata: ['dark', 'shinobi', 'rival', 'master'], // あの方（なぞの組織のボス）
+});
 
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {

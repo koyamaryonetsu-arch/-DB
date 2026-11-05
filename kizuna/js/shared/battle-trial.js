@@ -7,12 +7,12 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=0e6cd5b18d1a';
-import { ABILITIES } from './data/abilities.js?v=0e6cd5b18d1a';
-import { strengthenEnemy } from './data/difficulty.js?v=0e6cd5b18d1a';
-import { MONSTERS } from './data/monsters.js?v=0e6cd5b18d1a';
-import { mirrorSkillOk } from './battle-temple.js?v=0e6cd5b18d1a';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=0e6cd5b18d1a';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=3cac07ff7cd4';
+import { ABILITIES } from './data/abilities.js?v=3cac07ff7cd4';
+import { strengthenEnemy } from './data/difficulty.js?v=3cac07ff7cd4';
+import { MONSTERS } from './data/monsters.js?v=3cac07ff7cd4';
+import { mirrorSkillOk } from './battle-temple.js?v=3cac07ff7cd4';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=3cac07ff7cd4';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };
@@ -47,7 +47,21 @@ export const PHANTOM_ADJ = {
   detective_king: [0.81, 0.58, 0.55], galaxy_queen: [1.02, 0.79, 1.53], grand_magus: [0.63, 0.7, 1.01], sword_saint: [0.47, 0.35, 0.4],
   // 第65回 D1: 一・二の試練の 倍率が まだ なかった 職業（1 の まま）に 三の試練の 倍率
   sun_hokage: [1, 1, 0.94], meitantei: [1, 1, 1.64], facility_ai: [1, 1, 1.61], pirate_king: [1, 1, 0.85], super_hero: [1, 1, 1.21],
+  // 第66回 B班: 伝説の職業（tools/sim-trial-tune.mjs で さがした）
+  new_kawaii: [1.35, 1.21, 1.76], smap: [1.68, 1.62, 1.86], oogosho: [0.82, 0.93, 1.29], five_star_chef: [1.6, 1.95, 1.98],
+  // 第66回 A（伝説の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 の 2回 さがした 平均）
+  guard_god: [1.13, 0.75, 0.92], kenshin: [0.72, 0.54, 0.75], poke_master: [1.32, 0.92, 1.3], sennen_mage: [1.32, 1.08, 0.95],
+  // 第66回 D班（伝説の職業。tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均）
+  gekka: [0.99, 0.62, 0.76], nobu_dora: [2.21, 1.72, 2.7], kappa_king: [1.15, 1, 1.24], truth_gate: [0.99, 0.88, 0.94], rosetta: [1.26, 1.35, 1.6],
+  // 第66回 E1班（tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均。火消しの神は 回復・救出・かばうで まぼろしが しぶとい）
+  koan_zero: [1.14, 0.82, 0.96], hyper_rescue: [2.12, 1.82, 2.16], top_streamer: [1.59, 1.82, 2.37],
+  triple_face: [1.15, 1.02, 1.05], hikeshi_god: [0.83, 0.83, 0.91], world_streamer: [1.62, 1.79, 2.15],
+  // 第66回 E2（tools/sim-trial-tune.mjs 20 0.75。SEED 500・900 の 平均。ゴールドカードマンの まぼろしは ポイントが たまるまで 弱いので 大きめ）
+  esports_king: [1, 0.81, 1.1], gold_cardman: [2.34, 2.2, 2.84], psychicer: [1.73, 1.75, 1.95],
+  game_god: [1.02, 0.88, 1.07], black_cardman: [1.07, 0.98, 1.15], saiki: [1.39, 1.28, 1.55],
 };
+// 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
+Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23], hatarakikata: [0.95, 0.71, 1.05], ano_kata: [1.2, 1.06, 1.41] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
@@ -55,6 +69,11 @@ const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;
 // 1回の 戦いで 回復できる 回数（大きく 回復する 技を もつ 職業だけ。ほかは 今までどおり 何度でも）
 export const HEAL_CAP = { nitoryu: 3 };
+// 第66回 A: 守りの神・ポケモンマスター・千年の大魔法使いの まぼろしは 回復（神のめぐみ・ポケモンセンター・花畑を出す魔法）を
+//   何十回も 使って 戦いが とても 長く なるので 回数を きめる
+HEAL_CAP.guard_god = 4;
+HEAL_CAP.poke_master = 4;
+HEAL_CAP.sennen_mage = 4;
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 
 const pow = (m, k) => Math.pow(Math.max(0.3, m || 1), k);

@@ -12,19 +12,19 @@
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
 //   第36回: かくさない。本だな・れん金のメモ・かじ屋の 親方で わかる（親方は 生まれ変わりの レシピを 先に 教える）。
 //   町の 人・本だな・宝箱・はなす にも ヒント（secret-hints.js）
-import { ITEMS, baseItemId } from './items.js?v=0e6cd5b18d1a';
-import { UPGRADE_TYPES, CAP_UP_MAX, LB_MAX, lbId, upgradeLimit } from './items-forge.js?v=0e6cd5b18d1a';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START, REBIRTH } from './items-alchemy.js?v=0e6cd5b18d1a';
-import { isShopGear } from './items-rare.js?v=0e6cd5b18d1a';
+import { ITEMS, baseItemId } from './items.js?v=3cac07ff7cd4';
+import { UPGRADE_TYPES, CAP_UP_MAX, LB_MAX, lbId, upgradeLimit } from './items-forge.js?v=3cac07ff7cd4';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START, REBIRTH } from './items-alchemy.js?v=3cac07ff7cd4';
+import { isShopGear } from './items-rare.js?v=3cac07ff7cd4';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=0e6cd5b18d1a';
-import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=0e6cd5b18d1a';
-import { EARTH_RECIPES } from './items-earth.js?v=0e6cd5b18d1a';
-import { CASTLE_RECIPES } from './items-castle.js?v=0e6cd5b18d1a';
-import { PAST_RECIPES } from './items-past.js?v=0e6cd5b18d1a';
-import { TOKEI6_RECIPES } from './items-tokei6.js?v=0e6cd5b18d1a';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=3cac07ff7cd4';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=3cac07ff7cd4';
+import { EARTH_RECIPES } from './items-earth.js?v=3cac07ff7cd4';
+import { CASTLE_RECIPES } from './items-castle.js?v=3cac07ff7cd4';
+import { PAST_RECIPES } from './items-past.js?v=3cac07ff7cd4';
+import { TOKEI6_RECIPES } from './items-tokei6.js?v=3cac07ff7cd4';
 // 第65回 D1: 第6章（tier 6）・第7章（tier 7）の レシピ（items-craft-r65.js）
-import { ALCH_R65_RECIPES, ALCH_R65_TIER_FLAG, ALCH_R65_KEEPER } from './items-craft-r65.js?v=0e6cd5b18d1a';
+import { ALCH_R65_RECIPES, ALCH_R65_TIER_FLAG, ALCH_R65_KEEPER } from './items-craft-r65.js?v=3cac07ff7cd4';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX, LB_MAX };
 
@@ -38,6 +38,8 @@ export const MERGE_RECIPE = 'r_merge';
 // 第33回: れん金術師の 系統（れん金術師・国家れん金術師・はがねのれん金術師）に 今 ついている 人が
 // パーティーに いると、できあがるまでの 歩数が 半分（1歩で 2歩ぶん 進む。world/alchemy.js の potRate）
 export const POT_FAST_JOBS = ['alchemist', 'state_alchemist', 'fullmetal'];
+// 第66回 D班: 伝説の職業の 真理のとびらをひらく者も（はがねのれん金術師の 先）
+POT_FAST_JOBS.push('truth_gate');
 export const POT_FAST_RATE = 2;
 
 // できあがるまでの 歩数（道具・素材 30・★2までの 装備 40・★3 50・★4 60・同じ 武具 40）

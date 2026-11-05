@@ -30,7 +30,7 @@ export const VEHICLES = {
   // 第41回 B: 雪の女王・第5のせいれい（水の せいれいの 馬）
   water_horse: { name: '水の馬', price: 6000, jobs: ['snow_queen', 'fifth_spirit'], desc: '水でできた、すきとおった馬。走るたびに、しぶきが光る。' },
   // 第43回: マリオ・ピーチ（緑の きょうりゅう。絵は client/render/vehicle-r43j.js）
-  yoshi: { name: 'ヨッシー', price: 5000, jobs: ['mario'], desc: '緑の体に赤いくらをのせた、なかよしのきょうりゅう。' },
+  yoshi: { name: 'ヨッシー', price: 5000, jobs: ['mario', 'rosetta'], desc: '緑の体に赤いくらをのせた、なかよしのきょうりゅう。' },
   book: { name: '空飛ぶ本', price: 2600, jobs: ['mage', 'sage', 'archmage', 'daikenja', 'grand_magus'], desc: '大きな呪文の本。開くと空にうかぶ。' },
   big_ball: { name: '大玉', price: 900, jobs: ['performer'], desc: 'サーカスの大玉。玉の上で、上手に走る。' },
   pogo: { name: 'ホッピング', price: 600, jobs: ['jester'], desc: 'ぴょんぴょんはねる、ばねの乗り物。' },
@@ -42,29 +42,29 @@ export const VEHICLES = {
   relief_car: { name: 'リリーフカー', price: 2200, jobs: ['ballplayer', 'major_leaguer', 'nitoryu', 'hall_of_fame', 'dream_stadium'], desc: '野球場で、ピッチャーを運ぶ小さな車。' },
   tricycle: { name: '三輪車', price: 500, jobs: ['schoolkid', 'middleschooler', 'highschooler', 'homeroom_3b'], desc: 'なつかしい、赤い三輪車。' },
   town_bus: { name: '町のバス', price: 2500, jobs: ['civil_local', 'civil_national', 'career'], desc: '町の人を乗せて走る、小さなバス。' },
-  police_bike: { name: '白バイ', price: 3000, jobs: ['police'], desc: '赤いランプの、白いオートバイ。' },
-  fire_truck: { name: '消防車', price: 3800, jobs: ['firefighter'], desc: 'はしごをつんだ、赤い消防車。' },
+  police_bike: { name: '白バイ', price: 3000, jobs: ['police', 'koan_zero', 'triple_face'], desc: '赤いランプの、白いオートバイ。' },
+  fire_truck: { name: '消防車', price: 3800, jobs: ['firefighter', 'hyper_rescue', 'hikeshi_god'], desc: 'はしごをつんだ、赤い消防車。' },
   food_cart: { name: '屋台', price: 1600, jobs: ['cook', 'patissier', 'star_chef'], desc: 'のれんのかかった、車輪つきの屋台。' },
   delivery_bike: { name: '出前バイク', price: 1400, jobs: ['parttimer', 'seishain', 'tatakiage'], desc: 'うしろに、出前の箱をつんだバイク。' },
   roll_chair: { name: 'キャスターつきのいす', price: 300, jobs: ['neet'], desc: '部屋から出なくても、どこへでも行ける…？' },
   dark_wings: { name: '闇のつばさ', price: 3300, jobs: ['chuuni', 'datenshi'], desc: '黒い羽がまう、闇のつばさ。' },
   bukujutsu: { name: 'ぶくう術', price: 4000, jobs: ['saiyan', 'super_saiyan', 'ss2', 'ss3'], desc: '気をまとって、空を飛ぶ術。' },
-  drone: { name: '大きなドローン', price: 2400, jobs: ['youtuber', 'streamer', 'creator', 'facility_ai'], desc: 'カメラつきの、人を乗せて飛ぶドローン。' },
+  drone: { name: '大きなドローン', price: 2400, jobs: ['youtuber', 'streamer', 'creator', 'facility_ai', 'top_streamer', 'world_streamer'], desc: 'カメラつきの、人を乗せて飛ぶドローン。' },
   kart: { name: 'レーシングカート', price: 2000, jobs: ['gamer', 'pro_gamer', 'plumber', 'mustache', 'mario'], desc: 'ゲームの中から出てきたような、みどりのカート。' },
   mamachari: { name: 'ママチャリ', price: 700, jobs: ['okan', 'saikyo_okan', 'cosmic_okan'], desc: '前のかごに、ネギが入った自転車。' },
-  spy_car: { name: '黒いスポーツカー', price: 4200, jobs: ['spy', 'assassin', 'black_org'], desc: 'ひくくて速い、なぞの黒い車。' },
+  spy_car: { name: '黒いスポーツカー', price: 4200, jobs: ['spy', 'assassin', 'black_org', 'koan_zero', 'triple_face'], desc: 'ひくくて速い、なぞの黒い車。' },
   skateboard: { name: 'ターボつきスケボー', price: 1500, jobs: ['shonen_tantei', 'oshiri_tantei', 'meitantei', 'detective_king'], desc: 'うしろからけむりが出る、速いスケボー。' },
-  propeller: { name: '竹とんぼプロペラ', price: 2000, jobs: ['neko_robot', 'mimi_robot', 'doraemon'], desc: '頭につけると、空を飛べるプロペラ。' },
-  lotus: { name: 'ハスの葉', price: 1200, jobs: ['kappa', 'hanakappa', 'kinniku_kappa'], desc: '水の上でも、地面の上でもすべる大きな葉。' },
+  propeller: { name: '竹とんぼプロペラ', price: 2000, jobs: ['neko_robot', 'mimi_robot', 'doraemon', 'nobu_dora'], desc: '頭につけると、空を飛べるプロペラ。' },
+  lotus: { name: 'ハスの葉', price: 1200, jobs: ['kappa', 'hanakappa', 'kinniku_kappa', 'kappa_king'], desc: '水の上でも、地面の上でもすべる大きな葉。' },
   sakura_dash: { name: '桜の風', price: 2600, jobs: ['rurouni', 'hitokiri', 'himura', 'hiten', 'sword_saint'], desc: '桜の花びらをまきあげて、風のように走る。' },
-  glider: { name: '白いハンググライダー', price: 3600, jobs: ['magician', 'kaito', 'kaito_kid'], desc: '月夜ににあう、白いつばさ。' },
-  rock_cart: { name: 'れん成の石車', price: 2400, jobs: ['alchemist', 'state_alchemist', 'fullmetal'], desc: '地面の石をれん成して作った車。' },
+  glider: { name: '白いハンググライダー', price: 3600, jobs: ['magician', 'kaito', 'kaito_kid', 'gekka'], desc: '月夜ににあう、白いつばさ。' },
+  rock_cart: { name: 'れん成の石車', price: 2400, jobs: ['alchemist', 'state_alchemist', 'fullmetal', 'truth_gate'], desc: '地面の石をれん成して作った車。' },
   baby_dragon: { name: '子どもの竜', price: 5000, jobs: ['magic_knight', 'dragon_knight', 'magic_swordsman', 'ryumajin'], desc: 'せなかに乗せてくれる、みどりの竜の子。' },
   pirate_cart: { name: '車輪つきの海賊船', price: 3000, jobs: ['pirate', 'guardian', 'pirate_king'], desc: '陸の上でも走れる、小さな海賊船。' },
   gomu_rocket: { name: 'ゴムのロケット', price: 4000, jobs: ['rubber', 'nika', 'pirate_king'], desc: 'うでをのばして、びよーんと前へとぶ。' },
   ninja_dash: { name: '忍び走り', price: 2800, jobs: ['ninja', 'konoha', 'hokage', 'sun_hokage'], desc: 'うでを後ろにのばして、風より速く走る。' },
   slime: { name: '大きなぷるりん', price: 1800, jobs: ['tamer', 'monster_master'], desc: 'なかよしになった、大きなぷるりん。' },
-  shooting_star: { name: 'ほうき星', price: 4400, jobs: ['fortune', 'summoner', 'star_diva', 'weather_god'], desc: '光のしっぽを引いて飛ぶ、小さな星。' },
+  shooting_star: { name: 'ほうき星', price: 4400, jobs: ['fortune', 'summoner', 'star_diva', 'weather_god', 'rosetta'], desc: '光のしっぽを引いて飛ぶ、小さな星。' },
   white_horse: { name: '白馬', price: 5000, jobs: ['samurai', 'shogun', 'abarenbo_shogun', 'sword_saint'], desc: '町を走る上様の、白い馬。' },
   swan_boat: { name: 'スワンボート', price: 1500, jobs: ['comedian', 'm1_champion'], desc: 'こいで進む、白鳥の形のボート。陸でも走る。' },
   kei_truck: { name: '軽トラ', price: 2600, jobs: ['setsubiya', 'ryonetsu', 'facility_genius', 'facility_ai'], desc: 'にだいに、はしごとエアコンの外の機械をつんだ軽トラ。' },
@@ -79,11 +79,29 @@ export const VEHICLES = {
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=0e6cd5b18d1a'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=3cac07ff7cd4'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 // 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
-import { PRIZE_VEHICLES } from './vehicles-prize.js?v=0e6cd5b18d1a'; Object.assign(VEHICLES, PRIZE_VEHICLES);
+import { PRIZE_VEHICLES } from './vehicles-prize.js?v=3cac07ff7cd4'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 // 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
-import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=0e6cd5b18d1a'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=3cac07ff7cd4'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+// 第66回 B班: 伝説の職業も もとの 職業の 乗り物に（オープンカー・スワンボート・屋台）
+VEHICLES.open_car.jobs.push('new_kawaii', 'smap'); VEHICLES.swan_boat.jobs.push('oogosho'); VEHICLES.food_cart.jobs.push('five_star_chef');
+// 第66回 A: 伝説の職業（jobs-legend-r66a.js）も もとの 超級職の 乗り物に 乗れる
+//   守りの神 … 天馬（大神官）／光と闇の剣神 … よろい馬（ソードマスター）・子どもの竜（魔剣士）
+//   ポケモンマスター … 大きなぷるりん（モンスターマスター）／千年の大魔法使い … 空飛ぶ本（大賢者）
+VEHICLES.pegasus.jobs.push('guard_god');
+VEHICLES.armor_horse.jobs.push('kenshin');
+VEHICLES.baby_dragon.jobs.push('kenshin');
+VEHICLES.slime.jobs.push('poke_master');
+VEHICLES.book.jobs.push('sennen_mage');
+// 第66回 C班: 伝説の職業（総理大臣・会長は 黒い高級車・働き方改革の星は 満員電車〈定時で 帰る 電車〉・あの方は 黒いスポーツカー）
+VEHICLES.limo.jobs.push('souri', 'kaichou');
+VEHICLES.commuter_train.jobs.push('hatarakikata');
+VEHICLES.spy_car.jobs.push('ano_kata');
+// 第66回 E2: eスポーツ世界王者・ゲームの神は レーシングカート、楽天ゴールド／ブラックカードマンは 空飛ぶカード、サイキッカー・さいきくすおは 念力ふわり
+VEHICLES.kart.jobs.push('esports_king', 'game_god');
+VEHICLES.flying_card.jobs.push('gold_cardman', 'black_cardman');
+VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
