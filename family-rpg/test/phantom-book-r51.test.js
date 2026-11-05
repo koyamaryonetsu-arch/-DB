@@ -88,7 +88,7 @@ test('幻の書: 12行。はじめは ？？？・きわめると 名前と メ�
 test('幻の書: メニューに 1行・スマホの せまい 画面の CSS・漢字の きまり', async () => {
   const menuSrc = fs.readFileSync(new URL('../public/js/client/ui/menu.js', import.meta.url), 'utf8');
   assert.match(menuSrc, /\{ label: '幻の書', value: 'phantom' \}/);
-  assert.match(menuSrc, /case 'phantom': return this\.focusSub\(phantomBookView\(this, true\)\);/);
+  assert.match(menuSrc, /case 'phantom': return this\.openView\(\(\) => phantomBookView\(this, true\)\);/);
   const src = fs.readFileSync(new URL('../public/js/client/ui/phantom-book.js', import.meta.url), 'utf8');
   assert.match(src, /@media \(max-width: 420px\)/);
   assert.match(src, /\.pb-bar \{[^}]*min-width: 0/);

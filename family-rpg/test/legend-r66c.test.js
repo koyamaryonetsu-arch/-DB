@@ -96,7 +96,7 @@ test('第66回 C班の 職業: 総理大臣・会長・働き方改革の星・�
     assert.equal(j.id, id);
     assert.equal(j.name, name, '家族が 決めた 名前');
     assert.equal(j.tier, 3);
-    assert.deepEqual(j.req, [from]);
+    assert.deepEqual(j.req, id === 'kaichou' ? ['shacho', 'tatakiage'] : [from]);
     assert.ok(LEGEND_ORDER.includes(id) && ALL_JOBS.filter((x) => x === id).length === 1);
     assert.ok(JOB_HINTS[id]);
     for (const s of [j.name, j.desc, j.short, JOB_HINTS[id]]) textOk(s, id);
@@ -110,11 +110,11 @@ test('第66回 C班の 職業: 総理大臣・会長・働き方改革の星・�
   assert.equal(JOBS.souri.reqSuper, 1);
   assert.equal(JOBS.hatarakikata.reqSuper, 1);
   assert.equal(JOBS.ano_kata.reqSuper, 1);
-  // 会長は 社長 か たたき上げ社長（どちらか 1つ。表の とおり ほかの 超級職は いらない）
-  assert.deepEqual(JOBS.kaichou.reqAlt, [['tatakiage']]);
-  assert.ok(!JOBS.kaichou.reqSuper);
+  // 会長は 社長 と たたき上げ社長の 両方（第66回: 家族が 決めた。はかい神と 同じ 形）
+  assert.deepEqual(JOBS.kaichou.req, ['shacho', 'tatakiage']);
+  assert.ok(!JOBS.kaichou.reqAlt && !JOBS.kaichou.reqSuper);
   assert.equal(jobReqText('souri'), 'キャリア組Lv10＋ほかの超級職1つLv10');
-  assert.equal(jobReqText('kaichou'), '社長Lv10 または たたき上げ社長Lv10');
+  assert.equal(jobReqText('kaichou'), '社長Lv10＋たたき上げ社長Lv10');
   assert.equal(jobReqText('hatarakikata'), 'ブラックきぎょうの星Lv10＋ほかの超級職1つLv10');
   assert.equal(jobReqText('ano_kata'), '黒の組織Lv10＋ほかの超級職1つLv10');
   // 新しい ファイルは 漢字の きまりで しらべる
@@ -122,7 +122,7 @@ test('第66回 C班の 職業: 総理大臣・会長・働き方改革の星・�
   for (const f of ['jobs-legend-r66c.js', 'abilities-r66c.js', 'hirameki-r66c.js', 'battle-r66c.js', 'battlefx-r66c.js']) assert.ok(files.some((x) => x.endsWith(f)), f);
 });
 
-test('第66回 C班の 職業: なれる じゅんばん（会長は 社長でも たたき上げ社長でも）', () => {
+test('第66回 C班の 職業: なれる じゅんばん（会長は 社長と たたき上げ社長の 両方）', () => {
   for (const id of ['souri', 'hatarakikata', 'ano_kata']) {
     const c = newCharacter({ id: 'k', name: 'ケン', job: 'warrior' });
     const from = TREE[id][1];
@@ -135,13 +135,15 @@ test('第66回 C班の 職業: なれる じゅんばん（会長は 社長で�
     assert.equal(changeJob(c, id).ok, true);
     assert.ok(learnedAbilities(c).includes(JOBS[id].learn[0][1]));
   }
-  for (const from of ['shacho', 'tatakiage']) {
+  for (const [a, b] of [['shacho', 'tatakiage'], ['tatakiage', 'shacho']]) {
     const c = newCharacter({ id: 'k', name: 'ケン', job: 'warrior' });
     assert.equal(jobKnown(c, 'kaichou'), false);
     assert.equal(jobUnlocked(c, 'kaichou'), false);
-    master(c, from);
-    assert.equal(jobKnown(c, 'kaichou'), true, from);
-    assert.equal(jobUnlocked(c, 'kaichou'), true, `${from} だけで なれる`);
+    master(c, a);
+    assert.equal(jobKnown(c, 'kaichou'), true, `${a} で うわさ`);
+    assert.equal(jobUnlocked(c, 'kaichou'), false, `${a} だけでは なれない`);
+    master(c, b);
+    assert.equal(jobUnlocked(c, 'kaichou'), true, '両方 きわめると なれる');
     assert.equal(changeJob(c, 'kaichou').ok, true);
   }
 });

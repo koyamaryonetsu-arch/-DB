@@ -55,7 +55,7 @@ import { starTradeInfo, starTradeAction, usePrizeItem, PRIZE_USE } from './prize
 import { boardJobChange } from './family-board.js';
 // 第51回 F: 幻の職業（なる 条件の 文・はじめて なった 時の 掲示板）
 import { PHANTOM_JOBS } from '../data/phantom.js';
-import { phantomGot } from './phantom.js';
+import { phantomGot, phantomPeople } from './phantom.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -147,6 +147,8 @@ export function serviceAction(world, s, msg) {
   };
   switch (msg.kind) {
     case 'casino': case 'medal': return casinoAction(world, s, msg);
+    // 第66回: 幻の書（パーティーの みんなの ぶん。world/phantom.js の phantomPeople）。見るだけ なので 記録は かえない
+    case 'phantomBook': return world.send(s, { t: 'svcRes', ok: true, text: '', people: phantomPeople(world, s) });
     case 'storage': return storageAction(world, s, msg, reply);
     case 'shop': {
       const shop = SHOPS[s.openShop];

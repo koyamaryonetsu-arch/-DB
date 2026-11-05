@@ -4,7 +4,7 @@
 //   ・転職（world/services.js の jobChange）で はじめて 幻の職業に なったら phantomGot
 //   ・掲示板は B 班の world.boardPost（ない ときは 何も しない）
 //   ・知らない タグ（あとの 版で ふえた もの）も けさずに のこす（world/save.js の やくそく）
-import { PHANTOM_TAGS, FEAT_STATS, PHANTOM_JOBS, newFeat, phantomSeen, phantomReady, phantomName, phantomCondText } from '../data/phantom.js';
+import { PHANTOM_TAGS, FEAT_STATS, PHANTOM_JOBS, newFeat, phantomSeen, phantomReady, phantomName, phantomCondText, phantomBook } from '../data/phantom.js';
 import { JOBS, PHANTOM_ORDER } from '../data/jobs.js';
 
 const CAP = 1e15;
@@ -140,4 +140,38 @@ export function phantomGot(world, c, id) {
   if (!c || !PHANTOM_JOBS[id]) return;
   const name = phantomName(id, c);
   post(world, { kind: 'phantom_get', by: c.name, charId: c.id, job: id, text: `${c.name}が、幻の職業「${name}」になった！`, detail: phantomCondText(id, c) });
+}
+
+// 第66回: 幻の書を パーティーの みんなの ぶん 見る（家族が ねがった）
+//   自分・いっしょに 歩いている 家族・つれている 仲間（人。魔物は 職業が ないので のぞく）。
+//   家族の キャラ（fam:）は うつしでは なく 本人の 記録から
+//   かえす: [{ key, name, tag, rows: phantomBook(), jobs: { 職業: Lv }（うわさを 出すか 決める）}]
+export function phantomPeople(world, s) {
+  const me = s?.char;
+  if (!me) return [];
+  const out = [];
+  const seen = new Set();
+  const add = (c, key, tag) => {
+    if (!c || c.species || seen.has(c)) return;
+    seen.add(c);
+    const jobs = {};
+    for (const [j, v] of Object.entries(c.jobs || {})) jobs[j] = { lv: v?.lv || 0 };
+    out.push({ key, name: c.name, tag, rows: phantomBook(c), jobs });
+  };
+  add(me, 'self', '自分');
+  const p = world?.parties?.get?.(s.partyId) || null;
+  for (const sid of p?.members || []) {
+    const o = world.sessions?.get(sid);
+    if (o && o !== s) add(o.char, `sid:${sid}`, '家族');
+  }
+  const real = (x) => (String(x.key || '').startsWith('fam:') ? world.data?.characters?.[x.key.slice(4)] || x.char : x.char);
+  for (const x of p?.supports || []) add(real(x), `${x.owner}|${x.key}`, x.kind === 'family' ? '家族' : '仲間');
+  // パーティーが ない とき（ひとりの とき）は 自分の 仲間の 列から
+  if (!p) {
+    for (const k of me.partyKeys || []) {
+      if (String(k).startsWith('fam:')) add(world.data?.characters?.[k.slice(4)], k, '家族');
+      else add((me.companions || []).find((e) => e.key === k)?.char, k, '仲間');
+    }
+  }
+  return out;
 }

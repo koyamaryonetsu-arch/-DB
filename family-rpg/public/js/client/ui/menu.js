@@ -424,7 +424,7 @@ export class FieldMenu {
       case 'tactics': return this.openView(() => this.tacticsView(true));
       case 'vehicle': return this.openView(() => vehicleMenuView(this, true));
       case 'zukan': return this.focusSub(this.zukanView(true));
-      case 'phantom': return this.focusSub(phantomBookView(this, true));
+      case 'phantom': return this.openView(() => phantomBookView(this, true));
       case 'settings': return this.focusSub(this.settingsView(true));
       case 'news':
         // 読んだら メニューの ● を けす

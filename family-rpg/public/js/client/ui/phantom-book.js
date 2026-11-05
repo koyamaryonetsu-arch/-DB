@@ -25,6 +25,7 @@ const CSS = `
 .pb-body .pb-num { flex: none; font-size: 0.82em; color: var(--muted); white-space: nowrap; }
 .pb-body .pb-ready { color: #ffd66b; margin-top: 0.3em; }
 .pb-body .pb-hint { color: var(--muted); font-size: 0.9em; margin-top: 0.3em; }
+.pb-view .pb-row.pb-who .l { color: var(--accent, #ffd66b); }
 @media (max-width: 420px) {
   .pb-body { font-size: 0.92em; }
   .pb-body .pb-num { font-size: 0.78em; }
@@ -73,23 +74,58 @@ function detailOf(r, c) {
   return box;
 }
 
+// 第66回: パーティーの みんなの ぶんも 見る（家族が ねがった）。サーバーの phantomPeople（world/phantom.js）
+//   いちばん上の「◀ 〇〇の幻の書 ▶」を えらぶ（左右・タップ）と、見る 人が かわる。1人だけの ときは 出さない
+const WHO = '__pb_who';
+// サーバーに みんなの ぶんを たのむ（shop.js の request と 同じ しくみ。shop.js を よむと じゅんかんに なるので ここに 書く）
+function askPeople(game) {
+  return new Promise((resolve) => {
+    if (!game?.net?.send) return resolve(null);
+    game.svcWaiter = resolve;
+    game.net.send({ t: 'svc', kind: 'phantomBook' });
+    setTimeout(() => {
+      if (game.svcWaiter === resolve) {
+        game.svcWaiter = null;
+        resolve(null);
+      }
+    }, 6000);
+  });
+}
+let lastWho = 'self';
+
 // menu: FieldMenu（mkSub・back を 使う）。active: えらべる 画面か（false は 右の 見本）
-export function phantomBookView(menu, active) {
+// state: { people, i }（サーバーから もらった みんなの ぶん。まだ ない ときは 自分だけ）
+export function phantomBookView(menu, active, state = null) {
   addCss();
-  const c = menu.game.me;
-  const rows = phantomBook(c);
+  const me = menu.game.me;
+  const people = state?.people || [{ key: 'self', name: me.name, tag: '自分', rows: phantomBook(me), jobs: me.jobs }];
+  const pi = Math.max(0, Math.min(people.length - 1, state?.i ?? 0));
+  const who = people[pi];
+  const rows = who.rows;
+  const c = who.key === 'self' ? me : { jobs: who.jobs };
   const box = el('div', { class: 'items-view pb-view' });
   if (!active) {
     const n = rows.filter((r) => r.known).length;
-    box.append(el('div', { class: 'muted', text: `伝説の職業の、さらに上にある「幻の職業」の書。\nきわめておく職業と、やりこみの条件のすすみぐあいを見る。\n見つけた幻の職業　${n}/${rows.length}` }));
+    box.append(el('div', { class: 'muted', text: `伝説の職業の、さらに上にある「幻の職業」の書。\nきわめておく職業と、やりこみの条件のすすみぐあいを見る。（パーティーの仲間のぶんも見られる）\n見つけた幻の職業　${n}/${rows.length}` }));
     return box;
   }
   const detail = el('div', { class: 'detail item-detail pb-body' });
   const show = (it) => {
-    const r = rows.find((x) => x.id === it?.value);
     detail.innerHTML = '';
+    if (it?.value === WHO) {
+      detail.append(el('div', { class: 'pb-pre', text: `今は、${who.name}（${who.tag}）の幻の書を見ている。\n選ぶか左右で、見る人をかえられる。` }));
+      return;
+    }
+    const r = rows.find((x) => x.id === it?.value);
     if (r) detail.append(detailOf(r, c));
     detail.scrollTop = 0;
+  };
+  // 見る 人を かえる（同じ 画面を つくりなおす）
+  const swap = (d) => {
+    const i = (pi + d + people.length) % people.length;
+    lastWho = people[i].key;
+    menu.sfx?.('cursor');
+    menu.showView(() => phantomBookView(menu, true, { people, i }), 0);
   };
   const items = rows.map((r) => ({
     label: r.name,
@@ -98,14 +134,24 @@ export function phantomBookView(menu, active) {
     rightCls: r.got || r.ready ? 'gold' : '',
     cls: `pb-row ${r.known ? '' : 'unknown'}`,
   }));
+  if (people.length > 1) items.unshift({ label: `◀ ${who.name}の幻の書 ▶`, value: WHO, right: `${pi + 1}/${people.length}`, cls: 'pb-row pb-who' });
   const m = menu.mkSub({
     items,
     onMove: (it) => show(it),
-    onSelect: (it) => show(it),
-    // 左右で 中みを スクロール（コントローラーだけで 下まで 読める）
-    onSide: (d) => detail.scrollBy({ top: d * detail.clientHeight * 0.7, behavior: 'smooth' }),
+    onSelect: (it) => (it?.value === WHO ? swap(1) : show(it)),
+    // 左右で 中みを スクロール（コントローラーだけで 下まで 読める）。いちばん上の 行では 見る 人を かえる
+    onSide: (d) => (items[m.idx]?.value === WHO ? swap(d > 0 ? 1 : -1) : detail.scrollBy({ top: d * detail.clientHeight * 0.7, behavior: 'smooth' })),
   });
   box.append(m.root, detail);
   show(items[m.idx]);
+  // はじめて 開いた とき: みんなの ぶんを もらって、2人 いじょう なら つくりなおす（前に 見ていた 人から）
+  if (!state) {
+    askPeople(menu.game).then((res) => {
+      const list = Array.isArray(res?.people) ? res.people.filter((p) => p && Array.isArray(p.rows)) : [];
+      if (list.length < 2 || !box.isConnected || menu.sub !== m) return;
+      const i = Math.max(0, list.findIndex((p) => p.key === lastWho));
+      menu.showView(() => phantomBookView(menu, true, { people: list, i }), 0);
+    });
+  }
   return box;
 }
