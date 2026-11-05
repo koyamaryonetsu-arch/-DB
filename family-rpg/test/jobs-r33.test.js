@@ -66,6 +66,8 @@ const TREE = [
   ['sailor_moon', 'セーラームーン', 2, ['sailor_soldier']],
 ];
 const NEW = TREE.map(([id]) => id);
+// 第66回の 伝説の職業（jobs-legend-r66a〜d.js。ひとことは test/legend-r66*.test.js）
+const LEGEND_R66 = [...LEGEND_R66A_ORDER, ...LEGEND_R66B_ORDER, ...LEGEND_R66C_ORDER, ...LEGEND_R66D_ORDER];
 const SIG_NAMES = {
   magician: 'イリュージョン', kaito: '予告どおりにいただきます', kaito_kid: 'トランプじゅうの嵐', wizard_student: 'ステューピファイ', harry: '守護の呪文',
   homeroom_3b: '愛のお説教', alchemist: '石の大男', state_alchemist: 'れん成大爆発', fullmetal: '大地のやり',

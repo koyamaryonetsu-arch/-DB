@@ -57,6 +57,11 @@ export const JOB_SAY = {
   smap: '「5人そろって、SMAPです！」',
   oogosho: '「ほな、今日もいっちょやりまひょか」',
   five_star_chef: '「最高のひと皿を、あなたに」',
+  // 第66回 A（伝説の職業）
+  guard_god: '「仲間には、指一本ふれさせない」',
+  kenshin: '「光と闇、どちらもわたしの剣だ」',
+  poke_master: '「ポケモンマスターに、なったぞ！」',
+  sennen_mage: '「千年たっても、魔法は楽しい」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

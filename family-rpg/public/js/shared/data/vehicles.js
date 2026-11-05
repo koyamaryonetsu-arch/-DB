@@ -86,6 +86,14 @@ import { PRIZE_VEHICLES } from './vehicles-prize.js'; Object.assign(VEHICLES, PR
 import { TOKEI_VEHICLES } from './vehicles-tokei.js'; Object.assign(VEHICLES, TOKEI_VEHICLES);
 // 第66回 B班: 伝説の職業も もとの 職業の 乗り物に（オープンカー・スワンボート・屋台）
 VEHICLES.open_car.jobs.push('new_kawaii', 'smap'); VEHICLES.swan_boat.jobs.push('oogosho'); VEHICLES.food_cart.jobs.push('five_star_chef');
+// 第66回 A: 伝説の職業（jobs-legend-r66a.js）も もとの 超級職の 乗り物に 乗れる
+//   守りの神 … 天馬（大神官）／光と闇の剣神 … よろい馬（ソードマスター）・子どもの竜（魔剣士）
+//   ポケモンマスター … 大きなぷるりん（モンスターマスター）／千年の大魔法使い … 空飛ぶ本（大賢者）
+VEHICLES.pegasus.jobs.push('guard_god');
+VEHICLES.armor_horse.jobs.push('kenshin');
+VEHICLES.baby_dragon.jobs.push('kenshin');
+VEHICLES.slime.jobs.push('poke_master');
+VEHICLES.book.jobs.push('sennen_mage');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

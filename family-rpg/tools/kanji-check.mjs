@@ -314,6 +314,8 @@ export function gameFiles() {
     'public/js/shared/data/abilities-r43j.js', 'public/js/shared/data/hirameki-r43j.js', 'public/js/client/render/battlefx-r43j.js',
     // 第66回 B班: 伝説の職業（ニューカワイイ・SMAP・大御所・五つ星シェフ）の 技・ひらめき技・えんしゅつ（職業は jobs-legend-r66b.js）
     'public/js/shared/data/abilities-r66b.js', 'public/js/shared/data/hirameki-r66b.js', 'public/js/client/render/battlefx-r66b.js',
+    // 第66回 A: 4つの 伝説の 職業（守りの神・光と闇の剣神・ポケモンマスター・千年の大魔法使い）の 技・ひらめき技・戦いの しかけ・えんしゅつ
+    'public/js/shared/data/abilities-r66a.js', 'public/js/shared/data/hirameki-r66a.js', 'public/js/shared/battle-r66a.js', 'public/js/client/render/battlefx-r66a.js',
     // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者の 職業・技・ひらめき技・えんしゅつ（o10）
     'public/js/shared/data/jobs-weather.js', 'public/js/shared/data/abilities-weather.js', 'public/js/shared/data/hirameki-weather.js',
     'public/js/client/render/axfx-o10-sky.js', 'public/js/client/render/axfx-o10-storm.js',

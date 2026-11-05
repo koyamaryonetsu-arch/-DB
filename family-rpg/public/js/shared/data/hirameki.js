@@ -33,6 +33,8 @@ import { HIRA_PHANTOM_A_ABILITIES, HIRAMEKI_PHANTOM_A } from './hirameki-phantom
 import { HIRA_PHANTOM_B_ABILITIES, HIRAMEKI_PHANTOM_B } from './hirameki-phantom-b.js';
 // 第66回 B班: 伝説の職業 4つ（ニューカワイイ・SMAP・大御所・五つ星シェフ）の ひらめき技（hirameki-r66b.js）
 import { HIRA_R66B_ABILITIES, HIRAMEKI_R66B } from './hirameki-r66b.js';
+// 第66回 A: 4つの 伝説の 職業の ひらめき技（hirameki-r66a.js）
+import { HIRA_R66A_ABILITIES, HIRAMEKI_R66A } from './hirameki-r66a.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -218,6 +220,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_PHANTOM_B_ABILITIES,
   // 第66回 B班の ひらめき技（hirameki-r66b.js）
   ...HIRA_R66B_ABILITIES,
+  // 第66回 A の ひらめき技（hirameki-r66a.js）
+  ...HIRA_R66A_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -283,6 +287,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_PHANTOM_B,
   // 第66回 B班の ひらめき技（hirameki-r66b.js）
   ...HIRAMEKI_R66B,
+  // 第66回 A の ひらめき技（hirameki-r66a.js）
+  ...HIRAMEKI_R66A,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）

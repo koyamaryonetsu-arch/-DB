@@ -22,6 +22,8 @@ import { playR41aFx, R41A_FINE } from './battlefx-r41a.js';
 import { playR43jFx, R43J_FINE } from './battlefx-r43j.js';
 // 第66回 B班の 伝説の 職業 4つの 技（battlefx-r66b.js）
 import { playR66bFx, R66B_FINE } from './battlefx-r66b.js';
+// 第66回 A の 伝説の 職業 4つの 技（battlefx-r66a.js）
+import { playR66aFx, R66A_FINE } from './battlefx-r66a.js';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
 import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
@@ -1252,6 +1254,7 @@ Object.assign(FINE, R41B_FINE);
 Object.assign(FINE, R41A_FINE);
 Object.assign(FINE, R43J_FINE);
 Object.assign(FINE, R66B_FINE);
+Object.assign(FINE, R66A_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
 Object.assign(FINE, TOKEI6_FINE);
@@ -1547,6 +1550,8 @@ export class Effects {
     if (playR43jFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第66回 B班の 伝説の 職業 4つの 技（battlefx-r66b.js。anim は 'r66b_…' と 看板の 技）
     if (playR66bFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第66回 A の 伝説の 職業 4つの 技（battlefx-r66a.js。anim は 'r66a_…' と 看板の 技）
+    if (playR66aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
     if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第27回に 作り直した 呪文・特技（メラ〜メラガイアー・ヒャド系・バギ系・イオ系・デイン系・ホイミ系・補助・剣と こぶしの 技）

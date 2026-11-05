@@ -35,6 +35,8 @@ import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js'
 import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js';
 // 第66回 B班の 伝説の 職業 4つ（ニューカワイイ・SMAP・大御所・五つ星シェフ）の 技
 import { R66B_SFX, R66B_HIT } from './render/battlefx-r66b.js';
+// 第66回 A: 4つの 伝説の 職業の 技（render/battlefx-r66a.js。みかたに かける 技は 前から ある えんしゅつ）
+import { R66A_SFX, R66A_HIT } from './render/battlefx-r66a.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -115,6 +117,7 @@ Object.assign(HIT_DELAY, R41A_HIT);
 Object.assign(HIT_DELAY, R43J_HIT);
 // 第66回 B班: あたる じかん（みかたに 出す えんしゅつは battlefx-r66b.js が PARTY_ANIMS に まぜる）
 Object.assign(HIT_DELAY, R66B_HIT);
+Object.assign(HIT_DELAY, R66A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -193,6 +196,8 @@ const ANIM_SFX = {
   ...R43J_SFX,
   // 第66回 B班の 伝説の 職業 4つの 技（render/battlefx-r66b.js）
   ...R66B_SFX,
+  // 第66回 A の 伝説の 職業 4つの 技（render/battlefx-r66a.js）
+  ...R66A_SFX,
   // 第44回の ポケモンの 技（render/battlefx-pokemon.js・sfx-pokemon.js）
   ...PK_SFX,
   // 第45回の ドラクエふうの 魔物の 技（render/battlefx-dqm.js・sfx-dqm.js）

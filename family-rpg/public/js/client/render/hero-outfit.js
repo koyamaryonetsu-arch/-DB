@@ -23,6 +23,8 @@ import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js';
 import { WEATHER_OUTFIT, WEATHER_BODY } from './hero-weather.js';
 // 第66回 B班の 伝説の 職業 4つ（ニューカワイイ・SMAP・大御所・五つ星シェフ）
 import { R66B_OUTFIT, R66B_BODY } from './hero-r66b.js';
+// 第66回 A の 伝説の 職業 4つ（守りの神・光と闇の剣神・ポケモンマスター・千年の大魔法使い）
+import { R66A_OUTFIT, R66A_BODY } from './hero-r66a.js';
 // 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
 import { PRIZE_ARMOR_LOOK } from './prize-looks.js';
 
@@ -214,6 +216,7 @@ Object.assign(JOB_OUTFIT, R41A_OUTFIT);
 Object.assign(JOB_OUTFIT, R43J_OUTFIT);
 Object.assign(JOB_OUTFIT, WEATHER_OUTFIT);
 Object.assign(JOB_OUTFIT, R66B_OUTFIT);
+Object.assign(JOB_OUTFIT, R66A_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -249,6 +252,7 @@ Object.assign(JOB_BODY, R41A_BODY);
 Object.assign(JOB_BODY, R43J_BODY);
 Object.assign(JOB_BODY, WEATHER_BODY);
 Object.assign(JOB_BODY, R66B_BODY);
+Object.assign(JOB_BODY, R66A_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 
