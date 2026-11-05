@@ -84,6 +84,10 @@ import { FAMILY_VEHICLES } from './vehicles-family.js'; Object.assign(VEHICLES, 
 import { PRIZE_VEHICLES } from './vehicles-prize.js'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 // 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
 import { TOKEI_VEHICLES } from './vehicles-tokei.js'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+// 第66回 C班: 伝説の職業（総理大臣・会長は 黒い高級車・働き方改革の星は 満員電車〈定時で 帰る 電車〉・あの方は 黒いスポーツカー）
+VEHICLES.limo.jobs.push('souri', 'kaichou');
+VEHICLES.commuter_train.jobs.push('hatarakikata');
+VEHICLES.spy_car.jobs.push('ano_kata');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

@@ -48,6 +48,8 @@ export const PHANTOM_ADJ = {
   // 第65回 D1: 一・二の試練の 倍率が まだ なかった 職業（1 の まま）に 三の試練の 倍率
   sun_hokage: [1, 1, 0.94], meitantei: [1, 1, 1.64], facility_ai: [1, 1, 1.61], pirate_king: [1, 1, 0.85], super_hero: [1, 1, 1.21],
 };
+// 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
+Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23], hatarakikata: [0.95, 0.71, 1.05], ano_kata: [1.2, 1.06, 1.41] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）

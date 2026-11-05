@@ -202,6 +202,13 @@ export const JOB_TAGS = {
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
 };
+// 第66回 C班（伝説の職業。jobs-legend-r66c.js）
+Object.assign(JOB_TAGS, {
+  souri: ['work', 'master', 'guard'], // 総理大臣（国の仕事・みんなを引っぱる・国を守る）
+  kaichou: ['money', 'work', 'master', 'sky'], // 会長（お金・会社・グループのいちばん上・プライベートジェット）
+  hatarakikata: ['work', 'heal', 'home'], // 働き方改革の星（会社・毎ターン回復・定時で家に帰る）
+  ano_kata: ['dark', 'shinobi', 'rival', 'master'], // あの方（なぞの組織のボス）
+});
 
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {

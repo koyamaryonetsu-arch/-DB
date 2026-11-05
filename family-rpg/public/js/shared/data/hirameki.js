@@ -31,6 +31,8 @@ import { HIRA_PHANTOM_C_ABILITIES, HIRAMEKI_PHANTOM_C } from './hirameki-phantom
 import { HIRA_PHANTOM_A_ABILITIES, HIRAMEKI_PHANTOM_A } from './hirameki-phantom-a.js';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の ひらめき技（hirameki-phantom-b.js）
 import { HIRA_PHANTOM_B_ABILITIES, HIRAMEKI_PHANTOM_B } from './hirameki-phantom-b.js';
+// 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方）の ひらめき技（hirameki-r66c.js）
+import { HIRA_R66C_ABILITIES, HIRAMEKI_R66C } from './hirameki-r66c.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -278,6 +280,9 @@ export const HIRAMEKI = {
   // 第51回 C2 の ひらめき技（hirameki-phantom-b.js）
   ...HIRAMEKI_PHANTOM_B,
 };
+// 第66回 C班の ひらめき技（hirameki-r66c.js。上の 2つの 表に まぜる）
+Object.assign(HIRA_ABILITIES, HIRA_R66C_ABILITIES);
+Object.assign(HIRAMEKI, HIRAMEKI_R66C);
 
 // 回数の 名前（'@atk' など、技 では ない もの）
 export const USE_NAMES = { '@atk': 'ふつうの攻撃' };
