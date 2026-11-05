@@ -201,6 +201,13 @@ export const JOB_TAGS = {
   galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
+  // 第66回 E1班（超級職・伝説の職業。jobs-r66e1.js。歌とおどりは 13職業の 上限なので 配信者には つけない）
+  koan_zero: ['fist', 'shinobi', 'detective', 'work'], // 公安ゼロ（ボクシング・ひみつの 仕事・調べる・警察官）
+  hyper_rescue: ['ice', 'heal', 'guard', 'ride'], // ハイパーレスキュー（放水・救出・体をはって 守る・とくべつな 車）
+  top_streamer: ['machine', 'money', 'laugh'], // 登録者1000万人（カメラ・投げせん・ドッキリ）
+  triple_face: ['fist', 'henshin', 'shinobi', 'detective'], // トリプルフェイス（ボクシング・3つの 顔・なぞの 組織・探てい）
+  hikeshi_god: ['ice', 'guard', 'heal', 'master'], // 火消しの神（大水・大たて・救出・火消しの かしら）
+  world_streamer: ['machine', 'money', 'light', 'master'], // 世界一の配信者（カメラ・投げせん・トレンドの 光・世界一）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

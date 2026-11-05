@@ -52,6 +52,13 @@ export const JOB_SAY = {
   super_hero: '「雷と気、両方まとめて解き放つ！」',
   sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
   facility_ai: '「全館、最適化を開始します」',
+  // 第66回 E1班
+  koan_zero: '「この国は、ぼくが守る」',
+  hyper_rescue: '「助けをまつ人の所へ、すぐ行くぞ！」',
+  top_streamer: '「登録者、1000万人とっぱ！」',
+  triple_face: '「ぼくには、顔が3つある」',
+  hikeshi_god: '「どんな火事も、まかせとけ！」',
+  world_streamer: '「世界のみんな、見てるー？」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

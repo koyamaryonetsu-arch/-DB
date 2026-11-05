@@ -31,6 +31,8 @@ import { HIRA_PHANTOM_C_ABILITIES, HIRAMEKI_PHANTOM_C } from './hirameki-phantom
 import { HIRA_PHANTOM_A_ABILITIES, HIRAMEKI_PHANTOM_A } from './hirameki-phantom-a.js';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の ひらめき技（hirameki-phantom-b.js）
 import { HIRA_PHANTOM_B_ABILITIES, HIRAMEKI_PHANTOM_B } from './hirameki-phantom-b.js';
+// 第66回 E1班: 公安ゼロ〜世界一の配信者の ひらめき技（hirameki-r66e1.js）
+import { HIRA_R66E1_ABILITIES, HIRAMEKI_R66E1 } from './hirameki-r66e1.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -214,6 +216,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_PHANTOM_A_ABILITIES,
   // 第51回 C2 の ひらめき技（hirameki-phantom-b.js）
   ...HIRA_PHANTOM_B_ABILITIES,
+  // 第66回 E1班の ひらめき技（hirameki-r66e1.js）
+  ...HIRA_R66E1_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -277,6 +281,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_PHANTOM_A,
   // 第51回 C2 の ひらめき技（hirameki-phantom-b.js）
   ...HIRAMEKI_PHANTOM_B,
+  // 第66回 E1班の ひらめき技（hirameki-r66e1.js）
+  ...HIRAMEKI_R66E1,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）

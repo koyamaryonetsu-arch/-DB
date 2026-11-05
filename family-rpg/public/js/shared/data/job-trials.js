@@ -184,6 +184,13 @@ export const TRIAL_WORDS = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
   grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
   sword_saint: '会心の一撃は、心がすんだときに生まれる。',
+  // 第66回 E1班
+  koan_zero: 'かげで守る者は、だれにもほめられなくても、まっすぐ立つのだ。',
+  hyper_rescue: '助けに行く者が、まず自分の身を守れ。それがプロだ。',
+  top_streamer: '見てくれる人の数より、ひとりひとりの笑顔を大事にしなさい。',
+  triple_face: 'どの顔の自分も、本当の自分だ。守りたいものは1つ。',
+  hikeshi_god: '火を消す者は、だれよりも熱い心をもて。',
+  world_streamer: '画面のむこうには、世界中の友だちがいる。それをわすれるな。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

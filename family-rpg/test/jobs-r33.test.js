@@ -4,6 +4,14 @@
 //  ・職業の 木・ランク・強さ・技の 数・攻撃技・看板の 技・補助の 上限・効果が かぶらない・ひらめき技・合体技・
 //    3年B組の担任の 学校の 仲間・れん金術師で れん金がまの 歩数が 半分・装備・転職の ひとこと・文字
 import { test } from 'node:test';
+// 第66回: 伝説の職業（A〜E班。それぞれの テストで しらべる）は 転職の ひとことの 一覧から のぞく
+import { LEGEND_R66A_ORDER } from '../public/js/shared/data/jobs-legend-r66a.js';
+import { LEGEND_R66B_ORDER } from '../public/js/shared/data/jobs-legend-r66b.js';
+import { LEGEND_R66C_ORDER } from '../public/js/shared/data/jobs-legend-r66c.js';
+import { LEGEND_R66D_ORDER } from '../public/js/shared/data/jobs-legend-r66d.js';
+import { SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from '../public/js/shared/data/jobs-r66e1.js';
+import { SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from '../public/js/shared/data/jobs-r66e2.js';
+const R66_JOBS = new Set([...LEGEND_R66A_ORDER, ...LEGEND_R66B_ORDER, ...LEGEND_R66C_ORDER, ...LEGEND_R66D_ORDER, ...SUPER_R66E1_ORDER, ...LEGEND_R66E1_ORDER, ...SUPER_R66E2_ORDER, ...LEGEND_R66E2_ORDER]);
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
@@ -603,7 +611,7 @@ test('転職の ひとこと: 新しい 職業は 2行目に ひとこと（は�
   // 第41回 B の 雪の女王・第5のせいれいにも ひとこと（test/jobs-r41b.test.js）
   // 第41回 A の 伝説の 職業にも ひとこと（test/jobs-r41a.test.js）
   // 第43回の 配管工の 系統にも ひとこと（test/jobs-r43.test.js）
-  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit', 'keikyu_president', 'hall_of_fame', 'plumber', 'mustache', 'mario', 'kishou', 'otenki_caster', 'tenkou_tsukai'].includes(j) && !(JOBS[j]?.tier >= 4)).sort(), [...NEW].sort()); // 第51回: 幻の職業は test/phantom-*.test.js
+  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit', 'keikyu_president', 'hall_of_fame', 'plumber', 'mustache', 'mario', 'kishou', 'otenki_caster', 'tenkou_tsukai'].includes(j) && !(JOBS[j]?.tier >= 4) && !R66_JOBS.has(j)).sort(), [...NEW].sort()); // 第51回: 幻の職業は test/phantom-*.test.js
   for (const [j, s] of Object.entries(JOB_SAY)) {
     textOk(s, j);
     assert.ok(s.length <= 24 && s.startsWith('「') && s.endsWith('」'), s);
