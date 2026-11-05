@@ -82,6 +82,8 @@ import { PHANTOM_ABILITIES_B } from './abilities-phantom-b.js';
 import { R66B_ABILITIES } from './abilities-r66b.js';
 // 第66回 A: 4つの 伝説の 職業（守りの神・光と闇の剣神・ポケモンマスター・千年の大魔法使い）の 技（abilities-r66a.js）
 import { R66A_ABILITIES } from './abilities-r66a.js';
+// 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方）の 技（abilities-r66c.js）
+import { R66C_ABILITIES } from './abilities-r66c.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -711,6 +713,8 @@ Object.assign(ABILITIES, PHANTOM_ABILITIES_B);
 Object.assign(ABILITIES, R66B_ABILITIES);
 // 第66回 A の 伝説の 職業の 技（abilities-r66a.js）
 Object.assign(ABILITIES, R66A_ABILITIES);
+// 第66回 C班の 伝説の職業の 技（abilities-r66c.js）
+Object.assign(ABILITIES, R66C_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

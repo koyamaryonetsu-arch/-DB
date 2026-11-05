@@ -51,6 +51,8 @@ import { classmateMult } from './battle-r33.js';
 // 第51回 C3: 幻の職業の しかる・消す・装備の 作りかえ・観客（battle-phantom-c.js）と 戦いの 天気（battle-weather.js）
 import { phantomCEffect, phantomCDamage } from './battle-phantom-c.js';
 import { weatherMult, weatherTick, weatherSnap, skillWeather } from './battle-weather.js';
+// 第66回 C班: 会長の 黄金のボディーガード（お金で 守る）・働き方改革の星の 定時の 回復（battle-r66c.js）
+import { goldGuard, r66cTurnStart } from './battle-r66c.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
 import { setupArena, arenaDamage } from './battle-arena.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
@@ -631,6 +633,8 @@ export class Battle {
     towerTurnStart(this, c, ev, cmd);
     // 第51回 C3: 天気の のこり（かけた 側の 行動で へる。battle-weather.js）
     weatherTick(this, c, ev);
+    // 第66回 C班: 働き方改革の星は 定時で 休んで 回復（battle-r66c.js）
+    r66cTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -1258,6 +1262,8 @@ export class Battle {
         this.afterDamage(c, ev, 'phys');
         break;
       }
+      // 第66回 C班: お金を はらって 守る（会長。battle-r66c.js）
+      case 'goldGuard': goldGuard(this, c, a, eff, ev, targets, powMult); break;
       case 'steal': {
         if (targets[0]) this.trySteal(c, targets[0], ev, eff.chance ?? 0.6);
         break;

@@ -52,6 +52,8 @@ export const PHANTOM_ADJ = {
   // 第66回 A（伝説の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 の 2回 さがした 平均）
   guard_god: [1.13, 0.75, 0.92], kenshin: [0.72, 0.54, 0.75], poke_master: [1.32, 0.92, 1.3], sennen_mage: [1.32, 1.08, 0.95],
 };
+// 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
+Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23], hatarakikata: [0.95, 0.71, 1.05], ano_kata: [1.2, 1.06, 1.41] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）

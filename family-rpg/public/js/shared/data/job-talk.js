@@ -63,6 +63,13 @@ export const JOB_SAY = {
   poke_master: '「ポケモンマスターに、なったぞ！」',
   sennen_mage: '「千年たっても、魔法は楽しい」',
 };
+// 第66回 C班（伝説の職業。jobs-legend-r66c.js）
+Object.assign(JOB_SAY, {
+  souri: '「国の未来は、わたしにまかせて！」',
+  kaichou: '「うむ。全部、買い取ろう」',
+  hatarakikata: '「定時なので、帰ります！」',
+  ano_kata: '「…すべては、ひみつだよ」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

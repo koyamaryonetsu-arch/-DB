@@ -418,6 +418,8 @@ export function gameFiles() {
     'public/js/shared/world/family-board.js', 'public/js/client/ui/family-board.js',
     // 第51回 F: 幻の職業の 条件・記録・幻の書
     'public/js/shared/data/phantom.js', 'public/js/shared/world/phantom.js', 'public/js/client/ui/phantom-book.js',
+    // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方）
+    'public/js/shared/data/abilities-r66c.js', 'public/js/shared/data/hirameki-r66c.js', 'public/js/shared/battle-r66c.js', 'public/js/client/render/battlefx-r66c.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -195,6 +195,13 @@ export const TRIAL_WORDS = {
   poke_master: '魔物は道具じゃない。いっしょに旅をする、大切な友だちだ。',
   sennen_mage: '魔法は、楽しいと思う心で強くなる。千年たっても、同じだよ。',
 };
+// 第66回 C班（伝説の職業。jobs-legend-r66c.js）
+Object.assign(TRIAL_WORDS, {
+  souri: 'リーダーは、いちばん多くの人の声を聞く者だ。',
+  kaichou: 'お金は、みんなを笑顔にするために使うものだ。',
+  hatarakikata: 'よく働き、よく休む。それがいちばん強い。',
+  ano_kata: 'ひみつを守れる者だけが、ほんとうの強さを知る。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

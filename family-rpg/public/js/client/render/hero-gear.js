@@ -13,6 +13,8 @@ import { R43J_HAT } from './hero-r43j.js';
 import { R66B_HAT } from './hero-r66b.js';
 // 第66回 A の 伝説の 職業 4つの ぼうし（hero-r66a.js）
 import { R66A_HAT } from './hero-r66a.js';
+// 第66回 C班: 会長の シルクハット・あの方の 黒い ぼうし
+import { R66C_HAT } from './hero-r66c.js';
 
 const D = Math.PI / 180;
 // 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
@@ -1545,6 +1547,7 @@ Object.assign(JOB_HAT, R41A_HAT);
 Object.assign(JOB_HAT, R43J_HAT);
 Object.assign(JOB_HAT, R66B_HAT);
 Object.assign(JOB_HAT, R66A_HAT);
+Object.assign(JOB_HAT, R66C_HAT);
 Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 function guessHead(it) {
   const name = it.name || '';
