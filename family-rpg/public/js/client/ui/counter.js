@@ -288,6 +288,7 @@ export function myTeam(game) {
     const char = {
       name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined, color: x.color || undefined, gearFx: x.gearFx || undefined,
+      feats: x.feats || undefined, // 第66回: 幻の職業の 記録（神殿で 仲間の 条件を 見る）
     };
     out.push({
       key: x.key, name: x.name, char, wagon,

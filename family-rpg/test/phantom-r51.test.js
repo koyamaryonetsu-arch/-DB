@@ -201,7 +201,7 @@ function act(b, u, cmd) {
   return b.flush().filter((e) => e.t === 'act').pop();
 }
 
-test('戦い: 技の タグの 回数・ダメージ・呪文・炎（家族の キャラだけ）', () => {
+test('戦い: 技の タグの 回数・ダメージ・呪文・炎（家族の キャラと 人の 仲間。第66回から 仲間も）', () => {
   const b = setup({ kinds: ['player', 'support', 'monster'] });
   const [me, sup, mon] = b.allies;
   const hp0 = b.enemies[0].hp;
@@ -224,10 +224,10 @@ test('戦い: 技の タグの 回数・ダメージ・呪文・炎（家族の 
   act(b, me, { type: 'attack' });
   assert.ok(me.feat.dmg > d1 + d2);
   assert.deepEqual(Object.keys(me.feat.use).sort(), ['attackSpell', 'gomu']);
-  // 仲間（人・魔物）は 数えない
+  // 第66回: 人の 仲間も 数える（主人公 いがいの 幻の書・転職）。魔物は 数えない
   act(b, sup, { type: 'ability', id: 'go_pistol' });
   act(b, mon, { type: 'attack' });
-  assert.equal(sup.feat, undefined);
+  assert.equal(sup.feat.use.gomu, 1);
   assert.equal(mon.feat, undefined);
   // 敵の 行動も 数えない
   for (const e of b.enemies) assert.equal(e.feat, undefined);
@@ -278,7 +278,7 @@ async function solo(seed = 51) {
   return { world, bot, c };
 }
 
-test('戦いの おわりで キャラの c.feats に 足す（自分だけ。仲間は 足さない）・幻の職業の 知らせ', async () => {
+test('戦いの おわりで キャラの c.feats に 足す（自分と 人の 仲間。第66回）・幻の職業の 知らせ', async () => {
   const { world, bot, c } = await solo();
   const posts = [];
   world.boardPost = (m) => posts.push(m);
@@ -306,7 +306,7 @@ test('戦いの おわりで キャラの c.feats に 足す（自分だけ。�
   for (let i = 0; i < 300 && world.battles.size; i++) await tickN(world, 1);
   assert.equal(c.feats.use.gomu, 2);
   assert.equal(c.feats.dmg, dealt);
-  assert.equal(gard.feats, undefined, '仲間は 数えない');
+  assert.equal(gard.feats.use.gomu, 1, '第66回: 人の 仲間も 数える');
   // 条件が 見えた: 1回だけ 知らせる（掲示板にも）
   const end = bot.msgs.filter((m) => m.t === 'battleEnd').pop();
   assert.ok(end.lines.some((l) => l.includes('幻の職業「海賊王」の条件を見つけた')), end.lines.join('/'));

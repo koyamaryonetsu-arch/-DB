@@ -52,3 +52,30 @@ test('第66回 幻の書: つれている 人の 仲間も 入る・魔物は �
   assert.deepEqual(people.map((p) => [p.name, p.tag]), [['ソラ', '自分'], ['ガルド', '仲間']]);
   assert.equal(people[1].rows.length, people[0].rows.length);
 });
+
+// ───── 第66回: 主人公 いがいの やりこみの 記録・合体技 ─────
+import { Battle } from '../public/js/shared/battle.js';
+import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
+import { supportInfo } from '../public/js/shared/world/party.js';
+
+test('第66回 幻の書: 合体技も 技の 条件に 数える（参加した みんな。中みで タグ）', () => {
+  const b = Object.create(Battle.prototype);
+  const a = { side: 'ally', kind: 'player' }, s = { side: 'ally', kind: 'support' }, m = { side: 'ally', kind: 'monster', mon: true };
+  b.featDual([a, s, m], DUAL_TECHS.dt_taishoumetsu);
+  assert.equal(a.feat.use.attackSpell, 1);
+  assert.equal(s.feat.use.attackSpell, 1, '人の 仲間も');
+  assert.equal(m.feat, undefined, '魔物は 数えない');
+  const heal = Object.entries(DUAL_TECHS).find(([, t]) => t.parts.some((p) => p.type === 'heal'));
+  if (heal) {
+    const x = { side: 'ally', kind: 'player' };
+    b.featDual([x], heal[1]);
+    assert.ok(x.feat.use.healSpell || x.feat.use.support, heal[0]);
+  }
+});
+
+test('第66回 幻の書: 人の 仲間の 記録は 画面にも おくる（神殿・幻の書）。家族の うつしは おくらない', () => {
+  const npc = supportInfo({ key: 'npc_gard', kind: 'npc', owner: 'x', char: { name: 'ガルド', job: 'warrior', level: 30, jobs: {}, equip: {}, feats: { use: { gomu: 3 } } } });
+  assert.deepEqual(npc.feats, { use: { gomu: 3 } });
+  const fam = supportInfo({ key: 'fam:y', kind: 'family', owner: 'x', char: { name: 'ユイ', job: 'mage', level: 30, jobs: {}, equip: {}, feats: { use: { gomu: 3 } } } });
+  assert.equal(fam.feats, undefined);
+});

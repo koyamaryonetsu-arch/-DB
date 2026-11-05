@@ -390,12 +390,21 @@ function finishBattle(world, ctx) {
   const hiraLines = [];
   // 第38回 B: 職業の試練の 修行（自分の キャラが 今の 職業の 技を この 戦いで 使った 回数。勝った ときに たす）
   const trialUse = new Map();
+  // 第66回: 幻の職業の 記録は 主人公 いがいも（人の 仲間・家族の キャラは 本人の 記録に。うつしでは なく）
+  const featChars = [];
+  for (const a of b.allies) {
+    const who = ctx.actorMap[a.id];
+    if (!who?.char || !a.feat || who.type === 'guest' || who.char.species) continue;
+    const real = who.kind === 'family' && String(who.key || '').startsWith('fam:') ? world.data.characters?.[who.key.slice(4)] : who.char;
+    if (!real || real.species) continue;
+    addFeats(real, a.feat);
+    if (who.type === 'support') featChars.push({ char: real, owner: who.owner });
+  }
   for (const a of b.allies) {
     const who = ctx.actorMap[a.id];
     const ch = who?.char;
     if (!ch || !a.use || who.type === 'guest' || who.kind === 'family') continue;
     if (who.type === 'human') trialUse.set(ch, trialUseCount(ch.job, ch.skillUse, a.use));
-    if (who.type === 'human') addFeats(ch, a.feat);
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
       ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
@@ -559,6 +568,12 @@ function finishBattle(world, ctx) {
   for (const m of sessions) {
     const pn = phantomAfterBattle(world, m.char);
     if (pn.length) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...pn);
+  }
+  // 第66回: 人の 仲間・家族の キャラ（なった 知らせは 仲間の もちぬしに）
+  for (const { char, owner } of featChars) {
+    const pn = phantomAfterBattle(world, char);
+    const m = sessions.find((x) => x.charId === owner) || sessions[0];
+    if (pn.length && m) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...pn);
   }
   // 第53回 B: 時のまぼろし（止まった時の間）に 勝った: 1日1回の 素材・はじめての 勝ちは けいじ板へ（world/tokei-phantom.js）
   tokiPhantomAfter(world, ctx, sessions, perSession, outcome);

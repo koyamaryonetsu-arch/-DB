@@ -523,7 +523,12 @@ function writeBack(world, ctx, a) {
   ch.hp = a.alive ? a.hp : 0;
   ch.mp = a.mp;
   ch.status = a.status?.poison && a.alive ? { poison: true } : {};
-  if (who.type === 'human') addFeats(ch, a.feat);
+  // 幻の職業の 記録（第66回: 人の 仲間・家族の キャラも。家族の キャラは 本人の 記録に）。2回 たさない ように けす
+  if (who.type !== 'guest' && !ch.species && a.feat) {
+    const real = who.kind === 'family' && String(who.key || '').startsWith('fam:') ? world.data.characters?.[who.key.slice(4)] : ch;
+    if (real) addFeats(real, a.feat);
+    a.feat = null;
+  }
   if (a.use && who.type !== 'guest' && who.kind !== 'family') {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {

@@ -381,6 +381,8 @@ export function performDual(b, c, cmd, ev) {
   const n = members.length;
   ev.dual = { id: cmd.id, name: t.name, a: c.id, b: team[0].id, m: members.map((x) => x.id), n };
   ev.lines.push(`${members.map((x) => x.name).join('と')}の合体技！`, `${t.name}！`);
+  // 第66回: 幻の職業の 技の 条件にも 数える（参加した みんな）
+  b.featDual?.(members, t);
   // 組の じゅんの 人と、その 人の 組（強さの 見つもりに 使う）
   const byGroup = opt.who.map((id) => b.get(id));
   const groups = byGroup.map((m) => t.need[opt.who.indexOf(m.id)]);

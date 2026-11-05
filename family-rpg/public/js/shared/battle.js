@@ -2012,10 +2012,27 @@ export class Battle {
   }
 
   // ───────────── 第51回 F: 幻の職業の 記録（data/phantom.js）─────────────
-  // 家族の キャラ（kind 'player'）だけ。仲間・魔物・ゲスト・敵は 数えない
+  // 家族の キャラ（kind 'player'）と、つれている 人の 仲間（kind 'support'。第66回: 主人公 いがいも 数える）。魔物・ゲスト・敵は 数えない
   featOf(c) {
-    if (!c || c.side !== 'ally' || c.kind !== 'player' || c.mon) return null;
+    if (!c || c.side !== 'ally' || !['player', 'support'].includes(c.kind) || c.mon) return null;
     return c.feat || (c.feat = newFeat());
+  }
+  // 第66回: 合体技を 使った（参加した みんな）。合体技の 中みから タグ（攻撃の 呪文・回復・補助・弱らせる・剣・雷の 呪文）
+  featDual(members, t) {
+    if (!t) return;
+    const tags = new Set();
+    const parts = Array.isArray(t.parts) ? t.parts : [];
+    const power = parts.filter((p) => p.type === 'power');
+    const foe = (p) => ['enemy', 'enemies', 'group'].includes(p.target || t.target);
+    if (t.spell && power.length) tags.add('attackSpell');
+    if (t.spell && (t.element === 'bolt' || power.some((p) => p.element === 'bolt'))) tags.add('thunderSpell');
+    if (!t.spell && power.length && /剣|斬|刀|つるぎ/.test(t.name || '')) tags.add('sword');
+    if (parts.some((p) => p.type === 'heal' || p.type === 'revive')) tags.add(t.spell ? 'healSpell' : 'support');
+    for (const p of parts) if (!['power', 'heal', 'revive'].includes(p.type)) tags.add(foe(p) ? 'debuff' : 'support');
+    for (const m of members) {
+      const f = this.featOf(m);
+      if (f) for (const tg of tags) f.use[tg] = (f.use[tg] || 0) + 1;
+    }
   }
   // 技を 使った: その 技の タグの 回数
   featUse(c, id) {
