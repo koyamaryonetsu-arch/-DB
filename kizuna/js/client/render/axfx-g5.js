@@ -7,10 +7,10 @@
 //   axfx-g5-moon.js … セーラームーン・ネオ・クイーン・セレニティ（男の子の タキシード仮面ふう・キングふう も）・合体技 ムーンライト・ステージ
 //   axfx-g5-ice.js  … 雪の女王・第5のせいれい
 //   axfx-g5-idol.js … アイドル・フルーツジッパー・アラシ
-import { AX_G5_FINE_KIT } from './axfx-g5-kit.js?v=add2be8420ec';
-import { AX_G5_MOON, AX_G5_FINE_MOON } from './axfx-g5-moon.js?v=add2be8420ec';
-import { AX_G5_ICE, AX_G5_FINE_ICE } from './axfx-g5-ice.js?v=add2be8420ec';
-import { AX_G5_IDOL, AX_G5_FINE_IDOL } from './axfx-g5-idol.js?v=add2be8420ec';
+import { AX_G5_FINE_KIT } from './axfx-g5-kit.js?v=0e6cd5b18d1a';
+import { AX_G5_MOON, AX_G5_FINE_MOON } from './axfx-g5-moon.js?v=0e6cd5b18d1a';
+import { AX_G5_ICE, AX_G5_FINE_ICE } from './axfx-g5-ice.js?v=0e6cd5b18d1a';
+import { AX_G5_IDOL, AX_G5_FINE_IDOL } from './axfx-g5-idol.js?v=0e6cd5b18d1a';
 
 export const AX_G5 = { ...AX_G5_MOON, ...AX_G5_ICE, ...AX_G5_IDOL };
 

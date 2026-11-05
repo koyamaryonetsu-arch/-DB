@@ -5,13 +5,13 @@
 // ・作品ごとに 分けた: axfx-g4-dai.js（ダイの大冒険）・axfx-g4-loto.js（勇者・ロトの勇者）・axfx-g4-mario.js（マリオ）・axfx-g4-3b.js（3年B組）
 //   つぶの かきかたは axfx-g4-fine.js、小さな どうぐは axfx-g4-kit.js
 // ・どの え も さいごに balance（段の つぶの かず: 敵1体でも 下限 いじょうの 余韻の きらきら、敵5体でも 上限 いか）
-import { AX_G4_DAI } from './axfx-g4-dai.js?v=add2be8420ec';
-import { AX_G4_LOTO } from './axfx-g4-loto.js?v=add2be8420ec';
-import { AX_G4_MARIO } from './axfx-g4-mario.js?v=add2be8420ec';
-import { AX_G4_3B } from './axfx-g4-3b.js?v=add2be8420ec';
-import { AX_G4_FINE as FINE } from './axfx-g4-fine.js?v=add2be8420ec';
-import { rnd } from './axkit.js?v=add2be8420ec';
-import { AX_BUDGET } from '../../shared/ax-time.js?v=add2be8420ec';
+import { AX_G4_DAI } from './axfx-g4-dai.js?v=0e6cd5b18d1a';
+import { AX_G4_LOTO } from './axfx-g4-loto.js?v=0e6cd5b18d1a';
+import { AX_G4_MARIO } from './axfx-g4-mario.js?v=0e6cd5b18d1a';
+import { AX_G4_3B } from './axfx-g4-3b.js?v=0e6cd5b18d1a';
+import { AX_G4_FINE as FINE } from './axfx-g4-fine.js?v=0e6cd5b18d1a';
+import { rnd } from './axkit.js?v=0e6cd5b18d1a';
+import { AX_BUDGET } from '../../shared/ax-time.js?v=0e6cd5b18d1a';
 
 // へらして よい つぶ（こまかい もの から）。大きな 絵（g4〜・ビーム・わ）や 時計（call）・ゆれ・ひかりは へらさない
 const TRIM = ['spark', 'twinkle', 'puff', 'drop', 'bubble', 'petal', 'axShape', 'converge'];

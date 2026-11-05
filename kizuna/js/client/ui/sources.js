@@ -2,11 +2,11 @@
 //   入手先は shared/item-sources.js（魔物は 出る 場所・ダンジョンの 名前。図鑑で 見て いない 魔物は ？？？で 場所だけ）
 //   魔物を えらぶと game.hunt に 入れる。フィールドの その 魔物（いっしょに いる 群れも）が 赤く 光る（field.js）
 //   素材が 手に入るか、ボタンの「やめる」で おわる（HuntButton）
-import { el, esc, toast } from './dom.js?v=add2be8420ec';
-import { ITEMS } from '../../shared/data/items.js?v=add2be8420ec';
-import { MONSTERS } from '../../shared/data/monsters.js?v=add2be8420ec';
-import { itemCount } from '../../shared/stats.js?v=add2be8420ec';
-import { itemSources, sourceText } from '../../shared/item-sources.js?v=add2be8420ec';
+import { el, esc, toast } from './dom.js?v=0e6cd5b18d1a';
+import { ITEMS } from '../../shared/data/items.js?v=0e6cd5b18d1a';
+import { MONSTERS } from '../../shared/data/monsters.js?v=0e6cd5b18d1a';
+import { itemCount } from '../../shared/stats.js?v=0e6cd5b18d1a';
+import { itemSources, sourceText } from '../../shared/item-sources.js?v=0e6cd5b18d1a';
 
 const nameOf = (id) => ITEMS[id]?.name || id;
 const seenBy = (c) => (sp) => !!c?.bestiary?.[sp];
