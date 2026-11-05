@@ -111,7 +111,7 @@ test('第29回の 職業: 職業の 木（id・名前・ランク・なる じ�
   const title = readFileSync(new URL('../public/js/client/ui/title.js', import.meta.url), 'utf8');
   assert.match(title, /rurouni: '[^']+'/, '作る画面の ひとこと');
   const services = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
-  assert.ok(services.includes('飛天御剣流けい承者'), '神殿の 伝説の 一覧');
+  assert.ok(services.includes('${LEGEND_ORDER.length}こ'), '神殿の 伝説の 一覧（第66回から 数で 出す。LEGEND_ORDER に 入っていれば よい）');
 });
 
 test('第29回の 職業: なれる じゅんばん（るろうに剣士は はじめから → 人斬り → ひ村 → 飛天）', () => {

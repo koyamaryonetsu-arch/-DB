@@ -105,7 +105,7 @@ test('第41回 B の 職業: 雪の女王（賢者＋スーパースターの �
   for (const h of [JOB_HINTS.snow_queen, JOBS.snow_queen.masc.hint]) assert.ok(h.includes('賢者') && h.includes('スーパースター'), h);
   assert.equal(jobReqText('fifth_spirit'), '雪の女王Lv10＋ほかの超級職1つLv10');
   const services = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
-  assert.ok(services.includes('第5のせいれい'), '神殿の 伝説の 一覧');
+  assert.ok(services.includes('${LEGEND_ORDER.length}こ'), '神殿の 伝説の 一覧（第66回から 数で 出す。LEGEND_ORDER に 入っていれば よい）');
 });
 
 test('第41回 B の 職業: なれる じゅんばん（賢者 か スーパースターを きわめると うわさ → 両方で 雪の女王 → ほかの 超級職も 1つで 第5のせいれい）', () => {

@@ -94,7 +94,7 @@ test('第40回の 職業: 竜魔人（竜の騎士の 上）・ネオ・クイ�
   assert.equal(jobReqText('ryumajin'), '竜の騎士Lv10＋ほかの超級職1つLv10');
   assert.equal(jobReqText('neo_queen'), 'セーラームーンLv10＋ほかの超級職1つLv10');
   const services = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
-  assert.ok(services.includes('竜魔人') && services.includes('ネオ・クイーン・セレニティ'), '神殿の 伝説の 一覧');
+  assert.ok(services.includes('${LEGEND_ORDER.length}こ'), '神殿の 伝説の 一覧（第66回から 数で 出す。LEGEND_ORDER に 入っていれば よい）');
 });
 
 test('第40回の 職業: なれる じゅんばん（もとの 超級職を きわめると うわさ・ほかの 超級職も 1つ きわめると なれる）', () => {

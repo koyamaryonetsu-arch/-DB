@@ -99,7 +99,7 @@ test('第41回 A の 職業: 京急の社長（京急の運転士の 上）・�
   assert.equal(jobReqText('keikyu_president'), '京急の運転士Lv10＋ほかの超級職1つLv10');
   assert.equal(jobReqText('hall_of_fame'), '二刀流スターLv10＋ほかの超級職1つLv10');
   const services = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
-  assert.ok(services.includes('京急の社長') && services.includes('野球界の殿堂入り'), '神殿の 伝説の 一覧');
+  assert.ok(services.includes('${LEGEND_ORDER.length}こ'), '神殿の 伝説の 一覧（第66回から 数で 出す。LEGEND_ORDER に 入っていれば よい）');
   const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
   assert.ok(readme.includes('京急の社長（京急の運転士＋ほかの超級職1つ）') && readme.includes('野球界の殿堂入り（二刀流スター＋ほかの超級職1つ）'), 'README');
 });

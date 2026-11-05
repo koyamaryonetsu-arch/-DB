@@ -148,7 +148,7 @@ test('第33回の 職業: 職業の 木（id・名前・ランク・なる じ�
   const title = readFileSync(new URL('../public/js/client/ui/title.js', import.meta.url), 'utf8');
   for (const id of ['magician', 'alchemist']) assert.match(title, new RegExp(`${id}: '[^']+'`), `${id}: 作る 画面の ひとこと`);
   const services = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
-  assert.ok(services.includes('3年B組の担任'), '神殿の 伝説の 一覧');
+  assert.ok(services.includes('${LEGEND_ORDER.length}こ'), '神殿の 伝説の 一覧（第66回から 数で 出す。LEGEND_ORDER に 入っていれば よい）');
 });
 
 test('第33回の 職業: なれる じゅんばん（手品師・れん金術師は はじめから・上級職・超級職・3年B組の担任）', () => {
