@@ -33,6 +33,8 @@ import { R41B_SFX, R41B_HIT, PARTY_ANIMS_R41B } from './render/battlefx-r41b.js'
 import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js';
 // 第43回の 配管工・ひげおやじ・マリオ（ももの姫・おてんば姫・ピーチ）の 技
 import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js';
+// 第66回 D班の 伝説の 職業 5つの 技（render/battlefx-r66d.js。どれも 敵に あたる 技なので みかたの えんしゅつの 表は ない）
+import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -111,6 +113,7 @@ Object.assign(HIT_DELAY, JOB8_HIT);
 Object.assign(HIT_DELAY, R41B_HIT);
 Object.assign(HIT_DELAY, R41A_HIT);
 Object.assign(HIT_DELAY, R43J_HIT);
+Object.assign(HIT_DELAY, R66D_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -187,6 +190,8 @@ const ANIM_SFX = {
   ...R41A_SFX,
   // 第43回の 配管工の 系統の 技（render/battlefx-r43j.js）
   ...R43J_SFX,
+  // 第66回 D班の 伝説の 職業の 技（render/battlefx-r66d.js）
+  ...R66D_SFX,
   // 第44回の ポケモンの 技（render/battlefx-pokemon.js・sfx-pokemon.js）
   ...PK_SFX,
   // 第45回の ドラクエふうの 魔物の 技（render/battlefx-dqm.js・sfx-dqm.js）

@@ -201,6 +201,12 @@ export const JOB_TAGS = {
   galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
+  // 第66回 D班（伝説の職業。jobs-legend-r66d.js）
+  gekka: ['shinobi', 'sky', 'light', 'rival'], // 月下のき術師（月の光・グライダー。歌とおどりは 13職業の 上限）
+  nobu_dora: ['machine', 'home', 'sky', 'master'], // のぶドラ（ひみつ道具・タケコプター）
+  kappa_king: ['fist', 'monster', 'master', 'ice'], // かっぱの大王（はり手・お皿の水）
+  truth_gate: ['alchemy', 'fist', 'machine', 'master'], // 真理のとびらをひらく者（れん成・機械のうで）
+  rosetta: ['light', 'magic', 'heal', 'master'], // ロゼッタ／ギャラクシーマリオ（流れ星・星のかけら）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

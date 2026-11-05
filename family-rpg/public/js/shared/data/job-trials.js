@@ -184,6 +184,12 @@ export const TRIAL_WORDS = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
   grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
   sword_saint: '会心の一撃は、心がすんだときに生まれる。',
+  // 第66回 D班（伝説の職業。ロゼッタの 男の子は TRIAL_WORDS_MASC）
+  gekka: '本当のマジックは、見る人を笑顔にするものだ。',
+  nobu_dora: 'ひみつ道具は、友だちのために使うんだよ。',
+  kappa_king: '大王の力は、川のみんなを守るためにあるのじゃ。',
+  truth_gate: '真理とは、すべては一つで、一つはすべてということだ。',
+  rosetta: '星は遠くても、いつもあなたを見守っているわ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
@@ -191,6 +197,8 @@ export const TRIAL_WORDS_MASC = {
   snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
   mario: 'こまっている人がいたら、まずはジャンプだ！',
   galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
+  // 第66回 D班: ギャラクシーマリオ
+  rosetta: '星から星へ、ジャンプでどこまでも行けるさ！',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

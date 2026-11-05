@@ -47,6 +47,8 @@ export const PHANTOM_ADJ = {
   detective_king: [0.81, 0.58, 0.55], galaxy_queen: [1.02, 0.79, 1.53], grand_magus: [0.63, 0.7, 1.01], sword_saint: [0.47, 0.35, 0.4],
   // 第65回 D1: 一・二の試練の 倍率が まだ なかった 職業（1 の まま）に 三の試練の 倍率
   sun_hokage: [1, 1, 0.94], meitantei: [1, 1, 1.64], facility_ai: [1, 1, 1.61], pirate_king: [1, 1, 0.85], super_hero: [1, 1, 1.21],
+  // 第66回 D班（伝説の職業。tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均）
+  gekka: [0.99, 0.62, 0.76], nobu_dora: [2.21, 1.72, 2.7], kappa_king: [1.15, 1, 1.24], truth_gate: [0.99, 0.88, 0.94], rosetta: [1.26, 1.35, 1.6],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

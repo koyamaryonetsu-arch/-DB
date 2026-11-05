@@ -52,6 +52,12 @@ export const JOB_SAY = {
   super_hero: '「雷と気、両方まとめて解き放つ！」',
   sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
   facility_ai: '「全館、最適化を開始します」',
+  // 第66回 D班（伝説の職業。ロゼッタの 男の子は JOB_SAY_MASC）
+  gekka: '「今夜も、月下のショーの始まりです」',
+  nobu_dora: '「ぼく、ドラえもんです。ウフフ」',
+  kappa_king: '「わしが、かっぱの大王じゃ！」',
+  truth_gate: '「とびらの向こうに、答えがあった」',
+  rosetta: '「星の子たち、行きましょう」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
@@ -63,6 +69,8 @@ export const JOB_SAY_MASC = {
   plumber: '「さあ、行くぞ！ヤッフー！」',
   mustache: '「このひげが、ぼくのじまんさ」',
   mario: '「ヒアウィーゴー！」',
+  // 第66回 D班: ギャラクシーマリオ
+  rosetta: '「星の世界へ、レッツゴー！」',
 };
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）
