@@ -23,8 +23,8 @@ export const LEGEND_R66C_JOBS = {
   },
   // 社長 か たたき上げ社長 → 会長（どちらか 1つを きわめる）
   kaichou: {
-    id: 'kaichou', name: '会長', kana: 'かいちょう', short: '会長', tier: 3, req: ['shacho'], reqAlt: [['tatakiage']], family: 'tech', color: '#c89a2a',
-    desc: 'いくつもの会社をたばねる、グループのいちばん上の人。社長かたたき上げ社長をきわめた者だけがなれる。お金を力に変えて、お札で敵をけちらし、ボディーガードをやとって仲間を守る。戦いで手に入るお金もとてもふえる。',
+    id: 'kaichou', name: '会長', kana: 'かいちょう', short: '会長', tier: 3, req: ['shacho', 'tatakiage'], family: 'tech', color: '#c89a2a',
+    desc: 'いくつもの会社をたばねる、グループのいちばん上の人。社長とたたき上げ社長の両方をきわめた者だけがなれる。お金を力に変えて、お札で敵をけちらし、ボディーガードをやとって仲間を守る。戦いで手に入るお金もとてもふえる。',
     mods: { hp: 1.6, mp: 1.35, str: 1.5, def: 1.5, agi: 1.25, mag: 1.25, heal: 1.3 },
     weapons: ['dagger', 'staff', 'fan', 'sword', 'axe', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy', 'gi'], helm: true,
     perLv: { hp: 1, str: 1, def: 1 },
@@ -55,7 +55,7 @@ export const LEGEND_R66C_JOBS = {
 // 神殿の うわさ（jobs.js の JOB_HINTS に まぜる）
 export const LEGEND_R66C_HINTS = {
   souri: 'キャリア組と、ほかの超級職を1つきわめた者は、国のいちばん上に立てるらしい…',
-  kaichou: '社長かたたき上げ社長をきわめた者は、いくつもの会社をたばねる会長になれるらしい…',
+  kaichou: '社長とたたき上げ社長の両方をきわめた者は、いくつもの会社をたばねる会長になれるらしい…',
   hatarakikata: 'ブラックきぎょうの星と、ほかの超級職を1つきわめた者は、定時で帰る働き方の星になれるらしい…',
   ano_kata: '黒の組織と、ほかの超級職を1つきわめた者は、組織のボス「あの方」になれるらしい…',
 };
