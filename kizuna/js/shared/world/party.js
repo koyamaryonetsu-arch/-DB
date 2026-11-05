@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=62b4360d90af';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=62b4360d90af';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=62b4360d90af';
-import { MONSTERS } from '../data/monsters.js?v=62b4360d90af';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=62b4360d90af';
-import { SLOTS, ITEMS } from '../data/items.js?v=62b4360d90af';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=62b4360d90af';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=62b4360d90af';
-import { difficultyOf } from '../data/difficulty.js?v=62b4360d90af';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=ba818ef987f1';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=ba818ef987f1';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=ba818ef987f1';
+import { MONSTERS } from '../data/monsters.js?v=ba818ef987f1';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=ba818ef987f1';
+import { SLOTS, ITEMS } from '../data/items.js?v=ba818ef987f1';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=ba818ef987f1';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=ba818ef987f1';
+import { difficultyOf } from '../data/difficulty.js?v=ba818ef987f1';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -613,6 +613,8 @@ export function supportInfo(x) {
     plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined, color: x.char.color || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
     favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
+    // 第66回: 幻の職業の やりこみの 記録（神殿・幻の書で 仲間の ぶんも 見る）
+    feats: x.kind === 'npc' ? x.char.feats || undefined : undefined,
     // 第64回 ⑥c: れん金で つけた 装備の 効果（家族の キャラの ぶんは 出さない）
     gearFx: x.kind !== 'family' && x.char.gearFx ? x.char.gearFx : undefined,
     // 家族の キャラの マスターした 職業（jobs は おくらない。メニューで パーティーに 関係する ひらめき技を えらぶ ため。stats.js の partyJobSet）

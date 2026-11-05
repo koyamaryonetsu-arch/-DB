@@ -1,20 +1,20 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=62b4360d90af';
-import { scaleExp } from '../data/difficulty.js?v=62b4360d90af';
-import { COMPANION_SLOTS } from '../data/companions.js?v=62b4360d90af';
-import { JOBS } from '../data/jobs.js?v=62b4360d90af';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=62b4360d90af';
-import { computeStats, fullHeal } from '../stats.js?v=62b4360d90af';
-import { pub } from '../battle.js?v=62b4360d90af';
+import { MAPS } from '../maps/index.js?v=ba818ef987f1';
+import { scaleExp } from '../data/difficulty.js?v=ba818ef987f1';
+import { COMPANION_SLOTS } from '../data/companions.js?v=ba818ef987f1';
+import { JOBS } from '../data/jobs.js?v=ba818ef987f1';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=ba818ef987f1';
+import { computeStats, fullHeal } from '../stats.js?v=ba818ef987f1';
+import { pub } from '../battle.js?v=ba818ef987f1';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=62b4360d90af';
+} from './party.js?v=ba818ef987f1';
 // 第51回 B: 家族のけいじ板（入れかえで ぬけた 人の ひらめき技）
-import { boardHirameki } from './family-board.js?v=62b4360d90af';
+import { boardHirameki } from './family-board.js?v=ba818ef987f1';
 // 第51回 F: 幻の職業の 記録（馬車に もどる 自分の キャラの ぶん）
-import { addFeats } from './phantom.js?v=62b4360d90af';
+import { addFeats } from './phantom.js?v=ba818ef987f1';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -523,7 +523,12 @@ function writeBack(world, ctx, a) {
   ch.hp = a.alive ? a.hp : 0;
   ch.mp = a.mp;
   ch.status = a.status?.poison && a.alive ? { poison: true } : {};
-  if (who.type === 'human') addFeats(ch, a.feat);
+  // 幻の職業の 記録（第66回: 人の 仲間・家族の キャラも。家族の キャラは 本人の 記録に）。2回 たさない ように けす
+  if (who.type !== 'guest' && !ch.species && a.feat) {
+    const real = who.kind === 'family' && String(who.key || '').startsWith('fam:') ? world.data.characters?.[who.key.slice(4)] : ch;
+    if (real) addFeats(real, a.feat);
+    a.feat = null;
+  }
   if (a.use && who.type !== 'guest' && who.kind !== 'family') {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {

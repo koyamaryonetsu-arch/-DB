@@ -4,19 +4,19 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js?v=62b4360d90af';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=62b4360d90af';
-import { MONSTERS } from '../../shared/data/monsters.js?v=62b4360d90af';
+import { el, ListMenu, esc } from './dom.js?v=ba818ef987f1';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=ba818ef987f1';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ba818ef987f1';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../../shared/data/variants.js?v=62b4360d90af';
-import { jobLabel } from '../../shared/job-label.js?v=62b4360d90af';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=62b4360d90af';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=62b4360d90af';
-import { faceURL } from '../field.js?v=62b4360d90af';
-import { boardIconURL } from '../render/boards.js?v=62b4360d90af';
-import { partyRows } from './hud.js?v=62b4360d90af';
-import { shownEquip } from '../../shared/look-equip.js?v=62b4360d90af';
-import { rareNameHtml } from './rarity.js?v=62b4360d90af';
+import { colorMon } from '../../shared/data/variants.js?v=ba818ef987f1';
+import { jobLabel } from '../../shared/job-label.js?v=ba818ef987f1';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=ba818ef987f1';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=ba818ef987f1';
+import { faceURL } from '../field.js?v=ba818ef987f1';
+import { boardIconURL } from '../render/boards.js?v=ba818ef987f1';
+import { partyRows } from './hud.js?v=ba818ef987f1';
+import { shownEquip } from '../../shared/look-equip.js?v=ba818ef987f1';
+import { rareNameHtml } from './rarity.js?v=ba818ef987f1';
 
 const TYPE_MS = 18;
 
@@ -288,6 +288,7 @@ export function myTeam(game) {
     const char = {
       name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined, color: x.color || undefined, gearFx: x.gearFx || undefined,
+      feats: x.feats || undefined, // 第66回: 幻の職業の 記録（神殿で 仲間の 条件を 見る）
     };
     out.push({
       key: x.key, name: x.name, char, wagon,
