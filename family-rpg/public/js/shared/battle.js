@@ -74,6 +74,8 @@ import { phantomAPhys } from './battle-phantom-a.js';
 import { r51bEffect, r51bPerform, r51bAfterCast, barrierDamage, kenkiCrit, kenkiMult, kenkiGain, r51bPub } from './battle-r51b.js';
 // 第66回 A: ポケモンマスターの 仲間の 魔物と いっしょの 技（monPal。battle-r66a.js）
 import { r66aMonPal } from './battle-r66a.js';
+// 第66回 E2: セーブと ロード（ゲームの神）・楽天ポイント（楽天ゴールド・ブラックカードマン）。battle-r66e2.js
+import { r66e2Effect, cardPtMult } from './battle-r66e2.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -1486,6 +1488,8 @@ export class Battle {
       case 'nothing': break;
       // 先読み・バリア・二重呪文・剣気（幻の職業。battle-r51b.js）
       case 'yomi': case 'barrier': case 'twinCast': case 'kenki': r51bEffect(this, c, a, eff, ev, targets); break;
+      // セーブ・ロード・楽天ポイント（第66回 E2。battle-r66e2.js）
+      case 'savePoint': case 'loadPoint': case 'cardPoint': r66e2Effect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1584,6 +1588,8 @@ export class Battle {
       else dmg = base * (estimate ? 1 : this.rng.float(0.875, 1.125));
     }
     dmg *= (eff.mult ?? 1) * powMult * kenkiMult(c, eff);
+    // 楽天ポイントが たまるほど 強い 技（第66回 E2。battle-r66e2.js）
+    dmg *= cardPtMult(c, eff);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;

@@ -19,6 +19,8 @@ import { R40_HAIR, handMark40 } from './hero-r40.js';
 import { R41B_HAIR } from './hero-r41b.js';
 // 第43回の ももの姫・おてんば姫・ピーチの 金の かみ
 import { R43J_HAIR } from './hero-r43j.js';
+// 第66回 E2: さいきくすおの ピンクの かみ（hero-r66e2.js）
+import { R66E2_HAIR } from './hero-r66e2.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -387,6 +389,7 @@ const JOB_HAIR_RAMP = {
 Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR, R33_HAIR, R40_HAIR);
 Object.assign(JOB_HAIR_RAMP, R41B_HAIR);
 Object.assign(JOB_HAIR_RAMP, R43J_HAIR);
+Object.assign(JOB_HAIR_RAMP, R66E2_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);

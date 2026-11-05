@@ -224,6 +224,13 @@ export const JOB_TAGS = {
   triple_face: ['fist', 'henshin', 'shinobi', 'detective'], // トリプルフェイス（ボクシング・3つの 顔・なぞの 組織・探てい）
   hikeshi_god: ['ice', 'guard', 'heal', 'master'], // 火消しの神（大水・大たて・救出・火消しの かしら）
   world_streamer: ['machine', 'money', 'light', 'master'], // 世界一の配信者（カメラ・投げせん・トレンドの 光・世界一）
+  // 第66回 E2（超級職・伝説の職業）
+  esports_king: ['machine', 'rival', 'sword', 'magic'], // eスポーツ世界王者（ゲーム機・世界大会・魔法剣）
+  gold_cardman: ['money', 'henshin', 'work', 'master'], // 楽天ゴールドカードマン（金色の全身タイツ・部長）
+  psychicer: ['magic', 'kid', 'sky', 'detective'], // サイキッカー（念力・テレポート・心を読む）
+  game_god: ['machine', 'rival', 'sword', 'magic'], // ゲームの神
+  black_cardman: ['money', 'henshin', 'master'], // 楽天ブラックカードマン（カードマンの頂点）
+  saiki: ['magic', 'kid', 'sky', 'detective'], // さいきくすお（高校生の 超能力者）
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(JOB_TAGS, {

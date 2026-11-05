@@ -40,6 +40,7 @@ import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js';
 import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js';
 // 第66回 E1班の 神殿の うわさ（jobs-r66e1.js）
 import { HINTS_R66E1 } from './jobs-r66e1.js';
+import { HINTS_R66E2 } from './jobs-r66e2.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1526,3 +1527,5 @@ Object.assign(JOB_HINTS, LEGEND_R66C_HINTS);
 Object.assign(JOB_HINTS, LEGEND_R66D_HINTS);
 // 第66回 E1班の うわさ（jobs-r66e1.js）
 Object.assign(JOB_HINTS, HINTS_R66E1);
+// 第66回 E2 の 超級職・伝説の職業の うわさ（jobs-r66e2.js）
+Object.assign(JOB_HINTS, HINTS_R66E2);

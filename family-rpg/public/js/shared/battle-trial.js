@@ -56,6 +56,9 @@ export const PHANTOM_ADJ = {
   // 第66回 E1班（tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均。火消しの神は 回復・救出・かばうで まぼろしが しぶとい）
   koan_zero: [1.14, 0.82, 0.96], hyper_rescue: [2.12, 1.82, 2.16], top_streamer: [1.59, 1.82, 2.37],
   triple_face: [1.15, 1.02, 1.05], hikeshi_god: [0.83, 0.83, 0.91], world_streamer: [1.62, 1.79, 2.15],
+  // 第66回 E2（tools/sim-trial-tune.mjs 20 0.75。SEED 500・900 の 平均。ゴールドカードマンの まぼろしは ポイントが たまるまで 弱いので 大きめ）
+  esports_king: [1, 0.81, 1.1], gold_cardman: [2.34, 2.2, 2.84], psychicer: [1.73, 1.75, 1.95],
+  game_god: [1.02, 0.88, 1.07], black_cardman: [1.07, 0.98, 1.15], saiki: [1.39, 1.28, 1.55],
 };
 // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23], hatarakikata: [0.95, 0.71, 1.05], ano_kata: [1.2, 1.06, 1.41] });

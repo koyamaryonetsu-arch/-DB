@@ -41,6 +41,8 @@ import { HIRA_R66C_ABILITIES, HIRAMEKI_R66C } from './hirameki-r66c.js';
 import { HIRA_R66D_ABILITIES, HIRAMEKI_R66D } from './hirameki-r66d.js';
 // 第66回 E1班: 公安ゼロ〜世界一の配信者の ひらめき技（hirameki-r66e1.js）
 import { HIRA_R66E1_ABILITIES, HIRAMEKI_R66E1 } from './hirameki-r66e1.js';
+// 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの ひらめき技（hirameki-r66e2.js）
+import { HIRA_R66E2_ABILITIES, HIRAMEKI_R66E2 } from './hirameki-r66e2.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -232,6 +234,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_R66D_ABILITIES,
   // 第66回 E1班の ひらめき技（hirameki-r66e1.js）
   ...HIRA_R66E1_ABILITIES,
+  // 第66回 E2 の ひらめき技（hirameki-r66e2.js）
+  ...HIRA_R66E2_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -303,6 +307,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_R66D,
   // 第66回 E1班の ひらめき技（hirameki-r66e1.js）
   ...HIRAMEKI_R66E1,
+  // 第66回 E2 の ひらめき技（hirameki-r66e2.js）
+  ...HIRAMEKI_R66E2,
 };
 // 第66回 C班の ひらめき技（hirameki-r66c.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R66C_ABILITIES);

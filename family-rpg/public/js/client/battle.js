@@ -43,6 +43,8 @@ import { R66C_SFX, R66C_HIT, PARTY_ANIMS_R66C } from './render/battlefx-r66c.js'
 import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js';
 // 第66回 E1班の 技の 音・あたる じかん（render/battlefx-r66e1.js。みかたに 出す 物は ない）
 import { R66E1_SFX, R66E1_HIT } from './render/battlefx-r66e1.js';
+// 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
+import { R66E2_SFX, R66E2_HIT, PARTY_ANIMS_R66E2 } from './render/battlefx-r66e2.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -127,6 +129,7 @@ Object.assign(HIT_DELAY, R66A_HIT);
 Object.assign(HIT_DELAY, R66C_HIT);
 Object.assign(HIT_DELAY, R66D_HIT);
 Object.assign(HIT_DELAY, R66E1_HIT);
+Object.assign(HIT_DELAY, R66E2_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -237,6 +240,8 @@ const ANIM_SFX = {
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
+// 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
+Object.assign(ANIM_SFX, R66E2_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
 const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
@@ -1268,6 +1273,8 @@ export class BattleScene {
       if (allyTargets.length || axIsParty(anim)) this.fx.play(anim, pts, fx.element, { crit, fromAlly: true, ability: ev.ability, from: actor?.side === 'ally' ? this.allyPt(actor) : undefined, ...axOpts });
       hitDelay = axT.hitAt;
     } else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || PARTY_ANIMS_R41B.has(anim) || PARTY_ANIMS_R41A.has(anim) || PARTY_ANIMS_R43J.has(anim) || PARTY_ANIMS_R66C.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
+    // 第66回 E2 の 味方に かける えんしゅつ（セーブ・ロード・制御装置。render/battlefx-r66e2.js）も、たたかいの 画面の 下に 大きく
+    if (fromAlly && !axT && PARTY_ANIMS_R66E2.has(anim) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);

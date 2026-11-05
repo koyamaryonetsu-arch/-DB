@@ -207,6 +207,13 @@ export const TRIAL_WORDS = {
   triple_face: 'どの顔の自分も、本当の自分だ。守りたいものは1つ。',
   hikeshi_god: '火を消す者は、だれよりも熱い心をもて。',
   world_streamer: '画面のむこうには、世界中の友だちがいる。それをわすれるな。',
+  // 第66回 E2
+  esports_king: '勝っても負けても「ありがとう」と言える者が、本当の王者だ。',
+  gold_cardman: 'ポイントも力も、毎日のつみ重ねで金色にかがやく。',
+  psychicer: '心の声が聞こえても、選ぶのはやさしい言葉だ。',
+  game_god: 'ゲームは、みんなで楽しむためにある。セーブもわすれずにな。',
+  black_cardman: 'たくさん持つ者ほど、みんなのために使うのだ。',
+  saiki: '大きな力は、こっそりだれかのために使えばいい。',
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(TRIAL_WORDS, {

@@ -98,6 +98,10 @@ VEHICLES.book.jobs.push('sennen_mage');
 VEHICLES.limo.jobs.push('souri', 'kaichou');
 VEHICLES.commuter_train.jobs.push('hatarakikata');
 VEHICLES.spy_car.jobs.push('ano_kata');
+// 第66回 E2: eスポーツ世界王者・ゲームの神は レーシングカート、楽天ゴールド／ブラックカードマンは 空飛ぶカード、サイキッカー・さいきくすおは 念力ふわり
+VEHICLES.kart.jobs.push('esports_king', 'game_god');
+VEHICLES.flying_card.jobs.push('gold_cardman', 'black_cardman');
+VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

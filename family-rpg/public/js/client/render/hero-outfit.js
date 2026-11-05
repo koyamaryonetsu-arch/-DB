@@ -31,6 +31,8 @@ import { R66C_OUTFIT, R66C_BODY } from './hero-r66c.js';
 import { R66D_OUTFIT, R66D_BODY } from './hero-r66d.js';
 // 第66回 E1班の 6つの 職業（公安ゼロ〜世界一の配信者。hero-r66e1.js）
 import { R66E1_OUTFIT, R66E1_BODY } from './hero-r66e1.js';
+// 第66回 E2 の 6つの 職業（eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすお）
+import { R66E2_OUTFIT, R66E2_BODY } from './hero-r66e2.js';
 // 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
 import { PRIZE_ARMOR_LOOK } from './prize-looks.js';
 
@@ -226,6 +228,7 @@ Object.assign(JOB_OUTFIT, R66A_OUTFIT);
 Object.assign(JOB_OUTFIT, R66C_OUTFIT);
 Object.assign(JOB_OUTFIT, R66D_OUTFIT);
 Object.assign(JOB_OUTFIT, R66E1_OUTFIT);
+Object.assign(JOB_OUTFIT, R66E2_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -265,6 +268,7 @@ Object.assign(JOB_BODY, R66A_BODY);
 Object.assign(JOB_BODY, R66C_BODY);
 Object.assign(JOB_BODY, R66D_BODY);
 Object.assign(JOB_BODY, R66E1_BODY);
+Object.assign(JOB_BODY, R66E2_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 

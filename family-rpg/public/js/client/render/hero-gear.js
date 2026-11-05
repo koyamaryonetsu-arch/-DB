@@ -7,6 +7,8 @@ import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js';
 import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ぼうし
 import { R41A_HAT } from './hero-r41a.js';
+// 第66回 E2 の 職業の ぼうし（hero-r66e2.js）
+import { R66E2_HAT } from './hero-r66e2.js';
 // 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
 import { R43J_HAT } from './hero-r43j.js';
 // 第66回 B班: ニューカワイイの リボン・SMAPの ヘッドセット・五つ星シェフの コック帽
@@ -1553,6 +1555,7 @@ Object.assign(JOB_HAT, R66B_HAT);
 Object.assign(JOB_HAT, R66A_HAT);
 Object.assign(JOB_HAT, R66C_HAT);
 Object.assign(JOB_HAT, R66E1_HAT);
+Object.assign(JOB_HAT, R66E2_HAT);
 Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 Object.assign(JOB_HAT, R66D_HAT);
 Object.assign(R26_BODY_HAT, R66D_BODY_HAT);

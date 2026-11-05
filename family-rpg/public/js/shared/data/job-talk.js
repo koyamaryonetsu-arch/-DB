@@ -75,6 +75,13 @@ export const JOB_SAY = {
   triple_face: '「ぼくには、顔が3つある」',
   hikeshi_god: '「どんな火事も、まかせとけ！」',
   world_streamer: '「世界のみんな、見てるー？」',
+  // 第66回 E2
+  esports_king: '「世界一のコンボ、見せてあげる！」',
+  gold_cardman: '「楽天ゴールドカード！」',
+  psychicer: '「きみの心の声、聞こえるよ」',
+  game_god: '「セーブは、こまめにね！」',
+  black_cardman: '「楽天ブラックカード！」',
+  saiki: '「やれやれ…目立ちたくないんだが」',
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(JOB_SAY, {

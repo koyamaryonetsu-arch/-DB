@@ -88,6 +88,8 @@ import { R66C_ABILITIES } from './abilities-r66c.js';
 import { R66D_ABILITIES } from './abilities-r66d.js';
 // 第66回 E1班: 公安ゼロ・トリプルフェイス・ハイパーレスキュー・火消しの神・登録者1000万人・世界一の配信者の 技（abilities-r66e1.js）
 import { R66E1_ABILITIES } from './abilities-r66e1.js';
+// 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの 技（abilities-r66e2.js）
+import { R66E2_ABILITIES } from './abilities-r66e2.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -723,6 +725,8 @@ Object.assign(ABILITIES, R66C_ABILITIES);
 Object.assign(ABILITIES, R66D_ABILITIES);
 // 第66回 E1班（abilities-r66e1.js）
 Object.assign(ABILITIES, R66E1_ABILITIES);
+// 第66回 E2 の 6つの 職業（abilities-r66e2.js）
+Object.assign(ABILITIES, R66E2_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
