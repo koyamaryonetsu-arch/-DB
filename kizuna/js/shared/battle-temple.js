@@ -14,14 +14,14 @@
 //   覚えている 技は うつした 人と おなじ。強さは MIRROR_RATE ばい）。技は 仲間の オートの AI（ai.js の decideAlly）で えらぶ
 // ・シミュレーター（tools/sim.js）: b.knowsTemple … しかけを 知っている 人（大波の 前に 身を 守る・おなじ 呪文を つづけない・
 //   水の衣に 雷の 技・水のろうを こわす）。b.templeNaive … 知らない 人（光っていても 呪文・大波でも 身を 守らない）
-import { MONSTERS } from './data/monsters.js?v=ef1c76a45d8a';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=ef1c76a45d8a';
+import { MONSTERS } from './data/monsters.js?v=add2be8420ec';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=add2be8420ec';
 // わらべ歌の フラグ（物語の データ。読むだけ）
-import { SONG_FLAGS } from './maps/ch4.js?v=ef1c76a45d8a';
-import { decideAlly } from './ai.js?v=ef1c76a45d8a';
+import { SONG_FLAGS } from './maps/ch4.js?v=add2be8420ec';
+import { decideAlly } from './ai.js?v=add2be8420ec';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=ef1c76a45d8a';
-import { mirageSync } from './battle-ch4.js?v=ef1c76a45d8a';
+import { atbRate, pub } from './battle.js?v=add2be8420ec';
+import { mirageSync } from './battle-ch4.js?v=add2be8420ec';
 
 export const UTSUSHIMI = 'utsushimi';
 export const PRISON = 'water_prison';

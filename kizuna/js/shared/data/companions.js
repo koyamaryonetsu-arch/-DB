@@ -10,33 +10,33 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=ef1c76a45d8a';
-import { FRIENDS_RARE } from './monsters-rare.js?v=ef1c76a45d8a';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=ef1c76a45d8a';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=ef1c76a45d8a';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=ef1c76a45d8a';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=ef1c76a45d8a';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=ef1c76a45d8a';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=ef1c76a45d8a';
-import { FRIENDS_EARTH } from './companions-earth.js?v=ef1c76a45d8a';
-import { FRIENDS_PHANTOM } from './companions-phantom.js?v=ef1c76a45d8a';
-import { FRIENDS_PAST } from './companions-past.js?v=ef1c76a45d8a';
-import { FRIENDS_ROAD } from './companions-road.js?v=ef1c76a45d8a';
-import { FRIENDS_TOKEI } from './companions-tokei.js?v=ef1c76a45d8a';
-import { FRIENDS_TOKEI6 } from './companions-tokei6.js?v=ef1c76a45d8a';
-import { FRIENDS_C7 } from './companions-c7.js?v=ef1c76a45d8a';
-import { FRIENDS_C7S } from './companions-c7s.js?v=ef1c76a45d8a';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=ef1c76a45d8a';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=add2be8420ec';
+import { FRIENDS_RARE } from './monsters-rare.js?v=add2be8420ec';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=add2be8420ec';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=add2be8420ec';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=add2be8420ec';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=add2be8420ec';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=add2be8420ec';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=add2be8420ec';
+import { FRIENDS_EARTH } from './companions-earth.js?v=add2be8420ec';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=add2be8420ec';
+import { FRIENDS_PAST } from './companions-past.js?v=add2be8420ec';
+import { FRIENDS_ROAD } from './companions-road.js?v=add2be8420ec';
+import { FRIENDS_TOKEI } from './companions-tokei.js?v=add2be8420ec';
+import { FRIENDS_TOKEI6 } from './companions-tokei6.js?v=add2be8420ec';
+import { FRIENDS_C7 } from './companions-c7.js?v=add2be8420ec';
+import { FRIENDS_C7S } from './companions-c7s.js?v=add2be8420ec';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=add2be8420ec';
 // 第43回 A: やせいの 魔物の ランク（めずらしさ）の 表（tools/gen-monster-ranks.mjs が 作る）
-import { MONSTER_RANKS } from './monster-ranks.js?v=ef1c76a45d8a';
+import { MONSTER_RANKS } from './monster-ranks.js?v=add2be8420ec';
 // 第44回（ポケモン P1）: ポケモンの 魔物 19しゅ（配合と 進化。companions-pokemon.js）
-import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './companions-pokemon.js?v=ef1c76a45d8a';
+import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './companions-pokemon.js?v=add2be8420ec';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物 11しゅ（配合だけ。companions-dqm.js）
-import { FRIENDS_DQM, RECIPES_DQM, MATERIAL_RECIPES_DQM } from './companions-dqm.js?v=ef1c76a45d8a';
+import { FRIENDS_DQM, RECIPES_DQM, MATERIAL_RECIPES_DQM } from './companions-dqm.js?v=add2be8420ec';
 // 第50回 D3: 景品で しか 会えない 魔物（monsters-prize.js）
-import { FRIENDS_PRIZE } from './monsters-prize.js?v=ef1c76a45d8a';
+import { FRIENDS_PRIZE } from './monsters-prize.js?v=add2be8420ec';
 // 第53回 A: 系統まぜ配合の 表（breed-mix.js）
-import { MIX_TABLE, mixKey } from './breed-mix.js?v=ef1c76a45d8a';
+import { MIX_TABLE, mixKey } from './breed-mix.js?v=add2be8420ec';
 
 export const MONSTER_FRIENDS = {
   pururin: {

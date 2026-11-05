@@ -1,22 +1,22 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=ef1c76a45d8a';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=ef1c76a45d8a';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=ef1c76a45d8a';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=add2be8420ec';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=add2be8420ec';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=add2be8420ec';
 // 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
-import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=ef1c76a45d8a';
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=add2be8420ec';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ぼうし
-import { R41A_HAT } from './hero-r41a.js?v=ef1c76a45d8a';
+import { R41A_HAT } from './hero-r41a.js?v=add2be8420ec';
 // 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
-import { R43J_HAT } from './hero-r43j.js?v=ef1c76a45d8a';
+import { R43J_HAT } from './hero-r43j.js?v=add2be8420ec';
 
 const D = Math.PI / 180;
 // 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
-import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=ef1c76a45d8a';
+import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=add2be8420ec';
 import {
   drawSwordLook, drawDaggerLook, drawAxeLook, drawSpearLook, drawClawLook, drawWhipLook, drawStaffLook, drawFanLook, drawBatLook, drawBoomerangLook,
   ornate, shieldOutline2, shieldFace2, shieldOrnate, shieldBackOrnate, shieldTint,
-} from './hero-gear-looks.js?v=ef1c76a45d8a';
+} from './hero-gear-looks.js?v=add2be8420ec';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };

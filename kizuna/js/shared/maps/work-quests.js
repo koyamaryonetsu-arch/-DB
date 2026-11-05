@@ -10,15 +10,15 @@
 //  9. ハネノの町の名物動画（ユーチューバーの 系統。ハネノの町の 見晴らし台・広場）
 // 10. 湯けむり宿の大そうじ（おかんの 系統。ユノハの 宿屋の 2階。べつの 小さな マップ）
 // 11. 王都のお祭りの手品ショー（手品師の 系統。王都サファラの 南の 広場・宿屋）
-import { T } from '../tiles.js?v=ef1c76a45d8a';
-import { npc } from './npc.js?v=ef1c76a45d8a';
-import { NORTH_PLACES } from './north.js?v=ef1c76a45d8a';
-import { SOUTH_PLACES } from './south.js?v=ef1c76a45d8a';
-import { PORT } from './sea.js?v=ef1c76a45d8a';
-import { openSpot } from './labyrinth.js?v=ef1c76a45d8a';
-import { room } from './fq-kit.js?v=ef1c76a45d8a';
+import { T } from '../tiles.js?v=add2be8420ec';
+import { npc } from './npc.js?v=add2be8420ec';
+import { NORTH_PLACES } from './north.js?v=add2be8420ec';
+import { SOUTH_PLACES } from './south.js?v=add2be8420ec';
+import { PORT } from './sea.js?v=add2be8420ec';
+import { openSpot } from './labyrinth.js?v=add2be8420ec';
+import { room } from './fq-kit.js?v=add2be8420ec';
 // 第65回 D2: たのまれごと 12〜17 の 人（maps/work-quests2.js）
-import { attachWorkQuests2 } from './work-quests2.js?v=ef1c76a45d8a';
+import { attachWorkQuests2 } from './work-quests2.js?v=add2be8420ec';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ（maps/family-quests.js の FQ_OPEN と おなじ）

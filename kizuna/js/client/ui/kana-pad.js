@@ -2,7 +2,7 @@
 //   askText（ui/dom.js）が、コントローラーが つながって いる ときに 出す。タップ・クリックでも おせる
 //   十字キー … えらぶ　A … 入れる　B … 1文字 けす（何も 書いて いない ときは やめる）
 //   「゛゜小」… さいごの 文字を が→か・は→ば→ぱ・つ→っ などに かえる
-import { el } from './dom.js?v=ef1c76a45d8a';
+import { el } from './dom.js?v=add2be8420ec';
 
 const HIRA_ROWS = [
   'あかさたなはまやらわ',

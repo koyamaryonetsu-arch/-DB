@@ -4,7 +4,7 @@
 // ・かげぶんしん → 合体技の 前ぶれ: 前ぶれの 間は ノクトと 影たちの まわりに 赤むらさきの わ（earthDraw）と バナー。かまえを くずした・HP半分で 終わった ときも バナー
 // ・大地のダンゴムシ: おこると 目が 赤く 光る（だんかいで 大きく）。天空のまもり兵: かばっている 間は 青い わ
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
-import { el } from './ui/dom.js?v=ef1c76a45d8a';
+import { el } from './ui/dom.js?v=add2be8420ec';
 
 const NOCTO1 = 'nocto_1';
 const CLONE = 'nocto_clone';

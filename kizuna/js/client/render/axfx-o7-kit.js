@@ -3,8 +3,8 @@
 // ・o7Text … カタカナの 擬音（ふきだし・ギザギザの 星つき）。o7Hex … AIの 六角形の パネル。o7Reticle … ねらいの わ（AIの 照準）
 // ・o7Bg   … 発射の あと 一しゅんの うすい 背景（a 0.35 まで）
 // ・毎フレーム グラデーションを 作らない（softGlow の キャッシュ）。画面の 文字は カタカナ・ひらがな・記号・ローマ字だけ（漢字なし）
-import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, rnd, hash } from './axkit.js?v=ef1c76a45d8a';
-import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=ef1c76a45d8a';
+import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, rnd, hash } from './axkit.js?v=add2be8420ec';
+import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=add2be8420ec';
 
 const TAU = Math.PI * 2;
 const OUT = '#2a1a10';
