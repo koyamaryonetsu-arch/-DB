@@ -201,6 +201,11 @@ export const JOB_TAGS = {
   galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
+  // 第66回 A（伝説の職業。jobs-legend-r66a.js）
+  guard_god: ['guard', 'heal', 'light', 'master'], // 守りの神（ガーディアン＋大神官。光のたて・神のめぐみ）
+  kenshin: ['sword', 'light', 'dark', 'master'], // 光と闇の剣神（光の剣と闇の剣）
+  poke_master: ['monster', 'master', 'rival', 'bolt'], // ポケモンマスター（魔物と友だち・ライバル・10まんボルト）
+  sennen_mage: ['magic', 'master', 'heal', 'ice'], // 千年の大魔法使い（呪文・花畑のいやし・氷の大魔法）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

@@ -47,6 +47,8 @@ export const PHANTOM_ADJ = {
   detective_king: [0.81, 0.58, 0.55], galaxy_queen: [1.02, 0.79, 1.53], grand_magus: [0.63, 0.7, 1.01], sword_saint: [0.47, 0.35, 0.4],
   // 第65回 D1: 一・二の試練の 倍率が まだ なかった 職業（1 の まま）に 三の試練の 倍率
   sun_hokage: [1, 1, 0.94], meitantei: [1, 1, 1.64], facility_ai: [1, 1, 1.61], pirate_king: [1, 1, 0.85], super_hero: [1, 1, 1.21],
+  // 第66回 A（伝説の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 の 2回 さがした 平均）
+  guard_god: [1.13, 0.75, 0.92], kenshin: [0.72, 0.54, 0.75], poke_master: [1.32, 0.92, 1.3], sennen_mage: [1.32, 1.08, 0.95],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
@@ -55,6 +57,11 @@ const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;
 // 1回の 戦いで 回復できる 回数（大きく 回復する 技を もつ 職業だけ。ほかは 今までどおり 何度でも）
 export const HEAL_CAP = { nitoryu: 3 };
+// 第66回 A: 守りの神・ポケモンマスター・千年の大魔法使いの まぼろしは 回復（神のめぐみ・ポケモンセンター・花畑を出す魔法）を
+//   何十回も 使って 戦いが とても 長く なるので 回数を きめる
+HEAL_CAP.guard_god = 4;
+HEAL_CAP.poke_master = 4;
+HEAL_CAP.sennen_mage = 4;
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 
 const pow = (m, k) => Math.pow(Math.max(0.3, m || 1), k);

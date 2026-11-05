@@ -27,6 +27,7 @@ import { PHANTOM_JOBS_A } from './jobs-phantom-a.js';
 import { PHANTOM_JOBS_B } from './jobs-phantom-b.js';
 // 第66回: 伝説の職業（A〜D班。docs/plan-r66-legend.md）
 import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js';
+import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js';
 import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js';
 import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js';
 import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js';
@@ -1504,3 +1505,5 @@ export const JOB_HINTS = {
 };
 // 第51回 C3 の 幻の職業の うわさ（jobs-phantom-c.js）
 Object.assign(JOB_HINTS, PHANTOM_HINTS_C);
+// 第66回 A の 伝説の 職業の うわさ（jobs-legend-r66a.js）
+Object.assign(JOB_HINTS, LEGEND_R66A_HINTS);

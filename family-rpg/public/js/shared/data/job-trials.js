@@ -184,6 +184,11 @@ export const TRIAL_WORDS = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
   grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
   sword_saint: '会心の一撃は、心がすんだときに生まれる。',
+  // 第66回 A（伝説の職業）
+  guard_god: '守るとは、だれよりも前に立ち、だれよりも長く立っていることだ。',
+  kenshin: '光だけでも、闇だけでもない。2つを知る者が、本当の剣士だ。',
+  poke_master: '魔物は道具じゃない。いっしょに旅をする、大切な友だちだ。',
+  sennen_mage: '魔法は、楽しいと思う心で強くなる。千年たっても、同じだよ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

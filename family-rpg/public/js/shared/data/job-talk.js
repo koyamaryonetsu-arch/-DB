@@ -52,6 +52,11 @@ export const JOB_SAY = {
   super_hero: '「雷と気、両方まとめて解き放つ！」',
   sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
   facility_ai: '「全館、最適化を開始します」',
+  // 第66回 A（伝説の職業）
+  guard_god: '「仲間には、指一本ふれさせない」',
+  kenshin: '「光と闇、どちらもわたしの剣だ」',
+  poke_master: '「ポケモンマスターに、なったぞ！」',
+  sennen_mage: '「千年たっても、魔法は楽しい」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
