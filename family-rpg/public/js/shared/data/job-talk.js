@@ -52,6 +52,11 @@ export const JOB_SAY = {
   super_hero: '「雷と気、両方まとめて解き放つ！」',
   sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
   facility_ai: '「全館、最適化を開始します」',
+  // 第66回 B班（伝説の職業）
+  new_kawaii: '「世界中を、かわいくしちゃう！」',
+  smap: '「5人そろって、SMAPです！」',
+  oogosho: '「ほな、今日もいっちょやりまひょか」',
+  five_star_chef: '「最高のひと皿を、あなたに」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

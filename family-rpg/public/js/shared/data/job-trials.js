@@ -184,6 +184,11 @@ export const TRIAL_WORDS = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
   grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
   sword_saint: '会心の一撃は、心がすんだときに生まれる。',
+  // 第66回 B班（伝説の職業）
+  new_kawaii: 'かわいいは、だれかを笑顔にしたときに一番かがやくのよ。',
+  smap: '1人1人ちがう花だから、5つそろうと強いんだ。',
+  oogosho: '笑いは、相手をよく見ることから始まるんや。',
+  five_star_chef: '料理は、食べる人の笑顔を思いうかべて作るものだ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

@@ -201,6 +201,11 @@ export const JOB_TAGS = {
   galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
+  // 第66回 B班（伝説の職業。jobs-legend-r66b.js。歌とおどりは 13職業の 上限〈test/dual-r31.test.js の せーのでジャンプ〉なので つけない）
+  new_kawaii: ['light', 'heal', 'master'], // ニューカワイイ（星の歌姫・フルーツジッパーの 先。歌で みんなを 強く）
+  smap: ['light', 'heal', 'wind', 'master'], // SMAP（星の歌姫・アラシの 先。5人の 歌）
+  oogosho: ['laugh', 'rival', 'master'], // 大御所（M-1王者の 先。お笑い界の トップ）
+  five_star_chef: ['cook', 'fire', 'master', 'heal'], // 五つ星シェフ（三ツ星シェフの 先。料理で 回復）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

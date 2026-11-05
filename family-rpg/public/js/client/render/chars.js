@@ -24,6 +24,8 @@ import { R41A_OLD_LOOK } from './hero-r41a.js';
 import { R43J_OLD_LOOK } from './hero-r43j.js';
 // 第51回 W の 天気の 職業
 import { WEATHER_OLD_LOOK } from './hero-weather.js';
+// 第66回 B班の 伝説の 職業
+import { R66B_OLD_LOOK } from './hero-r66b.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -126,6 +128,7 @@ Object.assign(JOB_LOOK, R41B_OLD_LOOK);
 Object.assign(JOB_LOOK, R41A_OLD_LOOK);
 Object.assign(JOB_LOOK, R43J_OLD_LOOK);
 Object.assign(JOB_LOOK, WEATHER_OLD_LOOK);
+Object.assign(JOB_LOOK, R66B_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

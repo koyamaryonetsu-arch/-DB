@@ -32,6 +32,8 @@ import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js';
 import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js';
 import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js';
 import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js';
+// 第66回 B班: 伝説の職業の 神殿の うわさ（jobs-legend-r66b.js）
+import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1508,3 +1510,5 @@ export const JOB_HINTS = {
 };
 // 第51回 C3 の 幻の職業の うわさ（jobs-phantom-c.js）
 Object.assign(JOB_HINTS, PHANTOM_HINTS_C);
+// 第66回 B班の 伝説の職業の うわさ（jobs-legend-r66b.js）
+Object.assign(JOB_HINTS, LEGEND_R66B_HINTS);
