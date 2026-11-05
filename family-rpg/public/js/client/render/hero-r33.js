@@ -37,6 +37,8 @@ import { R40_MASC } from './hero-r40.js';
 import { R41B_MASC } from './hero-r41b.js';
 // 第43回: 男の子の 配管工の 系統（配管工・ひげおやじ・マリオ）の 見た目
 import { R43J_MASC } from './hero-r43j.js';
+// 第66回 D班: 男の子の ロゼッタ（ギャラクシーマリオ）の 見た目（hero-r66d.js）
+import { R66D_MASC } from './hero-r66d.js';
 
 export const R33_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 
@@ -150,6 +152,8 @@ export const R33_MASC = {
 };
 // 男性で タキシード仮面ふうに なる 職業なら その 見た目（ほかは null）。fem: 女性か（look.body === 1）
 export const masc33 = (job, fem) => (!fem && (R33_MASC[job] || R40_MASC[job] || R41B_MASC[job] || R43J_MASC[job])) || null;
+// 第66回 D班: ギャラクシーマリオは マリオの 系統なので R43J_MASC に まぜる（R33_MASC は セーラー戦士だけの 表）
+Object.assign(R43J_MASC, R66D_MASC);
 
 // ───────────── 服の つけたし（outfit26 の つけたしから） ─────────────
 export function outfit33(O, S, Lk, fem) {

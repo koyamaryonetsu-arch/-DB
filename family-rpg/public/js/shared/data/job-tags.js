@@ -211,6 +211,12 @@ export const JOB_TAGS = {
   kenshin: ['sword', 'light', 'dark', 'master'], // 光と闇の剣神（光の剣と闇の剣）
   poke_master: ['monster', 'master', 'rival', 'bolt'], // ポケモンマスター（魔物と友だち・ライバル・10まんボルト）
   sennen_mage: ['magic', 'master', 'heal', 'ice'], // 千年の大魔法使い（呪文・花畑のいやし・氷の大魔法）
+  // 第66回 D班（伝説の職業。jobs-legend-r66d.js）
+  gekka: ['shinobi', 'sky', 'light', 'rival'], // 月下のき術師（月の光・グライダー。歌とおどりは 13職業の 上限）
+  nobu_dora: ['machine', 'home', 'sky', 'master'], // のぶドラ（ひみつ道具・タケコプター）
+  kappa_king: ['fist', 'monster', 'master', 'ice'], // かっぱの大王（はり手・お皿の水）
+  truth_gate: ['alchemy', 'fist', 'machine', 'master'], // 真理のとびらをひらく者（れん成・機械のうで）
+  rosetta: ['light', 'magic', 'heal', 'master'], // ロゼッタ／ギャラクシーマリオ（流れ星・星のかけら）
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(JOB_TAGS, {

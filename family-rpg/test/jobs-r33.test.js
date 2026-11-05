@@ -535,7 +535,8 @@ const svc = (bot, msg) => {
 };
 
 test('れん金がま: れん金術師の 系統が パーティーに いると、できあがるまでの 歩数が 半分', async () => {
-  assert.deepEqual(POT_FAST_JOBS, ['alchemist', 'state_alchemist', 'fullmetal']);
+  // 第66回 D班: 伝説の職業の 真理のとびらをひらく者も
+  assert.deepEqual(POT_FAST_JOBS, ['alchemist', 'state_alchemist', 'fullmetal', 'truth_gate']);
   assert.equal(POT_FAST_RATE, 2);
   const full = potSteps('moonherb');
   // れん金術師で 入れる

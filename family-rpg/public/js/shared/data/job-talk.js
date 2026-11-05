@@ -62,6 +62,12 @@ export const JOB_SAY = {
   kenshin: '「光と闇、どちらもわたしの剣だ」',
   poke_master: '「ポケモンマスターに、なったぞ！」',
   sennen_mage: '「千年たっても、魔法は楽しい」',
+  // 第66回 D班（伝説の職業。ロゼッタの 男の子は JOB_SAY_MASC）
+  gekka: '「今夜も、月下のショーの始まりです」',
+  nobu_dora: '「ぼく、ドラえもんです。ウフフ」',
+  kappa_king: '「わしが、かっぱの大王じゃ！」',
+  truth_gate: '「とびらの向こうに、答えがあった」',
+  rosetta: '「星の子たち、行きましょう」',
 };
 // 第66回 C班（伝説の職業。jobs-legend-r66c.js）
 Object.assign(JOB_SAY, {
@@ -80,6 +86,8 @@ export const JOB_SAY_MASC = {
   plumber: '「さあ、行くぞ！ヤッフー！」',
   mustache: '「このひげが、ぼくのじまんさ」',
   mario: '「ヒアウィーゴー！」',
+  // 第66回 D班: ギャラクシーマリオ
+  rosetta: '「星の世界へ、レッツゴー！」',
 };
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）

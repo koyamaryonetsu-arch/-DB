@@ -38,6 +38,8 @@ export const MERGE_RECIPE = 'r_merge';
 // 第33回: れん金術師の 系統（れん金術師・国家れん金術師・はがねのれん金術師）に 今 ついている 人が
 // パーティーに いると、できあがるまでの 歩数が 半分（1歩で 2歩ぶん 進む。world/alchemy.js の potRate）
 export const POT_FAST_JOBS = ['alchemist', 'state_alchemist', 'fullmetal'];
+// 第66回 D班: 伝説の職業の 真理のとびらをひらく者も（はがねのれん金術師の 先）
+POT_FAST_JOBS.push('truth_gate');
 export const POT_FAST_RATE = 2;
 
 // できあがるまでの 歩数（道具・素材 30・★2までの 装備 40・★3 50・★4 60・同じ 武具 40）

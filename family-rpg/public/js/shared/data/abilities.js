@@ -84,6 +84,8 @@ import { R66B_ABILITIES } from './abilities-r66b.js';
 import { R66A_ABILITIES } from './abilities-r66a.js';
 // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方）の 技（abilities-r66c.js）
 import { R66C_ABILITIES } from './abilities-r66c.js';
+// 第66回 D班: 伝説の職業（月下のき術師・のぶドラ・かっぱの大王・真理のとびらをひらく者・ロゼッタ）の 技
+import { R66D_ABILITIES } from './abilities-r66d.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -715,6 +717,8 @@ Object.assign(ABILITIES, R66B_ABILITIES);
 Object.assign(ABILITIES, R66A_ABILITIES);
 // 第66回 C班の 伝説の職業の 技（abilities-r66c.js）
 Object.assign(ABILITIES, R66C_ABILITIES);
+// 第66回 D班の 伝説の職業の 技（abilities-r66d.js）
+Object.assign(ABILITIES, R66D_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

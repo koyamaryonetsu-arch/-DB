@@ -338,7 +338,8 @@ test('第43回の 職業: タグで 合体技に 入れる（3つ いじょう�
   // 乗り物: ヨッシー（超級職で。絵も ある）
   const v = VEHICLES.yoshi;
   assert.ok(v && v.name === 'ヨッシー' && v.price > 0);
-  assert.deepEqual(v.jobs, ['mario']);
+  // 第66回 D班: マリオの 先の ロゼッタ（ギャラクシーマリオ）も（test/legend-r66d.test.js）
+  assert.deepEqual(v.jobs, ['mario', 'rosetta']);
   textOk(v.name, 'vehicle');
   textOk(v.desc, 'vehicle');
   assert.ok(!BAD.test(v.desc));
