@@ -27,6 +27,8 @@ import { outfit41b } from './hero-r41b.js';
 import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js';
 // 第43回の 配管工の 系統の つなぎ・手ぶくろ・ドレス・ひげ・ぼうし・スパナ（hero-r43j.js）
 import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r43j.js';
+// 第66回 B班の 伝説の 職業 4つの ドレス・むねの かざり・マイク・おたま（hero-r66b.js）
+import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -236,6 +238,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   if (S.r41a) outfit41a(O, S);
   // 第43回: 青い つなぎ・白い 手ぶくろ・ピンクの ドレス
   if (S.r43j) outfit43j(O, S, Lk, fem);
+  // 第66回 B班: パステルの フリル・ハートの ブローチ・金の 星
+  if (S.r66b) outfit66b(O, S);
   return false;
 }
 
@@ -359,6 +363,8 @@ export function drawR26(cv, P, O, layer) {
   if (O.r41a) drawR41a(cv, P, O, layer);
   // 第43回: つなぎの むねあて・ブローチ
   if (O.r43j) drawR43j(cv, P, O, layer);
+  // 第66回 B班: ハートの ブローチ・金の 星 5つ
+  if (O.r66b) drawR66b(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
@@ -1072,6 +1078,8 @@ export function drawHat26(cv, P, H, G, view) {
 // まえ: がめんの みぎの 手、うしろ: ひだりの 手、よこ: その 手（P.facing の ほうへ むける）
 export function drawProp26(cv, P, A, O) {
   const kind = O.body?.prop;
+  // 第66回 B班: マイク・おたま（hero-r66b.js）
+  if (kind && drawProp66b(cv, P, A, O)) return;
   if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O) || drawProp40(cv, P, A, O) || drawProp41a(cv, P, A, O) || drawProp43j(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;

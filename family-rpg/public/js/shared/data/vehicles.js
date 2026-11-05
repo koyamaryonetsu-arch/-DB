@@ -84,6 +84,8 @@ import { FAMILY_VEHICLES } from './vehicles-family.js'; Object.assign(VEHICLES, 
 import { PRIZE_VEHICLES } from './vehicles-prize.js'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 // 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
 import { TOKEI_VEHICLES } from './vehicles-tokei.js'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+// 第66回 B班: 伝説の職業も もとの 職業の 乗り物に（オープンカー・スワンボート・屋台）
+VEHICLES.open_car.jobs.push('new_kawaii', 'smap'); VEHICLES.swan_boat.jobs.push('oogosho'); VEHICLES.food_cart.jobs.push('five_star_chef');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
