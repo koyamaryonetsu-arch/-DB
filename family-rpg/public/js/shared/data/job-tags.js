@@ -201,6 +201,13 @@ export const JOB_TAGS = {
   galaxy_queen: ['light', 'heal', 'guard', 'master'], // 銀河の女王（いやしと バリア）
   grand_magus: ['magic', 'fire', 'ice', 'master'], // 大魔導王（二重呪文）
   sword_saint: ['sword', 'master', 'wind'], // 天下むそうの剣聖
+  // 第66回 E2（超級職・伝説の職業）
+  esports_king: ['machine', 'rival', 'sword', 'magic'], // eスポーツ世界王者（ゲーム機・世界大会・魔法剣）
+  gold_cardman: ['money', 'henshin', 'work', 'master'], // 楽天ゴールドカードマン（金色の全身タイツ・部長）
+  psychicer: ['magic', 'kid', 'sky', 'detective'], // サイキッカー（念力・テレポート・心を読む）
+  game_god: ['machine', 'rival', 'sword', 'magic'], // ゲームの神
+  black_cardman: ['money', 'henshin', 'master'], // 楽天ブラックカードマン（カードマンの頂点）
+  saiki: ['magic', 'kid', 'sky', 'detective'], // さいきくすお（高校生の 超能力者）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

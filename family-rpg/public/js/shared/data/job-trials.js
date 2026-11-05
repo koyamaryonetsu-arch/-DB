@@ -184,6 +184,13 @@ export const TRIAL_WORDS = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのよ。',
   grand_magus: '2つの呪文を、1つの心でとなえるのだ。',
   sword_saint: '会心の一撃は、心がすんだときに生まれる。',
+  // 第66回 E2
+  esports_king: '勝っても負けても「ありがとう」と言える者が、本当の王者だ。',
+  gold_cardman: 'ポイントも力も、毎日のつみ重ねで金色にかがやく。',
+  psychicer: '心の声が聞こえても、選ぶのはやさしい言葉だ。',
+  game_god: 'ゲームは、みんなで楽しむためにある。セーブもわすれずにな。',
+  black_cardman: 'たくさん持つ者ほど、みんなのために使うのだ。',
+  saiki: '大きな力は、こっそりだれかのために使えばいい。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

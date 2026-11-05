@@ -78,6 +78,8 @@ import { PHANTOM_ABILITIES_C } from './abilities-phantom-c.js';
 import { PHANTOM_ABILITIES_A } from './abilities-phantom-a.js';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の 技
 import { PHANTOM_ABILITIES_B } from './abilities-phantom-b.js';
+// 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの 技（abilities-r66e2.js）
+import { R66E2_ABILITIES } from './abilities-r66e2.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -703,6 +705,8 @@ Object.assign(ABILITIES, PHANTOM_ABILITIES_C);
 // 第51回 C1 の 幻の職業の 技（abilities-phantom-a.js）
 Object.assign(ABILITIES, PHANTOM_ABILITIES_A);
 Object.assign(ABILITIES, PHANTOM_ABILITIES_B);
+// 第66回 E2 の 6つの 職業（abilities-r66e2.js）
+Object.assign(ABILITIES, R66E2_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

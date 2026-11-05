@@ -325,6 +325,8 @@ export function gameFiles() {
     'public/js/shared/data/jobs-phantom-b.js', 'public/js/shared/data/abilities-phantom-b.js', 'public/js/shared/data/hirameki-phantom-b.js', 'public/js/shared/battle-r51b.js',
     'public/js/client/render/axfx-o8-kit.js', 'public/js/client/render/axfx-o8-tantei.js', 'public/js/client/render/axfx-o8-ginga.js',
     'public/js/client/render/axfx-o8-madou.js', 'public/js/client/render/axfx-o8-kensei.js',
+    // 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの 技・ひらめき技・戦いの しかけ・えんしゅつ
+    'public/js/shared/data/abilities-r66e2.js', 'public/js/shared/data/hirameki-r66e2.js', 'public/js/shared/battle-r66e2.js', 'public/js/client/render/battlefx-r66e2.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

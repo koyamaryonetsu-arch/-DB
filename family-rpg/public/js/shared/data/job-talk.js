@@ -52,6 +52,13 @@ export const JOB_SAY = {
   super_hero: '「雷と気、両方まとめて解き放つ！」',
   sun_hokage: '「影分身も日の呼吸も、おれの忍道だ！」',
   facility_ai: '「全館、最適化を開始します」',
+  // 第66回 E2
+  esports_king: '「世界一のコンボ、見せてあげる！」',
+  gold_cardman: '「楽天ゴールドカード！」',
+  psychicer: '「きみの心の声、聞こえるよ」',
+  game_god: '「セーブは、こまめにね！」',
+  black_cardman: '「楽天ブラックカード！」',
+  saiki: '「やれやれ…目立ちたくないんだが」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
