@@ -161,6 +161,7 @@ export function gameFiles() {
     // 美容室・主人公の え
     'public/js/shared/data/looks.js', 'public/js/shared/world/salon.js', 'public/js/client/ui/salon.js',
     'public/js/shared/ai.js', 'public/js/shared/battle.js', 'public/js/shared/stats.js',
+    'public/js/shared/data/jobs-legend-r66a.js', 'public/js/shared/data/jobs-legend-r66b.js', 'public/js/shared/data/jobs-legend-r66c.js', 'public/js/shared/data/jobs-legend-r66d.js',
     'public/js/shared/data/abilities.js', 'public/js/shared/data/abilities-adv.js', 'public/js/shared/data/abilities-jobs.js', 'public/js/shared/data/companions.js',
     // 学校・公務員・町の みかた・アイドルの 職業の 技
     'public/js/shared/data/abilities-jobs2.js', 'public/js/shared/data/abilities-jobs3.js', 'public/js/shared/data/abilities-jobs4.js', 'public/js/shared/data/abilities-jobs5.js', 'public/js/shared/data/abilities-jobs6.js', 'public/js/shared/data/abilities-jobs7.js', 'public/js/shared/data/abilities-jobs8.js',
