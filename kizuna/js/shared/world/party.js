@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=1c3b33157cfa';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=1c3b33157cfa';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=1c3b33157cfa';
-import { MONSTERS } from '../data/monsters.js?v=1c3b33157cfa';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=1c3b33157cfa';
-import { SLOTS, ITEMS } from '../data/items.js?v=1c3b33157cfa';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=1c3b33157cfa';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=1c3b33157cfa';
-import { difficultyOf } from '../data/difficulty.js?v=1c3b33157cfa';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=1804b2cae177';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=1804b2cae177';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=1804b2cae177';
+import { MONSTERS } from '../data/monsters.js?v=1804b2cae177';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=1804b2cae177';
+import { SLOTS, ITEMS } from '../data/items.js?v=1804b2cae177';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=1804b2cae177';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=1804b2cae177';
+import { difficultyOf } from '../data/difficulty.js?v=1804b2cae177';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -181,6 +181,8 @@ function companionInfo(e, activeKeys, partyKeys) {
   return {
     key: e.key, kind: e.kind, species: e.species || null, name: ch.name, job: ch.job, level: ch.level, look: ch.look, equip: ch.equip, lookEquip: ch.lookEquip,
     hp: ch.hp, maxHp: st.maxHp, mp: ch.mp, maxMp: st.maxMp, tactics: ch.tactics,
+    // 第67回: 強さ（酒場で 入れかえ・配合の 相手を 決める ため。家族が ねがった）
+    st: { str: st.str, def: st.def, agi: st.agi, mag: st.mag, heal: st.heal, atk: st.atk, dfn: st.dfn },
     inParty: partyKeys.includes(e.key), active: activeKeys.has(e.key),
     desc: def?.desc || MONSTER_FRIENDS[e.species]?.note || '',
     plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,

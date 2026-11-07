@@ -1,46 +1,46 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=1c3b33157cfa';
-import { ITEMS } from '../../shared/data/items.js?v=1c3b33157cfa';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, JOB_TOP_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=1c3b33157cfa';
-import { ABILITIES } from '../../shared/data/abilities.js?v=1c3b33157cfa';
-import { abilityFor } from '../../shared/ability-label.js?v=1c3b33157cfa';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=1c3b33157cfa';
-import { salonUI } from './salon.js?v=1c3b33157cfa';
-import { vehicleShopUI } from './vehicles.js?v=1c3b33157cfa';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=1c3b33157cfa';
-import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js?v=1c3b33157cfa';
-import { MONSTERS } from '../../shared/data/monsters.js?v=1c3b33157cfa';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=1804b2cae177';
+import { ITEMS } from '../../shared/data/items.js?v=1804b2cae177';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, JOB_TOP_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=1804b2cae177';
+import { ABILITIES } from '../../shared/data/abilities.js?v=1804b2cae177';
+import { abilityFor } from '../../shared/ability-label.js?v=1804b2cae177';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=1804b2cae177';
+import { salonUI } from './salon.js?v=1804b2cae177';
+import { vehicleShopUI } from './vehicles.js?v=1804b2cae177';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=1804b2cae177';
+import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js?v=1804b2cae177';
+import { MONSTERS } from '../../shared/data/monsters.js?v=1804b2cae177';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=1c3b33157cfa';
+import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=1804b2cae177';
 // 第53回 A・D: 系統まぜ配合の うわさ・色の石
-import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=1c3b33157cfa';
-import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=1c3b33157cfa';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=1c3b33157cfa';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=1c3b33157cfa';
-import { TACTICS } from '../../shared/ai.js?v=1c3b33157cfa';
-import { itemDetail, gearText } from './info.js?v=1c3b33157cfa';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=1c3b33157cfa';
-import { shopUI, churchUI } from './shop.js?v=1c3b33157cfa';
-import { bankUI } from './bank.js?v=1c3b33157cfa';
-import { forgeUI } from './forge.js?v=1c3b33157cfa';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=1c3b33157cfa';
-import { casinoUI } from './casino.js?v=1c3b33157cfa';
+import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=1804b2cae177';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=1804b2cae177';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=1804b2cae177';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=1804b2cae177';
+import { TACTICS } from '../../shared/ai.js?v=1804b2cae177';
+import { itemDetail, gearText } from './info.js?v=1804b2cae177';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=1804b2cae177';
+import { shopUI, churchUI } from './shop.js?v=1804b2cae177';
+import { bankUI } from './bank.js?v=1804b2cae177';
+import { forgeUI } from './forge.js?v=1804b2cae177';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=1804b2cae177';
+import { casinoUI } from './casino.js?v=1804b2cae177';
 // 第50回 D3: 星のかけらの こうかんの 見せかた（なかまの 絵・NEW・こうかんの えんしゅつ）
-import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=1c3b33157cfa';
-import { sdBoardUI } from './secret.js?v=1c3b33157cfa';
+import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=1804b2cae177';
+import { sdBoardUI } from './secret.js?v=1804b2cae177';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=1c3b33157cfa';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=1804b2cae177';
 // 第67回 A班: モンスター闘技場の 受付（ui/monarena.js）
-import { monArenaUI } from './monarena.js?v=1c3b33157cfa';
-import { shownEquip } from '../../shared/look-equip.js?v=1c3b33157cfa';
-import { jobAskText } from '../../shared/data/job-talk.js?v=1c3b33157cfa';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=1c3b33157cfa';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=1c3b33157cfa';
+import { monArenaUI } from './monarena.js?v=1804b2cae177';
+import { shownEquip } from '../../shared/look-equip.js?v=1804b2cae177';
+import { jobAskText } from '../../shared/data/job-talk.js?v=1804b2cae177';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=1804b2cae177';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=1804b2cae177';
 // 第43回 C: 魔物あずかり所（ui/storage.js）と、仲間が いっぱいの 時の えらぶ文（shared/world/farewell.js）
-import { storageUI } from './storage.js?v=1c3b33157cfa';
-import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=1c3b33157cfa';
+import { storageUI } from './storage.js?v=1804b2cae177';
+import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=1804b2cae177';
 // 第51回 F: 幻の職業の 条件・うわさ（shared/data/phantom.js）
-import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=1c3b33157cfa';
+import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=1804b2cae177';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -507,6 +507,27 @@ function tavernUI(game, data) {
       if (g && (g[0] || g[1])) out.push(`祖父母: ${g.map((x) => (x ? x.map(spName).join('・') : '野生')).join(' ／ ')}`);
       return out;
     };
+    // 第67回: 強さと 技（酒場の 仲間・配合の 親。家族が ねがった「強さが 見えないと 決められない」）
+    const STAT_ROWS = [['攻撃力', 'atk'], ['守備力', 'dfn'], ['力', 'str'], ['身の守り', 'def'], ['素早さ', 'agi'], ['攻撃魔力', 'mag'], ['回復魔力', 'heal']];
+    const statBox = (e) => {
+      const box = el('div', { class: 'tv-stats' });
+      const kv = (k, v, cls = '') => el('div', { class: 'kv' }, el('span', { class: 'k', text: k }), el('span', { class: cls, text: String(v) }));
+      if (e.maxHp) box.append(kv('HP', `${Math.max(0, e.hp ?? e.maxHp)}/${e.maxHp}`), kv('MP', `${Math.max(0, e.mp ?? e.maxMp)}/${e.maxMp}`));
+      if (e.st) for (const [nm, k] of STAT_ROWS) box.append(kv(nm, e.st[k] ?? '－', k === 'atk' || k === 'dfn' ? 'gold' : ''));
+      return box;
+    };
+    const skillLine = (e) => {
+      const learned = e.abilities || (e.species ? learnedAbilities({ species: e.species, level: e.level }) : []);
+      return el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` });
+    };
+    // 配合の 親 2ひきを ならべて くらべる（えらんでいる 相手の 強さと 技も 見える。スマホでも 見える ように 1人 1〜2行）
+    const shortStats = (e) => (e.st ? `HP${e.maxHp} 攻${e.st.atk} 守${e.st.dfn} 速${e.st.agi} 魔${e.st.mag} 回${e.st.heal}` : '');
+    const parentsBox = (A, X) => {
+      const line = (e, label) => el('div', { class: 'tv-par' },
+        el('div', { class: 'small' }, el('span', { class: 'gold', text: `${label} ${e.name}${e.plus ? `＋${e.plus}` : ''} Lv${e.level}　` }), el('span', { text: shortStats(e) })),
+        el('div', { class: 'small muted', text: `技: ${(e.abilities || learnedAbilities({ species: e.species, level: e.level })).map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+      return el('div', { class: 'tv-pars' }, line(A, '1ぴきめ'), line(X, '2ひきめ'));
+    };
     const KIND_TEXT = {
       four: '★ 4体配合！', material: '★ 素材配合！', rank: '★ ランク配合！', special: '★ めずらしい組み合わせ！', recipe: '★ めずらしい組み合わせ！',
       same: '★ 新生配合（「+」が大きく上がる）',
@@ -533,6 +554,8 @@ function tavernUI(game, data) {
         el('span', { class: A ? 'gold' : 'muted', text: `1ぴきめ：${A ? A.name : '？'}` }),
         el('span', { class: A && X ? 'gold' : 'muted', text: `2ひきめ：${A && X ? X.name : '？'}` })));
       if (A && X) {
+        // 第67回: 親 2ひきの 強さと 技（生まれる 子の 上に）
+        main.append(parentsBox(A, X));
         const top = el('div', { class: 'breed-pv' });
         main.append(top);
         if (X.level < BREED_MIN_LEVEL) top.append(el('div', { class: 'small muted', text: `${X.name}はレベル${BREED_MIN_LEVEL}になると配合できる` }));
@@ -544,8 +567,7 @@ function tavernUI(game, data) {
       const e = (key && entries.get(key)) || A;
       if (e && e.species) {
         main.append(el('div', { class: 'small gold', text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}（${who(e)}）` }));
-        const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
-        main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+        main.append(statBox(e), skillLine(e));
         main.append(...monLines(e).map((t) => el('div', { class: 'small muted', text: t })));
         main.append(el('div', { class: 'small muted', text: A ? '2ひきめにカーソルを合わせると、生まれる子がここに出る' : '選ぶと1ぴきめになる' }));
       }
@@ -599,10 +621,11 @@ function tavernUI(game, data) {
       const img = el('canvas', { width: pv.width, height: pv.height, class: e.species ? 'tv-face' : 'tv-face hero' });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（仲間になるとこのレベル）` : who(e) }));
-      if (e.maxHp) main.append(el('div', { class: 'small', text: `HP ${Math.max(0, e.hp)}/${e.maxHp}　MP ${e.mp}/${e.maxMp}${e.tactics ? `　作戦: ${TACTICS[e.tactics]?.name || ''}` : ''}` }));
+      // 第67回: 強さ（HP・MP・攻撃力・守備力・力 など）
+      if (e.maxHp) main.append(statBox(e));
+      if (e.tactics) main.append(el('div', { class: 'small', text: `作戦: ${TACTICS[e.tactics]?.name || ''}` }));
       if (e.sec === 'roster' && e.species) {
-        const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
-        main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+        main.append(skillLine(e));
         main.append(el('div', { class: 'small', text: `装備できる物: ${gearText(e.species)}` }));
         main.append(...monLines(e).map((t) => el('div', { class: 'small muted', text: t })));
         if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}になると配合できる` }));
@@ -647,8 +670,16 @@ function tavernUI(game, data) {
     // もどる: 配合の 1ぴきめを はずす → 入口 → とじる
     const back = () => {
       if (view === 'breed' && parentA) {
+        // 第67回: 1ぴきめを はずしたら、カーソルは その 1ぴきめに もどす
+        const was = parentA;
         parentA = null;
         refresh();
+        const i = menu.items.findIndex((it) => it.value === was);
+        if (i >= 0) {
+          menu.idx = i;
+          menu.render();
+          show(menu.current?.value);
+        }
         return;
       }
       // 配合して あける モード: もどる ＝ えらぶ文に もどる（第43回 C）
