@@ -1,9 +1,9 @@
 // 第2章「海をわたる風」の だいほん（story.js で まぜる）
 // 四ツ影の1人「嵐の将軍ストルム」が 風の守り星の力で 海をとざしている。
 // さんばしで 船長マリナから しおかぜ号を かりて 海へ。灯台に 光をともすと 嵐の中に 道がひらく。
-import { POS } from '../maps/index.js?v=5614e7ad3425';
-import { SEA_POS } from '../maps/sea.js?v=5614e7ad3425';
-import { innSteps } from './inn.js?v=5614e7ad3425';
+import { POS } from '../maps/index.js?v=ee8758356336';
+import { SEA_POS } from '../maps/sea.js?v=ee8758356336';
+import { innSteps } from './inn.js?v=ee8758356336';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

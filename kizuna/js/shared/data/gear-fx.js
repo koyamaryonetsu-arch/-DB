@@ -7,8 +7,8 @@
 //   ・効果は「つけた 人の、その 装備の しゅるい」に のこる（char.gearFx[もとの 装備の id] = [{ k, v }]）。
 //     きたえた +1〜 も 同じ しゅるい。きたえると 少し 強く なる（+3 ごとに 値が 1 上がった ぶん）
 //   ・道具として 使える 効果は イオだけ（何回でも。MP は いらない）
-import { ITEMS } from './items.js?v=5614e7ad3425';
-import { isShopGear, starsFor } from './items-rare.js?v=5614e7ad3425';
+import { ITEMS } from './items.js?v=ee8758356336';
+import { isShopGear, starsFor } from './items-rare.js?v=ee8758356336';
 
 export const STAR = 'star_shard';
 // 使う 素材（武器・防具〈よろい・たて・頭〉）

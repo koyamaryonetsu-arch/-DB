@@ -19,16 +19,16 @@
 // ・知っている 人（シミュレーター tools/sim-ch7.mjs。b.knowsCh6）: いっせいほうげきの 前に 身を 守る（b.c6NoGuard … しない）／
 //   のり上げて いる 間は いちばん ダメージの 大きい 攻撃（b.c7sNoFocus … しない）／板の 上の 人を 回復より 先に 助ける（b.c7sNoReach … ふつうと おなじ）／
 //   合体技は 板わたりの号令の すぐ 前と、板の 上に 人が いる 間は しない（シミュレーターの dual7）
-import { MONSTERS } from './data/monsters.js?v=5614e7ad3425';
-import { ABILITIES } from './data/abilities.js?v=5614e7ad3425';
-import { C7_REEF, C7_LIGHT } from './data/monsters-c7s.js?v=5614e7ad3425';
+import { MONSTERS } from './data/monsters.js?v=ee8758356336';
+import { ABILITIES } from './data/abilities.js?v=ee8758356336';
+import { C7_REEF, C7_LIGHT } from './data/monsters-c7s.js?v=ee8758356336';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=5614e7ad3425';
-import { canUse } from './ai.js?v=5614e7ad3425';
-import { AUTO_GUARD } from './battle-ch6.js?v=5614e7ad3425';
-import { TRAP_KINDS, REACH } from './battle-earth.js?v=5614e7ad3425';
+import { atbRate } from './battle.js?v=ee8758356336';
+import { canUse } from './ai.js?v=ee8758356336';
+import { AUTO_GUARD } from './battle-ch6.js?v=ee8758356336';
+import { TRAP_KINDS, REACH } from './battle-earth.js?v=ee8758356336';
 // 合体技の よやくの 組（ノクトの 地われと おなじ。板わたりは 組の 人を ねらって、手を ひきはなす）
-import { bondTeams, breakTeam } from './battle-nocto.js?v=5614e7ad3425';
+import { bondTeams, breakTeam } from './battle-nocto.js?v=ee8758356336';
 
 export { C7_REEF, C7_LIGHT };
 export const BROADSIDE = 'm7r_broadside';

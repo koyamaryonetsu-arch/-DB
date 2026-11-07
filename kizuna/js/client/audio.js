@@ -1,18 +1,18 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=5614e7ad3425';
-import { SFX_R27 } from './sfx-r27.js?v=5614e7ad3425';
-import { SFX_R29 } from './sfx-r29.js?v=5614e7ad3425';
-import { SFX_R33 } from './sfx-r33.js?v=5614e7ad3425';
-import { SFX_PK } from './sfx-pokemon.js?v=5614e7ad3425';
-import { SFX_DQ } from './sfx-dqm.js?v=5614e7ad3425';
+import { SFX_R26 } from './sfx-r26.js?v=ee8758356336';
+import { SFX_R27 } from './sfx-r27.js?v=ee8758356336';
+import { SFX_R29 } from './sfx-r29.js?v=ee8758356336';
+import { SFX_R33 } from './sfx-r33.js?v=ee8758356336';
+import { SFX_PK } from './sfx-pokemon.js?v=ee8758356336';
+import { SFX_DQ } from './sfx-dqm.js?v=ee8758356336';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=5614e7ad3425';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=5614e7ad3425';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=5614e7ad3425';
-import { EARTH_TRACKS } from './audio-earth.js?v=5614e7ad3425';
-import { CASTLE_TRACKS } from './audio-castle.js?v=5614e7ad3425';
-import { TOP_TRACKS } from './audio-top.js?v=5614e7ad3425';
-import { CH6_TRACKS } from './audio-ch6.js?v=5614e7ad3425';
+import { SFX_AX } from './sfx-ax.js?v=ee8758356336';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=ee8758356336';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=ee8758356336';
+import { EARTH_TRACKS } from './audio-earth.js?v=ee8758356336';
+import { CASTLE_TRACKS } from './audio-castle.js?v=ee8758356336';
+import { TOP_TRACKS } from './audio-top.js?v=ee8758356336';
+import { CH6_TRACKS } from './audio-ch6.js?v=ee8758356336';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
