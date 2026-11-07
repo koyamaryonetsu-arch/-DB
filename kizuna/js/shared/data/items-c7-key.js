@@ -3,8 +3,8 @@
 // 第7章 Step 3・4（第2幕）:
 // ・c7s_keeper_letter … 灯台守の手紙（灯台 4階の 灯台守ゲンじいが 書いてくれる。5階の 千年前の 戸だなに 入れると なくなる。時をこえる手紙）
 // ふつうの 道具・装備・宝箱の 中み・手紙の ごほうびは B（data/items-c7.js・items-c7s.js）
-import { MIKO_LETTER } from '../maps/c7-flags.js?v=f8e3612ec2c4';
-import { KEEPER_LETTER } from '../maps/c7s-flags.js?v=f8e3612ec2c4';
+import { MIKO_LETTER } from '../maps/c7-flags.js?v=015fea4b1393';
+import { KEEPER_LETTER } from '../maps/c7s-flags.js?v=015fea4b1393';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {

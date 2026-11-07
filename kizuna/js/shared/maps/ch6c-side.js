@@ -3,8 +3,8 @@
 // ・砂時計の まわりの 12の かざりが、今と 千年前の フィールド・ダンジョンに 1つずつ ちらばっている（地図の しるしは つぎの 1つ）
 // ・6こで ★5の アクセサリー・12こで 時の砂時計が きれいに なる（時を こえる ときの 砂の うずに かざりが 光る）＋ つよい 種
 // だいほんは data/sidequests-ch6c.js
-import { npc } from './npc.js?v=f8e3612ec2c4';
-import { PLACES } from './overworld.js?v=f8e3612ec2c4';
+import { npc } from './npc.js?v=015fea4b1393';
+import { PLACES } from './overworld.js?v=015fea4b1393';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const ORN = {

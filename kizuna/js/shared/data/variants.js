@@ -13,7 +13,7 @@
 //   ・経験値・お金: しゅるいの 倍率（exp・gold）。落とす 物は もとと おなじ（素材〈loot.js の MAT_DROPS〉は 落とさない）
 //   ・仲間に ならない（noBefriend。MONSTER_FRIENDS にも 入れない）。図鑑には 出ない（見た・たおした 記録は 色ちがいの ID で のこる）
 //   ・第53回 D: 配合で「色の石」を 使うと 色ちがいの 仲間が 生まれる（下の colorKinds・colorMon。仲間は もとの しゅぞくに color を つける）
-import { MONSTERS } from './monsters.js?v=f8e3612ec2c4';
+import { MONSTERS } from './monsters.js?v=015fea4b1393';
 
 // しゅるい（名前の 前に つける ことば・色・強さ）
 export const VARIANT_KINDS = {
@@ -114,3 +114,15 @@ export function variantOf(sp) {
 export const baseSpecies = (sp) => variantOf(sp)?.base || sp;
 // 名前が もう その ことばで 始まる 魔物（ダークトレント など）には、その しゅるいを 作らない
 export const variantFits = (baseId, kind) => !!MONSTERS[baseId] && !!VARIANT_KINDS[kind] && !MONSTERS[baseId].name.startsWith(VARIANT_KINDS[kind].prefix);
+
+// 第67回 B: ID（'v_<しゅるい>_<もとの 魔物>'）から 色ちがいを とうろく（画面が まだ 知らない 色ちがい。
+//   モンスター闘技場で 家族の 色ちがいの 仲間が 敵の がわに 出る 時。client/battle.js）。とうろく できた ID か null
+export function ensureVariantId(id) {
+  if (typeof id !== 'string' || !id.startsWith(VARIANT_PREFIX)) return null;
+  if (Object.prototype.hasOwnProperty.call(MONSTERS, id)) return id;
+  const rest = id.slice(VARIANT_PREFIX.length);
+  const i = rest.indexOf('_');
+  if (i <= 0) return null;
+  const kind = rest.slice(0, i);
+  return kindOk(kind) ? registerVariant(rest.slice(i + 1), kind) : null;
+}
