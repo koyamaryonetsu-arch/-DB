@@ -6,7 +6,7 @@
 //     family: [{ charId, name, reg: [{ species, name, level }] }] }
 export const TEAM_MAX = 4;
 
-export const WHERE_LABEL = { party: 'パーティー', wagon: '馬車', storage: 'あずかり所' };
+export const WHERE_LABEL = { party: 'パーティー', wagon: '馬車', storage: 'あずかり所', tavern: '酒場' };
 export const whereLabel = (w) => WHERE_LABEL[w] || '';
 
 const num = (v) => (Number.isFinite(+v) ? +v : 0);

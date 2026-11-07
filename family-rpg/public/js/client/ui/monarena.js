@@ -68,12 +68,8 @@ function addCss() {
   document.head.append(el('style', { id: 'monarena-a-css', text: CSS }));
 }
 
-// サーバーの 窓口（B班）。ためしの スタブ（ui/monarena-a-stub.js）は globalThis.__monarenaStub が ある 時だけ（B班の しょりが まとまったら けす）
+// サーバーの 窓口（B班。world/monarena.js）
 async function svc(game, msg) {
-  if (globalThis.__monarenaStub) {
-    const m = await import('./monarena-a-stub.js');
-    return m.monarenaStub(game, msg);
-  }
   return request(game, { kind: 'monarena', ...msg });
 }
 

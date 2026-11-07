@@ -97,7 +97,7 @@ export function attachMonArena(maps) {
   set(D.x + 1, D.y + 1, T.TOWN_FLOWERS);
   ow.roofs.push({ x: H.x, y: H.y, w: H.w, h: H.h, color: 'red' });
   ow.boards.push({ x: D.x - 1, y: D.y, kind: 'arena', name: MONARENA_NAME });
-  ow.warps.push({ x: D.x, y: D.y, to: { map: MONARENA_MAP, x: MONARENA_START.x, y: MONARENA_START.y, dir: 'up' } });
+  ow.warps.push({ x: D.x, y: D.y, noMark: true /* 町の そばの 建物（宝の地図の 目じるしに しない） */, to: { map: MONARENA_MAP, x: MONARENA_START.x, y: MONARENA_START.y, dir: 'up' } });
   // 魔物が 出ない（町の すぐ そば）。名前は ルミナの町
   const zone = ow.zoneAt;
   ow.zoneAt = (x, y) => (inSafe(x, y) ? 'safe:monarena' : zone(x, y));

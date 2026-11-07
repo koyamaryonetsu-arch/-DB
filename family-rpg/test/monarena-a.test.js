@@ -168,8 +168,8 @@ test('第67回 A: 受付の 画面 … B班の 窓口を 約束どおり よぶ�
   for (const a of ['status', 'setTeam', 'register', 'rank', 'family']) assert.match(src, new RegExp(`action: '${a}'`), a);
   assert.match(src, /kind: 'monarena'/);
   assert.match(src, /even: even === 1/);
-  // ためしの スタブは globalThis.__monarenaStub が ある 時だけ
-  assert.match(src, /if \(globalThis\.__monarenaStub\)/);
+  // ためしの スタブは まとめた 時に けした（B班の 窓口を 使う）
+  assert.doesNotMatch(src, /__monarenaStub/);
   const svc = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
   assert.match(svc, /case 'monarena': return monArenaUI\(game, data\);/);
 });
