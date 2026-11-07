@@ -201,7 +201,7 @@ export function gameFiles() {
     // 魔物あずかり所（第43回 C）
     'public/js/shared/world/storage.js', 'public/js/client/ui/storage.js',
     // 家族に 道具を あげる（第50回 N6）
-    'public/js/shared/world/gift.js', 'public/js/client/ui/gift.js', 'public/js/client/ui/follow-btn.js', 'public/js/client/ui/kana-pad.js', 'public/js/client/ui/hand.js', 'public/js/client/ui/sources.js', 'public/js/shared/item-sources.js', 'public/js/shared/data/salvage.js', 'public/js/shared/data/gear-fx.js', 'public/js/shared/battle-gearfx.js',
+    'public/js/shared/world/gift.js', 'public/js/client/ui/gift.js', 'public/js/client/ui/follow-btn.js', 'public/js/client/ui/kana-pad.js', 'public/js/client/ui/hand.js', 'public/js/client/ui/layout.js', 'public/js/client/ui/sources.js', 'public/js/shared/item-sources.js', 'public/js/shared/data/salvage.js', 'public/js/shared/data/gear-fx.js', 'public/js/shared/battle-gearfx.js',
     // チャットの スタンプを 変える（第50回 N7）
     'public/js/shared/data/stamps.js', 'public/js/client/ui/stamps.js',
     // ポケモンの 魔物・進化（第44回 ポケモン P1）

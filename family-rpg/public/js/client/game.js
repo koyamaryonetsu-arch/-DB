@@ -1,5 +1,6 @@
 // ゲーム ぜんたいの しんこう
 import { applyHand } from './ui/hand.js';
+import { bindLayout } from './ui/layout.js';
 import { Input } from './input.js';
 import { GameAudio } from './audio.js';
 import { Field } from './field.js';
@@ -62,6 +63,7 @@ export class Game {
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
     applyHand(); // 第64回: たて持ちの ボタンの ならび（ui/hand.js）
+    bindLayout(); // 第67回: 自分で ならべた ボタン（ui/layout.js。たて・よこ 別々）
     applyUiFont();
     applyBattlePrefs();
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する

@@ -1,5 +1,6 @@
 // フィールドの メニュー
 import { HAND_NAMES, handPref, nextHand } from './hand.js';
+import { layoutEditor, loadLayout, saveLayout } from './layout.js';
 import { fxText, fxListOf, fxShort } from '../../shared/data/gear-fx.js';
 import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
@@ -1908,7 +1909,9 @@ export class FieldMenu {
       { label: '動けない・画面が止まった時は（立てなおす）', value: 'rescue' },
       { label: `不具合の記録（${readErrLog().length}件）`, value: 'errlog' });
     if (g.input.touch) {
-      items.push({ label: `ボタンのならび（たて持ち）：${HAND_NAMES[handPref()]}`, value: 'hand' });
+      items.push({ label: `ボタンのならび（たて持ち）：${loadLayout().tate ? '自分で決めた配置' : HAND_NAMES[handPref()]}`, value: 'hand' });
+      // 第67回: 自分で ならべる（ui/layout.js。たて持ち・よこ持ち 別々。今の 向きを 決める）
+      items.push({ label: 'ボタンの配置を自分で決める（指で動かす）', value: 'layout' });
       items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
       if (navigator.audioSession) items.push({ label: `マナーモードでも音を出す：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
@@ -1981,7 +1984,16 @@ export class FieldMenu {
           });
           return;
         } else if (it.value === 'hand') {
-          nextHand();
+          // 第67回: たて持ちを 自分で ならべて いる ときは、まず 今までの ならびに もどす
+          if (loadLayout().tate) {
+            saveLayout('tate', null);
+            toast('たて持ちのボタンを、もとのならびにもどしました');
+          } else nextHand();
+        } else if (it.value === 'layout') {
+          // メニューを とじて ならべる 画面へ（ボタンが 見えるように）
+          this.close();
+          layoutEditor(g).then((saved) => { if (saved) toast('ボタンの配置を決めました'); });
+          return;
         } else if (it.value === 'pad') {
           g.input.padOn = !g.input.padOn;
         } else if (it.value === 'awake') {

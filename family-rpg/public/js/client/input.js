@@ -3,6 +3,7 @@
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
 // ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
 import { inStickZone as stickZone } from './ui/hand.js';
+import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js';
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
@@ -173,18 +174,21 @@ export class Input {
     const field3d = document.getElementById('field3d');
     // スティックは さわった ところに でてくる（がめんの ひだり がわ）。はなすと もとの ばしょに もどる
     // 第64回: たて持ちの ならび（右手用・左手用・片手。ui/hand.js）で かわる
-    const inStickZone = (t) => stickZone(t.clientX, t.clientY, innerWidth, innerHeight, document.body.dataset.hand);
+    // 第67回: 自分で ならべた ときは スティックの ある 側（ui/layout.js）
+    const inStickZone = (t) => {
+      const side = stickSideOf(innerWidth, innerHeight);
+      if (side) return side === 'left' ? t.clientX < innerWidth * 0.6 : t.clientX > innerWidth * 0.4;
+      return stickZone(t.clientX, t.clientY, innerWidth, innerHeight, document.body.dataset.hand);
+    };
     const placeStick = (x, y) => {
       const r = touchEl.getBoundingClientRect();
       stickEl.style.left = `${x - r.left - stickEl.offsetWidth / 2}px`;
       stickEl.style.top = `${y - r.top - stickEl.offsetHeight / 2}px`;
       stickEl.style.bottom = 'auto';
+      floatStickLayout(stickEl);
     };
-    const homeStick = () => {
-      stickEl.style.left = '';
-      stickEl.style.top = '';
-      stickEl.style.bottom = '';
-    };
+    // もとの 場所へ（第67回: 自分で ならべた ときは その 場所。ui/layout.js）
+    const homeStick = () => homeStickLayout(stickEl);
     const startStick = (t) => {
       stickId = t.identifier;
       origin = { x: t.clientX, y: t.clientY };
