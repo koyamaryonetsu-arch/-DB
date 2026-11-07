@@ -12,34 +12,34 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=89330e853b9b';
-import { PLACES } from '../maps/overworld.js?v=89330e853b9b';
-import { abilityLabel } from '../ability-label.js?v=89330e853b9b';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=89330e853b9b';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=89330e853b9b';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=89330e853b9b';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=89330e853b9b';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=89330e853b9b';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=89330e853b9b';
+import { POS } from '../maps/index.js?v=f8e3612ec2c4';
+import { PLACES } from '../maps/overworld.js?v=f8e3612ec2c4';
+import { abilityLabel } from '../ability-label.js?v=f8e3612ec2c4';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=f8e3612ec2c4';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=f8e3612ec2c4';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=f8e3612ec2c4';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=f8e3612ec2c4';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=f8e3612ec2c4';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=f8e3612ec2c4';
 // 第2部 第6章「時の砂時計」Step 1・2（story-ch6.js）
-import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=89330e853b9b';
+import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=f8e3612ec2c4';
 // 第2部 第7章 第1幕「緑の王国」Step 1・2（story-c7.js）
-import { CH7_STEPS, applyCh7 } from './story-c7.js?v=89330e853b9b';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=89330e853b9b';
-import { SD_SCRIPTS } from './story-secret.js?v=89330e853b9b';
-import { CASINO_SCRIPTS } from './story-casino.js?v=89330e853b9b';
-import { innSteps } from './inn.js?v=89330e853b9b';
-import { NIGHT_SCRIPTS } from './night.js?v=89330e853b9b';
-import { skyScripts } from './sky.js?v=89330e853b9b';
-import { FACILITY_SCRIPTS } from './facilities.js?v=89330e853b9b';
-import { wagonEventSteps } from './wagon.js?v=89330e853b9b';
-import { JOB_GREET } from './job-talk.js?v=89330e853b9b';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=89330e853b9b';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=89330e853b9b';
+import { CH7_STEPS, applyCh7 } from './story-c7.js?v=f8e3612ec2c4';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=f8e3612ec2c4';
+import { SD_SCRIPTS } from './story-secret.js?v=f8e3612ec2c4';
+import { CASINO_SCRIPTS } from './story-casino.js?v=f8e3612ec2c4';
+import { innSteps } from './inn.js?v=f8e3612ec2c4';
+import { NIGHT_SCRIPTS } from './night.js?v=f8e3612ec2c4';
+import { skyScripts } from './sky.js?v=f8e3612ec2c4';
+import { FACILITY_SCRIPTS } from './facilities.js?v=f8e3612ec2c4';
+import { wagonEventSteps } from './wagon.js?v=f8e3612ec2c4';
+import { JOB_GREET } from './job-talk.js?v=f8e3612ec2c4';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=f8e3612ec2c4';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=f8e3612ec2c4';
 // 第37回 A: サファラ闘技場（しょりは world/arena.js）
-import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=89330e853b9b';
-import { TRIAL_SCRIPTS } from './story-trials.js?v=89330e853b9b';
-import { applyTownHints } from './secret-hints.js?v=89330e853b9b';
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=f8e3612ec2c4';
+import { TRIAL_SCRIPTS } from './story-trials.js?v=f8e3612ec2c4';
+import { applyTownHints } from './secret-hints.js?v=f8e3612ec2c4';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

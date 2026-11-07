@@ -10,21 +10,21 @@
 // 作業中の 仮の データ（B の 物が まだ ない 時だけ たす。まとめる 時に この 行を けす）
 import {
   C7, ARRIVE7, TF7, LEVER3, OPEN6, WAIT6, WIN7, LETTER, LETTER_TEMPLE, MIKO_LETTER, C7_FIELD, PRESENT_FIELD, TEMPLE_DOOR, GATE_BOSS, c7tMapId,
-} from '../maps/c7-flags.js?v=89330e853b9b';
-import { C7_POS } from '../maps/c7-field.js?v=89330e853b9b';
-import { C7T_POS } from '../maps/c7-temple.js?v=89330e853b9b';
-import { MAPS } from '../maps/index.js?v=89330e853b9b';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=89330e853b9b';
-import { MONSTERS } from './monsters.js?v=89330e853b9b';
-import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=89330e853b9b';
-import { SHOPS_C7 } from './shops-c7.js?v=89330e853b9b';
-import { GLASS_TEXT } from '../world/time-glass.js?v=89330e853b9b';
-import { partyOf } from '../world/party.js?v=89330e853b9b';
-import { applyC7Side } from './sidequests-c7.js?v=89330e853b9b';
-import { innSteps } from './inn.js?v=89330e853b9b';
-import { C6D_OBJ } from './story-ch6d.js?v=89330e853b9b';
+} from '../maps/c7-flags.js?v=f8e3612ec2c4';
+import { C7_POS } from '../maps/c7-field.js?v=f8e3612ec2c4';
+import { C7T_POS } from '../maps/c7-temple.js?v=f8e3612ec2c4';
+import { MAPS } from '../maps/index.js?v=f8e3612ec2c4';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=f8e3612ec2c4';
+import { MONSTERS } from './monsters.js?v=f8e3612ec2c4';
+import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=f8e3612ec2c4';
+import { SHOPS_C7 } from './shops-c7.js?v=f8e3612ec2c4';
+import { GLASS_TEXT } from '../world/time-glass.js?v=f8e3612ec2c4';
+import { partyOf } from '../world/party.js?v=f8e3612ec2c4';
+import { applyC7Side } from './sidequests-c7.js?v=f8e3612ec2c4';
+import { innSteps } from './inn.js?v=f8e3612ec2c4';
+import { C6D_OBJ } from './story-ch6d.js?v=f8e3612ec2c4';
 // 第7章 第2幕「海の紋章」Step 3・4（story-c7s.js。カイ・千年前の クモイの 海・しずむ前の島の灯台）
-import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js?v=89330e853b9b';
+import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js?v=f8e3612ec2c4';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
