@@ -26,6 +26,7 @@ import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from
 import { EVOLVE_FROM, evolveNote } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
+import { PAST_PLACES, pastVisited } from '../../shared/data/past-places.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
@@ -728,7 +729,11 @@ export class FieldMenu {
     const g = this.game;
     const helper = g.worldVisited && g.party && g.party.leader !== g.sid;
     const been = helper ? g.worldVisited : new Set(Object.keys(g.me.visited || {}).filter((k) => g.me.visited[k]));
-    const towns = Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => been.has(id) && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+    // 第67回: 千年前に いる 時は 千年前の 町だけ（data/past-places.js）
+    const past = !!MAPS[g.field?.mapId]?.past;
+    const towns = past
+      ? Object.entries(PAST_PLACES).filter(([id]) => (helper ? been.has(id) : pastVisited(g.me, id))).map(([id, p]) => ({ label: p.name, value: id }))
+      : Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => been.has(id) && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
     // 第59回: 最後にいのった場所（ダンジョンの 泉・教会。手伝っている ときは リーダーの いのりの場所。使えるかは サーバーが きめる）
     const pray = helper || (g.me.spawn && MAPS[g.me.spawn.map] && !/^(tm_|sd_)/.test(g.me.spawn.map));
     return pray ? [{ label: '最後にいのった場所', value: 'pray' }, ...towns] : towns;

@@ -8,6 +8,7 @@ import { makeRng } from '../rng.js';
 import { colorMon } from '../data/variants.js';
 import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
+import { pastPlaceAt } from '../data/past-places.js';
 import { T, TILE_INFO } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
@@ -609,6 +610,14 @@ export class GameWorld {
       this.warpFollowers(s, fromMap, fx, fy, to);
       this.checkTriggers(s, Math.floor(to.x), Math.floor(to.y));
       return;
+    }
+    // 第67回: 千年前の 町（ルーラの 行き先。data/past-places.js）。物語の しかけより 先に おぼえる
+    const pid = !this.hostOf(s) && pastPlaceAt(s.map, tx, ty);
+    if (pid && !s.char.visited?.[pid]) {
+      s.char.visited = s.char.visited || {};
+      s.char.visited[pid] = true;
+      const party = partyOf(this, s);
+      if (party && party.members.length > 1) this.sendParty(party);
     }
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）

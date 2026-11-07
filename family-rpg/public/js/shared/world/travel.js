@@ -24,6 +24,7 @@ import { runScript } from './scripts.js';
 import { partyOf } from './party.js';
 import { warpDest } from './services.js';
 import { advanceClock, clockOwner } from './clock.js';
+import { PAST_PLACES, pastWarpTowns } from '../data/past-places.js';
 
 const FOLLOW_RANGE = 12;
 
@@ -33,9 +34,35 @@ const FOLLOW_RANGE = 12;
 export const PRAY_PLACE = 'pray';
 export const PRAY_NAME = '最後にいのった場所';
 const hasPray = (c) => !!c?.spawn && typeof c.spawn.map === 'string' && !!MAPS[c.spawn.map] && !/^(tm_|sd_)/.test(c.spawn.map);
-export function warpPlaces(c) {
-  const towns = Object.keys({ ...PLACES, ...SEA_PLACES }).filter((id) => id !== 'shrine' && c?.visited?.[id]);
+// 第67回: 千年前に いる 時（past）は 千年前の 町だけ（data/past-places.js）
+export function warpPlaces(c, past = false) {
+  const towns = past ? pastWarpTowns(c) : Object.keys({ ...PLACES, ...SEA_PLACES }).filter((id) => id !== 'shrine' && c?.visited?.[id]);
   return hasPray(c) ? [PRAY_PLACE, ...towns] : towns;
+}
+export const isPastMap = (mapId) => !!MAPS[mapId]?.past;
+
+// 千年前の 町の おりる 所（町の 下の はしの まん中から、歩ける マスを さがす。出入り口は さける）
+const landCache = new Map();
+export function pastLanding(id) {
+  const p = PAST_PLACES[id];
+  const m = p && MAPS[p.map];
+  if (!m) return null;
+  if (landCache.has(id)) return landCache.get(id);
+  const [rx, ry, rw, rh] = p.rect;
+  const cx = Math.floor(rx + rw / 2);
+  const door = (x, y) => (m.warps || []).some((w) => w.x === x && w.y === y);
+  let out = null;
+  for (let y = ry + rh - 2; y >= ry && !out; y--) {
+    for (let d = 0; d <= rw / 2 && !out; d++) {
+      for (const x of d ? [cx + d, cx - d] : [cx]) {
+        if (x < rx || x >= rx + rw || door(x, y) || isBlocked(m, x, y, () => true)) continue;
+        out = { map: p.map, x: x + 0.5, y: y + 0.5, dir: 'down' };
+        break;
+      }
+    }
+  }
+  landCache.set(id, out);
+  return out;
 }
 
 // 行き先を きめる 人: パーティーで リーダーの 冒険に 来ている ときは リーダー（リーダーと おなじ 行き先に なる）
@@ -45,6 +72,7 @@ export function warpOwner(world, s) {
 
 export function placeName(id) {
   if (id === PRAY_PLACE) return PRAY_NAME;
+  if (PAST_PLACES[id]) return PAST_PLACES[id].name;
   return (PLACES[id] || SEA_PLACES[id])?.name || '';
 }
 
@@ -65,11 +93,13 @@ export function castRura(world, s, caster, id, msg, reply) {
   // 第6章: 千年前では 使えない（MPは へらない。帰りは 時の砂時計で）
   const place = typeof msg.place === 'string' ? msg.place : '';
   // 第59回: 「最後にいのった場所」は 千年前の フィールドからも 飛べる（いのりの場所は 時代を こえて おぼえている）
-  if (MAPS[s.map]?.past && place !== PRAY_PLACE) return reply(false, PAST_WARP_TEXT(`${caster.name}は${a.name}を唱えた！`));
+  // 第67回: 千年前では 千年前の 町へ（行った ことの ある 町が ない ときは 今までの ことば）
+  const past = isPastMap(s.map);
+  if (past && place !== PRAY_PLACE && !PAST_PLACES[place]) return reply(false, PAST_WARP_TEXT(`${caster.name}は${a.name}を唱えた！`));
   // 洞窟や 塔の 中では 天井に 頭を ぶつける（MPは へらない）
   if (world.mapKind(s.map) !== 'field') return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし天井に頭をぶつけた！\n（洞窟や塔の中では使えない）`);
-  if (!warpPlaces(warpOwner(world, s)).includes(place)) return reply(false, 'どこへ行く？');
-  const to = place === PRAY_PLACE ? world.prayDest(s) : warpDest(place);
+  if (!warpPlaces(warpOwner(world, s), past).includes(place)) return reply(false, 'どこへ行く？');
+  const to = place === PRAY_PLACE ? world.prayDest(s) : PAST_PLACES[place] ? pastLanding(place) : warpDest(place);
   if (!to) return reply(false, 'どこへ行く？');
   const cost = mpCost(caster, id);
   if (caster.mp < cost) return reply(false, 'MPが足りない！');
