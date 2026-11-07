@@ -21,13 +21,14 @@ import { runScript, runSteps } from './scripts.js';
 // 第44回（ポケモン P1）: 進化を まっている 仲間（world/evolve.js）
 import { checkEvolve } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam, companionOf } from './party.js';
 import { rosterIsFull, befriendFullSteps } from './farewell.js';
 import { hasWagon, dropGoneFamily } from '../data/wagon.js';
 import { takeTavernNews } from './recruit-share.js';
 // 第51回 B: 家族のけいじ板（world/family-board.js）
 import { boardPost, boardMessage } from './family-board.js';
 import { MONSTERS } from '../data/monsters.js';
+import { jobLabel } from '../job-label.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
@@ -527,10 +528,18 @@ export class GameWorld {
     } else {
       const wagon = hasWagon(c) ? c.wagonKeys : [];
       const name = (k) => nameOfKey(this, c, k) || '？';
+      // 第67回: しゅるい・レベルも 出す（だれを もどすか 決めやすく。家族が ねがった）
+      const charOf = (k) => (k.startsWith('fam:') ? this.data.characters[k.slice(4)] : companionOf(c, k)?.char) || null;
+      const label = (k, where) => {
+        const ch = charOf(k);
+        const kind = ch ? (ch.species ? MONSTERS[ch.species]?.name || '' : jobLabel(ch.job, ch)) : '';
+        const body = [kind, ch ? `Lv${ch.level}` : ''].filter(Boolean).join(' ');
+        return body || where ? `${name(k)}（${body}${body ? where : where.replace('・', '')}）` : name(k);
+      };
       const keys = [...c.partyKeys, ...wagon];
       yes = [
         ['say', null, wagon.length ? 'パーティーも馬車もいっぱいだ。\nだれかに酒場で待っていてもらおう。' : 'パーティーがいっぱいだ。\nだれかに酒場で待っていてもらおう。'],
-        ['choice', 'だれが酒場へもどる？', [...c.partyKeys.map((k) => (wagon.length ? `${name(k)}（パーティー）` : name(k))), ...wagon.map((k) => `${name(k)}（馬車）`), `${m.name}が酒場で待つ`],
+        ['choice', 'だれが酒場へもどる？', [...c.partyKeys.map((k) => label(k, wagon.length ? '・パーティー' : '')), ...wagon.map((k) => label(k, '・馬車')), `${m.name}が酒場で待つ`],
           [...keys.map((k) => [['befriend', id, k]]), [['befriend', id, '__tavern']]]],
       ];
     }

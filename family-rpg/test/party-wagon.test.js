@@ -621,8 +621,9 @@ test('仲間に なる まもの: パーティーが いっぱいなら 馬車�
   const ch = choices(n).find((st) => st[1] === 'だれが酒場へもどる？');
   assert.ok(ch, 'だれが 酒場へ もどるか 聞く');
   assert.equal(ch[2].length, 3 + WAGON_SLOTS + 1, 'パーティー 3人 + 馬車 4人 + 新しい まもの');
-  assert.match(ch[2][5], /ママ（馬車）/);
-  assert.match(ch[2][0], /（パーティー）/);
+  // 第67回: しゅるい・レベルも 出す（「ママ（魔法使い Lv12・馬車）」）
+  assert.match(ch[2][5], /^ママ（.+ Lv\d+・馬車）$/);
+  assert.match(ch[2][0], /Lv\d+・パーティー）$/);
   assert.ok(said(/パーティーも馬車もいっぱい/, n));
   const gob = c.companions.find((x) => x.species === 'goblin');
   assert.ok(gob && c.wagonKeys.includes(gob.key), '新しい まものが 家族の 席へ');
