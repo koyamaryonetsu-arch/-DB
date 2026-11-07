@@ -2,7 +2,7 @@
 // 人（C7S_NPC_LOOKS）: カイ（千年前の 海の 島の 少年。日やけ・茶色の とがった かみ・赤い はちまき・ブーメラン）・ナギの村の 人たち（c7s_*）・
 //   灯台守の ゲンじい（カイの じいちゃん）・ホック船長（場面の すがた）
 // とくべつな え（paintC7sSpecial）: ホック船長（灯台の てっぺんの 大きな すがた）・海賊船（しずむ前の島の 北の 海）
-import { Painter } from './pixel.js?v=1804b2cae177';
+import { Painter } from './pixel.js?v=5614e7ad3425';
 
 const person = (o) => o;
 export const C7S_NPC_LOOKS = {
