@@ -56,6 +56,8 @@ import './arena.js';
 // 第38回 B: 職業の試練（だいほんの しょりを data/story-trials.js の TRIAL_HOOKS に 入れる）
 import './job-trials.js';
 import { shownEquipKey } from '../look-equip.js';
+// 第67回 C: モンスター闘技場の その場の 対戦
+import { tickMonLive } from './monarena-live.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -169,7 +171,7 @@ export class GameWorld {
     });
     const ctx = s.battleId && this.battles.get(s.battleId);
     if (ctx && !ctx.battle.over) {
-      this.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
+      this.send(s, { t: 'battleStart', snap: ctx.snapFor ? ctx.snapFor(s.id) : ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
     }
     const run = s.runId && this.runs.get(s.runId);
     if (run) run.resend(s);
@@ -218,7 +220,7 @@ export class GameWorld {
     if (ctx && !ctx.battle.over) {
       // 馬車に もどった 人は のぞく（その 人が うごかす キャラ）
       const mine = mineOf(ctx, t.id);
-      this.send(t, { t: 'battleStart', snap: ctx.battle.snapshot(), mine, boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
+      this.send(t, { t: 'battleStart', snap: ctx.snapFor ? ctx.snapFor(t.id) : ctx.battle.snapshot(), mine, boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
     }
     const run = t.runId && this.runs.get(t.runId);
     if (run) run.resend(t);
@@ -1065,6 +1067,8 @@ export class GameWorld {
         if (ctx.errors >= BATTLE_ERROR_LIMIT && this.battles.get(ctx.id) === ctx) abortBattle(this, ctx);
       }
     }
+    // 第67回 C: モンスター闘技場の その場の 対戦（申しこみの 時間切れ・2人が そろったら 戦いを はじめる。world/monarena-live.js）
+    tickMonLive(this);
     // つうしんが とぎれた まま もどってこない人
     const now = this.now();
     for (const s of [...this.sessions.values()]) {

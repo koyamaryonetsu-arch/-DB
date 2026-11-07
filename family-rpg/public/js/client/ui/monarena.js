@@ -521,3 +521,6 @@ async function chooseMon(ctx, team, i) {
   if (it.value === '@rm') return removeAt(team, i);
   return placeInSlot(team, i, it.value);
 }
+
+// 第67回 C班: その場の 対戦（ui/monarena-live.js）でも 使う（申しこまれた 人は 受付の だいほんの 外で 4ひきを 選ぶ）
+export { pickTeam as monArenaPickTeam, teamCards as monArenaTeamCards, addCss as monArenaCss };

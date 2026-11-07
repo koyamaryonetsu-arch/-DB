@@ -22,6 +22,8 @@ import { HuntButton } from './ui/sources.js';
 import { reportError } from './errlog.js';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
 import { onBoardMsg, boardOnEnter } from './ui/family-board.js';
+// 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
+import { onMonLive } from './ui/monarena-live.js';
 
 export class Game {
   constructor(net) {
@@ -503,6 +505,10 @@ export class Game {
         this.audio.sfx(m.ok ? 'confirm' : 'buzz');
         break;
       }
+      // 第67回 C班: その場の 対戦の 知らせ（ui/monarena-live.js）
+      case 'monLive':
+        onMonLive(this, m);
+        break;
       case 'battleStart': return this.onBattleStart(m);
       case 'battleEv':
         // はじまりの えんしゅつ中は とっておいて、戦いの 画面が できてから わたす

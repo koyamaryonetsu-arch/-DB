@@ -120,6 +120,8 @@ export function enemyRateFor(world, party, sessions) {
 
 // その 人が うごかす キャラ（じぶん＋「めいれいさせろ」の なかま）。じぶんが さいしょ
 export function mineOf(ctx, sid) {
+  // 第67回 C: その場の 対戦（敵の がわの 魔物も 人が うごかす。world/monarena-live.js）
+  if (ctx.mineFor) return ctx.mineFor(sid);
   const out = ctx.battle.allies.filter((a) => a.controller === sid);
   out.sort((x, y) => (x.kind === 'player' ? 0 : 1) - (y.kind === 'player' ? 0 : 1));
   return out.map((a) => a.id);
@@ -294,7 +296,8 @@ export function battleTick(world, ctx, dt) {
     markDuals(world, ctx, evs);
     for (const sid of ctx.sids) {
       const m = world.sessions.get(sid);
-      if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs });
+      // 第67回 C: ctx.evsFor … 人ごとに 見え方を かえる（その場の 対戦の 相手の 画面は 敵と みかたを 入れかえる。world/monarena-live.js）
+      if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs: ctx.evsFor ? ctx.evsFor(sid, evs) : evs });
     }
   }
   // 第67回 B: ctx.finish … べつの おわり方（モンスター闘技場。world/monarena.js の finishMon）
@@ -360,7 +363,8 @@ export function battleCommand(world, s, msg) {
   // 馬車の 仲間と いれかえ（world/wagon.js）
   if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
   // なかまの さくせんを かえる（world/tactics.js）
-  if (msg.tactics !== undefined) return battleTactics(world, s, ctx, msg);
+  // 第67回 C: ctx.tactics … その場の 対戦（敵の がわの 魔物の 作戦も その もちぬしが かえる。world/monarena-live.js）
+  if (msg.tactics !== undefined) return (ctx.tactics || battleTactics)(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
 }

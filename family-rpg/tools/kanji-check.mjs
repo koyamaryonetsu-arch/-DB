@@ -430,6 +430,8 @@ export function gameFiles() {
     'public/js/shared/maps/monarena-a.js', 'public/js/shared/data/story-monarena-a.js', 'public/js/client/ui/monarena.js', 'public/js/client/ui/monarena-team.js',
     // 第67回 B班: モンスター闘技場（ランク戦・家族の 登録チームとの 対戦・魔物だけの 戦い）
     'public/js/shared/data/monarena.js', 'public/js/shared/world/monarena.js', 'public/js/shared/battle-monarena.js',
+    // 第67回 C班: モンスター闘技場の その場の 対戦（リアルタイムの 家族対戦）
+    'public/js/shared/world/monarena-live.js', 'public/js/client/ui/monarena-live.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

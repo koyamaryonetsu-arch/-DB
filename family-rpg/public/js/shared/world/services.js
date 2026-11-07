@@ -58,6 +58,8 @@ import { PHANTOM_JOBS } from '../data/phantom.js';
 import { phantomGot, phantomPeople } from './phantom.js';
 // 第67回 B: モンスター闘技場（world/monarena.js）
 import { monArenaAction } from './monarena.js';
+// 第67回 C: その場の 対戦（world/monarena-live.js）
+import { monLiveAction } from './monarena-live.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -154,6 +156,7 @@ export function serviceAction(world, s, msg) {
     case 'storage': return storageAction(world, s, msg, reply);
     // 第67回 B: モンスター闘技場（world/monarena.js）
     case 'monarena': return monArenaAction(world, s, msg, reply);
+    case 'monlive': return monLiveAction(world, s, msg);
     case 'shop': {
       const shop = SHOPS[s.openShop];
       if (msg.action === 'buy') {

@@ -134,10 +134,16 @@ export function monArenaRecord(c) {
     const w = cnt(v?.w), l = cnt(v?.l);
     if (w || l) fam[id] = { w, l, ...(v?.first ? { first: true } : {}) };
   }
+  // 第67回 C: その場の 対戦（リアルタイム）の 記録（相手の キャラの id ごと。fam と おなじ 形）
+  const live = {};
+  for (const [id, v] of Object.entries(obj(a.live))) {
+    const w = cnt(v?.w), l = cnt(v?.l);
+    if (w || l) live[id] = { w, l, ...(v?.first ? { first: true } : {}) };
+  }
   const regSnap = (Array.isArray(a.regSnap) ? a.regSnap : []).map(cleanSnap).filter(Boolean).slice(0, MONARENA_TEAM_MAX);
   return {
     r, team: keyList(a.team), reg: keyList(a.reg), regSnap, regAt: Number.isFinite(a.regAt) ? a.regAt : 0,
-    fam, rep: cnt(a.rep),
+    fam, rep: cnt(a.rep), live,
   };
 }
 
@@ -159,6 +165,7 @@ export function repairMonArena(c) {
   }
   if (Object.keys(a.fam).length) out.fam = a.fam;
   if (a.rep) out.rep = a.rep;
+  if (Object.keys(a.live).length) out.live = a.live;
   c.monArena = out;
 }
 
@@ -200,6 +207,17 @@ export function noteFamResult(c, charId, win) {
   setMonArena(c, { fam: { ...a.fam, [charId]: next } });
   return first;
 }
+
+// 第67回 C: その場の 対戦の 記録（はじめて 勝った 時だけ true … メダル 1まい）
+export function noteLiveResult(c, charId, win) {
+  const a = monArenaRecord(c);
+  const prev = a.live[charId] || { w: 0, l: 0 };
+  const first = win && !prev.first && !(prev.w > 0);
+  const next = { w: prev.w + (win ? 1 : 0), l: prev.l + (win ? 0 : 1), ...(prev.first || first ? { first: true } : {}) };
+  setMonArena(c, { live: { ...a.live, [charId]: next } });
+  return first;
+}
+export const monLiveMedalId = (charId) => `monarena_live_${charId}`;
 
 // 小さなメダルの 場所の id（c.medalSpots。world/casino.js）
 export const monFirstMedalId = (id, i) => `monarena_${id}_${i}`;
