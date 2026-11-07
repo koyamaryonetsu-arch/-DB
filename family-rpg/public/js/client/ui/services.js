@@ -30,6 +30,8 @@ import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js';
 import { sdBoardUI } from './secret.js';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
 import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js';
+// 第67回 A班: モンスター闘技場の 受付（ui/monarena.js）
+import { monArenaUI } from './monarena.js';
 import { shownEquip } from '../../shared/look-equip.js';
 import { jobAskText } from '../../shared/data/job-talk.js';
 import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js';
@@ -61,6 +63,8 @@ export function openServiceUI(game, kind, data) {
     case 'arenaCard': return arenaCardUI(game, data);
     case 'arenaBout': return arenaBoutUI(game, data);
     case 'arenaWall': return arenaWallUI(game, data);
+    // 第67回 A班: モンスター闘技場（ランク戦・家族対戦・チームの 登録）
+    case 'monarena': return monArenaUI(game, data);
     default: return Promise.resolve();
   }
 }

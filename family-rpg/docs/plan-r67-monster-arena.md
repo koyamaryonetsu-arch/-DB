@@ -30,3 +30,38 @@
 - キャラに のこす もの（B）: `c.monArena = { r: { [rank]: { n, at } }, team: [key…], reg: [key…], regSnap: [...], fam: { [charId]: { w, l } } }`（なくても よい。むかしの セーブも そのまま）
 - ファイルの しるし: A は `monarena-a`（`maps/monarena.js`・`client/ui/monarena.js` など）、B は `monarena`（`data/monarena.js`・`world/monarena.js`・`shared/battle-monarena.js` など）
 - お知らせ・README は さわらない（まとめる 時に 書く）。ほかの 人が 使う ファイルは **足すだけ**
+
+## A班の 実装メモ（建物と 画面）
+
+- **入口**: ルミナの町の **東門を 出て すぐ 北**（町の かべ〈町の x=47〉と 森の あいだ）。石の たてもの 7×6・赤い やね・かんばん（ぶっちがいの 剣「モンスター闘技場」）。
+  とびら … `MONARENA_DOOR`（フィールドの x=84, y=35。町の 左上から x+52, y+13）。とびらから 東門の 道（町の y=19）まで 石の 道。
+  まわり（x 80〜88, y 27〜40）は 魔物が 出ない（`safe:monarena`）・場所の 名前は「ルミナの町」（町の 曲）。千年前の マップには 出さない（`attachCh6` の あとで たす）
+- **中**（`maps/monarena-a.js`。マップ id `monarena`・26×16・曲は カジノと 同じ）: 上に 観客せき、まん中に さくで かこんだ 砂の 戦いの 場（魔物の 像 2つ）、
+  下に 赤い じゅうたんと 出口。受付は 3人（カウンターごし）
+  - 左 `mona_desk`「ランク戦の受付」（だいほん `monarena_desk` → 画面 mode `rank`）
+  - 右上 `mona_family`「家族対戦の係」（`monarena_family` → mode `family`）・右下 `mona_reg`「チーム登録の係」（`monarena_reg` → mode `reg`）
+  - どの 受付も 同じ 画面（はじめの カーソルだけ ちがう）。`monster_bond` の 前は「魔物の心に まだ 目覚めていない」と 話すだけ
+  - ほか: 魔物使いのタクトと けいこ中の ぷるりん・ツノうさぎ（monster_bond の あと）、観客 3人、かんばん（出口の 左）
+- **だいほん**: `data/story-monarena-a.js`（story.js の さいごで まぜる。ひとりずつ）。画面は `['call', openMonArena(mode)]` → `['ui', 'monarena', { mode, name, keeper }]`
+- **画面**: `client/ui/monarena.js`（`ui/services.js` の `openServiceUI` に `case 'monarena'` を 足した）・きまりだけの `client/ui/monarena-team.js`（テストでも 読む）
+  - はじめ: ランク戦にちょうせん / 家族の登録チームと戦う / チームを登録する / その場で家族と対戦（じゅんび中。えらべない）/ 闘技場のきまり / やめる
+  - ランク戦: ランクの 一覧（★勝ちぬいた・Lv〇くらい・まだ）。右に 目安の レベル・ヒント。まだの ランクを 選ぶと ヒントを 話す
+  - 家族対戦: `status.family` の 自分 いがいで 登録が ある 人 → 相手の 4ひき（絵・Lv）→「そのままの強さ／レベルをそろえる／やめる」→ 4ひきを 選ぶ
+  - 4ひきを 選ぶ（戦う たびに かならず 出す）: わく 4つ（名前・Lv・HP 攻 守 速・いる所）＋ 1回で 選ぶ（★前回のチーム・★登録チーム・★おまかせ〈強い順〉）＋「このチームで戦う！」。
+    はじめは 前回 → 登録 → おまかせ の 順で 入る（登録の 時は 登録 → 前回 → おまかせ）。そろって いれば カーソルは「戦う」に（A 1回で はじめられる）。
+    わくを 選ぶと「↑1つ前にする／チームからはずす／入れかえる魔物（強い順。パーティー・馬車・あずかり所 ぜんぶ。チームの 魔物は『チーム2』の しるし）」。
+    チームの 魔物を 選ぶと 場所の 入れかえ。キーボード・ゲームパッド（ListMenu）・タッチ どれでも
+  - 登録: 4ひきを 選ぶ →「このチームを登録する」→ `register`
+- **B班の 窓口の よびかた**（`svc kind:'monarena'`）
+  - 画面を 開くと `status`（へんじが `ok` で ない 時は「今は受付のじゅんびをしているところ」と 話して とじる）
+  - 戦う 前に `setTeam { team }`（前回の チーム）→ 受付の ことば → **画面を とじて、受付の だいほんが おわってから** `rank { rank, team }` / `family { charId, team, even }` を 送る
+    （受付の だいほんの 間〈s.busy === 'script'〉に 戦いを はじめない ため。へんじが `ok: false` で `text` が あれば トーストで 出す）
+  - `register { team }` の へんじの `text` を 受付の ことばに 出す（なければ「チームを登録したよ！」）。へんじに `reg` が あれば それを 使う
+  - `status.monsters[]` は `{ key, name, species, level, hp, mp, atk, def, agi, where }`（`def` … 守備力。`where` … 'party'|'wagon'|'storage'）。`ranks[].rank` は そのまま `rank` で 返す
+- **C班（リアルタイム対戦）の 入口**: `client/ui/monarena.js` の `MONARENA_EXTRA` に `{ value: 'live', label, hint, show?(ctx), run: async (ctx) => 'started' | undefined }` を 足すと、
+  「その場で家族と対戦（じゅんび中）」の 行の かわりに 出る。`ctx` には `game, ct（Counter）, st（status）, svc(msg), pickTeam(opts), startFight(msg, line)` が ある
+- **ためしの スタブ（まとめる 時に けす）**: `client/ui/monarena-a-stub.js` と、`client/ui/monarena.js` の `svc()` の 中の `if (globalThis.__monarenaStub) { … }`。
+  `globalThis.__monarenaStub = true` の 時だけ 読む（ふだんは 読まない）。にせの ランク 7つ・魔物 8ひき・家族 2人
+- **結果・王者のかべ**: 結果の 画面は 作っていない（戦いと ごほうびは B班の 戦いの 画面）。ランクの 一覧の「★勝ちぬいた」が 記録。王者のかべは なし
+- テスト: `test/monarena-a.test.js`（入口まで 歩ける・とびら・中の 人と かんばん・受付の だいほん・チーム選びの きまり・窓口の よびかた）
+- ブラウザで 見た（Playwright・スタブ）: 入口・中・受付・はじめの 画面・ランクの 一覧・まだの ランク・4ひきを 選ぶ・入れかえ・家族対戦（強さを 選ぶ）・おまかせ・登録・スマホ たて 390×844

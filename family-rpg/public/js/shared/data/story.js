@@ -38,6 +38,8 @@ import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js';
 import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js';
 // 第37回 A: サファラ闘技場（しょりは world/arena.js）
 import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js';
+// 第67回 A班: モンスター闘技場の 人（story-monarena-a.js）
+import { MONARENA_A_SCRIPTS } from './story-monarena-a.js';
 import { TRIAL_SCRIPTS } from './story-trials.js';
 import { applyTownHints } from './secret-hints.js';
 
@@ -652,3 +654,6 @@ applyCh7(SCRIPTS, STORY_SCRIPTS);
 applyTownHints(SCRIPTS);
 
 export { comboUnlocked };
+
+// 第67回 A班: モンスター闘技場（ルミナの町の 東門の 外。受付・観客。ひとりずつ）
+Object.assign(SCRIPTS, MONARENA_A_SCRIPTS);
