@@ -2,11 +2,11 @@
 // ・ようがんの 地面（TILE_INFO の hurt）: 1歩ごとに パーティーの HP が すこし へる（1は のこる）。
 //   温泉の里で もらう「氷のお守り」（フラグ HEAT_GUARD）が あれば へらない
 // ・レバーで 世界が かわって、立っている マスが とおれなく なった 人は、ちかくの とおれる マスへ よける
-import { MAPS, isBlocked, effectiveTile } from '../maps/index.js?v=015fea4b1393';
-import { TILE_INFO } from '../tiles.js?v=015fea4b1393';
-import { computeStats } from '../stats.js?v=015fea4b1393';
-import { partyOf } from './party.js?v=015fea4b1393';
-import { wagonChars } from './wagon.js?v=015fea4b1393';
+import { MAPS, isBlocked, effectiveTile } from '../maps/index.js?v=d216db470ac0';
+import { TILE_INFO } from '../tiles.js?v=d216db470ac0';
+import { computeStats } from '../stats.js?v=d216db470ac0';
+import { partyOf } from './party.js?v=d216db470ac0';
+import { wagonChars } from './wagon.js?v=d216db470ac0';
 
 export const HEAT_GUARD = 'c3_heatguard';
 // 1歩で へる HP（さいだいHPの わりあい。すくなくても 2）

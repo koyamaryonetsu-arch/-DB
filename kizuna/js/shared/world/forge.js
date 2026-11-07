@@ -1,13 +1,13 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=015fea4b1393';
-import { FORGES } from '../data/facilities.js?v=015fea4b1393';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=015fea4b1393';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=015fea4b1393';
-import { partyOf } from './party.js?v=015fea4b1393';
-import { BAG_STACK } from './bank.js?v=015fea4b1393';
-import { forgePotGift } from './alchemy.js?v=015fea4b1393';
-import { salvageOf, salvageBlock } from '../data/salvage.js?v=015fea4b1393';
-import { LB_MAX } from '../data/items-forge.js?v=015fea4b1393';
+import { ITEMS } from '../data/items.js?v=d216db470ac0';
+import { FORGES } from '../data/facilities.js?v=d216db470ac0';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=d216db470ac0';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=d216db470ac0';
+import { partyOf } from './party.js?v=d216db470ac0';
+import { BAG_STACK } from './bank.js?v=d216db470ac0';
+import { forgePotGift } from './alchemy.js?v=d216db470ac0';
+import { salvageOf, salvageBlock } from '../data/salvage.js?v=d216db470ac0';
+import { LB_MAX } from '../data/items-forge.js?v=d216db470ac0';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;

@@ -1,37 +1,37 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=015fea4b1393';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=015fea4b1393';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=015fea4b1393';
-import { MONSTERS } from '../data/monsters.js?v=015fea4b1393';
-import { ITEMS } from '../data/items.js?v=015fea4b1393';
-import { abilityLabel } from '../ability-label.js?v=015fea4b1393';
-import { JOBS } from '../data/jobs.js?v=015fea4b1393';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=015fea4b1393';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=015fea4b1393';
+import { Battle, normBattleSettings } from '../battle.js?v=d216db470ac0';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=d216db470ac0';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=d216db470ac0';
+import { MONSTERS } from '../data/monsters.js?v=d216db470ac0';
+import { ITEMS } from '../data/items.js?v=d216db470ac0';
+import { abilityLabel } from '../ability-label.js?v=d216db470ac0';
+import { JOBS } from '../data/jobs.js?v=d216db470ac0';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=d216db470ac0';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=d216db470ac0';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=015fea4b1393';
-import { befriendShare } from './recruit-share.js?v=015fea4b1393';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=015fea4b1393';
-import { rollDrops, stealPick } from '../data/loot.js?v=015fea4b1393';
-import { MAPS } from '../maps/index.js?v=015fea4b1393';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=015fea4b1393';
-import { treasureAfterBattle } from './treasure.js?v=015fea4b1393';
-import { wipeGoldLoss, bankGold } from './bank.js?v=015fea4b1393';
-import { lureOn, lureGroup } from './field27.js?v=015fea4b1393';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=015fea4b1393';
-import { growthSummary } from './growth.js?v=015fea4b1393';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=015fea4b1393';
-import { battleTactics } from './tactics.js?v=015fea4b1393';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=d216db470ac0';
+import { befriendShare } from './recruit-share.js?v=d216db470ac0';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=d216db470ac0';
+import { rollDrops, stealPick } from '../data/loot.js?v=d216db470ac0';
+import { MAPS } from '../maps/index.js?v=d216db470ac0';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=d216db470ac0';
+import { treasureAfterBattle } from './treasure.js?v=d216db470ac0';
+import { wipeGoldLoss, bankGold } from './bank.js?v=d216db470ac0';
+import { lureOn, lureGroup } from './field27.js?v=d216db470ac0';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=d216db470ac0';
+import { growthSummary } from './growth.js?v=d216db470ac0';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=d216db470ac0';
+import { battleTactics } from './tactics.js?v=d216db470ac0';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
-import { isNightFor } from './clock.js?v=015fea4b1393';
+import { isNightFor } from './clock.js?v=d216db470ac0';
 // 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
-import { MONSTER_FRIENDS } from '../data/companions.js?v=015fea4b1393';
+import { MONSTER_FRIENDS } from '../data/companions.js?v=d216db470ac0';
 // 第51回 B: 家族のけいじ板（ひらめき技・合体技を はじめて 覚えた）
-import { boardHirameki, boardDual } from './family-board.js?v=015fea4b1393';
+import { boardHirameki, boardDual } from './family-board.js?v=d216db470ac0';
 // 第51回 F: 幻の職業の 記録（自分の キャラの 戦いの 記録を 足す・条件が 見えた／なれるように なった 知らせ）
-import { addFeats, phantomAfterBattle } from './phantom.js?v=015fea4b1393';
+import { addFeats, phantomAfterBattle } from './phantom.js?v=d216db470ac0';
 // 第53回 B: 第6章 Step 6 の 時のまぼろし（1日1回の ★5の 素材・はじめて 勝った 時の けいじ板）
-import { tokiPhantomAfter } from './tokei-phantom.js?v=015fea4b1393';
+import { tokiPhantomAfter } from './tokei-phantom.js?v=d216db470ac0';
 
 let battleSeq = 1;
 
@@ -120,6 +120,8 @@ export function enemyRateFor(world, party, sessions) {
 
 // その 人が うごかす キャラ（じぶん＋「めいれいさせろ」の なかま）。じぶんが さいしょ
 export function mineOf(ctx, sid) {
+  // 第67回 C: その場の 対戦（敵の がわの 魔物も 人が うごかす。world/monarena-live.js）
+  if (ctx.mineFor) return ctx.mineFor(sid);
   const out = ctx.battle.allies.filter((a) => a.controller === sid);
   out.sort((x, y) => (x.kind === 'player' ? 0 : 1) - (y.kind === 'player' ? 0 : 1));
   return out.map((a) => a.id);
@@ -294,7 +296,8 @@ export function battleTick(world, ctx, dt) {
     markDuals(world, ctx, evs);
     for (const sid of ctx.sids) {
       const m = world.sessions.get(sid);
-      if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs });
+      // 第67回 C: ctx.evsFor … 人ごとに 見え方を かえる（その場の 対戦の 相手の 画面は 敵と みかたを 入れかえる。world/monarena-live.js）
+      if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs: ctx.evsFor ? ctx.evsFor(sid, evs) : evs });
     }
   }
   // 第67回 B: ctx.finish … べつの おわり方（モンスター闘技場。world/monarena.js の finishMon）
@@ -360,7 +363,8 @@ export function battleCommand(world, s, msg) {
   // 馬車の 仲間と いれかえ（world/wagon.js）
   if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
   // なかまの さくせんを かえる（world/tactics.js）
-  if (msg.tactics !== undefined) return battleTactics(world, s, ctx, msg);
+  // 第67回 C: ctx.tactics … その場の 対戦（敵の がわの 魔物の 作戦も その もちぬしが かえる。world/monarena-live.js）
+  if (msg.tactics !== undefined) return (ctx.tactics || battleTactics)(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
 }
