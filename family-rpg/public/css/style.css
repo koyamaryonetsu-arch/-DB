@@ -850,6 +850,12 @@ img.face { image-rendering: pixelated; }
 .plus { color: var(--accent); font-size: 0.85em; margin-left: 0.15em; }
 .tv-face { float: right; height: 3.6em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
 .tv-face.hero { width: 64px; height: 84px; }
+/* 第67回: 酒場・配合の 強さ（ui/services.js の statBox・parentsBox） */
+.tv-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 0.8em; margin: 0.2em 0 0.3em; font-size: 0.9em; }
+.tv-stats .kv { display: flex; justify-content: space-between; gap: 0.4em; border-bottom: 1px dotted rgba(255, 255, 255, 0.15); }
+.tv-stats .kv .k { color: var(--muted); }
+.tv-pars { margin: 0.2em 0 0.3em; }
+.tv-par { min-width: 0; border-bottom: 1px dotted rgba(255, 255, 255, 0.2); padding: 0.1em 0; line-height: 1.35; }
 .choose-pop .menu { max-height: calc(60vh - var(--pad-h)); overflow-y: auto; }
 /* 配合: 2ひきめに カーソルを あわせると 生まれる 子の みほん（client/ui/services.js） */
 .breed-pv { display: flex; align-items: center; gap: 0.6em; min-height: 3.6em; margin: 0.3em 0 0.4em; padding: 0.25em 0.4em; border: 1px dashed rgba(255, 214, 107, 0.45); border-radius: 4px; }

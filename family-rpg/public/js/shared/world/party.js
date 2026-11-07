@@ -181,6 +181,8 @@ function companionInfo(e, activeKeys, partyKeys) {
   return {
     key: e.key, kind: e.kind, species: e.species || null, name: ch.name, job: ch.job, level: ch.level, look: ch.look, equip: ch.equip, lookEquip: ch.lookEquip,
     hp: ch.hp, maxHp: st.maxHp, mp: ch.mp, maxMp: st.maxMp, tactics: ch.tactics,
+    // 第67回: 強さ（酒場で 入れかえ・配合の 相手を 決める ため。家族が ねがった）
+    st: { str: st.str, def: st.def, agi: st.agi, mag: st.mag, heal: st.heal, atk: st.atk, dfn: st.dfn },
     inParty: partyKeys.includes(e.key), active: activeKeys.has(e.key),
     desc: def?.desc || MONSTER_FRIENDS[e.species]?.note || '',
     plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,
