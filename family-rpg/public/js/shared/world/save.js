@@ -24,6 +24,8 @@ import { repairSubAsk } from '../data/subquest-hints.js';
 import { cleanStamps } from '../data/stamps.js';
 import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js';
 import { repairFeats } from './phantom.js';
+// 第67回 B: モンスター闘技場の 記録
+import { repairMonArena } from '../data/monarena.js';
 
 export const SAVE_VERSION = 4;
 
@@ -201,6 +203,7 @@ export function repairChar(c, id) {
   if (id && !c.species) ensureTmClears(c);
   repairSecret(c); // ひみつのダンジョンの 記録（なくても よい。新しい 項目なので 版は 上げない）
   repairAlchemy(c); // れん金がま（第32回。なくても よい）・もう たおした ボスの 品
+  repairMonArena(c); // 第67回 B: モンスター闘技場の 記録（なくても よい。data/monarena.js）
   repairSubAsk(c); // 第50回 N4: 困っている人を 知らせた・見た 印（なくても よい。新しい 項目なので 版は 上げない）
   // 馬車の 仲間（いなくなった 仲間の key は はずす）
   cleanWagon(c);

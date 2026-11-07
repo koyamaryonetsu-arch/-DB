@@ -428,6 +428,8 @@ export function gameFiles() {
     'public/js/shared/data/abilities-r66c.js', 'public/js/shared/data/hirameki-r66c.js', 'public/js/shared/battle-r66c.js', 'public/js/client/render/battlefx-r66c.js',
     // 第67回 A班: モンスター闘技場（建物・受付の 人・受付の 画面・チーム選び）
     'public/js/shared/maps/monarena-a.js', 'public/js/shared/data/story-monarena-a.js', 'public/js/client/ui/monarena.js', 'public/js/client/ui/monarena-team.js',
+    // 第67回 B班: モンスター闘技場（ランク戦・家族の 登録チームとの 対戦・魔物だけの 戦い）
+    'public/js/shared/data/monarena.js', 'public/js/shared/world/monarena.js', 'public/js/shared/battle-monarena.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

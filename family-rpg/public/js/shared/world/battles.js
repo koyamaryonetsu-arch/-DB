@@ -297,7 +297,8 @@ export function battleTick(world, ctx, dt) {
       if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs });
     }
   }
-  if (ctx.battle.over) finishBattle(world, ctx);
+  // 第67回 B: ctx.finish … べつの おわり方（モンスター闘技場。world/monarena.js の finishMon）
+  if (ctx.battle.over) (ctx.finish || finishBattle)(world, ctx);
 }
 
 // たたかいが こわれて すすまない（まいフレーム エラー）: にげた ことに して みんなを フィールドへ もどす
@@ -305,7 +306,7 @@ export function battleTick(world, ctx, dt) {
 export function abortBattle(world, ctx) {
   try {
     if (!ctx.battle.over) ctx.battle.endBattle({ outcome: 'flee' });
-    finishBattle(world, ctx);
+    (ctx.finish || finishBattle)(world, ctx);
     return;
   } catch (e) {
     console.error('battle abort error', e);

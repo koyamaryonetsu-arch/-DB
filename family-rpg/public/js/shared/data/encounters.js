@@ -173,3 +173,6 @@ Object.assign(ZONE_BG, ZONE_BG_C7);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7S);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C7S);
 Object.assign(ZONE_BG, ZONE_BG_C7S);
+
+// 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
+import './monarena.js';

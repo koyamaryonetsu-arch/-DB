@@ -114,3 +114,15 @@ export function variantOf(sp) {
 export const baseSpecies = (sp) => variantOf(sp)?.base || sp;
 // 名前が もう その ことばで 始まる 魔物（ダークトレント など）には、その しゅるいを 作らない
 export const variantFits = (baseId, kind) => !!MONSTERS[baseId] && !!VARIANT_KINDS[kind] && !MONSTERS[baseId].name.startsWith(VARIANT_KINDS[kind].prefix);
+
+// 第67回 B: ID（'v_<しゅるい>_<もとの 魔物>'）から 色ちがいを とうろく（画面が まだ 知らない 色ちがい。
+//   モンスター闘技場で 家族の 色ちがいの 仲間が 敵の がわに 出る 時。client/battle.js）。とうろく できた ID か null
+export function ensureVariantId(id) {
+  if (typeof id !== 'string' || !id.startsWith(VARIANT_PREFIX)) return null;
+  if (Object.prototype.hasOwnProperty.call(MONSTERS, id)) return id;
+  const rest = id.slice(VARIANT_PREFIX.length);
+  const i = rest.indexOf('_');
+  if (i <= 0) return null;
+  const kind = rest.slice(0, i);
+  return kindOk(kind) ? registerVariant(rest.slice(i + 1), kind) : null;
+}

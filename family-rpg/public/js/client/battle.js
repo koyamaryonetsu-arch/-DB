@@ -7,6 +7,8 @@ import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
 import { jobShort } from '../shared/job-label.js';
 import { MONSTERS } from '../shared/data/monsters.js';
+// 第67回 B: モンスター闘技場で 家族の 色ちがいの 仲間が 敵の がわに 出る 時（まだ とうろく されていない 色ちがい）
+import { ensureVariantId } from '../shared/data/variants.js';
 import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js';
 import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
@@ -266,6 +268,10 @@ export class BattleScene {
     // 敵の 強さ（設定の「敵の強さ」。パーティーでは リーダーの 設定）。ふつう いがいは え の 左下に しるし
     this.enemyRate = ENEMY_RATE_NAMES[msg.snap.enemyRate] ? msg.snap.enemyRate : 1;
     this.c = new Map();
+    for (const c of msg.snap.combatants) {
+      ensureVariantId(c.species);
+      ensureVariantId(c.mon);
+    }
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
     this.tried = new Set();
