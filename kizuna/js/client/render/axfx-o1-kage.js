@@ -5,7 +5,7 @@
 import {
   COL, src, above, prop, reticle, arrows, zzz, strike, swing, figure, dust, poof, text, pick,
   hitBurst, blast, glitter, rich, per, line, g3prop,
-} from './axfx-o1-kit.js?v=d216db470ac0';
+} from './axfx-o1-kit.js?v=1c3b33157cfa';
 
 const TAU = Math.PI * 2;
 // 赤い ✕（会心・急所）
