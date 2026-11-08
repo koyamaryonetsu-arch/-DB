@@ -72,13 +72,15 @@ test('弱点の しるし: 技の 属性（いくつも ある 技も）・物�
   assert.deepEqual(abilityElements(ab('hi_yami_sekai')), ['dark']);
   assert.deepEqual(abilityElements(ab('daichi')), []);
   assert.deepEqual(abilityElements(ab('hoimi')), []);
-  // 画面: わかっている 弱点（knownAffinity）だけ。ならびは かえない（sort を しない）
+  // 画面: わかっている 弱点（knownAffinity）だけ。タブの 中では ならびを かえない（sort を しない。第69回: ならびは openCommand で 弱い じゅんに）
   const b = src('js/client/battle.js');
   const menu = b.slice(b.indexOf('  abilityMenu('), b.indexOf('  lastTab('));
   assert.match(menu, /knownAffinity\(e, elm\) === 'weak'/);
   assert.match(menu, /tag weak">弱点</);
   assert.doesNotMatch(menu, /\.sort\(/, '技を 勝手に ならびかえない');
-  assert.match(menu, /this\.menu\.onSide = /, '十字キーの 左右で タブ');
+  // 第69回: タブは L・R（onLR）、十字キーの 左右は 列の はしで ひとまとまり ずつ（onSide → pageJump）
+  assert.match(menu, /this\.menu\.onLR = /, 'L・R で タブ');
+  assert.match(menu, /this\.menu\.onSide = \(d\) => this\.menu\.pageJump\(d\)/, '十字キーの 左右で ひとまとまり');
 });
 
 test('十字キー: 2列・3列の リストでも 列の はしで 左右 → onSide（ui/dom.js）', () => {
@@ -212,7 +214,8 @@ test('コントローラー: 転職の だれ・戦いの メニュー・大鳥�
   assert.match(src('js/client/battle.js'), /this\.unbindPad = bindBattlePad\(this\);/);
   const inp = src('js/client/input.js');
   assert.match(inp, /if \(!repeat && this\.hot\?\.\(action\)\) return;/);
-  assert.match(inp, /if \(edge\('ride', b\(4\)\)\) this\.emit\('ride'\);/, 'ゲームパッドの L で 大鳥');
+  // 第69回: 戦いの 技えらび（onLR の ある まど）の 間だけ L は 種類（タブ）の 切りかえ
+  assert.match(inp, /if \(edge\('ride', b\(4\)\)\) this\.emit\(lr \? 'l' : 'ride'\);/, 'ゲームパッドの L で 大鳥');
   assert.match(src('js/client/game.js'), /else if \(a === 'ride'\) this\.sky\.padButton\(\);/);
   assert.match(src('js/client/sky.js'), /if \(this\.flying && !this\.btn2\.hidden\) return this\.regionButton\(\);/);
   assert.match(src('js/client/ui/menu.js'), /onY: \(\) => \{\n\s+const keys = Object\.keys\(ITEM_SORTS\);/, '道具: Y で ならべかえ');

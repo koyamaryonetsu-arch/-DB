@@ -350,6 +350,8 @@ export function gameFiles() {
     'public/js/shared/data/monsters-boss.js', 'public/js/shared/world/farewell.js',
     // 第35回 A: 技の タブ・お知らせ
     'public/js/shared/skill-tabs.js', 'public/js/shared/data/news.js', 'public/js/client/ui/news.js', 'public/js/client/battle-pad.js', 'public/js/client/ui/padnav.js',
+    // 第69回: 技の ならび（弱い じゅん）・お気に入りの ならびかえ・フィールドの 回復／回復以外・L・R で 種類
+    'public/js/shared/skill-sort.js', 'public/js/shared/fieldskills.js', 'public/js/client/ui/r69-css.js', 'public/js/client/input.js',
     // 第35回 B: かくし要素の ヒント（町の 人・本だな・宝箱の メモ・仲間の「はなす」）
     'public/js/shared/data/secret-hints.js',
     // 第5章 Step 5（B: 戦い・品）: 星読みの里の まわりと 思い出の迷宮の 魔物・ノクトの影（職業の まね・きずなくだき）・里の 店・迷宮の 宝箱・影の王

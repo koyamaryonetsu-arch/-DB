@@ -61,6 +61,9 @@ import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js';
 import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
 // 第35回: 技えらびの タブ（効果ごと）
 import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js';
+// 第69回: 技の ならび（弱い じゅん。職業の ほせい なし）
+import { sortByStdPower } from '../shared/skill-sort.js';
+import './ui/r69-css.js';
 import './ui/r35-css.js';
 import { bindBattlePad } from './battle-pad.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
@@ -581,10 +584,10 @@ export class BattleScene {
     // フィールドだけの 呪文（ルーラ）は 出さない（shared/stats.js の battleAbilityOk。サーバーも おなじ きまり）。
     // MPが 足りない・呪文を ふうじられた ときは 出して えらべない だけ
     const pc = a.pc || { job: a.job, jobs: {} };
-    const learned = (a.abilities || []).filter((id) => battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells)));
-    // 今の 職業の 技を さきに（あとは おぼえた じゅん）
-    const nowJob = (id) => (ABILITIES[id].job === pc.job ? 0 : 1);
-    learned.sort((x, y) => nowJob(x) - nowJob(y));
+    // 第69回: 作戦の「使う技を選ぶ」で「使わない」に した 技は 出さない（自分で 命令する ときも。サーバーの autoOff は 同じ 名前の 技も 入っている）
+    const off = new Set(a.autoOff || []);
+    // 第69回: ならびは ダメージ・回復の 弱い じゅん（職業の ほせい なしの ふつうの 強さ。shared/skill-sort.js）。★お気に入りは その ならび
+    const learned = sortByStdPower((a.abilities || []).filter((id) => !off.has(id) && battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells))));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
     const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
     const duals = this.myDualOptions(a);
@@ -637,7 +640,8 @@ export class BattleScene {
 
   // keep: { off } … まえに えらんだ 行が リストの 上から 何ピクセルの ところに 見えていたか（その まま の 場所に 出す）
   // tapConfirm: タップで ほかの 行を えらぶと せつめい だけ 出す（もう一度 おすと 決まる。呪文・特技・道具の 一覧）
-  showMenu(items, onSelect, onCancel, title, detailFn, start = -1, keep = null, tapConfirm = false) {
+  // pager: 第69回 スマホでは 技の 一覧の 左右の はしに ◀ ▶（見えている ひとまとまり ずつ 前・つぎへ。pagerWrap）
+  showMenu(items, onSelect, onCancel, title, detailFn, start = -1, keep = null, tapConfirm = false, pager = false) {
     this.closeMenus();
     this.cmdEl.innerHTML = '';
     this.cmdEl.classList.remove('has-tabs');
@@ -653,7 +657,8 @@ export class BattleScene {
       fit: true,
       tapConfirm,
     });
-    this.cmdEl.append(m.root);
+    // スクロールの 場所を もどす 前に 入れる（あとで 入れかえると スクロールが 0に もどる）
+    this.cmdEl.append(pager && this.touchUi() ? this.pagerWrap(m) : m.root);
     this.menu = m;
     // もどれる メニューの ときだけ、たてむきの 大きな「← もどる」を 出す
     this.root?.classList.toggle('has-back', !!onCancel);
@@ -662,6 +667,39 @@ export class BattleScene {
     // さくせんの まどが ひらいている 間は、キーは そちらへ（とじたら こちらに もどる）
     if (this.tac) m.blur();
     if (start >= 0 && detailFn) detailFn(items[m.idx]);
+  }
+
+  // 第69回: 技の 一覧の 左右の はしの ◀ ▶（スマホ）。おすと 見えている ひとまとまり ずつ 前・つぎへ（十字キーの 列の はしの 左右と おなじ）。
+  //   一覧が まどに 入りきる ときは 出さない。前・つぎが ない ほうは うすく（おせない）
+  pagerWrap(m) {
+    const wrap = el('div', { class: 'b-pagewrap' });
+    const btn = (d) => el('button', {
+      class: `btn b-page ${d < 0 ? 'pg-prev' : 'pg-next'}`,
+      'aria-label': d < 0 ? 'まえの技' : 'つぎの技',
+      text: d < 0 ? '◀' : '▶',
+      onclick: (e) => {
+        e.stopPropagation();
+        if (this.menu === m) m.pageJump(d);
+      },
+    });
+    const prev = btn(-1), next = btn(1);
+    wrap.append(prev, m.root, next);
+    const upd = () => {
+      if (!wrap.isConnected) return;
+      const p = m.pageInfo();
+      wrap.classList.toggle('pg-on', p.scroll);
+      prev.disabled = !p.prev;
+      next.disabled = !p.next;
+    };
+    m.root.addEventListener('scroll', upd, { passive: true });
+    const mv = m.onMove;
+    m.onMove = (it, i) => {
+      mv?.(it, i);
+      upd();
+    };
+    m.pageWrap = wrap;
+    requestAnimationFrame(upd);
+    return wrap;
   }
 
   // えらんでいる 行が リストの 上から どこに 見えているか（ピクセル）
@@ -731,8 +769,10 @@ export class BattleScene {
 
   // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off, tab }）
   // 第35回: 効果ごとの タブ（★お気に入り・今の職業・こうげき1体・こうげき全体・回復・強くする・弱くする・そのほか。
-  // 空の タブは 出さない。shared/skill-tabs.js）。スマホは タブを タップ、十字キーは いちばん右の 列で 右 → つぎの タブ
-  // （左は その ぎゃく。ui/dom.js の ListMenu の onSide）。技の ならびは かえない
+  // 空の タブは 出さない。shared/skill-tabs.js）。スマホは タブを タップ
+  // 第69回: タブ（種類）を かえるのは L・R（キーボードの Q・E。ListMenu の onLR）。十字キーの 左右は 列の はしで
+  //   見えている ひとまとまり ずつ 前・つぎへ（おなじ タブの 中。ListMenu の onSide → pageJump）。スマホは 一覧の 左右の ◀ ▶。
+  //   技の ならびは 弱い じゅん（openCommand。★お気に入りは その ならび）
   abilityMenu(ids, page = 'spell', keep = null) {
     const a = this.myActor;
     // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
@@ -806,8 +846,10 @@ export class BattleScene {
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
-    }, () => this.openCommand(), null, detail, start, view, true);
-    // タブの 札（タップで かえる）。十字キーは 列の はしで 左右（ListMenu の onSide）
+    }, () => this.openCommand(), null, detail, start, view, true, true);
+    // 十字キーの 左右: 列の はしで 見えている ひとまとまり ずつ 前・つぎへ（タブは かえない。第69回）
+    this.menu.onSide = (d) => this.menu.pageJump(d);
+    // タブの 札（タップで かえる）。L・R（Q・E）でも かえる（ListMenu の onLR）
     const go = (id) => {
       if (id === cur.id) return;
       this.rememberTab(a, page, id);
@@ -834,14 +876,14 @@ export class BattleScene {
           go(t.id);
         },
       })));
-      this.cmdEl.insertBefore(bar, this.menu.root);
+      this.cmdEl.insertBefore(bar, this.menu.pageWrap || this.menu.root);
       // えらんでいる 札が 見えるように（よこに スクロール）
       const sel = bar.querySelector('.sel');
       if (sel) {
         const x = sel.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
         bar.scrollLeft = Math.max(0, x - (bar.clientWidth - sel.offsetWidth) / 2);
       }
-      this.menu.onSide = (d) => {
+      this.menu.onLR = (d) => {
         const i = tabs.findIndex((t) => t.id === cur.id);
         this.game.audio.sfx('cursor');
         go(tabs[(i + d + tabs.length) % tabs.length].id);
