@@ -74,6 +74,12 @@ const GEAR = {
     resist: { fire: 0.85, ice: 0.85, bolt: 0.85, wind: 0.85, confuse: 0.6 },
     desc: '星の大王者レグルスが、闘技場の王者にだけわたす金の星のブローチ。だれでも装備でき、すべての力が大きく上がる。行動するたびにMPが1回復する。',
   },
+  // 第68回 C: ランク11（白銀の大王者ボレアス）… アクセサリー 1つ（★5）。第7章 第2幕の ボスの お守り（金のかぎのお守り）より 少し 弱い
+  ar_silver_north_star: {
+    ...C(10, 5), ...ARENA, name: '白銀の北極星', bonus: { str: 24, mag: 24, def: 18, agi: 20, hp: 88, heal: 16 }, crit: 0.04, mpRegen: 1,
+    resist: { ice: 0.7, fire: 0.85, sleep: 0.6, paralyze: 0.6 },
+    desc: '白銀の大王者ボレアスが、勝った者にわたす、北の空の星のかざり。だれでも装備でき、すべての力が大きく上がる。行動するたびにMPが1回復する。氷に強い。',
+  },
 };
 for (const it of Object.values(GEAR)) {
   it.price = 0;
@@ -86,4 +92,5 @@ export const ARENA_ITEM_KANA = {
   ar_champ_belt: 'ちゃんぴおんのべると', ar_shark_charm: 'すなざめのおうのきばのおまもり', ar_prism_crown: 'なないろのかんむり',
   ar_legend_belt: 'でんせつのちゃんぴおんべると', ar_legend_mantle: 'でんせつのちゃんぴおんのまんと',
   ar_twin_dragon_charm: 'りゅうのきょうだいのおまもり', ar_star_king_brooch: 'だいおうじゃのほしのぶろーち',
+  ar_silver_north_star: 'はくぎんのほっきょくせい',
 };

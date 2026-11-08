@@ -17,6 +17,9 @@
 //   ランク9 炎と氷の竜きょうだい（炎の竜ヒート・氷の竜クール）… ふたご（ランク4と おなじ しくみ）。息を すったら 次の 番に 大ブレス。
 //                        炎の竜には 氷・氷の竜には 炎が よく 効く。片方を たおすと、もう片方が「よびもどしの声」
 //   ランク10 星の大王者レグルス … 星の よろい（ランク7と おなじ しくみ）と、ひこ星のアルタ・おり姫のベガとの 3人の 合体技（ランク8と おなじ しくみ）
+//   第68回 C（第7章クリアの 強さ）:
+//   ランク11 白銀の大王者ボレアス … こおる・とける（arena.frost。battle-arena.js）。こおっている 間は 炎 いがい ほとんど 効かない・炎で とかすと 大チャンス。
+//                        こおった 体で 息を すったら 次の 番に 大ふぶき（とかすと 止まる）。雪だるまのコロン・雪の子チララが、とけた 王者を また こおらせる
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
 const PIRATE = { sleep: 0.4, confuse: 0.4, blind: 0.5, poison: 0.5, paralyze: 0.4, silence: 0.6 };
 
@@ -245,6 +248,39 @@ export const ARENA_MONSTERS = {
     resist: { ...BOSS_STATUS, light: 0.6, dark: 1.2 },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ar10_song', cond: ['allyHurt', 'notRecent:m_ar10_song'] }, { w: 1, id: 'm_ar10_veil', cond: 'notRecent:m_ar10_veil' }],
     desc: '星の大王者の家来。こと座のおり姫。歌で仲間を回復し、星のベールで守りを固める。',
+  },
+
+  // ───── 第68回 C: ランク11（伝説の部。こおる・とける）─────
+  ar_boreas: {
+    name: '白銀の大王者ボレアス', lv: 84, hp: 42000, mp: 3000, str: 690, def: 270, agi: 120, mag: 660, exp: 46000, gold: 14000,
+    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.62, hit: 'claw', art: 'yeti', artScale: 1.7, tint: { hueTo: 200, sat: 0.35, light: 1.3 },
+    // frost: cut … こおっている 間の 炎 いがいの ダメージ / melt … とける までの 炎の ダメージ（最大HPの わりあい）/ thawMult … とけている 間の ダメージ /
+    //   wait … とけて から また 自分で こおる までの 番 / fireRes … こおっている 間の 炎の 効きぐあい（オートの みつもり）
+    arena: { lead: true, frost: { cut: 0.34, melt: 0.04, thawMult: 1.35, wait: 3, fireRes: 1.5 } },
+    resist: { ...BOSS_STATUS, ice: 0.3, fire: 1.15, dark: 0.8 },
+    actions: [
+      { w: 9, id: 'm_ar11_refreeze', cond: 'c5:arThawWait' },
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_ar11_claw' }, { w: 2, id: 'm_ar11_icicle', cond: 'notRecent:m_ar11_icicle' },
+      { w: 2, id: 'm_ar11_inhale', cond: ['c5:arFrozen', 'notRecent:m_ar11_inhale', 'notRecent:m_ar11_blizzard'] },
+    ],
+    phases: [{ hpBelow: 0.35, msg: ['白銀の大王者ボレアスの毛が、ぎらぎらと銀色に光った！', '「おもしろい…！北の風は、まだやまぬ！」…攻撃力が上がった！'], buff: { atk: 1.15 } }],
+    desc: '伝説の部、ランク11の王者。北のはての雪山から来た、白銀の毛の大王者。体がこおっている間は、炎いがいはほとんど効かない。炎でこおりをとかすと、大チャンス。こおった体で大きく息をすったら、次の番に大ふぶき。',
+  },
+  ar_snowman: {
+    name: '雪だるまのコロン', lv: 82, hp: 9000, mp: 300, str: 600, def: 230, agi: 110, mag: 400, exp: 6000, gold: 2000,
+    race: 'material', size: 'm', boss: true, turns: 1, speed: 1, hit: 'bash', art: 'snowman', artScale: 1.25, tint: { hueTo: 205, sat: 0.6, light: 1.15 },
+    arena: { frostHelp: true },
+    resist: { ...BOSS_STATUS, ice: 0.3, fire: 1.3 },
+    actions: [{ w: 9, id: 'm_ar11_snow_breath', cond: ['c5:arKingThawed', 'notRecent:m_ar11_snow_breath'] }, { w: 3, id: 'attack' }, { w: 3, id: 'm_ar11_snowball' }],
+    desc: '白銀の大王者の家来。ころころ転がる雪だるま。とけた王者に、つめたいいきをふきかけて、またこおらせる。炎がよく効く。',
+  },
+  ar_snow_kid: {
+    name: '雪の子チララ', lv: 82, hp: 8000, mp: 600, str: 480, def: 210, agi: 170, mag: 520, exp: 6000, gold: 2000,
+    race: 'spirit', size: 's', flying: true, boss: true, turns: 1, speed: 1, hit: 'bash', art: 'snow_wisp', artScale: 1.3, tint: { hueTo: 190, sat: 0.9, light: 1.2 },
+    arena: { frostHelp: true },
+    resist: { ...BOSS_STATUS, ice: 0.3, fire: 1.3 },
+    actions: [{ w: 9, id: 'm_ar11_snow_breath', cond: ['c5:arKingThawed', 'notRecent:m_ar11_snow_breath'] }, { w: 3, id: 'attack' }, { w: 3, id: 'm_ar11_snowdance', cond: 'notRecent:m_ar11_snowdance' }],
+    desc: '白銀の大王者の家来。雪の空をまう、小さな雪の子。とけた王者に、つめたいいきをふきかけて、またこおらせる。炎がよく効く。',
   },
 };
 

@@ -114,7 +114,9 @@ export const TM_GEAR_DEEP = 26;
 export const tmGearRank = (lv) => ((lv || 1) >= TM_GEAR_DEEP ? 10 : clamp(2 + Math.floor((lv || 1) / 2), 2, 8));
 // 第65回 C: 宝の洞窟の 品の 「だん」（ランクと おなじ ものさし。ランク10 の 中を 3だんに 分ける: 地図 Lv26〜 10・Lv30〜 11・Lv33〜 12）
 //   Lv25 までは ランクと おなじ。品の だんは tmStep（なければ ランク）
-export const tmGearStep = (lv) => ((lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
+// 第68回 C: 地図 Lv36 から 13（TM_GEAR_C7。上限 Lv40 まで。物語の 灯台の 宝箱〈1.12×1.63〜1.70〉の 少し あとを 追う 強さ）
+export const TM_GEAR_C7 = 36;
+export const tmGearStep = (lv) => ((lv || 1) >= TM_GEAR_C7 ? 13 : (lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
 export const tmStepOf = (it) => it?.tmStep ?? it?.rank ?? 0;
 // レア度の 出やすさ（normal: ふつうの 宝箱 / bossA: 主の 宝箱）
 //   第65回 C: 地図 Lv26 から（深い 宝の洞窟の 品は レア度 3〜4）: ふつうの 宝箱は 3 が 多め・主の 宝箱は 4 が 多め

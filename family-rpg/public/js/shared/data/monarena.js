@@ -1,7 +1,7 @@
 // 第67回 B: モンスター闘技場の きまり（ランク・開く 時・相手・ごほうび・記録）。docs/plan-r67-monster-arena.md
 //
 // ・戦うのは 自分の 魔物 1〜4ひき だけ（人は 戦わない。world/monarena.js）
-// ・ランク戦: F・E・D・C・B・A・S（物語が 進むと 開く）＋ 伝説の部 SS・SSS。1つ前の ランクを 勝ちぬくと 次へ
+// ・ランク戦: F・E・D・C・B・A・S（物語が 進むと 開く）＋ 伝説の部 SS・SSS・EX（第68回 C。第7章クリア）。1つ前の ランクを 勝ちぬくと 次へ
 //   1つの ランクは 休みなしの 3連戦（サファラ闘技場と おなじ。戦いの 前に 闘技場が HP・MPを 満タンに して くれる・戦いの 間は 回復しない・
 //   にげられない・道具は 使える）。3戦目は 王者（色ちがいの 強い 魔物 ＋ おとも）
 //   相手は ふつうの 魔物を ランクの レベル（lv）に そろえた もの（data/treasure.js の scaleEnemy。宝の洞窟と おなじ 強さの のび）
@@ -97,6 +97,16 @@ export const MONARENA_RANKS = [
     champPow: 1.8, champLv: 2, repeatMedal: true,
     first: { items: [['color_stone', 5], ['limit_stone', 3], ['seed_hp', 3], ['seed_agi', 3]], medals: 6 }, repeatGold: 5000,
     hint: 'ダーク竜王のまごは、やみの力に強い。光の技と、回復のできる魔物でいどもう。',
+  },
+  // 第68回 C: 伝説の部の つづき EX（第7章クリア〈c7_clear〉で 開く。おすすめ Lv84）。相手は 第7章（緑の王国・神殿・カイの 島・灯台）の 魔物。
+  //   ごほうびは SS・SSS と おなじ 形（色の石・限界の石・種。くりかえして もらえる 装備は ない）
+  {
+    rank: 'EX', title: '伝説の部・星のかなたの部', lv: 84, foeLv: 82, need: 'c7_clear', legend: true,
+    lock: '（千年前の、雪と氷の山の戦いを乗りこえると、開くらしい）',
+    fights: [['fish_pirate', 'jugemu', 'pukupuku'], ['card_soldier', 'pirate_parrot', 'teresa'], [V('uzu_eel', 'shadow'), 'gesso', 'water_youma']],
+    champPow: 1.45, champLv: 2, repeatMedal: true,
+    first: { items: [['color_stone', 5], ['limit_stone', 4], ['seed_str', 3], ['seed_def', 3], ['seed_mag', 3]], medals: 8 }, repeatGold: 6500,
+    hint: 'シャドウうずしおウツボは、とても素早い。大うずしおで、みんなをまきこむぞ。雷がよく効く。回復のできる魔物でいどもう。',
   },
 ];
 export const MONARENA_RANK_IDS = MONARENA_RANKS.map((R) => R.rank);

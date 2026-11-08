@@ -338,4 +338,47 @@ export const ARENA_ABILITIES = {
     effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 25 }, cast: '{a}は、星の光をおって、みんなにかけた！', anim: 'guard',
     desc: '仲間みんなの守備力を上げる。',
   },
+
+  // ───── 第68回 C: ランク11（伝説の部）の 王者: 白銀の大王者ボレアスと 雪だるまのコロン・雪の子チララ
+  //   （こおる・とける。こおりを とかす・こおらせるは battle-arena.js の arFreeze と ダメージの しかけ）─────
+  m_ar11_claw: {
+    name: '白銀のツメ', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.5, element: 'ice' }, cast: '{a}は、こおりのツメで、{t}を打ちすえた！', anim: 'slash_heavy',
+    desc: 'こおりのツメで、1人に大ダメージ。',
+  },
+  m_ar11_icicle: {
+    name: 'つららおとし', kind: 'monster', target: 'enemies',
+    effect: { type: 'phys', mult: 0.72, element: 'ice' }, cast: '{a}が足をふみならすと、天井から大きなつららがふってきた！', anim: 'hit_all',
+    desc: 'つららを落として、敵みんなにダメージ。',
+  },
+  m_ar11_inhale: {
+    name: 'ふぶきの前ぶれ', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar11_blizzard' }, cast: '{a}は、こおった体で、むねいっぱいに息をすいこんだ…！\n（まわりに、雪がうずをまき始めた！）', anim: 'charge',
+    desc: '次の番に「ぜったいれいどの大ふぶき」。身を守ろう。炎でこおりをとかすと止まる。',
+  },
+  m_ar11_blizzard: {
+    name: 'ぜったいれいどの大ふぶき', kind: 'monster', target: 'enemies',
+    effect: { type: 'magic', element: 'ice', base: [210, 230], thr: 99 }, cast: '{a}の、ぜったいれいどの大ふぶき！\n闘技場が、まっ白にこおりついた！', anim: 'blizzard',
+    desc: '大ふぶきで、敵みんなにとても大きなダメージ。身を守ると少し弱くなる。',
+  },
+  m_ar11_refreeze: {
+    name: 'こおりのよろい', kind: 'monster', target: 'self',
+    effect: { type: 'arFreeze' }, cast: '{a}は、北の風を体いっぱいにあびた！', anim: 'buff',
+    desc: 'とけた体を、またこおらせる。こおった体には、炎いがいはほとんど効かない。',
+  },
+  m_ar11_snow_breath: {
+    name: 'つめたいいき', kind: 'monster', target: 'self',
+    effect: { type: 'arFreeze' }, cast: '{a}は、大王者のそばにかけよった！', anim: 'buff',
+    desc: 'とけた大王者を、またこおらせる。',
+  },
+  m_ar11_snowball: {
+    name: '大雪玉', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.3, element: 'ice' }, cast: '{a}は、大きな雪玉を、{t}にむかって転がした！', anim: 'tackle',
+    desc: '大きな雪玉で、1人にダメージ。',
+  },
+  m_ar11_snowdance: {
+    name: '雪のまい', kind: 'monster', mp: 8, target: 'enemies',
+    effect: { type: 'magic', element: 'ice', base: [120, 140], thr: 99 }, cast: '{a}は、くるくるまって、雪をふらせた！', anim: 'blizzard',
+    desc: '雪をふらせて、敵みんなにダメージ。',
+  },
 };

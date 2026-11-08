@@ -211,6 +211,8 @@ const BOSS_CHANGED = {
   ar_genie: 1.2, ar_fire_drake: 1.25, ar_ice_drake: 0.75, ar_sun: 1.2, ar_moon: 0.75, ar_sharkking: 1.25,
   // 第2部 第7章 第1幕: 水門の ウツボきょうだい・うずの魔女オクタリア（水の 魔物）
   c7_gate: 0.5, c7_gate_b: 0.5, c7_temple: 0.5,
+  // 第68回 C: 闘技場 ランク11（氷の 王者と おとも）
+  ar_boreas: 0.75, ar_snowman: 0.75, ar_snow_kid: 0.75,
 };
 
 test('ボス: 水の 弱点は 1.25まで・もとからの いちばんの 弱点を こえない・作戦の 属性は 水より 効く', () => {

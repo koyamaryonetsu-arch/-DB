@@ -110,7 +110,7 @@ const examine = (bot, x, y, opts) => { bot.send({ t: 'interact', kind: 'tile', x
 // ───────────── データ ─────────────
 // 第65回 C: ランク9・10 を 足した（test/tm-arena-r65.test.js）
 test('闘技場のデータ: 10ランク×3連戦・王者・技・品がそろっている（★の きまり・数えない 魔物）', () => {
-  assert.equal(ARENA_RANKS.length, 10);
+  assert.equal(ARENA_RANKS.length, 11); // 第68回 C: ランク11
   for (const R of ARENA_RANKS) {
     assert.equal(R.battles.length, 3, `ランク${R.rank}`);
     for (const enc of R.battles) {
@@ -148,8 +148,8 @@ test('闘技場のデータ: 10ランク×3連戦・王者・技・品がそろ�
   assert.ok(!Object.keys(MONSTERS).includes('ar_king'));
   assert.ok(MONSTERS.ar_king.noBefriend);
   // おすすめ レベル
-  assert.deepEqual(ARENA_RANKS.map((R) => R.lv), [36, 39, 42, 45, 48, 50, 53, 56, 66, 74]);
-  assert.deepEqual(ARENA_RANKS.slice(5).map((R) => R.needFlag), ['c5_gaia', 'c5_nshadow', 'c5_nocto1', 'c6_clear', 'c7_karim']);
+  assert.deepEqual(ARENA_RANKS.map((R) => R.lv), [36, 39, 42, 45, 48, 50, 53, 56, 66, 74, 82]);
+  assert.deepEqual(ARENA_RANKS.slice(5).map((R) => R.needFlag), ['c5_gaia', 'c5_nshadow', 'c5_nocto1', 'c6_clear', 'c7_karim', 'c7_clear']);
 });
 
 test('闘技場のことば: 新しい ファイルも 使えない漢字なし（kanji-check の gameFiles に 入っている）', () => {

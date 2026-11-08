@@ -45,4 +45,8 @@ export const FIXED_ARENA = {
   ar10_1: A([['card_soldier', 2, 2], ['march_broom', 1, 1]], 73),
   ar10_2: A([['uzu_eel', 1, 1], ['teresa', 1, 1], ['curse_lump', 1, 1]], 74),
   ar10_3: CHAMP([['ar_altair', 1, 1], ['ar_regulus', 1, 1], ['ar_vega', 1, 1]], 'boss3'),
+  // 第68回 C: ランク11（Lv82。第7章クリアの あと）… 第7章の 緑の王国・神殿・カイの 島・灯台の 魔物
+  ar11_1: A([['fish_pirate', 2, 2], ['jugemu', 1, 1]], 81),
+  ar11_2: A([['karon', 1, 1], ['pirate_parrot', 1, 1], ['water_youma', 1, 1]], 82),
+  ar11_3: CHAMP([['ar_snowman', 1, 1], ['ar_boreas', 1, 1], ['ar_snow_kid', 1, 1]], 'boss3'),
 };

@@ -6,7 +6,8 @@
 //   伝説の部 ランク6〜8（docs/plan-r37.md の A。家族が 決めた めやす）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）・
 //     その ころの ★装備（6 … ガイアイーターの あと〈sim-gaia.mjs の 装備〉・7 … ノクトの影の あと〈sim-nocto.mjs〉・
 //     8 … 大地の神殿の ノクトの あと〈sim-nocto1.mjs ＋ ノクトの 品〉・第65回 C: 9 … 第6章クリアの あと〈sim-ch6.mjs の 時のまぼろしの ころ〉・
-//     10 … 第7章 第1幕の あと〈sim-ch7.mjs の オクタリアの ころ ＋ オクタリアの 品〉）で
+//     10 … 第7章 第1幕の あと〈sim-ch7.mjs の オクタリアの ころ ＋ オクタリアの 品〉・
+//     第68回 C: 11 … 第7章クリアの あと〈sim-ch7.mjs の ホック船長の ころ ＋ ホック船長の 品。第3幕の 品は まだ ない〉）で
 //       完全オート（ふつうの オート）… 3連戦を 勝ちぬく 2割前後
 //       知っている 人 … 大技の 前に 身を 守る・合体技の 組の 弟子を 先に・よろいの 属性を さけて 弱点・砂に もぐったら 守る・
 //                      合体技（ダメージの 合体技）… 7割くらい
@@ -41,6 +42,14 @@ export function arenaParty(rank, lv, kit = 'shop') {
   if (rank === 8) return nocto1Party(lv, true).map((c) => withGear(c, { daikenja: [null, 'nocto_star_cloak', null, null, null], high_priest: [null, null, null, null, 'nocto_earth_charm'] }));
   // 第65回 C: ランク9 … 第6章クリアの ころ（ゼンマイの ころの ★ ＋ 第6章クリアの 武器・影の時計のお守り。sim-ch6.mjs の 時のまぼろしと おなじ）
   if (rank === 9) return ch6Party('ph_zenmai', lv, true);
+  // 第68回 C: ランク11 … 第7章クリアの あと。第3幕の 品は まだ 入れない（べつの 班が 作っている）ので、
+  //   第2幕の さいご（ホック船長の ころの ★〈灯台の 宝・ジョリーホック号の 品〉＋ ホック船長の 品〈金のかぎのお守り・金のかぎづめ〉）
+  if (rank === 11) {
+    return ch7Party('light', lv, true).map((c) => withGear(c, {
+      hero: [null, null, null, null, 'c7l_hook_charm'], daikenja: [null, null, null, null, 'c7l_hook_charm'],
+      god_hand: ['c7l_gold_hook', null, null, null, 'c7l_hook_charm'], high_priest: [null, null, null, null, 'c7l_hook_charm'],
+    }));
+  }
   // ランク10 … 第7章 第1幕の あと（オクタリアの ころの ★ ＋ オクタリアの 品〈声の貝のお守り・三つまたのほこ〉。sim-ch7.mjs）
   return ch7Party('temple', lv, true).map((c) => withGear(c, {
     hero: [null, null, null, null, 'c7t_witch_charm'], daikenja: [null, null, null, null, 'c7t_witch_charm'],
@@ -157,6 +166,7 @@ export const PLAN = {
   8: { lvs: [55, 56, 57], kits: ['rare'] },
   9: { lvs: [65, 66, 68], kits: ['rare'] },
   10: { lvs: [73, 74, 76], kits: ['rare'] },
+  11: { lvs: [81, 82, 84], kits: ['rare'] },
 };
 
 if (process.argv[1].endsWith('sim-arena.mjs')) {

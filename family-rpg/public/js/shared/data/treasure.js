@@ -17,9 +17,12 @@ import { curveK } from './tm-curve.js';
 export const TM_MAX = 20; // 持てる 地図の 数
 // 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）
 // 第65回 C: 25 → 35（物語の 敵が Lv68〜76 に なった。Lv35 の 洞窟の 魔物は Lv79〜82）
-export const TM_LV_MAX = 35;
+// 第68回 C: 35 → 40（第7章クリア〈c7_clear〉の パーティーは Lv80 くらい。Lv40 の 洞窟の 魔物は Lv89〜92・主は Lv93.5）
+export const TM_LV_MAX = 40;
 // 第65回 C: 地図 Lv26 から、第5章〜第7章 第1幕の 魔物も 出る（TM_THEMES の deep。Lv25 までの 洞窟は 前と おなじ）
 export const TM_DEEP_FROM = 26;
+// 第68回 C: 地図 Lv36 から、洞窟の 魔物は 第7章（第1幕・第2幕）の 魔物だけ（TM_THEMES の c7）
+export const TM_C7_FROM = 36;
 export const TM_BOSS_LV = 10; // 主の データの レベル（monsters-tm.js）
 
 // 洞窟の しゅるい
@@ -33,6 +36,8 @@ export const TM_THEMES = {
     deep: ['stone_keeper', 'haniwa_soldier', 'earth_pillbug', 'faceless_shade', 'mill_keeper', 'sand_golem', 'gear_beetle', 'ruin_sentinel',
       'chrono_knight', 'dust_mole', 'clock_bones', 'clock_golem', 'card_soldier', 'teresa', 'curse_lump'],
     bosses: ['tm_golem', 'tm_knight', 'tm_panther'],
+    // 第68回 C: 地図 Lv36（TM_C7_FROM）からの 魔物（第7章の 緑の王国・神殿・カイの 島・灯台。monsters-c7.js・monsters-c7s.js）
+    c7: ['nokonoko', 'card_soldier', 'teresa', 'karon', 'curse_lump'],
   },
   ice: {
     label: '氷', words: ['氷', '雪', '白銀', '冬', '氷河', 'つらら'], dark: false, bg: 'tm_ice', bossBg: 'tm_ice',
@@ -41,6 +46,7 @@ export const TM_THEMES = {
     deep: ['star_jelly', 'sky_serpent', 'cloud_wraith', 'mirror_jelly', 'shade_serpent', 'foam_siren', 'toki_hare', 'star_wolf',
       'warp_wisp', 'toki_owl', 'twin_star', 'bell_sprite', 'tokei_ghost', 'uzu_eel', 'gesso', 'water_youma'],
     bosses: ['tm_serpent', 'tm_king', 'tm_panther'],
+    c7: ['uzu_eel', 'gesso', 'water_youma', 'pukupuku', 'fish_pirate'],
   },
   lava: {
     label: '炎', words: ['炎', '火', 'ようがん', '赤岩', '火の山', '火山'], dark: true, bg: 'tm_lava', bossBg: 'tm_lava',
@@ -49,6 +55,7 @@ export const TM_THEMES = {
     deep: ['cloud_wyvern', 'ember_wolf', 'candle_ghost', 'blackflame_knight', 'sand_sprite', 'glass_scorpion', 'sun_ram', 'dust_drake',
       'cog_roller', 'spring_box', 'wind_devil', 'nokonoko', 'pakkun', 'crow_messenger', 'march_broom', 'curse_lump'],
     bosses: ['tm_dragon', 'tm_golem', 'tm_knight'],
+    c7: ['pakkun', 'crow_messenger', 'march_broom', 'jugemu', 'pirate_parrot'],
   },
 };
 export const THEME_KEYS = Object.keys(TM_THEMES);
@@ -105,6 +112,7 @@ export function tmTitle(tm) {
 // 第40回: 洞窟の ふつうの 魔物は、その レベルの ふつうの 魔物より 少し 手ごわく（もとの 魔物は 技が 少ないので。HP・攻撃・魔力に かける）
 export const TM_CAVE_POW = 1.15;
 // 第65回 C: 地図 Lv26 からの 魔物（deep）は もとから 技が 多いので、少しだけ ひかえめ（0.95。ほうしゅうは へらさない）
+//   第68回 C: Lv36 からの 第7章の 魔物（c7）も おなじ 0.95（node tools/sim-tm.mjs 60 36,38,40 で 9わり 以上・HP残 7わり）
 //   めやす（tools/sim-tm.mjs）: 魔物の レベル＋3 の 4人（店の 装備）で 勝率 9わり 以上・HP残 7わり くらい（Lv26 95%・30 94%・35 94%）
 export const TM_DEEP_POW = 0.95;
 export const tmCavePow = (lv) => (lv >= TM_DEEP_FROM ? TM_DEEP_POW : TM_CAVE_POW);
@@ -124,7 +132,9 @@ export function bossLvOf(seed, lv) {
 //   第65回 C: 地図 Lv26〜35（主は Lv65〜84）を 足した。おなじ めやすで 30回ずつ（node tools/sim-boss.mjs 30 tm 26,28,30,32,35）:
 //     地図Lv26 88%・28 86%・30 87%・32 84%・35 82%（第65回の 今の しくみでは Lv25 の 0.66 は 97%。Lv25 までは かえない）。
 //     倍率の 0.03 の ちがいで 勝率が 1わり 以上 かわる（0.70 で 9わり半・0.76 で 5〜7わり）ので、Lv26 から 少し 上げて 0.74（Lv35 は 0.73）に
-export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66], [26, 0.74], [30, 0.74], [35, 0.73]];
+//   第68回 C: 地図 Lv36〜40（主は Lv85.5〜93.5）を 足した。0.73 の ままだと Lv40 が 74%（竜ガルドラ 55%）なので Lv40 を 0.71 に
+//     （node tools/sim-boss.mjs 30 tm 35,36,37,38,39,40。0.70 で 91%・0.71 で 85%）
+export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66], [26, 0.74], [30, 0.74], [35, 0.73], [40, 0.71]];
 export const TM_BOSS_ADJ = { tm_golem: 0.85, tm_dragon: 0.9, tm_king: 0.97, tm_knight: 0.97, tm_serpent: 1.06, tm_panther: 1.06 };
 export const TM_POW_FROM = 8;
 export function tmBossPow(lv, species) {
@@ -143,9 +153,10 @@ export function encounterZone(lv, theme) {
   return `tm${lv}${theme[0]}`;
 }
 
-// 出てくる かもしれない 魔物（地図 Lv26 からは deep も）
+// 出てくる かもしれない 魔物（地図 Lv26 からは deep も・第68回: Lv36 からは c7 だけ）
 export function tmPoolOf(lv, theme) {
   const th = TM_THEMES[theme];
+  if (lv >= TM_C7_FROM && th.c7?.length) return th.c7.slice();
   return lv >= TM_DEEP_FROM ? [...th.pool, ...(th.deep || [])] : th.pool.slice();
 }
 
@@ -155,7 +166,8 @@ export function ensureEncounterTable(lv, theme) {
   if (ENCOUNTER_TABLES[zone]) return zone;
   const L = enemyLvOf(lv, 1);
   const pool = tmPoolOf(lv, theme).filter((sp) => MONSTERS[sp]).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
-  let pick = pool.filter((sp) => MONSTERS[sp].lv <= L + 1 && MONSTERS[sp].lv >= L - 9);
+  // 第68回 C: 地図 Lv36 からは 第7章の 魔物 ぜんぶ（もとの レベルは Lv68〜76。洞窟の レベルまで curve で 強くする）
+  let pick = lv >= TM_C7_FROM && pool.length >= 4 ? pool.slice() : pool.filter((sp) => MONSTERS[sp].lv <= L + 1 && MONSTERS[sp].lv >= L - 9);
   if (pick.length < 4) pick = pool.slice().sort((a, b) => Math.abs(MONSTERS[a].lv - L) - Math.abs(MONSTERS[b].lv - L)).slice(0, 4).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
   pick = pick.slice(-6);
   const max = (sp) => (MONSTERS[sp].size === 'l' ? 2 : 3);

@@ -34,14 +34,15 @@ const MATS = ['iron_shard', 'beast_fang', 'magic_powder', 'silver_shard', 'star_
 const speciesOf = (zone) => [...new Set(ENCOUNTER_TABLES[zone].flatMap((e) => e.group.map(([sp]) => sp)))];
 
 // ───────────── 宝の地図 ─────────────
+// 第68回 C: 上限 35 → 40・Lv36 から 第7章の 魔物・だん13（test/tiers-r68.test.js）。ここは Lv35 までの きまりを 見る
 test('宝の地図: 上限 Lv35（洞窟の 魔物は Lv79 から）。セーブ・ID・洞窟が Lv35 まで つかえる', () => {
-  assert.equal(TM_LV_MAX, 35);
+  assert.equal(TM_LV_MAX, 40);
   assert.equal(TM_DEEP_FROM, 26);
   assert.ok(enemyLvOf(35, 1) >= 79);
   const tm = { seed: 123456, lv: 35, map: 'overworld', x: 40, y: 40 };
   const p = parseFloorId(floorMapId(tm, 2));
   assert.equal(p.lv, 35);
-  assert.equal(parseFloorId(floorMapId({ ...tm, lv: 36 }, 1)), null, 'Lv36 は ない');
+  assert.equal(parseFloorId(floorMapId({ ...tm, lv: TM_LV_MAX + 1 }, 1)), null, 'Lv41 は ない');
   const m = buildTreasureFloor(floorMapId(tm, 1));
   assert.ok(m && m.enemyCurve && m.enemyLv === enemyLvOf(35, 1));
   assert.equal(m.enemyPow, TM_DEEP_POW);
@@ -50,7 +51,7 @@ test('宝の地図: 上限 Lv35（洞窟の 魔物は Lv79 から）。セーブ
   assert.ok(TM_DEEP_POW > 0.9 && TM_DEEP_POW <= 1);
   const c = { treasureMaps: [{ seed: 9, lv: 35, map: 'overworld', x: 3, y: 4 }, { seed: 10, lv: 99, map: 'overworld', x: 3, y: 4 }] };
   repairTreasureMaps(c);
-  assert.deepEqual(c.treasureMaps.map((t) => t.lv), [35, 35]);
+  assert.deepEqual(c.treasureMaps.map((t) => t.lv), [35, TM_LV_MAX]);
 });
 
 test('拾う 地図の レベル: 第7章の 強い 魔物から Lv30 より 上の 地図が 自然に 出る（上限は 35）', () => {
@@ -61,8 +62,8 @@ test('拾う 地図の レベル: 第7章の 強い 魔物から Lv30 より 上
   assert.ok(at(76).some((x) => x >= 34), '第7章 第2幕 Lv76 から Lv34 も');
   assert.ok(Math.max(...at(99)) === TM_LV_MAX && Math.min(...at(99)) === TM_LV_MAX);
   // 主を たおした あとの 地図も 上限まで
-  const next = Array.from({ length: 200 }, () => nextMapLevel(rng, 34));
-  assert.ok(next.includes(35) && Math.max(...next) === 35);
+  const next = Array.from({ length: 200 }, () => nextMapLevel(rng, TM_LV_MAX - 1));
+  assert.ok(next.includes(TM_LV_MAX) && Math.max(...next) === TM_LV_MAX);
 });
 
 test('洞窟の 魔物: Lv26〜35 は その レベルに 合う 第5章〜第7章 第1幕の 魔物（物語の ボス・配合だけの 魔物は 出ない）', () => {
@@ -80,7 +81,7 @@ test('洞窟の 魔物: Lv26〜35 は その レベルに 合う 第5章〜第7�
       for (const a of m.actions || []) if (a.id !== 'attack') assert.ok(ABILITIES[a.id], `${sp}: ${a.id}`);
     }
   }
-  for (let lv = TM_DEEP_FROM; lv <= TM_LV_MAX; lv++) {
+  for (let lv = TM_DEEP_FROM; lv <= 35; lv++) {
     const L = enemyLvOf(lv, 1);
     for (const th of THEME_KEYS) {
       const sps = speciesOf(ensureEncounterTable(lv, th));
@@ -104,7 +105,7 @@ test('洞窟の 魔物: Lv26〜35 は その レベルに 合う 第5章〜第7�
 
 test('洞窟の 主: Lv26〜35 の 倍率（シミュレーターで 決めた 数・だんだん 小さく・Lv35 より 上は おなじ）', () => {
   // node tools/sim-boss.mjs 30 tm 26,28,30,32,35 … 主の レベル＋3 の 4人・その ころの 店・完全オートで 82〜88%
-  assert.deepEqual(TM_BOSS_POW.slice(-4), [[25, 0.66], [26, 0.74], [30, 0.74], [35, 0.73]]);
+  assert.deepEqual(TM_BOSS_POW.slice(-5, -1), [[25, 0.66], [26, 0.74], [30, 0.74], [35, 0.73]]);
   assert.equal(TM_BOSS_POW[TM_BOSS_POW.length - 1][0], TM_LV_MAX);
   for (let i = 1; i < TM_BOSS_POW.length; i++) assert.ok(TM_BOSS_POW[i][0] > TM_BOSS_POW[i - 1][0], '地図の レベルの じゅん');
   for (const sp of Object.keys(MONSTERS_TM)) {
@@ -124,11 +125,11 @@ test('宝箱の 装備: Lv26 から ランク10の ★5（3だん）。強さは
   assert.deepEqual([25, 26, 29, 30, 32, 33, 35].map(tmGearStep), [8, 10, 10, 11, 11, 12, 12]);
   assert.ok(equipRankOf(35) <= 9, '店の 装備は ランク9まで');
   const deep = rareIds('tm').filter((id) => ITEMS[id].tmStep);
-  assert.equal(deep.length, 18);
+  assert.equal(deep.length, 24);
   for (const id of deep) {
     const it = ITEMS[id];
     assert.equal(it.rank, 10, id);
-    assert.ok([10, 11, 12].includes(it.tmStep), id);
+    assert.ok([10, 11, 12, 13].includes(it.tmStep), id);
     assert.equal(starsOf(id), 5, `${id} ★5`);
     assert.ok(it.rarity === 3 || it.rarity === 4, `${id}: レア度 3〜4（5 は ひみつのダンジョンだけ）`);
     assert.equal(rareWhereText(id), '宝の洞窟でしか手に入らない');
@@ -197,7 +198,7 @@ test('宝箱の レア装備の 出やすさは Lv25 の まま（第64回 ⑥d 
 
 // ───────────── 闘技場 ─────────────
 test('闘技場: 伝説の部 ランク9（第6章クリア・Lv66）と ランク10（第7章 第1幕の あと・Lv74）', () => {
-  assert.equal(ARENA_MAX_RANK, 10);
+  assert.equal(ARENA_MAX_RANK, 11);
   assert.equal(ARENA_LEGEND_RANK, 8);
   assert.equal(rankInfo(ARENA_LEGEND_RANK).champ, '伝説のチャンピオン');
   const r9 = rankInfo(9), r10 = rankInfo(10);
@@ -292,7 +293,7 @@ test('闘技場: ランク9・10 は 物語の フラグと 1つ前の ランク
   assert.equal(rankOpen(10, flag, c).why, 'prev');
   noteClear(c, 9, 2000);
   assert.ok(rankOpen(10, flag, c).ok);
-  assert.deepEqual(visibleRanks(flag), ARENA_RANKS.map((R) => R.rank));
+  assert.deepEqual(visibleRanks(flag), ARENA_RANKS.map((R) => R.rank).filter((n) => n <= 10));
 });
 
 test('お知らせ: 第65回 C（宝の地図 Lv35・闘技場の ランク）', () => {

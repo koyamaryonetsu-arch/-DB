@@ -89,7 +89,7 @@ async function play(bot, { plan = () => 'win', max = 60000 } = {}) {
 
 // ───────────── データ ─────────────
 test('ランクのデータ: F〜S と 伝説の部 SS・SSS、3連戦、王者は色ちがい、ごほうびの品がある', () => {
-  assert.deepEqual(MONARENA_RANK_IDS, ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS']);
+  assert.deepEqual(MONARENA_RANK_IDS, ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'EX']); // 第68回 C: EX
   assert.equal(monRankInfo('F').need, 'monster_bond');
   let lv = 0;
   for (const R of MONARENA_RANKS) {
@@ -104,7 +104,7 @@ test('ランクのデータ: F〜S と 伝説の部 SS・SSS、3連戦、王者�
     // 物語の フラグは ある もの
     assert.ok(R.need === 'monster_bond' || /^c\d_/.test(R.need), R.need);
   }
-  assert.ok(MONARENA_RANKS.filter((R) => R.legend).map((R) => R.rank).join() === 'SS,SSS');
+  assert.ok(MONARENA_RANKS.filter((R) => R.legend).map((R) => R.rank).join() === 'SS,SSS,EX');
   // 王者: レベルの 上のせと 強さの 倍率（おともは そのまま）
   const R = monRankInfo('F');
   const rf = monRankFight(R, 2);

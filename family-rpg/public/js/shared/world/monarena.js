@@ -271,12 +271,19 @@ export async function rankRun(run, s, R, keys) {
   }
   run.batch.push(['sfx', 'win'], say(MONARENA_CALLER, `勝者、${c.name}の魔物たち！\n${monRankLabel(R.rank)}、勝ちぬきだ！！`));
   run.batch.push(...monClearRewards(w, s, R));
-  run.batch.push(say(MONARENA_CLERK, R.rank === 'SSS' ? 'なんと、王者の中の王者に勝つとは…！\nあんたの魔物たちこそ、本物の伝説だ！' : 'おめでとう！\n魔物たちも、ほこらしそうにしているぞ！'));
+  run.batch.push(say(MONARENA_CLERK, monClearText(R.rank)));
   refreshRegSnap(c);
   w.sendSelf(s);
   w.markDirty();
   await flushOk(run);
   return 'win';
+}
+
+// 勝ちぬいた ときの 受付の ことば（第68回 C: EX を 足した）
+function monClearText(rank) {
+  if (rank === 'EX') return '星のかなたの王者にまで勝つとは…！\nあんたの魔物たちは、もう伝説をこえているぞ！';
+  if (rank === 'SSS') return 'なんと、王者の中の王者に勝つとは…！\nあんたの魔物たちこそ、本物の伝説だ！';
+  return 'おめでとう！\n魔物たちも、ほこらしそうにしているぞ！';
 }
 
 // ごほうび（はじめて … first の 品と 小さなメダル / 2回目から … ゴールド（と ランク C から 小さなメダル 1まい））
