@@ -4,10 +4,10 @@
 // ・水路に たまった 砂（322）… 今の かれた 水路の 砂の 山 / 水の ふき上げ口（323）… 石の ゆかに まるい あな
 // ・ふき上げる 水（324）… 白い 水の 柱（3コマ）/ 番人の 石像（325）… 石の 箱を かかえた 騎士の 石像
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=c69281e421b9';
-import { prand } from './pixel.js?v=c69281e421b9';
+import { T } from '../../shared/tiles.js?v=6bf5260fd5eb';
+import { prand } from './pixel.js?v=6bf5260fd5eb';
 // 第7章 Step 3・4（第2幕）: しずむ前の島の灯台・千年前の クモイの 海の タイル（render/tiles-c7s.js。ここで まぜる）
-import { C7S_PAINTERS, C7S_FRAMES, C7S_SPEED, C7S_FLOOR_H, c7sBlockSpec, C7S_PROPS, C7S_PROPS_KEEP, C7S_THEMES } from './tiles-c7s.js?v=c69281e421b9';
+import { C7S_PAINTERS, C7S_FRAMES, C7S_SPEED, C7S_FLOOR_H, c7sBlockSpec, C7S_PROPS, C7S_PROPS_KEEP, C7S_THEMES } from './tiles-c7s.js?v=6bf5260fd5eb';
 
 const WA = { d: '#1e5a6a', b: '#2e7e8e', l: '#5ab0b8', w: '#d8f4f0' }; // みどりがかった 水
 const ST = { d: '#5a6458', b: '#8a9486', l: '#b4bcae', hl: '#dce2d4', ln: '#454c42' }; // みどりの 石

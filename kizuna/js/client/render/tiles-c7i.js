@@ -3,8 +3,8 @@
 // ・氷の 箱（339）… 青白く 光る 氷の 小箱 / 竜の とびら（340）… 竜の 絵が きざまれた 石の とびら
 // ・つららの 落ちる ゆか（341）… 青い 影の ある 石の ゆか / 落ちてきた つらら（342）… 白い 氷の とげ（3コマ）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=c69281e421b9';
-import { prand } from './pixel.js?v=c69281e421b9';
+import { T } from '../../shared/tiles.js?v=6bf5260fd5eb';
+import { prand } from './pixel.js?v=6bf5260fd5eb';
 
 const SN = { d: '#b8c8dc', b: '#e8eef8', l: '#ffffff' }; // 雪
 const TH = { d: '#140a18', b: '#2a1a2e', l: '#4a2e50', t: '#6a4a70' }; // 黒い いばら

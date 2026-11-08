@@ -4,7 +4,7 @@
 //      けいこづくえは ノンタの 師しょうと 開ける）
 // ・WORK3_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まざる）
 // かきかたは work-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=c69281e421b9';
+import { spark } from './ch3-draw.js?v=6bf5260fd5eb';
 
 // ───────────── 人の みため ─────────────
 export const WORK3_NPC_LOOKS = {

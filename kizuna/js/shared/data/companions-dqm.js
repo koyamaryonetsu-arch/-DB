@@ -11,15 +11,16 @@
 // ・gear: 装備（companions.js の RACE_GEAR を うわがき）
 // companions.js が まぜる。ここは ポケモンの ほのおの魔物（companions-pokemon.js）だけ import する
 
-import { FIRE_KIN } from './companions-pokemon.js?v=c69281e421b9';
+import { FIRE_KIN } from './companions-pokemon.js?v=6bf5260fd5eb';
 
 const Q = (o) => ({ rate: 0, breedOnly: true, recipeOnly: true, ...o });
 
 export const FRIENDS_DQM = {
   // ───── スライム系 ─────
   queen_pururin: Q({
-    rank: 'B', after: 'king_pururin', names: ['クイーン', 'ぷるひめ', 'ティアラ', 'ぷるるん'],
-    growth: { hp: 1.15, mp: 1.05, str: 0.85, def: 0.95, agi: 0.8, mag: 1.05, heal: 1.2 },
+    // 第69回: S の 親（ぷるりん騎士）から 生まれるので S（前は B。親より 下がらない ように）
+    rank: 'S', after: 'king_pururin', names: ['クイーン', 'ぷるひめ', 'ティアラ', 'ぷるるん'],
+    growth: { hp: 1.3, mp: 1.15, str: 0.95, def: 1.05, agi: 0.9, mag: 1.15, heal: 1.3 },
     learn: [[1, 'm_tackle'], [3, 'hoimi'], [7, 'sukara'], [12, 'behoimi'], [17, 'dq_royal_press'], [23, 'dq_queen_grace'], [30, 'behomara']],
     // かんむりが あるので 頭は なし。ドレスの ような ローブ
     gear: { armor: ['cloth', 'robe'], head: false },
@@ -75,8 +76,9 @@ export const FRIENDS_DQM = {
   }),
   // ───── 物質系 ─────
   killer_karakuri: Q({
-    rank: 'A', after: 'gold_golem', names: ['キラー', 'からくり', 'ギアまる', 'カラクリ'],
-    growth: { hp: 1.3, mp: 0.75, str: 1.55, def: 1.35, agi: 1.35, mag: 0.8, heal: 0.75 },
+    // 第69回: S の 親（からくり騎士）から 生まれるので S（前は A）
+    rank: 'S', after: 'gold_golem', names: ['キラー', 'からくり', 'ギアまる', 'カラクリ'],
+    growth: { hp: 1.4, mp: 0.8, str: 1.65, def: 1.4, agi: 1.4, mag: 0.85, heal: 0.8 },
     learn: [[1, 'dq_killer_slash'], [4, 'm_harden'], [8, 'dq_killer_arrow'], [13, 'chikaratame'], [18, 'dq_karakuri_rush'], [24, 'tamashii'], [30, 'gd_wall']],
     // うでの 剣と たて
     gear: { weapons: ['sword', 'axe', 'claw'] },

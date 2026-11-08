@@ -11,23 +11,23 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=c69281e421b9';
-import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=c69281e421b9';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=6bf5260fd5eb';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=6bf5260fd5eb';
 // 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
-import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=c69281e421b9';
-import { ITEMS, SLOTS } from '../data/items.js?v=c69281e421b9';
-import { STORY_STEPS } from '../data/story.js?v=c69281e421b9';
-import { COMPANION_SLOTS } from '../data/companions.js?v=c69281e421b9';
-import { STORAGE_MAX } from './party.js?v=c69281e421b9';
-import { WAGON_SLOTS } from '../data/wagon.js?v=c69281e421b9';
-import { repairChar } from './save.js?v=c69281e421b9';
-import { mergeTreasureMaps } from '../data/treasure.js?v=c69281e421b9';
-import { mergeSecret } from '../data/secret.js?v=c69281e421b9';
-import { mergeAlchemy } from './alchemy.js?v=c69281e421b9';
-import { mergeArena } from '../data/arena.js?v=c69281e421b9';
-import { COIN_MAX } from '../data/casino.js?v=c69281e421b9';
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=6bf5260fd5eb';
+import { ITEMS, SLOTS } from '../data/items.js?v=6bf5260fd5eb';
+import { STORY_STEPS } from '../data/story.js?v=6bf5260fd5eb';
+import { COMPANION_SLOTS } from '../data/companions.js?v=6bf5260fd5eb';
+import { STORAGE_MAX } from './party.js?v=6bf5260fd5eb';
+import { WAGON_SLOTS } from '../data/wagon.js?v=6bf5260fd5eb';
+import { repairChar } from './save.js?v=6bf5260fd5eb';
+import { mergeTreasureMaps } from '../data/treasure.js?v=6bf5260fd5eb';
+import { mergeSecret } from '../data/secret.js?v=6bf5260fd5eb';
+import { mergeAlchemy } from './alchemy.js?v=6bf5260fd5eb';
+import { mergeArena } from '../data/arena.js?v=6bf5260fd5eb';
+import { COIN_MAX } from '../data/casino.js?v=6bf5260fd5eb';
 // 第51回 F: 幻の職業の 記録（両方で ふえた ぶんを たす・どちらの 数より 下に しない）
-import { mergeFeats } from './phantom.js?v=c69281e421b9';
+import { mergeFeats } from './phantom.js?v=6bf5260fd5eb';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
