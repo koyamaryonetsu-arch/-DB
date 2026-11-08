@@ -1,46 +1,46 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=ee8758356336';
-import { ITEMS } from '../../shared/data/items.js?v=ee8758356336';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, JOB_TOP_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=ee8758356336';
-import { ABILITIES } from '../../shared/data/abilities.js?v=ee8758356336';
-import { abilityFor } from '../../shared/ability-label.js?v=ee8758356336';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=ee8758356336';
-import { salonUI } from './salon.js?v=ee8758356336';
-import { vehicleShopUI } from './vehicles.js?v=ee8758356336';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=ee8758356336';
-import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js?v=ee8758356336';
-import { MONSTERS } from '../../shared/data/monsters.js?v=ee8758356336';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=a35db3846aa7';
+import { ITEMS } from '../../shared/data/items.js?v=a35db3846aa7';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, JOB_TOP_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=a35db3846aa7';
+import { ABILITIES } from '../../shared/data/abilities.js?v=a35db3846aa7';
+import { abilityFor } from '../../shared/ability-label.js?v=a35db3846aa7';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=a35db3846aa7';
+import { salonUI } from './salon.js?v=a35db3846aa7';
+import { vehicleShopUI } from './vehicles.js?v=a35db3846aa7';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=a35db3846aa7';
+import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js?v=a35db3846aa7';
+import { MONSTERS } from '../../shared/data/monsters.js?v=a35db3846aa7';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=ee8758356336';
+import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=a35db3846aa7';
 // 第53回 A・D: 系統まぜ配合の うわさ・色の石
-import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=ee8758356336';
-import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=ee8758356336';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=ee8758356336';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=ee8758356336';
-import { TACTICS } from '../../shared/ai.js?v=ee8758356336';
-import { itemDetail, gearText } from './info.js?v=ee8758356336';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=ee8758356336';
-import { shopUI, churchUI } from './shop.js?v=ee8758356336';
-import { bankUI } from './bank.js?v=ee8758356336';
-import { forgeUI } from './forge.js?v=ee8758356336';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=ee8758356336';
-import { casinoUI } from './casino.js?v=ee8758356336';
+import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=a35db3846aa7';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=a35db3846aa7';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=a35db3846aa7';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=a35db3846aa7';
+import { TACTICS } from '../../shared/ai.js?v=a35db3846aa7';
+import { itemDetail, gearText } from './info.js?v=a35db3846aa7';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=a35db3846aa7';
+import { shopUI, churchUI } from './shop.js?v=a35db3846aa7';
+import { bankUI } from './bank.js?v=a35db3846aa7';
+import { forgeUI } from './forge.js?v=a35db3846aa7';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=a35db3846aa7';
+import { casinoUI } from './casino.js?v=a35db3846aa7';
 // 第50回 D3: 星のかけらの こうかんの 見せかた（なかまの 絵・NEW・こうかんの えんしゅつ）
-import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=ee8758356336';
-import { sdBoardUI } from './secret.js?v=ee8758356336';
+import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=a35db3846aa7';
+import { sdBoardUI } from './secret.js?v=a35db3846aa7';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=ee8758356336';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=a35db3846aa7';
 // 第67回 A班: モンスター闘技場の 受付（ui/monarena.js）
-import { monArenaUI } from './monarena.js?v=ee8758356336';
-import { shownEquip } from '../../shared/look-equip.js?v=ee8758356336';
-import { jobAskText } from '../../shared/data/job-talk.js?v=ee8758356336';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=ee8758356336';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=ee8758356336';
+import { monArenaUI } from './monarena.js?v=a35db3846aa7';
+import { shownEquip } from '../../shared/look-equip.js?v=a35db3846aa7';
+import { jobAskText } from '../../shared/data/job-talk.js?v=a35db3846aa7';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=a35db3846aa7';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=a35db3846aa7';
 // 第43回 C: 魔物あずかり所（ui/storage.js）と、仲間が いっぱいの 時の えらぶ文（shared/world/farewell.js）
-import { storageUI } from './storage.js?v=ee8758356336';
-import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=ee8758356336';
+import { storageUI } from './storage.js?v=a35db3846aa7';
+import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=a35db3846aa7';
 // 第51回 F: 幻の職業の 条件・うわさ（shared/data/phantom.js）
-import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=ee8758356336';
+import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=a35db3846aa7';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {

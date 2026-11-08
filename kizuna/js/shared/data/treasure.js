@@ -6,13 +6,13 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=ee8758356336';
-import { ITEMS, SLOTS } from './items.js?v=ee8758356336';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=ee8758356336';
-import { makeRng } from '../rng.js?v=ee8758356336';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=ee8758356336';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=ee8758356336';
-import { curveK } from './tm-curve.js?v=ee8758356336';
+import { MONSTERS } from './monsters.js?v=a35db3846aa7';
+import { ITEMS, SLOTS } from './items.js?v=a35db3846aa7';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=a35db3846aa7';
+import { makeRng } from '../rng.js?v=a35db3846aa7';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=a35db3846aa7';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=a35db3846aa7';
+import { curveK } from './tm-curve.js?v=a35db3846aa7';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）

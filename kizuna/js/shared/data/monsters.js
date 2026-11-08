@@ -11,41 +11,41 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=ee8758356336';
-import { MONSTERS_TM } from './monsters-tm.js?v=ee8758356336';
-import { NIGHT_MONSTERS } from './night.js?v=ee8758356336';
-import { MONSTERS_RARE } from './monsters-rare.js?v=ee8758356336';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=ee8758356336';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=ee8758356336';
-import { MONSTERS_R23 } from './monsters-r23.js?v=ee8758356336';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=a35db3846aa7';
+import { MONSTERS_TM } from './monsters-tm.js?v=a35db3846aa7';
+import { NIGHT_MONSTERS } from './night.js?v=a35db3846aa7';
+import { MONSTERS_RARE } from './monsters-rare.js?v=a35db3846aa7';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=a35db3846aa7';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=a35db3846aa7';
+import { MONSTERS_R23 } from './monsters-r23.js?v=a35db3846aa7';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=ee8758356336';
-import { MONSTERS_LAB } from './monsters-lab.js?v=ee8758356336';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=a35db3846aa7';
+import { MONSTERS_LAB } from './monsters-lab.js?v=a35db3846aa7';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
-import { addArenaHidden } from './monsters-arena.js?v=ee8758356336';
+import { addArenaHidden } from './monsters-arena.js?v=a35db3846aa7';
 // 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
-import { addTrialHidden } from './monsters-trial.js?v=ee8758356336';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=ee8758356336';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=ee8758356336';
-import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=ee8758356336';
-import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=ee8758356336';
-import { MONSTERS_FINAL } from './monsters-final.js?v=ee8758356336';
-import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=ee8758356336';
-import { MONSTERS_PAST } from './monsters-past.js?v=ee8758356336';
-import { MONSTERS_ROAD } from './monsters-road.js?v=ee8758356336';
-import { MONSTERS_TOKEI } from './monsters-tokei.js?v=ee8758356336';
-import { MONSTERS_TOKEI6, addTokei6Hidden } from './monsters-tokei6.js?v=ee8758356336';
-import { MONSTERS_C7, addC7Hidden } from './monsters-c7.js?v=ee8758356336';
-import { MONSTERS_C7S } from './monsters-c7s.js?v=ee8758356336';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=ee8758356336';
+import { addTrialHidden } from './monsters-trial.js?v=a35db3846aa7';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=a35db3846aa7';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=a35db3846aa7';
+import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=a35db3846aa7';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=a35db3846aa7';
+import { MONSTERS_FINAL } from './monsters-final.js?v=a35db3846aa7';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=a35db3846aa7';
+import { MONSTERS_PAST } from './monsters-past.js?v=a35db3846aa7';
+import { MONSTERS_ROAD } from './monsters-road.js?v=a35db3846aa7';
+import { MONSTERS_TOKEI } from './monsters-tokei.js?v=a35db3846aa7';
+import { MONSTERS_TOKEI6, addTokei6Hidden } from './monsters-tokei6.js?v=a35db3846aa7';
+import { MONSTERS_C7, addC7Hidden } from './monsters-c7.js?v=a35db3846aa7';
+import { MONSTERS_C7S } from './monsters-c7s.js?v=a35db3846aa7';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=a35db3846aa7';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
-import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=ee8758356336';
+import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=a35db3846aa7';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物（配合で 生まれる。monsters-dqm.js）
-import { MONSTERS_DQM } from './monsters-dqm.js?v=ee8758356336';
+import { MONSTERS_DQM } from './monsters-dqm.js?v=a35db3846aa7';
 // 第50回 D3: 景品で しか 会えない 魔物（monsters-prize.js）
-import { MONSTERS_PRIZE } from './monsters-prize.js?v=ee8758356336';
+import { MONSTERS_PRIZE } from './monsters-prize.js?v=a35db3846aa7';
 // 第47回: 水の 属性（きまりで つける。data/water.js）
-import { applyWater } from './water.js?v=ee8758356336';
+import { applyWater } from './water.js?v=a35db3846aa7';
 
 export const MONSTERS = {
   pururin: {
