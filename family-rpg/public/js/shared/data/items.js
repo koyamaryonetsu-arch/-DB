@@ -31,6 +31,7 @@ import { ITEMS_TOKEI, TOKEI_ITEM_KANA } from './items-tokei.js';
 import { ITEMS_TOKEI6, TOKEI6_ITEM_KANA } from './items-tokei6.js';
 import { ITEMS_C7, C7_ITEM_KANA } from './items-c7.js';
 import { ITEMS_C7S, C7S_ITEM_KANA } from './items-c7s.js';
+import { ITEMS_C7I, C7I_ITEM_KANA } from './items-c7i.js';
 import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js';
 // 第37回 A: サファラ闘技場の ごほうび
 import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
@@ -275,6 +276,8 @@ Object.assign(ITEMS, ITEMS_TOKEI6);
 Object.assign(ITEMS, ITEMS_C7);
 // 第2部 第7章 第2幕: 島の 店・しずむ前の島の灯台の 宝箱・ボスの 品・時をこえる手紙の ごほうび（items-c7s.js）
 Object.assign(ITEMS, ITEMS_C7S);
+// 第2部 第7章 第3幕: 雪の 村の 店・氷の竜の城の 宝箱・ボスの 品・時をこえる手紙の ごほうび（items-c7i.js）
+Object.assign(ITEMS, ITEMS_C7I);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
@@ -401,6 +404,7 @@ Object.assign(ITEM_KANA, TOKEI_ITEM_KANA);
 Object.assign(ITEM_KANA, TOKEI6_ITEM_KANA);
 Object.assign(ITEM_KANA, C7_ITEM_KANA);
 Object.assign(ITEM_KANA, C7S_ITEM_KANA);
+Object.assign(ITEM_KANA, C7I_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

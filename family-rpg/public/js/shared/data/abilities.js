@@ -43,6 +43,7 @@ import { TOKEI_ABILITIES } from './abilities-tokei.js';
 import { TOKEI6_ABILITIES, addZenBy } from './abilities-tokei6.js';
 import { C7_ABILITIES } from './abilities-c7.js';
 import { C7S_ABILITIES } from './abilities-c7s.js';
+import { C7I_ABILITIES } from './abilities-c7i.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -678,6 +679,8 @@ addZenBy(ABILITIES);
 Object.assign(ABILITIES, C7_ABILITIES);
 // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・ゲストの カイの 技（abilities-c7s.js）
 Object.assign(ABILITIES, C7S_ABILITIES);
+// 第2部 第7章 第3幕 の 魔物・いばらの魔女マレフィナ（黒い 竜）・カイの影の 技（abilities-c7i.js）
+Object.assign(ABILITIES, C7I_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

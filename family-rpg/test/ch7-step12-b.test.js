@@ -23,6 +23,7 @@ import { C7_ABILITIES } from '../public/js/shared/data/abilities-c7.js';
 import { FRIENDS_C7, KARIM_GUEST, KARIM_SUPPORT } from '../public/js/shared/data/companions-c7.js';
 import { ENCOUNTERS_C7, FIXED_C7, ZONE_BG_C7 } from '../public/js/shared/data/encounters-c7.js';
 import { ITEMS_C7, C7_TREASURE, C7_LETTER_REWARDS, C7_DROPS, C7_K, C7_ITEM_KANA, C7_SHOP_WEAPONS, C7_SHOP_ARMOR, C7_SHOP_TOOLS } from '../public/js/shared/data/items-c7.js';
+import { ITEMS_C7I } from '../public/js/shared/data/items-c7i.js';
 import { TOKEI_TREASURE_HIGH } from '../public/js/shared/data/items-tokei.js';
 import { SWIRL, CALL, STEAL, CHORUS, swirlBefore, chorusBefore, voicesOf, c7Plan, c7Effect } from '../public/js/shared/battle-c7.js';
 import { AUTO_GUARD } from '../public/js/shared/battle-ch6.js';
@@ -435,7 +436,8 @@ test('ボスの 品・時をこえる手紙の ごほうび・緑の王国の �
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c7t_witch_charm') > sum('c7g_twin_charm') && sum('c7g_twin_charm') > sum('p6z_zenmai_charm'));
-  const topSpear = Object.entries(ITEMS).filter(([, it]) => it.type === 'weapon' && it.cat === 'spear' && !it.base).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第7章 第3幕の 品（items-c7i.js。黒竜のやり）は のぞく
+  const topSpear = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'spear' && !it.base && !ITEMS_C7I[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(topSpear, 'c7t_trident');
   for (const id of C7_LETTER_REWARDS) {
     assert.ok(ITEMS[id] && ITEMS[id].src === 'letter7' && starsOf(id) === 5, id);

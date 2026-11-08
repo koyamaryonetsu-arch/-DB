@@ -21,6 +21,7 @@ import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei
 import { ENCOUNTERS_TOKEI6, FIXED_TOKEI6, ZONE_BG_TOKEI6 } from './encounters-tokei6.js';
 import { ENCOUNTERS_C7, FIXED_C7, ZONE_BG_C7 } from './encounters-c7.js';
 import { ENCOUNTERS_C7S, FIXED_C7S, ZONE_BG_C7S } from './encounters-c7s.js';
+import { ENCOUNTERS_C7I, FIXED_C7I, ZONE_BG_C7I } from './encounters-c7i.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -173,6 +174,10 @@ Object.assign(ZONE_BG, ZONE_BG_C7);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7S);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C7S);
 Object.assign(ZONE_BG, ZONE_BG_C7S);
+// 第2部 第7章 第3幕「ひとりぼっちの星」・氷の竜の城・いばらの魔女マレフィナ・カイの影（encounters-c7i.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7I);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C7I);
+Object.assign(ZONE_BG, ZONE_BG_C7I);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';
