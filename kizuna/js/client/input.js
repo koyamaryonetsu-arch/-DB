@@ -2,8 +2,8 @@
 // ・フィールドでは input.dir（いどう）と A/B を つかう
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
 // ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
-import { inStickZone as stickZone } from './ui/hand.js?v=6bf5260fd5eb';
-import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=6bf5260fd5eb';
+import { inStickZone as stickZone } from './ui/hand.js?v=6575e06f4949';
+import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=6575e06f4949';
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
@@ -13,6 +13,8 @@ const KEYMAP = {
   KeyG: 'ride',
   // 第50回 N3: T … 大事な物の すぐ使う ボタン（時の砂時計 など。ui/quick-item.js）
   KeyT: 'quick',
+  // 第69回: L・R … 戦いの 技えらびで 種類（タブ）を かえる（Q・E と PageUp・PageDown。ListMenu の onLR）
+  KeyQ: 'l', KeyE: 'r', PageUp: 'l', PageDown: 'r',
 };
 
 export class Input {
@@ -369,7 +371,10 @@ export class Input {
     if (edge('menu', b(9) || b(3))) this.emit(b(3) && this.stack[this.stack.length - 1]?.yKey ? 'y' : 'b');
     if (edge('map', b(8))) this.emit('map');
     // 第35回: L（4）… 大鳥・竜を 呼ぶ／空の 上では 別の地方へ（えらぶ まど）。降りるのは A（sky.js の padButton）
-    if (edge('ride', b(4))) this.emit('ride');
+    // 第69回: 戦いの 技えらび（L・R を つかう まど。ListMenu の onLR）の 間は L・R で 種類（タブ）を かえる
+    const lr = !!this.stack[this.stack.length - 1]?.lr;
+    if (edge('ride', b(4))) this.emit(lr ? 'l' : 'ride');
+    if (edge('r', b(5)) && lr) this.emit('r');
     // 第50回 N3: 大事な物の すぐ使う ボタン（ZL・L3・R3 から えらぶ。メニューの「設定」）
     if (edge('quick', this.quickPad >= 0 && b(this.quickPad))) this.emit('quick');
     if (this.busy) {

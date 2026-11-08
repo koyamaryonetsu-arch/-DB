@@ -5,9 +5,9 @@
 // 第7章 Step 5・6（第3幕）:
 // ・c7i_spirit_letter … 雪の精の手紙（城 4階の 雪の精が 書いてくれる。5階の 千年前の 氷の 箱に 入れると なくなる。時をこえる手紙）
 // ふつうの 道具・装備・宝箱の 中み・手紙の ごほうびは B（data/items-c7.js・items-c7s.js・items-c7i.js）
-import { MIKO_LETTER } from '../maps/c7-flags.js?v=6bf5260fd5eb';
-import { KEEPER_LETTER } from '../maps/c7s-flags.js?v=6bf5260fd5eb';
-import { SPIRIT_LETTER } from '../maps/c7i-flags.js?v=6bf5260fd5eb';
+import { MIKO_LETTER } from '../maps/c7-flags.js?v=6575e06f4949';
+import { KEEPER_LETTER } from '../maps/c7s-flags.js?v=6575e06f4949';
+import { SPIRIT_LETTER } from '../maps/c7i-flags.js?v=6575e06f4949';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {

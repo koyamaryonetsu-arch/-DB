@@ -3,21 +3,21 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=6bf5260fd5eb';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=6bf5260fd5eb';
-import { ITEMS } from '../../shared/data/items.js?v=6bf5260fd5eb';
-import { JOBS } from '../../shared/data/jobs.js?v=6bf5260fd5eb';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=6bf5260fd5eb';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=6bf5260fd5eb';
-import { targetText, itemDetail } from './info.js?v=6bf5260fd5eb';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=6575e06f4949';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=6575e06f4949';
+import { ITEMS } from '../../shared/data/items.js?v=6575e06f4949';
+import { JOBS } from '../../shared/data/jobs.js?v=6575e06f4949';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=6575e06f4949';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=6575e06f4949';
+import { targetText, itemDetail } from './info.js?v=6575e06f4949';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
-import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=6bf5260fd5eb';
+import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=6575e06f4949';
 // 第50回 N1: 今の 魔力・回復魔力での 威力の 目安（shared/skill-power.js）
-import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=6bf5260fd5eb';
+import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=6575e06f4949';
 export { powStats };
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2段階・回復が 多い（shared/skill-tier.js）。文は tierText だけで つくる
-import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=6bf5260fd5eb';
-import { stackMult } from '../../shared/battle.js?v=6bf5260fd5eb';
+import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=6575e06f4949';
+import { stackMult } from '../../shared/battle.js?v=6575e06f4949';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -176,7 +176,8 @@ export function firstSentence(desc) {
 export function favHint(text, touch = false) {
   if (!text) return text;
   if (touch) return text.replace('▶もう一度タップで使う', '▶もう一度タップで使う・長おしでお気に入り');
-  return `${text}\n（長おし・Yキーでお気に入り）`;
+  // 第69回: 種類（タブ）は L・R（キーボードの Q・E）で かえる
+  return `${text}\n（L・R〈Q・E〉で種類を切りかえ）\n（長おし・Yキーでお気に入り）`;
 }
 
 // 道具の せつめい（戦いの 中）

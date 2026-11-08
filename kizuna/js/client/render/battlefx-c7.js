@@ -7,7 +7,7 @@
 // a7t_chorus（うばった声の大合唱）は 貝が ひらいて 金の 声の たまと 音ぷ（c7note）が がめんいっぱいに → むらさきの 音の わ。
 // どちらも がめんの まん中に 大きく（client/battle-c7.js の C7_SCREEN_ANIMS）
 // 第2部 第7章 第2幕 の エフェクト（ここの さいごから よぶ。とくべつな つぶも C7_FINE に まぜる）
-import { playC7sFx, C7S_FINE } from './battlefx-c7s.js?v=6bf5260fd5eb';
+import { playC7sFx, C7S_FINE } from './battlefx-c7s.js?v=6575e06f4949';
 
 const WATER = ['#7ad8e8', '#bff4ff', '#2a8aa8', '#ffffff'];
 const EEL = ['#b8d860', '#e8f8a0', '#5a7a2a', '#ffe060'];
