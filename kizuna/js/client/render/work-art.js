@@ -5,11 +5,11 @@
 // ・WORK_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addWorkVehicleArt(ART, kit) … もらう 乗り物の 絵（2D と 2.5D は 同じ 絵。kit … render/vehicle-art.js の どうぐ）
 // かきかたは family-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=6575e06f4949';
+import { spark } from './ch3-draw.js?v=6495abec1e26';
 // 第65回 D2: たのまれごと 12〜17 の 絵（render/work2-art.js）
-import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=6575e06f4949';
+import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=6495abec1e26';
 // 第68回 D班: たのまれごと 18〜23 の 絵（render/work3-art.js）
-import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=6575e06f4949';
+import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=6495abec1e26';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {

@@ -5,7 +5,7 @@
 // 手下の 魔物 10しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、配合で 足りない ランクに 入れる（tools/gen-monster-ranks.mjs）
 //   めやす: ノコノコ・使いのカラス … 20%いじょう（F）／パックンフラワー・トランプの兵・うずしおウツボ … 12〜20%（E）／
 //           行進のほうき・ゲッソー … 12〜20%（D）／テレサ … 6〜12%（C）／水のようま … 12〜20%（B）／のろいだま … 6〜12%（A）
-import { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL } from './monsters-c7.js?v=6575e06f4949';
+import { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL } from './monsters-c7.js?v=6495abec1e26';
 
 export const ENCOUNTERS_C7 = {
   t7_kingdom: [
