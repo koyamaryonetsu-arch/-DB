@@ -8,14 +8,14 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=7c263be7620b';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=7c263be7620b';
-import { ORN } from '../maps/ch6c-side.js?v=7c263be7620b';
-import { RS } from './sidequests-ch6d.js?v=7c263be7620b';
-import { C7, LETTER } from '../maps/c7-flags.js?v=7c263be7620b';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=7c263be7620b';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=7c263be7620b';
-import { jobLine } from './fq-common.js?v=7c263be7620b';
+import { C6 } from '../maps/past.js?v=20b56185686d';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=20b56185686d';
+import { ORN } from '../maps/ch6c-side.js?v=20b56185686d';
+import { RS } from './sidequests-ch6d.js?v=20b56185686d';
+import { C7, LETTER } from '../maps/c7-flags.js?v=20b56185686d';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=20b56185686d';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=20b56185686d';
+import { jobLine } from './fq-common.js?v=20b56185686d';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -67,6 +67,7 @@ const build = () => [
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）
 // 第65回 D2: お仕事いらい板で 受けた（fq_take_<id>）ものも「受けた」（困っている人から 消えて、クエストの 画面の たのまれごとへ）
+// 第68回 D班: 18〜23 は 第7章の カリムの あとから（はり紙の open）
 let LIST = null;
 let BY_ID = new Map();
 export function subQuestHints() {
@@ -74,7 +75,7 @@ export function subQuestHints() {
   LIST = build();
   // 第6章の 前に 入れる
   LIST.splice(LIST.findIndex((q) => q.id === 'tc1'), 0, ...FAMILY_QUESTS.map((q) => ({
-    id: `fq_${q.id}`, name: q.name, open: ['c5_clear'], start: (c) => !!(c?.flags?.[q.start] || c?.flags?.[`fq_take_${q.id}`]), done: q.done, place: q.town, who: q.who, npc: q.npc,
+    id: `fq_${q.id}`, name: q.name, open: q.open || ['c5_clear'], start: (c) => !!(c?.flags?.[q.start] || c?.flags?.[`fq_take_${q.id}`]), done: q.done, place: q.town, who: q.who, npc: q.npc,
     hint: String(q.paper || '').split('\n')[0], roots: q.roots, job: q.job, board: true,
   })));
   BY_ID = new Map(LIST.map((q) => [q.id, q]));

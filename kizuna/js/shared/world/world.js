@@ -2,64 +2,64 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { vehicleSnap } from './vehicles.js?v=7c263be7620b';
-import { makeRng } from '../rng.js?v=7c263be7620b';
+import { vehicleSnap } from './vehicles.js?v=20b56185686d';
+import { makeRng } from '../rng.js?v=20b56185686d';
 // 第53回 D: 色ちがいの 仲間の 絵（data/variants.js）
-import { colorMon } from '../data/variants.js?v=7c263be7620b';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=7c263be7620b';
-import { PLACES } from '../maps/overworld.js?v=7c263be7620b';
-import { pastPlaceAt } from '../data/past-places.js?v=7c263be7620b';
-import { T, TILE_INFO } from '../tiles.js?v=7c263be7620b';
-import { ITEMS } from '../data/items.js?v=7c263be7620b';
-import { JOBS } from '../data/jobs.js?v=7c263be7620b';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=7c263be7620b';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=7c263be7620b';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=7c263be7620b';
-import { chestVanishes } from '../data/fieldchests.js?v=7c263be7620b';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=7c263be7620b';
-import { runScript, runSteps } from './scripts.js?v=7c263be7620b';
+import { colorMon } from '../data/variants.js?v=20b56185686d';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=20b56185686d';
+import { PLACES } from '../maps/overworld.js?v=20b56185686d';
+import { pastPlaceAt } from '../data/past-places.js?v=20b56185686d';
+import { T, TILE_INFO } from '../tiles.js?v=20b56185686d';
+import { ITEMS } from '../data/items.js?v=20b56185686d';
+import { JOBS } from '../data/jobs.js?v=20b56185686d';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=20b56185686d';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=20b56185686d';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=20b56185686d';
+import { chestVanishes } from '../data/fieldchests.js?v=20b56185686d';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=20b56185686d';
+import { runScript, runSteps } from './scripts.js?v=20b56185686d';
 // 第44回（ポケモン P1）: 進化を まっている 仲間（world/evolve.js）
-import { checkEvolve } from './scripts.js?v=7c263be7620b';
-import { serviceAction, menuAction } from './services.js?v=7c263be7620b';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam, companionOf } from './party.js?v=7c263be7620b';
-import { rosterIsFull, befriendFullSteps } from './farewell.js?v=7c263be7620b';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=7c263be7620b';
-import { takeTavernNews } from './recruit-share.js?v=7c263be7620b';
+import { checkEvolve } from './scripts.js?v=20b56185686d';
+import { serviceAction, menuAction } from './services.js?v=20b56185686d';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam, companionOf } from './party.js?v=20b56185686d';
+import { rosterIsFull, befriendFullSteps } from './farewell.js?v=20b56185686d';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=20b56185686d';
+import { takeTavernNews } from './recruit-share.js?v=20b56185686d';
 // 第51回 B: 家族のけいじ板（world/family-board.js）
-import { boardPost, boardMessage } from './family-board.js?v=7c263be7620b';
-import { MONSTERS } from '../data/monsters.js?v=7c263be7620b';
-import { jobLabel } from '../job-label.js?v=7c263be7620b';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=7c263be7620b';
-import { upgradeSave, repairChar } from './save.js?v=7c263be7620b';
-import { exportCode, parseCode, importChar } from './transfer.js?v=7c263be7620b';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=7c263be7620b';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=7c263be7620b';
-import { isNightFor, timeFlag, fracFor } from './clock.js?v=7c263be7620b';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=7c263be7620b';
-import { walkSteps } from './perks.js?v=7c263be7620b';
-import { alchemySteps, alchemyShelf } from './alchemy.js?v=7c263be7620b';
-import { shelfHint } from '../data/secret-hints.js?v=7c263be7620b';
-import { migrateSky } from '../data/sky.js?v=7c263be7620b';
-import { migrateCh4 } from '../data/story-ch4.js?v=7c263be7620b';
-import { repairObjective } from '../data/progress.js?v=7c263be7620b';
-import { wagonLook } from './wagon.js?v=7c263be7620b';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=7c263be7620b';
-import { ensureTmClears } from '../data/casino-tier.js?v=7c263be7620b';
-import { stepHazard } from './hazards.js?v=7c263be7620b';
-import { stepTremor } from './tremor.js?v=7c263be7620b';
-import { stepSand } from './time-glass.js?v=7c263be7620b';
-import { stepStars } from './star-sight.js?v=7c263be7620b';
-import { stepTokei } from './tokei.js?v=7c263be7620b';
-import { noteDungeonEntry } from './escape.js?v=7c263be7620b';
-import { notePyramidMove } from './pyramid.js?v=7c263be7620b';
-import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js?v=7c263be7620b';
+import { boardPost, boardMessage } from './family-board.js?v=20b56185686d';
+import { MONSTERS } from '../data/monsters.js?v=20b56185686d';
+import { jobLabel } from '../job-label.js?v=20b56185686d';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=20b56185686d';
+import { upgradeSave, repairChar } from './save.js?v=20b56185686d';
+import { exportCode, parseCode, importChar } from './transfer.js?v=20b56185686d';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=20b56185686d';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=20b56185686d';
+import { isNightFor, timeFlag, fracFor } from './clock.js?v=20b56185686d';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=20b56185686d';
+import { walkSteps } from './perks.js?v=20b56185686d';
+import { alchemySteps, alchemyShelf } from './alchemy.js?v=20b56185686d';
+import { shelfHint } from '../data/secret-hints.js?v=20b56185686d';
+import { migrateSky } from '../data/sky.js?v=20b56185686d';
+import { migrateCh4 } from '../data/story-ch4.js?v=20b56185686d';
+import { repairObjective } from '../data/progress.js?v=20b56185686d';
+import { wagonLook } from './wagon.js?v=20b56185686d';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=20b56185686d';
+import { ensureTmClears } from '../data/casino-tier.js?v=20b56185686d';
+import { stepHazard } from './hazards.js?v=20b56185686d';
+import { stepTremor } from './tremor.js?v=20b56185686d';
+import { stepSand } from './time-glass.js?v=20b56185686d';
+import { stepStars } from './star-sight.js?v=20b56185686d';
+import { stepTokei } from './tokei.js?v=20b56185686d';
+import { noteDungeonEntry } from './escape.js?v=20b56185686d';
+import { notePyramidMove } from './pyramid.js?v=20b56185686d';
+import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js?v=20b56185686d';
 // 第37回 A: サファラ闘技場（だいほんの しょりを data/story-arena.js の ARENA_HOOKS に 入れる）
-import './arena.js?v=7c263be7620b';
+import './arena.js?v=20b56185686d';
 // 第38回 B: 職業の試練（だいほんの しょりを data/story-trials.js の TRIAL_HOOKS に 入れる）
-import './job-trials.js?v=7c263be7620b';
-import { shownEquipKey } from '../look-equip.js?v=7c263be7620b';
+import './job-trials.js?v=20b56185686d';
+import { shownEquipKey } from '../look-equip.js?v=20b56185686d';
 // 第67回 C: モンスター闘技場の その場の 対戦
-import { tickMonLive } from './monarena-live.js?v=7c263be7620b';
+import { tickMonLive } from './monarena-live.js?v=20b56185686d';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;

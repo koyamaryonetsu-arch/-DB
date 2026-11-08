@@ -2,11 +2,11 @@
 // ・maps/c7-field.js … 千年前の コガネ地方（c7_field）・緑の王国・神殿の 外がわと、今の コガネ地方（south）に たす もの（時の砂時計・手紙を 見つける 所）
 // ・maps/c7-temple.js … みどりの水の神殿（千年前 c7_temple_1f〜8f・今 c7_temple_1f_now〜7f_now）
 // ・maps/c7-flags.js … フラグ・マップの ID・だいじな 場所
-import { attachC7Field, C7_FIELD_MAPS } from './c7-field.js?v=7c263be7620b';
-import { buildC7TempleMaps, C7T_MAPS } from './c7-temple.js?v=7c263be7620b';
+import { attachC7Field, C7_FIELD_MAPS } from './c7-field.js?v=20b56185686d';
+import { buildC7TempleMaps, C7T_MAPS } from './c7-temple.js?v=20b56185686d';
 // 第7章 Step 3・4（第2幕）: 千年前の クモイの 海（c7s_sea）・ナギの村・しずむ前の島の灯台（千年前 c7s_light_1f〜8f・今 c7s_light_1f_now〜7f_now）
-import { attachC7sSea, C7S_SEA_MAPS } from './c7s-sea.js?v=7c263be7620b';
-import { buildC7sLightMaps, C7SL_MAPS } from './c7s-light.js?v=7c263be7620b';
+import { attachC7sSea, C7S_SEA_MAPS } from './c7s-sea.js?v=20b56185686d';
+import { buildC7sLightMaps, C7SL_MAPS } from './c7s-light.js?v=20b56185686d';
 
 // 第7章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH7_MAPS = [...C7_FIELD_MAPS, ...C7T_MAPS];

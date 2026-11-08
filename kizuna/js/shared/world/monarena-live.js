@@ -13,14 +13,14 @@
 //   b の 画面には 敵と みかたを 入れかえた ようす（snapFor・evsFor）を 送る → b の 魔物が 下（みかた）に 出て コマンドを 選べる
 //   通信が とぎれた 人の 魔物は オートで 戦う。LIVE_AWAY_MS たっても もどらない・ぬけた 時は のこった 人の 勝ち（記録には のこさない）
 //   おわり: 勝ち負けを 2人の c.monArena.live[相手の id] に のこす（はじめて 勝った 時だけ 小さなメダル 1まい）。経験値・お金は なし
-import { MonArenaBattle, monFighterChar, monAllyInit, MON_EVEN_LV } from '../battle-monarena.js?v=7c263be7620b';
-import { normBattleSettings, pub } from '../battle.js?v=7c263be7620b';
-import { TACTICS } from '../ai.js?v=7c263be7620b';
-import { MONSTERS } from '../data/monsters.js?v=7c263be7620b';
-import { MONARENA_OPEN_FLAG, setMonArena, monArenaRecord, noteLiveResult, monLiveMedalId } from '../data/monarena.js?v=7c263be7620b';
-import { monEntries, pickTeam } from './monarena.js?v=7c263be7620b';
-import { battleTactics } from './tactics.js?v=7c263be7620b';
-import { RESULT_MAX_MS } from './battles.js?v=7c263be7620b';
+import { MonArenaBattle, monFighterChar, monAllyInit, MON_EVEN_LV } from '../battle-monarena.js?v=20b56185686d';
+import { normBattleSettings, pub } from '../battle.js?v=20b56185686d';
+import { TACTICS } from '../ai.js?v=20b56185686d';
+import { MONSTERS } from '../data/monsters.js?v=20b56185686d';
+import { MONARENA_OPEN_FLAG, setMonArena, monArenaRecord, noteLiveResult, monLiveMedalId } from '../data/monarena.js?v=20b56185686d';
+import { monEntries, pickTeam } from './monarena.js?v=20b56185686d';
+import { battleTactics } from './tactics.js?v=20b56185686d';
+import { RESULT_MAX_MS } from './battles.js?v=20b56185686d';
 
 export const LIVE_MAP = 'monarena';
 export const LIVE_ASK_MS = 30000;

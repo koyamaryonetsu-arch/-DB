@@ -1,34 +1,34 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=7c263be7620b';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=7c263be7620b';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=7c263be7620b';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=20b56185686d';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=20b56185686d';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=20b56185686d';
 // 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
-import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=7c263be7620b';
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=20b56185686d';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ぼうし
-import { R41A_HAT } from './hero-r41a.js?v=7c263be7620b';
+import { R41A_HAT } from './hero-r41a.js?v=20b56185686d';
 // 第66回 E2 の 職業の ぼうし（hero-r66e2.js）
-import { R66E2_HAT } from './hero-r66e2.js?v=7c263be7620b';
+import { R66E2_HAT } from './hero-r66e2.js?v=20b56185686d';
 // 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
-import { R43J_HAT } from './hero-r43j.js?v=7c263be7620b';
+import { R43J_HAT } from './hero-r43j.js?v=20b56185686d';
 // 第66回 B班: ニューカワイイの リボン・SMAPの ヘッドセット・五つ星シェフの コック帽
-import { R66B_HAT } from './hero-r66b.js?v=7c263be7620b';
+import { R66B_HAT } from './hero-r66b.js?v=20b56185686d';
 // 第66回 A の 伝説の 職業 4つの ぼうし（hero-r66a.js）
-import { R66A_HAT } from './hero-r66a.js?v=7c263be7620b';
+import { R66A_HAT } from './hero-r66a.js?v=20b56185686d';
 // 第66回 C班: 会長の シルクハット・あの方の 黒い ぼうし
-import { R66C_HAT } from './hero-r66c.js?v=7c263be7620b';
+import { R66C_HAT } from './hero-r66c.js?v=20b56185686d';
 // 第66回 D班の 伝説の 職業の ぼうし・フード・頭の 花（hero-r66d.js）
-import { R66D_HAT, R66D_BODY_HAT } from './hero-r66d.js?v=7c263be7620b';
+import { R66D_HAT, R66D_BODY_HAT } from './hero-r66d.js?v=20b56185686d';
 // 第66回 E1班の ヘルメット・ヘッドセット（hero-r66e1.js）
-import { R66E1_HAT } from './hero-r66e1.js?v=7c263be7620b';
+import { R66E1_HAT } from './hero-r66e1.js?v=20b56185686d';
 
 const D = Math.PI / 180;
 // 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
-import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=7c263be7620b';
+import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=20b56185686d';
 import {
   drawSwordLook, drawDaggerLook, drawAxeLook, drawSpearLook, drawClawLook, drawWhipLook, drawStaffLook, drawFanLook, drawBatLook, drawBoomerangLook,
   ornate, shieldOutline2, shieldFace2, shieldOrnate, shieldBackOrnate, shieldTint,
-} from './hero-gear-looks.js?v=7c263be7620b';
+} from './hero-gear-looks.js?v=20b56185686d';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };

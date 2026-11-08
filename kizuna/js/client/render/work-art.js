@@ -5,9 +5,11 @@
 // ・WORK_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addWorkVehicleArt(ART, kit) … もらう 乗り物の 絵（2D と 2.5D は 同じ 絵。kit … render/vehicle-art.js の どうぐ）
 // かきかたは family-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=7c263be7620b';
+import { spark } from './ch3-draw.js?v=20b56185686d';
 // 第65回 D2: たのまれごと 12〜17 の 絵（render/work2-art.js）
-import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=7c263be7620b';
+import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=20b56185686d';
+// 第68回 D班: たのまれごと 18〜23 の 絵（render/work3-art.js）
+import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=20b56185686d';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {
@@ -32,6 +34,7 @@ export const WORK_NPC_LOOKS = {
   fq_festival: { hair: 2, hairStyle: 'long', skin: 2, outfit: 'dress', cloth: '#e8a03a', female: true, hat: 'shawl', hatColor: '#c83a8a' },
   fq_magician: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'suit', cloth: '#22222c', tie: '#c83a3a', cape: '#8a1a2a', hat: 'wizard', hatColor: '#22222c' },
   ...WORK2_NPC_LOOKS,
+  ...WORK3_NPC_LOOKS,
 };
 
 // ───────────── 6. 港の ステージ（clean … 砂を はらった あと）─────────────
@@ -169,6 +172,7 @@ export function addWorkArt(ART) {
   ART.fq_magic_stage = { size: [48, 30], field: 48, npc: 1, pal: Object.values(MS), draw: magicStageArt };
   ART.fq_dove = { size: [12, 10], field: 12, pal: Object.values(DV), draw: doveArt };
   addWork2Art(ART);
+  addWork3Art(ART);
 }
 
 // ───────────── もらう 乗り物 ─────────────

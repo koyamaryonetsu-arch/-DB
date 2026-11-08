@@ -1,6 +1,6 @@
 // 第49回 O5（家・学校・料理）: え で つかう 小さな どうぐ（O5 の つぶ o5〜 を 足す）と つぶの かずの あわせ（balance）。この ファイルは O5 だけが さわる
-import { rnd } from './axkit.js?v=7c263be7620b';
-import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=7c263be7620b';
+import { rnd } from './axkit.js?v=20b56185686d';
+import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=20b56185686d';
 
 // つぶを 1つ 足す（kind は o5〜）。x,y は 画面の 中の いち（とおい つぶの しらべに つかう）
 export function add(c, kind, o) {
