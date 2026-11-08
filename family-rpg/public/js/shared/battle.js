@@ -2463,6 +2463,8 @@ export function pub(c) {
     // 今の 魔力・回復魔力（バフも 入れる）。技の せつめいで 今の 魔力での ダメージを 出す（第50回 N1。shared/skill-power.js）
     pow: c.side === 'ally' ? { mag: Math.round(effMag(c)), heal: Math.round(c.healPow || 0) } : undefined,
     favs: c.side === 'ally' ? c.favs : undefined,
+    // 第69回: 作戦で「使わない」に した 技（自分で 命令する 人の 技の 一覧にも 出さない。client/battle.js の openCommand）
+    autoOff: c.side === 'ally' && c.autoOff?.length ? c.autoOff : undefined,
     tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
     tacBy: c.side === 'ally' ? c.tacBy || null : undefined,
     covering: c.cover ? c.cover.target : null,

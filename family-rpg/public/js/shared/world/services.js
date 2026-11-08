@@ -141,6 +141,26 @@ function ownChar(s, who) {
   return e ? e.char : null;
 }
 
+// 第69回: お気に入りの ならびを まとめて かえる（op: 'order'）。ids が 今の お気に入りと おなじ 技の くみ（30こまで・かさならない）の ときだけ
+//   あたらしい 配列を かえす（だめな ときは null）
+export function favoriteOrder(cur, ids) {
+  const now = Array.isArray(cur) ? cur.filter((x) => ABILITIES[x]) : [];
+  if (!Array.isArray(ids) || ids.length !== now.length || ids.length > 30) return null;
+  if (ids.some((x) => typeof x !== 'string') || new Set(ids).size !== ids.length) return null;
+  const set = new Set(now);
+  if (!ids.every((x) => set.has(x))) return null;
+  return ids.slice();
+}
+
+// お気に入りを 戦いの 中の 人にも（つぎの 知らせで 前に もどらない）
+function syncFavs(world, who) {
+  for (const ctx of world.battles?.values?.() || []) {
+    for (const b of ctx.battle?.combatants || []) {
+      if (b.side === 'ally' && (ctx.actorMap?.[b.id]?.char === who || (who.id && b.charId === who.id))) b.favs = who.favorites.slice();
+    }
+  }
+}
+
 // お店などの そうさ
 export function serviceAction(world, s, msg) {
   const c = s.char;
@@ -626,7 +646,7 @@ export function menuAction(world, s, msg) {
         if (list.length) t.autoOff = list;
         else delete t.autoOff;
       }
-      return reply(true, msg.op === 'all' ? `${t0.name}は、オートでどの技も使う。` : '');
+      return reply(true, msg.op === 'all' ? `${t0.name}は、どの技も使う。` : '');
     }
     // さいきょう装備（ドラクエ風）: ふくろの 中から 攻撃力・守備力が いちばん 上がる ものを 装備する
     // モンスターの なかまも（しゅぞくで 装備できる 物だけ）
@@ -662,7 +682,16 @@ export function menuAction(world, s, msg) {
     case 'favorite': {
       const who = ownChar(s, msg.who || 'self');
       const id = msg.id;
-      if (!who || who.species || !ABILITIES[id]) return reply(false, '');
+      if (!who || who.species) return reply(false, '');
+      // 第69回: ならびを まとめて（メニューの お気に入りで つかんで うごかした あと）。今の お気に入りと おなじ 技の くみ だけ
+      if (msg.op === 'order') {
+        const r = favoriteOrder(who.favorites, msg.ids);
+        if (!r) return reply(false, '');
+        who.favorites = r;
+        syncFavs(world, who);
+        return reply(true, 'ならびを変えた。');
+      }
+      if (!ABILITIES[id]) return reply(false, '');
       const list = Array.isArray(who.favorites) ? who.favorites.filter((x) => ABILITIES[x]) : [];
       const i = list.indexOf(id);
       if (msg.op === 'add' && i < 0) list.push(id);
@@ -673,7 +702,7 @@ export function menuAction(world, s, msg) {
       }
       who.favorites = list.slice(0, 30);
       // 戦いの 中（長おしで お気に入り。第27回）: 戦いの 人の お気に入りも（つぎの 知らせで 前に もどらない）
-      for (const ctx of world.battles?.values?.() || []) for (const b of ctx.battle?.combatants || []) if (who.id && b.side === 'ally' && b.charId === who.id) b.favs = who.favorites.slice();
+      syncFavs(world, who);
       return reply(true, msg.op === 'add' ? `${abilityLabel(id, who)}をお気に入りに入れた。` : msg.op === 'remove' ? `${abilityLabel(id, who)}をお気に入りからはずした。` : 'ならびを変えた。');
     }
     case 'settings': {

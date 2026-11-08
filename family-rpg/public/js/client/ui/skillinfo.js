@@ -176,7 +176,8 @@ export function firstSentence(desc) {
 export function favHint(text, touch = false) {
   if (!text) return text;
   if (touch) return text.replace('▶もう一度タップで使う', '▶もう一度タップで使う・長おしでお気に入り');
-  return `${text}\n（長おし・Yキーでお気に入り）`;
+  // 第69回: 種類（タブ）は L・R（キーボードの Q・E）で かえる
+  return `${text}\n（L・R〈Q・E〉で種類を切りかえ）\n（長おし・Yキーでお気に入り）`;
 }
 
 // 道具の せつめい（戦いの 中）

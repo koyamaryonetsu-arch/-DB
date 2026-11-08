@@ -40,8 +40,10 @@ export class ListMenu {
   // onLong: 行を 長おし（タッチ・マウス 0.5秒）した とき・Y（キーボードの Y・ゲームパッドの Y）を おした とき（第27回 戦いの お気に入り）。
   //   長おしでは その 行は 決まらない（はなした あとの クリックは すてる）
   // onY: Y（キーボードの Y・ゲームパッドの Y）を おした とき（長おしでは よばない。第35回 道具の ならべかえ）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, onLong = null, onY = null } = {}) {
+  // onLR: L・R（キーボードの Q・E／PageUp・PageDown、ゲームパッドの L・R）を おした とき。-1 か 1（第69回 戦いの 技の タブ）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, onLong = null, onY = null, onLR = null } = {}) {
     this.input = input;
+    this.onLR = onLR;
     this.onY = onY;
     this.tapConfirm = tapConfirm;
     this.onLong = onLong;
@@ -63,7 +65,8 @@ export class ListMenu {
     // pad: スマホでは 十字キーの パッドも 出す
     const self = this;
     // yKey: ゲームパッドの Y を「y」で とどける（長おしの かわり。onLong が ある ときだけ。input.js）
-    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; }, get yKey() { return !!(self.onLong || self.onY); } };
+    // lr: ゲームパッドの L・R を「l」「r」で とどける（onLR が ある ときだけ。ほかでは L は 大鳥・竜、R は 走る。input.js）
+    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; }, get yKey() { return !!(self.onLong || self.onY); }, get lr() { return !!self.onLR; } };
     this.active = false;
     this.render();
   }
@@ -316,8 +319,70 @@ export class ListMenu {
     return d < 0 ? k === 0 : k === cols - 1 || this.idx === this.items.length - 1;
   }
 
+  // 第69回: 見えている ひとまとまり（まどに 入る 行の 数 × 列の 数）ぶん 先・前へ（おなじ 列のまま。はしで とまる）
+  //   スクロールが いる ときは まども その ぶん うごかす。もどりち: うごいたか
+  pageTarget(d) {
+    const n = this.items.length;
+    if (!n || this.items.some((it) => it.header)) return this.idx;
+    const cols = Math.max(1, this.visualCols());
+    const rows = this.pageRows();
+    const block = rows * cols;
+    const col = this.idx % cols;
+    let to = this.idx + d * block;
+    if (to > n - 1) {
+      // さいごの 行の おなじ 列（なければ さいごの 技）
+      const lastRow = Math.floor((n - 1) / cols);
+      to = Math.min(n - 1, lastRow * cols + col);
+    } else if (to < 0) to = col;
+    return to;
+  }
+
+  // まどに 入る 行の 数（1行の 高さで はかる。まだ 画面に ない ときは 1）
+  pageRows() {
+    const lis = [...this.root.children].filter((li) => li.classList.contains('item'));
+    if (!lis[0]?.offsetParent) return 1;
+    const top = lis[0].offsetTop;
+    const next = lis.find((li) => li.offsetTop - top > 3);
+    const pitch = next ? next.offsetTop - top : lis[0].offsetHeight;
+    const h = this.root.clientHeight;
+    return Math.max(1, Math.floor((h + 2) / Math.max(1, pitch)));
+  }
+
+  // 前・つぎの まとまりが あるか（スマホの ◀ ▶ を 出す。scroll: まどが スクロールする ほど 長いか）
+  pageInfo() {
+    const box = this.root;
+    return {
+      scroll: box.scrollHeight - box.clientHeight > 2,
+      prev: this.pageTarget(-1) !== this.idx,
+      next: this.pageTarget(1) !== this.idx,
+    };
+  }
+
+  pageJump(d) {
+    const to = this.pageTarget(d);
+    if (to === this.idx) {
+      this.sound?.('buzz');
+      return false;
+    }
+    const box = this.root;
+    const li0 = box.children[this.idx];
+    const li1 = box.children[to];
+    // まどを おなじ 行の かず ぶん うごかす（えらんだ 技が まどの おなじ 高さに 来る）
+    if (li0 && li1) box.scrollTop += li1.offsetTop - li0.offsetTop;
+    this.idx = to;
+    this.sound?.('cursor');
+    this.updateSel();
+    this.onMove?.(this.current, this.idx);
+    return true;
+  }
+
   nav(a) {
     const n = this.items.length;
+    // 第69回: L・R（onLR が ない メニューでは なにも しない）
+    if (a === 'l' || a === 'r') {
+      this.onLR?.(a === 'l' ? -1 : 1);
+      return;
+    }
     if (!n && a !== 'b') return;
     const arrow = ['up', 'down', 'left', 'right'].includes(a);
     const hdr = arrow && this.items.some((it) => it.header);

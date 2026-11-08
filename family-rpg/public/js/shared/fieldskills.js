@@ -9,6 +9,8 @@ import { ABILITIES } from './data/abilities.js';
 import { ITEMS } from './data/items.js';
 import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js';
 import { spellSealed } from './battle.js';
+import { effectTab } from './skill-tabs.js';
+import { sortByStdPower } from './skill-sort.js';
 
 // mapKind: 今いる マップの しゅるい（'field' なら そと）
 // へんじ: [{ id, cost, ok, why }]（覚えた じゅん）
@@ -28,4 +30,22 @@ export function fieldUsableAbilities(char, { mapKind = 'field', noSpells = false
     out.push({ id, cost, ok: !why, why });
   }
   return out;
+}
+
+// 第69回: メニューの「回復」「回復以外」の タブ（家族の ことば「使える技は、回復。回復以外で分けて。使用頻度が多いのは、回復と、ルーラ、リレミト」）
+//   list: fieldUsableAbilities の へんじ。heal: 回復・生き返る・どくけし など（戦いの タブの「回復」と おなじ きまり。skill-tabs.js の effectTab）
+//   どちらも 弱い じゅん（shared/skill-sort.js）。回復以外は ルーラ・リレミトが いちばん 上
+export const FIELD_TOP = ['warp', 'exit'];
+export function splitFieldAbilities(list) {
+  const byId = new Map((list || []).map((x) => [x.id, x]));
+  const ids = sortByStdPower([...byId.keys()]);
+  const heal = ids.filter((id) => effectTab(ABILITIES[id]) === 'heal');
+  const rest = ids.filter((id) => effectTab(ABILITIES[id]) !== 'heal');
+  const top = (id) => {
+    const i = FIELD_TOP.indexOf(ABILITIES[id]?.effect?.type);
+    return i < 0 ? FIELD_TOP.length : i;
+  };
+  // sort は おなじ ときは もとの じゅん（弱い じゅん）の まま
+  rest.sort((x, y) => top(x) - top(y));
+  return { heal: heal.map((id) => byId.get(id)), other: rest.map((id) => byId.get(id)) };
 }
