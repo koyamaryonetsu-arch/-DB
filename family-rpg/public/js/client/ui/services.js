@@ -41,6 +41,8 @@ import { storageUI } from './storage.js';
 import { canBreedRoom, canStore } from '../../shared/world/farewell.js';
 // 第51回 F: 幻の職業の 条件・うわさ（shared/data/phantom.js）
 import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js';
+// 第70回: 作れる 魔物から 選ぶ（親の いる ところの 名前。ui/monarena-team.js と 同じ）
+import { WHERE_LABEL } from './monarena-team.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -353,7 +355,9 @@ function tavernUI(game, data) {
     const ARRANGE_KEY = '#arrange';
     const SORT_KEY = '#sort';
     const V_HUMAN = '#v-human', V_MON = '#v-monster', V_BREED = '#v-breed';
-    const TITLES = { top: '仲間の酒場', human: '酒場 ― 人間の仲間', monster: '酒場 ― モンスターの仲間', breed: '酒場 ― モンスターの配合' };
+    // 第70回: 作れる 魔物から 選ぶ（'find' 子の 一覧 → 'findKid' その 子の 親の 組）
+    const FIND_KEY = '#find', FIND_LOW = '#find-low';
+    const TITLES = { top: '仲間の酒場', human: '酒場 ― 人間の仲間', monster: '酒場 ― モンスターの仲間', breed: '酒場 ― モンスターの配合', find: '酒場 ― 作れる魔物', findKid: '酒場 ― 配合の組み合わせ' };
     // いまの 画面（'top' 入口 / 'human' / 'monster' / 'breed'）と 配合の 1ぴきめ
     let view = 'top';
     let topIdx = -1;
@@ -362,6 +366,9 @@ function tavernUI(game, data) {
     // 第43回 C: 配合して あける モード（room.name … まっている 仲間。戦いの あと〈data.makeRoom・台本の breedOpen〉か、酒場で 人を さそう 時〈room.done〉）
     let room = data.makeRoom ? { name: data.makeRoom.name } : null;
     let shut = false;
+    // 第70回: さがし表（サーバーの world/breed.js の breedFinder の へんじ）。finder … 子の 一覧 / finderKid … えらんだ 子の 組
+    //   findLow … ランクが 下がる 子も 見る / findAt … 一覧に もどる ときの カーソル（子の しゅぞく）
+    let finder = null, finderKid = null, findLow = false, findAt = null;
     const byKey = () => {
       const m = new Map();
       // あずかり中の 魔物（配合の 親だけ。人間・モンスターの 一覧には 出さない）
@@ -444,8 +451,8 @@ function tavernUI(game, data) {
     };
     // 2ひきめの 一覧の みほん（えらぶ 前に 見える）: 生まれる 子・ランク・めやす（↑→↓。弱く なる 時は 赤い 字）
     //   o … おすすめの 子（data/companions.js の breedOutcome）、f … めやす（shared/breed-calc.js の breedForecast）
-    const pairInfo = (A, X) => {
-      const o = breedOutcome(A, X, MONSTERS, game.me);
+    const pairInfo = (A, X, pick = null) => {
+      const o = breedOutcome(A, X, MONSTERS, game.me, pick);
       return { o, f: breedForecast(A, X, o.child, o.plus), can: o.items.some((it) => SPECIAL_KINDS.slice(0, 2).includes(it.kind)) };
     };
     const TREND_CLS = { up: 'good', same: '', down: 'danger' };
@@ -454,6 +461,8 @@ function tavernUI(game, data) {
       if (parentA && !A) parentA = null;
       const all = sortRoster(breedMons(), sortMode);
       const out = [{ header: true, label: A ? `2ひきめ：${A.name}の相手を選んでね` : '1ぴきめの親を選んでね' }];
+      // 第70回: 作れる 魔物から 選ぶ（1ぴきめを えらぶ 前だけ。いちばん 上）
+      if (!A && ready().length >= 2) out.unshift({ html: '<span class="gold">★ 作れる魔物から選ぶ</span>', right: '一覧', rightCls: 'good', value: FIND_KEY });
       // 配合して あける モード: まっている 仲間（第43回 C）
       if (room) out.unshift({ header: true, label: `${room.name}がまっている（配合すると1ぴきあく）` });
       if (ready().length < 2) out.push({ label: `レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ`, value: null, disabled: true });
@@ -489,7 +498,52 @@ function tavernUI(game, data) {
       out.push(...sortRow(all.length));
       return out;
     };
-    const items = () => (view === 'human' ? humanItems() : view === 'monster' ? monsterItems() : view === 'breed' ? breedItems() : topItems());
+    // 第70回: 作れる 魔物の 一覧・その 子の 親の 組
+    const KIND_TAG = { four: '4体配合', material: '素材配合', special: 'とくべつ', recipe: 'とくべつ', same: '新生配合', mix: 'まぜ配合' };
+    const kidName = (k) => (k.unseen ? '？？？' : MONSTERS[k.sp]?.name || k.sp);
+    const kindTag = (kind) => (KIND_TAG[kind] ? `<span class="tag ${SPECIAL_KINDS.includes(kind) ? 'gold' : 'muted'}">${KIND_TAG[kind]}</span>` : '');
+    const itemTag = (id) => (id ? `<span class="tag warn">${esc(ITEMS[id]?.name || '')}を使う</span>` : '');
+    const findItems = () => {
+      const f = finder;
+      if (!f) return [{ label: '調べている…', value: null, disabled: true }];
+      const out = [{ header: true, label: `作れる魔物 ${f.kids.length}種（${f.count}ひきの親から）` }];
+      if (room) out.unshift({ header: true, label: `${room.name}がまっている（配合すると1ぴきあく）` });
+      out.push({ html: `ランクが下がる子も見る：<span class="gold">${findLow ? '見る' : '見ない'}</span>`, right: !findLow && f.hidden ? `ほかに${f.hidden}種` : '', value: FIND_LOW });
+      if (!f.kids.length) out.push({ label: f.count < 2 ? `レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ` : '今の仲間で作れる魔物はいない', value: null, disabled: true });
+      for (const k of f.kids) {
+        out.push({
+          face: childFace(k.sp, k.unseen), value: `kid:${k.sp}`,
+          html: `${esc(kidName(k))} <span class="muted small">ランク${k.rank}</span>${k.unseen ? '<span class="tag good">NEW</span>' : ''}${kindTag(k.kind)}${itemTag(k.item)}${k.lowOnly ? '<span class="tag warn">ランク↓</span>' : ''}`,
+          right: `${k.count}組`, rightCls: k.special ? 'good' : '',
+        });
+      }
+      return out;
+    };
+    // 親の 名前・レベル・いる ところ（サーバーの へんじ。配合の あとで いなく なった 親でも 出せる）
+    const parOf = (key) => finderKid?.parents?.[key] || finder?.parents?.[key] || entries.get(key) || { name: '？', level: 0 };
+    const parHtml = (key) => {
+      const p = parOf(key);
+      const where = WHERE_LABEL[p.where] || '';
+      return `${esc(p.name)}${p.plus ? `<span class="plus">+${p.plus}</span>` : ''} <span class="muted small">Lv${p.level}${where ? `・${where}` : ''}</span>`;
+    };
+    const findKidItems = () => {
+      const f = finderKid;
+      if (!f?.child) return [{ label: '調べている…', value: null, disabled: true }];
+      const k = f.child;
+      const out = [{ header: true, label: `${kidName(k)}が生まれる組み合わせ（${f.pairs.length + (f.more || 0)}組）` }];
+      if (room) out.unshift({ header: true, label: `${room.name}がまっている（配合すると1ぴきあく）` });
+      f.pairs.forEach((p, i) => {
+        out.push({
+          value: `pair:${i}`, cls: 'find-pair',
+          html: `${parHtml(p.a)}<br>＋${parHtml(p.b)}${kindTag(p.kind)}${itemTag(p.item)}${p.low ? '<span class="tag warn">ランク↓</span>' : ''}`,
+          right: `＋${p.plus}${TREND_MARK[p.trend]}`, rightCls: TREND_CLS[p.trend],
+        });
+      });
+      if (f.more) out.push({ label: `ほかに${f.more}組（よい組が先）`, value: null, disabled: true });
+      return out;
+    };
+    const items = () => (view === 'human' ? humanItems() : view === 'monster' ? monsterItems() : view === 'breed' ? breedItems()
+      : view === 'find' ? findItems() : view === 'findKid' ? findKidItems() : topItems());
     const partyText = () => {
       const n = Math.min(4, (info.humans || 1) + info.used);
       const wg = info.wagon ? `　馬車 ${info.wagon.keys.length}/${info.wagon.max}人` : '';
@@ -583,9 +637,56 @@ function tavernUI(game, data) {
       [V_MON]: '魔物の仲間。連れていく・待ってもらう・名前を変える・別れる。',
       [V_BREED]: `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。\n子のランクは親より下がらない。生まれる子は選べる。`,
     };
+    // 第70回: 作れる 魔物の 画面の 右（スマホの たてでは 下）
+    const showFind = (key) => {
+      if (key === FIND_KEY) {
+        main.append(el('h3', { text: '作れる魔物から選ぶ' }), el('div', { class: 'detail', text: [
+          '今の仲間で生まれる魔物を、まとめて見られる。',
+          '・生まれる子を選ぶと、どの2ひきを配合すればいいかがわかる',
+          '・組み合わせを選ぶと、いつもの配合にすすむ（技・色の石・たしかめ）',
+          '・あずかり所の魔物も親になれる',
+        ].join('\n') }));
+        return;
+      }
+      if (key === FIND_LOW) {
+        main.append(el('h3', { text: 'ランクが下がる子' }), el('div', { class: 'detail', text: `親より1つ下のランクの子も、配合で生まれることがある。\nふだんはかくしている。${findLow ? '今は見せている。' : '今はかくしている。'}\n選ぶと「見る・見ない」が変わる。` }));
+        return;
+      }
+      if (typeof key === 'string' && key.startsWith('kid:')) {
+        const k = finder?.kids.find((x) => x.sp === key.slice(4));
+        if (!k) return;
+        const top = el('div', { class: 'breed-pv' });
+        top.append(childImg(k.sp, k.unseen, { class: 'breed-pv-img' }), el('div', { class: 'breed-pv-txt' },
+          el('div', { class: 'small gold', text: `${kidName(k)}（ランク${k.rank}・${RACE_NAMES[MONSTERS[k.sp]?.race] || ''}）` }),
+          k.unseen ? el('div', { class: 'small good', text: '★ まだ見たことがない魔物！' }) : k.know < 2 ? el('div', { class: 'small good', text: '★ 初めて仲間になる！' }) : null,
+          KIND_TEXT[k.kind] ? el('div', { class: 'small good', text: `${KIND_TEXT[k.kind]}${k.item ? `（${ITEMS[k.item]?.name || ''}を使う）` : ''}` }) : null));
+        main.append(...[top,
+          el('div', { class: 'small', text: `${k.count}組の組み合わせで生まれる` }),
+          el('div', { class: `small ${TREND_CLS[k.best.trend]}`, text: `いちばんよい組：＋${k.best.plus} ${TREND_MARK[k.best.trend]}` }),
+          k.lowOnly ? el('div', { class: 'small warn', text: 'どの組でもランクが下がる' }) : k.lowCount && !findLow ? el('div', { class: 'small muted', text: `ランクが下がる組は${k.lowCount}組（かくしている）` }) : null,
+          el('div', { class: 'small muted', text: '選ぶと、親の組み合わせが出る' })].filter(Boolean));
+        return;
+      }
+      if (typeof key === 'string' && key.startsWith('pair:')) {
+        const p = finderKid?.pairs?.[Number(key.slice(5))];
+        const A = p && entries.get(p.a), B = p && entries.get(p.b);
+        if (!A || !B) return;
+        // 生まれる 子が 先（スマホの たてでも 見える ように）→ 親 2ひきの 強さと 技
+        const top = el('div', { class: 'breed-pv' });
+        main.append(top);
+        breedPreviewBox(top, A, B, finderKid.child.sp);
+        main.append(parentsBox(A, B));
+        const gone = [A, B].filter((e) => e.inParty || e.inWagon).map((e) => e.name);
+        if (gone.length) main.append(el('div', { class: 'small warn', text: `${gone.join('と')}はいっしょに旅をしている（配合すると旅立っていく）` }));
+        if (A.sec === 'stored' || B.sec === 'stored') main.append(el('div', { class: 'small muted', text: 'あずかり中の親から生まれた子は、あずかり所に入る。' }));
+        main.append(el('div', { class: 'small muted', text: '選ぶと配合する（受けつぐ技を決める）。' }));
+      }
+    };
     const show = (key) => {
       main.innerHTML = '';
-      if (view === 'breed' && key !== SORT_KEY) return showBreed(key);
+      if (view === 'find' || view === 'findKid') return showFind(key);
+      if (view === 'breed' && key !== SORT_KEY && key !== FIND_KEY) return showBreed(key);
+      if (key === FIND_KEY) return showFind(key);
       if (TOP_TEXT[key]) {
         main.append(el('h3', { text: { [V_HUMAN]: '人間の仲間', [V_MON]: 'モンスターの仲間', [V_BREED]: 'モンスターの配合' }[key] }), el('div', { class: 'detail', text: TOP_TEXT[key] }));
         // 第51回 F: 人間の 仲間の 所に、幻の職業の うわさ（2つまで。data/phantom.js）
@@ -667,8 +768,78 @@ function tavernUI(game, data) {
       side.scrollTop = 0;
       show(menu.current?.value);
     };
+    // 第70回: カーソルを その 行へ（なければ そのまま）
+    const putCursor = (pred) => {
+      const i = menu.items.findIndex((it) => !it.header && !it.disabled && pred(it));
+      if (i >= 0) {
+        menu.idx = i;
+        menu.render();
+      }
+      show(menu.current?.value);
+    };
+    // 第70回: 作れる 魔物（サーバーの world/breed.js の breedFinder。みるだけ）
+    const askFinder = (child = null) => request(game, { kind: 'tavern', action: 'breedFinder', child, low: findLow, room: !!room });
+    const openFinder = async (at = null, row = null) => {
+      menu.blur();
+      const r = await askFinder();
+      if (shut) return;
+      menu.focus();
+      if (!r.ok || !r.finder) {
+        toast(r.text || '調べられなかった');
+        return;
+      }
+      finder = r.finder;
+      finderKid = null;
+      setView('find');
+      // カーソルは 前の 行 → 前に えらんだ 子 → いちばん 上の 子
+      if (row) putCursor((it) => it.value === row);
+      else if (at && finder.kids.some((k) => k.sp === at)) putCursor((it) => it.value === `kid:${at}`);
+      else putCursor((it) => String(it.value).startsWith('kid:'));
+    };
+    const openKid = async (sp) => {
+      menu.blur();
+      const r = await askFinder(sp);
+      if (shut) return;
+      menu.focus();
+      if (!r.ok || !r.finder?.child) {
+        toast(r.text || '調べられなかった');
+        return;
+      }
+      findAt = sp;
+      finderKid = r.finder;
+      setView('findKid');
+    };
+    // 組を えらんだ: いつもの 配合へ（1ぴきめ・2ひきめ・子は きまった まま。技・色の石・たしかめは いつもと 同じ）
+    const pickPair = async (i) => {
+      const p = finderKid?.pairs?.[i];
+      if (!p) return;
+      menu.blur();
+      const r = await breedWith(p.a, p.b, finderKid.child.sp);
+      if (shut) return;
+      refresh();
+      menu.focus();
+      if (!r?.ok) return;
+      // 配合して あける モード: 配合が すんだら、まっている 仲間の ところへ（第43回 C）
+      if (room) return endRoom(true);
+      // 親が 旅立ったので、一覧を 作りなおす（同じ 子が まだ 作れれば その 行に）
+      await openFinder(findAt);
+    };
     // もどる: 配合の 1ぴきめを はずす → 入口 → とじる
     const back = () => {
+      // 第70回: 親の 組 → 作れる 魔物の 一覧（えらんでいた 子に）→ 配合の 画面（「作れる魔物から選ぶ」に）
+      if (view === 'findKid') {
+        finderKid = null;
+        setView('find');
+        putCursor((it) => it.value === `kid:${findAt}`);
+        return;
+      }
+      if (view === 'find') {
+        finder = null;
+        findAt = null;
+        setView('breed');
+        putCursor((it) => it.value === FIND_KEY);
+        return;
+      }
       if (view === 'breed' && parentA) {
         // 第67回: 1ぴきめを はずしたら、カーソルは その 1ぴきめに もどす
         const was = parentA;
@@ -815,8 +986,8 @@ function tavernUI(game, data) {
     };
     const childLabel = (pv) => (pv.unseen ? '？？？' : MONSTERS[pv.child]?.name || '');
     // 生まれる 子の みほん（おすすめの 子。サーバーの breedPreview と おなじ 計算: data/companions.js の breedOutcome・shared/breed-calc.js）
-    const breedPreviewBox = (top, A0, B0) => {
-      const { o, f } = pairInfo(A0, B0);
+    const breedPreviewBox = (top, A0, B0, pick = null) => {
+      const { o, f } = pairInfo(A0, B0, pick);
       const img = childImg(o.child, o.unseen, { class: 'breed-pv-img' });
       top.append(img, el('div', { class: 'breed-pv-txt' },
         // 「（ランクB）＋3」は 行の とちゅうで わかれない ように
@@ -826,7 +997,7 @@ function tavernUI(game, data) {
         o.unseen ? el('div', { class: 'small good', text: '★ まだ見たことがない魔物！' })
           : o.firstFriend ? el('div', { class: 'small good', text: '★ 初めて仲間になる！' }) : null,
         KIND_TEXT[o.kind] ? el('div', { class: 'small good', text: `${KIND_TEXT[o.kind]}${o.item ? `（${ITEMS[o.item]?.name || ''}を使う）` : ''}` }) : null,
-        o.count > 1 ? el('div', { class: 'small muted', text: `生まれる子は${o.count}種から選べる` }) : null));
+        o.count > 1 && !pick ? el('div', { class: 'small muted', text: `生まれる子は${o.count}種から選べる` }) : null));
     };
     // 子を えらぶ（候補が 2つ いじょう）。見たことが ない 子は かげと NEW。↓は 親より 弱く なるかも
     const faceCache = new Map();
@@ -853,16 +1024,17 @@ function tavernUI(game, data) {
       ], { top: note, onMove: (it) => say(pv.choices.find((x) => x.sp === it?.value)) });
     };
     // 2ひきを きめた あと: 受けつぐ 技 → 名前 → たしかめ → 配合。やめても 1ぴきめは えらんだ まま
-    const breedWith = async (a, b) => {
+    //   第70回: want … 作れる 魔物から 選んだ 子（子を えらぶ まどは 出さない。ほかの たしかめは いつもと 同じ）
+    const breedWith = async (a, b, want = null) => {
       const ask = (child) => request(game, { kind: 'tavern', action: 'breedPreview', a, b, child });
-      let r = await ask(null);
+      let r = await ask(want);
       if (!r.ok || !r.preview) {
         toast(r.text || '配合できない');
         return null;
       }
       let pv = r.preview;
       // 生まれる 子が 2つ いじょう: えらぶ（いちばん 上が おすすめ）
-      if (pv.choices?.length >= 2) {
+      if (!want && pv.choices?.length >= 2) {
         const sp = await pickChild(pv);
         if (!sp) return null;
         if (sp !== pv.child) {
@@ -1035,6 +1207,17 @@ function tavernUI(game, data) {
         menu.focus();
         return;
       }
+      // 第70回: 作れる 魔物から 選ぶ
+      if (key === FIND_KEY) {
+        findAt = null;
+        return openFinder();
+      }
+      if (key === FIND_LOW) {
+        findLow = !findLow;
+        return openFinder(null, FIND_LOW);
+      }
+      if (typeof key === 'string' && key.startsWith('kid:')) return openKid(key.slice(4));
+      if (typeof key === 'string' && key.startsWith('pair:')) return pickPair(Number(key.slice(5)));
       if (view === 'breed') return breedPick(key);
       const e = entries.get(key);
       if (!e) return;

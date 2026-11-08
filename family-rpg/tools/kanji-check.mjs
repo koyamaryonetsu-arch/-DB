@@ -442,6 +442,8 @@ export function gameFiles() {
     'public/js/shared/data/monarena.js', 'public/js/shared/world/monarena.js', 'public/js/shared/battle-monarena.js',
     // 第67回 C班: モンスター闘技場の その場の 対戦（リアルタイムの 家族対戦）
     'public/js/shared/world/monarena-live.js', 'public/js/client/ui/monarena-live.js',
+    // 第70回: 作れる 魔物から 選ぶ（配合の さがし表）
+    'public/js/shared/breed-finder.js', 'public/js/shared/breed-calc.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

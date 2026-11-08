@@ -18,6 +18,9 @@ import { breedEntry, storedOf } from './party.js';
 // 第53回 D: 色の石で 色ちがいの 子（data/variants.js・data/breed-mix.js）
 import { VARIANT_KINDS, colorKinds } from '../data/variants.js';
 import { COLOR_STONE } from '../data/breed-mix.js';
+// 第70回: 作れる 魔物から 選ぶ（shared/breed-finder.js）
+import { MATERIAL_RECIPES } from '../data/companions.js';
+import { breedParents, breedMatrix, kidList, kidSummary, kidPairs } from '../breed-finder.js';
 
 // おやから うけつげる わざ（第43回 B: 親ごとに 4つずつ・あわせて 8つ。docs/plan-monsters.md の 2-4）
 //   { a: [親A の 技], b: [親B の 技] }。両方の 親が 知っている 技は a に だけ 入れる（1つと 数える。b の あいた ぶんは ほかの 技から えらべる）
@@ -159,4 +162,44 @@ export function breedMonsters(world, s, { a, b, child, inherit, name, color } = 
   if (color) bs[`color_${color}`] = (bs[`color_${color}`] || 0) + 1;
   afterRosterChange(world, s);
   return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, rank: pv.rank, kind: pv.kind, itemName: pv.itemName, inherit: pick, joined: wasInParty && !fromStore, newEntry: pv.unseen, stored: fromStore, color: color || null, colorName };
+}
+
+// 第70回: 作れる 魔物から 選ぶ（酒場の「作れる魔物から選ぶ」。みるだけ・なにも かわらない）
+//   child なし … 生まれる 子の 一覧（kids。shared/breed-finder.js の kidList）
+//   child あり … その 子が 生まれる 2ひきの 組（pairs。よい じゅん。多い ときは PAIR_MAX まで ＋ more）
+//   low … ランクが 下がる 子・組も 見る / room … 配合して あける モード（あずかり中 どうしは のぞく）
+//   parents … 親の key → { name, species, level, plus, where〈party・wagon・tavern・storage〉, color }
+//   同じ 親・同じ 品の あいだは さがし表を セッションに 覚えて おく（一覧 → 組 と 2回 きいても 1回だけ 計算）
+export const PAIR_MAX = 60;
+function finderSig(c, parents, room) {
+  const mats = MATERIAL_RECIPES.map((r) => r.item).filter((id, i, a) => a.indexOf(id) === i)
+    .filter((id) => (c.items || []).some((e) => e && e.id === id && e.n > 0) || (c.keyItems || []).includes(id));
+  const ps = parents.map((p) => [p.key, p.species, p.level, p.plus || 0, p.bonus || null, p.seeds || null, p.lineage?.p || null, p.where]);
+  return JSON.stringify([room ? 1 : 0, mats, ps]);
+}
+export function breedFinder(s, { child = null, low = false, room = false } = {}) {
+  const c = ensureCompanions(s.char);
+  const parents = breedParents(c);
+  const sig = finderSig(c, parents, room);
+  let memo = s.breedFinderMemo;
+  if (!memo || memo.sig !== sig) {
+    memo = { sig, m: breedMatrix(parents, MONSTERS, c, { room }) };
+    s.breedFinderMemo = memo;
+  }
+  const { m } = memo;
+  // 図鑑は 配合の あとで かわるので、ここで 見なおす
+  const know = bestiaryKnow(c);
+  for (const k of m.kids.values()) k.know = know(k.sp);
+  const info = {};
+  for (const p of parents) info[p.key] = { name: p.name, species: p.species, level: p.level, plus: p.plus || 0, where: p.where, ...(p.color ? { color: p.color } : {}) };
+  const out = { ok: true, parents: info, count: parents.length, pairCount: m.pairs, low: !!low };
+  if (child) {
+    const k = m.kids.get(child);
+    if (!k) return { ...out, ok: false, reason: 'その魔物は今の仲間からは生まれない' };
+    const all = kidPairs(k, low);
+    return { ...out, child: kidSummary(k, MONSTERS, low), pairs: all.slice(0, PAIR_MAX).map((p) => ({ ...p })), more: Math.max(0, all.length - PAIR_MAX) };
+  }
+  const kids = kidList(m.kids, MONSTERS, low);
+  const hidden = low ? 0 : kidList(m.kids, MONSTERS, true).length - kids.length;
+  return { ...out, kids, hidden };
 }

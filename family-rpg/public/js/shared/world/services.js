@@ -16,7 +16,7 @@ import { skillMods } from '../skill-tier.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { salonInfo, salonAction } from './salon.js';
-import { breedMonsters, breedPreview } from './breed.js';
+import { breedMonsters, breedPreview, breedFinder } from './breed.js';
 import { farewellText } from './farewell.js';
 // 第43回 C: 魔物あずかり所（world/storage.js）
 import { storageInfo, storageAction, depositMonster, storeText } from './storage.js';
@@ -299,6 +299,12 @@ export function serviceAction(world, s, msg) {
           // みるだけ（なにも かわらない）
           const pv = breedPreview(ensureCompanions(s.char), String(msg.a || ''), String(msg.b || ''), msg.child ? String(msg.child) : null);
           world.send(s, { t: 'svcRes', ok: pv.ok, text: pv.ok ? '' : pv.reason, preview: pv.ok ? pv : null });
+          return;
+        }
+        case 'breedFinder': {
+          // 第70回: 作れる 魔物から 選ぶ（みるだけ。world/breed.js の breedFinder）
+          const f = breedFinder(s, { child: msg.child ? String(msg.child) : null, low: !!msg.low, room: !!msg.room });
+          world.send(s, { t: 'svcRes', ok: f.ok, text: f.ok ? '' : f.reason, finder: f });
           return;
         }
         case 'breed':
