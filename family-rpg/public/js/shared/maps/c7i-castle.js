@@ -22,7 +22,7 @@ import {
   CF7, LETTER7I, LETTER7I_CASTLE, WIN7I, DRAGON7I, SHADOW7, C7I_SNOW, CASTLE_OUT, c7icMapId, C7IC_FLOORS, C7IC_NOW_FLOORS, C7IC_REST, C7IC_BOSS_FLOOR,
 } from './c7i-flags.js';
 // 宝箱の 中み（B の data/items-c7i.js の C7I_TREASURE。まとめる 時に '../data/items-c7i.js' から）
-import { C7I_TREASURE } from '../data/c7i-stub.js';
+import { C7I_TREASURE } from '../data/items-c7i.js';
 
 export { c7icMapId, C7IC_FLOORS, C7IC_NOW_FLOORS, C7IC_REST, C7IC_BOSS_FLOOR };
 export const C7IC_PAST_MAPS = Array.from({ length: C7IC_FLOORS }, (_, i) => c7icMapId(i + 1));

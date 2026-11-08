@@ -33,7 +33,7 @@ import { SHOPS } from '../public/js/shared/data/shops.js';
 import { PAST_PLACES, pastPlaceAt } from '../public/js/shared/data/past-places.js';
 import { pastLanding } from '../public/js/shared/world/travel.js';
 // 城の 宝箱の 中み・手紙の ごほうび（B の data/items-c7i.js。まとめる 時に そちらから）
-import { C7I_TREASURE, C7I_LETTER_REWARDS } from '../public/js/shared/data/c7i-stub.js';
+import { C7I_TREASURE, C7I_LETTER_REWARDS } from '../public/js/shared/data/items-c7i.js';
 import { TIME_GLASS, GLASS_TEXT, glassCheck, timeArea } from '../public/js/shared/world/time-glass.js';
 import { DAY_MS, FIRE_HALF } from '../public/js/shared/world/clock.js';
 import { gainExp, expForLevel } from '../public/js/shared/stats.js';
@@ -749,7 +749,7 @@ test('時をこえる手紙（雪の 地方）: 千年前で うめる 前は �
 // ───────────── 文字・絵 ─────────────
 test('文字: 第7章 Step 5・6 の ファイルは 文字の ルールの チェックに 入っていて、使えない 漢字・スペースが ない・第8章の ことは 書かない', () => {
   const files = gameFiles().map((f) => f.replace(/\\/g, '/').replace(/^.*?family-rpg\//, ''));
-  const mine = ['public/js/shared/data/story-c7i.js', 'public/js/shared/data/sidequests-c7i.js', 'public/js/shared/data/shops-c7i.js', 'public/js/shared/data/c7i-stub.js',
+  const mine = ['public/js/shared/data/story-c7i.js', 'public/js/shared/data/sidequests-c7i.js', 'public/js/shared/data/shops-c7i.js',
     'public/js/shared/maps/c7i-snow.js', 'public/js/shared/maps/c7i-village-rows.js', 'public/js/shared/maps/c7i-castle.js', 'public/js/shared/maps/c7i-castle-rows.js', 'public/js/shared/maps/c7i-flags.js',
     'public/js/shared/data/items-c7-key.js', 'public/js/shared/data/story-c7s.js'];
   for (const f of mine) assert.ok(files.some((g) => g.endsWith(f)), f);

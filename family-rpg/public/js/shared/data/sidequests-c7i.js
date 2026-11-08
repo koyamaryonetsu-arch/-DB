@@ -10,7 +10,7 @@ import { C7I, LETTER7I, LETTER7I_SIDE } from '../maps/c7i-flags.js';
 import { LETTER7I_ASKERS, LETTER7I_PLACES, LETTER7I_NOW_PLACES } from '../maps/c7i-snow.js';
 import { ITEMS } from './items.js';
 // 手紙の ごほうび（B の data/items-c7i.js の C7I_LETTER_REWARDS。まとめる 時に './items-c7i.js' から）
-import { C7I_LETTER_REWARDS } from './c7i-stub.js';
+import { C7I_LETTER_REWARDS } from './items-c7i.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
