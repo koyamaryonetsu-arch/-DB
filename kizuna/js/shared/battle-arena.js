@@ -10,16 +10,23 @@
 // ・オートの 仲間（ふつう）は 何も かわらない。シミュレーター（tools/sim-arena.mjs）の 知っている 人（b.knowsArena）は、
 //   大技の 前に 身を 守る（arenaPlan）・合体技の 組の 子分を 先に ねらう・よろいの 属性を さけて 弱点を ねらう・
 //   ふたごの 剣士は HPの 多い ほうを ねらって 2人を そろえて たおす（arenaAdjust）
-import { MONSTERS } from './data/monsters.js?v=a35db3846aa7';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=a35db3846aa7';
+// ・第68回 C: こおる・とける（monsters の arena.frost。ランク11 白銀の大王者ボレアス）
+//   はじめは 体が こおっている（arFrozen）。こおっている 間は 炎 いがいの ダメージが cut ばい（ほとんど 効かない）。
+//   炎の ダメージが 最大HPの melt ぶん たまると とける（大ふぶきの 前ぶれも 止まる）。とけている 間は thawMult ばいの ダメージ。
+//   とけて から wait 回 動くと 自分で また こおる（cond 'c5:arThawWait'・効果 arFreeze）。おともの 雪の子（arena.frostHelp）は、
+//   王者が とけていると すぐに こおらせる（cond 'c5:arKingThawed'）→ 雪の子を 先に たおすと、とけている 時間が 長い
+//   知っている 人: こおっている 王者には 炎・とけたら みんなで 王者・雪の子が いる 間は 雪の子を 先に
+import { MONSTERS } from './data/monsters.js?v=7c263be7620b';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=7c263be7620b';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=a35db3846aa7';
+import { atbRate } from './battle.js?v=7c263be7620b';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
-export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo']);
+export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard']);
 const confOf = (m) => MONSTERS[m?.species]?.arena || null;
 const teamOf = (m) => confOf(m)?.team || null;
 const armorConf = (m) => confOf(m)?.armor || null;
+const frostConf = (m) => confOf(m)?.frost || null;
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 const actsOf = (m) => Object.values(m.used || {}).reduce((s, n) => s + n, 0);
 // 組の 人（たおれた 人も ふくむ・にげた 人は のぞく）
@@ -34,6 +41,7 @@ export const teamAlive = (b, m) => teamMembers(b, m).filter((e) => e.alive);
 export function setupArena(b) {
   for (const e of b.enemies) {
     if (armorConf(e) && !e.arArmor) wearArmor(b, e, null);
+    if (frostConf(e) && e.arFrozen === undefined) freeze(b, e, null);
   }
 }
 
@@ -45,6 +53,13 @@ export function arenaCond(b, m, cond) {
     return !!conf && !m.arArmor && actsOf(m) - (m.arBreakAt ?? -99) >= (conf.wait ?? 2);
   }
   if (cond === 'arArmored') return !!m.arArmor;
+  // 第68回 C: こおる・とける
+  if (cond === 'arFrozen') return !!frostConf(m) && !!m.arFrozen;
+  if (cond === 'arThawWait') {
+    const conf = frostConf(m);
+    return !!conf && !m.arFrozen && actsOf(m) - (m.arThawAt ?? -99) >= (conf.wait ?? 3);
+  }
+  if (cond === 'arKingThawed') return !!thawedKing(b, m);
   return null;
 }
 
@@ -54,6 +69,13 @@ export function arenaEffect(b, c, a, eff, ev, targets = []) {
     case 'arCombo': combo(b, c, a, eff, ev, targets); return true;
     case 'arArmor': {
       wearArmor(b, c, ev);
+      return true;
+    }
+    case 'arFreeze': {
+      // 自分（王者）か、とけている 王者を こおらせる（雪の子）
+      const k = frostConf(c) ? c : thawedKing(b, c);
+      if (k && !k.arFrozen) freeze(b, k, ev, k === c ? null : c);
+      else ev.lines.push('しかし、何もおこらなかった。');
       return true;
     }
     case 'arSpell': {
@@ -102,6 +124,56 @@ function wearArmor(b, c, ev) {
   ev.upd.push(c);
 }
 
+// ───────────── 第68回 C: こおる・とける ─────────────
+// 雪の子（arena.frostHelp）から見て、とけている 王者（いなければ null）
+function thawedKing(b, m) {
+  if (!confOf(m)?.frostHelp) return null;
+  return b.enemies.find((e) => e.alive && e.side === m.side && frostConf(e) && !e.arFrozen) || null;
+}
+// こおる（ev が null … 戦いの はじめ。by … こおらせた 雪の子）
+function freeze(b, c, ev, by = null) {
+  const conf = frostConf(c);
+  if (!conf) return;
+  c.arFrozen = true;
+  c.arMelt = 0;
+  // 炎が よく 効く（オートの みつもりにも 見える）。とけたら もとに もどす
+  c.frBase = c.frBase || { ...c.resist };
+  c.resist = { ...c.frBase, fire: Math.max(c.frBase.fire ?? 1, conf.fireRes ?? 1.5) };
+  if (!ev) return;
+  if (by) ev.lines.push(`${by.name}は、${c.name}に、つめたいいきをふきかけた！`);
+  ev.lines.push(`${c.name}の体が、かちかちにこおりついた！`, '（こおった体には、炎いがいは、ほとんど効かない！炎でとかそう！）');
+  ev.fx = { type: 'ability', anim: 'guard', actor: (by || c).id, targets: [c.id], side: c.side, element: 'ice' };
+  ev.arFreeze = c.id;
+  ev.upd.push(c);
+}
+function thaw(b, t, ev) {
+  t.arFrozen = false;
+  t.arMelt = 0;
+  t.arThawAt = actsOf(t);
+  if (t.frBase) t.resist = { ...t.frBase };
+  ev.postLines = ev.postLines || [];
+  ev.postLines.push(`${t.name}のこおりが、とけた！今が大チャンスだ！`);
+  if (t.telegraph && ARENA_BIG.has(t.telegraph)) {
+    t.telegraph = null;
+    ev.postLines.push('大ふぶきの前ぶれが、止まった！');
+  }
+  ev.arThaw = t.id;
+  ev.upd.push(t);
+}
+// ダメージ（arenaDamage から）。こおっている … 炎は とかす・ほかは cut ばい / とけている … thawMult ばい
+function frostDamage(b, c, t, dmg, info, ev) {
+  const conf = frostConf(t);
+  if (!t.arFrozen) return Math.round(dmg * (conf.thawMult ?? 1.3));
+  if (info?.element === 'fire') {
+    t.arMelt = (t.arMelt || 0) + dmg;
+    if (t.arMelt >= t.maxHp * (conf.melt ?? 0.05)) thaw(b, t, ev);
+    return dmg;
+  }
+  const line = `こおった体に、はばまれた…！`;
+  if (!ev.lines.includes(line)) ev.lines.push(line);
+  return Math.max(1, Math.round(dmg * (conf.cut ?? 0.35)));
+}
+
 function breakArmor(b, t, ev) {
   const el = t.arArmor;
   t.arArmor = null;
@@ -117,6 +189,7 @@ function breakArmor(b, t, ev) {
 // ───────────── ダメージ（battle.js の damage）─────────────
 // よろいと おなじ 属性 … すいこむ（null を かえすと ダメージは なし）/ 弱点 … 大きく 当たって よろいが くだける
 export function arenaDamage(b, c, t, dmg, info, ev) {
+  if (t && c && c.side !== t.side && frostConf(t) && t.alive !== false && dmg > 0) return frostDamage(b, c, t, dmg, info, ev);
   if (!t?.arArmor || !c || c.side === t.side) return dmg;
   const conf = armorConf(t);
   const el = info?.element;
@@ -169,8 +242,19 @@ export function arenaAdjust(b, c, opts) {
       if (el === f.arArmor) o.final *= 0.02;
       else if (el === conf?.weak?.[f.arArmor]) o.final *= 1.8;
     }
+    // 第68回 C: こおっている 王者には 炎・ほかの 攻撃は さける。とけたら 王者を ねらう
+    for (const f of hit) {
+      if (!frostConf(f)) continue;
+      if (f.arFrozen) o.final *= el === 'fire' ? 2.5 : 0.25;
+      else o.final *= foes.some((x) => confOf(x)?.frostHelp) ? 1.3 : 1.8;
+    }
     if (!t || all) continue;
     const tc = confOf(t);
+    // 雪の子（王者を こおらせる）を 先に（王者が こおっている 間）
+    if (tc?.frostHelp) {
+      const king = foes.find((f) => frostConf(f));
+      if (king?.arFrozen && el !== 'fire') o.final *= 2.4;
+    }
     // 合体技の 組の 子分を 先に（リーダーより）
     if (tc?.team && !tc.lead && teamAlive(b, t).length >= 2) o.final *= 2.4;
     // ふたご: HPの 多い ほうを ねらう。もう片方が 元気な うちに たおして しまう 一撃は さける

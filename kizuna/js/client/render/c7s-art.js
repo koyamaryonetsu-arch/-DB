@@ -5,7 +5,7 @@
 //   size は 今までの ボスの 2倍（ジョリーホック号 220×196・ホック船長 224×248）で かき、monsters-c7s.js の artScale: 0.5 で
 //   見た目は 今までと おなじ 大きさ（110×98・112×124）。render/monsters.js が こまかさ（res）を 2倍に する
 //   ほそい 線（ロープ・レース・ひげ・羽の すじ）は 1（見た目の 0.5ドット）くらいで かく
-import { fit } from './ch3-draw.js?v=a35db3846aa7';
+import { fit } from './ch3-draw.js?v=7c263be7620b';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）
