@@ -258,7 +258,7 @@ function solve(n, { start = [], shift = true, from = null, kai = true, family: f
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（plan-ch7.md の 4-3）: 物語の すすみ・マップの ID・出現表・きまった 戦い・ゲスト・宝箱・タイル・酒場の カイ', () => {
   assert.deepEqual(CH7S_STEPS, ['c7_sea', 'c7_isle', 'c7_reef', 'c7_lamp', 'c7_kai']);
-  assert.deepEqual(CH7_STEPS, ['c7_start', 'c7_kingdom', 'c7_gate', 'c7_temple', 'c7_karim', ...CH7S_STEPS], 'c7_karim の うしろ');
+  assert.deepEqual(CH7_STEPS.slice(0, 10), ['c7_start', 'c7_kingdom', 'c7_gate', 'c7_temple', 'c7_karim', ...CH7S_STEPS], 'c7_karim の うしろ（第3幕は test/ch7-step56-a.test.js）');
   const ki = STORY_STEPS.indexOf('c7_karim');
   assert.deepEqual(STORY_STEPS.slice(ki + 1, ki + 6), CH7S_STEPS);
   // マップ（千年前の クモイの 海・灯台 1〜8階。今の がわ 1〜7階）
@@ -322,7 +322,7 @@ test('名前の 約束（plan-ch7.md の 4-3）: 物語の すすみ・マップ
   assert.equal(new Set(ids).size, ids.length, 'タイルの ID が かさならない');
   const mine = [T.C7S_BOARD, T.C7S_WET_SAND, T.C7S_BELL, T.C7S_WAVE_FLOOR, T.C7S_WAVE, T.C7S_KDOOR, T.C7S_CABINET, T.C7S_LAMP, T.C7S_LAMP_ON, T.C7S_DRY, T.C7S_REEF];
   assert.deepEqual(mine, Array.from({ length: mine.length }, (_, i) => 326 + i));
-  assert.equal(Math.max(...ids), 336);
+  assert.ok(Math.max(...ids) >= 336, '第3幕の タイルは 337 から（test/ch7-step56-a.test.js）');
   assert.ok(!TILE_INFO[T.C7S_BOARD].solid && !TILE_INFO[T.C7S_WET_SAND].solid && !TILE_INFO[T.C7S_DRY].solid && !TILE_INFO[T.C7S_WAVE_FLOOR].solid);
   for (const t of [T.C7S_BELL, T.C7S_WAVE, T.C7S_KDOOR, T.C7S_CABINET, T.C7S_LAMP, T.C7S_LAMP_ON, T.C7S_REEF]) assert.ok(TILE_INFO[t].solid, TILE_INFO[t].name);
   // だいほんが ぜんぶ ある
@@ -365,8 +365,10 @@ test('目標: 第1幕クリアの セーブは 新しい 目標に なおる・�
     assert.ok(CH7_OBJECTIVE_TALK[t], `仲間会話 ${k}`);
     for (const kind of ['self', 'bold', 'kind', 'kid']) assert.ok(talkFor(t, kind) !== `次は「${t.replace(/\n/g, '')}」ですね。`, `${k} ${kind}`);
   }
-  assert.ok(C7S_OBJ.kai.startsWith('第7章の続きはアップデートで！'));
+  // 第2幕の さいごの 文は 第3幕の はじまりへ（前の 版の 文は OLD_C7_OBJ.kai。test/ch7-step56-a.test.js でも ためす）
+  assert.ok(C7S_OBJ.kai.includes('トキネ') && !C7S_OBJ.kai.includes('続きはアップデート'));
   assert.notEqual(C7S_OBJ.kai, OLD_C7_OBJ.karim, '前の 版の 文と ちがう（なおせる ように）');
+  assert.ok(!KNOWN_OBJECTIVES.has(OLD_C7_OBJ.kai), '前の 版の 第2幕クリアの 文は 今は 知らない 文');
   // 地図の しるし（その 時代の マップだけ。すんだら 消える）
   const mark = (obj, map, extra = []) => questMarks({ flags: flagsOf(...extra), objective: obj }, map).filter((m) => m.kind === 'main');
   const P6 = C7SL_POS[6];
@@ -706,7 +708,7 @@ test('通しで: c7_karim → トキネ → 千年前の クモイの 海 → �
   assert.ok(c.flags[WIN7S] && c.flags[C7S.kai], 'c7_kai');
   assert.ok(!c.guests.includes('kai'), 'カイは ゲストから はずれる');
   assert.equal(c.objective, C7S_OBJ.kai);
-  assert.ok(said(bot, '第7章の続きはアップデートで！'));
+  assert.ok(said(bot, '今のほしみの丘で、待っているわね'), '第3幕へ（第2幕の さいごの「続きはアップデートで」は 第3幕の さいごへ）');
   assert.ok(said(bot, '（カイが、ルミナの町の酒場の仲間になった！）'));
   for (const who of ['リオン', 'ミナモ', 'カリム', 'カイ']) assert.ok(said(bot, `"${who}"`), `4人が そろう 場面: ${who}`);
   assert.equal(bot.s.map, C7S_SEA, 'さいごは ナギの村の はま');

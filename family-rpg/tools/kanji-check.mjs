@@ -412,6 +412,9 @@ export function gameFiles() {
     // 第2部 第7章 Step 3・4（A: 世界と物語）: 千年前の クモイの 海・ナギの村・しずむ前の島の灯台・カイ・かぎ手の船長フックスの 台本・時をこえる手紙
     'public/js/shared/data/story-c7s.js', 'public/js/shared/data/sidequests-c7s.js', 'public/js/shared/data/shops-c7s.js',
     'public/js/shared/maps/c7s-sea.js', 'public/js/shared/maps/c7s-village-rows.js', 'public/js/shared/maps/c7s-light.js', 'public/js/shared/maps/c7s-light-rows.js', 'public/js/shared/maps/c7s-flags.js',
+    // 第2部 第7章 Step 5・6（A: 世界と物語）: 千年前の シロガネ地方・白雪の里・氷の竜の城・カイの影・いばらの魔女マレフィナの 台本・時をこえる手紙
+    'public/js/shared/data/story-c7i.js', 'public/js/shared/data/sidequests-c7i.js', 'public/js/shared/data/shops-c7i.js', 'public/js/shared/data/c7i-stub.js',
+    'public/js/shared/maps/c7i-snow.js', 'public/js/shared/maps/c7i-village-rows.js', 'public/js/shared/maps/c7i-castle.js', 'public/js/shared/maps/c7i-castle-rows.js', 'public/js/shared/maps/c7i-flags.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

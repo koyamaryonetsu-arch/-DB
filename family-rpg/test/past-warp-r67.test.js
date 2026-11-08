@@ -9,8 +9,8 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { Bot } from './helpers.js';
 
-test('第67回 千年前の 町: 4つ・おりる 所は 町の 中の 歩ける マス・名前', () => {
-  assert.deepEqual(Object.keys(PAST_PLACES), ['p_hamlet', 'p_spring', 'p_kingdom', 'p_nagi']);
+test('第67回 千年前の 町: 5つ・おりる 所は 町の 中の 歩ける マス・名前', () => {
+  assert.deepEqual(Object.keys(PAST_PLACES), ['p_hamlet', 'p_spring', 'p_kingdom', 'p_nagi', 'p_shirayuki']);
   for (const id of Object.keys(PAST_PLACES)) {
     const p = PAST_PLACES[id];
     assert.ok(MAPS[p.map]?.past, `${id}: 千年前の マップ`);
