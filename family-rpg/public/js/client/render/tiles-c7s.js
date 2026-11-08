@@ -7,6 +7,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第7章 Step 5・6（第3幕）: 氷の竜の城・千年前の シロガネ地方の タイル（render/tiles-c7i.js。ここで まぜる）
+import { C7I_PAINTERS, C7I_FRAMES, C7I_SPEED, C7I_FLOOR_H, c7iBlockSpec, C7I_PROPS, C7I_PROPS_KEEP, C7I_THEMES } from './tiles-c7i.js';
 
 const SEA = { d: '#123a6a', b: '#1e5a9a', l: '#4a8ad0', w: '#d8f0ff' }; // 灯台の 中の 海の 水
 const WD = { d: '#5a3a1e', b: '#8a5a32', l: '#b8844e', n: '#3a2412' }; // 木の 板
@@ -150,17 +152,18 @@ export const C7S_PAINTERS = {
   [T.C7S_LAMP_ON]: (p, v, f) => paintLamp(p, v, f, true),
   [T.C7S_DRY]: (p, v) => paintDry(p, v),
   [T.C7S_REEF]: (p, v, f) => paintReef(p, v, f),
+  ...C7I_PAINTERS,
 };
-export const C7S_FRAMES = { [T.C7S_BOARD]: BOARD_FRAMES, [T.C7S_WAVE]: WAVE_FRAMES, [T.C7S_LAMP_ON]: LAMP_FRAMES, [T.C7S_REEF]: REEF_FRAMES };
-export const C7S_SPEED = { [T.C7S_BOARD]: 700, [T.C7S_WAVE]: 150, [T.C7S_LAMP_ON]: 220, [T.C7S_REEF]: 650 };
+export const C7S_FRAMES = { [T.C7S_BOARD]: BOARD_FRAMES, [T.C7S_WAVE]: WAVE_FRAMES, [T.C7S_LAMP_ON]: LAMP_FRAMES, [T.C7S_REEF]: REEF_FRAMES, ...C7I_FRAMES };
+export const C7S_SPEED = { [T.C7S_BOARD]: 700, [T.C7S_WAVE]: 150, [T.C7S_LAMP_ON]: 220, [T.C7S_REEF]: 650, ...C7I_SPEED };
 
 // ───── 2.5D ─────
 // うき板・ぬれた 砂・海の そこ・サンゴは 少し ひくい。からくりの とびら・戸だなは かべ（洞窟の かべと おなじ 高さ）
-export const C7S_FLOOR_H = { [T.C7S_BOARD]: -0.14, [T.C7S_WET_SAND]: -0.12, [T.C7S_DRY]: -0.16, [T.C7S_WAVE_FLOOR]: -0.04, [T.C7S_REEF]: -0.2 };
+export const C7S_FLOOR_H = { [T.C7S_BOARD]: -0.14, [T.C7S_WET_SAND]: -0.12, [T.C7S_DRY]: -0.16, [T.C7S_WAVE_FLOOR]: -0.04, [T.C7S_REEF]: -0.2, ...C7I_FLOOR_H };
 export function c7sBlockSpec(id, v) {
   if (id === T.C7S_KDOOR) return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.C7S_KDOOR, 0, 0], gate: true };
   if (id === T.C7S_CABINET) return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.C7S_CABINET, v, 0] };
-  return null;
+  return c7iBlockSpec(id, v);
 }
 // たてた もの（[はば, 高さ, かく 関数]）: 大波・しおの かね・灯台の 大ランプ・サンゴ
 const lampProp = (on) => [18, 30, (p) => {
@@ -199,9 +202,10 @@ export const C7S_PROPS = {
   [T.C7S_REEF]: [14, 12, (p) => {
     for (const [x, h] of [[3, 8], [6, 11], [9, 9], [12, 7]]) { p.vline(x, 12 - h, 11, CO.b); p.set(x, 12 - h, CO.l); p.set(x - 1, 14 - h, CO.d); p.set(x + 1, 13 - h, CO.d); }
   }],
+  ...C7I_PROPS,
 };
 // たてた ものでも 色を かえない（大波の 白・ともった ランプの 光）
-export const C7S_PROPS_KEEP = new Set([T.C7S_WAVE, T.C7S_LAMP_ON]);
+export const C7S_PROPS_KEEP = new Set([T.C7S_WAVE, T.C7S_LAMP_ON, ...C7I_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -215,4 +219,6 @@ export const C7S_THEMES = {
     gem: G([0, '#1a1408'], [0.5, '#f0c050'], [1, '#ffffff']),
     flame: null,
   },
+  // 第7章 Step 5・6: 氷の竜の城（千年前）
+  ...C7I_THEMES,
 };

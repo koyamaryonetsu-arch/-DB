@@ -5,6 +5,7 @@
 import { PAST_ID, HAMLET, SPRING, C6 } from '../maps/past.js';
 import { C7_FIELD, KINGDOM, C7 } from '../maps/c7-flags.js';
 import { C7S_SEA, VILLAGE, C7S } from '../maps/c7s-flags.js';
+import { C7I_SNOW, VILLAGE7I, C7I } from '../maps/c7i-flags.js';
 
 const R = (p) => [p.x, p.y, p.w, p.h];
 export const PAST_PLACES = {
@@ -12,6 +13,8 @@ export const PAST_PLACES = {
   p_spring: { name: SPRING.name, map: PAST_ID, rect: R(SPRING), seen: C6.flow },
   p_kingdom: { name: KINGDOM.name, map: C7_FIELD, rect: R(KINGDOM), seen: C7.kingdom },
   p_nagi: { name: VILLAGE.name, map: C7S_SEA, rect: R(VILLAGE), seen: C7S.isle },
+  // 第7章 第3幕: 千年前の シロガネ地方の 白雪の里（竜守りの村の はじまり）
+  p_shirayuki: { name: VILLAGE7I.name, map: C7I_SNOW, rect: R(VILLAGE7I), seen: C7I.frost },
 };
 
 export const pastVisited = (c, id) => !!PAST_PLACES[id] && (!!c?.visited?.[id] || !!c?.flags?.[PAST_PLACES[id].seen]);

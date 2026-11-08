@@ -14,6 +14,7 @@ import { ORN } from '../maps/ch6c-side.js';
 import { RS } from './sidequests-ch6d.js';
 import { C7, LETTER } from '../maps/c7-flags.js';
 import { C7S, LETTER7S } from '../maps/c7s-flags.js';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -63,6 +64,10 @@ const build = () => [
   { id: 'c7sl1', name: '時をこえる手紙（ナギの村のはま）', open: [C7S.isle], start: LETTER7S.start(1), done: LETTER7S.found(1), place: '千年前のナギの村', who: 'ナギの村の子ども', npc: 'c7s_kid', hint: '千年先の子どもに、とどけたい手紙があるらしい。' },
   { id: 'c7sl2', name: '時をこえる手紙（貝がらの小島）', open: [C7S.isle], start: LETTER7S.start(2), done: LETTER7S.found(2), place: '千年前の貝がらの小島', who: '小島の漁師', npc: 'c7s_fisher', hint: '海のことを、ずっと先の人に伝えたいらしい。' },
   { id: 'c7sl3', name: '時をこえる手紙（星見の島）', open: [C7S.isle], start: LETTER7S.start(3), done: LETTER7S.found(3), place: '千年前の星見の島', who: '星見のおじいさん', npc: 'c7s_stargazer', hint: '千年先の、星を見る者へ、のこしたい言葉があるらしい。' },
+  // 第7章 第3幕（千年前の シロガネ地方と 今。時をこえる手紙。sidequests-c7i.js）
+  { id: 'c7il1', name: '時をこえる手紙（白雪の里）', open: [C7I.frost], start: LETTER7I.start(1), done: LETTER7I.found(1), place: '千年前の白雪の里', who: '白雪の里の子ども', npc: 'c7i_kid', hint: '千年先の子どもに、竜のことを伝えたいらしい。' },
+  { id: 'c7il2', name: '時をこえる手紙（白銀の湖の岸）', open: [C7I.frost], start: LETTER7I.start(2), done: LETTER7I.found(2), place: '千年前の白銀の湖の岸', who: '湖の若い漁師', npc: 'c7i_fisher', hint: '千年先の漁師に、ないしょの話をのこしたいらしい。' },
+  { id: 'c7il3', name: '時をこえる手紙（湯けむりの谷）', open: [C7I.frost], start: LETTER7I.start(3), done: LETTER7I.found(3), place: '千年前の湯けむりの谷', who: '湯けむりの旅人', npc: 'c7i_traveler', hint: '千年先の谷の人へ、ねがいをのこしたいらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

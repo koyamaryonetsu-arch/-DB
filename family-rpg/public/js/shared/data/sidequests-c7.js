@@ -13,6 +13,8 @@ import { ITEMS } from './items.js';
 import { C7_LETTER_REWARDS } from './items-c7.js';
 // 第2幕の 時をこえる手紙（海の 地方。sidequests-c7s.js）も ここから クエストの 画面へ
 import { c7sSubQuests, c7sDoneQuests } from './sidequests-c7s.js';
+// 第3幕の 時をこえる手紙（雪の 地方。sidequests-c7i.js）も ここから クエストの 画面へ
+import { c7iSubQuests, c7iDoneQuests } from './sidequests-c7i.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -115,6 +117,7 @@ export function c7SubQuests(c, f) {
   const out = [];
   if (!f(C7.kingdom)) return out;
   out.push(...c7sSubQuests(c, f));
+  out.push(...c7iSubQuests(c, f));
   for (const k of LETTER_SIDE) {
     if (!f(LETTER.start(k)) || f(LETTER.found(k))) continue;
     if (!f(LETTER.bury(k))) out.push({ name: letterName(k), who: LETTER_ASKERS[k], find: `c7_bury_${k}`, ready: false, text: `千年前の${LETTER_PLACES[k]}で、いっしょにうめよう`, hint: `千年前の${LETTER_PLACES[k]}で、手紙をうめる場所は、地図のしるしの所。` });
@@ -123,7 +126,7 @@ export function c7SubQuests(c, f) {
   return out;
 }
 export function c7DoneQuests(c) {
-  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c)];
+  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c)];
 }
 
 // ───── だいほんを まぜる（story-c7.js の applyCh7 から）─────
