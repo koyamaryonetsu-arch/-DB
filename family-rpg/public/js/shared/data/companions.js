@@ -398,7 +398,8 @@ function breedOnlyRank(sp, MONSTERS, seen) {
     const ids = [r.a, r.b].filter((x) => typeof x === 'string');
     if (!ids.length) continue;
     const hi = Math.max(...ids.map((x) => rankIdxOf(x, MONSTERS, seen)));
-    const v = Math.min(RANK_A, hi + 1);
+    // 第69回: S の 親からでも A に 下がらない ように、上は S まで（前は A まで。S どうし → A に なっていた）
+    const v = Math.min(RANK_S, hi + 1);
     best = best === null ? v : Math.min(best, v);
   }
   const out = best ?? Math.min(RANK_A, lvRank(sp, MONSTERS));
@@ -406,8 +407,25 @@ function breedOnlyRank(sp, MONSTERS, seen) {
   breedRankMemo.set(sp, out);
   return out;
 }
+// きまった 組み合わせ（しゅぞくID）の 親の 高いほうの ランク（組み合わせが いくつか あれば いちばん 低い 物。ない ときは -1）
+function recipeParentRank(sp, MONSTERS, seen) {
+  if (seen.has(sp)) return -1;
+  seen.add(sp);
+  let best = null;
+  for (const r of BREED_RECIPES) {
+    if (r.child !== sp) continue;
+    const ids = [r.a, r.b].filter((x) => typeof x === 'string');
+    if (!ids.length) continue;
+    const hi = Math.max(...ids.map((x) => rankIdxOf(x, MONSTERS, seen)));
+    best = best === null ? hi : Math.min(best, hi);
+  }
+  seen.delete(sp);
+  return Math.min(RANK_S, best ?? -1);
+}
 function rankIdxOf(sp, MONSTERS, seen) {
   const r = MONSTER_FRIENDS[sp]?.rank || MONSTER_RANKS[sp];
+  // 第69回: 配合だけの 魔物で 手で きめた ランクが S より 下なら、きまった 組み合わせの 親の 高いほうより 下がらない
+  if (r && RANKS.includes(r) && MONSTER_FRIENDS[sp]?.breedOnly && RANKS.indexOf(r) < RANK_S) return Math.max(RANKS.indexOf(r), recipeParentRank(sp, MONSTERS, seen));
   if (r && RANKS.includes(r)) return RANKS.indexOf(r);
   if (MONSTER_FRIENDS[sp]?.breedOnly) return breedOnlyRank(sp, MONSTERS, seen);
   return lvRank(sp, MONSTERS);
@@ -572,7 +590,8 @@ export function breedCandidates(a, b, MONSTERS, c = null) {
   for (const r of MATERIAL_RECIPES) if (hasItem(c, r.item) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'material', { item: r.item });
   // 第43回 A: ランク配合（S どうし → SS）は やめた。SS は 素材配合（ボスの 品 ＋ 2ひき）と 4体配合だけ
   // 第45回: minLv（S の 特定配合）… どちらの 親も その レベル いじょう
-  for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS) && recipeLvOk(r, a, b)) add(r.child, 'special');
+  // 第69回: しゅぞくID が 2つの 組み合わせ（くわしい 方）を、系統で 書いた 組み合わせより 先に（ids）
+  for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS) && recipeLvOk(r, a, b)) add(r.child, 'special', { ids: [r.a, r.b].filter((x) => typeof x === 'string').length });
   for (const r of BREED_RECIPES) if (!isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'recipe');
   if (spA === spB) add(spA, 'same');
   // 第53回 C: 1つ下の ランクも えらべる（おすすめには ならない。ならびの さいご）
@@ -590,7 +609,7 @@ export function breedCandidates(a, b, MONSTERS, c = null) {
   const know = bestiaryKnow(c);
   const pairKey = [spA, spB].sort().join('|');
   const items = [...found.values()].sort((x, y) => (x.rank < hi) - (y.rank < hi) || KIND_PRI[x.kind] - KIND_PRI[y.kind]
-    || y.rank - x.rank || know(x.sp) - know(y.sp) || (x.kind !== 'mix') - (y.kind !== 'mix')
+    || (y.ids || 0) - (x.ids || 0) || y.rank - x.rank || know(x.sp) - know(y.sp) || (x.kind !== 'mix') - (y.kind !== 'mix')
     || (x.kind === 'mix' && y.kind === 'mix' ? mixOrd(pairKey, x.sp) - mixOrd(pairKey, y.sp) : 0)
     || (MONSTERS[y.sp].lv || 0) - (MONSTERS[x.sp].lv || 0) || (x.sp < y.sp ? -1 : x.sp > y.sp ? 1 : 0));
   return { list: items.map((x) => x.sp), items, hi, up };

@@ -41,11 +41,11 @@ import { Bot } from './helpers.js';
 
 // 名前の 約束（絵の 係 D2 と おなじ）
 const DQM = {
-  queen_pururin: ['ぷるりんクイーン', 'slime', 'B'], gold_pururin: ['ゴールドぷるりん', 'slime', 'B'],
+  queen_pururin: ['ぷるりんクイーン', 'slime', 'S'], gold_pururin: ['ゴールドぷるりん', 'slime', 'B'],
   rose_queen: ['ローズクイーン', 'plant', 'A'], yggdra_child: ['せかいじゅの子', 'plant', 'S'],
   lantern_ghost: ['ランタンゴースト', 'undead', 'B'], skeleton_king: ['がいこつ王', 'undead', 'S'],
   koyomi_spirit: ['こよみのせいれい', 'spirit', 'S'],
-  killer_karakuri: ['キラーからくり', 'material', 'A'], hitokui_box: ['ひとくい箱', 'material', 'B'],
+  killer_karakuri: ['キラーからくり', 'material', 'S'], hitokui_box: ['ひとくい箱', 'material', 'B'],
   petit_devil: ['プチデビ', 'demon', 'C'], ryuou_grandson: ['竜王のまご', 'dragon', 'S'],
 };
 const IDS = Object.keys(DQM);
@@ -132,8 +132,8 @@ test('強さ（Lv60・＋10・装備なし）: B 1000〜1100・A 1150〜1250・S
   // ランク S の まん中（test/monsters-r43a.test.js と おなじ）
   const S = Object.keys(MONSTER_FRIENDS).filter((sp) => MONSTERS[sp] && MONSTER_FRIENDS[sp].rank !== 'SS' && rankOf(sp, MONSTERS) === 'S').map((sp) => power(sp));
   assert.ok(median(S) <= 1088 * 1.1, `S ${median(S)}`);
-  // のびかたの 合計（ボス級 SS は 7〜8.7）
-  for (const sp of IDS) assert.ok(gsum(sp) <= 8.2, `${sp}: ${gsum(sp)}`);
+  // のびかたの 合計（ボス級 SS は 7〜8.7。第69回: S に 上げた キラーからくりは 8.3）
+  for (const sp of IDS) assert.ok(gsum(sp) <= 8.31, `${sp}: ${gsum(sp)}`);
 });
 
 test('技: dq_〜（abilities-dqm.js）。看板の 技の えんしゅつは 名前の 約束（D2）。強さの 上限', () => {
@@ -245,10 +245,12 @@ test('配合: どちらを 1ぴきめに しても 同じ。親は 中ごろ〜�
 test('S の 特定配合（せかいじゅの子・がいこつ王）: どちらの 親も Lv50 いじょう（2ひきで 100 ＝ A → S の「1つ上」と おなじ）', () => {
   assert.equal(DQM_S_LV, 50);
   assert.equal(rankUpNeed(5), 2 * DQM_S_LV);
-  // 特定配合の 子は A まで。S は この 2つ（Lv50 の じょうけん つき）だけ
+  // 特定配合の 子は A まで。S は この 2つ（Lv50 の じょうけん つき）と、S の 親から 生まれる 2つ（第69回。親より 下がらない）
+  const fromS = ['queen_pururin', 'killer_karakuri'];
   for (const r of RECIPES_DQM) {
     const rk = rankIdx(r.child, MONSTERS);
-    if (rk > 5) {
+    if (fromS.includes(r.child)) assert.ok(!r.minLv, r.child);
+    else if (rk > 5) {
       assert.equal(r.minLv, DQM_S_LV, r.child);
       assert.ok(typeof r.a === 'string' && typeof r.b === 'string', `${r.child}: しゅぞくID の 組み合わせ`);
     } else assert.ok(!r.minLv, r.child);

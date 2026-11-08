@@ -269,7 +269,7 @@ test('配合: いままでの 組み合わせは かわらない（図鑑を わ
   assert.equal(breedResult('skeleton', 'goblin', MONSTERS), 'demon_knight');
   assert.equal(breedResult('pururin', 'koumorin', MONSTERS), 'fuwari');
   assert.equal(breedResult('koumorin', 'pururin', MONSTERS), 'fuwari');
-  // 第43回 A: きらきらぷるりんは S（めずらしい）。星形パンサー（A まで）は 親より 下がるので 一覧の さいご。おすすめは S の 系統配合
+  // 第43回 A: きらきらぷるりんは S（めずらしい）。第69回: 星形パンサーは 親の 高いほう（S）と おなじ S に なった
   assert.ok(breedOutcome(lv('wolf'), lv('kirakira'), MONSTERS).list.includes('star_panther'));
   assert.equal(breedResult('chibi_dragon', 'sea_serpent', MONSTERS), 'great_dragon');
 });

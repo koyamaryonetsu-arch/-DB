@@ -115,14 +115,14 @@ test('ランクの ちらばり: どの 章にも F〜C が いて、B〜S は �
   assert.ok(all.filter((r) => r === 6).length <= 10, 'S は 少し');
 });
 
-test('ランク: ボス級は SS（MONSTER_FRIENDS の rank）。配合だけの 魔物は 親の きまり（特定配合の 子は 親の 高いほうの 1つ上・A まで）', () => {
+test('ランク: ボス級は SS（MONSTER_FRIENDS の rank）。配合だけの 魔物は 親の きまり（特定配合の 子は 親の 高いほうの 1つ上・S まで。第69回: 前は A まで）', () => {
   for (const sp of Object.keys(MONSTER_FRIENDS)) if (MONSTER_FRIENDS[sp].rank === 'SS') assert.equal(rankOf(sp, MONSTERS), 'SS');
   for (const sp of Object.keys(MONSTER_FRIENDS)) {
     if (!MONSTER_FRIENDS[sp].breedOnly || MONSTER_FRIENDS[sp].rank) continue;
-    assert.ok(rankIdx(sp, MONSTERS) <= 5, `${sp}: A まで`);
+    assert.ok(rankIdx(sp, MONSTERS) <= 6, `${sp}: S まで`);
     const rs = BREED_RECIPES.filter((r) => r.child === sp && (typeof r.a === 'string' || typeof r.b === 'string'));
     if (!rs.length) continue;
-    const want = Math.min(...rs.map((r) => Math.min(5, Math.max(...[r.a, r.b].filter((x) => typeof x === 'string').map((x) => rankIdx(x, MONSTERS))) + 1)));
+    const want = Math.min(...rs.map((r) => Math.min(6, Math.max(...[r.a, r.b].filter((x) => typeof x === 'string').map((x) => rankIdx(x, MONSTERS))) + 1)));
     assert.equal(rankIdx(sp, MONSTERS), want, sp);
   }
 });
