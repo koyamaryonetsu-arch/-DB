@@ -76,6 +76,16 @@ export const FAMILY_GIFTS = {
   fq_gold_pad: {
     ...GIFT, name: '名人の金のコントローラー', bonus: { agi: 16, str: 8, mag: 8 }, crit: 0.04, resist: { paralyze: 0.5, confuse: 0.6 },
     desc: 'ドゥナのからくり屋が作った、金色のコントローラー。だれでも装備でき、素早さと力と魔力が上がって会心が出やすく、マヒと混乱に強い。',
+  },  // ───── 第68回 D班（data/sidequests-work3.js）。第64回の きまり で ★5 は 2つだけ（第65回より 少し 強い。闘技場 ランク10 の ブローチより 弱い）─────
+  // 20. ドジな見習い（ネコ型ロボットの 系統）: 星読みの里に 伝わる ふしぎな ポケット
+  fq_fushigi_pocket: {
+    ...GIFT, name: '星読みのひみつポケット', bonus: { hp: 50, mag: 12, heal: 12, agi: 10 }, mpRegen: 1, resist: { confuse: 0.5, sleep: 0.5 },
+    desc: '星読みの里に伝わる、何でも入るひみつのポケット。だれでも装備でき、HPと魔力と回復の力と素早さが上がる。行動するたびにMPが1回復し、混乱とねむりに強い。',
+  },
+  // 22. 思い出の花畑（大賢者の 系統）: 旅の 魔法使いの 花の かみかざり
+  fq_flower_pin: {
+    ...GIFT, name: '千年の花のかみかざり', bonus: { mag: 18, heal: 14, hp: 40, def: 8 }, resist: { ice: 0.75, bolt: 0.75, poison: 0.6 },
+    desc: '千年旅をする魔法使いがのこした、青い星見草のかみかざり。だれでも装備でき、魔力と回復の力が大きく上がり、氷とかみなりと毒に強い。',
   },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
@@ -105,5 +115,6 @@ export const FAMILY_ITEM_KANA = {
   fq_star_mic: 'きらめきのすたーまいく', fq_gold_stamp: 'まちづくりのきんのはんこ', fq_homerun_ball: 'きねんのほーむらんぼーる',
   fq_gold_play: 'きんのさいせいぼたん', fq_gold_shamoji: 'たよれるきんのしゃもじ', fq_gold_cards: 'まぼろしのきんのとらんぷ',
   fq_friend_bell: 'なかよしのきんのすず', fq_gold_pad: 'めいじんのきんのこんとろーらー', fq_neta_note: 'ふわふわこんびのねたちょう',
+  fq_fushigi_pocket: 'ほしよみのひみつぽけっと', fq_flower_pin: 'せんねんのはなのかみかざり',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };

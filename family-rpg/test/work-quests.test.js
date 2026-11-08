@@ -330,7 +330,7 @@ test('王都のお祭りの手品ショー: シルクハット・トランプ・
 // ───── お仕事いらい板（2ページ目）─────
 test('お仕事いらい板: 17まいの はり紙は 3ページ（ページ送り）・2ページ目に 第41回の はり紙・読むと その ページに もどる', async () => {
   assert.equal(BOARD_PAGE, 6);
-  assert.equal(boardPages(), 3);
+  assert.equal(boardPages({ flag: (k) => k === 'c5_clear' }), 3); // 第68回: カリムの 前（23まい ぜんぶは 4ページ）
   for (const qd of WORK_QUESTS) {
     const text = boardPage({ flag: () => false }, qd).map((st) => st[2]).join('\n');
     // （第65回: 12〜17 が ふえて 3ページ。ここでは 2ページ目の 6〜11 を 見る）

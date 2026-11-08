@@ -418,6 +418,8 @@ export function gameFiles() {
     'public/js/shared/data/sidequests-work.js', 'public/js/shared/maps/work-quests.js', 'public/js/shared/data/fq-common.js', 'public/js/shared/maps/fq-kit.js', 'public/js/client/render/work-art.js',
     // 第65回 D2: お仕事いらい 12〜17（星まつりの天気・自由研究・大岩・魔物サーカス・お笑い大会・からくりゲーム）
     'public/js/shared/data/sidequests-work2.js', 'public/js/shared/maps/work-quests2.js', 'public/js/client/render/work2-art.js',
+    // 第68回 D班: お仕事いらい 18〜23
+    'public/js/shared/data/sidequests-work3.js', 'public/js/shared/maps/work-quests3.js', 'public/js/client/render/work3-art.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板

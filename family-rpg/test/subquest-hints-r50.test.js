@@ -77,7 +77,7 @@ test('出る: お話の すすみで 困っている人が ふえる', () => {
   const c4 = ids(availableSubQuests(ch(on('c4_scorpion', 'c4_clear'))));
   assert.deepEqual(c4, SIDE_QUESTS.map((q) => q.id), '第4章クリアで 10こ');
   const c5 = availableSubQuests(ch(on('c5_clear')));
-  assert.equal(c5.length, FAMILY_QUESTS.length, '第1部クリアで お仕事いらい板の 11こ');
+  assert.equal(c5.length, FAMILY_QUESTS.filter((q) => !q.open).length, '第1部クリアで お仕事いらい板の 17こ（第68回の 6こは カリムの あと）');
   assert.deepEqual(ids(availableSubQuests(ch(on('c6_flow')))), ['tc1', 'tc2', 'tc3', 'recipe', 'chibi']);
   assert.ok(ids(availableSubQuests(ch(on('c6_flow', 'c6_kanata')))).includes('orn'));
   // お話で 始まる もの（氷のお守り・ばあちゃんの ごほうび）は 出さない
