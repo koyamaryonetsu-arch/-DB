@@ -17,4 +17,12 @@ export const FIXED_FAMILY = {
   fq_snowmen: { group: [['snowman', 3, 3]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 70 },
   // 17. ドゥナの からくりゲーム機の バグで、ゲームの 中から とび出した いたずらゴブリン（3びき）
   fq_bug: { group: [['goblin', 3, 3]], bg: 'tokei', bgm: 'battle', canFlee: false, enemyLv: 70 },
+  // ───── 第68回 D班（data/sidequests-work3.js）。第7章の カリムの あと（Lv76〜80 の ころ）なので 敵Lv76（それでも 完全オートで 勝てる 軽さ）─────
+  // （ゆがみの精・ひとくい箱は もとが 強いので enemyPow で 少し 弱く する〈data/treasure.js の scaleEnemy〉。戦士ひとりでも 40回に 39回 いじょう 勝てる）
+  // 20. 星読みの里の けいこづくえの 引き出し: 時の トンネルから 出てきた ゆがみの精（1ぴき）
+  fq_warp: { group: [['warp_wisp', 1, 1]], bg: 'hoshiyomi', bgm: 'battle', canFlee: false, enemyLv: 76, enemyPow: 0.65 },
+  // 21. 竜守りの村の まきおき場: ほのおの 中から 出てきた 火こぞう・ひのこネズミ
+  fq_blaze: { group: [['fire_imp', 2, 2], ['hinezumi', 1, 1]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 76 },
+  // 22. ホシフル村の 古い 宝箱: ひとくい箱（1ぴき）
+  fq_mimic: { group: [['hitokui_box', 1, 1]], bg: 'grass', bgm: 'battle', canFlee: false, enemyLv: 76, enemyPow: 0.65 },
 };

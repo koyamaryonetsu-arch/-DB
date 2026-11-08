@@ -28,6 +28,8 @@ import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, veh
 import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js';
 // 第65回 D2: たのまれごと 12〜17（data/sidequests-work2.js）
 import { WORK2_QUESTS, WORK2_SCRIPTS, WORK2_STORY_SCRIPTS, workSubQuests2 } from './sidequests-work2.js';
+// 第68回 D班: たのまれごと 18〜23（data/sidequests-work3.js。第7章の カリムの あとから）
+import { WORK3_QUESTS, WORK3_SCRIPTS, WORK3_STORY_SCRIPTS, workSubQuests3 } from './sidequests-work3.js';
 // はり紙の ごほうびの 素材・道具の 名前（使う 時に 見る。読みこみの じゅんばんに よらない）
 import { ITEMS } from './items.js';
 
@@ -55,6 +57,8 @@ export const FAMILY_QUESTS = [
   ...WORK_QUESTS,
   // 12〜17（第65回 D2。data/sidequests-work2.js）
   ...WORK2_QUESTS,
+  // 18〜23（第68回 D班。data/sidequests-work3.js。open … c7_karim から）
+  ...WORK3_QUESTS,
 ];
 const Q = Object.fromEntries(FAMILY_QUESTS.map((q) => [q.id, q]));
 
@@ -113,6 +117,8 @@ export function familySubQuests(c, f, has) {
   out.push(...workSubQuests(c, f, has));
   // 12〜17（第65回 D2）
   out.push(...workSubQuests2(c, f, has));
+  // 18〜23（第68回 D班）
+  out.push(...workSubQuests3(c, f, has));
   // 第65回 D2: お仕事いらい板で 受けて、まだ たのみたい 人に 会っていない（地図の しるしは その 人）
   for (const fq of FAMILY_QUESTS) {
     if (f(takeFlag(fq)) && !f(fq.start) && !f(fq.done)) out.push({ name: fq.name, who: fq.npc, ready: false, text: `${fq.who}に会おう`, hint: `お仕事いらい板で受けた。${fq.where}にいる、${fq.who}に話しかけよう。` });
@@ -794,10 +800,13 @@ export function boardPage(x, q) {
 // はり紙の 一らんは 1ページ BOARD_PAGE まい（第41回で 11まいに ふえた。ページ送りで 読みやすく）。
 // 読みおわると、その ページの 一らんに もどる
 export const BOARD_PAGE = 6;
-export const boardPages = () => Math.ceil(FAMILY_QUESTS.length / BOARD_PAGE);
+// 第68回 D班: はり紙は 出る フラグ（open。ない ものは 第1部クリア）が そろった ものだけ。x が ない 時は ぜんぶ
+export const boardOpen = (x, q) => (q.open || [FQ_OPEN]).every((k) => x.flag(k));
+export const boardList = (x) => (x ? FAMILY_QUESTS.filter((q) => boardOpen(x, q)) : FAMILY_QUESTS);
+export const boardPages = (x) => Math.ceil(boardList(x).length / BOARD_PAGE);
 function boardMenu(x, page = 0) {
-  const pages = boardPages();
-  const list = FAMILY_QUESTS.slice(page * BOARD_PAGE, (page + 1) * BOARD_PAGE);
+  const pages = boardPages(x);
+  const list = boardList(x).slice(page * BOARD_PAGE, (page + 1) * BOARD_PAGE);
   const go = (p) => [['call', (run) => run.runSteps(boardMenu(x, p))]];
   const opts = list.map((q) => q.name + boardMark(x, q));
   const acts = list.map((q) => [...boardPage(x, q), ...boardTake(x, q, go(page))]);
@@ -829,9 +838,10 @@ function boardTake(x, q, back) {
 function questBoard(x) {
   // 第1部クリアの 前: けいじ板は 立っているが、はり紙は まだ ない
   if (!x.flag(FQ_OPEN)) return N('〜 お仕事いらい板 〜\nまだ、はり紙は1まいもはられていない。', '（世界が平和になったころ、各地からたのみごとがとどくらしい。\n第1部をクリアしたら、また見にこよう）');
-  const left = FAMILY_QUESTS.filter((q) => !x.flag(q.done)).length;
+  const papers = boardList(x);
+  const left = papers.filter((q) => !x.flag(q.done)).length;
   return [
-    ...N('〜 お仕事いらい板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（はり紙は${FAMILY_QUESTS.length}まい。まだすんでいないのは${left}まい）` : '（全部のたのまれごとが、すんでいる！）'),
+    ...N('〜 お仕事いらい板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（はり紙は${papers.length}まい。まだすんでいないのは${left}まい）` : '（全部のたのまれごとが、すんでいる！）'),
     ...boardMenu(x),
   ];
 }
@@ -853,6 +863,7 @@ export const FAMILY_SCRIPTS = {
   ...Object.fromEntries(RAIL_FIX.map((_, i) => [`fq_rail_broken${i + 1}`, railBroken(i)])),
   ...WORK_SCRIPTS,
   ...WORK2_SCRIPTS,
+  ...WORK3_SCRIPTS,
 };
 // パーティー全員で 見る イベント（戦い・トロッコ）
-export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS];
+export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS];

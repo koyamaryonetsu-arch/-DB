@@ -63,7 +63,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 6つの 新しい たのまれごと（まだ 使っていない 職業の 系統）・今の 時代の 町・第1部クリアの あとだけ・だいほんと 戦い', () => {
   assert.equal(WORK2_QUESTS.length, 6);
-  assert.deepEqual(FAMILY_QUESTS.slice(11), WORK2_QUESTS);
+  assert.deepEqual(FAMILY_QUESTS.slice(11, 17), WORK2_QUESTS);
   assert.deepEqual(WORK2_QUESTS.map((x) => x.roots[0]), ['kishou', 'schoolkid', 'saiyan', 'tamer', 'comedian', 'gamer']);
   const older = FAMILY_QUESTS.slice(0, 11);
   for (const qd of WORK2_QUESTS) {
@@ -285,7 +285,7 @@ test('受けた たのまれごとは クエストの 画面・地図の しる�
   }
   assert.ok(WORK2_QUESTS.some((qd) => sideQuestHint(all).includes(qd.name)), '「はなす」の ヒント');
   assert.ok(!availableSubQuests(all).some((h) => WORK2_QUESTS.some((qd) => h.id === `fq_${qd.id}`)), '受けたら 困っている人から 消える');
-  assert.equal(availableSubQuests({ flags: { c5_clear: true } }).filter((h) => h.board).length, FAMILY_QUESTS.length);
+  assert.equal(availableSubQuests({ flags: { c5_clear: true } }).filter((h) => h.board).length, FAMILY_QUESTS.filter((x) => !x.open).length);
 });
 
 // ───── お仕事いらい板: せつめい・受ける・やめる ─────
