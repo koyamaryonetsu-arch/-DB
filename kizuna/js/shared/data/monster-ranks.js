@@ -168,7 +168,7 @@ export const MONSTER_RANKS = {
   zenmai_fern: 'B', // 出2＋仲3
   wind_devil: 'B', // 出2＋仲3
   clock_bones: 'B', // 出2＋仲3
-  // 第7章（F3 E4 D3 C2 B1 A2 S0）
+  // 第7章（F4 E5 D4 C3 B1 A3 S0）
   nokonoko: 'F', // 出0＋仲0
   crow_messenger: 'F', // 出1＋仲0
   pakkun: 'E', // 出2＋仲0
@@ -184,4 +184,9 @@ export const MONSTER_RANKS = {
   jugemu: 'D', // 出2＋仲1
   fish_pirate: 'C', // 出3＋仲1
   pirate_parrot: 'A', // 出3＋仲3
+  ice_bro: 'F', // 出0＋仲0
+  ice_pakkun: 'E', // 出2＋仲0
+  thorn_goblin: 'D', // 出2＋仲1
+  ice_mirror: 'C', // 出3＋仲1
+  blizzard: 'A', // 出3＋仲3
 };

@@ -6,14 +6,16 @@
 //   板の 上の 人の まどには「板の上」（client/battle-earth.js の 地われの しるしと おなじ。TRAP_LABEL に 足す）
 // ・バナー: ほうげきの 前ぶれ・いっせいほうげき・のり上げ（チャンス）・うき上がった／板わたりの 前ぶれ・板の上へ・助けた・ドボン
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C7_REEF, C7_LIGHT } from '../shared/data/monsters-c7s.js?v=20b56185686d';
-import { TRAP_LABEL } from './battle-earth.js?v=20b56185686d';
+import { C7_REEF, C7_LIGHT } from '../shared/data/monsters-c7s.js?v=52c7ff0f11c9';
+import { TRAP_LABEL } from './battle-earth.js?v=52c7ff0f11c9';
+// 第2部 第7章 第3幕: マレフィナ（いばらのかべ・黒い 竜）・カイの影（かげブーメラン）の がめん（battle-c7i.js）
+import { C7I_OWN_TELE, c7iDraw, c7iPresent } from './battle-c7i.js?v=52c7ff0f11c9';
 
 // 板の 上の 人の まどの しるし（地われと おなじ 見た目）
 TRAP_LABEL.plank = '板の上';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-ch6.js の CH6_OWN_TELE に まぜる。client/battle-c7.js の C7_OWN_TELE から）
-export const C7S_OWN_TELE = [C7_REEF, C7_LIGHT];
+export const C7S_OWN_TELE = [C7_REEF, C7_LIGHT, ...C7I_OWN_TELE];
 
 export const C7S_SCREEN_ANIMS = ['a7r_broadside', 'a7l_drop', 'a7l_plank'];
 export const C7S_ALLY_FX = {
@@ -70,6 +72,8 @@ function marks(x, px, py, w, on, max, base, T, draw, cols) {
 
 // ───────────── たたかいの え（client/battle-c7.js の c7Draw から）─────────────
 export function c7sDraw(scene, x, m, c, px, py, w, h, base) {
+  // 第7章 第3幕（battle-c7i.js）
+  c7iDraw(scene, x, m, c, px, py, w, h, base);
   if (!c?.alive) return;
   const T = scene.time || 0;
   // ジョリーホック号: しおの しるし／のり上げ
@@ -144,6 +148,8 @@ export function c7sDraw(scene, x, m, c, px, py, w, h, base) {
 
 // ───────────── イベントを 見せる とき（client/battle-c7.js の c7Present から）─────────────
 export function c7sPresent(scene, ev, fx, anim, actor) {
+  // 第7章 第3幕（battle-c7i.js）
+  c7iPresent(scene, ev, fx, anim, actor);
   const g = scene.game;
   const nameOf = (id) => scene.c?.get?.(id)?.name || '';
   if (ev.c7sTide?.phase === 'high' && ev.c7sTide.left === 1) {

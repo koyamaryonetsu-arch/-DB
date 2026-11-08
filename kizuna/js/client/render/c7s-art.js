@@ -5,7 +5,9 @@
 //   size は 今までの ボスの 2倍（ジョリーホック号 220×196・ホック船長 224×248）で かき、monsters-c7s.js の artScale: 0.5 で
 //   見た目は 今までと おなじ 大きさ（110×98・112×124）。render/monsters.js が こまかさ（res）を 2倍に する
 //   ほそい 線（ロープ・レース・ひげ・羽の すじ）は 1（見た目の 0.5ドット）くらいで かく
-import { fit } from './ch3-draw.js?v=20b56185686d';
+import { fit } from './ch3-draw.js?v=52c7ff0f11c9';
+// 第2部 第7章 第3幕: 手下の 魔物・いばらのかべ・マレフィナ（黒い 竜）・カイの影（c7i-art.js）
+import { addC7iArt } from './c7i-art.js?v=52c7ff0f11c9';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）
@@ -438,4 +440,6 @@ export function addC7sArt(ART) {
   // ボス（2倍の こまかさ。monsters-c7s.js の artScale 0.5 で 見た目は 今までと おなじ 大きさ。台本の showMon でも 大きく）
   ART.c7_reef = { size: [220, 196], npc: 0.6, pal: pal(SHIP), draw: ship };
   ART.c7_light = { size: [224, 248], npc: 0.6, pal: pal(HOOK), draw: captain };
+  // 第7章 第3幕（c7i-art.js）
+  addC7iArt(ART);
 }

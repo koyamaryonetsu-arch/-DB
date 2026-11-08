@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=20b56185686d';
-import { MONSTERS } from './monsters.js?v=20b56185686d';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=20b56185686d';
+import { ITEMS, baseItemId } from './items.js?v=52c7ff0f11c9';
+import { MONSTERS } from './monsters.js?v=52c7ff0f11c9';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=52c7ff0f11c9';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -49,6 +49,8 @@ const SRC_TEXT = {
   c7: 'みどりの水の神殿の宝箱でしか手に入らない', letter7: '時をこえる手紙でしか手に入らない',
   // 第2部 第7章 第2幕（items-c7s.js）: しずむ前の島の灯台の 宝箱（手紙の ごほうびは letter7 の まま）
   c7s: 'しずむ前の島の灯台の宝箱でしか手に入らない',
+  // 第2部 第7章 第3幕（items-c7i.js）: 氷の竜の城の 宝箱（手紙の ごほうびは letter7 の まま）
+  c7i: '氷の竜の城の宝箱でしか手に入らない',
   // 第37回 B: カジノの 景品（宝の地図の 段で ふえる）・すごろくの ゴールや 宝箱
   casino: 'カジノの景品でしか手に入らない', sugoroku: 'すごろくでしか手に入らない',
   // 第37回 A: サファラ闘技場の ごほうび（items-arena.js）

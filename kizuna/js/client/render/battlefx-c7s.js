@@ -6,6 +6,9 @@
 // a7r_broadside（いっせいほうげき）は 右から たいほうの たま（とくべつな つぶ c7sball）が がめんいっぱいに とんできて、つぎつぎ ばくはつ。
 // a7l_drop（ドボン！）は 水しぶきの 柱 → 大波（とくべつな つぶ c7swave）が がめんを よこぎる。
 // どちらも がめんの まん中に 大きく（client/battle-c7s.js の C7S_SCREEN_ANIMS）
+// 第2部 第7章 第3幕 の 魔物・マレフィナ（黒い 竜）・カイの影（battlefx-c7i.js）
+import { playC7iFx, C7I_FINE } from './battlefx-c7i.js?v=52c7ff0f11c9';
+
 const WATER = ['#7ad8e8', '#bff4ff', '#2a8aa8', '#ffffff'];
 const FIRE = ['#ff8a2a', '#ffe060', '#ff4a2a', '#ffffff'];
 const SMOKE = ['#6a6a7a', '#9a9aa8', '#3a3a48'];
@@ -92,7 +95,7 @@ function c7swave(x, p, t) {
   }
   x.restore();
 }
-export const C7S_FINE = { c7sball, c7swave };
+export const C7S_FINE = { c7sball, c7swave, ...C7I_FINE };
 
 // 水しぶき
 function splash(fx, t, delay = 0, colors = WATER, n = 8) {
@@ -330,6 +333,7 @@ export function playC7sFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
       return true;
     }
     default:
-      return false;
+      // 第7章 第3幕（battlefx-c7i.js）
+      return playC7iFx(fx, anim, targets, element, opts, W, H);
   }
 }
