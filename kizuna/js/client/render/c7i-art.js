@@ -6,7 +6,7 @@
 //   size は 今までの ボスの 2倍（マレフィナ 248×248・カイの影 224×240）で かき、monsters-c7i.js の artScale: 0.5 で
 //   見た目は 今までと おなじ 大きさ（124×124・112×120）。render/monsters.js が こまかさ（res）を 2倍に する
 // マレフィナは コマ 0・1 が 魔女、コマ 2・3 が 黒い 竜（変身の あと。client/battle-c7i.js の c7iSprite が pub の c7form で えらぶ）
-import { fit, spark, snowflake } from './ch3-draw.js?v=52c7ff0f11c9';
+import { fit, spark, snowflake } from './ch3-draw.js?v=c69281e421b9';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）

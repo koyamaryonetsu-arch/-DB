@@ -81,6 +81,8 @@ export const T = {
   // 第2部 第7章 Step 3・4「しずむ前の島の灯台」と 千年前の クモイの 海（maps/c7s-light.js・c7s-sea.js・render/tiles-c7s.js）。326 から
   C7S_BOARD: 326, C7S_WET_SAND: 327, C7S_BELL: 328, C7S_WAVE_FLOOR: 329, C7S_WAVE: 330, C7S_KDOOR: 331, C7S_CABINET: 332,
   C7S_LAMP: 333, C7S_LAMP_ON: 334, C7S_DRY: 335, C7S_REEF: 336,
+  // 第2部 第7章 Step 5・6「氷の竜の城」と 千年前の シロガネ地方（maps/c7i-castle.js・c7i-snow.js・render/tiles-c7i.js）。337 から
+  C7I_THORN: 337, C7I_PUDDLE: 338, C7I_ICEBOX: 339, C7I_DDOOR: 340, C7I_ICICLE_FLOOR: 341, C7I_ICICLE: 342,
 };
 
 export const TILE_INFO = {};
@@ -427,6 +429,13 @@ def(T.C7S_LAMP, 'c7s_lamp', { solid: true, mapColor: '#8a8a9a' }); // 灯台の 
 def(T.C7S_LAMP_ON, 'c7s_lamp_on', { solid: true, anim: true, light: true, mapColor: '#ffe890' }); // 灯台の 大ランプ（火が ともっている）
 def(T.C7S_DRY, 'c7s_dry', { mapColor: '#b8b0a0' }); // 今の かわいた 海の そこ（貝がらと サンゴの かけら。歩ける）
 def(T.C7S_REEF, 'c7s_reef', { solid: true, water: true, anim: true, mapColor: '#e87a7a' }); // 海の 中の サンゴの 岩（通れない）
+// 第7章 Step 5・6: 魔女の いばら・とけた 水たまり・氷の 箱・竜の とびら・つららの 落ちる ゆか・落ちてくる つらら
+def(T.C7I_THORN, 'c7i_thorn', { solid: true, mapColor: '#3a2a4a' }); // いばらの魔女の 黒い いばら（通れない）
+def(T.C7I_PUDDLE, 'c7i_puddle', { mapColor: '#8ab0c8' }); // 氷が とけた 水たまり（歩ける。すべって 来ると 止まる）
+def(T.C7I_ICEBOX, 'c7i_icebox', { solid: true, mapColor: '#a8d8f0' }); // 氷の 箱（時をこえる手紙を 入れる）
+def(T.C7I_DDOOR, 'c7i_ddoor', { solid: true, mapColor: '#6a7a9a' }); // しまった 竜の とびら（竜の 名前を よぶと 開く）
+def(T.C7I_ICICLE_FLOOR, 'c7i_icicle_floor', { mapColor: '#7a8aa8' }); // つららが 落ちてくる ゆか（落ちていない 間は 歩ける）
+def(T.C7I_ICICLE, 'c7i_icicle', { solid: true, anim: true, mapColor: '#d8f4ff' }); // 落ちてきた つらら（通れない）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

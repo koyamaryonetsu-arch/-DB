@@ -2,7 +2,9 @@
 // 人（C7S_NPC_LOOKS）: カイ（千年前の 海の 島の 少年。日やけ・茶色の とがった かみ・赤い はちまき・ブーメラン）・ナギの村の 人たち（c7s_*）・
 //   灯台守の ゲンじい（カイの じいちゃん）・ホック船長（場面の すがた）
 // とくべつな え（paintC7sSpecial）: ホック船長（灯台の てっぺんの 大きな すがた）・海賊船（しずむ前の島の 北の 海）
-import { Painter } from './pixel.js?v=52c7ff0f11c9';
+import { Painter } from './pixel.js?v=c69281e421b9';
+// 第7章 Step 5・6（第3幕）: カイの影・雪の精・いばらの魔女マレフィナ・氷の竜シラネ（render/c7i-npc-art.js。ここで まぜる）
+import { C7I_NPC_LOOKS, paintC7iSpecial, C7I_SPECIALS } from './c7i-npc-art.js?v=c69281e421b9';
 
 const person = (o) => o;
 export const C7S_NPC_LOOKS = {
@@ -23,6 +25,7 @@ export const C7S_NPC_LOOKS = {
     hair: '#1a1420', hairStyle: 'long', skin: 1, outfit: 'suit', cloth: '#b82a2a', beard: true, hat: 'feather', hatColor: '#1a1420', cape: '#7a1a1a',
     weapon: { cat: 'sword', blade: '#e0e4ec', guard: '#d8a030' },
   }),
+  ...C7I_NPC_LOOKS,
 };
 
 // ───────────── とくべつな え ─────────────
@@ -80,7 +83,7 @@ export function paintC7sSpecial(kind, dir, f) {
   switch (kind) {
     case 'c7s_captain_npc': return paintCaptain(f);
     case 'c7s_ship_npc': return paintShip(f);
-    default: return null;
+    default: return paintC7iSpecial(kind, dir, f);
   }
 }
-export const C7S_SPECIALS = ['c7s_captain_npc', 'c7s_ship_npc'];
+export const C7S_SPECIALS = ['c7s_captain_npc', 'c7s_ship_npc', ...C7I_SPECIALS];

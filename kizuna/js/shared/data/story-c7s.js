@@ -9,21 +9,21 @@
 // より道「時をこえる手紙」（海の 地方）は data/sidequests-c7s.js。魔物・きまった 戦い・品・カイの 強さは B（plan-ch7.md の 4-3）
 import {
   C7S, ARRIVE7S, LF7, EBB3, OPEN6S, WAIT6S, WIN7S, LETTER7S, LETTER7S_LIGHT, KEEPER_LETTER, C7S_SEA, PRESENT_SEA, LIGHT_DOOR, c7slMapId,
-} from '../maps/c7s-flags.js?v=52c7ff0f11c9';
-import { C7 } from '../maps/c7-flags.js?v=52c7ff0f11c9';
-import { C7S_POS } from '../maps/c7s-sea.js?v=52c7ff0f11c9';
-import { C7SL_POS } from '../maps/c7s-light.js?v=52c7ff0f11c9';
-import { MAPS } from '../maps/index.js?v=52c7ff0f11c9';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=52c7ff0f11c9';
-import { MONSTERS } from './monsters.js?v=52c7ff0f11c9';
-import { SHOPS, NPC_SUPPORTS } from './shops.js?v=52c7ff0f11c9';
-import { SHOPS_C7S } from './shops-c7s.js?v=52c7ff0f11c9';
-import { GLASS_TEXT } from '../world/time-glass.js?v=52c7ff0f11c9';
-import { partyOf } from '../world/party.js?v=52c7ff0f11c9';
-import { applyC7sSide } from './sidequests-c7s.js?v=52c7ff0f11c9';
-import { innSteps } from './inn.js?v=52c7ff0f11c9';
+} from '../maps/c7s-flags.js?v=c69281e421b9';
+import { C7 } from '../maps/c7-flags.js?v=c69281e421b9';
+import { C7S_POS } from '../maps/c7s-sea.js?v=c69281e421b9';
+import { C7SL_POS } from '../maps/c7s-light.js?v=c69281e421b9';
+import { MAPS } from '../maps/index.js?v=c69281e421b9';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=c69281e421b9';
+import { MONSTERS } from './monsters.js?v=c69281e421b9';
+import { SHOPS, NPC_SUPPORTS } from './shops.js?v=c69281e421b9';
+import { SHOPS_C7S } from './shops-c7s.js?v=c69281e421b9';
+import { GLASS_TEXT } from '../world/time-glass.js?v=c69281e421b9';
+import { partyOf } from '../world/party.js?v=c69281e421b9';
+import { applyC7sSide } from './sidequests-c7s.js?v=c69281e421b9';
+import { innSteps } from './inn.js?v=c69281e421b9';
 // 酒場の カイ（B の 酒場の カイ。まとめる 時に B の ファイル〈companions-c7s.js など〉から）
-import { KAI_SUPPORT } from './companions-c7s.js?v=52c7ff0f11c9';
+import { KAI_SUPPORT } from './companions-c7s.js?v=c69281e421b9';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -64,8 +64,8 @@ export const C7S_OBJ = {
   lf7: '7階。大波は、かわりばんこに通路にうちよせる。あいだのゆかで待って、すきに進もう。おくに休み所がある',
   lf8: '灯台のてっぺんで、ホック船長が待っている…（準備を整えてから進もう）',
   win: '灯台の大ランプを調べよう（ナギの村の灯台守ゲンじいに話しても、続きが見られる）',
-  // 第7章 Step 4 の さいご（あとの Step が できたら、この 文は OLD_C7_OBJ に のこす）
-  kai: '第7章の続きはアップデートで！（カイは、ルミナの町の酒場で待っている）',
+  // 第7章 Step 4 の さいご・第3幕の はじまり（前の 版の 文「第7章の続きはアップデートで！（カイは…）」は OLD_C7_OBJ.kai。第3幕の 目標は story-c7i.js の C7I_OBJ）
+  kai: 'カイがルミナの町の酒場の仲間になった！今のほしみの丘のトキネに会いに行こう（時の砂時計が、また鳴っているらしい…）',
 };
 
 // パーティー全員で 見る イベント
@@ -483,9 +483,8 @@ function fourScene(hx, hy) {
     ['sfx', 'sparkle'],
     ...N('4人のわらい声が、灯台の光にてらされた夜の海に、ひびいていった…。'),
     ['remove', 'rion_e'], ['remove', 'minamo_e'], ['remove', 'karim_e'], ['remove', 'kai_e'],
-    ...S('トキネの声', '（リオンの仲間が、4人、そろったわね）'),
+    ...S('トキネの声', '（リオンの仲間が、4人、そろったわね）', '（…あら？砂時計が、また、かすかに…。\n{name}、今のほしみの丘で、待っているわね）'),
     ['objective', C7S_OBJ.kai],
-    ...N('第7章の続きはアップデートで！'),
     ['bgm', 'resume'],
   ];
 }
@@ -581,7 +580,7 @@ export const CH7S_OBJECTIVE_TARGETS = {
   [C7S_OBJ.lf7]: [at(7, P[7].font), at(7, P[7].up)],
   [C7S_OBJ.lf8]: [{ npc: 'c7s_captain_npc' }],
   [C7S_OBJ.win]: [at(8, P[8].lamp), { npc: 'c7s_gen_home' }],
-  [C7S_OBJ.kai]: [{ npc: 'c7s_gen_home' }],
+  [C7S_OBJ.kai]: [{ npc: 'tokine_c6' }, { npc: 'c7s_gen_home' }],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント。story-c7.js の CH7_OBJECTIVE_TALK に まぜる）─────
@@ -621,8 +620,8 @@ export const CH7S_OBJECTIVE_TALK = {
     'しっかり準備をしてから、行きましょう。カイくんも、いっしょです。', 'せんちょうを、やっつけよう！'),
   [C7S_OBJ.win]: T4('灯台の大ランプを調べると、続きが見られる。ナギの村のゲンじいに話してもいい。', '大ランプを調べようぜ！',
     '大ランプを調べてみましょう。', '大きなランプを、調べよう！'),
-  [C7S_OBJ.kai]: T4('カイは、ルミナの町の酒場で待っている。時をこえる手紙のより道も、のこっているかもしれない。', 'カイは酒場だってよ！また会いに行こうぜ！',
-    'カイくんは、ルミナの町の酒場にいます。いっしょに旅をしましょう。', 'カイくん、酒場にいるって！'),
+  [C7S_OBJ.kai]: T4('カイは、ルミナの町の酒場で待っている。今のほしみの丘のトキネが、何か話したそうだ。', 'カイは酒場だってよ！トキネのところへ行こうぜ！',
+    'カイくんは、ルミナの町の酒場にいます。トキネさんに会いに、ほしみの丘へ行きましょう。', 'トキネおねえちゃんに、あいにいこう！'),
 };
 
 // ───── すすみぐあい（story-c7.js の CH7_PROGRESS の うしろ）─────

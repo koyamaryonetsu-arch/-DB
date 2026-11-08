@@ -4,9 +4,9 @@
 // ・オクタリア: 頭の 上に 声うばいまでの しるし（音ぷ。次が 大合唱なら 赤い 音ぷ）。声の貝: まわりに うばった 声の 金の たま
 // ・バナー: 大うずしおの 前ぶれ・たおした（よびもどしまで）・よびもどした／声うばいの 前ぶれ・大合唱の 前ぶれ・声を うばった・貝を こわした・貝が また できた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C7_GATE, C7_GATE_B, C7_TEMPLE } from '../shared/data/monsters-c7.js?v=52c7ff0f11c9';
+import { C7_GATE, C7_GATE_B, C7_TEMPLE } from '../shared/data/monsters-c7.js?v=c69281e421b9';
 // 第2部 第7章 第2幕: ジョリーホック号（しおの満ち引き）・ホック船長（板わたり）の がめん（battle-c7s.js）
-import { C7S_OWN_TELE, c7sDraw, c7sPresent } from './battle-c7s.js?v=52c7ff0f11c9';
+import { C7S_OWN_TELE, c7sDraw, c7sPresent } from './battle-c7s.js?v=c69281e421b9';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-ch6.js の CH6_OWN_TELE に まぜる）
 export const C7_OWN_TELE = [C7_GATE, C7_GATE_B, C7_TEMPLE, ...C7S_OWN_TELE];

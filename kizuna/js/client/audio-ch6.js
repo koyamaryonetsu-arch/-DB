@@ -8,6 +8,7 @@
 // ・hoshimichi … 第6章 Step 3・4 の 星めぐりの古道（ホ短調。星が またたく ような 高い アルペジオと、ゆったり 歩く ベース）
 // ・tokei … 第6章 Step 5 の 止まった時計塔（ニ短調。こちこちと きざむ 音と、ぜんまいの ような ベース）
 // ・c7s_sea・c7s_light … 第7章 Step 3・4 の 千年前の クモイの 海・しずむ前の島の灯台
+// ・c7i_snow・c7i_castle … 第7章 Step 5・6 の 千年前の シロガネ地方・氷の竜の城
 // 1小節 = 16。どの パートも 16小節（256）
 
 const CHORD = {
@@ -55,7 +56,39 @@ const C7_TEMPLE_CH = ['G', 'D', 'Em', 'C', 'G', 'Bm', 'C', 'D', 'Em', 'C', 'G', 
 const C7S_SEA_CH = ['D', 'A', 'Bm', 'G', 'D', 'G', 'A', 'A', 'Bm', 'G', 'D', 'A', 'G', 'A', 'D', 'D'];
 const C7S_LIGHT_CH = ['Em', 'C', 'D', 'Bm', 'Em', 'Am', 'B', 'B', 'C', 'D', 'G', 'Em', 'Am', 'B', 'Em', 'Em'];
 
+// 第7章 Step 5・6: 千年前の シロガネ地方（イ短調。雪が しんしんと ふる ような ゆったりした 歌）・氷の竜の城（ロ短調。氷の つぶが きらきら する 高い アルペジオ）
+const C7I_SNOW_CH = ['Am', 'F', 'C', 'G', 'Am', 'F', 'E', 'E', 'F', 'G', 'C', 'Am', 'Dm', 'E', 'Am', 'Am'];
+const C7I_CASTLE_CH = ['Bm', 'G', 'D', 'A', 'Bm', 'Em', 'A', 'A', 'G', 'D', 'Em', 'Bm', 'G', 'A', 'Bm', 'Bm'];
+
 export const CH6_TRACKS = {
+  c7i_snow: {
+    bpm: 96,
+    ch: [
+      { w: 'triangle', v: 0.12, n: bars([
+        'E5:4 A5:4 C6:6 B5:2', 'A5:4 F5:4 C5:8', 'E5:4 G5:4 C6:6 B5:2', 'B5:4 G5:4 D5:8',
+        'C6:2 B5:2 A5:2 E5:2 A5:4 C6:4', 'A5:4 F5:4 C5:8', 'G#5:4 B5:4 E6:6 D6:2', 'B5:12 r:4',
+        'A5:4 C6:2 A5:2 F5:4 A5:4', 'B5:4 D6:4 G5:8', 'C6:4 E6:4 G6:6 E6:2', 'C6:4 A5:4 E5:8',
+        'D6:4 F6:4 A5:6 D6:2', 'B5:4 G#5:4 E5:8', 'A5:4 B5:2 C6:2 B5:4 G#5:4', 'A5:12 r:4',
+      ]) },
+      { w: 'sine', v: 0.05, n: arpBox(C7I_SNOW_CH, 4) },
+      { w: 'triangle', v: 0.18, n: bassWalk(C7I_SNOW_CH) },
+      { drums: true, v: 0.06, n: 'h:4 h:4 h:4 h:4 '.repeat(16) },
+    ],
+  },
+  c7i_castle: {
+    bpm: 84,
+    ch: [
+      { w: 'triangle', v: 0.12, n: bars([
+        'F#5:4 B5:4 D6:6 C#6:2', 'B5:4 G5:4 D5:8', 'A5:4 F#5:4 D5:6 E5:2', 'E5:4 C#5:4 A4:8',
+        'B4:2 D5:2 F#5:2 B5:2 D6:4 B5:4', 'G5:4 E5:4 B4:8', 'C#5:4 E5:4 A5:6 G5:2', 'E5:12 r:4',
+        'D6:4 B5:2 G5:2 B5:4 D6:4', 'C#6:4 A5:4 F#5:8', 'G5:4 B5:4 E6:6 D6:2', 'B5:4 F#5:4 D5:8',
+        'D5:4 G5:4 B5:6 A5:2', 'A5:4 E5:4 C#5:8', 'D5:4 C#5:2 B4:2 F#5:4 A5:4', 'B5:12 r:4',
+      ]) },
+      { w: 'sine', v: 0.04, n: arpFast(C7I_CASTLE_CH, 5) },
+      { w: 'sine', v: 0.05, n: pads(C7I_CASTLE_CH, 3, 1) },
+      { w: 'triangle', v: 0.2, n: bassToll(C7I_CASTLE_CH) },
+    ],
+  },
   c7s_sea: {
     bpm: 112,
     ch: [

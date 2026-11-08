@@ -20,14 +20,14 @@
 // ・知っている 人（シミュレーター tools/sim-ch7.mjs。b.knowsCh6）: のろい・いきの 前に 身を 守る（b.c6NoGuard … しない）／
 //   いばらのかべが ある 間は かべを 先に こわす（炎の 技が あれば 炎。b.c7iNoThorn … しない）／
 //   ねらわれたら、ブーメランの 前に 身を 守って はね返す（b.c7iNoGuardAim … しない）
-import { MONSTERS } from './data/monsters.js?v=52c7ff0f11c9';
-import { ABILITIES } from './data/abilities.js?v=52c7ff0f11c9';
-import { C7_WITCH, C7_THORN, C7_SHADOW, DRAGON_ACTIONS } from './data/monsters-c7i.js?v=52c7ff0f11c9';
-import { BUFF_ACTS } from './buff-acts.js?v=52c7ff0f11c9';
+import { MONSTERS } from './data/monsters.js?v=c69281e421b9';
+import { ABILITIES } from './data/abilities.js?v=c69281e421b9';
+import { C7_WITCH, C7_THORN, C7_SHADOW, DRAGON_ACTIONS } from './data/monsters-c7i.js?v=c69281e421b9';
+import { BUFF_ACTS } from './buff-acts.js?v=c69281e421b9';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=52c7ff0f11c9';
-import { canUse } from './ai.js?v=52c7ff0f11c9';
-import { AUTO_GUARD } from './battle-ch6.js?v=52c7ff0f11c9';
+import { atbRate } from './battle.js?v=c69281e421b9';
+import { canUse } from './ai.js?v=c69281e421b9';
+import { AUTO_GUARD } from './battle-ch6.js?v=c69281e421b9';
 
 export { C7_WITCH, C7_THORN, C7_SHADOW };
 export const CURSE = 'm7m_curse';

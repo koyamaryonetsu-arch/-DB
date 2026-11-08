@@ -2,7 +2,7 @@
 // ch4-art.js の addCh4Art から addTempleArt を よぶ。かきかたは monsters.js・ch3-art.js と おなじ
 // （g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // 鏡のうつし身の 戦いの すがた（パーティーの 人の 絵を 左右反転・青く すける 色）と 水のろうの 中の 人は client/battle-temple.js
-import { fit, bez, taper, spark } from './ch3-draw.js?v=52c7ff0f11c9';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=c69281e421b9';
 
 // ───── 水の精 ─────
 const SPIRIT = {

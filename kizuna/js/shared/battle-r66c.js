@@ -5,7 +5,7 @@
 //        お金は hooks.spendGold（world/battles.js。たりなければ あるだけ）。たりない ときは はらった ぶんだけ 弱く なる（バフの 上がり方）
 //        お金を もたない 人（敵の まぼろし・ためしの 戦い）は はらわずに 効く
 //   jobs の passive.teiji（働き方改革の星）… 自分の 番の はじめに 最大HPの teiji の わりあいを 回復（定時で 帰って しっかり 休む）
-import { JOBS } from './data/jobs.js?v=52c7ff0f11c9';
+import { JOBS } from './data/jobs.js?v=c69281e421b9';
 
 // 黄金のボディーガード（お金を はらって then を かける）
 export function goldGuard(b, c, a, eff, ev, targets, powMult) {

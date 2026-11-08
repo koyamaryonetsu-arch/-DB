@@ -10,21 +10,23 @@
 // 作業中の 仮の データ（B の 物が まだ ない 時だけ たす。まとめる 時に この 行を けす）
 import {
   C7, ARRIVE7, TF7, LEVER3, OPEN6, WAIT6, WIN7, LETTER, LETTER_TEMPLE, MIKO_LETTER, C7_FIELD, PRESENT_FIELD, TEMPLE_DOOR, GATE_BOSS, c7tMapId,
-} from '../maps/c7-flags.js?v=52c7ff0f11c9';
-import { C7_POS } from '../maps/c7-field.js?v=52c7ff0f11c9';
-import { C7T_POS } from '../maps/c7-temple.js?v=52c7ff0f11c9';
-import { MAPS } from '../maps/index.js?v=52c7ff0f11c9';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=52c7ff0f11c9';
-import { MONSTERS } from './monsters.js?v=52c7ff0f11c9';
-import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=52c7ff0f11c9';
-import { SHOPS_C7 } from './shops-c7.js?v=52c7ff0f11c9';
-import { GLASS_TEXT } from '../world/time-glass.js?v=52c7ff0f11c9';
-import { partyOf } from '../world/party.js?v=52c7ff0f11c9';
-import { applyC7Side } from './sidequests-c7.js?v=52c7ff0f11c9';
-import { innSteps } from './inn.js?v=52c7ff0f11c9';
-import { C6D_OBJ } from './story-ch6d.js?v=52c7ff0f11c9';
+} from '../maps/c7-flags.js?v=c69281e421b9';
+import { C7_POS } from '../maps/c7-field.js?v=c69281e421b9';
+import { C7T_POS } from '../maps/c7-temple.js?v=c69281e421b9';
+import { MAPS } from '../maps/index.js?v=c69281e421b9';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=c69281e421b9';
+import { MONSTERS } from './monsters.js?v=c69281e421b9';
+import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=c69281e421b9';
+import { SHOPS_C7 } from './shops-c7.js?v=c69281e421b9';
+import { GLASS_TEXT } from '../world/time-glass.js?v=c69281e421b9';
+import { partyOf } from '../world/party.js?v=c69281e421b9';
+import { applyC7Side } from './sidequests-c7.js?v=c69281e421b9';
+import { innSteps } from './inn.js?v=c69281e421b9';
+import { C6D_OBJ } from './story-ch6d.js?v=c69281e421b9';
 // 第7章 第2幕「海の紋章」Step 3・4（story-c7s.js。カイ・千年前の クモイの 海・しずむ前の島の灯台）
-import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js?v=52c7ff0f11c9';
+import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js?v=c69281e421b9';
+// 第7章 第3幕「ひとりぼっちの星」Step 5・6（story-c7i.js。千年前の シロガネ地方・白雪の里・氷の竜の城・カイの影）
+import { CH7I_STEPS, CH7I_OBJECTIVE_TARGETS, CH7I_OBJECTIVE_TALK, CH7I_PROGRESS, applyCh7i } from './story-c7i.js?v=c69281e421b9';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -34,7 +36,7 @@ export const VILLAIN = 'うずの魔女オクタリア';
 export const monOf = (id) => (MONSTERS[id] ? id : FIXED_ENCOUNTERS[id]?.group?.[0]?.[0] || id);
 
 // ───── 第7章の すすみかた（STORY_STEPS の 第6章の うしろ。plan-ch7.md の 3 の 名前の 約束）─────
-export const CH7_STEPS = [C7.start, C7.kingdom, C7.gate, C7.temple, C7.karim, ...CH7S_STEPS];
+export const CH7_STEPS = [C7.start, C7.kingdom, C7.gate, C7.temple, C7.karim, ...CH7S_STEPS, ...CH7I_STEPS];
 
 // ───── 時の砂時計の ことば（今の コガネ地方。トキネの 話を 聞く 前）─────
 GLASS_TEXT.c7wait = '時の砂時計をかざした…\n砂が、かすかに、さらさらと鳴っている…。\n（でも、まだ時をこえる力が足りないようだ）';
@@ -77,6 +79,8 @@ export const C7_OBJ = {
 export const OLD_C7_OBJ = {
   // 第7章 Step 2 の さいご（第1幕だけの 版）
   karim: '第7章の続きはアップデートで！',
+  // 第7章 Step 4 の さいご（第2幕までの 版。今の 文は story-c7s.js の C7S_OBJ.kai）
+  kai: '第7章の続きはアップデートで！（カイは、ルミナの町の酒場で待っている）',
 };
 
 // パーティー全員で 見る イベント
@@ -559,6 +563,8 @@ export const CH7_OBJECTIVE_TARGETS = {
   [C7_OBJ.karim]: [{ npc: 'tokine_c6' }, { npc: 'c7_king' }],
   // 第2幕（story-c7s.js）
   ...CH7S_OBJECTIVE_TARGETS,
+  // 第3幕（story-c7i.js）
+  ...CH7I_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -602,6 +608,8 @@ export const CH7_OBJECTIVE_TALK = {
     'カリムさんは、ルミナの町の酒場にいます。トキネさんに会いに、ほしみの丘へ行きましょう。', 'トキネおねえちゃんに、あいにいこう！'),
   // 第2幕（story-c7s.js）
   ...CH7S_OBJECTIVE_TALK,
+  // 第3幕（story-c7i.js）
+  ...CH7I_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろ）─────
@@ -626,6 +634,8 @@ export const CH7_PROGRESS = [
   [C7.karim, C7_OBJ.karim],
   // 第2幕（story-c7s.js）
   ...CH7S_PROGRESS,
+  // 第3幕（story-c7i.js）
+  ...CH7I_PROGRESS,
 ];
 
 // ───── story.js から: だいほんを まぜる（今の トキネ・より道「時をこえる手紙」・パーティー全員で 見る イベント）─────
@@ -643,4 +653,6 @@ export function applyCh7(SCRIPTS, STORY_SCRIPTS) {
   applyC7Side(SCRIPTS);
   // 第2幕「海の紋章」（story-c7s.js。今の トキネの 第2幕の はじまりは この あとで つつむ）
   applyCh7s(SCRIPTS, STORY_SCRIPTS);
+  // 第3幕「ひとりぼっちの星」（story-c7i.js。今の トキネの 第3幕の はじまりは この あとで つつむ）
+  applyCh7i(SCRIPTS, STORY_SCRIPTS);
 }
