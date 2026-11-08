@@ -91,6 +91,8 @@ import { ROAD_SFX } from './battle-road.js';
 import { TOKEI_SFX } from './battle-tokei.js';
 // 第2部 第6章 Step 6 の 魔物・ゼンマイ・リオンの けいこの 音と、リオンの 人の 絵（battle-tokei6.js）
 import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js';
+// 第2部 第7章 第3幕: マレフィナが 黒い 竜に なった あとの え（battle-c7i.js）
+import { c7iSprite, C7I_SFX } from './battle-c7i.js';
 // 第2部 第7章 第1幕 の 魔物・ウツボきょうだい・オクタリア・カリムの 音（battle-c7.js）
 import { C7_SFX } from './battle-c7.js';
 // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・カイの 音（battle-c7s.js）
@@ -239,6 +241,7 @@ const ANIM_SFX = {
   ...TOKEI6_SFX,
   ...C7_SFX,
   ...C7S_SFX,
+  ...C7I_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -1778,7 +1781,7 @@ export class BattleScene {
     const sprites = list.map((c) => {
       const frame = Math.floor(this.time / 420 + (c.slot || 0)) % 2;
       // 鏡のうつし身（パーティーの 人の 絵）・水のろう（中の 人）は battle-temple.js
-      const img = templeSprite(c, frame) || gaiaSprite(c, frame) || noctoSprite(c, frame) || tokei6Sprite(c) || monsterCanvas(c.species, frame);
+      const img = templeSprite(c, frame) || gaiaSprite(c, frame) || noctoSprite(c, frame) || tokei6Sprite(c) || c7iSprite(c, frame) || monsterCanvas(c.species, frame);
       const r = img.res || 1;
       return { c, img, iw: img.width / r, ih: img.height / r };
     });

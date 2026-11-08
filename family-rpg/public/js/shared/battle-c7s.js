@@ -29,6 +29,8 @@ import { AUTO_GUARD } from './battle-ch6.js';
 import { TRAP_KINDS, REACH } from './battle-earth.js';
 // 合体技の よやくの 組（ノクトの 地われと おなじ。板わたりは 組の 人を ねらって、手を ひきはなす）
 import { bondTeams, breakTeam } from './battle-nocto.js';
+// 第2部 第7章 第3幕: いばらの魔女マレフィナ（いばらのかべ・黒い 竜）・カイの影（かげブーメラン）。battle-c7i.js
+import { setupC7i, c7iTurnStart, c7iEffect, c7iPlan, c7iPub, c7iDamage, c7iKill } from './battle-c7i.js';
 
 export { C7_REEF, C7_LIGHT };
 export const BROADSIDE = 'm7r_broadside';
@@ -90,11 +92,14 @@ export function setupC7s(b) {
     }
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1300 });
+  // 第7章 第3幕の ボス（battle-c7i.js）
+  setupC7i(b);
 }
 
 // ───────────── 行動の はじめ（battle-c7.js の c7TurnStart の はじめ）─────────────
 // 動けない 番も しるしを 数える（しるしが 1つの 番が 動けない ときは、次の 番に）
 export function c7sTurnStart(b, c, ev, stuck) {
+  c7iTurnStart(b, c, ev, stuck);
   if (c.c7tide) tideTurn(b, c, ev, stuck);
   else if (c.c7cap) capTurn(b, c, ev, stuck);
 }
@@ -170,7 +175,8 @@ export function c7sEffect(b, c, a, eff, ev) {
     case 'c7sBroadside': broadside(b, c, ev); return true;
     case 'c7sPlank': plank(b, c, ev); return true;
     case 'c7sDrop': drop(b, c, ev); return true;
-    default: return false;
+    // 第7章 第3幕（battle-c7i.js）
+    default: return c7iEffect(b, c, a, eff, ev);
   }
 }
 
@@ -263,13 +269,16 @@ function drop(b, c, ev) {
 // のり上げた 船は 受ける ダメージが aground ばい
 export function c7sDamage(b, c, t, dmg, info, ev) {
   if (dmg > 0 && aground(t)) return Math.round(dmg * tideConf(t).aground);
-  return dmg;
+  // 第7章 第3幕: いばらのかべの 間の 魔女・変身の 前の 魔女（battle-c7i.js）
+  return c7iDamage(b, c, t, dmg, info, ev);
 }
 
 // ───────────── たおれた（battle-c7.js の c7Kill の はじめ）─────────────
 // 船長が たおれた ときの 板の 上の 人は battle-earth.js の earthKill が もどす（文は PLANK_TEXT.free）
-export function c7sKill(b, t) {
+export function c7sKill(b, t, ev) {
   if (t.c7cap) t.c7cap.who = null;
+  // 第7章 第3幕: いばらのかべが くずれた（battle-c7i.js）
+  c7iKill(b, t, ev);
 }
 
 // ───────────── 大技が 近いか ─────────────
@@ -319,6 +328,9 @@ function bestHit(b, c, t) {
 // 第7章 第2幕の ボスが いなければ null（ほかの ボスの 考えへ）
 export function c7sPlan(b, c, decide) {
   if (c.side !== 'ally' || b.c7sInner || c.status?.rift) return null;
+  // 第7章 第3幕の ボス（マレフィナ・カイの影。battle-c7i.js）
+  const ip = c7iPlan(b, c, decide);
+  if (ip) return ip;
   const ship = shipOf(b);
   const cap = captainOf(b);
   if (!ship && !cap) return null;
@@ -356,6 +368,8 @@ export function c7sPlan(b, c, decide) {
 // ジョリーホック号: tide（1 満ち潮・2 のり上げ）・tideLeft・tideMax・aground（ダメージの ばい）
 // ホック船長: capLeft・capEvery（板わたりまで）・plankWho（板の 上の 人の id）・plankSteps（海まで）・plankMax・p2
 export function c7sPub(c, o) {
+  // 第7章 第3幕（battle-c7i.js）
+  c7iPub(c, o);
   if (c.c7tide) {
     o.c7tide = c.c7tide.phase === 'low' ? 2 : 1;
     o.c7tideLeft = c.c7tide.left;
