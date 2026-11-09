@@ -53,7 +53,11 @@ export function flowReach(map, start, has) {
     stops.add(k);
     q.push([r.x, r.y]);
   };
-  add(start[0], start[1]);
+  // 第71回: 階だんで ついた ところ（出入り口の 上に 立っている）からは そのまま 歩きだせる（world/stairs.js）
+  if (warpAt(map, start[0], start[1])) {
+    stops.add(`${start[0]},${start[1]}`);
+    q.push([start[0], start[1]]);
+  } else add(start[0], start[1]);
   for (let head = 0; head < q.length; head++) {
     const [x, y] = q[head];
     for (const [dx, dy] of DIRS) {

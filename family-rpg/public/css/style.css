@@ -866,9 +866,16 @@ img.face { image-rendering: pixelated; }
 .tavern-panel .menu .item.breed-a { outline: 1px dashed rgba(127, 224, 160, 0.7); outline-offset: -2px; }
 /* 第35回: 配合の めやす（↑→↓）。弱く なる 時は 赤い 字 */
 .menu .item .r.danger { color: var(--danger); }
+/* 第71回: 作れる魔物の 一覧の 子の 絵（大きめ）・組の 一覧の 親の 絵・みほんの 子の 絵（client/ui/services.js） */
+.tavern-panel .menu .item.find-kid .face { height: 2.7em; min-width: 2.2em; }
+.tavern-panel .menu .item .pface { height: 1.6em; width: auto; image-rendering: pixelated; vertical-align: middle; margin-right: 0.3em; }
+.breed-pv.find-pv .breed-pv-img { height: 4.8em; }
 @media (max-height: 520px) and (orientation: landscape) {
   .breed-pv { min-height: 2.8em; margin: 0.15em 0 0.25em; }
   .breed-pv-img { height: 2.6em; }
+  .breed-pv.find-pv .breed-pv-img { height: 3.4em; }
+  .tavern-panel .menu .item.find-kid .face { height: 2.3em; }
+  .tavern-panel .menu .item .pface { height: 1.4em; }
 }
 
 @media (max-width: 700px) {
@@ -884,6 +891,8 @@ img.face { image-rendering: pixelated; }
   .tavern-panel .side .menu { display: flex; flex-direction: column; }
   .tavern-panel .tavern-list { max-height: calc((68vh - var(--pad-h)) * 0.62); }
   .tavern-panel .main { min-height: 0; max-height: calc((68vh - var(--pad-h)) * 0.38); }
+  .tavern-panel .menu .item.find-kid .face { height: 2.4em; }
+  .breed-pv.find-pv .breed-pv-img { height: 4.2em; }
 }
 @media (max-height: 520px) and (orientation: landscape) {
   .tavern-panel .fmenu { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
