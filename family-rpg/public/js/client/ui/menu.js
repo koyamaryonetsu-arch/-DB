@@ -30,9 +30,11 @@ import { PAST_PLACES, pastVisited } from '../../shared/data/past-places.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
-import { menuItemText, skillEffectText, skillPowerLine, powStats } from './skillinfo.js';
+import { menuItemText, skillPowerLine, powStats, skillCardInfo } from './skillinfo.js';
+// 第71回: 命令の 一覧に 出さない 技（cmdOff）と オートで 使わない 技（autoOff）を 分けた
+import { cmdOffList } from '../../shared/cmd-off.js';
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
-import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js';
+import { skillLevel, skillLvLeft } from '../../shared/buff-acts.js';
 import '../battle-buffs.js';
 import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml, gearOwnStats, gearOwnText, gearRowHtml } from './info.js';
 import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS, gearScore } from '../../shared/equip-plan.js';
@@ -58,6 +60,8 @@ import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 import { fieldUsableAbilities, splitFieldAbilities } from '../../shared/fieldskills.js';
 // 第69回: 技の ならび（弱い じゅん）・お気に入りの ならびかえ
 import { sortByStdPower, favSection, mergeSectionOrder, moveInGrid } from '../../shared/skill-sort.js';
+// 第71回 E: 覚えた技の 2つの 見方（種類で見る・職業で見る）
+import { LEARN_VIEWS, LEARN_SECS, learnedKindTabs, learnedJobTabs, pickLearnTab, nextLearnTab } from '../../shared/skill-view.js';
 import './r69-css.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
@@ -376,6 +380,8 @@ export class FieldMenu {
       plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
       hirameki: x.hirameki || [], skillUse: x.skillUse || {}, favorites: x.favorites || [],
       autoOff: x.autoOff || [],
+      // 第71回: 命令の 一覧に 出さない 技（サーバーが cmdOff か、まだ うつして いない 人は autoOff を おくる。party.js の supportInfo）
+      cmdOff: x.cmdOff || [],
     };
   }
 
@@ -897,8 +903,19 @@ export class FieldMenu {
       new ResizeObserver(() => { if (head.offsetHeight) box.style.setProperty('--sk-head-h', `${head.offsetHeight + 12}px`); }).observe(head);
     }
     // 上下で えらぶ リスト（左右で タブ）
+    // 第71回 E: お気に入り・命令の 一覧・使う の あと（つくりなおした あと）も カーソルは おなじ 技に（前は いちばん 上に もどっていた）。
+    //   カーソルの 技を this.skFocus に おぼえて、つぎに つくる ときに その 技から はじめる（おなじ 人・おなじ タブの とき）
     const list = (items, opts = {}) => {
-      const m = this.mkSub({ items, onSide: side, ...opts });
+      const f = this.skFocus;
+      const at = f && f.who === who && f.mode === mode ? items.findIndex((it) => !it.header && it.value === f.id) : -1;
+      const mv = opts.onMove;
+      const m = this.mkSub({
+        items, onSide: side, ...(at >= 0 ? { start: at } : {}), ...opts,
+        onMove: (it, i) => {
+          if (it && !it.header && it.value !== undefined && it.value !== 'back') this.skFocus = { who, mode, id: it.value };
+          mv?.(it, i);
+        },
+      });
       box.append(m.root);
       return m;
     };
@@ -920,21 +937,21 @@ export class FieldMenu {
           g.net.send({ t: 'menu', action: 'cast', id, place, who });
           if (place) { this.close(); return; }
         }
-        if (this.root) this.focusSub(this.skillsView(true, who));
+        this.reSkills(who);
         return;
       }
       // リレミト: 洞窟の 中で 使えれば メニューを とじて 外を 見せる（みちびきの糸と 同じ。shared/world/field27.js）
       if (a.effect?.type === 'exit') {
         const r = await this.menuCall({ t: 'menu', action: 'cast', id, ref: 'self', who });
         if (r?.ok) return this.close();
-        if (this.root) this.focusSub(this.skillsView(true, who));
+        this.reSkills(who);
         return;
       }
       let ref = 'self';
       if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
       else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
       if (ref) g.net.send({ t: 'menu', action: 'cast', id, ref, who });
-      setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+      this.reSkills(who, 200);
     };
     if (mode === 'heal' || mode === 'other') {
       // 回復・回復以外: フィールドで 使える 技だけ（shared/fieldskills.js）。MPが 足りない 技は 出すが えらべない。えらぶと すぐ 使う
@@ -953,29 +970,35 @@ export class FieldMenu {
       }
       const showNow = (it) => {
         const x = now.find((n) => n.id === it?.value);
-        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}${x.ok && touch ? '\n▶もう一度タップで使う' : ''}` : '';
+        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}` : '';
       };
+      // 第71回: えらぶと 小さな まど（使う・お気に入り・命令の一覧に出さない・やめる。skillAsk）。いちばん 上が「使う」（決定 2回で すぐ 使える）。
+      //   使えない 技（MPが 足りない など）も えらべる（お気に入り・命令の 一覧の ため）。「使う」が うすく なって わけが 出る
       const m = list(now.map((x) => {
         const a = abilityFor(x.id, c);
         const tt = targetTag(a);
+        const hid = this.cmdHidden(c, x.id);
         return {
-          html: `${esc(a.name)}${tt ? `<span class="tag tgt t-${a.target}">${tt}</span>` : ''}${x.ok ? '' : `<span class="tag muted">${why[x.why]}</span>`}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+          html: `${esc(a.name)}${tt ? `<span class="tag tgt t-${a.target}">${tt}</span>` : ''}${x.ok ? '' : `<span class="tag muted">${why[x.why]}</span>`}${hid ? '<span class="tag cmdhide">かくす</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
           right: `MP${x.cost}`,
           rightCls: x.ok ? '' : 'dis',
           value: x.id,
-          cls: `k-${abilityRole(a)} sk`,
-          disabled: !x.ok,
+          cls: `k-${abilityRole(a)} sk${x.ok ? '' : ' dis'}`,
         };
       }), {
         tapConfirm: touch,
         onMove: showNow,
-        onSelect: (it) => {
+        onSelect: async (it) => {
+          const x = now.find((n) => n.id === it.value);
           this.sub.blur();
-          useSkill(it.value);
+          const act = await this.skillAsk(c, it.value, { use: { ok: !!x?.ok, why: why[x?.why] || '今は使えない' } });
+          if (act === 'use') return useSkill(it.value);
+          const did = this.doSkillAct(c, who, it.value, act);
+          this.reSkills(who, did ? 200 : 0);
         },
       });
       showNow(m.current);
-      box.append(el('div', { class: 'small muted', text: `${c.name}のMP ${c.mp}　選ぶとすぐ使う` }), detail);
+      box.append(el('div', { class: 'small muted', text: `${c.name}のMP ${c.mp}　選ぶと「使う」「お気に入り」などを選べる` }), detail);
       if (sealed) box.append(el('div', { class: 'small gold', text: 'ここでは呪文がふうじられている。特技と道具は使える。' }));
       return box;
     }
@@ -1032,12 +1055,13 @@ export class FieldMenu {
             const a = abilityFor(id, c);
             const elm = a.effect?.element;
             const held = grab && grab.sec === sec.k && grab.ids[grab.pos] === id;
+            const hid = this.cmdHidden(c, id);
             items.push({
               html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${held ? '<span class="tag gold">つかんでいる</span>' : ''}`,
               right: a.effect?.type === 'mahouken' ? '▶' : `${mpCost(c, id)}`,
               value: id,
               sec: sec.k,
-              cls: `k-${abilityRole(a)} fav${held ? ' grab' : ''}${grab && grab.sec !== sec.k ? ' dim' : ''}`,
+              cls: `k-${abilityRole(a)} fav${held ? ' grab' : ''}${grab && grab.sec !== sec.k ? ' dim' : ''}${hid ? ' cmd-off' : ''}`,
             });
           }
         }
@@ -1069,6 +1093,19 @@ export class FieldMenu {
           this.sfx('cursor');
           redo();
         };
+        // 第71回: えらんでいる 技（つかんでいる 間は つかんだ 技）の せつめい。戦いの せつめいと おなじ 中身を みじかく（skillCardInfo）
+        const info = el('div', { class: 'fav-info' });
+        const showInfo = (id) => {
+          const x = id && skillCardInfo(id, c);
+          info.innerHTML = '';
+          if (!x) return;
+          const hid = this.cmdHidden(c, id);
+          info.append(
+            el('div', { class: 'fi-h' }, x.head, hid ? el('span', { class: 'fi-t', text: '命令の一覧に出さない' }) : null),
+            x.pow ? el('div', { class: 'fi-p', text: x.pow }) : null,
+            el('div', { class: 'fi-d', text: [x.desc, x.warn].filter(Boolean).join('') }),
+          );
+        };
         const m = list(items, grab ? {
           start: at,
           onSide: null,
@@ -1089,21 +1126,29 @@ export class FieldMenu {
           onCancel: () => endGrab(false),
         } : {
           ...(this.favFocusId ? { start: items.findIndex((it) => it.value === this.favFocusId) } : {}),
+          // 第71回: スマホは タップで せつめい、もう一度で「動かす・はずす」（ならべる 前に 技の 効果を 見られる）
+          tapConfirm: touch,
+          onMove: (it) => showInfo(it?.value),
           onSelect: async (it) => {
             this.sub.blur();
-            const op = await this.pick(`${abilityFor(it.value, c).name}`, [{ label: '動かす', value: 'move' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
+            // 動かす・お気に入りからはずす・命令の一覧に出さない／出す（第71回）・やめる
+            const op = await this.skillAsk(c, it.value, { pre: [{ label: '動かす', value: 'move' }] });
             if (op === 'move') {
               const sec = secs.find((x) => x.k === it.sec);
               this.favGrab = { who, sec: sec.k, orig: sec.ids.slice(), ids: sec.ids.slice(), pos: sec.ids.indexOf(it.value) };
               return redo();
             }
-            if (op) this.sendFav(c, who, it.value, op);
-            setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, op ? 200 : 0);
+            // おわったら その 技に カーソル（はずした ときは 先頭）
+            this.favFocusId = op === 'remove' ? null : it.value;
+            const did = this.doSkillAct(c, who, it.value, op);
+            this.reSkills(who, did ? 200 : 0);
           },
         });
         this.favFocusId = null;
         m.root.classList.add('fav-grid');
         m.root.style.setProperty('--fcols', String(cols));
+        showInfo(grab ? grab.ids[grab.pos] : m.current?.value);
+        box.append(info);
         if (grab) {
           // つかんでいる 間: 十字キーで うごかす・A（決定）で おく・B で もとに もどす
           m.nav = (a) => {
@@ -1120,9 +1165,9 @@ export class FieldMenu {
               el('div', { class: 'fg-ab' }, kb('おく', 'ここにおく', () => endGrab(true), 'gold'), kb('やめる', 'やめる', () => endGrab(false)))));
           }
         }
-        box.append(el('div', { class: 'detail', text: grab
+        box.append(el('div', { class: grab ? 'small muted' : 'detail', text: grab
           ? `「${abilityFor(grab.ids[grab.pos], c).name}」をつかんでいる。${touch ? '▲▼◀▶で動かして「おく」。ほかの技をタップすると、そこと入れかわる。' : '十字キーで動かして、決定でおく。Bでやめる（元にもどる）。'}`
-          : '戦いの「★」のタブと同じならび（呪文と特技に分かれる）。選ぶと「動かす」「はずす」を選べる。動かすと、つかんだ技を十字キーで動かせる。' }));
+          : '戦いの「★」のタブと同じならび（呪文と特技に分かれる）。選ぶと「動かす」「はずす」「命令の一覧に出さない」を選べる。動かすと、つかんだ技を十字キーで動かせる。' }));
       } else if (favs.length) {
         for (const sec of secs) box.append(el('div', { class: 'small', text: `${sec.label}：${sec.ids.map((id) => abilityFor(id, c).name).join('、')}` }));
         box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、「★」のタブにこのじゅんで出る。' }));
@@ -1131,7 +1176,7 @@ export class FieldMenu {
     }
     if (mode === 'dual') {
       // 合体技: 2人の 番を 使う 技。出すのは 使った ことの ある 技と、今の パーティーに 関係する 技だけ（dual.js の dualRelated）
-      // 第31回: 名前は 1行に 名前だけ 大きく（dualfx.js の CSS）。人数・MP・必要な 職業は 下の 行に
+      // 第31回: 名前は 1行に 名前だけ（第71回: 大きさは ふつうの 技と おなじ。dualfx.js の CSS）。人数・MP・必要な 職業は 下の 行に
       addDualCss();
       const focus = this.partyFocus(c);
       const shownDual = DUAL_ORDER.filter((id) => dualKnown(c, id) || dualKnown(g.me, id) || dualRelated(id, focus.jobs, focus.skills));
@@ -1154,32 +1199,9 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人・3人・4人でいっしょに出す技。出せるかは、今ついている職業で決まる。出す人みんなの番を使う。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、みんなのゲージがたまった時にいっしょに出す（先にたまった仲間は、ほかの仲間を待つ）。\nよやくで待っている間にダメージを受けると、その人のゲージは半分からやり直し。どんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
-    // 威力の 目安（今の 魔力で。第50回 N1）
-    const st = powStats(c);
-    const powLine = (id) => {
-      const t = skillPowerLine(id, c, { st });
-      return t ? `<span class="sk-pow">${esc(t)}</span>` : '';
-    };
     // 第69回: 弱い じゅん（ダメージ・回復の 量。職業の ほせい なし。shared/skill-sort.js）
     const order = sortByStdPower(learned);
-    const items = order.map((id) => {
-      const a = abilityFor(id, c);
-      const p = penaltyFor(c, id);
-      const locked = a.kind === 'combo' && !comboAllowed(c, id);
-      const elm = a.effect?.element;
-      // 相手の しるし（グループ・全体・全員・ランダム）
-      const tt = targetTag(a);
-      const slv = skillLevel(c.skillUse, id);
-      return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}<span class="tag slv${slv >= SKILL_LV_MAX ? ' max' : ''}">Lv${slv}</span>${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}${powLine(id)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
-        right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
-        rightCls: p.penalized ? 'pen' : '',
-        value: id,
-        cls: `k-${abilityRole(a)} sk`,
-        disabled: false,
-      };
-    });
-    if (!items.length) {
+    if (!order.length) {
       box.append(el('div', { class: 'muted', text: 'まだ何も覚えていない。' }));
       if (active) backOnly();
       return box;
@@ -1190,45 +1212,128 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
+    // 第71回 E: 2列の わく（戦いの 技の 一覧・お気に入りと おなじ 列の 数と 色の わく）で、2つの 見方（shared/skill-view.js）
+    //   種類で見る: 呪文・特技 → 今の職業・攻撃1体・攻撃全体・回復・強くする・弱くする・そのほか（戦いの タブと おなじ）
+    //   職業で見る: 覚えた 職業ごと（今の 職業が 先）・そのほか（ひらめき など）
+    //   タブは L・R（Q・E）か タップ。見方は Y か 画面の ボタン。見方と タブは この 機械に おぼえる（learnPref）
+    const pref = this.learnPref();
+    const view = pref.view === 'job' ? 'job' : 'kind';
+    const tabs = view === 'job' ? learnedJobTabs(c, learned) : learnedKindTabs(learned, { abs: (id) => abilityFor(id, c), job: c.job });
+    const cur = pickLearnTab(tabs, pref.tab?.[view]);
+    const cols = battleDensityPref() === 3 ? 3 : 2;
+    const goTab = (t) => {
+      if (!t || t.key === cur.key) return;
+      const p = this.learnPref();
+      p.tab = { ...(p.tab || {}), [view]: t.key };
+      this.saveLearnPref(p);
+      this.sfx('cursor');
+      this.reSkills(who);
+    };
+    const setView = (v) => {
+      if (v === view) return;
+      const p = this.learnPref();
+      p.view = v;
+      this.saveLearnPref(p);
+      this.sfx('cursor');
+      this.reSkills(who);
+    };
+    const chip = (text, on, fn, cls = '', dis = false) => el('button', { class: `btn ${on ? 'sel' : ''} ${cls}`, text, disabled: dis, onclick: (e) => { e.stopPropagation(); fn(); } });
+    box.append(el('div', { class: 'lv-bar' },
+      el('div', { class: 'lv-views', role: 'tablist' }, ...Object.entries(LEARN_VIEWS).map(([k, label]) => chip(label, k === view, () => setView(k), 'lv-v'))),
+      view === 'kind' ? el('div', { class: 'lv-secs' }, ...LEARN_SECS.map(([k, label]) => {
+        const first = tabs.find((t) => t.sec === k);
+        return chip(label, cur.sec === k, () => goTab(first), 'lv-s', !first);
+      })) : null));
+    const subs = view === 'kind' ? tabs.filter((t) => t.sec === cur.sec) : tabs;
+    const subBar = el('div', { class: 'tabs lv-tabs' }, ...subs.map((t) => chip(t.label, t.key === cur.key, () => goTab(t), `lv-t${t.id === c.job || t.id === 'job' ? ' now' : ''}`)));
+    box.append(subBar);
+    if (!touch) box.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類を切りかえ・Yで見方を切りかえ' }));
+    // 技の わく: ★ … お気に入り / かくす … 命令の 一覧に 出さない（わくも 点線）/ 他 … 今の 職業 いがいの 技
+    const favSet = new Set(c.favorites || []);
+    const items = cur.ids.map((id) => {
+      const a = abilityFor(id, c);
+      const elm = a.effect?.element;
+      const pen = penaltyFor(c, id).penalized;
+      const locked = a.kind === 'combo' && !comboAllowed(c, id);
+      const hid = this.cmdHideable(a) && this.cmdHidden(c, id);
+      return {
+        html: `${favSet.has(id) ? '<span class="favmk">★</span>' : ''}${hid ? '<span class="tag cmdhide">かくす</span>' : ''}${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${pen ? '<span class="tag warn">他</span>' : ''}`,
+        right: a.effect?.type === 'mahouken' ? '' : `${mpCost(c, id)}`,
+        rightCls: pen ? 'pen' : '',
+        value: id,
+        cls: `k-${abilityRole(a)} fav${hid ? ' cmd-off' : ''}${locked ? ' dis' : ''}`,
+      };
+    });
     // 効果の 目安（数）・技の レベルと 使った 回数（第38回 C）
     const lvLine = (id) => {
       const n = c.skillUse?.[id] || 0;
       const left = skillLvLeft(n);
       return `技Lv${skillLevel(c.skillUse, id)}（使った回数: ${n}回${left === null ? '・いちばん上' : `・つぎのLvまであと${left}回`}）`;
     };
-    const showDetail = (it) => {
-      if (!it) { detail.textContent = ''; return; }
-      const eff = skillEffectText(it.value, c, skillLevel(c.skillUse, it.value));
-      detail.textContent = `${abilityDetail(it.value, c)}${eff ? `\n効果：${eff}` : ''}\n${lvLine(it.value)}${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}`;
+    // えらんでいる 技の せつめい（お気に入りの まどと おなじ。skillCardInfo）
+    const info = el('div', { class: 'fav-info lv-info' });
+    const showInfo = (it) => {
+      info.innerHTML = '';
+      const id = it?.value;
+      const x = id && skillCardInfo(id, c);
+      if (!x) return;
+      const a = abilityFor(id, c);
+      const locked = a.kind === 'combo' && !comboAllowed(c, id);
+      const hid = this.cmdHideable(a) && this.cmdHidden(c, id);
+      info.append(
+        el('div', { class: 'fi-h' }, x.head, favSet.has(id) ? el('span', { class: 'fi-t gold', text: '★お気に入り' }) : null, hid ? el('span', { class: 'fi-t', text: '命令の一覧に出さない' }) : null),
+        x.pow ? el('div', { class: 'fi-p', text: x.pow }) : null,
+        el('div', { class: 'fi-d', text: [x.desc, x.warn, locked ? '⚠掛け合わせ技（上級職で使える）' : ''].filter(Boolean).join('') }),
+        el('div', { class: 'fi-l', text: `${lvLine(id)}${touch ? '　▶もう一度タップで「使う・お気に入り」' : ''}` }),
+      );
     };
     const m = list(items, {
       tapConfirm: touch,
-      onMove: showDetail,
+      onMove: showInfo,
+      // 第71回 E: L・R（Q・E）で タブ・Y で 見方
+      onLR: (d) => goTab(nextLearnTab(tabs, cur.key, d)),
+      onY: () => setView(view === 'job' ? 'kind' : 'job'),
       onSelect: async (it) => {
         const a = abilityFor(it.value, c);
         const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
-        const fav = (c.favorites || []).includes(it.value);
         this.sub.blur();
-        const act = await this.pick(a.name, [
-          ...(a.field && !locked ? [{ label: '使う', value: 'use' }] : []),
-          { label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' },
-          { label: 'やめる', value: null },
-        ]);
-        if (act === 'add' || act === 'remove') {
-          this.sendFav(c, who, it.value, act);
-          setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
-          return;
-        }
-        if (act !== 'use') {
-          if (this.root) this.focusSub(this.skillsView(true, who));
-          return;
-        }
+        // 第71回: 使う・お気に入り・命令の一覧に出さない／出す・やめる（skillAsk）
+        const act = await this.skillAsk(c, it.value, { use: a.field && !locked ? { ok: true } : null });
+        if (this.doSkillAct(c, who, it.value, act)) return this.reSkills(who, 200);
+        if (act !== 'use') return this.reSkills(who);
         await useSkill(it.value);
       },
     });
-    showDetail(m.current);
-    box.append(el('div', { class: 'small muted', text: '選ぶと「使う（フィールドで使える技）」「お気に入り」を選べる' }), detail);
+    m.root.classList.add('fav-grid', 'learn-grid');
+    m.root.style.setProperty('--fcols', String(cols));
+    showInfo(m.current);
+    box.append(info, el('div', { class: 'small muted', text: '選ぶと「使う」「お気に入り」「命令の一覧に出さない」を選べる。★…お気に入り　かくす…自分で命令する時、戦いの技の一覧に出さない技（オートで使うかは作戦で決める）　他…今の職業ではない技' }));
     return box;
+  }
+
+  // 第71回 E: つくりなおす（カーソルは おなじ 技・スクロールも そのまま。お気に入り・命令の 一覧・使う の あと）
+  reSkills(who, delay = 0) {
+    const run = () => {
+      if (!this.root) return;
+      const top = this.main.scrollTop;
+      this.focusSub(this.skillsView(true, who));
+      this.main.scrollTop = top;
+      this.sub?.scrollToSel();
+    };
+    if (delay) setTimeout(run, delay);
+    else run();
+  }
+
+  // 第71回 E: 覚えた技の 見方と タブ（この 機械に おぼえる。{ view: 'kind'|'job', tab: { kind, job } }）
+  learnPref() {
+    try {
+      const v = JSON.parse(localStorage.getItem('kizuna_learnview') || '{}');
+      return v && typeof v === 'object' ? v : {};
+    } catch { return {}; }
+  }
+
+  saveLearnPref(v) {
+    try { localStorage.setItem('kizuna_learnview', JSON.stringify(v)); } catch { /* */ }
   }
 
   // 第69回: お気に入りの ならびを まとめて おくる（つかんで 動かした あと。画面の キャラにも すぐ 入れる）
@@ -1249,6 +1354,73 @@ export class FieldMenu {
       if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
     }
     this.game.net.send({ t: 'menu', action: 'favorite', who: who || 'self', id, op });
+  }
+
+  // ───── 第71回: 命令の 一覧に 出さない 技（cmdOff。shared/cmd-off.js）─────
+  // 戦いの 命令の 一覧に 出る ことの ある 技か（ルーラなど フィールドだけの 技・きずな技は 出ない ので 切りかえも 出さない）
+  cmdHideable(a) {
+    return !!a && !a.fieldOnly && !a.hidden && a.kind !== 'bond';
+  }
+
+  // 今 命令の 一覧に 出さない ことに なっているか（同じ 名前の 技の どれかが 出さない なら 出さない。サーバーと おなじ）
+  cmdHidden(c, id) {
+    const off = cmdOffList(c);
+    if (!off.length) return false;
+    if (off.includes(id)) return true;
+    const nm = abilityFor(id, c)?.name;
+    return !!nm && off.some((x) => abilityFor(x, c)?.name === nm);
+  }
+
+  // 「命令の 一覧に 出す／出さない」を 切りかえる（サーバーの cmdSkill。画面の キャラにも すぐ 入れる）。もどりち: 出さない に したか
+  toggleCmdOff(c, who, id) {
+    const key = who || 'self';
+    const hide = !this.cmdHidden(c, id);
+    const nm = abilityFor(id, c)?.name;
+    const same = learnedAbilities(c).filter((x) => x === id || abilityFor(x, c)?.name === nm);
+    const cur = cmdOffList(c);
+    this.setOffLocal(key, 'cmdOff', hide ? [...new Set([...cur, ...same])] : cur.filter((x) => !same.includes(x)));
+    this.game.net.send({ t: 'menu', action: 'cmdSkill', key, id, op: hide ? 'off' : 'on' });
+    return hide;
+  }
+
+  // 画面の キャラ（自分・仲間）の autoOff・cmdOff を すぐ かえる（サーバーの 返事を またない）
+  setOffLocal(key, field, list) {
+    const g = this.game;
+    const src = key === 'self' ? g.me : [...(g.party?.supports || []), ...(g.party?.wagon || [])].find((x) => x.key === key && x.owner === g.me.id);
+    if (!src) return;
+    // autoOff を かえる 前に cmdOff を きめておく（まだ うつして いない 人の 命令の 一覧が かわらない ように。サーバーの fixCmdOff と おなじ）
+    if (field === 'autoOff' && !Array.isArray(src.cmdOff)) src.cmdOff = cmdOffList(src);
+    src[field] = list;
+  }
+
+  // 第71回: 呪文・技の メニューで 技を えらんだ ときの 小さな まど（覚えた技・回復・回復以外・お気に入り）
+  //   use: null … 「使う」を 出さない / { ok, why } … いちばん 上（カーソルも ここ。決定 2回で すぐ 使える）。使えない ときは うすく・わけ
+  //   pre: 「お気に入り」の 前に 入れる 行（お気に入りの「動かす」）
+  //   つぎ: お気に入りに入れる／はずす → 命令の一覧に出さない／出す（戦いに 出る 技だけ）→ やめる
+  skillAsk(c, id, { use = null, pre = [] } = {}) {
+    const a = abilityFor(id, c);
+    const fav = (c.favorites || []).includes(id);
+    const hidden = this.cmdHidden(c, id);
+    const items = [];
+    if (use) items.push(use.ok ? { label: '使う', value: 'use' } : { label: `使う（${use.why}）`, value: 'use', disabled: true });
+    items.push(...pre);
+    if (!c.species) items.push({ label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' });
+    if (this.cmdHideable(a)) items.push({ label: hidden ? '命令の一覧に出す' : '命令の一覧に出さない', value: 'cmd' });
+    items.push({ label: 'やめる', value: null });
+    return this.pick(a.name, items, hidden ? { note: { text: '今は、戦いの命令の一覧に出していない。', cls: 'muted' } } : {});
+  }
+
+  // skillAsk の「お気に入り」「命令の一覧」を おこなう（ほかの 答えは false）
+  doSkillAct(c, who, id, act) {
+    if (act === 'add' || act === 'remove') {
+      this.sendFav(c, who, id, act);
+      return true;
+    }
+    if (act === 'cmd') {
+      this.toggleCmdOff(c, who, id);
+      return true;
+    }
+    return false;
   }
 
   // ───── そうび ─────
@@ -1836,8 +2008,13 @@ export class FieldMenu {
     const box = el('div');
     const bs = c.battleSettings || {};
     const tname = (t) => TACTICS[t]?.name || t;
+    // 第71回: オートで 使わない 技（autoOff）と 命令の 一覧に 出さない 技（cmdOff）の 数
     const offN = (x) => (Array.isArray(x?.autoOff) ? x.autoOff.length : 0);
-    const offTag = (x) => (offN(x) ? `（使わない技 ${offN(x)}）` : '');
+    const cmdN = (x) => cmdOffList(x).length;
+    const offTag = (x) => {
+      const t = [offN(x) ? `オートで使わない ${offN(x)}` : '', cmdN(x) ? `命令に出さない ${cmdN(x)}` : ''].filter(Boolean);
+      return t.length ? `（${t.join('・')}）` : '';
+    };
     const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name } }];
     // 自分の 仲間（パーティー・馬車）
     for (const s of this.myMates()) {
@@ -1846,7 +2023,7 @@ export class FieldMenu {
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
-      box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。使わない技も選べる（自分も仲間も）。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
+      box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。オートで使わない技・命令の一覧に出さない技も選べる（自分も仲間も）。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
       return box;
     }
     const m = this.mkSub({
@@ -1859,13 +2036,17 @@ export class FieldMenu {
           return;
         }
         this.sub.blur();
-        // 作戦を かえる か、使う 技を えらぶ か（第69回: オートでも 自分で 命令する ときも。主人公も「めいれいさせろ」の 仲間も）
+        // 作戦を かえる か、技を えらぶ か（第71回: 2つに 分けた。主人公も 仲間も）
+        //   オートで使う技を選ぶ … オート（主人公の オート・仲間の 作戦）で 使う 技（autoOff）
+        //   命令で出す技を選ぶ … 自分で 命令する とき（主人公・「めいれいさせろ」の 仲間）の 技の 一覧に 出す 技（cmdOff）
         const what = await this.pick(v.name, [
           { label: '作戦を変える', value: 'tac' },
-          { label: '使う技を選ぶ', value: 'skills' },
+          { label: 'オートで使う技を選ぶ', value: 'skills' },
+          { label: '命令で出す技を選ぶ', value: 'cmd' },
           { label: 'やめる', value: null },
         ]);
         if (what === 'skills') return this.pushView(() => this.autoSkillsView(v.key));
+        if (what === 'cmd') return this.pushView(() => this.cmdSkillsView(v.key));
         if (what === 'tac') {
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
           const t = await this.pick(v.key === 'self' ? 'オートのときの作戦' : `${v.name}の作戦`, [...list, { label: 'やめる', value: null }]);
@@ -1876,18 +2057,29 @@ export class FieldMenu {
         this.redraw();
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: 攻撃中心 / いのちだいじに: 回復中心 / じゅもんせつやく: MPを使わない / めいれいさせろ: 自分でコマンドを選ぶ（仲間だけ）\n「使う技を選ぶ」で使わないにした技は、オートでも、自分で命令する時も、戦いの技の一覧に出なくなる（フィールドで使う時は出る）。' }));
+    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: 攻撃中心 / いのちだいじに: 回復中心 / じゅもんせつやく: MPを使わない / めいれいさせろ: 自分でコマンドを選ぶ（仲間だけ）\n技の選び方は2つある。\n・「オートで使う技を選ぶ」…オートや作戦で戦う時に、使わない技を決める（技の一覧からは消えない）。\n・「命令で出す技を選ぶ」…自分で命令する時（主人公・「めいれいさせろ」の仲間）に、技の一覧に出さない技を決める（オートでは使うことがある）。\nどちらも、フィールドで使う時は出る。' }));
     return box;
   }
 
-  // 使う 技・使わない 技（作戦）。えらぶ たびに「使う／使わない」が かわる（サーバーの autoSkill・ai.js）
-  // 第69回: 「使わない」に した 技は オートでも 自分で 命令する ときも 戦いの 技の 一覧に 出ない（client/battle.js の openCommand）。
-  //   主人公も 仲間（どの 作戦でも）も えらべる。フィールドで 使う 一覧には 出る
+  // オートで 使う 技・使わない 技（作戦の「オートで使う技を選ぶ」）。えらぶ たびに「使う／使わない」が かわる（サーバーの autoSkill・ai.js）
+  // 第71回: オートの AIが 使わない だけ。戦いの 技の 一覧からは 消さない（命令の 一覧に 出さない 技は cmdSkillsView）
   autoSkillsView(key) {
+    return this.skillOffView(key, 'auto');
+  }
+
+  // 第71回: 命令で 出す 技・出さない 技（作戦の「命令で出す技を選ぶ」）。自分で 命令する とき（主人公・「めいれいさせろ」の 仲間）に
+  //   戦いの 技の 一覧に 出さない 技（サーバーの cmdSkill。client/battle.js の openCommand）。呪文・技の メニューでも 切りかえられる
+  cmdSkillsView(key) {
+    return this.skillOffView(key, 'cmd');
+  }
+
+  // 2つの 画面の なかみ（kind: 'auto' … autoOff / 'cmd' … cmdOff）。主人公も 仲間（どの 作戦でも）も えらべる。フィールドで 使う 一覧には どちらも 出る
+  skillOffView(key, kind = 'auto') {
     const g = this.game;
     const c = this.charOf(key) || g.me;
     const box = el('div');
-    const off = new Set(Array.isArray(c.autoOff) ? c.autoOff : []);
+    const cmd = kind === 'cmd';
+    const off = new Set(cmd ? cmdOffList(c) : Array.isArray(c.autoOff) ? c.autoOff : []);
     // 戦いで 使える 技だけ（ルーラなど フィールドだけの 技・きずな技は のぞく）
     // 同じ 名前の 技（大神官と 大賢者の ザオリク など）は 1つに まとめる（サーバーが いっしょに 切りかえる。第41回）
     const seen = new Set();
@@ -1897,23 +2089,19 @@ export class FieldMenu {
       seen.add(a.name);
       return true;
     });
-    // 同じ 名前の どれかが「使わない」なら「使わない」と 出す
+    // 同じ 名前の どれかが「使わない（出さない）」なら「使わない（出さない）」と 出す
     const offNames = new Set([...off].map((id) => abilityFor(id, c)?.name).filter(Boolean));
-    box.append(el('div', { class: 'gold small', text: `${c.name}が戦いで使う技` }));
+    const W = cmd ? { yes: '出す', no: '出さない', all: '全部出す', action: 'cmdSkill', field: 'cmdOff' } : { yes: '使う', no: '使わない', all: '全部使う', action: 'autoSkill', field: 'autoOff' };
+    box.append(el('div', { class: 'gold small', text: cmd ? `${c.name}に命令する時、技の一覧に出す技` : `${c.name}がオートで使う技` }));
     if (!ids.length) {
       box.append(el('div', { class: 'muted', text: 'まだ技を覚えていない。' }));
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
       box.append(this.sub.root);
       return box;
     }
-    // 画面の キャラにも すぐ 入れる（サーバーの 返事を またずに 見た目を かえる）
-    const setLocal = (list) => {
-      const src = key === 'self' ? g.me : [...(g.party?.supports || []), ...(g.party?.wagon || [])].find((x) => x.key === key && x.owner === g.me.id);
-      if (src) src.autoOff = list;
-    };
     const st = powStats(c);
     const items = [
-      { label: '全部使う', value: '__all', disabled: !off.size },
+      { label: W.all, value: '__all', disabled: !off.size },
       ...ids.map((id) => {
         const a = abilityFor(id, c);
         const no = off.has(id) || offNames.has(a.name);
@@ -1923,7 +2111,7 @@ export class FieldMenu {
         const pen = penaltyFor(c, id).penalized;
         return {
           html: `${esc(a.name)}${pen ? '<span class="tag warn">他</span>' : ''}${mp || pw ? `<span class="sk-pow">${esc([mp, pw].filter(Boolean).join('　'))}</span>` : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
-          right: no ? '使わない' : '使う',
+          right: no ? W.no : W.yes,
           rightCls: no ? 'dis' : 'up',
           value: id,
           cls: `k-${abilityRole(a)} sk ${no ? 'auto-off' : ''}`,
@@ -1934,20 +2122,22 @@ export class FieldMenu {
       items,
       onSelect: (it) => {
         if (it.value === '__all') {
-          setLocal([]);
-          g.net.send({ t: 'menu', action: 'autoSkill', key, op: 'all' });
+          this.setOffLocal(key, W.field, []);
+          g.net.send({ t: 'menu', action: W.action, key, op: 'all' });
         } else {
           const nm = abilityFor(it.value, c)?.name;
           const same = learnedAbilities(c).filter((x) => abilityFor(x, c)?.name === nm);
           const no = off.has(it.value) || offNames.has(nm);
           const next = no ? [...off].filter((x) => !same.includes(x)) : [...new Set([...off, ...same])];
-          setLocal(next);
-          g.net.send({ t: 'menu', action: 'autoSkill', key, id: it.value, op: no ? 'on' : 'off' });
+          this.setOffLocal(key, W.field, next);
+          g.net.send({ t: 'menu', action: W.action, key, id: it.value, op: no ? 'on' : 'off' });
         }
         this.redraw();
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: '選ぶたびに「使う／使わない」が切りかわる。\n「使わない」にした技は、オートでも、自分で命令する時も、戦いの技の一覧に出ない（フィールドで使う時は出る）。「全部使う」で元にもどる。' }));
+    box.append(m.root, el('div', { class: 'detail', text: cmd
+      ? '選ぶたびに「出す／出さない」が切りかわる。\n「出さない」にした技は、自分で命令する時（主人公・「めいれいさせろ」の仲間）に、戦いの技の一覧に出ない。オートで使うかは「オートで使う技を選ぶ」で決める。フィールドで使う時は出る。\n呪文・技のメニューで技を選んでも切りかえられる。「全部出す」で元にもどる。'
+      : '選ぶたびに「使う／使わない」が切りかわる。\n「使わない」にした技は、オートや作戦で戦う時に使わない。自分で命令する時の技の一覧には出る（出さない技は「命令で出す技を選ぶ」で決める）。「全部使う」で元にもどる。' }));
     return box;
   }
 

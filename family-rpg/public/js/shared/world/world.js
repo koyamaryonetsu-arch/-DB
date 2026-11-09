@@ -41,6 +41,7 @@ import { alchemySteps, alchemyShelf } from './alchemy.js';
 import { shelfHint } from '../data/secret-hints.js';
 import { migrateSky } from '../data/sky.js';
 import { migrateCh4 } from '../data/story-ch4.js';
+import { migrateCmdOffAll } from '../cmd-off.js';
 import { repairObjective } from '../data/progress.js';
 import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
@@ -1242,6 +1243,8 @@ function normalizeChar(c) {
   // 目標の 文が 古い 版の まま・からっぽ なら、ストーリーの すすみぐあいから なおす（progress.js）
   repairObjective(c);
   ensureCompanions(c);
+  // 第71回: 前の「使わない技」（autoOff）を「命令の一覧に出さない技」（cmdOff）にも うつす（1回だけ。shared/cmd-off.js）
+  migrateCmdOffAll(c);
   // 体で なれない 職業（フルーツジッパー・アラシ）に なっていたら もとに もどす（stats.js）
   fixBodyJob(c);
   for (const e of c.companions || []) fixBodyJob(e?.char);

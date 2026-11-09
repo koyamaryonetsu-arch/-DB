@@ -67,9 +67,10 @@ test('技の ならび: 職業の ほせい（転職の ペナルティ）も �
   const open = b.slice(b.indexOf('  openCommand() {'), b.indexOf('  showMenu('));
   assert.match(open, /const learned = sortByStdPower\(/);
   assert.doesNotMatch(open, /nowJob/);
-  // メニューの 覚えた技・使う技を選ぶ・ひらめきも
+  // メニューの 覚えた技・使う技を選ぶ・ひらめきも（第71回: 覚えた技の タブの 中も 弱い じゅん。shared/skill-view.js）
   const m = src('js/client/ui/menu.js');
   assert.match(m, /const order = sortByStdPower\(learned\);/);
+  assert.match(src('js/shared/skill-view.js'), /const sorted = sortByStdPower\(ids\);/);
   assert.match(m, /const ids = sortByStdPower\(learnedAbilities\(c\)\)/);
   assert.match(m, /sortByStdPower\(shown\)/);
 });
@@ -139,7 +140,9 @@ test('お気に入り: メニューは 戦いと おなじ 見え方で つか�
 });
 
 // ───────────── 3. 使う技を選ぶ ─────────────
-test('使う技を選ぶ: 使わない 技は 自分で 命令する 人の 戦いの 一覧にも 出ない（主人公も）', async () => {
+// 第71回: 「オートで使う技を選ぶ」（autoOff）と「命令で出す技を選ぶ」（cmdOff）に 分けた。
+//   この テストは 第69回の 決めた こと（autoOff）が cmdOff に うつって、命令の 一覧から 消えた ままに なる ことを たしかめる（test/skill-menu-r71.test.js も）
+test('使う技を選ぶ（第71回で 2つに）: 前の「使わない」は 命令の 一覧からも 消えた まま（cmdOff に うつす）', async () => {
   const world = new GameWorld({ offline: true, rng: makeRng(70), rateLimit: false });
   const bot = new Bot(world, 'ナナ');
   await bot.login();
@@ -149,14 +152,17 @@ test('使う技を選ぶ: 使わない 技は 自分で 命令する 人の 戦�
   gainExp(c, expForLevel(12) - c.exp);
   c.jobs.mage = { lv: 5, b: 999 };
   assert.ok(learnedAbilities(c).includes('hyado'));
-  bot.send({ t: 'menu', action: 'autoSkill', key: 'self', id: 'mera', op: 'off' });
-  assert.deepEqual(c.autoOff, ['mera']);
+  // 第69回の セーブ（autoOff だけ。cmdOff は まだ ない）
+  c.autoOff = ['mera'];
+  assert.equal(c.cmdOff, undefined);
   const ctx = startFieldBattle(world, bot.s, { id: 'r69b', sp: 'pururin', group: ['pururin'], zone: 'outskirts', table: 'outskirts', busy: false });
   for (const e of ctx.battle.enemies) { e.hp = e.maxHp = 9999; e.actions = [{ w: 1, id: 'm_nothing' }]; }
   const me = ctx.battle.combatants.find((x) => x.side === 'ally' && x.charId === c.id);
   assert.ok(!me.auto, '自分で 命令する');
-  assert.deepEqual(pub(me).autoOff, ['mera'], 'クライアントに とどく');
-  assert.ok(!pub(me).autoOff.includes('hyado'));
+  assert.deepEqual(me.autoOff, ['mera'], 'オートで 使わない');
+  assert.deepEqual(pub(me).cmdOff, ['mera'], '前からの 人（cmdOff が ない）は autoOff が 命令の 一覧にも きく');
+  assert.ok(!pub(me).cmdOff.includes('hyado'));
+  assert.equal(pub(me).autoOff, undefined, 'autoOff は クライアントに おくらない（AIだけ）');
   // 全部使う（戦いの あと）: つぎの 戦いでは みんな 出る
   for (const e of ctx.battle.enemies) { e.hp = 0; e.alive = false; }
   ctx.battle.checkEnd();
@@ -165,17 +171,20 @@ test('使う技を選ぶ: 使わない 技は 自分で 命令する 人の 戦�
   bot.send({ t: 'menu', action: 'autoSkill', key: 'self', op: 'all' });
   assert.equal(lastMenu(bot).ok, true);
   assert.equal(c.autoOff, undefined, '全部使う');
+  assert.deepEqual(c.cmdOff, ['mera'], 'autoOff を かえる 前に cmdOff に うつした（命令の 一覧からは 消えた まま）');
+  bot.send({ t: 'menu', action: 'cmdSkill', key: 'self', op: 'all' });
+  assert.deepEqual(c.cmdOff, [], '全部出す');
   const ctx2 = startFieldBattle(world, bot.s, { id: 'r69c', sp: 'pururin', group: ['pururin'], zone: 'outskirts', table: 'outskirts', busy: false });
   const me2 = ctx2.battle.combatants.find((x) => x.side === 'ally' && x.charId === c.id);
-  assert.equal(pub(me2).autoOff, undefined);
-  // 画面: 戦いの コマンドは autoOff を のぞく。フィールドで 使う 一覧は のぞかない
+  assert.equal(pub(me2).cmdOff, undefined);
+  // 画面: 戦いの コマンドは cmdOff を のぞく（第71回）。フィールドで 使う 一覧は のぞかない
   const b = src('js/client/battle.js');
-  assert.match(b, /const off = new Set\(a\.autoOff \|\| \[\]\);/);
+  assert.match(b, /const off = new Set\(a\.cmdOff \|\| \[\]\);/);
   assert.match(b, /filter\(\(id\) => !off\.has\(id\) && battleAbilityOk/);
-  assert.doesNotMatch(src('js/shared/fieldskills.js'), /autoOff/);
+  assert.doesNotMatch(src('js/shared/fieldskills.js'), /autoOff|cmdOff/);
   const m = src('js/client/ui/menu.js');
-  assert.match(m, /label: '使う技を選ぶ', value: 'skills'/);
-  assert.match(m, /自分で命令する時も、戦いの技の一覧に出ない（フィールドで使う時は出る）/);
+  assert.match(m, /label: 'オートで使う技を選ぶ', value: 'skills'/);
+  assert.match(m, /label: '命令で出す技を選ぶ', value: 'cmd'/);
   await tickN(world, 1);
 });
 

@@ -126,7 +126,9 @@ test('メニュー: オートで 使う 技・呪文と技の 一覧に 威力�
   assert.match(auto, /MP\$\{mpCost\(c, id\)\}/);
   assert.match(auto, /sk-pow/);
   const sk = src.slice(src.indexOf('skillsView(active, who'), src.indexOf('autoSkillsView(key) {'));
-  assert.match(sk, /skillPowerLine\(id, c/);
+  // 第71回 E: 覚えた技・お気に入りは えらんでいる 技の せつめいに 威力（skillCardInfo → skillPowerLine）
+  assert.match(sk, /skillCardInfo\(id, c\)/);
+  assert.match(readFileSync(new URL('../public/js/client/ui/skillinfo.js', import.meta.url), 'utf8'), /pow: skillPowerLine\(id, pc, \{ who \}\)/);
   const css = readFileSync(new URL('../public/css/style.css', import.meta.url), 'utf8');
   assert.match(css, /\.menu \.item \.sk-pow \{/);
   const bsrc = readFileSync(new URL('../public/js/client/battle.js', import.meta.url), 'utf8');

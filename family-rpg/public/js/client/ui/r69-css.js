@@ -36,6 +36,41 @@ const CSS = `
 .fav-grab-bar .fg-ab { display: flex; flex-direction: column; gap: 0.4em; }
 .fav-grab-bar .fg-ab .btn { min-width: 6em; min-height: 2.4em; }
 .fav-grab-bar .fg-ab .btn.gold { color: var(--accent); border-color: var(--accent); }
+
+/* 第71回: 戦いの説明の☆お気に入りと、その下の「Y：お気に入り」「長おし：お気に入り」 */
+.b-info .favwrap { float: right; display: flex; flex-direction: column; align-items: center; margin: 0 0 0.15em 0.5em; }
+.b-info .favwrap .favbtn { float: none; margin: 0; }
+.b-info .favwrap .favkey { font-size: 0.66em; line-height: 1.2; margin-top: 0.08em; color: var(--accent); white-space: nowrap; opacity: 0.9; }
+/* 第71回: メニューのお気に入り・覚えた技で、選んでいる技の説明（戦いの説明と同じ中身を短く） */
+.fav-info { margin: 0.4em 0 0.1em; padding: 0.3em 0.5em; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 6px; background: rgba(10, 12, 40, 0.6); font-size: 0.84em; line-height: 1.38; min-height: 4.1em; }
+.fav-info .fi-h { color: var(--accent); }
+.fav-info .fi-p { color: #ffe8a8; font-variant-numeric: tabular-nums; }
+.fav-info .fi-d { color: #d8d6ee; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.fav-info .fi-t { display: inline-block; font-size: 0.8em; border: 1px solid currentColor; border-radius: 4px; padding: 0 0.3em; margin-left: 0.3em; color: var(--muted); }
+.fav-grabbing .fav-info { min-height: 0; margin-top: 0.25em; padding-top: 0.2em; padding-bottom: 0.2em; }
+.fav-grabbing .fav-info .fi-d { -webkit-line-clamp: 1; }
+.fav-grabbing .fav-grab-bar { margin-top: 0.3em; }
+.skills-view.fav-grabbing .sk-head .tab-hint { display: none; }
+/* 第71回: 命令の一覧に出さない技（覚えた技・お気に入り・回復・回復以外）のしるし */
+.menu .item .tag.cmdhide { color: #b8b6d0; border-color: #8a88a8; }
+.menu .item.cmd-off > .l { opacity: 0.72; }
+.menu.fav-grid .item.cmd-off { border-style: dashed; }
+/* 第71回E: 覚えた技（2列のわく・種類で見る／職業で見る） */
+.lv-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3em 0.6em; margin: 0.3em 0 0.25em; }
+.lv-bar .lv-views, .lv-bar .lv-secs { display: flex; gap: 0.25em; }
+.lv-bar .btn { min-height: 0; padding: 0.15em 0.6em; font-size: 0.86em; border-radius: 6px; }
+.lv-bar .btn.sel { color: var(--accent); border-color: var(--accent); background: rgba(255, 214, 107, 0.14); }
+.lv-bar .btn:disabled { opacity: 0.35; }
+.tabs.lv-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.25em; margin: 0 0 0.35em; padding-bottom: 0.15em; scrollbar-width: thin; }
+.tabs.lv-tabs .btn { flex: none; min-height: 0; padding: 0.15em 0.55em; font-size: 0.84em; white-space: nowrap; }
+.tabs.lv-tabs .btn.now:not(.sel) { border-color: rgba(255, 214, 107, 0.5); }
+.tabs.lv-tabs .btn.sel { color: var(--accent); border-color: var(--accent); background: rgba(255, 214, 107, 0.14); }
+.menu.fav-grid .item .favmk { color: var(--accent); margin-right: 0.1em; }
+.menu.fav-grid .item.dis { opacity: 0.55; }
+.fav-info .fi-t.gold { color: var(--accent); }
+.fav-info .fi-l { color: var(--muted); font-size: 0.86em; }
+.fav-info.lv-info { position: sticky; bottom: 0; z-index: 2; background: var(--win-solid, #0b0d2c); box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.55); }
+.menu.learn-grid .item { scroll-margin-bottom: 8.5em; }
 `;
 
 export function addR69Css() {

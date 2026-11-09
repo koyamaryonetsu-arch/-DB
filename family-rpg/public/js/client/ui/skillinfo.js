@@ -109,6 +109,21 @@ export function skillPowerLine(id, pc, { who = pc, lv = null, st = powStats(pc) 
   return one(a.effect);
 }
 
+// 第71回: メニューの お気に入り（ならびかえ）で えらんでいる 技の せつめい。戦いの せつめいと おなじ 中身を みじかく
+//   head: 【種類（属性）】MP・相手 / pow: 威力の 目安（skillPowerLine）/ desc: せつめい / warn: 今の 職業で ない 技の ⚠
+export function skillCardInfo(id, pc, who = pc) {
+  const a = abilityFor(id, who);
+  if (!a) return null;
+  const cost = a.effect?.type === 'mahouken' ? null : pc ? mpCost(pc, id) : a.mp || 0;
+  const pen = pc ? penaltyFor(pc, id) : null;
+  return {
+    head: `【${abilityTypeText(a)}】${cost === null ? '' : `MP${cost}・`}${targetText(a) || '—'}`,
+    pow: skillPowerLine(id, pc, { who }),
+    desc: a.desc || '',
+    warn: pen?.penalized ? `⚠${pen.label}` : '',
+  };
+}
+
 // 技の 効果の 目安（メニューの「呪文・技」にも 出す。lv: 技の レベル）
 export function skillEffectText(id, pc, lv = 1, who = pc) {
   const a = abilityFor(id, who);
@@ -178,6 +193,12 @@ export function favHint(text, touch = false) {
   if (touch) return text.replace('▶もう一度タップで使う', '▶もう一度タップで使う・長おしでお気に入り');
   // 第69回: 種類（タブ）は L・R（キーボードの Q・E）で かえる
   return `${text}\n（L・R〈Q・E〉で種類を切りかえ）\n（長おし・Yキーでお気に入り）`;
+}
+
+// 第71回: 戦いの 技の せつめいの ☆お気に入り ボタンの 下の ひとこと（どう おせば お気に入りに できるか）
+//   スマホ: 長おし / キーボード・ゲームパッド: Y（on: もう お気に入り → はずす）
+export function favKeyHint(touch = false, on = false) {
+  return `${touch ? '長おし' : 'Y'}：${on ? 'はずす' : 'お気に入り'}`;
 }
 
 // 道具の せつめい（戦いの 中）

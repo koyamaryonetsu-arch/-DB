@@ -5,6 +5,7 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
+import { cmdOffList } from '../cmd-off.js';
 import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js';
 import { jobBattlesForLevel, JOBS } from '../data/jobs.js';
 import { NPC_SUPPORTS, GUESTS } from '../data/shops.js';
@@ -623,6 +624,8 @@ export function supportInfo(x) {
     mjobs: x.kind === 'family' ? masteredJobs(x.char) : undefined,
     // オートで 使わない 技（作戦。家族の キャラの ぶんは 出さない）
     autoOff: x.kind !== 'family' && Array.isArray(x.char.autoOff) && x.char.autoOff.length ? x.char.autoOff : undefined,
+    // 第71回: 命令の 一覧に 出さない 技（作戦の「命令で出す技を選ぶ」・呪文・技の メニュー。shared/cmd-off.js）
+    cmdOff: x.kind !== 'family' && cmdOffList(x.char).length ? cmdOffList(x.char) : undefined,
     status: x.char.status?.poison ? ['poison'] : [],
   };
 }

@@ -14,6 +14,7 @@ import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, 
 // 第50回 D4: 上の 職業の 技ほど 回復が 多い（フィールドでも おなじ。skill-tier.js）
 import { skillMods } from '../skill-tier.js';
 import { TACTICS } from '../ai.js';
+import { cmdOffList, fixCmdOff, toggleOffList } from '../cmd-off.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview, breedFinder } from './breed.js';
@@ -625,34 +626,30 @@ export function menuAction(world, s, msg) {
       target.tactics = t;
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
-    // オートの ときに 使う 技・使わない 技（作戦の「オートで使う技」）。char.autoOff に 使わない 技を おぼえる（ai.js）
+    // オートの ときに 使う 技・使わない 技（作戦の「オートで使う技を選ぶ」）。char.autoOff に 使わない 技を おぼえる（ai.js）
     //   key: 'self' か 自分の 仲間 / op: 'on'（使う）・'off'（使わない）・'all'（全部 使う）
-    case 'autoSkill': {
+    // 第71回: 命令の 一覧に 出さない 技（作戦の「命令で出す技を選ぶ」・呪文・技の メニュー）は 別の char.cmdOff（cmdSkill。shared/cmd-off.js）
+    //   op: 'on'（出す）・'off'（出さない）・'all'（全部 出す）。cmdOff は 空でも 配列で のこす（autoOff から うつしかえ ずみ の しるし）
+    case 'autoSkill':
+    case 'cmdSkill': {
       const p = partyOf(world, s);
       const own = msg.key === 'self' ? null : companionOf(ensureCompanions(c), msg.key);
       const sup = msg.key === 'self' ? null : p?.supports.find((x) => x.key === msg.key && x.owner === c.id);
       const targets = msg.key === 'self' ? [c] : [...new Set([own?.char, sup?.char].filter(Boolean))];
       if (!targets.length) return reply(false, '');
       const t0 = targets[0];
-      const off = new Set(Array.isArray(t0.autoOff) ? t0.autoOff : []);
-      if (msg.op === 'all') off.clear();
-      else {
-        const id = String(msg.id || '');
-        const learned = learnedAbilities(t0);
-        if (!ABILITIES[id] || !learned.includes(id)) return reply(false, '');
-        // 第41回: 同じ 名前の 技（大神官と 大賢者の ザオリク など）は いっしょに「使う／使わない」
-        const same = learned.filter((x) => ABILITIES[x]?.name === ABILITIES[id].name);
-        for (const x of same) {
-          if (msg.op === 'off') off.add(x);
-          else off.delete(x);
-        }
-      }
-      const list = [...off].filter((x) => ABILITIES[x]).slice(0, 200);
+      // autoOff を かえる 前に、まだの 人は 今の autoOff を cmdOff に うつす（第69回の 決めた ことを のこす）
+      for (const t of targets) fixCmdOff(t);
+      const cmd = msg.action === 'cmdSkill';
+      const list = toggleOffList(cmd ? cmdOffList(t0) : t0.autoOff, learnedAbilities(t0), msg.op, msg.id);
+      if (!list) return reply(false, '');
       for (const t of targets) {
-        if (list.length) t.autoOff = list;
+        if (cmd) t.cmdOff = list;
+        else if (list.length) t.autoOff = list;
         else delete t.autoOff;
       }
-      return reply(true, msg.op === 'all' ? `${t0.name}は、どの技も使う。` : '');
+      if (msg.op !== 'all') return reply(true, '');
+      return reply(true, cmd ? `${t0.name}は、どの技も命令の一覧に出す。` : `${t0.name}は、どの技も使う。`);
     }
     // さいきょう装備（ドラクエ風）: ふくろの 中から 攻撃力・守備力が いちばん 上がる ものを 装備する
     // モンスターの なかまも（しゅぞくで 装備できる 物だけ）

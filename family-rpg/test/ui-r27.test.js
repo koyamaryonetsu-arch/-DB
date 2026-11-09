@@ -76,7 +76,7 @@ test('メニューの 道具: スマホは タップで せつめい → もう�
   assert.match(items, /menuItemText\(it\.value/);
   assert.match(items, /class: 'items-view'/);
   const skills = menu.slice(menu.indexOf('  skillsView('), menu.indexOf('  sendFav('));
-  assert.equal((skills.match(/tapConfirm: touch/g) || []).length, 2, '覚えた技・今使える');
+  assert.equal((skills.match(/tapConfirm: touch/g) || []).length, 3, '覚えた技・回復／回復以外・お気に入り（第71回）');
   const css = src('css/style.css');
   assert.match(css, /\.items-view > \.menu \{[^}]*overflow-y: auto/);
   assert.match(css, /\.items-view > \.item-detail \{[^}]*flex: none/);

@@ -58,7 +58,7 @@ import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } fro
 import { targetTag } from './ui/info.js';
 // 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
 import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
+import { battleSkillText, battleItemText, favHint, favKeyHint } from './ui/skillinfo.js';
 // 第35回: 技えらびの タブ（効果ごと）
 import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js';
 // 第69回: 技の ならび（弱い じゅん。職業の ほせい なし）
@@ -584,8 +584,9 @@ export class BattleScene {
     // フィールドだけの 呪文（ルーラ）は 出さない（shared/stats.js の battleAbilityOk。サーバーも おなじ きまり）。
     // MPが 足りない・呪文を ふうじられた ときは 出して えらべない だけ
     const pc = a.pc || { job: a.job, jobs: {} };
-    // 第69回: 作戦の「使う技を選ぶ」で「使わない」に した 技は 出さない（自分で 命令する ときも。サーバーの autoOff は 同じ 名前の 技も 入っている）
-    const off = new Set(a.autoOff || []);
+    // 第71回: 「命令で出す技を選ぶ」（作戦）・呪文・技の メニューで「出さない」に した 技は 出さない（サーバーの cmdOff は 同じ 名前の 技も 入っている）。
+    //   作戦の「オートで使う技を選ぶ」（autoOff）は オートの AIだけ（一覧からは 消さない）。第69回は autoOff で 消していた
+    const off = new Set(a.cmdOff || []);
     // 第69回: ならびは ダメージ・回復の 弱い じゅん（職業の ほせい なしの ふつうの 強さ。shared/skill-sort.js）。★お気に入りは その ならび
     const learned = sortByStdPower((a.abilities || []).filter((id) => !off.has(id) && battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells))));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
@@ -822,8 +823,9 @@ export class BattleScene {
       this.info(compact ? txt : favHint(txt, this.touchUi()));
       const on = this.favsOf(a).includes(it.value);
       this.infoEl.classList.add('hasfav');
-      // 右上に うかべる（文は まわりを 回りこむ。css の .b-info .favbtn）
-      this.infoEl.prepend(el('button', {
+      // 右上に うかべる（文は まわりを 回りこむ。css の .b-info .favwrap）
+      // 第71回: ボタンの 下に「Y：お気に入り」（キーボード・ゲームパッド）・「長おし：お気に入り」（スマホ）を 小さく 出す（わかりやすく）
+      this.infoEl.prepend(el('div', { class: 'favwrap' }, el('button', {
         class: `btn favbtn ${on ? 'on' : ''}`,
         text: on ? '★お気に入り' : '☆お気に入り',
         title: on ? 'お気に入りからはずす' : 'お気に入りに入れる',
@@ -833,7 +835,7 @@ export class BattleScene {
           this.toggleFav(a, it.value);
           this.abilityMenu(ids, page, { value: it.value, off, tab: cur.id });
         },
-      }));
+      }), el('div', { class: 'favkey', text: favKeyHint(this.touchUi(), on) })));
     };
     this.showMenu(items, (it) => {
       const ab = abilityFor(it.value, a);

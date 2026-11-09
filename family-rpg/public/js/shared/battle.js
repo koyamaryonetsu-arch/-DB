@@ -76,6 +76,7 @@ import { r51bEffect, r51bPerform, r51bAfterCast, barrierDamage, kenkiCrit, kenki
 import { r66aMonPal } from './battle-r66a.js';
 // 第66回 E2: セーブと ロード（ゲームの神）・楽天ポイント（楽天ゴールド・ブラックカードマン）。battle-r66e2.js
 import { r66e2Effect, cardPtMult } from './battle-r66e2.js';
+import { sameNameOff, cmdOffList } from './cmd-off.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -2334,9 +2335,12 @@ export class Battle {
 // ───────────── つくる ─────────────
 // オートで 使わない 技（作戦）。同じ 名前の 技（大神官と 大賢者の ザオリク など）は、どれか 1つが「使わない」なら みんな 使わない（第41回）
 export function autoOffFor(char, abilities) {
-  if (!Array.isArray(char?.autoOff) || !char.autoOff.length) return [];
-  const names = new Set(char.autoOff.map((id) => ABILITIES[id]?.name).filter(Boolean));
-  return abilities.filter((id) => char.autoOff.includes(id) || names.has(ABILITIES[id]?.name));
+  return sameNameOff(char?.autoOff, abilities);
+}
+// 第71回: 自分で 命令する ときに 技の 一覧に 出さない 技（作戦の「命令で出す技を選ぶ」・呪文・技の メニュー。shared/cmd-off.js）
+//   cmdOff が まだ ない 人は autoOff（第69回の 決めた こと）。同じ 名前の 技も
+export function cmdOffFor(char, abilities) {
+  return sameNameOff(cmdOffList(char), abilities);
 }
 export function allyFromCharacter(char, init = {}) {
   const st = computeStats(char);
@@ -2376,6 +2380,8 @@ export function allyFromCharacter(char, init = {}) {
     abilities,
     // オートの ときに 使わない 技（作戦の「オートで使う技」。ai.js）
     autoOff: autoOffFor(char, abilities),
+    // 第71回: 自分で 命令する ときに 技の 一覧に 出さない 技（client/battle.js の openCommand）
+    cmdOff: cmdOffFor(char, abilities),
     penChar: { job: char.job, jobs: char.jobs },
     // お気に入りの 技（ならび じゅん）
     favs: char.species ? [] : (Array.isArray(char.favorites) ? char.favorites.slice(0, 30) : []),
@@ -2463,8 +2469,8 @@ export function pub(c) {
     // 今の 魔力・回復魔力（バフも 入れる）。技の せつめいで 今の 魔力での ダメージを 出す（第50回 N1。shared/skill-power.js）
     pow: c.side === 'ally' ? { mag: Math.round(effMag(c)), heal: Math.round(c.healPow || 0) } : undefined,
     favs: c.side === 'ally' ? c.favs : undefined,
-    // 第69回: 作戦で「使わない」に した 技（自分で 命令する 人の 技の 一覧にも 出さない。client/battle.js の openCommand）
-    autoOff: c.side === 'ally' && c.autoOff?.length ? c.autoOff : undefined,
+    // 第71回: 命令の 一覧に 出さない 技（client/battle.js の openCommand）。オートで 使わない 技（autoOff）は サーバーの AIだけ
+    cmdOff: c.side === 'ally' && c.cmdOff?.length ? c.cmdOff : undefined,
     tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
     tacBy: c.side === 'ally' ? c.tacBy || null : undefined,
     covering: c.cover ? c.cover.target : null,
