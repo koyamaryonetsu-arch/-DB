@@ -137,8 +137,10 @@ const COMP_EMPTY = {
   look: null, job: null, jobs: {}, items: [], keyItems: [], seeds: {}, status: {}, flags: {}, chests: {}, sparkles: {}, quests: {}, kills: {},
   skillUse: {}, hirameki: [], supportLog: [], pos: null, spawn: null, objective: '',
   equip: { weapon: null, armor: null, shield: null, head: null, acc: null },
+  // 第72回: 作戦の ふつう（'balanced'。仲間 40人で 800文字くらい）
+  tactics: 'balanced',
 };
-const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip'];
+const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip', 'tactics'];
 const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // 魔物あずかり所の 魔物（c.storage。第43回 C）も 同じ 形なので いっしょに はぶく
 const slimList = (char, list) => list.map((e) => {
