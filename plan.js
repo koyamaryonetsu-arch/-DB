@@ -98,7 +98,7 @@ const COMPACT_HIDE = ['stage', 'margin_rate', 'partner', 'note'];
       return data || [];
     },
     async updateRow(id, patch) {
-      patch = Object.assign({}, patch, { updated_at: nowIso(), updated_by: userName() });
+      patch = fillText(Object.assign({}, patch, { updated_at: nowIso(), updated_by: userName() }));
       const sb = sbc();
       if (!sb) { const all = lsGet(LS.rows, []); const r = all.find((x) => x.id === id); if (r) Object.assign(r, patch); lsSet(LS.rows, all); return; }
       const { error } = await sb.from('work_plan_rows').update(patch).eq('id', id);
@@ -437,7 +437,15 @@ const COMPACT_HIDE = ['stage', 'margin_rate', 'partner', 'note'];
     buildView(); schedule(); renderBody();
     return inv;
   }
-  const dbRow = (r) => { const o = {}; ['id', 'plan_id', 'sort_order', 'row_type', 'case_id', 'group_name', 'stage', 'theater', 'name', 'amount', 'margin_rate', 'person', 'design_person', 'build_person', 'partner', 'note', 'bars', 'updated_by'].forEach((k) => { if (r[k] !== undefined) o[k] = r[k]; }); return o; };
+  // DB へ送る形。文字の列は空（null）にできないので、無い項目は '' で埋める（まとめて保存する時、1行でも欠けると全部が失敗するため）
+  const TEXT_KEYS = ['row_type', 'group_name', 'stage', 'theater', 'name', 'person', 'design_person', 'build_person', 'partner', 'note', 'updated_by'];
+  const fillText = (o) => { TEXT_KEYS.forEach((k) => { if (k in o && (o[k] === null || o[k] === undefined)) o[k] = k === 'row_type' ? 'item' : ''; }); if ('bars' in o && !o.bars) o.bars = {}; return o; };
+  const dbRow = (r) => {
+    const o = {};
+    ['id', 'plan_id', 'sort_order', 'row_type', 'case_id', 'group_name', 'stage', 'theater', 'name', 'amount', 'margin_rate', 'person', 'design_person', 'build_person', 'partner', 'note', 'bars', 'updated_by'].forEach((k) => { o[k] = r[k] === undefined ? null : r[k]; });
+    if (o.case_id === '') o.case_id = null;
+    return fillText(o);
+  };
   function undo() { const u = S.undo.pop(); if (!u) return; const inv2 = apply(u.inv, false); S.redo.push({ fwd: u.inv, inv: inv2 }); }
   function redo() { const u = S.redo.pop(); if (!u) return; const inv2 = apply(u.inv, false); S.undo.push({ fwd: u.inv, inv: inv2 }); }
   function schedule() { clearTimeout(S.timer); S.timer = setTimeout(flush, 500); }
@@ -704,7 +712,7 @@ const COMPACT_HIDE = ['stage', 'margin_rate', 'partner', 'note'];
       let gi = view.findIndex((r) => r.row_type === 'group' && norm(r.group_name) === norm(gname));
       if (gi < 0) {
         const last = view.length ? view[view.length - 1].sort_order : 0;
-        const g = { id: uuid(), plan_id: S.plan.id, sort_order: last + 1000, row_type: 'group', group_name: gname, bars: {}, updated_by: userName() };
+        const g = { id: uuid(), plan_id: S.plan.id, sort_order: last + 1000, row_type: 'group', case_id: null, group_name: gname, stage: '', theater: '', name: '', amount: null, margin_rate: null, person: '', design_person: '', build_person: '', partner: '', note: '', bars: {}, updated_by: userName() };
         view.push(g); inserts.push(g); gi = view.length - 1;
       }
       let end = gi; while (end + 1 < view.length && view[end + 1].row_type !== 'group') end++;

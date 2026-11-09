@@ -214,6 +214,10 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 
 ### 劇場カルテの追加（2026-11）
 - 「🌐 公式サイトで確かめる」: /api/theater-ai task=verify（Opus＋web_fetch で各社の劇場一覧）→ 無い劇場は theaters.hidden=true（SETUP_THEATER_VERIFY.sql）。人が「隠すのをやめる」と hidden_reason が「人が戻した…」になり、以後は隠さない
+  - AI（web_fetch＋web_search。そのサイトの中だけ）は official_list（公式の劇場名）も返す。AI が「無い」と言っても placeCore（会社名・空白を取った場所の名前）が公式の一覧と含まれ合えば「ある」とみなす
+  - 公式の一覧が取れない時は site_ok=false（何も変えない）。「無い」が max(3, 15%) を超えたら自動では隠さず suspect で返す（前に AI が自動で隠した分も一度戻す）→ ダイアログで人がチェックして task=verify-hide で隠す
+- 劇場名で探して2つ以上合う時（例「川崎」）は勝手に開かず、入力の下に候補（#tiSearchPick）を出す
+- 工事予定表の保存: dbRow / fillText で文字の列（NOT NULL）を必ず '' で埋める（PostgREST はまとめて入れる時、1行でも欠けた項目を null で送るため）
 - 劇場名を打って探す（#tiTheaterSearch＋datalist）。各タブは Excel のような表（見出しで並べ替え・見出しの下で列ごとに絞り込み）。機器表は「列を選ぶ」
 
 ### 空調負荷計算（書類棚の ❄）
