@@ -280,61 +280,116 @@
   }
   function grow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight + 2, 260) + 'px'; }
 
+  /* ---------- Excel のような表の部品（見出しで並べ替え・列ごとに絞り込み） ---------- */
+  const LS_SORT = 'karteSortV1', LS_EQCOLS = 'karteEqColsV1';
+  S.sort = lsGet(LS_SORT, {});          // { タブ: { k, dir: 1|-1 } }
+  S.colf = {};                          // { タブ: { 列: 絞り込みの言葉 } }
+  const EQ_DEFAULT = ['system', 'symbol', 'kind', 'maker', 'model', 'cool_kw', 'qty', 'year', 'serves'];
+  S.eqVis = lsGet(LS_EQCOLS, EQ_DEFAULT);
+  // cols: [{ k, label, w, sort:false, filter:false, cls }]
+  function headHtml(tab, cols) {
+    const st = S.sort[tab] || {}, cf = S.colf[tab] || {};
+    return `<thead><tr>${cols.map((c) => {
+      const on = st.k === c.k; const arrow = on ? (st.dir > 0 ? ' ▲' : ' ▼') : '';
+      return `<th class="kt-th${c.cls ? ' ' + c.cls : ''}${c.sort === false ? '' : ' kt-sortable'}${on ? ' on' : ''}"${c.w ? ` style="width:${c.w}px;min-width:${c.w}px"` : ''}${c.sort === false ? '' : ` data-sort="${c.k}" title="押すと並べ替え（もう一度で逆・3回目で元の順）"`}>${c.label}${arrow}</th>`;
+    }).join('')}</tr><tr class="kt-frow">${cols.map((c) => c.filter === false ? '<th></th>' : `<th><input type="search" size="2" class="kt-colf" data-fk="${c.k}" value="${esc(cf[c.k] || '')}" placeholder="絞り込み" aria-label="${esc(c.label)}で絞り込み"></th>`).join('')}</tr></thead>`;
+  }
+  // 列ごとの絞り込みと並べ替え。getv(行, 列) で比べる値
+  function gridRows(tab, list, getv) {
+    const cf = S.colf[tab] || {};
+    let out = list.filter((r) => Object.keys(cf).every((k) => !cf[k] || norm(getv(r, k)).includes(norm(cf[k]))));
+    const st = S.sort[tab];
+    if (st && st.k) {
+      out = out.slice().sort((a, b) => {
+        const x = getv(a, st.k), y = getv(b, st.k);
+        const nx = Number(x), ny = Number(y);
+        const bothNum = x !== '' && y !== '' && x != null && y != null && isFinite(nx) && isFinite(ny);
+        const c = bothNum ? nx - ny : String(x == null ? '' : x).localeCompare(String(y == null ? '' : y), 'ja');
+        return c * st.dir;
+      });
+    }
+    return out;
+  }
+  const filtered = (tab) => Object.values(S.colf[tab] || {}).some(Boolean) || !!S.filter;
+
   /* ---------- 持病・注意 / 備考 / 設備メモ ---------- */
   const PH = { chronic: '例: 夏場 SCR3 が冷えにくい（室外機の能力不足）', note: '例: 作業は2日前までに防災センターへ申請', equipment: '例: シアター系統はダイキン VRV（2014年更新）' };
+  const whoOf = (n) => n.origin === 'ai' ? 'AI' : n.origin === 'migrated' ? '前の登録' : (n.created_by || '人');
+  const NOTE_COLS = [
+    { k: '_sel', label: '<input type="checkbox" class="kt-sel-all" title="全部選ぶ">', w: 28, sort: false, filter: false, cls: 'kt-c-sel' },
+    { k: 'source_date', label: '年月', w: 78 },
+    { k: 'body', label: '内容' },
+    { k: 'evidence', label: '出どころ', w: 210 },
+    { k: 'who', label: '入れた', w: 76 },
+    { k: '_acts', label: '', w: 92, sort: false, filter: false }
+  ];
+  function noteVal(n, k) { return k === 'who' ? whoOf(n) : n[k] == null ? '' : n[k]; }
   function notesHtml(kind) {
     const f = norm(S.filter);
-    const list = S.notes.filter((n) => n.kind === kind).sort(sortNotes).filter((n) => !f || norm(n.body + n.evidence).includes(f));
+    const base = S.notes.filter((n) => n.kind === kind).sort(sortNotes).filter((n) => !f || norm(n.body + n.evidence).includes(f));
+    const list = gridRows(kind, base, noteVal);
     const all = S.notes.filter((n) => n.kind === kind).length;
     const selN = list.filter((n) => S.sel.has(n.id)).length;
     return `
       <div class="kt-add">
-        <textarea class="tm-input kt-grow" id="ktNewBody" rows="2" placeholder="${esc(PH[kind])}"></textarea>
+        <textarea class="tm-input kt-grow" id="ktNewBody" rows="1" placeholder="${esc(PH[kind])}（Ctrl+Enter で足す）"></textarea>
         <label class="kt-add-date">年月 <input type="month" id="ktNewDate" class="tm-input" value="${new Date().getFullYear()}-${pad(new Date().getMonth() + 1)}"></label>
         <button type="button" class="primary" data-act="add-note" data-kind="${kind}">＋ ${KINDS[kind]}を足す</button>
       </div>
       <div class="kt-bar">
-        <input type="search" class="tm-input kt-filter" id="ktFilter" placeholder="🔍 絞り込み（言葉で探す）" value="${esc(S.filter)}">
+        <input type="search" class="tm-input kt-filter" id="ktFilter" placeholder="🔍 全部の列から探す" value="${esc(S.filter)}">
         <span class="kt-bar-n">${list.length === all ? all + '件' : list.length + ' / ' + all + '件'}</span>
         <span class="kt-bar-sel${selN ? '' : ' hidden'}">選んだ ${selN} 件を
           <button type="button" data-act="move-sel">↪ 別の劇場・種類へ移す</button>
           <button type="button" class="danger" data-act="del-sel">🗑 消す</button>
         </span>
+        <span class="kt-bar-hint">見出しを押すと並べ替え・見出しの下の欄で列ごとに絞り込み・内容をダブルクリックで直す</span>
       </div>
-      ${list.length ? `<ul class="kt-notes">${list.map(noteHtml).join('')}</ul>` : `<p class="empty-msg">${all ? '絞り込みに合うものはありません。' : 'まだ登録されていません。上の欄に書いて「＋ 足す」を押してください。'}</p>`}`;
+      ${all ? `<div class="kt-eq-wrap"><table class="kt-xl kt-notes">${headHtml(kind, NOTE_COLS)}<tbody>${list.map(noteHtml).join('')}</tbody></table>
+        ${list.length ? '' : '<p class="empty-msg">絞り込みに合うものはありません。</p>'}</div>`
+        : '<p class="empty-msg">まだ登録されていません。上の欄に書いて「＋ 足す」を押してください。</p>'}`;
   }
   function noteHtml(n) {
     const ai = n.origin === 'ai';
-    const meta = [ai ? '🤖 AIが入れた' : n.origin === 'migrated' ? '前の登録から' : (n.created_by ? n.created_by + ' が入れた' : ''), n.evidence ? '出どころ: ' + n.evidence : ''].filter(Boolean).join('　');
     if (S.editing === n.id) {
-      return `<li class="kt-note editing" data-id="${esc(n.id)}">
+      return `<tr class="kt-note editing" data-id="${esc(n.id)}"><td colspan="${NOTE_COLS.length}">
         <div class="kt-edit">
           <textarea class="tm-input kt-grow kt-edit-body" rows="3">${esc(n.body)}</textarea>
           <div class="kt-edit-row">年月 <input type="month" class="tm-input kt-edit-date" value="${esc(n.source_date || '')}">
             出どころ <input type="text" class="tm-input kt-edit-ev" value="${esc(n.evidence || '')}" placeholder="メールの件名・資料名など">
             <button type="button" class="primary" data-act="save-note">保存</button><button type="button" data-act="cancel-edit">やめる</button></div>
-        </div></li>`;
+        </div></td></tr>`;
     }
-    return `<li class="kt-note${ai ? ' ai' : ''}" data-id="${esc(n.id)}">
-      <input type="checkbox" class="kt-sel" ${S.sel.has(n.id) ? 'checked' : ''} title="選ぶ（まとめて移す・消す）">
-      <span class="kt-date">${esc(n.source_date || '—')}</span>
-      <div class="kt-main"><div class="kt-body">${esc(n.body)}</div>${meta ? `<div class="kt-meta">${esc(meta)}</div>` : ''}</div>
-      <div class="kt-acts"><button type="button" data-act="edit-note" title="直す">✏</button><button type="button" data-act="move-note" title="別の劇場・種類へ移す">↪</button><button type="button" class="danger" data-act="del-note" title="消す">🗑</button></div>
-    </li>`;
+    return `<tr class="kt-note${ai ? ' ai' : ''}" data-id="${esc(n.id)}">
+      <td class="kt-c-sel"><input type="checkbox" class="kt-sel" ${S.sel.has(n.id) ? 'checked' : ''} title="選ぶ（まとめて移す・消す）"></td>
+      <td class="kt-date">${esc(n.source_date || '')}</td>
+      <td class="kt-body" title="ダブルクリックで直す">${esc(n.body)}</td>
+      <td class="kt-ev">${esc(n.evidence || '')}</td>
+      <td class="kt-who">${ai ? '🤖 ' : ''}${esc(whoOf(n))}</td>
+      <td class="kt-acts"><button type="button" data-act="edit-note" title="直す">✏</button><button type="button" data-act="move-note" title="別の劇場・種類へ移す">↪</button><button type="button" class="danger" data-act="del-note" title="消す">🗑</button></td>
+    </tr>`;
   }
 
   /* ---------- 機器表 ---------- */
+  function eqCols() {
+    const vis = EQ_COLS.filter((c) => S.eqVis.includes(c.k));
+    return [{ k: '_sel', label: '<input type="checkbox" class="kt-sel-all" title="全部選ぶ">', w: 28, sort: false, filter: false, cls: 'kt-c-sel' }]
+      .concat(vis.map((c) => ({ k: c.k, label: c.label, w: c.w })))
+      .concat([{ k: '_age', label: '経過', w: 50 }, { k: '_acts', label: '', w: 74, sort: false, filter: false }]);
+  }
+  function eqGetv(r, k) { if (k === '_age') { const a = ageOf(r.year); return a == null ? '' : a; } return r[k] == null ? '' : r[k]; }
   function machinesHtml() {
     const f = norm(S.filter);
     const all = S.equip.slice().sort(sortEquip);
-    const list = all.filter((r) => !f || norm(EQ_COLS.map((c) => r[c.k]).join(' ')).includes(f));
+    const list = gridRows('machines', all.filter((r) => !f || norm(EQ_COLS.map((c) => r[c.k]).join(' ')).includes(f)), eqGetv);
     const selN = list.filter((r) => S.sel.has(r.id)).length;
     const old15 = all.filter((r) => (ageOf(r.year) || 0) >= 15).length;
     return `
       <div class="kt-bar">
         <label class="kt-upload primary-like">📤 機器表を読み込む（PDF・写真・Excel）<input type="file" id="ktEqFile" accept=".pdf,.xlsx,.csv,image/*" multiple hidden></label>
         <button type="button" data-act="add-eq">＋ 1行足す</button>
-        <input type="search" class="tm-input kt-filter" id="ktFilter" placeholder="🔍 絞り込み（型式・系統など）" value="${esc(S.filter)}">
+        <span class="kt-colpick-wrap"><button type="button" data-act="eq-cols" title="出す列を選ぶ">列を選ぶ ▾</button>${S.eqColsOpen ? `<span class="kt-colpick">${EQ_COLS.map((c) => `<label><input type="checkbox" class="kt-eqcol" value="${c.k}" ${S.eqVis.includes(c.k) ? 'checked' : ''}> ${esc(c.label)}</label>`).join('')}<button type="button" data-act="eq-cols-reset">いつもの列に戻す</button></span>` : ''}</span>
+        <input type="search" class="tm-input kt-filter" id="ktFilter" placeholder="🔍 全部の列から探す" value="${esc(S.filter)}">
         <span class="kt-bar-n">${list.length === all.length ? all.length + '行' : list.length + ' / ' + all.length + '行'}（計 ${list.reduce((m, r) => m + (r.qty || 1), 0)} 台）${old15 ? `　<span class="kt-old15-n">15年以上 ${old15}</span>` : ''}</span>
         <span class="kt-bar-sel${selN ? '' : ' hidden'}">選んだ ${selN} 行を
           <button type="button" data-act="move-sel">↪ 別の劇場へ移す</button>
@@ -342,36 +397,41 @@
         </span>
       </div>
       ${S.files.length ? `<div class="kt-files">読み込んだファイル: ${S.files.map((f) => `<span class="kt-file" data-fid="${esc(f.id)}"><a href="#" data-act="open-file">📄 ${esc(f.name)}</a><small>${jpDay(f.created_at)}</small><button type="button" class="kt-x" data-act="del-file" title="ファイルを消す（表の行は残る）">×</button></span>`).join('')}</div>` : ''}
-      ${all.length ? `<div class="kt-eq-wrap"><table class="tm-table kt-eq"><thead><tr><th class="kt-c-sel"><input type="checkbox" class="kt-sel-all" title="全部選ぶ"></th>${EQ_COLS.map((c) => `<th style="min-width:${c.w}px">${c.label}</th>`).join('')}<th>経過</th><th></th></tr></thead>
-        <tbody>${list.map(eqRowHtml).join('')}</tbody></table></div>`
+      ${all.length ? `<div class="kt-eq-wrap"><table class="kt-xl kt-eq">${headHtml('machines', eqCols())}
+        <tbody>${list.map(eqRowHtml).join('')}</tbody></table>${list.length ? '' : '<p class="empty-msg">絞り込みに合う行はありません。</p>'}</div>`
         : '<p class="empty-msg">機器表はまだありません。「📤 機器表を読み込む」で機器表のファイルを選ぶと、AI が表にします（保存の前に確かめられます）。手で「＋ 1行足す」こともできます。</p>'}
-      <p class="tm-hint">💡 セルを直すと自動で保存します。設置年から経過年数を出し、10年以上は黄、15年以上は赤にしています。</p>`;
+      <p class="tm-hint">💡 セルを直すと自動で保存します。設置年から経過年数を出し、10年以上は黄、15年以上は赤。暖房kW・設置場所・備考は「列を選ぶ」で出せます。</p>`;
   }
   function eqRowHtml(r) {
     const age = ageOf(r.year);
     const cls = age == null ? '' : age >= 15 ? ' old15' : age >= 10 ? ' old10' : '';
     return `<tr data-id="${esc(r.id)}" class="${r.origin === 'ai' ? 'ai' : ''}">
       <td class="kt-c-sel"><input type="checkbox" class="kt-sel" ${S.sel.has(r.id) ? 'checked' : ''}></td>
-      ${EQ_COLS.map((c) => `<td><input type="text" class="tm-input kt-eq-f${c.num ? ' num' : ''}" data-f="${c.k}" value="${esc(r[c.k] == null ? '' : r[c.k])}" placeholder="${esc(c.ph || '')}"${c.num ? ' inputmode="decimal"' : ''}></td>`).join('')}
+      ${EQ_COLS.filter((c) => S.eqVis.includes(c.k)).map((c) => `<td><input type="text" class="kt-eq-f${c.num ? ' num' : ''}" data-f="${c.k}" value="${esc(r[c.k] == null ? '' : r[c.k])}" placeholder="${esc(c.ph || '')}"${c.num ? ' inputmode="decimal"' : ''}></td>`).join('')}
       <td class="kt-age${cls}">${age == null ? '' : age + '年'}</td>
       <td class="kt-acts">${r.origin === 'ai' ? '<span title="AIが機器表から読んだ行">🤖</span>' : ''}<button type="button" data-act="move-eq" title="別の劇場へ移す">↪</button><button type="button" class="danger" data-act="del-eq" title="消す">🗑</button></td>
     </tr>`;
   }
 
   /* ---------- 不具合の履歴（この劇場の案件） ---------- */
+  const CASE_COLS = [
+    { k: 'receivedDate', label: '受付日', w: 86 }, { k: 'category', label: '種別', w: 80 }, { k: 'content', label: '内容' },
+    { k: 'status', label: '状態', w: 90 }, { k: 'workEndDate', label: '完了日', w: 86 }, { k: 'rPerson', label: '担当', w: 70 }
+  ];
+  function caseVal(c, k) { if (k === 'content') return [c.estimateName, c.content].filter(Boolean).join('｜'); return c[k] || ''; }
   function casesHtml() {
     const f = norm(S.filter);
     const all = casesOf(S.theater).sort((a, b) => String(b.receivedDate || '').localeCompare(String(a.receivedDate || '')));
-    const list = all.filter((c) => !f || norm([c.category, c.content, c.estimateName, c.status, c.memo].join(' ')).includes(f));
+    const list = gridRows('cases', all.filter((c) => !f || norm([c.category, c.content, c.estimateName, c.status, c.memo].join(' ')).includes(f)), caseVal);
     return `
       <div class="kt-bar">
-        <input type="search" class="tm-input kt-filter" id="ktFilter" placeholder="🔍 絞り込み（内容・種別など）" value="${esc(S.filter)}">
+        <input type="search" class="tm-input kt-filter" id="ktFilter" placeholder="🔍 全部の列から探す" value="${esc(S.filter)}">
         <span class="kt-bar-n">${list.length === all.length ? all.length + '件' : list.length + ' / ' + all.length + '件'}</span>
-        <span class="tm-hint">この劇場の案件（新しい順）。行を押すと案件を開きます。</span>
+        <span class="kt-bar-hint">この劇場の案件（新しい順）。行を押すと案件を開きます。</span>
       </div>
-      ${list.length ? `<div class="kt-eq-wrap"><table class="tm-table kt-cases"><thead><tr><th>受付日</th><th>種別</th><th>内容</th><th>状態</th><th>完了日</th><th>担当</th></tr></thead><tbody>
-        ${list.map((c) => `<tr data-case="${esc(c.id)}" class="kt-case-row"><td>${esc(jpDay(c.receivedDate))}</td><td>${esc(c.category || '')}</td><td class="kt-case-content">${esc([c.estimateName, c.content].filter(Boolean).join('｜'))}</td><td><span class="kt-status">${esc(c.status || '')}</span></td><td>${esc(jpDay(c.workEndDate))}</td><td>${esc(c.rPerson || '')}</td></tr>`).join('')}
-      </tbody></table></div>` : `<p class="empty-msg">${all.length ? '絞り込みに合う案件はありません。' : 'この劇場の案件はまだありません。'}</p>`}`;
+      ${all.length ? `<div class="kt-eq-wrap"><table class="kt-xl kt-cases">${headHtml('cases', CASE_COLS)}<tbody>
+        ${list.map((c) => `<tr data-case="${esc(c.id)}" class="kt-case-row"><td>${esc(jpDay(c.receivedDate))}</td><td>${esc(c.category || '')}</td><td class="kt-case-content">${esc(caseVal(c, 'content'))}</td><td><span class="kt-status">${esc(c.status || '')}</span></td><td>${esc(jpDay(c.workEndDate))}</td><td>${esc(c.rPerson || '')}</td></tr>`).join('')}
+      </tbody></table>${list.length ? '' : '<p class="empty-msg">絞り込みに合う案件はありません。</p>'}</div>` : '<p class="empty-msg">この劇場の案件はまだありません。</p>'}`;
   }
 
   /* ============================================================
@@ -698,7 +758,7 @@
      ============================================================ */
   function openExport(defaultCompany) {
     closeOverlay();
-    const ths = theaterList().filter((t) => t.name);
+    const ths = theaterList().filter((t) => t.name && !t.hidden);   // 公式サイトに無いとして隠した劇場は出さない
     const cos = companyList().map((c) => c.name).filter((n) => ths.some((t) => t.company === n));
     const sel = new Set();
     if (S.theater && ths.some((t) => t.name === S.theater)) sel.add(S.theater);
@@ -859,6 +919,52 @@
   }
 
   /* ============================================================
+     公式サイトで確かめる（AI が各社の劇場一覧を読み、無い劇場は一覧から隠す）
+     ============================================================ */
+  const OFFICIAL_COS = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業', 'シネマサンシャイン', 'コロナワールド', 'MOVIX', 'イオンシネマズ'];
+  function openVerify(opts) {
+    opts = opts || {};
+    closeOverlay();
+    const cos = companyList().map((c) => c.name).filter((n) => OFFICIAL_COS.includes(n) && theaterList().some((t) => t.company === n));
+    const ov = document.createElement('div');
+    ov.className = 'kt-overlay'; ov.id = 'ktVerify';
+    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid"><div class="kt-dlg-head">🌐 公式サイトで確かめる<button type="button" class="close-btn" data-act="x">×</button></div>
+      <div class="kt-dlg-body">
+        <p class="tm-hint">AI（Opus）が各社の公式サイトの劇場一覧を読み、アプリの劇場の一覧と見比べます。公式サイトに無い劇場（閉館など）は、劇場カルテの一覧から自動で隠します（案件・カルテのデータは消えません。「隠した劇場も出す」で見られ、「隠すのをやめる」で戻せます）。1社 1〜2分かかります。</p>
+        <div class="kt-vf-cos">${cos.map((n) => `<label><input type="checkbox" class="kt-vf-co" value="${esc(n)}" checked> ${esc(n)} <small>${theaterList().filter((t) => t.company === n).length} 劇場</small></label>`).join('')}</div>
+        <div class="kt-vf-log" id="ktVfLog"></div>
+      </div>
+      <div class="kt-dlg-foot"><button type="button" class="primary" data-act="go">確かめる</button><button type="button" data-act="x">閉じる</button></div></div>`;
+    document.body.appendChild(ov);
+    let running = false, changed = false;
+    ov.addEventListener('click', async (e) => {
+      const act = e.target.dataset && e.target.dataset.act;
+      if (act === 'x') { if (running) return; closeOverlay(); if (changed && opts.onDone) opts.onDone(); return; }
+      if (act !== 'go' || running) return;
+      const pickCos = Array.from(ov.querySelectorAll('.kt-vf-co:checked')).map((x) => x.value);
+      if (!pickCos.length) { say('確かめる会社を選んでください'); return; }
+      running = true; e.target.disabled = true;
+      const log = ov.querySelector('#ktVfLog');
+      for (const co of pickCos) {
+        const line = document.createElement('div'); line.className = 'kt-vf-line'; line.innerHTML = `<span class="kt-spin"></span> ${esc(co)} の公式サイトを読んでいます…`; log.appendChild(line);
+        try {
+          const r = await aiCall({ task: 'verify', company: co });
+          if (r.hidden.length || r.shown.length) changed = true;
+          line.innerHTML = r.site_ok
+            ? `✅ <b>${esc(co)}</b>: ${r.checked} 劇場を確かめました。` +
+              (r.hidden.length ? `<br>　🙈 隠した ${r.hidden.length}: ${r.hidden.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : '<br>　隠した劇場はありません。') +
+              (r.shown.length ? `<br>　👀 戻した ${r.shown.length}: ${r.shown.map(esc).join('、')}` : '') +
+              (r.unknown.length ? `<br>　❔ 分からなかった ${r.unknown.length}（そのまま）` : '')
+            : `⚠ <b>${esc(co)}</b>: 公式サイトの劇場一覧を最後まで読めませんでした。何も変えていません。${r.note ? `<small>（${esc(r.note)}）</small>` : ''}`;
+        } catch (err) { line.innerHTML = `⚠ <b>${esc(co)}</b>: 確かめられませんでした（${esc(err.message || err)}）。何も変えていません。`; }
+      }
+      running = false; e.target.disabled = false; e.target.textContent = 'もう一度確かめる';
+      if (changed && opts.onDone) opts.onDone();
+      changed = false;
+    });
+  }
+
+  /* ============================================================
      更新確認の承認（app.js から呼ぶ）
      ============================================================ */
   // field が 設備/持病/備考 の候補を劇場カルテの1件として入れる。戻り値: 入れた行（既に同じ文があれば null）
@@ -886,6 +992,12 @@
     if (!S.box || !S.box.contains(e.target)) return;
     const tabBtn = e.target.closest('.kt-tab');
     if (tabBtn) { S.tab = tabBtn.dataset.tab; lsSet(LS.tab, S.tab); S.sel.clear(); S.filter = ''; S.editing = null; render(); return; }
+    const sortTh = e.target.closest('th[data-sort]');
+    if (sortTh && !e.target.closest('input')) {
+      const k = sortTh.dataset.sort, tab = S.tab, cur = S.sort[tab] || {};
+      S.sort[tab] = cur.k !== k ? { k, dir: 1 } : cur.dir > 0 ? { k, dir: -1 } : {};
+      lsSet(LS_SORT, S.sort); render(); return;
+    }
     const btn = e.target.closest('[data-act]');
     const caseRow = e.target.closest('.kt-case-row');
     if (!btn && caseRow) { call('openCase', null, caseRow.dataset.case); return; }
@@ -901,6 +1013,8 @@
     else if (act === 'add-eq') addEqRow();
     else if (act === 'del-eq') delEq([tr.dataset.id]);
     else if (act === 'move-eq') moveEq([tr.dataset.id]);
+    else if (act === 'eq-cols') { S.eqColsOpen = !S.eqColsOpen; render(); }
+    else if (act === 'eq-cols-reset') { S.eqVis = EQ_DEFAULT.slice(); lsSet(LS_EQCOLS, S.eqVis); render(); }
     else if (act === 'open-file') { e.preventDefault(); openFile(fileEl.dataset.fid); }
     else if (act === 'del-file') delFile(fileEl.dataset.fid);
     else if (act === 'del-sel' || act === 'move-sel') {
@@ -921,10 +1035,21 @@
       updateSelBar(); return;
     }
     if (e.target.classList.contains('kt-eq-f')) { saveEqCell(e.target); return; }
+    if (e.target.classList.contains('kt-eqcol')) {
+      const k = e.target.value; S.eqVis = e.target.checked ? Array.from(new Set(S.eqVis.concat([k]))) : S.eqVis.filter((x) => x !== k);
+      if (!S.eqVis.length) S.eqVis = EQ_DEFAULT.slice();
+      lsSet(LS_EQCOLS, S.eqVis); render(); return;
+    }
     if (e.target.id === 'ktEqFile') { const fl = Array.from(e.target.files || []); const inp = e.target; importEquipment(fl).catch((err) => { console.error(err); say('読み込めませんでした: ' + (err.message || err)); }).finally(() => { inp.value = ''; }); }
   });
   document.addEventListener('input', (e) => {
     if (!S.box || !S.box.contains(e.target)) return;
+    if (e.target.classList.contains('kt-colf')) {
+      const k = e.target.dataset.fk, tab = S.tab; S.colf[tab] = S.colf[tab] || {}; S.colf[tab][k] = e.target.value;
+      const pos = e.target.selectionStart; render();
+      const f = S.box.querySelector(`.kt-colf[data-fk="${k}"]`); if (f) { f.focus(); try { f.setSelectionRange(pos, pos); } catch (err) {} }
+      return;
+    }
     if (e.target.id === 'ktFilter') {
       S.filter = e.target.value;
       const pos = e.target.selectionStart;
@@ -933,6 +1058,13 @@
       return;
     }
     if (e.target.tagName === 'TEXTAREA' && e.target.classList.contains('kt-grow')) grow(e.target);
+  });
+  document.addEventListener('dblclick', (e) => {
+    if (!S.box || !S.box.contains(e.target)) return;
+    const td = e.target.closest('tr.kt-note:not(.editing) td.kt-body, tr.kt-note:not(.editing) td.kt-date, tr.kt-note:not(.editing) td.kt-ev');
+    if (!td) return;
+    S.editing = td.closest('tr').dataset.id; render();
+    const ta = S.box.querySelector('.kt-edit-body'); if (ta) ta.focus();
   });
   document.addEventListener('keydown', (e) => {
     if (!S.box || !S.box.contains(e.target)) return;
@@ -945,5 +1077,5 @@
     bar.firstChild.textContent = `選んだ ${n} ${S.tab === 'machines' ? '行' : '件'}を `;
   }
 
-  window.KARTE = { show, hide, available, ready, ask, say, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
+  window.KARTE = { show, hide, available, ready, ask, say, openVerify, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
 })();
