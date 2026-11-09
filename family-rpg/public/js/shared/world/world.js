@@ -37,6 +37,7 @@ import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneT
 import { isNightFor, timeFlag, fracFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
 import { walkSteps } from './perks.js';
+import { warpLanding, guardStair, stairGuarded } from './stairs.js';
 import { alchemySteps, alchemyShelf } from './alchemy.js';
 import { shelfHint } from '../data/secret-hints.js';
 import { migrateSky } from '../data/sky.js';
@@ -609,14 +610,21 @@ export class GameWorld {
 
   onEnterTile(s, tx, ty) {
     // 空の 上: 出入り口・イベント・ばしょの きろくは なし
+    // 第71回: 階だんで ついた 階だんの 上から 1マスでも うごいたら、その 階だんは また つかえる（world/stairs.js）
+    const guarded = stairGuarded(s, tx, ty);
+    if (!guarded) s.stairGuard = null;
     if (s.flying) return;
     const map = MAPS[s.map];
-    const warp = map.warpAt.get(ty * map.w + tx);
+    const warp = !guarded && map.warpAt.get(ty * map.w + tx);
     if (warp) {
       const to = warp.to;
       const fromMap = s.map, fx = s.x, fy = s.y;
-      this.placeSession(s, to.map, to.x, to.y, to.dir, true);
-      this.warpFollowers(s, fromMap, fx, fy, to);
+      // 第71回: 階だんから 階だんへは、行き先の 階だんの 真上に つく（ほかの 出入り口は これまで どおり）
+      const land = warpLanding(fromMap, warp, this.hasFlagFn(s));
+      this.placeSession(s, land.map, land.x, land.y, land.dir, true);
+      guardStair(s, land);
+      this.warpFollowers(s, fromMap, fx, fy, land);
+      // ついた ときの しかけ（「○階に 来た」など）は これまでの つく マス（to）で みる
       this.checkTriggers(s, Math.floor(to.x), Math.floor(to.y));
       return;
     }
@@ -711,6 +719,7 @@ export class GameWorld {
     s.dir = dir || s.dir;
     s.posSeq++;
     s.invuln = 1500;
+    s.stairGuard = null;
     setFlying(s, !!opts.fly && canFlyMap(mapId));
     if (notify) this.send(s, { t: 'setPos', map: mapId, x, y, dir: s.dir, seq: s.posSeq, fly: !!s.flying });
     this.markDirty();

@@ -9,7 +9,8 @@ import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RANKS, breedCandidates, breedOutcome, breedPlus, rankIdx } from '../public/js/shared/data/companions.js';
 import { DQM_S_LV } from '../public/js/shared/data/companions-dqm.js';
 import { breedForecast, breedTrend, breedTrendMemo } from '../public/js/shared/breed-calc.js';
-import { breedParents, breedMatrix, kidList, kidPairs, kidSummary } from '../public/js/shared/breed-finder.js';
+import { breedParents, breedMatrix, kidList, kidPairs, kidSummary, kidArt, parentArt } from '../public/js/shared/breed-finder.js';
+import { colorMon } from '../public/js/shared/data/variants.js';
 import { breedPreview, breedFinder, PAIR_MAX } from '../public/js/shared/world/breed.js';
 import { gainExp, expForLevel, newMonsterCompanion, addItem } from '../public/js/shared/stats.js';
 import { addMonsterEntry, ensureStorage } from '../public/js/shared/world/party.js';
@@ -288,5 +289,41 @@ test('第70回: 酒場の 画面（作れる魔物から選ぶ・ランクが下
   for (const f of ['public/js/client/ui/services.js', 'public/js/shared/breed-finder.js', 'public/js/shared/world/breed.js']) {
     const res = checkFile(new URL(`../${f}`, import.meta.url).pathname).filter((x) => x.kind !== 'kana');
     assert.deepEqual(res, [], `${f} の 漢字・スペース`);
+  }
+});
+
+// 第71回: 作れる 魔物の 絵（家族の ねがい「名前だけじゃなく、イラストも 見せて」）
+test('第71回: さがし表の 絵: 子は 絵（見た ことが ない 子は かげ）・親は 色ちがいの 色も', async () => {
+  assert.deepEqual(kidArt({ sp: 'wolf', unseen: false }), { mon: 'wolf', hidden: false });
+  assert.deepEqual(kidArt({ sp: 'wolf', unseen: true }), { mon: 'wolf', hidden: true }, '図鑑に ない 子は かげ（いつもの きまり）');
+  assert.equal(kidArt(null), null);
+  assert.equal(parentArt({ name: '？' }), null, 'しゅぞくが わからない 親は 絵なし');
+  assert.equal(parentArt({ species: 'wolf' }).mon, 'wolf');
+  const col = parentArt({ species: 'wolf', color: 'gold' });
+  assert.equal(col.mon, colorMon('wolf', 'gold'), '色ちがいの 親は その 色で');
+  assert.notEqual(col.mon, 'wolf');
+  // サーバーの へんじの 親には しゅぞくと 色が ある（絵を 出せる）・子の 一覧には sp と unseen
+  const { bot, c } = await solo(71);
+  mon(c, 'wolf', 22); mon(c, 'kirakira', 18); mon(c, 'pururin', 14, { color: 'gold' });
+  bot.send({ t: 'svc', kind: 'tavern', action: 'breedFinder' });
+  await bot.settle();
+  const f = lastRes(bot).finder;
+  assert.ok(f.kids.length > 0);
+  for (const k of f.kids) assert.ok(MONSTERS[kidArt(k).mon], `${k.sp} の 絵`);
+  const ps = Object.values(f.parents);
+  for (const p of ps) assert.ok(MONSTERS[parentArt(p)?.mon], `${p.name} の 絵`);
+  assert.ok(ps.some((p) => p.color === 'gold' && parentArt(p).mon === colorMon('pururin', 'gold')), '色ちがいの 親');
+  // 画面: 子の 行は 大きめの 絵（find-kid）・組の 行は 親の 絵（pface）・みほんは 大きく（find-pv）
+  const src = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');
+  assert.match(src, /face: artFace\(kidArt\(k\)\), value: `kid:\$\{k\.sp\}`, cls: 'find-kid'/);
+  assert.match(src, /artFace\(parentArt\(parOf\(key\)\)\)/);
+  assert.match(src, /class="pface"/);
+  assert.equal((src.match(/breed-pv find-pv/g) || []).length, 2);
+  const css = readFileSync(new URL('../public/css/style.css', import.meta.url), 'utf8');
+  assert.match(css, /\.item\.find-kid \.face \{ height: 2\.7em/);
+  assert.match(css, /\.item \.pface \{/);
+  for (const f2 of ['public/js/client/ui/services.js', 'public/js/shared/breed-finder.js']) {
+    const res = checkFile(new URL(`../${f2}`, import.meta.url).pathname).filter((x) => x.kind !== 'kana');
+    assert.deepEqual(res, [], `${f2} の 漢字・スペース`);
   }
 });

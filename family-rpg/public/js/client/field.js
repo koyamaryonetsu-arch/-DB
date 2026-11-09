@@ -354,12 +354,19 @@ export class Field {
 
   // 自分の 体が (x, y) に 入れるか
   boxFree(x, y) {
+    if (this.followAuto && this.warpBlocks(x, y)) return false;
     const pass = this.leavingNpcs(x, y);
     const under = this.stuckTiles();
     return bodyPoints(x, y).every(([px, py]) => {
       const tx = Math.floor(px), ty = Math.floor(py);
       return under.has(ty * this.map.w + tx) || !this.solidAt(tx, ty, null, pass);
     });
+  }
+
+  // 第71回: (x, y) の マスが 出入り口で、今 いる マスでは ない（ついていく ときは よける）
+  warpBlocks(x, y) {
+    const w = this.map.w, k = Math.floor(y) * w + Math.floor(x);
+    return k !== Math.floor(this.me.y) * w + Math.floor(this.me.x) && !!this.map.warpAt?.has(k);
   }
 
   // いま 体が 重なっている、とおれない マス（立っている 所で 炎の 柱が ふき上がった など）。
@@ -404,9 +411,12 @@ export class Field {
     if (!canMove || this.riding) { ix = 0; iy = 0; }
     // ついていく（リーダーの とおった みちを たどる。はなれたら はしって おいつく）
     let run = !!controls.run;
+    // 第71回: ついていく あいだは 出入り口（階だん など）を ふまない（リーダーは 階だんの 上に つく ように なった。
+    // リーダーが 出入り口を とおれば サーバーが いっしょに つれていく。world.js の warpFollowers）
+    this.followAuto = false;
     if (canMove && ix === 0 && iy === 0 && this.game.follow) {
       const d = this.followStep(dt);
-      if (d) { ix = d.x; iy = d.y; run = run || d.far; }
+      if (d) { ix = d.x; iy = d.y; run = run || d.far; this.followAuto = true; }
     } else this.followStuck = 0;
     const mag = Math.min(1, Math.hypot(ix, iy));
     // 氷（すべる）: ついていく ときは リーダーの 足あとを そのまま 歩く（すべらない）
@@ -704,7 +714,7 @@ export class Field {
         if (nx < 0 || ny < 0 || nx >= w || ny >= this.map.h) continue;
         const k = key(nx, ny);
         if (prev.has(k)) continue;
-        if (!(nx === tx && ny === ty) && this.solidAt(nx, ny)) continue;
+        if (!(nx === tx && ny === ty) && (this.solidAt(nx, ny) || this.map.warpAt?.has(k))) continue;
         prev.set(k, [x, y]);
         q.push([nx, ny]);
       }
@@ -827,7 +837,9 @@ export class Field {
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
         const last = tr[tr.length - 1];
-        if (!last || Math.hypot(last.x - p.x, last.y - p.y) > 0.5) {
+        // 第71回: 出入り口（階だんの 上に ついた リーダーの 足もと など）は パンくずに しない
+        const onWarp = this.map.warpAt?.has(Math.floor(p.y) * this.map.w + Math.floor(p.x));
+        if (!onWarp && (!last || Math.hypot(last.x - p.x, last.y - p.y) > 0.5)) {
           tr.push({ x: p.x, y: p.y });
           if (tr.length > 240) tr.shift();
         }

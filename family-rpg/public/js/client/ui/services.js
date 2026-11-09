@@ -43,6 +43,8 @@ import { canBreedRoom, canStore } from '../../shared/world/farewell.js';
 import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js';
 // 第70回: 作れる 魔物から 選ぶ（親の いる ところの 名前。ui/monarena-team.js と 同じ）
 import { WHERE_LABEL } from './monarena-team.js';
+// 第71回: さがし表の 絵（子・親）
+import { kidArt, parentArt } from '../../shared/breed-finder.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -512,7 +514,8 @@ function tavernUI(game, data) {
       if (!f.kids.length) out.push({ label: f.count < 2 ? `レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ` : '今の仲間で作れる魔物はいない', value: null, disabled: true });
       for (const k of f.kids) {
         out.push({
-          face: childFace(k.sp, k.unseen), value: `kid:${k.sp}`,
+          // 第71回: 子の 絵を 大きめに（find-kid。見た ことが ない 子は かげ）
+          face: artFace(kidArt(k)), value: `kid:${k.sp}`, cls: 'find-kid',
           html: `${esc(kidName(k))} <span class="muted small">ランク${k.rank}</span>${k.unseen ? '<span class="tag good">NEW</span>' : ''}${kindTag(k.kind)}${itemTag(k.item)}${k.lowOnly ? '<span class="tag warn">ランク↓</span>' : ''}`,
           right: `${k.count}組`, rightCls: k.special ? 'good' : '',
         });
@@ -521,10 +524,15 @@ function tavernUI(game, data) {
     };
     // 親の 名前・レベル・いる ところ（サーバーの へんじ。配合の あとで いなく なった 親でも 出せる）
     const parOf = (key) => finderKid?.parents?.[key] || finder?.parents?.[key] || entries.get(key) || { name: '？', level: 0 };
+    // 第71回: 親の 絵（小さく。名前の 前）
+    const parFace = (key) => {
+      const u = artFace(parentArt(parOf(key)));
+      return u ? `<img class="pface" src="${u}" alt="">` : '';
+    };
     const parHtml = (key) => {
       const p = parOf(key);
       const where = WHERE_LABEL[p.where] || '';
-      return `${esc(p.name)}${p.plus ? `<span class="plus">+${p.plus}</span>` : ''} <span class="muted small">Lv${p.level}${where ? `・${where}` : ''}</span>`;
+      return `${parFace(key)}${esc(p.name)}${p.plus ? `<span class="plus">+${p.plus}</span>` : ''} <span class="muted small">Lv${p.level}${where ? `・${where}` : ''}</span>`;
     };
     const findKidItems = () => {
       const f = finderKid;
@@ -655,7 +663,7 @@ function tavernUI(game, data) {
       if (typeof key === 'string' && key.startsWith('kid:')) {
         const k = finder?.kids.find((x) => x.sp === key.slice(4));
         if (!k) return;
-        const top = el('div', { class: 'breed-pv' });
+        const top = el('div', { class: 'breed-pv find-pv' });
         top.append(childImg(k.sp, k.unseen, { class: 'breed-pv-img' }), el('div', { class: 'breed-pv-txt' },
           el('div', { class: 'small gold', text: `${kidName(k)}（ランク${k.rank}・${RACE_NAMES[MONSTERS[k.sp]?.race] || ''}）` }),
           k.unseen ? el('div', { class: 'small good', text: '★ まだ見たことがない魔物！' }) : k.know < 2 ? el('div', { class: 'small good', text: '★ 初めて仲間になる！' }) : null,
@@ -672,7 +680,7 @@ function tavernUI(game, data) {
         const A = p && entries.get(p.a), B = p && entries.get(p.b);
         if (!A || !B) return;
         // 生まれる 子が 先（スマホの たてでも 見える ように）→ 親 2ひきの 強さと 技
-        const top = el('div', { class: 'breed-pv' });
+        const top = el('div', { class: 'breed-pv find-pv' });
         main.append(top);
         breedPreviewBox(top, A, B, finderKid.child.sp);
         main.append(parentsBox(A, B));
@@ -1010,6 +1018,8 @@ function tavernUI(game, data) {
       }
       return faceCache.get(sp);
     };
+    // 第71回: さがし表の 絵（shared/breed-finder.js の kidArt・parentArt → 絵の URL。おなじ 絵は 1回だけ つくる）
+    const artFace = (a) => (a ? childFace(a.mon, a.hidden) : '');
     const pickChild = (pv) => {
       const note = el('div', { class: 'small good', style: { minHeight: '1.3em' } });
       const say = (ch) => { note.textContent = ch ? `${KIND_TEXT[ch.kind] || ''}${ch.item ? `（${ITEMS[ch.item]?.name || ''}がなくなる）` : ''}` : ''; };

@@ -88,7 +88,14 @@ export function glassCheck(world, s) {
   const spot = map.timeSpot?.(Math.floor(s.x), Math.floor(s.y), world.hasFlagFn(s));
   if (spot) return { ok: false, key: spot };
   const to = MAPS[map.timePair];
-  const key = landingKey(to, s.x, s.y, world.hasFlagFn(s));
+  const has = world.hasFlagFn(s);
+  let key = landingKey(to, s.x, s.y, has);
+  // 第71回: 階だんで ついた 階だんの 上（むこうの 時代も 出入り口）: となりの 立てる 所に 出る（shiftPeople の standSpot と 同じ）
+  const k = Math.floor(s.y) * map.w + Math.floor(s.x);
+  if (key === 'wall' && map.warpAt?.has(k) && to.warpAt?.has(Math.floor(s.y) * to.w + Math.floor(s.x)) && !isBlocked(to, Math.floor(s.x), Math.floor(s.y), has)) {
+    const sp = standSpot(to, s.x, s.y, has);
+    key = landingKey(to, sp.x, sp.y, has);
+  }
   if (key) return { ok: false, key };
   return { ok: true, to: to.id };
 }
