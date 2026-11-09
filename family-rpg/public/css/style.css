@@ -1099,6 +1099,8 @@ img.face { image-rendering: pixelated; }
 .dmg.miss { color: var(--muted); }
 .dmg.combo { color: var(--bond-a); font-size: calc(var(--fs) * 1.1); }
 .dmg.weak { color: #ffe066; font-size: calc(var(--fs) * 0.95); margin-top: -1.5em; }
+/* 第72回: 元気玉で 出した HP（小さい 水色） */
+.dmg.genki { color: #a8e4ff; font-size: calc(var(--fs) * 1.05); }
 @keyframes dmg { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); } 12% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); } 70% { opacity: 1; transform: translate(-50%, -85%); } 100% { opacity: 0; transform: translate(-50%, -110%); } }
 .b-banner {
   position: absolute;

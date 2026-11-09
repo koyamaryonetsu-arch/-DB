@@ -208,14 +208,16 @@ test('新しい こうか: ゴム人間・ニカは 雷が 効かない', () => 
   assert.ok((computeStats(c).resist.bolt ?? 1) > 0, '戦士は ふつう');
 });
 
-test('新しい こうか: 元気玉は 仲間の MPを 集める。オートでは 使わない', () => {
+// 第72回: 元気玉は MPでは なく みんなの HPを 10%ずつ 集める（くわしくは test/genki-r72.test.js）
+test('新しい こうか: 元気玉は 仲間の HPを 集める。オートでは 使わない', () => {
   const { b, me, mate } = setup('ss3', ['rockman', 'rockman']);
-  const mp0 = mate.mp;
+  const mp0 = mate.mp, hp1 = mate.hp;
   const hp0 = b.enemies.map((e) => e.hp);
   const ev = use(b, me, 's3_genki', b.enemies[0].id);
-  assert.ok(mate.mp < mp0, '仲間の MPが へった');
+  assert.equal(mate.mp, mp0, '仲間の MPは そのまま');
+  assert.equal(mate.hp, hp1 - Math.floor(hp1 * 0.1), '仲間の HPが 10% へった');
   assert.ok(b.enemies.every((e, i) => e.hp < hp0[i]), '敵全体に ダメージ');
-  assert.ok(ev.lines.some((l) => l.includes('仲間1人の力が集まった')), ev.lines.join(' / '));
+  assert.ok(ev.lines.some((l) => l.includes('みんなから元気が集まった')), ev.lines.join(' / '));
   assert.ok(ABILITIES.s3_genki.noAuto);
   me.abilities = ['s3_genki', 's3_ryuuken'];
   me.mp = 999;

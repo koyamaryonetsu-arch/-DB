@@ -778,7 +778,9 @@ export class BattleScene {
     const a = this.myActor;
     // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
     // pow: 今の 魔力（呪文の ダメージの 目安。第50回 N1）
-    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon, pow: a.pow };
+    // partyHp: 味方 みんなの 今の HP（元気玉の 目安。第72回 shared/skill-power.js の powStats）
+    const partyHp = this.allies().filter((x) => x.alive).map((x) => x.hp || 0);
+    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon, pow: a.pow, partyHp };
     const silenced = (a.status || []).includes('silence');
     // わかっている 弱点（この 戦いの 敵で、図鑑・この 戦いで ためして わかった 物だけ）
     const foes = this.enemies().filter((e) => e.alive);
@@ -1266,6 +1268,13 @@ export class BattleScene {
       if (!t) continue;
       this.floatNum(t, `+${r.heal}`, 'heal');
       if (t.side === 'ally') this.glowStatus(t.id, '#8ff0a8');
+    }
+    // 第72回: 元気玉で HPを 出した 人（小さい 水色の 数・まどが 光る。shared/battle-genki.js）
+    for (const r of ev.genki || []) {
+      const t = this.c.get(r.id);
+      if (!t) continue;
+      this.floatNum(t, `-${r.hp}`, 'genki');
+      if (t.side === 'ally') this.glowStatus(t.id, '#a8e4ff');
     }
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};

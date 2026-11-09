@@ -5,6 +5,8 @@
 // しきは shared/battle.js の calcPhys・calcMagic・heal・healAmountOf と おなじ（ふりはばは 両はし、会心・耐性は 入れない）
 import { abilityFor } from './ability-label.js';
 import { computeStats, penaltyFor } from './stats.js';
+// 第72回: 元気玉（みんなの HPを 10%ずつ 集める。battle-genki.js）
+import { genkiTotal } from './battle-genki.js';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 // 倍率の 数（1.0・1.8 の ように 小数 1けた。1より 小さい ときは 0.55 の ように 2けたまで）
@@ -15,13 +17,15 @@ const rangeText = (mn, mx) => (mn === mx ? `${mn}` : `${mn}〜${mx}`);
 // 今の 魔力・回復魔力（{ mag, heal }。わからない ときは null）
 //   戦いの 中: pub の pow（バフも 入った 今の 魔力）を pc.pow に 入れて わたす
 //   メニュー: セーブの キャラ（レベル・職業・装備）から computeStats
+//   第72回: char.partyHp（戦いの 中の 味方 みんなの 今の HP。client/battle.js の abilityMenu）が あれば party に（元気玉の 目安）
 export function powStats(char) {
   if (!char) return null;
-  if (char.pow && Number.isFinite(char.pow.mag)) return { mag: char.pow.mag, heal: char.pow.heal || 0 };
+  const party = Array.isArray(char.partyHp) ? { party: char.partyHp } : {};
+  if (char.pow && Number.isFinite(char.pow.mag)) return { mag: char.pow.mag, heal: char.pow.heal || 0, ...party };
   if (!char.level || !(char.job || char.species)) return null;
   try {
     const st = computeStats(char);
-    return { mag: st.mag || 0, heal: st.heal || 0 };
+    return { mag: st.mag || 0, heal: st.heal || 0, ...party };
   } catch {
     return null;
   }
@@ -51,6 +55,12 @@ export function partPower(e, pm = 1, st = null, base = pm) {
       const k = (st ? powScale(st[stat], e) : 1) * pm;
       return { type: 'magic', stat, min: Math.round(a * k), max: Math.round(b * k), now: !!st, more: e.type === 'gather' };
     }
+    // 第72回: 元気玉 … 集めた HP × 倍率（転職の ペナルティ・職業レベルも かける）。st.party（味方の 今の HP）が あれば 今の みんなで どれくらいか
+    case 'genki': {
+      const m = (e.mult || 1) * pm;
+      const got = Array.isArray(st?.party) ? genkiTotal(st.party, e.rate) : null;
+      return { type: 'genki', mult: m, got, est: got === null ? null : Math.round(got * m) };
+    }
     case 'heal':
     case 'regen': {
       if (!e.base) return null;
@@ -74,6 +84,7 @@ export function partPowerText(p) {
     return `威力×${fmtMult(p.mult)}${hits}${full}`;
   }
   if (p.type === 'magic') return `${p.now ? (p.stat === 'heal' ? '今の回復魔力で' : '今の魔力で') : ''}ダメージ約${rangeText(p.min, p.max)}${p.more ? '（仲間がいると上がる）' : ''}`;
+  if (p.type === 'genki') return `集めたHP×${fmtMult(p.mult)}${p.got === null ? '' : p.got > 0 ? `（今のみんなでHP${p.got}・約${p.est}）` : '（今は元気が集まらない）'}`;
   if (p.type === 'heal') return `${p.now ? '今の回復魔力で' : ''}約${rangeText(p.min, p.max)}回復`;
   if (p.type === 'regen') return `${p.now ? '今の回復魔力で' : ''}毎ターン約${rangeText(p.min, p.max)}回復`;
   return '';

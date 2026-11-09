@@ -21,6 +21,8 @@
 //   drawProp40(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。銀水しょうの つえ。かいたら true）
 //   handMark40(cv, A, P, O) … 手の こうの 竜の紋章（hero.js の 手の あとで よぶ）
 import { mat, ramp, TH } from './hero-raster.js';
+// 第72回: 竜の紋章の ドットの かたち（crest-shapes.js。つの・つばさ・まん中の 赤い ひし形・下の とがり）
+import { DRAGON_STAMP } from './crest-shapes.js';
 
 export const R40_JOBS = ['ryumajin', 'neo_queen'];
 
@@ -101,10 +103,10 @@ function foreheadMark(cv, H, view, kind) {
   const y = cv.Y(H.y - 2.6);
   cv.part({ ol: 'none', cast: false });
   if (kind === 'crest') {
-    // 竜の紋章（金の つばさと 赤い まん中）
-    const C = { K: '#ffd84a', R: '#e8203a', D: '#8a4a10' };
-    if (cv.k >= 4) cv.stamp(x - 4, y - 4, ['K.......K', 'KK..K..KK', '.KK.K.KK.', '..KKRKK..', '...KRK...', '....K....', '...D.D...'], C);
-    else cv.stamp(x - 1, y - 1, ['K.K', '.R.', '.K.'], C);
+    // 竜の紋章（そり上がる 金の つの・左右の つばさ・まん中の 赤い ひし形・下の とがり）
+    const C = { K: '#ffd84a', R: '#e8203a', W: '#fff6c0' };
+    if (cv.k >= 4) cv.stamp(x - 4, y - 5, DRAGON_STAMP.big, C);
+    else cv.stamp(x - 1, y - 1, DRAGON_STAMP.small, C);
   } else {
     // 金の 三日月（つのが 上）
     const C = { K: '#f6d26c', D: '#b47a1a' };
@@ -140,6 +142,6 @@ export function handMark40(cv, A, P, O) {
   cv.part({ ol: 'none', cast: false });
   const x = cv.X(A.hand[0]), y = cv.Y(A.hand[1]);
   const C = { c: O.handCrest40, r: '#e8203a' };
-  if (cv.k >= 4) cv.stamp(x - 2, y - 2, ['c.c.c', 'ccrcc', '.crc.', '..c..'], C);
-  else cv.stamp(x - 1, y, ['crc'], C);
+  if (cv.k >= 4) cv.stamp(x - 2, y - 2, DRAGON_STAMP.hand, C);
+  else cv.stamp(x - 1, y - 1, DRAGON_STAMP.handSmall, C);
 }

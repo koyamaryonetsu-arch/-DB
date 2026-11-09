@@ -55,6 +55,8 @@ function partText(e, pm, lv = 0, st = null, tm = TIER_MODS[0]) {
     // 推理（弱点の 属性で 攻撃）・ミナデイン（仲間の MPを 集める）
     case 'deduce':
     case 'gather': return e.base ? (st ? nowText(e, pm, st) : `ダメージ約${range(e.base, pm)}`) : '';
+    // 第72回: 元気玉（集めたHP×倍率。戦いの 中は 今の みんなで どれくらいか。shared/skill-power.js）
+    case 'genki': return partPowerText(partPower(e, pm, st));
     case 'mpHeal': return `MPを約${range(e.base)}回復`;
     case 'buff': {
       const st = (e.stats || [e.stat]).map((s) => STAT[s] || s).join('・');
