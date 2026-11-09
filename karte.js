@@ -962,14 +962,15 @@
         const line = document.createElement('div'); line.className = 'kt-vf-line'; line.innerHTML = `<span class="kt-spin"></span> ${esc(co)} の公式サイトを読んでいます…`; log.appendChild(line);
         try {
           const r = await aiCall({ task: 'verify', company: co });
-          if (r.hidden.length || r.shown.length) changed = true;
+          if (r.hidden.length || r.shown.length || (r.suspect || []).length) changed = true;
           const sus = r.suspect || [];
           line.innerHTML = r.site_ok
             ? `✅ <b>${esc(co)}</b>: ${r.checked} 劇場を確かめました${r.official_count ? `（公式サイトの一覧 ${r.official_count} 館）` : ''}。` +
               (r.hidden.length ? `<br>　🙈 隠した ${r.hidden.length}: ${r.hidden.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : (sus.length ? '' : '<br>　隠した劇場はありません。')) +
+              ((r.kept || []).length ? `<br>　🙈 前から隠していて、今回も無かった ${r.kept.length}（隠したまま）: ${r.kept.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : '') +
               (r.shown.length ? `<br>　👀 戻した ${r.shown.length}: ${r.shown.map(esc).join('、')}` : '') +
-              (sus.length ? `<div class="kt-vf-sus"><b>❓ 公式サイトで見つからなかった ${sus.length} 劇場</b>（数が多いので自動では隠していません。名前の書き方の違いで見つからなかっただけのこともあります。違うものはチェックを外してから押してください）` +
-                `<div class="kt-vf-sus-list">${sus.map((h) => `<label><input type="checkbox" class="kt-vf-sus-chk" value="${esc(h.name)}" data-reason="${esc(h.reason || '')}" checked> ${esc(h.name)}${h.reason ? ` <small>（${esc(h.reason)}）</small>` : ''}</label>`).join('')}</div>` +
+              (sus.length ? `<div class="kt-vf-sus"><b>❓ 公式サイトで見つからなかった ${sus.length} 劇場</b>（数が多い・確かめきれなかったので、自動では隠していません。前に隠していたものも、いったん一覧に戻しました。名前の書き方の違いで見つからなかっただけのこともあります。隠すものだけチェックを入れて押してください）` +
+                `<div class="kt-vf-sus-list">${sus.map((h) => `<label><input type="checkbox" class="kt-vf-sus-chk" value="${esc(h.name)}" data-reason="${esc(h.reason || '')}"> ${esc(h.name)}${h.reason ? ` <small>（${esc(h.reason)}）</small>` : ''}</label>`).join('')}</div>` +
                 `<button type="button" class="danger" data-act="hide-sus">チェックした劇場を隠す</button></div>` : '') +
               (r.unknown.length ? `<br>　❔ 分からなかった ${r.unknown.length}（そのまま）: <small>${r.unknown.map(esc).join('、')}</small>` : '') +
               ((r.official_list || []).length ? `<details class="kt-vf-off"><summary>公式サイトの一覧（AI が読んだもの）</summary><small>${r.official_list.map(esc).join('、')}</small></details>` : '')
