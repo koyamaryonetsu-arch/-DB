@@ -3,9 +3,13 @@
  *
  * 動作:
  *   1. Gmailの「案件登録」ラベルの新着スレッドを5分毎に読む（スレッド全体＝最初の依頼＋以降の進捗を文脈に）
- *   2. Claudeが判定: 案件依頼か? / 新規(new) か 進捗報告(progress) か / 各項目を抽出
- *   2.5 添付の見積書(画像/PDF)があればAI-OCRで 見積り名/金額/提出日 を抽出
- *   3. 既存案件と照合（AIが update/new/review を判定。劇場exact→表記ゆれ部分一致→会社単位でフォールバックし
+ *   2. Claude（Sonnet 5.5）がメールから「案件」を1件ずつ取り出す（2026-11 見直し）:
+ *      案件＝1つの劇場の、設備の修理・工事・更新・調査・点検・見積りなどの仕事。1通に複数の劇場・別々の仕事があれば1件ずつ。
+ *      「全体に確認する」「作業申請書を送る」など誰かのやることは案件にしない（💡 これタスクでは？ に提案）
+ *   2.5 添付の見積書（画像/PDF）は、菱熱工業が出した見積書だけを読む（協力会社→菱熱の見積＝原価は使わない）。
+ *       金額は税抜（税込しか無ければ÷1.1）。新しい見積書が来たら上書きし、前の金額は社内メモに残す。
+ *       一度読んだメールの添付は読み直さない（QUOTE_SEEN）。止める時はスクリプトプロパティ QUOTE_OCR=off
+ *   3. 1件ずつ、既存案件と照合（AIが update/new/review を判定。劇場exact→表記ゆれ部分一致→会社単位でフォールバックし
  *      候補を集め、過去のやり取り・関係者(メール)のつながり・対象設備を加味＝別スレッド/時間差/複数人でも拾う）
  *      ※精度最優先。1回目が曖昧(review)なら会社全体の過去案件を集め直して再確認。それでも曖昧なら登録しない。
  *      - update（同一と確信） かつ 進捗/見積添付/日程あり → その案件を UPDATE（見積名/金額/日程/内容追記）
@@ -23,6 +27,8 @@
  *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-5-5（本文の読み取り・内容の要約・劇場情報の抽出。安い最新Haiku）
  *   ANTHROPIC_OCR_MODEL        - (任意) 既定 claude-sonnet-5-5（劇場情報メールの添付など、画像/PDFの読み取り）
  *   ANTHROPIC_DECIDE_MODEL     - (任意) 既定 claude-sonnet-5-5（「新規か既存の続きか」の判断。精度が要なので上位モデル）
+ *   ANTHROPIC_INTAKE_MODEL     - (任意) 既定 claude-sonnet-5-5（メールから案件を1件ずつ取り出す。前は Haiku）
+ *   QUOTE_OCR                  - (任意) off にすると添付の見積書を読まない
  *
  * 重複を防ぐ仕組み（2026-10 追加）:
  *   (1) メールのやり取り（スレッド）と案件の組み合わせを覚える（スクリプトプロパティ TH_<スレッドID>）。
@@ -73,6 +79,8 @@ function supportsFallback_(model) { return /^claude-(sonnet-5-5|opus-5|fable-5)/
 function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-5-5'); }
 // 「新規か既存の続きか」の判断に使うモデル。読み取り(Haiku)より上位のモデルで、メール本文も見て判断する
 function DECIDE_MODEL_() { return cfg_('ANTHROPIC_DECIDE_MODEL', 'claude-sonnet-5-5'); }
+// メールから案件を1件ずつ取り出すモデル（前は Haiku。タスクと案件の見分けを正しくするため Sonnet）
+function INTAKE_MODEL_() { return cfg_('ANTHROPIC_INTAKE_MODEL', 'claude-sonnet-5-5'); }
 var OCR_MAX_BYTES = 5 * 1024 * 1024; // 5MB超の添付はスキップ（API上限・コスト対策）
 
 // ===== メイン（5分毎トリガー） =====
@@ -114,7 +122,6 @@ function importCaseEmails() {
 
       // ===== (1) このやり取りを前に処理したか（記録 → 無ければ確認待ちの記録 → それも無ければラベル） =====
       var known = recallThread_(th);
-      if (known.kind === 'multi') { th.addLabel(lblMulti); nMulti++; suggestTasksFromMail_(th, m); return; }
       if (known.kind === 'pending') {
         // 確認待ち（人がまだ新規/更新を選んでいない）→ 同じ問い合わせを繰り返さない
         th.addLabel(lblConfirm); nConfirm++;
@@ -126,115 +133,51 @@ function importCaseEmails() {
         Logger.log('「破棄」と決めたやり取りへの返信のため登録しない: ' + th.getFirstMessageSubject());
         return;
       }
-      if (known.kind === 'case') {
-        // 案件が分かっている → AIに新規/続きを判断させず、その案件の進捗として扱う
-        nKnown++;
-        var row = fetchCaseById_(known.caseId);
-        if (!row) {
-          // 案件が削除されている（人が消した）→ 作り直さない
-          th.addLabel(lblDup); nDup++;
-          Logger.log('記録の案件が見つからない（削除済み）ため登録しない: id=' + known.caseId + ' / ' + th.getFirstMessageSubject());
-          return;
-        }
-        var pk = parseEmail_(emailText, { continuation: true });
-        var progK = (pk && pk.progress) || {};
-        if (pk && ((progK.note || '').trim() || hasProgressDates_(progK))) {
-          updateCase_(row, progK, pk.content, null);
-          th.addLabel(lblUpd); nUpd++;
-        } else {
-          th.addLabel(lblDup); nDup++;   // 返信に新しい情報なし（お礼など）
-        }
-        rememberThread_(th, { c: String(row.id) });
-        return;
-      }
-
-      var p = parseEmail_(emailText);
-      // 方針: 要確認に回すのは「明確に案件でない」とAIが判断した時だけ。迷ったら登録する（不要なら後で削除）
-      if (!p || p.is_case === false) {
-        th.addLabel(lblSkip); nSkip++;
-        if (p) suggestTasksFromMail_(th, m); // 案件ではないメールでも、メンバーのやることがあれば個人タスクに提案
-        return;
-      }
-      // ===== (2) 複数の案件をまとめたメールは1件の案件にしない =====
-      if (p.multi_case === true) {
-        th.addLabel(lblMulti); nMulti++;
-        rememberThread_(th, { m: 1 });
-        suggestTasksFromMail_(th, m); // まとめメールの中のやることを個人タスクに提案
-        Logger.log('複数案件のまとめメールのため登録しない: ' + (p.title || m.getSubject()));
-        return;
-      }
-      fixPersons_(p); // 客先担当者/R担当者の取り違え補正＋苗字のみに正規化
-
-      // 受付日は「今回届いたメールの日」を基準にする。
-      // 旧: スレッド最古(msgs[0])の日付を使っていたため、古いスレッドへの新着返信で
-      //     過去日付の案件として登録されていた（＝過去案件の登録に見える）。
-      var lastDateStr = Utilities.formatDate(lastAt || msgs[msgs.length - 1].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
-      var received = clampReceivedDate_(p.received_date, lastDateStr);
-      var theater = p.theater || '';
-      var participants = threadParticipants_(th); // やり取りの関係者（同一案件判定の手がかり）
-      // 見積書の自動OCR取込は無効化（誤登録が多いため）。見積り名・金額・提出日の自動入力はしない。
-      // ※アプリ側の手動OCR（見積り名セルをダブルクリック）は引き続き利用可。
-      var quote = null;
-      // ===== (3) 既存案件と照合し update/new/review を決定（上位モデルがメール本文も見て判断） =====
-      // known.kind === 'legacy' ＝ この仕組みを入れる前に処理済みのやり取り（案件idの記録が無い）
-      var legacy = known.kind === 'legacy';
-      var decision = decideCaseWithRecheck_(p, received, participants, emailText, legacy);
-
-      if (legacy && !(decision.decision === 'update' && decision.row)) {
-        // 以前に登録/更新済みのやり取りなので、新規登録もLINEの問い合わせもしない
+      if (known.kind === 'case') nKnown++;
+      var knownRows = (known.caseIds || []).map(function (id) { return fetchCaseById_(id); }).filter(function (r) { return !!r; });
+      if (known.kind === 'case' && !knownRows.length) {
+        // 案件が削除されている（人が消した）→ 作り直さない
         th.addLabel(lblDup); nDup++;
-        Logger.log('処理済みのやり取りへの返信。続き先を特定できないため登録せず: ' + (p.title || m.getSubject()));
+        Logger.log('記録の案件が見つからない（削除済み）ため登録しない: ' + th.getFirstMessageSubject());
         return;
       }
-      if (decision.decision === 'update' && decision.row) {
-        // 一致確定：進捗・見積添付・日程がメールにあれば更新（時間差/複数人の続報も取りこぼさない）
-        if (p.intent === 'progress' || quote || hasProgressDates_(p.progress)) {
-          updateCase_(decision.row, p.progress || {}, p.content, quote);
-          th.addLabel(lblUpd); nUpd++;
-        } else {
-          th.addLabel(lblDup); nDup++;   // 既存と同一だが新しい情報なし → 手動優先で登録せず
-          Logger.log('既存と同一（新情報なし）で登録せず: ' + (p.title || m.getSubject()) + ' → id=' + decision.row.id);
-        }
-        rememberThread_(th, { c: String(decision.row.id) });
-      } else if (decision.decision === 'review') {
-        // 新規か更新か決められない → 登録せず「登録確認キュー」へ。LINEで問い合わせ、
-        // 人がアプリの「🆕 登録確認」でボタンを押して 自動登録 / 自動更新 する。
-        var pid = queueIntakeConfirm_(p, received, m, th, decision.reason || '新規か更新か判断できませんでした');
-        if (pid) rememberThread_(th, { p: String(pid) });
-        th.addLabel(lblConfirm); nConfirm++;
-      } else {
-        // 別の新しい案件と確信 → 新規登録（日程もメールにあれば正しい項目へ）
-        // ただし同じ劇場の進行中案件と内容が似ていれば「二重登録の可能性あり」の印を付けて登録する
-        // （登録は止めない＝取りこぼし防止。人がアプリ/LINEで確認して解除できる）
-        var dates = p.progress || {};
-        // 近い日程(既定7日)に同じ劇場の進行中案件があれば、AIが「新規」と言っても登録しない。
-        // 件名が違っても同じ話をしていることが多いため、人に新規/更新を確認してもらう。
-        var near = findNearbyActiveCases_(p, received);
-        if (near.length) {
-          var pid2 = queueIntakeConfirm_(p, received, m, th, INTAKE_CONFIRM_DAYS_() + '日以内に同じ劇場の進行中案件があります', near);
-          if (pid2) rememberThread_(th, { p: String(pid2) });
-          th.addLabel(lblConfirm); nConfirm++;
-          return;
-        }
-        var dupId = findDupSuspect_(p, received);
-        var newId = insertCase_({
-          dup_suspect_id: dupId,
-          company: normalizeCompany_(p.company), theater: theater, received_date: received,
-          tc_person: p.tc_person || '', r_person: p.r_person || '',
-          category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500),
-          survey_date: dates.survey_date || '',
-          work_start_date: dates.work_start_date || '',
-          work_end_date: dates.work_end_date || '',
-          estimate_name: quote ? quote.estimate_name : '',
-          estimate_amount: quote ? quote.estimate_amount : '',
-          quote_date: (quote && quote.quote_date) || dates.quote_date || ''
-        });
-        if (newId) rememberThread_(th, { c: String(newId) });
-        th.addLabel(lblDone); nNew++;
+
+      // ===== (2) 案件を1件ずつ取り出す（タスク・確認のお願い・書類の送付などは案件にしない） =====
+      var res = parseEmailCases_(emailText, { knownRows: knownRows });
+      // 誰かのやること（全体への確認・作業申請書の送付など）は、案件とは別に「💡 これタスクでは？」へ
+      suggestTasksFromMail_(th, m);
+      var items = (res && Array.isArray(res.cases)) ? res.cases.filter(function (x) { return x && x.theater; }) : [];
+      if (!items.length) {
+        th.addLabel(knownRows.length ? lblDup : lblSkip);
+        if (knownRows.length) nDup++; else nSkip++;
+        Logger.log('案件の話なし（' + ((res && res.not_case_reason) || '案件ではない') + '）: ' + m.getSubject());
+        return;
       }
+      // ===== (3) 添付の見積書（菱熱工業が出したもの・まだ読んでいない添付だけ） =====
+      var quotes = readNewQuotes_(th);
+
+      var lastDateStr = Utilities.formatDate(lastAt || msgs[msgs.length - 1].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      var ctx = { th: th, m: m, emailText: emailText, participants: threadParticipants_(th), legacy: known.kind === 'legacy',
+        knownRows: knownRows, quotes: quotes, single: items.length === 1, lastDateStr: lastDateStr, pendingIds: known.pendingIds || [] };
+      var mem = { cs: [], ps: [] };
+      var outcome = { neu: 0, upd: 0, dup: 0, conf: 0 };
+      items.forEach(function (p) {
+        var r;
+        try { r = handleCaseItem_(p, ctx); } catch (e) { Logger.log('案件1件の処理でエラー: ' + e); r = { kind: 'dup' }; }
+        if (r.caseId) mem.cs.push(String(r.caseId));
+        if (r.pendingId) mem.ps.push(String(r.pendingId));
+        outcome[r.kind] = (outcome[r.kind] || 0) + 1;
+      });
+      // 前に記録した案件も残す（このやり取りの続きで使う）
+      knownRows.forEach(function (r) { if (mem.cs.indexOf(String(r.id)) === -1) mem.cs.push(String(r.id)); });
+      if (mem.cs.length || mem.ps.length) rememberThread_(th, mem);
+      nNew += outcome.neu; nUpd += outcome.upd; nDup += outcome.dup; nConfirm += outcome.conf;
+      th.addLabel(outcome.conf ? lblConfirm : outcome.neu ? lblDone : outcome.upd ? lblUpd : lblDup);
+      if (items.length > 1) { nMulti++; Logger.log('1通に ' + items.length + ' 件の案件: 新規 ' + outcome.neu + ' / 更新 ' + outcome.upd + ' / 確認待ち ' + outcome.conf + ' / 新しい話なし ' + outcome.dup + '（' + m.getSubject() + '）'); }
     });
-    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s / 期間外 %s / 確認待ち %s / まとめメール %s（うち記録済みのやり取り %s）',
-      nNew, nUpd, nDup, nSkip, nOld, nConfirm, nMulti, nKnown);
+    var n = function (v) { return String(Math.round(Number(v) || 0)); };
+    Logger.log('新規 ' + n(nNew) + ' / 進捗更新 ' + n(nUpd) + ' / 新しい話なし ' + n(nDup) + ' / 案件でない ' + n(nSkip) + ' / 期間外 ' + n(nOld) +
+      ' / 確認待ち ' + n(nConfirm) + ' / 複数の案件が書いてあったメール ' + n(nMulti) + '（うち記録済みのやり取り ' + n(nKnown) + '）');
   } catch (e) {
     Logger.log('importCaseEmails error: ' + e);
   } finally {
@@ -335,8 +278,17 @@ function readThreadMemory_(th) {
 //   {kind:'legacy'} = 記録はないが処理済みのラベルがある（この仕組みを入れる前に処理） / {kind:'none'} = 初めて
 function recallThread_(th) {
   var mem = readThreadMemory_(th);
-  if (mem && mem.m) return { kind: 'multi' };
-  if (mem && mem.c) return { kind: 'case', caseId: String(mem.c) };
+  // 記録: {c:案件id}（前の形）／{cs:[案件id…], ps:[確認待ちid…]}（1通に複数の案件）／{m:1}（前の形のまとめメール）
+  if (mem && (mem.cs || mem.ps)) {
+    var ps = (mem.ps || []).map(function (id) { return fetchPendingById_(id); }).filter(function (x) { return !!x; });
+    var waiting = ps.filter(function (x) { return x.status === 'pending'; }).map(function (x) { return String(x.id); });
+    var decided = ps.filter(function (x) { return x.decided_case_id; }).map(function (x) { return String(x.decided_case_id); });
+    var ids = (mem.cs || []).concat(decided);
+    if (!ids.length && waiting.length) return { kind: 'pending', pendingId: waiting[0] };
+    return { kind: 'case', caseIds: ids, caseId: ids[0], pendingIds: waiting };
+  }
+  if (mem && mem.m) return { kind: 'none' };   // 前の形のまとめメール → 今は1件ずつ取り出す
+  if (mem && mem.c) return { kind: 'case', caseId: String(mem.c), caseIds: [String(mem.c)] };
   var names = (th.getLabels() || []).map(function (l) { return l.getName(); });
   var pend = null;
   if (mem && mem.p) pend = fetchPendingById_(mem.p);
@@ -345,11 +297,10 @@ function recallThread_(th) {
     if (pend.status === 'pending') return { kind: 'pending', pendingId: String(pend.id) };
     if (pend.status === 'discarded') return { kind: 'discarded' };
     if (pend.decided_case_id) {
-      rememberThread_(th, { c: String(pend.decided_case_id) }); // 人が選んだ案件を以後の「正」にする
-      return { kind: 'case', caseId: String(pend.decided_case_id) };
+      rememberThread_(th, { cs: [String(pend.decided_case_id)] }); // 人が選んだ案件を以後の「正」にする
+      return { kind: 'case', caseId: String(pend.decided_case_id), caseIds: [String(pend.decided_case_id)] };
     }
   }
-  if (names.indexOf(MULTI_LABEL) !== -1) return { kind: 'multi' };
   if (names.indexOf(DONE_LABEL) !== -1 || names.indexOf(UPD_LABEL) !== -1 || names.indexOf(DUP_LABEL) !== -1) return { kind: 'legacy' };
   return { kind: 'none' };
 }
@@ -450,41 +401,151 @@ function fixPersons_(p) {
 }
 
 // ===== Claude: メール解析（新規/進捗の判定＋項目抽出） =====
-function parseEmail_(emailText, opts) {
+// ===== メールから「案件」を1件ずつ取り出す =====
+// 案件＝1つの劇場の、設備の修理・工事・更新・調査・点検・見積りなど、菱熱工業が請け負う仕事の単位。
+// 1通に複数の劇場・複数の別々の仕事があれば1件ずつ分ける。誰かのやること（全体への確認・作業申請書の送付・
+// 日程の連絡だけ・書類の送付など）は案件にしない（suggestTasksFromMail_ が個人タスクに提案する）。
+// opts.knownRows … このやり取りで前に登録・更新した案件（その劇場の話は続き＝progress）
+function parseEmailCases_(emailText, opts) {
   opts = opts || {};
   var apiKey = cfg_('ANTHROPIC_API_KEY');
   if (!apiKey) { Logger.log('ANTHROPIC_API_KEY未設定'); return null; }
-  var sys =
-    'あなたはシネコン設備の案件管理アシスタントです。メールを読み、JSONのみ出力（前後に文章なし）。\n' +
-    '判定: is_case=修理/工事/設備対応に関するメールか。intent="new"(新しい依頼) か "progress"(既存案件の進捗報告)。\n' +
-    'ヒント: 差出人が客先なら新規依頼が多い。差出人が菱熱工業メンバー(' + MEMBER_HINT + ')なら進捗報告が多い。\n' +
-    '会社は次のいずれかに正規化、なければ原文:\n' + JSON.stringify(COMPANY_LIST) + '\n' +
-    '種別は次のいずれか:\n' + JSON.stringify(CATEGORY_LIST) + '\n' +
-    '担当者の区別（重要・取り違え禁止）:\n' +
-    '- r_person = 菱熱工業（受注側・弊社）の担当者。次のリストの苗字と一致する場合のみ入れる。一致しなければ空文字: ' + JSON.stringify(RYONETSU_MEMBERS) + '\n' +
-    '- tc_person = 客先（劇場・シネコン運営会社側）の担当者。菱熱工業メンバーの名前は絶対に入れない。\n' +
-    '- どちらも「苗字のみ」（例: 「山田太郎様」→「山田」。「様」「さん」等の敬称は付けない）。\n' +
-    'スキーマ: {"is_case":bool,"multi_case":bool,"confidence":number,"intent":"new"|"progress","title":string,' +
-    '"company":string,"theater":string(劇場名),"received_date":"YYYY-MM-DD",' +
-    '"tc_person":string,"r_person":string,"category":string,"content":string(要点1-3文),' +
-    '"progress":{"survey_date":"YYYY-MM-DD","quote_date":"YYYY-MM-DD","work_start_date":"YYYY-MM-DD","work_end_date":"YYYY-MM-DD","note":string}}\n' +
-    'progress の日付は intent に関わらず、メールに具体的な日付が出ていれば必ず正しい項目に入れる（無い項目は空文字）:\n' +
-    '- survey_date=現地調査・現調・下見の日 / quote_date=見積書の提出日 / work_start_date=作業・工事の開始日 / work_end_date=作業・工事の完了日\n' +
-    '- 「受付日」と混同しない。\n' +
-    'note（進捗メモ）のルール（重要）:\n' +
-    '- intent=progress のときだけ、「一番新しいメッセージで判明した“新しい進展”」だけを1〜3文で簡潔に書く。\n' +
-    '- スレッド全体の再要約や、これまでの経緯の繰り返しはしない。既に分かっている内容は書かない。\n' +
-    '- 「7/10:」「7/13:」のような過去日付の列挙・箇条書きはしない（日付は上の項目で管理する）。\n' +
-    '- 新しい進展が無ければ note は空文字にする。\n' +
-    'multi_case（まとめメールの判定）:\n' +
-    '- 1通のメールで「複数の別々の案件」をまとめて報告・連絡しているときだけ true。\n' +
-    '  例: 月次の「各案件進捗状況」、定例会議の議事録、複数の劇場・店舗をまとめた点検報告や見積の一括送付。\n' +
-    '- 同じ劇場の1つの依頼に複数の作業・不具合が含まれるだけなら false（それは1件の案件）。迷ったら false。' +
-    (opts.continuation
-      ? '\n【このやり取りは既に案件として登録済み】intent は必ず "progress" とし、multi_case は false。' +
-        '一番新しいメッセージで判明した新しい進展を note に、日程は progress の各項目に入れる。'
-      : '');
-  return safeJson_(anthropicText_(apiKey, sys, emailText, 800));
+  var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+  var known = (opts.knownRows || []).map(function (r) { return '・' + (r.theater || '') + '：' + String(r.estimate_name || r.content || '').slice(0, 60); });
+  var sys = [
+    'あなたはシネコン（映画館）の空調などの設備の保守・工事会社「菱熱工業」の案件管理アシスタントです。',
+    'メール（やり取り全体）を読み、「案件」を1件ずつ取り出します。JSONのみ出力（前後に文章なし）。今日は ' + today + '。',
+    '',
+    '【案件とは】1つの劇場（映画館）の、設備の修理・工事・更新・調査・点検・見積りなど、菱熱工業が請け負う仕事の単位。',
+    '・劇場がはっきりしているものだけ。劇場名が書いてない・「全劇場」「各店」「全体」だけのものは案件にしない。',
+    '・1通に複数の劇場、または同じ劇場の別々の仕事（別々に見積り・対応するもの）があれば、1件ずつ分けて cases に入れる。',
+    '  1つの依頼の中の作業の細かい内訳（例: 同じ修理の部品交換と試運転）は分けない。',
+    '【案件にしないもの】（誰かのやること＝タスク。cases に入れない）',
+    '・全体・各劇場への確認や周知のお願い（例「全体に確認する」「各店に周知してください」「全劇場に聞いてください」）',
+    '・作業申請書・入館申請・作業届などの作成・送付・提出、書類や資料の送付',
+    '・日程の連絡・調整だけの話、会議・打合せの案内や議事録の共有、お礼・挨拶・情報共有だけのもの',
+    '・社内の段取り・手配・発注だけの話（ただし、ある劇場の工事の進み具合として書かれていれば、その案件の progress）',
+    '',
+    '各案件の項目:',
+    '- theater: 劇場名（正式な書き方に寄せる。例「TOHOシネマズ 日比谷」「109シネマズ 川崎」）。company: 次のいずれか（なければ原文）' + JSON.stringify(COMPANY_LIST),
+    '- intent: "new"＝新しい依頼・新しい仕事 / "progress"＝すでにある仕事の進み具合（日程・見積り提出・完了報告など）',
+    '- title: 案件の件名（30字以内）。category: 次のいずれか ' + JSON.stringify(CATEGORY_LIST) + '。content: その案件の要点1〜3文（ほかの案件の話は入れない）',
+    '- received_date: その案件の依頼の日 YYYY-MM-DD（分からなければ空文字）',
+    '- r_person: 菱熱工業の担当（次のリストの苗字と一致する時だけ。無ければ空文字）' + JSON.stringify(RYONETSU_MEMBERS) + '。tc_person: 客先（劇場・運営会社）の担当の苗字（菱熱工業の人は入れない）。敬称は付けない',
+    '- progress: survey_date=現地調査の日 / quote_date=見積書の提出日 / work_start_date=作業・工事の開始日 / work_end_date=作業・工事の完了日（YYYY-MM-DD。無ければ空文字）。',
+    '  note=その案件について一番新しいメッセージで分かった新しい進展だけ1〜3文（経緯の繰り返し・日付の列挙はしない。無ければ空文字）',
+    '- confidence: 0〜1（その案件が本当に案件だと言える確かさ）',
+    '案件が1件も無い時は cases を空にして、not_case_reason に理由を短く。',
+    known.length ? '【このやり取りで前に登録した案件】（この劇場の話は、その案件の続き＝intent は progress）\n' + known.join('\n') : '',
+    'スキーマ: {"cases":[{"theater":string,"company":string,"intent":"new"|"progress","title":string,"category":string,"content":string,"received_date":string,"r_person":string,"tc_person":string,"progress":{"survey_date":string,"quote_date":string,"work_start_date":string,"work_end_date":string,"note":string},"confidence":number}],"not_case_reason":string}'
+  ].filter(function (x) { return x !== ''; }).join('\n');
+  var j = safeJson_(anthropicText_(apiKey, sys, emailText, 2500, { model: INTAKE_MODEL_(), effort: 'low' }));
+  if (!j) return null;
+  var list = Array.isArray(j.cases) ? j.cases : [];
+  j.cases = list.filter(function (x) { return x && x.theater && (typeof x.confidence !== 'number' || x.confidence >= 0.5) && !/^(全劇場|各店|全店|全体|複数)/.test(String(x.theater)); });
+  return j;
+}
+// 取り出した案件1件を、新規／更新／確認待ち のどれかにする
+function handleCaseItem_(p, ctx) {
+  fixPersons_(p);
+  var received = clampReceivedDate_(p.received_date, ctx.lastDateStr);
+  var quote = pickQuoteFor_(ctx.quotes, p, ctx.single);
+  var prog = p.progress || {};
+  var hasNews = !!((prog.note || '').trim() || hasProgressDates_(prog));
+  // 前にこのやり取りで登録した案件で、同じ劇場のもの → その案件の続き（AIの判断はしない）
+  var kc = matchKnownRow_(ctx.knownRows, p, ctx.single);
+  if (kc) {
+    if (hasNews || quote) { updateCase_(kc, prog, p.content, quote); return { kind: 'upd', caseId: kc.id }; }
+    return { kind: 'dup', caseId: kc.id };
+  }
+  var decision = decideCaseWithRecheck_(p, received, ctx.participants, ctx.emailText, ctx.legacy);
+  if (ctx.legacy && !(decision.decision === 'update' && decision.row)) {
+    Logger.log('処理済みのやり取りへの返信。続き先を特定できないため登録せず: ' + (p.title || ''));
+    return { kind: 'dup' };
+  }
+  if (decision.decision === 'update' && decision.row) {
+    if (p.intent === 'progress' || quote || hasNews) { updateCase_(decision.row, prog, p.content, quote); return { kind: 'upd', caseId: decision.row.id }; }
+    Logger.log('既存と同一（新情報なし）で登録せず: ' + (p.title || '') + ' → id=' + decision.row.id);
+    return { kind: 'dup', caseId: decision.row.id };
+  }
+  if (decision.decision === 'review') {
+    // 新規か更新か決められない → 登録せず「登録確認」へ（LINEで問い合わせ。人がアプリで選ぶ）
+    return { kind: 'conf', pendingId: queueIntakeConfirm_(p, received, ctx.m, ctx.th, decision.reason || '新規か更新か判断できませんでした') };
+  }
+  // 近い日程（既定7日）に同じ劇場の進行中案件があれば、AIが「新規」と言っても人に確かめる
+  var near = findNearbyActiveCases_(p, received);
+  if (near.length) return { kind: 'conf', pendingId: queueIntakeConfirm_(p, received, ctx.m, ctx.th, INTAKE_CONFIRM_DAYS_() + '日以内に同じ劇場の進行中案件があります', near) };
+  var newId = insertCase_({
+    dup_suspect_id: findDupSuspect_(p, received),
+    company: normalizeCompany_(p.company), theater: p.theater || '', received_date: received,
+    tc_person: p.tc_person || '', r_person: p.r_person || '',
+    category: normalizeCategory_(p.category), content: p.content || '',
+    survey_date: prog.survey_date || '', work_start_date: prog.work_start_date || '', work_end_date: prog.work_end_date || '',
+    estimate_name: quote ? quote.estimate_name : '', estimate_amount: quote ? quote.estimate_amount : '',
+    quote_date: (quote && quote.quote_date) || prog.quote_date || '', quote_file: quote ? quote.file : ''
+  });
+  return { kind: newId ? 'neu' : 'dup', caseId: newId };
+}
+// このやり取りで前に登録した案件のうち、同じ劇場のもの（1件だけの返信なら、その1件）
+function matchKnownRow_(rows, p, single) {
+  rows = rows || [];
+  if (!rows.length) return null;
+  if (rows.length === 1 && single) return rows[0];
+  var core = theaterCore_(p.theater);
+  var hit = rows.filter(function (r) { return core && theaterCore_(r.theater) === core; });
+  return hit.length === 1 ? hit[0] : null;
+}
+
+// ===== 添付の見積書を読む（菱熱工業が出した見積書だけ・税抜・まだ読んでいない添付だけ） =====
+var QUOTE_SEEN_KEY = 'QUOTE_SEEN';   // 読んだメール（メールid → 読んだ時刻）。同じ添付を何度も読まない
+function readNewQuotes_(th) {
+  if (cfg_('QUOTE_OCR', 'on') === 'off') return [];
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  if (!apiKey) return [];
+  var props = PropertiesService.getScriptProperties();
+  var seen = {};
+  try { seen = JSON.parse(props.getProperty(QUOTE_SEEN_KEY) || '{}') || {}; } catch (e) { seen = {}; }
+  var out = [], dirty = false;
+  var msgs = th.getMessages();
+  for (var i = msgs.length - 1; i >= 0; i--) {     // 新しいメールから
+    var mm = msgs[i], id = mm.getId();
+    if (seen[id]) continue;
+    var atts = mm.getAttachments({ includeInlineImages: false, includeAttachments: true });
+    for (var j = 0; j < atts.length; j++) {
+      var a = atts[j];
+      var ct = String(a.getContentType() || '').toLowerCase();
+      var isImg = ct.indexOf('image/') === 0, isPdf = ct === 'application/pdf';
+      if (!isImg && !isPdf) continue;
+      if (a.getSize() > OCR_MAX_BYTES) { Logger.log('添付が大きすぎて見積書を読まない: ' + a.getName()); continue; }
+      var block = isPdf
+        ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: Utilities.base64Encode(a.getBytes()) } }
+        : { type: 'image', source: { type: 'base64', media_type: normalizeImageMime_(ct), data: Utilities.base64Encode(a.getBytes()) } };
+      var q = ocrQuote_(apiKey, block);
+      if (!q || !q.is_quote) continue;
+      if (!q.is_ryonetsu) { Logger.log('菱熱工業が出した見積書ではないため使わない: ' + a.getName() + '（発行元: ' + (q.issuer || '不明') + '）'); continue; }
+      if (!q.estimate_amount) { Logger.log('見積書の金額を読めない: ' + a.getName()); continue; }
+      q.file = a.getName();
+      q.mail_date = Utilities.formatDate(mm.getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      Logger.log('見積書を読んだ: ' + a.getName() + ' → ' + q.estimate_amount + '円（' + q.amount_from + '）' + (q.theater ? ' / ' + q.theater : ''));
+      out.push(q);
+    }
+    seen[id] = Date.now(); dirty = true;
+  }
+  if (dirty) {
+    // 60日より前は忘れる・多くても新しい200件だけ（スクリプトプロパティの大きさの上限のため）
+    var keys = Object.keys(seen).filter(function (k) { return seen[k] > Date.now() - 60 * 86400000; }).sort(function (x, y) { return seen[y] - seen[x]; }).slice(0, 200);
+    var kept = {}; keys.forEach(function (k) { kept[k] = seen[k]; });
+    try { props.setProperty(QUOTE_SEEN_KEY, JSON.stringify(kept)); } catch (e) { Logger.log('読んだ見積書の記録に失敗: ' + e); }
+  }
+  return out;   // 新しい順
+}
+// 案件に合う見積書（案件が1件ならいちばん新しい見積書。複数なら劇場名が合うもの）
+function pickQuoteFor_(quotes, p, single) {
+  if (!quotes || !quotes.length) return null;
+  var core = theaterCore_(p.theater);
+  var hit = quotes.filter(function (q) { return core && (theaterCore_(q.theater) === core || String(q.estimate_name || '').replace(/[\s　]/g, '').indexOf(core) !== -1); });
+  if (hit.length) return hit[0];
+  return single ? quotes[0] : null;
 }
 
 // ===== Supabase: 既存案件を取得（フィルタ指定） =====
@@ -830,6 +891,7 @@ function insertCase_(f) {
   // AIが自動登録したものと分かるよう、社内メモ先頭にタグを付ける（内容への要約時はこのタグは含めない）
   var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
   var memoText = '【AI自動登録 ' + today + '】' + (mailText ? '\n' + mailText : '');
+  if (f.estimate_amount) memoText += '\n\n【見積書の読み取り ' + today + '】\n見積書を読み、見積り金額 ' + Number(normalizeAmount_(f.estimate_amount)).toLocaleString() + '円（税抜）を入れました' + (f.quote_file ? '（' + f.quote_file + '）' : '');
   if (f.dup_suspect_id) memoText = '【⚠️二重登録の可能性あり（既存 id=' + f.dup_suspect_id + '）】\n' + memoText;
   var body = {
     company: f.company, theater: f.theater, received_date: f.received_date || null,
@@ -872,12 +934,19 @@ function updateCase_(matched, prog, summary, quote, tag) {
   if (prog.quote_date && !matched.quote_date) patch.quote_date = prog.quote_date;
   if (prog.work_start_date && !matched.work_start_date) patch.work_start_date = prog.work_start_date;
   if (prog.work_end_date && !matched.work_end_date) patch.work_end_date = prog.work_end_date;
-  // 添付見積書のOCR結果（見積り名/金額/提出日）も、空の項目のみ記入
+  // 添付の見積書（菱熱工業が出したもの・税抜）は、最新の見積書で上書きする。前の金額は社内メモに残す
+  var quoteNote = '';
   if (quote) {
-    if (quote.estimate_name && !matched.estimate_name) patch.estimate_name = quote.estimate_name;
-    if (quote.estimate_amount && (matched.estimate_amount === null || matched.estimate_amount === undefined || matched.estimate_amount === ''))
-      patch.estimate_amount = normalizeAmount_(quote.estimate_amount);
-    if (quote.quote_date && !matched.quote_date && !patch.quote_date) patch.quote_date = quote.quote_date;
+    var newAmt = normalizeAmount_(quote.estimate_amount);
+    var oldAmt = (matched.estimate_amount === null || matched.estimate_amount === undefined || matched.estimate_amount === '') ? null : Number(matched.estimate_amount);
+    if (newAmt && newAmt !== oldAmt) {
+      patch.estimate_amount = newAmt;
+      quoteNote = oldAmt ? '見積書を読み、見積り金額を ' + oldAmt.toLocaleString() + '円 → ' + newAmt.toLocaleString() + '円（税抜）にしました'
+                         : '見積書を読み、見積り金額 ' + newAmt.toLocaleString() + '円（税抜）を入れました';
+      quoteNote += '（' + [quote.file, quote.quote_date].filter(function (x) { return x; }).join('・') + '）';
+    }
+    if (quote.estimate_name && quote.estimate_name !== matched.estimate_name) patch.estimate_name = quote.estimate_name;
+    if (quote.quote_date && quote.quote_date !== matched.quote_date) patch.quote_date = quote.quote_date;
   }
   // 進捗メモは「社内メモ(memo)」へ追記する（客先向けの「内容」へはサーバ側のAI要約が反映）。
   // 「最新の新しい進展だけ」を追記（全履歴の再要約はしない＝prog.noteのみ）。
@@ -894,6 +963,11 @@ function updateCase_(matched, prog, summary, quote, tag) {
     patch.memo = base ? (base + '\n\n' + block) : block;
   } else if (note) {
     Logger.log('社内メモと重複のため追記せず: id=' + matched.id);
+  }
+  if (quoteNote) {
+    var qd = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+    var baseMemo = patch.memo || reformatProgress_(String(matched.memo || ''));
+    patch.memo = (baseMemo ? baseMemo + '\n\n' : '') + '【見積書の読み取り ' + qd + '】\n' + quoteNote;
   }
   if (!Object.keys(patch).length) { Logger.log('更新項目なし: id=' + matched.id); return; }
   patch.last_update_source = 'auto';  // AI・メール自動更新（LINE通知を「自動更新」にするため）
@@ -1105,31 +1179,6 @@ function resummarizeContentReset() {
 // ===== 添付見積書のAI-OCR =====
 // スレッド内の添付（画像/PDF）を走査し、最初に読めた見積書から
 // {estimate_name, estimate_amount, quote_date} を返す。見つからなければ null。
-function extractQuoteFromAttachments_(th) {
-  var apiKey = cfg_('ANTHROPIC_API_KEY');
-  if (!apiKey) return null;
-  var msgs = th.getMessages();
-  for (var i = 0; i < msgs.length; i++) {
-    var atts = msgs[i].getAttachments({ includeInlineImages: true, includeAttachments: true });
-    for (var j = 0; j < atts.length; j++) {
-      var a = atts[j];
-      var ct = String(a.getContentType() || '').toLowerCase();
-      var isImg = ct.indexOf('image/') === 0;
-      var isPdf = ct === 'application/pdf';
-      if (!isImg && !isPdf) continue;                 // 見積書になり得るのは画像/PDFのみ
-      if (a.getSize() > OCR_MAX_BYTES) { Logger.log('添付が大きすぎOCRスキップ: ' + a.getName()); continue; }
-      var block = isPdf
-        ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: Utilities.base64Encode(a.getBytes()) } }
-        : { type: 'image', source: { type: 'base64', media_type: normalizeImageMime_(ct), data: Utilities.base64Encode(a.getBytes()) } };
-      var q = ocrQuote_(apiKey, block);
-      if (q && (q.estimate_name || q.estimate_amount || q.quote_date)) {
-        Logger.log('見積OCR成功: ' + a.getName() + ' → ' + JSON.stringify(q));
-        return q;
-      }
-    }
-  }
-  return null;
-}
 // Anthropic API が受け付ける画像MIMEに寄せる（未対応は jpeg 扱い）
 function normalizeImageMime_(ct) {
   if (ct.indexOf('png') >= 0) return 'image/png';
@@ -1137,21 +1186,31 @@ function normalizeImageMime_(ct) {
   if (ct.indexOf('webp') >= 0) return 'image/webp';
   return 'image/jpeg';
 }
-// 1件の添付（画像/PDFブロック）を視覚モデルでOCR。見積書でなければ空を返す。
+// 1件の添付（画像/PDFブロック）を視覚モデルで読む。見積書でなければ null。
+// 金額は「税抜」（アプリの見積り金額は税抜）。税込しか書いていなければ ÷1.1 で税抜にする。
+// is_ryonetsu … 見積書を出した会社（発行元）が菱熱工業か。協力会社から菱熱への見積書（原価）は false＝使わない
 function ocrQuote_(apiKey, mediaBlock) {
   var sys =
     'あなたは見積書の読み取りアシスタントです。画像/PDFを読み、JSONのみ出力（前後に文章なし）。\n' +
-    'これが見積書（御見積書/お見積り/Quotation等）でなければ is_quote=false を返す。\n' +
-    '見積書なら次を抽出: estimate_name=工事名/件名/工事件名（無ければ主な品目を要約）, ' +
-    'estimate_amount=見積合計金額の数値のみ（税込があれば税込・カンマや¥や円は除く・整数）, ' +
-    'quote_date=見積書の発行日/日付をYYYY-MM-DD。読めない項目は空文字。\n' +
-    'スキーマ: {"is_quote":bool,"estimate_name":string,"estimate_amount":string,"quote_date":"YYYY-MM-DD"}';
+    'これが見積書（御見積書/お見積り/Quotation 等）でなければ is_quote=false。\n' +
+    'issuer=見積書を出した会社（発行元。右上などの会社名・社印）。addressee=宛先（「○○御中」）。\n' +
+    'is_ryonetsu=発行元が「菱熱工業株式会社（菱熱工業）」の時だけ true。宛先が菱熱工業（協力会社から菱熱工業への見積書）なら false。\n' +
+    'amount_excl_tax=税抜の合計金額（小計・税抜合計・本体価格の合計）。amount_incl_tax=税込の合計金額。どちらも数値（円・カンマなし）。無ければ null。\n' +
+    'estimate_name=件名/工事名（無ければ主な内容を短く）。theater=対象の劇場名（件名・宛先・工事場所から。分からなければ空文字）。\n' +
+    'quote_date=見積書の日付 YYYY-MM-DD（無ければ空文字）。\n' +
+    'スキーマ: {"is_quote":bool,"issuer":string,"addressee":string,"is_ryonetsu":bool,"amount_excl_tax":number|null,"amount_incl_tax":number|null,"estimate_name":string,"theater":string,"quote_date":string}';
   var txt = anthropicText_(apiKey, sys,
-    [mediaBlock, { type: 'text', text: 'この書類を読み取ってJSONで返してください。' }], 400,
+    [mediaBlock, { type: 'text', text: 'この書類を読み取ってJSONで返してください。' }], 600,
     { model: OCR_MODEL_(), effort: 'low' });
   var j = safeJson_(txt);
   if (!j || j.is_quote === false) return null;
-  return { estimate_name: j.estimate_name || '', estimate_amount: j.estimate_amount || '', quote_date: j.quote_date || '' };
+  var ex = normalizeAmount_(j.amount_excl_tax), inc = normalizeAmount_(j.amount_incl_tax);
+  var amt = ex || (inc ? Math.round(inc / 1.1) : null);
+  return {
+    is_quote: true, is_ryonetsu: j.is_ryonetsu === true, issuer: j.issuer || '', theater: j.theater || '',
+    estimate_name: j.estimate_name || '', estimate_amount: amt, amount_from: ex ? '税抜' : (inc ? '税込÷1.1' : ''),
+    quote_date: /^\d{4}-\d{2}-\d{2}$/.test(String(j.quote_date || '')) ? j.quote_date : ''
+  };
 }
 // 「¥1,234,000」「1,234,000円」等 → 数値。変換できなければ null（送信しない）
 function normalizeAmount_(v) {
