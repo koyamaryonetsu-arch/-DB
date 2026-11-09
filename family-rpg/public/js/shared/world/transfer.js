@@ -148,6 +148,8 @@ const slimList = (char, list) => list.map((e) => {
     if (k === 'id' && v === `${char.id}:${e.key}`) continue;
     if (k in COMP_EMPTY && sameJson(v, COMP_EMPTY[k])) continue;
     if (k === 'species' && v === e.species) continue;
+    // 第71回: 空の cmdOff は、autoOff も 空なら はぶく（読む ときの うつしかえ〈migrateCmdOffAll〉で 同じ [] に もどる）
+    if (k === 'cmdOff' && Array.isArray(v) && !v.length && !(e.char.autoOff?.length)) continue;
     ch[k] = v;
   }
   return { ...e, char: ch };
