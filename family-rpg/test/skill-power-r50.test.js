@@ -111,7 +111,8 @@ test('すべての 技で こわれない（セーブの キャラ・戦いの p
       const p = skillPower(id, c);
       assert.equal(typeof p.text, 'string', id);
       for (const x of p.parts) {
-        if (x.type === 'phys') assert.ok(Number.isFinite(x.mult), id);
+        // 第72回: 元気玉（genki）は 集めたHP×倍率
+        if (x.type === 'phys' || x.type === 'genki') assert.ok(Number.isFinite(x.mult), id);
         else assert.ok(Number.isFinite(x.min) && Number.isFinite(x.max) && x.min <= x.max, id);
       }
       assert.equal(typeof skillPowerLine(id, c), 'string', id);

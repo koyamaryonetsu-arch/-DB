@@ -750,7 +750,7 @@ export const ELEMENT_NAMES = {
 export const ELEMENT_ORDER = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
-const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'genki', 'destroy', 'deduce']);
 const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal', 'regen']);
 export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
 export function abilityRole(a) {

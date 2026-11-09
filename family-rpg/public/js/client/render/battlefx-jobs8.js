@@ -18,6 +18,9 @@
 // ・みかたに つかう えんしゅつ（PARTY_ANIMS8）は、battle.js が がめんの 下の まん中に 出す
 // ・三日月（j7moon）・光の すじ（j7shaft）・光線（j7beam）・バラ（j7rose）は battlefx-jobs7.js の つぶを つかう
 
+// 第72回: 竜の紋章の かたち（crest-shapes.js。まん中の ひし形・そり上がる つの・左右の つばさ・下の かぎ）
+import { drawDragonCrest, crestSimple } from './crest-shapes.js';
+
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const easeOut = (t) => 1 - (1 - t) * (1 - t) * (1 - t);
@@ -48,15 +51,6 @@ function softGlow(x, cx, cy, r, col, a) {
   x.fillStyle = g;
   x.fillRect(cx - r, cy - r, r * 2, r * 2);
 }
-// 竜の紋章（金の つばさが 上に ひらき、まん中に 赤い 石）。s: 大きさ
-function crestShape(x, s) {
-  x.beginPath();
-  x.moveTo(0, 7 * s);
-  x.lineTo(-2.4 * s, 2 * s); x.lineTo(-7 * s, -1 * s); x.lineTo(-8 * s, -7 * s); x.lineTo(-4.2 * s, -2.6 * s);
-  x.lineTo(-1.6 * s, -4 * s); x.lineTo(0, -8 * s); x.lineTo(1.6 * s, -4 * s); x.lineTo(4.2 * s, -2.6 * s);
-  x.lineTo(8 * s, -7 * s); x.lineTo(7 * s, -1 * s); x.lineTo(2.4 * s, 2 * s);
-  x.closePath();
-}
 // ひし形の クリスタル（上が 長い）
 function crystalShape(x, w, h) {
   x.beginPath();
@@ -74,18 +68,11 @@ export const JOB8_FINE = {
     x.globalCompositeOperation = 'lighter';
     softGlow(x, p.x, p.y, 22 * s, 'rgba(255,220,110,0.9)', a * 0.7);
     x.globalCompositeOperation = 'source-over';
-    x.globalAlpha = a;
     x.translate(p.x, p.y);
-    x.fillStyle = '#5a2a08';
-    crestShape(x, s * 1.12);
-    x.fill();
-    x.fillStyle = '#ffd84a';
-    crestShape(x, s);
-    x.fill();
-    x.fillStyle = '#fff6c0';
-    x.fillRect(-0.8 * s, -6 * s, 1.6 * s, 6 * s);
-    x.fillStyle = '#e8203a';
-    x.beginPath(); x.arc(0, 0.5 * s, 1.8 * s, 0, Math.PI * 2); x.fill();
+    // 金の 紋章・赤い まん中（1 が 8×s ドット）
+    const u = 8 * s;
+    x.scale(u, u);
+    drawDragonCrest(x, { fill: '#ffd84a', edge: '#5a2a08', core: '#fff6c0', gem: '#e8203a', a, lw: Math.max(0.08, 0.9 / u), simple: crestSimple(u) });
     x.restore();
   },
   // 竜闘気の 大きな 光の 波動（x0,y0 から x1,y1 へ のびる 太い 光。のびきると ふくらんで きえる）

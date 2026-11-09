@@ -5,7 +5,7 @@
 // ここは 画面に よらない きまり（テスト: test/ui-r35.test.js）
 
 // ダメージを あたえる 効果
-const DMG = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);
+const DMG = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'genki', 'destroy', 'deduce']);
 // 回復（HP・MP・状態・生き返る・じわじわ）
 const HEAL = new Set(['heal', 'revive', 'reviveAll', 'cure', 'mpHeal', 'regen']);
 // 味方を 強くする（ちから・守り・かばう・ためる など）

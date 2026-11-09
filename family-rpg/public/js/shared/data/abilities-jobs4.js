@@ -273,8 +273,9 @@ export const JOB4_ABILITIES = {
   },
   s3_genki: {
     name: '元気玉', kana: 'げんきだま', kind: 'skill', job: 'ss3', mp: 30, target: 'enemies', noAuto: true, role: 'dmg',
-    effect: { type: 'gather', element: 'light', base: [170, 200], per: 60, take: 8, thr: 70 },
-    desc: '生きている仲間からMPを8ずつ集め、敵全体に大きな光の玉をぶつける。集まった仲間が多いほど強い（オートでは使わない）。', cast: '{a}「みんな、オラに元気を分けてくれ！」', anim: 'meteor',
+    // 第72回: みんなの 今の HPを 10%ずつ 集めて、集めた HP × mult の ダメージ（魔力は 関係ない。shared/battle-genki.js）
+    effect: { type: 'genki', element: 'light', mult: 2.4 },
+    desc: 'みんなのHPを少しずつ集め、敵全体に大きな光の玉をぶつける。集めたHPが多いほど強い。HPが1より下になる人はいない（オートでは使わない）。', cast: '{a}「みんな、オラに元気を分けてくれ！」', anim: 'meteor',
   },
 
   // ───────────── 設備屋（上級職） ─────────────

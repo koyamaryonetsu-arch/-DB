@@ -13,6 +13,8 @@ import { R29_OUTFIT, R29_BODY } from './hero-r29.js';
 import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js';
 // 第40回の 伝説の 職業 2つ（竜魔人・ネオ・クイーン・セレニティ）
 import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js';
+// 第72回: ロトの紋章の かたち（むねの しるし）
+import { ROTO_SIL, ROTO_PARTS, ROTO_GEM } from './crest-shapes.js';
 // 第41回 B の 2つの 職業（雪の女王・第5のせいれい）
 import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js';
 // 第41回 A の 伝説の 職業 2つ（京急の社長・野球界の殿堂入り）
@@ -1724,13 +1726,16 @@ function emblem(cv, x, y, kind, O, small = false, color = null, m = null) {
     cv.part({ ol: 'none' });
     cv.ell(x, y + 0.05, 0.85, 0.85, gem(color || '#5ac8ff'), { bulge: 0.9 });
   } else if (kind === 'bird') {
-    // ロトのしるし（つばさを ひろげた 金の 鳥。みぎ はんぶんを かがみに うつす）
-    const R = [[0, -2.6], [0.5, -2.2], [0.45, -1.4], [1.3, -1.6], [2.2, -2.3], [3.0, -2.6], [2.4, -1.5], [2.8, -1.1], [2.0, -0.5], [2.2, -0.1], [0.75, 0.1], [0.6, 0.8], [1.4, 2.1], [0.45, 1.6], [0, 2.5]];
-    const pts = [...R.map(([a, b]) => [x + a, y + b]), ...R.slice(1, -1).reverse().map(([a, b]) => [x - a, y + b])];
+    // ロトの紋章（第72回: 正面の 金の 不死鳥。つばさを 上に ひろげ、しっぽは 3つ。むねに 赤い 石。crest-shapes.js の ROTO_SIL）
+    const SX = 2.75, SY = 2.7;
+    const pts = ROTO_SIL.map(([a, b]) => [x + a * SX, y + b * SY]);
     cv.part({ ol: 'line' });
     cv.poly(pts, m || metal('gold'), { n: 'bevel', bw: 0.4 });
     const id = cv.cur;
-    for (const s of [-1, 1]) cv.crease([[x + s * 0.55, y - 1.2], [x + s * 0.7, y + 0.5]], 0.16, -0.4, { parts: [id] });
+    // はねの さかいめ（つばさの すじ）
+    for (const s of [-1, 1]) for (const [[a0, b0], [a1, b1]] of ROTO_PARTS.veins.slice(1, 3)) cv.crease([[x + s * a0 * SX, y + b0 * SY], [x + s * a1 * SX * 0.92, y + b1 * SY * 0.9]], 0.14, -0.4, { parts: [id] });
+    cv.part({ ol: 'none' });
+    cv.ell(x + ROTO_GEM.x * SX, y + ROTO_GEM.y * SY, 0.42, 0.42, gem('#e8303a'), { bulge: 0.9 });
   } else if (kind === 'crest') {
     cv.part({ ol: 'line' });
     cv.poly([[x - 1.4, y - 1.4], [x + 1.4, y - 1.4], [x + 1.3, y + 0.4], [x, y + 1.8], [x - 1.3, y + 0.4]], metal('gold'), { n: 'bevel', bw: 0.45 });

@@ -446,6 +446,8 @@ export function gameFiles() {
     'public/js/shared/world/monarena-live.js', 'public/js/client/ui/monarena-live.js',
     // 第70回: 作れる 魔物から 選ぶ（配合の さがし表）
     'public/js/shared/breed-finder.js', 'public/js/shared/breed-calc.js',
+    // 第72回: 元気玉（みんなの HPを 集める）
+    'public/js/shared/battle-genki.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

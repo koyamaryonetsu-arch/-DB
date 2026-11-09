@@ -74,6 +74,8 @@ import { phantomAPhys } from './battle-phantom-a.js';
 import { r51bEffect, r51bPerform, r51bAfterCast, barrierDamage, kenkiCrit, kenkiMult, kenkiGain, r51bPub } from './battle-r51b.js';
 // 第66回 A: ポケモンマスターの 仲間の 魔物と いっしょの 技（monPal。battle-r66a.js）
 import { r66aMonPal } from './battle-r66a.js';
+// 第72回: 元気玉（みんなの HPを 少しずつ 集める。battle-genki.js）
+import { genkiAct } from './battle-genki.js';
 // 第66回 E2: セーブと ロード（ゲームの神）・楽天ポイント（楽天ゴールド・ブラックカードマン）。battle-r66e2.js
 import { r66e2Effect, cardPtMult } from './battle-r66e2.js';
 import { sameNameOff, cmdOffList } from './cmd-off.js';
@@ -1378,8 +1380,9 @@ export class Battle {
         this.afterDamage(c, ev, eff.element);
         break;
       }
+      case 'genki': genkiAct(this, c, eff, ev, powMult, targets, mirageHit); break;
       case 'gather': {
-        // ミナデイン: 生きている 仲間から MPを 少しずつ 集めて、1体に 大きな 雷（集まった 人数ぶん 強く なる）
+        // 仲間から MPを 少しずつ 集めて 大きな 呪文（集まった 人数ぶん 強く なる。第72回 までの 元気玉。今は 使う 技なし。元気玉は 上の genki）
         let count = 0;
         for (const x of this.sideOf(c, true)) {
           if (!x.alive || x === c || x.mp < (eff.take || 10)) continue;
