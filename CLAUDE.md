@@ -75,6 +75,8 @@
 ├── shelf.css           # 書類棚・写真台帳の見た目（style.css とは別ファイル）
 ├── karte.js            # 劇場カルテ（各劇場情報の中身）: タブ・1件ずつの持病/備考/設備メモ・機器表（AI読み取り）・別の劇場へ移す・Excel。window.KARTE
 ├── karte.css           # 劇場カルテの見た目
+├── plan.js             # 工事予定表（☰ その他 → 🗓）: Excel と同じ操作の表＋棒（1か月6マス）・案件と連動・Excel 入出力・A3 印刷。window.PLAN
+├── plan.css            # 工事予定表の見た目
 ├── heatload.js         # 空調負荷計算（書類棚の ❄）。シアター/シアター以外・計算・計算書（A4）。window.HL
 ├── heatload.css        # 空調負荷計算の見た目（#viewHeat の中だけ）
 ├── heatload-xlsx.js    # 空調負荷計算の Excel（式でつながる・黄色＝入力・灰色＝基準値）。window.HLXL
@@ -202,6 +204,17 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 - 劇場情報更新確認: GAS は拾った候補をすべて theater_info_pending へ（読み取り Sonnet 5.5）→ `/api/theater-ai` task=review（Opus 5.5）がその劇場の今のカルテと見比べて add=自動で入れる / dup・wrong=除く / unsure=残す（ai_verdict・ai_reason）。GAS の reviewTheaterPendingAuto（毎日2時台・19時台）と画面の「🤖 AIでまとめて判定」から呼ぶ。判定中は ai_verdict=checking（10分で解ける）
 - Excel: 1劇場＝1ファイル（カルテ／機器表／不具合の履歴＝その劇場の案件／連絡先）、2つ以上は ZIP
 - テスト: scratchpad の ktest/karte-e2e.js（テストモード）・karte-sb-e2e.js（にせ Supabase: fake-sb.js）・api-test.mjs・gas-theater-test.js。SQL は本物の Postgres で2回流して確認
+
+### 工事予定表（☰ その他 → 🗓 工事予定表・菱熱だけ）
+- DB（SETUP_WORK_PLAN.sql）: `work_plans`（表＝年度。start_month・months=18・slots=6）・`work_plan_rows`（見出し group／工事 item。bars＝{"YYYY-MM-k": r|o|y}）。リアルタイムで共有・自動保存（0.5秒まとめ）
+- 案件から入れた行（case_id）は連動: 案件名＝見積り名・金額・粗利率・担当＝R担当・施工（黄）＝工事の開始日〜完了日。予定表で直すと CINEMA_DB.updateCase で案件も直る。案件の変更は 'cinema-cases-changed' で届く
+- 受注見込み（赤）・設計 期間（橙）・施工 期間（黄）の列は棒から出す（列に「5〜6月」と打っても塗る）
+- Excel と同じ操作: 見えない入力欄 #plKey を選んだマスに置き、打ち始め・日本語の変換でそのまま直す。Ctrl+C/X/V（タブ区切り）・Ctrl+Z/Y・Delete・F2・矢印/Enter/Tab
+- テスト: ktest/plan-e2e.js・plan-sb-e2e.js
+
+### 劇場カルテの追加（2026-11）
+- 「🌐 公式サイトで確かめる」: /api/theater-ai task=verify（Opus＋web_fetch で各社の劇場一覧）→ 無い劇場は theaters.hidden=true（SETUP_THEATER_VERIFY.sql）。人が「隠すのをやめる」と hidden_reason が「人が戻した…」になり、以後は隠さない
+- 劇場名を打って探す（#tiTheaterSearch＋datalist）。各タブは Excel のような表（見出しで並べ替え・見出しの下で列ごとに絞り込み）。機器表は「列を選ぶ」
 
 ### 空調負荷計算（書類棚の ❄）
 - 書類棚の「新しく作る」→「❄ 空調負荷計算」→「🎬 シアター／🏢 シアター以外」を選ぶ。保存は他の書類と同じ（上書き保存／名前を付けて新規に保存）

@@ -10,6 +10,7 @@
 ## 🎨 UI編集セッション
 
 ### 進行中
+- 🔧 工事予定表＋劇場カルテの追加＋メール取り込みの見直し（PR: feat/work-plan）。SQL＝SETUP_WORK_PLAN.sql・SETUP_THEATER_VERIFY.sql（マージ前）。GAS＝Code.gs・Conversations.gs 貼り直し
 - 🔧 劇場カルテ（PR: feat/theater-karte）: 各劇場情報をタブで見やすく・持病/備考/設備メモを1件ずつ・機器表のアップロード（Opus）・別の劇場へ移す・Excel（1劇場=1ファイル／ZIP）・劇場情報更新確認を Opus で自動判定。SQL＝SETUP_THEATER_KARTE.sql（マージ前に実行）。GAS＝TheaterInfo.gs ほか貼り直し＋setupTheaterReviewTrigger()
 
 ### やり残し（次回続き）
