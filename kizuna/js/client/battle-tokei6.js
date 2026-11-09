@@ -6,9 +6,9 @@
 // ・歯車: 上に 弱点の しるし（氷の 結晶・雷・光の 星）
 // ・リオンの けいこ: 人の 絵（リオンの 見た目。tokei6Sprite）
 // ・バナー: しかけが かわった・2だんめ・針が 10時／11時・歯車を こわした・大ほうかい・歯車が また 回り出した
-import { heroCanvas } from './render/hero.js?v=6495abec1e26';
-import { equipKey } from './render/chars.js?v=6495abec1e26';
-import { ZENMAI, TOKI_PHANTOM_BASES, tokiPhantomId, RION_SPARS } from '../shared/data/monsters-tokei6.js?v=6495abec1e26';
+import { heroCanvas } from './render/hero.js?v=d3a646533116';
+import { equipKey } from './render/chars.js?v=d3a646533116';
+import { ZENMAI, TOKI_PHANTOM_BASES, tokiPhantomId, RION_SPARS } from '../shared/data/monsters-tokei6.js?v=d3a646533116';
 
 export const kindOf = (c) => c?.kindAs || c?.base || c?.species;
 

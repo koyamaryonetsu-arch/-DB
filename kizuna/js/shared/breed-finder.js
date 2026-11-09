@@ -3,8 +3,9 @@
 //   生まれる 子ごとに「どの 2ひきで 生まれるか」を まとめる。1つ 1つの 組は data/companions.js の breedCandidates と 同じ 計算
 //   （ランクが 上がる 子・minLv・4体配合・素材配合〈ふくろの 品〉も 親の 本当の レベル・＋・血統で 見る）
 //   サーバーの 酒場（world/breed.js の breedFinder・action 'breedFinder'）と テスト（test/breed-finder-r70.test.js）で 使う
-import { BREED_MIN_LEVEL, RANKS, breedCandidates, breedPlus, bestiaryKnow, SPECIAL_KINDS } from './data/companions.js?v=6495abec1e26';
-import { breedTrend, breedTrendMemo } from './breed-calc.js?v=6495abec1e26';
+import { BREED_MIN_LEVEL, RANKS, breedCandidates, breedPlus, bestiaryKnow, SPECIAL_KINDS } from './data/companions.js?v=d3a646533116';
+import { breedTrend, breedTrendMemo } from './breed-calc.js?v=d3a646533116';
+import { colorMon } from './data/variants.js?v=d3a646533116';
 
 // 配合の しゅるいの つよさ（小さいほど めずらしい。子の 一覧の しるしに 使う）
 const KIND_ORDER = { four: 0, material: 1, special: 2, recipe: 3, same: 4, mix: 5, parent: 6, family: 7 };
@@ -99,3 +100,9 @@ export function kidPairs(k, showLow = false) {
   const up = k.pairs.filter((p) => !p.low);
   return up.length && !showLow ? up : k.pairs;
 }
+
+// 第71回: さがし表の 絵（家族の ねがい「名前だけじゃなく、イラストも 見せて」。client/ui/services.js）
+//   子 … { mon, hidden }。図鑑で まだ 見た ことが ない 子は かげ（名前も ？？？。いつもの きまり）
+//   親 … { mon }（色ちがいの 色も）。しゅぞくが わからない 時は null
+export const kidArt = (k) => (k?.sp ? { mon: k.sp, hidden: !!k.unseen } : null);
+export const parentArt = (p) => (p?.species ? { mon: colorMon(p.species, p.color), hidden: false } : null);

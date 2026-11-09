@@ -15,11 +15,11 @@
 // ・台を しらべると、とびらの フラグ（SAND_FLAG）が たって 開く。しらべた 人が 自分で 歩いた 歩数で 砂が 落ちる
 //   （流れる 砂に 流されて いる 間は 数えない）。落ちきると フラグを 消して しまる（とびらの 上の 人は となりへ よける）
 // ・とちゅうで 切れた などで のこった フラグは、だれも 砂を 落として いない とき、その 階を 歩くと 消える
-import { MAPS, canStand, standSpot, isBlocked, effectiveTile } from '../maps/index.js?v=6495abec1e26';
-import { TILE_INFO } from '../tiles.js?v=6495abec1e26';
-import { hasKeyItem } from '../stats.js?v=6495abec1e26';
-import { partyOf } from './party.js?v=6495abec1e26';
-import { unstickAll } from './hazards.js?v=6495abec1e26';
+import { MAPS, canStand, standSpot, isBlocked, effectiveTile } from '../maps/index.js?v=d3a646533116';
+import { TILE_INFO } from '../tiles.js?v=d3a646533116';
+import { hasKeyItem } from '../stats.js?v=d3a646533116';
+import { partyOf } from './party.js?v=d3a646533116';
+import { unstickAll } from './hazards.js?v=d3a646533116';
 
 export const TIME_GLASS = 'toki_glass';
 
@@ -88,7 +88,14 @@ export function glassCheck(world, s) {
   const spot = map.timeSpot?.(Math.floor(s.x), Math.floor(s.y), world.hasFlagFn(s));
   if (spot) return { ok: false, key: spot };
   const to = MAPS[map.timePair];
-  const key = landingKey(to, s.x, s.y, world.hasFlagFn(s));
+  const has = world.hasFlagFn(s);
+  let key = landingKey(to, s.x, s.y, has);
+  // 第71回: 階だんで ついた 階だんの 上（むこうの 時代も 出入り口）: となりの 立てる 所に 出る（shiftPeople の standSpot と 同じ）
+  const k = Math.floor(s.y) * map.w + Math.floor(s.x);
+  if (key === 'wall' && map.warpAt?.has(k) && to.warpAt?.has(Math.floor(s.y) * to.w + Math.floor(s.x)) && !isBlocked(to, Math.floor(s.x), Math.floor(s.y), has)) {
+    const sp = standSpot(to, s.x, s.y, has);
+    key = landingKey(to, sp.x, sp.y, has);
+  }
   if (key) return { ok: false, key };
   return { ok: true, to: to.id };
 }

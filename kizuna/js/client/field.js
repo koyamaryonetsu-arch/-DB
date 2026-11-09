@@ -1,30 +1,30 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=6495abec1e26';
-import { T, TILE_INFO } from '../shared/tiles.js?v=6495abec1e26';
-import { PLACES } from '../shared/maps/overworld.js?v=6495abec1e26';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=6495abec1e26';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=6495abec1e26';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=6495abec1e26';
-import { shownEquip } from '../shared/look-equip.js?v=6495abec1e26';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=6495abec1e26';
-import { MONSTERS } from '../shared/data/monsters.js?v=6495abec1e26';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=d3a646533116';
+import { T, TILE_INFO } from '../shared/tiles.js?v=d3a646533116';
+import { PLACES } from '../shared/maps/overworld.js?v=d3a646533116';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=d3a646533116';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=d3a646533116';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=d3a646533116';
+import { shownEquip } from '../shared/look-equip.js?v=d3a646533116';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=d3a646533116';
+import { MONSTERS } from '../shared/data/monsters.js?v=d3a646533116';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=6495abec1e26';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=6495abec1e26';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=6495abec1e26';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=6495abec1e26';
-import { boardCanvas } from './render/boards.js?v=6495abec1e26';
-import { el } from './ui/dom.js?v=6495abec1e26';
-import { syncTreasureGates } from './ui/treasure.js?v=6495abec1e26';
-import { skyNpcSprite } from './render/sky-art.js?v=6495abec1e26';
-import { wagonDraws } from './render/wagon.js?v=6495abec1e26';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=6495abec1e26';
-import { Weather } from './render/weather.js?v=6495abec1e26';
-import { flySpeed } from '../shared/data/sky.js?v=6495abec1e26';
-import { timeFlag } from '../shared/world/clock.js?v=6495abec1e26';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=6495abec1e26';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=6495abec1e26';
-import { huntMatch } from './ui/sources.js?v=6495abec1e26';
+import { colorMon } from '../shared/data/variants.js?v=d3a646533116';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=d3a646533116';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=d3a646533116';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=d3a646533116';
+import { boardCanvas } from './render/boards.js?v=d3a646533116';
+import { el } from './ui/dom.js?v=d3a646533116';
+import { syncTreasureGates } from './ui/treasure.js?v=d3a646533116';
+import { skyNpcSprite } from './render/sky-art.js?v=d3a646533116';
+import { wagonDraws } from './render/wagon.js?v=d3a646533116';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=d3a646533116';
+import { Weather } from './render/weather.js?v=d3a646533116';
+import { flySpeed } from '../shared/data/sky.js?v=d3a646533116';
+import { timeFlag } from '../shared/world/clock.js?v=d3a646533116';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=d3a646533116';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=d3a646533116';
+import { huntMatch } from './ui/sources.js?v=d3a646533116';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -233,7 +233,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=6495abec1e26');
+          const { Field3D } = await import('./render/field3d.js?v=d3a646533116');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -354,12 +354,19 @@ export class Field {
 
   // 自分の 体が (x, y) に 入れるか
   boxFree(x, y) {
+    if (this.followAuto && this.warpBlocks(x, y)) return false;
     const pass = this.leavingNpcs(x, y);
     const under = this.stuckTiles();
     return bodyPoints(x, y).every(([px, py]) => {
       const tx = Math.floor(px), ty = Math.floor(py);
       return under.has(ty * this.map.w + tx) || !this.solidAt(tx, ty, null, pass);
     });
+  }
+
+  // 第71回: (x, y) の マスが 出入り口で、今 いる マスでは ない（ついていく ときは よける）
+  warpBlocks(x, y) {
+    const w = this.map.w, k = Math.floor(y) * w + Math.floor(x);
+    return k !== Math.floor(this.me.y) * w + Math.floor(this.me.x) && !!this.map.warpAt?.has(k);
   }
 
   // いま 体が 重なっている、とおれない マス（立っている 所で 炎の 柱が ふき上がった など）。
@@ -404,9 +411,12 @@ export class Field {
     if (!canMove || this.riding) { ix = 0; iy = 0; }
     // ついていく（リーダーの とおった みちを たどる。はなれたら はしって おいつく）
     let run = !!controls.run;
+    // 第71回: ついていく あいだは 出入り口（階だん など）を ふまない（リーダーは 階だんの 上に つく ように なった。
+    // リーダーが 出入り口を とおれば サーバーが いっしょに つれていく。world.js の warpFollowers）
+    this.followAuto = false;
     if (canMove && ix === 0 && iy === 0 && this.game.follow) {
       const d = this.followStep(dt);
-      if (d) { ix = d.x; iy = d.y; run = run || d.far; }
+      if (d) { ix = d.x; iy = d.y; run = run || d.far; this.followAuto = true; }
     } else this.followStuck = 0;
     const mag = Math.min(1, Math.hypot(ix, iy));
     // 氷（すべる）: ついていく ときは リーダーの 足あとを そのまま 歩く（すべらない）
@@ -704,7 +714,7 @@ export class Field {
         if (nx < 0 || ny < 0 || nx >= w || ny >= this.map.h) continue;
         const k = key(nx, ny);
         if (prev.has(k)) continue;
-        if (!(nx === tx && ny === ty) && this.solidAt(nx, ny)) continue;
+        if (!(nx === tx && ny === ty) && (this.solidAt(nx, ny) || this.map.warpAt?.has(k))) continue;
         prev.set(k, [x, y]);
         q.push([nx, ny]);
       }
@@ -827,7 +837,9 @@ export class Field {
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
         const last = tr[tr.length - 1];
-        if (!last || Math.hypot(last.x - p.x, last.y - p.y) > 0.5) {
+        // 第71回: 出入り口（階だんの 上に ついた リーダーの 足もと など）は パンくずに しない
+        const onWarp = this.map.warpAt?.has(Math.floor(p.y) * this.map.w + Math.floor(p.x));
+        if (!onWarp && (!last || Math.hypot(last.x - p.x, last.y - p.y) > 0.5)) {
           tr.push({ x: p.x, y: p.y });
           if (tr.length > 240) tr.shift();
         }

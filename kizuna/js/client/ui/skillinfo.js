@@ -3,21 +3,21 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=6495abec1e26';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=6495abec1e26';
-import { ITEMS } from '../../shared/data/items.js?v=6495abec1e26';
-import { JOBS } from '../../shared/data/jobs.js?v=6495abec1e26';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=6495abec1e26';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=6495abec1e26';
-import { targetText, itemDetail } from './info.js?v=6495abec1e26';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=d3a646533116';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=d3a646533116';
+import { ITEMS } from '../../shared/data/items.js?v=d3a646533116';
+import { JOBS } from '../../shared/data/jobs.js?v=d3a646533116';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=d3a646533116';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=d3a646533116';
+import { targetText, itemDetail } from './info.js?v=d3a646533116';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
-import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=6495abec1e26';
+import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=d3a646533116';
 // 第50回 N1: 今の 魔力・回復魔力での 威力の 目安（shared/skill-power.js）
-import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=6495abec1e26';
+import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=d3a646533116';
 export { powStats };
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2段階・回復が 多い（shared/skill-tier.js）。文は tierText だけで つくる
-import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=6495abec1e26';
-import { stackMult } from '../../shared/battle.js?v=6495abec1e26';
+import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=d3a646533116';
+import { stackMult } from '../../shared/battle.js?v=d3a646533116';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -109,6 +109,21 @@ export function skillPowerLine(id, pc, { who = pc, lv = null, st = powStats(pc) 
   return one(a.effect);
 }
 
+// 第71回: メニューの お気に入り（ならびかえ）で えらんでいる 技の せつめい。戦いの せつめいと おなじ 中身を みじかく
+//   head: 【種類（属性）】MP・相手 / pow: 威力の 目安（skillPowerLine）/ desc: せつめい / warn: 今の 職業で ない 技の ⚠
+export function skillCardInfo(id, pc, who = pc) {
+  const a = abilityFor(id, who);
+  if (!a) return null;
+  const cost = a.effect?.type === 'mahouken' ? null : pc ? mpCost(pc, id) : a.mp || 0;
+  const pen = pc ? penaltyFor(pc, id) : null;
+  return {
+    head: `【${abilityTypeText(a)}】${cost === null ? '' : `MP${cost}・`}${targetText(a) || '—'}`,
+    pow: skillPowerLine(id, pc, { who }),
+    desc: a.desc || '',
+    warn: pen?.penalized ? `⚠${pen.label}` : '',
+  };
+}
+
 // 技の 効果の 目安（メニューの「呪文・技」にも 出す。lv: 技の レベル）
 export function skillEffectText(id, pc, lv = 1, who = pc) {
   const a = abilityFor(id, who);
@@ -178,6 +193,12 @@ export function favHint(text, touch = false) {
   if (touch) return text.replace('▶もう一度タップで使う', '▶もう一度タップで使う・長おしでお気に入り');
   // 第69回: 種類（タブ）は L・R（キーボードの Q・E）で かえる
   return `${text}\n（L・R〈Q・E〉で種類を切りかえ）\n（長おし・Yキーでお気に入り）`;
+}
+
+// 第71回: 戦いの 技の せつめいの ☆お気に入り ボタンの 下の ひとこと（どう おせば お気に入りに できるか）
+//   スマホ: 長おし / キーボード・ゲームパッド: Y（on: もう お気に入り → はずす）
+export function favKeyHint(touch = false, on = false) {
+  return `${touch ? '長おし' : 'Y'}：${on ? 'はずす' : 'お気に入り'}`;
 }
 
 // 道具の せつめい（戦いの 中）

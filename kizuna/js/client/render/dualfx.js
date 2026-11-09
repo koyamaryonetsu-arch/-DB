@@ -8,7 +8,7 @@
 // client/battle-dual.js の dualFx から よぶ。CSS は ここで 1回だけ 入れる（style.css は さわらない）
 // 第31回: 合体技の 名前を 大きく（たたかいの コマンドの 一覧・メニューの 合体技の タブ）の CSS も ここ（addDualCss）
 
-import { AX_DUAL_CUT_MS } from '../../shared/ax-time.js?v=6495abec1e26';
+import { AX_DUAL_CUT_MS } from '../../shared/ax-time.js?v=d3a646533116';
 
 // 技ごとの えんしゅつ: c … 色（[こい, あかるい, ひかり]）、finale … とどめの かたち、word … 画面に 出る ことば
 export const DUAL_FX = {
@@ -87,7 +87,7 @@ export const CUT_MS = AX_DUAL_CUT_MS;
 export const cutMs = (n) => CUT_MS[n] || CUT_MS[2];
 
 // 合体技の 名前を 大きく（第31回）: たたかいの コマンドは 1列に して、名前だけを 大きく（入りきらない ときは ListMenu の fit が 小さく する）。
-// メニューの 合体技の タブも 名前の 行を 大きく（ui/menu.js から よぶ）
+// メニューの 合体技の タブは 第71回から ふつうの 技の 行と おなじ 大きさ（家族の ねがい「やたらと技名だけ大きい」。ui/menu.js から よぶ）
 let cssDone = false;
 export function addDualCss() {
   addCss();
@@ -147,8 +147,7 @@ function addCss() {
 .b-cmd .menu .item.k-dualopt { min-height: 2.5em; border-color: rgba(255, 214, 107, .6); }
 .b-cmd .menu .item.k-dualopt .dual-nm { font-size: 1.3em; font-weight: bold; letter-spacing: .03em; color: #fff3cf; text-shadow: 2px 2px 0 #000; }
 .b-cmd .menu .item.k-dualopt.n3 .dual-nm, .b-cmd .menu .item.k-dualopt.n4 .dual-nm { color: #ffd66b; }
-.menu .item.sk-row.dual-row .dual-nm { flex-basis: 100%; font-size: 1.3em; font-weight: bold; line-height: 1.25; letter-spacing: .03em; }
-.menu .item.sk-row.dual-row.n3 .dual-nm, .menu .item.sk-row.dual-row.n4 .dual-nm { color: #ffd66b; }
+.menu .item.sk-row.dual-row .dual-nm { flex-basis: 100%; color: inherit; }
 `;
   document.head.append(st);
 }

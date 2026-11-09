@@ -5,15 +5,16 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=6495abec1e26';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=6495abec1e26';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=6495abec1e26';
-import { MONSTERS } from '../data/monsters.js?v=6495abec1e26';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=6495abec1e26';
-import { SLOTS, ITEMS } from '../data/items.js?v=6495abec1e26';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=6495abec1e26';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=6495abec1e26';
-import { difficultyOf } from '../data/difficulty.js?v=6495abec1e26';
+import { cmdOffList } from '../cmd-off.js?v=d3a646533116';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=d3a646533116';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=d3a646533116';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=d3a646533116';
+import { MONSTERS } from '../data/monsters.js?v=d3a646533116';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=d3a646533116';
+import { SLOTS, ITEMS } from '../data/items.js?v=d3a646533116';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=d3a646533116';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=d3a646533116';
+import { difficultyOf } from '../data/difficulty.js?v=d3a646533116';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -623,6 +624,8 @@ export function supportInfo(x) {
     mjobs: x.kind === 'family' ? masteredJobs(x.char) : undefined,
     // オートで 使わない 技（作戦。家族の キャラの ぶんは 出さない）
     autoOff: x.kind !== 'family' && Array.isArray(x.char.autoOff) && x.char.autoOff.length ? x.char.autoOff : undefined,
+    // 第71回: 命令の 一覧に 出さない 技（作戦の「命令で出す技を選ぶ」・呪文・技の メニュー。shared/cmd-off.js）
+    cmdOff: x.kind !== 'family' && cmdOffList(x.char).length ? cmdOffList(x.char) : undefined,
     status: x.char.status?.poison ? ['poison'] : [],
   };
 }

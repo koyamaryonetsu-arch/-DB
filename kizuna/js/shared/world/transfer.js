@@ -11,9 +11,9 @@
 // 第51回: それでも 1万文字を こえる ときは KIZUNA-4-（KIZUNA-3 の 形に 加えて、ぜんぶ true の flags・chests を 名前の ならびに、
 //   図鑑〈bestiary〉を 同じ 中みごとに まとめた 形。slimChar4 / unslimChar4）。KIZUNA-3 で 入る ときは KIZUNA-3（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=6495abec1e26';
-import { dropGoneFamily } from '../data/wagon.js?v=6495abec1e26';
-import { packFeats, unpackFeats } from './phantom.js?v=6495abec1e26';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=d3a646533116';
+import { dropGoneFamily } from '../data/wagon.js?v=d3a646533116';
+import { packFeats, unpackFeats } from './phantom.js?v=d3a646533116';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
@@ -148,6 +148,8 @@ const slimList = (char, list) => list.map((e) => {
     if (k === 'id' && v === `${char.id}:${e.key}`) continue;
     if (k in COMP_EMPTY && sameJson(v, COMP_EMPTY[k])) continue;
     if (k === 'species' && v === e.species) continue;
+    // 第71回: 空の cmdOff は、autoOff も 空なら はぶく（読む ときの うつしかえ〈migrateCmdOffAll〉で 同じ [] に もどる）
+    if (k === 'cmdOff' && Array.isArray(v) && !v.length && !(e.char.autoOff?.length)) continue;
     ch[k] = v;
   }
   return { ...e, char: ch };

@@ -4,8 +4,8 @@
 //  ・流れの 先も 流れる 砂なら、その マスの むきへ（曲がる 流れも ある）
 //  ・流れる 砂では ない ゆかに 着いたら とまる。流れの 先が かべなら、その マスで とまる（そこからは 歩ける）
 //  ・ありじごく（ワープの マス）に 流れこむと、下の 階へ おちる
-import { TILE_INFO } from '../tiles.js?v=6495abec1e26';
-import { effectiveTile, isBlocked } from './index.js?v=6495abec1e26';
+import { TILE_INFO } from '../tiles.js?v=d3a646533116';
+import { effectiveTile, isBlocked } from './index.js?v=d3a646533116';
 
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
@@ -53,7 +53,11 @@ export function flowReach(map, start, has) {
     stops.add(k);
     q.push([r.x, r.y]);
   };
-  add(start[0], start[1]);
+  // 第71回: 階だんで ついた ところ（出入り口の 上に 立っている）からは そのまま 歩きだせる（world/stairs.js）
+  if (warpAt(map, start[0], start[1])) {
+    stops.add(`${start[0]},${start[1]}`);
+    q.push([start[0], start[1]]);
+  } else add(start[0], start[1]);
   for (let head = 0; head < q.length; head++) {
     const [x, y] = q[head];
     for (const [dx, dy] of DIRS) {
