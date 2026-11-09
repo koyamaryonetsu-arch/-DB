@@ -973,6 +973,7 @@
                 `<div class="kt-vf-sus-list">${sus.map((h) => `<label><input type="checkbox" class="kt-vf-sus-chk" value="${esc(h.name)}" data-reason="${esc(h.reason || '')}"> ${esc(h.name)}${h.reason ? ` <small>（${esc(h.reason)}）</small>` : ''}</label>`).join('')}</div>` +
                 `<button type="button" class="danger" data-act="hide-sus">チェックした劇場を隠す</button></div>` : '') +
               (r.unknown.length ? `<br>　❔ 分からなかった ${r.unknown.length}（そのまま）: <small>${r.unknown.map(esc).join('、')}</small>` : '') +
+              ((r.renamed || []).length ? `<br>　🔤 公式サイトでは名前が違う ${r.renamed.length}: <small>${r.renamed.map((x) => esc(x.name) + ' → ' + esc(x.official)).join('、')}</small>` : '') +
               ((r.official_list || []).length ? `<details class="kt-vf-off"><summary>公式サイトの一覧（AI が読んだもの）</summary><small>${r.official_list.map(esc).join('、')}</small></details>` : '')
             : `⚠ <b>${esc(co)}</b>: 公式サイトの劇場一覧を最後まで読めませんでした。何も変えていません。${r.note ? `<small>（${esc(r.note)}）</small>` : ''}`;
         } catch (err) { line.innerHTML = `⚠ <b>${esc(co)}</b>: 確かめられませんでした（${esc(err.message || err)}）。何も変えていません。`; }

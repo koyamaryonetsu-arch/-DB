@@ -175,3 +175,8 @@
 .ti-search-pick small { color: #64748b; padding: 2px 6px; }
 .ti-search-pick button { text-align: left; background: #fff; border: 0; border-radius: 4px; padding: 5px 8px; font-size: 13px; cursor: pointer; }
 .ti-search-pick button:hover, .ti-search-pick button:focus { background: #e0f2fe; }
+
+/* 劇場を選んで隠す */
+.ti-hp-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2px 12px; max-height: 50vh; overflow: auto; margin: 8px 0; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; }
+.ti-hp-why { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.ti-hp-why input { flex: 1; }
