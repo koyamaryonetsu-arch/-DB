@@ -390,23 +390,33 @@ async function runVerify(body) {
   // 公式サイトの一覧がほとんど取れていない時は、読めなかったのと同じ扱い
   const siteOk = !!d.site_ok && official.length >= Math.min(3, rows.length);
   const byName = {}; (d.theaters || []).forEach((t) => { if (t && t.name) byName[t.name] = t; });
-  // AI が「無い」と言っても、公式の一覧に場所の名前が同じ劇場があれば「ある」とみなす（書き方の違いで隠さない）
-  for (const r of rows) {
-    const t = byName[r.name];
-    if (t && t.status === 'closed' && !/閉館|営業終了|閉鎖/.test(t.reason || '')) {
-      const m = officialMatch(r.name, official);
-      if (m) Object.assign(t, { status: 'exists', official_name: m, reason: '公式の一覧に同じ場所の劇場がある: ' + m });
-    }
+  // 公式の一覧に場所の名前が同じ劇場があれば「ある」とみなす（書き方の違いで隠さない）
+  //   ・場所の名前がぴったり同じ（「名古屋ベイシティ」と「TOHOシネマズ名古屋ベイシティ」）→ AI が何と言っても「ある」
+  //   ・含まれ合う（「宇都宮インターパーク」と「宇都宮」）→ AI が「閉館」と書いていなければ「ある」
+  if (siteOk) for (const r of rows) {
+    const t = byName[r.name]; if (!t || t.status === 'exists') continue;
+    const exact = official.find((o) => placeCore(o).length >= 2 && placeCore(o) === placeCore(r.name));
+    const m = exact || (!/閉館|営業終了|閉鎖/.test(t.reason || '') ? officialMatch(r.name, official) : '');
+    if (m) Object.assign(t, { status: 'exists', official_name: m, reason: '公式の一覧に同じ場所の劇場がある: ' + m });
   }
   // AI が前に自動で隠した劇場（理由が「公式サイトに無い: 」）も数に入れる。人が隠した・人が戻した劇場は入れない
   const autoHidden = (r) => r.hidden && /^公式サイトに無い: /.test(r.hidden_reason || '');
   const closed = rows.filter((r) => { const t = byName[r.name]; return t && t.status === 'closed' && !/^人が戻した/.test(r.hidden_reason || '') && (!r.hidden || autoHidden(r)); });
   const tooMany = closed.length > autoHideLimit(rows.length);
   const now = new Date().toISOString();
-  const res = { status: 200, ok: true, company, checked: rows.length, site_ok: siteOk, official_count: official.length, official_list: official.slice(0, 300), hidden: [], shown: [], unknown: [], suspect: [], source_url: d.source_url || '', note: d.note || '' };
+  // kept＝前から隠していて、今回も「無い」だった劇場（隠したまま）
+  const res = { status: 200, ok: true, company, checked: rows.length, site_ok: siteOk, official_count: official.length, official_list: official.slice(0, 300), hidden: [], kept: [], shown: [], unknown: [], suspect: [], source_url: d.source_url || '', note: d.note || '' };
   for (const r of rows) {
     const t = byName[r.name];
-    if (!siteOk || !t || t.status === 'unknown') { res.unknown.push(r.name); continue; }
+    if (!siteOk) { res.unknown.push(r.name); continue; }
+    if (!t || t.status === 'unknown') {
+      // 前に AI が自動で隠したのに、今回は確かめきれなかった → 隠す根拠が無いので一度戻し、人に選んでもらう
+      if (autoHidden(r)) {
+        await sbPatch(`theaters?name=eq.${enc(r.name)}`, { hidden: false, hidden_reason: '', verified_at: now });
+        res.suspect.push({ name: r.name, reason: '前に隠したが、今回は確かめきれなかった' + (t && t.reason ? '（' + t.reason + '）' : '') });
+      } else res.unknown.push(r.name);
+      continue;
+    }
     const patch = { verified_at: now, official_name: t.status === 'exists' ? String(t.official_name || '').slice(0, 120) : r.official_name || '' };
     if (t.status === 'closed' && /^人が戻した/.test(r.hidden_reason || '')) {
       res.unknown.push(r.name);   // 人が「隠すのをやめる」で戻した劇場は、AI が無いと言っても隠さない
@@ -415,8 +425,11 @@ async function runVerify(body) {
       if (r.hidden) { patch.hidden = false; patch.hidden_reason = ''; }
       res.suspect.push({ name: r.name, reason: t.reason || '' });
     } else if (t.status === 'closed') {
-      patch.hidden = true; patch.hidden_reason = ('公式サイトに無い: ' + String(t.reason || '')).slice(0, HIDE_REASON_MAX);
-      if (!r.hidden) res.hidden.push({ name: r.name, reason: t.reason || '' });
+      if (r.hidden && !autoHidden(r)) { res.kept.push({ name: r.name, reason: r.hidden_reason || '' }); }   // 人が隠した → 理由はそのまま
+      else {
+        patch.hidden = true; patch.hidden_reason = ('公式サイトに無い: ' + String(t.reason || '')).slice(0, HIDE_REASON_MAX);
+        (r.hidden ? res.kept : res.hidden).push({ name: r.name, reason: t.reason || '' });
+      }
     } else if (t.status === 'exists' && r.hidden && /^公式サイトに無い/.test(r.hidden_reason || '')) {
       // 前に公式サイトに無いとして隠した劇場が、今は公式サイトにある → 戻す（人が隠したものは戻さない）
       patch.hidden = false; patch.hidden_reason = '';
