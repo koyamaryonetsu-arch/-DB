@@ -1,0 +1,124 @@
+/* ============================================================
+   工事予定表（plan.js）の見た目。Excel に寄せる: 細い罫線・小さめの文字・左の列と見出しを固定・選んだマスは青枠
+   ============================================================ */
+body.plan-active main { padding-top: 8px; }
+body.plan-active #fabNewBtn { display: none !important; }
+#planView .pl-loading { padding: 16px; color: #64748b; }
+.pl-wrap { position: relative; background: #fff; border: 1px solid #d0d7de; border-radius: 8px; display: flex; flex-direction: column; height: calc(100vh - 130px); min-height: 420px; }
+.pl-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid #e5e7eb; }
+.pl-head h2 { margin: 0; font-size: 16px; white-space: nowrap; }
+.pl-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pl-group { display: inline-flex; align-items: center; gap: 3px; padding: 2px; border: 1px solid #e5e7eb; border-radius: 6px; background: #f8fafc; font-size: 12px; color: #475569; }
+.pl-group button, .pl-file { padding: 4px 9px; font-size: 12.5px; border-radius: 4px; }
+.pl-group button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }
+.pl-file { display: inline-flex; align-items: center; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; color: #1e293b; }
+.pl-file:hover { background: #f1f5f9; }
+.pl-sw { display: inline-block; width: 11px; height: 11px; border: 1px solid rgba(0,0,0,.25); margin-right: 3px; vertical-align: -1px; }
+.pl-legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 12px; font-size: 11.5px; color: #475569; border-bottom: 1px solid #eef2f7; }
+.pl-linked-mark { color: #64748b; }
+.pl-sum { font-weight: 700; color: #1f2937; }
+
+/* 表 */
+.pl-grid { position: relative; flex: 1; overflow: auto; outline: none; background: #fff; }
+.pl-grid:focus { box-shadow: inset 0 0 0 1px #93c5fd; }
+.pl-grid.pl-painting td.pl-s { cursor: crosshair; }
+.pl-tbl { border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 12px; font-family: "游ゴシック", "Yu Gothic", "Meiryo", sans-serif; color: #111; }
+.pl-tbl th, .pl-tbl td { border-right: 1px solid #d9d9d9; border-bottom: 1px solid #d9d9d9; padding: 0 4px; height: 22px; line-height: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #fff; user-select: none; }
+.pl-tbl td.num, .pl-tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pl-tbl thead th { position: sticky; z-index: 3; background: #1f4e79; color: #fff; font-weight: 600; font-size: 11.5px; text-align: center; border-color: #3b6a99; }
+.pl-tbl thead tr.pl-h1 th { top: 0; height: 24px; }
+.pl-tbl thead tr.pl-h2 th { top: 24px; height: 6px; line-height: 6px; padding: 0; background: #2e5f8f; }
+.pl-tbl thead tr.pl-tot th { top: 31px; background: #fff2cc; color: #111; font-weight: 700; border-color: #e6d6a6; text-align: left; }
+.pl-tbl thead tr.pl-tot th.num { text-align: right; }
+.pl-tbl thead tr.pl-tot small { font-weight: 400; color: #555; }
+.pl-tbl thead th.pl-ch { position: sticky; }
+.pl-tbl .pl-fz { position: sticky; z-index: 2; }
+.pl-tbl thead .pl-fz { z-index: 5; }
+.pl-tbl th.pl-rh { width: 36px; min-width: 36px; text-align: center; color: #555; background: #f3f4f6; font-weight: 400; font-size: 11px; cursor: pointer; border-right: 1px solid #c7ccd1; }
+.pl-tbl thead th.pl-rh { background: #1f4e79; }
+.pl-tbl thead tr.pl-tot th.pl-rh { background: #fff2cc; color: #111; }
+.pl-tbl td.pl-fz:last-of-type, .pl-tbl .pl-fz + td:not(.pl-fz) { }
+.pl-tbl th.pl-mo { border-left: 1px solid #9fb6cf; }
+.pl-tbl th.pl-mo.pl-yr b { color: #ffe08a; }
+.pl-tbl .pl-scol { width: 9px; }
+.pl-tbl td.pl-s, .pl-tbl td.pl-g { padding: 0; border-right: 1px solid #f0f0f0; }
+.pl-tbl td.pl-mb, .pl-tbl th.pl-mb { border-left: 1px solid #b0b8c0; }
+.pl-tbl td.pl-r { background: #ff0000; }
+.pl-tbl td.pl-o { background: #ffc000; }
+.pl-tbl td.pl-y { background: #ffff00; }
+.pl-sw.pl-r { background: #ff0000; } .pl-sw.pl-o { background: #ffc000; } .pl-sw.pl-y { background: #ffff00; }
+.pl-tbl td.pl-pv-r { background: #ff0000; opacity: .65; }
+.pl-tbl td.pl-pv-o { background: #ffc000; opacity: .65; }
+.pl-tbl td.pl-pv-y { background: #ffff00; opacity: .75; }
+.pl-tbl td.pl-pv-erase { background: #e5e7eb !important; }
+.pl-tbl td.ro { color: #555; background: #fafafa; }
+.pl-tbl td.pl-der { color: #7a4b00; }
+.pl-tbl td.pl-ln { background: #f5f9ff; }
+.pl-link { font-size: 10px; margin-right: 3px; }
+.pl-tbl tr.pl-grp td, .pl-tbl tr.pl-grp th.pl-rh { background: #ddebf7; font-weight: 700; }
+.pl-tbl tr.pl-grp td.pl-g { background: #eef4fb; }
+.pl-tbl tr.pl-miss td { color: #9a3412; }
+/* 選んだマス */
+.pl-tbl td.sel, .pl-tbl th.sel { background-color: #dbeafe !important; }
+.pl-tbl td.pl-s.sel.pl-r { background: #ff0000 !important; box-shadow: inset 0 0 0 9px rgba(37,99,235,.25); }
+.pl-tbl td.pl-s.sel.pl-o { background: #ffc000 !important; box-shadow: inset 0 0 0 9px rgba(37,99,235,.25); }
+.pl-tbl td.pl-s.sel.pl-y { background: #ffff00 !important; box-shadow: inset 0 0 0 9px rgba(37,99,235,.25); }
+.pl-tbl td.act { box-shadow: inset 0 0 0 2px #1a73e8; }
+.pl-tbl td.pl-s.act { box-shadow: inset 0 0 0 2px #1a73e8; }
+/* 列幅を変える取っ手 */
+.pl-rs { position: absolute; right: -3px; top: 0; bottom: 0; width: 7px; cursor: col-resize; z-index: 6; }
+.pl-rs:hover { background: rgba(255,255,255,.35); }
+/* 選んだマスの上の入力欄（ふだんは見えない。打ち始めると、そのまま直す欄になる） */
+.pl-key { position: absolute; z-index: 20; box-sizing: border-box; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; resize: none; overflow: hidden; border: 0; padding: 2px 4px; margin: 0; font: inherit; font-size: 12px; line-height: 1.45; background: transparent; color: #111; outline: none; white-space: pre-wrap; }
+.pl-key.on { opacity: 1; pointer-events: auto; border: 2px solid #1a73e8; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+/* 直す時の入力欄（前の形） */
+.pl-ed { position: absolute; z-index: 20; box-sizing: border-box; font: inherit; font-size: 12px; padding: 2px 4px; border: 2px solid #1a73e8; background: #fff; outline: none; resize: none; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+textarea.pl-ed { min-height: 44px; line-height: 1.45; }
+.pl-empty { padding: 20px; color: #64748b; font-size: 13px; }
+
+/* 下（シートのタブ・状態） */
+.pl-foot { display: flex; align-items: center; gap: 10px; border-top: 1px solid #d0d7de; background: #f3f4f6; padding: 0 8px; min-height: 30px; }
+.pl-sheets { display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; }
+.pl-sheet { border: 1px solid #c7ccd1; border-top: none; border-radius: 0 0 6px 6px; background: #e5e7eb; padding: 3px 12px; font-size: 12px; color: #374151; margin-top: -1px; }
+.pl-sheet.on { background: #fff; color: #1f4e79; font-weight: 700; border-color: #94a3b8; }
+.pl-sheet-add { border: none; background: none; font-size: 16px; padding: 0 8px; color: #475569; }
+.pl-status { margin-left: auto; font-size: 11.5px; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 小さな画面（案件から入れる・表の設定） */
+.pl-ov { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.pl-dlg { background: #fff; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.25); width: min(1000px, 100%); max-height: 92vh; display: flex; flex-direction: column; }
+.pl-dlg-s { width: min(460px, 100%); }
+.pl-dlg-h { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-weight: 700; border-bottom: 1px solid #e5e7eb; }
+.pl-dlg-b { padding: 12px 16px; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
+.pl-dlg-f { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid #e5e7eb; flex-wrap: wrap; }
+.pl-hint { font-size: 12px; color: #64748b; margin-right: auto; }
+.pl-pick-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.pl-pick-bar input[type="search"] { flex: 1 1 260px; border-color: #cbd5e1; }
+.pl-pick-list { border: 1px solid #e5e7eb; border-radius: 6px; max-height: 58vh; overflow: auto; }
+.pl-pick { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pl-pick th, .pl-pick td { border-bottom: 1px solid #eef2f7; padding: 4px 6px; text-align: left; }
+.pl-pick th { position: sticky; top: 0; background: #f1f5f9; }
+.pl-pick .num { text-align: right; }
+.pl-pick tr.in td { color: #94a3b8; }
+.pl-form label { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.pl-form label .tm-input { flex: 1; border-color: #cbd5e1; }
+.pl-form .pl-chk { font-size: 12.5px; color: #334155; }
+
+/* 印刷（A3 横） */
+@media print {
+  body.pl-printing * { visibility: hidden; }
+  body.pl-printing #planView, body.pl-printing #planView .pl-wrap, body.pl-printing #planView .pl-grid, body.pl-printing #planView .pl-grid *, body.pl-printing #planView .pl-legend, body.pl-printing #planView .pl-legend *, body.pl-printing #planView .pl-head h2 { visibility: visible; }
+  body.pl-printing #planView { position: absolute; left: 0; top: 0; width: 100%; }
+  body.pl-printing .pl-wrap { height: auto; border: none; }
+  body.pl-printing .pl-grid { overflow: visible; }
+  body.pl-printing .pl-tbl .pl-fz, body.pl-printing .pl-tbl thead th { position: static; }
+  body.pl-printing .pl-tbl td, body.pl-printing .pl-tbl th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body.pl-printing .pl-tools, body.pl-printing .pl-foot { display: none; }
+}
+/* A3 横は工事予定表の印刷だけ（ほかの印刷の用紙は変えない） */
+@page plA3 { size: A3 landscape; margin: 8mm; }
+@media print { body.pl-printing #planView { page: plA3; } }
+@media (max-width: 700px) {
+  .pl-wrap { height: calc(100vh - 110px); }
+  .pl-head h2 { font-size: 14px; }
+}

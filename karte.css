@@ -28,21 +28,7 @@
 .kt-upload { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 4px; background: #2563eb; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
 .kt-upload:hover { background: #1d4ed8; }
 
-/* 1件ずつの一覧 */
-.kt-notes { list-style: none; margin: 0; padding: 0; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; max-height: 58vh; overflow: auto; }
-.kt-note { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-bottom: 1px solid #eef2f7; }
-.kt-note:last-child { border-bottom: none; }
-.kt-note:hover { background: #f8fafc; }
-.kt-note.ai { box-shadow: inset 3px 0 0 #a78bfa; }
-.kt-note .kt-sel { margin-top: 3px; }
-.kt-date { flex: 0 0 64px; font-size: 12px; font-weight: 600; color: #1f4e79; background: #e0ecf8; border-radius: 4px; padding: 1px 6px; text-align: center; margin-top: 1px; }
-.kt-main { flex: 1; min-width: 0; }
-.kt-body { font-size: 13.5px; line-height: 1.55; color: #0f172a; white-space: pre-wrap; word-break: break-word; }
-.kt-meta { font-size: 11.5px; color: #64748b; margin-top: 2px; }
-.kt-acts { display: flex; gap: 4px; flex: 0 0 auto; align-items: center; white-space: nowrap; }
-.kt-acts button { padding: 2px 7px; font-size: 13px; }
-.kt-note .kt-acts { opacity: .55; }
-.kt-note:hover .kt-acts { opacity: 1; }
+/* 1件ずつの一覧は、下の「Excel のような表」（.kt-xl）で表す */
 .kt-edit { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .kt-edit textarea { border-color: #93c5fd; background: #fff; }
 .kt-edit-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: #475569; }
@@ -55,7 +41,7 @@
 .kt-eq th, .kt-eq td { padding: 3px 4px; font-size: 12.5px; white-space: nowrap; }
 .kt-eq td input.tm-input { padding: 3px 5px; font-size: 12.5px; min-width: 40px; }
 .kt-eq td input.num { text-align: right; }
-.kt-eq tr.ai td:first-child { box-shadow: inset 3px 0 0 #a78bfa; }
+
 .kt-c-sel { width: 26px; text-align: center !important; }
 .kt-age { text-align: right !important; font-weight: 600; color: #475569; }
 .kt-age.old10 { background: #fef3c7; color: #92400e; }
@@ -115,12 +101,63 @@
 
 @media (max-width: 640px) {
   .kt-tab { padding: 5px 8px; font-size: 12px; }
-  .kt-date { flex-basis: 54px; }
-  .kt-note { gap: 6px; padding: 7px 6px; }
-  .kt-note .kt-acts { opacity: 1; }
+  .kt-xl tr.kt-note .kt-acts { opacity: 1; }
+  .kt-xl td.kt-body { min-width: 180px; }
 }
 /* 画面の中の確認・お知らせ（ブラウザのダイアログの代わり） */
 .kt-ask-ov { position: fixed; inset: 0; background: rgba(15,23,42,.35); z-index: 3200; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .kt-ask { background: #fff; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.3); width: min(420px, 100%); padding: 18px 18px 14px; }
 .kt-ask-msg { font-size: 14px; line-height: 1.6; color: #0f172a; white-space: pre-wrap; word-break: break-word; }
 .kt-ask-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* ===== Excel のような表（持病・注意・備考・設備メモ・機器表・不具合の履歴） ===== */
+.kt-xl { border-collapse: collapse; width: 100%; table-layout: auto; font-size: 12.5px; font-family: "游ゴシック", "Yu Gothic", "Meiryo", sans-serif; background: #fff; }
+.kt-xl th, .kt-xl td { border: 1px solid #d9d9d9; padding: 3px 6px; vertical-align: top; line-height: 1.45; }
+.kt-xl thead tr:first-child th { background: #1f4e79; color: #fff; font-weight: 600; font-size: 12px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; border-color: #3b6a99; }
+.kt-xl thead th.kt-sortable { cursor: pointer; user-select: none; }
+.kt-xl thead th.kt-sortable:hover { background: #2a5f93; }
+.kt-xl thead th.on { background: #163b5e; }
+.kt-xl tr.kt-frow th { background: #f3f4f6; padding: 2px 3px; position: sticky; top: 25px; z-index: 2; }
+.kt-colf { width: 100%; min-width: 0; box-sizing: border-box; font-size: 11.5px; padding: 2px 4px; border: 1px solid #d1d5db; border-radius: 3px; background: #fff; }
+.kt-colf:focus { outline: none; border-color: #2563eb; }
+.kt-xl tbody tr:nth-child(even) td { background: #fafbfc; }
+.kt-xl tbody tr:hover td { background: #eff6ff; }
+.kt-xl tbody tr.ai td:first-child { box-shadow: inset 3px 0 0 #a78bfa; }
+.kt-xl td.kt-date { white-space: nowrap; color: #1f4e79; font-weight: 600; text-align: center; }
+.kt-xl td.kt-body { white-space: pre-wrap; word-break: break-word; min-width: 260px; cursor: text; }
+.kt-xl td.kt-ev { color: #475569; font-size: 11.5px; word-break: break-word; }
+.kt-xl td.kt-who { white-space: nowrap; color: #475569; font-size: 11.5px; }
+.kt-xl td.kt-acts { white-space: nowrap; }
+.kt-xl td.kt-acts button { padding: 1px 6px; font-size: 12px; }
+.kt-xl tr.kt-note .kt-acts { opacity: .6; }
+.kt-xl tr.kt-note:hover .kt-acts { opacity: 1; }
+.kt-xl tr.editing td { background: #fffbeb !important; }
+.kt-xl.kt-eq td { padding: 0; }
+.kt-xl.kt-eq td.kt-c-sel, .kt-xl.kt-eq td.kt-age, .kt-xl.kt-eq td.kt-acts { padding: 3px 5px; }
+.kt-xl.kt-eq input.kt-eq-f { width: 100%; box-sizing: border-box; min-width: 0; border: 0; background: transparent; padding: 3px 6px; font: inherit; font-size: 12.5px; min-width: 40px; }
+.kt-xl.kt-eq input.kt-eq-f:focus { outline: 2px solid #1a73e8; outline-offset: -2px; background: #fff; }
+.kt-xl.kt-eq input.kt-eq-f.num { text-align: right; }
+.kt-xl.kt-cases td { white-space: nowrap; }
+.kt-xl.kt-cases td.kt-case-content { white-space: normal; min-width: 260px; }
+.kt-add textarea { min-height: 30px; }
+.kt-bar-hint { font-size: 11.5px; color: #64748b; }
+.kt-colpick-wrap { position: relative; }
+.kt-colpick { position: absolute; top: 100%; left: 0; z-index: 30; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 8px 20px rgba(0,0,0,.15); padding: 8px 10px; display: grid; grid-template-columns: repeat(2, max-content); gap: 4px 14px; font-size: 12.5px; }
+.kt-colpick button { grid-column: 1 / -1; margin-top: 4px; font-size: 12px; }
+/* 連絡先の表（タブの中）も詰めて Excel 風に */
+#karteBox #tiTable { font-size: 12.5px; border-collapse: collapse; }
+#karteBox #tiTable th, #karteBox #tiTable td { border: 1px solid #d9d9d9; padding: 0 4px; }
+#karteBox #tiTable thead th { background: #1f4e79; color: #fff; font-size: 12px; }
+#karteBox #tiTable textarea.tm-input { font-size: 12.5px; padding: 3px 4px; min-height: 24px; border: 0; }
+#karteBox .tm-table-wrap { border-radius: 0; }
+/* 公式サイトで確かめる */
+.kt-vf-cos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 12px; font-size: 13px; }
+.kt-vf-cos small { color: #64748b; }
+.kt-vf-log { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.kt-vf-line { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; line-height: 1.6; }
+.kt-vf-line .kt-spin { display: inline-block; vertical-align: -3px; margin-right: 6px; }
+/* 劇場名を打って探す・隠した劇場 */
+.ti-search-wrap input { width: 210px; padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; }
+.ti-hidden-chk { font-size: 12.5px; color: #475569; }
+.ti-hidden-banner { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; font-size: 13px; }
+.ti-hidden-banner.hidden { display: none; }

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="shelf.css">
 <link rel="stylesheet" href="karte.css">
+<link rel="stylesheet" href="plan.css">
 <link rel="stylesheet" href="heatload.css">
 <script src="vendor/supabase.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
@@ -94,6 +95,7 @@
             <div class="pop-h">別機能</div>
             <button id="koteiBtn" class="pop-item col-ryo">📁 書類棚（工程表・写真台帳・空調負荷計算）</button>
             <button id="equipBtn" class="pop-item col-ryo">🧰 設備管理台帳</button>
+            <button id="planBtn" class="pop-item col-ryo">🗓 工事予定表</button>
           </div>
           <div class="pop-group">
             <div class="pop-h">確認</div>
@@ -420,6 +422,9 @@
     </div>
 
     <!-- ===== 設備管理台帳ビュー ===== -->
+    <!-- ===== 工事予定表（plan.js が中を作る） ===== -->
+    <div id="planView" class="mode-view hidden"></div>
+
     <div id="equipView" class="mode-view hidden">
       <div class="mode-panel">
         <div class="modal-header">
@@ -480,18 +485,25 @@
         </div>
         <div class="tm-body">
           <div class="tm-controls">
+            <label class="tm-control-item ti-search-wrap" title="劇場名の一部を打つと候補が出ます（どの会社の劇場でも）">🔍
+              <input type="search" id="tiTheaterSearch" list="tiTheaterAll" placeholder="劇場名を打って探す（例: 川崎）" autocomplete="off">
+              <datalist id="tiTheaterAll"></datalist>
+            </label>
             <label class="tm-control-item">会社:
               <select id="tiCompanySelect"></select>
             </label>
             <label class="tm-control-item" id="tiTheaterLabel">劇場:
               <select id="tiTheaterSelect"></select>
             </label>
+            <label class="tm-control-item ti-hidden-chk" title="公式サイトに無い（閉館など）として隠した劇場も一覧に出す"><input type="checkbox" id="tiShowHidden"> 隠した劇場も出す</label>
+            <button type="button" id="tiVerifyBtn" title="AI が各社の公式サイトの劇場一覧を読んで、今の劇場の一覧と見比べます。公式サイトに無い劇場は一覧から隠します（データは消えません）">🌐 公式サイトで確かめる</button>
             <button type="button" id="tiBulkBtn">📑 全体編集</button>
             <button type="button" id="tiExportBtn" title="会社・劇場を選んで、劇場カルテを Excel で出します（1劇場＝1ファイル）">📊 Excelで出す</button>
         <button type="button" id="tiColResetBtn" class="mini-btn" title="列幅を既定に戻す">列幅リセット</button>
             <span class="tm-hint">💡 劇場ごとのカルテ（持病・注意・機器表・不具合の履歴・備考・連絡先）。直すと自動で保存します。ここの内容はAI初期対応診断にも使われます。</span>
           </div>
           <div id="tiSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_INFO.md のSQLをSupabaseで1回実行してください。</div>
+          <div id="tiHiddenBanner" class="ti-hidden-banner hidden"></div>
           <div class="tm-hq-box" id="tiInfoBox">
             <div class="tm-hq-title">🎬 劇場情報</div>
             <div class="tm-hq-row">
@@ -986,5 +998,6 @@
 <script src="heatload-xlsx.js"></script>
 <script src="shelf.js"></script>
 <script src="karte.js"></script>
+<script src="plan.js"></script>
 </body>
 </html>
