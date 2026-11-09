@@ -940,6 +940,19 @@
     ov.addEventListener('click', async (e) => {
       const act = e.target.dataset && e.target.dataset.act;
       if (act === 'x') { if (running) return; closeOverlay(); if (changed && opts.onDone) opts.onDone(); return; }
+      if (act === 'hide-sus') {
+        const box = e.target.closest('.kt-vf-sus');
+        const chks = Array.from(box.querySelectorAll('.kt-vf-sus-chk:checked'));
+        if (!chks.length) { say('隠す劇場にチェックを入れてください'); return; }
+        if (!(await ask(`${chks.length} 劇場を一覧から隠しますか？（データは消えません。「隠した劇場も出す」で見られ、「隠すのをやめる」で戻せます）`, { ok: '隠す', danger: true }))) return;
+        const reasons = {}; chks.forEach((c) => { reasons[c.value] = c.dataset.reason || ''; });
+        try {
+          await aiCall({ task: 'verify-hide', names: chks.map((c) => c.value), reasons });
+          box.innerHTML = `🙈 隠した ${chks.length}: ${chks.map((c) => esc(c.value)).join('、')}`;
+          if (opts.onDone) opts.onDone();
+        } catch (err) { say('隠せませんでした: ' + (err.message || err)); }
+        return;
+      }
       if (act !== 'go' || running) return;
       const pickCos = Array.from(ov.querySelectorAll('.kt-vf-co:checked')).map((x) => x.value);
       if (!pickCos.length) { say('確かめる会社を選んでください'); return; }
@@ -950,11 +963,16 @@
         try {
           const r = await aiCall({ task: 'verify', company: co });
           if (r.hidden.length || r.shown.length) changed = true;
+          const sus = r.suspect || [];
           line.innerHTML = r.site_ok
-            ? `✅ <b>${esc(co)}</b>: ${r.checked} 劇場を確かめました。` +
-              (r.hidden.length ? `<br>　🙈 隠した ${r.hidden.length}: ${r.hidden.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : '<br>　隠した劇場はありません。') +
+            ? `✅ <b>${esc(co)}</b>: ${r.checked} 劇場を確かめました${r.official_count ? `（公式サイトの一覧 ${r.official_count} 館）` : ''}。` +
+              (r.hidden.length ? `<br>　🙈 隠した ${r.hidden.length}: ${r.hidden.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : (sus.length ? '' : '<br>　隠した劇場はありません。')) +
               (r.shown.length ? `<br>　👀 戻した ${r.shown.length}: ${r.shown.map(esc).join('、')}` : '') +
-              (r.unknown.length ? `<br>　❔ 分からなかった ${r.unknown.length}（そのまま）` : '')
+              (sus.length ? `<div class="kt-vf-sus"><b>❓ 公式サイトで見つからなかった ${sus.length} 劇場</b>（数が多いので自動では隠していません。名前の書き方の違いで見つからなかっただけのこともあります。違うものはチェックを外してから押してください）` +
+                `<div class="kt-vf-sus-list">${sus.map((h) => `<label><input type="checkbox" class="kt-vf-sus-chk" value="${esc(h.name)}" data-reason="${esc(h.reason || '')}" checked> ${esc(h.name)}${h.reason ? ` <small>（${esc(h.reason)}）</small>` : ''}</label>`).join('')}</div>` +
+                `<button type="button" class="danger" data-act="hide-sus">チェックした劇場を隠す</button></div>` : '') +
+              (r.unknown.length ? `<br>　❔ 分からなかった ${r.unknown.length}（そのまま）: <small>${r.unknown.map(esc).join('、')}</small>` : '') +
+              ((r.official_list || []).length ? `<details class="kt-vf-off"><summary>公式サイトの一覧（AI が読んだもの）</summary><small>${r.official_list.map(esc).join('、')}</small></details>` : '')
             : `⚠ <b>${esc(co)}</b>: 公式サイトの劇場一覧を最後まで読めませんでした。何も変えていません。${r.note ? `<small>（${esc(r.note)}）</small>` : ''}`;
         } catch (err) { line.innerHTML = `⚠ <b>${esc(co)}</b>: 確かめられませんでした（${esc(err.message || err)}）。何も変えていません。`; }
       }

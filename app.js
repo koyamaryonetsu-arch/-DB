@@ -4108,7 +4108,12 @@
     const key = n(q); if (!key) return false;
     const list = tiVisibleTheaters();
     let hit = list.find((t) => n(t.name) === key);
-    if (!hit && final) { const part = list.filter((t) => n(t.name).includes(key) || n(shortTheaterName(t.name)).includes(key)); if (part.length) hit = part[0]; }
+    tiSearchPick(null);
+    if (!hit && final) {
+      const part = list.filter((t) => n(t.name).includes(key) || n(shortTheaterName(t.name)).includes(key));
+      if (part.length > 1) { tiSearchPick(part); return true; }   // 「川崎」→ TOHO と 109 の両方 … どちらか選んでもらう
+      if (part.length) hit = part[0];
+    }
     if (!hit) return false;
     if (tiBulkMode) toggleTiBulkMode();
     $('tiCompanySelect').value = hit.company;
@@ -4116,6 +4121,13 @@
     $('tiTheaterSelect').value = hit.name;
     renderTheaterInfo();
     return true;
+  }
+  // 劇場名で探して候補が2つ以上ある時、入力の下に候補を出す（押すと開く）
+  function tiSearchPick(list) {
+    const box = $('tiSearchPick'); if (!box) return;
+    if (!list || !list.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+    box.innerHTML = '<small>どの劇場ですか？</small>' + list.slice(0, 30).map((t) => `<button type="button" data-name="${escapeHtml(t.name)}">${escapeHtml(t.name)}</button>`).join('');
+    box.classList.remove('hidden');
   }
   function populateTiTheaterSelect() {
     const company = $('tiCompanySelect').value;
@@ -5394,6 +5406,15 @@
     // 候補から選んだ時（名前がぴったり合った時）だけ開く。途中まで打った時は Enter で探す
     $('tiTheaterSearch').addEventListener('input', (e) => { tiJumpToTheater(e.target.value, false); });
     $('tiTheaterSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (!tiJumpToTheater(e.target.value, true) && window.KARTE) window.KARTE.say('「' + e.target.value + '」に合う劇場が見つかりません。'); } });
+  }
+  if ($('tiSearchPick')) {
+    $('tiSearchPick').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-name]'); if (!b) return;
+      e.preventDefault();
+      $('tiTheaterSearch').value = b.dataset.name;
+      tiJumpToTheater(b.dataset.name, true);
+    });
+    $('tiTheaterSearch').addEventListener('keydown', (e) => { if (e.key === 'Escape') tiSearchPick(null); });
   }
   if ($('tiShowHidden')) $('tiShowHidden').addEventListener('change', () => { populateTiTheaterSelect(); renderTheaterInfo(); });
   document.addEventListener('click', async (e) => {
