@@ -5425,6 +5425,44 @@
     else { const { error } = await sb.from('theaters').update({ hidden: false, hidden_reason: '人が戻した（公式サイトで確かめても隠さない）' }).eq('name', t.name); if (error) { onPersistError(error); return; } }
     populateTiTheaterSelect(); renderTheaterInfo();
   });
+  // 劇場を選んで隠す（人が決める。AI は使わない）。隠した理由は「人が隠した」→ 公式サイトで確かめても勝手には戻らない
+  if ($('tiHidePickBtn')) $('tiHidePickBtn').addEventListener('click', () => {
+    const company = $('tiCompanySelect').value;
+    const list = theaterMaster.filter((t) => t.company === company && !t.hidden).map((t) => t.name).sort((a, b) => a.localeCompare(b, 'ja'));
+    const K = window.KARTE;
+    if (!list.length) { if (K) K.say(company + ' に隠せる劇場がありません。'); return; }
+    document.querySelectorAll('#tiHidePick').forEach((x) => x.remove());
+    const ov = document.createElement('div');
+    ov.className = 'kt-overlay'; ov.id = 'tiHidePick';
+    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid"><div class="kt-dlg-head">🙈 ${escapeHtml(company)} の劇場を選んで隠す<button type="button" class="close-btn" data-x>×</button></div>
+      <div class="kt-dlg-body"><p class="tm-hint">一覧に出さない劇場にチェックを入れてください。案件・カルテのデータは消えません（「隠した劇場も出す」で見られ、「隠すのをやめる」で戻せます）。</p>
+        <input type="search" class="tm-input" id="tiHpQ" placeholder="🔍 劇場名で絞る" autocomplete="off">
+        <div class="ti-hp-list" id="tiHpList">${list.map((n) => `<label><input type="checkbox" value="${escapeHtml(n)}"> ${escapeHtml(n)}</label>`).join('')}</div>
+        <label class="ti-hp-why">理由（任意） <input type="text" class="tm-input" id="tiHpWhy" placeholder="例: 公式サイトの一覧（73館）に無い"></label></div>
+      <div class="kt-dlg-foot"><span id="tiHpN"></span><button type="button" class="danger" data-ok>チェックした劇場を隠す</button><button type="button" data-x>やめる</button></div></div>`;
+    document.body.appendChild(ov);
+    const count = () => { const n = ov.querySelectorAll('#tiHpList input:checked').length; ov.querySelector('#tiHpN').textContent = n ? n + ' 劇場を選んでいます' : ''; };
+    ov.addEventListener('change', count);
+    ov.querySelector('#tiHpQ').addEventListener('input', (e) => { const q = e.target.value.replace(/[\s　]/g, ''); ov.querySelectorAll('#tiHpList label').forEach((l) => { l.style.display = !q || l.textContent.replace(/[\s　]/g, '').includes(q) ? '' : 'none'; }); });
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      if (!e.target.closest('[data-ok]')) return;
+      const names = Array.from(ov.querySelectorAll('#tiHpList input:checked')).map((x) => x.value);
+      if (!names.length) { if (K) K.say('隠す劇場にチェックを入れてください。'); return; }
+      if (K && !(await K.ask(`${names.length} 劇場を一覧から隠しますか？（データは消えません）`, { ok: '隠す', danger: true }))) return;
+      const why = ov.querySelector('#tiHpWhy').value.trim();
+      const reason = ('人が隠した' + (why ? ': ' + why : '')).slice(0, 120);
+      if (store.mode === 'local') { names.forEach((n) => { const t = theaterMaster.find((x) => x.name === n); if (t) { t.hidden = true; t.hiddenReason = reason; } }); saveTheaterMaster(theaterMaster); }
+      else {
+        const { error } = await sb.from('theaters').update({ hidden: true, hidden_reason: reason }).in('name', names);
+        if (error) { onPersistError(error); return; }
+        names.forEach((n) => { const t = theaterMaster.find((x) => x.name === n); if (t) { t.hidden = true; t.hiddenReason = reason; } });
+      }
+      ov.remove();
+      populateTiTheaterSelect(); renderTheaterInfo();
+      if (K) K.say(`${names.length} 劇場を隠しました。`);
+    });
+  });
   if ($('tiVerifyBtn')) $('tiVerifyBtn').addEventListener('click', () => {
     if (!window.KARTE) return;
     window.KARTE.openVerify({ onDone: async () => { try { theaterMaster = await store.fetchTheaterMaster(); } catch (err) {} populateTiTheaterSelect(); renderTheaterInfo(); } });
