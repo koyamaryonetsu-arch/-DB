@@ -33,6 +33,7 @@ import { T, TILE_INFO } from '../../shared/tiles.js';
 import { menuItemText, skillPowerLine, powStats, skillCardInfo } from './skillinfo.js';
 // 第71回: 命令の 一覧に 出さない 技（cmdOff）と オートで 使わない 技（autoOff）を 分けた
 import { cmdOffList } from '../../shared/cmd-off.js';
+import { FAV_MAX, FAV_FULL_TEXT, favApply, favFull } from '../../shared/favorites.js';
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
 import { skillLevel, skillLvLeft } from '../../shared/buff-acts.js';
 import '../battle-buffs.js';
@@ -993,8 +994,8 @@ export class FieldMenu {
           this.sub.blur();
           const act = await this.skillAsk(c, it.value, { use: { ok: !!x?.ok, why: why[x?.why] || '今は使えない' } });
           if (act === 'use') return useSkill(it.value);
-          const did = this.doSkillAct(c, who, it.value, act);
-          this.reSkills(who, did ? 200 : 0);
+          const did = await this.doSkillAct(c, who, it.value, act);
+          this.reSkills(who, did === 'cmd' ? 200 : 0);
         },
       });
       showNow(m.current);
@@ -1140,13 +1141,15 @@ export class FieldMenu {
             }
             // おわったら その 技に カーソル（はずした ときは 先頭）
             this.favFocusId = op === 'remove' ? null : it.value;
-            const did = this.doSkillAct(c, who, it.value, op);
-            this.reSkills(who, did ? 200 : 0);
+            const did = await this.doSkillAct(c, who, it.value, op);
+            this.reSkills(who, did === 'cmd' ? 200 : 0);
           },
         });
         this.favFocusId = null;
         m.root.classList.add('fav-grid');
         m.root.style.setProperty('--fcols', String(cols));
+        // 第72回: お気に入りが 多い（60こ まで）ときも せつめいが 見える ように 下に はりつく（つかんでいる 間は ▲▼◀▶ が ある ので そのまま）
+        if (!grab) this.stickInfo(box, info);
         showInfo(grab ? grab.ids[grab.pos] : m.current?.value);
         box.append(info);
         if (grab) {
@@ -1238,7 +1241,12 @@ export class FieldMenu {
       this.reSkills(who);
     };
     const chip = (text, on, fn, cls = '', dis = false) => el('button', { class: `btn ${on ? 'sel' : ''} ${cls}`, text, disabled: dis, onclick: (e) => { e.stopPropagation(); fn(); } });
-    box.append(el('div', { class: 'lv-bar' },
+    // 第72回: 家族の ねがい「覚えた技を一覧で見ているとき、上部の技カテゴリは見えるようにしていて」。
+    //   見方（種類で見る／職業で見る）・呪文／特技・種類（職業）の タブも、上の タブと いっしょに 上に はりつく 見出し（.sk-head）の 中へ。
+    //   技の わくだけが スクロールする（下の せつめいも はりつく）。見出しの 高さは はかって いる ので（--sk-head-h）、カーソルの 技は 見出しの 下に かくれない
+    head.classList.add('lv-head');
+    head.querySelector('.tab-hint')?.remove();
+    head.append(el('div', { class: 'lv-bar' },
       el('div', { class: 'lv-views', role: 'tablist' }, ...Object.entries(LEARN_VIEWS).map(([k, label]) => chip(label, k === view, () => setView(k), 'lv-v'))),
       view === 'kind' ? el('div', { class: 'lv-secs' }, ...LEARN_SECS.map(([k, label]) => {
         const first = tabs.find((t) => t.sec === k);
@@ -1246,8 +1254,11 @@ export class FieldMenu {
       })) : null));
     const subs = view === 'kind' ? tabs.filter((t) => t.sec === cur.sec) : tabs;
     const subBar = el('div', { class: 'tabs lv-tabs' }, ...subs.map((t) => chip(t.label, t.key === cur.key, () => goTab(t), `lv-t${t.id === c.job || t.id === 'job' ? ' now' : ''}`)));
-    box.append(subBar);
-    if (!touch) box.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類を切りかえ・Yで見方を切りかえ' }));
+    head.append(subBar);
+    // スマホは タップで えらぶ ので 書かない（見出しを ひくく して、技の わくを 広く）
+    if (!touch) head.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類・Yで見方・◀ ▶（左右のはし）で上のタブを切りかえ' }));
+    // 選んでいる 種類（職業）の タブが 見えるように（横に ながい とき）
+    requestAnimationFrame(() => subBar.querySelector('.btn.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
     // 技の わく: ★ … お気に入り / かくす … 命令の 一覧に 出さない（わくも 点線）/ 他 … 今の 職業 いがいの 技
     const favSet = new Set(c.favorites || []);
     const items = cur.ids.map((id) => {
@@ -1299,16 +1310,30 @@ export class FieldMenu {
         this.sub.blur();
         // 第71回: 使う・お気に入り・命令の一覧に出さない／出す・やめる（skillAsk）
         const act = await this.skillAsk(c, it.value, { use: a.field && !locked ? { ok: true } : null });
-        if (this.doSkillAct(c, who, it.value, act)) return this.reSkills(who, 200);
+        const did = await this.doSkillAct(c, who, it.value, act);
+        if (did) return this.reSkills(who, did === 'cmd' ? 200 : 0);
         if (act !== 'use') return this.reSkills(who);
         await useSkill(it.value);
       },
     });
     m.root.classList.add('fav-grid', 'learn-grid');
     m.root.style.setProperty('--fcols', String(cols));
+    this.stickInfo(box, info);
     showInfo(m.current);
     box.append(info, el('div', { class: 'small muted', text: '選ぶと「使う」「お気に入り」「命令の一覧に出さない」を選べる。★…お気に入り　かくす…自分で命令する時、戦いの技の一覧に出さない技（オートで使うかは作戦で決める）　他…今の職業ではない技' }));
     return box;
+  }
+
+  // 第72回: 下に はりつく せつめい（覚えた技・お気に入り）。その 高さを はかって、カーソルの 技が せつめいの 下に かくれない ように（--sk-info-h）
+  stickInfo(box, info) {
+    box.classList.add('sticky-info');
+    info.classList.add('lv-info');
+    // まどの 下の すきま（.main の padding）にも はりつく（すきまから うしろの 技が のぞかない ように）
+    const pb = this.main ? parseFloat(getComputedStyle(this.main).paddingBottom) || 0 : 0;
+    if (pb > 0) info.style.bottom = `${-pb}px`;
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(() => { if (info.offsetHeight) box.style.setProperty('--sk-info-h', `${info.offsetHeight + 12}px`); }).observe(info);
+    }
   }
 
   // 第71回 E: つくりなおす（カーソルは おなじ 技・スクロールも そのまま。お気に入り・命令の 一覧・使う の あと）
@@ -1343,17 +1368,26 @@ export class FieldMenu {
     this.game.net.send({ t: 'menu', action: 'favorite', who: who || 'self', op: 'order', ids });
   }
 
-  // お気に入りを サーバーに おくる（画面の キャラにも すぐ 入れる）
+  // お気に入りを サーバーに おくる（画面の キャラにも すぐ 入れる）。もどりち: 入れた・はずした か
+  // 第72回: 家族の ねがい「覚えた技からお気に入りにしても、お気に入りにならない」。
+  //   ・まえは 30こ いっぱいの とき、画面は ★に しても サーバーが だまって すてていた（返事は「入れた」）
+  //     → FAV_MAX こまで に ふやし、いっぱいの ときは 入れずに わけを 出す（shared/favorites.js の favApply。サーバーと おなじ きまり）
+  //   ・まえは 200ミリ秒 まって 画面を つくりなおしていた。その 間に 前の 自分（self）が とどくと ★が 消え、
+  //     サーバーの 新しい 自分が とどいても 画面は つくりなおさなかった（家族サーバー）
+  //     → サーバーの 返事（menuRes。新しい 自分の あとに とどく）を まってから つくりなおす（menuCall）
+  //   もどりちは Promise（返事が きたら true・false）
   sendFav(c, who, id, op) {
-    const list = Array.isArray(c.favorites) ? c.favorites : (c.favorites = []);
-    const i = list.indexOf(id);
-    if (op === 'add' && i < 0) list.push(id);
-    if (op === 'remove' && i >= 0) list.splice(i, 1);
-    if ((op === 'up' || op === 'down') && i >= 0) {
-      const j = op === 'up' ? i - 1 : i + 1;
-      if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
+    const r = favApply(c.favorites, id, op, new Set(learnedAbilities(c)));
+    if (!r.ok) {
+      if (r.full) {
+        toast(FAV_FULL_TEXT);
+        this.sfx('buzz');
+      }
+      return Promise.resolve(false);
     }
-    this.game.net.send({ t: 'menu', action: 'favorite', who: who || 'self', id, op });
+    const list = Array.isArray(c.favorites) ? c.favorites : (c.favorites = []);
+    list.splice(0, list.length, ...r.list);
+    return this.menuCall({ t: 'menu', action: 'favorite', who: who || 'self', id, op }).then((res) => (res ? !!res.ok : true));
   }
 
   // ───── 第71回: 命令の 一覧に 出さない 技（cmdOff。shared/cmd-off.js）─────
@@ -1401,24 +1435,28 @@ export class FieldMenu {
     const a = abilityFor(id, c);
     const fav = (c.favorites || []).includes(id);
     const hidden = this.cmdHidden(c, id);
+    // 第72回: お気に入りが いっぱい（FAV_MAX こ）の ときは 入れられない ことと わけを 出す（まえは だまって 入らなかった）
+    const full = !c.species && !fav && favFull(c.favorites, new Set(learnedAbilities(c)));
     const items = [];
     if (use) items.push(use.ok ? { label: '使う', value: 'use' } : { label: `使う（${use.why}）`, value: 'use', disabled: true });
     items.push(...pre);
-    if (!c.species) items.push({ label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' });
+    if (full) items.push({ label: `★ お気に入りに入れる（${FAV_MAX}こでいっぱい）`, value: 'add', disabled: true });
+    else if (!c.species) items.push({ label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' });
     if (this.cmdHideable(a)) items.push({ label: hidden ? '命令の一覧に出す' : '命令の一覧に出さない', value: 'cmd' });
     items.push({ label: 'やめる', value: null });
-    return this.pick(a.name, items, hidden ? { note: { text: '今は、戦いの命令の一覧に出していない。', cls: 'muted' } } : {});
+    const note = [full ? FAV_FULL_TEXT : '', hidden ? '今は、戦いの命令の一覧に出していない。' : ''].filter(Boolean).join('\n');
+    return this.pick(a.name, items, note ? { note: { text: note, cls: 'muted' } } : {});
   }
 
-  // skillAsk の「お気に入り」「命令の一覧」を おこなう（ほかの 答えは false）
-  doSkillAct(c, who, id, act) {
+  // skillAsk の「お気に入り」「命令の一覧」を おこなう。もどりち: 'fav'（サーバーの 返事まで まった）・'cmd'・false（ほかの 答え）
+  async doSkillAct(c, who, id, act) {
     if (act === 'add' || act === 'remove') {
-      this.sendFav(c, who, id, act);
-      return true;
+      await this.sendFav(c, who, id, act);
+      return 'fav';
     }
     if (act === 'cmd') {
       this.toggleCmdOff(c, who, id);
-      return true;
+      return 'cmd';
     }
     return false;
   }

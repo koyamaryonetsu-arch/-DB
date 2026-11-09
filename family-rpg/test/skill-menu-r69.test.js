@@ -12,6 +12,7 @@ import { STD, partStdPower, skillStdPower, sortByStdPower, favSection, moveInGri
 import { skillPower } from '../public/js/shared/skill-power.js';
 import { splitFieldAbilities, fieldUsableAbilities } from '../public/js/shared/fieldskills.js';
 import { favoriteOrder } from '../public/js/shared/world/services.js';
+import { FAV_MAX } from '../public/js/shared/favorites.js';
 import { pub } from '../public/js/shared/battle.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -99,8 +100,9 @@ test('お気に入り: サーバーの op order（おなじ 技の くみ だけ
   assert.equal(favoriteOrder(['mera', 'hoimi'], ['hoimi', 'io']), null, 'ちがう 技');
   assert.equal(favoriteOrder(['mera', 'hoimi'], ['mera', 'mera']), null, 'かさなり');
   assert.equal(favoriteOrder(['mera'], 'mera'), null);
-  const many = Object.keys(ABILITIES).slice(0, 31);
-  assert.equal(favoriteOrder(many, many.slice().reverse()), null, '30こ まで');
+  // 第72回: 30こ → FAV_MAX（60こ）まで
+  const many = Object.keys(ABILITIES).slice(0, FAV_MAX + 1);
+  assert.equal(favoriteOrder(many, many.slice().reverse()), null, 'FAV_MAX こ まで');
 
   const world = new GameWorld({ offline: true, rng: makeRng(69), rateLimit: false });
   const bot = new Bot(world, 'ナナ');

@@ -1,5 +1,6 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
 import { el, esc, ListMenu, toast } from './ui/dom.js';
+import { FAV_FULL_TEXT, favFull } from '../shared/favorites.js';
 import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js';
 // 第33回: 技の 名前は 使う 人 むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
 import { abilityFor, abilityLabel } from '../shared/ability-label.js';
@@ -757,15 +758,30 @@ export class BattleScene {
   // お気に入りに 入れる・はずす（サーバーに おぼえてもらう）
   toggleFav(a, id) {
     // この 戦いの 中で かえた お気に入りは 手もとに おぼえる（サーバーの 前の 知らせ〈upd〉が あとから とどいても もどらない）
-    const favs = this.favsOf(a).slice();
+    const prev = this.favsOf(a).slice();
+    const favs = prev.slice();
     const on = !favs.includes(id);
+    // 第72回: いっぱい（FAV_MAX こ）の ときは 入れない（まえは ★に なっても サーバーが だまって すてていた。shared/favorites.js）
+    if (on && favFull(favs, new Set(a.abilities || []))) {
+      toast(FAV_FULL_TEXT);
+      this.game.audio.sfx('buzz');
+      return false;
+    }
     if (on) favs.push(id);
     else favs.splice(favs.indexOf(id), 1);
     (this.localFavs || (this.localFavs = new Map())).set(a.id, favs);
     a.favs = favs;
     const who = String(a.charId || '').includes(':') ? String(a.charId).split(':').pop() : 'self';
-    // 知らせは サーバーの 返事（menuRes）で 出る
+    // 知らせは サーバーの 返事（menuRes）で 出る。サーバーが ことわった（いっぱい など）ときは 手もとも もとに もどす（第72回）
+    this.game.menuWaiter = (m) => {
+      if (m && !m.ok && this.localFavs?.get(a.id) === favs) {
+        this.localFavs.set(a.id, prev);
+        a.favs = prev;
+      }
+      return false;
+    };
     this.game.net.send({ t: 'menu', action: 'favorite', who, id, op: on ? 'add' : 'remove' });
+    return true;
   }
 
   // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off, tab }）

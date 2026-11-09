@@ -2383,8 +2383,8 @@ export function allyFromCharacter(char, init = {}) {
     // 第71回: 自分で 命令する ときに 技の 一覧に 出さない 技（client/battle.js の openCommand）
     cmdOff: cmdOffFor(char, abilities),
     penChar: { job: char.job, jobs: char.jobs },
-    // お気に入りの 技（ならび じゅん）
-    favs: char.species ? [] : (Array.isArray(char.favorites) ? char.favorites.slice(0, 30) : []),
+    // お気に入りの 技（ならび じゅん。60 は shared/favorites.js の FAV_MAX。第72回で 30 から ふやした）
+    favs: char.species ? [] : (Array.isArray(char.favorites) ? char.favorites.slice(0, 60) : []),
     // 技を 使った 回数（ひらめきの もと）と、この たたかいで ひらめいた 技
     use: char.species ? null : { ...(char.skillUse || {}) },
     hiraNew: [],

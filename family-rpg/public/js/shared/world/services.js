@@ -15,6 +15,7 @@ import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, 
 import { skillMods } from '../skill-tier.js';
 import { TACTICS } from '../ai.js';
 import { cmdOffList, fixCmdOff, toggleOffList } from '../cmd-off.js';
+import { FAV_MAX, FAV_FULL_TEXT, favApply } from '../favorites.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview, breedFinder } from './breed.js';
@@ -142,11 +143,11 @@ function ownChar(s, who) {
   return e ? e.char : null;
 }
 
-// 第69回: お気に入りの ならびを まとめて かえる（op: 'order'）。ids が 今の お気に入りと おなじ 技の くみ（30こまで・かさならない）の ときだけ
+// 第69回: お気に入りの ならびを まとめて かえる（op: 'order'）。ids が 今の お気に入りと おなじ 技の くみ（FAV_MAX こまで・かさならない）の ときだけ
 //   あたらしい 配列を かえす（だめな ときは null）
 export function favoriteOrder(cur, ids) {
   const now = Array.isArray(cur) ? cur.filter((x) => ABILITIES[x]) : [];
-  if (!Array.isArray(ids) || ids.length !== now.length || ids.length > 30) return null;
+  if (!Array.isArray(ids) || ids.length !== now.length || ids.length > FAV_MAX) return null;
   if (ids.some((x) => typeof x !== 'string') || new Set(ids).size !== ids.length) return null;
   const set = new Set(now);
   if (!ids.every((x) => set.has(x))) return null;
@@ -695,15 +696,11 @@ export function menuAction(world, s, msg) {
         return reply(true, 'ならびを変えた。');
       }
       if (!ABILITIES[id]) return reply(false, '');
-      const list = Array.isArray(who.favorites) ? who.favorites.filter((x) => ABILITIES[x]) : [];
-      const i = list.indexOf(id);
-      if (msg.op === 'add' && i < 0) list.push(id);
-      else if (msg.op === 'remove' && i >= 0) list.splice(i, 1);
-      else if ((msg.op === 'up' || msg.op === 'down') && i >= 0) {
-        const j = msg.op === 'up' ? i - 1 : i + 1;
-        if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
-      }
-      who.favorites = list.slice(0, 30);
+      // 第72回: まえは 30こ いっぱいの とき だまって 入れなかった（返事は「入れた」）。
+      //   今は FAV_MAX こまで。いっぱいなら 覚えていない 技を すてて、それでも いっぱいなら わけを 返す（shared/favorites.js）
+      const r = favApply(who.favorites, id, msg.op, new Set(learnedAbilities(who)));
+      if (!r.ok) return reply(false, r.full ? FAV_FULL_TEXT : '');
+      who.favorites = r.list;
       // 戦いの 中（長おしで お気に入り。第27回）: 戦いの 人の お気に入りも（つぎの 知らせで 前に もどらない）
       syncFavs(world, who);
       return reply(true, msg.op === 'add' ? `${abilityLabel(id, who)}をお気に入りに入れた。` : msg.op === 'remove' ? `${abilityLabel(id, who)}をお気に入りからはずした。` : 'ならびを変えた。');
