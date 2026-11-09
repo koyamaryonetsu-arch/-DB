@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="shelf.css">
 <link rel="stylesheet" href="karte.css">
+<link rel="stylesheet" href="plan.css">
 <link rel="stylesheet" href="heatload.css">
 <script src="vendor/supabase.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
@@ -94,6 +95,7 @@
             <div class="pop-h">別機能</div>
             <button id="koteiBtn" class="pop-item col-ryo">📁 書類棚（工程表・写真台帳・空調負荷計算）</button>
             <button id="equipBtn" class="pop-item col-ryo">🧰 設備管理台帳</button>
+            <button id="planBtn" class="pop-item col-ryo">🗓 工事予定表</button>
           </div>
           <div class="pop-group">
             <div class="pop-h">確認</div>
@@ -420,6 +422,9 @@
     </div>
 
     <!-- ===== 設備管理台帳ビュー ===== -->
+    <!-- ===== 工事予定表（plan.js が中を作る） ===== -->
+    <div id="planView" class="mode-view hidden"></div>
+
     <div id="equipView" class="mode-view hidden">
       <div class="mode-panel">
         <div class="modal-header">
@@ -986,5 +991,6 @@
 <script src="heatload-xlsx.js"></script>
 <script src="shelf.js"></script>
 <script src="karte.js"></script>
+<script src="plan.js"></script>
 </body>
 </html>

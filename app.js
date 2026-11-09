@@ -956,8 +956,10 @@
       alert('サーバーへの保存に失敗しました。通信状況を確認してください。\n（画面を再読み込みすると最新状態に戻ります）\n\n' + (err && err.message ? err.message : ''));
     }
   }
-  function persistCase(c, sourceOverride) { return Promise.resolve(store.upsertCase(c, sourceOverride)).catch(onPersistError); }
-  function persistCases(arr) { return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
+  // 案件が変わったことを、工事予定表など別の画面に知らせる
+  function notifyCasesChanged() { try { window.dispatchEvent(new Event('cinema-cases-changed')); } catch (e) {} }
+  function persistCase(c, sourceOverride) { notifyCasesChanged(); return Promise.resolve(store.upsertCase(c, sourceOverride)).catch(onPersistError); }
+  function persistCases(arr) { notifyCasesChanged(); return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
   function removeCaseRemote(id) { return Promise.resolve(store.deleteCase(id)).catch(onPersistError); }
 
   let cases = [];               // 初期化は init() で（local or Supabase）
@@ -3110,6 +3112,7 @@
     if (typeof theaterPendingMode !== 'undefined' && theaterPendingMode) closeTheaterPendingModal();
     if (typeof intakeMode !== 'undefined' && intakeMode) exitIntakeMode();
     if (typeof equipMode !== 'undefined' && equipMode) exitEquipMode();
+    if (typeof planMode !== 'undefined' && planMode) exitPlanMode();
   }
   function enterAggMode() {
     if (taskMode) exitTaskMode();
@@ -3459,6 +3462,7 @@
     if (theaterPendingMode) closeTheaterPendingModal();
     if (intakeMode) exitIntakeMode();
     if (equipMode) exitEquipMode();
+    if (typeof planMode !== 'undefined' && planMode) exitPlanMode();
     purchaseMode = true;
     $('casesTable').classList.add('purchase-mode');
     $('emptyMsg').classList.add('hidden');
@@ -4289,6 +4293,7 @@
     if (theaterPendingMode) closeTheaterPendingModal();
     if (intakeMode) exitIntakeMode();
     if (equipMode) exitEquipMode();
+    if (typeof planMode !== 'undefined' && planMode) exitPlanMode();
     theaterInfoMode = true;
     populateTiCompanySelect();
     try { theaterContacts = await store.fetchTheaterContacts(); } catch (e) { theaterContacts = []; }
@@ -4446,6 +4451,35 @@
   }
   function toggleEquipMode() { if (equipMode) exitEquipMode(); else enterEquipMode(); }
 
+  // ================= 工事予定表（plan.js・菱熱のみ） =================
+  let planMode = false;
+  function enterPlanMode() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    if (theaterPendingMode) closeTheaterPendingModal();
+    if (intakeMode) exitIntakeMode();
+    if (equipMode) exitEquipMode();
+    planMode = true;
+    document.body.classList.add('plan-active');
+    $('planBtn').textContent = '✕ 工事予定表を閉じる';
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
+    if (window.PLAN) window.PLAN.open();
+  }
+  function exitPlanMode() {
+    planMode = false;
+    if (window.PLAN) window.PLAN.close();
+    document.body.classList.remove('plan-active');
+    $('planBtn').textContent = '🗓 工事予定表';
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
+  }
+  function togglePlanMode() { if (planMode) exitPlanMode(); else enterPlanMode(); }
+
   // ================= 案件の登録確認（新規か更新か） =================
   // 同じ劇場で近い日程に似た案件があると、メール取込は登録せず case_intake_pending に溜める。
   // ここでボタンを押すと「自動登録」または「既存案件へ自動更新」を実行する。
@@ -4515,6 +4549,7 @@
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
     if (equipMode) exitEquipMode();
+    if (typeof planMode !== 'undefined' && planMode) exitPlanMode();
     intakeMode = true;
     try { intakePending = await store.fetchIntakePending(); } catch (e) { intakePending = []; }
     $('ikSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !intakePendingSupported));
@@ -4587,6 +4622,7 @@
     if (theaterInfoMode) closeTheaterInfoModal();
     if (intakeMode) exitIntakeMode();
     if (equipMode) exitEquipMode();
+    if (typeof planMode !== 'undefined' && planMode) exitPlanMode();
     theaterPendingMode = true;
     try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) { theaterPending = []; }
     $('tpSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterPendingSupported));
@@ -4948,6 +4984,7 @@
     if (theaterPendingMode) closeTheaterPendingModal();
     if (intakeMode) exitIntakeMode();
     if (equipMode) exitEquipMode();
+    if (typeof planMode !== 'undefined' && planMode) exitPlanMode();
     applyUserScope();
     render();
     requestAnimationFrame(fitTableHeight); // 表の高さを画面の残りに合わせる
@@ -5349,6 +5386,7 @@
   $('theaterPendingBtn').addEventListener('click', () => { if (theaterPendingMode) closeTheaterPendingModal(); else openTheaterPendingModal(); });
   // 設備管理台帳
   if ($('equipBtn')) $('equipBtn').addEventListener('click', toggleEquipMode);
+  if ($('planBtn')) $('planBtn').addEventListener('click', togglePlanMode);
   if ($('closeEquipView')) $('closeEquipView').addEventListener('click', exitEquipMode);
   if ($('eqCloseBtn')) $('eqCloseBtn').addEventListener('click', exitEquipMode);
   if ($('eqItemsBtn')) $('eqItemsBtn').addEventListener('click', () => {
@@ -6151,6 +6189,7 @@
         const i = cases.findIndex((c) => c.id === mapped.id);
         if (i >= 0) cases[i] = mapped; else cases.push(mapped);
       }
+      notifyCasesChanged();
       // 編集中は再描画を抑制（次の操作時に反映される）
       if (!isEditingNow()) refresh();
     } catch (e) { console.error('realtime適用エラー', e); }
@@ -6170,6 +6209,18 @@
       // 書類棚(shelf.js)用: 劇場マスタ・案件（見えている分）・ログイン中の人
       theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '', manager: t.manager || '', theaterPhone: t.theaterPhone || '', maintenance: t.maintenance || '', gem2: t.gem2 || '', homepage: t.homepage || '' })); } catch (e) { return []; } },
       cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', receivedDate: c.receivedDate || '', category: c.category || '', status: deriveStatus(c), surveyDate: c.surveyDate || '', workEndDate: c.workEndDate || '', tcPerson: c.tcPerson || '', rPerson: c.rPerson || '' })); } catch (e) { return []; } },
+      // 工事予定表(plan.js)用: 案件の一覧（見えている分）と、案件を直す（予定表で直した項目を案件にも入れる）
+      casesFull: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', estimateAmount: c.estimateAmount, marginRate: c.marginRate, rPerson: c.rPerson || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', receivedDate: c.receivedDate || '', status: deriveStatus(c) })); } catch (e) { return []; } },
+      updateCase: (id, patch) => {
+        const c = cases.find((x) => String(x.id) === String(id));
+        if (!c || !isPrivileged(currentUser)) return false;
+        const ok = ['estimateName', 'estimateAmount', 'marginRate', 'rPerson', 'workStartDate', 'workEndDate'];
+        Object.keys(patch || {}).forEach((k) => { if (ok.indexOf(k) !== -1) c[k] = patch[k] == null ? '' : patch[k]; });
+        if (store.mode === 'local') saveCases();
+        persistCase(c);
+        if (!planMode) refresh();
+        return true;
+      },
       // 劇場カルテ(karte.js)用: 不具合の履歴の行から案件を開く
       openCase: (id) => { try { const c = cases.find((x) => String(x.id) === String(id)); if (c) openModalGuarded(c, 'full'); } catch (e) { console.warn(e); } },
       shortTheater: (name) => shortTheaterName(name),
