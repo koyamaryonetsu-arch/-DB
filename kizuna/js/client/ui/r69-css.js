@@ -71,6 +71,14 @@ const CSS = `
 .fav-info .fi-l { color: var(--muted); font-size: 0.86em; }
 .fav-info.lv-info { position: sticky; bottom: 0; z-index: 2; background: var(--win-solid, #0b0d2c); box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.55); }
 .menu.learn-grid .item { scroll-margin-bottom: 8.5em; }
+/* 第72回: 覚えた技の見方・呪文／特技・種類（職業）のタブも上にはりつく（.sk-head の中）。技のわくだけがスクロールする */
+.skills-view .sk-head.lv-head { padding-bottom: 0.2em; box-shadow: 0 -1.2em 0 var(--win-solid), 0 7px 9px -7px rgba(0, 0, 0, 0.75); }
+.skills-view .sk-head.lv-head > .tabs:first-child { margin-bottom: 0.15em; }
+.skills-view .sk-head .lv-bar { margin: 0.1em 0 0.2em; }
+.skills-view .sk-head .tabs.lv-tabs { margin-bottom: 0.1em; }
+.skills-view .sk-head.lv-head .tab-hint { margin: 0.05em 0 0; }
+/* 下にはりつくせつめい（覚えた技・お気に入り）の高さぶん、カーソルの技を上に出す（--sk-info-h は client/ui/menu.js の stickInfo がはかる） */
+.skills-view.sticky-info .menu.fav-grid .item { scroll-margin-bottom: var(--sk-info-h, 8.5em); }
 `;
 
 export function addR69Css() {

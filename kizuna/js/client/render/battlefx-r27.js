@@ -13,8 +13,8 @@
 // ・敵1体・敵全体・味方（がめんの した。playAllyR27）・味方全体の どれでも 形が くずれない
 // ・ダメージの 数字が 出る じかん（r27Hit）と、エフェクトが あたる じかんを そろえる
 // ・スマホで おもく ならない ように、つぶの かずは 1技 だいたい 250こ まで（ひばなは まとめて かかれるので かるい）
-import { makeCanvas, hexToRgb } from './pixel.js?v=d3a646533116';
-import { ABILITIES } from '../../shared/data/abilities.js?v=d3a646533116';
+import { makeCanvas, hexToRgb } from './pixel.js?v=1a37ffd1421f';
+import { ABILITIES } from '../../shared/data/abilities.js?v=1a37ffd1421f';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];

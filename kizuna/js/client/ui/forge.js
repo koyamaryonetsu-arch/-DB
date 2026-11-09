@@ -8,21 +8,21 @@
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
 //             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { sourcesFlow } from './sources.js?v=d3a646533116';
-import { salvageOf } from '../../shared/data/salvage.js?v=d3a646533116';
-import { el, esc } from './dom.js?v=d3a646533116';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=d3a646533116';
-import { request } from './shop.js?v=d3a646533116';
-import { rankText } from './info.js?v=d3a646533116';
-import { rareNameHtml } from './rarity.js?v=d3a646533116';
-import { ITEMS } from '../../shared/data/items.js?v=d3a646533116';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=d3a646533116';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=d3a646533116';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=d3a646533116';
-import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=d3a646533116';
-import { bindAlchemy } from './alchemy.js?v=d3a646533116';
-import { computeStats, itemCount } from '../../shared/stats.js?v=d3a646533116';
-import { boardIconURL } from '../render/boards.js?v=d3a646533116';
+import { sourcesFlow } from './sources.js?v=1a37ffd1421f';
+import { salvageOf } from '../../shared/data/salvage.js?v=1a37ffd1421f';
+import { el, esc } from './dom.js?v=1a37ffd1421f';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=1a37ffd1421f';
+import { request } from './shop.js?v=1a37ffd1421f';
+import { rankText } from './info.js?v=1a37ffd1421f';
+import { rareNameHtml } from './rarity.js?v=1a37ffd1421f';
+import { ITEMS } from '../../shared/data/items.js?v=1a37ffd1421f';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=1a37ffd1421f';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=1a37ffd1421f';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=1a37ffd1421f';
+import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=1a37ffd1421f';
+import { bindAlchemy } from './alchemy.js?v=1a37ffd1421f';
+import { computeStats, itemCount } from '../../shared/stats.js?v=1a37ffd1421f';
+import { boardIconURL } from '../render/boards.js?v=1a37ffd1421f';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
