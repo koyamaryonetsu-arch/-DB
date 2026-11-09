@@ -16,10 +16,10 @@
 //   とけて から wait 回 動くと 自分で また こおる（cond 'c5:arThawWait'・効果 arFreeze）。おともの 雪の子（arena.frostHelp）は、
 //   王者が とけていると すぐに こおらせる（cond 'c5:arKingThawed'）→ 雪の子を 先に たおすと、とけている 時間が 長い
 //   知っている 人: こおっている 王者には 炎・とけたら みんなで 王者・雪の子が いる 間は 雪の子を 先に
-import { MONSTERS } from './data/monsters.js?v=1a37ffd1421f';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=1a37ffd1421f';
+import { MONSTERS } from './data/monsters.js?v=ee4fab959d09';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=ee4fab959d09';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=1a37ffd1421f';
+import { atbRate } from './battle.js?v=ee4fab959d09';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
 export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard']);

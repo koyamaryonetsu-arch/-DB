@@ -5,7 +5,9 @@
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かけるので、ここでは 気に しない）
 // ・へんじ（return）は「あたる 時間（ms）」。つぎの えんしゅつを その 時間に あわせて ならべられる
 // つかいかたは docs/plan-r48-fx-engine.md の「エンジンの使い方」。
-import { makeCanvas, hexToRgb } from './pixel.js?v=1a37ffd1421f';
+import { makeCanvas, hexToRgb } from './pixel.js?v=ee4fab959d09';
+// 第72回: 竜の紋章の かたち（ためる オーラ crest）
+import { drawDragonCrest, crestSimple } from './crest-shapes.js?v=ee4fab959d09';
 
 const TAU = Math.PI * 2;
 export const rnd = (a, b) => a + Math.random() * (b - a);
@@ -962,20 +964,13 @@ const AURA = {
     }
     x.stroke();
     softGlow(x, cx, ey, s * 3, p.color, env * pulse);
-    // 紋章（まん中の ひし形・左右の つばさ・したの とげ）
-    x.globalAlpha = env;
-    x.fillStyle = p.color2;
-    x.beginPath();
-    x.moveTo(cx, ey - s * 1.3); x.lineTo(cx + s * 0.5, ey); x.lineTo(cx, ey + s * 1.6); x.lineTo(cx - s * 0.5, ey); x.closePath();
-    for (const sd of [-1, 1]) {
-      x.moveTo(cx + sd * s * 0.6, ey - s * 0.2);
-      x.quadraticCurveTo(cx + sd * s * 1.6, ey - s * 1.2, cx + sd * s * 2.1, ey - s * 0.4);
-      x.quadraticCurveTo(cx + sd * s * 1.4, ey - s * 0.3, cx + sd * s * 0.6, ey + s * 0.4);
-      x.closePath();
-    }
-    x.fill();
-    x.fillStyle = '#ffffff';
-    x.fillRect(cx - 0.5, ey - s * 0.6, 1, s * 1.2);
+    // 紋章（第72回: crest-shapes.js の 竜の紋章。1 が s×2 ドット）
+    x.save();
+    x.translate(cx, ey);
+    const u = s * 2;
+    x.scale(u, u);
+    drawDragonCrest(x, { fill: p.color2, core: '#ffffff', edge: p.color, a: env, lw: Math.max(0.08, 0.8 / u), simple: crestSimple(u), glow: false });
+    x.restore();
   },
   // 聖なる 光: からだを まわる リボンと きらきら
   ribbons(x, p, o) {

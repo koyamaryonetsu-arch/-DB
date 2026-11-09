@@ -4,7 +4,7 @@
 //   ・たて持ちと よこ持ちは 別々に おぼえる。大きさも かえられる（小・中・大・特大）
 //   ・この たんまつだけの 設定（localStorage）。決めて いない 向きは 今までの ならび（ui/hand.js の 右手用・左手用 など）
 //   ・場所は 画面の 中の わりあい（まん中の 点）で おぼえる。画面の 大きさが かわっても ずれない
-import { el } from './dom.js?v=1a37ffd1421f';
+import { el } from './dom.js?v=ee4fab959d09';
 
 const KEY = 'kizuna_layout';
 export const SIZES = [['小', 0.8], ['中', 1], ['大', 1.25], ['特大', 1.5]];

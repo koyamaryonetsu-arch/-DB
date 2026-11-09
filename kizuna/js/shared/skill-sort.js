@@ -7,12 +7,16 @@
 //   ・おなじ ときは MPの 少ない ほう → 覚えた じゅん
 // しきは shared/battle.js の calcPhys・calcMagic・healAmountOf と おなじ（会心・耐性・守りの バフは 入れない）
 // テスト: test/skill-menu-r69.test.js
-import { ABILITIES } from './data/abilities.js?v=1a37ffd1421f';
-import { REGEN_BASE } from './buff-acts.js?v=1a37ffd1421f';
+import { ABILITIES } from './data/abilities.js?v=ee4fab959d09';
+import { REGEN_BASE } from './buff-acts.js?v=ee4fab959d09';
+// 第72回: 元気玉（みんなの HPを 10%ずつ 集める。battle-genki.js）
+import { genkiTotal } from './battle-genki.js?v=ee4fab959d09';
 
 // ふつうの キャラ（どの 技も この 強さで くらべる）
 //   atk: 攻撃力・foeDfn: 相手の 守備力・mag: 魔力・heal: 回復魔力・maxHp: 生き返る 人の 最大HP・mp: のこりの MP（マダンテ）・lv: レベル（銭投げ）
-export const STD = { atk: 120, foeDfn: 60, mag: 80, heal: 80, maxHp: 200, mp: 100, lv: 30 };
+//   party・partyHp: 元気玉の みんなの 人数と 1人の HP（ほかの 技の ふつうに 合わせた 数。HP満タンの 4人で、
+//     伝説の 職業の 強い 全体攻撃〈ギガデイン・極 290〉の 約1.3倍。tools/sim-genki.mjs の Lv60〜80 の くらべと だいたい おなじ）
+export const STD = { atk: 120, foeDfn: 60, mag: 80, heal: 80, maxHp: 200, mp: 100, lv: 30, party: 4, partyHp: 400 };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const avg = (b) => (Array.isArray(b) ? ((b[0] || 0) + (b[1] ?? b[0] ?? 0)) / 2 : Number(b) || 0);
@@ -53,6 +57,8 @@ export function partStdPower(e) {
     case 'revive':
     case 'reviveAll':
       return STD.maxHp * (e.hpRatio || 0.25);
+    // 元気玉: ふつうの 4人（HP満タン）から 集めた HP × 倍率
+    case 'genki': return genkiTotal(Array(STD.party).fill(STD.partyHp), e.rate) * (e.mult || 1);
     case 'allMp': return (STD.mp + (e.paid || 0)) * (e.mult || 1);
     case 'goldThrow': return ((Number(e.base) || 50) + STD.lv * (e.perLv || 10)) * (e.mult || 1);
     default: return 0;

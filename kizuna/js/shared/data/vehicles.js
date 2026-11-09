@@ -79,11 +79,11 @@ export const VEHICLES = {
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=1a37ffd1421f'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=ee4fab959d09'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 // 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
-import { PRIZE_VEHICLES } from './vehicles-prize.js?v=1a37ffd1421f'; Object.assign(VEHICLES, PRIZE_VEHICLES);
+import { PRIZE_VEHICLES } from './vehicles-prize.js?v=ee4fab959d09'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 // 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
-import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=1a37ffd1421f'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=ee4fab959d09'; Object.assign(VEHICLES, TOKEI_VEHICLES);
 // 第66回 B班: 伝説の職業も もとの 職業の 乗り物に（オープンカー・スワンボート・屋台）
 VEHICLES.open_car.jobs.push('new_kawaii', 'smap'); VEHICLES.swan_boat.jobs.push('oogosho'); VEHICLES.food_cart.jobs.push('five_star_chef');
 // 第66回 A: 伝説の職業（jobs-legend-r66a.js）も もとの 超級職の 乗り物に 乗れる

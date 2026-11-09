@@ -11,9 +11,9 @@
 // 第51回: それでも 1万文字を こえる ときは KIZUNA-4-（KIZUNA-3 の 形に 加えて、ぜんぶ true の flags・chests を 名前の ならびに、
 //   図鑑〈bestiary〉を 同じ 中みごとに まとめた 形。slimChar4 / unslimChar4）。KIZUNA-3 で 入る ときは KIZUNA-3（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=1a37ffd1421f';
-import { dropGoneFamily } from '../data/wagon.js?v=1a37ffd1421f';
-import { packFeats, unpackFeats } from './phantom.js?v=1a37ffd1421f';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=ee4fab959d09';
+import { dropGoneFamily } from '../data/wagon.js?v=ee4fab959d09';
+import { packFeats, unpackFeats } from './phantom.js?v=ee4fab959d09';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
@@ -137,8 +137,10 @@ const COMP_EMPTY = {
   look: null, job: null, jobs: {}, items: [], keyItems: [], seeds: {}, status: {}, flags: {}, chests: {}, sparkles: {}, quests: {}, kills: {},
   skillUse: {}, hirameki: [], supportLog: [], pos: null, spawn: null, objective: '',
   equip: { weapon: null, armor: null, shield: null, head: null, acc: null },
+  // 第72回: 作戦の ふつう（'balanced'。仲間 40人で 800文字くらい）
+  tactics: 'balanced',
 };
-const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip'];
+const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip', 'tactics'];
 const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // 魔物あずかり所の 魔物（c.storage。第43回 C）も 同じ 形なので いっしょに はぶく
 const slimList = (char, list) => list.map((e) => {

@@ -1,11 +1,13 @@
 // 第48回 G4: 大技の つぶの かきかた（AX_G4_FINE。なまえは g4 で はじめる）。この ファイルは G4 だけが さわる
 // ・ダイの大冒険（竜の紋章・剣・アバンストラッシュの A・十字・竜の あたま・メドローアの 弓と 消滅の 球・竜闘気の つばさ）
-// ・ロトの勇者（金の 鳥の 紋章・雷雲の うず・きずなの 糸）
+// ・ロトの勇者（金の 不死鳥の 紋章〈ロトの紋章〉・雷雲の うず・きずなの 糸）
 // ・マリオ（スター・キノコ・こうら・POW・コイン・ファイアボール・ハンマー・たまご・土管・カート・大きな 足・人の かげ）
 // ・3年B組（夕日の 背景・「人」の 2画・ハートの 波・出席簿・ふきだし・家・卒業証書の 筒）
 // ・どれも 1つの つぶで 大きな 絵を かく（つぶを 何百も つかわない）。毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
 // ・画面の 文字は カタカナ・ひらがな・記号・ローマ字だけ（漢字なし）
-import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=1a37ffd1421f';
+import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=ee4fab959d09';
+// 第72回: 竜の紋章・ロトの紋章の かたち
+import { drawDragonCrest, drawRotoCrest, crestSimple } from './crest-shapes.js?v=ee4fab959d09';
 
 const TAU = Math.PI * 2;
 // 出て きえる こさ（fin で こく、さいごの fout で うすく）
@@ -349,6 +351,7 @@ export const AX_G4_FINE = {
     x.restore();
   },
   // 竜の 紋章（ダイの ひたい・竜の騎士）。s … 大きさ、color … ひかり、core … しん。ふくらんで どくん どくん
+  // 第72回: かたちは crest-shapes.js（まん中の ひし形・そり上がる 2本の つの・左右の つばさ・下の かぎ）
   g4Crest(x, p) {
     const a = envOf(p, 120, 220) * (p.alpha ?? 1);
     if (a <= 0) return;
@@ -358,21 +361,15 @@ export const AX_G4_FINE = {
     x.translate(cx, cy);
     x.globalCompositeOperation = 'lighter';
     softGlow(x, 0, 0, s * 3, p.color || '#5ad0ff', a * 0.8);
-    x.scale(s, s);
-    const col = p.color || '#5ad0ff', core = p.core || '#ffffff';
-    // ほね ぐみ: まん中の しずく・上の とげ・2本の つの・よこの つばさ
-    const gem = [[0, -0.45], [0.36, 0.12], [0, 1.05], [-0.36, 0.12]];
-    const spike = [[0, -0.5], [0.12, -0.6], [0, -1.35], [-0.12, -0.6]];
-    const horn = (sx) => [[0.18 * sx, -0.3], [0.55 * sx, -0.55], [0.95 * sx, -1.25], [0.78 * sx, -0.62], [0.42 * sx, -0.12]];
-    const wing = (sx) => [[0.36 * sx, 0.05], [1.2 * sx, -0.05], [0.95 * sx, 0.2], [1.05 * sx, 0.42], [0.42 * sx, 0.42]];
-    const edge = p.edge || '#0a2a5a';
-    for (const pts of [gem, spike, horn(1), horn(-1), wing(1), wing(-1)]) shapeFill(x, pts, col, edge, a * 0.95, 0.12);
-    x.globalCompositeOperation = 'lighter';
-    fillPoly(x, [[0, -0.2], [0.18, 0.15], [0, 0.7], [-0.18, 0.15]], core, a);
-    for (const pts of [horn(1), horn(-1)]) fillPoly(x, pts.slice(1, 4), core, a * 0.45);
+    x.globalCompositeOperation = 'source-over';
+    // 1 が s×1.2 ドット（前の 紋章と おなじ くらいの 大きさ）
+    const u = s * 1.2;
+    x.scale(u, u);
+    drawDragonCrest(x, { fill: p.color || '#5ad0ff', core: p.core || '#ffffff', edge: p.edge || '#0a2a5a', a: a * 0.95, lw: Math.max(0.07, 0.9 / u), simple: crestSimple(u) });
     x.restore();
   },
-  // ロトの しるし（金の 鳥。つばさを 上に ひろげる）。flap … はばたき
+  // ロトの しるし（金の 不死鳥。つばさを 上に ひろげ、しっぽは 3つに ひらく。むねに 赤い 石）。flap … はばたき
+  // 第72回: かたちは crest-shapes.js
   g4Loto(x, p) {
     const a = envOf(p, 140, 260) * (p.alpha ?? 1);
     if (a <= 0) return;
@@ -384,23 +381,11 @@ export const AX_G4_FINE = {
     x.translate(cx, cy);
     x.globalCompositeOperation = 'lighter';
     softGlow(x, 0, 0, s * 3.2, p.glow || col, a * 0.75);
-    x.scale(s, s);
-    for (const sx of [1, -1]) {
-      for (let f = 0; f < 4; f++) {
-        const an = (-0.35 - f * 0.32 - fl) * sx;
-        const L = 1.6 - f * 0.18;
-        const bx = 0.15 * sx, by = -0.1 + f * 0.08;
-        const tx = bx + Math.sin(an) * L, ty = by - Math.cos(an) * L * 0.95;
-        const nx = Math.cos(an) * 0.2 * sx, ny = Math.sin(an) * 0.2;
-        shapeFill(x, [[bx, by], [lerp(bx, tx, 0.5) + nx * sx, lerp(by, ty, 0.5) + ny], [tx, ty], [lerp(bx, tx, 0.55) - nx * sx * 0.5, lerp(by, ty, 0.55) - ny * 0.5]], f % 2 ? core : col, p.edge || '#6a3a00', a * (0.95 - f * 0.08), 0.07);
-      }
-    }
-    // からだ・あたま・くちばし・しっぽ
-    const ed = p.edge || '#6a3a00';
-    for (const k of [-1, 0, 1]) shapeFill(x, [[0, 0.6], [0.12 + k * 0.32, 1.5 - Math.abs(k) * 0.15], [k * 0.32 - 0.1, 1.42 - Math.abs(k) * 0.15]], k ? col : core, ed, a * 0.95, 0.07);
-    shapeFill(x, [[0, -0.55], [0.25, -0.1], [0.18, 0.55], [0, 0.75], [-0.18, 0.55], [-0.25, -0.1]], col, ed, a, 0.08);
-    x.globalAlpha = a; x.fillStyle = core; ell(x, 0, -0.72, 0.2, 0.22); x.fill(); x.lineWidth = 0.07; x.strokeStyle = ed; x.stroke();
-    shapeFill(x, [[0, -0.95], [0.1, -1.12], [-0.02, -1.05]], col, ed, a, 0.05);
+    x.globalCompositeOperation = 'source-over';
+    // 1 が s×1.5 ドット（前の 鳥と おなじ くらいの 大きさ）
+    const u = s * 1.5;
+    x.scale(u, u);
+    drawRotoCrest(x, { fill: col, core, edge: p.edge || '#6a3a00', gem: p.gem || '#e8303a', flap: fl, a, lw: Math.max(0.05, 0.8 / u), simple: crestSimple(u) });
     x.restore();
   },
   // 竜の あたま（よこがお。ang の むきに 口を あける）。open … あごの ひらき（0〜1）

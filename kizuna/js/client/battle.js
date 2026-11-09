@@ -1,106 +1,106 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=1a37ffd1421f';
-import { FAV_FULL_TEXT, favFull } from '../shared/favorites.js?v=1a37ffd1421f';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=1a37ffd1421f';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=ee4fab959d09';
+import { FAV_FULL_TEXT, favFull } from '../shared/favorites.js?v=ee4fab959d09';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=ee4fab959d09';
 // 第33回: 技の 名前は 使う 人 むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=1a37ffd1421f';
-import { ITEMS } from '../shared/data/items.js?v=1a37ffd1421f';
-import { JOBS } from '../shared/data/jobs.js?v=1a37ffd1421f';
-import { jobShort } from '../shared/job-label.js?v=1a37ffd1421f';
-import { MONSTERS } from '../shared/data/monsters.js?v=1a37ffd1421f';
+import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=ee4fab959d09';
+import { ITEMS } from '../shared/data/items.js?v=ee4fab959d09';
+import { JOBS } from '../shared/data/jobs.js?v=ee4fab959d09';
+import { jobShort } from '../shared/job-label.js?v=ee4fab959d09';
+import { MONSTERS } from '../shared/data/monsters.js?v=ee4fab959d09';
 // 第67回 B: モンスター闘技場で 家族の 色ちがいの 仲間が 敵の がわに 出る 時（まだ とうろく されていない 色ちがい）
-import { ensureVariantId } from '../shared/data/variants.js?v=1a37ffd1421f';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=1a37ffd1421f';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=1a37ffd1421f';
+import { ensureVariantId } from '../shared/data/variants.js?v=ee4fab959d09';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=ee4fab959d09';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=ee4fab959d09';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=1a37ffd1421f';
-import { TACTICS } from '../shared/ai.js?v=1a37ffd1421f';
-import { faceURL } from './field.js?v=1a37ffd1421f';
-import { monsterCanvas, monsterFine } from './render/monsters.js?v=1a37ffd1421f';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=1a37ffd1421f';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=1a37ffd1421f';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=1a37ffd1421f';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=1a37ffd1421f';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=1a37ffd1421f';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=ee4fab959d09';
+import { TACTICS } from '../shared/ai.js?v=ee4fab959d09';
+import { faceURL } from './field.js?v=ee4fab959d09';
+import { monsterCanvas, monsterFine } from './render/monsters.js?v=ee4fab959d09';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=ee4fab959d09';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=ee4fab959d09';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=ee4fab959d09';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=ee4fab959d09';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=ee4fab959d09';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=1a37ffd1421f';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=1a37ffd1421f';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=1a37ffd1421f';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=ee4fab959d09';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=ee4fab959d09';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=ee4fab959d09';
 // 第33回の 11この 職業の 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=1a37ffd1421f';
+import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=ee4fab959d09';
 // 第40回の 伝説の 職業 2つの 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { JOB8_SFX, JOB8_HIT, PARTY_ANIMS8 } from './render/battlefx-jobs8.js?v=1a37ffd1421f';
+import { JOB8_SFX, JOB8_HIT, PARTY_ANIMS8 } from './render/battlefx-jobs8.js?v=ee4fab959d09';
 // 第41回 B の 雪の女王・第5のせいれいの 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { R41B_SFX, R41B_HIT, PARTY_ANIMS_R41B } from './render/battlefx-r41b.js?v=1a37ffd1421f';
+import { R41B_SFX, R41B_HIT, PARTY_ANIMS_R41B } from './render/battlefx-r41b.js?v=ee4fab959d09';
 // 第41回 A の 伝説の 職業 2つの 技（京急の社長・野球界の殿堂入り）
-import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js?v=1a37ffd1421f';
+import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js?v=ee4fab959d09';
 // 第43回の 配管工・ひげおやじ・マリオ（ももの姫・おてんば姫・ピーチ）の 技
-import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js?v=1a37ffd1421f';
+import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js?v=ee4fab959d09';
 // 第66回 B班の 伝説の 職業 4つ（ニューカワイイ・SMAP・大御所・五つ星シェフ）の 技
-import { R66B_SFX, R66B_HIT } from './render/battlefx-r66b.js?v=1a37ffd1421f';
+import { R66B_SFX, R66B_HIT } from './render/battlefx-r66b.js?v=ee4fab959d09';
 // 第66回 A: 4つの 伝説の 職業の 技（render/battlefx-r66a.js。みかたに かける 技は 前から ある えんしゅつ）
-import { R66A_SFX, R66A_HIT } from './render/battlefx-r66a.js?v=1a37ffd1421f';
+import { R66A_SFX, R66A_HIT } from './render/battlefx-r66a.js?v=ee4fab959d09';
 // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方）の 技の 音・あたる じかん・みかたの えんしゅつ
-import { R66C_SFX, R66C_HIT, PARTY_ANIMS_R66C } from './render/battlefx-r66c.js?v=1a37ffd1421f';
+import { R66C_SFX, R66C_HIT, PARTY_ANIMS_R66C } from './render/battlefx-r66c.js?v=ee4fab959d09';
 // 第66回 D班の 伝説の 職業 5つの 技（render/battlefx-r66d.js。どれも 敵に あたる 技なので みかたの えんしゅつの 表は ない）
-import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js?v=1a37ffd1421f';
+import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js?v=ee4fab959d09';
 // 第66回 E1班の 技の 音・あたる じかん（render/battlefx-r66e1.js。みかたに 出す 物は ない）
-import { R66E1_SFX, R66E1_HIT } from './render/battlefx-r66e1.js?v=1a37ffd1421f';
+import { R66E1_SFX, R66E1_HIT } from './render/battlefx-r66e1.js?v=ee4fab959d09';
 // 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
-import { R66E2_SFX, R66E2_HIT, PARTY_ANIMS_R66E2 } from './render/battlefx-r66e2.js?v=1a37ffd1421f';
+import { R66E2_SFX, R66E2_HIT, PARTY_ANIMS_R66E2 } from './render/battlefx-r66e2.js?v=ee4fab959d09';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
-import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js?v=1a37ffd1421f';
-import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js?v=1a37ffd1421f';
+import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js?v=ee4fab959d09';
+import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js?v=ee4fab959d09';
 // 第48回の 大技エンジン（ためる → はなつ。render/axfx.js）: 時間は axTiming、ダメージの 数は はなって あたった ときに
-import { axTiming, axHoldMs, axAllyFx, axIsParty, axEventAnim, axEventOpts, axEnemyPose, axDef } from './render/axfx.js?v=1a37ffd1421f';
+import { axTiming, axHoldMs, axAllyFx, axIsParty, axEventAnim, axEventOpts, axEnemyPose, axDef } from './render/axfx.js?v=ee4fab959d09';
 // 大技の 前に 見せる ひらめきの 時間（サーバーの 待ち時間と おなじ 数。shared/ax-time.js）
-import { AX_HIRA_PRE_MS } from '../shared/ax-time.js?v=1a37ffd1421f';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=1a37ffd1421f';
-import { targetTag } from './ui/info.js?v=1a37ffd1421f';
+import { AX_HIRA_PRE_MS } from '../shared/ax-time.js?v=ee4fab959d09';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=ee4fab959d09';
+import { targetTag } from './ui/info.js?v=ee4fab959d09';
 // 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
-import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js?v=1a37ffd1421f';
-import { battleSkillText, battleItemText, favHint, favKeyHint } from './ui/skillinfo.js?v=1a37ffd1421f';
+import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js?v=ee4fab959d09';
+import { battleSkillText, battleItemText, favHint, favKeyHint } from './ui/skillinfo.js?v=ee4fab959d09';
 // 第35回: 技えらびの タブ（効果ごと）
-import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js?v=1a37ffd1421f';
+import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js?v=ee4fab959d09';
 // 第69回: 技の ならび（弱い じゅん。職業の ほせい なし）
-import { sortByStdPower } from '../shared/skill-sort.js?v=1a37ffd1421f';
-import './ui/r69-css.js?v=1a37ffd1421f';
-import './ui/r35-css.js?v=1a37ffd1421f';
-import { bindBattlePad } from './battle-pad.js?v=1a37ffd1421f';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=1a37ffd1421f';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=1a37ffd1421f';
-import { ResultSheet } from './ui/result.js?v=1a37ffd1421f';
-import { paintRare } from './ui/rarity.js?v=1a37ffd1421f';
+import { sortByStdPower } from '../shared/skill-sort.js?v=ee4fab959d09';
+import './ui/r69-css.js?v=ee4fab959d09';
+import './ui/r35-css.js?v=ee4fab959d09';
+import { bindBattlePad } from './battle-pad.js?v=ee4fab959d09';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=ee4fab959d09';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=ee4fab959d09';
+import { ResultSheet } from './ui/result.js?v=ee4fab959d09';
+import { paintRare } from './ui/rarity.js?v=ee4fab959d09';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=1a37ffd1421f';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=ee4fab959d09';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=1a37ffd1421f';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=ee4fab959d09';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=1a37ffd1421f';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=ee4fab959d09';
 // 第5章 Step 4 の ガイアイーター（部位の え・音。battle-gaia.js）
-import { gaiaSprite, GAIA_SFX } from './battle-gaia.js?v=1a37ffd1421f';
+import { gaiaSprite, GAIA_SFX } from './battle-gaia.js?v=ee4fab959d09';
 // 第5章 Step 5 の ノクトの影（まねた 人の 影を かさねた え。battle-nocto.js）
-import { noctoSprite, NOCTO_SFX } from './battle-nocto.js?v=1a37ffd1421f';
+import { noctoSprite, NOCTO_SFX } from './battle-nocto.js?v=ee4fab959d09';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（音・コマンド「手をのばす」。battle-earth.js）
-import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js?v=1a37ffd1421f';
+import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js?v=ee4fab959d09';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（音・コマンド「よびかける」「家族のきずな技」。battle-final.js）
-import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js?v=1a37ffd1421f';
+import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js?v=ee4fab959d09';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
-import { PHANTOM_SFX } from './battle-phantom.js?v=1a37ffd1421f';
+import { PHANTOM_SFX } from './battle-phantom.js?v=ee4fab959d09';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
-import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js?v=1a37ffd1421f';
+import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js?v=ee4fab959d09';
 // 第2部 第6章 Step 3・4 の 魔物と 星くいのよる鳥・ペンデュラの 音（battle-road.js。前ぶれの バナーは CH6_OWN_TELE に 入っている）
-import { ROAD_SFX } from './battle-road.js?v=1a37ffd1421f';
+import { ROAD_SFX } from './battle-road.js?v=ee4fab959d09';
 // 第2部 第6章 Step 5 の 時計塔の 魔物と カリヨンの 音（battle-tokei.js）
-import { TOKEI_SFX } from './battle-tokei.js?v=1a37ffd1421f';
+import { TOKEI_SFX } from './battle-tokei.js?v=ee4fab959d09';
 // 第2部 第6章 Step 6 の 魔物・ゼンマイ・リオンの けいこの 音と、リオンの 人の 絵（battle-tokei6.js）
-import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js?v=1a37ffd1421f';
+import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js?v=ee4fab959d09';
 // 第2部 第7章 第3幕: マレフィナが 黒い 竜に なった あとの え（battle-c7i.js）
-import { c7iSprite, C7I_SFX } from './battle-c7i.js?v=1a37ffd1421f';
+import { c7iSprite, C7I_SFX } from './battle-c7i.js?v=ee4fab959d09';
 // 第2部 第7章 第1幕 の 魔物・ウツボきょうだい・オクタリア・カリムの 音（battle-c7.js）
-import { C7_SFX } from './battle-c7.js?v=1a37ffd1421f';
+import { C7_SFX } from './battle-c7.js?v=ee4fab959d09';
 // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・カイの 音（battle-c7s.js）
-import { C7S_SFX } from './battle-c7s.js?v=1a37ffd1421f';
+import { C7S_SFX } from './battle-c7s.js?v=ee4fab959d09';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -794,7 +794,9 @@ export class BattleScene {
     const a = this.myActor;
     // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
     // pow: 今の 魔力（呪文の ダメージの 目安。第50回 N1）
-    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon, pow: a.pow };
+    // partyHp: 味方 みんなの 今の HP（元気玉の 目安。第72回 shared/skill-power.js の powStats）
+    const partyHp = this.allies().filter((x) => x.alive).map((x) => x.hp || 0);
+    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon, pow: a.pow, partyHp };
     const silenced = (a.status || []).includes('silence');
     // わかっている 弱点（この 戦いの 敵で、図鑑・この 戦いで ためして わかった 物だけ）
     const foes = this.enemies().filter((e) => e.alive);
@@ -1282,6 +1284,13 @@ export class BattleScene {
       if (!t) continue;
       this.floatNum(t, `+${r.heal}`, 'heal');
       if (t.side === 'ally') this.glowStatus(t.id, '#8ff0a8');
+    }
+    // 第72回: 元気玉で HPを 出した 人（小さい 水色の 数・まどが 光る。shared/battle-genki.js）
+    for (const r of ev.genki || []) {
+      const t = this.c.get(r.id);
+      if (!t) continue;
+      this.floatNum(t, `-${r.hp}`, 'genki');
+      if (t.side === 'ally') this.glowStatus(t.id, '#a8e4ff');
     }
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};

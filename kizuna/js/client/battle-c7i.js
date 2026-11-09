@@ -6,9 +6,9 @@
 //   影の まわりに 白い 光の わ（ブーメランまでの 数）
 // ・バナー: のろいの 前ぶれ・ねむった・はね返した／かべを こわした・また はえた／変身・いきの 前ぶれ・いき／ねらった・ブーメランの 前ぶれ・はね返した・当たった
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c7s.js から client/battle-ch4.js・client/battle.js に まぜる）
-import { C7_WITCH, C7_SHADOW } from '../shared/data/monsters-c7i.js?v=1a37ffd1421f';
-import { monsterCanvas } from './render/monsters.js?v=1a37ffd1421f';
-import { el } from './ui/dom.js?v=1a37ffd1421f';
+import { C7_WITCH, C7_SHADOW } from '../shared/data/monsters-c7i.js?v=ee4fab959d09';
+import { monsterCanvas } from './render/monsters.js?v=ee4fab959d09';
+import { el } from './ui/dom.js?v=ee4fab959d09';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c7s.js の C7S_OWN_TELE に まぜる）
 export const C7I_OWN_TELE = [C7_WITCH, C7_SHADOW];
