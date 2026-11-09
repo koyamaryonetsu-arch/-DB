@@ -216,7 +216,7 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 - 「🌐 公式サイトで確かめる」: /api/theater-ai task=verify（Opus＋web_fetch で各社の劇場一覧）→ 無い劇場は theaters.hidden=true（SETUP_THEATER_VERIFY.sql）。人が「隠すのをやめる」と hidden_reason が「人が戻した…」になり、以後は隠さない
   - AI（web_fetch＋web_search。そのサイトの中だけ）は official_list（公式の劇場名）も返す。AI が「無い」と言っても placeCore（会社名・空白を取った場所の名前）が公式の一覧と含まれ合えば「ある」とみなす
   - 前に AI が自動で隠した劇場（hidden_reason が「公式サイトに無い: 」）を今回 AI が unknown と答えたら、一度戻して suspect に出す。今回も closed なら kept（隠したまま）として画面に出す。人が隠した劇場は理由も変えない
-  - 場所の名前がぴったり同じ公式の劇場があれば、AI が「閉館」と言っても exists。unknown でも公式の一覧に同じ場所があれば exists
+  - 場所の名前がぴったり同じ公式の劇場があれば、AI が「閉館」と言っても exists。一部だけ合う（「名古屋」と「名古屋栄」）時は別の劇場のこともあるので、closed を unknown にするだけ（隠さない・official_name も入れない）
   - 公式の一覧が取れない時は site_ok=false（何も変えない）。「無い」が max(3, 15%) を超えたら自動では隠さず suspect で返す（前に AI が自動で隠した分も一度戻す）→ ダイアログで人がチェックして task=verify-hide で隠す
 - 「🙈 劇場を選んで隠す」（#tiHidePickBtn）: 今の会社の劇場にチェックを入れて隠す（AI なし）。hidden_reason は「人が隠した: 理由」→ 公式サイトで確かめても勝手には戻らない
 - 公式サイトの一覧には、会社名の冠が付かない提携の劇場（例: 札幌シネマフロンティア）も入れるよう AI に頼む。名前が違う劇場は renamed（アプリの名前 → 公式の名前）で返し、名寄せの候補にする

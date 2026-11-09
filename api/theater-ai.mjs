@@ -392,14 +392,16 @@ async function runVerify(body) {
   // 公式サイトの一覧がほとんど取れていない時は、読めなかったのと同じ扱い
   const siteOk = !!d.site_ok && official.length >= Math.min(3, rows.length);
   const byName = {}; (d.theaters || []).forEach((t) => { if (t && t.name) byName[t.name] = t; });
-  // 公式の一覧に場所の名前が同じ劇場があれば「ある」とみなす（書き方の違いで隠さない）
+  // 公式の一覧と場所の名前で見比べる（書き方の違いで隠さない）
   //   ・場所の名前がぴったり同じ（「名古屋ベイシティ」と「TOHOシネマズ名古屋ベイシティ」）→ AI が何と言っても「ある」
-  //   ・含まれ合う（「宇都宮インターパーク」と「宇都宮」）→ AI が「閉館」と書いていなければ「ある」
+  //   ・一部だけ合う（「名古屋」と「名古屋栄」、「宇都宮インターパーク」と「宇都宮」）→ 別の劇場のこともあるので、
+  //     「無い」とは決めない（隠さない）が「ある」とも決めない（分からない。人が見て決める）
   if (siteOk) for (const r of rows) {
     const t = byName[r.name]; if (!t || t.status === 'exists') continue;
     const exact = official.find((o) => placeCore(o).length >= 2 && placeCore(o) === placeCore(r.name));
-    const m = exact || (!/閉館|営業終了|閉鎖/.test(t.reason || '') ? officialMatch(r.name, official) : '');
-    if (m) Object.assign(t, { status: 'exists', official_name: m, reason: '公式の一覧に同じ場所の劇場がある: ' + m });
+    if (exact) { Object.assign(t, { status: 'exists', official_name: exact, reason: '公式の一覧に同じ名前の劇場がある: ' + exact }); continue; }
+    const part = t.status === 'closed' && !/閉館|営業終了|閉鎖/.test(t.reason || '') ? officialMatch(r.name, official) : '';
+    if (part) Object.assign(t, { status: 'unknown', reason: '公式に似た名前の劇場がある（同じか分からない）: ' + part });
   }
   // AI が前に自動で隠した劇場（理由が「公式サイトに無い: 」）も数に入れる。人が隠した・人が戻した劇場は入れない
   const autoHidden = (r) => r.hidden && /^公式サイトに無い: /.test(r.hidden_reason || '');
