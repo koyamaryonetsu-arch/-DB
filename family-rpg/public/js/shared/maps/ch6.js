@@ -17,6 +17,8 @@ import { attachCh6cSide } from './ch6c-side.js';
 import { buildTokeiHighMaps, TH_MAPS, attachTokeiHigh } from './tokei-high.js';
 // 第7章 Step 1・2: 千年前の コガネ地方・緑の王国・みどりの水の神殿（maps/c7.js）
 import { attachCh7 } from './c7.js';
+// 第8章 第1幕: 月の王宮の地下迷宮（maps/c8.js）
+import { attachCh8 } from './c8.js';
 
 // 第6章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH6_MAPS = [...PAST_MAPS, ...SHRINE_MAPS, ...RUIN_MAPS];
@@ -46,4 +48,6 @@ export function attachCh6(maps) {
   attachTokeiHigh(maps);
   // 第7章 Step 1・2: 千年前の コガネ地方・みどりの水の神殿（今の コガネ地方を 作った あと）
   attachCh7(maps);
+  // 第8章 第1幕: 月の王宮の地下迷宮・緑の王国と 王都サファラの 入口（第7章の マップを 作った あと）
+  attachCh8(maps);
 }

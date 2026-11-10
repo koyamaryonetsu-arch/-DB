@@ -17,6 +17,8 @@ import { c7sSubQuests, c7sDoneQuests } from './sidequests-c7s.js';
 import { c7iSubQuests, c7iDoneQuests } from './sidequests-c7i.js';
 // 第73回 D班: 第8章 第1幕の 千年前の 緑の王国の より道 2つ（sidequests-c8d.js）も ここから クエストの 画面と だいほんへ
 import { c8dSubQuests, c8dDoneQuests, applyC8dSide } from './sidequests-c8d.js';
+// 第8章 第1幕の 時をこえる手紙（緑の王国の まわり。sidequests-c8a.js）も ここから
+import { c8aSubQuests, c8aDoneQuests } from './sidequests-c8a.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -121,6 +123,7 @@ export function c7SubQuests(c, f) {
   out.push(...c7sSubQuests(c, f));
   out.push(...c7iSubQuests(c, f));
   out.push(...c8dSubQuests(c, f));
+  out.push(...c8aSubQuests(c, f));
   for (const k of LETTER_SIDE) {
     if (!f(LETTER.start(k)) || f(LETTER.found(k))) continue;
     if (!f(LETTER.bury(k))) out.push({ name: letterName(k), who: LETTER_ASKERS[k], find: `c7_bury_${k}`, ready: false, text: `千年前の${LETTER_PLACES[k]}で、いっしょにうめよう`, hint: `千年前の${LETTER_PLACES[k]}で、手紙をうめる場所は、地図のしるしの所。` });
@@ -129,7 +132,7 @@ export function c7SubQuests(c, f) {
   return out;
 }
 export function c7DoneQuests(c) {
-  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c), ...c8dDoneQuests(c)];
+  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c), ...c8dDoneQuests(c), ...c8aDoneQuests(c)];
 }
 
 // ───── だいほんを まぜる（story-c7.js の applyCh7 から）─────

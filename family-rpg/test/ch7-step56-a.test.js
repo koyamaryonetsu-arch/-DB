@@ -359,7 +359,8 @@ test('目標: 第2幕クリアの セーブは 新しい 目標に なおる・�
     assert.ok(CH7_OBJECTIVE_TALK[t], `仲間会話 ${k}`);
     for (const kind of ['self', 'bold', 'kind', 'kid']) assert.ok(talkFor(t, kind) !== `次は「${t.replace(/\n/g, '')}」ですね。`, `${k} ${kind}`);
   }
-  assert.ok(C7I_OBJ.clear.startsWith('第7章クリア！') && C7I_OBJ.clear.includes('第8章') && C7I_OBJ.clear.includes('続きはアップデートで！'));
+  // 第8章 第1幕（第73回）から: 第7章クリアの 文は トキネへ（前の 文は OLD_C7_OBJ.clear。test/ch8-step12-a.test.js）
+  assert.ok(C7I_OBJ.clear.startsWith('第7章クリア！') && C7I_OBJ.clear.includes('第8章') && C7I_OBJ.clear.includes('トキネ'));
   // 地図の しるし（その 時代の マップだけ）
   const mark = (obj, map, extra = []) => questMarks({ flags: flagsOf(...extra), objective: obj }, map).filter((m) => m.kind === 'main');
   const Bx = C7IC_POS[5].box;
@@ -645,7 +646,7 @@ test('通しで: c7_kai → トキネ → 千年前の シロガネ → 白雪�
   assert.deepEqual(f2, ['c7_shadow']);
   assert.ok(c.flags[WIN7I] && c.flags[DRAGON7I] && c.flags[C7I.clear], 'c7_clear');
   assert.equal(c.objective, C7I_OBJ.clear);
-  for (const t of ['ノクト', 'ひとりじゃない', 'ソリトゥスのかけら', '竜守りの里', '第7章クリア！', '第8章　千年の約束へ（続きはアップデートで！）']) assert.ok(said(bot, t), t);
+  for (const t of ['ノクト', 'ひとりじゃない', 'ソリトゥスのかけら', '竜守りの里', '第7章クリア！', '第8章「千年の約束」へ　つづく', '今のほしみの丘で、待っているわね']) assert.ok(said(bot, t), t);
   for (const who of ['リオン', 'ミナモ', 'カリム', 'カイ']) assert.ok(said(bot, `"${who}"`), `4人が そろう 場面: ${who}`);
   assert.equal(bot.s.map, C7I_SNOW, 'さいごは 白雪の里');
   assert.ok((c.items || []).some((e) => e.id === 'dragon_scale'), '氷の竜の うろこ');

@@ -10,6 +10,7 @@ import { CH4_PROGRESS } from './story-ch4.js';
 import { CH5_PROGRESS } from './story-ch5.js';
 import { CH6_PROGRESS, ch6StaleObjective } from './story-ch6.js';
 import { CH7_PROGRESS } from './story-c7.js';
+import { CH8_PROGRESS } from './story-c8.js';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [
@@ -43,6 +44,7 @@ const PROGRESS = [
   ...CH5_PROGRESS,
   ...CH6_PROGRESS,
   ...CH7_PROGRESS,
+  ...CH8_PROGRESS,
 ];
 
 // 今の 版に ある 目標の 文
