@@ -1,7 +1,7 @@
 // 第5章 Step 2「星の塔」の 魔物と 星の番人アルゴスの え（shared/data/monsters-ch5.js）
 // render/monsters.js が addCh5Art を よぶ。かきかたは monsters.js・ch3-art.js と おなじ
 // （g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { fit, bez, taper, spark } from './ch3-draw.js?v=c6a25f593e36';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=4a9d4e3fbaab';
 
 // ───── 石のガーゴイル ─────
 const GARG = {

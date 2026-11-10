@@ -21,14 +21,14 @@
 //   小おに … 相談の 間は いちばん 大きい 1回の 攻撃を 1ぴきに 当てる（b.c8bNoPlot … しない）・パニックの 小おにを ねらう・2ひきの HP を
 //     そろえて へらす（HP の 多い ほうを ねらう。b.c8bNoOrder … しない）・大がったいの 前に 身を 守る（b.c6NoGuard）
 //   ハデロス … けいやくの 間は 炎を 当てる（b.c8bNoBurn）・ふん火の 前ぶれに 氷を 当てる（b.c8bNoChill）・大ふん火の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=c6a25f593e36';
-import { ABILITIES } from './data/abilities.js?v=c6a25f593e36';
-import { C8_PAIN, C8_PANIC, C8_HADES, HADES_BLUE, HADES_RED, RED_ACTIONS } from './data/monsters-c8b.js?v=c6a25f593e36';
-import { BUFF_ACTS } from './buff-acts.js?v=c6a25f593e36';
+import { MONSTERS } from './data/monsters.js?v=4a9d4e3fbaab';
+import { ABILITIES } from './data/abilities.js?v=4a9d4e3fbaab';
+import { C8_PAIN, C8_PANIC, C8_HADES, HADES_BLUE, HADES_RED, RED_ACTIONS } from './data/monsters-c8b.js?v=4a9d4e3fbaab';
+import { BUFF_ACTS } from './buff-acts.js?v=4a9d4e3fbaab';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=c6a25f593e36';
-import { canUse } from './ai.js?v=c6a25f593e36';
-import { AUTO_GUARD } from './battle-ch6.js?v=c6a25f593e36';
+import { atbRate } from './battle.js?v=4a9d4e3fbaab';
+import { canUse } from './ai.js?v=4a9d4e3fbaab';
+import { AUTO_GUARD } from './battle-ch6.js?v=4a9d4e3fbaab';
 
 export { C8_PAIN, C8_PANIC, C8_HADES };
 export const FUSE = 'm8i_fuse';
@@ -63,7 +63,7 @@ export function hadesConf(m) {
     contract: { every: 4, turns: 2, drain: 0.12, heal: 0.008, soulHeal: 0.04, ...(c.contract || {}) },
     p2At: c.p2At ?? 0.5,
     red: { atk: 1.08, ...(c.red || {}) },
-    erupt: { every: 3, p3At: 0.2, p3Every: 2, base: [380, 410], ...(c.erupt || {}) },
+    erupt: { every: 3, p3At: 0.2, p3Every: 2, base: [380, 410], chillAt: 1, ...(c.erupt || {}) },
   };
 }
 const short = (m) => MONSTERS[m?.species]?.short || m?.name || '';
@@ -86,7 +86,8 @@ const eruptEvery = (c) => {
   return c.hp / c.maxHp < e.p3At ? e.p3Every : e.every;
 };
 // ふん火の 前ぶれ（しるし のこり 1。次の 番が ふん火）
-export const eruptSoon = (h) => !!h?.c8hd && h.c8hd.form === 2 && !h.c8hd.cool && h.c8hd.left <= 1;
+//   （しるし のこり erupt.chillAt いか … かみの 毛が 高く もえて いる 間は 氷で ひやせる）
+export const eruptSoon = (h) => !!h?.c8hd && h.c8hd.form === 2 && !h.c8hd.cool && h.c8hd.left <= hadesConf(h).erupt.chillAt;
 // けいやくされて いる 人
 export function bound(b, h = hadesOf(b)) {
   const id = h?.c8hd?.contract?.id;
@@ -232,6 +233,8 @@ function hadesTurn(b, c, ev, stuck) {
     if (!stuck) c.telegraph = ERUPT;
   } else {
     h.left--;
+    const ca = hadesConf(c).erupt.chillAt;
+    if (h.left === ca && ca > 1) ev.lines.push(`${c.name}のかみの毛が、ぐんぐん高くなってきた…！`, '（もうすぐ、よみの大ふん火…！今のうちに、氷で頭をひやせ！）');
     if (h.left === 1) ev.lines.push(`${c.name}のかみの毛が、ごうごうと、高くもえ上がった…！`, '（次にハデロスが動くと、よみの大ふん火…！氷で頭をひやすか、身を守れ！）');
     ev.c8bEruptLeft = { id: c.id, left: h.left, every: eruptEvery(c) };
   }

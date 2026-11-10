@@ -3,30 +3,30 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=c6a25f593e36';
-import { T } from '../../shared/tiles.js?v=c6a25f593e36';
-import { effectiveTile } from '../../shared/maps/index.js?v=c6a25f593e36';
-import { pyramidLevel } from '../../shared/maps/south.js?v=c6a25f593e36';
-import { hash2, valueNoise } from '../../shared/rng.js?v=c6a25f593e36';
+import * as THREE from '../../../vendor/three.min.js?v=4a9d4e3fbaab';
+import { T } from '../../shared/tiles.js?v=4a9d4e3fbaab';
+import { effectiveTile } from '../../shared/maps/index.js?v=4a9d4e3fbaab';
+import { pyramidLevel } from '../../shared/maps/south.js?v=4a9d4e3fbaab';
+import { hash2, valueNoise } from '../../shared/rng.js?v=4a9d4e3fbaab';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=c6a25f593e36';
-import { tileCanvas } from './tiles.js?v=c6a25f593e36';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=c6a25f593e36';
+} from './tex3d.js?v=4a9d4e3fbaab';
+import { tileCanvas } from './tiles.js?v=4a9d4e3fbaab';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=4a9d4e3fbaab';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=c6a25f593e36';
+import { whirlCanvas } from './tiles-duna.js?v=4a9d4e3fbaab';
 // 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
-import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=c6a25f593e36';
-import { labBlockSpec } from './tiles-lab.js?v=c6a25f593e36';
-import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=c6a25f593e36';
-import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=c6a25f593e36';
-import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=c6a25f593e36';
-import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=c6a25f593e36';
-import { CASTLE_FLOOR_H } from './tiles-castle.js?v=c6a25f593e36';
-import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js?v=c6a25f593e36';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=c6a25f593e36';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=c6a25f593e36';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=c6a25f593e36';
+import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=4a9d4e3fbaab';
+import { labBlockSpec } from './tiles-lab.js?v=4a9d4e3fbaab';
+import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=4a9d4e3fbaab';
+import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=4a9d4e3fbaab';
+import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=4a9d4e3fbaab';
+import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=4a9d4e3fbaab';
+import { CASTLE_FLOOR_H } from './tiles-castle.js?v=4a9d4e3fbaab';
+import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js?v=4a9d4e3fbaab';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=4a9d4e3fbaab';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=4a9d4e3fbaab';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=4a9d4e3fbaab';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);

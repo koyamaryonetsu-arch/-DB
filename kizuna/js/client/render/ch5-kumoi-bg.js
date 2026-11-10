@@ -5,7 +5,7 @@
 //   ゆかは 少し かたむいた 石だたみ（島が かたむいている）
 // ・sink_ruin_deep（deco 'sruin_deep'）… 神殿の 下の 階・雲が 入った 所・ガイアイーターの 広間: くらい 石の かべ・太い 根・
 //   われめから 雲の きりが ながれこむ。ゆかは われた 石と 白い きり
-import { mix } from './pixel.js?v=c6a25f593e36';
+import { mix } from './pixel.js?v=4a9d4e3fbaab';
 
 const BW = 256, BH = 144;
 

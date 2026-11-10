@@ -10,12 +10,12 @@
 //   ふつうの オートは、かねが 自分の 次の 番より 先に 鳴る とき、HPが へっていれば よく 身を 守る（battle-ch6.js の AUTO_GUARD。ほかの ボスと おなじ）
 // ・シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は tokeiKnow
 //   （b.c6NoGuard … しるし 1つで 守らない・b.c6NoBuff … 鳴った あとに 強くしない。しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=c6a25f593e36';
-import { ABILITIES } from './data/abilities.js?v=c6a25f593e36';
-import { CARILLON } from './data/monsters-tokei.js?v=c6a25f593e36';
+import { MONSTERS } from './data/monsters.js?v=4a9d4e3fbaab';
+import { ABILITIES } from './data/abilities.js?v=4a9d4e3fbaab';
+import { CARILLON } from './data/monsters-tokei.js?v=4a9d4e3fbaab';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=c6a25f593e36';
-import { canUse } from './ai.js?v=c6a25f593e36';
+import { atbRate } from './battle.js?v=4a9d4e3fbaab';
+import { canUse } from './ai.js?v=4a9d4e3fbaab';
 
 export { CARILLON };
 export const BELL = 'm6t_cr_bell';

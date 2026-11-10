@@ -6,13 +6,13 @@
 //  3) かべの ふちを すこし けずって 洞窟らしく（ゆかを ふやす だけ なので つながりは こわれない）
 //  4) のぼり階段の へや → いちばん 遠い へやに くだり階段（さいごの 階は 主の 大広間）
 //  5) 宝箱・水たまり（ようがん）・水晶・がれき・たいまつ。置くたびに ぜんぶの ゆかへ 行けるか たしかめる
-import { T } from '../tiles.js?v=c6a25f593e36';
-import { makeRng, hash2 } from '../rng.js?v=c6a25f593e36';
-import { npc } from './npc.js?v=c6a25f593e36';
-import { MONSTERS } from '../data/monsters.js?v=c6a25f593e36';
+import { T } from '../tiles.js?v=4a9d4e3fbaab';
+import { makeRng, hash2 } from '../rng.js?v=4a9d4e3fbaab';
+import { npc } from './npc.js?v=4a9d4e3fbaab';
+import { MONSTERS } from '../data/monsters.js?v=4a9d4e3fbaab';
 import {
   parseFloorId, caveInfo, floorMapId, enemyLvOf, clearedFlag, chestPrefix, chestLoot, ensureEncounterTable, TM_THEMES, tmCavePow,
-} from '../data/treasure.js?v=c6a25f593e36';
+} from '../data/treasure.js?v=4a9d4e3fbaab';
 
 const WALK = new Set([T.CAVE_FLOOR, T.RUBBLE, T.BOSS_FLOOR, T.STAIRS_UP, T.STAIRS_DOWN]);
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];

@@ -5,7 +5,7 @@
 // a6z_collapse（時の大ほうかい）は がめんいっぱいの 大時計（とくべつな つぶ zclock）→ 針が 12時に かさなって ひびわれ →
 //   ガラスと 歯車が とびちる。a6z_bell（ゼンマイの 時のかね）・a6z_spring・a6z_shadow・a6z_alarm も がめんの まん中に 大きく（client/battle-tokei6.js）
 // 第2部 第7章 第1幕 の エフェクト（ここの さいごから よぶ）
-import { playC7Fx } from './battlefx-c7.js?v=c6a25f593e36';
+import { playC7Fx } from './battlefx-c7.js?v=4a9d4e3fbaab';
 
 const BRASS = ['#d8a040', '#f0d080', '#8a6a3a', '#ffffff'];
 const SHADOW = ['#6a3ab8', '#b088ff', '#2a1440', '#f0d080'];

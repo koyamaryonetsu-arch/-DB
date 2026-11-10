@@ -2,10 +2,10 @@
 //   ばしょ（1〜12）を えらぶ →「ことばを選ぶ」（なかまわけの 一覧）・「自分で書く」・ひとつ前へ／うしろへ・はずす
 //   「もとにもどす」で はじめの スタンプへ。かえる たびに サーバーへ おくる（menuAction の 'stamps'）
 //   タッチ・マウス・キーボード・コントローラー どれでも（ListMenu・askText・confirmBox）
-import { el, ListMenu, askText, confirmBox } from './dom.js?v=c6a25f593e36';
+import { el, ListMenu, askText, confirmBox } from './dom.js?v=4a9d4e3fbaab';
 import {
   STAMP_SLOTS, STAMP_LEN, STAMP_PRESETS, DEFAULT_STAMPS, stampsOf, cleanStampText, putStamp, dropStamp, moveStamp,
-} from '../../shared/data/stamps.js?v=c6a25f593e36';
+} from '../../shared/data/stamps.js?v=4a9d4e3fbaab';
 
 const Z = 8; // メニューの えらぶ まど（4・5）より 前、たしかめる まど（20）より うしろ
 
