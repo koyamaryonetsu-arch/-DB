@@ -3,23 +3,23 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=b421f4c1530b';
-import { SHOPS_CH2 } from './items-ch2.js?v=b421f4c1530b';
-import { NIGHT_SHOPS } from './night.js?v=b421f4c1530b';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=b421f4c1530b';
-import { SHOPS_CH4 } from './items-ch4.js?v=b421f4c1530b';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=b421f4c1530b';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=b421f4c1530b';
-import { R33_SHOP_ADD } from './items-r33.js?v=b421f4c1530b';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=b421f4c1530b';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=b421f4c1530b';
-import { SHOPS_EARTH } from './shops-earth.js?v=b421f4c1530b';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=c6a25f593e36';
+import { SHOPS_CH2 } from './items-ch2.js?v=c6a25f593e36';
+import { NIGHT_SHOPS } from './night.js?v=c6a25f593e36';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=c6a25f593e36';
+import { SHOPS_CH4 } from './items-ch4.js?v=c6a25f593e36';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=c6a25f593e36';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=c6a25f593e36';
+import { R33_SHOP_ADD } from './items-r33.js?v=c6a25f593e36';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=c6a25f593e36';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=c6a25f593e36';
+import { SHOPS_EARTH } from './shops-earth.js?v=c6a25f593e36';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=b421f4c1530b';
-import { MINAMO_GUEST } from './companions-past.js?v=b421f4c1530b';
-import { RION_GUEST } from './companions-tokei.js?v=b421f4c1530b';
-import { KARIM_GUEST } from './companions-c7.js?v=b421f4c1530b';
-import { KAI_GUEST } from './companions-c7s.js?v=b421f4c1530b';
+import { SHOPS_PAST } from './shops-past.js?v=c6a25f593e36';
+import { MINAMO_GUEST } from './companions-past.js?v=c6a25f593e36';
+import { RION_GUEST } from './companions-tokei.js?v=c6a25f593e36';
+import { KARIM_GUEST } from './companions-c7.js?v=c6a25f593e36';
+import { KAI_GUEST } from './companions-c7s.js?v=c6a25f593e36';
 
 export const SHOPS = {
   village: {
@@ -165,3 +165,5 @@ GUESTS.rion = RION_GUEST;
 GUESTS.karim = KARIM_GUEST;
 // 第2部 第7章 第2幕: 千年前の 海の 小さな 島の 少年 カイ（A が 台本の guest で 入れる。companions-c7s.js）
 GUESTS.kai = KAI_GUEST;
+// 第2部 第8章 第2幕: もう一度 ゲストの カイ（第7章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備）
+GUESTS.kai8 = { ...KAI_GUEST, id: 'guest_kai8', minLevel: 84, gear: { weapon: 'c7h_shadow_boomerang', armor: 'c8bt_soul_robe', head: 'c8bt_temple_helm', acc: 'c8bt_blue_pendant' } };

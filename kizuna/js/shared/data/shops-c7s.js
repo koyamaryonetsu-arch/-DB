@@ -1,7 +1,7 @@
 // 第7章 Step 3・4（A: 世界と物語）「ナギの村」の お店（data/story-c7s.js が SHOPS に まぜる。data/shops.js は かえない）
 // 品ぞろえは 今 ある いちばん 上の 店の 品（第1幕の 緑の王国の 店の 品。B の data/items-c7.js の C7_SHOP_*）。
 // B が 第7章 第2幕の 店の 品を 作ったら、ここの items を かえる。千年前は キメラのつばさが 使えないので 道具屋では 売らない
-import { C7_SHOP_WEAPONS, C7_SHOP_ARMOR, C7_SHOP_TOOLS } from './items-c7.js?v=b421f4c1530b';
+import { C7_SHOP_WEAPONS, C7_SHOP_ARMOR, C7_SHOP_TOOLS } from './items-c7.js?v=c6a25f593e36';
 
 export const SHOPS_C7S = {
   c7s_weapon: {

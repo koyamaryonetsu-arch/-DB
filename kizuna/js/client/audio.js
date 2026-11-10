@@ -1,18 +1,20 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=b421f4c1530b';
-import { SFX_R27 } from './sfx-r27.js?v=b421f4c1530b';
-import { SFX_R29 } from './sfx-r29.js?v=b421f4c1530b';
-import { SFX_R33 } from './sfx-r33.js?v=b421f4c1530b';
-import { SFX_PK } from './sfx-pokemon.js?v=b421f4c1530b';
-import { SFX_DQ } from './sfx-dqm.js?v=b421f4c1530b';
+import { SFX_R26 } from './sfx-r26.js?v=c6a25f593e36';
+import { SFX_R27 } from './sfx-r27.js?v=c6a25f593e36';
+import { SFX_R29 } from './sfx-r29.js?v=c6a25f593e36';
+import { SFX_R33 } from './sfx-r33.js?v=c6a25f593e36';
+import { SFX_PK } from './sfx-pokemon.js?v=c6a25f593e36';
+import { SFX_DQ } from './sfx-dqm.js?v=c6a25f593e36';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=b421f4c1530b';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=b421f4c1530b';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=b421f4c1530b';
-import { EARTH_TRACKS } from './audio-earth.js?v=b421f4c1530b';
-import { CASTLE_TRACKS } from './audio-castle.js?v=b421f4c1530b';
-import { TOP_TRACKS } from './audio-top.js?v=b421f4c1530b';
-import { CH6_TRACKS } from './audio-ch6.js?v=b421f4c1530b';
+import { SFX_AX } from './sfx-ax.js?v=c6a25f593e36';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=c6a25f593e36';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=c6a25f593e36';
+import { EARTH_TRACKS } from './audio-earth.js?v=c6a25f593e36';
+import { CASTLE_TRACKS } from './audio-castle.js?v=c6a25f593e36';
+import { TOP_TRACKS } from './audio-top.js?v=c6a25f593e36';
+import { CH6_TRACKS } from './audio-ch6.js?v=c6a25f593e36';
+// 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
+import { C8B_TRACKS } from './audio-c8b.js?v=c6a25f593e36';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -815,5 +817,7 @@ Object.assign(TRACKS, CASTLE_TRACKS);
 Object.assign(TRACKS, TOP_TRACKS);
 // 第6章 Step 1・2: 千年前の フィールドと 里・時のほこら・時のいせき・ボス・ゼンマイ（audio-ch6.js）
 Object.assign(TRACKS, CH6_TRACKS);
+// 第2部 第8章 第2幕: ペイニックと パニクル（yomi_imps）・よみの王ハデロス（yomi_king）（audio-c8b.js）
+Object.assign(TRACKS, C8B_TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

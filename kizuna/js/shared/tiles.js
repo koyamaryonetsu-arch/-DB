@@ -86,6 +86,9 @@ export const T = {
   // 第2部 第8章 第1幕「月の王宮の地下迷宮」（maps/c8a-palace.js・c8a-field.js・render/tiles-c8a.js）。343 から
   C8A_MIRROR_A: 343, C8A_MIRROR_B: 344, C8A_LIGHT: 345, C8A_DARKBRIDGE: 346, C8A_SANDRIVER: 347, C8A_DUNE: 348,
   C8A_MOONBOX: 349, C8A_MOONGATE: 350, C8A_SHADOWSEAL: 351, C8A_FALL_FLOOR: 352, C8A_SANDFALL: 353, C8A_SLAB: 354,
+  // 第2部 第8章 第2幕「よみの海底神殿」（maps/c8b-temple.js・c8b-sea.js・render/tiles-c8b.js）。355 から
+  C8B_BRAZIER: 355, C8B_BRAZIER_ON: 356, C8B_SPIRITWAY: 357, C8B_VOID: 358, C8B_SEAWATER: 359, C8B_SHELLBOX: 360,
+  C8B_SHELLGATE: 361, C8B_FLAMEWALL: 362, C8B_GEYSER_FLOOR: 363, C8B_GEYSER: 364, C8B_WHIRL: 365, C8B_SHELLDOOR: 366,
 };
 
 export const TILE_INFO = {};
@@ -452,6 +455,20 @@ def(T.C8A_SHADOWSEAL, 'c8a_shadowseal', { solid: true, anim: true, mapColor: '#2
 def(T.C8A_FALL_FLOOR, 'c8a_fall_floor', { mapColor: '#8a7a5a' }); // 砂が ふってくる ゆか（ふっていない 間は 歩ける）
 def(T.C8A_SANDFALL, 'c8a_sandfall', { solid: true, anim: true, mapColor: '#e8c880' }); // ふってくる 砂の 滝（通れない）
 def(T.C8A_SLAB, 'c8a_slab', { solid: true, mapColor: '#8a8aa8' }); // 王の間の 月の もようの 石板（開くと 地下への かいだん）
+// 第8章 第2幕: 青い 火の 台（火の ない 台・ともった 台）・よみの道（光の 中で 見える ゆか・光が ない 所）・千年前の 海の 水・貝の 箱・しおの とびら・
+//   青い ほのおの かべ・青い 火の 柱（ふき出す ゆか・ふき出した 柱）・うずしおの岩場の 青い うず・雲から出てきた島の 貝の もようの 石の とびら
+def(T.C8B_BRAZIER, 'c8b_brazier', { solid: true, mapColor: '#3a4a6a' }); // 火の ない 青い 火の 台（千年前で しらべると 火が ともる）
+def(T.C8B_BRAZIER_ON, 'c8b_brazier_on', { solid: true, anim: true, light: true, mapColor: '#6ad8ff' }); // 青い 火が ともった 台（よみの 火は 千年 消えない）
+def(T.C8B_SPIRITWAY, 'c8b_spiritway', { anim: true, light: true, mapColor: '#8ae0ff' }); // よみの道（青い 火の 光の 中で 見える ゆか。歩ける）
+def(T.C8B_VOID, 'c8b_void', { solid: true, anim: true, mapColor: '#d8e4f4' }); // 光の ない よみの道（見えない。雲の 海。通れない）
+def(T.C8B_SEAWATER, 'c8b_seawater', { solid: true, water: true, anim: true, mapColor: '#1a4a7a' }); // 千年前の 神殿に 入りこんだ 海の 水（通れない）
+def(T.C8B_SHELLBOX, 'c8b_shellbox', { solid: true, mapColor: '#e8c8b8' }); // 貝の 箱（時をこえる手紙を 入れる）
+def(T.C8B_SHELLGATE, 'c8b_shellgate', { solid: true, mapColor: '#6a8aa8' }); // しまった しおの とびら（海の 祝いの 言葉で 開く）
+def(T.C8B_FLAMEWALL, 'c8b_flamewall', { solid: true, anim: true, light: true, mapColor: '#4ab8ff' }); // 青い ほのおの かべ（通れない）
+def(T.C8B_GEYSER_FLOOR, 'c8b_geyser_floor', { mapColor: '#3a5a7a' }); // 青い 火が ふき出す ゆか（ふき出して いない 間は 歩ける）
+def(T.C8B_GEYSER, 'c8b_geyser', { solid: true, anim: true, light: true, mapColor: '#8ae8ff' }); // ふき出した 青い 火の 柱（通れない）
+def(T.C8B_WHIRL, 'c8b_whirl', { solid: true, anim: true, light: true, mapColor: '#2a6aa8' }); // うずしおの岩場の 青い うず（開くと 海の 底への かいだん）
+def(T.C8B_SHELLDOOR, 'c8b_shelldoor', { solid: true, mapColor: '#c8b8a0' }); // 雲から出てきた島の 貝の もようの 石の とびら（開くと 下への かいだん）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

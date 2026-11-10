@@ -3,8 +3,8 @@
 // ・休み所の 聖なる 火・転送の門（光っている／まだ 光っていない）・古代の 石の とびら・古代の かべ画・竜の ほね
 // render/tiles-ch4.js が まぜる。2.5D は render/field3d.js（labBlockSpec）と render/tex3d.js（LAB_PROPS）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=b421f4c1530b';
-import { prand, shade } from './pixel.js?v=b421f4c1530b';
+import { T } from '../../shared/tiles.js?v=c6a25f593e36';
+import { prand, shade } from './pixel.js?v=c6a25f593e36';
 
 const R = {
   stone: '#c8b08a', stoneL: '#e0caa0', stoneD: '#a8906a', line: '#8a7452', dust: '#d8c49c',

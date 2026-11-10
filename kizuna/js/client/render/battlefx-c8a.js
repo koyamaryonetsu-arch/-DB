@@ -5,6 +5,9 @@
 // a8p_echo（オウムがえし）は イアゴンから 音の わ（とくべつな つぶ c8awave）が みんなへ ひろがる。
 // a8j_hypno（さいみんじゅつ）は ねらった 人の 上で 赤い うずまき（とくべつな つぶ c8aspiral）が 回る。
 // a8c_strike（大へびのいちげき）・a8g_blast（むげんの魔力）・変身 2つは がめんの まん中に 大きく（client/battle-c8a.js の C8A_SCREEN_ANIMS）
+// 第2部 第8章 第2幕 の 魔物・ペイニックと パニクル・ハデロス（battlefx-c8b.js）
+import { playC8bFx, C8B_FINE } from './battlefx-c8b.js?v=c6a25f593e36';
+
 const GOLD = ['#f2c14e', '#fff0a0', '#b8862a', '#ffffff'];
 const RUBY = ['#e03040', '#ff9aa8', '#6a1018', '#ffffff'];
 const SMOKE = ['#8a5ac8', '#c8a8f0', '#5a3a8a', '#ece0ff'];
@@ -52,7 +55,7 @@ function c8aspiral(x, p, t) {
   }
   x.restore();
 }
-export const C8A_FINE = { c8awave, c8aspiral };
+export const C8A_FINE = { c8awave, c8aspiral, ...C8B_FINE };
 
 export function playC8aFx(fx, anim, targets, element, opts = {}, W = 256, H = 144) {
   const first = targets[0];
@@ -370,7 +373,8 @@ export function playC8aFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
         fx.twinkle(t.x, t.y - 20, { color: '#e8d8ff', size: 5, life: 600, spin: 3 });
       }
       return true;
+    // 第8章 第2幕（battlefx-c8b.js）
     default:
-      return false;
+      return playC8bFx(fx, anim, targets, element, opts, W, H);
   }
 }

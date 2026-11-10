@@ -9,12 +9,14 @@
 // ・バナー: 聞き耳・オウムがえしの 前ぶれ・はね返された／しっぱい／さいみんじゅつの 前ぶれ・あやつられた・つえを こわした／
 //   変身（コブラ・魔人）・とぐろ・かみつかれた・いちげき・からぶり／魔力の 前ぶれ・魔力・ランプに すいこまれた・出てきた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c7i.js から client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_PET, C8_JAFAR } from '../shared/data/monsters-c8a.js?v=b421f4c1530b';
-import { monsterCanvas } from './render/monsters.js?v=b421f4c1530b';
-import { el } from './ui/dom.js?v=b421f4c1530b';
+import { C8_PET, C8_JAFAR } from '../shared/data/monsters-c8a.js?v=c6a25f593e36';
+import { monsterCanvas } from './render/monsters.js?v=c6a25f593e36';
+import { el } from './ui/dom.js?v=c6a25f593e36';
+// 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの がめん（battle-c8b.js）
+import { C8B_OWN_TELE, c8bSprite, c8bDraw, c8bPresent } from './battle-c8b.js?v=c6a25f593e36';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c7i.js の C7I_OWN_TELE に まぜる）
-export const C8A_OWN_TELE = [C8_PET, C8_JAFAR];
+export const C8A_OWN_TELE = [C8_PET, C8_JAFAR, ...C8B_OWN_TELE];
 
 export const C8A_SCREEN_ANIMS = ['a8p_echo', 'a8j_hypno', 'a8j_cobra', 'a8c_strike', 'a8j_genie', 'a8g_blast'];
 export const C8A_ALLY_FX = {
@@ -37,6 +39,9 @@ export const C8A_SFX = {
 // ───────────── え（client/battle.js の monsterCanvas の かわり）─────────────
 // ジャハールが 変身したら、おなじ え の コマ 2・3（コブラ）・4・5（魔人）（render/c8a-art.js）
 export function c8aSprite(c, frame) {
+  // 第8章 第2幕（battle-c8b.js）
+  const s8 = c8bSprite(c, frame);
+  if (s8) return s8;
   if (c?.species !== C8_JAFAR || !(c.c8form >= 2)) return null;
   return monsterCanvas(C8_JAFAR, (frame ? 1 : 0) + (c.c8form === 2 ? 2 : 4));
 }
@@ -141,6 +146,8 @@ function ring(x, px, py, w, h, base, T, col) {
 // ───────────── たたかいの え（client/battle-c7i.js の c7iDraw から）─────────────
 export function c8aDraw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
+  // 第8章 第2幕（battle-c8b.js）
+  c8bDraw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // イアゴン: オウムがえしまでの しるし・聞き耳・覚えた 呪文
   if (c.echoEvery) {
@@ -306,4 +313,6 @@ export function c8aPresent(scene, ev, fx, anim, actor) {
   }
   if (ev.c8aOut) scene.banner('魔人がランプから出てきた…！また火がともった！', 'danger');
   c8aMarks(scene);
+  // 第8章 第2幕（battle-c8b.js）
+  c8bPresent(scene, ev, fx, anim, actor);
 }

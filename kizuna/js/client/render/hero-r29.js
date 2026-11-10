@@ -14,8 +14,8 @@
 //   outfit29(O, S) … マントの うら・かたあて・かみの ひも（hero-r26.js の outfit26 の つけたしから よぶ）
 //   drawR29(cv, P, O, layer) … マントの まえの はし・かたあて（hero-r26.js の drawR26 から よぶ）
 //   face29(cv, H, B, view, phase) … ほおの 十字の きず（hero-r26.js の face26 から よぶ）
-import { mat, ramp, TH } from './hero-raster.js?v=b421f4c1530b';
-import { EYE_V } from './hero-face.js?v=b421f4c1530b';
+import { mat, ramp, TH } from './hero-raster.js?v=c6a25f593e36';
+import { EYE_V } from './hero-face.js?v=c6a25f593e36';
 
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
 

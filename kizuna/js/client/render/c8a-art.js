@@ -7,7 +7,9 @@
 //   見た目は 今までと おなじ 大きさ（112×112・124×124）。render/monsters.js が こまかさ（res）を 2倍に する
 // ジャハールは コマ 0・1 が へびの つえの 魔術師、コマ 2・3 が 大きな コブラ、コマ 4・5 が ランプの 魔人
 //   （client/battle-c8a.js の c8aSprite が pub の c8form で えらぶ）
-import { fit, spark, bez } from './ch3-draw.js?v=b421f4c1530b';
+import { fit, spark, bez } from './ch3-draw.js?v=c6a25f593e36';
+// 第2部 第8章 第2幕: 手下の 魔物・ペイニックと パニクル・よみの王ハデロス（c8b-art.js）
+import { addC8bArt } from './c8b-art.js?v=c6a25f593e36';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）
@@ -575,4 +577,6 @@ export function addC8aArt(ART) {
   // ボス（2倍の こまかさ。monsters-c8a.js の artScale 0.5 で 見た目は 今までと おなじ 大きさ。台本の showMon でも 大きく）
   ART.c8_vizier_pet = { size: [224, 224], npc: 0.6, pal: pal(IA), draw: iagon };
   ART.c8_jafar = { size: [248, 248], npc: 0.6, pal: pal(JF), draw: jafar };
+  // 第8章 第2幕（c8b-art.js）
+  addC8bArt(ART);
 }
