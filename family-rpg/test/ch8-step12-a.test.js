@@ -244,9 +244,10 @@ const startOf = (n) => (n === 4 || n >= 5 ? [C8.pet] : []);
 
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（plan-ch8.md の 5-2）: 物語の すすみ・マップの ID・出現表・きまった 戦い・宝箱・タイル', () => {
-  assert.deepEqual(CH8_STEPS, ['c8_start', 'c8_kingdom', 'c8_moon', 'c8_pet', 'c8_deep', 'c8_jafar']);
+  // 第1幕の 6つ（第2幕より あとは その うしろ。test/ch8-step34-a.test.js）
+  assert.deepEqual(CH8_STEPS.slice(0, 6), ['c8_start', 'c8_kingdom', 'c8_moon', 'c8_pet', 'c8_deep', 'c8_jafar']);
   const ci = STORY_STEPS.indexOf('c7_clear');
-  assert.deepEqual(STORY_STEPS.slice(ci + 1, ci + 7), CH8_STEPS, 'c7_clear の うしろ');
+  assert.deepEqual(STORY_STEPS.slice(ci + 1, ci + 7), CH8_STEPS.slice(0, 6), 'c7_clear の うしろ');
   // マップ（千年前 1〜8階・今 1〜7階）
   const want = [...Array.from({ length: 8 }, (_, i) => `c8a_palace_${i + 1}f`), ...Array.from({ length: 7 }, (_, i) => `c8a_palace_${i + 1}f_now`)];
   assert.deepEqual(CH8A_MAPS, want);
@@ -360,7 +361,8 @@ test('目標: 第7章クリアの セーブは トキネへの 目標に なお�
     }
   }
   for (const t of Object.values(C8_OBJ)) assert.ok(CH8_OBJECTIVE_TALK[t] && objectiveChapter(t) === 5, '第8章の 目標の 章');
-  assert.equal(C8_OBJ.jafar, '第8章　第2幕へ（続きはアップデートで！）');
+  // 第2幕が できたので、第1幕クリアの 文は トキネへ（前の 文は OLD_C8_OBJ.jafar。test/ch8-step34-a.test.js）
+  assert.ok(C8_OBJ.jafar.startsWith('第8章　第1幕クリア！') && C8_OBJ.jafar.includes('トキネ'));
   // 地図の しるし（その 時代の マップだけ）
   const mark = (obj, map, extra = []) => questMarks({ flags: flagsOf(...extra), objective: obj }, map).filter((m) => m.kind === 'main');
   const Bx = C8A_POS[5].box;
@@ -637,7 +639,7 @@ test('通しで: c7_clear → トキネ → 千年前の 緑の王国（カリ�
   assert.deepEqual(f2, ['c8_jafar']);
   assert.ok(c.flags[WIN8] && c.flags[KING8] && c.flags[C8.jafar], 'c8_jafar');
   assert.equal(c.objective, C8_OBJ.jafar);
-  for (const t of ['ランプの中へ', 'くらい心を', 'ソリトゥス', '約束だ', '第8章　第1幕クリア！', '第8章　第2幕へ（続きはアップデートで！）']) assert.ok(said(bot, t), t);
+  for (const t of ['ランプの中へ', 'くらい心を', 'ソリトゥス', '約束だ', '第8章　第1幕クリア！', '今のほしみの丘で、待っているわね']) assert.ok(said(bot, t), t);
   assert.ok(!c.guests.includes('karim'), 'カリムは 王国に のこる');
   assert.equal(bot.s.map, FIELD, 'さいごは 緑の城の 王の間');
   assert.ok(MAPS[FIELD].npcs.some((n) => n.id === 'c8a_king_back' && condOk(n.show, (f) => !!c.flags[f])), '王さまが お城に もどった');

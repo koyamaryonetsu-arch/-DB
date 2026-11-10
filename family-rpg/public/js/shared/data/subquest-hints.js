@@ -18,6 +18,7 @@ import { C7I, LETTER7I } from '../maps/c7i-flags.js';
 // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国）
 import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js';
 import { C8, LETTER8 } from '../maps/c8a-flags.js';
+import { C8B, LETTER8B } from '../maps/c8b-flags.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -73,6 +74,9 @@ const build = () => [
   // 第8章 第1幕（千年前の 緑の王国の まわりと 今。時をこえる手紙。sidequests-c8a.js）
   { id: 'c8al1', name: '時をこえる手紙（騎士の訓練場）', open: [C8.kingdom], start: LETTER8.start(1), done: LETTER8.found(1), place: '千年前の緑の王国の騎士の訓練場', who: '騎士の見習い', npc: 'c7_knight1', hint: '千年先の騎士に、たいせつな言葉をのこしたいらしい。' },
   { id: 'c8al2', name: '時をこえる手紙（王家の森）', open: [C8.kingdom], start: LETTER8.start(2), done: LETTER8.found(2), place: '千年前の王家の森', who: '王家の森の番人', npc: 'c8a_ranger', hint: '千年先の人へ、森のことを伝えたいらしい。' },
+  // 第8章 第2幕（千年前の クモイの 海と 今。時をこえる手紙。sidequests-c8b.js）
+  { id: 'c8bl1', name: '時をこえる手紙（かもめの小島）', open: [C8B.abyss], start: LETTER8B.start(1), done: LETTER8B.found(1), place: '千年前のかもめの小島', who: 'かもめの好きな女の子', npc: 'c8b_gullgirl', hint: '千年先の人へ、かもめのことを伝えたいらしい。' },
+  { id: 'c8bl2', name: '時をこえる手紙（大木の島）', open: [C8B.abyss], start: LETTER8B.start(2), done: LETTER8B.found(2), place: '千年前の大木の島', who: 'もぐり漁師', npc: 'c8b_diver', hint: '千年先の人へ、海の底の光のことをのこしたいらしい。' },
   { id: 'c7il3', name: '時をこえる手紙（湯けむりの谷）', open: [C7I.frost], start: LETTER7I.start(3), done: LETTER7I.found(3), place: '千年前の湯けむりの谷', who: '湯けむりの旅人', npc: 'c7i_traveler', hint: '千年先の谷の人へ、ねがいをのこしたいらしい。' },
   // 第8章 第1幕（第73回 D班。千年前の 緑の王国の より道。sidequests-c8d.js）
   { id: 'c8d_camel', name: '王宮の子どもと、迷子の子ラクダ', open: [C8D_OPEN], start: CAMEL8.start, done: CAMEL8.done, place: '千年前の緑の王国', who: '王宮の子どもナシム', npc: 'c8d_camel_host', hint: 'かわいがっている子ラクダが、どこかへ行ってしまったらしい。' },

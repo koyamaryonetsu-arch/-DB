@@ -6,6 +6,8 @@
 // とくべつな え（paintC8aSpecial）: オウムのイアゴン（4階の 大きな すがた 40×40。赤い 羽・黄色い くちばし）・
 //   ねがいの ランプ（8階の 台の 上の 金の ランプ 36×28。コマで あやしく 光る）
 import { Painter } from './pixel.js';
+// 第8章 第2幕: よみの王ハデロス・ナギの村の 人・ペイニックと パニクル・青い 火の 玉座（render/c8b-npc-art.js。ここで まぜる）
+import { C8B_NPC_LOOKS, paintC8bSpecial, C8B_SPECIALS } from './c8b-npc-art.js';
 
 const person = (o) => o;
 export const C8A_NPC_LOOKS = {
@@ -18,6 +20,7 @@ export const C8A_NPC_LOOKS = {
   c8a_guard: person({ hair: 0, hairStyle: 'short', skin: 2, outfit: 'armor', cloth: '#22306a', hat: 'helmet', hatColor: '#c8d0e4', weapon: { cat: 'spear', blade: '#e0e4ec', guard: '#8a6a1a' } }),
   c8a_maid: person({ hair: 1, hairStyle: 'bun', skin: 2, outfit: 'apron', cloth: '#3a6a8a', female: true, hat: 'bandana', hatColor: '#f4f0e8' }),
   c8a_ranger: person({ hair: 5, hairStyle: 'short', skin: 2, outfit: 'traveler', cloth: '#3a6a2a', beard: true, cane: true, hat: 'bandana', hatColor: '#6a8a3a' }),
+  ...C8B_NPC_LOOKS,
 };
 
 // ───────────── とくべつな え ─────────────
@@ -80,7 +83,7 @@ export function paintC8aSpecial(kind, dir, f) {
   switch (kind) {
     case 'c8a_parrot_npc': return paintParrot(f);
     case 'c8a_lamp_npc': return paintLamp(f);
-    default: return null;
+    default: return paintC8bSpecial(kind, dir, f);
   }
 }
-export const C8A_SPECIALS = ['c8a_parrot_npc', 'c8a_lamp_npc'];
+export const C8A_SPECIALS = ['c8a_parrot_npc', 'c8a_lamp_npc', ...C8B_SPECIALS];

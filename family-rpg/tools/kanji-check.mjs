@@ -426,6 +426,10 @@ export function gameFiles() {
     'public/js/shared/data/story-c8.js', 'public/js/shared/data/sidequests-c8a.js',
     'public/js/shared/maps/c8.js', 'public/js/shared/maps/c8a-field.js', 'public/js/shared/maps/c8a-palace.js', 'public/js/shared/maps/c8a-palace-rows.js', 'public/js/shared/maps/c8a-flags.js',
     'public/js/client/render/c8a-npc-art.js', 'public/js/client/render/tiles-c8a.js',
+    // 第2部 第8章 第2幕（A: 世界と物語）: 千年前の クモイの 海・うずしおの岩場・よみの海底神殿・よみの王ハデロスと ペイニックと パニクルの 台本・時をこえる手紙（c8b-stub.js は 仮。まとめる 時に けす）
+    'public/js/shared/data/story-c8b.js', 'public/js/shared/data/sidequests-c8b.js', 'public/js/shared/data/c8b-stub.js',
+    'public/js/shared/maps/c8b-sea.js', 'public/js/shared/maps/c8b-temple.js', 'public/js/shared/maps/c8b-temple-rows.js', 'public/js/shared/maps/c8b-flags.js',
+    'public/js/client/render/c8b-npc-art.js', 'public/js/client/render/tiles-c8b.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

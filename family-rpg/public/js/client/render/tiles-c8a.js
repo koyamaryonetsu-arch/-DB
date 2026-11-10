@@ -7,6 +7,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第8章 第2幕: よみの海底神殿の タイル（render/tiles-c8b.js。ここで まぜる）
+import { C8B_PAINTERS, C8B_FRAMES, C8B_SPEED, C8B_FLOOR_H, c8bBlockSpec, C8B_PROPS, C8B_PROPS_KEEP, C8B_THEMES } from './tiles-c8b.js';
 
 const ST = { d: '#2a2848', b: '#4a4a78', l: '#7a7aa8', hl: '#a8a8d0', ln: '#1e1c38' }; // 月の 王宮の 石
 const SV = { d: '#6a7088', b: '#c8d0e4', l: '#eef2ff', w: '#ffffff' }; // 銀
@@ -148,15 +150,16 @@ export const C8A_PAINTERS = {
   [T.C8A_FALL_FLOOR]: (p, v) => paintFallFloor(p, v),
   [T.C8A_SANDFALL]: (p, v, f) => paintSandFall(p, v, f),
   [T.C8A_SLAB]: (p, v) => paintSlab(p, v),
+  ...C8B_PAINTERS,
 };
-export const C8A_FRAMES = { [T.C8A_LIGHT]: LIGHT_FRAMES, [T.C8A_SANDRIVER]: RIVER_FRAMES, [T.C8A_SHADOWSEAL]: SEAL_FRAMES, [T.C8A_SANDFALL]: FALL_FRAMES };
-export const C8A_SPEED = { [T.C8A_LIGHT]: 260, [T.C8A_SANDRIVER]: 180, [T.C8A_SHADOWSEAL]: 200, [T.C8A_SANDFALL]: 140 };
+export const C8A_FRAMES = { [T.C8A_LIGHT]: LIGHT_FRAMES, [T.C8A_SANDRIVER]: RIVER_FRAMES, [T.C8A_SHADOWSEAL]: SEAL_FRAMES, [T.C8A_SANDFALL]: FALL_FRAMES, ...C8B_FRAMES };
+export const C8A_SPEED = { [T.C8A_LIGHT]: 260, [T.C8A_SANDRIVER]: 180, [T.C8A_SHADOWSEAL]: 200, [T.C8A_SANDFALL]: 140, ...C8B_SPEED };
 
 // ───── 2.5D ─────
 // 谷・光の 橋・砂の 川は ひくい。月の 門は たてた もの（横から 来ても 見える ように）
-export const C8A_FLOOR_H = { [T.C8A_LIGHT]: -0.04, [T.C8A_DARKBRIDGE]: -0.5, [T.C8A_SANDRIVER]: -0.2, [T.C8A_FALL_FLOOR]: -0.02 };
-export function c8aBlockSpec() {
-  return null;
+export const C8A_FLOOR_H = { [T.C8A_LIGHT]: -0.04, [T.C8A_DARKBRIDGE]: -0.5, [T.C8A_SANDRIVER]: -0.2, [T.C8A_FALL_FLOOR]: -0.02, ...C8B_FLOOR_H };
+export function c8aBlockSpec(id, v) {
+  return c8bBlockSpec(id, v);
 }
 // たてた もの（[はば, 高さ, かく 関数]）: 月の 門・月の 鏡・砂山・月の 箱・黒い 砂の かべ・砂の 滝
 const mirrorProp = (on) => [14, 22, (p) => {
@@ -187,9 +190,10 @@ export const C8A_PROPS = {
     for (let y = 0; y < 24; y++) { p.hline(2, 9, y, y % 3 ? SA.b : SA.l); p.set(2, y, SA.d); p.set(9, y, SA.d); }
     p.ellipse(6, 22, 5, 2, SA.d);
   }],
+  ...C8B_PROPS,
 };
 // たてた ものでも 色を かえない（鏡の 銀・砂の 金色）
-export const C8A_PROPS_KEEP = new Set([T.C8A_MIRROR_A, T.C8A_MIRROR_B, T.C8A_MOONBOX, T.C8A_SANDFALL, T.C8A_DUNE]);
+export const C8A_PROPS_KEEP = new Set([T.C8A_MIRROR_A, T.C8A_MIRROR_B, T.C8A_MOONBOX, T.C8A_SANDFALL, T.C8A_DUNE, ...C8B_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -203,4 +207,6 @@ export const C8A_THEMES = {
     gem: G([0, '#2a2008'], [0.5, '#e8c050'], [1, '#ffffff']),
     flame: G([0, '#3a3a6a'], [0.5, '#c8c8f8'], [1, '#ffffff']),
   },
+  // 第8章 第2幕: よみの海底神殿（千年前）
+  ...C8B_THEMES,
 };
