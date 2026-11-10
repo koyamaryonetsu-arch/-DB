@@ -2,17 +2,22 @@
 // その レベルの ふつうの 魔物（フィールドや ダンジョンに 出る 魔物）の まん中の 強さを、MONSTERS から 作る。
 // 宝の洞窟では、もとの 魔物の 強さを この めやすの 「わりあい」で 地図の レベルまで 上げる（data/treasure.js の scaleEnemy の curve）。
 //   前は (L+6)/(L0+6) の 1本の 倍率だったので、高い レベルほど ふつうの 魔物より 弱く なっていた（Lv33 で HP は 半分 くらい）。
-// ・新しい 魔物が ふえても 自動で 合う（はじめて 使う 時に 作る）
+// ・新しい 魔物が ふえても 自動で 合う（はじめて 使う 時に 作る。第74回 C: Lv83 まで〈CURVE_LV_MAX〉）
 // ・いちばん 強い ふつうの 魔物より 上の レベルは、その 前の 10レベルの のびかたで のばす
-import { MONSTERS } from './monsters.js?v=ff7f831793ea';
+import { MONSTERS } from './monsters.js?v=b421f4c1530b';
 
 export const CURVE_KEYS = ['hp', 'str', 'def', 'mag', 'agi', 'exp', 'gold'];
 const MAX_LV = 150;
+// 第74回 C: めやすに 使う 魔物は Lv83 まで（第8章 第1幕の 魔物まで。それより 上は 前の 10レベルの のびかたで のばす）。
+//   新しい 幕の 強い 魔物（第8章 第2幕〈Lv83〜87〉の Lv84 いじょう・第3幕から あと）が ふえるたびに、めやすが かわって、
+//   シミュレーターで 合わせた 宝の洞窟の 主（TM_BOSS_POW）や モンスター闘技場の 強さが ずれない ように
+//   （第68回に 合わせた 主は、第7章 第3幕・第8章 第1幕の 魔物が ふえて Lv40 で 85% → 44% に なっていた）
+export const CURVE_LV_MAX = 83;
 let table = null;
 
 // めやすに 使う 魔物（ボス・宝の洞窟の 主・メタルの ような とくべつな 魔物は 入れない）
 function usable(id, m) {
-  return m && m.lv > 0 && m.hp > 0 && !m.boss && !m.tmBoss && !m.rare && !/metal/.test(id) && !id.startsWith('tm_');
+  return m && m.lv > 0 && m.lv <= CURVE_LV_MAX && m.hp > 0 && !m.boss && !m.tmBoss && !m.rare && !/metal/.test(id) && !id.startsWith('tm_');
 }
 const median = (a) => {
   const s = a.slice().sort((x, y) => x - y);

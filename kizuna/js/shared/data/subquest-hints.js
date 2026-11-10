@@ -8,20 +8,20 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=ff7f831793ea';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=ff7f831793ea';
-import { ORN } from '../maps/ch6c-side.js?v=ff7f831793ea';
-import { RS } from './sidequests-ch6d.js?v=ff7f831793ea';
-import { C7, LETTER } from '../maps/c7-flags.js?v=ff7f831793ea';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=ff7f831793ea';
-import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=ff7f831793ea';
+import { C6 } from '../maps/past.js?v=b421f4c1530b';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=b421f4c1530b';
+import { ORN } from '../maps/ch6c-side.js?v=b421f4c1530b';
+import { RS } from './sidequests-ch6d.js?v=b421f4c1530b';
+import { C7, LETTER } from '../maps/c7-flags.js?v=b421f4c1530b';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=b421f4c1530b';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=b421f4c1530b';
 // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国）
-import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=ff7f831793ea';
-import { C8, LETTER8 } from '../maps/c8a-flags.js?v=ff7f831793ea';
+import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=b421f4c1530b';
+import { C8, LETTER8 } from '../maps/c8a-flags.js?v=b421f4c1530b';
 // 第74回 D班: 第8章 第2幕の より道（千年前の クモイの 海）
-import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=ff7f831793ea';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=ff7f831793ea';
-import { jobLine } from './fq-common.js?v=ff7f831793ea';
+import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=b421f4c1530b';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=b421f4c1530b';
+import { jobLine } from './fq-common.js?v=b421f4c1530b';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 

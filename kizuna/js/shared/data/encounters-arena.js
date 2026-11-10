@@ -49,4 +49,8 @@ export const FIXED_ARENA = {
   ar11_1: A([['fish_pirate', 2, 2], ['jugemu', 1, 1]], 81),
   ar11_2: A([['karon', 1, 1], ['pirate_parrot', 1, 1], ['water_youma', 1, 1]], 82),
   ar11_3: CHAMP([['ar_snowman', 1, 1], ['ar_boreas', 1, 1], ['ar_snow_kid', 1, 1]], 'boss3'),
+  // 第74回 C: ランク12（Lv88。第8章 第2幕クリアの あと）… 第8章 第1幕の 月の王宮の 地下迷宮の 魔物
+  ar12_1: A([['palace_guard', 2, 2], ['cobrar', 1, 1]], 87),
+  ar12_2: A([['lamp_smoke', 1, 1], ['sanbo', 1, 1], ['moon_scarab', 1, 1]], 88),
+  ar12_3: CHAMP([['ar_bubble_crab', 1, 1], ['ar_leviathan', 1, 1], ['ar_glow_jelly', 1, 1]], 'boss3'),
 };

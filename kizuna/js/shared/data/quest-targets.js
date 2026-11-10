@@ -4,17 +4,17 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=ff7f831793ea';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=ff7f831793ea';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=ff7f831793ea';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=ff7f831793ea';
-import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=ff7f831793ea';
-import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=ff7f831793ea';
-import { CH7_OBJECTIVE_TARGETS } from './story-c7.js?v=ff7f831793ea';
-import { CH8_OBJECTIVE_TARGETS } from './story-c8.js?v=ff7f831793ea';
-import { labSubQuests } from './sidequests.js?v=ff7f831793ea';
+import { MAPS } from '../maps/index.js?v=b421f4c1530b';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=b421f4c1530b';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=b421f4c1530b';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=b421f4c1530b';
+import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=b421f4c1530b';
+import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=b421f4c1530b';
+import { CH7_OBJECTIVE_TARGETS } from './story-c7.js?v=b421f4c1530b';
+import { CH8_OBJECTIVE_TARGETS } from './story-c8.js?v=b421f4c1530b';
+import { labSubQuests } from './sidequests.js?v=b421f4c1530b';
 // 第50回 N4: 困っている人（クエストの 画面で えらんだ 人に しるし）
-import { askPinQuest } from './subquest-hints.js?v=ff7f831793ea';
+import { askPinQuest } from './subquest-hints.js?v=b421f4c1530b';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],

@@ -7,23 +7,23 @@
 //   とちゅうで かけつけた 家族（battles.js の joinBattle）も、次の 戦いから 3連戦の なかまに 入る（adopt）
 // ・かけ試合（かけ試合の 係。ひとりずつ）: 4ひきの 魔物の トーナメント。本物の 戦いの しくみで 戦わせる（betDuel）。
 //   オッズは 強さ（data/arena.js の winChances）から。けっかは 短い 戦いの ようす（client/ui/arena.js の arenaBoutUI）で 見せる
-import { Battle } from '../battle.js?v=ff7f831793ea';
-import { decideMonster } from '../ai.js?v=ff7f831793ea';
-import { enemyFixedScale } from '../battle.js?v=ff7f831793ea';
-import { MONSTERS } from '../data/monsters.js?v=ff7f831793ea';
-import { ITEMS } from '../data/items.js?v=ff7f831793ea';
-import { addItem } from '../stats.js?v=ff7f831793ea';
-import { scaleEnemy } from '../data/treasure.js?v=ff7f831793ea';
-import { startFixedBattle } from './battles.js?v=ff7f831793ea';
-import { partyOf } from './party.js?v=ff7f831793ea';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=ff7f831793ea';
-import { ARENA_HOOKS } from '../data/story-arena.js?v=ff7f831793ea';
+import { Battle } from '../battle.js?v=b421f4c1530b';
+import { decideMonster } from '../ai.js?v=b421f4c1530b';
+import { enemyFixedScale } from '../battle.js?v=b421f4c1530b';
+import { MONSTERS } from '../data/monsters.js?v=b421f4c1530b';
+import { ITEMS } from '../data/items.js?v=b421f4c1530b';
+import { addItem } from '../stats.js?v=b421f4c1530b';
+import { scaleEnemy } from '../data/treasure.js?v=b421f4c1530b';
+import { startFixedBattle } from './battles.js?v=b421f4c1530b';
+import { partyOf } from './party.js?v=b421f4c1530b';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b421f4c1530b';
+import { ARENA_HOOKS } from '../data/story-arena.js?v=b421f4c1530b';
 import {
   ARENA_RANKS, ARENA_LEGEND_RANK, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
-} from '../data/arena.js?v=ff7f831793ea';
+} from '../data/arena.js?v=b421f4c1530b';
 // 第45回: 竜王のしるしを もらえるか（data/companions-dqm.js）
-import { dqKeyDue } from '../data/companions-dqm.js?v=ff7f831793ea';
+import { dqKeyDue } from '../data/companions-dqm.js?v=b421f4c1530b';
 
 const say = (who, text) => ['say', who, text];
 const CLERK = '闘技場の受付';
@@ -66,7 +66,8 @@ export async function arenaDesk(run) {
 function bestText(c) {
   const best = Math.max(0, ...ARENA_RANKS.filter((R) => rankCleared(c, R.rank)).map((R) => R.rank));
   if (!best) return 'まずは、ランク1からちょうせんだ！';
-  // 第65回 C: ランク10・ランク8（伝説のチャンピオン）。第68回 C: ランク11（いちばん 上）
+  // 第65回 C: ランク10・ランク8（伝説のチャンピオン）。第68回 C: ランク11。第74回 C: ランク12（いちばん 上）
+  if (best >= 12) return '深海の大王者のあわまで、全部はじいた、闘技場の伝説が来てくれるとは…！';
   if (best >= 11) return '白銀の大王者のこおりまでとかした、闘技場の伝説が来てくれるとは…！';
   if (best >= 10) return '星の大王者に勝った、闘技場の大王者が来てくれるとは…！';
   if (best === ARENA_LEGEND_RANK) return '伝説のチャンピオンに勝った者が、また来てくれるとは…！';
@@ -184,6 +185,7 @@ export async function runRank(run, n) {
 
 // 勝ちぬいた ときの 受付の ことば（第65回 C: ランク8 は 伝説のチャンピオン・ランク10 は いちばん 上）
 function clearText(n) {
+  if (n >= 12) return 'あの深海の大王者のあわのよろいを、やぶってしまうとは…！\nあんたたちの名前は、海の底まで、とどろいているぞ！';
   if (n >= 11) return 'あの白銀の大王者のこおりを、とかしてしまうとは…！\nあんたたちこそ、闘技場の伝説の中の伝説だ！';
   if (n >= 10) return 'なんと、星の大王者にまで勝つとは…！\nあんたたちこそ、闘技場の大王者だ！';
   if (n === ARENA_LEGEND_RANK) return 'まさか、伝説のチャンピオンに勝つとは…！\nあんたたちこそ、本物の伝説だ！';

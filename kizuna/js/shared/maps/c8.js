@@ -3,8 +3,8 @@
 // ・maps/c8a-palace.js … 月の王宮の地下迷宮（千年前 c8a_palace_1f〜8f・今 c8a_palace_1f_now〜7f_now）
 // ・maps/c8a-field.js … 千年前の コガネ地方（c7_field）の 緑の王国と、今の コガネ地方（south）の 王都サファラに たす もの（入口・人・時をこえる手紙）
 // ・maps/c8a-flags.js … フラグ・マップの ID・だいじな 場所
-import { buildC8aPalaceMaps, C8A_MAPS } from './c8a-palace.js?v=ff7f831793ea';
-import { attachC8aField } from './c8a-field.js?v=ff7f831793ea';
+import { buildC8aPalaceMaps, C8A_MAPS } from './c8a-palace.js?v=b421f4c1530b';
+import { attachC8aField } from './c8a-field.js?v=b421f4c1530b';
 
 // 第8章 第1幕の マップの ID（セーブに のこるので かえない）
 export const CH8A_MAPS = [...C8A_MAPS];

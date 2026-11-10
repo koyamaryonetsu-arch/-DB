@@ -80,6 +80,12 @@ const GEAR = {
     resist: { ice: 0.7, fire: 0.85, sleep: 0.6, paralyze: 0.6 },
     desc: '白銀の大王者ボレアスが、勝った者にわたす、北の空の星のかざり。だれでも装備でき、すべての力が大きく上がる。行動するたびにMPが1回復する。氷に強い。',
   },
+  // 第74回 C: ランク12（深海の大王者リヴァイアス）… アクセサリー 1つ（★5）。ランク11 の 北極星より 強く、第8章 第1幕の ボスの お守り（月のルビーのお守り）より 弱い
+  ar_deep_sea_pearl: {
+    ...C(10, 5), ...ARENA, name: '深海の大しんじゅ', bonus: { str: 26, mag: 26, def: 22, agi: 22, hp: 96, heal: 20 }, crit: 0.04, mpRegen: 1,
+    resist: { ice: 0.85, bolt: 0.85, paralyze: 0.6, confuse: 0.7 },
+    desc: '深海の大王者リヴァイアスが、勝った者にわたす、青く光る大きなしんじゅ。だれでも装備でき、すべての力が大きく上がる。行動するたびにMPが1回復する。マヒしにくい。',
+  },
 };
 for (const it of Object.values(GEAR)) {
   it.price = 0;
@@ -92,5 +98,5 @@ export const ARENA_ITEM_KANA = {
   ar_champ_belt: 'ちゃんぴおんのべると', ar_shark_charm: 'すなざめのおうのきばのおまもり', ar_prism_crown: 'なないろのかんむり',
   ar_legend_belt: 'でんせつのちゃんぴおんべると', ar_legend_mantle: 'でんせつのちゃんぴおんのまんと',
   ar_twin_dragon_charm: 'りゅうのきょうだいのおまもり', ar_star_king_brooch: 'だいおうじゃのほしのぶろーち',
-  ar_silver_north_star: 'はくぎんのほっきょくせい',
+  ar_silver_north_star: 'はくぎんのほっきょくせい', ar_deep_sea_pearl: 'しんかいのおおしんじゅ',
 };

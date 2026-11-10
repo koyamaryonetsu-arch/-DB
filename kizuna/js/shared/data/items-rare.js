@@ -55,7 +55,8 @@ const BH = (rank, helm = false) => H(rank, 2, helm, 1 / RAR_K[2]);
 
 // 第65回 C: 深い 宝の洞窟の 品（ランク10・★5）。step … tmStep（10・11・12）/ rarity … 10 は 3（紫）・11〜12 は 4（オレンジ）
 // 第68回 C: 13 … 地図 Lv36〜40（第7章クリアの ころ。しずむ前の島の灯台の 宝箱〈1.12×1.63〜1.70 ＝ 1.83〜1.90〉と おなじ くらい）
-export const TM_DEEP_K = { 10: 1.57, 11: 1.68, 12: 1.76, 13: 1.87 };
+// 第74回 C: 14 … 地図 Lv41〜45（第8章 第2幕クリアの ころ。月の王宮の 地下迷宮の 宝箱〈1.12×1.79〜1.86 ＝ 2.00〜2.08〉と おなじ くらい）
+export const TM_DEEP_K = { 10: 1.57, 11: 1.68, 12: 1.76, 13: 1.87, 14: 2.02 };
 const DR = 10;
 const dk = (step) => TM_DEEP_K[step];
 const drar = (step) => (step >= 11 ? 4 : 3);
@@ -94,6 +95,13 @@ const DEEP_GEAR = {
   tmd_ice_king_crown: { ...DH(13), ...dtm('ice', 13), name: '氷の王のかんむり', bonus: { mag: 18, heal: 14, agi: 10, hp: 34 }, mpRegen: 1, resist: { ice: 0.7, sleep: 0.6 }, desc: '雪の山の、氷の王のかんむり。魔力と回復の力が上がり、行動するたびにMPが1回復する。氷に強い。' },
   tmd_volcano_king_claw: { ...DW('claw', 13), ...dtm('fire', 13), name: '火山の王のツメ', bonus: { str: 10, agi: 10 }, crit: 0.04, resist: { fire: 0.7 }, desc: '火山のおくにすむ王の、まっかなツメ。会心が出やすく、炎に強い。' },
   tmd_sun_shard_ring: { ...DC(), ...dtm('fire', 13), name: '太陽のかけらの指輪', bonus: { str: 22, mag: 12, def: 14, agi: 12, hp: 48 }, resist: { fire: 0.6, ice: 0.85 }, desc: '空から落ちた、太陽のかけらの指輪。だれでも装備でき、力と守りとHPが上がる。炎にとても強い。' },
+  // ── 第74回 C: 地図 Lv41〜45 の だん14（土・氷・炎 2つずつ。武器 3・よろい 1・たて 1・アクセ 1）──
+  tmd_haze_dagger: { ...DW('dagger', 14), ...dtm('secret', 14), name: 'かげろうの短剣', bonus: { agi: 14, str: 8 }, crit: 0.05, resist: { blind: 0.5 }, desc: 'ゆらゆらとゆれる、かげろうのような短剣。会心が出やすく、目がくらみにくい。' },
+  tmd_great_rock_shield: { ...DS(14), ...dtm('rock', 14), name: '大岩のたて', bonus: { hp: 50, def: 10 }, resist: { paralyze: 0.6, bolt: 0.85 }, desc: '山の大岩をけずって作った、とても重いたて。HPと守りが上がり、マヒしにくい。' },
+  tmd_glacier_boomerang: { ...DW('boomerang', 14), ...dtm('ice', 14), name: '氷河のブーメラン', bonus: { agi: 12, str: 8 }, resist: { ice: 0.7 }, onHit: { status: 'paralyze', chance: 0.08 }, desc: '氷河のかけらをけずって作ったブーメラン。素早さが上がり、氷に強い。ときどき敵をこおらせて動けなくする。' },
+  tmd_silver_snow_mail: { ...DA('heavy', 14), ...dtm('ice', 14), name: '白銀の雪のよろい', bonus: { hp: 50, def: 12 }, resist: { ice: 0.6, sleep: 0.7 }, desc: '白銀の雪のように光る、かたいよろい。HPと守りが上がり、氷にとても強い。' },
+  tmd_flame_king_sword: { ...DW('sword', 14), ...dtm('fire', 14), name: '炎の王の剣', bonus: { str: 16, agi: 8 }, resist: { fire: 0.7 }, desc: '火山のおくの王が、炎の中できたえた剣。力と素早さが上がり、炎に強い。' },
+  tmd_phoenix_necklace: { ...DC(), ...dtm('fire', 14), name: '火の鳥の首かざり', bonus: { str: 18, mag: 18, def: 14, agi: 14, hp: 52 }, resist: { fire: 0.6, dark: 0.85 }, desc: '火の鳥の羽を、金のくさりでつないだ首かざり。だれでも装備でき、力と魔力と守りとHPが上がる。炎にとても強い。' },
 };
 
 const GEAR = {
@@ -169,7 +177,8 @@ const GEAR = {
 
   // ═════ 第65回 C: 深い 宝の洞窟（地図 Lv26〜35）の ★5（ランク10）═════
   // 3だん（tmStep。rare-loot.js の tmGearStep）: 10 … 地図 Lv26〜 / 11 … Lv30〜 / 12 … Lv33〜。強さは TM_DEEP_K（レア度の ぶんも こみ）。
-  // 第68回 C: 4だん目 13 … 地図 Lv36〜40（上限 40）。土・氷・炎 2つずつ
+  // 第68回 C: 4だん目 13 … 地図 Lv36〜40。土・氷・炎 2つずつ
+  // 第74回 C: 5だん目 14 … 地図 Lv41〜45（上限 45）。土・氷・炎 2つずつ
   //   物語の 宝箱（星めぐりの古道 1.12×1.40・時計塔 1.12×1.50・みどりの水の神殿 1.12×1.55〜1.62）より 少し あとを 追う 強さ
   //   （第64回: 装備が 手に入りすぎない ように。とくせいで 楽しむ 品）
   ...DEEP_GEAR,
@@ -285,6 +294,8 @@ export const RARE_GEAR_KANA = {
   tmd_sun_axe: 'たいようのおの', tmd_flame_dragon_robe: 'えんりゅうのろーぶ',
   tmd_mountain_king_axe: 'やまのおうのおおおの', tmd_star_dream_robe: 'ほしのゆめのろーぶ', tmd_aurora_lance: 'おーろらのやり',
   tmd_ice_king_crown: 'こおりのおうのかんむり', tmd_volcano_king_claw: 'かざんのおうのつめ', tmd_sun_shard_ring: 'たいようのかけらのゆびわ',
+  tmd_haze_dagger: 'かげろうのたんけん', tmd_great_rock_shield: 'おおいわのたて', tmd_glacier_boomerang: 'ひょうがのぶーめらん',
+  tmd_silver_snow_mail: 'はくぎんのゆきのよろい', tmd_flame_king_sword: 'ほのおのおうのけん', tmd_phoenix_necklace: 'ひのとりのくびかざり',
   treant_staff: 'ねじれぎのつえ', goldoon_fist: 'ごるどーんのこぶし', kraken_whip: 'くらーけんのむち', storm_general_helm: 'あらしのしょうぐんのかぶと',
   mammoth_fur: 'まんもすのけがわ', magma_hammer: 'ようがんのおおづち', flare_shield: 'ほのおのきしのたて', guardian_halberd: 'りゅうのばんにんのほこ',
   witch_broom: 'ほのおのまじょのほうき', witch_hat: 'まじょのくろいぼうし', scorpion_whip: 'さそりのしっぽむち', ankh_staff: 'あんくのつえ',

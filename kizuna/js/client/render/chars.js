@@ -2,40 +2,40 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=ff7f831793ea';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=ff7f831793ea';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=ff7f831793ea';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=ff7f831793ea';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=ff7f831793ea';
-import { paintCh5Special } from './ch5-art.js?v=ff7f831793ea';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=ff7f831793ea';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=ff7f831793ea';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=ff7f831793ea';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=ff7f831793ea';
-import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=ff7f831793ea';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=ff7f831793ea';
-import { R26_OLD_LOOK } from './hero-r26.js?v=ff7f831793ea';
-import { R27_OLD_LOOK } from './hero-r27.js?v=ff7f831793ea';
-import { R29_OLD_LOOK } from './hero-r29.js?v=ff7f831793ea';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=ff7f831793ea';
-import { R40_OLD_LOOK } from './hero-r40.js?v=ff7f831793ea';
-import { R41B_OLD_LOOK } from './hero-r41b.js?v=ff7f831793ea';
-import { R41A_OLD_LOOK } from './hero-r41a.js?v=ff7f831793ea';
-import { R43J_OLD_LOOK } from './hero-r43j.js?v=ff7f831793ea';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b421f4c1530b';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b421f4c1530b';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=b421f4c1530b';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=b421f4c1530b';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=b421f4c1530b';
+import { paintCh5Special } from './ch5-art.js?v=b421f4c1530b';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=b421f4c1530b';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=b421f4c1530b';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=b421f4c1530b';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=b421f4c1530b';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=b421f4c1530b';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=b421f4c1530b';
+import { R26_OLD_LOOK } from './hero-r26.js?v=b421f4c1530b';
+import { R27_OLD_LOOK } from './hero-r27.js?v=b421f4c1530b';
+import { R29_OLD_LOOK } from './hero-r29.js?v=b421f4c1530b';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=b421f4c1530b';
+import { R40_OLD_LOOK } from './hero-r40.js?v=b421f4c1530b';
+import { R41B_OLD_LOOK } from './hero-r41b.js?v=b421f4c1530b';
+import { R41A_OLD_LOOK } from './hero-r41a.js?v=b421f4c1530b';
+import { R43J_OLD_LOOK } from './hero-r43j.js?v=b421f4c1530b';
 // 第51回 W の 天気の 職業
-import { WEATHER_OLD_LOOK } from './hero-weather.js?v=ff7f831793ea';
+import { WEATHER_OLD_LOOK } from './hero-weather.js?v=b421f4c1530b';
 // 第66回 B班の 伝説の 職業
-import { R66B_OLD_LOOK } from './hero-r66b.js?v=ff7f831793ea';
+import { R66B_OLD_LOOK } from './hero-r66b.js?v=b421f4c1530b';
 // 第66回 A の 伝説の 職業 4つ
-import { R66A_OLD_LOOK } from './hero-r66a.js?v=ff7f831793ea';
+import { R66A_OLD_LOOK } from './hero-r66a.js?v=b421f4c1530b';
 // 第66回 C班の 伝説の職業（総理大臣・会長・働き方改革の星・あの方）
-import { R66C_OLD_LOOK } from './hero-r66c.js?v=ff7f831793ea';
+import { R66C_OLD_LOOK } from './hero-r66c.js?v=b421f4c1530b';
 // 第66回 D班の 伝説の 職業の 古い え（hero-r66d.js）
-import { R66D_OLD_LOOK } from './hero-r66d.js?v=ff7f831793ea';
+import { R66D_OLD_LOOK } from './hero-r66d.js?v=b421f4c1530b';
 // 第66回 E1班の 6つの 職業（hero-r66e1.js）
-import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=ff7f831793ea';
+import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=b421f4c1530b';
 // 第66回 E2 の 6つの 職業の 古い え（hero-r66e2.js）
-import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=ff7f831793ea';
+import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=b421f4c1530b';
 
 export const CW = 16;
 export const CH = 21;

@@ -7,12 +7,12 @@
 //              → うけると その場で 受付の まど（カウンター）が 開いて 4ひきを 選ぶ → 相手を 待つ → 戦い
 //   戦いの 画面は ふだんと おなじ（相手の 画面は サーバーが 敵と みかたを 入れかえて 送る。自分の 魔物が 下に 出る）
 //   サーバーからの 知らせ { t:'monLive', id, role, state:'ask'|'pick'|'go'|'battle'|'end', opp, even, meReady, oppReady, left, text } は game.js → onMonLive
-import { el, ListMenu, toast, CONFIRM_Z } from './dom.js?v=ff7f831793ea';
-import { Counter } from './counter.js?v=ff7f831793ea';
-import { request } from './shop.js?v=ff7f831793ea';
-import { faceURL } from '../field.js?v=ff7f831793ea';
-import { boardIconURL } from '../render/boards.js?v=ff7f831793ea';
-import { MONARENA_EXTRA, monArenaPickTeam, monArenaTeamCards, monArenaCss } from './monarena.js?v=ff7f831793ea';
+import { el, ListMenu, toast, CONFIRM_Z } from './dom.js?v=b421f4c1530b';
+import { Counter } from './counter.js?v=b421f4c1530b';
+import { request } from './shop.js?v=b421f4c1530b';
+import { faceURL } from '../field.js?v=b421f4c1530b';
+import { boardIconURL } from '../render/boards.js?v=b421f4c1530b';
+import { MONARENA_EXTRA, monArenaPickTeam, monArenaTeamCards, monArenaCss } from './monarena.js?v=b421f4c1530b';
 
 const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
 const evenText = (even) => (even ? 'レベルをそろえる' : 'そのままの強さ');

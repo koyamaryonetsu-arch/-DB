@@ -2,7 +2,7 @@
 // ・nocto_star … エンディングと クリアの あとの ノクト（フードを はずした 黒い かみ。マントは 夜空の 青、ふちは 紋章の 金色）
 //   ふだんの ノクト（nocto。render/ch5-hoshiyomi-art.js）は こい あい色に 青白い ふち
 // ・pipi_fly … 羽が 大きく 開いた ピピ（ふだんの ピピは 小さな 羽 wingSize 'small'。render/ch5-kumoi-art.js）
-import { KUMOI_NPC_LOOKS } from './ch5-kumoi-art.js?v=ff7f831793ea';
+import { KUMOI_NPC_LOOKS } from './ch5-kumoi-art.js?v=b421f4c1530b';
 
 const { wingSize: _small, ...PIPI } = KUMOI_NPC_LOOKS.pipi;
 export const TOP_NPC_LOOKS = {

@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=ff7f831793ea';
-import { MONSTERS } from './monsters.js?v=ff7f831793ea';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=ff7f831793ea';
+import { ITEMS, baseItemId } from './items.js?v=b421f4c1530b';
+import { MONSTERS } from './monsters.js?v=b421f4c1530b';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=b421f4c1530b';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -120,7 +120,9 @@ export const tmGearRank = (lv) => ((lv || 1) >= TM_GEAR_DEEP ? 10 : clamp(2 + Ma
 //   Lv25 までは ランクと おなじ。品の だんは tmStep（なければ ランク）
 // 第68回 C: 地図 Lv36 から 13（TM_GEAR_C7。上限 Lv40 まで。物語の 灯台の 宝箱〈1.12×1.63〜1.70〉の 少し あとを 追う 強さ）
 export const TM_GEAR_C7 = 36;
-export const tmGearStep = (lv) => ((lv || 1) >= TM_GEAR_C7 ? 13 : (lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
+// 第74回 C: 地図 Lv41 から 14（TM_GEAR_C8。上限 Lv45 まで。物語の 月の王宮の 宝箱〈1.12×1.79〜1.86〉の 少し あとを 追う 強さ）
+export const TM_GEAR_C8 = 41;
+export const tmGearStep = (lv) => ((lv || 1) >= TM_GEAR_C8 ? 14 : (lv || 1) >= TM_GEAR_C7 ? 13 : (lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
 export const tmStepOf = (it) => it?.tmStep ?? it?.rank ?? 0;
 // レア度の 出やすさ（normal: ふつうの 宝箱 / bossA: 主の 宝箱）
 //   第65回 C: 地図 Lv26 から（深い 宝の洞窟の 品は レア度 3〜4）: ふつうの 宝箱は 3 が 多め・主の 宝箱は 4 が 多め

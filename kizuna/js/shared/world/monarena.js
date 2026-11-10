@@ -13,21 +13,21 @@
 //   ・家族の 対戦 … 両方 満タン。経験値・お金は なし（記録だけ）
 //   ・負けても お金は へらない・ゲームオーバーに ならない（もとの 仲間の HP は へらない）
 //   ・おわりは battles.js の battleTick が ctx.finish（finishMon）を よぶ
-import { MonArenaBattle, monFighterChar, monAllyInit, monSnapshot, snapChar, monStatRow, monRankFight, MON_EVEN_LV } from '../battle-monarena.js?v=ff7f831793ea';
-import { normBattleSettings } from '../battle.js?v=ff7f831793ea';
+import { MonArenaBattle, monFighterChar, monAllyInit, monSnapshot, snapChar, monStatRow, monRankFight, MON_EVEN_LV } from '../battle-monarena.js?v=b421f4c1530b';
+import { normBattleSettings } from '../battle.js?v=b421f4c1530b';
 import {
   MONARENA_RANKS, MONARENA_TEAM_MAX, MONARENA_OPEN_FLAG, MON_EXP_RATE, monRankInfo, monRankLabel, monRankOpen, monRankCleared, monChampOf, monChampName,
   monArenaRecord, setMonArena, noteMonClear, noteFamResult, monFirstMedalId, monFamMedalId, nextMonRepeatMedal,
-} from '../data/monarena.js?v=ff7f831793ea';
-import { scaledRewardBonus } from '../data/treasure.js?v=ff7f831793ea';
-import { MONSTERS } from '../data/monsters.js?v=ff7f831793ea';
-import { ITEMS } from '../data/items.js?v=ff7f831793ea';
-import { addItem, itemCount, removeItem } from '../stats.js?v=ff7f831793ea';
-import { rewardExp, scaleExp, difficultyOf } from '../data/difficulty.js?v=ff7f831793ea';
-import { ensureCompanions, ensureStorage, growCompanion, noteSeen } from './party.js?v=ff7f831793ea';
-import { growthSummary } from './growth.js?v=ff7f831793ea';
-import { mineOf, RESULT_MAX_MS } from './battles.js?v=ff7f831793ea';
-import { runSteps } from './scripts.js?v=ff7f831793ea';
+} from '../data/monarena.js?v=b421f4c1530b';
+import { scaledRewardBonus } from '../data/treasure.js?v=b421f4c1530b';
+import { MONSTERS } from '../data/monsters.js?v=b421f4c1530b';
+import { ITEMS } from '../data/items.js?v=b421f4c1530b';
+import { addItem, itemCount, removeItem } from '../stats.js?v=b421f4c1530b';
+import { rewardExp, scaleExp, difficultyOf } from '../data/difficulty.js?v=b421f4c1530b';
+import { ensureCompanions, ensureStorage, growCompanion, noteSeen } from './party.js?v=b421f4c1530b';
+import { growthSummary } from './growth.js?v=b421f4c1530b';
+import { mineOf, RESULT_MAX_MS } from './battles.js?v=b421f4c1530b';
+import { runSteps } from './scripts.js?v=b421f4c1530b';
 
 const say = (who, text) => ['say', who, text];
 export const MONARENA_CALLER = '闘技場の司会';
@@ -279,8 +279,9 @@ export async function rankRun(run, s, R, keys) {
   return 'win';
 }
 
-// 勝ちぬいた ときの 受付の ことば（第68回 C: EX を 足した）
+// 勝ちぬいた ときの 受付の ことば（第68回 C: EX を 足した・第74回 C: EX2）
 function monClearText(rank) {
+  if (rank === 'EX2') return '千年の月の王者まで、たおしてしまうとは…！\nあんたの魔物たちの名前は、千年先まで語りつがれるぞ！';
   if (rank === 'EX') return '星のかなたの王者にまで勝つとは…！\nあんたの魔物たちは、もう伝説をこえているぞ！';
   if (rank === 'SSS') return 'なんと、王者の中の王者に勝つとは…！\nあんたの魔物たちこそ、本物の伝説だ！';
   return 'おめでとう！\n魔物たちも、ほこらしそうにしているぞ！';
