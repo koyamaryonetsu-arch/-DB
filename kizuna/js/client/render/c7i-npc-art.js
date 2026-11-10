@@ -3,7 +3,7 @@
 // 人（C7I_NPC_LOOKS）: カイの影（カイと おなじ 形の 黒い すがた・むらさきの はちまき）・雪の精（白い ずきんの 小さな 雪の 子）
 //   白雪の里の 人は 第3章の 竜守りの村の 人の え（snow_*・dragon_elder・yukina・shrine_priest）を つかう
 // とくべつな え（paintC7iSpecial）: いばらの魔女マレフィナ（城の 前の 大きな すがた 44×52）・ねむる 氷の竜シラネ（玉座の 間 52×40）
-import { Painter } from './pixel.js?v=e806fc63d13d';
+import { Painter } from './pixel.js?v=a4d6430ed313';
 
 const person = (o) => o;
 export const C7I_NPC_LOOKS = {
