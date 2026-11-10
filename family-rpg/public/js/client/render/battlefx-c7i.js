@@ -6,6 +6,9 @@
 // a7d_breath（黒いほのおのいき）は 上から 黒と みどりの ほのおの おび（とくべつな つぶ c7iflame）が がめんを なめる。
 // a7h_throw（かげブーメラン）は 大きな 黒い ブーメラン（とくべつな つぶ c7iboom）が ねらった 人へ 行って 帰ってくる。
 // どれも がめんの まん中に 大きく（client/battle-c7i.js の C7I_SCREEN_ANIMS）
+// 第2部 第8章 第1幕 の 魔物・イアゴン・ジャハール（battlefx-c8a.js）
+import { playC8aFx, C8A_FINE } from './battlefx-c8a.js';
+
 const ICE = ['#e8f8ff', '#9ad8f0', '#5ab0e0', '#ffffff'];
 const GREEN = ['#4ae870', '#c8ffb0', '#1a8a3a', '#ffffff'];
 const DARK = ['#1a1024', '#3a2448', '#6a2a8a', '#9a5ac0'];
@@ -75,7 +78,7 @@ function c7iboom(x, p, t) {
   x.stroke();
   x.restore();
 }
-export const C7I_FINE = { c7iflame, c7iboom };
+export const C7I_FINE = { c7iflame, c7iboom, ...C8A_FINE };
 
 // こおりの つぶ（ねらいに ささる）
 function shards(fx, t, delay = 0, n = 8, colors = ICE) {
@@ -346,6 +349,7 @@ export function playC7iFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
       }
       return true;
     default:
-      return false;
+      // 第8章 第1幕（battlefx-c8a.js）
+      return playC8aFx(fx, anim, targets, element, opts, W, H);
   }
 }

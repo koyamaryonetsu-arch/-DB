@@ -22,6 +22,7 @@ import { ENCOUNTERS_TOKEI6, FIXED_TOKEI6, ZONE_BG_TOKEI6 } from './encounters-to
 import { ENCOUNTERS_C7, FIXED_C7, ZONE_BG_C7 } from './encounters-c7.js';
 import { ENCOUNTERS_C7S, FIXED_C7S, ZONE_BG_C7S } from './encounters-c7s.js';
 import { ENCOUNTERS_C7I, FIXED_C7I, ZONE_BG_C7I } from './encounters-c7i.js';
+import { ENCOUNTERS_C8A, FIXED_C8A, ZONE_BG_C8A } from './encounters-c8a.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -178,6 +179,10 @@ Object.assign(ZONE_BG, ZONE_BG_C7S);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C7I);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C7I);
 Object.assign(ZONE_BG, ZONE_BG_C7I);
+// 第2部 第8章 第1幕「月の王宮の うらぎり」・月の王宮の 地下迷宮・オウムのイアゴン・大臣ジャハール（encounters-c8a.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C8A);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C8A);
+Object.assign(ZONE_BG, ZONE_BG_C8A);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';

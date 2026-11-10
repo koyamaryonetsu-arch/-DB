@@ -38,6 +38,7 @@ import { MONSTERS_TOKEI6, addTokei6Hidden } from './monsters-tokei6.js';
 import { MONSTERS_C7, addC7Hidden } from './monsters-c7.js';
 import { MONSTERS_C7S } from './monsters-c7s.js';
 import { MONSTERS_C7I, addC7iHidden } from './monsters-c7i.js';
+import { MONSTERS_C8A, addC8aHidden } from './monsters-c8a.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -294,6 +295,9 @@ Object.assign(MONSTERS, MONSTERS_C7S);
 // 第2部 第7章 第3幕「ひとりぼっちの星」の 手下の 魔物・いばらの魔女マレフィナ（いばらのかべ）・カイの影（monsters-c7i.js）
 Object.assign(MONSTERS, MONSTERS_C7I);
 addC7iHidden(MONSTERS);
+// 第2部 第8章 第1幕「月の王宮の うらぎり」の 手下の 魔物・オウムのイアゴン・大臣ジャハール（へびのつえ・黒いランプ）（monsters-c8a.js）
+Object.assign(MONSTERS, MONSTERS_C8A);
+addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);

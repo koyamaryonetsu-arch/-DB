@@ -360,9 +360,11 @@ export const CH7_ZONES = [['t7_kingdom', 68, 58], ['t7_kingdom', 69, 58], ['t7_k
 export const CH7S_ZONES = [['t7_sea', 72, 58], ['t7_sea', 73, 58], ['t7_sea', 74, 58], ['t7_light', 74, 58], ['t7_light', 75, 58], ['t7_light', 76, 58]];
 // 第2部 第7章 第3幕 千年前の シロガネ（Lv76〜78）・氷の竜の城（Lv78〜80）: node tools/sim.js [回数] ch7i（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch7.mjs）
 export const CH7I_ZONES = [['t7_snow', 76, 58], ['t7_snow', 77, 58], ['t7_snow', 78, 58], ['t7_castle', 78, 58], ['t7_castle', 79, 58], ['t7_castle', 80, 58]];
-if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch7' || process.argv[3] === 'ch7s' || process.argv[3] === 'ch7i')) {
+// 第2部 第8章 第1幕 月の王宮の 地下迷宮 1〜4階（Lv80〜82）・5〜8階（Lv82〜84）: node tools/sim.js [回数] ch8a（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch8.mjs）
+export const CH8A_ZONES = [['t8a_palace', 80, 58], ['t8a_palace', 81, 58], ['t8a_palace', 82, 58], ['t8a_deep', 82, 58], ['t8a_deep', 83, 58], ['t8a_deep', 84, 58]];
+if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch7' || process.argv[3] === 'ch7s' || process.argv[3] === 'ch7i' || process.argv[3] === 'ch8a')) {
   const rng = makeRng(7171);
-  for (const [table, lv, tier] of process.argv[3] === 'ch7i' ? CH7I_ZONES : process.argv[3] === 'ch7s' ? CH7S_ZONES : CH7_ZONES) {
+  for (const [table, lv, tier] of process.argv[3] === 'ch8a' ? CH8A_ZONES : process.argv[3] === 'ch7i' ? CH7I_ZONES : process.argv[3] === 'ch7s' ? CH7S_ZONES : CH7_ZONES) {
     const res = [];
     for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
     summarize(`${table} Lv${lv}`, res);

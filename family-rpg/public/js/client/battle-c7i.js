@@ -9,9 +9,12 @@
 import { C7_WITCH, C7_SHADOW } from '../shared/data/monsters-c7i.js';
 import { monsterCanvas } from './render/monsters.js';
 import { el } from './ui/dom.js';
+// 第2部 第8章 第1幕: オウムのイアゴン・大臣ジャハール（コブラ・魔人）の がめん（battle-c8a.js）
+//   （大技・味方の まど・音の 表は client/battle-ch4.js・client/battle.js が じかに まぜる）
+import { C8A_OWN_TELE, c8aSprite, c8aDraw, c8aPresent } from './battle-c8a.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c7s.js の C7S_OWN_TELE に まぜる）
-export const C7I_OWN_TELE = [C7_WITCH, C7_SHADOW];
+export const C7I_OWN_TELE = [C7_WITCH, C7_SHADOW, ...C8A_OWN_TELE];
 
 export const C7I_SCREEN_ANIMS = ['a7m_curse', 'a7m_transform', 'a7d_breath', 'a7h_throw'];
 export const C7I_ALLY_FX = {
@@ -32,6 +35,9 @@ export const C7I_SFX = {
 // ───────────── え（client/battle.js の monsterCanvas の かわり）─────────────
 // マレフィナが 黒い 竜に なったら、おなじ え の コマ 2・3（render/c7i-art.js）
 export function c7iSprite(c, frame) {
+  // 第8章 第1幕: ジャハールの コブラ・魔人（battle-c8a.js）
+  const s8 = c8aSprite(c, frame);
+  if (s8) return s8;
   if (c?.species !== C7_WITCH || c.c7form !== 2) return null;
   return monsterCanvas(C7_WITCH, (frame ? 1 : 0) + 2);
 }
@@ -145,6 +151,8 @@ export function c7iDraw(scene, x, m, c, px, py, w, h, base) {
     } else marks(x, px, py, w, c.aimLeft || 0, c.aimEvery || 3, base, T, boomMark, ['#a85ae0', '#ff6a4a', '#2a2448']);
     if (c.daze) tag(x, px + w / 2, py + h * 0.3, 'ふらふら', base, '#2a1a3a', '#ffe890');
   }
+  // 第8章 第1幕（battle-c8a.js）
+  c8aDraw(scene, x, m, c, px, py, w, h, base);
 }
 
 // ───────────── ねらわれて いる 人の まどの しるし ─────────────
@@ -227,4 +235,6 @@ export function c7iPresent(scene, ev, fx, anim, actor) {
     }
   }
   c7iMarks(scene);
+  // 第8章 第1幕（battle-c8a.js）
+  c8aPresent(scene, ev, fx, anim, actor);
 }
