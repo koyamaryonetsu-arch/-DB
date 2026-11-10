@@ -83,6 +83,9 @@ export const T = {
   C7S_LAMP: 333, C7S_LAMP_ON: 334, C7S_DRY: 335, C7S_REEF: 336,
   // 第2部 第7章 Step 5・6「氷の竜の城」と 千年前の シロガネ地方（maps/c7i-castle.js・c7i-snow.js・render/tiles-c7i.js）。337 から
   C7I_THORN: 337, C7I_PUDDLE: 338, C7I_ICEBOX: 339, C7I_DDOOR: 340, C7I_ICICLE_FLOOR: 341, C7I_ICICLE: 342,
+  // 第2部 第8章 第1幕「月の王宮の地下迷宮」（maps/c8a-palace.js・c8a-field.js・render/tiles-c8a.js）。343 から
+  C8A_MIRROR_A: 343, C8A_MIRROR_B: 344, C8A_LIGHT: 345, C8A_DARKBRIDGE: 346, C8A_SANDRIVER: 347, C8A_DUNE: 348,
+  C8A_MOONBOX: 349, C8A_MOONGATE: 350, C8A_SHADOWSEAL: 351, C8A_FALL_FLOOR: 352, C8A_SANDFALL: 353, C8A_SLAB: 354,
 };
 
 export const TILE_INFO = {};
@@ -436,6 +439,19 @@ def(T.C7I_ICEBOX, 'c7i_icebox', { solid: true, mapColor: '#a8d8f0' }); // 氷の
 def(T.C7I_DDOOR, 'c7i_ddoor', { solid: true, mapColor: '#6a7a9a' }); // しまった 竜の とびら（竜の 名前を よぶと 開く）
 def(T.C7I_ICICLE_FLOOR, 'c7i_icicle_floor', { mapColor: '#7a8aa8' }); // つららが 落ちてくる ゆか（落ちていない 間は 歩ける）
 def(T.C7I_ICICLE, 'c7i_icicle', { solid: true, anim: true, mapColor: '#d8f4ff' }); // 落ちてきた つらら（通れない）
+// 第8章 第1幕: 月の 鏡（2つの むき）・月の 光の 橋・光の 当たらない 暗い 谷・千年前の 砂の 川・今の 砂山・月の 箱・月の 門・黒い 砂の かべ・砂の 滝・月の 石板
+def(T.C8A_MIRROR_A, 'c8a_mirror_a', { solid: true, light: true, mapColor: '#d8e0f8' }); // 月の 鏡（むき「／」）
+def(T.C8A_MIRROR_B, 'c8a_mirror_b', { solid: true, light: true, mapColor: '#d8e0f8' }); // 月の 鏡（むき「＼」）
+def(T.C8A_LIGHT, 'c8a_light', { anim: true, light: true, mapColor: '#f4f0b8' }); // 月の 光の 橋（光が 当たっている 間は わたれる）
+def(T.C8A_DARKBRIDGE, 'c8a_darkbridge', { solid: true, mapColor: '#1a1a34' }); // 光の 当たらない 橋の あと（暗い 谷。通れない）
+def(T.C8A_SANDRIVER, 'c8a_sandriver', { solid: true, anim: true, mapColor: '#c89a50' }); // 千年前の 砂の 川（通れない）
+def(T.C8A_DUNE, 'c8a_dune', { solid: true, mapColor: '#b08a50' }); // 今の 砂山（流れが 止まって つもった 砂。通れない）
+def(T.C8A_MOONBOX, 'c8a_moonbox', { solid: true, mapColor: '#c8b878' }); // 月の 箱（時をこえる手紙を 入れる）
+def(T.C8A_MOONGATE, 'c8a_moongate', { solid: true, mapColor: '#5a5a8a' }); // しまった 月の 門（王家の 言葉で 開く）
+def(T.C8A_SHADOWSEAL, 'c8a_shadowseal', { solid: true, anim: true, mapColor: '#2a1a3a' }); // 大臣の 魔術の 黒い 砂の かべ（通れない）
+def(T.C8A_FALL_FLOOR, 'c8a_fall_floor', { mapColor: '#8a7a5a' }); // 砂が ふってくる ゆか（ふっていない 間は 歩ける）
+def(T.C8A_SANDFALL, 'c8a_sandfall', { solid: true, anim: true, mapColor: '#e8c880' }); // ふってくる 砂の 滝（通れない）
+def(T.C8A_SLAB, 'c8a_slab', { solid: true, mapColor: '#8a8aa8' }); // 王の間の 月の もようの 石板（開くと 地下への かいだん）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

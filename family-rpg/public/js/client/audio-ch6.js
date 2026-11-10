@@ -9,6 +9,7 @@
 // ・tokei … 第6章 Step 5 の 止まった時計塔（ニ短調。こちこちと きざむ 音と、ぜんまいの ような ベース）
 // ・c7s_sea・c7s_light … 第7章 Step 3・4 の 千年前の クモイの 海・しずむ前の島の灯台
 // ・c7i_snow・c7i_castle … 第7章 Step 5・6 の 千年前の シロガネ地方・氷の竜の城
+// ・c8a_palace … 第8章 第1幕の 月の王宮の地下迷宮（ニ短調。砂の 国の ふしぎな 音階と、月の 光の ような 高い アルペジオ）
 // 1小節 = 16。どの パートも 16小節（256）
 
 const CHORD = {
@@ -60,7 +61,25 @@ const C7S_LIGHT_CH = ['Em', 'C', 'D', 'Bm', 'Em', 'Am', 'B', 'B', 'C', 'D', 'G',
 const C7I_SNOW_CH = ['Am', 'F', 'C', 'G', 'Am', 'F', 'E', 'E', 'F', 'G', 'C', 'Am', 'Dm', 'E', 'Am', 'Am'];
 const C7I_CASTLE_CH = ['Bm', 'G', 'D', 'A', 'Bm', 'Em', 'A', 'A', 'G', 'D', 'Em', 'Bm', 'G', 'A', 'Bm', 'Bm'];
 
+// 第8章 第1幕: 月の王宮の地下迷宮（ニ短調。和声の 短音階で 砂の 国の ふんいき）
+const C8A_PALACE_CH = ['Dm', 'Bb', 'A', 'Dm', 'Gm', 'Dm', 'A', 'A', 'Bb', 'Gm', 'Dm', 'A', 'Gm', 'A', 'Dm', 'Dm'];
+
 export const CH6_TRACKS = {
+  c8a_palace: {
+    bpm: 88,
+    ch: [
+      { w: 'triangle', v: 0.12, n: bars([
+        'D5:4 E5:2 F5:2 A5:6 G5:2', 'F5:4 E5:2 D5:2 Bb4:8', 'C#5:4 E5:4 A5:6 G5:2', 'F5:2 E5:2 D5:2 C#5:2 A4:8',
+        'D5:2 F5:2 A5:4 Bb5:4 A5:4', 'G5:4 Bb5:4 D6:8', 'C#6:4 Bb5:2 A5:2 G5:4 E5:4', 'A5:12 r:4',
+        'Bb5:4 A5:2 G5:2 F5:4 D5:4', 'G5:4 F5:2 E5:2 D5:8', 'F5:4 A5:4 D6:6 C#6:2', 'A5:4 G5:2 F5:2 E5:8',
+        'G5:4 Bb5:4 D6:6 C6:2', 'C#6:4 A5:4 E5:8', 'F5:2 E5:2 D5:2 C#5:2 D5:4 A4:4', 'D5:12 r:4',
+      ]) },
+      { w: 'sine', v: 0.04, n: arpFast(C8A_PALACE_CH, 5) },
+      { w: 'sine', v: 0.05, n: pads(C8A_PALACE_CH, 3, 1) },
+      { w: 'triangle', v: 0.2, n: bassWalk(C8A_PALACE_CH) },
+      { drums: true, v: 0.08, n: 'k:4 r:2 h:2 s:4 h:2 h:2 '.repeat(16) },
+    ],
+  },
   c7i_snow: {
     bpm: 96,
     ch: [

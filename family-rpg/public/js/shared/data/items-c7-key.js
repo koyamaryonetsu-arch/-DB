@@ -8,6 +8,8 @@
 import { MIKO_LETTER } from '../maps/c7-flags.js';
 import { KEEPER_LETTER } from '../maps/c7s-flags.js';
 import { SPIRIT_LETTER } from '../maps/c7i-flags.js';
+// 第8章 第1幕: 王女ナディアの手紙（地下迷宮 4階の 王女ナディアが 書いてくれる。5階の 千年前の 月の 箱に 入れると なくなる。時をこえる手紙）
+import { NADIA_LETTER } from '../maps/c8a-flags.js';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {
@@ -22,9 +24,14 @@ export const C7_KEY_ITEMS = {
     name: '雪の精の手紙', type: 'key',
     desc: '氷の竜の城の雪の精が書いた手紙。竜のほんとうの名前が書いてある。5階の竜のとびらのよこの氷の箱に入れると、千年先までとどくという。',
   },
+  [NADIA_LETTER]: {
+    name: '王女ナディアの手紙', type: 'key',
+    desc: '王女ナディアが書いた手紙。王家の「月の子守歌」の最後の一行が書いてある。地下迷宮の5階の月の門のよこの、月の箱に入れると、千年先までのこるという。',
+  },
 };
 export const C7_KEY_KANA = {
   [MIKO_LETTER]: 'みこのてがみ',
   [KEEPER_LETTER]: 'とうだいもりのてがみ',
   [SPIRIT_LETTER]: 'ゆきのせいのてがみ',
+  [NADIA_LETTER]: 'おうじょナディアのてがみ',
 };

@@ -5,6 +5,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第8章 第1幕: 月の王宮の地下迷宮の タイル（render/tiles-c8a.js。ここで まぜる）
+import { C8A_PAINTERS, C8A_FRAMES, C8A_SPEED, C8A_FLOOR_H, c8aBlockSpec, C8A_PROPS, C8A_PROPS_KEEP, C8A_THEMES } from './tiles-c8a.js';
 
 const SN = { d: '#b8c8dc', b: '#e8eef8', l: '#ffffff' }; // 雪
 const TH = { d: '#140a18', b: '#2a1a2e', l: '#4a2e50', t: '#6a4a70' }; // 黒い いばら
@@ -91,16 +93,17 @@ export const C7I_PAINTERS = {
   [T.C7I_DDOOR]: (p, v) => paintDDoor(p, v),
   [T.C7I_ICICLE_FLOOR]: (p, v) => paintIcicleFloor(p, v),
   [T.C7I_ICICLE]: (p, v, f) => paintIcicle(p, v, f),
+  ...C8A_PAINTERS,
 };
-export const C7I_FRAMES = { [T.C7I_ICICLE]: ICICLE_FRAMES };
-export const C7I_SPEED = { [T.C7I_ICICLE]: 160 };
+export const C7I_FRAMES = { [T.C7I_ICICLE]: ICICLE_FRAMES, ...C8A_FRAMES };
+export const C7I_SPEED = { [T.C7I_ICICLE]: 160, ...C8A_SPEED };
 
 // ───── 2.5D ─────
 // 水たまりは 少し ひくい。竜の とびらは かべ（洞窟の かべと おなじ 高さ）
-export const C7I_FLOOR_H = { [T.C7I_PUDDLE]: -0.08, [T.C7I_ICICLE_FLOOR]: -0.02 };
+export const C7I_FLOOR_H = { [T.C7I_PUDDLE]: -0.08, [T.C7I_ICICLE_FLOOR]: -0.02, ...C8A_FLOOR_H };
 export function c7iBlockSpec(id, v) {
   if (id === T.C7I_DDOOR) return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.C7I_DDOOR, 0, 0], gate: true };
-  return null;
+  return c8aBlockSpec(id, v);
 }
 // たてた もの（[はば, 高さ, かく 関数]）: いばら・氷の 箱・落ちてきた つらら
 export const C7I_PROPS = {
@@ -122,9 +125,10 @@ export const C7I_PROPS = {
     for (let y = 0; y < 22; y++) { const w = Math.max(0, Math.round((22 - y) / 5)); p.hline(6 - w, 5 + w, y, y % 4 ? IC.b : IC.l); }
     p.vline(5, 0, 20, IC.w);
   }],
+  ...C8A_PROPS,
 };
 // たてた ものでも 色を かえない（つららの 白）
-export const C7I_PROPS_KEEP = new Set([T.C7I_ICICLE, T.C7I_ICEBOX]);
+export const C7I_PROPS_KEEP = new Set([T.C7I_ICICLE, T.C7I_ICEBOX, ...C8A_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -138,4 +142,6 @@ export const C7I_THEMES = {
     gem: G([0, '#1a3050'], [0.5, '#8ad0f0'], [1, '#ffffff']),
     flame: G([0, '#2a5a8a'], [0.5, '#8ad8ff'], [1, '#f4fcff']),
   },
+  // 第8章 第1幕: 月の王宮の地下迷宮（千年前）
+  ...C8A_THEMES,
 };

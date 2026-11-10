@@ -25,6 +25,8 @@ import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } f
 import { CH6_STEPS, applyCh6 } from './story-ch6.js';
 // 第2部 第7章 第1幕「緑の王国」Step 1・2（story-c7.js）
 import { CH7_STEPS, applyCh7 } from './story-c7.js';
+// 第2部 第8章 第1幕「月の王宮のうらぎり」Step 1・2（story-c8.js）
+import { CH8_STEPS, applyCh8 } from './story-c8.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { SD_SCRIPTS } from './story-secret.js';
 import { CASINO_SCRIPTS } from './story-casino.js';
@@ -57,6 +59,7 @@ export const STORY_STEPS = [
   ...CH5_STEPS,
   ...CH6_STEPS,
   ...CH7_STEPS,
+  ...CH8_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
@@ -649,6 +652,8 @@ for (const [id, fn] of Object.entries(CH5_TOWN_LINES)) {
 applyCh6(SCRIPTS, STORY_SCRIPTS);
 // 第2部 第7章（story-c7.js）: 今の トキネ・千年前の コガネ地方・みどりの水の神殿・時をこえる手紙
 applyCh7(SCRIPTS, STORY_SCRIPTS);
+// 第2部 第8章 第1幕（story-c8.js）: 今の トキネ・千年前の 緑の王国・月の王宮の地下迷宮・時をこえる手紙
+applyCh8(SCRIPTS, STORY_SCRIPTS);
 
 // 第35回: かくし要素の ヒント（町の 人の さいごに 1行。secret-hints.js）
 applyTownHints(SCRIPTS);

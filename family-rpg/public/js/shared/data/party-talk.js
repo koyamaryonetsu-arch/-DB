@@ -12,6 +12,7 @@ import { CH4_OBJECTIVE_TALK } from './story-ch4.js';
 import { CH5_OBJECTIVE_TALK } from './story-ch5.js';
 import { CH6_OBJECTIVE_TALK } from './story-ch6.js';
 import { CH7_OBJECTIVE_TALK } from './story-c7.js';
+import { CH8_OBJECTIVE_TALK } from './story-c8.js';
 import { nextPartyHint } from './secret-hints.js';
 
 // 仲間の key（NPC の id）→ 話し方
@@ -190,12 +191,15 @@ Object.assign(OBJECTIVE_TALK, CH5_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH6_OBJECTIVE_TALK);
 // 第7章（story-c7.js）
 Object.assign(OBJECTIVE_TALK, CH7_OBJECTIVE_TALK);
+// 第8章（story-c8.js）
+Object.assign(OBJECTIVE_TALK, CH8_OBJECTIVE_TALK);
 
 // 目標の 文の 章（第3〜5章の 表に あれば その章。ほかは 第2章まで あつかい）
 export function objectiveChapter(objective) {
   const o = objective || '';
   // 第6章の 目標は、かくし要素の ヒントでは 第5章（第1部の さいご）と おなじ あつかい
   if (CH5_OBJECTIVE_TALK[o] || CH6_OBJECTIVE_TALK[o] || CH7_OBJECTIVE_TALK[o]) return 5;
+  if (CH8_OBJECTIVE_TALK[o]) return 5;
   if (CH4_OBJECTIVE_TALK[o]) return 4;
   if (CH3_OBJECTIVE_TALK[o] || o === C3_LEAD_OBJECTIVE) return 3;
   return 2;
