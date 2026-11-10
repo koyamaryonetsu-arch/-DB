@@ -8,9 +8,9 @@
 //     axfx-g1-dora.js … ネコ型ロボット・ドラえもん・カッパ・はなかっぱ・筋肉ニンニク
 // ・かめはめ波の なかまは def.beamW（ビームの はば）が 段ごとに 太く なる（B 9 → A 13 → S 16 → L 34。10倍は 28 で 赤）
 // ・時間の まもり: play が 足した つぶは「len ＋ 敵全体の ずらし」までに おわる（けむり・はへん など ながい つぶも そこで きえる）
-import { G1_FINE } from './axfx-g1-lib.js?v=a4d6430ed313';
-import { AX_G1_DBZ, G1_DBZ_FINE } from './axfx-g1-dbz.js?v=a4d6430ed313';
-import { AX_G1_DORA, G1_DORA_FINE } from './axfx-g1-dora.js?v=a4d6430ed313';
+import { G1_FINE } from './axfx-g1-lib.js?v=5520dc01c4ec';
+import { AX_G1_DBZ, G1_DBZ_FINE } from './axfx-g1-dbz.js?v=5520dc01c4ec';
+import { AX_G1_DORA, G1_DORA_FINE } from './axfx-g1-dora.js?v=5520dc01c4ec';
 
 function guard(def) {
   const play = def.play;

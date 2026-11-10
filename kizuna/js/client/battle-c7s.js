@@ -6,10 +6,10 @@
 //   板の 上の 人の まどには「板の上」（client/battle-earth.js の 地われの しるしと おなじ。TRAP_LABEL に 足す）
 // ・バナー: ほうげきの 前ぶれ・いっせいほうげき・のり上げ（チャンス）・うき上がった／板わたりの 前ぶれ・板の上へ・助けた・ドボン
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C7_REEF, C7_LIGHT } from '../shared/data/monsters-c7s.js?v=a4d6430ed313';
-import { TRAP_LABEL } from './battle-earth.js?v=a4d6430ed313';
+import { C7_REEF, C7_LIGHT } from '../shared/data/monsters-c7s.js?v=5520dc01c4ec';
+import { TRAP_LABEL } from './battle-earth.js?v=5520dc01c4ec';
 // 第2部 第7章 第3幕: マレフィナ（いばらのかべ・黒い 竜）・カイの影（かげブーメラン）の がめん（battle-c7i.js）
-import { C7I_OWN_TELE, c7iDraw, c7iPresent } from './battle-c7i.js?v=a4d6430ed313';
+import { C7I_OWN_TELE, c7iDraw, c7iPresent } from './battle-c7i.js?v=5520dc01c4ec';
 
 // 板の 上の 人の まどの しるし（地われと おなじ 見た目）
 TRAP_LABEL.plank = '板の上';

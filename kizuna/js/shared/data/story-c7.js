@@ -10,23 +10,23 @@
 // 作業中の 仮の データ（B の 物が まだ ない 時だけ たす。まとめる 時に この 行を けす）
 import {
   C7, ARRIVE7, TF7, LEVER3, OPEN6, WAIT6, WIN7, LETTER, LETTER_TEMPLE, MIKO_LETTER, C7_FIELD, PRESENT_FIELD, TEMPLE_DOOR, GATE_BOSS, c7tMapId,
-} from '../maps/c7-flags.js?v=a4d6430ed313';
-import { C7_POS } from '../maps/c7-field.js?v=a4d6430ed313';
-import { C7T_POS } from '../maps/c7-temple.js?v=a4d6430ed313';
-import { MAPS } from '../maps/index.js?v=a4d6430ed313';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=a4d6430ed313';
-import { MONSTERS } from './monsters.js?v=a4d6430ed313';
-import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=a4d6430ed313';
-import { SHOPS_C7 } from './shops-c7.js?v=a4d6430ed313';
-import { GLASS_TEXT } from '../world/time-glass.js?v=a4d6430ed313';
-import { partyOf } from '../world/party.js?v=a4d6430ed313';
-import { applyC7Side } from './sidequests-c7.js?v=a4d6430ed313';
-import { innSteps } from './inn.js?v=a4d6430ed313';
-import { C6D_OBJ } from './story-ch6d.js?v=a4d6430ed313';
+} from '../maps/c7-flags.js?v=5520dc01c4ec';
+import { C7_POS } from '../maps/c7-field.js?v=5520dc01c4ec';
+import { C7T_POS } from '../maps/c7-temple.js?v=5520dc01c4ec';
+import { MAPS } from '../maps/index.js?v=5520dc01c4ec';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=5520dc01c4ec';
+import { MONSTERS } from './monsters.js?v=5520dc01c4ec';
+import { SHOPS, GUESTS, NPC_SUPPORTS } from './shops.js?v=5520dc01c4ec';
+import { SHOPS_C7 } from './shops-c7.js?v=5520dc01c4ec';
+import { GLASS_TEXT } from '../world/time-glass.js?v=5520dc01c4ec';
+import { partyOf } from '../world/party.js?v=5520dc01c4ec';
+import { applyC7Side } from './sidequests-c7.js?v=5520dc01c4ec';
+import { innSteps } from './inn.js?v=5520dc01c4ec';
+import { C6D_OBJ } from './story-ch6d.js?v=5520dc01c4ec';
 // 第7章 第2幕「海の紋章」Step 3・4（story-c7s.js。カイ・千年前の クモイの 海・しずむ前の島の灯台）
-import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js?v=a4d6430ed313';
+import { CH7S_STEPS, CH7S_OBJECTIVE_TARGETS, CH7S_OBJECTIVE_TALK, CH7S_PROGRESS, applyCh7s } from './story-c7s.js?v=5520dc01c4ec';
 // 第7章 第3幕「ひとりぼっちの星」Step 5・6（story-c7i.js。千年前の シロガネ地方・白雪の里・氷の竜の城・カイの影）
-import { CH7I_STEPS, CH7I_OBJECTIVE_TARGETS, CH7I_OBJECTIVE_TALK, CH7I_PROGRESS, applyCh7i } from './story-c7i.js?v=a4d6430ed313';
+import { CH7I_STEPS, CH7I_OBJECTIVE_TARGETS, CH7I_OBJECTIVE_TALK, CH7I_PROGRESS, applyCh7i } from './story-c7i.js?v=5520dc01c4ec';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -81,6 +81,8 @@ export const OLD_C7_OBJ = {
   karim: '第7章の続きはアップデートで！',
   // 第7章 Step 4 の さいご（第2幕までの 版。今の 文は story-c7s.js の C7S_OBJ.kai）
   kai: '第7章の続きはアップデートで！（カイは、ルミナの町の酒場で待っている）',
+  // 第7章 Step 6 の さいご（第3幕までの 版。今の 文は story-c7i.js の C7I_OBJ.clear。第8章の はじまりは トキネ）
+  clear: '第7章クリア！第8章「千年の約束」へ（続きはアップデートで！）',
 };
 
 // パーティー全員で 見る イベント

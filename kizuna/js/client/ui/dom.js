@@ -1,6 +1,6 @@
 // がめんの パーツを つくる どうぐ
 
-import { kanaPad } from './kana-pad.js?v=a4d6430ed313';
+import { kanaPad } from './kana-pad.js?v=5520dc01c4ec';
 
 export function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);

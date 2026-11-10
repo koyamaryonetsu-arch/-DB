@@ -7,9 +7,9 @@
 //
 // 1. 王宮の子どもと、迷子の子ラクダ … 王国の 南西の 広場（王宮の 子どもたち）→ 東の 門の 見張り → 王家の森で 子ラクダを 見つける
 // 2. 市場のずるい分銅 … 王国の 北東の 市場（布売り）・市場の はかり・東の 門の そばの 大臣の 家来
-import { npc } from './npc.js?v=a4d6430ed313';
-import { openSpot } from './labyrinth.js?v=a4d6430ed313';
-import { KINGDOM } from './c7-flags.js?v=a4d6430ed313';
+import { npc } from './npc.js?v=5520dc01c4ec';
+import { openSpot } from './labyrinth.js?v=5520dc01c4ec';
+import { KINGDOM } from './c7-flags.js?v=5520dc01c4ec';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第1幕の「千年前の 王国に 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 5-2）

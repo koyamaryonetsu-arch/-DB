@@ -10,18 +10,18 @@
 // より道「時をこえる手紙」（雪の 地方）は data/sidequests-c7i.js。魔物・きまった 戦い・品は B（plan-ch7.md の 8-2）。ゲストは いない
 import {
   C7I, ARRIVE7I, CF7, KAI4, SHADOW7, WIN7I, DRAGON7I, LETTER7I, LETTER7I_CASTLE, SPIRIT_LETTER, C7I_SNOW, PRESENT_SNOW, CASTLE_DOOR, WITCH_POS, c7icMapId,
-} from '../maps/c7i-flags.js?v=a4d6430ed313';
-import { C7S } from '../maps/c7s-flags.js?v=a4d6430ed313';
-import { C7I_POS } from '../maps/c7i-snow.js?v=a4d6430ed313';
-import { C7IC_POS } from '../maps/c7i-castle.js?v=a4d6430ed313';
-import { MAPS } from '../maps/index.js?v=a4d6430ed313';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=a4d6430ed313';
-import { MONSTERS } from './monsters.js?v=a4d6430ed313';
-import { SHOPS } from './shops.js?v=a4d6430ed313';
-import { SHOPS_C7I } from './shops-c7i.js?v=a4d6430ed313';
-import { GLASS_TEXT } from '../world/time-glass.js?v=a4d6430ed313';
-import { applyC7iSide } from './sidequests-c7i.js?v=a4d6430ed313';
-import { innSteps } from './inn.js?v=a4d6430ed313';
+} from '../maps/c7i-flags.js?v=5520dc01c4ec';
+import { C7S } from '../maps/c7s-flags.js?v=5520dc01c4ec';
+import { C7I_POS } from '../maps/c7i-snow.js?v=5520dc01c4ec';
+import { C7IC_POS } from '../maps/c7i-castle.js?v=5520dc01c4ec';
+import { MAPS } from '../maps/index.js?v=5520dc01c4ec';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=5520dc01c4ec';
+import { MONSTERS } from './monsters.js?v=5520dc01c4ec';
+import { SHOPS } from './shops.js?v=5520dc01c4ec';
+import { SHOPS_C7I } from './shops-c7i.js?v=5520dc01c4ec';
+import { GLASS_TEXT } from '../world/time-glass.js?v=5520dc01c4ec';
+import { applyC7iSide } from './sidequests-c7i.js?v=5520dc01c4ec';
+import { innSteps } from './inn.js?v=5520dc01c4ec';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -62,8 +62,8 @@ export const C7I_OBJ = {
   cf8: '竜の玉座の間に、カイがいる…（じゅんびを整えてから進もう）',
   win: '氷の竜シラネに話しかけよう（白雪の里の里長に話しても、続きが見られる）',
   dragon: '白雪の里の里長ハクロウに、話しかけよう',
-  // 第7章の さいご（あとの 章が できたら、この 文は OLD_C7_OBJ に のこす）
-  clear: '第7章クリア！第8章「千年の約束」へ（続きはアップデートで！）',
+  // 第7章の さいご・第8章の はじまり（前の 版の 文「…へ（続きはアップデートで！）」は story-c7.js の OLD_C7_OBJ.clear。第8章の 目標は story-c8.js の C8_OBJ）
+  clear: '第7章クリア！今のほしみの丘のトキネに会いに行こう（第8章「千年の約束」のはじまり…）',
 };
 
 // パーティー全員で 見る イベント
@@ -539,7 +539,7 @@ function fourScene(hx, hy) {
     ...N('第7章クリア！'),
     ...N('（ごほうび：氷の竜シラネのうろこと、星の鉄。\nモンスター闘技場や、サファラ闘技場にも、新しい強い相手が来たといううわさだ…）'),
     ['chapter', '第7章「最初の紋章の勇者たち」　完', '第8章「千年の約束」へ　つづく'],
-    ...N('第8章　千年の約束へ（続きはアップデートで！）'),
+    ...S('トキネの声', '（…{name}。今のほしみの丘で、待っているわね）'),
     ['bgm', 'resume'],
   ];
 }
@@ -682,8 +682,8 @@ export const CH7I_OBJECTIVE_TALK = {
     'シラネさまに、話しかけてみましょう。', 'りゅうに、話しかけよう！'),
   [C7I_OBJ.dragon]: T4('白雪の里の里長に、話しかけよう。', '里長のところへ、もどろうぜ！',
     '里長さんに、話しかけましょう。', 'さとちょうさんに、話しかけよう！'),
-  [C7I_OBJ.clear]: T4('第7章クリア。第8章「千年の約束」は、続きのアップデートで。時をこえる手紙のより道も、のこっているかもしれない。', 'やったな！つぎは第8章だってよ！',
-    '第7章クリアです。カイくんたちとの約束、わすれないでいましょう。', 'だい7しょう、クリア！'),
+  [C7I_OBJ.clear]: T4('第7章クリア。今のほしみの丘のトキネに会いに行こう。第8章「千年の約束」が始まる。', 'やったな！トキネのところへ行こうぜ！',
+    '第7章クリアです。トキネさんが、待っています。ほしみの丘へ行きましょう。', 'トキネに、あいにいこう！'),
 };
 
 // ───── すすみぐあい（story-c7.js の CH7_PROGRESS の うしろ）─────

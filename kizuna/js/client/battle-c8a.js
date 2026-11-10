@@ -9,9 +9,9 @@
 // ・バナー: 聞き耳・オウムがえしの 前ぶれ・はね返された／しっぱい／さいみんじゅつの 前ぶれ・あやつられた・つえを こわした／
 //   変身（コブラ・魔人）・とぐろ・かみつかれた・いちげき・からぶり／魔力の 前ぶれ・魔力・ランプに すいこまれた・出てきた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c7i.js から client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_PET, C8_JAFAR } from '../shared/data/monsters-c8a.js?v=a4d6430ed313';
-import { monsterCanvas } from './render/monsters.js?v=a4d6430ed313';
-import { el } from './ui/dom.js?v=a4d6430ed313';
+import { C8_PET, C8_JAFAR } from '../shared/data/monsters-c8a.js?v=5520dc01c4ec';
+import { monsterCanvas } from './render/monsters.js?v=5520dc01c4ec';
+import { el } from './ui/dom.js?v=5520dc01c4ec';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c7i.js の C7I_OWN_TELE に まぜる）
 export const C8A_OWN_TELE = [C8_PET, C8_JAFAR];

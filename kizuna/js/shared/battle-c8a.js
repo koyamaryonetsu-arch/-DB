@@ -23,14 +23,14 @@
 //   イアゴン … 聞き耳の 間は 呪文を 当てない（物理の 攻撃に かえる。b.c8aNoQuiet … しない）・オウムがえしの 前に（覚えて いれば）身を 守る（b.c6NoGuard）
 //   ジャハール … さいみんじゅつが 近い ときは つえを こわす（b.c8aNoStaff）・とぐろの 間は コブラを 攻撃しない（b.c8aNoCoil）・
 //     黒いランプを 先に こわす（b.c8aNoLamp）・むげんの魔力の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=a4d6430ed313';
-import { ABILITIES } from './data/abilities.js?v=a4d6430ed313';
-import { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP, COBRA_ACTIONS, GENIE_ACTIONS } from './data/monsters-c8a.js?v=a4d6430ed313';
-import { BUFF_ACTS } from './buff-acts.js?v=a4d6430ed313';
+import { MONSTERS } from './data/monsters.js?v=5520dc01c4ec';
+import { ABILITIES } from './data/abilities.js?v=5520dc01c4ec';
+import { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP, COBRA_ACTIONS, GENIE_ACTIONS } from './data/monsters-c8a.js?v=5520dc01c4ec';
+import { BUFF_ACTS } from './buff-acts.js?v=5520dc01c4ec';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=a4d6430ed313';
-import { canUse } from './ai.js?v=a4d6430ed313';
-import { AUTO_GUARD } from './battle-ch6.js?v=a4d6430ed313';
+import { atbRate, pub } from './battle.js?v=5520dc01c4ec';
+import { canUse } from './ai.js?v=5520dc01c4ec';
+import { AUTO_GUARD } from './battle-ch6.js?v=5520dc01c4ec';
 
 export { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP };
 export const ECHO = 'm8p_echo';
