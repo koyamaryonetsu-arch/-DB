@@ -93,6 +93,12 @@ export const FAMILY_GIFTS = {
     ...GIFT, name: '砂の守り神のお守り', bonus: { hp: 60, def: 14, heal: 12, mag: 6 }, resist: { blast: 0.7, poison: 0.6, sleep: 0.6 },
     desc: 'むかし、王家のピラミッドのまわりを守っていた神さまのお守り。だれでも装備でき、HPと守りと回復の力が上がり、爆発と毒とねむりに強い。',
   },
+  // ───── 第74回 D班（data/sidequests-work5.js）。第64回の きまり で ★5 は 27 の 1つだけ（第73回と おなじ くらい。闘技場 ランク10 の ブローチより 弱い）─────
+  // 27. 海鳴りの小島の、かげぼうしどろぼう（ソードマスターか魔剣士の 系統）: 洞窟の 入り口で 見つけた 白と 黒の かざりひも
+  fq_twin_tassel: {
+    ...GIFT, name: '光と闇のかざりひも', bonus: { hp: 50, str: 16, agi: 12, mag: 8 }, resist: { light: 0.7, dark: 0.7, blind: 0.6 },
+    desc: '白と黒の糸を、より合わせた剣のかざりひも。だれでも装備でき、HPと力と素早さが上がり、光と闇と目くらましに強い。',
+  },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
 
@@ -123,5 +129,6 @@ export const FAMILY_ITEM_KANA = {
   fq_friend_bell: 'なかよしのきんのすず', fq_gold_pad: 'めいじんのきんのこんとろーらー', fq_neta_note: 'ふわふわこんびのねたちょう',
   fq_fushigi_pocket: 'ほしよみのひみつぽけっと', fq_flower_pin: 'せんねんのはなのかみかざり',
   fq_sand_amulet: 'すなのまもりがみのおまもり',
+  fq_twin_tassel: 'ひかりとやみのかざりひも',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };

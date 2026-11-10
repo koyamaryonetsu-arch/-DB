@@ -1,7 +1,7 @@
 // 第5章 Step 1: 星の羽を えた 星の竜アステル（client/sky.js の のりもの 'star_dragon'・イベントの 役者 'star_dragon'）
 // 竜の え（render/dragon-art.js）の 上に、すきとおった 星の 光の 羽を かさねる
-import { makeCanvas, ctxOf } from './pixel.js?v=d98770c628cf';
-import { dragonCanvas, dragonRideCanvas, DRAGON_W, DRAGON_H, DRAGON_RIDE_TOP } from './dragon-art.js?v=d98770c628cf';
+import { makeCanvas, ctxOf } from './pixel.js?v=ff7f831793ea';
+import { dragonCanvas, dragonRideCanvas, DRAGON_W, DRAGON_H, DRAGON_RIDE_TOP } from './dragon-art.js?v=ff7f831793ea';
 
 // ───── 星の羽を えた 竜（竜の え の うしろに、すきとおった 星の 光の 羽。羽の ふちに 星）─────
 const R = 4;

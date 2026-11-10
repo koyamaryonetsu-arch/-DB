@@ -4,11 +4,11 @@
 //   ・職業で見る: 覚えた 職業ごと（今の 職業が 先、あとは 職業の じゅん）。ひらめき・魔物の 技などは「そのほか」
 //   どちらも 中は 弱い じゅん（shared/skill-sort.js）。空の タブは 出さない。タブは L・R（Q・E）で じゅんに かえる
 // ここは 画面に よらない きまり（テスト: test/skill-menu-r71.test.js）
-import { ALL_JOBS, JOBS } from './data/jobs.js?v=d98770c628cf';
-import { jobAbilities } from './stats.js?v=d98770c628cf';
-import { skillTabs } from './skill-tabs.js?v=d98770c628cf';
-import { sortByStdPower, favSection } from './skill-sort.js?v=d98770c628cf';
-import { jobLabel } from './job-label.js?v=d98770c628cf';
+import { ALL_JOBS, JOBS } from './data/jobs.js?v=ff7f831793ea';
+import { jobAbilities } from './stats.js?v=ff7f831793ea';
+import { skillTabs } from './skill-tabs.js?v=ff7f831793ea';
+import { sortByStdPower, favSection } from './skill-sort.js?v=ff7f831793ea';
+import { jobLabel } from './job-label.js?v=ff7f831793ea';
 
 export const LEARN_VIEWS = { kind: '種類で見る', job: '職業で見る' };
 export const LEARN_SECS = [['spell', '呪文'], ['skill', '特技']];

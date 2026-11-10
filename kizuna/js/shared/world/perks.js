@@ -1,12 +1,12 @@
 // 装備の ふしぎな 力（第31回。data/items-r31.js の perk）
 //   expHat … しあわせのぼうし: 戦いの 経験値が 2倍（その 戦いの パーティーで いちばん レベルが 高い 人には 効かない）
 //   walkMp … こうふくのくつ: 10歩 歩くと MPが 1 回復（フィールドと ダンジョン。つけた 人ごとに 数える）
-import { ITEMS, baseItemId } from '../data/items.js?v=d98770c628cf';
-import { HAT_EXP_MULT, SHOE_STEPS, SHOE_MP } from '../data/items-r31.js?v=d98770c628cf';
-import { MAPS } from '../maps/index.js?v=d98770c628cf';
-import { computeStats } from '../stats.js?v=d98770c628cf';
-import { partyOf } from './party.js?v=d98770c628cf';
-import { wagonEntries, wagonHere } from './wagon.js?v=d98770c628cf';
+import { ITEMS, baseItemId } from '../data/items.js?v=ff7f831793ea';
+import { HAT_EXP_MULT, SHOE_STEPS, SHOE_MP } from '../data/items-r31.js?v=ff7f831793ea';
+import { MAPS } from '../maps/index.js?v=ff7f831793ea';
+import { computeStats } from '../stats.js?v=ff7f831793ea';
+import { partyOf } from './party.js?v=ff7f831793ea';
+import { wagonEntries, wagonHere } from './wagon.js?v=ff7f831793ea';
 
 // その 人が つけている 装備の 力（perk）が あるか
 export function hasPerk(ch, perk) {

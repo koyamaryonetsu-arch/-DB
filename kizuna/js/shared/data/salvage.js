@@ -3,9 +3,9 @@
 //   ・ボスの 品（1人 1つ）・ふしぎな 力の ある 品・装備している 物は できない
 //   ・もらえる 素材は きたえる ときと 同じ しゅるい（data/forge.js の upgradeMat）。ランク・レア度・+の 数で ふえる
 //   ・バランス: 分解で もらえる 素材は、その 装備を 作る（レシピ）・きたえる のに 使う 素材より 少ない（テストで たしかめる）
-import { ITEMS } from './items.js?v=d98770c628cf';
-import { RECIPES, upgradeMat } from './forge.js?v=d98770c628cf';
-import { isShopGear } from './items-rare.js?v=d98770c628cf';
+import { ITEMS } from './items.js?v=ff7f831793ea';
+import { RECIPES, upgradeMat } from './forge.js?v=ff7f831793ea';
+import { isShopGear } from './items-rare.js?v=ff7f831793ea';
 
 const EQUIP_TYPES = ['weapon', 'armor', 'shield', 'head', 'acc'];
 const RECIPE_OF = new Map(RECIPES.map((r) => [r.id, r]));

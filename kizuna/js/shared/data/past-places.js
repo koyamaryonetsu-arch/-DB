@@ -2,10 +2,10 @@
 //   ・行った ことの ある 千年前の 町・村・里（入ると おぼえる。world.js の onMove。c.visited[id]）
 //   ・前の 版で もう 行った 人は、物語の しるし（seen）で 行った ことに する
 //   ・今の 時代に いる 時は 出さない（今の 町だけ。world/travel.js の warpPlaces）
-import { PAST_ID, HAMLET, SPRING, C6 } from '../maps/past.js?v=d98770c628cf';
-import { C7_FIELD, KINGDOM, C7 } from '../maps/c7-flags.js?v=d98770c628cf';
-import { C7S_SEA, VILLAGE, C7S } from '../maps/c7s-flags.js?v=d98770c628cf';
-import { C7I_SNOW, VILLAGE7I, C7I } from '../maps/c7i-flags.js?v=d98770c628cf';
+import { PAST_ID, HAMLET, SPRING, C6 } from '../maps/past.js?v=ff7f831793ea';
+import { C7_FIELD, KINGDOM, C7 } from '../maps/c7-flags.js?v=ff7f831793ea';
+import { C7S_SEA, VILLAGE, C7S } from '../maps/c7s-flags.js?v=ff7f831793ea';
+import { C7I_SNOW, VILLAGE7I, C7I } from '../maps/c7i-flags.js?v=ff7f831793ea';
 
 const R = (p) => [p.x, p.y, p.w, p.h];
 export const PAST_PLACES = {

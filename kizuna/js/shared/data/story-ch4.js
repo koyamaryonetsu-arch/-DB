@@ -16,26 +16,26 @@
 //         南の 砂嵐の 切れ目も 開く）→ 王都の 南の 門から 南の砂ばくへ → 砂の港ドゥナへの 谷（見張りに 手紙を 見せる）
 // Step 6: 谷の 門が 開いて 砂の港ドゥナ → かしらバルガ → サラ（ゲスト）→ 砂の古城の 船のかじ（2人スイッチ）→ すなかぜ号で 砂の海
 //         → 砂クジラ（砂に もぐる）→ 砂の底の神殿の 入口が 分かる（story-ch4-duna.js）
-import { NORTH_PLACES } from '../maps/north.js?v=d98770c628cf';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=d98770c628cf';
+import { NORTH_PLACES } from '../maps/north.js?v=ff7f831793ea';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=ff7f831793ea';
 import {
   CANAL_DOOR, CANAL_LEVERS, SONG_FLAGS, PALACE_CANAL_STAIRS,
   PYR_BUTTONS, PYR_DOOR_FLAG, PYR_LEVERS, PYR_CRACK_FLAG, GOLD_SWORD_FLAG, PYR_POTS, PYR_FALL, PYR_STAIRS, PYR4_POS, DUNA_LOOKOUTS,
-} from '../maps/ch4.js?v=d98770c628cf';
-import { PYRAMID_POS } from '../maps/south.js?v=d98770c628cf';
-import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=d98770c628cf';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=d98770c628cf';
-import { innSteps } from './inn.js?v=d98770c628cf';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=d98770c628cf';
-import { C3_OBJ } from './story-ch3.js?v=d98770c628cf';
+} from '../maps/ch4.js?v=ff7f831793ea';
+import { PYRAMID_POS } from '../maps/south.js?v=ff7f831793ea';
+import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=ff7f831793ea';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=ff7f831793ea';
+import { innSteps } from './inn.js?v=ff7f831793ea';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=ff7f831793ea';
+import { C3_OBJ } from './story-ch3.js?v=ff7f831793ea';
 // 第37回 A: 第4章クリアの あとの 闘技場（力じまんの戦士の ことば）
-import { fighterTalk } from './story-arena.js?v=d98770c628cf';
+import { fighterTalk } from './story-arena.js?v=ff7f831793ea';
 // Step 6: 砂の海賊と 砂クジラ（ドゥナ・砂の古城・すなかぜ号・砂の海）
-import { DUNA_STEPS, DUNA_OBJ, DUNA_STORY_SCRIPTS, DUNA_SCRIPTS, DUNA_TARGETS, DUNA_TALK, DUNA_PROGRESS } from './story-ch4-duna.js?v=d98770c628cf';
+import { DUNA_STEPS, DUNA_OBJ, DUNA_STORY_SCRIPTS, DUNA_SCRIPTS, DUNA_TARGETS, DUNA_TALK, DUNA_PROGRESS } from './story-ch4-duna.js?v=ff7f831793ea';
 // Step 7: 砂の底の神殿と モルガナ・エンディング（A: 世界と物語）
 import {
   TEMPLE_STEPS, TEMPLE_OBJ, TEMPLE_STORY_SCRIPTS, TEMPLE_SCRIPTS, TEMPLE_TOWN_LINES, TEMPLE_TARGETS, TEMPLE_TALK, TEMPLE_PROGRESS,
-} from './story-ch4-temple.js?v=d98770c628cf';
+} from './story-ch4-temple.js?v=ff7f831793ea';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

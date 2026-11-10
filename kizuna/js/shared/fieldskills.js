@@ -5,12 +5,12 @@
 //   ・ルーラは 洞窟や 塔の 中では 出さない（天井に 頭を ぶつける だけ）。リレミトは フィールドでは 出さない
 //   ・MPが 足りない 技・唱える 人が 死んでいる ときは 出すが えらべない（why: 'mp' / 'dead'）
 //   ・呪文が ふうじられた 場所（noSpells。王家のピラミッド 2階）では 呪文を 出すが えらべない（why: 'seal'）
-import { ABILITIES } from './data/abilities.js?v=d98770c628cf';
-import { ITEMS } from './data/items.js?v=d98770c628cf';
-import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=d98770c628cf';
-import { spellSealed } from './battle.js?v=d98770c628cf';
-import { effectTab } from './skill-tabs.js?v=d98770c628cf';
-import { sortByStdPower } from './skill-sort.js?v=d98770c628cf';
+import { ABILITIES } from './data/abilities.js?v=ff7f831793ea';
+import { ITEMS } from './data/items.js?v=ff7f831793ea';
+import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=ff7f831793ea';
+import { spellSealed } from './battle.js?v=ff7f831793ea';
+import { effectTab } from './skill-tabs.js?v=ff7f831793ea';
+import { sortByStdPower } from './skill-sort.js?v=ff7f831793ea';
 
 // mapKind: 今いる マップの しゅるい（'field' なら そと）
 // へんじ: [{ id, cost, ok, why }]（覚えた じゅん）

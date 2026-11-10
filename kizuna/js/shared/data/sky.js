@@ -2,11 +2,11 @@
 // ・風の大鳥フウラ: カモメ港の 風のさいだんで「風の笛」を もらうと、フィールドで 呼べる（world/travel.js）
 // ・ルーラ: 魔法使い・賢者が 覚える。行った ことの ある 町へ 仲間と いっしょに 飛ぶ（洞窟や 塔の 中では 使えない）
 // ・第3章: シロガネ地方（北）へも 飛べる。星の竜アステルが 目覚めると（c3_dragon）竜に のって もっと はやく 飛べる
-import { OW_W, OW_H } from '../maps/overworld.js?v=d98770c628cf';
-import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=d98770c628cf';
-import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=d98770c628cf';
-import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js?v=d98770c628cf';
-import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_SKY2, KUMOI_ARRIVE } from '../maps/kumoi.js?v=d98770c628cf';
+import { OW_W, OW_H } from '../maps/overworld.js?v=ff7f831793ea';
+import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=ff7f831793ea';
+import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=ff7f831793ea';
+import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js?v=ff7f831793ea';
+import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_SKY2, KUMOI_ARRIVE } from '../maps/kumoi.js?v=ff7f831793ea';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -30,4 +30,9 @@ export const FIXED_FAMILY = {
   fq_rockmole: { group: [['rock_mole', 2, 2]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 80, enemyPow: 0.55 },
   // 26. 王家のピラミッドの 前の 広場の 夜の 見張り: 北の 砂から 来た サンドワームと やみサソリ
   fq_sandnight: { group: [['sand_worm', 1, 1], ['dark_scorpion', 1, 1]], bg: 'desert', bgm: 'battle', canFlee: false, enemyLv: 80, enemyPow: 0.7 },
+  // ───── 第74回 D班（data/sidequests-work5.js）。第8章 第2幕（Lv84 の ころ）なので 敵Lv84（それでも 完全オートで 勝てる 軽さ。もとが 強いので enemyPow で 弱く する）─────
+  // 27. 海鳴りの小島の 洞窟の 入り口の 月の 夜: かげを ぬすむ かげぼうしと ひとがたの影
+  fq_shadownight: { group: [['kage_boushi', 2, 2], ['homunculus_shade', 1, 1]], bg: 'sea_cave', bgm: 'battle', canFlee: false, enemyLv: 84, enemyPow: 0.4 },
+  // 28. 北の海辺の ハサミ団の かくれ岩: 用心棒の よろいガニと 星座ガニ
+  fq_crabguard: { group: [['armor_crab', 2, 2], ['crab_star', 1, 1]], bg: 'beach', bgm: 'battle', canFlee: false, enemyLv: 84, enemyPow: 0.4 },
 };
