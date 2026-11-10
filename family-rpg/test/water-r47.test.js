@@ -213,6 +213,8 @@ const BOSS_CHANGED = {
   c7_gate: 0.5, c7_gate_b: 0.5, c7_temple: 0.5,
   // 第68回 C: 闘技場 ランク11（氷の 王者と おとも）
   ar_boreas: 0.75, ar_snowman: 0.75, ar_snow_kid: 0.75,
+  // 第74回 C: 闘技場 ランク12（深海の 竜・カニ・クラゲ）
+  ar_leviathan: 0.5, ar_bubble_crab: 0.5, ar_glow_jelly: 0.5,
 };
 
 test('ボス: 水の 弱点は 1.25まで・もとからの いちばんの 弱点を こえない・作戦の 属性は 水より 効く', () => {

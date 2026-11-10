@@ -20,6 +20,10 @@
 //   第68回 C（第7章クリアの 強さ）:
 //   ランク11 白銀の大王者ボレアス … こおる・とける（arena.frost。battle-arena.js）。こおっている 間は 炎 いがい ほとんど 効かない・炎で とかすと 大チャンス。
 //                        こおった 体で 息を すったら 次の 番に 大ふぶき（とかすと 止まる）。雪だるまのコロン・雪の子チララが、とけた 王者を また こおらせる
+//   第74回 C（第8章 第2幕クリアの 強さ）:
+//   ランク12 深海の大王者リヴァイアス … あわの よろい（arena.bubble。battle-arena.js）。あわが ある 間は、どんな 攻撃も 1回で あわが 1つ はじけて
+//                        ダメージは 0。ぜんぶ はじけると 大チャンス。しばらくすると また まとう。あわの 中で 回り始めたら 次の 番に 大うずしお。
+//                        あわふきガニのブクブ・光クラゲのポワン（クラゲは 王者を 回復する）
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
 const PIRATE = { sleep: 0.4, confuse: 0.4, blind: 0.5, poison: 0.5, paralyze: 0.4, silence: 0.6 };
 
@@ -281,6 +285,37 @@ export const ARENA_MONSTERS = {
     resist: { ...BOSS_STATUS, ice: 0.3, fire: 1.3 },
     actions: [{ w: 9, id: 'm_ar11_snow_breath', cond: ['c5:arKingThawed', 'notRecent:m_ar11_snow_breath'] }, { w: 3, id: 'attack' }, { w: 3, id: 'm_ar11_snowdance', cond: 'notRecent:m_ar11_snowdance' }],
     desc: '白銀の大王者の家来。雪の空をまう、小さな雪の子。とけた王者に、つめたいいきをふきかけて、またこおらせる。炎がよく効く。',
+  },
+
+  // ───── 第74回 C: ランク12（伝説の部。あわの よろい）─────
+  ar_leviathan: {
+    name: '深海の大王者リヴァイアス', lv: 90, hp: 45000, mp: 3000, str: 740, def: 290, agi: 130, mag: 700, exp: 52000, gold: 16000,
+    race: 'dragon', size: 'xl', boss: true, turns: 2, speed: 0.62, hit: 'bite', art: 'water_dragon', artScale: 1.7, tint: { hueTo: 232, sat: 0.95, light: 0.9 },
+    // bubble: max … あわの 数（どんな 攻撃も 1回 当たると 1つ はじけて ダメージ 0）/ openMult … あわが ない 間の ダメージ /
+    //   wait … ぜんぶ はじけて から また あわを まとう までの 番 / bigBase・bigPer … 大うずしおの 強さ（bigBase ＋ bigPer × のこりの あわ の 数 ばい）
+    arena: { lead: true, bubble: { max: 4, openMult: 1.35, wait: 3, bigBase: 0.4, bigPer: 0.2 } },
+    resist: { ...BOSS_STATUS, bolt: 1.2, ice: 0.8, fire: 0.9 },
+    actions: [
+      { w: 9, id: 'm_ar12_rebubble', cond: 'c5:arBubbleWait' },
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_ar12_fang' }, { w: 2, id: 'm_ar12_wave', cond: 'notRecent:m_ar12_wave' },
+      { w: 2, id: 'm_ar12_inhale', cond: ['c5:arBubbled', 'notRecent:m_ar12_inhale', 'notRecent:m_ar12_maelstrom'] },
+    ],
+    phases: [{ hpBelow: 0.35, msg: ['深海の大王者リヴァイアスのうろこが、青白く光りだした！', '「よくぞ、ここまで…！海の底の力を、見せてやろう！」…攻撃力が上がった！'], buff: { atk: 1.15 } }],
+    desc: '伝説の部、ランク12の王者。海のいちばん深い所から来た、青い大きな竜。体をあわのよろいでつつんでいる。あわは、どんな攻撃でも1回当たると1つはじける。全部はじけたら、大チャンス。あわの中で回り始めたら、次の番に大うずしお。あわが多いほど、うずは大きい。雷がよく効く。',
+  },
+  ar_bubble_crab: {
+    name: 'あわふきガニのブクブ', lv: 88, hp: 10000, mp: 300, str: 640, def: 300, agi: 100, mag: 420, exp: 6500, gold: 2200,
+    race: 'beast', size: 'm', boss: true, turns: 1, speed: 1, hit: 'claw', art: 'armor_crab', artScale: 1.3, tint: { hueTo: 190, sat: 1.15, light: 1.1 },
+    resist: { ...BOSS_STATUS, bolt: 1.25, ice: 0.9 },
+    actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ar12_scissors' }, { w: 2, id: 'm_ar12_spray', cond: 'notRecent:m_ar12_spray' }],
+    desc: '深海の大王者の家来。かたいこうらの、青いカニ。大きなハサミではさみ、あわをふきつけてくる。雷がよく効く。',
+  },
+  ar_glow_jelly: {
+    name: '光クラゲのポワン', lv: 88, hp: 8600, mp: 600, str: 460, def: 220, agi: 160, mag: 560, exp: 6500, gold: 2200,
+    race: 'spirit', size: 'm', flying: true, boss: true, turns: 1, speed: 1, hit: 'bash', art: 'glow_jelly', artScale: 1.3, tint: { hueTo: 300, sat: 1.0, light: 1.15 },
+    resist: { ...BOSS_STATUS, bolt: 1.2, fire: 1.1 },
+    actions: [{ w: 4, id: 'm_ar12_heal', cond: ['allyHurt', 'notRecent:m_ar12_heal'] }, { w: 3, id: 'attack' }, { w: 3, id: 'm_ar12_sting' }],
+    desc: '深海の大王者の家来。やさしく光る、むらさきのクラゲ。光で王者のきずを治し、しょくしゅでしびれさせる。雷がよく効く。',
   },
 };
 

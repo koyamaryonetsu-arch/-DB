@@ -279,8 +279,9 @@ export async function rankRun(run, s, R, keys) {
   return 'win';
 }
 
-// 勝ちぬいた ときの 受付の ことば（第68回 C: EX を 足した）
+// 勝ちぬいた ときの 受付の ことば（第68回 C: EX を 足した・第74回 C: EX2）
 function monClearText(rank) {
+  if (rank === 'EX2') return '千年の月の王者まで、たおしてしまうとは…！\nあんたの魔物たちの名前は、千年先まで語りつがれるぞ！';
   if (rank === 'EX') return '星のかなたの王者にまで勝つとは…！\nあんたの魔物たちは、もう伝説をこえているぞ！';
   if (rank === 'SSS') return 'なんと、王者の中の王者に勝つとは…！\nあんたの魔物たちこそ、本物の伝説だ！';
   return 'おめでとう！\n魔物たちも、ほこらしそうにしているぞ！';

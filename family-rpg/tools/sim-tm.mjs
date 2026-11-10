@@ -21,7 +21,8 @@ if (process.argv[1].endsWith('sim-tm.mjs')) {
   for (const L of LVS) {
     const floor = 3;
     const eLv = enemyLvOf(L, floor);
-    const plv = Math.min(99, Math.round(eLv) + Number(process.env.GAP ?? 3));
+    // 第74回 C: 地図 Lv41〜45 は 魔物が Lv92〜102 なので、99 で 止めない（キャラの 上限 Lv150）
+    const plv = Math.min(150, Math.round(eLv) + Number(process.env.GAP ?? 3));
     for (const curve of [false, true]) {
       const res = [];
       for (const th of THEME_KEYS) {

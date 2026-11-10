@@ -37,6 +37,8 @@ export const WATER_SEA = [
   'uzu_eel', 'gesso', 'water_youma', 'c7_gate', 'c7_gate_b', 'c7_temple', 'c7_shell',
   // 第2部 第7章 第2幕（monsters-c7s.js）: 海の 魚（プクプク・魚人の海賊）
   'pukupuku', 'fish_pirate',
+  // 第74回 C: 闘技場 ランク12（monsters-arena.js）: 深海の 竜・カニ・クラゲ
+  'ar_leviathan', 'ar_bubble_crab', 'ar_glow_jelly',
 ];
 
 // 3. 炎の 魔物。きまり: 炎が 0.5いか で 氷が 1.2いじょう（この ゲームの 炎の 魔物は みんな 氷に 弱い）。

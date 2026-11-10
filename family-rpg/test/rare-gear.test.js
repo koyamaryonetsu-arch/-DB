@@ -80,7 +80,8 @@ test('第35回 ★（強さ）: 店の 品は ★1。店では 買えない 品�
 
 test('レア装備: 約100こ。名前は かぶらず、読みがな・説明・手に入る 所が ある。★5は ひみつのダンジョンだけ', () => {
   // 第65回 C: 深い 宝の洞窟（地図 Lv26〜35）の ★5 を 18こ 足した
-  assert.ok(NEW.length >= 95 && NEW.length <= 140, `${NEW.length}こ`);
+  // 第74回 C: だん14 の 6こで 148こ
+  assert.ok(NEW.length >= 95 && NEW.length <= 150, `${NEW.length}こ`);
   const names = new Map();
   for (const [id, it] of Object.entries(ITEMS)) {
     if (it.base) continue;

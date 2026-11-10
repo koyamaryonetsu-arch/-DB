@@ -66,7 +66,8 @@ export async function arenaDesk(run) {
 function bestText(c) {
   const best = Math.max(0, ...ARENA_RANKS.filter((R) => rankCleared(c, R.rank)).map((R) => R.rank));
   if (!best) return 'まずは、ランク1からちょうせんだ！';
-  // 第65回 C: ランク10・ランク8（伝説のチャンピオン）。第68回 C: ランク11（いちばん 上）
+  // 第65回 C: ランク10・ランク8（伝説のチャンピオン）。第68回 C: ランク11。第74回 C: ランク12（いちばん 上）
+  if (best >= 12) return '深海の大王者のあわまで、全部はじいた、闘技場の伝説が来てくれるとは…！';
   if (best >= 11) return '白銀の大王者のこおりまでとかした、闘技場の伝説が来てくれるとは…！';
   if (best >= 10) return '星の大王者に勝った、闘技場の大王者が来てくれるとは…！';
   if (best === ARENA_LEGEND_RANK) return '伝説のチャンピオンに勝った者が、また来てくれるとは…！';
@@ -184,6 +185,7 @@ export async function runRank(run, n) {
 
 // 勝ちぬいた ときの 受付の ことば（第65回 C: ランク8 は 伝説のチャンピオン・ランク10 は いちばん 上）
 function clearText(n) {
+  if (n >= 12) return 'あの深海の大王者のあわのよろいを、やぶってしまうとは…！\nあんたたちの名前は、海の底まで、とどろいているぞ！';
   if (n >= 11) return 'あの白銀の大王者のこおりを、とかしてしまうとは…！\nあんたたちこそ、闘技場の伝説の中の伝説だ！';
   if (n >= 10) return 'なんと、星の大王者にまで勝つとは…！\nあんたたちこそ、闘技場の大王者だ！';
   if (n === ARENA_LEGEND_RANK) return 'まさか、伝説のチャンピオンに勝つとは…！\nあんたたちこそ、本物の伝説だ！';

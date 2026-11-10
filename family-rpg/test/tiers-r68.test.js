@@ -34,21 +34,22 @@ const noBad = (s) => assert.deepEqual(checkText(s), [], s);
 const sum = (id) => Object.values(ITEMS[id].bonus || {}).reduce((a, v) => a + v, 0);
 
 // ───────────── 宝の地図 ─────────────
+// 第74回 C: 上限 40 → 45（Lv41 から 第8章の 魔物・主の 倍率の 合わせ直し・だん14。test/tiers-r74.test.js）。ここは Lv40 までの きまりを 見る
 test('宝の地図: 上限 Lv40（洞窟の 魔物は Lv89 から・主は Lv93.5 まで）。ID・セーブ・洞窟が Lv40 まで つかえる', () => {
-  assert.equal(TM_LV_MAX, 40);
+  assert.equal(TM_LV_MAX, 45);
   assert.equal(TM_C7_FROM, 36);
   assert.equal(enemyLvOf(40, 1), 89);
   const deepest = (L) => [...Array(4000).keys()].find((x) => caveInfo(x, L).floors === 6);
   assert.equal(bossLvOf(deepest(40), 40), 93.5);
   const tm = { seed: 4242, lv: 40, map: 'overworld', x: 40, y: 40 };
   assert.equal(parseFloorId(floorMapId(tm, 3)).lv, 40);
-  assert.equal(parseFloorId(floorMapId({ ...tm, lv: 41 }, 1)), null, 'Lv41 は ない');
+  assert.equal(parseFloorId(floorMapId({ ...tm, lv: TM_LV_MAX + 1 }, 1)), null, '上限より 上は ない');
   const m = buildTreasureFloor(floorMapId(tm, 1));
   assert.ok(m && m.enemyCurve && m.enemyLv === enemyLvOf(40, 1));
   assert.equal(m.enemyPow, TM_DEEP_POW, 'Lv36〜 も 第65回の deep と おなじ 0.95');
   const c = { treasureMaps: [{ seed: 9, lv: 38, map: 'overworld', x: 3, y: 4 }, { seed: 10, lv: 70, map: 'sea', x: 3, y: 4 }] };
   repairTreasureMaps(c);
-  assert.deepEqual(c.treasureMaps.map((t) => t.lv), [38, 40]);
+  assert.deepEqual(c.treasureMaps.map((t) => t.lv), [38, TM_LV_MAX]);
   // 第7章クリアの ころ（物語の 魔物 Lv76〜80）で Lv34〜37 の 地図が 自然に 出る（もとの 式の まま）
   const rng = makeRng(68);
   const at = (eLv) => Array.from({ length: 300 }, () => dropMapLevel(rng, eLv));
@@ -72,7 +73,7 @@ test('洞窟の 魔物: Lv36〜40 は 第7章（第1幕・第2幕）の ふつ�
     }
   }
   assert.equal(used.size, c7.size, '第7章の 魔物 15しゅ ぜんぶ');
-  for (let lv = TM_C7_FROM; lv <= TM_LV_MAX; lv++) {
+  for (let lv = TM_C7_FROM; lv <= 40; lv++) {
     for (const th of THEME_KEYS) {
       assert.deepEqual(tmPoolOf(lv, th), TM_THEMES[th].c7);
       const sps = speciesOf(ensureEncounterTable(lv, th));
@@ -86,11 +87,11 @@ test('洞窟の 魔物: Lv36〜40 は 第7章（第1幕・第2幕）の ふつ�
 
 test('洞窟の 主: Lv36〜40 の 倍率（シミュレーターで 決めた 数。だんだん 小さく・Lv40 より 上は おなじ）', () => {
   // node tools/sim-boss.mjs 30 tm 35,36,37,38,39,40 … 主の レベル＋3 の 4人・その ころの 店・完全オートで 83〜91%
-  assert.deepEqual(TM_BOSS_POW.slice(-2), [[35, 0.73], [40, 0.71]]);
+  // 第74回 C: めやすが 上がったので 合わせ直した（Lv35 0.70・Lv40 0.68。test/tiers-r74.test.js）
+  assert.deepEqual(TM_BOSS_POW.filter(([L]) => L >= 35 && L <= 40), [[35, 0.70], [38, 0.70], [40, 0.68]]);
   for (const sp of Object.keys(MONSTERS_TM)) {
     for (let L = 35; L < TM_LV_MAX; L++) assert.ok(tmBossPow(L + 1, sp) <= tmBossPow(L, sp), `${sp} Lv${L}`);
-    assert.ok(tmBossPow(40, sp) >= 0.6 && tmBossPow(40, sp) <= 0.8, `${sp}: ${tmBossPow(40, sp)}`);
-    assert.equal(tmBossPow(45, sp), tmBossPow(40, sp));
+    assert.ok(tmBossPow(40, sp) >= 0.55 && tmBossPow(40, sp) <= 0.8, `${sp}: ${tmBossPow(40, sp)}`);
   }
 });
 
@@ -138,7 +139,7 @@ test('宝箱の 装備: Lv36〜40 は だん13 の ★5（土・氷・炎 2つ�
 // ───────────── サファラ闘技場 ランク11 ─────────────
 test('闘技場 ランク11: 第7章クリアで 開く・おすすめ Lv82・3連戦（1・2戦目は 第7章の 魔物・3戦目は 白銀の大王者）', () => {
   const R = rankInfo(11);
-  assert.equal(ARENA_RANKS.length, 11);
+  assert.ok(ARENA_RANKS.length >= 11); // 第74回 C: ランク12
   assert.deepEqual([R.lv, R.needFlag, R.legend, R.champ], [82, 'c7_clear', true, '白銀の大王者ボレアス']);
   assert.equal(rankLabel(11), '伝説の部・ランク11');
   for (const s of [R.champ, R.hint, R.lockText]) noBad(s);
@@ -268,7 +269,7 @@ test('白銀の大王者の しかけ: こおっている 間は 炎 いがい �
 
 // ───────────── モンスター闘技場 ランクEX ─────────────
 test('モンスター闘技場 ランクEX: SSS の つぎ・第7章クリアで 開く・おすすめ Lv84・王者は 色ちがい・くりかえして 装備は もらえない', () => {
-  assert.deepEqual(MONARENA_RANK_IDS.slice(-3), ['SS', 'SSS', 'EX']);
+  assert.deepEqual(MONARENA_RANK_IDS.slice(7, 10), ['SS', 'SSS', 'EX']); // 第74回 C: この あとに EX2
   const R = monRankInfo('EX'), S3 = monRankInfo('SSS');
   assert.deepEqual([R.lv, R.need, R.legend], [84, 'c7_clear', true]);
   assert.equal(monRankLabel('EX'), '伝説の部・ランクEX');
@@ -284,12 +285,12 @@ test('モンスター闘技場 ランクEX: SSS の つぎ・第7章クリアで
   for (const [id, n] of R.first.items) assert.ok(ITEMS[id] && n > 0 && !EQ.includes(ITEMS[id].type), id);
   assert.ok(R.first.items.some(([id]) => id === 'limit_stone') && R.first.items.some(([id]) => id === 'color_stone'));
   assert.ok(R.first.medals >= S3.first.medals && R.repeatGold > S3.repeatGold && R.repeatMedal);
-  assert.equal(MONARENA_RANKS[MONARENA_RANKS.length - 1], R);
+  assert.equal(MONARENA_RANKS[9], R);
   // 開く: c7_clear と SSS
   const flags = new Set(['monster_bond', 'c1_clear', 'c2_clear', 'c3_clear', 'c4_clear', 'c5_gaia', 'c5_clear', 'c6_clear', 'c7_karim']);
   const flag = (f) => flags.has(f);
   const c = {};
-  for (const id of MONARENA_RANK_IDS.slice(0, -2)) noteMonClear(c, id, 1);
+  for (const id of MONARENA_RANK_IDS.slice(0, 8)) noteMonClear(c, id, 1);
   assert.equal(monRankOpen('EX', flag, c).why, 'story');
   flags.add('c7_clear');
   assert.equal(monRankOpen('EX', flag, c).why, 'prev');

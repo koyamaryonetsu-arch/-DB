@@ -381,4 +381,52 @@ export const ARENA_ABILITIES = {
     effect: { type: 'magic', element: 'ice', base: [120, 140], thr: 99 }, cast: '{a}は、くるくるまって、雪をふらせた！', anim: 'blizzard',
     desc: '雪をふらせて、敵みんなにダメージ。',
   },
+
+  // ───── 第74回 C: ランク12（伝説の部）の 王者: 深海の大王者リヴァイアスと あわふきガニのブクブ・光クラゲのポワン
+  //   （あわの よろい。あわが はじける・まとい直すは battle-arena.js の arBubble と ダメージの しかけ）─────
+  m_ar12_fang: {
+    name: '深海のキバ', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.5, element: 'water' }, cast: '{a}は、大きなキバで、{t}にかみついた！', anim: 'bite',
+    desc: '大きなキバで、1人に大ダメージ。',
+  },
+  m_ar12_wave: {
+    name: '大波', kind: 'monster', target: 'enemies',
+    effect: { type: 'phys', mult: 0.72, element: 'water' }, cast: '{a}が、しっぽで水面をたたくと、大きな波がおしよせた！', anim: 'hit_all',
+    desc: '大きな波で、敵みんなにダメージ。',
+  },
+  m_ar12_inhale: {
+    name: '大うずの前ぶれ', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar12_maelstrom' }, cast: '{a}は、あわの中で、ぐるぐると回り始めた…！\n（闘技場の水が、大きくうずをまき始めた！）', anim: 'charge',
+    desc: '次の番に「深海の大うずしお」。身を守ろう。',
+  },
+  m_ar12_maelstrom: {
+    name: '深海の大うずしお', kind: 'monster', target: 'enemies',
+    effect: { type: 'magic', element: 'water', base: [280, 300], thr: 99 }, cast: '{a}の、深海の大うずしお！\n闘技場が、まるごと大きなうずにのみこまれた！', anim: 'whirlpool',
+    desc: '大うずしおで、敵みんなにとても大きなダメージ。身を守ると少し弱くなる。',
+  },
+  m_ar12_rebubble: {
+    name: 'あわのよろい', kind: 'monster', target: 'self',
+    effect: { type: 'arBubble' }, cast: '{a}は、口から大きなあわを、ぶくぶくとふきだした！', anim: 'buff',
+    desc: 'あわのよろいをまとい直す。あわは、どんな攻撃でも1回当たると1つはじける。',
+  },
+  m_ar12_scissors: {
+    name: '大バサミ', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.35 }, cast: '{a}は、大きなハサミで、{t}をはさみこんだ！', anim: 'slash_heavy',
+    desc: '大きなハサミで、1人にダメージ。',
+  },
+  m_ar12_spray: {
+    name: 'あわのしぶき', kind: 'monster', mp: 8, target: 'enemies',
+    effect: { type: 'magic', element: 'water', base: [115, 135], thr: 99 }, cast: '{a}は、あわを、いきおいよくふきつけた！', anim: 'hit_all',
+    desc: 'あわをふきつけて、敵みんなにダメージ。',
+  },
+  m_ar12_heal: {
+    name: 'やさしい光', kind: 'monster', mp: 8, target: 'ally',
+    effect: { type: 'heal', base: [1000, 1150] }, cast: '{a}の体が、やさしく光って、{t}をつつんだ！', anim: 'heal1',
+    desc: '仲間1人のHPを回復する。',
+  },
+  m_ar12_sting: {
+    name: 'しびれのしょくしゅ', kind: 'monster', target: 'enemy',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.1 }, { type: 'status', status: 'paralyze', chance: 0.2, turns: [1, 1] }] }, cast: '{a}は、ながいしょくしゅで、{t}をぴしゃりと打った！', anim: 'tackle',
+    desc: 'しょくしゅで、1人にダメージ。動けなくすることがある。',
+  },
 };

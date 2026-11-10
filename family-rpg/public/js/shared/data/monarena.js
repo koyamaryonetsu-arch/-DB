@@ -1,7 +1,8 @@
 // 第67回 B: モンスター闘技場の きまり（ランク・開く 時・相手・ごほうび・記録）。docs/plan-r67-monster-arena.md
 //
 // ・戦うのは 自分の 魔物 1〜4ひき だけ（人は 戦わない。world/monarena.js）
-// ・ランク戦: F・E・D・C・B・A・S（物語が 進むと 開く）＋ 伝説の部 SS・SSS・EX（第68回 C。第7章クリア）。1つ前の ランクを 勝ちぬくと 次へ
+// ・ランク戦: F・E・D・C・B・A・S（物語が 進むと 開く）＋ 伝説の部 SS・SSS・EX（第68回 C。第7章クリア）・EX2（第74回 C。第8章 第2幕クリア）。
+//   1つ前の ランクを 勝ちぬくと 次へ
 //   1つの ランクは 休みなしの 3連戦（サファラ闘技場と おなじ。戦いの 前に 闘技場が HP・MPを 満タンに して くれる・戦いの 間は 回復しない・
 //   にげられない・道具は 使える）。3戦目は 王者（色ちがいの 強い 魔物 ＋ おとも）
 //   相手は ふつうの 魔物を ランクの レベル（lv）に そろえた もの（data/treasure.js の scaleEnemy。宝の洞窟と おなじ 強さの のび）
@@ -107,6 +108,16 @@ export const MONARENA_RANKS = [
     champPow: 1.45, champLv: 2, repeatMedal: true,
     first: { items: [['color_stone', 5], ['limit_stone', 4], ['seed_str', 3], ['seed_def', 3], ['seed_mag', 3]], medals: 8 }, repeatGold: 6500,
     hint: 'シャドウうずしおウツボは、とても素早い。大うずしおで、みんなをまきこむぞ。雷がよく効く。回復のできる魔物でいどもう。',
+  },
+  // 第74回 C: 伝説の部の つづき EX2（第8章 第2幕クリア〈c8_hades〉で 開く。おすすめ Lv88）。相手は 第7章 第3幕（いばらの城）と
+  //   第8章 第1幕（月の王宮の 地下迷宮）の 魔物。ごほうびは SS・SSS・EX と おなじ 形（色の石・限界の石・種。くりかえして もらえる 装備は ない）
+  {
+    rank: 'EX2', title: '伝説の部・千年の月の部', lv: 88, foeLv: 86, need: 'c8_hades', legend: true,
+    lock: '（千年前の、海の底の青い火の戦いを乗りこえると、開くらしい）',
+    fights: [['ice_bro', 'thorn_goblin', 'ice_mirror'], ['palace_guard', 'cobrar', 'lamp_smoke'], [V('moon_scarab', 'gold'), 'sanbo', 'palace_guard']],
+    champPow: 1.45, champLv: 2, repeatMedal: true,
+    first: { items: [['color_stone', 5], ['limit_stone', 5], ['seed_hp', 3], ['seed_str', 3], ['seed_agi', 3]], medals: 10 }, repeatGold: 8000,
+    hint: 'ゴールド月のスカラベは、体がとてもかたい。月の光は、とても強いぞ。銀色にかがやくと、攻撃が当たりにくくなる。雷がよく効く。',
   },
 ];
 export const MONARENA_RANK_IDS = MONARENA_RANKS.map((R) => R.rank);
