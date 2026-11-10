@@ -11,6 +11,7 @@ import { buildC7sLightMaps, C7SL_MAPS } from './c7s-light.js';
 import { attachC7iSnow, C7I_SNOW_MAPS } from './c7i-snow.js';
 import { buildC7iCastleMaps, C7IC_MAPS } from './c7i-castle.js';
 import { attachC8dSide } from './c8d-side.js';
+import { attachC8bdSide } from './c8bd-side.js';
 
 // 第7章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH7_MAPS = [...C7_FIELD_MAPS, ...C7T_MAPS];
@@ -30,4 +31,6 @@ export function attachCh7(maps) {
   attachC7iSnow(maps);
   // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国に 人を 足す。maps/c8d-side.js）
   attachC8dSide(maps);
+  // 第74回 D班: 第8章 第2幕の より道（千年前の クモイの 海の ナギの村と 南の 浜に 人を 足す。maps/c8bd-side.js）
+  attachC8bdSide(maps);
 }

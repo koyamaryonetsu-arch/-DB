@@ -38,11 +38,11 @@ const q = (c, name) => subQuests(c).find((x) => x.name === name);
 const NEED = /の人が、パーティーにいてくれたら/;
 
 // ───── しくみ ─────
-test('しくみ: 26の たのまれごと（第39回の 5つ＋第41回の 6つ＋第65回の 6つ＋第68回の 6つ＋第73回の 3つ）・職業の系統は 転職の つながりから出す（手で書かない）', () => {
-  assert.equal(FAMILY_QUESTS.length, 26);
+test('しくみ: 29の たのまれごと（第39回の 5つ＋第41回の 6つ＋第65回の 6つ＋第68回の 6つ＋第73回の 3つ＋第74回の 3つ）・職業の系統は 転職の つながりから出す（手で書かない）', () => {
+  assert.equal(FAMILY_QUESTS.length, 29);
   assert.deepEqual(FAMILY_QUESTS.slice(0, 5).map((x) => x.name), ['劇場の空調をなおせ', 'さびれたおみやげ屋の立て直し', 'カナトコの料理大会', 'ルミナの町の、消えた教会のかね', '鉱山トロッコの線路']);
   // id・名前・フラグ・ごほうびは かさならない。名前に「家族の」は つけない
-  for (const k of ['id', 'name', 'done', 'start', 'npc']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x[k])).size, 26, k);
+  for (const k of ['id', 'name', 'done', 'start', 'npc']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x[k])).size, 29, k);
   // 第65回の 6つは アクセサリーや 乗り物の ない ものも ある（第64回の きまり）。ある 物は かさならない
   for (const k of ['item', 'vehicle']) {
     const list = FAMILY_QUESTS.map((x) => x.reward[k]).filter(Boolean);
@@ -389,7 +389,7 @@ test('鉱山トロッコの線路: 鉄道員の系統が いないと 線路を�
 
 // ───── ごほうび ─────
 test('ごほうび: ★5の アクセサリー（ランク10・店で買えない）・たのまれごとでしか もらえない乗り物（乗り物屋に「もらった物」として出る・買えない・乗れる）', () => {
-  assert.equal(Object.keys(FAMILY_GIFTS).length, 16); // 第39回 5・第41回 6・第65回 2・第68回 2・第73回 1
+  assert.equal(Object.keys(FAMILY_GIFTS).length, 17); // 第39回 5・第41回 6・第65回 2・第68回 2・第73回 1・第74回 1
   for (const [id, it] of Object.entries(FAMILY_GIFTS)) {
     assert.equal(ITEMS[id], it);
     assert.equal(it.type, 'acc');

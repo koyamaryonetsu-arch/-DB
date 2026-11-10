@@ -61,8 +61,8 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（第66回の 伝説の 職業に つながる 系統・18〜23 と かさならない）・今の 時代の まだ いらいの ない 場所・c8_kingdom の あとだけ', () => {
   assert.equal(WORK4_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 26);
-  assert.deepEqual(FAMILY_QUESTS.slice(23), WORK4_QUESTS);
+  assert.equal(FAMILY_QUESTS.length, 29); // 第74回: 27〜29 が うしろに ふえた
+  assert.deepEqual(FAMILY_QUESTS.slice(23, 26), WORK4_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(17, 23), WORK3_QUESTS);
   assert.deepEqual(WORK4_QUESTS.map((x) => x.roots), [['alchemist'], ['esper'], ['guardian', 'high_priest']]);
   assert.deepEqual(WORK4_QUESTS.map((x) => x.legend), ['truth_gate', 'saiki', 'guard_god']);
@@ -259,7 +259,7 @@ test('お仕事いらい板: c8_kingdom の 前は 23まい（4ページ）・�
   assert.match(menus[3][1], /4\/5ページ/);
   assert.deepEqual(menus[3][2], [...FAMILY_QUESTS.slice(18, 24).map((x) => x.name), 'つぎのページへ', '前のページへ', 'やめる']);
   assert.match(menus[4][1], /5\/5ページ/);
-  assert.deepEqual(menus[4][2], [...FAMILY_QUESTS.slice(24).map((x) => x.name), '前のページへ', 'やめる']);
+  assert.deepEqual(menus[4][2], [...FAMILY_QUESTS.slice(24, 26).map((x) => x.name), '前のページへ', 'やめる']);
   assert.equal(menus[4][3].length, menus[4][2].length, 'カーソルの せつめいも 同じ 数');
   assert.match(menus[4][3][0], /^必要な職業：超能力者の系統（×いない）/);
   assert.ok(said(msgs, /雲の下に落としちゃった/) && said(msgs, /このいらいを、うける？/) && said(msgs, /を受けた！/));

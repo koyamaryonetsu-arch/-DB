@@ -440,6 +440,9 @@ export function gameFiles() {
     // 第73回 D班: お仕事いらい 24〜26・千年前の 緑の王国の より道 2つ
     'public/js/shared/data/sidequests-work4.js', 'public/js/shared/maps/work-quests4.js', 'public/js/client/render/work4-art.js',
     'public/js/shared/data/sidequests-c8d.js', 'public/js/shared/maps/c8d-side.js',
+    // 第74回 D班: お仕事いらい 27〜29・千年前の クモイの 海の より道 2つ
+    'public/js/shared/data/sidequests-work5.js', 'public/js/shared/maps/work-quests5.js', 'public/js/client/render/work5-art.js',
+    'public/js/shared/data/sidequests-c8bd.js', 'public/js/shared/maps/c8bd-side.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板
