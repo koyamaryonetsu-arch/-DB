@@ -10,6 +10,8 @@ import { KEEPER_LETTER } from '../maps/c7s-flags.js';
 import { SPIRIT_LETTER } from '../maps/c7i-flags.js';
 // 第8章 第1幕: 王女ナディアの手紙（地下迷宮 4階の 王女ナディアが 書いてくれる。5階の 千年前の 月の 箱に 入れると なくなる。時をこえる手紙）
 import { NADIA_LETTER } from '../maps/c8a-flags.js';
+// 第8章 第2幕: みこの祝いの手紙（海底神殿 4階の 海のほこらの みこが 書いてくれる。5階の 千年前の 貝の 箱に 入れると なくなる。時をこえる手紙）
+import { MIKO_LETTER8B } from '../maps/c8b-flags.js';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {
@@ -28,10 +30,15 @@ export const C7_KEY_ITEMS = {
     name: '王女ナディアの手紙', type: 'key',
     desc: '王女ナディアが書いた手紙。王家の「月の子守歌」の最後の一行が書いてある。地下迷宮の5階の月の門のよこの、月の箱に入れると、千年先までのこるという。',
   },
+  [MIKO_LETTER8B]: {
+    name: 'みこの祝いの手紙', type: 'key',
+    desc: '海のほこらのみこが書いた手紙。「海の祝いの言葉」が書いてある。海底神殿の5階のしおのとびらのよこの、貝の箱に入れると、千年先までのこるという。',
+  },
 };
 export const C7_KEY_KANA = {
   [MIKO_LETTER]: 'みこのてがみ',
   [KEEPER_LETTER]: 'とうだいもりのてがみ',
   [SPIRIT_LETTER]: 'ゆきのせいのてがみ',
   [NADIA_LETTER]: 'おうじょナディアのてがみ',
+  [MIKO_LETTER8B]: 'みこのいわいのてがみ',
 };

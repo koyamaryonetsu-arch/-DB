@@ -25,6 +25,8 @@ import { plotting, eruptSoon } from '../public/js/shared/battle-c8b.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { karimChar, kaiChar } from './sim-ch7.mjs';
+import { GUESTS } from '../public/js/shared/data/shops.js';
+import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
 
 // 調整用（データを かえる 前に ためす）
 const nums = (v) => v.split(',').map(Number);
@@ -157,7 +159,7 @@ export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = n
   const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
   if (guest) {
     // 第1幕は カリム・第2幕は カイ（A が 第8章用の ゲストを 作ったら ここを かえる）
-    const k = ACT2.has(boss) ? kaiChar(lv) : karimChar(lv);
+    const k = ACT2.has(boss) ? makeNpcSupportChar({ ...GUESTS.kai8 }, Math.max(GUESTS.kai8.minLevel, lv)) : karimChar(lv);
     allies.push({ char: k, kind: 'guest', auto: true, tactics: k.tactics });
   }
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss) });

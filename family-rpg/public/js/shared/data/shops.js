@@ -165,3 +165,5 @@ GUESTS.rion = RION_GUEST;
 GUESTS.karim = KARIM_GUEST;
 // 第2部 第7章 第2幕: 千年前の 海の 小さな 島の 少年 カイ（A が 台本の guest で 入れる。companions-c7s.js）
 GUESTS.kai = KAI_GUEST;
+// 第2部 第8章 第2幕: もう一度 ゲストの カイ（第7章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備）
+GUESTS.kai8 = { ...KAI_GUEST, id: 'guest_kai8', minLevel: 84, gear: { weapon: 'c7h_shadow_boomerang', armor: 'c8bt_soul_robe', head: 'c8bt_temple_helm', acc: 'c8bt_blue_pendant' } };
