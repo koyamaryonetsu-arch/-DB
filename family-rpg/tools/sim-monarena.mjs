@@ -31,6 +31,8 @@ export const TEAMS = {
   SSS: ['pakkun', 'water_youma', 'karon', 'march_broom'],
   // 第68回 C: EX（第7章クリア。第2幕の 魔物も 仲間に できる）
   EX: ['fish_pirate', 'jugemu', 'karon', 'water_youma'],
+  // 第74回 C: EX2（第8章 第2幕クリア。第7章 第3幕・第8章 第1幕の 魔物も 仲間に できる。第2幕の 魔物は まだ 入れない）
+  EX2: ['palace_guard', 'lamp_smoke', 'cobrar', 'ice_mirror'],
 };
 // ALT=1 … べつの 4ひき（チームの ちがいで 大きく かわらないか 見る）
 export const TEAMS_ALT = {
@@ -44,10 +46,11 @@ export const TEAMS_ALT = {
   SS: ['toki_hare', 'rewind_ghost', 'clock_bones', 'clock_golem'],
   SSS: ['pirate_parrot', 'water_youma', 'second_sprite', 'mill_keeper'],
   EX: ['pirate_parrot', 'pukupuku', 'curse_lump', 'teresa'],
+  EX2: ['sanbo', 'moon_scarab', 'thorn_goblin', 'ice_bro'],
 };
-const PLUS = { F: 0, E: 2, D: 4, C: 6, B: 8, A: 10, S: 12, SS: 15, SSS: 18, EX: 21 };
-const GEAR_RANK = { F: 2, E: 3, D: 4, C: 5, B: 7, A: 8, S: 9, SS: 10, SSS: 10, EX: 10 };
-const BRED = new Set(['C', 'B', 'A', 'S', 'SS', 'SSS', 'EX']);
+const PLUS = { F: 0, E: 2, D: 4, C: 6, B: 8, A: 10, S: 12, SS: 15, SSS: 18, EX: 21, EX2: 24 };
+const GEAR_RANK = { F: 2, E: 3, D: 4, C: 5, B: 7, A: 8, S: 9, SS: 10, SSS: 10, EX: 10, EX2: 10 };
+const BRED = new Set(['C', 'B', 'A', 'S', 'SS', 'SSS', 'EX', 'EX2']);
 
 const SHOP_GEAR = Object.entries(ITEMS).filter(([, it]) => it && !it.base && !it.star && !it.src && it.price > 0 && !(it.rarity > 0)
   && ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)).map(([id]) => id);

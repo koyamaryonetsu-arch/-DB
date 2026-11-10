@@ -16,17 +16,27 @@
 //   とけて から wait 回 動くと 自分で また こおる（cond 'c5:arThawWait'・効果 arFreeze）。おともの 雪の子（arena.frostHelp）は、
 //   王者が とけていると すぐに こおらせる（cond 'c5:arKingThawed'）→ 雪の子を 先に たおすと、とけている 時間が 長い
 //   知っている 人: こおっている 王者には 炎・とけたら みんなで 王者・雪の子が いる 間は 雪の子を 先に
+// ・第74回 C: あわの よろい（monsters の arena.bubble。ランク12 深海の大王者リヴァイアス）
+//   はじめは あわの よろいを まとっている（arBubble … のこりの あわの 数。max こ）。あわが ある 間は、どんな 攻撃も
+//   1回 当たるごとに あわが 1つ はじけて ダメージは 0（強い 技でも 弱い 技でも おなじ 1つ。みんなを ねらう 技・何回も 打つ 技が とくい）。
+//   あわが ぜんぶ はじけると、openMult ばいの ダメージ（大チャンス）。はじけて から wait 回 動くと、また あわを まとう
+//   （cond 'c5:arBubbleWait'・効果 arBubble）。あわを まとっている 間に うずを まき始めると、次の 番に 大うずしお（ARENA_BIG）。
+//   大うずしおは、のこりの あわが 多いほど 強い（bigBase ＋ bigPer × あわの 数 ばい）→ 前ぶれの 間に あわを わると 弱く なる
+//   知っている 人: あわが ある 間は 王者に 強い 技を 使わない（ふつうの 攻撃・みんなを ねらう 技・何回も 打つ 技で あわを わる）・
+//   あわが なくなったら みんなで 王者（合体技も その 時だけ）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
 import { atbRate } from './battle.js';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
-export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard']);
+export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard', 'm_ar12_maelstrom']);
 const confOf = (m) => MONSTERS[m?.species]?.arena || null;
 const teamOf = (m) => confOf(m)?.team || null;
 const armorConf = (m) => confOf(m)?.armor || null;
 const frostConf = (m) => confOf(m)?.frost || null;
+// 第74回 C: あわの よろい（王者だけ）
+export const bubbleConf = (m) => confOf(m)?.bubble || null;
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 const actsOf = (m) => Object.values(m.used || {}).reduce((s, n) => s + n, 0);
 // 組の 人（たおれた 人も ふくむ・にげた 人は のぞく）
@@ -42,6 +52,7 @@ export function setupArena(b) {
   for (const e of b.enemies) {
     if (armorConf(e) && !e.arArmor) wearArmor(b, e, null);
     if (frostConf(e) && e.arFrozen === undefined) freeze(b, e, null);
+    if (bubbleConf(e) && e.arBubble === undefined) wearBubbles(b, e, null);
   }
 }
 
@@ -60,6 +71,12 @@ export function arenaCond(b, m, cond) {
     return !!conf && !m.arFrozen && actsOf(m) - (m.arThawAt ?? -99) >= (conf.wait ?? 3);
   }
   if (cond === 'arKingThawed') return !!thawedKing(b, m);
+  // 第74回 C: あわの よろい
+  if (cond === 'arBubbled') return !!bubbleConf(m) && m.arBubble > 0;
+  if (cond === 'arBubbleWait') {
+    const conf = bubbleConf(m);
+    return !!conf && !(m.arBubble > 0) && actsOf(m) - (m.arPopAt ?? -99) >= (conf.wait ?? 3);
+  }
   return null;
 }
 
@@ -75,6 +92,12 @@ export function arenaEffect(b, c, a, eff, ev, targets = []) {
       // 自分（王者）か、とけている 王者を こおらせる（雪の子）
       const k = frostConf(c) ? c : thawedKing(b, c);
       if (k && !k.arFrozen) freeze(b, k, ev, k === c ? null : c);
+      else ev.lines.push('しかし、何もおこらなかった。');
+      return true;
+    }
+    case 'arBubble': {
+      // 第74回 C: あわの よろいを まとい直す（もう ぜんぶ ある ときは 何も おこらない）
+      if (bubbleConf(c) && c.arBubble < bubbleConf(c).max) wearBubbles(b, c, ev);
       else ev.lines.push('しかし、何もおこらなかった。');
       return true;
     }
@@ -174,6 +197,47 @@ function frostDamage(b, c, t, dmg, info, ev) {
   return Math.max(1, Math.round(dmg * (conf.cut ?? 0.35)));
 }
 
+// ───────────── 第74回 C: あわの よろい ─────────────
+// あわを まとう（ev が null … 戦いの はじめ）
+function wearBubbles(b, c, ev) {
+  const conf = bubbleConf(c);
+  if (!conf) return;
+  c.arBubble = conf.max ?? 4;
+  if (!ev) return;
+  ev.lines.push(`${c.name}の体が、${c.arBubble}つの大きなあわに、つつまれた！`, '（あわは、どんな攻撃でも、1回当たると1つはじける！）');
+  ev.fx = { type: 'ability', anim: 'guard', actor: c.id, targets: [c.id], side: c.side, element: 'water' };
+  ev.arBubble = c.id;
+  ev.upd.push(c);
+}
+// ダメージ（arenaDamage から）。あわが ある … 1つ はじけて ダメージは なし（null）/ ない … openMult ばい
+function bubbleDamage(b, c, t, dmg, ev) {
+  const conf = bubbleConf(t);
+  if (!(t.arBubble > 0)) return Math.round(dmg * (conf.openMult ?? 1.3));
+  t.arBubble -= 1;
+  ev.lines.push(t.arBubble > 0 ? `あわが1つはじけて、攻撃をうけとめた！（のこりのあわ ${t.arBubble}つ）` : '最後のあわがはじけて、攻撃をうけとめた！');
+  ev.results = ev.results || [];
+  ev.results.push({ id: t.id, dmg: 0, pop: true });
+  if (t.arBubble <= 0) {
+    t.arPopAt = actsOf(t);
+    ev.postLines = ev.postLines || [];
+    ev.postLines.push(`${t.name}のあわのよろいが、全部はじけた！今が大チャンスだ！`);
+    ev.arPop = t.id;
+  }
+  ev.upd.push(t);
+  return null;
+}
+
+// あわの 王者の 大技（大うずしお）: のこりの あわが 多いほど 強い
+function bubbleBig(c, dmg, ev) {
+  const conf = bubbleConf(c);
+  const n = Math.max(0, c.arBubble || 0);
+  if (!ev.arBigNote) {
+    ev.arBigNote = true;
+    ev.lines.push(n > 0 ? `（あわが${n}つのこっていて、うずがとても大きい！）` : '（あわが全部はじけていて、うずが小さい！）');
+  }
+  return Math.max(1, Math.round(dmg * ((conf.bigBase ?? 0.4) + (conf.bigPer ?? 0.2) * n)));
+}
+
 function breakArmor(b, t, ev) {
   const el = t.arArmor;
   t.arArmor = null;
@@ -189,6 +253,8 @@ function breakArmor(b, t, ev) {
 // ───────────── ダメージ（battle.js の damage）─────────────
 // よろいと おなじ 属性 … すいこむ（null を かえすと ダメージは なし）/ 弱点 … 大きく 当たって よろいが くだける
 export function arenaDamage(b, c, t, dmg, info, ev) {
+  if (c && t && c.side !== t.side && bubbleConf(c) && ARENA_BIG.has(ev.ability) && dmg > 0) return bubbleBig(c, dmg, ev);
+  if (t && c && c.side !== t.side && bubbleConf(t) && t.alive !== false && dmg > 0) return bubbleDamage(b, c, t, dmg, ev);
   if (t && c && c.side !== t.side && frostConf(t) && t.alive !== false && dmg > 0) return frostDamage(b, c, t, dmg, info, ev);
   if (!t?.arArmor || !c || c.side === t.side) return dmg;
   const conf = armorConf(t);
@@ -223,6 +289,8 @@ export function arenaPlan(b, c) {
   return null;
 }
 
+// 第74回 C: 知っている 人が あわを 1つ わる ことの ねうち（ダメージの 点数と くらべる）
+const ARENA_POP_VALUE = 900;
 // えらぶ 技の 点数を かえる（ai.js の chooseAttack。opts … { cmd, final }）
 export function arenaAdjust(b, c, opts) {
   if (c.side !== 'ally' || !b.knowsArena) return;
@@ -247,6 +315,15 @@ export function arenaAdjust(b, c, opts) {
       if (!frostConf(f)) continue;
       if (f.arFrozen) o.final *= el === 'fire' ? 2.5 : 0.25;
       else o.final *= foes.some((x) => confOf(x)?.frostHelp) ? 1.3 : 1.8;
+    }
+    // 第74回 C: あわの よろい。あわが ある 間は 王者に 強い 技を 使わない（1回 当たれば 1つ われる。ふつうの 攻撃・何回も 打つ 技で わる）。
+    //   みんなを ねらう 技は、あわを わりながら おとも にも 当たるので よい。あわが なくなったら 王者を ねらう
+    for (const f of hit) {
+      if (!bubbleConf(f)) continue;
+      if (f.arBubble > 0) {
+        if (all) o.final *= 1.3;
+        else o.final = (cmd.type === 'attack' ? 1 : o.mp > 0 ? 0.25 : 0.6) * ARENA_POP_VALUE * Math.min(f.arBubble, prim(a).hits || 1);
+      } else o.final *= 1.8;
     }
     if (!t || all) continue;
     const tc = confOf(t);

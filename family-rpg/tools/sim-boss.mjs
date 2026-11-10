@@ -3,6 +3,7 @@
 //   tm の あとに 地図の レベル（16,20,25,26,30,35 など）を 書くと、第40回の めやす（主の レベル＋3 の 4人・その ころの 店の 装備
 //   〈tools/sim-tm.mjs と おなじ〉・職業Lv10・完全オート）で 6しゅの 主を ためす（第65回 C。地図 Lv26〜35 の TM_BOSS_POW を 決めた）
 //   第68回 C: 地図 Lv36〜40 も（node tools/sim-boss.mjs 30 tm 35,36,37,38,39,40）
+//   第74回 C: 地図 Lv41〜45 も（node tools/sim-boss.mjs 30 tm 40,41,42,43,44,45。主人公の レベルは 99 で 止めない）
 //   めやす … 店の 装備だけ（その ころの 店の いちばん よい 装備）で 勝率 3〜5割、レア装備（その ころ 手に入る ★）で レベル＋3〜5 なら 8〜9割
 //   パーティーは tools/sim.js と おなじ 4人（せんし・そうりょ・まほう・ぶとう・職業Lv10）。レア装備は tools/sim-rare.mjs の KITS
 //   店 … GEAR 33（王都サファラの ランク6）・38（ランク6＋α）・42（ドゥナの ランク7＋ボスの アクセサリー。第5章の 店は まだ ない）
@@ -88,7 +89,8 @@ if (process.argv[1].endsWith('sim-boss.mjs')) {
     // 第40回・第65回の めやす: 主の レベル＋3・その ころの 店・完全オート で 勝率 7〜9わり。POW=… で 倍率を かえて ためす（6しゅ とも ADJ を かける）
     console.log('■ 宝の洞窟の 主（主の レベル＋3 の 4人・その ころの 店の 装備・職業Lv10・完全オート。6しゅ の 平均と 1しゅ ずつ）');
     for (const L of process.argv[4].split(',').map(Number)) {
-      const plv = Math.min(99, Math.round(tmBossLv(L)) + 3);
+      // 第74回 C: 地図 Lv41〜45 は 主が Lv95〜104 なので、99 で 止めない（キャラの 上限 Lv150。stats.js の MAX_LEVEL）
+      const plv = Math.min(150, Math.round(tmBossLv(L)) + 3);
       let w = 0, t = 0;
       const per = [];
       for (const sp of Object.keys(MONSTERS_TM)) {
