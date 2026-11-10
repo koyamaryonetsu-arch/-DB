@@ -13,6 +13,8 @@ import { EARTH_TRACKS } from './audio-earth.js';
 import { CASTLE_TRACKS } from './audio-castle.js';
 import { TOP_TRACKS } from './audio-top.js';
 import { CH6_TRACKS } from './audio-ch6.js';
+// 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
+import { C8B_TRACKS } from './audio-c8b.js';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -815,5 +817,7 @@ Object.assign(TRACKS, CASTLE_TRACKS);
 Object.assign(TRACKS, TOP_TRACKS);
 // 第6章 Step 1・2: 千年前の フィールドと 里・時のほこら・時のいせき・ボス・ゼンマイ（audio-ch6.js）
 Object.assign(TRACKS, CH6_TRACKS);
+// 第2部 第8章 第2幕: ペイニックと パニクル（yomi_imps）・よみの王ハデロス（yomi_king）（audio-c8b.js）
+Object.assign(TRACKS, C8B_TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

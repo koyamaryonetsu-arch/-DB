@@ -57,6 +57,7 @@ import { ITEMS_C7 } from '../public/js/shared/data/items-c7.js';
 import { ITEMS_C7S } from '../public/js/shared/data/items-c7s.js';
 import { ITEMS_C7I } from '../public/js/shared/data/items-c7i.js';
 import { ITEMS_C8A } from '../public/js/shared/data/items-c8a.js';
+import { ITEMS_C8B } from '../public/js/shared/data/items-c8b.js';
 
 const NEW = Object.keys(MONSTERS_PAST).filter((id) => !PAST_BOSSES.includes(id));
 const FIELD = ['moss_deer', 'amber_moth', 'elder_sprout', 'toki_hare'];
@@ -165,12 +166,12 @@ test('落とす物: ボスは かならず 1人 1つの ★5（レア度3）と�
   const [sp, gc] = [ITEMS.p6_sand_pendant, ITEMS.p6_gear_charm];
   assert.ok(bsum(ITEMS.solitus_bond_star) < bsum(sp) && bsum(sp) < bsum(gc), 'アクセサリー: きずなの星 < 砂時計のペンダント < 大歯車のお守り');
   // ときをきざむ剣は 今までで いちばん 強い 剣（Step 3・4 の 古道の 品は のぞく）
-  const swords = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && !it.base && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_C7I[id] && !ITEMS_C8A[id] && !ITEMS_PRIZE_R50[id] && !it.tmStep);
+  const swords = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && !it.base && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_C7I[id] && !ITEMS_C8A[id] && !ITEMS_C8B[id] && !ITEMS_PRIZE_R50[id] && !it.tmStep);
   const top = swords.sort((x, y) => y[1].atk - x[1].atk)[0];
   assert.equal(top[0], 'p6_tick_sword');
   assert.ok(ITEMS.p6_tick_sword.atk > ITEMS.solitus_dawn_sword.atk && ITEMS.p6_tick_sword.atk > ITEMS.p6_ruin_sword.atk);
   // 砂時計のつえは 今までで いちばん 強い つえ
-  const staves = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'staff' && !it.base && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_C7I[id] && !ITEMS_C8A[id] && !it.tmStep).sort((x, y) => y[1].atk - x[1].atk);
+  const staves = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'staff' && !it.base && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_TOKEI6[id] && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_C7I[id] && !ITEMS_C8A[id] && !ITEMS_C8B[id] && !it.tmStep).sort((x, y) => y[1].atk - x[1].atk);
   assert.equal(staves[0][0], 'p6_sand_staff');
   // 素材（時の砂・古い歯車）
   for (const id of NEW) {

@@ -23,6 +23,7 @@ import { ENCOUNTERS_C7, FIXED_C7, ZONE_BG_C7 } from './encounters-c7.js';
 import { ENCOUNTERS_C7S, FIXED_C7S, ZONE_BG_C7S } from './encounters-c7s.js';
 import { ENCOUNTERS_C7I, FIXED_C7I, ZONE_BG_C7I } from './encounters-c7i.js';
 import { ENCOUNTERS_C8A, FIXED_C8A, ZONE_BG_C8A } from './encounters-c8a.js';
+import { ENCOUNTERS_C8B, FIXED_C8B, ZONE_BG_C8B } from './encounters-c8b.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -183,6 +184,10 @@ Object.assign(ZONE_BG, ZONE_BG_C7I);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C8A);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C8A);
 Object.assign(ZONE_BG, ZONE_BG_C8A);
+// 第2部 第8章 第2幕「よみの 青い火」・よみの 海底神殿・ペイニックと パニクル・よみの王ハデロス（encounters-c8b.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C8B);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C8B);
+Object.assign(ZONE_BG, ZONE_BG_C8B);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';

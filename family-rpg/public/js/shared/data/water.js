@@ -25,6 +25,8 @@ export const WATER_OVERRIDE = {
   sand_clock: 1, geardon: 1, carillon: 1,
   // 水が かれて ひからびた カエル（カエルだが 水の 中に いない）
   dry_frog: 1,
+  // 第2部 第8章 第2幕: よみの王ハデロスは 炎の 色で 弱点が かわる しかけ（炎と 氷）で 調整ずみなので ふつう
+  c8_hades: 1,
 };
 
 // 2. 水の 魔物（海・川・ぬま・雨・魚・カニ・カメ・くらげ・イカ・水の 竜）→ 0.5
@@ -37,6 +39,8 @@ export const WATER_SEA = [
   'uzu_eel', 'gesso', 'water_youma', 'c7_gate', 'c7_gate_b', 'c7_temple', 'c7_shell',
   // 第2部 第7章 第2幕（monsters-c7s.js）: 海の 魚（プクプク・魚人の海賊）
   'pukupuku', 'fish_pirate',
+  // 第2部 第8章 第2幕（monsters-c8b.js）: 海の 底の 魔物（ホネギョ・ビリクラゲ・ヒドラン）
+  'bone_fish', 'biri_jelly', 'hydran',
 ];
 
 // 3. 炎の 魔物。きまり: 炎が 0.5いか で 氷が 1.2いじょう（この ゲームの 炎の 魔物は みんな 氷に 弱い）。

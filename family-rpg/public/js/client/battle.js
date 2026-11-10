@@ -99,6 +99,8 @@ import { TOKEI6_SFX, tokei6Sprite } from './battle-tokei6.js';
 import { c7iSprite, C7I_SFX } from './battle-c7i.js';
 // 第2部 第8章 第1幕: イアゴン・ジャハールの 技の 音（battle-c8a.js）
 import { C8A_SFX } from './battle-c8a.js';
+// 第2部 第8章 第2幕: ペイニックと パニクル・ハデロスの 技の 音（battle-c8b.js）
+import { C8B_SFX } from './battle-c8b.js';
 // 第2部 第7章 第1幕 の 魔物・ウツボきょうだい・オクタリア・カリムの 音（battle-c7.js）
 import { C7_SFX } from './battle-c7.js';
 // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・カイの 音（battle-c7s.js）
@@ -249,6 +251,7 @@ const ANIM_SFX = {
   ...C7S_SFX,
   ...C7I_SFX,
   ...C8A_SFX,
+  ...C8B_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);

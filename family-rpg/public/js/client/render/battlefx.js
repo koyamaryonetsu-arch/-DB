@@ -72,6 +72,8 @@ import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.
 import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js';
 // 第2部 第6章 Step 5: 止まった時計塔（ch6-tokei-bg.js）
 import { TOKEI_BG, TOKEI_DECOS, drawTokeiBg, drawTokeiFloorBg } from './ch6-tokei-bg.js';
+// 第2部 第8章 第2幕: よみの 海底神殿（yomi_temple・yomi_deep）・よみの王の 間（yomi_throne）
+import { C8B_BG, C8B_DECOS, drawC8bBg, drawC8bFloorBg } from './c8b-bg.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -186,6 +188,8 @@ const BG = {
   ...ROAD_BG,
   // 第2部 第6章 Step 5（tokei）
   ...TOKEI_BG,
+  // 第2部 第8章 第2幕（yomi_temple・yomi_deep・yomi_throne）
+  ...C8B_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -264,6 +268,7 @@ export function battleBackground(id) {
       case 'past_field': h = 16 + Math.abs(Math.sin(px * 0.17) * 12) + (px % 9 < 3 ? 5 : 0); break; // 千年前の 森（ch6-past-bg.js）
       case 'toki_shrine': case 'toki_ruin': case 'toki_ruin_boss': h = 0; break; // 時の祠・時の遺跡は あとで（ch6-past-bg.js）
       case 'tokei': h = 0; break; // 止まった時計塔は あとで（ch6-tokei-bg.js）
+      case 'yomi_temple': case 'yomi_deep': case 'yomi_throne': h = 0; break; // よみの 海底神殿・王の 間は あとで（c8b-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -288,6 +293,7 @@ export function battleBackground(id) {
   if (PAST_DECOS.has(d.deco)) drawPastBg(x, d, hor);
   if (ROAD_DECOS.has(d.deco)) drawRoadBg(x, d, hor);
   if (TOKEI_DECOS.has(d.deco)) drawTokeiBg(x, d, hor);
+  if (C8B_DECOS.has(d.deco)) drawC8bBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -348,6 +354,7 @@ export function battleBackground(id) {
   else if (PAST_DECOS.has(d.deco)) drawPastFloorBg(x, d, hor);
   else if (ROAD_DECOS.has(d.deco)) drawRoadFloorBg(x, d, hor);
   else if (TOKEI_DECOS.has(d.deco)) drawTokeiFloorBg(x, d, hor);
+  else if (C8B_DECOS.has(d.deco)) drawC8bFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

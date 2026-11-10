@@ -31,6 +31,8 @@ import { BUFF_ACTS } from './buff-acts.js';
 import { atbRate, pub } from './battle.js';
 import { canUse } from './ai.js';
 import { AUTO_GUARD } from './battle-ch6.js';
+// 第2部 第8章 第2幕: ペイニックと パニクル（ばけばけ大作戦）・よみの王ハデロス（たましいのけいやく → おこった 赤い 炎）。battle-c8b.js
+import { setupC8b, c8bTurnStart, c8bEffect, c8bPlan, c8bPub, c8bDamage, c8bKill } from './battle-c8b.js';
 
 export { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP };
 export const ECHO = 'm8p_echo';
@@ -101,11 +103,15 @@ export function setupC8a(b) {
     }
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1300 });
+  // 第8章 第2幕の ボス（battle-c8b.js）
+  setupC8b(b);
 }
 
 // ───────────── 行動の はじめ（battle-c7i.js の c7iTurnStart の はじめ）─────────────
 // 動けない 番も しるしを 数える（しるしが 1つの 番が 動けない ときは、次の 番に）
 export function c8aTurnStart(b, c, ev, stuck) {
+  // 第8章 第2幕（battle-c8b.js）
+  c8bTurnStart(b, c, ev, stuck);
   if (c.c8par) parrotTurn(b, c, ev, stuck);
   else if (c.c8viz) vizierTurn(b, c, ev, stuck);
 }
@@ -283,7 +289,8 @@ export function c8aEffect(b, c, a, eff, ev) {
     case 'c8aGenie': toGenie(b, c, ev); return true;
     case 'c8aBlast': blast(b, c, ev); return true;
     case 'c8aSealed': ev.c8aSealed = { id: c.id, left: c.c8viz?.seal || 0 }; return true;
-    default: return false;
+    // 第8章 第2幕（battle-c8b.js）
+    default: return c8bEffect(b, c, a, eff, ev);
   }
 }
 
@@ -488,6 +495,8 @@ function blast(b, c, ev) {
 // ───────────── ダメージ（battle-c7i.js の c7iDamage の はじめ。味方 → 敵 だけ）─────────────
 // イアゴン: 聞き耳の 間に 当たった 呪文を 覚える／ジャハール: とぐろの 間は かみつく・のびきった 間と ランプの 中は ダメージが ふえる・変身の 前は HP が 下がりきらない
 export function c8aDamage(b, c, t, dmg, info, ev) {
+  // 第8章 第2幕: 小鬼の パニック・けんか／ハデロスの けいやくしょ・頭が ひえる・おこる 前（battle-c8b.js）
+  dmg = c8bDamage(b, c, t, dmg, info, ev);
   if (!(dmg > 0) || c?.side !== 'ally') return dmg;
   if (t.c8par) hear(b, c, t, info, ev);
   const v = t.c8viz;
@@ -542,6 +551,8 @@ function bite(b, cobra, c, ev) {
 // ───────────── たおれた（battle-c7i.js の c7iKill の はじめ）─────────────
 // へびのつえ: あやつられた 人が 目を さます・ジャハールは うろたえる／黒いランプ: 魔人が ランプに すいこまれる
 export function c8aKill(b, t, ev) {
+  // 第8章 第2幕: 小鬼の かたほうが たおれた（battle-c8b.js）
+  c8bKill(b, t, ev);
   if (!isStaff(t) && !isLamp(t)) return;
   const w = vizierOf(b);
   if (!w?.c8viz) return;
@@ -645,6 +656,9 @@ function isAttack(cmd) {
 // 第8章 第1幕の ボスが いなければ null（ほかの ボスの 考えへ）
 export function c8aPlan(b, c, decide) {
   if (c.side !== 'ally' || b.c8aInner || c.status?.rift) return null;
+  // 第8章 第2幕の ボス（ペイニックと パニクル・ハデロス。battle-c8b.js）
+  const bp = c8bPlan(b, c, decide);
+  if (bp) return bp;
   const p = parrotOf(b);
   const w = vizierOf(b);
   if (!p && !w) return null;
@@ -704,6 +718,8 @@ export function c8aPlan(b, c, decide) {
 //   openLeft・openK（のびきった 間）・blastLeft・blastEvery・sealLeft・sealK（ランプの 中）
 // へびのつえ: c8staff／黒いランプ: c8lamp
 export function c8aPub(c, o) {
+  // 第8章 第2幕（battle-c8b.js）
+  c8bPub(c, o);
   if (c.c8par) {
     o.echoLeft = c.c8par.left;
     o.echoEvery = echoEvery(c);
