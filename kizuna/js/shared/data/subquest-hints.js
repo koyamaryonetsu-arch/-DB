@@ -8,15 +8,15 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=ee4fab959d09';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=ee4fab959d09';
-import { ORN } from '../maps/ch6c-side.js?v=ee4fab959d09';
-import { RS } from './sidequests-ch6d.js?v=ee4fab959d09';
-import { C7, LETTER } from '../maps/c7-flags.js?v=ee4fab959d09';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=ee4fab959d09';
-import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=ee4fab959d09';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=ee4fab959d09';
-import { jobLine } from './fq-common.js?v=ee4fab959d09';
+import { C6 } from '../maps/past.js?v=5d01a997db4e';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=5d01a997db4e';
+import { ORN } from '../maps/ch6c-side.js?v=5d01a997db4e';
+import { RS } from './sidequests-ch6d.js?v=5d01a997db4e';
+import { C7, LETTER } from '../maps/c7-flags.js?v=5d01a997db4e';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=5d01a997db4e';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=5d01a997db4e';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=5d01a997db4e';
+import { jobLine } from './fq-common.js?v=5d01a997db4e';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 

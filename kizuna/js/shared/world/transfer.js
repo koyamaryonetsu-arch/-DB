@@ -11,9 +11,9 @@
 // 第51回: それでも 1万文字を こえる ときは KIZUNA-4-（KIZUNA-3 の 形に 加えて、ぜんぶ true の flags・chests を 名前の ならびに、
 //   図鑑〈bestiary〉を 同じ 中みごとに まとめた 形。slimChar4 / unslimChar4）。KIZUNA-3 で 入る ときは KIZUNA-3（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=ee4fab959d09';
-import { dropGoneFamily } from '../data/wagon.js?v=ee4fab959d09';
-import { packFeats, unpackFeats } from './phantom.js?v=ee4fab959d09';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=5d01a997db4e';
+import { dropGoneFamily } from '../data/wagon.js?v=5d01a997db4e';
+import { packFeats, unpackFeats } from './phantom.js?v=5d01a997db4e';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
