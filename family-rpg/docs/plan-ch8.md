@@ -207,3 +207,29 @@
 - B との 約束：出現表 `t8a_palace`・`t8a_deep`（`spawnCounts` は A の マップ）・きまった 戦い `c8_vizier_pet`・`c8_jafar`（`boss: true`・`canFlee: false`。勝つと 台本が 続く・負けたら 止まる）・`C8A_TREASURE`（宝箱の id は `c8a_<階>c<i>`。1つめ ★5 装備・2つめ 素材か 道具）・`C8A_LETTER_REWARDS`（{ 1〜3: [[id, こすう], …] } か id の ならび。3 は 5階の 月の 門）
 - D班 との 約束：D の 人は `c7_field` の 王国の 町に 足す（A の 人の id は `c8a_*`。`c7_knight1` は A の 手紙 1 で つつんでいる）
 - まとめの ファイルに 足した 行：`shared/tiles.js`（タイル 343〜354 の ID 3行と `def` 13行）・`shared/maps/ch6.js`（import と `attachCh8` の 4行）・`shared/data/story.js`（import・`STORY_STEPS`・`applyCh8` の 5行）・`shared/data/progress.js`（2行）・`shared/data/quest-targets.js`（3行）・`shared/data/party-talk.js`（3行と `objectiveChapter` の 1行）・`shared/data/sidequests-c7.js`（import と 2か所）・`shared/data/subquest-hints.js`（import と 3行）・`shared/data/items-c7-key.js`（ナディアの手紙）・`shared/data/story-c7.js`（`OLD_C7_OBJ.clear`）・`shared/data/story-c7i.js`（`C7I_OBJ.clear`・さいごの 場面の トキネ・`clear` の 仲間会話）・`client/render/tiles-c7i.js`・`c7i-npc-art.js`（第8章 第1幕を まぜる）・`client/audio-ch6.js`（`c8a_palace` と 和音の 2行・はじめの 説明 1行）・`tools/kanji-check.mjs`（`gameFiles()` の 4行）・`test/ch7-step56-a.test.js`（2か所）。`maps/index.js`・`maps/south.js`・`maps/c7-field.js`・`data/shops.js`・`data/items.js`・`world/*`・`client/field.js`・`render/themes.js`・`news.js`・`README` は かえていない
+
+## 6. 第2幕「よみの 青い火」（Step 3・4。第74回。2026-11-10「作って」）
+
+### 6-1. 中み
+- はじまり: `c8_jafar` の あと、トキネ「砂時計が、海の 底で 青く 光っている」→ 千年前の 海（`c7s_sea`。カイの ふるさとの 海）。海の 底から 青い 火が のぼり、島の 人の 元気が すわれて いく
+- 敵: **ハデス が もと**の よみの国の 王 **「よみの王ハデロス」**（名前は もじり。青い 炎の かみ。おこると 赤く もえる。おしゃべりで 少し おもしろい）。ソリトゥスの かけらに「千年前の 光を 消せば、よみの国を 地上に 広げられる」と もちかけられた
+- 長い ダンジョン 5: **「よみの 海底神殿」**（千年前 8階・今の がわ 7階まで。休み所 4・7階。ボス 8階）。今の がわは 今の クモイの 海の 底の 遺跡（入口は A が 決める）。しかけ: **青い 火と 道**（千年前で 青い 火を ともすと、今の がわで その 火の 光が とどく 所だけ 道が 見える〈見えない 床〉／しおの みちひ〈千年前は 水の 中・今は 水が ひいて 歩ける 所〉）。家族が 2つの 時代に 分かれると 早い・**ひとりでも 必ず とける**
+- ゲスト: **カイ**（第2幕の 大事な 戦いで いっしょに 戦う。酒場の カイが パーティーに いる 時は 足さない。第1幕の カリムと 同じ きまり）。**カイの ひみつ（第7章 第3幕）には ふれない／お知らせにも 書かない**
+- ボス: Step 3 の さいご **`c8_painpanic`**（ハデスの 手下 ペインと パニックが もとの 小鬼 2ひき「ペイニックと パニクル」。2体 いっしょ。Lv84）、Step 4 の さいご **`c8_hades`**（よみの王ハデロス。Lv86。2だん: 青い 炎 → 赤い 炎〈おこった すがた〉。炎の 色で 弱点が かわる）。どちらも 細かく 描く
+- より道・いらい: 千年前の 海の より道 2つ・時をこえる手紙 3つ・今の お仕事いらい 3つ（#27〜29）
+- さいご: `c8_hades` を たおす →「第8章 第3幕へ（続きは アップデートで！）」
+
+### 6-2. 名前の 約束（どの 班も かえない）
+- 物語の すすみ（A）: `c8_sea`（トキネの 話。`c8_jafar` の あと）→ `c8_abyss`（千年前の 海に 着いた・カイが ゲストに）→ `c8_temple`（海底神殿に 入った）→ `c8_imps`（ペイニックと パニクルを たおした。Step 3 の さいご）→ `c8_depth`（5階より 下へ）→ `c8_hades`（ハデロスを たおした。第2幕の さいご）。`CH8_STEPS` の `c8_jafar` の うしろ。第1幕の さいごの 目標の 文は `OLD_C8_OBJ` に のこす（`repairObjective`）
+- マップ（A。先頭 `c8b`）: 海底神殿 `c8b_temple_1f`〜`8f`（千年前）・`c8b_temple_1f_now`〜`7f_now`（今）。千年前の 入口は `c7s_sea` の 中（A が 決める）
+- 出現表（B）: `t8b_temple`（1〜4階。Lv83〜85）・`t8b_deep`（5〜8階。Lv85〜87）
+- きまった 戦い（B）: `c8_painpanic`（Lv84。2体）・`c8_hades`（Lv86。2だん）。`boss: true`・`canFlee: false`。台本は `['showMon', id]` → `['battle', id]`
+- 宝箱（B が 中み）: `C8B_TREASURE`（`data/items-c8b.js`。1〜8階に 2つずつ）・時をこえる手紙の ごほうび `C8B_LETTER_REWARDS`（3つ）
+- 手下の 魔物（B）: 5しゅ（新しい 絵は 3しゅ まで。ヘラクレスの よみの国・海の 底: 青い 火の たましい・よみの 番犬〈ケルベロスが もと〉・海の 底の 骨の 魚・クラゲの まもの など）。どれも 仲間に なる。`mix` も
+- タイル ID（A）: **355 から**
+- 作業中の 仮の データ: A は `data/c8b-stub.js`（B の 名前が まだ ない 時だけ）。まとめる 時に 消す
+- `docs/plan-ch7.md` の 4-4 の きまりと、第1幕の A・B の 実装メモの きまり（ゲストの 2重を さける・とびらの 表 gateAt を すぐ 作りなおす・階段は 対の 階段の 真上）は ぜんぶ 守る
+
+### 6-3. ほかの 班
+- **C班**（強さの 上の 段。第2幕の あと）: モンスター闘技場の 新ランク（`c8_hades` で 開く）・宝の地図の 上限 40 → 45（Lv41〜 の 洞窟に 第8章の 魔物）・サファラ闘技場 ランク12（`c8_hades`）。強さは 第2幕クリア（Lv86 くらい）に 合わせる。シミュレーターで たしかめる
+- **D班**（いらい・より道）: 今の お仕事いらい 3つ（いらい板 #27〜29。`c8_abyss` の あとから・戦いは Lv84 くらい・第66回の 伝説・超級の 系統で まだ 使って いない もの）と、千年前の 海（`c7s_sea` の 村など）の より道 2つ（A の 手紙とは 別。A の マップには さわらない）
