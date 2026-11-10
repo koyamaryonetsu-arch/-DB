@@ -10,6 +10,7 @@ import { buildC7sLightMaps, C7SL_MAPS } from './c7s-light.js';
 // 第7章 Step 5・6（第3幕）: 千年前の シロガネ地方（c7i_snow）・白雪の里・氷の竜の城（千年前 c7i_castle_1f〜8f・今 c7i_castle_1f_now〜7f_now）
 import { attachC7iSnow, C7I_SNOW_MAPS } from './c7i-snow.js';
 import { buildC7iCastleMaps, C7IC_MAPS } from './c7i-castle.js';
+import { attachC8dSide } from './c8d-side.js';
 
 // 第7章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH7_MAPS = [...C7_FIELD_MAPS, ...C7T_MAPS];
@@ -27,4 +28,6 @@ export function attachCh7(maps) {
   // 第3幕（今の シロガネ地方を 作った あと）
   Object.assign(maps, buildC7iCastleMaps());
   attachC7iSnow(maps);
+  // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国に 人を 足す。maps/c8d-side.js）
+  attachC8dSide(maps);
 }
