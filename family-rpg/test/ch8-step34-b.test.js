@@ -532,6 +532,12 @@ test('ハデロス（赤い 炎）: every 回で よみの大ふん火（守る�
   turn(b, h);
   assert.equal(h.telegraph, COOL, '頭が ひえて 動けない');
   h.telegraph = null;
+  // かみの 毛が 高く もえて いる 間（しるし のこり chillAt いか）は ひやせる
+  assert.ok(hc.erupt.chillAt >= 1);
+  h.c8hd.left = hc.erupt.chillAt;
+  assert.ok(eruptSoon(h));
+  h.c8hd.left = hc.erupt.chillAt + 1;
+  assert.ok(!eruptSoon(h));
   // 知っている 人は 前ぶれに 氷を 当てる
   b.knowsCh6 = true;
   h.c8hd.left = 1;

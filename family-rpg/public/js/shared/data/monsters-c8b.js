@@ -44,7 +44,7 @@ export const RED_ACTIONS = [
   { w: 3, id: 'm8h_fist' }, { w: 2, id: 'm8h_flare', cond: 'notRecent:m8h_flare' }, { w: 1, id: 'm8h_shout', cond: 'notRecent:m8h_shout' }, { w: 1, id: 'attack' },
 ];
 
-const IMPS = { every: 6, plot: 3, breakAt: 0.025, fuse: { mult: 1.3, ignoreDef: 0.3 }, panic: { turns: 2, k: 1.5 }, rage: { atk: 1.4, spd: 1.3, every: 2, mult: 0.9 } };
+const IMPS = { every: 6, plot: 3, breakAt: 0.025, fuse: { mult: 1.3, ignoreDef: 0.3 }, panic: { turns: 2, k: 1.5 }, rage: { atk: 1.5, spd: 1.3, every: 2, mult: 0.9 } };
 
 export const MONSTERS_C8B = {
   // ── よみの 海底神殿 1〜4階（Lv83〜85）──
@@ -119,19 +119,20 @@ export const MONSTERS_C8B = {
   // c8b … しかけ（battle-c8b.js）
   //   contract … たましいのけいやく（every … けいやくまでの 行動・turns … たましいを いただくまでの 行動・drain … 1回に すいとる HP の わりあい・
   //     heal … すいとった ときに もどる ハデロスの HP の わりあい・soulHeal … たましいを いただいた ときに もどる HP の わりあい）
-  //   p2At・red … おこった すがた（atk … 上がる 攻撃力）/ erupt … よみの大ふん火（every・p3At・p3Every … はやく なる・base … 呪文の ダメージ）
+  //   p2At・red … おこった すがた（atk … 上がる 攻撃力）/ erupt … よみの大ふん火（every・p3At・p3Every … はやく なる・base … 呪文の ダメージ・
+//     chillAt … しるしが のこり これ いかの 間は 氷で ひやせる〈かみの 毛が 高く もえる〉）
   [C8_HADES]: {
-    name: 'よみの王ハデロス', lv: 86, hp: 100000, mp: 6000, str: 1500, def: 300, agi: 220, mag: 940, exp: 80000, gold: 24000,
+    name: 'よみの王ハデロス', lv: 86, hp: 115000, mp: 6000, str: 1550, def: 300, agi: 220, mag: 940, exp: 80000, gold: 24000,
     race: 'demon', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'bash', artScale: 0.5,
     drops: { boss: ['c8h_flame_charm'], bonus: ['limit_stone'], rare: ['c8h_bident', 1] },
     // 水は ふつう（water.js の WATER_OVERRIDE。炎の 魔物の きまりで 水に 弱く ならない ように。しかけは 炎と 氷）
     resist: { ...BOSS_STATUS, ...HADES_BLUE, light: 1.15, dark: 0.6, bolt: 1.0, wind: 1.0 },
     c8b: {
       kind: 'hades',
-      contract: { every: 4, turns: 3, drain: 0.12, heal: 0.008, soulHeal: 0.04 },
+      contract: { every: 3, turns: 3, drain: 0.12, heal: 0.008, soulHeal: 0.04 },
       p2At: 0.5,
       red: { atk: 1.08 },
-      erupt: { every: 3, p3At: 0.2, p3Every: 2, base: [490, 520] },
+      erupt: { every: 3, p3At: 0.2, p3Every: 2, base: [640, 680], chillAt: 2 },
     },
     actions: [
       { w: 3, id: 'm8h_bluefire' }, { w: 2, id: 'm8h_skull', cond: 'notRecent:m8h_skull' }, { w: 1, id: 'm8h_talk', cond: 'notRecent:m8h_talk' }, { w: 1, id: 'attack' },

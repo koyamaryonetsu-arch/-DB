@@ -63,7 +63,7 @@ export function hadesConf(m) {
     contract: { every: 4, turns: 2, drain: 0.12, heal: 0.008, soulHeal: 0.04, ...(c.contract || {}) },
     p2At: c.p2At ?? 0.5,
     red: { atk: 1.08, ...(c.red || {}) },
-    erupt: { every: 3, p3At: 0.2, p3Every: 2, base: [380, 410], ...(c.erupt || {}) },
+    erupt: { every: 3, p3At: 0.2, p3Every: 2, base: [380, 410], chillAt: 1, ...(c.erupt || {}) },
   };
 }
 const short = (m) => MONSTERS[m?.species]?.short || m?.name || '';
@@ -86,7 +86,8 @@ const eruptEvery = (c) => {
   return c.hp / c.maxHp < e.p3At ? e.p3Every : e.every;
 };
 // ふん火の 前ぶれ（しるし のこり 1。次の 番が ふん火）
-export const eruptSoon = (h) => !!h?.c8hd && h.c8hd.form === 2 && !h.c8hd.cool && h.c8hd.left <= 1;
+//   （しるし のこり erupt.chillAt いか … かみの 毛が 高く もえて いる 間は 氷で ひやせる）
+export const eruptSoon = (h) => !!h?.c8hd && h.c8hd.form === 2 && !h.c8hd.cool && h.c8hd.left <= hadesConf(h).erupt.chillAt;
 // けいやくされて いる 人
 export function bound(b, h = hadesOf(b)) {
   const id = h?.c8hd?.contract?.id;
@@ -232,6 +233,8 @@ function hadesTurn(b, c, ev, stuck) {
     if (!stuck) c.telegraph = ERUPT;
   } else {
     h.left--;
+    const ca = hadesConf(c).erupt.chillAt;
+    if (h.left === ca && ca > 1) ev.lines.push(`${c.name}のかみの毛が、ぐんぐん高くなってきた…！`, '（もうすぐ、よみの大ふん火…！今のうちに、氷で頭をひやせ！）');
     if (h.left === 1) ev.lines.push(`${c.name}のかみの毛が、ごうごうと、高くもえ上がった…！`, '（次にハデロスが動くと、よみの大ふん火…！氷で頭をひやすか、身を守れ！）');
     ev.c8bEruptLeft = { id: c.id, left: h.left, every: eruptEvery(c) };
   }

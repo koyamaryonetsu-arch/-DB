@@ -269,6 +269,10 @@ export function c8bPresent(scene, ev, fx, anim, actor) {
     scene.shake?.(1000, 10);
     scene.banner('ハデロスがおこった！赤い炎…弱点がかわった！', 'danger');
   }
+  if (ev.c8bEruptLeft?.left === 2) {
+    g.audio.sfx('warn');
+    scene.banner('！もうすぐ、よみの大ふん火…今のうちに氷で頭をひやせ！', 'danger');
+  }
   if (ev.c8bEruptLeft?.left === 1) {
     g.audio.sfx('warn');
     scene.banner('！次に、よみの大ふん火…！氷で頭をひやせ！', 'danger');

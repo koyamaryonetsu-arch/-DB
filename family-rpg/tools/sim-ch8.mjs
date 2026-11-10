@@ -52,12 +52,18 @@ if (process.env.IBREAK) ic.breakAt = Number(process.env.IBREAK);
 if (process.env.IFUSE) ic.fuse.mult = Number(process.env.IFUSE);
 if (process.env.IPANIC) ic.panic.turns = Number(process.env.IPANIC);
 if (process.env.IRAGE) ic.rage.atk = Number(process.env.IRAGE);
+if (process.env.IRMULT) ic.rage.mult = Number(process.env.IRMULT);
+if (process.env.IREVERY) ic.rage.every = Number(process.env.IREVERY);
+if (process.env.IPANICK) ic.panic.k = Number(process.env.IPANICK);
 const hc = MONSTERS[C8_HADES].c8b;
 if (process.env.HEVERY) hc.contract.every = Number(process.env.HEVERY);
 if (process.env.HTURNS) hc.contract.turns = Number(process.env.HTURNS);
 if (process.env.HDRAIN) hc.contract.drain = Number(process.env.HDRAIN);
 if (process.env.EEVERY) hc.erupt.every = Number(process.env.EEVERY);
 if (process.env.EBASE) hc.erupt.base = nums(process.env.EBASE);
+if (process.env.HP2) hc.p2At = Number(process.env.HP2);
+if (process.env.ECHILL) hc.erupt.chillAt = Number(process.env.ECHILL);
+if (process.env.HSOUL) hc.contract.soulHeal = Number(process.env.HSOUL);
 
 export const CH8_IDS = { pet: C8_PET, jafar: C8_JAFAR, imps: C8_PAIN, hades: C8_HADES };
 // おすすめの レベル（plan-ch8.md の 2: 第1幕は Lv80〜83。イアゴンは Step 1 の さいご・ジャハールは Step 2 の さいご／
