@@ -189,4 +189,10 @@ export const MONSTER_RANKS = {
   thorn_goblin: 'D', // 出2＋仲1
   ice_mirror: 'C', // 出3＋仲1
   blizzard: 'A', // 出3＋仲3
+  // 第8章（F1 E1 D1 C1 B0 A1 S0）
+  palace_guard: 'F', // 出0＋仲0
+  sanbo: 'E', // 出2＋仲0
+  cobrar: 'D', // 出2＋仲1
+  lamp_smoke: 'C', // 出3＋仲1
+  moon_scarab: 'A', // 出3＋仲3
 };

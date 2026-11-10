@@ -28,6 +28,8 @@ import { BUFF_ACTS } from './buff-acts.js';
 import { atbRate } from './battle.js';
 import { canUse } from './ai.js';
 import { AUTO_GUARD } from './battle-ch6.js';
+// 第2部 第8章 第1幕: オウムのイアゴン（オウムがえし）・大臣ジャハール（さいみんじゅつ → とぐろ → ランプ）。battle-c8a.js
+import { setupC8a, c8aTurnStart, c8aEffect, c8aPlan, c8aPub, c8aDamage, c8aKill } from './battle-c8a.js';
 
 export { C7_WITCH, C7_THORN, C7_SHADOW };
 export const CURSE = 'm7m_curse';
@@ -87,11 +89,15 @@ export function setupC7i(b) {
     }
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1300 });
+  // 第8章 第1幕の ボス（battle-c8a.js）
+  setupC8a(b);
 }
 
 // ───────────── 行動の はじめ（battle-c7s.js の c7sTurnStart の はじめ）─────────────
 // 動けない 番も しるしを 数える（しるしが 1つの 番が 動けない ときは、次の 番に）
 export function c7iTurnStart(b, c, ev, stuck) {
+  // 第8章 第1幕（battle-c8a.js）
+  c8aTurnStart(b, c, ev, stuck);
   if (c.c7mal) witchTurn(b, c, ev, stuck);
   else if (c.c7shade) shadeTurn(b, c, ev, stuck);
 }
@@ -202,7 +208,8 @@ export function c7iEffect(b, c, a, eff, ev) {
     case 'c7iBreath': breath(b, c, ev); return true;
     case 'c7iThrow': throwAt(b, c, ev); return true;
     case 'c7iDaze': daze(b, c, ev); return true;
-    default: return false;
+    // 第8章 第1幕（battle-c8a.js）
+    default: return c8aEffect(b, c, a, eff, ev);
   }
 }
 
@@ -335,6 +342,8 @@ function daze(b, c, ev) {
 // ───────────── ダメージ（battle-c7s.js の c7sDamage の さいご。味方 → 敵 だけ）─────────────
 // いばらのかべが ある 間の 魔女は cut ばい。変身の 前は HP が p2At より 下がらない
 export function c7iDamage(b, c, t, dmg, info, ev) {
+  // 第8章 第1幕: イアゴンの 聞き耳・ジャハールの とぐろ・のびきり・ランプの 中・変身の 前（battle-c8a.js）
+  dmg = c8aDamage(b, c, t, dmg, info, ev);
   if (!(dmg > 0) || !t.c7mal || t.c7mal.dragon) return dmg;
   const wc = witchConf(t);
   if (thornUp(b)) {
@@ -352,6 +361,8 @@ export function c7iDamage(b, c, t, dmg, info, ev) {
 // ───────────── たおれた（battle-c7s.js の c7sKill の さいご）─────────────
 // いばらのかべ: 魔女が regrow 回 動くと また はえる
 export function c7iKill(b, t, ev) {
+  // 第8章 第1幕: へびのつえ・黒いランプが こわれた（battle-c8a.js）
+  c8aKill(b, t, ev);
   if (!isThorn(t)) return;
   const w = witchOf(b);
   if (!w?.c7mal || w.c7mal.dragon) return;
@@ -412,6 +423,9 @@ function bestHit(b, c, t) {
 // 第7章 第3幕の ボスが いなければ null（ほかの ボスの 考えへ）
 export function c7iPlan(b, c, decide) {
   if (c.side !== 'ally' || b.c7iInner || c.status?.rift) return null;
+  // 第8章 第1幕の ボス（イアゴン・ジャハール。battle-c8a.js）
+  const ap = c8aPlan(b, c, decide);
+  if (ap) return ap;
   const w = witchOf(b);
   const s = shadeOf(b);
   if (!w && !s) return null;
@@ -453,6 +467,8 @@ export function c7iPlan(b, c, decide) {
 // いばらのかべ: c7thorn
 // カイの影: aimLeft・aimEvery（ねらいまで）・aims（ねらわれた 人の id）・aimLead（ブーメランまで）・daze・p2（かげぶんしん）
 export function c7iPub(c, o) {
+  // 第8章 第1幕（battle-c8a.js）
+  c8aPub(c, o);
   if (c.c7mal) {
     const wc = witchConf(c);
     o.c7form = c.c7mal.dragon ? 2 : 1;

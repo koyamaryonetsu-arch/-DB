@@ -390,6 +390,9 @@ export function gameFiles() {
     // 第2部 第7章 第3幕（B: 戦い・品）: 手下の 魔物・いばらの魔女マレフィナ（黒い 竜）・カイの影・氷の竜の城の 宝箱・時をこえる手紙の ごほうび・雪の 村の 店
     'public/js/shared/data/monsters-c7i.js', 'public/js/shared/data/abilities-c7i.js', 'public/js/shared/data/items-c7i.js', 'public/js/shared/data/encounters-c7i.js',
     'public/js/shared/data/companions-c7i.js', 'public/js/shared/battle-c7i.js', 'public/js/client/battle-c7i.js',
+    // 第2部 第8章 第1幕（B: 戦い・品）: 手下の 魔物・オウムのイアゴン・大臣ジャハール（コブラ・魔人）・月の王宮の 地下迷宮の 宝箱・時をこえる手紙の ごほうび
+    'public/js/shared/data/monsters-c8a.js', 'public/js/shared/data/abilities-c8a.js', 'public/js/shared/data/items-c8a.js', 'public/js/shared/data/encounters-c8a.js',
+    'public/js/shared/data/companions-c8a.js', 'public/js/shared/battle-c8a.js', 'public/js/client/battle-c8a.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
