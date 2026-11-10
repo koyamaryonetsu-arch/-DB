@@ -5,7 +5,7 @@
 //   お城の めし使い・王家の森の 番人
 // とくべつな え（paintC8aSpecial）: オウムのイアゴン（4階の 大きな すがた 40×40。赤い 羽・黄色い くちばし）・
 //   ねがいの ランプ（8階の 台の 上の 金の ランプ 36×28。コマで あやしく 光る）
-import { Painter } from './pixel.js?v=5520dc01c4ec';
+import { Painter } from './pixel.js?v=d98770c628cf';
 
 const person = (o) => o;
 export const C8A_NPC_LOOKS = {

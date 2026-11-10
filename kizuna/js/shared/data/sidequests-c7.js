@@ -6,19 +6,19 @@
 //   （4 … 神殿 5階の 番人の 手紙は 物語の なぞとき。data/story-c7.js）
 // ・見つけた 時に 1回だけ ごほうび（B の C7_LETTER_REWARDS）。人と 場所は maps/c7-field.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-ch6.js の ch6SubQuests・ch6DoneQuests から（c7SubQuests・c7DoneQuests）
-import { C7, LETTER, LETTER_SIDE } from '../maps/c7-flags.js?v=5520dc01c4ec';
-import { LETTER_ASKERS, LETTER_PLACES, LETTER_NOW_PLACES } from '../maps/c7-field.js?v=5520dc01c4ec';
-import { ITEMS } from './items.js?v=5520dc01c4ec';
+import { C7, LETTER, LETTER_SIDE } from '../maps/c7-flags.js?v=d98770c628cf';
+import { LETTER_ASKERS, LETTER_PLACES, LETTER_NOW_PLACES } from '../maps/c7-field.js?v=d98770c628cf';
+import { ITEMS } from './items.js?v=d98770c628cf';
 // 手紙の ごほうび（B の data/items-c7.js の C7_LETTER_REWARDS。まとめる 時に './items-c7.js' から）
-import { C7_LETTER_REWARDS } from './items-c7.js?v=5520dc01c4ec';
+import { C7_LETTER_REWARDS } from './items-c7.js?v=d98770c628cf';
 // 第2幕の 時をこえる手紙（海の 地方。sidequests-c7s.js）も ここから クエストの 画面へ
-import { c7sSubQuests, c7sDoneQuests } from './sidequests-c7s.js?v=5520dc01c4ec';
+import { c7sSubQuests, c7sDoneQuests } from './sidequests-c7s.js?v=d98770c628cf';
 // 第3幕の 時をこえる手紙（雪の 地方。sidequests-c7i.js）も ここから クエストの 画面へ
-import { c7iSubQuests, c7iDoneQuests } from './sidequests-c7i.js?v=5520dc01c4ec';
+import { c7iSubQuests, c7iDoneQuests } from './sidequests-c7i.js?v=d98770c628cf';
 // 第73回 D班: 第8章 第1幕の 千年前の 緑の王国の より道 2つ（sidequests-c8d.js）も ここから クエストの 画面と だいほんへ
-import { c8dSubQuests, c8dDoneQuests, applyC8dSide } from './sidequests-c8d.js?v=5520dc01c4ec';
+import { c8dSubQuests, c8dDoneQuests, applyC8dSide } from './sidequests-c8d.js?v=d98770c628cf';
 // 第8章 第1幕の 時をこえる手紙（緑の王国の まわり。sidequests-c8a.js）も ここから
-import { c8aSubQuests, c8aDoneQuests } from './sidequests-c8a.js?v=5520dc01c4ec';
+import { c8aSubQuests, c8aDoneQuests } from './sidequests-c8a.js?v=d98770c628cf';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

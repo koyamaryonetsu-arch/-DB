@@ -22,16 +22,16 @@
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
 //              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
-import { MONSTERS } from './monsters.js?v=5520dc01c4ec';
-import { registerVariant, variantFits, variantId } from './variants.js?v=5520dc01c4ec';
-import { ITEMS, SLOTS } from './items.js?v=5520dc01c4ec';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=5520dc01c4ec';
-import { makeRng } from '../rng.js?v=5520dc01c4ec';
-import { rewardGold } from './difficulty.js?v=5520dc01c4ec';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=5520dc01c4ec';
-import { sdGuardStrength } from './secret-guard.js?v=5520dc01c4ec';
+import { MONSTERS } from './monsters.js?v=d98770c628cf';
+import { registerVariant, variantFits, variantId } from './variants.js?v=d98770c628cf';
+import { ITEMS, SLOTS } from './items.js?v=d98770c628cf';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=d98770c628cf';
+import { makeRng } from '../rng.js?v=d98770c628cf';
+import { rewardGold } from './difficulty.js?v=d98770c628cf';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=d98770c628cf';
+import { sdGuardStrength } from './secret-guard.js?v=d98770c628cf';
 // 第45回: 四季のこよみを もらえるか（companions-dqm.js）
-import { dqKeyDue } from './companions-dqm.js?v=5520dc01c4ec';
+import { dqKeyDue } from './companions-dqm.js?v=d98770c628cf';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';

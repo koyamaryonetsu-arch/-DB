@@ -7,7 +7,7 @@
 // a7h_throw（かげブーメラン）は 大きな 黒い ブーメラン（とくべつな つぶ c7iboom）が ねらった 人へ 行って 帰ってくる。
 // どれも がめんの まん中に 大きく（client/battle-c7i.js の C7I_SCREEN_ANIMS）
 // 第2部 第8章 第1幕 の 魔物・イアゴン・ジャハール（battlefx-c8a.js）
-import { playC8aFx, C8A_FINE } from './battlefx-c8a.js?v=5520dc01c4ec';
+import { playC8aFx, C8A_FINE } from './battlefx-c8a.js?v=d98770c628cf';
 
 const ICE = ['#e8f8ff', '#9ad8f0', '#5ab0e0', '#ffffff'];
 const GREEN = ['#4ae870', '#c8ffb0', '#1a8a3a', '#ffffff'];
