@@ -10,15 +10,15 @@
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
 // 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
-import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=5d01a997db4e';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=5d01a997db4e';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=5d01a997db4e';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=5d01a997db4e';
+import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=e806fc63d13d';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=e806fc63d13d';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=e806fc63d13d';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=e806fc63d13d';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=5d01a997db4e';
-import { MONSTERS } from './data/monsters.js?v=5d01a997db4e';
+import { deduceElement } from './data/abilities-jobs6.js?v=e806fc63d13d';
+import { MONSTERS } from './data/monsters.js?v=e806fc63d13d';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=5d01a997db4e';
+import { dualFor } from './ability-label.js?v=e806fc63d13d';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 // 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）

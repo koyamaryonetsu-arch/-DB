@@ -4,8 +4,8 @@
 //   ・転職（world/services.js の jobChange）で はじめて 幻の職業に なったら phantomGot
 //   ・掲示板は B 班の world.boardPost（ない ときは 何も しない）
 //   ・知らない タグ（あとの 版で ふえた もの）も けさずに のこす（world/save.js の やくそく）
-import { PHANTOM_TAGS, FEAT_STATS, PHANTOM_JOBS, newFeat, phantomSeen, phantomReady, phantomName, phantomCondText, phantomBook } from '../data/phantom.js?v=5d01a997db4e';
-import { JOBS, PHANTOM_ORDER } from '../data/jobs.js?v=5d01a997db4e';
+import { PHANTOM_TAGS, FEAT_STATS, PHANTOM_JOBS, newFeat, phantomSeen, phantomReady, phantomName, phantomCondText, phantomBook } from '../data/phantom.js?v=e806fc63d13d';
+import { JOBS, PHANTOM_ORDER } from '../data/jobs.js?v=e806fc63d13d';
 
 const CAP = 1e15;
 const int = (v) => (Number.isFinite(v) && v > 0 ? Math.min(CAP, Math.floor(v)) : 0);

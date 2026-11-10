@@ -87,6 +87,12 @@ export const FAMILY_GIFTS = {
     ...GIFT, name: '千年の花のかみかざり', bonus: { mag: 18, heal: 14, hp: 40, def: 8 }, resist: { ice: 0.75, bolt: 0.75, poison: 0.6 },
     desc: '千年旅をする魔法使いがのこした、青い星見草のかみかざり。だれでも装備でき、魔力と回復の力が大きく上がり、氷とかみなりと毒に強い。',
   },
+  // ───── 第73回 D班（data/sidequests-work4.js）。第64回の きまり で ★5 は 26 の 1つだけ（第68回と おなじ くらい。闘技場 ランク10 の ブローチより 弱い）─────
+  // 26. ピラミッドのはっくつ隊を守れ（ガーディアンか大神官の 系統）: はっくつの あなから 出てきた 砂の 守り神の お守り
+  fq_sand_amulet: {
+    ...GIFT, name: '砂の守り神のお守り', bonus: { hp: 60, def: 14, heal: 12, mag: 6 }, resist: { blast: 0.7, poison: 0.6, sleep: 0.6 },
+    desc: 'むかし、王家のピラミッドのまわりを守っていた神さまのお守り。だれでも装備でき、HPと守りと回復の力が上がり、爆発と毒とねむりに強い。',
+  },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
 
@@ -116,5 +122,6 @@ export const FAMILY_ITEM_KANA = {
   fq_gold_play: 'きんのさいせいぼたん', fq_gold_shamoji: 'たよれるきんのしゃもじ', fq_gold_cards: 'まぼろしのきんのとらんぷ',
   fq_friend_bell: 'なかよしのきんのすず', fq_gold_pad: 'めいじんのきんのこんとろーらー', fq_neta_note: 'ふわふわこんびのねたちょう',
   fq_fushigi_pocket: 'ほしよみのひみつぽけっと', fq_flower_pin: 'せんねんのはなのかみかざり',
+  fq_sand_amulet: 'すなのまもりがみのおまもり',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };

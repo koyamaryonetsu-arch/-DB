@@ -29,16 +29,16 @@
 //   drawHat33(cv, P, H, G, view) … シルクハット・ティアラ（drawHat26 から よぶ。かいたら true）
 //   drawProp33(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。かいたら true）
 //   handMark33(cv, A, P, O) … 手ぶくろの れん金の 円（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=5d01a997db4e';
-import { EYE_V } from './hero-face.js?v=5d01a997db4e';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=e806fc63d13d';
+import { EYE_V } from './hero-face.js?v=e806fc63d13d';
 // 第40回: 男の子の ネオ・クイーン・セレニティ（キング・エンディミオン）も masc33 で かえす
-import { R40_MASC } from './hero-r40.js?v=5d01a997db4e';
+import { R40_MASC } from './hero-r40.js?v=e806fc63d13d';
 // 第41回 B: 男の子の 雪の女王（雪の王）・第5のせいれいの 見た目
-import { R41B_MASC } from './hero-r41b.js?v=5d01a997db4e';
+import { R41B_MASC } from './hero-r41b.js?v=e806fc63d13d';
 // 第43回: 男の子の 配管工の 系統（配管工・ひげおやじ・マリオ）の 見た目
-import { R43J_MASC } from './hero-r43j.js?v=5d01a997db4e';
+import { R43J_MASC } from './hero-r43j.js?v=e806fc63d13d';
 // 第66回 D班: 男の子の ロゼッタ（ギャラクシーマリオ）の 見た目（hero-r66d.js）
-import { R66D_MASC } from './hero-r66d.js?v=5d01a997db4e';
+import { R66D_MASC } from './hero-r66d.js?v=e806fc63d13d';
 
 export const R33_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 

@@ -25,4 +25,9 @@ export const FIXED_FAMILY = {
   fq_blaze: { group: [['fire_imp', 2, 2], ['hinezumi', 1, 1]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 76 },
   // 22. ホシフル村の 古い 宝箱: ひとくい箱（1ぴき）
   fq_mimic: { group: [['hitokui_box', 1, 1]], bg: 'grass', bgm: 'battle', canFlee: false, enemyLv: 76, enemyPow: 0.65 },
+  // ───── 第73回 D班（data/sidequests-work4.js）。第8章 第1幕（Lv80 の ころ）なので 敵Lv80（それでも 完全オートで 勝てる 軽さ）─────
+  // 24. ひみつの温泉の 湯けむりの 白い岩: 岩の 下に すを 作っていた 岩もぐら（2ひき）
+  fq_rockmole: { group: [['rock_mole', 2, 2]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 80, enemyPow: 0.55 },
+  // 26. 王家のピラミッドの 前の 広場の 夜の 見張り: 北の 砂から 来た サンドワームと やみサソリ
+  fq_sandnight: { group: [['sand_worm', 1, 1], ['dark_scorpion', 1, 1]], bg: 'desert', bgm: 'battle', canFlee: false, enemyLv: 80, enemyPow: 0.7 },
 };

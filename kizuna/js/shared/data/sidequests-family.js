@@ -16,22 +16,24 @@
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
 //  6〜11. 第41回（data/sidequests-work.js）
-import { medalSteps } from './story-lab.js?v=5d01a997db4e';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=5d01a997db4e';
-import { FAMILY_ITEMS } from './items-family.js?v=5d01a997db4e';
+import { medalSteps } from './story-lab.js?v=e806fc63d13d';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=e806fc63d13d';
+import { FAMILY_ITEMS } from './items-family.js?v=e806fc63d13d';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=5d01a997db4e';
+} from '../maps/family-quests.js?v=e806fc63d13d';
 // 職業の 系統・ヒント・乗り物の どうぐ（data/fq-common.js。第41回で 分けた）
-import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=5d01a997db4e';
+import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=e806fc63d13d';
 // 第41回: ふえた 6つの たのまれごと（data/sidequests-work.js）
-import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=5d01a997db4e';
+import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=e806fc63d13d';
 // 第65回 D2: たのまれごと 12〜17（data/sidequests-work2.js）
-import { WORK2_QUESTS, WORK2_SCRIPTS, WORK2_STORY_SCRIPTS, workSubQuests2 } from './sidequests-work2.js?v=5d01a997db4e';
+import { WORK2_QUESTS, WORK2_SCRIPTS, WORK2_STORY_SCRIPTS, workSubQuests2 } from './sidequests-work2.js?v=e806fc63d13d';
 // 第68回 D班: たのまれごと 18〜23（data/sidequests-work3.js。第7章の カリムの あとから）
-import { WORK3_QUESTS, WORK3_SCRIPTS, WORK3_STORY_SCRIPTS, workSubQuests3 } from './sidequests-work3.js?v=5d01a997db4e';
+import { WORK3_QUESTS, WORK3_SCRIPTS, WORK3_STORY_SCRIPTS, workSubQuests3 } from './sidequests-work3.js?v=e806fc63d13d';
+// 第73回 D班: たのまれごと 24〜26（data/sidequests-work4.js。第8章 第1幕の 千年前の 王国に 着いた あとから）
+import { WORK4_QUESTS, WORK4_SCRIPTS, WORK4_STORY_SCRIPTS, workSubQuests4 } from './sidequests-work4.js?v=e806fc63d13d';
 // はり紙の ごほうびの 素材・道具の 名前（使う 時に 見る。読みこみの じゅんばんに よらない）
-import { ITEMS } from './items.js?v=5d01a997db4e';
+import { ITEMS } from './items.js?v=e806fc63d13d';
 
 export { jobLine, jobLineNames, lineMember, partyHasLine };
 
@@ -59,6 +61,8 @@ export const FAMILY_QUESTS = [
   ...WORK2_QUESTS,
   // 18〜23（第68回 D班。data/sidequests-work3.js。open … c7_karim から）
   ...WORK3_QUESTS,
+  // 24〜26（第73回 D班。data/sidequests-work4.js。open … c8_kingdom から）
+  ...WORK4_QUESTS,
 ];
 const Q = Object.fromEntries(FAMILY_QUESTS.map((q) => [q.id, q]));
 
@@ -119,6 +123,8 @@ export function familySubQuests(c, f, has) {
   out.push(...workSubQuests2(c, f, has));
   // 18〜23（第68回 D班）
   out.push(...workSubQuests3(c, f, has));
+  // 24〜26（第73回 D班）
+  out.push(...workSubQuests4(c, f, has));
   // 第65回 D2: お仕事いらい板で 受けて、まだ たのみたい 人に 会っていない（地図の しるしは その 人）
   for (const fq of FAMILY_QUESTS) {
     if (f(takeFlag(fq)) && !f(fq.start) && !f(fq.done)) out.push({ name: fq.name, who: fq.npc, ready: false, text: `${fq.who}に会おう`, hint: `お仕事いらい板で受けた。${fq.where}にいる、${fq.who}に話しかけよう。` });
@@ -864,6 +870,7 @@ export const FAMILY_SCRIPTS = {
   ...WORK_SCRIPTS,
   ...WORK2_SCRIPTS,
   ...WORK3_SCRIPTS,
+  ...WORK4_SCRIPTS,
 };
 // パーティー全員で 見る イベント（戦い・トロッコ）
-export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS];
+export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS, ...WORK4_STORY_SCRIPTS];

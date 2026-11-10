@@ -8,15 +8,17 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=5d01a997db4e';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=5d01a997db4e';
-import { ORN } from '../maps/ch6c-side.js?v=5d01a997db4e';
-import { RS } from './sidequests-ch6d.js?v=5d01a997db4e';
-import { C7, LETTER } from '../maps/c7-flags.js?v=5d01a997db4e';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=5d01a997db4e';
-import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=5d01a997db4e';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=5d01a997db4e';
-import { jobLine } from './fq-common.js?v=5d01a997db4e';
+import { C6 } from '../maps/past.js?v=e806fc63d13d';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=e806fc63d13d';
+import { ORN } from '../maps/ch6c-side.js?v=e806fc63d13d';
+import { RS } from './sidequests-ch6d.js?v=e806fc63d13d';
+import { C7, LETTER } from '../maps/c7-flags.js?v=e806fc63d13d';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=e806fc63d13d';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=e806fc63d13d';
+// 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国）
+import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=e806fc63d13d';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=e806fc63d13d';
+import { jobLine } from './fq-common.js?v=e806fc63d13d';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -68,6 +70,9 @@ const build = () => [
   { id: 'c7il1', name: '時をこえる手紙（白雪の里）', open: [C7I.frost], start: LETTER7I.start(1), done: LETTER7I.found(1), place: '千年前の白雪の里', who: '白雪の里の子ども', npc: 'c7i_kid', hint: '千年先の子どもに、竜のことを伝えたいらしい。' },
   { id: 'c7il2', name: '時をこえる手紙（白銀の湖の岸）', open: [C7I.frost], start: LETTER7I.start(2), done: LETTER7I.found(2), place: '千年前の白銀の湖の岸', who: '湖の若い漁師', npc: 'c7i_fisher', hint: '千年先の漁師に、ないしょの話をのこしたいらしい。' },
   { id: 'c7il3', name: '時をこえる手紙（湯けむりの谷）', open: [C7I.frost], start: LETTER7I.start(3), done: LETTER7I.found(3), place: '千年前の湯けむりの谷', who: '湯けむりの旅人', npc: 'c7i_traveler', hint: '千年先の谷の人へ、ねがいをのこしたいらしい。' },
+  // 第8章 第1幕（第73回 D班。千年前の 緑の王国の より道。sidequests-c8d.js）
+  { id: 'c8d_camel', name: '王宮の子どもと、迷子の子ラクダ', open: [C8D_OPEN], start: CAMEL8.start, done: CAMEL8.done, place: '千年前の緑の王国', who: '王宮の子どもナシム', npc: 'c8d_camel_host', hint: 'かわいがっている子ラクダが、どこかへ行ってしまったらしい。' },
+  { id: 'c8d_market', name: '市場のずるい分銅', open: [C8D_OPEN], start: MARKET8.start, done: MARKET8.done, place: '千年前の緑の王国', who: '布売りのハビブ', npc: 'c8d_mk_host', hint: '大事な布を売ったのに、お金が足りなかったらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）
