@@ -77,7 +77,7 @@ function addPresent(s) {
 export function attachC8aField(maps) {
   addPast(maps[C7_FIELD_ID]);
   addPresent(maps[SOUTH_ID]);
-  // とびらの 表（effectiveTile が はじめて 使った 時に 作る）を 作りなおす
-  for (const id of [C7_FIELD_ID, SOUTH_ID]) maps[id].gateAt = undefined;
+  // とびらの 表を 作りなおす（ほかの 所〈2D の 絵・テスト〉は gateAt を そのまま 見るので、すぐ 作る）
+  for (const id of [C7_FIELD_ID, SOUTH_ID]) { const m = maps[id]; m.gateAt = new Map((m.gates || []).map((g) => [g.y * m.w + g.x, g])); }
 }
 export { inRect };
