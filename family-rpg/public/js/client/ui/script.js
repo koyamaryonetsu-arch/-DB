@@ -6,6 +6,8 @@ import { openServiceUI } from './services.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { npcSprite } from '../field.js';
 import { reportError } from '../errlog.js';
+// 第76回: お仕事いらい板の 大きな はり紙
+import { paperPop } from './paper-pop.js';
 // 第6章: 時の砂時計の 砂の うず
 import { timeShiftFx, clearTimeShift } from '../time-shift.js';
 
@@ -61,6 +63,8 @@ export class ScriptPlayer {
     this.rolling = false;
     document.querySelectorAll('#fx .roll').forEach((x) => x.remove());
     clearTimeShift();
+    // 第76回: とちゅうの はり紙の 大きな まど
+    this.popClose?.();
     this.queue = [];
     this.running = false;
     this.advance = null;
@@ -76,7 +80,10 @@ export class ScriptPlayer {
     const [op, ...a] = st;
     switch (op) {
       case 'say': return this.say(a[0] ? this.fill(a[0], msg) : null, this.fill(a[1], msg), msg.spectator);
-      case 'choice': return this.choice(this.fill(a[0], msg), a[1], msg.spectator, msg.who, a[2]);
+      case 'choice':
+        // 第76回: お仕事いらい板の はり紙は 大きな まど（client/ui/paper-pop.js）
+        if (a[3] && typeof a[3] === 'object') return paperPop(this, a[3], a[1], msg.spectator, msg.who);
+        return this.choice(this.fill(a[0], msg), a[1], msg.spectator, msg.who, a[2]);
       case 'fade': return g.fade(a[0] === 'out');
       case 'flash': return g.flash();
       case 'shake':
@@ -292,7 +299,8 @@ export class ScriptPlayer {
     });
   }
 
-  // info … えらぶ 物ごとの せつめい（第65回 お仕事いらい板: カーソルを 合わせた はり紙の 職業・ごほうび）。下の 小さな わくに 出す
+  // info … えらぶ 物ごとの せつめい（第65回 お仕事いらい板: カーソルを 合わせた はり紙の 職業・ごほうび）。
+  //   第76回: せつめいの ある ときは 画面を 大きく 使う まど（よこ画面は 右・たて画面は 下に せつめい）
   choice(question, options, spectator, who, info = null) {
     const g = this.game;
     if (spectator) {
@@ -320,10 +328,13 @@ export class ScriptPlayer {
       box.append(menu.root);
       if (infoBox) { box.append(infoBox); showInfo(menu.idx || 0); }
       document.getElementById('ui').append(box);
+      // 第76回: せつめいの ある えらぶ まど（お仕事いらい板の 一らん）は 画面を 大きく 使う（下の メッセージは かくす）
+      if (hasInfo) document.body.classList.add('big-choice');
       menu.focus();
       const finish = (v) => {
         menu.blur();
         box.remove();
+        if (hasInfo) document.body.classList.remove('big-choice');
         resolve(v);
       };
     });

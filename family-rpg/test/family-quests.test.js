@@ -502,9 +502,13 @@ test('掲示板: ルミナの町の広場に いつも 立つ・はり紙に 中
   assert.ok(said(msgs, /お仕事いらい板/));
   assert.ok(said(msgs, /はり紙は17まい。まだすんでいないのは17まい/));
   assert.ok(said(msgs, /劇場が暑くて/));
-  assert.ok(said(msgs, /設備屋、ryonetsu[、\n]天才しせつ管理者/), '系統の 職業 ぜんぶ');
-  assert.ok(said(msgs, /サファラ劇場の中にいる、支配人ラシードに話しかけよう/));
-  assert.ok(said(msgs, /空調名人のバッジ（アクセサリー）\n高所作業車（乗り物）\n5000ゴールド・小さなメダル3まい/));
+  // 第76回: はり紙は 大きな まど 1まい（choice の 5つ目に 中み。sidequests-family.js の boardPaper）
+  const paper = msgs.flatMap((m) => (m.t === 'script' ? m.steps : [])).find((st) => st[0] === 'choice' && st[4])?.[4];
+  assert.ok(paper, 'はり紙の 中み');
+  assert.deepEqual(paper.jobs.slice(0, 3), ['設備屋', 'ryonetsu', '天才しせつ管理者'], '系統の 職業 ぜんぶ');
+  assert.ok(paper.where.includes('サファラ劇場の中') && paper.who === '支配人ラシード');
+  assert.deepEqual(paper.rewards.map((r) => `${r.name}:${r.kind}`), ['空調名人のバッジ:acc', '高所作業車:vehicle']);
+  assert.ok(paper.gold === 5000 && paper.medals === 3 && paper.has === false && paper.state === null);
   const choices = msgs.filter((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice');
   assert.equal(choices.length, 3, '読んで「受ける？」のあと 一らんに もどる');
   assert.equal(choices[0].steps.at(-1)[2].length, 8, '6まい＋つぎのページへ＋やめる');

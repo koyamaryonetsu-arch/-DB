@@ -13,6 +13,8 @@ import { SKILL_UPS } from '../../shared/data/skill-ups.js';
 import { perkText } from '../../shared/data/items-r31.js';
 import { BUFF_MARKS } from '../../shared/buff-acts.js';
 import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js';
+// 第76回: もとの 強さ（きたえる 前の 装備。shared/gear-base.js）
+import { GEAR_STAT_LABELS, gearOwn, gearBaseId } from '../../shared/gear-base.js';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -91,6 +93,9 @@ export function itemDetail(id, mons = null, who = null) {
   const lines = [it.desc || ''];
   const st = itemStats(id);
   if (st) lines.push(st);
+  // 第76回: きたえた 装備は もとの 強さも（「もと：攻撃+68 素早さ+3（きたえる前）」）
+  const b = gearBaseId(id);
+  if (b !== id && ITEMS[b]) lines.push(`もと：${itemStats(b) || '強さなし'}（きたえる前）`);
   // ふしぎな 力（第31回: しあわせのぼうし・こうふくのくつ。data/items-r31.js）
   if (perkText(it)) lines.push(`★ ${perkText(it)}`);
   // とくせい（炎に強い・会心が出やすい・行動するたびにMP+1 など。shared/data/rare-loot.js）
@@ -118,7 +123,7 @@ export function itemDetail(id, mons = null, who = null) {
 }
 
 // 装備で 変わる 強さ（お店の くらべ counter.js と おなじ ならび）
-export const STAT_LABELS = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早さ'], ['mag', '攻撃魔力'], ['heal', '回復魔力'], ['maxHp', '最大HP'], ['maxMp', '最大MP']];
+export const STAT_LABELS = GEAR_STAT_LABELS;
 
 // before・after（computeStats の 結果）で 変わる 強さを ぜんぶ（上がる ものも 下がる ものも）
 // かえす もの: [{ k, n: 名前, b: 前, a: 後, d: 差 }]
@@ -134,11 +139,9 @@ export function statChangesHtml(list, { none = '強さは変わらない' } = {}
 }
 
 // 第64回: 装備 そのものの 強さ（その 部位を 外した 時と くらべて 上がる 分。[{ k, n, v }]）。id が null なら []
+// （第76回: 中みは shared/gear-base.js の gearOwn。もとの 強さ〈gearOwnBase〉と おなじ くらべかた）
 export function gearOwnStats(char, slot, id) {
-  if (!id) return [];
-  const off = computeStats({ ...char, equip: { ...(char?.equip || {}), [slot]: null } });
-  const on = computeStats({ ...char, equip: { ...(char?.equip || {}), [slot]: id } });
-  return STAT_LABELS.map(([k, n]) => ({ k, n, v: (on?.[k] ?? 0) - (off?.[k] ?? 0) })).filter((x) => x.v);
+  return gearOwn(char, slot, id);
 }
 const signed = (v) => (v > 0 ? `+${v}` : `${v}`);
 // 装備 そのものの 強さを 文に（「攻撃力+12　素早さ+4」。ない 時は none）
@@ -147,16 +150,20 @@ export function gearOwnText(own, none = '強さなし') {
 }
 // 第64回: 装備の 一覧の 1行（装備 そのものの 強さは 白・今の 装備との 差だけ 色）
 //   own … gearOwnStats・diffs … statChanges（今 → えらんだ 物）
-export function gearRowHtml(own, diffs) {
+//   base … 第76回: もとの 装備の 強さ（gearOwnBase。きたえた・れん金の 物だけ わたす）。ちがう 強さに「もと+68」
+export function gearRowHtml(own, diffs, base = null) {
   const d = new Map((diffs || []).filter((x) => x.d).map((x) => [x.k, x.d]));
   const o = new Map((own || []).map((x) => [x.k, x.v]));
+  const bm = base ? new Map(base.map((x) => [x.k, x.v])) : null;
   const keys = STAT_LABELS.filter(([k]) => o.has(k) || d.has(k));
   if (!keys.length) return '<span class="sc muted">強さは変わらない</span>';
   return keys.map(([k, n]) => {
     const v = o.get(k), dv = d.get(k);
     const own1 = `<span class="eq-own">${n}${v ? signed(v) : ''}</span>`;
     const diff = dv ? `<span class="eq-d ${dv > 0 ? 'up' : 'down'}">${dv > 0 ? `↑${dv}` : `↓${-dv}`}</span>` : '';
-    return `<span class="sc">${own1}${diff}</span>`;
+    const bv = bm ? bm.get(k) || 0 : null;
+    const base1 = bm && bv !== (v || 0) ? `<span class="eq-base">もと${signed(bv)}</span>` : '';
+    return `<span class="sc">${own1}${diff}${base1}</span>`;
   }).join('');
 }
 

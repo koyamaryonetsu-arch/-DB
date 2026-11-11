@@ -37,7 +37,7 @@ import { FAV_MAX, FAV_FULL_TEXT, favApply, favFull } from '../../shared/favorite
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
 import { skillLevel, skillLvLeft } from '../../shared/buff-acts.js';
 import '../battle-buffs.js';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml, gearOwnStats, gearOwnText, gearRowHtml } from './info.js';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml, gearOwnStats, gearRowHtml } from './info.js';
 import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS, gearScore } from '../../shared/equip-plan.js';
 import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
@@ -54,6 +54,9 @@ import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, EXP_RATE_NOTES, 
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { rareNameHtml } from './rarity.js';
+// 第76回: もとの 強さ（きたえる 前）と 大きな くらべる まど
+import { gearOwnBase, hasBoost, baseStronger } from '../../shared/gear-base.js';
+import { equipCompareHtml } from './equip-compare.js';
 import { themeHex } from '../render/themes.js';
 import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js';
 import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
@@ -807,12 +810,15 @@ export class FieldMenu {
   // head: (m) => 題と リストの 間に 出す もの（装備の ならべかえ など。m … えらぶ リスト）。onSide: (d, m) … 左右（-1・1）
   // onMove: (it) … カーソルを うごかした とき（見た目装備の 見本を かえる など）
   // foot: リストの 下に 出す もの（装備の くらべる まど など）
-  pick(title, items, { wide = false, cls = '', body = null, note = null, start, head = null, onSide = null, onMove = null, foot = null } = {}) {
+  // big … 第76回: 画面を 大きく 使う まど（はばと 高さは CSS の .big-pick。装備を えらぶ まど）
+  // tapConfirm … タップで ほかの 行を えらぶと カーソルと せつめい だけ うごく（もう一度 おすと 決まる。dom.js の ListMenu）
+  pick(title, items, { wide = false, big = false, tapConfirm = false, cls = '', body = null, note = null, start, head = null, onSide = null, onMove = null, foot = null } = {}) {
     const g = this.game;
     return new Promise((resolve) => {
       const hasCancel = items.some((i) => i.value === null || i.value === 'cancel');
       const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { this.sfx('cancel'); done(null); } });
-      const box = el('div', { class: `win panel center-panel ${cls}`, style: { width: wide ? 'min(94vw, 560px)' : 'min(86vw, 380px)', zIndex: 5, background: 'var(--win-solid)' } }, el('div', { class: 'small gold', text: title }));
+      const size = big ? {} : { width: wide ? 'min(94vw, 560px)' : 'min(86vw, 380px)' };
+      const box = el('div', { class: `win panel center-panel ${big ? 'big-pick' : ''} ${cls}`, style: { ...size, zIndex: 5, background: 'var(--win-solid)' } }, el('div', { class: 'small gold pick-title', text: title }));
       const at = start === undefined ? -1 : items.findIndex((i) => i.value === start && !i.disabled && !i.header);
       const m = new ListMenu(g.input, {
         items,
@@ -820,6 +826,7 @@ export class FieldMenu {
         sound: this.sfx,
         back: hasCancel ? null : 'やめる',
         start: at,
+        tapConfirm,
         onSide: onSide ? (d) => onSide(d, m) : null,
         onMove: onMove || undefined,
         onSelect: (it) => done(it.value),
@@ -1532,7 +1539,9 @@ export class FieldMenu {
     const changes = (id) => statChanges(before, computeStats({ ...c, equip: { ...(c.equip || {}), [slot]: id } }));
     // 第64回: 1行に 装備 そのものの 強さ（白）と 今の 装備との 差（色）。強い 上から 3つに「おすすめ」
     const own = (id) => gearOwnStats(c, slot, id);
-    const row = (nameHtml, tag, id, rec = false) => `<span class="eq-nm">${nameHtml}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}${rec ? '<span class="tag eq-rec">おすすめ</span>' : ''}</span><span class="eq-sc">${gearRowHtml(own(id), changes(id))}</span>`;
+    // 第76回: きたえた・れん金の 物は 強さの よこに「もと+68」（きたえる 前の 強さ。shared/gear-base.js）。
+    // 今は 弱いが もとの 強さが 今の 装備より 上の 物に「もとが強い」（きたえると 強く なるかも）
+    const row = (nameHtml, tag, id, rec = false, baseUp = false) => `<span class="eq-nm">${nameHtml}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}${rec ? '<span class="tag eq-rec">おすすめ</span>' : ''}${baseUp ? '<span class="tag eq-baseup">もとが強い</span>' : ''}</span><span class="eq-sc">${gearRowHtml(own(id), changes(id), id && hasBoost(c, id) ? gearOwnBase(c, slot, id) : null)}</span>`;
     // 自分と 仲間（パーティー・馬車）が 装備している 物も 候補（入れかえ）
     const others = this.teamChars().filter((m) => m.key !== who);
     const nameOf = (key) => others.find((m) => m.key === key)?.char.name || '';
@@ -1540,11 +1549,12 @@ export class FieldMenu {
     // おすすめ: 今の 装備より 強い 物の 上から 3つ（ふくろの 物だけ。同じ 物は 1つと 数える）
     const curScore = gearScore(c, slot, cur);
     const recs = new Set(sortGearChoices(choices, 'power').filter((x) => !x.from && x.id !== cur && x.score > curScore).slice(0, 3).map((x) => x.id));
+    const baseUp = new Set(choices.filter((x) => x.id !== cur && x.score <= curScore && baseStronger(c, slot, cur, x.id)).map((x) => x.id));
     let mode = gearSortPref();
     const rows = () => {
       const opts = sortGearChoices(choices, mode).map((x) => (x.from
-        ? { html: row(rareNameHtml(x.id), `${nameOf(x.from)}が装備中`, x.id), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
-        : { html: row(rareNameHtml(x.id), x.n > 1 ? `×${x.n}` : '', x.id, recs.has(x.id)), value: x.id, cls: 'eq-opt' }));
+        ? { html: row(rareNameHtml(x.id), `${nameOf(x.from)}が装備中`, x.id, false, baseUp.has(x.id)), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
+        : { html: row(rareNameHtml(x.id), x.n > 1 ? `×${x.n}` : '', x.id, recs.has(x.id), baseUp.has(x.id)), value: x.id, cls: 'eq-opt' }));
       if (!opts.length) opts.push({ header: true, label: '装備できる物を持っていない', cls: 'eq-none' });
       if (cur) opts.push({ html: row(esc('外す'), '', null), value: '__off', cls: 'eq-opt' });
       opts.push({ label: 'やめる', value: null });
@@ -1568,15 +1578,18 @@ export class FieldMenu {
       // 左右の キー（スマホは ウインドウの 十字キー）でも 切りかえられる
       !g.input.touch || g.input.padOn ? el('span', { class: 'tab-hint', text: '◀▶で切りかえ' }) : null)) : null;
     const onSide = head ? (d, m) => setMode(keys[(keys.indexOf(mode) + d + keys.length) % keys.length], m) : null;
-    // 第64回: 下に くらべる まど（今の 装備 → えらんでいる 物。どちらも 装備 そのものの 強さ）
-    const curLine = `今：${cur ? ITEMS[cur].name : 'なし'}　${cur ? gearOwnText(own(cur)) : ''}`;
-    const foot = el('div', { class: 'eq-compare small' }, el('div', { class: 'eq-cmp-now', text: curLine }), el('div', { class: 'eq-cmp-new' }));
+    // 第64回: くらべる まど（今の 装備 → えらんでいる 物。どちらも 装備 そのものの 強さ）
+    // 第76回: 大きな まどに（よこ画面は 右・たて画面は 下）。今の 強さと もとの 強さ・同じだけ きたえると（client/ui/equip-compare.js）
+    const foot = el('div', { class: 'eq-compare' });
     const onMove = (it) => {
       const v = it?.value;
       const id = typeof v === 'string' && v.startsWith('swap:') ? others.find((x) => `swap:${x.key}` === v)?.char.equip?.[slot] : v === '__off' ? null : v;
-      foot.lastChild.textContent = v === null || v === undefined ? '' : v === '__off' ? '→ 外す' : id && ITEMS[id] ? `→ ${ITEMS[id].name}　${gearOwnText(own(id))}` : '';
+      foot.innerHTML = equipCompareHtml(c, slot, cur, v === null || v === undefined ? undefined : v === '__off' ? null : id && ITEMS[id] ? id : undefined);
     };
-    const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, rows(), { wide: true, cls: 'eq-pick', head, onSide, onMove, foot });
+    // スマホ（タッチ）は 1回目の タップで くらべる まどに 出して、もう一度で 装備（くらべてから 決められる）
+    const touch = !!g.input.touch;
+    const title = `${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`;
+    const pick = await this.pick(title, rows(), { wide: true, big: true, tapConfirm: touch, note: touch ? { text: 'タップでくらべる・もう一度タップで装備', cls: 'info' } : null, cls: 'eq-pick', head, onSide, onMove, foot });
     if (!pick) return false;
     if (pick === '__off') {
       g.net.send({ t: 'menu', action: 'unequip', slot, who });

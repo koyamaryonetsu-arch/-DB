@@ -478,6 +478,8 @@ export function gameFiles() {
     'public/js/shared/breed-finder.js', 'public/js/shared/breed-calc.js',
     // 第72回: 元気玉（みんなの HPを 集める）
     'public/js/shared/battle-genki.js',
+    // 第76回: 装備の もとの 強さ（くらべる まど）・お仕事いらい板の 大きな はり紙
+    'public/js/shared/gear-base.js', 'public/js/client/ui/equip-compare.js', 'public/js/client/ui/paper-pop.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

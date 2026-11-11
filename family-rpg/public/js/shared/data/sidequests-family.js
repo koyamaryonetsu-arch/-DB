@@ -804,6 +804,7 @@ function jobPages(q) {
   out.push('（その職業の人が、パーティーにひとりいればだいじょうぶ）');
   return N(...out);
 }
+// 第76回: はり紙を 文だけで 読む 形（今は 大きな まど〈boardPaper〉で 見せる。テストで 中みを たしかめる のに のこす）
 export function boardPage(x, q) {
   const r = q.reward;
   const state = x.flag(q.done) ? 'このたのまれごとは、もうすんでいる。' : boardTaken((k) => x.flag(k), q) ? '今、このたのまれごとを受けている。' : null;
@@ -827,7 +828,8 @@ function boardMenu(x, page = 0) {
   const list = boardList(x).slice(page * BOARD_PAGE, (page + 1) * BOARD_PAGE);
   const go = (p) => [['call', (run) => run.runSteps(boardMenu(x, p))]];
   const opts = list.map((q) => q.name + boardMark(x, q));
-  const acts = list.map((q) => [...boardPage(x, q), ...boardTake(x, q, go(page))]);
+  // 第76回: はり紙は 大きな まど 1まいで ぜんぶ 見せる（何ページも の メッセージを やめた。boardTake）
+  const acts = list.map((q) => boardTake(x, q, go(page)));
   // 第65回 D2: カーソルを 合わせた はり紙の 職業・ごほうび（client/ui/script.js の choice の せつめい）
   const info = list.map((q) => boardInfo(x, q));
   if (page + 1 < pages) { opts.push('つぎのページへ'); acts.push(go(page + 1)); info.push(''); }
@@ -839,19 +841,40 @@ function boardMenu(x, page = 0) {
 }
 // 第65回 D2: はり紙を 読んだ あと「受ける？」（受けると 地図の しるし・クエストの 画面に 出る）・受けている ものは「やめる？」
 // やめると 受けた しるしと 始めた しるし（start）を けす。とちゅうまでの ことは おぼえていて、また 受けると 続きから
+// 第76回: はり紙の 大きな まど（家族の ねがい: もっと 大きく、見やすく）。choice の 5つ目に はり紙の 中みを つける
+//   （client/ui/script.js の paperPop。見ている だけの 人や 古い 画面には、はり紙の 文と 問いを ふつうの 文で）
+function paperChoice(x, q, ask, opts, acts) {
+  const p = boardPaper(x, q);
+  return ['choice', `「${q.name}」\n${q.paper}\n${ask}`, opts, acts, null, { ...p, ask }];
+}
 function boardTake(x, q, back) {
-  if (x.flag(q.done)) return back;
+  if (x.flag(q.done)) return [paperChoice(x, q, 'このたのまれごとは、もうすんでいる。', ['もどる'], [back])];
   const take = takeFlag(q);
   if (boardTaken((k) => x.flag(k), q)) {
-    return [['choice', 'このいらいを、やめる？', ['やめる', 'つづける'], [
+    return [paperChoice(x, q, 'このいらいを、やめる？', ['いらいをやめる', 'つづける'], [
       [['unflag', take], ['unflag', q.start], ['sync'], ...N(`「${q.name}」をやめた。\n（とちゅうまでのことは覚えている。また受けると、続きから）`), ...back],
       back,
-    ]]];
+    ])];
   }
-  return [['choice', 'このいらいを、うける？', ['はい', 'いいえ'], [
+  return [paperChoice(x, q, 'このいらいを、うける？', ['うける', 'やめる'], [
     [['flag', take], ['sync'], ['sfx', 'key'], ...N(`「${q.name}」を受けた！\n${q.where}にいる、${q.who}に会いに行こう。\n（地図にしるしが出る）`), ...back],
     back,
-  ]]];
+  ])];
+}
+// 第76回: はり紙の 大きな まどの 中み（たのみごと・会う人と 場所・職業の 系統〈○いる／×いない〉・ごほうび）
+export function boardPaper(x, q) {
+  const r = q.reward;
+  const pro = proOf(x, q);
+  const rewards = [];
+  if (r.item) rewards.push({ kind: 'acc', id: r.item, name: FAMILY_ITEMS[r.item]?.name || ITEMS[r.item]?.name || r.item, n: 1 });
+  if (r.vehicle) rewards.push({ kind: 'vehicle', id: r.vehicle, name: FAMILY_VEHICLES[r.vehicle]?.name || r.vehicle, n: 1 });
+  for (const [id, n] of r.goods || []) rewards.push({ kind: 'goods', id, name: ITEMS[id]?.name || id, n });
+  return {
+    name: q.name, paper: q.paper, town: q.town || '', where: q.where, who: q.who,
+    job: q.job, jobs: jobLineNames(q.roots), has: !!pro, pro: pro?.name || null,
+    rewards, gold: r.gold, medals: r.medals,
+    state: x.flag(q.done) ? 'done' : boardTaken((k) => x.flag(k), q) ? 'taken' : null,
+  };
 }
 function questBoard(x) {
   // 第1部クリアの 前: けいじ板は 立っているが、はり紙は まだ ない

@@ -30,7 +30,7 @@ test('第64回: 一覧に おすすめ（上から 3つ）・下に くらべる
   const menu = readFileSync(new URL('../public/js/client/ui/menu.js', import.meta.url), 'utf8');
   assert.match(menu, /\.slice\(0, 3\)\.map\(\(x\) => x\.id\)\)/);
   assert.match(menu, /eq-rec">おすすめ/);
-  assert.match(menu, /class: 'eq-compare small'/);
+  assert.match(menu, /class: 'eq-compare'/); // 第76回: 大きな くらべる まど（equip-compare.js）
   assert.match(menu, /onMove, foot \}\);/);
   const css = readFileSync(new URL('../public/css/style.css', import.meta.url), 'utf8');
   assert.match(css, /\.menu \.item\.eq-opt \.eq-sc \.sc \{ color: #fff; \}/);
