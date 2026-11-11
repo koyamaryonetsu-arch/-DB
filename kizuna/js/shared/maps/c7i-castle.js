@@ -14,15 +14,15 @@
 //   8階 竜の 玉座の 間（千年前だけ）: さいごの ボス（c7_shadow。B）→ さいごの 場面 → c7_clear
 // ・魔物: どの 階も t7_castle（B）。休み所・ボスの 階・しかけと すべる 氷の まわりは 出ない
 // ・ひとりでも とける（家族 2人の しかけは ない）
-import { T } from '../tiles.js?v=4a9d4e3fbaab';
-import { npc } from './npc.js?v=4a9d4e3fbaab';
-import { parseRows16 } from './past.js?v=4a9d4e3fbaab';
-import { C7IC_ROWS, C7IC_W, C7IC_H } from './c7i-castle-rows.js?v=4a9d4e3fbaab';
+import { T } from '../tiles.js?v=e3f2209f7dc0';
+import { npc } from './npc.js?v=e3f2209f7dc0';
+import { parseRows16 } from './past.js?v=e3f2209f7dc0';
+import { C7IC_ROWS, C7IC_W, C7IC_H } from './c7i-castle-rows.js?v=e3f2209f7dc0';
 import {
   CF7, LETTER7I, LETTER7I_CASTLE, WIN7I, DRAGON7I, SHADOW7, C7I_SNOW, CASTLE_OUT, c7icMapId, C7IC_FLOORS, C7IC_NOW_FLOORS, C7IC_REST, C7IC_BOSS_FLOOR,
-} from './c7i-flags.js?v=4a9d4e3fbaab';
+} from './c7i-flags.js?v=e3f2209f7dc0';
 // 宝箱の 中み（B の data/items-c7i.js の C7I_TREASURE。まとめる 時に '../data/items-c7i.js' から）
-import { C7I_TREASURE } from '../data/items-c7i.js?v=4a9d4e3fbaab';
+import { C7I_TREASURE } from '../data/items-c7i.js?v=e3f2209f7dc0';
 
 export { c7icMapId, C7IC_FLOORS, C7IC_NOW_FLOORS, C7IC_REST, C7IC_BOSS_FLOOR };
 export const C7IC_PAST_MAPS = Array.from({ length: C7IC_FLOORS }, (_, i) => c7icMapId(i + 1));

@@ -24,10 +24,10 @@
 //   大うずしおは、のこりの あわが 多いほど 強い（bigBase ＋ bigPer × あわの 数 ばい）→ 前ぶれの 間に あわを わると 弱く なる
 //   知っている 人: あわが ある 間は 王者に 強い 技を 使わない（ふつうの 攻撃・みんなを ねらう 技・何回も 打つ 技で あわを わる）・
 //   あわが なくなったら みんなで 王者（合体技も その 時だけ）
-import { MONSTERS } from './data/monsters.js?v=4a9d4e3fbaab';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=4a9d4e3fbaab';
+import { MONSTERS } from './data/monsters.js?v=e3f2209f7dc0';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=e3f2209f7dc0';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=4a9d4e3fbaab';
+import { atbRate } from './battle.js?v=e3f2209f7dc0';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
 export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard', 'm_ar12_maelstrom']);

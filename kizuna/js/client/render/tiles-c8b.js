@@ -5,8 +5,8 @@
 // ・青い ほのおの かべ（362。3コマ）/ 青い 火が ふき出す ゆか（363）/ ふき出した 青い 火の 柱（364。3コマ）
 // ・うずしおの岩場の 青い うず（365。3コマで まわる）/ 雲から出てきた島の 貝の もようの 石の とびら（366）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=4a9d4e3fbaab';
-import { prand } from './pixel.js?v=4a9d4e3fbaab';
+import { T } from '../../shared/tiles.js?v=e3f2209f7dc0';
+import { prand } from './pixel.js?v=e3f2209f7dc0';
 
 const ST = { d: '#14243a', b: '#2a4262', l: '#4a6a90', hl: '#7a9ac0', ln: '#0c1828' }; // 海の 底の 神殿の 石
 const BF = { d: '#1a5aa8', b: '#3aa8f0', l: '#8ae0ff', w: '#e8fcff' }; // 青い 火
