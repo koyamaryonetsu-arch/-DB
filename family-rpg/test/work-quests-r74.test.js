@@ -61,8 +61,8 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（第66回の 伝説の 職業に つながる 系統・18〜26 と かさならない）・今の 時代の まだ いらいの ない 場所・c8_abyss の あとだけ', () => {
   assert.equal(WORK5_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 29);
-  assert.deepEqual(FAMILY_QUESTS.slice(26), WORK5_QUESTS);
+  assert.equal(FAMILY_QUESTS.length, 32); // 第75回: 30〜32 が うしろに ふえた
+  assert.deepEqual(FAMILY_QUESTS.slice(26, 29), WORK5_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(23, 26), WORK4_QUESTS);
   assert.deepEqual(WORK5_QUESTS.map((x) => x.roots), [['sword_master', 'magic_swordsman'], ['black_org'], ['shachiku']]);
   assert.deepEqual(WORK5_QUESTS.map((x) => x.legend), ['kenshin', 'ano_kata', 'hatarakikata']);
@@ -265,7 +265,7 @@ test('お仕事いらい板: c8_abyss の 前は 26まい（5ページ）・あ�
   assert.equal(boardPages(before), 5);
   assert.equal(boardList(after).length, 29);
   assert.equal(boardPages(after), 5);
-  assert.equal(boardPages(), 5);
+  assert.equal(boardPages(), 6); // 第75回: ぜんぶ（32まい）は 6ページ
   const { bot, c } = await setup(744, { flags: OPEN });
   const qd = W.ice;
   const map = npcAnywhere(qd.npc).map;
@@ -278,7 +278,7 @@ test('お仕事いらい板: c8_abyss の 前は 26まい（5ページ）・あ�
   assert.match(menus[3][1], /4\/5ページ/);
   assert.deepEqual(menus[3][2], [...FAMILY_QUESTS.slice(18, 24).map((x) => x.name), 'つぎのページへ', '前のページへ', 'やめる']);
   assert.match(menus[4][1], /5\/5ページ/);
-  assert.deepEqual(menus[4][2], [...FAMILY_QUESTS.slice(24).map((x) => x.name), '前のページへ', 'やめる']);
+  assert.deepEqual(menus[4][2], [...FAMILY_QUESTS.slice(24, 29).map((x) => x.name), '前のページへ', 'やめる']);
   assert.equal(menus[4][2].length, 7, '5まい＋前のページへ＋やめる');
   assert.equal(menus[4][3].length, menus[4][2].length, 'カーソルの せつめいも 同じ 数');
   assert.match(menus[4][3][4], /^必要な職業：社ちくの系統（×いない）/);

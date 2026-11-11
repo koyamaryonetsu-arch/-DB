@@ -99,6 +99,12 @@ export const FAMILY_GIFTS = {
     ...GIFT, name: '光と闇のかざりひも', bonus: { hp: 50, str: 16, agi: 12, mag: 8 }, resist: { light: 0.7, dark: 0.7, blind: 0.6 },
     desc: '白と黒の糸を、より合わせた剣のかざりひも。だれでも装備でき、HPと力と素早さが上がり、光と闇と目くらましに強い。',
   },
+  // ───── 第75回 D班（data/sidequests-work6.js）。第64回の きまり で ★5 は 31 の 1つだけ（第74回と おなじ くらい。闘技場 ランク10 の ブローチより 弱い）─────
+  // 31. 星竜山のふもとの、まいごのちび竜（竜の騎士の 系統）: お母さん竜の うろこに ひもを 通した おまもり
+  fq_dragon_charm: {
+    ...GIFT, name: '星竜のうろこのお守り', bonus: { hp: 60, str: 12, def: 10, agi: 6 }, resist: { fire: 0.7, ice: 0.8, bolt: 0.8 },
+    desc: '星竜山のお母さん竜の、きらきら光るうろこのお守り。だれでも装備でき、HPと力と守りが上がり、ほのおに強く、氷とかみなりにも少し強い。',
+  },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
 
@@ -130,5 +136,6 @@ export const FAMILY_ITEM_KANA = {
   fq_fushigi_pocket: 'ほしよみのひみつぽけっと', fq_flower_pin: 'せんねんのはなのかみかざり',
   fq_sand_amulet: 'すなのまもりがみのおまもり',
   fq_twin_tassel: 'ひかりとやみのかざりひも',
+  fq_dragon_charm: 'せいりゅうのうろこのおまもり',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };

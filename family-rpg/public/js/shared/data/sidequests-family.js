@@ -34,6 +34,8 @@ import { WORK3_QUESTS, WORK3_SCRIPTS, WORK3_STORY_SCRIPTS, workSubQuests3 } from
 import { WORK4_QUESTS, WORK4_SCRIPTS, WORK4_STORY_SCRIPTS, workSubQuests4 } from './sidequests-work4.js';
 // 第74回 D班: たのまれごと 27〜29（data/sidequests-work5.js。第8章 第2幕の 千年前の 海に 着いた あとから）
 import { WORK5_QUESTS, WORK5_SCRIPTS, WORK5_STORY_SCRIPTS, workSubQuests5 } from './sidequests-work5.js';
+// 第75回 D班: たのまれごと 30〜32（data/sidequests-work6.js。第8章 第3幕の 千年前の ミドリナに 着いた あとから）
+import { WORK6_QUESTS, WORK6_SCRIPTS, WORK6_STORY_SCRIPTS, workSubQuests6 } from './sidequests-work6.js';
 // はり紙の ごほうびの 素材・道具の 名前（使う 時に 見る。読みこみの じゅんばんに よらない）
 import { ITEMS } from './items.js';
 
@@ -67,6 +69,8 @@ export const FAMILY_QUESTS = [
   ...WORK4_QUESTS,
   // 27〜29（第74回 D班。data/sidequests-work5.js。open … c8_abyss から）
   ...WORK5_QUESTS,
+  // 30〜32（第75回 D班。data/sidequests-work6.js。open … c8_spring から）
+  ...WORK6_QUESTS,
 ];
 const Q = Object.fromEntries(FAMILY_QUESTS.map((q) => [q.id, q]));
 
@@ -131,6 +135,8 @@ export function familySubQuests(c, f, has) {
   out.push(...workSubQuests4(c, f, has));
   // 27〜29（第74回 D班）
   out.push(...workSubQuests5(c, f, has));
+  // 30〜32（第75回 D班）
+  out.push(...workSubQuests6(c, f, has));
   // 第65回 D2: お仕事いらい板で 受けて、まだ たのみたい 人に 会っていない（地図の しるしは その 人）
   for (const fq of FAMILY_QUESTS) {
     if (f(takeFlag(fq)) && !f(fq.start) && !f(fq.done)) out.push({ name: fq.name, who: fq.npc, ready: false, text: `${fq.who}に会おう`, hint: `お仕事いらい板で受けた。${fq.where}にいる、${fq.who}に話しかけよう。` });
@@ -878,6 +884,7 @@ export const FAMILY_SCRIPTS = {
   ...WORK3_SCRIPTS,
   ...WORK4_SCRIPTS,
   ...WORK5_SCRIPTS,
+  ...WORK6_SCRIPTS,
 };
 // パーティー全員で 見る イベント（戦い・トロッコ）
-export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS, ...WORK4_STORY_SCRIPTS, ...WORK5_STORY_SCRIPTS];
+export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS, ...WORK4_STORY_SCRIPTS, ...WORK5_STORY_SCRIPTS, ...WORK6_STORY_SCRIPTS];

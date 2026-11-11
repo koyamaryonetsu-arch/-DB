@@ -64,7 +64,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 6つの 新しい たのまれごと（第66回の 新しい 伝説の 職業に つながる 系統）・今の 時代の 町・カリムの あとだけ・だいほんと 戦い', () => {
   assert.equal(WORK3_QUESTS.length, 6);
-  assert.equal(FAMILY_QUESTS.length, 29); // 第73回: 24〜26・第74回: 27〜29 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 32); // 第73回: 24〜26・第74回: 27〜29・第75回: 30〜32 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(17, 23), WORK3_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(11, 17), WORK2_QUESTS);
   assert.deepEqual(WORK3_QUESTS.map((x) => x.roots[0]), ['career', 'star_chef', 'neko_robot', 'firefighter', 'daikenja', 'kappa']);
@@ -305,7 +305,7 @@ test('お仕事いらい板: カリムの 前は 17まい（3ページ）・あ�
   assert.equal(boardPages(before), 3);
   assert.equal(boardList(after).length, 23);
   assert.equal(boardPages(after), 4);
-  assert.equal(boardPages(), 5); // 第73回: ぜんぶ（26まい）は 5ページ・第74回: 29まいでも 5ページ
+  assert.equal(boardPages(), 6); // 第73回: ぜんぶ（26まい）は 5ページ・第74回: 29まいでも 5ページ・第75回: 32まいで 6ページ
   // カリムの 前の 板（3ページ・18〜23 は ない）
   {
     const { bot } = await setup(687);
