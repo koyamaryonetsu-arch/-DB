@@ -364,9 +364,11 @@ export const CH7I_ZONES = [['t7_snow', 76, 58], ['t7_snow', 77, 58], ['t7_snow',
 export const CH8A_ZONES = [['t8a_palace', 80, 58], ['t8a_palace', 81, 58], ['t8a_palace', 82, 58], ['t8a_deep', 82, 58], ['t8a_deep', 83, 58], ['t8a_deep', 84, 58]];
 // 第2部 第8章 第2幕 よみの 海底神殿 1〜4階（Lv83〜85）・5〜8階（Lv85〜87）: node tools/sim.js [回数] ch8b（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch8.mjs）
 export const CH8B_ZONES = [['t8b_temple', 83, 58], ['t8b_temple', 84, 58], ['t8b_temple', 85, 58], ['t8b_deep', 85, 58], ['t8b_deep', 86, 58], ['t8b_deep', 87, 58]];
-if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch7' || process.argv[3] === 'ch7s' || process.argv[3] === 'ch7i' || process.argv[3] === 'ch8a' || process.argv[3] === 'ch8b')) {
+// 第2部 第8章 第3幕 くろがねの 空中ようさい 1〜4階（Lv86〜88）・5〜8階（Lv88〜90）: node tools/sim.js [回数] ch8c（装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch8.mjs）
+export const CH8C_ZONES = [['t8c_fort', 86, 58], ['t8c_fort', 87, 58], ['t8c_fort', 88, 58], ['t8c_deep', 88, 58], ['t8c_deep', 89, 58], ['t8c_deep', 90, 58]];
+if (process.argv[1].endsWith('sim.js') && (process.argv[3] === 'ch7' || process.argv[3] === 'ch7s' || process.argv[3] === 'ch7i' || process.argv[3] === 'ch8a' || process.argv[3] === 'ch8b' || process.argv[3] === 'ch8c')) {
   const rng = makeRng(7171);
-  for (const [table, lv, tier] of process.argv[3] === 'ch8b' ? CH8B_ZONES : process.argv[3] === 'ch8a' ? CH8A_ZONES : process.argv[3] === 'ch7i' ? CH7I_ZONES : process.argv[3] === 'ch7s' ? CH7S_ZONES : CH7_ZONES) {
+  for (const [table, lv, tier] of process.argv[3] === 'ch8c' ? CH8C_ZONES : process.argv[3] === 'ch8b' ? CH8B_ZONES : process.argv[3] === 'ch8a' ? CH8A_ZONES : process.argv[3] === 'ch7i' ? CH7I_ZONES : process.argv[3] === 'ch7s' ? CH7S_ZONES : CH7_ZONES) {
     const res = [];
     for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
     summarize(`${table} Lv${lv}`, res);

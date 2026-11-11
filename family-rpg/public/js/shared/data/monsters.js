@@ -40,6 +40,7 @@ import { MONSTERS_C7S } from './monsters-c7s.js';
 import { MONSTERS_C7I, addC7iHidden } from './monsters-c7i.js';
 import { MONSTERS_C8A, addC8aHidden } from './monsters-c8a.js';
 import { MONSTERS_C8B } from './monsters-c8b.js';
+import { MONSTERS_C8C, addC8cHidden } from './monsters-c8c.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -300,6 +301,9 @@ addC7iHidden(MONSTERS);
 Object.assign(MONSTERS, MONSTERS_C8A);
 // 第2部 第8章 第2幕「よみの 青い火」の 手下の 魔物・ペイニックと パニクル・よみの王ハデロス（monsters-c8b.js）
 Object.assign(MONSTERS, MONSTERS_C8B);
+// 第2部 第8章 第3幕「くろがねの 空中ようさい」の 手下の 魔物・マジカメック・初代大魔王クッパード（橋のオノ）（monsters-c8c.js）
+Object.assign(MONSTERS, MONSTERS_C8C);
+addC8cHidden(MONSTERS);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);

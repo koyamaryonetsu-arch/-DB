@@ -1,6 +1,7 @@
 // 第2部 第8章 第1幕: オウムのイアゴン（c8_vizier_pet）・大臣ジャハール（c8_jafar。3だん）の 強さを 見る（ゲストは カリム）
 // 第2部 第8章 第2幕: ペイニックと パニクル（c8_painpanic。2ひき）・よみの王ハデロス（c8_hades。2だん）の 強さを 見る（ゲストは カイ）
-// つかいかた: node tools/sim-ch8.mjs [回数] [pet|jafar|act1|imps|hades|act2|all] [lv,…]
+// 第2部 第8章 第3幕: マジカメック（c8_kamek。子分 2ひき）・初代大魔王クッパード（c8_bowser。2だん）の 強さを 見る（ゲストは リオン〈rion8〉）
+// つかいかた: node tools/sim-ch8.mjs [回数] [pet|jafar|act1|imps|hades|act2|kamek|bowser|act3|all] [lv,…]
 //   めやす（docs/plan-ch7.md の 8 と おなじ）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）＋ ゲストの カリム（ガーディアン）・
 //     その ころの ★装備で 知っている 人 … 9わり くらい・知らない 人（しかけを 知らない。合体技は する）… 4わり くらい。完全オート（ふつうの オート）は もっと きびしい
 //   知っている 人（b.knowsCh6）:
@@ -10,6 +11,8 @@
 //     ペイニックと パニクル … ひそひそ相談の 間は いちばん 大きい 1回の 攻撃で じゃまを する・パニックの 小おにを ねらう・2ひきの HP を そろえて へらす・
 //       大がったいの 前に 身を 守る・合体技は 大技の 前ぶれの 間は しない
 //     ハデロス … けいやくの 間は 炎を 当てる・ふん火の 前ぶれに 氷を 当てる・大ふん火の 前に 身を 守る・合体技は けいやくの 間と ふん火の 前ぶれの 間は しない
+//     マジカメック … 魔法じんの 子分を 先に たおす・合体技は 魔法じんが ない 間
+//     クッパード … 橋のオノが ある 間は ぶきで たたく・大技の 前に 身を 守る・合体技は オノが ない 間で 大技の 前ぶれで ない 間
 //   LOG=1 … 1回だけ ようすを 出す（KNOW=1・BOSS=pet など・LV・SEED・SKIPONE）/ GUEST=0 … カリム（第2幕は カイ）なし / SKIP=0 … しかけを 1つずつ はずすのを しない
 //   HPK・ATKK・MAGK・SPD … 敵の 強さを かけて ためす
 import { Battle } from '../public/js/shared/battle.js';
@@ -22,6 +25,8 @@ import { C8_PET, C8_JAFAR } from '../public/js/shared/data/monsters-c8a.js';
 import { listening, staffUp, lampUp } from '../public/js/shared/battle-c8a.js';
 import { C8_PAIN, C8_PANIC, C8_HADES } from '../public/js/shared/data/monsters-c8b.js';
 import { plotting, eruptSoon } from '../public/js/shared/battle-c8b.js';
+import { C8_KAMEK, C8_BOWSER } from '../public/js/shared/data/monsters-c8c.js';
+import { aimedKid, axeOf } from '../public/js/shared/battle-c8c.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { karimChar, kaiChar } from './sim-ch7.mjs';
@@ -64,13 +69,36 @@ if (process.env.EBASE) hc.erupt.base = nums(process.env.EBASE);
 if (process.env.HP2) hc.p2At = Number(process.env.HP2);
 if (process.env.ECHILL) hc.erupt.chillAt = Number(process.env.ECHILL);
 if (process.env.HSOUL) hc.contract.soulHeal = Number(process.env.HSOUL);
+const kc = MONSTERS[C8_KAMEK].c8c;
+if (process.env.KEVERY) kc.grow.every = Number(process.env.KEVERY);
+if (process.env.KBROOM) kc.grow.broomEvery = Number(process.env.KBROOM);
+if (process.env.KHP) kc.grow.hp = Number(process.env.KHP);
+if (process.env.KATK) kc.grow.atk = Number(process.env.KATK);
+if (process.env.KCD) kc.summon.cd = Number(process.env.KCD);
+if (process.env.KAIM) kc.grow.aimAt = Number(process.env.KAIM);
+if (process.env.KSOFT) kc.grow.soft = Number(process.env.KSOFT);
+if (process.env.KBELOW) kc.summon.below = Number(process.env.KBELOW);
+if (process.env.KKID) kc.summon.hp = Number(process.env.KKID);
+if (process.env.KTINY) kc.tiny = { turns: kc.tiny?.turns ?? 2, k: Number(process.env.KTINY) };
+const bwc = MONSTERS[C8_BOWSER].c8c;
+if (process.env.BPOUND) bwc.pound.mult = Number(process.env.BPOUND);
+if (process.env.BPEVERY) bwc.pound.every = Number(process.env.BPEVERY);
+if (process.env.BGIGA) bwc.gigaAt = Number(process.env.BGIGA);
+if (process.env.BCUT) bwc.giga.cut = Number(process.env.BCUT);
+if (process.env.BFEVERY) bwc.giga.every = Number(process.env.BFEVERY);
+if (process.env.BFIRE) bwc.giga.base = nums(process.env.BFIRE);
+if (process.env.BREGROW) bwc.giga.regrow = Number(process.env.BREGROW);
+if (process.env.BFALL) bwc.giga.fall = Number(process.env.BFALL);
+if (process.env.BGATK) bwc.giga.atk = Number(process.env.BGATK);
 
-export const CH8_IDS = { pet: C8_PET, jafar: C8_JAFAR, imps: C8_PAIN, hades: C8_HADES };
+export const CH8_IDS = { pet: C8_PET, jafar: C8_JAFAR, imps: C8_PAIN, hades: C8_HADES, kamek: C8_KAMEK, bowser: C8_BOWSER };
 // おすすめの レベル（plan-ch8.md の 2: 第1幕は Lv80〜83。イアゴンは Step 1 の さいご・ジャハールは Step 2 の さいご／
 //   第2幕は Lv83〜86。ペイニックと パニクルは Step 3 の さいご・ハデロスは Step 4 の さいご）
-export const CH8_LV = { pet: 81, jafar: 83, imps: 84, hades: 86 };
-// 第2幕の ボス（ゲストは カイ）
+//   第3幕は Lv86〜89（plan-ch8.md の 8。マジカメックは Step 5 の さいご Lv88・クッパードは Step 6 の さいご Lv90）
+export const CH8_LV = { pet: 81, jafar: 83, imps: 84, hades: 86, kamek: 88, bowser: 90 };
+// 第2幕の ボス（ゲストは カイ）・第3幕の ボス（ゲストは リオン）
 const ACT2 = new Set(['imps', 'hades']);
+const ACT3 = new Set(['kamek', 'bowser']);
 // その ころの ★装備（[武器, よろい, たて, 頭, アクセ]。null は 店の いちばん よい 品〈ランク10〉）
 //   イアゴン … 第7章の さいごまでの ★（＋ カイの影の 品）・月の王宮の 地下迷宮 1〜4階の 宝箱
 //   ジャハール … ＋ イアゴンの 品・地下迷宮 5〜8階の 宝箱・第1幕の 手紙の ごほうび
@@ -100,6 +128,20 @@ export const CH8_KIT = {
     daikenja: ['c8bt_lantern_staff', 'c8bt_soul_robe', null, 'c8bl_shell_crown', 'c8i_imp_charm'],
     god_hand: ['c7l_gold_hook', 'c8bl_tide_gi', null, 'c7it_bear_hat', 'c8i_imp_charm'],
     high_priest: ['c8j_snake_staff', 'c7it_queen_robe', 'c8bt_flame_shield', 'c7l_kingdom_crown', 'c8i_imp_charm'],
+  },
+  //   マジカメック … ＋ ハデロスの 品・くろがねの 空中ようさい 1〜4階の 宝箱
+  kamek: {
+    hero: ['c8at_palace_sword', 'c8bt_temple_mail', 'c8bt_flame_shield', 'c8ct_iron_helm', 'c8h_flame_charm'],
+    daikenja: ['c8bt_lantern_staff', 'c8ct_sky_robe', null, 'c8bl_shell_crown', 'c8h_flame_charm'],
+    god_hand: ['c7l_gold_hook', 'c8bl_tide_gi', null, 'c7it_bear_hat', 'c8h_flame_charm'],
+    high_priest: ['c8j_snake_staff', 'c7it_queen_robe', 'c8bt_flame_shield', 'c7l_kingdom_crown', 'c8h_flame_charm'],
+  },
+  //   クッパード … ＋ マジカメックの 品・空中ようさい 5〜8階の 宝箱・第3幕の 手紙の ごほうび
+  bowser: {
+    hero: ['c8at_palace_sword', 'c8ct_iron_mail', 'c8ct_iron_shield', 'c8ct_iron_helm', 'c8k_magic_charm'],
+    daikenja: ['c8k_magic_staff', 'c8ct_sky_robe', null, 'c8cl_star_hat', 'c8k_magic_charm'],
+    god_hand: ['c7l_gold_hook', 'c8cl_wind_gi', null, 'c7it_bear_hat', 'c8k_magic_charm'],
+    high_priest: ['c8ct_star_staff', 'c7it_queen_robe', 'c8ct_iron_shield', 'c7l_kingdom_crown', 'c8k_magic_charm'],
   },
 };
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
@@ -141,6 +183,20 @@ function dual8(b, a, boss, skip) {
     if (!trick && !(h.c8hd.hot || h.c8hd.cool) && ((h.c8hd.form === 1 && h.c8hd.contract) || eruptSoon(h))) return false;
     return dualPlan(b, a, h.species, skip);
   }
+  if (boss === 'kamek') {
+    const k = b.aliveEnemies().find((e) => e.c8km);
+    if (!k) return false;
+    // 魔法じんの 子分が いる 間は 子分を たおす（合体技を しない）
+    if (!trick && aimedKid(b)) return false;
+    return dualPlan(b, a, k.species, skip);
+  }
+  if (boss === 'bowser') {
+    const h = b.aliveEnemies().find((e) => e.c8bw);
+    if (!h) return false;
+    // 橋の オノが ある 間（たたく）・大技の 前ぶれの 間（守る）は 合体技を しない
+    if (!trick && (axeOf(b) || h.telegraph === 'm8b_pound' || h.telegraph === 'm8b_gigafire' || (h.c8bw.left <= 1 && !h.c8bw.fallen))) return false;
+    return dualPlan(b, a, h.species, skip);
+  }
   if (boss === 'pet') {
     const p = b.aliveEnemies().find((e) => e.c8par);
     if (!p || (!trick && (listening(p) || p.telegraph))) return false;
@@ -159,13 +215,15 @@ function dual8(b, a, boss, skip) {
 // boss … 'pet' | 'jafar' / know … 知っている 人（ない ときは ふつうの オート）
 // skip … 知っている 人の しかけの うち 1つを はずす（'quiet' 聞き耳でも 呪文・'guard' 大技で 守らない・'staff' つえを こわさない・
 //   'coil' とぐろでも 攻撃・'lamp' ランプを こわさない・'plot' 相談を じゃましない・'order' 2ひきの HPを そろえない・
-//   'burn' けいやくしょを もやさない・'chill' ふん火を ひやさない・'dual' 合体技・'trick' ぜんぶ〈合体技は する〉）
+//   'burn' けいやくしょを もやさない・'chill' ふん火を ひやさない・'aim' 魔法じんの 子分を ねらわない・'axe' 橋のオノを たたかない・
+//   'dual' 合体技・'trick' ぜんぶ〈合体技は する〉）
 export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = process.env.GUEST !== '0' } = {}) {
   const party = ch8Party(boss, lv, kit);
   const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
   if (guest) {
-    // 第1幕は カリム・第2幕は カイ（A が 第8章用の ゲストを 作ったら ここを かえる）
-    const k = ACT2.has(boss) ? makeNpcSupportChar({ ...GUESTS.kai8 }, Math.max(GUESTS.kai8.minLevel, lv)) : karimChar(lv);
+    // 第1幕は カリム・第2幕は カイ（kai8）・第3幕は リオン（rion8）
+    const g8 = ACT3.has(boss) ? GUESTS.rion8 : ACT2.has(boss) ? GUESTS.kai8 : null;
+    const k = g8 ? makeNpcSupportChar({ ...g8 }, Math.max(g8.minLevel, lv)) : karimChar(lv);
     allies.push({ char: k, kind: 'guest', auto: true, tactics: k.tactics });
   }
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss) });
@@ -180,6 +238,8 @@ export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = n
     if (skip === 'order' || skip === 'trick') b.c8bNoOrder = true;
     if (skip === 'burn' || skip === 'trick') b.c8bNoBurn = true;
     if (skip === 'chill' || skip === 'trick') b.c8bNoChill = true;
+    if (skip === 'aim' || skip === 'trick') b.c8cNoAim = true;
+    if (skip === 'axe' || skip === 'trick') b.c8cNoAxe = true;
   }
   for (const e of b.enemies) {
     const k = (v) => Number(process.env[v] || 1);
@@ -192,6 +252,7 @@ export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = n
   const n = {
     duals: 0, learned: 0, echoes: 0, echoN: 0, echoDmg: 0, empties: 0, hypnos: 0, hypnoHit: 0, breaks: 0, cobra: 0, coils: 0, bites: 0, strikes: 0, strikeDmg: 0, whiffs: 0, genie: 0, blasts: 0, blastDmg: 0, seals: 0, form: 0,
     fuses: 0, fuseDmg: 0, quarrels: 0, panics: 0, rages: 0, solos: 0, soloDmg: 0, contracts: 0, burns: 0, souls: 0, anger: 0, erupts: 0, eruptDmg: 0, cools: 0,
+    aims: 0, grows: 0, fizzles: 0, summons: 0, brooms: 0, kidDmg: 0, pounds: 0, poundDmg: 0, gigas: 0, gfires: 0, gfireDmg: 0, falls: 0, axeHits: 0,
   };
   while (!b.over && real < 30 * 60 * 1000) {
     const evs = b.tick(50);
@@ -248,6 +309,24 @@ export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = n
         n.eruptDmg += dmg();
       }
       if (e.c8bCool) n.cools++;
+      if (e.c8cAim) n.aims++;
+      if (e.c8cGrow) n.grows++;
+      if (e.c8cFizzle) n.fizzles++;
+      if (e.c8cSummon) n.summons++;
+      if (e.c8cBroom) n.brooms++;
+      if (e.c8cPound) {
+        n.pounds++;
+        n.poundDmg += dmg();
+      }
+      if (e.c8cGiga) n.gigas++;
+      if (e.c8cGigaFire) {
+        n.gfires++;
+        n.gfireDmg += dmg();
+      }
+      if (e.c8cFall) n.falls++;
+      if (e.c8cAxeHit) n.axeHits++;
+      const actor = b.get(e.id);
+      if (actor?.c8giga) n.kidDmg += dmg();
     }
     if (!know) continue;
     for (const a of b.allies) {
@@ -260,7 +339,7 @@ export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = n
   }
   const al = b.allies;
   const bosses = b.enemies.filter((e) => e.boss);
-  n.form = bosses[0]?.c8viz?.form || bosses[0]?.c8hd?.form || 0;
+  n.form = bosses[0]?.c8viz?.form || bosses[0]?.c8hd?.form || bosses[0]?.c8bw?.form || (bosses[0]?.c8km ? (bosses[0].c8km.broom ? 2 : 1) : 0);
   void lampUp;
   return {
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
@@ -281,6 +360,10 @@ export function summary8(res, boss) {
         ? `  がったい${avg('fuses').toFixed(1)}（1回${per('fuseDmg', 'fuses')}）  けんか${avg('quarrels').toFixed(1)}  パニック${avg('panics').toFixed(1)}  カンカン${avg('rages').toFixed(1)}  ひとり${avg('solos').toFixed(1)}（1回${per('soloDmg', 'solos')}）`
         : boss === 'hades'
         ? `  けいやく${avg('contracts').toFixed(1)}  もやした${avg('burns').toFixed(1)}  たましい${avg('souls').toFixed(1)}  おこった${avg('anger').toFixed(1)}  ふん火${avg('erupts').toFixed(1)}（1回${per('eruptDmg', 'erupts')}）  ひえた${avg('cools').toFixed(1)}  だん${avg('form').toFixed(1)}`
+        : boss === 'kamek'
+        ? `  魔法じん${avg('aims').toFixed(1)}  でっかく${avg('grows').toFixed(1)}  から回り${avg('fizzles').toFixed(1)}  よぶ${avg('summons').toFixed(1)}  デカの攻撃${(avg('kidDmg') / 1000).toFixed(0)}k  ほうき${avg('brooms').toFixed(1)}`
+        : boss === 'bowser'
+        ? `  ヒップ${avg('pounds').toFixed(1)}（1回${per('poundDmg', 'pounds')}）  ギガ${avg('gigas').toFixed(1)}  ギガほのお${avg('gfires').toFixed(1)}（1回${per('gfireDmg', 'gfires')}）  オノ${avg('axeHits').toFixed(1)}  おちた${avg('falls').toFixed(1)}  だん${avg('form').toFixed(1)}`
         : boss === 'pet'
         ? `  おぼえた${avg('learned').toFixed(1)}  オウムがえし${avg('echoes').toFixed(1)}（${(avg('echoN') / Math.max(0.01, avg('echoes'))).toFixed(1)}こ・1回${per('echoDmg', 'echoes')}）  しっぱい${avg('empties').toFixed(1)}`
         : `  さいみん${avg('hypnos').toFixed(1)}（${avg('hypnoHit').toFixed(1)}人）  つえ${avg('breaks').toFixed(1)}  とぐろ${avg('coils').toFixed(1)}  かみつき${avg('bites').toFixed(1)}  いちげき${avg('strikes').toFixed(1)}（1回${per('strikeDmg', 'strikes')}）  からぶり${avg('whiffs').toFixed(1)}  まりょく${avg('blasts').toFixed(1)}（1回${per('blastDmg', 'blasts')}）  ランプ${avg('seals').toFixed(1)}  だん${avg('form').toFixed(1)}`),
@@ -292,11 +375,13 @@ export const SKIPS8 = {
   jafar: [['staff', 'つえを こわさない'], ['coil', 'とぐろでも 攻撃'], ['lamp', 'ランプを こわさない'], ['guard', 'まりょくで 守らない'], ['dual', '合体技 だけ しない']],
   imps: [['plot', '相談を じゃましない'], ['order', 'HPを そろえない'], ['guard', 'がったいで 守らない'], ['dual', '合体技 だけ しない']],
   hades: [['burn', 'けいやくしょを もやさない'], ['chill', 'ふん火を ひやさない'], ['guard', 'ふん火で 守らない'], ['dual', '合体技 だけ しない']],
+  kamek: [['aim', '魔法じんを ねらわない'], ['dual', '合体技 だけ しない']],
+  bowser: [['axe', 'オノを たたかない'], ['guard', '大技で 守らない'], ['dual', '合体技 だけ しない']],
 };
 
 if (process.argv[1].endsWith('sim-ch8.mjs')) {
   const N = Number(process.argv[2] || 40);
-  const GROUPS = { all: ['pet', 'jafar', 'imps', 'hades'], act1: ['pet', 'jafar'], act2: ['imps', 'hades'] };
+  const GROUPS = { all: ['pet', 'jafar', 'imps', 'hades', 'kamek', 'bowser'], act1: ['pet', 'jafar'], act2: ['imps', 'hades'], act3: ['kamek', 'bowser'] };
   const which = GROUPS[process.argv[3] || 'all'] || [process.argv[3]];
   const seedOf = (i) => 8080 + i * 7919;
   if (process.env.LOG) {
@@ -307,7 +392,7 @@ if (process.argv[1].endsWith('sim-ch8.mjs')) {
     for (const boss of which) {
       const base = CH8_LV[boss];
       const lvs = process.argv[4] ? process.argv[4].split(',').map(Number) : [base - 1, base, base + 1];
-      console.log(`■ ${MONSTERS[CH8_IDS[boss]].name}（超級職 4人・職業Lv10${process.env.GUEST === '0' ? '' : ACT2.has(boss) ? ' ＋ カイ' : ' ＋ カリム'}・${N}回。完全オート＝ふつうの オート / 知らない＝しかけを 知らない〈合体技は する〉 / 知っている＝しかけを 知って 戦う）`);
+      console.log(`■ ${MONSTERS[CH8_IDS[boss]].name}（超級職 4人・職業Lv10${process.env.GUEST === '0' ? '' : ACT3.has(boss) ? ' ＋ リオン' : ACT2.has(boss) ? ' ＋ カイ' : ' ＋ カリム'}・${N}回。完全オート＝ふつうの オート / 知らない＝しかけを 知らない〈合体技は する〉 / 知っている＝しかけを 知って 戦う）`);
       for (const c of ch8Party(boss, base)) {
         const s = computeStats(c);
         console.log(`  ${c.name.padEnd(8, '　')} HP${s.maxHp} MP${s.maxMp} 攻${s.atk} 守${s.dfn} 魔${s.mag} 速${s.agi}  ${SLOTS.map((k) => ITEMS[c.equip[k]]?.name || '-').join('・')}`);
