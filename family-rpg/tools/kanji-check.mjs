@@ -436,6 +436,10 @@ export function gameFiles() {
     'public/js/shared/data/story-c8b.js', 'public/js/shared/data/sidequests-c8b.js',
     'public/js/shared/maps/c8b-sea.js', 'public/js/shared/maps/c8b-temple.js', 'public/js/shared/maps/c8b-temple-rows.js', 'public/js/shared/maps/c8b-flags.js',
     'public/js/client/render/c8b-npc-art.js', 'public/js/client/render/tiles-c8b.js',
+    // 第2部 第8章 第3幕（A: 世界と物語）: 千年前の ミドリナ地方・森の いかりと 残がい・くろがねの空中要塞・初代大魔王クッパードと マジカメックの 台本・時をこえる手紙
+    'public/js/shared/data/story-c8c.js', 'public/js/shared/data/sidequests-c8c.js',
+    'public/js/shared/maps/c8c-field.js', 'public/js/shared/maps/c8c-fort.js', 'public/js/shared/maps/c8c-fort-rows.js', 'public/js/shared/maps/c8c-flags.js',
+    'public/js/client/render/c8c-npc-art.js', 'public/js/client/render/tiles-c8c.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

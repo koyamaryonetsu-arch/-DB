@@ -5,6 +5,8 @@
 // とくべつな え（paintC8bSpecial）: よみの王ハデロス（8階の 大きな すがた 40×48。かみの 青い 火が コマで ゆらめく。おこると まっ赤 … c8b_hades_red_npc）・
 //   ペイニックと パニクル（4階の 2ひき 40×32。ピンクの ふとっちょと みどりの やせっぽち。コマで ぴょこぴょこ）・青い 火の 玉座（36×28）
 import { Painter } from './pixel.js';
+// 第8章 第3幕: 初代大魔王クッパード・マジカメック・泉の里の 子ポコ・ミドリナの 人（render/c8c-npc-art.js。ここで まぜる）
+import { C8C_NPC_LOOKS, paintC8cSpecial, C8C_SPECIALS } from './c8c-npc-art.js';
 
 const person = (o) => o;
 export const C8B_NPC_LOOKS = {
@@ -16,6 +18,7 @@ export const C8B_NPC_LOOKS = {
   }),
   c8b_gullgirl: person({ hair: 1, hairStyle: 'pony', skin: 2, outfit: 'apron', cloth: '#e88a8a', female: true, small: true, hat: 'bandana', hatColor: '#f4f8ff' }),
   c8b_diver: person({ hair: 0, hairStyle: 'short', skin: '#c08a5a', outfit: 'traveler', cloth: '#2a5a8a', hat: 'bandana', hatColor: '#e8e0c8' }),
+  ...C8C_NPC_LOOKS,
 };
 
 // ───────────── とくべつな え ─────────────
@@ -110,7 +113,7 @@ export function paintC8bSpecial(kind, dir, f) {
     case 'c8b_hades_red_npc': return paintHades(f, true);
     case 'c8b_imps_npc': return paintImps(f);
     case 'c8b_throne_npc': return paintThrone(f);
-    default: return null;
+    default: return paintC8cSpecial(kind, dir, f);
   }
 }
-export const C8B_SPECIALS = ['c8b_hades_npc', 'c8b_hades_red_npc', 'c8b_imps_npc', 'c8b_throne_npc'];
+export const C8B_SPECIALS = ['c8b_hades_npc', 'c8b_hades_red_npc', 'c8b_imps_npc', 'c8b_throne_npc', ...C8C_SPECIALS];
