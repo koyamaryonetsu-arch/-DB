@@ -8,12 +8,14 @@
 // ・バナー: 相談・大がったいの 前ぶれ・けんか・がったい・パニック・カンカン・ひとりばけばけの 前ぶれ／
 //   けいやくの 前ぶれ・けいやく・すいとる・たましいの 前ぶれ・もやした・たましいを とられた・赤く ちらちら・おこった・ふん火の 前ぶれ・ふん火・ひえた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_PAIN, C8_PANIC, C8_HADES } from '../shared/data/monsters-c8b.js?v=9a8a9aaa43ce';
-import { monsterCanvas } from './render/monsters.js?v=9a8a9aaa43ce';
-import { el } from './ui/dom.js?v=9a8a9aaa43ce';
+import { C8_PAIN, C8_PANIC, C8_HADES } from '../shared/data/monsters-c8b.js?v=d89f0f9d101a';
+import { monsterCanvas } from './render/monsters.js?v=d89f0f9d101a';
+import { el } from './ui/dom.js?v=d89f0f9d101a';
+// 第2部 第8章 第3幕: マジカメック・初代大魔王クッパード・橋のオノの がめん（battle-c8c.js）
+import { C8C_OWN_TELE, c8cSprite, c8cDraw, c8cPresent } from './battle-c8c.js?v=d89f0f9d101a';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8a.js の C8A_OWN_TELE に まぜる）
-export const C8B_OWN_TELE = [C8_PAIN, C8_PANIC, C8_HADES];
+export const C8B_OWN_TELE = [C8_PAIN, C8_PANIC, C8_HADES, ...C8C_OWN_TELE];
 
 export const C8B_SCREEN_ANIMS = ['b8i_fuse', 'b8i_solo', 'b8h_contract', 'b8h_soul', 'b8h_anger', 'b8h_erupt'];
 export const C8B_ALLY_FX = {
@@ -35,6 +37,9 @@ export const C8B_SFX = {
 // ───────────── え（client/battle.js の monsterCanvas の かわり）─────────────
 // ハデロスが おこったら おなじ え の コマ 2・3。小おにの パニック・カンカンも コマ 2・3（render/c8b-art.js）
 export function c8bSprite(c, frame) {
+  // 第8章 第3幕（battle-c8c.js）
+  const s8 = c8cSprite(c, frame);
+  if (s8) return s8;
   const sp = c?.species;
   if (sp === C8_HADES && c.c8hform === 2) return monsterCanvas(C8_HADES, (frame ? 1 : 0) + 2);
   if ((sp === C8_PAIN || sp === C8_PANIC) && c.impForm === 2) return monsterCanvas(sp, (frame ? 1 : 0) + 2);
@@ -142,6 +147,8 @@ function flicker(x, px, py, w, h, base, T) {
 // ───────────── たたかいの え（client/battle-c8a.js の c8aDraw から）─────────────
 export function c8bDraw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
+  // 第8章 第3幕（battle-c8c.js）
+  c8cDraw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // 小おに
   if (c.impEvery) {
@@ -286,5 +293,7 @@ export function c8bPresent(scene, ev, fx, anim, actor) {
     scene.banner('頭がひえた！大ふん火がしぼんだ！', 'combo');
   }
   c8bMarks(scene);
+  // 第8章 第3幕（battle-c8c.js）
+  c8cPresent(scene, ev, fx, anim, actor);
   void fx; void anim; void actor;
 }

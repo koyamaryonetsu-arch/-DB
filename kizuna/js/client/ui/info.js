@@ -1,18 +1,18 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=9a8a9aaa43ce';
-import { abilityTypeText } from '../../shared/data/abilities.js?v=9a8a9aaa43ce';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=9a8a9aaa43ce';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=9a8a9aaa43ce';
-import { jobLabel } from '../../shared/job-label.js?v=9a8a9aaa43ce';
-import { MONSTERS } from '../../shared/data/monsters.js?v=9a8a9aaa43ce';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=9a8a9aaa43ce';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=9a8a9aaa43ce';
-import { attackReach } from '../../shared/battle.js?v=9a8a9aaa43ce';
-import { maxPlus } from '../../shared/data/forge.js?v=9a8a9aaa43ce';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=9a8a9aaa43ce';
-import { perkText } from '../../shared/data/items-r31.js?v=9a8a9aaa43ce';
-import { BUFF_MARKS } from '../../shared/buff-acts.js?v=9a8a9aaa43ce';
-import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=9a8a9aaa43ce';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=d89f0f9d101a';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=d89f0f9d101a';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=d89f0f9d101a';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=d89f0f9d101a';
+import { jobLabel } from '../../shared/job-label.js?v=d89f0f9d101a';
+import { MONSTERS } from '../../shared/data/monsters.js?v=d89f0f9d101a';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=d89f0f9d101a';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=d89f0f9d101a';
+import { attackReach } from '../../shared/battle.js?v=d89f0f9d101a';
+import { maxPlus } from '../../shared/data/forge.js?v=d89f0f9d101a';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=d89f0f9d101a';
+import { perkText } from '../../shared/data/items-r31.js?v=d89f0f9d101a';
+import { BUFF_MARKS } from '../../shared/buff-acts.js?v=d89f0f9d101a';
+import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=d89f0f9d101a';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）

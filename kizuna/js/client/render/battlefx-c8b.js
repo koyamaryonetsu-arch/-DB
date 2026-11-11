@@ -5,6 +5,9 @@
 // b8i_fuse（ばけばけ大がったい）は けむりの 中から 大きな おばけ（とくべつな つぶ c8bghost）が みんなへ おおいかぶさる。
 // b8h_contract（たましいのけいやく）は まき物（とくべつな つぶ c8bscroll）が ねらった 人の 上で ひらく。
 // 大がったい・ひとりばけばけ・けいやく・たましい・おこった・大ふん火は がめんの まん中に 大きく（client/battle-c8b.js の C8B_SCREEN_ANIMS）
+// 第2部 第8章 第3幕 の 魔物・マジカメック・初代大魔王クッパード（battlefx-c8c.js）
+import { playC8cFx, C8C_FINE } from './battlefx-c8c.js?v=d89f0f9d101a';
+
 const BLUE = ['#4ab8ff', '#bfefff', '#2a6ad8', '#ffffff'];
 const RED = ['#ff8a2a', '#ffe06a', '#e0301a', '#ffffff'];
 const BONE = ['#ece6d6', '#ffffff', '#b8b0a0'];
@@ -57,7 +60,7 @@ function c8bscroll(x, p, t) {
   for (let i = 0; i < 4 * open; i++) x.fillRect(-s * 0.35, -s * 0.5 + i * s * 0.28, s * 0.7 * (i % 2 ? 0.7 : 1), 1.4);
   x.restore();
 }
-export const C8B_FINE = { c8bghost, c8bscroll };
+export const C8B_FINE = { c8bghost, c8bscroll, ...C8C_FINE };
 
 export function playC8bFx(fx, anim, targets, element, opts = {}, W = 256, H = 144) {
   const first = targets[0];
@@ -369,7 +372,8 @@ export function playC8bFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
         fx.puff(t.x, t.y - 34, { color: 'rgba(230,240,255,0.7)', r0: 6, r1: 24, life: 900 });
       }
       return true;
+    // 第8章 第3幕（battlefx-c8c.js）
     default:
-      return false;
+      return playC8cFx(fx, anim, targets, element, opts, W, H);
   }
 }

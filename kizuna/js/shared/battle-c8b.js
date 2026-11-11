@@ -21,14 +21,16 @@
 //   小おに … 相談の 間は いちばん 大きい 1回の 攻撃を 1ぴきに 当てる（b.c8bNoPlot … しない）・パニックの 小おにを ねらう・2ひきの HP を
 //     そろえて へらす（HP の 多い ほうを ねらう。b.c8bNoOrder … しない）・大がったいの 前に 身を 守る（b.c6NoGuard）
 //   ハデロス … けいやくの 間は 炎を 当てる（b.c8bNoBurn）・ふん火の 前ぶれに 氷を 当てる（b.c8bNoChill）・大ふん火の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=9a8a9aaa43ce';
-import { ABILITIES } from './data/abilities.js?v=9a8a9aaa43ce';
-import { C8_PAIN, C8_PANIC, C8_HADES, HADES_BLUE, HADES_RED, RED_ACTIONS } from './data/monsters-c8b.js?v=9a8a9aaa43ce';
-import { BUFF_ACTS } from './buff-acts.js?v=9a8a9aaa43ce';
+import { MONSTERS } from './data/monsters.js?v=d89f0f9d101a';
+import { ABILITIES } from './data/abilities.js?v=d89f0f9d101a';
+import { C8_PAIN, C8_PANIC, C8_HADES, HADES_BLUE, HADES_RED, RED_ACTIONS } from './data/monsters-c8b.js?v=d89f0f9d101a';
+import { BUFF_ACTS } from './buff-acts.js?v=d89f0f9d101a';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=9a8a9aaa43ce';
-import { canUse } from './ai.js?v=9a8a9aaa43ce';
-import { AUTO_GUARD } from './battle-ch6.js?v=9a8a9aaa43ce';
+import { atbRate } from './battle.js?v=d89f0f9d101a';
+import { canUse } from './ai.js?v=d89f0f9d101a';
+import { AUTO_GUARD } from './battle-ch6.js?v=d89f0f9d101a';
+// 第2部 第8章 第3幕: マジカメック（でっかくなあれ）・初代大魔王クッパード（ギガクッパード・橋のオノ）。battle-c8c.js
+import { setupC8c, c8cTurnStart, c8cEffect, c8cPlan, c8cPub, c8cDamage, c8cKill } from './battle-c8c.js?v=d89f0f9d101a';
 
 export { C8_PAIN, C8_PANIC, C8_HADES };
 export const FUSE = 'm8i_fuse';
@@ -120,11 +122,15 @@ export function setupC8b(b) {
     lines.push('ペイニック「いくぞ、パニクル！」', 'パニクル「お、おう、ペイニック！」', '（2ひきが、ひそひそ相談を始めたら、強い一撃でじゃまをしよう…！）');
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1300 });
+  // 第8章 第3幕の ボス（battle-c8c.js）
+  setupC8c(b);
 }
 
 // ───────────── 行動の はじめ（battle-c8a.js の c8aTurnStart の はじめ）─────────────
 // 動けない 番も しるしを 数える（しるしが 1つの 番が 動けない ときは、次の 番に）
 export function c8bTurnStart(b, c, ev, stuck) {
+  // 第8章 第3幕（battle-c8c.js）
+  c8cTurnStart(b, c, ev, stuck);
   if (c.c8imp) impTurn(b, c, ev, stuck);
   else if (c.c8hd) hadesTurn(b, c, ev, stuck);
 }
@@ -272,7 +278,8 @@ export function c8bEffect(b, c, a, eff, ev) {
     case 'c8bAnger': anger(b, c, ev); return true;
     case 'c8bErupt': erupt(b, c, ev); return true;
     case 'c8bCool': ev.c8bCoolAct = { id: c.id }; return true;
-    default: return false;
+    // 第8章 第3幕（battle-c8c.js）
+    default: return c8cEffect(b, c, a, eff, ev);
   }
 }
 
@@ -459,6 +466,8 @@ function erupt(b, c, ev) {
 // 小おに: パニックの 間は ダメージが ふえる・相談の 間の 大きな 一撃で けんか／
 // ハデロス: けいやくの 間の 炎で けいやくしょが もえる・ふん火の 前ぶれの 氷で 頭が ひえる・おこる 前は HP が 下がりきらない
 export function c8bDamage(b, c, t, dmg, info, ev) {
+  // 第8章 第3幕: 橋の オノ・ギガクッパードの かたい 体・ギガに なる 前（battle-c8c.js）
+  dmg = c8cDamage(b, c, t, dmg, info, ev);
   if (!(dmg > 0) || c?.side !== 'ally') return dmg;
   if (t.c8imp) {
     const ic = impsConf(t);
@@ -521,6 +530,8 @@ function chill(b, h, c, ev) {
 // ───────────── たおれた（battle-c8a.js の c8aKill の はじめ）─────────────
 // 小おにの かたほうが たおれた: のこった ほうは パニック
 export function c8bKill(b, t, ev) {
+  // 第8章 第3幕: 魔法じんの 子分・橋の オノ（battle-c8c.js）
+  c8cKill(b, t, ev);
   if (!t?.c8imp) return;
   const p = partnerOf(b, t);
   if (!p?.alive || p.c8imp.panic > 0 || p.c8imp.rage) return;
@@ -608,6 +619,9 @@ function single(cmd) {
 // 第8章 第2幕の ボスが いなければ null（ほかの ボスの 考えへ）
 export function c8bPlan(b, c, decide) {
   if (c.side !== 'ally' || b.c8bInner || c.status?.rift) return null;
+  // 第8章 第3幕の ボス（マジカメック・クッパード。battle-c8c.js）
+  const cp = c8cPlan(b, c, decide);
+  if (cp) return cp;
   const imps = aliveImps(b);
   const h = hadesOf(b);
   if (!imps.length && !h) return null;
@@ -684,6 +698,8 @@ function hadesPlan(b, c, base, a, h, soon) {
 // ハデロス: c8hform（1 青・2 赤）・contractLeft・contractEvery・soulLeft（けいやくの のこり）・bound（けいやくした 人）・flicker・hot・cool・eruptLeft・eruptEvery
 export function c8bPub(c, o) {
   // がめんは まえの ようすに 上書きで まぜる（client/battle.js の Object.assign）ので、なくなった しるしも 0・null で おくる
+  // 第8章 第3幕（battle-c8c.js）
+  c8cPub(c, o);
   if (c.c8imp) {
     const me = c.c8imp;
     const s = me.s;

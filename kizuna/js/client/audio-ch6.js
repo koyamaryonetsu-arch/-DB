@@ -11,6 +11,7 @@
 // ・c7i_snow・c7i_castle … 第7章 Step 5・6 の 千年前の シロガネ地方・氷の竜の城
 // ・c8a_palace … 第8章 第1幕の 月の王宮の地下迷宮（ニ短調。砂の 国の ふしぎな 音階と、月の 光の ような 高い アルペジオ）
 // ・c8b_temple … 第8章 第2幕の よみの海底神殿（ホ短調。ゆっくり ゆれる 海の 底の 音と、青い 火の ような ちらちらした 高い 音）
+// ・c8c_fort … 第8章 第3幕の くろがねの空中要塞（ハ短調。ずんずん すすむ 行進の リズムと、プロペラの ような 低い 音。ちょっと ゆかいな 大魔王の 城）
 // 1小節 = 16。どの パートも 16小節（256）
 
 const CHORD = {
@@ -66,8 +67,24 @@ const C7I_CASTLE_CH = ['Bm', 'G', 'D', 'A', 'Bm', 'Em', 'A', 'A', 'G', 'D', 'Em'
 const C8A_PALACE_CH = ['Dm', 'Bb', 'A', 'Dm', 'Gm', 'Dm', 'A', 'A', 'Bb', 'Gm', 'Dm', 'A', 'Gm', 'A', 'Dm', 'Dm'];
 // 第8章 第2幕: よみの海底神殿（ホ短調。海の 底の ゆっくりした ゆれ）
 const C8B_TEMPLE_CH = ['Em', 'C', 'Am', 'B', 'Em', 'C', 'D', 'B', 'C', 'D', 'G', 'Em', 'Am', 'B', 'Em', 'Em'];
+// 第8章 第3幕: くろがねの空中要塞（ハ短調。行進の リズム）
+const C8C_FORT_CH = ['Cm', 'Ab', 'Bb', 'Cm', 'Cm', 'Fm', 'G', 'G', 'Ab', 'Eb', 'Fm', 'G', 'Cm', 'Ab', 'G', 'Cm'];
 
 export const CH6_TRACKS = {
+  c8c_fort: {
+    bpm: 112,
+    ch: [
+      { w: 'square', v: 0.07, n: bars([
+        'C5:3 C5:1 Eb5:4 G5:6 r:2', 'Ab5:4 G5:2 F5:2 Eb5:8', 'Bb4:3 Bb4:1 D5:4 F5:6 r:2', 'Eb5:4 D5:2 C5:2 C5:8',
+        'G5:3 G5:1 Ab5:2 G5:2 F5:4 Eb5:4', 'F5:4 Ab5:4 C6:6 r:2', 'B4:4 D5:4 G5:4 F5:4', 'D5:12 r:4',
+        'C5:3 C5:1 Eb5:4 Ab5:6 r:2', 'G5:4 Bb5:4 Eb6:6 D6:2', 'C6:4 Ab5:4 F5:6 G5:2', 'B4:4 D5:4 G5:8',
+        'C5:3 C5:1 Eb5:2 G5:2 C6:6 r:2', 'Ab5:4 F5:4 Eb5:4 C5:4', 'D5:2 Eb5:2 F5:2 D5:2 B4:4 G4:4', 'C5:12 r:4',
+      ]) },
+      { w: 'triangle', v: 0.05, n: pads(C8C_FORT_CH, 3, 1) },
+      { w: 'triangle', v: 0.2, n: bassWalk(C8C_FORT_CH) },
+      { drums: true, v: 0.08, n: 'k:2 r:2 s:2 r:2 k:2 k:2 s:2 h:2 '.repeat(16) },
+    ],
+  },
   c8b_temple: {
     bpm: 84,
     ch: [

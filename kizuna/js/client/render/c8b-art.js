@@ -7,7 +7,9 @@
 //   見た目は 88×88・80×100・124×124（小おには 2ひき ならぶので 少し 小さい）。render/monsters.js が こまかさ（res）を 2倍に する
 // ハデロスは コマ 0・1 が 青い 炎の かみ、コマ 2・3 が おこった 赤い 炎の かみ（client/battle-c8b.js の c8bSprite が pub の c8hform で えらぶ）
 // 小おには コマ 0・1 が ふつう、コマ 2・3 が パニック・カンカン（あわてて 手を ふり回す。pub の impForm）
-import { fit, spark, bez, flame } from './ch3-draw.js?v=9a8a9aaa43ce';
+import { fit, spark, bez, flame } from './ch3-draw.js?v=d89f0f9d101a';
+// 第2部 第8章 第3幕: 手下の 魔物・マジカメック・初代大魔王クッパード・橋のオノ（c8c-art.js）
+import { addC8cArt } from './c8c-art.js?v=d89f0f9d101a';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）
@@ -435,4 +437,6 @@ export function addC8bArt(ART) {
   ART.c8_painpanic = { size: [176, 176], npc: 0.6, pal: pal(PN), draw: pain };
   ART.c8_panicle = { size: [160, 200], npc: 0.6, pal: pal(PC), draw: panic };
   ART.c8_hades = { size: [248, 248], npc: 0.6, pal: pal(HD), draw: hades };
+  // 第8章 第3幕（c8c-art.js）
+  addC8cArt(ART);
 }

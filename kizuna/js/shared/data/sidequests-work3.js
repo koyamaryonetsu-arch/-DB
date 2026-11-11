@@ -14,12 +14,12 @@
 // 21. 竜守りの村の、くしゃみ火事（消防士 → 火消しの神。まきおき場で 火こぞう・ひのこネズミと 軽い 戦い）
 // 22. ホシフル村の、思い出の花畑（大賢者 → 千年の大魔法使い。古い 宝箱が ひとくい箱で 軽い 戦い）
 // 23. 鏡の湖のかっぱずもう（カッパ → かっぱの大王）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=9a8a9aaa43ce';
-import { rewardSteps } from './sidequests-work2.js?v=9a8a9aaa43ce';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=d89f0f9d101a';
+import { rewardSteps } from './sidequests-work2.js?v=d89f0f9d101a';
 import {
   WQ3, WQ3_OPEN, VOTE_VOICES, VOTE_PLANS, FEAST_GUESTS, FEAST_DISHES, DORA_VOICES, DORA_TOOLS, FIRE_VOICES, FIRE_STEPS,
   FLOWER_VOICES, FLOWER_SPELLS, KAPPA_VOICES, KAPPA_TIPS,
-} from '../maps/work-quests3.js?v=9a8a9aaa43ce';
+} from '../maps/work-quests3.js?v=d89f0f9d101a';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

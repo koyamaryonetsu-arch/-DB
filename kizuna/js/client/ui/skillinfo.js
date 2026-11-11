@@ -3,21 +3,21 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=9a8a9aaa43ce';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=9a8a9aaa43ce';
-import { ITEMS } from '../../shared/data/items.js?v=9a8a9aaa43ce';
-import { JOBS } from '../../shared/data/jobs.js?v=9a8a9aaa43ce';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=9a8a9aaa43ce';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=9a8a9aaa43ce';
-import { targetText, itemDetail } from './info.js?v=9a8a9aaa43ce';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=d89f0f9d101a';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=d89f0f9d101a';
+import { ITEMS } from '../../shared/data/items.js?v=d89f0f9d101a';
+import { JOBS } from '../../shared/data/jobs.js?v=d89f0f9d101a';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=d89f0f9d101a';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=d89f0f9d101a';
+import { targetText, itemDetail } from './info.js?v=d89f0f9d101a';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
-import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=9a8a9aaa43ce';
+import { REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=d89f0f9d101a';
 // 第50回 N1: 今の 魔力・回復魔力での 威力の 目安（shared/skill-power.js）
-import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=9a8a9aaa43ce';
+import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js?v=d89f0f9d101a';
 export { powStats };
 // 第50回 D4: 上の 職業の 技ほど 補助が 長く・2段階・回復が 多い（shared/skill-tier.js）。文は tierText だけで つくる
-import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=9a8a9aaa43ce';
-import { stackMult } from '../../shared/battle.js?v=9a8a9aaa43ce';
+import { skillMods, TIER_MODS } from '../../shared/skill-tier.js?v=d89f0f9d101a';
+import { stackMult } from '../../shared/battle.js?v=d89f0f9d101a';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };

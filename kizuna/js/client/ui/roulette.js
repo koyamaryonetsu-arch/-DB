@@ -6,13 +6,13 @@
 //   第50回 N5: 「間・角にかける」を オンに すると、数と 数の 間（18倍）・4つの 数の 角（9倍）にも おける
 //     （表の マスの 上に すきとおった ボタンを ならべる。十字キーでも 数→間→数 と うごける）
 //   回る 演出（玉の 光の 尾・ふちの ランプ・止まる まえの ドキドキ・出た 数の 大写し）と 当たりの 演出（casino-fx.js）
-import { el } from './dom.js?v=9a8a9aaa43ce';
-import { request } from './shop.js?v=9a8a9aaa43ce';
-import { padNav } from './padnav.js?v=9a8a9aaa43ce';
-import { casinoShell, countUp, fmt, sendClose } from './casino.js?v=9a8a9aaa43ce';
-import { celebrate, stopFx, winLevel, casinoSfx } from './casino-fx.js?v=9a8a9aaa43ce';
-import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, ROULETTE_MAX_SPOTS, WHEEL, numColor, BET_KINDS, betKey, betName, parseBetKey, betNums, SPLIT_VALS, CORNER_VALS } from '../../shared/data/roulette.js?v=9a8a9aaa43ce';
-import { coinsOf } from '../../shared/data/casino.js?v=9a8a9aaa43ce';
+import { el } from './dom.js?v=d89f0f9d101a';
+import { request } from './shop.js?v=d89f0f9d101a';
+import { padNav } from './padnav.js?v=d89f0f9d101a';
+import { casinoShell, countUp, fmt, sendClose } from './casino.js?v=d89f0f9d101a';
+import { celebrate, stopFx, winLevel, casinoSfx } from './casino-fx.js?v=d89f0f9d101a';
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, ROULETTE_MAX_SPOTS, WHEEL, numColor, BET_KINDS, betKey, betName, parseBetKey, betNums, SPLIT_VALS, CORNER_VALS } from '../../shared/data/roulette.js?v=d89f0f9d101a';
+import { coinsOf } from '../../shared/data/casino.js?v=d89f0f9d101a';
 
 const STEP = (Math.PI * 2) / WHEEL.length;
 const WIDX = Object.fromEntries(WHEEL.map((n, i) => [n, i]));

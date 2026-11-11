@@ -11,9 +11,9 @@
 // 第51回: それでも 1万文字を こえる ときは KIZUNA-4-（KIZUNA-3 の 形に 加えて、ぜんぶ true の flags・chests を 名前の ならびに、
 //   図鑑〈bestiary〉を 同じ 中みごとに まとめた 形。slimChar4 / unslimChar4）。KIZUNA-3 で 入る ときは KIZUNA-3（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=9a8a9aaa43ce';
-import { dropGoneFamily } from '../data/wagon.js?v=9a8a9aaa43ce';
-import { packFeats, unpackFeats } from './phantom.js?v=9a8a9aaa43ce';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=d89f0f9d101a';
+import { dropGoneFamily } from '../data/wagon.js?v=d89f0f9d101a';
+import { packFeats, unpackFeats } from './phantom.js?v=d89f0f9d101a';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
@@ -268,12 +268,23 @@ function slimKills4(kills, groups) {
   const ix = order.map((sp) => (Object.hasOwn(kills, sp) ? kills[sp] : null));
   const rest = {};
   for (const [sp, n] of Object.entries(kills)) if (!inB.has(sp)) rest[sp] = n;
-  return { ix, rest: slimKills(rest) };
+  // 第75回: 同じ 数が 3つ いじょう 続く 所は [数, 回数] に まとめる（ixr。魔物が ふえても LINE の 1回に 入る ように）
+  const ixr = [];
+  for (let i = 0; i < ix.length;) {
+    let j = i;
+    while (j < ix.length && ix[j] === ix[i]) j++;
+    if (j - i >= 3) ixr.push([ix[i], j - i]);
+    else for (let t = i; t < j; t++) ixr.push(ix[t]);
+    i = j;
+  }
+  return { ixr, rest: slimKills(rest) };
 }
+const unrun = (ixr) => ixr.flatMap((x) => (Array.isArray(x) && x.length === 2 && Number.isSafeInteger(x[1]) && x[1] > 0 && x[1] <= 100000 ? Array(x[1]).fill(x[0]) : [x]));
 function unslimKills4(k, groups) {
   const out = {};
   const order = bestiaryOrder(groups);
-  k.ix.forEach((n, i) => { if (n !== null && i < order.length && validKey(order[i])) out[order[i]] = n; });
+  const ix = Array.isArray(k.ixr) ? unrun(k.ixr) : k.ix;
+  ix.forEach((n, i) => { if (n !== null && i < order.length && validKey(order[i])) out[order[i]] = n; });
   const rest = Array.isArray(k.rest) ? unslimKills(k.rest) : {};
   for (const [sp, n] of Object.entries(rest || {})) if (validKey(sp)) out[sp] = n;
   return out;
@@ -290,7 +301,7 @@ export function slimChar4(char) {
     ...(Array.isArray(s.storage) ? { storage: slimTimes(s.storage) } : {}) };
 }
 export function unslimChar4(char) {
-  if (isPlain(char.kills) && Array.isArray(char.kills.ix)) char.kills = unslimKills4(char.kills, char.bestiary);
+  if (isPlain(char.kills) && (Array.isArray(char.kills.ix) || Array.isArray(char.kills.ixr))) char.kills = unslimKills4(char.kills, char.bestiary);
   unslimTimes(char.companions);
   unslimTimes(char.storage);
   if (Array.isArray(char.flags)) char.flags = unslimTrue(char.flags);

@@ -7,10 +7,10 @@
 //   ・配合してあける … 台本の ['breedOpen', id] で 酒場の 配合の 画面を「あける モード」で 開く（scripts.js・client/ui/services.js）
 //   ・あずかり所へ送る … 魔物を 1ぴき あずかり所へ（world/storage.js）。あいた 所に 新しい 魔物
 //   ・酒場で 人間の 仲間を さそう 時も 同じ えらぶ文（client/ui/services.js の pickFull・world/services.js の 'recruit'）
-import { MONSTERS } from '../data/monsters.js?v=9a8a9aaa43ce';
-import { ROSTER_MAX, BREED_MIN_LEVEL } from '../data/companions.js?v=9a8a9aaa43ce';
-import { jobLabel } from '../job-label.js?v=9a8a9aaa43ce';
-import { ensureCompanions, companionRelease, ensureStorage, STORAGE_MAX } from './party.js?v=9a8a9aaa43ce';
+import { MONSTERS } from '../data/monsters.js?v=d89f0f9d101a';
+import { ROSTER_MAX, BREED_MIN_LEVEL } from '../data/companions.js?v=d89f0f9d101a';
+import { jobLabel } from '../job-label.js?v=d89f0f9d101a';
+import { ensureCompanions, companionRelease, ensureStorage, STORAGE_MAX } from './party.js?v=d89f0f9d101a';
 
 // 酒場が いっぱいか（パーティー・馬車・酒場の 仲間 みんなで ROSTER_MAX）
 export function rosterIsFull(c) {

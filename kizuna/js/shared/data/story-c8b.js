@@ -10,16 +10,16 @@
 //   → 8階 よみの王の 玉座の 間: よみの王ハデロス（きまった 戦い c8_hades。2だん。B）→ いかりの 心を とられて かけらが にげる・ハデロスは 元気を 返す
 //   → ナギの村の 浜で（c8_hades）→「第8章　第3幕へ（続きはアップデートで！）」
 // より道「時をこえる手紙」（千年前の クモイの 海の 2つ）は data/sidequests-c8b.js。魔物・きまった 戦い・品は B（plan-ch8.md の 6-2）。ゲストは カイ
-import { C8 } from '../maps/c8a-flags.js?v=9a8a9aaa43ce';
+import { C8 } from '../maps/c8a-flags.js?v=d89f0f9d101a';
 import {
   C8B, ARRIVE8B, ENTRY8B, PF8B, MIKO8B, VOICE8B, WIN8B, CALM8B, FIRE8B, FIRE_LIMIT8B, LETTER8B, LETTER8B_TEMPLE, MIKO_LETTER8B, C7S_SEA_ID, KUMOI_ID, c8bMapId,
-} from '../maps/c8b-flags.js?v=9a8a9aaa43ce';
-import { C8B_POS } from '../maps/c8b-temple.js?v=9a8a9aaa43ce';
-import { C8B_SEA_POS } from '../maps/c8b-sea.js?v=9a8a9aaa43ce';
-import { MAPS } from '../maps/index.js?v=9a8a9aaa43ce';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=9a8a9aaa43ce';
-import { MONSTERS } from './monsters.js?v=9a8a9aaa43ce';
-import { applyC8bSide, letterReward8b } from './sidequests-c8b.js?v=9a8a9aaa43ce';
+} from '../maps/c8b-flags.js?v=d89f0f9d101a';
+import { C8B_POS } from '../maps/c8b-temple.js?v=d89f0f9d101a';
+import { C8B_SEA_POS } from '../maps/c8b-sea.js?v=d89f0f9d101a';
+import { MAPS } from '../maps/index.js?v=d89f0f9d101a';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=d89f0f9d101a';
+import { MONSTERS } from './monsters.js?v=d89f0f9d101a';
+import { applyC8bSide, letterReward8b } from './sidequests-c8b.js?v=d89f0f9d101a';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -55,8 +55,8 @@ export const C8B_OBJ = {
   f8: 'よみの王の玉座の間に、ハデロスがいる…（じゅんびを整えてから進もう）',
   win: '玉座の間の、青い火の玉座を調べよう（続きが見られる）',
   calm: 'ナギの村へもどって、村長のおばばに話しかけよう',
-  // 第8章 第2幕の さいご（あとの 幕が できたら、この 文は story-c8.js の OLD_C8_OBJ に のこす）
-  hades: '第8章　第3幕へ（続きはアップデートで！）',
+  // 第8章 第2幕の さいご・第3幕の はじまり（前の 版の 文「第8章　第3幕へ（続きはアップデートで！）」は story-c8.js の OLD_C8_OBJ.hades。第3幕の 目標は story-c8c.js の C8C_OBJ）
+  hades: '第8章　第2幕クリア！今のほしみの丘のトキネに会いに行こう（時の砂時計が、また鳴っているらしい…）',
 };
 
 // パーティー全員で 見る イベント
@@ -594,7 +594,7 @@ function villageEnding() {
     ['objective', C8B_OBJ.hades],
     ...N('第8章　第2幕クリア！'),
     ['chapter', '第8章　第2幕「よみの青い火」　完', '第3幕へ　つづく'],
-    ...N('第8章　第3幕へ（続きはアップデートで！）'),
+    ...S('トキネの声', '（…{name}。時の砂時計が、また、鳴っているわ）', '（今のほしみの丘で、待っているわね）'),
     ['bgm', 'resume'],
   ];
 }
@@ -703,8 +703,8 @@ export const CH8B_OBJECTIVE_TALK = {
     '玉座のようすが、気になります。調べてみましょう。', 'ぎょくざを、調べよう！'),
   [C8B_OBJ.calm]: T4('ナギの村へもどって、村長のおばばに話しかけよう。', '村へ帰って、おばばに話そうぜ！',
     '村長のおばばに、話しかけましょう。', 'むらちょうさんに、話しかけよう！'),
-  [C8B_OBJ.hades]: T4('第8章の第2幕クリア。第3幕は、続きのアップデートで。時をこえる手紙のより道も、のこっているかもしれない。', 'やったな！つぎは第3幕だってよ！',
-    '第2幕クリアです。カイさんとの約束、わすれないでいましょう。', 'だい2まく、クリア！'),
+  [C8B_OBJ.hades]: T4('第2幕クリア。今のほしみの丘のトキネに会いに行こう。砂時計が、また鳴っているらしい。', 'やったな！トキネのところへ行こうぜ！',
+    '第2幕クリアです。カイさんとの約束、わすれないでいましょう。トキネさんが待っています。', 'トキネさんに、あいにいこう！'),
 };
 
 // ───── すすみぐあい（progress.js。story-c8.js の CH8_PROGRESS の うしろ）─────

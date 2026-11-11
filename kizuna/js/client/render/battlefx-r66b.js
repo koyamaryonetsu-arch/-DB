@@ -18,7 +18,7 @@
 // ・みかたに つかう えんしゅつ（PARTY_ANIMS_R66B）は、battle.js が がめんの 下の まん中に 出す（この ファイルで battlefx-jobs2.js の PARTY_ANIMS に まぜる）
 // ・文字は 出さない（笑い声も 絵で あらわす）
 
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=9a8a9aaa43ce';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=d89f0f9d101a';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
