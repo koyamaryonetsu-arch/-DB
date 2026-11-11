@@ -5,11 +5,11 @@
 // ・カットインの 帯・画面の くらさは つかわない（構えは みじかい ものだけ）。画面の 文字に 漢字は 出さない
 // ・分けた ファイル: axfx-o8-tantei.js（名探てい王）・axfx-o8-ginga.js（銀河の女王）・axfx-o8-madou.js（大魔導王）・axfx-o8-kensei.js（天下むそうの剣聖）。
 //   つぶの かきかたと 小さな どうぐは axfx-o8-kit.js。どの え も さいごに balance（伝説の つぶの かず）
-import { AX_O8_TANTEI } from './axfx-o8-tantei.js?v=951249558dd3';
-import { AX_O8_GINGA } from './axfx-o8-ginga.js?v=951249558dd3';
-import { AX_O8_MADOU } from './axfx-o8-madou.js?v=951249558dd3';
-import { AX_O8_KENSEI } from './axfx-o8-kensei.js?v=951249558dd3';
-import { AX_O8_FINE as FINE, withBalance } from './axfx-o8-kit.js?v=951249558dd3';
+import { AX_O8_TANTEI } from './axfx-o8-tantei.js?v=e837e3131867';
+import { AX_O8_GINGA } from './axfx-o8-ginga.js?v=e837e3131867';
+import { AX_O8_MADOU } from './axfx-o8-madou.js?v=e837e3131867';
+import { AX_O8_KENSEI } from './axfx-o8-kensei.js?v=e837e3131867';
+import { AX_O8_FINE as FINE, withBalance } from './axfx-o8-kit.js?v=e837e3131867';
 
 export const AX_O8 = withBalance({ ...AX_O8_TANTEI, ...AX_O8_GINGA, ...AX_O8_MADOU, ...AX_O8_KENSEI });
 

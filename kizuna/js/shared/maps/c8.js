@@ -7,10 +7,10 @@
 // ・maps/c8b-temple.js … よみの海底神殿（千年前 c8b_temple_1f〜8f・今 c8b_temple_1f_now〜7f_now）
 // ・maps/c8b-sea.js … 千年前の クモイの 海（c7s_sea）の うずしおの岩場と、今の クモイ地方（kumoi）の 雲から出てきた島に たす もの（入口・人・時をこえる手紙）
 // ・maps/c8b-flags.js … フラグ・マップの ID・だいじな 場所
-import { buildC8aPalaceMaps, C8A_MAPS } from './c8a-palace.js?v=951249558dd3';
-import { attachC8aField } from './c8a-field.js?v=951249558dd3';
-import { buildC8bTempleMaps, C8B_MAPS } from './c8b-temple.js?v=951249558dd3';
-import { attachC8bSea } from './c8b-sea.js?v=951249558dd3';
+import { buildC8aPalaceMaps, C8A_MAPS } from './c8a-palace.js?v=e837e3131867';
+import { attachC8aField } from './c8a-field.js?v=e837e3131867';
+import { buildC8bTempleMaps, C8B_MAPS } from './c8b-temple.js?v=e837e3131867';
+import { attachC8bSea } from './c8b-sea.js?v=e837e3131867';
 
 // 第8章 第1幕の マップの ID（セーブに のこるので かえない）
 export const CH8A_MAPS = [...C8A_MAPS];

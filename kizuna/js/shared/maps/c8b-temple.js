@@ -12,16 +12,16 @@
 //   6階 よみの道と 青い 火の 柱（a と b が かわるがわる）・7階 3つの 台と 2つの 火種 → おくに 休み所・8階 よみの王の 玉座の 間（ハデロス）
 // ・魔物: 1〜4階 t8b_temple・5〜8階 t8b_deep（B）。休み所・ボスの 階・しかけの まわりは 出ない
 // ・ひとりでも とける（時の砂時計で 時代を かえながら）。家族が 2つの 時代に 分かれると 早い
-import { T } from '../tiles.js?v=951249558dd3';
-import { npc } from './npc.js?v=951249558dd3';
-import { parseRows16 } from './past.js?v=951249558dd3';
-import { C8B_ROWS, C8B_W, C8B_H } from './c8b-temple-rows.js?v=951249558dd3';
+import { T } from '../tiles.js?v=e837e3131867';
+import { npc } from './npc.js?v=e837e3131867';
+import { parseRows16 } from './past.js?v=e837e3131867';
+import { C8B_ROWS, C8B_W, C8B_H } from './c8b-temple-rows.js?v=e837e3131867';
 import {
   C8B, PF8B, FIRE8B, LIGHT_R2, LETTER8B, LETTER8B_TEMPLE, MIKO8B, VOICE8B, WIN8B, CALM8B, C7S_SEA_ID, KUMOI_ID, ENTRANCE8B,
   c8bMapId, C8B_FLOORS, C8B_NOW_FLOORS, C8B_REST, C8B_BOSS_FLOOR, C8B_IMPS_FLOOR,
-} from './c8b-flags.js?v=951249558dd3';
+} from './c8b-flags.js?v=e837e3131867';
 // 宝箱の 中み（B の data/items-c8b.js の C8B_TREASURE。まとめる 時に '../data/items-c8b.js' から）
-import { C8B_TREASURE } from '../data/items-c8b.js?v=951249558dd3';
+import { C8B_TREASURE } from '../data/items-c8b.js?v=e837e3131867';
 
 export { c8bMapId, C8B_FLOORS, C8B_NOW_FLOORS, C8B_REST, C8B_BOSS_FLOOR, C8B_W, C8B_H };
 export const C8B_PAST_MAPS = Array.from({ length: C8B_FLOORS }, (_, i) => c8bMapId(i + 1));
