@@ -12,13 +12,13 @@
 //   monAllyInit(char, { controller, auto, tactics, owner }) … みかたの がわの 入れ方（Battle の allies に わたす）
 //   addMonFoe(battle, char, { controller, auto, tactics, owner, name }) … 敵の がわに 1ぴき 入れる（controller を わたすと その 人が コマンドを えらぶ）
 //   monSnapshot(entry) / snapChar(snap, ownerId) … 登録チームの 写し（もちぬしが 遊んで いなくても 戦える）
-import { Battle, allyFromCharacter, enemyFixedScale, agiFactor, effAgi, ATB, attackReach, reachFalloff } from './battle.js?v=e3f2209f7dc0';
-import { decideAlly, TACTICS } from './ai.js?v=e3f2209f7dc0';
-import { MONSTERS } from './data/monsters.js?v=e3f2209f7dc0';
-import { ABILITIES } from './data/abilities.js?v=e3f2209f7dc0';
-import { fullHeal, mpCost, computeStats } from './stats.js?v=e3f2209f7dc0';
-import { SNAP_KEYS } from './data/monarena.js?v=e3f2209f7dc0';
-import { scaleEnemy } from './data/treasure.js?v=e3f2209f7dc0';
+import { Battle, allyFromCharacter, enemyFixedScale, agiFactor, effAgi, ATB, attackReach, reachFalloff } from './battle.js?v=951249558dd3';
+import { decideAlly, TACTICS } from './ai.js?v=951249558dd3';
+import { MONSTERS } from './data/monsters.js?v=951249558dd3';
+import { ABILITIES } from './data/abilities.js?v=951249558dd3';
+import { fullHeal, mpCost, computeStats } from './stats.js?v=951249558dd3';
+import { SNAP_KEYS } from './data/monarena.js?v=951249558dd3';
+import { scaleEnemy } from './data/treasure.js?v=951249558dd3';
 
 export { SNAP_KEYS };
 

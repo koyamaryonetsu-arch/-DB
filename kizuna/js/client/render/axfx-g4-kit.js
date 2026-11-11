@@ -1,5 +1,5 @@
 // 第48回 G4: 大技の え で つかう 小さな どうぐ（G4 の つぶ g4〜 を 足す）。この ファイルは G4 だけが さわる
-import { rnd } from './axkit.js?v=e3f2209f7dc0';
+import { rnd } from './axkit.js?v=951249558dd3';
 
 // つぶを 1つ 足す（kind は g4〜）。x,y は 画面の 中の いち（とおい つぶの しらべに つかう）
 export function add(c, kind, o) {

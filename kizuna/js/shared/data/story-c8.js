@@ -11,16 +11,16 @@
 // より道「時をこえる手紙」（緑の王国の 2つ）は data/sidequests-c8a.js。魔物・きまった 戦い・品は B（plan-ch8.md の 5-2）。ゲストは カリム
 import {
   C8, ARRIVE8, ENTRY8, PF8, NADIA4, VOICE7, WIN8, KING8, MIRROR8, LETTER8, LETTER8_PALACE, NADIA_LETTER, C7_FIELD_ID, SOUTH_ID, STAIR8, c8aMapId,
-} from '../maps/c8a-flags.js?v=e3f2209f7dc0';
-import { C7I } from '../maps/c7i-flags.js?v=e3f2209f7dc0';
-import { C8A_POS, bridgeOf } from '../maps/c8a-palace.js?v=e3f2209f7dc0';
-import { C8A_FIELD_POS } from '../maps/c8a-field.js?v=e3f2209f7dc0';
-import { MAPS } from '../maps/index.js?v=e3f2209f7dc0';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=e3f2209f7dc0';
-import { MONSTERS } from './monsters.js?v=e3f2209f7dc0';
-import { applyC8aSide, letterReward8 } from './sidequests-c8a.js?v=e3f2209f7dc0';
+} from '../maps/c8a-flags.js?v=951249558dd3';
+import { C7I } from '../maps/c7i-flags.js?v=951249558dd3';
+import { C8A_POS, bridgeOf } from '../maps/c8a-palace.js?v=951249558dd3';
+import { C8A_FIELD_POS } from '../maps/c8a-field.js?v=951249558dd3';
+import { MAPS } from '../maps/index.js?v=951249558dd3';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=951249558dd3';
+import { MONSTERS } from './monsters.js?v=951249558dd3';
+import { applyC8aSide, letterReward8 } from './sidequests-c8a.js?v=951249558dd3';
 // 第2幕「よみの青い火」（Step 3・4。story-c8b.js）
-import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js?v=e3f2209f7dc0';
+import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js?v=951249558dd3';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

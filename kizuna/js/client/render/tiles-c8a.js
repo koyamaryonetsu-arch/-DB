@@ -5,10 +5,10 @@
 // ・月の 箱（349）… 三日月の かざりの 小箱 / 月の 門（350）… 三日月の もようの 石の 門 / 黒い 砂の かべ（351）… うずを まく 黒い 砂（3コマ）
 // ・砂の ふる ゆか（352）… 砂の 影の ある 石の ゆか / 砂の 滝（353）… ふりそそぐ 砂（3コマ）/ 月の 石板（354）… まるい 月の もようの 石板
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=e3f2209f7dc0';
-import { prand } from './pixel.js?v=e3f2209f7dc0';
+import { T } from '../../shared/tiles.js?v=951249558dd3';
+import { prand } from './pixel.js?v=951249558dd3';
 // 第8章 第2幕: よみの海底神殿の タイル（render/tiles-c8b.js。ここで まぜる）
-import { C8B_PAINTERS, C8B_FRAMES, C8B_SPEED, C8B_FLOOR_H, c8bBlockSpec, C8B_PROPS, C8B_PROPS_KEEP, C8B_THEMES } from './tiles-c8b.js?v=e3f2209f7dc0';
+import { C8B_PAINTERS, C8B_FRAMES, C8B_SPEED, C8B_FLOOR_H, c8bBlockSpec, C8B_PROPS, C8B_PROPS_KEEP, C8B_THEMES } from './tiles-c8b.js?v=951249558dd3';
 
 const ST = { d: '#2a2848', b: '#4a4a78', l: '#7a7aa8', hl: '#a8a8d0', ln: '#1e1c38' }; // 月の 王宮の 石
 const SV = { d: '#6a7088', b: '#c8d0e4', l: '#eef2ff', w: '#ffffff' }; // 銀
