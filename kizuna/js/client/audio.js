@@ -1,22 +1,22 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=d89f0f9d101a';
-import { SFX_R27 } from './sfx-r27.js?v=d89f0f9d101a';
-import { SFX_R29 } from './sfx-r29.js?v=d89f0f9d101a';
-import { SFX_R33 } from './sfx-r33.js?v=d89f0f9d101a';
-import { SFX_PK } from './sfx-pokemon.js?v=d89f0f9d101a';
-import { SFX_DQ } from './sfx-dqm.js?v=d89f0f9d101a';
+import { SFX_R26 } from './sfx-r26.js?v=94ec7101b93e';
+import { SFX_R27 } from './sfx-r27.js?v=94ec7101b93e';
+import { SFX_R29 } from './sfx-r29.js?v=94ec7101b93e';
+import { SFX_R33 } from './sfx-r33.js?v=94ec7101b93e';
+import { SFX_PK } from './sfx-pokemon.js?v=94ec7101b93e';
+import { SFX_DQ } from './sfx-dqm.js?v=94ec7101b93e';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=d89f0f9d101a';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=d89f0f9d101a';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=d89f0f9d101a';
-import { EARTH_TRACKS } from './audio-earth.js?v=d89f0f9d101a';
-import { CASTLE_TRACKS } from './audio-castle.js?v=d89f0f9d101a';
-import { TOP_TRACKS } from './audio-top.js?v=d89f0f9d101a';
-import { CH6_TRACKS } from './audio-ch6.js?v=d89f0f9d101a';
+import { SFX_AX } from './sfx-ax.js?v=94ec7101b93e';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=94ec7101b93e';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=94ec7101b93e';
+import { EARTH_TRACKS } from './audio-earth.js?v=94ec7101b93e';
+import { CASTLE_TRACKS } from './audio-castle.js?v=94ec7101b93e';
+import { TOP_TRACKS } from './audio-top.js?v=94ec7101b93e';
+import { CH6_TRACKS } from './audio-ch6.js?v=94ec7101b93e';
 // 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
-import { C8B_TRACKS } from './audio-c8b.js?v=d89f0f9d101a';
+import { C8B_TRACKS } from './audio-c8b.js?v=94ec7101b93e';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパードの 曲（audio-c8c.js）
-import { C8C_TRACKS } from './audio-c8c.js?v=d89f0f9d101a';
+import { C8C_TRACKS } from './audio-c8c.js?v=94ec7101b93e';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 

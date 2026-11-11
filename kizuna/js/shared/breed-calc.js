@@ -1,9 +1,9 @@
 // 配合の 計算（第35回）: 能力の 受けつぎ・生まれる 前の めやす・血統
 // サーバー（world/breed.js）と 酒場の 画面（client/ui/services.js）で 同じ 計算を する
 //   親 x は { species, level, plus, bonus, seeds, lineage, name }（サーバーは キャラ、画面は 酒場の 一覧〈world/party.js の companionInfo〉）
-import { computeStats, STAT_KEYS, MAX_LEVEL } from './stats.js?v=d89f0f9d101a';
-import { MONSTERS } from './data/monsters.js?v=d89f0f9d101a';
-import { monsterLevelCap, rankIdx } from './data/companions.js?v=d89f0f9d101a';
+import { computeStats, STAT_KEYS, MAX_LEVEL } from './stats.js?v=94ec7101b93e';
+import { MONSTERS } from './data/monsters.js?v=94ec7101b93e';
+import { monsterLevelCap, rankIdx } from './data/companions.js?v=94ec7101b93e';
 
 // 能力の 受けつぎ: 両親の 今の 能力（装備を はずした もの）の 3/10ずつ（第43回 A で 1/4 → 3/10。くり返しても 2.5倍で 止まる）
 export const INHERIT_RATE = 0.3;

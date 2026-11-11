@@ -3,9 +3,9 @@
 // 新しい 絵は 5しゅ（ノコノコ・パックンフラワー・トランプの兵・行進のほうき・ゲッソー）＋ ウツボ（兄。弟は tint）・オクタリア・声の貝
 // のこりの 5しゅ（使いのカラス・うずしおウツボ・テレサ・水のようま・のろいだま）は 今の 絵の 色がえ（monsters-c7.js の art・tint）
 // ボスは 台本の showMon でも 大きく 見える 大きさ（ウツボ 100×92・オクタリア 112×124）
-import { fit } from './ch3-draw.js?v=d89f0f9d101a';
+import { fit } from './ch3-draw.js?v=94ec7101b93e';
 // 第2部 第7章 第2幕: 手下の 魔物・ジョリーホック号・ホック船長（c7s-art.js）
-import { addC7sArt } from './c7s-art.js?v=d89f0f9d101a';
+import { addC7sArt } from './c7s-art.js?v=94ec7101b93e';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）

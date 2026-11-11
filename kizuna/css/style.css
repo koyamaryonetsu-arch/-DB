@@ -1930,3 +1930,163 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .breed-pick .menu .hdr.pk-hdr { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .breed-pick .menu .item { padding-left: 1.1em; gap: 0.3em; }
 .breed-pick .menu .item .l { min-width: 0; white-space: nowrap; overflow: hidden; }
+
+/* ───── 第76回: 画面を 大きく 使う まど（家族の ねがい: 画面を 小さく 使う 必要は ない。見やすく わかりやすく）───── */
+/* 大きな まどの あいだは 下の メッセージを かくす（問いは まどの 中に ある） */
+body.big-choice #ui .dialog { visibility: hidden; }
+
+/* 装備を えらぶ まど（menu.js の pickGear）: よこ画面は 左に 一らん・右に くらべる まど。たて画面は 上に 一らん・下に くらべる まど */
+.center-panel.big-pick { width: calc(100% - 16px); max-width: 1200px; height: calc(100% - 16px - var(--safe-t) - var(--safe-b)); max-height: none; }
+.eq-pick.big-pick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-areas: "t t" "n c" "h c" "m c";
+  column-gap: 1.1em;
+  font-size: calc(var(--fs) * 1.06);
+}
+.eq-pick.big-pick > .pick-title { grid-area: t; font-size: var(--fs); margin-bottom: 0.2em; }
+.eq-pick.big-pick > .pick-note { grid-area: n; margin: 0.1em 0 0.3em; }
+.eq-pick.big-pick > .gear-sort { grid-area: h; }
+.eq-pick.big-pick > .menu { grid-area: m; min-height: 0; }
+.eq-pick.big-pick > .eq-compare { grid-area: c; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.eq-pick.big-pick .menu .item.eq-opt { padding-top: 0.45em; padding-bottom: 0.5em; }
+.eq-pick.big-pick .menu .item.eq-opt .eq-sc { font-size: 0.86em; }
+@media (orientation: portrait) {
+  .eq-pick.big-pick {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "t" "n" "h" "m" "c";
+  }
+  .eq-pick.big-pick > .eq-compare { max-height: 60vh; margin-top: 0.45em; font-size: 0.94em; }
+  .eq-pick.big-pick .menu .item.eq-opt .eq-sc .sc { min-width: 9.5em; }
+}
+/* 一らんの「もと+68」（きたえる 前の 強さ）と「もとが強い」の しるし */
+.eq-sc .eq-base { margin-left: 0.45em; color: #b9b8d8; font-size: 0.9em; }
+.menu .item .tag.eq-baseup { font-size: 0.68em; border: 1px solid rgba(143, 208, 255, 0.75); border-radius: 4px; padding: 0 0.35em; color: #8fd0ff; }
+/* くらべる まど（client/ui/equip-compare.js） */
+.eq-pick .eq-compare { margin: 0; padding: 0.6em 0.8em; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 8px; background: rgba(255, 255, 255, 0.04); line-height: 1.45; color: #fff; }
+.eqc-head { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 0.45em; align-items: stretch; }
+.eqc-card { padding: 0.4em 0.55em; border-radius: 6px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.2); min-width: 0; }
+.eqc-card.new { border-color: rgba(255, 214, 107, 0.65); }
+.eqc-cap { font-size: var(--fs-small); color: var(--muted); }
+.eqc-name { font-size: 1.08em; font-weight: bold; word-break: break-all; }
+.eqc-sub { font-size: var(--fs-small); color: #c9c8e8; }
+.eqc-to { align-self: center; font-size: 1.4em; color: var(--accent); }
+.eqc-tbl { width: 100%; margin-top: 0.6em; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 1.05em; }
+.eqc-tbl th, .eqc-tbl td { padding: 0.28em 0.35em; text-align: right; white-space: nowrap; border-bottom: 1px dashed rgba(255, 255, 255, 0.16); }
+.eqc-tbl tbody th { text-align: left; color: #fff; font-weight: normal; }
+.eqc-tbl thead th { font-size: var(--fs-small); color: var(--muted); font-weight: normal; border-bottom: 0; text-align: right; padding-top: 0; padding-bottom: 0; }
+.eqc-tbl thead tr:first-child th { text-align: center; color: #fff; }
+.eqc-tbl .eqc-b { color: #b9b8d8; }
+.eqc-tbl .eqc-new { background: rgba(255, 214, 107, 0.07); }
+.eqc-tbl thead tr:first-child th.eqc-new { color: var(--accent); }
+.eqc-d { margin-left: 0.25em; font-size: 0.85em; }
+.eqc-d.up { color: #7ee08a; }
+.eqc-d.down { color: #ff8a7a; }
+.eqc-d.same { color: var(--muted); }
+.eqc-same { margin-top: 0.6em; padding: 0.4em 0.6em; border-left: 3px solid var(--accent); background: rgba(255, 214, 107, 0.08); border-radius: 0 6px 6px 0; }
+.eqc-same.muted { border-left-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.04); font-size: var(--fs-small); }
+.eqc-same-h { font-size: var(--fs-small); color: var(--accent); }
+.eqc-same-v { display: flex; flex-wrap: wrap; gap: 0 1.1em; font-size: 1.05em; font-variant-numeric: tabular-nums; }
+.eqc-none { margin-top: 0.6em; }
+.eqc-legend { margin-top: 0.6em; font-size: calc(var(--fs-small) * 0.95); color: var(--muted); }
+@media (orientation: portrait) {
+  .eqc-tbl { font-size: 0.98em; }
+  .eqc-tbl th, .eqc-tbl td { padding: 0.22em 0.2em; }
+}
+
+/* お仕事いらい板の 一らん（せつめいの ある えらぶ まど。script.js の choice）: 大きく まん中に。よこ画面は 右・たて画面は 下に せつめい */
+.choice.has-info {
+  left: 50%; top: 50%; right: auto; bottom: auto;
+  transform: translate(-50%, -50%);
+  width: min(calc(100% - 16px), 1100px);
+  max-height: calc(100% - 16px - var(--safe-t) - var(--safe-b));
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "q q" "m i";
+  column-gap: 1em;
+  font-size: calc(var(--fs) * 1.12);
+  padding: 0.7em 1em;
+}
+.choice.has-info .q { grid-area: q; font-size: var(--fs); color: var(--accent); margin-bottom: 0.4em; }
+.choice.has-info .menu { grid-area: m; max-height: none; min-height: 0; overflow-y: auto; }
+.choice.has-info .menu .item { min-height: 2.25em; align-items: center; border-bottom: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 0; }
+.choice.has-info .choice-info {
+  grid-area: i; align-self: start; margin: 0; min-height: 0; max-height: none; overflow: visible;
+  font-size: var(--fs); line-height: 1.8; padding: 0.6em 0.8em;
+  border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 8px; background: rgba(255, 255, 255, 0.05);
+}
+@media (orientation: portrait) {
+  .choice.has-info { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "q" "m" "i"; }
+  .choice.has-info .choice-info { margin-top: 0.5em; }
+}
+
+/* お仕事いらい板の はり紙（client/ui/paper-pop.js）: 1まいで ぜんぶ。下に 大きな ボタン */
+.paper-pop {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(calc(100% - 16px), 1100px);
+  max-height: calc(100% - 16px - var(--safe-t) - var(--safe-b));
+  display: flex; flex-direction: column;
+  font-size: calc(var(--fs) * 1.08);
+  background: var(--win-solid);
+  padding: 0.7em 1em 0.8em;
+}
+.pp-paperwrap { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.pp-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3em 0.7em; font-size: var(--fs-small); }
+.pp-kind { color: var(--accent); border: 1px solid currentColor; border-radius: 4px; padding: 0 0.45em; }
+.pp-town { color: var(--muted); }
+.pp-state { margin-left: auto; padding: 0 0.6em; border-radius: 4px; font-weight: bold; }
+.pp-state.taken { background: rgba(143, 208, 255, 0.2); color: #8fd0ff; }
+.pp-state.done { background: rgba(125, 255, 176, 0.18); color: var(--good); }
+.paper-pop .pp-title { margin: 0.15em 0 0.45em; font-size: 1.45em; font-weight: bold; color: #fff; letter-spacing: 0.04em; line-height: 1.35; }
+.pp-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "ask ask" "where job" "reward job"; gap: 0.6em 0.9em; align-items: start; }
+.pp-sec { padding: 0.5em 0.75em; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.18); min-width: 0; }
+.pp-sec.pp-ask { grid-area: ask; background: #f4e7c6; border-color: #c9a86a; color: #3a2a12; }
+.pp-sec.pp-where { grid-area: where; }
+.pp-sec.pp-job { grid-area: job; align-self: stretch; }
+.pp-sec.pp-reward { grid-area: reward; }
+.paper-pop .pp-h { margin: 0 0 0.25em; font-size: var(--fs-small); color: var(--accent); font-weight: normal; letter-spacing: 0.1em; }
+.paper-pop .pp-ask .pp-h { color: #8a5a1a; }
+.pp-paper { white-space: pre-line; font-size: 1.08em; line-height: 1.6; }
+.pp-who { font-size: 1.1em; font-weight: bold; }
+.pp-place { color: #dcdcf0; line-height: 1.55; }
+.pp-jobline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2em 0.8em; font-size: 1.05em; }
+.pp-has { padding: 0 0.5em; border-radius: 4px; font-weight: bold; }
+.pp-has.yes { color: var(--good); background: rgba(125, 255, 176, 0.12); }
+.pp-has.no { color: #ff8a7a; background: rgba(255, 100, 100, 0.12); }
+.pp-chips { display: flex; flex-wrap: wrap; gap: 0.3em; margin: 0.4em 0; }
+.pp-chip { font-size: var(--fs-small); padding: 0.05em 0.55em; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.06); }
+.pp-note { font-size: var(--fs-small); color: var(--muted); }
+.pp-rws { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35em; }
+.pp-rw { display: grid; grid-template-columns: 1.7em minmax(0, 1fr) auto; align-items: center; gap: 0.5em; font-size: 1.05em; }
+.pp-ic { width: 1.6em; height: 1.6em; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; background: #2b2d5a; color: #fff; }
+.pp-ic.acc { background: #6b3fa0; }
+.pp-ic.vehicle { background: #2f6f9f; }
+.pp-ic.goods { background: #3f7a4a; }
+.pp-ic.gold { background: #d9b23a; color: #2a1d00; }
+.pp-ic.medal { background: #4b50a8; color: #ffd66b; }
+.pp-rk { font-size: var(--fs-small); color: var(--muted); white-space: nowrap; }
+.pp-n { margin-left: 0.25em; color: var(--accent); }
+.pp-q { flex: none; margin: 0.6em 0 0.35em; text-align: center; font-size: 1.15em; color: var(--accent); font-weight: bold; }
+.pp-q.muted { color: var(--muted); font-weight: normal; }
+/* 問いと ボタン（よこ画面は 1行に ならべて、はり紙を 広く） */
+.pp-foot { flex: none; display: flex; align-items: center; gap: 0.4em 1.2em; margin-top: 0.6em; padding-top: 0.5em; border-top: 1px dashed rgba(255, 255, 255, 0.22); }
+.pp-foot .pp-q { margin: 0; text-align: left; flex: 0 1 auto; }
+.pp-foot .menu.pp-btns { flex: 1 1 auto; margin: 0 0 0 auto; }
+@media (orientation: portrait) {
+  .pp-foot { flex-direction: column; align-items: stretch; }
+  .pp-foot .pp-q { text-align: center; }
+  .pp-foot .menu.pp-btns { margin: 0 auto; }
+}
+.paper-pop .menu.pp-btns { flex: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6em; max-width: 34em; width: 100%; margin: 0 auto; }
+.paper-pop .menu.pp-btns:not(.cols2) { grid-template-columns: minmax(0, 1fr); max-width: 20em; }
+.paper-pop .menu .item.pp-btn { min-height: 2.8em; justify-content: center; align-items: center; font-size: 1.15em; border: 2px solid rgba(255, 255, 255, 0.35); border-radius: 8px; padding-left: 1.3em; }
+.paper-pop .menu .item.pp-btn.sel { border-color: var(--accent); background: rgba(255, 214, 107, 0.18); }
+.pp-need { display: none; flex-wrap: wrap; align-items: baseline; gap: 0.2em 0.6em; margin: -0.2em 0 0.5em; }
+@media (orientation: portrait) {
+  .pp-need { display: flex; }
+  .pp-body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "ask" "where" "reward" "job"; }
+  .pp-chip { font-size: calc(var(--fs-small) * 0.92); }
+}

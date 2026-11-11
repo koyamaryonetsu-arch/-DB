@@ -4,7 +4,7 @@
 //     （まいごの ちび竜は 今までの ちびドラゴンの 絵）
 // ・WORK6_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まざる）
 // かきかたは work-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=d89f0f9d101a';
+import { spark } from './ch3-draw.js?v=94ec7101b93e';
 
 // ───────────── 人の みため ─────────────
 export const WORK6_NPC_LOOKS = {

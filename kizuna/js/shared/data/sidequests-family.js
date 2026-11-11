@@ -16,28 +16,28 @@
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
 //  6〜11. 第41回（data/sidequests-work.js）
-import { medalSteps } from './story-lab.js?v=d89f0f9d101a';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=d89f0f9d101a';
-import { FAMILY_ITEMS } from './items-family.js?v=d89f0f9d101a';
+import { medalSteps } from './story-lab.js?v=94ec7101b93e';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=94ec7101b93e';
+import { FAMILY_ITEMS } from './items-family.js?v=94ec7101b93e';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=d89f0f9d101a';
+} from '../maps/family-quests.js?v=94ec7101b93e';
 // 職業の 系統・ヒント・乗り物の どうぐ（data/fq-common.js。第41回で 分けた）
-import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=d89f0f9d101a';
+import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=94ec7101b93e';
 // 第41回: ふえた 6つの たのまれごと（data/sidequests-work.js）
-import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=d89f0f9d101a';
+import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=94ec7101b93e';
 // 第65回 D2: たのまれごと 12〜17（data/sidequests-work2.js）
-import { WORK2_QUESTS, WORK2_SCRIPTS, WORK2_STORY_SCRIPTS, workSubQuests2 } from './sidequests-work2.js?v=d89f0f9d101a';
+import { WORK2_QUESTS, WORK2_SCRIPTS, WORK2_STORY_SCRIPTS, workSubQuests2 } from './sidequests-work2.js?v=94ec7101b93e';
 // 第68回 D班: たのまれごと 18〜23（data/sidequests-work3.js。第7章の カリムの あとから）
-import { WORK3_QUESTS, WORK3_SCRIPTS, WORK3_STORY_SCRIPTS, workSubQuests3 } from './sidequests-work3.js?v=d89f0f9d101a';
+import { WORK3_QUESTS, WORK3_SCRIPTS, WORK3_STORY_SCRIPTS, workSubQuests3 } from './sidequests-work3.js?v=94ec7101b93e';
 // 第73回 D班: たのまれごと 24〜26（data/sidequests-work4.js。第8章 第1幕の 千年前の 王国に 着いた あとから）
-import { WORK4_QUESTS, WORK4_SCRIPTS, WORK4_STORY_SCRIPTS, workSubQuests4 } from './sidequests-work4.js?v=d89f0f9d101a';
+import { WORK4_QUESTS, WORK4_SCRIPTS, WORK4_STORY_SCRIPTS, workSubQuests4 } from './sidequests-work4.js?v=94ec7101b93e';
 // 第74回 D班: たのまれごと 27〜29（data/sidequests-work5.js。第8章 第2幕の 千年前の 海に 着いた あとから）
-import { WORK5_QUESTS, WORK5_SCRIPTS, WORK5_STORY_SCRIPTS, workSubQuests5 } from './sidequests-work5.js?v=d89f0f9d101a';
+import { WORK5_QUESTS, WORK5_SCRIPTS, WORK5_STORY_SCRIPTS, workSubQuests5 } from './sidequests-work5.js?v=94ec7101b93e';
 // 第75回 D班: たのまれごと 30〜32（data/sidequests-work6.js。第8章 第3幕の 千年前の ミドリナに 着いた あとから）
-import { WORK6_QUESTS, WORK6_SCRIPTS, WORK6_STORY_SCRIPTS, workSubQuests6 } from './sidequests-work6.js?v=d89f0f9d101a';
+import { WORK6_QUESTS, WORK6_SCRIPTS, WORK6_STORY_SCRIPTS, workSubQuests6 } from './sidequests-work6.js?v=94ec7101b93e';
 // はり紙の ごほうびの 素材・道具の 名前（使う 時に 見る。読みこみの じゅんばんに よらない）
-import { ITEMS } from './items.js?v=d89f0f9d101a';
+import { ITEMS } from './items.js?v=94ec7101b93e';
 
 export { jobLine, jobLineNames, lineMember, partyHasLine };
 
@@ -804,6 +804,7 @@ function jobPages(q) {
   out.push('（その職業の人が、パーティーにひとりいればだいじょうぶ）');
   return N(...out);
 }
+// 第76回: はり紙を 文だけで 読む 形（今は 大きな まど〈boardPaper〉で 見せる。テストで 中みを たしかめる のに のこす）
 export function boardPage(x, q) {
   const r = q.reward;
   const state = x.flag(q.done) ? 'このたのまれごとは、もうすんでいる。' : boardTaken((k) => x.flag(k), q) ? '今、このたのまれごとを受けている。' : null;
@@ -827,7 +828,8 @@ function boardMenu(x, page = 0) {
   const list = boardList(x).slice(page * BOARD_PAGE, (page + 1) * BOARD_PAGE);
   const go = (p) => [['call', (run) => run.runSteps(boardMenu(x, p))]];
   const opts = list.map((q) => q.name + boardMark(x, q));
-  const acts = list.map((q) => [...boardPage(x, q), ...boardTake(x, q, go(page))]);
+  // 第76回: はり紙は 大きな まど 1まいで ぜんぶ 見せる（何ページも の メッセージを やめた。boardTake）
+  const acts = list.map((q) => boardTake(x, q, go(page)));
   // 第65回 D2: カーソルを 合わせた はり紙の 職業・ごほうび（client/ui/script.js の choice の せつめい）
   const info = list.map((q) => boardInfo(x, q));
   if (page + 1 < pages) { opts.push('つぎのページへ'); acts.push(go(page + 1)); info.push(''); }
@@ -839,19 +841,40 @@ function boardMenu(x, page = 0) {
 }
 // 第65回 D2: はり紙を 読んだ あと「受ける？」（受けると 地図の しるし・クエストの 画面に 出る）・受けている ものは「やめる？」
 // やめると 受けた しるしと 始めた しるし（start）を けす。とちゅうまでの ことは おぼえていて、また 受けると 続きから
+// 第76回: はり紙の 大きな まど（家族の ねがい: もっと 大きく、見やすく）。choice の 5つ目に はり紙の 中みを つける
+//   （client/ui/script.js の paperPop。見ている だけの 人や 古い 画面には、はり紙の 文と 問いを ふつうの 文で）
+function paperChoice(x, q, ask, opts, acts) {
+  const p = boardPaper(x, q);
+  return ['choice', `「${q.name}」\n${q.paper}\n${ask}`, opts, acts, null, { ...p, ask }];
+}
 function boardTake(x, q, back) {
-  if (x.flag(q.done)) return back;
+  if (x.flag(q.done)) return [paperChoice(x, q, 'このたのまれごとは、もうすんでいる。', ['もどる'], [back])];
   const take = takeFlag(q);
   if (boardTaken((k) => x.flag(k), q)) {
-    return [['choice', 'このいらいを、やめる？', ['やめる', 'つづける'], [
+    return [paperChoice(x, q, 'このいらいを、やめる？', ['いらいをやめる', 'つづける'], [
       [['unflag', take], ['unflag', q.start], ['sync'], ...N(`「${q.name}」をやめた。\n（とちゅうまでのことは覚えている。また受けると、続きから）`), ...back],
       back,
-    ]]];
+    ])];
   }
-  return [['choice', 'このいらいを、うける？', ['はい', 'いいえ'], [
+  return [paperChoice(x, q, 'このいらいを、うける？', ['うける', 'やめる'], [
     [['flag', take], ['sync'], ['sfx', 'key'], ...N(`「${q.name}」を受けた！\n${q.where}にいる、${q.who}に会いに行こう。\n（地図にしるしが出る）`), ...back],
     back,
-  ]]];
+  ])];
+}
+// 第76回: はり紙の 大きな まどの 中み（たのみごと・会う人と 場所・職業の 系統〈○いる／×いない〉・ごほうび）
+export function boardPaper(x, q) {
+  const r = q.reward;
+  const pro = proOf(x, q);
+  const rewards = [];
+  if (r.item) rewards.push({ kind: 'acc', id: r.item, name: FAMILY_ITEMS[r.item]?.name || ITEMS[r.item]?.name || r.item, n: 1 });
+  if (r.vehicle) rewards.push({ kind: 'vehicle', id: r.vehicle, name: FAMILY_VEHICLES[r.vehicle]?.name || r.vehicle, n: 1 });
+  for (const [id, n] of r.goods || []) rewards.push({ kind: 'goods', id, name: ITEMS[id]?.name || id, n });
+  return {
+    name: q.name, paper: q.paper, town: q.town || '', where: q.where, who: q.who,
+    job: q.job, jobs: jobLineNames(q.roots), has: !!pro, pro: pro?.name || null,
+    rewards, gold: r.gold, medals: r.medals,
+    state: x.flag(q.done) ? 'done' : boardTaken((k) => x.flag(k), q) ? 'taken' : null,
+  };
 }
 function questBoard(x) {
   // 第1部クリアの 前: けいじ板は 立っているが、はり紙は まだ ない

@@ -1,25 +1,25 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=d89f0f9d101a';
-import { ITEMS } from '../data/items.js?v=d89f0f9d101a';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=d89f0f9d101a';
-import { startFixedBattle } from './battles.js?v=d89f0f9d101a';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=d89f0f9d101a';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=d89f0f9d101a';
-import { sayFarewell } from './farewell.js?v=d89f0f9d101a';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=94ec7101b93e';
+import { ITEMS } from '../data/items.js?v=94ec7101b93e';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=94ec7101b93e';
+import { startFixedBattle } from './battles.js?v=94ec7101b93e';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=94ec7101b93e';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=94ec7101b93e';
+import { sayFarewell } from './farewell.js?v=94ec7101b93e';
 // 第43回 C: 仲間が いっぱいの 時の えらぶ文・配合して あける・あずかり所へ 送る（world/farewell.js・world/storage.js）
-import { befriendFullSteps, rosterIsFull } from './farewell.js?v=d89f0f9d101a';
-import { depositMonster, storeText } from './storage.js?v=d89f0f9d101a';
-import { tavernInfo, ensureStorage } from './party.js?v=d89f0f9d101a';
-import { MONSTERS } from '../data/monsters.js?v=d89f0f9d101a';
-import { shareBefriend } from './recruit-share.js?v=d89f0f9d101a';
-import { openService } from './services.js?v=d89f0f9d101a';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=d89f0f9d101a';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=d89f0f9d101a';
-import { GUESTS } from '../data/shops.js?v=d89f0f9d101a';
-import { unstickAll } from './hazards.js?v=d89f0f9d101a';
-import { MAPS, isBlocked } from '../maps/index.js?v=d89f0f9d101a';
+import { befriendFullSteps, rosterIsFull } from './farewell.js?v=94ec7101b93e';
+import { depositMonster, storeText } from './storage.js?v=94ec7101b93e';
+import { tavernInfo, ensureStorage } from './party.js?v=94ec7101b93e';
+import { MONSTERS } from '../data/monsters.js?v=94ec7101b93e';
+import { shareBefriend } from './recruit-share.js?v=94ec7101b93e';
+import { openService } from './services.js?v=94ec7101b93e';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=94ec7101b93e';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=94ec7101b93e';
+import { GUESTS } from '../data/shops.js?v=94ec7101b93e';
+import { unstickAll } from './hazards.js?v=94ec7101b93e';
+import { MAPS, isBlocked } from '../maps/index.js?v=94ec7101b93e';
 // 第44回（ポケモン P1）: 魔物の 進化（world/evolve.js）
-import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js?v=d89f0f9d101a';
+import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js?v=94ec7101b93e';
 
 let runSeq = 1;
 
@@ -211,7 +211,9 @@ export class ScriptRun {
         }
         case 'choice': {
           // a[3] … えらぶ 物ごとの せつめい（なくても よい。第65回 お仕事いらい板: カーソルを 合わせた はり紙の 職業・ごほうび）
-          this.batch.push(Array.isArray(a[3]) ? ['choice', a[0], a[1], a[3]] : ['choice', a[0], a[1]]);
+          // a[4] … 第76回: お仕事いらい板の はり紙（大きな まどで 見せる 中み。sidequests-family.js の boardPaper）
+          if (a[4] && typeof a[4] === 'object') this.batch.push(['choice', a[0], a[1], Array.isArray(a[3]) ? a[3] : null, a[4]]);
+          else this.batch.push(Array.isArray(a[3]) ? ['choice', a[0], a[1], a[3]] : ['choice', a[0], a[1]]);
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const idx = Math.max(0, Math.min(a[1].length - 1, Number(r.choice) || 0));
