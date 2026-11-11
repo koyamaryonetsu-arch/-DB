@@ -21,6 +21,8 @@ import { C8, LETTER8 } from '../maps/c8a-flags.js';
 // 第74回 D班: 第8章 第2幕の より道（千年前の クモイの 海）
 import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js';
 import { C8B, LETTER8B } from '../maps/c8b-flags.js';
+// 第75回 D班: 第8章 第3幕の より道（千年前の ミドリナ）
+import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -86,6 +88,9 @@ const build = () => [
   // 第8章 第2幕（第74回 D班。千年前の クモイの 海の より道。sidequests-c8bd.js）
   { id: 'c8bd_turtle', name: '赤ちゃんウミガメの、初めての海', open: [C8BD_OPEN], start: TURTLE8.start, done: TURTLE8.done, place: '千年前のナギの島のはま', who: 'ウミガメ見守りの女の子ミオ', npc: 'c8bd_turtle_host', hint: 'もうすぐ生まれる赤ちゃんが、しんぱいらしい。' },
   { id: 'c8bd_hide', name: 'ナギの村の、かくれんぼ', open: [C8BD_OPEN], start: HIDE8.start, done: HIDE8.done, place: '千年前のナギの村', who: 'おにの子どもトト', npc: 'c8bd_hide_host', hint: 'かくれんぼで、ずっと「おに」のままらしい。' },
+  // 第8章 第3幕（第75回 D班。千年前の ミドリナの より道。sidequests-c8cd.js）
+  { id: 'c8cd_imo', name: 'ホシフルの里の、やきいも', open: [C8CD_OPEN], start: IMO8.start, done: IMO8.done, place: '千年前のホシフルの里', who: 'いも好きの男の子ポン', npc: 'c8cd_imo_host', hint: 'やきいもを焼いて、里のみんなを元気にしたいらしい。' },
+  { id: 'c8cd_bub', name: '泉の里の、しゃぼん玉', open: [C8CD_OPEN], start: BUB8.start, done: BUB8.done, place: '千年前の泉の里', who: 'しゃぼん玉の好きな女の子ポポ', npc: 'c8cd_bub_host', hint: '里の空に、しゃぼん玉をとばしたいらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

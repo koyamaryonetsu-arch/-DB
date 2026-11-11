@@ -61,7 +61,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（第66回の 伝説の 職業に つながる 系統・18〜23 と かさならない）・今の 時代の まだ いらいの ない 場所・c8_kingdom の あとだけ', () => {
   assert.equal(WORK4_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 29); // 第74回: 27〜29 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 32); // 第74回: 27〜29・第75回: 30〜32 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(23, 26), WORK4_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(17, 23), WORK3_QUESTS);
   assert.deepEqual(WORK4_QUESTS.map((x) => x.roots), [['alchemist'], ['esper'], ['guardian', 'high_priest']]);
@@ -246,7 +246,7 @@ test('お仕事いらい板: c8_kingdom の 前は 23まい（4ページ）・�
   assert.equal(boardPages(before), 4);
   assert.equal(boardList(after).length, 26);
   assert.equal(boardPages(after), 5);
-  assert.equal(boardPages(), 5);
+  assert.equal(boardPages(), 6); // 第75回: ぜんぶ（32まい）は 6ページ
   const { bot, c } = await setup(734, { flags: OPEN });
   const qd = W.esp;
   const map = npcAnywhere(qd.npc).map;
