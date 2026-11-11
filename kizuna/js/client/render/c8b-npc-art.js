@@ -4,7 +4,7 @@
 //   おこった ハデロス（かみが まっ赤な 火・赤い ふち）・かもめの好きな女の子・もぐり漁師（大木の島）
 // とくべつな え（paintC8bSpecial）: よみの王ハデロス（8階の 大きな すがた 40×48。かみの 青い 火が コマで ゆらめく。おこると まっ赤 … c8b_hades_red_npc）・
 //   ペイニックと パニクル（4階の 2ひき 40×32。ピンクの ふとっちょと みどりの やせっぽち。コマで ぴょこぴょこ）・青い 火の 玉座（36×28）
-import { Painter } from './pixel.js?v=e837e3131867';
+import { Painter } from './pixel.js?v=c3dbffbf9460';
 
 const person = (o) => o;
 export const C8B_NPC_LOOKS = {

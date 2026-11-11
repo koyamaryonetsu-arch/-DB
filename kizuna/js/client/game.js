@@ -1,29 +1,31 @@
 // ゲーム ぜんたいの しんこう
-import { applyHand } from './ui/hand.js?v=e837e3131867';
-import { bindLayout } from './ui/layout.js?v=e837e3131867';
-import { Input } from './input.js?v=e837e3131867';
-import { GameAudio } from './audio.js?v=e837e3131867';
-import { Field } from './field.js?v=e837e3131867';
-import { Hud, STAMPS } from './ui/hud.js?v=e837e3131867';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=e837e3131867';
-import { ScriptPlayer, wait } from './ui/script.js?v=e837e3131867';
-import { BattleScene } from './battle.js?v=e837e3131867';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=e837e3131867';
-import { showServerDown } from './ui/syncui.js?v=e837e3131867';
-import { toast, confirmBox, el } from './ui/dom.js?v=e837e3131867';
-import { MAPS } from '../shared/maps/index.js?v=e837e3131867';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=e837e3131867';
-import { SkyClient } from './sky.js?v=e837e3131867';
+import { applyHand } from './ui/hand.js?v=c3dbffbf9460';
+import { bindLayout } from './ui/layout.js?v=c3dbffbf9460';
+import { Input } from './input.js?v=c3dbffbf9460';
+import { GameAudio } from './audio.js?v=c3dbffbf9460';
+import { Field } from './field.js?v=c3dbffbf9460';
+import { Hud, STAMPS } from './ui/hud.js?v=c3dbffbf9460';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=c3dbffbf9460';
+import { ScriptPlayer, wait } from './ui/script.js?v=c3dbffbf9460';
+import { BattleScene } from './battle.js?v=c3dbffbf9460';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=c3dbffbf9460';
+import { showServerDown } from './ui/syncui.js?v=c3dbffbf9460';
+import { toast, confirmBox, el } from './ui/dom.js?v=c3dbffbf9460';
+import { MAPS } from '../shared/maps/index.js?v=c3dbffbf9460';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=c3dbffbf9460';
+import { SkyClient } from './sky.js?v=c3dbffbf9460';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=e837e3131867';
+import { QuickButton } from './ui/quick-item.js?v=c3dbffbf9460';
 // 第58回: マルチプレイの 自動追跡（リーダーに ついていく）の ボタン
-import { FollowButton } from './ui/follow-btn.js?v=e837e3131867';
-import { HuntButton } from './ui/sources.js?v=e837e3131867';
-import { reportError } from './errlog.js?v=e837e3131867';
+import { FollowButton } from './ui/follow-btn.js?v=c3dbffbf9460';
+import { HuntButton } from './ui/sources.js?v=c3dbffbf9460';
+import { reportError } from './errlog.js?v=c3dbffbf9460';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=e837e3131867';
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=c3dbffbf9460';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
-import { onMonLive } from './ui/monarena-live.js?v=e837e3131867';
+import { onMonLive } from './ui/monarena-live.js?v=c3dbffbf9460';
+// 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
+import { watchTreasureFull } from './ui/treasure.js?v=c3dbffbf9460';
 
 export class Game {
   constructor(net) {
@@ -206,6 +208,7 @@ export class Game {
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);
+      watchTreasureFull(this, dt, canMove);
       this.sky.update(dt);
       this.quick.update();
       this.followBtn.update();
@@ -784,7 +787,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=e837e3131867').then(({ offlineStorage }) => {
+      import('./offline.js?v=c3dbffbf9460').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

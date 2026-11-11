@@ -1,18 +1,18 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast, ListMenu } from './dom.js?v=e837e3131867';
-import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js?v=e837e3131867';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=e837e3131867';
-import { MAPS } from '../../shared/maps/index.js?v=e837e3131867';
-import { jobLabel } from '../../shared/job-label.js?v=e837e3131867';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e837e3131867';
+import { el, esc, toast, ListMenu } from './dom.js?v=c3dbffbf9460';
+import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js?v=c3dbffbf9460';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=c3dbffbf9460';
+import { MAPS } from '../../shared/maps/index.js?v=c3dbffbf9460';
+import { jobLabel } from '../../shared/job-label.js?v=c3dbffbf9460';
+import { MONSTERS } from '../../shared/data/monsters.js?v=c3dbffbf9460';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../../shared/data/variants.js?v=e837e3131867';
-import { computeStats } from '../../shared/stats.js?v=e837e3131867';
-import { faceURL } from '../field.js?v=e837e3131867';
-import { wagonSprite } from '../render/wagon.js?v=e837e3131867';
-import { request } from './shop.js?v=e837e3131867';
-import { shownEquip } from '../../shared/look-equip.js?v=e837e3131867';
+import { colorMon } from '../../shared/data/variants.js?v=c3dbffbf9460';
+import { computeStats } from '../../shared/stats.js?v=c3dbffbf9460';
+import { faceURL } from '../field.js?v=c3dbffbf9460';
+import { wagonSprite } from '../render/wagon.js?v=c3dbffbf9460';
+import { request } from './shop.js?v=c3dbffbf9460';
+import { shownEquip } from '../../shared/look-equip.js?v=c3dbffbf9460';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）

@@ -5,9 +5,9 @@
 // ・竜守りの村（まん中）… 北に 竜の試練の神殿と 竜の門（星竜山）。西に 白銀の湖と 氷の洞窟
 // ・東の 道（なだれで ふさがっている）… 鉱山の町カナトコ・北に 鉱山
 // ・カナトコの 南の トンネル（くずれている）… 温泉の里ユノハ・東に 炎の山
-import { T, parseRows } from '../tiles.js?v=e837e3131867';
-import { fbm, hash2 } from '../rng.js?v=e837e3131867';
-import { VILLAGE3_ROWS, KANATOKO_ROWS, YUNOHA_ROWS, TEMPLE_ROWS } from './north-rows.js?v=e837e3131867';
+import { T, parseRows } from '../tiles.js?v=c3dbffbf9460';
+import { fbm, hash2 } from '../rng.js?v=c3dbffbf9460';
+import { VILLAGE3_ROWS, KANATOKO_ROWS, YUNOHA_ROWS, TEMPLE_ROWS } from './north-rows.js?v=c3dbffbf9460';
 
 export const NORTH_W = 132;
 export const NORTH_H = 108;

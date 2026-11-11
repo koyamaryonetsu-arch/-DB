@@ -3,8 +3,8 @@
 //   ・ほる 場所の まわりの 地形（森の そば・水べ・岩山の ふもと など）
 //   ・今いる 場所から 何の 方角へ 何歩くらい か（同じ マップに いる とき）
 // 画面（client/ui/treasure.js）で 使う。サーバーの きまりには かかわらない
-import { MAPS, tileAt, PLACES, SEA_PLACES } from '../maps/index.js?v=e837e3131867';
-import { T } from '../tiles.js?v=e837e3131867';
+import { MAPS, tileAt, PLACES, SEA_PLACES } from '../maps/index.js?v=c3dbffbf9460';
+import { T } from '../tiles.js?v=c3dbffbf9460';
 
 // 8つの 方角（x は 右が +、y は 下が +）
 const DIRS = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
@@ -164,4 +164,15 @@ export function fromHereLine(tm, mapId, x, y) {
   if (d <= 1.6) return '足もとがあやしい…！\nここを調べてみよう。';
   if (d < 7) return `この近くのようだ…！（${dirName(dx, dy)}へ${stepsText(d)}）\n赤く光っている所をさがそう。`;
   return `今いる場所から${dirName(dx, dy)}へ${stepsText(d)}。\n宝の場所は、赤く光っている。`;
+}
+
+// 第75回: 地図の 場所を みじかく（「ミドリナ地方・ルミナの町の南東」。地図が いっぱいの ときの えらぶ まど）
+export function tmPlaceShort(tm) {
+  const m = MAPS[tm.map];
+  if (!m) return '';
+  const o = nearMarks(tm.map, tm.x, tm.y, 1)[0];
+  if (!o) return m.name;
+  const dx = tm.x + 0.5 - o.x, dy = tm.y + 0.5 - o.y;
+  if (o.area && m.areaName?.(tm.x, tm.y) === o.name) return `${m.name}・${o.name}の中`;
+  return Math.hypot(dx, dy) < 2.5 ? `${m.name}・${o.name}のそば` : `${m.name}・${o.name}の${dirName(dx, dy)}`;
 }

@@ -5,13 +5,13 @@
 // ・家族サーバーを 開いた とき … ときどき サイトへ ちょっと 行って、スマホの データを 持って もどってくる
 //   （家族サーバーで 遊ぶ まえに、ひとりで 進めた ぶんが かならず 家族サーバーに 入る）
 // どちらで 遊んだ ぶんも なくならない ように、合わせかたは shared/world/sync.js・merge.js
-import { padNav } from './padnav.js?v=e837e3131867';
-import { el, toast, confirmBox, askText } from './dom.js?v=e837e3131867';
-import { downReason, DOWN_TEXT } from '../downreason.js?v=e837e3131867';
+import { padNav } from './padnav.js?v=c3dbffbf9460';
+import { el, toast, confirmBox, askText } from './dom.js?v=c3dbffbf9460';
+import { downReason, DOWN_TEXT } from '../downreason.js?v=c3dbffbf9460';
 import {
   DEFAULT_SITE, familyServer, setFamilyServer, normalizeServer, serverAddress, siteServerAddress, isHomeAddress, takeAskServer,
   pendingSync, clearPendingSync, syncLink, mineIds, rememberMine,
-} from '../links.js?v=e837e3131867';
+} from '../links.js?v=c3dbffbf9460';
 
 const LINKED_KEY = 'kizuna_site_linked';
 const TRIP_KEY = 'kizuna_trip_at';

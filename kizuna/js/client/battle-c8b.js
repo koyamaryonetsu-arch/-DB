@@ -8,9 +8,9 @@
 // ・バナー: 相談・大がったいの 前ぶれ・けんか・がったい・パニック・カンカン・ひとりばけばけの 前ぶれ／
 //   けいやくの 前ぶれ・けいやく・すいとる・たましいの 前ぶれ・もやした・たましいを とられた・赤く ちらちら・おこった・ふん火の 前ぶれ・ふん火・ひえた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_PAIN, C8_PANIC, C8_HADES } from '../shared/data/monsters-c8b.js?v=e837e3131867';
-import { monsterCanvas } from './render/monsters.js?v=e837e3131867';
-import { el } from './ui/dom.js?v=e837e3131867';
+import { C8_PAIN, C8_PANIC, C8_HADES } from '../shared/data/monsters-c8b.js?v=c3dbffbf9460';
+import { monsterCanvas } from './render/monsters.js?v=c3dbffbf9460';
+import { el } from './ui/dom.js?v=c3dbffbf9460';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8a.js の C8A_OWN_TELE に まぜる）
 export const C8B_OWN_TELE = [C8_PAIN, C8_PANIC, C8_HADES];
