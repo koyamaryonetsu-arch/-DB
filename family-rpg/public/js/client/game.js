@@ -24,6 +24,8 @@ import { reportError } from './errlog.js';
 import { onBoardMsg, boardOnEnter } from './ui/family-board.js';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
 import { onMonLive } from './ui/monarena-live.js';
+// 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
+import { watchTreasureFull } from './ui/treasure.js';
 
 export class Game {
   constructor(net) {
@@ -206,6 +208,7 @@ export class Game {
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);
+      watchTreasureFull(this, dt, canMove);
       this.sky.update(dt);
       this.quick.update();
       this.followBtn.update();

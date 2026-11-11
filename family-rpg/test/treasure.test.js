@@ -400,10 +400,13 @@ test('宝の地図: 戦いの あとで ときどき 拾う（第1章クリア�
 test('宝の地図: いっぱい（20まい）・捨てる・セーブの 手直し・家族サーバーと 合わせる', async () => {
   const { world, bot, c } = await hero(19);
   for (let i = 0; i < TM_MAX; i++) assert.ok(grantTreasureMap(world, c, { lv: 1 }));
-  assert.equal(grantTreasureMap(world, c, { lv: 1 }), null, 'いっぱい');
+  // 第75回: いっぱいの ときは だまって 入れかえない。新しい 地図は あずかり（c.tmPending）へ（test/treasure-full-r75.test.js）
   c.treasureMaps[0].cleared = true;
-  assert.ok(grantTreasureMap(world, c, { lv: 2 }), '主を たおした 地図と 入れかえ');
+  const pend = grantTreasureMap(world, c, { lv: 2 });
+  assert.ok(pend && c.tmPending?.[0] === pend, 'いっぱい → あずかり');
+  assert.ok(c.treasureMaps[0].cleared, '主を たおした 地図も そのまま');
   assert.equal(c.treasureMaps.length, TM_MAX);
+  delete c.tmPending;
   // 捨てる（その 洞窟の 宝箱・フラグも わすれる）
   const tm = c.treasureMaps[1];
   c.chests[`tm_${tm.id}_1_0`] = true;

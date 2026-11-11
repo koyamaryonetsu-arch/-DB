@@ -1,6 +1,7 @@
 // 宝の地図（ドラクエ9の 宝の地図の ように、地図の 場所を ほると 毎回 ちがう 洞窟が あらわれる）
 //
 // キャラの セーブ: c.treasureMaps = [{ id, seed, lv, map, x, y, found, cleared, at }]（なくても よい）
+//   c.tmPending = [おなじ 形]（第75回。地図が いっぱいで、どれを 捨てるか まだ 決めていない 新しい 地図。なくても よい）
 //   seed … 洞窟の 形・宝・主が きまる 数 / lv … 地図の レベル（魔物の 強さ・階の 数・宝）
 //   map, x, y … ほる 場所（ミドリナ地方 か 風の海の 島）/ found … ほって 入り口を 見つけた / cleared … 主を たおした
 //
@@ -15,6 +16,9 @@ import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } f
 import { curveK } from './tm-curve.js';
 
 export const TM_MAX = 20; // 持てる 地図の 数
+// 第75回: 地図が いっぱいの ときに 手に入れた 地図は「あずかり」（c.tmPending）に 入れて、どれを 捨てるか 家族に 聞く。
+//   あずかれるのは この 数まで（それより 多いと その 地図は あきらめる）
+export const TM_PEND_MAX = 3;
 // 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）
 // 第65回 C: 25 → 35（物語の 敵が Lv68〜76 に なった。Lv35 の 洞窟の 魔物は Lv79〜82）
 // 第68回 C: 35 → 40（第7章クリア〈c7_clear〉の パーティーは Lv80 くらい。Lv40 の 洞窟の 魔物は Lv89〜92・主は Lv93.5）
@@ -358,24 +362,30 @@ export function nextMapLevel(rng, lv) {
 // ───────────── セーブ ─────────────
 // こわれた・知らない 形の 地図は すてる（何回 よんでも おなじ けっか）
 export function repairTreasureMaps(c) {
-  if (!c || c.treasureMaps === undefined) return;
-  if (!Array.isArray(c.treasureMaps)) {
-    delete c.treasureMaps;
-    return;
-  }
+  if (!c || (c.treasureMaps === undefined && c.tmPending === undefined)) return;
   const seen = new Set();
-  const out = [];
-  for (const tm of c.treasureMaps) {
-    if (!tm || typeof tm !== 'object') continue;
-    const seed = Number(tm.seed);
-    if (!Number.isInteger(seed) || seed < 0 || seed > 0x7fffffff || seen.has(seed)) continue;
-    if (!SPOT_CODE[tm.map] || !Number.isInteger(tm.x) || !Number.isInteger(tm.y) || tm.x < 0 || tm.y < 0 || tm.x > 999 || tm.y > 999) continue;
-    seen.add(seed);
-    const rec = { id: seed36(seed), seed, lv: clamp(Math.floor(Number(tm.lv) || 1), 1, TM_LV_MAX), map: tm.map, x: tm.x, y: tm.y, found: !!tm.found, cleared: !!tm.cleared };
-    if (Number.isFinite(tm.at)) rec.at = tm.at;
-    out.push(rec);
-  }
-  c.treasureMaps = out.slice(0, TM_MAX);
+  const fix = (list) => {
+    const out = [];
+    for (const tm of Array.isArray(list) ? list : []) {
+      if (!tm || typeof tm !== 'object') continue;
+      const seed = Number(tm.seed);
+      if (!Number.isInteger(seed) || seed < 0 || seed > 0x7fffffff || seen.has(seed)) continue;
+      if (!SPOT_CODE[tm.map] || !Number.isInteger(tm.x) || !Number.isInteger(tm.y) || tm.x < 0 || tm.y < 0 || tm.x > 999 || tm.y > 999) continue;
+      seen.add(seed);
+      const rec = { id: seed36(seed), seed, lv: clamp(Math.floor(Number(tm.lv) || 1), 1, TM_LV_MAX), map: tm.map, x: tm.x, y: tm.y, found: !!tm.found, cleared: !!tm.cleared };
+      if (Number.isFinite(tm.at)) rec.at = tm.at;
+      out.push(rec);
+    }
+    return out;
+  };
+  if (c.treasureMaps !== undefined && !Array.isArray(c.treasureMaps)) delete c.treasureMaps;
+  const held = c.treasureMaps === undefined ? undefined : fix(c.treasureMaps);
+  // 第75回: あずかりの 地図（持っている 地図と おなじ 地図は のぞく）。持ちきれない 地図も あずかりへ（なくさない）
+  //   （あずかりの 地図は まだ ほっていない 新しい 地図として あつかう）
+  const pend = [...(held || []).slice(TM_MAX), ...fix(c.tmPending)].slice(0, TM_PEND_MAX).map((t) => ({ ...t, found: false, cleared: false }));
+  if (held) c.treasureMaps = held.slice(0, TM_MAX);
+  if (pend.length) c.tmPending = pend;
+  else delete c.tmPending;
 }
 
 // 家族サーバーと スマホで 地図を 合わせる（merge.js）。両方で ふえた 地図は 両方、どちらかで 捨てた 地図は 捨てる

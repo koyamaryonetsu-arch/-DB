@@ -10,13 +10,15 @@ import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { ScriptRun } from './scripts.js';
 import { partyOf } from './party.js';
 import {
-  TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
+  TM_MAX, TM_PEND_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
 } from '../data/treasure.js';
 
 import { ensureTmClears, addTmClear } from '../data/casino-tier.js';
 
 const HUNTER = '宝探しのダイゴ';
+// 第75回: 地図が いっぱいで あずかりに 入れた ときの ことば
+const PEND_SAY = (name) => `でも、${name}の地図はいっぱい！\nこのあと、どの地図を捨てるか選んでね。`;
 
 // ───────────── ほる 場所 ─────────────
 // 行ける 地面（草・花・砂・丘・森の ゆか）。町・村・たいせつな 場所の そばは えらばない
@@ -80,7 +82,7 @@ function spotOk(tm) {
 
 // ───────────── 地図を もらう・捨てる ─────────────
 function newSeed(world, c) {
-  const have = new Set((c.treasureMaps || []).map((t) => t.seed));
+  const have = new Set([...(c.treasureMaps || []), ...(c.tmPending || [])].map((t) => t.seed));
   for (let i = 0; i < 50; i++) {
     const s = Math.floor(world.rng.next() * 0x7fffffff);
     if (!have.has(s)) return s;
@@ -88,26 +90,78 @@ function newSeed(world, c) {
   return Math.floor(world.rng.next() * 0x7fffffff);
 }
 
-// 地図を 1まい わたす（いっぱいなら 主を たおした 古い 地図と 入れかえる。それも ないと null）
-// keep … 入れかえない 地図の seed（今 いる 洞窟。主を たおした すぐあとに その 地図を 消すと、
-//         主の フラグも 消えて、主が また あらわれて しまう＝2026年10月 第33回で 直した）
-export function grantTreasureMap(world, c, { lv = 1, map = null, keep = null } = {}) {
+// 地図を 1まい わたす。返すのは 新しい 地図（あずかりに 入れた ときも）。あずかりも いっぱいで 持てない ときは null
+// 第75回（家族の 声:「宝の地図が一杯の時は、今持っている地図を捨てるか選ばせて」）:
+//   いっぱいの ときは 前の ように 主を たおした 古い 地図と だまって 入れかえない。
+//   新しい 地図は「あずかり」（c.tmPending。セーブに のこる）に 入れて、画面で どれを 捨てるか 聞く（keepPendingMap・givePendingMap）
+//   どの 手に入れかた（洞窟の 主・戦いで 拾う・ダイゴ）でも おなじ。戦いの あとや 会話の とちゅうでも、あとで 落ちついてから 聞ける
+export function grantTreasureMap(world, c, { lv = 1, map = null } = {}) {
   c.treasureMaps = Array.isArray(c.treasureMaps) ? c.treasureMaps : [];
-  if (c.treasureMaps.length >= TM_MAX) {
-    const here = parseFloorId(c.pos?.map)?.seed;
-    const old = c.treasureMaps.filter((t) => t.cleared && t.seed !== keep && t.seed !== here).sort((a, b) => (a.at || 0) - (b.at || 0))[0];
-    if (!old) return null;
-    removeTreasureMap(c, old.id);
-  }
+  const pend = Array.isArray(c.tmPending) ? c.tmPending : [];
+  const full = c.treasureMaps.length >= TM_MAX;
+  if (full && pend.length >= TM_PEND_MAX) return null;
   const seed = newSeed(world, c);
   const canSail = !!c.flags?.c2_ship;
   const mapId = map || (canSail && makeRng(seed).chance(0.35) ? 'sea' : 'overworld');
-  const spot = pickDigSpot(seed, mapId, c.treasureMaps);
+  const spot = pickDigSpot(seed, mapId, [...c.treasureMaps, ...pend]);
   if (!spot) return null;
   const rec = { id: seed36(seed), seed, lv: Math.max(1, Math.floor(lv)), map: spot.map, x: spot.x, y: spot.y, found: false, cleared: false, at: world.now() };
-  c.treasureMaps.push(rec);
+  if (full) c.tmPending = [...pend, rec];
+  else c.treasureMaps.push(rec);
   world.markDirty();
   return rec;
+}
+
+// あずかりに 入った 地図か（grantTreasureMap の 返り値を しらべる）
+export const isPendingMap = (c, rec) => !!rec && Array.isArray(c?.tmPending) && c.tmPending.some((t) => t.id === rec.id);
+
+// 地図に 空きが できたら、あずかりの 地図を 入れる（捨てた・ログイン の とき）。入れた 地図の 行
+function fillFromPending(world, c) {
+  const moved = [];
+  while (Array.isArray(c.tmPending) && c.tmPending.length && (c.treasureMaps || []).length < TM_MAX) {
+    const rec = c.tmPending.shift();
+    c.treasureMaps = Array.isArray(c.treasureMaps) ? c.treasureMaps : [];
+    rec.at = world?.now?.() ?? rec.at;
+    c.treasureMaps.push(rec);
+    moved.push(rec);
+  }
+  if (Array.isArray(c.tmPending) && !c.tmPending.length) delete c.tmPending;
+  if (moved.length) world?.markDirty?.();
+  return moved;
+}
+
+// その 地図を 今 捨てられるか（今 いる 洞窟の 地図は だめ。主の フラグが 消えて、主が また あらわれる ため）
+function canDiscard(s, rec) {
+  return !(MAPS[s.map]?.tm && parseFloorId(s.map)?.seed === rec.seed);
+}
+
+// あずかりの 地図を もらう: dropId の 地図を 捨てて、pid の 地図を 入れる
+export function keepPendingMap(world, s, pid, dropId) {
+  const c = s.char;
+  const nw = (c.tmPending || []).find((t) => t.id === pid);
+  if (!nw) return { ok: false, text: '' };
+  const old = (c.treasureMaps || []).find((t) => t.id === dropId);
+  if (!old) return { ok: false, text: '' };
+  if (!canDiscard(s, old)) return { ok: false, text: 'この洞窟の地図は、今は捨てられない' };
+  removeTreasureMap(c, old.id);
+  c.tmPending = c.tmPending.filter((t) => t !== nw);
+  nw.at = world.now();
+  c.treasureMaps.push(nw);
+  if (!c.tmPending.length) delete c.tmPending;
+  pruneTreasureData(c);
+  world.markDirty();
+  return { ok: true, text: `${tmTitle(old)}を捨てて、\n${tmTitle(nw)}を手に入れた！` };
+}
+
+// あずかりの 地図を あきらめる（持っている 地図は そのまま）
+export function givePendingMap(world, s, pid) {
+  const c = s.char;
+  const nw = (c.tmPending || []).find((t) => t.id === pid);
+  if (!nw) return { ok: false, text: '' };
+  c.tmPending = c.tmPending.filter((t) => t !== nw);
+  if (!c.tmPending.length) delete c.tmPending;
+  world.markDirty();
+  return { ok: true, text: `${tmTitle(nw)}は、あきらめた。\n（持っている地図は、そのまま）` };
 }
 
 export function removeTreasureMap(c, id) {
@@ -137,10 +191,11 @@ export function pruneTreasureData(c) {
 // ログインの ときに ととのえる（world.js の normalizeChar）
 export function normalizeTreasure(c) {
   repairTreasureMaps(c);
+  fillFromPending(null, c); // 第75回: 空きが あれば あずかりの 地図を 入れる
   if (!c.treasureMaps) return;
-  for (const tm of c.treasureMaps) {
+  for (const tm of [...c.treasureMaps, ...(c.tmPending || [])]) {
     if (tm.found || spotOk(tm)) continue;
-    const s = pickDigSpot(tm.seed, tm.map, c.treasureMaps.filter((x) => x !== tm));
+    const s = pickDigSpot(tm.seed, tm.map, [...c.treasureMaps, ...(c.tmPending || [])].filter((x) => x !== tm));
     if (s) Object.assign(tm, { x: s.x, y: s.y });
   }
   pruneTreasureData(c);
@@ -310,9 +365,11 @@ async function bossEvent(run) {
   const rng = makeRng((p.seed ^ 0x6a09e667) >>> 0);
   const lv = nextMapLevel(rng, p.lv);
   for (const m of run.everyone) {
-    const got = grantTreasureMap(world, m.char, { lv, keep: p.seed });
+    const got = grantTreasureMap(world, m.char, { lv });
     if (got) steps.push(['sfx', 'item'], ['say', null, `${m.char.name}は宝の地図を見つけた！\n（${tmTitle(got)}）`]);
-    else steps.push(['say', null, `${m.char.name}は宝の地図を見つけた！\nしかし、もう地図がいっぱいで持てない…`]);
+    else steps.push(['say', null, `${m.char.name}は宝の地図を見つけた！\nしかし、地図がいっぱいで、もう持てない…`]);
+    // 第75回: いっぱい → あずかり。この あと 画面で どの 地図を 捨てるか 聞く（client/ui/treasure.js の askTreasureFull）
+    if (got && isPendingMap(m.char, got)) steps.push(['say', null, PEND_SAY(m.char.name)]);
   }
   world.markDirty();
   await run.runSteps(steps);
@@ -330,6 +387,7 @@ async function hunterTalk(run) {
     if (!rec) return null;
     run.batch.push(['sfx', 'key']);
     run.say(`${c.name}は${tmTitle(rec)}を手に入れた！`);
+    if (isPendingMap(c, rec)) say('おや、地図がいっぱいじゃな。\nこのあと、どの地図を捨てるか選びなされ。');
     return rec;
   };
   if (!c.flags.tm_intro) {
@@ -345,6 +403,11 @@ async function hunterTalk(run) {
       '洞窟から出たい時は、入ってきた階段か、帰り道の羽を使うとよい。',
       '魔物をたおすと、宝の地図を落とすこともあるそうじゃ。\nがんばりなされ！');
     world.markDirty();
+    return;
+  }
+  // 第75回: あずかりの 地図が ある（どれを 捨てるか まだ 決めていない）
+  if (c.tmPending?.length) {
+    say('おや、持ちきれない地図があるようじゃな。', 'メニューの「道具」の「宝の地図」で、\nどの地図を捨てるか決めなされ。');
     return;
   }
   const open = list.filter((t) => !t.cleared);
@@ -378,6 +441,15 @@ export function treasureMenu(world, s, msg) {
     world.markDirty();
   };
   if (s.busy) return reply(false, '今はできません');
+  // 第75回: あずかりの 地図（いっぱいの とき）: 1まい 捨てて もらう・あきらめる
+  if (msg.op === 'pendKeep') {
+    const r = keepPendingMap(world, s, String(msg.pid || ''), String(msg.id || ''));
+    return reply(r.ok, r.text);
+  }
+  if (msg.op === 'pendGive') {
+    const r = givePendingMap(world, s, String(msg.pid || ''));
+    return reply(r.ok, r.text);
+  }
   const rec = (c.treasureMaps || []).find((t) => t.id === msg.id);
   if (!rec) return reply(false, '');
   if (msg.op === 'dig') {
@@ -388,9 +460,11 @@ export function treasureMenu(world, s, msg) {
     return reply(false, `${c.name}は地面をほった！\nしかし、何も見つからなかった…`);
   }
   if (msg.op === 'discard') {
-    if (MAPS[s.map]?.tm && parseFloorId(s.map)?.seed === rec.seed) return reply(false, 'この洞窟の地図は、今は捨てられない');
+    if (!canDiscard(s, rec)) return reply(false, 'この洞窟の地図は、今は捨てられない');
     removeTreasureMap(c, rec.id);
-    return reply(true, `${tmTitle(rec)}を捨てた。`);
+    // 第75回: あずかりの 地図が あれば、空いた ところに 入れる
+    const moved = fillFromPending(world, c);
+    return reply(true, `${tmTitle(rec)}を捨てた。${moved.map((t) => `\nあずかっていた${tmTitle(t)}を、かわりに持った！`).join('')}`);
   }
   return reply(false, '');
 }
@@ -409,6 +483,10 @@ export function treasureAfterBattle(world, ctx, sessions, perSession) {
     if (!(p > 0) || !world.rng.chance(p)) continue;
     const rec = grantTreasureMap(world, c, { lv: dropMapLevel(world.rng, maxEnemyLv) });
     if (rec) perSession[m.id].lines.push(`${c.name}は宝の地図を拾った！`, `（${tmTitle(rec)}）`);
+    // 第75回: いっぱい → あずかり（戦いの あと フィールドに もどったら、どの 地図を 捨てるか 聞く）
+    if (rec && isPendingMap(c, rec)) perSession[m.id].lines.push('でも、地図がいっぱい！\nあとで、どの地図を捨てるか選んでね。');
+    // あずかりも いっぱい（めったに ない）
+    if (!rec && (c.treasureMaps || []).length >= TM_MAX) perSession[m.id].lines.push(`${c.name}は宝の地図を見つけた！`, 'しかし、地図がいっぱいで、もう持てない…');
   }
 }
 

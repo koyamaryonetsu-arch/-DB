@@ -165,3 +165,14 @@ export function fromHereLine(tm, mapId, x, y) {
   if (d < 7) return `この近くのようだ…！（${dirName(dx, dy)}へ${stepsText(d)}）\n赤く光っている所をさがそう。`;
   return `今いる場所から${dirName(dx, dy)}へ${stepsText(d)}。\n宝の場所は、赤く光っている。`;
 }
+
+// 第75回: 地図の 場所を みじかく（「ミドリナ地方・ルミナの町の南東」。地図が いっぱいの ときの えらぶ まど）
+export function tmPlaceShort(tm) {
+  const m = MAPS[tm.map];
+  if (!m) return '';
+  const o = nearMarks(tm.map, tm.x, tm.y, 1)[0];
+  if (!o) return m.name;
+  const dx = tm.x + 0.5 - o.x, dy = tm.y + 0.5 - o.y;
+  if (o.area && m.areaName?.(tm.x, tm.y) === o.name) return `${m.name}・${o.name}の中`;
+  return Math.hypot(dx, dy) < 2.5 ? `${m.name}・${o.name}のそば` : `${m.name}・${o.name}の${dirName(dx, dy)}`;
+}
