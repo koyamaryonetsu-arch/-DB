@@ -35,4 +35,9 @@ export const FIXED_FAMILY = {
   fq_shadownight: { group: [['kage_boushi', 2, 2], ['homunculus_shade', 1, 1]], bg: 'sea_cave', bgm: 'battle', canFlee: false, enemyLv: 84, enemyPow: 0.4 },
   // 28. 北の海辺の ハサミ団の かくれ岩: 用心棒の よろいガニと 星座ガニ
   fq_crabguard: { group: [['armor_crab', 2, 2], ['crab_star', 1, 1]], bg: 'beach', bgm: 'battle', canFlee: false, enemyLv: 84, enemyPow: 0.4 },
+  // ───── 第75回 D班（data/sidequests-work6.js）。第8章 第3幕（Lv88 の ころ）なので 敵Lv88（それでも 完全オートで 勝てる 軽さ。もとが 強いので enemyPow で 弱く する）─────
+  // 30. 嵐の島の かみなり雲: 親分を まもろうと とび出した 子分の かみなりぐもと 雷雲ワイバーン
+  fq_thunderkids: { group: [['thunder_puff', 2, 2], ['cloud_wyvern', 1, 1]], bg: 'beach', bgm: 'battle', canFlee: false, enemyLv: 88, enemyPow: 0.4 },
+  // 31. 星竜山のふもと: ちび竜を ねらって 炎の山から 来た マグマトカゲと 火の粉オオカミ
+  fq_lavaraid: { group: [['lava_lizard', 2, 2], ['ember_wolf', 1, 1]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 88, enemyPow: 0.4 },
 };

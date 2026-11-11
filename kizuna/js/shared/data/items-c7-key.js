@@ -5,13 +5,13 @@
 // 第7章 Step 5・6（第3幕）:
 // ・c7i_spirit_letter … 雪の精の手紙（城 4階の 雪の精が 書いてくれる。5階の 千年前の 氷の 箱に 入れると なくなる。時をこえる手紙）
 // ふつうの 道具・装備・宝箱の 中み・手紙の ごほうびは B（data/items-c7.js・items-c7s.js・items-c7i.js）
-import { MIKO_LETTER } from '../maps/c7-flags.js?v=c3dbffbf9460';
-import { KEEPER_LETTER } from '../maps/c7s-flags.js?v=c3dbffbf9460';
-import { SPIRIT_LETTER } from '../maps/c7i-flags.js?v=c3dbffbf9460';
+import { MIKO_LETTER } from '../maps/c7-flags.js?v=9a8a9aaa43ce';
+import { KEEPER_LETTER } from '../maps/c7s-flags.js?v=9a8a9aaa43ce';
+import { SPIRIT_LETTER } from '../maps/c7i-flags.js?v=9a8a9aaa43ce';
 // 第8章 第1幕: 王女ナディアの手紙（地下迷宮 4階の 王女ナディアが 書いてくれる。5階の 千年前の 月の 箱に 入れると なくなる。時をこえる手紙）
-import { NADIA_LETTER } from '../maps/c8a-flags.js?v=c3dbffbf9460';
+import { NADIA_LETTER } from '../maps/c8a-flags.js?v=9a8a9aaa43ce';
 // 第8章 第2幕: みこの祝いの手紙（海底神殿 4階の 海のほこらの みこが 書いてくれる。5階の 千年前の 貝の 箱に 入れると なくなる。時をこえる手紙）
-import { MIKO_LETTER8B } from '../maps/c8b-flags.js?v=c3dbffbf9460';
+import { MIKO_LETTER8B } from '../maps/c8b-flags.js?v=9a8a9aaa43ce';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {

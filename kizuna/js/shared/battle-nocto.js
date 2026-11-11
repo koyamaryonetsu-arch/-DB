@@ -12,13 +12,13 @@
 //   （ソリトゥスの 第2段階「きずなを 食べる」の 前ぶれ。docs/plan-ch5.md の 13）
 // ・オートの 仲間（ふつう）は 何も かわらない。シミュレーター（tools/sim-nocto.mjs）の 知っている 人（b.knowsNocto）は、
 //   前ぶれの あと 合体技の 組の 人・先に 番が 来る 人が 身を 守り、まねられた 人は 攻撃の かわりに 回復・強くする 技・防御
-import { MONSTERS } from './data/monsters.js?v=c3dbffbf9460';
-import { ABILITIES } from './data/abilities.js?v=c3dbffbf9460';
-import { NOCTO } from './data/monsters-hoshiyomi.js?v=c3dbffbf9460';
+import { MONSTERS } from './data/monsters.js?v=9a8a9aaa43ce';
+import { ABILITIES } from './data/abilities.js?v=9a8a9aaa43ce';
+import { NOCTO } from './data/monsters-hoshiyomi.js?v=9a8a9aaa43ce';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=c3dbffbf9460';
-import { mirrorSkillOk, mirrorDecide } from './battle-temple.js?v=c3dbffbf9460';
-import { canUse } from './ai.js?v=c3dbffbf9460';
+import { atbRate } from './battle.js?v=9a8a9aaa43ce';
+import { mirrorSkillOk, mirrorDecide } from './battle-temple.js?v=9a8a9aaa43ce';
+import { canUse } from './ai.js?v=9a8a9aaa43ce';
 
 export { NOCTO };
 export const MIMIC = 'm_ns_mimic';
