@@ -18,7 +18,7 @@ const base = () => ({
 test('第60回 KIZUNA-4: たおした 数・日時が もとどおりに もどる', () => {
   const c = base();
   const s = JSON.parse(JSON.stringify(slimChar4(c)));
-  assert.ok(Array.isArray(s.kills.ix), '図鑑の 順の 数');
+  assert.ok(Array.isArray(s.kills.ixr), '図鑑の 順の 数（第75回: 同じ 数が 続く 所は まとめる）');
   assert.equal(typeof s.companions[0].char.joinedAt, 'string', '日時は 36進の 文字');
   assert.equal(typeof s.storage[0].char.joinedAt, 'string');
   assert.ok(!JSON.stringify(s.kills).includes('"a"'), '図鑑に ある 名前は 書かない');
@@ -38,4 +38,15 @@ test('第60回 KIZUNA-4: 前の 形（kills が ならび）も 読める・図�
   const c = { ...base(), bestiary: undefined };
   const s = slimChar4(c);
   assert.ok(Array.isArray(s.kills), '図鑑が ない 時は 同じ 数ごとの ならび');
+});
+
+test('第75回 KIZUNA-4: 前の 形（ix）の コードも 読める', async () => {
+  const { slimChar4, unslimChar4 } = await import('../public/js/shared/world/transfer.js');
+  const c = { id: 'a', bestiary: { a: { seen: 1 }, b: { seen: 1 }, c: { seen: 1 }, d: { seen: 1 } }, kills: { a: 5, b: 5, c: 5, d: 2 }, companions: [] };
+  const s = JSON.parse(JSON.stringify(slimChar4(c)));
+  assert.deepEqual(s.kills.ixr, [[5, 3], 2]);
+  const old = JSON.parse(JSON.stringify(s));
+  old.kills = { ix: [5, 5, 5, 2], rest: s.kills.rest };
+  assert.deepEqual(unslimChar4(old).kills, c.kills);
+  assert.deepEqual(unslimChar4(s).kills, c.kills);
 });

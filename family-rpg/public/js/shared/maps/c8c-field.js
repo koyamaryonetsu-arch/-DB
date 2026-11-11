@@ -88,7 +88,7 @@ function addPresent(s) {
   // 残がいの 出入り口（c8_sky から しまった 出入り口・c8_fortress の あと 開く）
   s.gates = s.gates.filter((g) => !(g.x === E.x && g.y === E.y));
   s.gates.push({ x: E.x, y: E.y, closed: T.TREE, open: T.C8C_HATCH, levels: [[C8C.fortress, T.C8C_HATCH], [C8C.sky, T.C8C_WRECKDOOR]] });
-  s.warps.push({ x: E.x, y: E.y, to: c8cArrive(1, true) });
+  s.warps.push({ x: E.x, y: E.y, to: c8cArrive(1, true), noMark: true /* 宝の地図の 目じるしに しない */ });
   (s.links = s.links || []).push({ x: E.x, y: E.y, to: c8cMapId(1, true) });
   s.actions.push({ x: E.x, y: E.y, script: 'c8c_door_now', show: { all: [C8C.sky], not: [C8C.fortress] } });
   const O = C8C_FIELD_POS.out;

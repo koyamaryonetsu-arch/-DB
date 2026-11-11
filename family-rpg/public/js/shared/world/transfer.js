@@ -268,12 +268,23 @@ function slimKills4(kills, groups) {
   const ix = order.map((sp) => (Object.hasOwn(kills, sp) ? kills[sp] : null));
   const rest = {};
   for (const [sp, n] of Object.entries(kills)) if (!inB.has(sp)) rest[sp] = n;
-  return { ix, rest: slimKills(rest) };
+  // 第75回: 同じ 数が 3つ いじょう 続く 所は [数, 回数] に まとめる（ixr。魔物が ふえても LINE の 1回に 入る ように）
+  const ixr = [];
+  for (let i = 0; i < ix.length;) {
+    let j = i;
+    while (j < ix.length && ix[j] === ix[i]) j++;
+    if (j - i >= 3) ixr.push([ix[i], j - i]);
+    else for (let t = i; t < j; t++) ixr.push(ix[t]);
+    i = j;
+  }
+  return { ixr, rest: slimKills(rest) };
 }
+const unrun = (ixr) => ixr.flatMap((x) => (Array.isArray(x) && x.length === 2 && Number.isSafeInteger(x[1]) && x[1] > 0 && x[1] <= 100000 ? Array(x[1]).fill(x[0]) : [x]));
 function unslimKills4(k, groups) {
   const out = {};
   const order = bestiaryOrder(groups);
-  k.ix.forEach((n, i) => { if (n !== null && i < order.length && validKey(order[i])) out[order[i]] = n; });
+  const ix = Array.isArray(k.ixr) ? unrun(k.ixr) : k.ix;
+  ix.forEach((n, i) => { if (n !== null && i < order.length && validKey(order[i])) out[order[i]] = n; });
   const rest = Array.isArray(k.rest) ? unslimKills(k.rest) : {};
   for (const [sp, n] of Object.entries(rest || {})) if (validKey(sp)) out[sp] = n;
   return out;
@@ -290,7 +301,7 @@ export function slimChar4(char) {
     ...(Array.isArray(s.storage) ? { storage: slimTimes(s.storage) } : {}) };
 }
 export function unslimChar4(char) {
-  if (isPlain(char.kills) && Array.isArray(char.kills.ix)) char.kills = unslimKills4(char.kills, char.bestiary);
+  if (isPlain(char.kills) && (Array.isArray(char.kills.ix) || Array.isArray(char.kills.ixr))) char.kills = unslimKills4(char.kills, char.bestiary);
   unslimTimes(char.companions);
   unslimTimes(char.storage);
   if (Array.isArray(char.flags)) char.flags = unslimTrue(char.flags);
