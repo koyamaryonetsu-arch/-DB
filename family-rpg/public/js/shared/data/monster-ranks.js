@@ -189,7 +189,7 @@ export const MONSTER_RANKS = {
   thorn_goblin: 'D', // 出2＋仲1
   ice_mirror: 'C', // 出3＋仲1
   blizzard: 'A', // 出3＋仲3
-  // 第8章（F2 E2 D2 C2 B0 A2 S0）
+  // 第8章（F3 E3 D3 C3 B0 A3 S0）
   palace_guard: 'F', // 出0＋仲0
   sanbo: 'E', // 出2＋仲0
   cobrar: 'D', // 出2＋仲1
@@ -200,4 +200,9 @@ export const MONSTER_RANKS = {
   biri_jelly: 'D', // 出2＋仲1
   blue_soul: 'C', // 出3＋仲1
   hydran: 'A', // 出3＋仲3
+  mera_bubble: 'F', // 出0＋仲0
+  tonkachi_bro: 'E', // 出2＋仲0
+  buriki_koopa: 'D', // 出2＋仲1
+  dosshiin: 'C', // 出3＋仲1
+  dodeka_killer: 'A', // 出3＋仲3
 };

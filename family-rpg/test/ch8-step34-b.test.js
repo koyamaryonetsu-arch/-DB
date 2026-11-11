@@ -151,7 +151,8 @@ test('手下の 魔物 5しゅ: どれも 仲間に なる・ねらった 系統
   assert.ok(BANDS.includes('第8章'));
   // 第8章の B〜S は 2わりまで（test/monsters-r43a）。F〜C が そろう
   const ch8 = Object.keys(MONSTER_RANKS).filter((sp) => rankPoints(sp).band === '第8章');
-  assert.equal(ch8.length, 10);
+  // 第8章 第3幕（monsters-c8c.js）で ふえる ので 10しゅ いじょう
+  assert.ok(ch8.length >= 10, `${ch8.length}`);
   assert.ok(ch8.filter((sp) => ['B', 'A', 'S'].includes(MONSTER_RANKS[sp])).length <= Math.max(2, ch8.length * 0.2));
   for (const r of ['F', 'E', 'D', 'C']) assert.ok(ch8.some((sp) => MONSTER_RANKS[sp] === r), r);
 });

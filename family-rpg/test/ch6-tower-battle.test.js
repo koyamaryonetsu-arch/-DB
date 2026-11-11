@@ -33,6 +33,7 @@ import { ITEMS_C7S } from '../public/js/shared/data/items-c7s.js';
 import { ITEMS_C7I } from '../public/js/shared/data/items-c7i.js';
 import { ITEMS_C8A } from '../public/js/shared/data/items-c8a.js';
 import { ITEMS_C8B } from '../public/js/shared/data/items-c8b.js';
+import { ITEMS_C8C } from '../public/js/shared/data/items-c8c.js';
 import { ROAD_K } from '../public/js/shared/data/items-road.js';
 import { BELL, QUIET_AT, tokeiQuiet, bellBefore, buffPlan } from '../public/js/shared/battle-tokei.js';
 import { AUTO_GUARD, ch6Plan } from '../public/js/shared/battle-ch6.js';
@@ -444,7 +445,7 @@ test('ボスの 品: カリヨンは かならず 1人 1つの ★5（レア度3
   }
   const bsum = (it) => Object.values(it.bonus || {}).reduce((s, v) => s + Math.max(0, v), 0);
   assert.ok(bsum(ITEMS.p6r_pendulum_charm) < bsum(a), `${bsum(ITEMS.p6r_pendulum_charm)} < ${bsum(a)}`);
-  const top = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'axe' && !it.base && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_C7I[id] && !ITEMS_C8A[id] && !ITEMS_C8B[id] && !it.tmStep).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'axe' && !it.base && !ITEMS_C7[id] && !ITEMS_C7S[id] && !ITEMS_C7I[id] && !ITEMS_C8A[id] && !ITEMS_C8B[id] && !ITEMS_C8C[id] && !it.tmStep).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top, weapon, 'いちばん 強い オノ');
 });
 

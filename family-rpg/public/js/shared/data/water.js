@@ -27,6 +27,8 @@ export const WATER_OVERRIDE = {
   dry_frog: 1,
   // 第2部 第8章 第2幕: よみの王ハデロスは 炎の 色で 弱点が かわる しかけ（炎と 氷）で 調整ずみなので ふつう
   c8_hades: 1,
+  // 第2部 第8章 第3幕: 初代大魔王クッパードは 橋の オノの しかけで 調整ずみなので ふつう
+  c8_bowser: 1,
 };
 
 // 2. 水の 魔物（海・川・ぬま・雨・魚・カニ・カメ・くらげ・イカ・水の 竜）→ 0.5
@@ -59,12 +61,16 @@ export const WATER_SAND = [
 export const WATER_ROCK = [
   'rockman', 'rock_shard', 'golem', 'goldoon', 'tm_golem', 'ss_goldoon', 'stone_keeper', 'dragon_statue', 'trial_guardian',
   'gargoyle', 'stone_gargoyle', 'ruin_sentinel',
+  // 第2部 第8章 第3幕（monsters-c8c.js）: 石の かたまり
+  'dosshiin',
 ];
 
 // 6. からくり・機械・鉄の 体（さびる。いちばんの 弱点は 今までの 雷）→ 1.25
 export const WATER_MACHINE = [
   'clockwork_knight', 'buriki', 'clockwork_guard', 'sky_guard', 'gear_beetle', 'chrono_knight', 'cog_roller',
   'killer', 'killer_karakuri', 'castle_armor', 'ss_sky_giant',
+  // 第2部 第8章 第3幕（monsters-c8c.js）: ブリキの おもちゃ・大ほうの 黒い たま
+  'buriki_koopa', 'dodeka_killer',
 ];
 
 const ELEMS7 = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];

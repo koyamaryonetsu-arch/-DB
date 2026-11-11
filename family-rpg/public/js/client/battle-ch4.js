@@ -37,14 +37,16 @@ import { C7I_SCREEN_ANIMS, C7I_ALLY_FX } from './battle-c7i.js';
 import { C8A_SCREEN_ANIMS, C8A_ALLY_FX } from './battle-c8a.js';
 // 第2部 第8章 第2幕 の 魔物・ペイニックと パニクル・よみの王ハデロス（battle-c8b.js）
 import { C8B_SCREEN_ANIMS, C8B_ALLY_FX } from './battle-c8b.js';
+// 第2部 第8章 第3幕 の 魔物・マジカメック・初代大魔王クッパード（battle-c8c.js）
+import { C8C_SCREEN_ANIMS, C8C_ALLY_FX } from './battle-c8c.js';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS, ...CH6_SCREEN_ANIMS, ...ROAD_SCREEN_ANIMS, ...TOKEI_SCREEN_ANIMS, ...TOKEI6_SCREEN_ANIMS, ...C7_SCREEN_ANIMS, ...C7S_SCREEN_ANIMS, ...C7I_SCREEN_ANIMS, ...C8A_SCREEN_ANIMS, ...C8B_SCREEN_ANIMS]);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS, ...CH6_SCREEN_ANIMS, ...ROAD_SCREEN_ANIMS, ...TOKEI_SCREEN_ANIMS, ...TOKEI6_SCREEN_ANIMS, ...C7_SCREEN_ANIMS, ...C7S_SCREEN_ANIMS, ...C7I_SCREEN_ANIMS, ...C8A_SCREEN_ANIMS, ...C8B_SCREEN_ANIMS, ...C8C_SCREEN_ANIMS]);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX, ...C8C_ALLY_FX };
 
 // 「道具」の はじめに ならべる もの（a … コマンドを えらんでいる 味方）
 export function ch4ItemEntries(scene, a) {

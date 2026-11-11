@@ -167,3 +167,5 @@ GUESTS.karim = KARIM_GUEST;
 GUESTS.kai = KAI_GUEST;
 // 第2部 第8章 第2幕: もう一度 ゲストの カイ（第7章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備）
 GUESTS.kai8 = { ...KAI_GUEST, id: 'guest_kai8', minLevel: 84, gear: { weapon: 'c7h_shadow_boomerang', armor: 'c8bt_soul_robe', head: 'c8bt_temple_helm', acc: 'c8bt_blue_pendant' } };
+// 第2部 第8章 第3幕: もう一度 ゲストの リオン（第6章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備。家族の 勇者より 少し 弱い 品）
+GUESTS.rion8 = { ...RION_GUEST, id: 'guest_rion8', minLevel: 88, gear: { weapon: 'c8at_palace_sword', armor: 'c8bt_temple_mail', shield: 'c8at_crescent_shield', head: 'c8bt_temple_helm', acc: 'c8at_crescent_ring' } };
