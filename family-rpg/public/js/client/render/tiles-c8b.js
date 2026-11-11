@@ -7,6 +7,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第8章 第3幕: くろがねの空中要塞の タイル（render/tiles-c8c.js。ここで まぜる）
+import { C8C_PAINTERS, C8C_FRAMES, C8C_SPEED, C8C_FLOOR_H, c8cBlockSpec, C8C_PROPS, C8C_PROPS_KEEP, C8C_THEMES } from './tiles-c8c.js';
 
 const ST = { d: '#14243a', b: '#2a4262', l: '#4a6a90', hl: '#7a9ac0', ln: '#0c1828' }; // 海の 底の 神殿の 石
 const BF = { d: '#1a5aa8', b: '#3aa8f0', l: '#8ae0ff', w: '#e8fcff' }; // 青い 火
@@ -174,21 +176,24 @@ export const C8B_PAINTERS = {
   [T.C8B_GEYSER]: (p, v, f) => paintGeyser(p, v, f),
   [T.C8B_WHIRL]: (p, v, f) => paintWhirl(p, v, f),
   [T.C8B_SHELLDOOR]: (p, v) => paintShellDoor(p, v),
+  ...C8C_PAINTERS,
 };
 export const C8B_FRAMES = {
   [T.C8B_BRAZIER_ON]: FIRE_FRAMES, [T.C8B_SPIRITWAY]: WAY_FRAMES, [T.C8B_VOID]: VOID_FRAMES, [T.C8B_SEAWATER]: SEA_FRAMES,
   [T.C8B_FLAMEWALL]: WALL_FRAMES, [T.C8B_GEYSER]: GEYSER_FRAMES, [T.C8B_WHIRL]: WHIRL_FRAMES,
+  ...C8C_FRAMES,
 };
 export const C8B_SPEED = {
   [T.C8B_BRAZIER_ON]: 160, [T.C8B_SPIRITWAY]: 260, [T.C8B_VOID]: 600, [T.C8B_SEAWATER]: 220,
   [T.C8B_FLAMEWALL]: 150, [T.C8B_GEYSER]: 140, [T.C8B_WHIRL]: 180,
+  ...C8C_SPEED,
 };
 
 // ───── 2.5D ─────
 // よみの道は 少し ひくい・光の ない 所と 海の 水は ひくい。台・貝の 箱・火の 柱・ほのおの かべ・とびらは たてた もの
-export const C8B_FLOOR_H = { [T.C8B_SPIRITWAY]: -0.04, [T.C8B_VOID]: -0.5, [T.C8B_SEAWATER]: -0.2, [T.C8B_GEYSER_FLOOR]: -0.02 };
-export function c8bBlockSpec() {
-  return null;
+export const C8B_FLOOR_H = { [T.C8B_SPIRITWAY]: -0.04, [T.C8B_VOID]: -0.5, [T.C8B_SEAWATER]: -0.2, [T.C8B_GEYSER_FLOOR]: -0.02, ...C8C_FLOOR_H };
+export function c8bBlockSpec(id, v) {
+  return c8cBlockSpec(id, v);
 }
 const brazierProp = (on) => [12, 22, (p) => {
   p.rect(3, 12, 6, 10, ST.d); p.vline(3, 12, 21, ST.hl); p.hline(2, 9, 21, ST.ln);
@@ -231,9 +236,10 @@ export const C8B_PROPS = {
     p.vline(6, 0, 22, BF.w);
     p.ellipse(6, 22, 5, 2, BF.d);
   }],
+  ...C8C_PROPS,
 };
 // たてた ものでも 色を かえない（青い 火・貝の 色）
-export const C8B_PROPS_KEEP = new Set([T.C8B_BRAZIER_ON, T.C8B_SHELLBOX, T.C8B_FLAMEWALL, T.C8B_GEYSER, T.C8B_SHELLDOOR]);
+export const C8B_PROPS_KEEP = new Set([T.C8B_BRAZIER_ON, T.C8B_SHELLBOX, T.C8B_FLAMEWALL, T.C8B_GEYSER, T.C8B_SHELLDOOR, ...C8C_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -247,4 +253,6 @@ export const C8B_THEMES = {
     gem: G([0, '#0a2040'], [0.5, '#5ac0f0'], [1, '#ffffff']),
     flame: G([0, '#0a3a7a'], [0.5, '#5ac8ff'], [1, '#f0fcff']),
   },
+  // 第8章 第3幕: くろがねの空中要塞（千年前）・空中要塞の残がい（今）
+  ...C8C_THEMES,
 };

@@ -89,6 +89,11 @@ export const T = {
   // 第2部 第8章 第2幕「よみの海底神殿」（maps/c8b-temple.js・c8b-sea.js・render/tiles-c8b.js）。355 から
   C8B_BRAZIER: 355, C8B_BRAZIER_ON: 356, C8B_SPIRITWAY: 357, C8B_VOID: 358, C8B_SEAWATER: 359, C8B_SHELLBOX: 360,
   C8B_SHELLGATE: 361, C8B_FLAMEWALL: 362, C8B_GEYSER_FLOOR: 363, C8B_GEYSER: 364, C8B_WHIRL: 365, C8B_SHELLDOOR: 366,
+  // 第2部 第8章 第3幕「くろがねの空中要塞」（maps/c8c-fort.js・c8c-field.js・render/tiles-c8c.js）。367 から
+  C8C_SKY: 367, C8C_CRUSH: 368, C8C_TILT: 369, C8C_MOSS: 370, C8C_SLIDE_N: 371, C8C_SLIDE_E: 372, C8C_SLIDE_S: 373, C8C_SLIDE_W: 374,
+  C8C_PROP_ON: 375, C8C_PROP_OFF: 376, C8C_CANNON_L: 377, C8C_CANNON_R: 378, C8C_SHUTTER_OPEN: 379, C8C_SHUTTER_SHUT: 380,
+  C8C_ROOTS: 381, C8C_PLATE: 382, C8C_GAP: 383, C8C_MAILBOX: 384, C8C_LOCKDOOR: 385, C8C_BARRIER: 386, C8C_STEAM_FLOOR: 387, C8C_STEAM: 388,
+  C8C_ANCHOR: 389, C8C_CHAIN: 390, C8C_WRECK: 391, C8C_WRECKDOOR: 392, C8C_HATCH: 393, C8C_CAGEBAR: 394,
 };
 
 export const TILE_INFO = {};
@@ -469,6 +474,38 @@ def(T.C8B_GEYSER_FLOOR, 'c8b_geyser_floor', { mapColor: '#3a5a7a' }); // 青い 
 def(T.C8B_GEYSER, 'c8b_geyser', { solid: true, anim: true, light: true, mapColor: '#8ae8ff' }); // ふき出した 青い 火の 柱（通れない）
 def(T.C8B_WHIRL, 'c8b_whirl', { solid: true, anim: true, light: true, mapColor: '#2a6aa8' }); // うずしおの岩場の 青い うず（開くと 海の 底への かいだん）
 def(T.C8B_SHELLDOOR, 'c8b_shelldoor', { solid: true, mapColor: '#c8b8a0' }); // 雲から出てきた島の 貝の もようの 石の とびら（開くと 下への かいだん）
+// 第8章 第3幕: 千年前の 空（要塞の 外・ゆかの すきま）・今の つぶれた 鉄・かたむいた 鉄の 板（歩ける）・ゆかの あなの 森の 土（歩ける）・
+//   今の かたむいた ゆか（すべる。北・東・南・西）・要塞の しかけ（プロペラ・たいほう・まどの シャッター。千年前で 動かす）・
+//   今の 木の 根（かべの すきまを 通る）・千年前の ゆるんだ 鉄の 板（根の ある 所。すきまに なる）・鉄の ポスト・今の まほうの じょうの とびら・
+//   まほうの かべ・ゆげの あな（ゆげ）・千年前の 森の いかり（くさり）・今の 森の 残がい（入口）・8階の まほうの おり
+def(T.C8C_SKY, 'c8c_sky', { solid: true, anim: true, mapColor: '#a8d0f0' }); // 千年前の 空（要塞の 外・ゆかの すきま。通れない）
+def(T.C8C_CRUSH, 'c8c_crush', { solid: true, mapColor: '#6a5040' }); // 今の つぶれた 鉄（通れない）
+def(T.C8C_TILT, 'c8c_tilt', { mapColor: '#8a7a68' }); // 今の かたむいた 鉄の 板（歩ける）
+def(T.C8C_MOSS, 'c8c_moss', { mapColor: '#5a8a48' }); // 今の ゆかの あなから 見える 森の 土（歩ける）
+def(T.C8C_SLIDE_N, 'c8c_slide_n', { flow: [0, -1], anim: true, mapColor: '#9a8470' }); // 今の かたむいた ゆか（北へ すべる）
+def(T.C8C_SLIDE_E, 'c8c_slide_e', { flow: [1, 0], anim: true, mapColor: '#9a8470' }); // 今の かたむいた ゆか（東へ すべる）
+def(T.C8C_SLIDE_S, 'c8c_slide_s', { flow: [0, 1], anim: true, mapColor: '#9a8470' }); // 今の かたむいた ゆか（南へ すべる）
+def(T.C8C_SLIDE_W, 'c8c_slide_w', { flow: [-1, 0], anim: true, mapColor: '#9a8470' }); // 今の かたむいた ゆか（西へ すべる）
+def(T.C8C_PROP_ON, 'c8c_prop_on', { solid: true, anim: true, mapColor: '#b8b0a0' }); // まわる プロペラ
+def(T.C8C_PROP_OFF, 'c8c_prop_off', { solid: true, mapColor: '#8a8478' }); // 止まった プロペラ
+def(T.C8C_CANNON_L, 'c8c_cannon_l', { solid: true, mapColor: '#3a3a44' }); // 西を 向いた たいほう
+def(T.C8C_CANNON_R, 'c8c_cannon_r', { solid: true, mapColor: '#3a3a44' }); // 東を 向いた たいほう
+def(T.C8C_SHUTTER_OPEN, 'c8c_shutter_open', { solid: true, mapColor: '#8ac0e8' }); // 開いた まどの シャッター
+def(T.C8C_SHUTTER_SHUT, 'c8c_shutter_shut', { solid: true, mapColor: '#5a5a62' }); // しまった まどの シャッター
+def(T.C8C_ROOTS, 'c8c_roots', { solid: true, mapColor: '#6a4a2a' }); // 今の かべの すきまを 通る 木の 根（通れない）
+def(T.C8C_PLATE, 'c8c_plate', { solid: true, mapColor: '#4a4a52' }); // 千年前の ゆるんだ 鉄の 板（根の ある 所。すきまを 見つけると 通れる）
+def(T.C8C_GAP, 'c8c_gap', { mapColor: '#5a5048' }); // 千年前の かべの すきま（歩ける）
+def(T.C8C_MAILBOX, 'c8c_mailbox', { solid: true, mapColor: '#c84a3a' }); // 鉄の ポスト（時をこえる手紙を 入れる）
+def(T.C8C_LOCKDOOR, 'c8c_lockdoor', { solid: true, anim: true, light: true, mapColor: '#8a5ad8' }); // 今の まほうの じょうの とびら（合言葉で 開く）
+def(T.C8C_BARRIER, 'c8c_barrier', { solid: true, anim: true, light: true, mapColor: '#c87ae8' }); // まほうの かべ（通れない）
+def(T.C8C_STEAM_FLOOR, 'c8c_steam_floor', { mapColor: '#5a5a5a' }); // ゆげの あな（ふき出して いない 間は 歩ける）
+def(T.C8C_STEAM, 'c8c_steam', { solid: true, anim: true, mapColor: '#f0f0f0' }); // ふき出した ゆげ（通れない）
+def(T.C8C_ANCHOR, 'c8c_anchor', { solid: true, mapColor: '#4a4a52' }); // 千年前の 森に ささった 要塞の いかり（しらべると くさりを のぼれる）
+def(T.C8C_CHAIN, 'c8c_chain', { mapColor: '#6a6a72' }); // 要塞へ のぼる いかりの くさり（歩ける。のぼると 要塞の 1階）
+def(T.C8C_WRECK, 'c8c_wreck', { solid: true, mapColor: '#6a5a40' }); // 今の 森の 要塞の 残がい（こけの 鉄の 板。通れない）
+def(T.C8C_WRECKDOOR, 'c8c_wreckdoor', { solid: true, mapColor: '#5a4a30' }); // 今の 残がいの しまった 出入り口
+def(T.C8C_HATCH, 'c8c_hatch', { mapColor: '#3a3020' }); // 今の 残がいの 開いた 出入り口（歩ける）
+def(T.C8C_CAGEBAR, 'c8c_cagebar', { solid: true, anim: true, light: true, mapColor: '#e8a8ff' }); // まほうの おり（通れない）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

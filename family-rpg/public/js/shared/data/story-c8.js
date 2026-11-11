@@ -21,6 +21,8 @@ import { MONSTERS } from './monsters.js';
 import { applyC8aSide, letterReward8 } from './sidequests-c8a.js';
 // 第2幕「よみの青い火」（Step 3・4。story-c8b.js）
 import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js';
+// 第3幕「くろがねの空中要塞」（Step 5・6。story-c8c.js）
+import { CH8C_STEPS, C8C_OBJ, CH8C_OBJECTIVE_TARGETS, CH8C_OBJECTIVE_TALK, CH8C_PROGRESS, applyCh8c } from './story-c8c.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -32,7 +34,7 @@ export const LAMP8 = 'ねがいのランプ';
 export const monOf8 = (id) => (MONSTERS[id] ? id : FIXED_ENCOUNTERS[id]?.group?.[0]?.[0] || id);
 
 // ───── 第8章の すすみかた（STORY_STEPS の 第7章の うしろ。plan-ch8.md の 5-2 の 名前の 約束）─────
-export const CH8_STEPS = [C8.start, C8.kingdom, C8.moon, C8.pet, C8.deep, C8.jafar, ...CH8B_STEPS];
+export const CH8_STEPS = [C8.start, C8.kingdom, C8.moon, C8.pet, C8.deep, C8.jafar, ...CH8B_STEPS, ...CH8C_STEPS];
 
 // ───── 目標 ─────
 export const C8_OBJ = {
@@ -62,8 +64,10 @@ export const C8_OBJ = {
 // 今の 目標の 文から 外した 文（今は 知らない 文なので repairObjective が すすみぐあいから なおす。あとの 幕で ふえる）
 export const OLD_C8_OBJ = {
   jafar: '第8章　第2幕へ（続きはアップデートで！）',
+  // 第2幕の さいごの 前の 版の 文（今は story-c8b.js の C8B_OBJ.hades「第8章　第2幕クリア！今のほしみの丘のトキネに会いに行こう…」）
+  hades: '第8章　第3幕へ（続きはアップデートで！）',
 };
-export { C8B_OBJ };
+export { C8B_OBJ, C8C_OBJ };
 
 // パーティー全員で 見る イベント
 export const CH8_STORY_SCRIPTS = ['c8a_arrive', 'c8a_kingdom_arrive', 'c8a_slab', 'c8a_f1', 'c8a_f4', 'c8a_nadia_meet', 'c8a_pet_event', 'c8a_voice7', 'c8a_boss_event', 'c8a_boss_after', 'c8a_box_now', 'c8a_box_past'];
@@ -655,6 +659,8 @@ export const CH8_OBJECTIVE_TARGETS = {
   [C8_OBJ.jafar]: [{ npc: 'tokine_c6' }],
   // 第2幕（story-c8b.js）
   ...CH8B_OBJECTIVE_TARGETS,
+  // 第3幕（story-c8c.js）
+  ...CH8C_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -702,6 +708,8 @@ export const CH8_OBJECTIVE_TALK = {
     '第1幕クリアです。カリムさんとの約束、わすれないでいましょう。トキネさんが待っています。', 'トキネさんに、あいにいこう！'),
   // 第2幕（story-c8b.js）
   ...CH8B_OBJECTIVE_TALK,
+  // 第3幕（story-c8c.js）
+  ...CH8C_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろ）─────
@@ -728,6 +736,8 @@ export const CH8_PROGRESS = [
   [C8.jafar, C8_OBJ.jafar],
   // 第2幕（story-c8b.js）
   ...CH8B_PROGRESS,
+  // 第3幕（story-c8c.js）
+  ...CH8C_PROGRESS,
 ];
 
 // ───── story.js から: だいほんを まぜる（今の トキネ・千年前の 王国の 人・より道「時をこえる手紙」・パーティー全員で 見る イベント）─────
@@ -764,4 +774,6 @@ export function applyCh8(SCRIPTS, STORY_SCRIPTS) {
   applyC8aSide(SCRIPTS);
   // 第2幕「よみの青い火」（story-c8b.js）: 今の トキネ・千年前の ナギの村・よみの海底神殿・時をこえる手紙
   applyCh8b(SCRIPTS, STORY_SCRIPTS);
+  // 第3幕「くろがねの空中要塞」（story-c8c.js）: 今の トキネ・千年前の 泉の里・くろがねの空中要塞・時をこえる手紙
+  applyCh8c(SCRIPTS, STORY_SCRIPTS);
 }

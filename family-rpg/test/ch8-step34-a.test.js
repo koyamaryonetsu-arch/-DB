@@ -262,7 +262,8 @@ const PUZZLE = [1, 2, 3, 5, 6, 7];
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（plan-ch8.md の 6-2）: 物語の すすみ・マップの ID・出現表・きまった 戦い・宝箱・タイル', () => {
   assert.deepEqual(CH8B_STEPS, ['c8_sea', 'c8_abyss', 'c8_temple', 'c8_imps', 'c8_depth', 'c8_hades']);
-  assert.deepEqual(CH8_STEPS.slice(6), CH8B_STEPS, 'CH8_STEPS の c8_jafar の うしろ');
+  // 第2幕の 6つ（第3幕より あとは その うしろ。test/ch8-step56-a.test.js）
+  assert.deepEqual(CH8_STEPS.slice(6, 12), CH8B_STEPS, 'CH8_STEPS の c8_jafar の うしろ');
   const ji = STORY_STEPS.indexOf('c8_jafar');
   assert.deepEqual(STORY_STEPS.slice(ji + 1, ji + 7), CH8B_STEPS, 'c8_jafar の うしろ');
   // マップ（千年前 1〜8階・今 1〜7階）
@@ -381,7 +382,9 @@ test('目標: 第1幕クリアの セーブは トキネへの 目標に なお�
     }
   }
   for (const t of Object.values(C8B_OBJ)) assert.ok(CH8_OBJECTIVE_TALK[t] && objectiveChapter(t) === 5, '第8章の 目標の 章');
-  assert.equal(C8B_OBJ.hades, '第8章　第3幕へ（続きはアップデートで！）');
+  // 第3幕が できたので、第2幕クリアの 文は トキネへ（前の 文は OLD_C8_OBJ.hades。test/ch8-step56-a.test.js）
+  assert.ok(C8B_OBJ.hades.startsWith('第8章　第2幕クリア！') && C8B_OBJ.hades.includes('トキネ'));
+  assert.equal(OLD_C8_OBJ.hades, '第8章　第3幕へ（続きはアップデートで！）');
   // 地図の しるし（その 時代の マップだけ）
   const mark = (obj, map, extra = []) => questMarks({ flags: flagsOf(...extra), objective: obj }, map).filter((m) => m.kind === 'main');
   const Bx = C8B_POS[5].box;
@@ -733,7 +736,7 @@ test('通しで: c8_jafar → トキネ → 千年前の ナギの村（カイ�
   assert.deepEqual(f2, ['c8_hades']);
   assert.ok(c.flags[WIN8B] && c.flags[CALM8B] && c.flags[C8B.hades], 'c8_hades');
   assert.equal(c.objective, C8B_OBJ.hades);
-  for (const t of ['まっ赤', 'いかりの心', '黒い星のかけら', '持ち主のところへ', '約束だぜ', '第8章　第2幕クリア！', '第8章　第3幕へ（続きはアップデートで！）']) assert.ok(said(bot, t), t);
+  for (const t of ['まっ赤', 'いかりの心', '黒い星のかけら', '持ち主のところへ', '約束だぜ', '第8章　第2幕クリア！', '今のほしみの丘で、待っているわね']) assert.ok(said(bot, t), t);
   assert.ok(!c.guests.includes('kai8'), 'カイは 村に のこる');
   assert.equal(bot.s.map, SEA, 'さいごは ナギの村の 浜');
   assert.ok(MAPS[SEA].npcs.some((n) => n.id === 'c8b_miko_back' && condOk(n.show, (f) => !!c.flags[f])), 'みこが ほこらに もどった');

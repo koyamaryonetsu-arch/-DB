@@ -12,6 +12,8 @@ import { SPIRIT_LETTER } from '../maps/c7i-flags.js';
 import { NADIA_LETTER } from '../maps/c8a-flags.js';
 // 第8章 第2幕: みこの祝いの手紙（海底神殿 4階の 海のほこらの みこが 書いてくれる。5階の 千年前の 貝の 箱に 入れると なくなる。時をこえる手紙）
 import { MIKO_LETTER8B } from '../maps/c8b-flags.js';
+// 第8章 第3幕: ポコの手紙（空中ようさい 4階の 泉の里の 子ポコが 書いてくれる。5階の 千年前の 鉄の ポストに 入れると なくなる。時をこえる手紙）
+import { POCO_LETTER8C } from '../maps/c8c-flags.js';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {
@@ -34,6 +36,10 @@ export const C7_KEY_ITEMS = {
     name: 'みこの祝いの手紙', type: 'key',
     desc: '海のほこらのみこが書いた手紙。「海の祝いの言葉」が書いてある。海底神殿の5階のしおのとびらのよこの、貝の箱に入れると、千年先までのこるという。',
   },
+  [POCO_LETTER8C]: {
+    name: 'ポコの手紙', type: 'key',
+    desc: '泉の里の子ポコが書いた手紙。ようさいのとびらの「合言葉」が書いてある（ポコいわく、ちょっとはずかしい言葉）。空中ようさいの5階のとびらのよこの、鉄のポストに入れると、千年先までのこるという。',
+  },
 };
 export const C7_KEY_KANA = {
   [MIKO_LETTER]: 'みこのてがみ',
@@ -41,4 +47,5 @@ export const C7_KEY_KANA = {
   [SPIRIT_LETTER]: 'ゆきのせいのてがみ',
   [NADIA_LETTER]: 'おうじょナディアのてがみ',
   [MIKO_LETTER8B]: 'みこのいわいのてがみ',
+  [POCO_LETTER8C]: 'ポコのてがみ',
 };
