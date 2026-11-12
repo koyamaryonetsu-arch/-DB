@@ -40,4 +40,9 @@ export const FIXED_FAMILY = {
   fq_thunderkids: { group: [['thunder_puff', 2, 2], ['cloud_wyvern', 1, 1]], bg: 'beach', bgm: 'battle', canFlee: false, enemyLv: 88, enemyPow: 0.4 },
   // 31. 星竜山のふもと: ちび竜を ねらって 炎の山から 来た マグマトカゲと 火の粉オオカミ
   fq_lavaraid: { group: [['lava_lizard', 2, 2], ['ember_wolf', 1, 1]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 88, enemyPow: 0.4 },
+  // ───── 第80回 D班（data/sidequests-work7.js）。第8章 第4幕（Lv91 の ころ）なので 敵Lv91（それでも 完全オートで 勝てる 軽さ。もとが 強いので enemyPow で 弱く する）─────
+  // 33. 小さなオアシスの おだいかんの 用心棒: サソリ兵と 砂岩ゴーレム（みねうちで 目を 回す）
+  fq_oasguard: { group: [['scorpion_soldier', 2, 2], ['sandstone_golem', 1, 1]], bg: 'desert', bgm: 'battle', canFlee: false, enemyLv: 91, enemyPow: 0.4 },
+  // 35. 炎の山のふもとの お湯の 土管の 中: すみついた パックンフラワーと ノコノコ
+  fq_pipeplant: { group: [['pakkun', 2, 2], ['nokonoko', 1, 1]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 91, enemyPow: 0.3 },
 };

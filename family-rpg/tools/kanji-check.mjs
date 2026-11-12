@@ -471,6 +471,9 @@ export function gameFiles() {
     // 第75回 D班: お仕事いらい 30〜32・千年前の ミドリナの より道 2つ
     'public/js/shared/data/sidequests-work6.js', 'public/js/shared/maps/work-quests6.js', 'public/js/client/render/work6-art.js',
     'public/js/shared/data/sidequests-c8cd.js', 'public/js/shared/maps/c8cd-side.js',
+    // 第80回 D班: お仕事いらい 33〜35・より道「時をこえる手紙の、最後の1通」
+    'public/js/shared/data/sidequests-work7.js', 'public/js/shared/maps/work-quests7.js', 'public/js/client/render/work7-art.js',
+    'public/js/shared/data/sidequests-c8rd.js', 'public/js/shared/maps/c8rd-side.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板

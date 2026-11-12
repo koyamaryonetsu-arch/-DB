@@ -105,6 +105,12 @@ export const FAMILY_GIFTS = {
     ...GIFT, name: '星竜のうろこのお守り', bonus: { hp: 60, str: 12, def: 10, agi: 6 }, resist: { fire: 0.7, ice: 0.8, bolt: 0.8 },
     desc: '星竜山のお母さん竜の、きらきら光るうろこのお守り。だれでも装備でき、HPと力と守りが上がり、ほのおに強く、氷とかみなりにも少し強い。',
   },
+  // ───── 第80回 D班（data/sidequests-work7.js）。第64回の きまり で ★5 は 34 の 1つだけ（第75回と おなじ くらい。闘技場 ランク10 の ブローチより 弱い）─────
+  // 34. 東の平原の、ちいさな剣術道場（ひ村ばっ刀さいの 系統）: 入門の ときに わたす 白い はちまき
+  fq_dojo_band: {
+    ...GIFT, name: '守る剣のはちまき', bonus: { hp: 56, str: 14, agi: 12, def: 8 }, resist: { confuse: 0.5, sleep: 0.6, dark: 0.8 },
+    desc: '人を守る剣の道場で、入門のときにわたす、白いはちまき。だれでも装備でき、HPと力と素早さが上がり、混乱とねむりに強い。',
+  },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
 
@@ -137,5 +143,6 @@ export const FAMILY_ITEM_KANA = {
   fq_sand_amulet: 'すなのまもりがみのおまもり',
   fq_twin_tassel: 'ひかりとやみのかざりひも',
   fq_dragon_charm: 'せいりゅうのうろこのおまもり',
+  fq_dojo_band: 'まもるけんのはちまき',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };
