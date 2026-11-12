@@ -88,6 +88,8 @@ import { openStampEditor } from './stamps.js';
 import { familyBoardView, hasBoardUnread } from './family-board.js';
 // 第51回 F: 幻の書（ui/phantom-book.js）
 import { phantomBookView } from './phantom-book.js';
+// 第78回: 冒険のしおり（ui/shiori.js。入口は MAIN・preview・select の 3か所だけ）
+import { shioriPreview, openShiori } from './shiori.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -113,6 +115,7 @@ const MAIN = [
   { label: '幻の書', value: 'phantom' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
+  { label: '冒険のしおり', value: 'shiori' },
   // 第35回: お知らせ（ui/news.js。まだ 読んでいない 物が あると ●）
   { label: 'お知らせ', value: 'news' },
   // 第51回 B: 家族のけいじ板（まだ 見ていない 知らせが あると ●）
@@ -339,6 +342,7 @@ export class FieldMenu {
         for (const n of this.menu?.root.querySelectorAll('.item.has-new') || []) if (n.textContent.includes('クエスト')) n.classList.remove('has-new');
         break;
       case 'settings': this.main.append(this.settingsView(false)); break;
+      case 'shiori': this.main.append(shioriPreview(this)); break;
       case 'news': this.main.append(newsView(this, false)); break;
       case 'fboard': this.main.append(familyBoardView(this, false)); break;
       case 'quit': {
@@ -451,6 +455,9 @@ export class FieldMenu {
         this.menu.root.querySelector('.item.has-new')?.classList.remove('has-new');
         return this.focusSub(newsView(this, true));
       case 'fboard': return this.focusSub(familyBoardView(this, true));
+      case 'shiori':
+        this.menu.blur();
+        return openShiori(this).then(() => { if (this.root) this.menu.focus(); });
       case 'talk':
         this.close();
         return partyTalk(g);
