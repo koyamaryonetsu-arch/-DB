@@ -205,7 +205,7 @@ export function gameFiles() {
     // チャットの スタンプを 変える（第50回 N7）
     'public/js/shared/data/stamps.js', 'public/js/client/ui/stamps.js',
     // 第77回: 音楽の エンジン・音楽を聞く
-    'public/js/client/audio.js', 'public/js/client/audio-names.js', 'public/js/client/ui/soundtest.js',
+    'public/js/client/audio.js', 'public/js/client/audio-names.js', 'public/js/client/audio-r77a.js', 'public/js/client/audio-r77b.js', 'public/js/client/ui/soundtest.js',
     'public/js/client/music-engine.js', 'public/js/client/music-inst.js', 'public/js/client/music-amb.js',
     // ポケモンの 魔物・進化（第44回 ポケモン P1）
     'public/js/shared/data/monsters-pokemon.js', 'public/js/shared/data/companions-pokemon.js', 'public/js/shared/data/abilities-pokemon.js',

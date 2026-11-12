@@ -17,6 +17,9 @@ import { CH6_TRACKS } from './audio-ch6.js';
 import { C8B_TRACKS } from './audio-c8b.js';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパードの 曲（audio-c8c.js）
 import { C8C_TRACKS } from './audio-c8c.js';
+// 第77回 B: 作りなおした 曲（下で 前の 曲の 上に かぶせる）
+import { R77A_TRACKS } from './audio-r77a.js';
+import { R77B_TRACKS } from './audio-r77b.js';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
 import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js';
@@ -474,6 +477,20 @@ const TRACKS = {
     ],
   },
 };
+
+// 第77回 B: 作りなおした 曲を 前の 曲の 上に かぶせる。
+// 前の データは legacy（「前の音」で 鳴る）と ch（tr.ch を 見る 古い テスト用）に のこす。
+// 新しい id の 曲（battle2 など）は legacyOf に 書いた 前の 曲を「前の音」で 鳴らす
+export function overlayTracks(base, over) {
+  for (const [id, t] of Object.entries(over)) {
+    const old = base[t.legacyOf || id];
+    const legacy = t.legacy || (old ? { bpm: old.legacy?.bpm || old.bpm, ch: old.legacy?.ch || old.ch } : undefined);
+    const { legacyOf, ...rest } = t;
+    base[id] = { ...rest, legacy, ch: t.ch || legacy?.ch };
+  }
+  return base;
+}
+overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
 
 // ───────────── こうかおん ─────────────
 export class GameAudio {
