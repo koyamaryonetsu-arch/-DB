@@ -6,7 +6,7 @@
 //   めやす: アイスブロス … 30%いじょう（F）／こおりパックン … 12〜20%（E）／いばらゴブリン … 12〜20%（D）／氷の魔法鏡 … 6〜12%（C）／ブリザード … 6〜12%（A）
 //   （こおりパックンは 仲間に なりやすい 1/11・いばらゴブリンは ときどき 1/15 なので、おなじ 出やすさでも ランクが ちがう）
 //   第7章の B〜S は 2わりまで（test/monsters-r43a.test.js）なので、第3幕の B〜S は ブリザードだけ
-import { C7_WITCH, C7_THORN, C7_SHADOW } from './monsters-c7i.js?v=66c9e741ef72';
+import { C7_WITCH, C7_THORN, C7_SHADOW } from './monsters-c7i.js?v=bfc4e5f50af2';
 
 export const ENCOUNTERS_C7I = {
   t7_snow: [

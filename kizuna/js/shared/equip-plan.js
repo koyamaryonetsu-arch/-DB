@@ -1,9 +1,9 @@
 // さいきょう装備の 見こみ（ドラクエ風。サーバーの 'bestEquip' と メニューの「何が 何に 変わるか」で おなじ 計算を 使う）
 // ふくろの 中から、攻撃力（武器）・守備力（よろい・たて・頭）が いちばん 上がる ものを えらぶ。アクセサリーは そのまま
 // 呪文が 得意な 職業（魔法使い・僧侶・賢者 など）の 武器は、攻撃魔力・回復魔力も 重く みる（やりより つえ）
-import { ITEMS } from './data/items.js?v=66c9e741ef72';
-import { JOBS } from './data/jobs.js?v=66c9e741ef72';
-import { computeStats, canEquipChar, addItem, removeItem } from './stats.js?v=66c9e741ef72';
+import { ITEMS } from './data/items.js?v=bfc4e5f50af2';
+import { JOBS } from './data/jobs.js?v=bfc4e5f50af2';
+import { computeStats, canEquipChar, addItem, removeItem } from './stats.js?v=bfc4e5f50af2';
 
 export const BEST_SLOTS = ['weapon', 'armor', 'shield', 'head'];
 

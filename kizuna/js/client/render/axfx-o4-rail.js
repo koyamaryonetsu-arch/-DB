@@ -1,6 +1,6 @@
 // 第49回 O4: 鉄道員・運転士 の 技の え（電車・信号・指さし・警笛・メーター）
 // ・時間は shared/data/ax-time-o4.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { obj, car, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=66c9e741ef72';
+import { obj, car, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=bfc4e5f50af2';
 
 const PI = Math.PI;
 const SPARK = ['#ffffff', '#fff6b0', '#ffd23a'];
