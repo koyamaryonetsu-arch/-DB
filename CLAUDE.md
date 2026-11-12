@@ -220,6 +220,8 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 - 劇場情報（トップ）は .ti-facts（項目ごとに中身に合った幅で横に並べる）。全体編集（#tiBulkTable）は縦横の罫線・min-width で全体の table{min-width:1400px} を打ち消す
 - カルテの「根拠（メール・資料）」（evidence）＝どこで知ったか、「登録者」＝AI（自動）／旧データから移行／人の名前（見出しに ？ の説明）
 - 劇場の別の呼び方（theaters.aliases text[]）。GAS の canonTheater_ / fixTheater_ が、メール・LINE・会議の記録から取り込む劇場名を一覧の名前にそろえる（名前・別の呼び方・同じ会社の場所の名前の順。別の会社には寄せない）
+- 劇場情報更新確認の AI 判定（/api/theater-ai task=review）: verdict は add/dup/wrong の3つ＋confidence。confidence が 0.3 以下（LOW_CONF）の時だけ「迷う（unsure）」として人に残す。それより上は判定のとおり入れる・除く（ai_reason の頭に「確信度 ○%」）
+- TOHO の劇場: TOHO_THEATERS_2026-11.sql（資料の74館＋提携4館。名古屋→名古屋ベイシティ・宇都宮インターパーク→宇都宮をまとめる。資料に無い名前は、どこからも使われていなければ消す・使われていれば閉館＋要確認）。theaters_backup_20261112 に写しあり
 - タスク管理ボタンの「未完了」「期限切れ」は、上の担当者ボタンで選んだ人の分だけ（R担当にその人が入っている案件のタスク＋その人の個人タスク。2人以上は合計、2人の案件は1回）
 - 劇場名で探して2つ以上合う時（例「川崎」）は勝手に開かず、入力の下に候補（#tiSearchPick）を出す
 - 工事予定表の保存: dbRow / fillText で文字の列（NOT NULL）を必ず '' で埋める（PostgREST はまとめて入れる時、1行でも欠けた項目を null で送るため）

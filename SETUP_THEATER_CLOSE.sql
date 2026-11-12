@@ -28,6 +28,18 @@ begin
   end if;
 end $$;
 
+-- 劇場情報更新確認: これまで AI が「迷った（unsure）」として残した候補を、新しい決まり
+-- （確信度 30% 以下の時だけ人が確かめる・それより上は AI の判定のとおりに入れる）でもう一度判定できるようにする。
+-- （判定の印を外すだけ。候補そのものは消えない。アプリの「🤖 AIでまとめて判定」か、毎日の自動の判定で見直される）
+do $$
+begin
+  if to_regclass('public.theater_info_pending') is not null then
+    update public.theater_info_pending
+       set ai_verdict = '', ai_reason = '', ai_checked_at = null
+     where status = 'pending' and ai_verdict = 'unsure';
+  end if;
+end $$;
+
 -- 確かめ: 閉館になった劇場
 select company as 会社, name as 劇場, closed_on as 閉館日, closed_note as メモ
   from public.theaters where closed order by company, name;

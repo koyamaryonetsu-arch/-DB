@@ -58,7 +58,8 @@ const arr = (items) => ({ type: 'array', items });
 const REVIEW_SCHEMA = obj({
   results: arr(obj({
     id: str,
-    verdict: { type: 'string', enum: ['add', 'dup', 'wrong', 'unsure'] },
+    verdict: { type: 'string', enum: ['add', 'dup', 'wrong'] },
+    confidence: { type: 'number' },
     theater: str,
     kind: { type: 'string', enum: ['chronic', 'note', 'equipment', 'manager', 'theater_phone', 'contact'] },
     body: str,
@@ -74,16 +75,20 @@ const EQUIP_SCHEMA = obj({
   note: str
 });
 
+const LOW_CONF = 0.3;   // これ以下の確信度の候補だけ「劇場情報更新確認」に残して人が確かめる
+const VERDICT_JA = { add: '入れる', dup: '重複', wrong: '入れない' };
 const REVIEW_SYSTEM = [
   'あなたは、映画館（シネコン）の空調・設備の保守会社「菱熱工業」で、劇場ごとの「劇場カルテ」を管理する担当者です。',
   'メール・LINE・会議の記録から別のAIが拾った「劇場カルテに足す候補」を、その劇場の今のカルテと見比べて1件ずつ判定します。',
   '',
-  '判定（verdict）:',
-  '・add    … その劇場について長く役に立つ事実で、今のカルテにまだ無い。→ カルテに入れる。',
+  '判定（verdict）は次の3つのどれか。必ず1つに決める:',
+  '・add    … その劇場の設備・運用について役に立つ事実で、今のカルテにまだ無い。→ カルテに入れる。',
   '・dup    … 今のカルテに同じ意味の内容がもうある（言い方が違うだけ・前の情報の言い直し）。',
-  '・wrong  … カルテに入れるべきでない。例：一時的な連絡・案件の進み具合や日程だけの話・挨拶・社内の段取り・ほかの劇場や劇場でない場所の話・根拠のない推測・読み間違い。',
-  '・unsure … 判断できない（今のカルテと食い違う・どの劇場の話か分からない・内容があいまい）。人が確かめる。',
-  '迷った時に add にしないこと。ただし、根拠がはっきりしていて新しい事実なら、細かくても add でよい（機器の型式・系統・更新した年・繰り返す故障・作業の決まりなど）。',
+  '・wrong  … カルテに入れるべきでない。例：一時的な連絡・案件の進み具合や日程だけの話・挨拶・社内の段取り・ほかの劇場や劇場でない場所の話・読み間違い。',
+  '拾った候補はほとんど合っている。だいたい合っていて新しい事実なら add にする（細かくてもよい: 機器の型式・系統・更新した年・繰り返す故障・作業の決まり・連絡先など）。',
+  '言い回しが少しおかしい・一部があいまいなだけなら、body で正しく短く書き直して add にする。',
+  'confidence: その判定（verdict）がどれくらい確かか 0〜1。0.3 以下の時だけ人が確かめる（それより上なら判定のとおりに入れる・除く）。',
+  '  例: 今のカルテと食い違う・どの劇場の話か分からない・中身が読めない時は 0.3 以下にする。',
   '',
   '種類（kind）:',
   '・chronic=持病・注意（繰り返す故障・弱点・気をつけること） / note=備考（運用の決まり・窓口・作業申請のルールなど） / equipment=設備メモ（機種・系統・更新の履歴）',
@@ -143,6 +148,10 @@ async function reviewGroup(theater, items, ctx) {
       }
       let verdict = r.verdict;
       let reason = String(r.reason || '').slice(0, 200);
+      // 確信度が 30% 以下の時だけ人が確かめる（それより上は判定のとおりにする）
+      const conf = typeof r.confidence === 'number' ? r.confidence : 0;
+      if (!['add', 'dup', 'wrong'].includes(verdict) || conf <= LOW_CONF) { reason = `確信度 ${Math.round(conf * 100)}%（AIの判定: ${VERDICT_JA[verdict] || verdict}）` + (reason ? '／' + reason : ''); verdict = 'unsure'; }
+      else reason = `確信度 ${Math.round(conf * 100)}%／` + reason;
       let target = theater;
       const rt = ctx.canon(r.theater);
       if (rt && ctx.nameSet.has(rt)) target = rt;
