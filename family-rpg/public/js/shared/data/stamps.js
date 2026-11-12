@@ -4,6 +4,8 @@
 // ・ひきつぎの 合言葉（transfer.js）には 入れない（ひきついだ あとは もとどおり）
 // ・チャットで おくる スタンプは 今までどおり 12文字までの ことばなら なんでも（world.js の onChat）
 
+import { earnedOf } from './missions.js';
+
 export const STAMP_SLOTS = 12; // いくつまで
 export const STAMP_LEN = 12; // 1つの 長さ（world.js の onChat の slice と おなじ）
 
@@ -21,6 +23,12 @@ export const STAMP_PRESETS = Object.freeze([
   { name: '家族', list: ['ご飯だよ〜', 'おふろ空いたよ', 'ねるよー', '宿題終わった？', '歯みがいた？', 'おやつあるよ', '出かけるよー', '今行く！', '明日も遊ぼう！'] },
   { name: 'ゲーム', list: ['行くよー！', 'レベル上がった！', 'ボス行こう！', '宝箱あった！', '回復するね', '作戦会議！', 'いっしょに行こう', '勝ったよ！', 'にげよう！', '町にもどろう', 'セーブしてね'] },
 ]);
+
+// 第78回 3-10: 家族ミッションで もらった ここだけの スタンプ（3つとも 達成した 週の 合計。data/missions.js）を 足した 一覧
+export function stampPresetsOf(c) {
+  const got = earnedOf(c).map((m) => m.stamp);
+  return got.length ? [...STAMP_PRESETS, { name: '家族ミッション', list: got }] : STAMP_PRESETS;
+}
 
 // 見えない 文字（改行・タブ・制御文字・はばの ない 文字・文字の 向きを かえる 文字）
 const HIDDEN = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202e\u2060-\u206f\ufeff]/g;

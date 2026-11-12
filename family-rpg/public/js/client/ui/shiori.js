@@ -42,7 +42,7 @@ const isFull = (t) => !!t.total && t.now >= t.total && t.id !== 'sd';
 
 // メニューの 右の 見本（カーソルを あわせた だけ。えらぶと 大きな まど）
 export function shioriPreview(menu) {
-  const s = shioriOf(menu.game.me);
+  const s = shioriOf(menu.game.me, { missions: menu.game.missionSum });
   const box = el('div', { class: 'sh-pv' });
   box.append(el('div', { class: 'muted', text: 'つぎに何をすればいいか、何がのこっているかを、1まいで見る。\n選ぶと、大きく開く。' }));
   box.append(el('div', { class: 'sh-pv-story', text: [s.story.label, storyTitle(s.story)].filter(Boolean).join(' ') }));
@@ -55,7 +55,7 @@ export function openShiori(menu) {
   const g = menu.game;
   const sfx = (x) => g.audio?.sfx?.(x);
   return new Promise((resolve) => {
-    const data = shioriOf(g.me);
+    const data = shioriOf(g.me, { missions: g.missionSum });
     const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { sfx('cancel'); finish(); } });
     const title = el('h2', { class: 'sh-title', text: '冒険のしおり' });
     const who = el('span', { class: 'sh-who', text: g.me?.name ? `${g.me.name}の冒険` : '' });
