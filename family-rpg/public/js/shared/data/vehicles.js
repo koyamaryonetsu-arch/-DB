@@ -102,6 +102,8 @@ VEHICLES.spy_car.jobs.push('ano_kata');
 VEHICLES.kart.jobs.push('esports_king', 'game_god');
 VEHICLES.flying_card.jobs.push('gold_cardman', 'black_cardman');
 VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
+// 第79回: 幻の職業の 乗り物（data/vehicles-phantom.js。その 幻の職業に なった 人の たなに だけ。20000〜30000G）
+import { PHANTOM_VEHICLES } from './vehicles-phantom.js'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

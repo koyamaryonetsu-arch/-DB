@@ -17,6 +17,8 @@ import { addPrizeVehicleArt } from './prize-vehicle-art.js';
 import { addTokeiVehicleArt } from './vehicle-tokei.js';
 // 第43回: ヨッシー（マリオ・ピーチ）
 import { addR43jVehicleArt } from './vehicle-r43j.js';
+// 第79回: 幻の職業の 乗り物（vehicle-phantom.js）
+import { addPhantomVehicleArt } from './vehicle-phantom.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1598,6 +1600,8 @@ addR43jVehicleArt(ART, { box, seg, poly, shade, seat });
 // 第50回 D3: 景品の 乗り物（render/prize-vehicle-art.js）
 addPrizeVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, carpetPaint, cloudPaint, rgba, twinkle });
 addTokeiVehicleArt(ART, { horseArt });
+// 第79回: 幻の職業の 乗り物（render/vehicle-phantom.js）
+addPhantomVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, box, seg, poly, wheel, rgba, shade, twinkle, seat, stand });
 
 export const VEHICLE_ART = ART;
 
