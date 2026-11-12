@@ -322,13 +322,25 @@ function chestTrack(c) {
   };
 }
 
-const TRACKS = [boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack];
-export const TRACK_IDS = ['board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest'];
+// 第78回 3-10: 家族ミッション（家族サーバーの 世界の 側の 数。ctx.missions … サーバーの 返事 world/missions.js の missionView。ひとりモードでは 出さない）
+function missionTrack(c, ctx) {
+  const m = ctx?.missions;
+  if (!m || m.offline || !m.week) return null;
+  const list = m.week.list || [];
+  return {
+    id: 'mission', name: '家族ミッション', now: list.filter((x) => x.done).length, total: list.length, unit: 'つ', where: 'メニューの「家族ミッション」',
+    note: `今週のミッション（のこり${m.week.days}日）。\n家族サーバーで、2人いじょうがいっしょに遊ぶと進む。`,
+    items: list.map((x) => ({ name: x.text, right: x.done ? '達成！' : `${x.now}/${x.need}`, state: x.done ? 'done' : 'now' })),
+  };
+}
 
-export function shioriTracks(c) {
+const TRACKS = [missionTrack, boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack];
+export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest'];
+
+export function shioriTracks(c, ctx = {}) {
   const out = [];
   for (const fn of TRACKS) {
-    const t = fn(c || {});
+    const t = fn(c || {}, ctx || {});
     if (t) out.push(t);
   }
   return out;
@@ -399,9 +411,10 @@ export function shioriRecs(c, tracks = shioriTracks(c)) {
 }
 
 // ───────────── まとめ ─────────────
-export function shioriOf(c) {
+// ctx.missions … 家族ミッション（client/ui/missions.js が サーバーに 聞いた 物。なければ 出さない）
+export function shioriOf(c, ctx = {}) {
   const ch = c || {};
-  const tracks = shioriTracks(ch);
+  const tracks = shioriTracks(ch, ctx);
   return { story: { ...storyPlace(ch), ...storyNext(ch) }, tracks, recs: shioriRecs(ch, tracks) };
 }
 

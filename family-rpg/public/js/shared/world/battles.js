@@ -32,6 +32,8 @@ import { boardHirameki, boardDual } from './family-board.js';
 import { addFeats, phantomAfterBattle } from './phantom.js';
 // 第53回 B: 第6章 Step 6 の 時のまぼろし（1日1回の ★5の 素材・はじめて 勝った 時の けいじ板）
 import { tokiPhantomAfter } from './tokei-phantom.js';
+// 第78回 3-10: 家族ミッション（人間の キャラが 2人 いじょうの 戦いだけ 数える。world/missions.js）
+import { missionBattle, missionFriend } from './missions.js';
 
 let battleSeq = 1;
 
@@ -334,6 +336,7 @@ function markDuals(world, ctx, evs) {
   for (const ev of evs) {
     const d = ev.dual;
     if (!d?.id) continue;
+    ctx.mDual = (ctx.mDual || 0) + 1; // 家族ミッション（world/missions.js）
     const fresh = [];
     for (const id of d.m || [d.a, d.b]) {
       const who = ctx.actorMap[id];
@@ -382,6 +385,8 @@ function finishBattle(world, ctx) {
   const res = b.result;
   const party = world.parties.get(ctx.partyId);
   const sessions = ctx.sids.map((sid) => world.sessions.get(sid)).filter(Boolean);
+  // 第78回 3-10: 家族ミッション（技の 回数を 書きかえる 前に）
+  missionBattle(world, ctx, sessions);
   // HP・MPを もどす
   for (const a of b.allies) {
     const who = ctx.actorMap[a.id];
@@ -540,6 +545,7 @@ function finishBattle(world, ctx) {
     }
     // 家族の パーティー: いっしょに 戦った 家族の 酒場にも（「はい」の とき。world/recruit-share.js）
     if (befriend) befriend.share = befriendShare(sessions, befriend.s);
+    if (befriend) missionFriend(world, sessions);
   } else if (outcome === 'lose') {
     // ほんとうの 全滅: それぞれ 自分の 持っている お金が 半分に（預かり所の お金は へらない）
     // 負けても 物語が すすむ 戦い（encounters の loseOk）では へらない

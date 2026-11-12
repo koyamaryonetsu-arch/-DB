@@ -90,6 +90,8 @@ import { familyBoardView, hasBoardUnread } from './family-board.js';
 import { phantomBookView } from './phantom-book.js';
 // 第78回: 冒険のしおり（ui/shiori.js。入口は MAIN・preview・select の 3か所だけ）
 import { shioriPreview, openShiori } from './shiori.js';
+// 第78回 3-10: 家族ミッション（ui/missions.js。入口は MAIN・open・preview・select の 4か所だけ）
+import { missionsPreview, openMissions, prefetchMissions } from './missions.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -116,6 +118,7 @@ const MAIN = [
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
   { label: '冒険のしおり', value: 'shiori' },
+  { label: '家族ミッション', value: 'mission' },
   // 第35回: お知らせ（ui/news.js。まだ 読んでいない 物が あると ●）
   { label: 'お知らせ', value: 'news' },
   // 第51回 B: 家族のけいじ板（まだ 見ていない 知らせが あると ●）
@@ -199,6 +202,7 @@ export class FieldMenu {
     });
     this.side.append(this.menu.root);
     this.menu.focus();
+    prefetchMissions(this); // 第78回 3-10: 家族ミッション（見本・冒険のしおりの 行）
   }
 
   // コマンドを えらんで 中の 画面に 入った（true）／コマンドの 一覧に もどった（false）
@@ -343,6 +347,7 @@ export class FieldMenu {
         break;
       case 'settings': this.main.append(this.settingsView(false)); break;
       case 'shiori': this.main.append(shioriPreview(this)); break;
+      case 'mission': this.main.append(missionsPreview(this)); break;
       case 'news': this.main.append(newsView(this, false)); break;
       case 'fboard': this.main.append(familyBoardView(this, false)); break;
       case 'quit': {
@@ -458,6 +463,9 @@ export class FieldMenu {
       case 'shiori':
         this.menu.blur();
         return openShiori(this).then(() => { if (this.root) this.menu.focus(); });
+      case 'mission':
+        this.menu.blur();
+        return openMissions(this).then(() => { if (this.root) this.menu.focus(); });
       case 'talk':
         this.close();
         return partyTalk(g);

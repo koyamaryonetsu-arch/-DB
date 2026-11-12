@@ -4,7 +4,7 @@
 //   タッチ・マウス・キーボード・コントローラー どれでも（ListMenu・askText・confirmBox）
 import { el, ListMenu, askText, confirmBox } from './dom.js';
 import {
-  STAMP_SLOTS, STAMP_LEN, STAMP_PRESETS, DEFAULT_STAMPS, stampsOf, cleanStampText, putStamp, dropStamp, moveStamp,
+  STAMP_SLOTS, STAMP_LEN, stampPresetsOf, DEFAULT_STAMPS, stampsOf, cleanStampText, putStamp, dropStamp, moveStamp,
 } from '../../shared/data/stamps.js';
 
 const Z = 8; // メニューの えらぶ まど（4・5）より 前、たしかめる まど（20）より うしろ
@@ -32,10 +32,12 @@ function pickBox(g, title, items, { cols = 1, start = -1 } = {}) {
 // ことばを 選ぶ（なかまわけ → ことば）。えらんだ ことば（やめる なら null）
 async function pickPreset(g, now) {
   for (;;) {
-    const cat = await pickBox(g, 'どんなことば？', STAMP_PRESETS.map((p, i) => ({ label: p.name, right: `${p.list.length}こ`, value: i })));
+    // 第78回 3-10: 家族ミッションで もらった スタンプも（shared/data/stamps.js の stampPresetsOf）
+    const presets = stampPresetsOf(g.me);
+    const cat = await pickBox(g, 'どんなことば？', presets.map((p, i) => ({ label: p.name, right: `${p.list.length}こ`, value: i })));
     if (cat === null) return null;
-    const list = STAMP_PRESETS[cat].list;
-    const v = await pickBox(g, STAMP_PRESETS[cat].name, list.map((s) => ({ label: s, value: s })), { cols: 2, start: list.indexOf(now) });
+    const list = presets[cat].list;
+    const v = await pickBox(g, presets[cat].name, list.map((s) => ({ label: s, value: s })), { cols: 2, start: list.indexOf(now) });
     if (v !== null) return v;
   }
 }

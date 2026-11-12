@@ -62,6 +62,8 @@ import './job-trials.js';
 import { shownEquipKey } from '../look-equip.js';
 // 第67回 C: モンスター闘技場の その場の 対戦
 import { tickMonLive } from './monarena-live.js';
+// 第78回 3-10: 家族ミッション（world/missions.js）
+import { missionMessage, missionChest, missionFloor, chatName } from './missions.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -315,6 +317,7 @@ export class GameWorld {
       case 'party': return this.onParty(s, msg);
       case 'chat': return this.onChat(s, msg);
       case 'fboard': return boardMessage(this, s, msg);
+      case 'mission': return missionMessage(this, s, msg);
       case 'explored': return this.onExplored(s, msg);
       case 'warpTo': return this.onMenu(s, { t: 'menu', action: 'useItem', id: 'return_wing', place: msg.place });
       case 'fly': return onFly(this, s, msg); // 風の大鳥（travel.js）
@@ -625,6 +628,7 @@ export class GameWorld {
       this.placeSession(s, land.map, land.x, land.y, land.dir, true);
       guardStair(s, land);
       this.warpFollowers(s, fromMap, fx, fy, land);
+      missionFloor(this, s, land.map); // 家族ミッション（いっしょに ダンジョンの 階へ）
       // ついた ときの しかけ（「○階に 来た」など）は これまでの つく マス（to）で みる
       this.checkTriggers(s, Math.floor(to.x), Math.floor(to.y));
       return;
@@ -808,7 +812,10 @@ export class GameWorld {
     if (chest && condOk(chest.show, hasFlag) && !(chestVanishes(map) && s.char.chests[chest.id])) return this.openChest(s, chest);
     // フィールドに ランダムに 出る 宝箱（fieldchests.js）
     const fc = fieldChestNear(this.mapStates.get(s.map), s, tx, ty);
-    if (fc) return runSteps(this, s, openFieldChest(this, s, mapState(this, s.map), fc));
+    if (fc) {
+      missionChest(this, s); // 家族ミッション（いっしょに 宝箱）
+      return runSteps(this, s, openFieldChest(this, s, mapState(this, s.map), fc));
+    }
     // 小さなメダル（つぼ・井戸・光る 場所 など。casino.js）
     const medal = medalSearchSteps(this, s, tx, ty);
     if (medal) return runSteps(this, s, medal);
@@ -856,6 +863,7 @@ export class GameWorld {
       return runSteps(this, s, [['say', null, '宝箱には、大切な物が入っているみたいだ。\n自分の冒険のときに開けよう。']]);
     }
     c.chests[chest.id] = true;
+    missionChest(this, s); // 家族ミッション（いっしょに 宝箱）
     const steps = [['sfx', 'chest'], ['chestOpen', chest.id]];
     if (chest.gold) {
       c.gold += chest.gold;
@@ -1071,7 +1079,8 @@ export class GameWorld {
     const text = String(msg.text || '').replace(/[<>]/g, '').slice(0, 80).trim();
     const stamp = msg.stamp ? String(msg.stamp).slice(0, 12) : null;
     if (!text && !stamp) return;
-    this.broadcast({ t: 'chat', from: s.char.name, sid: s.id, text, stamp });
+    // 第78回 3-10: 家族ミッションの しょうごうを つけて いれば 名前の 横に
+    this.broadcast({ t: 'chat', from: chatName(s.char), sid: s.id, text, stamp });
   }
 
   onExplored(s, msg) {
