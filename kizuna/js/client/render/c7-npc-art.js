@@ -2,9 +2,9 @@
 // 人（C7_NPC_LOOKS）: カリム（千年前の 若い 騎士。みどりの マントと 金の ふちの たて）・緑の王・大臣・城の 兵士・騎士団長・王女ナディア・
 //   王国の 人たち（c7_*）・神殿の みこサラサ・うずの魔女オクタリア（場面の すがた）
 // とくべつな え（paintC7Special）: うずの魔女オクタリア（神殿の 広間の 大きな すがた）・神殿の 門番（オクタリアの 手下。黒い 水の 大ウナギ 2ひき）
-import { Painter } from './pixel.js?v=787cfdb825c5';
+import { Painter } from './pixel.js?v=d13bba1204d4';
 // 第7章 Step 3・4（第2幕）: カイ・ナギの村の 人たち・灯台守・ホック船長・海賊船（render/c7s-npc-art.js。ここで まぜる）
-import { C7S_NPC_LOOKS, paintC7sSpecial, C7S_SPECIALS } from './c7s-npc-art.js?v=787cfdb825c5';
+import { C7S_NPC_LOOKS, paintC7sSpecial, C7S_SPECIALS } from './c7s-npc-art.js?v=d13bba1204d4';
 
 const person = (o) => o;
 export const C7_NPC_LOOKS = {

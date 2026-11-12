@@ -3,23 +3,23 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=787cfdb825c5';
-import { SHOPS_CH2 } from './items-ch2.js?v=787cfdb825c5';
-import { NIGHT_SHOPS } from './night.js?v=787cfdb825c5';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=787cfdb825c5';
-import { SHOPS_CH4 } from './items-ch4.js?v=787cfdb825c5';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=787cfdb825c5';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=787cfdb825c5';
-import { R33_SHOP_ADD } from './items-r33.js?v=787cfdb825c5';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=787cfdb825c5';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=787cfdb825c5';
-import { SHOPS_EARTH } from './shops-earth.js?v=787cfdb825c5';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=d13bba1204d4';
+import { SHOPS_CH2 } from './items-ch2.js?v=d13bba1204d4';
+import { NIGHT_SHOPS } from './night.js?v=d13bba1204d4';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=d13bba1204d4';
+import { SHOPS_CH4 } from './items-ch4.js?v=d13bba1204d4';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=d13bba1204d4';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=d13bba1204d4';
+import { R33_SHOP_ADD } from './items-r33.js?v=d13bba1204d4';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=d13bba1204d4';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=d13bba1204d4';
+import { SHOPS_EARTH } from './shops-earth.js?v=d13bba1204d4';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=787cfdb825c5';
-import { MINAMO_GUEST } from './companions-past.js?v=787cfdb825c5';
-import { RION_GUEST } from './companions-tokei.js?v=787cfdb825c5';
-import { KARIM_GUEST } from './companions-c7.js?v=787cfdb825c5';
-import { KAI_GUEST } from './companions-c7s.js?v=787cfdb825c5';
+import { SHOPS_PAST } from './shops-past.js?v=d13bba1204d4';
+import { MINAMO_GUEST } from './companions-past.js?v=d13bba1204d4';
+import { RION_GUEST } from './companions-tokei.js?v=d13bba1204d4';
+import { KARIM_GUEST } from './companions-c7.js?v=d13bba1204d4';
+import { KAI_GUEST } from './companions-c7s.js?v=d13bba1204d4';
 
 export const SHOPS = {
   village: {
@@ -152,6 +152,9 @@ export const NPC_SUPPORTS = [
 ];
 
 // ものがたりで いっしょに たたかう ゲスト
+// 第78回: 強さは きまり（shared/guest-rule.js・docs/plan-r78-guest.md）が 戦いの はじめに きめる。
+//   書く もの: id・name・job・look・tactics・skills（その 人の 技）・gear（装備の 見た目。その 幕の 品）・minLevel（その 幕の はじめの レベル）。
+//   maxLevel は 2つの 幕に 出る 時だけ（ない ときは minLevel ＋ 8）。手で 強さを 合わせない
 export const GUESTS = {
   luca: { id: 'guest_luca', name: 'ルカ', job: 'monk', look: { body: 0, hair: 2, hairColor: 2, skin: 1, color: 5 }, tactics: 'aggressive', minLevel: 2 },
 };
@@ -162,7 +165,8 @@ GUESTS.minamo = MINAMO_GUEST;
 // 第2部 第6章 Step 5: 最初の 紋章の 勇者 リオン（A が 台本の guest で 入れる。companions-tokei.js）
 GUESTS.rion = RION_GUEST;
 // 第2部 第7章 第1幕: 千年前の 若い 騎士 カリム（A が 台本の guest で 入れる。companions-c7.js）
-GUESTS.karim = KARIM_GUEST;
+//   第8章 第1幕（Lv80〜83）でも もう一度 ゲスト。レベルの 上限（第78回 shared/guest-rule.js）は 第8章 第1幕まで
+GUESTS.karim = { ...KARIM_GUEST, maxLevel: 84 };
 // 第2部 第7章 第2幕: 千年前の 海の 小さな 島の 少年 カイ（A が 台本の guest で 入れる。companions-c7s.js）
 GUESTS.kai = KAI_GUEST;
 // 第2部 第8章 第2幕: もう一度 ゲストの カイ（第7章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備）
