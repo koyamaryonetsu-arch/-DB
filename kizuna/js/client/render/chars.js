@@ -2,40 +2,42 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=1a9ce710eac8';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=1a9ce710eac8';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=1a9ce710eac8';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=1a9ce710eac8';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=1a9ce710eac8';
-import { paintCh5Special } from './ch5-art.js?v=1a9ce710eac8';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=1a9ce710eac8';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=1a9ce710eac8';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=1a9ce710eac8';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=1a9ce710eac8';
-import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=1a9ce710eac8';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=1a9ce710eac8';
-import { R26_OLD_LOOK } from './hero-r26.js?v=1a9ce710eac8';
-import { R27_OLD_LOOK } from './hero-r27.js?v=1a9ce710eac8';
-import { R29_OLD_LOOK } from './hero-r29.js?v=1a9ce710eac8';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=1a9ce710eac8';
-import { R40_OLD_LOOK } from './hero-r40.js?v=1a9ce710eac8';
-import { R41B_OLD_LOOK } from './hero-r41b.js?v=1a9ce710eac8';
-import { R41A_OLD_LOOK } from './hero-r41a.js?v=1a9ce710eac8';
-import { R43J_OLD_LOOK } from './hero-r43j.js?v=1a9ce710eac8';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=a1c844b80134';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=a1c844b80134';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=a1c844b80134';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=a1c844b80134';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=a1c844b80134';
+import { paintCh5Special } from './ch5-art.js?v=a1c844b80134';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=a1c844b80134';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=a1c844b80134';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=a1c844b80134';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=a1c844b80134';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=a1c844b80134';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=a1c844b80134';
+import { R26_OLD_LOOK } from './hero-r26.js?v=a1c844b80134';
+import { R27_OLD_LOOK } from './hero-r27.js?v=a1c844b80134';
+import { R29_OLD_LOOK } from './hero-r29.js?v=a1c844b80134';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=a1c844b80134';
+import { R40_OLD_LOOK } from './hero-r40.js?v=a1c844b80134';
+import { R41B_OLD_LOOK } from './hero-r41b.js?v=a1c844b80134';
+import { R41A_OLD_LOOK } from './hero-r41a.js?v=a1c844b80134';
+import { R43J_OLD_LOOK } from './hero-r43j.js?v=a1c844b80134';
 // 第51回 W の 天気の 職業
-import { WEATHER_OLD_LOOK } from './hero-weather.js?v=1a9ce710eac8';
+import { WEATHER_OLD_LOOK } from './hero-weather.js?v=a1c844b80134';
 // 第66回 B班の 伝説の 職業
-import { R66B_OLD_LOOK } from './hero-r66b.js?v=1a9ce710eac8';
+import { R66B_OLD_LOOK } from './hero-r66b.js?v=a1c844b80134';
 // 第66回 A の 伝説の 職業 4つ
-import { R66A_OLD_LOOK } from './hero-r66a.js?v=1a9ce710eac8';
+import { R66A_OLD_LOOK } from './hero-r66a.js?v=a1c844b80134';
 // 第66回 C班の 伝説の職業（総理大臣・会長・働き方改革の星・あの方）
-import { R66C_OLD_LOOK } from './hero-r66c.js?v=1a9ce710eac8';
+import { R66C_OLD_LOOK } from './hero-r66c.js?v=a1c844b80134';
 // 第66回 D班の 伝説の 職業の 古い え（hero-r66d.js）
-import { R66D_OLD_LOOK } from './hero-r66d.js?v=1a9ce710eac8';
+import { R66D_OLD_LOOK } from './hero-r66d.js?v=a1c844b80134';
 // 第66回 E1班の 6つの 職業（hero-r66e1.js）
-import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=1a9ce710eac8';
+import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=a1c844b80134';
 // 第66回 E2 の 6つの 職業の 古い え（hero-r66e2.js）
-import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=1a9ce710eac8';
+import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=a1c844b80134';
+// 第79回: 幻の職業の 古い 小さな え（hero-r79.js）
+import { R79_OLD_LOOK } from './hero-r79.js?v=a1c844b80134';
 
 export const CW = 16;
 export const CH = 21;
@@ -144,6 +146,7 @@ Object.assign(JOB_LOOK, R66C_OLD_LOOK);
 Object.assign(JOB_LOOK, R66D_OLD_LOOK);
 Object.assign(JOB_LOOK, R66E1_OLD_LOOK);
 Object.assign(JOB_LOOK, R66E2_OLD_LOOK);
+Object.assign(JOB_LOOK, R79_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

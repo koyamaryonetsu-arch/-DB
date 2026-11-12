@@ -5,9 +5,11 @@
 // ・あるく コマ（f）で ほのおの ながさが かわる（ゆらぐ）
 // ・えの はし 1ドットには かかない（はみ出さない）
 // 第41回 B: 雪の女王・第5のせいれいの オーラ（hero-r41b.js）
-import { AURA41B, aura41b } from './hero-r41b.js?v=1a9ce710eac8';
+import { AURA41B, aura41b } from './hero-r41b.js?v=a1c844b80134';
 // 第43回: ピーチ（ピンクの ひかり）・マリオ（金の 星）の オーラ（hero-r43j.js）
-import { AURA43J, aura43j } from './hero-r43j.js?v=1a9ce710eac8';
+import { AURA43J, aura43j } from './hero-r43j.js?v=a1c844b80134';
+// 第79回: 幻の職業の オーラ（hero-r79.js。cols2 は みぎ半分の 色）
+import { AURA79 } from './hero-r79.js?v=a1c844b80134';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -32,6 +34,7 @@ const AURA = {
 // 第41回 B: 雪の女王（雪の けっしょう）・第5のせいれい（白い ひかりと 4つの せいれいの 光。hero-r41b.js）
 Object.assign(AURA, AURA41B);
 Object.assign(AURA, AURA43J);
+Object.assign(AURA, AURA79);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
@@ -259,10 +262,11 @@ function flames(img, filled, A, bb, f, k) {
       }
     }
   }
+  const mid = (bb.x0 + bb.x1) / 2;
   for (let i = 0; i < w * h; i++) {
     const l = Math.min(n, lvl[i]);
     if (!l) continue;
-    const [col, a] = A.cols[l - 1];
+    const [col, a] = (A.cols2 && i % w > mid ? A.cols2 : A.cols)[l - 1];
     const c = parseInt(col.slice(1), 16);
     rgba[i * 4] = (c >> 16) & 255;
     rgba[i * 4 + 1] = (c >> 8) & 255;

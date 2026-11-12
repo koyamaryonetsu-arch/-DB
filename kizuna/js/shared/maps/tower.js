@@ -11,10 +11,10 @@
 // ・みちびきの糸・リレミトは 使える（長いので。noEscape なし）。魔物は 1〜4階 t5_tower_low・5〜8階 t5_tower_high（B が 作る）
 // ・第38回 A: 1〜8階を 広げた（わき道・宝の 小べや・見晴らしの 広間。2階に 宝の 屋根うらへの 2つ目の 上り下りの ゆか）。
 //   形の 版は TOWER_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
-import { T, parseRows } from '../tiles.js?v=1a9ce710eac8';
-import { npc } from './npc.js?v=1a9ce710eac8';
-import { PLACES } from './overworld.js?v=1a9ce710eac8';
-import { TOWER_ROWS, TOP_ROWS, STAR_ORDER, STAR_FAKE } from './tower-rows.js?v=1a9ce710eac8';
+import { T, parseRows } from '../tiles.js?v=a1c844b80134';
+import { npc } from './npc.js?v=a1c844b80134';
+import { PLACES } from './overworld.js?v=a1c844b80134';
+import { TOWER_ROWS, TOP_ROWS, STAR_ORDER, STAR_FAKE } from './tower-rows.js?v=a1c844b80134';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS。plan-ch5.md の 11 の 名前の 約束）

@@ -6,7 +6,7 @@
 //   めやす: ケロベロス … 30%いじょう（F）／ホネギョ … 12〜20%（E）／ビリクラゲ … 12〜20%（D）／青火のたましい … 6〜12%（C）／ヒドラン … 6〜12%（A）
 //   （ホネギョは 仲間に なりやすい 1/11・ビリクラゲは ときどき 1/15 なので、おなじ 出やすさでも ランクが ちがう）
 //   第8章の B〜S は 2わりまで（test/monsters-r43a.test.js）なので、第2幕の B〜S は ヒドランだけ
-import { C8_PAIN, C8_PANIC, C8_HADES } from './monsters-c8b.js?v=1a9ce710eac8';
+import { C8_PAIN, C8_PANIC, C8_HADES } from './monsters-c8b.js?v=a1c844b80134';
 
 export const ENCOUNTERS_C8B = {
   t8b_temple: [
