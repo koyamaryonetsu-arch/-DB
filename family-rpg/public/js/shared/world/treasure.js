@@ -11,7 +11,7 @@ import { ScriptRun } from './scripts.js';
 import { partyOf } from './party.js';
 import {
   TM_MAX, TM_PEND_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
-  mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
+  mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps, tmLvCap,
 } from '../data/treasure.js';
 
 import { ensureTmClears, addTmClear } from '../data/casino-tier.js';
@@ -105,7 +105,8 @@ export function grantTreasureMap(world, c, { lv = 1, map = null } = {}) {
   const mapId = map || (canSail && makeRng(seed).chance(0.35) ? 'sea' : 'overworld');
   const spot = pickDigSpot(seed, mapId, [...c.treasureMaps, ...pend]);
   if (!spot) return null;
-  const rec = { id: seed36(seed), seed, lv: Math.max(1, Math.floor(lv)), map: spot.map, x: spot.x, y: spot.y, found: false, cleared: false, at: world.now() };
+  // 第80回 C: 地図の レベルは その キャラの 上限まで（第8章クリアの 前は 45。data/treasure.js の tmLvCap）
+  const rec = { id: seed36(seed), seed, lv: Math.max(1, Math.min(tmLvCap(c), Math.floor(lv))), map: spot.map, x: spot.x, y: spot.y, found: false, cleared: false, at: world.now() };
   if (full) c.tmPending = [...pend, rec];
   else c.treasureMaps.push(rec);
   world.markDirty();

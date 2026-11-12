@@ -53,4 +53,8 @@ export const FIXED_ARENA = {
   ar12_1: A([['palace_guard', 2, 2], ['cobrar', 1, 1]], 87),
   ar12_2: A([['lamp_smoke', 1, 1], ['sanbo', 1, 1], ['moon_scarab', 1, 1]], 88),
   ar12_3: CHAMP([['ar_bubble_crab', 1, 1], ['ar_leviathan', 1, 1], ['ar_glow_jelly', 1, 1]], 'boss3'),
+  // 第80回 C: ランク13（Lv96。第8章クリアの あと）… 第8章 第2幕（よみの 海底神殿）・第3幕（くろがねの 空中ようさい）の 魔物
+  ar13_1: A([['hydran', 1, 1], ['blue_soul', 1, 1], ['biri_jelly', 1, 1]], 95),
+  ar13_2: A([['dosshiin', 1, 1], ['dodeka_killer', 1, 1], ['tonkachi_bro', 1, 1]], 96),
+  ar13_3: CHAMP([['ar_clock_knight', 1, 1], ['ar_chronos', 1, 1], ['ar_sand_fairy', 1, 1]], 'boss3'),
 };

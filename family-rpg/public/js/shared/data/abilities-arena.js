@@ -429,4 +429,57 @@ export const ARENA_ABILITIES = {
     effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.1 }, { type: 'status', status: 'paralyze', chance: 0.2, turns: [1, 1] }] }, cast: '{a}は、ながいしょくしゅで、{t}をぴしゃりと打った！', anim: 'tackle',
     desc: 'しょくしゅで、1人にダメージ。動けなくすることがある。',
   },
+
+  // ───── 第80回 C: ランク13（伝説の部）の 王者: 時の大王者クロノガルドと 時計の騎士チクタク・砂時計の精サラリ
+  //   （時の まきもどし。砂時計を さかさまに する・まきもどすは battle-arena.js の arFlip・arRewind）─────
+  m_ar13_hands: {
+    name: '時計の針', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.5 }, cast: '{a}は、大きな時計の針で、{t}をつきさした！', anim: 'slash_heavy',
+    desc: '大きな時計の針で、1人に大ダメージ。',
+  },
+  m_ar13_gears: {
+    name: '歯車のあらし', kind: 'monster', target: 'enemies',
+    effect: { type: 'phys', mult: 0.72 }, cast: '{a}の体から、たくさんの歯車がとび出した！', anim: 'hit_all',
+    desc: '歯車をとばして、敵みんなにダメージ。',
+  },
+  m_ar13_flip: {
+    name: '砂時計がえし', kind: 'monster', target: 'self',
+    effect: { type: 'arFlip' }, cast: '{a}は、大きな砂時計を、くるりとさかさまにした！', anim: 'buff',
+    desc: '次の番までに受けたダメージを、まきもどす。その間にダメージを受けないと、時がゆがむ。',
+  },
+  m_ar13_rewind: {
+    name: '時のまきもどし', kind: 'monster', target: 'self',
+    effect: { type: 'arRewind' }, cast: '{a}の砂時計の砂が、さかさまに流れ始めた…！', anim: 'heal1',
+    desc: '砂時計をさかさまにしてから受けたダメージを、まきもどす。',
+  },
+  m_ar13_inhale: {
+    name: '時のあらしの前ぶれ', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_ar13_storm' }, cast: '{a}の歯車が、ものすごい速さで回り始めた…！\n（闘技場の時計が、ぐるぐると回り出した！）', anim: 'charge',
+    desc: '次の番に「時のはざまの大あらし」。身を守ろう。',
+  },
+  m_ar13_storm: {
+    name: '時のはざまの大あらし', kind: 'monster', target: 'enemies',
+    effect: { type: 'magic', element: 'wind', base: [250, 270], thr: 99 }, cast: '{a}の、時のはざまの大あらし！\n闘技場に、いくつもの時代の風がふきあれた！', anim: 'blizzard',
+    desc: '時のあらしで、敵みんなにとても大きなダメージ。身を守ると少し弱くなる。',
+  },
+  m_ar13_slash: {
+    name: '秒針ぎり', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.35 }, cast: '{a}は、秒針の剣で、{t}にすばやく切りかかった！', anim: 'slash_heavy',
+    desc: '秒針の剣で、1人にダメージ。',
+  },
+  m_ar13_guard: {
+    name: '時計のたて', kind: 'monster', target: 'self',
+    effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 25 }, cast: '{a}は、時計の文字ばんのたてを、かまえた！', anim: 'guard',
+    desc: '守りを上げる。',
+  },
+  m_ar13_sand: {
+    name: '時の砂', kind: 'monster', mp: 8, target: 'enemies',
+    effect: { type: 'magic', element: 'wind', base: [125, 145], thr: 99 }, cast: '{a}は、時の砂を、いきおいよくふきつけた！', anim: 'hit_all',
+    desc: '時の砂をふきつけて、敵みんなにダメージ。',
+  },
+  m_ar13_sleep: {
+    name: 'ねむりの砂', kind: 'monster', mp: 6, target: 'enemies',
+    effect: { type: 'status', status: 'sleep', chance: 0.25, turns: [1, 2] }, cast: '{a}は、ねむりの砂を、さらさらとまいた！', anim: 'sleep',
+    desc: '敵みんなを、ねむらせることがある。',
+  },
 };

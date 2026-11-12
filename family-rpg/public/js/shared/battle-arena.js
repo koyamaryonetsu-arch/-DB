@@ -24,19 +24,27 @@
 //   大うずしおは、のこりの あわが 多いほど 強い（bigBase ＋ bigPer × あわの 数 ばい）→ 前ぶれの 間に あわを わると 弱く なる
 //   知っている 人: あわが ある 間は 王者に 強い 技を 使わない（ふつうの 攻撃・みんなを ねらう 技・何回も 打つ 技で あわを わる）・
 //   あわが なくなったら みんなで 王者（合体技も その 時だけ）
+// ・第80回 C: 時の まきもどし（monsters の arena.rewind。ランク13 時の大王者クロノガルド）
+//   砂時計を さかさまに する（効果 arFlip … arMark ＝ その 時の HP・arMarkAt ＝ 行動の 数）。ripe 回 動いた あとの 番に まきもどす
+//   （cond 'c5:arRewindReady'・効果 arRewind）。その 間に 受けた ダメージは もとに もどる（HP を arMark まで）。
+//   その 間に ダメージを 1つも 受けないと「まきもどす 時が ない」→ 時が ゆがむ（arWarpAt）。open 回 動く まで openMult ばいの ダメージ（大チャンス）
+//   知っている 人: 砂時計が さかさまの 間は 王者を たたかない（おともを ねらう・守る）。時が ゆがんだら みんなで 王者（合体技も その 時だけ）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
 import { atbRate } from './battle.js';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
-export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard', 'm_ar12_maelstrom']);
+export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard', 'm_ar12_maelstrom', 'm_ar13_storm']);
 const confOf = (m) => MONSTERS[m?.species]?.arena || null;
 const teamOf = (m) => confOf(m)?.team || null;
 const armorConf = (m) => confOf(m)?.armor || null;
 const frostConf = (m) => confOf(m)?.frost || null;
 // 第74回 C: あわの よろい（王者だけ）
 export const bubbleConf = (m) => confOf(m)?.bubble || null;
+// 第80回 C: 時の まきもどし（王者だけ）。warped … 時が ゆがんで いる（大チャンス）
+export const rewindConf = (m) => confOf(m)?.rewind || null;
+export const warped = (m) => !!rewindConf(m) && m.arWarpAt != null && actsOf(m) - m.arWarpAt < (rewindConf(m).open ?? 3);
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 const actsOf = (m) => Object.values(m.used || {}).reduce((s, n) => s + n, 0);
 // 組の 人（たおれた 人も ふくむ・にげた 人は のぞく）
@@ -77,6 +85,10 @@ export function arenaCond(b, m, cond) {
     const conf = bubbleConf(m);
     return !!conf && !(m.arBubble > 0) && actsOf(m) - (m.arPopAt ?? -99) >= (conf.wait ?? 3);
   }
+  // 第80回 C: 時の まきもどし
+  if (cond === 'arCanFlip') return !!rewindConf(m) && m.arMark == null && !warped(m);
+  if (cond === 'arNoFlip') return !!rewindConf(m) && m.arMark == null;
+  if (cond === 'arRewindReady') return !!rewindConf(m) && m.arMark != null && actsOf(m) - (m.arMarkAt ?? 0) >= (rewindConf(m).ripe ?? 2);
   return null;
 }
 
@@ -99,6 +111,24 @@ export function arenaEffect(b, c, a, eff, ev, targets = []) {
       // 第74回 C: あわの よろいを まとい直す（もう ぜんぶ ある ときは 何も おこらない）
       if (bubbleConf(c) && c.arBubble < bubbleConf(c).max) wearBubbles(b, c, ev);
       else ev.lines.push('しかし、何もおこらなかった。');
+      return true;
+    }
+    case 'arFlip': {
+      // 第80回 C: 砂時計を さかさまに する（今の HP を おぼえる）
+      if (!rewindConf(c) || c.arMark != null) {
+        ev.lines.push('しかし、何もおこらなかった。');
+        return true;
+      }
+      c.arMark = c.hp;
+      c.arMarkAt = actsOf(c);
+      ev.lines.push('（砂時計がもどるまでに受けたダメージは、まきもどされてしまう！）');
+      ev.fx = { type: 'ability', anim: 'buff', actor: c.id, targets: [c.id], side: c.side };
+      ev.arFlip = c.id;
+      ev.upd.push(c);
+      return true;
+    }
+    case 'arRewind': {
+      rewind(b, c, ev);
       return true;
     }
     case 'arSpell': {
@@ -238,6 +268,31 @@ function bubbleBig(c, dmg, ev) {
   return Math.max(1, Math.round(dmg * ((conf.bigBase ?? 0.4) + (conf.bigPer ?? 0.2) * n)));
 }
 
+// ───────────── 第80回 C: 時の まきもどし ─────────────
+// まきもどす: さかさまに して から 受けた ダメージを もどす。ダメージを 受けて いなければ 時が ゆがむ（大チャンス）
+function rewind(b, c, ev) {
+  if (!rewindConf(c) || c.arMark == null) {
+    ev.lines.push('しかし、何もおこらなかった。');
+    return;
+  }
+  const back = Math.max(0, Math.min(c.maxHp, c.arMark) - c.hp);
+  c.arMark = null;
+  c.arMarkAt = null;
+  ev.results = ev.results || [];
+  if (back > 0) {
+    c.hp += back;
+    ev.lines.push('時が、まきもどった！', `${c.name}のHPが${back}もどった！`);
+    ev.results.push({ id: c.id, heal: back });
+    ev.fx = { type: 'ability', anim: 'heal1', actor: c.id, targets: [c.id], side: c.side };
+  } else {
+    c.arWarpAt = actsOf(c);
+    ev.lines.push('しかし、まきもどす時が、なかった！', `砂時計にひびが入って、時がゆがんだ！今が大チャンスだ！`);
+    ev.fx = { type: 'ability', anim: 'none', actor: c.id, targets: [], side: c.side };
+    ev.arWarp = c.id;
+  }
+  ev.upd.push(c);
+}
+
 function breakArmor(b, t, ev) {
   const el = t.arArmor;
   t.arArmor = null;
@@ -256,6 +311,8 @@ export function arenaDamage(b, c, t, dmg, info, ev) {
   if (c && t && c.side !== t.side && bubbleConf(c) && ARENA_BIG.has(ev.ability) && dmg > 0) return bubbleBig(c, dmg, ev);
   if (t && c && c.side !== t.side && bubbleConf(t) && t.alive !== false && dmg > 0) return bubbleDamage(b, c, t, dmg, ev);
   if (t && c && c.side !== t.side && frostConf(t) && t.alive !== false && dmg > 0) return frostDamage(b, c, t, dmg, info, ev);
+  // 第80回 C: 時が ゆがんで いる 王者には openMult ばい
+  if (t && c && c.side !== t.side && warped(t) && dmg > 0) return Math.round(dmg * (rewindConf(t).openMult ?? 1.3));
   if (!t?.arArmor || !c || c.side === t.side) return dmg;
   const conf = armorConf(t);
   const el = info?.element;
@@ -280,6 +337,9 @@ export function arenaDamage(b, c, t, dmg, info, ev) {
 // 大技が 自分の 次の 番より 先に 来るなら 身を 守る（合体技は 組が 2人いじょう いる とき）
 export function arenaPlan(b, c) {
   if (c.side !== 'ally' || !b.knowsArena) return null;
+  // 第80回 C: 砂時計が さかさまの 間に 王者しか いない … 身を 守って 待つ
+  const foes0 = b.aliveEnemies();
+  if (foes0.length && foes0.every((e) => rewindConf(e) && e.arMark != null)) return { type: 'defend' };
   const mine = 100 / atbRate(c);
   for (const e of b.aliveEnemies()) {
     if (!ARENA_BIG.has(e.telegraph)) continue;
@@ -324,6 +384,13 @@ export function arenaAdjust(b, c, opts) {
         if (all) o.final *= 1.3;
         else o.final = (cmd.type === 'attack' ? 1 : o.mp > 0 ? 0.25 : 0.6) * ARENA_POP_VALUE * Math.min(f.arBubble, prim(a).hits || 1);
       } else o.final *= 1.8;
+    }
+    // 第80回 C: 時の まきもどし。砂時計が さかさまの 間は 王者を たたかない（みんなを ねらう 技は おともにも 当たるので 少しだけ）。
+    //   時が ゆがんだら 王者を ねらう
+    for (const f of hit) {
+      if (!rewindConf(f)) continue;
+      if (f.arMark != null) o.final *= all ? 0.5 : 0.03;
+      else if (warped(f)) o.final *= 1.8;
     }
     if (!t || all) continue;
     const tc = confOf(t);

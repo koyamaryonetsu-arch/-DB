@@ -126,7 +126,9 @@ export const tmGearRank = (lv) => ((lv || 1) >= TM_GEAR_DEEP ? 10 : clamp(2 + Ma
 export const TM_GEAR_C7 = 36;
 // 第74回 C: 地図 Lv41 から 14（TM_GEAR_C8。上限 Lv45 まで。物語の 月の王宮の 宝箱〈1.12×1.79〜1.86〉の 少し あとを 追う 強さ）
 export const TM_GEAR_C8 = 41;
-export const tmGearStep = (lv) => ((lv || 1) >= TM_GEAR_C8 ? 14 : (lv || 1) >= TM_GEAR_C7 ? 13 : (lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
+// 第80回 C: 地図 Lv46 から 15（TM_GEAR_END8。上限 Lv50 まで。物語の くろがねの 空中ようさいの 宝箱〈1.12×1.95〜2.02〉と おなじ くらい）
+export const TM_GEAR_END8 = 46;
+export const tmGearStep = (lv) => ((lv || 1) >= TM_GEAR_END8 ? 15 : (lv || 1) >= TM_GEAR_C8 ? 14 : (lv || 1) >= TM_GEAR_C7 ? 13 : (lv || 1) >= 33 ? 12 : (lv || 1) >= 30 ? 11 : tmGearRank(lv));
 export const tmStepOf = (it) => it?.tmStep ?? it?.rank ?? 0;
 // レア度の 出やすさ（normal: ふつうの 宝箱 / bossA: 主の 宝箱）
 //   第65回 C: 地図 Lv26 から（深い 宝の洞窟の 品は レア度 3〜4）: ふつうの 宝箱は 3 が 多め・主の 宝箱は 4 が 多め
