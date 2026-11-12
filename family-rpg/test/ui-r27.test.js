@@ -110,7 +110,9 @@ test('長おしの お気に入り: ListMenu の onLong（0.5秒・はなした 
   assert.match(dom, /addEventListener\('click', swallow, \{ capture: true, once: true \}\)/);
   const input = src('js/client/input.js');
   assert.match(input, /KeyY: 'y'/);
-  assert.match(input, /yKey \? 'y' : 'b'/);
+  // 第79回: yKey の まどでは 左（2）・上（3）の どちらも Y（ほかでは 上は B。test/skill-menu-pad-r79.test.js）
+  assert.match(input, /if \(yKey && \(top \|\| left\)\) this\.emit\('y'\);/);
+  assert.match(input, /if \(start \|\| \(!yKey && top\)\) this\.emit\('b'\);/);
   const bsrc = src('js/client/battle.js');
   assert.match(bsrc, /this\.menu\.onLong = \(it\) =>/);
   assert.match(bsrc, /favPopup\(a, id, toggle\)/);
