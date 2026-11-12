@@ -152,6 +152,9 @@ export const NPC_SUPPORTS = [
 ];
 
 // ものがたりで いっしょに たたかう ゲスト
+// 第78回: 強さは きまり（shared/guest-rule.js・docs/plan-r78-guest.md）が 戦いの はじめに きめる。
+//   書く もの: id・name・job・look・tactics・skills（その 人の 技）・gear（装備の 見た目。その 幕の 品）・minLevel（その 幕の はじめの レベル）。
+//   maxLevel は 2つの 幕に 出る 時だけ（ない ときは minLevel ＋ 8）。手で 強さを 合わせない
 export const GUESTS = {
   luca: { id: 'guest_luca', name: 'ルカ', job: 'monk', look: { body: 0, hair: 2, hairColor: 2, skin: 1, color: 5 }, tactics: 'aggressive', minLevel: 2 },
 };
@@ -162,7 +165,8 @@ GUESTS.minamo = MINAMO_GUEST;
 // 第2部 第6章 Step 5: 最初の 紋章の 勇者 リオン（A が 台本の guest で 入れる。companions-tokei.js）
 GUESTS.rion = RION_GUEST;
 // 第2部 第7章 第1幕: 千年前の 若い 騎士 カリム（A が 台本の guest で 入れる。companions-c7.js）
-GUESTS.karim = KARIM_GUEST;
+//   第8章 第1幕（Lv80〜83）でも もう一度 ゲスト。レベルの 上限（第78回 shared/guest-rule.js）は 第8章 第1幕まで
+GUESTS.karim = { ...KARIM_GUEST, maxLevel: 84 };
 // 第2部 第7章 第2幕: 千年前の 海の 小さな 島の 少年 カイ（A が 台本の guest で 入れる。companions-c7s.js）
 GUESTS.kai = KAI_GUEST;
 // 第2部 第8章 第2幕: もう一度 ゲストの カイ（第7章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備）

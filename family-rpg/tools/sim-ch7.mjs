@@ -21,6 +21,7 @@ import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { GUESTS } from '../public/js/shared/data/shops.js';
 import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
+import { guestForBattle, scaleGuestActor } from '../public/js/shared/guest-rule.js';
 import { C7_GATE, C7_TEMPLE } from '../public/js/shared/data/monsters-c7.js';
 import { C7_REEF, C7_LIGHT } from '../public/js/shared/data/monsters-c7s.js';
 import { voicesOf } from '../public/js/shared/battle-c7.js';
@@ -143,6 +144,12 @@ export const karimChar = (lv) => makeNpcSupportChar({ ...GUESTS.karim }, Math.ma
 export const kaiChar = (lv) => makeNpcSupportChar({ ...GUESTS.kai }, Math.max(GUESTS.kai.minLevel || 1, lv));
 // 第3幕: ゲストは いない。GUEST=kai の ときだけ 酒場の カイ（KAI_SUPPORT。おなじ 強さ）を 5人めに
 const act3Guest = () => process.env.GUEST === 'kai';
+// 第78回: ゲストの 強さの きまり（shared/guest-rule.js。world/battles.js の makeBattle と おなじ）。GRULE=0 … きまりの 前（minLevel と パーティーの レベル）
+export function ruledGuest(id, party, lv) {
+  if (process.env.GRULE === '0') return { char: makeNpcSupportChar({ ...GUESTS[id] }, Math.max(GUESTS[id].minLevel || 1, lv)), k: 1 };
+  const g = guestForBattle(GUESTS[id], party);
+  return { char: g.char, k: g.plan.k, plan: g.plan };
+}
 const group = (boss) => FIXED_ENCOUNTERS[CH7_IDS[boss]].group.flatMap(([sp, n]) => Array(n).fill(sp));
 
 // 合体技（知っている 人）: 大うずしお・大合唱が 近い ときは しない。ウツボは HP の 多い ほうへ
@@ -193,11 +200,15 @@ function dual7(b, a, boss, skip) {
 export function ch7Run(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = ACT3.has(boss) ? act3Guest() : process.env.GUEST !== '0' } = {}) {
   const party = ch7Party(boss, lv, kit);
   const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
+  let gk = 1;
   if (guest) {
-    const k = ACT2.has(boss) || ACT3.has(boss) ? kaiChar(lv) : karimChar(lv);
-    allies.push({ char: k, kind: 'guest', auto: true, tactics: k.tactics });
+    // 第3幕の 酒場の カイ（GUEST=kai）は ゲストで ない ので きまりを 通さない
+    const g = ACT3.has(boss) ? { char: kaiChar(lv), k: 1 } : ruledGuest(ACT2.has(boss) ? 'kai' : 'karim', party, lv);
+    gk = g.k;
+    allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
   }
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss) });
+  scaleGuestActor(b.allies.find((a) => a.kind === 'guest'), gk);
   if (know) {
     b.knowsCh6 = true;
     if (skip === 'guard' || skip === 'trick') b.c6NoGuard = true;

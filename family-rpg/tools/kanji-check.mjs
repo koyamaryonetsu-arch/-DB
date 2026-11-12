@@ -487,6 +487,8 @@ export function gameFiles() {
     'public/js/shared/gear-base.js', 'public/js/client/ui/equip-compare.js', 'public/js/client/ui/paper-pop.js',
     // 第78回: 冒険のしおり
     'public/js/shared/world/shiori.js', 'public/js/client/ui/shiori.js', 'public/js/client/ui/r78-shiori-css.js',
+    // 第78回: ゲストの 強さの きまり
+    'public/js/shared/guest-rule.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -83,7 +83,8 @@ test('名前の 約束（plan-ch7.md の 3）: c7_gate・c7_temple・t7_kingdom�
   assert.deepEqual(Object.keys(C7_TREASURE).map(Number), [1, 2, 3, 4, 5, 6, 7, 8]);
   for (const list of Object.values(C7_TREASURE)) assert.equal(list.length, 2);
   assert.ok(C7_LETTER_REWARDS.length >= 3 && C7_LETTER_REWARDS.length <= 4);
-  assert.equal(GUESTS.karim, KARIM_GUEST);
+  // 第78回: 第8章 第1幕でも ゲストなので レベルの 上限（maxLevel）だけ 足した（強さは shared/guest-rule.js の きまり）
+  assert.deepEqual(GUESTS.karim, { ...KARIM_GUEST, maxLevel: 84 });
   assert.equal(MONSTERS[C7_TEMPLE].name, 'オクタリア');
 });
 

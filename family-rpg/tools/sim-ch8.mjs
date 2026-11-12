@@ -29,9 +29,8 @@ import { C8_KAMEK, C8_BOWSER } from '../public/js/shared/data/monsters-c8c.js';
 import { aimedKid, axeOf } from '../public/js/shared/battle-c8c.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
-import { karimChar, kaiChar } from './sim-ch7.mjs';
-import { GUESTS } from '../public/js/shared/data/shops.js';
-import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
+import { ruledGuest } from './sim-ch7.mjs';
+import { scaleGuestActor } from '../public/js/shared/guest-rule.js';
 
 // 調整用（データを かえる 前に ためす）
 const nums = (v) => v.split(',').map(Number);
@@ -220,13 +219,15 @@ function dual8(b, a, boss, skip) {
 export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = process.env.GUEST !== '0' } = {}) {
   const party = ch8Party(boss, lv, kit);
   const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
+  let gk = 1;
   if (guest) {
-    // 第1幕は カリム・第2幕は カイ（kai8）・第3幕は リオン（rion8）
-    const g8 = ACT3.has(boss) ? GUESTS.rion8 : ACT2.has(boss) ? GUESTS.kai8 : null;
-    const k = g8 ? makeNpcSupportChar({ ...g8 }, Math.max(g8.minLevel, lv)) : karimChar(lv);
-    allies.push({ char: k, kind: 'guest', auto: true, tactics: k.tactics });
+    // 第1幕は カリム・第2幕は カイ（kai8）・第3幕は リオン（rion8）。第78回: 強さは きまり（shared/guest-rule.js。GRULE=0 で 前の 作り方）
+    const g = ruledGuest(ACT3.has(boss) ? 'rion8' : ACT2.has(boss) ? 'kai8' : 'karim', party, lv);
+    gk = g.k;
+    allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
   }
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss) });
+  scaleGuestActor(b.allies.find((a) => a.kind === 'guest'), gk);
   if (know) {
     b.knowsCh6 = true;
     if (skip === 'guard' || skip === 'trick') b.c6NoGuard = true;
