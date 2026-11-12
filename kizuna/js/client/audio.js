@@ -1,42 +1,32 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=a13852808b4d';
-import { SFX_R27 } from './sfx-r27.js?v=a13852808b4d';
-import { SFX_R29 } from './sfx-r29.js?v=a13852808b4d';
-import { SFX_R33 } from './sfx-r33.js?v=a13852808b4d';
-import { SFX_PK } from './sfx-pokemon.js?v=a13852808b4d';
-import { SFX_DQ } from './sfx-dqm.js?v=a13852808b4d';
+import { SFX_R26 } from './sfx-r26.js?v=76aae2682384';
+import { SFX_R27 } from './sfx-r27.js?v=76aae2682384';
+import { SFX_R29 } from './sfx-r29.js?v=76aae2682384';
+import { SFX_R33 } from './sfx-r33.js?v=76aae2682384';
+import { SFX_PK } from './sfx-pokemon.js?v=76aae2682384';
+import { SFX_DQ } from './sfx-dqm.js?v=76aae2682384';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=a13852808b4d';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=a13852808b4d';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=a13852808b4d';
-import { EARTH_TRACKS } from './audio-earth.js?v=a13852808b4d';
-import { CASTLE_TRACKS } from './audio-castle.js?v=a13852808b4d';
-import { TOP_TRACKS } from './audio-top.js?v=a13852808b4d';
-import { CH6_TRACKS } from './audio-ch6.js?v=a13852808b4d';
+import { SFX_AX } from './sfx-ax.js?v=76aae2682384';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=76aae2682384';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=76aae2682384';
+import { EARTH_TRACKS } from './audio-earth.js?v=76aae2682384';
+import { CASTLE_TRACKS } from './audio-castle.js?v=76aae2682384';
+import { TOP_TRACKS } from './audio-top.js?v=76aae2682384';
+import { CH6_TRACKS } from './audio-ch6.js?v=76aae2682384';
 // 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
-import { C8B_TRACKS } from './audio-c8b.js?v=a13852808b4d';
+import { C8B_TRACKS } from './audio-c8b.js?v=76aae2682384';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパードの 曲（audio-c8c.js）
-import { C8C_TRACKS } from './audio-c8c.js?v=a13852808b4d';
+import { C8C_TRACKS } from './audio-c8c.js?v=76aae2682384';
+// 第77回 B: 作りなおした 曲（下で 前の 曲の 上に かぶせる）
+import { R77A_TRACKS } from './audio-r77a.js?v=76aae2682384';
+import { R77B_TRACKS } from './audio-r77b.js?v=76aae2682384';
 
-const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
+// 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
+import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=76aae2682384';
+import { TRACK_TRIM } from './audio-trim.js?v=76aae2682384';
 
-function freqOf(name) {
-  const m = /^([A-G][#b]?)(-?\d)$/.exec(name);
-  if (!m) return 0;
-  const n = NOTE_BASE[m[1]] + (Number(m[2]) + 1) * 12;
-  return 440 * Math.pow(2, (n - 69) / 12);
-}
-
-// 'C5:4 D5:2 r:2' → [{f, len}]
-function parse(str) {
-  return str.trim().split(/\s+/).map((tok) => {
-    const [n, l] = tok.split(':');
-    const len = Number(l || 4);
-    if (n === 'r') return { f: 0, len };
-    if (['k', 's', 'h'].includes(n)) return { drum: n, len };
-    return { f: freqOf(n), len };
-  });
-}
+// 'C5:4 D5:2 r:2' → [{f, len}]（第76回までの 読み方。テストが つかう）
+const parse = legacyParse;
 
 // ───────────── きょく ─────────────
 const TRACKS = {
@@ -488,6 +478,20 @@ const TRACKS = {
   },
 };
 
+// 第77回 B: 作りなおした 曲を 前の 曲の 上に かぶせる。
+// 前の データは legacy（「前の音」で 鳴る）と ch（tr.ch を 見る 古い テスト用）に のこす。
+// 新しい id の 曲（battle2 など）は legacyOf に 書いた 前の 曲を「前の音」で 鳴らす
+export function overlayTracks(base, over) {
+  for (const [id, t] of Object.entries(over)) {
+    const old = base[t.legacyOf || id];
+    const legacy = t.legacy || (old ? { bpm: old.legacy?.bpm || old.bpm, ch: old.legacy?.ch || old.ch } : undefined);
+    const { legacyOf, ...rest } = t;
+    base[id] = { ...rest, legacy, ch: t.ch || legacy?.ch };
+  }
+  return base;
+}
+overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
+
 // ───────────── こうかおん ─────────────
 export class GameAudio {
   constructor() {
@@ -497,16 +501,35 @@ export class GameAudio {
     this.sfxVol = 0.8;
     this.track = null;
     this.resumeTrack = null;
+    // 第77回: 音楽の 音（new 新しい音 / old 前の音）・音の 重さ（fine きれい / light かるい）
+    this.engineMode = 'new';
+    this.quality = 'fine';
+    this.autoLight = false;
+    this.engine = null;
+    // 場面で かわる 音楽（チーム C）。AudioContext が まだ なくても おぼえておく
+    this.adaptive = new AdaptiveState();
+    this.ambience = null;
     try {
       const s = JSON.parse(localStorage.getItem('kizuna_audio') || '{}');
       if (typeof s.music === 'number') this.musicVol = s.music;
       if (typeof s.sfx === 'number') this.sfxVol = s.sfx;
+      if (s.engine === 'old') this.engineMode = 'old';
+      if (s.quality === 'light') this.quality = 'light';
+    } catch { /* */ }
+  }
+
+  savePref(patch) {
+    try {
+      const s = JSON.parse(localStorage.getItem('kizuna_audio') || '{}');
+      localStorage.setItem('kizuna_audio', JSON.stringify({ ...s, ...patch }));
     } catch { /* */ }
   }
 
   unlock() {
     if (!this.ctx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
+      // node の テストなど AudioContext の ない 所では 何も しない
+      const W = typeof window !== 'undefined' ? window : globalThis;
+      const AC = W.AudioContext || W.webkitAudioContext;
       if (!AC) return;
       this.ctx = new AC();
       this.master = this.ctx.createGain();
@@ -526,6 +549,10 @@ export class GameAudio {
       this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      this.engine = new MusicEngine(this.ctx, this.musicGain, {
+        mode: this.engineMode, quality: this.quality, adaptive: this.adaptive, trims: TRACK_TRIM, seed: 77,
+      });
+      if (this.ambience) this.engine.playAmbience(this.ambience);
       setInterval(() => this.schedule(), 30);
       if (this.pending) this.play(this.pending);
     }
@@ -584,48 +611,25 @@ export class GameAudio {
     if (this.music && this.music.id === id && !force) return;
     if (tr.once && this.music && !TRACKS[this.music.id]?.once) this.resumeTrack = this.music.id;
     this.stop();
-    const spb = 60 / tr.bpm / 4; // 16ぶおんぷ の びょう
-    const out = this.ctx.createGain();
-    out.gain.value = 1;
-    out.connect(this.musicGain);
-    this.music = {
-      id, tr, spb, out,
-      chans: tr.ch.map((c) => ({ ...c, seq: parse(c.n), i: 0, t: this.ctx.currentTime + 0.08 })),
-      once: !!tr.once,
-    };
+    this.music = { id, tr, once: !!tr.once };
+    this.engine.start(id, tr);
+    this.markHeard(id);
   }
 
   stop(fade = 0.25) {
     if (!this.music) return;
-    const m = this.music;
     this.music = null;
-    try {
-      m.out.gain.setTargetAtTime(0, this.ctx.currentTime, fade / 3);
-      setTimeout(() => m.out.disconnect(), fade * 1000 + 200);
-    } catch { /* */ }
+    try { this.engine?.stop(fade); } catch { /* */ }
   }
 
   schedule() {
+    if (!this.ctx || !this.engine) return;
+    this.watchLate();
+    // 画面が かくれて いる ときは タイマーが おそく なるので 先まで 予約する
+    const hidden = typeof document !== 'undefined' && document.hidden;
+    this.engine.pump(this.ctx.currentTime + (hidden ? 1.5 : 0.3));
     const m = this.music;
-    if (!m || !this.ctx) return;
-    const ahead = this.ctx.currentTime + 0.2;
-    let allDone = true;
-    for (const ch of m.chans) {
-      while (ch.t < ahead) {
-        if (ch.i >= ch.seq.length) {
-          if (m.once) break;
-          ch.i = 0;
-        }
-        const n = ch.seq[ch.i++];
-        const dur = n.len * m.spb;
-        // ドラムの パートの r は やすみ（音を 出さない）
-        if (ch.drums) { if (n.drum) this.drum(n.drum, ch.t, ch.v, m.out); }
-        else if (n.f) this.note(n.f, ch.t, dur, ch.w, ch.v, m.out);
-        ch.t += dur;
-      }
-      if (ch.i < ch.seq.length) allDone = false;
-    }
-    if (m.once && allDone && this.ctx.currentTime > Math.max(...m.chans.map((c) => c.t))) {
+    if (m && m.once && this.engine.done()) {
       this.music = null;
       if (this.resumeTrack && this.autoResume !== false) {
         const r = this.resumeTrack;
@@ -635,56 +639,95 @@ export class GameAudio {
     }
   }
 
-  note(f, t, dur, wave, vol, out) {
-    const ctx = this.ctx;
-    const o = ctx.createOscillator();
-    if (wave === 'pulse') o.setPeriodicWave(this.pulseWave);
-    else o.type = wave === 'saw' ? 'sawtooth' : wave || 'square';
-    o.frequency.value = f;
-    const g = ctx.createGain();
-    const len = Math.max(0.05, dur * 0.92);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + 0.01);
-    g.gain.setTargetAtTime(vol * (wave === 'triangle' ? 0.8 : 0.55), t + 0.02, 0.08);
-    g.gain.setTargetAtTime(0, t + len - 0.03, 0.02);
-    let node = o;
-    if (wave === 'saw') {
-      const lp = ctx.createBiquadFilter();
-      lp.type = 'lowpass';
-      lp.frequency.value = 1400;
-      o.connect(lp);
-      node = lp;
+  // 予約が まにあわない（スマホが いそがしい）ときは「かるい」に 自動で かえる（この 回だけ。設定は かえない）
+  //   見る のは「本当に 音を 落とした」とき（予約が まにあわず 鳴らさなかった 音・小節）。
+  //   20びょうの 間に 4回 あったら。はじめの 10びょう（読みこみ中）と 画面が かくれて いる 間は 見ない
+  watchLate() {
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const eng = this.engine;
+    const drops = eng.lateBars + eng.dropped;
+    const fresh = drops > (this.seenDrops ?? drops);
+    this.seenDrops = drops;
+    if (this.quality === 'light' || this.autoLight) return;
+    if (typeof document !== 'undefined' && document.hidden) return;
+    if (!this.startedAt) this.startedAt = now;
+    if (now - this.startedAt < 10000 || !fresh) return;
+    this.drops = (this.drops || []).filter((t) => now - t < 20000);
+    this.drops.push(now);
+    if (this.drops.length >= 4) {
+      this.autoLight = true;
+      this.engine.setQuality('light');
+      try { console.info('[audio] 予約がまにあわないので「かるい」にしました'); } catch { /* */ }
     }
-    node.connect(g);
-    g.connect(out);
-    o.start(t);
-    o.stop(t + len + 0.05);
   }
 
-  drum(kind, t, vol, out) {
-    const ctx = this.ctx;
-    if (kind === 'k') {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.frequency.setValueAtTime(150, t);
-      o.frequency.exponentialRampToValueAtTime(40, t + 0.12);
-      g.gain.setValueAtTime(vol * 0.9, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-      o.connect(g); g.connect(out);
-      o.start(t); o.stop(t + 0.16);
-    } else {
-      const s = ctx.createBufferSource();
-      s.buffer = this.noiseBuf;
-      const f = ctx.createBiquadFilter();
-      f.type = kind === 'h' ? 'highpass' : 'bandpass';
-      f.frequency.value = kind === 'h' ? 7000 : 1800;
-      const g = ctx.createGain();
-      const d = kind === 'h' ? 0.04 : 0.12;
-      g.gain.setValueAtTime(vol * (kind === 'h' ? 0.25 : 0.45), t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + d);
-      s.connect(f); f.connect(g); g.connect(out);
-      s.start(t, Math.random() * 0.5); s.stop(t + d + 0.02);
+  // ───── 第77回: 音楽の 音・音の 重さ ─────
+  setEngineMode(mode) {
+    this.engineMode = mode === 'old' ? 'old' : 'new';
+    this.savePref({ engine: this.engineMode });
+    if (!this.engine) return;
+    this.engine.mode = this.engineMode;
+    if (this.engineMode === 'old') this.engine.stopAmbience(0.3);
+    else if (this.ambience) this.engine.playAmbience(this.ambience);
+    // 鳴っている 曲を 新しい 鳴らし方で はじめから
+    const m = this.music;
+    if (m) {
+      const keep = this.resumeTrack;
+      this.play(m.id, { force: true });
+      this.resumeTrack = keep;
     }
+  }
+
+  setQuality(q) {
+    this.quality = q === 'light' ? 'light' : 'fine';
+    this.autoLight = false;
+    this.drops = [];
+    this.savePref({ quality: this.quality });
+    this.engine?.setQuality(this.quality);
+  }
+
+  // ───── 第77回: 場面で かわる 音楽（チーム C が よぶ。前の音 では 何も しない）─────
+  // 強さ 0〜1（パートが 1つずつ ふえる。曲ごとに おぼえる）。次の 小節の 頭で 効く
+  setIntensity(x) { this.adaptive.setIntensity(x); }
+  // ピンチ（高い 音の 重ね・明るさ）
+  setPinch(on) { this.adaptive.setPinch(on); }
+  // だん（0 ふつう・1・2・3 … キーと テンポが 上がる）
+  setPhase(n) { this.adaptive.setPhase(n); }
+  // 昼と 夜（'day' / 'night'。夜は 楽器が かわる）
+  setTimeOfDay(tod) { this.adaptive.setTimeOfDay(tod); }
+  // まわりの 音（waves・wind・market・fire・cave_drip・rain。null で 止める）
+  playAmbience(id) {
+    this.ambience = id || null;
+    if (!this.engine) return;
+    if (!id) this.engine.stopAmbience();
+    else if (this.engineMode === 'new') this.engine.playAmbience(id);
+  }
+
+  stopAmbience() { this.playAmbience(null); }
+
+  // 会話の 文字の 音（話す 人の 名前で 高さが かわる）。前の音 では いつもの 'talk'
+  blip(seed) {
+    if (!this.ctx) return;
+    if (this.engineMode === 'old') return this.sfx('talk');
+    const f = blipFreq(seed);
+    this.tone(f, 0.035, { type: 'triangle', vol: 0.035, attack: 0.003 });
+  }
+
+  // ───── 第77回 D: 聞いた 曲（音楽を 聞く の 一覧。この 機械の localStorage）─────
+  heardTracks() {
+    try {
+      const h = JSON.parse(localStorage.getItem('kizuna_heard') || '{}');
+      return h && typeof h === 'object' && !Array.isArray(h) ? h : {};
+    } catch { return {}; }
+  }
+
+  markHeard(id) {
+    const h = this.heardTracks();
+    if (id in h) return;
+    let place = '';
+    try { place = this.placeOf?.() || ''; } catch { /* */ }
+    h[id] = place;
+    try { localStorage.setItem('kizuna_heard', JSON.stringify(h)); } catch { /* */ }
   }
 
   // ───── こうかおん ─────
@@ -806,7 +849,6 @@ export class GameAudio {
   }
 }
 
-export const TRACK_IDS = Object.keys(TRACKS);
 // 第5章 Step 3・4: クモイ地方・ハネノ・しずみゆく島の 神殿・ガイアイーター（audio-kumoi.js）
 Object.assign(TRACKS, KUMOI_TRACKS);
 // 第5章 Step 5: 星読みの里・ノクトの思い出の迷宮・ノクトの影（audio-hoshiyomi.js）
@@ -823,5 +865,6 @@ Object.assign(TRACKS, CH6_TRACKS);
 Object.assign(TRACKS, C8B_TRACKS);
 // 第2部 第8章 第3幕: マジカメック（kamek_magic）・初代大魔王クッパード（bowser_king）（audio-c8c.js）
 Object.assign(TRACKS, C8C_TRACKS);
+export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

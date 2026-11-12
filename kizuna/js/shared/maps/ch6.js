@@ -7,18 +7,18 @@
 // ・maps/tokei.js … Step 5: 千年前の 北の 山の 止まった時計塔（tokei_1f〜5f）・灰色の 森・今の 星の塔の かべ画と 時の すきま
 // ・maps/ch6c-side.js … Step 5: より道「トキネの砂時計のかざり」（12こ）
 // ・maps/tokei-high.js … Step 6: 止まった時計塔の 6〜10階・てっぺん（tokei_6f〜10f・tokei_top）・今の 星の塔 6階の 時の すきま・泉の里の リオン
-import { attachPast, PAST_MAPS, PAST_POS, PAST_ID } from './past.js?v=a13852808b4d';
-import { buildShrineMaps, SHRINE_MAPS } from './toki-shrine.js?v=a13852808b4d';
-import { buildRuinMaps, RUIN_MAPS } from './toki-ruin.js?v=a13852808b4d';
-import { buildHoshimichiMaps, HM_MAPS, attachShaPast, attachShaNow } from './hoshimichi.js?v=a13852808b4d';
-import { attachCh6Side } from './ch6-side.js?v=a13852808b4d';
-import { buildTokeiMaps, TK_MAPS, attachTokeiPast, attachTokeiNow } from './tokei.js?v=a13852808b4d';
-import { attachCh6cSide } from './ch6c-side.js?v=a13852808b4d';
-import { buildTokeiHighMaps, TH_MAPS, attachTokeiHigh } from './tokei-high.js?v=a13852808b4d';
+import { attachPast, PAST_MAPS, PAST_POS, PAST_ID } from './past.js?v=76aae2682384';
+import { buildShrineMaps, SHRINE_MAPS } from './toki-shrine.js?v=76aae2682384';
+import { buildRuinMaps, RUIN_MAPS } from './toki-ruin.js?v=76aae2682384';
+import { buildHoshimichiMaps, HM_MAPS, attachShaPast, attachShaNow } from './hoshimichi.js?v=76aae2682384';
+import { attachCh6Side } from './ch6-side.js?v=76aae2682384';
+import { buildTokeiMaps, TK_MAPS, attachTokeiPast, attachTokeiNow } from './tokei.js?v=76aae2682384';
+import { attachCh6cSide } from './ch6c-side.js?v=76aae2682384';
+import { buildTokeiHighMaps, TH_MAPS, attachTokeiHigh } from './tokei-high.js?v=76aae2682384';
 // 第7章 Step 1・2: 千年前の コガネ地方・緑の王国・みどりの水の神殿（maps/c7.js）
-import { attachCh7 } from './c7.js?v=a13852808b4d';
+import { attachCh7 } from './c7.js?v=76aae2682384';
 // 第8章 第1幕: 月の王宮の地下迷宮（maps/c8.js）
-import { attachCh8 } from './c8.js?v=a13852808b4d';
+import { attachCh8 } from './c8.js?v=76aae2682384';
 
 // 第6章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH6_MAPS = [...PAST_MAPS, ...SHRINE_MAPS, ...RUIN_MAPS];
