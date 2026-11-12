@@ -36,6 +36,8 @@ import { R66D_OLD_LOOK } from './hero-r66d.js';
 import { R66E1_OLD_LOOK } from './hero-r66e1.js';
 // 第66回 E2 の 6つの 職業の 古い え（hero-r66e2.js）
 import { R66E2_OLD_LOOK } from './hero-r66e2.js';
+// 第79回: 幻の職業の 古い 小さな え（hero-r79.js）
+import { R79_OLD_LOOK } from './hero-r79.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -144,6 +146,7 @@ Object.assign(JOB_LOOK, R66C_OLD_LOOK);
 Object.assign(JOB_LOOK, R66D_OLD_LOOK);
 Object.assign(JOB_LOOK, R66E1_OLD_LOOK);
 Object.assign(JOB_LOOK, R66E2_OLD_LOOK);
+Object.assign(JOB_LOOK, R79_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

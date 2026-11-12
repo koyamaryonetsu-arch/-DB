@@ -19,6 +19,8 @@ import { R66A_HAT } from './hero-r66a.js';
 import { R66C_HAT } from './hero-r66c.js';
 // 第66回 D班の 伝説の 職業の ぼうし・フード・頭の 花（hero-r66d.js）
 import { R66D_HAT, R66D_BODY_HAT } from './hero-r66d.js';
+// 第79回: 幻の職業の ぼうし（hero-r79.js）
+import { R79_HAT } from './hero-r79.js';
 // 第66回 E1班の ヘルメット・ヘッドセット（hero-r66e1.js）
 import { R66E1_HAT } from './hero-r66e1.js';
 
@@ -1559,6 +1561,7 @@ Object.assign(JOB_HAT, R66E2_HAT);
 Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 Object.assign(JOB_HAT, R66D_HAT);
 Object.assign(R26_BODY_HAT, R66D_BODY_HAT);
+Object.assign(JOB_HAT, R79_HAT);
 function guessHead(it) {
   const name = it.name || '';
   const rank = it.rank || 2;
@@ -1610,6 +1613,11 @@ function arcP(cx, cy, rx, ry, a0, a1, n = 12) {
 }
 
 export function drawHeadgear(cv, P, H, G, view) {
+  // 第79回: 2つの ぼうしを かさねる（麦わらぼうしと かんむり など。dy: 上へ ずらす）
+  if (G.kind === 'combo79') {
+    for (const g of G.parts) drawHeadgear(cv, P, g.dy ? { ...H, y: H.y - g.dy } : H, { ...G, ...g, parts: null }, view);
+    return;
+  }
   if (drawHat26(cv, P, H, G, view)) return;
   const k = cv.k;
   const side = view === 'side', back = view === 'back';

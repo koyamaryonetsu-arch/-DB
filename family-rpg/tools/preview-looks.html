@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>職業の みため プレビュー（かいはつよう）</title>
+<style>
+  body { background: #3a3a44; color: #fff; font-family: sans-serif; margin: 8px; }
+  canvas { image-rendering: pixelated; display: block; }
+  .row { display: flex; align-items: flex-end; gap: 2px; margin: 2px 0; }
+  .lbl { width: 150px; font-size: 12px; line-height: 1.2; }
+  .lbl small { color: #bbb; }
+  .grp { display: flex; gap: 0; padding: 0 6px; border-left: 1px solid #555; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script type="module">
+// 職業の みためを ならべる（tools/preview-looks.html?jobs=pirate_king,nika&res=4&eq=1）
+//  jobs: 職業の id（, で くぎる）  res: こまかさ  eq: 1 なら その 職業の はじめの 装備も ならべる  dirs: down,left,up,right
+//  looks: なし … 男の子・女の子 / m … 男の子だけ / f … 女の子だけ / all … いろいろな 見た目
+import { heroCanvas } from '../public/js/client/render/hero.js';
+import { STARTER_EQUIP } from '../public/js/shared/stats.js';
+import { JOBS } from '../public/js/shared/data/jobs.js';
+
+const q = new URLSearchParams(location.search);
+const jobs = (q.get('jobs') || 'warrior').split(',').filter(Boolean);
+const res = Number(q.get('res') || 4);
+const S = Number(q.get('scale') || (res >= 8 ? 1 : 2));
+const dirs = (q.get('dirs') || 'down,left,up,right').split(',');
+const frames = (q.get('frames') || '0,1').split(',').map(Number);
+const looks = q.get('looks') === 'all'
+  ? [{ body: 0, hair: 0, hairColor: 1, skin: 0, color: 0 }, { body: 1, hair: 1, hairColor: 2, skin: 1, color: 4 }, { body: 0, hair: 2, hairColor: 3, skin: 2, color: 1 }, { body: 1, hair: 3, hairColor: 0, skin: 0, color: 6 }]
+  : [{ body: 0, hair: 0, hairColor: 1, skin: 0, color: 0 }, { body: 1, hair: 1, hairColor: 2, skin: 1, color: 4 }].filter((l) => !q.get('looks') || q.get('looks') === (l.body ? 'f' : 'm'));
+const eqModes = q.get('eq') === '1' ? ['cloth', 'starter'] : q.get('eq') === 'gear' ? ['gear'] : ['cloth'];
+const GEAR = q.get('gear') || 'iron_sword,iron_armor,,iron_helm';
+const out = document.getElementById('out');
+if (q.get('grid')) out.style.cssText = 'display:grid;grid-template-columns:repeat(' + q.get('grid') + ',max-content);gap:4px 12px';
+for (const job of jobs) {
+  for (const lk of looks) {
+    for (const em of eqModes) {
+      const eq = em === 'cloth' ? ',,,' : em === 'gear' ? GEAR : undefined;
+      const row = document.createElement('div');
+      row.className = 'row';
+      const l = document.createElement('div');
+      l.className = 'lbl';
+      l.innerHTML = `${JOBS[job]?.name || job}<br><small>${job} / ${lk.body ? '女' : '男'} / ${em}</small>`;
+      row.append(l);
+      for (const d of dirs) {
+        const g = document.createElement('div');
+        g.className = 'grp';
+        for (const f of frames) {
+          const c = heroCanvas(lk, job, eq, d, f, res);
+          const v = document.createElement('canvas');
+          v.width = c.width * S; v.height = c.height * S;
+          const x = v.getContext('2d');
+          x.imageSmoothingEnabled = false;
+          x.drawImage(c, 0, 0, v.width, v.height);
+          g.append(v);
+        }
+        row.append(g);
+      }
+      out.append(row);
+    }
+  }
+}
+document.title = 'ready';
+</script>
+</body>
+</html>
