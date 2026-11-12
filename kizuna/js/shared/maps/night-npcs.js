@@ -1,9 +1,9 @@
 // 夜の 町・村（maps/index.js が まぜる）
 // ・'@night' は「夜の あいだ」の しるし（show の all / not に 書く。world.js と field.js が 時計で こたえる）
 // ・ものがたりの 人・お店・宿屋・教会・たのまれごとの 人は 夜も そのまま（夜でも 物語は すすめられる）
-import { npc } from './npc.js?v=fdbb525d74d6';
-import { PLACES } from './overworld.js?v=fdbb525d74d6';
-import { PORT } from './sea.js?v=fdbb525d74d6';
+import { npc } from './npc.js?v=eb1c3a4395d7';
+import { PLACES } from './overworld.js?v=eb1c3a4395d7';
+import { PORT } from './sea.js?v=eb1c3a4395d7';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

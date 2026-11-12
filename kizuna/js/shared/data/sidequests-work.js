@@ -14,11 +14,11 @@
 //  9. ハネノの町の名物動画（ユーチューバーの 系統）
 // 10. 湯けむり宿の大そうじ（おかんの 系統。つららコウモリと 軽い 戦い）
 // 11. 王都のお祭りの手品ショー（手品師の 系統）
-import { medalSteps } from './story-lab.js?v=fdbb525d74d6';
-import { S, N, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=fdbb525d74d6';
+import { medalSteps } from './story-lab.js?v=eb1c3a4395d7';
+import { S, N, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=eb1c3a4395d7';
 import {
   WQ, WQ_OPEN, STAGE_VOICES, BRIDGE_VOICES, BALL_KIDS, BALL_PRACTICE, VIDEO_SPOTS, VIDEO_STEPS, INN_CLEAN, INN_KIDS,
-} from '../maps/work-quests.js?v=fdbb525d74d6';
+} from '../maps/work-quests.js?v=eb1c3a4395d7';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

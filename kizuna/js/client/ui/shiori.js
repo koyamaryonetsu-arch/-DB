@@ -4,9 +4,9 @@
 //   ・物語（今の 部・章・幕と つぎの 目標）／おすすめ（3つまで）／のこって いる こと（しくみごとの 数と 棒）
 //   ・えらぶと くわしい 一覧（のこって いる 物の 名前と 場所）。もどるで もとの 場所に もどる
 //   ・キーボード・ゲームパッド（上下左右・決定・もどる）・タップの どれでも（dom.js の ListMenu）
-import { el, ListMenu, esc } from './dom.js?v=fdbb525d74d6';
-import './r78-shiori-css.js?v=fdbb525d74d6';
-import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=fdbb525d74d6';
+import { el, ListMenu, esc } from './dom.js?v=eb1c3a4395d7';
+import './r78-shiori-css.js?v=eb1c3a4395d7';
+import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=eb1c3a4395d7';
 
 const NL = (s) => esc(s).replace(/\n/g, '<br>');
 const whereHtml = (w) => (w ? `<div class="sh-where">${esc(w)}</div>` : '');
@@ -20,7 +20,8 @@ function storyHtml(st) {
   const title = storyTitle(st);
   const clear = st.cleared ? '<span class="sh-st-clear">クリア！</span>' : '';
   const obj = st.objective ? `<div class="sh-st-obj">${NL(st.objective)}</div>` : '';
-  return `<div class="sh-st-label">${esc(st.label)}${clear}</div>${title ? `<div class="sh-st-title">${esc(title)}</div>` : ''}${obj}${whereHtml(st.where)}`;
+  const hint = st.bossHints?.length ? '<div class="sh-where">ボスのヒントがあるよ（選ぶと見られる）</div>' : '';
+  return `<div class="sh-st-label">${esc(st.label)}${clear}</div>${title ? `<div class="sh-st-title">${esc(title)}</div>` : ''}${obj}${whereHtml(st.where)}${hint}`;
 }
 
 function recHtml(r) {
@@ -134,6 +135,8 @@ export function openShiori(menu) {
         if (st.objective) top.append(el('div', { class: 'sh-note', text: `つぎの目標：${st.objective}` }));
         if (st.where) top.append(el('div', { class: 'sh-where', text: `場所：${st.where}` }));
         if (st.hint) top.append(el('div', { class: 'sh-hint', text: `仲間のひとこと：${st.hint}` }));
+        // 第80回 E班: ボスに 負けた 時に 出た ヒント（勝つと 消える）
+        for (const b of st.bossHints || []) b.hints.forEach((h, i) => top.append(el('div', { class: 'sh-hint', text: `ボスのヒント${i + 1}：${h}` })));
         if (st.end) top.append(el('div', { class: 'sh-note', text: '物語の続きは、アップデートを待とう。それまでは、より道やいらいを楽しもう！' }));
       } else {
         const t = data.tracks.find((x) => x.id === go);

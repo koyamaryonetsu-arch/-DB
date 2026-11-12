@@ -10,9 +10,9 @@
 //   1だんに つき 物理の ダメージが per、会心の 出やすさが rate 上がる。技の critScale は さらに 1だんに つき その ぶん 強く なる。戦いが おわると 0
 // battle.js から よぶ: r51bEffect（applyAbility の こうか）・r51bPerform（perform の はじめ）・r51bAfterCast（技の あと）・
 //   barrierDamage（damage の 中）・kenkiCrit・kenkiMult（calcPhys）・kenkiGain（physHit の 会心）・r51bPub（pub）
-import { JOBS } from './data/jobs.js?v=fdbb525d74d6';
-import { abilityRole } from './data/abilities.js?v=fdbb525d74d6';
-import { evMods } from './skill-tier.js?v=fdbb525d74d6';
+import { JOBS } from './data/jobs.js?v=eb1c3a4395d7';
+import { abilityRole } from './data/abilities.js?v=eb1c3a4395d7';
+import { evMods } from './skill-tier.js?v=eb1c3a4395d7';
 
 // 剣気の きまり（passive.critStack。剣聖で ない 人は null）
 export const critStackOf = (c) => (c?.side === 'ally' ? JOBS[c.job]?.passive?.critStack || null : null);

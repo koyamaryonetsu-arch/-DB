@@ -7,27 +7,29 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=fdbb525d74d6';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=fdbb525d74d6';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=fdbb525d74d6';
-import { jobLine } from '../data/fq-common.js?v=fdbb525d74d6';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=fdbb525d74d6';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=fdbb525d74d6';
-import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=fdbb525d74d6';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=fdbb525d74d6';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=fdbb525d74d6';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=fdbb525d74d6';
-import { phantomBook } from '../data/phantom.js?v=fdbb525d74d6';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=fdbb525d74d6';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=fdbb525d74d6';
-import { bestiaryOrder } from '../data/companions.js?v=fdbb525d74d6';
-import { MONSTERS } from '../data/monsters.js?v=fdbb525d74d6';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=fdbb525d74d6';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=fdbb525d74d6';
-import { LB_MAX } from '../data/items-forge.js?v=fdbb525d74d6';
-import { ITEMS } from '../data/items.js?v=fdbb525d74d6';
-import { MAPS, condOk } from '../maps/index.js?v=fdbb525d74d6';
-import { jobLabel } from '../job-label.js?v=fdbb525d74d6';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=eb1c3a4395d7';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=eb1c3a4395d7';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=eb1c3a4395d7';
+import { jobLine } from '../data/fq-common.js?v=eb1c3a4395d7';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=eb1c3a4395d7';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=eb1c3a4395d7';
+import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=eb1c3a4395d7';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=eb1c3a4395d7';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=eb1c3a4395d7';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=eb1c3a4395d7';
+import { phantomBook } from '../data/phantom.js?v=eb1c3a4395d7';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=eb1c3a4395d7';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=eb1c3a4395d7';
+import { bestiaryOrder } from '../data/companions.js?v=eb1c3a4395d7';
+import { MONSTERS } from '../data/monsters.js?v=eb1c3a4395d7';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=eb1c3a4395d7';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=eb1c3a4395d7';
+import { LB_MAX } from '../data/items-forge.js?v=eb1c3a4395d7';
+import { ITEMS } from '../data/items.js?v=eb1c3a4395d7';
+import { MAPS, condOk } from '../maps/index.js?v=eb1c3a4395d7';
+import { jobLabel } from '../job-label.js?v=eb1c3a4395d7';
+// 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
+import { bossHintsSeen } from '../data/boss-hints.js?v=eb1c3a4395d7';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -415,7 +417,7 @@ export function shioriRecs(c, tracks = shioriTracks(c)) {
 export function shioriOf(c, ctx = {}) {
   const ch = c || {};
   const tracks = shioriTracks(ch, ctx);
-  return { story: { ...storyPlace(ch), ...storyNext(ch) }, tracks, recs: shioriRecs(ch, tracks) };
+  return { story: { ...storyPlace(ch), ...storyNext(ch), bossHints: bossHintsSeen(ch) }, tracks, recs: shioriRecs(ch, tracks) };
 }
 
 // 1行の 数（「12/32」）。total が ない ときは now だけ

@@ -14,11 +14,11 @@
 // 15. カモメ港の魔物サーカス（魔物使いの 系統）
 // 16. ハネノの町のお笑い大会（お笑い芸人の 系統）
 // 17. ドゥナのからくりゲーム（ゲーマーの 系統。ゲーム機の バグで いたずらゴブリンと 軽い 戦い）
-import { medalSteps } from './story-lab.js?v=fdbb525d74d6';
-import { S, N, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=fdbb525d74d6';
+import { medalSteps } from './story-lab.js?v=eb1c3a4395d7';
+import { S, N, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=eb1c3a4395d7';
 import {
   WQ2, WQ2_OPEN, WX_SIGNS, STUDY_KIDS, STUDY_LOOKS, STUDY_PLANS, ROCK_VOICES, CIRCUS_LOOKS, CIRCUS_CARE, OWARAI_VOICES, OWARAI_BOKE, GAME_VOICES, GAME_FIX,
-} from '../maps/work-quests2.js?v=fdbb525d74d6';
+} from '../maps/work-quests2.js?v=eb1c3a4395d7';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

@@ -4,19 +4,19 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js?v=fdbb525d74d6';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=fdbb525d74d6';
-import { MONSTERS } from '../../shared/data/monsters.js?v=fdbb525d74d6';
+import { el, ListMenu, esc } from './dom.js?v=eb1c3a4395d7';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=eb1c3a4395d7';
+import { MONSTERS } from '../../shared/data/monsters.js?v=eb1c3a4395d7';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../../shared/data/variants.js?v=fdbb525d74d6';
-import { jobLabel } from '../../shared/job-label.js?v=fdbb525d74d6';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=fdbb525d74d6';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=fdbb525d74d6';
-import { faceURL } from '../field.js?v=fdbb525d74d6';
-import { boardIconURL } from '../render/boards.js?v=fdbb525d74d6';
-import { partyRows } from './hud.js?v=fdbb525d74d6';
-import { shownEquip } from '../../shared/look-equip.js?v=fdbb525d74d6';
-import { rareNameHtml } from './rarity.js?v=fdbb525d74d6';
+import { colorMon } from '../../shared/data/variants.js?v=eb1c3a4395d7';
+import { jobLabel } from '../../shared/job-label.js?v=eb1c3a4395d7';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=eb1c3a4395d7';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=eb1c3a4395d7';
+import { faceURL } from '../field.js?v=eb1c3a4395d7';
+import { boardIconURL } from '../render/boards.js?v=eb1c3a4395d7';
+import { partyRows } from './hud.js?v=eb1c3a4395d7';
+import { shownEquip } from '../../shared/look-equip.js?v=eb1c3a4395d7';
+import { rareNameHtml } from './rarity.js?v=eb1c3a4395d7';
 
 const TYPE_MS = 18;
 

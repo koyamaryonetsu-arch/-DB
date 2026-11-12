@@ -11,8 +11,8 @@
 // 30. 嵐の島の、ゴロゴロかみなり雲（ゴム人間の 系統。風の海の 嵐の島）
 // 31. 星竜山のふもとの、まいごのちび竜（竜の騎士の 系統。シロガネ地方の 星竜山のふもと）
 // 32. 雪原の広場の、てんてこまいラーメン（木の葉の忍びの 系統。シロガネ地方の 雪原の広場）
-import { npc } from './npc.js?v=fdbb525d74d6';
-import { openSpot } from './labyrinth.js?v=fdbb525d74d6';
+import { npc } from './npc.js?v=eb1c3a4395d7';
+import { openSpot } from './labyrinth.js?v=eb1c3a4395d7';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第3幕の「千年前の ミドリナに 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 8-2）
