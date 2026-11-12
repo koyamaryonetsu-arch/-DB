@@ -213,13 +213,14 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 - テスト: ktest/plan-e2e.js・plan-sb-e2e.js
 
 ### 劇場カルテの追加（2026-11）
-- 「🌐 公式サイトで確かめる」: /api/theater-ai task=verify（Opus＋web_fetch で各社の劇場一覧）→ 無い劇場は theaters.hidden=true（SETUP_THEATER_VERIFY.sql）。人が「隠すのをやめる」と hidden_reason が「人が戻した…」になり、以後は隠さない
-  - AI（web_fetch＋web_search。そのサイトの中だけ）は official_list（公式の劇場名）も返す。AI が「無い」と言っても placeCore（会社名・空白を取った場所の名前）が公式の一覧と含まれ合えば「ある」とみなす
-  - 前に AI が自動で隠した劇場（hidden_reason が「公式サイトに無い: 」）を今回 AI が unknown と答えたら、一度戻して suspect に出す。今回も closed なら kept（隠したまま）として画面に出す。人が隠した劇場は理由も変えない
-  - 場所の名前がぴったり同じ公式の劇場があれば、AI が「閉館」と言っても exists。unknown でも公式の一覧に同じ場所があれば exists
-  - 公式の一覧が取れない時は site_ok=false（何も変えない）。「無い」が max(3, 15%) を超えたら自動では隠さず suspect で返す（前に AI が自動で隠した分も一度戻す）→ ダイアログで人がチェックして task=verify-hide で隠す
-- 「🙈 劇場を選んで隠す」（#tiHidePickBtn）: 今の会社の劇場にチェックを入れて隠す（AI なし）。hidden_reason は「人が隠した: 理由」→ 公式サイトで確かめても勝手には戻らない
-- 公式サイトの一覧には、会社名の冠が付かない提携の劇場（例: 札幌シネマフロンティア）も入れるよう AI に頼む。名前が違う劇場は renamed（アプリの名前 → 公式の名前）で返し、名寄せの候補にする
+- 閉館（2026-11-12〜。「公式サイトで確かめる」「劇場を選んで隠す」はやめた）: 劇場情報の「閉館」チェック・閉館日・メモ（theaters.closed / closed_on / closed_note、SETUP_THEATER_CLOSE.sql）。人が入れる
+  - 閉館した劇場は劇場カルテの一覧・探す候補・Excel で出すに出さない（「閉館した劇場も出す」で見られる）。開いている劇場は閉館にした直後も残し、別の劇場へ移ると消える
+  - 前の hidden（公式サイトで隠した劇場）は SQL で closed に引き継ぐ。hidden / hidden_reason / official_name / verified_at の列は使わない（消さずに残す）
+- GeM2 の CO2センサー・温湿度センサー（theaters.gem2_co2 / gem2_th、○×）。劇場情報・全体編集・Excel・AI初期対応診断に出す
+- 劇場情報（トップ）は .ti-facts（項目ごとに中身に合った幅で横に並べる）。全体編集（#tiBulkTable）は縦横の罫線・min-width で全体の table{min-width:1400px} を打ち消す
+- カルテの「根拠（メール・資料）」（evidence）＝どこで知ったか、「登録者」＝AI（自動）／旧データから移行／人の名前（見出しに ？ の説明）
+- 劇場の別の呼び方（theaters.aliases text[]）。GAS の canonTheater_ / fixTheater_ が、メール・LINE・会議の記録から取り込む劇場名を一覧の名前にそろえる（名前・別の呼び方・同じ会社の場所の名前の順。別の会社には寄せない）
+- タスク管理ボタンの「未完了」「期限切れ」は、上の担当者ボタンで選んだ人の分だけ（R担当にその人が入っている案件のタスク＋その人の個人タスク。2人以上は合計、2人の案件は1回）
 - 劇場名で探して2つ以上合う時（例「川崎」）は勝手に開かず、入力の下に候補（#tiSearchPick）を出す
 - 工事予定表の保存: dbRow / fillText で文字の列（NOT NULL）を必ず '' で埋める（PostgREST はまとめて入れる時、1行でも欠けた項目を null で送るため）
 - 劇場名を打って探す（#tiTheaterSearch＋datalist）。各タブは Excel のような表（見出しで並べ替え・見出しの下で列ごとに絞り込み）。機器表は「列を選ぶ」

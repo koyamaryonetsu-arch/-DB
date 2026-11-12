@@ -92,7 +92,7 @@
 .kt-toast.out { opacity: 0; }
 
 /* 全体編集: 劇場カルテがある時は、長い文章の3列（設備・持病・備考）を出さない（カルテのタブで直す） */
-#tiBulkTable.karte-on th:nth-child(n+6), #tiBulkTable.karte-on td:nth-child(n+6) { display: none; }
+#tiBulkTable.karte-on .tib-legacy { display: none; }   /* 設備・持病・備考はカルテのタブで直す */
 .tm-hq-row.karte-legacy.karte-on { display: none; }
 /* 更新確認: AIの判定 */
 .tp-ai { margin-top: 3px; font-size: 12px; color: #6d28d9; }
@@ -151,22 +151,11 @@
 #karteBox #tiTable textarea.tm-input { font-size: 12.5px; padding: 3px 4px; min-height: 24px; border: 0; }
 #karteBox .tm-table-wrap { border-radius: 0; }
 /* 公式サイトで確かめる */
-.kt-vf-cos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 12px; font-size: 13px; }
-.kt-vf-cos small { color: #64748b; }
-.kt-vf-log { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
-.kt-vf-line { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; line-height: 1.6; }
-.kt-vf-line .kt-spin { display: inline-block; vertical-align: -3px; margin-right: 6px; }
 /* 劇場名を打って探す・隠した劇場 */
 .ti-search-wrap input { width: 210px; padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; }
 .ti-hidden-chk { font-size: 12.5px; color: #475569; }
 .ti-hidden-banner { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; font-size: 13px; }
 .ti-hidden-banner.hidden { display: none; }
-
-/* 公式サイトで確かめる: 自動では隠さなかった候補・AI が読んだ公式の一覧 */
-.kt-vf-sus { margin: 6px 0 4px 1em; padding: 6px 8px; border: 1px solid #fdba74; background: #fff7ed; border-radius: 6px; }
-.kt-vf-sus-list { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 6px 0; font-size: 12.5px; }
-.kt-vf-off { margin: 4px 0 0 1em; font-size: 12px; color: #475569; }
-.kt-vf-off summary { cursor: pointer; }
 
 /* 劇場名で探して候補が2つ以上ある時 */
 .ti-search-wrap { position: relative; }
@@ -176,7 +165,40 @@
 .ti-search-pick button { text-align: left; background: #fff; border: 0; border-radius: 4px; padding: 5px 8px; font-size: 13px; cursor: pointer; }
 .ti-search-pick button:hover, .ti-search-pick button:focus { background: #e0f2fe; }
 
-/* 劇場を選んで隠す */
-.ti-hp-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2px 12px; max-height: 50vh; overflow: auto; margin: 8px 0; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; }
-.ti-hp-why { display: flex; gap: 6px; align-items: center; font-size: 13px; }
-.ti-hp-why input { flex: 1; }
+
+/* ===== 劇場情報（トップ）: 項目ごとに中身に合った幅で詰めて並べる ===== */
+#tiInfoBox { padding: 8px 12px; }
+#tiInfoBox .tm-hq-title { margin-bottom: 6px; }
+.ti-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; }
+.ti-facts + .ti-facts { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #bae6fd; }
+.ti-fact { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #334155; font-weight: 500; white-space: nowrap; }
+.ti-fact > .tm-input { font-size: 13px; padding: 4px 6px; height: 30px; box-sizing: border-box; }
+.ti-w-name { width: 170px; }
+.ti-w-phone { width: 270px; }
+.ti-w-mark { width: 54px; text-align: center; }
+.ti-w-date { width: 120px; }
+.ti-grow { flex: 1 1 260px; }
+.ti-grow > .tm-input { flex: 1; min-width: 160px; }
+.ti-close-chk input { width: 16px; height: 16px; margin: 0; }
+.ti-close-hint { font-size: 11px; color: #64748b; }
+#tiInfoBox:not(.ti-is-closed) .ti-close-detail { opacity: .55; }
+#tiInfoBox.ti-is-closed { background: #fff7ed; border-color: #fdba74; }
+#tiInfoBox.ti-is-closed .ti-close-hint { display: none; }
+
+/* ===== 全体編集: 縦横の罫線で区切る ===== */
+#tiBulkTable { border-collapse: collapse; table-layout: fixed; width: 100%; min-width: 760px; }   /* 全体の table{min-width:1400px} を打ち消す（画面の幅に合わせる） */
+#tiBulkTable:not(.karte-on) th.tib-legacy { width: 14%; }   /* カルテの表がまだ無い DB の時だけ出る */
+#tiBulkTable th, #tiBulkTable td { border: 1px solid #cbd5e1; padding: 4px 6px; }
+#tiBulkTable thead th { background: #e2e8f0; color: #1e293b; font-size: 12px; line-height: 1.3; text-align: center; vertical-align: middle; }
+#tiBulkTable td .tm-input { border-color: transparent; background: transparent; }
+#tiBulkTable td .tm-input:hover { border-color: #cbd5e1; background: #fff; }
+#tiBulkTable td .tm-input:focus { border-color: #3b82f6; background: #fff; }
+#tiBulkTable td select.tm-input { width: 100%; text-align: center; }
+#tiBulkTable tbody tr:nth-child(even) td { background: #f8fafc; }
+#tiBulkTable tbody tr:hover td { background: #eff6ff; }
+#tiBulkTable .tib-close label { display: flex; align-items: center; gap: 4px; font-size: 12px; white-space: nowrap; }
+#tiBulkTable .tib-close .tm-input { width: 100%; margin-top: 2px; font-size: 12px; }
+#tiBulkTable tr.tib-row-closed td { background: #fff7ed; color: #9a3412; }
+
+/* 見出しの「？」（押さずに上に乗せると説明が出る） */
+.kt-th-q { display: inline-block; width: 14px; height: 14px; line-height: 14px; border-radius: 50%; background: rgba(255,255,255,.25); font-size: 10px; text-align: center; cursor: help; vertical-align: 1px; }

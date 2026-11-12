@@ -246,23 +246,20 @@ async function fetchTheaterHistory(theater, excludeId) {
 async function fetchTheaterNote(theater) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key || !theater) return null;
-  const params = new URLSearchParams({
-    name: `eq.${theater}`,
-    select: 'company,equipment,chronic_issues,partner,manager,theater_phone,maintenance,gem2,info_note',
-    limit: '1'
-  });
+  // 新しい列（GeM2 のセンサー・閉館）が無い DB でも動くように、列を減らしながら試す
+  const SELECTS = [
+    'company,equipment,chronic_issues,partner,manager,theater_phone,maintenance,gem2,gem2_co2,gem2_th,closed,closed_on,closed_note,info_note',
+    'company,equipment,chronic_issues,partner,manager,theater_phone,maintenance,gem2,info_note',
+    'company,equipment,chronic_issues,partner'
+  ];
   try {
-    let r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${params.toString()}`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` }
-    });
-    if (!r.ok) {
-      // 劇場情報列（manager等）が未移行のDBでは旧カルテ列のみで再試行
-      const p2 = new URLSearchParams({ name: `eq.${theater}`, select: 'company,equipment,chronic_issues,partner', limit: '1' });
-      r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${p2.toString()}`, {
-        headers: { apikey: key, Authorization: `Bearer ${key}` }
-      });
-      if (!r.ok) { console.error('劇場カルテ取得失敗', r.status, await r.text()); return null; }
+    let r = null;
+    for (const sel of SELECTS) {
+      const params = new URLSearchParams({ name: `eq.${theater}`, select: sel, limit: '1' });
+      r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${params.toString()}`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+      if (r.ok) break;
     }
+    if (!r || !r.ok) { console.error('劇場カルテ取得失敗', r && r.status, r && await r.text()); return null; }
     const rows = await r.json();
     const t = (Array.isArray(rows) && rows[0]) || null;
     const contacts = await fetchTheaterContacts(theater, t && t.company);
@@ -323,7 +320,10 @@ function formatTheaterNote(t) {
   if (t.manager) lines.push('・支配人: ' + t.manager);
   if (t.theater_phone) lines.push('・劇場連絡先: ' + t.theater_phone);
   if (t.maintenance) lines.push('・保守契約: ' + t.maintenance);
+  if (t.closed) lines.push('・閉館: ' + (t.closed_on || '日付不明') + (t.closed_note ? '（' + t.closed_note + '）' : ''));
   if (t.gem2) lines.push('・GeM2: ' + t.gem2);
+  if (t.gem2_co2) lines.push('・GeM2 CO2センサー: ' + t.gem2_co2);
+  if (t.gem2_th) lines.push('・GeM2 温湿度センサー: ' + t.gem2_th);
   if (t.equipment) lines.push('・設備: ' + t.equipment);
   if (t.chronic_issues) lines.push('・持病/注意: ' + t.chronic_issues);
   if (t.partner) lines.push('・担当パートナー: ' + t.partner);
