@@ -26,16 +26,18 @@ const FONT_CACHE = 'public, max-age=2592000';
 const BR = { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 } };
 
 // Accept-Encoding から えらぶ（br → gzip → なし）
-export function pickEncoding(header) {
+export function accepts(header, name) {
   const list = String(header || '').toLowerCase().split(',').map((s) => s.trim());
-  const ok = (name) => list.some((s) => {
+  return list.some((s) => {
     const [n, ...ps] = s.split(';').map((x) => x.trim());
     if (n !== name && n !== '*') return false;
     const q = ps.find((p) => p.startsWith('q='));
     return !q || Number(q.slice(2)) > 0;
   });
-  if (ok('br')) return 'br';
-  if (ok('gzip')) return 'gzip';
+}
+export function pickEncoding(header) {
+  if (accepts(header, 'br')) return 'br';
+  if (accepts(header, 'gzip')) return 'gzip';
   return '';
 }
 
@@ -62,7 +64,7 @@ export function fingerprint(root) {
   return h.digest('hex').slice(0, 12);
 }
 
-export function createStatic({ root, sha = '', date = '' }) {
+export function createStatic({ root, sha = '', date = '', sw = 'sw.js' }) {
   const cache = new Map(); // file → { key, body, etag, hash（もとの 中みの ハッシュ）, enc: { br, gzip } }
   const startFp = fingerprint(root);
   let ver = { v: '', fp: '', at: 0 };
@@ -86,7 +88,7 @@ export function createStatic({ root, sha = '', date = '' }) {
     const raw = fs.readFileSync(file);
     let body = raw;
     if (stampable(rel)) body = Buffer.from(stampImports(raw.toString('utf8'), v));
-    else if (rel === 'index.html') body = Buffer.from(stampHtml(raw.toString('utf8'), v, date));
+    else if (rel === 'index.html') body = Buffer.from(stampHtml(raw.toString('utf8'), v, date, { sw, pack: true }));
     const e = { key, body, etag: `W/"${contentHash(body)}"`, enc: {}, hash: contentHash(raw) };
     cache.set(file, e);
     return e;
@@ -141,7 +143,11 @@ export function createStatic({ root, sha = '', date = '' }) {
     try { walk(root); } catch { /* */ }
     const step = () => {
       const file = files.shift();
-      if (!file) return done?.();
+      if (!file) {
+        // さいごに パックも 作って おく（ちぢめるのは べつの 糸で）
+        try { packFor(version()).pack.ready.then(() => done?.()); } catch { done?.(); }
+        return;
+      }
       try {
         const st = fs.statSync(file);
         const e = entry(file, path.relative(root, file).split(path.sep).join('/'), st, version());
@@ -152,7 +158,91 @@ export function createStatic({ root, sha = '', date = '' }) {
     setImmediate(step);
   }
 
-  return { serve, version, entry, cache, warm };
+  // ───── パック（全部の JS・CSS を 1本に まとめた もの。Service Worker が 使う） ─────
+  // pack-manifest.json: { v, size, files: { パス: 中みの ハッシュ } }
+  // pack.json:          { v, files: { パス: [ハッシュ, 中み] } }（中みは ?v= を つける 前の もの）
+  let packs = { v: '', manifest: null, pack: null };
+  function packFor(v) {
+    if (packs.v === v && packs.manifest) return packs;
+    const { manifest: m, pack: p } = buildPack(root, v);
+    const mBody = Buffer.from(JSON.stringify(m));
+    const pBody = Buffer.from(JSON.stringify(p));
+    const pk = { body: null, size: pBody.length, etag: `W/"${contentHash(pBody)}"`, enc: {} };
+    // パックは 大きいので、ゲームを 止めない ように べつの 糸で ちぢめる。
+    // gzip（はやく できる）が できたら 送れる。br（よく ちぢむ）は できしだい そちらを 使う
+    pk.ready = new Promise((ok) => zlib.gzip(pBody, { level: 6 }, (e, b) => { pk.enc.gzip = e ? null : b; ok(); }));
+    zlib.brotliCompress(pBody, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9, [zlib.constants.BROTLI_PARAM_LGWIN]: 24, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: pBody.length } }, (e, b) => { if (!e) pk.enc.br = b; });
+    packs = { v, manifest: { body: mBody, etag: `W/"${contentHash(mBody)}"`, enc: {} }, pack: pk };
+    return packs;
+  }
+  // name: 'pack-manifest.json' | 'pack.json'
+  function servePack(req, res, name, query = '') {
+    const v = version();
+    const asked = new URLSearchParams(query).get('v');
+    const pk = packFor(v);
+    const it = name === 'pack.json' ? pk.pack : pk.manifest;
+    const h = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': asked === v ? IMMUTABLE : 'no-cache',
+      ETag: it.etag,
+      Vary: 'Accept-Encoding',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Kizuna-Version': v,
+    };
+    if (fresh(req, it.etag)) return notModified(res, h);
+    const enc = pickEncoding(req.headers['accept-encoding']);
+    const send = () => {
+      if (it.body && enc && !it.enc[enc]) it.enc[enc] = enc === 'br' ? zlib.brotliCompressSync(it.body, BR) : zlib.gzipSync(it.body);
+      let use = enc && it.enc[enc] ? enc : '';
+      // br が まだ なら gzip で
+      if (!use && enc === 'br' && it.enc.gzip && accepts(req.headers['accept-encoding'], 'gzip')) use = 'gzip';
+      let out = use ? it.enc[use] : null;
+      if (out) h['Content-Encoding'] = use;
+      else out = it.body || (it.enc.gzip ? zlib.gunzipSync(it.enc.gzip) : null);
+      if (!out) return failPack(res);
+      res.writeHead(200, { ...h, 'Content-Length': out.length });
+      res.end(req.method === 'HEAD' ? undefined : out);
+    };
+    if (it === pk.pack) it.ready.then(send, () => failPack(res));
+    else send();
+  }
+
+  return { serve, version, entry, cache, warm, servePack, packFor };
+}
+
+function failPack(res) {
+  try {
+    if (!res.headersSent) res.writeHead(503, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end();
+  } catch { /* */ }
+}
+
+// パックを 作る（家族サーバーと tools/build-site.mjs で 同じ もの）
+export function buildPack(root, v) {
+  const manifest = { v, size: 0, files: {} };
+  const pack = { v, files: {} };
+  for (const rel of listPackFiles(root)) {
+    const buf = fs.readFileSync(path.join(root, rel));
+    const h = contentHash(buf);
+    manifest.files[rel] = h;
+    manifest.size += buf.length;
+    pack.files[rel] = [h, buf.toString('utf8')];
+  }
+  return { manifest, pack };
+}
+
+// パックに 入れる ファイル（?v= で 読む JS・CSS。sw.js は 入れない）
+export function listPackFiles(root) {
+  const out = [];
+  const walk = (dir, rel) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+      const r = rel ? `${rel}/${e.name}` : e.name;
+      if (e.isDirectory()) walk(path.join(dir, e.name), r);
+      else if (e.isFile() && /\.(js|css)$/.test(e.name) && r !== 'sw.js') out.push(r);
+    }
+  };
+  walk(root, '');
+  return out;
 }
 
 function fresh(req, etag) {

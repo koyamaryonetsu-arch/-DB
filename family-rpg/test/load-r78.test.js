@@ -11,7 +11,11 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { stampImports, stampHtml, stampable } from '../server/stamp.js';
-import { createStatic, pickEncoding, fingerprint, IMMUTABLE } from '../server/static.js';
+import { createStatic, pickEncoding, fingerprint, IMMUTABLE, buildPack, listPackFiles } from '../server/static.js';
+import { contentHash } from '../server/stamp.js';
+import { kizunaBoot } from '../server/boot-loader.js';
+import vm from 'node:vm';
+import { webcrypto } from 'node:crypto';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -87,7 +91,9 @@ test('stampImports: from・import()・import \'…\' の 相対パスに ?v= を
   assert.equal(stampable('sw.js'), false);
   assert.equal(stampable('css/style.css'), false);
   const html = stampHtml(fs.readFileSync(path.join(ROOT, 'public', 'index.html'), 'utf8'), 'V1', '2026-01-01');
-  assert.match(html, /js\/main\.js\?v=V1/);
+  assert.match(html, /'js\/main\.js\?v=' \+ c\.v/);
+  assert.match(html, /"v":"V1"/);
+  assert.doesNotMatch(html, /<script type="module" src="js\/main\.js">/);
   assert.match(html, /css\/style\.css\?v=V1/);
   assert.match(html, /css\/fonts\.css\?v=V1/);
 });
@@ -157,7 +163,7 @@ test('家族サーバー: 圧縮・ETag／304・版つきの キャッシュ・�
     assert.equal(idx.headers['content-encoding'], 'br');
     assert.match(idx.headers.vary, /Accept-Encoding/);
     const html = unzip(idx);
-    const v = html.match(/js\/main\.js\?v=([A-Za-z0-9]+)/)?.[1];
+    const v = html.match(/KIZUNA_VERSION = \{"v":"([A-Za-z0-9]+)"/)?.[1];
     assert.ok(v, html);
     assert.match(html, new RegExp(`css/style\\.css\\?v=${v}`));
     // ETag → 304
@@ -204,7 +210,382 @@ test('家族サーバー: 圧縮・ETag／304・版つきの キャッシュ・�
     // 見つからない・こわれた アドレスは 今までどおり
     assert.equal((await raw(`${srv.base}/nai.js`)).status, 404);
     assert.equal((await raw(`${srv.base}/api/info`)).status, 200);
+    // パック: 目録と 1本に まとめた もの（ちぢめて 送る・今の 版なら 1年）
+    const man = await raw(`${srv.base}/pack-manifest.json?v=${v}`, br);
+    assert.equal(man.status, 200);
+    assert.equal(man.headers['cache-control'], IMMUTABLE);
+    assert.equal(man.headers['content-encoding'], 'br');
+    const m = JSON.parse(unzip(man));
+    assert.equal(m.v, v);
+    assert.equal(m.files['js/main.js'], contentHash(fs.readFileSync(path.join(ROOT, 'public', 'js', 'main.js'))));
+    const pk = await raw(`${srv.base}/pack.json?v=${v}`, br);
+    assert.equal(pk.status, 200);
+    assert.match(pk.headers['content-encoding'], /^(br|gzip)$/, 'br が まだ なら gzip');
+    assert.ok(pk.body.length < 6e6, `ちぢんだ パック ${pk.body.length}`);
+    const p = JSON.parse(unzip(pk));
+    assert.equal(p.v, v);
+    assert.deepEqual(Object.keys(p.files), Object.keys(m.files));
+    assert.equal(p.files['js/main.js'][1], fs.readFileSync(path.join(ROOT, 'public', 'js', 'main.js'), 'utf8'));
+    assert.equal((await raw(`${srv.base}/pack.json?v=${v}`, { ...br, 'If-None-Match': pk.headers.etag })).status, 304);
+    // ちがう 版を たのむ → 今の 版の 目録（とっておかせない）。SW は v が ちがうので 使わない
+    const manOld = await raw(`${srv.base}/pack-manifest.json?v=old1`, br);
+    assert.equal(manOld.headers['cache-control'], 'no-cache');
+    assert.equal(JSON.parse(unzip(manOld)).v, v);
+    // ちぢめない 時も 読める
+    assert.equal(JSON.parse((await raw(`${srv.base}/pack.json?v=${v}`)).body.toString('utf8')).v, v);
   } finally {
     await srv.stop();
   }
+});
+
+// ───────────── 3だんめ: パック ＋ Service Worker の 加速 ─────────────
+
+// にせの Cache Storage
+function fakeCaches() {
+  const stores = new Map();
+  const key = (k) => String(k?.url || k);
+  const open = async (name) => {
+    if (!stores.has(name)) {
+      const m = new Map();
+      stores.set(name, {
+        m,
+        match: async (k) => (m.has(key(k)) ? new Response(m.get(key(k)).body, { headers: m.get(key(k)).headers }) : undefined),
+        put: async (k, r) => { m.set(key(k), { body: await r.text(), headers: Object.fromEntries(r.headers) }); },
+        keys: async () => [...m.keys()].map((url) => ({ url })),
+        delete: async (k) => m.delete(key(k)),
+      });
+    }
+    return stores.get(name);
+  };
+  return { open, stores };
+}
+
+// sw.js を にせの サービスワーカーの 中で 動かす
+function loadSw({ origin = 'https://kizuna.example.ts.net', fetchImpl, query = '', caches = fakeCaches() } = {}) {
+  const handlers = {};
+  const sandbox = {
+    self: {
+      location: new URL(`${origin}/sw.js${query}`),
+      addEventListener: (ev, fn) => { handlers[ev] = fn; },
+      skipWaiting() {},
+      clients: { claim: () => Promise.resolve() },
+    },
+    caches,
+    crypto: webcrypto,
+    fetch: (r) => fetchImpl(r),
+    // メモリの 中みを すてる タイマーで テストが 終わらなく ならない ように
+    setTimeout: (f, ms) => { const t = setTimeout(f, ms); t.unref?.(); return t; },
+    clearTimeout, Response, URL, TextEncoder, TextDecoder,
+  };
+  vm.runInNewContext(`${fs.readFileSync(path.join(ROOT, 'public', 'sw.js'), 'utf8')}
+;self.__t = { stampImports, sha, packTarget, unstamp, keepVersions, fromPack, prepare, pack, loadBundle };`, sandbox);
+  return { handlers, caches, t: sandbox.self.__t };
+}
+
+// にせの サーバー（public/ から パック・ファイルを 返す。?v= つきの JS は ?v= を つけて 返す）
+function fakeServer(root, v, { files = null } = {}) {
+  const calls = [];
+  const { manifest, pack } = buildPack(root, v);
+  for (const [rel, text] of Object.entries(files || {})) {
+    manifest.files[rel] = contentHash(Buffer.from(text));
+    pack.files[rel] = [manifest.files[rel], text];
+  }
+  const fetchImpl = async (req) => {
+    const url = new URL(req.url || req);
+    calls.push(url.pathname + url.search);
+    const rel = url.pathname.slice(1);
+    if (rel === 'pack-manifest.json') return new Response(JSON.stringify(manifest));
+    if (rel === 'pack.json') return new Response(JSON.stringify(pack));
+    const text = files?.[rel] ?? fs.readFileSync(path.join(root, rel), 'utf8');
+    return new Response(stampable(rel) ? stampImports(text, url.searchParams.get('v')) : text);
+  };
+  return { fetchImpl, calls, manifest, pack };
+}
+const PUB = path.join(ROOT, 'public');
+const at = (rel, v) => ({ url: `https://kizuna.example.ts.net/${rel}?v=${v}`, method: 'GET', mode: 'cors' });
+const readPub = (rel) => fs.readFileSync(path.join(PUB, rel), 'utf8');
+
+test('sw.js の 中の stampImports・ハッシュは 家族サーバー（server/stamp.js）と 同じ', async () => {
+  const { t } = loadSw({ fetchImpl: () => Promise.reject(new Error('no')) });
+  const files = listPackFiles(PUB).filter((r) => r.endsWith('.js'));
+  assert.ok(files.length > 500, String(files.length));
+  for (const rel of files) {
+    const src = readPub(rel);
+    assert.equal(t.stampImports(src, 'abc123'), stampImports(src, 'abc123'), rel);
+    assert.equal(t.unstamp(stampImports(src, 'abc123'), 'abc123'), src, rel);
+  }
+  for (const rel of files.slice(0, 20)) {
+    const buf = fs.readFileSync(path.join(PUB, rel));
+    assert.equal(await t.sha(buf.toString('utf8')), contentHash(buf), rel);
+  }
+  assert.ok(!files.includes('sw.js'), 'sw.js は パックに 入れない');
+  assert.ok(listPackFiles(PUB).includes('css/style.css'));
+  assert.ok(listPackFiles(PUB).includes('css/fonts.css'));
+});
+
+test('パック: 目録の ハッシュと 中みが 合う・全部の JS と CSS が 入る', () => {
+  const { manifest, pack } = buildPack(PUB, 'v1');
+  assert.equal(manifest.v, 'v1');
+  assert.equal(pack.v, 'v1');
+  const rels = Object.keys(manifest.files);
+  assert.deepEqual(rels, listPackFiles(PUB));
+  let size = 0;
+  for (const rel of rels) {
+    const buf = fs.readFileSync(path.join(PUB, rel));
+    size += buf.length;
+    assert.equal(manifest.files[rel], contentHash(buf), rel);
+    assert.equal(pack.files[rel][0], manifest.files[rel]);
+    assert.equal(pack.files[rel][1], buf.toString('utf8'), 'パックの 中みは ?v= を つける 前');
+  }
+  assert.equal(manifest.size, size);
+});
+
+test('sw.js: 版つきの 同じ オリジンの JS・CSS だけ あつかう（ナビゲーション・ほかは さわらない）', () => {
+  const { t } = loadSw({ fetchImpl: () => Promise.reject(new Error('no')) });
+  const req = (url, method = 'GET') => ({ url, method, mode: 'cors' });
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/js/main.js?v=abc')), 'js/main.js');
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/css/style.css?v=abc')), 'css/style.css');
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/js/main.js')), '', '?v= なし');
+  assert.equal(t.packTarget(req('https://other.example.com/js/main.js?v=abc')), '', 'ほかの オリジン');
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/index.html?v=abc')), '');
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/api/info?v=abc')), '');
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/sw.js?v=abc')), '');
+  assert.equal(t.packTarget(req('https://kizuna.example.ts.net/js/main.js?v=abc', 'POST')), '');
+  // ひとりで遊ぶサイト（/-DB/kizuna/ の 下）でも、スコープからの パスで
+  const site = loadSw({ origin: 'https://example.github.io', fetchImpl: () => Promise.reject(new Error('no')) });
+  void site;
+  const kv = (l, v) => JSON.stringify(t.keepVersions(l, v));
+  assert.equal(kv([], 'b'), '["b"]');
+  assert.equal(kv(['a', 'b'], 'c'), '["b","c"]');
+  assert.equal(kv(['a', 'b'], 'b'), '["a","b"]');
+});
+
+test('sw.js: はじめは パック 1本 → 2回目は 通信なし → 更新の あとは かわった ファイルだけ 1つずつ → 古い ものを そうじ', async () => {
+  const s1 = fakeServer(PUB, 'v1');
+  let cur = s1;
+  const fetchImpl = (r) => cur.fetchImpl(r);
+  const sw = loadSw({ fetchImpl });
+  const prog = [];
+  const after = await sw.t.prepare('v1', (d, n) => prog.push([d, n]));
+  assert.deepEqual(s1.calls, ['/pack-manifest.json?v=v1', '/pack.json?v=v1']);
+  assert.ok(prog.length >= 1 && prog.at(-1)[0] === prog.at(-1)[1], JSON.stringify(prog.slice(-2)));
+  // 返事の 前から メモリで 返せる
+  const r0 = await sw.t.fromPack(at('js/main.js', 'v1'), 'js/main.js');
+  assert.equal(r0.headers.get('X-Kizuna-Pack'), '1');
+  await after();
+  const filesStore = await sw.caches.open('kizuna-files-v1');
+  const metaStore = await sw.caches.open('kizuna-meta-v1');
+  const keysOf = async (c) => (await c.keys()).map((k) => k.url.replace(/^.*__kizuna\//, ''));
+  assert.deepEqual(await keysOf(filesStore), ['b/v1']);
+  assert.ok((await keysOf(metaStore)).includes('m/v1'));
+  // しまった 中みから 返す（?v= を つけて）。サーバーが 送る ものと 同じ
+  const r = await sw.t.fromPack(at('js/main.js', 'v1'), 'js/main.js');
+  assert.equal(await r.text(), stampImports(readPub('js/main.js'), 'v1'));
+  assert.match(r.headers.get('Content-Type'), /javascript/);
+  const css = await sw.t.fromPack(at('css/style.css', 'v1'), 'css/style.css');
+  assert.match(css.headers.get('Content-Type'), /css/);
+  assert.equal(await css.text(), readPub('css/style.css'));
+  // 2回目（SW が 一度 止まって 動きなおした）: 通信なし・まとめを 1回 読むだけ
+  s1.calls.length = 0;
+  const sw2 = loadSw({ fetchImpl, caches: sw.caches });
+  assert.equal(await sw2.t.prepare('v1', () => {}), null);
+  assert.deepEqual(s1.calls, []);
+  assert.equal(await (await sw2.t.fromPack(at('js/main.js', 'v1'), 'js/main.js')).text(), stampImports(readPub('js/main.js'), 'v1'));
+  // 2回目で prepare を 待たずに 読まれても（返事が おくれた）しまった 中みから
+  const sw2b = loadSw({ fetchImpl, caches: sw.caches });
+  assert.equal((await sw2b.t.fromPack(at('js/client/net.js', 'v1'), 'js/client/net.js')).headers.get('X-Kizuna-Pack'), '1');
+  assert.deepEqual(s1.calls, []);
+  // 更新の あと（SW は 動きなおし）: 3つの ファイルだけ かわった
+  const changed = {
+    'js/main.js': `${readPub('js/main.js')}\n// new\n`,
+    'js/client/net.js': `${readPub('js/client/net.js')}\n// new\n`,
+    'css/style.css': `${readPub('css/style.css')}\n/* new */\n`,
+  };
+  cur = fakeServer(PUB, 'v2', { files: changed });
+  const sw3 = loadSw({ fetchImpl, caches: sw.caches });
+  await (await sw3.t.prepare('v2', () => {}))();
+  assert.deepEqual(cur.calls.sort(), ['/css/style.css?v=v2', '/js/client/net.js?v=v2', '/js/main.js?v=v2', '/pack-manifest.json?v=v2'].sort());
+  const r2 = await sw3.t.fromPack(at('js/main.js', 'v2'), 'js/main.js');
+  assert.equal(await r2.text(), stampImports(changed['js/main.js'], 'v2'));
+  // 直前の 版（v1）は のこる
+  assert.deepEqual((await keysOf(filesStore)).sort(), ['b/v1', 'b/v2']);
+  // さらに 更新（v3）→ v1 は 消える
+  cur = fakeServer(PUB, 'v3', { files: { ...changed, 'js/main.js': `${changed['js/main.js']}// v3\n` } });
+  await (await sw3.t.prepare('v3', () => {}))();
+  assert.deepEqual((await keysOf(filesStore)).sort(), ['b/v2', 'b/v3']);
+  assert.ok(!(await keysOf(metaStore)).includes('m/v1'));
+  assert.deepEqual(cur.calls.filter((c) => !c.startsWith('/pack-manifest')), ['/js/main.js?v=v3']);
+  // 知らない 版は ネットへ
+  cur.calls.length = 0;
+  await sw3.t.fromPack(at('js/main.js', 'zzz'), 'js/main.js');
+  assert.deepEqual(cur.calls, ['/js/main.js?v=zzz']);
+});
+
+test('sw.js: ハッシュが 合わない 中みは しまわない（ネットから 読む）・版の ちがう 目録は 使わない', async () => {
+  const s = fakeServer(PUB, 'v1');
+  s.pack.files['js/main.js'][1] += '// こわれた\n';
+  const sw = loadSw({ fetchImpl: s.fetchImpl });
+  await (await sw.t.prepare('v1', () => {}))();
+  s.calls.length = 0;
+  const r = await sw.t.fromPack(at('js/main.js', 'v1'), 'js/main.js');
+  assert.equal(r.headers.get('X-Kizuna-Pack'), null);
+  assert.deepEqual(s.calls, ['/js/main.js?v=v1'], 'ネットから');
+  // サーバーが もう 新しい 版（目録の v が ちがう）→ しっぱい（ページは ふつうに 読む）
+  const s2 = fakeServer(PUB, 'v9');
+  const sw2 = loadSw({ fetchImpl: s2.fetchImpl });
+  await assert.rejects(sw2.t.prepare('v8', () => {}), /manifest version/);
+  await assert.rejects(sw2.t.prepare('../x', () => {}), /bad version/);
+});
+
+test('sw.js: メッセージ（kz-prepare → ack・progress・done ／ kz-off で 止める ／ しっぱい）', async () => {
+  const s = fakeServer(PUB, 'v1');
+  const sw = loadSw({ fetchImpl: s.fetchImpl });
+  const got = [];
+  let waited;
+  sw.handlers.message({ data: { t: 'kz-prepare', v: 'v1' }, ports: [{ postMessage: (m) => got.push(m) }], waitUntil: (p) => { waited = p; } });
+  await waited;
+  assert.equal(got[0].t, 'kz-ack');
+  assert.ok(got.some((m) => m.t === 'kz-progress'));
+  assert.equal(JSON.stringify(got.at(-1)), '{"t":"kz-done","ok":true}');
+  // fetch: 版つきの JS は しまった 中みから
+  let resp = null;
+  sw.handlers.fetch({ request: at('js/main.js', 'v1'), respondWith: (p) => { resp = p; } });
+  assert.equal((await resp).headers.get('X-Kizuna-Pack'), '1');
+  // ?nopack: 止める
+  const got2 = [];
+  sw.handlers.message({ data: { t: 'kz-off' }, ports: [{ postMessage: (m) => got2.push(m) }] });
+  assert.deepEqual(got2.map((m) => m.t), ['kz-ack', 'kz-done']);
+  resp = null;
+  sw.handlers.fetch({ request: at('js/main.js', 'v1'), respondWith: (p) => { resp = p; } });
+  assert.equal(resp, null, '止めた あとは さわらない');
+  // しっぱい → ok: false（ページは ふつうに 読む）
+  const bad = loadSw({ fetchImpl: () => Promise.reject(new TypeError('Load failed')) });
+  const got3 = [];
+  bad.handlers.message({ data: { t: 'kz-prepare', v: 'v1' }, ports: [{ postMessage: (m) => got3.push(m) }], waitUntil: (p) => { waited = p; } });
+  await waited;
+  assert.equal(got3.at(-1).t, 'kz-done');
+  assert.equal(got3.at(-1).ok, false);
+  // ほかの メッセージは むし
+  sw.handlers.message({ data: { t: 'other' }, ports: [] });
+});
+
+test('sw.js: ひとりで遊ぶサイト（sw.js?nav=off）では ナビゲーションに さわらない', () => {
+  const sw = loadSw({ origin: 'https://example.github.io', query: '?nav=off', fetchImpl: () => Promise.reject(new Error('no')) });
+  let resp = null;
+  sw.handlers.fetch({ request: { url: 'https://example.github.io/-DB/kizuna/', method: 'GET', mode: 'navigate' }, respondWith: (p) => { resp = p; } });
+  assert.equal(resp, null);
+});
+
+// 起動の しくみ（index.html に うめこむ）を にせの ページで 動かす
+function runBoot({ secure = true, controller = null, search = '', nopackLS = false, cfg = {}, register } = {}) {
+  const appended = [];
+  const listeners = {};
+  const channels = [];
+  const box = { textContent: '読みこみ中…' };
+  const win = {
+    isSecureContext: secure,
+    MessageChannel: class { constructor() { this.port1 = {}; this.port2 = {}; channels.push(this); } },
+    caches: {},
+  };
+  const sw = {
+    controller,
+    addEventListener: (ev, fn) => { listeners[ev] = fn; },
+    register: register || (() => new Promise(() => {})),
+  };
+  const sandbox = {
+    window: win,
+    document: {
+      getElementById: (id) => (id === 'boot' ? box : null),
+      createElement: () => ({}),
+      body: { appendChild: (s) => appended.push(s) },
+    },
+    navigator: { serviceWorker: secure ? sw : undefined },
+    location: { search },
+    localStorage: { getItem: (k) => (k === 'kizuna_nopack' && nopackLS ? '1' : null) },
+    performance: { now: () => 0 },
+    setTimeout, clearTimeout,
+  };
+  vm.runInNewContext(`(${kizunaBoot})(${JSON.stringify({ v: 'V1', sw: 'sw.js', pack: true, ack: 30, idle: 60, claim: 60, ...cfg })})`, sandbox);
+  const reply = (m) => channels.at(-1).port1.onmessage({ data: m });
+  return { appended, box, listeners, sw, win, reply, mark: win.__kzBoot };
+}
+const tick = (ms) => new Promise((r) => setTimeout(r, ms));
+
+test('起動の しくみ: http・SW なし → すぐ ふつうに 読む。返事が ない → すぐ あきらめる', async () => {
+  const a = runBoot({ secure: false });
+  assert.equal(a.appended.length, 1);
+  assert.equal(a.appended[0].src, 'js/main.js?v=V1');
+  assert.equal(a.appended[0].type, 'module');
+  // 古い SW（返事しない）
+  const posted = [];
+  const b = runBoot({ controller: { postMessage: (m) => posted.push(m) } });
+  assert.equal(b.appended.length, 0);
+  assert.equal(posted[0].t, 'kz-prepare');
+  assert.equal(posted[0].v, 'V1');
+  await tick(80);
+  assert.equal(b.appended.length, 1, 'ack が 来ないので ふつうに 読んだ');
+  // パックを 使わない 設定
+  assert.equal(runBoot({ cfg: { pack: false }, controller: { postMessage() {} } }).appended.length, 1);
+});
+
+test('起動の しくみ: 進みぐあいを 出し、できたら 1回だけ 読む・とちゅうで 止まったら あきらめる', async () => {
+  const c = runBoot({ controller: { postMessage() {} } });
+  c.reply({ t: 'kz-ack' });
+  await tick(45);
+  assert.equal(c.appended.length, 0, 'ack の あとは 長めに まつ');
+  c.reply({ t: 'kz-progress', done: 42, total: 100 });
+  assert.equal(c.box.textContent, '読みこみ中（42%）');
+  c.reply({ t: 'kz-done', ok: true });
+  assert.equal(c.appended.length, 1);
+  assert.equal(c.mark.how, 'pack');
+  c.reply({ t: 'kz-done', ok: true });
+  await tick(100);
+  assert.equal(c.appended.length, 1, '2回 読まない');
+  // とちゅうで 返事が 止まった
+  const d = runBoot({ controller: { postMessage() {} } });
+  d.reply({ t: 'kz-ack' });
+  d.reply({ t: 'kz-progress', done: 1, total: 100 });
+  await tick(120);
+  assert.equal(d.appended.length, 1);
+  // しっぱいの 返事 → すぐ ふつうに
+  const e = runBoot({ controller: { postMessage() {} } });
+  e.reply({ t: 'kz-done', ok: false });
+  assert.equal(e.appended.length, 1);
+  assert.equal(e.mark.how, 'fail');
+});
+
+test('起動の しくみ: ?nopack・localStorage.kizuna_nopack で 止める。はじめての 訪問は 登録して まつ', async () => {
+  for (const opt of [{ search: '?nopack' }, { search: '?a=1&nopack' }, { nopackLS: true }]) {
+    const posted = [];
+    const n = runBoot({ ...opt, controller: { postMessage: (m) => posted.push(m) } });
+    assert.equal(posted[0].t, 'kz-off', JSON.stringify(opt));
+    n.reply({ t: 'kz-done', ok: true });
+    assert.equal(n.appended.length, 1);
+  }
+  // SW なしで ?nopack → 登録も しないで すぐ
+  let reg = 0;
+  const q = runBoot({ search: '?nopack', register: () => { reg++; return new Promise(() => {}); } });
+  assert.equal(q.appended.length, 1);
+  assert.equal(reg, 0);
+  // はじめての 訪問: 登録 → 動きだしたら たのむ
+  const posted = [];
+  const f = runBoot({ register: (url) => { assert.equal(url, 'sw.js'); return new Promise(() => {}); } });
+  assert.equal(f.appended.length, 0);
+  f.sw.controller = { postMessage: (m) => posted.push(m) };
+  f.listeners.controllerchange();
+  assert.equal(posted[0].t, 'kz-prepare');
+  f.reply({ t: 'kz-done', ok: true });
+  assert.equal(f.appended.length, 1);
+  // 登録が うまく いかない → すぐ ふつうに
+  const g = runBoot({ register: () => Promise.reject(new Error('no')) });
+  await tick(5);
+  assert.equal(g.appended.length, 1);
+  // SW が 動かない まま → 少し まって ふつうに
+  const h = runBoot({});
+  await tick(100);
+  assert.equal(h.appended.length, 1);
+  // もう 動いているのに この ページを 見ていない（強い 読みこみ直し）→ すぐ
+  const k = runBoot({ register: () => Promise.resolve({ active: {}, installing: null, waiting: null }) });
+  await tick(5);
+  assert.equal(k.appended.length, 1);
 });

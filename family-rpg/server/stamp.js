@@ -4,6 +4,7 @@
 //   → 版が かわれば アドレスも かわるので、古い ファイルと 新しい ファイルが まざらない
 // ・ファイルの 中みは かえない（送る 時・サイトを 作る 時に つける）
 import crypto from 'node:crypto';
+import { kizunaBoot } from './boot-loader.js';
 
 // './x.js' '../y.js' の 読みこみに ?v= を つける
 // （public/sw.js の stampImports と 同じ。test/load-r78.test.js で たしかめる）
@@ -18,7 +19,11 @@ export function stampImports(src, v) {
 // ?v= を つける JS か（vendor の 中は 外の ライブラリなので さわらない）
 export const stampable = (rel) => rel.endsWith('.js') && !rel.split('/').includes('vendor') && rel !== 'sw.js';
 
-export function stampHtml(html, v, date) {
+// index.html に 版を 入れる。読みこみは kizunaBoot（server/boot-loader.js）が はじめる
+// opts.sw: 登録する sw.js の アドレス（'' なら 登録しない）・opts.pack: パックを 使うか
+export function stampHtml(html, v, date, opts = {}) {
+  const cfg = { v, sw: opts.sw ?? 'sw.js', pack: !!opts.pack };
+  const loader = String(kizunaBoot).replace(/^\s*\/\/.*$\n?/gm, '');
   const boot = `<script>
   // サイトの 版（タイトル画面に 出す）
   window.KIZUNA_VERSION = ${JSON.stringify({ v, date })};
@@ -27,8 +32,8 @@ export function stampHtml(html, v, date) {
     try { if (sessionStorage.getItem('kizuna_reload')) return; sessionStorage.setItem('kizuna_reload', '1'); } catch (e) {}
     setTimeout(function () { location.reload(); }, 1500);
   }
-</script>
-<script type="module" src="js/main.js?v=${v}" onerror="kizunaBootFail()"></script>`;
+  (${loader})(${JSON.stringify(cfg).replace(/</g, '\\u003c')});
+</script>`;
   return html
     .replace('href="css/fonts.css"', `href="css/fonts.css?v=${v}"`)
     .replace('href="css/style.css"', `href="css/style.css?v=${v}"`)

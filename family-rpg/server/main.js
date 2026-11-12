@@ -129,7 +129,9 @@ setInterval(() => {
 
 // ───────────── ファイルを くばる ─────────────
 // 圧縮・ETag／304・版つきの キャッシュ（server/static.js）
-const statics = createStatic({ root: PUBLIC, sha: readVersion(ROOT)?.sha || '', date: readVersion(ROOT)?.date || '' });
+// sw.js の アドレスは client/net.js が 登録する ものと 同じに する（ちがうと 入れかわりが おきる）
+const SW_URL = /^https:\/\//i.test(config.siteUrl || '') ? `sw.js?site=${encodeURIComponent(config.siteUrl)}` : 'sw.js';
+const statics = createStatic({ root: PUBLIC, sha: readVersion(ROOT)?.sha || '', date: readVersion(ROOT)?.date || '', sw: SW_URL });
 
 // ひとりで遊ぶサイト（GitHub Pages）から「家族サーバーは動いている？」を 見られる ように する
 const DEFAULT_SITE_ORIGIN = 'https://koyamaryonetsu-arch.github.io';
@@ -187,6 +189,12 @@ function serveHttp(req, res) {
     const urls = outside ? [] : [...lanAddresses(), ...tailnetAddresses()].map((a) => `http://${a}:${PORT}`);
     res.writeHead(200, headers);
     res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls, public: strongEnough(PASSWORD) ? publicUrl() : '', site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
+    return;
+  }
+  // まとめて 1回で 送る パック（Service Worker が 使う。server/static.js）
+  if (reqPath === '/pack-manifest.json' || reqPath === '/pack.json') {
+    const q = String(req.url || '');
+    statics.servePack(req, res, reqPath.slice(1), q.includes('?') ? q.slice(q.indexOf('?') + 1).split('#')[0] : '');
     return;
   }
   // %xx を もどす（読めない・%00 が ある ときは 400）

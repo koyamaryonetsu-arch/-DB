@@ -192,6 +192,11 @@ async function visit(context, url, front, shaper, { cpu = 1 } = {}) {
   const cdp = await context.newCDPSession(page);
   await cdp.send('Performance.enable');
   if (cpu > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
+  // スマホで 開きなおす 時の まね: Service Worker は 止まって いる（メモリの 中みは ない）
+  try {
+    await cdp.send('ServiceWorker.enable');
+    await cdp.send('ServiceWorker.stopAllWorkers');
+  } catch { /* */ }
   const fontPaths = () => front.log.paths.filter((p) => p.includes('/fonts/')).length;
   front.log.requests = 0;
   front.log.paths = [];
@@ -218,7 +223,7 @@ async function visit(context, url, front, shaper, { cpu = 1 } = {}) {
     taskMs: Math.round((m.TaskDuration || 0) * 1000),
     sw: await page.evaluate(() => !!navigator.serviceWorker?.controller).catch(() => false),
     // 起動の しくみ（server/boot-loader.js）: どう 読んだか・モジュールを 読みはじめた 時
-    boot: await page.evaluate(() => (window.__kzBoot ? { how: window.__kzBoot.how, startMs: Math.round(window.__kzBoot.start || 0) } : null)).catch(() => null),
+    boot: await page.evaluate(() => (window.__kzBoot ? { how: window.__kzBoot.how, startMs: Math.round(window.__kzBoot.start || 0), log: window.__kzBoot.log } : null)).catch(() => null),
     errors,
   };
   await page.close();
@@ -285,6 +290,64 @@ export async function measure({ nets = ['4g', 'slow4g'], cpu = 1, runsN = 1, war
   return results;
 }
 
+// ───── 読みこみの 中み（4だんめの 見こみ。ブラウザは 使わない） ─────
+// main.js から import を たどって、タイトルまでに 読む ファイルと 大きさを しらべる
+export function analyze(root = path.join(ROOT, 'public')) {
+  const seen = new Map(); // rel → bytes
+  const lazy = new Set();
+  const visitFile = (rel) => {
+    if (seen.has(rel)) return;
+    const file = path.join(root, rel);
+    if (!fs.existsSync(file)) return;
+    const src = fs.readFileSync(file, 'utf8');
+    seen.set(rel, Buffer.byteLength(src));
+    const dir = path.posix.dirname(rel);
+    for (const m of src.matchAll(/(?:\bfrom\s*|\bimport\s+)(['"])(\.{1,2}\/[^'"?\n]+?\.js)\1/g)) visitFile(path.posix.normalize(path.posix.join(dir, m[2])));
+    for (const m of src.matchAll(/\bimport\s*\(\s*(['"])(\.{1,2}\/[^'"?\n]+?\.js)\1/g)) lazy.add(path.posix.normalize(path.posix.join(dir, m[2])));
+  };
+  visitFile('js/main.js');
+  const group = (rel) => {
+    if (/^js\/shared\/maps\//.test(rel)) return 'マップ（shared/maps）';
+    if (/^js\/shared\/data\//.test(rel)) return 'データ（shared/data）';
+    if (/^js\/shared\/world\//.test(rel)) return 'せかいの 動き（shared/world）';
+    if (/^js\/client\/ui\//.test(rel)) return '画面（client/ui）';
+    if (/^js\/client\/render\//.test(rel)) return 'えがく（client/render）';
+    if (/^js\/client\//.test(rel)) return 'client（そのほか）';
+    return 'そのほか';
+  };
+  const groups = {};
+  let total = 0;
+  let chapter = 0;
+  let chapterFiles = 0;
+  for (const [rel, n] of seen) {
+    total += n;
+    const g = group(rel);
+    groups[g] = groups[g] || { files: 0, bytes: 0 };
+    groups[g].files++;
+    groups[g].bytes += n;
+    // 章ごとの データ（ch2〜ch8・sidequests-ch… など。あとから 読める かもしれない もの）
+    if (/(^|[/-])ch[2-9]|sidequests-ch|story-ch|maps\/ch[2-9]/.test(rel)) { chapter += n; chapterFiles++; }
+  }
+  const fontsDir = path.join(root, 'fonts');
+  const fonts = { files: 0, bytes: 0 };
+  const walk = (d) => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else { fonts.files++; fonts.bytes += fs.statSync(p).size; }
+    }
+  };
+  if (fs.existsSync(fontsDir)) walk(fontsDir);
+  return {
+    atTitle: { files: seen.size, bytes: total },
+    lazy: [...lazy].filter((r) => !seen.has(r)),
+    groups,
+    chapter: { files: chapterFiles, bytes: chapter },
+    fonts,
+    fontsCss: fs.statSync(path.join(root, 'css', 'fonts.css')).size,
+  };
+}
+
 // ───── 表に する ─────
 const mb = (n) => `${(n / 1048576).toFixed(2)}MB`;
 const sec = (ms) => `${(ms / 1000).toFixed(1)}秒`;
@@ -304,6 +367,10 @@ export function table(results) {
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const args = process.argv.slice(2);
   const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
+  if (args.includes('--analyze')) {
+    console.log(JSON.stringify(analyze(), null, 2));
+    process.exit(0);
+  }
   const nets = String(opt('--net', '4g,slow4g')).split(',').filter((n) => NETS[n]);
   const res = await measure({ nets, runsN: Number(opt('--runs', 1)), warmMs: Number(opt('--warm', 8000)), cpu: Number(opt('--cpu', 1)), useHttp: args.includes('--http'), nopack: args.includes('--nopack'), keep: args.includes('--keep') });
   console.log('\n' + table(res));
