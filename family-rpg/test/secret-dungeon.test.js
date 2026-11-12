@@ -322,22 +322,25 @@ test('魔物は 仲間に ならない（ひみつのダンジョンの 中だ�
 });
 
 // ───────────── 糸・羽・ルーラ ─────────────
-test('糸・帰り道の羽・ルーラは 使えない（道具も MPも へらない）', async () => {
+test('帰り道の羽・ルーラは 使えない（道具も MPも へらない）。みちびきの糸は 入口の 広間へ（第79回）', async () => {
   const { bot, c } = await hero(41);
   addItem(c, ESCAPE_ITEM, 1);
   addItem(c, 'return_wing', 1);
   c.visited = { ...(c.visited || {}), village: true };
+  // 第79回: 糸は 使える（入口の 広間へ。記録は のこる）
+  await onFloor(bot, 2);
+  bot.send({ t: 'menu', action: 'useItem', id: ESCAPE_ITEM });
+  await bot.settle();
+  assert.equal(bot.map, SD_GATE);
+  assert.equal(itemCount(c, ESCAPE_ITEM), 0);
+  assert.equal(c.sd.run, undefined, 'ちょうせんは おわり');
   for (const f of [2, 5, 10]) {
     await onFloor(bot, f);
-    bot.send({ t: 'menu', action: 'useItem', id: ESCAPE_ITEM });
-    await bot.settle();
-    assert.equal(bot.map, sdFloorId(f));
-    assert.equal(itemCount(c, ESCAPE_ITEM), 1);
-    assert.ok(lastMenu(bot).text.includes('5階ごとの休み所'), lastMenu(bot).text);
     bot.send({ t: 'menu', action: 'useItem', id: 'return_wing', place: 'village' });
     await bot.settle();
     assert.equal(bot.map, sdFloorId(f));
     assert.equal(itemCount(c, 'return_wing'), 1);
+    assert.ok(lastMenu(bot).text.includes('リレミトかみちびきの糸'), lastMenu(bot).text);
   }
   const rura = Object.keys(ABILITIES).find((id) => ABILITIES[id].effect?.type === 'warp' && ABILITIES[id].field);
   c.abilities = [...new Set([...(c.abilities || []), rura])];

@@ -14,6 +14,8 @@ import { AURA_NAMES, LURE } from '../data/abilities-field27.js';
 import { mpCost, itemCount, removeItem } from '../stats.js';
 import { partyOf } from './party.js';
 import { isDungeonMap, dungeonExit } from './escape.js';
+import { secretEscape } from './secret.js';
+import { SD_NAME } from '../data/secret.js';
 import { warpParty } from './travel.js';
 import { rollGroup } from './monsters.js';
 import { ENCOUNTER_TABLES } from '../data/encounters.js';
@@ -106,6 +108,14 @@ export function castField27(world, s, caster, id, reply) {
     // リレミト: みちびきの糸と 同じ（world/escape.js）。使えない 所では MPは へらない
     const here = MAPS[s.map];
     if (!isDungeonMap(here)) return reply(false, `${head}\nしかし、何も起こらなかった…\n（${a.name}は、洞窟や塔の中で使う呪文）`);
+    // 第79回: ひみつのダンジョンの 階: 入口の 広間へ（いっしょの 家族も。全滅で もどる 時と おなじ あつかい。world/secret.js）
+    if (here.sd?.floor) {
+      const cost = mpCost(caster, id);
+      if (caster.mp < cost) return reply(false, 'MPが足りない！');
+      caster.mp -= cost;
+      const note = secretEscape(world, s, a.name);
+      return reply(true, `${head}\nまばゆい光につつまれて、${SD_NAME}の入口へもどってきた！\n${note}`);
+    }
     if (here.noEscape) return reply(false, `${head}\nしかし、ふしぎな力にはばまれて、何も起こらなかった！\n（${here.noEscapeHint || '来た道を歩いてもどろう'}）`);
     const to = dungeonExit(world, s);
     if (!to) return reply(false, `${head}\nしかし、出口が見つからない…`);
