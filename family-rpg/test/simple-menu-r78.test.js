@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { JOBS, JOB_MAX_LEVEL } from '../public/js/shared/data/jobs.js';
-import { MENU_VIEWS, SIMPLE_NOTE, menuSimple, menuViewOf, setMenuView, simpleLearnOrder } from '../public/js/shared/menu-view.js';
+import { MENU_VIEWS, SIMPLE_NOTE, SIMPLE_GROUPS, menuSimple, menuViewOf, setMenuView, simpleLearnOrder, simpleLearnGroups } from '../public/js/shared/menu-view.js';
 import { sortByStdPower, skillStdPower } from '../public/js/shared/skill-sort.js';
 import { allyFromCharacter, normBattleSettings } from '../public/js/shared/battle.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -217,6 +217,30 @@ test('simpleLearnOrder: ダメージ・回復の ある 技が 強い じゅん 
   assert.deepEqual(simpleLearnOrder(['no_such', 'mera']), ['mera', 'no_such']);
 });
 
+test('simpleLearnGroups: 今の職業の技（強い じゅん）→ ほかの職業の技（強い じゅん）。魔物は 見出し なしの 1つ', async () => {
+  const { c } = await hero('mage', 60);
+  c.job = 'sage';
+  c.jobs.sage = { lv: JOB_MAX_LEVEL, b: 0 };
+  const learned = learnedAbilities(c);
+  const groups = simpleLearnGroups(learned, c.job);
+  assert.deepEqual(groups.map((g) => g.key), ['now', 'other']);
+  assert.deepEqual(groups.map((g) => g.label), ['今の職業の技', 'ほかの職業の技']);
+  assert.deepEqual(SIMPLE_GROUPS, { now: '今の職業の技', other: 'ほかの職業の技' });
+  const [now, other] = groups;
+  assert.ok(now.ids.length >= 3 && other.ids.length > now.ids.length, `${now.ids.length} / ${other.ids.length}`);
+  assert.ok(now.ids.every((id) => ABILITIES[id].job === 'sage'), '今の 職業の 技だけ');
+  assert.ok(other.ids.every((id) => ABILITIES[id].job !== 'sage'));
+  assert.deepEqual([...now.ids, ...other.ids].sort(), [...learned].sort(), '技は へらない・ふえない');
+  // それぞれの 中は 強い じゅん（simpleLearnOrder と おなじ じゅん）
+  const full = simpleLearnOrder(learned);
+  for (const g of groups) assert.deepEqual(g.ids, full.filter((id) => g.ids.includes(id)));
+  // 今の 職業の 技が ない 時は「ほかの職業の技」だけ・空は 出さない
+  assert.deepEqual(simpleLearnGroups(['mera'], 'warrior').map((g) => g.key), ['other']);
+  assert.deepEqual(simpleLearnGroups([], 'mage'), []);
+  // 職業の ない 魔物: 見出し なし
+  assert.deepEqual(simpleLearnGroups(['mera', 'hoimi'], null).map((g) => [g.key, g.label]), [['all', '']]);
+});
+
 test('メニューの 画面（menu.js）: かんたん で かくす 物・のこす 物', () => {
   const mn = src('js/client/ui/menu.js');
   const sk = mn.slice(mn.indexOf('  skillsView(active, who'), mn.indexOf('  sendFavOrder('));
@@ -225,7 +249,10 @@ test('メニューの 画面（menu.js）: かんたん で かくす 物・の�
   // すみの ひとこと
   assert.match(sk, /class: 'simple-note', text: SIMPLE_NOTE/);
   // 覚えた技: 見方・タブ・L/R・Y を 出さない。1つの 一覧（強い じゅん）・2列
-  assert.match(sk, /simple \? \[\{ key: 'simple'[^\n]*simpleLearnOrder\(learned\)/);
+  assert.match(sk, /const groups = simple \? simpleLearnGroups\(learned, c\.species \? null : c\.job/);
+  // 見出し（今の職業の技・ほかの職業の技）を はさむ。★（お気に入り）の しるしは かんたん でも おなじ 行の 作り（row）
+  assert.match(sk, /groups\.flatMap\(\(gr\) => \[\.\.\.\(gr\.label \? \[\{ header: true, label: gr\.label, cls: 'fav-h' \}\] : \[\]\), \.\.\.gr\.ids\.map\(row\)\]\)/);
+  assert.match(sk, /favSet\.has\(id\) \? '<span class="favmk">★<\/span>'/);
   assert.match(sk, /const cols = !simple && battleDensityPref\(\) === 3 \? 3 : 2/);
   assert.match(sk, /if \(!simple\) head\.append\(el\('div', \{ class: 'lv-bar' \}/);
   assert.match(sk, /\.\.\.\(simple \? \{\} : \{\s*onLR:/);

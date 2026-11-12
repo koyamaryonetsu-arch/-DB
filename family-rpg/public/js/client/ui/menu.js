@@ -66,7 +66,7 @@ import { fieldUsableAbilities, splitFieldAbilities } from '../../shared/fieldski
 import { sortByStdPower, favSection, mergeSectionOrder, moveInGrid } from '../../shared/skill-sort.js';
 // 第71回 E: 覚えた技の 2つの 見方（種類で見る・職業で見る）
 import { LEARN_VIEWS, LEARN_SECS, learnedKindTabs, learnedJobTabs, pickLearnTab, nextLearnTab } from '../../shared/skill-view.js';
-import { MENU_VIEWS, SIMPLE_NOTE, menuSimple, menuViewOf, simpleLearnOrder } from '../../shared/menu-view.js';
+import { MENU_VIEWS, SIMPLE_NOTE, menuSimple, menuViewOf, simpleLearnGroups } from '../../shared/menu-view.js';
 import './r69-css.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
@@ -1250,7 +1250,9 @@ export class FieldMenu {
     // 第78回 3-6: かんたん表示は 見方・タブを 出さない。強い じゅんの 1つの 一覧（2列だけ）。前に えらんだ 見方・タブ（learnPref）は そのまま
     const pref = this.learnPref();
     const view = pref.view === 'job' ? 'job' : 'kind';
-    const tabs = simple ? [{ key: 'simple', id: 'simple', label: '', ids: simpleLearnOrder(learned) }]
+    //   第78回 追加: 「今の職業の技」（強い じゅん）→「ほかの職業の技」（強い じゅん）の 見出しで 分ける（simpleLearnGroups）
+    const groups = simple ? simpleLearnGroups(learned, c.species ? null : c.job, (id) => abilityFor(id, c)) : [];
+    const tabs = simple ? [{ key: 'simple', id: 'simple', label: '', ids: groups.flatMap((gr) => gr.ids) }]
       : view === 'job' ? learnedJobTabs(c, learned) : learnedKindTabs(learned, { abs: (id) => abilityFor(id, c), job: c.job });
     const cur = simple ? tabs[0] : pickLearnTab(tabs, pref.tab?.[view]);
     const cols = !simple && battleDensityPref() === 3 ? 3 : 2;
@@ -1290,10 +1292,10 @@ export class FieldMenu {
       if (!touch) head.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類・Yで見方・◀ ▶（左右のはし）で上のタブを切りかえ' }));
       // 選んでいる 種類（職業）の タブが 見えるように（横に ながい とき）
       requestAnimationFrame(() => subBar.querySelector('.btn.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
-    } else if (!touch) head.append(el('div', { class: 'tab-hint', text: '強い技が上・◀ ▶（左右のはし）で上のタブを切りかえ' }));
+    } else if (!touch) head.append(el('div', { class: 'tab-hint', text: '今の職業の技が先（強い技が上）・◀ ▶（左右のはし）で上のタブを切りかえ' }));
     // 技の わく: ★ … お気に入り / かくす … 命令の 一覧に 出さない（わくも 点線）/ 他 … 今の 職業 いがいの 技
     const favSet = new Set(c.favorites || []);
-    const items = cur.ids.map((id) => {
+    const row = (id) => {
       const a = abilityFor(id, c);
       const elm = a.effect?.element;
       const pen = penaltyFor(c, id).penalized;
@@ -1306,7 +1308,11 @@ export class FieldMenu {
         value: id,
         cls: `k-${abilityRole(a)} fav${hid ? ' cmd-off' : ''}${locked ? ' dis' : ''}`,
       };
-    });
+    };
+    // かんたん: 見出し（今の職業の技・ほかの職業の技）を はさむ（見出しは えらべない。お気に入りの わくと おなじ）
+    const items = simple
+      ? groups.flatMap((gr) => [...(gr.label ? [{ header: true, label: gr.label, cls: 'fav-h' }] : []), ...gr.ids.map(row)])
+      : cur.ids.map(row);
     // 効果の 目安（数）・技の レベルと 使った 回数（第38回 C）
     const lvLine = (id) => {
       const n = c.skillUse?.[id] || 0;
@@ -1355,7 +1361,7 @@ export class FieldMenu {
     this.stickInfo(box, info);
     showInfo(m.current);
     box.append(info, el('div', { class: 'small muted', text: simple
-      ? '強い技が上。選ぶと「使う」「お気に入り」を選べる。★…お気に入り　他…今の職業ではない技'
+      ? '今の職業の技が先で、その中は強い技が上。選ぶと「使う」「お気に入り」を選べる。★…お気に入り　他…今の職業ではない技'
       : '選ぶと「使う」「お気に入り」「命令の一覧に出さない」を選べる。★…お気に入り　かくす…自分で命令する時、戦いの技の一覧に出さない技（オートで使うかは作戦で決める）　他…今の職業ではない技' }));
     return box;
   }
@@ -2461,7 +2467,7 @@ export class FieldMenu {
       },
     });
     const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
-    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる。まわりの音は、町のざわめきや波・風の音（新しい音の時だけ）\nメニューの表示を「かんたん」にすると、呪文・技の画面がかんたんになる（強い技が上の1つの一覧。お気に入りのならびかえと、命令の一覧に出さない技の切りかえは出さない。前に決めたことは、そのまま戦いで使われる）。キャラごとに決められる` +(quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる。まわりの音は、町のざわめきや波・風の音（新しい音の時だけ）\nメニューの表示を「かんたん」にすると、呪文・技の画面がかんたんになる（覚えた技は、今の職業の技が先で強い技が上。お気に入りのならびかえと、命令の一覧に出さない技の切りかえは出さない。前に決めたことは、そのまま戦いで使われる）。キャラごとに決められる` +(quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 
