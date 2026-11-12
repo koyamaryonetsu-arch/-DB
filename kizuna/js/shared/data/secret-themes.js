@@ -9,7 +9,7 @@
 //   seed = r（12ビット・1〜4095）<< 19 | たしかめの 数（6ビット）<< 13 | mask（13ビット）
 //   前の 版の seed（でたらめな 数）は たしかめの 数が 合わないので mask 0（だれにでも 出る テーマだけ）
 // ・番人の 階・ごほうび・魔物の 強さ・宝箱の 中み・階の 数は かえない（見た目と 形と せりふだけ）
-import { makeRng } from '../rng.js?v=8f3c13478779';
+import { makeRng } from '../rng.js?v=3b960a0fc297';
 
 // shape … 形の 作り方（maps/secret-floors.js）/ color … 色（render/themes.js の テーマ。null は 10階ごとの 色）
 // dark … くらい 階か（undefined は 10階ごとの きまり）/ need … 行った ことの ある しるしの フラグ（null は だれにでも）

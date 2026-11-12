@@ -57,7 +57,12 @@ export function nextPinch(prev, allies) {
 
 // ───────────── ボスの だん ─────────────
 // 形態の しるし（サーバーの pub。1 が はじめ）→ だん（0〜3）
-const FORM_KEYS = ['slPhase', 'zen', 'c7form', 'c8form', 'c8hform', 'bwForm', 'kmForm', 'impForm'];
+//   第80回: 新しい ボスの しるしは addFormKey(名前) で 足せる（第8章 第4幕の 門番・最後の ボスの 段の しるしは B班が きめる）
+export const FORM_KEYS = ['slPhase', 'zen', 'c7form', 'c8form', 'c8hform', 'bwForm', 'kmForm', 'impForm'];
+export function addFormKey(...keys) {
+  for (const k of keys) if (typeof k === 'string' && k && !FORM_KEYS.includes(k)) FORM_KEYS.push(k);
+  return FORM_KEYS;
+}
 
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
@@ -136,6 +141,18 @@ export function depthIntensity(floor, floors) {
   if (!Number.isFinite(f) || !Number.isFinite(n) || n <= 2 || f < 1) return 1;
   const v = DEPTH_MIN + ((1 - DEPTH_MIN) * (Math.min(f, n) - 1)) / (n - 1);
   return Math.round(v * 1000) / 1000;
+}
+
+// 第80回: 時の広間（c8r_hall）の 強さ ＝ クリアした つばさの 数（物語の しるし）。0こ 0.4 → 4こ 1.0
+//   曲の 強さの 段（audio-c8r.js）: 0.4 ベル・きざみ ／ 0.55 ＋ 低音 ／ 0.7 ＋ のばし ／ 0.85 ＋ 笛 ／ 1.0 ＋ ハープ・たいこ
+export const HALL_TRACK = 'c8r_hall';
+export const HALL_WING_FLAGS = ['c8w_moon', 'c8w_fire', 'c8w_iron', 'c8w_ice'];
+export function hallIntensity(hasFlag = () => false) {
+  let n = 0;
+  for (const f of HALL_WING_FLAGS) {
+    try { if (hasFlag(f)) n++; } catch { /* */ }
+  }
+  return Math.round((DEPTH_MIN + ((1 - DEPTH_MIN) * n) / HALL_WING_FLAGS.length) * 1000) / 1000;
 }
 
 // その マップの 階（宝の地図の 洞窟は map.tm に 階と 階の 数が ある）
@@ -299,7 +316,8 @@ export class SceneAudio {
       try { hasNightTrack = map.bgmAt(x, y, true, hasFlag) !== map.bgmAt(x, y, false, hasFlag); } catch { /* */ }
     }
     let intensity = 1;
-    if (map.kind === 'dungeon' && areaTrack === map.bgm) {
+    if (areaTrack === HALL_TRACK) intensity = hallIntensity(hasFlag);
+    else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
     }

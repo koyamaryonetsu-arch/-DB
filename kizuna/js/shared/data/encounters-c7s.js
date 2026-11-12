@@ -5,7 +5,7 @@
 // 手下の 魔物 5しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、配合で 足りない ランクに 入れる（tools/gen-monster-ranks.mjs）
 //   めやす: プクプク … 20%いじょう（F）／カロン … 12〜20%（E）／ジュゲム … 12〜20%（D）／魚人の海賊 … 6〜12%（C）／海賊オウム … 6〜12%（A）
 //   第7章の B〜S は 2わりまで（test/monsters-r43a.test.js）なので、第2幕の B〜S は 海賊オウムだけ
-import { C7_REEF, C7_LIGHT } from './monsters-c7s.js?v=8f3c13478779';
+import { C7_REEF, C7_LIGHT } from './monsters-c7s.js?v=3b960a0fc297';
 
 export const ENCOUNTERS_C7S = {
   t7_sea: [

@@ -10,16 +10,16 @@
 //   → 8階 上の かんぱん: 初代大魔王クッパード（きまった 戦い c8_bowser。2だん。B）→ ひとりじめの 心を とられて かけらが にげる
 //   → ミナモを 助ける・ミナモの 星読み「ふういんの日は、あした。かけらは 時のはざまへ…」→ 泉の里で（c8_bowser）→「第8章　第4幕へ（続きはアップデートで！）」
 // より道「時をこえる手紙」（千年前の ミドリナ地方の 2つ）は data/sidequests-c8c.js。魔物・きまった 戦い・品・ゲストの 強さは B（plan-ch8.md の 8-2）。ゲストは リオン
-import { C8B } from '../maps/c8b-flags.js?v=8f3c13478779';
+import { C8B } from '../maps/c8b-flags.js?v=3b960a0fc297';
 import {
   C8C, ARRIVE8C, ENTRY8C, PF8C, POCO8C, VOICE8C, WIN8C, CALM8C, CAGE8C, DEV8C, ROOT8C, LETTER8C, LETTER8C_FORT, POCO_LETTER8C, PAST_FIELD_ID, NOW_FIELD_ID, c8cMapId,
-} from '../maps/c8c-flags.js?v=8f3c13478779';
-import { C8C_POS, deviceKind, linkedBy } from '../maps/c8c-fort.js?v=8f3c13478779';
-import { C8C_FIELD_POS } from '../maps/c8c-field.js?v=8f3c13478779';
-import { MAPS } from '../maps/index.js?v=8f3c13478779';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=8f3c13478779';
-import { MONSTERS } from './monsters.js?v=8f3c13478779';
-import { applyC8cSide, letterReward8c } from './sidequests-c8c.js?v=8f3c13478779';
+} from '../maps/c8c-flags.js?v=3b960a0fc297';
+import { C8C_POS, deviceKind, linkedBy } from '../maps/c8c-fort.js?v=3b960a0fc297';
+import { C8C_FIELD_POS } from '../maps/c8c-field.js?v=3b960a0fc297';
+import { MAPS } from '../maps/index.js?v=3b960a0fc297';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=3b960a0fc297';
+import { MONSTERS } from './monsters.js?v=3b960a0fc297';
+import { applyC8cSide, letterReward8c } from './sidequests-c8c.js?v=3b960a0fc297';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

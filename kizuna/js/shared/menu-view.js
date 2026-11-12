@@ -6,8 +6,8 @@
 //
 // 保存: かんたん の 時だけ c.menuView = 'simple'。くわしい（ふだん）は 項目を 消す。
 //   → 引っこしコード（shared/world/transfer.js）は キャラを そのまま 入れるので、ふだんの 値は コードに 入らない（長く ならない）
-import { skillStdPower, skillStdMp } from './skill-sort.js?v=8f3c13478779';
-import { ABILITIES } from './data/abilities.js?v=8f3c13478779';
+import { skillStdPower, skillStdMp } from './skill-sort.js?v=3b960a0fc297';
+import { ABILITIES } from './data/abilities.js?v=3b960a0fc297';
 
 export const MENU_VIEWS = { full: 'くわしい', simple: 'かんたん' };
 // 技の 画面の すみに 出す ひとこと

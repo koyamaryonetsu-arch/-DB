@@ -9,8 +9,8 @@
 //   ・ついた 階だんは「いちど おりるまで」つかわない（s.stairGuard。world.js の onEnterTile）。
 //     2マス はばの 階だんは、となりの 階だんの マスも おなじ 階だん（横に 1歩 でも もどらない）
 //   ・マップの データ（warps の to）は かえない（みちびきの糸・ルーラ・テストの きまりは そのまま）
-import { MAPS, tileAt, isBlocked, condOk, npcCovers } from '../maps/index.js?v=8f3c13478779';
-import { T } from '../tiles.js?v=8f3c13478779';
+import { MAPS, tileAt, isBlocked, condOk, npcCovers } from '../maps/index.js?v=3b960a0fc297';
+import { T } from '../tiles.js?v=3b960a0fc297';
 
 const PAIR_REACH = 2.6;
 const BACK_REACH = 3.2;
