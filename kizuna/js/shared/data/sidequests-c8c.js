@@ -5,11 +5,11 @@
 //   （3 … ようさい 5階の まほうの じょうの とびらの 手紙は 物語の なぞとき。data/story-c8c.js。ごほうびは 3つめ）
 // ・見つけた 時に 1回だけ ごほうび（B の C8C_LETTER_REWARDS）。人と 場所は maps/c8c-field.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-c7.js の c7SubQuests・c7DoneQuests から（c8cSubQuests・c8cDoneQuests）
-import { C8C, LETTER8C, LETTER8C_SIDE } from '../maps/c8c-flags.js?v=ddd62e12d679';
-import { LETTER8C_ASKERS, LETTER8C_PLACES, LETTER8C_NOW_PLACES } from '../maps/c8c-field.js?v=ddd62e12d679';
-import { ITEMS } from './items.js?v=ddd62e12d679';
+import { C8C, LETTER8C, LETTER8C_SIDE } from '../maps/c8c-flags.js?v=433f1b51a50d';
+import { LETTER8C_ASKERS, LETTER8C_PLACES, LETTER8C_NOW_PLACES } from '../maps/c8c-field.js?v=433f1b51a50d';
+import { ITEMS } from './items.js?v=433f1b51a50d';
 // 手紙の ごほうび（B の data/items-c8c.js の C8C_LETTER_REWARDS。まとめる 時に './items-c8c.js' から）
-import { C8C_LETTER_REWARDS } from './items-c8c.js?v=ddd62e12d679';
+import { C8C_LETTER_REWARDS } from './items-c8c.js?v=433f1b51a50d';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

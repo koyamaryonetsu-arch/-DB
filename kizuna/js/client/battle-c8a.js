@@ -9,11 +9,11 @@
 // ・バナー: 聞き耳・オウムがえしの 前ぶれ・はね返された／しっぱい／さいみんじゅつの 前ぶれ・あやつられた・つえを こわした／
 //   変身（コブラ・魔人）・とぐろ・かみつかれた・いちげき・からぶり／魔力の 前ぶれ・魔力・ランプに すいこまれた・出てきた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c7i.js から client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_PET, C8_JAFAR } from '../shared/data/monsters-c8a.js?v=ddd62e12d679';
-import { monsterCanvas } from './render/monsters.js?v=ddd62e12d679';
-import { el } from './ui/dom.js?v=ddd62e12d679';
+import { C8_PET, C8_JAFAR } from '../shared/data/monsters-c8a.js?v=433f1b51a50d';
+import { monsterCanvas } from './render/monsters.js?v=433f1b51a50d';
+import { el } from './ui/dom.js?v=433f1b51a50d';
 // 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの がめん（battle-c8b.js）
-import { C8B_OWN_TELE, c8bSprite, c8bDraw, c8bPresent } from './battle-c8b.js?v=ddd62e12d679';
+import { C8B_OWN_TELE, c8bSprite, c8bDraw, c8bPresent } from './battle-c8b.js?v=433f1b51a50d';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c7i.js の C7I_OWN_TELE に まぜる）
 export const C8A_OWN_TELE = [C8_PET, C8_JAFAR, ...C8B_OWN_TELE];

@@ -1,7 +1,7 @@
 // 第7章 Step 5・6（A: 世界と物語）「白雪の里」の お店（data/story-c7i.js が SHOPS に まぜる。data/shops.js は かえない）
 // 品ぞろえは 今 ある いちばん 上の 店の 品（第2幕の ナギの村の 店の 品。B の data/items-c7s.js の C7S_SHOP_*）。
 // B が 第7章 第3幕の 店の 品を 作ったら、ここの items を かえる。千年前は キメラのつばさが 使えないので 道具屋では 売らない
-import { C7S_SHOP_WEAPONS, C7S_SHOP_ARMOR, C7S_SHOP_TOOLS } from './items-c7s.js?v=ddd62e12d679';
+import { C7S_SHOP_WEAPONS, C7S_SHOP_ARMOR, C7S_SHOP_TOOLS } from './items-c7s.js?v=433f1b51a50d';
 
 export const SHOPS_C7I = {
   c7i_weapon: {
