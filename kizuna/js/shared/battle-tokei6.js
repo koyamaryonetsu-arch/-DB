@@ -14,14 +14,14 @@
 // ・ふつうの オート: 大ほうかいが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（battle-ch6.js の AUTO_GUARD）
 // ・リオンの けいこ（person: 'rion'）… 見た目を リオン（data/companions-tokei.js の RION_GUEST）に する（がめんは 人の 絵）
 // ・時のまぼろし（base … もとの ボス）… しかけは もとの まま。がめんと 技の 名前は もとの ボスで 見る（c.base）
-import { MONSTERS } from './data/monsters.js?v=3b960a0fc297';
-import { ABILITIES } from './data/abilities.js?v=3b960a0fc297';
-import { ZEN_GEARS } from './data/monsters-tokei6.js?v=3b960a0fc297';
-import { RION_GUEST } from './data/companions-tokei.js?v=3b960a0fc297';
+import { MONSTERS } from './data/monsters.js?v=abfdea9b746b';
+import { ABILITIES } from './data/abilities.js?v=abfdea9b746b';
+import { ZEN_GEARS } from './data/monsters-tokei6.js?v=abfdea9b746b';
+import { RION_GUEST } from './data/companions-tokei.js?v=abfdea9b746b';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=3b960a0fc297';
-import { canUse } from './ai.js?v=3b960a0fc297';
-import { applyTimes } from './battle-road.js?v=3b960a0fc297';
+import { atbRate, pub } from './battle.js?v=abfdea9b746b';
+import { canUse } from './ai.js?v=abfdea9b746b';
+import { applyTimes } from './battle-road.js?v=abfdea9b746b';
 
 export const COLLAPSE = 'm6z_zm_collapse';
 // しかけの おわりの 技（前ぶれ → 大技）。ID は battle-ch6.js・battle-road.js・battle-tokei.js と おなじ

@@ -6,7 +6,7 @@
 // うつしかえ: 第69回では autoOff が 一覧からも 消していた。その 時の 決めた ことが きえない ように、
 //   cmdOff が まだ ない（配列で ない）人は autoOff を そのまま cmdOff と みなす（cmdOffList）。
 //   ロードの とき（world.js の normalizeChar）と、autoOff を かえる 前（services.js の autoSkill）に 1回だけ うつす（migrateCmdOff）
-import { ABILITIES } from './data/abilities.js?v=3b960a0fc297';
+import { ABILITIES } from './data/abilities.js?v=abfdea9b746b';
 
 const ids = (x) => (Array.isArray(x) ? x.filter((id) => typeof id === 'string') : []);
 

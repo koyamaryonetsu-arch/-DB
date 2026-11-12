@@ -21,13 +21,15 @@
 // ・知っている 人（シミュレーター tools/sim-ch8.mjs。b.knowsCh6）:
 //   マジカメック … 魔法じんの 子分を いちばん 大きい 1回の 攻撃で たおしに いく（b.c8cNoAim … しない）
 //   クッパード … 橋のオノが ある 間は ぶきで たたく（たたく 人が 足りて いれば ほかは ふつう。b.c8cNoAxe … しない）・大技の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=3b960a0fc297';
-import { ABILITIES } from './data/abilities.js?v=3b960a0fc297';
-import { C8_KAMEK, C8_BOWSER, C8_AXE, KAMEK_KIDS, GIGA_ACTIONS, BOWSER_ACTIONS, GIGA_KID_ACTION, GIGA_NAME } from './data/monsters-c8c.js?v=3b960a0fc297';
+import { MONSTERS } from './data/monsters.js?v=abfdea9b746b';
+import { ABILITIES } from './data/abilities.js?v=abfdea9b746b';
+import { C8_KAMEK, C8_BOWSER, C8_AXE, KAMEK_KIDS, GIGA_ACTIONS, BOWSER_ACTIONS, GIGA_KID_ACTION, GIGA_NAME } from './data/monsters-c8c.js?v=abfdea9b746b';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=3b960a0fc297';
-import { canUse } from './ai.js?v=3b960a0fc297';
-import { AUTO_GUARD } from './battle-ch6.js?v=3b960a0fc297';
+import { atbRate, pub } from './battle.js?v=abfdea9b746b';
+import { canUse } from './ai.js?v=abfdea9b746b';
+import { AUTO_GUARD } from './battle-ch6.js?v=abfdea9b746b';
+// 第2部 第8章 第4幕: 時の門番フリーゾン・心の ためし・ソリトゥスの 本当の すがた・かけつけ。battle-c8r.js
+import { setupC8r, c8rTurnStart, c8rEffect, c8rPlan, c8rPub, c8rDamage, c8rKill } from './battle-c8r.js?v=abfdea9b746b';
 
 export { C8_KAMEK, C8_BOWSER, C8_AXE };
 export const GROW = 'm8k_grow';
@@ -95,11 +97,15 @@ export function setupC8c(b) {
     }
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1300 });
+  // 第8章 第4幕（battle-c8r.js）
+  setupC8r(b);
 }
 
 // ───────────── 行動の はじめ（battle-c8b.js の c8bTurnStart の はじめ）─────────────
 // 動けない 番も しるしを 数える（しるしが 1つの 番が 動けない ときは、次の 番に）
 export function c8cTurnStart(b, c, ev, stuck) {
+  // 第8章 第4幕（battle-c8r.js）
+  c8rTurnStart(b, c, ev, stuck);
   if (c.c8km) kamekTurn(b, c, ev, stuck);
   else if (c.c8bw) bowserTurn(b, c, ev, stuck);
 }
@@ -217,7 +223,8 @@ export function c8cEffect(b, c, a, eff, ev) {
     case 'c8cGiga': giga(b, c, ev); return true;
     case 'c8cGigaFire': gigaFire(b, c, ev); return true;
     case 'c8cFallen': ev.c8cFallenAct = { id: c.id }; return true;
-    default: return false;
+    // 第8章 第4幕（battle-c8r.js）
+    default: return c8rEffect(b, c, a, eff, ev);
   }
 }
 
@@ -424,6 +431,8 @@ function fall(b, h, by, ev) {
 // ───────────── ダメージ（battle-c8b.js の c8bDamage の はじめ。味方 → 敵 だけ）─────────────
 // 橋の オノ: ぶきで たたくと 1 へる（呪文では 動かない）／ギガクッパード: うける ダメージ cut ばい／はじめて ギガに なる 前は HP が 下がりきらない
 export function c8cDamage(b, c, t, dmg, info, ev) {
+  // 第8章 第4幕: 見くだしの かまえ・やみの風・一騎うち・ソリトゥスの 心の さかい（battle-c8r.js）
+  dmg = c8rDamage(b, c, t, dmg, info, ev);
   if (!(dmg > 0) || c?.side !== 'ally') return dmg;
   // 魔法じんの 上の 子分は、魔法を うける じゅんびで 体が やわらかい（ダメージ grow.soft ばい）
   if (t.c8kid && t.c8aimed) {
@@ -478,6 +487,8 @@ export function c8cDamage(b, c, t, dmg, info, ev) {
 // ───────────── たおれた（battle-c8b.js の c8bKill の はじめ）─────────────
 // 魔法じんの 子分が たおれた・橋の オノが たおれた（橋が おちる）
 export function c8cKill(b, t, ev) {
+  // 第8章 第4幕: ともしび・リオン・小おに（battle-c8r.js）
+  c8rKill(b, t, ev);
   if (t?.c8kid && t.c8aimed) {
     t.c8aimed = false;
     if (ev) {
@@ -534,6 +545,9 @@ function bestHit(b, c, t) {
 // ───────────── オート（battle-c8b.js の c8bPlan の はじめ）─────────────
 // 第8章 第3幕の ボスが いなければ null（ほかの ボスの 考えへ）
 export function c8cPlan(b, c, decide) {
+  // 第8章 第4幕（battle-c8r.js）
+  const rp = c8rPlan(b, c, decide);
+  if (rp) return rp;
   if (c.side !== 'ally' || b.c8cInner || c.status?.rift) return null;
   const km = kamekOf(b);
   const h = bowserOf(b);
@@ -578,6 +592,8 @@ export function c8cPlan(b, c, decide) {
 // マジカメック: kmForm（1 ふつう・2 ほうき）・growLeft・growEvery（でっかくなあれまで）／子分: aimed（魔法じん）・giga（デカ）
 // クッパード: bwForm（1 ふつう・2 ギガ）・poundLeft・poundEvery・fireLeft・fireEvery・flicker・regrowLeft・fallen／橋の オノ: axeLeft・axeMax
 export function c8cPub(c, o) {
+  // 第8章 第4幕（battle-c8r.js）
+  c8rPub(c, o);
   // がめんは まえの ようすに 上書きで まぜる（client/battle.js の Object.assign）ので、なくなった しるしも 0 で おくる
   if (c.c8km) {
     const k = c.c8km;

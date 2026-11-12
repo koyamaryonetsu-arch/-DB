@@ -7,9 +7,9 @@
 //   見た目は 今までと おなじ 大きさ（112×112・124×124）。render/monsters.js が こまかさ（res）を 2倍に する
 // ジャハールは コマ 0・1 が へびの つえの 魔術師、コマ 2・3 が 大きな コブラ、コマ 4・5 が ランプの 魔人
 //   （client/battle-c8a.js の c8aSprite が pub の c8form で えらぶ）
-import { fit, spark, bez } from './ch3-draw.js?v=3b960a0fc297';
+import { fit, spark, bez } from './ch3-draw.js?v=abfdea9b746b';
 // 第2部 第8章 第2幕: 手下の 魔物・ペイニックと パニクル・よみの王ハデロス（c8b-art.js）
-import { addC8bArt } from './c8b-art.js?v=3b960a0fc297';
+import { addC8bArt } from './c8b-art.js?v=abfdea9b746b';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）

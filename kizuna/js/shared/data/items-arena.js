@@ -86,6 +86,13 @@ const GEAR = {
     resist: { ice: 0.85, bolt: 0.85, paralyze: 0.6, confuse: 0.7 },
     desc: '深海の大王者リヴァイアスが、勝った者にわたす、青く光る大きなしんじゅ。だれでも装備でき、すべての力が大きく上がる。行動するたびにMPが1回復する。マヒしにくい。',
   },
+  // 第80回 C: ランク13（時の大王者クロノガルド）… アクセサリー 1つ（★5）。第8章 第3幕の ボスの お守り（大魔王のトゲのうでわ 264）より 少し 上。
+  //   第4幕の ボスの お守り（B班）と おなじ くらいの つもり（まとめる 時に 見直す）
+  ar_time_hourglass: {
+    ...C(10, 5), ...ARENA, name: '時の大王者の砂時計', bonus: { str: 32, mag: 32, def: 28, agi: 28, hp: 132, heal: 24 }, crit: 0.04, mpRegen: 1,
+    resist: { wind: 0.8, bolt: 0.85, sleep: 0.5, confuse: 0.7 },
+    desc: '時の大王者クロノガルドが、勝った者にわたす、小さな金の砂時計。だれでも装備でき、すべての力が大きく上がる。行動するたびにMPが1回復する。ねむりにくい。',
+  },
 };
 for (const it of Object.values(GEAR)) {
   it.price = 0;
@@ -98,5 +105,5 @@ export const ARENA_ITEM_KANA = {
   ar_champ_belt: 'ちゃんぴおんのべると', ar_shark_charm: 'すなざめのおうのきばのおまもり', ar_prism_crown: 'なないろのかんむり',
   ar_legend_belt: 'でんせつのちゃんぴおんべると', ar_legend_mantle: 'でんせつのちゃんぴおんのまんと',
   ar_twin_dragon_charm: 'りゅうのきょうだいのおまもり', ar_star_king_brooch: 'だいおうじゃのほしのぶろーち',
-  ar_silver_north_star: 'はくぎんのほっきょくせい', ar_deep_sea_pearl: 'しんかいのおおしんじゅ',
+  ar_silver_north_star: 'はくぎんのほっきょくせい', ar_deep_sea_pearl: 'しんかいのおおしんじゅ', ar_time_hourglass: 'ときのだいおうじゃのすなどけい',
 };

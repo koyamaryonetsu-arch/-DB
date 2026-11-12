@@ -10,8 +10,8 @@
 // 27. 海鳴りの小島の、かげぼうしどろぼう（ソードマスターか魔剣士の 系統。風の海の 海鳴りの小島）
 // 28. 北の海辺の、ハサミ団（黒の組織の 系統。コガネ地方の 北の海辺）
 // 29. 白銀の湖の、ねむらない氷の像づくり（社ちくの 系統。シロガネ地方の 白銀の湖の 西の 岸）
-import { npc } from './npc.js?v=3b960a0fc297';
-import { openSpot } from './labyrinth.js?v=3b960a0fc297';
+import { npc } from './npc.js?v=abfdea9b746b';
+import { openSpot } from './labyrinth.js?v=abfdea9b746b';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第2幕の「千年前の 海に 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 6-2）

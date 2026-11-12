@@ -7,7 +7,7 @@
 // a7l_drop（ドボン！）は 水しぶきの 柱 → 大波（とくべつな つぶ c7swave）が がめんを よこぎる。
 // どちらも がめんの まん中に 大きく（client/battle-c7s.js の C7S_SCREEN_ANIMS）
 // 第2部 第7章 第3幕 の 魔物・マレフィナ（黒い 竜）・カイの影（battlefx-c7i.js）
-import { playC7iFx, C7I_FINE } from './battlefx-c7i.js?v=3b960a0fc297';
+import { playC7iFx, C7I_FINE } from './battlefx-c7i.js?v=abfdea9b746b';
 
 const WATER = ['#7ad8e8', '#bff4ff', '#2a8aa8', '#ffffff'];
 const FIRE = ['#ff8a2a', '#ffe060', '#ff4a2a', '#ffffff'];

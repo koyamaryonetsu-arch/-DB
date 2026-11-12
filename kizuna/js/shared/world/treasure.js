@@ -1,20 +1,20 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=3b960a0fc297';
-import { SEA_POS } from '../maps/sea.js?v=3b960a0fc297';
-import { T, TILE_INFO } from '../tiles.js?v=3b960a0fc297';
-import { makeRng } from '../rng.js?v=3b960a0fc297';
-import { MONSTERS } from '../data/monsters.js?v=3b960a0fc297';
-import { TM_HOOKS } from '../data/story-tm.js?v=3b960a0fc297';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=3b960a0fc297';
-import { ScriptRun } from './scripts.js?v=3b960a0fc297';
-import { partyOf } from './party.js?v=3b960a0fc297';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=abfdea9b746b';
+import { SEA_POS } from '../maps/sea.js?v=abfdea9b746b';
+import { T, TILE_INFO } from '../tiles.js?v=abfdea9b746b';
+import { makeRng } from '../rng.js?v=abfdea9b746b';
+import { MONSTERS } from '../data/monsters.js?v=abfdea9b746b';
+import { TM_HOOKS } from '../data/story-tm.js?v=abfdea9b746b';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=abfdea9b746b';
+import { ScriptRun } from './scripts.js?v=abfdea9b746b';
+import { partyOf } from './party.js?v=abfdea9b746b';
 import {
   TM_MAX, TM_PEND_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
-  mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
-} from '../data/treasure.js?v=3b960a0fc297';
+  mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps, tmLvCap,
+} from '../data/treasure.js?v=abfdea9b746b';
 
-import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=3b960a0fc297';
+import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=abfdea9b746b';
 
 const HUNTER = '宝探しのダイゴ';
 // 第75回: 地図が いっぱいで あずかりに 入れた ときの ことば
@@ -105,7 +105,8 @@ export function grantTreasureMap(world, c, { lv = 1, map = null } = {}) {
   const mapId = map || (canSail && makeRng(seed).chance(0.35) ? 'sea' : 'overworld');
   const spot = pickDigSpot(seed, mapId, [...c.treasureMaps, ...pend]);
   if (!spot) return null;
-  const rec = { id: seed36(seed), seed, lv: Math.max(1, Math.floor(lv)), map: spot.map, x: spot.x, y: spot.y, found: false, cleared: false, at: world.now() };
+  // 第80回 C: 地図の レベルは その キャラの 上限まで（第8章クリアの 前は 45。data/treasure.js の tmLvCap）
+  const rec = { id: seed36(seed), seed, lv: Math.max(1, Math.min(tmLvCap(c), Math.floor(lv))), map: spot.map, x: spot.x, y: spot.y, found: false, cleared: false, at: world.now() };
   if (full) c.tmPending = [...pend, rec];
   else c.treasureMaps.push(rec);
   world.markDirty();

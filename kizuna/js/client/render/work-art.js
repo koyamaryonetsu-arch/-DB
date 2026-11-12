@@ -5,17 +5,19 @@
 // ・WORK_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addWorkVehicleArt(ART, kit) … もらう 乗り物の 絵（2D と 2.5D は 同じ 絵。kit … render/vehicle-art.js の どうぐ）
 // かきかたは family-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=3b960a0fc297';
+import { spark } from './ch3-draw.js?v=abfdea9b746b';
 // 第65回 D2: たのまれごと 12〜17 の 絵（render/work2-art.js）
-import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=3b960a0fc297';
+import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=abfdea9b746b';
 // 第68回 D班: たのまれごと 18〜23 の 絵（render/work3-art.js）
-import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=3b960a0fc297';
+import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=abfdea9b746b';
 // 第73回 D班: たのまれごと 24〜26 と 千年前の 緑の王国の より道の 絵（render/work4-art.js）
-import { WORK4_NPC_LOOKS, addWork4Art } from './work4-art.js?v=3b960a0fc297';
+import { WORK4_NPC_LOOKS, addWork4Art } from './work4-art.js?v=abfdea9b746b';
 // 第74回 D班: たのまれごと 27〜29 と 千年前の クモイの 海の より道の 絵（render/work5-art.js）
-import { WORK5_NPC_LOOKS, addWork5Art } from './work5-art.js?v=3b960a0fc297';
+import { WORK5_NPC_LOOKS, addWork5Art } from './work5-art.js?v=abfdea9b746b';
 // 第75回 D班: たのまれごと 30〜32 と 千年前の ミドリナの より道の 絵（render/work6-art.js）
-import { WORK6_NPC_LOOKS, addWork6Art } from './work6-art.js?v=3b960a0fc297';
+import { WORK6_NPC_LOOKS, addWork6Art } from './work6-art.js?v=abfdea9b746b';
+// 第80回 D班: たのまれごと 33〜35 と より道「時をこえる手紙の、最後の1通」の 絵（render/work7-art.js）
+import { WORK7_NPC_LOOKS, addWork7Art } from './work7-art.js?v=abfdea9b746b';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {
@@ -44,6 +46,7 @@ export const WORK_NPC_LOOKS = {
   ...WORK4_NPC_LOOKS,
   ...WORK5_NPC_LOOKS,
   ...WORK6_NPC_LOOKS,
+  ...WORK7_NPC_LOOKS,
 };
 
 // ───────────── 6. 港の ステージ（clean … 砂を はらった あと）─────────────
@@ -185,6 +188,7 @@ export function addWorkArt(ART) {
   addWork4Art(ART);
   addWork5Art(ART);
   addWork6Art(ART);
+  addWork7Art(ART);
 }
 
 // ───────────── もらう 乗り物 ─────────────

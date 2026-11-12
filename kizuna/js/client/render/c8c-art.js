@@ -8,7 +8,9 @@
 //   見た目は 104×112・124×120。render/monsters.js が こまかさ（res）を 2倍に する
 // マジカメックは コマ 0・1 が 立って つえを ふる すがた、コマ 2・3 が ほうきに のった すがた（client/battle-c8c.js の c8cSprite が pub の kmForm で えらぶ）
 // クッパードは コマ 0・1 が ふつうの 大きさ（え の 下の 7わりくらい）、コマ 2・3 が ギガクッパード（え いっぱい。pub の bwForm）
-import { fit, spark, bez, flame } from './ch3-draw.js?v=3b960a0fc297';
+import { fit, spark, bez, flame } from './ch3-draw.js?v=abfdea9b746b';
+// 第2部 第8章 第4幕: 手下の 魔物・時の門番フリーゾン・ソリトゥスの 本当の すがた・やみの風（c8r-art.js）
+import { addC8rArt } from './c8r-art.js?v=abfdea9b746b';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）
@@ -415,5 +417,7 @@ export function addC8cArt(ART) {
   ART.c8_bowser = { size: [248, 240], npc: 0.6, pal: pal(BW), draw: bowser };
   // 橋のオノ（ボスの しかけの 部ひん）
   ART.c8_axe = { size: [36, 52], pal: pal(AX), draw: bridgeAxe };
+  // 第8章 第4幕（c8r-art.js）
+  addC8rArt(ART);
 }
 void bez;

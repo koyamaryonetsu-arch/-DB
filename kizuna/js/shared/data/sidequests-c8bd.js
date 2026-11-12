@@ -8,7 +8,7 @@
 //
 // 1. 赤ちゃんウミガメの、初めての海（見守りの 女の子ミオ。おばあさんの 月の 光の 話・漁師の 男の子の カモメの 話 → すな山で 赤ちゃんを 海へ）
 // 2. ナギの村の、かくれんぼ（おにの 子どもトト。なぞなぞの ヒントで、村の 3か所に かくれた 子どもを 見つける）
-import { C8BD_OPEN, TURTLE8, TURTLE8_VOICES, TURTLE8_STEPS, HIDE8, HIDE8_FOUND } from '../maps/c8bd-side.js?v=3b960a0fc297';
+import { C8BD_OPEN, TURTLE8, TURTLE8_VOICES, TURTLE8_STEPS, HIDE8, HIDE8_FOUND } from '../maps/c8bd-side.js?v=abfdea9b746b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

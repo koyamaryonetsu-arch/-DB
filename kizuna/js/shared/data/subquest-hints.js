@@ -8,24 +8,26 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=3b960a0fc297';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=3b960a0fc297';
-import { ORN } from '../maps/ch6c-side.js?v=3b960a0fc297';
-import { RS } from './sidequests-ch6d.js?v=3b960a0fc297';
-import { C7, LETTER } from '../maps/c7-flags.js?v=3b960a0fc297';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=3b960a0fc297';
-import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=3b960a0fc297';
+import { C6 } from '../maps/past.js?v=abfdea9b746b';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=abfdea9b746b';
+import { ORN } from '../maps/ch6c-side.js?v=abfdea9b746b';
+import { RS } from './sidequests-ch6d.js?v=abfdea9b746b';
+import { C7, LETTER } from '../maps/c7-flags.js?v=abfdea9b746b';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=abfdea9b746b';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=abfdea9b746b';
 // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国）
-import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=3b960a0fc297';
-import { C8, LETTER8 } from '../maps/c8a-flags.js?v=3b960a0fc297';
+import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=abfdea9b746b';
+import { C8, LETTER8 } from '../maps/c8a-flags.js?v=abfdea9b746b';
 // 第74回 D班: 第8章 第2幕の より道（千年前の クモイの 海）
-import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=3b960a0fc297';
-import { C8B, LETTER8B } from '../maps/c8b-flags.js?v=3b960a0fc297';
+import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=abfdea9b746b';
+import { C8B, LETTER8B } from '../maps/c8b-flags.js?v=abfdea9b746b';
 // 第75回 D班: 第8章 第3幕の より道（千年前の ミドリナ）
-import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js?v=3b960a0fc297';
-import { C8C, LETTER8C } from '../maps/c8c-flags.js?v=3b960a0fc297';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=3b960a0fc297';
-import { jobLine } from './fq-common.js?v=3b960a0fc297';
+import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js?v=abfdea9b746b';
+import { C8C, LETTER8C } from '../maps/c8c-flags.js?v=abfdea9b746b';
+// 第80回 D班: 第8章 第4幕の より道（今の ホシフル村）
+import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js?v=abfdea9b746b';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=abfdea9b746b';
+import { jobLine } from './fq-common.js?v=abfdea9b746b';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -95,6 +97,8 @@ const build = () => [
   // 第8章 第3幕（第75回 D班。千年前の ミドリナの より道。sidequests-c8cd.js）
   { id: 'c8cd_imo', name: 'ホシフルの里の、やきいも', open: [C8CD_OPEN], start: IMO8.start, done: IMO8.done, place: '千年前のホシフルの里', who: 'いも好きの男の子ポン', npc: 'c8cd_imo_host', hint: 'やきいもを焼いて、里のみんなを元気にしたいらしい。' },
   { id: 'c8cd_bub', name: '泉の里の、しゃぼん玉', open: [C8CD_OPEN], start: BUB8.start, done: BUB8.done, place: '千年前の泉の里', who: 'しゃぼん玉の好きな女の子ポポ', npc: 'c8cd_bub_host', hint: '里の空に、しゃぼん玉をとばしたいらしい。' },
+  // 第8章 第4幕（第80回 D班。今の ホシフル村の より道。sidequests-c8rd.js）
+  { id: 'c8rd_last', name: '時をこえる手紙の、最後の1通', open: [C8RD_OPEN], start: LAST9.start, done: LAST9.done, place: 'ホシフル村', who: '手紙をあずかるゆうびん屋さん', npc: 'c8rd_last_host', hint: '千年前からあずかっている手紙の、とどけ先を探しているらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

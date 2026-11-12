@@ -3,23 +3,23 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=3b960a0fc297';
-import { SHOPS_CH2 } from './items-ch2.js?v=3b960a0fc297';
-import { NIGHT_SHOPS } from './night.js?v=3b960a0fc297';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=3b960a0fc297';
-import { SHOPS_CH4 } from './items-ch4.js?v=3b960a0fc297';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=3b960a0fc297';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=3b960a0fc297';
-import { R33_SHOP_ADD } from './items-r33.js?v=3b960a0fc297';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=3b960a0fc297';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=3b960a0fc297';
-import { SHOPS_EARTH } from './shops-earth.js?v=3b960a0fc297';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=abfdea9b746b';
+import { SHOPS_CH2 } from './items-ch2.js?v=abfdea9b746b';
+import { NIGHT_SHOPS } from './night.js?v=abfdea9b746b';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=abfdea9b746b';
+import { SHOPS_CH4 } from './items-ch4.js?v=abfdea9b746b';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=abfdea9b746b';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=abfdea9b746b';
+import { R33_SHOP_ADD } from './items-r33.js?v=abfdea9b746b';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=abfdea9b746b';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=abfdea9b746b';
+import { SHOPS_EARTH } from './shops-earth.js?v=abfdea9b746b';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=3b960a0fc297';
-import { MINAMO_GUEST } from './companions-past.js?v=3b960a0fc297';
-import { RION_GUEST } from './companions-tokei.js?v=3b960a0fc297';
-import { KARIM_GUEST } from './companions-c7.js?v=3b960a0fc297';
-import { KAI_GUEST } from './companions-c7s.js?v=3b960a0fc297';
+import { SHOPS_PAST } from './shops-past.js?v=abfdea9b746b';
+import { MINAMO_GUEST } from './companions-past.js?v=abfdea9b746b';
+import { RION_GUEST } from './companions-tokei.js?v=abfdea9b746b';
+import { KARIM_GUEST } from './companions-c7.js?v=abfdea9b746b';
+import { KAI_GUEST } from './companions-c7s.js?v=abfdea9b746b';
 
 export const SHOPS = {
   village: {
@@ -173,3 +173,8 @@ GUESTS.kai = KAI_GUEST;
 GUESTS.kai8 = { ...KAI_GUEST, id: 'guest_kai8', minLevel: 84, gear: { weapon: 'c7h_shadow_boomerang', armor: 'c8bt_soul_robe', head: 'c8bt_temple_helm', acc: 'c8bt_blue_pendant' } };
 // 第2部 第8章 第3幕: もう一度 ゲストの リオン（第6章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備。家族の 勇者より 少し 弱い 品）
 GUESTS.rion8 = { ...RION_GUEST, id: 'guest_rion8', minLevel: 88, gear: { weapon: 'c8at_palace_sword', armor: 'c8bt_temple_mail', shield: 'c8at_crescent_shield', head: 'c8bt_temple_helm', acc: 'c8at_crescent_ring' } };
+// 第2部 第8章 第4幕: 4人 そろう（カリム・ミナモも 第8章の 装備で もう一度 ゲスト。カイは kai8・リオンは rion8）。
+//   家族の 勇者より 少し 弱い 品（ボスの 品・第3幕・第4幕の 宝箱は 持たない）。強さは 第78回の きまり（shared/guest-rule.js）
+//   戦う 人数の 上限（PARTY_MAX）に 入りきらない 人は「かけつけ」で 手だすけ（shared/battle-c8r.js）
+GUESTS.karim8r = { ...KARIM_GUEST, id: 'guest_karim8r', minLevel: 89, gear: { weapon: 'c7_kingdom_spear', armor: 'c8bt_temple_mail', shield: 'c8bt_flame_shield', head: 'c8at_palace_turban', acc: 'c8at_crescent_ring' } };
+GUESTS.minamo8 = { ...MINAMO_GUEST, id: 'guest_minamo8', minLevel: 89, gear: { weapon: 'c8bt_lantern_staff', armor: 'c8bt_soul_robe', head: 'c8bl_shell_crown', acc: 'c8bt_blue_pendant' } };

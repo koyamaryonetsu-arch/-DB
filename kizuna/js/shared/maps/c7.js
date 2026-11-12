@@ -2,17 +2,18 @@
 // ・maps/c7-field.js … 千年前の コガネ地方（c7_field）・緑の王国・神殿の 外がわと、今の コガネ地方（south）に たす もの（時の砂時計・手紙を 見つける 所）
 // ・maps/c7-temple.js … みどりの水の神殿（千年前 c7_temple_1f〜8f・今 c7_temple_1f_now〜7f_now）
 // ・maps/c7-flags.js … フラグ・マップの ID・だいじな 場所
-import { attachC7Field, C7_FIELD_MAPS } from './c7-field.js?v=3b960a0fc297';
-import { buildC7TempleMaps, C7T_MAPS } from './c7-temple.js?v=3b960a0fc297';
+import { attachC7Field, C7_FIELD_MAPS } from './c7-field.js?v=abfdea9b746b';
+import { buildC7TempleMaps, C7T_MAPS } from './c7-temple.js?v=abfdea9b746b';
 // 第7章 Step 3・4（第2幕）: 千年前の クモイの 海（c7s_sea）・ナギの村・しずむ前の島の灯台（千年前 c7s_light_1f〜8f・今 c7s_light_1f_now〜7f_now）
-import { attachC7sSea, C7S_SEA_MAPS } from './c7s-sea.js?v=3b960a0fc297';
-import { buildC7sLightMaps, C7SL_MAPS } from './c7s-light.js?v=3b960a0fc297';
+import { attachC7sSea, C7S_SEA_MAPS } from './c7s-sea.js?v=abfdea9b746b';
+import { buildC7sLightMaps, C7SL_MAPS } from './c7s-light.js?v=abfdea9b746b';
 // 第7章 Step 5・6（第3幕）: 千年前の シロガネ地方（c7i_snow）・白雪の里・氷の竜の城（千年前 c7i_castle_1f〜8f・今 c7i_castle_1f_now〜7f_now）
-import { attachC7iSnow, C7I_SNOW_MAPS } from './c7i-snow.js?v=3b960a0fc297';
-import { buildC7iCastleMaps, C7IC_MAPS } from './c7i-castle.js?v=3b960a0fc297';
-import { attachC8dSide } from './c8d-side.js?v=3b960a0fc297';
-import { attachC8bdSide } from './c8bd-side.js?v=3b960a0fc297';
-import { attachC8cdSide } from './c8cd-side.js?v=3b960a0fc297';
+import { attachC7iSnow, C7I_SNOW_MAPS } from './c7i-snow.js?v=abfdea9b746b';
+import { buildC7iCastleMaps, C7IC_MAPS } from './c7i-castle.js?v=abfdea9b746b';
+import { attachC8dSide } from './c8d-side.js?v=abfdea9b746b';
+import { attachC8bdSide } from './c8bd-side.js?v=abfdea9b746b';
+import { attachC8cdSide } from './c8cd-side.js?v=abfdea9b746b';
+import { attachC8rdSide } from './c8rd-side.js?v=abfdea9b746b';
 
 // 第7章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH7_MAPS = [...C7_FIELD_MAPS, ...C7T_MAPS];
@@ -36,4 +37,6 @@ export function attachCh7(maps) {
   attachC8bdSide(maps);
   // 第75回 D班: 第8章 第3幕の より道（千年前の ミドリナの ホシフルの里・泉の里に 人を 足す。maps/c8cd-side.js）
   attachC8cdSide(maps);
+  // 第80回 D班: 第8章 第4幕の より道（今の ホシフル村に 人を 足す。maps/c8rd-side.js）
+  attachC8rdSide(maps);
 }

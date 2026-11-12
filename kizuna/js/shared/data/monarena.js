@@ -1,7 +1,8 @@
 // 第67回 B: モンスター闘技場の きまり（ランク・開く 時・相手・ごほうび・記録）。docs/plan-r67-monster-arena.md
 //
 // ・戦うのは 自分の 魔物 1〜4ひき だけ（人は 戦わない。world/monarena.js）
-// ・ランク戦: F・E・D・C・B・A・S（物語が 進むと 開く）＋ 伝説の部 SS・SSS・EX（第68回 C。第7章クリア）・EX2（第74回 C。第8章 第2幕クリア）。
+// ・ランク戦: F・E・D・C・B・A・S（物語が 進むと 開く）＋ 伝説の部 SS・SSS・EX（第68回 C。第7章クリア）・EX2（第74回 C。第8章 第2幕クリア）・
+//   EX3（第80回 C。第8章クリア）。
 //   1つ前の ランクを 勝ちぬくと 次へ
 //   1つの ランクは 休みなしの 3連戦（サファラ闘技場と おなじ。戦いの 前に 闘技場が HP・MPを 満タンに して くれる・戦いの 間は 回復しない・
 //   にげられない・道具は 使える）。3戦目は 王者（色ちがいの 強い 魔物 ＋ おとも）
@@ -13,8 +14,8 @@
 // ・キャラに のこす もの（なくても よい。むかしの セーブも そのまま）
 //   c.monArena = { r: { [ランク]: { n: 勝ちぬいた 回数, at: はじめての 時こく } }, team: [key…]（前回）, reg: [key…]（登録）,
 //                  regSnap: [写し…]（battle-monarena.js の monSnapshot）, regAt, fam: { [charId]: { w, l } }, rep: 2回目からの メダルの 通し番号 }
-import { registerVariant } from './variants.js?v=3b960a0fc297';
-import { MONSTERS } from './monsters.js?v=3b960a0fc297';
+import { registerVariant } from './variants.js?v=abfdea9b746b';
+import { MONSTERS } from './monsters.js?v=abfdea9b746b';
 
 // 登録チームの 写しに のこす もの（stats.js の monsterCompanionStats・monsterAbilities・戦いの 作戦が 使う もの。battle-monarena.js）
 export const SNAP_KEYS = ['species', 'name', 'level', 'plus', 'color', 'bonus', 'seeds', 'equip', 'gearFx', 'inherit', 'tactics', 'autoOff', 'ranked'];
@@ -118,6 +119,16 @@ export const MONARENA_RANKS = [
     champPow: 1.45, champLv: 2, repeatMedal: true,
     first: { items: [['color_stone', 5], ['limit_stone', 5], ['seed_hp', 3], ['seed_str', 3], ['seed_agi', 3]], medals: 10 }, repeatGold: 8000,
     hint: 'ゴールド月のスカラベは、体がとてもかたい。月の光は、とても強いぞ。銀色にかがやくと、攻撃が当たりにくくなる。雷がよく効く。',
+  },
+  // 第80回 C: 伝説の部の つづき EX3（第8章クリア〈c8_solitus〉で 開く。おすすめ Lv96）。相手は 第8章 第2幕（よみの 海底神殿）と
+  //   第3幕（くろがねの 空中ようさい）の 魔物。ごほうびは SS〜EX2 と おなじ 形（色の石・限界の石・種。くりかえして もらえる 装備は ない）
+  {
+    rank: 'EX3', title: '伝説の部・時をこえる部', lv: 96, foeLv: 94, need: 'c8_solitus', legend: true,
+    lock: '（第8章を、最後までクリアすると、開くらしい）',
+    fights: [['kerberos', 'bone_fish', 'biri_jelly'], ['tonkachi_bro', 'buriki_koopa', 'mera_bubble'], [V('hydran', 'dark'), 'dosshiin', 'blue_soul']],
+    champPow: 2.1, champLv: 2, repeatMedal: true,
+    first: { items: [['color_stone', 6], ['limit_stone', 6], ['seed_def', 3], ['seed_mag', 3], ['seed_agi', 3]], medals: 12 }, repeatGold: 9500,
+    hint: 'ダークヒドランは、頭をたおしても、すぐにまた生えてくる。やみの力に強いぞ。炎がよく効く。ドッシーンは、とてもかたい。',
   },
 ];
 export const MONARENA_RANK_IDS = MONARENA_RANKS.map((R) => R.rank);

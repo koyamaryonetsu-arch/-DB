@@ -7,29 +7,29 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=3b960a0fc297';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=3b960a0fc297';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=3b960a0fc297';
-import { jobLine } from '../data/fq-common.js?v=3b960a0fc297';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=3b960a0fc297';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=3b960a0fc297';
-import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=3b960a0fc297';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=3b960a0fc297';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=3b960a0fc297';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=3b960a0fc297';
-import { phantomBook } from '../data/phantom.js?v=3b960a0fc297';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=3b960a0fc297';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=3b960a0fc297';
-import { bestiaryOrder } from '../data/companions.js?v=3b960a0fc297';
-import { MONSTERS } from '../data/monsters.js?v=3b960a0fc297';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=3b960a0fc297';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=3b960a0fc297';
-import { LB_MAX } from '../data/items-forge.js?v=3b960a0fc297';
-import { ITEMS } from '../data/items.js?v=3b960a0fc297';
-import { MAPS, condOk } from '../maps/index.js?v=3b960a0fc297';
-import { jobLabel } from '../job-label.js?v=3b960a0fc297';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=abfdea9b746b';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=abfdea9b746b';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=abfdea9b746b';
+import { jobLine } from '../data/fq-common.js?v=abfdea9b746b';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=abfdea9b746b';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=abfdea9b746b';
+import { tmLvCap, tmTitle } from '../data/treasure.js?v=abfdea9b746b';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=abfdea9b746b';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=abfdea9b746b';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=abfdea9b746b';
+import { phantomBook } from '../data/phantom.js?v=abfdea9b746b';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=abfdea9b746b';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=abfdea9b746b';
+import { bestiaryOrder } from '../data/companions.js?v=abfdea9b746b';
+import { MONSTERS } from '../data/monsters.js?v=abfdea9b746b';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=abfdea9b746b';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=abfdea9b746b';
+import { LB_MAX } from '../data/items-forge.js?v=abfdea9b746b';
+import { ITEMS } from '../data/items.js?v=abfdea9b746b';
+import { MAPS, condOk } from '../maps/index.js?v=abfdea9b746b';
+import { jobLabel } from '../job-label.js?v=abfdea9b746b';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
-import { bossHintsSeen } from '../data/boss-hints.js?v=3b960a0fc297';
+import { bossHintsSeen } from '../data/boss-hints.js?v=abfdea9b746b';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -172,6 +172,7 @@ function monArenaTrack(c) {
 }
 
 // 宝の地図（ふかさ ＝ 持っている 地図の いちばん 高い レベル）とカジノの 段
+//   第80回 C: 分母は 今 手に入る 地図の 上限（第8章クリアで 45 → 50。data/treasure.js の tmLvCap）
 function tmapTrack(c) {
   const maps = Array.isArray(c?.treasureMaps) ? c.treasureMaps.filter((t) => t && Number.isFinite(t.lv)) : [];
   const clears = tmClearCount(c);
@@ -182,7 +183,7 @@ function tmapTrack(c) {
   const items = left.map((t) => ({ name: tmTitle(t), where: tmPlaceShort(t), state: t.found ? 'now' : 'open', right: t.found ? '洞窟が開いた' : 'まだほっていない' }));
   const casino = tier.tier >= TIER_MAX ? `カジノの段：${tier.name}（いちばん上）` : `カジノの段：${tier.name}（つぎの段まで、あと${tier.left}まい）`;
   return {
-    id: 'tmap', name: '宝の地図', now: best, total: TM_LV_MAX, unit: 'Lv', where: '地図の場所で地面を調べる',
+    id: 'tmap', name: '宝の地図', now: best, total: tmLvCap(c), unit: 'Lv', where: '地図の場所で地面を調べる',
     note: `宝をほった地図：${clears}まい\n${casino}`, items,
   };
 }

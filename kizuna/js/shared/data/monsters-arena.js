@@ -24,6 +24,10 @@
 //   ランク12 深海の大王者リヴァイアス … あわの よろい（arena.bubble。battle-arena.js）。あわが ある 間は、どんな 攻撃も 1回で あわが 1つ はじけて
 //                        ダメージは 0。ぜんぶ はじけると 大チャンス。しばらくすると また まとう。あわの 中で 回り始めたら 次の 番に 大うずしお。
 //                        あわふきガニのブクブ・光クラゲのポワン（クラゲは 王者を 回復する）
+//   第80回 C（第8章クリアの 強さ）:
+//   ランク13 時の大王者クロノガルド … 時の まきもどし（arena.rewind。battle-arena.js）。砂時計を さかさまに すると、次の 番までに 受けた
+//                        ダメージを まきもどす。その 間に ダメージを 受けないと「まきもどす 時が ない」→ 時が ゆがんで 大チャンス。
+//                        時計の騎士チクタク・砂時計の精サラリ
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
 const PIRATE = { sleep: 0.4, confuse: 0.4, blind: 0.5, poison: 0.5, paralyze: 0.4, silence: 0.6 };
 
@@ -316,6 +320,38 @@ export const ARENA_MONSTERS = {
     resist: { ...BOSS_STATUS, bolt: 1.2, fire: 1.1 },
     actions: [{ w: 4, id: 'm_ar12_heal', cond: ['allyHurt', 'notRecent:m_ar12_heal'] }, { w: 3, id: 'attack' }, { w: 3, id: 'm_ar12_sting' }],
     desc: '深海の大王者の家来。やさしく光る、むらさきのクラゲ。光で王者のきずを治し、しょくしゅでしびれさせる。雷がよく効く。',
+  },
+
+  // ───── 第80回 C: ランク13（伝説の部。時の まきもどし）─────
+  ar_chronos: {
+    name: '時の大王者クロノガルド', lv: 98, hp: 42000, mp: 3000, str: 800, def: 310, agi: 140, mag: 760, exp: 60000, gold: 18000,
+    race: 'dragon', size: 'xl', boss: true, turns: 2, speed: 0.62, hit: 'bite', art: 'geardon', artScale: 1.25, tint: { hueTo: 268, sat: 0.8, light: 1.0 },
+    // rewind: ripe … 砂時計を さかさまに して から まきもどす までの 自分の 行動の 数 / open … 時が ゆがんで いる 間の 自分の 行動の 数 /
+    //   openMult … 時が ゆがんで いる 間の ダメージ
+    arena: { lead: true, rewind: { ripe: 2, open: 3, openMult: 1.4 } },
+    resist: { ...BOSS_STATUS, bolt: 1.2, ice: 0.9, dark: 0.8, water: 1 },
+    actions: [
+      { w: 99, id: 'm_ar13_rewind', cond: 'c5:arRewindReady' },
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_ar13_hands' }, { w: 2, id: 'm_ar13_gears', cond: 'notRecent:m_ar13_gears' },
+      { w: 3, id: 'm_ar13_flip', cond: ['c5:arCanFlip', 'notRecent:m_ar13_flip', 'notRecent:m_ar13_rewind'] },
+      { w: 2, id: 'm_ar13_inhale', cond: ['c5:arNoFlip', 'notRecent:m_ar13_inhale', 'notRecent:m_ar13_storm'] },
+    ],
+    phases: [{ hpBelow: 0.35, msg: ['時の大王者クロノガルドの歯車が、ぎりぎりと速く回りだした！', '「時をこえて来た者たちよ…！ここからが本番だ！」…攻撃力が上がった！'], buff: { atk: 1.15 } }],
+    desc: '伝説の部、ランク13の王者。いくつもの時代をこえて来た、歯車の大きな竜。大きな砂時計をさかさまにすると、次の番までに受けたダメージを、まきもどしてしまう。その間にダメージを受けないと、時がゆがんで大チャンス。雷がよく効く。',
+  },
+  ar_clock_knight: {
+    name: '時計の騎士チクタク', lv: 96, hp: 11000, mp: 300, str: 700, def: 320, agi: 120, mag: 420, exp: 7500, gold: 2500,
+    race: 'material', size: 'm', boss: true, turns: 1, speed: 1, hit: 'claw', art: 'chrono_knight', artScale: 1.3, tint: { hueTo: 280, sat: 0.7, light: 1.0 },
+    resist: { ...BOSS_STATUS, bolt: 1.25, dark: 0.9, water: 1 },
+    actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ar13_slash' }, { w: 2, id: 'm_ar13_guard', cond: 'notRecent:m_ar13_guard' }],
+    desc: '時の大王者の家来。時計の針の剣で切りかかる、からくりの騎士。雷がよく効く。',
+  },
+  ar_sand_fairy: {
+    name: '砂時計の精サラリ', lv: 96, hp: 9400, mp: 600, str: 500, def: 240, agi: 170, mag: 620, exp: 7500, gold: 2500,
+    race: 'spirit', size: 'm', flying: true, boss: true, turns: 1, speed: 1, hit: 'bash', art: 'sand_sprite', artScale: 1.3, tint: { hueTo: 285, sat: 0.9, light: 1.15 },
+    resist: { ...BOSS_STATUS, bolt: 1.2, wind: 0.8, water: 1 },
+    actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ar13_sand' }, { w: 2, id: 'm_ar13_sleep', cond: 'notRecent:m_ar13_sleep' }],
+    desc: '時の大王者の家来。砂時計の中から出てきた、小さな精。時の砂をふきつけて、ねむらせてくる。雷がよく効く。',
   },
 };
 
