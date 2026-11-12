@@ -8,8 +8,8 @@
 //
 // 曲の データの 書き方・楽器・場面で かわる 音楽の つかい方は docs/plan-r77-audio.md（チーム B・C との やくそく）。
 // このファイルは 画面（window）を さわらない。node の テストでも 読みこめる（AudioContext が なければ 何も 鳴らさない）。
-import { INSTRUMENTS, defaultInstrument, ROLE_PAN, HARMONY_PANS, ROLE_SEND, DEFAULT_NIGHT, WAVE_LEVEL } from './music-inst.js?v=eb1c3a4395d7';
-import { startAmbience } from './music-amb.js?v=eb1c3a4395d7';
+import { INSTRUMENTS, defaultInstrument, ROLE_PAN, HARMONY_PANS, ROLE_SEND, DEFAULT_NIGHT, WAVE_LEVEL } from './music-inst.js?v=8f3c13478779';
+import { startAmbience } from './music-amb.js?v=8f3c13478779';
 
 export const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 

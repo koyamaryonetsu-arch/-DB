@@ -5,13 +5,13 @@
 // ・前ぶれ・止めた・こわした・まきもどした ときの バナー（ふつうの「大技が来る！」は 出さない … CH6_OWN_TELE）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
 // 第2部 第6章 Step 3・4 の 星くいのよる鳥・ペンデュラ（battle-road.js。ここから よぶ）
-import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=eb1c3a4395d7';
+import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=8f3c13478779';
 // 第2部 第6章 Step 5 の カリヨン（かねの しるし。battle-tokei.js。ここから よぶ）
-import { tokeiDraw, tokeiPresent } from './battle-tokei.js?v=eb1c3a4395d7';
+import { tokeiDraw, tokeiPresent } from './battle-tokei.js?v=8f3c13478779';
 // 第2部 第6章 Step 6: ゼンマイが 家来の しかけを 使う 間・時のまぼろしも おなじ 絵と バナー（kindOf … kindAs・base・species。battle-tokei6.js）
-import { kindOf, TOKEI6_OWN_TELE, tokei6Draw, tokei6Present } from './battle-tokei6.js?v=eb1c3a4395d7';
+import { kindOf, TOKEI6_OWN_TELE, tokei6Draw, tokei6Present } from './battle-tokei6.js?v=8f3c13478779';
 // 第2部 第7章 第1幕: ウツボきょうだい（いきの しるし・よびもどし）・オクタリア（声うばい・声の貝）。battle-c7.js
-import { C7_OWN_TELE, c7Draw, c7Present } from './battle-c7.js?v=eb1c3a4395d7';
+import { C7_OWN_TELE, c7Draw, c7Present } from './battle-c7.js?v=8f3c13478779';
 
 const SAND = 'sand_clock';
 const GEAR = 'geardon';
