@@ -3,14 +3,14 @@
 // 「どうする？」→ 魔物をあずける／魔物をひきとる／やめる
 //   あずける: 仲間の 魔物を えらぶ（パーティー・馬車に いても よい。装備は ふくろへ）→「〇〇をあずかるね。いい？」
 //   ひきとる: あずかり中の 魔物を えらぶ → 酒場へ（仲間が いっぱい〈40〉なら できない）
-import { el, esc } from './dom.js?v=a1c844b80134';
-import { Counter } from './counter.js?v=a1c844b80134';
-import { request } from './shop.js?v=a1c844b80134';
-import { faceURL } from '../field.js?v=a1c844b80134';
-import { boardIconURL } from '../render/boards.js?v=a1c844b80134';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a1c844b80134';
+import { el, esc } from './dom.js?v=8070ad6c27d9';
+import { Counter } from './counter.js?v=8070ad6c27d9';
+import { request } from './shop.js?v=8070ad6c27d9';
+import { faceURL } from '../field.js?v=8070ad6c27d9';
+import { boardIconURL } from '../render/boards.js?v=8070ad6c27d9';
+import { MONSTERS } from '../../shared/data/monsters.js?v=8070ad6c27d9';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../../shared/data/variants.js?v=a1c844b80134';
+import { colorMon } from '../../shared/data/variants.js?v=8070ad6c27d9';
 
 const AGAIN = 'ほかにもご用はある？';
 

@@ -9,7 +9,7 @@
 //
 // 1. ホシフルの里の、やきいも（いも好きの 男の子ポン。おばあさんの やき方・かりゅうどの たしかめ方 → たき火の 灰の 山で）
 // 2. 泉の里の、しゃぼん玉（しゃぼん玉の 好きな 女の子ポポ。むくろじの 実・麦わら・せんたくの おばさんの 話 → 泉の そばで ふく）
-import { C8CD_OPEN, IMO8, IMO8_VOICES, IMO8_STEPS, BUB8, BUB8_PARTS, BUB8_STEPS } from '../maps/c8cd-side.js?v=a1c844b80134';
+import { C8CD_OPEN, IMO8, IMO8_VOICES, IMO8_STEPS, BUB8, BUB8_PARTS, BUB8_STEPS } from '../maps/c8cd-side.js?v=8070ad6c27d9';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

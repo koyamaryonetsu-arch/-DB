@@ -13,16 +13,16 @@
 //   6階 木の 根と ゆげの 通路（a と b が かわるがわる）・7階 3つの しかけと すべる ゆか → おくに 休み所・8階 上の かんぱん（クッパード）
 // ・魔物: 1〜4階 t8c_fort・5〜8階 t8c_deep（B）。休み所・ボスの 階・しかけの まわりは 出ない
 // ・ひとりでも とける（時の砂時計で 時代を かえながら）。家族が 2つの 時代に 分かれると 早い
-import { T } from '../tiles.js?v=a1c844b80134';
-import { npc } from './npc.js?v=a1c844b80134';
-import { parseRows16 } from './past.js?v=a1c844b80134';
-import { C8C_ROWS, C8C_W, C8C_H, linkOf, C8C_DEVICE_KIND } from './c8c-fort-rows.js?v=a1c844b80134';
+import { T } from '../tiles.js?v=8070ad6c27d9';
+import { npc } from './npc.js?v=8070ad6c27d9';
+import { parseRows16 } from './past.js?v=8070ad6c27d9';
+import { C8C_ROWS, C8C_W, C8C_H, linkOf, C8C_DEVICE_KIND } from './c8c-fort-rows.js?v=8070ad6c27d9';
 import {
   C8C, PF8C, DEV8C, ROOT8C, LETTER8C, LETTER8C_FORT, POCO8C, VOICE8C, WIN8C, CALM8C, CAGE8C, PAST_FIELD_ID, NOW_FIELD_ID, ENTRANCE8C,
   c8cMapId, C8C_FLOORS, C8C_NOW_FLOORS, C8C_REST, C8C_BOSS_FLOOR, C8C_KAMEK_FLOOR,
-} from './c8c-flags.js?v=a1c844b80134';
+} from './c8c-flags.js?v=8070ad6c27d9';
 // 宝箱の 中み（B の data/items-c8c.js の C8C_TREASURE。まとめる 時に '../data/items-c8c.js' から）
-import * as ITEMS8C from '../data/items-c8c.js?v=a1c844b80134';
+import * as ITEMS8C from '../data/items-c8c.js?v=8070ad6c27d9';
 
 export { c8cMapId, C8C_FLOORS, C8C_NOW_FLOORS, C8C_REST, C8C_BOSS_FLOOR, C8C_W, C8C_H };
 export const C8C_PAST_MAPS = Array.from({ length: C8C_FLOORS }, (_, i) => c8cMapId(i + 1));

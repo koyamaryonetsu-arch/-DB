@@ -3,7 +3,7 @@
 //   ・月曜 0:00（日本時間）に 入れかわる。毎週 3つ。週の 番号を 種に えらぶ（家族サーバーの 全員が 同じ）
 //   ・ばつは なし。できなくても 何も へらない
 //   ・文字は 子ども向け（tools/kanji-check.mjs）。ボスの 名前・物語の 先は 書かない
-import { makeRng } from '../rng.js?v=a1c844b80134';
+import { makeRng } from '../rng.js?v=8070ad6c27d9';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 const JST_MS = 9 * 60 * 60 * 1000;
