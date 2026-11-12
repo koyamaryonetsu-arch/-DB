@@ -182,16 +182,16 @@ test('引っこしコード: 仲間 40人（いっぱい）でも LINE で 1回�
   c.companions[8].char.equip.weapon = 'iron_sword';
   const code = exportCode(c);
   assert.ok(code.length < LINE_MAX, `コードの 長さ ${code.length}`);
-  // 第53回: 魔物が ふえて「図鑑 ぜんぶ」の 時は KIZUNA-4 に なる ことも ある（どちらも LINE の 1回・もとどおりに 読める）
-  assert.ok(/^KIZUNA-[34]-/.test(code));
+  // 第78回: いつも KIZUNA-5（本物の 圧縮。LINE の 1回・もとどおりに 読める）
+  assert.ok(/^KIZUNA-5-/.test(code));
   const r = parseCode(code);
   assert.equal(r.ok, true, r.reason);
   const want = repairChar(JSON.parse(JSON.stringify(c)));
   assert.deepEqual(r.char.companions, want.companions, '仲間は もとどおり');
   assert.deepEqual(r.char.kills, want.kills, 'たおした 数も もとどおり（同じ 数ごとに まとめた 形から もどす）');
-  // 少ない ときは 今までどおり KIZUNA-2（前の 版でも 読める）
+  // 少ない ときも KIZUNA-5（第78回。前の 版の KIZUNA-2 は 出さない）
   const few = { ...JSON.parse(JSON.stringify(c)), companions: c.companions.slice(0, 3) };
-  assert.ok(exportCode(few).startsWith('KIZUNA-2-'));
+  assert.ok(exportCode(few).startsWith('KIZUNA-5-'));
 });
 
 // ───────────── 2. 馬車の 経験値 ─────────────

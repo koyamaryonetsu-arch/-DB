@@ -14,7 +14,7 @@ import { befriendFullSteps, befriendFarewellSteps, canBreedRoom, canStore, store
 import { depositMonster, withdrawMonster, storageInfo } from '../public/js/shared/world/storage.js';
 import { breedPreview } from '../public/js/shared/world/breed.js';
 import { upgradeSave, repairChar } from '../public/js/shared/world/save.js';
-import { exportCode, parseCode, LINE_MAX } from '../public/js/shared/world/transfer.js';
+import { exportCode, exportCodeV4, parseCode, LINE_MAX } from '../public/js/shared/world/transfer.js';
 import { mergeChars } from '../public/js/shared/world/merge.js';
 import { MAPS, BOARD_NAMES } from '../public/js/shared/maps/index.js';
 import { T } from '../public/js/shared/tiles.js';
@@ -446,14 +446,17 @@ test('古い セーブ（storage が ない）は 空。知らない 魔物は �
   assert.ok(c.monsterSeq > 3);
 });
 
-test('引っこしコード: あずかり所の 魔物も のる（KIZUNA-2 も 3 も）', { timeout: 60000 }, async () => {
+test('引っこしコード: あずかり所の 魔物も のる（KIZUNA-2 も 3 も 5 も）', { timeout: 60000 }, async () => {
   const { world, bot, c } = await solo(13);
   fill(c, 6);
   for (const e of c.companions.slice(0, 3)) assert.ok(depositMonster(world, bot.s, e.key).ok);
   const want = c.storage.map((e) => [e.key, e.species, e.char.level, e.char.name]);
-  let r = parseCode(exportCode(c));
-  assert.ok(r.ok, r.reason);
-  assert.deepEqual(r.char.storage.map((e) => [e.key, e.species, e.char.level, e.char.name]), want);
+  let r;
+  for (const x of [exportCode(c), exportCodeV4(c)]) {
+    r = parseCode(x);
+    assert.ok(r.ok, r.reason);
+    assert.deepEqual(r.char.storage.map((e) => [e.key, e.species, e.char.level, e.char.name]), want);
+  }
   // 仲間 40 ＋ あずかり所 60（大きい）: KIZUNA-3 でも もどる
   fill(c, ROSTER_MAX);
   const base = c.companions.find((e) => e.kind === 'monster');
@@ -461,14 +464,18 @@ test('引っこしコード: あずかり所の 魔物も のる（KIZUNA-2 も 
     const k = `m${500 + c.storage.length}`;
     c.storage.push({ key: k, kind: 'monster', species: base.species, char: { ...JSON.parse(JSON.stringify(base.char)), id: `${c.id}:${k}` } });
   }
+  // 前の 版の 形（KIZUNA-3）も、今の KIZUNA-5（第78回）も
+  const old = exportCodeV4(c);
+  assert.ok(old.startsWith('KIZUNA-3-'), `${old.slice(0, 10)} ${old.length}`);
   const code = exportCode(c);
-  assert.ok(code.startsWith('KIZUNA-3-'), `${code.slice(0, 10)} ${code.length}`);
-  r = parseCode(code);
-  assert.ok(r.ok, r.reason);
-  assert.equal(r.char.storage.length, STORAGE_MAX);
-  assert.equal(r.char.storage.at(-1).char.id, c.storage.at(-1).char.id);
-  assert.deepEqual(r.char.storage.at(-1).char.equip, c.storage.at(-1).char.equip);
-  assert.ok(LINE_MAX > 0);
+  assert.ok(code.startsWith('KIZUNA-5-') && code.length < LINE_MAX, `${code.slice(0, 10)} ${code.length}`);
+  for (const x of [old, code]) {
+    r = parseCode(x);
+    assert.ok(r.ok, r.reason);
+    assert.equal(r.char.storage.length, STORAGE_MAX);
+    assert.equal(r.char.storage.at(-1).char.id, c.storage.at(-1).char.id);
+    assert.deepEqual(r.char.storage.at(-1).char.equip, c.storage.at(-1).char.equip);
+  }
 });
 
 test('データを 合わせる（ひとりモード ⇄ 家族サーバー）: あずけた・ひきとった 魔物が ふえたり 消えたり しない', () => {
