@@ -17,6 +17,11 @@ import { checkText, gameFiles } from '../tools/kanji-check.mjs';
 
 const src = (p) => readFileSync(new URL(`../public/js/client/${p}`, import.meta.url), 'utf8');
 
+// 第77回 B: 作りなおした 曲（battle・boss など）は 区切りの 曲に なった。前の データ（legacy）だけの 曲を 作って 見る
+const legacyOnly = (id) => ({ bpm: _TRACKS[id].legacy?.bpm ?? _TRACKS[id].bpm, ch: _TRACKS[id].legacy?.ch ?? _TRACKS[id].ch });
+const OLD_BATTLE = legacyOnly('battle');
+const OLD_BOSS = legacyOnly('boss');
+
 // ───── 小さな にせの AudioContext（ノードを 作った ことと 時間の 予約だけ おぼえる）─────
 class FakeParam {
   constructor(v = 0) { this.value = v; this.calls = []; }
@@ -137,7 +142,7 @@ test('第77回: 古い チャンネル（w だけ）を 役わりで 新しい �
   assert.equal(defaultInstrument('triangle', 'harmony', { style: 'long' }), 'pad');
   assert.equal(defaultInstrument('square', 'harmony', { style: 'short' }), 'pluck');
   assert.equal(defaultInstrument('triangle', 'harmony', { style: 'short', high: true }), 'musicbox');
-  const b = compileTrack(_TRACKS.battle);
+  const b = compileTrack(OLD_BATTLE);
   assert.deepEqual(b.parts.map((p) => p.role), ['lead', 'bass', 'harmony', 'drums']);
   assert.deepEqual(b.parts.map((p) => p.inst), ['lead', 'bass', 'strings', null]);
   // 左右: リード・ベースは まん中、ハーモニーは 左右
@@ -195,7 +200,7 @@ test('第77回: 区切り（sections・form・loopFrom）: イントロは 1回�
   assert.equal(formWalk(once, 20).length, 4);
   assert.deepEqual(nextPos(once, 3, 0), { pos: 3, loop: 0, ended: true });
   // 前の 曲（ch）は main の 1つだけ
-  const b = compileTrack(_TRACKS.battle);
+  const b = compileTrack(OLD_BATTLE);
   assert.deepEqual(formWalk(b, 3), [['main', 0], ['main', 1], ['main', 2]]);
   // 前の音で 鳴らす とき: 区切りを form の じゅんに つなげる
   const lc = legacyChannels(SEC);
@@ -224,7 +229,7 @@ test('第77回: 区切りの 曲を 新しい音で 鳴らすと イントロ �
 
 // ───────────── 自動アレンジ ─────────────
 test('第77回: 自動アレンジ: 短い 曲を 4回で ひとまわりに（2回目 重ね・3回目 うすく・4回目 フィル）。同じ 入力なら 同じ', () => {
-  const tr = _TRACKS.battle;
+  const tr = OLD_BATTLE;
   const c = compileTrack(tr);
   assert.equal(c.auto, true);
   const vs = [0, 1, 2, 3].map((v) => expandPass(c, 'main', v));
@@ -317,13 +322,13 @@ test('第77回: 場面で かわる 音楽の じょうたい（次の 小節の
   assert.equal(t, 1.12);
   assert.ok(steps.length >= 3, 'いっぺんには かわらない');
   for (let i = 1; i < steps.length; i++) assert.ok(steps[i] > steps[i - 1]);
-  assert.deepEqual(phaseOf(compileTrack(_TRACKS.boss), 1), DEFAULT_PHASES[1]);
+  assert.deepEqual(phaseOf(compileTrack(OLD_BOSS), 1), DEFAULT_PHASES[1]);
   assert.equal(phaseOf(compileTrack({ ...SEC, phases: [{ transpose: 0, tempo: 1 }, { transpose: 5, tempo: 1.2 }] }), 3).transpose, 5);
 });
 
 test('第77回: 強さ・だん・ピンチ・夜は 鳴らしている 曲の 次の 小節から 効く', () => {
   const { eng, log } = spyEngine();
-  const tr = _TRACKS.battle; // 152 bpm、1小節 = 16
+  const tr = OLD_BATTLE; // 152 bpm、1小節 = 16
   const bar = (16 * 60) / 152 / 4;
   eng.start('battle', tr, 0);
   eng.pump(bar * 0.5); // 1小節目だけ 予約
@@ -385,7 +390,9 @@ test('第77回: 曲の そろえ（audio-trim.js）は ±12 dB の 中で、あ�
 
 // ───────────── 前の音 ─────────────
 // 第76回までの schedule() の 中みを そのまま 写した もの（くらべる ため）
-function oldSchedule(tr, until, t0) {
+function oldSchedule(tr0, until, t0) {
+  // 第77回 B: 作りなおした 曲は 前の データ（legacy）で くらべる
+  const tr = tr0.legacy ? { ...tr0.legacy, once: tr0.once } : tr0;
   const spb = 60 / tr.bpm / 4;
   const out = [];
   const chans = tr.ch.map((c) => ({ ...c, seq: _parse(c.n), i: 0, t: t0 }));

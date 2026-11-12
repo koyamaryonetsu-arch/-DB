@@ -1,9 +1,11 @@
 // 第77回 A: 曲ごとの 音量の そろえ（dB。新しい音 だけ）。tools/audio-render.mjs --write-trim が 書く（手で なおさない）
-// 目標: 前の音の くりかえす 曲の RMS の 中央（-19.6 dBFS）。ジングルは 前の音の 同じ 曲と 同じ
+// 目標: 前の音の くりかえす 曲の RMS の 中央（-18.0 dBFS）。ジングルは 前の音の 同じ 曲と 同じ
 export const TRACK_TRIM = {
   argos: -0.4,
-  battle: 0.3,
-  boss: -0.6,
+  battle: 1.1,
+  battle2: 0.7,
+  battle_strong: 0.3,
+  boss: 0.4,
   boss3: -0.7,
   boss6: -0.3,
   bowser_king: -1.4,
@@ -77,7 +79,7 @@ export const TRACK_TRIM = {
   toki_shrine: 0.7,
   tower: 0.8,
   town: 1.2,
-  victory: 1.8,
+  victory: -0.9,
   village: 2.7,
   volcano: 0,
   whale: -0.9,
