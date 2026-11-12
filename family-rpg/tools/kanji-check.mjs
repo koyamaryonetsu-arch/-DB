@@ -483,6 +483,8 @@ export function gameFiles() {
     'public/js/shared/battle-genki.js',
     // 第76回: 装備の もとの 強さ（くらべる まど）・お仕事いらい板の 大きな はり紙
     'public/js/shared/gear-base.js', 'public/js/client/ui/equip-compare.js', 'public/js/client/ui/paper-pop.js',
+    // 第78回: 冒険のしおり
+    'public/js/shared/world/shiori.js', 'public/js/client/ui/shiori.js', 'public/js/client/ui/r78-shiori-css.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
