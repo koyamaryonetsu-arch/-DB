@@ -9,8 +9,8 @@
 // ・バナー: 魔法じん・でっかくなあれの 前ぶれ・でっかくなった・魔法じんが 消えた・ちびカメック・ほうき／
 //   ヒップドロップの 前ぶれ・ヒップドロップ・かけらが 光る・ギガ・ギガほのおの 前ぶれ・ギガほのお・オノが かたむいた・橋が おちた・また ギガの 前ぶれ
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_KAMEK, C8_BOWSER } from '../shared/data/monsters-c8c.js?v=c9d347298065';
-import { monsterCanvas } from './render/monsters.js?v=c9d347298065';
+import { C8_KAMEK, C8_BOWSER } from '../shared/data/monsters-c8c.js?v=1a9ce710eac8';
+import { monsterCanvas } from './render/monsters.js?v=1a9ce710eac8';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8b.js の C8B_OWN_TELE に まぜる）
 export const C8C_OWN_TELE = [C8_KAMEK, C8_BOWSER];

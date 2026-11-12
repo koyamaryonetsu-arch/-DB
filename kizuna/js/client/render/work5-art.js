@@ -4,7 +4,7 @@
 //     （ちびガニ・団長は 今までの よろいガニ・星座ガニの 絵）
 // ・WORK5_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まざる）
 // かきかたは work-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=c9d347298065';
+import { spark } from './ch3-draw.js?v=1a9ce710eac8';
 
 // ───────────── 人の みため ─────────────
 export const WORK5_NPC_LOOKS = {

@@ -2,8 +2,8 @@
 // ・フィールドでは input.dir（いどう）と A/B を つかう
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
 // ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
-import { inStickZone as stickZone } from './ui/hand.js?v=c9d347298065';
-import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=c9d347298065';
+import { inStickZone as stickZone } from './ui/hand.js?v=1a9ce710eac8';
+import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=1a9ce710eac8';
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
@@ -346,6 +346,8 @@ export class Input {
   update() {
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     const gp = [...pads].find((p) => p && p.connected);
+    // 第79回: コントローラーが つながって いるか（メニューの ヒントを コントローラー向けに する）
+    this.pad.on = !!gp;
     if (!gp) {
       this.pad.dir = { x: 0, y: 0 };
       return;
@@ -368,7 +370,18 @@ export class Input {
     if (edge('a', b(0))) this.emit('a');
     if (edge('b', b(1))) this.emit('b');
     // Y（3）: 長おしの かわり（戦いの 技の お気に入り。ListMenu の yKey）。ほかでは 今までどおり B
-    if (edge('menu', b(9) || b(3))) this.emit(b(3) && this.stack[this.stack.length - 1]?.yKey ? 'y' : 'b');
+    // 第79回: ブラウザの ボタンの 番号は「場所」で きまる（0 下・1 右・2 左・3 上）。
+    //   Xbox などは 上（3）が Y・左（2）が X だが、Switch の プロコンなどは 左（2）が Y・上（3）が X。
+    //   前は 上（3）だけを Y に して いた ので、左に Y の ある コントローラーでは「Y」を おしても 何も おきなかった
+    //   （覚えた技の 見方・道具の ならべかえ・戦いの お気に入り）。yKey の ある まどでは 左（2）・上（3）の どちらも Y に する。
+    //   左（2）は ほかでは 走る（メニューや 戦いの 間は 何も しない）ので ぶつからない
+    //   （ボタンごとに おした 時を みる。Y で まどが かわった あと、おした ままでも B に ならない）
+    const yKey = !!this.stack[this.stack.length - 1]?.yKey;
+    const start = edge('menu', b(9));
+    const top = edge('top', b(3));
+    const left = edge('left', b(2));
+    if (yKey && (top || left)) this.emit('y');
+    if (start || (!yKey && top)) this.emit('b');
     if (edge('map', b(8))) this.emit('map');
     // 第35回: L（4）… 大鳥・竜を 呼ぶ／空の 上では 別の地方へ（えらぶ まど）。降りるのは A（sky.js の padButton）
     // 第69回: 戦いの 技えらび（L・R を つかう まど。ListMenu の onLR）の 間は L・R で 種類（タブ）を かえる
