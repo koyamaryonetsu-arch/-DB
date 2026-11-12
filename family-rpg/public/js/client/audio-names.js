@@ -64,8 +64,7 @@ export const TRACK_NAMES = {
   castle_water: '影の城（水の階）',
   phantom: '3人のまぼろし',
   nocto_true: '本気のノクト',
-  // 第80回: 第1部と 第2部の 最後の 戦いの 曲（3だん）。名前は ネタバレに ならない ように
-  solitus: '最後の戦い',
+  solitus: '魔王ソリトゥス',
   ending5: 'エンディング（第1部）',
   c8c_fort: 'くろがねの空中ようさい',
   c8b_temple: 'よみの海底神殿',
@@ -92,6 +91,7 @@ export const TRACK_NAMES = {
   c8r_wing: '4つのつばさ',
   c8r_gate: '時の門番との戦い',
   c8r_last: '最後のかいろう',
+  c8r_solitus: '最後の戦い',
   ending2: 'エンディング（第2部）',
 };
 

@@ -5,8 +5,8 @@
 // ・c8r_wing … 4つの つばさ（ホ短調 112。はじく 音と 低音の リズム。今までの ダンジョンの 動機を 1フレーズずつ）
 // ・c8r_gate … 時の門番（嬰ヘ短調 156。上品で つめたい → サビで 重く。だんで キーと テンポ・ピンチ）
 // ・c8r_last … 最後の回廊（ニ長調 120。ミドリナ地方と 千年前の ミドリナ地方の 動機を 合わせる）
-// ・solitus … 最後の戦い（だん 0 ニ短調 140 おそろしい ／ だん 1 ニ短調 92 かなしい ／ だん 2 ニ長調 152 みんなの 力）
-//            だんごとに 区切りの ならび（phases[n].form）が かわる。前の音 では 第1部の 曲（legacy）
+// ・c8r_solitus … 最後の戦い（だん 0 ニ短調 140 おそろしい ／ だん 1 ニ短調 92 かなしい ／ だん 2 ニ長調 152 みんなの 力）
+//            だんごとに 区切りの ならび（phases[n].form）が かわる（第1部の solitus とは べつの 曲）
 // ・ending2 … エンディング（第2部。ト長調 84。勝利の 動機 → 町の 動機 → 大きく 広がる）
 //
 // メロディは 手で 書く（1小節 = 16分音符 16）。ベース・きざみ・和音・アルペジオは 和音の ならびから 下の 小さな 道具で 作る
@@ -517,9 +517,9 @@ const c8r_last = {
   loopFrom: 1,
 };
 
-// ═════════════ solitus: 最後の戦い（3だん）═════════════
+// ═════════════ c8r_solitus: 最後の戦い（3だん）═════════════
 // だんごとに 区切りの ならび（phases[n].form）が かわる（エンジンは 次の 小節の 頭で その だんの 形の はじめへ）。
-//   だん 0 … おそろしい: ニ短調 140。オルガンの 和音・ブラスの 打ちこみ・ナポリの Eb。頭は 第1部の 同じ 曲の 頭（レ・ファ・ラ・ソ#）
+//   だん 0 … おそろしい: ニ短調 140。オルガンの 和音・ブラスの 打ちこみ・ナポリの Eb。頭は 第1部の 最後の 戦いの 曲（solitus）の 頭（レ・ファ・ラ・ソ#）
 //   だん 1 … かなしい: ニ短調 92。オルゴールが ひとりで 歌う。メロディ（のこぎり）と ブラスは やすみ・心ぞうの 音の たいこ
 //   だん 2 … みんなの 力: ニ長調 152。今までの 主題が もどる（ミドリナ地方 → 町 → 勝利 → 千年前の ミドリナ地方 → だん 0 の 頭が 長調に）
 const SOL = {
@@ -601,7 +601,7 @@ const D_DOOM2 = 'k:2! k:1 k:1 s:2! k:2 k:2! tl:2 s:2! t:1 tl:1';
 const D_HEART = 'k:2! k:2? r:12';
 const D_HERO = 'k:2! o:2 s:2! h:2 k:2! o:2 s:2! h:1 k:1';
 
-const solitus = {
+const c8rSolitus = {
   bpm: 140, bar: 16, reverb: 0.24,
   parts: [
     { i: 'saw_lead', v: 0.085, role: 'lead', minIntensity: 0 },
@@ -845,7 +845,7 @@ function oldView(tr) {
     }).join(' '),
   }));
 }
-for (const tr of [c8r_hall, c8r_wing, c8r_gate, c8r_last, ending2]) tr.ch = oldView(tr);
+for (const tr of [c8r_hall, c8r_wing, c8r_gate, c8r_last, c8rSolitus, ending2]) tr.ch = oldView(tr);
 
-export const C8R_TRACKS = { c8r_hall, c8r_wing, c8r_gate, c8r_last, solitus, ending2 };
+export const C8R_TRACKS = { c8r_hall, c8r_wing, c8r_gate, c8r_last, c8r_solitus: c8rSolitus, ending2 };
 export const C8R_IDS = Object.keys(C8R_TRACKS);

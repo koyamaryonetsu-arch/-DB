@@ -15,7 +15,7 @@ import { TRACK_NAMES } from '../public/js/client/audio-names.js';
 import { checkText } from '../tools/kanji-check.mjs';
 import { SceneAudio, hallIntensity, HALL_WING_FLAGS, FORM_KEYS, addFormKey, battlePhase, bossStage } from '../public/js/client/audio-scene.js';
 
-const IDS = ['c8r_hall', 'c8r_wing', 'c8r_gate', 'c8r_last', 'solitus', 'ending2'];
+const IDS = ['c8r_hall', 'c8r_wing', 'c8r_gate', 'c8r_last', 'c8r_solitus', 'ending2'];
 const secOf = (c, nm) => (c.segs[nm].steps * 60) / (c.segs[nm].bpm || c.bpm) / 4;
 const loopSec = (c, f = c) => f.form.slice(f.loopFrom).reduce((a, n) => a + secOf(c, n), 0);
 
@@ -76,7 +76,13 @@ test('第80回 F: 6曲が 区切りで 書いて あり、ゲームの 曲に �
     // ボスの 名前・物語の 中みは 書かない
     for (const w of ['ソリトゥス', 'フリーゾン', '星']) assert.ok(!TRACK_NAMES[id].includes(w), `${id}: ${TRACK_NAMES[id]}`);
   }
-  assert.equal(TRACK_NAMES.solitus, '最後の戦い');
+  assert.equal(TRACK_NAMES.c8r_solitus, '最後の戦い');
+  // 第1部の 最後の 戦いの 曲（solitus）は 第77回の まま（かぶせない）
+  assert.equal(TRACK_NAMES.solitus, '魔王ソリトゥス');
+  assert.ok(!('solitus' in C8R_TRACKS));
+  assert.equal(_TRACKS.solitus.ch, TOP_TRACKS.solitus.ch);
+  assert.equal(_TRACKS.solitus.bpm, TOP_TRACKS.solitus.bpm);
+  assert.ok(!_TRACKS.solitus.sections && !_TRACKS.solitus.phases);
   assert.equal(new Set(Object.values(TRACK_NAMES)).size, Object.keys(TRACK_NAMES).length, '名前が かさならない');
 });
 
@@ -101,7 +107,7 @@ test('第80回 F: 区切りの 長さ・ひとまわり 60〜90秒（エンデ�
 });
 
 test('第80回 F: テンポ・メロディックな パートは 5つまで・楽器', () => {
-  const range = { c8r_hall: [60, 100], c8r_wing: [104, 120], c8r_gate: [150, 165], c8r_last: [112, 126], solitus: [130, 150], ending2: [70, 100] };
+  const range = { c8r_hall: [60, 100], c8r_wing: [104, 120], c8r_gate: [150, 165], c8r_last: [112, 126], c8r_solitus: [130, 150], ending2: [70, 100] };
   for (const id of IDS) {
     const tr = _TRACKS[id];
     const [lo, hi] = range[id];
@@ -120,7 +126,7 @@ test('第80回 F: テンポ・メロディックな パートは 5つまで・�
     assert.ok(gate.phases[i].transpose > gate.phases[i - 1].transpose && gate.phases[i].tempo > gate.phases[i - 1].tempo, `門番 だん ${i}`);
   }
   assert.ok(gate.pinch?.n && gate.pinch.i === 'chip_arp');
-  assert.ok(_TRACKS.solitus.pinch?.n);
+  assert.ok(_TRACKS.c8r_solitus.pinch?.n);
 });
 
 // 強拍（1拍目・3拍目）: メロディ（最後の 戦いの だん 1 は オルゴール）と ベースが 短2度・増4度・長7度で ぶつからない
@@ -140,7 +146,7 @@ test('第80回 F: 強拍で メロディと ベースが ぶつからない（0�
     let n = 0;
     const bad = [];
     for (const [nm, s] of Object.entries(c.segs)) {
-      const mel = id === 'solitus' && /^(t1|S\d)$/.test(nm) ? 3 : lead;
+      const mel = id === 'c8r_solitus' && /^(t1|S\d)$/.test(nm) ? 3 : lead;
       for (let st = 0; st < s.steps; st += 8) {
         const m = at(s.parts[mel], st);
         const b = at(s.parts[bass], st);
@@ -241,7 +247,7 @@ test('第80回 F: 時の広間の 強さ ＝ クリアした つばさの 数（
 });
 
 test('第80回 F: 最後の 戦いの 3だん（だん 0 おそろしい・1 かなしい・2 みんなの 力）は 区切りの ならびが かわる', () => {
-  const tr = _TRACKS.solitus;
+  const tr = _TRACKS.c8r_solitus;
   const c = compileTrack(tr);
   // だん 0 は 曲の 形・だん 1・2 は それぞれの 形・だん 3 は だん 2 と 同じ
   assert.equal(formOfPhase(c, 0), c);
@@ -266,17 +272,18 @@ test('第80回 F: 最後の 戦いの 3だん（だん 0 おそろしい・1 か
   const pcs = (nm) => new Set(c.segs[nm].parts[0].filter((e) => e.f).map((e) => Math.round(midiOf(e.f)) % 12));
   assert.ok(pcs('H1').has(6) && !pcs('H1').has(5));
   assert.ok(pcs('A').has(5) && !pcs('A').has(6));
-  // 前の音 では 第1部の 曲
+  // 前の音 では 自分の 楽譜を 前の 書き方に うつした もの（だん 0）。第1部の 曲は つかわない
   const lc = legacyChannels(tr);
-  assert.equal(lc.bpm, TOP_TRACKS.solitus.bpm);
-  assert.deepEqual(lc.ch, TOP_TRACKS.solitus.ch);
+  assert.equal(lc.bpm, tr.bpm);
+  assert.equal(lc.ch, tr.ch);
+  assert.notDeepEqual(lc.ch, TOP_TRACKS.solitus.ch);
 });
 
 test('第80回 F: 最後の 戦い: setPhase で 次の 小節から その だんの 区切りへ（にせの エンジン）', () => {
-  const tr = _TRACKS.solitus;
+  const tr = _TRACKS.c8r_solitus;
   const c = compileTrack(tr);
   const { eng, log } = spyEngine();
-  eng.start('solitus', tr, 0);
+  eng.start('c8r_solitus', tr, 0);
   eng.pump(12);
   const p = eng.player;
   // だん 0: のこぎりの メロディ・ブラスが 鳴る
@@ -342,11 +349,11 @@ test('第80回 F: つばさの 思い出の 区切りに 4つの ダンジョン
   assert.deepEqual(steps(firstNotes(end.sections.intro[4], 8)), steps(firstNotes(leadOf(R77A_TRACKS.victory, 'main'), 8)));
   assert.deepEqual(steps(firstNotes(leadOf(end, 'A'), 4)), steps(firstNotes(leadOf(R77B_TRACKS.town, 'A'), 4)));
   // 最後の 戦いの だん 0 の 頭は 第1部の 曲の 頭（レ・ファ・ラ・ソ#）
-  assert.deepEqual(firstNotes(leadOf(_TRACKS.solitus, 'A'), 4), firstNotes(TOP_TRACKS.solitus.ch[0].n, 4));
+  assert.deepEqual(firstNotes(leadOf(_TRACKS.c8r_solitus, 'A'), 4), firstNotes(TOP_TRACKS.solitus.ch[0].n, 4));
 });
 
 test('第80回 F: 前の音 用の ch（新しい id）・前の音 では その ch が 鳴る', () => {
-  for (const id of ['c8r_hall', 'c8r_wing', 'c8r_gate', 'c8r_last', 'ending2']) {
+  for (const id of ['c8r_hall', 'c8r_wing', 'c8r_gate', 'c8r_last', 'c8r_solitus', 'ending2']) {
     const tr = _TRACKS[id];
     assert.equal(tr.ch.length, tr.parts.length, id);
     for (const ch of tr.ch) for (const t of ch.n.split(/\s+/)) assert.match(t, ch.drums ? /^[kshr]:\d+$/ : /^(r|[A-G][#b]?\d):\d+$/, `${id}: ${t}`);

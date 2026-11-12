@@ -4,10 +4,10 @@
 > データ: `public/js/client/audio-c8r.js`（`C8R_TRACKS`）。テスト: `test/audio-c8r-r80.test.js`。曲は すべて オリジナル（ある 作品の 曲を まねて いない）。
 
 ## 0. まとめ
-- 6曲: `c8r_hall`（時の広間）・`c8r_wing`（4つの つばさ）・`c8r_gate`（時の門番との 戦い）・`c8r_last`（最後の 回廊）・`solitus`（最後の 戦い。3だん）・`ending2`（エンディング 第2部）
-- `audio.js` は import と `overlayTracks(TRACKS, C8R_TRACKS)` の 1行。`solitus` は 第1部の 同じ id の 曲を 作りなおした ので、第1部の データは `legacy`（設定「前の音」）に のこる。**第1部の 最後の 戦いでも この 新しい 曲が 鳴る**（下の 4）
-- 新しい id の 5曲には `ch`（自分の 楽譜を 前の 書き方へ うつした もの。`audio-r77a.js` の `oldView` と 同じ）を つけた。古い テストと「前の音」用
-- 名前（`TRACK_NAMES`）: 時の広間・4つのつばさ・時の門番との戦い・最後のかいろう・エンディング（第2部）。`solitus` は「魔王ソリトゥス」→「最後の戦い」に かえた（ボスの 名前を 書かない）。「回廊」の「廊」は 使えない 漢字なので「かいろう」
+- 6曲: `c8r_hall`（時の広間）・`c8r_wing`（4つの つばさ）・`c8r_gate`（時の門番との 戦い）・`c8r_last`（最後の 回廊）・`c8r_solitus`（最後の 戦い。3だん）・`ending2`（エンディング 第2部）
+- `audio.js` は import と `overlayTracks(TRACKS, C8R_TRACKS)` の 1行。6曲とも 新しい id。**第1部の 最後の 戦いの 曲 `solitus` は 第77回の まま**（かぶせない・名前「魔王ソリトゥス」・音量の そろえ -1.2 も そのまま）
+- 新しい id の 6曲には `ch`（自分の 楽譜を 前の 書き方へ うつした もの。`audio-r77a.js` の `oldView` と 同じ）を つけた。古い テストと「前の音」用
+- 名前（`TRACK_NAMES`）: 時の広間・4つのつばさ・時の門番との戦い・最後のかいろう・最後の戦い（`c8r_solitus`。ボスの 名前は 書かない）・エンディング（第2部）。「回廊」の「廊」は 使えない 漢字なので「かいろう」
 - エンジンの 小さな なおし 1つ（4）。どうぐ（`tools/audio-render.mjs`）は かえて いない
 
 ## 1. 曲ごと
@@ -19,7 +19,7 @@
 | c8r_wing | ホ短調 | 112 | intro 2 / A 8 / B 8 / mem 16 / br 2 | 72.9 秒 | lead（square）・bass・pluck（くりかえし）・strings・bell・たいこ |
 | c8r_gate | 嬰ヘ短調（G の ナポリの 和音） | 156 | intro 2 / A 8 / A' 8 / B 16 / C 8 | 61.5 秒 | lead（pulse）・bass・musicbox・strings・brass・たいこ |
 | c8r_last | ニ長調（ロ短調の 色） | 120 | intro 2 / A 8 / A' 8 / B 16 / br 4 | 72.0 秒 | lead（square）・bass・pluck・strings・brass（対旋律）・たいこ |
-| solitus | だん 0 ニ短調 ／ 1 ニ短調 ／ 2 ニ長調 | 140 ／ 92 ／ 152 | だん 0: intro 2 / A 8 / A' 8 / B 12 / C 8 ／ だん 1: t1 2 / S1 8 / S2 8 / S3 8 ／ だん 2: t2 2 / H1 8 / H2 8 / H3 16 / H4 8 | 61.7 ／ 62.6 ／ 63.2 秒 | saw_lead・bass・organ・musicbox・brass・たいこ |
+| c8r_solitus | だん 0 ニ短調 ／ 1 ニ短調 ／ 2 ニ長調 | 140 ／ 92 ／ 152 | だん 0: intro 2 / A 8 / A' 8 / B 12 / C 8 ／ だん 1: t1 2 / S1 8 / S2 8 / S3 8 ／ だん 2: t2 2 / H1 8 / H2 8 / H3 16 / H4 8 | 61.7 ／ 62.6 ／ 63.2 秒 | saw_lead・bass・organ・musicbox・brass・たいこ |
 | ending2 | ト長調（B だけ イ長調） | 84 | intro 2 / A 8 / A' 8 / B 8 / C 8 | 91.4 秒 | flute・bass・pluck（ハープ）・strings・bell・たいこ |
 
 - メロディックな パートは どの 曲も 5つ ＋ たいこ（広間だけ たいこが 2つ）
@@ -32,7 +32,7 @@
 - **c8r_wing**: A Em Em C D Am Em C B ／ B C D G Em Am D B7 B7 ／ mem（4小節ずつ）Em C B Em ｜ Em C Am B ｜ Em C D Em ｜ Em C G D ／ br C B
 - **c8r_gate**: A F#m Bm C# F#m D Bm G C# ／ A' … D E A C# ／ B F#m D E C# F#m D G C# ｜ Bm C# F#m D Bm G C# C# ／ C F#m F#m G G D D C# C#
 - **c8r_last**: A D A Bm G D A G A ／ A' D G Bm A G A F#m Bm ／ B G A F#m Bm G A D D ｜ Em F#m G A Bm G A A ／ br G A Bm A
-- **solitus**: だん 0 A Dm Dm Bb A Dm Gm Eb A ／ B Gm Dm Eb A Gm Dm Bb A Gm Eb A A ／ C Dm Dm Eb Eb Dm Dm Eb A。だん 1 S1 Dm Bbmaj7 Gm7 A … ／ S2 F C Dm Am Bb F Gm7 A ／ S3 Gm Dm Bb F Gm Dm Gm7·A Dm。だん 2 t2 Bb C（♭VI ♭VII → I）／ H1 D G A D Bm G Em·A A ／ H3 G A F#m Bm G A D D Em F#m G D Bb C D D
+- **c8r_solitus**: だん 0 A Dm Dm Bb A Dm Gm Eb A ／ B Gm Dm Eb A Gm Dm Bb A Gm Eb A A ／ C Dm Dm Eb Eb Dm Dm Eb A。だん 1 S1 Dm Bbmaj7 Gm7 A … ／ S2 F C Dm Am Bb F Gm7 A ／ S3 Gm Dm Bb F Gm Dm Gm7·A Dm。だん 2 t2 Bb C（♭VI ♭VII → I）／ H1 D G A D Bm G Em·A A ／ H3 G A F#m Bm G A D D Em F#m G D Bb C D D
 - **ending2**: A G Bm C D Em C Am·D G ／ B（イ長調）D E C#m F#m D E A A ／ C（ト長調に もどる）C D Bm Em Am D G D7
 
 ### 今までの 動機（テストで 音の 動きを くらべて いる）
@@ -40,7 +40,7 @@
 |---|---|---|
 | c8r_wing | mem（4小節ずつ） | 月の王宮の地下迷宮（`c8a_palace` の A の 頭）→ よみの海底神殿（`c8b_temple`）→ くろがねの空中ようさい（`c8c_fort`）→ 氷の竜の城（`c7i_castle`）。どれも ホ短調に うつし、伴奏も その ダンジョンらしく（ダルブッカの タム ／ しずかな リムと のばし ／ 行進の スネア ／ 走る ベース）。それぞれの はじめに ベルが 1つ |
 | c8r_last | A ／ A' ／ B | A は ミドリナ地方（`field`）の 頭（ラ・レ・ミ・ファ#）、A' は 千年前の ミドリナ地方（`past_field`）の 頭（ファ#・ラ・レ・ド#）＋ ブラスが ミドリナの 動機を 下で。B の 前半は メロディが ミドリナの 形・ブラスが 千年前の 動機 |
-| solitus | だん 0 の A ／ だん 2 | だん 0 の 頭は 第1部の 同じ 曲の 頭（レ・ファ・ラ・ソ#）。だん 2 は H1 ミドリナ地方 → H2 町（`town`）と 勝利（`victory`）→ H3 千年前の ミドリナ地方（ブラス）→ H4 だん 0 の 頭が 長調に |
+| c8r_solitus | だん 0 の A ／ だん 2 | だん 0 の 頭は 第1部の 最後の 戦いの 曲（`solitus`）の 頭（レ・ファ・ラ・ソ#）。だん 2 は H1 ミドリナ地方 → H2 町（`town`）と 勝利（`victory`）→ H3 千年前の ミドリナ地方（ブラス）→ H4 だん 0 の 頭が 長調に |
 | ending2 | intro ／ A | イントロの ベルが 勝利の 動機（ゆっくり）、A の 笛が 町の 動機 |
 
 ## 2. 時の広間の 強さ（`c8r_hall`）
@@ -60,7 +60,7 @@
 - `phases`（変身）: 0 嬰ヘ短調 1.00 → 1 ト短調（+1）1.03 → 2 イ短調（+3）1.06 → 3 ロ短調（+5）1.10
 - `pinch`: `F#6 C#6 F#6 G6 F#6 C#6 F#6 F6`（主音・5度・半音上の ソ・導音）
 
-## 4. 最後の 戦いの 3だん（`solitus`）と エンジンの なおし
+## 4. 最後の 戦いの 3だん（`c8r_solitus`）と エンジンの なおし
 エンジンの `phases` は キーと テンポしか かえない。強さ（`layer`／`minIntensity`）は 下から 積む だけ なので、「おそろしい → かなしい → みんなの 力」の ちがいは 出せない。そこで **だんごとに 区切りの ならび（form）を かえる** なおしを 1つ 入れた。
 
 - `music-engine.js`: `phases[n]` に `form`（区切りの 名前の ならび）と `loopFrom` を 書ける。`compileTrack` が `phaseForms` に、`formOfPhase(c, n)` が その だんの 形（なければ 曲の 形。だんの 番号は `phaseOf` と 同じく さいごの だんで 止まる）。`NewPlayer.stepBar` は 小節の 頭で `latch()` した だんの 形が 今と ちがえば、その 形の はじめ（つなぎの 区切り）から 鳴らす。`nextPos` は 今の 形で 次へ。**`phases[n].form` を 書かない 曲は 前と まったく 同じ**（テストで ボスの 曲を たしかめた）
@@ -69,7 +69,7 @@
 - だん 2（みんなの 力。152）: つなぎ t2（♭VI ♭VII の ブラスと スネアの ロール）→ ニ長調。今までの 主題が もどる（1 の 表）
 - だん 3 は だん 2 と 同じ。キー・テンポは どの だんも そのまま（テンポは 区切りの `bpm`）
 - `pinch`: `D6 A5 D6 A5 C#6 A5 D6 A5`（短調でも 長調でも 合う）
-- 第1部の 最後の 戦い（`encounters-final.js` の `solitus`。`slPhase` 1〜3 → だん 0〜2）でも この 曲が 鳴る。第1部の 3だん目（きずなの 合体技）は だん 2 の「みんなの 力」に 合う
+- 「前の音」では 自分の 楽譜（だん 0）を 前の 書き方に うつした `ch` が 鳴る（だんで 形は かわらない）
 
 ## 5. はかった 数字（`node tools/audio-render.mjs`。音量は `--write-trim --target -19.6` を 3回）
 | 曲 | peak | RMS dB | 明るさ Hz | 出だし/s | 広がり | ノード/s |
@@ -80,21 +80,21 @@
 | c8r_wing | 0.511 | -19.6 | 346 | 5.0 | 0.07 | 62 |
 | c8r_gate | 0.466 | -19.6 | 250 | 5.6 | 0.06 | 97 |
 | c8r_last | 0.534 | -19.6 | 481 | 5.2 | 0.07 | 78 |
-| solitus だん 0 | 0.479 | -19.6 | 333 | 5.0 | 0.06 | 75 |
-| solitus だん 1 | 0.448 | -21.0 | 144 | 2.0 | 0.06 | 15 |
-| solitus だん 2 | 0.489 | -19.4 | 459 | 5.8 | 0.06 | 99 |
+| c8r_solitus だん 0 | 0.509 | -19.6 | 333 | 5.0 | 0.06 | 75 |
+| c8r_solitus だん 1 | 0.448 | -21.0 | 144 | 2.0 | 0.06 | 15 |
+| c8r_solitus だん 2 | 0.489 | -19.4 | 459 | 5.8 | 0.06 | 99 |
 | ending2 | 0.583 | -19.6 | 358 | 3.2 | 0.09 | 34 |
 | （くらべる）phantom | 0.412 | -19.5 | 259 | 5.9 | 0.04 | 108 |
 
-- peak は どれも 0.98 より 下（最大 0.583）。`--adapt`（強さ → ピンチ → だん 1 → 夜 → 波）: solitus 0.497・c8r_gate 0.471・c8r_hall 0.505
+- peak は どれも 0.98 より 下（最大 0.583）。`--adapt`（強さ → ピンチ → だん 1 → 夜 → 波）: c8r_solitus 0.497・c8r_gate 0.471・c8r_hall 0.505
 - 重さ: `--nodes`（はじめの 20秒）の 上位は c7i_castle 103 ／ phantom 101 ／ nocto_true 100 ／ c8r_gate 99。ひとまわり 全部で はかっても 門番 97・だん 2 99 で phantom（108）を こえない（門番の オルゴールの きざみと ブラスの 打ちこみを へらした・だん 2 の H3 の オルゴールを 8分に）
 - だんの 数字は どうぐの 書き出しの はじめに `setPhase(n)` を よぶ 写し（スクラッチの 写し。どうぐ じたいは かえて いない）で はかった
 - 時の広間の 0.4 は ベルと きざみ だけ なので 6.6 dB 小さく、明るさは きざみの 音で 高い（わざと。止まった 時間の しずけさ）。つばさを 1つ クリアすると 低音が 入って ふつうの 大きさに なる
-- `audio-trim.js`: c8r_gate -1.2・c8r_hall -0.5・c8r_last -1.1・c8r_wing -1・ending2 0.1・solitus -1.2 → -1.6
+- `audio-trim.js`: c8r_gate -1.2・c8r_hall -0.5・c8r_last -1.1・c8r_wing -1・ending2 0.1・c8r_solitus -1.6（`solitus` は -1.2 の まま）
 - 「1回目と 2回目の にている 度合い」は イントロの ある 曲では どうぐが はからない（–）。区切りが ちがう ことは テストで 見て いる
 
 ## 6. つなぎ（A班・B班・メイン）
-- マップ・戦いの `bgm` に 曲の id を 書くのは A班・B班（広間 `c8r_hall`・つばさの 8階 `c8r_wing`・回廊 `c8r_last`・門番の 戦い 3つ `c8r_gate`・最後の 戦い `solitus`・エンディング `ending2`）
+- マップ・戦いの `bgm` に 曲の id を 書くのは A班・B班（広間 `c8r_hall`・つばさの 8階 `c8r_wing`・回廊 `c8r_last`・門番の 戦い 3つ `c8r_gate`・最後の 戦い `c8r_solitus`・エンディング `ending2`）
 - 最後の ボスの 段: `audio-scene.js` の `FORM_KEYS` を `export` に して、`addFormKey(名前)` で 足せる ように した。**B班が 公開する 最後の ボスの 段の しるし（1 が はじめ）を `FORM_KEYS` に 足す**（まとめる 時に メイン）。しるしが 1・2・3 → だん 0・1・2。門番の 変身の しるしも 同じ（4形態 → だん 0〜3）
 - しるしを 足さない 場合も、HP 半分で だん 1 に なる（今の きまり）。だん 2 には ならない ので、最後の 戦いでは かならず 足す
 
@@ -105,6 +105,6 @@
 
 ## 8. 気を つける こと
 - 耳で 聞いて いない（数字と 楽典の きまりだけ）。家族に「音楽を聞く」で 聞いて もらう
-- `solitus` は 第1部でも 鳴る（3だんの 作りは 第1部の 3形態にも 合う）。第1部は 前の 曲の まま が よければ、B班が 第2部の 最後の 戦いに 別の id を つかい、ここの 曲を その id に うつす
+- はじめは id を `solitus`（第1部の 曲）に かぶせて いたが、メインの 指示で `c8r_solitus` に かえた。第1部の 最後の 戦いは 前と 同じ 曲
 - 時の広間の 強さ 0.4 は しずか（-26 dB）。小さすぎれば ベル（`v`）を 上げる
 - 門番の 曲は 重さが phantom に 近い（97〜99）。パートを 足す 時は ノードを はかる
