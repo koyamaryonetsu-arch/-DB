@@ -36,6 +36,8 @@ import { addFeats, phantomAfterBattle } from './phantom.js';
 import { tokiPhantomAfter } from './tokei-phantom.js';
 // 第78回 3-10: 家族ミッション（人間の キャラが 2人 いじょうの 戦いだけ 数える。world/missions.js）
 import { missionBattle, missionFriend } from './missions.js';
+// 第80回 E班: ボスに 負けた 時の ヒント（負けた 回数・勝ったら 消す。world/boss-hints.js）
+import { bossHintAfter } from './boss-hints.js';
 
 let battleSeq = 1;
 
@@ -602,6 +604,8 @@ function finishBattle(world, ctx) {
   }
   // 第53回 B: 時のまぼろし（止まった時の間）に 勝った: 1日1回の 素材・はじめての 勝ちは けいじ板へ（world/tokei-phantom.js）
   tokiPhantomAfter(world, ctx, sessions, perSession, outcome);
+  // 第80回 E班: ボスに 負けた 時の ヒント（world/boss-hints.js）
+  bossHintAfter(world, ctx, sessions, outcome);
 
   // シンボル
   if (ctx.opts.symbolId) {

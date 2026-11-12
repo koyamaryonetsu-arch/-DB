@@ -28,6 +28,8 @@ import { LB_MAX } from '../data/items-forge.js';
 import { ITEMS } from '../data/items.js';
 import { MAPS, condOk } from '../maps/index.js';
 import { jobLabel } from '../job-label.js';
+// 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
+import { bossHintsSeen } from '../data/boss-hints.js';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -415,7 +417,7 @@ export function shioriRecs(c, tracks = shioriTracks(c)) {
 export function shioriOf(c, ctx = {}) {
   const ch = c || {};
   const tracks = shioriTracks(ch, ctx);
-  return { story: { ...storyPlace(ch), ...storyNext(ch) }, tracks, recs: shioriRecs(ch, tracks) };
+  return { story: { ...storyPlace(ch), ...storyNext(ch), bossHints: bossHintsSeen(ch) }, tracks, recs: shioriRecs(ch, tracks) };
 }
 
 // 1行の 数（「12/32」）。total が ない ときは now だけ
