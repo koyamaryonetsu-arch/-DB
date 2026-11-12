@@ -740,7 +740,7 @@ A・B の `c8b_*` マップ・物語・第2幕の 魔物には さわってい�
 - 宝箱（B）: `C8R_TREASURE`（`data/items-c8r.js`）
 - 手下の 魔物（B）: 5しゅ（新しい 絵は 3しゅ まで。今まで 行った 場所の 魔物の「時の かげ」など）。どれも 仲間に なる
 - 負けた 時の ヒント（E が しくみ・B が 第4幕の 文）: `shared/data/boss-hints.js` の `BOSS_HINTS[戦いの id] = [1回目, 2回目, 3回目]`
-- 曲（F）: `c8r_hall`（広間。クリアした つばさの 数で パートが ふえる）・`c8r_wing`・`c8r_gate`（門番）・`c8r_last`（回廊）・`solitus`（3だん ＝ `setPhase`）・`ending2`
+- 曲（F）: `c8r_hall`（広間。クリアした つばさの 数で パートが ふえる）・`c8r_wing`・`c8r_gate`（門番）・`c8r_last`（回廊）・`c8r_solitus`（最後の ボス。3だん ＝ `setPhase`。`solitus` は 第1部の 曲なので 使わない）・`ending2`
 - タイル ID（A）: **395 から**（第3幕は 394 まで。A が たしかめる）
 - 作業中の 仮の データ: A は `data/c8r-stub.js`。まとめる 時に 消す
 
