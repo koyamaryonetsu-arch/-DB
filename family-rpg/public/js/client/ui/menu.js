@@ -673,14 +673,11 @@ export class FieldMenu {
           return;
         }
       } else if (it.effect.type === 'exit') {
-        // みちびきの糸: 洞窟の 中なら 入り口の 外へ（メニューを とじて 外を 見せる）
-        const m = MAPS[g.field?.mapId];
-        if (m?.kind === 'dungeon' && !m.indoor && !m.noEscape) {
-          g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
-          this.close();
-          return;
-        }
-        await this.menuCall({ t: 'menu', action: 'useItem', id: entry.value });
+        // みちびきの糸: もどれたら メニューを とじて 外を 見せる（リレミトと おなじ）。
+        // 第79回: ひみつのダンジョン（noEscape でも 入口へ もどれる）も サーバーの 返事で きめる。
+        // もどれない 所（ピラミッド・町・フィールド など）は わけを 出して メニューは 開いた まま
+        const r = await this.menuCall({ t: 'menu', action: 'useItem', id: entry.value });
+        if (r?.ok) return this.close();
       } else if (it.target === 'self') {
         // 聖水・すず など（だれも えらばない）: 使った あとも 一覧の この 道具に カーソル
         await this.menuCall({ t: 'menu', action: 'useItem', id: entry.value, ref: 'self' });

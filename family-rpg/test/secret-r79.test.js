@@ -589,3 +589,35 @@ test('ごほうび・魔物・番人は かわらない（見た目と 形と �
   // 宿屋・お店の 階は いままで どおり
   assert.equal(sdSpecialOf(7, packSdSeed(5, SD_THEME_ALL)) === null || typeof sdSpecialOf(7, packSdSeed(5, SD_THEME_ALL)) === 'string', true);
 });
+
+// ───────────── 5. メニューから 糸を 使う（第79回の あと）─────────────
+test('メニューの 糸: もどれた 時は メニューを とじる（リレミトと おなじ）。もどれない 所では 開いた まま', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync(new URL('../public/js/client/ui/menu.js', import.meta.url), 'utf8');
+  const at = src.indexOf("it.effect.type === 'exit'");
+  assert.ok(at > 0);
+  const block = src.slice(at, src.indexOf('} else if', at + 10));
+  assert.match(block, /const r = await this\.menuCall\(\{ t: 'menu', action: 'useItem', id: entry\.value \}\);/);
+  assert.match(block, /if \(r\?\.ok\) return this\.close\(\);/);
+  assert.ok(!block.includes('!m.noEscape'),'ひみつのダンジョン（noEscape）でも サーバーの 返事で きめる');
+  // サーバーの 返事: ひみつのダンジョン・ふつうの 洞窟は ok（とじる）、ピラミッド・フィールドは だめ（開いた まま。糸も へらない）
+  const { world, bot, c } = await hero(87);
+  addItem(c, ESCAPE_ITEM, 5);
+  const use = () => menu(bot, { action: 'useItem', id: ESCAPE_ITEM });
+  await enter(bot);
+  let r = use();
+  assert.equal(r.ok, true);
+  assert.equal(bot.s.map, SD_GATE);
+  world.placeSession(bot.s, 'cave_b1', 5.5, 5.5, 'down', true);
+  r = use();
+  assert.equal(r.ok, true, 'ふつうの 洞窟');
+  assert.notEqual(bot.s.map, 'cave_b1');
+  for (const id of ['pyramid1', 'overworld']) {
+    world.placeSession(bot.s, id, 5.5, 5.5, 'down', true);
+    const n = itemCount(c, ESCAPE_ITEM);
+    r = use();
+    assert.equal(r.ok, false, id);
+    assert.equal(bot.s.map, id);
+    assert.equal(itemCount(c, ESCAPE_ITEM), n);
+  }
+});
