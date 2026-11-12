@@ -584,7 +584,7 @@ function theaterMasterList_() {
   if (TM_CACHE_) return TM_CACHE_;
   TM_CACHE_ = [];
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY'); if (!key) return TM_CACHE_;
-  var sels = ['name,company,aliases', 'name,company'];   // aliases の列がまだ無い DB でも動く
+  var sels = ['name,company,aliases,short_name', 'name,company,aliases', 'name,company'];   // 新しい列がまだ無い DB でも動く
   for (var i = 0; i < sels.length; i++) {
     try {
       var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/theaters?select=' + sels[i] + '&limit=3000', { method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true });
@@ -596,8 +596,8 @@ function theaterMasterList_() {
 var TM_BRANDS_ = [
   [/TOHO\s*(シネマズ|CINEMAS)?|東宝/i, ['TOHOシネマズ']],
   [/109\s*(シネマズ|CINEMAS)?/i, ['109シネマズ']],
-  [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS/i, ['ユナイテッドシネマ']],
-  [/シネマサンシャイン|CINEMA\s*SUNSHINE/i, ['佐々木興業', 'シネマサンシャイン']],
+  [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS|シネプレックス|^CPX|^UC/i, ['ユナイテッドシネマ']],
+  [/グランドシネマサンシャイン|シネマサンシャイン|CINEMA\s*SUNSHINE|^GCS|^CS/i, ['佐々木興業', 'シネマサンシャイン']],
   [/コロナ(シネマ)?ワールド|コロナシネマ/i, ['コロナワールド']],
   [/MOVIX|ムービックス/i, ['MOVIX']],
   [/イオンシネマ/i, ['イオンシネマズ']]
@@ -631,6 +631,9 @@ function canonTheater_(name, company) {
   var cos = tmBrandCompanies_(name) || (company ? [normalizeCompany_(company)] : null);
   if (!cos) return null;
   var same = list.filter(function (x) { return cos.indexOf(x.company) !== -1; });
+  // 同じ会社の表示名（短い名前。例「横浜」「GP」）と同じ
+  var sn = same.filter(function (x) { return x.short_name && tmKey_(x.short_name) === k; });
+  if (sn.length === 1) return { name: sn[0].name, company: sn[0].company || '' };
   var pl = tmPlace_(name); if (pl.length < 2) return null;
   var eq = same.filter(function (x) { return tmPlace_(x.name) === pl; });
   if (eq.length === 1) return { name: eq[0].name, company: eq[0].company || '' };
