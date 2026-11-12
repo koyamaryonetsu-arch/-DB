@@ -1,8 +1,8 @@
 // ひみつのダンジョンの「家族の記録の板」（入口の 広間。world/secret.js の boardData）
 //   data.rows … 深い じゅん（家族サーバーでは 家族みんな、ひとりの サイトでは 自分の キャラたち）
 //   data.me   … 自分の 記録
-import { el, ListMenu } from './dom.js?v=8070ad6c27d9';
-import { sdDate, sdStartText } from '../../shared/data/secret.js?v=8070ad6c27d9';
+import { el, ListMenu } from './dom.js?v=65d7afc110b4';
+import { sdDate, sdStartText } from '../../shared/data/secret.js?v=65d7afc110b4';
 
 export function sdBoardUI(game, data) {
   return new Promise((resolve) => {
@@ -34,7 +34,7 @@ export function sdBoardUI(game, data) {
     }
     main.append(list);
     main.append(el('div', { class: 'sd-me', text: `${data.me?.name || ''}の記録: ${data.me?.text || 'まだ記録がない'}${data.me?.tries ? `（ちょうせん${data.me.tries}回）` : ''}\n${sdStartText(data.me?.save)}` }));
-    main.append(el('div', { class: 'detail small', text: '5階ごとの休み所に初めて着くと、大きなごほうび。\n休み所のようせいに話して「この階を記録して地上へもどる」と、次は案内人から、その階で始められます。とちゅうの階から始めても、いちばん深く行けた階が記録になります。\nパーティーで入ると、いっしょにいた家族みんなの記録になります（何階から始めるかはリーダーが選ぶ。みんなが記録した階まで）。' }));
+    main.append(el('div', { class: 'detail small', text: '5階ごとの休み所に初めて着くと、大きなごほうび。\n休み所のようせいに話して「この階を記録して地上へもどる」と、次は案内人から、その階で始められます。とちゅうの階から始めても、いちばん深く行けた階が記録になります。\nパーティーで入ると、いっしょにいた家族みんなの記録になります（何階から始めるかはリーダーが選ぶ。みんなが記録した階まで）。\nリレミトかみちびきの糸を使うと、入口へもどれます（いちばん深く行けた階の記録は、のこります）。' }));
     const menu = new ListMenu(game.input, {
       items: [{ label: '閉じる', value: 'close' }],
       sound: (x) => game.audio?.sfx(x),

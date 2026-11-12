@@ -8,7 +8,9 @@
 // ・40階から 色ちがいの 魔物が まざる（data/variants.js）
 // ・休み所で 記録した 階（5の 倍数）から、次の ちょうせんを 始められる（入口の 案内人・下り階段で 選ぶ。2026年10月 第27回）
 //   家族で 入る ときは リーダーが 選ぶ。選べるのは、いっしょに 入る パーティーの 全員が 記録した 階まで
-// ・魔物は 仲間に ならない（map.noBefriend）。糸・羽・ルーラは 使えない（map.noEscape）。全滅すると 入口へ（お金は へらない）
+// ・魔物は 仲間に ならない（map.noBefriend）。帰り道の羽・ルーラは 使えない（map.noEscape）。全滅すると 入口へ（お金は へらない）
+// ・第79回: リレミトと みちびきの糸で 入口の 広間へ もどれる（全滅で もどる 時と おなじ あつかい。world/secret.js の secretEscape）
+// ・第79回: ふつうの 階は 今までの ダンジョンを まねた テーマの 階（data/secret-themes.js・maps/secret-floors.js）
 //
 // マップの ID: 'sd_gate'（入口の 広間）・'sd_<階>_<seed の 36進>'（たとえば sd_12_k3x9a。maps/index.js が ID から つくる）
 //   seed が ID に 入っているので、サーバー・画面・家族みんなが ID だけで おなじ 形を つくれる（宝の洞窟と おなじ やりかた）。
@@ -22,16 +24,18 @@
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
 //              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
-import { MONSTERS } from './monsters.js?v=8070ad6c27d9';
-import { registerVariant, variantFits, variantId } from './variants.js?v=8070ad6c27d9';
-import { ITEMS, SLOTS } from './items.js?v=8070ad6c27d9';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=8070ad6c27d9';
-import { makeRng } from '../rng.js?v=8070ad6c27d9';
-import { rewardGold } from './difficulty.js?v=8070ad6c27d9';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=8070ad6c27d9';
-import { sdGuardStrength } from './secret-guard.js?v=8070ad6c27d9';
+import { MONSTERS } from './monsters.js?v=65d7afc110b4';
+import { registerVariant, variantFits, variantId } from './variants.js?v=65d7afc110b4';
+import { ITEMS, SLOTS } from './items.js?v=65d7afc110b4';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=65d7afc110b4';
+import { makeRng } from '../rng.js?v=65d7afc110b4';
+import { rewardGold } from './difficulty.js?v=65d7afc110b4';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=65d7afc110b4';
+import { sdGuardStrength } from './secret-guard.js?v=65d7afc110b4';
 // 第45回: 四季のこよみを もらえるか（companions-dqm.js）
-import { dqKeyDue } from './companions-dqm.js?v=8070ad6c27d9';
+import { dqKeyDue } from './companions-dqm.js?v=65d7afc110b4';
+// 第79回: 階の テーマ（ちょうせんの seed に「行った ことの ある ダンジョン」の しるしを 入れる）
+import { newPackedSeed } from './secret-themes.js?v=65d7afc110b4';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -65,8 +69,9 @@ export function sdRunSeedOf(id) {
   return parseId(id)?.seed || 0;
 }
 // 新しい ちょうせんの seed（world.rng から。1〜SD_SEED_MAX）
-export function newSdSeed(rng) {
-  return 1 + Math.floor(rng.next() * (SD_SEED_MAX - 1));
+// 第79回: mask … いっしょに 入る みんなが 行った ことの ある ダンジョンの テーマ（data/secret-themes.js。seed の 中に 入れる）
+export function newSdSeed(rng, mask = 0) {
+  return newPackedSeed(rng, mask);
 }
 export const isSdFloorId = (id) => sdFloorOf(id) > 0;
 export const isSdMapId = (id) => id === SD_GATE || isSdFloorId(id);

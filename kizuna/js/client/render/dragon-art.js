@@ -2,11 +2,11 @@
 // ・dragonCanvas … 竜だけ（よぶ・かえる ときの えんしゅつ・イベントの 役者 'sky_dragon'）
 // ・dragonRideCanvas … 人を のせた 竜（のる 人は うしろの え と まえの え の あいだに かく）
 // かきかたは monsters.js の え と おなじ（g … w・h の わりあいで かく。f … 0 つばさを あげる / 1 さげる）
-import { makeCanvas, ctxOf, flipCanvas } from './pixel.js?v=8070ad6c27d9';
-import { paintVector } from './monsters.js?v=8070ad6c27d9';
-import { SD } from './ch3-boss-art.js?v=8070ad6c27d9';
-import { fit, spark, bez, taper, flipX } from './ch3-draw.js?v=8070ad6c27d9';
-import { CW } from './chars.js?v=8070ad6c27d9';
+import { makeCanvas, ctxOf, flipCanvas } from './pixel.js?v=65d7afc110b4';
+import { paintVector } from './monsters.js?v=65d7afc110b4';
+import { SD } from './ch3-boss-art.js?v=65d7afc110b4';
+import { fit, spark, bez, taper, flipX } from './ch3-draw.js?v=65d7afc110b4';
+import { CW } from './chars.js?v=65d7afc110b4';
 
 export const DRAGON_W = 60;
 export const DRAGON_H = 40;

@@ -9,7 +9,7 @@ export const ESCAPE_ITEMS = {
   [ESCAPE_ITEM]: {
     name: 'みちびきの糸', type: 'use', price: 70, target: 'self', battle: false, field: true,
     effect: { type: 'exit' },
-    desc: '洞窟や塔の中で使うと、入り口まで一気にもどれる。いっしょにいる仲間も外へ出られる。',
+    desc: '洞窟や塔の中で使うと、入り口まで一気にもどれる。いっしょにいる仲間も外へ出られる。ひみつのダンジョンでは、入口へもどる。',
   },
 };
 

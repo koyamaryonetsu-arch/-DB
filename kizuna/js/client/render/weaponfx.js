@@ -2,8 +2,8 @@
 // ・ぶきの しゅるい（剣・オノ・やり…）で うごきが かわる
 // ・おなじ しゅるいでも ぶきごとに いろや しかけが かわる（そざい・ぞくせい）
 // ・ランクが 高いほど（★は もっと）はでに なる
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=8070ad6c27d9';
-import { MONSTERS } from '../../shared/data/monsters.js?v=8070ad6c27d9';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=65d7afc110b4';
+import { MONSTERS } from '../../shared/data/monsters.js?v=65d7afc110b4';
 
 // ───────────── いろ ─────────────
 // edge: やいばの いろ / glow: まわりの ひかり / core: まんなかの ひかり / spark: ひばな / chip: かけら

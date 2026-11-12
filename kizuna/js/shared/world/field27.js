@@ -7,17 +7,19 @@
 // ・char.aura    … 画面に 出す しるし { kind: 'repel'|'lure', until, name }（client/ui/hud.js。セーブに のこっても 時こくで 切れる）
 // ・あとから 使った ほうが 勝つ（片方を 使うと もう 片方は 消える）
 // ・家族と いっしょの ときは、同じ 場所に いる パーティーの 家族にも 効く
-import { MAPS } from '../maps/index.js?v=8070ad6c27d9';
-import { ABILITIES } from '../data/abilities.js?v=8070ad6c27d9';
-import { ITEMS } from '../data/items.js?v=8070ad6c27d9';
-import { AURA_NAMES, LURE } from '../data/abilities-field27.js?v=8070ad6c27d9';
-import { mpCost, itemCount, removeItem } from '../stats.js?v=8070ad6c27d9';
-import { partyOf } from './party.js?v=8070ad6c27d9';
-import { isDungeonMap, dungeonExit } from './escape.js?v=8070ad6c27d9';
-import { warpParty } from './travel.js?v=8070ad6c27d9';
-import { rollGroup } from './monsters.js?v=8070ad6c27d9';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=8070ad6c27d9';
-import { MONSTERS } from '../data/monsters.js?v=8070ad6c27d9';
+import { MAPS } from '../maps/index.js?v=65d7afc110b4';
+import { ABILITIES } from '../data/abilities.js?v=65d7afc110b4';
+import { ITEMS } from '../data/items.js?v=65d7afc110b4';
+import { AURA_NAMES, LURE } from '../data/abilities-field27.js?v=65d7afc110b4';
+import { mpCost, itemCount, removeItem } from '../stats.js?v=65d7afc110b4';
+import { partyOf } from './party.js?v=65d7afc110b4';
+import { isDungeonMap, dungeonExit } from './escape.js?v=65d7afc110b4';
+import { secretEscape } from './secret.js?v=65d7afc110b4';
+import { SD_NAME } from '../data/secret.js?v=65d7afc110b4';
+import { warpParty } from './travel.js?v=65d7afc110b4';
+import { rollGroup } from './monsters.js?v=65d7afc110b4';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=65d7afc110b4';
+import { MONSTERS } from '../data/monsters.js?v=65d7afc110b4';
 
 // ここで あつかう 効き目
 export const FIELD27_EFFECTS = new Set(['exit', 'repel', 'lure']);
@@ -106,6 +108,14 @@ export function castField27(world, s, caster, id, reply) {
     // リレミト: みちびきの糸と 同じ（world/escape.js）。使えない 所では MPは へらない
     const here = MAPS[s.map];
     if (!isDungeonMap(here)) return reply(false, `${head}\nしかし、何も起こらなかった…\n（${a.name}は、洞窟や塔の中で使う呪文）`);
+    // 第79回: ひみつのダンジョンの 階: 入口の 広間へ（いっしょの 家族も。全滅で もどる 時と おなじ あつかい。world/secret.js）
+    if (here.sd?.floor) {
+      const cost = mpCost(caster, id);
+      if (caster.mp < cost) return reply(false, 'MPが足りない！');
+      caster.mp -= cost;
+      const note = secretEscape(world, s, a.name);
+      return reply(true, `${head}\nまばゆい光につつまれて、${SD_NAME}の入口へもどってきた！\n${note}`);
+    }
     if (here.noEscape) return reply(false, `${head}\nしかし、ふしぎな力にはばまれて、何も起こらなかった！\n（${here.noEscapeHint || '来た道を歩いてもどろう'}）`);
     const to = dungeonExit(world, s);
     if (!to) return reply(false, `${head}\nしかし、出口が見つからない…`);

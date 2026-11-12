@@ -1,17 +1,20 @@
 // ひみつのダンジョンの マップ（入口の 広間・ふつうの 階・5階ごとの 休み所・宿屋の 階・お店の 階）と、ミドリナ地方の 入口
 // 階の 形は ID（'sd_<階>_<seed>'）だけで きまる（data/secret.js の sdFloorSeed。サーバーと 画面と いっしょに 入った 家族で おなじ）
-// ふつうの 階は 宝の洞窟の つくりかた（maps/treasure-cave.js の layoutFloor）で、下り階段を さがす 形
-import { T } from '../tiles.js?v=8070ad6c27d9';
-import { npc } from './npc.js?v=8070ad6c27d9';
-import { MONSTERS } from '../data/monsters.js?v=8070ad6c27d9';
-import { layoutFloor } from './treasure-cave.js?v=8070ad6c27d9';
+// ふつうの 階は テーマごとの 形（第79回。maps/secret-floors.js）で、下り階段を さがす 形
+import { T } from '../tiles.js?v=65d7afc110b4';
+import { npc } from './npc.js?v=65d7afc110b4';
+import { MONSTERS } from '../data/monsters.js?v=65d7afc110b4';
+import { buildThemeLayout } from './secret-floors.js?v=65d7afc110b4';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=65d7afc110b4';
+import { SD_THEME, sdThemeOf, sdSeedMask } from '../data/secret-themes.js?v=65d7afc110b4';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorOf, sdRunSeedOf, sdFloorSeed, sdLayoutLv, sdBand, sdEnemyLv, sdPower, ensureSdTable,
   isRestFloor, isGuardFloor, sdGuardian, sdSpecialOf,
-} from '../data/secret.js?v=8070ad6c27d9';
+} from '../data/secret.js?v=65d7afc110b4';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const NO_ESCAPE_HINT = 'ひみつのダンジョンでは、5階ごとの休み所から地上へもどれる';
+// 帰り道の羽を 使おうと した ときの ヒント（第79回: リレミトと みちびきの糸は 入口の 広間へ もどれる）
+const NO_ESCAPE_HINT = 'ひみつのダンジョンでは、リレミトかみちびきの糸で、入口へもどれる';
 
 // ───────────── ミドリナ地方の 入口（ルミナの町の 南門を 出た 東がわ）─────────────
 export const SD_DOOR = { x: 61, y: 60 };
@@ -152,22 +155,44 @@ function specialFloor(f, base, kind) {
 }
 
 // ───────────── ふつうの 階（下り階段を さがす）─────────────
+// 第79回: 今までの ダンジョンを まねた テーマの 階（data/secret-themes.js・maps/secret-floors.js）。
+// テーマは 階の 番号と、ちょうせんの seed に 入れた「行った ことの ある ダンジョン」の しるし（mask）で きまる
+// 休けい中の 魔物（その 階に 出る 魔物から。大きな 魔物は のぞく）
+function teaMonsters(zone) {
+  const out = [];
+  for (const e of ENCOUNTER_TABLES[zone] || []) {
+    const sp = e.group?.[0]?.[0];
+    if (sp && MONSTERS[sp] && MONSTERS[sp].size !== 'l' && !out.includes(sp)) out.push(sp);
+  }
+  return out.slice(0, 3);
+}
 function mazeFloor(f, base) {
-  const lay = layoutFloor(sdFloorSeed(f, base.sd.seed), sdLayoutLv(f), 1, 99, 'earth');
+  const seed = base.sd.seed;
+  const themeId = sdThemeOf(f, sdSeedMask(seed));
+  const th = SD_THEME[themeId];
   const zone = ensureSdTable(f);
+  const lay = buildThemeLayout({ f, fseed: sdFloorSeed(f, seed), lv: sdLayoutLv(f), themeId, monsters: teaMonsters(zone), runSeed: seed });
   const arrive = { x: lay.arrive.x + 0.5, y: lay.arrive.y + 0.5 };
-  const safe = (x, y) => Math.abs(x - lay.arrive.x) <= 2 && Math.abs(y - lay.arrive.y) <= 2;
+  const safe = (x, y) => (Math.abs(x - lay.arrive.x) <= 2 && Math.abs(y - lay.arrive.y) <= 2)
+    || lay.safe.some((r) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1);
+  const band = sdBand(f);
+  // 色: テーマの 色（'none' … ふつうの 洞窟の 色）。だれにでも 出る テーマは 10階ごとの 色
+  const theme = th.color === 'none' ? undefined : th.color || band.theme;
   return {
-    ...base, bgm: 'secret', dark: sdBand(f).dark, name: `${SD_NAME}　地下${f}階`,
-    w: lay.w, h: lay.h, tiles: lay.tiles.slice(), npcs: [],
+    ...base, theme, bgm: 'secret', dark: th.dark ?? band.dark, name: `${SD_NAME}　地下${f}階`,
+    w: lay.w, h: lay.h, tiles: lay.tiles.slice(), npcs: lay.npcs, signs: lay.signs, actions: lay.actions,
+    // 落とし穴（同じ 階の 着いた 所へ もどされる）
+    warps: lay.warps.map((p) => ({ x: p.x, y: p.y, to: { map: base.id, x: p.tx + 0.5, y: p.ty + 0.5, dir: 'down' } })),
     triggers: [
       { id: 'sd_down', x: lay.down.x, y: lay.down.y, w: 1, h: 1, script: 'sd_down' },
       { id: 'sd_up', x: lay.up.x, y: lay.up.y, w: 1, h: 1, script: 'sd_up' },
+      // 階段だらけの 階の にせものの 階段（ふむと ひとこと）
+      ...lay.fakes.map((p, k) => ({ id: `sd_fake_${k}`, x: p.x, y: p.y, w: 1, h: 1, script: 'sd_fake' })),
     ],
     zoneAt: (x, y) => (safe(x, y) ? 'safe:sd' : zone),
     areaName: () => `${SD_NAME}　地下${f}階`,
     spawnCounts: { [zone]: clamp(3 + Math.round(lay.walkable / 130), 4, 9) },
-    sd: { floor: f, seed: base.sd.seed, arrive, down: { ...lay.down } },
+    sd: { floor: f, seed, arrive, down: { ...lay.down }, theme: themeId },
   };
 }
 
@@ -179,7 +204,8 @@ export function buildSecretFloor(id) {
   const base = {
     sd: { seed },
     id, kind: 'dungeon', theme: sdBand(f).theme,
-    // 糸・羽・ルーラは 使えない（world/escape.js・services.js）。魔物は 仲間に ならない（world/battles.js）
+    // 帰り道の羽・ルーラは 使えない（noEscape。world/services.js・travel.js）。
+    // 第79回: リレミトと みちびきの糸は 使える（入口の 広間へ。world/escape.js の secretEscape）。魔物は 仲間に ならない（world/battles.js）
     noEscape: true, noEscapeHint: NO_ESCAPE_HINT, noBefriend: true,
     enemyLv: sdEnemyLv(f), enemyPow: sdPower(f),
     gates: [], chests: [], signs: [], warps: [], sparkles: [], roofs: [],

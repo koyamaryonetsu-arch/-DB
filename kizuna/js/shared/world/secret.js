@@ -14,18 +14,24 @@
 // ・階の 形は ちょうせんごとに かわる（2026年10月 第32回）: 入口から 始める ときに seed を 作って c.sd.run.seed に 入れ、
 //   マップの ID（'sd_<階>_<seed>'）にも 入れる。いっしょに 下りる 家族は おなじ ID の 階へ 行くので おなじ 形。
 //   ログインしなおしても 場所の ID に seed が のこる。前の 版の 'sd_<階>' に いた 人は、次の 階から 新しい seed
-import { MAPS, isBlocked } from '../maps/index.js?v=8070ad6c27d9';
-import { fullHeal, addItem } from '../stats.js?v=8070ad6c27d9';
-import { MONSTERS } from '../data/monsters.js?v=8070ad6c27d9';
-import { SD_HOOKS } from '../data/story-secret.js?v=8070ad6c27d9';
-import { partyOf } from './party.js?v=8070ad6c27d9';
-import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=8070ad6c27d9';
+// ・第79回: seed には「いっしょに 入る みんなが 行った ことの ある ダンジョン」の しるしも 入る（階の テーマ。data/secret-themes.js）
+// ・第79回: リレミト・みちびきの糸で 入口の 広間へ（secretEscape。全滅で もどる 時と おなじ あつかい）
+import { MAPS, isBlocked } from '../maps/index.js?v=65d7afc110b4';
+import { fullHeal, addItem } from '../stats.js?v=65d7afc110b4';
+import { MONSTERS } from '../data/monsters.js?v=65d7afc110b4';
+import { SD_HOOKS } from '../data/story-secret.js?v=65d7afc110b4';
+import { partyOf } from './party.js?v=65d7afc110b4';
+import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=65d7afc110b4';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
   sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice, sdKeyRewards,
-} from '../data/secret.js?v=8070ad6c27d9';
-import { ensureSdShop } from '../data/secret-shop.js?v=8070ad6c27d9';
+} from '../data/secret.js?v=65d7afc110b4';
+import { ensureSdShop } from '../data/secret-shop.js?v=65d7afc110b4';
+import {
+  SD_THEME, sdPartyMask, SD_CRAFTSMAN, SD_CRAFT_HELLO, SD_FAKE_STAIRS, SD_BOX_EMPTY, SD_BOX_JACK, SD_BOX_HIT, SD_TEA_LINES, SD_CART_LINE,
+  SD_KOTATSU_LINE, sdDirText,
+} from '../data/secret-themes.js?v=65d7afc110b4';
 
 const GUIDE = 'ひみつのダンジョンの案内人';
 const FAIRY = '休み所のようせい';
@@ -90,6 +96,45 @@ export function secretRespawn(world, s, note = '') {
   return true;
 }
 
+// 第79回: リレミト・みちびきの糸（world/escape.js・field27.js から）。ひみつのダンジョンの 階なら 入口の 広間へ もどる
+//   全滅で もどる 時と おなじ あつかい:
+//   ・いっしょに いる パーティーの 家族（おなじ 階に いて、ほかの ことを していない 人）も みんな 入口へ（階段で いっしょに 下りるのと おなじ）
+//   ・今の ちょうせんは おわり（noteSecretMove）。いちばん 深い 階・ごほうびを もらった 休み所・記録した 階・お金は そのまま
+//   ・HP・MP は 回復しない（全滅とは ちがう）。戦いの 中は 使えない（メニューが 使えない）
+// how … 「リレミト」「みちびきの糸」（いっしょに もどった 家族への 知らせ）
+// → 使った 人に 見せる 記録の 文（「今回は地下7階まで。最高は地下12階」。階で なければ null）
+const recordLine = (f, r) => `今回は地下${f}階まで。${r.best > 0 ? `最高は地下${r.best}階` : ''}`;
+export function secretEscape(world, s, how) {
+  const f = MAPS[s?.map]?.sd?.floor;
+  if (!f) return null;
+  const from = s.map;
+  const p = partyOf(world, s);
+  const people = [s];
+  for (const sid of p?.members || []) {
+    const m = world.sessions.get(sid);
+    if (!m || m === s || !m.inWorld || m.away || m.busy || m.map !== from) continue;
+    people.push(m);
+  }
+  const gate = MAPS[SD_GATE];
+  const offs = [[0, 0], [1, 0], [-1, 0], [0, 1], [1, 1], [-1, 1], [2, 0], [0, 2], [2, 1]];
+  people.forEach((m, k) => {
+    let x = GATE_ARRIVE.x, y = GATE_ARRIVE.y;
+    for (let i = 0; i < offs.length; i++) {
+      const [ox, oy] = offs[(k + i) % offs.length];
+      if (!isBlocked(gate, Math.floor(x + ox), Math.floor(y + oy), () => false)) { x += ox; y += oy; break; }
+    }
+    world.placeSession(m, SD_GATE, x, y, 'down', true);
+  });
+  world.broadcastPlayers();
+  // いっしょに もどった 家族には 知らせ（使った 人は メニューの 返事に 書く）
+  for (const m of people) {
+    if (m !== s) world.send(m, { t: 'toast', text: `${s.char.name}の${how}で、${SD_NAME}の入口へもどってきた。\n${recordLine(f, sdRecordOf(m.char))}` });
+    world.sendSelf(m);
+  }
+  world.markDirty();
+  return recordLine(f, sdRecordOf(s.char));
+}
+
 // だれも いない 階の 魔物は わすれる（world.js の tick から。また 入ると 新しい 魔物）
 let pruneAt = 0;
 export function pruneSecretStates(world, byMap) {
@@ -143,7 +188,9 @@ function arriveFloor(world, people, f, seed = 0) {
   world.markDirty();
   // 宿屋・お店の 階は ひとこと（会話の まどは 出さない）
   const kind = floorKind(sdFloorId(f, seed));
-  const here = kind === 'inn' ? '\nふしぎな宿屋がある！' : kind === 'shop' ? '\nふしぎな店がある！' : '';
+  // 第79回: テーマの 階は その 名前（「スケート場の階」など）
+  const th = SD_THEME[MAPS[sdFloorId(f, seed)]?.sd?.theme];
+  const here = kind === 'inn' ? '\nふしぎな宿屋がある！' : kind === 'shop' ? '\nふしぎな店がある！' : th ? `\n（${th.label}）` : '';
   for (const m of people) {
     const mid = runOf(m.char)?.mid;
     const isNew = news.includes(m);
@@ -175,7 +222,9 @@ async function guideTalk(run) {
     '休み所のようせいに話せば、その階を記録して地上へもどれる。\n次は、わしに話しかければ、記録した階から始められるぞ。',
     '10階ごとの休み所では、強い番人が下り階段を守っておる。\nたおせば、HPとMPがすっかり回復するぞ。',
     '回復の泉はない。運がよければ、宿屋やお店だけの階に出会えるぞ。',
-    'ここでは、みちびきの糸も帰り道の羽も、ルーラもリレミトも使えん。\n全滅すると、この入口にもどされる。でも、お金はへらんから安心せい。',
+    'リレミトかみちびきの糸を使えば、この入口へもどってこられるぞ。\n帰り道の羽とルーラは使えん。',
+    '全滅しても、この入口にもどされる。でも、お金はへらんから安心せい。\nいちばん深く行けた階の記録も、ちゃんとのこるぞ。',
+    '階には、今までのダンジョンをまねたものがある。\n行ったことのあるダンジョンだけじゃがな。',
     'それから…ここの魔物は、なぜか仲間にならんのじゃ。',
     'とちゅうの階から始めても、いちばん深く行けた階が、となりの「家族の記録の板」にのこるぞ。',
     'パーティーを組んで入れば、いっしょにいた家族みんなの記録になる。\n何階から始めるかはリーダーが決める。選べるのは、みんなが記録した階までじゃ。',
@@ -247,7 +296,8 @@ async function enterEvent(run) {
 // ちょうせんの seed を 作って、いっしょに 入る 家族 みんなに 入れる（同じ 形の 階へ）
 async function startRun(run, f = 1) {
   const people = gather(run);
-  const seed = newSdSeed(run.world.rng);
+  // 第79回: 階の テーマは、いっしょに 入る みんなが 行った ことの ある ダンジョンだけ（seed に 入れる。data/secret-themes.js）
+  const seed = newSdSeed(run.world.rng, sdPartyMask(people.map((m) => m.char)));
   for (const m of people) {
     const sd = sdOf(m.char);
     sd.run = { f: f - 1, took: [], seed };
@@ -270,7 +320,7 @@ async function downEvent(run) {
   if (!f) return;
   const people = gather(run);
   // この ちょうせんの seed（前の 版の 階なら ちょうせんの seed か、新しく 作る）
-  const seed = sdRunSeedOf(here) || runOf(run.init.char)?.seed || newSdSeed(world.rng);
+  const seed = sdRunSeedOf(here) || runOf(run.init.char)?.seed || newSdSeed(world.rng, sdPartyMask(people.map((m) => m.char)));
   if (isGuardFloor(f)) {
     const sp = sdGuardian(f);
     const name = MONSTERS[sp]?.name || '番人';
@@ -427,9 +477,37 @@ async function chestEvent(run) {
   await run.runSteps([['sfx', 'chest'], ['say', null, 'ごほうびの宝箱を開けた！'], ...steps]);
 }
 
+// ───────────── テーマの 階の しかけ（第79回。data/secret-themes.js）─────────────
+// 立っている 所で きまる 数（おなじ 所では おなじ ひとこと）
+const spotNo = (s) => Math.floor(s.x) * 7 + Math.floor(s.y) * 13;
+// 階段だらけの 階の にせものの 階段
+async function fakeStairs(run) {
+  await run.runSteps([['sfx', 'stairs'], ['say', null, SD_FAKE_STAIRS[spotNo(run.init) % SD_FAKE_STAIRS.length]]]);
+}
+// 宝箱だらけの 階の 宝箱（中みは 入っていない。当たりは 下り階段の むきを 教えてくれる。ごほうびの 量は かわらない）
+const boxOpen = (kind) => async (run) => {
+  const s = run.init;
+  const d = MAPS[s.map]?.sd?.down;
+  const text = kind === 'hit' ? SD_BOX_HIT(d ? sdDirText(d.x + 0.5 - s.x, d.y + 0.5 - s.y) : 'すぐ近く')
+    : kind === 'jack' ? SD_BOX_JACK : SD_BOX_EMPTY[spotNo(s) % SD_BOX_EMPTY.length];
+  await run.runSteps([['sfx', 'chest'], ['say', null, text]]);
+};
+// 休けい中の 魔物（戦いに ならない）
+async function teaTalk(run) {
+  await run.runSteps([['say', '休けい中の魔物', SD_TEA_LINES[spotNo(run.init) % SD_TEA_LINES.length]]]);
+}
+// まよいの職人（その 階の テーマの ひとこと）
+async function craftTalk(run) {
+  const th = SD_THEME[MAPS[run.init.map]?.sd?.theme];
+  await run.runSteps([['say', SD_CRAFTSMAN, SD_CRAFT_HELLO], ...(th ? [['say', SD_CRAFTSMAN, th.craft]] : [])]);
+}
+
 // だいほんの しょり（data/story-secret.js）
 Object.assign(SD_HOOKS, {
   door: doorEvent, guide: guideTalk, board: boardOpen, enter: enterEvent, down: downEvent, rest: restTalk, chest: chestEvent, inn: innTalk, shop: shopTalk,
+  fake: fakeStairs, boxHit: boxOpen('hit'), boxEmpty: boxOpen('empty'), boxJack: boxOpen('jack'), tea: teaTalk, craft: craftTalk,
+  cart: (run) => run.runSteps([['say', null, SD_CART_LINE]]),
+  kotatsu: (run) => run.runSteps([['say', null, SD_KOTATSU_LINE]]),
 });
 
 export { SD_DOOR_OUT };

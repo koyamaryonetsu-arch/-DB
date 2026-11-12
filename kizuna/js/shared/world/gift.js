@@ -11,8 +11,8 @@
 // ・知らせ: 遊んでいる 相手には その 場で（戦いの 中なら 終わってから）。いない 人は c.tavernNews に のこし、
 //   つぎに 入った 時に 出す（recruit-share.js の tavernNewsText が この 文を 使う）
 // ・数・相手・品物は ぜんぶ サーバーで たしかめる（クライアントの 言う ことは 信じない）
-import { ITEMS } from '../data/items.js?v=8070ad6c27d9';
-import { itemCount, addItem, removeItem } from '../stats.js?v=8070ad6c27d9';
+import { ITEMS } from '../data/items.js?v=65d7afc110b4';
+import { itemCount, addItem, removeItem } from '../stats.js?v=65d7afc110b4';
 
 export const GIFT_STACK_MAX = 99;
 const NEWS_MAX = 10; // recruit-share.js の TAVERN_NEWS_MAX と 同じ

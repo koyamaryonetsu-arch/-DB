@@ -6,14 +6,18 @@
 // ・ほかの 洞窟・塔 … ワープを たどって、フィールドへ 出る 出口を さがす（何階でも）。
 //   出口が いくつも ある ときは、入ってきた 場所（c.dungeonFrom）に いちばん 近い 出口
 // ・出口が 見つからない（イベントで 入った 場所 など）ときは、入る まえに いた 場所へ
+// ・ひみつのダンジョンの 階（map.sd.floor）… 入口の 広間（第79回。world/secret.js の secretEscape。全滅で もどる 時と おなじ あつかい）
 //
 //   c.dungeonFrom … フィールドから 洞窟に 入った ときの 外の 場所 { map, x, y, dir, in: 入った 洞窟 }
 //                   （placeSession で おぼえる。セーブに のこるので 読みこみなおしても 使える）
-import { MAPS } from '../maps/index.js?v=8070ad6c27d9';
-import { ITEMS } from '../data/items.js?v=8070ad6c27d9';
-import { itemCount, removeItem } from '../stats.js?v=8070ad6c27d9';
-import { warpParty } from './travel.js?v=8070ad6c27d9';
-import { treasureExitPoint } from './treasure.js?v=8070ad6c27d9';
+import { MAPS } from '../maps/index.js?v=65d7afc110b4';
+import { ITEMS } from '../data/items.js?v=65d7afc110b4';
+import { itemCount, removeItem } from '../stats.js?v=65d7afc110b4';
+import { warpParty } from './travel.js?v=65d7afc110b4';
+import { treasureExitPoint } from './treasure.js?v=65d7afc110b4';
+// 第79回: ひみつのダンジョンの 階では、糸・リレミトで 入口の 広間へ（帰り道の羽・ルーラは 今まで どおり 使えない）
+import { secretEscape } from './secret.js?v=65d7afc110b4';
+import { SD_NAME } from '../data/secret.js?v=65d7afc110b4';
 
 // 糸が 使える マップ（洞窟・塔・宝の洞窟。カジノや お城などの たてものの 中は のぞく）
 export function isDungeonMap(m) {
@@ -88,6 +92,12 @@ export function useEscapeItem(world, s, id, reply) {
   if (itemCount(c, id) < 1) return reply(false, '持っていない');
   const here = MAPS[s.map];
   if (!isDungeonMap(here)) return reply(false, `ここでは使えない。\n（${it.name}は、洞窟や塔の中で使う道具）`);
+  // 第79回: ひみつのダンジョンの 階: 入口の 広間へ（全滅で もどる 時と おなじ あつかい。world/secret.js の secretEscape）
+  if (here.sd?.floor) {
+    removeItem(c, id, 1);
+    const note = secretEscape(world, s, it.name);
+    return reply(true, `${c.name}は${it.name}を使った！\n糸をたどって、${SD_NAME}の入口へもどってきた！\n${note}`);
+  }
   // 王家のピラミッド（第4章）: 糸は 使えない（道具は へらない）
   if (here.noEscape) return reply(false, noEscapeText(it.name, here));
   const to = dungeonExit(world, s);
