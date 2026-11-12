@@ -11,9 +11,11 @@
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
 import { C8_KAMEK, C8_BOWSER } from '../shared/data/monsters-c8c.js';
 import { monsterCanvas } from './render/monsters.js';
+// 第2部 第8章 第4幕: 時の門番フリーゾン・心の ためし・ソリトゥスの がめん（battle-c8r.js）
+import { C8R_OWN_TELE, c8rSprite, c8rDraw, c8rPresent } from './battle-c8r.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8b.js の C8B_OWN_TELE に まぜる）
-export const C8C_OWN_TELE = [C8_KAMEK, C8_BOWSER];
+export const C8C_OWN_TELE = [C8_KAMEK, C8_BOWSER, ...C8R_OWN_TELE];
 
 export const C8C_SCREEN_ANIMS = ['c8k_grow', 'c8k_broom', 'c8w_pound', 'c8w_giga', 'c8w_gigafire'];
 export const C8C_ALLY_FX = {
@@ -49,6 +51,9 @@ function bigCanvas(sp, frame, k = GIGA_K) {
   return c;
 }
 export function c8cSprite(c, frame) {
+  // 第8章 第4幕（battle-c8r.js）
+  const s8 = c8rSprite(c, frame);
+  if (s8) return s8;
   const sp = c?.species;
   if (sp === C8_KAMEK && c.tiny) return bigCanvas(C8_KAMEK, (frame ? 1 : 0) + (c.kmForm === 2 ? 2 : 0), TINY_K);
   if (sp === C8_KAMEK && c.kmForm === 2) return monsterCanvas(C8_KAMEK, (frame ? 1 : 0) + 2);
@@ -176,6 +181,8 @@ function dizzy(x, px, py, w, base, T) {
 // ───────────── たたかいの え（client/battle-c8b.js の c8bDraw から）─────────────
 export function c8cDraw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
+  // 第8章 第4幕（battle-c8r.js）
+  c8rDraw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // マジカメック
   if (c.growEvery) marks(x, px, py, w, c.growLeft || 0, c.growEvery, base, T, starMark, ['#ffe0fa', '#ff4ad8', '#2a2040']);
@@ -275,5 +282,7 @@ export function c8cPresent(scene, ev, fx, anim, actor) {
     g.audio.sfx('warn');
     scene.banner('！かけらがまた光り出した…次にギガクッパード！', 'danger');
   }
+  // 第8章 第4幕（battle-c8r.js）
+  c8rPresent(scene, ev, fx, anim, actor);
   void fx; void anim; void actor;
 }

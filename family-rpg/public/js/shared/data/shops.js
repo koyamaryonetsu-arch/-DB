@@ -173,3 +173,8 @@ GUESTS.kai = KAI_GUEST;
 GUESTS.kai8 = { ...KAI_GUEST, id: 'guest_kai8', minLevel: 84, gear: { weapon: 'c7h_shadow_boomerang', armor: 'c8bt_soul_robe', head: 'c8bt_temple_helm', acc: 'c8bt_blue_pendant' } };
 // 第2部 第8章 第3幕: もう一度 ゲストの リオン（第6章の 装備のままだと 第8章の ボスで たおれやすいので、第8章の 装備。家族の 勇者より 少し 弱い 品）
 GUESTS.rion8 = { ...RION_GUEST, id: 'guest_rion8', minLevel: 88, gear: { weapon: 'c8at_palace_sword', armor: 'c8bt_temple_mail', shield: 'c8at_crescent_shield', head: 'c8bt_temple_helm', acc: 'c8at_crescent_ring' } };
+// 第2部 第8章 第4幕: 4人 そろう（カリム・ミナモも 第8章の 装備で もう一度 ゲスト。カイは kai8・リオンは rion8）。
+//   家族の 勇者より 少し 弱い 品（ボスの 品・第3幕・第4幕の 宝箱は 持たない）。強さは 第78回の きまり（shared/guest-rule.js）
+//   戦う 人数の 上限（PARTY_MAX）に 入りきらない 人は「かけつけ」で 手だすけ（shared/battle-c8r.js）
+GUESTS.karim8r = { ...KARIM_GUEST, id: 'guest_karim8r', minLevel: 89, gear: { weapon: 'c7_kingdom_spear', armor: 'c8bt_temple_mail', shield: 'c8bt_flame_shield', head: 'c8at_palace_turban', acc: 'c8at_crescent_ring' } };
+GUESTS.minamo8 = { ...MINAMO_GUEST, id: 'guest_minamo8', minLevel: 89, gear: { weapon: 'c8bt_lantern_staff', armor: 'c8bt_soul_robe', head: 'c8bl_shell_crown', acc: 'c8bt_blue_pendant' } };
