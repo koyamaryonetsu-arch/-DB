@@ -10,6 +10,7 @@
 //   node tools/audio-render.mjs --calib               … 楽器ごとの 音量（1音）を 前の 波と くらべる
 //   node tools/audio-render.mjs --adapt battle        … 場面で かわる 音楽を ためす（10びょうで ピンチ、20びょうで だん 1）
 //   そのほか: --seconds 30  --quality light  --json <file>  --jobs 4  --raw（仕上げを 通さない）  --solo <n>（n ばんめの チャンネルだけ）
+//            --intensity 0.4（強さ。ダンジョンの 曲の 1階の ようす）  --night（夜の 楽器）  --target -19.6（--write-trim の 目標 dB）
 //
 // はかる もの: peak（0.98 より 下）・RMS（dBFS）・明るさ（スペクトルの 重心 Hz）・音の 出だしの かず（1びょうあたり）・
 //             左右の 広がり（side/mid）・くりかえしの 1回目と 2回目の にている 度合い（1 = まったく 同じ）
@@ -29,7 +30,7 @@ const MIME = { '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript
 
 function parseArgs(argv) {
   const a = { ids: [], seconds: 30, jobs: 4, quality: 'fine' };
-  const flags = new Set(['write-trim', 'nodes', 'calib', 'adapt', 'no-trim', 'raw', 'help']);
+  const flags = new Set(['write-trim', 'nodes', 'calib', 'adapt', 'no-trim', 'raw', 'help', 'night']);
   for (let i = 0; i < argv.length; i++) {
     const s = argv[i];
     if (s.startsWith('--')) {
@@ -194,7 +195,7 @@ window.trackIds = () => Object.keys(_TRACKS);
 window.isOnce = (id) => !!_TRACKS[id].once;
 
 // script: [{ t, set: 'setPinch', arg }] … その 時間に 場面を かえる（ふだんの ゲームと 同じく 2びょう 先まで 予約）
-window.renderTrack = async ({ id, mode, quality = 'fine', seconds, sr = 44100, wav = false, trims = true, script = [], raw = false, solo = null }) => {
+window.renderTrack = async ({ id, mode, quality = 'fine', seconds, sr = 44100, wav = false, trims = true, script = [], raw = false, solo = null, intensity = null, tod = null }) => {
   const ctx = new OfflineAudioContext(2, Math.ceil(sr * seconds), sr);
   let nodes = 0;
   for (const k of NODE_MAKERS) {
@@ -216,6 +217,8 @@ window.renderTrack = async ({ id, mode, quality = 'fine', seconds, sr = 44100, w
   const tr0 = _TRACKS[id];
   const tr = solo === null || !tr0.ch ? tr0 : { ...tr0, ch: tr0.ch.map((c, i) => (i === solo ? c : { ...c, v: 0 })) };
   eng.start(id, tr, 0.05);
+  if (intensity !== null) adaptive.setIntensity(intensity);
+  if (tod) adaptive.setTimeOfDay(tod);
   const AHEAD = 2;
   eng.pump(AHEAD);
   const steps = [...script].sort((a, b) => a.t - b.t);
@@ -363,7 +366,7 @@ async function main() {
     const wavIds = new Set(args.wav ? ids : []);
     const jobs = [];
     for (const id of ids) {
-      for (const mode of ['old', 'new']) jobs.push({ id, mode, quality: args.quality, seconds: secsFor(id), wav: wavIds.has(id), trims: !args['no-trim'], raw: !!args.raw, solo: args.solo === undefined ? null : Number(args.solo) });
+      for (const mode of ['old', 'new']) jobs.push({ id, mode, quality: args.quality, seconds: secsFor(id), wav: wavIds.has(id), trims: !args['no-trim'], raw: !!args.raw, solo: args.solo === undefined ? null : Number(args.solo), intensity: args.intensity === undefined ? null : Number(args.intensity), tod: args.night ? 'night' : null });
     }
     const t0 = Date.now();
     const results = await pool(pages, jobs, (p, j) => p.evaluate((o) => window.renderTrack(o), j).then((r) => ({ ...j, ...r })));
@@ -405,7 +408,8 @@ async function main() {
     if (args.json) await writeFile(args.json, JSON.stringify(results.map(({ wav, ...r }) => r), null, 1));
     if (args['write-trim']) {
       // 目標: 前の音の くりかえす 曲の RMS の 中央（新しい音に かえても 音量が かわらない ように）
-      const target = stat('old', 'rms')?.med ?? -19.6;
+      // --target … 目標を じかに（えらんだ 曲だけで はかる とき、ぜんぶの 曲の 中央 -19.6 に そろえる ため）
+      const target = args.target !== undefined ? Number(args.target) : stat('old', 'rms')?.med ?? -19.6;
       const { TRACK_TRIM } = await import(pathToFileURL(path.join(PUB, 'js/client/audio-trim.js')).href + `?t=${Date.now()}`);
       const next = { ...TRACK_TRIM };
       for (const id of ids) {

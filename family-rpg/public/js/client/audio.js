@@ -490,7 +490,7 @@ export function overlayTracks(base, over) {
   }
   return base;
 }
-overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
+// （かぶせるのは ファイルの 終わり。第5章〜第8章の 曲を TRACKS に まぜた あと）
 
 // ───────────── こうかおん ─────────────
 export class GameAudio {
@@ -865,6 +865,8 @@ Object.assign(TRACKS, CH6_TRACKS);
 Object.assign(TRACKS, C8B_TRACKS);
 // 第2部 第8章 第3幕: マジカメック（kamek_magic）・初代大魔王クッパード（bowser_king）（audio-c8c.js）
 Object.assign(TRACKS, C8C_TRACKS);
+// 第77回 B: 作りなおした 曲を 前の 曲の 上に かぶせる（ぜんぶの 曲を まぜた あと。past_field・c7_temple なども 前の データが legacy に のこる）
+overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

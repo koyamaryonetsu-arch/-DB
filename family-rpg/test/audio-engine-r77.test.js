@@ -385,10 +385,12 @@ test('第77回: 曲の そろえ（audio-trim.js）は ±12 dB の 中で、あ�
 
 // ───────────── 前の音 ─────────────
 // 第76回までの schedule() の 中みを そのまま 写した もの（くらべる ため）
+// （第77回 B で 作りなおした 曲は、前の データ legacy の テンポと チャンネルで くらべる）
 function oldSchedule(tr, until, t0) {
-  const spb = 60 / tr.bpm / 4;
+  const L = tr.legacy?.ch ? tr.legacy : tr;
+  const spb = 60 / (L.bpm || tr.bpm) / 4;
   const out = [];
-  const chans = tr.ch.map((c) => ({ ...c, seq: _parse(c.n), i: 0, t: t0 }));
+  const chans = L.ch.map((c) => ({ ...c, seq: _parse(c.n), i: 0, t: t0 }));
   for (const ch of chans) {
     while (ch.t < until) {
       if (ch.i >= ch.seq.length) {

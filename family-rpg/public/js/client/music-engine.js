@@ -578,6 +578,7 @@ class NewPlayer {
     this.strips = this.c.parts.map((p) => this.strip(p.pan, this.c.reverb * p.send));
     this.on = this.c.parts.map(() => true);
     this.hat = this.strip(0.3, this.c.reverb * 0.3);
+    this.hatOn = true;
     this.pinchStrip = null;
     this.night = false;
   }
@@ -645,12 +646,16 @@ class NewPlayer {
       const str = this.strips[i];
       if (on !== this.on[i]) {
         str.g.gain.setTargetAtTime(on ? 1 : 0, t0, 0.04);
-        // ハイハットも たいこと いっしょに
-        if (p.drums) this.hat.g.gain.setTargetAtTime(on ? 1 : 0, t0, 0.04);
         this.on[i] = on;
       }
       if (night !== this.night) str.s.gain.setTargetAtTime(str.base * (night ? 1.5 : 1) + (night ? 0.08 : 0), t0, 0.1);
     });
+    // ハイハットも たいこと いっしょに（たいこの パートが 2つ ある 曲は、どちらかが 鳴って いれば 鳴らす）
+    const hatOn = c.parts.some((p, i) => p.drums && this.on[i]);
+    if (hatOn !== this.hatOn) {
+      this.hat.g.gain.setTargetAtTime(hatOn ? 1 : 0, t0, 0.04);
+      this.hatOn = hatOn;
+    }
     this.night = night;
     this.eng.setTension(st.pinch, t0);
     const late = now > t0 + barDur;
