@@ -443,6 +443,7 @@ function parseEmailCases_(emailText, opts) {
   if (!j) return null;
   var list = Array.isArray(j.cases) ? j.cases : [];
   j.cases = list.filter(function (x) { return x && x.theater && (typeof x.confidence !== 'number' || x.confidence >= 0.5) && !/^(全劇場|各店|全店|全体|複数)/.test(String(x.theater)); });
+  j.cases.forEach(fixTheater_);   // 劇場名をアプリの劇場の一覧にそろえる（同じ劇場を別の名前で増やさない）
   return j;
 }
 // 取り出した案件1件を、新規／更新／確認待ち のどれかにする
@@ -563,6 +564,83 @@ function queryCases_(filter) {
 }
 // 従来互換（testConnections用）: 劇場名 exact
 function fetchTheaterCases_(theater) { return queryCases_('theater=eq.' + encodeURIComponent(theater)); }
+// ===== 劇場名を、アプリの劇場の一覧（theaters）の名前にそろえる =====
+// AI が書いた劇場名（例「TOHOシネマズくずは」）を、一覧の正しい名前（「TOHOシネマズ くずはモール」）に直してから登録する。
+// 同じ劇場が別の名前で増えないようにするため。そろえ方（上から順に。合わなければ AI の名前のまま）:
+//   1) 一覧の名前と同じ（空白・記号の違いは無視）  2) 一覧の「別の呼び方」（aliases の列。名寄せの時に入れる）と同じ
+//   3) 同じ会社の劇場で、会社名を除いた場所の名前が同じ  4) 同じ会社の劇場で、場所の名前が片方に含まれ、合う劇場が1つだけ
+// 会社は、劇場名に付いている会社名（TOHO・109 など）を先に見る（無ければ AI が書いた会社）。別の会社の劇場には寄せない。
+var TM_CACHE_ = null;
+function theaterMasterList_() {
+  if (TM_CACHE_) return TM_CACHE_;
+  TM_CACHE_ = [];
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY'); if (!key) return TM_CACHE_;
+  var sels = ['name,company,aliases', 'name,company'];   // aliases の列がまだ無い DB でも動く
+  for (var i = 0; i < sels.length; i++) {
+    try {
+      var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/theaters?select=' + sels[i] + '&limit=3000', { method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true });
+      if (res.getResponseCode() < 300) { TM_CACHE_ = JSON.parse(res.getContentText()) || []; break; }
+    } catch (e) { Logger.log('劇場の一覧の取得に失敗: ' + e); }
+  }
+  return TM_CACHE_;
+}
+var TM_BRANDS_ = [
+  [/TOHO\s*(シネマズ|CINEMAS)?|東宝/i, ['TOHOシネマズ']],
+  [/109\s*(シネマズ|CINEMAS)?/i, ['109シネマズ']],
+  [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS/i, ['ユナイテッドシネマ']],
+  [/シネマサンシャイン|CINEMA\s*SUNSHINE/i, ['佐々木興業', 'シネマサンシャイン']],
+  [/コロナ(シネマ)?ワールド|コロナシネマ/i, ['コロナワールド']],
+  [/MOVIX|ムービックス/i, ['MOVIX']],
+  [/イオンシネマ/i, ['イオンシネマズ']]
+];
+function tmNorm_(s) { s = String(s || ''); try { s = s.normalize('NFKC'); } catch (e) {} return s; }
+function tmKey_(s) { return tmNorm_(s).replace(/[\s　・･\-‐－（）()「」『』.,、。]/g, '').toLowerCase(); }
+function tmPlace_(s) {
+  var t = tmNorm_(s);
+  TM_BRANDS_.forEach(function (b) { t = t.replace(new RegExp(b[0].source, 'gi'), ''); });
+  return tmKey_(t.replace(/(シネマズ|シネマ|劇場|映画館)/g, ''));
+}
+function tmBrandCompanies_(name) {
+  var t = tmNorm_(name);
+  for (var i = 0; i < TM_BRANDS_.length; i++) if (TM_BRANDS_[i][0].test(t)) return TM_BRANDS_[i][1];
+  return null;
+}
+function tmAliases_(r) {
+  var a = r && r.aliases; if (!a) return [];
+  if (Array.isArray(a)) return a;
+  return String(a).split(/[\n,、]/);
+}
+// 戻り値: { name, company } … 一覧の劇場に合った時。合わなければ null
+function canonTheater_(name, company) {
+  var list = theaterMasterList_(); if (!name || !list.length) return null;
+  var k = tmKey_(name), i, r;
+  for (i = 0; i < list.length; i++) if (tmKey_(list[i].name) === k) return { name: list[i].name, company: list[i].company || '' };
+  for (i = 0; i < list.length; i++) {
+    var al = tmAliases_(list[i]);
+    for (var j = 0; j < al.length; j++) if (al[j] && tmKey_(al[j]) === k) return { name: list[i].name, company: list[i].company || '' };
+  }
+  var cos = tmBrandCompanies_(name) || (company ? [normalizeCompany_(company)] : null);
+  if (!cos) return null;
+  var same = list.filter(function (x) { return cos.indexOf(x.company) !== -1; });
+  var pl = tmPlace_(name); if (pl.length < 2) return null;
+  var eq = same.filter(function (x) { return tmPlace_(x.name) === pl; });
+  if (eq.length === 1) return { name: eq[0].name, company: eq[0].company || '' };
+  if (eq.length > 1) return null;
+  var part = same.filter(function (x) { var q = tmPlace_(x.name); return q.length >= 2 && (q.indexOf(pl) !== -1 || pl.indexOf(q) !== -1); });
+  if (part.length === 1) return { name: part[0].name, company: part[0].company || '' };
+  return null;
+}
+// 案件1件の劇場名・会社を一覧にそろえる（直した時はログに残す）
+function fixTheater_(p) {
+  if (!p || !p.theater) return p;
+  var m = canonTheater_(p.theater, p.company);
+  if (m) {
+    if (m.name !== p.theater) Logger.log('劇場名を一覧にそろえた: ' + p.theater + ' → ' + m.name);
+    p.theater = m.name;
+    if (m.company) p.company = m.company;
+  }
+  return p;
+}
 // 劇場名のコア語（会社名や「シネマズ」等を除いた店舗名）。表記ゆれの部分一致に使う
 function theaterCore_(t) {
   var s = String(t || '').replace(/[\s　]/g, '');

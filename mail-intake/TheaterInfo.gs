@@ -62,6 +62,8 @@ function updateTheaterInfoDaily() {
         if (ext && ext.items && ext.items.length) {
           var theater = ext.theater || '';
           var company = ext.company ? normalizeCompany_(ext.company) : '';
+          var canon = theater ? canonTheater_(theater, company) : null;   // 劇場名をアプリの劇場の一覧にそろえる
+          if (canon) { if (canon.name !== theater) Logger.log('劇場名を一覧にそろえた: ' + theater + ' → ' + canon.name); theater = canon.name; company = canon.company || company; }
           if (theater) {
             var known = tiTheaterExists_(theater);
             ext.items.forEach(function (it) {

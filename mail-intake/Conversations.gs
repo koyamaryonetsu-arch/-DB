@@ -258,6 +258,7 @@ function cvCases_(apiKey, text, source, srcUrl, date, st) {
     if (cvOutOfTime_(st)) return;
     if (!p || !p.theater || (typeof p.confidence === 'number' && p.confidence < CV_MIN_CONF)) return;
     fixPersons_(p);
+    fixTheater_(p);   // 劇場名をアプリの劇場の一覧にそろえる
     p.company = normalizeCompany_(p.company);
     p.progress = p.progress || {};
     var d = decideCaseWithRecheck_(p, date, '', text.slice(0, 4000), false);
