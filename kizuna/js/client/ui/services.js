@@ -1,50 +1,50 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=2e6dc0959ea0';
-import { ITEMS } from '../../shared/data/items.js?v=2e6dc0959ea0';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, JOB_TOP_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=2e6dc0959ea0';
-import { ABILITIES } from '../../shared/data/abilities.js?v=2e6dc0959ea0';
-import { abilityFor } from '../../shared/ability-label.js?v=2e6dc0959ea0';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=2e6dc0959ea0';
-import { salonUI } from './salon.js?v=2e6dc0959ea0';
-import { vehicleShopUI } from './vehicles.js?v=2e6dc0959ea0';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=2e6dc0959ea0';
-import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js?v=2e6dc0959ea0';
-import { MONSTERS } from '../../shared/data/monsters.js?v=2e6dc0959ea0';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=fdbb525d74d6';
+import { ITEMS } from '../../shared/data/items.js?v=fdbb525d74d6';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, JOB_TOP_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=fdbb525d74d6';
+import { ABILITIES } from '../../shared/data/abilities.js?v=fdbb525d74d6';
+import { abilityFor } from '../../shared/ability-label.js?v=fdbb525d74d6';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=fdbb525d74d6';
+import { salonUI } from './salon.js?v=fdbb525d74d6';
+import { vehicleShopUI } from './vehicles.js?v=fdbb525d74d6';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=fdbb525d74d6';
+import { jobUpKeys, TRIALS } from '../../shared/data/job-trials.js?v=fdbb525d74d6';
+import { MONSTERS } from '../../shared/data/monsters.js?v=fdbb525d74d6';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=2e6dc0959ea0';
+import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=fdbb525d74d6';
 // 第53回 A・D: 系統まぜ配合の うわさ・色の石
-import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=2e6dc0959ea0';
-import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=2e6dc0959ea0';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=2e6dc0959ea0';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=2e6dc0959ea0';
-import { TACTICS } from '../../shared/ai.js?v=2e6dc0959ea0';
-import { itemDetail, gearText } from './info.js?v=2e6dc0959ea0';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=2e6dc0959ea0';
-import { shopUI, churchUI } from './shop.js?v=2e6dc0959ea0';
-import { bankUI } from './bank.js?v=2e6dc0959ea0';
-import { forgeUI } from './forge.js?v=2e6dc0959ea0';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=2e6dc0959ea0';
-import { casinoUI } from './casino.js?v=2e6dc0959ea0';
+import { MIX_RUMOR } from '../../shared/data/breed-mix.js?v=fdbb525d74d6';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=fdbb525d74d6';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=fdbb525d74d6';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=fdbb525d74d6';
+import { TACTICS } from '../../shared/ai.js?v=fdbb525d74d6';
+import { itemDetail, gearText } from './info.js?v=fdbb525d74d6';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=fdbb525d74d6';
+import { shopUI, churchUI } from './shop.js?v=fdbb525d74d6';
+import { bankUI } from './bank.js?v=fdbb525d74d6';
+import { forgeUI } from './forge.js?v=fdbb525d74d6';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=fdbb525d74d6';
+import { casinoUI } from './casino.js?v=fdbb525d74d6';
 // 第50回 D3: 星のかけらの こうかんの 見せかた（なかまの 絵・NEW・こうかんの えんしゅつ）
-import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=2e6dc0959ea0';
-import { sdBoardUI } from './secret.js?v=2e6dc0959ea0';
+import { starTradeRows, prizeInfo, prizeFx, useHint } from './prizes.js?v=fdbb525d74d6';
+import { sdBoardUI } from './secret.js?v=fdbb525d74d6';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=2e6dc0959ea0';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=fdbb525d74d6';
 // 第67回 A班: モンスター闘技場の 受付（ui/monarena.js）
-import { monArenaUI } from './monarena.js?v=2e6dc0959ea0';
-import { shownEquip } from '../../shared/look-equip.js?v=2e6dc0959ea0';
-import { jobAskText } from '../../shared/data/job-talk.js?v=2e6dc0959ea0';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=2e6dc0959ea0';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=2e6dc0959ea0';
+import { monArenaUI } from './monarena.js?v=fdbb525d74d6';
+import { shownEquip } from '../../shared/look-equip.js?v=fdbb525d74d6';
+import { jobAskText } from '../../shared/data/job-talk.js?v=fdbb525d74d6';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=fdbb525d74d6';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=fdbb525d74d6';
 // 第43回 C: 魔物あずかり所（ui/storage.js）と、仲間が いっぱいの 時の えらぶ文（shared/world/farewell.js）
-import { storageUI } from './storage.js?v=2e6dc0959ea0';
-import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=2e6dc0959ea0';
+import { storageUI } from './storage.js?v=fdbb525d74d6';
+import { canBreedRoom, canStore } from '../../shared/world/farewell.js?v=fdbb525d74d6';
 // 第51回 F: 幻の職業の 条件・うわさ（shared/data/phantom.js）
-import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=2e6dc0959ea0';
+import { PHANTOM_JOBS, condNow, bigNum, phantomRumors } from '../../shared/data/phantom.js?v=fdbb525d74d6';
 // 第70回: 作れる 魔物から 選ぶ（親の いる ところの 名前。ui/monarena-team.js と 同じ）
-import { WHERE_LABEL } from './monarena-team.js?v=2e6dc0959ea0';
+import { WHERE_LABEL } from './monarena-team.js?v=fdbb525d74d6';
 // 第71回: さがし表の 絵（子・親）
-import { kidArt, parentArt } from '../../shared/breed-finder.js?v=2e6dc0959ea0';
+import { kidArt, parentArt } from '../../shared/breed-finder.js?v=fdbb525d74d6';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {

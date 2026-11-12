@@ -11,11 +11,11 @@
 // 24. ひみつの温泉の、われた湯船（れん金術師 → 真理のとびらをひらく者。湯けむりの 白い岩で 岩もぐらと 戦う）
 // 25. ハネノの島の、雲の下のおとしもの（超能力者 → さいきくすお。だれにも 気づかれずに 助ける）
 // 26. ピラミッドのはっくつ隊を守れ（ガーディアンか大神官 → 守りの神。夜の 見張りで 砂の 魔物と 戦う）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=2e6dc0959ea0';
-import { rewardSteps } from './sidequests-work2.js?v=2e6dc0959ea0';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=fdbb525d74d6';
+import { rewardSteps } from './sidequests-work2.js?v=fdbb525d74d6';
 import {
   WQ4, WQ4_OPEN, SPA_VOICES, SPA_STEPS, ESP_VOICES, ESP_STEPS, DIG_VOICES, DIG_STEPS,
-} from '../maps/work-quests4.js?v=2e6dc0959ea0';
+} from '../maps/work-quests4.js?v=fdbb525d74d6';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

@@ -2,11 +2,11 @@
 //   家族の ねがい: きたえると もともとの 武器の 強さが わからなくなる。きたえた 武具を 装備していても、
 //   ほかの 武具を もとの 強さで くらべて「きたえたら どっちが 強いか」を 考えられるように。
 //   数字は shared/gear-base.js の gearCompare（今＝きたえ・★・れん金を ふくむ・もと＝きたえる 前）
-import { ITEMS } from '../../shared/data/items.js?v=2e6dc0959ea0';
-import { fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=2e6dc0959ea0';
-import { gearCompare, forgeLabel } from '../../shared/gear-base.js?v=2e6dc0959ea0';
-import { esc } from './dom.js?v=2e6dc0959ea0';
-import { rareNameHtml } from './rarity.js?v=2e6dc0959ea0';
+import { ITEMS } from '../../shared/data/items.js?v=fdbb525d74d6';
+import { fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=fdbb525d74d6';
+import { gearCompare, forgeLabel } from '../../shared/gear-base.js?v=fdbb525d74d6';
+import { esc } from './dom.js?v=fdbb525d74d6';
+import { rareNameHtml } from './rarity.js?v=fdbb525d74d6';
 
 const signed = (v) => (v > 0 ? `+${v}` : `${v}`);
 const arrow = (d) => (d > 0 ? `<span class="eqc-d up">↑${d}</span>` : d < 0 ? `<span class="eqc-d down">↓${-d}</span>` : '<span class="eqc-d same">＝</span>');

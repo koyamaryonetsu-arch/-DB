@@ -6,7 +6,7 @@
 //   めやす: 宮殿の衛兵 … 30%いじょう（F）／サンボ … 12〜20%（E）／コブラー … 12〜20%（D）／ランプのけむり … 6〜12%（C）／月のスカラベ … 6〜12%（A）
 //   （サンボは 仲間に なりやすい 1/11・コブラーは ときどき 1/15 なので、おなじ 出やすさでも ランクが ちがう）
 //   第8章の B〜S は 2わりまで（test/monsters-r43a.test.js）なので、第1幕の B〜S は 月のスカラベだけ
-import { C8_PET, C8_JAFAR, C8_STAFF } from './monsters-c8a.js?v=2e6dc0959ea0';
+import { C8_PET, C8_JAFAR, C8_STAFF } from './monsters-c8a.js?v=fdbb525d74d6';
 
 export const ENCOUNTERS_C8A = {
   t8a_palace: [

@@ -6,11 +6,11 @@
 //   （4 … 灯台 5階の からくりの とびらの 手紙は 物語の なぞとき。data/story-c7s.js）
 // ・見つけた 時に 1回だけ ごほうび（B の C7S_LETTER_REWARDS）。人と 場所は maps/c7s-sea.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-c7.js の c7SubQuests・c7DoneQuests から（c7sSubQuests・c7sDoneQuests）
-import { C7S, LETTER7S, LETTER7S_SIDE } from '../maps/c7s-flags.js?v=2e6dc0959ea0';
-import { LETTER7S_ASKERS, LETTER7S_PLACES, LETTER7S_NOW_PLACES } from '../maps/c7s-sea.js?v=2e6dc0959ea0';
-import { ITEMS } from './items.js?v=2e6dc0959ea0';
+import { C7S, LETTER7S, LETTER7S_SIDE } from '../maps/c7s-flags.js?v=fdbb525d74d6';
+import { LETTER7S_ASKERS, LETTER7S_PLACES, LETTER7S_NOW_PLACES } from '../maps/c7s-sea.js?v=fdbb525d74d6';
+import { ITEMS } from './items.js?v=fdbb525d74d6';
 // 手紙の ごほうび（B の data/items-c7s.js の C7S_LETTER_REWARDS。まとめる 時に './items-c7s.js' から）
-import { C7S_LETTER_REWARDS } from './items-c7s.js?v=2e6dc0959ea0';
+import { C7S_LETTER_REWARDS } from './items-c7s.js?v=fdbb525d74d6';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -5,17 +5,17 @@
 // ・WORK_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addWorkVehicleArt(ART, kit) … もらう 乗り物の 絵（2D と 2.5D は 同じ 絵。kit … render/vehicle-art.js の どうぐ）
 // かきかたは family-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=2e6dc0959ea0';
+import { spark } from './ch3-draw.js?v=fdbb525d74d6';
 // 第65回 D2: たのまれごと 12〜17 の 絵（render/work2-art.js）
-import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=2e6dc0959ea0';
+import { WORK2_NPC_LOOKS, addWork2Art, addWork2VehicleArt } from './work2-art.js?v=fdbb525d74d6';
 // 第68回 D班: たのまれごと 18〜23 の 絵（render/work3-art.js）
-import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=2e6dc0959ea0';
+import { WORK3_NPC_LOOKS, addWork3Art } from './work3-art.js?v=fdbb525d74d6';
 // 第73回 D班: たのまれごと 24〜26 と 千年前の 緑の王国の より道の 絵（render/work4-art.js）
-import { WORK4_NPC_LOOKS, addWork4Art } from './work4-art.js?v=2e6dc0959ea0';
+import { WORK4_NPC_LOOKS, addWork4Art } from './work4-art.js?v=fdbb525d74d6';
 // 第74回 D班: たのまれごと 27〜29 と 千年前の クモイの 海の より道の 絵（render/work5-art.js）
-import { WORK5_NPC_LOOKS, addWork5Art } from './work5-art.js?v=2e6dc0959ea0';
+import { WORK5_NPC_LOOKS, addWork5Art } from './work5-art.js?v=fdbb525d74d6';
 // 第75回 D班: たのまれごと 30〜32 と 千年前の ミドリナの より道の 絵（render/work6-art.js）
-import { WORK6_NPC_LOOKS, addWork6Art } from './work6-art.js?v=2e6dc0959ea0';
+import { WORK6_NPC_LOOKS, addWork6Art } from './work6-art.js?v=fdbb525d74d6';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {

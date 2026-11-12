@@ -20,8 +20,8 @@
 //   5. 床: その ゲストの minLevel・きまった 装備・倍率 1 の 力は 下回らない（床は てんじょうより 先。ゲストは いつも 助けに なる）
 //   ・装備は いつも minLevel で 作った ときの もの（def.gear と、ない 所は その レベルの ふつうの 装備）。職業・技・見た目は かえない
 //   ・同じ 入力なら 同じ 結果（乱数を 使わない）。サーバーと ひとりモードは どちらも world/battles.js の makeBattle を 通る
-import { computeStats, baseStats } from './stats.js?v=2e6dc0959ea0';
-import { makeNpcSupportChar } from './world/party.js?v=2e6dc0959ea0';
+import { computeStats, baseStats } from './stats.js?v=fdbb525d74d6';
+import { makeNpcSupportChar } from './world/party.js?v=fdbb525d74d6';
 
 export const GUEST_RATIO = 0.94;
 export const GUEST_BAND = [0.90, 0.97];
