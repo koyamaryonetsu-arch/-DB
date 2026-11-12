@@ -4,12 +4,12 @@
 //   ・ここでしか 買えない 回復薬（items-secret.js）を 運しだいで 2〜3こ
 //   品ぞろえは その ちょうせんの seed と 階で きまる（いっしょに 入った 家族は おなじ 店）
 //   店の 画面は ふつうの お店（client/ui/shop.js）。レア装備は 店の ねだんが ない ので prices で わたす（world/services.js）
-import { ITEMS } from './items.js?v=94ec7101b93e';
-import { SHOPS } from './shops.js?v=94ec7101b93e';
-import { rareIds } from './rare-loot.js?v=94ec7101b93e';
-import { SD_POTIONS } from './items-secret.js?v=94ec7101b93e';
-import { makeRng } from '../rng.js?v=94ec7101b93e';
-import { sdFloorSeed } from './secret.js?v=94ec7101b93e';
+import { ITEMS } from './items.js?v=a13852808b4d';
+import { SHOPS } from './shops.js?v=a13852808b4d';
+import { rareIds } from './rare-loot.js?v=a13852808b4d';
+import { SD_POTIONS } from './items-secret.js?v=a13852808b4d';
+import { makeRng } from '../rng.js?v=a13852808b4d';
+import { sdFloorSeed } from './secret.js?v=a13852808b4d';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const SD_SHOP_KEEPER = 'ふしぎな商人';

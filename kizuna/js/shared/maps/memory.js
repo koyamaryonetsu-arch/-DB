@@ -8,10 +8,10 @@
 // ・みちびきの糸・リレミトは 使える（1階の 出口 → 星読みの里の 水しょうの 前）。魔物は 1〜3階 t5_memory・4〜6階 t5_memory_deep（B）
 // ・第38回 A: 1〜6階を 広げた（わき道・宝の へや・思い出の 広場。3階に しなくても よい 2つ目の ランプ台）。
 //   形の 版は MEMORY_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
-import { T, parseRows } from '../tiles.js?v=94ec7101b93e';
-import { npc } from './npc.js?v=94ec7101b93e';
-import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js?v=94ec7101b93e';
-import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js?v=94ec7101b93e';
+import { T, parseRows } from '../tiles.js?v=a13852808b4d';
+import { npc } from './npc.js?v=a13852808b4d';
+import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js?v=a13852808b4d';
+import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js?v=a13852808b4d';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const MEMORY_FLOORS = 6;

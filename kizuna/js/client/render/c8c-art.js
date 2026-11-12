@@ -8,7 +8,7 @@
 //   見た目は 104×112・124×120。render/monsters.js が こまかさ（res）を 2倍に する
 // マジカメックは コマ 0・1 が 立って つえを ふる すがた、コマ 2・3 が ほうきに のった すがた（client/battle-c8c.js の c8cSprite が pub の kmForm で えらぶ）
 // クッパードは コマ 0・1 が ふつうの 大きさ（え の 下の 7わりくらい）、コマ 2・3 が ギガクッパード（え いっぱい。pub の bwForm）
-import { fit, spark, bez, flame } from './ch3-draw.js?v=94ec7101b93e';
+import { fit, spark, bez, flame } from './ch3-draw.js?v=a13852808b4d';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）

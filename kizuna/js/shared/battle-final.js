@@ -20,15 +20,15 @@
 // ・オートの 仲間（ふつう）: 回復の あとで「よびかける」（reachPlan）・きずな技の ゲージが たまったら 使う（finalPlan）。ほかは かわらない
 // ・シミュレーター（tools/sim-final.mjs）の 知っている 人（b.knowsFinal）: よびかけるを 先に・前ぶれで 身を 守る（finalPlan）。
 //   ノクト（本気）は ノクトの影・1回目の 知っている 人と おなじ（b.knowsNocto・b.knowsNocto1）
-import { MONSTERS } from './data/monsters.js?v=94ec7101b93e';
-import { NOCTO2, SOLITUS } from './data/monsters-final.js?v=94ec7101b93e';
-import { NOCTO_COMPANION, NOCTO_GUEST } from './data/companions-castle.js?v=94ec7101b93e';
-import { JOBS, jobBattlesForLevel } from './data/jobs.js?v=94ec7101b93e';
-import { newCharacter, expForLevel, fullHeal } from './stats.js?v=94ec7101b93e';
+import { MONSTERS } from './data/monsters.js?v=a13852808b4d';
+import { NOCTO2, SOLITUS } from './data/monsters-final.js?v=a13852808b4d';
+import { NOCTO_COMPANION, NOCTO_GUEST } from './data/companions-castle.js?v=a13852808b4d';
+import { JOBS, jobBattlesForLevel } from './data/jobs.js?v=a13852808b4d';
+import { newCharacter, expForLevel, fullHeal } from './stats.js?v=a13852808b4d';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub, effAtk, effMag } from './battle.js?v=94ec7101b93e';
-import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js?v=94ec7101b93e';
-import { trap, trappedAllies } from './battle-earth.js?v=94ec7101b93e';
+import { atbRate, pub, effAtk, effMag } from './battle.js?v=a13852808b4d';
+import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js?v=a13852808b4d';
+import { trap, trappedAllies } from './battle-earth.js?v=a13852808b4d';
 
 export { NOCTO2, SOLITUS };
 export const CALL = 'call';

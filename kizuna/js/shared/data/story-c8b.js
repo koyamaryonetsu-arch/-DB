@@ -10,16 +10,16 @@
 //   → 8階 よみの王の 玉座の 間: よみの王ハデロス（きまった 戦い c8_hades。2だん。B）→ いかりの 心を とられて かけらが にげる・ハデロスは 元気を 返す
 //   → ナギの村の 浜で（c8_hades）→「第8章　第3幕へ（続きはアップデートで！）」
 // より道「時をこえる手紙」（千年前の クモイの 海の 2つ）は data/sidequests-c8b.js。魔物・きまった 戦い・品は B（plan-ch8.md の 6-2）。ゲストは カイ
-import { C8 } from '../maps/c8a-flags.js?v=94ec7101b93e';
+import { C8 } from '../maps/c8a-flags.js?v=a13852808b4d';
 import {
   C8B, ARRIVE8B, ENTRY8B, PF8B, MIKO8B, VOICE8B, WIN8B, CALM8B, FIRE8B, FIRE_LIMIT8B, LETTER8B, LETTER8B_TEMPLE, MIKO_LETTER8B, C7S_SEA_ID, KUMOI_ID, c8bMapId,
-} from '../maps/c8b-flags.js?v=94ec7101b93e';
-import { C8B_POS } from '../maps/c8b-temple.js?v=94ec7101b93e';
-import { C8B_SEA_POS } from '../maps/c8b-sea.js?v=94ec7101b93e';
-import { MAPS } from '../maps/index.js?v=94ec7101b93e';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=94ec7101b93e';
-import { MONSTERS } from './monsters.js?v=94ec7101b93e';
-import { applyC8bSide, letterReward8b } from './sidequests-c8b.js?v=94ec7101b93e';
+} from '../maps/c8b-flags.js?v=a13852808b4d';
+import { C8B_POS } from '../maps/c8b-temple.js?v=a13852808b4d';
+import { C8B_SEA_POS } from '../maps/c8b-sea.js?v=a13852808b4d';
+import { MAPS } from '../maps/index.js?v=a13852808b4d';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=a13852808b4d';
+import { MONSTERS } from './monsters.js?v=a13852808b4d';
+import { applyC8bSide, letterReward8b } from './sidequests-c8b.js?v=a13852808b4d';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -11,16 +11,16 @@
 //   6階 光の 橋と 砂の 滝（a と b が かわるがわる）・7階 3つの 鏡 → おくに 休み所・8階 月の 玉座の 間（大臣ジャハール）
 // ・魔物: 1〜4階 t8a_palace・5〜8階 t8a_deep（B）。休み所・ボスの 階・しかけの まわりは 出ない
 // ・ひとりでも とける（時の砂時計で 時代を かえながら）。家族が 2つの 時代に 分かれると 早い
-import { T } from '../tiles.js?v=94ec7101b93e';
-import { npc } from './npc.js?v=94ec7101b93e';
-import { parseRows16 } from './past.js?v=94ec7101b93e';
-import { C8A_ROWS, C8A_W, C8A_H } from './c8a-palace-rows.js?v=94ec7101b93e';
+import { T } from '../tiles.js?v=a13852808b4d';
+import { npc } from './npc.js?v=a13852808b4d';
+import { parseRows16 } from './past.js?v=a13852808b4d';
+import { C8A_ROWS, C8A_W, C8A_H } from './c8a-palace-rows.js?v=a13852808b4d';
 import {
   C8, PF8, MIRROR8, LETTER8, LETTER8_PALACE, NADIA4, VOICE7, WIN8, KING8, C7_FIELD_ID, SOUTH_ID, STAIR8,
   c8aMapId, C8A_FLOORS, C8A_NOW_FLOORS, C8A_REST, C8A_BOSS_FLOOR, C8A_PET_FLOOR,
-} from './c8a-flags.js?v=94ec7101b93e';
+} from './c8a-flags.js?v=a13852808b4d';
 // 宝箱の 中み（B の data/items-c8a.js の C8A_TREASURE。まとめる 時に '../data/items-c8a.js' から）
-import { C8A_TREASURE } from '../data/items-c8a.js?v=94ec7101b93e';
+import { C8A_TREASURE } from '../data/items-c8a.js?v=a13852808b4d';
 
 export { c8aMapId, C8A_FLOORS, C8A_NOW_FLOORS, C8A_REST, C8A_BOSS_FLOOR, C8A_W, C8A_H };
 export const C8A_PAST_MAPS = Array.from({ length: C8A_FLOORS }, (_, i) => c8aMapId(i + 1));

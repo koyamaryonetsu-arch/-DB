@@ -1,7 +1,7 @@
 // 第48回 G6: ハリー・ポッター（魔法学校の生徒・ハリーポッター）の 大技の え
 // ルーモス＝金白、ステューピファイ＝赤、エクスペリアームス＝赤オレンジ、守護霊＝銀白の 牡鹿、インセンディオ＝炎、カチコチ＝青白
-import { spr, trace, frame, night, glitter, along, org, gnd, q, EASE } from './axfx-g6-lib.js?v=94ec7101b93e';
-import { rnd, angleOf } from './axkit.js?v=94ec7101b93e';
+import { spr, trace, frame, night, glitter, along, org, gnd, q, EASE } from './axfx-g6-lib.js?v=a13852808b4d';
+import { rnd, angleOf } from './axkit.js?v=a13852808b4d';
 
 // 杖を ふる（つえの え ＋ 先の ひかり）。へんじ: 杖の 先
 function wand(c, o, tip, delay = 0, life = 420, flick = 0.5) {

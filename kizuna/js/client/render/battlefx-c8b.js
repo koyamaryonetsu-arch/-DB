@@ -6,7 +6,7 @@
 // b8h_contract（たましいのけいやく）は まき物（とくべつな つぶ c8bscroll）が ねらった 人の 上で ひらく。
 // 大がったい・ひとりばけばけ・けいやく・たましい・おこった・大ふん火は がめんの まん中に 大きく（client/battle-c8b.js の C8B_SCREEN_ANIMS）
 // 第2部 第8章 第3幕 の 魔物・マジカメック・初代大魔王クッパード（battlefx-c8c.js）
-import { playC8cFx, C8C_FINE } from './battlefx-c8c.js?v=94ec7101b93e';
+import { playC8cFx, C8C_FINE } from './battlefx-c8c.js?v=a13852808b4d';
 
 const BLUE = ['#4ab8ff', '#bfefff', '#2a6ad8', '#ffffff'];
 const RED = ['#ff8a2a', '#ffe06a', '#e0301a', '#ffffff'];
