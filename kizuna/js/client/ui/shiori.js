@@ -4,9 +4,9 @@
 //   ・物語（今の 部・章・幕と つぎの 目標）／おすすめ（3つまで）／のこって いる こと（しくみごとの 数と 棒）
 //   ・えらぶと くわしい 一覧（のこって いる 物の 名前と 場所）。もどるで もとの 場所に もどる
 //   ・キーボード・ゲームパッド（上下左右・決定・もどる）・タップの どれでも（dom.js の ListMenu）
-import { el, ListMenu, esc } from './dom.js?v=9a5805f1f322';
-import './r78-shiori-css.js?v=9a5805f1f322';
-import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=9a5805f1f322';
+import { el, ListMenu, esc } from './dom.js?v=c9d347298065';
+import './r78-shiori-css.js?v=c9d347298065';
+import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=c9d347298065';
 
 const NL = (s) => esc(s).replace(/\n/g, '<br>');
 const whereHtml = (w) => (w ? `<div class="sh-where">${esc(w)}</div>` : '');
@@ -42,7 +42,7 @@ const isFull = (t) => !!t.total && t.now >= t.total && t.id !== 'sd';
 
 // メニューの 右の 見本（カーソルを あわせた だけ。えらぶと 大きな まど）
 export function shioriPreview(menu) {
-  const s = shioriOf(menu.game.me);
+  const s = shioriOf(menu.game.me, { missions: menu.game.missionSum });
   const box = el('div', { class: 'sh-pv' });
   box.append(el('div', { class: 'muted', text: 'つぎに何をすればいいか、何がのこっているかを、1まいで見る。\n選ぶと、大きく開く。' }));
   box.append(el('div', { class: 'sh-pv-story', text: [s.story.label, storyTitle(s.story)].filter(Boolean).join(' ') }));
@@ -55,7 +55,7 @@ export function openShiori(menu) {
   const g = menu.game;
   const sfx = (x) => g.audio?.sfx?.(x);
   return new Promise((resolve) => {
-    const data = shioriOf(g.me);
+    const data = shioriOf(g.me, { missions: g.missionSum });
     const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { sfx('cancel'); finish(); } });
     const title = el('h2', { class: 'sh-title', text: '冒険のしおり' });
     const who = el('span', { class: 'sh-who', text: g.me?.name ? `${g.me.name}の冒険` : '' });

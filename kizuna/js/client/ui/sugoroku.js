@@ -6,25 +6,25 @@
 //   十字キー・A・B: ボタンを えらぶ（ui/padnav.js）。A で 決定・B で 閉じる（ことばは A・B・タップで すすむ）
 // 第50回 D2: 豪華な えんしゅつ（render/sugoroku.js）・すごろくの 音（sfx-sugoroku.js）・あたらしい マス（ルーレット・宝探し・
 //   すごろく商人・おみやげ・応援・落とし穴）・ゴールの 景品を 1つずつ 見せる。うごいて いる ときに タップ／A で 早おくり
-import { el } from './dom.js?v=9a5805f1f322';
-import { itemInfo } from './counter.js?v=9a5805f1f322';
-import { request } from './shop.js?v=9a5805f1f322';
-import { padNav } from './padnav.js?v=9a5805f1f322';
-import { CasinoCounter, casinoShell, fmt, sendClose, helpBox } from './casino.js?v=9a5805f1f322';
-import { celebrate, stopFx } from './casino-fx.js?v=9a5805f1f322';
-import { boardIconURL } from '../render/boards.js?v=9a5805f1f322';
-import { iconURL, symbolURL } from '../render/casino.js?v=9a5805f1f322';
-import { SgBoardView, SQ_LOOK, dieURL } from '../render/sugoroku.js?v=9a5805f1f322';
-import { sgSound } from '../sfx-sugoroku.js?v=9a5805f1f322';
-import { rareNameHtml } from './rarity.js?v=9a5805f1f322';
-import { monsterCanvas } from '../render/monsters.js?v=9a5805f1f322';
-import { playerSprite } from '../field.js?v=9a5805f1f322';
-import { shownEquip } from '../../shared/look-equip.js?v=9a5805f1f322';
-import { ITEMS } from '../../shared/data/items.js?v=9a5805f1f322';
-import { MONSTERS } from '../../shared/data/monsters.js?v=9a5805f1f322';
-import { itemCount } from '../../shared/stats.js?v=9a5805f1f322';
-import { coinsOf, medalsHeld } from '../../shared/data/casino.js?v=9a5805f1f322';
-import { BOARD_BY_ID, DICE, TICKET_ITEM, SQ_NAME, squareText, WHEEL } from '../../shared/data/sugoroku.js?v=9a5805f1f322';
+import { el } from './dom.js?v=c9d347298065';
+import { itemInfo } from './counter.js?v=c9d347298065';
+import { request } from './shop.js?v=c9d347298065';
+import { padNav } from './padnav.js?v=c9d347298065';
+import { CasinoCounter, casinoShell, fmt, sendClose, helpBox } from './casino.js?v=c9d347298065';
+import { celebrate, stopFx } from './casino-fx.js?v=c9d347298065';
+import { boardIconURL } from '../render/boards.js?v=c9d347298065';
+import { iconURL, symbolURL } from '../render/casino.js?v=c9d347298065';
+import { SgBoardView, SQ_LOOK, dieURL } from '../render/sugoroku.js?v=c9d347298065';
+import { sgSound } from '../sfx-sugoroku.js?v=c9d347298065';
+import { rareNameHtml } from './rarity.js?v=c9d347298065';
+import { monsterCanvas } from '../render/monsters.js?v=c9d347298065';
+import { playerSprite } from '../field.js?v=c9d347298065';
+import { shownEquip } from '../../shared/look-equip.js?v=c9d347298065';
+import { ITEMS } from '../../shared/data/items.js?v=c9d347298065';
+import { MONSTERS } from '../../shared/data/monsters.js?v=c9d347298065';
+import { itemCount } from '../../shared/stats.js?v=c9d347298065';
+import { coinsOf, medalsHeld } from '../../shared/data/casino.js?v=c9d347298065';
+import { BOARD_BY_ID, DICE, TICKET_ITEM, SQ_NAME, squareText, WHEEL } from '../../shared/data/sugoroku.js?v=c9d347298065';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const DIR = (b, from, to) => {

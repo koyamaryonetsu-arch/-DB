@@ -7,27 +7,27 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=9a5805f1f322';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=9a5805f1f322';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=9a5805f1f322';
-import { jobLine } from '../data/fq-common.js?v=9a5805f1f322';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=9a5805f1f322';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=9a5805f1f322';
-import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=9a5805f1f322';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=9a5805f1f322';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=9a5805f1f322';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=9a5805f1f322';
-import { phantomBook } from '../data/phantom.js?v=9a5805f1f322';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=9a5805f1f322';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=9a5805f1f322';
-import { bestiaryOrder } from '../data/companions.js?v=9a5805f1f322';
-import { MONSTERS } from '../data/monsters.js?v=9a5805f1f322';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=9a5805f1f322';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=9a5805f1f322';
-import { LB_MAX } from '../data/items-forge.js?v=9a5805f1f322';
-import { ITEMS } from '../data/items.js?v=9a5805f1f322';
-import { MAPS, condOk } from '../maps/index.js?v=9a5805f1f322';
-import { jobLabel } from '../job-label.js?v=9a5805f1f322';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=c9d347298065';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=c9d347298065';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=c9d347298065';
+import { jobLine } from '../data/fq-common.js?v=c9d347298065';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=c9d347298065';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=c9d347298065';
+import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=c9d347298065';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=c9d347298065';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=c9d347298065';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=c9d347298065';
+import { phantomBook } from '../data/phantom.js?v=c9d347298065';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=c9d347298065';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=c9d347298065';
+import { bestiaryOrder } from '../data/companions.js?v=c9d347298065';
+import { MONSTERS } from '../data/monsters.js?v=c9d347298065';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=c9d347298065';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=c9d347298065';
+import { LB_MAX } from '../data/items-forge.js?v=c9d347298065';
+import { ITEMS } from '../data/items.js?v=c9d347298065';
+import { MAPS, condOk } from '../maps/index.js?v=c9d347298065';
+import { jobLabel } from '../job-label.js?v=c9d347298065';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -322,13 +322,25 @@ function chestTrack(c) {
   };
 }
 
-const TRACKS = [boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack];
-export const TRACK_IDS = ['board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest'];
+// 第78回 3-10: 家族ミッション（家族サーバーの 世界の 側の 数。ctx.missions … サーバーの 返事 world/missions.js の missionView。ひとりモードでは 出さない）
+function missionTrack(c, ctx) {
+  const m = ctx?.missions;
+  if (!m || m.offline || !m.week) return null;
+  const list = m.week.list || [];
+  return {
+    id: 'mission', name: '家族ミッション', now: list.filter((x) => x.done).length, total: list.length, unit: 'つ', where: 'メニューの「家族ミッション」',
+    note: `今週のミッション（のこり${m.week.days}日）。\n家族サーバーで、2人いじょうがいっしょに遊ぶと進む。`,
+    items: list.map((x) => ({ name: x.text, right: x.done ? '達成！' : `${x.now}/${x.need}`, state: x.done ? 'done' : 'now' })),
+  };
+}
 
-export function shioriTracks(c) {
+const TRACKS = [missionTrack, boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack];
+export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest'];
+
+export function shioriTracks(c, ctx = {}) {
   const out = [];
   for (const fn of TRACKS) {
-    const t = fn(c || {});
+    const t = fn(c || {}, ctx || {});
     if (t) out.push(t);
   }
   return out;
@@ -399,9 +411,10 @@ export function shioriRecs(c, tracks = shioriTracks(c)) {
 }
 
 // ───────────── まとめ ─────────────
-export function shioriOf(c) {
+// ctx.missions … 家族ミッション（client/ui/missions.js が サーバーに 聞いた 物。なければ 出さない）
+export function shioriOf(c, ctx = {}) {
   const ch = c || {};
-  const tracks = shioriTracks(ch);
+  const tracks = shioriTracks(ch, ctx);
   return { story: { ...storyPlace(ch), ...storyNext(ch) }, tracks, recs: shioriRecs(ch, tracks) };
 }
 

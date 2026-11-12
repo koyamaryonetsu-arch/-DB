@@ -1,6 +1,6 @@
 // 第49回 O4: プロ野球選手・メジャーリーガー の 技の え（ボール・バット・ベース・メガホン・トロフィー・花火）
 // ・時間は shared/data/ax-time-o4.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { obj, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=9a5805f1f322';
+import { obj, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=c9d347298065';
 
 const PI = Math.PI;
 const GOLD = ['#ffffff', '#ffd23a', '#ffa00a'];

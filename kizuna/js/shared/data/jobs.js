@@ -15,32 +15,32 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=9a5805f1f322';
-import { JOB_TAGS } from './job-tags.js?v=9a5805f1f322';
+import { applyField27Learn } from './abilities-field27.js?v=c9d347298065';
+import { JOB_TAGS } from './job-tags.js?v=c9d347298065';
 // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者（jobs-weather.js）
-import { WEATHER_JOBS } from './jobs-weather.js?v=9a5805f1f322';
+import { WEATHER_JOBS } from './jobs-weather.js?v=c9d347298065';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
-import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=9a5805f1f322';
+import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=c9d347298065';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
-import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=9a5805f1f322';
+import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=c9d347298065';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
-import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=9a5805f1f322';
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=c9d347298065';
 // 第66回: 伝説の職業（A〜D班。docs/plan-r66-legend.md）
-import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js?v=9a5805f1f322';
-import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js?v=9a5805f1f322';
-import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js?v=9a5805f1f322';
-import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js?v=9a5805f1f322';
-import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js?v=9a5805f1f322';
-import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js?v=9a5805f1f322';
-import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js?v=9a5805f1f322';
+import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js?v=c9d347298065';
+import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js?v=c9d347298065';
+import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js?v=c9d347298065';
+import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js?v=c9d347298065';
+import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js?v=c9d347298065';
+import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js?v=c9d347298065';
+import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js?v=c9d347298065';
 // 第66回 B班: 伝説の職業の 神殿の うわさ（jobs-legend-r66b.js）
-import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js?v=9a5805f1f322';
+import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js?v=c9d347298065';
 // 第66回 C班の 伝説の職業の 神殿の うわさ
-import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js?v=9a5805f1f322';
-import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js?v=9a5805f1f322';
+import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js?v=c9d347298065';
+import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js?v=c9d347298065';
 // 第66回 E1班の 神殿の うわさ（jobs-r66e1.js）
-import { HINTS_R66E1 } from './jobs-r66e1.js?v=9a5805f1f322';
-import { HINTS_R66E2 } from './jobs-r66e2.js?v=9a5805f1f322';
+import { HINTS_R66E1 } from './jobs-r66e1.js?v=c9d347298065';
+import { HINTS_R66E2 } from './jobs-r66e2.js?v=c9d347298065';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
