@@ -3,7 +3,7 @@
 //   まえは 30こ まで で、いっぱいの ときは だまって 入れなかった（サーバーは「入れた」と 返事を していた）。
 //   → 60こ まで に ふやし、いっぱいの ときは 入れられない ことと わけを 出す。
 //     もう 覚えていない 技（数に 入るが 画面に 出ない）は、いっぱいの ときに さきに すてる。
-import { ABILITIES } from './data/abilities.js?v=65d7afc110b4';
+import { ABILITIES } from './data/abilities.js?v=2e6dc0959ea0';
 
 export const FAV_MAX = 60;
 

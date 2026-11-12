@@ -3,9 +3,9 @@
 //   生まれる 子ごとに「どの 2ひきで 生まれるか」を まとめる。1つ 1つの 組は data/companions.js の breedCandidates と 同じ 計算
 //   （ランクが 上がる 子・minLv・4体配合・素材配合〈ふくろの 品〉も 親の 本当の レベル・＋・血統で 見る）
 //   サーバーの 酒場（world/breed.js の breedFinder・action 'breedFinder'）と テスト（test/breed-finder-r70.test.js）で 使う
-import { BREED_MIN_LEVEL, RANKS, breedCandidates, breedPlus, bestiaryKnow, SPECIAL_KINDS } from './data/companions.js?v=65d7afc110b4';
-import { breedTrend, breedTrendMemo } from './breed-calc.js?v=65d7afc110b4';
-import { colorMon } from './data/variants.js?v=65d7afc110b4';
+import { BREED_MIN_LEVEL, RANKS, breedCandidates, breedPlus, bestiaryKnow, SPECIAL_KINDS } from './data/companions.js?v=2e6dc0959ea0';
+import { breedTrend, breedTrendMemo } from './breed-calc.js?v=2e6dc0959ea0';
+import { colorMon } from './data/variants.js?v=2e6dc0959ea0';
 
 // 配合の しゅるいの つよさ（小さいほど めずらしい。子の 一覧の しるしに 使う）
 const KIND_ORDER = { four: 0, material: 1, special: 2, recipe: 3, same: 4, mix: 5, parent: 6, family: 7 };
