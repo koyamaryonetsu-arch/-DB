@@ -21,6 +21,8 @@ import { R41B_HAIR } from './hero-r41b.js';
 import { R43J_HAIR } from './hero-r43j.js';
 // 第66回 E2: さいきくすおの ピンクの かみ（hero-r66e2.js）
 import { R66E2_HAIR } from './hero-r66e2.js';
+// 第79回: 幻の職業の かみの いろと 両手の 光（hero-r79.js）
+import { R79_HAIR, handMark79 } from './hero-r79.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -312,6 +314,7 @@ function handShape(cv, A, P, O) {
   cv.ell(A.hand[0], A.hand[1], r, r * 1.05, O.glove || O.skin, { bulge: 0.85 });
   if (O.handMark) handMark33(cv, A, P, O);
   if (O.handCrest40) handMark40(cv, A, P, O);
+  if (O.body?.hand79) handMark79(cv, A, P, O);
   if (O.fingerless) {
     // ゆびの ない 手ぶくろ（ゆびさきは はだ）
     cv.part({ ol: 'soft', clip: cv.cur });
@@ -390,6 +393,7 @@ Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR, R33_HAIR, R40_HAIR);
 Object.assign(JOB_HAIR_RAMP, R41B_HAIR);
 Object.assign(JOB_HAIR_RAMP, R43J_HAIR);
 Object.assign(JOB_HAIR_RAMP, R66E2_HAIR);
+Object.assign(JOB_HAIR_RAMP, R79_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);
