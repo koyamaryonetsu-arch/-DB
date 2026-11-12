@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { upgradeSave, repairChar, SAVE_VERSION } from '../public/js/shared/world/save.js';
-import { exportCode, parseCode, importChar, CHAR_MAX, LINE_MAX, pack, unpack } from '../public/js/shared/world/transfer.js';
+import { exportCode, exportCodeV4, parseCode, importChar, CHAR_MAX, LINE_MAX, pack, unpack } from '../public/js/shared/world/transfer.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { ROSTER_MAX } from '../public/js/shared/data/companions.js';
@@ -288,10 +288,11 @@ test('引っこしコード: 前の 版の コード（KIZUNA-1）も 読める'
   assert.equal(parseCode(v1.slice(0, -8)).ok, false);
 });
 
-test('引っこしコード: 書き出して 読みこめる。切れた コードは 読まない', () => {
+// 第78回: 今の KIZUNA-5 と、前の 版の KIZUNA-2（exportCodeV4）の どちらも
+for (const [make, prefix] of [[exportCode, 'KIZUNA-5-'], [exportCodeV4, 'KIZUNA-2-']]) test(`引っこしコード: 書き出して 読みこめる。切れた コードは 読まない（${prefix}）`, () => {
   const c = upgradeSave(oldSave()).data.characters.c_old;
-  const code = exportCode(c);
-  assert.ok(code.startsWith('KIZUNA-2-'));
+  const code = make(c);
+  assert.ok(code.startsWith(prefix));
   // どこで 切れても、1文字 まちがえても 読まない
   for (const cut of [1, 2, 5, 13, Math.floor(code.length / 2)]) assert.equal(parseCode(code.slice(0, -cut)).ok, false, `うしろ ${cut}文字 切れ`);
   for (const at of [20, 40, code.length - 3]) {

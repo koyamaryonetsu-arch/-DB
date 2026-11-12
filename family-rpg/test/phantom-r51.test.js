@@ -418,12 +418,12 @@ test('引っこしコード: 仲間 40人と 記録 いっぱいでも LINE の 
   assert.equal(c.companions.length, 40);
   c.flags.zz_count = 3;
   const before = exportCode(c);
-  // 第53回: 魔物が ふえて「図鑑 ぜんぶ」の 時は 記録なしでも KIZUNA-4 に なる ことが ある
-  assert.ok(/^KIZUNA-[34]-/.test(before) && before.length < LINE_MAX, '記録なしも LINE の 1回');
+  // 第78回: いつも KIZUNA-5（KIZUNA-4 の 形を 本物の 圧縮で ちぢめた もの）
+  assert.ok(/^KIZUNA-5-/.test(before) && before.length < LINE_MAX, '記録なしも LINE の 1回');
   c.feats = toFeats(FULL());
   const code = exportCode(c);
   assert.ok(code.length < LINE_MAX, `コードの 長さ ${code.length}（記録なし ${before.length}）`);
-  assert.ok(/^KIZUNA-[34]-/.test(code));
+  assert.ok(/^KIZUNA-5-/.test(code));
   const r = parseCode(code);
   assert.ok(r.ok, r.reason);
   const want = repairChar(JSON.parse(JSON.stringify(c)));

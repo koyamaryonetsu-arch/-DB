@@ -175,7 +175,7 @@ export function gameFiles() {
     'public/js/shared/data/monsters-ch2.js', 'public/js/shared/data/story-ch2.js', 'public/js/shared/data/quest-targets.js', 'public/js/client/prefs.js', 'public/js/shared/data/party-talk.js', 'public/js/shared/data/progress.js', 'public/js/shared/data/difficulty.js', 'public/js/shared/data/fieldchests.js', 'public/js/shared/world/fieldchests.js',
     'public/js/shared/world/battles.js', 'public/js/shared/world/breed.js', 'public/js/shared/world/monsters.js',
     'public/js/shared/world/party.js', 'public/js/shared/world/scripts.js', 'public/js/shared/world/services.js',
-    'public/js/shared/world/world.js', 'public/js/shared/world/save.js', 'public/js/shared/world/transfer.js',
+    'public/js/shared/world/world.js', 'public/js/shared/world/save.js', 'public/js/shared/world/transfer.js', 'public/js/shared/world/transfer-pack.js', 'public/js/shared/world/transfer-prime.js',
     'public/js/shared/world/sync.js', 'public/js/shared/world/merge.js', 'server/syncstore.js',
     'server/guard.js', 'server/funnel.js', 'server/funnel-cli.js',
     'server/index.js', 'server/main.js', 'server/update.js', 'server/storage.js', 'server/savedir.js',
