@@ -306,7 +306,12 @@ export class BattleScene {
     this.build();
     // 水の守りの歌の しるし（battle-temple.js）
     templeStart(this, msg.snap);
-    this.game.audio.play(msg.snap.bgm || (this.boss ? 'boss' : 'battle'), { force: true });
+    // 第77回 C: ふつうの 戦いの 曲は 場所で かわる（第2部 battle2・強敵 battle_strong。曲が まだ なければ battle。client/audio-scene.js）
+    const sa = this.game.sceneAudio;
+    const f = this.game.field;
+    const bgm = sa ? sa.battleTrack({ snap: msg.snap, boss: this.boss, story: !!msg.story, mapId: f?.mapId, map: f?.map }) : msg.snap.bgm || (this.boss ? 'boss' : 'battle');
+    this.game.audio.play(bgm, { force: true });
+    sa?.battleStart();
     const names = this.enemyNames();
     if (msg.resume) this.say(['つなぎ直した！戦いの続きだ！']);
     else if (msg.joined) this.say([`${names}との戦いにかけつけた！`]);
@@ -1833,6 +1838,8 @@ export class BattleScene {
     }
     this.fx.update(dt); // はやさは fx.tempo で かける
     this.updateGauges();
+    // 第77回 C: ピンチ（仲間の HP）・ボスの だん（client/audio-scene.js）
+    this.game.sceneAudio?.battleTick({ combatants: this.c.values(), boss: this.boss, ended: !!(this.endPending || this.ended) });
     this.draw();
   }
 
@@ -2146,6 +2153,7 @@ export class BattleScene {
 
   destroy() {
     this.destroyed = true;
+    this.game.sceneAudio?.battleEnd();
     this.unbindPad?.();
     this.closeTactics();
     this.closeResult?.();
