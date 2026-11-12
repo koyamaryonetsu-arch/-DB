@@ -1,29 +1,29 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=6be0f763d7c2';
-import { SFX_R27 } from './sfx-r27.js?v=6be0f763d7c2';
-import { SFX_R29 } from './sfx-r29.js?v=6be0f763d7c2';
-import { SFX_R33 } from './sfx-r33.js?v=6be0f763d7c2';
-import { SFX_PK } from './sfx-pokemon.js?v=6be0f763d7c2';
-import { SFX_DQ } from './sfx-dqm.js?v=6be0f763d7c2';
+import { SFX_R26 } from './sfx-r26.js?v=1b1cbe3b3c9e';
+import { SFX_R27 } from './sfx-r27.js?v=1b1cbe3b3c9e';
+import { SFX_R29 } from './sfx-r29.js?v=1b1cbe3b3c9e';
+import { SFX_R33 } from './sfx-r33.js?v=1b1cbe3b3c9e';
+import { SFX_PK } from './sfx-pokemon.js?v=1b1cbe3b3c9e';
+import { SFX_DQ } from './sfx-dqm.js?v=1b1cbe3b3c9e';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=6be0f763d7c2';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=6be0f763d7c2';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=6be0f763d7c2';
-import { EARTH_TRACKS } from './audio-earth.js?v=6be0f763d7c2';
-import { CASTLE_TRACKS } from './audio-castle.js?v=6be0f763d7c2';
-import { TOP_TRACKS } from './audio-top.js?v=6be0f763d7c2';
-import { CH6_TRACKS } from './audio-ch6.js?v=6be0f763d7c2';
+import { SFX_AX } from './sfx-ax.js?v=1b1cbe3b3c9e';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=1b1cbe3b3c9e';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=1b1cbe3b3c9e';
+import { EARTH_TRACKS } from './audio-earth.js?v=1b1cbe3b3c9e';
+import { CASTLE_TRACKS } from './audio-castle.js?v=1b1cbe3b3c9e';
+import { TOP_TRACKS } from './audio-top.js?v=1b1cbe3b3c9e';
+import { CH6_TRACKS } from './audio-ch6.js?v=1b1cbe3b3c9e';
 // 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
-import { C8B_TRACKS } from './audio-c8b.js?v=6be0f763d7c2';
+import { C8B_TRACKS } from './audio-c8b.js?v=1b1cbe3b3c9e';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパードの 曲（audio-c8c.js）
-import { C8C_TRACKS } from './audio-c8c.js?v=6be0f763d7c2';
+import { C8C_TRACKS } from './audio-c8c.js?v=1b1cbe3b3c9e';
 // 第77回 B: 作りなおした 曲（下で 前の 曲の 上に かぶせる）
-import { R77A_TRACKS } from './audio-r77a.js?v=6be0f763d7c2';
-import { R77B_TRACKS } from './audio-r77b.js?v=6be0f763d7c2';
+import { R77A_TRACKS } from './audio-r77a.js?v=1b1cbe3b3c9e';
+import { R77B_TRACKS } from './audio-r77b.js?v=1b1cbe3b3c9e';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
-import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=6be0f763d7c2';
-import { TRACK_TRIM } from './audio-trim.js?v=6be0f763d7c2';
+import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=1b1cbe3b3c9e';
+import { TRACK_TRIM } from './audio-trim.js?v=1b1cbe3b3c9e';
 
 // 'C5:4 D5:2 r:2' → [{f, len}]（第76回までの 読み方。テストが つかう）
 const parse = legacyParse;
@@ -509,12 +509,15 @@ export class GameAudio {
     // 場面で かわる 音楽（チーム C）。AudioContext が まだ なくても おぼえておく
     this.adaptive = new AdaptiveState();
     this.ambience = null;
+    // まわりの音（設定の「まわりの音：あり／なし」。ふだんは あり）
+    this.ambOn = true;
     try {
       const s = JSON.parse(localStorage.getItem('kizuna_audio') || '{}');
       if (typeof s.music === 'number') this.musicVol = s.music;
       if (typeof s.sfx === 'number') this.sfxVol = s.sfx;
       if (s.engine === 'old') this.engineMode = 'old';
       if (s.quality === 'light') this.quality = 'light';
+      if (s.amb === false) this.ambOn = false;
     } catch { /* */ }
   }
 
@@ -552,7 +555,7 @@ export class GameAudio {
       this.engine = new MusicEngine(this.ctx, this.musicGain, {
         mode: this.engineMode, quality: this.quality, adaptive: this.adaptive, trims: TRACK_TRIM, seed: 77,
       });
-      if (this.ambience) this.engine.playAmbience(this.ambience);
+      if (this.ambience && this.ambOn) this.engine.playAmbience(this.ambience);
       setInterval(() => this.schedule(), 30);
       if (this.pending) this.play(this.pending);
     }
@@ -668,7 +671,7 @@ export class GameAudio {
     if (!this.engine) return;
     this.engine.mode = this.engineMode;
     if (this.engineMode === 'old') this.engine.stopAmbience(0.3);
-    else if (this.ambience) this.engine.playAmbience(this.ambience);
+    else if (this.ambience && this.ambOn) this.engine.playAmbience(this.ambience);
     // 鳴っている 曲を 新しい 鳴らし方で はじめから
     const m = this.music;
     if (m) {
@@ -699,11 +702,18 @@ export class GameAudio {
   playAmbience(id) {
     this.ambience = id || null;
     if (!this.engine) return;
-    if (!id) this.engine.stopAmbience();
+    if (!id || !this.ambOn) this.engine.stopAmbience();
     else if (this.engineMode === 'new') this.engine.playAmbience(id);
   }
 
   stopAmbience() { this.playAmbience(null); }
+
+  // 設定の「まわりの音：あり／なし」（kizuna_audio の amb）
+  setAmbienceOn(on) {
+    this.ambOn = !!on;
+    this.savePref({ amb: this.ambOn });
+    this.playAmbience(this.ambience);
+  }
 
   // 会話の 文字の 音（話す 人の 名前で 高さが かわる）。前の音 では いつもの 'talk'
   blip(seed) {

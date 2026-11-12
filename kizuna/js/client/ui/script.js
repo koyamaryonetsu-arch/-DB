@@ -1,15 +1,15 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=6be0f763d7c2';
-import { paintRare } from './rarity.js?v=6be0f763d7c2';
-import { ListMenu } from './dom.js?v=6be0f763d7c2';
-import { openServiceUI } from './services.js?v=6be0f763d7c2';
-import { monsterCanvas } from '../render/monsters.js?v=6be0f763d7c2';
-import { npcSprite } from '../field.js?v=6be0f763d7c2';
-import { reportError } from '../errlog.js?v=6be0f763d7c2';
+import { el } from './dom.js?v=1b1cbe3b3c9e';
+import { paintRare } from './rarity.js?v=1b1cbe3b3c9e';
+import { ListMenu } from './dom.js?v=1b1cbe3b3c9e';
+import { openServiceUI } from './services.js?v=1b1cbe3b3c9e';
+import { monsterCanvas } from '../render/monsters.js?v=1b1cbe3b3c9e';
+import { npcSprite } from '../field.js?v=1b1cbe3b3c9e';
+import { reportError } from '../errlog.js?v=1b1cbe3b3c9e';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=6be0f763d7c2';
+import { paperPop } from './paper-pop.js?v=1b1cbe3b3c9e';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=6be0f763d7c2';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=1b1cbe3b3c9e';
 
 const TYPE_MS = 28;
 
@@ -293,7 +293,11 @@ export class ScriptPlayer {
       timer = setInterval(() => {
         i += 1;
         paintRare(this.dlgText, chars.slice(0, i).join(''));
-        if (i % 3 === 0 && chars[i - 1] !== ' ') g.audio.sfx('talk');
+        // 第77回 C: 話す 人ごとに 高さの ちがう 文字の 音（名前の ない 地の 文は 今まで どおり）
+        if (i % 3 === 0 && chars[i - 1] !== ' ') {
+          if (speaker) g.audio.blip(speaker);
+          else g.audio.sfx('talk');
+        }
         if (i >= chars.length) finishType();
       }, TYPE_MS);
     });
