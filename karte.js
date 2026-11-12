@@ -2,7 +2,7 @@
 /* ============================================================
    劇場カルテ（各劇場情報の中身）。window.KARTE
    ・タブで分ける: 持病・注意 / 機器表 / 不具合の履歴 / 備考 / 設備メモ / 連絡先
-   ・持病・注意・備考・設備メモは「1行に1件・新しい順・年月と出どころつき」。1件ずつ直す・消す・別の劇場へ移す
+   ・持病・注意・備考・設備メモは「1行に1件・新しい順・年月と根拠（どこで知ったか）つき」。1件ずつ直す・消す・別の劇場へ移す
      （AIが入れたものには 🤖 の印）
    ・機器表: 機器表のファイル（PDF・画像・Excel）を上げると AI（Opus）が表にする → 見て直してから保存。元のファイルも残る
    ・Excel: 会社・劇場を選んで（複数可）劇場カルテを出す。1劇場＝1ファイル、2つ以上は ZIP
@@ -291,7 +291,8 @@
     const st = S.sort[tab] || {}, cf = S.colf[tab] || {};
     return `<thead><tr>${cols.map((c) => {
       const on = st.k === c.k; const arrow = on ? (st.dir > 0 ? ' ▲' : ' ▼') : '';
-      return `<th class="kt-th${c.cls ? ' ' + c.cls : ''}${c.sort === false ? '' : ' kt-sortable'}${on ? ' on' : ''}"${c.w ? ` style="width:${c.w}px;min-width:${c.w}px"` : ''}${c.sort === false ? '' : ` data-sort="${c.k}" title="押すと並べ替え（もう一度で逆・3回目で元の順）"`}>${c.label}${arrow}</th>`;
+      const tip = (c.tip ? c.tip + '。' : '') + (c.sort === false ? '' : '押すと並べ替え（もう一度で逆・3回目で元の順）');
+      return `<th class="kt-th${c.cls ? ' ' + c.cls : ''}${c.sort === false ? '' : ' kt-sortable'}${on ? ' on' : ''}"${c.w ? ` style="width:${c.w}px;min-width:${c.w}px"` : ''}${c.sort === false ? '' : ` data-sort="${c.k}"`}${tip ? ` title="${esc(tip)}"` : ''}>${c.label}${c.tip ? ' <span class="kt-th-q">？</span>' : ''}${arrow}</th>`;
     }).join('')}</tr><tr class="kt-frow">${cols.map((c) => c.filter === false ? '<th></th>' : `<th><input type="search" size="2" class="kt-colf" data-fk="${c.k}" value="${esc(cf[c.k] || '')}" placeholder="絞り込み" aria-label="${esc(c.label)}で絞り込み"></th>`).join('')}</tr></thead>`;
   }
   // 列ごとの絞り込みと並べ替え。getv(行, 列) で比べる値
@@ -314,13 +315,14 @@
 
   /* ---------- 持病・注意 / 備考 / 設備メモ ---------- */
   const PH = { chronic: '例: 夏場 SCR3 が冷えにくい（室外機の能力不足）', note: '例: 作業は2日前までに防災センターへ申請', equipment: '例: シアター系統はダイキン VRV（2014年更新）' };
-  const whoOf = (n) => n.origin === 'ai' ? 'AI' : n.origin === 'migrated' ? '前の登録' : (n.created_by || '人');
+  // 登録者: 誰がこの1件を入れたか（AI＝メール・LINE・会議の記録から自動で入れた／旧データから移行＝前の劇場情報の欄から移した）
+  const whoOf = (n) => n.origin === 'ai' ? 'AI（自動）' : n.origin === 'migrated' ? '旧データから移行' : (n.created_by || '人');
   const NOTE_COLS = [
     { k: '_sel', label: '<input type="checkbox" class="kt-sel-all" title="全部選ぶ">', w: 28, sort: false, filter: false, cls: 'kt-c-sel' },
     { k: 'source_date', label: '年月', w: 78 },
     { k: 'body', label: '内容' },
-    { k: 'evidence', label: '出どころ', w: 210 },
-    { k: 'who', label: '入れた', w: 76 },
+    { k: 'evidence', label: '根拠（メール・資料）', w: 210, tip: 'この情報をどこで知ったか（メールの件名・報告書・LINE・会議など）' },
+    { k: 'who', label: '登録者', w: 104, tip: '誰がこの1件を入れたか。AI（自動）＝メールやLINEから自動で入れたもの／旧データから移行＝前の劇場情報の欄から移したもの' },
     { k: '_acts', label: '', w: 92, sort: false, filter: false }
   ];
   function noteVal(n, k) { return k === 'who' ? whoOf(n) : n[k] == null ? '' : n[k]; }
@@ -343,7 +345,7 @@
           <button type="button" data-act="move-sel">↪ 別の劇場・種類へ移す</button>
           <button type="button" class="danger" data-act="del-sel">🗑 消す</button>
         </span>
-        <span class="kt-bar-hint">見出しを押すと並べ替え・見出しの下の欄で列ごとに絞り込み・内容をダブルクリックで直す</span>
+        <span class="kt-bar-hint">見出しを押すと並べ替え・見出しの下の欄で列ごとに絞り込み・内容をダブルクリックで直す<br>根拠＝その情報をどこで知ったか（メール・報告書など）／登録者＝誰が入れたか（AI（自動）＝メールやLINEから自動で入れたもの）</span>
       </div>
       ${all ? `<div class="kt-eq-wrap"><table class="kt-xl kt-notes">${headHtml(kind, NOTE_COLS)}<tbody>${list.map(noteHtml).join('')}</tbody></table>
         ${list.length ? '' : '<p class="empty-msg">絞り込みに合うものはありません。</p>'}</div>`
@@ -356,7 +358,7 @@
         <div class="kt-edit">
           <textarea class="tm-input kt-grow kt-edit-body" rows="3">${esc(n.body)}</textarea>
           <div class="kt-edit-row">年月 <input type="month" class="tm-input kt-edit-date" value="${esc(n.source_date || '')}">
-            出どころ <input type="text" class="tm-input kt-edit-ev" value="${esc(n.evidence || '')}" placeholder="メールの件名・資料名など">
+            根拠 <input type="text" class="tm-input kt-edit-ev" value="${esc(n.evidence || '')}" placeholder="どこで知ったか（メールの件名・資料名など）">
             <button type="button" class="primary" data-act="save-note">保存</button><button type="button" data-act="cancel-edit">やめる</button></div>
         </div></td></tr>`;
     }
@@ -758,7 +760,7 @@
      ============================================================ */
   function openExport(defaultCompany) {
     closeOverlay();
-    const ths = theaterList().filter((t) => t.name && !t.hidden);   // 公式サイトに無いとして隠した劇場は出さない
+    const ths = theaterList().filter((t) => t.name && !t.closed);   // 閉館した劇場は出さない
     const cos = companyList().map((c) => c.name).filter((n) => ths.some((t) => t.company === n));
     const sel = new Set();
     if (S.theater && ths.some((t) => t.name === S.theater)) sel.add(S.theater);
@@ -855,19 +857,19 @@
     k.set('A2', { v: `出力日 ${out}　菱熱工業`, st: { font: { color: '666666' } } }).merge('A2:D2');
     let r = 4;
     k.set('A' + r, { v: '■ 基本情報', st: SEC }); r++;
-    const basics = [['会社', t.company], ['劇場', t.name], ['住所', t.address], ['支配人', t.manager], ['劇場の電話', t.theaterPhone], ['保守契約', t.maintenance], ['GeM2', t.gem2], ['ホームページ', t.homepage]];
+    const basics = [['会社', t.company], ['劇場', t.name], ['住所', t.address], ['支配人', t.manager], ['劇場の電話', t.theaterPhone], ['保守契約', t.maintenance], ['GeM2', t.gem2], ['GeM2 CO2センサー', t.gem2Co2], ['GeM2 温湿度センサー', t.gem2Th], ['ホームページ', t.homepage]].concat(t.closed ? [['閉館', ('閉館' + (t.closedOn ? '（' + t.closedOn + '）' : '') + (t.closedNote ? ' ' + t.closedNote : ''))]] : []);
     basics.forEach(([a, b]) => { k.set('A' + r, { v: a, st: L }); k.set('B' + r, { v: b || '', st: V }).merge(`B${r}:D${r}`); k.set('C' + r, { st: V }); k.set('D' + r, { st: V }); r++; });
     ['chronic', 'note', 'equipment'].forEach((kind) => {
       const list = notes.filter((n) => n.kind === kind).sort(sortNotes);
       r++;
       k.set('A' + r, { v: `■ ${KINDS[kind]}（${list.length}件）`, st: SEC }); r++;
-      ['年月', '内容', '出どころ', '入れた'].forEach((h, i) => k.set([r, i], { v: h, st: H })); r++;
+      ['年月', '内容', '根拠（メール・資料）', '登録者'].forEach((h, i) => k.set([r, i], { v: h, st: H })); r++;
       if (!list.length) { k.set('A' + r, { v: '（なし）', st: V }).merge(`A${r}:D${r}`); ['B', 'C', 'D'].forEach((c) => k.set(c + r, { st: V })); r++; }
       list.forEach((n) => {
         k.set('A' + r, { v: n.source_date || '', st: VC });
         k.set('B' + r, { v: n.body || '', st: V });
         k.set('C' + r, { v: n.evidence || '', st: V });
-        k.set('D' + r, { v: n.origin === 'ai' ? 'AI' : n.origin === 'migrated' ? '前の登録' : (n.created_by || '人'), st: VC });
+        k.set('D' + r, { v: whoOf(n), st: VC });
         r++;
       });
     });
@@ -918,73 +920,7 @@
     return wb;
   }
 
-  /* ============================================================
-     公式サイトで確かめる（AI が各社の劇場一覧を読み、無い劇場は一覧から隠す）
-     ============================================================ */
-  const OFFICIAL_COS = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業', 'シネマサンシャイン', 'コロナワールド', 'MOVIX', 'イオンシネマズ'];
-  function openVerify(opts) {
-    opts = opts || {};
-    closeOverlay();
-    const cos = companyList().map((c) => c.name).filter((n) => OFFICIAL_COS.includes(n) && theaterList().some((t) => t.company === n));
-    const ov = document.createElement('div');
-    ov.className = 'kt-overlay'; ov.id = 'ktVerify';
-    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid"><div class="kt-dlg-head">🌐 公式サイトで確かめる<button type="button" class="close-btn" data-act="x">×</button></div>
-      <div class="kt-dlg-body">
-        <p class="tm-hint">AI（Opus）が各社の公式サイトの劇場一覧を読み、アプリの劇場の一覧と見比べます。公式サイトに無い劇場（閉館など）は、劇場カルテの一覧から自動で隠します（案件・カルテのデータは消えません。「隠した劇場も出す」で見られ、「隠すのをやめる」で戻せます）。1社 1〜2分かかります。</p>
-        <div class="kt-vf-cos">${cos.map((n) => `<label><input type="checkbox" class="kt-vf-co" value="${esc(n)}" checked> ${esc(n)} <small>${theaterList().filter((t) => t.company === n).length} 劇場</small></label>`).join('')}</div>
-        <div class="kt-vf-log" id="ktVfLog"></div>
-      </div>
-      <div class="kt-dlg-foot"><button type="button" class="primary" data-act="go">確かめる</button><button type="button" data-act="x">閉じる</button></div></div>`;
-    document.body.appendChild(ov);
-    let running = false, changed = false;
-    ov.addEventListener('click', async (e) => {
-      const act = e.target.dataset && e.target.dataset.act;
-      if (act === 'x') { if (running) return; closeOverlay(); if (changed && opts.onDone) opts.onDone(); return; }
-      if (act === 'hide-sus') {
-        const box = e.target.closest('.kt-vf-sus');
-        const chks = Array.from(box.querySelectorAll('.kt-vf-sus-chk:checked'));
-        if (!chks.length) { say('隠す劇場にチェックを入れてください'); return; }
-        if (!(await ask(`${chks.length} 劇場を一覧から隠しますか？（データは消えません。「隠した劇場も出す」で見られ、「隠すのをやめる」で戻せます）`, { ok: '隠す', danger: true }))) return;
-        const reasons = {}; chks.forEach((c) => { reasons[c.value] = c.dataset.reason || ''; });
-        try {
-          await aiCall({ task: 'verify-hide', names: chks.map((c) => c.value), reasons });
-          box.innerHTML = `🙈 隠した ${chks.length}: ${chks.map((c) => esc(c.value)).join('、')}`;
-          if (opts.onDone) opts.onDone();
-        } catch (err) { say('隠せませんでした: ' + (err.message || err)); }
-        return;
-      }
-      if (act !== 'go' || running) return;
-      const pickCos = Array.from(ov.querySelectorAll('.kt-vf-co:checked')).map((x) => x.value);
-      if (!pickCos.length) { say('確かめる会社を選んでください'); return; }
-      running = true; e.target.disabled = true;
-      const log = ov.querySelector('#ktVfLog');
-      for (const co of pickCos) {
-        const line = document.createElement('div'); line.className = 'kt-vf-line'; line.innerHTML = `<span class="kt-spin"></span> ${esc(co)} の公式サイトを読んでいます…`; log.appendChild(line);
-        try {
-          const r = await aiCall({ task: 'verify', company: co });
-          if (r.hidden.length || r.shown.length || (r.suspect || []).length) changed = true;
-          const sus = r.suspect || [];
-          line.innerHTML = r.site_ok
-            ? `✅ <b>${esc(co)}</b>: ${r.checked} 劇場を確かめました${r.official_count ? `（公式サイトの一覧 ${r.official_count} 館）` : ''}。` +
-              (r.hidden.length ? `<br>　🙈 隠した ${r.hidden.length}: ${r.hidden.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : (sus.length ? '' : '<br>　隠した劇場はありません。')) +
-              ((r.kept || []).length ? `<br>　🙈 前から隠していて、今回も無かった ${r.kept.length}（隠したまま）: ${r.kept.map((h) => esc(h.name) + (h.reason ? `<small>（${esc(h.reason)}）</small>` : '')).join('、')}` : '') +
-              (r.shown.length ? `<br>　👀 戻した ${r.shown.length}: ${r.shown.map(esc).join('、')}` : '') +
-              (sus.length ? `<div class="kt-vf-sus"><b>❓ 公式サイトで見つからなかった ${sus.length} 劇場</b>（数が多い・確かめきれなかったので、自動では隠していません。前に隠していたものも、いったん一覧に戻しました。名前の書き方の違いで見つからなかっただけのこともあります。隠すものだけチェックを入れて押してください）` +
-                `<div class="kt-vf-sus-list">${sus.map((h) => `<label><input type="checkbox" class="kt-vf-sus-chk" value="${esc(h.name)}" data-reason="${esc(h.reason || '')}"> ${esc(h.name)}${h.reason ? ` <small>（${esc(h.reason)}）</small>` : ''}</label>`).join('')}</div>` +
-                `<button type="button" class="danger" data-act="hide-sus">チェックした劇場を隠す</button></div>` : '') +
-              (r.unknown.length ? `<br>　❔ 分からなかった ${r.unknown.length}（そのまま）: <small>${r.unknown.map(esc).join('、')}</small>` : '') +
-              ((r.renamed || []).length ? `<br>　🔤 公式サイトでは名前が違う ${r.renamed.length}: <small>${r.renamed.map((x) => esc(x.name) + ' → ' + esc(x.official)).join('、')}</small>` : '') +
-              ((r.official_list || []).length ? `<details class="kt-vf-off"><summary>公式サイトの一覧（AI が読んだもの）</summary><small>${r.official_list.map(esc).join('、')}</small></details>` : '')
-            : `⚠ <b>${esc(co)}</b>: 公式サイトの劇場一覧を最後まで読めませんでした。何も変えていません。${r.note ? `<small>（${esc(r.note)}）</small>` : ''}`;
-        } catch (err) { line.innerHTML = `⚠ <b>${esc(co)}</b>: 確かめられませんでした（${esc(err.message || err)}）。何も変えていません。`; }
-      }
-      running = false; e.target.disabled = false; e.target.textContent = 'もう一度確かめる';
-      if (changed && opts.onDone) opts.onDone();
-      changed = false;
-    });
-  }
-
-  /* ============================================================
+    /* ============================================================
      更新確認の承認（app.js から呼ぶ）
      ============================================================ */
   // field が 設備/持病/備考 の候補を劇場カルテの1件として入れる。戻り値: 入れた行（既に同じ文があれば null）
@@ -1097,5 +1033,5 @@
     bar.firstChild.textContent = `選んだ ${n} ${S.tab === 'machines' ? '行' : '件'}を `;
   }
 
-  window.KARTE = { show, hide, available, ready, ask, say, openVerify, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
+  window.KARTE = { show, hide, available, ready, ask, say, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
 })();

@@ -4,8 +4,6 @@
 //                      合っている新しい情報は劇場カルテに自動で入れる（theater_notes / theater_contacts / 支配人・電話）。
 //                      重複・間違いは除く。AIが迷ったものだけ「更新確認」に残す（理由つき）。
 //   task 'equipment' … 機器表（PDF・画像、または Excel を文字にしたもの）を読み、機器の一覧（表）にする。保存はしない。
-//   task 'verify'    … 会社の公式サイト（劇場一覧）を web_fetch で読み、劇場の一覧と見比べる。公式サイトに無い劇場は
-//                      theaters.hidden=true（劇場カルテの一覧に出さない。データは消さない）。前に隠して今はある劇場は戻す。
 //
 // 認証: Authorization: Bearer <Supabaseのユーザーaccess_token>（@ryonetsu.com）
 //       または x-flush-key = SUPABASE_SERVICE_ROLE_KEY（GAS の毎日の取り込みから。review だけ）
@@ -60,7 +58,8 @@ const arr = (items) => ({ type: 'array', items });
 const REVIEW_SCHEMA = obj({
   results: arr(obj({
     id: str,
-    verdict: { type: 'string', enum: ['add', 'dup', 'wrong', 'unsure'] },
+    verdict: { type: 'string', enum: ['add', 'dup', 'wrong'] },
+    confidence: { type: 'number' },
     theater: str,
     kind: { type: 'string', enum: ['chronic', 'note', 'equipment', 'manager', 'theater_phone', 'contact'] },
     body: str,
@@ -76,16 +75,20 @@ const EQUIP_SCHEMA = obj({
   note: str
 });
 
+const LOW_CONF = 0.3;   // これ以下の確信度の候補だけ「劇場情報更新確認」に残して人が確かめる
+const VERDICT_JA = { add: '入れる', dup: '重複', wrong: '入れない' };
 const REVIEW_SYSTEM = [
   'あなたは、映画館（シネコン）の空調・設備の保守会社「菱熱工業」で、劇場ごとの「劇場カルテ」を管理する担当者です。',
   'メール・LINE・会議の記録から別のAIが拾った「劇場カルテに足す候補」を、その劇場の今のカルテと見比べて1件ずつ判定します。',
   '',
-  '判定（verdict）:',
-  '・add    … その劇場について長く役に立つ事実で、今のカルテにまだ無い。→ カルテに入れる。',
+  '判定（verdict）は次の3つのどれか。必ず1つに決める:',
+  '・add    … その劇場の設備・運用について役に立つ事実で、今のカルテにまだ無い。→ カルテに入れる。',
   '・dup    … 今のカルテに同じ意味の内容がもうある（言い方が違うだけ・前の情報の言い直し）。',
-  '・wrong  … カルテに入れるべきでない。例：一時的な連絡・案件の進み具合や日程だけの話・挨拶・社内の段取り・ほかの劇場や劇場でない場所の話・根拠のない推測・読み間違い。',
-  '・unsure … 判断できない（今のカルテと食い違う・どの劇場の話か分からない・内容があいまい）。人が確かめる。',
-  '迷った時に add にしないこと。ただし、根拠がはっきりしていて新しい事実なら、細かくても add でよい（機器の型式・系統・更新した年・繰り返す故障・作業の決まりなど）。',
+  '・wrong  … カルテに入れるべきでない。例：一時的な連絡・案件の進み具合や日程だけの話・挨拶・社内の段取り・ほかの劇場や劇場でない場所の話・読み間違い。',
+  '拾った候補はほとんど合っている。だいたい合っていて新しい事実なら add にする（細かくてもよい: 機器の型式・系統・更新した年・繰り返す故障・作業の決まり・連絡先など）。',
+  '言い回しが少しおかしい・一部があいまいなだけなら、body で正しく短く書き直して add にする。',
+  'confidence: その判定（verdict）がどれくらい確かか 0〜1。0.3 以下の時だけ人が確かめる（それより上なら判定のとおりに入れる・除く）。',
+  '  例: 今のカルテと食い違う・どの劇場の話か分からない・中身が読めない時は 0.3 以下にする。',
   '',
   '種類（kind）:',
   '・chronic=持病・注意（繰り返す故障・弱点・気をつけること） / note=備考（運用の決まり・窓口・作業申請のルールなど） / equipment=設備メモ（機種・系統・更新の履歴）',
@@ -145,6 +148,10 @@ async function reviewGroup(theater, items, ctx) {
       }
       let verdict = r.verdict;
       let reason = String(r.reason || '').slice(0, 200);
+      // 確信度が 30% 以下の時だけ人が確かめる（それより上は判定のとおりにする）
+      const conf = typeof r.confidence === 'number' ? r.confidence : 0;
+      if (!['add', 'dup', 'wrong'].includes(verdict) || conf <= LOW_CONF) { reason = `確信度 ${Math.round(conf * 100)}%（AIの判定: ${VERDICT_JA[verdict] || verdict}）` + (reason ? '／' + reason : ''); verdict = 'unsure'; }
+      else reason = `確信度 ${Math.round(conf * 100)}%／` + reason;
       let target = theater;
       const rt = ctx.canon(r.theater);
       if (rt && ctx.nameSet.has(rt)) target = rt;
@@ -319,139 +326,6 @@ async function inlineFiles(content) {
   return out;
 }
 
-// ---------- 公式サイトで確かめる（閉館などで無くなった劇場を隠す） ----------
-// 会社ごとの公式サイト。urls は AI が最初に開いてよいページ（web_fetch は会話に出た URL しか開けないため、
-// 劇場一覧・サイトマップの候補を並べておく）。hosts は読んでよいサイト（www. などの下の名前も含む）
-const OFFICIAL = {
-  'TOHOシネマズ': { urls: ['https://www.tohotheater.jp/theater/find.html', 'https://www.tohotheater.jp/'], hosts: ['tohotheater.jp'] },
-  '109シネマズ': { urls: ['https://109cinemas.net/', 'https://109cinemas.net/sitemap.xml'], hosts: ['109cinemas.net'] },
-  'ユナイテッドシネマ': { urls: ['https://www.unitedcinemas.jp/', 'https://www.unitedcinemas.jp/sitemap.xml'], hosts: ['unitedcinemas.jp'] },
-  '佐々木興業': { urls: ['https://www.cinemasunshine.co.jp/', 'https://www.cinemasunshine.co.jp/theater/', 'https://www.cinemasunshine.co.jp/sitemap.xml'], hosts: ['cinemasunshine.co.jp'] },
-  'シネマサンシャイン': { urls: ['https://www.cinemasunshine.co.jp/', 'https://www.cinemasunshine.co.jp/theater/', 'https://www.cinemasunshine.co.jp/sitemap.xml'], hosts: ['cinemasunshine.co.jp'] },
-  'コロナワールド': { urls: ['https://www.korona.co.jp/', 'https://www.korona.co.jp/cinema/', 'https://www.coronaworld.co.jp/'], hosts: ['korona.co.jp', 'coronaworld.co.jp'] },
-  'MOVIX': { urls: ['https://www.smt-cinema.com/', 'https://www.smt-cinema.com/sitemap.xml'], hosts: ['smt-cinema.com'] },
-  'イオンシネマズ': { urls: ['https://www.aeoncinema.com/theater/', 'https://www.aeoncinema.com/'], hosts: ['aeoncinema.com'] }
-};
-const VERIFY_SCHEMA = obj({
-  site_ok: { type: 'boolean' },
-  official_list: arr(str),
-  theaters: arr(obj({ name: str, status: { type: 'string', enum: ['exists', 'closed', 'unknown'] }, official_name: str, reason: str })),
-  source_url: str,
-  note: str
-});
-const HIDE_REASON_MAX = 120;
-// 劇場名の「場所」の部分（会社名・空白・記号を取る）。「TOHOシネマズ 名古屋ベイシティ」→「名古屋ベイシティ」
-const CO_WORDS = /(TOHO\s*シネマズ|TOHO\s*CINEMAS|109\s*シネマズ|109\s*CINEMAS|ユナイテッド[・･\s]*シネマ[ズ]?|UNITED\s*CINEMAS|シネマサンシャイン|CINEMA\s*SUNSHINE|コロナシネマワールド|コロナワールド|MOVIX|イオンシネマ[ズ]?|劇場|シネマ|映画館)/gi;
-export function placeCore(name) {
-  return String(name || '').normalize('NFKC').replace(CO_WORDS, '').replace(/[\s　・･\-－ー（）()「」『』.,、。]/g, '').toLowerCase();
-}
-// アプリの劇場名が、公式サイトの一覧のどれかと同じ劇場らしいか（場所の部分が含まれ合う）
-export function officialMatch(name, list) {
-  const c = placeCore(name); if (c.length < 2) return '';
-  for (const o of list || []) {
-    const oc = placeCore(o); if (oc.length < 2) continue;
-    if (oc === c || oc.includes(c) || c.includes(oc)) return o;
-  }
-  return '';
-}
-// 一度にこれより多く「無い」となった時は、名前の書き方の違いなどで AI が見落としている恐れがあるので自動では隠さない
-const autoHideLimit = (n) => Math.max(3, Math.ceil(n * 0.15));
-async function runVerify(body) {
-  const company = String(body.company || '');
-  const site = OFFICIAL[company];
-  if (!site) return { status: 400, error: 'この会社の公式サイトは登録されていません: ' + company };
-  const rows = await sbGet(`theaters?company=eq.${enc(company)}&select=name,hidden,hidden_reason,official_name&order=name.asc&limit=500`);
-  if (!rows.length) return { status: 200, ok: true, company, checked: 0, hidden: [], shown: [], unknown: [], suspect: [], note: '劇場がありません' };
-  const tools = [
-    { type: 'web_fetch_20260209', name: 'web_fetch', max_uses: 15, allowed_domains: site.hosts },
-    { type: 'web_search_20260209', name: 'web_search', max_uses: 8, allowed_domains: site.hosts }
-  ];
-  const prompt = [
-    `${company} の公式サイトで、今営業している劇場（映画館）の一覧を読んでください。最初に開くページの候補:`,
-    site.urls.map((u) => '- ' + u).join('\n'),
-    '・一覧が無ければ、同じサイトの中の「劇場一覧」「劇場を探す」「シアター一覧」などのリンクや、サイトマップ（sitemap.xml）をたどる。',
-    '・劇場名がページに出てこない（後から読み込まれる）時は、web_search（このサイトの中だけ）で劇場のページを探してよい。',
-    '・official_list に、公式サイトの劇場一覧に載っている今営業中の劇場の名前を全部、公式の書き方のまま入れる。',
-    `  ${company} の名前が付かない提携・グループの劇場（例: 札幌シネマフロンティア のように冠が付かない店）も、公式サイトの一覧に載っていれば必ず入れる。`,
-    '・そのうえで、下の「アプリの劇場の一覧」の1つずつについて答える:',
-    '  exists＝公式サイトにある。名前の書き方が違っても、同じ劇場なら exists（例「ららぽーと横浜」と「TOHOシネマズららぽーと横浜」）。アプリの名前に会社名が付いていても、公式サイトでは冠の付かない提携の劇場のことがある（例「TOHOシネマズ 札幌」→「札幌シネマフロンティア」）。同じ場所に別の劇場がある時（例: 札幌に「すすきの」と「札幌シネマフロンティア」）は、どちらか分からなければ unknown にして reason に候補を書く',
-    '  名前が似ていても別の劇場のことがある（例「名古屋ベイシティ」は閉館、「名古屋栄」は新しい別の劇場）。新しくできた劇場と、閉館した劇場を同じにしない',
-    '  closed＝公式サイトに「閉館」「営業終了」と書いてある、または一覧を全部読み、さらに web_search でその場所の名前を探しても劇場のページが無かった時だけ',
-    '  unknown＝それ以外。サイトが開けなかった・一覧を最後まで読めなかった・迷った時は unknown（閉館と決めつけない）',
-    '・official_name は公式サイトでの名前（exists の時）。reason は判断の理由を日本語で短く（40字くらい。閉館の時は、どこにそう書いてあったか）。',
-    '・site_ok は公式サイトの劇場一覧を最後まで読めた時だけ true。読めなかったら false にして、全部 unknown にする。',
-    '・name は下の一覧の名前を1文字も変えずにそのまま返す。',
-    '',
-    '■ アプリの劇場の一覧',
-    rows.map((r) => '- ' + r.name).join('\n')
-  ].join('\n');
-  const out = await claudeJson({ model: AI_MODEL, prevModel: AI_MODEL_PREV, system: 'あなたは映画館チェーンの劇場一覧を、公式サイトで確かめる担当者です。決まった JSON の形で答えます。推測で閉館と決めつけないこと。', content: prompt, schema: VERIFY_SCHEMA, tools, effort: 'medium', maxTokens: 24000, maxTurns: 10 });
-  if (out.error) return { status: 502, error: out.error };
-  const d = out.data || {};
-  const official = (d.official_list || []).map(String).filter(Boolean);
-  // 公式サイトの一覧がほとんど取れていない時は、読めなかったのと同じ扱い
-  const siteOk = !!d.site_ok && official.length >= Math.min(3, rows.length);
-  const byName = {}; (d.theaters || []).forEach((t) => { if (t && t.name) byName[t.name] = t; });
-  // 公式の一覧に場所の名前が同じ劇場があれば「ある」とみなす（書き方の違いで隠さない）
-  //   ・場所の名前がぴったり同じ（「名古屋ベイシティ」と「TOHOシネマズ名古屋ベイシティ」）→ AI が何と言っても「ある」
-  //   ・含まれ合う（「宇都宮インターパーク」と「宇都宮」）→ AI が「閉館」と書いていなければ「ある」
-  if (siteOk) for (const r of rows) {
-    const t = byName[r.name]; if (!t || t.status === 'exists') continue;
-    const exact = official.find((o) => placeCore(o).length >= 2 && placeCore(o) === placeCore(r.name));
-    const m = exact || (!/閉館|営業終了|閉鎖/.test(t.reason || '') ? officialMatch(r.name, official) : '');
-    if (m) Object.assign(t, { status: 'exists', official_name: m, reason: '公式の一覧に同じ場所の劇場がある: ' + m });
-  }
-  // AI が前に自動で隠した劇場（理由が「公式サイトに無い: 」）も数に入れる。人が隠した・人が戻した劇場は入れない
-  const autoHidden = (r) => r.hidden && /^公式サイトに無い: /.test(r.hidden_reason || '');
-  const closed = rows.filter((r) => { const t = byName[r.name]; return t && t.status === 'closed' && !/^人が戻した/.test(r.hidden_reason || '') && (!r.hidden || autoHidden(r)); });
-  const tooMany = closed.length > autoHideLimit(rows.length);
-  const now = new Date().toISOString();
-  // kept＝前から隠していて、今回も「無い」だった劇場（隠したまま）
-  const res = { status: 200, ok: true, company, checked: rows.length, site_ok: siteOk, official_count: official.length, official_list: official.slice(0, 300), hidden: [], kept: [], shown: [], unknown: [], suspect: [], source_url: d.source_url || '', note: d.note || '' };
-  for (const r of rows) {
-    const t = byName[r.name];
-    if (!siteOk) { res.unknown.push(r.name); continue; }
-    if (!t || t.status === 'unknown') {
-      // 前に AI が自動で隠したのに、今回は確かめきれなかった → 隠す根拠が無いので一度戻し、人に選んでもらう
-      if (autoHidden(r)) {
-        await sbPatch(`theaters?name=eq.${enc(r.name)}`, { hidden: false, hidden_reason: '', verified_at: now });
-        res.suspect.push({ name: r.name, reason: '前に隠したが、今回は確かめきれなかった' + (t && t.reason ? '（' + t.reason + '）' : '') });
-      } else res.unknown.push(r.name);
-      continue;
-    }
-    const patch = { verified_at: now, official_name: t.status === 'exists' ? String(t.official_name || '').slice(0, 120) : r.official_name || '' };
-    if (t.status === 'closed' && /^人が戻した/.test(r.hidden_reason || '')) {
-      res.unknown.push(r.name);   // 人が「隠すのをやめる」で戻した劇場は、AI が無いと言っても隠さない
-    } else if (t.status === 'closed' && tooMany && (!r.hidden || autoHidden(r))) {
-      // 多すぎる → 自動では隠さず、人に確かめてもらう（前に AI が自動で隠したものも一度戻して候補に出す）
-      if (r.hidden) { patch.hidden = false; patch.hidden_reason = ''; }
-      res.suspect.push({ name: r.name, reason: t.reason || '' });
-    } else if (t.status === 'closed') {
-      if (r.hidden && !autoHidden(r)) { res.kept.push({ name: r.name, reason: r.hidden_reason || '' }); }   // 人が隠した → 理由はそのまま
-      else {
-        patch.hidden = true; patch.hidden_reason = ('公式サイトに無い: ' + String(t.reason || '')).slice(0, HIDE_REASON_MAX);
-        (r.hidden ? res.kept : res.hidden).push({ name: r.name, reason: t.reason || '' });
-      }
-    } else if (t.status === 'exists' && r.hidden && /^公式サイトに無い/.test(r.hidden_reason || '')) {
-      // 前に公式サイトに無いとして隠した劇場が、今は公式サイトにある → 戻す（人が隠したものは戻さない）
-      patch.hidden = false; patch.hidden_reason = '';
-      res.shown.push(r.name);
-    }
-    await sbPatch(`theaters?name=eq.${enc(r.name)}`, patch);
-  }
-  // 公式サイトでの名前が、アプリの名前と違う劇場（名前をまとめる候補）
-  res.renamed = rows.map((r) => { const t = byName[r.name]; return t && t.status === 'exists' && t.official_name && placeCore(t.official_name) !== placeCore(r.name) ? { name: r.name, official: String(t.official_name) } : null; }).filter(Boolean);
-  return res;
-}
-
-// 「公式サイトで確かめる」で、自動では隠さなかった劇場（多すぎた時）を、人が見て隠す
-async function runVerifyHide(body) {
-  const names = (Array.isArray(body.names) ? body.names : []).map(String).filter(Boolean).slice(0, 200);
-  if (!names.length) return { status: 400, error: '隠す劇場がありません' };
-  for (const n of names) await sbPatch(`theaters?name=eq.${enc(n)}`, { hidden: true, hidden_reason: ('公式サイトに無い（人が見て隠した）: ' + String((body.reasons || {})[n] || '')).slice(0, HIDE_REASON_MAX) });
-  return { status: 200, ok: true, hidden: names.length };
-}
-
 async function isRyonetsuUser(token) {
   try {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` } });
@@ -477,16 +351,6 @@ export default async function handler(req, res) {
     if (task === 'review') {
       if (!svc) return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY 未設定' });
       return res.status(200).json(await runReview(body));
-    }
-    if (task === 'verify' && !fromGas) {
-      if (!svc) return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY 未設定' });
-      const out = await runVerify(body);
-      return res.status(out.status).json(out.error ? { error: out.error } : out);
-    }
-    if (task === 'verify-hide' && !fromGas) {
-      if (!svc) return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY 未設定' });
-      const out = await runVerifyHide(body);
-      return res.status(out.status).json(out.error ? { error: out.error } : out);
     }
     if (task === 'equipment' && !fromGas) {
       const out = await runEquipment(body);

@@ -333,6 +333,7 @@
   // theaters.equipment/chronic_issues/partner 列（Lv3: 劇場カルテ）
   let theaterKarteSupported = false;
   let theaterInfoSupported = false;      // theaters に manager 等の劇場情報列があるか
+  let theaterCloseSupported = false;     // theaters に closed（閉館）・gem2_co2・gem2_th の列があるか
   let theaterContactsSupported = false;  // theater_contacts テーブルがあるか
   let theaterPendingSupported = false;   // theater_info_pending テーブルがあるか
   let intakePendingSupported = false;    // case_intake_pending テーブルがあるか
@@ -640,12 +641,15 @@
       }
       if (data[0] && Object.prototype.hasOwnProperty.call(data[0], 'equipment')) theaterKarteSupported = true;
       if (data[0] && Object.prototype.hasOwnProperty.call(data[0], 'manager')) theaterInfoSupported = true;
+      // GeM2 のセンサー・閉館（SETUP_THEATER_CLOSE.sql）。まだ実行していない DB では、前の「隠した劇場」を閉館として扱う
+      theaterCloseSupported = !!(data[0] && Object.prototype.hasOwnProperty.call(data[0], 'closed'));
       return data.map((r) => ({
         name: r.name, company: r.company, address: r.address || '',
         equipment: r.equipment || '', chronicIssues: r.chronic_issues || '', partner: r.partner || '',
         manager: r.manager || '', theaterPhone: r.theater_phone || '',
         maintenance: r.maintenance || '', gem2: r.gem2 || '', infoNote: r.info_note || '', homepage: r.homepage || '',
-        hidden: !!r.hidden, hiddenReason: r.hidden_reason || '', officialName: r.official_name || '', verifiedAt: r.verified_at || ''
+        gem2Co2: r.gem2_co2 || '', gem2Th: r.gem2_th || '',
+        closed: r.closed != null ? !!r.closed : !!r.hidden, closedOn: r.closed_on || '', closedNote: r.closed_note != null ? (r.closed_note || '') : (r.hidden ? String(r.hidden_reason || '') : '')
       }));
     },
     async upsertTheater(t) {
@@ -666,6 +670,13 @@
         payload.maintenance = t.maintenance || '';
         payload.gem2 = t.gem2 || '';
         if (!karteOn) payload.info_note = t.infoNote || '';
+      }
+      if (theaterCloseSupported) {
+        payload.gem2_co2 = t.gem2Co2 || '';
+        payload.gem2_th = t.gem2Th || '';
+        payload.closed = !!t.closed;
+        payload.closed_on = t.closedOn || '';
+        payload.closed_note = t.closedNote || '';
       }
       const { error } = await sb.from('theaters').upsert(payload);
       if (error) throw error;
@@ -3650,12 +3661,15 @@
     $('calGrid').innerHTML = html;
   }
 
-  // ⑧ 「📋 タスク管理」ボタンの件数＝未完了のタスク（案件のタスク＋全員の個人タスク）。
+  // ⑧ 「📋 タスク管理」ボタンの件数＝未完了のタスク（案件のタスク＋個人タスク）。
+  // 上の「担当者」ボタンで人を選んでいる時は、その人の分だけ（2人以上なら合計）:
+  //   ・案件のタスク … R担当にその人が入っている案件のタスク（案件一覧の担当者の絞り込みと同じ決まり）
+  //   ・個人タスク … その人の個人タスク
+  // 「全員」（誰も選んでいない）時は全部。
   // 期限切れが1件でもあると赤、無ければ黄。完了・入金済・取り下げ・失注の案件のタスクは数えない
-  function updateTaskBadge() {
-    const badge = $('taskBadge'); if (!badge || !currentUser) return;
-    if (!isPrivileged(currentUser)) { badge.classList.add('hidden'); return; }
+  function taskCountsFor(persons) {
     const today = todayStr();
+    const sel = persons && persons.size ? Array.from(persons) : null;
     let open = 0, over = 0;
     const count = (t) => {
       if (!t || t.done) return;
@@ -3665,9 +3679,20 @@
     };
     visibleCases().forEach((c) => {
       if (CLOSED_FOR_TASKS.indexOf(statusOf(c)) !== -1) return;
+      if (sel) { const rp = c.rPerson || ''; if (!sel.some((n) => rp.includes(n))) return; }
       (Array.isArray(c.tasks) ? c.tasks : []).forEach(count);
     });
-    Object.keys(personalTasks).forEach((p) => (Array.isArray(personalTasks[p]) ? personalTasks[p] : []).forEach(count));
+    Object.keys(personalTasks).forEach((p) => {
+      if (sel && sel.indexOf(p) === -1) return;
+      (Array.isArray(personalTasks[p]) ? personalTasks[p] : []).forEach(count);
+    });
+    return { open, over };
+  }
+  function updateTaskBadge() {
+    const badge = $('taskBadge'); if (!badge || !currentUser) return;
+    if (!isPrivileged(currentUser)) { badge.classList.add('hidden'); return; }
+    const { open, over } = taskCountsFor(rPersonFilter);
+    const who = rPersonFilter.size ? Array.from(rPersonFilter).join('・') + ' の分' : '全員の分';
     // 数字だけだと何の数か分からないため、「未完了」「期限切れ」と文字を添える
     badge.innerHTML = open ? `<span class="bl">未完了</span>${open}` : '';
     badge.classList.toggle('hidden', !open);
@@ -3675,7 +3700,7 @@
     badge.classList.toggle('has-over', !!over);   // スマホでは「期限切れ」の札を出さず、この札を赤くする
     const ob = $('taskOverBadge');
     if (ob) { ob.innerHTML = over ? `<span class="bl">期限切れ</span>${over}` : ''; ob.classList.toggle('hidden', !over); }
-    $('taskBtn').title = open ? `未完了のタスク ${open} 件${over ? `（うち期限切れ ${over} 件）` : ''}（案件のタスク＋全員の個人タスク）` : '';
+    $('taskBtn').title = open ? `未完了のタスク ${open} 件${over ? `（うち期限切れ ${over} 件）` : ''}（${who}：R担当の案件のタスク＋個人タスク）` : '';
   }
 
   // ===== 個人タスクの提案「💡 これタスクでは？」 =====
@@ -4096,11 +4121,11 @@
     else if (companyNames().length > 0) sel.value = companyNames()[0];
   }
   const tiShowHidden = () => !!($('tiShowHidden') && $('tiShowHidden').checked);
-  // 劇場カルテに出す劇場（公式サイトに無いとして隠した劇場は、「隠した劇場も出す」の時だけ）
-  const tiVisibleTheaters = () => theaterMaster.filter((t) => t.name && (!t.hidden || tiShowHidden()));
+  // 劇場カルテに出す劇場（閉館した劇場は、「閉館した劇場も出す」の時だけ）
+  const tiVisibleTheaters = () => theaterMaster.filter((t) => t.name && (!t.closed || tiShowHidden()));
   function populateTiTheaterSearch() {
     const dl = $('tiTheaterAll'); if (!dl) return;
-    dl.innerHTML = tiVisibleTheaters().map((t) => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.company)}${t.hidden ? '（隠した劇場）' : ''}</option>`).join('');
+    dl.innerHTML = tiVisibleTheaters().map((t) => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.company)}${t.closed ? '（閉館）' : ''}</option>`).join('');
   }
   // 打った文字から劇場を探して開く（ぴったり → 1つだけ含む の順）
   function tiJumpToTheater(q, final) {
@@ -4135,9 +4160,12 @@
     const prev = sel.value;
     populateTiTheaterSearch();
     const names = tiVisibleTheaters().filter((t) => t.company === company).map((t) => t.name).filter(Boolean);
+    // 今開いている劇場は、閉館にした直後でも一覧に残す（開いたまま閉館の情報を直せるように）
+    const cur = theaterMaster.find((t) => t.name === prev && t.company === company);
+    if (cur && cur.closed && names.indexOf(prev) === -1) names.push(prev);
     const fromContacts = theaterContacts.filter((c) => c.company === company).map((c) => c.theater).filter(Boolean);
     const list = Array.from(new Set([tiCommonName(company)].concat(names, fromContacts)));
-    sel.innerHTML = list.map((n) => { const t = theaterMaster.find((x) => x.name === n); return `<option value="${escapeHtml(n)}">${escapeHtml(n)}${t && t.hidden ? '（隠した劇場）' : ''}</option>`; }).join('');
+    sel.innerHTML = list.map((n) => { const t = theaterMaster.find((x) => x.name === n); return `<option value="${escapeHtml(n)}">${escapeHtml(n)}${t && t.closed ? '（閉館）' : ''}</option>`; }).join('');
     if (prev && list.indexOf(prev) !== -1) sel.value = prev;
     else if (list.length > 0) sel.value = list[0];
   }
@@ -4150,7 +4178,9 @@
   let tiBulkMode = false; // 全体編集（縦=劇場×横=登録項目のグリッド）モード
   // ===== 劇場情報テーブルの列幅ドラッグ（個人設定・localStorage保存） =====
   // 見出しの右端をドラッグすると列幅が変わる。幅はテーブルごと・列ごとにアカウント別で保存。
-  function tmWidthKey(tableId) { return userFilterKey('tmColW_' + tableId); }
+  // 列を足した表は版を上げて、前に覚えた列幅（列の番号で覚えている）を使わない
+  const TM_W_VER = { tiBulkTable: 'v2' };
+  function tmWidthKey(tableId) { return userFilterKey('tmColW_' + tableId + (TM_W_VER[tableId] ? '_' + TM_W_VER[tableId] : '')); }
   function loadTmWidths(tableId) {
     try { const o = JSON.parse(localStorage.getItem(tmWidthKey(tableId))); return (o && typeof o === 'object') ? o : {}; }
     catch (e) { return {}; }
@@ -4223,15 +4253,18 @@
       const marks = (v) => ['', '○', '×'].map((m) =>
         `<option value="${m}" ${m === (v || '') ? 'selected' : ''}>${m}</option>`).join('');
       tbody.innerHTML = rows.map((t) => `
-        <tr data-theater-name="${escapeHtml(t.name)}">
+        <tr data-theater-name="${escapeHtml(t.name)}" class="${t.closed ? 'tib-row-closed' : ''}">
           <td class="tib-name">${escapeHtml(t.name)}</td>
-          <td><textarea class="tm-input tib-manager" rows="2">${escapeHtml(t.manager || '')}</textarea></td>
-          <td><textarea class="tm-input tib-phone" rows="2">${escapeHtml(t.theaterPhone || '')}</textarea></td>
+          <td><textarea class="tm-input tib-manager" rows="1">${escapeHtml(t.manager || '')}</textarea></td>
+          <td><textarea class="tm-input tib-phone" rows="1">${escapeHtml(t.theaterPhone || '')}</textarea></td>
           <td><select class="tm-input tib-maintenance">${marks(t.maintenance)}</select></td>
           <td><select class="tm-input tib-gem2">${marks(t.gem2)}</select></td>
-          <td><textarea class="tm-input tib-equipment" rows="2">${escapeHtml(t.equipment || '')}</textarea></td>
-          <td><textarea class="tm-input tib-chronic" rows="2">${escapeHtml(t.chronicIssues || '')}</textarea></td>
-          <td><textarea class="tm-input tib-note" rows="2">${escapeHtml(t.infoNote || '')}</textarea></td>
+          <td><select class="tm-input tib-gem2co2">${marks(t.gem2Co2)}</select></td>
+          <td><select class="tm-input tib-gem2th">${marks(t.gem2Th)}</select></td>
+          <td class="tib-close"><label><input type="checkbox" class="tib-closed" ${t.closed ? 'checked' : ''}> 閉館</label><input type="text" class="tm-input tib-closed-on" value="${escapeHtml(t.closedOn || '')}" placeholder="閉館日"></td>
+          <td class="tib-legacy"><textarea class="tm-input tib-equipment" rows="2">${escapeHtml(t.equipment || '')}</textarea></td>
+          <td class="tib-legacy"><textarea class="tm-input tib-chronic" rows="2">${escapeHtml(t.chronicIssues || '')}</textarea></td>
+          <td class="tib-legacy"><textarea class="tm-input tib-note" rows="2">${escapeHtml(t.infoNote || '')}</textarea></td>
         </tr>
       `).join('');
     }
@@ -4245,6 +4278,10 @@
     else if (e.target.classList.contains('tib-phone')) entry.theaterPhone = e.target.value.trim();
     else if (e.target.classList.contains('tib-maintenance')) entry.maintenance = e.target.value;
     else if (e.target.classList.contains('tib-gem2')) entry.gem2 = e.target.value;
+    else if (e.target.classList.contains('tib-gem2co2')) entry.gem2Co2 = e.target.value;
+    else if (e.target.classList.contains('tib-gem2th')) entry.gem2Th = e.target.value;
+    else if (e.target.classList.contains('tib-closed')) { entry.closed = e.target.checked; tr.classList.toggle('tib-row-closed', entry.closed); }
+    else if (e.target.classList.contains('tib-closed-on')) entry.closedOn = e.target.value.trim();
     else if (e.target.classList.contains('tib-equipment')) entry.equipment = e.target.value;
     else if (e.target.classList.contains('tib-chronic')) entry.chronicIssues = e.target.value;
     else if (e.target.classList.contains('tib-note')) entry.infoNote = e.target.value;
@@ -4278,8 +4315,8 @@
     $('tiInfoBox').classList.toggle('hidden', !entry);
     const hb = $('tiHiddenBanner');
     if (hb) {
-      hb.classList.toggle('hidden', !(entry && entry.hidden));
-      if (entry && entry.hidden) hb.innerHTML = `🙈 この劇場は一覧から隠しています（${escapeHtml(entry.hiddenReason || '公式サイトに無い')}）。 <button type="button" id="tiUnhideBtn">隠すのをやめる</button>`;
+      hb.classList.toggle('hidden', !(entry && entry.closed));
+      if (entry && entry.closed) hb.textContent = `🏚 この劇場は閉館しています${entry.closedOn ? '（' + entry.closedOn + '）' : ''}${entry.closedNote ? '：' + entry.closedNote : ''}。劇場の一覧には出ません（下の「閉館」のチェックを外すと戻ります）。`;
     }
     // 劇場カルテ（持病・注意 / 機器表 / 不具合の履歴 / 備考 / 設備メモ / 連絡先 のタブ）。
     // 会社の（共通）にも出す＝複数劇場の話・どこか分からない話の置き場（カルテで1件ずつ正しい劇場へ移せる）
@@ -4293,6 +4330,12 @@
       $('tiPhone').value = entry.theaterPhone || '';
       $('tiMaintenance').value = entry.maintenance || '';
       $('tiGem2').value = entry.gem2 || '';
+      $('tiGem2Co2').value = entry.gem2Co2 || '';
+      $('tiGem2Th').value = entry.gem2Th || '';
+      $('tiClosed').checked = !!entry.closed;
+      $('tiClosedOn').value = entry.closedOn || '';
+      $('tiClosedNote').value = entry.closedNote || '';
+      $('tiInfoBox').classList.toggle('ti-is-closed', !!entry.closed);
       $('tiEquipment').value = entry.equipment || '';
       $('tiChronic').value = entry.chronicIssues || '';
       $('tiNote').value = entry.infoNote || '';
@@ -4755,11 +4798,22 @@
     entry.theaterPhone = $('tiPhone').value.trim();
     entry.maintenance = $('tiMaintenance').value;
     entry.gem2 = $('tiGem2').value;
+    entry.gem2Co2 = $('tiGem2Co2').value;
+    entry.gem2Th = $('tiGem2Th').value;
+    const wasClosed = !!entry.closed;
+    entry.closed = $('tiClosed').checked;
+    entry.closedOn = $('tiClosedOn').value.trim();
+    entry.closedNote = $('tiClosedNote').value.trim();
     entry.equipment = $('tiEquipment').value;
     entry.chronicIssues = $('tiChronic').value;
     entry.infoNote = $('tiNote').value;
     if (store.mode === 'local') saveTheaterMaster(theaterMaster);
     persistTheater(entry);
+    if (wasClosed !== entry.closed) { populateTiTheaterSelect(); renderTheaterInfo(); }
+    else {
+      const hb = $('tiHiddenBanner');
+      if (hb && entry.closed) hb.textContent = `🏚 この劇場は閉館しています${entry.closedOn ? '（' + entry.closedOn + '）' : ''}${entry.closedNote ? '：' + entry.closedNote : ''}。劇場の一覧には出ません（下の「閉館」のチェックを外すと戻ります）。`;
+    }
   }
   function tiFindContact(id) {
     return theaterContacts.find((c) => String(c.id) === String(id));
@@ -5397,7 +5451,13 @@
   $('closeTheaterInfoModal').addEventListener('click', closeTheaterInfoModal);
   $('tiCloseBtn').addEventListener('click', closeTheaterInfoModal);
   $('tiCompanySelect').addEventListener('change', () => { populateTiTheaterSelect(); renderTheaterInfo(); });
-  $('tiTheaterSelect').addEventListener('change', renderTheaterInfo);
+  $('tiTheaterSelect').addEventListener('change', () => {
+    // 閉館にした劇場から別の劇場へ移った時は、一覧を作り直してその劇場を消す（「閉館した劇場も出す」の時は残す）
+    const sel = $('tiTheaterSelect');
+    const stale = Array.from(sel.options).some((o) => { const t = theaterMaster.find((x) => x.name === o.value); return t && t.closed && !tiShowHidden() && o.value !== sel.value; });
+    if (stale) populateTiTheaterSelect();
+    renderTheaterInfo();
+  });
   $('tiAddContactBtn').addEventListener('click', addTheaterContactRow);
   $('tiBody').addEventListener('change', handleTheaterInfoTableInput);
   $('tiBody').addEventListener('click', handleTheaterInfoTableClick);
@@ -5417,56 +5477,6 @@
     $('tiTheaterSearch').addEventListener('keydown', (e) => { if (e.key === 'Escape') tiSearchPick(null); });
   }
   if ($('tiShowHidden')) $('tiShowHidden').addEventListener('change', () => { populateTiTheaterSelect(); renderTheaterInfo(); });
-  document.addEventListener('click', async (e) => {
-    if (!e.target || e.target.id !== 'tiUnhideBtn') return;
-    const t = theaterMaster.find((x) => x.name === $('tiTheaterSelect').value); if (!t) return;
-    t.hidden = false; t.hiddenReason = '人が戻した';
-    if (store.mode === 'local') saveTheaterMaster(theaterMaster);
-    else { const { error } = await sb.from('theaters').update({ hidden: false, hidden_reason: '人が戻した（公式サイトで確かめても隠さない）' }).eq('name', t.name); if (error) { onPersistError(error); return; } }
-    populateTiTheaterSelect(); renderTheaterInfo();
-  });
-  // 劇場を選んで隠す（人が決める。AI は使わない）。隠した理由は「人が隠した」→ 公式サイトで確かめても勝手には戻らない
-  if ($('tiHidePickBtn')) $('tiHidePickBtn').addEventListener('click', () => {
-    const company = $('tiCompanySelect').value;
-    const list = theaterMaster.filter((t) => t.company === company && !t.hidden).map((t) => t.name).sort((a, b) => a.localeCompare(b, 'ja'));
-    const K = window.KARTE;
-    if (!list.length) { if (K) K.say(company + ' に隠せる劇場がありません。'); return; }
-    document.querySelectorAll('#tiHidePick').forEach((x) => x.remove());
-    const ov = document.createElement('div');
-    ov.className = 'kt-overlay'; ov.id = 'tiHidePick';
-    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid"><div class="kt-dlg-head">🙈 ${escapeHtml(company)} の劇場を選んで隠す<button type="button" class="close-btn" data-x>×</button></div>
-      <div class="kt-dlg-body"><p class="tm-hint">一覧に出さない劇場にチェックを入れてください。案件・カルテのデータは消えません（「隠した劇場も出す」で見られ、「隠すのをやめる」で戻せます）。</p>
-        <input type="search" class="tm-input" id="tiHpQ" placeholder="🔍 劇場名で絞る" autocomplete="off">
-        <div class="ti-hp-list" id="tiHpList">${list.map((n) => `<label><input type="checkbox" value="${escapeHtml(n)}"> ${escapeHtml(n)}</label>`).join('')}</div>
-        <label class="ti-hp-why">理由（任意） <input type="text" class="tm-input" id="tiHpWhy" placeholder="例: 公式サイトの一覧（73館）に無い"></label></div>
-      <div class="kt-dlg-foot"><span id="tiHpN"></span><button type="button" class="danger" data-ok>チェックした劇場を隠す</button><button type="button" data-x>やめる</button></div></div>`;
-    document.body.appendChild(ov);
-    const count = () => { const n = ov.querySelectorAll('#tiHpList input:checked').length; ov.querySelector('#tiHpN').textContent = n ? n + ' 劇場を選んでいます' : ''; };
-    ov.addEventListener('change', count);
-    ov.querySelector('#tiHpQ').addEventListener('input', (e) => { const q = e.target.value.replace(/[\s　]/g, ''); ov.querySelectorAll('#tiHpList label').forEach((l) => { l.style.display = !q || l.textContent.replace(/[\s　]/g, '').includes(q) ? '' : 'none'; }); });
-    ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
-      if (!e.target.closest('[data-ok]')) return;
-      const names = Array.from(ov.querySelectorAll('#tiHpList input:checked')).map((x) => x.value);
-      if (!names.length) { if (K) K.say('隠す劇場にチェックを入れてください。'); return; }
-      if (K && !(await K.ask(`${names.length} 劇場を一覧から隠しますか？（データは消えません）`, { ok: '隠す', danger: true }))) return;
-      const why = ov.querySelector('#tiHpWhy').value.trim();
-      const reason = ('人が隠した' + (why ? ': ' + why : '')).slice(0, 120);
-      if (store.mode === 'local') { names.forEach((n) => { const t = theaterMaster.find((x) => x.name === n); if (t) { t.hidden = true; t.hiddenReason = reason; } }); saveTheaterMaster(theaterMaster); }
-      else {
-        const { error } = await sb.from('theaters').update({ hidden: true, hidden_reason: reason }).in('name', names);
-        if (error) { onPersistError(error); return; }
-        names.forEach((n) => { const t = theaterMaster.find((x) => x.name === n); if (t) { t.hidden = true; t.hiddenReason = reason; } });
-      }
-      ov.remove();
-      populateTiTheaterSelect(); renderTheaterInfo();
-      if (K) K.say(`${names.length} 劇場を隠しました。`);
-    });
-  });
-  if ($('tiVerifyBtn')) $('tiVerifyBtn').addEventListener('click', () => {
-    if (!window.KARTE) return;
-    window.KARTE.openVerify({ onDone: async () => { try { theaterMaster = await store.fetchTheaterMaster(); } catch (err) {} populateTiTheaterSelect(); renderTheaterInfo(); } });
-  });
   if ($('tiExportBtn')) $('tiExportBtn').addEventListener('click', () => { if (window.KARTE) window.KARTE.openExport($('tiCompanySelect').value); });
   $('tiBulkBody').addEventListener('change', handleTiBulkInput);
   // 劇場情報の入力: 打ちながら高さを中身に合わせる（全文が見えるように）
@@ -5484,7 +5494,7 @@
     ['tiTable', 'tiBulkTable'].forEach((id) => { const t = $(id); if (t) resetTmWidths(t); });
     renderTheaterInfo();
   });
-  ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
+  ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiGem2Co2', 'tiGem2Th', 'tiClosed', 'tiClosedOn', 'tiClosedNote', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
     $(id).addEventListener('change', handleTheaterInfoFieldChange);
   });
 
@@ -6313,7 +6323,7 @@
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
       companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },
       // 書類棚(shelf.js)用: 劇場マスタ・案件（見えている分）・ログイン中の人
-      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '', manager: t.manager || '', theaterPhone: t.theaterPhone || '', maintenance: t.maintenance || '', gem2: t.gem2 || '', homepage: t.homepage || '', hidden: !!t.hidden })); } catch (e) { return []; } },
+      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '', manager: t.manager || '', theaterPhone: t.theaterPhone || '', maintenance: t.maintenance || '', gem2: t.gem2 || '', gem2Co2: t.gem2Co2 || '', gem2Th: t.gem2Th || '', homepage: t.homepage || '', closed: !!t.closed, closedOn: t.closedOn || '', closedNote: t.closedNote || '' })); } catch (e) { return []; } },
       cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', receivedDate: c.receivedDate || '', category: c.category || '', status: deriveStatus(c), surveyDate: c.surveyDate || '', workEndDate: c.workEndDate || '', tcPerson: c.tcPerson || '', rPerson: c.rPerson || '' })); } catch (e) { return []; } },
       // 工事予定表(plan.js)用: 案件の一覧（見えている分）と、案件を直す（予定表で直した項目を案件にも入れる）
       casesFull: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', estimateAmount: c.estimateAmount, marginRate: c.marginRate, rPerson: c.rPerson || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', receivedDate: c.receivedDate || '', status: deriveStatus(c) })); } catch (e) { return []; } },
