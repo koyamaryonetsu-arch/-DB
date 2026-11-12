@@ -49,7 +49,8 @@ test('乗り物: すべての 職業（117）に、その 系統の 乗り物が
   for (const id of VEHICLE_ORDER) {
     const v = VEHICLES[id];
     assert.ok(v.name && v.desc, id);
-    assert.ok(Number.isInteger(v.price) && v.price >= 100 && v.price <= 20000, `${id} ${v.price}`);
+    // 第79回: 幻の職業の 乗り物（phantom）だけ 30000G まで
+    assert.ok(Number.isInteger(v.price) && v.price >= 100 && v.price <= (v.phantom ? 30000 : 20000), `${id} ${v.price}`);
   }
 });
 

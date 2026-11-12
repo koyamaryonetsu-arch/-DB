@@ -198,6 +198,8 @@ export function gameFiles() {
     'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
     // 乗り物（第37回）
     'public/js/shared/data/vehicles.js', 'public/js/shared/world/vehicles.js', 'public/js/client/ui/vehicles.js', 'public/js/client/render/vehicle-art.js',
+    // 第79回: 幻の職業の 乗り物
+    'public/js/shared/data/vehicles-phantom.js', 'public/js/client/render/vehicle-phantom.js',
     // 魔物あずかり所（第43回 C）
     'public/js/shared/world/storage.js', 'public/js/client/ui/storage.js',
     // 家族に 道具を あげる（第50回 N6）

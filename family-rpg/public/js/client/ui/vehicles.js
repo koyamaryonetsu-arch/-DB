@@ -28,6 +28,7 @@ function styles() {
 .menu .tag.veh-now { color: #9fe8a8; border-color: rgba(159, 232, 168, 0.6); }
 .menu .tag.veh-job { color: #ffb0d8; border-color: rgba(255, 176, 216, 0.55); }
 .menu .tag.veh-gift { color: #ffe08a; border-color: rgba(255, 224, 138, 0.6); }
+.menu .tag.veh-phantom { color: #d8b8ff; border-color: rgba(216, 184, 255, 0.65); }
 .veh-view .detail { white-space: pre-wrap; }
 ` }));
 }
@@ -76,8 +77,8 @@ export function vehiclePreview(game) {
   };
 }
 
-// 職業に ちなんだ 乗り物の しるし
-const jobTag = (id) => (VEHICLES[id]?.gift ? '<span class="tag veh-gift">もらった物</span>' : VEHICLES[id]?.jobs ? '<span class="tag veh-job">職業</span>' : '');
+// 職業に ちなんだ 乗り物の しるし（第79回: 幻の職業の 乗り物は「幻」）
+const jobTag = (id) => (VEHICLES[id]?.gift ? '<span class="tag veh-gift">もらった物</span>' : VEHICLES[id]?.phantom ? '<span class="tag veh-phantom">幻</span>' : VEHICLES[id]?.jobs ? '<span class="tag veh-job">職業</span>' : '');
 
 // ───────────── 乗り物屋 ─────────────
 export async function vehicleShopUI(game, data) {

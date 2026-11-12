@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>乗り物 プレビュー（かいはつよう）</title>
+<style>
+  body { background: #3d6b3a; color: #fff; font-family: sans-serif; margin: 10px; }
+  canvas { image-rendering: pixelated; display: block; }
+  .row { display: flex; align-items: flex-end; gap: 6px; margin: 4px 0 10px; }
+  .nm { font-size: 13px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script type="module">
+// 使い方: tools/preview-vehicles.html?ids=sky_galleon,hero_pegasus&job=pirate_king
+//   4つの 向き × 3コマ を ならべる（人を のせた 絵。field.js と おなじ vehicleCanvas）
+import { vehicleCanvas, vehicleFrames } from '../public/js/client/render/vehicle-art.js';
+import { heroCanvas, heroLookKey } from '../public/js/client/render/hero.js';
+import { equipKey } from '../public/js/client/render/chars.js';
+import { VEHICLES } from '../public/js/shared/data/vehicles.js';
+import { PHANTOM_VEHICLES } from '../public/js/shared/data/vehicles-phantom.js';
+
+const q = new URLSearchParams(location.search);
+const ids = (q.get('ids') || Object.keys(PHANTOM_VEHICLES).join(',')).split(',');
+const look = { body: +(q.get('body') || 0), hair: 1, hairColor: 2, skin: 0, color: 3 };
+const S = +(q.get('s') || 3);
+const out = document.getElementById('out');
+for (const id of ids) {
+  const job = q.get('job') || VEHICLES[id]?.jobs?.[0] || 'warrior';
+  const ek = equipKey({}, job);
+  const key = `${heroLookKey(look)}:${job}:${ek}`;
+  const nm = document.createElement('div');
+  nm.className = 'nm';
+  nm.textContent = `${id}  ${VEHICLES[id]?.name || '?'}  ${VEHICLES[id]?.price ?? ''}G`;
+  out.append(nm);
+  const row = document.createElement('div');
+  row.className = 'row';
+  for (const dir of ['down', 'left', 'up', 'right']) {
+    for (let f = 0; f < 3; f++) {
+      const c = vehicleCanvas(id, key, (d, fr) => heroCanvas(look, job, ek, d, fr, 4), dir, f % vehicleFrames(id));
+      if (!c) continue;
+      const cv = document.createElement('canvas');
+      const w = (c.width / 4) * S, h = (c.height / 4) * S;
+      cv.width = w; cv.height = h;
+      const x = cv.getContext('2d');
+      x.imageSmoothingEnabled = false;
+      x.drawImage(c, 0, 0, w, h);
+      row.append(cv);
+    }
+  }
+  out.append(row);
+}
+document.title = 'ready';
+</script>
+</body>
+</html>
