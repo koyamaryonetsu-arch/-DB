@@ -66,6 +66,7 @@ import { fieldUsableAbilities, splitFieldAbilities } from '../../shared/fieldski
 import { sortByStdPower, favSection, mergeSectionOrder, moveInGrid } from '../../shared/skill-sort.js';
 // 第71回 E: 覚えた技の 2つの 見方（種類で見る・職業で見る）
 import { LEARN_VIEWS, LEARN_SECS, learnedKindTabs, learnedJobTabs, pickLearnTab, nextLearnTab } from '../../shared/skill-view.js';
+import { MENU_VIEWS, SIMPLE_NOTE, menuSimple, menuViewOf, simpleLearnOrder } from '../../shared/menu-view.js';
 import './r69-css.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
@@ -915,6 +916,15 @@ export class FieldMenu {
       el('div', { class: 'tabs' }, ...SKILL_TABS.map(([id, label]) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => go(id) }))),
       active ? el('div', { class: 'tab-hint', text: '◀ ▶（左右）でタブを切りかえ' }) : null);
     box.append(head);
+    // 第78回 3-6: かんたん表示（設定。キャラごと〈自分の キャラの 設定。仲間の 画面も おなじ〉。shared/menu-view.js）。
+    //   かくす だけ: 覚えた技の 見方・タブ／お気に入りの 動かす／えらぶ まどの「命令の一覧に出さない」。データは そのまま 効く
+    const simple = menuSimple(g.me);
+    if (simple) {
+      this.favGrab = null;
+      addSimpleCss();
+      box.classList.add('sk-simple');
+      head.append(el('div', { class: 'simple-note', text: SIMPLE_NOTE }));
+    }
     // タブが 2行に なっても（せまい スマホ）えらんだ 行が タブの 下に かくれないように、見出しの 高さを はかる（CSS の scroll-margin-top）
     if (active && typeof ResizeObserver === 'function') {
       new ResizeObserver(() => { if (head.offsetHeight) box.style.setProperty('--sk-head-h', `${head.offsetHeight + 12}px`); }).observe(head);
@@ -1149,6 +1159,7 @@ export class FieldMenu {
           onSelect: async (it) => {
             this.sub.blur();
             // 動かす・お気に入りからはずす・命令の一覧に出さない／出す（第71回）・やめる
+            // かんたん表示は skillAsk が「動かす」を 出さない（ならびは そのまま）
             const op = await this.skillAsk(c, it.value, { pre: [{ label: '動かす', value: 'move' }] });
             if (op === 'move') {
               const sec = secs.find((x) => x.k === it.sec);
@@ -1186,7 +1197,8 @@ export class FieldMenu {
         }
         box.append(el('div', { class: grab ? 'small muted' : 'detail', text: grab
           ? `「${abilityFor(grab.ids[grab.pos], c).name}」をつかんでいる。${touch ? '▲▼◀▶で動かして「おく」。ほかの技をタップすると、そこと入れかわる。' : '十字キーで動かして、決定でおく。Bでやめる（元にもどる）。'}`
-          : '戦いの「★」のタブと同じならび（呪文と特技に分かれる）。選ぶと「動かす」「はずす」「命令の一覧に出さない」を選べる。動かすと、つかんだ技を十字キーで動かせる。' }));
+          : simple ? '戦いの「★」のタブと同じならび（呪文と特技に分かれる）。選ぶと「お気に入りからはずす」を選べる。'
+            : '戦いの「★」のタブと同じならび（呪文と特技に分かれる）。選ぶと「動かす」「はずす」「命令の一覧に出さない」を選べる。動かすと、つかんだ技を十字キーで動かせる。' }));
       } else if (favs.length) {
         for (const sec of secs) box.append(el('div', { class: 'small', text: `${sec.label}：${sec.ids.map((id) => abilityFor(id, c).name).join('、')}` }));
         box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、「★」のタブにこのじゅんで出る。' }));
@@ -1235,11 +1247,13 @@ export class FieldMenu {
     //   種類で見る: 呪文・特技 → 今の職業・攻撃1体・攻撃全体・回復・強くする・弱くする・そのほか（戦いの タブと おなじ）
     //   職業で見る: 覚えた 職業ごと（今の 職業が 先）・そのほか（ひらめき など）
     //   タブは L・R（Q・E）か タップ。見方は Y か 画面の ボタン。見方と タブは この 機械に おぼえる（learnPref）
+    // 第78回 3-6: かんたん表示は 見方・タブを 出さない。強い じゅんの 1つの 一覧（2列だけ）。前に えらんだ 見方・タブ（learnPref）は そのまま
     const pref = this.learnPref();
     const view = pref.view === 'job' ? 'job' : 'kind';
-    const tabs = view === 'job' ? learnedJobTabs(c, learned) : learnedKindTabs(learned, { abs: (id) => abilityFor(id, c), job: c.job });
-    const cur = pickLearnTab(tabs, pref.tab?.[view]);
-    const cols = battleDensityPref() === 3 ? 3 : 2;
+    const tabs = simple ? [{ key: 'simple', id: 'simple', label: '', ids: simpleLearnOrder(learned) }]
+      : view === 'job' ? learnedJobTabs(c, learned) : learnedKindTabs(learned, { abs: (id) => abilityFor(id, c), job: c.job });
+    const cur = simple ? tabs[0] : pickLearnTab(tabs, pref.tab?.[view]);
+    const cols = !simple && battleDensityPref() === 3 ? 3 : 2;
     const goTab = (t) => {
       if (!t || t.key === cur.key) return;
       const p = this.learnPref();
@@ -1262,19 +1276,21 @@ export class FieldMenu {
     //   技の わくだけが スクロールする（下の せつめいも はりつく）。見出しの 高さは はかって いる ので（--sk-head-h）、カーソルの 技は 見出しの 下に かくれない
     head.classList.add('lv-head');
     head.querySelector('.tab-hint')?.remove();
-    head.append(el('div', { class: 'lv-bar' },
+    if (!simple) head.append(el('div', { class: 'lv-bar' },
       el('div', { class: 'lv-views', role: 'tablist' }, ...Object.entries(LEARN_VIEWS).map(([k, label]) => chip(label, k === view, () => setView(k), 'lv-v'))),
       view === 'kind' ? el('div', { class: 'lv-secs' }, ...LEARN_SECS.map(([k, label]) => {
         const first = tabs.find((t) => t.sec === k);
         return chip(label, cur.sec === k, () => goTab(first), 'lv-s', !first);
       })) : null));
     const subs = view === 'kind' ? tabs.filter((t) => t.sec === cur.sec) : tabs;
-    const subBar = el('div', { class: 'tabs lv-tabs' }, ...subs.map((t) => chip(t.label, t.key === cur.key, () => goTab(t), `lv-t${t.id === c.job || t.id === 'job' ? ' now' : ''}`)));
-    head.append(subBar);
-    // スマホは タップで えらぶ ので 書かない（見出しを ひくく して、技の わくを 広く）
-    if (!touch) head.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類・Yで見方・◀ ▶（左右のはし）で上のタブを切りかえ' }));
-    // 選んでいる 種類（職業）の タブが 見えるように（横に ながい とき）
-    requestAnimationFrame(() => subBar.querySelector('.btn.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
+    if (!simple) {
+      const subBar = el('div', { class: 'tabs lv-tabs' }, ...subs.map((t) => chip(t.label, t.key === cur.key, () => goTab(t), `lv-t${t.id === c.job || t.id === 'job' ? ' now' : ''}`)));
+      head.append(subBar);
+      // スマホは タップで えらぶ ので 書かない（見出しを ひくく して、技の わくを 広く）
+      if (!touch) head.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類・Yで見方・◀ ▶（左右のはし）で上のタブを切りかえ' }));
+      // 選んでいる 種類（職業）の タブが 見えるように（横に ながい とき）
+      requestAnimationFrame(() => subBar.querySelector('.btn.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
+    } else if (!touch) head.append(el('div', { class: 'tab-hint', text: '強い技が上・◀ ▶（左右のはし）で上のタブを切りかえ' }));
     // 技の わく: ★ … お気に入り / かくす … 命令の 一覧に 出さない（わくも 点線）/ 他 … 今の 職業 いがいの 技
     const favSet = new Set(c.favorites || []);
     const items = cur.ids.map((id) => {
@@ -1318,8 +1334,10 @@ export class FieldMenu {
       tapConfirm: touch,
       onMove: showInfo,
       // 第71回 E: L・R（Q・E）で タブ・Y で 見方
-      onLR: (d) => goTab(nextLearnTab(tabs, cur.key, d)),
-      onY: () => setView(view === 'job' ? 'kind' : 'job'),
+      ...(simple ? {} : {
+        onLR: (d) => goTab(nextLearnTab(tabs, cur.key, d)),
+        onY: () => setView(view === 'job' ? 'kind' : 'job'),
+      }),
       onSelect: async (it) => {
         const a = abilityFor(it.value, c);
         const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
@@ -1336,7 +1354,9 @@ export class FieldMenu {
     m.root.style.setProperty('--fcols', String(cols));
     this.stickInfo(box, info);
     showInfo(m.current);
-    box.append(info, el('div', { class: 'small muted', text: '選ぶと「使う」「お気に入り」「命令の一覧に出さない」を選べる。★…お気に入り　かくす…自分で命令する時、戦いの技の一覧に出さない技（オートで使うかは作戦で決める）　他…今の職業ではない技' }));
+    box.append(info, el('div', { class: 'small muted', text: simple
+      ? '強い技が上。選ぶと「使う」「お気に入り」を選べる。★…お気に入り　他…今の職業ではない技'
+      : '選ぶと「使う」「お気に入り」「命令の一覧に出さない」を選べる。★…お気に入り　かくす…自分で命令する時、戦いの技の一覧に出さない技（オートで使うかは作戦で決める）　他…今の職業ではない技' }));
     return box;
   }
 
@@ -1453,14 +1473,17 @@ export class FieldMenu {
     const hidden = this.cmdHidden(c, id);
     // 第72回: お気に入りが いっぱい（FAV_MAX こ）の ときは 入れられない ことと わけを 出す（まえは だまって 入らなかった）
     const full = !c.species && !fav && favFull(c.favorites, new Set(learnedAbilities(c)));
+    // 第78回 3-6: かんたん表示は「使う／お気に入り／やめる」だけ（お気に入りの「動かす」・命令の 一覧の 切りかえを 出さない。
+    //   前に 決めた ならび・命令に 出さない 技は そのまま 効く）。自分の キャラの 設定（仲間の 画面も おなじ）
+    const simple = menuSimple(this.game.me);
     const items = [];
     if (use) items.push(use.ok ? { label: '使う', value: 'use' } : { label: `使う（${use.why}）`, value: 'use', disabled: true });
-    items.push(...pre);
+    if (!simple) items.push(...pre);
     if (full) items.push({ label: `★ お気に入りに入れる（${FAV_MAX}こでいっぱい）`, value: 'add', disabled: true });
     else if (!c.species) items.push({ label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' });
-    if (this.cmdHideable(a)) items.push({ label: hidden ? '命令の一覧に出す' : '命令の一覧に出さない', value: 'cmd' });
+    if (!simple && this.cmdHideable(a)) items.push({ label: hidden ? '命令の一覧に出す' : '命令の一覧に出さない', value: 'cmd' });
     items.push({ label: 'やめる', value: null });
-    const note = [full ? FAV_FULL_TEXT : '', hidden ? '今は、戦いの命令の一覧に出していない。' : ''].filter(Boolean).join('\n');
+    const note = [full ? FAV_FULL_TEXT : '', hidden ? (simple ? '今は、戦いの命令の一覧に出していない（くわしい表示で変えられる）。' : '今は、戦いの命令の一覧に出していない。') : ''].filter(Boolean).join('\n');
     return this.pick(a.name, items, note ? { note: { text: note, cls: 'muted' } } : {});
   }
 
@@ -2282,6 +2305,8 @@ export class FieldMenu {
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
       { label: 'チャットのスタンプを変える', value: 'stamps' }, // 第50回 N7（ui/stamps.js）
+      // 第78回 3-6: メニューの 表示（くわしい／かんたん。キャラごと。shared/menu-view.js）
+      { label: `メニューの表示：${MENU_VIEWS[menuViewOf(c)]}`, value: 'menuView' },
     ];
     // 第50回 N3: 大事な物の すぐ使う ボタン（すぐ使える 大事な物を 持っている 人だけ。data/quick-item.js）
     if (quickList(c).length) {
@@ -2414,6 +2439,12 @@ export class FieldMenu {
         } else if (it.value === 'quickPad') {
           const now = QUICK_PADS.findIndex((p) => p.b === quickPadOf(c));
           g.net.send({ t: 'menu', action: 'quickPad', pad: QUICK_PADS[(now + 1) % QUICK_PADS.length].b });
+        } else if (it.value === 'menuView') {
+          // サーバーの 返事を まって 作りなおす（かんたん の 時だけ キャラに 項目が のこる）
+          this.sub.blur();
+          const next = menuSimple(c) ? 'full' : 'simple';
+          this.menuCall({ t: 'menu', action: 'settings', menuView: next }).then(() => again(idx));
+          return;
         } else if (it.value === 'stamps') {
           this.sub.blur();
           openStampEditor(g).then(() => again(idx));
@@ -2430,7 +2461,7 @@ export class FieldMenu {
       },
     });
     const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
-    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる。まわりの音は、町のざわめきや波・風の音（新しい音の時だけ）` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる。まわりの音は、町のざわめきや波・風の音（新しい音の時だけ）\nメニューの表示を「かんたん」にすると、呪文・技の画面がかんたんになる（強い技が上の1つの一覧。お気に入りのならびかえと、命令の一覧に出さない技の切りかえは出さない。前に決めたことは、そのまま戦いで使われる）。キャラごとに決められる` +(quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 
@@ -2681,4 +2712,15 @@ export function openWorldMap(game) {
   box.addEventListener('click', close);
   back.addEventListener('click', close);
   game.input.push(h);
+}
+
+// 第78回 3-6: かんたん表示の CSS（css/style.css は ほかの 人も かえるので、ここで 入れる。はじめて かんたん表示を 出した 時に 1回だけ）
+//   技の 画面の すみ（見出しの 右下）に「かんたん表示（設定で変えられます）」
+let simpleCssOn = false;
+function addSimpleCss() {
+  if (simpleCssOn || typeof document === 'undefined') return;
+  simpleCssOn = true;
+  const st = document.createElement('style');
+  st.textContent = '.skills-view .sk-head .simple-note { text-align: right; font-size: 0.72em; color: var(--muted, #aab); margin: 0.05em 0.2em 0.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }';
+  document.head.append(st);
 }

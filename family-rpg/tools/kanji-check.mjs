@@ -357,6 +357,8 @@ export function gameFiles() {
     'public/js/shared/skill-sort.js', 'public/js/shared/fieldskills.js', 'public/js/client/ui/r69-css.js', 'public/js/client/input.js',
     // 第71回: 命令の 一覧に 出さない 技（cmdOff）・覚えた技の 見方（種類で見る・職業で見る）
     'public/js/shared/cmd-off.js', 'public/js/shared/skill-view.js',
+    // 第78回 3-6: メニューの かんたん表示
+    'public/js/shared/menu-view.js',
     // 第35回 B: かくし要素の ヒント（町の 人・本だな・宝箱の メモ・仲間の「はなす」）
     'public/js/shared/data/secret-hints.js',
     // 第5章 Step 5（B: 戦い・品）: 星読みの里の まわりと 思い出の迷宮の 魔物・ノクトの影（職業の まね・きずなくだき）・里の 店・迷宮の 宝箱・影の王

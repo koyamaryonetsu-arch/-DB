@@ -16,6 +16,7 @@ import { skillMods } from '../skill-tier.js';
 import { TACTICS } from '../ai.js';
 import { cmdOffList, fixCmdOff, toggleOffList } from '../cmd-off.js';
 import { FAV_MAX, FAV_FULL_TEXT, favApply } from '../favorites.js';
+import { setMenuView } from '../menu-view.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview, breedFinder } from './breed.js';
@@ -722,6 +723,8 @@ export function menuAction(world, s, msg) {
         if (d) c.difficulty = d;
         else delete c.difficulty;
       }
+      // 第78回 3-6: メニューの 表示（くわしい／かんたん。キャラごと。かんたん の 時だけ 項目が のこる。shared/menu-view.js）
+      if (msg.menuView !== undefined) setMenuView(c, msg.menuView);
       return reply(true, '設定を変えた。');
     }
     // 第35回: お知らせを 読んだ（data/news.js。返事の 知らせ・音は なし）
