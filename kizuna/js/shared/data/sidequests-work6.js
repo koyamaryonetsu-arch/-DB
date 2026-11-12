@@ -12,11 +12,11 @@
 // 30. 嵐の島の、ゴロゴロかみなり雲（ゴム人間 → ニカ。かみなりの きかない ゴムの 体・のびる うで・たいこの 音で いっしょに 笑う）
 // 31. 星竜山のふもとの、まいごのちび竜（竜の騎士 → 竜魔人。竜の 力の オーラ・竜の 紋章の 光で ちび竜を お母さんの 所へ）
 // 32. 雪原の広場の、てんてこまいラーメン（木の葉の忍び → 七代目火影。影分身で 大いそがしの 屋台を 手伝う）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=d13bba1204d4';
-import { rewardSteps } from './sidequests-work2.js?v=d13bba1204d4';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=9a5805f1f322';
+import { rewardSteps } from './sidequests-work2.js?v=9a5805f1f322';
 import {
   WQ6, WQ6_OPEN, THD_VOICES, THD_STEPS, DRG_VOICES, DRG_STEPS, RMN_VOICES, RMN_STEPS,
-} from '../maps/work-quests6.js?v=d13bba1204d4';
+} from '../maps/work-quests6.js?v=9a5805f1f322';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

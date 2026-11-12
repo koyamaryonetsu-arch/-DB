@@ -7,27 +7,27 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=d13bba1204d4';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=d13bba1204d4';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=d13bba1204d4';
-import { jobLine } from '../data/fq-common.js?v=d13bba1204d4';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=d13bba1204d4';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=d13bba1204d4';
-import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=d13bba1204d4';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=d13bba1204d4';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=d13bba1204d4';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=d13bba1204d4';
-import { phantomBook } from '../data/phantom.js?v=d13bba1204d4';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=d13bba1204d4';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=d13bba1204d4';
-import { bestiaryOrder } from '../data/companions.js?v=d13bba1204d4';
-import { MONSTERS } from '../data/monsters.js?v=d13bba1204d4';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=d13bba1204d4';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=d13bba1204d4';
-import { LB_MAX } from '../data/items-forge.js?v=d13bba1204d4';
-import { ITEMS } from '../data/items.js?v=d13bba1204d4';
-import { MAPS, condOk } from '../maps/index.js?v=d13bba1204d4';
-import { jobLabel } from '../job-label.js?v=d13bba1204d4';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=9a5805f1f322';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=9a5805f1f322';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=9a5805f1f322';
+import { jobLine } from '../data/fq-common.js?v=9a5805f1f322';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=9a5805f1f322';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=9a5805f1f322';
+import { TM_LV_MAX, tmTitle } from '../data/treasure.js?v=9a5805f1f322';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=9a5805f1f322';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=9a5805f1f322';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=9a5805f1f322';
+import { phantomBook } from '../data/phantom.js?v=9a5805f1f322';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=9a5805f1f322';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=9a5805f1f322';
+import { bestiaryOrder } from '../data/companions.js?v=9a5805f1f322';
+import { MONSTERS } from '../data/monsters.js?v=9a5805f1f322';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=9a5805f1f322';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=9a5805f1f322';
+import { LB_MAX } from '../data/items-forge.js?v=9a5805f1f322';
+import { ITEMS } from '../data/items.js?v=9a5805f1f322';
+import { MAPS, condOk } from '../maps/index.js?v=9a5805f1f322';
+import { jobLabel } from '../job-label.js?v=9a5805f1f322';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';

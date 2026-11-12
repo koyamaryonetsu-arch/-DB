@@ -4,9 +4,9 @@
 //   おこった ハデロス（かみが まっ赤な 火・赤い ふち）・かもめの好きな女の子・もぐり漁師（大木の島）
 // とくべつな え（paintC8bSpecial）: よみの王ハデロス（8階の 大きな すがた 40×48。かみの 青い 火が コマで ゆらめく。おこると まっ赤 … c8b_hades_red_npc）・
 //   ペイニックと パニクル（4階の 2ひき 40×32。ピンクの ふとっちょと みどりの やせっぽち。コマで ぴょこぴょこ）・青い 火の 玉座（36×28）
-import { Painter } from './pixel.js?v=d13bba1204d4';
+import { Painter } from './pixel.js?v=9a5805f1f322';
 // 第8章 第3幕: 初代大魔王クッパード・マジカメック・泉の里の 子ポコ・ミドリナの 人（render/c8c-npc-art.js。ここで まぜる）
-import { C8C_NPC_LOOKS, paintC8cSpecial, C8C_SPECIALS } from './c8c-npc-art.js?v=d13bba1204d4';
+import { C8C_NPC_LOOKS, paintC8cSpecial, C8C_SPECIALS } from './c8c-npc-art.js?v=9a5805f1f322';
 
 const person = (o) => o;
 export const C8B_NPC_LOOKS = {

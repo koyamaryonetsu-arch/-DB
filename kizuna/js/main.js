@@ -1,8 +1,8 @@
 // きずなの紋章 ― はじまり
-import { Net } from './client/net.js?v=d13bba1204d4';
-import { Game } from './client/game.js?v=d13bba1204d4';
-import { readLinkHash } from './client/links.js?v=d13bba1204d4';
-import { syncOnSite, confirmAskedServer } from './client/ui/syncui.js?v=d13bba1204d4';
+import { Net } from './client/net.js?v=9a5805f1f322';
+import { Game } from './client/game.js?v=9a5805f1f322';
+import { readLinkHash } from './client/links.js?v=9a5805f1f322';
+import { syncOnSite, confirmAskedServer } from './client/ui/syncui.js?v=9a5805f1f322';
 
 async function boot() {
   // 「連れていく」リンクで 開いた とき（#kizuna=…&server=…）
@@ -10,6 +10,8 @@ async function boot() {
   const net = await Net.create();
   const game = new Game(net);
   game.start();
+  // 「読みこみ中」を 消す（index.html）
+  document.getElementById('boot')?.remove();
   // ひとりで遊ぶサイト: 家族サーバーから とどいた データを 合わせる（#sync=…）
   if (net.mode !== 'server') {
     syncOnSite(game).catch((e) => console.error(e)).finally(() => confirmAskedServer(game));
@@ -20,5 +22,6 @@ async function boot() {
 
 boot().catch((e) => {
   console.error(e);
+  document.getElementById('boot')?.remove();
   document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;background:#05071a;padding:2em;text-align:center">読みこみに失敗しました。<br>ページを読みこみ直してね。<br><small>${String(e.message || e)}</small></div>`);
 });

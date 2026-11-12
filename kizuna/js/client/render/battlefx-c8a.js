@@ -6,7 +6,7 @@
 // a8j_hypno（さいみんじゅつ）は ねらった 人の 上で 赤い うずまき（とくべつな つぶ c8aspiral）が 回る。
 // a8c_strike（大へびのいちげき）・a8g_blast（むげんの魔力）・変身 2つは がめんの まん中に 大きく（client/battle-c8a.js の C8A_SCREEN_ANIMS）
 // 第2部 第8章 第2幕 の 魔物・ペイニックと パニクル・ハデロス（battlefx-c8b.js）
-import { playC8bFx, C8B_FINE } from './battlefx-c8b.js?v=d13bba1204d4';
+import { playC8bFx, C8B_FINE } from './battlefx-c8b.js?v=9a5805f1f322';
 
 const GOLD = ['#f2c14e', '#fff0a0', '#b8862a', '#ffffff'];
 const RUBY = ['#e03040', '#ff9aa8', '#6a1018', '#ffffff'];
