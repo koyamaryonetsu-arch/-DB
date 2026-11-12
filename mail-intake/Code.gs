@@ -77,10 +77,14 @@ function supportsEffort_(model) { return !/haiku-4|sonnet-4-5|claude-3/.test(Str
 function supportsFallback_(model) { return /^claude-(sonnet-5-5|opus-5|fable-5)/.test(String(model || '')); }
 // 添付見積書のAI-OCRは画像/PDFを読むため視覚対応モデル（既定Sonnet）を使う
 function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-5-5'); }
-// 「新規か既存の続きか」の判断に使うモデル。読み取り(Haiku)より上位のモデルで、メール本文も見て判断する
-function DECIDE_MODEL_() { return cfg_('ANTHROPIC_DECIDE_MODEL', 'claude-sonnet-5-5'); }
+// 「新規か既存の続きか」の判断に使うモデル。このアプリの肝なので一番よく考えるモデル（Opus 5.5）で、
+// メール本文・既存案件の内容と社内メモ・共通のキーワードを見比べて判断する。
+// （前のスクリプト プロパティ ANTHROPIC_DECIDE_MODEL は使わない。変える時は CASE_JUDGE_MODEL）
+function DECIDE_MODEL_() { return cfg_('CASE_JUDGE_MODEL', 'claude-opus-5-5'); }
+function DECIDE_EFFORT_() { return cfg_('CASE_JUDGE_EFFORT', 'medium'); }
 // メールから案件を1件ずつ取り出すモデル（前は Haiku。タスクと案件の見分けを正しくするため Sonnet）
 function INTAKE_MODEL_() { return cfg_('ANTHROPIC_INTAKE_MODEL', 'claude-sonnet-5-5'); }
+var INTAKE_TIME_BUDGET_MS = 4 * 60 * 1000;   // メール取り込み1回で、新しいやり取りに手を付けてよい時間
 var OCR_MAX_BYTES = 5 * 1024 * 1024; // 5MB超の添付はスキップ（API上限・コスト対策）
 
 // ===== メイン（5分毎トリガー） =====
@@ -107,7 +111,11 @@ function importCaseEmails() {
 
     var maxAgeMs = INTAKE_MAX_AGE_HOURS_() * 60 * 60 * 1000;
     var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0, nOld = 0, nConfirm = 0, nMulti = 0, nKnown = 0;
+    // 時間の上限: Apps Script は1回6分まで。判断に Opus を使うので1件に時間がかかる。
+    // 4分を過ぎたら新しいやり取りには手を付けず、次の回（5分ごと）に続きから（途中で止まって二重に登録しないように）
+    var startedAt = Date.now(), nLater = 0;
     threads.forEach(function (th) {
+      if (Date.now() - startedAt > INTAKE_TIME_BUDGET_MS) { nLater++; return; }
       // 期間ガード: 最新メールが古いスレッドは登録・更新しない（過去案件の遡り登録を防ぐ）。
       // 期間外ラベルを付けて以後スキャン対象から外す（毎回の再判定・APIコストも避ける）。
       var lastAt = th.getLastMessageDate();
@@ -177,7 +185,8 @@ function importCaseEmails() {
     });
     var n = function (v) { return String(Math.round(Number(v) || 0)); };
     Logger.log('新規 ' + n(nNew) + ' / 進捗更新 ' + n(nUpd) + ' / 新しい話なし ' + n(nDup) + ' / 案件でない ' + n(nSkip) + ' / 期間外 ' + n(nOld) +
-      ' / 確認待ち ' + n(nConfirm) + ' / 複数の案件が書いてあったメール ' + n(nMulti) + '（うち記録済みのやり取り ' + n(nKnown) + '）');
+      ' / 確認待ち ' + n(nConfirm) + ' / 複数の案件が書いてあったメール ' + n(nMulti) + '（うち記録済みのやり取り ' + n(nKnown) + '）' +
+      (nLater ? ' / 時間切れで次の回に回した ' + n(nLater) : ''));
   } catch (e) {
     Logger.log('importCaseEmails error: ' + e);
   } finally {
@@ -550,12 +559,12 @@ function pickQuoteFor_(quotes, p, single) {
 }
 
 // ===== Supabase: 既存案件を取得（フィルタ指定） =====
-function queryCases_(filter) {
+function queryCases_(filter, limit) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return []; }
   var params = filter +
     '&select=id,company,theater,received_date,category,content,memo,customer_memo,status,r_person,tc_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
-    '&order=received_date.desc&limit=25';
+    '&order=received_date.desc&limit=' + (limit || 25);
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?' + params, {
     method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
   });
@@ -660,16 +669,56 @@ function fetchCandidateCases_(p) {
     }
   }
   if (theater) {
-    add(queryCases_('theater=eq.' + encodeURIComponent(theater)));
-    if (!out.length) {
-      var core = theaterCore_(theater); // 「TOHOシネマズ 川崎」↔「TOHO川崎」等の表記ゆれ対策
-      if (core && core.length >= 2) add(queryCases_('theater=ilike.*' + encodeURIComponent(core) + '*'));
+    // その劇場の案件は古いものまで見る（工事は何か月も前の調査・見積りの続きのことが多い）
+    add(queryCases_('theater=eq.' + encodeURIComponent(theater), 80));
+    var core = theaterCore_(theater); // 「TOHOシネマズ 川崎」↔「TOHO川崎」等の表記ゆれ対策（いつも足す）
+    if (core && core.length >= 2) {
+      var co0 = company ? '&company=eq.' + encodeURIComponent(company) : '';
+      add(queryCases_('theater=ilike.*' + encodeURIComponent(core) + '*' + co0, 40));
     }
   }
   // 劇場名で1件も拾えないとき（抽出失敗・表記差）は会社単位の最近案件も候補に（AIが厳密判定）
   if (!out.length && company) add(queryCases_('company=eq.' + encodeURIComponent(company)));
   return out;
 }
+// ===== 共通キーワード（同じ件かを見分ける手がかり） =====
+// 工事は突然始まらない。同じ件なら、担当者が替わっても同じキーワード（シアター番号・機器の記号・型式・設備の名前）で
+// やり取りしている。メールと既存案件に共通するキーワードを数えて、AI の判断に添える。
+var KW_DOMAIN_ = ['空調', '換気', '熱源', '冷却塔', '室外機', '室内機', '空調機', '外調機', '全熱交換器', '送風機', '排気', '給気',
+  '冷温水', '冷水', '温水', '配管', '漏水', '水漏れ', '冷媒', '圧縮機', 'コンプレッサー', '基板', '制御盤', '自動制御', '中央監視',
+  'ポンプ', 'ボイラー', '加湿', '除湿', '映写室', 'ロビー', '機械室', '屋上', '厨房', '売店', 'トイレ', 'ダクト', 'ドレン',
+  'フィルター', 'チラー', 'パッケージ', '吹出口', 'エアコン', 'ファン', 'インバーター', 'リモコン', 'センサー', 'GHP', 'EHP', 'VRV',
+  'AHU', 'FCU', 'PAC', 'RTU', '更新工事', '入替', '入れ替え', '改修', 'オーバーホール', '冷えない', '異音', '漏れ', '停止', 'エラー'];
+// どの案件にも出てくる言葉（これだけが重なっても同じ件とは言えない）
+var KW_GENERIC_ = { '空調': 1, '換気': 1, 'トイレ': 1, 'ロビー': 1, '屋上': 1, 'エアコン': 1, 'ファン': 1, '停止': 1, 'エラー': 1, '漏れ': 1, 'センサー': 1, 'リモコン': 1 };
+function caseKeywords_(text) {
+  var t = tmNorm_(text).toUpperCase(), set = {};
+  // シアター・スクリーンの番号 → SCRn（「シアター3」「スクリーン3」「SCR-3」「3番スクリーン」）
+  t.replace(/(?:SCR|SCREEN|シアター|スクリーン)\s*[-#NO.№]*\s*(\d{1,2})(?!\d)/g, function (m0, n) { set['SCR' + Number(n)] = 1; return m0; });
+  t.replace(/(\d{1,2})\s*番?\s*(?:スクリーン|シアター)/g, function (m0, n) { set['SCR' + Number(n)] = 1; return m0; });
+  // 機器の記号・型式（英字＋数字。例 GHP16-1・AHU-2・PAC1・RSXYP900L）
+  (t.match(/[A-Z]{2,8}[-‐－]?\d{1,4}(?:[-‐－]?[0-9A-Z]{1,5})?/g) || []).forEach(function (w) {
+    w = w.replace(/[‐－]/g, '-');
+    if (/^(SCR|SCREEN|TEL|FAX|NO|PDF|HTTP|HTTPS|WWW|COM|JP|CO|AM|PM|RE|FW|ID|PR|MAIL|TOHO)/.test(w)) return;
+    set[w] = 1;
+  });
+  KW_DOMAIN_.forEach(function (w) { if (t.indexOf(w.toUpperCase()) !== -1) set[w] = 1; });
+  return Object.keys(set);
+}
+function caseKeywordsOfRow_(x) {
+  return caseKeywords_([x.estimate_name, x.content, x.memo, x.customer_memo].filter(Boolean).join('\n'));
+}
+// 共通キーワード: { all: [...], specific: [...] }（specific＝どの案件にも出る言葉を除いたもの）
+function sharedKeywords_(mailKw, rowKw) {
+  var all = mailKw.filter(function (w) { return rowKw.indexOf(w) !== -1; });
+  return { all: all, specific: all.filter(function (w) { return !KW_GENERIC_[w]; }) };
+}
+// 工事の話か（新規工事・更新・改修・入替など）
+function isConstructionTalk_(p, emailText) {
+  if (/^(新規工事|更新案件|改修)$/.test(String(p.category || ''))) return true;
+  return /工事|更新|改修|入替|入れ替え|リニューアル|施工|着工|竣工/.test(String(p.title || '') + String(p.content || ''));
+}
+
 // メールに日程（調査/見積/着工/完了）が含まれるか
 function hasProgressDates_(prog) {
   if (!prog) return false;
@@ -697,11 +746,18 @@ function threadParticipants_(th) {
 // ===== Claude: 既存案件との照合を「update / new / review」で判定 =====
 // 精度最優先。曖昧なまま new と断定せず、続きの可能性が残るなら review（人の確認）へ。
 // 過去のやり取り・関係者のつながり・対象設備を加味し、時間差や複数人のスレッドでも続報を拾う。
-function decideCase_(p, received, candidates, participants, strict, emailText, legacy) {
+function decideCase_(p, received, candidates, participants, strict, emailText, legacy, kwHint) {
   var apiKey = cfg_('ANTHROPIC_API_KEY');
   if (!apiKey) return { decision: 'review', row: null, reason: 'APIキー未設定' };
-  var list = candidates.map(function (x, i) {
-    var d = [];
+  // 共通キーワードの多い案件・進行中の案件を前に並べて、多すぎる時は上から40件だけ見せる
+  var mailKw = caseKeywords_([p.title, p.content, String(emailText || '').slice(0, 8000)].join('\n'));
+  var ranked = candidates.map(function (x, i) {
+    var sk = sharedKeywords_(mailKw, caseKeywordsOfRow_(x));
+    return { x: x, sk: sk, score: sk.specific.length * 10 + sk.all.length + (isClosedStatus_(x.status) ? 0 : 3), i: i };
+  }).sort(function (a, b) { return b.score - a.score || a.i - b.i; }).slice(0, 40);
+  var shown = ranked.map(function (r) { return r.x; });
+  var list = ranked.map(function (r, i) {
+    var x = r.x, d = [];
     if (x.survey_date) d.push('調査' + x.survey_date);
     if (x.quote_date) d.push('見積' + x.quote_date);
     if (x.work_start_date) d.push('着工' + x.work_start_date);
@@ -713,28 +769,34 @@ function decideCase_(p, received, candidates, participants, strict, emailText, l
       ' 状態=' + (x.status || '?') +
       (x.tc_person ? ' 客先担当=' + x.tc_person : '') +
       (x.r_person ? ' R担当=' + x.r_person : '') +
-      (x.estimate_name ? ' 見積名=' + String(x.estimate_name).slice(0, 40) : '') +
+      (x.estimate_name ? ' 見積名=' + String(x.estimate_name).slice(0, 60) : '') +
       (d.length ? ' 日程[' + d.join(',') + ']' : '') +
-      '\n    内容=' + String(x.content || '').slice(0, 300) +
-      (x.memo ? '\n    社内メモ=' + String(x.memo).slice(0, 400) : '');
+      '\n    共通キーワード=' + (r.sk.all.length ? r.sk.all.join('・') : '（なし）') +
+      '\n    内容=' + String(x.content || '').slice(0, 600) +
+      (x.memo ? '\n    社内メモ=' + String(x.memo).slice(0, 900) : '') +
+      (x.customer_memo ? '\n    客先向けメモ=' + String(x.customer_memo).slice(0, 300) : '');
   }).join('\n');
   var sys = [
-    'あなたは「新しいメール案件が、既存案件の続き(=同じ一件)か、新規の別案件か」を見分けます。JSONのみ出力（前後に文章なし）。',
+    'あなたは映画館（シネコン）の空調設備の保守・工事会社「菱熱工業」の案件管理の担当者です。',
+    '新しく届いたメールの案件が、既存案件の続き（＝同じ一件）か、新しい別の一件かを見分けます。これは案件管理の肝なので、一件ずつ丁寧に照合してください。JSONのみ出力（前後に文章なし）。',
     'decision は次の3つのいずれか:',
-    '- "update": 既存案件のどれかと「同じ一件」だと確信できる（matched_id を必ず返す）。',
-    '- "new": どの既存案件とも別の、新しい一件だと確信できる。',
-    '- "review": 既存案件の続きの可能性があるが確信が持てない（人が確認すべき）。',
-    '判断ルール（精度最優先・この情報は顧客と共有する）:',
-    '- 曖昧なまま new と断定してはいけない。既存案件の続きかもしれないと少しでも思ったら "review"。',
-    '- 同じ劇場で対象の設備/系統/場所/工事が一致、または「調査→見積→注文→作業→報告」の続きなら "update"。',
-    '- 時間が空いていても、送信者や宛先が前回と違っても、それだけで別案件と判断しない。',
-    '- 客先担当/R担当/やり取りの関係者(メール)が既存案件と一致するかも手がかりにする。',
-    '- 対象の設備・場所・工事が明確に別で、既存のどれとも無関係だと判断できる場合のみ "new"。',
-    '- 判断はメール本文（件名・本文・引用部分）と既存案件の内容・社内メモを突き合わせて行う。要約だけで決めない。',
-    (strict ? '- これは再確認です。過去案件を一件ずつ丁寧に照合し、少しでも同一の可能性が残るなら "review" にすること。' : ''),
+    '- "update": 既存案件のどれかと「同じ一件」（matched_id を必ず返す）。',
+    '- "new": どの既存案件とも別の、新しい一件。',
+    '- "review": 既存案件の続きの可能性があるが、どれか決めきれない（人が確認する）。',
+    '判断のきまり:',
+    '- 工事（新規工事・更新・改修・入替）は突然始まらない。必ず前に、調査・見積り・打合せのやり取りがある。工事の話で、同じ劇場に同じ設備・シアター番号・機器の記号・型式・キーワードの既存案件があれば、その案件の続き（update）。',
+    '- 菱熱工業の担当者（R担当）や、メールの差出人・宛先が前と違っても、同じ内容（同じキーワード）なら同じ案件。担当が替わった・時間が空いた、だけで別の案件にしない。',
+    '- 各既存案件の「共通キーワード」は、メールと既存案件の両方に出てくる言葉（シアター番号・機器の記号・設備の名前）。具体的な共通キーワード（例 SCR3・GHP16-1・チラー・冷却塔）がある既存案件は、続きの可能性が高い。',
+    '- 「調査→見積→注文→日程調整→作業→完了報告→請求」の流れの続きは update。見積りの出し直し・金額の相談・日程の変更も update。',
+    '- new にしてよいのは、新しい故障・不具合の連絡や新しい依頼で、既存案件と設備・場所・キーワードが重ならない時だけ。完了した案件と同じ設備でも、新しい故障の連絡なら new。',
+    '- 既存案件の続きかもしれないのに、どれか1つに決めきれない時は "review"。曖昧なまま new にしない。',
+    '- 判断はメール本文（件名・本文・引用部分）と、既存案件の内容・見積名・社内メモを突き合わせて行う。要約だけで決めない。',
+    (strict ? '- これは再確認です。既存案件を一件ずつ、キーワード・設備・場所・日程の流れで照合し直すこと。' : ''),
+    (kwHint ? '- 【注意】' + kwHint : ''),
     (legacy ? '- 【重要】このメールのやり取りは、以前に既存案件として登録または更新済みです。新しい案件ではありません。続き先の既存案件を探して "update" で返すこと。特定できなければ "review"。' : ''),
-    'スキーマ: {"decision":"update"|"new"|"review","matched_id":string(updateの時のみ),"confidence":0〜1の数値,"reason":string(日本語で簡潔に)}'
-  ].join('\n');
+    'confidence は、その判断がどれくらい確かか 0〜1。',
+    'スキーマ: {"decision":"update"|"new"|"review","matched_id":string(updateの時のみ),"confidence":0〜1の数値,"reason":string(日本語で簡潔に。update の時は決め手になったキーワード)}'
+  ].filter(function (x) { return x !== ''; }).join('\n');
   var user = [
     '# 新しいメール案件',
     '劇場: ' + (p.theater || ''),
@@ -745,14 +807,16 @@ function decideCase_(p, received, candidates, participants, strict, emailText, l
     '客先担当: ' + (p.tc_person || '') + ' / R担当: ' + (p.r_person || ''),
     'やり取りの関係者(メール): ' + (participants || '(不明)'),
     '内容: ' + (p.content || ''),
+    'このメールのキーワード: ' + (mailKw.length ? mailKw.join('・') : '（なし）'),
     '',
     '# メール本文（やり取り全体・抜粋）',
-    String(emailText || '').slice(0, 4000) || '(なし)',
+    String(emailText || '').slice(0, 8000) || '(なし)',
     '',
-    '# 既存案件（同じ劇場/会社・新しい順）',
+    '# 既存案件（同じ劇場。共通キーワードの多い順・進行中を先に）',
     list
   ].join('\n');
-  var j = safeJson_(anthropicText_(apiKey, sys, user, 600, { model: DECIDE_MODEL_(), effort: 'low' }));
+  var j = safeJson_(anthropicText_(apiKey, sys, user, 1500, { model: DECIDE_MODEL_(), effort: DECIDE_EFFORT_() }));
+  candidates = shown;   // 一致 id は見せた候補の中から探す
   if (!j || !j.decision) return { decision: 'review', row: null, reason: 'AI応答不正' };
   var conf = (typeof j.confidence === 'number') ? j.confidence : 0;
   var row = null;
@@ -779,6 +843,17 @@ function decideCaseWithRecheck_(p, received, participants, emailText, legacy) {
     if (!candidates.length) return { decision: 'review', row: null, reason: '続き先の候補が見つからない' };
   }
   var d1 = decideCase_(p, received, candidates, participants, false, emailText, legacy);
+  // 工事の話なのに「新規」と出た時、具体的な共通キーワードのある進行中の既存案件があれば、念のため厳しく見直す
+  if (d1.decision === 'new' && isConstructionTalk_(p, emailText)) {
+    var mk = caseKeywords_([p.title, p.content, String(emailText || '').slice(0, 8000)].join('\n'));
+    var hits = candidates.filter(function (x) { return !isClosedStatus_(x.status) && sharedKeywords_(mk, caseKeywordsOfRow_(x)).specific.length > 0; });
+    if (hits.length) {
+      var hint = '工事の話です。工事は突然始まらないので、次の進行中の既存案件と同じキーワードがないか、もう一度照合してください: ' +
+        hits.slice(0, 5).map(function (x) { return 'id=' + x.id + '（共通: ' + sharedKeywords_(mk, caseKeywordsOfRow_(x)).specific.join('・') + '）'; }).join('、');
+      Logger.log('工事の話で「新規」と出たが、共通キーワードのある進行中の案件があるため見直す: ' + (p.title || ''));
+      return decideCase_(p, received, fetchBroadCandidates_(p, candidates), participants, true, emailText, legacy, hint);
+    }
+  }
   if (d1.decision !== 'review') return d1;
   // 曖昧 → 会社全体の過去案件も含めて集め直し、厳密モードで再判定
   var broad = fetchBroadCandidates_(p, candidates);
