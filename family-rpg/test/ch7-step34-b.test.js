@@ -443,8 +443,8 @@ test('ボスの 品・時をこえる手紙の ごほうび・島の 店', () =>
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c7l_hook_charm') > sum('c7r_anchor_charm') && sum('c7r_anchor_charm') > sum('c7t_witch_charm'));
-  // 第8章 第3幕の 品（ITEMS_C8C。くろがねの大オノ）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第8章 第3幕の 品（ITEMS_C8C。くろがねの大オノ）は のぞく。第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。赤い竜の大オノ）も のぞく
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('axe'), 'c7r_anchor_axe');
   assert.equal(top('claw'), 'c7l_gold_hook');
   for (const list of Object.values(C7S_LETTER_REWARDS)) {

@@ -506,8 +506,8 @@ test('ボスの 品・時をこえる手紙の ごほうび・村の 店', () =>
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c7h_shadow_charm') > sum('c7w_thorn_charm') && sum('c7w_thorn_charm') > sum('c7l_hook_charm'));
-  // 第8章 第2幕の ハデロスの やり（ITEMS_C8B）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8B[id] && !ITEMS_C8C[id] && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第8章 第2幕の ハデロスの やり（ITEMS_C8B）は のぞく。第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。古代の王のやり）も のぞく
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8B[id] && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('spear'), 'c7w_dragon_spear');
   assert.equal(top('boomerang'), 'c7h_shadow_boomerang');
   for (const list of Object.values(C7I_LETTER_REWARDS)) {

@@ -609,8 +609,8 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8h_flame_charm') > sum('c8i_imp_charm') && sum('c8i_imp_charm') > sum('c8j_ruby_charm'));
-  // 第8章 第4幕の 品（ITEMS_C8R。氷のつばさのやり など）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第8章 第4幕の 品（ITEMS_C8R。氷のつばさのやり など）と、第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。古代の王のやり など）は のぞく
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8R[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('bat'), 'c8i_imp_club');
   assert.equal(top('spear'), 'c8h_bident');
   assert.equal(top('dagger'), 'c8bt_yomi_dagger');

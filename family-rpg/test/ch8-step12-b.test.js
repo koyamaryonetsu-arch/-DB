@@ -604,8 +604,8 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8j_ruby_charm') > sum('c8p_feather_charm') && sum('c8p_feather_charm') > sum('c7h_shadow_charm'));
-  // 第8章 第3幕の 品（ITEMS_C8C。マジカメックの つえ など）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第8章 第3幕の 品（ITEMS_C8C。マジカメックの つえ など）は のぞく。第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。氷河の女王のつえ）も のぞく
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('fan'), 'c8p_parrot_fan');
   assert.equal(top('staff'), 'c8j_snake_staff');
   assert.equal(top('sword'), 'c8at_palace_sword');

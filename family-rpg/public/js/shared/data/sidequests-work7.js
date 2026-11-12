@@ -56,7 +56,7 @@ export const WORK7_QUESTS = [
     reward: { item: 'fq_dojo_band', gold: 3000, medals: 2, goods: [['seed_agi', 2], ['seed_heal', 2]] } },
   { id: 'pipe', name: '炎の山のふもとの、お湯が出ない土管', done: WQ7.pipeDone, roots: ['plumber'], job: 'ももの姫か配管工', legend: 'rosetta', town: 'シロガネ地方の炎の山のふもと', open: [WQ7_OPEN],
     start: WQ7.pipeStart, who: 'ユノハの湯の番頭ゴロウ', npc: 'fq_pipe_host', where: 'シロガネ地方の、炎の山のふもと（ユノハの東）',
-    paper: 'ユノハの湯に、お湯を送る土管が、つまってしまった！\nお湯が出ないと、みんな、かぜをひいてしまう。土管にくわしい人、来てくれ！',
+    paper: 'ユノハの湯に、お湯を送る土管が、つまってしまった！\nお湯が出ないと、みんな、体がひえてしまう。土管にくわしい人、来てくれ！',
     reward: { gold: 4000, medals: 3, goods: [['seed_hp', 3], ['flame_stone', 5], ['magic_water', 2]] } },
 ];
 const Q = Object.fromEntries(WORK7_QUESTS.map((q) => [q.id, q]));
@@ -273,7 +273,7 @@ const pipeHost = (x) => {
   const pro = proOf(x, Q.pipe);
   return [
     ...S(GORO, 'こまった、こまった…。', 'ユノハへ、お湯を送る土管が、とつぜん、止まってしもうた。'),
-    ...S(GORO, 'お湯が出ないと、ユノハの湯は、ただの、水たまりじゃ。\nこのままでは、みんな、かぜをひいてしまう…。'),
+    ...S(GORO, 'お湯が出ないと、ユノハの湯は、ただの、水たまりじゃ。\nこのままでは、みんな、体がひえてしまう…。'),
     ...(pro ? S(GORO, `${pro.name}さん…高く、ジャンプして、スパナも使えるそうじゃな！\nおまえさん、土管に、くわしいんじゃないか！？`) : S(GORO, '土管に、くわしい人が、おればのう…。')),
     ...accept('土管を、直す？', [
       ...S(GORO, 'ありがたい！', 'まずは、湯の見習いのモモ・石工のおじさん・土管あそびの子どもに、話を聞いてみてくれ。'),
