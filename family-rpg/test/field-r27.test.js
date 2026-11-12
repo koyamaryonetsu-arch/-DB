@@ -272,7 +272,7 @@ test('呪文の データ: 覚える 職業・MP・使える 場所（今使え�
   for (const id of FIELD27_SHOPS) assert.ok(shopItems(SHOPS[id]).includes(LURE_ITEM), id);
 });
 
-test('リレミト: 洞窟の 中から 入り口の 外へ（MPが へる）。フィールド・たてもの・ピラミッド・神殿・ひみつのダンジョンでは 使えない（MPは へらない）', async () => {
+test('リレミト: 洞窟の 中から 入り口の 外へ（MPが へる）。フィールド・たてもの・ピラミッド・神殿では 使えない（MPは へらない）。ひみつのダンジョンは 入口の 広間へ（第79回）', async () => {
   const { world, bot, c } = await solo(4, 'mage');
   c.jobs.mage = { lv: 3, b: 0 };
   c.mp = 50;
@@ -283,8 +283,8 @@ test('リレミト: 洞窟の 中から 入り口の 外へ（MPが へる）。
   assert.equal(r.ok, false);
   assert.match(r.text, /洞窟や塔の中で使う呪文/);
   assert.equal(c.mp, 50);
-  // ピラミッド・神殿・ひみつのダンジョン（糸が 使えない 所）
-  for (const id of ['pyramid1', 'temple_b1', 'sd_3', 'sd_10']) {
+  // ピラミッド・神殿（糸が 使えない 所）
+  for (const id of ['pyramid1', 'temple_b1']) {
     const m = MAPS[id];
     world.placeSession(bot.s, id, (m.sd?.arrive.x ?? 5.5), (m.sd?.arrive.y ?? 5.5), 'down', true);
     r = menu(bot, { action: 'cast', id: 'riremito', who: 'self', ref: 'self' });
@@ -293,7 +293,17 @@ test('リレミト: 洞窟の 中から 入り口の 外へ（MPが へる）。
     assert.equal(bot.s.map, id);
     assert.equal(c.mp, 50);
   }
-  assert.match(r.text, /5階ごとの休み所/, 'ひみつのダンジョンの ヒント');
+  // 第79回: ひみつのダンジョンの 階では 入口の 広間へ もどる（MPが へる。test/secret-r79.test.js）
+  for (const id of ['sd_3', 'sd_10']) {
+    const m = MAPS[id];
+    world.placeSession(bot.s, id, m.sd.arrive.x, m.sd.arrive.y, 'down', true);
+    c.mp = 50;
+    r = menu(bot, { action: 'cast', id: 'riremito', who: 'self', ref: 'self' });
+    assert.equal(r.ok, true, id);
+    assert.equal(bot.s.map, SD_GATE);
+    assert.equal(c.mp, 50 - cost);
+  }
+  c.mp = 50;
   // ひみつのダンジョンの 入口の 広間（たてもの あつかい）
   world.placeSession(bot.s, SD_GATE, 4.5, 3.5, 'down', true);
   r = menu(bot, { action: 'cast', id: 'riremito', who: 'self', ref: 'self' });

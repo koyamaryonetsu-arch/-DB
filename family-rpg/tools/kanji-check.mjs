@@ -264,6 +264,8 @@ export function gameFiles() {
     // ひみつのダンジョン（終わりの ない ダンジョン・家族の記録の板）
     'public/js/shared/data/secret.js', 'public/js/shared/data/story-secret.js', 'public/js/shared/maps/secret-dungeon.js',
     'public/js/shared/world/secret.js', 'public/js/client/ui/secret.js', 'public/js/client/render/secret-art.js',
+    // 第79回: テーマの 階（今までの ダンジョンを まねた 階）
+    'public/js/shared/data/secret-themes.js', 'public/js/shared/maps/secret-floors.js',
     // 第26回の 職業の 看板の技の エフェクト（「プゥ〜」などの ドットの もじ）
     'public/js/client/render/battlefx-jobs4.js',
     // 家族の 見なおし（第26回）: 第4章・夜の 魔物の 仲間・仲間の粉・上位の 技・戦いの 技の せつめい

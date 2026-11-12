@@ -13,7 +13,7 @@ export const SD_SCRIPTS = {
   sd_enter: call('enter'),
   // 下り階段（10階ごとの 休み所では 番人と 戦ってから）・ふさがった 上り階段
   sd_down: call('down'),
-  sd_up: () => [['say', null, '上り階段は、ふしぎな力でふさがっている…。\n（地上へもどれるのは、5階ごとの休み所から）']],
+  sd_up: () => [['say', null, '上り階段は、ふしぎな力でふさがっている…。\n（入口へもどるときは、リレミトかみちびきの糸を使おう。5階ごとの休み所からも、もどれるよ）']],
   // 休み所: 休み所の ようせい（先へ進む／地上へもどる）・ごほうびの 宝箱・番人（10階ごと。たおすと 全回復）
   sd_rest: call('rest'),
   sd_chest: call('chest'),
@@ -21,4 +21,14 @@ export const SD_SCRIPTS = {
   sd_inn: call('inn'),
   sd_shop: call('shop'),
   sd_guard: call('down'),
+  // 第79回: テーマの 階（data/secret-themes.js・maps/secret-floors.js）。にせものの 階段・宝箱だらけの 宝箱・休けい中の 魔物・
+  // まよいの職人・止まった トロッコ・こたつ
+  sd_fake: call('fake'),
+  sd_box_hit: call('boxHit'),
+  sd_box_empty: call('boxEmpty'),
+  sd_box_jack: call('boxJack'),
+  sd_tea: call('tea'),
+  sd_craftsman: call('craft'),
+  sd_cart: call('cart'),
+  sd_kotatsu: call('kotatsu'),
 };
