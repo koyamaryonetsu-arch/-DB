@@ -1,7 +1,7 @@
 // はじめの 読みこみを はかる（家族サーバー ＋ スマホの 回線の まね）
 //
 // つかいかた:
-//   node tools/load-measure.mjs [--net 4g,slow4g] [--cpu 4] [--out 結果.json] [--http] [--nopack] [--keep]
+//   node tools/load-measure.mjs [--net 4g,slow4g] [--runs 2] [--cpu 4] [--out 結果.json] [--http] [--nopack] [--keep]
 //
 // ・この フォルダの public/ と server/ を 一時フォルダに コピーして 家族サーバーを 立てる
 //   （自動更新は 切る。version.json は にせの sha）
@@ -50,12 +50,19 @@ export function createShaper(target, prof) {
     return bucket[dir];
   };
   const pipe = (src, dst, dir) => {
-    let last = 0;
+    // じゅんばんを かえない ように、1本の 列に ならべて 1つの タイマーで 出す
+    const q = [];
+    let timer = null;
     let ended = false;
+    const drain = () => {
+      timer = null;
+      while (q.length && q[0].at <= Date.now()) q.shift().fn();
+      if (q.length) timer = setTimeout(drain, Math.max(1, q[0].at - Date.now()));
+    };
     const later = (fn, at) => {
-      last = Math.max(at, last);
-      const ms = last - Date.now();
-      if (ms <= 0) fn(); else setTimeout(fn, ms);
+      const last = q.length ? q[q.length - 1].at : 0;
+      q.push({ fn, at: Math.max(at, last) });
+      if (!timer) timer = setTimeout(drain, Math.max(0, q[0].at - Date.now()));
     };
     src.on('data', (c) => {
       stats[dir] += c.length;
@@ -190,7 +197,12 @@ async function visit(context, url, front, shaper, { cpu = 1 } = {}) {
   front.log.paths = [];
   const b0 = { ...shaper.stats };
   await page.goto(url, { waitUntil: 'commit', timeout: 600000 });
-  await page.waitForFunction(() => window.__titleAt != null, null, { timeout: 600000, polling: 100 });
+  try {
+    await page.waitForFunction(() => window.__titleAt != null, null, { timeout: Number(process.env.MEASURE_TIMEOUT || 600000), polling: 100 });
+  } catch (e) {
+    console.error('タイトルが出ません', { requests: front.log.requests, inflight: front.log.inflight, bytes: shaper.stats.down - b0.down, errors });
+    throw e;
+  }
   const titleMs = await page.evaluate(() => window.__titleAt);
   const m = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map((x) => [x.name, x.value]));
   const atTitle = { requests: front.log.requests, bytes: shaper.stats.down - b0.down };
@@ -205,13 +217,15 @@ async function visit(context, url, front, shaper, { cpu = 1 } = {}) {
     scriptMs: Math.round((m.ScriptDuration || 0) * 1000),
     taskMs: Math.round((m.TaskDuration || 0) * 1000),
     sw: await page.evaluate(() => !!navigator.serviceWorker?.controller).catch(() => false),
+    // 起動の しくみ（server/boot-loader.js）: どう 読んだか・モジュールを 読みはじめた 時
+    boot: await page.evaluate(() => (window.__kzBoot ? { how: window.__kzBoot.how, startMs: Math.round(window.__kzBoot.start || 0) } : null)).catch(() => null),
     errors,
   };
   await page.close();
   return r;
 }
 
-export async function measure({ nets = ['4g', 'slow4g'], cpu = 1, useHttp = false, nopack = false, keep = false, log = console.log } = {}) {
+export async function measure({ nets = ['4g', 'slow4g'], cpu = 1, runsN = 1, warmMs = 8000, useHttp = false, nopack = false, keep = false, log = console.log } = {}) {
   const { chromium } = await import(pathToFileURL(PW).href);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'kizuna-measure-'));
   const tls = useHttp ? null : makeCert(tmp);
@@ -220,36 +234,49 @@ export async function measure({ nets = ['4g', 'slow4g'], cpu = 1, useHttp = fals
   try {
     for (const name of nets) {
       const prof = NETS[name];
-      const app = path.join(tmp, `app-${name}`);
-      const data = path.join(tmp, `data-${name}`);
-      copyApp(app);
-      writeVersion(app, `measure0000000000000000000000000000${name}`.slice(-40));
-      const srvPort = await freePort();
-      let proc = await startServer(app, data, srvPort);
-      const front = createFront(srvPort, { tls });
-      const frontPort = await listen(front.server);
-      const shaper = createShaper(frontPort, prof);
-      const shapePort = await listen(shaper.server);
-      const url = `${tls ? 'https' : 'http'}://localhost:${shapePort}/${nopack ? '?nopack' : ''}`;
-      const context = await browser.newContext({ ignoreHTTPSErrors: true, serviceWorkers: 'allow' });
-      await context.addInitScript(TITLE_WATCH);
-      const row = {};
-      log(`-- ${prof.label} ${url}`);
-      row.first = await visit(context, url, front, shaper, { cpu });
-      log('  はじめて', JSON.stringify(row.first));
-      row.second = await visit(context, url, front, shaper, { cpu });
-      log('  2回目  ', JSON.stringify(row.second));
-      await stopServer(proc);
-      changeFiles(app, name);
-      writeVersion(app, `measure1111111111111111111111111111${name}`.slice(-40));
-      proc = await startServer(app, data, srvPort);
-      row.update = await visit(context, url, front, shaper, { cpu });
-      log('  更新あと', JSON.stringify(row.update));
-      await context.close();
-      await stopServer(proc);
-      shaper.server.close();
-      front.server.close();
-      results[name] = row;
+      const runs = [];
+      for (let run = 0; run < runsN; run++) {
+        const app = path.join(tmp, `app-${name}-${run}`);
+        const data = path.join(tmp, `data-${name}-${run}`);
+        copyApp(app);
+        writeVersion(app, `measure0000000000000000000000000000${name}`.slice(-40));
+        const srvPort = await freePort();
+        let proc = await startServer(app, data, srvPort);
+        const front = createFront(srvPort, { tls });
+        const frontPort = await listen(front.server);
+        const shaper = createShaper(frontPort, prof);
+        const shapePort = await listen(shaper.server);
+        const url = `${tls ? 'https' : 'http'}://localhost:${shapePort}/${nopack ? '?nopack' : ''}`;
+        const context = await browser.newContext({ ignoreHTTPSErrors: true, serviceWorkers: 'allow' });
+        await context.addInitScript(TITLE_WATCH);
+        const row = {};
+        log(`-- ${prof.label} ${url}（${run + 1}回目の はかり）`);
+        // サーバーが 起動の あとに ファイルを ちぢめ おわるまで 少し まつ（家族が 開く 前に おわっている はず）
+        await new Promise((r) => setTimeout(r, warmMs));
+        row.first = await visit(context, url, front, shaper, { cpu });
+        log('  はじめて', JSON.stringify(row.first));
+        row.second = await visit(context, url, front, shaper, { cpu });
+        log('  2回目  ', JSON.stringify(row.second));
+        await stopServer(proc);
+        changeFiles(app, name);
+        writeVersion(app, `measure1111111111111111111111111111${name}`.slice(-40));
+        proc = await startServer(app, data, srvPort);
+        await new Promise((r) => setTimeout(r, warmMs));
+        row.update = await visit(context, url, front, shaper, { cpu });
+        log('  更新あと', JSON.stringify(row.update));
+        await context.close();
+        await stopServer(proc);
+        shaper.server.close();
+        front.server.close();
+        runs.push(row);
+      }
+      // 時間は いちばん 速かった 回（ほかの 仕事で PC が いそがしい 時の ぶれを へらす）
+      const pick = {};
+      for (const k of ['first', 'second', 'update']) {
+        const all = runs.map((r) => r[k]);
+        pick[k] = { ...all.reduce((a, b) => (b.titleMs < a.titleMs ? b : a)), titles: all.map((r) => r.titleMs) };
+      }
+      results[name] = pick;
     }
   } finally {
     await browser.close();
@@ -278,7 +305,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const args = process.argv.slice(2);
   const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
   const nets = String(opt('--net', '4g,slow4g')).split(',').filter((n) => NETS[n]);
-  const res = await measure({ nets, cpu: Number(opt('--cpu', 1)), useHttp: args.includes('--http'), nopack: args.includes('--nopack'), keep: args.includes('--keep') });
+  const res = await measure({ nets, runsN: Number(opt('--runs', 1)), warmMs: Number(opt('--warm', 8000)), cpu: Number(opt('--cpu', 1)), useHttp: args.includes('--http'), nopack: args.includes('--nopack'), keep: args.includes('--keep') });
   console.log('\n' + table(res));
   const out = opt('--out', '');
   if (out) fs.writeFileSync(out, JSON.stringify(res, null, 2));
