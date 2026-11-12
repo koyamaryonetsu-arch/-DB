@@ -7,10 +7,10 @@
 //   ・おなじ ときは MPの 少ない ほう → 覚えた じゅん
 // しきは shared/battle.js の calcPhys・calcMagic・healAmountOf と おなじ（会心・耐性・守りの バフは 入れない）
 // テスト: test/skill-menu-r69.test.js
-import { ABILITIES } from './data/abilities.js?v=1b1cbe3b3c9e';
-import { REGEN_BASE } from './buff-acts.js?v=1b1cbe3b3c9e';
+import { ABILITIES } from './data/abilities.js?v=ddd62e12d679';
+import { REGEN_BASE } from './buff-acts.js?v=ddd62e12d679';
 // 第72回: 元気玉（みんなの HPを 10%ずつ 集める。battle-genki.js）
-import { genkiTotal } from './battle-genki.js?v=1b1cbe3b3c9e';
+import { genkiTotal } from './battle-genki.js?v=ddd62e12d679';
 
 // ふつうの キャラ（どの 技も この 強さで くらべる）
 //   atk: 攻撃力・foeDfn: 相手の 守備力・mag: 魔力・heal: 回復魔力・maxHp: 生き返る 人の 最大HP・mp: のこりの MP（マダンテ）・lv: レベル（銭投げ）

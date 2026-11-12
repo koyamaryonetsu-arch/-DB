@@ -37,6 +37,8 @@ export const TRACK_NAMES = {
   secret: 'ひみつのダンジョン',
   secret_rest: 'ひみつのダンジョンの休み所',
   battle: '戦い',
+  battle2: '戦い・その2',
+  battle_strong: 'てごわい敵との戦い',
   boss: '強い敵との戦い',
   festival: 'お祭り',
   casino: 'カジノ',

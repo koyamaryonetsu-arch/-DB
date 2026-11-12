@@ -1,15 +1,15 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=1b1cbe3b3c9e';
-import { paintRare } from './rarity.js?v=1b1cbe3b3c9e';
-import { ListMenu } from './dom.js?v=1b1cbe3b3c9e';
-import { openServiceUI } from './services.js?v=1b1cbe3b3c9e';
-import { monsterCanvas } from '../render/monsters.js?v=1b1cbe3b3c9e';
-import { npcSprite } from '../field.js?v=1b1cbe3b3c9e';
-import { reportError } from '../errlog.js?v=1b1cbe3b3c9e';
+import { el } from './dom.js?v=ddd62e12d679';
+import { paintRare } from './rarity.js?v=ddd62e12d679';
+import { ListMenu } from './dom.js?v=ddd62e12d679';
+import { openServiceUI } from './services.js?v=ddd62e12d679';
+import { monsterCanvas } from '../render/monsters.js?v=ddd62e12d679';
+import { npcSprite } from '../field.js?v=ddd62e12d679';
+import { reportError } from '../errlog.js?v=ddd62e12d679';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=1b1cbe3b3c9e';
+import { paperPop } from './paper-pop.js?v=ddd62e12d679';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=1b1cbe3b3c9e';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=ddd62e12d679';
 
 const TYPE_MS = 28;
 

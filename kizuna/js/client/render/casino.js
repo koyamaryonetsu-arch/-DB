@@ -1,8 +1,8 @@
 // カジノの ドットえ（スロットの 絵がら・トランプ・コイン・小さなメダル）
 // 絵がらは 16×16 で かいて、Scale2x を 2かい（ほかの キャラと おなじ 4ばいの こまかさ）
-import { Painter, scale2x, makeCanvas, ctxOf } from './pixel.js?v=1b1cbe3b3c9e';
-import { monsterCanvas } from './monsters.js?v=1b1cbe3b3c9e';
-import { JOKER, cardSuit, cardRank } from '../../shared/data/casino.js?v=1b1cbe3b3c9e';
+import { Painter, scale2x, makeCanvas, ctxOf } from './pixel.js?v=ddd62e12d679';
+import { monsterCanvas } from './monsters.js?v=ddd62e12d679';
+import { JOKER, cardSuit, cardRank } from '../../shared/data/casino.js?v=ddd62e12d679';
 
 const OUT = '#1b1330';
 

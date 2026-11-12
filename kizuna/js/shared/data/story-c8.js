@@ -11,18 +11,18 @@
 // より道「時をこえる手紙」（緑の王国の 2つ）は data/sidequests-c8a.js。魔物・きまった 戦い・品は B（plan-ch8.md の 5-2）。ゲストは カリム
 import {
   C8, ARRIVE8, ENTRY8, PF8, NADIA4, VOICE7, WIN8, KING8, MIRROR8, LETTER8, LETTER8_PALACE, NADIA_LETTER, C7_FIELD_ID, SOUTH_ID, STAIR8, c8aMapId,
-} from '../maps/c8a-flags.js?v=1b1cbe3b3c9e';
-import { C7I } from '../maps/c7i-flags.js?v=1b1cbe3b3c9e';
-import { C8A_POS, bridgeOf } from '../maps/c8a-palace.js?v=1b1cbe3b3c9e';
-import { C8A_FIELD_POS } from '../maps/c8a-field.js?v=1b1cbe3b3c9e';
-import { MAPS } from '../maps/index.js?v=1b1cbe3b3c9e';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=1b1cbe3b3c9e';
-import { MONSTERS } from './monsters.js?v=1b1cbe3b3c9e';
-import { applyC8aSide, letterReward8 } from './sidequests-c8a.js?v=1b1cbe3b3c9e';
+} from '../maps/c8a-flags.js?v=ddd62e12d679';
+import { C7I } from '../maps/c7i-flags.js?v=ddd62e12d679';
+import { C8A_POS, bridgeOf } from '../maps/c8a-palace.js?v=ddd62e12d679';
+import { C8A_FIELD_POS } from '../maps/c8a-field.js?v=ddd62e12d679';
+import { MAPS } from '../maps/index.js?v=ddd62e12d679';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=ddd62e12d679';
+import { MONSTERS } from './monsters.js?v=ddd62e12d679';
+import { applyC8aSide, letterReward8 } from './sidequests-c8a.js?v=ddd62e12d679';
 // 第2幕「よみの青い火」（Step 3・4。story-c8b.js）
-import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js?v=1b1cbe3b3c9e';
+import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js?v=ddd62e12d679';
 // 第3幕「くろがねの空中要塞」（Step 5・6。story-c8c.js）
-import { CH8C_STEPS, C8C_OBJ, CH8C_OBJECTIVE_TARGETS, CH8C_OBJECTIVE_TALK, CH8C_PROGRESS, applyCh8c } from './story-c8c.js?v=1b1cbe3b3c9e';
+import { CH8C_STEPS, C8C_OBJ, CH8C_OBJECTIVE_TARGETS, CH8C_OBJECTIVE_TALK, CH8C_PROGRESS, applyCh8c } from './story-c8c.js?v=ddd62e12d679';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
