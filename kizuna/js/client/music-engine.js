@@ -8,8 +8,8 @@
 //
 // 曲の データの 書き方・楽器・場面で かわる 音楽の つかい方は docs/plan-r77-audio.md（チーム B・C との やくそく）。
 // このファイルは 画面（window）を さわらない。node の テストでも 読みこめる（AudioContext が なければ 何も 鳴らさない）。
-import { INSTRUMENTS, defaultInstrument, ROLE_PAN, HARMONY_PANS, ROLE_SEND, DEFAULT_NIGHT, WAVE_LEVEL } from './music-inst.js?v=76aae2682384';
-import { startAmbience } from './music-amb.js?v=76aae2682384';
+import { INSTRUMENTS, defaultInstrument, ROLE_PAN, HARMONY_PANS, ROLE_SEND, DEFAULT_NIGHT, WAVE_LEVEL } from './music-inst.js?v=6be0f763d7c2';
+import { startAmbience } from './music-amb.js?v=6be0f763d7c2';
 
 export const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -578,6 +578,7 @@ class NewPlayer {
     this.strips = this.c.parts.map((p) => this.strip(p.pan, this.c.reverb * p.send));
     this.on = this.c.parts.map(() => true);
     this.hat = this.strip(0.3, this.c.reverb * 0.3);
+    this.hatOn = true;
     this.pinchStrip = null;
     this.night = false;
   }
@@ -645,12 +646,16 @@ class NewPlayer {
       const str = this.strips[i];
       if (on !== this.on[i]) {
         str.g.gain.setTargetAtTime(on ? 1 : 0, t0, 0.04);
-        // ハイハットも たいこと いっしょに
-        if (p.drums) this.hat.g.gain.setTargetAtTime(on ? 1 : 0, t0, 0.04);
         this.on[i] = on;
       }
       if (night !== this.night) str.s.gain.setTargetAtTime(str.base * (night ? 1.5 : 1) + (night ? 0.08 : 0), t0, 0.1);
     });
+    // ハイハットも たいこと いっしょに（たいこの パートが 2つ ある 曲は、どちらかが 鳴って いれば 鳴らす）
+    const hatOn = c.parts.some((p, i) => p.drums && this.on[i]);
+    if (hatOn !== this.hatOn) {
+      this.hat.g.gain.setTargetAtTime(hatOn ? 1 : 0, t0, 0.04);
+      this.hatOn = hatOn;
+    }
     this.night = night;
     this.eng.setTension(st.pinch, t0);
     const late = now > t0 + barDur;

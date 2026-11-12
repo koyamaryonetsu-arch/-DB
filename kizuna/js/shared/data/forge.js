@@ -11,14 +11,14 @@
 //            もう1回 きたえると 別の 武器に 生まれ変わる（風来のシレンの ように）
 //            第35回: 1だん目は れん金がまで「店の 武器＋素材」から 作る（items-alchemy.js の REBIRTH_START・data/alchemy.js）
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
-import { ITEMS, sellPrice } from './items.js?v=76aae2682384';
-import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX, LB_MAX, lbId } from './items-forge.js?v=76aae2682384';
-import { isShopGear } from './items-rare.js?v=76aae2682384';
-import { CH3_RECIPES } from './items-ch3.js?v=76aae2682384';
-import { REBIRTH } from './items-alchemy.js?v=76aae2682384';
-import { capUp } from './alchemy.js?v=76aae2682384';
+import { ITEMS, sellPrice } from './items.js?v=6be0f763d7c2';
+import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX, LB_MAX, lbId } from './items-forge.js?v=6be0f763d7c2';
+import { isShopGear } from './items-rare.js?v=6be0f763d7c2';
+import { CH3_RECIPES } from './items-ch3.js?v=6be0f763d7c2';
+import { REBIRTH } from './items-alchemy.js?v=6be0f763d7c2';
+import { capUp } from './alchemy.js?v=6be0f763d7c2';
 // 第65回 D1: ランク6〜10の レシピ（items-craft-r65.js）
-import { FORGE_R65_OPEN, FORGE_R65_RECIPES } from './items-craft-r65.js?v=76aae2682384';
+import { FORGE_R65_OPEN, FORGE_R65_RECIPES } from './items-craft-r65.js?v=6be0f763d7c2';
 
 // ほかの ファイルで あとから 足された 装備にも +1〜 を 作る（なんど よんでも おなじ）
 addUpgradeItems(ITEMS);

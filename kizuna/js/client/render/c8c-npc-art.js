@@ -5,7 +5,7 @@
 // とくべつな え（paintC8cSpecial）: 初代大魔王クッパード（8階の 大きな すがた 40×48。とげの ついた みどりの こうら・赤い かみ・つの・
 //   大きな 口と きば。コマで いばって むねを はる）・マジカメック（4階の 大きな すがた 40×40。ほうきに のって ふわふわ。つえの 先が ぴかぴか）
 // まほうの おりの ミナモは 第6章の ミナモの え（minamo）を そのまま 使う
-import { Painter } from './pixel.js?v=76aae2682384';
+import { Painter } from './pixel.js?v=6be0f763d7c2';
 
 const person = (o) => o;
 export const C8C_NPC_LOOKS = {

@@ -5,7 +5,7 @@
 //   色を 1つの 色あいに そろえ（tint。ストルム＝あおみどり・イグニア＝むらさき・モルガナ＝あい色）、下の ほうを すきとおらせる（fade）。
 //   たたかいでは client/battle-phantom.js が ゆらぐ ざんぞうを かさねる
 // まぼろしの 手下（嵐の兵の まぼろし・かげ火の まぼろし）は もとの 魔物の え の 色がえ（monsters-phantom.js の art・tint）
-import { fit, spark } from './ch3-draw.js?v=76aae2682384';
+import { fit, spark } from './ch3-draw.js?v=6be0f763d7c2';
 
 // ───── あらしガラス ─────
 const CROW = {

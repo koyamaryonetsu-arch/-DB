@@ -1,29 +1,29 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=76aae2682384';
-import { SFX_R27 } from './sfx-r27.js?v=76aae2682384';
-import { SFX_R29 } from './sfx-r29.js?v=76aae2682384';
-import { SFX_R33 } from './sfx-r33.js?v=76aae2682384';
-import { SFX_PK } from './sfx-pokemon.js?v=76aae2682384';
-import { SFX_DQ } from './sfx-dqm.js?v=76aae2682384';
+import { SFX_R26 } from './sfx-r26.js?v=6be0f763d7c2';
+import { SFX_R27 } from './sfx-r27.js?v=6be0f763d7c2';
+import { SFX_R29 } from './sfx-r29.js?v=6be0f763d7c2';
+import { SFX_R33 } from './sfx-r33.js?v=6be0f763d7c2';
+import { SFX_PK } from './sfx-pokemon.js?v=6be0f763d7c2';
+import { SFX_DQ } from './sfx-dqm.js?v=6be0f763d7c2';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=76aae2682384';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=76aae2682384';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=76aae2682384';
-import { EARTH_TRACKS } from './audio-earth.js?v=76aae2682384';
-import { CASTLE_TRACKS } from './audio-castle.js?v=76aae2682384';
-import { TOP_TRACKS } from './audio-top.js?v=76aae2682384';
-import { CH6_TRACKS } from './audio-ch6.js?v=76aae2682384';
+import { SFX_AX } from './sfx-ax.js?v=6be0f763d7c2';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=6be0f763d7c2';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=6be0f763d7c2';
+import { EARTH_TRACKS } from './audio-earth.js?v=6be0f763d7c2';
+import { CASTLE_TRACKS } from './audio-castle.js?v=6be0f763d7c2';
+import { TOP_TRACKS } from './audio-top.js?v=6be0f763d7c2';
+import { CH6_TRACKS } from './audio-ch6.js?v=6be0f763d7c2';
 // 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
-import { C8B_TRACKS } from './audio-c8b.js?v=76aae2682384';
+import { C8B_TRACKS } from './audio-c8b.js?v=6be0f763d7c2';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパードの 曲（audio-c8c.js）
-import { C8C_TRACKS } from './audio-c8c.js?v=76aae2682384';
+import { C8C_TRACKS } from './audio-c8c.js?v=6be0f763d7c2';
 // 第77回 B: 作りなおした 曲（下で 前の 曲の 上に かぶせる）
-import { R77A_TRACKS } from './audio-r77a.js?v=76aae2682384';
-import { R77B_TRACKS } from './audio-r77b.js?v=76aae2682384';
+import { R77A_TRACKS } from './audio-r77a.js?v=6be0f763d7c2';
+import { R77B_TRACKS } from './audio-r77b.js?v=6be0f763d7c2';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
-import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=76aae2682384';
-import { TRACK_TRIM } from './audio-trim.js?v=76aae2682384';
+import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=6be0f763d7c2';
+import { TRACK_TRIM } from './audio-trim.js?v=6be0f763d7c2';
 
 // 'C5:4 D5:2 r:2' → [{f, len}]（第76回までの 読み方。テストが つかう）
 const parse = legacyParse;
@@ -490,7 +490,7 @@ export function overlayTracks(base, over) {
   }
   return base;
 }
-overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
+// （かぶせるのは ファイルの 終わり。第5章〜第8章の 曲を TRACKS に まぜた あと）
 
 // ───────────── こうかおん ─────────────
 export class GameAudio {
@@ -865,6 +865,8 @@ Object.assign(TRACKS, CH6_TRACKS);
 Object.assign(TRACKS, C8B_TRACKS);
 // 第2部 第8章 第3幕: マジカメック（kamek_magic）・初代大魔王クッパード（bowser_king）（audio-c8c.js）
 Object.assign(TRACKS, C8C_TRACKS);
+// 第77回 B: 作りなおした 曲を 前の 曲の 上に かぶせる（ぜんぶの 曲を まぜた あと。past_field・c7_temple なども 前の データが legacy に のこる）
+overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;
