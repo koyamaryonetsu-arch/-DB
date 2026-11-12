@@ -56,7 +56,22 @@ function DUP_LOOKBACK_DAYS_() { return Number(cfg_('DUP_LOOKBACK_DAYS', '90')) |
 // 二重登録の疑い判定: 内容の類似度しきい値（0〜1。これ以上で「二重の可能性あり」）
 function DUP_SIM_THRESHOLD_() { return Number(cfg_('DUP_SIM_THRESHOLD', '0.35')) || 0.35; }
 
-var COMPANY_LIST = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業', 'コロナワールド', 'MOVIX', 'イオンシネマズ', 'シネマサンシャイン'];
+var COMPANY_LIST = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業', 'コロナワールド', 'MOVIX', 'イオンシネマズ', '東急レクリエーション', 'その他'];
+// 会社の書き方の決まり（小山さん 2026-11-15）: 冠名・劇場名・正式な社名で書かれていても、会社の一覧の名前にそろえる
+//   シネマサンシャイン（映画館の冠）→ 運営会社の 佐々木興業 ／ シネプレックス・CPX（UC の前の冠名）→ ユナイテッドシネマ
+//   東急レクリエーション: 109シネマズの劇場の仕事は 109シネマズ、それ以外（ほかの事業部）は 東急レクリエーション（略: 東レク）
+var COMPANY_HINT = '会社の決まり: シネマサンシャイン・グランドシネマサンシャインは「佐々木興業」。シネプレックス・CPX は「ユナイテッドシネマ」。' +
+  '東急レクリエーションは、109シネマズの劇場の仕事なら「109シネマズ」、劇場以外（ほかの事業部・ビルなど）の仕事なら「東急レクリエーション」。';
+var COMPANY_ALIASES_ = [
+  [/^(TOHO|東宝)/i, 'TOHOシネマズ'],
+  [/^109|^109シネマズ/i, '109シネマズ'],
+  [/ユナイテッド[・･\s]*シネマ|シネプレックス|^CPX|^UC/i, 'ユナイテッドシネマ'],
+  [/グランドシネマサンシャイン|シネマサンシャイン|^GCS|^CS$|佐々木興業/i, '佐々木興業'],
+  [/コロナ/, 'コロナワールド'],
+  [/MOVIX|ムービックス|松竹マルチプレックス/i, 'MOVIX'],
+  [/イオンシネマ|イオンエンターテイメント/i, 'イオンシネマズ'],
+  [/東急レクリエーション|東レク/, '東急レクリエーション']
+];
 var CATEGORY_LIST = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
 // 菱熱工業（受注側）メンバー。R担当者はこのリストの苗字のみ許可（客先担当者との取り違え防止）
 var RYONETSU_MEMBERS = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
@@ -364,6 +379,8 @@ function buildThreadText_(th) {
 function normalizeCompany_(v) {
   if (!v) return 'TOHOシネマズ';
   for (var i = 0; i < COMPANY_LIST.length; i++) if (COMPANY_LIST[i] === v) return v;
+  var t = tmNorm_(v).replace(/^株式会社|株式会社$/g, '').trim();
+  for (var j = 0; j < COMPANY_ALIASES_.length; j++) if (COMPANY_ALIASES_[j][0].test(t)) return COMPANY_ALIASES_[j][1];
   return v;
 }
 function normalizeCategory_(v) {
@@ -436,7 +453,7 @@ function parseEmailCases_(emailText, opts) {
     '・社内の段取り・手配・発注だけの話（ただし、ある劇場の工事の進み具合として書かれていれば、その案件の progress）',
     '',
     '各案件の項目:',
-    '- theater: 劇場名（正式な書き方に寄せる。例「TOHOシネマズ 日比谷」「109シネマズ 川崎」）。company: 次のいずれか（なければ原文）' + JSON.stringify(COMPANY_LIST),
+    '- theater: 劇場名（正式な書き方に寄せる。例「TOHOシネマズ 日比谷」「109シネマズ 川崎」）。company: 次のいずれか（なければ原文）' + JSON.stringify(COMPANY_LIST) + '。' + COMPANY_HINT,
     '- intent: "new"＝新しい依頼・新しい仕事 / "progress"＝すでにある仕事の進み具合（日程・見積り提出・完了報告など）',
     '- title: 案件の件名（30字以内）。category: 次のいずれか ' + JSON.stringify(CATEGORY_LIST) + '。content: その案件の要点1〜3文（ほかの案件の話は入れない）',
     '- received_date: その案件の依頼の日 YYYY-MM-DD（分からなければ空文字）',
@@ -628,7 +645,8 @@ function canonTheater_(name, company) {
     var al = tmAliases_(list[i]);
     for (var j = 0; j < al.length; j++) if (al[j] && tmKey_(al[j]) === k) return { name: list[i].name, company: list[i].company || '' };
   }
-  var cos = tmBrandCompanies_(name) || (company ? [normalizeCompany_(company)] : null);
+  var brandCos = tmBrandCompanies_(name);   // 劇場名に会社名（冠名）が書いてあれば、それを信じる
+  var cos = brandCos || (company ? [normalizeCompany_(company)] : null);
   if (!cos) return null;
   var same = list.filter(function (x) { return cos.indexOf(x.company) !== -1; });
   // 同じ会社の表示名（短い名前。例「横浜」「GP」）と同じ
@@ -640,6 +658,11 @@ function canonTheater_(name, company) {
   if (eq.length > 1) return null;
   var part = same.filter(function (x) { var q = tmPlace_(x.name); return q.length >= 2 && (q.indexOf(pl) !== -1 || pl.indexOf(q) !== -1); });
   if (part.length === 1) return { name: part[0].name, company: part[0].company || '' };
+  // 会社が違って書かれていた時（例: 会社 109 の「くずは」）: 全部の会社で、場所の名前が合う劇場が1つだけならそれ（会社も直す）
+  if (!brandCos && (!same.length || !part.length)) {
+    var all = list.filter(function (x) { var q = tmPlace_(x.name); return q.length >= 2 && (q === pl || q.indexOf(pl) !== -1 || pl.indexOf(q) !== -1); });
+    if (all.length === 1) return { name: all[0].name, company: all[0].company || '' };
+  }
   return null;
 }
 // 案件1件の劇場名・会社を一覧にそろえる（直した時はログに残す）
@@ -656,7 +679,7 @@ function fixTheater_(p) {
 // 劇場名のコア語（会社名や「シネマズ」等を除いた店舗名）。表記ゆれの部分一致に使う
 function theaterCore_(t) {
   var s = String(t || '').replace(/[\s　]/g, '');
-  var strip = COMPANY_LIST.concat(['TOHOシネマズ', 'TOHO', '109シネマズ', '109', 'シネマズ', 'シネマ', 'ユナイテッド', 'MOVIX', 'ムービックス', '株式会社']);
+  var strip = COMPANY_LIST.concat(['シネマサンシャイン', 'TOHOシネマズ', 'TOHO', '109シネマズ', '109', 'シネマズ', 'シネマ', 'ユナイテッド', 'MOVIX', 'ムービックス', '株式会社']);
   for (var i = 0; i < strip.length; i++) s = s.split(strip[i]).join('');
   return s;
 }

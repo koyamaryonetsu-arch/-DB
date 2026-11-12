@@ -292,7 +292,7 @@ function cvParseCases_(apiKey, text, source, date) {
     '案件にしないもの（誰かのやること＝タスク。items に入れない）: 全体・各劇場への確認や周知のお願い（例「全体に確認する」）、',
     '  作業申請書・入館申請などの作成・送付、書類や資料の送付、日程の連絡・調整だけの話、会議の案内、社内の段取りだけの話。',
     '  ただし、ある劇場の工事の進み具合として話していれば、その案件の progress に入れる。',
-    '会社は次のいずれかに正規化: ' + JSON.stringify(COMPANY_LIST) + '（109シネマズ＝東急レクリエーション）',
+    '会社は次のいずれかに正規化: ' + JSON.stringify(COMPANY_LIST) + '。' + COMPANY_HINT,
     '種別は次のいずれか: ' + JSON.stringify(CATEGORY_LIST),
     '担当者: r_person=菱熱工業のメンバーの苗字（' + JSON.stringify(RYONETSU_MEMBERS) + ' のどれか。違えば空文字）、tc_person=客先の担当者の苗字。敬称は付けない。分からなければ空文字。',
     'intent: 新しい依頼・新しい工事の話なら "new"、今ある案件の続き（調査・見積・発注・作業・報告・日程の決定）なら "progress"。',
