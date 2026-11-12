@@ -64,7 +64,8 @@ export const TRACK_NAMES = {
   castle_water: '影の城（水の階）',
   phantom: '3人のまぼろし',
   nocto_true: '本気のノクト',
-  solitus: '魔王ソリトゥス',
+  // 第80回: 第1部と 第2部の 最後の 戦いの 曲（3だん）。名前は ネタバレに ならない ように
+  solitus: '最後の戦い',
   ending5: 'エンディング（第1部）',
   c8c_fort: 'くろがねの空中ようさい',
   c8b_temple: 'よみの海底神殿',
@@ -86,6 +87,12 @@ export const TRACK_NAMES = {
   yomi_king: 'よみの王ハデロス',
   kamek_magic: 'マジカメック',
   bowser_king: '初代大魔王クッパード',
+  // 第80回 F: 第8章 第4幕（audio-c8r.js）
+  c8r_hall: '時の広間',
+  c8r_wing: '4つのつばさ',
+  c8r_gate: '時の門番との戦い',
+  c8r_last: '最後のかいろう',
+  ending2: 'エンディング（第2部）',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）

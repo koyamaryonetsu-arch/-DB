@@ -246,6 +246,11 @@ export function compileTrack(tr) {
     night: tr.night || DEFAULT_NIGHT,
     pinch: tr.pinch || null,
     phases: tr.phases || DEFAULT_PHASES,
+    // 第80回: だんごとの 形（phases[n].form が ある だんは その 区切りの ならびを くりかえす。ない だんは 曲の form）
+    phaseForms: (tr.phases || []).map((ph) => {
+      const f = Array.isArray(ph?.form) ? ph.form.filter((n) => segs[n]) : null;
+      return f && f.length ? { form: f, loopFrom: Math.max(0, Math.min(f.length - 1, ph.loopFrom ?? 0)) } : null;
+    }),
     transpose: tr.transpose || 0,
     leadIdx: parts.findIndex((p) => p.role === 'lead'),
     drumIdx: parts.findIndex((p) => p.drums),
@@ -256,10 +261,18 @@ export function compileTrack(tr) {
 }
 
 // 区切りの 次（form の 次。さいごまで 行ったら loopFrom へ もどって loop を 1つ ふやす。once の 曲は おわり）
-export function nextPos(c, pos, loop) {
-  if (pos + 1 < c.form.length) return { pos: pos + 1, loop, ended: false };
+//   f … 今 鳴らして いる 形（{ form, loopFrom }。ふだんは 曲の 形 c）
+export function nextPos(c, pos, loop, f = c) {
+  if (pos + 1 < f.form.length) return { pos: pos + 1, loop, ended: false };
   if (c.once) return { pos, loop, ended: true };
-  return { pos: c.loopFrom, loop: loop + 1, ended: false };
+  return { pos: f.loopFrom, loop: loop + 1, ended: false };
+}
+
+// 第80回: その だんの 形（phases[n].form が なければ 曲の 形）。だんの 番号は phaseOf と 同じく さいごの だんで 止まる
+export function formOfPhase(c, n) {
+  const list = c.phaseForms || [];
+  if (!list.length) return c;
+  return list[Math.max(0, Math.min(list.length - 1, n))] || c;
 }
 
 // 曲の はじめから n こ 分の 区切りの ならび（[区切りの 名前, 何回目の くりかえし]）。テストと 書き出しの どうぐ用
@@ -625,12 +638,20 @@ class NewPlayer {
 
   stepBar(now) {
     const c = this.c;
-    const segName = c.form[this.pos];
+    const st = this.eng.adaptive ? this.eng.adaptive.latch() : { intensity: 1, pinch: false, phase: 0, tod: 'day' };
+    // だんで 形が かわる 曲（phases[n].form）: 次の 小節の 頭から その だんの 形の はじめへ
+    const fm = formOfPhase(c, st.phase);
+    if (fm !== (this.fm || c)) {
+      this.fm = fm;
+      this.pos = 0;
+      this.loop = 0;
+      this.bar = 0;
+    }
+    const segName = (this.fm || c).form[this.pos];
     const ex = expandPass(c, segName, this.loop);
     const B = c.bar;
     const bs = this.bar * B;
     const barSteps = Math.min(B, ex.steps - bs);
-    const st = this.eng.adaptive ? this.eng.adaptive.latch() : { intensity: 1, pinch: false, phase: 0, tod: 'day' };
     const ph = phaseOf(c, st.phase);
     this.tempo = nextTempo(this.tempo, ph.tempo || 1);
     this.transpose = (ph.transpose || 0) + c.transpose;
@@ -696,7 +717,7 @@ class NewPlayer {
     this.bar++;
     if (bs + barSteps >= ex.steps) {
       this.bar = 0;
-      const nx = nextPos(c, this.pos, this.loop);
+      const nx = nextPos(c, this.pos, this.loop, this.fm || c);
       this.pos = nx.pos;
       this.loop = nx.loop;
       if (nx.ended) {
