@@ -509,12 +509,15 @@ export class GameAudio {
     // 場面で かわる 音楽（チーム C）。AudioContext が まだ なくても おぼえておく
     this.adaptive = new AdaptiveState();
     this.ambience = null;
+    // まわりの音（設定の「まわりの音：あり／なし」。ふだんは あり）
+    this.ambOn = true;
     try {
       const s = JSON.parse(localStorage.getItem('kizuna_audio') || '{}');
       if (typeof s.music === 'number') this.musicVol = s.music;
       if (typeof s.sfx === 'number') this.sfxVol = s.sfx;
       if (s.engine === 'old') this.engineMode = 'old';
       if (s.quality === 'light') this.quality = 'light';
+      if (s.amb === false) this.ambOn = false;
     } catch { /* */ }
   }
 
@@ -552,7 +555,7 @@ export class GameAudio {
       this.engine = new MusicEngine(this.ctx, this.musicGain, {
         mode: this.engineMode, quality: this.quality, adaptive: this.adaptive, trims: TRACK_TRIM, seed: 77,
       });
-      if (this.ambience) this.engine.playAmbience(this.ambience);
+      if (this.ambience && this.ambOn) this.engine.playAmbience(this.ambience);
       setInterval(() => this.schedule(), 30);
       if (this.pending) this.play(this.pending);
     }
@@ -668,7 +671,7 @@ export class GameAudio {
     if (!this.engine) return;
     this.engine.mode = this.engineMode;
     if (this.engineMode === 'old') this.engine.stopAmbience(0.3);
-    else if (this.ambience) this.engine.playAmbience(this.ambience);
+    else if (this.ambience && this.ambOn) this.engine.playAmbience(this.ambience);
     // 鳴っている 曲を 新しい 鳴らし方で はじめから
     const m = this.music;
     if (m) {
@@ -699,11 +702,18 @@ export class GameAudio {
   playAmbience(id) {
     this.ambience = id || null;
     if (!this.engine) return;
-    if (!id) this.engine.stopAmbience();
+    if (!id || !this.ambOn) this.engine.stopAmbience();
     else if (this.engineMode === 'new') this.engine.playAmbience(id);
   }
 
   stopAmbience() { this.playAmbience(null); }
+
+  // 設定の「まわりの音：あり／なし」（kizuna_audio の amb）
+  setAmbienceOn(on) {
+    this.ambOn = !!on;
+    this.savePref({ amb: this.ambOn });
+    this.playAmbience(this.ambience);
+  }
 
   // 会話の 文字の 音（話す 人の 名前で 高さが かわる）。前の音 では いつもの 'talk'
   blip(seed) {

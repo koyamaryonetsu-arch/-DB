@@ -2269,6 +2269,8 @@ export class FieldMenu {
       // 第77回: 音楽の 音（新しい音 ／ 前の音）・音の 重さ（きれい ／ かるい）・音楽を聞く
       { label: `音楽の音：${g.audio.engineMode === 'old' ? '前の音' : '新しい音'}`, value: 'engine' },
       { label: `音の重さ：${g.audio.quality === 'light' ? 'かるい' : g.audio.autoLight ? 'きれい（今は自動でかるい）' : 'きれい'}`, value: 'quality' },
+      // 第77回 C: まわりの音（町の ざわめき・波・風 など。kizuna_audio の amb）
+      { label: `まわりの音：${g.audio.ambOn === false ? 'なし' : 'あり'}`, value: 'amb' },
       { label: '音楽を聞く', value: 'soundtest' },
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
@@ -2355,6 +2357,9 @@ export class FieldMenu {
         } else if (it.value === 'quality') {
           g.audio.setQuality(g.audio.quality === 'light' ? 'fine' : 'light');
           g.audio.sfx('confirm');
+        } else if (it.value === 'amb') {
+          g.audio.setAmbienceOn(g.audio.ambOn === false);
+          g.audio.sfx('confirm');
         } else if (it.value === 'soundtest') {
           this.sub.blur();
           openSoundTest(g).then(() => again(idx));
@@ -2418,7 +2423,7 @@ export class FieldMenu {
       },
     });
     const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
-    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる。まわりの音は、町のざわめきや波・風の音（新しい音の時だけ）` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 

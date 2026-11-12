@@ -293,7 +293,11 @@ export class ScriptPlayer {
       timer = setInterval(() => {
         i += 1;
         paintRare(this.dlgText, chars.slice(0, i).join(''));
-        if (i % 3 === 0 && chars[i - 1] !== ' ') g.audio.sfx('talk');
+        // 第77回 C: 話す 人ごとに 高さの ちがう 文字の 音（名前の ない 地の 文は 今まで どおり）
+        if (i % 3 === 0 && chars[i - 1] !== ' ') {
+          if (speaker) g.audio.blip(speaker);
+          else g.audio.sfx('talk');
+        }
         if (i >= chars.length) finishType();
       }, TYPE_MS);
     });
