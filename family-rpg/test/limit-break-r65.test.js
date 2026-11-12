@@ -88,7 +88,7 @@ test('第65回 限界の石: 入手先（宝の地図 Lv30〜・闘技場 9・10
   assert.ok(sdBigReward(30).some((e) => e.item === LIMIT_STONE));
   assert.ok(!sdBigReward(25).some((e) => e.item === LIMIT_STONE));
   const ranks = ARENA_RANKS.filter((r) => r.first?.mats?.some(([id]) => id === LIMIT_STONE));
-  assert.equal(ranks.length, 4); // 第68回 C: ランク11 も・第74回 C: ランク12 も
+  assert.equal(ranks.length, 5); // 第68回 C: ランク11 も・第74回 C: ランク12 も・第80回 C: ランク13 も
   const withStone = Object.keys(MONSTERS).filter((sp) => monsterDrops(sp).some((d) => d.item === LIMIT_STONE && d.kind === 'bonus'));
   assert.ok(withStone.length >= 4, withStone.join(','));
   const src = itemSources(LIMIT_STONE);

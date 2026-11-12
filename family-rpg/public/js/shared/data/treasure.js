@@ -23,19 +23,29 @@ export const TM_PEND_MAX = 3;
 // 第65回 C: 25 → 35（物語の 敵が Lv68〜76 に なった。Lv35 の 洞窟の 魔物は Lv79〜82）
 // 第68回 C: 35 → 40（第7章クリア〈c7_clear〉の パーティーは Lv80 くらい。Lv40 の 洞窟の 魔物は Lv89〜92・主は Lv93.5）
 // 第74回 C: 40 → 45（第8章 第2幕クリア〈c8_hades〉の パーティーは Lv86 くらい。Lv45 の 洞窟の 魔物は Lv99〜102・主は Lv103.5）
-export const TM_LV_MAX = 45;
+// 第80回 C: 45 → 50（第8章クリア〈c8_solitus〉の パーティーは Lv94 くらい。Lv50 の 洞窟の 魔物は Lv109〜112・主は Lv113.5）。
+//   Lv46 から 上の 地図は 第8章クリアの あとだけ 手に入る（tmLvCap。それまでは 45 で 止まる。拾う 地図・主の あとの 地図 どちらも）
+export const TM_LV_MAX = 50;
+export const TM_LV_STORY_CAP = 45;
+export const TM_LV_OPEN_FLAG = 'c8_solitus';
+// その キャラが 今 手に入れられる 地図の いちばん 高い レベル（冒険のしおりの 分母も これ）
+export const tmLvCap = (c) => (c?.flags?.[TM_LV_OPEN_FLAG] ? TM_LV_MAX : TM_LV_STORY_CAP);
 // 第65回 C: 地図 Lv26 から、第5章〜第7章 第1幕の 魔物も 出る（TM_THEMES の deep。Lv25 までの 洞窟は 前と おなじ）
 export const TM_DEEP_FROM = 26;
 // 第68回 C: 地図 Lv36 から、洞窟の 魔物は 第7章（第1幕・第2幕）の 魔物だけ（TM_THEMES の c7）
 export const TM_C7_FROM = 36;
 // 第74回 C: 地図 Lv41 から、洞窟の 魔物は 第8章の 魔物（と 第7章 第3幕などの 魔物）だけ（TM_THEMES の c8）
 export const TM_C8_FROM = 41;
+// 第80回 C: 地図 Lv46 から、洞窟の 魔物は 第8章 第2幕・第3幕の 魔物（と 少しの 第8章 第1幕などの 魔物）だけ（TM_THEMES の end8）
+export const TM_END8_FROM = 46;
 export const TM_BOSS_LV = 10; // 主の データの レベル（monsters-tm.js）
 
 // 洞窟の しゅるい
 //   pool … 出てくる 魔物（地図の レベルに ちかい ものを えらんで 強くする）/ bosses … 主
 //   deep … 第65回 C: 地図 Lv26（TM_DEEP_FROM）から pool に 足す 魔物（第5章〜第7章 第1幕。物語の ボス・配合だけの 魔物は 入れない）
 //   c7・c8 … 第68回 C・第74回 C: 地図 Lv36（TM_C7_FROM）・Lv41（TM_C8_FROM）からは、この 魔物だけ
+//   end8 … 第80回 C: 地図 Lv46（TM_END8_FROM）からは、この 魔物だけ（第8章 第2幕〈monsters-c8b.js〉・第3幕〈monsters-c8c.js〉の 10しゅは ぜんぶ 出る）。
+//     第8章 第4幕（B班）の 魔物を 足す ときは、この 3つの end8 に ID を 書くだけ（MONSTERS に ない ID は 出ない・もとの レベルの 高い 6しゅが 出る）
 export const TM_THEMES = {
   earth: {
     label: '土', words: ['大地', '岩', 'まぼろし', 'ねむり', 'ひみつ', '古代'], dark: true, bg: 'cave', bossBg: 'cave_boss',
@@ -49,6 +59,7 @@ export const TM_THEMES = {
     // 第74回 C: 地図 Lv41（TM_C8_FROM）からの 魔物（第8章 第1幕の 月の王宮〈monsters-c8a.js〉・第7章 第3幕の いばらの城〈monsters-c7i.js〉・第7章の のこり）
     //   第8章 第2幕（B班）の 魔物を 足す ときは、この 3つの c8 に ID を 書くだけ（MONSTERS に ない ID は 出ない・もとの レベルの 高い 6しゅが 出る）
     c8: ['palace_guard', 'moon_scarab', 'thorn_goblin', 'card_soldier', 'karon'],
+    end8: ['dosshiin', 'tonkachi_bro', 'buriki_koopa', 'palace_guard', 'moon_scarab'],
   },
   ice: {
     label: '氷', words: ['氷', '雪', '白銀', '冬', '氷河', 'つらら'], dark: false, bg: 'tm_ice', bossBg: 'tm_ice',
@@ -59,6 +70,7 @@ export const TM_THEMES = {
     bosses: ['tm_serpent', 'tm_king', 'tm_panther'],
     c7: ['uzu_eel', 'gesso', 'water_youma', 'pukupuku', 'fish_pirate'],
     c8: ['ice_bro', 'ice_pakkun', 'ice_mirror', 'gesso', 'water_youma'],
+    end8: ['bone_fish', 'biri_jelly', 'blue_soul', 'hydran', 'ice_bro'],
   },
   lava: {
     label: '炎', words: ['炎', '火', 'ようがん', '赤岩', '火の山', '火山'], dark: true, bg: 'tm_lava', bossBg: 'tm_lava',
@@ -69,6 +81,7 @@ export const TM_THEMES = {
     bosses: ['tm_dragon', 'tm_golem', 'tm_knight'],
     c7: ['pakkun', 'crow_messenger', 'march_broom', 'jugemu', 'pirate_parrot'],
     c8: ['cobrar', 'lamp_smoke', 'sanbo', 'jugemu', 'pirate_parrot'],
+    end8: ['mera_bubble', 'dodeka_killer', 'kerberos', 'cobrar', 'lamp_smoke'],
   },
 };
 export const THEME_KEYS = Object.keys(TM_THEMES);
@@ -128,7 +141,9 @@ export const TM_CAVE_POW = 1.15;
 //   第68回 C: Lv36 からの 第7章の 魔物（c7）も おなじ 0.95（node tools/sim-tm.mjs 60 36,38,40 で 9わり 以上・HP残 7わり）
 //   めやす（tools/sim-tm.mjs）: 魔物の レベル＋3 の 4人（店の 装備）で 勝率 9わり 以上・HP残 7わり くらい（Lv26 95%・30 94%・35 94%）
 export const TM_DEEP_POW = 0.95;
-export const tmCavePow = (lv) => (lv >= TM_DEEP_FROM ? TM_DEEP_POW : TM_CAVE_POW);
+// 第80回 C: Lv46 からの 第8章 第2幕・第3幕の 魔物（end8）は 技が もっと 多いので 0.9（node tools/sim-tm.mjs 100 46,…,50。0.95 では 84〜88%・HP残 6わり）
+export const TM_END8_POW = 0.9;
+export const tmCavePow = (lv) => (lv >= TM_END8_FROM ? TM_END8_POW : lv >= TM_DEEP_FROM ? TM_DEEP_POW : TM_CAVE_POW);
 // 魔物の 強さ（レベル）。深い 階ほど すこし 強い
 export function enemyLvOf(lv, floor = 1) {
   return 9 + lv * 2 + (floor - 1) * 0.6;
@@ -151,7 +166,9 @@ export function bossLvOf(seed, lv) {
 //     （第7章 第3幕・第8章 第1幕の 強い 魔物が ふえて めやす〈tm-curve.js〉が 上がり、0.73・0.71 の ままでは Lv33 43%・Lv38 63%・Lv40 44% に なっていた。
 //      これからは めやすを Lv83 まで〈CURVE_LV_MAX〉で 止めたので、新しい 幕の 魔物で ずれない）。
 //     node tools/sim-boss.mjs 30 tm 33,35,38,40,42,45: 倍率 0.65 で 87〜98%・0.68 で 39〜98%・0.70 で 16〜92%（高い レベルほど きびしく かわる）→ 下の 数
-export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66], [26, 0.74], [30, 0.74], [33, 0.70], [35, 0.70], [38, 0.70], [40, 0.68], [42, 0.67], [45, 0.65]];
+//   第80回 C: 地図 Lv46〜50（主は Lv105.5〜113.5）を 足した。node tools/sim-boss.mjs 30 tm 45,…,50 で 86〜91%
+//     （Lv50: 0.60 で 93%・0.61 で 86%・0.62 で 71%。1つ ちがうだけで 大きく かわる）
+export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66], [26, 0.74], [30, 0.74], [33, 0.70], [35, 0.70], [38, 0.70], [40, 0.68], [42, 0.67], [45, 0.65], [46, 0.64], [48, 0.62], [50, 0.61]];
 export const TM_BOSS_ADJ = { tm_golem: 0.85, tm_dragon: 0.9, tm_king: 0.97, tm_knight: 0.97, tm_serpent: 1.06, tm_panther: 1.06 };
 export const TM_POW_FROM = 8;
 export function tmBossPow(lv, species) {
@@ -170,9 +187,10 @@ export function encounterZone(lv, theme) {
   return `tm${lv}${theme[0]}`;
 }
 
-// 出てくる かもしれない 魔物（地図 Lv26 からは deep も・第68回: Lv36 からは c7 だけ・第74回: Lv41 からは c8 だけ）
+// 出てくる かもしれない 魔物（地図 Lv26 からは deep も・第68回: Lv36 からは c7 だけ・第74回: Lv41 からは c8 だけ・第80回: Lv46 からは end8 だけ）
 export function tmPoolOf(lv, theme) {
   const th = TM_THEMES[theme];
+  if (lv >= TM_END8_FROM && th.end8?.length) return th.end8.slice();
   if (lv >= TM_C8_FROM && th.c8?.length) return th.c8.slice();
   if (lv >= TM_C7_FROM && th.c7?.length) return th.c7.slice();
   return lv >= TM_DEEP_FROM ? [...th.pool, ...(th.deep || [])] : th.pool.slice();
@@ -186,6 +204,7 @@ export function ensureEncounterTable(lv, theme) {
   const pool = tmPoolOf(lv, theme).filter((sp) => MONSTERS[sp]).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
   // 第68回 C: 地図 Lv36 からは 第7章の 魔物 ぜんぶ（もとの レベルは Lv68〜76。洞窟の レベルまで curve で 強くする）
   //   第74回 C: Lv41 からの c8 も おなじ（もとの レベルは Lv70〜83。6しゅより 多い ときは もとの レベルの 高い 6しゅ）
+  //   第80回 C: Lv46 からの end8 も おなじ（もとの レベルは Lv80〜89）
   let pick = lv >= TM_C7_FROM && pool.length >= 4 ? pool.slice() : pool.filter((sp) => MONSTERS[sp].lv <= L + 1 && MONSTERS[sp].lv >= L - 9);
   if (pick.length < 4) pick = pool.slice().sort((a, b) => Math.abs(MONSTERS[a].lv - L) - Math.abs(MONSTERS[b].lv - L)).slice(0, 4).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
   pick = pick.slice(-6);
