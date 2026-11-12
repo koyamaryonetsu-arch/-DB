@@ -27,6 +27,10 @@ import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
+// 第78回: 階段・くさりの 立体・目じるし・手前の かべを ひくく（render/mark3d.js）
+import {
+  collectMarks, stairCuts, hiddenBehind, markBob, marksShown, nearMark, drawMark, drawMarkGlow, chainCanvas3d, MARK_LIFT, CHAIN_GHOST, CHAIN_STRETCH,
+} from './mark3d.js';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -280,9 +284,21 @@ export class Field3D {
     this.dark = !!map.dark;
     const idAt = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? -1 : (map.gates.length ? effectiveTile(map, x, y, gate) : map.tiles[y * w + x]));
     const specs = new Map();
+    const rawSpec = (x, y) => canalSpec(wellRim(blockSpec(idAt(x, y), x, y), x, y), x, y);
+    // 第78回: 階段の 手前（南）の 高い かべは ひくく（水門などの とびらの かべは そのまま）
+    let cuts = null; // はじめて つかう ときに（canalSpec・wellRim は この 下で きまる）
+    const cutsOf = () => cuts || (cuts = stairCuts(w, h, idAt, (x, y) => {
+      const id = idAt(x, y);
+      if (id === -1 || kindOf(id) !== BLOCK) return null;
+      const s = rawSpec(x, y);
+      return s && !s.gate ? s.h : null;
+    }));
     const spec = (x, y) => {
       const k = y * w + x;
-      if (!specs.has(k)) specs.set(k, canalSpec(wellRim(blockSpec(idAt(x, y), x, y), x, y), x, y));
+      if (!specs.has(k)) {
+        const s = rawSpec(x, y), cuts = cutsOf();
+        specs.set(k, s && cuts.has(k) ? { ...s, h: Math.min(s.h, cuts.get(k)) } : s);
+      }
       return specs.get(k);
     };
     // 第4章 Step 2: 地下水路の かべの たいまつは 切り石の かべ。水路の 上の かべの まえの かおは 水路の 底まで つづく
@@ -365,21 +381,23 @@ export class Field3D {
         default:
           break;
       }
-      if (PROP_TILES.has(id) || TREE_TILES.has(id)) {
-        const cnt = new Map();
-        for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
-          // 砂丘・砂嵐の となりは 砂ばくの 地面（第4章）
-          const n0 = idAt(x + dx, y + dy), n = n0 === T.DUNE || n0 === T.SANDSTORM ? T.DESERT : n0;
-          if (n === -1 || kindOf(n) !== FLOOR || PROP_TILES.has(n) || TREE_TILES.has(n) || n === T.DOOR || TROUGH.has(n)) continue;
-          cnt.set(n, (cnt.get(n) || 0) + 1);
-        }
-        let best = dungeon ? T.CAVE_FLOOR : map.ground || T.GRASS, bn = 0;
-        for (const [n, c] of cnt) if (c > bn) { bn = c; best = n; }
-        return ['t', best, Math.floor(hash2(x, y, 17) * 4), 0];
-      }
+      if (PROP_TILES.has(id) || TREE_TILES.has(id)) return groundKey(x, y);
       // 地下水路の まわりの かいだん・がれき・ボスの ゆかは 水路の え（mask の CANAL_CTX）
       const cm = canalMask(id, idAt, x, y);
       return ['t', id, Math.floor(hash2(x, y, 17) * 4), cm === CANAL_CTX ? cm : 0];
+    };
+    // まわりで いちばん 多い ゆかの え（もの・き・立体の 階段の した）
+    const groundKey = (x, y) => {
+      const cnt = new Map();
+      for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
+        // 砂丘・砂嵐の となりは 砂ばくの 地面（第4章）
+        const n0 = idAt(x + dx, y + dy), n = n0 === T.DUNE || n0 === T.SANDSTORM ? T.DESERT : n0;
+        if (n === -1 || kindOf(n) !== FLOOR || PROP_TILES.has(n) || TREE_TILES.has(n) || n === T.DOOR || TROUGH.has(n) || n === T.STAIRS_UP || n === T.STAIRS_DOWN) continue;
+        cnt.set(n, (cnt.get(n) || 0) + 1);
+      }
+      let best = dungeon ? T.CAVE_FLOOR : map.ground || T.GRASS, bn = 0;
+      for (const [n, c] of cnt) if (c > bn) { bn = c; best = n; }
+      return ['t', best, Math.floor(hash2(x, y, 17) * 4), 0];
     };
 
     // チャンク（16×16）ごとに まとめる
@@ -393,6 +411,7 @@ export class Field3D {
     const trees = [], pines = [], snowPines = [], palms = [];
     const dunes = [], storm = [];
     const canal = [], dams = [];
+    const climbs = []; // 第78回: のぼる くさり（太い 絵・かくれた 所は うすく 見せる）
     const whirl = []; // 砂クジラの ねどこの 砂の うず（第4章 Step 6。あとで まとめて 1まいの え）
     const wmirror = []; // 水鏡の 広間の 水鏡（第4章 Step 7。あとで まとめて 1まいの え）
     const isBlockAt = (x, y) => {
@@ -443,11 +462,15 @@ export class Field3D {
             if (sunk && n.some(([a, b]) => !TROUGH.has(idAt(a, b)) && (topH(a, b) ?? hh) > hh + 0.2)) return 0.74;
             return 1;
           };
-          quad(g, [x, hh, y], [x, hh, y + 1], [x + 1, hh, y + 1], [x + 1, hh, y], uvOf(floorKey(x, y, id)), [ao(x, y), ao(x, y + 1), ao(x + 1, y + 1), ao(x + 1, y)]);
+          const stairs = id === T.STAIRS_UP || id === T.STAIRS_DOWN;
+          // 第78回: 階段は 立体（上りは 段が 上がる・下りは 床に 穴と 下りる 段）。下の ゆかは まわりの ゆか
+          if (stairs) addStairs(g, x, y, hh, id, idAt, uvOf(groundKey(x, y)), uvOf(['x', 'stone_top', 0]), uvOf(['x', 'stone_side', 0]), uvOf(['x', dungeon ? 'cave_side' : 'stone_side', 0]));
+          else quad(g, [x, hh, y], [x, hh, y + 1], [x + 1, hh, y + 1], [x + 1, hh, y], uvOf(floorKey(x, y, id)), [ao(x, y), ao(x, y + 1), ao(x + 1, y + 1), ao(x + 1, y)]);
           // よこの め（水路の となりは 水路の 岸の 石）
           const sideName = SIDE_OF[id] || (troughNear(x, y) ? 'canal_side' : dungeon ? 'cave_side' : 'shore_side');
           sides(g, x, y, hh, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', sideName, sideName === 'canal_side' ? (x * 3 + y) & 3 : 0]));
-          if (PROP_TILES.has(id)) {
+          if (id === T.C8C_CHAIN) climbs.push([x, y]);
+          else if (PROP_TILES.has(id)) {
             const c = propCanvas(id);
             if (c) this.addProp(props, map.theme ? themedCanvas(c, map.theme, partOfProp(id, map.theme)) : c, x + 0.5, y + 0.78, id);
           } else if (id === T.TREE) trees.push([x, y]);
@@ -560,6 +583,40 @@ export class Field3D {
       }
     }
     this.propAtlas = null;
+    // 第78回: のぼる くさり（太い 絵。木の 葉などに かくれた 所も うすく 見える）
+    if (climbs.length) {
+      const cc = chainCanvas3d();
+      const ct = new THREE.CanvasTexture(cc);
+      ct.magFilter = THREE.NearestFilter;
+      ct.minFilter = THREE.NearestFilter;
+      ct.generateMipmaps = false;
+      ct.colorSpace = THREE.SRGBColorSpace;
+      // かげの え（かくれた 所に うすく。じぶんの シルエットと おなじ しくみ）
+      const gt = new THREE.CanvasTexture(whiteCopy(cc, CHAIN_GHOST));
+      gt.magFilter = THREE.NearestFilter;
+      gt.minFilter = THREE.NearestFilter;
+      gt.generateMipmaps = false;
+      gt.colorSpace = THREE.SRGBColorSpace;
+      const cg = newGeo();
+      // 空から まっすぐ たれる（たてた え と ちがって うしろへ かたむけない。うしろの 木に ささらない）
+      const wd = cc.width / 16, ht = (cc.height / 16) * CHAIN_STRETCH / COS;
+      for (const [x, y] of climbs) {
+        const b = new THREE.Vector3(x + 0.5, 0, y + 0.6);
+        const p = (dx, up) => [b.x + dx, b.y + up, b.z];
+        quad(cg, p(-wd / 2, ht), p(-wd / 2, 0), p(wd / 2, 0), p(wd / 2, ht), { u0: 0, u1: 1, v0: 0, v1: 1 }, 1);
+      }
+      const geo = toGeometry(cg);
+      const cm = new THREE.MeshBasicMaterial({ map: ct, alphaTest: 0.5, side: THREE.DoubleSide });
+      const gm = new THREE.MeshBasicMaterial({ map: gt, alphaTest: 0.5, transparent: true, opacity: 0.6, depthWrite: false, depthFunc: GREATER_DEPTH, side: THREE.DoubleSide, fog: false });
+      materials.push(cm, gm);
+      group.add(new THREE.Mesh(geo, cm));
+      const ghost = new THREE.Mesh(geo.clone(), gm);
+      ghost.renderOrder = 10;
+      group.add(ghost);
+    }
+    // 第78回: 階段・くさりの 目じるし（▲▼。うえに かさねる 2D に かく）
+    const underAt = (x, y) => map.gates.find((q) => q.x === x && q.y === y)?.closed ?? null;
+    this.marks = collectMarks(w, h, idAt, underAt);
     // き
     if (trees.length || pines.length) {
       const tt = makeCanvas(48, 16);
@@ -1013,6 +1070,28 @@ export class Field3D {
     this.shadows.instanceMatrix.needsUpdate = true;
   }
 
+  // 第78回: 階段・くさりの 目じるし（▲▼）と 足もとの うすい 光。くらやみの 上に かく（field.js の render3d から）
+  //   P(x, y, up) … がめんの いち（{ x, y, k: 1マスの 大きさ }）/ t … 時間
+  drawMarks(ctx, P, t) {
+    const f = this.field, g = f.game || {};
+    if (!this.marks?.length || !this.topH) return;
+    if (!marksShown({ busy: !!g.busy, menu: !!g.menuOpen, look: !!f.lookAt, state: g.state })) return;
+    const me = f.me;
+    for (const m of this.marks) {
+      if (Math.abs(m.x - me.x) > 16 || Math.abs(m.y - me.y) > 15) continue;
+      if (nearMark(m, me.x, me.y) || this.hiddenByRoof(m.x, m.y)) continue;
+      const base = this.floorAt(m.x, m.y);
+      // 手前の 物に かくれて いる（どの マスも かくれて いる）ときは うすく
+      let hid = true;
+      for (let i = 0; i < m.w && hid; i++) hid = hiddenBehind((k) => this.topH(m.tx + i, m.ty + k), base);
+      const top = P(m.x, m.y, (m.climb ? MARK_LIFT.climb : MARK_LIFT.stairs) + markBob(t, m.tx, m.ty));
+      if (top.x < -20 || top.y < -20 || top.x > f.vw + 20 || top.y > f.vh + 20) continue;
+      const foot = P(m.x, m.y, 0.02);
+      drawMarkGlow(ctx, foot.x, foot.y, foot.k * (0.5 + 0.3 * m.w), hid ? 0.14 : 0.32);
+      drawMark(ctx, top.x, top.y, Math.max(5, foot.k * 0.42), m.kind, hid ? 0.55 : 1);
+    }
+  }
+
   // じぶんが いない たてものの なかの ひとは やねで かくれる
   hiddenByRoof(x, y) {
     for (const b of this.buildings || []) {
@@ -1104,6 +1183,61 @@ function box(g, x, y, y0, y1, topUv, sideUv, southUv, hAt) {
   }
 }
 
+// え の 一部（fx・fz は 0〜1。fz = 0 が 北）
+function subUv(uv, fx0, fx1, fz0, fz1) {
+  const du = uv.u1 - uv.u0, dv = uv.v1 - uv.v0;
+  return { u0: uv.u0 + du * fx0, u1: uv.u0 + du * fx1, v0: uv.v1 - dv * fz1, v1: uv.v1 - dv * fz0 };
+}
+
+// 第78回: 立体の 階段（1マス。となりも おなじ 階段なら つなげる）
+//   上り … 南から 北へ 3だん 上がる（はば いっぱい の 石の 段。よこと 前の めんも）
+//   下り … ゆかに 四角い 穴。北へ 3だん 下りる（おくほど くらい）。穴の おくと よこの かべ
+//   ground … まわりの ゆかの え / top・side … 段の うえ・まえ / pit … 穴の かべ
+export const STAIR_N = 3, STAIR_UP_H = 0.56, STAIR_DOWN_D = 0.5;
+function addStairs(g, x, y, hh, id, idAt, ground, top, side, pit) {
+  const L = idAt(x - 1, y) === id, R = idAt(x + 1, y) === id;
+  const N = STAIR_N;
+  if (id === T.STAIRS_UP) {
+    quad(g, [x, hh, y], [x, hh, y + 1], [x + 1, hh, y + 1], [x + 1, hh, y], ground, 1);
+    const X0 = x + (L ? 0 : 0.1), X1 = x + 1 - (R ? 0 : 0.1), Z0 = y + 0.04, Z1 = y + 0.96, d = (Z1 - Z0) / N;
+    for (let j = 0; j < N; j++) {
+      const za = Z1 - (j + 1) * d, zb = Z1 - j * d; // za = 北
+      const h0 = hh + STAIR_UP_H * j / N, h1 = hh + STAIR_UP_H * (j + 1) / N;
+      const t = subUv(top, 0, 1, (N - 1 - j) / N, (N - j) / N);
+      // うえ（てまえの ふちは 明るく・おくは すこし くらく → 1だんずつ 見える）
+      quad(g, [X0, h1, za], [X0, h1, zb], [X1, h1, zb], [X1, h1, za], t, [0.86, 1.15, 1.15, 0.86]);
+      // まえの めん（その だんの 高さ ぶん。くらく）
+      quad(g, [X0, h1, zb], [X0, h0, zb], [X1, h0, zb], [X1, h1, zb], subUv(side, 0, 1, 0, 0.3), 0.5);
+      // よこの めん（下まで）
+      if (!R) quad(g, [X1, h1, zb], [X1, hh, zb], [X1, hh, za], [X1, h1, za], side, 0.6);
+      if (!L) quad(g, [X0, h1, za], [X0, hh, za], [X0, hh, zb], [X0, h1, zb], side, 0.56);
+    }
+    return;
+  }
+  // 下り: 穴の まわりの ゆか
+  const li = L ? 0 : 0.12, ri = R ? 0 : 0.12, ni = 0.1, si = 0.1;
+  const X0 = x + li, X1 = x + 1 - ri, Z0 = y + ni, Z1 = y + 1 - si;
+  const rim = (ax, bx, az, bz) => {
+    if (bx - ax < 0.001 || bz - az < 0.001) return;
+    quad(g, [ax, hh, az], [ax, hh, bz], [bx, hh, bz], [bx, hh, az], subUv(ground, ax - x, bx - x, az - y, bz - y), 1);
+  };
+  rim(x, x + 1, y, Z0);
+  rim(x, x + 1, Z1, y + 1);
+  rim(x, X0, Z0, Z1);
+  rim(X1, x + 1, Z0, Z1);
+  const D = STAIR_DOWN_D, d = (Z1 - Z0) / N;
+  for (let j = 0; j < N; j++) {
+    const za = Z1 - (j + 1) * d, zb = Z1 - j * d;
+    const hy = hh - D * (j + 1) / N;
+    const s = 0.95 - j * 0.22; // おくほど くらい。1だんの 中も おく（北）は かげ
+    quad(g, [X0, hy, za], [X0, hy, zb], [X1, hy, zb], [X1, hy, za], subUv(top, 0, 1, (N - 1 - j) / N, (N - j) / N), [s * 0.55, s, s, s * 0.55]);
+  }
+  // 穴の おくの かべ（南むき）と よこの かべ
+  quad(g, [X0, hh, Z0], [X0, hh - D, Z0], [X1, hh - D, Z0], [X1, hh, Z0], subUv(pit, 0, 1, 0, D), 0.34);
+  if (!L) quad(g, [X0, hh, Z1], [X0, hh - D, Z1], [X0, hh - D, Z0], [X0, hh, Z0], subUv(pit, 0, 1, 0, D), 0.42);
+  if (!R) quad(g, [X1, hh, Z0], [X1, hh - D, Z0], [X1, hh - D, Z1], [X1, hh, Z1], subUv(pit, 0, 1, 0, D), 0.38);
+}
+
 // 水門・鉄の こうし（第4章 Step 2）: うえ と、ひくい がわの めん（下から GATE_H は とびらの え、その 上は 石の かべ）
 function gateBox(g, x, y, h, topUv, sideUv, gateUv, hAt) {
   quad(g, [x, h, y], [x, h, y + 1], [x + 1, h, y + 1], [x + 1, h, y], topUv, 1);
@@ -1135,24 +1269,31 @@ function toGeometry(g) {
   return geo;
 }
 
-// たてた もの の アトラス（16×24 の わく）
+// たてた もの の アトラス（たかさ 48 の 行に よこへ ならべる）
+//   第78回: まえは 16×24 の わく だった ので、たかい え（いかり・くさり・風車 など）の 上が 切れたり、
+//   はばの ひろい え が となりに かさなったり していた
+const PROP_ROW = 48;
 class PropAtlas {
   constructor() {
-    this.canvas = makeCanvas(512, 256);
+    this.canvas = makeCanvas(512, 512);
     this.ctx = ctxOf(this.canvas);
     this.slots = new Map();
-    this.n = 0;
+    this.cx = 0;
+    this.cy = 0;
   }
 
   uv(key, c) {
     let r = this.slots.get(key);
     if (r) return r;
-    const i = this.n++;
-    const cx = (i % 32) * 16, cy = Math.floor(i / 32) * 24;
-    const top = cy + 24 - c.height;
-    this.ctx.drawImage(c, cx, top);
-    const W = 512, H = 256, e = 0.01;
-    r = { u0: (cx + e) / W, u1: (cx + c.width - e) / W, v0: 1 - (cy + 24 - e) / H, v1: 1 - (top + e) / H };
+    const W = 512, H = 512, e = 0.01;
+    const cw = Math.min(W, c.width), ch = Math.min(PROP_ROW, c.height);
+    if (this.cx + cw > W) { this.cx = 0; this.cy += PROP_ROW; }
+    if (this.cy + PROP_ROW > H) this.cy = 0; // いっぱい（ふつうは ない）
+    const cx = this.cx, top = this.cy + PROP_ROW - ch;
+    this.ctx.clearRect(cx, this.cy, cw + 1, PROP_ROW);
+    this.ctx.drawImage(c, 0, c.height - ch, cw, ch, cx, top, cw, ch);
+    this.cx += cw + 1;
+    r = { u0: (cx + e) / W, u1: (cx + cw - e) / W, v0: 1 - (this.cy + PROP_ROW - e) / H, v1: 1 - (top + e) / H };
     this.slots.set(key, r);
     return r;
   }
