@@ -6,9 +6,9 @@
 //   size は 今までの ボスの 2倍（マレフィナ 248×248・カイの影 224×240）で かき、monsters-c7i.js の artScale: 0.5 で
 //   見た目は 今までと おなじ 大きさ（124×124・112×120）。render/monsters.js が こまかさ（res）を 2倍に する
 // マレフィナは コマ 0・1 が 魔女、コマ 2・3 が 黒い 竜（変身の あと。client/battle-c7i.js の c7iSprite が pub の c7form で えらぶ）
-import { fit, spark, snowflake } from './ch3-draw.js?v=433f1b51a50d';
+import { fit, spark, snowflake } from './ch3-draw.js?v=66c9e741ef72';
 // 第2部 第8章 第1幕: 手下の 魔物・へびのつえ・黒いランプ・イアゴン・ジャハール（c8a-art.js）
-import { addC8aArt } from './c8a-art.js?v=433f1b51a50d';
+import { addC8aArt } from './c8a-art.js?v=66c9e741ef72';
 
 const EYE = ['#ffffff', '#1a1026'];
 // パレット（目の 色を 足す。かぶりは 1つに）

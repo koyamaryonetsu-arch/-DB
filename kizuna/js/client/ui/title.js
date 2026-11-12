@@ -1,16 +1,16 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { padNav } from './padnav.js?v=433f1b51a50d';
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=433f1b51a50d';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=433f1b51a50d';
-import { jobLabel, jobFor } from '../../shared/job-label.js?v=433f1b51a50d';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=433f1b51a50d';
-import { previewCache } from '../render/hero.js?v=433f1b51a50d';
-import { playerSprite } from '../field.js?v=433f1b51a50d';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=433f1b51a50d';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=433f1b51a50d';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=433f1b51a50d';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=433f1b51a50d';
-import { shownEquip } from '../../shared/look-equip.js?v=433f1b51a50d';
+import { padNav } from './padnav.js?v=66c9e741ef72';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=66c9e741ef72';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=66c9e741ef72';
+import { jobLabel, jobFor } from '../../shared/job-label.js?v=66c9e741ef72';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=66c9e741ef72';
+import { previewCache } from '../render/hero.js?v=66c9e741ef72';
+import { playerSprite } from '../field.js?v=66c9e741ef72';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=66c9e741ef72';
+import { parseCode, splitCode, joinParts, cleanCode } from '../../shared/world/transfer.js?v=66c9e741ef72';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=66c9e741ef72';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=66c9e741ef72';
+import { shownEquip } from '../../shared/look-equip.js?v=66c9e741ef72';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -319,6 +319,37 @@ function request(game, msg, want) {
   });
 }
 
+// 第78回: コードを ファイルで 出す（.txt。スマホは 共有の メニューが 使えれば それで、だめなら ダウンロード）
+function fileButton(game, r) {
+  const save = async () => {
+    const d = new Date();
+    const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    // ファイルの 名前は 英数字だけ（日本語だと「download」に なって しまう ブラウザが ある）
+    const name = `kizuna-${String(r.id || 'chara').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24)}-${ymd}.txt`;
+    const text = `きずなの紋章の引っこしコード（${r.name}）\n「② コードから連れてくる」→「ファイルから読む」で、このファイルを選んでね。\n\n${r.code}\n`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    try {
+      const f = new File([blob], name, { type: 'text/plain' });
+      if (navigator.canShare?.({ files: [f] }) && navigator.share) {
+        await navigator.share({ files: [f], title: `${r.name}の引っこしコード` });
+        toast('ファイルを出しました');
+        return;
+      }
+    } catch (e) {
+      if (e?.name === 'AbortError') return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = el('a', { href: url, download: name, style: { display: 'none' } });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    toast(`${name} を保存しました`, 4000);
+    game.audio.sfx('confirm');
+  };
+  return el('button', { class: 'btn', text: '📄 ファイルで出す', onclick: save });
+}
+
 export function showTransfer(game, chars) {
   clearUI();
   const ui = document.getElementById('ui');
@@ -372,32 +403,53 @@ export function showTransfer(game, chars) {
       body.append(el('div', { class: 'warn', text: r.text || '書き出せませんでした' }), el('button', { class: 'btn', text: '← もどる', onclick: top }));
       return;
     }
-    const ta = el('textarea', { class: 'textin codearea', readonly: true, rows: '5', spellcheck: 'false' });
-    ta.value = r.code;
-    const copyBtn = el('button', { class: 'btn primary', text: 'コピーする' });
+    // 第78回: LINE の 1通に 入らない ときは 2通、3通…に 分ける（どの じゅんで はりつけても 読める）
+    const parts = splitCode(r.code);
     const hint = el('div', { class: 'small' });
-    copyBtn.addEventListener('click', () => {
-      const copied = () => {
-        ta.setSelectionRange(0, 0);
-        ta.blur();
-        toast('コピーしました！');
-        game.audio.sfx('confirm');
-        hint.className = 'small good';
-        hint.textContent = 'コピーしました！　連れていく先で「② コードから連れてくる」を開いて、はりつけてください。\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）';
-      };
-      const manual = () => {
-        selectAllText(ta);
-        hint.className = 'small warn';
-        hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してください。';
-      };
-      // http の 家族サーバーや アプリの 中でも コピーできる やりかたから ためす
-      if (copyBySelect(ta)) return copied();
-      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(r.code).then(copied, manual);
-      else manual();
-    });
-    const send = r.code.length < LINE_MAX
+    const copyBox = (text, label, done) => {
+      const ta = el('textarea', { class: 'textin codearea', readonly: true, rows: parts.length > 1 ? '3' : '5', spellcheck: 'false' });
+      ta.value = text;
+      const btn = el('button', { class: 'btn primary', text: label });
+      btn.addEventListener('click', () => {
+        const copied = () => {
+          ta.setSelectionRange(0, 0);
+          ta.blur();
+          toast('コピーしました！');
+          game.audio.sfx('confirm');
+          hint.className = 'small good';
+          hint.textContent = done;
+        };
+        const manual = () => {
+          ta.style.display = '';
+          selectAllText(ta);
+          hint.className = 'small warn';
+          hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してください。';
+        };
+        // http の 家族サーバーや アプリの 中でも コピーできる やりかたから ためす
+        if (ta.style.display !== 'none' && copyBySelect(ta)) return copied();
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(copied, manual);
+        else manual();
+      });
+      return { ta, btn };
+    };
+    const send = parts.length === 1
       ? 'べつのスマホへは、LINE・メッセージ・AirDrop・メモなどで送れます。'
-      : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってください。';
+      : `LINEでは${parts.length}つに分けて送ってね。メッセージ・AirDrop・メモ・ファイルなら1回で送れます。`;
+    const pasteHelp = '連れていく先で「② コードから連れてくる」を開いて、はりつけてください。';
+    const codeRows = [];
+    if (parts.length === 1) {
+      const { ta, btn } = copyBox(r.code, 'コピーする', `コピーしました！　${pasteHelp}\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）`);
+      codeRows.push(ta, el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, btn, fileButton(game, r), el('button', { class: 'btn', text: '← もどる', onclick: top })));
+    } else {
+      codeRows.push(el('div', { class: 'warn', text: `コードが長いので、${parts.length}つに分けました。LINEでは1つずつ送ってね（どのじゅんばんで、はりつけてもだいじょうぶ）。` }));
+      parts.forEach((part, i) => {
+        const { ta, btn } = copyBox(part, `${i + 1}つめをコピー`, `${i + 1}つめをコピーしました！　送ったら、つぎのコードもコピーしてね。全部そろうと、むこうで読めます。`);
+        codeRows.push(el('div', { class: 'col', style: { gap: '0.3em' } }, el('div', { class: 'small gold', text: `${i + 1}つめ（${parts.length}つのうち）` }), ta, el('div', { class: 'row' }, btn)));
+      });
+      const all = copyBox(r.code, '全部まとめてコピー', `全部コピーしました！　メモ・メール・AirDropなら、このまま1回で送れます。${pasteHelp}`);
+      all.ta.style.display = 'none';
+      codeRows.push(all.ta, el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, all.btn, fileButton(game, r), el('button', { class: 'btn', text: '← もどる', onclick: top })));
+    }
     // 1タップで 連れていく（リンクで 開くと、むこうで「連れてきますか？」と 聞かれる）
     const jump = [];
     if (game.net.mode === 'server') {
@@ -427,10 +479,9 @@ export function showTransfer(game, chars) {
       el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてください。' }),
       el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, ...jump),
       el('div', { class: 'small muted', text: game.net.mode === 'server' ? '同じスマホなら、このボタンだけでOK（ひとりで遊ぶサイトが開いて、連れていくか聞かれます）。' : '家に帰ってPCがついていれば、このボタンだけでOK（家族サーバーが開いて、連れていくか聞かれます）。' }),
-      ta,
-      el('div', { class: 'row', style: { gap: '0.5em' } }, copyBtn, el('button', { class: 'btn', text: '← もどる', onclick: top })),
+      ...codeRows,
       hint,
-      el('div', { class: 'detail', text: `コードの長さ: ${r.code.length}文字。${send}\n全部コピーしてね（とちゅうで切れると読めません）。コードをメモにとっておくと、もしものときのバックアップにもなります。` }));
+      el('div', { class: 'detail', text: `コードの長さ: ${r.code.length}文字。${send}\n全部コピーしてね（とちゅうで切れると読めません）。「ファイルで出す」でとっておくと、もしものときのバックアップにもなります。` }));
   };
 
   const importView = () => {
@@ -438,25 +489,95 @@ export function showTransfer(game, chars) {
     const ta = el('textarea', { class: 'textin codearea', rows: '5', spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', placeholder: 'ここに引っこしコードをはりつける（KIZUNA-…）' });
     const go = el('button', { class: 'btn primary', text: '連れてくる' });
     const msg = el('div', { class: 'small' });
-    go.addEventListener('click', async () => {
-      const code = ta.value.trim();
-      if (!code) {
+    // 第78回: 分けた コード（KIZUNA-5-P1/2-…）は、そろうまで ここに ためる（どの じゅんでも よい）
+    let got = '';
+    const gotBox = el('div', { class: 'small gold' });
+    const reset = el('button', { class: 'btn', text: 'やりなおす', style: { display: 'none' } });
+    const showGot = (p) => {
+      gotBox.textContent = p ? `読んだコード: ${p.have.join('・')}つめ（${p.total}つのうち）` : '';
+      reset.style.display = p ? '' : 'none';
+    };
+    reset.addEventListener('click', () => {
+      got = '';
+      showGot(null);
+      msg.textContent = '';
+      ta.value = '';
+    });
+    const tryImport = async (text) => {
+      if (!cleanCode(text)) {
         toast('コードをはりつけてください');
         return;
       }
+      // 分けて いない コードを はりつけた ときは、ためた 分は つかわない
+      if (joinParts(cleanCode(text)).none) {
+        got = '';
+        showGot(null);
+      }
+      const all = cleanCode(`${got}${text}`);
+      const p = joinParts(all);
+      if (p.bad) {
+        msg.textContent = p.bad;
+        msg.className = 'small warn';
+        game.audio.sfx('buzz');
+        return;
+      }
+      if (p.total) {
+        got = all;
+        ta.value = '';
+        showGot(p);
+        msg.textContent = `${p.reason}。のこりのコードを、わくにはりつけて「連れてくる」をおしてね。`;
+        msg.className = 'small good';
+        game.audio.sfx('confirm');
+        return;
+      }
       go.disabled = true;
+      msg.className = 'small';
       msg.textContent = '読みこんでいます…';
-      const r = await request(game, { t: 'importChar', code }, 'importResult');
+      const r = await request(game, { t: 'importChar', code: all }, 'importResult');
       go.disabled = false;
       msg.textContent = r.text || '';
       msg.className = r.ok ? 'small good' : 'small warn';
       game.audio.sfx(r.ok ? 'join' : 'buzz');
-      if (r.ok && r.mode !== 'kept') ta.value = '';
+      if (r.ok) {
+        got = '';
+        showGot(null);
+        if (r.mode !== 'kept') ta.value = '';
+      }
+    };
+    go.addEventListener('click', () => tryImport(ta.value));
+    // ファイルから 読む（「ファイルで出す」で 作った .txt）
+    const file = el('input', { type: 'file', accept: '.txt,text/plain', style: { display: 'none' } });
+    file.addEventListener('change', async () => {
+      const f = file.files?.[0];
+      file.value = '';
+      if (!f) return;
+      if (f.size > 2000000) {
+        msg.textContent = 'ファイルが大きすぎます。引っこしコードのファイルを選んでね';
+        msg.className = 'small warn';
+        return;
+      }
+      let text = '';
+      try {
+        text = await f.text();
+      } catch {
+        text = '';
+      }
+      if (!text.includes('KIZUNA-')) {
+        msg.textContent = 'このファイルには、引っこしコードが入っていないみたい';
+        msg.className = 'small warn';
+        game.audio.sfx('buzz');
+        return;
+      }
+      ta.value = text.trim();
+      tryImport(text);
     });
+    const fromFile = el('button', { class: 'btn', text: '📄 ファイルから読む', onclick: () => file.click() });
     body.append(
-      el('div', { class: 'small', text: `書き出したコードを、ここにはりつけてね。キャラクターが「${where}」にやってきます。\niPhone・iPad: わくの中を長おし →「ペースト」` }),
+      el('div', { class: 'small', text: `書き出したコードを、ここにはりつけてね。キャラクターが「${where}」にやってきます。\niPhone・iPad: わくの中を長おし →「ペースト」\nいくつかに分かれたコードは、1つずつはりつけて「連れてくる」をおしてね（どのじゅんばんでもOK）。` }),
       ta,
-      el('div', { class: 'row', style: { gap: '0.5em' } }, go, el('button', { class: 'btn', text: '← もどる', onclick: top })),
+      gotBox,
+      el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, go, fromFile, reset, el('button', { class: 'btn', text: '← もどる', onclick: top })),
+      file,
       msg,
       el('div', { class: 'detail', text: 'もういるキャラクターのコードなら、コードのほうが後で遊んだデータのときだけ入れかえます。' }));
     setTimeout(() => ta.focus(), 50);

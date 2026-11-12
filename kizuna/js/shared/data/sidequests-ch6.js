@@ -7,15 +7,15 @@
 //  3. ちびアステルのたからもの … 千年前の ちびアステルが きらきらの石を 集めている（千年前の フィールドで 5つ）→ わたす
 //     → 今の ほしみの丘に アステルが おりてくる「…思い出した」→ 星竜のうろこ（★5）
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests.js の labSubQuests・labDoneQuests から（ch6SubQuests・ch6DoneQuests）
-import { C6 } from '../maps/past.js?v=433f1b51a50d';
-import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=433f1b51a50d';
-import { SHOPS } from './shops.js?v=433f1b51a50d';
+import { C6 } from '../maps/past.js?v=66c9e741ef72';
+import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=66c9e741ef72';
+import { SHOPS } from './shops.js?v=66c9e741ef72';
 // 第6章 Step 5（A）: トキネの砂時計のかざり（sidequests-ch6c.js。ここで まぜる）
-import { ch6cSubQuests, ch6cDoneQuests, applyCh6cSide } from './sidequests-ch6c.js?v=433f1b51a50d';
+import { ch6cSubQuests, ch6cDoneQuests, applyCh6cSide } from './sidequests-ch6c.js?v=66c9e741ef72';
 // 第6章 Step 6（A）: リオンの剣のけいこ（sidequests-ch6d.js。だいほんは story-ch6d.js の applyCh6d で まぜる）
-import { ch6dSubQuests, ch6dDoneQuests } from './sidequests-ch6d.js?v=433f1b51a50d';
+import { ch6dSubQuests, ch6dDoneQuests } from './sidequests-ch6d.js?v=66c9e741ef72';
 // 第7章 Step 1・2（A）: 時をこえる手紙（sidequests-c7.js。だいほんは story-c7.js の applyCh7 で まぜる）
-import { c7SubQuests, c7DoneQuests } from './sidequests-c7.js?v=433f1b51a50d';
+import { c7SubQuests, c7DoneQuests } from './sidequests-c7.js?v=66c9e741ef72';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

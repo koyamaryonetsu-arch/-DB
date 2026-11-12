@@ -11,14 +11,25 @@
 // 第51回: それでも 1万文字を こえる ときは KIZUNA-4-（KIZUNA-3 の 形に 加えて、ぜんぶ true の flags・chests を 名前の ならびに、
 //   図鑑〈bestiary〉を 同じ 中みごとに まとめた 形。slimChar4 / unslimChar4）。KIZUNA-3 で 入る ときは KIZUNA-3（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=433f1b51a50d';
-import { dropGoneFamily } from '../data/wagon.js?v=433f1b51a50d';
-import { packFeats, unpackFeats } from './phantom.js?v=433f1b51a50d';
+//
+// 第78回: KIZUNA-5（今 出すのは これだけ。docs/plan-r78-transfer.md）
+//   KIZUNA-5-<CRC-32 8もじ>-<データの 文字数 36進>-<データ>
+//   データ … KIZUNA-4 の 形（＋ きりの マップを まるの まん中だけに）の JSON を、文脈まぜ（transfer-pack.js）で ちぢめて base64url
+//   LINE の 1通（LINE_MAX）を こえる ときは 2通、3通…に 分ける（splitCode）:
+//     KIZUNA-5-P1/2-<まとめの しるし 8もじ>-<きれはしの 文字数 36進>-<きれはし>  … どの じゅんで はりつけても、そろえば 読める
+// KIZUNA-1〜4 も ずっと 読める
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=66c9e741ef72';
+import { dropGoneFamily } from '../data/wagon.js?v=66c9e741ef72';
+import { packFeats, unpackFeats } from './phantom.js?v=66c9e741ef72';
+import { MAPS } from '../maps/index.js?v=66c9e741ef72';
+import { cmPack, cmUnpack, toB64u, fromB64u, crc32, packExplored, unpackExplored } from './transfer-pack.js?v=66c9e741ef72';
+import { PRIME_5 } from './transfer-prime.js?v=66c9e741ef72';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
 const PREFIX_V3 = 'KIZUNA-3-';
 const PREFIX_V4 = 'KIZUNA-4-';
+const PREFIX_V5 = 'KIZUNA-5-';
 export const CODE_MAX = 400000;
 export const LINE_MAX = 10000;
 export const CHAR_MAX = 12;
@@ -310,8 +321,9 @@ export function unslimChar4(char) {
   return unslimChar(char);
 }
 
-// キャラクター → コード（LINE の 1回に 入らない ときだけ KIZUNA-3、それでも 入らない ときだけ KIZUNA-4）
-export function exportCode(char, now = Date.now()) {
+// 前の 形の コード（第77回までの exportCode。LINE の 1回に 入らない ときだけ KIZUNA-3、それでも 入らない ときだけ KIZUNA-4）
+// 今は 出さない。前の 版で 作った コードが 読めるかの テストに 使う
+export function exportCodeV4(char, now = Date.now()) {
   const json = JSON.stringify({ v: SAVE_VERSION, at: now, char });
   const code = `${PREFIX}${hash(json)}-${pack(json)}`;
   if (code.length <= LINE_MAX) return code;
@@ -324,11 +336,133 @@ export function exportCode(char, now = Date.now()) {
   return code4.length < best.length ? code4 : best;
 }
 
-// コード → キャラクター（こわれていたら reason）
+// ───── KIZUNA-5（第78回）─────
+// きりの マップ: まるの まん中だけに（transfer-pack.js の packExplored。ぴったり もどらない マップは そのまま）
+const revealR = (m) => (m.kind === 'dungeon' ? 5 : 8); // client/field.js の reveal と 同じ
+function slimExplored(ex) {
+  if (!isPlain(ex)) return ex;
+  const out = {};
+  for (const [id, v] of Object.entries(ex)) {
+    const m = MAPS[id];
+    const p = m && typeof v === 'string' ? packExplored(v, m.w, m.h, revealR(m)) : null;
+    out[id] = p === null ? v : { e: p };
+  }
+  return out;
+}
+function unslimExplored(ex) {
+  if (!isPlain(ex)) return ex;
+  for (const [id, v] of Object.entries(ex)) {
+    if (!isPlain(v)) continue;
+    const b = typeof v.e === 'string' ? unpackExplored(v.e) : null;
+    if (b === null) delete ex[id];
+    else ex[id] = b;
+  }
+  return ex;
+}
+export function slimChar5(char) {
+  const s = slimChar4(char);
+  return { ...s, ...(isPlain(s.explored) ? { explored: slimExplored(s.explored) } : {}), ...(isPlain(s.visited) ? { visited: slimTrue(s.visited) } : {}) };
+}
+export function unslimChar5(char) {
+  if (isPlain(char.explored)) unslimExplored(char.explored);
+  if (Array.isArray(char.visited)) char.visited = unslimTrue(char.visited);
+  return unslimChar4(char);
+}
+const utf8 = (s) => new TextEncoder().encode(s);
+let primeBytes = null;
+const prime = () => (primeBytes ||= utf8(PRIME_5));
+
+// キャラクター → コード（いつも KIZUNA-5。長い ときは splitCode で 分ける）
+export function exportCode(char, now = Date.now()) {
+  const bytes = utf8(JSON.stringify({ v: SAVE_VERSION, at: now, char: slimChar5(char) }));
+  const data = toB64u(cmPack(bytes, prime()));
+  return `${PREFIX_V5}${crc32(bytes)}-${data.length.toString(36)}-${data}`;
+}
+
+// LINE の 1通（max 文字）に 入らない コードを 分ける。入る ときは [code] のまま
+//   KIZUNA-5-P<何通め>/<ぜんぶで>-<まとめの しるし>-<きれはしの 文字数>-<きれはし>
+//   （文字数が あるので、うしろに 文が ついても・とちゅうで 切れても 分かる）
+export const PART_RE = /KIZUNA-5-P(\d{1,2})\/(\d{1,2})-([0-9a-f]{8})-([0-9a-z]{1,5})-/g;
+export function splitCode(code, max = LINE_MAX) {
+  if (code.length <= max) return [code];
+  const gid = crc32(utf8(code));
+  const room = max - 30;
+  const n = Math.ceil(code.length / room);
+  const size = Math.ceil(code.length / n);
+  return Array.from({ length: n }, (_, i) => {
+    const chunk = code.slice(i * size, (i + 1) * size);
+    return `KIZUNA-5-P${i + 1}/${n}-${gid}-${chunk.length.toString(36)}-${chunk}`;
+  });
+}
+// はりつけた 文字の 中の 分けた コードを あつめる
+//   { none: true }（分けた コードでは ない）・{ code }（そろった）・{ have, total, reason }（まだ たりない）・{ bad: reason }
+export function joinParts(text) {
+  const marks = [...String(text).matchAll(PART_RE)];
+  if (!marks.length) return { none: true };
+  const parts = new Map();
+  let total = 0, gid = '';
+  for (let k = 0; k < marks.length; k++) {
+    const mk = marks[k];
+    const end = k + 1 < marks.length ? marks[k + 1].index : text.length;
+    const len = parseInt(mk[4], 36);
+    const chunk = text.slice(mk.index + mk[0].length, end).match(/^[A-Za-z0-9_-]*/)[0];
+    const i = Number(mk[1]), n = Number(mk[2]);
+    if (!(n >= 1 && i >= 1 && i <= n)) return { bad: 'コードがこわれているみたい' };
+    if (chunk.length < len) return { bad: `${i}つめのコードが、とちゅうで切れています。最後まで全部コピーしてね` };
+    if ((total && n !== total) || (gid && mk[3] !== gid)) return { bad: 'ちがう引っこしコードがまざっています。同じキャラのコードだけをはりつけてね' };
+    total = n;
+    gid = mk[3];
+    parts.set(i, chunk.slice(0, len));
+  }
+  if (parts.size < total) {
+    const left = total - parts.size;
+    const have = [...parts.keys()].sort((a, b) => a - b);
+    return { have, total, reason: `${total}つに分かれたコードの、${have.join('・')}つめを読みました。あと${left}つです` };
+  }
+  const code = Array.from({ length: total }, (_, i) => parts.get(i + 1)).join('');
+  if (crc32(utf8(code)) !== gid) return { bad: 'コードがとちゅうで切れているみたい。それぞれのコードを、最後まで全部コピーしてね' };
+  return { code };
+}
+
+function parseV5(code) {
+  const m = /^KIZUNA-5-([0-9a-f]{8})-([0-9a-z]{1,6})-/.exec(code);
+  if (!m) return { bad: 'コードがこわれているみたい' };
+  const n = parseInt(m[2], 36);
+  const data = code.slice(m[0].length).match(/^[A-Za-z0-9_-]*/)[0];
+  if (data.length < n) return { bad: 'コードがとちゅうで切れています。最後まで全部コピーしてね' };
+  let bytes;
+  try {
+    bytes = cmUnpack(fromB64u(data.slice(0, n)), 4000000, prime());
+  } catch {
+    return { bad: 'コードがこわれているみたい（どこかの文字がかわっています）' };
+  }
+  if (crc32(bytes) !== m[1]) return { bad: 'コードがこわれているみたい（どこかの文字がかわっています）' };
+  try {
+    return { json: new TextDecoder('utf-8', { fatal: true }).decode(bytes) };
+  } catch {
+    return { bad: 'コードがこわれているみたい' };
+  }
+}
+
+// コード → キャラクター（こわれていたら reason。分けた コードが まだ たりない ときは partial: true）
+// アプリが 入れた 空白・改行は とりのぞく。コードの 前に 文（「ユイの引っこしコード」など）が あっても よい
+// アプリが 入れた 空白・改行（見えない 空白も）を とりのぞく
+export const cleanCode = (text) => String(text || '').replace(/[\s\u200b-\u200d\ufeff]+/g, '');
 export function parseCode(text) {
-  const code = String(text || '').replace(/\s+/g, '');
+  let code = cleanCode(text);
   if (!code) return { ok: false, reason: 'コードを入れてね' };
   if (code.length > CODE_MAX) return { ok: false, reason: 'コードが長すぎます' };
+  const parts = joinParts(code);
+  if (parts.bad) return { ok: false, reason: parts.bad };
+  if (parts.total) return { ok: false, partial: true, have: parts.have, total: parts.total, reason: parts.reason };
+  if (parts.code) code = parts.code;
+  const at = code.indexOf('KIZUNA-');
+  if (at > 0) code = code.slice(at);
+  if (code.startsWith(PREFIX_V5)) {
+    const r = parseV5(code);
+    if (r.bad) return { ok: false, reason: r.bad };
+    return finishParse(r.json, unslimChar5);
+  }
   const v1 = code.startsWith(PREFIX_V1);
   const v3 = code.startsWith(PREFIX_V3);
   const v4 = code.startsWith(PREFIX_V4);
@@ -343,6 +477,10 @@ export function parseCode(text) {
     return { ok: false, reason: 'コードがとちゅうで切れているみたい。全部コピーしてね' };
   }
   if (hash(json) !== rest.slice(0, 8)) return { ok: false, reason: 'コードがとちゅうで切れているみたい。全部コピーしてね' };
+  return finishParse(json, v3 ? unslimChar : v4 ? unslimChar4 : null);
+}
+
+function finishParse(json, unslim) {
   let body;
   try {
     body = JSON.parse(json);
@@ -351,8 +489,7 @@ export function parseCode(text) {
   }
   const c = body?.char;
   if (!c || typeof c !== 'object' || !validId(c.id) || typeof c.name !== 'string') return { ok: false, reason: 'キャラクターが入っていないみたい' };
-  if (v3) unslimChar(c);
-  if (v4) unslimChar4(c);
+  if (unslim) unslim(c);
   // むかしの 版の コードも 読める 形に
   const up = upgradeSave({ version: Number(body.v) || 1, characters: { [c.id]: c } });
   const char = up.data.characters[c.id];
