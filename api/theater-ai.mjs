@@ -53,8 +53,8 @@ const nameKey = (s) => String(s || '').toLowerCase().replace(/[\s　・･\-－�
 const BRANDS = [
   [/TOHO\s*(シネマズ|CINEMAS)?|東宝/i, ['TOHOシネマズ']],
   [/109\s*(シネマズ|CINEMAS)?/i, ['109シネマズ']],
-  [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS/i, ['ユナイテッドシネマ']],
-  [/シネマサンシャイン|CINEMA\s*SUNSHINE/i, ['佐々木興業', 'シネマサンシャイン']],
+  [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS|シネプレックス|^CPX|^UC/i, ['ユナイテッドシネマ']],
+  [/グランドシネマサンシャイン|シネマサンシャイン|CINEMA\s*SUNSHINE|^GCS|^CS/i, ['佐々木興業', 'シネマサンシャイン']],
   [/コロナ(シネマ)?ワールド|コロナシネマ/i, ['コロナワールド']],
   [/MOVIX|ムービックス/i, ['MOVIX']],
   [/イオンシネマ/i, ['イオンシネマズ']]
@@ -82,6 +82,8 @@ export function makeCanon(theaters) {
     const cos = brandOf(n) || (company ? [company] : null);
     if (!cos) return n;
     const same = theaters.filter((t) => cos.includes(t.company));
+    const sn = same.filter((t) => t.short_name && nameKey(nfkc(t.short_name)) === k);   // 同じ会社の表示名（短い名前）
+    if (sn.length === 1) return sn[0].name;
     const pl = placeOf(n); if (pl.length < 2) return n;
     const eq = same.filter((t) => placeOf(t.name) === pl);
     if (eq.length === 1) return eq[0].name;
@@ -278,7 +280,9 @@ async function runReview(body) {
   let pending = await sbGet(q);
   if (!ids.length) pending = pending.filter((p) => notYet(p, started));
   // aliases の列がまだ無い DB でも動くように
-  const allTheaters = await sbGet('theaters?select=name,company,manager,theater_phone,aliases&limit=3000').catch(() => sbGet('theaters?select=name,company,manager,theater_phone&limit=3000'));
+  const allTheaters = await sbGet('theaters?select=name,company,manager,theater_phone,aliases,short_name&limit=3000')
+    .catch(() => sbGet('theaters?select=name,company,manager,theater_phone,aliases&limit=3000'))
+    .catch(() => sbGet('theaters?select=name,company,manager,theater_phone&limit=3000'));
   const ctx = { allTheaters, nameSet: new Set(allTheaters.map((t) => t.name)), theaterRows: {}, byKey: {} };
   allTheaters.forEach((t) => { ctx.theaterRows[t.name] = t; (ctx.byKey[nameKey(t.name)] = ctx.byKey[nameKey(t.name)] || []).push(t.name); });
   // 一覧に無い名前でも、ゆれだけの違いで1つに決まれば一覧の名前にする（例「109シネマズ川崎」→「109シネマズ 川崎」）
