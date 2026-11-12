@@ -70,6 +70,8 @@ import './r69-css.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
 import { newsView } from './news.js';
+// 第77回 D: 音楽を聞く（ui/soundtest.js）
+import { openSoundTest } from './soundtest.js';
 // 第50回 N4: 困っている人（ui/subquest-hints.js）
 import { askSection, askView } from './subquest-hints.js';
 import { hasNewAsk, availableSubQuests } from '../../shared/data/subquest-hints.js';
@@ -2264,6 +2266,10 @@ export class FieldMenu {
       { label: `選ぶ間は止まる（ウェイト）：${bs.wait ? 'ON' : 'OFF'}`, value: 'wait' },
       { label: `音楽：${vol(g.audio.musicVol)}`, value: 'music' },
       { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
+      // 第77回: 音楽の 音（新しい音 ／ 前の音）・音の 重さ（きれい ／ かるい）・音楽を聞く
+      { label: `音楽の音：${g.audio.engineMode === 'old' ? '前の音' : '新しい音'}`, value: 'engine' },
+      { label: `音の重さ：${g.audio.quality === 'light' ? 'かるい' : g.audio.autoLight ? 'きれい（今は自動でかるい）' : 'きれい'}`, value: 'quality' },
+      { label: '音楽を聞く', value: 'soundtest' },
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
       { label: 'チャットのスタンプを変える', value: 'stamps' }, // 第50回 N7（ui/stamps.js）
@@ -2343,6 +2349,16 @@ export class FieldMenu {
         } else if (it.value === 'sfx') {
           g.audio.setVolumes(g.audio.musicVol, (Math.round(g.audio.sfxVol * 5) + 1) % 6 / 5);
           g.audio.sfx('confirm');
+        } else if (it.value === 'engine') {
+          g.audio.setEngineMode(g.audio.engineMode === 'old' ? 'new' : 'old');
+          g.audio.sfx('confirm');
+        } else if (it.value === 'quality') {
+          g.audio.setQuality(g.audio.quality === 'light' ? 'fine' : 'light');
+          g.audio.sfx('confirm');
+        } else if (it.value === 'soundtest') {
+          this.sub.blur();
+          openSoundTest(g).then(() => again(idx));
+          return;
         } else if (it.value === 'text') {
           document.body.classList.toggle('big-text');
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
@@ -2402,7 +2418,7 @@ export class FieldMenu {
       },
     });
     const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
-    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍・0.25倍・0.1倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）\n音楽の音を「前の音」にすると、前までの音楽の鳴り方にもどる。音の重さを「かるい」にすると、音のひびきと重ねを止めて、スマホが軽くなる` + (quickList(c).length ? '\n大事な物のボタン: 時の砂時計などを、画面の右上のボタン（使える場所だけ出る）・コントローラーのボタン・キーボードのTで、すぐ使える。「道具」の「大事な物」からも選べる' : '') + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 

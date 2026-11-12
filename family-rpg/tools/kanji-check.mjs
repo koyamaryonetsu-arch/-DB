@@ -204,6 +204,9 @@ export function gameFiles() {
     'public/js/shared/world/gift.js', 'public/js/client/ui/gift.js', 'public/js/client/ui/follow-btn.js', 'public/js/client/ui/kana-pad.js', 'public/js/client/ui/hand.js', 'public/js/client/ui/layout.js', 'public/js/shared/data/past-places.js', 'public/js/client/ui/sources.js', 'public/js/shared/item-sources.js', 'public/js/shared/data/salvage.js', 'public/js/shared/data/gear-fx.js', 'public/js/shared/battle-gearfx.js',
     // チャットの スタンプを 変える（第50回 N7）
     'public/js/shared/data/stamps.js', 'public/js/client/ui/stamps.js',
+    // 第77回: 音楽の エンジン・音楽を聞く
+    'public/js/client/audio.js', 'public/js/client/audio-names.js', 'public/js/client/ui/soundtest.js',
+    'public/js/client/music-engine.js', 'public/js/client/music-inst.js', 'public/js/client/music-amb.js',
     // ポケモンの 魔物・進化（第44回 ポケモン P1）
     'public/js/shared/data/monsters-pokemon.js', 'public/js/shared/data/companions-pokemon.js', 'public/js/shared/data/abilities-pokemon.js',
     'public/js/shared/data/items-pokemon.js', 'public/js/shared/world/evolve.js',

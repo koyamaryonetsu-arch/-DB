@@ -32,6 +32,8 @@ export class Game {
     this.net = net;
     this.input = new Input();
     this.audio = new GameAudio();
+    // 第77回 D: はじめて 聞いた 曲の 場所（音楽を聞く の 名前の かわり）
+    this.audio.placeOf = () => this.field?.areaName?.();
     this.field = new Field(this);
     this.hud = new Hud(this);
     // 昼・夜の 時計と 大鳥フウラ（sky.js）
