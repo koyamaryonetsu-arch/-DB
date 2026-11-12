@@ -28,6 +28,7 @@ import {
 import { C7S_K } from '../public/js/shared/data/items-c7s.js';
 import { ITEMS_C8B } from '../public/js/shared/data/items-c8b.js';
 import { ITEMS_C8C } from '../public/js/shared/data/items-c8c.js';
+import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 import {
   CURSE, TRANSFORM, BREATH, THROW, DAZE, DRAGON_NAME, isDragon, thornUp, aimed, witchBigBefore, throwBefore, c7iPlan, c7iEffect, witchConf, shadeConf,
 } from '../public/js/shared/battle-c7i.js';
@@ -506,7 +507,7 @@ test('ボスの 品・時をこえる手紙の ごほうび・村の 店', () =>
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c7h_shadow_charm') > sum('c7w_thorn_charm') && sum('c7w_thorn_charm') > sum('c7l_hook_charm'));
   // 第8章 第2幕の ハデロスの やり（ITEMS_C8B）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8B[id] && !ITEMS_C8C[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8B[id] && !ITEMS_C8C[id] && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('spear'), 'c7w_dragon_spear');
   assert.equal(top('boomerang'), 'c7h_shadow_boomerang');
   for (const list of Object.values(C7I_LETTER_REWARDS)) {

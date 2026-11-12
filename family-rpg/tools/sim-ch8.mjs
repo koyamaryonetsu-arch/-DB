@@ -1,7 +1,9 @@
 // 第2部 第8章 第1幕: オウムのイアゴン（c8_vizier_pet）・大臣ジャハール（c8_jafar。3だん）の 強さを 見る（ゲストは カリム）
 // 第2部 第8章 第2幕: ペイニックと パニクル（c8_painpanic。2ひき）・よみの王ハデロス（c8_hades。2だん）の 強さを 見る（ゲストは カイ）
 // 第2部 第8章 第3幕: マジカメック（c8_kamek。子分 2ひき）・初代大魔王クッパード（c8_bowser。2だん）の 強さを 見る（ゲストは リオン〈rion8〉）
-// つかいかた: node tools/sim-ch8.mjs [回数] [pet|jafar|act1|imps|hades|act2|kamek|bowser|act3|all] [lv,…]
+// 第2部 第8章 第4幕: 時の門番フリーゾン（c8_gatekeeper。第3形態 → 最終形態）・ソリトゥス（c8_solitus。3だん。だんごと）・心の ためし 2つ（守りぬく・一騎うち）の 強さを 見る
+//   （ゲストは 門番 … リオン〈rion8〉・ソリトゥス … カイ〈kai8〉・守りぬく … カリム〈karim8r〉。入りきらない 勇者は「かけつけ」）
+// つかいかた: node tools/sim-ch8.mjs [回数] [pet|jafar|act1|imps|hades|act2|kamek|bowser|act3|gate|sol1|sol2|sol3|act4|trials|guard|duel|gate1|gate2|all] [lv,…]
 //   めやす（docs/plan-ch7.md の 8 と おなじ）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）＋ ゲストの カリム（ガーディアン）・
 //     その ころの ★装備で 知っている 人 … 9わり くらい・知らない 人（しかけを 知らない。合体技は する）… 4わり くらい。完全オート（ふつうの オート）は もっと きびしい
 //   知っている 人（b.knowsCh6）:
@@ -27,6 +29,8 @@ import { C8_PAIN, C8_PANIC, C8_HADES } from '../public/js/shared/data/monsters-c
 import { plotting, eruptSoon } from '../public/js/shared/battle-c8b.js';
 import { C8_KAMEK, C8_BOWSER } from '../public/js/shared/data/monsters-c8c.js';
 import { aimedKid, axeOf } from '../public/js/shared/battle-c8c.js';
+import { C8_GATEKEEPER, C8_SOLITUS, C8_GATE1, C8_GATE2, C8_TRIAL_GUARD, C8_TRIAL_DUEL } from '../public/js/shared/data/monsters-c8r.js';
+import { stanceUp, solOf, torchOf, rionOf, PROMISE_MAX, c8rBigBefore } from '../public/js/shared/battle-c8r.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { ruledGuest } from './sim-ch7.mjs';
@@ -79,6 +83,30 @@ if (process.env.KSOFT) kc.grow.soft = Number(process.env.KSOFT);
 if (process.env.KBELOW) kc.summon.below = Number(process.env.KBELOW);
 if (process.env.KKID) kc.summon.hp = Number(process.env.KKID);
 if (process.env.KTINY) kc.tiny = { turns: kc.tiny?.turns ?? 2, k: Number(process.env.KTINY) };
+const gkc = MONSTERS[C8_GATEKEEPER].c8r;
+if (process.env.GHP) MONSTERS[C8_GATEKEEPER].hp = Number(process.env.GHP);
+if (process.env.GNEED) gkc.stance.need = Number(process.env.GNEED);
+if (process.env.GCUT) gkc.stance.cut = Number(process.env.GCUT);
+if (process.env.GWEAK) gkc.stance.weak = Number(process.env.GWEAK);
+if (process.env.GOPEN) gkc.stance.open = Number(process.env.GOPEN);
+if (process.env.GORB) gkc.orb.base = nums(process.env.GORB);
+if (process.env.GOEVERY) gkc.orb.every = Number(process.env.GOEVERY);
+if (process.env.GSTR) MONSTERS[C8_GATEKEEPER].str = Number(process.env.GSTR);
+if (process.env.GHELP) gkc.help.every = Number(process.env.GHELP);
+const slc = MONSTERS[C8_SOLITUS].c8r;
+if (process.env.SHP) slc.stages = nums(process.env.SHP);
+if (process.env.SSTR) MONSTERS[C8_SOLITUS].str = Number(process.env.SSTR);
+if (process.env.SBIG) slc.big.base = nums(process.env.SBIG);
+if (process.env.STEAR) slc.tear.base = nums(process.env.STEAR);
+if (process.env.SCRACK) slc.crack.base = nums(process.env.SCRACK);
+if (process.env.SCUT) slc.alone.cut = Number(process.env.SCUT);
+if (process.env.SPER) slc.promise.per = Number(process.env.SPER);
+if (process.env.SPDMG) slc.promise.dmg = Number(process.env.SPDMG);
+if (process.env.SHELP) slc.help.every = Number(process.env.SHELP);
+if (process.env.SALONE) slc.alone.every = Number(process.env.SALONE);
+if (process.env.STEVERY) slc.tear.every = Number(process.env.STEVERY);
+if (process.env.SCEVERY) slc.crack.every = Number(process.env.SCEVERY);
+if (process.env.SHARDEN) slc.harden = Number(process.env.SHARDEN);
 const bwc = MONSTERS[C8_BOWSER].c8c;
 if (process.env.BPOUND) bwc.pound.mult = Number(process.env.BPOUND);
 if (process.env.BPEVERY) bwc.pound.every = Number(process.env.BPEVERY);
@@ -349,6 +377,7 @@ export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = n
   };
 }
 
+const ACT4_ARG = /^(gate|gate1|gate2|sol1|sol2|sol3|guard|duel|act4|trials)$/;
 const pct = (w, n) => `${String(Math.round((w / n) * 100)).padStart(3)}%`;
 export function summary8(res, boss) {
   const w = res.filter((r) => r.outcome === 'win').length;
@@ -380,7 +409,7 @@ export const SKIPS8 = {
   bowser: [['axe', 'オノを たたかない'], ['guard', '大技で 守らない'], ['dual', '合体技 だけ しない']],
 };
 
-if (process.argv[1].endsWith('sim-ch8.mjs')) {
+if (process.argv[1].endsWith('sim-ch8.mjs') && !ACT4_ARG.test(process.argv[3] || '')) {
   const N = Number(process.argv[2] || 40);
   const GROUPS = { all: ['pet', 'jafar', 'imps', 'hades', 'kamek', 'bowser'], act1: ['pet', 'jafar'], act2: ['imps', 'hades'], act3: ['kamek', 'bowser'] };
   const which = GROUPS[process.argv[3] || 'all'] || [process.argv[3]];
@@ -408,6 +437,199 @@ if (process.argv[1].endsWith('sim-ch8.mjs')) {
         for (const [skip, label] of SKIPS8[boss]) {
           const res = [...Array(N).keys()].map((i) => ch8Run(boss, base, true, seedOf(i), { skip }));
           console.log(`  Lv${base} 知っている（${label}）${''.padEnd(Math.max(0, 14 - label.length), '　')} ${summary8(res, boss).text}`);
+        }
+      }
+    }
+  }
+}
+
+// ───────────── 第8章 第4幕（時のはざま）─────────────
+// gate … 時の門番フリーゾン（本当の 戦い）/ sol1・sol2・sol3 … ソリトゥスの 1〜3だん（その だんから 始めて、次の だんに 行くか 勝つまで）/
+// gate1・gate2 … 広間の 1回目・2回目（とちゅうで 終わる 戦い）/ guard … 守りぬく / duel … 一騎うち
+export const CH8R_IDS = { gate: C8_GATEKEEPER, sol1: C8_SOLITUS, sol2: C8_SOLITUS, sol3: C8_SOLITUS, gate1: C8_GATE1, gate2: C8_GATE2, guard: C8_TRIAL_GUARD, duel: C8_TRIAL_DUEL };
+// おすすめの レベル（plan-ch8.md の 9: つばさ Lv89〜91・回廊 Lv92〜94。門番 Lv92・ソリトゥス Lv95）
+export const CH8R_LV = { gate: 92, sol1: 95, sol2: 95, sol3: 95, gate1: 89, gate2: 91, guard: 90, duel: 90 };
+// その ころの ★装備
+//   門番（と 広間の 1・2回目・心の ためし）… 第3幕の さいごまでの ★（＋ クッパードの 品）・4つの つばさの 宝箱
+//   ソリトゥス … ＋ 門番の 品・最後の 回廊の 宝箱
+const KIT_GATE = {
+  hero: ['c8rt_ice_spear', 'c8rt_ice_mail', 'c8rt_iron_shield', 'c8rt_moon_helm', 'c8w_king_charm'],
+  daikenja: ['c8k_magic_staff', 'c8rt_star_robe', null, 'c8cl_star_hat', 'c8w_king_charm'],
+  god_hand: ['c8w_king_claw', 'c8rt_fire_gi', null, 'c7it_bear_hat', 'c8w_king_charm'],
+  high_priest: ['c8ct_star_staff', 'c7it_queen_robe', 'c8ct_iron_shield', 'c7l_kingdom_crown', 'c8w_king_charm'],
+};
+const KIT_SOL = {
+  hero: ['c8rt_last_sword', 'c8rt_ice_mail', 'c8rt_iron_shield', 'c8rt_moon_helm', 'c8g_gate_charm'],
+  daikenja: ['c8rt_sand_staff', 'c8rt_star_robe', null, 'c8rt_last_hat', 'c8g_gate_charm'],
+  god_hand: ['c8w_king_claw', 'c8rt_fire_gi', null, 'c7it_bear_hat', 'c8g_gate_charm'],
+  high_priest: ['c8k_magic_staff', 'c7it_queen_robe', 'c8rt_iron_shield', 'c7l_kingdom_crown', 'c8g_gate_charm'],
+};
+Object.assign(CH8_KIT, { gate: KIT_GATE, gate1: KIT_GATE, gate2: KIT_GATE, guard: KIT_GATE, duel: KIT_GATE, sol1: KIT_SOL, sol2: KIT_SOL, sol3: KIT_SOL });
+const R_GUEST = { gate: 'rion8', gate1: 'rion8', gate2: 'rion8', sol1: 'kai8', sol2: 'kai8', sol3: 'kai8', guard: 'karim8r' };
+const GUESTS_NAME = { rion8: 'リオン', kai8: 'カイ', karim8r: 'カリム' };
+const groupR = (boss) => FIXED_ENCOUNTERS[CH8R_IDS[boss]].group.flatMap(([sp, n]) => Array(n).fill(sp));
+
+// 合体技（知っている 人）: 門番 … かまえの 間（くずす）・ソリトゥス … 心が ゆらいで いない 間（知らない 人は いつでも）
+function dual8r(b, a, boss, skip) {
+  const trick = skip === 'trick';
+  if (boss.startsWith('gate')) {
+    const g = b.aliveEnemies().find((e) => e.c8g);
+    if (!g) return false;
+    // 知っている 人は、かまえが くずれて いる 間か、大玉を ためて いる 間（くずして 止める）
+    void trick;
+    return dualPlan(b, a, g.species, skip);
+  }
+  if (boss.startsWith('sol')) {
+    const s = solOf(b);
+    if (!s) return false;
+    // 知っている 人は、心が ゆらいだ 間・千年の約束が 出せる 間・大技の 前・ひとりの 仲間が いる 間は しない
+    if (!trick && (s.c8s.waver || (s.c8s.stage === 3 && s.c8s.gauge >= PROMISE_MAX) || c8rBigBefore(b, a) || b.aliveAllies().some((x) => x.status?.rift))) return false;
+    return dualPlan(b, a, s.species, skip);
+  }
+  return false;
+}
+
+// solo … 1人だけ（job。守りぬく・一騎うちの「ひとりでも とける」）
+export function ch8rRun(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = process.env.GUEST !== '0', solo = null } = {}) {
+  let party = ch8Party(boss, lv, kit);
+  if (solo) party = party.filter((c) => c.job === solo);
+  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
+  let gk = 1;
+  const withGuest = guest && R_GUEST[boss] && !solo;
+  if (withGuest) {
+    const g = ruledGuest(R_GUEST[boss], party, lv);
+    gk = g.k;
+    allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
+  }
+  const start = boss === 'sol2' ? 2 : boss === 'sol3' ? 3 : 1;
+  const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: groupR(boss), hooks: { leaderFlag: (id) => (id === 'c8s_p2' && start >= 2) || (id === 'c8s_p3' && start >= 3) } });
+  if (withGuest) scaleGuestActor(b.allies.find((a) => a.kind === 'guest' && !a.c8torch), gk);
+  if (know) {
+    b.knowsCh6 = true;
+    if (skip === 'guard' || skip === 'trick') b.c6NoGuard = true;
+    if (skip === 'chain' || skip === 'trick') b.c8rNoChain = true;
+    if (skip === 'puff' || skip === 'trick') b.c8rNoPuff = true;
+    if (skip === 'call' || skip === 'trick') b.c8rNoCall = true;
+  }
+  for (const e of b.enemies) {
+    const k = (v) => Number(process.env[v] || 1);
+    if (!e.c8w) e.maxHp = e.hp = Math.round(e.maxHp * k('HPK'));
+    e.atk = Math.round(e.atk * k('ATKK'));
+    e.mag = Math.round(e.mag * k('MAGK'));
+    if (e.boss) e.speed = (e.speed || 1) * k('SPD');
+  }
+  let real = 0;
+  let stageWin = false;
+  const n = { duals: 0, breaks: 0, defl: 0, orbs: 0, orbDmg: 0, stops: 0, finals: 0, helps: 0, peels: 0, hardens: 0, waves: 0, alone: 0, calls: 0, tears: 0, cracks: 0, promises: 0, bigs: 0, gusts: 0, puffs: 0, cheers: 0, strikes: 0, leave: 0 };
+  while (!b.over && real < 30 * 60 * 1000) {
+    const evs = b.tick(50);
+    real += 50;
+    for (const e of evs) {
+      if (log && (e.t === 'act' || e.t === 'msg')) console.log('  ' + [...(e.lines || []), ...(e.postLines || [])].join(' / '));
+      if (e.c8rHelp) n.helps++;
+      if (e.t !== 'act') continue;
+      if (e.dual) n.duals++;
+      const dmg = () => (e.results || []).reduce((s, r) => s + (r.dmg || 0), 0);
+      if (e.c8gBreak) n.breaks++;
+      if (e.c8gDefl) n.defl++;
+      if (e.c8gOrb) {
+        n.orbs++;
+        n.orbDmg += dmg();
+      }
+      if (e.c8gOrbFail) n.stops++;
+      if (e.c8gFinal) n.finals++;
+      if (e.c8gLeave) n.leave++;
+      if (e.c8sPeel) n.peels++;
+      if (e.c8sHarden) n.hardens++;
+      if (e.c8sWaver) n.waves++;
+      if (e.c8sAlone) n.alone++;
+      if (e.slCall) n.calls++;
+      if (e.c8sTear) n.tears++;
+      if (e.c8sCrack) n.cracks++;
+      if (e.c8sPromise) n.promises++;
+      if (e.c8sBig) n.bigs++;
+      if (e.c8tGust) n.gusts++;
+      if (e.c8tPuff) n.puffs++;
+      if (e.c8dCheer) n.cheers++;
+      if (e.c8dStrike) n.strikes++;
+      if (e.c8sStage && e.c8sStage.stage > start) stageWin = true;
+    }
+    if (stageWin) break;
+    if (!know) continue;
+    for (const a of b.allies) {
+      if (!a.ready || !a.alive || a.kind === 'guest') continue;
+      if (skip === 'dual' || a.c8cheer || !dual8r(b, a, boss, skip)) {
+        a.ready = false;
+        b.enqueue(a, { type: 'ai' });
+      }
+    }
+  }
+  const al = b.allies.filter((x) => !x.c8torch);
+  const bosses = b.enemies.filter((e) => e.boss);
+  const outcome = stageWin ? 'win' : b.result?.outcome || 'timeout';
+  const s = bosses.find((e) => e.c8s);
+  return {
+    outcome, seconds: Math.round(real / 1000),
+    hpLeft: stageWin ? s.c8s.hpBefore : al.reduce((t, x) => t + x.hp, 0) / al.reduce((t, x) => t + x.maxHp, 0), deaths: stageWin ? s.c8s.deadBefore : al.filter((x) => !x.alive).length,
+    bossLeft: stageWin ? 0 : bosses.reduce((t, e) => t + Math.max(0, e.hp), 0) / Math.max(1, bosses.reduce((t, e) => t + e.maxHp, 0)),
+    torch: torchOf(b) ? torchOf(b).hp / torchOf(b).maxHp : null, rion: rionOf(b) ? rionOf(b).hp / rionOf(b).maxHp : null,
+    form: bosses[0]?.c8g?.form || s?.c8s?.stage || 0, ...n,
+  };
+}
+
+export function summary8r(res, boss) {
+  const w = res.filter((r) => r.outcome === 'win').length;
+  const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
+  const per = (a, b) => (avg(a) / Math.max(0.01, avg(b))).toFixed(0);
+  const wins = res.filter((r) => r.outcome === 'win');
+  const wsec = wins.length ? wins.reduce((s, r) => s + r.seconds, 0) / wins.length : 0;
+  return {
+    rate: w / res.length, sec: wsec,
+    text: `勝率 ${pct(w, res.length)}  平均${avg('seconds').toFixed(0).padStart(4)}秒（勝ち${wsec.toFixed(0).padStart(4)}秒）  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  ボスの残${(avg('bossLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  合体技${avg('duals').toFixed(1)}  かけつけ${avg('helps').toFixed(1)}` +
+      (boss.startsWith('gate')
+        ? `  くずした${avg('breaks').toFixed(1)}  受け流し${avg('defl').toFixed(1)}  大玉${avg('orbs').toFixed(1)}（1回${per('orbDmg', 'orbs')}）  止めた${avg('stops').toFixed(1)}  最終${avg('finals').toFixed(1)}  去った${avg('leave').toFixed(1)}`
+        : boss.startsWith('sol')
+        ? `  はがした${avg('peels').toFixed(1)}  ゆらぎ${avg('waves').toFixed(1)}  かたまった${avg('hardens').toFixed(1)}  あらし${avg('bigs').toFixed(1)}  ひとり${avg('alone').toFixed(1)}  よびかけ${avg('calls').toFixed(1)}  なみだ${avg('tears').toFixed(1)}  くずれ${avg('cracks').toFixed(1)}  約束${avg('promises').toFixed(1)}`
+        : boss === 'guard'
+        ? `  大風${avg('gusts').toFixed(1)}  ふーっ${avg('puffs').toFixed(1)}  ともしび${((res.reduce((s, r) => s + (r.torch || 0), 0) / res.length) * 100).toFixed(0)}%`
+        : `  おうえん${avg('cheers').toFixed(1)}  ゆうきの一撃${avg('strikes').toFixed(1)}  リオン${((res.reduce((s, r) => s + (r.rion || 0), 0) / res.length) * 100).toFixed(0)}%`),
+  };
+}
+export const SKIPS8R = {
+  gate: [['chain', 'れんけいを つながない'], ['guard', '大玉で 守らない'], ['dual', '合体技 だけ しない']],
+  sol1: [['call', 'よびかけが おそい'], ['guard', '大技で 守らない'], ['dual', '合体技 だけ しない']],
+  sol2: [['call', 'よびかけが おそい'], ['guard', '大技で 守らない'], ['dual', '合体技 だけ しない']],
+  sol3: [['guard', '大技で 守らない'], ['dual', '合体技 だけ しない']],
+  guard: [['puff', '小おにを ねらわない'], ['guard', '大風で 守らない']],
+  duel: [['guard', '大剣で 守らない']],
+};
+
+if (process.argv[1].endsWith('sim-ch8.mjs') && ACT4_ARG.test(process.argv[3] || '')) {
+  const N = Number(process.argv[2] || 40);
+  const GROUPS = { act4: ['gate', 'sol1', 'sol2', 'sol3'], trials: ['guard', 'duel', 'gate1', 'gate2'] };
+  const which = GROUPS[process.argv[3]] || [process.argv[3]];
+  const seedOf = (i) => 8080 + i * 7919;
+  if (process.env.LOG) {
+    const boss = process.argv[3];
+    const r = ch8rRun(boss, Number(process.env.LV || CH8R_LV[boss]), !!process.env.KNOW, Number(process.env.SEED || 1), { log: true, skip: process.env.SKIPONE || null, solo: process.env.SOLO || null });
+    console.log(r);
+  } else {
+    for (const boss of which) {
+      const base = CH8R_LV[boss];
+      // 弱め（−5）・ふつう・強め（＋8）の 家族
+      const lvs = process.argv[4] ? process.argv[4].split(',').map(Number) : [base - 5, base, base + 8];
+      const g = process.env.GUEST === '0' || !R_GUEST[boss] || process.env.SOLO ? '' : ` ＋ ${GUESTS_NAME[R_GUEST[boss]]}`;
+      console.log(`■ ${boss}（${MONSTERS[CH8R_IDS[boss]]?.name || boss}。${process.env.SOLO ? `${process.env.SOLO} ひとり` : '超級職 4人・職業Lv10'}${g}・${N}回）`);
+      for (const lv of lvs) {
+        for (const [know, skip, label] of [[false, null, '完全オート　'], [true, 'trick', '知らない　　'], [true, null, '知っている　']]) {
+          const res = [...Array(N).keys()].map((i) => ch8rRun(boss, lv, know, seedOf(i), { skip, solo: process.env.SOLO || null }));
+          console.log(`  Lv${lv} ${label} ${summary8r(res, boss).text}`);
+        }
+      }
+      if (process.env.SKIP !== '0') {
+        for (const [skip, label] of SKIPS8R[boss] || []) {
+          const res = [...Array(N).keys()].map((i) => ch8rRun(boss, base, true, seedOf(i), { skip, solo: process.env.SOLO || null }));
+          console.log(`  Lv${base} 知っている（${label}）${''.padEnd(Math.max(0, 14 - label.length), '　')} ${summary8r(res, boss).text}`);
         }
       }
     }

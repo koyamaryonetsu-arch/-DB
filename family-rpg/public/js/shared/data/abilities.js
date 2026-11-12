@@ -47,6 +47,7 @@ import { C7I_ABILITIES } from './abilities-c7i.js';
 import { C8A_ABILITIES } from './abilities-c8a.js';
 import { C8B_ABILITIES } from './abilities-c8b.js';
 import { C8C_ABILITIES } from './abilities-c8c.js';
+import { C8R_ABILITIES } from './abilities-c8r.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -690,6 +691,8 @@ Object.assign(ABILITIES, C8A_ABILITIES);
 Object.assign(ABILITIES, C8B_ABILITIES);
 // 第2部 第8章 第3幕 の 魔物・マジカメック・初代大魔王クッパード（ギガ）の 技（abilities-c8c.js）
 Object.assign(ABILITIES, C8C_ABILITIES);
+// 第2部 第8章 第4幕 の 魔物・時の門番フリーゾン・心の ためし・ソリトゥスの 技（abilities-c8r.js）
+Object.assign(ABILITIES, C8R_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

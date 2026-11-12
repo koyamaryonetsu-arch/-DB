@@ -24,6 +24,7 @@ import { FRIENDS_C8A } from '../public/js/shared/data/companions-c8a.js';
 import { ENCOUNTERS_C8A, FIXED_C8A, ZONE_BG_C8A } from '../public/js/shared/data/encounters-c8a.js';
 import { ITEMS_C8A, C8A_TREASURE, C8A_TREASURE_N, c8aChest, C8A_LETTER_REWARDS, C8A_DROPS, C8A_K, C8A_ITEM_KANA } from '../public/js/shared/data/items-c8a.js';
 import { ITEMS_C8C } from '../public/js/shared/data/items-c8c.js';
+import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 import { C7I_K } from '../public/js/shared/data/items-c7i.js';
 import {
   ECHO, DIZZY, HYPNO, DAZE, COBRA, COIL, STRIKE, GENIE, BLAST, SEALED, COBRA_NAME, GENIE_NAME,
@@ -604,7 +605,7 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8j_ruby_charm') > sum('c8p_feather_charm') && sum('c8p_feather_charm') > sum('c7h_shadow_charm'));
   // 第8章 第3幕の 品（ITEMS_C8C。マジカメックの つえ など）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('fan'), 'c8p_parrot_fan');
   assert.equal(top('staff'), 'c8j_snake_staff');
   assert.equal(top('sword'), 'c8at_palace_sword');

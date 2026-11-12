@@ -187,6 +187,10 @@ function makeBattle(world, sessions, party, enemies, opts) {
     hooks: {
       // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
       leaderFlag: (id) => !!leader?.char?.flags?.[id],
+      // 第2部 第8章 第4幕: ソリトゥスの 段ごとの 記録（しるし c8s_p2・c8s_p3。いっしょに 戦った 人 みんなに。次は その 段から。battle-c8r.js）
+      markFlag: (id) => {
+        for (const m of sessions) if (m.char) m.char.flags = { ...(m.char.flags || {}), [id]: true };
+      },
       // 第6章 Step 3・4: 昼か 夜か（星座の 魔物は 夜だけ 強い／昼だけ 強い。battle-road.js）
       night: () => isNightFor(world, leader),
       hasItem: (actor, id) => {

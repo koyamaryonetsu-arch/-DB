@@ -24,6 +24,7 @@ import { FRIENDS_C8B } from '../public/js/shared/data/companions-c8b.js';
 import { ENCOUNTERS_C8B, FIXED_C8B, ZONE_BG_C8B } from '../public/js/shared/data/encounters-c8b.js';
 import { ITEMS_C8B, C8B_TREASURE, C8B_TREASURE_N, c8bChest, C8B_LETTER_REWARDS, C8B_DROPS, C8B_K, C8B_ITEM_KANA } from '../public/js/shared/data/items-c8b.js';
 import { ITEMS_C8A, C8A_K } from '../public/js/shared/data/items-c8a.js';
+import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 import {
   FUSE, QUARREL, PANIC, RAGE, SOLO, CONTRACT, SOUL, HOT, ANGER, ERUPT, COOL, RED_NAME,
   impsConf, hadesConf, plotting, bothUp, bound, eruptSoon, impBigBefore, hadesBigBefore, c8bPlan, c8bEffect,
@@ -608,7 +609,8 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8h_flame_charm') > sum('c8i_imp_charm') && sum('c8i_imp_charm') > sum('c8j_ruby_charm'));
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+')).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第8章 第4幕の 品（ITEMS_C8R。氷のつばさのやり など）は のぞく
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8R[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('bat'), 'c8i_imp_club');
   assert.equal(top('spear'), 'c8h_bident');
   assert.equal(top('dagger'), 'c8bt_yomi_dagger');
