@@ -235,11 +235,23 @@
     // --- 109シネマズ ---
     '109シネマズ 大阪エキスポシティ': 'エキスポシティ',
     '109シネマズ HAT神戸': '神戸',
-    '109シネマズ グランベリーパーク': '南町田',
+    '109シネマズ グランベリーパーク': 'GP',
     // --- ユナイテッドシネマ ---
     'ユナイテッドシネマ アクアシティお台場': 'お台場',
     // --- 佐々木興業（シネマサンシャイン）---
-    'シネマサンシャインエミフルMASAKI': '松前'
+    'シネマサンシャインエミフルMASAKI': '松前',
+    'グランドシネマサンシャイン 池袋': 'GCS池袋',
+    'TOHOシネマズ 錦糸町楽天地': '錦糸町楽天地',
+    'TOHOシネマズ 錦糸町オリナス': '錦糸町オリナス',
+    // --- コロナワールド（安城は2つ: 三河安城・ららぽーと安城）---
+    '安城コロナシネマワールド': '三河安城',
+    'シネマワールド ららぽーと安城': 'ららぽーと安城',
+    'コロナシネマワールド 小牧': '小牧',
+    // --- その他 ---
+    'ディノスシネマズ苫小牧': '苫小牧',
+    'ポレポレシネマズいわき小名浜': 'いわき小名浜',
+    'ミッドランドシネマ名古屋空港': '名古屋空港',
+    '福山エーガル8シネマズ': 'エーガル8'
   };
   // 施設名（商業施設）の接頭辞。劇場名が「施設名＋地名」のとき地名だけにする
   // 例: ららぽーと横浜→横浜 ／ サンストリート浜北→浜北
@@ -256,8 +268,20 @@
     }
     return s;
   }
+  // 劇場の一覧の「表示名」（theaters.short_name）。一覧が変わったら作り直す
+  let tmShortCache = { src: null, map: null };
+  function masterShortMap() {
+    if (tmShortCache.src !== theaterMaster) {
+      const map = new Map();
+      (theaterMaster || []).forEach((t) => { if (t && t.name && t.shortName) map.set(t.name, t.shortName); });
+      tmShortCache = { src: theaterMaster, map };
+    }
+    return tmShortCache.map;
+  }
   function shortTheaterName(name) {
     if (!name) return '';
+    const fromMaster = masterShortMap().get(name);
+    if (fromMaster) return fromMaster;
     if (THEATER_SHORT_OVERRIDE[name]) return THEATER_SHORT_OVERRIDE[name];
     // コロナワールド系: 「○○コロナシネマワールド／○○コロナワールド」→ ○○
     const m = name.match(/^(.+?)コロナ(?:シネマワールド|ワールド)/);
@@ -269,6 +293,54 @@
     }
     // ブランド除去後（またはブランド無しの生名）に施設名接頭辞が付いていれば地名だけに
     return stripFacilityPrefix(rest) || rest;
+  }
+
+  // ===== 打った・取り込んだ劇場名を、劇場の一覧の正式名（theaters.name）にそろえる =====
+  // 短い名前（例「横浜」）・別の呼び方（aliases）・空白の違いで書いても、案件の会社の劇場に結びつける。
+  // そろえ方（GAS の canonTheater_ ・ /api/theater-ai と同じ決まり＋表示名）:
+  //   名前のゆれ → 別の呼び方 → 同じ会社の表示名 → 同じ会社で場所の名前が同じ → 片方に含まれ、合う劇場が1つだけ。合わなければそのまま
+  const TM_BRANDS = [
+    [/TOHO\s*(シネマズ|CINEMAS)?|東宝/i, ['TOHOシネマズ']],
+    [/109\s*(シネマズ|CINEMAS)?/i, ['109シネマズ']],
+    [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS|シネプレックス|^CPX|^UC/i, ['ユナイテッドシネマ']],
+    [/グランドシネマサンシャイン|シネマサンシャイン|CINEMA\s*SUNSHINE|^GCS|^CS/i, ['佐々木興業', 'シネマサンシャイン']],
+    [/コロナ(シネマ)?ワールド|コロナシネマ/i, ['コロナワールド']],
+    [/MOVIX|ムービックス/i, ['MOVIX']],
+    [/イオンシネマ/i, ['イオンシネマズ']]
+  ];
+  const tmKey = (s) => String(s || '').normalize('NFKC').toLowerCase().replace(/[\s　・･\-－ー（）()]/g, '');
+  const tmPlace = (s) => {
+    let t = String(s || '').normalize('NFKC');
+    TM_BRANDS.forEach(([re]) => { t = t.replace(new RegExp(re.source, 'gi'), ''); });
+    return tmKey(t.replace(/(シネマズ|シネマ|劇場|映画館)/g, ''));
+  };
+  function canonTheaterName(name, company) {
+    const raw = String(name || '').trim();
+    if (!raw) return raw;
+    const list = (theaterMaster || []).filter((t) => t && t.name);
+    if (list.some((t) => t.name === raw)) return raw;
+    const k = tmKey(raw);
+    const only = (arr) => { const u = Array.from(new Set(arr)); return u.length === 1 ? u[0] : ''; };
+    let hit = only(list.filter((t) => tmKey(t.name) === k).map((t) => t.name)) ||
+              only(list.filter((t) => (t.aliases || []).some((a) => tmKey(a) === k)).map((t) => t.name));
+    if (hit) return hit;
+    const b = TM_BRANDS.find(([re]) => re.test(raw.normalize('NFKC')));
+    const cos = b ? b[1] : (company ? [company] : null);
+    if (!cos) return raw;
+    const same = list.filter((t) => cos.indexOf(t.company) !== -1);
+    hit = only(same.filter((t) => tmKey(t.shortName || shortTheaterName(t.name)) === k).map((t) => t.name));
+    if (hit) return hit;
+    const pl = tmPlace(raw); if (pl.length < 2) return raw;
+    const eq = same.filter((t) => tmPlace(t.name) === pl);
+    if (eq.length === 1) return eq[0].name;
+    if (eq.length > 1) return raw;
+    const part = same.filter((t) => { const q = tmPlace(t.name); return q.length >= 2 && (q.indexOf(pl) !== -1 || pl.indexOf(q) !== -1); });
+    return part.length === 1 ? part[0].name : raw;
+  }
+  // 入力欄に出す名前: 短い名前で書いても同じ劇場に戻る時だけ短い名前にする（複数の劇場などは、そのまま）
+  function theaterForInput(name, company) {
+    const s = shortTheaterName(name);
+    return s && s !== name && canonTheaterName(s, company) === name ? s : (name || '');
   }
 
   const EDITABLE_FIELDS = {
@@ -334,6 +406,7 @@
   let theaterKarteSupported = false;
   let theaterInfoSupported = false;      // theaters に manager 等の劇場情報列があるか
   let theaterCloseSupported = false;     // theaters に closed（閉館）・gem2_co2・gem2_th の列があるか
+  let theaterShortSupported = false;     // theaters に short_name（表示名）の列があるか
   let theaterContactsSupported = false;  // theater_contacts テーブルがあるか
   let theaterPendingSupported = false;   // theater_info_pending テーブルがあるか
   let intakePendingSupported = false;    // case_intake_pending テーブルがあるか
@@ -643,12 +716,14 @@
       if (data[0] && Object.prototype.hasOwnProperty.call(data[0], 'manager')) theaterInfoSupported = true;
       // GeM2 のセンサー・閉館（SETUP_THEATER_CLOSE.sql）。まだ実行していない DB では、前の「隠した劇場」を閉館として扱う
       theaterCloseSupported = !!(data[0] && Object.prototype.hasOwnProperty.call(data[0], 'closed'));
+      theaterShortSupported = !!(data[0] && Object.prototype.hasOwnProperty.call(data[0], 'short_name'));
       return data.map((r) => ({
         name: r.name, company: r.company, address: r.address || '',
         equipment: r.equipment || '', chronicIssues: r.chronic_issues || '', partner: r.partner || '',
         manager: r.manager || '', theaterPhone: r.theater_phone || '',
         maintenance: r.maintenance || '', gem2: r.gem2 || '', infoNote: r.info_note || '', homepage: r.homepage || '',
         gem2Co2: r.gem2_co2 || '', gem2Th: r.gem2_th || '',
+        shortName: r.short_name || '', aliases: Array.isArray(r.aliases) ? r.aliases : [],
         closed: r.closed != null ? !!r.closed : !!r.hidden, closedOn: r.closed_on || '', closedNote: r.closed_note != null ? (r.closed_note || '') : (r.hidden ? String(r.hidden_reason || '') : '')
       }));
     },
@@ -678,6 +753,7 @@
         payload.closed_on = t.closedOn || '';
         payload.closed_note = t.closedNote || '';
       }
+      if (theaterShortSupported) payload.short_name = t.shortName || '';
       const { error } = await sb.from('theaters').upsert(payload);
       if (error) throw error;
     },
@@ -970,8 +1046,13 @@
   }
   // 案件が変わったことを、工事予定表など別の画面に知らせる
   function notifyCasesChanged() { try { window.dispatchEvent(new Event('cinema-cases-changed')); } catch (e) {} }
-  function persistCase(c, sourceOverride) { notifyCasesChanged(); return Promise.resolve(store.upsertCase(c, sourceOverride)).catch(onPersistError); }
-  function persistCases(arr) { notifyCasesChanged(); return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
+  // 案件を保存する前に、劇場名を劇場の一覧の正式名にそろえる（短い名前・別の呼び方で書いても同じ劇場になる）
+  function fixCaseTheater(c) {
+    if (c && c.theater) { const t = canonTheaterName(c.theater, c.company); if (t && t !== c.theater) c.theater = t; }
+    return c;
+  }
+  function persistCase(c, sourceOverride) { fixCaseTheater(c); notifyCasesChanged(); return Promise.resolve(store.upsertCase(c, sourceOverride)).catch(onPersistError); }
+  function persistCases(arr) { (arr || []).forEach(fixCaseTheater); notifyCasesChanged(); return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
   function removeCaseRemote(id) { return Promise.resolve(store.deleteCase(id)).catch(onPersistError); }
 
   let cases = [];               // 初期化は init() で（local or Supabase）
@@ -1254,7 +1335,8 @@
       if (c.tcPerson) tcPersons.add(c.tcPerson);
       if (c.rPerson) rPersons.add(c.rPerson);
     });
-    fillDatalist('theaterList', [...theaters].sort());
+    // 候補は短い名前（打つのも短い名前でよい。保存の時に会社の劇場の正式名にそろえる）
+    fillDatalist('theaterList', Array.from(new Set([...theaters].map((n) => shortTheaterName(n) || n))).sort());
     fillDatalist('tcPersonList', [...tcPersons].sort());
     fillDatalist('rPersonList', [...rPersons].sort());
   }
@@ -2531,7 +2613,7 @@
       $('modalTitle').textContent = isCalEdit ? '予定の編集' : '案件編集';
       $('caseId').value = caseObj.id;
       $('company').value = caseObj.company || scopedCompany(companyNames()[0]);
-      $('theater').value = caseObj.theater || '';
+      $('theater').value = theaterForInput(caseObj.theater || '', caseObj.company || '');
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
       $('rPerson').value = caseObj.rPerson || '';
@@ -4125,7 +4207,7 @@
   const tiVisibleTheaters = () => theaterMaster.filter((t) => t.name && (!t.closed || tiShowHidden()));
   function populateTiTheaterSearch() {
     const dl = $('tiTheaterAll'); if (!dl) return;
-    dl.innerHTML = tiVisibleTheaters().map((t) => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.company)}${t.closed ? '（閉館）' : ''}</option>`).join('');
+    dl.innerHTML = tiVisibleTheaters().map((t) => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.company)}・${escapeHtml(shortTheaterName(t.name))}${t.closed ? '（閉館）' : ''}</option>`).join('');
   }
   // 打った文字から劇場を探して開く（ぴったり → 1つだけ含む の順）
   function tiJumpToTheater(q, final) {
@@ -4135,7 +4217,7 @@
     let hit = list.find((t) => n(t.name) === key);
     tiSearchPick(null);
     if (!hit && final) {
-      const part = list.filter((t) => n(t.name).includes(key) || n(shortTheaterName(t.name)).includes(key));
+      const part = list.filter((t) => n(t.name).includes(key) || n(shortTheaterName(t.name)).includes(key) || (t.aliases || []).some((a) => n(a).includes(key)));
       if (part.length > 1) { tiSearchPick(part); return true; }   // 「川崎」→ TOHO と 109 の両方 … どちらか選んでもらう
       if (part.length) hit = part[0];
     }
@@ -4165,7 +4247,7 @@
     if (cur && cur.closed && names.indexOf(prev) === -1) names.push(prev);
     const fromContacts = theaterContacts.filter((c) => c.company === company).map((c) => c.theater).filter(Boolean);
     const list = Array.from(new Set([tiCommonName(company)].concat(names, fromContacts)));
-    sel.innerHTML = list.map((n) => { const t = theaterMaster.find((x) => x.name === n); return `<option value="${escapeHtml(n)}">${escapeHtml(n)}${t && t.closed ? '（閉館）' : ''}</option>`; }).join('');
+    sel.innerHTML = list.map((n) => { const t = theaterMaster.find((x) => x.name === n); return `<option value="${escapeHtml(n)}" title="${escapeHtml(n)}">${escapeHtml(t ? (shortTheaterName(n) || n) : n)}${t && t.closed ? '（閉館）' : ''}</option>`; }).join('');
     if (prev && list.indexOf(prev) !== -1) sel.value = prev;
     else if (list.length > 0) sel.value = list[0];
   }
@@ -4331,6 +4413,7 @@
       $('tiMaintenance').value = entry.maintenance || '';
       $('tiGem2').value = entry.gem2 || '';
       $('tiGem2Co2').value = entry.gem2Co2 || '';
+      if ($('tiShortName')) { $('tiShortName').value = entry.shortName || ''; $('tiShortName').placeholder = shortTheaterName(entry.name); }
       $('tiGem2Th').value = entry.gem2Th || '';
       $('tiClosed').checked = !!entry.closed;
       $('tiClosedOn').value = entry.closedOn || '';
@@ -4609,7 +4692,7 @@
     box.innerHTML = intakePending.map((it) => `
       <div class="ik-item" data-id="${escapeHtml(String(it.id))}">
         <div class="ik-head">
-          <span class="ik-theater">🎬 ${escapeHtml(it.theater || '(劇場未設定)')}</span>
+          <span class="ik-theater" title="${escapeHtml(it.theater || '')}">🎬 ${escapeHtml(shortTheaterName(canonTheaterName(it.theater || '', it.company || '')) || '(劇場未設定)')}</span>
           <span class="ik-company">${escapeHtml(it.company || '')}</span>
           <span class="ik-date">受付 ${escapeHtml(it.received_date || '-')}</span>
           <span class="ik-cat">${escapeHtml(it.category || '')}</span>
@@ -4799,6 +4882,7 @@
     entry.maintenance = $('tiMaintenance').value;
     entry.gem2 = $('tiGem2').value;
     entry.gem2Co2 = $('tiGem2Co2').value;
+    if ($('tiShortName')) { const sn = $('tiShortName').value.trim(); if (sn !== (entry.shortName || '')) { entry.shortName = sn; tmShortCache.src = null; populateTiTheaterSelect(); } }
     entry.gem2Th = $('tiGem2Th').value;
     const wasClosed = !!entry.closed;
     entry.closed = $('tiClosed').checked;
@@ -5494,7 +5578,7 @@
     ['tiTable', 'tiBulkTable'].forEach((id) => { const t = $(id); if (t) resetTmWidths(t); });
     renderTheaterInfo();
   });
-  ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiGem2Co2', 'tiGem2Th', 'tiClosed', 'tiClosedOn', 'tiClosedNote', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
+  ['tiShortName', 'tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiGem2Co2', 'tiGem2Th', 'tiClosed', 'tiClosedOn', 'tiClosedNote', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
     $(id).addEventListener('change', handleTheaterInfoFieldChange);
   });
 

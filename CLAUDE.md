@@ -222,6 +222,10 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 - 劇場の別の呼び方（theaters.aliases text[]）。GAS の canonTheater_ / fixTheater_ が、メール・LINE・会議の記録から取り込む劇場名を一覧の名前にそろえる（名前・別の呼び方・同じ会社の場所の名前の順。別の会社には寄せない）
 - 劇場情報更新確認の AI 判定（/api/theater-ai task=review）: verdict は add/dup/wrong の3つ＋confidence。confidence が 0.3 以下（LOW_CONF）の時だけ「迷う（unsure）」として人に残す。それより上は判定のとおり入れる・除く（ai_reason の頭に「確信度 ○%」）
 - TOHO の劇場: TOHO_THEATERS_2026-11.sql（資料の74館＋提携4館。名古屋→名古屋ベイシティ・宇都宮インターパーク→宇都宮をまとめる。資料に無い名前は、どこからも使われていなければ消す・使われていれば閉館＋要確認）。theaters_backup_20261112 に写しあり
+- 劇場の表示名（theaters.short_name）: 冠名・施設名を除いた短い名前（例「横浜」「GP」「三河安城」）。shortTheaterName が一覧の表示名を先に見る（無ければ THEATER_SHORT_OVERRIDE・自動）。劇場情報の「表示名」で直せる
+  - 正式名（theaters.name）は会社をまたいで重ならない名前のまま（カルテ・連絡先はこれで結びつく）。案件を保存する前に fixCaseTheater → canonTheaterName が、短い名前・別の呼び方・空白の違いを、案件の会社の劇場の正式名にそろえる（合わなければそのまま）
+  - 入力欄は theaterForInput（短い名前で書いても同じ劇場に戻る時だけ短い名前）。劇場の候補（#theaterList）は短い名前
+  - 名寄せ（2026-11-13）: THEATER_NAMES_2026-11.sql（名寄せ表（案）から merge3/gen_sql.py で作る）。直した名前は theater_name_changes_20261113 に記録（元に戻せる）
 - タスク管理ボタンの「未完了」「期限切れ」は、上の担当者ボタンで選んだ人の分だけ（R担当にその人が入っている案件のタスク＋その人の個人タスク。2人以上は合計、2人の案件は1回）
 - 劇場名で探して2つ以上合う時（例「川崎」）は勝手に開かず、入力の下に候補（#tiSearchPick）を出す
 - 工事予定表の保存: dbRow / fillText で文字の列（NOT NULL）を必ず '' で埋める（PostgREST はまとめて入れる時、1行でも欠けた項目を null で送るため）

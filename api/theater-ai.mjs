@@ -47,6 +47,51 @@ async function sbInsert(table, body) {
 const enc = encodeURIComponent;
 // 劇場名の「ゆれ」をそろえる鍵（スペース・中黒・ハイフン・長音の有無、大文字小文字を無視）
 const nameKey = (s) => String(s || '').toLowerCase().replace(/[\s　・･\-－ー]/g, '');
+// 劇場名を一覧の名前にそろえる（GAS の canonTheater_ と同じ決まり）:
+//   名前のゆれ（空白など）→ 別の呼び方（aliases）→ 同じ会社の劇場で場所の名前が同じ → 場所の名前が片方に含まれ、合う劇場が1つだけ
+// 会社は劇場名に付いている会社名（TOHO・109 など）を先に見る。別の会社の劇場には寄せない
+const BRANDS = [
+  [/TOHO\s*(シネマズ|CINEMAS)?|東宝/i, ['TOHOシネマズ']],
+  [/109\s*(シネマズ|CINEMAS)?/i, ['109シネマズ']],
+  [/ユナイテッド[・･\s]*シネマ|UNITED\s*CINEMAS|シネプレックス|^CPX|^UC/i, ['ユナイテッドシネマ']],
+  [/グランドシネマサンシャイン|シネマサンシャイン|CINEMA\s*SUNSHINE|^GCS|^CS/i, ['佐々木興業', 'シネマサンシャイン']],
+  [/コロナ(シネマ)?ワールド|コロナシネマ/i, ['コロナワールド']],
+  [/MOVIX|ムービックス/i, ['MOVIX']],
+  [/イオンシネマ/i, ['イオンシネマズ']]
+];
+const nfkc = (s) => String(s || '').normalize('NFKC');
+const placeOf = (s) => {
+  let t = nfkc(s);
+  BRANDS.forEach(([re]) => { t = t.replace(new RegExp(re.source, 'gi'), ''); });
+  return nameKey(t.replace(/(シネマズ|シネマ|劇場|映画館)/g, '').replace(/[（）()「」『』.,、。]/g, ''));
+};
+const brandOf = (s) => { const t = nfkc(s); const b = BRANDS.find(([re]) => re.test(t)); return b ? b[1] : null; };
+export function makeCanon(theaters) {
+  const byKey = {}, byAlias = {};
+  theaters.forEach((t) => {
+    (byKey[nameKey(nfkc(t.name))] = byKey[nameKey(nfkc(t.name))] || []).push(t.name);
+    (Array.isArray(t.aliases) ? t.aliases : []).forEach((a) => { if (a) (byAlias[nameKey(nfkc(a))] = byAlias[nameKey(nfkc(a))] || []).push(t.name); });
+  });
+  const names = new Set(theaters.map((t) => t.name));
+  return (n, company) => {
+    if (!n || names.has(n)) return n || '';
+    const k = nameKey(nfkc(n));
+    const one = (arr) => (arr && new Set(arr).size === 1 ? arr[0] : '');
+    const hit = one(byKey[k]) || one(byAlias[k]);
+    if (hit) return hit;
+    const cos = brandOf(n) || (company ? [company] : null);
+    if (!cos) return n;
+    const same = theaters.filter((t) => cos.includes(t.company));
+    const sn = same.filter((t) => t.short_name && nameKey(nfkc(t.short_name)) === k);   // 同じ会社の表示名（短い名前）
+    if (sn.length === 1) return sn[0].name;
+    const pl = placeOf(n); if (pl.length < 2) return n;
+    const eq = same.filter((t) => placeOf(t.name) === pl);
+    if (eq.length === 1) return eq[0].name;
+    if (eq.length > 1) return n;
+    const part = same.filter((t) => { const q = placeOf(t.name); return q.length >= 2 && (q.includes(pl) || pl.includes(q)); });
+    return part.length === 1 ? part[0].name : n;
+  };
+}
 const norm = (s) => String(s || '').replace(/[\s　、。，．・（）()「」『』【】\[\]:：/／\-－ー〜~]/g, '').toLowerCase();
 
 // ---------- 答えの形 ----------
@@ -153,9 +198,9 @@ async function reviewGroup(theater, items, ctx) {
       if (!['add', 'dup', 'wrong'].includes(verdict) || conf <= LOW_CONF) { reason = `確信度 ${Math.round(conf * 100)}%（AIの判定: ${VERDICT_JA[verdict] || verdict}）` + (reason ? '／' + reason : ''); verdict = 'unsure'; }
       else reason = `確信度 ${Math.round(conf * 100)}%／` + reason;
       let target = theater;
-      const rt = ctx.canon(r.theater);
+      const rt = ctx.canon(r.theater, company);
       if (rt && ctx.nameSet.has(rt)) target = rt;
-      if (verdict === 'add' && !ctx.nameSet.has(target)) { verdict = 'unsure'; reason = '劇場の一覧に無い名前: ' + target + (reason ? '／' + reason : ''); }
+      if (verdict === 'add' && !ctx.nameSet.has(target)) { verdict = 'unsure'; reason = `劇場の一覧に無い名前: ${target}（劇場の一覧に足すか、近い劇場の「別の呼び方」に入れると入ります）` + (reason ? '／' + reason : ''); }
       if (verdict === 'add') {
         const res = await applyAdd(it, r, target, company || (ctx.theaterRows[target] && ctx.theaterRows[target].company) || '', notes, target === theater);
         if (res.dup) {
@@ -234,13 +279,16 @@ async function runReview(body) {
   if (ids.length) q += `&id=in.(${ids.join(',')})`;
   let pending = await sbGet(q);
   if (!ids.length) pending = pending.filter((p) => notYet(p, started));
-  const allTheaters = await sbGet('theaters?select=name,company,manager,theater_phone&limit=2000');
+  // aliases の列がまだ無い DB でも動くように
+  const allTheaters = await sbGet('theaters?select=name,company,manager,theater_phone,aliases,short_name&limit=3000')
+    .catch(() => sbGet('theaters?select=name,company,manager,theater_phone,aliases&limit=3000'))
+    .catch(() => sbGet('theaters?select=name,company,manager,theater_phone&limit=3000'));
   const ctx = { allTheaters, nameSet: new Set(allTheaters.map((t) => t.name)), theaterRows: {}, byKey: {} };
   allTheaters.forEach((t) => { ctx.theaterRows[t.name] = t; (ctx.byKey[nameKey(t.name)] = ctx.byKey[nameKey(t.name)] || []).push(t.name); });
   // 一覧に無い名前でも、ゆれだけの違いで1つに決まれば一覧の名前にする（例「109シネマズ川崎」→「109シネマズ 川崎」）
-  ctx.canon = (n) => { if (!n || ctx.nameSet.has(n)) return n || ''; const c = ctx.byKey[nameKey(n)] || []; return c.length === 1 ? c[0] : n; };
+  ctx.canon = makeCanon(allTheaters);
   const groups = {};
-  pending.forEach((p) => { const k = ctx.canon(p.theater) || '（劇場不明）'; (groups[k] = groups[k] || []).push(p); });
+  pending.forEach((p) => { const k = ctx.canon(p.theater, p.company) || '（劇場不明）'; (groups[k] = groups[k] || []).push(p); });
   const keys = Object.keys(groups);
   const tally = { add: 0, dup: 0, wrong: 0, unsure: 0, error: 0 };
   let done = 0, failed = [];
