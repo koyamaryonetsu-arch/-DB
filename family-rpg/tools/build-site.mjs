@@ -5,36 +5,17 @@
 // ・JS の import と index.html の 読みこみに ?v=<版> を つけて、
 //   サイトを 新しくした 直後に 古い ファイルと 新しい ファイルが まざらない ように する
 // ・version.json（いまの 版）と .nojekyll を 書く
+// ・pack-manifest.json と pack.json（Service Worker が はじめの 読みこみを 速く する ため）
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// ?v= を つける しくみは 家族サーバーと 同じ もの（server/stamp.js）
+import { stampImports, stampHtml, stampable, shortVersion } from '../server/stamp.js';
+import { buildPack } from '../server/static.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-// './x.js' '../y.js' の 読みこみに ?v= を つける
-export function stampImports(src, v) {
-  const tag = (spec) => `${spec}?v=${v}`;
-  return src
-    .replace(/(\bfrom\s*)(['"])(\.{1,2}\/[^'"?\n]+?\.js)\2/g, (m, a, q, spec) => `${a}${q}${tag(spec)}${q}`)
-    .replace(/(\bimport\s*\(\s*)(['"])(\.{1,2}\/[^'"?\n]+?\.js)\2/g, (m, a, q, spec) => `${a}${q}${tag(spec)}${q}`)
-    .replace(/(\bimport\s+)(['"])(\.{1,2}\/[^'"?\n]+?\.js)\2/g, (m, a, q, spec) => `${a}${q}${tag(spec)}${q}`);
-}
-
-export function stampHtml(html, v, date) {
-  const boot = `<script>
-  // サイトの 版（タイトル画面に 出す）
-  window.KIZUNA_VERSION = ${JSON.stringify({ v, date })};
-  // 新しい 版に なった 直後など、読みこみに しっぱいしたら 1回だけ 読みこみ直す
-  function kizunaBootFail() {
-    try { if (sessionStorage.getItem('kizuna_reload')) return; sessionStorage.setItem('kizuna_reload', '1'); } catch (e) {}
-    setTimeout(function () { location.reload(); }, 1500);
-  }
-</script>
-<script type="module" src="js/main.js?v=${v}" onerror="kizunaBootFail()"></script>`;
-  return html
-    .replace('href="css/style.css"', `href="css/style.css?v=${v}"`)
-    .replace('<script type="module" src="js/main.js"></script>', boot);
-}
+export { stampImports, stampHtml };
 
 function copyDir(from, to, onFile) {
   fs.mkdirSync(to, { recursive: true });
@@ -48,15 +29,21 @@ function copyDir(from, to, onFile) {
 
 export function buildSite(out, v = String(Date.now()), date = new Date().toISOString()) {
   const src = path.join(ROOT, 'public');
-  const short = String(v).slice(0, 12).replace(/[^A-Za-z0-9]/g, '');
+  const short = shortVersion(v);
   fs.rmSync(out, { recursive: true, force: true });
   copyDir(src, out, (a, b) => {
-    if (a.endsWith('.js') && !a.includes(`${path.sep}vendor${path.sep}`)) fs.writeFileSync(b, stampImports(fs.readFileSync(a, 'utf8'), short));
-    else if (path.relative(src, a) === 'index.html') fs.writeFileSync(b, stampHtml(fs.readFileSync(a, 'utf8'), short, date));
+    const rel = path.relative(src, a).split(path.sep).join('/');
+    if (stampable(rel)) fs.writeFileSync(b, stampImports(fs.readFileSync(a, 'utf8'), short));
+    // サイトでは 家族サーバーの 案内（ナビゲーション）は 出さない（sw.js?nav=off）
+    else if (rel === 'index.html') fs.writeFileSync(b, stampHtml(fs.readFileSync(a, 'utf8'), short, date, { sw: 'sw.js?nav=off', pack: true }));
     else fs.copyFileSync(a, b);
   });
   fs.writeFileSync(path.join(out, 'version.json'), JSON.stringify({ v: short, sha: v, date }, null, 2));
   fs.writeFileSync(path.join(out, '.nojekyll'), '');
+  // まとめて 1回で 送る パック（Service Worker が 使う。中みは ?v= を つける 前の もの）
+  const { manifest, pack } = buildPack(src, short);
+  fs.writeFileSync(path.join(out, 'pack-manifest.json'), JSON.stringify(manifest));
+  fs.writeFileSync(path.join(out, 'pack.json'), JSON.stringify(pack));
   return { out, v: short };
 }
 

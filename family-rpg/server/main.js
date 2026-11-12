@@ -6,7 +6,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { pipeline } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
@@ -21,6 +20,7 @@ import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { createErrorLog, captureConsole } from './errlog.js';
 import { requestPath, decodePath } from './reqpath.js';
+import { createStatic } from './static.js';
 import { sleepSetting, sleepWarning } from './power.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 
@@ -128,11 +128,10 @@ setInterval(() => {
 }, 50);
 
 // ───────────── ファイルを くばる ─────────────
-const MIME = {
-  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
-  '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json',
-};
+// 圧縮・ETag／304・版つきの キャッシュ（server/static.js）
+// sw.js の アドレスは client/net.js が 登録する ものと 同じに する（ちがうと 入れかわりが おきる）
+const SW_URL = /^https:\/\//i.test(config.siteUrl || '') ? `sw.js?site=${encodeURIComponent(config.siteUrl)}` : 'sw.js';
+const statics = createStatic({ root: PUBLIC, sha: readVersion(ROOT)?.sha || '', date: readVersion(ROOT)?.date || '', sw: SW_URL });
 
 // ひとりで遊ぶサイト（GitHub Pages）から「家族サーバーは動いている？」を 見られる ように する
 const DEFAULT_SITE_ORIGIN = 'https://koyamaryonetsu-arch.github.io';
@@ -192,6 +191,12 @@ function serveHttp(req, res) {
     res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls, public: strongEnough(PASSWORD) ? publicUrl() : '', site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
     return;
   }
+  // まとめて 1回で 送る パック（Service Worker が 使う。server/static.js）
+  if (reqPath === '/pack-manifest.json' || reqPath === '/pack.json') {
+    const q = String(req.url || '');
+    statics.servePack(req, res, reqPath.slice(1), q.includes('?') ? q.slice(q.indexOf('?') + 1).split('#')[0] : '');
+    return;
+  }
   // %xx を もどす（読めない・%00 が ある ときは 400）
   let p = decodePath(reqPath);
   if (p === null) {
@@ -211,15 +216,8 @@ function serveHttp(req, res) {
         res.end('見つかりません');
         return;
       }
-      res.writeHead(200, {
-        'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
-        'Content-Length': st.size,
-        // 字の ファイルは かわらないので、ブラウザに とっておいてもらう（ほかは 毎回 たしかめる）
-        'Cache-Control': file.includes(`${path.sep}fonts${path.sep}`) ? 'public, max-age=2592000' : 'no-cache',
-        'X-Content-Type-Options': 'nosniff',
-      });
-      // 読みこみの エラー・とちゅうで 切れた ときも 止まらない
-      pipeline(fs.createReadStream(file), res, () => {});
+      const q = String(req.url || '');
+      statics.serve(req, res, file, st, q.includes('?') ? q.slice(q.indexOf('?') + 1).split('#')[0] : '');
     } catch (e) {
       console.error('http error', e);
       failHttp(res, 500);
@@ -379,6 +377,8 @@ server.listen(PORT, HOST, () => {
   console.log('');
   // 外出先から（スマホに アプリなしで）つながるか: Tailscale Funnel を しらべる
   checkFunnel(true).then(checkSleep);
+  // 送る ファイルを ちぢめて おく（server/static.js）
+  statics.warm();
 });
 
 // PC が スリープする 設定なら 知らせる（Windows。スリープ中は だれも つながれない）
