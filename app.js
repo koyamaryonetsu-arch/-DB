@@ -4245,7 +4245,9 @@
     // 今開いている劇場は、閉館にした直後でも一覧に残す（開いたまま閉館の情報を直せるように）
     const cur = theaterMaster.find((t) => t.name === prev && t.company === company);
     if (cur && cur.closed && names.indexOf(prev) === -1) names.push(prev);
-    const fromContacts = theaterContacts.filter((c) => c.company === company).map((c) => c.theater).filter(Boolean);
+    // 連絡先にだけある名前も出す。ただし閉館した劇場は「閉館した劇場も出す」の時だけ（今開いている劇場は残す）
+    const fromContacts = theaterContacts.filter((c) => c.company === company).map((c) => c.theater).filter(Boolean)
+      .filter((n) => { const t = theaterMaster.find((x) => x.name === n); return !(t && t.closed) || tiShowHidden() || n === prev; });
     const list = Array.from(new Set([tiCommonName(company)].concat(names, fromContacts)));
     sel.innerHTML = list.map((n) => { const t = theaterMaster.find((x) => x.name === n); return `<option value="${escapeHtml(n)}" title="${escapeHtml(n)}">${escapeHtml(t ? (shortTheaterName(n) || n) : n)}${t && t.closed ? '（閉館）' : ''}</option>`; }).join('');
     if (prev && list.indexOf(prev) !== -1) sel.value = prev;
