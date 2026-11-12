@@ -86,6 +86,13 @@ export const TRACK_NAMES = {
   yomi_king: 'よみの王ハデロス',
   kamek_magic: 'マジカメック',
   bowser_king: '初代大魔王クッパード',
+  // 第80回 F: 第8章 第4幕（audio-c8r.js）
+  c8r_hall: '時の広間',
+  c8r_wing: '4つのつばさ',
+  c8r_gate: '時の門番との戦い',
+  c8r_last: '最後のかいろう',
+  c8r_solitus: '最後の戦い',
+  ending2: 'エンディング（第2部）',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）
