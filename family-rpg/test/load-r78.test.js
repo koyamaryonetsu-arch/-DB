@@ -469,6 +469,22 @@ test('sw.js: メッセージ（kz-prepare → ack・progress・done ／ kz-off �
   sw.handlers.message({ data: { t: 'other' }, ports: [] });
 });
 
+test('sw.js: しまう 場所が たりない（古い iPhone など）→ 次からは パックを 使わない', async () => {
+  const s = fakeServer(PUB, 'v1');
+  const caches = fakeCaches();
+  const files = await caches.open('kizuna-files-v1');
+  files.put = async () => { throw new Error('QuotaExceededError'); };
+  const sw = loadSw({ fetchImpl: s.fetchImpl, caches });
+  const after = await sw.t.prepare('v1', () => {});
+  // この 回は メモリから 返せる
+  assert.equal((await sw.t.fromPack(at('js/main.js', 'v1'), 'js/main.js')).headers.get('X-Kizuna-Pack'), '1');
+  await assert.rejects(after(), /Quota/);
+  const sw2 = loadSw({ fetchImpl: s.fetchImpl, caches });
+  s.calls.length = 0;
+  await assert.rejects(sw2.t.prepare('v1', () => {}), /storage full/);
+  assert.deepEqual(s.calls, [], 'パックを 取りに 行かない');
+});
+
 test('sw.js: ひとりで遊ぶサイト（sw.js?nav=off）では ナビゲーションに さわらない', () => {
   const sw = loadSw({ origin: 'https://example.github.io', query: '?nav=off', fetchImpl: () => Promise.reject(new Error('no')) });
   let resp = null;

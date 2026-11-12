@@ -105,6 +105,7 @@ function packTarget(req) {
 const bundleKey = (v) => `${scopeBase()}__kizuna/b/${v}`;
 const manifestKey = (v) => `${scopeBase()}__kizuna/m/${v}`;
 const listKey = () => `${scopeBase()}__kizuna/list`;
+const fullKey = () => `${scopeBase()}__kizuna/full`;
 
 // './x.js' の 読みこみに ?v= を つける（server/stamp.js の stampImports と 同じ）
 function stampImports(src, v) {
@@ -198,13 +199,16 @@ async function prepare(v, progress) {
     if (await loadBundle(v)) return null;
     pack.manifests.delete(v);
   }
+  const meta = await caches.open(META);
+  // しまう 場所が たりなかった（7日の あいだは パックを 使わない）
+  const full = await meta.match(fullKey());
+  if (full && Date.now() - Number(await full.text()) < 7 * 86400000) throw new Error('storage full');
   const base = scopeBase();
   const res = await fetch(`${base}pack-manifest.json?v=${v}`);
   if (!res.ok) throw new Error(`manifest ${res.status}`);
   const m = await res.json();
   if (!m || m.v !== v || !m.files) throw new Error('manifest version');
   // 前の 版の まとめが あれば メモリへ（中みが 同じ ファイルは 取りに 行かない）
-  const meta = await caches.open(META);
   const list = await readList(meta);
   const prev = list.filter((x) => x !== v).pop();
   if (prev) await loadBundle(prev);
@@ -272,10 +276,17 @@ async function prepare(v, progress) {
       b[h] = pack.mem.get(h);
     }
     const files = await filesCache();
-    await files.put(bundleKey(v), new Response(JSON.stringify(b), { headers: { 'Content-Type': 'application/json' } }));
+    // 先に 古い ものを 消して から しまう（スマホの しまう 場所を 使いすぎない）
+    await cleanup(v, files, meta);
+    try {
+      await files.put(bundleKey(v), new Response(JSON.stringify(b), { headers: { 'Content-Type': 'application/json' } }));
+    } catch (err) {
+      // しまう 場所が たりない（古い iPhone など）: 次からは パックを 使わない（ふつうの 読みこみ＋ブラウザの キャッシュ）
+      await meta.put(fullKey(), new Response(String(Date.now()))).catch(() => {});
+      throw err;
+    }
     pack.loading.set(v, Promise.resolve(true));
     await meta.put(manifestKey(v), new Response(JSON.stringify(m), { headers: { 'Content-Type': 'application/json' } }));
-    await cleanup(v, files, meta);
   };
 }
 

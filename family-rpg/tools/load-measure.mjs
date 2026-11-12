@@ -94,7 +94,7 @@ function makeCert(dir) {
 
 const HOP = new Set(['connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'proxy-connection', 'http2-settings', 'te', 'host']);
 export function createFront(backend, { tls } = {}) {
-  const log = { requests: 0, paths: [], inflight: 0, lastAt: 0 };
+  const log = { requests: 0, paths: [], inflight: 0, lastAt: 0, fontBytes: 0 };
   const handler = (req, res) => {
     log.requests++;
     log.inflight++;
@@ -107,6 +107,7 @@ export function createFront(backend, { tls } = {}) {
       const h = {};
       for (const [k, v] of Object.entries(r.headers)) if (!HOP.has(k)) h[k] = v;
       res.writeHead(r.statusCode, h);
+      if (/\/fonts\//.test(req.url)) log.fontBytes += Number(r.headers['content-length'] || 0);
       r.pipe(res);
       r.on('end', done);
       r.on('error', done);
@@ -200,6 +201,7 @@ async function visit(context, url, front, shaper, { cpu = 1 } = {}) {
   const fontPaths = () => front.log.paths.filter((p) => p.includes('/fonts/')).length;
   front.log.requests = 0;
   front.log.paths = [];
+  front.log.fontBytes = 0;
   const b0 = { ...shaper.stats };
   await page.goto(url, { waitUntil: 'commit', timeout: 600000 });
   try {
@@ -219,6 +221,7 @@ async function visit(context, url, front, shaper, { cpu = 1 } = {}) {
     upBytes: shaper.stats.up - b0.up,
     atTitle,
     fontRequests: fontPaths(),
+    fontBytes: front.log.fontBytes,
     scriptMs: Math.round((m.ScriptDuration || 0) * 1000),
     taskMs: Math.round((m.TaskDuration || 0) * 1000),
     sw: await page.evaluate(() => !!navigator.serviceWorker?.controller).catch(() => false),
