@@ -16,6 +16,8 @@ import { WORK4_NPC_LOOKS, addWork4Art } from './work4-art.js';
 import { WORK5_NPC_LOOKS, addWork5Art } from './work5-art.js';
 // 第75回 D班: たのまれごと 30〜32 と 千年前の ミドリナの より道の 絵（render/work6-art.js）
 import { WORK6_NPC_LOOKS, addWork6Art } from './work6-art.js';
+// 第80回 D班: たのまれごと 33〜35 と より道「時をこえる手紙の、最後の1通」の 絵（render/work7-art.js）
+import { WORK7_NPC_LOOKS, addWork7Art } from './work7-art.js';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {
@@ -44,6 +46,7 @@ export const WORK_NPC_LOOKS = {
   ...WORK4_NPC_LOOKS,
   ...WORK5_NPC_LOOKS,
   ...WORK6_NPC_LOOKS,
+  ...WORK7_NPC_LOOKS,
 };
 
 // ───────────── 6. 港の ステージ（clean … 砂を はらった あと）─────────────
@@ -185,6 +188,7 @@ export function addWorkArt(ART) {
   addWork4Art(ART);
   addWork5Art(ART);
   addWork6Art(ART);
+  addWork7Art(ART);
 }
 
 // ───────────── もらう 乗り物 ─────────────

@@ -26,6 +26,8 @@ import { attachWorkQuests4 } from './work-quests4.js';
 import { attachWorkQuests5 } from './work-quests5.js';
 // 第75回 D班: たのまれごと 30〜32 の 人（maps/work-quests6.js）
 import { attachWorkQuests6 } from './work-quests6.js';
+// 第80回 D班: たのまれごと 33〜35 の 人（maps/work-quests7.js）
+import { attachWorkQuests7 } from './work-quests7.js';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ（maps/family-quests.js の FQ_OPEN と おなじ）
@@ -193,6 +195,8 @@ export function attachWorkQuests(maps) {
   attachWorkQuests5(maps);
   // 第75回 D班: 30〜32
   attachWorkQuests6(maps);
+  // 第80回 D班: 33〜35
+  attachWorkQuests7(maps);
   return maps;
 }
 
