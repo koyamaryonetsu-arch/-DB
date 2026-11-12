@@ -564,7 +564,7 @@ export class FieldMenu {
     }))) : null;
     items.splice(0, items.length, ...cur.list);
     // ならべかえ（あいうえお順・種類順・手に入れた順）
-    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: g.input.touch ? 'ならべかえ' : 'ならべかえ（Y）' }),
+    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: g.input.touch && !g.input.pad?.on ? 'ならべかえ' : 'ならべかえ（Y）' }),
       ...Object.entries(ITEM_SORTS).map(([k, label]) => el('button', {
         class: `btn ${k === mode ? 'on' : ''}`,
         text: label,
@@ -1297,7 +1297,10 @@ export class FieldMenu {
       const subBar = el('div', { class: 'tabs lv-tabs' }, ...subs.map((t) => chip(t.label, t.key === cur.key, () => goTab(t), `lv-t${t.id === c.job || t.id === 'job' ? ' now' : ''}`)));
       head.append(subBar);
       // スマホは タップで えらぶ ので 書かない（見出しを ひくく して、技の わくを 広く）
-      if (!touch) head.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類・Yで見方・◀ ▶（左右のはし）で上のタブを切りかえ' }));
+      // 第79回: コントローラーが つながって いる 時は コントローラーの ボタンで 書く（スマホに つないだ 時も 出す）。
+      //   Y は 左（Switch など）・上（Xbox など）の どちらの Y でも 効く（input.js）
+      if (g.input.pad?.on) head.append(el('div', { class: 'tab-hint pad-hint', text: 'コントローラー：L・Rで種類・Yで見方・◀ ▶（左右のはし）で上のタブ' }));
+      else if (!touch) head.append(el('div', { class: 'tab-hint', text: 'L・R（Q・E）で種類・Yで見方・◀ ▶（左右のはし）で上のタブを切りかえ' }));
       // 選んでいる 種類（職業）の タブが 見えるように（横に ながい とき）
       requestAnimationFrame(() => subBar.querySelector('.btn.sel')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
     } else if (!touch) head.append(el('div', { class: 'tab-hint', text: '今の職業の技が先（強い技が上）・◀ ▶（左右のはし）で上のタブを切りかえ' }));
