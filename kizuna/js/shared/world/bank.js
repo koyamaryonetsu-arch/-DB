@@ -3,9 +3,9 @@
 // c.bank = { gold, items: [{ id, n }] } … ない ときも ある（はじめて 預けた ときに できる）
 // ・どこの 預かり所でも おなじ 中み（キャラごと）
 // ・全滅すると 持っている お金が 半分に なる（はしたは 切りすて）。預けた お金は へらない
-import { ITEMS } from '../data/items.js?v=e32f6eb85bad';
-import { BANKS, BANK_GOLD_MAX, BANK_KINDS, BANK_STACK } from '../data/facilities.js?v=e32f6eb85bad';
-import { addItem, removeItem, itemCount } from '../stats.js?v=e32f6eb85bad';
+import { ITEMS } from '../data/items.js?v=1ce6e2458180';
+import { BANKS, BANK_GOLD_MAX, BANK_KINDS, BANK_STACK } from '../data/facilities.js?v=1ce6e2458180';
+import { addItem, removeItem, itemCount } from '../stats.js?v=1ce6e2458180';
 
 // ふくろに 入る 1しゅるいの 数（stats.js の addItem と おなじ）
 export const BAG_STACK = 99;
@@ -108,9 +108,12 @@ export function bankAction(world, s, msg, reply) {
 }
 
 // 全滅した: 持っている お金が 半分に（はしたは 切りすて）。預かり所の お金は そのまま
-export function wipeGoldLoss(c) {
+// 第81回: div … へる 分を「持っている お金 ÷ div」に（へそくりのさいふ 4・金庫番のお守り 10。world/perks.js の wipeGuard）。
+//   へる 分の はしたは 切り上げ（半分の 時は 今までと 同じ: 7G → 3G）
+export function wipeGoldLoss(c, div = 2) {
   const before = Math.max(0, int(c?.gold));
-  const after = Math.floor(before / 2);
+  const d = Number.isInteger(div) && div >= 2 ? div : 2;
+  const after = before - Math.ceil(before / d);
   if (c) c.gold = after;
   return { before, after, lost: before - after };
 }

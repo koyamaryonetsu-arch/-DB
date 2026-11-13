@@ -6,11 +6,11 @@
 //   （4 … 城 5階の 竜の とびらの 手紙は 物語の なぞとき。data/story-c7i.js）
 // ・見つけた 時に 1回だけ ごほうび（B の C7I_LETTER_REWARDS）。人と 場所は maps/c7i-snow.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-c7.js の c7SubQuests・c7DoneQuests から（c7iSubQuests・c7iDoneQuests）
-import { C7I, LETTER7I, LETTER7I_SIDE } from '../maps/c7i-flags.js?v=e32f6eb85bad';
-import { LETTER7I_ASKERS, LETTER7I_PLACES, LETTER7I_NOW_PLACES } from '../maps/c7i-snow.js?v=e32f6eb85bad';
-import { ITEMS } from './items.js?v=e32f6eb85bad';
+import { C7I, LETTER7I, LETTER7I_SIDE } from '../maps/c7i-flags.js?v=1ce6e2458180';
+import { LETTER7I_ASKERS, LETTER7I_PLACES, LETTER7I_NOW_PLACES } from '../maps/c7i-snow.js?v=1ce6e2458180';
+import { ITEMS } from './items.js?v=1ce6e2458180';
 // 手紙の ごほうび（B の data/items-c7i.js の C7I_LETTER_REWARDS。まとめる 時に './items-c7i.js' から）
-import { C7I_LETTER_REWARDS } from './items-c7i.js?v=e32f6eb85bad';
+import { C7I_LETTER_REWARDS } from './items-c7i.js?v=1ce6e2458180';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -3,9 +3,9 @@
 // 人（C7I_NPC_LOOKS）: カイの影（カイと おなじ 形の 黒い すがた・むらさきの はちまき）・雪の精（白い ずきんの 小さな 雪の 子）
 //   白雪の里の 人は 第3章の 竜守りの村の 人の え（snow_*・dragon_elder・yukina・shrine_priest）を つかう
 // とくべつな え（paintC7iSpecial）: いばらの魔女マレフィナ（城の 前の 大きな すがた 44×52）・ねむる 氷の竜シラネ（玉座の 間 52×40）
-import { Painter } from './pixel.js?v=e32f6eb85bad';
+import { Painter } from './pixel.js?v=1ce6e2458180';
 // 第8章 第1幕: 大臣ジャハール・まじないの 王さま・月の王宮の 人・オウムのイアゴン・ねがいのランプ（render/c8a-npc-art.js。ここで まぜる）
-import { C8A_NPC_LOOKS, paintC8aSpecial, C8A_SPECIALS } from './c8a-npc-art.js?v=e32f6eb85bad';
+import { C8A_NPC_LOOKS, paintC8aSpecial, C8A_SPECIALS } from './c8a-npc-art.js?v=1ce6e2458180';
 
 const person = (o) => o;
 export const C7I_NPC_LOOKS = {

@@ -3,23 +3,25 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=e32f6eb85bad';
-import { SHOPS_CH2 } from './items-ch2.js?v=e32f6eb85bad';
-import { NIGHT_SHOPS } from './night.js?v=e32f6eb85bad';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=e32f6eb85bad';
-import { SHOPS_CH4 } from './items-ch4.js?v=e32f6eb85bad';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=e32f6eb85bad';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=e32f6eb85bad';
-import { R33_SHOP_ADD } from './items-r33.js?v=e32f6eb85bad';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=e32f6eb85bad';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=e32f6eb85bad';
-import { SHOPS_EARTH } from './shops-earth.js?v=e32f6eb85bad';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=1ce6e2458180';
+import { SHOPS_CH2 } from './items-ch2.js?v=1ce6e2458180';
+import { NIGHT_SHOPS } from './night.js?v=1ce6e2458180';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=1ce6e2458180';
+import { SHOPS_CH4 } from './items-ch4.js?v=1ce6e2458180';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=1ce6e2458180';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=1ce6e2458180';
+import { R33_SHOP_ADD } from './items-r33.js?v=1ce6e2458180';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=1ce6e2458180';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=1ce6e2458180';
+import { SHOPS_EARTH } from './shops-earth.js?v=1ce6e2458180';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=e32f6eb85bad';
-import { MINAMO_GUEST } from './companions-past.js?v=e32f6eb85bad';
-import { RION_GUEST } from './companions-tokei.js?v=e32f6eb85bad';
-import { KARIM_GUEST } from './companions-c7.js?v=e32f6eb85bad';
-import { KAI_GUEST } from './companions-c7s.js?v=e32f6eb85bad';
+import { SHOPS_PAST } from './shops-past.js?v=1ce6e2458180';
+// 第81回: 全滅で へる お金が 少なく なる アクセサリー（items-r81.js）
+import { addR81Shops } from './items-r81.js?v=1ce6e2458180';
+import { MINAMO_GUEST } from './companions-past.js?v=1ce6e2458180';
+import { RION_GUEST } from './companions-tokei.js?v=1ce6e2458180';
+import { KARIM_GUEST } from './companions-c7.js?v=1ce6e2458180';
+import { KAI_GUEST } from './companions-c7s.js?v=1ce6e2458180';
 
 export const SHOPS = {
   village: {
@@ -81,6 +83,8 @@ Object.assign(SHOPS, SHOPS_HOSHIYOMI);
 // 第5章 Step 7 影の城が うかんだ あとの ハネノ（shops-earth.js）
 Object.assign(SHOPS, SHOPS_EARTH);
 Object.assign(SHOPS, SHOPS_PAST);
+// 第81回: へそくりのさいふ（ホシフル村・ルミナ）・金庫番のお守り（千年前の 里。第7章の 町の 店は shops-c7*.js）
+addR81Shops(SHOPS);
 // 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）

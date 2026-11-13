@@ -8,11 +8,11 @@
 // ・バナー: 相談・大がったいの 前ぶれ・けんか・がったい・パニック・カンカン・ひとりばけばけの 前ぶれ／
 //   けいやくの 前ぶれ・けいやく・すいとる・たましいの 前ぶれ・もやした・たましいを とられた・赤く ちらちら・おこった・ふん火の 前ぶれ・ふん火・ひえた
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_PAIN, C8_PANIC, C8_HADES } from '../shared/data/monsters-c8b.js?v=e32f6eb85bad';
-import { monsterCanvas } from './render/monsters.js?v=e32f6eb85bad';
-import { el } from './ui/dom.js?v=e32f6eb85bad';
+import { C8_PAIN, C8_PANIC, C8_HADES } from '../shared/data/monsters-c8b.js?v=1ce6e2458180';
+import { monsterCanvas } from './render/monsters.js?v=1ce6e2458180';
+import { el } from './ui/dom.js?v=1ce6e2458180';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパード・橋のオノの がめん（battle-c8c.js）
-import { C8C_OWN_TELE, c8cSprite, c8cDraw, c8cPresent } from './battle-c8c.js?v=e32f6eb85bad';
+import { C8C_OWN_TELE, c8cSprite, c8cDraw, c8cPresent } from './battle-c8c.js?v=1ce6e2458180';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8a.js の C8A_OWN_TELE に まぜる）
 export const C8B_OWN_TELE = [C8_PAIN, C8_PANIC, C8_HADES, ...C8C_OWN_TELE];

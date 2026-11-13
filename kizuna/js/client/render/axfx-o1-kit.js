@@ -8,8 +8,8 @@
 // ・o1Spot    … 上から の スポットライト
 // ・o1Tri     … 光の 三角形（デルタストライク）
 // 画面の 文字は カタカナ・ひらがな・記号だけ（漢字は 出さない）
-import { rnd, clamp01, lerp, easeOut, easeInOut, softGlow, disc } from './axkit.js?v=e32f6eb85bad';
-import { prop as g3prop, text as g3text, hitBurst, blast, glitter, rich, per, line, ribbon, arcPts, capLife } from './axfx-g3-kit.js?v=e32f6eb85bad';
+import { rnd, clamp01, lerp, easeOut, easeInOut, softGlow, disc } from './axkit.js?v=1ce6e2458180';
+import { prop as g3prop, text as g3text, hitBurst, blast, glitter, rich, per, line, ribbon, arcPts, capLife } from './axfx-g3-kit.js?v=1ce6e2458180';
 
 export { hitBurst, blast, glitter, rich, per, line, ribbon, arcPts, capLife, g3prop, g3text };
 

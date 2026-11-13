@@ -12,7 +12,7 @@
 // えらんだ 物を あとで 売った・捨てた ときも、見た目は そのまま おぼえておく（ドラクエ10と おなじ）。
 //   知らない 品物に なった ときや 部位が ちがう ときは「今の装備と同じ」に もどして 見せる
 // モンスターの 仲間は 絵に 装備が 出ないので、見た目装備は ない
-import { ITEMS, baseItemId } from './data/items.js?v=e32f6eb85bad';
+import { ITEMS, baseItemId } from './data/items.js?v=1ce6e2458180';
 
 export const LOOK_SLOTS = ['weapon', 'armor', 'shield', 'head'];
 export const LOOK_NONE = 'none';

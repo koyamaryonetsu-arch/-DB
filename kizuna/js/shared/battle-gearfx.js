@@ -7,9 +7,9 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=e32f6eb85bad';
-import { ITEMS } from './data/items.js?v=e32f6eb85bad';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=e32f6eb85bad';
+import { ABILITIES } from './data/abilities.js?v=1ce6e2458180';
+import { ITEMS } from './data/items.js?v=1ce6e2458180';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=1ce6e2458180';
 
 export const GEAR_USE_PREFIX = 'gear:';
 

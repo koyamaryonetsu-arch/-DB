@@ -13,7 +13,7 @@
 // ・ボスの 品（src: 'pastboss'）: ボスが かならず 1人 1つの アクセサリー（レア度 3）と、いちばん めずらしい 色（レア度 5）の 武器
 // ・時をこえる手紙の ごほうび（src: 'letter7'「時をこえる手紙でしか手に入らない」。第1幕と おなじ）: レア度 4・かけ算 1.64 ＋ 素材
 // ・水に 強い 装備は 作らない（第47回の 4つだけの きまり。test/water-r47.test.js）
-import { C7_SHOP_TOOLS } from './items-c7.js?v=e32f6eb85bad';
+import { C7_SHOP_TOOLS } from './items-c7.js?v=1ce6e2458180';
 
 // 強さの めやす（items-c7.js と おなじ。ランク 0〜10）
 const SWORD = [0, 6, 12, 20, 30, 40, 50, 61, 72, 85, 100];

@@ -11,8 +11,8 @@
 // 33. 小さなオアシスの、いばりんぼうおだいかん（将軍の 系統。コガネ地方の 小さなオアシス）
 // 34. 東の平原の、小さな剣術道場（ひ村ばっ刀さいの 系統。ミドリナ地方の 東の平原）
 // 35. 炎の山のふもとの、お湯が出ない土管（ももの姫の 系統。シロガネ地方の 炎の山のふもと）
-import { npc } from './npc.js?v=e32f6eb85bad';
-import { openSpot } from './labyrinth.js?v=e32f6eb85bad';
+import { npc } from './npc.js?v=1ce6e2458180';
+import { openSpot } from './labyrinth.js?v=1ce6e2458180';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第4幕の「時の広間に 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 9-2）

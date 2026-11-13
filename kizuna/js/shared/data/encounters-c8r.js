@@ -5,7 +5,7 @@
 // 手下の 魔物 5しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、配合で 足りない ランクに 入れる（tools/gen-monster-ranks.mjs）
 //   めやす: 時のたましい … 30%いじょう（F）／時かげスカラベ … 12〜20%（E）／時くいガ … 12〜20%（D）／チクタクワニ … 6〜12%（C）／すなどけいの騎士 … 6〜12%（A）
 //   第8章の B〜S は 2わりまで（test/monsters-r43a.test.js）なので、第4幕の B〜S は すなどけいの騎士だけ
-import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_TRIAL_GUARD, C8_TRIAL_DUEL, C8_SOLITUS, C8_WIND, C8_PUFF, C8_SHADOW } from './monsters-c8r.js?v=e32f6eb85bad';
+import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_TRIAL_GUARD, C8_TRIAL_DUEL, C8_SOLITUS, C8_WIND, C8_PUFF, C8_SHADOW } from './monsters-c8r.js?v=1ce6e2458180';
 
 export const ENCOUNTERS_C8R = {
   t8r_wing: [

@@ -1,12 +1,14 @@
 // 装備の ふしぎな 力（第31回。data/items-r31.js の perk）
 //   expHat … しあわせのぼうし: 戦いの 経験値が 2倍（その 戦いの パーティーで いちばん レベルが 高い 人には 効かない）
 //   walkMp … こうふくのくつ: 10歩 歩くと MPが 1 回復（フィールドと ダンジョン。つけた 人ごとに 数える）
-import { ITEMS, baseItemId } from '../data/items.js?v=e32f6eb85bad';
-import { HAT_EXP_MULT, SHOE_STEPS, SHOE_MP } from '../data/items-r31.js?v=e32f6eb85bad';
-import { MAPS } from '../maps/index.js?v=e32f6eb85bad';
-import { computeStats } from '../stats.js?v=e32f6eb85bad';
-import { partyOf } from './party.js?v=e32f6eb85bad';
-import { wagonEntries, wagonHere } from './wagon.js?v=e32f6eb85bad';
+//   wipeQuarter・wipeTenth … 第81回 へそくりのさいふ・金庫番のお守り: 全滅で へる お金が 少なく なる（data/items-r81.js の wipeDiv）
+import { ITEMS, baseItemId } from '../data/items.js?v=1ce6e2458180';
+import { HAT_EXP_MULT, SHOE_STEPS, SHOE_MP } from '../data/items-r31.js?v=1ce6e2458180';
+import { WIPE_DIV } from '../data/items-r81.js?v=1ce6e2458180';
+import { MAPS } from '../maps/index.js?v=1ce6e2458180';
+import { computeStats } from '../stats.js?v=1ce6e2458180';
+import { partyOf } from './party.js?v=1ce6e2458180';
+import { wagonEntries, wagonHere } from './wagon.js?v=1ce6e2458180';
 
 // その 人が つけている 装備の 力（perk）が あるか
 export function hasPerk(ch, perk) {
@@ -89,4 +91,19 @@ export function walkSteps(world, s, n) {
 // テスト よう: 歩いた 数
 export function walkedSteps(ch) {
   return walked.get(ch) || 0;
+}
+
+// ───────────── 第81回: へそくりのさいふ・金庫番のお守り ─────────────
+// 全滅で へる お金の 割る数（ふだんは 2 ＝ 半分）と、効いた 品の ID。
+//   その 人が 本当に 装備している 物（ch.equip）だけを 見る（見た目装備 lookEquip は 見ない）。
+//   いくつ つけて いても 足さない（いちばん 少なく へる 1つだけ）。魔物の 仲間は お金を もたないので 見ない
+export function wipeGuard(ch) {
+  let div = WIPE_DIV, item = null;
+  const eq = ch?.species ? null : ch?.equip;
+  for (const id of Object.values(eq || {})) {
+    const it = id && ITEMS[baseItemId(id)];
+    const d = Number(it?.wipeDiv);
+    if (Number.isInteger(d) && d > div) { div = d; item = baseItemId(id); }
+  }
+  return { div, item };
 }

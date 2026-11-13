@@ -8,26 +8,26 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=e32f6eb85bad';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=e32f6eb85bad';
-import { ORN } from '../maps/ch6c-side.js?v=e32f6eb85bad';
-import { RS } from './sidequests-ch6d.js?v=e32f6eb85bad';
-import { C7, LETTER } from '../maps/c7-flags.js?v=e32f6eb85bad';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=e32f6eb85bad';
-import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=e32f6eb85bad';
+import { C6 } from '../maps/past.js?v=1ce6e2458180';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=1ce6e2458180';
+import { ORN } from '../maps/ch6c-side.js?v=1ce6e2458180';
+import { RS } from './sidequests-ch6d.js?v=1ce6e2458180';
+import { C7, LETTER } from '../maps/c7-flags.js?v=1ce6e2458180';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=1ce6e2458180';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=1ce6e2458180';
 // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国）
-import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=e32f6eb85bad';
-import { C8, LETTER8 } from '../maps/c8a-flags.js?v=e32f6eb85bad';
+import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=1ce6e2458180';
+import { C8, LETTER8 } from '../maps/c8a-flags.js?v=1ce6e2458180';
 // 第74回 D班: 第8章 第2幕の より道（千年前の クモイの 海）
-import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=e32f6eb85bad';
-import { C8B, LETTER8B } from '../maps/c8b-flags.js?v=e32f6eb85bad';
+import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=1ce6e2458180';
+import { C8B, LETTER8B } from '../maps/c8b-flags.js?v=1ce6e2458180';
 // 第75回 D班: 第8章 第3幕の より道（千年前の ミドリナ）
-import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js?v=e32f6eb85bad';
-import { C8C, LETTER8C } from '../maps/c8c-flags.js?v=e32f6eb85bad';
+import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js?v=1ce6e2458180';
+import { C8C, LETTER8C } from '../maps/c8c-flags.js?v=1ce6e2458180';
 // 第80回 D班: 第8章 第4幕の より道（今の ホシフル村）
-import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js?v=e32f6eb85bad';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=e32f6eb85bad';
-import { jobLine } from './fq-common.js?v=e32f6eb85bad';
+import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js?v=1ce6e2458180';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=1ce6e2458180';
+import { jobLine } from './fq-common.js?v=1ce6e2458180';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 

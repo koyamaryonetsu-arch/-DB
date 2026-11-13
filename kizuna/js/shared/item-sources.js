@@ -3,13 +3,13 @@
 //     ダンジョンでしか 出ない ときは ダンジョンの 名前。図鑑で 見た 魔物は 名前、まだの 魔物は ？？？（場所は 出す）
 //   ・店で 売っている（data/shops.js）・宝箱（マップの chests）は そのまま 場所
 //   データから 自動で 作る（魔物や マップが ふえても 書きたさなくて よい）
-import { ITEMS } from './data/items.js?v=e32f6eb85bad';
-import { MONSTERS } from './data/monsters.js?v=e32f6eb85bad';
-import { MAT_DROPS, DROP_N } from './data/loot.js?v=e32f6eb85bad';
-import { ENCOUNTER_TABLES } from './data/encounters.js?v=e32f6eb85bad';
-import { NIGHT_ZONES } from './data/night.js?v=e32f6eb85bad';
-import { SHOPS } from './data/shops.js?v=e32f6eb85bad';
-import { MAPS } from './maps/index.js?v=e32f6eb85bad';
+import { ITEMS } from './data/items.js?v=1ce6e2458180';
+import { MONSTERS } from './data/monsters.js?v=1ce6e2458180';
+import { MAT_DROPS, DROP_N } from './data/loot.js?v=1ce6e2458180';
+import { ENCOUNTER_TABLES } from './data/encounters.js?v=1ce6e2458180';
+import { NIGHT_ZONES } from './data/night.js?v=1ce6e2458180';
+import { SHOPS } from './data/shops.js?v=1ce6e2458180';
+import { MAPS } from './maps/index.js?v=1ce6e2458180';
 
 let cache = null;
 
@@ -89,7 +89,8 @@ function build() {
   for (const [sp, [id, n]] of Object.entries(MAT_DROPS)) addDrop(id, sp, n || DROP_N.mat, 'mat');
   // 店・宝箱
   const shops = new Map();
-  for (const sh of Object.values(SHOPS)) for (const id of sh.items || []) {
+  // 物語で ふえる 品ぞろえ（more）も 店の 品（第81回: へそくりのさいふ・金庫番のお守りは more で 足す）
+  for (const sh of Object.values(SHOPS)) for (const id of [...(sh.items || []), ...(sh.more || []).flatMap((m) => m.items || [])]) {
     if (!shops.has(id)) shops.set(id, []);
     if (!shops.get(id).includes(sh.name)) shops.get(id).push(sh.name);
   }

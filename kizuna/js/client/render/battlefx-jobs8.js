@@ -19,7 +19,7 @@
 // ・三日月（j7moon）・光の すじ（j7shaft）・光線（j7beam）・バラ（j7rose）は battlefx-jobs7.js の つぶを つかう
 
 // 第72回: 竜の紋章の かたち（crest-shapes.js。まん中の ひし形・そり上がる つの・左右の つばさ・下の かぎ）
-import { drawDragonCrest, crestSimple } from './crest-shapes.js?v=e32f6eb85bad';
+import { drawDragonCrest, crestSimple } from './crest-shapes.js?v=1ce6e2458180';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);

@@ -11,11 +11,11 @@
 import {
   TEMPLE_LEVERS, WATER_FLAGS, waterLevel, waterFlagsFor, MIRROR_FLAG, KNIGHTS_FLAG, UTSUSHIMI_FLAG, SPRING_FLAG, GUARDS_FLAG,
   MORGANA_FLAG, STAR_FLAG, CLEAR4_FLAG, TEMPLE_FLAG, DOME_POS, B1_POS, B2_POS, B3_POS, HALL_POS,
-} from '../maps/temple.js?v=e32f6eb85bad';
-import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js?v=e32f6eb85bad';
-import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js?v=e32f6eb85bad';
-import { NPC_SUPPORTS } from './shops.js?v=e32f6eb85bad';
-import { CH4_GUESTS } from './items-ch4.js?v=e32f6eb85bad';
+} from '../maps/temple.js?v=1ce6e2458180';
+import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js?v=1ce6e2458180';
+import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js?v=1ce6e2458180';
+import { NPC_SUPPORTS } from './shops.js?v=1ce6e2458180';
+import { CH4_GUESTS } from './items-ch4.js?v=1ce6e2458180';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
