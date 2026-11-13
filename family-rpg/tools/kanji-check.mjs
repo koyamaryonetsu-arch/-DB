@@ -207,7 +207,7 @@ export function gameFiles() {
     // チャットの スタンプを 変える（第50回 N7）
     'public/js/shared/data/stamps.js', 'public/js/client/ui/stamps.js',
     // 第77回: 音楽の エンジン・音楽を聞く
-    'public/js/client/audio.js', 'public/js/client/audio-names.js', 'public/js/client/audio-r77a.js', 'public/js/client/audio-r77b.js', 'public/js/client/ui/soundtest.js', 'public/js/client/audio-scene.js',
+    'public/js/client/audio.js', 'public/js/client/audio-names.js', 'public/js/client/audio-r77a.js', 'public/js/client/audio-r77b.js', 'public/js/client/audio-c8r.js', 'public/js/client/ui/soundtest.js', 'public/js/client/audio-scene.js',
     'public/js/client/music-engine.js', 'public/js/client/music-inst.js', 'public/js/client/music-amb.js',
     // ポケモンの 魔物・進化（第44回 ポケモン P1）
     'public/js/shared/data/monsters-pokemon.js', 'public/js/shared/data/companions-pokemon.js', 'public/js/shared/data/abilities-pokemon.js',
@@ -365,6 +365,8 @@ export function gameFiles() {
     'public/js/shared/menu-view.js',
     // 第35回 B: かくし要素の ヒント（町の 人・本だな・宝箱の メモ・仲間の「はなす」）
     'public/js/shared/data/secret-hints.js',
+    // 第80回 E班: ボスに 負けた 時の ヒント・もう一度いどむ
+    'public/js/shared/data/boss-hints.js', 'public/js/shared/world/boss-hints.js',
     // 第5章 Step 5（B: 戦い・品）: 星読みの里の まわりと 思い出の迷宮の 魔物・ノクトの影（職業の まね・きずなくだき）・里の 店・迷宮の 宝箱・影の王
     'public/js/shared/data/monsters-hoshiyomi.js', 'public/js/shared/data/abilities-hoshiyomi.js', 'public/js/shared/data/items-hoshiyomi.js',
     'public/js/shared/data/encounters-hoshiyomi.js', 'public/js/shared/data/companions-hoshiyomi.js', 'public/js/shared/battle-nocto.js', 'public/js/client/battle-nocto.js',
@@ -408,6 +410,9 @@ export function gameFiles() {
     // 第2部 第8章 第3幕（B: 戦い・品）: 手下の 魔物・マジカメック・初代大魔王クッパード・くろがねの 空中ようさいの 宝箱・時をこえる手紙の ごほうび
     'public/js/shared/data/monsters-c8c.js', 'public/js/shared/data/abilities-c8c.js', 'public/js/shared/data/items-c8c.js', 'public/js/shared/data/encounters-c8c.js',
     'public/js/shared/data/companions-c8c.js', 'public/js/shared/battle-c8c.js', 'public/js/client/battle-c8c.js',
+    // 第2部 第8章 第4幕（B: 戦い・品）: 手下の 魔物・時の門番フリーゾン・心の ためし・ソリトゥスの 本当の すがた・時のはざまの 宝箱・負けた 時の ヒントの 文
+    'public/js/shared/data/monsters-c8r.js', 'public/js/shared/data/abilities-c8r.js', 'public/js/shared/data/items-c8r.js', 'public/js/shared/data/encounters-c8r.js',
+    'public/js/shared/data/companions-c8r.js', 'public/js/shared/data/boss-hints-c8r.js', 'public/js/shared/battle-c8r.js', 'public/js/client/battle-c8r.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
@@ -450,7 +455,7 @@ export function gameFiles() {
     'public/js/shared/maps/c8c-field.js', 'public/js/shared/maps/c8c-fort.js', 'public/js/shared/maps/c8c-fort-rows.js', 'public/js/shared/maps/c8c-flags.js',
     'public/js/client/render/c8c-npc-art.js', 'public/js/client/render/tiles-c8c.js',
     // 第2部 第8章 第4幕（A: 世界と物語）: 時の広間・4つの つばさと 心の ためし・時の門番・最後の 回廊・さいごの 場所・エンディング
-    'public/js/shared/data/story-c8r.js', 'public/js/shared/data/c8r-stub.js',
+    'public/js/shared/data/story-c8r.js',
     'public/js/shared/maps/c8r.js', 'public/js/shared/maps/c8r-hall.js', 'public/js/shared/maps/c8r-wings.js', 'public/js/shared/maps/c8r-floor.js',
     'public/js/shared/maps/c8r-rows.js', 'public/js/shared/maps/c8r-flags.js', 'public/js/shared/maps/c8r-field.js', 'public/js/shared/world/c8r-steps.js',
     'public/js/client/render/c8r-npc-art.js', 'public/js/client/render/tiles-c8r.js',
@@ -474,6 +479,9 @@ export function gameFiles() {
     // 第75回 D班: お仕事いらい 30〜32・千年前の ミドリナの より道 2つ
     'public/js/shared/data/sidequests-work6.js', 'public/js/shared/maps/work-quests6.js', 'public/js/client/render/work6-art.js',
     'public/js/shared/data/sidequests-c8cd.js', 'public/js/shared/maps/c8cd-side.js',
+    // 第80回 D班: お仕事いらい 33〜35・より道「時をこえる手紙の、最後の1通」
+    'public/js/shared/data/sidequests-work7.js', 'public/js/shared/maps/work-quests7.js', 'public/js/client/render/work7-art.js',
+    'public/js/shared/data/sidequests-c8rd.js', 'public/js/shared/maps/c8rd-side.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板

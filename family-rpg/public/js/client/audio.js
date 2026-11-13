@@ -20,6 +20,7 @@ import { C8C_TRACKS } from './audio-c8c.js';
 // 第77回 B: 作りなおした 曲（下で 前の 曲の 上に かぶせる）
 import { R77A_TRACKS } from './audio-r77a.js';
 import { R77B_TRACKS } from './audio-r77b.js';
+import { C8R_TRACKS } from './audio-c8r.js';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
 import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js';
@@ -877,6 +878,8 @@ Object.assign(TRACKS, C8B_TRACKS);
 Object.assign(TRACKS, C8C_TRACKS);
 // 第77回 B: 作りなおした 曲を 前の 曲の 上に かぶせる（ぜんぶの 曲を まぜた あと。past_field・c7_temple なども 前の データが legacy に のこる）
 overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
+// 第80回 F: 第8章 第4幕「時のはざま」の 曲（audio-c8r.js。新しい id だけ。前の音 では 自分の 楽譜を 前の 書き方に うつした ch）
+overlayTracks(TRACKS, C8R_TRACKS);
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

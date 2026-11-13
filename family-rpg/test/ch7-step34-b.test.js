@@ -43,6 +43,7 @@ import { TRAP_LABEL } from '../public/js/client/battle-earth.js';
 import { firstSentence } from '../public/js/client/ui/skillinfo.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { ITEMS_C8C } from '../public/js/shared/data/items-c8c.js';
+import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 
 // ねらった 系統と ランク（docs/plan-r53-breed-more.md の 1 の 足りない 所。第7章 第1幕の あとで 2しゅ いか）
 const WANT = { pukupuku: ['dragon', 'F'], karon: ['undead', 'E'], jugemu: ['spirit', 'D'], fish_pirate: ['dragon', 'C'], pirate_parrot: ['demon', 'A'] };
@@ -442,8 +443,8 @@ test('ボスの 品・時をこえる手紙の ごほうび・島の 店', () =>
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c7l_hook_charm') > sum('c7r_anchor_charm') && sum('c7r_anchor_charm') > sum('c7t_witch_charm'));
-  // 第8章 第3幕の 品（ITEMS_C8C。くろがねの大オノ）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id]).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  // 第8章 第3幕の 品（ITEMS_C8C。くろがねの大オノ）は のぞく。第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。赤い竜の大オノ）も のぞく
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('axe'), 'c7r_anchor_axe');
   assert.equal(top('claw'), 'c7l_gold_hook');
   for (const list of Object.values(C7S_LETTER_REWARDS)) {

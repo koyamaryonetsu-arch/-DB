@@ -20,7 +20,8 @@ function storyHtml(st) {
   const title = storyTitle(st);
   const clear = st.cleared ? '<span class="sh-st-clear">クリア！</span>' : '';
   const obj = st.objective ? `<div class="sh-st-obj">${NL(st.objective)}</div>` : '';
-  return `<div class="sh-st-label">${esc(st.label)}${clear}</div>${title ? `<div class="sh-st-title">${esc(title)}</div>` : ''}${obj}${whereHtml(st.where)}`;
+  const hint = st.bossHints?.length ? '<div class="sh-where">ボスのヒントがあるよ（選ぶと見られる）</div>' : '';
+  return `<div class="sh-st-label">${esc(st.label)}${clear}</div>${title ? `<div class="sh-st-title">${esc(title)}</div>` : ''}${obj}${whereHtml(st.where)}${hint}`;
 }
 
 function recHtml(r) {
@@ -134,6 +135,8 @@ export function openShiori(menu) {
         if (st.objective) top.append(el('div', { class: 'sh-note', text: `つぎの目標：${st.objective}` }));
         if (st.where) top.append(el('div', { class: 'sh-where', text: `場所：${st.where}` }));
         if (st.hint) top.append(el('div', { class: 'sh-hint', text: `仲間のひとこと：${st.hint}` }));
+        // 第80回 E班: ボスに 負けた 時に 出た ヒント（勝つと 消える）
+        for (const b of st.bossHints || []) b.hints.forEach((h, i) => top.append(el('div', { class: 'sh-hint', text: `ボスのヒント${i + 1}：${h}` })));
         if (st.end) top.append(el('div', { class: 'sh-note', text: '物語の続きは、アップデートを待とう。それまでは、より道やいらいを楽しもう！' }));
       } else {
         const t = data.tracks.find((x) => x.id === go);

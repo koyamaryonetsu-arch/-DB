@@ -66,6 +66,7 @@ import { tickMonLive } from './monarena-live.js';
 import { missionMessage, missionChest, missionFloor, chatName } from './missions.js';
 // 第8章 第4幕「時のはざま」: 青い 火が 歩くと 消える（world/c8r-steps.js）
 import { stepC8r } from './c8r-steps.js';
+import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -1128,6 +1129,8 @@ export class GameWorld {
         s.evoCheck = false;
         checkEvolve(this, s);
       }
+      // 第80回 E班: ボスに 負けた あと（いのりの場所で 目を 覚まして、けっかを 読みおわった あと）に ヒント（world/boss-hints.js）
+      if (s.bossHint && !s.busy && !s.away && !(s.reading && s.invuln > 0)) bossHintCheck(this, s);
       // 夜か（パーティーの 時計。夜の まものが 見える）
       s.night = isNightFor(this, s);
       // さそわれて 来ていた 人が ひとりに なった → 自分の 冒険の 場所へ

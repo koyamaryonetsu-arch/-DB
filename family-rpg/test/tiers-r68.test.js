@@ -36,7 +36,7 @@ const sum = (id) => Object.values(ITEMS[id].bonus || {}).reduce((a, v) => a + v,
 // ───────────── 宝の地図 ─────────────
 // 第74回 C: 上限 40 → 45（Lv41 から 第8章の 魔物・主の 倍率の 合わせ直し・だん14。test/tiers-r74.test.js）。ここは Lv40 までの きまりを 見る
 test('宝の地図: 上限 Lv40（洞窟の 魔物は Lv89 から・主は Lv93.5 まで）。ID・セーブ・洞窟が Lv40 まで つかえる', () => {
-  assert.equal(TM_LV_MAX, 45);
+  assert.equal(TM_LV_MAX, 50); // 第80回 C: 45 → 50
   assert.equal(TM_C7_FROM, 36);
   assert.equal(enemyLvOf(40, 1), 89);
   const deepest = (L) => [...Array(4000).keys()].find((x) => caveInfo(x, L).floors === 6);

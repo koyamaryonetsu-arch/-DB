@@ -25,6 +25,8 @@ import { c8bdSubQuests, c8bdDoneQuests, applyC8bdSide } from './sidequests-c8bd.
 import { c8bSubQuests, c8bDoneQuests } from './sidequests-c8b.js';
 // 第75回 D班: 第8章 第3幕の 千年前の ミドリナの より道 2つ（sidequests-c8cd.js）も ここから クエストの 画面と だいほんへ
 import { c8cdSubQuests, c8cdDoneQuests, applyC8cdSide } from './sidequests-c8cd.js';
+// 第80回 D班: 第8章 第4幕の より道「時をこえる手紙の、さいごの1通」（sidequests-c8rd.js。今の ホシフル村）も ここから
+import { c8rdSubQuests, c8rdDoneQuests, applyC8rdSide } from './sidequests-c8rd.js';
 // 第8章 第3幕の 時をこえる手紙（千年前の ミドリナ地方。sidequests-c8c.js）も ここから
 import { c8cSubQuests, c8cDoneQuests } from './sidequests-c8c.js';
 
@@ -135,6 +137,7 @@ export function c7SubQuests(c, f) {
   out.push(...c8bdSubQuests(c, f));
   out.push(...c8bSubQuests(c, f));
   out.push(...c8cdSubQuests(c, f));
+  out.push(...c8rdSubQuests(c, f));
   out.push(...c8cSubQuests(c, f));
   for (const k of LETTER_SIDE) {
     if (!f(LETTER.start(k)) || f(LETTER.found(k))) continue;
@@ -144,7 +147,7 @@ export function c7SubQuests(c, f) {
   return out;
 }
 export function c7DoneQuests(c) {
-  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c), ...c8dDoneQuests(c), ...c8aDoneQuests(c), ...c8bdDoneQuests(c), ...c8bDoneQuests(c), ...c8cdDoneQuests(c), ...c8cDoneQuests(c)];
+  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c), ...c8dDoneQuests(c), ...c8aDoneQuests(c), ...c8bdDoneQuests(c), ...c8bDoneQuests(c), ...c8cdDoneQuests(c), ...c8cDoneQuests(c), ...c8rdDoneQuests(c)];
 }
 
 // ───── だいほんを まぜる（story-c7.js の applyCh7 から）─────
@@ -163,4 +166,5 @@ export function applyC7Side(SCRIPTS) {
   applyC8dSide(SCRIPTS);
   applyC8bdSide(SCRIPTS);
   applyC8cdSide(SCRIPTS);
+  applyC8rdSide(SCRIPTS);
 }

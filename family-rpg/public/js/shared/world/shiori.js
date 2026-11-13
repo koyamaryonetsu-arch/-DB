@@ -13,7 +13,7 @@ import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subq
 import { jobLine } from '../data/fq-common.js';
 import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js';
 import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js';
-import { TM_LV_MAX, tmTitle } from '../data/treasure.js';
+import { tmLvCap, tmTitle } from '../data/treasure.js';
 import { tmPlaceShort } from '../data/treasure-hint.js';
 import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js';
 import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js';
@@ -28,6 +28,8 @@ import { LB_MAX } from '../data/items-forge.js';
 import { ITEMS } from '../data/items.js';
 import { MAPS, condOk } from '../maps/index.js';
 import { jobLabel } from '../job-label.js';
+// 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
+import { bossHintsSeen } from '../data/boss-hints.js';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -171,6 +173,7 @@ function monArenaTrack(c) {
 }
 
 // 宝の地図（ふかさ ＝ 持っている 地図の いちばん 高い レベル）とカジノの 段
+//   第80回 C: 分母は 今 手に入る 地図の 上限（第8章クリアで 45 → 50。data/treasure.js の tmLvCap）
 function tmapTrack(c) {
   const maps = Array.isArray(c?.treasureMaps) ? c.treasureMaps.filter((t) => t && Number.isFinite(t.lv)) : [];
   const clears = tmClearCount(c);
@@ -181,7 +184,7 @@ function tmapTrack(c) {
   const items = left.map((t) => ({ name: tmTitle(t), where: tmPlaceShort(t), state: t.found ? 'now' : 'open', right: t.found ? '洞窟が開いた' : 'まだほっていない' }));
   const casino = tier.tier >= TIER_MAX ? `カジノの段：${tier.name}（いちばん上）` : `カジノの段：${tier.name}（つぎの段まで、あと${tier.left}まい）`;
   return {
-    id: 'tmap', name: '宝の地図', now: best, total: TM_LV_MAX, unit: 'Lv', where: '地図の場所で地面を調べる',
+    id: 'tmap', name: '宝の地図', now: best, total: tmLvCap(c), unit: 'Lv', where: '地図の場所で地面を調べる',
     note: `宝をほった地図：${clears}まい\n${casino}`, items,
   };
 }
@@ -416,7 +419,7 @@ export function shioriRecs(c, tracks = shioriTracks(c)) {
 export function shioriOf(c, ctx = {}) {
   const ch = c || {};
   const tracks = shioriTracks(ch, ctx);
-  return { story: { ...storyPlace(ch), ...storyNext(ch) }, tracks, recs: shioriRecs(ch, tracks) };
+  return { story: { ...storyPlace(ch), ...storyNext(ch), bossHints: bossHintsSeen(ch) }, tracks, recs: shioriRecs(ch, tracks) };
 }
 
 // 1行の 数（「12/32」）。total が ない ときは now だけ

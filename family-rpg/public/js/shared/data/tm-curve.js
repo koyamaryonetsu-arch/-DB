@@ -13,11 +13,14 @@ const MAX_LV = 150;
 //   シミュレーターで 合わせた 宝の洞窟の 主（TM_BOSS_POW）や モンスター闘技場の 強さが ずれない ように
 //   （第68回に 合わせた 主は、第7章 第3幕・第8章 第1幕の 魔物が ふえて Lv40 で 85% → 44% に なっていた）
 export const CURVE_LV_MAX = 83;
+// 第80回 C: 第8章 第2幕の Lv83 の 魔物（ケロベロス・ホネギョ）も 入れない（Lv83 の まん中が かわって、第74回に 合わせた
+//   主が Lv38〜45 で 1わり くらい 弱く〈勝ちやすく ではなく 負けやすく〉なっていた。Lv38 86% → 73%・Lv45 87% → 69%）
+export const CURVE_SKIP = new Set(['kerberos', 'bone_fish']);
 let table = null;
 
 // めやすに 使う 魔物（ボス・宝の洞窟の 主・メタルの ような とくべつな 魔物は 入れない）
 function usable(id, m) {
-  return m && m.lv > 0 && m.lv <= CURVE_LV_MAX && m.hp > 0 && !m.boss && !m.tmBoss && !m.rare && !/metal/.test(id) && !id.startsWith('tm_');
+  return m && m.lv > 0 && m.lv <= CURVE_LV_MAX && !CURVE_SKIP.has(id) && m.hp > 0 && !m.boss && !m.tmBoss && !m.rare && !/metal/.test(id) && !id.startsWith('tm_');
 }
 const median = (a) => {
   const s = a.slice().sort((x, y) => x - y);

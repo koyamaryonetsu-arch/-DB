@@ -36,6 +36,8 @@ import { addFeats, phantomAfterBattle } from './phantom.js';
 import { tokiPhantomAfter } from './tokei-phantom.js';
 // 第78回 3-10: 家族ミッション（人間の キャラが 2人 いじょうの 戦いだけ 数える。world/missions.js）
 import { missionBattle, missionFriend } from './missions.js';
+// 第80回 E班: ボスに 負けた 時の ヒント（負けた 回数・勝ったら 消す。world/boss-hints.js）
+import { bossHintAfter } from './boss-hints.js';
 
 let battleSeq = 1;
 
@@ -187,6 +189,10 @@ function makeBattle(world, sessions, party, enemies, opts) {
     hooks: {
       // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
       leaderFlag: (id) => !!leader?.char?.flags?.[id],
+      // 第2部 第8章 第4幕: ソリトゥスの 段ごとの 記録（しるし c8s_p2・c8s_p3。いっしょに 戦った 人 みんなに。次は その 段から。battle-c8r.js）
+      markFlag: (id) => {
+        for (const m of sessions) if (m.char) m.char.flags = { ...(m.char.flags || {}), [id]: true };
+      },
       // 第6章 Step 3・4: 昼か 夜か（星座の 魔物は 夜だけ 強い／昼だけ 強い。battle-road.js）
       night: () => isNightFor(world, leader),
       hasItem: (actor, id) => {
@@ -602,6 +608,8 @@ function finishBattle(world, ctx) {
   }
   // 第53回 B: 時のまぼろし（止まった時の間）に 勝った: 1日1回の 素材・はじめての 勝ちは けいじ板へ（world/tokei-phantom.js）
   tokiPhantomAfter(world, ctx, sessions, perSession, outcome);
+  // 第80回 E班: ボスに 負けた 時の ヒント（world/boss-hints.js）
+  bossHintAfter(world, ctx, sessions, outcome);
 
   // シンボル
   if (ctx.opts.symbolId) {

@@ -7,7 +7,9 @@
 // Step 8: 大とびらの おくの 最後の 回廊（c8_corridor。3階）→ さいごの 場所（ソリトゥスの 本当の すがたが 目を さます・第1部の 仲間が かけつける c8_gather）
 //   → ソリトゥス（きまった 戦い c8_solitus。3だん。B）→ ふういんと 千年の約束 → 今の ほしみの丘（4人の 勇者の 像・トキネは 砂時計の 中へ）→ 第2部 完（c8_solitus）
 // 魔物・きまった 戦い・品・ゲストの 強さ・戦いの 中の えんしゅつは B（plan-ch8.md の 9-2）
-import './c8r-stub.js';
+// 負けた 時の ヒント（B の 文・E の しくみ）。もう一度 いどむ 行き先は 台本の マス
+import { C8R_BOSS_HINTS } from './boss-hints-c8r.js';
+import { mergeBossHints } from './boss-hints.js';
 import { C8C } from '../maps/c8c-flags.js';
 import {
   C8R, WINGS, WING_MARK, WING_NAME, HERO_GUEST, wingCount, ARRIVE8R, GATE_DUE8R, WIN_GATE8R, CORE8R, WIN_SOL8R, SEAL8R, TRIAL_SEEN8R, FLOOR_SEEN8R,
@@ -60,7 +62,7 @@ export const C8R_OBJ = {
 };
 
 // パーティー全員で 見る イベント（ためし・しかけ・浅せは ひとりでも〈家族が 分かれて 同時に〉できる ように 入れない）
-export const CH8R_STORY_SCRIPTS = ['c8r_hall_arrive', 'c8r_gate_event', 'c8r_gate_after', 'c8r_core_in', 'c8r_final_event', 'c8r_final_after'];
+export const CH8R_STORY_SCRIPTS = ['c8r_hall_arrive', 'c8r_gate_event', 'c8r_gate_final', 'c8r_gate_after', 'c8r_core_in', 'c8r_final_event', 'c8r_final_after'];
 
 // ───────────── 今の ほしみの丘の トキネ（c8_rift）─────────────
 function tokineCh8r() {
@@ -675,7 +677,7 @@ function finalEvent(x) {
       ['bgm', null],
       ...S('トキネの声', '（みんなが、時のはざまを、ささえてくれているわ。\nもう一度、立ち向かいましょう！）'),
       ...S('リオン', 'みんな…行こう！'),
-      ['bgm', 'solitus'],
+      ['bgm', 'c8r_solitus'],
       ['battle', 'c8_solitus'],
       ['bgm', null],
       ['flag', WIN_SOL8R], ['sync'],
@@ -721,7 +723,7 @@ function finalEvent(x) {
     ...S('リオン', 'みんな…行こう！'),
     ...FRIENDS.map(([id]) => ['remove', id]), ['remove', 'astel_e'],
     ['look'],
-    ['bgm', 'solitus'],
+    ['bgm', 'c8r_solitus'],
     ['battle', 'c8_solitus'],
     ['bgm', null],
     ['flag', WIN_SOL8R], ['sync'],
@@ -849,6 +851,8 @@ export const CH8R_SCRIPTS = {
   c8r_rift_enter: (x) => (x.flag(C8R.rift) ? riftEnterSteps() : []),
   c8r_hall_arrive: (x) => (x.flag(C8R.hall) || !x.flag(C8R.rift) ? [] : hallArrive()),
   c8r_gate_event: (x) => gateEvent(x),
+  // 4つの あと: 大とびらの 前の 小べやの 手前（負けた 時の「もう一度いどむ」の 行き先）
+  c8r_gate_final: (x) => (x.flag(C8R.wings4) && !x.flag(C8R.gatekeeper) ? gateEvent(x) : []),
   c8r_gate_after: (x) => (x.flag(WIN_GATE8R) && !x.flag(C8R.gatekeeper) ? gateAfter() : []),
   c8r_font: () => fontSteps(),
   c8r_ford: () => fordSteps(),
@@ -977,3 +981,9 @@ export function applyCh8r(SCRIPTS, STORY_SCRIPTS) {
     return base(x);
   });
 }
+
+// ───── 負けた 時の ヒント（E班の しくみに B班の 文を つなぐ。もう一度 いどむ 時は その 台本の マスの 手前へ）─────
+mergeBossHints(C8R_BOSS_HINTS, {
+  retry: { c8_gatekeeper: 'c8r_gate_final', c8_trial_guard: 'c8r_trial_moon', c8_trial_duel: 'c8r_trial_ice', c8_solitus: 'c8r_final_event' },
+  who: { c8_gatekeeper: 'リオン', c8_trial_guard: 'カリム', c8_trial_duel: 'リオン', c8_solitus: 'トキネ' },
+});

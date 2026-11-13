@@ -37,7 +37,7 @@ const speciesOf = (zone) => [...new Set(ENCOUNTER_TABLES[zone].flatMap((e) => e.
 // 第68回 C: 上限 35 → 40・Lv36 から 第7章の 魔物・だん13（test/tiers-r68.test.js）。ここは Lv35 までの きまりを 見る
 // 第74回 C: 上限 40 → 45・Lv41 から 第8章の 魔物・だん14（test/tiers-r74.test.js）
 test('宝の地図: 上限 Lv35（洞窟の 魔物は Lv79 から）。セーブ・ID・洞窟が Lv35 まで つかえる', () => {
-  assert.equal(TM_LV_MAX, 45);
+  assert.equal(TM_LV_MAX, 50); // 第80回 C: 45 → 50
   assert.equal(TM_DEEP_FROM, 26);
   assert.ok(enemyLvOf(35, 1) >= 79);
   const tm = { seed: 123456, lv: 35, map: 'overworld', x: 40, y: 40 };
@@ -61,7 +61,7 @@ test('拾う 地図の レベル: 第7章の 強い 魔物から Lv30 より 上
   const ch7 = at(72);
   assert.ok(Math.min(...ch7) >= 30 && Math.max(...ch7) <= 33, `第7章 第1幕 Lv72: ${Math.min(...ch7)}〜${Math.max(...ch7)}`);
   assert.ok(at(76).some((x) => x >= 34), '第7章 第2幕 Lv76 から Lv34 も');
-  assert.ok(Math.max(...at(99)) === TM_LV_MAX && Math.min(...at(99)) === TM_LV_MAX);
+  assert.ok(Math.max(...at(120)) === TM_LV_MAX && Math.min(...at(120)) === TM_LV_MAX); // 第80回 C: 上限 50 なので Lv120
   // 主を たおした あとの 地図も 上限まで
   const next = Array.from({ length: 200 }, () => nextMapLevel(rng, TM_LV_MAX - 1));
   assert.ok(next.includes(TM_LV_MAX) && Math.max(...next) === TM_LV_MAX);
@@ -127,11 +127,11 @@ test('宝箱の 装備: Lv26 から ランク10の ★5（3だん）。強さは
   assert.deepEqual([25, 26, 29, 30, 32, 33, 35].map(tmGearStep), [8, 10, 10, 11, 11, 12, 12]);
   assert.ok(equipRankOf(35) <= 9, '店の 装備は ランク9まで');
   const deep = rareIds('tm').filter((id) => ITEMS[id].tmStep);
-  assert.equal(deep.length, 30); // 第68回 C: だん13・第74回 C: だん14
+  assert.equal(deep.length, 36); // 第68回 C: だん13・第74回 C: だん14・第80回 C: だん15
   for (const id of deep) {
     const it = ITEMS[id];
     assert.equal(it.rank, 10, id);
-    assert.ok([10, 11, 12, 13, 14].includes(it.tmStep), id);
+    assert.ok([10, 11, 12, 13, 14, 15].includes(it.tmStep), id);
     assert.equal(starsOf(id), 5, `${id} ★5`);
     assert.ok(it.rarity === 3 || it.rarity === 4, `${id}: レア度 3〜4（5 は ひみつのダンジョンだけ）`);
     assert.equal(rareWhereText(id), '宝の洞窟でしか手に入らない');
@@ -200,7 +200,7 @@ test('宝箱の レア装備の 出やすさは Lv25 の まま（第64回 ⑥d 
 
 // ───────────── 闘技場 ─────────────
 test('闘技場: 伝説の部 ランク9（第6章クリア・Lv66）と ランク10（第7章 第1幕の あと・Lv74）', () => {
-  assert.equal(ARENA_MAX_RANK, 12); // 第74回 C: ランク12
+  assert.equal(ARENA_MAX_RANK, 13); // 第74回 C: ランク12・第80回 C: ランク13
   assert.equal(ARENA_LEGEND_RANK, 8);
   assert.equal(rankInfo(ARENA_LEGEND_RANK).champ, '伝説のチャンピオン');
   const r9 = rankInfo(9), r10 = rankInfo(10);

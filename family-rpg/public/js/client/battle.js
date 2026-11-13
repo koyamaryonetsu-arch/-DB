@@ -85,6 +85,8 @@ import { noctoSprite, NOCTO_SFX } from './battle-nocto.js';
 import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（音・コマンド「よびかける」「家族のきずな技」。battle-final.js）
 import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js';
+// 第2部 第8章 第4幕: よびかける・千年の約束・おうえん（battle-c8r.js）
+import { c8rCmdItems, c8rCmdPick, C8R_SFX } from './battle-c8r.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -255,6 +257,7 @@ const ANIM_SFX = {
   ...C8A_SFX,
   ...C8B_SFX,
   ...C8C_SFX,
+  ...C8R_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -627,6 +630,9 @@ export class BattleScene {
     // ひとりの 仲間が いる 時の「よびかける」・ソリトゥスの 第3段階の「家族のきずな技」（いちばん 上。battle-final.js）
     const fin = finalCmdItems(this, a);
     if (fin.items.length) items.unshift(...fin.items);
+    // 第2部 第8章 第4幕: ソリトゥスに「よびかける」・「千年の約束」・一騎うちの「おうえん」（いちばん 上。battle-c8r.js）
+    const c8r = c8rCmdItems(this, a);
+    if (c8r.items.length) items.unshift(...c8r.items);
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': {
@@ -642,12 +648,14 @@ export class BattleScene {
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
         case 'reach': return earthReachPick(this, a);
+        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
     // 「手をのばす」が ある ときは せつめいも（battle-earth.js）
     if (reach) this.info(REACH_INFO);
     if (fin.info) this.info(fin.info);
+    if (c8r.info) this.info(c8r.info);
     if (this.noSpells && spells.length && !this.sealNoted) {
       this.sealNoted = true;
       this.info(`${SEALED_REASON}\n特技・道具・攻撃で戦おう。`);

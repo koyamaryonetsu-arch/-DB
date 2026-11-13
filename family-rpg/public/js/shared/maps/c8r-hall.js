@@ -104,6 +104,8 @@ export function buildHall(fieldOut) {
   // 時の門番（4つの しるしの あと。大とびらの 前の 小べやを ふさぐ。負けた あとは 話しかけると もう一度）
   const G = HALL_POS.gate;
   m.npcs.push(npc('c8r_gate_npc', '時の門番フリーゾン', [G.x, G.y], 'c8r_gate_npc', 'c8r_gate_event', { big: true, show: { all: [C8R.wings4], not: [C8R.gatekeeper] } }));
+  // 4つの あと: 小べやの 手前に 来ると 門番（負けた 時の「もう一度いどむ」の 行き先）
+  m.triggers.push({ id: 'c8r_gate_final', x: 14, y: 7, w: 3, h: 1, script: 'c8r_gate_final', show: { all: [C8R.wings4], not: [C8R.gatekeeper] } });
   // 勝った あとの 場面の とちゅうで 切れた とき
   m.triggers.push({ id: 'c8r_gate_after', x: 13, y: 7, w: 5, h: 6, script: 'c8r_gate_after', show: { all: [WIN_GATE8R], not: [C8R.gatekeeper] } });
   m.gateAt = new Map(m.gates.map((g) => [g.y * m.w + g.x, g]));

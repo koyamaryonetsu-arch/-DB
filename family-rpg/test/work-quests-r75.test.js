@@ -62,8 +62,8 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つながる 系統・1〜29 の どれとも かさならない）・今の 時代の まだ いらいの ない 場所・c8_spring の あとだけ', () => {
   assert.equal(WORK6_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 32);
-  assert.deepEqual(FAMILY_QUESTS.slice(29), WORK6_QUESTS);
+  assert.equal(FAMILY_QUESTS.length, 35); // 第80回: 33〜35 が うしろに ふえた
+  assert.deepEqual(FAMILY_QUESTS.slice(29, 32), WORK6_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(26, 29), WORK5_QUESTS);
   assert.deepEqual(WORK6_QUESTS.map((x) => x.roots), [['rubber'], ['dragon_knight'], ['konoha']]);
   assert.deepEqual(WORK6_QUESTS.map((x) => x.legend), ['nika', 'ryumajin', 'hokage']);
@@ -82,8 +82,8 @@ test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つ�
     assert.ok(!older.some((b) => b.legend === a.legend), a.id);
     for (const b of [...WORK6_QUESTS, ...older]) if (a !== b) assert.ok(![...jobLine(a.roots)].some((j) => jobLine(b.roots).has(j)), `${a.id} と ${b.id}`);
   }
-  // 第66回の 伝説で、どの たのまれごとの 系統にも 入って いないのは ロゼッタだけ（だから 前から ある 伝説の 系統に した）
-  const usedAll = new Set(FAMILY_QUESTS.flatMap((x) => [...jobLine(x.roots)]));
+  // 第66回の 伝説で、1〜32 の どの たのまれごとの 系統にも 入って いないのは ロゼッタだけ（だから 前から ある 伝説の 系統に した。第80回の 35 で ロゼッタも 使った）
+  const usedAll = new Set(FAMILY_QUESTS.slice(0, 32).flatMap((x) => [...jobLine(x.roots)]));
   assert.deepEqual(R66_LEGENDS.filter((id) => !usedAll.has(id)), ['rosetta']);
   // 場所（今の 時代。まだ たのまれごとが ない 所）
   const maps = { thd: 'sea', drg: 'north', rmn: 'north' };
@@ -263,7 +263,7 @@ test('お仕事いらい板: c8_spring の 前は 29まい（5ページ）・あ
   assert.equal(boardPages(before), 5);
   assert.equal(boardList(after).length, 32);
   assert.equal(boardPages(after), 6);
-  assert.equal(boardPages(), 6);
+  assert.equal(boardPages(), 6); // 第80回: 35まいでも 6ページ
   const { bot, c } = await setup(754, { flags: OPEN });
   const qd = W.rmn;
   const map = npcAnywhere(qd.npc).map;
@@ -276,7 +276,7 @@ test('お仕事いらい板: c8_spring の 前は 29まい（5ページ）・あ
   assert.match(menus[4][1], /5\/6ページ/);
   assert.deepEqual(menus[4][2], [...FAMILY_QUESTS.slice(24, 30).map((x) => x.name), 'つぎのページへ', '前のページへ', 'やめる']);
   assert.match(menus[5][1], /6\/6ページ/);
-  assert.deepEqual(menus[5][2], [...FAMILY_QUESTS.slice(30).map((x) => x.name), '前のページへ', 'やめる']);
+  assert.deepEqual(menus[5][2], [...FAMILY_QUESTS.slice(30, 32).map((x) => x.name), '前のページへ', 'やめる']);
   assert.equal(menus[5][2].length, 4, '2まい＋前のページへ＋やめる');
   assert.equal(menus[5][3].length, menus[5][2].length, 'カーソルの せつめいも 同じ 数');
   assert.match(menus[5][3][1], /^必要な職業：木の葉の忍びの系統（×いない）/);

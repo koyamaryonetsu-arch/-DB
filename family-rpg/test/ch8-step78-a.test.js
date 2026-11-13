@@ -29,8 +29,7 @@ import { objectiveFromFlags, KNOWN_OBJECTIVES, repairObjective } from '../public
 import { questMarks } from '../public/js/shared/data/quest-targets.js';
 import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import { GUESTS } from '../public/js/shared/data/shops.js';
-// まとめる 時に B の items-c8r.js から
-import { C8R_TREASURE } from '../public/js/shared/data/c8r-stub.js';
+import { C8R_TREASURE } from '../public/js/shared/data/items-c8r.js';
 import { TIME_GLASS, glassCheck } from '../public/js/shared/world/time-glass.js';
 import { stairsPair } from '../public/js/shared/world/stairs.js';
 import { storyPlace } from '../public/js/shared/world/shiori.js';
@@ -185,7 +184,8 @@ test('名前の 約束（plan-ch8.md の 9-2）: 物語の すすみ・しるし
     assert.ok(past.chests.length >= 1, fk);
     assert.deepEqual(past.chests.map((c) => c.id), now.chests.map((c) => c.id));
     for (const c of past.chests) assert.match(c.id, new RegExp(`^c8r_${fk}c\\d$`));
-    assert.ok(C8R_TREASURE[fk], fk);
+    assert.ok(C8R_TREASURE[fk.replace(/(\d)$/, '_$1')], fk);
+    assert.ok(past.chests.every((c) => c.item !== 'star_shard' || C8R_TREASURE[fk.replace(/(\d)$/, '_$1')].flat().includes('star_shard')), `${fk} B の 品`);
   }
   // 曲（F の id。曲が まだ なくても 落ちない）・戦いの 曲えらび
   assert.equal(MAPS.c8r_hall.bgm, 'c8r_hall');
@@ -636,7 +636,7 @@ test('台本の きまり: 物語の 場面は 家族 みんなで・ためし�
     for (const a of [...m.actions, ...m.triggers, ...m.npcs]) assert.ok(SCRIPTS[a.script], `${id} ${a.script}`);
   }
   const files = gameFiles().map((f) => f.replace(/\\/g, '/').replace(/^.*?family-rpg\//, ''));
-  const mine = ['public/js/shared/data/story-c8r.js', 'public/js/shared/data/c8r-stub.js', 'public/js/shared/maps/c8r.js', 'public/js/shared/maps/c8r-hall.js', 'public/js/shared/maps/c8r-wings.js',
+  const mine = ['public/js/shared/data/story-c8r.js', 'public/js/shared/maps/c8r.js', 'public/js/shared/maps/c8r-hall.js', 'public/js/shared/maps/c8r-wings.js',
     'public/js/shared/maps/c8r-floor.js', 'public/js/shared/maps/c8r-rows.js', 'public/js/shared/maps/c8r-flags.js', 'public/js/shared/maps/c8r-field.js', 'public/js/shared/world/c8r-steps.js',
     'public/js/client/render/c8r-npc-art.js', 'public/js/client/render/tiles-c8r.js'];
   for (const f of mine) assert.ok(files.some((g) => g.endsWith(f)), f);
@@ -671,4 +671,28 @@ test('絵と 音: 新しい タイル（2D は 16×16 を ぬる・動く・2.5D
   const sp = paintC8cSpecial('c8r_gate_npc', 'down', 0);
   assert.ok(sp?.p);
   void C8B_NPC_LOOKS;
+});
+
+test('つなぎこみ: 負けた 時の ヒント（B の 文）と もう一度 いどむ 行き先・曲の だんの しるし・本物の ゲストと 宝', async () => {
+  const { BOSS_HINTS, BOSS_RETRY } = await import('../public/js/shared/data/boss-hints.js');
+  const { retrySpot } = await import('../public/js/shared/world/boss-hints.js');
+  const { FORM_KEYS } = await import('../public/js/client/audio-scene.js');
+  assert.ok(FORM_KEYS.includes('gForm') && FORM_KEYS.includes('slStage'));
+  const where = { c8_gatekeeper: HALL_ID, c8_trial_guard: wingMapId('moon', 2), c8_trial_duel: wingMapId('ice', 2), c8_solitus: CORE_ID };
+  for (const [id, map] of Object.entries(where)) {
+    assert.equal(BOSS_HINTS[id]?.length, 3, id);
+    assert.ok(BOSS_RETRY[id], id);
+    const has = (f) => [...UPTO('c8_wings4'), 'c8r_t_moon', 'c8r_t_ice'].includes(f) || (id === 'c8_solitus' && UPTO('c8_gather').includes(f));
+    const d = retrySpot(id, map, has);
+    assert.ok(d && d.map === map, `${id} → ${d?.map}`);
+    assert.ok(canStand(MAPS[map], d.x, d.y, has), `${id} の 手前に 立てる`);
+  }
+  // 台本の マスに 入ると その 戦いが 始まる
+  const battleOf = (sc, flags) => JSON.stringify(SCRIPTS[sc](ctx(flagsOf(...flags))));
+  assert.ok(battleOf('c8r_gate_final', [...UPTO('c8_wings4'), ...WINGS.map((w) => WING_MARK[w])]).includes('"battle","c8_gatekeeper"'));
+  assert.ok(battleOf('c8r_trial_moon', [...UPTO('c8_hall'), 'c8r_t_moon']).includes('"battle","c8_trial_guard"'));
+  assert.ok(battleOf('c8r_final_event', [...UPTO('c8_gather')]).includes('"battle","c8_solitus"'), '最後の ボスは もう一度 その 段から');
+  assert.ok(battleOf('c8r_final_event', [...UPTO('c8_corridor')]).includes('"bgm","c8r_solitus"'));
+  for (const g of ['karim8r', 'minamo8']) assert.ok(GUESTS[g].minLevel >= 89, g);
+  assert.ok(MAPS[wingMapId('moon', 1)].chests.some((c) => c.item === C8R_TREASURE.moon_1[0]), '宝箱は B の 品');
 });

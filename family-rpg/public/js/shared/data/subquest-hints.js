@@ -24,6 +24,8 @@ import { C8B, LETTER8B } from '../maps/c8b-flags.js';
 // 第75回 D班: 第8章 第3幕の より道（千年前の ミドリナ）
 import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js';
 import { C8C, LETTER8C } from '../maps/c8c-flags.js';
+// 第80回 D班: 第8章 第4幕の より道（今の ホシフル村）
+import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -95,6 +97,8 @@ const build = () => [
   // 第8章 第3幕（第75回 D班。千年前の ミドリナの より道。sidequests-c8cd.js）
   { id: 'c8cd_imo', name: 'ホシフルの里の、やきいも', open: [C8CD_OPEN], start: IMO8.start, done: IMO8.done, place: '千年前のホシフルの里', who: 'いも好きの男の子ポン', npc: 'c8cd_imo_host', hint: 'やきいもを焼いて、里のみんなを元気にしたいらしい。' },
   { id: 'c8cd_bub', name: '泉の里の、しゃぼん玉', open: [C8CD_OPEN], start: BUB8.start, done: BUB8.done, place: '千年前の泉の里', who: 'しゃぼん玉の好きな女の子ポポ', npc: 'c8cd_bub_host', hint: '里の空に、しゃぼん玉をとばしたいらしい。' },
+  // 第8章 第4幕（第80回 D班。今の ホシフル村の より道。sidequests-c8rd.js）
+  { id: 'c8rd_last', name: '時をこえる手紙の、最後の1通', open: [C8RD_OPEN], start: LAST9.start, done: LAST9.done, place: 'ホシフル村', who: '手紙をあずかるゆうびん屋さん', npc: 'c8rd_last_host', hint: '千年前からあずかっている手紙の、とどけ先を探しているらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

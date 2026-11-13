@@ -8,7 +8,8 @@
 //     8 … 大地の神殿の ノクトの あと〈sim-nocto1.mjs ＋ ノクトの 品〉・第65回 C: 9 … 第6章クリアの あと〈sim-ch6.mjs の 時のまぼろしの ころ〉・
 //     10 … 第7章 第1幕の あと〈sim-ch7.mjs の オクタリアの ころ ＋ オクタリアの 品〉・
 //     第68回 C: 11 … 第7章クリアの あと〈sim-ch7.mjs の ホック船長の ころ ＋ ホック船長の 品。第3幕の 品は まだ ない〉・
-//     第74回 C: 12 … 第8章 第2幕クリアの あと〈sim-ch8.mjs の ジャハールの ころ ＋ ジャハールの 品。第2幕の 品は まだ ない〉）で
+//     第74回 C: 12 … 第8章 第2幕クリアの あと〈sim-ch8.mjs の ジャハールの ころ ＋ ジャハールの 品。第2幕の 品は まだ ない〉・
+//     第80回 C: 13 … 第8章クリアの あと〈sim-ch8.mjs の クッパードの ころ ＋ クッパードの 品。第4幕の 品は まだ ない〉）で
 //       完全オート（ふつうの オート）… 3連戦を 勝ちぬく 2割前後
 //       知っている 人 … 大技の 前に 身を 守る・合体技の 組の 弟子を 先に・よろいの 属性を さけて 弱点・砂に もぐったら 守る・
 //                      合体技（ダメージの 合体技）… 7割くらい
@@ -28,7 +29,7 @@ import { nocto1Party } from './sim-nocto1.mjs';
 import { ch6Party } from './sim-ch6.mjs';
 import { ch7Party } from './sim-ch7.mjs';
 import { ch8Party } from './sim-ch8.mjs';
-import { bubbleConf } from '../public/js/shared/battle-arena.js';
+import { bubbleConf, rewindConf, warped } from '../public/js/shared/battle-arena.js';
 
 const N = Number(process.argv[2] || 30);
 const ONLY = process.argv[3] ? process.argv[3].split(',').map(Number) : null;
@@ -61,6 +62,14 @@ export function arenaParty(rank, lv, kit = 'shop') {
       god_hand: [null, null, null, null, 'c8j_ruby_charm'], high_priest: [null, null, null, null, 'c8j_ruby_charm'],
     }));
   }
+  // 第80回 C: ランク13 … 第8章クリアの あと。第4幕の 品は まだ 入れない（べつの 班が 作っている）ので、
+  //   第3幕の さいご（クッパードの ころの ★〈空中ようさいの 宝・手紙の 品〉＋ クッパードの 品〈大魔王のトゲのうでわ・大魔王のツメ〉）
+  if (rank === 13) {
+    return ch8Party('bowser', lv, true).map((c) => withGear(c, {
+      hero: [null, null, null, null, 'c8w_king_charm'], daikenja: [null, null, null, null, 'c8w_king_charm'],
+      god_hand: ['c8w_king_claw', null, null, null, 'c8w_king_charm'], high_priest: [null, null, null, null, 'c8w_king_charm'],
+    }));
+  }
   // ランク10 … 第7章 第1幕の あと（オクタリアの ころの ★ ＋ オクタリアの 品〈声の貝のお守り・三つまたのほこ〉。sim-ch7.mjs）
   return ch7Party('temple', lv, true).map((c) => withGear(c, {
     hero: [null, null, null, null, 'c7t_witch_charm'], daikenja: [null, null, null, null, 'c7t_witch_charm'],
@@ -85,7 +94,10 @@ function dualPlan(b, a) {
   // 第74回 C: あわの よろいの 王者 … あわが ある 間は 合体技を 使わない（1つ はじけるだけ）。あわが なくなったら 王者に
   const bub = foes.find((e) => bubbleConf(e));
   if (bub?.arBubble > 0) return false;
-  const boss = bub || foes.find((e) => e.boss) || foes[0];
+  // 第80回 C: 時の まきもどしの 王者 … 時が ゆがんで いる 時だけ 王者に（砂時計が さかさまの 間・ふつうの 時は 使わない）
+  const rw = foes.find((e) => rewindConf(e));
+  if (rw && !warped(rw)) return false;
+  const boss = rw || bub || foes.find((e) => e.boss) || foes[0];
   if (!boss) return false;
   if (foes.some((e) => ARENA_BIG.has(e.telegraph))) return false;
   if (b.aliveAllies().some((x) => x.hp < x.maxHp * 0.55) || b.allies.some((x) => !x.alive && !x.fled)) return false;
@@ -182,6 +194,7 @@ export const PLAN = {
   10: { lvs: [73, 74, 76], kits: ['rare'] },
   11: { lvs: [81, 82, 84], kits: ['rare'] },
   12: { lvs: [87, 88, 90], kits: ['rare'] },
+  13: { lvs: [94, 96, 98], kits: ['rare'] },
 };
 
 if (process.argv[1].endsWith('sim-arena.mjs')) {

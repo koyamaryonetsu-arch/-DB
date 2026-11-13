@@ -68,7 +68,7 @@ test('洞窟の マップ: その レベルの めやすで 強くする しる�
 
 // 第65回 C: 上限 25 → 35（test/tm-arena-r65.test.js）
 test('地図の レベル: 上限 35。強い 魔物と 戦うと 高い 地図が 出る・セーブの Lv25 の 地図も そのまま', () => {
-  assert.equal(TM_LV_MAX, 45); // 第68回 C: 35 → 40・第74回 C: 40 → 45
+  assert.equal(TM_LV_MAX, 50); // 第68回 C: 35 → 40・第74回 C: 40 → 45・第80回 C: 45 → 50
   assert.ok(enemyLvOf(25, 1) >= 58);
   const rng = makeRng(4);
   const lvs = Array.from({ length: 200 }, () => dropMapLevel(rng, 58));

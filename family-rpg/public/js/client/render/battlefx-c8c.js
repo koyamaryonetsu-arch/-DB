@@ -5,6 +5,9 @@
 // c8k_grow（でっかくなあれ）は ピンクの 魔法じん（とくべつな つぶ c8cring）が ひろがって 子分が ふくらむ。
 // c8k_shapes（ふしぎな形の魔法）は さんかく・しかく・まるの 光（とくべつな つぶ c8cshape）が とんでいく。
 // でっかくなあれ・ほうき・ヒップドロップ・ギガ・ギガほのおは がめんの まん中に 大きく（client/battle-c8c.js の C8C_SCREEN_ANIMS）
+// 第2部 第8章 第4幕 の 魔物・時の門番フリーゾン・心の ためし・ソリトゥス（battlefx-c8r.js）
+import { playC8rFx, C8R_FINE } from './battlefx-c8r.js';
+
 const FIRE = ['#ff8a2a', '#ffe06a', '#e0301a', '#ffffff'];
 const MAGIC = ['#ff7ae0', '#9ae6ff', '#fff6a0', '#ffffff'];
 const STEEL = ['#c8ccd8', '#ffffff', '#7a8090'];
@@ -53,7 +56,7 @@ function c8cring(x, p, t) {
   }
   x.restore();
 }
-export const C8C_FINE = { c8cshape, c8cring };
+export const C8C_FINE = { c8cshape, c8cring, ...C8R_FINE };
 
 export function playC8cFx(fx, anim, targets, element, opts = {}, W = 256, H = 144) {
   const first = targets[0];
@@ -344,7 +347,8 @@ export function playC8cFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
       fx.hitStop(260, 980, 2.8);
       return true;
     }
+    // 第8章 第4幕（battlefx-c8r.js）
     default:
-      return false;
+      return playC8rFx(fx, anim, targets, element, opts, W, H);
   }
 }

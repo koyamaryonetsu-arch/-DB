@@ -11,8 +11,9 @@ import {
   LAST1, LAST1_LINKS, LAST2, LAST2_KINDS, LAST3, C8R_W, C8R_H,
 } from './c8r-rows.js';
 import { WINGS, WING_NAME, WING_MARK, HALL_ID, CORE_ID, CHASE8R, wingMapId, lastMapId, floorKey } from './c8r-flags.js';
-// 宝箱の 中み（B の data/items-c8r.js の C8R_TREASURE。まとめる 時に '../data/items-c8r.js' から）
-import * as ITEMS8R from '../data/c8r-stub.js';
+// 宝箱の 中み（B の data/items-c8r.js。c8rChest(マップ名, k) → { item, n }）
+import { c8rChest } from '../data/items-c8r.js';
+import { TRIAL_SEEN8R } from './c8r-flags.js';
 
 // うかぶ かけら（今まで 行った 場所の かけら。今 ある タイルを 使い回す）
 export const FRAG8R = {
@@ -38,16 +39,16 @@ export function belowUp(rows) {
   throw new Error('上り階段のとなりにゆかがない');
 }
 
-// 宝箱の 中み（B の C8R_TREASURE。{ 階の 名前: [id か [id, こすう] か { item, n }, …] }）
-function chestOf(fk) {
-  return (k) => {
-    const e = ITEMS8R.C8R_TREASURE?.[fk]?.[k];
-    if (!e) return null;
-    if (typeof e === 'string') return { item: e, n: 1 };
-    if (Array.isArray(e)) return { item: e[0], n: e[1] ?? 1 };
-    return e.item ? { item: e.item, n: e.n ?? 1 } : null;
+// 宝箱の 中み（B の C8R_TREASURE。階は moon_1〜last_3）
+const chestOf = (mapId) => (k) => c8rChest(mapId, k);
+// 守りぬく・一騎うち: 台の 手前の 列に 入ると ためしが 始まる（負けた 時の「もう一度いどむ」の 行き先にも なる）
+function altarTrigger(w) {
+  return (m, now, P) => {
+    const r = trialRectOf[w];
+    m.triggers.push({ id: `c8r_trial_${w}`, x: r.x, y: P.altar.y + 1, w: r.w, h: 1, script: `c8r_trial_${w}`, show: { all: [TRIAL_SEEN8R(w)], not: [WING_MARK[w]] } });
   };
 }
+const trialRectOf = {};
 
 // ためしの 部屋（X の 上の 部屋。X の 行より 上で、X を かこむ かべの 中）
 function trialRect(rows) {
@@ -82,6 +83,7 @@ function chaseTriggers(m, now, P) {
 
 function wingSpec(w, n) {
   const rows = WING_ROWS[w][n - 1];
+  if (n === 2) trialRectOf[w] = trialRect(rows);
   const fk = floorKey(w, n);
   return {
     fk, wing: w, n, rows,
@@ -90,10 +92,10 @@ function wingSpec(w, n) {
     bgm: 'c8r_wing',
     links: WING_LINKS[fk], devKinds: WING_KINDS[fk], frag: FRAG8R[w],
     chase: w === 'fire' && n === 2 ? FIRE2_CHASE : null,
-    extra: w === 'fire' && n === 2 ? chaseTriggers : null,
+    extra: w === 'fire' && n === 2 ? chaseTriggers : (n === 2 && (w === 'moon' || w === 'ice')) ? altarTrigger(w) : null,
     table: 't8r_wing', spawns: n === 1 ? 3 : 2,
     trial: n === 2 ? trialRect(rows) : null,
-    chest: chestOf(fk),
+    chest: chestOf(wingMapId(w, n)),
     upTo: n === 1 ? (now) => ({ map: wingMapId(w, 2, now), ...arriveOf(WING_ROWS[w][1]) }) : null,
     downTo: n === 2 ? (now) => ({ map: wingMapId(w, 1, now), ...belowUp(WING_ROWS[w][0]) }) : null,
     exitTo: n === 1 ? () => hallAt(w) : null,
@@ -110,7 +112,7 @@ function lastSpec(n) {
     bgm: 'c8r_last',
     links: WING_LINKS[fk], devKinds: WING_KINDS[fk], frag: FRAG8R.last,
     table: 't8r_last', spawns: n === 1 ? 2 : 3,
-    chest: chestOf(fk),
+    chest: chestOf(lastMapId(n)),
     upTo: n < 3 ? (now) => ({ map: lastMapId(n + 1, now), ...arriveOf(LAST_ROWS[n]) }) : () => ({ map: CORE_ID, ...CORE_ARRIVE }),
     downTo: n === 1 ? () => hallAt('last') : (now) => ({ map: lastMapId(n - 1, now), ...belowUp(LAST_ROWS[n - 2]) }),
   };
