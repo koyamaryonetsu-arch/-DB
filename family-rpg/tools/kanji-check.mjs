@@ -449,6 +449,11 @@ export function gameFiles() {
     'public/js/shared/data/story-c8c.js', 'public/js/shared/data/sidequests-c8c.js',
     'public/js/shared/maps/c8c-field.js', 'public/js/shared/maps/c8c-fort.js', 'public/js/shared/maps/c8c-fort-rows.js', 'public/js/shared/maps/c8c-flags.js',
     'public/js/client/render/c8c-npc-art.js', 'public/js/client/render/tiles-c8c.js',
+    // 第2部 第8章 第4幕（A: 世界と物語）: 時の広間・4つの つばさと 心の ためし・時の門番・最後の 回廊・さいごの 場所・エンディング
+    'public/js/shared/data/story-c8r.js', 'public/js/shared/data/c8r-stub.js',
+    'public/js/shared/maps/c8r.js', 'public/js/shared/maps/c8r-hall.js', 'public/js/shared/maps/c8r-wings.js', 'public/js/shared/maps/c8r-floor.js',
+    'public/js/shared/maps/c8r-rows.js', 'public/js/shared/maps/c8r-flags.js', 'public/js/shared/maps/c8r-field.js', 'public/js/shared/world/c8r-steps.js',
+    'public/js/client/render/c8r-npc-art.js', 'public/js/client/render/tiles-c8r.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

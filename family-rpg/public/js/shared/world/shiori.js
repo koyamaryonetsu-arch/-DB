@@ -66,6 +66,7 @@ export const CHAPTERS = [
       { n: 1, start: 'c8_start', title: '月の王宮のうらぎり', seen: 'c8a_arrive', clear: 'c8_jafar' },
       { n: 2, start: 'c8_jafar', title: 'よみの青い火', seen: 'c8b_arrive', clear: 'c8_hades' },
       { n: 3, start: 'c8_hades', title: 'くろがねの空中ようさい', seen: 'c8c_arrive', clear: 'c8_bowser' },
+      { n: 4, start: 'c8_bowser', title: '時のはざま', seen: 'c8r_arrive', clear: 'c8_solitus' },
     ],
   },
 ];

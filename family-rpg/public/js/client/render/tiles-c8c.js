@@ -9,6 +9,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第8章 第4幕「時のはざま」の タイル（render/tiles-c8r.js。ここで まぜる）
+import { C8R_PAINTERS, C8R_FRAMES, C8R_SPEED, C8R_FLOOR_H, c8rBlockSpec, C8R_PROPS, C8R_PROPS_KEEP, C8R_THEMES } from './tiles-c8r.js';
 
 const IR = { d: '#1e2028', b: '#3a3e4a', l: '#5a6070', hl: '#8a92a4', ln: '#14161c' }; // くろがね
 const RU = { d: '#4a2a1a', b: '#7a4a2a', l: '#a8683a', hl: '#c88a50' }; // さび
@@ -313,26 +315,30 @@ export const C8C_PAINTERS = {
   [T.C8C_WRECKDOOR]: (p, v) => paintWreckDoor(p, v),
   [T.C8C_HATCH]: (p, v) => paintHatch(p, v),
   [T.C8C_CAGEBAR]: (p, v, f) => paintCageBar(p, v, f),
+  ...C8R_PAINTERS,
 };
 export const C8C_FRAMES = {
   [T.C8C_SKY]: SKY_FRAMES, [T.C8C_SLIDE_N]: SLIDE_FRAMES, [T.C8C_SLIDE_E]: SLIDE_FRAMES, [T.C8C_SLIDE_S]: SLIDE_FRAMES, [T.C8C_SLIDE_W]: SLIDE_FRAMES,
   [T.C8C_PROP_ON]: PROP_FRAMES, [T.C8C_LOCKDOOR]: LOCK_FRAMES, [T.C8C_BARRIER]: BARRIER_FRAMES, [T.C8C_STEAM]: STEAM_FRAMES, [T.C8C_CAGEBAR]: CAGE_FRAMES,
+  ...C8R_FRAMES,
 };
 export const C8C_SPEED = {
   [T.C8C_SKY]: 500, [T.C8C_SLIDE_N]: 160, [T.C8C_SLIDE_E]: 160, [T.C8C_SLIDE_S]: 160, [T.C8C_SLIDE_W]: 160,
   [T.C8C_PROP_ON]: 90, [T.C8C_LOCKDOOR]: 260, [T.C8C_BARRIER]: 160, [T.C8C_STEAM]: 140, [T.C8C_CAGEBAR]: 200,
+  ...C8R_SPEED,
 };
 
 // ───── 2.5D ─────
 // 空は ひくい（下に 雲）。つぶれた 鉄・残がいの 板は ひくい ブロック・木の 根と ゆるんだ 鉄の 板は かべ。しかけ・ポスト・とびら・まほうの かべ・ゆげ・いかり・おりは たてた もの
 export const C8C_FLOOR_H = { [T.C8C_SKY]: -0.6, [T.C8C_MOSS]: -0.06, [T.C8C_TILT]: -0.03, [T.C8C_STEAM_FLOOR]: -0.02 };
+Object.assign(C8C_FLOOR_H, C8R_FLOOR_H);
 export function c8cBlockSpec(id, v) {
   switch (id) {
     case T.C8C_CRUSH: return { h: 0.6, top: ['t', T.C8C_CRUSH, v, 0], side: ['t', T.C8C_CRUSH, v, 0] };
     case T.C8C_WRECK: return { h: 0.7, top: ['t', T.C8C_WRECK, v, 0], side: ['t', T.C8C_CRUSH, v, 0] };
     case T.C8C_ROOTS: return { h: 1.6, top: ['t', T.C8C_CRUSH, v, 0], side: ['t', T.C8C_ROOTS, v, 0], south: ['t', T.C8C_ROOTS, v, 0] };
     case T.C8C_PLATE: return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.C8C_PLATE, v, 0] };
-    default: return null;
+    default: return c8rBlockSpec(id, v);
   }
 }
 const propProp = (on) => [16, 20, (p) => {
@@ -403,6 +409,8 @@ export const C8C_PROPS = {
 };
 // たてた ものでも 色を かえない（しんちゅう・赤い ポスト・まほうの 光・ゆげ・空）
 export const C8C_PROPS_KEEP = new Set([T.C8C_CHAIN, T.C8C_MAILBOX, T.C8C_LOCKDOOR, T.C8C_BARRIER, T.C8C_STEAM, T.C8C_CAGEBAR, T.C8C_SHUTTER_OPEN, T.C8C_ANCHOR, T.C8C_WRECKDOOR]);
+for (const id of C8R_PROPS_KEEP) C8C_PROPS_KEEP.add(id);
+Object.assign(C8C_PROPS, C8R_PROPS);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -424,4 +432,6 @@ export const C8C_THEMES = {
     gem: G([0, '#1a3a10'], [0.5, '#7ac050'], [1, '#f0ffe0']),
     flame: G([0, '#4a2a0a'], [0.5, '#e09040'], [1, '#fff0d0']),
   },
+  // 第8章 第4幕「時のはざま」
+  ...C8R_THEMES,
 };

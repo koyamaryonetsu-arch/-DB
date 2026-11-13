@@ -64,6 +64,8 @@ import { shownEquipKey } from '../look-equip.js';
 import { tickMonLive } from './monarena-live.js';
 // 第78回 3-10: 家族ミッション（world/missions.js）
 import { missionMessage, missionChest, missionFloor, chatName } from './missions.js';
+// 第8章 第4幕「時のはざま」: 青い 火が 歩くと 消える（world/c8r-steps.js）
+import { stepC8r } from './c8r-steps.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -641,6 +643,8 @@ export class GameWorld {
       const party = partyOf(this, s);
       if (party && party.members.length > 1) this.sendParty(party);
     }
+    // 第8章 第4幕: 青い 火は 歩くと 消える（world/c8r-steps.js）
+    stepC8r(this, s, tx, ty);
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);

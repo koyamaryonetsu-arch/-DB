@@ -17,6 +17,8 @@ import { buildC8bTempleMaps, C8B_MAPS } from './c8b-temple.js';
 import { attachC8bSea } from './c8b-sea.js';
 import { buildC8cFortMaps, C8C_MAPS } from './c8c-fort.js';
 import { attachC8cField } from './c8c-field.js';
+// 第4幕「時のはざま」（Step 7・8。maps/c8r.js）
+import { attachC8r, C8R_MAPS } from './c8r.js';
 
 // 第8章 第1幕の マップの ID（セーブに のこるので かえない）
 export const CH8A_MAPS = [...C8A_MAPS];
@@ -24,6 +26,8 @@ export const CH8A_MAPS = [...C8A_MAPS];
 export const CH8B_MAPS = [...C8B_MAPS];
 // 第8章 第3幕の マップの ID（セーブに のこるので かえない）
 export const CH8C_MAPS = [...C8C_MAPS];
+// 第8章 第4幕の マップの ID（セーブに のこるので かえない）
+export const CH8R_MAPS = [...C8R_MAPS];
 
 export function attachCh8(maps) {
   // 第1幕（千年前の コガネ地方・今の コガネ地方を 作った あと）
@@ -35,4 +39,6 @@ export function attachCh8(maps) {
   // 第3幕（千年前の ミドリナ地方・今の ミドリナ地方を 作った あと）
   Object.assign(maps, buildC8cFortMaps());
   attachC8cField(maps);
+  // 第4幕（今の ミドリナ地方を 作った あと。時の広間・つばさ・最後の 回廊・さいごの 場所）
+  attachC8r(maps);
 }

@@ -267,7 +267,7 @@ const PUZZLE = [1, 2, 3, 5, 6, 7];
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（plan-ch8.md の 8-2）: 物語の すすみ・マップの ID・出現表・きまった 戦い・宝箱・タイル・ゲスト', () => {
   assert.deepEqual(CH8C_STEPS, ['c8_sky', 'c8_spring', 'c8_fortress', 'c8_kamek', 'c8_engine', 'c8_bowser']);
-  assert.deepEqual(CH8_STEPS.slice(12), CH8C_STEPS, 'CH8_STEPS の c8_hades の うしろ');
+  assert.deepEqual(CH8_STEPS.slice(12, 18), CH8C_STEPS, 'CH8_STEPS の c8_hades の うしろ');
   const hi = STORY_STEPS.indexOf('c8_hades');
   assert.deepEqual(STORY_STEPS.slice(hi + 1, hi + 7), CH8C_STEPS, 'c8_hades の うしろ');
   // マップ（千年前 1〜8階・今 1〜7階）
@@ -396,7 +396,9 @@ test('目標: 第2幕クリアの セーブは トキネへの 目標に なお�
     }
   }
   for (const t of Object.values(C8C_OBJ)) assert.ok(CH8_OBJECTIVE_TALK[t] && objectiveChapter(t) === 5, '第8章の 目標の 章');
-  assert.equal(C8C_OBJ.bowser, '第8章　第4幕へ（続きはアップデートで！）');
+  // 第4幕が できたので、第3幕クリアの 文は トキネへ（前の 版の 文は OLD_C8_OBJ.bowser。第4幕の A が かえた）
+  assert.ok(C8C_OBJ.bowser.startsWith('第8章　第3幕クリア！') && C8C_OBJ.bowser.includes('トキネ'));
+  assert.equal(OLD_C8_OBJ.bowser, '第8章　第4幕へ（続きはアップデートで！）');
   // 地図の しるし（その 時代の マップだけ）
   const mark = (obj, map, extra = []) => questMarks({ flags: flagsOf(...extra), objective: obj }, map).filter((m) => m.kind === 'main');
   const Bx = C8C_POS[5].box;
@@ -782,7 +784,7 @@ test('通しで: c8_hades → トキネ → 千年前の 泉の里（ミナモ�
   assert.deepEqual(f2, ['c8_bowser']);
   assert.ok(c.flags[WIN8C] && c.flags[CAGE8C] && c.flags[CALM8C] && c.flags[C8C.bowser], 'c8_bowser');
   assert.equal(c.objective, C8C_OBJ.bowser);
-  for (const t of ['大事な人を守りたい', 'ひとりじめの心', '黒い星のかけら', 'ふういんの日は、あした。', 'かけらは、時のはざまへ', '約束だよ', '第8章　第3幕クリア！', '第8章　第4幕へ（続きはアップデートで！）']) assert.ok(said(bot, t), t);
+  for (const t of ['大事な人を守りたい', 'ひとりじめの心', '黒い星のかけら', 'ふういんの日は、あした。', 'かけらは、時のはざまへ', '約束だよ', '第8章　第3幕クリア！', '今のほしみの丘で、待っているわね']) assert.ok(said(bot, t), t);
   assert.ok(!c.guests.includes('rion8'), 'リオンは 泉の里に のこる');
   assert.equal(bot.s.map, FIELD, 'さいごは 泉の里');
   const has = (f) => !!c.flags[f];

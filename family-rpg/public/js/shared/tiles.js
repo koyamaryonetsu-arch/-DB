@@ -94,6 +94,9 @@ export const T = {
   C8C_PROP_ON: 375, C8C_PROP_OFF: 376, C8C_CANNON_L: 377, C8C_CANNON_R: 378, C8C_SHUTTER_OPEN: 379, C8C_SHUTTER_SHUT: 380,
   C8C_ROOTS: 381, C8C_PLATE: 382, C8C_GAP: 383, C8C_MAILBOX: 384, C8C_LOCKDOOR: 385, C8C_BARRIER: 386, C8C_STEAM_FLOOR: 387, C8C_STEAM: 388,
   C8C_ANCHOR: 389, C8C_CHAIN: 390, C8C_WRECK: 391, C8C_WRECKDOOR: 392, C8C_HATCH: 393, C8C_CAGEBAR: 394,
+  // 第2部 第8章 第4幕「時のはざま」（maps/c8r-*.js・render/tiles-c8r.js）。395 から
+  C8R_VOID: 395, C8R_SANDFLOW: 396, C8R_FORD: 397, C8R_CREST: 398, C8R_CREST_MOON: 399, C8R_CREST_FIRE: 400, C8R_CREST_IRON: 401, C8R_CREST_ICE: 402,
+  C8R_BIGDOOR: 403, C8R_WINGDOOR: 404, C8R_WISP: 405, C8R_RIFT: 406,
 };
 
 export const TILE_INFO = {};
@@ -506,6 +509,19 @@ def(T.C8C_WRECK, 'c8c_wreck', { solid: true, mapColor: '#6a5a40' }); // 今の �
 def(T.C8C_WRECKDOOR, 'c8c_wreckdoor', { solid: true, mapColor: '#5a4a30' }); // 今の 残がいの しまった 出入り口
 def(T.C8C_HATCH, 'c8c_hatch', { mapColor: '#3a3020' }); // 今の 残がいの 開いた 出入り口（歩ける）
 def(T.C8C_CAGEBAR, 'c8c_cagebar', { solid: true, anim: true, light: true, mapColor: '#e8a8ff' }); // まほうの おり（通れない）
+// 第8章 第4幕「時のはざま」（maps/c8r-*.js・render/tiles-c8r.js）
+def(T.C8R_VOID, 'c8r_void', { solid: true, anim: true, mapColor: '#2a2050' }); // 時のはざまの 空（星と 砂が うずまく。通れない）
+def(T.C8R_SANDFLOW, 'c8r_sandflow', { solid: true, anim: true, light: true, mapColor: '#d8b868' }); // 時の砂の 川（流れが 速くて 通れない）
+def(T.C8R_FORD, 'c8r_ford', { anim: true, light: true, mapColor: '#f0d890' }); // 時の砂の 浅せ（わたると その 階の 時代が 入れかわる）
+def(T.C8R_CREST, 'c8r_crest', { solid: true, talkThrough: true, mapColor: '#6a6a8a' }); // 時の広間の 紋章の 台（まだ 光って いない）
+def(T.C8R_CREST_MOON, 'c8r_crest_moon', { solid: true, talkThrough: true, light: true, mapColor: '#f0e8a0' }); // 光る 紋章（月のつばさ・カリム）
+def(T.C8R_CREST_FIRE, 'c8r_crest_fire', { solid: true, talkThrough: true, light: true, mapColor: '#7ad8ff' }); // 光る 紋章（青火のつばさ・カイ）
+def(T.C8R_CREST_IRON, 'c8r_crest_iron', { solid: true, talkThrough: true, light: true, mapColor: '#c8b0f0' }); // 光る 紋章（くろがねのつばさ・ミナモ）
+def(T.C8R_CREST_ICE, 'c8r_crest_ice', { solid: true, talkThrough: true, light: true, mapColor: '#c0f0ff' }); // 光る 紋章（氷のつばさ・リオン）
+def(T.C8R_BIGDOOR, 'c8r_bigdoor', { solid: true, mapColor: '#8a7ab8' }); // 最後の 回廊の 大とびら（門番を たおすと 開く）
+def(T.C8R_WINGDOOR, 'c8r_wingdoor', { anim: true, light: true, mapColor: '#e8d8ff' }); // つばさの 入口の 光の アーチ（歩ける）
+def(T.C8R_WISP, 'c8r_wisp', { solid: true, anim: true, light: true, mapColor: '#8ae8ff' }); // にげる 青い 火（追いかけっこ）
+def(T.C8R_RIFT, 'c8r_rift', { anim: true, light: true, mapColor: '#b89aff' }); // 時の さけめ（時の広間への 入口・近道。歩ける）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

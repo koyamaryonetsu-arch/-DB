@@ -6,6 +6,8 @@
 // ───────────── 戦いの 曲 ─────────────
 // 第2部（第6〜8章・千年前の 世界）の 場所。マップに past（true … 千年前 / false … その 今の すがた）が ある 所と、この 名前で はじまる 所
 const PART2_PREFIX = ['overworld_past', 'toki_shrine', 'toki_ruin', 'hoshimichi', 'tokei_', 'c7_', 'c7s_', 'c7i_', 'c8a_', 'c8b_', 'c8c_'];
+// 第8章 第4幕「時のはざま」（時の広間・さいごの 場所は past が ない ので 名前で）
+PART2_PREFIX.push('c8r_');
 
 export function isPart2Map(mapId, map = null) {
   if (map && typeof map.past === 'boolean') return true;
