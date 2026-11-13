@@ -413,6 +413,8 @@ export function gameFiles() {
     // 第2部 第8章 第4幕（B: 戦い・品）: 手下の 魔物・時の門番フリーゾン・心の ためし・ソリトゥスの 本当の すがた・時のはざまの 宝箱・負けた 時の ヒントの 文
     'public/js/shared/data/monsters-c8r.js', 'public/js/shared/data/abilities-c8r.js', 'public/js/shared/data/items-c8r.js', 'public/js/shared/data/encounters-c8r.js',
     'public/js/shared/data/companions-c8r.js', 'public/js/shared/data/boss-hints-c8r.js', 'public/js/shared/battle-c8r.js', 'public/js/client/battle-c8r.js',
+    // 第81回: 全滅で へる お金が 少なく なる アクセサリー（へそくりのさいふ・金庫番のお守り）
+    'public/js/shared/data/items-r81.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',

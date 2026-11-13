@@ -16,6 +16,8 @@ import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js';
 import { SHOPS_EARTH } from './shops-earth.js';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
 import { SHOPS_PAST } from './shops-past.js';
+// 第81回: 全滅で へる お金が 少なく なる アクセサリー（items-r81.js）
+import { addR81Shops } from './items-r81.js';
 import { MINAMO_GUEST } from './companions-past.js';
 import { RION_GUEST } from './companions-tokei.js';
 import { KARIM_GUEST } from './companions-c7.js';
@@ -81,6 +83,8 @@ Object.assign(SHOPS, SHOPS_HOSHIYOMI);
 // 第5章 Step 7 影の城が うかんだ あとの ハネノ（shops-earth.js）
 Object.assign(SHOPS, SHOPS_EARTH);
 Object.assign(SHOPS, SHOPS_PAST);
+// 第81回: へそくりのさいふ（ホシフル村・ルミナ）・金庫番のお守り（千年前の 里。第7章の 町の 店は shops-c7*.js）
+addR81Shops(SHOPS);
 // 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）

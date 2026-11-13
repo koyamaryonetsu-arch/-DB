@@ -22,7 +22,8 @@ import { wipeGoldLoss, bankGold } from './bank.js';
 import { lureOn, lureGroup } from './field27.js';
 import { wagonShare, wagonBattleSwap } from './wagon.js';
 import { growthSummary } from './growth.js';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js';
+import { topLevel, battleTeamChars, expHatMult, wipeGuard } from './perks.js';
+import { wipeShare } from '../data/items-r81.js';
 import { battleTactics } from './tactics.js';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
 import { isNightFor } from './clock.js';
@@ -580,9 +581,15 @@ function finishBattle(world, ctx) {
         continue;
       }
       const lines = [`${m.char.name}たちは全滅してしまった…`];
-      const g = wipeGoldLoss(m.char);
+      // 第81回: へそくりのさいふ・金庫番のお守り（つけている その 人の お金だけ。world/perks.js の wipeGuard）
+      const guard = wipeGuard(m.char);
+      const g = wipeGoldLoss(m.char, guard.div);
       let note = '';
-      if (g.lost > 0) {
+      if (g.lost > 0 && guard.item) {
+        const thanks = `（${ITEMS[guard.item]?.wipeWord || ITEMS[guard.item]?.name}のおかげで、へったのは${wipeShare(guard.div)}ですんだ）`;
+        note = `所持金がへってしまった…\n${thanks}${bankGold(m.char) > 0 ? '\n（預かり所のお金は無事だ）' : ''}`;
+        lines.push(`所持金がへってしまった…（${g.before}G→${g.after}G）`, thanks);
+      } else if (g.lost > 0) {
         note = `所持金が半分になってしまった…${bankGold(m.char) > 0 ? '\n（預かり所のお金は無事だ）' : ''}`;
         lines.push(`所持金が半分になってしまった…（${g.before}G→${g.after}G）`);
       }

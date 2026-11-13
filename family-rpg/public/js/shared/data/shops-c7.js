@@ -2,6 +2,7 @@
 // 品ぞろえは 今 ある いちばん 上の 店の 品（千年前の ホシフルの里と おなじ ランク10。おすすめ Lv68〜72 の 家族の そなえ）。
 // B が 第7章の 店の 品（ランク11 など）を 作ったら、ここの items を かえる。千年前は キメラのつばさが 使えないので 道具屋では 売らない
 import { PAST_SHOP_WEAPONS, PAST_SHOP_ARMOR, PAST_SHOP_TOOLS } from './items-past.js';
+import { addR81Shops } from './items-r81.js';
 
 export const SHOPS_C7 = {
   c7_weapon: {
@@ -26,3 +27,5 @@ export const SHOPS_C7 = {
     items: PAST_SHOP_TOOLS,
   },
 };
+// 第81回: 金庫番のお守り（道具屋。items-r81.js）
+addR81Shops(SHOPS_C7);
