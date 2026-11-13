@@ -6,6 +6,8 @@
 // ───────────── 戦いの 曲 ─────────────
 // 第2部（第6〜8章・千年前の 世界）の 場所。マップに past（true … 千年前 / false … その 今の すがた）が ある 所と、この 名前で はじまる 所
 const PART2_PREFIX = ['overworld_past', 'toki_shrine', 'toki_ruin', 'hoshimichi', 'tokei_', 'c7_', 'c7s_', 'c7i_', 'c8a_', 'c8b_', 'c8c_'];
+// 第8章 第4幕「時のはざま」（時の広間・さいごの 場所は past が ない ので 名前で）
+PART2_PREFIX.push('c8r_');
 
 export function isPart2Map(mapId, map = null) {
   if (map && typeof map.past === 'boolean') return true;
@@ -63,6 +65,8 @@ export function addFormKey(...keys) {
   for (const k of keys) if (typeof k === 'string' && k && !FORM_KEYS.includes(k)) FORM_KEYS.push(k);
   return FORM_KEYS;
 }
+// 第8章 第4幕（B班の 戦いの しるし）: 門番の 形態 gForm（1〜4）・最後の ボスの 段 slStage（1〜3）
+addFormKey('gForm', 'slStage');
 
 // 形態の しるしが ない 魔物は null
 function formStage(c) {

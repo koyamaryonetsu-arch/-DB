@@ -5,10 +5,10 @@
 // ・青い ほのおの かべ（362。3コマ）/ 青い 火が ふき出す ゆか（363）/ ふき出した 青い 火の 柱（364。3コマ）
 // ・うずしおの岩場の 青い うず（365。3コマで まわる）/ 雲から出てきた島の 貝の もようの 石の とびら（366）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=abfdea9b746b';
-import { prand } from './pixel.js?v=abfdea9b746b';
+import { T } from '../../shared/tiles.js?v=b671a0f110f0';
+import { prand } from './pixel.js?v=b671a0f110f0';
 // 第8章 第3幕: くろがねの空中要塞の タイル（render/tiles-c8c.js。ここで まぜる）
-import { C8C_PAINTERS, C8C_FRAMES, C8C_SPEED, C8C_FLOOR_H, c8cBlockSpec, C8C_PROPS, C8C_PROPS_KEEP, C8C_THEMES } from './tiles-c8c.js?v=abfdea9b746b';
+import { C8C_PAINTERS, C8C_FRAMES, C8C_SPEED, C8C_FLOOR_H, c8cBlockSpec, C8C_PROPS, C8C_PROPS_KEEP, C8C_THEMES } from './tiles-c8c.js?v=b671a0f110f0';
 
 const ST = { d: '#14243a', b: '#2a4262', l: '#4a6a90', hl: '#7a9ac0', ln: '#0c1828' }; // 海の 底の 神殿の 石
 const BF = { d: '#1a5aa8', b: '#3aa8f0', l: '#8ae0ff', w: '#e8fcff' }; // 青い 火

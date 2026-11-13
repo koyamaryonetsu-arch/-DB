@@ -14,8 +14,8 @@
 // ・キャラに のこす もの（なくても よい。むかしの セーブも そのまま）
 //   c.monArena = { r: { [ランク]: { n: 勝ちぬいた 回数, at: はじめての 時こく } }, team: [key…]（前回）, reg: [key…]（登録）,
 //                  regSnap: [写し…]（battle-monarena.js の monSnapshot）, regAt, fam: { [charId]: { w, l } }, rep: 2回目からの メダルの 通し番号 }
-import { registerVariant } from './variants.js?v=abfdea9b746b';
-import { MONSTERS } from './monsters.js?v=abfdea9b746b';
+import { registerVariant } from './variants.js?v=b671a0f110f0';
+import { MONSTERS } from './monsters.js?v=b671a0f110f0';
 
 // 登録チームの 写しに のこす もの（stats.js の monsterCompanionStats・monsterAbilities・戦いの 作戦が 使う もの。battle-monarena.js）
 export const SNAP_KEYS = ['species', 'name', 'level', 'plus', 'color', 'bonus', 'seeds', 'equip', 'gearFx', 'inherit', 'tactics', 'autoOff', 'ranked'];

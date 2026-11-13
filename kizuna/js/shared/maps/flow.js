@@ -4,8 +4,8 @@
 //  ・流れの 先も 流れる 砂なら、その マスの むきへ（曲がる 流れも ある）
 //  ・流れる 砂では ない ゆかに 着いたら とまる。流れの 先が かべなら、その マスで とまる（そこからは 歩ける）
 //  ・ありじごく（ワープの マス）に 流れこむと、下の 階へ おちる
-import { TILE_INFO } from '../tiles.js?v=abfdea9b746b';
-import { effectiveTile, isBlocked } from './index.js?v=abfdea9b746b';
+import { TILE_INFO } from '../tiles.js?v=b671a0f110f0';
+import { effectiveTile, isBlocked } from './index.js?v=b671a0f110f0';
 
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 

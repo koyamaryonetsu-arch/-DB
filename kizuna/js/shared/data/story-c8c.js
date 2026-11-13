@@ -10,16 +10,16 @@
 //   → 8階 上の かんぱん: 初代大魔王クッパード（きまった 戦い c8_bowser。2だん。B）→ ひとりじめの 心を とられて かけらが にげる
 //   → ミナモを 助ける・ミナモの 星読み「ふういんの日は、あした。かけらは 時のはざまへ…」→ 泉の里で（c8_bowser）→「第8章　第4幕へ（続きはアップデートで！）」
 // より道「時をこえる手紙」（千年前の ミドリナ地方の 2つ）は data/sidequests-c8c.js。魔物・きまった 戦い・品・ゲストの 強さは B（plan-ch8.md の 8-2）。ゲストは リオン
-import { C8B } from '../maps/c8b-flags.js?v=abfdea9b746b';
+import { C8B } from '../maps/c8b-flags.js?v=b671a0f110f0';
 import {
   C8C, ARRIVE8C, ENTRY8C, PF8C, POCO8C, VOICE8C, WIN8C, CALM8C, CAGE8C, DEV8C, ROOT8C, LETTER8C, LETTER8C_FORT, POCO_LETTER8C, PAST_FIELD_ID, NOW_FIELD_ID, c8cMapId,
-} from '../maps/c8c-flags.js?v=abfdea9b746b';
-import { C8C_POS, deviceKind, linkedBy } from '../maps/c8c-fort.js?v=abfdea9b746b';
-import { C8C_FIELD_POS } from '../maps/c8c-field.js?v=abfdea9b746b';
-import { MAPS } from '../maps/index.js?v=abfdea9b746b';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=abfdea9b746b';
-import { MONSTERS } from './monsters.js?v=abfdea9b746b';
-import { applyC8cSide, letterReward8c } from './sidequests-c8c.js?v=abfdea9b746b';
+} from '../maps/c8c-flags.js?v=b671a0f110f0';
+import { C8C_POS, deviceKind, linkedBy } from '../maps/c8c-fort.js?v=b671a0f110f0';
+import { C8C_FIELD_POS } from '../maps/c8c-field.js?v=b671a0f110f0';
+import { MAPS } from '../maps/index.js?v=b671a0f110f0';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=b671a0f110f0';
+import { MONSTERS } from './monsters.js?v=b671a0f110f0';
+import { applyC8cSide, letterReward8c } from './sidequests-c8c.js?v=b671a0f110f0';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -55,8 +55,8 @@ export const C8C_OBJ = {
   f8: 'かんぱんに、初代大魔王クッパードがいる…（じゅんびを整えてから進もう）',
   win: 'かんぱんの、おりの中のミナモに話しかけよう（続きが見られる）',
   calm: '泉の里で、ミナモに話しかけよう',
-  // 第8章 第3幕の さいご（あとの 幕が できたら、この 文は story-c8.js の OLD_C8_OBJ に のこす）
-  bowser: '第8章　第4幕へ（続きはアップデートで！）',
+  // 第8章 第3幕の さいご・第4幕の はじまり（前の 版の 文「第8章　第4幕へ（続きはアップデートで！）」は story-c8.js の OLD_C8_OBJ.bowser）
+  bowser: '第8章　第3幕クリア！今のほしみの丘のトキネに会いに行こう（時の砂時計が、ふしぎな音で鳴っているらしい…）',
 };
 
 // パーティー全員で 見る イベント
@@ -610,7 +610,7 @@ function villageEnding() {
     ['objective', C8C_OBJ.bowser],
     ...N('第8章　第3幕クリア！'),
     ['chapter', '第8章　第3幕「くろがねの空中ようさい」　完', '第4幕へ　つづく'],
-    ...N('第8章　第4幕へ（続きはアップデートで！）'),
+    ...S('トキネの声', '（{name}。今のほしみの丘で、待っているわね）'),
     ['bgm', 'resume'],
   ];
 }
@@ -723,8 +723,8 @@ export const CH8C_OBJECTIVE_TALK = {
     'ミナモさんのようすが、気になります。話しかけてみましょう。', 'ミナモさんに、話しかけよう！'),
   [C8C_OBJ.calm]: T4('泉の里で、ミナモに話しかけよう。', '里へ帰って、ミナモに話そうぜ！',
     '泉の里で、ミナモさんに話しかけましょう。', 'ミナモさんに、話しかけよう！'),
-  [C8C_OBJ.bowser]: T4('第8章の第3幕クリア。第4幕は、続きのアップデートで。時をこえる手紙のより道も、のこっているかもしれない。', 'やったな！つぎは第4幕だってよ！',
-    '第3幕クリアです。リオンさんとの約束、わすれないでいましょう。', 'だい3まく、クリア！'),
+  [C8C_OBJ.bowser]: T4('第3幕クリア。今のほしみの丘のトキネに会いに行こう。砂時計が、ふしぎな音で鳴っているらしい。', 'やったな！トキネのところへ行こうぜ！',
+    '第3幕クリアです。リオンさんとの約束、わすれないでいましょう。トキネさんが待っています。', 'トキネさんに、あいにいこう！'),
 };
 
 // ───── すすみぐあい（progress.js。story-c8.js の CH8_PROGRESS の うしろ）─────
