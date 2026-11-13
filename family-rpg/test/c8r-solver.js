@@ -98,7 +98,7 @@ export function solveFloor({ rows, fk, ids, start, goal, flags0 = [], glass = tr
   let plan = null;
   if (goals.length) {
     plan = [{ t: 'move', d: goals[0].last }];
-    for (let k = key(goals[0]); parent.get(k); k = parent.get(k)[0]) plan.unshift(parent.get(k)[1]);
+    for (let k = key(goals[0]); parent.get(k); k = parent.get(k)[0]) { const st = seen.get(k); plan.unshift({ ...parent.get(k)[1], to: { x: st.x, y: st.y, era: st.era } }); }
   }
   return { goals, seen, stuck, truncated, P, plan };
 }

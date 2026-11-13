@@ -209,7 +209,8 @@ function fordSteps() {
     await run.runSteps([
       ['sfx', 'spell'],
       ['timeShift', 'in', ids, past ? 'past' : 'present'],
-      ['call', (r) => shiftPeople(r, to, [s])],
+      // 浅せの マスの まん中に 出る（歩いて いる とちゅうの 半ぱな 位置だと、かどで ひっかかる）
+      ['call', (r) => { s.x = Math.floor(s.x) + 0.5; s.y = Math.floor(s.y) + 0.5; shiftPeople(r, to, [s]); }],
       ['timeShift', 'out', ids, past ? 'past' : 'present'],
     ]);
   }]];
