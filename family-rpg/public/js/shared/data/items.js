@@ -317,6 +317,8 @@ import { MIX_ITEMS, MIX_ITEM_KANA } from './breed-mix.js'; Object.assign(ITEMS, 
 import { ITEMS_PRIZE_R50, PRIZE_R50_KANA } from './items-prize-r50.js'; Object.assign(ITEMS, ITEMS_PRIZE_R50);
 // 第65回 D1: かじ屋の ランク6〜10の 装備・れん金の 第6章・第7章の 品（items-craft-r65.js）
 import { ITEMS_CRAFT_R65, CRAFT_R65_KANA } from './items-craft-r65.js'; Object.assign(ITEMS, ITEMS_CRAFT_R65);
+// 第81回: 全滅で へる お金が 少なく なる アクセサリー（items-r81.js）
+import { ITEMS_R81, R81_ITEM_KANA } from './items-r81.js'; Object.assign(ITEMS, ITEMS_R81);
 assignRarity(ITEMS);
 // 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
 applyGearLooks(ITEMS);
@@ -434,6 +436,7 @@ Object.assign(ITEM_KANA, DQM_ITEM_KANA);
 Object.assign(ITEM_KANA, MIX_ITEM_KANA);
 Object.assign(ITEM_KANA, PRIZE_R50_KANA);
 Object.assign(ITEM_KANA, CRAFT_R65_KANA);
+Object.assign(ITEM_KANA, R81_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

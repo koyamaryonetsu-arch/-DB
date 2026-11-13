@@ -2,6 +2,7 @@
 // 品ぞろえは 今 ある いちばん 上の 店の 品（第1幕の 緑の王国の 店の 品。B の data/items-c7.js の C7_SHOP_*）。
 // B が 第7章 第2幕の 店の 品を 作ったら、ここの items を かえる。千年前は キメラのつばさが 使えないので 道具屋では 売らない
 import { C7_SHOP_WEAPONS, C7_SHOP_ARMOR, C7_SHOP_TOOLS } from './items-c7.js';
+import { addR81Shops } from './items-r81.js';
 
 export const SHOPS_C7S = {
   c7s_weapon: {
@@ -26,3 +27,5 @@ export const SHOPS_C7S = {
     items: C7_SHOP_TOOLS,
   },
 };
+// 第81回: 金庫番のお守り（道具屋。items-r81.js）
+addR81Shops(SHOPS_C7S);

@@ -89,7 +89,8 @@ function build() {
   for (const [sp, [id, n]] of Object.entries(MAT_DROPS)) addDrop(id, sp, n || DROP_N.mat, 'mat');
   // 店・宝箱
   const shops = new Map();
-  for (const sh of Object.values(SHOPS)) for (const id of sh.items || []) {
+  // 物語で ふえる 品ぞろえ（more）も 店の 品（第81回: へそくりのさいふ・金庫番のお守りは more で 足す）
+  for (const sh of Object.values(SHOPS)) for (const id of [...(sh.items || []), ...(sh.more || []).flatMap((m) => m.items || [])]) {
     if (!shops.has(id)) shops.set(id, []);
     if (!shops.get(id).includes(sh.name)) shops.get(id).push(sh.name);
   }

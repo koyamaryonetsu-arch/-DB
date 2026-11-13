@@ -108,9 +108,12 @@ export function bankAction(world, s, msg, reply) {
 }
 
 // 全滅した: 持っている お金が 半分に（はしたは 切りすて）。預かり所の お金は そのまま
-export function wipeGoldLoss(c) {
+// 第81回: div … へる 分を「持っている お金 ÷ div」に（へそくりのさいふ 4・金庫番のお守り 10。world/perks.js の wipeGuard）。
+//   へる 分の はしたは 切り上げ（半分の 時は 今までと 同じ: 7G → 3G）
+export function wipeGoldLoss(c, div = 2) {
   const before = Math.max(0, int(c?.gold));
-  const after = Math.floor(before / 2);
+  const d = Number.isInteger(div) && div >= 2 ? div : 2;
+  const after = before - Math.ceil(before / d);
   if (c) c.gold = after;
   return { before, after, lost: before - after };
 }
