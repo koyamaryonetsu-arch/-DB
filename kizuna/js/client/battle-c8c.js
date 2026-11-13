@@ -9,10 +9,10 @@
 // ・バナー: 魔法じん・でっかくなあれの 前ぶれ・でっかくなった・魔法じんが 消えた・ちびカメック・ほうき／
 //   ヒップドロップの 前ぶれ・ヒップドロップ・かけらが 光る・ギガ・ギガほのおの 前ぶれ・ギガほのお・オノが かたむいた・橋が おちた・また ギガの 前ぶれ
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_KAMEK, C8_BOWSER } from '../shared/data/monsters-c8c.js?v=b671a0f110f0';
-import { monsterCanvas } from './render/monsters.js?v=b671a0f110f0';
+import { C8_KAMEK, C8_BOWSER } from '../shared/data/monsters-c8c.js?v=e32f6eb85bad';
+import { monsterCanvas } from './render/monsters.js?v=e32f6eb85bad';
 // 第2部 第8章 第4幕: 時の門番フリーゾン・心の ためし・ソリトゥスの がめん（battle-c8r.js）
-import { C8R_OWN_TELE, c8rSprite, c8rDraw, c8rPresent } from './battle-c8r.js?v=b671a0f110f0';
+import { C8R_OWN_TELE, c8rSprite, c8rDraw, c8rPresent } from './battle-c8r.js?v=e32f6eb85bad';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8b.js の C8B_OWN_TELE に まぜる）
 export const C8C_OWN_TELE = [C8_KAMEK, C8_BOWSER, ...C8R_OWN_TELE];

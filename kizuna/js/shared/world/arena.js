@@ -7,23 +7,23 @@
 //   とちゅうで かけつけた 家族（battles.js の joinBattle）も、次の 戦いから 3連戦の なかまに 入る（adopt）
 // ・かけ試合（かけ試合の 係。ひとりずつ）: 4ひきの 魔物の トーナメント。本物の 戦いの しくみで 戦わせる（betDuel）。
 //   オッズは 強さ（data/arena.js の winChances）から。けっかは 短い 戦いの ようす（client/ui/arena.js の arenaBoutUI）で 見せる
-import { Battle } from '../battle.js?v=b671a0f110f0';
-import { decideMonster } from '../ai.js?v=b671a0f110f0';
-import { enemyFixedScale } from '../battle.js?v=b671a0f110f0';
-import { MONSTERS } from '../data/monsters.js?v=b671a0f110f0';
-import { ITEMS } from '../data/items.js?v=b671a0f110f0';
-import { addItem } from '../stats.js?v=b671a0f110f0';
-import { scaleEnemy } from '../data/treasure.js?v=b671a0f110f0';
-import { startFixedBattle } from './battles.js?v=b671a0f110f0';
-import { partyOf } from './party.js?v=b671a0f110f0';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b671a0f110f0';
-import { ARENA_HOOKS } from '../data/story-arena.js?v=b671a0f110f0';
+import { Battle } from '../battle.js?v=e32f6eb85bad';
+import { decideMonster } from '../ai.js?v=e32f6eb85bad';
+import { enemyFixedScale } from '../battle.js?v=e32f6eb85bad';
+import { MONSTERS } from '../data/monsters.js?v=e32f6eb85bad';
+import { ITEMS } from '../data/items.js?v=e32f6eb85bad';
+import { addItem } from '../stats.js?v=e32f6eb85bad';
+import { scaleEnemy } from '../data/treasure.js?v=e32f6eb85bad';
+import { startFixedBattle } from './battles.js?v=e32f6eb85bad';
+import { partyOf } from './party.js?v=e32f6eb85bad';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e32f6eb85bad';
+import { ARENA_HOOKS } from '../data/story-arena.js?v=e32f6eb85bad';
 import {
   ARENA_RANKS, ARENA_LEGEND_RANK, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
-} from '../data/arena.js?v=b671a0f110f0';
+} from '../data/arena.js?v=e32f6eb85bad';
 // 第45回: 竜王のしるしを もらえるか（data/companions-dqm.js）
-import { dqKeyDue } from '../data/companions-dqm.js?v=b671a0f110f0';
+import { dqKeyDue } from '../data/companions-dqm.js?v=e32f6eb85bad';
 
 const say = (who, text) => ['say', who, text];
 const CLERK = '闘技場の受付';

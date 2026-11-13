@@ -5,10 +5,10 @@
 // ・灯台の 大ランプ（333 火が 消えている・334 ともっている 3コマ）/ かわいた 海の そこ（335）… 貝がらと サンゴの かけら
 // ・サンゴの 岩（336）… 海の 中の 赤い サンゴ（波が ゆれる 2コマ）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=b671a0f110f0';
-import { prand } from './pixel.js?v=b671a0f110f0';
+import { T } from '../../shared/tiles.js?v=e32f6eb85bad';
+import { prand } from './pixel.js?v=e32f6eb85bad';
 // 第7章 Step 5・6（第3幕）: 氷の竜の城・千年前の シロガネ地方の タイル（render/tiles-c7i.js。ここで まぜる）
-import { C7I_PAINTERS, C7I_FRAMES, C7I_SPEED, C7I_FLOOR_H, c7iBlockSpec, C7I_PROPS, C7I_PROPS_KEEP, C7I_THEMES } from './tiles-c7i.js?v=b671a0f110f0';
+import { C7I_PAINTERS, C7I_FRAMES, C7I_SPEED, C7I_FLOOR_H, c7iBlockSpec, C7I_PROPS, C7I_PROPS_KEEP, C7I_THEMES } from './tiles-c7i.js?v=e32f6eb85bad';
 
 const SEA = { d: '#123a6a', b: '#1e5a9a', l: '#4a8ad0', w: '#d8f0ff' }; // 灯台の 中の 海の 水
 const WD = { d: '#5a3a1e', b: '#8a5a32', l: '#b8844e', n: '#3a2412' }; // 木の 板

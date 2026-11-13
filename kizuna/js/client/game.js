@@ -1,34 +1,34 @@
 // ゲーム ぜんたいの しんこう
-import { applyHand } from './ui/hand.js?v=b671a0f110f0';
-import { bindLayout } from './ui/layout.js?v=b671a0f110f0';
-import { Input } from './input.js?v=b671a0f110f0';
-import { GameAudio, _TRACKS } from './audio.js?v=b671a0f110f0';
+import { applyHand } from './ui/hand.js?v=e32f6eb85bad';
+import { bindLayout } from './ui/layout.js?v=e32f6eb85bad';
+import { Input } from './input.js?v=e32f6eb85bad';
+import { GameAudio, _TRACKS } from './audio.js?v=e32f6eb85bad';
 // 第77回 C: 場面で かわる 音楽（戦いの 曲・ピンチ・だん・ダンジョンの 深さ・昼夜・まわりの音）
-import { SceneAudio } from './audio-scene.js?v=b671a0f110f0';
-import { MONSTERS } from '../shared/data/monsters.js?v=b671a0f110f0';
-import { Field } from './field.js?v=b671a0f110f0';
-import { Hud, STAMPS } from './ui/hud.js?v=b671a0f110f0';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=b671a0f110f0';
-import { ScriptPlayer, wait } from './ui/script.js?v=b671a0f110f0';
-import { BattleScene } from './battle.js?v=b671a0f110f0';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=b671a0f110f0';
-import { showServerDown } from './ui/syncui.js?v=b671a0f110f0';
-import { toast, confirmBox, el } from './ui/dom.js?v=b671a0f110f0';
-import { MAPS } from '../shared/maps/index.js?v=b671a0f110f0';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=b671a0f110f0';
-import { SkyClient } from './sky.js?v=b671a0f110f0';
+import { SceneAudio } from './audio-scene.js?v=e32f6eb85bad';
+import { MONSTERS } from '../shared/data/monsters.js?v=e32f6eb85bad';
+import { Field } from './field.js?v=e32f6eb85bad';
+import { Hud, STAMPS } from './ui/hud.js?v=e32f6eb85bad';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=e32f6eb85bad';
+import { ScriptPlayer, wait } from './ui/script.js?v=e32f6eb85bad';
+import { BattleScene } from './battle.js?v=e32f6eb85bad';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=e32f6eb85bad';
+import { showServerDown } from './ui/syncui.js?v=e32f6eb85bad';
+import { toast, confirmBox, el } from './ui/dom.js?v=e32f6eb85bad';
+import { MAPS } from '../shared/maps/index.js?v=e32f6eb85bad';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=e32f6eb85bad';
+import { SkyClient } from './sky.js?v=e32f6eb85bad';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=b671a0f110f0';
+import { QuickButton } from './ui/quick-item.js?v=e32f6eb85bad';
 // 第58回: マルチプレイの 自動追跡（リーダーに ついていく）の ボタン
-import { FollowButton } from './ui/follow-btn.js?v=b671a0f110f0';
-import { HuntButton } from './ui/sources.js?v=b671a0f110f0';
-import { reportError } from './errlog.js?v=b671a0f110f0';
+import { FollowButton } from './ui/follow-btn.js?v=e32f6eb85bad';
+import { HuntButton } from './ui/sources.js?v=e32f6eb85bad';
+import { reportError } from './errlog.js?v=e32f6eb85bad';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=b671a0f110f0';
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=e32f6eb85bad';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
-import { onMonLive } from './ui/monarena-live.js?v=b671a0f110f0';
+import { onMonLive } from './ui/monarena-live.js?v=e32f6eb85bad';
 // 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
-import { watchTreasureFull } from './ui/treasure.js?v=b671a0f110f0';
+import { watchTreasureFull } from './ui/treasure.js?v=e32f6eb85bad';
 
 export class Game {
   constructor(net) {
@@ -797,7 +797,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=b671a0f110f0').then(({ offlineStorage }) => {
+      import('./offline.js?v=e32f6eb85bad').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

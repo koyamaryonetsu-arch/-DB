@@ -4,7 +4,7 @@
 // とくべつな え（paintC8rSpecial）: 時の門番フリーゾン（時の広間の 大とびらの 前で 待つ 大きな すがた 40×40。
 //   白く つやつやした 体・頭と かたの むらさきの まるい よろい・長い しっぽ。コマで しっぽが ゆれて、うでを くむ）
 // 戦いの え（第2・第3・最終形態）は B の もの
-import { Painter } from './pixel.js?v=b671a0f110f0';
+import { Painter } from './pixel.js?v=e32f6eb85bad';
 
 export const C8R_NPC_LOOKS = {
   c8r_gate: {

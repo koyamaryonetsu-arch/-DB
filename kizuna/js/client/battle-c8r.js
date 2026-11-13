@@ -8,8 +8,8 @@
 //   あらし・なみだ・くずれ までの しるし・千年の約束の 光の ゲージ・こうら・へび
 // ・コマンド: 心が ゆらいだ 時の「よびかける」・光が たまった 時の「千年の約束」・一騎うちの「おうえん」を いちばん 上に（c8rCmdItems・c8rCmdPick）
 // ・バナー・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=b671a0f110f0';
-import { monsterCanvas } from './render/monsters.js?v=b671a0f110f0';
+import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=e32f6eb85bad';
+import { monsterCanvas } from './render/monsters.js?v=e32f6eb85bad';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
 export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW];

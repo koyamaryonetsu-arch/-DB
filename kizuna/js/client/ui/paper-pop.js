@@ -3,9 +3,9 @@
 //     { name, paper, town, where, who, job, jobs: [系統の 職業の 名前], has, pro, rewards: [{ kind, id, name, n }], gold, medals, state, ask }
 //   下の 大きな ボタン（うける／やめる など）で えらぶ。キーボード・ゲームパッド（左右・上下・決定・もどる）・タッチで うごく。
 //   見ている だけの 人（spectator）は 少しの 間 はり紙を 見せて とじる
-import { el, ListMenu, esc } from './dom.js?v=b671a0f110f0';
-import { rareNameHtml } from './rarity.js?v=b671a0f110f0';
-import { ITEMS } from '../../shared/data/items.js?v=b671a0f110f0';
+import { el, ListMenu, esc } from './dom.js?v=e32f6eb85bad';
+import { rareNameHtml } from './rarity.js?v=e32f6eb85bad';
+import { ITEMS } from '../../shared/data/items.js?v=e32f6eb85bad';
 
 const KIND_NAMES = { acc: 'アクセサリー', vehicle: '乗り物', goods: '道具・素材' };
 const KIND_ICONS = { acc: '◆', vehicle: '▶', goods: '●' };

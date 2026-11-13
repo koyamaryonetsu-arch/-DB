@@ -2,9 +2,9 @@
 // 人（C7S_NPC_LOOKS）: カイ（千年前の 海の 島の 少年。日やけ・茶色の とがった かみ・赤い はちまき・ブーメラン）・ナギの村の 人たち（c7s_*）・
 //   灯台守の ゲンじい（カイの じいちゃん）・ホック船長（場面の すがた）
 // とくべつな え（paintC7sSpecial）: ホック船長（灯台の てっぺんの 大きな すがた）・海賊船（しずむ前の島の 北の 海）
-import { Painter } from './pixel.js?v=b671a0f110f0';
+import { Painter } from './pixel.js?v=e32f6eb85bad';
 // 第7章 Step 5・6（第3幕）: カイの影・雪の精・いばらの魔女マレフィナ・氷の竜シラネ（render/c7i-npc-art.js。ここで まぜる）
-import { C7I_NPC_LOOKS, paintC7iSpecial, C7I_SPECIALS } from './c7i-npc-art.js?v=b671a0f110f0';
+import { C7I_NPC_LOOKS, paintC7iSpecial, C7I_SPECIALS } from './c7i-npc-art.js?v=e32f6eb85bad';
 
 const person = (o) => o;
 export const C7S_NPC_LOOKS = {
