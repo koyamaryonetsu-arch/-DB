@@ -1271,8 +1271,6 @@ export class Field {
       ctx.globalCompositeOperation = 'source-over';
     }
     this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS, na);
-    // 第78回: 階段・くさりの 目じるし（▲▼。くらやみ・よるの 上に。render/field3d.js）
-    this.r3d.drawMarks?.(ctx, P, t);
     this.renderLabels(0, 0);
   }
 

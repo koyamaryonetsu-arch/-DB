@@ -23,7 +23,6 @@ import {
 } from '../public/js/shared/data/secret-themes.js';
 import { buildThemeLayout, sdReach } from '../public/js/shared/maps/secret-floors.js';
 import { GATE_DOWN, GATE_ARRIVE } from '../public/js/shared/maps/secret-dungeon.js';
-import { collectMarks } from '../public/js/client/render/mark3d.js';
 import { Bot, tickN } from './helpers.js';
 
 const UPTO = (f) => STORY_STEPS.slice(0, STORY_STEPS.indexOf(f) + 1);
@@ -497,10 +496,8 @@ test('テーマの しかけ: にせものの 階段・宝箱（当たりは 階
   await stepOn(bot, fake.x, fake.y);
   assert.equal(bot.map, st.id, 'にせものの 階段では 下りない');
   assert.ok(sayTexts(bot, from).some((t) => /絵|かざり|ハズレ|1だん/.test(t)));
-  // 2.5D の 目じるし: 本物の 階段にも ▼
-  const marks = collectMarks(st.w, st.h, (x, y) => tileAt(st, x, y));
-  assert.ok(marks.some((k) => k.kind === 'down' && k.tx === st.sd.down.x && k.ty === st.sd.down.y));
-  assert.ok(marks.some((k) => k.kind === 'up'));
+  // 本物の 階段も 下り 階段の タイル（2.5D では 立体の 穴。▲▼ の 目じるしは 第82回で やめた）
+  assert.equal(tileAt(st, st.sd.down.x, st.sd.down.y), T.STAIRS_DOWN);
   // 宝箱だらけ
   const bx = find('boxes');
   assert.ok(bx);
