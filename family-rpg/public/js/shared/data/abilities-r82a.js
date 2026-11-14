@@ -128,7 +128,7 @@ export const R82A_ABILITIES = {
   },
   bry_daiyou: {
     name: '大よう化・せいぎょ', kana: 'だいようかせいぎょ', kind: 'skill', job: 'bakuryuha', mp: 14, target: 'self', role: 'sup',
-    effect: { type: 'daiyoukai', turns: 3 },
+    effect: { type: 'daiyoukai', turns: 3, mult: 1.4 },
     desc: 'ようかいの力を、自分の心でおさえたまま引き出す。3回行動する間、命令を聞いたまま、ようかい化の力で戦える。', cast: '{a}の目が赤く光った…でも、心はそのままだ！', anim: 'charge',
   },
   bry_kongou: {

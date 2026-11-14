@@ -165,7 +165,8 @@ export function r82aEffect(b, c, a, eff, ev, targets, powMult = 1) {
     }
     case 'daiyoukai': {
       exitYoukai(c, ev, `${c.name}は、あばれる血を、自分の心でおさえこんだ！`);
-      if (!c.youkaiCtl) powerUp(c, youkaiRate(c) || 1.6);
+      // 倍は 技の mult（せいぎょ して いる ぶん、あばれる ようかい化より 少し ひかえめ。ない 時は passive.youkai）
+      if (!c.youkaiCtl) powerUp(c, eff.mult || youkaiRate(c) || 1.6);
       c.youkaiCtl = { left: eff.turns || 3 };
       ev.lines.push(`${c.name}は、大ようの力を自分のものにした！（攻撃力と素早さが上がった）`);
       ev.youkaiOn = c.id;

@@ -45,7 +45,7 @@ export const JOBS_R82A = {
   bakuryuha: {
     id: 'bakuryuha', name: 'ばくりゅうはの大よう', kana: 'ばくりゅうはのたいよう', short: '大よう', tier: 3, req: ['inuyasha'], reqSuper: 1, family: 'phys', color: '#8a1a3a',
     desc: 'ようかいの力も、人の心も、どちらも自分のものにした半よう。犬夜しゃと、ほかの超級職を1つきわめた者だけがなれる。大ようの力を命令どおりに使いこなし、敵の大技も、物理の大技も、風にまきこんで返す。',
-    mods: { hp: 1.75, mp: 1.05, str: 1.95, def: 1.5, agi: 1.65, mag: 0.65, heal: 1.0 },
+    mods: { hp: 1.75, mp: 1.0, str: 1.95, def: 1.5, agi: 1.65, mag: 0.7, heal: 1.0 },
     weapons: ['sword', 'claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1.5, hp: 1, def: 0.5 },
     passive: { youkai: 1.6 },

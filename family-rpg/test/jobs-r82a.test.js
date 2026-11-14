@@ -307,13 +307,14 @@ test('第82回 A おすわり！: ようかい化が おさまって、次の �
   assert.ok(a1 && !a1.youkaiOn, 'おすわりの すぐ あとは ならない');
 });
 
-test('第82回 A 大よう化・せいぎょ: 3回の 行動の 間、命令できる まま ようかい化の 力（刀でも）', () => {
+test('第82回 A 大よう化・せいぎょ: 3回の 行動の 間、命令できる まま ようかい化の 力（1.4倍。刀でも）', () => {
+  assert.equal(ABILITIES.bry_daiyou.effect.mult, 1.4);
   const { b, me } = setup('bakuryuha', { seed: 14, weapon: 'iron_sword' });
   const atk0 = me.atk;
   readyUp(b, me);
   b.command(me.id, { type: 'ability', id: 'bry_daiyou' }, 's1');
   runUntilAct(b, me.id);
-  assert.equal(me.atk, Math.round(atk0 * 1.6));
+  assert.equal(me.atk, Math.round(atk0 * ABILITIES.bry_daiyou.effect.mult));
   assert.equal(pub(me).youkai, 2);
   assert.deepEqual(r82aMarks(pub(me)).map((x) => x.text), ['大よう化']);
   for (let k = 0; k < 3; k++) {
