@@ -90,7 +90,45 @@ battle.js に 足した 行: import・onReady（ようかい化は コマンド�
 | ばくりゅうはの大よう | 2708 | 105% |
 
 ### 第2部の ボス（tools/sim-r82a.mjs 20。家族の 勇者の ところを 入れかえ。★装備は 勇者の 物で 装備 できる 所だけ）
-（下の 表は 最後の しらべ。6. を 見る）
+知っている 人（しかけを 知って いる 家族の オート）。かっこの 中は ほかの 伝説 5つ（飛天・剣神・トリプルフェイス・暴れんぼう将軍・竜魔人）の はんい
 
-## 6. 直した テスト
-（下の 表）
+| ボス | ばくりゅうはの大よう | ほかの 伝説 | 犬夜しゃ（超級） |
+|---|---|---|---|
+| オクタリア（temple Lv72） | 90%・269びょう | 85〜100%・255〜398 | 25%・471 |
+| マレフィナ（witch Lv78） | 100%・337 | 20〜100%・397〜652 | 0%・648 |
+| カイの影（shadow Lv80） | 100%・237 | 100%・229〜308 | 95%・339 |
+| ジャハール（jafar Lv83） | 95%・342 | 90〜100%・315〜468 | 35%・640 |
+| ハデロス（hades Lv86） | 100%・413 | 95〜100%・376〜537 | 85%・614 |
+| クッパード（bowser Lv90） | 95%・406 | 100%・367〜492 | 85%・656 |
+
+- 勝率は ほかの 伝説と おなじ はんい。長さは ほかの 伝説の まん中より 少し はやい（マレフィナは いちばん はやい 337 ＜ 剣神 397。のこりは はんいの 中）。
+  さいしょは MP が 足りず ふつうの 攻撃ばかりで 弱かった（オクタリア 45%・マレフィナ 45%）ので、MP を 0.95 → 1.05 に（魔力から うつした）
+- **完全オート**（しかけを 知らない ふつうの オート）: ばくりゅうはの大よう・犬夜しゃとも 6つの ボスで 勝率 0%（ほかの 伝説も 0〜10%。カイの影だけ 剣神・竜魔人 10%）。完全オートで 勝てる ように は なって いない
+- ばくりゅうはで 返す 力は 上限（1体ごとに 自分の 物理の 3.0倍・真は 3.6倍）が ある ので、ボスの 大技を 返しても いちばん 強い 技の くらい
+- 犬夜しゃは 超級職なので 伝説より ひくい（ゲストの くらべの ため のせた）
+- 職業の試練（PHANTOM_ADJ）は tools/sim-trial-tune.mjs 10 0.75 HI=4（SEED 500・900）の 平均
+
+## 6. 直した テスト（数を 数えて いる テスト・職業の 一覧を 見る テスト）
+
+| テスト | 行 | なおした こと |
+|---|---|---|
+| test/fx-r27.test.js | import と `handled` の さいご | `playR82aFx` を 足した（味方の 技の えんしゅつが ある か） |
+| test/work-quests-r80.test.js | import・`free` の filter | 「たのまれごとに 入って いない 伝説の 系統は もう ない」から 犬夜叉の 系統（JOBS_R82A）を のぞく（B班の 系統も おなじ 形で のぞく ことに なる） |
+| test/jobs-r82a.test.js | 新しい | なり方・技・しくみ（ようかい化は 刀で ならない・命令を 聞かない・おすわりで もどる・半分で もどる・大よう化・風の技・返す 上限・オート）・ひらめき技・タグ・試練・乗り物・絵・えんしゅつ・文字 |
+
+- 職業の 数・基本職の 数・乗り物の 数を 数える テストは、今の 形（ALL_JOBS や VEHICLE_ORDER から 数える）で そのまま 通った
+- 引っこしコード（test/transfer-r78.test.js）: 下じきは かえて いない。キャラに 項目を 足して いない ので そのまま 通る
+
+## 7. みんなで 使う ファイルに 足した 所（行は けして いない）
+- shared: battle.js（import・onReady・executeNext 3か所・applyAbility の case・calcPhys・damage・pub）・ai.js（import・4.8 の 2行）・battle-trial.js（NO_USE・PHANTOM_ADJ）・stats.js（STARTER_EQUIP）
+- shared/data: jobs.js（import・Object.assign・ならびの push・うわさ）・abilities.js・hirameki.js・job-tags.js・job-talk.js・job-trials.js・vehicles.js（twin_cat）
+- client: battle.js（import・HIT_DELAY・ANIM_SFX・r82aPresent・renderCmdIdle の ようかい化の ことば）・battle-buffs.js（札）・ui/title.js（キャラを 作る 時の 職業の ひとこと）
+- client/render: battlefx.js・hero.js（かみの いろ）・hero-hair.js（かみ 'inu82'。えらべる かみがたの 一覧より あと）・hero-outfit.js・hero-r26.js（数珠）・chars.js・vehicle-art.js
+- tools/kanji-check.mjs（新しい ファイル 6つ）
+- 新しい ファイル: shared/data/jobs-r82a.js・abilities-r82a.js・hirameki-r82a.js・shared/battle-r82a.js・client/battle-r82a.js・client/render/hero-r82a.js・battlefx-r82a.js・vehicle-r82a.js・test/jobs-r82a.test.js・tools/sim-r82a.mjs・tools/sim-r82a-uses.mjs
+
+## 8. 気を つける こと・のこり
+- B班も jobs.js の 同じ 所（ならびの push・Object.assign）・vehicles.js の おわり・title.js の 職業の ひとこと・test/work-quests-r80.test.js に 足すので、まとめる 時に 行が ぶつかる（どちらも のこす）
+- 神殿の せつめいの 伝説の 一覧（client/ui/services.js）・お知らせ・README は さわって いない
+- 犬夜しゃの 系統の たのまれごと（お仕事いらい板）は まだ ない
+- ようかい化した 人は ねむって いても 次の 番に ようかい化の まま。HP が 少ない ままだと たおれる ことも ある（おすわり！・回復で もどる）

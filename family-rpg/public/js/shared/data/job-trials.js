@@ -224,7 +224,7 @@ Object.assign(TRIAL_WORDS, {
 });
 // 第82回 A: 犬夜叉の 系統の 超級職・伝説の職業（jobs-r82a.js）
 Object.assign(TRIAL_WORDS, {
-  inuyasha: '刀は、守りたいものがある時に、いちばん重く、いちばん強くなるのだ。',
+  inuyasha: '刀は、守りたいものがある時に、いちばん強くなるのだ。',
   bakuryuha: 'ようかいの力も、人の心も、どちらもおまえの力だ。',
 });
 export const TRIAL_WORDS_MASC = {

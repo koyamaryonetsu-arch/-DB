@@ -23,6 +23,9 @@ import { HIRAMEKI_R66D } from '../public/js/shared/data/hirameki-r66d.js';
 import { HIRAMEKI_R66E1 } from '../public/js/shared/data/hirameki-r66e1.js';
 // 第66回: 伝説の職業・超級職の ひらめき技は 班ごとの ファイル（test/legend-r66*・jobs-r66e*）
 const R66_HIRA = { ...HIRAMEKI_R66A, ...HIRAMEKI_R66B, ...HIRAMEKI_R66C, ...HIRAMEKI_R66D, ...HIRAMEKI_R66E1, ...HIRAMEKI_R66E2 };
+// 第82回 A: 犬夜叉の 系統の ひらめき技（test/jobs-r82a.test.js で しらべる）も 班ごとの ファイル
+import { HIRAMEKI_R82A } from '../public/js/shared/data/hirameki-r82a.js';
+Object.assign(R66_HIRA, HIRAMEKI_R82A);
 import { HIRAMEKI_PHANTOM_B } from '../public/js/shared/data/hirameki-phantom-b.js';
 import { DUAL_TECHS, dualOptions } from '../public/js/shared/data/dual.js';
 import { newCharacter, learnedAbilities, gainExp, expForLevel, fullHeal, changeJob, hiraAllowed, oldComboUnlocks, weaponOk } from '../public/js/shared/stats.js';
