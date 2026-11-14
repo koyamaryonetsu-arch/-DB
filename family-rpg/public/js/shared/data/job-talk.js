@@ -90,6 +90,13 @@ Object.assign(JOB_SAY, {
   hatarakikata: '「定時なので、帰ります！」',
   ano_kata: '「…すべては、ひみつだよ」',
 });
+// 第82回 A: 犬夜叉の 系統（jobs-r82a.js）
+Object.assign(JOB_SAY, {
+  hanyo_boy: '「へっ、おれのつめをなめるなよ！」',
+  tessaiga_user: '「この刀、おれにしかぬけねえ！」',
+  inuyasha: '「行くぜ、鉄さいが！」',
+  bakuryuha: '「まとめて、はね返してやる！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

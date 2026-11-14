@@ -43,6 +43,8 @@ import { HIRA_R66D_ABILITIES, HIRAMEKI_R66D } from './hirameki-r66d.js';
 import { HIRA_R66E1_ABILITIES, HIRAMEKI_R66E1 } from './hirameki-r66e1.js';
 // 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの ひらめき技（hirameki-r66e2.js）
 import { HIRA_R66E2_ABILITIES, HIRAMEKI_R66E2 } from './hirameki-r66e2.js';
+// 第82回 A: 犬夜叉の 系統の ひらめき技（hirameki-r82a.js）
+import { HIRA_R82A_ABILITIES, HIRAMEKI_R82A } from './hirameki-r82a.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -313,6 +315,9 @@ export const HIRAMEKI = {
 // 第66回 C班の ひらめき技（hirameki-r66c.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R66C_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R66C);
+// 第82回 A: 犬夜叉の 系統の ひらめき技（hirameki-r82a.js。上の 2つの 表に まぜる）
+Object.assign(HIRA_ABILITIES, HIRA_R82A_ABILITIES);
+Object.assign(HIRAMEKI, HIRAMEKI_R82A);
 
 // 回数の 名前（'@atk' など、技 では ない もの）
 export const USE_NAMES = { '@atk': 'ふつうの攻撃' };

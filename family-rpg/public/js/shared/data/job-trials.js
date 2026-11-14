@@ -222,6 +222,11 @@ Object.assign(TRIAL_WORDS, {
   hatarakikata: 'よく働き、よく休む。それがいちばん強い。',
   ano_kata: 'ひみつを守れる者だけが、ほんとうの強さを知る。',
 });
+// 第82回 A: 犬夜叉の 系統の 超級職・伝説の職業（jobs-r82a.js）
+Object.assign(TRIAL_WORDS, {
+  inuyasha: '刀は、守りたいものがある時に、いちばん重く、いちばん強くなるのだ。',
+  bakuryuha: 'ようかいの力も、人の心も、どちらもおまえの力だ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

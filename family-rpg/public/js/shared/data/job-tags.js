@@ -240,6 +240,14 @@ Object.assign(JOB_TAGS, {
   ano_kata: ['dark', 'shinobi', 'rival', 'master'], // あの方（なぞの組織のボス）
 });
 
+// 第82回 A: 犬夜叉の 系統（jobs-r82a.js。剣・つめ〈こぶし〉・ようかい〈魔物〉・風・守る）
+Object.assign(JOB_TAGS, {
+  hanyo_boy: ['fist', 'monster', 'kid'], // 半ようの少年（つめ・ようかいの 血・少年）
+  tessaiga_user: ['sword', 'wind', 'monster', 'fist'], // 鉄さいがの使い手（刀・風のきず・ようかいの 血・つめ）
+  inuyasha: ['sword', 'wind', 'monster', 'guard'], // 犬夜しゃ（鉄さいが・風のきず・半よう・仲間を 守る）
+  bakuryuha: ['sword', 'wind', 'monster', 'guard'], // ばくりゅうはの大よう（鉄さいが・ばくりゅうは・大よう・守りぬくちかい）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

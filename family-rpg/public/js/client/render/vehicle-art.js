@@ -19,6 +19,8 @@ import { addTokeiVehicleArt } from './vehicle-tokei.js';
 import { addR43jVehicleArt } from './vehicle-r43j.js';
 // 第79回: 幻の職業の 乗り物（vehicle-phantom.js）
 import { addPhantomVehicleArt } from './vehicle-phantom.js';
+// 第82回 A: 二またの大ねこ（犬夜叉の 系統。vehicle-r82a.js）
+import { addR82aVehicleArt } from './vehicle-r82a.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1602,6 +1604,8 @@ addPrizeVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, carpetPaint, cloud
 addTokeiVehicleArt(ART, { horseArt });
 // 第79回: 幻の職業の 乗り物（render/vehicle-phantom.js）
 addPhantomVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, box, seg, poly, wheel, rgba, shade, twinkle, seat, stand });
+// 第82回 A: 二またの大ねこ（render/vehicle-r82a.js）
+addR82aVehicleArt(ART, { seg, poly, shade, seat });
 
 export const VEHICLE_ART = ART;
 

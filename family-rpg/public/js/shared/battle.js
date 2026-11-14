@@ -79,6 +79,8 @@ import { genkiAct } from './battle-genki.js';
 // 第66回 E2: セーブと ロード（ゲームの神）・楽天ポイント（楽天ゴールド・ブラックカードマン）。battle-r66e2.js
 import { r66e2Effect, cardPtMult } from './battle-r66e2.js';
 import { sameNameOff, cmdOffList } from './cmd-off.js';
+// 第82回 A: 犬夜叉の 系統（ようかい化・おすわり！・風の技・ばくりゅうは。battle-r82a.js）
+import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDamage, r82aResolve, r82aPub } from './battle-r82a.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -472,6 +474,12 @@ export class Battle {
       for (let i = 0; i < n; i++) this.enqueue(c, { type: 'ai' }, i === n - 1);
       return;
     }
+    // 第82回 A: ようかい化して いる 人は 命令を 聞かない（コマンドを 出さずに 自動で あばれる。battle-r82a.js）
+    if (youkaiAuto(c)) {
+      this.enqueue(c, { type: 'ai' });
+      this.emit({ t: 'queued', id: c.id });
+      return;
+    }
     if (c.controller && !c.auto && !c.status.confuse) {
       c.ready = true;
       this.emit({ t: 'ready', id: c.id });
@@ -627,6 +635,8 @@ export class Battle {
     const actors = [c, ...(q.cmd?.type === 'dual' ? partnersOf(q.cmd).map((id) => this.get(id)).filter((x) => x && x !== c) : [])];
     const held = actors.map((x) => this.heldEffects(x));
     this.actStart(c, ev);
+    // 第82回 A: ばくりゅうはの かまえが とける・ようかい化の はじまりと おわり（battle-r82a.js）
+    r82aTurnStart(this, c, ev);
     // 反撃の構えは つぎの 自分の 番で とける
     if (c.stance) {
       c.stance = null;
@@ -659,6 +669,8 @@ export class Battle {
           cmd = { type: 'attack', target: this.rng.pick(pool)?.id, confused: true };
         }
       }
+      // 第82回 A: ようかい化して いる 間は 命令を 聞かず つめで あばれる（battle-r82a.js）
+      if (!confused) cmd = youkaiCmd(this, c, cmd, ev) || cmd;
       if (!confused && cmd.type === 'ai') {
         cmd = c.side === 'enemy' ? decideMonster(this, c) : decideAlly(this, c);
       }
@@ -671,6 +683,8 @@ export class Battle {
         this.applyAbility(c, ABILITIES.js_asobu, {}, ev, 1);
       } else this.perform(c, cmd, ev);
       this.resolveCounters(ev);
+      // 第82回 A: ばくりゅうはで 受けとめた 力を 風で 返す（battle-r82a.js）
+      r82aResolve(this, ev);
       this.tickStatus(c, 'blind', ev);
       this.tickStatus(c, 'silence', ev);
     }
@@ -1494,6 +1508,8 @@ export class Battle {
       case 'yomi': case 'barrier': case 'twinCast': case 'kenki': r51bEffect(this, c, a, eff, ev, targets); break;
       // セーブ・ロード・楽天ポイント（第66回 E2。battle-r66e2.js）
       case 'savePoint': case 'loadPoint': case 'cardPoint': r66e2Effect(this, c, a, eff, ev); break;
+      // おすわり！・よう力をおさえる・大よう化・ばくりゅうは（第82回 A。battle-r82a.js）
+      case 'osuwari': case 'youkaiCalm': case 'daiyoukai': case 'bakuryu': r82aEffect(this, c, a, eff, ev, targets, powMult); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1594,6 +1610,8 @@ export class Battle {
     dmg *= (eff.mult ?? 1) * powMult * kenkiMult(c, eff);
     // 楽天ポイントが たまるほど 強い 技（第66回 E2。battle-r66e2.js）
     dmg *= cardPtMult(c, eff);
+    // 風の技（強くして いる 敵に 強い）・ようかい化の 間に 強い 技（第82回 A。battle-r82a.js）
+    dmg *= r82aPhysMult(c, t, eff);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;
@@ -1674,6 +1692,8 @@ export class Battle {
     const bd = barrierDamage(this, c, t, dmg, ev);
     if (bd === null) return;
     dmg = bd;
+    // 第82回 A: おすわり！で 半分・ばくりゅうはで 受けとめる（battle-r82a.js）
+    dmg = r82aDamage(this, c, t, dmg, info, ev);
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -2484,6 +2504,8 @@ export function pub(c) {
     ...towerPub(c),
     // バリアの のこり・先読み・剣気・二重呪文（battle-r51b.js）
     ...r51bPub(c),
+    // ようかい化・大よう化・おすわり！（第82回 A。battle-r82a.js）
+    ...r82aPub(c),
   };
 }
 

@@ -31,6 +31,8 @@ import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r4
 import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js';
 // 第79回: 幻の職業の マントの うら・かたかざり・二本目の 刀・星・日輪・王の つえ・虫めがね（hero-r79.js）
 import { outfit79, drawR79, drawProp79 } from './hero-r79.js';
+// 第82回 A: 犬夜叉の 系統の 首の 数珠（hero-r82a.js）
+import { outfit82, drawR82 } from './hero-r82a.js';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -244,6 +246,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   if (S.r66b) outfit66b(O, S);
   // 第79回: 幻の職業
   if (S.r79) outfit79(O, S);
+  // 第82回 A: 犬夜叉の 系統
+  if (S.r82) outfit82(O, S);
   return false;
 }
 
@@ -371,6 +375,8 @@ export function drawR26(cv, P, O, layer) {
   if (O.r66b) drawR66b(cv, P, O, layer);
   // 第79回: 幻の職業の 二本目の 刀・星・日輪
   if (O.r79) drawR79(cv, P, O, layer);
+  // 第82回 A: 犬夜叉の 系統の 首の 数珠
+  if (O.r82) drawR82(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';

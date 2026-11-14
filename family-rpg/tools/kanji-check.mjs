@@ -342,6 +342,8 @@ export function gameFiles() {
     'public/js/client/render/axfx-o8-madou.js', 'public/js/client/render/axfx-o8-kensei.js',
     // 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの 技・ひらめき技・戦いの しかけ・えんしゅつ
     'public/js/shared/data/abilities-r66e2.js', 'public/js/shared/data/hirameki-r66e2.js', 'public/js/shared/battle-r66e2.js', 'public/js/client/render/battlefx-r66e2.js',
+    // 第82回 A: 犬夜叉の 系統（職業・技・ひらめき技・戦いの しくみ・えんしゅつ・画面の しるし）
+    'public/js/shared/data/jobs-r82a.js', 'public/js/shared/data/abilities-r82a.js', 'public/js/shared/data/hirameki-r82a.js', 'public/js/shared/battle-r82a.js', 'public/js/client/render/battlefx-r82a.js', 'public/js/client/battle-r82a.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

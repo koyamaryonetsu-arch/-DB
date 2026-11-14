@@ -104,6 +104,8 @@ VEHICLES.flying_card.jobs.push('gold_cardman', 'black_cardman');
 VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
 // 第79回: 幻の職業の 乗り物（data/vehicles-phantom.js。その 幻の職業に なった 人の たなに だけ。20000〜30000G）
 import { PHANTOM_VEHICLES } from './vehicles-phantom.js'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
+// 第82回 A: 犬夜叉の 系統の 乗り物（しっぽが 2本の 大きな ねこ。足もとに ほのお。絵は client/render/vehicle-r82a.js）
+VEHICLES.twin_cat = { name: '二またの大ねこ', price: 5200, jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'], desc: 'しっぽが2本ある、大きなねこ。足もとのほのおで、空もかける。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
