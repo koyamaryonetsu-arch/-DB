@@ -29,7 +29,7 @@
 //   drawR79(cv, P, O, layer) … 二本目の 刀・星の もよう・頭の うしろの 日輪（drawR26 から）
 //   drawProp79(cv, P, A, O)  … 王の つえ・大きな 虫めがね（drawProp26 から。かいたら true）
 //   handMark79(cv, A, P, O)  … 両手の 光（hero.js の 手の あと）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=298589449c4c';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=37bf0e270855';
 
 export const R79_JOBS = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
   'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god'];

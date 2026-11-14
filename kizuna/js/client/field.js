@@ -1,30 +1,30 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=298589449c4c';
-import { T, TILE_INFO } from '../shared/tiles.js?v=298589449c4c';
-import { PLACES } from '../shared/maps/overworld.js?v=298589449c4c';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=298589449c4c';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=298589449c4c';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=298589449c4c';
-import { shownEquip } from '../shared/look-equip.js?v=298589449c4c';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=298589449c4c';
-import { MONSTERS } from '../shared/data/monsters.js?v=298589449c4c';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=37bf0e270855';
+import { T, TILE_INFO } from '../shared/tiles.js?v=37bf0e270855';
+import { PLACES } from '../shared/maps/overworld.js?v=37bf0e270855';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=37bf0e270855';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=37bf0e270855';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=37bf0e270855';
+import { shownEquip } from '../shared/look-equip.js?v=37bf0e270855';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=37bf0e270855';
+import { MONSTERS } from '../shared/data/monsters.js?v=37bf0e270855';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=298589449c4c';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=298589449c4c';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=298589449c4c';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=298589449c4c';
-import { boardCanvas } from './render/boards.js?v=298589449c4c';
-import { el } from './ui/dom.js?v=298589449c4c';
-import { syncTreasureGates } from './ui/treasure.js?v=298589449c4c';
-import { skyNpcSprite } from './render/sky-art.js?v=298589449c4c';
-import { wagonDraws } from './render/wagon.js?v=298589449c4c';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=298589449c4c';
-import { Weather } from './render/weather.js?v=298589449c4c';
-import { flySpeed } from '../shared/data/sky.js?v=298589449c4c';
-import { timeFlag } from '../shared/world/clock.js?v=298589449c4c';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=298589449c4c';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=298589449c4c';
-import { huntMatch } from './ui/sources.js?v=298589449c4c';
+import { colorMon } from '../shared/data/variants.js?v=37bf0e270855';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=37bf0e270855';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=37bf0e270855';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=37bf0e270855';
+import { boardCanvas } from './render/boards.js?v=37bf0e270855';
+import { el } from './ui/dom.js?v=37bf0e270855';
+import { syncTreasureGates } from './ui/treasure.js?v=37bf0e270855';
+import { skyNpcSprite } from './render/sky-art.js?v=37bf0e270855';
+import { wagonDraws } from './render/wagon.js?v=37bf0e270855';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=37bf0e270855';
+import { Weather } from './render/weather.js?v=37bf0e270855';
+import { flySpeed } from '../shared/data/sky.js?v=37bf0e270855';
+import { timeFlag } from '../shared/world/clock.js?v=37bf0e270855';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=37bf0e270855';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=37bf0e270855';
+import { huntMatch } from './ui/sources.js?v=37bf0e270855';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -233,7 +233,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=298589449c4c');
+          const { Field3D } = await import('./render/field3d.js?v=37bf0e270855');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -1271,8 +1271,6 @@ export class Field {
       ctx.globalCompositeOperation = 'source-over';
     }
     this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS, na);
-    // 第78回: 階段・くさりの 目じるし（▲▼。くらやみ・よるの 上に。render/field3d.js）
-    this.r3d.drawMarks?.(ctx, P, t);
     this.renderLabels(0, 0);
   }
 

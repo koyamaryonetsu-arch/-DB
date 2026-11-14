@@ -4,7 +4,7 @@
 // ・ひきつぎの 合言葉（transfer.js）には 入れない（ひきついだ あとは もとどおり）
 // ・チャットで おくる スタンプは 今までどおり 12文字までの ことばなら なんでも（world.js の onChat）
 
-import { earnedOf } from './missions.js?v=298589449c4c';
+import { earnedOf } from './missions.js?v=37bf0e270855';
 
 export const STAMP_SLOTS = 12; // いくつまで
 export const STAMP_LEN = 12; // 1つの 長さ（world.js の onChat の slice と おなじ）

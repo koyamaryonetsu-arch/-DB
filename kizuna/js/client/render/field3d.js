@@ -3,34 +3,32 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=298589449c4c';
-import { T } from '../../shared/tiles.js?v=298589449c4c';
-import { effectiveTile } from '../../shared/maps/index.js?v=298589449c4c';
-import { pyramidLevel } from '../../shared/maps/south.js?v=298589449c4c';
-import { hash2, valueNoise } from '../../shared/rng.js?v=298589449c4c';
+import * as THREE from '../../../vendor/three.min.js?v=37bf0e270855';
+import { T } from '../../shared/tiles.js?v=37bf0e270855';
+import { effectiveTile } from '../../shared/maps/index.js?v=37bf0e270855';
+import { pyramidLevel } from '../../shared/maps/south.js?v=37bf0e270855';
+import { hash2, valueNoise } from '../../shared/rng.js?v=37bf0e270855';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=298589449c4c';
-import { tileCanvas } from './tiles.js?v=298589449c4c';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=298589449c4c';
+} from './tex3d.js?v=37bf0e270855';
+import { tileCanvas } from './tiles.js?v=37bf0e270855';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=37bf0e270855';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=298589449c4c';
+import { whirlCanvas } from './tiles-duna.js?v=37bf0e270855';
 // 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
-import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=298589449c4c';
-import { labBlockSpec } from './tiles-lab.js?v=298589449c4c';
-import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=298589449c4c';
-import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=298589449c4c';
-import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=298589449c4c';
-import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=298589449c4c';
-import { CASTLE_FLOOR_H } from './tiles-castle.js?v=298589449c4c';
-import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js?v=298589449c4c';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=298589449c4c';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=298589449c4c';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=298589449c4c';
-// 第78回: 階段・くさりの 立体・目じるし・手前の かべを ひくく（render/mark3d.js）
-import {
-  collectMarks, stairCuts, hiddenBehind, markBob, marksShown, nearMark, drawMark, drawMarkGlow, chainCanvas3d, MARK_LIFT, CHAIN_GHOST, CHAIN_STRETCH,
-} from './mark3d.js?v=298589449c4c';
+import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=37bf0e270855';
+import { labBlockSpec } from './tiles-lab.js?v=37bf0e270855';
+import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=37bf0e270855';
+import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=37bf0e270855';
+import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=37bf0e270855';
+import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=37bf0e270855';
+import { CASTLE_FLOOR_H } from './tiles-castle.js?v=37bf0e270855';
+import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js?v=37bf0e270855';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=37bf0e270855';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=37bf0e270855';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=37bf0e270855';
+// 第78回: 階段・くさりの 立体・手前の かべを ひくく（render/mark3d.js。▲▼ の 目じるしは 第82回で やめた）
+import { stairCuts, chainCanvas3d, CHAIN_GHOST, CHAIN_STRETCH } from './mark3d.js?v=37bf0e270855';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -614,9 +612,6 @@ export class Field3D {
       ghost.renderOrder = 10;
       group.add(ghost);
     }
-    // 第78回: 階段・くさりの 目じるし（▲▼。うえに かさねる 2D に かく）
-    const underAt = (x, y) => map.gates.find((q) => q.x === x && q.y === y)?.closed ?? null;
-    this.marks = collectMarks(w, h, idAt, underAt);
     // き
     if (trees.length || pines.length) {
       const tt = makeCanvas(48, 16);
@@ -1070,28 +1065,6 @@ export class Field3D {
     this.shadows.instanceMatrix.needsUpdate = true;
   }
 
-  // 第78回: 階段・くさりの 目じるし（▲▼）と 足もとの うすい 光。くらやみの 上に かく（field.js の render3d から）
-  //   P(x, y, up) … がめんの いち（{ x, y, k: 1マスの 大きさ }）/ t … 時間
-  drawMarks(ctx, P, t) {
-    const f = this.field, g = f.game || {};
-    if (!this.marks?.length || !this.topH) return;
-    if (!marksShown({ busy: !!g.busy, menu: !!g.menuOpen, look: !!f.lookAt, state: g.state })) return;
-    const me = f.me;
-    for (const m of this.marks) {
-      if (Math.abs(m.x - me.x) > 16 || Math.abs(m.y - me.y) > 15) continue;
-      if (nearMark(m, me.x, me.y) || this.hiddenByRoof(m.x, m.y)) continue;
-      const base = this.floorAt(m.x, m.y);
-      // 手前の 物に かくれて いる（どの マスも かくれて いる）ときは うすく
-      let hid = true;
-      for (let i = 0; i < m.w && hid; i++) hid = hiddenBehind((k) => this.topH(m.tx + i, m.ty + k), base);
-      const top = P(m.x, m.y, (m.climb ? MARK_LIFT.climb : MARK_LIFT.stairs) + markBob(t, m.tx, m.ty));
-      if (top.x < -20 || top.y < -20 || top.x > f.vw + 20 || top.y > f.vh + 20) continue;
-      const foot = P(m.x, m.y, 0.02);
-      drawMarkGlow(ctx, foot.x, foot.y, foot.k * (0.5 + 0.3 * m.w), hid ? 0.14 : 0.32);
-      drawMark(ctx, top.x, top.y, Math.max(5, foot.k * 0.42), m.kind, hid ? 0.55 : 1);
-    }
-  }
-
   // じぶんが いない たてものの なかの ひとは やねで かくれる
   hiddenByRoof(x, y) {
     for (const b of this.buildings || []) {
@@ -1193,7 +1166,9 @@ function subUv(uv, fx0, fx1, fz0, fz1) {
 //   上り … 南から 北へ 3だん 上がる（はば いっぱい の 石の 段。よこと 前の めんも）
 //   下り … ゆかに 四角い 穴。北へ 3だん 下りる（おくほど くらい）。穴の おくと よこの かべ
 //   ground … まわりの ゆかの え / top・side … 段の うえ・まえ / pit … 穴の かべ
+// 第82回: ▲▼ の 目じるしを やめた かわりに、段の てまえの ふちを すこし 明るく・下りの 穴に 明るい 石の ふち（ひかえめ）
 export const STAIR_N = 3, STAIR_UP_H = 0.56, STAIR_DOWN_D = 0.5;
+export const STAIR_EDGE = { lit: 1.3, rim: 0.05, rimLit: 1.35 }; // 段の てまえの ふちの 明るさ・穴の ふちの はば と 明るさ
 function addStairs(g, x, y, hh, id, idAt, ground, top, side, pit) {
   const L = idAt(x - 1, y) === id, R = idAt(x + 1, y) === id;
   const N = STAIR_N;
@@ -1205,7 +1180,7 @@ function addStairs(g, x, y, hh, id, idAt, ground, top, side, pit) {
       const h0 = hh + STAIR_UP_H * j / N, h1 = hh + STAIR_UP_H * (j + 1) / N;
       const t = subUv(top, 0, 1, (N - 1 - j) / N, (N - j) / N);
       // うえ（てまえの ふちは 明るく・おくは すこし くらく → 1だんずつ 見える）
-      quad(g, [X0, h1, za], [X0, h1, zb], [X1, h1, zb], [X1, h1, za], t, [0.86, 1.15, 1.15, 0.86]);
+      quad(g, [X0, h1, za], [X0, h1, zb], [X1, h1, zb], [X1, h1, za], t, [0.9, STAIR_EDGE.lit, STAIR_EDGE.lit, 0.9]);
       // まえの めん（その だんの 高さ ぶん。くらく）
       quad(g, [X0, h1, zb], [X0, h0, zb], [X1, h0, zb], [X1, h1, zb], subUv(side, 0, 1, 0, 0.3), 0.5);
       // よこの めん（下まで）
@@ -1225,6 +1200,12 @@ function addStairs(g, x, y, hh, id, idAt, ground, top, side, pit) {
   rim(x, x + 1, Z1, y + 1);
   rim(x, X0, Z0, Z1);
   rim(X1, x + 1, Z0, Z1);
+  // 穴の ふち（明るい 石。となりも 下り 階段の 所は つなげる）
+  const e = STAIR_EDGE.rim, ey = hh + 0.005, lip = (ax, bx, az, bz, sh) => quad(g, [ax, ey, az], [ax, ey, bz], [bx, ey, bz], [bx, ey, az], subUv(top, 0, 1, 0, 0.2), sh);
+  lip(X0 - (L ? 0 : e), X1 + (R ? 0 : e), Z0 - e, Z0, STAIR_EDGE.rimLit * 0.85); // おく（北）
+  lip(X0 - (L ? 0 : e), X1 + (R ? 0 : e), Z1, Z1 + e, STAIR_EDGE.rimLit); // てまえ（南）
+  if (!L) lip(X0 - e, X0, Z0, Z1, STAIR_EDGE.rimLit * 0.92);
+  if (!R) lip(X1, X1 + e, Z0, Z1, STAIR_EDGE.rimLit * 0.92);
   const D = STAIR_DOWN_D, d = (Z1 - Z0) / N;
   for (let j = 0; j < N; j++) {
     const za = Z1 - (j + 1) * d, zb = Z1 - j * d;
