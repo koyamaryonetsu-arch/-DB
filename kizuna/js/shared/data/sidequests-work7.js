@@ -13,11 +13,11 @@
 // 33. 小さなオアシスの、いばりんぼうおだいかん（将軍 → 暴れんぼう将軍。めやす箱・「この顔を、見わすれたか！」・みねうち）
 // 34. 東の平原の、小さな剣術道場（ひ村ばっ刀さい → 飛天御剣流けい承者。さかば刀・人を守る剣・せんたくと ごはん）
 // 35. 炎の山のふもとの、お湯が出ない土管（ももの姫〈配管工〉→ ロゼッタ〈ギャラクシーマリオ〉。土管に もぐる・ひっこし・スパナ）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=283f9a2c8227';
-import { rewardSteps } from './sidequests-work2.js?v=283f9a2c8227';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=5e5310169c06';
+import { rewardSteps } from './sidequests-work2.js?v=5e5310169c06';
 import {
   WQ7, WQ7_OPEN, OAS_VOICES, OAS_STEPS, DOJO_VOICES, DOJO_STEPS, PIPE_VOICES, PIPE_STEPS,
-} from '../maps/work-quests7.js?v=283f9a2c8227';
+} from '../maps/work-quests7.js?v=5e5310169c06';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

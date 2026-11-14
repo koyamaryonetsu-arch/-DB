@@ -6,7 +6,7 @@
 // c8k_shapes（ふしぎな形の魔法）は さんかく・しかく・まるの 光（とくべつな つぶ c8cshape）が とんでいく。
 // でっかくなあれ・ほうき・ヒップドロップ・ギガ・ギガほのおは がめんの まん中に 大きく（client/battle-c8c.js の C8C_SCREEN_ANIMS）
 // 第2部 第8章 第4幕 の 魔物・時の門番フリーゾン・心の ためし・ソリトゥス（battlefx-c8r.js）
-import { playC8rFx, C8R_FINE } from './battlefx-c8r.js?v=283f9a2c8227';
+import { playC8rFx, C8R_FINE } from './battlefx-c8r.js?v=5e5310169c06';
 
 const FIRE = ['#ff8a2a', '#ffe06a', '#e0301a', '#ffffff'];
 const MAGIC = ['#ff7ae0', '#9ae6ff', '#fff6a0', '#ffffff'];

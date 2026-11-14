@@ -17,9 +17,9 @@
 // ■ オート（ai.js の decideAlly から r82bPlan）: 弱点が 分かって いれば その 玉に・分からなければ 雷の まま・
 //   雷の 天気なら 雷（天気の 倍率も 数える）。かみなり雲は 味方の 天気が ない ときだけ（天候の 職業の 天気を 上書きしない）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { ELEMENT_NAMES } from './data/abilities.js?v=283f9a2c8227';
-import { weatherMult, WEATHER_UP } from './battle-weather.js?v=283f9a2c8227';
-import { YB_TAMAGAE_ATB } from './data/abilities-r82b.js?v=283f9a2c8227';
+import { ELEMENT_NAMES } from './data/abilities.js?v=5e5310169c06';
+import { weatherMult, WEATHER_UP } from './battle-weather.js?v=5e5310169c06';
+import { YB_TAMAGAE_ATB } from './data/abilities-r82b.js?v=5e5310169c06';
 
 // 玉の 表（ならびは 玉がえの メニューの じゅん）。金色の玉は 七つ玉の 1回と きょだい化だけ（玉がえでは えらばない）
 export const TAMA = {

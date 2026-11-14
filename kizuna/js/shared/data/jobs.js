@@ -15,34 +15,36 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=283f9a2c8227';
-import { JOB_TAGS } from './job-tags.js?v=283f9a2c8227';
+import { applyField27Learn } from './abilities-field27.js?v=5e5310169c06';
+import { JOB_TAGS } from './job-tags.js?v=5e5310169c06';
 // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者（jobs-weather.js）
-import { WEATHER_JOBS } from './jobs-weather.js?v=283f9a2c8227';
+import { WEATHER_JOBS } from './jobs-weather.js?v=5e5310169c06';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
-import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=283f9a2c8227';
+import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=5e5310169c06';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
-import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=283f9a2c8227';
+import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=5e5310169c06';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
-import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=283f9a2c8227';
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=5e5310169c06';
 // 第66回: 伝説の職業（A〜D班。docs/plan-r66-legend.md）
-import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js?v=283f9a2c8227';
-import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js?v=283f9a2c8227';
-import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js?v=283f9a2c8227';
-import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js?v=283f9a2c8227';
-import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js?v=283f9a2c8227';
-import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js?v=283f9a2c8227';
-import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js?v=283f9a2c8227';
+import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js?v=5e5310169c06';
+import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js?v=5e5310169c06';
+import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js?v=5e5310169c06';
+import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js?v=5e5310169c06';
+import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js?v=5e5310169c06';
+import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js?v=5e5310169c06';
+import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js?v=5e5310169c06';
 // 第66回 B班: 伝説の職業の 神殿の うわさ（jobs-legend-r66b.js）
-import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js?v=283f9a2c8227';
+import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js?v=5e5310169c06';
 // 第66回 C班の 伝説の職業の 神殿の うわさ
-import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js?v=283f9a2c8227';
-import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js?v=283f9a2c8227';
+import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js?v=5e5310169c06';
+import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js?v=5e5310169c06';
 // 第66回 E1班の 神殿の うわさ（jobs-r66e1.js）
-import { HINTS_R66E1 } from './jobs-r66e1.js?v=283f9a2c8227';
-import { HINTS_R66E2 } from './jobs-r66e2.js?v=283f9a2c8227';
+import { HINTS_R66E1 } from './jobs-r66e1.js?v=5e5310169c06';
+import { HINTS_R66E2 } from './jobs-r66e2.js?v=5e5310169c06';
+// 第82回 A: 犬夜叉の 系統（半ようの少年 → 鉄さいがの使い手 → 犬夜しゃ → ばくりゅうはの大よう。jobs-r82a.js）
+import { JOBS_R82A, BASE_R82A_ORDER, ADV_R82A_ORDER, SUPER_R82A_ORDER, LEGEND_R82A_ORDER, HINTS_R82A } from './jobs-r82a.js?v=5e5310169c06';
 // 第82回 B班: YAIBA の 系統（サムライ小ぞう → 雷神けんの剣士 → ヤイバ → 竜神けんのサムライ。jobs-r82b.js）
-import { JOBS_R82B, R82B_ORDERS, HINTS_R82B } from './jobs-r82b.js?v=283f9a2c8227';
+import { JOBS_R82B, R82B_ORDERS, HINTS_R82B } from './jobs-r82b.js?v=5e5310169c06';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1306,6 +1308,8 @@ Object.assign(JOBS, PHANTOM_JOBS_C);
 Object.assign(JOBS, PHANTOM_JOBS_B);
 // 第66回: 伝説の職業（jobs-legend-r66a〜d.js）
 Object.assign(JOBS, LEGEND_R66A_JOBS, LEGEND_R66B_JOBS, LEGEND_R66C_JOBS, LEGEND_R66D_JOBS, JOBS_R66E1, JOBS_R66E2);
+// 第82回 A: 犬夜叉の 系統（jobs-r82a.js）
+Object.assign(JOBS, JOBS_R82A);
 // 第82回 B班: YAIBA の 系統（jobs-r82b.js）
 Object.assign(JOBS, JOBS_R82B);
 
@@ -1360,6 +1364,8 @@ export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_geniu
   'keikyu_president', 'hall_of_fame',
   // 第66回（jobs-legend-r66a〜d.js。できた 物だけ）
   ...[...LEGEND_R66A_ORDER, ...LEGEND_R66B_ORDER, ...LEGEND_R66C_ORDER, ...LEGEND_R66D_ORDER, ...LEGEND_R66E1_ORDER, ...LEGEND_R66E2_ORDER].filter((id) => JOBS[id])];
+// 第82回 A: 犬夜叉の 系統（jobs-r82a.js。それぞれの ランクの おわりに）
+JOB_ORDER.push(...BASE_R82A_ORDER); ADVANCED_ORDER.push(...ADV_R82A_ORDER); SUPER_ORDER.push(...SUPER_R82A_ORDER); LEGEND_ORDER.push(...LEGEND_R82A_ORDER);
 // 第82回 B班: YAIBA の 系統を 段ごとの ならびの おわりに（jobs-r82b.js の R82B_ORDERS）
 [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R82B_ORDERS[i]));
 // 第51回: 幻の職業（伝説の 上。tier 4。なる 条件は「きわめた 職業 2つ（req）」＋やりこみの 条件（data/phantom.js）。docs/plan-r51-phantom.md）
@@ -1535,5 +1541,7 @@ Object.assign(JOB_HINTS, LEGEND_R66D_HINTS);
 Object.assign(JOB_HINTS, HINTS_R66E1);
 // 第66回 E2 の 超級職・伝説の職業の うわさ（jobs-r66e2.js）
 Object.assign(JOB_HINTS, HINTS_R66E2);
+// 第82回 A: 犬夜叉の 系統の うわさ（jobs-r82a.js）
+Object.assign(JOB_HINTS, HINTS_R82A);
 // 第82回 B班: ヤイバ・竜神けんのサムライの うわさ（jobs-r82b.js）
 Object.assign(JOB_HINTS, HINTS_R82B);

@@ -7,10 +7,10 @@
 // ・千年前の 森の いかり（389）/ ようさいへ のぼる くさり（390）/ 今の 森の 残がいの 鉄の 板（391）/ しまった 出入り口（392）/ 開いた 出入り口（393）
 // ・8階の まほうの おり（394。3コマ）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=283f9a2c8227';
-import { prand } from './pixel.js?v=283f9a2c8227';
+import { T } from '../../shared/tiles.js?v=5e5310169c06';
+import { prand } from './pixel.js?v=5e5310169c06';
 // 第8章 第4幕「時のはざま」の タイル（render/tiles-c8r.js。ここで まぜる）
-import { C8R_PAINTERS, C8R_FRAMES, C8R_SPEED, C8R_FLOOR_H, c8rBlockSpec, C8R_PROPS, C8R_PROPS_KEEP, C8R_THEMES } from './tiles-c8r.js?v=283f9a2c8227';
+import { C8R_PAINTERS, C8R_FRAMES, C8R_SPEED, C8R_FLOOR_H, c8rBlockSpec, C8R_PROPS, C8R_PROPS_KEEP, C8R_THEMES } from './tiles-c8r.js?v=5e5310169c06';
 
 const IR = { d: '#1e2028', b: '#3a3e4a', l: '#5a6070', hl: '#8a92a4', ln: '#14161c' }; // くろがね
 const RU = { d: '#4a2a1a', b: '#7a4a2a', l: '#a8683a', hl: '#c88a50' }; // さび

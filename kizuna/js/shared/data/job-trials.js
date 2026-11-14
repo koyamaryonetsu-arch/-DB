@@ -11,9 +11,9 @@
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
 // ・キャラの jobs[職業] に のこす: tr … クリアした 試練の 数 / tq … 受けている 試練（1・2）/ tn … 修行の 数
 //   （家族で 遊んでも 1人ずつ。world/merge.js は 多い ほう、world/save.js が 古い セーブを ととのえる）
-import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=283f9a2c8227';
-import { ABILITIES } from './abilities.js?v=283f9a2c8227';
-import { jobLabel } from '../job-label.js?v=283f9a2c8227';
+import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=5e5310169c06';
+import { ABILITIES } from './abilities.js?v=5e5310169c06';
+import { jobLabel } from '../job-label.js?v=5e5310169c06';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
@@ -221,6 +221,11 @@ Object.assign(TRIAL_WORDS, {
   kaichou: 'お金は、みんなを笑顔にするために使うものだ。',
   hatarakikata: 'よく働き、よく休む。それがいちばん強い。',
   ano_kata: 'ひみつを守れる者だけが、ほんとうの強さを知る。',
+});
+// 第82回 A: 犬夜叉の 系統の 超級職・伝説の職業（jobs-r82a.js）
+Object.assign(TRIAL_WORDS, {
+  inuyasha: '刀は、守りたいものがある時に、いちばん強くなるのだ。',
+  bakuryuha: 'ようかいの力も、人の心も、どちらもおまえの力だ。',
 });
 // 第82回 B班（超級職・伝説。jobs-r82b.js）
 Object.assign(TRIAL_WORDS, {

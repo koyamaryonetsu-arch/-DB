@@ -12,25 +12,27 @@
 //                                    はなかっぱの かお・楽天カードマンの メガネと カード（phase 'over': ぼうしの あと）
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=283f9a2c8227';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=5e5310169c06';
 // 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
-import { drawR27, drawProp27 } from './hero-r27.js?v=283f9a2c8227';
+import { drawR27, drawProp27 } from './hero-r27.js?v=5e5310169c06';
 // 第29回の るろうに剣士の 道の マント・十字の きず（hero-r29.js）
-import { outfit29, drawR29, face29 } from './hero-r29.js?v=283f9a2c8227';
+import { outfit29, drawR29, face29 } from './hero-r29.js?v=5e5310169c06';
 // 第33回の 11この 職業の マント・リボン・めがね・シルクハット・もちもの（hero-r33.js）
-import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=283f9a2c8227';
+import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=5e5310169c06';
 // 第40回の 伝説の 職業 2つの ドレス・ひたいの しるし・つえ（hero-r40.js）
-import { outfit40, face40, drawProp40 } from './hero-r40.js?v=283f9a2c8227';
+import { outfit40, face40, drawProp40 } from './hero-r40.js?v=5e5310169c06';
 // 第41回 B の 雪の女王・第5のせいれいの ドレス・すける マント（hero-r41b.js）
-import { outfit41b } from './hero-r41b.js?v=283f9a2c8227';
+import { outfit41b } from './hero-r41b.js?v=5e5310169c06';
 // 第41回 A の 伝説の 職業 2つの 手ぶくろ・むねの かざり・もちもの（hero-r41a.js）
-import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=283f9a2c8227';
+import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=5e5310169c06';
 // 第43回の 配管工の 系統の つなぎ・手ぶくろ・ドレス・ひげ・ぼうし・スパナ（hero-r43j.js）
-import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r43j.js?v=283f9a2c8227';
+import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r43j.js?v=5e5310169c06';
 // 第66回 B班の 伝説の 職業 4つの ドレス・むねの かざり・マイク・おたま（hero-r66b.js）
-import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js?v=283f9a2c8227';
+import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js?v=5e5310169c06';
 // 第79回: 幻の職業の マントの うら・かたかざり・二本目の 刀・星・日輪・王の つえ・虫めがね（hero-r79.js）
-import { outfit79, drawR79, drawProp79 } from './hero-r79.js?v=283f9a2c8227';
+import { outfit79, drawR79, drawProp79 } from './hero-r79.js?v=5e5310169c06';
+// 第82回 A: 犬夜叉の 系統の 首の 数珠（hero-r82a.js）
+import { outfit82, drawR82 } from './hero-r82a.js?v=5e5310169c06';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -244,6 +246,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   if (S.r66b) outfit66b(O, S);
   // 第79回: 幻の職業
   if (S.r79) outfit79(O, S);
+  // 第82回 A: 犬夜叉の 系統
+  if (S.r82) outfit82(O, S);
   return false;
 }
 
@@ -371,6 +375,8 @@ export function drawR26(cv, P, O, layer) {
   if (O.r66b) drawR66b(cv, P, O, layer);
   // 第79回: 幻の職業の 二本目の 刀・星・日輪
   if (O.r79) drawR79(cv, P, O, layer);
+  // 第82回 A: 犬夜叉の 系統の 首の 数珠
+  if (O.r82) drawR82(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
