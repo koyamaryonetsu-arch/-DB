@@ -26,7 +26,7 @@ function tigerArt({ seg, poly, shade, seat }) {
   };
   // しまもよう（よこ。体の 上から 下へ みじかい 黒い すじ）
   const stripes = (p, x0, x1, top, len) => {
-    for (let x = x0; x <= x1; x += 4) seg(p, x, top, x - 1, top + len, K, 1.3);
+    for (let x = x0; x <= x1; x += 4.5) seg(p, x, top, x - 1.5, top + len, K, 1.8);
   };
   const side = (p, f, layer) => {
     const G = 50, by = 32;
@@ -43,37 +43,31 @@ function tigerArt({ seg, poly, shade, seat }) {
       return;
     }
     // からだ（白い おなか）
-    p.ellipse(34, by, 15.5, 7.5, O);
-    p.ellipse(22, by, 7, 7.2, O);
-    p.ellipse(46, by - 0.5, 7, 7, O);
-    p.hline(24, 44, by - 7, OL);
-    p.ellipse(33, by + 5, 11, 2.2, W);
-    stripes(p, 26, 48, by - 7, 5);
-    // 頭（大きく まるい）・耳・白い 口もと・目・ひげ
-    p.ellipse(12, by - 10, 8, 7, O);
-    p.ellipse(15, by - 4, 6, 5, O);
-    for (const [x, y] of [[9, by - 17], [16, by - 16.5]]) {
-      p.ellipse(x, y, 2.4, 2.2, O);
-      p.set(x, y, K);
+    p.ellipse(35, by, 15.5, 7.5, O);
+    p.ellipse(23, by, 7, 7.2, O);
+    p.ellipse(47, by - 0.5, 7, 7, O);
+    p.hline(25, 45, by - 7, OL);
+    p.ellipse(34, by + 5, 11, 2.2, W);
+    stripes(p, 27, 50, by - 7, 6);
+    // 頭（大きく まるい）・まるい 耳・白い ほおと 口もと・目・ひたいの しま・ひげ
+    p.ellipse(13, by - 9, 9.5, 8.5, O);
+    for (const [x, y] of [[8, by - 17.5], [17, by - 17.5]]) {
+      p.ellipse(x, y, 2.8, 2.6, O);
+      p.ellipse(x, y + 0.3, 1.3, 1.2, K);
     }
-    p.ellipse(6, by - 7, 4.4, 3.2, W);
-    p.set(3, by - 9, NOSE);
-    p.set(2, by - 9, NOSE);
-    p.hline(3, 6, by - 6, K);
-    p.rect(8, by - 13, 2, 2, EYE);
-    p.set(8, by - 13, '#ffe070');
-    // 頭の しま
-    seg(p, 12, by - 16, 13, by - 13, K, 1);
-    seg(p, 15, by - 15, 15.5, by - 12, K, 1);
-    seg(p, 17, by - 12, 18, by - 9, K, 1);
-    // ひげ
-    seg(p, 4, by - 7, 0, by - 8, '#ffffff', 1);
-    seg(p, 4, by - 6, 0, by - 5, '#ffffff', 1);
+    p.ellipse(7, by - 5, 5.2, 3.6, W);
+    p.ellipse(14, by - 3.5, 4, 2.6, W);
+    p.ellipse(3.2, by - 7.5, 1.6, 1.2, NOSE);
+    p.hline(3, 7, by - 4, K);
+    p.rect(9, by - 12, 2, 2, EYE);
+    p.set(9, by - 12, '#ffe070');
+    for (const [x0, y0, x1, y1] of [[12, by - 17, 12.5, by - 14], [15, by - 16.5, 15.5, by - 13], [19, by - 14, 21, by - 11], [20, by - 9, 22, by - 7]]) seg(p, x0, y0, x1, y1, K, 1.4);
+    seg(p, 4, by - 5, -1, by - 6.5, '#ffffff', 1);
+    seg(p, 4, by - 4, -1, by - 3, '#ffffff', 1);
     // てまえの 足
-    leg(p, 22, by + 4, L[0][0], G + L[0][1], O);
-    leg(p, 44, by + 4, L[2][0], G + L[2][1], O);
-    seg(p, L[0][0] + 1, G + L[0][1] - 6, L[0][0] + 2, G + L[0][1] - 4, K, 1);
-    seg(p, L[2][0] + 1, G + L[2][1] - 6, L[2][0] + 2, G + L[2][1] - 4, K, 1);
+    leg(p, 23, by + 4, L[0][0], G + L[0][1], O);
+    leg(p, 45, by + 4, L[2][0], G + L[2][1], O);
+    for (const i of [0, 2]) for (const dy of [7, 4]) seg(p, L[i][0] - 1, G + L[i][1] - dy, L[i][0] + 2, G + L[i][1] - dy - 0.5, K, 1.1);
     // あい色の くらぬの（白い ふち）
     poly(p, [[28, by - 8], [41, by - 8], [40, by - 1], [29, by - 1]], '#2a4aa8');
     p.hline(28, 41, by - 8, '#f4f4f4');

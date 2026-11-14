@@ -73,7 +73,8 @@ export function playR82bFx(fx, anim, targets, element, opts = {}, W = 256, H = 1
   };
   // 玉の 色の 太刀すじ 1本
   const slash = (t, d, ang, c3 = [core, edge, deep], w = 3) => {
-    fx.bigCut(t.x, t.y, { ang, color: c3[0], glow: c3[1], w: w * sz, delay: d, life: 320 });
+    fx.bigCut(t.x, t.y, { ang, color: c3[1], glow: c3[2], w: w * sz, delay: d, life: 320 });
+    fx.cut(t.x, t.y, { ang, len: 30 * sz, w: 1, color: c3[0], glow: c3[1], delay: d + 20, life: 240 });
     fx.glow(t.x, t.y, { color: c3[1], r: 18 * sz, delay: d, life: 260, alpha: 0.7 });
   };
   switch (anim) {

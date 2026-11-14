@@ -14,7 +14,7 @@ export const JOBS_R82B = {
     desc: '「天下一のサムライになる！」が口ぐせの、元気いっぱいの男の子。木刀をふり回して、まっすぐ前へつっこむ。おなかがすくと力が出ない。きわめると雷神けんの剣士になれる。',
     mods: { hp: 1.1, mp: 0.6, str: 1.3, def: 1.0, agi: 1.25, mag: 0.55, heal: 0.65 },
     weapons: ['sword', 'bat', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
-    perLv: { str: 1, agi: 0.5 },
+    perLv: { str: 0.5, agi: 0.8 },
     learn: [[1, 'kk_men'], [2, 'kk_harahetta'], [3, 'kk_kazaguruma'], [5, 'kk_mushaburui'], [7, 'kk_kabuto'], [10, 'samurai_kid_sig']],
   },
   raijin_sword: {

@@ -21,7 +21,7 @@ export const R82B_ABILITIES = {
   // ───────────── サムライ小ぞう（基本職） ─────────────
   kk_men: {
     name: 'めん！', kana: 'めん', kind: 'skill', job: 'samurai_kid', mp: 2, target: 'enemy',
-    effect: { type: 'phys', mult: 1.6, yb: 'tama' },
+    effect: { type: 'phys', mult: 1.5, yb: 'tama' },
     desc: '「めーん！」と大きな声で、敵1体の頭を思いきり打つ。刀に玉があれば、その玉の属性になる。', cast: '{a}「めーーん！」', anim: 'r82b_slash',
   },
   kk_harahetta: {
@@ -31,22 +31,22 @@ export const R82B_ABILITIES = {
   },
   kk_kazaguruma: {
     name: '風車', kana: 'かざぐるま', kind: 'skill', job: 'samurai_kid', mp: 5, target: 'group',
-    effect: { type: 'phys', mult: 1.15, yb: 'tama' },
+    effect: { type: 'phys', mult: 0.9, yb: 'tama' },
     desc: '刀をもったまま、くるくる回って、同じ種類の敵をまとめて切る。刀に玉があれば、その玉の属性になる。', cast: '{a}は、くるくる回った！風車！', anim: 'r82b_whirl',
   },
   kk_mushaburui: {
     name: 'むしゃぶるい', kana: 'むしゃぶるい', kind: 'skill', job: 'samurai_kid', mp: 4, target: 'self', role: 'sup',
-    effect: { type: 'buff', stat: 'atk', mult: 1.25, dur: 30 },
+    effect: { type: 'buff', stat: 'atk', mult: 1.2, dur: 30 },
     desc: '強い敵を前に、体がぶるぶるっとふるえる。こわいのではなく、わくわくしている。自分の攻撃力が上がる。', cast: '{a}は、むしゃぶるいした！「わくわくしてきたぞ！」', anim: 'charge',
   },
   kk_kabuto: {
     name: '大かぶと割り', kana: 'おおかぶとわり', kind: 'skill', job: 'samurai_kid', mp: 6, target: 'enemy',
-    effect: { type: 'phys', mult: 1.4, yb: 'tama', debuff: { stat: 'def', mult: 0.75, dur: 30, chance: 0.7 } },
+    effect: { type: 'phys', mult: 1.3, yb: 'tama', debuff: { stat: 'def', mult: 0.75, dur: 30, chance: 0.7 } },
     desc: '高くとび上がって、敵1体を上から打つ。敵の守備力が下がることがある。刀に玉があれば、その玉の属性になる。', cast: '{a}は高くとび上がった！大かぶと割り！', anim: 'r82b_slash',
   },
   samurai_kid_sig: {
     name: '天下一の素ぶり', kana: 'てんかいちのすぶり', kind: 'skill', job: 'samurai_kid', mp: 10, target: 'enemy',
-    effect: { type: 'phys', mult: 0.9, hits: 3, yb: 'tama' },
+    effect: { type: 'phys', mult: 0.85, hits: 3, yb: 'tama' },
     desc: '毎日1000回の素ぶりでみがいた太刀すじで、敵1体を3回切る。刀に玉があれば、その玉の属性になる。', cast: '{a}「天下一のサムライの、素ぶりを見ろ！」', anim: 'samurai_kid_sig',
   },
 
@@ -63,7 +63,7 @@ export const R82B_ABILITIES = {
   },
   rj_inazuma: {
     name: 'いなずま風車', kana: 'いなずまかざぐるま', kind: 'skill', job: 'raijin_sword', mp: 7, target: 'group',
-    effect: { type: 'phys', mult: 1.35, element: 'bolt', yb: 'fix' },
+    effect: { type: 'phys', mult: 1.1, element: 'bolt', yb: 'fix' },
     desc: 'いなずまをまとって、くるくる回る。同じ種類の敵をまとめて切る。雷のダメージ。', cast: '{a}は、いなずまをまとって回った！', anim: 'r82b_whirl',
   },
   rj_shibire: {
@@ -95,7 +95,7 @@ export const R82B_ABILITIES = {
   },
   yb_senpu: {
     name: 'せんぷう剣', kana: 'せんぷうけん', kind: 'skill', job: 'yaiba', mp: 12, target: 'enemies',
-    effect: { type: 'phys', mult: 1.4, yb: 'tama' },
+    effect: { type: 'phys', mult: 1.3, yb: 'tama' },
     desc: '刀をふり回して、今の玉の力のつむじ風を起こす。敵全体に、今の玉の属性のダメージ。', cast: '{a}のせんぷう剣！', anim: 'r82b_whirl',
   },
   yb_juji: {
