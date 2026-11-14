@@ -43,6 +43,8 @@ import { HINTS_R66E1 } from './jobs-r66e1.js';
 import { HINTS_R66E2 } from './jobs-r66e2.js';
 // 第82回 A: 犬夜叉の 系統（半ようの少年 → 鉄さいがの使い手 → 犬夜しゃ → ばくりゅうはの大よう。jobs-r82a.js）
 import { JOBS_R82A, BASE_R82A_ORDER, ADV_R82A_ORDER, SUPER_R82A_ORDER, LEGEND_R82A_ORDER, HINTS_R82A } from './jobs-r82a.js';
+// 第82回 B班: YAIBA の 系統（サムライ小ぞう → 雷神けんの剣士 → ヤイバ → 竜神けんのサムライ。jobs-r82b.js）
+import { JOBS_R82B, R82B_ORDERS, HINTS_R82B } from './jobs-r82b.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1308,6 +1310,8 @@ Object.assign(JOBS, PHANTOM_JOBS_B);
 Object.assign(JOBS, LEGEND_R66A_JOBS, LEGEND_R66B_JOBS, LEGEND_R66C_JOBS, LEGEND_R66D_JOBS, JOBS_R66E1, JOBS_R66E2);
 // 第82回 A: 犬夜叉の 系統（jobs-r82a.js）
 Object.assign(JOBS, JOBS_R82A);
+// 第82回 B班: YAIBA の 系統（jobs-r82b.js）
+Object.assign(JOBS, JOBS_R82B);
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
@@ -1362,6 +1366,8 @@ export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_geniu
   ...[...LEGEND_R66A_ORDER, ...LEGEND_R66B_ORDER, ...LEGEND_R66C_ORDER, ...LEGEND_R66D_ORDER, ...LEGEND_R66E1_ORDER, ...LEGEND_R66E2_ORDER].filter((id) => JOBS[id])];
 // 第82回 A: 犬夜叉の 系統（jobs-r82a.js。それぞれの ランクの おわりに）
 JOB_ORDER.push(...BASE_R82A_ORDER); ADVANCED_ORDER.push(...ADV_R82A_ORDER); SUPER_ORDER.push(...SUPER_R82A_ORDER); LEGEND_ORDER.push(...LEGEND_R82A_ORDER);
+// 第82回 B班: YAIBA の 系統を 段ごとの ならびの おわりに（jobs-r82b.js の R82B_ORDERS）
+[JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R82B_ORDERS[i]));
 // 第51回: 幻の職業（伝説の 上。tier 4。なる 条件は「きわめた 職業 2つ（req）」＋やりこみの 条件（data/phantom.js）。docs/plan-r51-phantom.md）
 // 職業の 定義は jobs-phantom-a/b/c.js（C1〜C3）。まだ ない 職業は 一覧に 入れない（PHANTOM_LIVE）
 export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
@@ -1537,3 +1543,5 @@ Object.assign(JOB_HINTS, HINTS_R66E1);
 Object.assign(JOB_HINTS, HINTS_R66E2);
 // 第82回 A: 犬夜叉の 系統の うわさ（jobs-r82a.js）
 Object.assign(JOB_HINTS, HINTS_R82A);
+// 第82回 B班: ヤイバ・竜神けんのサムライの うわさ（jobs-r82b.js）
+Object.assign(JOB_HINTS, HINTS_R82B);

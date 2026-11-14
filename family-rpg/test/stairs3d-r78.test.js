@@ -1,12 +1,14 @@
 // 第78回: 2.5D の 階段・くさりを 見やすく（render/mark3d.js・render/field3d.js。docs/plan-r78-stairs3d.md）
+// 第82回: ▲▼ の 目じるしは やめた（家族の ねがい）。立体の 形・手前の かべを ひくく・くさりは のこす
 import { test } from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { MAPS, effectiveTile } from '../public/js/shared/maps/index.js';
 import { T } from '../public/js/shared/tiles.js';
-import { blockSpec } from '../public/js/client/render/field3d.js';
-import {
-  TOUCH_LOOK, markKind, collectMarks, stairCuts, CUT_H, hiddenBehind, markBob, marksShown, nearMark, drawMark, MARK_LIFT, isClimbTile,
-} from '../public/js/client/render/mark3d.js';
+import { blockSpec, STAIR_EDGE } from '../public/js/client/render/field3d.js';
+import * as mark3d from '../public/js/client/render/mark3d.js';
+
+const { TOUCH_LOOK, stairCuts, CUT_H, hiddenBehind } = mark3d;
 
 const isStairs = (t) => t === T.STAIRS_UP || t === T.STAIRS_DOWN;
 // マップの いまの タイル（フラグ: all … ぜんぶ たっている / none … どれも ない）
@@ -19,58 +21,23 @@ const blockHOf = (idAt) => (x, y) => {
   return s && !s.gate ? s.h : null;
 };
 
-test('目じるしの きまり: 行き来する 所だけ ▲▼。宝箱・とびら・しかけには つけない', () => {
-  assert.equal(TOUCH_LOOK.move.mark, true);
-  for (const k of ['chest', 'door', 'gimmick']) assert.equal(TOUCH_LOOK[k].mark, false, k);
-  assert.equal(markKind(T.STAIRS_UP), 'up');
-  assert.equal(markKind(T.STAIRS_DOWN), 'down');
-  assert.equal(markKind(T.C8C_CHAIN), 'up'); // いかりの くさりは のぼる
-  assert.equal(markKind(T.ROPE_LADDER, T.RUIN_SHAFT), 'down'); // たて穴に かけた 縄ばしご（2階 → 5階）
-  assert.equal(markKind(T.ROPE_LADDER, T.ROPE_COIL), 'up'); // 5階 → 2階
-  for (const t of [T.CAVE_FLOOR, T.DOOR, T.LOCKED_DOOR, T.C8C_ANCHOR, T.RUIN_SHAFT, T.ROPE_COIL, T.TREE]) assert.equal(markKind(t), null, String(t));
-  assert.ok(isClimbTile(T.C8C_CHAIN) && !isClimbTile(T.STAIRS_UP));
-  assert.ok(MARK_LIFT.climb > MARK_LIFT.stairs);
-});
-
-test('目じるしを あつめる: 2マス はばの 階段は 1つ。ぜんぶの 階段に 目じるし', () => {
-  // 古代の大迷宮 地下1階: 2マス はばの 下り（37,21）（38,21）と 上り（21,31）（22,31）
-  const m = MAPS.lab_b1;
-  const marks = collectMarks(m.w, m.h, idAtOf(m, 'none'));
-  const down = marks.find((k) => k.kind === 'down');
-  assert.deepEqual([down.tx, down.ty, down.w, down.x, down.y], [37, 21, 2, 38, 21.5]);
-  assert.equal(marks.length, 2);
-  // すべての マップ: 階段の マスは どれかの 目じるしに 入る（フラグで あらわれる 階段も）
-  let n = 0;
-  for (const mm of Object.values(MAPS)) {
-    for (const flags of ['none', 'all']) {
-      const idAt = idAtOf(mm, flags);
-      const ms = collectMarks(mm.w, mm.h, idAt);
-      for (let y = 0; y < mm.h; y++) for (let x = 0; x < mm.w; x++) {
-        if (!isStairs(idAt(x, y))) continue;
-        n++;
-        assert.ok(ms.some((k) => k.ty === y && x >= k.tx && x < k.tx + k.w), `${mm.id} ${x},${y}`);
-      }
-    }
-  }
-  assert.ok(n > 600, String(n));
-});
-
-test('くさり・縄ばしご: フラグが たつと 目じるし（千年前の 森の いかりの くさり・古い神殿の 縄ばしご）', () => {
-  const f = MAPS.overworld_past;
-  const g = f.gates.find((q) => q.levels?.some(([, t]) => t === T.C8C_CHAIN));
-  assert.ok(g);
-  const at = (flags) => collectMarks(f.w, f.h, (x, y) => effectiveTile(f, x, y, (fl) => flags.includes(fl))).filter((k) => k.tx === g.x && k.ty === g.y);
-  assert.equal(at([]).length, 0); // まだ 木
-  assert.equal(at(['c8c_entry'])[0].kind, 'up');
-  assert.ok(at(['c8c_entry'])[0].climb);
-  // 縄ばしご: 2階は 下り・5階は 上り
-  for (const [id, kind] of [['sink_ruin_2f', 'down'], ['sink_ruin_5f', 'up']]) {
-    const m = MAPS[id];
-    const under = (x, y) => m.gates.find((q) => q.x === x && q.y === y)?.closed ?? null;
-    const ms = collectMarks(m.w, m.h, idAtOf(m, 'all'), under).filter((k) => k.id === T.ROPE_LADDER);
-    assert.equal(ms.length, 1, id);
-    assert.equal(ms[0].kind, kind, id);
-  }
+test('第82回: ▲▼ の 目じるしは 出さない（階段・くさり・縄ばしご）。立体の 形は のこす', () => {
+  // きまりの 表: 行き来する 所だけ 立体の 形。目じるし・足もとの 光の 項目は ない
+  assert.equal(TOUCH_LOOK.move.solid, true);
+  for (const k of ['chest', 'door', 'gimmick']) assert.equal(TOUCH_LOOK[k].solid, false, k);
+  for (const v of Object.values(TOUCH_LOOK)) assert.deepEqual(Object.keys(v), ['solid']);
+  // 目じるしを かく 物は もう ない
+  for (const k of ['drawMark', 'drawMarkGlow', 'collectMarks', 'markKind', 'markBob', 'marksShown', 'nearMark', 'MARK_LIFT', 'MARK_COLOR']) assert.equal(mark3d[k], undefined, k);
+  const f3 = readFileSync(new URL('../public/js/client/render/field3d.js', import.meta.url), 'utf8');
+  const fl = readFileSync(new URL('../public/js/client/field.js', import.meta.url), 'utf8');
+  assert.ok(!/drawMarks|drawMark\b|collectMarks|this\.marks/.test(f3), 'field3d に 目じるしは ない');
+  assert.ok(!/drawMarks/.test(fl), 'field.js から よばない');
+  // かわりの ひかえめな 見え方: 段の てまえの ふちを すこし 明るく・下りの 穴に 細い 明るい ふち
+  assert.ok(STAIR_EDGE.lit > 1 && STAIR_EDGE.lit <= 1.4);
+  assert.ok(STAIR_EDGE.rim > 0 && STAIR_EDGE.rim <= 0.08);
+  assert.ok(/addStairs\(g, x, y, hh, id, idAt/.test(f3) && /STAIR_EDGE\.rimLit/.test(f3));
+  // いかりの くさり（太く 明るい 絵）は のこす
+  assert.equal(typeof mark3d.chainCanvas3d, 'function');
 });
 
 test('手前の かべを ひくく: どの 階段も 手前の かべに かくれない（カメラは 南から 55度）', () => {
@@ -120,38 +87,9 @@ test('手前の かべを ひくく: すぐ 手前は ひくい ふち・2つ �
   assert.deepEqual([c3.get(2 * 3 + 1), c3.get(3 * 3 + 1)], CUT_H);
 });
 
-test('かくれて いるか・ゆれ・出す 時', () => {
+test('かくれて いるか（手前の かべを ひくく した 後を しらべる ため）', () => {
   assert.equal(hiddenBehind(() => 0), false);
   assert.equal(hiddenBehind((k) => (k === 1 ? 1.6 : 0)), true); // すぐ 手前に 洞窟の かべ
   assert.equal(hiddenBehind((k) => (k === 1 ? CUT_H[0] : k === 2 ? CUT_H[1] : 0)), false);
   assert.equal(hiddenBehind((k) => (k === 1 ? 1.6 : null), 1.6), false); // 足もとも 高い
-  for (let t = 0; t < 4000; t += 97) assert.ok(Math.abs(markBob(t, 3, 4)) <= 0.07);
-  assert.notEqual(markBob(0, 1, 1), markBob(800, 1, 1));
-  assert.equal(marksShown({}), true);
-  for (const o of [{ busy: true }, { menu: true }, { look: true }, { state: 'battle' }]) assert.equal(marksShown(o), false, JSON.stringify(o));
-  const m = { x: 5, y: 5.5, w: 2 };
-  assert.ok(nearMark(m, 5.4, 5.5) && nearMark(m, 4.3, 5.6));
-  assert.ok(!nearMark(m, 5, 7) && !nearMark(m, 7, 5.5));
-});
-
-test('▲▼ の 絵: ▲は 上が とがる・▼は 下が とがる。左右 おなじ。うすくも かける', () => {
-  const draw = (kind, s, a = 1) => {
-    const rows = new Map();
-    let alpha = null;
-    const ctx = {
-      fillStyle: '', globalAlpha: 1,
-      save() {}, restore() {},
-      fillRect(x, y, w) { if (this.fillStyle === '#7ee8ff') { rows.set(y, [x, w]); alpha = this.globalAlpha; } },
-    };
-    drawMark(ctx, 100, 100, s, kind, a);
-    return { rows: [...rows.entries()].sort((p, q) => p[0] - q[0]).map(([, v]) => v), alpha };
-  };
-  for (const s of [4, 7, 12]) {
-    const up = draw('up', s).rows, dn = draw('down', s).rows;
-    assert.equal(up.length, Math.round(s));
-    assert.ok(up[0][1] < up.at(-1)[1], 'up');
-    assert.ok(dn[0][1] > dn.at(-1)[1], 'down');
-    for (const [x, w] of up) assert.equal(x + w / 2, 100.5); // まん中
-  }
-  assert.equal(draw('up', 6, 0.55).alpha, 0.55);
 });

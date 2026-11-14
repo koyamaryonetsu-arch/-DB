@@ -227,6 +227,11 @@ Object.assign(TRIAL_WORDS, {
   inuyasha: '刀は、守りたいものがある時に、いちばん強くなるのだ。',
   bakuryuha: 'ようかいの力も、人の心も、どちらもおまえの力だ。',
 });
+// 第82回 B班（超級職・伝説。jobs-r82b.js）
+Object.assign(TRIAL_WORDS, {
+  yaiba: '玉は道具ではない。どの玉の力も、心をこめて使うのだ。',
+  ryujin_samurai: '7つの玉をそろえても、サムライのたましいがなければ、ただの石だ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

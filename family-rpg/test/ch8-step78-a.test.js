@@ -298,7 +298,7 @@ test('見えない 道: どの よみの道も 両はしの 台の 火で てら
   assert.ok(FIRE_STEPS >= 12, '子どもでも わたれる 歩数');
 });
 
-test('階段: 上ると 上の 階の 下り 階段の 真上（第71回）・つばさの 入口と 近道は 広間の 入口の となり・▲▼の しるし', () => {
+test('階段: 上ると 上の 階の 下り 階段の 真上（第71回）・つばさの 入口と 近道は 広間の 入口の となり・2.5D でも 階段の タイル', () => {
   for (const [fk, spec] of Object.entries(FLOOR_SPECS)) {
     for (const now of [false, true]) {
       const m = MAPS[spec.mapId(now)];
@@ -316,7 +316,7 @@ test('階段: 上ると 上の 階の 下り 階段の 真上（第71回）・�
         assert.ok(pr, `${m.id} 下り`);
         assert.equal(effectiveTile(MAPS[w.to.map], pr.tx, pr.ty, () => false), T.STAIRS_UP, `${m.id} → 上り 階段の 真上`);
       }
-      // 階段は 2.5D でも しるし（STAIRS_UP / STAIRS_DOWN の タイル）
+      // 階段は 2.5D でも 立体の 階段（STAIRS_UP / STAIRS_DOWN の タイル）
       if (P.up) assert.equal(m.tiles[P.up.y * m.w + P.up.x], T.STAIRS_UP);
       if (P.down) assert.equal(m.tiles[P.down.y * m.w + P.down.x], T.STAIRS_DOWN);
     }

@@ -97,6 +97,13 @@ Object.assign(JOB_SAY, {
   inuyasha: '「行くぜ、鉄さいが！」',
   bakuryuha: '「まとめて、はね返してやる！」',
 });
+// 第82回 B班: YAIBA の 系統（jobs-r82b.js）
+Object.assign(JOB_SAY, {
+  samurai_kid: '「天下一のサムライになるぞ！」',
+  raijin_sword: '「雷神けんよ、力をかせ！」',
+  yaiba: '「どの玉で切ってやろうか！」',
+  ryujin_samurai: '「7つの玉が、そろったぞ！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

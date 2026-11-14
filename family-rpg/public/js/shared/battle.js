@@ -78,6 +78,8 @@ import { r66aMonPal } from './battle-r66a.js';
 import { genkiAct } from './battle-genki.js';
 // 第66回 E2: セーブと ロード（ゲームの神）・楽天ポイント（楽天ゴールド・ブラックカードマン）。battle-r66e2.js
 import { r66e2Effect, cardPtMult } from './battle-r66e2.js';
+// 第82回 B班: YAIBA の 系統の 玉がえ・きょだい化・雷神の守り・四つ玉斬り（battle-r82b.js）
+import { r82bPhys, r82bEffect, r82bTurnStart, r82bElement, r82bDamage, r82bPub } from './battle-r82b.js';
 import { sameNameOff, cmdOffList } from './cmd-off.js';
 // 第82回 A: 犬夜叉の 系統（ようかい化・おすわり！・風の技・ばくりゅうは。battle-r82a.js）
 import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDamage, r82aResolve, r82aPub } from './battle-r82a.js';
@@ -650,6 +652,8 @@ export class Battle {
     weatherTick(this, c, ev);
     // 第66回 C班: 働き方改革の星は 定時で 休んで 回復（battle-r66c.js）
     r66cTurnStart(this, c, ev);
+    // 第82回 B班: きょだい化・雷神の守りの のこり（battle-r82b.js）
+    r82bTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -1006,6 +1010,8 @@ export class Battle {
     switch (eff.type) {
       case 'phys': {
         if (eff.monPal) { r66aMonPal(this, c, a, cmd, ev, powMult, targets); break; }
+        // 第82回 B班: YAIBA の 系統の 剣の 技（今の 玉の 属性・きょだい化・四つ玉斬り。battle-r82b.js）
+        if (eff.yb) { r82bPhys(this, c, a, cmd, ev, powMult, targets); break; }
         if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
@@ -1510,6 +1516,8 @@ export class Battle {
       case 'savePoint': case 'loadPoint': case 'cardPoint': r66e2Effect(this, c, a, eff, ev); break;
       // おすわり！・よう力をおさえる・大よう化・ばくりゅうは（第82回 A。battle-r82a.js）
       case 'osuwari': case 'youkaiCalm': case 'daiyoukai': case 'bakuryu': r82aEffect(this, c, a, eff, ev, targets, powMult); break;
+      // 玉がえ・きょだい化・雷神の守り（第82回 B。battle-r82b.js）
+      case 'tamagae': case 'kyodai': case 'raiGuard': r82bEffect(this, c, a, eff, ev, cmd); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1587,6 +1595,8 @@ export class Battle {
   }
 
   calcPhys(c, t, eff, powMult = 1, element = 'phys', estimate = false) {
+    // 第82回 B班: 今の 玉の 属性に なる 技（オートの みつもり。battle-r82b.js）
+    element = r82bElement(c, eff, element);
     const acc = (eff.acc ?? 1) * (c.status.blind ? 0.4 : 1);
     const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
@@ -1680,6 +1690,10 @@ export class Battle {
     const ad = arenaDamage(this, c, t, dmg, info, ev);
     if (ad === null) return;
     dmg = ad;
+    // 第82回 B班: 雷神の守り（雷を すいこんで 回復。battle-r82b.js）
+    const yd = r82bDamage(this, c, t, dmg, info, ev);
+    if (yd === null) return;
+    dmg = yd;
     // 第51回 C3: 天気（味方と 敵で 属性の 強さが かわる）・夢のスタジアム鉄道の 観客（battle-phantom-c.js）
     dmg = phantomCDamage(this, c, t, dmg, info, ev);
     // 第38回 B: 与える ダメージの 倍率（職業の試練の 師しょうのまぼろし。プレイヤーの 技を 使う ので 弱める。battle-trial.js）
@@ -2506,6 +2520,8 @@ export function pub(c) {
     ...r51bPub(c),
     // ようかい化・大よう化・おすわり！（第82回 A。battle-r82a.js）
     ...r82aPub(c),
+    // 今の 玉・きょだい化・雷神の守り（第82回 B。battle-r82b.js）
+    ...r82bPub(c),
   };
 }
 

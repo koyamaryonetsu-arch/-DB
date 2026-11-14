@@ -21,6 +21,8 @@ import { addR43jVehicleArt } from './vehicle-r43j.js';
 import { addPhantomVehicleArt } from './vehicle-phantom.js';
 // 第82回 A: 二またの大ねこ（犬夜叉の 系統。vehicle-r82a.js）
 import { addR82aVehicleArt } from './vehicle-r82a.js';
+// 第82回 B班: 大きなトラ（YAIBA の 系統。vehicle-r82b.js）
+import { addR82bVehicleArt } from './vehicle-r82b.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1599,6 +1601,8 @@ ART.dark_throne = deckArt({
 addFamilyVehicleArt(ART, { carArt, deckArt, box, seg, wheel, poly, rgba, shade, twinkle });
 // 第43回: ヨッシー（render/vehicle-r43j.js）
 addR43jVehicleArt(ART, { box, seg, poly, shade, seat });
+// 第82回 B班: 大きなトラ（render/vehicle-r82b.js）
+addR82bVehicleArt(ART, { seg, poly, shade, seat });
 // 第50回 D3: 景品の 乗り物（render/prize-vehicle-art.js）
 addPrizeVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, carpetPaint, cloudPaint, rgba, twinkle });
 addTokeiVehicleArt(ART, { horseArt });

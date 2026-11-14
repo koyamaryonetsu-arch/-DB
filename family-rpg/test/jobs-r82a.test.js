@@ -587,3 +587,67 @@ test('第82回 A えんしゅつ: 看板の 技・技の えんしゅつ・ば�
   const files = gameFiles();
   for (const f of ['jobs-r82a.js', 'abilities-r82a.js', 'hirameki-r82a.js', 'battle-r82a.js', 'battlefx-r82a.js', 'client/battle-r82a.js']) assert.ok(files.some((p) => p.endsWith(f)), f);
 });
+
+// ───────────── 2つの 系統が 同じ パーティー（第82回 A・B） ─────────────
+test('第82回 A と B: 犬夜しゃの 系統と YAIBA の 系統が 同じ 戦いに いても、ようかい化・ばくりゅうは・玉がえ・四つ玉斬りが おたがいを こわさない', () => {
+  const mk = (id, name, job, weapon) => {
+    const c = newCharacter({ id, name, job: 'warrior' });
+    gainExp(c, expForLevel(50));
+    master(c, ...NEW, 'samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai', 'god_hand');
+    c.job = job;
+    c.equip.weapon = weapon;
+    fullHeal(c);
+    return c;
+  };
+  const run = (inuJob, inuWeapon, seed) => {
+    const inu = mk('p1', 'ソラ', inuJob, inuWeapon);
+    const yb = mk('p2', 'ミナ', 'yaiba', 'iron_sword');
+    const b = new Battle({ rng: makeRng(seed), allies: [{ char: inu, controller: 's1' }, { char: yb, controller: 's2' }], enemies: ['rockman', 'skeleton'], canFlee: true });
+    for (const e of b.enemies) { e.actions = [{ w: 1, id: 'm_nothing' }]; e.hp = e.maxHp = 50000; }
+    for (const a of b.allies) a.mp = a.maxMp = 999;
+    return { b, inu: b.allies[0], yb: b.allies[1] };
+  };
+  const cmdOf = (b, a, cmd, who) => {
+    for (let i = 0; i < 1200 && !a.ready; i++) b.tick(50);
+    assert.equal(b.command(a.id, cmd, who).ok, true, JSON.stringify(cmd));
+    return runUntilAct(b, a.id);
+  };
+  // 1) つめの 半ようの少年が ようかい化して あばれる 間も、ヤイバは 命令できて 玉がえ・四つ玉斬りが 出る
+  {
+    const { b, inu, yb } = run('hanyo_boy', null, 31);
+    inu.hp = Math.floor(inu.maxHp * 0.2);
+    const tg = cmdOf(b, yb, { type: 'ability', id: 'yb_tamagae', tama: 'fire' }, 's2');
+    assert.equal(yb.tama, 'fire');
+    for (const l of tg.lines) textOk(l, 'tamagae');
+    const evs = [];
+    for (let i = 0; i < 400 && !evs.some((e) => e.t === 'act' && e.id === inu.id); i++) evs.push(...b.tick(50));
+    assert.equal(inu.youkai, true, 'ようかい化');
+    assert.ok(!evs.some((e) => e.t === 'ready' && e.id === inu.id), '犬夜しゃの 系統には コマンドが 出ない');
+    assert.equal(!!yb.youkai, false, 'ヤイバは ようかい化しない');
+    const sig = cmdOf(b, yb, { type: 'ability', id: 'yaiba_sig', target: b.enemies[0].id }, 's2');
+    assert.ok(sig.results.filter((r) => r.dmg > 0).length >= 3, '四つ玉斬り');
+    assert.equal(yb.tama, 'fire', '玉は のこる');
+    assert.equal(pub(yb).youkai, 0);
+    assert.equal(pub(inu).youkai, 1);
+  }
+  // 2) 刀の 犬夜しゃが ばくりゅうはの かまえ → 敵の 呪文を 返す。ヤイバの 玉・剣の 技は そのまま
+  {
+    const { b, inu, yb } = run('inuyasha', 'iron_sword', 32);
+    cmdOf(b, yb, { type: 'ability', id: 'yb_tamagae', tama: 'ice' }, 's2');
+    cmdOf(b, inu, { type: 'ability', id: 'inuyasha_sig', target: b.enemies[0].id }, 's1');
+    assert.equal(inu.stance?.kind, 'bakuryu');
+    const e = b.enemies[0];
+    e.mag = 999;
+    b.queue.unshift({ id: e.id, cmd: { type: 'ability', id: SPELL, target: inu.id }, last: false });
+    const ret = runUntilAct(b, e.id);
+    assert.equal(ret.bakuryuRet?.length, 1, 'ばくりゅうはで 返す');
+    const z = cmdOf(b, yb, { type: 'ability', id: 'yb_zokusei', target: b.enemies[1].id }, 's2');
+    assert.ok(z.results.some((r) => r.dmg > 0 && r.element === 'ice'), '玉の 属性の まま');
+    assert.ok(yb.stance?.kind !== 'bakuryu', 'ヤイバに かまえは うつらない');
+    // オートでも 両方 こわれない
+    for (let i = 0; i < 8; i++) {
+      assert.ok(decideAlly(b, inu)?.type);
+      assert.ok(decideAlly(b, yb)?.type);
+    }
+  }
+});

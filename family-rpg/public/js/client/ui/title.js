@@ -679,6 +679,7 @@ export function showCreate(game) {
       plumber: 'ジャンプが得意',
       kishou: '明日の天気を当てる',
       hanyo_boy: 'つめとようかいの血',
+      samurai_kid: '天下一のサムライになる',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

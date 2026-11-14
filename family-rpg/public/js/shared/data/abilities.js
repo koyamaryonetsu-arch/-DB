@@ -97,6 +97,8 @@ import { R66E1_ABILITIES } from './abilities-r66e1.js';
 import { R66E2_ABILITIES } from './abilities-r66e2.js';
 // 第82回 A: 犬夜叉の 系統の 技（abilities-r82a.js）
 import { R82A_ABILITIES } from './abilities-r82a.js';
+// 第82回 B班: YAIBA の 系統の 技（abilities-r82b.js）
+import { R82B_ABILITIES } from './abilities-r82b.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -746,6 +748,8 @@ Object.assign(ABILITIES, R66E1_ABILITIES);
 Object.assign(ABILITIES, R66E2_ABILITIES);
 // 第82回 A: 犬夜叉の 系統（abilities-r82a.js）
 Object.assign(ABILITIES, R82A_ABILITIES);
+// 第82回 B班: YAIBA の 系統（abilities-r82b.js）
+Object.assign(ABILITIES, R82B_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -247,6 +247,13 @@ Object.assign(JOB_TAGS, {
   inuyasha: ['sword', 'wind', 'monster', 'guard'], // 犬夜しゃ（鉄さいが・風のきず・半よう・仲間を 守る）
   bakuryuha: ['sword', 'wind', 'monster', 'guard'], // ばくりゅうはの大よう（鉄さいが・ばくりゅうは・大よう・守りぬくちかい）
 });
+// 第82回 B班: YAIBA の 系統（jobs-r82b.js。合体技の 相手の 案: 忍者〈忍び〉・天候の 職業〈雷〉・サムライ〈剣〉）
+Object.assign(JOB_TAGS, {
+  samurai_kid: ['sword', 'kid', 'rival'], // サムライ小ぞう（木刀・元気な 男の子・ライバルの 剣士）
+  raijin_sword: ['sword', 'bolt', 'kid'], // 雷神けんの剣士（雷の 玉の 刀）
+  yaiba: ['sword', 'bolt', 'fire', 'ice'], // ヤイバ（雷・火・水・氷の 玉）
+  ryujin_samurai: ['sword', 'bolt', 'light', 'master'], // 竜神けんのサムライ（雷神のいかり・竜神の 光・7つの 玉を きわめた）
+});
 
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {

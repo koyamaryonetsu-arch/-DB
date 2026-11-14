@@ -549,6 +549,8 @@ export const STARTER_EQUIP = {
   kishou: { weapon: 'oak_staff', armor: 'cloth', shield: null, head: null, acc: null },
   // 第82回 A: 半ようの少年は 素手（つめ）で 戦う
   hanyo_boy: { weapon: null, armor: 'cloth', shield: null, head: null, acc: null },
+  // 第82回 B班: サムライ小ぞうは 木の剣（木刀）
+  samurai_kid: { weapon: 'wood_sword', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
