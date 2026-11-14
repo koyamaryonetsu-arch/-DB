@@ -90,6 +90,13 @@ Object.assign(JOB_SAY, {
   hatarakikata: '「定時なので、帰ります！」',
   ano_kata: '「…すべては、ひみつだよ」',
 });
+// 第82回 A: 犬夜叉の 系統（jobs-r82a.js）
+Object.assign(JOB_SAY, {
+  hanyo_boy: '「へっ、おれのつめをなめるなよ！」',
+  tessaiga_user: '「この刀、おれにしかぬけねえ！」',
+  inuyasha: '「行くぜ、鉄さいが！」',
+  bakuryuha: '「まとめて、はね返してやる！」',
+});
 // 第82回 B班: YAIBA の 系統（jobs-r82b.js）
 Object.assign(JOB_SAY, {
   samurai_kid: '「天下一のサムライになるぞ！」',

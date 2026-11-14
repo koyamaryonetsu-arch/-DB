@@ -23,6 +23,8 @@ import { finalAction } from './battle-final.js';
 import { arenaPlan, arenaAdjust } from './battle-arena.js';
 // 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
 import { tokeiQuiet } from './battle-tokei.js';
+// 第82回 A: 犬夜叉の 系統の オート（おすわり！・ばくりゅうはの かまえ・風の技。battle-r82a.js）
+import { r82aPlan } from './battle-r82a.js';
 // 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
 import { r82bPlan } from './battle-r82b.js';
 
@@ -193,6 +195,10 @@ export function decideAlly(b, c) {
     const mc = mirrorPlan(b);
     if (mc) return mc;
   }
+
+  // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
+  const r82 = r82aPlan(b, c, foes, mine, allies);
+  if (r82) return r82;
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）

@@ -95,6 +95,8 @@ import { R66D_ABILITIES } from './abilities-r66d.js';
 import { R66E1_ABILITIES } from './abilities-r66e1.js';
 // 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの 技（abilities-r66e2.js）
 import { R66E2_ABILITIES } from './abilities-r66e2.js';
+// 第82回 A: 犬夜叉の 系統の 技（abilities-r82a.js）
+import { R82A_ABILITIES } from './abilities-r82a.js';
 // 第82回 B班: YAIBA の 系統の 技（abilities-r82b.js）
 import { R82B_ABILITIES } from './abilities-r82b.js';
 
@@ -744,6 +746,8 @@ Object.assign(ABILITIES, R66D_ABILITIES);
 Object.assign(ABILITIES, R66E1_ABILITIES);
 // 第66回 E2 の 6つの 職業（abilities-r66e2.js）
 Object.assign(ABILITIES, R66E2_ABILITIES);
+// 第82回 A: 犬夜叉の 系統（abilities-r82a.js）
+Object.assign(ABILITIES, R82A_ABILITIES);
 // 第82回 B班: YAIBA の 系統（abilities-r82b.js）
 Object.assign(ABILITIES, R82B_ABILITIES);
 

@@ -6,6 +6,8 @@
 //   .tag.slv … 技の レベルの 札（メニューの「呪文・技」・戦いの 技の 一覧。Lv5 は .max で 金色）
 import { el } from './ui/dom.js';
 import { buffMarks, regenMark, statusNames } from './ui/info.js';
+// 第82回 A: ようかい化・大よう化・おすわり・ばくりゅうはの かまえの 札（battle-r82a.js）
+import { r82aMarks } from './battle-r82a.js';
 // 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
 import { r82bMarks } from './battle-r82b.js';
 
@@ -37,6 +39,7 @@ export function unitMarks(a) {
   const out = buffMarks(a.buffs, a.buffLeft).map((m) => ({ text: m.text, cls: m.up ? 'up' : 'dn' }));
   if (a.regen) out.push({ text: regenMark(a.regen), cls: 'rg' });
   if (a.covering && a.side === 'ally') out.push({ text: `かばう${Number.isFinite(a.coverLeft) ? a.coverLeft : ''}`, cls: 'cv' });
+  out.push(...r82aMarks(a));
   out.push(...r82bMarks(a));
   return out;
 }

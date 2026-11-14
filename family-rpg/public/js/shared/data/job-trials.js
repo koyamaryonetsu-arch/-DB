@@ -222,6 +222,11 @@ Object.assign(TRIAL_WORDS, {
   hatarakikata: 'よく働き、よく休む。それがいちばん強い。',
   ano_kata: 'ひみつを守れる者だけが、ほんとうの強さを知る。',
 });
+// 第82回 A: 犬夜叉の 系統の 超級職・伝説の職業（jobs-r82a.js）
+Object.assign(TRIAL_WORDS, {
+  inuyasha: '刀は、守りたいものがある時に、いちばん強くなるのだ。',
+  bakuryuha: 'ようかいの力も、人の心も、どちらもおまえの力だ。',
+});
 // 第82回 B班（超級職・伝説。jobs-r82b.js）
 Object.assign(TRIAL_WORDS, {
   yaiba: '玉は道具ではない。どの玉の力も、心をこめて使うのだ。',

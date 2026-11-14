@@ -11,7 +11,10 @@ import { LEGEND_R66C_ORDER } from '../public/js/shared/data/jobs-legend-r66c.js'
 import { LEGEND_R66D_ORDER } from '../public/js/shared/data/jobs-legend-r66d.js';
 import { SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from '../public/js/shared/data/jobs-r66e1.js';
 import { SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from '../public/js/shared/data/jobs-r66e2.js';
+// 第82回 A: 犬夜叉の 系統も それぞれの テスト（test/jobs-r82a.test.js）で しらべる
+import { JOBS_R82A } from '../public/js/shared/data/jobs-r82a.js';
 const R66_JOBS = new Set([...LEGEND_R66A_ORDER, ...LEGEND_R66B_ORDER, ...LEGEND_R66C_ORDER, ...LEGEND_R66D_ORDER, ...SUPER_R66E1_ORDER, ...LEGEND_R66E1_ORDER, ...SUPER_R66E2_ORDER, ...LEGEND_R66E2_ORDER]);
+for (const j of Object.keys(JOBS_R82A)) R66_JOBS.add(j);
 // 第82回 B班: YAIBA の 系統の ひとことは test/jobs-r82b.test.js
 import { R82B_JOBS } from '../public/js/shared/data/jobs-r82b.js';
 for (const j of R82B_JOBS) R66_JOBS.add(j);

@@ -23,6 +23,8 @@ import { R43J_HAIR } from './hero-r43j.js';
 import { R66E2_HAIR } from './hero-r66e2.js';
 // 第79回: 幻の職業の かみの いろと 両手の 光（hero-r79.js）
 import { R79_HAIR, handMark79 } from './hero-r79.js';
+// 第82回 A: 犬夜叉の 系統の 銀色の かみ（hero-r82a.js）
+import { R82A_HAIR } from './hero-r82a.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -394,6 +396,7 @@ Object.assign(JOB_HAIR_RAMP, R41B_HAIR);
 Object.assign(JOB_HAIR_RAMP, R43J_HAIR);
 Object.assign(JOB_HAIR_RAMP, R66E2_HAIR);
 Object.assign(JOB_HAIR_RAMP, R79_HAIR);
+Object.assign(JOB_HAIR_RAMP, R82A_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);

@@ -48,6 +48,9 @@ import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js';
 import { R66E1_SFX, R66E1_HIT } from './render/battlefx-r66e1.js';
 // 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
 import { R66E2_SFX, R66E2_HIT, PARTY_ANIMS_R66E2 } from './render/battlefx-r66e2.js';
+// 第82回 A: 犬夜叉の 系統の 技の 音・あたる じかん（render/battlefx-r82a.js）と、ようかい化・ばくりゅうはの 画面（battle-r82a.js）
+import { R82A_SFX, R82A_HIT } from './render/battlefx-r82a.js';
+import { r82aPresent, youkaiWaitText } from './battle-r82a.js';
 // 第82回 B班: YAIBA の 系統の 技（render/battlefx-r82b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・玉がえの メニュー（battle-r82b.js）
 import { R82B_SFX, R82B_HIT } from './render/battlefx-r82b.js';
 import { tamaMenu } from './battle-r82b.js';
@@ -149,6 +152,7 @@ Object.assign(HIT_DELAY, R66C_HIT);
 Object.assign(HIT_DELAY, R66D_HIT);
 Object.assign(HIT_DELAY, R66E1_HIT);
 Object.assign(HIT_DELAY, R66E2_HIT);
+Object.assign(HIT_DELAY, R82A_HIT);
 Object.assign(HIT_DELAY, R82B_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
@@ -267,6 +271,8 @@ const ANIM_SFX = {
 Object.assign(ANIM_SFX, R66C_SFX);
 // 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
 Object.assign(ANIM_SFX, R66E2_SFX);
+// 第82回 A: 犬夜叉の 系統の 技（render/battlefx-r82a.js）
+Object.assign(ANIM_SFX, R82A_SFX);
 Object.assign(ANIM_SFX, R82B_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
@@ -581,6 +587,12 @@ export class BattleScene {
         el('div', { class: 'wait', text: dw }),
         a.waitDual ? el('button', { class: 'btn dual-cancel', text: 'よやくをやめる', onclick: () => this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'dualCancel' } }) }) : null,
       );
+      return;
+    }
+    // 第82回 A: ようかい化して いる 間は 命令が とどかない（battle-r82a.js）
+    const yk = !text && a.alive && youkaiWaitText(a);
+    if (yk) {
+      this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: yk }));
       return;
     }
     this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? 'オートで戦っている' : '行動ゲージがたまるのを待っている…') : '死んでしまった…') }));
@@ -1440,6 +1452,8 @@ export class BattleScene {
     if (fx.type === 'telegraph' && !FINAL_OWN_TELE.has(actor?.species) && !CH6_OWN_TELE.has(actor?.species)) { g.audio.sfx('warn'); this.banner(fx.chant ? '！呪文の前ぶれ！大きなダメージで止めろ！' : '！大技が来る！防御で身を守れ！', 'danger'); }
     // よみがえりの呪文を 止めた
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
+    // 第82回 A: ようかい化・おすわり！・ばくりゅうはで 返した（battle-r82a.js）
+    r82aPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
     // 合体技の よやくで まっていた 人が ダメージ: ゲージが 半分から やり直し（battle-dual.js）
     if (ev.dualBreak) onDualBreak(this, ev);

@@ -32,6 +32,8 @@ import { playR66dFx, R66D_FINE } from './battlefx-r66d.js';
 import { playR66e1Fx, R66E1_FINE } from './battlefx-r66e1.js';
 // 第66回 E2 の 6つの 職業の 技（battlefx-r66e2.js）
 import { playR66e2Fx, R66E2_FINE } from './battlefx-r66e2.js';
+// 第82回 A: 犬夜叉の 系統の 技（battlefx-r82a.js）
+import { playR82aFx, R82A_FINE } from './battlefx-r82a.js';
 // 第82回 B班: YAIBA の 系統の 技（battlefx-r82b.js。玉の 色で 剣の 光が かわる）
 import { playR82bFx, R82B_FINE } from './battlefx-r82b.js';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
@@ -1290,6 +1292,7 @@ Object.assign(FINE, R66C_FINE);
 Object.assign(FINE, R66D_FINE);
 Object.assign(FINE, R66E1_FINE);
 Object.assign(FINE, R66E2_FINE);
+Object.assign(FINE, R82A_FINE);
 Object.assign(FINE, R82B_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
@@ -1596,6 +1599,8 @@ export class Effects {
     if (playR66e1Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第66回 E2 の 6つの 職業の 技（battlefx-r66e2.js。anim は 'r66e2_…' と 看板の 技）
     if (playR66e2Fx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第82回 A: 犬夜叉の 系統の 技（battlefx-r82a.js。anim は 'r82a_…' と 看板の 技）
+    if (playR82aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第82回 B班: YAIBA の 系統の 技（battlefx-r82b.js。anim は 'r82b_…' と 看板の 技）
     if (playR82bFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
