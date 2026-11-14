@@ -12,6 +12,9 @@ import { LEGEND_R66D_ORDER } from '../public/js/shared/data/jobs-legend-r66d.js'
 import { SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from '../public/js/shared/data/jobs-r66e1.js';
 import { SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from '../public/js/shared/data/jobs-r66e2.js';
 const R66_JOBS = new Set([...LEGEND_R66A_ORDER, ...LEGEND_R66B_ORDER, ...LEGEND_R66C_ORDER, ...LEGEND_R66D_ORDER, ...SUPER_R66E1_ORDER, ...LEGEND_R66E1_ORDER, ...SUPER_R66E2_ORDER, ...LEGEND_R66E2_ORDER]);
+// 第82回 B班: YAIBA の 系統の ひとことは test/jobs-r82b.test.js
+import { R82B_JOBS } from '../public/js/shared/data/jobs-r82b.js';
+for (const j of R82B_JOBS) R66_JOBS.add(j);
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {

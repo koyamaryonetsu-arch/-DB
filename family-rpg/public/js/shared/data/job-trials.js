@@ -222,6 +222,11 @@ Object.assign(TRIAL_WORDS, {
   hatarakikata: 'よく働き、よく休む。それがいちばん強い。',
   ano_kata: 'ひみつを守れる者だけが、ほんとうの強さを知る。',
 });
+// 第82回 B班（超級職・伝説。jobs-r82b.js）
+Object.assign(TRIAL_WORDS, {
+  yaiba: '玉は道具ではない。どの玉の力も、心をこめて使うのだ。',
+  ryujin_samurai: '7つの玉をそろえても、サムライのたましいがなければ、ただの石だ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

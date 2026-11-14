@@ -23,6 +23,8 @@ import { finalAction } from './battle-final.js';
 import { arenaPlan, arenaAdjust } from './battle-arena.js';
 // 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
 import { tokeiQuiet } from './battle-tokei.js';
+// 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
+import { r82bPlan } from './battle-r82b.js';
 
 // さくせん
 export const TACTICS = {
@@ -222,6 +224,9 @@ export function decideAlly(b, c) {
     if (fix) return { type: 'ability', id: fix.id, target: allies.find((x) => Object.keys(x.debuffs || {}).length)?.id };
   }
 
+  // 5.5) 第82回 B班: 弱点の 玉に かえる・かみなり雲・きょだい化（battle-r82b.js）
+  const ybp = r82bPlan(b, c, foes, mine, fightWeight(b).hard);
+  if (ybp) return ybp;
   // 6) ほじょ（つよい てきの とき）
   // 第41回: 敵と 味方の 強さを くらべて きめる（前は 敵の HPの 合計 180 より 多いと いつも 補助を していた）
   const fw = fightWeight(b);
