@@ -36,7 +36,7 @@ export const JOBS_R82A = {
   inuyasha: {
     id: 'inuyasha', name: '犬夜しゃ', kana: 'いぬやしゃ', short: '犬夜しゃ', tier: 2, req: ['tessaiga_user'], family: 'phys', color: '#d0202c',
     desc: '赤い着物に銀色のかみ、犬の耳の半ようの少年。鉄さいがをふるって、仲間を守りながら戦う。敵の大技を風にまきこんで返す「ばくりゅうは」を使いこなす。',
-    mods: { hp: 1.5, mp: 0.75, str: 1.7, def: 1.3, agi: 1.5, mag: 0.6, heal: 0.95 },
+    mods: { hp: 1.5, mp: 0.9, str: 1.7, def: 1.3, agi: 1.5, mag: 0.45, heal: 0.95 },
     weapons: ['sword', 'claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, hp: 1 },
     passive: { youkai: 1.5 },
@@ -45,7 +45,7 @@ export const JOBS_R82A = {
   bakuryuha: {
     id: 'bakuryuha', name: 'ばくりゅうはの大よう', kana: 'ばくりゅうはのたいよう', short: '大よう', tier: 3, req: ['inuyasha'], reqSuper: 1, family: 'phys', color: '#8a1a3a',
     desc: 'ようかいの力も、人の心も、どちらも自分のものにした半よう。犬夜しゃと、ほかの超級職を1つきわめた者だけがなれる。大ようの力を命令どおりに使いこなし、敵の大技も、物理の大技も、風にまきこんで返す。',
-    mods: { hp: 1.75, mp: 0.95, str: 1.95, def: 1.5, agi: 1.65, mag: 0.75, heal: 1.0 },
+    mods: { hp: 1.75, mp: 1.05, str: 1.95, def: 1.5, agi: 1.65, mag: 0.65, heal: 1.0 },
     weapons: ['sword', 'claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1.5, hp: 1, def: 0.5 },
     passive: { youkai: 1.6 },

@@ -299,9 +299,10 @@ export function r82aPlan(b, c, foes, mine, allies) {
     return { type: 'ability', id: best.id, target: foes[0].id };
   }
   // 4) 敵が 多ければ 風の技（敵全体）
-  if (foes.length >= 3 && b.rng.chance(0.6)) {
-    const wind = mine.filter(({ a }) => a.target === 'enemies' && prim(a).type === 'phys' && prim(a).vsBuff);
-    if (wind.length) {
+  // （運を 使うのは 風の技を 持って いる 時だけ。ほかの 職業の オートの ながれを かえない）
+  const wind = foes.length >= 3 ? mine.filter(({ a }) => a.target === 'enemies' && prim(a).type === 'phys' && prim(a).vsBuff) : [];
+  if (wind.length && b.rng.chance(0.6)) {
+    {
       const pw = (x) => (prim(x.a).mult || 1) * (prim(x.a).hits || 1);
       const best = wind.sort((x, y) => pw(y) - pw(x))[0];
       return { type: 'ability', id: best.id, target: foes[0].id };
