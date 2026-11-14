@@ -301,7 +301,7 @@ test('第21回の ぶきの こうげき: まくら・レンチ・キーボー�
 
 test('第21回の 技の エフェクト: 13の 技が でて、すぐ あたり、1.8びょうで おわる', () => {
   withFakeDocument(() => {
-    assert.deepEqual([...PARTY_ANIMS].filter((a) => !a.startsWith('r66')).sort(), ['aircon', 'nika_drum', 'super_aura'], '第66回の 技（r66…）は のぞく');
+    assert.deepEqual([...PARTY_ANIMS].filter((a) => !a.startsWith('r66') && !a.startsWith('r82')).sort(), ['aircon', 'nika_drum', 'super_aura'], '第66回の 技（r66…）は のぞく');
     for (const anim of ANIMS13) {
       assert.ok(JOB2_SFX[anim], `${anim} の 音`);
       for (const n of [1, 3]) {
