@@ -102,7 +102,7 @@ export const R82A_ABILITIES = {
   iny_kongou: {
     name: '金ごうそうは', kana: 'こんごうそうは', kind: 'skill', job: 'inuyasha', mp: 16, target: 'enemies', weapon: SWORD,
     effect: { type: 'phys', mult: 0.55, hits: 6, random: true, ignoreDef: 0.25 },
-    desc: '刀からダイヤモンドのやりを6本飛ばす。敵にランダムで6回当たり、守りの固い敵にも少し効く。剣の時に使える。', cast: '{a}「金ごうそうは！」', anim: 'r82a_diamond',
+    desc: '刀からダイヤモンドのやりを6本飛ばす。敵全体のどれかに、ランダムで6回当たり、守りの固い敵にも少し効く。剣の時に使える。', cast: '{a}「金ごうそうは！」', anim: 'r82a_diamond',
   },
   iny_osaeru: {
     name: 'よう力をおさえる', kana: 'ようりょくをおさえる', kind: 'skill', job: 'inuyasha', mp: 8, target: 'self', role: 'heal',
@@ -134,7 +134,7 @@ export const R82A_ABILITIES = {
   bry_kongou: {
     name: '金ごうそうは・乱', kana: 'こんごうそうはらん', kind: 'skill', job: 'bakuryuha', mp: 26, target: 'enemies', weapon: SWORD,
     effect: { type: 'phys', mult: 0.5, hits: 10, random: true, ignoreDef: 0.3 },
-    desc: 'ダイヤモンドのやりを10本、雨のようにふらせる。敵にランダムで10回当たり、守りの固い敵にもよく効く。剣の時に使える。', cast: '{a}「金ごうそうは・乱！」', anim: 'r82a_diamond',
+    desc: 'ダイヤモンドのやりを10本、雨のようにふらせる。敵全体のどれかに、ランダムで10回当たり、守りの固い敵にもよく効く。剣の時に使える。', cast: '{a}「金ごうそうは・乱！」', anim: 'r82a_diamond',
   },
   bry_chikai: {
     name: '守りぬくちかい', kana: 'まもりぬくちかい', kind: 'skill', job: 'bakuryuha', mp: 18, target: 'allies', role: 'sup',
