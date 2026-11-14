@@ -4,16 +4,16 @@
 //   1階の E … 時の広間へ / U … 2階へ（2階の D の 真上に 着く）。2階の 上が「心の ためし」の 部屋（X が 入口・R が クリアで 開く 広間への 近道）
 // ・最後の 回廊 c8r_last_1〜3（_now も）。1階の D … 時の広間の 大とびらの おく / 3階の U … さいごの 場所 c8r_core
 // ・魔物: つばさ t8r_wing・回廊 t8r_last（B）。ためしの 部屋・階段・しかけの まわりは 出ない
-import { T } from '../tiles.js?v=1ce6e2458180';
-import { buildFloor, floorPos } from './c8r-floor.js?v=1ce6e2458180';
+import { T } from '../tiles.js?v=298589449c4c';
+import { buildFloor, floorPos } from './c8r-floor.js?v=298589449c4c';
 import {
   MOON1, MOON1_LINKS, MOON2, MOON2_LINKS, FIRE1, FIRE2, FIRE2_CHASE, FIRE2_CATCH, IRON1, IRON1_KINDS, IRON2, IRON2_KINDS, ICE1, ICE2,
   LAST1, LAST1_LINKS, LAST2, LAST2_KINDS, LAST3, C8R_W, C8R_H,
-} from './c8r-rows.js?v=1ce6e2458180';
-import { WINGS, WING_NAME, WING_MARK, HALL_ID, CORE_ID, CHASE8R, wingMapId, lastMapId, floorKey } from './c8r-flags.js?v=1ce6e2458180';
+} from './c8r-rows.js?v=298589449c4c';
+import { WINGS, WING_NAME, WING_MARK, HALL_ID, CORE_ID, CHASE8R, wingMapId, lastMapId, floorKey } from './c8r-flags.js?v=298589449c4c';
 // 宝箱の 中み（B の data/items-c8r.js。c8rChest(マップ名, k) → { item, n }）
-import { c8rChest } from '../data/items-c8r.js?v=1ce6e2458180';
-import { TRIAL_SEEN8R } from './c8r-flags.js?v=1ce6e2458180';
+import { c8rChest } from '../data/items-c8r.js?v=298589449c4c';
+import { TRIAL_SEEN8R } from './c8r-flags.js?v=298589449c4c';
 
 // うかぶ かけら（今まで 行った 場所の かけら。今 ある タイルを 使い回す）
 export const FRAG8R = {

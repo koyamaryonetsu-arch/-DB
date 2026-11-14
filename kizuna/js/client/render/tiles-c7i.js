@@ -3,10 +3,10 @@
 // ・氷の 箱（339）… 青白く 光る 氷の 小箱 / 竜の とびら（340）… 竜の 絵が きざまれた 石の とびら
 // ・つららの 落ちる ゆか（341）… 青い 影の ある 石の ゆか / 落ちてきた つらら（342）… 白い 氷の とげ（3コマ）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=1ce6e2458180';
-import { prand } from './pixel.js?v=1ce6e2458180';
+import { T } from '../../shared/tiles.js?v=298589449c4c';
+import { prand } from './pixel.js?v=298589449c4c';
 // 第8章 第1幕: 月の王宮の地下迷宮の タイル（render/tiles-c8a.js。ここで まぜる）
-import { C8A_PAINTERS, C8A_FRAMES, C8A_SPEED, C8A_FLOOR_H, c8aBlockSpec, C8A_PROPS, C8A_PROPS_KEEP, C8A_THEMES } from './tiles-c8a.js?v=1ce6e2458180';
+import { C8A_PAINTERS, C8A_FRAMES, C8A_SPEED, C8A_FLOOR_H, c8aBlockSpec, C8A_PROPS, C8A_PROPS_KEEP, C8A_THEMES } from './tiles-c8a.js?v=298589449c4c';
 
 const SN = { d: '#b8c8dc', b: '#e8eef8', l: '#ffffff' }; // 雪
 const TH = { d: '#140a18', b: '#2a1a2e', l: '#4a2e50', t: '#6a4a70' }; // 黒い いばら

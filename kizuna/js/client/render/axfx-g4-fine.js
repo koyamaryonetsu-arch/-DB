@@ -5,9 +5,9 @@
 // ・3年B組（夕日の 背景・「人」の 2画・ハートの 波・出席簿・ふきだし・家・卒業証書の 筒）
 // ・どれも 1つの つぶで 大きな 絵を かく（つぶを 何百も つかわない）。毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
 // ・画面の 文字は カタカナ・ひらがな・記号・ローマ字だけ（漢字なし）
-import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=1ce6e2458180';
+import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=298589449c4c';
 // 第72回: 竜の紋章・ロトの紋章の かたち
-import { drawDragonCrest, drawRotoCrest, crestSimple } from './crest-shapes.js?v=1ce6e2458180';
+import { drawDragonCrest, drawRotoCrest, crestSimple } from './crest-shapes.js?v=298589449c4c';
 
 const TAU = Math.PI * 2;
 // 出て きえる こさ（fin で こく、さいごの fout で うすく）

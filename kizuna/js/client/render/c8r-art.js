@@ -6,7 +6,7 @@
 // ボスは 今までの ボスの 2倍の こまかさ（docs/plan-ch7.md の 4-4）: size は 2倍で かき、artScale: 0.5
 // 門番の 第3形態は コマ 0・1、最終形態は コマ 2・3（client/battle-c8r.js の c8rSprite が pub の gForm で えらぶ）
 // ソリトゥスは コマ 0・1 … くらい心を まとった 黒い 星 / 2・3 … ひとりぼっちの 星（からに とじこもる）/ 4・5 … 光が あふれる 星（pub の slStage）
-import { fit, spark, bez } from './ch3-draw.js?v=1ce6e2458180';
+import { fit, spark, bez } from './ch3-draw.js?v=298589449c4c';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

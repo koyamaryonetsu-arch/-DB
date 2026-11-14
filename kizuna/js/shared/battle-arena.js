@@ -29,10 +29,10 @@
 //   （cond 'c5:arRewindReady'・効果 arRewind）。その 間に 受けた ダメージは もとに もどる（HP を arMark まで）。
 //   その 間に ダメージを 1つも 受けないと「まきもどす 時が ない」→ 時が ゆがむ（arWarpAt）。open 回 動く まで openMult ばいの ダメージ（大チャンス）
 //   知っている 人: 砂時計が さかさまの 間は 王者を たたかない（おともを ねらう・守る）。時が ゆがんだら みんなで 王者（合体技も その 時だけ）
-import { MONSTERS } from './data/monsters.js?v=1ce6e2458180';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=1ce6e2458180';
+import { MONSTERS } from './data/monsters.js?v=298589449c4c';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=298589449c4c';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=1ce6e2458180';
+import { atbRate } from './battle.js?v=298589449c4c';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
 export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo', 'm_ar9_fire_blast', 'm_ar9_ice_blast', 'm_ar10_combo', 'm_ar11_blizzard', 'm_ar12_maelstrom', 'm_ar13_storm']);

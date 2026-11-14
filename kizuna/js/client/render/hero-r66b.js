@@ -17,7 +17,7 @@
 //   outfit66b(O, S)            … 服の つけたし（outfit26 の つけたしから よぶ。ドレスの 色・むねの かざり）
 //   drawR66b(cv, P, O, layer)  … むねの かざり（drawR26 から よぶ。ハートの ブローチ・金の 星 5つ）
 //   drawProp66b(cv, P, A, O)   … たての ない 手の もちもの（drawProp26 から よぶ。マイク・おたま。かいたら true）
-import { mat, ramp, TH } from './hero-raster.js?v=1ce6e2458180';
+import { mat, ramp, TH } from './hero-raster.js?v=298589449c4c';
 
 export const R66B_JOBS = ['new_kawaii', 'smap', 'oogosho', 'five_star_chef'];
 

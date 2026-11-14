@@ -8,7 +8,7 @@
 // ・o10Front   … 天気図の 前線（寒冷前線の 三角・温暖前線の 半円が ならんだ 線が のびる）
 // ・o10Sky     … 発射の あと 一しゅんの うすい 空の 色（a 0.35 まで）
 // ・毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
-import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=1ce6e2458180';
+import { softGlow, clamp01, lerp, easeOut, easeIn, easeInOut, hash } from './axkit.js?v=298589449c4c';
 
 const TAU = Math.PI * 2;
 const OUT = '#26304a';

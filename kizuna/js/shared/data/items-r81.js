@@ -10,7 +10,7 @@
 // ・perk … メニュー・店の せつめいの「★」の 文（data/items-r31.js の PERK_TEXT に まぜる）。
 //   perk が ある 品は みんなさいきょう装備で はずさない・分解できない（今の きまりの まま）
 // ・見た目装備（look-equip.js）は アクセサリーを かえないので、本当に つけて いる 時だけ 効く
-import { PERK_TEXT } from './items-r31.js?v=1ce6e2458180';
+import { PERK_TEXT } from './items-r31.js?v=298589449c4c';
 
 export const PURSE_ID = 'r81_purse';
 export const VAULT_ID = 'r81_vault';
