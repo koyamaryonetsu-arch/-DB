@@ -5,11 +5,11 @@
 //   （3 … 海底神殿 5階の しおの とびらの 手紙は 物語の なぞとき。data/story-c8b.js。ごほうびは 3つめ）
 // ・見つけた 時に 1回だけ ごほうび（B の C8B_LETTER_REWARDS）。人と 場所は maps/c8b-sea.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-c7.js の c7SubQuests・c7DoneQuests から（c8bSubQuests・c8bDoneQuests）
-import { C8B, LETTER8B, LETTER8B_SIDE } from '../maps/c8b-flags.js?v=37bf0e270855';
-import { LETTER8B_ASKERS, LETTER8B_PLACES, LETTER8B_NOW_PLACES } from '../maps/c8b-sea.js?v=37bf0e270855';
-import { ITEMS } from './items.js?v=37bf0e270855';
+import { C8B, LETTER8B, LETTER8B_SIDE } from '../maps/c8b-flags.js?v=283f9a2c8227';
+import { LETTER8B_ASKERS, LETTER8B_PLACES, LETTER8B_NOW_PLACES } from '../maps/c8b-sea.js?v=283f9a2c8227';
+import { ITEMS } from './items.js?v=283f9a2c8227';
 // 手紙の ごほうび（B の data/items-c8b.js の C8B_LETTER_REWARDS。まとめる 時に './items-c8b.js' から）
-import { C8B_LETTER_REWARDS } from './items-c8b.js?v=37bf0e270855';
+import { C8B_LETTER_REWARDS } from './items-c8b.js?v=283f9a2c8227';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

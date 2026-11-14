@@ -12,11 +12,11 @@
 //   氷（すべる 氷。第7章）: I 氷 / i 千年前 氷・今 水 / j 千年前 水・今 氷 / r 千年前 氷の かたまり・今 水たまり / o 水たまり（すべって 来ると 止まる）
 //   追いかけっこ（青火のつばさ 2階）: q にげる 青い 火の 来る 所 / v 青い 火が 通ると 見える 道
 //   星読みの なぞ（くろがねのつばさ 2階）: l 星の レバー / S 千年前だけの 星の ヒント / Z 今だけの 星の ヒント / * どちらの 時代にも ある 星の ヒント
-import { T } from '../tiles.js?v=37bf0e270855';
-import { parseRows16 } from './past.js?v=37bf0e270855';
+import { T } from '../tiles.js?v=283f9a2c8227';
+import { parseRows16 } from './past.js?v=283f9a2c8227';
 import {
   HALL_ID, CORE_ID, MIR8R, FIRE8R, DEV8R, CHASE8R, STAR8R, FLOOR_SEEN8R, TRIAL_SEEN8R, WING_MARK, wingMapId, lastMapId, WING_FLOORS, LAST_FLOORS, floorKey,
-} from './c8r-flags.js?v=37bf0e270855';
+} from './c8r-flags.js?v=283f9a2c8227';
 
 // 青い 火の 光の とどく はんい（きょりの 2じょう）。追いかけっこの 道も おなじ
 export const LIGHT_R2 = 5;

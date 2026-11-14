@@ -4,7 +4,7 @@
 import {
   COL, src, above, prop, chain, arrows, strike, swing, figure, pick, dust,
   hitBurst, blast, glitter, rich, per, line, g3prop,
-} from './axfx-o1-kit.js?v=37bf0e270855';
+} from './axfx-o1-kit.js?v=283f9a2c8227';
 
 const DARK = { color: '#b48aff', glow: '#6a2ab8', core: '#f0e0ff' };
 const DARKCOL = ['#f0e0ff', '#b48aff', '#6a3ab8', '#2a1040'];

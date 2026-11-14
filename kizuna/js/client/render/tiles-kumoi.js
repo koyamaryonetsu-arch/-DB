@@ -6,8 +6,8 @@
 // render/tiles.js が まぜる。2.5D は render/field3d.js（kumoiBlockSpec・KUMOI_FLOOR_H・KUMOI_LIQUIDS）と render/tex3d.js（KUMOI_PROPS）
 // テーマ（sky_ruin … 1〜3階・sky_ruin_mid … 4〜5階・sky_ruin_deep … 6〜7階）は render/themes.js
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす（m & 1 … 下が かべで ない＝前の かお）
-import { T } from '../../shared/tiles.js?v=37bf0e270855';
-import { prand, shade } from './pixel.js?v=37bf0e270855';
+import { T } from '../../shared/tiles.js?v=283f9a2c8227';
+import { prand, shade } from './pixel.js?v=283f9a2c8227';
 
 // 雲（白・うすい 青）・空の 島の 草・古い 神殿の 石（白っぽい 砂色）・金
 const CL = { w: '#f6f8ff', l: '#e4ecf8', m: '#ccd8ec', d: '#aab8d4', sh: '#8a9ac0' };

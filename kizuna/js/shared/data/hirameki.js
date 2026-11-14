@@ -8,41 +8,43 @@
 //   - 職業の ひらめき技（job つき）… その 職業か、その 職業から 進んだ 職業
 // ・一度 ひらめいた 技は ずっと 使える（char.hirameki に のこる）
 // ・第20〜22回の 職業の ひらめき技は hirameki-jobs.js（下で いっしょに する）
-import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=37bf0e270855';
+import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=283f9a2c8227';
 // 第27回: ぜんぶの 上級職より 上の 職業の ひらめき技（hirameki-r27.js）
-import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=37bf0e270855';
+import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=283f9a2c8227';
 // 第29回: るろうに剣士の 道の ひらめき技（hirameki-r29.js）
-import { HIRA_R29_ABILITIES, HIRAMEKI_R29 } from './hirameki-r29.js?v=37bf0e270855';
+import { HIRA_R29_ABILITIES, HIRAMEKI_R29 } from './hirameki-r29.js?v=283f9a2c8227';
 // 第33回: 11の 職業の ひらめき技（hirameki-r33.js）
-import { HIRA_R33_ABILITIES, HIRAMEKI_R33 } from './hirameki-r33.js?v=37bf0e270855';
+import { HIRA_R33_ABILITIES, HIRAMEKI_R33 } from './hirameki-r33.js?v=283f9a2c8227';
 // 第40回: 竜魔人・ネオ・クイーン・セレニティの ひらめき技（hirameki-r40.js）
-import { HIRA_R40_ABILITIES, HIRAMEKI_R40 } from './hirameki-r40.js?v=37bf0e270855';
+import { HIRA_R40_ABILITIES, HIRAMEKI_R40 } from './hirameki-r40.js?v=283f9a2c8227';
 // 第41回 B: 雪の女王・第5のせいれいの ひらめき技（hirameki-r41b.js）
-import { HIRA_R41B_ABILITIES, HIRAMEKI_R41B } from './hirameki-r41b.js?v=37bf0e270855';
+import { HIRA_R41B_ABILITIES, HIRAMEKI_R41B } from './hirameki-r41b.js?v=283f9a2c8227';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ひらめき技（hirameki-r41a.js）
-import { HIRA_R41A_ABILITIES, HIRAMEKI_R41A } from './hirameki-r41a.js?v=37bf0e270855';
+import { HIRA_R41A_ABILITIES, HIRAMEKI_R41A } from './hirameki-r41a.js?v=283f9a2c8227';
 // 第43回: 配管工の 系統（ひげおやじ・マリオ）の ひらめき技（hirameki-r43j.js）
-import { HIRA_R43J_ABILITIES, HIRAMEKI_R43J } from './hirameki-r43j.js?v=37bf0e270855';
+import { HIRA_R43J_ABILITIES, HIRAMEKI_R43J } from './hirameki-r43j.js?v=283f9a2c8227';
 // 第51回 W: 天気の 職業（お天気キャスター・天候をあやつる者）の ひらめき技（hirameki-weather.js）
-import { HIRA_WEATHER_ABILITIES, HIRAMEKI_WEATHER } from './hirameki-weather.js?v=37bf0e270855';
+import { HIRA_WEATHER_ABILITIES, HIRAMEKI_WEATHER } from './hirameki-weather.js?v=283f9a2c8227';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神）の ひらめき技（hirameki-phantom-c.js）
-import { HIRA_PHANTOM_C_ABILITIES, HIRAMEKI_PHANTOM_C } from './hirameki-phantom-c.js?v=37bf0e270855';
+import { HIRA_PHANTOM_C_ABILITIES, HIRAMEKI_PHANTOM_C } from './hirameki-phantom-c.js?v=283f9a2c8227';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）の ひらめき技（hirameki-phantom-a.js）
-import { HIRA_PHANTOM_A_ABILITIES, HIRAMEKI_PHANTOM_A } from './hirameki-phantom-a.js?v=37bf0e270855';
+import { HIRA_PHANTOM_A_ABILITIES, HIRAMEKI_PHANTOM_A } from './hirameki-phantom-a.js?v=283f9a2c8227';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）の ひらめき技（hirameki-phantom-b.js）
-import { HIRA_PHANTOM_B_ABILITIES, HIRAMEKI_PHANTOM_B } from './hirameki-phantom-b.js?v=37bf0e270855';
+import { HIRA_PHANTOM_B_ABILITIES, HIRAMEKI_PHANTOM_B } from './hirameki-phantom-b.js?v=283f9a2c8227';
 // 第66回 B班: 伝説の職業 4つ（ニューカワイイ・SMAP・大御所・五つ星シェフ）の ひらめき技（hirameki-r66b.js）
-import { HIRA_R66B_ABILITIES, HIRAMEKI_R66B } from './hirameki-r66b.js?v=37bf0e270855';
+import { HIRA_R66B_ABILITIES, HIRAMEKI_R66B } from './hirameki-r66b.js?v=283f9a2c8227';
 // 第66回 A: 4つの 伝説の 職業の ひらめき技（hirameki-r66a.js）
-import { HIRA_R66A_ABILITIES, HIRAMEKI_R66A } from './hirameki-r66a.js?v=37bf0e270855';
+import { HIRA_R66A_ABILITIES, HIRAMEKI_R66A } from './hirameki-r66a.js?v=283f9a2c8227';
 // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方）の ひらめき技（hirameki-r66c.js）
-import { HIRA_R66C_ABILITIES, HIRAMEKI_R66C } from './hirameki-r66c.js?v=37bf0e270855';
+import { HIRA_R66C_ABILITIES, HIRAMEKI_R66C } from './hirameki-r66c.js?v=283f9a2c8227';
 // 第66回 D班: 伝説の職業（月下のき術師・のぶドラ・かっぱの大王・真理のとびらをひらく者・ロゼッタ）の ひらめき技（hirameki-r66d.js）
-import { HIRA_R66D_ABILITIES, HIRAMEKI_R66D } from './hirameki-r66d.js?v=37bf0e270855';
+import { HIRA_R66D_ABILITIES, HIRAMEKI_R66D } from './hirameki-r66d.js?v=283f9a2c8227';
 // 第66回 E1班: 公安ゼロ〜世界一の配信者の ひらめき技（hirameki-r66e1.js）
-import { HIRA_R66E1_ABILITIES, HIRAMEKI_R66E1 } from './hirameki-r66e1.js?v=37bf0e270855';
+import { HIRA_R66E1_ABILITIES, HIRAMEKI_R66E1 } from './hirameki-r66e1.js?v=283f9a2c8227';
 // 第66回 E2: eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすおの ひらめき技（hirameki-r66e2.js）
-import { HIRA_R66E2_ABILITIES, HIRAMEKI_R66E2 } from './hirameki-r66e2.js?v=37bf0e270855';
+import { HIRA_R66E2_ABILITIES, HIRAMEKI_R66E2 } from './hirameki-r66e2.js?v=283f9a2c8227';
+// 第82回 B班: YAIBA の 系統の ひらめき技（hirameki-r82b.js）
+import { HIRA_R82B_ABILITIES, HIRAMEKI_R82B } from './hirameki-r82b.js?v=283f9a2c8227';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -313,6 +315,9 @@ export const HIRAMEKI = {
 // 第66回 C班の ひらめき技（hirameki-r66c.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R66C_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R66C);
+// 第82回 B班の ひらめき技（hirameki-r82b.js。上の 2つの 表に まぜる）
+Object.assign(HIRA_ABILITIES, HIRA_R82B_ABILITIES);
+Object.assign(HIRAMEKI, HIRAMEKI_R82B);
 
 // 回数の 名前（'@atk' など、技 では ない もの）
 export const USE_NAMES = { '@atk': 'ふつうの攻撃' };
