@@ -57,7 +57,7 @@ export const R82B_ABILITIES = {
     desc: '雷の光のような速さで、敵1体を切る。雷のダメージ。', cast: '{a}の雷光斬り！', anim: 'r82b_bolt',
   },
   rj_tame: {
-    name: '雷をためる', kana: 'かみなりをためる', kind: 'skill', job: 'raijin_sword', mp: 4, target: 'self', role: 'sup',
+    name: '雷の力をためる', kana: 'かみなりのちからをためる', kind: 'skill', job: 'raijin_sword', mp: 4, target: 'self', role: 'sup',
     effect: { type: 'charge', mult: 2.0 },
     desc: '刀に、ぱちぱちと雷の力をためる。次の攻撃の威力が2倍になる。', cast: '{a}の刀に、ぱちぱちと雷がたまっていく…！', anim: 'charge',
   },
@@ -79,14 +79,14 @@ export const R82B_ABILITIES = {
   raijin_sword_sig: {
     name: 'かみなり斬り', kana: 'かみなりぎり', kind: 'skill', job: 'raijin_sword', mp: 16, target: 'enemy',
     effect: { type: 'phys', mult: 3.2, element: 'bolt', critBonus: 0.05, yb: 'fix' },
-    desc: '空のかみなりを刀にあつめて、敵1体に打ち下ろす。雷の大ダメージ。雷の天気だと、もっと強い。', cast: '{a}「落ちろ、かみなり！」かみなり斬り！', anim: 'raijin_sword_sig',
+    desc: '空のかみなりを刀に集めて、敵1体に打ち下ろす。雷の大ダメージ。雷の天気だと、もっと強い。', cast: '{a}「落ちろ、かみなり！」かみなり斬り！', anim: 'raijin_sword_sig',
   },
 
   // ───────────── ヤイバ（超級職。雷神けんの剣士を きわめる。雷・火・水・氷の玉） ─────────────
   yb_tamagae: {
     name: '玉がえ', kana: 'たまがえ', kind: 'skill', job: 'yaiba', mp: 2, target: 'self', role: 'sup',
     effect: { type: 'tamagae' },
-    desc: '刀にはめる玉をえらんで、はめかえる。この系統の剣の技が、その玉の属性になる。すばやいので、すぐに次の番が来る。', cast: '{a}「玉がえ！」', anim: 'r82b_tamagae',
+    desc: '刀にはめる玉を選んで、はめかえる。この系統の剣の技が、その玉の属性になる。すばやいので、すぐに次の番が来る。', cast: '{a}「玉がえ！」', anim: 'r82b_tamagae',
   },
   yb_zokusei: {
     name: '属性斬り', kana: 'ぞくせいぎり', kind: 'skill', job: 'yaiba', mp: 6, target: 'enemy',
@@ -105,7 +105,7 @@ export const R82B_ABILITIES = {
   },
   yb_kaminarigumo: {
     name: 'かみなり雲よ来い', kana: 'かみなりぐもよこい', kind: 'skill', job: 'yaiba', mp: 10, target: 'self', role: 'sup',
-    effect: { type: 'weather', kind: 'thunder', turns: 8 },
+    effect: { type: 'weather', kind: 'thunder', turns: 12 },
     desc: '刀を空につき上げて、かみなり雲をよぶ。天気が雷になって、味方の雷と風の力が強くなる。', cast: '{a}は、刀を空につき上げた！「かみなり雲よ、来い！」', anim: 'r82b_cloud',
   },
   yaiba_sig: {

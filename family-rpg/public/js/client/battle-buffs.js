@@ -6,6 +6,8 @@
 //   .tag.slv … 技の レベルの 札（メニューの「呪文・技」・戦いの 技の 一覧。Lv5 は .max で 金色）
 import { el } from './ui/dom.js';
 import { buffMarks, regenMark, statusNames } from './ui/info.js';
+// 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
+import { r82bMarks } from './battle-r82b.js';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -35,6 +37,7 @@ export function unitMarks(a) {
   const out = buffMarks(a.buffs, a.buffLeft).map((m) => ({ text: m.text, cls: m.up ? 'up' : 'dn' }));
   if (a.regen) out.push({ text: regenMark(a.regen), cls: 'rg' });
   if (a.covering && a.side === 'ally') out.push({ text: `かばう${Number.isFinite(a.coverLeft) ? a.coverLeft : ''}`, cls: 'cv' });
+  out.push(...r82bMarks(a));
   return out;
 }
 
@@ -48,6 +51,8 @@ export function fillStatusRow(box, a) {
   const st = [a.defending ? '防御' : '', statusNames(a.status)].filter(Boolean).join(' ');
   if (st) box.append(el('span', { class: 'st', text: st }));
   for (const m of unitMarks(a)) box.append(el('span', { class: `bm ${m.cls}`, text: m.text }));
+  // 第82回 B班: 玉の 札は 玉の 色（battle-r82b.js）
+  for (const sp of box.querySelectorAll('.bm.tm')) sp.style.setProperty('--tm', unitMarks(a).find((m) => m.cls === 'tm')?.color || '');
 }
 
 // 敵の 足もとの 札（x … キャンバス〈BW×BH の 大きさで かく〉、m … computeLayout の 1体、bottom … かいて よい 下の はし）

@@ -48,6 +48,9 @@ import { R66D_SFX, R66D_HIT } from './render/battlefx-r66d.js';
 import { R66E1_SFX, R66E1_HIT } from './render/battlefx-r66e1.js';
 // 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
 import { R66E2_SFX, R66E2_HIT, PARTY_ANIMS_R66E2 } from './render/battlefx-r66e2.js';
+// 第82回 B班: YAIBA の 系統の 技（render/battlefx-r82b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・玉がえの メニュー（battle-r82b.js）
+import { R82B_SFX, R82B_HIT } from './render/battlefx-r82b.js';
+import { tamaMenu } from './battle-r82b.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -146,6 +149,7 @@ Object.assign(HIT_DELAY, R66C_HIT);
 Object.assign(HIT_DELAY, R66D_HIT);
 Object.assign(HIT_DELAY, R66E1_HIT);
 Object.assign(HIT_DELAY, R66E2_HIT);
+Object.assign(HIT_DELAY, R82B_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -263,6 +267,7 @@ const ANIM_SFX = {
 Object.assign(ANIM_SFX, R66C_SFX);
 // 第66回 E2 の 6つの 職業の 技（render/battlefx-r66e2.js）
 Object.assign(ANIM_SFX, R66E2_SFX);
+Object.assign(ANIM_SFX, R82B_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
 const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
@@ -885,6 +890,8 @@ export class BattleScene {
       this.info(battleSkillText(it.value, pc, { lv: a.slv?.[it.value] || 1, compact: this.compactInfo() }));
       const t = ab.target;
       const back = () => this.abilityMenu(ids, page);
+      // 第82回 B班: 玉がえは 玉を えらぶ（battle-r82b.js）
+      if (ab.effect.type === 'tamagae') return tamaMenu(this, a, it.value, back);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });

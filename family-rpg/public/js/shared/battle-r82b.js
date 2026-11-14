@@ -241,16 +241,17 @@ export function r82bPlan(b, c, foes, mine, hard) {
   const has = (type) => mine.find(({ a }) => a.effect?.type === type || (a.effect?.type === 'multi' && a.effect.parts?.some((p) => p.type === type)));
   // かみなり雲: 味方の 天気が ない（天候の 職業の 天気を 上書きしない）・強い 敵・雷の 技が ある
   const cloud = mine.find(({ a }) => a.effect?.type === 'weather' && a.effect.kind === 'thunder' && R82B_JOBS_SKILL.has(a.job));
-  if (cloud && hard && b.weather?.side !== c.side && tamaOf(c) === 'bolt' && b.rng.chance(0.35)) return { type: 'ability', id: cloud.id };
+  //   （MP が 4わり いじょう ある 時だけ。何回も よびすぎない）
+  if (cloud && hard && b.weather?.side !== c.side && tamaOf(c) === 'bolt' && c.mp >= c.maxMp * 0.4 && b.rng.chance(0.25)) return { type: 'ability', id: cloud.id };
   // 玉がえ
   const swap = has('tamagae');
   if (swap) {
     const el = bestTama(b, c, foes);
     if (el) return { type: 'ability', id: swap.id, tama: el };
   }
-  // きょだい化: 敵が 多い・ボス
+  // きょだい化: 敵が 3体 いじょう（1体の ボスには 全体に とどく よさが ない。強く なる ぶんは 補助の えらび方〈chooseBuff〉で）
   const big = has('kyodai');
-  if (big && !c.kyodai && hard && (foes.length >= 3 || b.boss) && b.rng.chance(0.3)) return { type: 'ability', id: big.id };
+  if (big && !c.kyodai && hard && foes.length >= 3 && c.mp >= c.maxMp * 0.3 && b.rng.chance(0.3)) return { type: 'ability', id: big.id };
   return null;
 }
 const R82B_JOBS_SKILL = new Set(['yaiba', 'ryujin_samurai']);
