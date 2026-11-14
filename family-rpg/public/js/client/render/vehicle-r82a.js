@@ -18,8 +18,8 @@ function twinCatArt({ seg, poly, shade, seat }) {
   };
   // 足（つけね → 足先）と まるい 足
   const leg = (p, hx, hy, fx, fy, c, f) => {
-    seg(p, hx, hy, fx, fy - 2, c, 3.4);
-    p.ellipse(fx, fy - 1.6, 2.6, 1.6, c);
+    seg(p, hx, hy, fx, fy - 2, c, 4.4);
+    p.ellipse(fx, fy - 1.6, 3.0, 1.9, c);
     flame(p, fx, fy + 1.2, f);
   };
   // 耳（先が 黒い 三角）
@@ -34,7 +34,7 @@ function twinCatArt({ seg, poly, shade, seat }) {
       const w = Math.sin(i / 2.5 + f) * 0.6;
       x += dx + w;
       y += dy - i * 0.12;
-      p.ellipse(x, y, 1.9 - i * 0.08, 1.9 - i * 0.08, i >= 7 ? BLK : c);
+      p.ellipse(x, y, 2.6 - i * 0.1, 2.6 - i * 0.1, i >= 7 ? BLK : c);
     }
   };
   // 足の いち（よこ。f … 0〜2）: [てまえ前, てまえ後ろ, おく前, おく後ろ] の 足先の x
@@ -51,12 +51,12 @@ function twinCatArt({ seg, poly, shade, seat }) {
       return;
     }
     // からだ
-    p.ellipse(36, by, 15, 8, C);
-    p.hline(25, 47, by - 8, CL);
-    p.ellipse(34, by + 4, 9, 3.4, CL);
+    p.ellipse(36, by, 16, 9.5, C);
+    p.hline(24, 48, by - 9, CL);
+    p.ellipse(34, by + 5, 10, 3.8, CL);
     // 首と 頭
     poly(p, [[24, by + 3], [27, by - 5], [17, by - 13], [12, by - 8]], C);
-    p.ellipse(14, by - 12, 7.2, 6.2, C);
+    p.ellipse(14, by - 12, 8, 7, C);
     ear(p, 12, by - 18, -1, C);
     ear(p, 18, by - 18, 1, CD);
     // ひたいの もよう（黒い ひし形）・赤い 目・はな

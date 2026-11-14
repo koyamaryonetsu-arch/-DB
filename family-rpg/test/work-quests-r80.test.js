@@ -6,6 +6,8 @@
 // 第8章 第4幕の 時の広間に 着いた あとから（はり紙も 人も）・地図の しるし・困っている人・漢字・軽い 戦い（敵Lv91）・
 // お仕事いらい板: 35まい・6ページ（c8_hall の 前は 32まい・6ページの まま）・6ページ目から 受ける
 import { test } from 'node:test';
+// 第82回 A: 犬夜叉の 系統（まだ たのまれごとが ない 新しい 系統。のこりの 系統の 見はりから のぞく）
+import { JOBS_R82A } from '../public/js/shared/data/jobs-r82a.js';
 import assert from 'node:assert/strict';
 import { MAPS, isBlocked, condOk } from '../public/js/shared/maps/index.js';
 import { SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
@@ -89,7 +91,7 @@ test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つ�
   // 伝説の 職業（LEGEND_ORDER の 超級の 先）で、どの たのまれごとの 系統にも 入って いない ものは もう ない
   // （のこりの ロトの勇者・魔王・はかい神・日の呼吸の使い手は、先が 1〜32 の 系統と かさなる）
   const usedAll = new Set(FAMILY_QUESTS.flatMap((x) => [...jobLine(x.roots)]));
-  const free = Object.keys(JOBS).filter((id) => ![...jobLine([id])].some((j) => usedAll.has(j)) && [...jobLine([id])].some((j) => JOBS[j].tier === 3));
+  const free = Object.keys(JOBS).filter((id) => ![...jobLine([id])].some((j) => usedAll.has(j)) && [...jobLine([id])].some((j) => JOBS[j].tier === 3) && !(id in JOBS_R82A));
   assert.deepEqual(free, [], 'のこりの 系統');
   // 場所（今の 時代。まだ たのまれごとが ない 所）
   const maps = { oas: 'south', dojo: 'overworld', pipe: 'north' };
