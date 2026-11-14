@@ -114,9 +114,13 @@ battle.js に 足した 行: import・onReady（ようかい化は コマンド�
 |---|---|---|
 | test/fx-r27.test.js | import と `handled` の さいご | `playR82aFx` を 足した（味方の 技の えんしゅつが ある か） |
 | test/work-quests-r80.test.js | import・`free` の filter | 「たのまれごとに 入って いない 伝説の 系統は もう ない」から 犬夜叉の 系統（JOBS_R82A）を のぞく（B班の 系統も おなじ 形で のぞく ことに なる） |
+| test/jobs.test.js | `JOB_ORDER.length` 28 → 29・`ADVANCED_ORDER.length` 43 → 44（コメントも）・わざの テストに 1行（剣を もつ 時は つめの 技を とばす） | 基本職・上級職の 数（B班も +1 ずつ） |
+| test/hirameki.test.js | `R66_HIRA` の すぐ 下に import と `Object.assign(R66_HIRA, HIRAMEKI_R82A)` | 基本職の ひらめき技の 数（24）から 犬夜叉の 系統を のぞく |
+| test/jobs-r33.test.js | `R66_JOBS` の 上に import・下に `R66_JOBS.add` の 1行 | 転職の ひとことの 一覧から 犬夜叉の 系統を のぞく |
 | test/jobs-r82a.test.js | 新しい | なり方・技・しくみ（ようかい化は 刀で ならない・命令を 聞かない・おすわりで もどる・半分で もどる・大よう化・風の技・返す 上限・オート）・ひらめき技・タグ・試練・乗り物・絵・えんしゅつ・文字 |
 
-- 職業の 数・基本職の 数・乗り物の 数を 数える テストは、今の 形（ALL_JOBS や VEHICLE_ORDER から 数える）で そのまま 通った
+- 乗り物の 数・職業の 総数を 数える テスト（vehicles など）は ALL_JOBS・VEHICLE_ORDER から 数えるので そのまま 通った
+- 師しょうの ことば（job-trials.js）は 32字まで（test/job-trials.test.js）なので 犬夜しゃの ことばを みじかく した
 - 引っこしコード（test/transfer-r78.test.js）: 下じきは かえて いない。キャラに 項目を 足して いない ので そのまま 通る
 
 ## 7. みんなで 使う ファイルに 足した 所（行は けして いない）
