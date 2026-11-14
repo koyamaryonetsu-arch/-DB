@@ -678,6 +678,7 @@ export function showCreate(game) {
       magician: 'タネも仕かけもない', alchemist: '形を作りかえる',
       plumber: 'ジャンプが得意',
       kishou: '明日の天気を当てる',
+      samurai_kid: '天下一のサムライになる',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

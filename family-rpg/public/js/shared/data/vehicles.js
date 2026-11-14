@@ -102,6 +102,8 @@ VEHICLES.spy_car.jobs.push('ano_kata');
 VEHICLES.kart.jobs.push('esports_king', 'game_god');
 VEHICLES.flying_card.jobs.push('gold_cardman', 'black_cardman');
 VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
+// 第82回 B班: YAIBA の 系統の 乗り物（大きな トラ。絵は client/render/vehicle-r82b.js）
+VEHICLES.big_tiger = { name: '大きなトラ', price: 4200, jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai'], desc: 'しまもようの大きなトラ。せなかに乗せて、山道もぐんぐん走る。' };
 // 第79回: 幻の職業の 乗り物（data/vehicles-phantom.js。その 幻の職業に なった 人の たなに だけ。20000〜30000G）
 import { PHANTOM_VEHICLES } from './vehicles-phantom.js'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
