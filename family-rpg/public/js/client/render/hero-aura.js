@@ -12,6 +12,8 @@ import { AURA43J, aura43j } from './hero-r43j.js';
 import { AURA79 } from './hero-r79.js';
 // 第84回 B班: 飛竜しょう天はの達人の 竜巻の オーラ（hero-r84b.js）
 import { AURA84B } from './hero-r84b.js';
+// 第85回 B班: 八竜の炎術士・烈火の 炎の オーラ（hero-r85b.js）
+import { AURA85B } from './hero-r85b.js';
 // 第85回 A班: ドラまたの 赤い オーラ（hero-r85a.js）
 import { AURA85A } from './hero-r85a.js';
 
@@ -40,6 +42,7 @@ Object.assign(AURA, AURA41B);
 Object.assign(AURA, AURA43J);
 Object.assign(AURA, AURA79);
 Object.assign(AURA, AURA84B);
+Object.assign(AURA, AURA85B);
 Object.assign(AURA, AURA85A);
 
 const hash = (a, b) => {

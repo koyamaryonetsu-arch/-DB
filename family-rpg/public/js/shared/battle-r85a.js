@@ -51,6 +51,9 @@ export function chanting(c) {
   const s = st(c);
   return !s.sleep && !s.paralyze && !s.silence && !s.prison && !s.rift;
 }
+// 合体技の 強さに 数える 時の 大砲の 呪文の 倍（2ターンで 1発 なので 半分。battle-dual.js の memberPower。R85A_DUAL.mult を かえて ためせる）
+export const R85A_DUAL = { mult: 0.5 };
+export const bigDualMult = (a) => (isBig(a) ? R85A_DUAL.mult : 1);
 // 大砲の 呪文が えらべない（仲間で となえて いない）
 export function r85aLocked(c, a) {
   return isBig(a) && c?.side !== 'enemy' && !chanting(c);

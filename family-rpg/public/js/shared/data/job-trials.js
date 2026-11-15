@@ -252,6 +252,11 @@ Object.assign(TRIAL_WORDS, {
   yusuke: 'れい丸は数がかぎられる。うつ時を見きわめよ。',
   makai_prince: '本当の強さは、仲間のために立ち上がる心だ。',
 });
+// 第85回 B班（超級職・伝説。jobs-r85b.js）
+Object.assign(TRIAL_WORDS, {
+  enjutsushi: '炎は、こわすためでなく、守るためにともせ。',
+  rekka: '8ひきの火竜も、心がひとつでなければ動かぬ。',
+});
 // 第85回 A班（超級職・伝説。jobs-r85a.js。男の子は TRIAL_WORDS_MASC）
 Object.assign(TRIAL_WORDS, {
   lina: 'となえる時は、あせらずに。大きな力ほど、待つ心がいる。',

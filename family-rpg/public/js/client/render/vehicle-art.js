@@ -31,6 +31,8 @@ import { addR83aVehicleArt } from './vehicle-r83a.js';
 import { addR84bVehicleArt } from './vehicle-r84b.js';
 // 第84回 A班: 青いれい界の鳥（幽☆遊☆白書の 系統。vehicle-r84a.js）
 import { addR84aVehicleArt } from './vehicle-r84a.js';
+// 第85回 B班: 火竜（烈火の炎の 系統。長い 体が うねる 竜。vehicle-r85b.js）
+import { addR85bVehicleArt } from './vehicle-r85b.js';
 // 第85回 A班: ごちそうの荷車（スレイヤーズの 系統。vehicle-r85a.js）
 import { addR85aVehicleArt } from './vehicle-r85a.js';
 
@@ -1628,6 +1630,8 @@ addR83aVehicleArt(ART, { seg, poly, shade, seat });
 addR84bVehicleArt(ART, { seg, poly, shade, seat });
 // 第84回 A班: 青いれい界の鳥（render/vehicle-r84a.js）
 addR84aVehicleArt(ART, { seg, poly, shade, seat });
+// 第85回 B班: 火竜（render/vehicle-r85b.js）
+addR85bVehicleArt(ART, { seg, poly, shade, seat });
 // 第85回 A班: ごちそうの荷車（render/vehicle-r85a.js）
 addR85aVehicleArt(ART, { seg, poly, shade, seat });
 

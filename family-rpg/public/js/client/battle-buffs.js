@@ -18,6 +18,8 @@ import { r83aMarks, paintPlanMarks } from './battle-r83a.js';
 import { r84bMarks, paintFormMarks } from './battle-r84b.js';
 // 第84回 A班: のこりの れい丸・仲間のために・立ち上がった あとの 力の 札（battle-r84a.js）
 import { r84aMarks } from './battle-r84a.js';
+// 第85回 B班: まどかの けっかい・るいの まぼろしの 札（battle-r85b.js）
+import { r85bMarks } from './battle-r85b.js';
 // 第85回 A班: となえて いる 札（battle-r85a.js）
 import { r85aMarks } from './battle-r85a.js';
 
@@ -55,6 +57,7 @@ export function unitMarks(a) {
   out.push(...r83aMarks(a));
   out.push(...r84bMarks(a));
   out.push(...r84aMarks(a));
+  out.push(...r85bMarks(a));
   out.push(...r85aMarks(a));
   return out;
 }

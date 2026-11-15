@@ -17,7 +17,7 @@ import { JOB_SAY, JOB_SAY_MASC, jobDoneText } from '../public/js/shared/data/job
 import { TRIAL_WORDS, TRIAL_WORDS_MASC, trialJob, masterName } from '../public/js/shared/data/job-trials.js';
 import { VEHICLES } from '../public/js/shared/data/vehicles.js';
 import { PHANTOM_ADJ, phantomSkills } from '../public/js/shared/battle-trial.js';
-import { CHANT_LEFT, CHANT_BOOST, HAYAKUCHI_ATB, GIGA_PER, GIGA_CAP, GIGA_BOSS, ENEMY_BIG, LOCK_REASON, R85A_AI, isBig, chanting, r85aLocked, gigaCap, r85aPub } from '../public/js/shared/battle-r85a.js';
+import { bigDualMult, CHANT_LEFT, CHANT_BOOST, HAYAKUCHI_ATB, GIGA_PER, GIGA_CAP, GIGA_BOSS, ENEMY_BIG, LOCK_REASON, R85A_AI, isBig, chanting, r85aLocked, gigaCap, r85aPub } from '../public/js/shared/battle-r85a.js';
 import { jobLabel, jobFor, jobHint } from '../public/js/shared/job-label.js';
 import { abilityFor } from '../public/js/shared/ability-label.js';
 import { newCharacter, changeJob, jobUnlocked, jobKnown, gainExp, expForLevel, fullHeal, learnedAbilities, hiraAllowed } from '../public/js/shared/stats.js';
@@ -734,7 +734,8 @@ test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・れ�
     fullHeal(c);
     return c;
   };
-  const chars = [mk('dr', 'doramata'), mk('gu', 'hoshin_gunshi'), mk('ra', 'hiryu_master'), mk('yu', 'yusuke')];
+  // 第85回 B班の 烈火も（オートで 火竜を よんでも こわれない）
+  const chars = [mk('dr', 'doramata'), mk('gu', 'hoshin_gunshi'), mk('ra', 'hiryu_master'), mk('yu', 'yusuke'), mk('re', 'rekka')];
   const b = new Battle({ rng: makeRng(85), allies: chars.map((char) => ({ char, controller: 's1' })), enemies: ['rockman', 'rockman'], canFlee: true });
   for (const e of b.enemies) { e.actions = [{ w: 1, id: 'm_nothing' }]; e.hp = e.maxHp = 50000; }
   for (const a of b.allies) { a.mp = a.maxMp = 999; a.maxHp = a.hp = 3000; }
@@ -770,7 +771,10 @@ test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・れ�
   use(b, ra, { type: 'ability', id: 'ms_mizu', form: 'mizu' });
   assert.equal(formOf(ra), 'mizu');
   assert.equal(pub(ra).r85aChant, 0);
-  // オート: 3人とも こわれない
+  // 合体技の 強さには 大砲を 半分で 数える（2ターンで 1発。battle-dual.js の memberPower）
+  assert.equal(bigDualMult(ABILITIES.lina_sig), 0.5);
+  assert.equal(bigDualMult(ABILITIES.ln_elmekia), 1);
+  // オート: みんな こわれない
   b.allies.forEach((x, i) => { x.abilities = learnedAbilities(chars[i]); });
   for (const x of b.allies) for (let i = 0; i < 6; i++) assert.ok(decideAlly(b, x)?.type);
   for (const x of b.allies) x.controller = null;

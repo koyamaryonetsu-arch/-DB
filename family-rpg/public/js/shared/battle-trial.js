@@ -75,6 +75,8 @@ Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 
 Object.assign(PHANTOM_ADJ, { ranma: [2.08, 1.78, 1.93], hiryu_master: [1.1, 0.88, 0.96] });
 // 第84回 A班: うら飯ゆう助・魔界の王の子（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。まぼろしも れい丸を 持つ〈4発・6発〉）
 Object.assign(PHANTOM_ADJ, { yusuke: [1.25, 0.95, 1.31], makai_prince: [1.12, 0.91, 1.04] });
+// 第85回 B班: 炎術士・八竜の炎術士・烈火（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。tools/sim-trial.mjs 20 で 6〜9割に 合わせた）
+Object.assign(PHANTOM_ADJ, { enjutsushi: [1.08, 0.9, 1.05], rekka: [1.41, 1.17, 1.7] });
 // 第85回 A班: 天才美少女魔道士リナ・ドラまた（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。
 //   まぼろしは となえずに 大砲を 半分の 力で うつ〈battle-r85a.js の ENEMY_BIG〉・となえるは 使わない〈NO_USE〉）
 Object.assign(PHANTOM_ADJ, { lina: [1.6, 1.57, 1.51], doramata: [2.59, 2.41, 3.34] });
@@ -88,6 +90,8 @@ for (const t of ['oniHand', 'oniAwake', 'teShield', 'teKoe']) NO_USE.add(t);
 for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
 // 第84回 B班: すがたを かえる・飛竜しょう天はの かまえ・かけひき・敵前だい逃亡・心の水は 仲間の しくみ（まぼろしは 使わない。battle-r84b.js）
 for (const t of ['r84bForm', 'r84bHiryu', 'r84bKakehiki', 'r84bToubou', 'r84bKokoro']) NO_USE.add(t);
+// 第85回 B班: 火竜をよぶ（メニューで えらぶ・れっしん は 生き返らせる）・姫を守る忍びは 仲間の しくみ（まぼろしは 使わない。battle-r85b.js）
+for (const t of ['r85bRyu', 'r85bHime']) NO_USE.add(t);
 // 第85回 A班: となえるは 仲間の しくみ（まぼろしは 使わない。大砲の 呪文は となえずに 半分の 力で うつ。battle-r85a.js の ENEMY_BIG）
 for (const t of ['r85aChant']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）

@@ -66,9 +66,9 @@ import { formMenu, r84bPresent } from './battle-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の 技（render/battlefx-r84a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・れい丸の しるしと えらべない わけ（battle-r84a.js）
 import { R84A_SFX, R84A_HIT, setReiShots } from './render/battlefx-r84a.js';
 import { reiTag, reiBlock } from './battle-r84a.js';
-// 第85回 A班: スレイヤーズの 系統の 技（render/battlefx-r85a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・大砲の 呪文の うすい 行・となえた 札（battle-r85a.js）
-import { R85A_SFX, R85A_HIT } from './render/battlefx-r85a.js';
-import { r85aRow, r85aPresent } from './battle-r85a.js';
+// 第85回 B班: 烈火の炎の 系統の 技（render/battlefx-r85b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・火竜をよぶ メニュー（battle-r85b.js）
+import { R85B_SFX, R85B_HIT } from './render/battlefx-r85b.js';
+import { ryuMenu, r85bPresent } from './battle-r85b.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -173,6 +173,7 @@ Object.assign(HIT_DELAY, R83B_HIT);
 Object.assign(HIT_DELAY, R83A_HIT);
 Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, R84A_HIT);
+Object.assign(HIT_DELAY, R85B_HIT);
 Object.assign(HIT_DELAY, R85A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
@@ -299,6 +300,7 @@ Object.assign(ANIM_SFX, R83B_SFX);
 Object.assign(ANIM_SFX, R83A_SFX);
 Object.assign(ANIM_SFX, R84B_SFX);
 Object.assign(ANIM_SFX, R84A_SFX);
+Object.assign(ANIM_SFX, R85B_SFX);
 Object.assign(ANIM_SFX, R85A_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
@@ -941,6 +943,8 @@ export class BattleScene {
       if (ab.effect.type === 'r83aSakusen') return sakusenMenu(this, a, it.value, back);
       // 第84回 B班: 水をかぶる／お湯をかぶる は すがたを えらぶ（battle-r84b.js）
       if (ab.effect.type === 'r84bForm') return formMenu(this, a, it.value, back);
+      // 第85回 B班: 火竜をよぶ は 火竜を えらぶ（つづけて あいて。battle-r85b.js）
+      if (ab.effect.type === 'r85bRyu') return ryuMenu(this, a, it.value, back);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
@@ -1497,6 +1501,8 @@ export class BattleScene {
     r83bPresent(this, ev);
     // 第84回 B班: すがたが かわった・飛竜しょう天はの かまえと やり返し（battle-r84b.js）
     r84bPresent(this, ev, hitDelay);
+    // 第85回 B班: 二ひき同時の 2ひきめ・けっかいと かげろうが かかった 人の まどが 光る（battle-r85b.js）
+    r85bPresent(this, ev, hitDelay);
     // 第85回 A班: となえた・早口・ギガ・スレイブ（battle-r85a.js）
     r85aPresent(this, ev);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }

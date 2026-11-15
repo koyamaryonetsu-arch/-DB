@@ -41,6 +41,9 @@ Object.assign(R66_HIRA, HIRAMEKI_R84B);
 // 第84回 A班: 幽☆遊☆白書の 系統の ひらめき技も 班の ファイル（test/jobs-r84a.test.js）
 import { HIRAMEKI_R84A } from '../public/js/shared/data/hirameki-r84a.js';
 Object.assign(R66_HIRA, HIRAMEKI_R84A);
+// 第85回 B班: 烈火の炎の 系統の ひらめき技も 班の ファイル（test/jobs-r85b.test.js）
+import { HIRAMEKI_R85B } from '../public/js/shared/data/hirameki-r85b.js';
+Object.assign(R66_HIRA, HIRAMEKI_R85B);
 // 第85回 A班: スレイヤーズの 系統の ひらめき技も 班の ファイル（test/jobs-r85a.test.js）
 import { HIRAMEKI_R85A } from '../public/js/shared/data/hirameki-r85a.js';
 Object.assign(R66_HIRA, HIRAMEKI_R85A);

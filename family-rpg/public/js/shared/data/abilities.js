@@ -107,6 +107,8 @@ import { R83A_ABILITIES } from './abilities-r83a.js';
 import { R84B_ABILITIES } from './abilities-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の 技（abilities-r84a.js）
 import { R84A_ABILITIES } from './abilities-r84a.js';
+// 第85回 B班: 烈火の炎の 系統の 技（abilities-r85b.js）
+import { R85B_ABILITIES } from './abilities-r85b.js';
 // 第85回 A班: スレイヤーズの 系統の 技（abilities-r85a.js）
 import { R85A_ABILITIES } from './abilities-r85a.js';
 
@@ -768,6 +770,8 @@ Object.assign(ABILITIES, R83A_ABILITIES);
 Object.assign(ABILITIES, R84B_ABILITIES);
 // 第84回 A班: 幽☆遊☆白書の 系統（abilities-r84a.js）
 Object.assign(ABILITIES, R84A_ABILITIES);
+// 第85回 B班: 烈火の炎の 系統（abilities-r85b.js）
+Object.assign(ABILITIES, R85B_ABILITIES);
 // 第85回 A班: スレイヤーズの 系統（abilities-r85a.js）
 Object.assign(ABILITIES, R85A_ABILITIES);
 

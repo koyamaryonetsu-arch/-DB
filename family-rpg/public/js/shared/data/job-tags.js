@@ -284,6 +284,12 @@ Object.assign(JOB_TAGS, {
   makai_prince: ['fist', 'dark', 'rival'], // 魔界の王の子（れい丸・よう丸〈闇〉・魔界の 王の 血）
 });
 
+// 第85回 B班: 烈火の炎の 系統（jobs-r85b.js。合体技の 相手の 案: 炎柱〈炎〉・木の葉の忍び〈忍び〉・忍者〈忍び・炎〉。「竜」の タグは 作らない）
+Object.assign(JOB_TAGS, {
+  enjutsushi: ['fire', 'shinobi', 'guard'], // 炎術士（火竜・忍び・まどかの けっかい）
+  rekka: ['fire', 'shinobi', 'fist', 'guard'], // 八竜の炎術士・烈火（火竜・忍び・火竜の こぶし・姫を守る忍び）
+});
+
 // 第85回 A班: スレイヤーズの 系統（jobs-r85a.js。合体技の 相手の 案: ハリーポッターの 系統〈魔法〉・大魔道士〈魔法・炎〉・料理人〈料理〉。新しい タグは 作らない）
 Object.assign(JOB_TAGS, {
   tabi_madoshi: ['magic', 'fire', 'cook'], // 大食いの旅の魔道士（炎の 呪文・大もり定食。お金の 組は 職業 20 まで〈test/jobs-r27〉なので ドラまた だけ）

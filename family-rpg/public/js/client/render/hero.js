@@ -27,6 +27,8 @@ import { R79_HAIR, handMark79 } from './hero-r79.js';
 import { R82A_HAIR } from './hero-r82a.js';
 // 第83回 B班: ぬ〜べ〜の 系統の 左手の 手ぶくろ（hero-r83b.js）
 import { handMark83 } from './hero-r83b.js';
+// 第85回 B班: 烈火の炎の 系統の 右うでの こて（伝説は 竜の 印。hero-r85b.js）
+import { koteMark85 } from './hero-r85b.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -320,6 +322,7 @@ function handShape(cv, A, P, O) {
   if (O.handCrest40) handMark40(cv, A, P, O);
   if (O.body?.hand79) handMark79(cv, A, P, O);
   if (O.body?.hand83) handMark83(cv, A, P, O);
+  if (O.body?.kote85) koteMark85(cv, A, P, O);
   if (O.fingerless) {
     // ゆびの ない 手ぶくろ（ゆびさきは はだ）
     cv.part({ ol: 'soft', clip: cv.cur });

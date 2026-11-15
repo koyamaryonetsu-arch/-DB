@@ -22,6 +22,8 @@ for (const kv of (process.env.R85A_AI || '').split(',').filter(Boolean)) {
   const [k, v] = kv.split(':');
   R85A.R85A_AI[k] = Number(v);
 }
+// R85A_DUAL=1 … 合体技の 強さに 大砲を そのまま 数える（割り引き なしと くらべる）
+if (process.env.R85A_DUAL) R85A.R85A_DUAL.mult = Number(process.env.R85A_DUAL);
 if (process.env.R85A) console.log('（R85A は データを かえずに 見る ための もの。今は 表示だけ）', process.env.R85A);
 
 const N = Number(process.argv[2] || 10);

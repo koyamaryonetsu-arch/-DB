@@ -130,6 +130,11 @@ Object.assign(JOB_SAY, {
   yusuke: '「まだ、終わってねえ！」',
   makai_prince: '「へへっ、楽しくなってきたぜ！」',
 });
+// 第85回 B班: 烈火の炎の 系統（jobs-r85b.js）
+Object.assign(JOB_SAY, {
+  enjutsushi: '「火竜よ、おれに力をかせ！」',
+  rekka: '「八竜、みんなまとめてかかってこい！」',
+});
 // 第85回 A班: スレイヤーズの 系統（jobs-r85a.js。男の子の ひとことは JOB_SAY_MASC）
 Object.assign(JOB_SAY, {
   tabi_madoshi: '「まずは腹ごしらえ！それから冒険よ！」',
