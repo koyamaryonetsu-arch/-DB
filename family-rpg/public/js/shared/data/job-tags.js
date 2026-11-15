@@ -293,7 +293,7 @@ Object.assign(JOB_TAGS, {
 // 第86回 A班: 幻の職業 2つ（jobs-r86a.js。新しい タグは 作らない）
 Object.assign(JOB_TAGS, {
   yokai_bridge: ['monster', 'guard', 'wind', 'master'], // 人とようかいのかけ橋（半よう・かばう・風のきず・2つの 道を きわめた。学校は 組の 上限なので つけない）
-  ryujin_kenshi: ['sword', 'bolt', 'fire', 'master'], // 竜神の剣士（竜神けん・雷の 玉・火竜・2つの 道を きわめた）
+  ryujin_kenshi: ['bolt', 'fire', 'light', 'master'], // 竜神の剣士（雷の 玉・火竜・竜神の 光・2つの 道を きわめた。剣かこぶしの 組は 上限〈職業の 3分の1〉ちょうどなので つけない）
 });
 
 // そのタグの 職業（JOB_TAGS の じゅん）

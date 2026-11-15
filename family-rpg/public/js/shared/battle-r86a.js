@@ -329,7 +329,7 @@ export function r86aPub(c) {
 
 // ───────────── オート（ai.js の decideAlly） ─────────────
 // わりあい（tools/sim-r86a.mjs で 合わせた。R86A_AI=boss:0.7,… で ためせる）
-export const R86A_AI = { sig: 0.85, kabau: 0.35, kizuna: 0.45, tame: 0.8, many: 0.6, boss: 0.7, revive: 0.9, madoka: 0.6, tama: 1, kokoro: 0.5, ksig: 0.55, kmany: 0.65 };
+export const R86A_AI = { sig: 0.85, sigHurt: 0.35, sigBoss: 0.1, kabauWeak: 0.6, kabau: 0.25, kizuna: 0.45, tame: 0.9, many: 0.6, boss: 0.9, revive: 0.9, madoka: 0.6, tama: 1, kokoro: 0.5, ksig: 0.55, kboss: 0.9, kmany: 0.65 };
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 const OWN = new Set([...R86A_JOBS]);
 const own = (a) => OWN.has(a.job);
@@ -359,13 +359,17 @@ export function r86aPlan(b, c, foes, mine, allies, fw) {
   const best = (list, targets) => list.map((x) => ({ ...x, d: est(b, c, x.a, x.a.target === 'enemies' ? foes : targets) })).sort((x, y) => y.d - x.d)[0];
   if (c.job === 'yokai_bridge' || my.some(({ a }) => a.job === 'yokai_bridge')) {
     const sig = type('r86aSig');
-    // 1) 前ぶれ ＝ 人とようかいのきずな（みんなを かばって、次の 番に 返す）
-    if (tele && sig && !c.r86aGuard && hp >= 0.5 && b.rng.chance(R86A_AI.sig)) return { type: 'ability', id: sig.id };
-    // 2) ボスで 弱った 仲間を かばう（きずなの守り）
+    const others = allies.filter((x) => x !== c);
+    const hurt = others.length ? others.reduce((s, x) => s + x.hp / x.maxHp, 0) / others.length : 1;
+    // 1) 前ぶれ・仲間が 弱って きた ボス戦 ＝ 人とようかいのきずな（みんなを かばって、次の 番に 返す）
+    if (sig && !c.r86aGuard && hp >= 0.5 && (tele || (boss && hurt < 0.6)) && b.rng.chance(tele ? R86A_AI.sig : R86A_AI.sigHurt)) return { type: 'ability', id: sig.id };
+    //   ボス戦では ときどき（前ぶれを 待たずに。みんなを かばって 力を ためる）
+    if (sig && boss && !c.r86aGuard && hp >= 0.6 && b.rng.chance(R86A_AI.sigBoss)) return { type: 'ability', id: sig.id };
+    // 2) ボスで 仲間を かばう（きずなの守り。弱った 仲間・いなければ ときどき HP の いちばん 少ない 仲間を。かばうと 力が たまる）
     const kabau = type('r86aKabau');
-    if (kabau && boss && !c.cover && hp >= 0.6) {
-      const w = allies.filter((x) => x !== c && x.hp < x.maxHp * 0.45).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
-      if (w && b.rng.chance(R86A_AI.kabau)) return { type: 'ability', id: kabau.id, target: w.id };
+    if (kabau && boss && !c.cover && !c.r86aGuard && hp >= 0.6) {
+      const w = others.slice().sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
+      if (w && b.rng.chance(w.hp < w.maxHp * 0.45 ? R86A_AI.kabauWeak : R86A_AI.kabau)) return { type: 'ability', id: kabau.id, target: w.id };
     }
     // 3) ボス・強い 敵で きずなの力（まだ かかって いない・HP に よゆう）
     const kizuna = type('r86aKizuna');
@@ -374,7 +378,7 @@ export function r86aPlan(b, c, foes, mine, allies, fw) {
     if (!atk.length) return null;
     const t = boss || foes.slice().sort((x, y) => y.hp - x.hp)[0];
     // 4) ためた力が 大きい ＝ 敵が 多ければ 返し風・ふつうは いちばん 強い 1体の 技
-    if ((c.r86aTame || 0) >= c.maxHp * 0.2 && b.rng.chance(R86A_AI.tame)) {
+    if ((c.r86aTame || 0) >= c.maxHp * 0.15 && b.rng.chance(R86A_AI.tame)) {
       const all = atk.find(({ a }) => a.effect?.tameAll);
       if (all && foes.length >= 2) return { type: 'ability', id: all.id };
       const one = best(atk.filter(({ a }) => a.target === 'enemy'), [t]);
@@ -433,7 +437,7 @@ export function r86aPlan(b, c, foes, mine, allies, fw) {
     if (kokoro && !c.buffs?.atk && b.rng.chance(R86A_AI.kokoro)) return { type: 'ability', id: kokoro.id };
     const sig = my.find(({ a }) => a.effect?.r86a === 'sig');
     if (sig && b.rng.chance(R86A_AI.ksig)) return { type: 'ability', id: sig.id, target: boss.id };
-    if (b.rng.chance(R86A_AI.boss)) {
+    if (b.rng.chance(R86A_AI.kboss)) {
       const one = best(atk.filter(({ a }) => a.effect?.r86a !== 'sig'), [boss]);
       if (one) return { type: 'ability', id: one.id, target: boss.id };
     }

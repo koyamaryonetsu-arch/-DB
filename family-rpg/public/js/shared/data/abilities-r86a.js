@@ -26,7 +26,7 @@ const WIND = { element: 'wind', vsBuff: 1.3 };
 export const R86A_ABILITIES = {
   // ───────────── 人とようかいのかけ橋（ばくりゅうはの大よう ＋ おにの手のじごく先生） ─────────────
   kb_kaze: {
-    name: '守りの風のきず', kana: 'まもりのかぜのきず', kind: 'skill', job: 'yokai_bridge', mp: 16, target: 'enemies',
+    name: '守りの風のきず', kana: 'まもりのかぜのきず', kind: 'skill', job: 'yokai_bridge', mp: 14, target: 'enemies',
     effect: { type: 'phys', mult: 1.6, ...WIND },
     desc: '仲間を守る心をこめた、風のきず。敵全体を風で切りさく。自分を強くしている敵には、もっとよく効く。', cast: '{a}「みんなには、指一本ふれさせねえ！」', anim: 'r86a_kaze',
   },
@@ -36,13 +36,13 @@ export const R86A_ABILITIES = {
     desc: '仲間1人のまえに立って、その仲間への攻撃をかばう。自分の守備力も上がる。かばって受けた力は、ためておける。', cast: '{a}「下がってな。おれがうける！」', anim: 'r86a_mamori',
   },
   kb_onizume: {
-    name: 'おにの手のつめ', kana: 'おにのてのつめ', kind: 'skill', job: 'yokai_bridge', mp: 12, target: 'enemy',
-    effect: { type: 'phys', mult: 3.5, vsRace: GHOST, oni: true },
+    name: 'おにの手のつめ', kana: 'おにのてのつめ', kind: 'skill', job: 'yokai_bridge', mp: 10, target: 'enemy',
+    effect: { type: 'phys', mult: 3.8, vsRace: GHOST, oni: true },
     desc: 'おにの手と、ようかいのつめを重ねて、敵1体を大きく切りさく。ゆうれい・アンデッド・悪魔には、もっとよく効く。', cast: '{a}の左手が、赤く光った！', anim: 'r86a_onizume',
   },
   kb_kizuna: {
-    name: 'きずなの力', kana: 'きずなのちから', kind: 'skill', job: 'yokai_bridge', mp: 16, target: 'self', role: 'sup',
-    effect: { type: 'r86aKizuna', mult: 1.5, acts: 4 },
+    name: 'きずなの力', kana: 'きずなのちから', kind: 'skill', job: 'yokai_bridge', mp: 14, target: 'self', role: 'sup',
+    effect: { type: 'r86aKizuna', mult: 1.6, acts: 4 },
     desc: 'ようかいの力と、おにの手の力を、仲間とのきずなでおさえこむ。4回の行動の間、物理の攻撃がとても強くなる。命令もとどき、HPもへらない。', cast: '{a}「この力は…仲間を守るためにある！」', anim: 'r86a_kizuna',
   },
   kb_chikai: {
@@ -51,8 +51,8 @@ export const R86A_ABILITIES = {
     desc: '「だれも、たおれさせない」とちかう。仲間全員の守備力が上がり、少しずつ回復していく。', cast: '{a}「みんな、おれのうしろにいろ！」', anim: 'r86a_mamori',
   },
   kb_rengeki: {
-    name: 'つめとおにの手の連げき', kana: 'つめとおにのてのれんげき', kind: 'skill', job: 'yokai_bridge', mp: 18, target: 'enemy',
-    effect: { type: 'phys', mult: 1.35, hits: 3, vsRace: GHOST, oni: true },
+    name: 'つめとおにの手の連げき', kana: 'つめとおにのてのれんげき', kind: 'skill', job: 'yokai_bridge', mp: 16, target: 'enemy',
+    effect: { type: 'phys', mult: 1.45, hits: 3, vsRace: GHOST, oni: true },
     desc: 'ようかいのつめと、おにの手で、かわるがわる3回たたきこむ。ゆうれい・アンデッド・悪魔には、もっとよく効く。', cast: '{a}「つめと、おにの手だ！」', anim: 'r86a_onizume',
   },
   kb_kaeshi: {
@@ -61,15 +61,15 @@ export const R86A_ABILITIES = {
     desc: 'かばって受けとめた力を、風にまぜて敵全体へ返す。ためた力が大きいほど、ダメージも大きい。', cast: '{a}「うけとめた分、まとめて返すぜ！」', anim: 'r86a_kaze',
   },
   yokai_bridge_sig: {
-    name: '人とようかいのきずな', kana: 'ひととようかいのきずな', kind: 'skill', job: 'yokai_bridge', mp: 40, target: 'enemies', role: 'dmg',
+    name: '人とようかいのきずな', kana: 'ひととようかいのきずな', kind: 'skill', job: 'yokai_bridge', mp: 36, target: 'enemies', role: 'dmg',
     effect: { type: 'r86aSig', take: 0.55, swing: 1.7, spread: 0.75, cap: 4.0 },
     desc: '人とようかいのきずなの、最強の技。次の自分の番まで、仲間全員への攻撃を全部かばう（受けるダメージはへる）。次の番に、ためた力を大きな風にして、敵全体へ返す。', cast: '{a}「人も、ようかいも、みんなまとめて守ってやる！」', anim: 'yokai_bridge_sig',
   },
 
   // ───────────── 竜神の剣士（竜神けんのサムライ ＋ 八竜の炎術士・烈火） ─────────────
   rs_futae: {
-    name: '二色の太刀', kana: 'ふたいろのたち', kind: 'skill', job: 'ryujin_kenshi', mp: 12, target: 'enemy', sword: true,
-    effect: { type: 'phys', mult: 3.4, r86a: 'dual' },
+    name: '二色の太刀', kana: 'ふたいろのたち', kind: 'skill', job: 'ryujin_kenshi', mp: 10, target: 'enemy', sword: true,
+    effect: { type: 'phys', mult: 3.6, r86a: 'dual' },
     desc: '雷の玉の光と、火竜の炎を、1本の刀にまとって切る。敵1体に大きなダメージ。今の玉の属性と炎の、よく効く方で当たる。', cast: '{a}の刀が、青と赤に光った！', anim: 'r86a_futae',
   },
   rs_tamagae: {
@@ -98,8 +98,8 @@ export const R86A_ABILITIES = {
     desc: 'いなずまと炎が、あらしのように敵全体をおそう。雷と炎のダメージを1回ずつ。', cast: '{a}「雷よ、炎よ、あれくるえ！」', anim: 'r86a_raien',
   },
   rs_rengeki: {
-    name: '竜神の連続切り', kana: 'りゅうじんのれんぞくぎり', kind: 'skill', job: 'ryujin_kenshi', mp: 20, target: 'enemy', sword: true,
-    effect: { type: 'phys', mult: 1.3, hits: 4, critBonus: 0.1, r86a: 'dual' },
+    name: '竜神の連続切り', kana: 'りゅうじんのれんぞくぎり', kind: 'skill', job: 'ryujin_kenshi', mp: 18, target: 'enemy', sword: true,
+    effect: { type: 'phys', mult: 1.35, hits: 4, critBonus: 0.1, r86a: 'dual' },
     desc: '雷のはやさで、敵1体を4回切る。1回ずつ、今の玉の属性と炎の、よく効く方で当たる。会心も出やすい。', cast: '{a}の刀が、目にもとまらない！', anim: 'r86a_futae',
   },
   ryujin_kenshi_sig: {
