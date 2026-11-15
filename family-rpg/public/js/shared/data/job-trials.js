@@ -232,6 +232,11 @@ Object.assign(TRIAL_WORDS, {
   yaiba: '玉は道具ではない。どの玉の力も、心をこめて使うのだ。',
   ryujin_samurai: '7つの玉をそろえても、サムライのたましいがなければ、ただの石だ。',
 });
+// 第83回 A班（超級職・伝説。jobs-r83a.js）
+Object.assign(TRIAL_WORDS, {
+  taikobo: 'なまけてよい。だが、仲間を見る目だけは、休めるな。',
+  hoshin_gunshi: '軍師の強さは、ちえで仲間を守れることだ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

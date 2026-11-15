@@ -47,6 +47,8 @@ import { HIRA_R66E2_ABILITIES, HIRAMEKI_R66E2 } from './hirameki-r66e2.js';
 import { HIRA_R82A_ABILITIES, HIRAMEKI_R82A } from './hirameki-r82a.js';
 // 第82回 B班: YAIBA の 系統の ひらめき技（hirameki-r82b.js）
 import { HIRA_R82B_ABILITIES, HIRAMEKI_R82B } from './hirameki-r82b.js';
+// 第83回 A班: 封神演義の 系統の ひらめき技（hirameki-r83a.js）
+import { HIRA_R83A_ABILITIES, HIRAMEKI_R83A } from './hirameki-r83a.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -323,6 +325,9 @@ Object.assign(HIRAMEKI, HIRAMEKI_R82A);
 // 第82回 B班の ひらめき技（hirameki-r82b.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R82B_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R82B);
+// 第83回 A班の ひらめき技（hirameki-r83a.js。上の 2つの 表に まぜる）
+Object.assign(HIRA_ABILITIES, HIRA_R83A_ABILITIES);
+Object.assign(HIRAMEKI, HIRAMEKI_R83A);
 
 // 回数の 名前（'@atk' など、技 では ない もの）
 export const USE_NAMES = { '@atk': 'ふつうの攻撃' };
