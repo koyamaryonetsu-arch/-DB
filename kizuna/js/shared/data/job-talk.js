@@ -130,6 +130,11 @@ Object.assign(JOB_SAY, {
   yusuke: '「まだ、終わってねえ！」',
   makai_prince: '「へへっ、楽しくなってきたぜ！」',
 });
+// 第85回 B班: 烈火の炎の 系統（jobs-r85b.js）
+Object.assign(JOB_SAY, {
+  enjutsushi: '「火竜よ、おれに力をかせ！」',
+  rekka: '「八竜、みんなまとめてかかってこい！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

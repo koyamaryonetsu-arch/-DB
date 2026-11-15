@@ -7,12 +7,12 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=e50463ad60dd';
-import { ABILITIES } from './data/abilities.js?v=e50463ad60dd';
-import { strengthenEnemy } from './data/difficulty.js?v=e50463ad60dd';
-import { MONSTERS } from './data/monsters.js?v=e50463ad60dd';
-import { mirrorSkillOk } from './battle-temple.js?v=e50463ad60dd';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=e50463ad60dd';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=108fff3a43a7';
+import { ABILITIES } from './data/abilities.js?v=108fff3a43a7';
+import { strengthenEnemy } from './data/difficulty.js?v=108fff3a43a7';
+import { MONSTERS } from './data/monsters.js?v=108fff3a43a7';
+import { mirrorSkillOk } from './battle-temple.js?v=108fff3a43a7';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=108fff3a43a7';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };
@@ -75,6 +75,8 @@ Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 
 Object.assign(PHANTOM_ADJ, { ranma: [2.08, 1.78, 1.93], hiryu_master: [1.1, 0.88, 0.96] });
 // 第84回 A班: うら飯ゆう助・魔界の王の子（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。まぼろしも れい丸を 持つ〈4発・6発〉）
 Object.assign(PHANTOM_ADJ, { yusuke: [1.25, 0.95, 1.31], makai_prince: [1.12, 0.91, 1.04] });
+// 第85回 B班: 炎術士・八竜の炎術士・烈火（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。tools/sim-trial.mjs 20 で 6〜9割に 合わせた）
+Object.assign(PHANTOM_ADJ, { enjutsushi: [1.08, 0.9, 1.05], rekka: [1.41, 1.17, 1.7] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
@@ -85,6 +87,8 @@ for (const t of ['oniHand', 'oniAwake', 'teShield', 'teKoe']) NO_USE.add(t);
 for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
 // 第84回 B班: すがたを かえる・飛竜しょう天はの かまえ・かけひき・敵前だい逃亡・心の水は 仲間の しくみ（まぼろしは 使わない。battle-r84b.js）
 for (const t of ['r84bForm', 'r84bHiryu', 'r84bKakehiki', 'r84bToubou', 'r84bKokoro']) NO_USE.add(t);
+// 第85回 B班: 火竜をよぶ（メニューで えらぶ・れっしん は 生き返らせる）・姫を守る忍びは 仲間の しくみ（まぼろしは 使わない。battle-r85b.js）
+for (const t of ['r85bRyu', 'r85bHime']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;

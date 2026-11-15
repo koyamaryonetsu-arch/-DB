@@ -8,24 +8,24 @@
 //   → ソリトゥス（きまった 戦い c8_solitus。3だん。B）→ ふういんと 千年の約束 → 今の ほしみの丘（4人の 勇者の 像・トキネは 砂時計の 中へ）→ 第2部 完（c8_solitus）
 // 魔物・きまった 戦い・品・ゲストの 強さ・戦いの 中の えんしゅつは B（plan-ch8.md の 9-2）
 // 負けた 時の ヒント（B の 文・E の しくみ）。もう一度 いどむ 行き先は 台本の マス
-import { C8R_BOSS_HINTS } from './boss-hints-c8r.js?v=e50463ad60dd';
-import { mergeBossHints } from './boss-hints.js?v=e50463ad60dd';
-import { C8C } from '../maps/c8c-flags.js?v=e50463ad60dd';
+import { C8R_BOSS_HINTS } from './boss-hints-c8r.js?v=108fff3a43a7';
+import { mergeBossHints } from './boss-hints.js?v=108fff3a43a7';
+import { C8C } from '../maps/c8c-flags.js?v=108fff3a43a7';
 import {
   C8R, WINGS, WING_MARK, WING_NAME, HERO_GUEST, wingCount, ARRIVE8R, GATE_DUE8R, WIN_GATE8R, CORE8R, WIN_SOL8R, SEAL8R, TRIAL_SEEN8R, FLOOR_SEEN8R,
   MIR8R, FIRE8R, DEV8R, CHASE8R, STAR8R, MISS8R, HALL_ID, NOW_FIELD_ID, lastMapId,
-} from '../maps/c8r-flags.js?v=e50463ad60dd';
-import { FLOOR_SPECS } from '../maps/c8r-wings.js?v=e50463ad60dd';
-import { floorPos } from '../maps/c8r-floor.js?v=e50463ad60dd';
-import { FIRE2_CHASE, FIRE2_CATCH } from '../maps/c8r-rows.js?v=e50463ad60dd';
-import { HALL_POS, HALL_DOORS, CORE_POS } from '../maps/c8r-hall.js?v=e50463ad60dd';
-import { RIFT8R, STATUES8R, HALL_ENTER8R } from '../maps/c8r-field.js?v=e50463ad60dd';
-import { TOKINE_SPOT } from '../maps/ch6c-side.js?v=e50463ad60dd';
-import { MAPS } from '../maps/index.js?v=e50463ad60dd';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=e50463ad60dd';
-import { MONSTERS } from './monsters.js?v=e50463ad60dd';
-import { shiftPeople } from '../world/time-glass.js?v=e50463ad60dd';
-import { lightFire8r } from '../world/c8r-steps.js?v=e50463ad60dd';
+} from '../maps/c8r-flags.js?v=108fff3a43a7';
+import { FLOOR_SPECS } from '../maps/c8r-wings.js?v=108fff3a43a7';
+import { floorPos } from '../maps/c8r-floor.js?v=108fff3a43a7';
+import { FIRE2_CHASE, FIRE2_CATCH } from '../maps/c8r-rows.js?v=108fff3a43a7';
+import { HALL_POS, HALL_DOORS, CORE_POS } from '../maps/c8r-hall.js?v=108fff3a43a7';
+import { RIFT8R, STATUES8R, HALL_ENTER8R } from '../maps/c8r-field.js?v=108fff3a43a7';
+import { TOKINE_SPOT } from '../maps/ch6c-side.js?v=108fff3a43a7';
+import { MAPS } from '../maps/index.js?v=108fff3a43a7';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=108fff3a43a7';
+import { MONSTERS } from './monsters.js?v=108fff3a43a7';
+import { shiftPeople } from '../world/time-glass.js?v=108fff3a43a7';
+import { lightFire8r } from '../world/c8r-steps.js?v=108fff3a43a7';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -284,6 +284,12 @@ Object.assign(JOB_TAGS, {
   makai_prince: ['fist', 'dark', 'rival'], // 魔界の王の子（れい丸・よう丸〈闇〉・魔界の 王の 血）
 });
 
+// 第85回 B班: 烈火の炎の 系統（jobs-r85b.js。合体技の 相手の 案: 炎柱〈炎〉・木の葉の忍び〈忍び〉・忍者〈忍び・炎〉。「竜」の タグは 作らない）
+Object.assign(JOB_TAGS, {
+  enjutsushi: ['fire', 'shinobi', 'guard'], // 炎術士（火竜・忍び・まどかの けっかい）
+  rekka: ['fire', 'shinobi', 'fist', 'guard'], // 八竜の炎術士・烈火（火竜・忍び・火竜の こぶし・姫を守る忍び）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));
