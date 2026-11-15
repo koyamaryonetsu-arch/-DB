@@ -55,6 +55,8 @@ import { JOBS_R84B, R84B_ORDERS, HINTS_R84B } from './jobs-r84b.js';
 import { JOBS_R84A, R84A_ORDERS, HINTS_R84A } from './jobs-r84a.js';
 // 第85回 B班: 烈火の炎の 系統（忍者 → 炎術士 → 八竜の炎術士・烈火。jobs-r85b.js）
 import { JOBS_R85B, R85B_ORDERS, HINTS_R85B } from './jobs-r85b.js';
+// 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士（jobs-r86a.js）
+import { JOBS_R86A, R86A_PHANTOM, HINTS_R86A } from './jobs-r86a.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1332,6 +1334,8 @@ Object.assign(JOBS, JOBS_R84B);
 Object.assign(JOBS, JOBS_R84A);
 // 第85回 B班: 烈火の炎の 系統（jobs-r85b.js）
 Object.assign(JOBS, JOBS_R85B);
+// 第86回 A班: 幻の職業 2つ（jobs-r86a.js）
+Object.assign(JOBS, JOBS_R86A);
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
@@ -1402,6 +1406,8 @@ JOB_ORDER.push(...BASE_R82A_ORDER); ADVANCED_ORDER.push(...ADV_R82A_ORDER); SUPE
 // 職業の 定義は jobs-phantom-a/b/c.js（C1〜C3）。まだ ない 職業は 一覧に 入れない（PHANTOM_LIVE）
 export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
   'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god'];
+// 第86回 A班: 人とようかいのかけ橋・竜神の剣士（jobs-r86a.js。おわりに 足す ので 前の 12この 掲示板の しるし〈ビット〉は かわらない）
+PHANTOM_ORDER.push(...R86A_PHANTOM);
 export const PHANTOM_LIVE = PHANTOM_ORDER.filter((id) => JOBS[id]);
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER, ...PHANTOM_LIVE];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業', '幻の職業'];
@@ -1585,3 +1591,5 @@ Object.assign(JOB_HINTS, HINTS_R84B);
 Object.assign(JOB_HINTS, HINTS_R84A);
 // 第85回 B班: 炎術士・八竜の炎術士・烈火の うわさ（jobs-r85b.js）
 Object.assign(JOB_HINTS, HINTS_R85B);
+// 第86回 A班: 人とようかいのかけ橋・竜神の剣士の うわさ（jobs-r86a.js）
+Object.assign(JOB_HINTS, HINTS_R86A);

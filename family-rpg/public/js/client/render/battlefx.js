@@ -46,6 +46,8 @@ import { playR84bFx, R84B_FINE } from './battlefx-r84b.js';
 import { playR84aFx, R84A_FINE } from './battlefx-r84a.js';
 // 第85回 B班: 烈火の炎の 系統の 技（battlefx-r85b.js）
 import { playR85bFx, R85B_FINE } from './battlefx-r85b.js';
+// 第86回 A班: 幻の職業 2つの 技（battlefx-r86a.js。竜は 第85回 B班の r85bDragon を 色を かえて 使う）
+import { playR86aFx } from './battlefx-r86a.js';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
 import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
@@ -1628,6 +1630,8 @@ export class Effects {
     if (playR84aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第85回 B班: 烈火の炎の 系統の 技（battlefx-r85b.js。anim は 'r85b_…' と 看板の 技。8ひきの 火竜は 色と 形が ちがう）
     if (playR85bFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 技（battlefx-r86a.js。anim は 'r86a_…' と 看板の 技）
+    if (playR86aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
     if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第27回に 作り直した 呪文・特技（メラ〜メラガイアー・ヒャド系・バギ系・イオ系・デイン系・ホイミ系・補助・剣と こぶしの 技）

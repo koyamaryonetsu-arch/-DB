@@ -109,6 +109,8 @@ import { R84B_ABILITIES } from './abilities-r84b.js';
 import { R84A_ABILITIES } from './abilities-r84a.js';
 // 第85回 B班: 烈火の炎の 系統の 技（abilities-r85b.js）
 import { R85B_ABILITIES } from './abilities-r85b.js';
+// 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士の 技（abilities-r86a.js）
+import { R86A_ABILITIES } from './abilities-r86a.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -770,6 +772,8 @@ Object.assign(ABILITIES, R84B_ABILITIES);
 Object.assign(ABILITIES, R84A_ABILITIES);
 // 第85回 B班: 烈火の炎の 系統（abilities-r85b.js）
 Object.assign(ABILITIES, R85B_ABILITIES);
+// 第86回 A班: 幻の職業 2つ（abilities-r86a.js）
+Object.assign(ABILITIES, R86A_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

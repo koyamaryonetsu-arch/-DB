@@ -42,6 +42,7 @@ globalThis.document = {
 const texts = (e) => [e.textContent, ...(e.children || []).flatMap((k) => (k instanceof FakeEl ? texts(k) : []))].filter(Boolean);
 const { ListMenu } = await import('../public/js/client/ui/dom.js');
 const { phantomBookView } = await import('../public/js/client/ui/phantom-book.js');
+const { PHANTOM_ORDER } = await import('../public/js/shared/data/jobs.js');
 
 const fakeInput = () => {
   const stack = [];
@@ -59,11 +60,12 @@ test('幻の書: 12行。はじめは ？？？・きわめると 名前と メ�
   const { menu, input } = fakeMenu(me);
   // 右の 見本（えらぶ 前）
   const pv = phantomBookView(menu, false);
-  assert.ok(texts(pv).some((t) => t.includes('見つけた幻の職業　2/12')), texts(pv).join('/'));
+  // 第86回 A班: 幻の職業は 14こ（人とようかいのかけ橋・竜神の剣士）
+  assert.ok(texts(pv).some((t) => t.includes(`見つけた幻の職業　2/${PHANTOM_ORDER.length}`)), texts(pv).join('/'));
   const box = phantomBookView(menu, true);
   const m = menu.sub;
-  assert.equal(m.items.length, 12);
-  assert.equal(m.items.filter((it) => it.label === '？？？').length, 10);
+  assert.equal(m.items.length, PHANTOM_ORDER.length);
+  assert.equal(m.items.filter((it) => it.label === '？？？').length, PHANTOM_ORDER.length - 2);
   const ai = m.items.find((it) => it.value === 'facility_ai');
   assert.equal(ai.label, '天才しせつ管理者AI');
   assert.equal(ai.right, '0/2');

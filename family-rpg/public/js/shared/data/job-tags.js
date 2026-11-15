@@ -290,6 +290,12 @@ Object.assign(JOB_TAGS, {
   rekka: ['fire', 'shinobi', 'fist', 'guard'], // 八竜の炎術士・烈火（火竜・忍び・火竜の こぶし・姫を守る忍び）
 });
 
+// 第86回 A班: 幻の職業 2つ（jobs-r86a.js。新しい タグは 作らない）
+Object.assign(JOB_TAGS, {
+  yokai_bridge: ['monster', 'guard', 'wind', 'master'], // 人とようかいのかけ橋（半よう・かばう・風のきず・2つの 道を きわめた。学校は 組の 上限なので つけない）
+  ryujin_kenshi: ['sword', 'bolt', 'fire', 'master'], // 竜神の剣士（竜神けん・雷の 玉・火竜・2つの 道を きわめた）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

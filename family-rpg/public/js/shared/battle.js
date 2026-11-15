@@ -93,6 +93,8 @@ import { r84bTurnStart, r84bPhys, r84bEffect, r84bPhysMult, r84bEva, r84bSpeed, 
 import { r84aPhys, r84aPhysMult, r84aEffect, r84aTurnStart, r84aRise, r84aPub, reiOk, reiReason } from './battle-r84a.js';
 // 第85回 B班: 烈火の炎の 系統（火竜をよぶ・まどかの けっかい・るいの まぼろし・晴れで 炎が 強い・姫を守る忍び。battle-r85b.js）
 import { r85bTurnStart, r85bEffect, r85bEva, r85bDamage, r85bCut, r85bFloor, r85bPub } from './battle-r85b.js';
+// 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
+import { r86aTurnStart, r86aCover, r86aEffect, r86aPhys, r86aElement, r86aPhysMult, r86aDamage, r86aMark, r86aCut, r86aStore, r86aResolve, r86aPub } from './battle-r86a.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -553,6 +555,8 @@ export class Battle {
       r84aTurnStart(this, c, ev);
       // 第85回 B班: 身を 守るのも 1回の 行動（まどかの けっかい・るいの まぼろしの のこり。battle-r85b.js）
       r85bTurnStart(this, c, ev);
+      // 第86回 A班: 身を 守るのも 1回の 行動（人とようかいのきずなの 2だん目・きずなの力の のこり。battle-r86a.js）
+      r86aTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       this.actEnd(c, held, ev);
       ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));
@@ -669,6 +673,8 @@ export class Battle {
     r84bTurnStart(this, c, ev);
     // 第85回 B班: まどかの けっかい・るいの まぼろしの のこり（battle-r85b.js）
     r85bTurnStart(this, c, ev);
+    // 第86回 A班: 人とようかいのきずなの 2だん目（ためた力の 風）・きずなの力の のこり（battle-r86a.js）
+    r86aTurnStart(this, c, ev);
     // 反撃の構えは つぎの 自分の 番で とける
     if (c.stance) {
       c.stance = null;
@@ -729,6 +735,8 @@ export class Battle {
       r82aResolve(this, ev);
       // 第84回 B班: 飛竜しょう天はの かまえに 当たった 人が 竜巻で やり返す（battle-r84b.js）
       r84bResolve(this, ev);
+      // 第86回 A班: のせた ためた力は 0 に もどる（battle-r86a.js）
+      r86aResolve(this, ev);
       this.tickStatus(c, 'blind', ev);
       this.tickStatus(c, 'silence', ev);
     }
@@ -988,10 +996,14 @@ export class Battle {
 
   resolveTarget(c, kind, wanted) {
     let t = this.peekTarget(c, kind, wanted);
+    // 第86回 A班: もとの ねらい（かけ橋が かばったかを 見る。battle-r86a.js）
+    const t0 = t;
     // かばう
     if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = this.coverRedirect(t);
     // 第83回 B班: 生徒を 守る（弱った 仲間への 攻撃を 先生が 自動で かばう。battle-r83b.js）
     if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = r83bCover(this, c, t);
+    // 第86回 A班: かけ橋が かばった（ためた力に なる）・弱った 仲間を 自動で かばう（先生が かばえる 時は 先生。battle-r86a.js）
+    if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = r86aCover(this, c, t0, t);
     return t;
   }
 
@@ -1058,6 +1070,8 @@ export class Battle {
         if (eff.r84b) { r84bPhys(this, c, a, cmd, ev, powMult, targets); break; }
         // 第84回 A班: れい丸の 技（れい丸を 使う・のこりを ぜんぶ うつ。battle-r84a.js）
         if (eff.rei) { r84aPhys(this, c, a, cmd, ev, powMult, targets); break; }
+        // 第86回 A班: 竜神の剣士の 剣（今の 玉の 属性と 炎の、よく 効く 方。battle-r86a.js）
+        if (eff.r86a) { r86aPhys(this, c, a, cmd, ev, powMult, targets); break; }
         if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
@@ -1578,6 +1592,8 @@ export class Battle {
       case 'r84aCharge': case 'r84aNakama': r84aEffect(this, c, a, eff, ev); break;
       // 火竜をよぶ・姫を守る忍び・まどかの けっかい・るいの まぼろし（第85回 B。battle-r85b.js）
       case 'r85bRyu': case 'r85bHime': case 'r85bMadoka': case 'r85bRui': r85bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
+      // きずなの守り・きずなの力・人とようかいのきずな（第86回 A。battle-r86a.js）
+      case 'r86aKabau': case 'r86aKizuna': case 'r86aSig': r86aEffect(this, c, a, eff, ev, targets, powMult); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1657,6 +1673,8 @@ export class Battle {
   calcPhys(c, t, eff, powMult = 1, element = 'phys', estimate = false) {
     // 第82回 B班: 今の 玉の 属性に なる 技（オートの みつもり。battle-r82b.js）
     element = r82bElement(c, eff, element);
+    // 第86回 A班: 竜神の剣士の 剣は 玉の 属性と 炎の よく 効く 方（オートの みつもり。battle-r86a.js）
+    element = r86aElement(this, c, t, eff, element);
     const acc = (eff.acc ?? 1) * (c.status.blind ? 0.4 : 1);
     // 第84回 B班: 水の すがた・敵前だい逃亡（前ぶれの 大技は よけられない。battle-r84b.js）
     // 第85回 B班: るいの まぼろし（今の よけと 合わせて 上限まで。前ぶれの 大技は よけられない。battle-r85b.js）
@@ -1690,6 +1708,8 @@ export class Battle {
     dmg *= r84bPhysMult(c, t, eff);
     // 仲間のために・立ち上がった あとの 力・のこりを ぜんぶ うつ 技の みつもり（第84回 A。battle-r84a.js）
     dmg *= r84aPhysMult(this, c, t, eff, estimate);
+    // きずなの力（ようかい化・おにの手と 足さない。第86回 A。battle-r86a.js）
+    dmg *= r86aPhysMult(c);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;
@@ -1742,6 +1762,10 @@ export class Battle {
     const nd = r83bDamage(this, c, t, dmg, info, ev);
     if (nd === null) return;
     dmg = nd;
+    // 第86回 A班: ためた力を のせる・人とようかいのきずな と 自動で かばう（敵全体の 攻撃。battle-r86a.js）
+    const kd = r86aDamage(this, c, t, dmg, info, ev);
+    if (kd === null) return;
+    dmg = kd;
     // 水の衣（半分・炎は 効かない・雷で はじける）・水の守りの歌（battle-temple.js）
     const td = templeDamage(this, c, t, dmg, info, ev);
     if (td === null) return;
@@ -1784,16 +1808,22 @@ export class Battle {
     dmg = bd;
     // 第83回 A班: 攻めと 守りの 作戦・先読みの策・守りの旗（battle-r83a.js）
     // 第85回 B班: まどかの 炎の けっかい（受ける ダメージが へる。下げすぎ ふせぎは 下の r85bFloor。battle-r85b.js）
+    // 第86回 A班: 人とようかいのきずなの 下限の ため、へらす 前の ダメージを おぼえる（battle-r86a.js）
+    r86aMark(t, dmg, info);
     dmg = r85bCut(this, c, t, dmg, info, ev);
     dmg = r83aDamage(this, c, t, dmg, info, ev);
     // 第83回 B班: 体をはって守る（作戦・先読みと 合わせても 下限より 下げない。battle-r83b.js）
     dmg = r83bShieldCut(t, dmg, info);
     // 第85回 B班: まどかと 作戦・先読みの策・守りの旗・体をはって守る を 合わせても 下限まで（battle-r85b.js）
     dmg = r85bFloor(t, dmg, info);
+    // 第86回 A班: 人とようかいのきずなで 受ける ダメージが へる（ほかと 合わせても 下限まで。battle-r86a.js）
+    dmg = r86aCut(t, dmg, info);
     // 第84回 B班: お湯の 守り・おこった 敵・属性で すがたが かわる・飛竜しょう天はの かまえ（battle-r84b.js）
     dmg = r84bDamage(this, c, t, dmg, info, ev);
     // 第82回 A: おすわり！で 半分・ばくりゅうはで 受けとめる（battle-r82a.js）
     dmg = r82aDamage(this, c, t, dmg, info, ev);
+    // 第86回 A班: かばって 受けた ダメージの 半分を ためた力に（battle-r86a.js）
+    r86aStore(this, c, t, dmg, info, ev);
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -2622,6 +2652,8 @@ export function pub(c) {
     ...r84aPub(c),
     // まどかの けっかい・るいの まぼろしの のこり（第85回 B。battle-r85b.js）
     ...r85bPub(c),
+    // ためた力・きずなの力・人とようかいのきずな（第86回 A。battle-r86a.js）
+    ...r86aPub(c),
   };
 }
 

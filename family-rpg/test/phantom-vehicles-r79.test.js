@@ -7,19 +7,22 @@ import { makeRng } from '../public/js/shared/rng.js';
 import { openService, serviceAction } from '../public/js/shared/world/services.js';
 import { JOBS, PHANTOM_ORDER, LEGEND_ORDER } from '../public/js/shared/data/jobs.js';
 import { PHANTOM_VEHICLES } from '../public/js/shared/data/vehicles-phantom.js';
+// 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 乗り物（shared/data/jobs-r86a.js・render/vehicle-r86a.js）も おなじ きまり
+import { R86A_VEHICLES } from '../public/js/shared/data/jobs-r86a.js';
 import { VEHICLES, VEHICLE_ORDER, vehicleShelf, buyVehicle, chooseVehicle, chosenVehicle, rideShown } from '../public/js/shared/data/vehicles.js';
 import { VEHICLE_ART, VIEWS, paintVehicle, paintVehicleFx, riderSpot, vehicleFrames, vehicleSize, RIDER_H } from '../public/js/client/render/vehicle-art.js';
 import { repairChar } from '../public/js/shared/world/save.js';
 import { vehicleSnap } from '../public/js/shared/world/vehicles.js';
 import { Bot } from './helpers.js';
 
-const IDS = Object.keys(PHANTOM_VEHICLES);
+const IDS = [...Object.keys(PHANTOM_VEHICLES), ...Object.keys(R86A_VEHICLES)];
 const lit = (p) => (p ? p.px.filter(Boolean).length : 0);
 const legendIds = () => VEHICLE_ORDER.filter((id) => !VEHICLES[id].phantom && VEHICLES[id].jobs?.some((j) => LEGEND_ORDER.includes(j)));
 
 test('第79回: 幻の職業の 乗り物は 12こ。幻の職業と 1対1', () => {
-  assert.equal(IDS.length, 12);
-  assert.equal(PHANTOM_ORDER.length, 12);
+  // 第86回 A班: 12 → 14（幻の職業も 14）
+  assert.equal(IDS.length, 14);
+  assert.equal(PHANTOM_ORDER.length, 14);
   const owner = new Map();
   for (const id of IDS) {
     const v = VEHICLES[id];

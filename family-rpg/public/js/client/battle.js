@@ -69,6 +69,9 @@ import { reiTag, reiBlock } from './battle-r84a.js';
 // 第85回 B班: 烈火の炎の 系統の 技（render/battlefx-r85b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・火竜をよぶ メニュー（battle-r85b.js）
 import { R85B_SFX, R85B_HIT } from './render/battlefx-r85b.js';
 import { ryuMenu, r85bPresent } from './battle-r85b.js';
+// 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
+import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
+import { r86aPresent } from './battle-r86a.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -174,6 +177,7 @@ Object.assign(HIT_DELAY, R83A_HIT);
 Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, R84A_HIT);
 Object.assign(HIT_DELAY, R85B_HIT);
+Object.assign(HIT_DELAY, R86A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -300,6 +304,7 @@ Object.assign(ANIM_SFX, R83A_SFX);
 Object.assign(ANIM_SFX, R84B_SFX);
 Object.assign(ANIM_SFX, R84A_SFX);
 Object.assign(ANIM_SFX, R85B_SFX);
+Object.assign(ANIM_SFX, R86A_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
 const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
@@ -1499,6 +1504,8 @@ export class BattleScene {
     r84bPresent(this, ev, hitDelay);
     // 第85回 B班: 二ひき同時の 2ひきめ・けっかいと かげろうが かかった 人の まどが 光る（battle-r85b.js）
     r85bPresent(this, ev, hitDelay);
+    // 第86回 A班: ためた力の 大きな 風・力を ためた・かけ橋が かばった・竜神の剣士の 2つの 属性の 剣（battle-r86a.js）
+    r86aPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
     // 合体技の よやくで まっていた 人が ダメージ: ゲージが 半分から やり直し（battle-dual.js）
     if (ev.dualBreak) onDualBreak(this, ev);

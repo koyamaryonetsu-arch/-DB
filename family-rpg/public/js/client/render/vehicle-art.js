@@ -33,6 +33,8 @@ import { addR84bVehicleArt } from './vehicle-r84b.js';
 import { addR84aVehicleArt } from './vehicle-r84a.js';
 // 第85回 B班: 火竜（烈火の炎の 系統。長い 体が うねる 竜。vehicle-r85b.js）
 import { addR85bVehicleArt } from './vehicle-r85b.js';
+// 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（幻の職業 2つ。vehicle-r86a.js）
+import { addR86aVehicleArt } from './vehicle-r86a.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1630,6 +1632,8 @@ addR84bVehicleArt(ART, { seg, poly, shade, seat });
 addR84aVehicleArt(ART, { seg, poly, shade, seat });
 // 第85回 B班: 火竜（render/vehicle-r85b.js）
 addR85bVehicleArt(ART, { seg, poly, shade, seat });
+// 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（render/vehicle-r86a.js）
+addR86aVehicleArt(ART, { seg, poly, shade, seat, rgba, twinkle });
 
 export const VEHICLE_ART = ART;
 

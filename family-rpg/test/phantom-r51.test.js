@@ -40,8 +40,9 @@ const LIVE_AT_LOAD = PHANTOM_ORDER.filter((id) => JOBS[id]);
 
 // ───────────── 1. ランク・条件の 表 ─────────────
 test('幻の職業: 12この id・tier 4 の 名前・一覧（定義の ない 職業は 入れない）', () => {
+  // 第86回 A班: 人とようかいのかけ橋・竜神の剣士を おわりに 足した（14こ。test/jobs-r86a.test.js）
   assert.deepEqual(PHANTOM_ORDER, ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
-    'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god']);
+    'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god', 'yokai_bridge', 'ryujin_kenshi']);
   assert.deepEqual(Object.keys(PHANTOM_JOBS), PHANTOM_ORDER, '条件の 表も おなじ じゅん');
   assert.equal(TIER_NAMES[4], '幻の職業');
   assert.equal(TIER_ORDERS.length, 5);
@@ -388,7 +389,8 @@ test('引っこしコード: 記録が もとどおり（KIZUNA-2・KIZUNA-3 の
   const c = hero('t1', 'warrior');
   c.feats = toFeats(FULL());
   const s = packFeats(c.feats);
-  assert.ok(s.length < 170, `みじかい 形 ${s.length}文字`);
+  // 第86回 A班: タグが 4つ ふえた（kabau・yokai・bolt・karyu。ぜんぶ 7けたの 回数で 1つ 11文字ほど）ので 170 → 200
+  assert.ok(s.length < 200, `みじかい 形 ${s.length}文字`);
   assert.deepEqual(unpackFeats(s), c.feats);
   const r = parseCode(exportCode(JSON.parse(JSON.stringify(c))));
   assert.ok(r.ok, r.reason);
@@ -522,7 +524,7 @@ test('なれるように なった 知らせ（戦いの おわり。1回だけ�
 test('幻の書: はじめは ？？？・片方を きわめると 名前と 条件（✔ と メーター）', () => {
   const c = hero('b1', 'warrior');
   let rows = phantomBook(c);
-  assert.equal(rows.length, 12);
+  assert.equal(rows.length, PHANTOM_ORDER.length);
   assert.ok(rows.every((r) => !r.known && r.name === '？？？' && !r.conds.length && !r.masters.length));
   c.jobs.creator = { lv: JOB_MAX_LEVEL, b: 999 };
   c.jobs.hakaishin = { lv: 3, b: 10 };

@@ -257,6 +257,11 @@ Object.assign(TRIAL_WORDS, {
   enjutsushi: '炎は、こわすためでなく、守るためにともせ。',
   rekka: '8ひきの火竜も、心がひとつでなければ動かぬ。',
 });
+// 第86回 A班（幻の職業。jobs-r86a.js。32字 以内）
+Object.assign(TRIAL_WORDS, {
+  yokai_bridge: '守った思いは、力になる。仲間はおまえの風だ。',
+  ryujin_kenshi: '雷と炎、どちらも大切にする者が竜にえらばれる。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

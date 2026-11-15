@@ -89,6 +89,8 @@ for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikak
 for (const t of ['r84bForm', 'r84bHiryu', 'r84bKakehiki', 'r84bToubou', 'r84bKokoro']) NO_USE.add(t);
 // 第85回 B班: 火竜をよぶ（メニューで えらぶ・れっしん は 生き返らせる）・姫を守る忍びは 仲間の しくみ（まぼろしは 使わない。battle-r85b.js）
 for (const t of ['r85bRyu', 'r85bHime']) NO_USE.add(t);
+// 第86回 A班: きずなの守り・きずなの力・人とようかいのきずな（2だん）は 仲間の しくみ（まぼろしは 使わない。battle-r86a.js）
+for (const t of ['r86aKabau', 'r86aKizuna', 'r86aSig']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;
