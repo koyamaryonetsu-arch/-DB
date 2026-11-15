@@ -108,6 +108,8 @@ VEHICLES.big_tiger = { name: '大きなトラ', price: 4200, jobs: ['samurai_kid
 import { PHANTOM_VEHICLES } from './vehicles-phantom.js'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
 // 第82回 A: 犬夜叉の 系統の 乗り物（しっぽが 2本の 大きな ねこ。足もとに ほのお。絵は client/render/vehicle-r82a.js）
 VEHICLES.twin_cat = { name: '二またの大ねこ', price: 5200, jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'], desc: 'しっぽが2本ある、大きなねこ。足もとのほのおで、空もかける。' };
+// 第83回 B班: ぬ〜べ〜の 系統の 乗り物（古い 先生の 自転車。絵は client/render/vehicle-r83b.js）
+VEHICLES.teacher_bike = { name: 'がたがたの先生の自転車', price: 1800, jobs: ['elem_teacher', 'nube', 'jigoku_sensei'], desc: '先生が毎朝のってくる、古い自転車。がたがたゆれるが、まだまだ走る。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

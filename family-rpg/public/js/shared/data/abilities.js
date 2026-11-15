@@ -99,6 +99,8 @@ import { R66E2_ABILITIES } from './abilities-r66e2.js';
 import { R82A_ABILITIES } from './abilities-r82a.js';
 // 第82回 B班: YAIBA の 系統の 技（abilities-r82b.js）
 import { R82B_ABILITIES } from './abilities-r82b.js';
+// 第83回 B班: ぬ〜べ〜の 系統の 技（abilities-r83b.js）
+import { R83B_ABILITIES } from './abilities-r83b.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -750,6 +752,8 @@ Object.assign(ABILITIES, R66E2_ABILITIES);
 Object.assign(ABILITIES, R82A_ABILITIES);
 // 第82回 B班: YAIBA の 系統（abilities-r82b.js）
 Object.assign(ABILITIES, R82B_ABILITIES);
+// 第83回 B班: ぬ〜べ〜の 系統（abilities-r83b.js）
+Object.assign(ABILITIES, R83B_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

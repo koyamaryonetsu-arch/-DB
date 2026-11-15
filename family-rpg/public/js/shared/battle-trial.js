@@ -70,6 +70,8 @@ Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
 for (const t of ['osuwari', 'youkaiCalm', 'daiyoukai', 'bakuryu']) NO_USE.add(t);
+// 第83回 B班: おにの手を出す・かくせい・体をはって守る・生徒たちの声は 仲間の しくみ（まぼろしは 使わない。battle-r83b.js）
+for (const t of ['oniHand', 'oniAwake', 'teShield', 'teKoe']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;

@@ -346,6 +346,8 @@ export function gameFiles() {
     'public/js/shared/data/jobs-r82a.js', 'public/js/shared/data/abilities-r82a.js', 'public/js/shared/data/hirameki-r82a.js', 'public/js/shared/battle-r82a.js', 'public/js/client/render/battlefx-r82a.js', 'public/js/client/battle-r82a.js',
     // 第82回 B班: YAIBA の 系統（サムライ小ぞう → 雷神けんの剣士 → ヤイバ → 竜神けんのサムライ）の 職業・技・ひらめき技・戦いの しかけ・玉がえの メニュー
     'public/js/shared/data/jobs-r82b.js', 'public/js/shared/data/abilities-r82b.js', 'public/js/shared/data/hirameki-r82b.js', 'public/js/shared/battle-r82b.js', 'public/js/client/battle-r82b.js',
+    // 第83回 B班: ぬ〜べ〜の 系統（小学校の先生 → れい能力教師ぬ〜べ〜 → おにの手のじごく先生）の 職業・技・ひらめき技・戦いの しくみ・えんしゅつ・画面の 札
+    'public/js/shared/data/jobs-r83b.js', 'public/js/shared/data/abilities-r83b.js', 'public/js/shared/data/hirameki-r83b.js', 'public/js/shared/battle-r83b.js', 'public/js/client/render/battlefx-r83b.js', 'public/js/client/battle-r83b.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

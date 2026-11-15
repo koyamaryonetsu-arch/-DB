@@ -83,6 +83,8 @@ import { r82bPhys, r82bEffect, r82bTurnStart, r82bElement, r82bDamage, r82bPub }
 import { sameNameOff, cmdOffList } from './cmd-off.js';
 // 第82回 A: 犬夜叉の 系統（ようかい化・おすわり！・風の技・ばくりゅうは。battle-r82a.js）
 import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDamage, r82aResolve, r82aPub } from './battle-r82a.js';
+// 第83回 B班: ぬ〜べ〜の 系統（生徒を 守る・おにの手・おふだ・体をはって守る・生徒たちの声。battle-r83b.js）
+import { r83bTurnStart, r83bCover, r83bEffect, r83bPhysMult, r83bMagicMult, r83bDamage, r83bPub } from './battle-r83b.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -654,6 +656,8 @@ export class Battle {
     r66cTurnStart(this, c, ev);
     // 第82回 B班: きょだい化・雷神の守りの のこり（battle-r82b.js）
     r82bTurnStart(this, c, ev);
+    // 第83回 B班: おにの手（番ごとに 強く なり HP が へる）・体をはって守る の おわり（battle-r83b.js）
+    r83bTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -950,6 +954,8 @@ export class Battle {
     let t = this.peekTarget(c, kind, wanted);
     // かばう
     if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = this.coverRedirect(t);
+    // 第83回 B班: 生徒を 守る（弱った 仲間への 攻撃を 先生が 自動で かばう。battle-r83b.js）
+    if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = r83bCover(this, c, t);
     return t;
   }
 
@@ -1518,6 +1524,8 @@ export class Battle {
       case 'osuwari': case 'youkaiCalm': case 'daiyoukai': case 'bakuryu': r82aEffect(this, c, a, eff, ev, targets, powMult); break;
       // 玉がえ・きょだい化・雷神の守り（第82回 B。battle-r82b.js）
       case 'tamagae': case 'kyodai': case 'raiGuard': r82bEffect(this, c, a, eff, ev, cmd); break;
+      // おにの手を出す・かくせい・ふういん・体をはって守る・生徒たちの声（第83回 B。battle-r83b.js）
+      case 'oniHand': case 'oniAwake': case 'oniSeal': case 'teShield': case 'teKoe': r83bEffect(this, c, a, eff, ev, targets); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1622,6 +1630,8 @@ export class Battle {
     dmg *= cardPtMult(c, eff);
     // 風の技（強くして いる 敵に 強い）・ようかい化の 間に 強い 技（第82回 A。battle-r82a.js）
     dmg *= r82aPhysMult(c, t, eff);
+    // おにの手を 出して いる 間・生徒たちの声（第83回 B。battle-r83b.js）
+    dmg *= r83bPhysMult(c);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;
@@ -1642,6 +1652,8 @@ export class Battle {
     const pow = eff.stat === 'heal' ? (c.healPow || 0) : effMag(c);
     const scale = 1 + clamp((pow - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
     let dmg = base * scale * powMult * enemyFixedScale(c) * gritMult(c);
+    // 第83回 B班: 魔物の 種類に 強い 呪文（おふだ。battle-r83b.js）
+    dmg *= r83bMagicMult(c, t, eff);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
     if (t.defending) dmg *= 0.75;
@@ -1668,6 +1680,10 @@ export class Battle {
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
     if (mirageHit(this, c, t, ev)) return;
+    // 第83回 B班: 全体の 攻撃で 弱った 仲間 1人ぶんを 先生が かわりに 受ける・体をはって守る（battle-r83b.js）
+    const nd = r83bDamage(this, c, t, dmg, info, ev);
+    if (nd === null) return;
+    dmg = nd;
     // 水の衣（半分・炎は 効かない・雷で はじける）・水の守りの歌（battle-temple.js）
     const td = templeDamage(this, c, t, dmg, info, ev);
     if (td === null) return;
@@ -2522,6 +2538,8 @@ export function pub(c) {
     ...r82aPub(c),
     // 今の 玉・きょだい化・雷神の守り（第82回 B。battle-r82b.js）
     ...r82bPub(c),
+    // おにの手・かくせい・体をはって守る（第83回 B。battle-r83b.js）
+    ...r83bPub(c),
   };
 }
 

@@ -18,6 +18,9 @@ for (const j of Object.keys(JOBS_R82A)) R66_JOBS.add(j);
 // 第82回 B班: YAIBA の 系統の ひとことは test/jobs-r82b.test.js
 import { R82B_JOBS } from '../public/js/shared/data/jobs-r82b.js';
 for (const j of R82B_JOBS) R66_JOBS.add(j);
+// 第83回 B班: ぬ〜べ〜の 系統の ひとことは test/jobs-r83b.test.js
+import { R83B_JOBS } from '../public/js/shared/data/jobs-r83b.js';
+for (const j of R83B_JOBS) R66_JOBS.add(j);
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {

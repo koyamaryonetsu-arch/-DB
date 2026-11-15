@@ -232,6 +232,11 @@ Object.assign(TRIAL_WORDS, {
   yaiba: '玉は道具ではない。どの玉の力も、心をこめて使うのだ。',
   ryujin_samurai: '7つの玉をそろえても、サムライのたましいがなければ、ただの石だ。',
 });
+// 第83回 B班: ぬ〜べ〜の 系統の 超級職・伝説の職業（jobs-r83b.js）
+Object.assign(TRIAL_WORDS, {
+  nube: 'おにの手は、生徒を守る時だけ使うのだ。',
+  jigoku_sensei: 'おそろしい力も、やさしい心で使えば、みんなを守る力だ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

@@ -10,6 +10,8 @@ import { buffMarks, regenMark, statusNames } from './ui/info.js';
 import { r82aMarks } from './battle-r82a.js';
 // 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
 import { r82bMarks } from './battle-r82b.js';
+// 第83回 B班: おにの手・かくせい・体をはって守る の 札（battle-r83b.js）
+import { r83bMarks } from './battle-r83b.js';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -41,6 +43,7 @@ export function unitMarks(a) {
   if (a.covering && a.side === 'ally') out.push({ text: `かばう${Number.isFinite(a.coverLeft) ? a.coverLeft : ''}`, cls: 'cv' });
   out.push(...r82aMarks(a));
   out.push(...r82bMarks(a));
+  out.push(...r83bMarks(a));
   return out;
 }
 

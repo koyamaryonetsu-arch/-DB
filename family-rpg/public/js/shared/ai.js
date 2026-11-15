@@ -27,6 +27,8 @@ import { tokeiQuiet } from './battle-tokei.js';
 import { r82aPlan } from './battle-r82a.js';
 // 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
 import { r82bPlan } from './battle-r82b.js';
+// 第83回 B班: ぬ〜べ〜の 系統の オート（おにの手を 出す・ふういんしなおす・かんのんきょう・おふだ。battle-r83b.js）
+import { r83bPlan } from './battle-r83b.js';
 
 // さくせん
 export const TACTICS = {
@@ -199,6 +201,9 @@ export function decideAlly(b, c) {
   // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
   const r82 = r82aPlan(b, c, foes, mine, allies);
   if (r82) return r82;
+  // 4.9) 第83回 B班: ボスで おにの手を 出す・HP 4わりで ふういんしなおす・状態異常に かんのんきょう・ゆうれいに おふだ（battle-r83b.js）
+  const r83b = r83bPlan(b, c, foes, mine, allies);
+  if (r83b) return r83b;
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）

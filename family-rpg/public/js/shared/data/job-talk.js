@@ -104,6 +104,12 @@ Object.assign(JOB_SAY, {
   yaiba: '「どの玉で切ってやろうか！」',
   ryujin_samurai: '「7つの玉が、そろったぞ！」',
 });
+// 第83回 B班: ぬ〜べ〜の 系統（jobs-r83b.js）
+Object.assign(JOB_SAY, {
+  elem_teacher: '「わたしの生徒は、わたしが守る！」',
+  nube: '「おにの手よ、生徒を守れ！」',
+  jigoku_sensei: '「先生は、ぜったい負けない！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',
