@@ -15,7 +15,7 @@ export const JOBS_R85B = {
   enjutsushi: {
     id: 'enjutsushi', name: '炎術士', kana: 'えんじゅつし', short: '炎術', tier: 2, req: ['ninja'], family: 'tech', color: '#d8401c',
     desc: '体に火竜をやどした、炎をあやつる忍び。よぶ火竜を選んで、攻めにも守りにも使える「火の道具箱」。晴れの日は、炎がもっと強くなる。忍者をきわめるとなれる。',
-    mods: { hp: 1.3, mp: 1.3, str: 1.4, def: 1.05, agi: 1.6, mag: 1.05, heal: 0.8 },
+    mods: { hp: 1.3, mp: 1.3, str: 1.55, def: 1.05, agi: 1.6, mag: 0.9, heal: 0.8 },
     weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
     perLv: { agi: 1, str: 0.5 },
     learn: [[1, 'ej_ryu'], [2, 'ej_hanabi'], [3, 'ej_kakure'], [5, 'ej_kaina'], [7, 'ej_shuriken'], [10, 'enjutsushi_sig']],
@@ -23,7 +23,7 @@ export const JOBS_R85B = {
   rekka: {
     id: 'rekka', name: '八竜の炎術士・烈火', kana: 'はちりゅうのえんじゅつしれっか', short: '烈火', tier: 3, req: ['enjutsushi'], reqSuper: 1, family: 'tech', color: '#e8301c',
     desc: '8ひきの火竜をしたがえる、伝説の炎術士。けっかい・まぼろし・光線・不死鳥まで、8つのちがう力をよび出せる。炎術士と、ほかの超級職を1つきわめた者だけがなれる。',
-    mods: { hp: 1.7, mp: 1.4, str: 1.6, def: 1.4, agi: 1.65, mag: 0.95, heal: 0.9 },
+    mods: { hp: 1.6, mp: 1.35, str: 1.85, def: 1.3, agi: 1.7, mag: 0.9, heal: 0.9 },
     weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
     perLv: { hp: 1, agi: 1, str: 0.5 },
     learn: [[1, 'rk_ryu'], [3, 'rk_hime'], [5, 'rk_kiba'], [7, 'rk_renpatsu'], [8, 'rk_mezame'], [10, 'rekka_sig']],

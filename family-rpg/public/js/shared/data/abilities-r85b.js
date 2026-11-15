@@ -49,7 +49,7 @@ export const RYU = {
     short: 'まぼろし（仲間全員がよけやすくなる）', line: '六の竜「るい」！ゆらゆらと、まぼろしの炎が広がる！',
   },
   kokuu: {
-    tag: '光線', name: 'こくう', mp: 14, target: 'enemy', color: '#4ab8ff', color2: '#e0f6ff', role: 'dmg', anim: 'r85b_kokuu', legend: true,
+    tag: '光線', name: 'こくう', mp: 12, target: 'enemy', color: '#4ab8ff', color2: '#e0f6ff', role: 'dmg', anim: 'r85b_kokuu', legend: true,
     effect: { type: 'phys', mult: 3.4, element: 'fire', ignoreDef: 1 },
     short: '光線（敵1体にとても大きなダメージ。守りをむし）', line: '七の竜「こくう」！青白い光線が、まっすぐつらぬく！',
   },
@@ -108,7 +108,7 @@ export const R85B_ABILITIES = {
   },
   rk_kiba: {
     name: '火竜のきば', kana: 'かりゅうのきば', kind: 'skill', job: 'rekka', mp: 9, target: 'enemy',
-    effect: { type: 'phys', mult: 3.2, element: 'fire' },
+    effect: { type: 'phys', mult: 3.6, element: 'fire' },
     desc: '火竜のきばのような炎で、敵1体にかみつく。炎の大きなダメージ。', cast: '{a}の火竜のきば！', anim: 'r85b_kiba',
   },
   rk_renpatsu: {
@@ -118,8 +118,8 @@ export const R85B_ABILITIES = {
   },
   rk_mezame: {
     name: '火影の目ざめ', kana: 'ほかげのめざめ', kind: 'skill', job: 'rekka', mp: 16, target: 'self', role: 'sup',
-    effect: { type: 'buff', stats: ['atk', 'mag', 'agi'], mult: 1.4, dur: 45 },
-    desc: '炎術士の一族「火影」の力が目ざめる。自分の攻撃力・魔力・素早さが大きく上がる。', cast: '{a}の体から、まっ赤な炎がふき上がった！', anim: 'r85b_kaina',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.4, dur: 45 }, { type: 'heal', base: [110, 135], thr: 50 }] },
+    desc: '炎術士の一族「火影」の力が目ざめる。自分の攻撃力・守備力・素早さが大きく上がり、HPも回復する。', cast: '{a}の体から、まっ赤な炎がふき上がった！', anim: 'r85b_kaina',
   },
   rekka_sig: {
     name: '八竜・同時しょうかん', kana: 'はちりゅうどうじしょうかん', kind: 'skill', job: 'rekka', mp: 38, target: 'enemies', role: 'dmg',

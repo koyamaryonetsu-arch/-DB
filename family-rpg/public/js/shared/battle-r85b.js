@@ -221,7 +221,7 @@ export function r85bPub(c) {
 
 // ───────────── オート（ai.js の decideAlly） ─────────────
 // オートが その 火竜を えらぶ わりあい（tools/sim-r85b.mjs で 合わせた。R85B_AI=boss:0.5,… で ためせる）
-export const R85B_AI = { revive: 0.9, madoka: 0.6, guard: 0.2, rui: 0.3, boss: 0.45, many: 0.6, slow: 0.4, blind: 0.15, hime: 0.25, twin: 0.35 };
+export const R85B_AI = { revive: 0.9, madoka: 0.6, guard: 0.2, mezame: 0.5, rui: 0.3, boss: 0.5, many: 0.6, slow: 0.4, blind: 0.15, hime: 0.25, twin: 0.35 };
 // mine … 使える 技 [{ id, a }]、fw … ai.js の fightWeight。この 系統の 技（火竜をよぶ・姫を守る忍び）だけを 見る
 export function r85bPlan(b, c, foes, mine, allies, fw) {
   if (!foes.length) return null;
@@ -270,6 +270,9 @@ export function r85bPlan(b, c, foes, mine, allies, fw) {
   if (boss) {
     // 自分の HP が へって いる 時は 回復・守りに まかせる
     if (c.hp < c.maxHp * 0.4) return null;
+    // 火影の目ざめが 切れて いたら かけ直す（攻撃・守備・素早さ ＋ 回復。この 系統の 技）
+    const mezame = mine.find(({ a }) => a.job === 'rekka' && a.effect?.type === 'multi' && a.effect.parts.some((p) => p.type === 'buff' && p.stats?.includes('def')) && a.target === 'self');
+    if (mezame && !c.buffs?.def && b.rng.chance(R85B_AI.mezame)) return { type: 'ability', id: mezame.id };
     if (b.rng.chance(R85B_AI.boss)) {
       const cmd = call('kokuu', { target: boss.id });
       if (cmd) return cmd;
