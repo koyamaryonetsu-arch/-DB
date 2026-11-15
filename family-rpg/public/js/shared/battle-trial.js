@@ -71,6 +71,8 @@ Object.assign(PHANTOM_ADJ, { nube: [1.87, 1.4, 1.78], jigoku_sensei: [0.85, 0.6,
 // 第83回 A班: 太公望・ほう神の大軍師（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。HEAL_CAP も つけた）。
 //   軍師の まぼろしは 回復を 何十回も 使って 戦いが 長く なるので HEAL_CAP（4回）を つけて から さがした
 Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 3.11, 3.04] });
+// 第84回 A班: うら飯ゆう助・魔界の王の子（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。まぼろしも れい丸を 持つ〈4発・6発〉）
+Object.assign(PHANTOM_ADJ, { yusuke: [1.25, 0.95, 1.31], makai_prince: [1.12, 0.91, 1.04] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
