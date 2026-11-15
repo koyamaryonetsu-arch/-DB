@@ -165,9 +165,9 @@ battle-dual.js に 足した 行: import と memberPower の 1行。ai.js: impor
 | test/fx-r27.test.js | `playR84aFx` を 足した |
 | test/hero-art-r21.test.js | PARTY_ANIMS の 一覧から `r84` も のぞく（1行の 中み） |
 | test/work-quests-r80.test.js | たのまれごとの ない 系統に 幽☆遊☆白書の 系統（import と 1行） |
-| test/jobs-r84a.test.js | 新しい（17こ。ほかの 新しい 系統〈封神演義・ぬ〜べ〜〉と 同じ パーティーの 戦いも 1つ） |
+| test/jobs-r84a.test.js | 新しい（16こ。ほかの 新しい 系統〈封神演義・ぬ〜べ〜〉と 同じ パーティーの 戦いも 1つ） |
 
-- test/transfer-r78.test.js は かえて いない（いちばん 大きな セーブ 27602文字・3通。見はり「4通まで」の 中）
+- test/transfer-r78.test.js は かえて いない（いちばん 大きな セーブ 27289文字・3通。見はり「4通まで」の 中）
 
 みんなの ファイルに 足した 行（けして いない）:
 shared: battle.js（import・validate・防御・executeNext・'phys'・case・calcPhys・damage・pub）・ai.js（import・4.95・canUse・chooseAttack）・battle-dual.js（import・memberPower）・
@@ -184,4 +184,16 @@ client/render: battlefx.js・hero-outfit.js・hero-gear.js・chars.js・vehicle-
 - 立ち上がりは 攻撃の ダメージ（damage）だけ。毒・はね返り・kill を 直接 よぶ しかけでは 立たない（ボスの そくしを こわさない ため）
 - 職業の試練の まぼろしは 立ち上がらない（味方だけ）
 - 神殿の せつめいの 伝説の 一覧（client/ui/services.js）・お知らせ・README は さわって いない。幽☆遊☆白書の 系統の たのまれごと（お仕事いらい板）は まだ ない
-- メインの ブランチ（claude/elegant-bell-al2f1w）を 取りこんだ（第83回 B班〈ぬ〜べ〜〉が 入って いた）。ぶつかった 3ファイル（battle.js の calcPhys・test/fx-r27.test.js・test/jobs.test.js）は 両方 のこした
+- メインの ブランチ（claude/elegant-bell-al2f1w）を 取りこんだ（第83回 B班〈ぬ〜べ〜〉が 入って いた）。ぶつかった 3ファイル（battle.js の calcPhys・test/fx-r27.test.js・test/jobs.test.js）は 両方 のこした。
+  第84回 B班（らんま1/2）は まだ メインに 入って いなかった。あとで 入る 時は jobs.js の ならびの push・vehicles.js の おわり・title.js・battle.js の calcPhys／damage／pub・
+  ai.js・test/jobs.test.js の 数・test/fx-r27.test.js・test/work-quests-r80.test.js・test/hero-art-r21.test.js の 行が ぶつかる（両方 のこす）
+
+## 8. たしかめた こと
+
+- 全部の テスト: 2905件 全部 通った（メインを 取りこんだ あと）。`tools/kanji-check.mjs`: 使えない漢字 0件 / スペース 0件
+- 職業の試練（`tools/sim-trial.mjs 20`）: うら飯ゆう助 90%・90%・65%／魔界の王の子 80%・75%・85%（めやす 6〜9割）
+- ブラウザ（Playwright・ひとりモード・390×844 と 1280×800）: ふりょうで 始める → 4つの 職業に 転職（フィールドの 絵が かわる）→
+  うら飯ゆう助で れい丸（札 れい丸4 → 3）→ れい丸・二連（→ 1）→ 最大出力は えらべない（「れい丸が2発いる（のこり1発）」・一覧で うすい・せつめいの 先に わけ）→
+  0発（「れい丸がもうない（れい力をためると、もどる）」）→ れい力をためる（→ 1）→ 強い 一撃で たおれて「まだ、終わってねえ！」HP 900/3000 で 立ち上がる →
+  魔界の王の子の 超・れい丸（6発 → 0）・とう気をねる・よう丸 → 青いれい界の鳥に 乗る。コンソールの エラー 0
+- 見た目の 一覧: 4つの 職業 × 男女 × 4つの 向き ＋ 鳥（3方向）を 1まいに（looks.png）
