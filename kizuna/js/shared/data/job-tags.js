@@ -269,6 +269,13 @@ Object.assign(JOB_TAGS, {
   hoshin_gunshi: ['wind', 'magic', 'master', 'sky'], // ほう神の大軍師（風・軍師の 号令・空飛ぶ カバ）
 });
 
+// 第84回 B班: らんま1/2 の 系統（jobs-r84b.js。合体技の 相手の 案: 武闘家〈こぶし〉・遊び人〈笑い〉・天気の 職業〈雨。氷・水〉）
+Object.assign(JOB_TAGS, {
+  musabetsu_student: ['fist', 'laugh', 'ice'], // 無差別格闘流の門下生（あまぐりけん・どげざ・水をかぶる）
+  ranma: ['fist', 'ice', 'wind', 'laugh'], // 早おとめ乱馬（水と お湯・飛竜しょう天はの 竜巻・パンダの おやじ）
+  hiryu_master: ['fist', 'wind', 'ice', 'master'], // 飛竜しょう天はの達人（竜巻を あやつる・心の水）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

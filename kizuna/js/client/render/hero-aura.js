@@ -5,11 +5,13 @@
 // ・あるく コマ（f）で ほのおの ながさが かわる（ゆらぐ）
 // ・えの はし 1ドットには かかない（はみ出さない）
 // 第41回 B: 雪の女王・第5のせいれいの オーラ（hero-r41b.js）
-import { AURA41B, aura41b } from './hero-r41b.js?v=f2ee15f3bf61';
+import { AURA41B, aura41b } from './hero-r41b.js?v=c42b0c3f1956';
 // 第43回: ピーチ（ピンクの ひかり）・マリオ（金の 星）の オーラ（hero-r43j.js）
-import { AURA43J, aura43j } from './hero-r43j.js?v=f2ee15f3bf61';
+import { AURA43J, aura43j } from './hero-r43j.js?v=c42b0c3f1956';
 // 第79回: 幻の職業の オーラ（hero-r79.js。cols2 は みぎ半分の 色）
-import { AURA79 } from './hero-r79.js?v=f2ee15f3bf61';
+import { AURA79 } from './hero-r79.js?v=c42b0c3f1956';
+// 第84回 B班: 飛竜しょう天はの達人の 竜巻の オーラ（hero-r84b.js）
+import { AURA84B } from './hero-r84b.js?v=c42b0c3f1956';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -35,6 +37,7 @@ const AURA = {
 Object.assign(AURA, AURA41B);
 Object.assign(AURA, AURA43J);
 Object.assign(AURA, AURA79);
+Object.assign(AURA, AURA84B);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;

@@ -5,12 +5,12 @@
 //   南の 門（3マス）を ふむと クモイ地方の 星読みの里の 島へ もどる
 // ・ノクトの 思い出の 迷宮（memory_1f〜memory_6f）は maps/memory.js
 // だいほんは data/story-hoshiyomi.js
-import { T } from '../tiles.js?v=f2ee15f3bf61';
-import { hash2, fbm } from '../rng.js?v=f2ee15f3bf61';
-import { npc } from './npc.js?v=f2ee15f3bf61';
-import { SEA_PLACES } from './ch2.js?v=f2ee15f3bf61';
-import { KUMOI_POS } from './kumoi.js?v=f2ee15f3bf61';
-import { buildMemoryMaps } from './memory.js?v=f2ee15f3bf61';
+import { T } from '../tiles.js?v=c42b0c3f1956';
+import { hash2, fbm } from '../rng.js?v=c42b0c3f1956';
+import { npc } from './npc.js?v=c42b0c3f1956';
+import { SEA_PLACES } from './ch2.js?v=c42b0c3f1956';
+import { KUMOI_POS } from './kumoi.js?v=c42b0c3f1956';
+import { buildMemoryMaps } from './memory.js?v=c42b0c3f1956';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_shard の うしろ。plan-ch5.md の 14 の 名前の 約束）

@@ -79,11 +79,11 @@ export const VEHICLES = {
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=f2ee15f3bf61'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=c42b0c3f1956'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 // 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
-import { PRIZE_VEHICLES } from './vehicles-prize.js?v=f2ee15f3bf61'; Object.assign(VEHICLES, PRIZE_VEHICLES);
+import { PRIZE_VEHICLES } from './vehicles-prize.js?v=c42b0c3f1956'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 // 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
-import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=f2ee15f3bf61'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=c42b0c3f1956'; Object.assign(VEHICLES, TOKEI_VEHICLES);
 // 第66回 B班: 伝説の職業も もとの 職業の 乗り物に（オープンカー・スワンボート・屋台）
 VEHICLES.open_car.jobs.push('new_kawaii', 'smap'); VEHICLES.swan_boat.jobs.push('oogosho'); VEHICLES.food_cart.jobs.push('five_star_chef');
 // 第66回 A: 伝説の職業（jobs-legend-r66a.js）も もとの 超級職の 乗り物に 乗れる
@@ -105,13 +105,15 @@ VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
 // 第82回 B班: YAIBA の 系統の 乗り物（大きな トラ。絵は client/render/vehicle-r82b.js）
 VEHICLES.big_tiger = { name: '大きなトラ', price: 4200, jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai'], desc: 'しまもようの大きなトラ。せなかに乗せて、山道もぐんぐん走る。' };
 // 第79回: 幻の職業の 乗り物（data/vehicles-phantom.js。その 幻の職業に なった 人の たなに だけ。20000〜30000G）
-import { PHANTOM_VEHICLES } from './vehicles-phantom.js?v=f2ee15f3bf61'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
+import { PHANTOM_VEHICLES } from './vehicles-phantom.js?v=c42b0c3f1956'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
 // 第82回 A: 犬夜叉の 系統の 乗り物（しっぽが 2本の 大きな ねこ。足もとに ほのお。絵は client/render/vehicle-r82a.js）
 VEHICLES.twin_cat = { name: '二またの大ねこ', price: 5200, jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'], desc: 'しっぽが2本ある、大きなねこ。足もとのほのおで、空もかける。' };
 // 第83回 B班: ぬ〜べ〜の 系統の 乗り物（古い 先生の 自転車。絵は client/render/vehicle-r83b.js）
 VEHICLES.teacher_bike = { name: 'がたがたの先生の自転車', price: 1800, jobs: ['elem_teacher', 'nube', 'jigoku_sensei'], desc: '先生が毎朝のってくる、古い自転車。がたがたゆれるが、まだまだ走る。' };
 // 第83回 A班: 封神演義の 系統の 乗り物（空飛ぶ カバ。絵は client/render/vehicle-r83a.js）
 VEHICLES.sky_hippo = { name: '空飛ぶカバ', price: 4800, jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'], desc: 'ふわふわと空にうかぶ、白くてまるいカバ。のんびり屋だけど、たよりになる。' };
+// 第84回 B班: らんま1/2 の 系統の 乗り物（パンダ。絵は client/render/vehicle-r84b.js）
+VEHICLES.panda = { name: 'パンダ', price: 4600, jobs: ['musabetsu_student', 'ranma', 'hiryu_master'], desc: '白と黒の、大きなパンダ。のっしのっしと歩き、ときどき「がんばれ」のかんばんを出す。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

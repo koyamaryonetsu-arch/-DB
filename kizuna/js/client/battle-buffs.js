@@ -4,16 +4,18 @@
 //   数は のこりの 行動の 回数（かかった 人が 行動するたびに 1 へる）。ずっと つづく ものは 数なし
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（r35-css.js と おなじ やりかた）
 //   .tag.slv … 技の レベルの 札（メニューの「呪文・技」・戦いの 技の 一覧。Lv5 は .max で 金色）
-import { el } from './ui/dom.js?v=f2ee15f3bf61';
-import { buffMarks, regenMark, statusNames } from './ui/info.js?v=f2ee15f3bf61';
+import { el } from './ui/dom.js?v=c42b0c3f1956';
+import { buffMarks, regenMark, statusNames } from './ui/info.js?v=c42b0c3f1956';
 // 第82回 A: ようかい化・大よう化・おすわり・ばくりゅうはの かまえの 札（battle-r82a.js）
-import { r82aMarks } from './battle-r82a.js?v=f2ee15f3bf61';
+import { r82aMarks } from './battle-r82a.js?v=c42b0c3f1956';
 // 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
-import { r82bMarks } from './battle-r82b.js?v=f2ee15f3bf61';
+import { r82bMarks } from './battle-r82b.js?v=c42b0c3f1956';
 // 第83回 B班: おにの手・かくせい・体をはって守る の 札（battle-r83b.js）
-import { r83bMarks } from './battle-r83b.js?v=f2ee15f3bf61';
+import { r83bMarks } from './battle-r83b.js?v=c42b0c3f1956';
 // 第83回 A班: 作戦・先読み・守りの旗・強化ふうじの 札（battle-r83a.js）
-import { r83aMarks, paintPlanMarks } from './battle-r83a.js?v=f2ee15f3bf61';
+import { r83aMarks, paintPlanMarks } from './battle-r83a.js?v=c42b0c3f1956';
+// 第84回 B班: 水と お湯の すがた・心の水・よけ・かまえ・いかりの 札（battle-r84b.js）
+import { r84bMarks, paintFormMarks } from './battle-r84b.js?v=c42b0c3f1956';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -47,6 +49,7 @@ export function unitMarks(a) {
   out.push(...r82bMarks(a));
   out.push(...r83bMarks(a));
   out.push(...r83aMarks(a));
+  out.push(...r84bMarks(a));
   return out;
 }
 
@@ -64,6 +67,8 @@ export function fillStatusRow(box, a) {
   for (const sp of box.querySelectorAll('.bm.tm')) sp.style.setProperty('--tm', unitMarks(a).find((m) => m.cls === 'tm')?.color || '');
   // 第83回 A班: 作戦の 札は 作戦の 色（battle-r83a.js）
   paintPlanMarks(box, a);
+  // 第84回 B班: すがたの 札は すがたの 色（battle-r84b.js）
+  paintFormMarks(box, a);
 }
 
 // 敵の 足もとの 札（x … キャンバス〈BW×BH の 大きさで かく〉、m … computeLayout の 1体、bottom … かいて よい 下の はし）
