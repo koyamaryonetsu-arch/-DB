@@ -533,6 +533,8 @@ export class Battle {
       const ev = { t: 'act', id: c.id, name: '防御', lines: [], upd: [], fx: { type: 'defend', actor: c.id } };
       const held = this.heldEffects(c);
       this.actStart(c, ev);
+      // 第83回 A班: 身を 守るのも 1回の 行動（先読みの策・ほう神計画の のこり。battle-r83a.js）
+      r83aTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       this.actEnd(c, held, ev);
       ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));
