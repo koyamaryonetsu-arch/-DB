@@ -26,7 +26,7 @@ export const RYU = {
   saiha: {
     tag: '炎のやいば', name: 'さいは', mp: 9, target: 'enemy', color: '#e8201c', color2: '#ffb0a0', role: 'dmg', anim: 'r85b_saiha',
     effect: { type: 'phys', mult: 2.6, element: 'fire' },
-    short: '炎のやいば（敵1体に強い）', line: '二の竜「さいは」！炎のやいばが、するどくはしる！',
+    short: '炎のやいば（敵1体に強い）', line: '二の竜「さいは」！炎のやいばが、するどく走る！',
   },
   homura: {
     tag: '炎のむち', name: 'ほむら', mp: 10, target: 'group', color: '#ff4a8a', color2: '#ffc0d8', role: 'dmg', anim: 'r85b_homura',
@@ -67,7 +67,7 @@ export const R85B_ABILITIES = {
   ej_ryu: {
     name: '火竜をよぶ', kana: 'かりゅうをよぶ', kind: 'skill', job: 'enjutsushi', mp: 8, target: 'self', role: 'dmg',
     effect: { type: 'r85bRyu', set: 'four', pow: 1 },
-    desc: '体にやどした火竜を1ぴきよび出す。なだれ・さいは・ほむら・せつなの4ひきから、自分でえらぶ。火竜ごとに、やくめとMPがちがう。', cast: '{a}は、右うでに炎をともした…！', anim: 'r85b_call',
+    desc: '体にやどした火竜を1ぴきよび出す。なだれ・さいは・ほむら・せつなの4ひきから、自分で選ぶ。火竜ごとに、やくめとMPがちがう。', cast: '{a}は、右うでに炎をともした…！', anim: 'r85b_call',
   },
   ej_hanabi: {
     name: '花火玉', kana: 'はなびだま', kind: 'skill', job: 'enjutsushi', mp: 6, target: 'group',
@@ -99,7 +99,7 @@ export const R85B_ABILITIES = {
   rk_ryu: {
     name: '火竜をよぶ・八竜', kana: 'かりゅうをよぶはちりゅう', kind: 'skill', job: 'rekka', mp: 8, target: 'self', role: 'dmg',
     effect: { type: 'r85bRyu', set: 'eight', pow: 1.15 },
-    desc: '8ひきの火竜から、1ぴきをえらんでよび出す。攻め・じゃま・けっかい・まぼろし・光線・不死鳥と、なんでもできる。火竜ごとに、MPがちがう。', cast: '{a}の右うでに、竜の印がうかび上がった…！', anim: 'r85b_call',
+    desc: '8ひきの火竜から、1ぴきを選んでよび出す。攻め・じゃま・けっかい・まぼろし・光線・不死鳥と、なんでもできる。火竜ごとに、MPがちがう。', cast: '{a}の右うでに、竜の印がうかび上がった…！', anim: 'r85b_call',
   },
   rk_hime: {
     name: '姫を守る忍び', kana: 'ひめをまもるしのび', kind: 'skill', job: 'rekka', mp: 8, target: 'ally', role: 'sup',

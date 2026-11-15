@@ -36,6 +36,8 @@ import { R82B_JOBS } from '../public/js/shared/data/jobs-r82b.js';
 import { R83A_JOBS } from '../public/js/shared/data/jobs-r83a.js';
 // 第84回 B班: らんま1/2 の 系統（jobs-r84b.js）
 import { R84B_JOBS } from '../public/js/shared/data/jobs-r84b.js';
+// 第85回 B班: 烈火の炎の 系統（jobs-r85b.js）
+import { R85B_JOBS } from '../public/js/shared/data/jobs-r85b.js';
 
 // 第8章 第3幕の さいごまで（c8_spring の いらい 30〜32 は 出る）・第4幕の はじめ（c8_rift）
 const BEFORE = [...CLEAR, 'c7_karim', 'c7_kingdom', 'c7_clear', 'c8_start', 'c8_kingdom', 'c8_jafar', 'c8_sea', 'c8_abyss', 'c8_hades', 'c8_sky', 'c8_spring', 'c8_fortress', 'c8_bowser', 'c8_rift'];
@@ -101,7 +103,8 @@ test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つ�
   // 第82回 B班: YAIBA の 系統は まだ たのまれごとが ない（新しい 系統。たのまれごとは あとで）
   // 第83回 A班: 封神演義の 系統も まだ たのまれごとが ない
   // 第84回 B班: らんま1/2 の 系統も まだ たのまれごとが ない（武闘家・遊び人から 枝分かれ）
-  assert.deepEqual(free.filter((id) => !R82B_JOBS.includes(id) && !R83A_JOBS.includes(id) && !R84B_JOBS.includes(id)), [], 'のこりの 系統');
+  // 第85回 B班: 烈火の炎の 系統も まだ たのまれごとが ない（忍者から 枝分かれ）
+  assert.deepEqual(free.filter((id) => !R82B_JOBS.includes(id) && !R83A_JOBS.includes(id) && !R84B_JOBS.includes(id) && !R85B_JOBS.includes(id)), [], 'のこりの 系統');
   // 場所（今の 時代。まだ たのまれごとが ない 所）
   const maps = { oas: 'south', dojo: 'overworld', pipe: 'north' };
   const areas = { oas: '小さなオアシス', dojo: '東の平原', pipe: '炎の山のふもと' };

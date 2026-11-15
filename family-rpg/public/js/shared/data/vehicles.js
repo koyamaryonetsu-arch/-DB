@@ -115,7 +115,7 @@ VEHICLES.sky_hippo = { name: '空飛ぶカバ', price: 4800, jobs: ['fishing_dos
 // 第84回 B班: らんま1/2 の 系統の 乗り物（パンダ。絵は client/render/vehicle-r84b.js）
 VEHICLES.panda = { name: 'パンダ', price: 4600, jobs: ['musabetsu_student', 'ranma', 'hiryu_master'], desc: '白と黒の、大きなパンダ。のっしのっしと歩き、ときどき「がんばれ」のかんばんを出す。' };
 // 第85回 B班: 烈火の炎の 系統の 乗り物（火竜。長い 体が うねる 竜。絵は client/render/vehicle-r85b.js）
-VEHICLES.fire_dragon = { name: '火竜', price: 5400, jobs: ['enjutsushi', 'rekka'], desc: '長い体をうねらせて、空をおよぐ火竜。せなかにのると、ほんのりあたたかい。' };
+VEHICLES.fire_dragon = { name: '火竜', price: 5400, jobs: ['enjutsushi', 'rekka'], desc: '長い体をうねらせて、空をおよぐ火竜。せなかにのると、ほんのりぽかぽかする。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

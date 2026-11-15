@@ -14,7 +14,7 @@
 export const JOBS_R85B = {
   enjutsushi: {
     id: 'enjutsushi', name: '炎術士', kana: 'えんじゅつし', short: '炎術', tier: 2, req: ['ninja'], family: 'tech', color: '#d8401c',
-    desc: '体に火竜をやどした、炎をあやつる忍び。よぶ火竜をえらんで、攻めにも守りにも使える「火の道具箱」。晴れの日は、炎がもっと強くなる。忍者をきわめるとなれる。',
+    desc: '体に火竜をやどした、炎をあやつる忍び。よぶ火竜を選んで、攻めにも守りにも使える「火の道具箱」。晴れの日は、炎がもっと強くなる。忍者をきわめるとなれる。',
     mods: { hp: 1.3, mp: 1.15, str: 1.4, def: 1.05, agi: 1.6, mag: 1.2, heal: 0.8 },
     weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { agi: 1, str: 0.5 },
