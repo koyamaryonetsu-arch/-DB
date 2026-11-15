@@ -34,9 +34,10 @@ function whiteDogArt({ seg, poly, shade, seat, rgba, twinkle }) {
     for (let i = 0; i < 9; i++) {
       x += dx * (1 - i * 0.08) + Math.sin(i / 2 + f) * 0.4;
       y -= 1.5 + i * 0.12;
-      p.ellipse(x, y, 3.4 - i * 0.12, 3.0 - i * 0.1, i % 3 === 2 ? CD : c);
+      p.ellipse(x + 0.6, y + 0.8, 3.9 - i * 0.12, 3.4 - i * 0.1, CD);
+      p.ellipse(x, y, 3.8 - i * 0.12, 3.3 - i * 0.1, c);
     }
-    p.ellipse(x, y - 1, 2.2, 2, CL);
+    p.ellipse(x, y - 1, 2.4, 2.2, CL);
   };
   // 赤い かざりひも（首の まわり・はしが たなびく）
   const rope = (p, x0, y0, x1, y1, f) => {
@@ -53,7 +54,7 @@ function whiteDogArt({ seg, poly, shade, seat, rgba, twinkle }) {
     if (layer === 'back') {
       leg(p, 27, by + 4, L[2], g, CD);
       leg(p, 46, by + 4, L[3], g, CD);
-      tail(p, 50, by - 3, 1.5, f, CD);
+      tail(p, 50, by - 3, 1.5, f, C);
       return;
     }
     // からだ（ふさふさの 毛の もよう）
@@ -83,7 +84,7 @@ function whiteDogArt({ seg, poly, shade, seat, rgba, twinkle }) {
     const bob = f === 1 ? -1 : 0;
     if (layer === 'back') {
       p.ellipse(cx, by - 1 + bob, 12, 7.5, CD);
-      tail(p, cx + 2, by - 6 + bob, 0.4, f, CD);
+      tail(p, cx + 2, by - 6 + bob, 0.4, f, C);
       return;
     }
     p.ellipse(cx, by + 3 + bob, 11, 8, C);

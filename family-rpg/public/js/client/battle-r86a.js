@@ -45,7 +45,11 @@ export function r86aPresent(view, ev, hitDelay = 0) {
   if (ev.r86aSigSet) view.banner('みんなを守る！（次の番に風で返す）', 'combo');
   // 力を ためた 人の まどが 赤く 光る
   for (const id of Object.keys(ev.r86aStored || {})) view.fx.at(Math.max(0, hitDelay), () => { if (!view.destroyed) view.glowStatus(id, '#ff6a5a'); });
-  if (ev.r86aCover || ev.r86aCovers?.length) view.fx.at(Math.max(0, hitDelay - 120), () => { if (!view.destroyed) view.banner('かけ橋が、仲間をかばった！', 'combo'); });
+  const by = ev.r86aCover?.by || ev.r86aCovers?.[0]?.by;
+  if (by) {
+    const who = view.c.get(by)?.name || '';
+    view.fx.at(Math.max(0, hitDelay - 120), () => { if (!view.destroyed) view.banner(`${who}が、仲間をかばった！`, 'combo'); });
+  }
   // 竜神の剣士の 剣: 2つの 属性で 切った
   const els = ev.r86aDual?.els;
   const uniq = [...new Set(els || [])];

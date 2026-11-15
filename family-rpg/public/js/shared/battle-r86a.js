@@ -205,7 +205,6 @@ export function r86aElement(b, c, t, eff, element) {
 export function r86aPhys(b, c, a, cmd, ev, powMult, targets) {
   const { r86a, hits = 1, ...one } = a.effect;
   const els = [];
-  let weakHit = 0;
   for (const t of targets) {
     for (let i = 0; i < hits; i++) {
       if (!t.alive) break;
@@ -214,14 +213,12 @@ export function r86aPhys(b, c, a, cmd, ev, powMult, targets) {
       else el = bestEl(b, c, t, [tamaEl(c), 'fire']);
       if (!els.length && ev.fx) ev.fx.element = el;
       els.push(el);
-      if ((t.resist?.[el] ?? 1) >= 1.2) weakHit++;
       b.physHit(c, t, one, ev, el, powMult);
     }
   }
   if (ev.fx) ev.fx.r86aEls = els;
   const uniq = [...new Set(els)];
   if (uniq.length) ev.lines.push(uniq.length > 1 ? `刀が、${uniq.map((el) => ELEMENT_NAMES[el]).join('と')}の力で切りつけた！` : `刀の${ELEMENT_NAMES[uniq[0]]}の力が、敵をとらえた！`);
-  if (weakHit) ev.lines.push(`よく効く方の力で、弱点をついた！`);
   ev.r86aDual = { by: c.id, els };
   b.afterDamage(c, ev, els[0] || 'phys');
 }

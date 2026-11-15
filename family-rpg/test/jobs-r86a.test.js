@@ -251,7 +251,7 @@ test('第86回 A かけ橋: かばって 受けた ダメージの 半分を た
   assert.equal(kb.cover.target, w.id);
   assert.ok(kb.buffs.def);
   // 敵が 戦士を ねらう → かけ橋が 受けて ためる
-  foe.actions = [{ w: 1, id: 'm_attack' }];
+  foe.actions = [{ w: 1, id: 'attack' }];
   const chance = b.rng.chance;
   b.rng.chance = () => true;
   const ev = act(b, foe, { type: 'attack', target: w.id });
@@ -481,7 +481,7 @@ test('第86回 A オート: 前ぶれに 人とようかいのきずな・ボス
   const foe = b.enemies[0];
   b.rng.chance = () => true;
   for (const [x, c] of [[kb, 0], [rs, 1], [w, 2]]) x.abilities = learnedAbilities(x.penChar || x);
-  foe.telegraph = { id: 'm_attack' };
+  foe.telegraph = { id: 'attack' };
   const mine = (x) => x.abilities.filter((id) => ABILITIES[id]).map((id) => ({ id, a: ABILITIES[id] }));
   const cmd = r86aPlan(b, kb, [foe], mine(kb), b.allies, { hard: true });
   assert.equal(cmd?.id, 'yokai_bridge_sig');
@@ -501,7 +501,7 @@ test('第86回 A オート: 前ぶれに 人とようかいのきずな・ボス
 // ───────────── まぜた パーティー ─────────────
 test('第86回 A まぜた パーティー: もとの 伝説（ばくりゅうは・じごく先生・竜神けん・烈火）・軍師・らんま・ゆう助と オートで 戦って こわれない', () => {
   for (const jobs of [['yokai_bridge', 'bakuryuha', 'jigoku_sensei', 'hoshin_gunshi'], ['ryujin_kenshi', 'ryujin_samurai', 'rekka', 'hiryu_master'], ['yokai_bridge', 'ryujin_kenshi', 'makai_prince', 'rekka']]) {
-    const { b, chars } = setup(jobs, { enemies: ['rockman', 'rockman', 'rockman'], act: 'm_attack', mp: 400 });
+    const { b, chars } = setup(jobs, { enemies: ['rockman', 'rockman', 'rockman'], act: 'attack', mp: 400 });
     b.allies.forEach((x, i) => { x.abilities = learnedAbilities(chars[i]); x.controller = null; x.auto = true; });
     for (const e of b.enemies) { e.hp = e.maxHp = 8000; e.atk = 900; }
     for (let i = 0; i < 1500 && !b.over; i++) b.tick(50);
