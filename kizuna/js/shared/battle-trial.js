@@ -7,12 +7,12 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=340c44875841';
-import { ABILITIES } from './data/abilities.js?v=340c44875841';
-import { strengthenEnemy } from './data/difficulty.js?v=340c44875841';
-import { MONSTERS } from './data/monsters.js?v=340c44875841';
-import { mirrorSkillOk } from './battle-temple.js?v=340c44875841';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=340c44875841';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=ffeefa092ad2';
+import { ABILITIES } from './data/abilities.js?v=ffeefa092ad2';
+import { strengthenEnemy } from './data/difficulty.js?v=ffeefa092ad2';
+import { MONSTERS } from './data/monsters.js?v=ffeefa092ad2';
+import { mirrorSkillOk } from './battle-temple.js?v=ffeefa092ad2';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=ffeefa092ad2';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };
@@ -66,10 +66,15 @@ Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23
 Object.assign(PHANTOM_ADJ, { inuyasha: [1.28, 1.02, 1.18], bakuryuha: [0.76, 0.49, 0.62] });
 // 第82回 B班: ヤイバ・竜神けんのサムライ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0.52, 0.49] });
+// 第83回 A班: 太公望・ほう神の大軍師（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。HEAL_CAP も つけた）。
+//   軍師の まぼろしは 回復を 何十回も 使って 戦いが 長く なるので HEAL_CAP（4回）を つけて から さがした
+Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 3.11, 3.04] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
 for (const t of ['osuwari', 'youkaiCalm', 'daiyoukai', 'bakuryu']) NO_USE.add(t);
+// 第83回 A班: 作戦・軍師の号令・先読みの策・守りの旗・ほう神計画は 仲間の しくみ・太極図は まぼろしが 何回も 使って 攻撃しなく なる（まぼろしは 使わない。battle-r83a.js）
+for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;
@@ -80,6 +85,9 @@ export const HEAL_CAP = { nitoryu: 3 };
 HEAL_CAP.guard_god = 4;
 HEAL_CAP.poke_master = 4;
 HEAL_CAP.sennen_mage = 4;
+// 第83回 A班: 太公望・ほう神の大軍師の まぼろしも もものえん・せん人の大えんを 何十回も 使うので 回数を きめる
+HEAL_CAP.taikobo = 4;
+HEAL_CAP.hoshin_gunshi = 4;
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 
 const pow = (m, k) => Math.pow(Math.max(0.3, m || 1), k);

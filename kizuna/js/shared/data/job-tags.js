@@ -255,6 +255,14 @@ Object.assign(JOB_TAGS, {
   ryujin_samurai: ['sword', 'bolt', 'light', 'master'], // 竜神けんのサムライ（雷神のいかり・竜神の 光・7つの 玉を きわめた）
 });
 
+// 第83回 A班: 封神演義の 系統（jobs-r83a.js。合体技の 相手の 案: 占い師〈魔法〉・社長〈空〉・忍者〈風〉）
+Object.assign(JOB_TAGS, {
+  fishing_doshi: ['wind', 'magic', 'laugh'], // つりをする道士（風のおふだ・道士の 術・のんびり なまける）
+  sennin_doshi: ['wind', 'magic', 'master'], // せん人界の道士（打神べんの 風・せん人の 術・作戦を 立てる）
+  taikobo: ['wind', 'magic', 'master', 'sky'], // 太公望（風・軍師・空飛ぶ カバ）
+  hoshin_gunshi: ['wind', 'magic', 'master', 'sky'], // ほう神の大軍師（風・軍師の 号令・空飛ぶ カバ）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));
