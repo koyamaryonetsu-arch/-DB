@@ -69,7 +69,7 @@ export const R86A_ABILITIES = {
   // ───────────── 竜神の剣士（竜神けんのサムライ ＋ 八竜の炎術士・烈火） ─────────────
   rs_futae: {
     name: '二色の太刀', kana: 'ふたいろのたち', kind: 'skill', job: 'ryujin_kenshi', mp: 10, target: 'enemy', sword: true,
-    effect: { type: 'phys', mult: 3.6, r86a: 'dual' },
+    effect: { type: 'phys', mult: 4.0, r86a: 'dual' },
     desc: '雷の玉の光と、火竜の炎を、1本の刀にまとって切る。敵1体に大きなダメージ。今の玉の属性と炎の、よく効く方で当たる。', cast: '{a}の刀が、青と赤に光った！', anim: 'r86a_futae',
   },
   rs_tamagae: {
@@ -99,12 +99,12 @@ export const R86A_ABILITIES = {
   },
   rs_rengeki: {
     name: '竜神の連続切り', kana: 'りゅうじんのれんぞくぎり', kind: 'skill', job: 'ryujin_kenshi', mp: 18, target: 'enemy', sword: true,
-    effect: { type: 'phys', mult: 1.35, hits: 4, critBonus: 0.1, r86a: 'dual' },
+    effect: { type: 'phys', mult: 1.5, hits: 4, critBonus: 0.1, r86a: 'dual' },
     desc: '雷のはやさで、敵1体を4回切る。1回ずつ、今の玉の属性と炎の、よく効く方で当たる。会心も出やすい。', cast: '{a}の刀が、目にもとまらない！', anim: 'r86a_futae',
   },
   ryujin_kenshi_sig: {
     name: '竜神・火竜・二重の太刀', kana: 'りゅうじんかりゅうにじゅうのたち', kind: 'skill', job: 'ryujin_kenshi', mp: 44, target: 'enemy', sword: true,
-    effect: { type: 'phys', mult: 3.0, hits: 2, ignoreDef: 0.2, r86a: 'sig' },
+    effect: { type: 'phys', mult: 3.4, hits: 2, ignoreDef: 0.2, r86a: 'sig' },
     desc: '雷の竜と火の竜を刀にやどして、敵1体を2回切る竜神の剣士の最強の技。1回目は今の玉の属性、2回目は炎。もう一方がよく効くときは、そちらで切る。', cast: '{a}「雷の竜、火の竜…二重の太刀！」', anim: 'ryujin_kenshi_sig',
   },
 };

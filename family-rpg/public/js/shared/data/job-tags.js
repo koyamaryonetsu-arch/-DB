@@ -299,8 +299,10 @@ Object.assign(JOB_TAGS, {
 
 // 第86回 A班: 幻の職業 2つ（jobs-r86a.js。新しい タグは 作らない）
 Object.assign(JOB_TAGS, {
-  yokai_bridge: ['monster', 'guard', 'wind', 'master'], // 人とようかいのかけ橋（半よう・かばう・風のきず・2つの 道を きわめた。学校は 組の 上限なので つけない）
-  ryujin_kenshi: ['bolt', 'fire', 'light', 'master'], // 竜神の剣士（雷の 玉・火竜・竜神の 光・2つの 道を きわめた。剣かこぶしの 組は 上限〈職業の 3分の1〉ちょうどなので つけない）
+  // 「剣かこぶし」の 組は 職業の 3分の1 まで（test/dual-r31.test.js）。第85回 A班の 3つで 上限が 2つ ぶん あいた ので、かけ橋が 1つ（鉄さいが）・
+  // のこりの 1つは B班（天下一の格闘王）の ために あける。竜神の剣士は 剣の 合体技に 入れない かわりに 自分の 技を 強く（docs/plan-r86-phantom-a.md の 5）
+  yokai_bridge: ['sword', 'monster', 'guard', 'wind'], // 人とようかいのかけ橋（鉄さいが・半よう・かばう・風のきず）
+  ryujin_kenshi: ['bolt', 'fire', 'light', 'master'], // 竜神の剣士（雷の 玉・火竜・竜神の 光・2つの 道を きわめた）
 });
 
 // そのタグの 職業（JOB_TAGS の じゅん）

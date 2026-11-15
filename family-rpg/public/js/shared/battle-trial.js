@@ -81,7 +81,7 @@ Object.assign(PHANTOM_ADJ, { enjutsushi: [1.08, 0.9, 1.05], rekka: [1.41, 1.17, 
 //   まぼろしは となえずに 大砲を 半分の 力で うつ〈battle-r85a.js の ENEMY_BIG〉・となえるは 使わない〈NO_USE〉）
 Object.assign(PHANTOM_ADJ, { lina: [1.6, 1.57, 1.51], doramata: [2.59, 2.41, 3.34] });
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士（幻の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-Object.assign(PHANTOM_ADJ, { yokai_bridge: [0.82, 0.54, 0.62], ryujin_kenshi: [0.85, 0.81, 1.03] });
+Object.assign(PHANTOM_ADJ, { yokai_bridge: [0.7, 0.46, 0.51], ryujin_kenshi: [0.89, 0.91, 1.2] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）

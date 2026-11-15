@@ -16,7 +16,7 @@ export const JOBS_R86A = {
   yokai_bridge: {
     id: 'yokai_bridge', name: '人とようかいのかけ橋', kana: 'ひととようかいのかけはし', short: 'かけ橋', tier: 4, req: ['bakuryuha', 'jigoku_sensei'], family: 'phys', color: '#e8e4f0',
     desc: '人の心とようかいの力を、どちらも大切にする者。ばくりゅうはの大ようとおにの手のじごく先生をきわめ、仲間をたくさん守った者だけがなれる。かばって受けた力をためて、風にして敵に返す。',
-    mods: { hp: 1.9, mp: 1.8, str: 2.0, def: 1.7, agi: 1.5, mag: 0.8, heal: 1.2 },
+    mods: { hp: 2.0, mp: 1.5, str: 2.0, def: 1.85, agi: 1.5, mag: 0.8, heal: 1.2 },
     weapons: ['sword', 'claw', 'staff', 'none'], shield: true, armor: ['cloth', 'gi', 'robe'], helm: false,
     perLv: { hp: 1.5, str: 1, def: 1 },
     // r86aGuard … 弱った 仲間への 攻撃を 自動で かばう わりあい（じごく先生の passive.protect と おなじ 0.8。shared/battle-r86a.js）
@@ -27,7 +27,7 @@ export const JOBS_R86A = {
   ryujin_kenshi: {
     id: 'ryujin_kenshi', name: '竜神の剣士', kana: 'りゅうじんのけんし', short: '竜神剣士', tier: 4, req: ['ryujin_samurai', 'rekka'], family: 'phys', color: '#3a7ae8',
     desc: '雷の竜と火の竜を、1本の刀にやどした剣士。竜神けんのサムライと八竜の炎術士・烈火をきわめ、雷と火竜の技をたくさん使った者だけがなれる。刀は、今の玉の力と炎の、敵によく効く方で切る。',
-    mods: { hp: 1.75, mp: 1.75, str: 2.05, def: 1.45, agi: 1.85, mag: 0.85, heal: 1.15 },
+    mods: { hp: 1.75, mp: 1.9, str: 2.05, def: 1.4, agi: 1.85, mag: 0.85, heal: 1.15 },
     weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { str: 1.5, agi: 1, hp: 0.5 },
     learn: [[1, 'rs_futae'], [2, 'rs_tamagae'], [3, 'rs_ryu'], [5, 'rs_senpu'], [6, 'rs_kokoro'], [7, 'rs_raien'], [8, 'rs_rengeki'], [10, 'ryujin_kenshi_sig']],

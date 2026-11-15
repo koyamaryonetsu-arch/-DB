@@ -132,8 +132,9 @@ test('第86回 A: 2つの 幻の職業（tier 4・きわめる 職業 2つ・幻
     textOk(TRIAL_WORDS[id], id);
     assert.ok(JOB_TAGS[id]?.length >= 3);
   }
-  // 「剣かこぶし」の 組には 入れない（上限 ちょうど。B班の 格闘王の ために 1つ あける）
-  for (const id of NEW) assert.ok(!JOB_TAGS[id].includes('sword') && !JOB_TAGS[id].includes('fist'), id);
+  // 「剣かこぶし」の 組（上限 ＝ 職業の 3分の1）: かけ橋は 剣（鉄さいが）。竜神の剣士は 入れない（のこりの 1つは B班の 格闘王の ために あける）
+  assert.ok(JOB_TAGS.yokai_bridge.includes('sword'));
+  assert.ok(!JOB_TAGS.ryujin_kenshi.includes('sword') && !JOB_TAGS.ryujin_kenshi.includes('fist'));
   // 自動で かばう（じごく先生と おなじ 8わり）
   assert.equal(JOBS.yokai_bridge.passive.r86aGuard, JOBS.jigoku_sensei.passive.protect);
   // 職業の試練の 倍率

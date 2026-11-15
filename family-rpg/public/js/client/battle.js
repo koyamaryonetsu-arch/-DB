@@ -69,6 +69,10 @@ import { reiTag, reiBlock } from './battle-r84a.js';
 // 第85回 B班: 烈火の炎の 系統の 技（render/battlefx-r85b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・火竜をよぶ メニュー（battle-r85b.js）
 import { R85B_SFX, R85B_HIT } from './render/battlefx-r85b.js';
 import { ryuMenu, r85bPresent } from './battle-r85b.js';
+// 第85回 A班: スレイヤーズの 系統の 技（render/battlefx-r85a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・大砲の 呪文の うすい 行・となえた 札（battle-r85a.js）
+//   （メインの 取りこみで この 2行が ぬけて いた ので 第86回 A班が もどした。ないと 戦いの 画面が 読みこめない）
+import { R85A_SFX, R85A_HIT } from './render/battlefx-r85a.js';
+import { r85aRow, r85aPresent } from './battle-r85a.js';
 // 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
 import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
 import { r86aPresent } from './battle-r86a.js';
