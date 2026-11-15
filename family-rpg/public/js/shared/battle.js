@@ -86,7 +86,7 @@ import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDam
 // 第83回 A班: 封神演義の 系統（作戦・強化ふうじ・太極図・先読みの策・軍師の号令・ほう神計画。battle-r83a.js）
 import { r83aEffect, r83aTurnStart, r83aDamage, r83aBuffBlock, r83aSpeed, r83aPub } from './battle-r83a.js';
 // 第84回 B班: らんま1/2 の 系統（水と お湯の すがた・飛竜しょう天は・かけひき・敵前だい逃亡・心の水。battle-r84b.js）
-import { r84bTurnStart, r84bPhys, r84bEffect, r84bPhysMult, r84bEva, r84bSpeed, r84bDamage, r84bResolve, r84bPub } from './battle-r84b.js';
+import { r84bTurnStart, r84bPhys, r84bEffect, r84bPhysMult, r84bEva, r84bSpeed, r84bDamage, r84bResolve, r84bPub, r84bTaunt } from './battle-r84b.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -693,6 +693,8 @@ export class Battle {
       if (!confused) cmd = youkaiCmd(this, c, cmd, ev) || cmd;
       if (!confused && cmd.type === 'ai') {
         cmd = c.side === 'enemy' ? decideMonster(this, c) : decideAlly(this, c);
+        // 第84回 B班: かけひきで おこった 敵は、おこらせた 人を ねらいやすい（前ぶれの 大技は かえない。battle-r84b.js）
+        if (c.side === 'enemy') cmd = r84bTaunt(this, c, cmd);
       }
       // 遊び人は ときどき かってに 遊びだす（にげる・合体技の ときは まじめ）
       const goof = !confused && c.side === 'ally' && cmd.type !== 'flee' && cmd.type !== 'dual' ? (JOBS[c.job]?.passive?.goof || 0) : 0;

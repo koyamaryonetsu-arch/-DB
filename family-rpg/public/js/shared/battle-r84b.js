@@ -30,6 +30,7 @@
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
 import { JOBS } from './data/jobs.js';
 import { R84B_FORM_ATB } from './data/abilities-r84b.js';
+import { ABILITIES } from './data/abilities.js';
 
 export const R84B_LINE = ['musabetsu_student', 'ranma', 'hiryu_master'];
 // すがたの 表（ならびは メニューの じゅん）
@@ -63,14 +64,16 @@ export function formPct(c) {
   return knows(c, 'ms_mizu') ? OTHER_PCT : 0;
 }
 // 今の すがた（null … すがた なし）
-export const formOf = (c) => (formPct(c) > 0 && FORMS[c?.r84bForm] ? c.r84bForm : null);
+// 戦いの はじめは お湯の すがた（START_FORM。戦いの 人に まだ すがたが ない とき）
+export const START_FORM = 'oyu';
+export const formOf = (c) => (formPct(c) > 0 ? (FORMS[c?.r84bForm] ? c.r84bForm : START_FORM) : null);
 const kokoro = (c) => !!c?.r84bKokoro;
 export const isMizu = (c) => formPct(c) > 0 && (formOf(c) === 'mizu' || kokoro(c));
 export const isOyu = (c) => formPct(c) > 0 && (formOf(c) === 'oyu' || kokoro(c));
 
 // すがたを かえる。へんじ: かわったら true
 export function setForm(c, form, ev, line = null) {
-  if (!FORMS[form] || formPct(c) <= 0 || c.r84bForm === form) return false;
+  if (!FORMS[form] || formPct(c) <= 0 || formOf(c) === form) return false;
   c.r84bForm = form;
   ev.lines.push(line || `${c.name}は、${FORMS[form].name}になった！`);
   ev.r84bForm = { id: c.id, form };
@@ -145,14 +148,14 @@ export function r84bEffect(b, c, a, eff, ev, targets, cmd, powMult = 1) {
         return true;
       }
       let want = cmd?.form;
-      if (!FORMS[want]) want = c.r84bForm === 'mizu' ? 'oyu' : c.r84bForm === 'oyu' ? 'mizu' : b.boss ? 'oyu' : 'mizu';
+      if (!FORMS[want]) want = formOf(c) === 'mizu' ? 'oyu' : 'mizu';
       ev.atbAfter = R84B_FORM_ATB;
       if (ev.fx) {
         ev.fx.form = want;
         // えんしゅつ: 水しぶき（水）・ゆげ（お湯）。client/render/battlefx-r84b.js
         ev.fx.element = want === 'mizu' ? 'water' : 'fire';
       }
-      if (c.r84bForm === want) ev.lines.push(`${c.name}は、もう${FORMS[want].name}だ。`);
+      if (formOf(c) === want) ev.lines.push(`${c.name}は、もう${FORMS[want].name}だ。`);
       else {
         setForm(c, want, ev, `${c.name}は、${FORMS[want].name}になった！`);
         ev.lines.push(`（${FORMS[want].desc}）`);
@@ -161,7 +164,8 @@ export function r84bEffect(b, c, a, eff, ev, targets, cmd, powMult = 1) {
       return true;
     }
     case 'r84bHiryu': {
-      c.stance = { kind: 'hiryu', mult: eff.mult ?? 1.5, vsBuff: eff.vsBuff ?? 0.25, water: eff.water ?? 1.2, swing: eff.swing ?? 0.6, name: a.name, pow: Math.min(1, powMult || 1) };
+      // mpBack … 攻撃が 来なかった ときに もどる MP（使った MP の 半分）
+      c.stance = { kind: 'hiryu', mult: eff.mult ?? 1.5, vsBuff: eff.vsBuff ?? 0.25, water: eff.water ?? 1.2, swing: eff.swing ?? 0.6, name: a.name, pow: Math.min(1, powMult || 1), mpBack: Math.floor((a.mp || 0) * HIRYU_MP_BACK) };
       ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: [c.id], side: c.side };
       ev.lines.push('（攻撃してきたら、竜巻でやり返すかまえだ…！）');
       ev.r84bHiryuSet = c.id;
@@ -205,7 +209,7 @@ function anger(b, c, t, eff, ev) {
   }
   const left = boss ? eff.bossLeft ?? 2 : eff.left ?? 4;
   const def = boss ? eff.bossDef ?? 0.8 : eff.def ?? 0.6;
-  t.r84bIkari = { left: Math.max(left, t.r84bIkari?.left || 0), atk: eff.atk ?? 1.1 };
+  t.r84bIkari = { left: Math.max(left, t.r84bIkari?.left || 0), atk: eff.atk ?? 1.1, by: c.id };
   // 守り下げ: ほかの 守り下げと 足し算に しない（強い ほうを のこす。長さは 長い ほう）
   const cur = t.debuffs?.def;
   t.debuffs = t.debuffs || {};
@@ -214,6 +218,19 @@ function anger(b, c, t, eff, ev) {
   ev.lines.push(`${t.name}は、かんかんにおこった！`, `（${t.name}の攻撃力が少し上がり、守備力が大きく下がった）`);
   ev.r84bAnger = (ev.r84bAnger || []).concat(t.id);
   ev.upd.push(t);
+}
+
+// おこった 敵は、おこらせた 人を ねらいやすい（battle.js の executeNext。敵の 行動が きまった あと）。
+// 1人を ねらう 攻撃と 技だけ（前ぶれの 大技〈big〉・全体の 技・自分や 仲間に かける 技は かえない）。ボスは TAUNT_BOSS
+export const TAUNT = 0.6;
+export const TAUNT_BOSS = 0.4;
+export function r84bTaunt(b, m, cmd) {
+  const by = m?.r84bIkari?.by && b.get(m.r84bIkari.by);
+  if (!by || !by.alive || by.fled || by.side === m.side || !cmd || cmd.big || cmd.target === by.id) return cmd;
+  const single = cmd.type === 'attack' || (cmd.type === 'ability' && ABILITIES[cmd.id]?.target === 'enemy');
+  if (!single || !cmd.target || b.get(cmd.target)?.side !== by.side) return cmd;
+  if (!b.rng.chance(m.boss ? TAUNT_BOSS : TAUNT)) return cmd;
+  return { ...cmd, target: by.id, taunted: true };
 }
 
 // ───────────── 行動の はじめ（battle.js の executeNext。反撃の 構えが とける 前） ─────────────
@@ -256,8 +273,14 @@ export function r84bTurnStart(b, c, ev) {
   }
 }
 
-// 攻撃が 来なかった 飛竜しょう天は: 敵全体に 弱い 風の 一ふり
+// 攻撃が 来なかった 飛竜しょう天は: 敵全体に 弱い 風の 一ふり ＋ 使った MP の 半分が もどる
+export const HIRYU_MP_BACK = 0.5;
 function swing(b, c, st, ev) {
+  const back = Math.min(c.maxMp - c.mp, st.mpBack || 0);
+  if (back > 0) {
+    c.mp += back;
+    ev.lines.push(`${c.name}のMPが${back}もどった。`);
+  }
   const foes = b.sideOf(c, false).filter((x) => x.alive);
   if (!foes.length) return;
   ev.lines.push(`${c.name}は、かまえをといて、風の一ふり！`);
@@ -327,6 +350,8 @@ export function r84bPub(c) {
 
 // ───────────── オート（ai.js の decideAlly） ─────────────
 const partsOf = (e) => (e?.type === 'multi' ? e.parts || [] : [e || {}]);
+// オートが その 技を えらぶ わりあい（tools/sim-r84b.mjs で 合わせた。R84B_AI=tele:0.5,… で ためせる）
+export const R84B_AI = { form: 0.7, tele: 0.3, mad: 0.6, buffed: 0.5, kake: 0.04, kokoro: 0.06, toubou: 0.4, te: 0.5, kidan: 0.35 };
 // mine … 使える 技 [{ id, a }]、fw … ai.js の fightWeight
 export function r84bPlan(b, c, foes, mine, allies, fw) {
   if (!foes.length) return null;
@@ -337,15 +362,17 @@ export function r84bPlan(b, c, foes, mine, allies, fw) {
   if (!form && !hiryu && !kake.length && !kokoroA && !toubou && !te.length) return null;
   const hard = b.boss || fw?.hard;
   const tele = foes.some((f) => f.telegraph);
-  // 1) 戦いの はじめに すがたを えらぶ（ボス ＝ お湯・ざこ ＝ 水。すぐ おわる 弱い 敵には えらばない）
-  if (form && !formOf(c) && (hard || foes.length >= 3 || (fw?.rounds ?? 0) >= 4)) return { type: 'ability', id: form.id, form: b.boss ? 'oyu' : 'mizu' };
+  // 1) すがたを えらぶ（はじめは お湯。ボス ＝ お湯・ざこが 多い ＝ 水。すぐ おわる 弱い 敵には かえない）
+  const want = b.boss ? 'oyu' : foes.length >= 3 ? 'mizu' : null;
+  if (form && want && formOf(c) !== want && !kokoro(c) && (hard || foes.length >= 3 || (fw?.rounds ?? 0) >= 4) && b.rng.chance(R84B_AI.form)) return { type: 'ability', id: form.id, form: want };
   // 2) 前ぶれが 見えたら 飛竜しょう天はの かまえ（自分が ねらわれる かは 分からないので いつもでは ない）
-  if (tele && hiryu && c.stance?.kind !== 'hiryu' && b.rng.chance(0.6)) return { type: 'ability', id: hiryu.id };
-  // 3) 敵が 強化して いる: 飛竜しょう天は（強化の 数が 多いほど）
+  if (tele && hiryu && c.stance?.kind !== 'hiryu' && b.rng.chance(R84B_AI.tele)) return { type: 'ability', id: hiryu.id };
+  // 3) 敵が 強化して いる・自分が おこらせた 敵が いる（ねらわれやすい）: 飛竜しょう天は
   const top = Math.max(0, ...foes.map((f) => boostCount(f)));
-  if (hiryu && top >= 2 && c.stance?.kind !== 'hiryu' && b.rng.chance(0.5)) return { type: 'ability', id: hiryu.id };
-  // 4) ボス: おこって いない 時に ときどき かけひき（そのあと 飛竜しょう天はが よく 効く）
-  if (kake.length && b.boss && hiryu && b.rng.chance(0.2)) {
+  const mad = foes.some((f) => f.r84bIkari?.by === c.id);
+  if (hiryu && c.stance?.kind !== 'hiryu' && (mad || top >= 2) && b.rng.chance(mad ? R84B_AI.mad : R84B_AI.buffed)) return { type: 'ability', id: hiryu.id };
+  // 4) ボス: おこって いない 時に ときどき かけひき（自分を ねらわせて、飛竜しょう天はで やり返す）
+  if (kake.length && b.boss && hiryu && !mad && b.rng.chance(R84B_AI.kake)) {
     const t = foes.filter((f) => !f.r84bIkari).sort((x, y) => (y.boss ? 1 : 0) - (x.boss ? 1 : 0))[0];
     if (t) {
       const all = kake.find(({ a }) => a.target === 'enemies');
@@ -355,9 +382,15 @@ export function r84bPlan(b, c, foes, mine, allies, fw) {
     }
   }
   // 5) ボスで ときどき 心の水・前ぶれに 敵前だい逃亡
-  if (kokoroA && b.boss && !kokoro(c) && b.rng.chance(0.2)) return { type: 'ability', id: kokoroA.id };
-  if (toubou && tele && !allies.some((x) => x.r84bDodge) && b.rng.chance(0.4)) return { type: 'ability', id: toubou.id };
+  if (kokoroA && b.boss && !kokoro(c) && b.rng.chance(R84B_AI.kokoro)) return { type: 'ability', id: kokoroA.id };
+  if (toubou && tele && !allies.some((x) => x.r84bDodge) && b.rng.chance(R84B_AI.toubou)) return { type: 'ability', id: toubou.id };
   // 6) 敵が 多い 時は 手数の 技（ばらばらに 当てる）
-  if (te.length && foes.length >= 3 && b.rng.chance(0.5)) return { type: 'ability', id: te[0].id };
+  if (te.length && foes.length >= 3 && b.rng.chance(R84B_AI.te)) return { type: 'ability', id: te[0].id };
+  // 7) ボス: HP が 多い（自信が ある）時は 自信の気だん（いちばん 強い 方）
+  const kidan = mine.filter(({ a }) => a.effect?.r84b === 'jishin').sort((x, y) => (y.a.effect.mult || 0) - (x.a.effect.mult || 0))[0];
+  if (kidan && b.boss && c.hp >= c.maxHp * 0.6 && c.mp >= c.maxMp * 0.25 && b.rng.chance(R84B_AI.kidan)) {
+    const t = foes.slice().sort((x, y) => (y.boss ? 1 : 0) - (x.boss ? 1 : 0))[0];
+    return { type: 'ability', id: kidan.id, target: t.id };
+  }
   return null;
 }

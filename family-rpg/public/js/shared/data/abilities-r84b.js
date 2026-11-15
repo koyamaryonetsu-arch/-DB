@@ -61,11 +61,11 @@ export const R84B_ABILITIES = {
   rm_kakehiki: {
     name: 'かけひき', kana: 'かけひき', kind: 'skill', job: 'ranma', mp: 5, target: 'enemy', role: 'sup',
     effect: { type: 'r84bKakehiki', atk: 1.1, def: 0.6, left: 4, bossDef: 0.8, bossLeft: 2 },
-    desc: '「へへーん、こっちだよ！」と、敵1体をからかっておこらせる。敵の攻撃力が少し上がるが、守備力が大きく下がる。おこった敵には、飛竜しょう天はがよく効く。', cast: '{a}「へへーん、こっちだよ！」', anim: 'r84b_tease',
+    desc: '「へへーん、こっちだよ！」と、敵1体をからかっておこらせる。敵の攻撃力が少し上がるが、守備力が大きく下がる。おこった敵は自分をねらいやすくなるので、飛竜しょう天はでやり返そう。', cast: '{a}「へへーん、こっちだよ！」', anim: 'r84b_tease',
   },
   rm_kidan: {
-    name: '自信の気だん', kana: 'じしんのきだん', kind: 'skill', job: 'ranma', mp: 10, target: 'enemy',
-    effect: { type: 'phys', mult: 2.6, r84b: 'jishin' },
+    name: '自信の気だん', kana: 'じしんのきだん', kind: 'skill', job: 'ranma', mp: 8, target: 'enemy',
+    effect: { type: 'phys', mult: 3.0, r84b: 'jishin' },
     desc: '自信の気をこめた気だんを、敵1体にぶつける。自分のHPが多いほど強い。', cast: '{a}「自信の気だん！」', anim: 'r84b_kidan',
   },
   rm_itadaki: {
@@ -80,14 +80,14 @@ export const R84B_ABILITIES = {
   },
   ranma_sig: {
     name: '飛竜しょう天は', kana: 'ひりゅうしょうてんは', kind: 'skill', job: 'ranma', mp: 18, target: 'enemies', role: 'dmg',
-    effect: { type: 'r84bHiryu', mult: 1.5, vsBuff: 0.25, water: 1.2, swing: 0.6 },
+    effect: { type: 'r84bHiryu', mult: 2.0, vsBuff: 0.25, water: 1.2, swing: 0.8 },
     desc: 'うずをまくようにかまえて、次の自分の番まで待つ。敵の攻撃を受けると、大きな竜巻で敵全体にやり返す。敵が強くなっているほど、水のすがたなら、もっと強い。', cast: '{a}は、うずをまくようにかまえた…！', anim: 'ranma_sig',
   },
 
   // ───────────── 飛竜しょう天はの達人（伝説） ─────────────
   hr_kidan: {
-    name: '自信の気だん・極', kana: 'じしんのきだんきわみ', kind: 'skill', job: 'hiryu_master', mp: 14, target: 'enemy',
-    effect: { type: 'phys', mult: 3.4, r84b: 'jishin' },
+    name: '自信の気だん・極', kana: 'じしんのきだんきわみ', kind: 'skill', job: 'hiryu_master', mp: 11, target: 'enemy',
+    effect: { type: 'phys', mult: 4.4, r84b: 'jishin' },
     desc: 'とても大きな自信の気だんを、敵1体にぶつける。自分のHPが多いほど強い。', cast: '{a}「これが、自信の気だん・極だ！」', anim: 'r84b_kidan',
   },
   hr_toubou: {
@@ -108,11 +108,11 @@ export const R84B_ABILITIES = {
   hr_kakehiki: {
     name: 'かけひき・極', kana: 'かけひききわみ', kind: 'skill', job: 'hiryu_master', mp: 12, target: 'enemies', role: 'sup',
     effect: { type: 'r84bKakehiki', atk: 1.1, def: 0.6, left: 4, bossDef: 0.8, bossLeft: 2 },
-    desc: '「みんなまとめて、かかってこい！」と、敵全体をおこらせる。敵の攻撃力が少し上がるが、守備力が大きく下がる。', cast: '{a}「みんなまとめて、かかってこい！」', anim: 'r84b_tease',
+    desc: '「みんなまとめて、かかってこい！」と、敵全体をおこらせる。敵の攻撃力が少し上がるが、守備力が大きく下がる。おこった敵は自分をねらいやすくなる。', cast: '{a}「みんなまとめて、かかってこい！」', anim: 'r84b_tease',
   },
   hiryu_master_sig: {
-    name: '飛竜こうりんだん', kana: 'ひりゅうこうりんだん', kind: 'skill', job: 'hiryu_master', mp: 32, target: 'enemies',
-    effect: { type: 'phys', mult: 1.9, element: 'wind', vsBuff84: 0.2 },
+    name: '飛竜こうりんだん', kana: 'ひりゅうこうりんだん', kind: 'skill', job: 'hiryu_master', mp: 28, target: 'enemies',
+    effect: { type: 'phys', mult: 2.2, element: 'wind', vsBuff84: 0.2 },
     desc: 'かまえなくても、空から大きな竜巻を落とす。敵全体に風のダメージ。敵が強くなっているほど強い。', cast: '{a}「飛竜こうりんだん！」', anim: 'hiryu_master_sig',
   },
 };

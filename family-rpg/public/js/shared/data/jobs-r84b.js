@@ -16,7 +16,7 @@ export const JOBS_R84B = {
   musabetsu_student: {
     id: 'musabetsu_student', name: '無差別格闘流の門下生', kana: 'むさべつかくとうりゅうのもんかせい', short: '門下生', tier: 1, req: ['monk', 'jester'], family: 'phys', color: '#d83a3a',
     desc: 'どんな手を使ってでも勝つ「無差別格闘流」の門下生。水をかぶると素早い水のすがた、お湯をかぶると力強いお湯のすがたになる。武闘家と遊び人をきわめるとなれる。',
-    mods: { hp: 1.05, mp: 0.75, str: 1.3, def: 0.95, agi: 1.5, mag: 0.6, heal: 0.85 },
+    mods: { hp: 1.05, mp: 0.8, str: 1.3, def: 0.95, agi: 1.5, mag: 0.55, heal: 0.85 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 1 },
     learn: [[1, 'ms_amaguri'], [2, 'ms_mizu'], [3, 'ms_dogeza'], [5, 'ms_kawashi'], [7, 'ms_osage'], [10, 'musabetsu_student_sig']],
@@ -24,7 +24,7 @@ export const JOBS_R84B = {
   ranma: {
     id: 'ranma', name: '早おとめ乱馬', kana: 'さおとめらんま', short: '乱馬', tier: 2, req: ['musabetsu_student'], family: 'phys', color: '#c8202a',
     desc: 'おさげの、うでじまんの格闘家。水のすがたとお湯のすがたを、うまく使い分ける。敵が強くなるほど強いカウンター「飛竜しょう天は」が切り札。門下生をきわめるとなれる。',
-    mods: { hp: 1.3, mp: 0.9, str: 1.55, def: 1.1, agi: 1.75, mag: 0.75, heal: 0.95 },
+    mods: { hp: 1.3, mp: 1.0, str: 1.55, def: 1.1, agi: 1.75, mag: 0.65, heal: 0.95 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 1 },
     learn: [[1, 'rm_kachuu'], [2, 'rm_kakehiki'], [3, 'rm_kidan'], [5, 'rm_itadaki'], [7, 'rm_panda'], [10, 'ranma_sig']],
@@ -32,7 +32,7 @@ export const JOBS_R84B = {
   hiryu_master: {
     id: 'hiryu_master', name: '飛竜しょう天はの達人', kana: 'ひりゅうしょうてんはのたつじん', short: '飛竜', tier: 3, req: ['ranma'], reqSuper: 1, family: 'phys', color: '#2aa8c8',
     desc: '竜巻をあやつる、伝説の格闘家。かまえなくても、空から竜巻を落とせる。水とお湯の、両方のよい所も持てる。早おとめ乱馬と、ほかの超級職を1つきわめた者だけがなれる。',
-    mods: { hp: 1.5, mp: 1.05, str: 1.8, def: 1.25, agi: 1.95, mag: 0.9, heal: 1.1 },
+    mods: { hp: 1.5, mp: 1.2, str: 1.8, def: 1.25, agi: 1.95, mag: 0.75, heal: 1.1 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1.5, agi: 1, hp: 0.5 },
     learn: [[1, 'hr_kidan'], [3, 'hr_toubou'], [5, 'hr_kokoro'], [7, 'hr_senju'], [8, 'hr_kakehiki'], [10, 'hiryu_master_sig']],
