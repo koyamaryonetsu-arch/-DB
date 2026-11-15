@@ -274,7 +274,7 @@ Object.assign(JOB_TAGS, {
   furyo: ['fist', 'kid', 'guard'], // ふりょう（けんかの こぶし・中学生・仲間を かばう）
   reikai_tantei: ['fist', 'detective', 'light'], // れい界探てい（れい丸・ふしぎな 事件の 探てい・青い 光）
   yusuke: ['fist', 'light', 'rival', 'kid'], // うら飯ゆう助（れい丸・れい光はどうけん・ライバルと きそう・中学生）
-  makai_prince: ['fist', 'light', 'dark', 'master'], // 魔界の王の子（れい丸・よう丸〈闇〉・魔界の 王の 血）
+  makai_prince: ['fist', 'dark', 'rival'], // 魔界の王の子（れい丸・よう丸〈闇〉・魔界の 王の 血）
 });
 
 // そのタグの 職業（JOB_TAGS の じゅん）

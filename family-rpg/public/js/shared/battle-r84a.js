@@ -19,6 +19,7 @@
 //     生き返った あとでも 2回めは ない（その 戦いで 1回だけ）
 //   ・立ち上がらない 時: 毒・はね返りの ダメージ・ボスの「そくし」あつかいの しかけ（ハデロスの けいやくしょ など、kill を 直接 よぶ もの）。
 //     全めつの 判定（checkEnd）は 生きて いる 人を 数えるだけ なので、立ち上がった 人が いれば 戦いは つづく
+// ■ 合体技の 強さ（battle-dual.js の memberPower）: れい丸の 技は 使う 数の √ で わって 数える（reiDualMult。合体技は れい丸を 使わない）
 // ■ 仲間のために（c.r84aNakama = { left, base, per, cap }）: left 回の 行動の 間、物理の 力が base ＋ per × たおれた 仲間の 数（cap まで）
 // ■ オート（ai.js の decideAlly から r84aPlan・chooseAttack から r84aAdjust）
 //   ・れい丸の 技は 強い 敵（ボス・すぐ たおせない 敵）にだけ。ざこには むだに しない
@@ -104,14 +105,17 @@ export function r84aPhys(b, c, a, cmd, ev, powMult, targets) {
 
 // 物理の 力の 倍（battle.js の calcPhys）: 仲間のために・立ち上がった あとの 力・オートの みつもり（のこりを ぜんぶ うつ 技）
 const deadMates = (b, c) => (b?.combatants || []).filter((x) => x.side === c.side && x !== c && !x.alive && !x.fled).length;
+// （合体技の 2人の かげ〈battle.js の dualProxy。Object.create〉には のらない: 自分の 項目〈own〉だけ 見る）
+const own = (c, k) => (c && Object.prototype.hasOwnProperty.call(c, k) ? c[k] : undefined);
 export function nakamaMult(b, c) {
-  const N = c?.r84aNakama;
+  const N = own(c, 'r84aNakama');
   if (!N || !(N.left > 0)) return 1;
   return Math.min(N.cap || 1.7, (N.base || 1.1) + (N.per || 0.2) * deadMates(b, c));
 }
 export function r84aPhysMult(b, c, t, eff, estimate = false) {
   let m = nakamaMult(b, c);
-  if (c?.r84aRise?.left > 0) m *= c.r84aRise.pow || 1;
+  const R = own(c, 'r84aRise');
+  if (R?.left > 0) m *= R.pow || 1;
   const r = eff?.rei;
   if (estimate && r?.all) {
     const n = Math.min(reiLeft(c), r.upTo || Infinity);
@@ -120,6 +124,15 @@ export function r84aPhysMult(b, c, t, eff, estimate = false) {
     if (r.per) m *= ((r.base || 0) + r.per * n) / (eff.mult || 1);
   }
   return m;
+}
+
+// 合体技の 強さの 見つもり（battle-dual.js の memberPower）: れい丸の 技は 使う 数（うつ 数）の √ で わる
+//   （1発の 技は そのまま・2発の 技は 0.71倍・6発 ぜんぶ うつ 技は 0.41倍。合体技は れい丸を 使わないので、何発ぶんも まとめて 数えない）
+export function reiDualMult(c, a) {
+  const r = reiOf(a);
+  if (!r) return 1;
+  const n = r.all ? Math.min(reiLeft(c), r.upTo || Infinity) : r.use || 1;
+  return 1 / Math.sqrt(Math.max(1, n));
 }
 
 // ───────────── 技の こうか（battle.js の applyAbility の switch） ─────────────
@@ -219,6 +232,8 @@ export function r84aPlan(b, c, foes, mine, allies, fw) {
   return null;
 }
 
+// のこりを ぜんぶ うつ 技を まんたんの 時に えらびやすく する 倍（一気に うつ 見せ場）
+export const ALL_FULL = 1.6;
 // chooseAttack の えらぶ 前（opts … { cmd, score, final }。fw … fightWeight）: ざこに れい丸を 使わない・ぜんぶ うつ 技は まんたんの 時
 export function r84aAdjust(b, c, opts, fw) {
   const max = reiMax(c);
@@ -228,6 +243,6 @@ export function r84aAdjust(b, c, opts, fw) {
     const r = reiOf(ABILITIES[o.cmd.id]);
     if (!r) continue;
     if (!fw?.hard) o.final *= 0.02;
-    else if (r.all && reiLeft(c) < max) o.final *= 0.3;
+    else if (r.all) o.final *= reiLeft(c) >= max ? ALL_FULL : 0.3;
   }
 }

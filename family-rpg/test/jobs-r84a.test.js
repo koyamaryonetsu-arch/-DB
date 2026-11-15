@@ -653,3 +653,32 @@ test('第84回 A の えんしゅつ: 看板の 技・大事な 技（指先か�
   assert.deepEqual(r84aMarks({ alive: false, r84aRei: { n: 3, max: 4 } }), []);
   for (const m of r84aMarks({ alive: true, r84aRei: { n: 0, max: 6 }, r84aNakama: 3, r84aRise: 3 })) textOk(m.text, m.cls);
 });
+
+// ───────────── ほかの 新しい 系統と 同じ パーティー ─────────────
+test('第84回 A: 封神演義（作戦）・ぬ〜べ〜（鬼の手・自動で かばう）と 同じ パーティーでも、れい丸・立ち上がりと おたがいを こわさない', () => {
+  const { b, me } = setup('yusuke', { mates: ['hoshin_gunshi', 'jigoku_sensei'], boss: true });
+  const gunshi = b.allies[1];
+  // 軍師が 攻めの 作戦 → れい丸の 技も ふつうに うてる（れい丸の 数は かわらない）
+  readyUp(b, gunshi);
+  assert.equal(b.command(gunshi.id, { type: 'ability', id: 'sd_sakusen', sakusen: 'seme' }, 's2').ok, true);
+  runUntilAct(b, gunshi.id);
+  assert.equal(b.r83aPlan?.kind, 'seme');
+  assert.equal(reiLeft(me), 4);
+  const act = use(b, me, { type: 'ability', id: 'rt_reigan' });
+  assert.ok(dmgOf(act) > 0 || act.results.some((r) => r.miss));
+  assert.equal(reiLeft(me), 3);
+  assert.deepEqual(r84aMarks(pub(me)).map((m) => m.text).filter((t) => t.startsWith('れい丸')), ['れい丸3']);
+  assert.ok(pub(me).r83aPlan, '作戦の 札も ならぶ');
+  // 守りの 作戦で へらしても たおれる ダメージなら 立ち上がる（作戦は のこる）
+  b.r83aPlan = { ...b.r83aPlan, kind: 'mamori' };
+  const ev = ev0();
+  b.damage(b.enemies[0], me, 999999, ev, {});
+  assert.ok(me.alive && me.r84aRose, ev.lines.join());
+  assert.ok(b.r83aPlan);
+  // みんな オートで しばらく 戦っても こわれない（れい丸は 0〜4・作戦・鬼の手・自動で かばうも そのまま 動く）
+  for (const a of b.allies) a.auto = true;
+  for (const e of b.enemies) e.actions = [{ w: 1, id: 'attack' }];
+  for (let i = 0; i < 1500 && !b.over; i++) b.tick(50);
+  assert.ok(reiLeft(me) >= 0 && reiLeft(me) <= 4);
+  assert.ok(!('r84aRei' in me) || Number.isFinite(me.r84aRei));
+});

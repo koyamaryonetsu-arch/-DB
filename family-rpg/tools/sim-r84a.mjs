@@ -9,6 +9,7 @@
 //   USES=1 … 入れかえた 人が 使った 技の 回数も 出す（1戦の 平均）
 //   REI=0.5 など … れい丸の 数を その 倍に して ためす（REI=0 … れい丸 なし）
 //   RISE=0 … 1回だけ 立ち上がる を なしに して ためす
+//   DMG=1 … 仲間 ごとの ダメージの わりあい（入れかえた 人・ほかの 家族・合体技）も 出す
 //   OFF=yu_nakama,mk_tanoshii など … その 技を オートで 使わない（何が 効いて いるか しらべる）
 import { CH6_JOBS } from './sim-ch6.mjs';
 import { ch7Run, CH7_LV, CH7_KIT } from './sim-ch7.mjs';
@@ -39,6 +40,21 @@ if (process.env.USES) {
   };
 }
 
+// 仲間ごとの ダメージ（DMG=1）
+const dmgBy = {};
+if (process.env.DMG) {
+  const emit = Battle.prototype.emit;
+  Battle.prototype.emit = function (ev) {
+    if (ev.t === 'act') {
+      const a = this.get(ev.id);
+      if (a?.side === 'ally') {
+        const k = ev.dual ? `合体:${ev.name}` : a === this.allies[0] ? '入れかえた人' : a.kind === 'guest' ? 'ゲスト' : 'ほかの家族';
+        for (const r of ev.results || []) if (r.dmg > 0 && this.get(r.id)?.side === 'enemy') dmgBy[k] = (dmgBy[k] || 0) + r.dmg;
+      }
+    }
+    return emit.call(this, ev);
+  };
+}
 const total = {};
 for (const boss of BOSSES) {
   const ch7 = C7.has(boss);
@@ -50,6 +66,7 @@ for (const boss of BOSSES) {
       KIT[boss][job] = KIT[boss][job] || KIT[boss].hero.map((id) => (id && canEquip(job, id) ? id : null));
       CH6_JOBS[0] = [job, '勇者'];
       for (const k of Object.keys(uses)) delete uses[k];
+      for (const k of Object.keys(dmgBy)) delete dmgBy[k];
       const res = [];
       for (let s = 1; s <= N; s++) res.push((ch7 ? ch7Run : ch8Run)(boss, lv, know, 1000 + s));
       const w = res.filter((r) => r.outcome === 'win').length;
@@ -60,6 +77,10 @@ for (const boss of BOSSES) {
       t.n += N;
       t.sec += sec;
       console.log(`  ${(JOBS[job].name).padEnd(12, '　')} 勝率 ${String(Math.round((w / N) * 100)).padStart(3)}%  平均 ${sec.toFixed(0).padStart(4)}びょう  ボスの のこり ${(left * 100).toFixed(0).padStart(3)}%`);
+      if (process.env.DMG) {
+        const all = Object.values(dmgBy).reduce((x, y) => x + y, 0) || 1;
+        console.log('    ' + Object.entries(dmgBy).sort((x, y) => y[1] - x[1]).map(([k, v]) => `${k} ${Math.round((v / all) * 100)}%（${Math.round(v / N)}）`).join('  '));
+      }
       if (process.env.USES) console.log('    ' + Object.entries(uses).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}×${(v / N).toFixed(1)}`).join('  '));
     }
     CH6_JOBS[0] = ['hero', '勇者'];
