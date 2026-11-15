@@ -4,13 +4,13 @@
 //   キャラの きろく: c.tokiPhantom = { day: 'YYYY-MM-DD'（さいごに ごほうびを もらった 日）, wins: 勝った 数 }
 // ・その キャラが はじめて 勝った 時は 家族の けいじ板へ（world.boardPost。kind 'toki_phantom'。勝ち方は「見る」で）
 // ・A の 台本は ['battle', 'toki_phantom'] でも、['call', tokiPhantomRun]（今日の 相手と ごほうびの ようすを 言ってから えらぶ）でも よい
-import { ITEMS } from '../data/items.js?v=5e5310169c06';
-import { MONSTERS } from '../data/monsters.js?v=5e5310169c06';
-import { addItem } from '../stats.js?v=5e5310169c06';
-import { dayKeyOf, tokiPhantomBase } from '../data/encounters-tokei6.js?v=5e5310169c06';
-import { tokiPhantomId } from '../data/monsters-tokei6.js?v=5e5310169c06';
-import { TOKI_PHANTOM_REWARD } from '../data/items-tokei6.js?v=5e5310169c06';
-import { familyChar, BOARD_KINDS } from './family-board.js?v=5e5310169c06';
+import { ITEMS } from '../data/items.js?v=92f0f89805fa';
+import { MONSTERS } from '../data/monsters.js?v=92f0f89805fa';
+import { addItem } from '../stats.js?v=92f0f89805fa';
+import { dayKeyOf, tokiPhantomBase } from '../data/encounters-tokei6.js?v=92f0f89805fa';
+import { tokiPhantomId } from '../data/monsters-tokei6.js?v=92f0f89805fa';
+import { TOKI_PHANTOM_REWARD } from '../data/items-tokei6.js?v=92f0f89805fa';
+import { familyChar, BOARD_KINDS } from './family-board.js?v=92f0f89805fa';
 
 export const TOKI_PHANTOM_ENC = 'toki_phantom';
 // けいじ板の 小さな 札（family-board.js の boardRows が BOARD_KINDS を 見る。A の 行と かさならない ように ここで 足す）

@@ -1,32 +1,32 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=5e5310169c06';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=92f0f89805fa';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=5e5310169c06';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=5e5310169c06';
-import { skillMods } from './skill-tier.js?v=5e5310169c06';
+import { deduceElement } from './data/abilities-jobs6.js?v=92f0f89805fa';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=92f0f89805fa';
+import { skillMods } from './skill-tier.js?v=92f0f89805fa';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=5e5310169c06';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=92f0f89805fa';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=5e5310169c06';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=92f0f89805fa';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=5e5310169c06';
-import { labPlan, labIgnored } from './battle-lab.js?v=5e5310169c06';
+import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=92f0f89805fa';
+import { labPlan, labIgnored } from './battle-lab.js?v=92f0f89805fa';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerCond, towerPlan } from './battle-ch5.js?v=5e5310169c06';
+import { towerCond, towerPlan } from './battle-ch5.js?v=92f0f89805fa';
 // 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
-import { noctoAction } from './battle-nocto.js?v=5e5310169c06';
+import { noctoAction } from './battle-nocto.js?v=92f0f89805fa';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
-import { earthAction, reachPlan } from './battle-earth.js?v=5e5310169c06';
+import { earthAction, reachPlan } from './battle-earth.js?v=92f0f89805fa';
 // 第5章 Step 9 の 魔王ソリトゥス（きずなを食べる・終わらない夜の 前ぶれ。battle-final.js）
-import { finalAction } from './battle-final.js?v=5e5310169c06';
+import { finalAction } from './battle-final.js?v=92f0f89805fa';
 // 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
-import { arenaPlan, arenaAdjust } from './battle-arena.js?v=5e5310169c06';
+import { arenaPlan, arenaAdjust } from './battle-arena.js?v=92f0f89805fa';
 // 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
-import { tokeiQuiet } from './battle-tokei.js?v=5e5310169c06';
+import { tokeiQuiet } from './battle-tokei.js?v=92f0f89805fa';
 // 第82回 A: 犬夜叉の 系統の オート（おすわり！・ばくりゅうはの かまえ・風の技。battle-r82a.js）
-import { r82aPlan } from './battle-r82a.js?v=5e5310169c06';
+import { r82aPlan } from './battle-r82a.js?v=92f0f89805fa';
 // 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
-import { r82bPlan } from './battle-r82b.js?v=5e5310169c06';
+import { r82bPlan } from './battle-r82b.js?v=92f0f89805fa';
 
 // さくせん
 export const TACTICS = {

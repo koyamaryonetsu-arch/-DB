@@ -4,12 +4,12 @@
 //   数は のこりの 行動の 回数（かかった 人が 行動するたびに 1 へる）。ずっと つづく ものは 数なし
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（r35-css.js と おなじ やりかた）
 //   .tag.slv … 技の レベルの 札（メニューの「呪文・技」・戦いの 技の 一覧。Lv5 は .max で 金色）
-import { el } from './ui/dom.js?v=5e5310169c06';
-import { buffMarks, regenMark, statusNames } from './ui/info.js?v=5e5310169c06';
+import { el } from './ui/dom.js?v=92f0f89805fa';
+import { buffMarks, regenMark, statusNames } from './ui/info.js?v=92f0f89805fa';
 // 第82回 A: ようかい化・大よう化・おすわり・ばくりゅうはの かまえの 札（battle-r82a.js）
-import { r82aMarks } from './battle-r82a.js?v=5e5310169c06';
+import { r82aMarks } from './battle-r82a.js?v=92f0f89805fa';
 // 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
-import { r82bMarks } from './battle-r82b.js?v=5e5310169c06';
+import { r82bMarks } from './battle-r82b.js?v=92f0f89805fa';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
