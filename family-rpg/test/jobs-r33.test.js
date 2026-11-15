@@ -33,6 +33,9 @@ for (const j of R84A_JOBS) R66_JOBS.add(j);
 // 第85回 B班: 烈火の炎の 系統の ひとことは test/jobs-r85b.test.js
 import { R85B_JOBS } from '../public/js/shared/data/jobs-r85b.js';
 for (const j of R85B_JOBS) R66_JOBS.add(j);
+// 第85回 A班: スレイヤーズの 系統の ひとことは test/jobs-r85a.test.js
+import { R85A_JOBS } from '../public/js/shared/data/jobs-r85a.js';
+for (const j of R85A_JOBS) R66_JOBS.add(j);
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {

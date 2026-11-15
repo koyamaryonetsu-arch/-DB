@@ -32,6 +32,8 @@ Object.assign(NAMES, { plumber: ['配管工', 'ももの姫'], mustache: ['ひ�
 NAMES.galaxy_queen = ['銀河の王', '銀河の女王'];
 // 第66回 D班: ロゼッタは 男の子なら ギャラクシーマリオ（test/legend-r66d.test.js）
 NAMES.rosetta = ['ギャラクシーマリオ', 'ロゼッタ'];
+// 第85回 A班: 天才美少女魔道士リナは 男の子なら 天才魔道士（test/jobs-r85a.test.js）
+NAMES.lina = ['天才魔道士', '天才美少女魔道士リナ'];
 
 test('男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」（女の子は 今の まま）', () => {
   assert.deepEqual(Object.keys(JOBS).filter((j) => JOBS[j].masc).sort(), Object.keys(NAMES).sort(), 'masc の ある 職業');

@@ -135,6 +135,13 @@ Object.assign(JOB_SAY, {
   enjutsushi: '「火竜よ、おれに力をかせ！」',
   rekka: '「八竜、みんなまとめてかかってこい！」',
 });
+// 第85回 A班: スレイヤーズの 系統（jobs-r85a.js。男の子の ひとことは JOB_SAY_MASC）
+Object.assign(JOB_SAY, {
+  tabi_madoshi: '「まずは腹ごしらえ！それから冒険よ！」',
+  lina: '「天才美少女魔道士、ただいま参上！」',
+  doramata: '「ドラゴンもまたいで通るって？しつれいね！」',
+});
+
 // 第86回 A班: 幻の職業 2つ（jobs-r86a.js）
 Object.assign(JOB_SAY, {
   yokai_bridge: '「人もようかいも、おれが守ってやる！」',
@@ -152,6 +159,10 @@ export const JOB_SAY_MASC = {
   mario: '「ヒアウィーゴー！」',
   // 第66回 D班: ギャラクシーマリオ
   rosetta: '「星の世界へ、レッツゴー！」',
+  // 第85回 A班: スレイヤーズの 系統
+  tabi_madoshi: '「まずは腹ごしらえ！それから冒険だ！」',
+  lina: '「天才魔道士、ただいま参上！」',
+  doramata: '「ドラゴンもまたいで通るって？しつれいだな！」',
 };
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）

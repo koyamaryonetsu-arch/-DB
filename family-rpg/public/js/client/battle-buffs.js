@@ -20,6 +20,8 @@ import { r84bMarks, paintFormMarks } from './battle-r84b.js';
 import { r84aMarks } from './battle-r84a.js';
 // 第85回 B班: まどかの けっかい・るいの まぼろしの 札（battle-r85b.js）
 import { r85bMarks } from './battle-r85b.js';
+// 第85回 A班: となえて いる 札（battle-r85a.js）
+import { r85aMarks } from './battle-r85a.js';
 // 第86回 A班: ためた力・きずなの力・人とようかいのきずなの 札（battle-r86a.js）
 import { r86aMarks } from './battle-r86a.js';
 
@@ -58,6 +60,7 @@ export function unitMarks(a) {
   out.push(...r84bMarks(a));
   out.push(...r84aMarks(a));
   out.push(...r85bMarks(a));
+  out.push(...r85aMarks(a));
   out.push(...r86aMarks(a));
   return out;
 }

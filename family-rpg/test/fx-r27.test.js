@@ -42,6 +42,8 @@ import { playR84bFx } from '../public/js/client/render/battlefx-r84b.js';
 import { playR84aFx } from '../public/js/client/render/battlefx-r84a.js';
 // 第85回 B班: 烈火の炎の 系統
 import { playR85bFx } from '../public/js/client/render/battlefx-r85b.js';
+// 第85回 A班: スレイヤーズの 系統
+import { playR85aFx } from '../public/js/client/render/battlefx-r85a.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
 import { playCh4Fx } from '../public/js/client/render/battlefx-ch4.js';
 // 第48回の 大技エンジン（anim を データに 書いた 技も エフェクトが ある あつかい）
@@ -125,7 +127,8 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playR83aFx(fake, anim, ONE, null, {})
     || playR84bFx(fake, anim, ONE, null, {})
     || playR84aFx(fake, anim, ONE, null, {})
-    || playR85bFx(fake, anim, ONE, null, {});
+    || playR85bFx(fake, anim, ONE, null, {})
+    || playR85aFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);
     const types = ab.effect?.type === 'multi' ? (ab.effect.parts || []).map((p) => p.type) : [ab.effect?.type];

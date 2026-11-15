@@ -257,6 +257,12 @@ Object.assign(TRIAL_WORDS, {
   enjutsushi: '炎は、こわすためでなく、守るためにともせ。',
   rekka: '8ひきの火竜も、心がひとつでなければ動かぬ。',
 });
+// 第85回 A班（超級職・伝説。jobs-r85a.js。男の子は TRIAL_WORDS_MASC）
+Object.assign(TRIAL_WORDS, {
+  lina: 'となえる時は、あせらずに。大きな力ほど、待つ心がいる。',
+  doramata: '強い呪文より、よく食べよく休むこと。それが天才よ。',
+});
+
 // 第86回 A班（幻の職業。jobs-r86a.js。32字 以内）
 Object.assign(TRIAL_WORDS, {
   yokai_bridge: '守った思いは、力になる。仲間はおまえの風だ。',
@@ -270,6 +276,8 @@ export const TRIAL_WORDS_MASC = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
   // 第66回 D班: ギャラクシーマリオ
   rosetta: '星から星へ、ジャンプでどこまでも行けるさ！',
+  // 第85回 A班: スレイヤーズの 系統（男の子）
+  doramata: '強い呪文より、よく食べよく休むこと。それが天才だ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

@@ -177,6 +177,7 @@ Object.assign(HIT_DELAY, R83A_HIT);
 Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, R84A_HIT);
 Object.assign(HIT_DELAY, R85B_HIT);
+Object.assign(HIT_DELAY, R85A_HIT);
 Object.assign(HIT_DELAY, R86A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
@@ -304,6 +305,7 @@ Object.assign(ANIM_SFX, R83A_SFX);
 Object.assign(ANIM_SFX, R84B_SFX);
 Object.assign(ANIM_SFX, R84A_SFX);
 Object.assign(ANIM_SFX, R85B_SFX);
+Object.assign(ANIM_SFX, R85A_SFX);
 Object.assign(ANIM_SFX, R86A_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
@@ -885,14 +887,16 @@ export class BattleScene {
       const tt = targetTag(ab);
       // 技の レベル（Lv2 から 出す。第38回 C。shared/buff-acts.js）
       const slv = a.slv?.[id] || 1;
+      // 第85回 A班: 大砲の 呪文は となえて いないと うすく・「となえてから」（battle-r85a.js）
+      const r85 = r85aRow(ab, a);
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${slv >= 2 ? `<span class="tag slv">Lv${slv}</span>` : ''}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}${reiTag(ab)}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${slv >= 2 ? `<span class="tag slv">Lv${slv}</span>` : ''}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}${reiTag(ab)}${r85.tag}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
         cls: `k-${abilityRole(ab)}${fav ? ' fav' : ''}`,
         fav: !!fav,
-        disabled: noMp || sil || noRei,
+        disabled: noMp || sil || noRei || r85.off,
       };
     };
     const tabs = skillTabs(ids, { abs: (id) => abilityFor(id, a), job: pc.job, favs: this.favsOf(a) });
@@ -1504,6 +1508,8 @@ export class BattleScene {
     r84bPresent(this, ev, hitDelay);
     // 第85回 B班: 二ひき同時の 2ひきめ・けっかいと かげろうが かかった 人の まどが 光る（battle-r85b.js）
     r85bPresent(this, ev, hitDelay);
+    // 第85回 A班: となえた・早口・ギガ・スレイブ（battle-r85a.js）
+    r85aPresent(this, ev);
     // 第86回 A班: ためた力の 大きな 風・力を ためた・かけ橋が かばった・竜神の剣士の 2つの 属性の 剣（battle-r86a.js）
     r86aPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }

@@ -55,6 +55,8 @@ import { JOBS_R84B, R84B_ORDERS, HINTS_R84B } from './jobs-r84b.js';
 import { JOBS_R84A, R84A_ORDERS, HINTS_R84A } from './jobs-r84a.js';
 // 第85回 B班: 烈火の炎の 系統（忍者 → 炎術士 → 八竜の炎術士・烈火。jobs-r85b.js）
 import { JOBS_R85B, R85B_ORDERS, HINTS_R85B } from './jobs-r85b.js';
+// 第85回 A班: スレイヤーズの 系統（大食いの旅の魔道士 → 天才美少女魔道士リナ → ドラまた。jobs-r85a.js）
+import { JOBS_R85A, R85A_ORDERS, HINTS_R85A } from './jobs-r85a.js';
 // 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士（jobs-r86a.js）
 import { JOBS_R86A, R86A_PHANTOM, HINTS_R86A } from './jobs-r86a.js';
 export const JOB_MAX_LEVEL = 10;
@@ -1334,6 +1336,8 @@ Object.assign(JOBS, JOBS_R84B);
 Object.assign(JOBS, JOBS_R84A);
 // 第85回 B班: 烈火の炎の 系統（jobs-r85b.js）
 Object.assign(JOBS, JOBS_R85B);
+// 第85回 A班: スレイヤーズの 系統（jobs-r85a.js）
+Object.assign(JOBS, JOBS_R85A);
 // 第86回 A班: 幻の職業 2つ（jobs-r86a.js）
 Object.assign(JOBS, JOBS_R86A);
 
@@ -1402,6 +1406,8 @@ JOB_ORDER.push(...BASE_R82A_ORDER); ADVANCED_ORDER.push(...ADV_R82A_ORDER); SUPE
 [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R84A_ORDERS[i]));
 // 第85回 B班: 烈火の炎の 系統を 段ごとの ならびの おわりに（jobs-r85b.js の R85B_ORDERS。基本職・上級職は ない）
 [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R85B_ORDERS[i]));
+// 第85回 A班: スレイヤーズの 系統を 段ごとの ならびの おわりに（jobs-r85a.js の R85A_ORDERS。基本職は ない）
+[JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R85A_ORDERS[i]));
 // 第51回: 幻の職業（伝説の 上。tier 4。なる 条件は「きわめた 職業 2つ（req）」＋やりこみの 条件（data/phantom.js）。docs/plan-r51-phantom.md）
 // 職業の 定義は jobs-phantom-a/b/c.js（C1〜C3）。まだ ない 職業は 一覧に 入れない（PHANTOM_LIVE）
 export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
@@ -1591,5 +1597,7 @@ Object.assign(JOB_HINTS, HINTS_R84B);
 Object.assign(JOB_HINTS, HINTS_R84A);
 // 第85回 B班: 炎術士・八竜の炎術士・烈火の うわさ（jobs-r85b.js）
 Object.assign(JOB_HINTS, HINTS_R85B);
+// 第85回 A班: 天才美少女魔道士リナ・ドラまたの うわさ（jobs-r85a.js。男の子の リナは masc.hint）
+Object.assign(JOB_HINTS, HINTS_R85A);
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士の うわさ（jobs-r86a.js）
 Object.assign(JOB_HINTS, HINTS_R86A);

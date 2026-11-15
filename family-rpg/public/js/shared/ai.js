@@ -37,6 +37,8 @@ import { r84bPlan } from './battle-r84b.js';
 import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js';
 // 第85回 B班: 烈火の炎の 系統の 火竜をよぶ（たおれた 仲間 ＝ れっしん・前ぶれ ＝ まどか・ボス ＝ こくう／さいは・敵が 多い ＝ なだれ・強い 敵 1体 ＝ ほむら）・姫を守る忍び（battle-r85b.js）
 import { r85bPlan } from './battle-r85b.js';
+// 第85回 A班: スレイヤーズの 系統の となえる・大砲の 呪文・定食（battle-r85a.js）
+import { r85aPlan, r85aLocked } from './battle-r85a.js';
 // 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
 import { r86aPlan } from './battle-r86a.js';
 
@@ -233,6 +235,9 @@ export function decideAlly(b, c) {
   // 4.96) 第85回 B班: 火竜を えらんで よぶ・弱った 仲間を かばう（この 系統の 技だけを 見る。battle-r85b.js）
   const r85b = r85bPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r85b) return r85b;
+  // 4.97) 第85回 A班: となえて いれば 大砲・MP が 少なければ 定食・ボスや 強い 敵には となえる（前ぶれの 時は 下の 5 に まかせる。battle-r85a.js）
+  const r85a = r85aPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r85a) return r85a;
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
@@ -299,6 +304,8 @@ export function canUse(b, c, id) {
   if (!weaponOk(a, c.weaponCat)) return false;
   // 第84回 A班: れい丸が 足りない 技は 使えない（battle-r84a.js）
   if (!reiOk(c, a)) return false;
+  // 第85回 A班: 大砲の 呪文は となえて いないと えらばない（battle-r85a.js）
+  if (r85aLocked(c, a)) return false;
   return mpCost(c.penChar, id) <= c.mp;
 }
 

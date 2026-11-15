@@ -118,6 +118,8 @@ VEHICLES.panda = { name: 'パンダ', price: 4600, jobs: ['musabetsu_student', '
 VEHICLES.rei_bird = { name: '青いれい界の鳥', price: 5000, jobs: ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'], desc: 'たまごから生まれた、青くて大きな鳥。「ぷう」と鳴いて、空を高くとぶ。' };
 // 第85回 B班: 烈火の炎の 系統の 乗り物（火竜。長い 体が うねる 竜。絵は client/render/vehicle-r85b.js）
 VEHICLES.fire_dragon = { name: '火竜', price: 5400, jobs: ['enjutsushi', 'rekka'], desc: '長い体をうねらせて、空をおよぐ火竜。せなかにのると、ほんのりぽかぽかする。' };
+// 第85回 A班: スレイヤーズの 系統の 乗り物（子どもの 竜が ひく ごちそうの 荷車。絵は client/render/vehicle-r85a.js）
+VEHICLES.feast_cart = { name: 'ごちそうの荷車', price: 4400, jobs: ['tabi_madoshi', 'lina', 'doramata'], desc: '子どもの竜がひく、ごちそうをつんだ荷車。旅のとちゅうでも、いつでも食べられる。' };
 // 第86回 A班: 幻の職業 2つの 乗り物（大きな白い犬・雷と炎の二ひきの竜。その 幻の職業に なった 人の たなに だけ。絵は client/render/vehicle-r86a.js）
 import { R86A_VEHICLES } from './jobs-r86a.js'; Object.assign(VEHICLES, R86A_VEHICLES);
 //   もとの 2つの 職業の 乗り物にも 乗れる（ほかの 幻の職業と おなじ。二またの大ねこ・先生の自転車／大きなトラ・火竜）
