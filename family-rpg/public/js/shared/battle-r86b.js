@@ -203,7 +203,7 @@ export function r86bResolve(b, ev) {
       b.physHit(t, f, { mult: hiryuMult(big, t, f), acc: 1.5 }, ev, 'wind', st.pow || 1);
     }
     if (strong) ev.lines.push('強くなっていた敵ほど、竜巻が大きくなった！');
-    (ev.r84bHiryuRet = ev.r84bHiryuRet || []).push({ by: t.id, targets: foes.map((f) => f.id) });
+    (ev.r84bHiryuRet = ev.r84bHiryuRet || []).push({ by: t.id, targets: foes.map((f) => f.id), banner: 'れい丸・しょう天は！' });
     ev.r86bReiHiryu = { by: t.id, shots, targets: foes.map((f) => f.id) };
     ev.lines.push(`（れい丸を${shots}発うった。のこり${t.r84aRei}発）`);
     back();

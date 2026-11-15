@@ -199,7 +199,7 @@ battle-r84a.js（reiMax 1行）・battle-r84b.js（formPct 1行）・battle-r83a
 みんなの ファイルに 足した 行（けして いない）:
 shared: battle.js・ai.js・battle-trial.js・battle-r83a.js・battle-r84a.js・battle-r84b.js／
 shared/data: jobs.js（import・JOBS・PHANTOM_ORDER・うわさ）・abilities.js・hirameki.js・phantom.js（タグ 3つ・条件 2つ）・job-tags.js・job-talk.js・job-trials.js・vehicles.js／
-client: battle.js（import・HIT_DELAY・ANIM_SFX・えんしゅつの 1行）／client/render: battlefx.js・hero-outfit.js（outfit86b の 1行）・hero-gear.js・chars.js・hero-aura.js・hero-r26.js（drawProp86b の 1行）・vehicle-art.js／
+client: battle.js（import・HIT_DELAY・ANIM_SFX・えんしゅつの 1行）・battle-r84b.js（やり返しの 見出しの 1行）／client/render: battlefx.js・hero-outfit.js（outfit86b の 1行）・hero-gear.js・chars.js・hero-aura.js・hero-r26.js（drawProp86b の 1行）・vehicle-art.js／
 tools/kanji-check.mjs
 
 新しい ファイル: shared/data/jobs-r86b.js・abilities-r86b.js・hirameki-r86b.js・shared/battle-r86b.js・client/battle-r86b.js・client/render/hero-r86b.js・battlefx-r86b.js・vehicle-r86b.js・test/jobs-r86b.test.js・tools/sim-r86b.mjs
@@ -213,8 +213,24 @@ tools/kanji-check.mjs
 - 太極・ギガ・スレイブは MP を 全部 使う ので、オートは「敵の ふつうの 強化が ある 時（MP 半分 いじょう）・とどめ・敵が 多くて MP 8わり」だけ
 - 引っこしコード: キャラに 項目を 足して いない。いちばん 大きな セーブ 28341 → 28516文字（3通。見はりの「4通の 90%」の 中。`test/transfer-r78.test.js` は かえて いない）
 - お知らせ・README・神殿の せつめいの 伝説の 一覧（client/ui/services.js）は さわって いない
-MERGE_NOTE
+- れい丸・しょう天はが 決まった 時の 見出しは「れい丸・しょう天は！」（client/battle-r84b.js の r84bPresent に「やり返しに banner が あれば それ」の 1行。飛竜しょう天はの 見出しと 重ならない）
+- **メインの ブランチ（claude/elegant-bell-al2f1w）の 取りこみ**: 最後の テストの 前に `git merge` した 時、A班は まだ 入って いなかった（Already up to date。メインは `1a35decaa` の まま）。
+  A班（人とようかいのかけ橋・竜神の剣士）が あとで 入る 時は、jobs.js の PHANTOM_ORDER の 行・phantom.js の 条件の 表と タグ・
+  test/phantom-r51.test.js（14 → 16・PHANTOM_ORDER の ならび・条件の 表）・test/phantom-vehicles-r79.test.js・test/phantom-looks-r79.test.js・test/phantom-book-r51.test.js・
+  vehicles.js の おわり・battle.js・ai.js・client/battle.js の import と えんしゅつの 行・battlefx.js・hero-*.js の まぜる 行・tools/kanji-check.mjs が ぶつかる（両方 のこす）。
+  幻の書の しるし（rv・ok）は PHANTOM_ORDER の じゅんの ビット なので、ならびは「今の 12 → A班 → B班」でも「B班 → A班」でも よいが、きめたら かえない（セーブの しるしが ずれる）。
+  「剣か こぶし」の 合体技の 組は 職業 201 で 上限 67。格闘王で 66 なので、A班が 剣・こぶしを 2つ 足すと こえる（その 時は 格闘王の こぶしを 風・闇・師しょうに かえる）
 
 ## 9. たしかめた こと
 
-CHECKS
+- 全部の テスト: **2980件 全部 通った**（`timeout 1500 node --test test/*.test.js`。メインは 2963件 ＋ 新しい test/jobs-r86b.test.js 17件）。
+  `tools/kanji-check.mjs`: 使えない漢字 0件 / スペース 0件
+- 職業の試練（`tools/sim-trial.mjs 20`）: 格闘王 65%・75%・85%／大軍師 90%・75%・90%（めやす 6〜9割）
+- ブラウザ（Playwright・ひとりモード・390×844 と 1280×800。話を 進めて 話の まどが 出なく なってから）:
+  4つの 伝説を きわめる → 幻の書（条件が 見える・半分の メーター → みたすと「なれる！」）→ 神殿の 画面（幻の職業 なれる 2/14・せつめいと 条件）→
+  2つの 幻に 転職（フィールド・メニュー・2.5D）→
+  格闘王の 戦い（札「れい丸8」→ 天下一のれい丸で 7 → 見切りのかまえで カウンター「カウンターが決まった！れい丸が1発もどった！」8 →
+  れい丸・しょう天は（技の 一覧の 行）→ なぐられて「れい丸を2発のせた竜巻」→ 6 → カウンターで 7）→
+  大軍師の 戦い（混とんの作戦の メニューに 攻め・守り・速攻・**大魔法の時間** → 札「大魔法25%」→ となえる「早口！」・札「となえ3」→
+  太極・ギガ・スレイブ「敵の強くなっていた力が消えた！」「MP586」4000ダメージ・MP 0）→ 乗り物屋の たなに 2つ → 乗って 3方向・2.5D。コンソールの エラー 0
+- 見た目の 一覧: 2つの 職業 × 男女 × 4つの 向き ＋ もとの 4つの 伝説 ＋ 2つの 乗り物（3方向 × 3コマ）を 1まいに（looks.png）

@@ -82,7 +82,8 @@ export function r84bPresent(view, ev, hitDelay = 0) {
   const start = (hitDelay || 0) + 420;
   view.fx.at(start, () => {
     if (view.destroyed) return;
-    view.banner('飛竜しょう天は！', 'combo');
+    // 第86回 B班: れい丸・しょう天は（天下一の格闘王）は その 名前（shared/battle-r86b.js が banner を のせる）
+    view.banner(rets.find((r) => r.banner)?.banner || '飛竜しょう天は！', 'combo');
     const pts = [...ids].map((id) => view.c.get(id)).filter(Boolean).map((c) => view.center(c)).filter(Boolean);
     view.fx.play('r84b_hiryu', pts, 'wind', { fromAlly: true });
     g.audio.sfx('wind');

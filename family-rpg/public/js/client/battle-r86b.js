@@ -13,10 +13,9 @@ export function r86bPresent(view, ev, hitDelay = 0) {
   if (ev.r86bGiga) view.banner(`太極・ギガ・スレイブ！（MP${ev.r86bGiga.used}）`, 'combo');
   const R = ev.r86bReiHiryu;
   if (R) {
-    // 竜巻（r84bPresent）に かさねて、れい丸の 青い 光の 玉
+    // 竜巻（r84bPresent。見出しも「れい丸・しょう天は！」）に かさねて、れい丸の 青い 光の 玉
     view.fx.at((hitDelay || 0) + 460, () => {
       if (view.destroyed) return;
-      view.banner('れい丸・しょう天は！', 'combo');
       const pts = (R.targets || []).map((id) => view.c.get(id)).filter(Boolean).map((c) => view.center(c)).filter(Boolean);
       if (pts.length) view.fx.play('r86b_reitornado', pts, 'wind', { fromAlly: true, rei: R.shots });
     });
