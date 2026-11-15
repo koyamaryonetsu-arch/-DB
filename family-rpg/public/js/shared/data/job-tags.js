@@ -287,7 +287,7 @@ Object.assign(JOB_TAGS, {
 // 第85回 B班: 烈火の炎の 系統（jobs-r85b.js。合体技の 相手の 案: 炎柱〈炎〉・木の葉の忍び〈忍び〉・忍者〈忍び・炎〉。「竜」の タグは 作らない）
 Object.assign(JOB_TAGS, {
   enjutsushi: ['fire', 'shinobi', 'guard'], // 炎術士（火竜・忍び・まどかの けっかい）
-  rekka: ['fire', 'shinobi', 'guard', 'master'], // 八竜の炎術士・烈火（8ひきの 火竜の 主・姫を守る忍び）
+  rekka: ['fire', 'shinobi', 'fist', 'guard'], // 八竜の炎術士・烈火（火竜・忍び・火竜の こぶし・姫を守る忍び）
 });
 
 // そのタグの 職業（JOB_TAGS の じゅん）

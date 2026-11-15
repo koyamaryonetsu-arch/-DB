@@ -40,7 +40,7 @@ export const RYU = {
   },
   madoka: {
     tag: 'けっかい', name: 'まどか', mp: 14, target: 'allies', color: '#ffb02a', color2: '#fff0b0', role: 'sup', anim: 'r85b_madoka', legend: true,
-    effect: { type: 'r85bMadoka', cut: 0.25, left: 3 },
+    effect: { type: 'r85bMadoka', cut: 0.3, left: 4 },
     short: '炎のけっかい（仲間全員の受けるダメージがへる）', line: '五の竜「まどか」！まるい炎のけっかいが、仲間をつつむ！',
   },
   rui: {
@@ -49,8 +49,8 @@ export const RYU = {
     short: 'まぼろし（仲間全員がよけやすくなる）', line: '六の竜「るい」！ゆらゆらと、まぼろしの炎が広がる！',
   },
   kokuu: {
-    tag: '光線', name: 'こくう', mp: 12, target: 'enemy', color: '#4ab8ff', color2: '#e0f6ff', role: 'dmg', anim: 'r85b_kokuu', legend: true,
-    effect: { type: 'phys', mult: 3.4, element: 'fire', ignoreDef: 1 },
+    tag: '光線', name: 'こくう', mp: 10, target: 'enemy', color: '#4ab8ff', color2: '#e0f6ff', role: 'dmg', anim: 'r85b_kokuu', legend: true,
+    effect: { type: 'phys', mult: 3.4, ignoreDef: 1 },
     short: '光線（敵1体にとても大きなダメージ。守りをむし）', line: '七の竜「こくう」！青白い光線が、まっすぐつらぬく！',
   },
   resshin: {
