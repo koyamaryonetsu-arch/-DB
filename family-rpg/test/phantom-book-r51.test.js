@@ -2,6 +2,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+// 第86回 B班: 幻の職業の 数（12 → 14。天下一の格闘王・混とんの大軍師）
+import { PHANTOM_ORDER } from '../public/js/shared/data/jobs.js';
+const N = PHANTOM_ORDER.length;
 
 class FakeEl {
   constructor(tag) {
@@ -54,16 +57,16 @@ function fakeMenu(me) {
   return { menu, input };
 }
 
-test('幻の書: 12行。はじめは ？？？・きわめると 名前と メーター。コントローラーの 上下で 中みが かわる・B で もどる', () => {
+test('幻の書: 幻の職業の 数だけ 行（第86回 B班で 14）。はじめは ？？？・きわめると 名前と メーター。コントローラーの 上下で 中みが かわる・B で もどる', () => {
   const me = { name: 'ユイ', look: { body: 1 }, job: 'warrior', jobs: { warrior: { lv: 3 }, creator: { lv: 10 } }, feats: { use: { support: 300 }, heal: 12000, big5000: 2 } };
   const { menu, input } = fakeMenu(me);
   // 右の 見本（えらぶ 前）
   const pv = phantomBookView(menu, false);
-  assert.ok(texts(pv).some((t) => t.includes('見つけた幻の職業　2/12')), texts(pv).join('/'));
+  assert.ok(texts(pv).some((t) => t.includes(`見つけた幻の職業　2/${N}`)), texts(pv).join('/'));
   const box = phantomBookView(menu, true);
   const m = menu.sub;
-  assert.equal(m.items.length, 12);
-  assert.equal(m.items.filter((it) => it.label === '？？？').length, 10);
+  assert.equal(m.items.length, N);
+  assert.equal(m.items.filter((it) => it.label === '？？？').length, N - 2);
   const ai = m.items.find((it) => it.value === 'facility_ai');
   assert.equal(ai.label, '天才しせつ管理者AI');
   assert.equal(ai.right, '0/2');

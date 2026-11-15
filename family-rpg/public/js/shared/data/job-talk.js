@@ -143,8 +143,8 @@ Object.assign(JOB_SAY, {
 });
 // 第86回 B班: 幻の職業（jobs-r86b.js）
 Object.assign(JOB_SAY, {
-  tenkaichi_king: '「天下一の格闘王、ここにあり！さあ、かかってこい！」',
-  chaos_gunshi: '「作戦どおり。ここからは、大魔法の時間だ！」',
+  tenkaichi_king: '「天下一は、このこぶしでつかむ！」',
+  chaos_gunshi: '「作戦どおり。さあ、大魔法の時間だ！」',
 });
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

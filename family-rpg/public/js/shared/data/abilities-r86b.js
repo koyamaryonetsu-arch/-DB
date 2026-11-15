@@ -79,7 +79,7 @@ export const R86B_ABILITIES = {
   },
   kon_ragna: {
     name: '混とんのやいば', kana: 'こんとんのやいば', kind: 'spell', job: 'chaos_gunshi', mp: 34, target: 'enemy',
-    effect: { type: 'magic', element: 'dark', base: [470, 530], thr: 92, r85aBig: true, r85aPierce: true },
+    effect: { type: 'magic', element: 'dark', base: [440, 500], thr: 92, r85aBig: true, r85aPierce: true },
     desc: '先に「となえる」と使える、白と黒の光のやいば。敵1体に、闇の特大のダメージ。敵の守りをむしする。うつと、となえた力は消える。', cast: '{a}「白と黒のあいだに生まれしやいばよ…！」', anim: 'r86b_blade',
   },
   kon_teishoku: {
@@ -89,7 +89,7 @@ export const R86B_ABILITIES = {
   },
   kon_dragslave: {
     name: 'ドラグ・スレイブ・大風', kana: 'どらぐすれいぶたいふう', kind: 'spell', job: 'chaos_gunshi', mp: 38, target: 'enemies',
-    effect: { type: 'magic', element: 'blast', base: [300, 334], thr: 88, r85aBig: true },
+    effect: { type: 'magic', element: 'blast', base: [290, 322], thr: 88, r85aBig: true },
     desc: '先に「となえる」と使える、大風をまきこんだ大ばくはつ。敵全体に特大のダメージ。うつと、となえた力は消える。', cast: '{a}「たそがれよりも暗きもの、大風とともに…ドラグ・スレイブ！」', anim: 'r86b_dragslave',
   },
   kon_minna: {
