@@ -89,6 +89,8 @@ import { r83bTurnStart, r83bCover, r83bEffect, r83bPhysMult, r83bMagicMult, r83b
 import { r83aEffect, r83aTurnStart, r83aDamage, r83aBuffBlock, r83aSpeed, r83aPub } from './battle-r83a.js';
 // 第84回 B班: らんま1/2 の 系統（水と お湯の すがた・飛竜しょう天は・かけひき・敵前だい逃亡・心の水。battle-r84b.js）
 import { r84bTurnStart, r84bPhys, r84bEffect, r84bPhysMult, r84bEva, r84bSpeed, r84bDamage, r84bResolve, r84bPub, r84bTaunt } from './battle-r84b.js';
+// 第85回 A班: スレイヤーズの 系統（となえる・大砲の 呪文・ギガ・スレイブ・ラグナ・ブレード・とう賊たいじ・早口。battle-r85a.js）
+import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage, r85aPub, LOCK_REASON as R85A_LOCK } from './battle-r85a.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -545,7 +547,10 @@ export class Battle {
       r83aTurnStart(this, c, ev);
       // 第84回 B班: 身を 守るのも 1回の 行動（心の水・敵前だい逃亡・かまえ。battle-r84b.js）
       r84bTurnStart(this, c, ev);
+      // 第85回 A班: 身を 守るのも 1回の 行動（となえた 力の のこり。battle-r85a.js）
+      r85aTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
+      r85aAfter(this, c, ev);
       this.actEnd(c, held, ev);
       ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));
       this.emit(ev);
@@ -590,6 +595,8 @@ export class Battle {
         // フィールドだけの 呪文・かくれた 技（コマンドに 出す 技と おなじ きまり。stats.js の battleAbilityOk）
         if (!battleAbilityOk(c.penChar, cmd.id, c.weaponCat)) return { ok: false, reason: '戦いでは使えない' };
         if (this.noSpells && spellSealed(a)) return { ok: false, reason: SEALED_REASON };
+        // 第85回 A班: 大砲の 呪文は 先に となえる（battle-r85a.js）
+        if (r85aLocked(c, a)) return { ok: false, reason: R85A_LOCK };
         if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが足りない' };
         return { ok: true };
       }
@@ -676,6 +683,8 @@ export class Battle {
     r83bTurnStart(this, c, ev);
     // 第83回 A班: 先読みの策・強化ふうじ・守りの旗の のこり・作戦が とぎれる（battle-r83a.js）
     r83aTurnStart(this, c, ev);
+    // 第85回 A班: となえた 力の のこり・ねむり・マヒ・呪文ふうじで 消える（battle-r85a.js）
+    r85aTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -718,6 +727,8 @@ export class Battle {
       this.tickStatus(c, 'blind', ev);
       this.tickStatus(c, 'silence', ev);
     }
+    // 第85回 A班: 3回 動いたら となえた 力が 消える（battle-r85a.js）
+    r85aAfter(this, c, ev);
     if (ev.postLines) ev.lines.push(...ev.postLines);
     delete ev.postLines;
     // 行動の おわり: バフ・デバフ・かばう の のこりを 1回 へらす（合体技は 出した 仲間も）
@@ -1082,6 +1093,8 @@ export class Battle {
       case 'magic': {
         // 第83回 A班: ほう神（敵の HPが 少ないほど 大きい・たおすと MP。battle-r83a.js）
         if (eff.r83aHoshin) { r83aEffect(this, c, a, { ...eff, type: 'r83aHoshin' }, ev, targets, cmd, powMult); break; }
+        // 第85回 A班: 大砲の 呪文・となえた あとの 呪文・ギガ・スレイブ・ラグナ・ブレード・フレア・アロー・とう賊たいじ（battle-r85a.js）
+        if (r85aMagic(this, c, a, cmd, ev, powMult, targets)) break;
         for (const t of targets) {
           this.magicHit(c, t, eff, ev, powMult);
           if (eff.status && t.alive) this.tryStatus(c, t, eff.status, ev, powMult);
@@ -1558,6 +1571,8 @@ export class Battle {
       case 'r83aSakusen': case 'r83aSeal': case 'r83aTaikyoku': case 'r83aHata': case 'r83aGorei': case 'r83aSaki': case 'r83aHoshin': case 'r83aKeikaku': case 'r83aTreasure': r83aEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // 水をかぶる／お湯をかぶる・飛竜しょう天は・かけひき・敵前だい逃亡・心の水（第84回 B。battle-r84b.js）
       case 'r84bForm': case 'r84bHiryu': case 'r84bKakehiki': case 'r84bToubou': case 'r84bKokoro': r84bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
+      // となえる（第85回 A。battle-r85a.js）
+      case 'r85aChant': r85aEffect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1763,6 +1778,8 @@ export class Battle {
     dmg = r83bShieldCut(t, dmg, info);
     // 第84回 B班: お湯の 守り・おこった 敵・属性で すがたが かわる・飛竜しょう天はの かまえ（battle-r84b.js）
     dmg = r84bDamage(this, c, t, dmg, info, ev);
+    // 第85回 A班: たおれると となえた 力が 消える（battle-r85a.js）
+    dmg = r85aDamage(this, c, t, dmg, info, ev);
     // 第82回 A: おすわり！で 半分・ばくりゅうはで 受けとめる（battle-r82a.js）
     dmg = r82aDamage(this, c, t, dmg, info, ev);
     // 峰打ち: たおさずに HP を 1 のこす
@@ -2587,6 +2604,8 @@ export function pub(c) {
     ...r83aPub(c),
     // 水と お湯の すがた・心の水・敵前だい逃亡・いかり（第84回 B。battle-r84b.js）
     ...r84bPub(c),
+    // となえて いる（第85回 A。battle-r85a.js）
+    ...r85aPub(c),
   };
 }
 

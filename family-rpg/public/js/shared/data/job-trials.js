@@ -247,6 +247,11 @@ Object.assign(TRIAL_WORDS, {
   ranma: '水でもお湯でも、心はひとつ。どんなすがたでも、まっすぐ戦え。',
   hiryu_master: 'あつくなった相手ほど、すきが大きい。心は、しずかな水に。',
 });
+// 第85回 A班（超級職・伝説。jobs-r85a.js。男の子は TRIAL_WORDS_MASC）
+Object.assign(TRIAL_WORDS, {
+  lina: 'となえる時は、あせらずに。大きな力ほど、待つ心がいる。',
+  doramata: '強い呪文より、よく食べよく休むこと。それが天才よ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
@@ -255,6 +260,8 @@ export const TRIAL_WORDS_MASC = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
   // 第66回 D班: ギャラクシーマリオ
   rosetta: '星から星へ、ジャンプでどこまでも行けるさ！',
+  // 第85回 A班: スレイヤーズの 系統（男の子）
+  doramata: '強い呪文より、よく食べよく休むこと。それが天才だ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

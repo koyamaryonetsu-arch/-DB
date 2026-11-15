@@ -276,6 +276,13 @@ Object.assign(JOB_TAGS, {
   hiryu_master: ['fist', 'wind', 'ice', 'master'], // 飛竜しょう天はの達人（竜巻を あやつる・心の水）
 });
 
+// 第85回 A班: スレイヤーズの 系統（jobs-r85a.js。合体技の 相手の 案: ハリーポッターの 系統〈魔法〉・大魔道士〈魔法・炎〉・料理人〈料理〉。新しい タグは 作らない）
+Object.assign(JOB_TAGS, {
+  tabi_madoshi: ['magic', 'fire', 'cook', 'money'], // 大食いの旅の魔道士（炎の 呪文・大もり定食・とう賊たいじ）
+  lina: ['magic', 'fire', 'cook', 'sky'], // 天才美少女魔道士リナ（ドラグ・スレイブ・定食・レイ・ウイング）
+  doramata: ['magic', 'fire', 'dark', 'money'], // ドラまた（ラグナ・ブレード〈闇〉・ギガ・スレイブ・お金が ふえる）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));
