@@ -110,6 +110,8 @@ import { PHANTOM_VEHICLES } from './vehicles-phantom.js'; Object.assign(VEHICLES
 VEHICLES.twin_cat = { name: '二またの大ねこ', price: 5200, jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'], desc: 'しっぽが2本ある、大きなねこ。足もとのほのおで、空もかける。' };
 // 第83回 B班: ぬ〜べ〜の 系統の 乗り物（古い 先生の 自転車。絵は client/render/vehicle-r83b.js）
 VEHICLES.teacher_bike = { name: 'がたがたの先生の自転車', price: 1800, jobs: ['elem_teacher', 'nube', 'jigoku_sensei'], desc: '先生が毎朝のってくる、古い自転車。がたがたゆれるが、まだまだ走る。' };
+// 第83回 A班: 封神演義の 系統の 乗り物（空飛ぶ カバ。絵は client/render/vehicle-r83a.js）
+VEHICLES.sky_hippo = { name: '空飛ぶカバ', price: 4800, jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'], desc: 'ふわふわと空にうかぶ、白くてまるいカバ。のんびり屋だけど、たよりになる。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

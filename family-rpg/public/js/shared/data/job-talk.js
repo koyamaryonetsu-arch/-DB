@@ -110,6 +110,13 @@ Object.assign(JOB_SAY, {
   nube: '「おにの手よ、生徒を守れ！」',
   jigoku_sensei: '「先生は、ぜったい負けない！」',
 });
+// 第83回 A班: 封神演義の 系統（jobs-r83a.js）
+Object.assign(JOB_SAY, {
+  fishing_doshi: '「…まだ、つれんのう」',
+  sennin_doshi: '「作戦は、まかせておけ！」',
+  taikobo: '「スープー、行くぞ！」',
+  hoshin_gunshi: '「その手は、もう読んでおる！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

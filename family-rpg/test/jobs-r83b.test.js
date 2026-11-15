@@ -593,3 +593,70 @@ test('第83回 B: おにの手・かばう は 戦いの 中だけ（キャラ�
   assert.deepEqual(Object.keys(c).sort(), before);
   assert.equal(c.oni, undefined);
 });
+
+// ───────────── 2つの 系統が 同じ パーティー（第83回 A・B） ─────────────
+test('第83回 A と B: 軍師（ほう神の大軍師）と じごく先生が 同じ 戦いに いても、作戦・おにの手・自動で かばう・体をはって守る が おたがいを こわさない', async () => {
+  const { activePlan, CUT_FLOOR } = await import('../public/js/shared/battle-r83a.js');
+  const mk = (id, name, job) => {
+    const c = newCharacter({ id, name, job: 'warrior' });
+    gainExp(c, expForLevel(60));
+    master(c, 'civil_local', 'schoolkid', ...NEW, 'fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi', 'god_hand');
+    c.job = job;
+    c.equip.weapon = null;
+    fullHeal(c);
+    return c;
+  };
+  const run = (seed) => {
+    const b = new Battle({ rng: makeRng(seed), allies: [{ char: mk('p1', 'ヒナ', 'jigoku_sensei'), controller: 's1' }, { char: mk('p2', 'ソラ', 'hoshin_gunshi'), controller: 's2' }], enemies: ['rockman', 'skeleton'], canFlee: true });
+    for (const e of b.enemies) { e.actions = [{ w: 1, id: 'm_nothing' }]; e.hp = e.maxHp = 50000; }
+    for (const a of b.allies) a.mp = a.maxMp = 999;
+    return { b, me: b.allies[0], gs: b.allies[1] };
+  };
+  const cmdOf = (b, a, cmd, who) => {
+    for (let i = 0; i < 1200 && !a.ready; i++) b.tick(50);
+    assert.equal(b.command(a.id, cmd, who).ok, true, JSON.stringify(cmd));
+    return runUntilAct(b, a.id);
+  };
+  // 1) 守りの作戦 → おにの手を 出す → 作戦を かえても おにの手は のこる。弱った 軍師への 攻撃を 先生が かばう
+  {
+    const { b, me, gs } = run(61);
+    cmdOf(b, gs, { type: 'ability', id: 'sd_sakusen', sakusen: 'mamori' }, 's2');
+    assert.equal(activePlan(b)?.kind, 'mamori');
+    cmdOf(b, me, { type: 'ability', id: 'nb_dasu' }, 's1');
+    assert.ok(me.oni);
+    cmdOf(b, gs, { type: 'ability', id: 'sd_sakusen', sakusen: 'seme' }, 's2');
+    assert.equal(activePlan(b)?.kind, 'seme', '作戦を かえても');
+    assert.ok(me.oni && oniPct(me) >= ONI_STEP, 'おにの手は そのまま');
+    let covered = 0;
+    for (let k = 0; k < 6; k++) {
+      gs.hp = Math.floor(gs.maxHp * 0.2);
+      me.hp = me.maxHp;
+      const ev = enemyDo(b, b.enemies[0], { type: 'attack', target: gs.id });
+      if (ev.r83bCover) covered++;
+    }
+    assert.ok(covered >= 3, `かばう ${covered}/6`);
+    assert.equal(activePlan(b)?.kind, 'seme', 'かばっても 作戦は のこる');
+    for (let i = 0; i < 6; i++) { assert.ok(decideAlly(b, me)?.type); assert.ok(decideAlly(b, gs)?.type); }
+  }
+  // 2) 守りの作戦 ＋ 先読みの策（大技）＋ 体をはって守る でも、受ける ダメージは CUT_FLOOR より 下がらない
+  {
+    const { b, me, gs } = run(62);
+    cmdOf(b, gs, { type: 'ability', id: 'sd_sakusen', sakusen: 'mamori' }, 's2');
+    cmdOf(b, me, { type: 'ability', id: 'elem_teacher_sig' }, 's1');
+    assert.ok(me.teShield);
+    gs.r83aSaki = true;
+    const e = b.enemies[0];
+    const hit = (big) => {
+      const ev = { lines: [], upd: [], results: [], big };
+      const hp = me.hp = me.maxHp;
+      b.damage(e, me, 1000, ev, {});
+      return hp - me.hp;
+    };
+    const plain = hit(false);
+    assert.ok(plain >= 1000 * CUT_FLOOR.normal - 1 && plain < 1000 * 0.8, `守り＋体をはる ${plain}`);
+    assert.equal(hit(true), Math.round(1000 * CUT_FLOOR.normal), '先読みの策も 合わせて 下限');
+    delete me.teShield;
+    me.cover = null;
+    assert.ok(hit(false) > plain, '体をはって守る が ない 時は もっと 受ける');
+  }
+});

@@ -237,6 +237,11 @@ Object.assign(TRIAL_WORDS, {
   nube: 'おにの手は、生徒を守る時だけ使うのだ。',
   jigoku_sensei: 'おそろしい力も、やさしい心で使えば、みんなを守る力だ。',
 });
+// 第83回 A班（超級職・伝説。jobs-r83a.js）
+Object.assign(TRIAL_WORDS, {
+  taikobo: 'なまけてよい。だが、仲間を見る目だけは、休めるな。',
+  hoshin_gunshi: '軍師の強さは、ちえで仲間を守れることだ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

@@ -21,6 +21,8 @@
 //   r83bMagicMult（calcMagic）・r83bDamage（damage の はじめ）・r83bPub（pub）
 // ai.js から よぶ: r83bPlan（オートの 動き）
 import { JOBS } from './data/jobs.js';
+// 受ける ダメージを へらしすぎない 下限（軍師の 系統と おなじ 数。第83回 A班）
+import { CUT_FLOOR } from './battle-r83a.js';
 
 export const ONI_STEP = 0.15;
 export const ONI_DRAIN = 0.06;
@@ -187,9 +189,17 @@ export function r83bDamage(b, c, t, dmg, info, ev) {
       return null;
     }
   }
-  // 体をはって守る の 間は 先生の 受ける ダメージが へる
-  if (t.teShield) return Math.max(1, Math.round(dmg * (t.teShield.take ?? 0.6)));
+  // 体をはって守る の 計算の ため、へらす 前の ダメージを おぼえる（r83bShieldCut）
+  if (t.teShield) info.r83bRaw = dmg;
   return dmg;
+}
+
+// 体をはって守る の 間は 先生の 受ける ダメージが take 倍（damage の 中で、軍師の 作戦〈守り〉・先読みの策・守りの旗の あと）。
+// いっしょに かかっても、へらす 前の ダメージの CUT_FLOOR（ふつう 0.45倍・身を 守って いる 人 0.65倍。battle-r83a.js と おなじ）より 下げない
+export function r83bShieldCut(t, dmg, info = {}) {
+  if (!t?.teShield || !(dmg > 0) || !(info.r83bRaw > 0)) return dmg;
+  const floor = Math.round(info.r83bRaw * (t.defending ? CUT_FLOOR.defending : CUT_FLOOR.normal));
+  return Math.max(1, Math.min(dmg, Math.max(Math.round(dmg * (t.teShield.take ?? 0.6)), floor)));
 }
 
 // クライアントに 見せる（pub）: oni … おにの手の 今の ＋％（0 は ふういん）、oniAwake … かくせいの のこり、teShield … 体をはって守る

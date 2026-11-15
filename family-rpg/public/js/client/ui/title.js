@@ -680,6 +680,7 @@ export function showCreate(game) {
       kishou: '明日の天気を当てる',
       hanyo_boy: 'つめとようかいの血',
       samurai_kid: '天下一のサムライになる',
+      fishing_doshi: 'のんびりつりが大すき',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;
