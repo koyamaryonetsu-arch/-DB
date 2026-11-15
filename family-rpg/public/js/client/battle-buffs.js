@@ -14,6 +14,8 @@ import { r82bMarks } from './battle-r82b.js';
 import { r83bMarks } from './battle-r83b.js';
 // 第83回 A班: 作戦・先読み・守りの旗・強化ふうじの 札（battle-r83a.js）
 import { r83aMarks, paintPlanMarks } from './battle-r83a.js';
+// 第84回 B班: 水と お湯の すがた・心の水・よけ・かまえ・いかりの 札（battle-r84b.js）
+import { r84bMarks, paintFormMarks } from './battle-r84b.js';
 // 第84回 A班: のこりの れい丸・仲間のために・立ち上がった あとの 力の 札（battle-r84a.js）
 import { r84aMarks } from './battle-r84a.js';
 
@@ -49,6 +51,7 @@ export function unitMarks(a) {
   out.push(...r82bMarks(a));
   out.push(...r83bMarks(a));
   out.push(...r83aMarks(a));
+  out.push(...r84bMarks(a));
   out.push(...r84aMarks(a));
   return out;
 }
@@ -67,6 +70,8 @@ export function fillStatusRow(box, a) {
   for (const sp of box.querySelectorAll('.bm.tm')) sp.style.setProperty('--tm', unitMarks(a).find((m) => m.cls === 'tm')?.color || '');
   // 第83回 A班: 作戦の 札は 作戦の 色（battle-r83a.js）
   paintPlanMarks(box, a);
+  // 第84回 B班: すがたの 札は すがたの 色（battle-r84b.js）
+  paintFormMarks(box, a);
 }
 
 // 敵の 足もとの 札（x … キャンバス〈BW×BH の 大きさで かく〉、m … computeLayout の 1体、bottom … かいて よい 下の はし）

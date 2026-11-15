@@ -682,3 +682,31 @@ test('第84回 A: 封神演義（作戦）・ぬ〜べ〜（鬼の手・自動�
   assert.ok(reiLeft(me) >= 0 && reiLeft(me) <= 4);
   assert.ok(!('r84aRei' in me) || Number.isFinite(me.r84aRei));
 });
+
+test('第84回 A: らんま1/2（水と お湯の すがた・飛竜しょう天は）と 同じ パーティーでも、れい丸・立ち上がりと おたがいを こわさない', () => {
+  const { b, me } = setup('makai_prince', { mates: ['ranma', 'hoshin_gunshi'], boss: true });
+  const ranma = b.allies[1];
+  // 乱馬の すがたは 乱馬だけ（れい丸の 人には すがたが ない）・れい丸は 乱馬に ない
+  assert.equal(pub(ranma).r84bForm, 'oyu');
+  assert.ok(!pub(me).r84bForm);
+  assert.equal(pub(ranma).r84aRei, undefined);
+  readyUp(b, ranma);
+  assert.equal(b.command(ranma.id, { type: 'ability', id: 'ms_mizu', form: 'mizu' }, 's2').ok, true);
+  runUntilAct(b, ranma.id);
+  assert.equal(pub(ranma).r84bForm, 'mizu');
+  // れい丸（超・れい丸 6発）は ふつうに うてる
+  const act = use(b, me, { type: 'ability', id: 'makai_prince_sig' });
+  assert.equal(act.fx.rei, 6);
+  assert.equal(reiLeft(me), 0);
+  // 乱馬は 立ち上がらない・魔界の王の子は 立ち上がる
+  b.damage(b.enemies[0], ranma, 999999, ev0(), {});
+  assert.equal(ranma.alive, false);
+  b.damage(b.enemies[0], me, 999999, ev0(), {});
+  assert.ok(me.alive && me.r84aRise?.left === 3);
+  // みんな オートで しばらく 戦っても こわれない
+  for (const a of b.allies) a.auto = true;
+  for (const e of b.enemies) e.actions = [{ w: 1, id: 'attack' }];
+  for (let i = 0; i < 1500 && !b.over; i++) b.tick(50);
+  assert.ok(reiLeft(me) >= 0 && reiLeft(me) <= 6);
+  assert.ok(!('r84aRei' in me) || Number.isFinite(me.r84aRei));
+});

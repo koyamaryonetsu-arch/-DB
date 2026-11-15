@@ -60,6 +60,9 @@ import { r83bPresent } from './battle-r83b.js';
 // 第83回 A班: 封神演義の 系統の 技（render/battlefx-r83a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・作戦を立てる メニュー（battle-r83a.js）
 import { R83A_SFX, R83A_HIT } from './render/battlefx-r83a.js';
 import { sakusenMenu } from './battle-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の 技（render/battlefx-r84b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・水をかぶる／お湯をかぶる の メニュー（battle-r84b.js）
+import { R84B_SFX, R84B_HIT } from './render/battlefx-r84b.js';
+import { formMenu, r84bPresent } from './battle-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の 技（render/battlefx-r84a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・れい丸の しるしと えらべない わけ（battle-r84a.js）
 import { R84A_SFX, R84A_HIT, setReiShots } from './render/battlefx-r84a.js';
 import { reiTag, reiBlock } from './battle-r84a.js';
@@ -165,6 +168,7 @@ Object.assign(HIT_DELAY, R82A_HIT);
 Object.assign(HIT_DELAY, R82B_HIT);
 Object.assign(HIT_DELAY, R83B_HIT);
 Object.assign(HIT_DELAY, R83A_HIT);
+Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, R84A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
@@ -289,6 +293,7 @@ Object.assign(ANIM_SFX, R82B_SFX);
 // 第83回 B班: ぬ〜べ〜の 系統の 技（render/battlefx-r83b.js）
 Object.assign(ANIM_SFX, R83B_SFX);
 Object.assign(ANIM_SFX, R83A_SFX);
+Object.assign(ANIM_SFX, R84B_SFX);
 Object.assign(ANIM_SFX, R84A_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
@@ -927,6 +932,8 @@ export class BattleScene {
       if (ab.effect.type === 'tamagae') return tamaMenu(this, a, it.value, back);
       // 第83回 A班: 作戦を立てるは 作戦を えらぶ（battle-r83a.js）
       if (ab.effect.type === 'r83aSakusen') return sakusenMenu(this, a, it.value, back);
+      // 第84回 B班: 水をかぶる／お湯をかぶる は すがたを えらぶ（battle-r84b.js）
+      if (ab.effect.type === 'r84bForm') return formMenu(this, a, it.value, back);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
@@ -1481,6 +1488,8 @@ export class BattleScene {
     r82aPresent(this, ev, hitDelay);
     // 第83回 B班: おにの手を 出した・ふういんに もどった・先生が かばった（battle-r83b.js）
     r83bPresent(this, ev);
+    // 第84回 B班: すがたが かわった・飛竜しょう天はの かまえと やり返し（battle-r84b.js）
+    r84bPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
     // 合体技の よやくで まっていた 人が ダメージ: ゲージが 半分から やり直し（battle-dual.js）
     if (ev.dualBreak) onDualBreak(this, ev);

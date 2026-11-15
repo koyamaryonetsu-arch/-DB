@@ -51,6 +51,8 @@ import { HIRA_R82B_ABILITIES, HIRAMEKI_R82B } from './hirameki-r82b.js';
 import { HIRA_R83B_ABILITIES, HIRAMEKI_R83B } from './hirameki-r83b.js';
 // 第83回 A班: 封神演義の 系統の ひらめき技（hirameki-r83a.js）
 import { HIRA_R83A_ABILITIES, HIRAMEKI_R83A } from './hirameki-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の ひらめき技（hirameki-r84b.js）
+import { HIRA_R84B_ABILITIES, HIRAMEKI_R84B } from './hirameki-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の ひらめき技（hirameki-r84a.js）
 import { HIRA_R84A_ABILITIES, HIRAMEKI_R84A } from './hirameki-r84a.js';
 
@@ -335,6 +337,9 @@ Object.assign(HIRAMEKI, HIRAMEKI_R83B);
 // 第83回 A班の ひらめき技（hirameki-r83a.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R83A_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R83A);
+// 第84回 B班の ひらめき技（hirameki-r84b.js。上の 2つの 表に まぜる）
+Object.assign(HIRA_ABILITIES, HIRA_R84B_ABILITIES);
+Object.assign(HIRAMEKI, HIRAMEKI_R84B);
 // 第84回 A班の ひらめき技（hirameki-r84a.js。上の 2つの 表に まぜる）
 Object.assign(HIRA_ABILITIES, HIRA_R84A_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R84A);

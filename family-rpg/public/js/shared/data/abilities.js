@@ -103,6 +103,8 @@ import { R82B_ABILITIES } from './abilities-r82b.js';
 import { R83B_ABILITIES } from './abilities-r83b.js';
 // 第83回 A班: 封神演義の 系統の 技（abilities-r83a.js）
 import { R83A_ABILITIES } from './abilities-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の 技（abilities-r84b.js）
+import { R84B_ABILITIES } from './abilities-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の 技（abilities-r84a.js）
 import { R84A_ABILITIES } from './abilities-r84a.js';
 
@@ -760,6 +762,8 @@ Object.assign(ABILITIES, R82B_ABILITIES);
 Object.assign(ABILITIES, R83B_ABILITIES);
 // 第83回 A班: 封神演義の 系統（abilities-r83a.js）
 Object.assign(ABILITIES, R83A_ABILITIES);
+// 第84回 B班: らんま1/2 の 系統（abilities-r84b.js）
+Object.assign(ABILITIES, R84B_ABILITIES);
 // 第84回 A班: 幽☆遊☆白書の 系統（abilities-r84a.js）
 Object.assign(ABILITIES, R84A_ABILITIES);
 

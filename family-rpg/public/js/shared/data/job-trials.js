@@ -242,6 +242,11 @@ Object.assign(TRIAL_WORDS, {
   taikobo: 'なまけてよい。だが、仲間を見る目だけは、休めるな。',
   hoshin_gunshi: '軍師の強さは、ちえで仲間を守れることだ。',
 });
+// 第84回 B班（超級職・伝説。jobs-r84b.js）
+Object.assign(TRIAL_WORDS, {
+  ranma: '水でもお湯でも、心はひとつ。どんなすがたでも、まっすぐ戦え。',
+  hiryu_master: 'あつくなった相手ほど、すきが大きい。心は、しずかな水に。',
+});
 // 第84回 A班（超級職・伝説。jobs-r84a.js）
 Object.assign(TRIAL_WORDS, {
   yusuke: 'れい丸は数がかぎられる。うつ時を見きわめよ。',

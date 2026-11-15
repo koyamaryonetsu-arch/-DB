@@ -31,6 +31,8 @@ import { r82bPlan } from './battle-r82b.js';
 import { r83bPlan, r83bSeal } from './battle-r83b.js';
 // 第83回 A班: 封神演義の 系統の 作戦・先読みの策・強化ふうじ・太極図・軍師の号令・ほう神計画（battle-r83a.js）
 import { r83aPlan } from './battle-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の すがた・飛竜しょう天は・かけひき・心の水・敵前だい逃亡・手数の 技（battle-r84b.js）
+import { r84bPlan } from './battle-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の れい丸（ざこに 使わない・ぜんぶ うつ 技は まんたんの 時・0 なら ためる）・仲間のために（battle-r84a.js）
 import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js';
 
@@ -214,6 +216,9 @@ export function decideAlly(b, c) {
   // 4.9) 第83回 A班: 前ぶれに 先読みの策・作戦を 立てる・敵の 強化に 太極図や 強化ふうじ・ボスで ほう神計画と 号令（battle-r83a.js）
   const r83 = r83aPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r83) return r83;
+  // 4.95) 第84回 B班: はじめに すがたを えらぶ・前ぶれや 敵の 強化に 飛竜しょう天は・ボスに かけひき・敵が 多ければ 手数の 技（battle-r84b.js）
+  const r84b = r84bPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r84b) return r84b;
   // 4.95) 第84回 A班: れい丸が 0 なら ためる・たおれた 仲間が いれば 仲間のために（battle-r84a.js）
   const r84 = r84aPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r84) return r84;

@@ -87,6 +87,8 @@ import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDam
 import { r83bTurnStart, r83bCover, r83bEffect, r83bPhysMult, r83bMagicMult, r83bDamage, r83bShieldCut, r83bPub } from './battle-r83b.js';
 // 第83回 A班: 封神演義の 系統（作戦・強化ふうじ・太極図・先読みの策・軍師の号令・ほう神計画。battle-r83a.js）
 import { r83aEffect, r83aTurnStart, r83aDamage, r83aBuffBlock, r83aSpeed, r83aPub } from './battle-r83a.js';
+// 第84回 B班: らんま1/2 の 系統（水と お湯の すがた・飛竜しょう天は・かけひき・敵前だい逃亡・心の水。battle-r84b.js）
+import { r84bTurnStart, r84bPhys, r84bEffect, r84bPhysMult, r84bEva, r84bSpeed, r84bDamage, r84bResolve, r84bPub, r84bTaunt } from './battle-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統（れい丸の 数・1回だけ 立ち上がる・仲間のために。battle-r84a.js）
 import { r84aPhys, r84aPhysMult, r84aEffect, r84aTurnStart, r84aRise, r84aPub, reiOk, reiReason } from './battle-r84a.js';
 
@@ -183,6 +185,8 @@ export function speedMult(c) {
   m *= c?.tmul ?? 1;
   // 第83回 A班: 速攻の 作戦（battle-r83a.js）
   m *= r83aSpeed(c);
+  // 第84回 B班: 水の すがた（battle-r84b.js）
+  m *= r84bSpeed(c);
   return m;
 }
 
@@ -541,6 +545,8 @@ export class Battle {
       r83bTurnStart(this, c, ev);
       // 第83回 A班: 身を 守るのも 1回の 行動（先読みの策・ほう神計画の のこり。battle-r83a.js）
       r83aTurnStart(this, c, ev);
+      // 第84回 B班: 身を 守るのも 1回の 行動（心の水・敵前だい逃亡・かまえ。battle-r84b.js）
+      r84bTurnStart(this, c, ev);
       // 第84回 A班: 仲間のために・立ち上がった あとの 力の のこり（battle-r84a.js）
       r84aTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
@@ -655,6 +661,8 @@ export class Battle {
     this.actStart(c, ev);
     // 第82回 A: ばくりゅうはの かまえが とける・ようかい化の はじまりと おわり（battle-r82a.js）
     r82aTurnStart(this, c, ev);
+    // 第84回 B班: 飛竜しょう天はの かまえが とける・心の水・敵前だい逃亡・いかりの のこり・天気で すがたが かわる（battle-r84b.js）
+    r84bTurnStart(this, c, ev);
     // 反撃の構えは つぎの 自分の 番で とける
     if (c.stance) {
       c.stance = null;
@@ -699,6 +707,8 @@ export class Battle {
       if (!confused) cmd = youkaiCmd(this, c, cmd, ev) || cmd;
       if (!confused && cmd.type === 'ai') {
         cmd = c.side === 'enemy' ? decideMonster(this, c) : decideAlly(this, c);
+        // 第84回 B班: かけひきで おこった 敵は、おこらせた 人を ねらいやすい（前ぶれの 大技は かえない。battle-r84b.js）
+        if (c.side === 'enemy') cmd = r84bTaunt(this, c, cmd);
       }
       // 遊び人は ときどき かってに 遊びだす（にげる・合体技の ときは まじめ）
       const goof = !confused && c.side === 'ally' && cmd.type !== 'flee' && cmd.type !== 'dual' ? (JOBS[c.job]?.passive?.goof || 0) : 0;
@@ -711,6 +721,8 @@ export class Battle {
       this.resolveCounters(ev);
       // 第82回 A: ばくりゅうはで 受けとめた 力を 風で 返す（battle-r82a.js）
       r82aResolve(this, ev);
+      // 第84回 B班: 飛竜しょう天はの かまえに 当たった 人が 竜巻で やり返す（battle-r84b.js）
+      r84bResolve(this, ev);
       this.tickStatus(c, 'blind', ev);
       this.tickStatus(c, 'silence', ev);
     }
@@ -1036,6 +1048,8 @@ export class Battle {
         if (eff.monPal) { r66aMonPal(this, c, a, cmd, ev, powMult, targets); break; }
         // 第82回 B班: YAIBA の 系統の 剣の 技（今の 玉の 属性・きょだい化・四つ玉斬り。battle-r82b.js）
         if (eff.yb) { r82bPhys(this, c, a, cmd, ev, powMult, targets); break; }
+        // 第84回 B班: 乱れ打ち・手数の 技・自信の気だん（すがたで かわる。battle-r84b.js）
+        if (eff.r84b) { r84bPhys(this, c, a, cmd, ev, powMult, targets); break; }
         // 第84回 A班: れい丸の 技（れい丸を 使う・のこりを ぜんぶ うつ。battle-r84a.js）
         if (eff.rei) { r84aPhys(this, c, a, cmd, ev, powMult, targets); break; }
         if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
@@ -1552,6 +1566,8 @@ export class Battle {
       case 'oniHand': case 'oniAwake': case 'oniSeal': case 'teShield': case 'teKoe': r83bEffect(this, c, a, eff, ev, targets); break;
       // 作戦・強化ふうじ・太極図・守りの旗・軍師の号令・先読みの策・ほう神・ほう神計画・宝箱（第83回 A。battle-r83a.js）
       case 'r83aSakusen': case 'r83aSeal': case 'r83aTaikyoku': case 'r83aHata': case 'r83aGorei': case 'r83aSaki': case 'r83aHoshin': case 'r83aKeikaku': case 'r83aTreasure': r83aEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
+      // 水をかぶる／お湯をかぶる・飛竜しょう天は・かけひき・敵前だい逃亡・心の水（第84回 B。battle-r84b.js）
+      case 'r84bForm': case 'r84bHiryu': case 'r84bKakehiki': case 'r84bToubou': case 'r84bKokoro': r84bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // れい力をためる・とう気をねる・仲間のために（第84回 A。battle-r84a.js）
       case 'r84aCharge': case 'r84aNakama': r84aEffect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
@@ -1634,7 +1650,8 @@ export class Battle {
     // 第82回 B班: 今の 玉の 属性に なる 技（オートの みつもり。battle-r82b.js）
     element = r82bElement(c, eff, element);
     const acc = (eff.acc ?? 1) * (c.status.blind ? 0.4 : 1);
-    const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1);
+    // 第84回 B班: 水の すがた・敵前だい逃亡（前ぶれの 大技は よけられない。battle-r84b.js）
+    const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1) + r84bEva(this, c, t);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };
     let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0) + (c.crit || 0) + kenkiCrit(c);
@@ -1660,6 +1677,8 @@ export class Battle {
     dmg *= r82aPhysMult(c, t, eff);
     // おにの手を 出して いる 間・生徒たちの声（第83回 B。battle-r83b.js）
     dmg *= r83bPhysMult(c);
+    // お湯の すがた・飛竜こうりんだん（敵の 強化の 数で 強い。第84回 B。battle-r84b.js）
+    dmg *= r84bPhysMult(c, t, eff);
     // 仲間のために・立ち上がった あとの 力・のこりを ぜんぶ うつ 技の みつもり（第84回 A。battle-r84a.js）
     dmg *= r84aPhysMult(this, c, t, eff, estimate);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
@@ -1756,6 +1775,8 @@ export class Battle {
     dmg = r83aDamage(this, c, t, dmg, info, ev);
     // 第83回 B班: 体をはって守る（作戦・先読みと 合わせても 下限より 下げない。battle-r83b.js）
     dmg = r83bShieldCut(t, dmg, info);
+    // 第84回 B班: お湯の 守り・おこった 敵・属性で すがたが かわる・飛竜しょう天はの かまえ（battle-r84b.js）
+    dmg = r84bDamage(this, c, t, dmg, info, ev);
     // 第82回 A: おすわり！で 半分・ばくりゅうはで 受けとめる（battle-r82a.js）
     dmg = r82aDamage(this, c, t, dmg, info, ev);
     // 峰打ち: たおさずに HP を 1 のこす
@@ -2580,6 +2601,8 @@ export function pub(c) {
     ...r83bPub(c),
     // 作戦・強化ふうじ・先読みの策・守りの旗（第83回 A。battle-r83a.js）
     ...r83aPub(c),
+    // 水と お湯の すがた・心の水・敵前だい逃亡・いかり（第84回 B。battle-r84b.js）
+    ...r84bPub(c),
     // れい丸の 数・仲間のために・立ち上がり（第84回 A。battle-r84a.js）
     ...r84aPub(c),
   };

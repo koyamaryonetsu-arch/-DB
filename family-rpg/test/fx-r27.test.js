@@ -36,6 +36,8 @@ import { playR82bFx } from '../public/js/client/render/battlefx-r82b.js';
 import { playR83bFx } from '../public/js/client/render/battlefx-r83b.js';
 // 第83回 A班: 封神演義の 系統
 import { playR83aFx } from '../public/js/client/render/battlefx-r83a.js';
+// 第84回 B班: らんま1/2 の 系統
+import { playR84bFx } from '../public/js/client/render/battlefx-r84b.js';
 // 第84回 A班: 幽☆遊☆白書の 系統
 import { playR84aFx } from '../public/js/client/render/battlefx-r84a.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
@@ -119,6 +121,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playR82bFx(fake, anim, ONE, null, {})
     || playR83bFx(fake, anim, ONE, null, {})
     || playR83aFx(fake, anim, ONE, null, {})
+    || playR84bFx(fake, anim, ONE, null, {})
     || playR84aFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);

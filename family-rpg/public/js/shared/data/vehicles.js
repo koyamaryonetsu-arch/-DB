@@ -112,6 +112,8 @@ VEHICLES.twin_cat = { name: '二またの大ねこ', price: 5200, jobs: ['hanyo_
 VEHICLES.teacher_bike = { name: 'がたがたの先生の自転車', price: 1800, jobs: ['elem_teacher', 'nube', 'jigoku_sensei'], desc: '先生が毎朝のってくる、古い自転車。がたがたゆれるが、まだまだ走る。' };
 // 第83回 A班: 封神演義の 系統の 乗り物（空飛ぶ カバ。絵は client/render/vehicle-r83a.js）
 VEHICLES.sky_hippo = { name: '空飛ぶカバ', price: 4800, jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'], desc: 'ふわふわと空にうかぶ、白くてまるいカバ。のんびり屋だけど、たよりになる。' };
+// 第84回 B班: らんま1/2 の 系統の 乗り物（パンダ。絵は client/render/vehicle-r84b.js）
+VEHICLES.panda = { name: 'パンダ', price: 4600, jobs: ['musabetsu_student', 'ranma', 'hiryu_master'], desc: '白と黒の、大きなパンダ。のっしのっしと歩き、ときどき「がんばれ」のかんばんを出す。' };
 // 第84回 A班: 幽☆遊☆白書の 系統の 乗り物（青い れい界の 鳥。絵は client/render/vehicle-r84a.js）
 VEHICLES.rei_bird = { name: '青いれい界の鳥', price: 5000, jobs: ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'], desc: 'たまごから生まれた、青くて大きな鳥。「ぷう」と鳴いて、空を高くとぶ。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);

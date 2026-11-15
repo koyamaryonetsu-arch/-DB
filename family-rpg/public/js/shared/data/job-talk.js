@@ -117,6 +117,12 @@ Object.assign(JOB_SAY, {
   taikobo: '「スープー、行くぞ！」',
   hoshin_gunshi: '「その手は、もう読んでおる！」',
 });
+// 第84回 B班: らんま1/2 の 系統（jobs-r84b.js）
+Object.assign(JOB_SAY, {
+  musabetsu_student: '「無差別格闘流は、なんでもありだ！」',
+  ranma: '「水でもお湯でも、かかってこい！」',
+  hiryu_master: '「竜巻よ、空までまい上がれ！」',
+});
 // 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js）
 Object.assign(JOB_SAY, {
   furyo: '「けんかなら、負けねえぞ！」',
