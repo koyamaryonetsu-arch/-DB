@@ -41,6 +41,8 @@ import { R79_OUTFIT, R79_BODY } from './hero-r79.js';
 import { R82A_OUTFIT, R82A_BODY } from './hero-r82a.js';
 // 第82回 B班: YAIBA の 系統（hero-r82b.js）
 import { R82B_OUTFIT, R82B_BODY } from './hero-r82b.js';
+// 第83回 B班: ぬ〜べ〜の 系統（hero-r83b.js）
+import { R83B_OUTFIT, R83B_BODY } from './hero-r83b.js';
 // 第83回 A班: 封神演義の 系統（hero-r83a.js）
 import { R83A_OUTFIT, R83A_BODY } from './hero-r83a.js';
 // 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
@@ -242,6 +244,7 @@ Object.assign(JOB_OUTFIT, R66E2_OUTFIT);
 Object.assign(JOB_OUTFIT, R79_OUTFIT);
 Object.assign(JOB_OUTFIT, R82A_OUTFIT);
 Object.assign(JOB_OUTFIT, R82B_OUTFIT);
+Object.assign(JOB_OUTFIT, R83B_OUTFIT);
 Object.assign(JOB_OUTFIT, R83A_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
@@ -286,6 +289,7 @@ Object.assign(JOB_BODY, R66E2_BODY);
 Object.assign(JOB_BODY, R79_BODY);
 Object.assign(JOB_BODY, R82A_BODY);
 Object.assign(JOB_BODY, R82B_BODY);
+Object.assign(JOB_BODY, R83B_BODY);
 Object.assign(JOB_BODY, R83A_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
