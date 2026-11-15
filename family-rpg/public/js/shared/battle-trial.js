@@ -66,6 +66,8 @@ Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23
 Object.assign(PHANTOM_ADJ, { inuyasha: [1.28, 1.02, 1.18], bakuryuha: [0.76, 0.49, 0.62] });
 // 第82回 B班: ヤイバ・竜神けんのサムライ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0.52, 0.49] });
+// 第83回 B班: れい能力教師ぬ〜べ〜・おにの手のじごく先生（tools/sim-trial-tune.mjs 10 0.75 HI=4・SEED 500 と 900 の 平均）
+Object.assign(PHANTOM_ADJ, { nube: [1.87, 1.4, 1.78], jigoku_sensei: [0.85, 0.6, 0.76] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）

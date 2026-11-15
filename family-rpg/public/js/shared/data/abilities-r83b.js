@@ -100,7 +100,7 @@ export const R83B_ABILITIES = {
   js_kakusei: {
     name: 'おにの手・かくせい', kana: 'おにのてかくせい', kind: 'skill', job: 'jigoku_sensei', mp: 18, target: 'self', role: 'sup',
     effect: { type: 'oniAwake', turns: 3 },
-    desc: 'おにの手の力を、すべて目ざめさせる。3回の番の間、HPがへらずに、おにの手のいちばん強い力で戦える。', cast: '{a}のおにの手が、まっ赤にかがやいた！', anim: 'charge',
+    desc: 'おにの手の力を、すべて目ざめさせる。自分の番が3回来る間、HPがへらずに、おにの手のいちばん強い力で戦える。', cast: '{a}のおにの手が、まっ赤にかがやいた！', anim: 'charge',
   },
   js_tsuiteru: {
     name: '先生がついてる', kana: 'せんせいがついてる', kind: 'skill', job: 'jigoku_sensei', mp: 20, target: 'deadAlly', role: 'heal',

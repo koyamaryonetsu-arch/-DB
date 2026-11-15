@@ -28,7 +28,7 @@ import { r82aPlan } from './battle-r82a.js';
 // 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
 import { r82bPlan } from './battle-r82b.js';
 // 第83回 B班: ぬ〜べ〜の 系統の オート（おにの手を 出す・ふういんしなおす・かんのんきょう・おふだ。battle-r83b.js）
-import { r83bPlan } from './battle-r83b.js';
+import { r83bPlan, r83bSeal } from './battle-r83b.js';
 
 // さくせん
 export const TACTICS = {
@@ -167,6 +167,9 @@ export function decideAlly(b, c) {
     if (one) return { type: 'ability', id: one.id, target: dead[0].id };
   }
 
+  // 2.9) 第83回 B班: おにの手を 出して HP が 4わりを 切ったら、回復の 前に ふういんしなおす（battle-r83b.js）
+  const oniSeal = r83bSeal(b, c, mine);
+  if (oniSeal) return oniSeal;
   // 3) かいふく（地われ・のみこまれ の 人は 回復を 受けられない。battle-earth.js）
   const healCmd = chooseHeal(b, c, tac, allies.filter((x) => !x.status?.rift), mine);
   if (healCmd) return healCmd;
@@ -202,7 +205,7 @@ export function decideAlly(b, c) {
   const r82 = r82aPlan(b, c, foes, mine, allies);
   if (r82) return r82;
   // 4.9) 第83回 B班: ボスで おにの手を 出す・HP 4わりで ふういんしなおす・状態異常に かんのんきょう・ゆうれいに おふだ（battle-r83b.js）
-  const r83b = r83bPlan(b, c, foes, mine, allies);
+  const r83b = r83bPlan(b, c, foes, mine, allies, fightWeight(b).hard);
   if (r83b) return r83b;
 
   // 5) ボスの 大わざに そなえる

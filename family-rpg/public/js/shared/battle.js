@@ -531,6 +531,8 @@ export class Battle {
       const ev = { t: 'act', id: c.id, name: '防御', lines: [], upd: [], fx: { type: 'defend', actor: c.id } };
       const held = this.heldEffects(c);
       this.actStart(c, ev);
+      // 第83回 B班: 防御も 自分の 番（おにの手が 強く なり HP が へる・体をはって守る が おわる。battle-r83b.js）
+      r83bTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       this.actEnd(c, held, ev);
       ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));

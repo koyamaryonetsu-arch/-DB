@@ -35,7 +35,7 @@ export const JOBS_R83B = {
   jigoku_sensei: {
     id: 'jigoku_sensei', name: 'おにの手のじごく先生', kana: 'おにのてのじごくせんせい', short: 'じごく先生', tier: 3, req: ['nube'], reqSuper: 1, family: 'phys', color: '#6a1a2a',
     desc: 'おにの手の力を、生徒を守るためだけに使いこなす先生。ぬ〜べ〜と、ほかの超級職を1つきわめた者だけがなれる。弱った仲間を、ほとんどいつもかばう。おにの手は、もっと強くなる。',
-    mods: { hp: 1.75, mp: 1.25, str: 1.6, def: 1.55, agi: 1.05, mag: 1.2, heal: 1.2 },
+    mods: { hp: 1.75, mp: 1.25, str: 1.55, def: 1.6, agi: 1.05, mag: 1.2, heal: 1.2 },
     weapons: ['staff', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { hp: 1.5, str: 1, def: 0.5 },
     passive: { protect: 0.8, oniMax: 0.9 },

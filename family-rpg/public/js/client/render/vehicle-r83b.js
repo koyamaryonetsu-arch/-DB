@@ -65,9 +65,10 @@ function teacherBikeArt({ bikeArt, box, seg, rgba }) {
         q.set(16, 36, RUST);
         return;
       }
-      // うしろから: にだい（人の むこう）
-      if (layer === 'back') box(q, 12, 30, 12, 3, '#8a8e9a');
-      else q.set(19, 38, RUST);
+      // うしろから: にだい（うしろの 車輪の 上。見る 人の がわ）
+      if (layer !== 'front') return;
+      box(q, 13, 32, 10, 2, '#8a8e9a');
+      q.set(19, 38, RUST);
     },
     // 車輪の よこの ゆれの 線（すきとおる）
     fx(p, view, f) {

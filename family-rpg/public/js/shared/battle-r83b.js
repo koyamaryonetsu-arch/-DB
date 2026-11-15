@@ -200,24 +200,34 @@ export function r83bPub(c) {
 // ───────────── オートの 動き（ai.js の decideAlly） ─────────────
 // mine … 使える 技（{ id, a }）。へんじ: コマンド か null
 // （運〈rng〉を 使うのは この 系統の 技を もつ 時だけ。ほかの 職業の オートの ながれは かえない）
-export function r83bPlan(b, c, foes, mine, allies) {
+// おにの手を 出して いて HP が 4わりを 切った: ふういんしなおす（かくせいの 間は へらないので そのまま）。
+// ai.js の 回復より 前に よぶ（回復する 前に、HP が へりつづけるのを 止める）
+export function r83bSeal(b, c, mine) {
+  if (c?.side !== 'ally' || !c.oni || c.oni.awake > 0 || !(c.maxHp > 0) || c.hp / c.maxHp >= 0.4) return null;
+  const hand = mine.find(({ a }) => a.effect?.type === 'oniHand');
+  return hand ? { type: 'ability', id: hand.id } : null;
+}
+
+// hard … 強い 敵との 戦い（ai.js の fightWeight）。ボスか 強い 敵の 時だけ おにの手を 出す
+export function r83bPlan(b, c, foes, mine, allies, hard = false) {
   if (!foes.length || c?.side !== 'ally') return null;
   const has = (type) => mine.filter(({ a }) => partsOf(a).some((p) => p.type === type));
   const hp = c.maxHp > 0 ? c.hp / c.maxHp : 1;
   const hand = has('oniHand');
-  // 1) おにの手を 出して いて HP が 4わりを 切った: ふういんしなおす（かくせいの 間は へらないので そのまま）
-  if (c.oni && !(c.oni.awake > 0) && hp < 0.4 && hand.length) return { type: 'ability', id: hand[0].id };
+  // 1) HP が 4わりを 切った: ふういんしなおす
+  const sealCmd = r83bSeal(b, c, mine);
+  if (sealCmd) return sealCmd;
   // 2) 仲間が 状態異常: かんのんきょう（全員を 治す）
   const kannon = mine.filter(({ a }) => a.target === 'allies' && a.effect?.type === 'cure');
   if (kannon.length) {
     const sick = allies.filter((x) => BAD.some((s) => x.status?.[s]));
     if (sick.length && b.rng.chance(sick.length >= 2 ? 0.9 : 0.6)) return { type: 'ability', id: kannon[0].id };
   }
-  // 3) ボスでは おにの手を 出す（HP に よゆうが ある 時）
-  if (hand.length && !c.oni && b.boss && hp >= 0.6 && b.rng.chance(0.7)) return { type: 'ability', id: hand[0].id };
+  // 3) ボス（と 強い 敵）では おにの手を 出す（HP に よゆうが ある 時）
+  if (hand.length && !c.oni && (b.boss || hard) && hp >= 0.6 && b.rng.chance(0.7)) return { type: 'ability', id: hand[0].id };
   // 4) じごく先生: 出して いて HP が へってきたら かくせい（HP が へらない）
   const awake = has('oniAwake');
-  if (awake.length && c.oni && !(c.oni.awake > 0) && b.boss && hp < 0.7 && b.rng.chance(0.5)) return { type: 'ability', id: awake[0].id };
+  if (awake.length && c.oni && !(c.oni.awake > 0) && (b.boss || hard) && hp < 0.7 && b.rng.chance(0.5)) return { type: 'ability', id: awake[0].id };
   // 5) おにの手が いちばん 強い 時: 最大出力（使うと ふういんに もどる）
   const maxOut = has('oniSeal');
   if (maxOut.length && c.oni && (c.oni.awake === 1 || (!(c.oni.awake > 0) && oniPct(c) >= oniMaxOf(c) - 1e-9 && hp < 0.55)) && b.rng.chance(0.7)) {
