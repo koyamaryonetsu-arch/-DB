@@ -19,6 +19,8 @@ import { deduceElement } from './data/abilities-jobs6.js';
 import { MONSTERS } from './data/monsters.js';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
 import { dualFor } from './ability-label.js';
+// 第84回 A班: れい丸の 技は 合体技の 強さに 使う 数の √ で わって 数える（合体技は れい丸を 使わない ため。battle-r84a.js）
+import { reiNeed, reiDualMult } from './battle-r84a.js';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 // 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）
@@ -327,6 +329,8 @@ export function memberPower(b, m, list, tg, ignoreDef = 0) {
   const set = new Set(list);
   for (const id of m.abilities || []) {
     if (!set.has(id) || !weaponOk(ABILITIES[id], m.weaponCat)) continue;
+    // 第84回 A班: れい丸の 技は 使う 数の √ で わって 数える（合体技は れい丸を 使わない。battle-r84a.js）
+    if (reiNeed(ABILITIES[id])) { best = Math.max(best, skillEstimate(b, m, id, tg, ignoreDef) * reiDualMult(m, ABILITIES[id])); continue; }
     best = Math.max(best, skillEstimate(b, m, id, tg, ignoreDef));
   }
   return best;

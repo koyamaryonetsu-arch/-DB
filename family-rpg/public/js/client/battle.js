@@ -63,6 +63,9 @@ import { sakusenMenu } from './battle-r83a.js';
 // 第84回 B班: らんま1/2 の 系統の 技（render/battlefx-r84b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・水をかぶる／お湯をかぶる の メニュー（battle-r84b.js）
 import { R84B_SFX, R84B_HIT } from './render/battlefx-r84b.js';
 import { formMenu, r84bPresent } from './battle-r84b.js';
+// 第84回 A班: 幽☆遊☆白書の 系統の 技（render/battlefx-r84a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・れい丸の しるしと えらべない わけ（battle-r84a.js）
+import { R84A_SFX, R84A_HIT, setReiShots } from './render/battlefx-r84a.js';
+import { reiTag, reiBlock } from './battle-r84a.js';
 // 第85回 A班: スレイヤーズの 系統の 技（render/battlefx-r85a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・大砲の 呪文の うすい 行・となえた 札（battle-r85a.js）
 import { R85A_SFX, R85A_HIT } from './render/battlefx-r85a.js';
 import { r85aRow, r85aPresent } from './battle-r85a.js';
@@ -169,6 +172,7 @@ Object.assign(HIT_DELAY, R82B_HIT);
 Object.assign(HIT_DELAY, R83B_HIT);
 Object.assign(HIT_DELAY, R83A_HIT);
 Object.assign(HIT_DELAY, R84B_HIT);
+Object.assign(HIT_DELAY, R84A_HIT);
 Object.assign(HIT_DELAY, R85A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
@@ -294,6 +298,7 @@ Object.assign(ANIM_SFX, R82B_SFX);
 Object.assign(ANIM_SFX, R83B_SFX);
 Object.assign(ANIM_SFX, R83A_SFX);
 Object.assign(ANIM_SFX, R84B_SFX);
+Object.assign(ANIM_SFX, R84A_SFX);
 Object.assign(ANIM_SFX, R85A_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
@@ -868,6 +873,8 @@ export class BattleScene {
       const pen = penaltyFor(pc, id).penalized;
       const noMp = !isMk && cost > a.mp;
       const sil = (silenced || this.noSpells) && spellSealed(ab);
+      // 第84回 A班: れい丸が 足りない 技は うすく（battle-r84a.js）
+      const noRei = !!reiBlock(a, ab);
       const el = ab.effect?.element;
       // 相手の しるし（グループ・全体・全員）
       const tt = targetTag(ab);
@@ -876,13 +883,13 @@ export class BattleScene {
       // 第85回 A班: 大砲の 呪文は となえて いないと うすく・「となえてから」（battle-r85a.js）
       const r85 = r85aRow(ab, a);
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${slv >= 2 ? `<span class="tag slv">Lv${slv}</span>` : ''}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}${r85.tag}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${slv >= 2 ? `<span class="tag slv">Lv${slv}</span>` : ''}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}${reiTag(ab)}${r85.tag}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
         cls: `k-${abilityRole(ab)}${fav ? ' fav' : ''}`,
         fav: !!fav,
-        disabled: noMp || sil || r85.off,
+        disabled: noMp || sil || noRei || r85.off,
       };
     };
     const tabs = skillTabs(ids, { abs: (id) => abilityFor(id, a), job: pc.job, favs: this.favsOf(a) });
@@ -899,7 +906,10 @@ export class BattleScene {
       // 効果・威力の 目安・属性・相手・MP（敵が 1体・自分に かける・全体の 技でも 使う 前に 見える。ui/skillinfo.js）
       // 第61回: スマホの たてむきは みじかく（3行まで。技の 一覧を 広く）
       const compact = this.compactInfo();
-      const txt = battleSkillText(it.value, pc, { touch: this.touchUi(), lv: a.slv?.[it.value] || 1, compact });
+      const txt0 = battleSkillText(it.value, pc, { touch: this.touchUi(), lv: a.slv?.[it.value] || 1, compact });
+      // 第84回 A班: れい丸が 足りない わけを 先に（battle-r84a.js）
+      const why = reiBlock(a, abilityFor(it.value, a));
+      const txt = why ? `【${why}】${txt0}` : txt0;
       this.info(compact ? txt : favHint(txt, this.touchUi()));
       const on = this.favsOf(a).includes(it.value);
       this.infoEl.classList.add('hasfav');
@@ -1389,6 +1399,8 @@ export class BattleScene {
       const col = axT.kind === 'ki' ? '#ffd23a' : axDef(ev.axAnim)?.charge?.color || '#ffd66b';
       for (let t = 0; t < axT.chargeAt; t += 300) this.fx.at(t, () => { if (!this.destroyed) this.glowStatus(actor.id, col); });
     }
+    // 第84回 A班: うった れい丸の 数（れい丸の えんしゅつの 玉の 数。render/battlefx-r84a.js）
+    setReiShots(fx.rei);
     let hitDelay = 0;
     // ムチ（グループ）・ブーメラン（全体）: 敵ごとに あたる じかんが ちがう（id → ms）
     let perHit = null;

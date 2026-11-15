@@ -35,6 +35,7 @@ import { R85A_ANIMS, R85A_SIGS, R85A_HIT, R85A_SFX, PARTY_ANIMS_R85A, playR85aFx
 import { r85aMarks, r85aRow, chantReady } from '../public/js/client/battle-r85a.js';
 import { r84bMarks } from '../public/js/client/battle-r84b.js';
 import { formOf } from '../public/js/shared/battle-r84b.js';
+import { reiLeft } from '../public/js/shared/battle-r84a.js';
 import { SFX_R26 } from '../public/js/client/sfx-r26.js';
 import { SFX_R33 } from '../public/js/client/sfx-r33.js';
 import { checkText, gameFiles } from '../tools/kanji-check.mjs';
@@ -685,7 +686,7 @@ test('第85回 A の えんしゅつ: 看板の 技・大事な 技（光の 輪
   const battle = readFileSync(new URL('../public/js/client/battle.js', import.meta.url), 'utf8');
   assert.match(battle, /Object\.assign\(ANIM_SFX, R85A_SFX\)/);
   assert.match(battle, /Object\.assign\(HIT_DELAY, R85A_HIT\)/);
-  assert.match(battle, /disabled: noMp \|\| sil \|\| r85\.off/);
+  assert.match(battle, /disabled: noMp \|\| sil \|\| [^\n]*r85\.off/);
   assert.match(battle, /r85aPresent\(this, ev\)/);
   const src = readFileSync(new URL('../public/js/client/render/battlefx.js', import.meta.url), 'utf8');
   assert.match(src, /playR85aFx\(this, anim/);
@@ -721,8 +722,8 @@ test('第85回 A の えんしゅつ: 看板の 技・大事な 技（光の 輪
   textOk(r85aMarks({ alive: true, r85aChant: 3 })[0].text, 'mark');
 });
 
-// ───────────── 新しい 系統どうしが 同じ パーティー（第83回 A班 軍師・第84回 B班 らんま・第85回 A班） ─────────────
-test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・らんまの すがたと、となえる・大砲が おたがいを こわさない', () => {
+// ───────────── 新しい 系統どうしが 同じ パーティー（第83回 A班 軍師・第84回 A班 幽☆遊☆白書・第84回 B班 らんま・第85回 A班） ─────────────
+test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・れい丸・らんまの すがたと、となえる・大砲が おたがいを こわさない', () => {
   const mk = (id, job) => {
     const c = newCharacter({ id, name: id, job: 'mage' });
     gainExp(c, expForLevel(60));
@@ -733,11 +734,11 @@ test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・ら�
     fullHeal(c);
     return c;
   };
-  const chars = [mk('dr', 'doramata'), mk('gu', 'hoshin_gunshi'), mk('ra', 'hiryu_master')];
+  const chars = [mk('dr', 'doramata'), mk('gu', 'hoshin_gunshi'), mk('ra', 'hiryu_master'), mk('yu', 'yusuke')];
   const b = new Battle({ rng: makeRng(85), allies: chars.map((char) => ({ char, controller: 's1' })), enemies: ['rockman', 'rockman'], canFlee: true });
   for (const e of b.enemies) { e.actions = [{ w: 1, id: 'm_nothing' }]; e.hp = e.maxHp = 50000; }
   for (const a of b.allies) { a.mp = a.maxMp = 999; a.maxHp = a.hp = 3000; }
-  const [dr, gu, ra] = b.allies;
+  const [dr, gu, ra, yu] = b.allies;
   assert.equal(formOf(dr), null, 'ドラまたは すがたを 持たない');
   assert.equal(formOf(ra), 'oyu');
   // 軍師の 攻めの 作戦（ずっと）
@@ -755,6 +756,16 @@ test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・ら�
   const big = use(b, dr, { type: 'ability', id: 'lina_sig' });
   assert.ok(dmgOf(big) > 0 && !dr.r85aChant);
   assert.equal(b.r83aPlan?.kind, 'seme', '大砲を うっても 作戦は のこる');
+  // れい丸（第84回 A班）: となえて いる 間に 仲間が れい丸を うっても、となえは のこる・れい丸の 数と となえの 札は べつ
+  use(b, dr, { type: 'ability', id: 'ln_tonaeru' });
+  const rei0 = reiLeft(yu);
+  const shotEv = use(b, yu, { type: 'ability', id: 'rt_reigan' });
+  assert.ok(dmgOf(shotEv) > 0);
+  assert.equal(reiLeft(yu), rei0 - 1);
+  assert.ok(dr.r85aChant, 'ほかの 人の 技では となえは 消えない');
+  assert.equal(pub(yu).r85aChant, 0);
+  assert.ok(pub(yu).r84aRei && !pub(dr).r84aRei, 'れい丸の 数は ゆう助だけ');
+  assert.ok(dmgOf(use(b, dr, { type: 'ability', id: 'dr_ragna' })) > 0);
   // らんまの すがたは かわらない・らんまは となえる 札を 持たない
   use(b, ra, { type: 'ability', id: 'ms_mizu', form: 'mizu' });
   assert.equal(formOf(ra), 'mizu');

@@ -33,6 +33,8 @@ import { r83bPlan, r83bSeal } from './battle-r83b.js';
 import { r83aPlan } from './battle-r83a.js';
 // 第84回 B班: らんま1/2 の 系統の すがた・飛竜しょう天は・かけひき・心の水・敵前だい逃亡・手数の 技（battle-r84b.js）
 import { r84bPlan } from './battle-r84b.js';
+// 第84回 A班: 幽☆遊☆白書の 系統の れい丸（ざこに 使わない・ぜんぶ うつ 技は まんたんの 時・0 なら ためる）・仲間のために（battle-r84a.js）
+import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js';
 // 第85回 A班: スレイヤーズの 系統の となえる・大砲の 呪文・定食（battle-r85a.js）
 import { r85aPlan, r85aLocked } from './battle-r85a.js';
 
@@ -219,6 +221,9 @@ export function decideAlly(b, c) {
   // 4.95) 第84回 B班: はじめに すがたを えらぶ・前ぶれや 敵の 強化に 飛竜しょう天は・ボスに かけひき・敵が 多ければ 手数の 技（battle-r84b.js）
   const r84b = r84bPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r84b) return r84b;
+  // 4.95) 第84回 A班: れい丸が 0 なら ためる・たおれた 仲間が いれば 仲間のために（battle-r84a.js）
+  const r84 = r84aPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r84) return r84;
   // 4.97) 第85回 A班: となえて いれば 大砲・MP が 少なければ 定食・ボスや 強い 敵には となえる（前ぶれの 時は 下の 5 に まかせる。battle-r85a.js）
   const r85a = r85aPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r85a) return r85a;
@@ -286,6 +291,8 @@ export function canUse(b, c, id) {
   if ((a.kind === 'spell' || a.spellLike || a.effect?.type === 'mahouken') && b?.noSpells) return false;
   if (a.kind === 'combo' && c.side === 'ally' && c.penChar && !comboAllowed(c.penChar, id)) return false;
   if (!weaponOk(a, c.weaponCat)) return false;
+  // 第84回 A班: れい丸が 足りない 技は 使えない（battle-r84a.js）
+  if (!reiOk(c, a)) return false;
   // 第85回 A班: 大砲の 呪文は となえて いないと えらばない（battle-r85a.js）
   if (r85aLocked(c, a)) return false;
   return mpCost(c.penChar, id) <= c.mp;
@@ -553,6 +560,8 @@ function chooseAttack(b, c, tac, foes) {
   // 光っている 敵に 呪文を 使わない など（battle-temple.js）
   templeAdjust(b, c, opts);
   arenaAdjust(b, c, opts);
+  // 第84回 A班: ざこに れい丸を 使わない・ぜんぶ うつ 技は まんたんの 時（battle-r84a.js）
+  r84aAdjust(b, c, opts, fightWeight(b));
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
   if (opts[0]?.risky) return { type: 'defend' };

@@ -36,6 +36,8 @@ import { R82B_JOBS } from '../public/js/shared/data/jobs-r82b.js';
 import { R83A_JOBS } from '../public/js/shared/data/jobs-r83a.js';
 // 第84回 B班: らんま1/2 の 系統（jobs-r84b.js）
 import { R84B_JOBS } from '../public/js/shared/data/jobs-r84b.js';
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js）
+import { R84A_JOBS } from '../public/js/shared/data/jobs-r84a.js';
 // 第85回 A班: スレイヤーズの 系統（jobs-r85a.js）
 import { R85A_JOBS } from '../public/js/shared/data/jobs-r85a.js';
 
@@ -103,8 +105,9 @@ test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つ�
   // 第82回 B班: YAIBA の 系統は まだ たのまれごとが ない（新しい 系統。たのまれごとは あとで）
   // 第83回 A班: 封神演義の 系統も まだ たのまれごとが ない
   // 第84回 B班: らんま1/2 の 系統も まだ たのまれごとが ない（武闘家・遊び人から 枝分かれ）
+  // 第84回 A班: 幽☆遊☆白書の 系統も まだ たのまれごとが ない
   // 第85回 A班: スレイヤーズの 系統も まだ たのまれごとが ない（魔法使い・料理人から 枝分かれ）
-  assert.deepEqual(free.filter((id) => !R82B_JOBS.includes(id) && !R83A_JOBS.includes(id) && !R84B_JOBS.includes(id) && !R85A_JOBS.includes(id)), [], 'のこりの 系統');
+  assert.deepEqual(free.filter((id) => !R82B_JOBS.includes(id) && !R83A_JOBS.includes(id) && !R84B_JOBS.includes(id) && !R84A_JOBS.includes(id) && !R85A_JOBS.includes(id)), [], 'のこりの 系統');
   // 場所（今の 時代。まだ たのまれごとが ない 所）
   const maps = { oas: 'south', dojo: 'overworld', pipe: 'north' };
   const areas = { oas: '小さなオアシス', dojo: '東の平原', pipe: '炎の山のふもと' };

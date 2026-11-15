@@ -352,6 +352,8 @@ export function gameFiles() {
     'public/js/shared/data/jobs-r83a.js', 'public/js/shared/data/abilities-r83a.js', 'public/js/shared/data/hirameki-r83a.js', 'public/js/shared/battle-r83a.js', 'public/js/client/battle-r83a.js',
     // 第84回 B班: らんま1/2 の 系統（無差別格闘流の門下生 → 早おとめ乱馬 → 飛竜しょう天はの達人）の 職業・技・ひらめき技・戦いの しかけ・すがたの メニュー
     'public/js/shared/data/jobs-r84b.js', 'public/js/shared/data/abilities-r84b.js', 'public/js/shared/data/hirameki-r84b.js', 'public/js/shared/battle-r84b.js', 'public/js/client/battle-r84b.js',
+    // 第84回 A班: 幽☆遊☆白書の 系統（ふりょう → れい界探てい → うら飯ゆう助 → 魔界の王の子）の 職業・技・ひらめき技・戦いの しかけ・れい丸の 札と わけ
+    'public/js/shared/data/jobs-r84a.js', 'public/js/shared/data/abilities-r84a.js', 'public/js/shared/data/hirameki-r84a.js', 'public/js/shared/battle-r84a.js', 'public/js/client/battle-r84a.js',
     // 第85回 A班: スレイヤーズの 系統（大食いの旅の魔道士 → 天才美少女魔道士リナ → ドラまた）の 職業・技・ひらめき技・戦いの しかけ・となえる 札と 命令の 一覧
     'public/js/shared/data/jobs-r85a.js', 'public/js/shared/data/abilities-r85a.js', 'public/js/shared/data/hirameki-r85a.js', 'public/js/shared/battle-r85a.js', 'public/js/client/battle-r85a.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
