@@ -101,6 +101,8 @@ import { R82A_ABILITIES } from './abilities-r82a.js';
 import { R82B_ABILITIES } from './abilities-r82b.js';
 // 第83回 A班: 封神演義の 系統の 技（abilities-r83a.js）
 import { R83A_ABILITIES } from './abilities-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の 技（abilities-r84b.js）
+import { R84B_ABILITIES } from './abilities-r84b.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -754,6 +756,8 @@ Object.assign(ABILITIES, R82A_ABILITIES);
 Object.assign(ABILITIES, R82B_ABILITIES);
 // 第83回 A班: 封神演義の 系統（abilities-r83a.js）
 Object.assign(ABILITIES, R83A_ABILITIES);
+// 第84回 B班: らんま1/2 の 系統（abilities-r84b.js）
+Object.assign(ABILITIES, R84B_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -69,12 +69,16 @@ Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0
 // 第83回 A班: 太公望・ほう神の大軍師（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。HEAL_CAP も つけた）。
 //   軍師の まぼろしは 回復を 何十回も 使って 戦いが 長く なるので HEAL_CAP（4回）を つけて から さがした
 Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 3.11, 3.04] });
+// 第84回 B班: 早おとめ乱馬・飛竜しょう天はの達人（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
+Object.assign(PHANTOM_ADJ, { ranma: [1, 1, 1], hiryu_master: [1, 1, 1] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
 for (const t of ['osuwari', 'youkaiCalm', 'daiyoukai', 'bakuryu']) NO_USE.add(t);
 // 第83回 A班: 作戦・軍師の号令・先読みの策・守りの旗・ほう神計画は 仲間の しくみ・太極図は まぼろしが 何回も 使って 攻撃しなく なる（まぼろしは 使わない。battle-r83a.js）
 for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
+// 第84回 B班: すがたを かえる・飛竜しょう天はの かまえ・かけひき・敵前だい逃亡・心の水は 仲間の しくみ（まぼろしは 使わない。battle-r84b.js）
+for (const t of ['r84bForm', 'r84bHiryu', 'r84bKakehiki', 'r84bToubou', 'r84bKokoro']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;

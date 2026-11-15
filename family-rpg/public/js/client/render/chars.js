@@ -44,6 +44,8 @@ import { R79_OLD_LOOK } from './hero-r79.js';
 import { R82A_OLD_LOOK } from './hero-r82a.js';
 // 第83回 A班: 封神演義の 系統の 古い 小さな え（hero-r83a.js）
 import { R83A_OLD_LOOK } from './hero-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の 古い 小さな え（hero-r84b.js）
+import { R84B_OLD_LOOK } from './hero-r84b.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -156,6 +158,7 @@ Object.assign(JOB_LOOK, R82B_OLD_LOOK);
 Object.assign(JOB_LOOK, R79_OLD_LOOK);
 Object.assign(JOB_LOOK, R82A_OLD_LOOK);
 Object.assign(JOB_LOOK, R83A_OLD_LOOK);
+Object.assign(JOB_LOOK, R84B_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

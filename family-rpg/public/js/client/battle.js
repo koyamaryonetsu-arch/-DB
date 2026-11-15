@@ -57,6 +57,9 @@ import { tamaMenu } from './battle-r82b.js';
 // 第83回 A班: 封神演義の 系統の 技（render/battlefx-r83a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・作戦を立てる メニュー（battle-r83a.js）
 import { R83A_SFX, R83A_HIT } from './render/battlefx-r83a.js';
 import { sakusenMenu } from './battle-r83a.js';
+// 第84回 B班: らんま1/2 の 系統の 技（render/battlefx-r84b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・水をかぶる／お湯をかぶる の メニュー（battle-r84b.js）
+import { R84B_SFX, R84B_HIT } from './render/battlefx-r84b.js';
+import { formMenu, r84bPresent } from './battle-r84b.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
@@ -158,6 +161,7 @@ Object.assign(HIT_DELAY, R66E2_HIT);
 Object.assign(HIT_DELAY, R82A_HIT);
 Object.assign(HIT_DELAY, R82B_HIT);
 Object.assign(HIT_DELAY, R83A_HIT);
+Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -279,6 +283,7 @@ Object.assign(ANIM_SFX, R66E2_SFX);
 Object.assign(ANIM_SFX, R82A_SFX);
 Object.assign(ANIM_SFX, R82B_SFX);
 Object.assign(ANIM_SFX, R83A_SFX);
+Object.assign(ANIM_SFX, R84B_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
 const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
@@ -911,6 +916,8 @@ export class BattleScene {
       if (ab.effect.type === 'tamagae') return tamaMenu(this, a, it.value, back);
       // 第83回 A班: 作戦を立てるは 作戦を えらぶ（battle-r83a.js）
       if (ab.effect.type === 'r83aSakusen') return sakusenMenu(this, a, it.value, back);
+      // 第84回 B班: 水をかぶる／お湯をかぶる は すがたを えらぶ（battle-r84b.js）
+      if (ab.effect.type === 'r84bForm') return formMenu(this, a, it.value, back);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
@@ -1461,6 +1468,8 @@ export class BattleScene {
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     // 第82回 A: ようかい化・おすわり！・ばくりゅうはで 返した（battle-r82a.js）
     r82aPresent(this, ev, hitDelay);
+    // 第84回 B班: すがたが かわった・飛竜しょう天はの かまえと やり返し（battle-r84b.js）
+    r84bPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
     // 合体技の よやくで まっていた 人が ダメージ: ゲージが 半分から やり直し（battle-dual.js）
     if (ev.dualBreak) onDualBreak(this, ev);

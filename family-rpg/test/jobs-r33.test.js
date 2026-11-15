@@ -21,6 +21,9 @@ for (const j of R82B_JOBS) R66_JOBS.add(j);
 // 第83回 A班: 封神演義の 系統の ひとことは test/jobs-r83a.test.js
 import { R83A_JOBS } from '../public/js/shared/data/jobs-r83a.js';
 for (const j of R83A_JOBS) R66_JOBS.add(j);
+// 第84回 B班: らんま1/2 の 系統の ひとことは test/jobs-r84b.test.js
+import { R84B_JOBS } from '../public/js/shared/data/jobs-r84b.js';
+for (const j of R84B_JOBS) R66_JOBS.add(j);
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
