@@ -1,20 +1,20 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=8b6c287cd934';
-import { scaleExp } from '../data/difficulty.js?v=8b6c287cd934';
-import { COMPANION_SLOTS } from '../data/companions.js?v=8b6c287cd934';
-import { JOBS } from '../data/jobs.js?v=8b6c287cd934';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=8b6c287cd934';
-import { computeStats, fullHeal } from '../stats.js?v=8b6c287cd934';
-import { pub } from '../battle.js?v=8b6c287cd934';
+import { MAPS } from '../maps/index.js?v=e50463ad60dd';
+import { scaleExp } from '../data/difficulty.js?v=e50463ad60dd';
+import { COMPANION_SLOTS } from '../data/companions.js?v=e50463ad60dd';
+import { JOBS } from '../data/jobs.js?v=e50463ad60dd';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=e50463ad60dd';
+import { computeStats, fullHeal } from '../stats.js?v=e50463ad60dd';
+import { pub } from '../battle.js?v=e50463ad60dd';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=8b6c287cd934';
+} from './party.js?v=e50463ad60dd';
 // 第51回 B: 家族のけいじ板（入れかえで ぬけた 人の ひらめき技）
-import { boardHirameki } from './family-board.js?v=8b6c287cd934';
+import { boardHirameki } from './family-board.js?v=e50463ad60dd';
 // 第51回 F: 幻の職業の 記録（馬車に もどる 自分の キャラの ぶん）
-import { addFeats } from './phantom.js?v=8b6c287cd934';
+import { addFeats } from './phantom.js?v=e50463ad60dd';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');

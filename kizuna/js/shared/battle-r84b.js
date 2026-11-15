@@ -30,9 +30,9 @@
 //   r84bTaunt（敵の 行動が きまった あと）
 // ai.js から よぶ: r84bPlan（オートの 動き）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=8b6c287cd934';
-import { R84B_FORM_ATB } from './data/abilities-r84b.js?v=8b6c287cd934';
-import { ABILITIES } from './data/abilities.js?v=8b6c287cd934';
+import { JOBS } from './data/jobs.js?v=e50463ad60dd';
+import { R84B_FORM_ATB } from './data/abilities-r84b.js?v=e50463ad60dd';
+import { ABILITIES } from './data/abilities.js?v=e50463ad60dd';
 
 export const R84B_LINE = ['musabetsu_student', 'ranma', 'hiryu_master'];
 // すがたの 表（ならびは メニューの じゅん）
