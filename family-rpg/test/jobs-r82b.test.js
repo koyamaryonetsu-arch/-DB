@@ -124,7 +124,8 @@ test('第82回 B の 職業: 4だん（基本職から 伝説まで）・なら�
   assert.equal(jobReqText('raijin_sword'), 'サムライ小ぞうLv10');
   assert.equal(jobReqText('ryujin_samurai'), 'ヤイバLv10＋ほかの超級職1つLv10');
   // 基本職は はじめから えらべる（今の 基本職と おなじ 所）・木刀（木の剣）
-  assert.equal(JOB_ORDER.at(-1), 'samurai_kid');
+  // 第83回 A班: つりをする道士（基本職）が あとに 足されたので「おわり」では なく「入って いる」
+  assert.ok(JOB_ORDER.includes('samurai_kid'));
   assert.equal(newCharacter({ id: 'a', name: 'a', job: 'samurai_kid' }).job, 'samurai_kid');
   assert.equal(STARTER_EQUIP.samurai_kid.weapon, 'wood_sword');
   assert.deepEqual(JOBS.samurai_kid.weapons, ['sword', 'bat', 'none']);

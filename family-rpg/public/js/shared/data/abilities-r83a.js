@@ -114,9 +114,9 @@ export const R83A_ABILITIES = {
     desc: '大きな旗を立てる。仲間全員、次に受ける1回のダメージが半分になる。', cast: '{a}は、守りの旗を高くかかげた！', anim: 'r83a_flag',
   },
   tk_hakari: {
-    name: 'はかりごと', kana: 'はかりごと', kind: 'skill', job: 'taikobo', mp: 14, target: 'enemies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'debuff', stat: 'atk', mult: 0.8, dur: 40, chance: 0.75 }, { type: 'debuff', stat: 'def', mult: 0.8, dur: 40, chance: 0.75 }] },
-    desc: 'うその話を流して、敵をまよわせる。敵全体の攻撃力と守備力が下がる。', cast: '{a}「ふっふっふ…もう、わなにかかっておるぞ」', anim: 'debuff',
+    name: 'はかりごと', kana: 'はかりごと', kind: 'skill', job: 'taikobo', mp: 14, target: 'enemies',
+    effect: { type: 'multi', parts: [{ type: 'magic', element: 'wind', base: [40, 50], thr: 56 }, { type: 'debuff', stat: 'atk', mult: 0.8, dur: 40, chance: 0.75 }, { type: 'debuff', stat: 'def', mult: 0.8, dur: 40, chance: 0.75 }] },
+    desc: 'わなにかけて、敵をまよわせる。敵全体に風のダメージ。敵の攻撃力と守備力が下がる。', cast: '{a}「ふっふっふ…もう、わなにかかっておるぞ」', anim: 'r83a_wind2',
   },
   tk_momo: {
     name: 'もものえん', kana: 'もものえん', kind: 'skill', job: 'taikobo', mp: 18, target: 'allies', role: 'heal',

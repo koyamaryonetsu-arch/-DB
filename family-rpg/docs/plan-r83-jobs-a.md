@@ -108,12 +108,75 @@ battle.js に 足した 行: import・speedMult（速攻）・command の 防御
 
 ## 5. 強さの しらべ
 
-（あとで 数を 書く）
+### tools/sim-jobs.mjs 10 solo（かかし 3体・60びょう。作戦〈攻め〉も 入る）
+| 職業 | ダメージ | まん中との くらべ |
+|---|---|---|
+| つりをする道士 | 954 | 130%（31職業の 9番め） |
+| せん人界の道士 | 1827 | 136%（46職業の 10番め。魔法学校の生徒 138%） |
+| 太公望 | 2757 | 129%（51職業の 17番め） |
+| ほう神の大軍師 | 2835 | 100%（42職業の 21番め） |
+
+- はじめは せん人界の道士 207%・太公望 168%・ほう神 142%（作戦の 攻めが 自分にも 効く ため）。打神べん 44〜56 → 28〜36・大風 74〜92 → 54〜68・
+  風のやいば・二れん 2×56〜68 → 1回 92〜112・打神べん・天 176〜206 → 160〜188・大きな魚 62〜78 → 36〜46 に 下げた
+- 風のやいば・二れん は はじめ 2回の 呪文（multi）に したが、オートが 1回ぶんで 見つもって ほとんど 使わなかった（まぼろしも）ので、2つの やいばを かさねた 1回の 呪文に した。
+  ほう神も ふつうの 呪文の しるし（effect.r83aHoshin）に して オートが えらべる ように した。大物がつれた！は autoRandom
+
+### 第2部の ボス（tools/sim-r83a.mjs。家族の 勇者の ところを 入れかえ。★装備は 勇者の 物で 装備 できる 所だけ）
+知っている 人（しかけを 知って いる 家族の オート）・20回。オクタリア・マレフィナ・カイの影・ジャハール・ハデロス・クッパード の 平均
+
+| 入れた 職業 | 勝率 | 平均の 長さ |
+|---|---|---|
+| **ほう神の大軍師** | **33%** | **679びょう** |
+| 太公望（超級職） | 24% | 697 |
+| 3年B組の担任 | 31% | 732 |
+| 会長 | 46% | 698 |
+| ニューカワイイ | 38% | 704 |
+| SMAP | 45% | 687 |
+| （ほかの 補助の 伝説 4つの 平均） | 40% | 705 |
+| （くらべ: 飛天御剣流けい承者〈10回〉） | 92% | 370 |
+
+- ほう神の大軍師は 補助の 伝説 4つの 平均に くらべ 勝率 −7ポイント・長さ −4%（±10% の 中）。3年B組の担任と ならぶ。強すぎない
+- ボスごと（ほう神）: オクタリア 0%・547／マレフィナ 0%・767／カイの影 100%・574／ジャハール 0%・779／ハデロス 0%・799／クッパード 100%・606。
+  補助の 伝説は どれも 勇者（剣と 回復）を ぬくと 第2部の ボスで 勝ちにくい（勇者のまま 80〜90%）
+- 作戦の 効き目を 0 に した 時（PLAN=0・10回）: ほう神 32%・684びょう、太公望 12%・716びょう。作戦（ボスでは 守り）は 勝率を 少し 上げるが、
+  ずっと 効いても 強すぎない ので **効き目は 設計の まま（15%・20%・25%）。下げて いない**
+- **完全オート**（しかけを 知らない ふつうの オート・10回）: ほう神の大軍師・太公望とも 6つの ボスで 勝率 0%（ほかの 補助の 伝説・飛天も 0%）。完全オートで 勝てる ように は なって いない
+
+### 職業の試練（PHANTOM_ADJ）
+- `SEED=500/900 HI=6 tools/sim-trial-tune.mjs 10 0.75` の 平均: 太公望 [5.73, 6, 6]・ほう神の大軍師 [4.18, 3.95, 5.53]
+- `tools/sim-trial.mjs 20`: 太公望 80%・90%・100%／ほう神 90%・75%・70%（めやす 6〜9割）
+- 軍師の まぼろしは 回復（もものえん・せん人の大えん）と 補助が 多く、攻撃の 技が 少ないので 倍率が 大きい。戦いも 長め（700〜900びょう）。
+  はじめは 太極図を 何回も 使って 攻撃しなかった ので、まぼろしは 太極図を 使わない（NO_USE）
 
 ## 6. 直した テスト・みんなで 使う ファイル
 
-（あとで 書く）
+| テスト | なおした こと |
+|---|---|
+| test/jobs.test.js | `JOB_ORDER.length` 30 → 31・`ADVANCED_ORDER.length` 45 → 46（コメントも） |
+| test/hirameki.test.js | `Object.assign(R66_HIRA, HIRAMEKI_R83A)`（import と 2行） |
+| test/jobs-r33.test.js | 転職の ひとことの のぞく 一覧に R83A_JOBS（import と 2行） |
+| test/fx-r27.test.js | `playR83aFx` を 足した |
+| test/hero-art-r21.test.js | PARTY_ANIMS の 一覧から `r83` と `hoshin_gunshi_sig` も のぞく（1行の 中み） |
+| test/work-quests-r80.test.js | たのまれごとの ない 系統に 封神演義の 系統（import と 1行） |
+| test/transfer-r78.test.js | **見はり の よゆう 0.9 → 0.95**（下の 7） |
+| test/jobs-r83a.test.js | 新しい（17こ） |
+
+みんなの ファイルに 足した 行（けして いない）:
+shared: battle.js（import・speedMult・防御・executeNext・'magic'・case・力ため・applyBuff・damage・pub）・ai.js（import と 4.9 の 2行）・battle-trial.js（PHANTOM_ADJ・NO_USE）・stats.js（はじめの 装備）／
+shared/data: jobs.js・abilities.js・hirameki.js・job-tags.js・job-talk.js・job-trials.js・vehicles.js／
+client: battle.js（import・HIT_DELAY・ANIM_SFX・作戦の メニューの 1行）・battle-buffs.js（札と 色）・ui/title.js（一言）／
+client/render: battlefx.js・hero-outfit.js・hero-gear.js・chars.js・hero-r26.js（drawProp26 に 1行）・vehicle-art.js／tools/kanji-check.mjs
+
+新しい ファイル: shared/data/jobs-r83a.js・abilities-r83a.js・hirameki-r83a.js・shared/battle-r83a.js・client/battle-r83a.js・client/render/hero-r83a.js・battlefx-r83a.js・vehicle-r83a.js・test/jobs-r83a.test.js・tools/sim-r83a.mjs
 
 ## 7. 気を つける こと
 
-（あとで 書く）
+- **引っこしコードの いちばん 大きな セーブ**: この 系統（職業 4つ・技 28こ）で 26796 → 27140文字に なり、見はりの「3通の 9わり（27000）」を こえた。
+  3通（30000）に 入る ことは かわらないので よゆうを 0.95（28500）に した。B班（ぬ〜べ〜）も 300〜350文字 ふえる 見こみ。
+  のこりの 4系統・幻を 足す 前に KIZUNA-6 の 下じき（transfer-prime.js に 新しい 職業と 技の 名前を 入れる）を 考える 必要が ある
+- 太公望の 攻撃技は 風のやいば・二れん だけ（設計 どおり 補助の 軍師）。風のやいば・二れんは 2回 当てる 技では なく、2つの やいばを かさねた 1回の 呪文
+- 神殿の せつめいの 伝説の 一覧（client/ui/services.js）・お知らせ・README は さわって いない。封神演義の 系統の たのまれごと（お仕事いらい板）は まだ ない
+- 職業の試練の まぼろしは 回復が 多く 戦いが 長め（HEAL_CAP は つけて いない。つけると 倍率を さがし直す）
+- メインの ブランチ（claude/elegant-bell-al2f1w）を 取りこんだ 時、B班は まだ 入って いなかった（Already up to date）。
+  B班が あとで 入る 時は、jobs.js の ならびの push・vehicles.js の おわり・title.js・test/jobs.test.js の 数（31・46 → 32・47 など）・
+  test/work-quests-r80.test.js・test/hero-art-r21.test.js・test/transfer-r78.test.js の 行が ぶつかる（両方 のこす）

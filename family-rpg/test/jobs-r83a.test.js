@@ -207,8 +207,7 @@ test('第83回 A の 技: 6こ（伝説は Lv1・3・5・7・8・10）・Lv10 �
         if (['status', 'debuff'].includes(p.type) || p.status || p.debuff) assert.ok(((p.status || p.debuff || p).chance) < 1, a.name);
       }
     }
-    // 太公望は 補助の 軍師（攻撃技は 風のやいば・二れん だけ。設計の 9-1 の とおり）
-    assert.ok(job.learn.filter(([, id]) => abilityRole(ABILITIES[id]) === 'dmg').length >= (j === 'taikobo' ? 1 : 2), `${j}: 攻撃技`);
+    assert.ok(job.learn.filter(([, id]) => abilityRole(ABILITIES[id]) === 'dmg').length >= 2, `${j}: 攻撃技 2つ いじょう`);
   }
   // abilities-r83a.js の 技は どれかの 職業で 覚える（大物がつれた！の 中み 3つは 一覧に 出ない）
   const hidden = Object.keys(R83A_ABILITIES).filter((id) => R83A_ABILITIES[id].hidden);
@@ -568,8 +567,7 @@ test('第83回 A の 職業: タグで 合体技（3つ いじょう）・職業
   for (const j of ['taikobo', 'hoshin_gunshi']) {
     assert.ok(trialJob(j));
     const adj = PHANTOM_ADJ[j];
-    // 軍師の まぼろしは 補助・回復が 多いので 倍率が 大きい（6 まで）
-    assert.ok(Array.isArray(adj) && adj.length === 3 && adj.every((v) => v >= 0.3 && v <= 6), `${j}: ${adj}`);
+    assert.ok(Array.isArray(adj) && adj.length === 3 && adj.every((v) => v >= 0.3 && v <= 4), `${j}: ${adj}`);
     assert.ok(phantomSkills(j).length >= 3, `${j}: まぼろしの 技`);
     assert.ok(!phantomSkills(j).some((id) => ['sd_sakusen', 'hg_gorei', 'hg_sakiyomi', 'tk_hata', 'hoshin_gunshi_sig'].includes(id)), 'まぼろしは 仲間の しくみを 使わない');
     textOk(TRIAL_WORDS[j], j);
