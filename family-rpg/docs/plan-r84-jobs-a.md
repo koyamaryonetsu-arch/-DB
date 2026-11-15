@@ -169,7 +169,7 @@ battle-dual.js に 足した 行: import と memberPower の 1行。ai.js: impor
 | test/work-quests-r80.test.js | たのまれごとの ない 系統に 幽☆遊☆白書の 系統（import と 1行。B班の らんま1/2 と 同じ 行に まとめた） |
 | test/jobs-r84a.test.js | 新しい（17こ。ほかの 新しい 系統と 同じ パーティーの 戦い 2つ: 封神演義〈作戦〉・ぬ〜べ〜〈鬼の手・自動で かばう〉／らんま1/2〈水と お湯の すがた〉） |
 
-- test/transfer-r78.test.js は かえて いない（いちばん 大きな セーブ 27289文字・3通。見はり「4通まで」の 中）
+- test/transfer-r78.test.js は かえて いない（いちばん 大きな セーブ 27453文字・3通。見はり「4通まで」の 中）
 
 みんなの ファイルに 足した 行（けして いない）:
 shared: battle.js（import・validate・防御・executeNext・'phys'・case・calcPhys・damage・pub）・ai.js（import・4.95・canUse・chooseAttack）・battle-dual.js（import・memberPower）・
@@ -193,7 +193,7 @@ client/render: battlefx.js・hero-outfit.js・hero-gear.js・chars.js・vehicle-
 
 ## 8. たしかめた こと
 
-- 全部の テスト: ALLTESTS（第84回 B班を ふくむ メインを 取りこんだ あと）。`tools/kanji-check.mjs`: 使えない漢字 0件 / スペース 0件
+- 全部の テスト: 2925件 全部 通った（第84回 B班を ふくむ メインを 取りこんだ あと）。`tools/kanji-check.mjs`: 使えない漢字 0件 / スペース 0件
 - 職業の試練（`tools/sim-trial.mjs 20`）: うら飯ゆう助 90%・90%・65%／魔界の王の子 80%・75%・85%（めやす 6〜9割）
 - ブラウザ（Playwright・ひとりモード・390×844 と 1280×800）: ふりょうで 始める → 4つの 職業に 転職（フィールドの 絵が かわる）→
   うら飯ゆう助で れい丸（札 れい丸4 → 3）→ れい丸・二連（→ 1）→ 最大出力は えらべない（「れい丸が2発いる（のこり1発）」・一覧で うすい・せつめいの 先に わけ）→
