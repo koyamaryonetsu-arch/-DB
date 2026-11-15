@@ -24,7 +24,7 @@ export const RYU = {
     short: '火の玉をばらまく（敵にばらばらに5回）', line: '一の竜「なだれ」！火の玉が、雨のようにふりそそぐ！',
   },
   saiha: {
-    tag: '炎のやいば', name: 'さいは', mp: 9, target: 'enemy', color: '#e8201c', color2: '#ffb0a0', role: 'dmg', anim: 'r85b_saiha',
+    tag: '炎のやいば', name: 'さいは', mp: 7, target: 'enemy', color: '#e8201c', color2: '#ffb0a0', role: 'dmg', anim: 'r85b_saiha',
     effect: { type: 'phys', mult: 2.6, element: 'fire' },
     short: '炎のやいば（敵1体に強い）', line: '二の竜「さいは」！炎のやいばが、するどく走る！',
   },
@@ -49,7 +49,7 @@ export const RYU = {
     short: 'まぼろし（仲間全員がよけやすくなる）', line: '六の竜「るい」！ゆらゆらと、まぼろしの炎が広がる！',
   },
   kokuu: {
-    tag: '光線', name: 'こくう', mp: 18, target: 'enemy', color: '#4ab8ff', color2: '#e0f6ff', role: 'dmg', anim: 'r85b_kokuu', legend: true,
+    tag: '光線', name: 'こくう', mp: 14, target: 'enemy', color: '#4ab8ff', color2: '#e0f6ff', role: 'dmg', anim: 'r85b_kokuu', legend: true,
     effect: { type: 'phys', mult: 3.4, element: 'fire', ignoreDef: 1 },
     short: '光線（敵1体にとても大きなダメージ。守りをむし）', line: '七の竜「こくう」！青白い光線が、まっすぐつらぬく！',
   },
@@ -65,7 +65,7 @@ export const RYU_SET = { four: RYU_ORDER.slice(0, 4), eight: RYU_ORDER.slice() }
 export const R85B_ABILITIES = {
   // ───────────── 炎術士（超級職。忍者を きわめる） ─────────────
   ej_ryu: {
-    name: '火竜をよぶ', kana: 'かりゅうをよぶ', kind: 'skill', job: 'enjutsushi', mp: 8, target: 'self', role: 'dmg',
+    name: '火竜をよぶ', kana: 'かりゅうをよぶ', kind: 'skill', job: 'enjutsushi', mp: 7, target: 'self', role: 'dmg',
     effect: { type: 'r85bRyu', set: 'four', pow: 1 },
     desc: '体にやどした火竜を1ぴきよび出す。なだれ・さいは・ほむら・せつなの4ひきから、自分で選ぶ。火竜ごとに、やくめとMPがちがう。', cast: '{a}は、右うでに炎をともした…！', anim: 'r85b_call',
   },
@@ -97,7 +97,7 @@ export const R85B_ABILITIES = {
 
   // ───────────── 八竜の炎術士・烈火（伝説） ─────────────
   rk_ryu: {
-    name: '火竜をよぶ・八竜', kana: 'かりゅうをよぶはちりゅう', kind: 'skill', job: 'rekka', mp: 8, target: 'self', role: 'dmg',
+    name: '火竜をよぶ・八竜', kana: 'かりゅうをよぶはちりゅう', kind: 'skill', job: 'rekka', mp: 7, target: 'self', role: 'dmg',
     effect: { type: 'r85bRyu', set: 'eight', pow: 1.15 },
     desc: '8ひきの火竜から、1ぴきを選んでよび出す。攻め・じゃま・けっかい・まぼろし・光線・不死鳥と、なんでもできる。火竜ごとに、MPがちがう。', cast: '{a}の右うでに、竜の印がうかび上がった…！', anim: 'r85b_call',
   },
@@ -107,7 +107,7 @@ export const R85B_ABILITIES = {
     desc: '「おれが守る！」と、仲間1人のまえに立つ。その仲間への攻撃をかばい、自分の守備力も上がる。', cast: '{a}「下がってろ、おれが守る！」', anim: 'r85b_hime',
   },
   rk_kiba: {
-    name: '火竜のきば', kana: 'かりゅうのきば', kind: 'skill', job: 'rekka', mp: 12, target: 'enemy',
+    name: '火竜のきば', kana: 'かりゅうのきば', kind: 'skill', job: 'rekka', mp: 9, target: 'enemy',
     effect: { type: 'phys', mult: 3.2, element: 'fire' },
     desc: '火竜のきばのような炎で、敵1体にかみつく。炎の大きなダメージ。', cast: '{a}の火竜のきば！', anim: 'r85b_kiba',
   },

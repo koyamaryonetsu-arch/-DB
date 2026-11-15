@@ -39,12 +39,12 @@ function dragonArt({ seg, poly, shade, seat }) {
     }
     // 体（しっぽに 向かって ほそく）
     for (let i = S.length - 1; i > 0; i--) {
-      const w = 6.2 - i * 0.36;
-      seg(p, S[i - 1][0], S[i - 1][1], S[i][0], S[i][1], R, Math.max(2, w));
+      const w = 8.6 - i * 0.52;
+      seg(p, S[i - 1][0], S[i - 1][1], S[i][0], S[i][1], R, Math.max(2.4, w));
     }
-    for (let i = 1; i < S.length - 2; i++) seg(p, S[i][0], S[i][1] + 1.6, S[i + 1][0], S[i + 1][1] + 1.6, BEL, Math.max(1.2, 2.4 - i * 0.12));
+    for (let i = 1; i < S.length - 2; i++) seg(p, S[i][0], S[i][1] + 2.4, S[i + 1][0], S[i + 1][1] + 2.4, BEL, Math.max(1.2, 3.2 - i * 0.18));
     // せなかの 金の たてがみ（ぎざぎざ）
-    for (let i = 1; i < S.length - 1; i += 2) poly(p, [[S[i][0] - 1.5, S[i][1] - 2.4], [S[i][0] + 0.5, S[i][1] - 5.6], [S[i][0] + 2, S[i][1] - 2.4]], MANE);
+    for (let i = 1; i < S.length - 1; i += 2) poly(p, [[S[i][0] - 1.5, S[i][1] - 3.2], [S[i][0] + 0.5, S[i][1] - 6.8], [S[i][0] + 2, S[i][1] - 3.2]], MANE);
     // しっぽの 先の 炎
     const T = S[S.length - 1];
     p.ellipse(T[0] + 1.5, T[1] - 1.5, 2.4, 3, FL[f % 3]);
@@ -56,7 +56,7 @@ function dragonArt({ seg, poly, shade, seat }) {
     }
     // 頭（低く 前に のびる。長い 口・つの・目・ひげ）
     const H = S[0];
-    p.ellipse(H[0] - 1, H[1] - 1, 5.2, 4, R);
+    p.ellipse(H[0] - 1, H[1] - 1, 6, 4.6, R);
     poly(p, [[H[0] - 4, H[1] - 3], [H[0] - 11, H[1] - 1.5], [H[0] - 11, H[1] + 1.5], [H[0] - 4, H[1] + 2.5]], RL);
     p.hline(Math.round(H[0] - 10), Math.round(H[0] - 4), Math.round(H[1] + 0.5), RD);
     p.set(Math.round(H[0] - 10), Math.round(H[1] - 1), EYE);
@@ -81,8 +81,8 @@ function dragonArt({ seg, poly, shade, seat }) {
       return;
     }
     // てまえの 体・小さな 足
-    p.ellipse(cx, by + 3, 8, 5, R);
-    p.ellipse(cx, by + 5, 5, 2.4, BEL);
+    p.ellipse(cx, by + 3, 11, 6, R);
+    p.ellipse(cx, by + 5.5, 7, 2.8, BEL);
     for (const s of [-1, 1]) seg(p, cx + s * 6, by + 6, cx + s * 7, by + 10, R, 2.2);
     // 頭（てまえ。下を むいて 前へ）・つの・目
     const hy = by + 10;
@@ -117,8 +117,8 @@ function dragonArt({ seg, poly, shade, seat }) {
     size: (view) => (view === 'side' ? [72, 52] : [36, 52]),
     rider: (view, f) => {
       const bob = BOB[f];
-      if (view === 'side') return seat(30, 27 + bob, 34);
-      return seat(18, 25 + bob, 34);
+      if (view === 'side') return seat(30, 30 + bob, 34);
+      return seat(18, view === 'front' ? 29 + bob : 28 + bob, 34);
     },
     paint(p, view, f, layer) {
       if (view === 'side') side(p, f, layer);

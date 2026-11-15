@@ -38,7 +38,7 @@ export const AURA85B = {
 };
 
 // ───────────── 右うでの こて（hero.js の 手の あと。左うでは そのまま） ─────────────
-const KOTE = mat({ r: ['#2a0c0c', '#5a1a14', '#8a2a1c', '#c8503a'], th: TH.matte, spec: 0.9 });
+const KOTE = mat({ r: ['#2a0c0c', '#5a1a14', '#8a2a1c', '#c8503a'], th: TH.matte, spec: 0.97, sc: '#ffb08a' });
 const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 export function koteMark85(cv, A, P, O) {
   const kind = O.body?.kote85;

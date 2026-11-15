@@ -221,7 +221,7 @@ export function r85bPub(c) {
 
 // ───────────── オート（ai.js の decideAlly） ─────────────
 // オートが その 火竜を えらぶ わりあい（tools/sim-r85b.mjs で 合わせた。R85B_AI=boss:0.5,… で ためせる）
-export const R85B_AI = { revive: 0.9, madoka: 0.6, rui: 0.3, boss: 0.45, many: 0.6, slow: 0.4, blind: 0.15, hime: 0.25, twin: 0.35 };
+export const R85B_AI = { revive: 0.9, madoka: 0.6, guard: 0.2, rui: 0.3, boss: 0.45, many: 0.6, slow: 0.4, blind: 0.15, hime: 0.25, twin: 0.35 };
 // mine … 使える 技 [{ id, a }]、fw … ai.js の fightWeight。この 系統の 技（火竜をよぶ・姫を守る忍び）だけを 見る
 export function r85bPlan(b, c, foes, mine, allies, fw) {
   if (!foes.length) return null;
@@ -253,6 +253,13 @@ export function r85bPlan(b, c, foes, mine, allies, fw) {
       const cmd = call('rui');
       if (cmd) return cmd;
     }
+    // 前ぶれの 間は 攻めの 火竜を よばない（ai.js の「大わざに そなえる」〈身を 守る・守りの 補助〉に まかせる）
+    return null;
+  }
+  // 2.5) ボス: けっかいが 切れて いる 仲間が 多い 時は ときどき まどか（前ぶれを 待たずに）
+  if (boss && allies.filter((x) => !x.r85bMadoka).length > allies.length / 2 && b.rng.chance(R85B_AI.guard)) {
+    const cmd = call('madoka');
+    if (cmd) return cmd;
   }
   // 3) ボスで 弱った 仲間を かばう（姫を守る忍び。自分の HP が 多い 時）
   if (hime && boss && !c.cover && c.hp >= c.maxHp * 0.6) {
@@ -261,11 +268,16 @@ export function r85bPlan(b, c, foes, mine, allies, fw) {
   }
   // 4) ボス ＝ こくう・さいは（二ひき同時も ときどき）
   if (boss) {
-    const twin = ryus.find(({ a }) => a.effect.twin);
-    if (twin && b.rng.chance(R85B_AI.twin)) return { type: 'ability', id: twin.id, ryu: 'saiha', target: boss.id };
+    // 自分の HP が へって いる 時は 回復・守りに まかせる
+    if (c.hp < c.maxHp * 0.4) return null;
     if (b.rng.chance(R85B_AI.boss)) {
-      const cmd = call('kokuu', { target: boss.id }) || call('saiha', { target: boss.id });
+      const cmd = call('kokuu', { target: boss.id });
       if (cmd) return cmd;
+      // こくうを よべない（炎術士・MP が たりない）: 二ひき同時 か さいは
+      const twin = ryus.find(({ a }) => a.effect.twin);
+      if (twin && b.rng.chance(R85B_AI.twin)) return { type: 'ability', id: twin.id, ryu: 'saiha', target: boss.id };
+      const cmd2 = call('saiha', { target: boss.id });
+      if (cmd2) return cmd2;
     }
     return null;
   }
