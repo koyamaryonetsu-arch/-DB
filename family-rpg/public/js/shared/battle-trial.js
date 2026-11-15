@@ -70,8 +70,8 @@ Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
 for (const t of ['osuwari', 'youkaiCalm', 'daiyoukai', 'bakuryu']) NO_USE.add(t);
-// 第83回 A班: 作戦・軍師の号令・先読みの策・守りの旗・ほう神計画は 仲間の しくみ（まぼろしは 使わない。battle-r83a.js）
-for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure']) NO_USE.add(t);
+// 第83回 A班: 作戦・軍師の号令・先読みの策・守りの旗・ほう神計画は 仲間の しくみ・太極図は まぼろしが 何回も 使って 攻撃しなく なる（まぼろしは 使わない。battle-r83a.js）
+for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;

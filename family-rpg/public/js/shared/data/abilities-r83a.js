@@ -66,7 +66,7 @@ export const R83A_ABILITIES = {
   // ───────────── せん人界の道士（上級職。作戦を立てる） ─────────────
   sd_dashin: {
     name: '打神べん', kana: 'だしんべん', kind: 'skill', job: 'sennin_doshi', mp: 6, target: 'group',
-    effect: { type: 'magic', element: 'wind', base: [44, 56], thr: 36 },
+    effect: { type: 'magic', element: 'wind', base: [28, 36], thr: 36 },
     desc: '風の力をやどしたむち「打神べん」をふると、するどい風が起きる。同じ種類の敵をまとめて、風のダメージ。', cast: '{a}は、打神べんをふった！', anim: 'r83a_whip',
   },
   sd_sakusen: {
@@ -92,14 +92,14 @@ export const R83A_ABILITIES = {
   },
   sennin_doshi_sig: {
     name: '打神べん・大風', kana: 'だしんべんおおかぜ', kind: 'skill', job: 'sennin_doshi', mp: 14, target: 'enemies',
-    effect: { type: 'magic', element: 'wind', base: [74, 92], thr: 54 },
+    effect: { type: 'magic', element: 'wind', base: [54, 68], thr: 54 },
     desc: '打神べんを大きくふり回して、大風を起こす。敵全体に風の大ダメージ。', cast: '{a}「打神べん、大風！」', anim: 'sennin_doshi_sig',
   },
 
   // ───────────── 太公望（超級職。作戦に 速攻・太極図） ─────────────
   tk_yaiba: {
     name: '風のやいば・二れん', kana: 'かぜのやいばにれん', kind: 'skill', job: 'taikobo', mp: 10, target: 'enemy',
-    effect: { type: 'multi', parts: [{ type: 'magic', element: 'wind', base: [56, 68], thr: 56 }, { type: 'magic', element: 'wind', base: [56, 68], thr: 56 }] },
+    effect: { type: 'multi', parts: [{ type: 'magic', element: 'wind', base: [46, 56], thr: 56 }, { type: 'magic', element: 'wind', base: [46, 56], thr: 56 }] },
     desc: '風のやいばを、2回つづけてとばす。敵1体に風のダメージを2回。', cast: '{a}の風のやいば！もう一つ！', anim: 'r83a_wind2',
   },
   tk_supu: {
@@ -131,7 +131,7 @@ export const R83A_ABILITIES = {
   // ───────────── ほう神の大軍師（伝説。太公望 ＋ ほかの 超級職 1つ） ─────────────
   hg_ten: {
     name: '打神べん・天', kana: 'だしんべんてん', kind: 'skill', job: 'hoshin_gunshi', mp: 14, target: 'enemy',
-    effect: { type: 'magic', element: 'wind', base: [176, 206], thr: 86 },
+    effect: { type: 'magic', element: 'wind', base: [160, 188], thr: 86 },
     desc: '天までとどく風のむちで、敵1体を打つ。風の大ダメージ。', cast: '{a}「打神べん・天！」', anim: 'r83a_whip',
   },
   hg_gorei: {

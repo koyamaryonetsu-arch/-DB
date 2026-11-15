@@ -62,7 +62,7 @@ export function drawProp83a(cv, P, A, O) {
     // 竹の つりざお（手から 上へ ながく。先から 糸が たれて、赤と 白の うき）
     const tx = hx + d * 4.2, ty = hy - 9.6;
     cv.part({ ol: 'line' });
-    cv.cap(hx - d * 0.3, hy + 1.6, 0.36, tx, ty, 0.24, bamboo);
+    cv.cap(hx - d * 0.3, hy + 1.6, 0.48, tx, ty, 0.32, bamboo);
     const id = cv.cur;
     for (const t of [0.35, 0.7]) cv.crease([[hx + (tx - hx) * t - 0.3, hy + (ty - hy) * t], [hx + (tx - hx) * t + 0.3, hy + (ty - hy) * t]], 0.12, -0.6, { parts: [id] });
     cv.part({ ol: 'none', cast: false });
