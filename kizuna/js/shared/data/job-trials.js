@@ -11,9 +11,9 @@
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
 // ・キャラの jobs[職業] に のこす: tr … クリアした 試練の 数 / tq … 受けている 試練（1・2）/ tn … 修行の 数
 //   （家族で 遊んでも 1人ずつ。world/merge.js は 多い ほう、world/save.js が 古い セーブを ととのえる）
-import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=afbcabe7ad18';
-import { ABILITIES } from './abilities.js?v=afbcabe7ad18';
-import { jobLabel } from '../job-label.js?v=afbcabe7ad18';
+import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=25ef341afab2';
+import { ABILITIES } from './abilities.js?v=25ef341afab2';
+import { jobLabel } from '../job-label.js?v=25ef341afab2';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
@@ -266,6 +266,13 @@ Object.assign(TRIAL_WORDS, {
 Object.assign(TRIAL_WORDS, {
   tenkaichi_king: 'うつ力も返す力も、あせらぬ心から生まれる。',
   chaos_gunshi: '大きな呪文ほど、仲間を信じて待つのだ。',
+});
+
+
+// 第86回 A班（幻の職業。jobs-r86a.js。32字 以内）
+Object.assign(TRIAL_WORDS, {
+  yokai_bridge: '守った思いは、力になる。仲間はおまえの風だ。',
+  ryujin_kenshi: '雷と炎、どちらも大切にする者が竜にえらばれる。',
 });
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

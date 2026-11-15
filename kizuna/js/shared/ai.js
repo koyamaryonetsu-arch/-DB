@@ -1,46 +1,48 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=afbcabe7ad18';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=25ef341afab2';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=afbcabe7ad18';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=afbcabe7ad18';
-import { skillMods } from './skill-tier.js?v=afbcabe7ad18';
+import { deduceElement } from './data/abilities-jobs6.js?v=25ef341afab2';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=25ef341afab2';
+import { skillMods } from './skill-tier.js?v=25ef341afab2';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=afbcabe7ad18';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=25ef341afab2';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=afbcabe7ad18';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=25ef341afab2';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=afbcabe7ad18';
-import { labPlan, labIgnored } from './battle-lab.js?v=afbcabe7ad18';
+import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=25ef341afab2';
+import { labPlan, labIgnored } from './battle-lab.js?v=25ef341afab2';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerCond, towerPlan } from './battle-ch5.js?v=afbcabe7ad18';
+import { towerCond, towerPlan } from './battle-ch5.js?v=25ef341afab2';
 // 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
-import { noctoAction } from './battle-nocto.js?v=afbcabe7ad18';
+import { noctoAction } from './battle-nocto.js?v=25ef341afab2';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
-import { earthAction, reachPlan } from './battle-earth.js?v=afbcabe7ad18';
+import { earthAction, reachPlan } from './battle-earth.js?v=25ef341afab2';
 // 第5章 Step 9 の 魔王ソリトゥス（きずなを食べる・終わらない夜の 前ぶれ。battle-final.js）
-import { finalAction } from './battle-final.js?v=afbcabe7ad18';
+import { finalAction } from './battle-final.js?v=25ef341afab2';
 // 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
-import { arenaPlan, arenaAdjust } from './battle-arena.js?v=afbcabe7ad18';
+import { arenaPlan, arenaAdjust } from './battle-arena.js?v=25ef341afab2';
 // 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
-import { tokeiQuiet } from './battle-tokei.js?v=afbcabe7ad18';
+import { tokeiQuiet } from './battle-tokei.js?v=25ef341afab2';
 // 第82回 A: 犬夜叉の 系統の オート（おすわり！・ばくりゅうはの かまえ・風の技。battle-r82a.js）
-import { r82aPlan } from './battle-r82a.js?v=afbcabe7ad18';
+import { r82aPlan } from './battle-r82a.js?v=25ef341afab2';
 // 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
-import { r82bPlan } from './battle-r82b.js?v=afbcabe7ad18';
+import { r82bPlan } from './battle-r82b.js?v=25ef341afab2';
 // 第83回 B班: ぬ〜べ〜の 系統の オート（おにの手を 出す・ふういんしなおす・かんのんきょう・おふだ。battle-r83b.js）
-import { r83bPlan, r83bSeal } from './battle-r83b.js?v=afbcabe7ad18';
+import { r83bPlan, r83bSeal } from './battle-r83b.js?v=25ef341afab2';
 // 第83回 A班: 封神演義の 系統の 作戦・先読みの策・強化ふうじ・太極図・軍師の号令・ほう神計画（battle-r83a.js）
-import { r83aPlan } from './battle-r83a.js?v=afbcabe7ad18';
+import { r83aPlan } from './battle-r83a.js?v=25ef341afab2';
 // 第84回 B班: らんま1/2 の 系統の すがた・飛竜しょう天は・かけひき・心の水・敵前だい逃亡・手数の 技（battle-r84b.js）
-import { r84bPlan } from './battle-r84b.js?v=afbcabe7ad18';
+import { r84bPlan } from './battle-r84b.js?v=25ef341afab2';
 // 第84回 A班: 幽☆遊☆白書の 系統の れい丸（ざこに 使わない・ぜんぶ うつ 技は まんたんの 時・0 なら ためる）・仲間のために（battle-r84a.js）
-import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js?v=afbcabe7ad18';
+import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js?v=25ef341afab2';
 // 第85回 B班: 烈火の炎の 系統の 火竜をよぶ（たおれた 仲間 ＝ れっしん・前ぶれ ＝ まどか・ボス ＝ こくう／さいは・敵が 多い ＝ なだれ・強い 敵 1体 ＝ ほむら）・姫を守る忍び（battle-r85b.js）
-import { r85bPlan } from './battle-r85b.js?v=afbcabe7ad18';
+import { r85bPlan } from './battle-r85b.js?v=25ef341afab2';
 // 第85回 A班: スレイヤーズの 系統の となえる・大砲の 呪文・定食（battle-r85a.js）
-import { r85aPlan, r85aLocked } from './battle-r85a.js?v=afbcabe7ad18';
+import { r85aPlan, r85aLocked } from './battle-r85a.js?v=25ef341afab2';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・かけひき・見切りのかまえ）・混とんの大軍師（大魔法の時間・太極・ギガ・スレイブ・みんなでとなえる。battle-r86b.js）
-import { r86bPlan } from './battle-r86b.js?v=afbcabe7ad18';
+import { r86bPlan } from './battle-r86b.js?v=25ef341afab2';
+// 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
+import { r86aPlan } from './battle-r86a.js?v=25ef341afab2';
 
 // さくせん
 export const TACTICS = {
@@ -213,6 +215,10 @@ export function decideAlly(b, c) {
     if (mc) return mc;
   }
 
+  // 4.79) 第86回 A班: 前ぶれに 人とようかいのきずな・ためた力を うつ・きずなの力／玉と 炎の よい 方の 玉に かえる・火竜・二重の太刀（battle-r86a.js）
+  //   この 2つの 職業の 技を もつ 人だけ（もとの 伝説の 技も 覚えて いるので、その オート〈4.8〜4.96〉より 先に 見る。ほかの 職業は 何も かわらない）
+  const r86a = r86aPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r86a) return r86a;
   // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
   const r82 = r82aPlan(b, c, foes, mine, allies);
   if (r82) return r82;

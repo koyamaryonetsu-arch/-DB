@@ -13,21 +13,21 @@
 //   ・家族の 対戦 … 両方 満タン。経験値・お金は なし（記録だけ）
 //   ・負けても お金は へらない・ゲームオーバーに ならない（もとの 仲間の HP は へらない）
 //   ・おわりは battles.js の battleTick が ctx.finish（finishMon）を よぶ
-import { MonArenaBattle, monFighterChar, monAllyInit, monSnapshot, snapChar, monStatRow, monRankFight, MON_EVEN_LV } from '../battle-monarena.js?v=afbcabe7ad18';
-import { normBattleSettings } from '../battle.js?v=afbcabe7ad18';
+import { MonArenaBattle, monFighterChar, monAllyInit, monSnapshot, snapChar, monStatRow, monRankFight, MON_EVEN_LV } from '../battle-monarena.js?v=25ef341afab2';
+import { normBattleSettings } from '../battle.js?v=25ef341afab2';
 import {
   MONARENA_RANKS, MONARENA_TEAM_MAX, MONARENA_OPEN_FLAG, MON_EXP_RATE, monRankInfo, monRankLabel, monRankOpen, monRankCleared, monChampOf, monChampName,
   monArenaRecord, setMonArena, noteMonClear, noteFamResult, monFirstMedalId, monFamMedalId, nextMonRepeatMedal,
-} from '../data/monarena.js?v=afbcabe7ad18';
-import { scaledRewardBonus } from '../data/treasure.js?v=afbcabe7ad18';
-import { MONSTERS } from '../data/monsters.js?v=afbcabe7ad18';
-import { ITEMS } from '../data/items.js?v=afbcabe7ad18';
-import { addItem, itemCount, removeItem } from '../stats.js?v=afbcabe7ad18';
-import { rewardExp, scaleExp, difficultyOf } from '../data/difficulty.js?v=afbcabe7ad18';
-import { ensureCompanions, ensureStorage, growCompanion, noteSeen } from './party.js?v=afbcabe7ad18';
-import { growthSummary } from './growth.js?v=afbcabe7ad18';
-import { mineOf, RESULT_MAX_MS } from './battles.js?v=afbcabe7ad18';
-import { runSteps } from './scripts.js?v=afbcabe7ad18';
+} from '../data/monarena.js?v=25ef341afab2';
+import { scaledRewardBonus } from '../data/treasure.js?v=25ef341afab2';
+import { MONSTERS } from '../data/monsters.js?v=25ef341afab2';
+import { ITEMS } from '../data/items.js?v=25ef341afab2';
+import { addItem, itemCount, removeItem } from '../stats.js?v=25ef341afab2';
+import { rewardExp, scaleExp, difficultyOf } from '../data/difficulty.js?v=25ef341afab2';
+import { ensureCompanions, ensureStorage, growCompanion, noteSeen } from './party.js?v=25ef341afab2';
+import { growthSummary } from './growth.js?v=25ef341afab2';
+import { mineOf, RESULT_MAX_MS } from './battles.js?v=25ef341afab2';
+import { runSteps } from './scripts.js?v=25ef341afab2';
 
 const say = (who, text) => ['say', who, text];
 export const MONARENA_CALLER = '闘技場の司会';

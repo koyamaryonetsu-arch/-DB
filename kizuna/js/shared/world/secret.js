@@ -16,22 +16,22 @@
 //   ログインしなおしても 場所の ID に seed が のこる。前の 版の 'sd_<階>' に いた 人は、次の 階から 新しい seed
 // ・第79回: seed には「いっしょに 入る みんなが 行った ことの ある ダンジョン」の しるしも 入る（階の テーマ。data/secret-themes.js）
 // ・第79回: リレミト・みちびきの糸で 入口の 広間へ（secretEscape。全滅で もどる 時と おなじ あつかい）
-import { MAPS, isBlocked } from '../maps/index.js?v=afbcabe7ad18';
-import { fullHeal, addItem } from '../stats.js?v=afbcabe7ad18';
-import { MONSTERS } from '../data/monsters.js?v=afbcabe7ad18';
-import { SD_HOOKS } from '../data/story-secret.js?v=afbcabe7ad18';
-import { partyOf } from './party.js?v=afbcabe7ad18';
-import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=afbcabe7ad18';
+import { MAPS, isBlocked } from '../maps/index.js?v=25ef341afab2';
+import { fullHeal, addItem } from '../stats.js?v=25ef341afab2';
+import { MONSTERS } from '../data/monsters.js?v=25ef341afab2';
+import { SD_HOOKS } from '../data/story-secret.js?v=25ef341afab2';
+import { partyOf } from './party.js?v=25ef341afab2';
+import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=25ef341afab2';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
   sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice, sdKeyRewards,
-} from '../data/secret.js?v=afbcabe7ad18';
-import { ensureSdShop } from '../data/secret-shop.js?v=afbcabe7ad18';
+} from '../data/secret.js?v=25ef341afab2';
+import { ensureSdShop } from '../data/secret-shop.js?v=25ef341afab2';
 import {
   SD_THEME, sdPartyMask, SD_CRAFTSMAN, SD_CRAFT_HELLO, SD_FAKE_STAIRS, SD_BOX_EMPTY, SD_BOX_JACK, SD_BOX_HIT, SD_TEA_LINES, SD_CART_LINE,
   SD_KOTATSU_LINE, sdDirText,
-} from '../data/secret-themes.js?v=afbcabe7ad18';
+} from '../data/secret-themes.js?v=25ef341afab2';
 
 const GUIDE = 'ひみつのダンジョンの案内人';
 const FAIRY = '休み所のようせい';

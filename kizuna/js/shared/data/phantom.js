@@ -36,14 +36,16 @@
 //   counter     … カウンターの かまえの 技（今 ある 反撃の 構え stance・飛竜しょう天は・れい丸・しょう天は）
 //                 （かまえを 使った 回数。カウンターが 決まった 回数では ない ＝ 自分が 使った 技の 回数だけで 数える きまりの まま）
 //   sakusen     … 作戦の 技（軍師の 技: 作戦を立てる・強化ふうじ・太極図・守りの旗・軍師の号令・先読みの策・ほう神計画・みんなでとなえる）
-import { ABILITIES, abilityRole } from './abilities.js?v=afbcabe7ad18';
-import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js?v=afbcabe7ad18';
-import { jobLabel } from '../job-label.js?v=afbcabe7ad18';
+import { ABILITIES, abilityRole } from './abilities.js?v=25ef341afab2';
+import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js?v=25ef341afab2';
+import { jobLabel } from '../job-label.js?v=25ef341afab2';
 
 export const PHANTOM_TAGS = ['gomu', 'thunderSpell', 'kame', 'hinokami', 'ninjutsu', 'support', 'deduce', 'healSpell', 'attackSpell',
   'sword', 'debuff', 'train', 'pitch', 'sun', 'rain', 'thunder',
   // 第86回 B班（おわりに 足す。引っこしコードの みじかい 形は この ならびの 番号）
   'fist', 'counter', 'sakusen'];
+// 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 条件の タグ（おわりに 足す。引っこしコードの 番号は 前の タグと かわらない。下の tagsOf の さいご）
+PHANTOM_TAGS.push('kabau', 'yokai', 'bolt', 'karyu');
 // 1回で これ いじょうの ダメージを「大きな 一撃」と 数える
 export const BIG_HIT = 5000;
 export const FEAT_STATS = ['dmg', 'dmgSpell', 'dmgFire', 'heal', 'crit', 'big5000'];
@@ -115,6 +117,15 @@ export const PHANTOM_JOBS = {
     name: '混とんの大軍師', masters: ['doramata', 'hoshin_gunshi'],
     conds: [{ use: ['attackSpell'], goal: 500, text: '攻撃の呪文を500回使う' }, { use: ['sakusen'], goal: 500, text: '作戦の技を500回使う' }, { stat: 'dmgSpell', goal: 400000, text: '呪文のダメージの合計40万' }],
   },
+  // 第86回 A班（docs/plan-r86-phantom-a.md。タグの きめ方は 下の tagsOf の さいご）
+  yokai_bridge: {
+    name: '人とようかいのかけ橋', masters: ['bakuryuha', 'jigoku_sensei'],
+    conds: [{ use: ['kabau'], goal: 500, text: 'かばう・守る技を500回使う' }, { use: ['yokai'], goal: 500, text: 'つめ・風・おにの手の技を500回使う' }],
+  },
+  ryujin_kenshi: {
+    name: '竜神の剣士', masters: ['ryujin_samurai', 'rekka'],
+    conds: [{ use: ['bolt'], goal: 300, text: '雷の技を300回使う' }, { use: ['karyu'], goal: 300, text: '火竜の技を300回使う' }, { stat: 'dmg', goal: 300000, text: 'あたえたダメージの合計30万' }],
+  },
 };
 
 // ───── 技の タグ ─────
@@ -124,6 +135,8 @@ const SWORD_JOBS = new Set(['samurai', 'sword_master', 'rurouni', 'hitokiri', 'h
 const RAIL_JOBS = new Set(['railman', 'train_driver', 'keikyu_driver', 'keikyu_president']);
 const BALL_JOBS = new Set(['ballplayer', 'major_leaguer', 'nitoryu', 'hall_of_fame']);
 const TANTEI_JOBS = new Set(['shonen_tantei', 'oshiri_tantei', 'meitantei']);
+// 第86回 A班: 犬夜しゃの 系統（つめの 技を yokai に 数える）
+const INU_JOBS = new Set(['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha']);
 const NOT_SUPPORT = new Set(['nothing', 'escape', 'flee', 'warp', 'exit', 'lure', 'repel']);
 const FOE = new Set(['enemy', 'group', 'enemies']);
 // 第86回 B班: 作戦の 技・カウンターの かまえの 技の こうか
@@ -176,6 +189,15 @@ function tagsOf(id, a, jobsOf) {
   if (!spell && role === 'dmg' && types.has('phys') && (jobs.some(fistJob) || a.weapon === 'fist' || /パンチ|キック|けん$|拳|げり|こぶし/.test(name))) out.add('fist');
   if ([...types].some((t) => COUNTER_TYPES.has(t))) out.add('counter');
   if ([...types].some((t) => SAKUSEN_TYPES.has(t))) out.add('sakusen');
+  // 第86回 A班: kabau … かばう・守る 技（かばう〈cover〉・姫を守る忍び・体をはって守る・きずなの守り・人とようかいのきずな と、守備力を 上げる 補助）
+  //   yokai … つめ・風・おにの手の 技（犬夜しゃの 系統の つめの 技〈weapon: fist〉・風の 属性の ダメージの 技・おにの手の 技〈oni の しるし・おにの手を出す・かくせい・最大出力〉・大よう化・きずなの力）
+  //   bolt … 雷の 属性の ダメージの 技（呪文も 剣も）／karyu … 火竜の 技（火竜をよぶ と、名前に 火竜・八竜 の ある 技）
+  if (['cover', 'r85bHime', 'teShield', 'r86aKabau', 'r86aSig'].some((t) => types.has(t))
+    || (role !== 'dmg' && effs.some((e) => e.type === 'buff' && (e.stat === 'def' || e.stats?.includes('def'))))) out.add('kabau');
+  if ((inJobs(INU_JOBS) && a.weapon === 'fist') || (role === 'dmg' && elems.has('wind')) || effs.some((e) => e.oni)
+    || ['oniHand', 'oniAwake', 'oniSeal', 'daiyoukai', 'r86aKizuna'].some((t) => types.has(t))) out.add('yokai');
+  if (role === 'dmg' && elems.has('bolt')) out.add('bolt');
+  if (types.has('r85bRyu') || /火竜|八竜/.test(name)) out.add('karyu');
   for (const t of Array.isArray(a.phantomTags) ? a.phantomTags : []) if (PHANTOM_TAGS.includes(t)) out.add(t);
   return out;
 }

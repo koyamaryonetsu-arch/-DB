@@ -146,6 +146,13 @@ Object.assign(JOB_SAY, {
   tenkaichi_king: '「天下一は、このこぶしでつかむ！」',
   chaos_gunshi: '「作戦どおり。さあ、大魔法の時間だ！」',
 });
+
+
+// 第86回 A班: 幻の職業 2つ（jobs-r86a.js）
+Object.assign(JOB_SAY, {
+  yokai_bridge: '「人もようかいも、おれが守ってやる！」',
+  ryujin_kenshi: '「雷の竜、火の竜、力をかしてくれ！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',
