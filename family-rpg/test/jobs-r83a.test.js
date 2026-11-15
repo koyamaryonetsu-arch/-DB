@@ -568,7 +568,8 @@ test('第83回 A の 職業: タグで 合体技（3つ いじょう）・職業
   for (const j of ['taikobo', 'hoshin_gunshi']) {
     assert.ok(trialJob(j));
     const adj = PHANTOM_ADJ[j];
-    assert.ok(Array.isArray(adj) && adj.length === 3 && adj.every((v) => v >= 0.3 && v <= 4), `${j}: ${adj}`);
+    // 軍師の まぼろしは 補助・回復が 多いので 倍率が 大きい（6 まで）
+    assert.ok(Array.isArray(adj) && adj.length === 3 && adj.every((v) => v >= 0.3 && v <= 6), `${j}: ${adj}`);
     assert.ok(phantomSkills(j).length >= 3, `${j}: まぼろしの 技`);
     assert.ok(!phantomSkills(j).some((id) => ['sd_sakusen', 'hg_gorei', 'hg_sakiyomi', 'tk_hata', 'hoshin_gunshi_sig'].includes(id)), 'まぼろしは 仲間の しくみを 使わない');
     textOk(TRIAL_WORDS[j], j);

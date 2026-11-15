@@ -66,6 +66,9 @@ Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23
 Object.assign(PHANTOM_ADJ, { inuyasha: [1.28, 1.02, 1.18], bakuryuha: [0.76, 0.49, 0.62] });
 // 第82回 B班: ヤイバ・竜神けんのサムライ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0.52, 0.49] });
+// 第83回 A班: 太公望・ほう神の大軍師（tools/sim-trial-tune.mjs 10 0.75 HI=6 を SEED 500・900 で さがした 平均）。
+//   軍師の まぼろしは 補助・回復が 多く、攻撃の 技が 少ない（太公望は 風のやいば・二れん だけ）ので 倍率が 大きい
+Object.assign(PHANTOM_ADJ, { taikobo: [5.73, 6, 6], hoshin_gunshi: [4.18, 3.95, 5.53] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
