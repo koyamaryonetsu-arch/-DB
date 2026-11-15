@@ -16,6 +16,8 @@ import { r83bMarks } from './battle-r83b.js';
 import { r83aMarks, paintPlanMarks } from './battle-r83a.js';
 // 第84回 B班: 水と お湯の すがた・心の水・よけ・かまえ・いかりの 札（battle-r84b.js）
 import { r84bMarks, paintFormMarks } from './battle-r84b.js';
+// 第85回 A班: となえて いる 札（battle-r85a.js）
+import { r85aMarks } from './battle-r85a.js';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -50,6 +52,7 @@ export function unitMarks(a) {
   out.push(...r83bMarks(a));
   out.push(...r83aMarks(a));
   out.push(...r84bMarks(a));
+  out.push(...r85aMarks(a));
   return out;
 }
 

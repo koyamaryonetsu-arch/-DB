@@ -12,6 +12,8 @@ import { AURA43J, aura43j } from './hero-r43j.js';
 import { AURA79 } from './hero-r79.js';
 // 第84回 B班: 飛竜しょう天はの達人の 竜巻の オーラ（hero-r84b.js）
 import { AURA84B } from './hero-r84b.js';
+// 第85回 A班: ドラまたの 赤い オーラ（hero-r85a.js）
+import { AURA85A } from './hero-r85a.js';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -38,6 +40,7 @@ Object.assign(AURA, AURA41B);
 Object.assign(AURA, AURA43J);
 Object.assign(AURA, AURA79);
 Object.assign(AURA, AURA84B);
+Object.assign(AURA, AURA85A);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
