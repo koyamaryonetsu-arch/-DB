@@ -1058,6 +1058,8 @@ export class Battle {
         break;
       }
       case 'magic': {
+        // 第83回 A班: ほう神（敵の HPが 少ないほど 大きい・たおすと MP。battle-r83a.js）
+        if (eff.r83aHoshin) { r83aEffect(this, c, a, { ...eff, type: 'r83aHoshin' }, ev, targets, cmd, powMult); break; }
         for (const t of targets) {
           this.magicHit(c, t, eff, ev, powMult);
           if (eff.status && t.alive) this.tryStatus(c, t, eff.status, ev, powMult);

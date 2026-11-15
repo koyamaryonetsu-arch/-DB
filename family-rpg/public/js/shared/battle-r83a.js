@@ -211,16 +211,17 @@ export function r83aEffect(b, c, a, eff, ev, targets, cmd, powMult = 1) {
       return true;
     }
     case 'r83aHoshin': {
+      const H = eff.r83aHoshin || eff;
       for (const t of targets) {
         if (!t.alive) continue;
-        const k = 1 + (eff.low || 1) * (1 - Math.max(0, t.hp) / Math.max(1, t.maxHp));
+        const k = 1 + (H.low || 1) * (1 - Math.max(0, t.hp) / Math.max(1, t.maxHp));
         const base = (eff.base || [100, 120]).map((v) => Math.round(v * k));
         b.magicHit(c, t, { type: 'magic', element: eff.element, base, thr: eff.thr }, ev, powMult);
         if (!t.alive && t.side !== c.side) {
           ev.lines.push(`${t.name}は、光にほう神された！`);
           for (const x of b.sideOf(c, true)) {
             if (!x.alive) continue;
-            const d = Math.min(x.maxMp - x.mp, b.rng.int(eff.mpBack?.[0] ?? 8, eff.mpBack?.[1] ?? 14));
+            const d = Math.min(x.maxMp - x.mp, b.rng.int(H.mpBack?.[0] ?? 8, H.mpBack?.[1] ?? 14));
             if (d <= 0) continue;
             x.mp += d;
             ev.upd.push(x);

@@ -10,7 +10,8 @@
 //  ・type 'r83aHata'    … 守りの旗（仲間全員、次に 受ける 1回の ダメージが 半分）
 //  ・type 'r83aGorei'   … 軍師の号令（仲間 1人が すぐ 動ける）
 //  ・type 'r83aSaki'    … 先読みの策（次の 自分の 番まで、前ぶれの ある 大技の ダメージが 仲間全員 半分）
-//  ・type 'r83aHoshin'  … ほう神（敵の HPが 少ないほど 大ダメージ。たおすと 仲間全員の MPが 回復）
+//  ・effect.r83aHoshin  … ほう神（magic の 技の しるし。敵の HPが 少ないほど 大ダメージ。たおすと 仲間全員の MPが 回復。
+//                         オートは ふつうの 呪文と して えらぶ。battle.js の 'magic' の はじめで battle-r83a.js へ）
 //  ・type 'r83aKeikaku' … ほう神計画（3回の 行動の 間 作戦の 効き目が 2倍 ＋ 仲間全員が すぐ 動ける）
 // えんしゅつ（anim）は client/render/battlefx-r83a.js（r83a_… と 看板の 技）
 
@@ -43,13 +44,13 @@ export const R83A_ABILITIES = {
   },
   fishing_doshi_sig: {
     name: '大物がつれた！', kana: 'おおものがつれた', kind: 'skill', job: 'fishing_doshi', mp: 10, target: 'enemies', role: 'dmg',
-    effect: { type: 'random', options: ['fd_catch_fish', 'fd_catch_fish', 'fd_catch_boot', 'fd_catch_box'] },
+    effect: { type: 'random', options: ['fd_catch_fish', 'fd_catch_fish', 'fd_catch_boot', 'fd_catch_box'] }, autoRandom: true,
     desc: '思いきりつりざおを引くと、何かがつれた！何がつれるかは運しだい。大きな魚なら、敵全体にダメージ。長ぐつなら何も起きない。宝箱ならお金が手に入る。', cast: '{a}「…む！大物の手ごたえ！」', anim: 'fishing_doshi_sig',
   },
   // 大物がつれた！の 中み（運で どれか。hidden … 技の 一覧には 出ない）
   fd_catch_fish: {
     name: '大きな魚', kana: 'おおきなさかな', kind: 'skill', job: 'fishing_doshi', mp: 0, target: 'enemies', hidden: true,
-    effect: { type: 'magic', element: 'water', base: [62, 78], thr: 40 },
+    effect: { type: 'magic', element: 'water', base: [36, 46], thr: 40 },
     cast: '大きな魚がとび出して、敵全体にたいあたり！', anim: 'fishing_doshi_sig',
   },
   fd_catch_boot: {
@@ -99,8 +100,8 @@ export const R83A_ABILITIES = {
   // ───────────── 太公望（超級職。作戦に 速攻・太極図） ─────────────
   tk_yaiba: {
     name: '風のやいば・二れん', kana: 'かぜのやいばにれん', kind: 'skill', job: 'taikobo', mp: 10, target: 'enemy',
-    effect: { type: 'multi', parts: [{ type: 'magic', element: 'wind', base: [46, 56], thr: 56 }, { type: 'magic', element: 'wind', base: [46, 56], thr: 56 }] },
-    desc: '風のやいばを、2回つづけてとばす。敵1体に風のダメージを2回。', cast: '{a}の風のやいば！もう一つ！', anim: 'r83a_wind2',
+    effect: { type: 'magic', element: 'wind', base: [92, 112], thr: 56 },
+    desc: '2つの風のやいばを、十字にかさねてとばす。敵1体に風の大ダメージ。', cast: '{a}の風のやいば！もう一つ！', anim: 'r83a_wind2',
   },
   tk_supu: {
     name: 'スープーに乗る', kana: 'すーぷーにのる', kind: 'skill', job: 'taikobo', mp: 8, target: 'self', role: 'sup',
@@ -151,7 +152,7 @@ export const R83A_ABILITIES = {
   },
   hg_hoshin: {
     name: 'ほう神', kana: 'ほうしん', kind: 'skill', job: 'hoshin_gunshi', mp: 20, target: 'enemy', role: 'dmg',
-    effect: { type: 'r83aHoshin', element: 'light', base: [110, 130], thr: 86, low: 1.2, mpBack: [8, 14] },
+    effect: { type: 'magic', element: 'light', base: [110, 130], thr: 86, r83aHoshin: { low: 1.2, mpBack: [8, 14] } },
     desc: 'ほう神の光で、敵1体をつつむ。敵のHPが少ないほど大ダメージ。これでたおすと、仲間全員のMPが回復する。', cast: '{a}「ほう神！」', anim: 'r83a_hoshin',
   },
   hoshin_gunshi_sig: {
