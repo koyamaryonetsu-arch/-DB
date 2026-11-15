@@ -11,9 +11,9 @@
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
 // ・キャラの jobs[職業] に のこす: tr … クリアした 試練の 数 / tq … 受けている 試練（1・2）/ tn … 修行の 数
 //   （家族で 遊んでも 1人ずつ。world/merge.js は 多い ほう、world/save.js が 古い セーブを ととのえる）
-import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=108fff3a43a7';
-import { ABILITIES } from './abilities.js?v=108fff3a43a7';
-import { jobLabel } from '../job-label.js?v=108fff3a43a7';
+import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=1a35decaac81';
+import { ABILITIES } from './abilities.js?v=1a35decaac81';
+import { jobLabel } from '../job-label.js?v=1a35decaac81';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
@@ -257,6 +257,11 @@ Object.assign(TRIAL_WORDS, {
   enjutsushi: '炎は、こわすためでなく、守るためにともせ。',
   rekka: '8ひきの火竜も、心がひとつでなければ動かぬ。',
 });
+// 第85回 A班（超級職・伝説。jobs-r85a.js。男の子は TRIAL_WORDS_MASC）
+Object.assign(TRIAL_WORDS, {
+  lina: 'となえる時は、あせらずに。大きな力ほど、待つ心がいる。',
+  doramata: '強い呪文より、よく食べよく休むこと。それが天才よ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
@@ -265,6 +270,8 @@ export const TRIAL_WORDS_MASC = {
   galaxy_queen: '星の光は、遠くの仲間にもとどくのだ。',
   // 第66回 D班: ギャラクシーマリオ
   rosetta: '星から星へ、ジャンプでどこまでも行けるさ！',
+  // 第85回 A班: スレイヤーズの 系統（男の子）
+  doramata: '強い呪文より、よく食べよく休むこと。それが天才だ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

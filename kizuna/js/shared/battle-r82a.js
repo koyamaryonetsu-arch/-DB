@@ -18,9 +18,9 @@
 // battle.js から よぶ: r82aTurnStart（executeNext の 行動の はじめ）・youkaiAuto（onReady）・youkaiCmd（行動を きめる 前）・
 //   r82aEffect（applyAbility の こうか）・r82aPhysMult（calcPhys）・r82aDamage（damage）・r82aResolve（行動の あと）・r82aPub（pub）
 // ai.js から よぶ: r82aPlan（オートの 動き）
-import { JOBS } from './data/jobs.js?v=108fff3a43a7';
-import { ABILITIES } from './data/abilities.js?v=108fff3a43a7';
-import { mpCost } from './stats.js?v=108fff3a43a7';
+import { JOBS } from './data/jobs.js?v=1a35decaac81';
+import { ABILITIES } from './data/abilities.js?v=1a35decaac81';
+import { mpCost } from './stats.js?v=1a35decaac81';
 
 export const YOUKAI_AT = 0.3;
 export const YOUKAI_OFF = 0.5;

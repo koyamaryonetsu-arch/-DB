@@ -4,22 +4,24 @@
 //   数は のこりの 行動の 回数（かかった 人が 行動するたびに 1 へる）。ずっと つづく ものは 数なし
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（r35-css.js と おなじ やりかた）
 //   .tag.slv … 技の レベルの 札（メニューの「呪文・技」・戦いの 技の 一覧。Lv5 は .max で 金色）
-import { el } from './ui/dom.js?v=108fff3a43a7';
-import { buffMarks, regenMark, statusNames } from './ui/info.js?v=108fff3a43a7';
+import { el } from './ui/dom.js?v=1a35decaac81';
+import { buffMarks, regenMark, statusNames } from './ui/info.js?v=1a35decaac81';
 // 第82回 A: ようかい化・大よう化・おすわり・ばくりゅうはの かまえの 札（battle-r82a.js）
-import { r82aMarks } from './battle-r82a.js?v=108fff3a43a7';
+import { r82aMarks } from './battle-r82a.js?v=1a35decaac81';
 // 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
-import { r82bMarks } from './battle-r82b.js?v=108fff3a43a7';
+import { r82bMarks } from './battle-r82b.js?v=1a35decaac81';
 // 第83回 B班: おにの手・かくせい・体をはって守る の 札（battle-r83b.js）
-import { r83bMarks } from './battle-r83b.js?v=108fff3a43a7';
+import { r83bMarks } from './battle-r83b.js?v=1a35decaac81';
 // 第83回 A班: 作戦・先読み・守りの旗・強化ふうじの 札（battle-r83a.js）
-import { r83aMarks, paintPlanMarks } from './battle-r83a.js?v=108fff3a43a7';
+import { r83aMarks, paintPlanMarks } from './battle-r83a.js?v=1a35decaac81';
 // 第84回 B班: 水と お湯の すがた・心の水・よけ・かまえ・いかりの 札（battle-r84b.js）
-import { r84bMarks, paintFormMarks } from './battle-r84b.js?v=108fff3a43a7';
+import { r84bMarks, paintFormMarks } from './battle-r84b.js?v=1a35decaac81';
 // 第84回 A班: のこりの れい丸・仲間のために・立ち上がった あとの 力の 札（battle-r84a.js）
-import { r84aMarks } from './battle-r84a.js?v=108fff3a43a7';
+import { r84aMarks } from './battle-r84a.js?v=1a35decaac81';
 // 第85回 B班: まどかの けっかい・るいの まぼろしの 札（battle-r85b.js）
-import { r85bMarks } from './battle-r85b.js?v=108fff3a43a7';
+import { r85bMarks } from './battle-r85b.js?v=1a35decaac81';
+// 第85回 A班: となえて いる 札（battle-r85a.js）
+import { r85aMarks } from './battle-r85a.js?v=1a35decaac81';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -56,6 +58,7 @@ export function unitMarks(a) {
   out.push(...r84bMarks(a));
   out.push(...r84aMarks(a));
   out.push(...r85bMarks(a));
+  out.push(...r85aMarks(a));
   return out;
 }
 
