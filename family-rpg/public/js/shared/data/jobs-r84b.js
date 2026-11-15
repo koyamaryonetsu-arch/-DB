@@ -32,7 +32,7 @@ export const JOBS_R84B = {
   hiryu_master: {
     id: 'hiryu_master', name: '飛竜しょう天はの達人', kana: 'ひりゅうしょうてんはのたつじん', short: '飛竜', tier: 3, req: ['ranma'], reqSuper: 1, family: 'phys', color: '#2aa8c8',
     desc: '竜巻をあやつる、伝説の格闘家。かまえなくても、空から竜巻を落とせる。水とお湯の、両方のよい所も持てる。早おとめ乱馬と、ほかの超級職を1つきわめた者だけがなれる。',
-    mods: { hp: 1.5, mp: 1.2, str: 1.8, def: 1.25, agi: 1.95, mag: 0.75, heal: 1.1 },
+    mods: { hp: 1.5, mp: 1.2, str: 1.85, def: 1.25, agi: 1.9, mag: 0.75, heal: 1.1 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1.5, agi: 1, hp: 0.5 },
     learn: [[1, 'hr_kidan'], [3, 'hr_toubou'], [5, 'hr_kokoro'], [7, 'hr_senju'], [8, 'hr_kakehiki'], [10, 'hiryu_master_sig']],

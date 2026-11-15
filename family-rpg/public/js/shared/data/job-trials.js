@@ -245,7 +245,7 @@ Object.assign(TRIAL_WORDS, {
 // 第84回 B班（超級職・伝説。jobs-r84b.js）
 Object.assign(TRIAL_WORDS, {
   ranma: '水でもお湯でも、心はひとつ。どんなすがたでも、まっすぐ戦え。',
-  hiryu_master: 'あつくなった相手ほど、すきが大きい。心はいつも、しずかな水のように。',
+  hiryu_master: 'あつくなった相手ほど、すきが大きい。心は、しずかな水に。',
 });
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

@@ -621,7 +621,7 @@ test('第84回 B の 職業: タグで 合体技（3つ いじょう）・職業
     assert.ok(phantomSkills(j).length >= 3, `${j}: まぼろしの 技`);
     for (const id of phantomSkills(j)) assert.ok(!/^r84b/.test(ABILITIES[id].effect.type), `${id}: まぼろしは すがた・かまえ・かけひきを 使わない`);
     textOk(TRIAL_WORDS[j], j);
-    assert.ok(TRIAL_WORDS[j].length <= 36);
+    assert.ok(TRIAL_WORDS[j].length <= 32);
     textOk(masterName(j), j);
   }
   // 乗り物: パンダ（3つの 職業）
