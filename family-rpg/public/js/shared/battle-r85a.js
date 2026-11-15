@@ -51,8 +51,10 @@ export function chanting(c) {
   const s = st(c);
   return !s.sleep && !s.paralyze && !s.silence && !s.prison && !s.rift;
 }
-// 合体技の 強さに 数える 時の 大砲の 呪文の 倍（2ターンで 1発 なので 半分。battle-dual.js の memberPower。R85A_DUAL.mult を かえて ためせる）
-export const R85A_DUAL = { mult: 0.5 };
+// 合体技の 強さに 数える 時の 大砲の 呪文の 倍（battle-dual.js の memberPower。R85A_DUAL.mult を かえて ためせる）
+//   ボスの しらべ（tools/sim-r85a.mjs の R85A_DUAL）: そのまま（1）で ドラまた 58%・618びょう（魔法の 伝説 5つの 平均 58%・592）／
+//   0.75 で 38%・692／0.5 で 34%・702。そのままでも ほかの 伝説と ならぶ（強すぎない）ので 1。強すぎたら ここを 下げる
+export const R85A_DUAL = { mult: 1 };
 export const bigDualMult = (a) => (isBig(a) ? R85A_DUAL.mult : 1);
 // 大砲の 呪文が えらべない（仲間で となえて いない）
 export function r85aLocked(c, a) {

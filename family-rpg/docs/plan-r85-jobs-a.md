@@ -153,6 +153,18 @@ ai.js: import・canUse（1行）・4.97（2行）。
 
 - 定食の 回数の 上限を 8回に した 時は ジャハールで 55% → 0% に なった（特もり定食の 全体回復で もって いた）。上限は 30回（終わらない 戦いの ための 安全）に した
 
+### 合体技に 大砲を 数える 倍（メインの 取りこみ 2回め。第84回 A班の「れい丸は 割り引く」と おなじ 所 ＝ battle-dual.js の memberPower に 1行）
+合体技は となえなくても 出るので、大砲（ドラグ・スレイブ・ラグナ・ブレード）を 合体技の「いちばん 強い 技」に そのまま 数えて よいか しらべた（知っている 人・20回）
+
+| 大砲の 倍（`R85A_DUAL.mult`） | ドラまた 勝率・長さ | リナ 勝率・長さ |
+|---|---|---|
+| **1（そのまま。今の 数）** | **58%・618** | **20%・672** |
+| 0.75 | 38%・692 | 18%・673 |
+| 0.5（2ターンで ならす） | 34%・702 | 14%・674 |
+
+- そのままで 魔法の 伝説 5つの 平均（58%・592）と ならぶ ＝ 強すぎない。0.5 に すると −24ポイント（弱すぎ）。なので 倍は 1 に して、割り引く しくみ（`bigDualMult`）だけ のこした（強すぎた 時は ここを 下げる）
+- ギガ・スレイブは base が 1 なので 合体技には ほぼ 数えない
+
 ### 職業の試練（PHANTOM_ADJ）
 - `SEED=500/900 HI=4 tools/sim-trial-tune.mjs 10 0.75` の 平均: リナ [1.6, 1.57, 1.51]・ドラまた [2.59, 2.41, 3.34]
 - `tools/sim-trial.mjs 20`: リナ 75%・85%・95%／ドラまた 80%・85%・80%（めやす 6〜9割。リナの 三の試練は 少し 高い）
@@ -173,7 +185,7 @@ ai.js: import・canUse（1行）・4.97（2行）。
 | test/jobs-r85a.test.js | 新しい（20こ。まぜた パーティーの テスト〈軍師の 作戦と 号令・ゆう助の れい丸・らんまの すがた・となえる〉も） |
 
 みんなの ファイルに 足した 行（けして いない）:
-shared: battle.js（import・身を 守る・validate・executeNext〈2か所〉・'magic'・case・damage・pub）・ai.js（import・canUse・4.97）・battle-trial.js（PHANTOM_ADJ・NO_USE）／
+shared: battle.js（import・身を 守る・validate・executeNext〈2か所〉・'magic'・case・damage・pub）・ai.js（import・canUse・4.97）・battle-trial.js（PHANTOM_ADJ・NO_USE）・battle-dual.js（import と memberPower の 1行）／
 shared/data: jobs.js・abilities.js・hirameki.js・job-tags.js・job-talk.js（JOB_SAY・JOB_SAY_MASC）・job-trials.js（TRIAL_WORDS・TRIAL_WORDS_MASC）・vehicles.js／
 client: battle.js（import・HIT_DELAY・ANIM_SFX・技の 一覧の 1行〈札と うすい〉・えんしゅつの 1行）・battle-buffs.js（札）／
 client/render: battlefx.js・hero-outfit.js（outfit85a の 1行）・hero-gear.js（はちまき）・chars.js・hero-aura.js（オーラ）・vehicle-art.js／tools/kanji-check.mjs
@@ -188,5 +200,6 @@ client/render: battlefx.js・hero-outfit.js（outfit85a の 1行）・hero-gear.
 - 定食は ふつうの オートの 回復には 入らない（noAuto）。家族が「作戦」で 定食を「使わない」に すると、オートは 食べない
 - 引っこしコード: キャラに 項目を 足して いない。職業 3つ・技 21こ（ひらめき こみ）で いちばん 大きな セーブは 27986文字（3通。見はりの「4通の 90%」の 中）
 - 神殿の せつめいの 伝説の 一覧（client/ui/services.js）・お知らせ・README は さわって いない。スレイヤーズの 系統の たのまれごと（お仕事いらい板）は まだ ない
-- メインの ブランチ（claude/elegant-bell-al2f1w）を 取りこんだ（第84回 A班〈幽☆遊☆白書〉が 先に 入って いた）。ぶつかった 23ファイルは 両方 のこした。
-  client/battle.js の 技の 一覧の 行は「れい丸の 札」と「となえてから」の 両方・うすい わけも `noRei || r85.off` の 両方。B班（烈火の炎）は まだ 入って いない
+- メインの ブランチ（claude/elegant-bell-al2f1w）を 2回 取りこんだ（1回め 第84回 A班〈幽☆遊☆白書〉・2回め 第85回 B班〈烈火の炎〉。`108fff3a4`）。ぶつかった 23ファイルずつ、両方 のこした。
+  「剣か こぶし」の 合体技の 組は 上限（職業の 3分の 1）なので、この 系統の タグに こぶし・剣は 足して いない
+  client/battle.js の 技の 一覧の 行は「れい丸の 札」と「となえてから」の 両方・うすい わけも `noRei || r85.off` の 両方。まぜた パーティーの テストに 烈火も 入れた

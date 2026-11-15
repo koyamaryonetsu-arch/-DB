@@ -771,8 +771,8 @@ test('第85回 A の まぜた パーティー: 軍師の 作戦・号令・れ�
   use(b, ra, { type: 'ability', id: 'ms_mizu', form: 'mizu' });
   assert.equal(formOf(ra), 'mizu');
   assert.equal(pub(ra).r85aChant, 0);
-  // 合体技の 強さには 大砲を 半分で 数える（2ターンで 1発。battle-dual.js の memberPower）
-  assert.equal(bigDualMult(ABILITIES.lina_sig), 0.5);
+  // 合体技の 強さに 数える 大砲の 倍（battle-dual.js の memberPower。ボスの しらべで そのまま〈1〉に した。docs/plan-r85-jobs-a.md）
+  assert.ok(bigDualMult(ABILITIES.lina_sig) > 0 && bigDualMult(ABILITIES.lina_sig) <= 1);
   assert.equal(bigDualMult(ABILITIES.ln_elmekia), 1);
   // オート: みんな こわれない
   b.allies.forEach((x, i) => { x.abilities = learnedAbilities(chars[i]); });
