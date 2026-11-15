@@ -303,12 +303,12 @@ test('第85回 B の 火竜をよぶ: あいて（なし ＝ ボス・HP の 多
   b.allies[2].alive = false; b.allies[2].hp = 0;
   act = use(b, me, { type: 'ability', id: 'rk_ryu', ryu: 'resshin' });
   assert.ok(b.allies[2].alive, 'たおれた 仲間の 先頭');
-  // MP が たりない（こくう 18。技の MP 8 は もどる）
+  // MP が たりない（こくう 12。技の MP 7 は もどる）
   readyUp(b, me);
-  me.mp = 12;
+  me.mp = 9;
   assert.equal(b.command(me.id, { type: 'ability', id: 'rk_ryu', ryu: 'kokuu', target: b.enemies[0].id }, 's1').ok, true);
   act = runUntilAct(b, me.id);
-  assert.equal(me.mp, 12);
+  assert.equal(me.mp, 9);
   assert.ok(act.lines.some((l) => l.includes('来てくれなかった')), `${act.lines}`);
   // メニュー（client/battle-r85b.js の ryuItems）: 4ひき／8ひき・MP・たりない 火竜は えらべない
   const p = pub(me);
@@ -465,7 +465,9 @@ test('第85回 B の オート: たおれた 仲間 ＝ れっしん・前ぶれ
     s.me.abilities = learnedAbilities(s.c);
     s.b.enemies[0].telegraph = { name: 'x' };
     assert.equal(plan(s).ryu, 'madoka');
-    // ボス（二ひき同時を 覚えて いない 伝説だけの 時は こくう）
+    // ボス（こくう。炎術士の 4ひきだけなら さいは）。けっかい・目ざめの かけ直しは この テストでは 止める
+    R85B_AI.guard = 0;
+    R85B_AI.mezame = 0;
     s = setup('rekka', { mates: ['warrior'] });
     s.me.abilities = ['rk_ryu'];
     s.b.enemies[0].boss = true; s.b.boss = true;

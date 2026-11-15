@@ -33,6 +33,8 @@ import { r83bPlan, r83bSeal } from './battle-r83b.js';
 import { r83aPlan } from './battle-r83a.js';
 // 第84回 B班: らんま1/2 の 系統の すがた・飛竜しょう天は・かけひき・心の水・敵前だい逃亡・手数の 技（battle-r84b.js）
 import { r84bPlan } from './battle-r84b.js';
+// 第84回 A班: 幽☆遊☆白書の 系統の れい丸（ざこに 使わない・ぜんぶ うつ 技は まんたんの 時・0 なら ためる）・仲間のために（battle-r84a.js）
+import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js';
 // 第85回 B班: 烈火の炎の 系統の 火竜をよぶ（たおれた 仲間 ＝ れっしん・前ぶれ ＝ まどか・ボス ＝ こくう／さいは・敵が 多い ＝ なだれ・強い 敵 1体 ＝ ほむら）・姫を守る忍び（battle-r85b.js）
 import { r85bPlan } from './battle-r85b.js';
 
@@ -219,6 +221,9 @@ export function decideAlly(b, c) {
   // 4.95) 第84回 B班: はじめに すがたを えらぶ・前ぶれや 敵の 強化に 飛竜しょう天は・ボスに かけひき・敵が 多ければ 手数の 技（battle-r84b.js）
   const r84b = r84bPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r84b) return r84b;
+  // 4.95) 第84回 A班: れい丸が 0 なら ためる・たおれた 仲間が いれば 仲間のために（battle-r84a.js）
+  const r84 = r84aPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r84) return r84;
   // 4.96) 第85回 B班: 火竜を えらんで よぶ・弱った 仲間を かばう（この 系統の 技だけを 見る。battle-r85b.js）
   const r85b = r85bPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r85b) return r85b;
@@ -286,6 +291,8 @@ export function canUse(b, c, id) {
   if ((a.kind === 'spell' || a.spellLike || a.effect?.type === 'mahouken') && b?.noSpells) return false;
   if (a.kind === 'combo' && c.side === 'ally' && c.penChar && !comboAllowed(c.penChar, id)) return false;
   if (!weaponOk(a, c.weaponCat)) return false;
+  // 第84回 A班: れい丸が 足りない 技は 使えない（battle-r84a.js）
+  if (!reiOk(c, a)) return false;
   return mpCost(c.penChar, id) <= c.mp;
 }
 
@@ -551,6 +558,8 @@ function chooseAttack(b, c, tac, foes) {
   // 光っている 敵に 呪文を 使わない など（battle-temple.js）
   templeAdjust(b, c, opts);
   arenaAdjust(b, c, opts);
+  // 第84回 A班: ざこに れい丸を 使わない・ぜんぶ うつ 技は まんたんの 時（battle-r84a.js）
+  r84aAdjust(b, c, opts, fightWeight(b));
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
   if (opts[0]?.risky) return { type: 'defend' };

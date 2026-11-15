@@ -27,6 +27,9 @@ for (const j of R83A_JOBS) R66_JOBS.add(j);
 // 第84回 B班: らんま1/2 の 系統の ひとことは test/jobs-r84b.test.js
 import { R84B_JOBS } from '../public/js/shared/data/jobs-r84b.js';
 for (const j of R84B_JOBS) R66_JOBS.add(j);
+// 第84回 A班: 幽☆遊☆白書の 系統の ひとことは test/jobs-r84a.test.js
+import { R84A_JOBS } from '../public/js/shared/data/jobs-r84a.js';
+for (const j of R84A_JOBS) R66_JOBS.add(j);
 // 第85回 B班: 烈火の炎の 系統の ひとことは test/jobs-r85b.test.js
 import { R85B_JOBS } from '../public/js/shared/data/jobs-r85b.js';
 for (const j of R85B_JOBS) R66_JOBS.add(j);

@@ -247,6 +247,11 @@ Object.assign(TRIAL_WORDS, {
   ranma: '水でもお湯でも、心はひとつ。どんなすがたでも、まっすぐ戦え。',
   hiryu_master: 'あつくなった相手ほど、すきが大きい。心は、しずかな水に。',
 });
+// 第84回 A班（超級職・伝説。jobs-r84a.js）
+Object.assign(TRIAL_WORDS, {
+  yusuke: 'れい丸は数がかぎられる。うつ時を見きわめよ。',
+  makai_prince: '本当の強さは、仲間のために立ち上がる心だ。',
+});
 // 第85回 B班（超級職・伝説。jobs-r85b.js）
 Object.assign(TRIAL_WORDS, {
   enjutsushi: '炎は、こわすためでなく、守るためにともせ。',

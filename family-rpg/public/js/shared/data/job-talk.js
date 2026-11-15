@@ -123,6 +123,13 @@ Object.assign(JOB_SAY, {
   ranma: '「水でもお湯でも、かかってこい！」',
   hiryu_master: '「竜巻よ、空までまい上がれ！」',
 });
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js）
+Object.assign(JOB_SAY, {
+  furyo: '「けんかなら、負けねえぞ！」',
+  reikai_tantei: '「事件なら、まかせとけ！」',
+  yusuke: '「まだ、終わってねえ！」',
+  makai_prince: '「へへっ、楽しくなってきたぜ！」',
+});
 // 第85回 B班: 烈火の炎の 系統（jobs-r85b.js）
 Object.assign(JOB_SAY, {
   enjutsushi: '「火竜よ、おれに力をかせ！」',

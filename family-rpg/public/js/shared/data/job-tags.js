@@ -276,6 +276,14 @@ Object.assign(JOB_TAGS, {
   hiryu_master: ['fist', 'wind', 'ice', 'master'], // 飛竜しょう天はの達人（竜巻を あやつる・心の水）
 });
 
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js。合体技の 相手の 案: サイヤ人〈こぶし〉・名探ていの 系統〈推理〉・武闘家〈こぶし〉）
+Object.assign(JOB_TAGS, {
+  furyo: ['fist', 'kid', 'guard'], // ふりょう（けんかの こぶし・中学生・仲間を かばう）
+  reikai_tantei: ['detective', 'light', 'kid'], // れい界探てい（ふしぎな 事件の 探てい・れい丸の 青い 光・中学生。こぶしの 組〈剣かこぶし〉が 広く なりすぎる ので こぶしは つけない）
+  yusuke: ['fist', 'light', 'rival', 'kid'], // うら飯ゆう助（れい丸・れい光はどうけん・ライバルと きそう・中学生）
+  makai_prince: ['fist', 'dark', 'rival'], // 魔界の王の子（れい丸・よう丸〈闇〉・魔界の 王の 血）
+});
+
 // 第85回 B班: 烈火の炎の 系統（jobs-r85b.js。合体技の 相手の 案: 炎柱〈炎〉・木の葉の忍び〈忍び〉・忍者〈忍び・炎〉。「竜」の タグは 作らない）
 Object.assign(JOB_TAGS, {
   enjutsushi: ['fire', 'shinobi', 'guard'], // 炎術士（火竜・忍び・まどかの けっかい）
