@@ -75,8 +75,8 @@ Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 
 Object.assign(PHANTOM_ADJ, { ranma: [2.08, 1.78, 1.93], hiryu_master: [1.1, 0.88, 0.96] });
 // 第84回 A班: うら飯ゆう助・魔界の王の子（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。まぼろしも れい丸を 持つ〈4発・6発〉）
 Object.assign(PHANTOM_ADJ, { yusuke: [1.25, 0.95, 1.31], makai_prince: [1.12, 0.91, 1.04] });
-// 第85回 B班: 炎術士・八竜の炎術士・烈火（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-Object.assign(PHANTOM_ADJ, { enjutsushi: [1.5, 1.3, 1.3], rekka: [1.0, 0.9, 0.9] });
+// 第85回 B班: 炎術士・八竜の炎術士・烈火（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。tools/sim-trial.mjs 20 で 6〜9割に 合わせた）
+Object.assign(PHANTOM_ADJ, { enjutsushi: [1.08, 0.9, 1.05], rekka: [1.41, 1.17, 1.7] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
