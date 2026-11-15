@@ -130,8 +130,8 @@ test('第86回 B の 幻の職業: 2つ（tier 4・きわめる 2つ・技 8こ�
   }
   assert.equal(JOBS.tenkaichi_king.name, '天下一の格闘王');
   assert.equal(JOBS.chaos_gunshi.name, '混とんの大軍師');
-  // 職業らしさ: 格闘王は 力・大軍師は 魔力が いちばん
-  const top = (id) => KEYS.filter((k) => k !== 'hp').reduce((a, k) => (JOBS[id].mods[k] > JOBS[id].mods[a] ? k : a), 'mp');
+  // 職業らしさ: 格闘王は 力・大軍師は 魔力が いちばん（HP と MP は のぞく。大砲を うつ 大軍師は MP も 高い）
+  const top = (id) => KEYS.filter((k) => k !== 'hp' && k !== 'mp').reduce((a, k) => (JOBS[id].mods[k] > JOBS[id].mods[a] ? k : a), 'str');
   assert.equal(top('tenkaichi_king'), 'str');
   assert.equal(top('chaos_gunshi'), 'mag');
   // しくみの データ（もとの 伝説の 効き目と おなじ。幻だからと 上げない）

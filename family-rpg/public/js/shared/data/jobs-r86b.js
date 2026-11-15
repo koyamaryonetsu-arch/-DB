@@ -19,7 +19,7 @@ export const JOBS_R86B = {
   tenkaichi_king: {
     id: 'tenkaichi_king', name: '天下一の格闘王', kana: 'てんかいちのかくとうおう', short: '格闘王', tier: 4, req: ['makai_prince', 'hiryu_master'], family: 'phys', color: '#d8302a',
     desc: '武術会のリングで、だれにも負けなかった格闘の王。魔界の王の子と飛竜しょう天はの達人をきわめ、素手の技とカウンターをたくさん使った者だけがなれる。れい丸は1回の戦いで8発。カウンターが決まるたびに、れい丸が1発もどる。水とお湯のすがたも使え、たおれても1回だけ立ち上がる。',
-    mods: { hp: 1.95, mp: 1.35, str: 2.2, def: 1.6, agi: 2.0, mag: 0.8, heal: 1.2 },
+    mods: { hp: 1.95, mp: 1.35, str: 2.0, def: 1.6, agi: 1.9, mag: 1.1, heal: 1.2 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1.5, agi: 1, hp: 1 },
     passive: { rise: { hp: 0.5, pow: 1.3, acts: 3 } },
@@ -31,7 +31,7 @@ export const JOBS_R86B = {
   chaos_gunshi: {
     id: 'chaos_gunshi', name: '混とんの大軍師', kana: 'こんとんのだいぐんし', short: '混とん軍師', tier: 4, req: ['doramata', 'hoshin_gunshi'], family: 'magic', color: '#5a2a9a',
     desc: '作戦と大魔法を、ひとつの頭で組み立てる大軍師。ドラまたとほう神の大軍師をきわめ、攻撃の呪文と作戦の技をたくさん使い、呪文で大きなダメージをあたえた者だけがなれる。4つ目の作戦「大魔法の時間」では、となえている仲間を守り、となえた呪文を強くする。半分の確率で早口になり、となえたらすぐに動ける。',
-    mods: { hp: 1.55, mp: 1.95, str: 1.15, def: 1.35, agi: 1.65, mag: 1.85, heal: 1.4 },
+    mods: { hp: 1.45, mp: 1.85, str: 1.5, def: 1.25, agi: 1.55, mag: 1.8, heal: 1.45 },
     weapons: ['staff', 'whip', 'fan', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
     perLv: { mag: 1.5, mp: 1, agi: 0.5 },
     passive: { hayakuchi: 0.5 },
