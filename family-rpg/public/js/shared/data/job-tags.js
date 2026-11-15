@@ -263,6 +263,14 @@ Object.assign(JOB_TAGS, {
   hoshin_gunshi: ['wind', 'magic', 'master', 'sky'], // ほう神の大軍師（風・軍師の 号令・空飛ぶ カバ）
 });
 
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js。合体技の 相手の 案: サイヤ人〈こぶし〉・名探ていの 系統〈推理〉・武闘家〈こぶし〉）
+Object.assign(JOB_TAGS, {
+  furyo: ['fist', 'kid', 'guard'], // ふりょう（けんかの こぶし・中学生・仲間を かばう）
+  reikai_tantei: ['fist', 'detective', 'light'], // れい界探てい（れい丸・ふしぎな 事件の 探てい・青い 光）
+  yusuke: ['fist', 'light', 'rival', 'kid'], // うら飯ゆう助（れい丸・れい光はどうけん・ライバルと きそう・中学生）
+  makai_prince: ['fist', 'light', 'dark', 'master'], // 魔界の王の子（れい丸・よう丸〈闇〉・魔界の 王の 血）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

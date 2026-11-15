@@ -553,6 +553,8 @@ export const STARTER_EQUIP = {
   samurai_kid: { weapon: 'wood_sword', armor: 'cloth', shield: null, head: null, acc: null },
   // 第83回 A班: つりをする道士は 素手（つりざおを 手に もつ。見た目は hero-r83a.js）
   fishing_doshi: { weapon: null, armor: 'cloth', shield: null, head: null, acc: null },
+  // 第84回 A班: ふりょうは 素手（こぶしで けんか。見た目は hero-r84a.js の みどりの 学生服）
+  furyo: { weapon: null, armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

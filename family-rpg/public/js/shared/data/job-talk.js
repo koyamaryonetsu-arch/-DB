@@ -111,6 +111,13 @@ Object.assign(JOB_SAY, {
   taikobo: '「スープー、行くぞ！」',
   hoshin_gunshi: '「その手は、もう読んでおる！」',
 });
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js）
+Object.assign(JOB_SAY, {
+  furyo: '「けんかなら、負けねえぞ！」',
+  reikai_tantei: '「事件なら、まかせとけ！」',
+  yusuke: '「まだ、終わってねえ！」',
+  makai_prince: '「へへっ、楽しくなってきたぜ！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

@@ -85,6 +85,8 @@ import { sameNameOff, cmdOffList } from './cmd-off.js';
 import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDamage, r82aResolve, r82aPub } from './battle-r82a.js';
 // 第83回 A班: 封神演義の 系統（作戦・強化ふうじ・太極図・先読みの策・軍師の号令・ほう神計画。battle-r83a.js）
 import { r83aEffect, r83aTurnStart, r83aDamage, r83aBuffBlock, r83aSpeed, r83aPub } from './battle-r83a.js';
+// 第84回 A班: 幽☆遊☆白書の 系統（れい丸の 数・1回だけ 立ち上がる・仲間のために。battle-r84a.js）
+import { r84aPhys, r84aPhysMult, r84aEffect, r84aTurnStart, r84aRise, r84aPub, reiOk, reiReason } from './battle-r84a.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -535,6 +537,8 @@ export class Battle {
       this.actStart(c, ev);
       // 第83回 A班: 身を 守るのも 1回の 行動（先読みの策・ほう神計画の のこり。battle-r83a.js）
       r83aTurnStart(this, c, ev);
+      // 第84回 A班: 仲間のために・立ち上がった あとの 力の のこり（battle-r84a.js）
+      r84aTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       this.actEnd(c, held, ev);
       ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));
@@ -581,6 +585,8 @@ export class Battle {
         if (!battleAbilityOk(c.penChar, cmd.id, c.weaponCat)) return { ok: false, reason: '戦いでは使えない' };
         if (this.noSpells && spellSealed(a)) return { ok: false, reason: SEALED_REASON };
         if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが足りない' };
+        // 第84回 A班: れい丸が 足りない（battle-r84a.js）
+        if (!reiOk(c, a)) return { ok: false, reason: reiReason(c, a) };
         return { ok: true };
       }
       case 'mahouken': {
@@ -662,6 +668,8 @@ export class Battle {
     r82bTurnStart(this, c, ev);
     // 第83回 A班: 先読みの策・強化ふうじ・守りの旗の のこり・作戦が とぎれる（battle-r83a.js）
     r83aTurnStart(this, c, ev);
+    // 第84回 A班: 仲間のために・立ち上がった あとの 力の のこり（battle-r84a.js）
+    r84aTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -1020,6 +1028,8 @@ export class Battle {
         if (eff.monPal) { r66aMonPal(this, c, a, cmd, ev, powMult, targets); break; }
         // 第82回 B班: YAIBA の 系統の 剣の 技（今の 玉の 属性・きょだい化・四つ玉斬り。battle-r82b.js）
         if (eff.yb) { r82bPhys(this, c, a, cmd, ev, powMult, targets); break; }
+        // 第84回 A班: れい丸の 技（れい丸を 使う・のこりを ぜんぶ うつ。battle-r84a.js）
+        if (eff.rei) { r84aPhys(this, c, a, cmd, ev, powMult, targets); break; }
         if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
@@ -1532,6 +1542,8 @@ export class Battle {
       case 'tamagae': case 'kyodai': case 'raiGuard': r82bEffect(this, c, a, eff, ev, cmd); break;
       // 作戦・強化ふうじ・太極図・守りの旗・軍師の号令・先読みの策・ほう神・ほう神計画・宝箱（第83回 A。battle-r83a.js）
       case 'r83aSakusen': case 'r83aSeal': case 'r83aTaikyoku': case 'r83aHata': case 'r83aGorei': case 'r83aSaki': case 'r83aHoshin': case 'r83aKeikaku': case 'r83aTreasure': r83aEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
+      // れい力をためる・とう気をねる・仲間のために（第84回 A。battle-r84a.js）
+      case 'r84aCharge': case 'r84aNakama': r84aEffect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1636,6 +1648,8 @@ export class Battle {
     dmg *= cardPtMult(c, eff);
     // 風の技（強くして いる 敵に 強い）・ようかい化の 間に 強い 技（第82回 A。battle-r82a.js）
     dmg *= r82aPhysMult(c, t, eff);
+    // 仲間のために・立ち上がった あとの 力・のこりを ぜんぶ うつ 技の みつもり（第84回 A。battle-r84a.js）
+    dmg *= r84aPhysMult(this, c, t, eff, estimate);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
     if (eff.vsElement) for (const [el, m] of Object.entries(eff.vsElement)) if ((t.resist[el] ?? 1) < 1) dmg *= m;
     if (element && element !== 'phys') dmg *= t.resist[element] ?? 1;
@@ -1767,6 +1781,8 @@ export class Battle {
       delete t.status.sleep;
       ev.lines.push(`${t.name}は目を覚ました！`);
     }
+    // 第84回 A班: 1回だけ 立ち上がる（うら飯ゆう助・魔界の王の子。たおれる 前に。battle-r84a.js）
+    if (t.hp <= 0) r84aRise(this, t, ev);
     if (t.hp <= 0) ev.lines.push(...this.kill(t, info.element, ev));
     else if (t.boss) this.checkPhase(t, ev);
   }
@@ -2542,6 +2558,8 @@ export function pub(c) {
     ...r82bPub(c),
     // 作戦・強化ふうじ・先読みの策・守りの旗（第83回 A。battle-r83a.js）
     ...r83aPub(c),
+    // れい丸の 数・仲間のために・立ち上がり（第84回 A。battle-r84a.js）
+    ...r84aPub(c),
   };
 }
 

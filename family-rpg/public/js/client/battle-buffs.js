@@ -12,6 +12,8 @@ import { r82aMarks } from './battle-r82a.js';
 import { r82bMarks } from './battle-r82b.js';
 // 第83回 A班: 作戦・先読み・守りの旗・強化ふうじの 札（battle-r83a.js）
 import { r83aMarks, paintPlanMarks } from './battle-r83a.js';
+// 第84回 A班: のこりの れい丸・仲間のために・立ち上がった あとの 力の 札（battle-r84a.js）
+import { r84aMarks } from './battle-r84a.js';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -44,6 +46,7 @@ export function unitMarks(a) {
   out.push(...r82aMarks(a));
   out.push(...r82bMarks(a));
   out.push(...r83aMarks(a));
+  out.push(...r84aMarks(a));
   return out;
 }
 

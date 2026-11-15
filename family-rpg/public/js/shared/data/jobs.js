@@ -47,6 +47,8 @@ import { JOBS_R82A, BASE_R82A_ORDER, ADV_R82A_ORDER, SUPER_R82A_ORDER, LEGEND_R8
 import { JOBS_R82B, R82B_ORDERS, HINTS_R82B } from './jobs-r82b.js';
 // 第83回 A班: 封神演義の 系統（つりをする道士 → せん人界の道士 → 太公望 → ほう神の大軍師。jobs-r83a.js）
 import { JOBS_R83A, R83A_ORDERS, HINTS_R83A } from './jobs-r83a.js';
+// 第84回 A班: 幽☆遊☆白書の 系統（ふりょう → れい界探てい → うら飯ゆう助 → 魔界の王の子。jobs-r84a.js）
+import { JOBS_R84A, R84A_ORDERS, HINTS_R84A } from './jobs-r84a.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1316,6 +1318,8 @@ Object.assign(JOBS, JOBS_R82A);
 Object.assign(JOBS, JOBS_R82B);
 // 第83回 A班: 封神演義の 系統（jobs-r83a.js）
 Object.assign(JOBS, JOBS_R83A);
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js）
+Object.assign(JOBS, JOBS_R84A);
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
@@ -1374,6 +1378,8 @@ JOB_ORDER.push(...BASE_R82A_ORDER); ADVANCED_ORDER.push(...ADV_R82A_ORDER); SUPE
 [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R82B_ORDERS[i]));
 // 第83回 A班: 封神演義の 系統を 段ごとの ならびの おわりに（jobs-r83a.js の R83A_ORDERS）
 [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R83A_ORDERS[i]));
+// 第84回 A班: 幽☆遊☆白書の 系統を 段ごとの ならびの おわりに（jobs-r84a.js の R84A_ORDERS）
+[JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER].forEach((list, i) => list.push(...R84A_ORDERS[i]));
 // 第51回: 幻の職業（伝説の 上。tier 4。なる 条件は「きわめた 職業 2つ（req）」＋やりこみの 条件（data/phantom.js）。docs/plan-r51-phantom.md）
 // 職業の 定義は jobs-phantom-a/b/c.js（C1〜C3）。まだ ない 職業は 一覧に 入れない（PHANTOM_LIVE）
 export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
@@ -1553,3 +1559,5 @@ Object.assign(JOB_HINTS, HINTS_R82A);
 Object.assign(JOB_HINTS, HINTS_R82B);
 // 第83回 A班: 太公望・ほう神の大軍師の うわさ（jobs-r83a.js）
 Object.assign(JOB_HINTS, HINTS_R83A);
+// 第84回 A班: うら飯ゆう助・魔界の王の子の うわさ（jobs-r84a.js）
+Object.assign(JOB_HINTS, HINTS_R84A);

@@ -29,6 +29,8 @@ import { r82aPlan } from './battle-r82a.js';
 import { r82bPlan } from './battle-r82b.js';
 // 第83回 A班: 封神演義の 系統の 作戦・先読みの策・強化ふうじ・太極図・軍師の号令・ほう神計画（battle-r83a.js）
 import { r83aPlan } from './battle-r83a.js';
+// 第84回 A班: 幽☆遊☆白書の 系統の れい丸（ざこに 使わない・ぜんぶ うつ 技は まんたんの 時・0 なら ためる）・仲間のために（battle-r84a.js）
+import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js';
 
 // さくせん
 export const TACTICS = {
@@ -204,6 +206,9 @@ export function decideAlly(b, c) {
   // 4.9) 第83回 A班: 前ぶれに 先読みの策・作戦を 立てる・敵の 強化に 太極図や 強化ふうじ・ボスで ほう神計画と 号令（battle-r83a.js）
   const r83 = r83aPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r83) return r83;
+  // 4.95) 第84回 A班: れい丸が 0 なら ためる・たおれた 仲間が いれば 仲間のために（battle-r84a.js）
+  const r84 = r84aPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r84) return r84;
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
@@ -268,6 +273,8 @@ export function canUse(b, c, id) {
   if ((a.kind === 'spell' || a.spellLike || a.effect?.type === 'mahouken') && b?.noSpells) return false;
   if (a.kind === 'combo' && c.side === 'ally' && c.penChar && !comboAllowed(c.penChar, id)) return false;
   if (!weaponOk(a, c.weaponCat)) return false;
+  // 第84回 A班: れい丸が 足りない 技は 使えない（battle-r84a.js）
+  if (!reiOk(c, a)) return false;
   return mpCost(c.penChar, id) <= c.mp;
 }
 
@@ -533,6 +540,8 @@ function chooseAttack(b, c, tac, foes) {
   // 光っている 敵に 呪文を 使わない など（battle-temple.js）
   templeAdjust(b, c, opts);
   arenaAdjust(b, c, opts);
+  // 第84回 A班: ざこに れい丸を 使わない・ぜんぶ うつ 技は まんたんの 時（battle-r84a.js）
+  r84aAdjust(b, c, opts, fightWeight(b));
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
   if (opts[0]?.risky) return { type: 'defend' };

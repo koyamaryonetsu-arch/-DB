@@ -681,6 +681,7 @@ export function showCreate(game) {
       hanyo_boy: 'つめとようかいの血',
       samurai_kid: '天下一のサムライになる',
       fishing_doshi: 'のんびりつりが大すき',
+      furyo: 'けんかっ早いが仲間思い',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;
