@@ -23,8 +23,8 @@
 // ■ オート（ai.js の decideAlly から r83aPlan）: 前ぶれ → 先読みの策・守りの旗／作戦が ない → 作戦（ボスは 守り・ふつうは 攻め）／
 //   敵が 強化 → 太極図（2体 いじょう・仲間も 弱って いる）か 強化ふうじ／ボスで ほう神計画・軍師の号令
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=ffeefa092ad2';
-import { BUFF_ACTS } from './buff-acts.js?v=ffeefa092ad2';
+import { JOBS } from './data/jobs.js?v=f2ee15f3bf61';
+import { BUFF_ACTS } from './buff-acts.js?v=f2ee15f3bf61';
 
 export const R83A_LINE = ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'];
 // 作戦の 表（ならびは 作戦を立てる メニューの じゅん）
