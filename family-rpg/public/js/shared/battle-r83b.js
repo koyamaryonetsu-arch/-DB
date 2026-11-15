@@ -33,6 +33,8 @@ const BAD = ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'];
 
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 const partsOf = (a) => (a?.effect?.type === 'multi' ? a.effect.parts || [] : [a?.effect || {}]);
+// この 系統の 職業（オートは この 職業の 技だけ 見る）
+export const R83B_LINE = ['elem_teacher', 'nube', 'jigoku_sensei'];
 export const protectRate = (c) => (c?.side === 'ally' ? JOBS[c.job]?.passive?.protect || 0 : 0);
 
 // ───────────── おにの手 ─────────────
@@ -211,6 +213,9 @@ export function r83bSeal(b, c, mine) {
 // hard … 強い 敵との 戦い（ai.js の fightWeight）。ボスか 強い 敵の 時だけ おにの手を 出す
 export function r83bPlan(b, c, foes, mine, allies, hard = false) {
   if (!foes.length || c?.side !== 'ally') return null;
+  // この 系統の 技だけ 見る（ほかの 職業の 治す 技・光の 技では 何も しない）
+  mine = mine.filter(({ a }) => R83B_LINE.includes(a.job));
+  if (!mine.length) return null;
   const has = (type) => mine.filter(({ a }) => partsOf(a).some((p) => p.type === type));
   const hp = c.maxHp > 0 ? c.hp / c.maxHp : 1;
   const hand = has('oniHand');

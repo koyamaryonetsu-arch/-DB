@@ -388,10 +388,27 @@ test('第83回 B オート: ボスで おにの手を 出す・HP 4わりで ふ
   let nghost = 0;
   for (let s = 1; s <= 10; s++) {
     const g = setup('nube', { seed: s, enemies: ['lamp', 'rockman'] });
+    g.me.oni = { lv: 1, awake: 0, max: 0.6 }; // おにの手は もう 出して いる
     const cmd = decideAlly(g.b, g.me);
     if (['et_ofuda', 'nb_onite', 'nube_sig'].includes(cmd?.id) && cmd.target === g.b.enemies[0].id) nghost++;
   }
   assert.ok(nghost >= 5, `ぬ〜べ〜 ${nghost}`);
+});
+
+test('第83回 B オート: ほかの 職業（治す 技・光の 技を もつ 大神官 など）の オートは かわらない（運も 使わない）', async () => {
+  const { r83bPlan, r83bSeal } = await import('../public/js/shared/battle-r83b.js');
+  const { b, me } = setup('nube', { seed: 5, enemies: ['lamp', 'skeleton'], boss: true });
+  me.job = 'high_priest';
+  me.abilities = ['kiariku', 'zaoriku', 'behoma', 'holy_light', 'et_ofuda'].filter((id) => ABILITIES[id] && ABILITIES[id].job !== 'elem_teacher');
+  me.abilities.push(...Object.keys(ABILITIES).filter((id) => ABILITIES[id].job === 'high_priest' || (ABILITIES[id].effect?.type === 'cure' && ABILITIES[id].target === 'allies')).slice(0, 12));
+  b.allies[1].status.poison = { turns: 3 };
+  const mine = me.abilities.map((id) => ({ id, a: ABILITIES[id] }));
+  const before = b.rng.next;
+  let used = 0;
+  b.rng.next = () => { used++; return before.call(b.rng); };
+  assert.equal(r83bPlan(b, me, b.enemies, mine, b.allies, true), null);
+  assert.equal(r83bSeal(b, me, mine), null);
+  assert.equal(used, 0, '運を 使わない');
 });
 
 test('第83回 B オート: 完全オートの ボス戦でも こわれない（おにの手で たおれない・ほかの 仲間の オートは かわらない）', () => {
