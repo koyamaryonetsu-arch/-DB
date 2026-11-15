@@ -44,6 +44,7 @@ import { playR84aFx } from '../public/js/client/render/battlefx-r84a.js';
 import { playR85bFx } from '../public/js/client/render/battlefx-r85b.js';
 // 第85回 A班: スレイヤーズの 系統
 import { playR85aFx } from '../public/js/client/render/battlefx-r85a.js';
+import { playR86bFx } from '../public/js/client/render/battlefx-r86b.js';
 // 第86回 A班: 幻の職業 2つ（battlefx-r86a.js）
 import { playR86aFx } from '../public/js/client/render/battlefx-r86a.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
@@ -131,6 +132,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playR84aFx(fake, anim, ONE, null, {})
     || playR85bFx(fake, anim, ONE, null, {})
     || playR85aFx(fake, anim, ONE, null, {})
+    || playR86bFx(fake, anim, ONE, null, {})
     || playR86aFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);

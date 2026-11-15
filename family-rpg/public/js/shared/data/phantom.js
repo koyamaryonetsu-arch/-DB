@@ -29,12 +29,21 @@
 //   pitch       … 野球の 職業の 投げる 技（えんしゅつ ball・消える魔球・三しん、名前に 球）と、名前に 速球・直球・魔球
 //   sun・rain・thunder … 天気の 技（技の データの weather: 'sun'|'rain'|'thunder'。W 班が つける）
 //   幻の職業の 技も 名前・職業で 入る（例: かめはめデイン は kame）。技に phantomTags: ['gomu', …] を 書くと それも 足す
+//   第86回 B班（天下一の格闘王・混とんの大軍師の 条件。数えはじめは 第86回から）
+//   fist        … 素手の 技（呪文で ない 物理の ダメージの 技で、つぎの どれか）
+//                 ・素手と つめ だけの 職業（ぶきが つめ・素手 だけ: 武闘家・サイヤ人・幽☆遊☆白書・らんま1/2 の 系統 など）の 技
+//                 ・ぶきが 素手（weapon: fist）・名前に パンチ・キック・けん（拳）・げり・こぶし
+//   counter     … カウンターの かまえの 技（今 ある 反撃の 構え stance・飛竜しょう天は・れい丸・しょう天は）
+//                 （かまえを 使った 回数。カウンターが 決まった 回数では ない ＝ 自分が 使った 技の 回数だけで 数える きまりの まま）
+//   sakusen     … 作戦の 技（軍師の 技: 作戦を立てる・強化ふうじ・太極図・守りの旗・軍師の号令・先読みの策・ほう神計画・みんなでとなえる）
 import { ABILITIES, abilityRole } from './abilities.js';
 import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js';
 import { jobLabel } from '../job-label.js';
 
 export const PHANTOM_TAGS = ['gomu', 'thunderSpell', 'kame', 'hinokami', 'ninjutsu', 'support', 'deduce', 'healSpell', 'attackSpell',
-  'sword', 'debuff', 'train', 'pitch', 'sun', 'rain', 'thunder'];
+  'sword', 'debuff', 'train', 'pitch', 'sun', 'rain', 'thunder',
+  // 第86回 B班（おわりに 足す。引っこしコードの みじかい 形は この ならびの 番号）
+  'fist', 'counter', 'sakusen'];
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 条件の タグ（おわりに 足す。引っこしコードの 番号は 前の タグと かわらない。下の tagsOf の さいご）
 PHANTOM_TAGS.push('kabau', 'yokai', 'bolt', 'karyu');
 // 1回で これ いじょうの ダメージを「大きな 一撃」と 数える
@@ -99,6 +108,15 @@ export const PHANTOM_JOBS = {
     name: '天候の神', masters: ['tenkou_tsukai', 'summoner'],
     conds: [{ use: ['sun'], goal: 200, text: '晴れの技を200回使う' }, { use: ['rain'], goal: 200, text: '雨の技を200回使う' }, { use: ['thunder'], goal: 200, text: 'かみなりの技を200回使う' }],
   },
+  // 第86回 B班（jobs-r86b.js）
+  tenkaichi_king: {
+    name: '天下一の格闘王', masters: ['makai_prince', 'hiryu_master'],
+    conds: [{ use: ['fist'], goal: 1000, text: '素手の技を1000回使う' }, { use: ['counter'], goal: 200, text: 'カウンターのかまえの技を200回使う' }],
+  },
+  chaos_gunshi: {
+    name: '混とんの大軍師', masters: ['doramata', 'hoshin_gunshi'],
+    conds: [{ use: ['attackSpell'], goal: 500, text: '攻撃の呪文を500回使う' }, { use: ['sakusen'], goal: 500, text: '作戦の技を500回使う' }, { stat: 'dmgSpell', goal: 400000, text: '呪文のダメージの合計40万' }],
+  },
   // 第86回 A班（docs/plan-r86-phantom-a.md。タグの きめ方は 下の tagsOf の さいご）
   yokai_bridge: {
     name: '人とようかいのかけ橋', masters: ['bakuryuha', 'jigoku_sensei'],
@@ -121,6 +139,15 @@ const TANTEI_JOBS = new Set(['shonen_tantei', 'oshiri_tantei', 'meitantei']);
 const INU_JOBS = new Set(['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha']);
 const NOT_SUPPORT = new Set(['nothing', 'escape', 'flee', 'warp', 'exit', 'lure', 'repel']);
 const FOE = new Set(['enemy', 'group', 'enemies']);
+// 第86回 B班: 作戦の 技・カウンターの かまえの 技の こうか
+const SAKUSEN_TYPES = new Set(['r83aSakusen', 'r83aSeal', 'r83aTaikyoku', 'r83aHata', 'r83aGorei', 'r83aSaki', 'r83aKeikaku', 'r86bChantAll']);
+const COUNTER_TYPES = new Set(['stance', 'r84bHiryu', 'r86bReiHiryu']);
+// 素手と つめ だけの 職業（ぶきの 一覧が つめ・素手 だけ）。武闘家の 道の ゴッドハンド・ふりょう（バットも 持てる）も 入れる
+const FIST_EXTRA = new Set(['god_hand', 'furyo']);
+const fistJob = (j) => FIST_EXTRA.has(j) || (() => {
+  const w = JOBS[j]?.weapons || [];
+  return w.length > 0 && w.every((x) => x === 'claw' || x === 'none');
+})();
 
 // こうかの 中みを ぜんぶ（multi の parts も）
 function effects(e, out = [], depth = 0) {
@@ -158,6 +185,10 @@ function tagsOf(id, a, jobsOf) {
   if ((inJobs(BALL_JOBS) && (['ball', 'r41a_vanish', 'r41a_strikeout'].includes(a.anim) || /球|スイーパー|三しん/.test(name)))
     || /速球|直球|魔球/.test(name)) out.add('pitch');
   if (['sun', 'rain', 'thunder'].includes(a.weather)) out.add(a.weather);
+  // 第86回 B班: 素手の 技・カウンターの かまえ・作戦の 技
+  if (!spell && role === 'dmg' && types.has('phys') && (jobs.some(fistJob) || a.weapon === 'fist' || /パンチ|キック|けん$|拳|げり|こぶし/.test(name))) out.add('fist');
+  if ([...types].some((t) => COUNTER_TYPES.has(t))) out.add('counter');
+  if ([...types].some((t) => SAKUSEN_TYPES.has(t))) out.add('sakusen');
   // 第86回 A班: kabau … かばう・守る 技（かばう〈cover〉・姫を守る忍び・体をはって守る・きずなの守り・人とようかいのきずな と、守備力を 上げる 補助）
   //   yokai … つめ・風・おにの手の 技（犬夜しゃの 系統の つめの 技〈weapon: fist〉・風の 属性の ダメージの 技・おにの手の 技〈oni の しるし・おにの手を出す・かくせい・最大出力〉・大よう化・きずなの力）
   //   bolt … 雷の 属性の ダメージの 技（呪文も 剣も）／karyu … 火竜の 技（火竜をよぶ と、名前に 火竜・八竜 の ある 技）

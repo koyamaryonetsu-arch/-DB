@@ -70,9 +70,12 @@ import { reiTag, reiBlock } from './battle-r84a.js';
 import { R85B_SFX, R85B_HIT } from './render/battlefx-r85b.js';
 import { ryuMenu, r85bPresent } from './battle-r85b.js';
 // 第85回 A班: スレイヤーズの 系統の 技（render/battlefx-r85a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・大砲の 呪文の うすい 行・となえた 札（battle-r85a.js）
-//   （メインの 取りこみで この 2行が ぬけて いた ので 第86回 A班が もどした。ないと 戦いの 画面が 読みこめない）
+// （第86回 B班: メインの 取りこみ〈febc506da〉で この 2行が きえて いたので もどした）
 import { R85A_SFX, R85A_HIT } from './render/battlefx-r85a.js';
 import { r85aRow, r85aPresent } from './battle-r85a.js';
+// 第86回 B班: 幻の職業 天下一の格闘王・混とんの大軍師の 技（render/battlefx-r86b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・れい丸が もどる・太極・ギガ・スレイブ（battle-r86b.js）
+import { R86B_SFX, R86B_HIT } from './render/battlefx-r86b.js';
+import { r86bPresent } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
 import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
 import { r86aPresent } from './battle-r86a.js';
@@ -182,6 +185,7 @@ Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, R84A_HIT);
 Object.assign(HIT_DELAY, R85B_HIT);
 Object.assign(HIT_DELAY, R85A_HIT);
+Object.assign(HIT_DELAY, R86B_HIT);
 Object.assign(HIT_DELAY, R86A_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
@@ -310,6 +314,7 @@ Object.assign(ANIM_SFX, R84B_SFX);
 Object.assign(ANIM_SFX, R84A_SFX);
 Object.assign(ANIM_SFX, R85B_SFX);
 Object.assign(ANIM_SFX, R85A_SFX);
+Object.assign(ANIM_SFX, R86B_SFX);
 Object.assign(ANIM_SFX, R86A_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
@@ -1514,6 +1519,8 @@ export class BattleScene {
     r85bPresent(this, ev, hitDelay);
     // 第85回 A班: となえた・早口・ギガ・スレイブ（battle-r85a.js）
     r85aPresent(this, ev);
+    // 第86回 B班: れい丸が もどった・れい丸・しょう天は・みんなでとなえる・太極・ギガ・スレイブ（battle-r86b.js）
+    r86bPresent(this, ev, hitDelay);
     // 第86回 A班: ためた力の 大きな 風・力を ためた・かけ橋が かばった・竜神の剣士の 2つの 属性の 剣（battle-r86a.js）
     r86aPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }

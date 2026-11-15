@@ -39,10 +39,11 @@ const { Bot, tickN } = await import('./helpers.js');
 const LIVE_AT_LOAD = PHANTOM_ORDER.filter((id) => JOBS[id]);
 
 // ───────────── 1. ランク・条件の 表 ─────────────
-test('幻の職業: 12この id・tier 4 の 名前・一覧（定義の ない 職業は 入れない）', () => {
-  // 第86回 A班: 人とようかいのかけ橋・竜神の剣士を おわりに 足した（14こ。test/jobs-r86a.test.js）
+test('幻の職業: 16この id・tier 4 の 名前・一覧（定義の ない 職業は 入れない。第86回 B班・A班で 2つずつ ふえた）', () => {
+  // 第86回 B班の 2つの あとに A班の 2つ（幻の書の しるしの じゅん。test/jobs-r86a.test.js）
   assert.deepEqual(PHANTOM_ORDER, ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
-    'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god', 'yokai_bridge', 'ryujin_kenshi']);
+    'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god',
+    'tenkaichi_king', 'chaos_gunshi', 'yokai_bridge', 'ryujin_kenshi']);
   assert.deepEqual(Object.keys(PHANTOM_JOBS), PHANTOM_ORDER, '条件の 表も おなじ じゅん');
   assert.equal(TIER_NAMES[4], '幻の職業');
   assert.equal(TIER_ORDERS.length, 5);
@@ -66,6 +67,8 @@ test('きわめておく 職業の id は 今の 職業（天候をあやつる�
     facility_ai: ['facility_genius', 'creator'], detective_king: ['meitantei', 'oshiri_tantei'], galaxy_queen: ['neo_queen', 'fifth_spirit'],
     grand_magus: ['archmage', 'harry'], sword_saint: ['hiten', 'abarenbo_shogun'], cosmic_okan: ['saikyo_okan', 'homeroom_3b'],
     chaos_creator: ['hakaishin', 'creator'], dream_stadium: ['keikyu_president', 'hall_of_fame'], weather_god: ['tenkou_tsukai', 'summoner'],
+    // 第86回 B班
+    tenkaichi_king: ['makai_prince', 'hiryu_master'], chaos_gunshi: ['doramata', 'hoshin_gunshi'],
   };
   for (const [id, m] of Object.entries(want)) assert.deepEqual(PHANTOM_JOBS[id].masters, m, id);
   for (const p of Object.values(PHANTOM_JOBS)) {
@@ -93,6 +96,9 @@ test('条件の 表: 数は 家族が えらんだ まま', () => {
   assert.deepEqual(g('chaos_creator'), [['big5000', 50]]);
   assert.deepEqual(g('dream_stadium'), [['train', 300], ['pitch', 300], ['dmg', 200000]]);
   assert.deepEqual(g('weather_god'), [['sun', 200], ['rain', 200], ['thunder', 200]]);
+  // 第86回 B班
+  assert.deepEqual(g('tenkaichi_king'), [['fist', 1000], ['counter', 200]]);
+  assert.deepEqual(g('chaos_gunshi'), [['attackSpell', 500], ['sakusen', 500], ['dmgSpell', 400000]]);
   assert.equal(BIG_HIT, 5000);
   for (const p of Object.values(PHANTOM_JOBS)) {
     for (const x of p.conds) {
@@ -224,7 +230,8 @@ test('戦い: 技の タグの 回数・ダメージ・呪文・炎（家族の 
   // ふつうの 攻撃は タグなし（ダメージは 入る）
   act(b, me, { type: 'attack' });
   assert.ok(me.feat.dmg > d1 + d2);
-  assert.deepEqual(Object.keys(me.feat.use).sort(), ['attackSpell', 'gomu']);
+  // （第86回 B班: ゴムゴムのピストルは 素手の 技〈fist〉にも 入る）
+  assert.deepEqual(Object.keys(me.feat.use).sort(), ['attackSpell', 'fist', 'gomu']);
   // 第66回: 人の 仲間も 数える（主人公 いがいの 幻の書・転職）。魔物は 数えない
   act(b, sup, { type: 'ability', id: 'go_pistol' });
   act(b, mon, { type: 'attack' });
@@ -389,8 +396,8 @@ test('引っこしコード: 記録が もとどおり（KIZUNA-2・KIZUNA-3 の
   const c = hero('t1', 'warrior');
   c.feats = toFeats(FULL());
   const s = packFeats(c.feats);
-  // 第86回 A班: タグが 4つ ふえた（kabau・yokai・bolt・karyu。ぜんぶ 7けたの 回数で 1つ 11文字ほど）ので 170 → 200
-  assert.ok(s.length < 200, `みじかい 形 ${s.length}文字`);
+  // 第86回 B班: タグが 3つ（fist・counter・sakusen）・A班: 4つ（kabau・yokai・bolt・karyu）ふえた ので 170 → 230
+  assert.ok(s.length < 230, `みじかい 形 ${s.length}文字`);
   assert.deepEqual(unpackFeats(s), c.feats);
   const r = parseCode(exportCode(JSON.parse(JSON.stringify(c))));
   assert.ok(r.ok, r.reason);

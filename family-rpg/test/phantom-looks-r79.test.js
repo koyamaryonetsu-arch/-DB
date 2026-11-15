@@ -31,8 +31,9 @@ const opaque = (img) => {
 };
 
 test('第79回: 幻の職業 12こ 全部に 衣装の 表が ある', () => {
-  assert.deepEqual([...R79_JOBS, ...R86A_JOBS], PHANTOM_ORDER, 'ならびは PHANTOM_ORDER と おなじ');
-  for (const id of PHANTOM_ORDER) {
+  // 第86回 B班: 第79回の 12こは PHANTOM_ORDER の はじめの 12（あとから ふえた 幻は 自分の 回の 表。test/jobs-r86b.test.js）
+  assert.deepEqual(R79_JOBS, PHANTOM_ORDER.slice(0, 12), 'ならびは PHANTOM_ORDER と おなじ');
+  for (const id of R79_JOBS) {
     assert.ok(JOBS[id], id);
     assert.ok(ALL_OUTFIT[id]?.kind, `${id} の 服`);
     assert.ok(ALL_BODY[id], `${id} の からだの とくちょう`);
@@ -47,7 +48,7 @@ test('第79回: 幻の職業 12こ 全部に 衣装の 表が ある', () => {
     }
   }
   // 体の 型が ある 職業（masc）は 男の子の すがたも ある
-  for (const id of PHANTOM_ORDER.filter((j) => JOBS[j].masc)) {
+  for (const id of R79_JOBS.filter((j) => JOBS[j].masc)) {
     assert.ok(R79_MASC[id], `${id} の 男の子の すがた`);
     assert.equal(masc33(id, false), R79_MASC[id]);
     assert.equal(masc33(id, true), null);
@@ -59,15 +60,15 @@ test('第79回: 幻の職業 12こ 全部に 衣装の 表が ある', () => {
     assert.equal(headOf('iron_helm', id, null, { fem: true }).kind !== R79_HAT[id].kind || R79_HAT[id].kind === 'helmet', true);
   }
   // つかう オーラは みんな ある
-  for (const id of PHANTOM_ORDER) {
-    const a = ALL_BODY[id].aura;
+  for (const id of R79_JOBS) {
+    const a = R79_BODY[id].aura;
     if (a && /79$/.test(a)) assert.ok(AURA79[a], `${id} の オーラ ${a}`);
     if (a && /86$/.test(a)) assert.ok(AURA86A[a], `${id} の オーラ ${a}`);
   }
 });
 
 test('第79回: 全部の 体の 型・向き・歩く コマで かける（布の服・装備・大きな みほん）', () => {
-  for (const id of PHANTOM_ORDER) {
+  for (const id of R79_JOBS) {
     for (const b of BODIES) {
       for (const dir of DIRS) {
         for (const f of [0, 1]) {

@@ -262,6 +262,12 @@ Object.assign(TRIAL_WORDS, {
   lina: 'となえる時は、あせらずに。大きな力ほど、待つ心がいる。',
   doramata: '強い呪文より、よく食べよく休むこと。それが天才よ。',
 });
+// 第86回 B班（幻の職業。jobs-r86b.js）
+Object.assign(TRIAL_WORDS, {
+  tenkaichi_king: 'うつ力も返す力も、あせらぬ心から生まれる。',
+  chaos_gunshi: '大きな呪文ほど、仲間を信じて待つのだ。',
+});
+
 
 // 第86回 A班（幻の職業。jobs-r86a.js。32字 以内）
 Object.assign(TRIAL_WORDS, {

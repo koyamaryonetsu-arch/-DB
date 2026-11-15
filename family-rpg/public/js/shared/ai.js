@@ -39,6 +39,8 @@ import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js';
 import { r85bPlan } from './battle-r85b.js';
 // 第85回 A班: スレイヤーズの 系統の となえる・大砲の 呪文・定食（battle-r85a.js）
 import { r85aPlan, r85aLocked } from './battle-r85a.js';
+// 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・かけひき・見切りのかまえ）・混とんの大軍師（大魔法の時間・太極・ギガ・スレイブ・みんなでとなえる。battle-r86b.js）
+import { r86bPlan } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
 import { r86aPlan } from './battle-r86a.js';
 
@@ -220,6 +222,9 @@ export function decideAlly(b, c) {
   // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
   const r82 = r82aPlan(b, c, foes, mine, allies);
   if (r82) return r82;
+  // 4.85) 第86回 B班: 格闘王の れい丸・しょう天は・混とんの大軍師の 作戦（大魔法の時間）と 太極・ギガ・スレイブ（この 2つの 職業の 技だけを 見る。battle-r86b.js）
+  const r86b = r86bPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r86b) return r86b;
   // 4.9) 第83回 B班: ボスで おにの手を 出す・HP 4わりで ふういんしなおす・状態異常に かんのんきょう・ゆうれいに おふだ（battle-r83b.js）
   const r83b = r83bPlan(b, c, foes, mine, allies, fightWeight(b).hard);
   if (r83b) return r83b;

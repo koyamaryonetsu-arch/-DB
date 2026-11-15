@@ -15,14 +15,14 @@ import { repairChar } from '../public/js/shared/world/save.js';
 import { vehicleSnap } from '../public/js/shared/world/vehicles.js';
 import { Bot } from './helpers.js';
 
-const IDS = [...Object.keys(PHANTOM_VEHICLES), ...Object.keys(R86A_VEHICLES)];
+// 第86回 B班: 幻の 乗り物は data/vehicles-phantom.js の 12こ ＋ あとの 回で ふえた 物（vehicles.js の phantom: true）
+const IDS = VEHICLE_ORDER.filter((id) => VEHICLES[id].phantom);
 const lit = (p) => (p ? p.px.filter(Boolean).length : 0);
 const legendIds = () => VEHICLE_ORDER.filter((id) => !VEHICLES[id].phantom && VEHICLES[id].jobs?.some((j) => LEGEND_ORDER.includes(j)));
 
-test('第79回: 幻の職業の 乗り物は 12こ。幻の職業と 1対1', () => {
-  // 第86回 A班: 12 → 14（幻の職業も 14）
-  assert.equal(IDS.length, 14);
-  assert.equal(PHANTOM_ORDER.length, 14);
+test('第79回: 幻の職業の 乗り物は 幻の職業と おなじ 数（第79回 12こ・第86回 B班で 14）。幻の職業と 1対1', () => {
+  assert.equal(Object.keys(PHANTOM_VEHICLES).length, 12);
+  assert.equal(IDS.length, PHANTOM_ORDER.length);
   const owner = new Map();
   for (const id of IDS) {
     const v = VEHICLES[id];
@@ -151,7 +151,8 @@ test('第79回: 絵: 12こ すべて 4方向 × 3コマ。動く・人が はみ
     // その 幻の職業が 前から 乗れた 乗り物（もとの 職業の 物。にた 形の 物）より 1だん こまかい
     //   （大きな 車・電車とは 形が ちがうので、いちばん 小さい 物と くらべる。見た目は 画面写真で たしかめた）
     const j = VEHICLES[id].jobs[0];
-    const olds = VEHICLE_ORDER.filter((x) => !VEHICLES[x].phantom && VEHICLES[x].jobs?.includes(j));
+    //   （第86回 B班: もとの 2つの 伝説の 乗り物とも くらべる。あとから ふえた 幻には 前から 乗れた 乗り物が ない）
+    const olds = VEHICLE_ORDER.filter((x) => !VEHICLES[x].phantom && (VEHICLES[x].jobs?.includes(j) || (JOBS[j].req || []).some((r) => VEHICLES[x].jobs?.includes(r))));
     assert.ok(olds.length >= 1, `${j} の もとの 乗り物`);
     const best = Math.min(...olds.map(dots));
     assert.ok(dots(id) >= best * 1.1, `${id}（${dots(id)}）が ${olds.join('・')}（${best}）より こまかくない`);

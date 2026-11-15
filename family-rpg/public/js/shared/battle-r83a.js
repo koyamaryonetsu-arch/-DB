@@ -25,6 +25,9 @@
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
 import { JOBS } from './data/jobs.js';
 import { BUFF_ACTS } from './buff-acts.js';
+// 第86回 B班: 4つ目の 作戦「大魔法の時間」（となえて いる 仲間〈battle-r85a.js〉を 守り、となえて うつ 呪文を 強く する）
+import { ABILITIES } from './data/abilities.js';
+import { chanting } from './battle-r85a.js';
 
 export const R83A_LINE = ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'];
 // 作戦の 表（ならびは 作戦を立てる メニューの じゅん）
@@ -32,6 +35,8 @@ export const SAKUSEN = {
   seme: { name: '攻めの作戦', mark: '攻め', sign: '+', desc: '仲間全員のあたえるダメージが上がる', color: '#ff8a5a' },
   mamori: { name: '守りの作戦', mark: '守り', sign: '-', desc: '仲間全員の受けるダメージが下がる', color: '#6ab8ff' },
   sokkou: { name: '速攻の作戦', mark: '速攻', sign: '+', desc: '仲間全員の番が早く来る', color: '#8ae8a0' },
+  // 第86回 B班: 混とんの大軍師だけの 4つ目（jobs-r86b.js の sakusenSet。SAKUSEN_ORDER には 入れない）
+  mahou: { name: '大魔法の時間', mark: '大魔法', sign: '', desc: 'となえている仲間の受けるダメージが下がり、となえてうつ呪文が強くなる', color: '#c08aff' },
 };
 export const SAKUSEN_ORDER = ['seme', 'mamori', 'sokkou'];
 // 段ごとの 効き目（[基本職, 上級職, 超級職, 伝説]）・ほかの 職業に 転職した あと
@@ -54,6 +59,8 @@ const partsOf = (e) => (e?.type === 'multi' ? e.parts || [] : [e || {}]);
 // その 人が えらべる 作戦（c … 戦いの 人・pub）
 export function sakusenSet(c) {
   if (!c || c.mon) return [];
+  // 第86回 B班: 職業の データに ある 作戦（混とんの大軍師。jobs-r86b.js の sakusenSet）
+  if (JOBS[c.job]?.sakusenSet) return JOBS[c.job].sakusenSet;
   const t = JOBS[c.job]?.tier ?? 0;
   if (inLine(c.job)) return t >= 2 ? SAKUSEN_ORDER : t >= 1 ? SAKUSEN_ORDER.slice(0, 2) : knows(c, 'sd_sakusen') ? SAKUSEN_ORDER.slice(0, 2) : [];
   return knows(c, 'sd_sakusen') ? SAKUSEN_ORDER.slice(0, 2) : [];
@@ -61,6 +68,8 @@ export function sakusenSet(c) {
 // その 人が 立てる 作戦の 効き目
 export function sakusenPct(c) {
   if (!c) return 0;
+  // 第86回 B班: 職業の データに ある 効き目（混とんの大軍師。伝説と おなじ 25%）
+  if (JOBS[c.job]?.sakusenPct) return JOBS[c.job].sakusenPct;
   if (inLine(c.job)) return SAKUSEN_PCT[JOBS[c.job]?.tier ?? 0];
   return OTHER_PCT;
 }
@@ -306,6 +315,9 @@ export function r83aDamage(b, c, t, dmg, info, ev) {
   let up = 1, cut = 1;
   if (p?.kind === 'seme' && c.side === p.side) up += planPct(p);
   if (p?.kind === 'mamori' && t.side === p.side) cut *= 1 - planPct(p);
+  // 第86回 B班: 大魔法の時間（となえて いる 仲間は 受ける ダメージ −・となえた 力で うつ 呪文は ＋）
+  if (p?.kind === 'mahou' && c.side === p.side && mahouPowered(c, ev)) up += planPct(p);
+  if (p?.kind === 'mahou' && t.side === p.side && chanting(t)) cut *= 1 - planPct(p);
   if (ev?.big && c.side !== t.side && (b.combatants || []).some((x) => x.side === t.side && x.alive && x.r83aSaki)) {
     cut *= SAKI_CUT;
     if (!ev.r83aSakiMsg) {
@@ -326,6 +338,14 @@ export function r83aDamage(b, c, t, dmg, info, ev) {
   if (cut < 1) cut = Math.max(cut, t.defending ? CUT_FLOOR.defending : CUT_FLOOR.normal);
   if (up === 1 && cut === 1) return dmg;
   return Math.max(1, Math.round(dmg * up * cut));
+}
+
+// 第86回 B班: 大魔法の時間で 強く なる 呪文か（その 行動で、となえた 力を 使って うった 呪文。大砲も ふつうの 呪文も。
+//   battle-r85a.js の r85aMagic・battle-r86b.js の 太極・ギガ・スレイブが ev.r85aChantEnd に 自分を 入れる）
+export function mahouPowered(c, ev) {
+  if (!c || !ev || ev.id !== c.id || ev.r85aChantEnd !== c.id || !ev.ability) return false;
+  const a = ABILITIES[ev.ability];
+  return !!a && (a.kind === 'spell' || !!a.spellLike);
 }
 
 // クライアントに 見せる（pub）

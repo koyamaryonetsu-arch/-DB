@@ -35,6 +35,8 @@ import { addR84aVehicleArt } from './vehicle-r84a.js';
 import { addR85bVehicleArt } from './vehicle-r85b.js';
 // 第85回 A班: ごちそうの荷車（スレイヤーズの 系統。vehicle-r85a.js）
 import { addR85aVehicleArt } from './vehicle-r85a.js';
+// 第86回 B班: 幻の職業の 乗り物（武術会のリング・空飛ぶカバの軍師台。vehicle-r86b.js）
+import { addR86bVehicleArt } from './vehicle-r86b.js';
 // 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（幻の職業 2つ。vehicle-r86a.js）
 import { addR86aVehicleArt } from './vehicle-r86a.js';
 
@@ -1636,6 +1638,8 @@ addR84aVehicleArt(ART, { seg, poly, shade, seat });
 addR85bVehicleArt(ART, { seg, poly, shade, seat });
 // 第85回 A班: ごちそうの荷車（render/vehicle-r85a.js）
 addR85aVehicleArt(ART, { seg, poly, shade, seat });
+// 第86回 B班: 武術会のリング・空飛ぶカバの軍師台（render/vehicle-r86b.js）
+addR86bVehicleArt(ART, { box, seg, poly, rgba, shade, twinkle, seat });
 // 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（render/vehicle-r86a.js）
 addR86aVehicleArt(ART, { seg, poly, shade, seat, rgba, twinkle });
 

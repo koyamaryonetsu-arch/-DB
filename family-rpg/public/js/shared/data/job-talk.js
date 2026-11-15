@@ -141,6 +141,12 @@ Object.assign(JOB_SAY, {
   lina: '「天才美少女魔道士、ただいま参上！」',
   doramata: '「ドラゴンもまたいで通るって？しつれいね！」',
 });
+// 第86回 B班: 幻の職業（jobs-r86b.js）
+Object.assign(JOB_SAY, {
+  tenkaichi_king: '「天下一は、このこぶしでつかむ！」',
+  chaos_gunshi: '「作戦どおり。さあ、大魔法の時間だ！」',
+});
+
 
 // 第86回 A班: 幻の職業 2つ（jobs-r86a.js）
 Object.assign(JOB_SAY, {
