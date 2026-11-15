@@ -23,6 +23,8 @@ import { addPhantomVehicleArt } from './vehicle-phantom.js';
 import { addR82aVehicleArt } from './vehicle-r82a.js';
 // 第82回 B班: 大きなトラ（YAIBA の 系統。vehicle-r82b.js）
 import { addR82bVehicleArt } from './vehicle-r82b.js';
+// 第83回 A班: 空飛ぶカバ（封神演義の 系統。vehicle-r83a.js）
+import { addR83aVehicleArt } from './vehicle-r83a.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1610,6 +1612,8 @@ addTokeiVehicleArt(ART, { horseArt });
 addPhantomVehicleArt(ART, { horseArt, bikeArt, carArt, deckArt, box, seg, poly, wheel, rgba, shade, twinkle, seat, stand });
 // 第82回 A: 二またの大ねこ（render/vehicle-r82a.js）
 addR82aVehicleArt(ART, { seg, poly, shade, seat });
+// 第83回 A班: 空飛ぶカバ（render/vehicle-r83a.js）
+addR83aVehicleArt(ART, { seg, poly, shade, seat });
 
 export const VEHICLE_ART = ART;
 

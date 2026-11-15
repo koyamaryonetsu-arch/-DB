@@ -31,6 +31,8 @@ import { outfit43j, drawR43j, face43j, drawHat43j, drawProp43j } from './hero-r4
 import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js';
 // 第79回: 幻の職業の マントの うら・かたかざり・二本目の 刀・星・日輪・王の つえ・虫めがね（hero-r79.js）
 import { outfit79, drawR79, drawProp79 } from './hero-r79.js';
+// 第83回 A班: 封神演義の 系統の つりざお・打神べん（hero-r83a.js）
+import { drawProp83a } from './hero-r83a.js';
 // 第82回 A: 犬夜叉の 系統の 首の 数珠（hero-r82a.js）
 import { outfit82, drawR82 } from './hero-r82a.js';
 
@@ -1094,6 +1096,8 @@ export function drawProp26(cv, P, A, O) {
   if (kind && drawProp66b(cv, P, A, O)) return;
   // 第79回: 王の つえ・大きな 虫めがね（hero-r79.js）
   if (kind && drawProp79(cv, P, A, O)) return;
+  // 第83回 A班: つりざお・打神べん（hero-r83a.js）
+  if (kind && drawProp83a(cv, P, A, O)) return;
   if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O) || drawProp40(cv, P, A, O) || drawProp41a(cv, P, A, O) || drawProp43j(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;

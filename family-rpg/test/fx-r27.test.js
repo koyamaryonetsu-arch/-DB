@@ -32,6 +32,8 @@ import { playR66e2Fx } from '../public/js/client/render/battlefx-r66e2.js';
 import { playR82aFx } from '../public/js/client/render/battlefx-r82a.js';
 // 第82回 B班: YAIBA の 系統
 import { playR82bFx } from '../public/js/client/render/battlefx-r82b.js';
+// 第83回 A班: 封神演義の 系統
+import { playR83aFx } from '../public/js/client/render/battlefx-r83a.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
 import { playCh4Fx } from '../public/js/client/render/battlefx-ch4.js';
 // 第48回の 大技エンジン（anim を データに 書いた 技も エフェクトが ある あつかい）
@@ -110,7 +112,8 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playJob4Fx(fake, anim, ONE, null, {}) || playJob5Fx(fake, anim, ONE, null, {}) || playJob6Fx(fake, anim, ONE, null, {}) || playJob7Fx(fake, anim, ONE, null, {}) || playJob8Fx(fake, anim, ONE, null, {}) || playR41bFx(fake, anim, ONE, null, {}) || playR41aFx(fake, anim, ONE, null, {}) || playR43jFx(fake, anim, ONE, null, {}) || playR66aFx(fake, anim, ONE, null, {}) || playR66bFx(fake, anim, ONE, null, {}) || playPokemonFx(fake, anim, ONE, null, {}) || playCh4Fx(fake, anim, ONE, null, {}) || playAxFx(fake, anim, ONE, null, {})
     || playR66cFx(fake, anim, ONE, null, {}) || playR66dFx(fake, anim, ONE, null, {}) || playR66e1Fx(fake, anim, ONE, null, {}) || playR66e2Fx(fake, anim, ONE, null, {})
     || playR82aFx(fake, anim, ONE, null, {})
-    || playR82bFx(fake, anim, ONE, null, {});
+    || playR82bFx(fake, anim, ONE, null, {})
+    || playR83aFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);
     const types = ab.effect?.type === 'multi' ? (ab.effect.parts || []).map((p) => p.type) : [ab.effect?.type];

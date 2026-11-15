@@ -2,7 +2,7 @@
 //
 // ■ 作戦（b.r83aPlan = { side, by, kind, pct, boost, boostBy }）
 //   ・「作戦を立てる」で 1つ えらぶと、立てた 人（軍師）が たおれるか 作戦を かえる まで、その 側の 仲間全員に ずっと 効く（時間で 切れない）
-//       seme   攻め … 与える ダメージ ＋pct
+//       seme   攻め … あたえる ダメージ ＋pct
 //       mamori 守り … 受ける ダメージ −pct
 //       sokkou 速攻 … 行動ゲージの たまる 速さ ＋pct（太公望から）
 //   ・効き目（pct）は 立てた 人の 今の 職業の 段: せん人界の道士 15%・太公望 20%・ほう神の大軍師 25%（SAKUSEN_PCT）
@@ -29,7 +29,7 @@ import { BUFF_ACTS } from './buff-acts.js';
 export const R83A_LINE = ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'];
 // 作戦の 表（ならびは 作戦を立てる メニューの じゅん）
 export const SAKUSEN = {
-  seme: { name: '攻めの作戦', mark: '攻め', sign: '+', desc: '仲間全員の与えるダメージが上がる', color: '#ff8a5a' },
+  seme: { name: '攻めの作戦', mark: '攻め', sign: '+', desc: '仲間全員のあたえるダメージが上がる', color: '#ff8a5a' },
   mamori: { name: '守りの作戦', mark: '守り', sign: '-', desc: '仲間全員の受けるダメージが下がる', color: '#6ab8ff' },
   sokkou: { name: '速攻の作戦', mark: '速攻', sign: '+', desc: '仲間全員の番が早く来る', color: '#8ae8a0' },
 };
@@ -298,7 +298,7 @@ export function r83aTurnStart(b, c, ev) {
 }
 
 // ───────────── ダメージ（battle.js の damage） ─────────────
-// 攻めの 作戦（与える ＋）・守りの 作戦／先読みの策／守りの旗（受ける −。下げすぎ ふせぎ あり）。へんじ: ダメージ
+// 攻めの 作戦（あたえる ＋）・守りの 作戦／先読みの策／守りの旗（受ける −。下げすぎ ふせぎ あり）。へんじ: ダメージ
 export function r83aDamage(b, c, t, dmg, info, ev) {
   if (!c || !t || c.side === t.side || !(dmg > 0)) return dmg;
   const p = activePlan(b);

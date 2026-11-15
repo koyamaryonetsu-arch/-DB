@@ -11,6 +11,8 @@ import { R41A_HAT } from './hero-r41a.js';
 import { R66E2_HAT } from './hero-r66e2.js';
 // 第82回 B班: YAIBA の 系統の はちまき（hero-r82b.js）
 import { R82B_HAT } from './hero-r82b.js';
+// 第83回 A班: 封神演義の 系統の むぎわらぼうし・頭の ぬの・金の わ（hero-r83a.js）
+import { R83A_HAT } from './hero-r83a.js';
 // 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
 import { R43J_HAT } from './hero-r43j.js';
 // 第66回 B班: ニューカワイイの リボン・SMAPの ヘッドセット・五つ星シェフの コック帽
@@ -1561,6 +1563,7 @@ Object.assign(JOB_HAT, R66C_HAT);
 Object.assign(JOB_HAT, R66E1_HAT);
 Object.assign(JOB_HAT, R66E2_HAT);
 Object.assign(JOB_HAT, R82B_HAT);
+Object.assign(JOB_HAT, R83A_HAT);
 Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 Object.assign(JOB_HAT, R66D_HAT);
 Object.assign(R26_BODY_HAT, R66D_BODY_HAT);

@@ -24,7 +24,7 @@ export const R83A_ABILITIES = {
   fd_nonbiri: {
     name: 'のんびりつり', kana: 'のんびりつり', kind: 'skill', job: 'fishing_doshi', mp: 0, target: 'self', role: 'heal',
     effect: { type: 'multi', parts: [{ type: 'heal', base: [22, 30], thr: 20 }, { type: 'mpHeal', base: [3, 6] }] },
-    desc: '戦いの中でも、のんびりつり糸をたらす。自分のHPとMPが少し回復する。でも魚はつれない。', cast: '{a}は、のんびりつりをはじめた…「魚はつれなかった…」', anim: 'heal1',
+    desc: '戦いの中でも、のんびりつり糸をたらす。自分のHPとMPが少し回復する。でも魚はつれない。', cast: '{a}は、のんびりつりを始めた…「魚はつれなかった…」', anim: 'heal1',
   },
   fd_ofuda: {
     name: '風のおふだ', kana: 'かぜのおふだ', kind: 'spell', job: 'fishing_doshi', mp: 4, target: 'enemy',
@@ -55,12 +55,12 @@ export const R83A_ABILITIES = {
   fd_catch_boot: {
     name: '長ぐつ', kana: 'ながぐつ', kind: 'skill', job: 'fishing_doshi', mp: 0, target: 'self', hidden: true,
     effect: { type: 'nothing' },
-    cast: 'つれたのは、古い長ぐつだった…。何も起きなかった。', anim: 'fishing_doshi_sig',
+    cast: 'つれたのは、古い長ぐつだった…。何も起きなかった。', anim: 'r83a_catch',
   },
   fd_catch_box: {
     name: '宝箱', kana: 'たからばこ', kind: 'skill', job: 'fishing_doshi', mp: 0, target: 'self', hidden: true,
     effect: { type: 'r83aTreasure', mult: 2 },
-    cast: 'なんと、宝箱がつれた！', anim: 'fishing_doshi_sig',
+    cast: 'なんと、宝箱がつれた！', anim: 'r83a_catch',
   },
 
   // ───────────── せん人界の道士（上級職。作戦を立てる） ─────────────
@@ -72,7 +72,7 @@ export const R83A_ABILITIES = {
   sd_sakusen: {
     name: '作戦を立てる', kana: 'さくせんをたてる', kind: 'skill', job: 'sennin_doshi', mp: 6, target: 'self', role: 'sup',
     effect: { type: 'r83aSakusen' },
-    desc: '「攻め」か「守り」の作戦を立てる。作戦は、自分がたおれるか、作戦をかえるまで、仲間全員にずっと効く。攻めは与えるダメージが上がり、守りは受けるダメージが下がる。',
+    desc: '「攻め」か「守り」の作戦を立てる。作戦は、自分がたおれるか、作戦をかえるまで、仲間全員にずっと効く。攻めはあたえるダメージが上がり、守りは受けるダメージが下がる。',
     cast: '{a}「よし、作戦はこれでいこう！」', anim: 'r83a_plan',
   },
   sd_karyu: {
