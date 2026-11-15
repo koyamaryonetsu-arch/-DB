@@ -6,6 +6,7 @@
 // つかいかた: node tools/sim-r84b.mjs [回数] [ボス,…] [職業,…]
 //   ボス: ch7 … gate temple reef light witch shadow / ch8 … pet jafar imps hades kamek bowser
 //   KNOW=0 … 完全オート（しかけを 知らない ふつうの オート）だけ / KNOW=1 … 知っている 人だけ（ない ときは 両方）
+//   CLAW=1 … 勇者の 剣を 持てない つめの 職業（らんま・スーパーサイヤ人3 など）は ゴッドハンドの ★つめを 持たせて くらべる
 //   R84B_AI=kake:0,mad:0.5 など … オートが 技を えらぶ わりあい（battle-r84b.js の R84B_AI）を かえて ためす
 //   USES=1 … 入れかえた 人が 使った 技の 回数も 出す（1戦の 平均）・やり返した 回数・よけた 回数・大技を 受けた 回数
 import { CH6_JOBS } from './sim-ch6.mjs';
@@ -54,6 +55,8 @@ for (const boss of BOSSES) {
     console.log(`■ ${boss}（Lv${lv}・${know ? '知っている 人' : '完全オート'}・${N}回）`);
     for (const job of LIST) {
       KIT[boss][job] = KIT[boss][job] || KIT[boss].hero.map((id) => (id && canEquip(job, id) ? id : null));
+      // CLAW=1 … 勇者の 剣を 持てない つめの 職業は ゴッドハンドの ★つめ（同じ ころの ★装備で くらべる）
+      if (process.env.CLAW && !KIT[boss][job][0] && KIT[boss].god_hand?.[0] && canEquip(job, KIT[boss].god_hand[0])) KIT[boss][job] = [KIT[boss].god_hand[0], ...KIT[boss][job].slice(1)];
       CH6_JOBS[0] = [job, '勇者'];
       for (const k of Object.keys(uses)) delete uses[k];
       const res = [];

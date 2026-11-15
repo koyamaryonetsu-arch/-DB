@@ -1,7 +1,7 @@
 // 第84回 B班: らんま1/2 の 系統（手数と カウンター）の 戦いの しかけ（data/jobs-r84b.js・data/abilities-r84b.js。docs/plan-r84-jobs-b.md）
 // どれも 戦いの 中だけ（戦いの 人〈combatant〉に つける。キャラ・セーブ・引っこしコードには 何も 足さない）
 //
-// ■ 水の すがた・お湯の すがた（c.r84bForm = 'mizu' | 'oyu'。戦いの はじめは すがた なし）
+// ■ 水の すがた・お湯の すがた（c.r84bForm = 'mizu' | 'oyu'。戦いの はじめは お湯の すがた〈START_FORM〉）
 //   ・水  … 行動ゲージが 速く たまる（×(1＋pct)）・物理の 攻撃を よけやすい（＋pct×0.8。上限 EVA_CAP）
 //   ・お湯 … 物理の ダメージが 大きい（×(1＋pct)）・受ける ダメージが へる（×(1−pct×0.6)）
 //   ・pct は 今の 職業の 段: 門下生 15%・早おとめ乱馬 20%・飛竜しょう天はの達人 25%（FORM_PCT）。
@@ -17,15 +17,17 @@
 //   ・強化の 数（boostCount）: ふつうの 強化（攻撃力アップ などの バフ・かいひ・力ため）は 1つずつ。
 //     ボスの しかけ（ずっと つづく 強化〈left が Infinity〉）は いくつ あっても 1つ だけ。形態・前ぶれ・かまえは 数えない。
 //     かけひきで おこって いれば ＋1。ぜんぶで BOOST_CAP（4）まで
-//   ・攻撃が 来なかった ときは、次の 自分の 番の はじめに 弱い 風の 一ふり（敵全体・swing 倍）
+//   ・攻撃が 来なかった ときは、次の 自分の 番の はじめに 弱い 風の 一ふり（敵全体・swing 倍）＋ 使った MP の 半分が もどる
 // ■ 飛竜こうりんだん（phys の vsBuff84）… かまえ なしで 竜巻。敵の 強化の 数 1つごとに ＋vsBuff84（上限 BOOST_CAP）
-// ■ かけひき（t.r84bIkari = { left, atk }）… 敵を おこらせる: 攻撃力 ×atk・守備力 ×def（ボスは bossDef・長さ bossLeft）
+// ■ かけひき（t.r84bIkari = { left, atk, by }）… 敵を おこらせる: 攻撃力 ×atk・守備力 ×def（ボスは bossDef・長さ bossLeft）
+//   おこった 敵は、おこらせた 人（by）を ねらいやすい（TAUNT。ボスは TAUNT_BOSS。前ぶれの 大技は かえない。r84bTaunt）
 //   守り下げは ほかの 守り下げと 足し算に しない（今の 守り下げより 弱い ときは 長さだけ のばす。かさねがけの 2だんかいめにも ならない）
 // ■ 敵前だい逃亡（t.r84bDodge = { add }）… 仲間全員が 1回 行動する 間 よけやすい（物理。前ぶれの 大技は よけられない）・自分の 次の 番が 早い
 // ■ どげざ … 今 ある 行動ゲージを 下げる しくみ（atbSet。ボスは 効きにくく、下がり方も 半分）
 // ■ 乱れ打ち（effect.r84b 'midare'）・手数の 技（'te'）・自信の気だん（'jishin'）… battle.js の 'phys' の はじめで r84bPhys
 // battle.js から よぶ: r84bTurnStart（行動の はじめ・反撃の 構えが とける 前）・r84bPhys（'phys'）・r84bEffect（switch）・
-//   r84bPhysMult（calcPhys）・r84bEva（calcPhys の よけ）・r84bSpeed（speedMult）・r84bDamage（damage）・r84bResolve（行動の あと）・r84bPub（pub）
+//   r84bPhysMult（calcPhys）・r84bEva（calcPhys の よけ）・r84bSpeed（speedMult）・r84bDamage（damage）・r84bResolve（行動の あと）・r84bPub（pub）・
+//   r84bTaunt（敵の 行動が きまった あと）
 // ai.js から よぶ: r84bPlan（オートの 動き）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
 import { JOBS } from './data/jobs.js';
