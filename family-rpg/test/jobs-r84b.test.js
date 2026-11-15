@@ -735,3 +735,58 @@ test('第84回 B の えんしゅつ: 看板の 技・大事な 技（竜巻・�
   assert.deepEqual(r84bMarks({ alive: false, r84bForm: 'mizu' }), []);
   for (const k of FORM_ORDER) textOk(r84bMarks({ alive: true, r84bForm: k })[0].text, k);
 });
+
+// ───────────── 新しい 系統どうしが 同じ パーティー（第83回 A班 軍師・第83回 B班 先生・第84回 B班） ─────────────
+test('第84回 B の まぜた パーティー: 軍師の 作戦・先生の おにの手と、すがた・カウンター・かけひきが おたがいを こわさない', () => {
+  const mk = (id, job) => {
+    const c = newCharacter({ id, name: id, job: 'monk' });
+    gainExp(c, expForLevel(60));
+    masterChain(c, job);
+    master(c, job);
+    c.job = job;
+    c.equip.weapon = null;
+    fullHeal(c);
+    return c;
+  };
+  const chars = [mk('ra', 'hiryu_master'), mk('gu', 'hoshin_gunshi'), mk('se', 'jigoku_sensei')];
+  const b = new Battle({ rng: makeRng(84), allies: chars.map((char) => ({ char, controller: 's1' })), enemies: ['rockman', 'rockman'], canFlee: true });
+  for (const e of b.enemies) { e.actions = [{ w: 1, id: 'm_nothing' }]; e.hp = e.maxHp = 50000; }
+  for (const a of b.allies) { a.mp = a.maxMp = 999; a.maxHp = a.hp = 3000; }
+  const [ra, gu, se] = b.allies;
+  assert.equal(formOf(ra), 'oyu');
+  assert.equal(formOf(gu), null, '軍師は すがたを 持たない');
+  // 軍師の 攻めの 作戦（みんなに ずっと）・先生の おにの手
+  use(b, gu, { type: 'ability', id: 'sd_sakusen', sakusen: 'seme' });
+  assert.equal(b.r83aPlan?.kind, 'seme');
+  use(b, se, { type: 'ability', id: 'nb_dasu' });
+  assert.ok(se.oni, 'おにの手');
+  // 水を かぶっても 作戦は のこる・作戦の 札と すがたの 札が ならぶ
+  use(b, ra, { type: 'ability', id: 'ms_mizu', form: 'mizu' });
+  assert.equal(formOf(ra), 'mizu');
+  assert.equal(b.r83aPlan?.kind, 'seme');
+  const p = pub(ra);
+  assert.ok(p.r83aPlan && p.r84bForm === 'mizu');
+  assert.deepEqual(r84bMarks(p).map((m) => m.text), ['水のすがた']);
+  // 強化ふうじ（軍師）の あとも かけひきで おこらせられる（おこるのは 強化では ない）・おこった 数は 飛竜の 強化の 数に 入る
+  const foe = b.enemies[0];
+  foe.r83aSeal = { left: 9 };
+  for (let i = 0; i < 6 && !foe.r84bIkari; i++) use(b, ra, { type: 'ability', id: 'rm_kakehiki', target: foe.id });
+  assert.ok(foe.r84bIkari && foe.r83aSeal);
+  assert.equal(boostCount(foe), 1);
+  // 飛竜しょう天は → 敵の 攻撃 → 竜巻（先生は 弱って いない 仲間は かばわない）
+  foe.actions = [{ w: 1, id: 'attack' }];
+  let ret = null;
+  for (let i = 0; i < 10 && !ret; i++) {
+    if (ra.stance?.kind !== 'hiryu') use(b, ra, { type: 'ability', id: 'ranma_sig' });
+    const a = foeAct(b, foe);
+    if (a?.r84bHiryuRet) ret = a;
+  }
+  assert.ok(ret, 'やり返した');
+  assert.ok(ret.results.some((r) => r.id === foe.id && r.dmg > 0));
+  // オート: 3人とも こわれない
+  b.allies.forEach((x, i) => { x.abilities = learnedAbilities(chars[i]); });
+  for (const x of b.allies) for (let i = 0; i < 6; i++) assert.ok(decideAlly(b, x)?.type);
+  for (const x of b.allies) x.controller = null;
+  for (let i = 0; i < 600; i++) b.tick(50);
+  assert.ok(b.allies.every((x) => x.alive));
+});

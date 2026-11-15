@@ -10,6 +10,8 @@ import { buffMarks, regenMark, statusNames } from './ui/info.js';
 import { r82aMarks } from './battle-r82a.js';
 // 第82回 B班: 今の 玉・きょだい化・雷神の守りの 札（battle-r82b.js）
 import { r82bMarks } from './battle-r82b.js';
+// 第83回 B班: おにの手・かくせい・体をはって守る の 札（battle-r83b.js）
+import { r83bMarks } from './battle-r83b.js';
 // 第83回 A班: 作戦・先読み・守りの旗・強化ふうじの 札（battle-r83a.js）
 import { r83aMarks, paintPlanMarks } from './battle-r83a.js';
 // 第84回 B班: 水と お湯の すがた・心の水・よけ・かまえ・いかりの 札（battle-r84b.js）
@@ -45,6 +47,7 @@ export function unitMarks(a) {
   if (a.covering && a.side === 'ally') out.push({ text: `かばう${Number.isFinite(a.coverLeft) ? a.coverLeft : ''}`, cls: 'cv' });
   out.push(...r82aMarks(a));
   out.push(...r82bMarks(a));
+  out.push(...r83bMarks(a));
   out.push(...r83aMarks(a));
   out.push(...r84bMarks(a));
   return out;

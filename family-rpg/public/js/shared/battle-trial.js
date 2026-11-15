@@ -66,6 +66,8 @@ Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23
 Object.assign(PHANTOM_ADJ, { inuyasha: [1.28, 1.02, 1.18], bakuryuha: [0.76, 0.49, 0.62] });
 // 第82回 B班: ヤイバ・竜神けんのサムライ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0.52, 0.49] });
+// 第83回 B班: れい能力教師ぬ〜べ〜・おにの手のじごく先生（tools/sim-trial-tune.mjs 10 0.75 HI=4・SEED 500 と 900 の 平均）
+Object.assign(PHANTOM_ADJ, { nube: [1.87, 1.4, 1.78], jigoku_sensei: [0.85, 0.6, 0.76] });
 // 第83回 A班: 太公望・ほう神の大軍師（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。HEAL_CAP も つけた）。
 //   軍師の まぼろしは 回復を 何十回も 使って 戦いが 長く なるので HEAL_CAP（4回）を つけて から さがした
 Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 3.11, 3.04] });
@@ -75,6 +77,8 @@ Object.assign(PHANTOM_ADJ, { ranma: [2.08, 1.78, 1.93], hiryu_master: [1.1, 0.88
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
 for (const t of ['osuwari', 'youkaiCalm', 'daiyoukai', 'bakuryu']) NO_USE.add(t);
+// 第83回 B班: おにの手を出す・かくせい・体をはって守る・生徒たちの声は 仲間の しくみ（まぼろしは 使わない。battle-r83b.js）
+for (const t of ['oniHand', 'oniAwake', 'teShield', 'teKoe']) NO_USE.add(t);
 // 第83回 A班: 作戦・軍師の号令・先読みの策・守りの旗・ほう神計画は 仲間の しくみ・太極図は まぼろしが 何回も 使って 攻撃しなく なる（まぼろしは 使わない。battle-r83a.js）
 for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
 // 第84回 B班: すがたを かえる・飛竜しょう天はの かまえ・かけひき・敵前だい逃亡・心の水は 仲間の しくみ（まぼろしは 使わない。battle-r84b.js）

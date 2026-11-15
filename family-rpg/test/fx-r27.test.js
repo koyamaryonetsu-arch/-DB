@@ -32,6 +32,8 @@ import { playR66e2Fx } from '../public/js/client/render/battlefx-r66e2.js';
 import { playR82aFx } from '../public/js/client/render/battlefx-r82a.js';
 // 第82回 B班: YAIBA の 系統
 import { playR82bFx } from '../public/js/client/render/battlefx-r82b.js';
+// 第83回 B班: ぬ〜べ〜の 系統
+import { playR83bFx } from '../public/js/client/render/battlefx-r83b.js';
 // 第83回 A班: 封神演義の 系統
 import { playR83aFx } from '../public/js/client/render/battlefx-r83a.js';
 // 第84回 B班: らんま1/2 の 系統
@@ -115,6 +117,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playR66cFx(fake, anim, ONE, null, {}) || playR66dFx(fake, anim, ONE, null, {}) || playR66e1Fx(fake, anim, ONE, null, {}) || playR66e2Fx(fake, anim, ONE, null, {})
     || playR82aFx(fake, anim, ONE, null, {})
     || playR82bFx(fake, anim, ONE, null, {})
+    || playR83bFx(fake, anim, ONE, null, {})
     || playR83aFx(fake, anim, ONE, null, {})
     || playR84bFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {

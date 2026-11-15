@@ -54,6 +54,9 @@ import { r82aPresent, youkaiWaitText } from './battle-r82a.js';
 // 第82回 B班: YAIBA の 系統の 技（render/battlefx-r82b.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・玉がえの メニュー（battle-r82b.js）
 import { R82B_SFX, R82B_HIT } from './render/battlefx-r82b.js';
 import { tamaMenu } from './battle-r82b.js';
+// 第83回 B班: ぬ〜べ〜の 系統の 技（render/battlefx-r83b.js）と、おにの手・生徒を 守る の 画面（battle-r83b.js）
+import { R83B_SFX, R83B_HIT } from './render/battlefx-r83b.js';
+import { r83bPresent } from './battle-r83b.js';
 // 第83回 A班: 封神演義の 系統の 技（render/battlefx-r83a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・作戦を立てる メニュー（battle-r83a.js）
 import { R83A_SFX, R83A_HIT } from './render/battlefx-r83a.js';
 import { sakusenMenu } from './battle-r83a.js';
@@ -160,6 +163,7 @@ Object.assign(HIT_DELAY, R66E1_HIT);
 Object.assign(HIT_DELAY, R66E2_HIT);
 Object.assign(HIT_DELAY, R82A_HIT);
 Object.assign(HIT_DELAY, R82B_HIT);
+Object.assign(HIT_DELAY, R83B_HIT);
 Object.assign(HIT_DELAY, R83A_HIT);
 Object.assign(HIT_DELAY, R84B_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
@@ -282,6 +286,8 @@ Object.assign(ANIM_SFX, R66E2_SFX);
 // 第82回 A: 犬夜叉の 系統の 技（render/battlefx-r82a.js）
 Object.assign(ANIM_SFX, R82A_SFX);
 Object.assign(ANIM_SFX, R82B_SFX);
+// 第83回 B班: ぬ〜べ〜の 系統の 技（render/battlefx-r83b.js）
+Object.assign(ANIM_SFX, R83B_SFX);
 Object.assign(ANIM_SFX, R83A_SFX);
 Object.assign(ANIM_SFX, R84B_SFX);
 
@@ -1468,6 +1474,8 @@ export class BattleScene {
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     // 第82回 A: ようかい化・おすわり！・ばくりゅうはで 返した（battle-r82a.js）
     r82aPresent(this, ev, hitDelay);
+    // 第83回 B班: おにの手を 出した・ふういんに もどった・先生が かばった（battle-r83b.js）
+    r83bPresent(this, ev);
     // 第84回 B班: すがたが かわった・飛竜しょう天はの かまえと やり返し（battle-r84b.js）
     r84bPresent(this, ev, hitDelay);
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }

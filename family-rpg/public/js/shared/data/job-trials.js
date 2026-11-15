@@ -232,6 +232,11 @@ Object.assign(TRIAL_WORDS, {
   yaiba: '玉は道具ではない。どの玉の力も、心をこめて使うのだ。',
   ryujin_samurai: '7つの玉をそろえても、サムライのたましいがなければ、ただの石だ。',
 });
+// 第83回 B班: ぬ〜べ〜の 系統の 超級職・伝説の職業（jobs-r83b.js）
+Object.assign(TRIAL_WORDS, {
+  nube: 'おにの手は、生徒を守る時だけ使うのだ。',
+  jigoku_sensei: 'おそろしい力も、やさしい心で使えば、みんなを守る力だ。',
+});
 // 第83回 A班（超級職・伝説。jobs-r83a.js）
 Object.assign(TRIAL_WORDS, {
   taikobo: 'なまけてよい。だが、仲間を見る目だけは、休めるな。',

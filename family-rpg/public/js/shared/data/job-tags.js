@@ -254,6 +254,12 @@ Object.assign(JOB_TAGS, {
   yaiba: ['sword', 'bolt', 'fire', 'ice'], // ヤイバ（雷・火・水・氷の 玉）
   ryujin_samurai: ['sword', 'bolt', 'light', 'master'], // 竜神けんのサムライ（雷神のいかり・竜神の 光・7つの 玉を きわめた）
 });
+// 第83回 B班: ぬ〜べ〜の 系統（jobs-r83b.js。合体技の 相手の 案: 3年B組の担任〈学校・先生コンビ〉・僧侶の 系統〈いやし・光〉・小学生〈学校・先生と 生徒〉）
+Object.assign(JOB_TAGS, {
+  elem_teacher: ['school', 'guard', 'heal', 'work'], // 小学校の先生（学校で 教える・生徒を かばう・保健室・地方公務員）
+  nube: ['school', 'guard', 'fist', 'work'], // れい能力教師ぬ〜べ〜（先生・生徒を 守る・おにの手・町の 小学校で 働く 先生）
+  jigoku_sensei: ['school', 'guard', 'fist', 'master'], // おにの手のじごく先生（先生・守る・おにの手・おにの手を きわめた）
+});
 
 // 第83回 A班: 封神演義の 系統（jobs-r83a.js。合体技の 相手の 案: 占い師〈魔法〉・社長〈空〉・忍者〈風〉）
 Object.assign(JOB_TAGS, {
