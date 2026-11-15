@@ -214,7 +214,7 @@ test('前の コード（KIZUNA-1〜4）も 読める', () => {
 
 // ───────────── 6. 見はり ─────────────
 // 魔物・技・道具・マップを 足すと、データから 作る「いちばん 大きな セーブ」も 大きく なる。上限に 近づく 前に ここで 分かる
-test('見はり: ふつうの セーブは LINE の 1通に よゆうを もって 入る・いちばん 大きな セーブも 3通まで', { timeout: 120000 }, () => {
+test('見はり: ふつうの セーブは LINE の 1通に よゆうを もって 入る・いちばん 大きな セーブも 4通まで', { timeout: 120000 }, () => {
   const rows = [];
   for (const [name, c] of [['ふつう', typical], ['いちばん大きい', biggest]]) {
     const v5 = exportCode(c);
@@ -223,9 +223,10 @@ test('見はり: ふつうの セーブは LINE の 1通に よゆうを もっ�
     const zl = Math.ceil((zlib.deflateRawSync(json, { level: 9 }).length * 4) / 3);
     rows.push(`${name}: 前 ${v4.length} → KIZUNA-5 ${v5.length}文字（LINE の ${Math.round((v5.length / LINE_MAX) * 100)}%・${splitCode(v5).length}通。zlib -9 なら ${zl}）`);
     if (c === typical) assert.ok(v5.length <= LINE_MAX * 0.7, rows.at(-1));
-    // 第83回 A班: 封神演義の 系統（職業 4つ・技 28こ）で いちばん 大きな セーブが 27140文字（3通の 90%〈27000〉を こえた）。
-    //   3通に 入る ことは かわらないので、よゆうを 1わり → 5ぶ に（のこりの 系統・幻を 足す 前に KIZUNA-6 の 下じきを 考える。docs/plan-r83-jobs-a.md）
-    else assert.ok(splitCode(v5).length <= 3 && v5.length <= LINE_MAX * 3 * 0.95, rows.at(-1));
+    // 第83回: 職業の 系統を 足すと いちばん 大きな セーブも 大きく なる（1系統で 300〜350文字。封神演義で 27140文字）。
+    //   分ける 数は 自動（splitCode）で、何通でも もどせる。「全部の 職業を きわめた」セーブだけの 話 なので、
+    //   見はりは「4通まで（4通の 90% 以下）」に する。ふつうの セーブ（1通の 70% 以下）は かえない。docs/plan-r78-transfer.md
+    else assert.ok(splitCode(v5).length <= 4 && v5.length <= LINE_MAX * 4 * 0.9, rows.at(-1));
     assert.ok(v5.length < zl, `zlib -9 より みじかい: ${rows.at(-1)}`);
   }
   console.log(rows.join('\n'));
