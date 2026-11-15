@@ -120,6 +120,9 @@ VEHICLES.rei_bird = { name: '青いれい界の鳥', price: 5000, jobs: ['furyo'
 VEHICLES.fire_dragon = { name: '火竜', price: 5400, jobs: ['enjutsushi', 'rekka'], desc: '長い体をうねらせて、空をおよぐ火竜。せなかにのると、ほんのりぽかぽかする。' };
 // 第85回 A班: スレイヤーズの 系統の 乗り物（子どもの 竜が ひく ごちそうの 荷車。絵は client/render/vehicle-r85a.js）
 VEHICLES.feast_cart = { name: 'ごちそうの荷車', price: 4400, jobs: ['tabi_madoshi', 'lina', 'doramata'], desc: '子どもの竜がひく、ごちそうをつんだ荷車。旅のとちゅうでも、いつでも食べられる。' };
+// 第86回 B班: 幻の職業の 乗り物（その 幻の職業に なった 人の たなに だけ。絵は client/render/vehicle-r86b.js。data/vehicles-phantom.js と おなじ きまり）
+VEHICLES.tenka_ring = { name: '武術会のリング', price: 26000, jobs: ['tenkaichi_king'], phantom: true, desc: '4人の力もちがかつぐ、武術会のリング。4すみのはたが、風でゆれる。' };
+VEHICLES.hippo_stage = { name: '空飛ぶカバの軍師台', price: 27000, jobs: ['chaos_gunshi'], phantom: true, desc: '空飛ぶカバがせおう、軍師の台。白と黒のはたと、作戦の地図がのっている。' };
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

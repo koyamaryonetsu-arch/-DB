@@ -50,6 +50,8 @@ const knowsRei = (c) => {
 export function reiMax(c) {
   if (!c || c.mon) return 0;
   const other = knowsRei(c) ? OTHER_REI : 0;
+  // 第86回 B班: 職業の データに れい丸の 数が ある（天下一の格闘王 8発。jobs-r86b.js の reiMax）
+  if (JOBS[c.job]?.reiMax) return Math.max(JOBS[c.job].reiMax, other);
   if (R84A_LINE.includes(c.job)) return Math.max(REI_BY_TIER[JOBS[c.job]?.tier ?? 0] || 0, other);
   return other;
 }

@@ -141,6 +141,11 @@ Object.assign(JOB_SAY, {
   lina: '「天才美少女魔道士、ただいま参上！」',
   doramata: '「ドラゴンもまたいで通るって？しつれいね！」',
 });
+// 第86回 B班: 幻の職業（jobs-r86b.js）
+Object.assign(JOB_SAY, {
+  tenkaichi_king: '「天下一の格闘王、ここにあり！さあ、かかってこい！」',
+  chaos_gunshi: '「作戦どおり。ここからは、大魔法の時間だ！」',
+});
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',

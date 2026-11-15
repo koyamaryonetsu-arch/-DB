@@ -111,6 +111,8 @@ import { R84A_ABILITIES } from './abilities-r84a.js';
 import { R85B_ABILITIES } from './abilities-r85b.js';
 // 第85回 A班: スレイヤーズの 系統の 技（abilities-r85a.js）
 import { R85A_ABILITIES } from './abilities-r85a.js';
+// 第86回 B班: 天下一の格闘王・混とんの大軍師の 技（abilities-r86b.js）
+import { R86B_ABILITIES } from './abilities-r86b.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -774,6 +776,8 @@ Object.assign(ABILITIES, R84A_ABILITIES);
 Object.assign(ABILITIES, R85B_ABILITIES);
 // 第85回 A班: スレイヤーズの 系統（abilities-r85a.js）
 Object.assign(ABILITIES, R85A_ABILITIES);
+// 第86回 B班: 天下一の格闘王・混とんの大軍師（abilities-r86b.js）
+Object.assign(ABILITIES, R86B_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

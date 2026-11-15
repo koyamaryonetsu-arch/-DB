@@ -95,6 +95,8 @@ import { r84aPhys, r84aPhysMult, r84aEffect, r84aTurnStart, r84aRise, r84aPub, r
 import { r85bTurnStart, r85bEffect, r85bEva, r85bDamage, r85bCut, r85bFloor, r85bPub } from './battle-r85b.js';
 // 第85回 A班: スレイヤーズの 系統（となえる・大砲の 呪文・ギガ・スレイブ・ラグナ・ブレード・とう賊たいじ・早口。battle-r85a.js）
 import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage, r85aPub, LOCK_REASON as R85A_LOCK } from './battle-r85a.js';
+// 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
+import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -736,6 +738,8 @@ export class Battle {
       this.resolveCounters(ev);
       // 第82回 A: ばくりゅうはで 受けとめた 力を 風で 返す（battle-r82a.js）
       r82aResolve(this, ev);
+      // 第86回 B班: れい丸・しょう天は（れい丸を のせた 竜巻）・カウンターが 決まると 格闘王の れい丸が もどる（r84bResolve より 先。battle-r86b.js）
+      r86bResolve(this, ev);
       // 第84回 B班: 飛竜しょう天はの かまえに 当たった 人が 竜巻で やり返す（battle-r84b.js）
       r84bResolve(this, ev);
       this.tickStatus(c, 'blind', ev);
@@ -1109,6 +1113,8 @@ export class Battle {
       case 'magic': {
         // 第83回 A班: ほう神（敵の HPが 少ないほど 大きい・たおすと MP。battle-r83a.js）
         if (eff.r83aHoshin) { r83aEffect(this, c, a, { ...eff, type: 'r83aHoshin' }, ev, targets, cmd, powMult); break; }
+        // 第86回 B班: 太極・ギガ・スレイブ（敵の 強化を 消して から のこりの MP を 全部。r85aMagic より 先。battle-r86b.js）
+        if (r86bMagic(this, c, a, cmd, ev, powMult, targets)) break;
         // 第85回 A班: 大砲の 呪文・となえた あとの 呪文・ギガ・スレイブ・ラグナ・ブレード・フレア・アロー・とう賊たいじ（battle-r85a.js）
         if (r85aMagic(this, c, a, cmd, ev, powMult, targets)) break;
         for (const t of targets) {
@@ -1593,6 +1599,8 @@ export class Battle {
       case 'r85bRyu': case 'r85bHime': case 'r85bMadoka': case 'r85bRui': r85bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // となえる（第85回 A。battle-r85a.js）
       case 'r85aChant': r85aEffect(this, c, a, eff, ev); break;
+      // れい丸・しょう天は・みんなでとなえる（第86回 B。battle-r86b.js）
+      case 'r86bReiHiryu': case 'r86bChantAll': r86bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1811,6 +1819,8 @@ export class Battle {
     dmg = r85aDamage(this, c, t, dmg, info, ev);
     // 第82回 A: おすわり！で 半分・ばくりゅうはで 受けとめる（battle-r82a.js）
     dmg = r82aDamage(this, c, t, dmg, info, ev);
+    // 第86回 B班: 太極・ギガ・スレイブの 1体の 上限（作戦や 天気で 上がっても こえない。battle-r86b.js）
+    if (info.r86bCap > 0 && dmg > info.r86bCap) dmg = info.r86bCap;
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -2641,6 +2651,8 @@ export function pub(c) {
     ...r85bPub(c),
     // となえて いる（第85回 A。battle-r85a.js）
     ...r85aPub(c),
+    // れい丸・しょう天はの かまえ（第86回 B。battle-r86b.js）
+    ...r86bPub(c),
   };
 }
 

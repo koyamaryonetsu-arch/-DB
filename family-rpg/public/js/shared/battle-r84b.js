@@ -63,6 +63,8 @@ const knows = (c, id) => (c?.abilities || []).includes(id);
 export function formPct(c) {
   if (!c || c.mon || c.side === 'enemy') return 0;
   if (inLine(c.job)) return FORM_PCT[JOBS[c.job]?.tier ?? 1];
+  // 第86回 B班: 職業の データに すがたの 効き目が ある（天下一の格闘王。伝説と おなじ 25%。jobs-r86b.js の formPct）
+  if (JOBS[c.job]?.formPct) return JOBS[c.job].formPct;
   return knows(c, 'ms_mizu') ? OTHER_PCT : 0;
 }
 // 今の すがた（null … すがた なし）

@@ -33,6 +33,8 @@ import { outfit66b, drawR66b, drawProp66b } from './hero-r66b.js';
 import { outfit79, drawR79, drawProp79 } from './hero-r79.js';
 // 第83回 A班: 封神演義の 系統の つりざお・打神べん（hero-r83a.js）
 import { drawProp83a } from './hero-r83a.js';
+// 第86回 B班: 混とんの大軍師の 太極の しるし（hero-r86b.js）
+import { drawProp86b } from './hero-r86b.js';
 // 第82回 A: 犬夜叉の 系統の 首の 数珠（hero-r82a.js）
 import { outfit82, drawR82 } from './hero-r82a.js';
 
@@ -1098,6 +1100,8 @@ export function drawProp26(cv, P, A, O) {
   if (kind && drawProp79(cv, P, A, O)) return;
   // 第83回 A班: つりざお・打神べん（hero-r83a.js）
   if (kind && drawProp83a(cv, P, A, O)) return;
+  // 第86回 B班: 太極の しるし（hero-r86b.js）
+  if (kind && drawProp86b(cv, P, A, O)) return;
   if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O) || drawProp40(cv, P, A, O) || drawProp41a(cv, P, A, O) || drawProp43j(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;

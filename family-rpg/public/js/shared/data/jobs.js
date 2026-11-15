@@ -57,6 +57,8 @@ import { JOBS_R84A, R84A_ORDERS, HINTS_R84A } from './jobs-r84a.js';
 import { JOBS_R85B, R85B_ORDERS, HINTS_R85B } from './jobs-r85b.js';
 // 第85回 A班: スレイヤーズの 系統（大食いの旅の魔道士 → 天才美少女魔道士リナ → ドラまた。jobs-r85a.js）
 import { JOBS_R85A, R85A_ORDERS, HINTS_R85A } from './jobs-r85a.js';
+// 第86回 B班: 幻の職業「天下一の格闘王」「混とんの大軍師」（jobs-r86b.js）
+import { JOBS_R86B, R86B_JOBS, HINTS_R86B } from './jobs-r86b.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1336,6 +1338,8 @@ Object.assign(JOBS, JOBS_R84A);
 Object.assign(JOBS, JOBS_R85B);
 // 第85回 A班: スレイヤーズの 系統（jobs-r85a.js）
 Object.assign(JOBS, JOBS_R85A);
+// 第86回 B班: 幻の職業 天下一の格闘王・混とんの大軍師（jobs-r86b.js）
+Object.assign(JOBS, JOBS_R86B);
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
@@ -1408,6 +1412,8 @@ JOB_ORDER.push(...BASE_R82A_ORDER); ADVANCED_ORDER.push(...ADV_R82A_ORDER); SUPE
 // 職業の 定義は jobs-phantom-a/b/c.js（C1〜C3）。まだ ない 職業は 一覧に 入れない（PHANTOM_LIVE）
 export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
   'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god'];
+// 第86回 B班: 天下一の格闘王・混とんの大軍師（jobs-r86b.js。幻の書の しるしの じゅんも この ならび）
+PHANTOM_ORDER.push(...R86B_JOBS);
 export const PHANTOM_LIVE = PHANTOM_ORDER.filter((id) => JOBS[id]);
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER, ...PHANTOM_LIVE];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業', '幻の職業'];
@@ -1593,3 +1599,5 @@ Object.assign(JOB_HINTS, HINTS_R84A);
 Object.assign(JOB_HINTS, HINTS_R85B);
 // 第85回 A班: 天才美少女魔道士リナ・ドラまたの うわさ（jobs-r85a.js。男の子の リナは masc.hint）
 Object.assign(JOB_HINTS, HINTS_R85A);
+// 第86回 B班: 天下一の格闘王・混とんの大軍師の うわさ（jobs-r86b.js）
+Object.assign(JOB_HINTS, HINTS_R86B);

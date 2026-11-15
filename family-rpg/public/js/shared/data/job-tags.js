@@ -297,6 +297,12 @@ Object.assign(JOB_TAGS, {
   doramata: ['magic', 'fire', 'dark', 'money'], // ドラまた（ラグナ・ブレード〈闇〉・ギガ・スレイブ・お金が ふえる）
 });
 
+// 第86回 B班: 幻の職業（jobs-r86b.js。もとの 2つの 伝説の タグから。新しい タグは 作らない）
+Object.assign(JOB_TAGS, {
+  tenkaichi_king: ['fist', 'wind', 'dark', 'master'], // 天下一の格闘王（素手・竜巻・よう丸の 闇・師しょう）
+  chaos_gunshi: ['magic', 'wind', 'dark', 'master'], // 混とんの大軍師（大魔法・打神べん・混とんの やいば〈闇〉・軍師）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

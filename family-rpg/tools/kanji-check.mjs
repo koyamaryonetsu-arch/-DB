@@ -358,6 +358,8 @@ export function gameFiles() {
     'public/js/shared/data/jobs-r85b.js', 'public/js/shared/data/abilities-r85b.js', 'public/js/shared/data/hirameki-r85b.js', 'public/js/shared/battle-r85b.js', 'public/js/client/battle-r85b.js',
     // 第85回 A班: スレイヤーズの 系統（大食いの旅の魔道士 → 天才美少女魔道士リナ → ドラまた）の 職業・技・ひらめき技・戦いの しかけ・となえる 札と 命令の 一覧
     'public/js/shared/data/jobs-r85a.js', 'public/js/shared/data/abilities-r85a.js', 'public/js/shared/data/hirameki-r85a.js', 'public/js/shared/battle-r85a.js', 'public/js/client/battle-r85a.js',
+    // 第86回 B班: 幻の職業（天下一の格闘王・混とんの大軍師）の 職業・技・ひらめき技・戦いの しかけ・えんしゅつの 札
+    'public/js/shared/data/jobs-r86b.js', 'public/js/shared/data/abilities-r86b.js', 'public/js/shared/data/hirameki-r86b.js', 'public/js/shared/battle-r86b.js', 'public/js/client/battle-r86b.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',
