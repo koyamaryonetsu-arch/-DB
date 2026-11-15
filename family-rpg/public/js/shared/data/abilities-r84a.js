@@ -137,7 +137,7 @@ export const R84A_ABILITIES = {
   },
   makai_prince_sig: {
     name: '超・れい丸', kana: 'ちょうれいがん', kind: 'skill', job: 'makai_prince', mp: 30, target: 'enemy', role: 'dmg',
-    effect: { type: 'phys', mult: 2.4, ignoreDef: 0.3, rei: { all: true, min: 2, hitsPer: 1 } },
+    effect: { type: 'phys', mult: 1.6, ignoreDef: 0.3, rei: { all: true, min: 2, hitsPer: 1 } },
     desc: 'のこりのれい丸を、全部つづけてうつ（2発いじょういる）。うった数だけ、敵1体に大きなダメージ。守りが固い敵にも強い。', cast: '{a}「全部、持っていけ！超・れい丸！」', anim: 'makai_prince_sig',
   },
 };

@@ -34,6 +34,8 @@ import { setup, npcAnywhere, talkTo, said, battled, CLEAR } from './fq-helpers.j
 import { R82B_JOBS } from '../public/js/shared/data/jobs-r82b.js';
 // 第83回 A班: 封神演義の 系統（jobs-r83a.js）
 import { R83A_JOBS } from '../public/js/shared/data/jobs-r83a.js';
+// 第84回 A班: 幽☆遊☆白書の 系統（jobs-r84a.js）
+import { R84A_JOBS } from '../public/js/shared/data/jobs-r84a.js';
 
 // 第8章 第3幕の さいごまで（c8_spring の いらい 30〜32 は 出る）・第4幕の はじめ（c8_rift）
 const BEFORE = [...CLEAR, 'c7_karim', 'c7_kingdom', 'c7_clear', 'c8_start', 'c8_kingdom', 'c8_jafar', 'c8_sea', 'c8_abyss', 'c8_hades', 'c8_sky', 'c8_spring', 'c8_fortress', 'c8_bowser', 'c8_rift'];
@@ -98,7 +100,8 @@ test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つ�
   const free = Object.keys(JOBS).filter((id) => ![...jobLine([id])].some((j) => usedAll.has(j)) && [...jobLine([id])].some((j) => JOBS[j].tier === 3) && !(id in JOBS_R82A));
   // 第82回 B班: YAIBA の 系統は まだ たのまれごとが ない（新しい 系統。たのまれごとは あとで）
   // 第83回 A班: 封神演義の 系統も まだ たのまれごとが ない
-  assert.deepEqual(free.filter((id) => !R82B_JOBS.includes(id) && !R83A_JOBS.includes(id)), [], 'のこりの 系統');
+  // 第84回 A班: 幽☆遊☆白書の 系統も まだ たのまれごとが ない
+  assert.deepEqual(free.filter((id) => !R82B_JOBS.includes(id) && !R83A_JOBS.includes(id) && !R84A_JOBS.includes(id)), [], 'のこりの 系統');
   // 場所（今の 時代。まだ たのまれごとが ない 所）
   const maps = { oas: 'south', dojo: 'overworld', pipe: 'north' };
   const areas = { oas: '小さなオアシス', dojo: '東の平原', pipe: '炎の山のふもと' };

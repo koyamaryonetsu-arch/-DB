@@ -34,6 +34,8 @@ import { playR82aFx } from '../public/js/client/render/battlefx-r82a.js';
 import { playR82bFx } from '../public/js/client/render/battlefx-r82b.js';
 // 第83回 A班: 封神演義の 系統
 import { playR83aFx } from '../public/js/client/render/battlefx-r83a.js';
+// 第84回 A班: 幽☆遊☆白書の 系統
+import { playR84aFx } from '../public/js/client/render/battlefx-r84a.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
 import { playCh4Fx } from '../public/js/client/render/battlefx-ch4.js';
 // 第48回の 大技エンジン（anim を データに 書いた 技も エフェクトが ある あつかい）
@@ -113,7 +115,8 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playR66cFx(fake, anim, ONE, null, {}) || playR66dFx(fake, anim, ONE, null, {}) || playR66e1Fx(fake, anim, ONE, null, {}) || playR66e2Fx(fake, anim, ONE, null, {})
     || playR82aFx(fake, anim, ONE, null, {})
     || playR82bFx(fake, anim, ONE, null, {})
-    || playR83aFx(fake, anim, ONE, null, {});
+    || playR83aFx(fake, anim, ONE, null, {})
+    || playR84aFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);
     const types = ab.effect?.type === 'multi' ? (ab.effect.parts || []).map((p) => p.type) : [ab.effect?.type];

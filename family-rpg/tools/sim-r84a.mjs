@@ -9,6 +9,7 @@
 //   USES=1 … 入れかえた 人が 使った 技の 回数も 出す（1戦の 平均）
 //   REI=0.5 など … れい丸の 数を その 倍に して ためす（REI=0 … れい丸 なし）
 //   RISE=0 … 1回だけ 立ち上がる を なしに して ためす
+//   OFF=yu_nakama,mk_tanoshii など … その 技を オートで 使わない（何が 効いて いるか しらべる）
 import { CH6_JOBS } from './sim-ch6.mjs';
 import { ch7Run, CH7_LV, CH7_KIT } from './sim-ch7.mjs';
 import { ch8Run, CH8_LV, CH8_KIT } from './sim-ch8.mjs';
@@ -18,6 +19,8 @@ import { Battle } from '../public/js/shared/battle.js';
 import { REI_BY_TIER } from '../public/js/shared/battle-r84a.js';
 
 if (process.env.REI) for (let i = 0; i < REI_BY_TIER.length; i++) REI_BY_TIER[i] = Math.round(REI_BY_TIER[i] * Number(process.env.REI));
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
+for (const id of (process.env.OFF || '').split(',').filter(Boolean)) ABILITIES[id].noAuto = true;
 if (process.env.RISE === '0') for (const j of ['yusuke', 'makai_prince']) delete JOBS[j].passive.rise;
 
 const N = Number(process.argv[2] || 10);

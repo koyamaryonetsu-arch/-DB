@@ -32,6 +32,9 @@ Object.assign(R66_HIRA, HIRAMEKI_R82B);
 // 第83回 A班: 封神演義の 系統の ひらめき技も 班の ファイル（test/jobs-r83a.test.js）
 import { HIRAMEKI_R83A } from '../public/js/shared/data/hirameki-r83a.js';
 Object.assign(R66_HIRA, HIRAMEKI_R83A);
+// 第84回 A班: 幽☆遊☆白書の 系統の ひらめき技も 班の ファイル（test/jobs-r84a.test.js）
+import { HIRAMEKI_R84A } from '../public/js/shared/data/hirameki-r84a.js';
+Object.assign(R66_HIRA, HIRAMEKI_R84A);
 import { HIRAMEKI_PHANTOM_B } from '../public/js/shared/data/hirameki-phantom-b.js';
 import { DUAL_TECHS, dualOptions } from '../public/js/shared/data/dual.js';
 import { newCharacter, learnedAbilities, gainExp, expForLevel, fullHeal, changeJob, hiraAllowed, oldComboUnlocks, weaponOk } from '../public/js/shared/stats.js';

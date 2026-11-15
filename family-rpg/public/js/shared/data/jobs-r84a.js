@@ -33,7 +33,7 @@ export const JOBS_R84A = {
   yusuke: {
     id: 'yusuke', name: 'うら飯ゆう助', kana: 'うらめしゆうすけ', short: 'ゆう助', tier: 2, req: ['reikai_tantei'], family: 'phys', color: '#2a9ad8',
     desc: '白い道着で、れい光はどうけんを修行した、一発の重いけんか屋。れい丸は1回の戦いで4発。たおれても、1回だけ「まだ、終わってねえ！」と立ち上がる。れい界探ていをきわめるとなれる。',
-    mods: { hp: 1.5, mp: 0.8, str: 1.7, def: 1.3, agi: 1.5, mag: 0.6, heal: 0.95 },
+    mods: { hp: 1.5, mp: 0.9, str: 1.7, def: 1.2, agi: 1.5, mag: 0.6, heal: 0.95 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 1 },
     passive: { rise: { hp: 0.3 } },
