@@ -36,6 +36,8 @@ import { playR66e2Fx, R66E2_FINE } from './battlefx-r66e2.js';
 import { playR82aFx, R82A_FINE } from './battlefx-r82a.js';
 // 第82回 B班: YAIBA の 系統の 技（battlefx-r82b.js。玉の 色で 剣の 光が かわる）
 import { playR82bFx, R82B_FINE } from './battlefx-r82b.js';
+// 第83回 B班: ぬ〜べ〜の 系統の 技（battlefx-r83b.js。赤い おにの手・おふだ・黒板けし）
+import { playR83bFx, R83B_FINE } from './battlefx-r83b.js';
 // 第83回 A班: 封神演義の 系統の 技（battlefx-r83a.js）
 import { playR83aFx, R83A_FINE } from './battlefx-r83a.js';
 // 第84回 A班: 幽☆遊☆白書の 系統の 技（battlefx-r84a.js）
@@ -1298,6 +1300,7 @@ Object.assign(FINE, R66E1_FINE);
 Object.assign(FINE, R66E2_FINE);
 Object.assign(FINE, R82A_FINE);
 Object.assign(FINE, R82B_FINE);
+Object.assign(FINE, R83B_FINE);
 Object.assign(FINE, R83A_FINE);
 Object.assign(FINE, R84A_FINE);
 Object.assign(FINE, PK_FINE);
@@ -1609,6 +1612,8 @@ export class Effects {
     if (playR82aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第82回 B班: YAIBA の 系統の 技（battlefx-r82b.js。anim は 'r82b_…' と 看板の 技）
     if (playR82bFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第83回 B班: ぬ〜べ〜の 系統の 技（battlefx-r83b.js。anim は 'r83b_…' と 看板の 技）
+    if (playR83bFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第83回 A班: 封神演義の 系統の 技（battlefx-r83a.js。anim は 'r83a_…' と 看板の 技）
     if (playR83aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第84回 A班: 幽☆遊☆白書の 系統の 技（battlefx-r84a.js。anim は 'r84a_…' と 看板の 技。opts.rei … うった れい丸の 数）

@@ -21,10 +21,11 @@ test('職業データ: 上級職は 基本職 2つ（新しい 職業は 1つの
   // 第64回: 名探てい（上級職）を 超級職に した
   // 第82回 A: 半ようの少年（基本職）と 鉄さいがの使い手（上級職）を 足した
   // 第82回 B班: サムライ小ぞう（基本職）と 雷神けんの剣士（上級職）を 足した
+  // 第83回 B班: 小学校の先生（上級職。地方公務員＋小学生）を 足した
   // 第83回 A班: つりをする道士（基本職）と せん人界の道士（上級職）を 足した
   // 第84回 A班: ふりょう（基本職）と れい界探てい（上級職）を 足した
   assert.equal(JOB_ORDER.length, 32);
-  assert.equal(ADVANCED_ORDER.length, 47); // 第64回: 名探ていは 超級職へ
+  assert.equal(ADVANCED_ORDER.length, 48); // 第64回: 名探ていは 超級職へ
   assert.ok(SUPER_ORDER.length >= 14);
   // はじめの 基本職 5つの くみあわせ 10とおりに 1つずつ 上級職
   const pairs = new Set(ADVANCED_ORDER.slice(0, 10).map((j) => JOBS[j].req.slice().sort().join('+')));

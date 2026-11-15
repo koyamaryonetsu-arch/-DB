@@ -83,6 +83,8 @@ import { r82bPhys, r82bEffect, r82bTurnStart, r82bElement, r82bDamage, r82bPub }
 import { sameNameOff, cmdOffList } from './cmd-off.js';
 // 第82回 A: 犬夜叉の 系統（ようかい化・おすわり！・風の技・ばくりゅうは。battle-r82a.js）
 import { r82aTurnStart, youkaiAuto, youkaiCmd, r82aEffect, r82aPhysMult, r82aDamage, r82aResolve, r82aPub } from './battle-r82a.js';
+// 第83回 B班: ぬ〜べ〜の 系統（生徒を 守る・おにの手・おふだ・体をはって守る・生徒たちの声。battle-r83b.js）
+import { r83bTurnStart, r83bCover, r83bEffect, r83bPhysMult, r83bMagicMult, r83bDamage, r83bShieldCut, r83bPub } from './battle-r83b.js';
 // 第83回 A班: 封神演義の 系統（作戦・強化ふうじ・太極図・先読みの策・軍師の号令・ほう神計画。battle-r83a.js）
 import { r83aEffect, r83aTurnStart, r83aDamage, r83aBuffBlock, r83aSpeed, r83aPub } from './battle-r83a.js';
 // 第84回 A班: 幽☆遊☆白書の 系統（れい丸の 数・1回だけ 立ち上がる・仲間のために。battle-r84a.js）
@@ -535,6 +537,8 @@ export class Battle {
       const ev = { t: 'act', id: c.id, name: '防御', lines: [], upd: [], fx: { type: 'defend', actor: c.id } };
       const held = this.heldEffects(c);
       this.actStart(c, ev);
+      // 第83回 B班: 防御も 自分の 番（おにの手が 強く なり HP が へる・体をはって守る が おわる。battle-r83b.js）
+      r83bTurnStart(this, c, ev);
       // 第83回 A班: 身を 守るのも 1回の 行動（先読みの策・ほう神計画の のこり。battle-r83a.js）
       r83aTurnStart(this, c, ev);
       // 第84回 A班: 仲間のために・立ち上がった あとの 力の のこり（battle-r84a.js）
@@ -666,6 +670,8 @@ export class Battle {
     r66cTurnStart(this, c, ev);
     // 第82回 B班: きょだい化・雷神の守りの のこり（battle-r82b.js）
     r82bTurnStart(this, c, ev);
+    // 第83回 B班: おにの手（番ごとに 強く なり HP が へる）・体をはって守る の おわり（battle-r83b.js）
+    r83bTurnStart(this, c, ev);
     // 第83回 A班: 先読みの策・強化ふうじ・守りの旗の のこり・作戦が とぎれる（battle-r83a.js）
     r83aTurnStart(this, c, ev);
     // 第84回 A班: 仲間のために・立ち上がった あとの 力の のこり（battle-r84a.js）
@@ -966,6 +972,8 @@ export class Battle {
     let t = this.peekTarget(c, kind, wanted);
     // かばう
     if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = this.coverRedirect(t);
+    // 第83回 B班: 生徒を 守る（弱った 仲間への 攻撃を 先生が 自動で かばう。battle-r83b.js）
+    if (t && (kind === 'enemy' || kind === 'group') && t.side === 'ally' && c.side === 'enemy') t = r83bCover(this, c, t);
     return t;
   }
 
@@ -1540,6 +1548,8 @@ export class Battle {
       case 'osuwari': case 'youkaiCalm': case 'daiyoukai': case 'bakuryu': r82aEffect(this, c, a, eff, ev, targets, powMult); break;
       // 玉がえ・きょだい化・雷神の守り（第82回 B。battle-r82b.js）
       case 'tamagae': case 'kyodai': case 'raiGuard': r82bEffect(this, c, a, eff, ev, cmd); break;
+      // おにの手を出す・かくせい・ふういん・体をはって守る・生徒たちの声（第83回 B。battle-r83b.js）
+      case 'oniHand': case 'oniAwake': case 'oniSeal': case 'teShield': case 'teKoe': r83bEffect(this, c, a, eff, ev, targets); break;
       // 作戦・強化ふうじ・太極図・守りの旗・軍師の号令・先読みの策・ほう神・ほう神計画・宝箱（第83回 A。battle-r83a.js）
       case 'r83aSakusen': case 'r83aSeal': case 'r83aTaikyoku': case 'r83aHata': case 'r83aGorei': case 'r83aSaki': case 'r83aHoshin': case 'r83aKeikaku': case 'r83aTreasure': r83aEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // れい力をためる・とう気をねる・仲間のために（第84回 A。battle-r84a.js）
@@ -1648,6 +1658,8 @@ export class Battle {
     dmg *= cardPtMult(c, eff);
     // 風の技（強くして いる 敵に 強い）・ようかい化の 間に 強い 技（第82回 A。battle-r82a.js）
     dmg *= r82aPhysMult(c, t, eff);
+    // おにの手を 出して いる 間・生徒たちの声（第83回 B。battle-r83b.js）
+    dmg *= r83bPhysMult(c);
     // 仲間のために・立ち上がった あとの 力・のこりを ぜんぶ うつ 技の みつもり（第84回 A。battle-r84a.js）
     dmg *= r84aPhysMult(this, c, t, eff, estimate);
     if (eff.vsRace?.[t.race]) dmg *= eff.vsRace[t.race];
@@ -1670,6 +1682,8 @@ export class Battle {
     const pow = eff.stat === 'heal' ? (c.healPow || 0) : effMag(c);
     const scale = 1 + clamp((pow - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
     let dmg = base * scale * powMult * enemyFixedScale(c) * gritMult(c);
+    // 第83回 B班: 魔物の 種類に 強い 呪文（おふだ。battle-r83b.js）
+    dmg *= r83bMagicMult(c, t, eff);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
     if (t.defending) dmg *= 0.75;
@@ -1696,6 +1710,10 @@ export class Battle {
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
     if (mirageHit(this, c, t, ev)) return;
+    // 第83回 B班: 全体の 攻撃で 弱った 仲間 1人ぶんを 先生が かわりに 受ける・体をはって守る（battle-r83b.js）
+    const nd = r83bDamage(this, c, t, dmg, info, ev);
+    if (nd === null) return;
+    dmg = nd;
     // 水の衣（半分・炎は 効かない・雷で はじける）・水の守りの歌（battle-temple.js）
     const td = templeDamage(this, c, t, dmg, info, ev);
     if (td === null) return;
@@ -1736,6 +1754,8 @@ export class Battle {
     dmg = bd;
     // 第83回 A班: 攻めと 守りの 作戦・先読みの策・守りの旗（battle-r83a.js）
     dmg = r83aDamage(this, c, t, dmg, info, ev);
+    // 第83回 B班: 体をはって守る（作戦・先読みと 合わせても 下限より 下げない。battle-r83b.js）
+    dmg = r83bShieldCut(t, dmg, info);
     // 第82回 A: おすわり！で 半分・ばくりゅうはで 受けとめる（battle-r82a.js）
     dmg = r82aDamage(this, c, t, dmg, info, ev);
     // 峰打ち: たおさずに HP を 1 のこす
@@ -2556,6 +2576,8 @@ export function pub(c) {
     ...r82aPub(c),
     // 今の 玉・きょだい化・雷神の守り（第82回 B。battle-r82b.js）
     ...r82bPub(c),
+    // おにの手・かくせい・体をはって守る（第83回 B。battle-r83b.js）
+    ...r83bPub(c),
     // 作戦・強化ふうじ・先読みの策・守りの旗（第83回 A。battle-r83a.js）
     ...r83aPub(c),
     // れい丸の 数・仲間のために・立ち上がり（第84回 A。battle-r84a.js）

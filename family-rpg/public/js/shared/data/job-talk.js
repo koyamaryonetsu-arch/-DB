@@ -104,6 +104,12 @@ Object.assign(JOB_SAY, {
   yaiba: '「どの玉で切ってやろうか！」',
   ryujin_samurai: '「7つの玉が、そろったぞ！」',
 });
+// 第83回 B班: ぬ〜べ〜の 系統（jobs-r83b.js）
+Object.assign(JOB_SAY, {
+  elem_teacher: '「わたしの生徒は、わたしが守る！」',
+  nube: '「おにの手よ、生徒を守れ！」',
+  jigoku_sensei: '「先生は、ぜったい負けない！」',
+});
 // 第83回 A班: 封神演義の 系統（jobs-r83a.js）
 Object.assign(JOB_SAY, {
   fishing_doshi: '「…まだ、つれんのう」',

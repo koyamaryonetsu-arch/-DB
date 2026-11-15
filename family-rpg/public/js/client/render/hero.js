@@ -25,6 +25,8 @@ import { R66E2_HAIR } from './hero-r66e2.js';
 import { R79_HAIR, handMark79 } from './hero-r79.js';
 // 第82回 A: 犬夜叉の 系統の 銀色の かみ（hero-r82a.js）
 import { R82A_HAIR } from './hero-r82a.js';
+// 第83回 B班: ぬ〜べ〜の 系統の 左手の 手ぶくろ（hero-r83b.js）
+import { handMark83 } from './hero-r83b.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -317,6 +319,7 @@ function handShape(cv, A, P, O) {
   if (O.handMark) handMark33(cv, A, P, O);
   if (O.handCrest40) handMark40(cv, A, P, O);
   if (O.body?.hand79) handMark79(cv, A, P, O);
+  if (O.body?.hand83) handMark83(cv, A, P, O);
   if (O.fingerless) {
     // ゆびの ない 手ぶくろ（ゆびさきは はだ）
     cv.part({ ol: 'soft', clip: cv.cur });
