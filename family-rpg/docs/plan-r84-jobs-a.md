@@ -62,8 +62,10 @@
   よう丸 4.8倍（MP 10）・超・れい丸 6発で 9.6倍（かめはめ波・極 5.8）。れい丸を 使う ぶん はっきり 強い
 - ひらめき技（1つずつ。どれも れい丸は 使わない）: ぶんぶんスイング（ふりょう。グループ 1.05倍）・れい気だん（れい界探てい。敵1体 2.4倍・すぐ 次の 番）・
   れい光キック（うら飯ゆう助。敵1体 3.6倍）・魔界ばくれつけん（魔界の王の子。ランダムに 1.0倍×7回）
-- タグ（合体技）: ふりょう こぶし・子ども・守り／れい界探てい こぶし・推理・光／うら飯ゆう助 こぶし・光・ライバル・子ども／魔界の王の子 こぶし・闇・ライバル。
-  合体技の 相手の 案（サイヤ人〈こぶし〉・名探ていの 系統〈推理〉・武闘家〈こぶし〉）と 組める（新しい タグは 作って いない）
+- タグ（合体技）: ふりょう こぶし・子ども・守り／れい界探てい 推理・光・子ども／うら飯ゆう助 こぶし・光・ライバル・子ども／魔界の王の子 こぶし・闇・ライバル。
+  合体技の 相手の 案（サイヤ人〈こぶし〉・名探ていの 系統〈推理〉・武闘家〈こぶし〉）と 組める（新しい タグは 作って いない）。
+  れい界探ていに こぶしを つけると、B班（らんま1/2）と 合わせて「剣かこぶし」の 組が 65職業に なり、test/dual-r31.test.js の「広い 組でも 職業の 3分の1（64）まで」を こえたので、
+  れい界探ていは 推理（探ていコンビ）に した
 - 転職の ひとこと・師しょうの ことば（うら飯ゆう助・魔界の王の子）・うわさ（うら飯ゆう助・魔界の王の子）・はじめの 職業の 一言（「けんかっ早いが仲間思い」）
 
 ## 3. しくみ（`shared/battle-r84a.js`。どれも 戦いの 中だけ・キャラに 項目を 足さない）
@@ -159,13 +161,13 @@ battle-dual.js に 足した 行: import と memberPower の 1行。ai.js: impor
 
 | テスト | なおした こと |
 |---|---|
-| test/jobs.test.js | `JOB_ORDER.length` 31 → 32・`ADVANCED_ORDER.length` 47 → 48（第83回 B班の 小学校の先生と 合わせて。コメントも） |
+| test/jobs.test.js | `JOB_ORDER.length` 31 → 32・`ADVANCED_ORDER.length` 48 → 49（第83回 B班の 小学校の先生・第84回 B班の 無差別格闘流の門下生と 合わせて。コメントも） |
 | test/hirameki.test.js | `Object.assign(R66_HIRA, HIRAMEKI_R84A)`（import と 2行） |
 | test/jobs-r33.test.js | 転職の ひとことの のぞく 一覧に R84A_JOBS（import と 2行） |
 | test/fx-r27.test.js | `playR84aFx` を 足した |
-| test/hero-art-r21.test.js | PARTY_ANIMS の 一覧から `r84` も のぞく（1行の 中み） |
-| test/work-quests-r80.test.js | たのまれごとの ない 系統に 幽☆遊☆白書の 系統（import と 1行） |
-| test/jobs-r84a.test.js | 新しい（16こ。ほかの 新しい 系統〈封神演義・ぬ〜べ〜〉と 同じ パーティーの 戦いも 1つ） |
+| test/hero-art-r21.test.js | PARTY_ANIMS の 一覧から `r84` も のぞく（1行の 中み。B班の `ranma_sig` と 同じ 行） |
+| test/work-quests-r80.test.js | たのまれごとの ない 系統に 幽☆遊☆白書の 系統（import と 1行。B班の らんま1/2 と 同じ 行に まとめた） |
+| test/jobs-r84a.test.js | 新しい（17こ。ほかの 新しい 系統と 同じ パーティーの 戦い 2つ: 封神演義〈作戦〉・ぬ〜べ〜〈鬼の手・自動で かばう〉／らんま1/2〈水と お湯の すがた〉） |
 
 - test/transfer-r78.test.js は かえて いない（いちばん 大きな セーブ 27289文字・3通。見はり「4通まで」の 中）
 
@@ -184,13 +186,14 @@ client/render: battlefx.js・hero-outfit.js・hero-gear.js・chars.js・vehicle-
 - 立ち上がりは 攻撃の ダメージ（damage）だけ。毒・はね返り・kill を 直接 よぶ しかけでは 立たない（ボスの そくしを こわさない ため）
 - 職業の試練の まぼろしは 立ち上がらない（味方だけ）
 - 神殿の せつめいの 伝説の 一覧（client/ui/services.js）・お知らせ・README は さわって いない。幽☆遊☆白書の 系統の たのまれごと（お仕事いらい板）は まだ ない
-- メインの ブランチ（claude/elegant-bell-al2f1w）を 取りこんだ（第83回 B班〈ぬ〜べ〜〉が 入って いた）。ぶつかった 3ファイル（battle.js の calcPhys・test/fx-r27.test.js・test/jobs.test.js）は 両方 のこした。
-  第84回 B班（らんま1/2）は まだ メインに 入って いなかった。あとで 入る 時は jobs.js の ならびの push・vehicles.js の おわり・title.js・battle.js の calcPhys／damage／pub・
-  ai.js・test/jobs.test.js の 数・test/fx-r27.test.js・test/work-quests-r80.test.js・test/hero-art-r21.test.js の 行が ぶつかる（両方 のこす）
+- メインの ブランチ（claude/elegant-bell-al2f1w）を 2回 取りこんだ。1回めは 第83回 B班（ぬ〜べ〜）: ぶつかった 3ファイル（battle.js の calcPhys・test/fx-r27.test.js・test/jobs.test.js）は 両方 のこした。
+  2回めは 第84回 B班（らんま1/2）: ぶつかった 23ファイル（jobs.js・abilities.js・hirameki.js・job-tags.js・job-talk.js・job-trials.js・vehicles.js・battle.js・ai.js・battle-trial.js・
+  client の battle.js・battle-buffs.js・battlefx.js・chars.js・hero-outfit.js・vehicle-art.js・tools/kanji-check.mjs・テスト 6つ）は 両方 のこした（B班が 先、A班が あと）。
+  数の テストは 2系統 分（基本職 32・上級職 49）。らんま1/2 の 系統と 同じ パーティーの 戦いの テストを 足した
 
 ## 8. たしかめた こと
 
-- 全部の テスト: 2905件 全部 通った（メインを 取りこんだ あと）。`tools/kanji-check.mjs`: 使えない漢字 0件 / スペース 0件
+- 全部の テスト: ALLTESTS（第84回 B班を ふくむ メインを 取りこんだ あと）。`tools/kanji-check.mjs`: 使えない漢字 0件 / スペース 0件
 - 職業の試練（`tools/sim-trial.mjs 20`）: うら飯ゆう助 90%・90%・65%／魔界の王の子 80%・75%・85%（めやす 6〜9割）
 - ブラウザ（Playwright・ひとりモード・390×844 と 1280×800）: ふりょうで 始める → 4つの 職業に 転職（フィールドの 絵が かわる）→
   うら飯ゆう助で れい丸（札 れい丸4 → 3）→ れい丸・二連（→ 1）→ 最大出力は えらべない（「れい丸が2発いる（のこり1発）」・一覧で うすい・せつめいの 先に わけ）→

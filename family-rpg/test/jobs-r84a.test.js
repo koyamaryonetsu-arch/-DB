@@ -525,7 +525,8 @@ test('第84回 A の ひらめき技: 4つの 職業に 1つずつ・データ�
 test('第84回 A の 職業: タグで 合体技（3つ いじょう）・職業の試練・転職の ひとこと・青いれい界の鳥', () => {
   for (const j of NEW) {
     assert.ok(JOBS[j].tags.length >= 3 && JOBS[j].tags.length <= 4, j);
-    assert.ok(JOBS[j].tags.includes('fist'));
+    // こぶし（れい界探ていは 推理。「剣かこぶし」の 組が 職業の 3分の1 を こえない ため。test/dual-r31.test.js）
+    assert.ok(JOBS[j].tags.includes(j === 'reikai_tantei' ? 'detective' : 'fist'), j);
     const n = Object.values(DUAL_TECHS).filter((t) => t.need.some((list) => !ANY_GROUPS.has(list) && groupJobs(list).has(j))).length;
     assert.ok(n >= 3, `${JOBS[j].name} の 合体技 ${n}こ`);
     const s = JOB_SAY[j];
