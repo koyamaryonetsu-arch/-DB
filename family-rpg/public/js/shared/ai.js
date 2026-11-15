@@ -33,6 +33,8 @@ import { r83bPlan, r83bSeal } from './battle-r83b.js';
 import { r83aPlan } from './battle-r83a.js';
 // 第84回 B班: らんま1/2 の 系統の すがた・飛竜しょう天は・かけひき・心の水・敵前だい逃亡・手数の 技（battle-r84b.js）
 import { r84bPlan } from './battle-r84b.js';
+// 第85回 B班: 烈火の炎の 系統の 火竜をよぶ（たおれた 仲間 ＝ れっしん・前ぶれ ＝ まどか・ボス ＝ こくう／さいは・敵が 多い ＝ なだれ・強い 敵 1体 ＝ ほむら）・姫を守る忍び（battle-r85b.js）
+import { r85bPlan } from './battle-r85b.js';
 
 // さくせん
 export const TACTICS = {
@@ -217,6 +219,9 @@ export function decideAlly(b, c) {
   // 4.95) 第84回 B班: はじめに すがたを えらぶ・前ぶれや 敵の 強化に 飛竜しょう天は・ボスに かけひき・敵が 多ければ 手数の 技（battle-r84b.js）
   const r84b = r84bPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r84b) return r84b;
+  // 4.96) 第85回 B班: 火竜を えらんで よぶ・弱った 仲間を かばう（この 系統の 技だけを 見る。battle-r85b.js）
+  const r85b = r85bPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r85b) return r85b;
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）

@@ -247,6 +247,11 @@ Object.assign(TRIAL_WORDS, {
   ranma: '水でもお湯でも、心はひとつ。どんなすがたでも、まっすぐ戦え。',
   hiryu_master: 'あつくなった相手ほど、すきが大きい。心は、しずかな水に。',
 });
+// 第85回 B班（超級職・伝説。jobs-r85b.js）
+Object.assign(TRIAL_WORDS, {
+  enjutsushi: '炎は、こわすためでなく、守るためにともせ。',
+  rekka: '8ひきの火竜も、心がひとつでなければ動かぬ。',
+});
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

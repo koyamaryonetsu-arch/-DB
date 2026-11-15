@@ -42,6 +42,8 @@ import { playR83bFx, R83B_FINE } from './battlefx-r83b.js';
 import { playR83aFx, R83A_FINE } from './battlefx-r83a.js';
 // 第84回 B班: らんま1/2 の 系統の 技（battlefx-r84b.js）
 import { playR84bFx, R84B_FINE } from './battlefx-r84b.js';
+// 第85回 B班: 烈火の炎の 系統の 技（battlefx-r85b.js）
+import { playR85bFx, R85B_FINE } from './battlefx-r85b.js';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
 import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
@@ -1303,6 +1305,7 @@ Object.assign(FINE, R82B_FINE);
 Object.assign(FINE, R83B_FINE);
 Object.assign(FINE, R83A_FINE);
 Object.assign(FINE, R84B_FINE);
+Object.assign(FINE, R85B_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
 Object.assign(FINE, TOKEI6_FINE);
@@ -1618,6 +1621,8 @@ export class Effects {
     if (playR83aFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第84回 B班: らんま1/2 の 系統の 技（battlefx-r84b.js。anim は 'r84b_…' と 看板の 技）
     if (playR84bFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第85回 B班: 烈火の炎の 系統の 技（battlefx-r85b.js。anim は 'r85b_…' と 看板の 技。8ひきの 火竜は 色と 形が ちがう）
+    if (playR85bFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
     if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第27回に 作り直した 呪文・特技（メラ〜メラガイアー・ヒャド系・バギ系・イオ系・デイン系・ホイミ系・補助・剣と こぶしの 技）

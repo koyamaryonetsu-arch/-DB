@@ -83,6 +83,8 @@ for (const t of ['oniHand', 'oniAwake', 'teShield', 'teKoe']) NO_USE.add(t);
 for (const t of ['r83aSakusen', 'r83aGorei', 'r83aSaki', 'r83aHata', 'r83aKeikaku', 'r83aTreasure', 'r83aTaikyoku']) NO_USE.add(t);
 // 第84回 B班: すがたを かえる・飛竜しょう天はの かまえ・かけひき・敵前だい逃亡・心の水は 仲間の しくみ（まぼろしは 使わない。battle-r84b.js）
 for (const t of ['r84bForm', 'r84bHiryu', 'r84bKakehiki', 'r84bToubou', 'r84bKokoro']) NO_USE.add(t);
+// 第85回 B班: 火竜をよぶ（メニューで えらぶ・れっしん は 生き返らせる）・姫を守る忍びは 仲間の しくみ（まぼろしは 使わない。battle-r85b.js）
+for (const t of ['r85bRyu', 'r85bHime']) NO_USE.add(t);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;

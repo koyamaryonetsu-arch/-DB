@@ -276,6 +276,12 @@ Object.assign(JOB_TAGS, {
   hiryu_master: ['fist', 'wind', 'ice', 'master'], // 飛竜しょう天はの達人（竜巻を あやつる・心の水）
 });
 
+// 第85回 B班: 烈火の炎の 系統（jobs-r85b.js。合体技の 相手の 案: 炎柱〈炎〉・木の葉の忍び〈忍び〉・忍者〈忍び・炎〉。「竜」の タグは 作らない）
+Object.assign(JOB_TAGS, {
+  enjutsushi: ['fire', 'shinobi', 'guard'], // 炎術士（火竜・忍び・まどかの けっかい）
+  rekka: ['fire', 'shinobi', 'guard', 'master'], // 八竜の炎術士・烈火（8ひきの 火竜の 主・姫を守る忍び）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));
