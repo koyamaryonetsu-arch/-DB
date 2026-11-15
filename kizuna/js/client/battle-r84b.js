@@ -4,7 +4,7 @@
 //   ・r84bMarks … 仲間の まどの 小さな 札（「水のすがた」「お湯のすがた」・心の水・よけ・かまえ）と 敵の 足もとの 札（おこった「いかり2」）。
 //     battle-buffs.js の unitMarks。家族 みんなの 画面に 出る（pub の r84bForm・r84bKokoro・r84bDodge・r84bIkari・stance）
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { FORMS, FORM_ORDER, formPct } from '../shared/battle-r84b.js?v=1a35decaac81';
+import { FORMS, FORM_ORDER, formPct } from '../shared/battle-r84b.js?v=47d41c6909c7';
 
 const CSS = `
 .b-mem .sts .bm.fm { color: var(--fm, #5ab8ff); background: rgba(20, 20, 40, 0.55); font-weight: bold; }
@@ -82,7 +82,8 @@ export function r84bPresent(view, ev, hitDelay = 0) {
   const start = (hitDelay || 0) + 420;
   view.fx.at(start, () => {
     if (view.destroyed) return;
-    view.banner('飛竜しょう天は！', 'combo');
+    // 第86回 B班: れい丸・しょう天は（天下一の格闘王）は その 名前（shared/battle-r86b.js が banner を のせる）
+    view.banner(rets.find((r) => r.banner)?.banner || '飛竜しょう天は！', 'combo');
     const pts = [...ids].map((id) => view.c.get(id)).filter(Boolean).map((c) => view.center(c)).filter(Boolean);
     view.fx.play('r84b_hiryu', pts, 'wind', { fromAlly: true });
     g.audio.sfx('wind');

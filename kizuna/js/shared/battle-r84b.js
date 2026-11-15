@@ -30,9 +30,9 @@
 //   r84bTaunt（敵の 行動が きまった あと）
 // ai.js から よぶ: r84bPlan（オートの 動き）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=1a35decaac81';
-import { R84B_FORM_ATB } from './data/abilities-r84b.js?v=1a35decaac81';
-import { ABILITIES } from './data/abilities.js?v=1a35decaac81';
+import { JOBS } from './data/jobs.js?v=47d41c6909c7';
+import { R84B_FORM_ATB } from './data/abilities-r84b.js?v=47d41c6909c7';
+import { ABILITIES } from './data/abilities.js?v=47d41c6909c7';
 
 export const R84B_LINE = ['musabetsu_student', 'ranma', 'hiryu_master'];
 // すがたの 表（ならびは メニューの じゅん）
@@ -63,6 +63,8 @@ const knows = (c, id) => (c?.abilities || []).includes(id);
 export function formPct(c) {
   if (!c || c.mon || c.side === 'enemy') return 0;
   if (inLine(c.job)) return FORM_PCT[JOBS[c.job]?.tier ?? 1];
+  // 第86回 B班: 職業の データに すがたの 効き目が ある（天下一の格闘王。伝説と おなじ 25%。jobs-r86b.js の formPct）
+  if (JOBS[c.job]?.formPct) return JOBS[c.job].formPct;
   return knows(c, 'ms_mizu') ? OTHER_PCT : 0;
 }
 // 今の すがた（null … すがた なし）

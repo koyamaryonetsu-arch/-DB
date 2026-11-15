@@ -27,9 +27,9 @@
 //   ・れい丸が 0 に なったら、強い 敵なら れい力をためる（とう気をねる）・ほかは こぶしの 技
 //   ・たおれた 仲間が いれば 仲間のために
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=1a35decaac81';
-import { ABILITIES } from './data/abilities.js?v=1a35decaac81';
-import { mpCost } from './stats.js?v=1a35decaac81';
+import { JOBS } from './data/jobs.js?v=47d41c6909c7';
+import { ABILITIES } from './data/abilities.js?v=47d41c6909c7';
+import { mpCost } from './stats.js?v=47d41c6909c7';
 
 export const R84A_LINE = ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'];
 // 段ごとの れい丸の 数（[基本職, 上級職, 超級職, 伝説]）・ほかの 職業に 転職した あと
@@ -50,6 +50,8 @@ const knowsRei = (c) => {
 export function reiMax(c) {
   if (!c || c.mon) return 0;
   const other = knowsRei(c) ? OTHER_REI : 0;
+  // 第86回 B班: 職業の データに れい丸の 数が ある（天下一の格闘王 8発。jobs-r86b.js の reiMax）
+  if (JOBS[c.job]?.reiMax) return Math.max(JOBS[c.job].reiMax, other);
   if (R84A_LINE.includes(c.job)) return Math.max(REI_BY_TIER[JOBS[c.job]?.tier ?? 0] || 0, other);
   return other;
 }

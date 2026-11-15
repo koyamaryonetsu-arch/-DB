@@ -11,9 +11,9 @@
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
 // ・キャラの jobs[職業] に のこす: tr … クリアした 試練の 数 / tq … 受けている 試練（1・2）/ tn … 修行の 数
 //   （家族で 遊んでも 1人ずつ。world/merge.js は 多い ほう、world/save.js が 古い セーブを ととのえる）
-import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=1a35decaac81';
-import { ABILITIES } from './abilities.js?v=1a35decaac81';
-import { jobLabel } from '../job-label.js?v=1a35decaac81';
+import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=47d41c6909c7';
+import { ABILITIES } from './abilities.js?v=47d41c6909c7';
+import { jobLabel } from '../job-label.js?v=47d41c6909c7';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
@@ -261,6 +261,11 @@ Object.assign(TRIAL_WORDS, {
 Object.assign(TRIAL_WORDS, {
   lina: 'となえる時は、あせらずに。大きな力ほど、待つ心がいる。',
   doramata: '強い呪文より、よく食べよく休むこと。それが天才よ。',
+});
+// 第86回 B班（幻の職業。jobs-r86b.js）
+Object.assign(TRIAL_WORDS, {
+  tenkaichi_king: 'うつ力も返す力も、あせらぬ心から生まれる。',
+  chaos_gunshi: '大きな呪文ほど、仲間を信じて待つのだ。',
 });
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
