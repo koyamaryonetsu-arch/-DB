@@ -573,7 +573,8 @@ test('第85回 B の 職業: タグで 合体技（3つ いじょう）・職業
   assert.ok(JOBS.enbashira.tags.includes('fire') && JOBS.konoha.tags.includes('shinobi') && JOBS.ninja.tags.includes('shinobi'));
   // 乗り物: 火竜（2つの 職業）。長い 体が うねる（コマで うねりが うごく）
   const v = VEHICLES.fire_dragon;
-  assert.deepEqual(v.jobs, NEW);
+  // 第86回 A班: 幻の職業 竜神の剣士も 乗れる（もとの 職業の 乗り物。ほかの 幻の職業と おなじ）
+  assert.deepEqual(v.jobs.filter((j) => JOBS[j].tier < 4), NEW);
   textOk(v.name, 'fire_dragon');
   textOk(v.desc, 'fire_dragon');
   assert.ok(v.price > 0 && v.price <= 10000);
