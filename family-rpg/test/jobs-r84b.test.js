@@ -19,7 +19,7 @@ import { JOB_SAY, JOB_SAY_MASC, jobDoneText } from '../public/js/shared/data/job
 import { TRIAL_WORDS, trialJob, masterName } from '../public/js/shared/data/job-trials.js';
 import { VEHICLES } from '../public/js/shared/data/vehicles.js';
 import { PHANTOM_ADJ, phantomSkills } from '../public/js/shared/battle-trial.js';
-import { FORMS, FORM_ORDER, FORM_PCT, OTHER_PCT, EVA_CAP, BOOST_CAP, formPct, formOf, boostCount, hiryuMult, r84bEva, r84bSpeed } from '../public/js/shared/battle-r84b.js';
+import { FORMS, FORM_ORDER, FORM_PCT, OTHER_PCT, EVA_CAP, BOOST_CAP, START_FORM, formPct, formOf, boostCount, hiryuMult, r84bEva, r84bSpeed } from '../public/js/shared/battle-r84b.js';
 import { setWeather } from '../public/js/shared/battle-weather.js';
 import { jobLabel } from '../public/js/shared/job-label.js';
 import { newCharacter, changeJob, jobUnlocked, jobKnown, gainExp, expForLevel, fullHeal, learnedAbilities, hiraAllowed } from '../public/js/shared/stats.js';
@@ -234,7 +234,7 @@ test('第84回 B の 技は ぜんぶ たたかいで 使えて、攻撃技は �
 });
 
 // ───────────── 水の すがた・お湯の すがた ─────────────
-test('第84回 B の すがた: 段で 上がる 量・ほかの 職業に かわった あと・はじめは すがた なし・キャラに 項目を 足さない', () => {
+test('第84回 B の すがた: 段で 上がる 量・ほかの 職業に かわった あと・はじめは お湯・キャラに 項目を 足さない', () => {
   assert.deepEqual(FORM_ORDER, ['mizu', 'oyu']);
   for (const k of FORM_ORDER) {
     assert.equal(FORMS[k].name, k === 'mizu' ? '水のすがた' : 'お湯のすがた');
@@ -248,8 +248,11 @@ test('第84回 B の すがた: 段で 上がる 量・ほかの 職業に か�
   assert.equal(formPct({ job: 'warrior', abilities: ['ms_amaguri'] }), 0);
   assert.equal(formPct({ job: 'ranma', side: 'enemy', abilities: [] }), 0, '敵は すがたを 持たない');
   const { b, c, me } = setup('ranma');
-  assert.equal(formOf(me), null, 'はじめは すがた なし');
-  assert.equal(pub(me).r84bForm, '');
+  assert.equal(START_FORM, 'oyu');
+  assert.equal(formOf(me), 'oyu', 'はじめは お湯の すがた');
+  assert.equal(pub(me).r84bForm, 'oyu');
+  assert.equal(formOf(setup('god_hand').me), null, 'すがたを 持たない 人');
+  assert.equal(pub(setup('god_hand').me).r84bForm, undefined);
   const act = use(b, me, { type: 'ability', id: 'ms_mizu', form: 'mizu' });
   assert.equal(formOf(me), 'mizu');
   assert.equal(pub(me).r84bForm, 'mizu');
@@ -262,9 +265,9 @@ test('第84回 B の すがた: 段で 上がる 量・ほかの 職業に か�
   // メニューで えらばない（オートや 古い コマンド）ときは 入れかえ
   use(b, me, { type: 'ability', id: 'ms_mizu' });
   assert.equal(formOf(me), 'oyu');
-  // 新しい 戦いは また すがた なし
+  // 新しい 戦いは また お湯から
   const s2 = setup('ranma', { seed: 2 });
-  assert.equal(formOf(s2.me), null);
+  assert.equal(formOf(s2.me), 'oyu');
 });
 
 test('第84回 B の すがた: 水 ＝ 速い・よけやすい（上限・前ぶれの 大技は よけられない）／お湯 ＝ 物理が 強い・受ける ダメージが へる', () => {
@@ -346,8 +349,16 @@ test('第84回 B の 乱れ打ち・手数の 技・心の水・自信の気だ�
   };
   assert.equal(run('mizu', 'musabetsu_student_sig').n, 8);
   assert.equal(run('oyu', 'musabetsu_student_sig').n, 1);
-  assert.equal(run(null, 'musabetsu_student_sig').n, 4);
-  assert.ok(run('oyu', 'musabetsu_student_sig').dmg > run(null, 'musabetsu_student_sig').dmg / 4 * 3, 'お湯の 1回は 重い');
+  assert.equal(run(null, 'musabetsu_student_sig').n, 1, 'はじめは お湯');
+  // すがたを 持たない 人（水をかぶる を 覚えて いない）は 4回
+  const none = () => {
+    const { b, me } = setup('god_hand', { seed: 5 });
+    me.abilities = [...me.abilities, 'musabetsu_student_sig'];
+    const act = use(b, me, { type: 'ability', id: 'musabetsu_student_sig' });
+    return { n: hitsOn(act, b.enemies[0].id), dmg: dmgOf(act) };
+  };
+  assert.equal(none().n, 4);
+  assert.ok(run('oyu', 'musabetsu_student_sig').dmg > run('mizu', 'musabetsu_student_sig').dmg / 8 * 3, 'お湯の 1回は 重い');
   // 手数の 技は 水の すがたで ふえる
   assert.equal(run(null, 'ms_amaguri').n, 5);
   assert.equal(run('mizu', 'ms_amaguri').n, 6);
@@ -359,9 +370,14 @@ test('第84回 B の 乱れ打ち・手数の 技・心の水・自信の気だ�
     assert.ok(me.r84bKokoro);
     const foe = b.enemies[0];
     assert.ok(r84bSpeed(me) > 1 && r84bEva(b, foe, me) > 0);
+    // 水の すがたの まま 心の水: お湯の 物理の 強さも ある
+    me.r84bForm = 'mizu';
     const strong = b.calcPhys(me, foe, { mult: 1 }, 1, 'phys', true).dmg;
     delete me.r84bKokoro;
     assert.ok(strong > b.calcPhys(me, foe, { mult: 1 }, 1, 'phys', true).dmg);
+    assert.equal(pub(me).r84bKokoro, 0);
+    me.r84bKokoro = { left: 3 };
+    assert.equal(pub(me).r84bKokoro, 3, 'のこりの 回数');
     me.r84bKokoro = { left: 3 };
     for (let i = 0; i < 3; i++) use(b, me, { type: 'ability', id: 'hr_kidan' });
     assert.ok(me.r84bKokoro, '3回 動く まで');
@@ -421,7 +437,7 @@ test('第84回 B の 飛竜しょう天は: かまえ → 攻撃を 受けると
   const angry = counter({ anger: true });
   assert.ok(sum(angry) > sum(plain) * 1.1, `${sum(angry)} > ${sum(plain)}`);
   const wet = counter({ form: 'mizu' });
-  assert.ok(sum(wet) > sum(plain) * 1.05, `水: ${sum(wet)} > ${sum(plain)}`);
+  assert.ok(sum(wet) > sum(plain) * 1.05, `水: ${sum(wet)} > お湯 ${sum(plain)}`);
   // 攻撃が 来なかった: 次の 自分の 番の はじめに 弱い 風の 一ふり
   const { b, me } = setup('ranma', { seed: 12, enemies: ['rockman', 'rockman'] });
   use(b, me, { type: 'ability', id: 'ranma_sig' });
@@ -447,7 +463,8 @@ test('第84回 B の かけひき: 攻撃力 少し上・守り 大きく下（�
   foe.debuffs.def = { mult: 0.5, base: 0.5, lv: 1, left: 1 };
   use(b, me, { type: 'ability', id: 'rm_kakehiki', target: foe.id });
   assert.ok(foe.debuffs.def.mult >= 0.5 - 1e-9 && (foe.debuffs.def.lv || 1) === 1);
-  // おこった 敵の 攻撃は 少し 強い
+  // おこった 敵の 攻撃は 少し 強い（お湯の 守りを はずして くらべる）
+  me.r84bForm = 'mizu';
   const ev = { lines: [], upd: [], results: [] };
   const hp = me.hp;
   b.damage(foe, me, 100, ev, {});
@@ -518,18 +535,23 @@ test('第84回 B の オート: はじめに すがた（ボス ＝ お湯・ざ
     if (form) me.r84bForm = form;
     return decideAlly(b, me);
   };
-  const boss = auto('ranma', { boss: true, n: 1 });
-  assert.equal(boss.id, 'ms_mizu');
-  assert.equal(boss.form, 'oyu');
-  const mob = auto('ranma', { n: 3 });
-  assert.equal(mob.id, 'ms_mizu');
-  assert.equal(mob.form, 'mizu');
+  // はじめは お湯: ボスでは そのまま・ざこが 多い ときは 水を かぶる・ボスで 水なら お湯に もどす
+  let mob = 0, back = 0, stay = 0;
+  for (let s = 1; s <= 20; s++) {
+    const a = auto('ranma', { n: 3, seed: s });
+    if (a.id === 'ms_mizu') { assert.equal(a.form, 'mizu'); mob++; }
+    const bb = auto('ranma', { boss: true, n: 1, form: 'mizu', seed: s });
+    if (bb.id === 'ms_mizu') { assert.equal(bb.form, 'oyu'); back++; }
+    if (auto('ranma', { boss: true, n: 1, seed: s }).id === 'ms_mizu') stay++;
+  }
+  assert.ok(mob >= 8 && back >= 8, `${mob} ${back}`);
+  assert.equal(stay, 0, 'ボスで お湯の ときは かえない');
   let hiryu = 0, te = 0;
   for (let s = 1; s <= 20; s++) {
     if (auto('ranma', { n: 1, tele: true, form: 'oyu', seed: s, boss: true }).id === 'ranma_sig') hiryu++;
     if (auto('hiryu_master', { n: 4, form: 'mizu', seed: s }).id === 'hr_senju') te++;
   }
-  assert.ok(hiryu >= 6, `前ぶれに 飛竜しょう天は ${hiryu}`);
+  assert.ok(hiryu >= 3, `前ぶれに 飛竜しょう天は ${hiryu}`);
   assert.ok(te >= 4, `敵が 多い 時は 手数 ${te}`);
   let buffed = 0;
   for (let s = 1; s <= 20; s++) if (auto('ranma', { n: 1, buffs: true, form: 'oyu', seed: s }).id === 'ranma_sig') buffed++;

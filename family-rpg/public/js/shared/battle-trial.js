@@ -70,7 +70,7 @@ Object.assign(PHANTOM_ADJ, { yaiba: [1.12, 0.75, 1.07], ryujin_samurai: [0.71, 0
 //   軍師の まぼろしは 回復を 何十回も 使って 戦いが 長く なるので HEAL_CAP（4回）を つけて から さがした
 Object.assign(PHANTOM_ADJ, { taikobo: [3.08, 1.89, 1.82], hoshin_gunshi: [3.85, 3.11, 3.04] });
 // 第84回 B班: 早おとめ乱馬・飛竜しょう天はの達人（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-Object.assign(PHANTOM_ADJ, { ranma: [1, 1, 1], hiryu_master: [1, 1, 1] });
+Object.assign(PHANTOM_ADJ, { ranma: [2.08, 1.78, 1.93], hiryu_master: [1.1, 0.88, 0.96] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）

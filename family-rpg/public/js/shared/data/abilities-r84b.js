@@ -80,7 +80,7 @@ export const R84B_ABILITIES = {
   },
   ranma_sig: {
     name: '飛竜しょう天は', kana: 'ひりゅうしょうてんは', kind: 'skill', job: 'ranma', mp: 18, target: 'enemies', role: 'dmg',
-    effect: { type: 'r84bHiryu', mult: 2.0, vsBuff: 0.25, water: 1.2, swing: 0.8 },
+    effect: { type: 'r84bHiryu', mult: 2.0, vsBuff: 0.25, water: 1.4, swing: 0.8 },
     desc: 'うずをまくようにかまえて、次の自分の番まで待つ。敵の攻撃を受けると、大きな竜巻で敵全体にやり返す。敵が強くなっているほど、水のすがたなら、もっと強い。', cast: '{a}は、うずをまくようにかまえた…！', anim: 'ranma_sig',
   },
 

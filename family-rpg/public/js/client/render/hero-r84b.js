@@ -1,7 +1,7 @@
 // 第84回 B班: らんま1/2 の 系統の みため（無差別格闘流の門下生 → 早おとめ乱馬 → 飛竜しょう天はの達人）
 // 「それと わかる、でも そのまま うつさない」ゲームの ドットえ。今 ある 服・かみがた・オーラの 形の 色を かえて 使う
 // （hero-r82b.js と おなじ やりかた。新しい 絵の ぶひんは 作らない。オーラの 色だけ hero-aura.js に まぜる）
-//  ・無差別格闘流の門下生 … 赤い 中国風の 服（金の ふち）・おさげ（hero-hair.js の 'braid'）
+//  ・無差別格闘流の門下生 … 朱色の 中国風の 服（白い ふち）・おさげ（hero-hair.js の 'braid'）
 //  ・早おとめ乱馬         … こい 赤の 中国風の 服（黄色い ふち）・おさげ
 //  ・飛竜しょう天はの達人 … あかね色の 中国風の 服（金の ふち）・おさげ・竜巻の オーラ（白と 水色の 風。'tatsu84'）
 // かみの 色は その 人の まま（家族の 見た目を のこす）。男の子も 女の子も おなじ 服（男女が 入れかわる 話には しない）
@@ -15,7 +15,7 @@
 export const R84B_JOBS = ['musabetsu_student', 'ranma', 'hiryu_master'];
 
 export const R84B_OUTFIT = {
-  musabetsu_student: { kind: 'gi', main: '#d83a3a', trim: '#f2c14e' },
+  musabetsu_student: { kind: 'gi', main: '#e8643a', trim: '#f6f2e6' },
   ranma: { kind: 'gi', main: '#c81e2a', trim: '#f6e27a' },
   hiryu_master: { kind: 'gi', main: '#b0142a', trim: '#f2c14e', dragon: true },
 };
@@ -29,7 +29,7 @@ export const R84B_BODY = {
 
 // 古い 小さな え（chars.js。32×42）
 export const R84B_OLD_LOOK = {
-  musabetsu_student: { outfit: 'gi', cloth: '#d83a3a', giTrim: '#f2c14e' },
+  musabetsu_student: { outfit: 'gi', cloth: '#e8643a', giTrim: '#f6f2e6' },
   ranma: { outfit: 'gi', cloth: '#c81e2a', giTrim: '#f6e27a' },
   hiryu_master: { outfit: 'gi', cloth: '#b0142a', giTrim: '#f2c14e' },
 };

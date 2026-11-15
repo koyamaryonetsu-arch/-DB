@@ -341,7 +341,8 @@ export function r84bPub(c) {
   const out = {};
   if (formPct(c) > 0) {
     out.r84bForm = formOf(c) || '';
-    out.r84bKokoro = kokoro(c) ? c.r84bKokoro.left + 1 : 0;
+    // 心の水の のこり（この あとに 動ける 回数。0 … 次の 自分の 番で もどる）
+    out.r84bKokoro = kokoro(c) ? Math.max(0, c.r84bKokoro.left) : 0;
   }
   if (c.r84bDodge || c.side === 'ally') out.r84bDodge = !!c.r84bDodge;
   if (c.r84bIkari || c.side === 'enemy') out.r84bIkari = c.r84bIkari ? c.r84bIkari.left : 0;
