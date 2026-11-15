@@ -25,7 +25,8 @@ test('職業データ: 上級職は 基本職 2つ（新しい 職業は 1つの
   // 第83回 A班: つりをする道士（基本職）と せん人界の道士（上級職）を 足した
   assert.equal(JOB_ORDER.length, 31);
   // 第84回 B班: 無差別格闘流の門下生（上級職。武闘家 ＋ 遊び人）を 足した
-  assert.equal(ADVANCED_ORDER.length, 48); // 第64回: 名探ていは 超級職へ
+  // 第85回 A班: 大食いの旅の魔道士（上級職。魔法使い ＋ 料理人）を 足した
+  assert.equal(ADVANCED_ORDER.length, 49); // 第64回: 名探ていは 超級職へ
   assert.ok(SUPER_ORDER.length >= 14);
   // はじめの 基本職 5つの くみあわせ 10とおりに 1つずつ 上級職
   const pairs = new Set(ADVANCED_ORDER.slice(0, 10).map((j) => JOBS[j].req.slice().sort().join('+')));
@@ -217,6 +218,8 @@ test('上級職・超級職・新しい 基本職の わざは ぜんぶ たた�
       // 第82回 A: つめの 技は 剣を もつと 使えない（武器で 戦い方が かわる。test/jobs-r82a.test.js で しらべる）
       if (a.weapon === 'fist' && wcat === 'sword') continue;
       const target = ['ally', 'deadAlly'].includes(a.target) ? (a.target === 'deadAlly' ? b.allies[1].id : b.allies[0].id) : b.enemies[0].id;
+      // 第85回 A班: 大砲の 呪文（ドラグ・スレイブ）は 先に となえて おく（shared/battle-r85a.js。test/jobs-r85a.test.js で しらべる）
+      if (a.effect.r85aBig) b.allies[0].r85aChant = { left: 3 };
       const r = b.command(b.allies[0].id, a.effect.type === 'mahouken' ? { type: 'mahouken', spell: 'mera', skill: 'daichi', target } : { type: 'ability', id: aid, target }, 's1');
       // フィールドだけの 呪文（ルーラ）は たたかいでは つかえない（コマンドにも 出ない）
       if (a.fieldOnly) {

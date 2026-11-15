@@ -12,18 +12,20 @@
 //      r85aPierce… ラグナ・ブレード（敵の「ききにくい」と 身を 守るを むしする。効かない 属性〈0〉と ボスの しかけは そのまま）
 //      r85aHits  … フレア・アロー（ばらばらの 敵に この 回数）
 //      r85aGold  … とう賊たいじ（当てた 敵の お金の この 倍が、たおさなくても 手に 入る。今 ある hooks.gainGold）
+//  ・定食（大もり定食・特もり定食）は noAuto（ふつうの オートの 回復には 入れない。安い 回復を 何十回も 使って しまう ため）。
+//    オートは battle-r85a.js の r85aPlan が MP が 少ない 時・HP が 少ない 時に だけ 食べる
 // えんしゅつ（anim）は client/render/battlefx-r85a.js（r85a_… と 看板の 技）
 
 export const R85A_ABILITIES = {
   // ───────────── 大食いの旅の魔道士（上級職。魔法使い ＋ 料理人） ─────────────
   tm_fireball: {
     name: 'ファイアーボール', kana: 'ふぁいあーぼーる', kind: 'spell', job: 'tabi_madoshi', mp: 6, target: 'group',
-    effect: { type: 'magic', element: 'fire', base: [42, 52], thr: 45 },
+    effect: { type: 'magic', element: 'fire', base: [30, 38], thr: 45 },
     desc: '手の上に作った火の玉を投げつける。同じ種類の敵に炎のダメージ。', cast: '{a}「ファイアーボール！」', anim: 'r85a_fireball',
   },
   tm_oomori: {
-    name: '大もり定食', kana: 'おおもりていしょく', kind: 'skill', job: 'tabi_madoshi', mp: 0, target: 'self', role: 'heal',
-    effect: { type: 'multi', parts: [{ type: 'heal', base: [70, 86], fixed: true }, { type: 'mpHeal', base: [6, 9] }] },
+    name: '大もり定食', kana: 'おおもりていしょく', kind: 'skill', job: 'tabi_madoshi', mp: 0, target: 'self', role: 'heal', noAuto: true,
+    effect: { type: 'multi', parts: [{ type: 'heal', base: [70, 86], fixed: true }, { type: 'mpHeal', base: [12, 18] }] },
     desc: '山盛りの定食を、ものすごい速さでたいらげる。自分のHPとMPが回復する。MPはいらない。', cast: '{a}「おばちゃん、大もり定食！」', anim: 'r85a_food',
   },
   tm_lighting: {
@@ -51,7 +53,7 @@ export const R85A_ABILITIES = {
   // ───────────── 天才美少女魔道士リナ（超級職） ─────────────
   ln_elmekia: {
     name: 'エルメキア・ランス', kana: 'えるめきあらんす', kind: 'spell', job: 'lina', mp: 10, target: 'enemy',
-    effect: { type: 'magic', element: 'light', base: [124, 144], thr: 70 },
+    effect: { type: 'magic', element: 'light', base: [112, 130], thr: 70 },
     desc: '光のやりを放つ。敵1体に光のダメージ。', cast: '{a}「エルメキア・ランス！」', anim: 'r85a_lance',
   },
   ln_tonaeru: {
@@ -61,7 +63,7 @@ export const R85A_ABILITIES = {
   },
   ln_blam: {
     name: 'ブラム・ブレイザー', kana: 'ぶらむぶれいざー', kind: 'spell', job: 'lina', mp: 12, target: 'group',
-    effect: { type: 'magic', element: 'light', base: [96, 114], thr: 70 },
+    effect: { type: 'magic', element: 'light', base: [64, 76], thr: 70 },
     desc: '青い光のうずを放つ。同じ種類の敵に光のダメージ。', cast: '{a}「ブラム・ブレイザー！」', anim: 'r85a_blam',
   },
   ln_raywing: {
@@ -76,7 +78,7 @@ export const R85A_ABILITIES = {
   },
   lina_sig: {
     name: 'ドラグ・スレイブ', kana: 'どらぐすれいぶ', kind: 'spell', job: 'lina', mp: 36, target: 'enemies',
-    effect: { type: 'magic', element: 'blast', base: [270, 310], thr: 80, r85aBig: true },
+    effect: { type: 'magic', element: 'blast', base: [284, 316], thr: 80, r85aBig: true },
     desc: '先に「となえる」と使える、いちばん強い呪文。赤い大ばくはつで、敵全体に特大のダメージ。うつと、となえた力は消える。', cast: '{a}「たそがれよりも暗きもの…ドラグ・スレイブ！」', anim: 'lina_sig',
   },
 
@@ -97,8 +99,8 @@ export const R85A_ABILITIES = {
     desc: '先に「となえる」と使える、闇のやいば。敵1体に、闇の特大のダメージ。敵の守りをむしする。うつと、となえた力は消える。', cast: '{a}「やみよりもなお暗きもの…ラグナ・ブレード！」', anim: 'r85a_ragna',
   },
   dr_tokumori: {
-    name: '特もり定食', kana: 'とくもりていしょく', kind: 'skill', job: 'doramata', mp: 6, target: 'allies', role: 'heal',
-    effect: { type: 'multi', parts: [{ type: 'heal', base: [56, 70], fixed: true }, { type: 'mpHeal', base: [4, 7] }] },
+    name: '特もり定食', kana: 'とくもりていしょく', kind: 'skill', job: 'doramata', mp: 4, target: 'allies', role: 'heal', noAuto: true,
+    effect: { type: 'multi', parts: [{ type: 'heal', base: [56, 70], fixed: true }, { type: 'mpHeal', base: [6, 10] }] },
     desc: 'みんなで、特盛りの定食を食べる。仲間全員のHPとMPが少し回復する。', cast: '{a}「みんなで、特もり定食よ！」', anim: 'r85a_food',
     masc: { cast: '{a}「みんなで、特もり定食だ！」' },
   },

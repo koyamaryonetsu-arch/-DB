@@ -39,7 +39,7 @@ export const JOBS_R85A = {
   doramata: {
     id: 'doramata', name: 'ドラまた', kana: 'どらまた', short: 'ドラまた', tier: 3, req: ['lina'], reqSuper: 1, family: 'magic', color: '#b0101a',
     desc: '「ドラゴンもまたいで通る」と、うわさされる伝説の魔道士。となえてから、闇のやいばラグナ・ブレードや、のこりのMPを全部使うギガ・スレイブがうてる。ときどき早口で、となえたらすぐに動ける。戦いで手に入るお金が少しふえる。リナ（天才魔道士）と、ほかの超級職を1つきわめた者だけがなれる。',
-    mods: { hp: 1.35, mp: 1.75, str: 1.05, def: 1.15, agi: 1.45, mag: 1.85, heal: 1.1 },
+    mods: { hp: 1.4, mp: 1.75, str: 1.05, def: 1.15, agi: 1.45, mag: 1.8, heal: 1.1 },
     weapons: ['staff', 'dagger'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1.5, mp: 1, hp: 0.5 },
     passive: { hayakuchi: 0.25, gold: 1.2 },

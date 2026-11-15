@@ -85,8 +85,8 @@ function feastCartArt({ seg, poly, shade, seat }) {
       poly(p, [[cx - 14, 26], [cx + 14, 26], [cx + 13, 36], [cx - 13, 36]], WOOD);
       p.hline(cx - 14, cx + 14, 26, WOODL);
       food(p, cx - 10, 26, 20);
-      wheel(p, cx - 14, 42, 5, f);
-      wheel(p, cx + 14, 42, 5, f);
+      wheel(p, cx - 12, 43, 4.5, f);
+      wheel(p, cx + 12, 43, 4.5, f);
       return;
     }
     // 竜（てまえ。人の 足もとの 下）
@@ -118,8 +118,8 @@ function feastCartArt({ seg, poly, shade, seat }) {
     p.ellipse(cx - 8, 30, 3, 2.2, BREAD);
     p.ellipse(cx + 8, 30, 2.2, 2.2, FRUIT);
     p.rect(cx - 2, 36, 4, 2, CLOTH);
-    wheel(p, cx - 14, 44, 5, f);
-    wheel(p, cx + 14, 44, 5, f);
+    wheel(p, cx - 12, 44, 4.5, f);
+    wheel(p, cx + 12, 44, 4.5, f);
   };
   return {
     frames: 3,

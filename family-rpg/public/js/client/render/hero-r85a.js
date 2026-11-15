@@ -46,7 +46,7 @@ export const R85A_OLD_LOOK = {
 
 // 赤い オーラ（ほのおの ような 赤い 光。根もとは だいだい → さきは こい 赤）
 export const AURA85A = {
-  red85: { glow: 0.55, len: 3.2, wid: 1.1, up: 1.1, gap: 2.1, flicker: 0.15, cols: [['#fff0d8', 210], ['#ff9a5a', 180], ['#ff3a2a', 150], ['#b00a14', 110]] },
+  red85: { glow: 0.7, len: 3.7, wid: 1.3, up: 1.15, gap: 2.0, flicker: 0.15, cols: [['#fff0d8', 210], ['#ff9a5a', 180], ['#ff3a2a', 150], ['#b00a14', 110]] },
 };
 
 // 黄色い かたあて（金ぞくの 金。S.r85a … 大きさ）

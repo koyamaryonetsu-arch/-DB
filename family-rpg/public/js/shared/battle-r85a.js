@@ -15,7 +15,7 @@
 //   ・敵の がわ（職業の試練の まぼろし・鏡の うつし身）は となえずに うつ かわり、力は ENEMY_BIG 倍（2ターンで ならした 強さ）
 // ■ 大砲の 呪文は「2ターンで 1発」。となえる ターンは 何も 与えない ので、ならすと 同じ 段の 呪文の まん中に なる 数（tools/sim-r85a.mjs）
 // ■ ギガ・スレイブ（effect.r85aGiga）: のこりの MP を 全部 使う（はらった MP ＋ のこり）。1体ごとの ダメージ ＝ 使った MP × GIGA_PER × 魔力の 倍、
-//   上限 GIGA_CAP（MP 999 の キャラでも ボスを 1発で たおせない）。属性 なし。うった あと MP は 0（定食で 回復と 組に なる）
+//   上限 GIGA_CAP・ボスは 最大HP の GIGA_BOSS（MP 999 の キャラでも ボスを 1発で たおせない）。属性 なし。うった あと MP は 0（定食で 回復と 組に なる）
 // ■ ラグナ・ブレード（effect.r85aPierce）: 敵の「ききにくい」（属性が 1 より 小さい）と 身を 守るを むしする。
 //   効かない 属性（0）と、ボスの しかけ（かまえ・前ぶれ・形態・水の衣 など damage の 中の しかけ）は そのまま
 //   （呪文には もともと 守備力が きかないので、「守りを 無視」は 呪文の 守り〈ききにくい・身を 守る〉を むしする 形に した）
@@ -35,9 +35,10 @@ export const R85A_LINE = ['tabi_madoshi', 'lina', 'doramata'];
 export const CHANT_LEFT = 3;
 export const CHANT_BOOST = 1.5;
 export const HAYAKUCHI_ATB = 100;
-// ギガ・スレイブ（使った MP 1 あたり・1体の 上限）
-export const GIGA_PER = 2.4;
-export const GIGA_CAP = 1600;
+// ギガ・スレイブ（使った MP 1 あたり・1体の 上限・ボスは その 最大HP の GIGA_BOSS まで ＝ MP 999 でも ボスを 1発で たおせない）
+export const GIGA_PER = 4;
+export const GIGA_CAP = 4000;
+export const GIGA_BOSS = 0.3;
 // 敵の がわ（まぼろし）が となえずに うつ ときの 力
 export const ENEMY_BIG = 0.5;
 export const LOCK_REASON = '先に「となえる」を使おう';
@@ -125,7 +126,7 @@ function giga(b, c, a, ev, pow, targets) {
   for (const t of targets) {
     if (!t.alive) continue;
     const res = b.calcMagic(c, t, { ...a.effect, base: [base, base] }, pow);
-    const d = Math.min(Math.round(GIGA_CAP * Math.min(1, pow)), res.dmg);
+    const d = Math.min(gigaCap(t, pow), res.dmg);
     if (d <= 0) {
       ev.lines.push(`しかし${t.name}には効かなかった！`);
       (ev.results = ev.results || []).push({ id: t.id, miss: true });
@@ -135,6 +136,12 @@ function giga(b, c, a, ev, pow, targets) {
   }
   b.afterDamage(c, ev, null);
   ev.r85aGiga = { by: c.id, used };
+}
+
+// ギガ・スレイブの 1体の 上限（ボスは 最大HP の GIGA_BOSS まで）
+export function gigaCap(t, pow = 1) {
+  const cap = Math.round(GIGA_CAP * Math.min(1, pow));
+  return t?.boss ? Math.min(cap, Math.max(1, Math.round((t.maxHp || 0) * GIGA_BOSS))) : cap;
 }
 
 // とう賊たいじ: 当てた 敵の お金を 少し いただく（分身・にげた 敵は のぞく）
@@ -209,7 +216,9 @@ export function r85aPub(c) {
 
 // ───────────── オート（ai.js の decideAlly。この 系統の 技だけを 見る） ─────────────
 // オートが その 技を えらぶ わりあい（tools/sim-r85a.mjs で 合わせた。R85A_AI=chant:0.6 などで ためせる）
-export const R85A_AI = { chant: 0.85, meal: 0.7, gigaMp: 0.55 };
+//   threat … ボスで ない 時に となえる こわさ（ai.js の fightWeight の threat。HP が 多い だけの 敵〈かかし など〉には となえない）
+//   lowMp・lowHp … 定食を 食べる MP・HP の わりあい
+export const R85A_AI = { chant: 0.85, meal: 0.6, gigaMp: 0.8, threat: 0.13, lowMp: 0.3, lowHp: 0.3 };
 const partsOf = (e) => (e?.type === 'multi' ? e.parts || [] : [e || {}]);
 const isMeal = (a) => {
   const ps = partsOf(a?.effect);
@@ -223,15 +232,23 @@ function bigOk(b, c, id) {
   if (!weaponOk(a, c.weaponCat)) return false;
   return mpCost(c.penChar, id) <= c.mp;
 }
+// ギガ・スレイブの みつもり（t … いちばん 大きい 敵）
+function gigaEst(b, c, t, id) {
+  const used = c.mp;
+  const res = b.calcMagic(c, t, { ...ABILITIES[id].effect, base: [used * GIGA_PER, used * GIGA_PER] }, 1, true);
+  return Math.min(gigaCap(t), res.dmg);
+}
 // mine … 使える 技 [{ id, a }]、fw … ai.js の fightWeight
 export function r85aPlan(b, c, foes, mine, allies, fw) {
   if (!foes.length || c.side !== 'ally') return null;
   const chantA = mine.find(({ a }) => a.effect?.type === 'r85aChant');
   const bigIds = (c.abilities || []).filter((id) => isBig(ABILITIES[id]));
-  const meal = mine.filter(({ a }) => isMeal(a));
+  // 定食は noAuto（ふつうの 回復には 入れない）なので、ここで 自分の 技から さがす（作戦で「使わない」に した 物は のぞく）
+  const meal = (c.abilities || []).filter((id) => isMeal(ABILITIES[id]) && !c.autoOff?.includes(id) && weaponOk(ABILITIES[id], c.weaponCat) && mpCost(c.penChar, id) <= c.mp).map((id) => ({ id, a: ABILITIES[id] }));
   if (!chantA && !bigIds.length && !meal.length) return null;
   const boss = foes.find((f) => f.boss);
-  const hard = !!(b.boss || fw?.hard);
+  // 強い 敵: ボス・こわい 敵（HP が 多い だけの 敵には ふつうの 呪文）
+  const hard = !!(b.boss || boss || (fw?.hard && (fw.threat ?? 0) >= R85A_AI.threat));
   // 1) となえて いる: 大砲を うつ（ボスで MP が 多ければ ギガ・スレイブ・1体なら ラグナ・ブレード・ほかは ドラグ・スレイブ）
   if (chanting(c)) {
     const ok = bigIds.filter((id) => bigOk(b, c, id));
@@ -240,7 +257,11 @@ export function r85aPlan(b, c, foes, mine, allies, fw) {
     const single = ok.find((id) => ABILITIES[id].target === 'enemy');
     const wide = ok.find((id) => ABILITIES[id].target !== 'enemy' && !ABILITIES[id].effect.r85aGiga);
     const t = boss || foes.slice().sort((x, y) => y.hp - x.hp)[0];
-    if (giga && boss && c.maxMp > 0 && c.mp >= c.maxMp * R85A_AI.gigaMp) return { type: 'ability', id: giga };
+    // ギガ・スレイブ: ボスに とどめが させる 時・敵が 多くて MP が たっぷり ある 時（MP を 全部 使うので、ふだんは ドラグ・スレイブか ラグナ・ブレード）
+    if (giga) {
+      const est = gigaEst(b, c, t, giga);
+      if ((boss && est >= boss.hp) || (foes.length >= 2 && c.maxMp > 0 && c.mp >= c.maxMp * R85A_AI.gigaMp)) return { type: 'ability', id: giga };
+    }
     if (single && (foes.length === 1 || (boss && !wide))) return { type: 'ability', id: single, target: t.id };
     if (wide) return { type: 'ability', id: wide, target: t.id };
     if (single) return { type: 'ability', id: single, target: t.id };
@@ -248,10 +269,15 @@ export function r85aPlan(b, c, foes, mine, allies, fw) {
   }
   // 2) MP が 少ない: 定食（大砲 ＋ となえる ぶんが ない とき）
   const need = chantA && bigIds.length ? mpCost(c.penChar, chantA.id) + Math.min(...bigIds.map((id) => mpCost(c.penChar, id))) : Infinity;
-  if (meal.length && c.maxMp > 0 && c.mp < need && c.mp / c.maxMp < 0.4 && b.rng.chance(R85A_AI.meal)) {
-    const all = meal.find(({ a }) => a.target === 'allies');
-    const pick = all && allies.filter((x) => x.maxMp > 0 && x.mp / x.maxMp < 0.5).length >= 2 ? all : meal.find(({ a }) => a.target === 'self') || meal[0];
-    return { type: 'ability', id: pick.id };
+  //    （HP が 少ない 時は 自分の 大もり定食。みんなの MP が 少ない 時だけ 特もり定食）
+  const lowMp = c.maxMp > 0 && c.mp < need && c.mp / c.maxMp < R85A_AI.lowMp;
+  const lowHp = c.maxHp > 0 && c.hp / c.maxHp < R85A_AI.lowHp;
+  const self = meal.find(({ a }) => a.target === 'self');
+  const all = meal.find(({ a }) => a.target === 'allies');
+  if ((lowMp || (lowHp && self)) && meal.length && b.rng.chance(R85A_AI.meal)) {
+    const thirsty = allies.filter((x) => x.maxMp > 0 && x.mp / x.maxMp < R85A_AI.lowMp).length >= 2;
+    const pick = lowMp && all && (thirsty || !self) ? all : self || all;
+    if (pick) return { type: 'ability', id: pick.id };
   }
   // 3) ボスや 強い 敵: となえる（前ぶれが 見えて いる 時は、今の きまり〈身を 守る〉に まかせる）。ざこには ふつうの 呪文
   const tele = foes.some((f) => f.telegraph);
