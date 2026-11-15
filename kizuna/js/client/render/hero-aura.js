@@ -5,19 +5,19 @@
 // ・あるく コマ（f）で ほのおの ながさが かわる（ゆらぐ）
 // ・えの はし 1ドットには かかない（はみ出さない）
 // 第41回 B: 雪の女王・第5のせいれいの オーラ（hero-r41b.js）
-import { AURA41B, aura41b } from './hero-r41b.js?v=47d41c6909c7';
+import { AURA41B, aura41b } from './hero-r41b.js?v=afbcabe7ad18';
 // 第43回: ピーチ（ピンクの ひかり）・マリオ（金の 星）の オーラ（hero-r43j.js）
-import { AURA43J, aura43j } from './hero-r43j.js?v=47d41c6909c7';
+import { AURA43J, aura43j } from './hero-r43j.js?v=afbcabe7ad18';
 // 第79回: 幻の職業の オーラ（hero-r79.js。cols2 は みぎ半分の 色）
-import { AURA79 } from './hero-r79.js?v=47d41c6909c7';
+import { AURA79 } from './hero-r79.js?v=afbcabe7ad18';
 // 第84回 B班: 飛竜しょう天はの達人の 竜巻の オーラ（hero-r84b.js）
-import { AURA84B } from './hero-r84b.js?v=47d41c6909c7';
+import { AURA84B } from './hero-r84b.js?v=afbcabe7ad18';
 // 第85回 B班: 八竜の炎術士・烈火の 炎の オーラ（hero-r85b.js）
-import { AURA85B } from './hero-r85b.js?v=47d41c6909c7';
+import { AURA85B } from './hero-r85b.js?v=afbcabe7ad18';
 // 第85回 A班: ドラまたの 赤い オーラ（hero-r85a.js）
-import { AURA85A } from './hero-r85a.js?v=47d41c6909c7';
+import { AURA85A } from './hero-r85a.js?v=afbcabe7ad18';
 // 第86回 B班: 天下一の格闘王（青い れい気）・混とんの大軍師（白と 黒と むらさき）の オーラ（hero-r86b.js）
-import { AURA86B } from './hero-r86b.js?v=47d41c6909c7';
+import { AURA86B } from './hero-r86b.js?v=afbcabe7ad18';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）

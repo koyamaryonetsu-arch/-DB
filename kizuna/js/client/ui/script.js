@@ -1,15 +1,15 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=47d41c6909c7';
-import { paintRare } from './rarity.js?v=47d41c6909c7';
-import { ListMenu } from './dom.js?v=47d41c6909c7';
-import { openServiceUI } from './services.js?v=47d41c6909c7';
-import { monsterCanvas } from '../render/monsters.js?v=47d41c6909c7';
-import { npcSprite } from '../field.js?v=47d41c6909c7';
-import { reportError } from '../errlog.js?v=47d41c6909c7';
+import { el } from './dom.js?v=afbcabe7ad18';
+import { paintRare } from './rarity.js?v=afbcabe7ad18';
+import { ListMenu } from './dom.js?v=afbcabe7ad18';
+import { openServiceUI } from './services.js?v=afbcabe7ad18';
+import { monsterCanvas } from '../render/monsters.js?v=afbcabe7ad18';
+import { npcSprite } from '../field.js?v=afbcabe7ad18';
+import { reportError } from '../errlog.js?v=afbcabe7ad18';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=47d41c6909c7';
+import { paperPop } from './paper-pop.js?v=afbcabe7ad18';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=47d41c6909c7';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=afbcabe7ad18';
 
 const TYPE_MS = 28;
 
