@@ -10,14 +10,14 @@
 //
 //   c.dungeonFrom … フィールドから 洞窟に 入った ときの 外の 場所 { map, x, y, dir, in: 入った 洞窟 }
 //                   （placeSession で おぼえる。セーブに のこるので 読みこみなおしても 使える）
-import { MAPS } from '../maps/index.js?v=c42b0c3f1956';
-import { ITEMS } from '../data/items.js?v=c42b0c3f1956';
-import { itemCount, removeItem } from '../stats.js?v=c42b0c3f1956';
-import { warpParty } from './travel.js?v=c42b0c3f1956';
-import { treasureExitPoint } from './treasure.js?v=c42b0c3f1956';
+import { MAPS } from '../maps/index.js?v=8b6c287cd934';
+import { ITEMS } from '../data/items.js?v=8b6c287cd934';
+import { itemCount, removeItem } from '../stats.js?v=8b6c287cd934';
+import { warpParty } from './travel.js?v=8b6c287cd934';
+import { treasureExitPoint } from './treasure.js?v=8b6c287cd934';
 // 第79回: ひみつのダンジョンの 階では、糸・リレミトで 入口の 広間へ（帰り道の羽・ルーラは 今まで どおり 使えない）
-import { secretEscape } from './secret.js?v=c42b0c3f1956';
-import { SD_NAME } from '../data/secret.js?v=c42b0c3f1956';
+import { secretEscape } from './secret.js?v=8b6c287cd934';
+import { SD_NAME } from '../data/secret.js?v=8b6c287cd934';
 
 // 糸が 使える マップ（洞窟・塔・宝の洞窟。カジノや お城などの たてものの 中は のぞく）
 export function isDungeonMap(m) {

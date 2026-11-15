@@ -1,8 +1,8 @@
 // 第48回 G4: マリオ（ももの姫/配管工・おてんば姫/ひげおやじ・ピーチ/マリオ）の 大技の え。この ファイルは G4 だけが さわる
 // 女の子は ピンクの ドレスと 金の かんむり、男の子（c.masc）は 赤い ぼうしと 青い ふく の かげ
 // 時間は shared/data/ax-time-g4.js。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=c42b0c3f1956';
-import { add, obj, darken, ground, per, solo } from './axfx-g4-kit.js?v=c42b0c3f1956';
+import { rnd } from './axkit.js?v=8b6c287cd934';
+import { add, obj, darken, ground, per, solo } from './axfx-g4-kit.js?v=8b6c287cd934';
 
 const STAR = ['#ffe066', '#ffffff', '#ffd23a'];
 const RAINBOW = ['#ff5a5a', '#ffb03a', '#ffe066', '#5ae07a', '#5ab8ff', '#b07aff'];

@@ -6,19 +6,19 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
-import { sourcesFlow } from './sources.js?v=c42b0c3f1956';
-import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js?v=c42b0c3f1956';
-import { el, esc } from './dom.js?v=c42b0c3f1956';
-import { Counter, itemInfo, myTeam } from './counter.js?v=c42b0c3f1956';
-import { request } from './shop.js?v=c42b0c3f1956';
-import { itemCount } from '../../shared/stats.js?v=c42b0c3f1956';
-import { rareNameHtml } from './rarity.js?v=c42b0c3f1956';
-import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=c42b0c3f1956';
-import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=c42b0c3f1956';
-import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=c42b0c3f1956';
+import { sourcesFlow } from './sources.js?v=8b6c287cd934';
+import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js?v=8b6c287cd934';
+import { el, esc } from './dom.js?v=8b6c287cd934';
+import { Counter, itemInfo, myTeam } from './counter.js?v=8b6c287cd934';
+import { request } from './shop.js?v=8b6c287cd934';
+import { itemCount } from '../../shared/stats.js?v=8b6c287cd934';
+import { rareNameHtml } from './rarity.js?v=8b6c287cd934';
+import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=8b6c287cd934';
+import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=8b6c287cd934';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=8b6c287cd934';
 import {
   ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, LB_MAX, limitMerge, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
-} from '../../shared/data/alchemy.js?v=c42b0c3f1956';
+} from '../../shared/data/alchemy.js?v=8b6c287cd934';
 
 // きたえる 回数を 見る 人を 自分の キャラに（道具の 説明・かじ屋の 画面。data/forge.js）
 export function bindAlchemy(game) {
