@@ -18,6 +18,8 @@ import { AURA85B } from './hero-r85b.js';
 import { AURA85A } from './hero-r85a.js';
 // 第86回 B班: 天下一の格闘王（青い れい気）・混とんの大軍師（白と 黒と むらさき）の オーラ（hero-r86b.js）
 import { AURA86B } from './hero-r86b.js';
+// 第86回 A班: 人とようかいのかけ橋（白と 赤）・竜神の剣士（青い 雷と 赤い 炎）の オーラ（hero-r86a.js）
+import { AURA86A } from './hero-r86a.js';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -47,6 +49,7 @@ Object.assign(AURA, AURA84B);
 Object.assign(AURA, AURA85B);
 Object.assign(AURA, AURA85A);
 Object.assign(AURA, AURA86B);
+Object.assign(AURA, AURA86A);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;

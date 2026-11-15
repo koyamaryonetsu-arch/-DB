@@ -303,6 +303,14 @@ Object.assign(JOB_TAGS, {
   chaos_gunshi: ['magic', 'wind', 'dark', 'master'], // 混とんの大軍師（大魔法・打神べん・混とんの やいば〈闇〉・軍師）
 });
 
+// 第86回 A班: 幻の職業 2つ（jobs-r86a.js。新しい タグは 作らない）
+Object.assign(JOB_TAGS, {
+  // 「剣かこぶし」の 組は 職業の 3分の1 まで（test/dual-r31.test.js）。第85回 A班の 3つで 上限が 2つ ぶん あいた ので、かけ橋が 1つ（鉄さいが）・
+  // のこりの 1つは B班（天下一の格闘王）の ために あける。竜神の剣士は 剣の 合体技に 入れない かわりに 自分の 技を 強く（docs/plan-r86-phantom-a.md の 5）
+  yokai_bridge: ['sword', 'monster', 'guard', 'wind'], // 人とようかいのかけ橋（鉄さいが・半よう・かばう・風のきず）
+  ryujin_kenshi: ['bolt', 'light', 'master'], // 竜神の剣士（雷の 玉・竜神の 光・2つの 道を きわめた。炎の 組は 職業 20 まで〈test/jobs-r27 の 日輪〉なので つけない）
+});
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

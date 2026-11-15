@@ -123,6 +123,13 @@ VEHICLES.feast_cart = { name: 'ごちそうの荷車', price: 4400, jobs: ['tabi
 // 第86回 B班: 幻の職業の 乗り物（その 幻の職業に なった 人の たなに だけ。絵は client/render/vehicle-r86b.js。data/vehicles-phantom.js と おなじ きまり）
 VEHICLES.tenka_ring = { name: '武術会のリング', price: 26000, jobs: ['tenkaichi_king'], phantom: true, desc: '4人の力もちがかつぐ、武術会のリング。4すみのはたが、風でゆれる。' };
 VEHICLES.hippo_stage = { name: '空飛ぶカバの軍師台', price: 27000, jobs: ['chaos_gunshi'], phantom: true, desc: '空飛ぶカバがせおう、軍師の台。白と黒のはたと、作戦の地図がのっている。' };
+// 第86回 A班: 幻の職業 2つの 乗り物（大きな白い犬・雷と炎の二ひきの竜。その 幻の職業に なった 人の たなに だけ。絵は client/render/vehicle-r86a.js）
+import { R86A_VEHICLES } from './jobs-r86a.js'; Object.assign(VEHICLES, R86A_VEHICLES);
+//   もとの 2つの 職業の 乗り物にも 乗れる（ほかの 幻の職業と おなじ。二またの大ねこ・先生の自転車／大きなトラ・火竜）
+VEHICLES.twin_cat.jobs.push('yokai_bridge');
+VEHICLES.teacher_bike.jobs.push('yokai_bridge');
+VEHICLES.big_tiger.jobs.push('ryujin_kenshi');
+VEHICLES.fire_dragon.jobs.push('ryujin_kenshi');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

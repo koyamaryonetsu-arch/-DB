@@ -39,10 +39,11 @@ const { Bot, tickN } = await import('./helpers.js');
 const LIVE_AT_LOAD = PHANTOM_ORDER.filter((id) => JOBS[id]);
 
 // ───────────── 1. ランク・条件の 表 ─────────────
-test('幻の職業: 14この id・tier 4 の 名前・一覧（定義の ない 職業は 入れない。第86回 B班で 2つ ふえた）', () => {
+test('幻の職業: 16この id・tier 4 の 名前・一覧（定義の ない 職業は 入れない。第86回 B班・A班で 2つずつ ふえた）', () => {
+  // 第86回 B班の 2つの あとに A班の 2つ（幻の書の しるしの じゅん。test/jobs-r86a.test.js）
   assert.deepEqual(PHANTOM_ORDER, ['pirate_king', 'super_hero', 'sun_hokage', 'facility_ai', 'detective_king', 'galaxy_queen',
     'grand_magus', 'sword_saint', 'cosmic_okan', 'chaos_creator', 'dream_stadium', 'weather_god',
-    'tenkaichi_king', 'chaos_gunshi']);
+    'tenkaichi_king', 'chaos_gunshi', 'yokai_bridge', 'ryujin_kenshi']);
   assert.deepEqual(Object.keys(PHANTOM_JOBS), PHANTOM_ORDER, '条件の 表も おなじ じゅん');
   assert.equal(TIER_NAMES[4], '幻の職業');
   assert.equal(TIER_ORDERS.length, 5);
@@ -395,8 +396,8 @@ test('引っこしコード: 記録が もとどおり（KIZUNA-2・KIZUNA-3 の
   const c = hero('t1', 'warrior');
   c.feats = toFeats(FULL());
   const s = packFeats(c.feats);
-  // 第86回 B班: タグが 3つ ふえた（fist・counter・sakusen）ので 170 → 190
-  assert.ok(s.length < 190, `みじかい 形 ${s.length}文字`);
+  // 第86回 B班: タグが 3つ（fist・counter・sakusen）・A班: 4つ（kabau・yokai・bolt・karyu）ふえた ので 170 → 230
+  assert.ok(s.length < 230, `みじかい 形 ${s.length}文字`);
   assert.deepEqual(unpackFeats(s), c.feats);
   const r = parseCode(exportCode(JSON.parse(JSON.stringify(c))));
   assert.ok(r.ok, r.reason);

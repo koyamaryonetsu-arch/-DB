@@ -56,6 +56,8 @@ import { R85B_OLD_LOOK } from './hero-r85b.js';
 import { R85A_OLD_LOOK } from './hero-r85a.js';
 // 第86回 B班: 天下一の格闘王・混とんの大軍師の 古い 小さな え（hero-r86b.js）
 import { R86B_OLD_LOOK } from './hero-r86b.js';
+// 第86回 A班: 幻の職業 2つの 古い 小さな え（hero-r86a.js）
+import { R86A_OLD_LOOK } from './hero-r86a.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -174,6 +176,7 @@ Object.assign(JOB_LOOK, R84A_OLD_LOOK);
 Object.assign(JOB_LOOK, R85B_OLD_LOOK);
 Object.assign(JOB_LOOK, R85A_OLD_LOOK);
 Object.assign(JOB_LOOK, R86B_OLD_LOOK);
+Object.assign(JOB_LOOK, R86A_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

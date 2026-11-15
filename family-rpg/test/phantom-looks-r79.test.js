@@ -12,6 +12,11 @@ import { headOf } from '../public/js/client/render/hero-gear.js';
 import { lookToOpts } from '../public/js/client/render/chars.js';
 import { masc33 } from '../public/js/client/render/hero-r33.js';
 import { R79_JOBS, R79_OUTFIT, R79_BODY, R79_HAT, R79_OLD_LOOK, R79_MASC, AURA79 } from '../public/js/client/render/hero-r79.js';
+// 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 衣装は hero-r86a.js（PHANTOM_ORDER の おわりの 2つ。test/jobs-r86a.test.js も 見る）
+import { R86A_JOBS, R86A_OUTFIT, R86A_BODY, R86A_OLD_LOOK, AURA86A } from '../public/js/client/render/hero-r86a.js';
+const ALL_OUTFIT = { ...R79_OUTFIT, ...R86A_OUTFIT };
+const ALL_BODY = { ...R79_BODY, ...R86A_BODY };
+const ALL_OLD = { ...R79_OLD_LOOK, ...R86A_OLD_LOOK };
 
 const BODIES = BODY_NAMES.map((_, i) => i);
 const LOOK = (body) => ({ body, hair: body ? 1 : 0, hairColor: 1, skin: 0, color: 0 });
@@ -30,9 +35,9 @@ test('第79回: 幻の職業 12こ 全部に 衣装の 表が ある', () => {
   assert.deepEqual(R79_JOBS, PHANTOM_ORDER.slice(0, 12), 'ならびは PHANTOM_ORDER と おなじ');
   for (const id of R79_JOBS) {
     assert.ok(JOBS[id], id);
-    assert.ok(R79_OUTFIT[id]?.kind, `${id} の 服`);
-    assert.ok(R79_BODY[id], `${id} の からだの とくちょう`);
-    assert.ok(R79_OLD_LOOK[id]?.outfit, `${id} の 古い 小さな え`);
+    assert.ok(ALL_OUTFIT[id]?.kind, `${id} の 服`);
+    assert.ok(ALL_BODY[id], `${id} の からだの とくちょう`);
+    assert.ok(ALL_OLD[id]?.outfit, `${id} の 古い 小さな え`);
     // 戦士の 服（前の すがた）では ない
     for (const b of BODIES) {
       const fem = b === 1;
@@ -58,6 +63,7 @@ test('第79回: 幻の職業 12こ 全部に 衣装の 表が ある', () => {
   for (const id of R79_JOBS) {
     const a = R79_BODY[id].aura;
     if (a && /79$/.test(a)) assert.ok(AURA79[a], `${id} の オーラ ${a}`);
+    if (a && /86$/.test(a)) assert.ok(AURA86A[a], `${id} の オーラ ${a}`);
   }
 });
 
@@ -78,7 +84,7 @@ test('第79回: 全部の 体の 型・向き・歩く コマで かける（布
       assert.ok(opaque(paintHero(LOOK(b), id, CLOTH, 'down', 0, 8)) > 0);
       // 古い 小さな え（戦士の 服では ない）
       const o = lookToOpts(LOOK(b), id, ',cloth,,');
-      assert.equal(o.outfit, (b === 0 && R79_MASC[id] ? R79_MASC[id].old : R79_OLD_LOOK[id]).outfit, `${id} ${BODY_NAMES[b]}`);
+      assert.equal(o.outfit, (b === 0 && R79_MASC[id] ? R79_MASC[id].old : ALL_OLD[id]).outfit, `${id} ${BODY_NAMES[b]}`);
     }
   }
 });

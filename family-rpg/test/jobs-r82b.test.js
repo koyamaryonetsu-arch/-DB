@@ -507,7 +507,8 @@ test('第82回 B の 職業: タグで 合体技（3つ いじょう）・職業
   }
   // 乗り物: 大きなトラ（4つの 職業）
   const v = VEHICLES.big_tiger;
-  assert.deepEqual(v.jobs, NEW);
+  // 第86回 A班: 幻の職業 竜神の剣士も 乗れる（もとの 職業の 乗り物。ほかの 幻の職業と おなじ）
+  assert.deepEqual(v.jobs.filter((j) => JOBS[j].tier < 4), NEW);
   textOk(v.name, 'big_tiger');
   textOk(v.desc, 'big_tiger');
   assert.ok(v.price > 0 && v.price <= 10000);

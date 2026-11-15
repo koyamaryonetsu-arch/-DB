@@ -7,6 +7,8 @@ import { makeRng } from '../public/js/shared/rng.js';
 import { openService, serviceAction } from '../public/js/shared/world/services.js';
 import { JOBS, PHANTOM_ORDER, LEGEND_ORDER } from '../public/js/shared/data/jobs.js';
 import { PHANTOM_VEHICLES } from '../public/js/shared/data/vehicles-phantom.js';
+// 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 乗り物（shared/data/jobs-r86a.js・render/vehicle-r86a.js）も おなじ きまり
+import { R86A_VEHICLES } from '../public/js/shared/data/jobs-r86a.js';
 import { VEHICLES, VEHICLE_ORDER, vehicleShelf, buyVehicle, chooseVehicle, chosenVehicle, rideShown } from '../public/js/shared/data/vehicles.js';
 import { VEHICLE_ART, VIEWS, paintVehicle, paintVehicleFx, riderSpot, vehicleFrames, vehicleSize, RIDER_H } from '../public/js/client/render/vehicle-art.js';
 import { repairChar } from '../public/js/shared/world/save.js';

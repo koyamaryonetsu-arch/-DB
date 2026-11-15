@@ -41,6 +41,8 @@ import { r85bPlan } from './battle-r85b.js';
 import { r85aPlan, r85aLocked } from './battle-r85a.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・かけひき・見切りのかまえ）・混とんの大軍師（大魔法の時間・太極・ギガ・スレイブ・みんなでとなえる。battle-r86b.js）
 import { r86bPlan } from './battle-r86b.js';
+// 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
+import { r86aPlan } from './battle-r86a.js';
 
 // さくせん
 export const TACTICS = {
@@ -213,6 +215,10 @@ export function decideAlly(b, c) {
     if (mc) return mc;
   }
 
+  // 4.79) 第86回 A班: 前ぶれに 人とようかいのきずな・ためた力を うつ・きずなの力／玉と 炎の よい 方の 玉に かえる・火竜・二重の太刀（battle-r86a.js）
+  //   この 2つの 職業の 技を もつ 人だけ（もとの 伝説の 技も 覚えて いるので、その オート〈4.8〜4.96〉より 先に 見る。ほかの 職業は 何も かわらない）
+  const r86a = r86aPlan(b, c, foes, mine, allies, fightWeight(b));
+  if (r86a) return r86a;
   // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
   const r82 = r82aPlan(b, c, foes, mine, allies);
   if (r82) return r82;

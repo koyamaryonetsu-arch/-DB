@@ -113,6 +113,8 @@ import { R85B_ABILITIES } from './abilities-r85b.js';
 import { R85A_ABILITIES } from './abilities-r85a.js';
 // 第86回 B班: 天下一の格闘王・混とんの大軍師の 技（abilities-r86b.js）
 import { R86B_ABILITIES } from './abilities-r86b.js';
+// 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士の 技（abilities-r86a.js）
+import { R86A_ABILITIES } from './abilities-r86a.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -778,6 +780,8 @@ Object.assign(ABILITIES, R85B_ABILITIES);
 Object.assign(ABILITIES, R85A_ABILITIES);
 // 第86回 B班: 天下一の格闘王・混とんの大軍師（abilities-r86b.js）
 Object.assign(ABILITIES, R86B_ABILITIES);
+// 第86回 A班: 幻の職業 2つ（abilities-r86a.js）
+Object.assign(ABILITIES, R86A_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

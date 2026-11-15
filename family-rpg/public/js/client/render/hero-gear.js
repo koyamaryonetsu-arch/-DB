@@ -31,6 +31,8 @@ import { R66C_HAT } from './hero-r66c.js';
 import { R66D_HAT, R66D_BODY_HAT } from './hero-r66d.js';
 // 第79回: 幻の職業の ぼうし（hero-r79.js）
 import { R79_HAT } from './hero-r79.js';
+// 第86回 A班: 竜神の剣士の 金の サークレット（hero-r86a.js）
+import { R86A_HAT } from './hero-r86a.js';
 // 第66回 E1班の ヘルメット・ヘッドセット（hero-r66e1.js）
 import { R66E1_HAT } from './hero-r66e1.js';
 
@@ -1577,6 +1579,7 @@ Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 Object.assign(JOB_HAT, R66D_HAT);
 Object.assign(R26_BODY_HAT, R66D_BODY_HAT);
 Object.assign(JOB_HAT, R79_HAT);
+Object.assign(JOB_HAT, R86A_HAT);
 function guessHead(it) {
   const name = it.name || '';
   const rank = it.rank || 2;
