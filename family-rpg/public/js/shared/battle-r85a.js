@@ -219,7 +219,7 @@ export function r85aPub(c) {
 //   threat … ボスで ない 時に となえる こわさ（ai.js の fightWeight の threat。HP が 多い だけの 敵〈かかし など〉には となえない）
 //   lowMp・lowHp … 定食を 食べる MP・HP の わりあい
 //   mealCap … 1回の 戦いで オートが 食べる 回数の 上限
-export const R85A_AI = { chant: 0.85, meal: 0.6, gigaMp: 0.8, threat: 0.13, lowMp: 0.3, lowHp: 0.3, mealCap: 8 };
+export const R85A_AI = { chant: 0.85, meal: 0.6, gigaMp: 0.8, threat: 0.13, lowMp: 0.3, lowHp: 0.3, mealCap: 30 };
 const partsOf = (e) => (e?.type === 'multi' ? e.parts || [] : [e || {}]);
 const isMeal = (a) => {
   const ps = partsOf(a?.effect);
@@ -277,8 +277,8 @@ export function r85aPlan(b, c, foes, mine, allies, fw) {
   const all = meal.find(({ a }) => a.target === 'allies');
   //    （1回の 戦いで MEAL_CAP 回まで。オートが 食べて ばかりに ならない ように。c.r85aMeals は 戦いの 人だけ）
   if ((lowMp || (lowHp && self)) && meal.length && (c.r85aMeals || 0) < R85A_AI.mealCap && b.rng.chance(R85A_AI.meal)) {
-    const thirsty = allies.filter((x) => x !== c && x.maxMp > 0 && x.mp / x.maxMp < R85A_AI.lowMp).length >= 2;
-    const pick = all && (!self || (lowMp && thirsty && b.rng.chance(0.5))) ? all : self;
+    const thirsty = allies.filter((x) => x.maxMp > 0 && x.mp / x.maxMp < R85A_AI.lowMp).length >= 2;
+    const pick = lowMp && all && (thirsty || !self) ? all : self || all;
     if (pick) {
       c.r85aMeals = (c.r85aMeals || 0) + 1;
       return { type: 'ability', id: pick.id };
