@@ -11,8 +11,8 @@
 // 15. カモメ港の魔物サーカス（魔物使いの 系統。カモメ港の 南の すなはまの 西）
 // 16. ハネノの町のお笑い大会（お笑い芸人の 系統。ハネノの町の 西がわ。ハネノは 人の 絵だけ）
 // 17. ドゥナのからくりゲーム（ゲーマーの 系統。砂の港ドゥナの 南の 通りの 西の はし）
-import { npc } from './npc.js?v=25ef341afab2';
-import { openSpot } from './labyrinth.js?v=25ef341afab2';
+import { npc } from './npc.js?v=956fa349b538';
+import { openSpot } from './labyrinth.js?v=956fa349b538';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ2_OPEN = 'c5_clear';

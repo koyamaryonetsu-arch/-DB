@@ -2,10 +2,10 @@
 //   曲を えらぶと 鳴る。強さ・ピンチ・だん・昼と夜・まわりの音は 新しい音で 次の 小節から かわる
 //   タッチ・マウス・キーボード・コントローラー どれでも（ListMenu。左右で 強さ・だんを かえる）
 //   とじると ためした 場面の 音楽を もとに もどして、今の 場所の 曲に もどる
-import { el, ListMenu } from './dom.js?v=25ef341afab2';
-import { TRACK_IDS } from '../audio.js?v=25ef341afab2';
-import { trackName, AMBIENCE_NAMES } from '../audio-names.js?v=25ef341afab2';
-import { AMBIENCES } from '../music-amb.js?v=25ef341afab2';
+import { el, ListMenu } from './dom.js?v=956fa349b538';
+import { TRACK_IDS } from '../audio.js?v=956fa349b538';
+import { trackName, AMBIENCE_NAMES } from '../audio-names.js?v=956fa349b538';
+import { AMBIENCES } from '../music-amb.js?v=956fa349b538';
 
 const Z = 8;
 const INT_STEPS = [0, 0.25, 0.5, 0.75, 1];
