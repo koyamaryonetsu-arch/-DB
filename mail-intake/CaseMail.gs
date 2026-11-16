@@ -26,8 +26,9 @@ var CASE_MAIL_MAX_WAIT_MS = 30 * 60 * 1000;   // 直し続けていても、最�
 var CASE_MAIL_MAX_ATTACH = 20 * 1024 * 1024;  // 添付の合計の上限（Gmail は 25MB まで）
 var CASE_MAIL_TAG_RE = /\[案件#([0-9a-f]{8})\]/i;
 var CASE_MAIL_FOOTER = '※ このメールは菱熱工業の案件管理から自動でお送りしています。';
-var CASE_MAIL_SENDER_NAME = '菱熱工業';   // 通知メールの差出人の名前（自分の通知メールを見分ける印にも使う）
-// ※ 自分のアドレスは Session からは取らない（Google の許可を新しく取り直す必要があるため）。
+var CASE_MAIL_SENDER_NAME = '菱熱工業';
+var CASE_MAIL_MINE_UNKNOWN = 'このスクリプトを動かしている Gmail（最初の通知メールを送ると、アドレスが出ます）';   // 通知メールの差出人の名前（自分の通知メールを見分ける印にも使う）
+// ※ 自分のアドレスは、送った通知メールの差出人から読む（ほかの取り方は Google の許可を新しく取り直す必要があるため）。
 //    差出人の名前「菱熱工業」と、決まりの一文で、自分の通知メールを見分ける。
 var CASE_MAIL_APP_URL = 'https://cinema-cases.vercel.app';
 var CASE_MAIL_KIND_ORDER = { content: 1, work_start: 2, quote: 3, workapp: 4 };
@@ -64,17 +65,27 @@ function caseMailSettings_() {
 }
 
 // ===== 送り主（別名）と、画面に出す状態 =====
-// このスクリプトを動かしている Gmail のアドレス（Drive の持ち主。新しい Google の許可は要らない）
-function cmMyAddress_() {
-  try { return String(DriveApp.getRootFolder().getOwner().getEmail() || '').toLowerCase(); } catch (e) { return ''; }
+// このスクリプトを動かしている Gmail のアドレス: 送った通知メール（送信済み）の差出人から読む。
+// まだ一度も送っていなければ ''（画面には「まだ確認できていません」と出る）
+function cmMyAddressFromSent_() {
+  try {
+    var threads = GmailApp.search('in:sent subject:(菱熱工業 お知らせ 案件) newer_than:60d', 0, 5);
+    for (var i = 0; i < threads.length; i++) {
+      var ms = threads[i].getMessages();
+      for (var j = ms.length - 1; j >= 0; j--) if (caseMailIsOurNotice_(ms[j])) return cmAddrOf_(ms[j].getFrom());
+    }
+  } catch (e) {}
+  return '';
 }
-// 送り主: 別名が Gmail に登録済みなら別名、まだならこの Gmail
-function cmSender_(settings) {
+// 送り主: 別名が Gmail に登録済みなら別名、まだならこの Gmail（known＝前に確かめたこの Gmail のアドレス）
+function cmSender_(settings, known) {
   var aliases = [];
   try { aliases = (GmailApp.getAliases() || []).map(function (a) { return String(a).toLowerCase(); }); } catch (e) {}
   var want = settings.sender || '';
   var ok = !!want && aliases.indexOf(want) !== -1;
-  return { from: ok ? want : '', used: ok ? want : cmMyAddress_(), want: want, aliasOk: ok, aliases: aliases };
+  var mine = known || '';
+  var used = ok ? want : (mine || CASE_MAIL_MINE_UNKNOWN);
+  return { from: ok ? want : '', used: used, mine: mine, want: want, aliasOk: ok, aliases: aliases };
 }
 function cmSaveStatus_(patch) {
   try {
@@ -88,10 +99,11 @@ function cmRefreshStatus_(settings) {
   try {
     var cur = cmGet_('app_settings?key=eq.case_mail_status&select=value');
     var v = (cur.length && cur[0].value) || {};
-    var s = cmSender_(settings);
     var stale = !v.checked_at || (Date.now() - new Date(v.checked_at).getTime()) > 60 * 60 * 1000;
-    if (stale || v.sender_used !== s.used || v.sender_want !== s.want || v.alias_ok !== s.aliasOk || v.mode !== settings.mode) {
-      cmSaveStatus_({ sender_used: s.used, sender_want: s.want, alias_ok: s.aliasOk, mode: settings.mode });
+    var mine = v.my_address || (stale ? cmMyAddressFromSent_() : '');
+    var s = cmSender_(settings, mine);
+    if (stale || v.sender_used !== s.used || v.sender_want !== s.want || v.alias_ok !== s.aliasOk || v.mode !== settings.mode || (mine && v.my_address !== mine)) {
+      cmSaveStatus_({ sender_used: s.used, sender_want: s.want, alias_ok: s.aliasOk, mode: settings.mode, my_address: mine });
     }
   } catch (e) { Logger.log('通知メールの状態を確かめられない: ' + e); }
 }
@@ -265,7 +277,7 @@ function sendOneCaseMail_(caseId, evs, settings) {
   if (!hasOther && !files.length) { cmMarkEvents_(evs, '付ける書類が消されていた'); return 'skip'; }
 
   // ※ 1日に送れる数（Gmail の上限）を超えると sendEmail がエラーになる → 印を付けないので、次の回にもう一度送る
-  //   （MailApp で残りの数を調べると、Google の許可を新しく取り直す必要があるので使わない）
+  //   （残りの数を調べる方法は、Google の許可を新しく取り直す必要があるので使わない）
 
   var subject = (isTrial ? '【試し】' : '') + caseMailSubject_(c, cmShortTheater_(c.theater));
   var body = caseMailBody_(c, evsShown, files);
@@ -275,16 +287,18 @@ function sendOneCaseMail_(caseId, evs, settings) {
       '\n────────────────\n\n' + body;
   }
   var addrs = to.map(function (x) { return x.email; }).join(',');
-  var snd = cmSender_(settings);
+  var snd = cmSender_(settings, '');
   var opt = { name: CASE_MAIL_SENDER_NAME, attachments: blobs };
   if (snd.from) opt.from = snd.from;
   GmailApp.sendEmail(addrs, subject, body, opt);
-  cmSaveStatus_({ sender_used: snd.used, sender_want: snd.want, alias_ok: snd.aliasOk, mode: settings.mode,
+  var mine = cmMyAddressFromSent_();   // 送ったばかりの通知メールから、この Gmail のアドレスを読む
+  snd.used = snd.from || mine || CASE_MAIL_MINE_UNKNOWN;
+  cmSaveStatus_({ sender_used: snd.used, sender_want: snd.want, alias_ok: snd.aliasOk, mode: settings.mode, my_address: mine,
     last_sent_at: new Date().toISOString(), last_to: addrs, last_subject: subject });
   cmMarkEvents_(evs, '送った: ' + to.map(function (x) { return x.email + '（' + x.why + '）'; }).join(' / '));
   try {
     cmReq_('post', 'case_mail_log', {
-      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.used || '') + '>',
+      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.from || mine || '') + '>',
       subject: subject, body: body, attachments: files.filter(function (f) { return f.attached; }).map(function (f) { return f.name; }).join(' / '),
       test: settings.mode !== 'live'
     }, 'return=minimal');
