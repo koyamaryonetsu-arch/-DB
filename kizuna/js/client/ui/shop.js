@@ -5,11 +5,11 @@
 //         → 装備品なら「ここで装備していきますか？」→「どなたが装備しますか？」→「今までの〇〇は引き取りましょうか？」
 //   売る: 品物を えらぶ → いくつ？ →「〇〇ゴールドで引き取りましょう。よろしいですか？」はい／いいえ
 // 教会:  おいのりをする／生き返らせる／毒を治す／やめる（寄付の かくにん つき）
-import { rareNameHtml } from './rarity.js?v=6f7fa0f75e74';
-import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=6f7fa0f75e74';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=6f7fa0f75e74';
-import { itemCount } from '../../shared/stats.js?v=6f7fa0f75e74';
-import { boardIconURL } from '../render/boards.js?v=6f7fa0f75e74';
+import { rareNameHtml } from './rarity.js?v=b7cfa953e269';
+import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=b7cfa953e269';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=b7cfa953e269';
+import { itemCount } from '../../shared/stats.js?v=b7cfa953e269';
+import { boardIconURL } from '../render/boards.js?v=b7cfa953e269';
 
 // サーバーの へんじを まつ
 export function request(game, msg) {
