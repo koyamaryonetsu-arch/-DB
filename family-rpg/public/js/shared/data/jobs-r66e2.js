@@ -14,9 +14,9 @@ export const JOBS_R66E2 = {
   esports_king: {
     id: 'esports_king', name: 'eスポーツ世界王者', kana: 'いーすぽーつせかいおうじゃ', short: '世界王者', tier: 2, req: ['pro_gamer', 'magic_knight'], family: 'tech', color: '#e0263a',
     desc: 'ゲームの世界大会で、だれにも負けなかったチャンピオン。目にもとまらぬ連打と、魔法剣をつなぐコンボで戦い、せめながら守りもかためる。プロゲーマーと魔法戦士をきわめるとなれる。',
-    mods: { hp: 1.25, mp: 1.15, str: 1.45, def: 1.1, agi: 1.6, mag: 1.2, heal: 0.8 },
+    mods: { hp: 1.35, mp: 1.15, str: 1.45, def: 1.2, agi: 1.6, mag: 1.0, heal: 0.8 },
     weapons: ['sword', 'boomerang', 'dagger', 'axe', 'staff', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
-    perLv: { agi: 1, str: 0.5, mag: 0.5 },
+    perLv: { agi: 1, str: 0.5, def: 0.5 },
     learn: [[1, 'ek_renda'], [2, 'ek_guard'], [3, 'ek_mahouken'], [5, 'ek_bunseki'], [7, 'ek_voice'], [8, 'ek_gauge'], [10, 'esports_king_sig']],
   },
   // 楽天ゴールドカードマン（楽天カードマン＋部長）: カードで 戦うほど 楽天ポイントが たまって 強く なる・お金が ふえる
@@ -44,7 +44,7 @@ export const JOBS_R66E2 = {
   game_god: {
     id: 'game_god', name: 'ゲームの神', kana: 'げーむのかみ', short: 'ゲーム神', tier: 3, req: ['esports_king'], reqSuper: 1, family: 'tech', color: '#f2c430',
     desc: 'どんなゲームもクリアしてしまう、ゲームの神様。セーブで今のみんなを記録して、ピンチの時にロードで前にもどる。神の連打と、むげんのコンボで敵を止める。eスポーツ世界王者と、ほかの超級職を1つきわめるとなれる。',
-    mods: { hp: 1.55, mp: 1.3, str: 1.65, def: 1.3, agi: 1.75, mag: 1.3, heal: 0.95 },
+    mods: { hp: 1.7, mp: 1.3, str: 1.65, def: 1.45, agi: 1.75, mag: 1.0, heal: 0.95 },
     weapons: ['sword', 'boomerang', 'dagger', 'axe', 'staff', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
     perLv: { agi: 1.5, str: 1, hp: 1 },
     learn: [[1, 'gg_save'], [2, 'gg_renda'], [3, 'gg_load'], [5, 'gg_combo'], [6, 'gg_guard'], [7, 'gg_command'], [8, 'gg_pico'], [10, 'game_god_sig']],

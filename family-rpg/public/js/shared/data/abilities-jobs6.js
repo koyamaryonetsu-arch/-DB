@@ -366,8 +366,12 @@ export const JOB6_ABILITIES = {
   },
   mt_henseiki: {
     name: 'ちょうネクタイ型変声機', kana: 'ちょうねくたいがたへんせいき', kind: 'skill', job: 'meitantei', mp: 5, target: 'group',
-    effect: { type: 'status', status: 'confuse', chance: 0.45, turns: [2, 3] },
-    desc: 'ほかの人の声で話しかけて、同じ種類の敵をまどわせる。こんらんすることがある。', cast: '{a}は、ちょうネクタイをそっと口に当てた…', anim: 'debuff',
+    // 第87回 B班: 魔力で うつ 技に（ふしぎな 声の ダメージ ＋ 今までの こんらん）
+    effect: { type: 'multi', parts: [
+      { type: 'magic', base: [64, 76], thr: 60 },
+      { type: 'status', status: 'confuse', chance: 0.45, turns: [2, 3] },
+    ] },
+    desc: 'ほかの人の声で話しかけて、同じ種類の敵をまどわせる。ふしぎな声でダメージをあたえ、こんらんさせることもある。魔力が高いほど強い。', cast: '{a}は、ちょうネクタイをそっと口に当てた…', anim: 'debuff',
   },
   mt_skate: {
     name: 'ターボエンジン付きスケボー', kana: 'たーぼえんじんつきすけぼー', kind: 'skill', job: 'meitantei', mp: 9, target: 'enemies',
@@ -375,12 +379,14 @@ export const JOB6_ABILITIES = {
     desc: 'エンジン付きのスケボーで、敵全体の間をかけぬける。', cast: '{a}のスケボーが、ものすごい速さで走り出した！', anim: 'tackle',
   },
   mt_hannin: {
-    name: '犯人はあなたです', kana: 'はんにんはあなたです', kind: 'skill', job: 'meitantei', mp: 8, target: 'enemy', role: 'sup',
+    name: '犯人はあなたです', kana: 'はんにんはあなたです', kind: 'skill', job: 'meitantei', mp: 8, target: 'enemy',
+    // 第87回 B班: 魔力で うつ 技に（真実を 見ぬく 光の ダメージ ＋ 今までの 弱体・止める）
     effect: { type: 'multi', parts: [
+      { type: 'magic', element: 'light', base: [76, 92], thr: 70 },
       { type: 'debuff', stat: 'def', mult: 0.75, dur: 35, chance: 0.85 },
       { type: 'atbSet', sub: 25, chance: 0.6, msg: '{t}は、ぎくっとして動けない！', failMsg: '{t}は、しらんぷりをした。' },
     ] },
-    desc: '敵1体をびしっと指さす。ぎくっとして守備力が下がり、動きが止まることもある（ボスには効きにくい）。', cast: '{a}「犯人は…あなたです！」', anim: 'debuff',
+    desc: '敵1体をびしっと指さす。真実を見ぬく光で、光のダメージ。ぎくっとして守備力が下がり、動きが止まることもある（止まるのはボスには効きにくい）。魔力が高いほど強い。', cast: '{a}「犯人は…あなたです！」', anim: 'debuff',
   },
   meitantei_sig: {
     name: '真実はいつもひとつ', kana: 'しんじつはいつもひとつ', kind: 'skill', job: 'meitantei', mp: 20, target: 'enemies',

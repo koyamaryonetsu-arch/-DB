@@ -44,7 +44,7 @@ export const JOBS_R66E1 = {
   triple_face: {
     id: 'triple_face', name: 'トリプルフェイス', kana: 'とりぷるふぇいす', short: 'トリプル', tier: 3, req: ['koan_zero'], reqSuper: 1, family: 'phys', color: '#2e3a5a',
     desc: '探てい・なぞの組織の一員・警察官、3つの顔をもつ伝説の警察官。公安ゼロと、ほかの超級職を1つきわめた者だけがなれる。すがたを変えて敵を調べて弱らせ、目にもとまらないボクシングで決める。',
-    mods: { hp: 1.55, mp: 1.25, str: 1.75, def: 1.35, agi: 1.85, mag: 1.2, heal: 0.9 },
+    mods: { hp: 1.65, mp: 1.25, str: 1.75, def: 1.45, agi: 1.85, mag: 1.0, heal: 0.9 },
     weapons: ['claw', 'dagger', 'staff', 'sword', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { agi: 1.5, str: 1, hp: 0.5 },
     learn: [[1, 'tf_jab'], [2, 'tf_tantei'], [3, 'tf_nazo'], [5, 'tf_keisatsu'], [7, 'tf_sandwich'], [8, 'tf_drive'], [10, 'triple_face_sig']],

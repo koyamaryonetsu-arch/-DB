@@ -85,11 +85,12 @@ export const R66D_ABILITIES = {
     effect: {
       type: 'multi',
       parts: [
-        { type: 'phys', mult: 1.5, element: 'bolt' },
+        // 第87回 B班: 魔力で うつ 光線に（前は 力の 技）
+        { type: 'magic', element: 'bolt', base: [105, 122], thr: 80 },
         { type: 'atbSet', sub: 35, chance: 0.4, msg: '{t}は、しびれて動けない！', failMsg: '{t}は、しびれをふりはらった！' },
       ],
     },
-    desc: 'ビビビッとしびれる光をうつ。敵全体に雷のダメージ。しびれて止まる敵もいる。', cast: '{a}「ショックガン〜！」', anim: 'r66d_shock',
+    desc: 'ビビビッとしびれる光線をうつ。敵全体に雷のダメージ。しびれて止まる敵もいる。魔力が高いほど強い。', cast: '{a}「ショックガン〜！」', anim: 'r66d_shock',
   },
   nd_kibidango: {
     name: 'ももたろう印のきびだんご', kana: 'ももたろうじるしのきびだんご', kind: 'skill', job: 'nobu_dora', mp: 14, target: 'enemies', role: 'sup',
@@ -101,12 +102,13 @@ export const R66D_ABILITIES = {
     effect: {
       type: 'multi',
       parts: [
-        { type: 'phys', mult: 1.3, element: 'blast' },
+        // 第87回 B班: 空気ほうは 魔力で うつ（名刀電光丸は 力の まま）
+        { type: 'magic', element: 'blast', base: [90, 105], thr: 95 },
         { type: 'phys', mult: 1.3, ignoreDef: 0.3 },
         { type: 'buff', target: 'allies', stats: ['atk', 'def'], mult: 1.2, dur: 30 },
       ],
     },
-    desc: '4次元ポケットから、なつかしいひみつ道具がつぎつぎにとび出す、のぶドラの最強の技。空気ほうと名刀電光丸で、敵全体に2回大ダメージ。仲間全員の攻撃力と守備力も上がる。', cast: '{a}「あれも、これも…ひみつ道具、全部出しちゃえ〜！」', anim: 'nobu_dora_sig',
+    desc: '4次元ポケットから、なつかしいひみつ道具がつぎつぎにとび出す、のぶドラの最強の技。空気ほうと名刀電光丸で、敵全体に2回大ダメージ（空気ほうは魔力が高いほど強い）。仲間全員の攻撃力と守備力も上がる。', cast: '{a}「あれも、これも…ひみつ道具、全部出しちゃえ〜！」', anim: 'nobu_dora_sig',
   },
 
   // ───────────── かっぱの大王（伝説の職業。はなかっぱ（筋肉ニンニク）＋ほかの 超級職 1つ） ─────────────
