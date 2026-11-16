@@ -8,22 +8,22 @@
 //   →「第2部 第7章へ つづく」
 // クリアの あと: 9階の「止まった時の間」（toki_phantom。B。1日1回）・泉の里の リオンの けいこ（sidequests-ch6d.js）・酒場の ミナモ
 // このファイルは story-ch6.js・story-ch6b.js を 読まない（story-ch6.js が ここを 読んで まぜる）
-import { PAST_ID } from '../maps/past.js?v=b7cfa953e269';
-import { TK_OUT, TF, tkMapId, CLOCKS } from '../maps/tokei.js?v=b7cfa953e269';
+import { PAST_ID } from '../maps/past.js?v=139b2f158093';
+import { TK_OUT, TF, tkMapId, CLOCKS } from '../maps/tokei.js?v=139b2f158093';
 import {
   C6D, HOLD8, HAVE8, WEIGHT8, LOCK8, ZBOSS, ZSEEN, TOPSEEN, TROOM, TOP_CHEST, TH_POS, LINK6_TOWER, TOP_ID,
-} from '../maps/tokei-high.js?v=b7cfa953e269';
-import { C6C_OBJ, ELDER_LATE, handSteps } from './story-ch6c.js?v=b7cfa953e269';
-import { ITEMS } from './items.js?v=b7cfa953e269';
-import { VEHICLES } from './vehicles.js?v=b7cfa953e269';
-import { NPC_SUPPORTS } from './shops.js?v=b7cfa953e269';
-import { MINAMO_GUEST } from './companions-past.js?v=b7cfa953e269';
-import { addItem, canEquipChar } from '../stats.js?v=b7cfa953e269';
-import { CH6D_SIDE_STORY, applyCh6dSide } from './sidequests-ch6d.js?v=b7cfa953e269';
+} from '../maps/tokei-high.js?v=139b2f158093';
+import { C6C_OBJ, ELDER_LATE, handSteps } from './story-ch6c.js?v=139b2f158093';
+import { ITEMS } from './items.js?v=139b2f158093';
+import { VEHICLES } from './vehicles.js?v=139b2f158093';
+import { NPC_SUPPORTS } from './shops.js?v=139b2f158093';
+import { MINAMO_GUEST } from './companions-past.js?v=139b2f158093';
+import { addItem, canEquipChar } from '../stats.js?v=139b2f158093';
+import { CH6D_SIDE_STORY, applyCh6dSide } from './sidequests-ch6d.js?v=139b2f158093';
 // クリアの ★5の 武器（B の data/items-tokei.js の C6_CLEAR_WEAPONS。まとめる 時に './items-tokei.js' から）
-import { C6_CLEAR_WEAPONS } from './items-tokei.js?v=b7cfa953e269';
+import { C6_CLEAR_WEAPONS } from './items-tokei.js?v=139b2f158093';
 // 第53回: 時のまぼろしに 勝った 日（B の encounters-tokei6.js と おなじ 日の かぞえかた）
-import { dayKeyOf } from './encounters-tokei6.js?v=b7cfa953e269';
+import { dayKeyOf } from './encounters-tokei6.js?v=139b2f158093';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

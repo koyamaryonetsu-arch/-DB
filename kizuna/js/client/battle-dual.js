@@ -2,16 +2,16 @@
 //  ・コマンドの「合体技」の 一覧（第31回: 行は 技の 名前だけ 大きく。だれと・何人で・よやくか・必要な 職業は 説明の まどに）
 //  ・家族から さそわれた ときの「参加する！／ことわる」
 //  ・出す ときの カットインと とどめの えんしゅつ（render/dualfx.js）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=b7cfa953e269';
-import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=b7cfa953e269';
-import { comboAllowed, weaponOk } from '../shared/stats.js?v=b7cfa953e269';
-import { dualOptions, dualKnown, dualNeedText, dualNeedLabel } from '../shared/data/dual.js?v=b7cfa953e269';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=139b2f158093';
+import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=139b2f158093';
+import { comboAllowed, weaponOk } from '../shared/stats.js?v=139b2f158093';
+import { dualOptions, dualKnown, dualNeedText, dualNeedLabel, dualOnceReason } from '../shared/data/dual.js?v=139b2f158093';
 // 第33回: 男の子の 美少女戦士が 入る ときは 名前・説明が かわる（shared/ability-label.js）
-import { dualFor } from '../shared/ability-label.js?v=b7cfa953e269';
-import { faceURL } from './field.js?v=b7cfa953e269';
-import { targetText } from './ui/info.js?v=b7cfa953e269';
-import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=b7cfa953e269';
-import { BW, BH } from './render/battlefx.js?v=b7cfa953e269';
+import { dualFor } from '../shared/ability-label.js?v=139b2f158093';
+import { faceURL } from './field.js?v=139b2f158093';
+import { targetText } from './ui/info.js?v=139b2f158093';
+import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=139b2f158093';
+import { BW, BH } from './render/battlefx.js?v=139b2f158093';
 
 const SECRET = '効果は？？？（一度使うとわかる）';
 // その くみあわせ（o.who … 出す 人の id）むけの 合体技
@@ -43,6 +43,8 @@ export function dualInfo(v, o, more = 0) {
   const when = o.now ? '' : '（よやく）';
   const others = more > 0 ? `（ほか${more}通り）` : '';
   const desc = dualKnown(v.game.me, o.id) ? t.desc : SECRET;
+  // 第87回 D班: 1度だけの 合体技（ミナデイン）を もう 出した: わけを 先に
+  if (v.dualUsed?.has(o.id)) return `【${dualOnceReason(o.id)}】\n${dualNeedLabel(o.id)}：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
   return `【${tags}】${o.partnerName}といっしょに${when}${others}\n${dualNeedLabel(o.id)}：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
 }
 
@@ -62,10 +64,13 @@ export function dualMenu(v, opts) {
     groups.get(o.id).push(o);
   }
   for (const list of groups.values()) list.sort((x, y) => (y.now ? 1 : 0) - (x.now ? 1 : 0));
-  const items = [...groups.values()].map((list) => {
+  // 第87回 D班: 1度だけの 合体技（ミナデイン）を もう 出した 時は、うすく・えらべない・下の 方に（わけは 説明の まど）
+  const used = (list) => !!v.dualUsed?.has(list[0].id);
+  const items = [...groups.values()].sort((x, y) => (used(x) ? 1 : 0) - (used(y) ? 1 : 0)).map((list) => {
     const o = list[0];
     const t = techOf(v, o);
     const n = o.size || 2;
+    if (used(list)) return { html: `<span class="dual-nm">${esc(t.name)}</span><span class="tag muted">使った</span>`, right: `${o.mp[0]}`, value: list, disabled: true, cls: `k-${role(t)} k-dualopt n${n} once-used` };
     return { html: `<span class="dual-nm">${esc(t.name)}</span>`, right: `${o.mp[0]}`, value: list, cls: `k-${role(t)} k-dualopt n${n}${list.some((x) => x.now) ? '' : ' later'}` };
   });
   const fire = (o) => {

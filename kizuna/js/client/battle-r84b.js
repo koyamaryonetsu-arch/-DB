@@ -4,7 +4,7 @@
 //   ・r84bMarks … 仲間の まどの 小さな 札（「水のすがた」「お湯のすがた」・心の水・よけ・かまえ）と 敵の 足もとの 札（おこった「いかり2」）。
 //     battle-buffs.js の unitMarks。家族 みんなの 画面に 出る（pub の r84bForm・r84bKokoro・r84bDodge・r84bIkari・stance）
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { FORMS, FORM_ORDER, formPct } from '../shared/battle-r84b.js?v=b7cfa953e269';
+import { FORMS, FORM_ORDER, formPct } from '../shared/battle-r84b.js?v=139b2f158093';
 
 const CSS = `
 .b-mem .sts .bm.fm { color: var(--fm, #5ab8ff); background: rgba(20, 20, 40, 0.55); font-weight: bold; }
