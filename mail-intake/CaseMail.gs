@@ -23,6 +23,9 @@ var CASE_MAIL_MAX_WAIT_MS = 30 * 60 * 1000;   // 直し続けていても、最�
 var CASE_MAIL_MAX_ATTACH = 20 * 1024 * 1024;  // 添付の合計の上限（Gmail は 25MB まで）
 var CASE_MAIL_TAG_RE = /\[案件#([0-9a-f]{8})\]/i;
 var CASE_MAIL_FOOTER = '※ このメールは菱熱工業の案件管理から自動でお送りしています。';
+var CASE_MAIL_SENDER_NAME = '菱熱工業';   // 通知メールの差出人の名前（自分の通知メールを見分ける印にも使う）
+// ※ 自分のアドレスは Session からは取らない（Google の許可を新しく取り直す必要があるため）。
+//    差出人の名前「菱熱工業」と、決まりの一文で、自分の通知メールを見分ける。
 var CASE_MAIL_APP_URL = 'https://cinema-cases.vercel.app';
 var CASE_MAIL_KIND_ORDER = { content: 1, work_start: 2, quote: 3, workapp: 4 };
 
@@ -213,16 +216,17 @@ function sendOneCaseMail_(caseId, evs, settings) {
   var hasOther = evs.some(function (e) { return e.kind === 'content' || e.kind === 'work_start'; });
   if (!hasOther && !files.length) { cmMarkEvents_(evs, '付ける書類が消されていた'); return 'skip'; }
 
-  if (MailApp.getRemainingDailyQuota() < to.length) { Logger.log('今日のメール送信の上限に近いので、明日に回します（案件 ' + caseId + '）'); return 'wait'; }
+  // ※ 1日に送れる数（Gmail の上限）を超えると sendEmail がエラーになる → 印を付けないので、次の回にもう一度送る
+  //   （MailApp で残りの数を調べると、Google の許可を新しく取り直す必要があるので使わない）
 
   var subject = caseMailSubject_(c, cmShortTheater_(c.theater));
   var body = caseMailBody_(c, evsShown, files);
   var addrs = to.map(function (x) { return x.email; }).join(',');
-  GmailApp.sendEmail(addrs, subject, body, { name: '菱熱工業', attachments: blobs });
+  GmailApp.sendEmail(addrs, subject, body, { name: CASE_MAIL_SENDER_NAME, attachments: blobs });
   cmMarkEvents_(evs, '送った: ' + to.map(function (x) { return x.email + '（' + x.why + '）'; }).join(' / '));
   try {
     cmReq_('post', 'case_mail_log', {
-      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: Session.getEffectiveUser().getEmail() || '',
+      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME,
       subject: subject, body: body, attachments: files.filter(function (f) { return f.attached; }).map(function (f) { return f.name; }).join(' / '),
       test: settings.mode !== 'live'
     }, 'return=minimal');
@@ -251,18 +255,23 @@ function caseMailCaseOfThread_(th) {
     return rows.length === 1 ? String(rows[0].id) : null;
   } catch (e) { Logger.log('通知メールの案件を探せない: ' + e); return null; }
 }
-// このメールは、こちらが送った通知メールそのものか（自分が送り主で、決まりの一文が入っている）
+function cmAddrOf_(from) { var m = String(from || '').match(/<([^>]+)>/); return (m ? m[1] : String(from || '')).trim().toLowerCase(); }
+// このメールは、こちらが送った通知メールそのものか（差出人の名前が「菱熱工業」で、決まりの一文が入っている）
 function caseMailIsOurNotice_(msg) {
-  var me = String(Session.getEffectiveUser().getEmail() || '').toLowerCase();
-  var from = String(msg.getFrom() || '').toLowerCase();
-  return !!me && from.indexOf(me) !== -1 && String(msg.getPlainBody() || '').indexOf(CASE_MAIL_FOOTER) !== -1;
+  var from = String(msg.getFrom() || '').trim().replace(/^"/, '');
+  return from.indexOf(CASE_MAIL_SENDER_NAME + ' <') === 0 || from.indexOf(CASE_MAIL_SENDER_NAME + '" <') === 0
+    ? String(msg.getPlainBody() || '').indexOf(CASE_MAIL_FOOTER) !== -1 : false;
 }
 // 返ってきたメール（自分以外から）を案件の記録に残す（同じメールは2回残さない）
 function caseMailLogReplies_(th, caseId) {
-  var me = String(Session.getEffectiveUser().getEmail() || '').toLowerCase();
-  th.getMessages().forEach(function (mm) {
+  var msgs = th.getMessages();
+  // 自分のアドレス＝このやり取りの中の、自分の通知メールの差出人
+  var mine = {};
+  msgs.forEach(function (mm) { if (caseMailIsOurNotice_(mm)) mine[cmAddrOf_(mm.getFrom())] = 1; });
+  msgs.forEach(function (mm) {
     var from = String(mm.getFrom() || '');
-    if (me && from.toLowerCase().indexOf(me) !== -1) return;
+    var addr = cmAddrOf_(from);
+    if (mine[addr] || cmIsRyonetsu_(addr)) return;   // 自分・菱熱のメールは「返ってきたメール」にしない
     try {
       cmReq_('post', 'case_mail_log?on_conflict=message_id', {
         case_id: caseId, direction: 'in', from_addr: from, to_addrs: String(mm.getTo() || ''),
