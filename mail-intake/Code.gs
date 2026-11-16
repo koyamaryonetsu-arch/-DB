@@ -455,7 +455,7 @@ function parseEmailCases_(emailText, opts) {
     '各案件の項目:',
     '- theater: 劇場名（正式な書き方に寄せる。例「TOHOシネマズ 日比谷」「109シネマズ 川崎」）。company: 次のいずれか（なければ原文）' + JSON.stringify(COMPANY_LIST) + '。' + COMPANY_HINT,
     '- intent: "new"＝新しい依頼・新しい仕事 / "progress"＝すでにある仕事の進み具合（日程・見積り提出・完了報告など）',
-    '- title: 案件の件名（30字以内）。category: 次のいずれか ' + JSON.stringify(CATEGORY_LIST) + '。content: その案件の要点1〜3文（ほかの案件の話は入れない）',
+    '- title: 案件名＝「どこで・どうなった（何をする）」だけ。20字以内。劇場名・会社名・日付・人の名前・「〜の件」「対応」は入れない（例: シアター7空調機冷えない・SCR3 GHP更新工事・ロビートイレ天井水漏れ）。category: 次のいずれか ' + JSON.stringify(CATEGORY_LIST) + '。content: その案件の要点1〜3文（ほかの案件の話は入れない）',
     '- received_date: その案件の依頼の日 YYYY-MM-DD（分からなければ空文字）',
     '- r_person: 菱熱工業の担当（次のリストの苗字と一致する時だけ。無ければ空文字）' + JSON.stringify(RYONETSU_MEMBERS) + '。tc_person: 客先（劇場・運営会社）の担当の苗字（菱熱工業の人は入れない）。敬称は付けない',
     '- progress: survey_date=現地調査の日 / quote_date=見積書の提出日 / work_start_date=作業・工事の開始日 / work_end_date=作業・工事の完了日（YYYY-MM-DD。無ければ空文字）。',
@@ -506,7 +506,7 @@ function handleCaseItem_(p, ctx) {
     dup_suspect_id: findDupSuspect_(p, received),
     company: normalizeCompany_(p.company), theater: p.theater || '', received_date: received,
     tc_person: p.tc_person || '', r_person: p.r_person || '',
-    category: normalizeCategory_(p.category), content: p.content || '',
+    category: normalizeCategory_(p.category), content: p.content || '', title: p.title || '',
     survey_date: prog.survey_date || '', work_start_date: prog.work_start_date || '', work_end_date: prog.work_end_date || '',
     estimate_name: quote ? quote.estimate_name : '', estimate_amount: quote ? quote.estimate_amount : '',
     quote_date: (quote && quote.quote_date) || prog.quote_date || '', quote_file: quote ? quote.file : ''
@@ -1090,11 +1090,21 @@ function insertCase_(f) {
   if (f.survey_date) body.survey_date = f.survey_date;
   if (f.work_start_date) body.work_start_date = f.work_start_date;
   if (f.work_end_date) body.work_end_date = f.work_end_date;
+  // 案件名（どこでどうなった・短く）。cases.title の列がまだ無い DB では、案件名なしで入れ直す
+  if (f.title) body.title = String(f.title).slice(0, 30);
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases', {
     method: 'post', contentType: 'application/json',
     headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=representation' },
     payload: JSON.stringify(body), muteHttpExceptions: true
   });
+  if (res.getResponseCode() >= 300 && body.title && /title/.test(res.getContentText())) {
+    delete body.title;
+    res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases', {
+      method: 'post', contentType: 'application/json',
+      headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=representation' },
+      payload: JSON.stringify(body), muteHttpExceptions: true
+    });
+  }
   if (res.getResponseCode() >= 300) { Logger.log('INSERT失敗: ' + res.getContentText()); return ''; }
   Logger.log('新規登録: ' + f.theater + ' / ' + String(f.content || '').slice(0, 30));
   // 登録した案件のid（このやり取りに返信が来たら、この案件の更新として扱うために覚える）
