@@ -66,7 +66,7 @@
     'survey_date', 'cert_number', 'estimate_name', 'estimate_amount', 'quote_date',
     'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
-    'customer_memo', 'last_update_source', 'created_at', 'updated_at'
+    'customer_memo', 'last_update_source', 'created_at', 'updated_at', 'title'   // title=案件名（客先にも見せる）
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
