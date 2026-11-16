@@ -45,7 +45,7 @@ export const R82B_ABILITIES = {
     desc: '高くとび上がって、敵1体を上から打つ。敵の守備力が下がることがある。刀に玉があれば、その玉の属性になる。', cast: '{a}は高くとび上がった！大かぶと割り！', anim: 'r82b_slash',
   },
   samurai_kid_sig: {
-    name: '天下一の素ぶり', kana: 'てんかいちのすぶり', kind: 'skill', job: 'samurai_kid', mp: 10, target: 'enemy',
+    name: '天下一の素ぶり', kana: 'てんかいちのすぶり', kind: 'skill', job: 'samurai_kid', mp: 7, target: 'enemy',
     effect: { type: 'phys', mult: 0.85, hits: 3, yb: 'tama' },
     desc: '毎日1000回の素ぶりでみがいた太刀すじで、敵1体を3回切る。刀に玉があれば、その玉の属性になる。', cast: '{a}「天下一のサムライの、素ぶりを見ろ！」', anim: 'samurai_kid_sig',
   },
@@ -77,7 +77,7 @@ export const R82B_ABILITIES = {
     desc: '雷神けんをかまえて、雷の力で身を守る。自分の守備力が上がり、しばらくのあいだ、雷の攻撃を受けるとHPが回復する。', cast: '{a}は、雷神けんをかまえた！', anim: 'guard',
   },
   raijin_sword_sig: {
-    name: 'かみなり斬り', kana: 'かみなりぎり', kind: 'skill', job: 'raijin_sword', mp: 16, target: 'enemy',
+    name: 'かみなり斬り', kana: 'かみなりぎり', kind: 'skill', job: 'raijin_sword', mp: 14, target: 'enemy',
     effect: { type: 'phys', mult: 3.2, element: 'bolt', critBonus: 0.05, yb: 'fix' },
     desc: '空のかみなりを刀に集めて、敵1体に打ち下ろす。雷の大ダメージ。雷の天気だと、もっと強い。', cast: '{a}「落ちろ、かみなり！」かみなり斬り！', anim: 'raijin_sword_sig',
   },

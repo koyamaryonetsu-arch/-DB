@@ -55,7 +55,7 @@ export const JOB3_ABILITIES = {
     desc: 'ボワッ！大きな炎を上げて、敵全体を焼く。', cast: '{a}のフランベ！炎が大きく上がった！', anim: 'fire3',
   },
   ck_fullcourse: {
-    name: 'フルコース', kana: 'ふるこーす', kind: 'skill', job: 'cook', mp: 16, target: 'allies', role: 'heal',
+    name: 'フルコース', kana: 'ふるこーす', kind: 'skill', job: 'cook', mp: 14, target: 'allies', role: 'heal',
     effect: { type: 'multi', parts: [{ type: 'heal', base: [48, 62], thr: 50 }, { type: 'regen', base: [5, 7], thr: 30, dur: 24 }] },
     desc: '仲間全員に、前菜からデザートまでのフルコース。HPを回復して、しばらく少しずつ回復する。', cast: '{a}はフルコースをふるまった！', anim: 'heal2',
   },
@@ -579,7 +579,7 @@ export const JOB3_ABILITIES = {
   // 京急の運転士
   kq_renketsu: {
     name: '快特れんけつ', kana: 'かいとくれんけつ', kind: 'skill', job: 'keikyu_driver', mp: 14, target: 'enemies',
-    effect: { type: 'phys', mult: 0.75, hits: 5, random: true },
+    effect: { type: 'phys', mult: 0.7, hits: 5, random: true },
     desc: '赤い車両がつぎつぎに、敵にランダムで5回ぶつかる。', cast: '{a}の快特れんけつ！', anim: 'redtrain',
   },
   // モンスターマスター

@@ -17,7 +17,7 @@ export const JOBS_R84A = {
   furyo: {
     id: 'furyo', name: 'ふりょう', kana: 'ふりょう', short: 'ふりょう', tier: 0, family: 'phys', color: '#3a8a4a',
     desc: 'みどりの学生服をきた、けんかっ早い中学生。口はわるいけど、こまっている仲間は、ぜったいに見すてない。こぶしやバットで戦う。きわめるとれい界探ていになれる。',
-    mods: { hp: 1.2, mp: 0.55, str: 1.3, def: 1.05, agi: 1.15, mag: 0.55, heal: 0.7 },
+    mods: { hp: 1.2, mp: 0.7, str: 1.3, def: 1.05, agi: 1.15, mag: 0.4, heal: 0.7 },
     weapons: ['claw', 'bat', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 0.5, hp: 1 },
     learn: [[1, 'fr_punch'], [2, 'fr_gan'], [3, 'fr_zutsuki'], [5, 'fr_hirune'], [7, 'fr_kabau'], [10, 'furyo_sig']],
@@ -25,7 +25,7 @@ export const JOBS_R84A = {
   reikai_tantei: {
     id: 'reikai_tantei', name: 'れい界探てい', kana: 'れいかいたんてい', short: 'れい界探', tier: 1, req: ['furyo'], family: 'phys', color: '#3a6ad8',
     desc: 'れい界からたのまれて、ふしぎな事件を追う探てい。指先から青い光の玉「れい丸」をうつ。れい丸は、1回の戦いで2発までしかうてないが、とても強い。ふりょうをきわめるとなれる。',
-    mods: { hp: 1.25, mp: 0.7, str: 1.45, def: 1.1, agi: 1.3, mag: 0.55, heal: 0.65 },
+    mods: { hp: 1.25, mp: 0.95, str: 1.45, def: 1.1, agi: 1.3, mag: 0.4, heal: 0.55 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 0.5 },
     learn: [[1, 'rt_reigan'], [2, 'rt_tame'], [3, 'rt_dougu'], [5, 'rt_shotgun'], [7, 'rt_konjou'], [10, 'reikai_tantei_sig']],

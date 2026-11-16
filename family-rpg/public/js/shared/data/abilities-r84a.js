@@ -40,7 +40,7 @@ export const R84A_ABILITIES = {
     desc: '「こいつには、手を出させねえ！」仲間1人の前に立って、かわりに攻撃を受ける。', cast: '{a}「こいつには、手を出させねえ！」', anim: 'guard',
   },
   furyo_sig: {
-    name: 'けんか百れつけん', kana: 'けんかひゃくれつけん', kind: 'skill', job: 'furyo', mp: 10, target: 'enemy',
+    name: 'けんか百れつけん', kana: 'けんかひゃくれつけん', kind: 'skill', job: 'furyo', mp: 7, target: 'enemy',
     effect: { type: 'phys', mult: 0.5, hits: 6 },
     desc: 'りょう手のこぶしで、目にもとまらぬ連打。敵1体に6回攻撃する。', cast: '{a}「おりゃりゃりゃりゃーっ！」', anim: 'furyo_sig',
   },
@@ -72,7 +72,7 @@ export const R84A_ABILITIES = {
     desc: '「こんなもんで、負けるかよ！」自分の攻撃力と守備力が上がる。', cast: '{a}「こんなもんで、負けるかよ！」', anim: 'warcry',
   },
   reikai_tantei_sig: {
-    name: 'れい丸・フルパワー', kana: 'れいがんふるぱわー', kind: 'skill', job: 'reikai_tantei', mp: 16, target: 'enemy', role: 'dmg',
+    name: 'れい丸・フルパワー', kana: 'れいがんふるぱわー', kind: 'skill', job: 'reikai_tantei', mp: 15, target: 'enemy', role: 'dmg',
     effect: { type: 'phys', mult: 1, rei: { all: true, min: 1, upTo: 2, base: 2.0, per: 1.8 } },
     desc: 'のこりのれい丸を全部（2発まで）、1発にこめてうつ。こめたれい丸が多いほど強い。敵1体に大きなダメージ。', cast: '{a}「ありったけだ！れい丸・フルパワー！」', anim: 'reikai_tantei_sig',
   },

@@ -88,7 +88,7 @@ export const JOB6_ABILITIES = {
     desc: '水の呼吸の六の型。体をねじって大きなうずを作り、敵全体を切る。', cast: '{a}の水の呼吸！ねじれうず！', anim: 'wind2',
   },
   kisatsu_sig: {
-    name: '生生流転', kana: 'せいせいるてん', kind: 'skill', job: 'kisatsu', mp: 15, target: 'enemy',
+    name: '生生流転', kana: 'せいせいるてん', kind: 'skill', job: 'kisatsu', mp: 11, target: 'enemy',
     effect: { type: 'phys', element: 'water', mult: 0.8, hits: 4 },
     desc: '水の呼吸の十の型。回るほど強くなる水の竜で、敵1体を4回切りつける。', cast: '{a}の水の呼吸、十の型！生生流転！', anim: 'kisatsu_sig',
   },

@@ -486,7 +486,7 @@ test('第84回 B の かけひき: 攻撃力 少し上・守り 大きく下（�
     const u = setup('hiryu_master', { seed: 24 });
     const e = u.b.enemies[0];
     e.buffs = Object.fromEntries(['atk', 'agi', 'mag'].slice(0, n).map((st) => [st, { mult: 1, left: 9 }]));
-    return u.b.calcPhys(u.me, e, ABILITIES.hiryu_master_sig.effect, 1, 'wind', true).dmg;
+    return u.b.calcPhys(u.me, e, ABILITIES.hiryu_master_sig.effect.parts[0], 1, 'wind', true).dmg;
   };
   assert.ok(k(3) > k(0) * 1.5, `${k(3)} > ${k(0)}`);
   assert.equal(ABILITIES.hiryu_master_sig.target, 'enemies');

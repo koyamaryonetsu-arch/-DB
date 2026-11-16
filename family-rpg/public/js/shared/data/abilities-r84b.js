@@ -102,7 +102,7 @@ export const R84B_ABILITIES = {
   },
   hr_senju: {
     name: 'あまぐりけん・千手', kana: 'あまぐりけんせんじゅ', kind: 'skill', job: 'hiryu_master', mp: 22, target: 'enemies',
-    effect: { type: 'phys', mult: 0.4, hits: 12, random: true, r84b: 'te' },
+    effect: { type: 'phys', mult: 0.37, hits: 12, random: true, r84b: 'te' },
     desc: '手が千本あるような速さで、敵全体に、ばらばらに12回なぐる。水のすがたなら、もっと手数がふえる。', cast: '{a}のあまぐりけん・千手！', anim: 'r84b_amaguri',
   },
   hr_kakehiki: {
@@ -112,7 +112,7 @@ export const R84B_ABILITIES = {
   },
   hiryu_master_sig: {
     name: '飛竜こうりんだん', kana: 'ひりゅうこうりんだん', kind: 'skill', job: 'hiryu_master', mp: 28, target: 'enemies',
-    effect: { type: 'phys', mult: 2.2, element: 'wind', vsBuff84: 0.2 },
-    desc: 'かまえなくても、空から大きな竜巻を落とす。敵全体に風のダメージ。敵が強くなっているほど強い。', cast: '{a}「飛竜こうりんだん！」', anim: 'hiryu_master_sig',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.2, element: 'wind', vsBuff84: 0.2 }, { type: 'phys', mult: 0.75, hits: 4, random: true, element: 'wind' }] },
+    desc: 'かまえなくても、空から大きな竜巻を落とす。敵全体に風のダメージ。敵が強くなっているほど強い。さらに、敵にランダムで4回、竜巻で追いうちをかける。', cast: '{a}「飛竜こうりんだん！」', anim: 'hiryu_master_sig',
   },
 };
