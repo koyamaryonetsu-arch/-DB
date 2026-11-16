@@ -2113,7 +2113,10 @@
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
   let caseMailSupported = false;          // case_watchers の表がある（SETUP_CASE_MAIL.sql 済み）
   let myWatches = new Set();              // ベルを ON にした案件の id
-  let caseMailSettings = { mode: 'test', test_theaters: [] };
+  let caseMailSettings = { mode: 'test', test_theaters: [], test_to: [], sender: '' };
+  let caseMailStatus = null;              // GAS が残す今の状態（実際の送り主・別名が使えるか・最後に送った時刻）
+  const normMailSettings = (v) => ({ mode: String((v && v.mode) || 'test'), test_theaters: Array.isArray(v && v.test_theaters) ? v.test_theaters.map(String) : [],
+    test_to: Array.isArray(v && v.test_to) ? v.test_to.map(String) : [], sender: String((v && v.sender) || '') });
   function cmPersonKey(s) {
     s = String(s || ''); try { s = s.normalize('NFKC'); } catch (e) {}
     return s.replace(/[\s　]/g, '').replace(/(さん|様|さま|殿|氏)$/g, '');
@@ -2141,8 +2144,85 @@
       (data || []).forEach((r) => myWatches.add(String(r.case_id)));
       const st = await sb.from('app_settings').select('value').eq('key', 'case_mail').limit(1);
       const v = st && st.data && st.data[0] && st.data[0].value;
-      if (v && typeof v === 'object') caseMailSettings = { mode: String(v.mode || 'test'), test_theaters: Array.isArray(v.test_theaters) ? v.test_theaters.map(String) : [] };
+      if (v && typeof v === 'object') caseMailSettings = normMailSettings(v);
+      if (isPrivileged(currentUser)) {
+        const ss = await sb.from('app_settings').select('value').eq('key', 'case_mail_status').limit(1);
+        caseMailStatus = (ss && ss.data && ss.data[0] && ss.data[0].value) || null;
+      }
     } catch (e) {}
+    renderMailSetBtn();
+  }
+  // ===== 📨 メール通知設定（菱熱だけ）: 今の送り主・テスト中か =====
+  const MAIL_MODE_LABEL = { test: '🧪 テスト中', live: '🟢 本番', off: '⏸ 停止中' };
+  function renderMailSetBtn() {
+    const b = $('mailSetBtn'); if (!b) return;
+    const show = caseMailSupported && realPrivileged(currentUser) && isPrivileged(currentUser);
+    b.classList.toggle('hidden', !show);
+    const badge = $('mailSetBadge');
+    if (badge) { badge.textContent = MAIL_MODE_LABEL[caseMailSettings.mode] || ''; badge.className = 'ms-badge ms-' + caseMailSettings.mode; }
+    b.title = '客先への通知メールの設定｜' + (MAIL_MODE_LABEL[caseMailSettings.mode] || '') + '｜送るアドレス: ' + mailSenderText().addr;
+  }
+  // 今の送り主（GAS が残した実際のアドレス。まだ一度も動いていなければ、その説明）
+  function mailSenderText() {
+    const st = caseMailStatus || {};
+    const want = String(caseMailSettings.sender || '').toLowerCase();
+    const addr = st.sender_used || '（まだ確認できていません。GAS が動くと出ます）';
+    let note = '';
+    if (want && st.sender_used && want !== String(st.sender_used).toLowerCase()) note = `「${want}」は Gmail にまだ登録されていないので、${st.sender_used} から送っています`;
+    else if (want && st.alias_ok) note = '希望の送り主のアドレスで送っています';
+    return { addr, note };
+  }
+  async function openMailSettings() {
+    const K = window.KARTE;
+    try { await loadCaseMail(); } catch (e) {}
+    if (!caseMailSupported) { if (K) K.say('通知メールの表がありません。SETUP_CASE_MAIL.sql を実行してください。'); return; }
+    document.querySelectorAll('#mailSetDlg').forEach((x) => x.remove());
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'mailSetDlg';
+    const m = Object.assign({}, caseMailSettings);
+    const fmt = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+    const draw = () => {
+      const st = caseMailStatus || {};
+      const snd = mailSenderText();
+      const banner = m.mode === 'test'
+        ? `<div class="ms-banner ms-test">🧪 <b>テスト環境（試し）</b>です。客先にはメールを送りません。<br>テスト劇場（${escapeHtml((m.test_theaters || []).map((t) => shortTheaterName(t) || t).join('、') || '未設定')}）の案件だけを、<b>テストの宛先（${escapeHtml((m.test_to || []).join('、') || '未設定')}）</b>だけに送ります。</div>`
+        : m.mode === 'live' ? '<div class="ms-banner ms-live">🟢 <b>本番</b>です。劇場・担当者・ベルの人に、通知メールを送ります。</div>'
+        : '<div class="ms-banner ms-off">⏸ <b>止めています</b>。通知メールは送りません。</div>';
+      ov.innerHTML = `<div class="kt-dialog kt-dialog-mid ms-dlg"><div class="kt-dlg-head">📨 メール通知設定<button type="button" class="close-btn" data-x>×</button></div>
+        <div class="kt-dlg-body">
+          ${banner}
+          <table class="ms-table">
+            <tr><th>今の送るアドレス</th><td><b class="ms-addr">${escapeHtml(snd.addr)}</b>（差出人の名前「菱熱工業」）${snd.note ? `<div class="ms-note">${escapeHtml(snd.note)}</div>` : ''}${st.checked_at ? `<div class="ms-note">GAS が確かめた時刻: ${escapeHtml(fmt(st.checked_at))}</div>` : ''}</td></tr>
+            <tr><th>最後に送ったメール</th><td>${st.last_sent_at ? `${escapeHtml(fmt(st.last_sent_at))}　${escapeHtml(st.last_to || '')}<div class="ms-note">${escapeHtml(st.last_subject || '')}</div>` : 'まだありません'}</td></tr>
+            <tr><th>モード</th><td>${[['test', '🧪 試し（テスト劇場だけ・テストの宛先だけ）'], ['live', '🟢 本番（全部の案件・客先へ）'], ['off', '⏸ 止める']].map(([v, l]) => `<label class="ms-radio"><input type="radio" name="msMode" value="${v}"${m.mode === v ? ' checked' : ''}> ${l}</label>`).join('')}</td></tr>
+            <tr><th>テストの宛先</th><td><input type="text" id="msTestTo" class="tm-input" value="${escapeHtml((m.test_to || []).join('、'))}" placeholder="テスト用のメールアドレス（複数は「、」で区切る）"><div class="ms-note">試しの間は、ここにだけ送ります。小山さんの Gmail（送る側）は入れないでください（返信がまた取り込まれるため）。</div></td></tr>
+            <tr><th>テスト劇場</th><td><input type="text" id="msTestTheaters" class="tm-input" value="${escapeHtml((m.test_theaters || []).join('、'))}" placeholder="TOHOシネマズ テスト劇場"></td></tr>
+            <tr><th>送り主にしたいアドレス</th><td><input type="text" id="msSender" class="tm-input" value="${escapeHtml(m.sender || '')}" placeholder="例: tc-hvac-desk@ryonetsu.com"><div class="ms-note">Gmail の「設定 → アカウント → 他のアドレスからメールを送信」に登録して確認が済むと、このアドレスで送ります。それまでは小山さんの Gmail から送ります。</div></td></tr>
+          </table>
+        </div><div class="kt-dlg-foot"><span class="ms-note">切り替えは5分以内に GAS に伝わります</span><button type="button" data-x>閉じる</button><button type="button" class="primary" data-mssave>保存</button></div></div>`;
+    };
+    draw();
+    document.body.appendChild(ov);
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      if (!e.target.closest('[data-mssave]')) return;
+      const split = (v) => String(v || '').split(/[、,，\s\n]+/).map((x) => x.trim()).filter(Boolean);
+      const mode = (ov.querySelector('input[name="msMode"]:checked') || {}).value || 'test';
+      const testTo = split(ov.querySelector('#msTestTo').value).map((x) => x.toLowerCase());
+      const bad = testTo.filter((x) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x));
+      if (bad.length) { K.say('テストの宛先が正しくありません: ' + bad.join('、')); return; }
+      const sender = ov.querySelector('#msSender').value.trim().toLowerCase();
+      if (sender && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sender)) { K.say('送り主のアドレスが正しくありません'); return; }
+      const tt = ov.querySelector('#msTestTheaters').value.split(/[、,，\n]/).map((x) => x.trim()).filter(Boolean).map((x) => theaterLoose(x, '') || x);
+      if (mode === 'test' && !testTo.length && !(await K.ask('テストの宛先が空です。試しの間は、どこにも送りません。よろしいですか？', { ok: 'このまま保存' }))) return;
+      if (mode === 'live' && m.mode !== 'live' && !(await K.ask('本番にすると、全部の案件で客先（劇場・担当者・ベルの人）に通知メールが送られます。よろしいですか？', { ok: '本番にする', danger: true }))) return;
+      try {
+        const v = { mode, test_theaters: tt, test_to: testTo, sender };
+        await store.saveCaseMailSettings(v);
+        caseMailSettings = normMailSettings(v); Object.assign(m, caseMailSettings);
+        renderMailSetBtn(); draw();
+        showToastLite('通知メールの設定を保存しました（' + MAIL_MODE_LABEL[mode] + '）');
+      } catch (err) { K.say('保存できませんでした: ' + (err.message || err)); }
+    });
   }
   // その案件の通知が必ず届くか（劇場のアドレス・案件の担当者）
   function bellLocked(c) {
@@ -2246,10 +2326,7 @@
     let mail = null;
     try { mail = await store.fetchCaseMailSettings(); } catch (e) { mail = null; }
     const hasMail = !!mail;
-    const mailBox = () => !hasMail ? '' : `<div class="acct-mail"><b>📨 通知メール</b>（菱熱がアプリで内容・作業開始日を入れた時、見積書・作業申請書を付けた時に、劇場・担当者・ベルの人へ送ります。送り主は小山さんの Gmail）
-          <div class="acct-mail-row">${[['test', '試し（テスト劇場だけ）'], ['live', '本番（全部の案件）'], ['off', '止める']].map(([v, l]) => `<label><input type="radio" name="acctMailMode" value="${v}"${mail.mode === v ? ' checked' : ''}> ${l}</label>`).join('')}</div>
-          <div class="acct-mail-row">テスト劇場: <input type="text" id="acctTestTheaters" class="tm-input" value="${escapeHtml((mail.test_theaters || []).join('、'))}" placeholder="TOHOシネマズ テスト劇場"><button type="button" data-mailsave>設定を保存</button></div>
-          <div class="tm-hint">試すときは、テスト劇場にテスト用のアドレスを足して（劇場の欄に「テスト劇場」）、テスト劇場の案件を直します。小山さん自身のアドレスは入れないでください（返信がまた取り込まれるため）。</div></div>`;
+    const mailBox = () => !hasMail ? '' : `<div class="acct-mail">📨 通知メール（劇場・担当者・ベルの人へ）: <b>${escapeHtml(MAIL_MODE_LABEL[caseMailSettings.mode] || '')}</b>　<button type="button" data-openmailset>メール通知設定を開く</button></div>`;
     const draw = () => {
       ov.innerHTML = `<div class="kt-dialog kt-dialog-mid acct-dlg"><div class="kt-dlg-head">📧 客先アカウント（劇場のメールアドレス）<button type="button" class="close-btn" data-x>×</button></div>
         <div class="kt-dlg-body">
@@ -2281,20 +2358,7 @@
         try { await store.saveAccounts([row]); await reload(); } catch (err) { if (K) K.say('保存できませんでした: ' + (err.message || err)); }
         return;
       }
-      if (e.target.closest('[data-mailsave]')) {
-        const mode = (ov.querySelector('input[name="acctMailMode"]:checked') || {}).value || 'test';
-        const tt = ov.querySelector('#acctTestTheaters').value.split(/[、,，\n]/).map((x) => x.trim()).filter(Boolean)
-          .map((x) => theaterLoose(x, '') || x);
-        if (mode === 'live' && K && !(await K.ask('本番にすると、全部の案件で客先に通知メールが送られます。よろしいですか？', { ok: '本番にする', danger: true }))) return;
-        try {
-          mail = { mode, test_theaters: tt };
-          await store.saveCaseMailSettings(mail);
-          caseMailSettings = { mode, test_theaters: tt };
-          if (K) K.say('通知メールの設定を保存しました（' + (mode === 'live' ? '本番' : mode === 'off' ? '止める' : '試し') + '）');
-          draw();
-        } catch (err) { if (K) K.say('保存できませんでした: ' + (err.message || err)); }
-        return;
-      }
+      if (e.target.closest('[data-openmailset]')) { ov.remove(); openMailSettings(); return; }
       const del = e.target.closest('[data-del]');
       if (del) {
         if (K && !(await K.ask(`${del.dataset.del} を消しますか？`, { ok: '消す', danger: true }))) return;
@@ -2471,6 +2535,7 @@
   function render() {
     // 客先のベル（✎ の横）の分だけ、編集の列を広げる
     document.body.classList.toggle('case-bells', !!(caseMailSupported && !isPrivileged(currentUser)));
+    renderMailSetBtn();
     if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
     renderDatalists();
@@ -3025,9 +3090,13 @@
     (accs || []).forEach((a) => { if (a.person && (!a.company || a.company === c.company) && cmPersonMatch(c.tcPerson, a.person)) add(a.email, '担当者'); });
     (ws || []).forEach((w) => add(w.email, 'ベル'));
     const mode = caseMailSettings.mode;
-    const sends = mode === 'live' || (mode === 'test' && isTestTheater(c.theater));
-    const why = mode === 'off' ? '（通知メールは止めています）' : !sends ? '（試しモードなので、テスト劇場の案件だけ送ります。この案件は送りません）' : (mode === 'test' ? '（試しモード）' : '');
-    return '通知メールの宛先: ' + (out.length ? out.join('、') : 'なし（劇場・担当者のアドレスが未登録）') + ' ' + why;
+    const real = out.length ? out.join('、') : 'なし（劇場・担当者のアドレスが未登録）';
+    if (mode === 'off') return '通知メールは止めています（本番の宛先: ' + real + '）';
+    if (mode === 'test') {
+      if (!isTestTheater(c.theater)) return '🧪 テスト中: この案件は送りません（テスト劇場の案件だけ送ります）。本番の宛先: ' + real;
+      return '🧪 テスト中: テストの宛先（' + ((caseMailSettings.test_to || []).join('、') || '未設定') + '）だけに送ります。本番の宛先: ' + real;
+    }
+    return '通知メールの宛先: ' + real;
   }
   async function renderCaseMailSec(c) {
     const sec = $('caseMailSec'); if (!sec) return;
@@ -6252,6 +6321,7 @@
   // カレンダー
   $('calBtn').addEventListener('click', toggleCalMode);
   $('koteiBtn').addEventListener('click', toggleKoteiMode);
+  $('mailSetBtn').addEventListener('click', () => openMailSettings());
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
   // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
   $('casesBody').addEventListener('click', (e) => {

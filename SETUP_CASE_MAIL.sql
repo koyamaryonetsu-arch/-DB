@@ -6,7 +6,10 @@
 --  ・GAS（小山さんの Gmail）が5分ごとに、予定をまとめて1通にして送る。宛先は:
 --      その案件の劇場のアドレス（必ず）＋ 案件の「TOHOシネマズ担当者」と同じ担当者名のアドレス（必ず）＋ ベルを ON にした人
 --    菱熱（@ryonetsu.com）には送らない（LINE の通知があるため）
---  ・試しモード（最初はこれ）: 「テスト劇場」の案件だけ送る（テスト劇場には、テスト用のアドレスを登録して試す）
+--  ・試しモード（最初はこれ）: 「テスト劇場」の案件だけを、「テストの宛先」（設定 test_to）だけに送る。客先には送らない
+--    （本文の頭に、本来ならだれに届くかを書く）。設定はアプリの「📨 メール通知設定」で変える
+--  ・送り主: 設定 sender（例 tc-hvac-desk@ryonetsu.com）が Gmail の「他のアドレスからメールを送信」に登録済みならそのアドレス、
+--    まだならスクリプトを動かしている Gmail のアドレス。実際に使ったアドレスは case_mail_status に残す（画面に出す）
 --  ・送ったメール・返ってきたメールは case_mail_log に残す（案件の画面で見られる）
 
 -- 1) 客先アカウントに「担当者名」（TOHO 本社の青木さん など。案件の「TOHOシネマズ担当者」と合わせる）
@@ -111,8 +114,11 @@ drop policy if exists "app_settings_write" on public.app_settings;
 create policy "app_settings_write" on public.app_settings for all to authenticated
   using (public.is_privileged()) with check (public.is_privileged());
 insert into public.app_settings (key, value) values
-  ('case_mail', '{"mode": "test", "test_theaters": ["TOHOシネマズ テスト劇場"]}'::jsonb)
+  ('case_mail', '{"mode": "test", "test_theaters": ["TOHOシネマズ テスト劇場"], "test_to": [], "sender": ""}'::jsonb)
 on conflict (key) do nothing;
+-- 前の形（test_to・sender が無い）なら足す
+update public.app_settings set value = value || '{"test_to": []}'::jsonb where key = 'case_mail' and not (value ? 'test_to');
+update public.app_settings set value = value || '{"sender": ""}'::jsonb where key = 'case_mail' and not (value ? 'sender');
 
 -- 6) テスト劇場（通知メールを試すための劇場。案件もここに作って試す）
 insert into public.theaters (name, company, address)
