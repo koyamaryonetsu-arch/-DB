@@ -366,12 +366,8 @@ export const JOB6_ABILITIES = {
   },
   mt_henseiki: {
     name: 'ちょうネクタイ型変声機', kana: 'ちょうねくたいがたへんせいき', kind: 'skill', job: 'meitantei', mp: 5, target: 'group',
-    // 第87回 B班: 魔力で うつ 技に（ふしぎな 声の ダメージ ＋ 今までの こんらん）
-    effect: { type: 'multi', parts: [
-      { type: 'magic', base: [64, 76], thr: 60 },
-      { type: 'status', status: 'confuse', chance: 0.45, turns: [2, 3] },
-    ] },
-    desc: 'ほかの人の声で話しかけて、同じ種類の敵をまどわせる。ふしぎな声でダメージをあたえ、こんらんさせることもある。魔力が高いほど強い。', cast: '{a}は、ちょうネクタイをそっと口に当てた…', anim: 'debuff',
+    effect: { type: 'status', status: 'confuse', chance: 0.45, turns: [2, 3] },
+    desc: 'ほかの人の声で話しかけて、同じ種類の敵をまどわせる。こんらんすることがある。', cast: '{a}は、ちょうネクタイをそっと口に当てた…', anim: 'debuff',
   },
   mt_skate: {
     name: 'ターボエンジン付きスケボー', kana: 'たーぼえんじんつきすけぼー', kind: 'skill', job: 'meitantei', mp: 9, target: 'enemies',
