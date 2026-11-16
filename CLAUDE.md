@@ -274,3 +274,12 @@ alter table public.cases add column if not exists 新カラム text;
 
 - 引き継ぎ時、不明点は GitHub の commit history を参照
 - 過去のセッションサマリーは GitHub の commit メッセージで追える
+
+### TOHO の要望（2026-11-16）
+- ① 客先（TOHO・東急レク・UC などのアカウント・打合せモード）は「自社のメモ」（customer_memo）だけ直せる。新規登録・簡易登録・削除・複製は出さない。編集パネルはメモ以外を disabled。保存は store.saveCustomerMemo（update で customer_memo と last_update_source だけ）
+  - DB（SETUP_TOHO_REQUESTS.sql）: cases の insert/delete は菱熱だけ。トリガー cases_customer_memo_only が、ログインした客先（auth.role()='authenticated' かつ菱熱でない）の更新ではメモ以外を前の値に戻す（GAS・サーバー・SQL Editor には効かない）
+- ② 表示の「認証番号」→「承認番号」（中の列は cert_number のまま）
+- ③ TOHO の案件で見積り金額（税抜）が10万円以上 → 種別に黄色の印（.cat-approval。承認番号を入れても黄色のまま）。needsApprovalNo
+- ⑤ 客先アカウント customer_accounts（email→会社・劇場）。☰「📧 客先アカウント」で Excel・CSV を読み込む（メールアドレスの列＋劇場名の列。劇場名は canonTheaterName でそろえる）。劇場のアドレスで入ると、その劇場の案件だけ（上の「🏢 全部の劇場」で会社の全部）
+- ⑥ 案件名 cases.title（内容の左）。AI（/api/case-title・Sonnet 5.5）が「どこでどうなった」だけ（例: シアター7空調機冷えない）。新しい案件は保存のあとに付ける・編集パネルの「🤖 内容から作る」・☰「🏷 案件名をまとめて付ける」。GAS の取り込みも title を入れる
+
