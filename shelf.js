@@ -23,8 +23,9 @@
   const jpDay = (s) => { if (!s) return ''; const [y, m, d] = String(s).slice(0, 10).split('-'); return y + '/' + m + '/' + d; };
   const fmtUpdated = (s) => { if (!s) return ''; const d = new Date(s); if (isNaN(d)) return ''; return isoDay(d).replace(/-/g, '/') + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   const hhmm = (s) => { const d = new Date(s || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
-  const TYPES = { kotei: { table: 'koutei', label: '工程表', icon: '📊' }, photo: { table: 'photo_ledgers', label: '写真台帳', icon: '📷' }, heat: { table: 'heat_loads', label: '空調負荷計算', icon: '❄' } };
-  const DEFAULT_NAME = { kotei: '工程表', photo: '工事写真台帳', heat: '空調負荷計算' };
+  const TYPES = { kotei: { table: 'koutei', label: '工程表', icon: '📊' }, photo: { table: 'photo_ledgers', label: '写真台帳', icon: '📷' }, heat: { table: 'heat_loads', label: '空調負荷計算', icon: '❄' }, form: { table: 'doc_files', label: '作業申請書の書式', icon: '📝' } };
+  const DEFAULT_NAME = { kotei: '工程表', photo: '工事写真台帳', heat: '空調負荷計算', form: '作業申請書の書式' };
+  const FORM_BUCKET = 'doc-files';   // 作業申請書の書式（劇場ごとのファイル。SETUP_CASE_MAIL.sql）
   const TRASH_DAYS = 30;
   const UNSET = '（劇場未設定）';
   const BUCKET = 'ledger-photos';
@@ -35,7 +36,7 @@
   const LS_DOCS = 'shelfDocsV1', LS_FOLDERS = 'shelfFoldersV1', LS_MIGRATED = 'shelfMigratedV1';
   const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
-  let setupMissing = { kotei: false, photo: false, heat: false, folders: false };   // SETUP_SHELF.sql 未実行の時の印
+  let setupMissing = { kotei: false, photo: false, heat: false, form: false, folders: false };   // SETUP_SHELF.sql 未実行の時の印
 
   function migrateLocalOnce() {
     if (lsGet(LS_MIGRATED, false)) return;
@@ -57,14 +58,14 @@
       const sb = sbc();
       if (!sb) { migrateLocalOnce(); const all = lsGet(LS_DOCS, {}); return Object.keys(all).map((k) => rowOf(all[k].type, all[k])); }
       const out = [];
-      for (const type of ['kotei', 'photo', 'heat']) {
+      for (const type of ['kotei', 'photo', 'heat', 'form']) {
         let res = await sb.from(TYPES[type].table).select('id,name,company,theater,folder_id,case_id,data,updated_at,updated_by_name,deleted_at' + (type === 'heat' ? ',is_basis' : ''));
         if (res.error && type === 'kotei') {   // 列がまだ無い（SQL未実行）→ 今までの列だけで読む
           setupMissing.kotei = true;
           res = await sb.from('koutei').select('id,name,data,updated_at');
         } else if (type === 'kotei') setupMissing.kotei = false;
-        if (res.error) { if (type === 'photo' || type === 'heat') { setupMissing[type] = true; continue; } throw res.error; }
-        if (type === 'photo' || type === 'heat') setupMissing[type] = false;
+        if (res.error) { if (type !== 'kotei') { setupMissing[type] = true; continue; } throw res.error; }
+        if (type !== 'kotei') setupMissing[type] = false;
         (res.data || []).forEach((r) => out.push(rowOf(type, r)));
       }
       return out;
@@ -160,6 +161,22 @@
       if (error) throw error;
       return path;
     },
+    // 作業申請書の書式のファイルを置く（名前は英数字だけにする。元の名前は data.file_name に残す）
+    async putForm(file) {
+      const sb = sbc(); if (!sb) throw new Error('作業申請書の書式は、ログインした時だけ入れられます');
+      const ext = (String(file.name).match(/\.([A-Za-z0-9]{1,8})$/) || [, 'bin'])[1].toLowerCase();
+      const path = 'forms/' + uuid() + '.' + ext;
+      const { error } = await sb.storage.from(FORM_BUCKET).upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+      if (error) throw error;
+      return path;
+    },
+    async formUrl(path) {
+      const sb = sbc(); if (!sb) return '';
+      const { data, error } = await sb.storage.from(FORM_BUCKET).createSignedUrl(path, 600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    async dropForm(path) { const sb = sbc(); if (sb && path) await sb.storage.from(FORM_BUCKET).remove([path]); },
     async photoUrls(refs) {
       const out = {}; const sb = sbc();
       const need = refs.filter((r) => r && !/^data:|^blob:|^https?:/.test(r));
@@ -237,6 +254,7 @@
     if (l.kind === 'trash') return !!r.deleted_at;
     if (r.deleted_at) return false;
     if (l.kind === 'recent') return true;
+    if (l.kind === 'forms') return r.type === 'form';
     if (l.kind === 'unset') return !r.company || !r.theater;
     if (r.company !== l.co) return false;
     if (!l.th) return true;
@@ -250,6 +268,7 @@
     const nTrash = S.rows.filter((r) => r.deleted_at).length;
     let h = `<div class="sh-th">すばやく開く</div>
       <button type="button" class="sh-tn${l.kind === 'recent' ? ' on' : ''}" data-loc="recent"><span class="tw"></span>🕘 最近使った</button>
+      ${setupMissing.form ? '' : `<button type="button" class="sh-tn${l.kind === 'forms' ? ' on' : ''}" data-loc="forms"><span class="tw"></span>📝 作業申請書の書式<span class="ct">${cnt((r) => r.type === 'form') || ''}</span></button>`}
       <div class="sh-th">会社 › 劇場</div>`;
     companyNames().forEach((co) => {
       const n = cnt((r) => r.company === co && r.theater);
@@ -276,6 +295,7 @@
   function renderCrumb() {
     const l = S.loc; let h;
     if (l.kind === 'recent') h = '<span class="cur">🕘 最近使った</span>';
+    else if (l.kind === 'forms') h = '<span class="cur">📝 作業申請書の書式</span><span class="sh-note">（劇場ごとの作業申請書の書式。劇場を選んで入れます。各劇場のフォルダにも出ます）</span>';
     else if (l.kind === 'trash') h = '<span class="cur">🗑 ごみ箱</span><span class="sh-note">（削除してから30日で完全に消えます）</span>';
     else if (l.kind === 'unset') h = `<span class="cur">❔ ${UNSET}</span><span class="sh-note">（「⋯」の「フォルダへ移動」で劇場を決められます）</span>`;
     else {
@@ -294,6 +314,7 @@
     return list;
   }
   function subOf(r) {
+    if (r.type === 'form') { const d = r.data || {}; return (d.file_name || '') + (d.size ? `（${Math.max(1, Math.round(d.size / 1024))} KB）` : ''); }
     if (r.type === 'kotei') { try { return window.KOTEI.summary(r.data); } catch (e) { return ''; } }
     if (r.type === 'heat') { try { return window.HL.summary(r.data); } catch (e) { return ''; } }
     const n = ((r.data && r.data.items) || []).length;
@@ -322,13 +343,13 @@
       body += `<tr class="sh-drow${S.sel === r.id ? ' sel' : ''}" data-doc="${esc(r.id)}">
         <td class="ic">${TYPES[r.type].icon}</td>
         <td><div class="nm">${esc(r.name)}${r.type === 'heat' && r.is_basis ? ' <span class="sh-pin" title="この劇場の正式な計算書（劇場情報の基）">📌 劇場情報の基</span>' : ''}</div><div class="sub">${esc(subOf(r))}</div>${where}</td>
-        <td><span class="sh-kind ${r.type === 'kotei' ? 'k' : r.type === 'heat' ? 'h' : 'p'}">${TYPES[r.type].label}</span></td>
+        <td><span class="sh-kind ${r.type === 'kotei' ? 'k' : r.type === 'heat' ? 'h' : r.type === 'form' ? 'w' : 'p'}">${TYPES[r.type].label}</span></td>
         <td class="sub">${l.kind === 'trash' ? '削除 ' + esc(fmtUpdated(r.deleted_at)) : esc(fmtUpdated(r.updated_at))}</td>
         <td class="sub">${esc(r.updated_by_name || '')}</td>
         <td class="ra">${actions}</td></tr>`;
     });
     if (body) h += `<table class="sh-table"><thead><tr><th></th><th>名前</th><th>種類</th><th>${l.kind === 'trash' ? '削除した日' : '更新'}</th><th>更新した人</th><th></th></tr></thead><tbody>${body}</tbody></table>`;
-    else h += `<div class="sh-empty">${l.kind === 'trash' ? 'ごみ箱は空です。' : S.q ? '見つかりませんでした。' : 'この場所にはまだ書類がありません。<br>右上の「＋ 新しく作る」から作れます。'}</div>`;
+    else h += `<div class="sh-empty">${l.kind === 'trash' ? 'ごみ箱は空です。' : S.q ? '見つかりませんでした。' : l.kind === 'forms' ? 'まだ書式がありません。<br>右上の「＋ 新しく作る」→「📝 作業申請書の書式」で、劇場を選んでファイル（PDF・Excel・Word）を入れます。' : 'この場所にはまだ書類がありません。<br>右上の「＋ 新しく作る」から作れます。'}</div>`;
     $('shList').innerHTML = h;
   }
   function renderShelf() {
@@ -412,17 +433,18 @@
       const cs = caseList(p.co, p.th).slice(0, 80);
       const kdocs = live().filter((r) => r.type === 'kotei').sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
       openDlg(`<h3>新しく作る</h3><div class="sh-dlg-b">
-        <div class="sh-f"><label>作るもの</label><div class="sh-seg"><button type="button" class="${p.type === 'kotei' ? 'on' : ''}" data-ntype="kotei">📊 工程表</button><button type="button" class="${p.type === 'photo' ? 'on' : ''}" data-ntype="photo"${setupMissing.photo ? ' disabled title="データベースの準備（SETUP_SHELF.sql）がまだです"' : ''}>📷 工事写真台帳</button><button type="button" class="${p.type === 'heat' ? 'on' : ''}" data-ntype="heat"${setupMissing.heat || !window.HL ? ' disabled title="データベースの準備（SETUP_HEATLOAD.sql）がまだです"' : ''}>❄ 空調負荷計算</button></div></div>
+        <div class="sh-f"><label>作るもの</label><div class="sh-seg"><button type="button" class="${p.type === 'kotei' ? 'on' : ''}" data-ntype="kotei">📊 工程表</button><button type="button" class="${p.type === 'photo' ? 'on' : ''}" data-ntype="photo"${setupMissing.photo ? ' disabled title="データベースの準備（SETUP_SHELF.sql）がまだです"' : ''}>📷 工事写真台帳</button><button type="button" class="${p.type === 'heat' ? 'on' : ''}" data-ntype="heat"${setupMissing.heat || !window.HL ? ' disabled title="データベースの準備（SETUP_HEATLOAD.sql）がまだです"' : ''}>❄ 空調負荷計算</button>${setupMissing.form ? '' : `<button type="button" class="${p.type === 'form' ? 'on' : ''}" data-ntype="form">📝 作業申請書の書式</button>`}</div></div>
+        ${p.type === 'form' ? `<p class="sh-hint">劇場の作業申請書の書式（劇場からもらったファイル）を入れます。劇場を選んでください（作業申請書を作る時に、この劇場の書式を使います）。</p><div class="sh-f"><label for="nFile">ファイル（PDF・Excel・Word）${p.file ? `　選んだファイル: ${esc(p.file.name)}` : ''}</label><input id="nFile" type="file" accept=".pdf,.xlsx,.xls,.xlsm,.docx,.doc"></div>` : ''}
         ${p.type === 'heat' ? `<div class="sh-f"><label>何を計算しますか？</label><div class="sh-seg sh-seg2"><button type="button" class="${p.hk === 'theater' ? 'on' : ''}" data-nhk="theater">🎬 シアター<small>機器表とホームページの座席数で</small></button><button type="button" class="${p.hk === 'other' ? 'on' : ''}" data-nhk="other">🏢 シアター以外<small>ロビー・売店・事務所など（図面で）</small></button></div></div>` : ''}
         ${placeFields(p)}
-        <div class="sh-f"><label for="nCase">案件から作る（工事名などが自動で入ります）</label><select id="nCase"><option value="">案件を選ばない</option>${cs.map((c) => `<option value="${esc(c.id)}"${String(p.caseId) === String(c.id) ? ' selected' : ''}>${esc(theaterLabel(c.company, c.theater))}　${esc(workOf(c) || '（見積り名なし）')}</option>`).join('')}</select>${p.th ? '' : '<p class="sh-hint">劇場を選ぶと、その劇場の案件にしぼれます。</p>'}</div>
-        <div class="sh-f"><label for="nName">名前</label><input id="nName" value="${esc(p.name)}" placeholder="${p.type === 'kotei' ? '例：SCR3 空調機更新 工程表' : p.type === 'heat' ? (p.hk === 'theater' ? '例：シアター 冷房能力の確認' : '例：2F ロビー・売店 空調負荷計算') : '例：コンセッション環境改善工事 写真台帳'}"></div>
+        <div class="sh-f${p.type === 'form' ? ' hidden' : ''}"><label for="nCase">案件から作る（工事名などが自動で入ります）</label><select id="nCase"><option value="">案件を選ばない</option>${cs.map((c) => `<option value="${esc(c.id)}"${String(p.caseId) === String(c.id) ? ' selected' : ''}>${esc(theaterLabel(c.company, c.theater))}　${esc(workOf(c) || '（見積り名なし）')}</option>`).join('')}</select>${p.th ? '' : '<p class="sh-hint">劇場を選ぶと、その劇場の案件にしぼれます。</p>'}</div>
+        <div class="sh-f"><label for="nName">名前</label><input id="nName" value="${esc(p.name)}" placeholder="${p.type === 'form' ? '例：日比谷 作業申請書（空欄ならファイル名）' : p.type === 'kotei' ? '例：SCR3 空調機更新 工程表' : p.type === 'heat' ? (p.hk === 'theater' ? '例：シアター 冷房能力の確認' : '例：2F ロビー・売店 空調負荷計算') : '例：コンセッション環境改善工事 写真台帳'}"></div>
         ${p.type === 'kotei' ? `<div class="sh-row2"><div class="sh-f"><label for="nKind">種類</label><select id="nKind"><option value="date"${p.kind === 'date' ? ' selected' : ''}>通常（日付）</option><option value="zero"${p.kind === 'zero' ? ' selected' : ''}>ゼロ工程表（1日目〜）</option><option value="master-week"${p.kind === 'master-week' ? ' selected' : ''}>マスター工程（週）</option><option value="master-month"${p.kind === 'master-month' ? ' selected' : ''}>マスター工程（月）</option></select></div>
           <div class="sh-f"><label for="nStart">着工日</label><input id="nStart" type="date" value="${esc(p.start)}"></div></div>
           <div class="sh-f"><label for="nCopy">もとにする工程表</label><select id="nCopy"><option value="">空から作る（標準の作業が並びます）</option>${kdocs.map((r) => `<option value="${esc(r.id)}"${p.copyFrom === r.id ? ' selected' : ''}>コピー：${esc(r.name)}</option>`).join('')}</select></div>` : ''}
-      </div><div class="sh-dlg-f"><button type="button" data-dlg="cancel">やめる</button><button type="button" class="pri" data-dlg="ok">作って開く</button></div>`, () => create());
-      const keep = () => { Object.assign(p, readPlace(p)); p.name = $('nName').value; if ($('nKind')) p.kind = $('nKind').value; if ($('nStart')) p.start = $('nStart').value; if ($('nCopy')) p.copyFrom = $('nCopy').value; };
-      bindPlace(p, () => { p.name = $('nName') ? $('nName').value : p.name; render(); });
+      </div><div class="sh-dlg-f"><button type="button" data-dlg="cancel">やめる</button><button type="button" class="pri" data-dlg="ok">${p.type === 'form' ? '入れる' : '作って開く'}</button></div>`, () => create());
+      const keep = () => { Object.assign(p, readPlace(p)); p.name = $('nName').value; if ($('nFile') && $('nFile').files[0]) p.file = $('nFile').files[0]; if ($('nKind')) p.kind = $('nKind').value; if ($('nStart')) p.start = $('nStart').value; if ($('nCopy')) p.copyFrom = $('nCopy').value; };
+      bindPlace(p, () => { p.name = $('nName') ? $('nName').value : p.name; if ($('nFile') && $('nFile').files[0]) p.file = $('nFile').files[0]; render(); });
       $('shDlg').querySelectorAll('[data-ntype]').forEach((b) => b.addEventListener('click', () => { keep(); p.type = b.dataset.ntype; render(); }));
       $('shDlg').querySelectorAll('[data-nhk]').forEach((b) => b.addEventListener('click', () => { keep(); p.hk = b.dataset.nhk; render(); }));
       $('nCase').addEventListener('change', () => {
@@ -435,10 +457,28 @@
       $('shDlg').querySelector('[data-dlg="ok"]').addEventListener('click', () => { keep(); create(); });
     };
     let busy = false;
+    // 作業申請書の書式: ファイルを置いて、劇場に結びつける（開くとファイルを見る）
+    const createForm = async () => {
+      if ($('nFile') && $('nFile').files[0]) p.file = $('nFile').files[0];
+      if (!p.file) { alert('ファイルを選んでください'); return; }
+      if (!p.co || !p.th) { alert('会社と劇場を選んでください（どの劇場の書式か）'); return; }
+      if (p.file.size > 20 * 1024 * 1024) { alert('20MB より大きいファイルは入れられません'); return; }
+      busy = true;
+      try {
+        const path = await api.putForm(p.file);
+        const name = (p.name || '').trim() || String(p.file.name).replace(/\.[^.]+$/, '');
+        const row = await api.insert('form', { name, company: p.co, theater: p.th, folder_id: p.folder || null, case_id: null,
+          data: { kind: 'workapp_template', path, file_name: p.file.name, mime: p.file.type || '', size: p.file.size } });
+        S.rows.push(row); closeDlg();
+        S.loc = { kind: 'forms' }; renderShelf();
+        toast('作業申請書の書式を入れました（' + theaterLabel(row.company, row.theater) + '）');
+      } catch (e) { fail('書式を入れる', e); } finally { busy = false; }
+    };
     const create = async () => {
       if (busy) return;
       if ($('nName')) Object.assign(p, readPlace(p), { name: $('nName').value });
       if ($('nKind')) { p.kind = $('nKind').value; p.start = $('nStart').value || today(); p.copyFrom = $('nCopy').value; }
+      if (p.type === 'form') return createForm();
       const c = caseList('', '').find((x) => String(x.id) === String(p.caseId));
       if (p.type === 'heat' && !p.hk) { alert('「シアター」か「シアター以外」かを選んでください'); return; }
       const name = (p.name || '').trim() || (p.type === 'kotei' ? '新しい工程表' : p.type === 'heat' ? (p.hk === 'theater' ? 'シアター 空調負荷計算' : '空調負荷計算') : '新しい写真台帳');
@@ -471,7 +511,7 @@
     S.sel = id; renderList();
     // 一覧を描き直したので、押したボタンを探し直してその近くに出す（古いボタンは画面から消えていて位置が取れない）
     anchor = document.querySelector(`#shList [data-dmenu="${CSS.escape(id)}"]`) || anchor;
-    openMenu(anchor, `<button type="button" data-mact="open">開く</button><button type="button" data-mact="rename">名前を変える</button><button type="button" data-mact="dup">複製する</button><button type="button" data-mact="move">フォルダへ移動</button><hr><button type="button" class="danger" data-mact="del">削除する（ごみ箱へ）</button>`);
+    openMenu(anchor, `<button type="button" data-mact="open">開く</button><button type="button" data-mact="rename">名前を変える</button>${r.type === 'form' ? '' : '<button type="button" data-mact="dup">複製する</button>'}<button type="button" data-mact="move">フォルダへ移動</button><hr><button type="button" class="danger" data-mact="del">削除する（ごみ箱へ）</button>`);
     $('shMenu').onclick = (e) => {
       const b = e.target.closest('[data-mact]'); if (!b) return; closeMenu();
       const a = b.dataset.mact;
@@ -548,7 +588,7 @@
     $('shDlg').querySelector('[data-dlg="cancel"]').addEventListener('click', closeDlg);
     $('shDlg').querySelector('[data-dlg="ok"]').addEventListener('click', async () => {
       closeDlg();
-      try { await api.remove(r.type, r.id); S.rows = S.rows.filter((x) => x !== r); renderShelf(); } catch (e) { fail('削除', e); }
+      try { await api.remove(r.type, r.id); if (r.type === 'form') await api.dropForm((r.data || {}).path).catch(() => {}); S.rows = S.rows.filter((x) => x !== r); renderShelf(); } catch (e) { fail('削除', e); }
     });
   }
   function folderMenu(anchor, id) {
@@ -585,7 +625,7 @@
     if (t.closest('#shTreeBtn')) { S.treeOpen = !S.treeOpen; renderShelf(); return; }
     if (t.closest('#shNewBtn')) {
       const l = S.loc;
-      newDialog({ type: S.filter === 'photo' && !setupMissing.photo ? 'photo' : S.filter === 'heat' && !setupMissing.heat && window.HL ? 'heat' : 'kotei', co: l.kind === 'place' ? l.co : '', th: l.kind === 'place' ? l.th : '', folder: l.kind === 'place' ? l.folder : '' });
+      newDialog({ type: (S.filter === 'form' || l.kind === 'forms') && !setupMissing.form ? 'form' : S.filter === 'photo' && !setupMissing.photo ? 'photo' : S.filter === 'heat' && !setupMissing.heat && window.HL ? 'heat' : 'kotei', co: l.kind === 'place' ? l.co : '', th: l.kind === 'place' ? l.th : '', folder: l.kind === 'place' ? l.folder : '' });
       return;
     }
     const it = t.closest('[data-into-th]'); if (it) { goPlace(S.loc.co, it.dataset.intoTh, ''); return; }
@@ -700,6 +740,12 @@
 
   async function openDoc(id, fresh) {
     const meta = S.rows.find((x) => x.id === id); if (!meta) return;
+    if (meta.type === 'form') {   // 作業申請書の書式はファイルなので、ダウンロードして開く
+      const w = window.open('', '_blank');
+      try { const url = await api.formUrl((meta.data || {}).path); if (w) w.location.href = url; else window.location.href = url; }
+      catch (e) { if (w) w.close(); fail('ファイルを開く', e); }
+      return;
+    }
     let row;
     try { row = await api.get(meta.type, id); } catch (e) { fail('読み込み', e); return; }
     if (!row) { alert('この書類は見つかりませんでした（削除された可能性があります）。'); await reload(); renderShelf(); return; }

@@ -2480,3 +2480,31 @@ body.meeting-mode #userMenuBtn { box-shadow: 0 0 0 2px #22c55e inset; border-rad
 .lite-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 4000; }
 .lite-toast.on { opacity: .95; }
 .m-title { font-weight: 700; font-size: 14px; margin: 2px 0; }
+
+/* ===== 通知メール（TOHO の要望④）: 客先のベル・案件の書類・メールの記録・客先アカウントの設定 ===== */
+.bell-btn{ border:none; background:transparent; cursor:pointer; font-size:15px; line-height:1; padding:2px 4px; margin-left:2px; border-radius:6px; vertical-align:middle; }
+.bell-btn.off{ filter:grayscale(1); opacity:.45; }
+.bell-btn.off:hover{ opacity:.8; }
+.bell-btn.on{ filter:none; opacity:1; }
+.bell-btn.locked{ cursor:default; }
+.m-l1 .bell-btn{ margin:0 4px 0 0; }
+body.case-bells #casesTable{ --col-edit-w: 62px; }
+body.case-bells .row-edit-btn{ opacity: 1; }
+#caseMailSec .cm-files{ display:flex; flex-direction:column; gap:6px; margin:6px 0; }
+#caseMailSec .cm-file{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
+#caseMailSec .cm-kind{ font-size:11px; font-weight:700; border-radius:4px; padding:1px 7px; background:#e0e7ff; color:#4338ca; }
+#caseMailSec .cm-kind.cm-workapp{ background:#fef3c7; color:#92400e; }
+#caseMailSec .cm-draft{ font-size:11px; color:#b45309; font-weight:700; }
+#caseMailSec .cm-final{ font-size:11px; color:#15803d; }
+#caseMailSec .link-btn{ border:none; background:none; color:#2563eb; text-decoration:underline; cursor:pointer; padding:0; font:inherit; }
+#caseMailSec .cm-upload{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0; }
+#caseMailSec .cm-log-h{ font-weight:700; font-size:13px; margin:10px 0 4px; }
+#caseMailSec .cm-log-row{ font-size:12px; border-left:3px solid #93c5fd; padding:2px 8px; margin:3px 0; }
+#caseMailSec .cm-log-row.in{ border-left-color:#86efac; }
+#caseMailSec .cm-log-row pre{ white-space:pre-wrap; font-family:inherit; margin:4px 0; color:#334155; max-height:240px; overflow:auto; }
+#cmTo{ font-size:12px; color:#475569; }
+.acct-mail{ border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px; margin:8px 0; font-size:13px; background:#f8fafc; }
+.acct-mail-row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+.acct-mail-row .tm-input{ min-width:220px; }
+.acct-person{ width:9em; }
+.acct-person-in{ width:11em; }

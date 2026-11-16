@@ -291,7 +291,7 @@
           <div class="sh-crumb" id="shCrumb"></div>
           <span class="sh-grow"></span>
           <div class="sh-seg" id="shFilter" role="group" aria-label="種類で絞り込む">
-            <button type="button" data-filter="all" class="on">すべて</button><button type="button" data-filter="kotei">📊 工程表</button><button type="button" data-filter="photo">📷 写真台帳</button><button type="button" data-filter="heat">❄ 空調負荷計算</button>
+            <button type="button" data-filter="all" class="on">すべて</button><button type="button" data-filter="kotei">📊 工程表</button><button type="button" data-filter="photo">📷 写真台帳</button><button type="button" data-filter="heat">❄ 空調負荷計算</button><button type="button" data-filter="form">📝 作業申請書の書式</button>
           </div>
           <input type="search" id="shSearch" class="sh-search" placeholder="🔍 書類の名前で探す" aria-label="書類の名前で探す">
           <button type="button" class="sh-btn pri" id="shNewBtn">＋ 新しく作る</button>
@@ -800,6 +800,18 @@
             <label for="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></label>
             <input type="text" id="paymentDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
           </div>
+        </div>
+      </section>
+      <section class="form-sec col-ryo hidden" data-sec="mail" id="caseMailSec">
+        <h3 class="form-sec-h">書類・通知メール <span class="lock-tag">🔒 菱熱だけ</span></h3>
+        <div class="form-row form-row-wide cm-row">
+          <p class="form-sec-note" id="cmTo"></p>
+          <div class="cm-files" id="cmFiles"></div>
+          <div class="cm-upload">
+            <label class="kt-upload">📎 見積書を付けて送る<input type="file" id="cmQuoteFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden></label>
+            <label class="kt-upload">📎 作業申請書を付ける<input type="file" id="cmWorkappFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden></label>
+          </div>
+          <div class="cm-log" id="cmLog"></div>
         </div>
       </section>
       <section class="form-sec form-sec-inner col-ryo" data-sec="inner">
