@@ -13,6 +13,8 @@ import { jobLabel } from '../job-label.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 // 第50回 D4: 上の 職業の 技ほど 回復が 多い（フィールドでも おなじ。skill-tier.js）
 import { skillMods } from '../skill-tier.js';
+// 第87回 A班: 回復の 魔力の 伸び（戦いの 中の 味方と おなじ。頭打ちの あとも 3分の 1 で のびる。pow-scale.js）
+import { powScaleOf } from '../pow-scale.js';
 import { TACTICS } from '../ai.js';
 import { cmdOffList, fixCmdOff, toggleOffList } from '../cmd-off.js';
 import { FAV_MAX, FAV_FULL_TEXT, favApply } from '../favorites.js';
@@ -760,7 +762,7 @@ function ownTeamChars(world, s) {
 // 回復の 見こみ（applyFieldEffect と おなじ 式の まんなか）
 function expectedHeal(user, eff, powMult = 1) {
   let amt = (eff.base[0] + eff.base[1]) / 2;
-  if (!eff.fixed) amt *= 1 + Math.max(0, Math.min(1, (computeStats(user).heal - (eff.thr ?? 20)) / 150));
+  if (!eff.fixed) amt *= powScaleOf(computeStats(user).heal, eff, true);
   return amt * powMult;
 }
 
@@ -886,7 +888,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1, hm = 1) {
       if (target.hp <= 0) return { ok: false, text: `${target.name}は死んでいる…` };
       if (target.hp >= st.maxHp) return { ok: false, text: `${target.name}のHPは満タンだ` };
       let amt = world.rng.int(eff.base[0], eff.base[1]);
-      if (!eff.fixed) amt *= 1 + Math.max(0, Math.min(1, (computeStats(user).heal - (eff.thr ?? 20)) / 150));
+      if (!eff.fixed) amt *= powScaleOf(computeStats(user).heal, eff, true);
       amt = Math.round(amt * powMult * hm);
       const real = Math.min(st.maxHp - target.hp, amt);
       target.hp += real;

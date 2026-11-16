@@ -23,6 +23,8 @@ import { dualFor } from './ability-label.js';
 import { reiNeed, reiDualMult } from './battle-r84a.js';
 // 第85回 A班: となえて から うつ 大砲（ドラグ・スレイブ など）は 2ターンで 1発 なので 割り引いて 数える（battle-r85a.js の bigDualMult）
 import { bigDualMult } from './battle-r85a.js';
+// 第87回 A班: 回復の 魔力の 伸び（battle.js の heal と おなじ。pow-scale.js）
+import { powScaleFor } from './pow-scale.js';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 // 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）
@@ -349,7 +351,7 @@ function memberHeal(m, list) {
     const e = ABILITIES[id]?.effect;
     for (const p of e?.type === 'multi' ? e.parts || [] : [e]) {
       if (p?.type !== 'heal' || !Array.isArray(p.base)) continue;
-      const scale = p.fixed ? 1 : 1 + Math.max(0, Math.min(1, ((m.healPow || 0) - (p.thr ?? 20)) / 150));
+      const scale = p.fixed ? 1 : powScaleFor(m, m.healPow, p);
       best = Math.max(best, ((p.base[0] + p.base[1]) / 2) * scale);
     }
   }

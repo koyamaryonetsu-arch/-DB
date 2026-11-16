@@ -2,8 +2,11 @@
 // つかいかた: node tools/job-fit.mjs
 //   その 段の めやすの レベル（基本職 20・上級職 35・超級職 55・伝説 75・幻 90）と 店の 装備で、
 //   技 1つ 1つの 強さ（1体に 当てた 時の ダメージの 合計。属性は 見ない・敵の 守りは 自分の 攻撃力の 4わり）を 出す
-//   力 … 物理の 技と ふつうの 攻撃に 効く ／ 魔力 … 呪文だけに 効く（技の「thr」から ＋150 までで 1倍 → 2倍。そこで 頭打ち）／ 回復 … 回復の 技に 効く（同じ 形）
+//   力 … 物理の 技と ふつうの 攻撃に 効く ／ 魔力 … 呪文だけに 効く（技の「thr」から ＋150 までで 1倍 → 2倍。
+//     第87回 A班から、味方は その あとも 3分の 1 の 速さで のびて ＋600 で 3倍。そこで 頭打ち。pow-scale.js）／ 回復 … 回復の 技に 効く（同じ 形）
+//   さいごに「レベルが 20 上がった 時の いちばん 強い 技の のび」（装備は 2ランク 上。段ごとの まんなかの 職業）も 出す
 import { Battle } from '../public/js/shared/battle.js';
+import { POW_SPAN, OVER_RATE, OVER_MAX } from '../public/js/shared/pow-scale.js';
 import { JOBS, ALL_JOBS } from '../public/js/shared/data/jobs.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -34,16 +37,22 @@ function measure(id, lv, rank) {
       phys: ps.some((p) => p.type === 'phys'), magic: spell.length > 0,
       heal: ps.some((p) => HEALS.includes(p.type) || (p.type === 'magic' && p.stat === 'heal')),
       special: ps.some((p) => p.r85aBig || p.rei) || /ギガ・スレイブ/.test(a.name),
-      capAt: spell.length ? Math.max(...spell.map((p) => (p.thr ?? 20) + 150 * (p.scaleCap ?? 1))) : 0,
+      // 頭打ちの 魔力（scaleCap の 技は その きまり。ほかは 頭打ちの あとの のび〈＋OVER_MAX〉にも とどく 所）
+      capAt: spell.length ? Math.max(...spell.map((p) => (p.thr ?? 20) + POW_SPAN * (p.scaleCap ?? 1 + OVER_MAX / OVER_RATE))) : 0,
     };
   });
   return { st, sk };
 }
 const F = { A: [], B: [], C: [], D: [], E: [], G: [], H: [], I: [] };
+// レベルが 20 上がった 時の「いちばん 強い 技」の のび（段ごとの 平均。物理の 技・呪文）
+const grow = TN.map(() => ({ p: [], m: [] }));
+const topOf = (sk, k) => sk.filter((s) => s[k] && !s.special).reduce((a, s) => Math.max(a, s.e), 0);
 const cap = [0, 0, 0, 0, 0], spellJobs = [0, 0, 0, 0, 0];
 for (const id of ALL_JOBS) {
   const j = JOBS[id], t = j.tier || 0, m = j.mods;
   const { st, sk } = measure(id, LV[t], RANK[t]);
+  const up = measure(id, LV[t] + 20, RANK[t] + 2).sk;
+  for (const [k, g] of [['phys', 'p'], ['magic', 'm']]) { const a = topOf(sk, k); if (a > 0) grow[t][g].push(topOf(up, k) / a); }
   const tag = `${j.name}（${TN[t]}）`;
   const nP = sk.filter((s) => s.phys).length, nM = sk.filter((s) => s.magic).length, nH = sk.filter((s) => s.heal).length;
   if (m.mag >= 1.2 && nM === 0) F.A.push(`${tag} 魔力 ${m.mag}・力 ${m.str}（物理の 技 ${nP}・呪文 0）`);
@@ -77,3 +86,5 @@ const T = {
 };
 for (const k of Object.keys(F)) { console.log(`■ ${T[k]}: ${F[k].length}こ`); for (const s of F[k]) console.log('  ' + s); }
 console.log('■ 呪文を 持つ 職業の うち、めやすの レベルで もう 頭打ちの 数: ' + TN.map((n, i) => `${n} ${cap[i]}/${spellJobs[i]}`).join('・'));
+const avg = (a) => { if (!a.length) return '-'; const s = [...a].sort((x, y) => x - y); return s[s.length >> 1].toFixed(2) + '倍'; };
+console.log('■ レベルが 20 上がった 時の いちばん 強い 技の のび（段ごとの まんなか。物理の 技／呪文）: ' + TN.map((n, i) => `${n} ${avg(grow[i].p)}／${avg(grow[i].m)}`).join('・'));

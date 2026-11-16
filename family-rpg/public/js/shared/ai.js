@@ -4,6 +4,8 @@ import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { deduceElement } from './data/abilities-jobs6.js';
 import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js';
 import { skillMods } from './skill-tier.js';
+// 第87回 A班: 回復の 魔力の 伸び（battle.js の heal と おなじ。pow-scale.js）
+import { powScaleFor } from './pow-scale.js';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
 import { mirageAction, mirrorPlan } from './battle-ch4.js';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
@@ -335,7 +337,7 @@ function healAmount(c, x) {
   const [mn, mx] = e.base;
   const base = ((mn + mx) / 2) * skillMods(c.penChar, x.id).healMul;
   if (e.fixed) return base;
-  return base * (1 + Math.max(0, Math.min(1, ((c.healPow || 0) - (e.thr ?? 20)) / 150)));
+  return base * powScaleFor(c, c.healPow, e);
 }
 
 function chooseHeal(b, c, tac, allies, mine) {

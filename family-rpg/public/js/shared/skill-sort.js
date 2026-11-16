@@ -11,6 +11,8 @@ import { ABILITIES } from './data/abilities.js';
 import { REGEN_BASE } from './buff-acts.js';
 // 第72回: 元気玉（みんなの HPを 10%ずつ 集める。battle-genki.js）
 import { genkiTotal } from './battle-genki.js';
+// 第87回 A班: 呪文・回復の 魔力の 伸び（battle.js と おなじ 式。pow-scale.js）
+import { powScaleOf } from './pow-scale.js';
 
 // ふつうの キャラ（どの 技も この 強さで くらべる）
 //   atk: 攻撃力・foeDfn: 相手の 守備力・mag: 魔力・heal: 回復魔力・maxHp: 生き返る 人の 最大HP・mp: のこりの MP（マダンテ）・lv: レベル（銭投げ）
@@ -18,9 +20,8 @@ import { genkiTotal } from './battle-genki.js';
 //     伝説の 職業の 強い 全体攻撃〈ギガデイン・極 290〉の 約1.3倍。tools/sim-genki.mjs の Lv60〜80 の くらべと だいたい おなじ）
 export const STD = { atk: 120, foeDfn: 60, mag: 80, heal: 80, maxHp: 200, mp: 100, lv: 30, party: 4, partyHp: 400 };
 
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const avg = (b) => (Array.isArray(b) ? ((b[0] || 0) + (b[1] ?? b[0] ?? 0)) / 2 : Number(b) || 0);
-const scale = (pow, e) => 1 + clamp(((pow || 0) - (e.thr ?? 20)) / 150, 0, e.scaleCap ?? 1);
+const scale = (pow, e) => powScaleOf(pow, e, true);
 
 // ふつうの 攻撃 1回の ダメージ（守りを むしする 技・かならず 会心の 技も）
 function physUnit(e) {

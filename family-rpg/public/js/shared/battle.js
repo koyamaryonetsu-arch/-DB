@@ -99,6 +99,8 @@ import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
 import { r86aTurnStart, r86aCover, r86aEffect, r86aPhys, r86aElement, r86aPhysMult, r86aDamage, r86aMark, r86aCut, r86aStore, r86aResolve, r86aPub } from './battle-r86a.js';
+// 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
+import { powScaleFor } from './pow-scale.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -1751,7 +1753,7 @@ export class Battle {
     // stat: 'heal' … 回復魔力で 強く なる 光の 技（大神官の ホーリーライト など。いやし手の 攻撃）
     // 魔力は バフ・デバフ（魔力が 上がる 技）も かかる
     const pow = eff.stat === 'heal' ? (c.healPow || 0) : effMag(c);
-    const scale = 1 + clamp((pow - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
+    const scale = powScaleFor(c, pow, eff);
     let dmg = base * scale * powMult * enemyFixedScale(c) * gritMult(c);
     // 第83回 B班: 魔物の 種類に 強い 呪文（おふだ。battle-r83b.js）
     dmg *= r83bMagicMult(c, t, eff);
@@ -1988,7 +1990,7 @@ export class Battle {
     }
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
-    if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
+    if (!eff.fixed) amt *= powScaleFor(c, c.healPow, eff);
     // 第51回 C3: 雨の 天気は かけた 側の 回復が 強い（battle-weather.js）
     amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c) * weatherMult(this, c.side, 'heal'));
     const real = Math.min(t.maxHp - t.hp, amt);
@@ -2060,7 +2062,7 @@ export class Battle {
   healAmountOf(c, eff, powMult = 1) {
     const [mn, mx] = eff.base || [5, 8];
     let amt = this.rng.int(mn, mx);
-    if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
+    if (!eff.fixed) amt *= powScaleFor(c, c.healPow, eff);
     return Math.max(1, Math.round(amt * powMult * enemyFixedScale(c)));
   }
 
