@@ -20,15 +20,16 @@ export const PHANTOM_MP = 3000;
 // 職業ごとの ダメージの ちょうせい（[一の試練, 二の試練, 三の試練]。職業の 技の 強さが ちがうので、tools/sim-trial.mjs で 勝ちが そろう ように 合わせた）
 //   （第38回 C の バフの きまり〈3回行動で 切れる〉に 合わせて さがし直した。tools/sim-trial-tune.mjs: 完全オートの 勝ちが 75% に なる 倍率。ゆれが 大きい 職業は 2回 さがした 平均。もとの 倍率は monsters-trial.js の dmgRate 0.55）
 //   三の試練（第65回 D1）: 家族 Lv72・オクタリアの ころの ★装備（tools/sim-trial.mjs）。TRIAL=3 HI=4 で 10回ずつ さがした。ガーディアン・二刀流スターは 4 でも 勝ちが 多い
+//   第87回 B班: 能力を うつした（HP・守りが 上がった）職業の 試練を 合わせ直した（sim-trial-tune 10回・SEED 500 と 900 の 平均。docs/plan-balance-r87.md）
 export const PHANTOM_ADJ = {
   dragon_knight: [1.56, 1.72, 2.39], archmage: [1.56, 1.64, 1.98], high_priest: [1.38, 0.87, 1.89], god_hand: [1.37, 0.89, 1.24], summoner: [1.52, 1.31, 2.08],
   magic_swordsman: [1.3, 0.99, 1.76], guardian: [2, 2, 4], hero: [1.56, 1.59, 2.5], monster_master: [2, 2, 3.73], star_diva: [1.44, 1.37, 1.8],
-  sword_master: [0.65, 0.48, 0.53], shogun: [0.55, 0.37, 0.6], shacho: [1.56, 1.18, 1.89], nitoryu: [3.43, 2.59, 4], highschooler: [1.3, 1.15, 1.43],
+  sword_master: [0.65, 0.48, 0.5], shogun: [0.55, 0.37, 0.6], shacho: [1.56, 1.18, 1.72], nitoryu: [3.43, 2.59, 4], highschooler: [1.3, 1.15, 1.43],
   career: [0.87, 0.7, 1.18], fruit_idol: [1.44, 1.18, 1.68], storm_idol: [1.44, 1.41, 2.39], keikyu_driver: [0.42, 0.35, 0.6], star_chef: [1.9, 1.95, 2.88],
   tatakiage: [1.37, 1.21, 1.64], m1_champion: [0.96, 0.7, 1.33], daikenja: [1.59, 1.56, 2.13], datenshi: [1.31, 1.31, 2.03], ss2: [0.57, 0.45, 0.74],
   ryonetsu: [0.89, 0.7, 1.64], rubber: [0.65, 0.43, 0.68], black_star: [1.41, 0.99, 1.76], enbashira: [1.34, 1.15, 1.72], black_org: [0.87, 0.65, 1.21],
-  doraemon: [2, 1.72, 2.45], kinniku_kappa: [1.07, 0.87, 1.3], konoha: [1.44, 1.04, 1.89], himura: [1.24, 1.01, 1.3], kaito_kid: [0.96, 0.46, 0.98],
-  harry: [0.85, 0.65, 1.18], fullmetal: [0.58, 0.43, 0.62], sailor_moon: [1.21, 1.18, 1.5], loto_hero: [1.3, 1.04, 2.28], ss3: [0.71, 0.48, 0.92],
+  doraemon: [2, 1.72, 2.45], kinniku_kappa: [1.07, 0.87, 1.3], konoha: [1.44, 1.04, 1.71], himura: [1.24, 1.01, 1.3], kaito_kid: [0.96, 0.46, 0.98],
+  harry: [0.85, 0.65, 1.18], fullmetal: [0.58, 0.43, 0.58], sailor_moon: [1.21, 1.18, 1.5], loto_hero: [1.3, 1.04, 2.28], ss3: [0.71, 0.48, 0.92],
   nika: [0.61, 0.55, 0.98], maou: [0.75, 0.55, 1.18], facility_genius: [0.86, 0.74, 1.43], hakaishin: [0.6, 0.6, 1.1], hinokami: [0.63, 0.49, 1.05],
   hokage: [0.53, 0.43, 0.92], abarenbo_shogun: [0.77, 0.7, 0.83], hiten: [0.68, 0.58, 0.71], homeroom_3b: [0.58, 0.68, 1.13],
   // 第40回
@@ -44,21 +45,21 @@ export const PHANTOM_ADJ = {
   // 第51回 C3: 幻の職業（sim-trial-tune 8回。天候の神・天候をあやつる者は 天気を つないだ あとで さがし直した）
   cosmic_okan: [1.06, 1.02, 1.27], chaos_creator: [0.53, 0.4, 0.59], dream_stadium: [0.57, 0.51, 0.64], weather_god: [0.75, 0.3, 1.68],
   // 第51回 C2（幻の職業）
-  detective_king: [0.81, 0.58, 0.55], galaxy_queen: [1.02, 0.79, 1.53], grand_magus: [0.63, 0.7, 1.01], sword_saint: [0.47, 0.35, 0.4],
+  detective_king: [0.81, 0.47, 0.55], galaxy_queen: [1.02, 0.79, 1.53], grand_magus: [0.63, 0.7, 1.01], sword_saint: [0.47, 0.35, 0.4],
   // 第65回 D1: 一・二の試練の 倍率が まだ なかった 職業（1 の まま）に 三の試練の 倍率
   sun_hokage: [1, 1, 0.94], meitantei: [1, 1, 1.64], facility_ai: [1, 1, 1.61], pirate_king: [1, 1, 0.85], super_hero: [1, 1, 1.21],
   // 第66回 B班: 伝説の職業（tools/sim-trial-tune.mjs で さがした）
   new_kawaii: [1.35, 1.21, 1.76], smap: [1.68, 1.62, 1.86], oogosho: [0.82, 0.93, 1.29], five_star_chef: [1.6, 1.95, 1.98],
   // 第66回 A（伝説の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 の 2回 さがした 平均）
-  guard_god: [1.13, 0.75, 0.92], kenshin: [0.72, 0.54, 0.75], poke_master: [1.32, 0.92, 1.3], sennen_mage: [1.32, 1.08, 0.95],
+  guard_god: [1.13, 0.75, 0.92], kenshin: [0.66, 0.49, 0.67], poke_master: [1.22, 0.85, 1.3], sennen_mage: [1.32, 1.08, 0.95],
   // 第66回 D班（伝説の職業。tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均）
-  gekka: [0.99, 0.62, 0.76], nobu_dora: [2.21, 1.72, 2.7], kappa_king: [1.15, 1, 1.24], truth_gate: [0.99, 0.88, 0.94], rosetta: [1.26, 1.35, 1.6],
+  gekka: [0.99, 0.62, 0.76], nobu_dora: [2.21, 1.72, 2.63], kappa_king: [1.15, 1, 1.24], truth_gate: [0.99, 0.78, 0.92], rosetta: [1.26, 1.35, 1.6],
   // 第66回 E1班（tools/sim-trial-tune.mjs 10回・SEED 500 と 900 の 平均。火消しの神は 回復・救出・かばうで まぼろしが しぶとい）
   koan_zero: [1.14, 0.82, 0.96], hyper_rescue: [2.12, 1.82, 2.16], top_streamer: [1.59, 1.82, 2.37],
   triple_face: [1.15, 1.02, 1.05], hikeshi_god: [0.83, 0.83, 0.91], world_streamer: [1.62, 1.79, 2.15],
   // 第66回 E2（tools/sim-trial-tune.mjs 20 0.75。SEED 500・900 の 平均。ゴールドカードマンの まぼろしは ポイントが たまるまで 弱いので 大きめ）
   esports_king: [1, 0.81, 1.1], gold_cardman: [2.34, 2.2, 2.84], psychicer: [1.73, 1.75, 1.95],
-  game_god: [1.02, 0.88, 1.07], black_cardman: [1.07, 0.98, 1.15], saiki: [1.39, 1.28, 1.55],
+  game_god: [1.02, 0.83, 0.97], black_cardman: [1.07, 0.98, 1.15], saiki: [1.39, 1.28, 1.55],
 };
 // 第66回 C班: 伝説の職業（総理大臣・会長・働き方改革の星・あの方。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { souri: [1.29, 1.32, 1.6], kaichou: [1.1, 1.07, 1.23], hatarakikata: [0.95, 0.71, 1.05], ano_kata: [1.2, 1.06, 1.41] });
