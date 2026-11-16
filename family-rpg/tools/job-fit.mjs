@@ -12,6 +12,7 @@ import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { computeStats } from '../public/js/shared/stats.js';
 import { jobChar } from './sim-jobs.mjs';
+import { CLONE_MAX } from '../public/js/shared/battle-phantom-a.js';
 
 const LV = [20, 35, 55, 75, 90], RANK = [4, 6, 8, 10, 12];
 const TN = ['基本職', '上級職', '超級職', '伝説', '幻'];
@@ -28,10 +29,13 @@ function measure(id, lv, rank) {
     const a = ABILITIES[sid]; const ps = parts(a.effect);
     let e = 0;
     for (const p of ps) {
-      if (p.type === 'phys') e += b.calcPhys(me, tg, { ...p, element: undefined }, 1, 'phys', true).dmg * (p.hits || 1);
-      else if (p.type === 'magic' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, element: undefined }, 1, true).dmg * (p.hits || 1);
+      // 第87回 C班: かならず 出る 分も 数える（分身を make 人 出して dance 回ずつ・フレア・アローの r85aHits・天候反転の weatherStrike）
+      if (p.type === 'phys') e += b.calcPhys(me, tg, { ...p, element: undefined }, 1, 'phys', true).dmg * ((p.hits || 1) + (p.make && p.dance ? p.dance * Math.min(CLONE_MAX, p.make) : 0));
+      else if ((p.type === 'magic' || p.type === 'deduce') && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, element: undefined }, 1, true).dmg * (p.hits || p.r85aHits || 1);
+      else if (p.type === 'weatherStrike' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, type: 'magic', element: undefined }, 1, true).dmg;
     }
-    const spell = ps.filter((p) => p.type === 'magic' && Array.isArray(p.base) && p.stat !== 'heal');
+    // 推理（deduce）も 魔力で うつ 呪文と 同じ（battle.js の magicHit。第87回 B班）
+    const spell = ps.filter((p) => (p.type === 'magic' || p.type === 'deduce') && Array.isArray(p.base) && p.stat !== 'heal');
     return {
       lv: l, name: a.name, mp: a.mp || 0, target: a.target, e: Math.round(e),
       phys: ps.some((p) => p.type === 'phys'), magic: spell.length > 0,
@@ -55,7 +59,8 @@ for (const id of ALL_JOBS) {
   for (const [k, g] of [['phys', 'p'], ['magic', 'm']]) { const a = topOf(sk, k); if (a > 0) grow[t][g].push(topOf(up, k) / a); }
   const tag = `${j.name}（${TN[t]}）`;
   const nP = sk.filter((s) => s.phys).length, nM = sk.filter((s) => s.magic).length, nH = sk.filter((s) => s.heal).length;
-  if (m.mag >= 1.2 && nM === 0) F.A.push(`${tag} 魔力 ${m.mag}・力 ${m.str}（物理の 技 ${nP}・呪文 0）`);
+  // 魔剣士は 魔法剣（呪文を 剣に のせる。魔力を 使う）が 本職の 道（魔法戦士）に あるので、魔力を のこす（第87回 B班）
+  if (m.mag >= 1.2 && nM === 0) F.A.push(`${tag} 魔力 ${m.mag}・力 ${m.str}（物理の 技 ${nP}・呪文 0）${id === 'magic_swordsman' ? '…魔法剣で 魔力を 使う ので このまま' : ''}`);
   if (m.str >= 1.2 && nP === 0) F.B.push(`${tag} 力 ${m.str}・魔力 ${m.mag}（呪文 ${nM}・物理の 技 0）`);
   if (m.heal >= 1.2 && nH === 0) F.C.push(`${tag} 回復 ${m.heal}（回復の 技 0）`);
   if (nM >= 2 && m.mag < 1) F.D.push(`${tag} 魔力 ${m.mag}（呪文 ${nM}）`);

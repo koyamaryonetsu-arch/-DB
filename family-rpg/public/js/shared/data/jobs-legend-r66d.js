@@ -12,9 +12,9 @@ export const LEGEND_R66D_JOBS = {
   gekka: {
     id: 'gekka', name: '月下のき術師', kana: 'げっかのきじゅつし', short: '月下', tier: 3, req: ['kaito_kid'], reqSuper: 1, family: 'tech', color: '#2a3a8a',
     desc: '満月の夜にだけあらわれる、なぞのき術師。かいとうキッドと、ほかの超級職を1つきわめた者だけがなれる。光るトランプで敵をまどわせ、ぱっとすがたを消して攻撃をかわす。',
-    mods: { hp: 1.5, mp: 1.35, str: 1.65, def: 1.25, agi: 1.9, mag: 1.3, heal: 1.0 },
+    mods: { hp: 1.65, mp: 1.35, str: 1.65, def: 1.4, agi: 1.9, mag: 1.0, heal: 1.0 },
     weapons: ['dagger', 'staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
-    perLv: { agi: 1.5, str: 1, mag: 0.5 },
+    perLv: { agi: 1.5, str: 1, def: 0.5 },
     learn: [[1, 'gx_ace'], [2, 'gx_kieru'], [3, 'gx_hanafubuki'], [5, 'gx_mirror'], [7, 'gx_yokoku'], [8, 'gx_ushiro'], [10, 'gekka_sig']],
   },
   // ドラえもん → のぶドラ（ドラえもんと ほかの 超級職 1つ）。なつかしい 声の ころの ドラえもん。むかしの ひみつ道具を つぎつぎ 出す
@@ -41,9 +41,9 @@ export const LEGEND_R66D_JOBS = {
   truth_gate: {
     id: 'truth_gate', name: '真理のとびらをひらく者', kana: 'しんりのとびらをひらくもの', short: '真理', tier: 3, req: ['fullmetal'], reqSuper: 1, family: 'phys', color: '#c89a2a',
     desc: 'れん成のひみつをすべて知り、真理のとびらをひらいた者。はがねのれん金術師と、ほかの超級職を1つきわめた者だけがなれる。手を合わせるだけで、地形も武器も一しゅんで作りかえる。パーティーにいると、れん金がまの歩数が半分。',
-    mods: { hp: 1.6, mp: 1.4, str: 1.75, def: 1.5, agi: 1.45, mag: 1.5, heal: 0.9 },
+    mods: { hp: 1.85, mp: 1.4, str: 1.75, def: 1.75, agi: 1.45, mag: 1.0, heal: 0.9 },
     weapons: ['spear', 'claw', 'sword', 'axe', 'none'], shield: false, armor: ['cloth', 'gi', 'robe', 'heavy'], helm: false,
-    perLv: { str: 1, mag: 1, def: 0.5 },
+    perLv: { str: 1, def: 1.5 },
     learn: [[1, 'tg_ude'], [2, 'tg_buki'], [3, 'tg_toride'], [5, 'tg_chikei'], [7, 'tg_iyashi'], [8, 'tg_yari'], [10, 'truth_gate_sig']],
   },
   // ピーチ／マリオ → ロゼッタ（男の子は ギャラクシーマリオ。ピーチ／マリオと ほかの 超級職 1つ）。星の 世界の 女王。流れ星と、ちびっこの 星の 仲間（チコ）で 戦う

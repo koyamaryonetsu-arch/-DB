@@ -17,7 +17,7 @@ export const PHANTOM_ABILITIES_A = {
   // ───────────── 海賊王（ニカ＋海賊） ─────────────
   pk_gatling: {
     name: 'ゴムゴムの王者のガトリング', kana: 'ごむごむのおうじゃのがとりんぐ', kind: 'skill', job: 'pirate_king', mp: 18, target: 'enemies',
-    effect: { type: 'phys', mult: 0.75, hits: 8, random: true },
+    effect: { type: 'phys', mult: 0.7, hits: 8, random: true },
     desc: '目にもとまらぬゴムのこぶしを、敵にランダムで8回たたきこむ。', cast: '{a}「ゴムゴムの…王者のガトリング！」', anim: 'punch_multi',
   },
   pk_hata: {
@@ -52,8 +52,8 @@ export const PHANTOM_ABILITIES_A = {
   },
   pirate_king_sig: {
     name: '自由の大船団', kana: 'じゆうのだいせんだん', kind: 'skill', job: 'pirate_king', mp: 42, target: 'enemies', role: 'dmg',
-    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.4, element: 'light', crew: 0.3 }, LAUGH] },
-    desc: '海賊王の旗の下に、仲間と大船団がかけつける。敵全体に光の大ほう撃。生きている仲間が多いほど強く（4人なら1.9倍）、笑いころげた敵は動けない（ボスには効きにくい）。', cast: '{a}「海賊王に、おれはなった！」水平線から、大船団があらわれた！', anim: 'nika_drum',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.4, element: 'light', crew: 0.3 }, { type: 'phys', mult: 1, hits: 4, random: true, element: 'light' }, LAUGH] },
+    desc: '海賊王の旗の下に、仲間と大船団がかけつける。敵全体に光の大ほう撃。生きている仲間が多いほど強く（4人なら1.9倍）、笑いころげた敵は動けない（ボスには効きにくい）。さらに、敵にランダムで4回、光の追いうちをかける。', cast: '{a}「海賊王に、おれはなった！」水平線から、大船団があらわれた！', anim: 'nika_drum',
   },
 
   // ───────────── 伝説の超勇者（ロトの勇者＋スーパーサイヤ人3） ─────────────
@@ -89,13 +89,13 @@ export const PHANTOM_ABILITIES_A = {
   },
   sh_rengeki: {
     name: '雷の超連げき', kana: 'かみなりのちょうれんげき', kind: 'skill', job: 'super_hero', mp: 26, target: 'enemies',
-    effect: { type: 'phys', mult: 0.9, hits: 7, random: true, element: 'bolt' },
+    effect: { type: 'phys', mult: 0.84, hits: 7, random: true, element: 'bolt' },
     desc: 'しゅん間移動しながら、雷のこぶしを敵にランダムで7回。雷のダメージ。', cast: '{a}の姿が、雷のように消えた…！', anim: 'punch_multi',
   },
   super_hero_sig: {
     name: 'かめはめデイン', kana: 'かめはめでいん', kind: 'skill', job: 'super_hero', mp: 44, target: 'enemies', role: 'dmg',
-    effect: { type: 'phys', mult: 2.8, element: 'bolt', ignoreDef: 0.3, ki: 0.45 },
-    desc: '雷をまとったかめはめ波で、敵全体をなぎはらう。雷のダメージ。「気をためる」でためた気1だんかいごとに、とても強くなる（3だんかいで2.35倍。使うと気は0にもどる）。', cast: '{a}「か…め…は…め…デイーーン！！」', anim: 'kamehameha',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.8, element: 'bolt', ignoreDef: 0.3, ki: 0.45 }, { type: 'phys', mult: 0.85, hits: 4, random: true, element: 'bolt', ignoreDef: 0.3 }] },
+    desc: '雷をまとったかめはめ波で、敵全体をなぎはらう。雷のダメージ。「気をためる」でためた気1だんかいごとに、敵全体への攻撃がとても強くなる（3だんかいで2.35倍。使うと気は0にもどる）。さらに、敵にランダムで4回、雷の追いうちをかける。', cast: '{a}「か…め…は…め…デイーーン！！」', anim: 'kamehameha',
   },
 
   // ───────────── 日の火影（日の呼吸の使い手＋七代目火影） ─────────────
@@ -168,7 +168,7 @@ export const PHANTOM_ABILITIES_A = {
   },
   fa_drone: {
     name: '点検ドローン部隊', kana: 'てんけんどろーんぶたい', kind: 'skill', job: 'facility_ai', mp: 24, target: 'enemies', role: 'dmg',
-    effect: { type: 'phys', mult: 0.8, hits: 7, random: true, element: 'bolt' },
+    effect: { type: 'phys', mult: 0.75, hits: 7, random: true, element: 'bolt' },
     desc: 'たくさんの点検ドローンが飛んで、敵にランダムで7回、電気のビームをうつ。雷のダメージ。', cast: '{a}「点検ドローン、発進！」', anim: 'bolt2',
   },
   fa_hirameki: {
@@ -178,7 +178,7 @@ export const PHANTOM_ABILITIES_A = {
   },
   facility_ai_sig: {
     name: '全館完全最適化', kana: 'ぜんかんかんぜんさいてきか', kind: 'skill', job: 'facility_ai', mp: 46, target: 'enemies', role: 'dmg',
-    effect: { type: 'multi', parts: [{ type: 'magic', element: 'ice', base: [270, 310], thr: 100 }, { type: 'heal', target: 'allies', base: [140, 170], thr: 70 }, { type: 'mpHeal', target: 'allies', base: [10, 14] }, { type: 'buff', target: 'allies', stats: ['atk', 'mag'], mult: 1.35, dur: 45 }] },
-    desc: '建物も仲間も、すべてを完全に最適化する。敵全体に冷たい風のダメージ、仲間全員のHPとMPを回復して、攻撃力と魔力も上げる。', cast: '{a}「全館、完全最適化。…終わりました」', anim: 'aircon',
+    effect: { type: 'multi', parts: [{ type: 'magic', element: 'ice', base: [270, 310], thr: 100 }, { type: 'magic', element: 'ice', base: [40, 45], thr: 100, r85aHits: 3 }, { type: 'heal', target: 'allies', base: [140, 170], thr: 70 }, { type: 'mpHeal', target: 'allies', base: [10, 14] }, { type: 'buff', target: 'allies', stats: ['atk', 'mag'], mult: 1.35, dur: 45 }] },
+    desc: '建物も仲間も、すべてを完全に最適化する。敵全体に冷たい風のダメージ（さらに、敵にランダムで3回、冷たい風で追いうちをかける）、仲間全員のHPとMPを回復して、攻撃力と魔力も上げる。', cast: '{a}「全館、完全最適化。…終わりました」', anim: 'aircon',
   },
 };

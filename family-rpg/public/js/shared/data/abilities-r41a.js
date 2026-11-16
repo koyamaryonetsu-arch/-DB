@@ -44,7 +44,7 @@ export const R41A_ABILITIES = {
   },
   kqp_renketsu: {
     name: '12両の大連結', kana: 'じゅうにりょうのだいれんけつ', kind: 'skill', job: 'keikyu_president', mp: 22, target: 'enemies',
-    effect: { type: 'phys', mult: 0.8, hits: 6, random: true },
+    effect: { type: 'phys', mult: 0.75, hits: 6, random: true },
     desc: '赤い車両が12両つながって、ごうごうと走る。敵全体に、ランダムで6回ぶつかる。', cast: '{a}の12両の大連結！', anim: 'redtrain',
   },
   keikyu_president_sig: {
@@ -53,10 +53,11 @@ export const R41A_ABILITIES = {
       type: 'multi',
       parts: [
         { type: 'phys', mult: 2.7, ignoreDef: 0.3 },
+        { type: 'phys', mult: 0.5, hits: 4, random: true, ignoreDef: 0.3 },
         { type: 'buff', target: 'allies', stat: 'agi', mult: 1.25, dur: 30 },
       ],
     },
-    desc: '社長の合図で、全部の線路の赤い電車が一気に走りだす、京急の社長の最強の技。敵全体に大ダメージ。守りの固い敵にもよく効き、仲間全員の素早さも上がる。', cast: '{a}「全線、大快特で出発進行！」', anim: 'keikyu_president_sig',
+    desc: '社長の合図で、全部の線路の赤い電車が一気に走りだす、京急の社長の最強の技。敵全体に大ダメージ。さらに、敵にランダムで4回、追いうちをかける。守りの固い敵にもよく効き、仲間全員の素早さも上がる。', cast: '{a}「全線、大快特で出発進行！」', anim: 'keikyu_president_sig',
   },
 
   // ───────────── 野球界の殿堂入り（伝説の職業。二刀流スター＋ほかの 超級職 1つ） ─────────────

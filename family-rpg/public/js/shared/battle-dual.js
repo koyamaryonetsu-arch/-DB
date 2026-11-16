@@ -12,7 +12,7 @@
 // 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
 import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js';
 import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js';
+import { DUAL_TECHS, dualOptions, partnerNow, dualOnceReason } from './data/dual.js';
 import { weaponOk, comboAllowed, penaltyFor } from './stats.js';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
 import { deduceElement } from './data/abilities-jobs6.js';
@@ -44,9 +44,26 @@ const sameTeam = (o, ids) => o.partners.length === ids.length && ids.every((id) 
 const needsAsk = (c, p) => !!p.controller && !p.auto && p.controller !== c.controller;
 const nowOf = (p) => partnerNow({ queued: p.queued, hold: p.dualHold, ready: p.ready, atb: p.atb });
 
+// ───── 第87回 D班: 1つの 戦いで 1度だけの 合体技（データの oncePerBattle。今は ミナデイン）─────
+// ・数えるのは 出た 時（performDual の さいご）。参加できずに 失敗・MPが 足りずに 出なかった 時は 数えない
+// ・しるしは Battle の b.dualUsed（Set。キャラにも セーブにも 足さない）。とちゅうで 入りなおした 人へは snapshot の dualUsed で
+// ・しかけ（台本）で 出す 時は cmd.scripted … 数えない・しばりを 受けない（家族の 命令からは 出せない。validateDual が ことわる）
+export const onceDual = (id) => !!DUAL_TECHS[id]?.oncePerBattle;
+export const onceUsed = (b, id) => onceDual(id) && !!b.dualUsed?.has(id);
+export const onceReason = dualOnceReason;
+// オート（シミュレーターの 合体技の えらび方）: 1度だけの 技は ボスか、ボス戦で いちばん HPの 多い 敵に だけ 使う（ざこには 使わない）
+export function onceWorth(b, id, tg) {
+  if (!onceDual(id)) return true;
+  if (!tg || onceUsed(b, id)) return false;
+  if (tg.boss) return true;
+  return !!b.boss && b.aliveEnemies().every((e) => e === tg || e.maxHp <= tg.maxHp);
+}
+
 // c が 今 出せる 合体技（exec: 出す しゅんかんの たしかめ。よやくした 相手も かぞえる）
 // anyGauge: 仲間の ゲージが まだでも よやく できる ものも かぞえる
-export function optionsFor(b, c, others = null, exec = false, anyGauge = false) {
+export function optionsFor(b, c, others = null, exec = false, anyGauge = false, scripted = false) {
+  // 第87回 D班: 1度だけの 合体技は、この 戦いで もう 出て いれば のぞく（しかけで 出す 時は のぞかない）
+  if (!scripted && b.dualUsed?.size) return optionsFor(b, c, others, exec, anyGauge, true).filter((o) => !onceUsed(b, o.id));
   // 第32回: モンスターの 仲間も 入れる（モンスターの 仲間の 組が ある 技だけ。data/dual.js の fitsGroup）
   if (!c || c.side !== 'ally') return [];
   const list = (others || b.allies.filter((x) => x !== c)).filter((x) => x && x.side === 'ally');
@@ -69,16 +86,18 @@ export function optionsFor(b, c, others = null, exec = false, anyGauge = false) 
 }
 
 // その 仲間と その 技が 出せるか（出せる ものを かえす）
-export function findOpt(b, c, id, ids, exec = false, anyGauge = false) {
+export function findOpt(b, c, id, ids, exec = false, anyGauge = false, scripted = false) {
   const ps = ids.map((x) => b.get(x));
   if (ps.some((p) => !p)) return null;
-  return optionsFor(b, c, ps, exec, anyGauge).find((o) => o.id === id && sameTeam(o, ids)) || null;
+  return optionsFor(b, c, ps, exec, anyGauge, scripted).find((o) => o.id === id && sameTeam(o, ids)) || null;
 }
 
 // コマンドの たしかめ（battle.js の validate）
 export function validateDual(b, c, cmd) {
   const ids = partnersOf(cmd);
-  if (!ids.length || new Set(ids).size !== ids.length) return { ok: false, reason: '合体技は出せない' };
+  if (!ids.length || new Set(ids).size !== ids.length || cmd.scripted) return { ok: false, reason: '合体技は出せない' };
+  // 第87回 D班: 1度だけの 合体技（ミナデイン）を もう 出した
+  if (onceUsed(b, cmd.id)) return { ok: false, reason: onceReason(cmd.id) };
   return findOpt(b, c, cmd.id, ids, false, true) ? { ok: true } : { ok: false, reason: '合体技は出せない' };
 }
 
@@ -167,6 +186,10 @@ export function waitStillOk(b, c, ps) {
   const bad = ps.find(cantJoin);
   if (bad !== undefined) {
     endWait(b, c, `${bad?.name || '仲間'}は合体技に参加できなくなった…`);
+    return false;
+  }
+  if (onceUsed(b, c.waitDual.id)) {
+    endWait(b, c, `${onceReason(c.waitDual.id)}…`);
     return false;
   }
   if (!findOpt(b, c, c.waitDual.id, c.waitDual.partners, true, true)) {
@@ -378,7 +401,14 @@ export function performDual(b, c, cmd, ev) {
     releasePartners(b, cmd);
     return;
   }
-  const opt = findOpt(b, c, cmd.id, ids, true);
+  // 第87回 D班: 1度だけの 合体技を、よやくの 間に ほかの 人が 先に 出した（しかけで 出す 時は しばらない）
+  const scripted = !!cmd.scripted;
+  if (!scripted && onceUsed(b, cmd.id)) {
+    ev.lines.push(`しかし${onceReason(cmd.id)}！`);
+    releasePartners(b, cmd);
+    return;
+  }
+  const opt = findOpt(b, c, cmd.id, ids, true, false, scripted);
   if (!opt) {
     ev.lines.push('しかし合体技は出せなかった！');
     releasePartners(b, cmd);
@@ -390,6 +420,11 @@ export function performDual(b, c, cmd, ev) {
   team.forEach((p, i) => { p.mp -= opt.mp[i + 1]; });
   const n = members.length;
   ev.dual = { id: cmd.id, name: t.name, a: c.id, b: team[0].id, m: members.map((x) => x.id), n };
+  // 第87回 D班: 1度だけの 合体技が 出た（MPを はらった 後。しかけで 出す 時は 数えない）。ev.dual.once で 画面にも 伝える
+  if (!scripted && onceDual(cmd.id)) {
+    (b.dualUsed = b.dualUsed || new Set()).add(cmd.id);
+    ev.dual.once = true;
+  }
   ev.lines.push(`${members.map((x) => x.name).join('と')}の合体技！`, `${t.name}！`);
   // 第66回: 幻の職業の 技の 条件にも 数える（参加した みんな）
   b.featDual?.(members, t);

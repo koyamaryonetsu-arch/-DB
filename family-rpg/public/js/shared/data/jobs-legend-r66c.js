@@ -16,7 +16,7 @@ export const LEGEND_R66C_JOBS = {
   souri: {
     id: 'souri', name: '総理大臣', kana: 'そうりだいじん', short: '総理', tier: 3, req: ['career'], reqSuper: 1, family: 'tech', color: '#3a2f6a',
     desc: '国のいちばん上に立って、みんなを引っぱるリーダー。キャリア組と、ほかの超級職を1つきわめた者だけがなれる。国を動かす号令で、仲間全員を大きく強くする。',
-    mods: { hp: 1.55, mp: 1.5, str: 1.3, def: 1.5, agi: 1.2, mag: 1.4, heal: 1.35 },
+    mods: { hp: 1.6, mp: 1.5, str: 1.25, def: 1.5, agi: 1.2, mag: 1.4, heal: 1.35 },
     weapons: ['dagger', 'staff', 'spear', 'sword', 'fan', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
     perLv: { def: 1, mp: 1, heal: 1 },
     learn: [[1, 'sor_enzetsu'], [2, 'sor_kakugi'], [3, 'sor_touben'], [5, 'sor_kyufu'], [7, 'sor_kaisan'], [8, 'sor_summit'], [10, 'souri_sig']],
@@ -25,7 +25,7 @@ export const LEGEND_R66C_JOBS = {
   kaichou: {
     id: 'kaichou', name: '会長', kana: 'かいちょう', short: '会長', tier: 3, req: ['shacho', 'tatakiage'], family: 'tech', color: '#c89a2a',
     desc: 'いくつもの会社をたばねる、グループのいちばん上の人。社長とたたき上げ社長の両方をきわめた者だけがなれる。お金を力に変えて、お札で敵をけちらし、ボディーガードをやとって仲間を守る。戦いで手に入るお金もとてもふえる。',
-    mods: { hp: 1.6, mp: 1.35, str: 1.5, def: 1.5, agi: 1.25, mag: 1.25, heal: 1.3 },
+    mods: { hp: 1.7, mp: 1.4, str: 1.5, def: 1.6, agi: 1.25, mag: 1.0, heal: 1.3 },
     weapons: ['dagger', 'staff', 'fan', 'sword', 'axe', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy', 'gi'], helm: true,
     perLv: { hp: 1, str: 1, def: 1 },
     passive: { gold: 1.6 },
@@ -45,7 +45,7 @@ export const LEGEND_R66C_JOBS = {
   ano_kata: {
     id: 'ano_kata', name: 'あの方', kana: 'あのかた', short: 'あの方', tier: 3, req: ['black_org'], reqSuper: 1, family: 'tech', color: '#2a1a2e',
     desc: 'だれも顔を知らない、なぞの組織のボス。黒の組織と、ほかの超級職を1つきわめた者だけがなれる。ひみつのメールで組織を動かし、あやしい薬やカラスの群れで、敵をどんどん弱らせる。',
-    mods: { hp: 1.55, mp: 1.45, str: 1.6, def: 1.3, agi: 1.55, mag: 1.35, heal: 0.9 },
+    mods: { hp: 1.7, mp: 1.5, str: 1.6, def: 1.45, agi: 1.55, mag: 1.0, heal: 0.9 },
     weapons: ['dagger', 'sword', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
     perLv: { str: 1, agi: 1, mp: 1 },
     learn: [[1, 'ano_mail'], [2, 'ano_karasu'], [3, 'ano_kusuri'], [5, 'ano_shirei'], [7, 'ano_shotai'], [8, 'ano_kage'], [10, 'ano_kata_sig']],

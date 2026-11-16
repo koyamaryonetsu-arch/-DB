@@ -167,8 +167,8 @@ test('第66回 A の 職業: 強さは 今の 伝説の職業の はんい・も
   const top = (k) => Math.max(...LEGEND_ORDER.filter((j) => !NEW.includes(j)).map((j) => JOBS[j].mods[k]));
   // 守りの神: いちばん かたい（守備力は 伝説で いちばん）・回復も 高い
   assert.ok(JOBS.guard_god.mods.def > top('def') && JOBS.guard_god.mods.heal >= 1.6);
-  // 光と闇の剣神: 力が 高い・魔力も 高め（闇の剣・光の剣）
-  assert.ok(JOBS.kenshin.mods.str >= 1.85 && JOBS.kenshin.mods.mag >= 1.4);
+  // 光と闇の剣神: 力が 高い（第87回 B班: 呪文を 覚えないので 魔力は 1.0。むだな 魔力は HP と 守りへ）
+  assert.ok(JOBS.kenshin.mods.str >= 1.85 && JOBS.kenshin.mods.mag <= 1.0 && JOBS.kenshin.mods.def >= 1.6);
   // ポケモンマスター: 魔物が 仲間に なりやすく、仲間の 魔物も モンスターマスターより 強く なる
   assert.ok(JOBS.poke_master.passive.befriend > JOBS.monster_master.passive.befriend);
   assert.ok(JOBS.poke_master.passive.monsterBoost > JOBS.monster_master.passive.monsterBoost);
@@ -235,7 +235,8 @@ test('第66回 A の 技: 7こ・Lv10 が いちばん MP・看板の 技・攻�
   assert.ok(has('guard_god', (p) => p.type === 'heal') && has('guard_god', (p) => p.type === 'revive'), '守りの神: 回復も する');
   assert.ok(has('guard_god', (p) => p.atkFrom === 'def'), '守りの神: たてで なぐる（守備力で 強く なる）');
   assert.ok(has('kenshin', (p) => p.element === 'light') && has('kenshin', (p) => p.element === 'dark' || p.type === 'drainHp'), '剣神: 光の 剣と 闇の 剣');
-  assert.deepEqual(partsOf(ABILITIES.kenshin_sig.effect).map((p) => p.element), ['light', 'dark'], '大剣神斬は 光と 闇');
+  // 第87回 C班: 敵全体の 光と 闇 ＋ 敵に ランダムの 追いうち（1体の 時に 強い）
+  assert.deepEqual(partsOf(ABILITIES.kenshin_sig.effect).filter((p) => !p.random).map((p) => p.element), ['light', 'dark'], '大剣神斬は 光と 闇');
   assert.ok(JOBS.poke_master.learn.filter(([, id]) => /ボール/.test(ABILITIES[id].name)).length >= 2, 'ポケモンマスター: ボールの 技');
   assert.ok(has('poke_master', (p) => p.monPal > 0) && partsOf(ABILITIES.poke_master_sig.effect).some((p) => p.monPal > 0), 'ポケモンマスター: 魔物との 合体技');
   assert.ok(JOBS.sennen_mage.learn.filter(([, id]) => ABILITIES[id].kind === 'spell').length >= 6, '千年の大魔法使い: ほとんど 呪文');

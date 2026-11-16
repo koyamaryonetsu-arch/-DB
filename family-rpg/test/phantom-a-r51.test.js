@@ -159,8 +159,10 @@ test('第51回 C1 の 技: 伝説の 技より 強い（看板の 技・単体�
   assert.ok(multOf(partsOf(ph('pk_jiyuu'))[0]) > multOf(partsOf(ph('nk_kaihou'))[0]));
   assert.ok(multOf(ph('pk_gatling')) > multOf(ph('s3_rengeki')));
   // 超勇者: 気 3だんかいの かめはめデイン（全体）＞ かめはめ波・極（単体）。気が なくても ギガクロスブレイクより 強い
-  assert.ok(multOf(ph('super_hero_sig'), 1 + ph('super_hero_sig').ki * KI_MAX) > multOf(ph('s3_kame')));
-  assert.ok(multOf(ph('super_hero_sig')) > multOf(ph('lt_gigacross')));
+  // 第87回 C班: 看板は 敵全体の 部分（parts[0]・気が のる）＋ 敵に ランダムの 追いうち
+  const shMain = partsOf(ph('super_hero_sig'))[0];
+  assert.ok(multOf(shMain, 1 + shMain.ki * KI_MAX) > multOf(ph('s3_kame')));
+  assert.ok(multOf(shMain) > multOf(ph('lt_gigacross')));
   assert.ok(ph('sh_gigadein').base[0] > ph('hg_bijuu').base[0]);
   assert.ok(ph('sh_inori').base[0] > ph('lt_inori').base[0]);
   // 日の火影: 分身4人の 神楽（3 ＋ 2×4 回）＞ ヒノカミ神楽・多重影分身の術
@@ -258,7 +260,8 @@ test('伝説の超勇者: 気を ためる（3だんかいまで）→ かめは
     for (const ki of [3, 0]) {
       const S = setup('super_hero', { seed: s, enemies: ['rockman'], idle: true });
       S.me.ki = ki;
-      const d = dealt(use(S.b, S.me, 'super_hero_sig'));
+      // 第87回 C班: 気が のるのは 敵全体の 部分（さいしょの 1発）。あとの 追いうちには のらない
+      const d = (use(S.b, S.me, 'super_hero_sig').results || []).find((r) => !r.id.startsWith('p'))?.dmg || 0;
       if (ki) with3 += d; else with0 += d;
     }
   }

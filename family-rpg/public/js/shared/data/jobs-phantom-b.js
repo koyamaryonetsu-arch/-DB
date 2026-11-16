@@ -14,7 +14,7 @@ export const PHANTOM_JOBS_B = {
   detective_king: {
     id: 'detective_king', name: '名探てい王', kana: 'めいたんていおう', short: '探てい王', tier: 4, req: ['meitantei', 'oshiri_tantei'], family: 'magic', color: '#1a3a8a',
     desc: 'どんななぞも解き明かす、探ていの王さま。名探ていとおしり探ていをきわめ、たくさん推理した者だけがなれる。敵の次の行動を先に読み、動こうとしたしゅんかんに、ぴたりとつぶす。',
-    mods: { hp: 1.55, mp: 1.75, str: 1.3, def: 1.4, agi: 1.85, mag: 1.9, heal: 1.45 },
+    mods: { hp: 1.85, mp: 1.95, str: 1.25, def: 1.4, agi: 1.85, mag: 1.9, heal: 1.0 },
     weapons: ['boomerang', 'staff', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe', 'gi'], helm: true,
     perLv: { mag: 1, agi: 1, mp: 0.5 },
     learn: [[1, 'tk_suiri'], [2, 'tk_yomi'], [3, 'tk_megane'], [4, 'tk_trick'], [5, 'tk_alibi'], [7, 'tk_shoot'], [8, 'tk_show'], [10, 'detective_king_sig']],

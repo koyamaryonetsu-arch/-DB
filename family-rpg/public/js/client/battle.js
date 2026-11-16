@@ -335,6 +335,8 @@ export class BattleScene {
     this.canFlee = msg.snap.canFlee;
     // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文の コマンドは 出すが えらべない（サーバーも ことわる）
     this.noSpells = !!msg.snap.noSpells;
+    // 第87回 D班: この 戦いで もう 出した 1度だけの 合体技（ミナデイン）。合体技の 一覧で うすく（battle-dual.js）
+    this.dualUsed = new Set(msg.snap.dualUsed || []);
     // 月の鏡の 光（まぼろしの 分身が いる 戦いだけ。{ cd … のこり, max }。battle-ch4.js）
     this.mirror = msg.snap.mirror ? { ...msg.snap.mirror } : null;
     // 敵の 強さ（設定の「敵の強さ」。パーティーでは リーダーの 設定）。ふつう いがいは え の 左下に しるし
@@ -1246,6 +1248,8 @@ export class BattleScene {
   // ───────────── サーバーからの できごと ─────────────
   onEvents(evs) {
     for (const ev of evs) {
+      // 第87回 D班: 1度だけの 合体技が 出た（えんしゅつを またずに、すぐ 一覧を うすく）
+      if (ev.dual?.once) this.dualUsed.add(ev.dual.id);
       switch (ev.t) {
         case 'g':
           for (const [id, v] of Object.entries(ev.g)) {

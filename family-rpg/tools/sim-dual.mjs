@@ -9,7 +9,7 @@ import { fullHeal } from '../public/js/shared/stats.js';
 import { JOBS } from '../public/js/shared/data/jobs.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
-import { dualPower, memberPower, DUAL_BOSS_CAP } from '../public/js/shared/battle-dual.js';
+import { dualPower, memberPower, DUAL_BOSS_CAP, onceWorth } from '../public/js/shared/battle-dual.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { decideAlly } from '../public/js/shared/ai.js';
 import { makeChar, withSara } from './sim.js';
@@ -63,10 +63,11 @@ function plan(b, a, used) {
     }
     return got / Math.max(1, solo);
   };
-  const scored = opts.map((o) => [gain(o), o]).filter(([g]) => g >= 1.3).sort((x, y) => y[0] - x[0]);
+  const foe = b.aliveEnemies().find((e) => e.boss) || b.aliveEnemies()[0];
+  // 第87回 D班: 1度だけの 合体技（ミナデイン）は ボスか、ボス戦で いちばん HPの 多い 敵に だけ（battle-dual.js の onceWorth）
+  const scored = opts.filter((o) => onceWorth(b, o.id, foe)).map((o) => [gain(o), o]).filter(([g]) => g >= 1.3).sort((x, y) => y[0] - x[0]);
   const best = scored[0]?.[1];
   if (!best) return false;
-  const foe = b.aliveEnemies().find((e) => e.boss) || b.aliveEnemies()[0];
   const r = b.command(a.id, { type: 'dual', id: best.id, partner: best.partner, partners: best.partners, target: foe?.id }, 'sim');
   if (r.ok) used[best.id] = (used[best.id] || 0) + 1;
   return r.ok;

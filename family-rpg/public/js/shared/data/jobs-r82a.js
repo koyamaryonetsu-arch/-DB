@@ -18,7 +18,7 @@ export const JOBS_R82A = {
   hanyo_boy: {
     id: 'hanyo_boy', name: '半ようの少年', kana: 'はんようのしょうねん', short: '半よう', tier: 0, family: 'phys', color: '#c8283a',
     desc: '頭に犬のような耳がある、人とようかいの間に生まれた少年。するどいつめで戦う。HPが少なくなると、ようかいの血があばれだして、命令を聞かずに強くなる。きわめると鉄さいがの使い手になれる。',
-    mods: { hp: 1.15, mp: 0.5, str: 1.3, def: 0.95, agi: 1.3, mag: 0.5, heal: 0.7 },
+    mods: { hp: 1.15, mp: 0.9, str: 1.3, def: 0.95, agi: 1.3, mag: 0.4, heal: 0.4 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 0.8, agi: 0.5 },
     passive: { youkai: 1.3 },
@@ -27,7 +27,7 @@ export const JOBS_R82A = {
   tessaiga_user: {
     id: 'tessaiga_user', name: '鉄さいがの使い手', kana: 'てっさいがのつかいて', short: '鉄さいが', tier: 1, req: ['hanyo_boy'], family: 'phys', color: '#b8202e',
     desc: '父からのこされた、ふしぎな刀「鉄さいが」を手にした少年。刀をもつと、ようかいの血がおさえられる。刀で敵全体を風のきずでなぎはらい、つめでも戦える。半ようの少年をきわめるとなれる。',
-    mods: { hp: 1.25, mp: 0.55, str: 1.5, def: 1.05, agi: 1.35, mag: 0.5, heal: 0.7 },
+    mods: { hp: 1.25, mp: 0.95, str: 1.5, def: 1.05, agi: 1.35, mag: 0.4, heal: 0.4 },
     weapons: ['sword', 'claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, hp: 0.5 },
     passive: { youkai: 1.4 },
