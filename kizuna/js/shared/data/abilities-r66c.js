@@ -106,7 +106,7 @@ export const R66C_ABILITIES = {
   },
   kch_group: {
     name: 'グループ会社大集合', kana: 'ぐるーぷがいしゃだいしゅうごう', kind: 'skill', job: 'kaichou', mp: 22, target: 'enemies',
-    effect: { type: 'phys', mult: 0.8, hits: 5, random: true },
+    effect: { type: 'phys', mult: 0.75, hits: 5, random: true },
     desc: 'グループの会社の社員たちが、いっせいにかけつける。敵全体に、ランダムで5回ぶつかる。', cast: '{a}「グループのみんな、集合！」', anim: 'r66c_group',
   },
   kaichou_sig: {
@@ -115,10 +115,11 @@ export const R66C_ABILITIES = {
       type: 'multi',
       parts: [
         { type: 'phys', mult: 2.7, ignoreDef: 0.3, points: 0.5 },
+        { type: 'phys', mult: 0.3, hits: 4, random: true, ignoreDef: 0.3 },
         { type: 'buff', target: 'allies', stat: 'def', mult: 1.25, dur: 30 },
       ],
     },
-    desc: '金色の大判小判が、空からざくざくふりそそぐ、会長の最強の技。敵全体に大ダメージ。当てた敵のお金の一部が手に入り、仲間全員の守備力も上がる。', cast: '{a}「今日は、大ばんぶるまいだ！」', anim: 'kaichou_sig',
+    desc: '金色の大判小判が、空からざくざくふりそそぐ、会長の最強の技。敵全体に大ダメージ。さらに、敵にランダムで4回、追いうちをかける。当てた敵のお金の一部が手に入り、仲間全員の守備力も上がる。', cast: '{a}「今日は、大ばんぶるまいだ！」', anim: 'kaichou_sig',
   },
 
   // ───────────── 働き方改革の星（伝説の職業。ブラックきぎょうの星＋ほかの 超級職 1つ） ─────────────

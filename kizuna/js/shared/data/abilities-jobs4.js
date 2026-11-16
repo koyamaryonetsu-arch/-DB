@@ -172,8 +172,8 @@ export const JOB4_ABILITIES = {
   },
   sy_bigbang: {
     name: 'ビッグバンアタック', kana: 'びっぐばんあたっく', kind: 'skill', job: 'saiyan', mp: 12, target: 'enemies',
-    effect: { type: 'phys', mult: 1.2 },
-    desc: '大きな気の玉を投げつけて、敵全体に大きなダメージ。', cast: '{a}のビッグバンアタック！', anim: 'kamehameha',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.2 }, { type: 'phys', mult: 0.45, hits: 3, random: true }] },
+    desc: '大きな気の玉を投げつけて、敵全体に大きなダメージ。さらに、敵にランダムで3回、追いうちをかける。', cast: '{a}のビッグバンアタック！', anim: 'kamehameha',
   },
 
   // ───────────── スーパーサイヤ人（上級職） ─────────────
@@ -203,12 +203,12 @@ export const JOB4_ABILITIES = {
     desc: 'いかりで力がかくせいする。次の攻撃の威力が2.5倍になり、自分の素早さも上がる。', cast: '{a}のいかりが、ばく発した！', anim: 'super_aura',
   },
   sz_final: {
-    name: 'ファイナルフラッシュ', kana: 'ふぁいなるふらっしゅ', kind: 'skill', job: 'super_saiyan', mp: 16, target: 'enemy',
+    name: 'ファイナルフラッシュ', kana: 'ふぁいなるふらっしゅ', kind: 'skill', job: 'super_saiyan', mp: 14, target: 'enemy',
     effect: { type: 'phys', mult: 3.6, ignoreDef: 0.35 },
     desc: 'りょう手を前につき出し、敵1体にまぶしい気のビーム。守りが固い敵にも強い。', cast: '{a}「ファイナルフラッシュ！」', anim: 'kamehameha',
   },
   sz_renzoku: {
-    name: 'れんぞく気功波', kana: 'れんぞくきこうは', kind: 'skill', job: 'super_saiyan', mp: 18, target: 'enemies',
+    name: 'れんぞく気功波', kana: 'れんぞくきこうは', kind: 'skill', job: 'super_saiyan', mp: 14, target: 'enemies',
     effect: { type: 'phys', mult: 0.6, hits: 7, random: true },
     desc: '気功波を、敵にランダムで7回打ちこむ。', cast: '{a}のれんぞく気功波！', anim: 'ki_blast',
   },
@@ -240,7 +240,7 @@ export const JOB4_ABILITIES = {
     desc: '気合いだけで敵全体をふきとばす。動きも止まる（ボスには効きにくい）。', cast: '{a}「はあああっ！」', anim: 'super_aura',
   },
   s2_final: {
-    name: 'ファイナルかめはめ波', kana: 'ふぁいなるかめはめは', kind: 'skill', job: 'ss2', mp: 26, target: 'enemies',
+    name: 'ファイナルかめはめ波', kana: 'ふぁいなるかめはめは', kind: 'skill', job: 'ss2', mp: 21, target: 'enemies',
     effect: { type: 'phys', mult: 2.6, element: 'bolt' },
     desc: 'ありったけの気をこめたかめはめ波で、敵全体に大きなダメージ。雷のダメージ。', cast: '{a}「これで終わりだ…！ファイナルかめはめ波！」', anim: 'kamehameha',
   },
@@ -360,7 +360,7 @@ export const JOB4_ABILITIES = {
   },
   go_gatling: {
     name: 'ゴムゴムのガトリング', kana: 'ごむごむのがとりんぐ', kind: 'skill', job: 'rubber', mp: 10, target: 'enemies',
-    effect: { type: 'phys', mult: 0.5, hits: 7, random: true },
+    effect: { type: 'phys', mult: 0.46, hits: 7, random: true },
     desc: 'のびるうでで、敵にランダムで7回パンチ。', cast: '{a}「ゴムゴムの…ガトリング！」', anim: 'gomu_gatling',
   },
   go_fusen: {
@@ -380,8 +380,8 @@ export const JOB4_ABILITIES = {
   },
   go_gear3: {
     name: 'ギア3', kana: 'ぎあさーど', kind: 'skill', job: 'rubber', mp: 22, target: 'enemies',
-    effect: { type: 'phys', mult: 1.9 },
-    desc: 'ほねに空気をふきこんで、うでを大きくふくらませ、敵全体をなぎはらう。', cast: '{a}「ギア3！」大きなうでが、うなりを上げる！', anim: 'gomu_punch',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.9 }, { type: 'phys', mult: 0.45, hits: 4, random: true }] },
+    desc: 'ほねに空気をふきこんで、うでを大きくふくらませ、敵全体をなぎはらう。さらに、敵にランダムで4回、追いうちをかける。', cast: '{a}「ギア3！」大きなうでが、うなりを上げる！', anim: 'gomu_punch',
   },
 
   // ───────────── ニカ（伝説の職業） ─────────────

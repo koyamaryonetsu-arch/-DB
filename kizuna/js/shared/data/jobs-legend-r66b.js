@@ -25,7 +25,7 @@ export const LEGEND_R66B_JOBS = {
   smap: {
     id: 'smap', name: 'SMAP', kana: 'すまっぷ', short: 'SMAP', tier: 3, req: ['star_diva'], reqAlt: [['storm_idol']], body: 0, family: 'magic', color: '#2a6ae0',
     desc: '5人の歌声で日本中を元気にした、伝説の国民的アイドル。星の歌姫かアラシをきわめた男性だけがなれる。5人の歌で仲間全員を強くして、いなずまのステージで敵をけちらす。',
-    mods: { hp: 1.55, mp: 1.5, str: 1.25, def: 1.3, agi: 1.55, mag: 1.45, heal: 1.3 },
+    mods: { hp: 1.6, mp: 1.5, str: 1.2, def: 1.3, agi: 1.55, mag: 1.45, heal: 1.3 },
     weapons: ['fan', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, hp: 1, agi: 1 },
     versatile: true,

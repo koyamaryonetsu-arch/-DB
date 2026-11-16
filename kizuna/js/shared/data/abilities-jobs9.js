@@ -261,7 +261,7 @@ export const JOB9_ABILITIES = {
   },
   al_bakuhatsu: {
     name: 'れん成反応', kana: 'れんせいはんのう', kind: 'skill', job: 'alchemist', mp: 6, target: 'enemies',
-    effect: { type: 'magic', element: 'blast', base: [22, 30], thr: 28 },
+    effect: { type: 'magic', element: 'blast', base: [20, 28], thr: 28 },
     desc: '空気をれん成して、小さな爆発を起こす。敵全体に爆発のダメージ。', cast: '{a}のまわりで、青いいなずまがはじけた！', anim: 'r33_alchemy',
   },
   al_kusuri: {
@@ -271,8 +271,8 @@ export const JOB9_ABILITIES = {
   },
   alchemist_sig: {
     name: '石の大男', kana: 'いしのおおおとこ', kind: 'skill', job: 'alchemist', mp: 12, target: 'enemies',
-    effect: { type: 'phys', mult: 0.95 },
-    desc: '地面から、石の大男をれん成する。大男のうでが、敵全体をなぎはらう。', cast: '{a}が両手をつくと、地面から石の大男が立ち上がった！', anim: 'alchemist_sig',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 0.95 }, { type: 'phys', mult: 0.3, hits: 2, random: true }] },
+    desc: '地面から、石の大男をれん成する。大男のうでが、敵全体をなぎはらう。さらに、敵にランダムで2回、追いうちをかける。', cast: '{a}が両手をつくと、地面から石の大男が立ち上がった！', anim: 'alchemist_sig',
   },
 
   // ───────────── 国家れん金術師（上級職。れん金術師を きわめる） ─────────────

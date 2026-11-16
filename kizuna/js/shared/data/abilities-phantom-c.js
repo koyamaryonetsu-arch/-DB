@@ -143,7 +143,7 @@ export const PHANTOM_ABILITIES_C = {
   },
   ds_chokutsu: {
     name: 'スタジアム直通特急', kana: 'すたじあむちょくつうとっきゅう', kind: 'skill', job: 'dream_stadium', mp: 24, target: 'enemies', crowd: 0.1,
-    effect: { type: 'multi', parts: [{ type: 'phys', mult: 0.85, hits: 7, random: true }, { type: 'crowd', target: 'self', add: 1 }] },
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 0.79, hits: 7, random: true }, { type: 'crowd', target: 'self', add: 1 }] },
     desc: '駅からスタジアムまで止まらない、赤い特急。敵全体に、ランダムで7回ぶつかる。観客が多いほど強く、観客もふえる。', cast: '{a}「スタジアム直通特急、まもなく発車します！」', anim: 'train',
   },
   ds_makyu: {
@@ -172,8 +172,8 @@ export const PHANTOM_ABILITIES_C = {
   },
   dream_stadium_sig: {
     name: '満員御礼スタジアム特急', kana: 'まんいんおんれいすたじあむとっきゅう', kind: 'skill', job: 'dream_stadium', mp: 46, target: 'enemies', crowd: 0.12,
-    effect: { type: 'multi', parts: [{ type: 'phys', mult: 3.2, ignoreDef: 0.3 }, { type: 'crowd', target: 'self', spend: true }] },
-    desc: '満員の観客電車が、スタジアムごと敵につっこむ、夢のスタジアム鉄道の最強の技。敵全体に大ダメージ。守りの固い敵にもよく効き、観客が多いほどとても強い（観客はみんな帰っていく）。', cast: '{a}「満員御礼！スタジアムごと、出発進行！」', anim: 'train',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 3.2, ignoreDef: 0.3 }, { type: 'phys', mult: 0.7, hits: 4, random: true, ignoreDef: 0.3 }, { type: 'crowd', target: 'self', spend: true }] },
+    desc: '満員の観客電車が、スタジアムごと敵につっこむ、夢のスタジアム鉄道の最強の技。敵全体に大ダメージ。さらに、敵にランダムで4回、追いうちをかける。守りの固い敵にもよく効き、観客が多いほどとても強い（観客はみんな帰っていく）。', cast: '{a}「満員御礼！スタジアムごと、出発進行！」', anim: 'train',
   },
 
   // ───────────── 天候の神（天候をあやつる者＋天地雷鳴士） ─────────────

@@ -113,7 +113,7 @@ export const R85B_ABILITIES = {
   },
   rk_renpatsu: {
     name: '花火・大れんぱつ', kana: 'はなびだいれんぱつ', kind: 'skill', job: 'rekka', mp: 18, target: 'enemies',
-    effect: { type: 'phys', mult: 0.6, hits: 6, random: true, element: 'fire' },
+    effect: { type: 'phys', mult: 0.56, hits: 6, random: true, element: 'fire' },
     desc: '大きな花火をつぎつぎにうち上げて、敵に、ばらばらに6回当てる。炎のダメージ。', cast: '{a}「たまや〜！」花火が、空いっぱいにさいた！', anim: 'r85b_hanabi',
   },
   rk_mezame: {
@@ -123,8 +123,8 @@ export const R85B_ABILITIES = {
   },
   rekka_sig: {
     name: '八竜・同時しょうかん', kana: 'はちりゅうどうじしょうかん', kind: 'skill', job: 'rekka', mp: 38, target: 'enemies', role: 'dmg',
-    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.4, element: 'fire' }, { type: 'heal', target: 'allies', base: [50, 65], thr: 40 }] },
-    desc: '8ひきの火竜を、いっぺんによび出す。敵全体に炎のとても大きなダメージ。不死鳥の炎で、仲間全員のHPも少し回復する。', cast: '{a}「八竜、みんな来い！」', anim: 'rekka_sig',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.4, element: 'fire' }, { type: 'phys', mult: 0.35, hits: 4, random: true, element: 'fire' }, { type: 'heal', target: 'allies', base: [50, 65], thr: 40 }] },
+    desc: '8ひきの火竜を、いっぺんによび出す。敵全体に炎のとても大きなダメージ。さらに、敵にランダムで4回、火竜が追いうちをかける。不死鳥の炎で、仲間全員のHPも少し回復する。', cast: '{a}「八竜、みんな来い！」', anim: 'rekka_sig',
   },
 };
 

@@ -1,44 +1,44 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=139b2f158093';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=139b2f158093';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=139b2f158093';
-import { MONSTERS } from '../data/monsters.js?v=139b2f158093';
-import { ITEMS } from '../data/items.js?v=139b2f158093';
-import { abilityLabel } from '../ability-label.js?v=139b2f158093';
-import { JOBS } from '../data/jobs.js?v=139b2f158093';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=139b2f158093';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=139b2f158093';
+import { Battle, normBattleSettings } from '../battle.js?v=03b6a2e7d2f9';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=03b6a2e7d2f9';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=03b6a2e7d2f9';
+import { MONSTERS } from '../data/monsters.js?v=03b6a2e7d2f9';
+import { ITEMS } from '../data/items.js?v=03b6a2e7d2f9';
+import { abilityLabel } from '../ability-label.js?v=03b6a2e7d2f9';
+import { JOBS } from '../data/jobs.js?v=03b6a2e7d2f9';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=03b6a2e7d2f9';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=03b6a2e7d2f9';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=139b2f158093';
-import { befriendShare } from './recruit-share.js?v=139b2f158093';
-import { GUESTS } from '../data/shops.js?v=139b2f158093';
-import { guestForBattle, scaleGuestActor, guestAfterBattle } from '../guest-rule.js?v=139b2f158093';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=139b2f158093';
-import { rollDrops, stealPick } from '../data/loot.js?v=139b2f158093';
-import { MAPS } from '../maps/index.js?v=139b2f158093';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=139b2f158093';
-import { treasureAfterBattle } from './treasure.js?v=139b2f158093';
-import { wipeGoldLoss, bankGold } from './bank.js?v=139b2f158093';
-import { lureOn, lureGroup } from './field27.js?v=139b2f158093';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=139b2f158093';
-import { growthSummary } from './growth.js?v=139b2f158093';
-import { topLevel, battleTeamChars, expHatMult, wipeGuard } from './perks.js?v=139b2f158093';
-import { wipeShare } from '../data/items-r81.js?v=139b2f158093';
-import { battleTactics } from './tactics.js?v=139b2f158093';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=03b6a2e7d2f9';
+import { befriendShare } from './recruit-share.js?v=03b6a2e7d2f9';
+import { GUESTS } from '../data/shops.js?v=03b6a2e7d2f9';
+import { guestForBattle, scaleGuestActor, guestAfterBattle } from '../guest-rule.js?v=03b6a2e7d2f9';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=03b6a2e7d2f9';
+import { rollDrops, stealPick } from '../data/loot.js?v=03b6a2e7d2f9';
+import { MAPS } from '../maps/index.js?v=03b6a2e7d2f9';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=03b6a2e7d2f9';
+import { treasureAfterBattle } from './treasure.js?v=03b6a2e7d2f9';
+import { wipeGoldLoss, bankGold } from './bank.js?v=03b6a2e7d2f9';
+import { lureOn, lureGroup } from './field27.js?v=03b6a2e7d2f9';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=03b6a2e7d2f9';
+import { growthSummary } from './growth.js?v=03b6a2e7d2f9';
+import { topLevel, battleTeamChars, expHatMult, wipeGuard } from './perks.js?v=03b6a2e7d2f9';
+import { wipeShare } from '../data/items-r81.js?v=03b6a2e7d2f9';
+import { battleTactics } from './tactics.js?v=03b6a2e7d2f9';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
-import { isNightFor } from './clock.js?v=139b2f158093';
+import { isNightFor } from './clock.js?v=03b6a2e7d2f9';
 // 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
-import { MONSTER_FRIENDS } from '../data/companions.js?v=139b2f158093';
+import { MONSTER_FRIENDS } from '../data/companions.js?v=03b6a2e7d2f9';
 // 第51回 B: 家族のけいじ板（ひらめき技・合体技を はじめて 覚えた）
-import { boardHirameki, boardDual } from './family-board.js?v=139b2f158093';
+import { boardHirameki, boardDual } from './family-board.js?v=03b6a2e7d2f9';
 // 第51回 F: 幻の職業の 記録（自分の キャラの 戦いの 記録を 足す・条件が 見えた／なれるように なった 知らせ）
-import { addFeats, phantomAfterBattle } from './phantom.js?v=139b2f158093';
+import { addFeats, phantomAfterBattle } from './phantom.js?v=03b6a2e7d2f9';
 // 第53回 B: 第6章 Step 6 の 時のまぼろし（1日1回の ★5の 素材・はじめて 勝った 時の けいじ板）
-import { tokiPhantomAfter } from './tokei-phantom.js?v=139b2f158093';
+import { tokiPhantomAfter } from './tokei-phantom.js?v=03b6a2e7d2f9';
 // 第78回 3-10: 家族ミッション（人間の キャラが 2人 いじょうの 戦いだけ 数える。world/missions.js）
-import { missionBattle, missionFriend } from './missions.js?v=139b2f158093';
+import { missionBattle, missionFriend } from './missions.js?v=03b6a2e7d2f9';
 // 第80回 E班: ボスに 負けた 時の ヒント（負けた 回数・勝ったら 消す。world/boss-hints.js）
-import { bossHintAfter } from './boss-hints.js?v=139b2f158093';
+import { bossHintAfter } from './boss-hints.js?v=03b6a2e7d2f9';
 
 let battleSeq = 1;
 
