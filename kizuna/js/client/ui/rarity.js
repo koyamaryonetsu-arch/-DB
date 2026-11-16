@@ -4,9 +4,9 @@
 //   店で 買える 品（★1・色なし）は、一覧が ★だらけに ならない ように 名前だけ（★は 説明の「強さ ★（ランク3）」に 出る）
 //   rareNameHtml … メニュー・装備・店で 売る 一覧の 名前
 //   paintRare    … 会話の まど（宝箱を 開けた・ごほうび）と 戦いの けっかの 文の 中の 名前に 色と ★を つける
-import { ITEMS } from '../../shared/data/items.js?v=03b6a2e7d2f9';
-import { rarityOf, starsOf } from '../../shared/data/rare-loot.js?v=03b6a2e7d2f9';
-import { esc } from './dom.js?v=03b6a2e7d2f9';
+import { ITEMS } from '../../shared/data/items.js?v=793d200b699f';
+import { rarityOf, starsOf } from '../../shared/data/rare-loot.js?v=793d200b699f';
+import { esc } from './dom.js?v=793d200b699f';
 
 export const starText = (n) => '★'.repeat(Math.max(0, n || 0));
 const span = (r, s, nameHtml) => `<span class="rar r${r}">${nameHtml}<span class="rs">${starText(s)}</span></span>`;

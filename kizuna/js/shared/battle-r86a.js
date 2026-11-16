@@ -28,15 +28,15 @@
 //   r86aStore（damage の さいご）・r86aResolve（行動の おわり）・r86aPub（pub）
 // ai.js から よぶ: r86aPlan（オート。この 2つの 職業の 技だけを 見る）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=03b6a2e7d2f9';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=03b6a2e7d2f9';
-import { TAMA_BY_JOB, tamaOf, tamaScore } from './battle-r82b.js?v=03b6a2e7d2f9';
-import { oniPct, protectRate, SELF_SAFE, WEAK_AT } from './battle-r83b.js?v=03b6a2e7d2f9';
-import { CUT_FLOOR } from './battle-r83a.js?v=03b6a2e7d2f9';
-import { weatherMult } from './battle-weather.js?v=03b6a2e7d2f9';
-import { BUFF_ACTS } from './buff-acts.js?v=03b6a2e7d2f9';
-import { mpCost } from './stats.js?v=03b6a2e7d2f9';
-import { ryuSetOf, ryuMp } from './battle-r85b.js?v=03b6a2e7d2f9';
+import { JOBS } from './data/jobs.js?v=793d200b699f';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=793d200b699f';
+import { TAMA_BY_JOB, tamaOf, tamaScore } from './battle-r82b.js?v=793d200b699f';
+import { oniPct, protectRate, SELF_SAFE, WEAK_AT } from './battle-r83b.js?v=793d200b699f';
+import { CUT_FLOOR } from './battle-r83a.js?v=793d200b699f';
+import { weatherMult } from './battle-weather.js?v=793d200b699f';
+import { BUFF_ACTS } from './buff-acts.js?v=793d200b699f';
+import { mpCost } from './stats.js?v=793d200b699f';
+import { ryuSetOf, ryuMp } from './battle-r85b.js?v=793d200b699f';
 
 export const R86A_JOBS = ['yokai_bridge', 'ryujin_kenshi'];
 // かばって 受けた ダメージの うち ためる わりあい・ためられる 上限（最大HPの 何倍）・1体に のせられる 上限（自分の 物理の 何倍）

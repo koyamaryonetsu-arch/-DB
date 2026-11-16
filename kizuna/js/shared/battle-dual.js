@@ -10,19 +10,21 @@
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
 // 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
-import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=03b6a2e7d2f9';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=03b6a2e7d2f9';
-import { DUAL_TECHS, dualOptions, partnerNow, dualOnceReason } from './data/dual.js?v=03b6a2e7d2f9';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=03b6a2e7d2f9';
+import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=793d200b699f';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=793d200b699f';
+import { DUAL_TECHS, dualOptions, partnerNow, dualOnceReason } from './data/dual.js?v=793d200b699f';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=793d200b699f';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=03b6a2e7d2f9';
-import { MONSTERS } from './data/monsters.js?v=03b6a2e7d2f9';
+import { deduceElement } from './data/abilities-jobs6.js?v=793d200b699f';
+import { MONSTERS } from './data/monsters.js?v=793d200b699f';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=03b6a2e7d2f9';
+import { dualFor } from './ability-label.js?v=793d200b699f';
 // 第84回 A班: れい丸の 技は 合体技の 強さに 使う 数の √ で わって 数える（合体技は れい丸を 使わない ため。battle-r84a.js）
-import { reiNeed, reiDualMult } from './battle-r84a.js?v=03b6a2e7d2f9';
+import { reiNeed, reiDualMult } from './battle-r84a.js?v=793d200b699f';
 // 第85回 A班: となえて から うつ 大砲（ドラグ・スレイブ など）は 2ターンで 1発 なので 割り引いて 数える（battle-r85a.js の bigDualMult）
-import { bigDualMult } from './battle-r85a.js?v=03b6a2e7d2f9';
+import { bigDualMult } from './battle-r85a.js?v=793d200b699f';
+// 第87回 A班・E班: 合体技は 魔力の「頭打ちの あとの のび」の 外（pow-scale.js の powScaleDual。見つもりも 回復も）
+import { powScaleDual } from './pow-scale.js?v=793d200b699f';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 // 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）
@@ -342,7 +344,8 @@ export function skillEstimate(b, m, id, tg, ignoreDef = 0) {
       // 第55回: ランダムに 何回も 当たる 技も その 回数で 見つもる（前は 1回ぶん だけ。ほかの 敵に それる ぶん 少し ひく）
       best = Math.max(best, b.calcPhys(m, tg, eff, pen, 'phys', true).dmg * (p.random ? Math.max(1, (p.hits || 1) * 0.75) : p.hits || 1));
     } else if (p.type === 'magic' && Array.isArray(p.base)) {
-      best = Math.max(best, b.calcMagic(m, tg, { ...p, element: undefined }, pen, true).dmg);
+      // 第87回 E班: dualEst … 魔力の 倍率は 頭打ちで 止まる 式（pow-scale.js の powScaleDual）
+      best = Math.max(best, b.calcMagic(m, tg, { ...p, element: undefined, dualEst: true }, pen, true).dmg);
     }
   }
   return best;
@@ -364,7 +367,7 @@ export function memberPower(b, m, list, tg, ignoreDef = 0) {
 }
 
 // 合体技に 入った 人の 回復の 力: その 組の 回復の 技で いちばん 強い もの（1人ぶん）
-function memberHeal(m, list) {
+export function memberHeal(m, list) {
   let best = 0;
   const set = new Set(list);
   for (const id of m.abilities || []) {
@@ -372,7 +375,7 @@ function memberHeal(m, list) {
     const e = ABILITIES[id]?.effect;
     for (const p of e?.type === 'multi' ? e.parts || [] : [e]) {
       if (p?.type !== 'heal' || !Array.isArray(p.base)) continue;
-      const scale = p.fixed ? 1 : 1 + Math.max(0, Math.min(1, ((m.healPow || 0) - (p.thr ?? 20)) / 150));
+      const scale = p.fixed ? 1 : powScaleDual(m.healPow, p);
       best = Math.max(best, ((p.base[0] + p.base[1]) / 2) * scale);
     }
   }

@@ -3,12 +3,13 @@
 //   魔力で 強く なる 呪文・技: 今の 魔力で どれくらいの ダメージか（相手の 耐性・守りは 考えない）
 //   回復: 今の 回復魔力で どれくらい 回復するか
 // しきは shared/battle.js の calcPhys・calcMagic・heal・healAmountOf と おなじ（ふりはばは 両はし、会心・耐性は 入れない）
-import { abilityFor } from './ability-label.js?v=03b6a2e7d2f9';
-import { computeStats, penaltyFor } from './stats.js?v=03b6a2e7d2f9';
+import { abilityFor } from './ability-label.js?v=793d200b699f';
+import { computeStats, penaltyFor } from './stats.js?v=793d200b699f';
 // 第72回: 元気玉（みんなの HPを 10%ずつ 集める。battle-genki.js）
-import { genkiTotal } from './battle-genki.js?v=03b6a2e7d2f9';
+import { genkiTotal } from './battle-genki.js?v=793d200b699f';
+// 第87回 A班: 呪文・回復の 魔力の 伸び（battle.js と おなじ 式）
+import { powScaleOf } from './pow-scale.js?v=793d200b699f';
 
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 // 倍率の 数（1.0・1.8 の ように 小数 1けた。1より 小さい ときは 0.55 の ように 2けたまで）
 export const fmtMult = (x) => (x < 0.995 ? (Math.round(x * 100) / 100).toString() : (Math.round(x * 10) / 10).toFixed(1));
 const pair = (b) => (Array.isArray(b) ? [b[0] || 0, b[1] ?? b[0] ?? 0] : [b || 0, b || 0]);
@@ -31,9 +32,9 @@ export function powStats(char) {
   }
 }
 
-// 魔力の 伸び（calcMagic・heal と おなじ）
+// 魔力の 伸び（calcMagic・heal と おなじ。見るのは 味方の 技なので、第87回の 頭打ちの あとの のびも 入れる。pow-scale.js）
 export function powScale(pow, e) {
-  return 1 + clamp(((pow || 0) - (e.thr ?? 20)) / 150, 0, e.scaleCap ?? 1);
+  return powScaleOf(pow, e, true);
 }
 
 // 1つの 効果の 威力（{ type, ... }。威力の ない 効果は null）
