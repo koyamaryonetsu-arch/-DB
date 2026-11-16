@@ -1033,5 +1033,5 @@
     bar.firstChild.textContent = `選んだ ${n} ${S.tab === 'machines' ? '行' : '件'}を `;
   }
 
-  window.KARTE = { show, hide, available, ready, ask, say, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
+  window.KARTE = { show, hide, available, ready, ask, say, xlsxToText, csvToText, openExport, exportTheaters, moveContact, noteFromPending, noteRaw, probe: () => api.probe(), _state: S };
 })();

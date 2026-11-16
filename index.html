@@ -90,6 +90,8 @@
             <button id="aggBtn" class="pop-item col-ryo">📊 A集計</button>
             <button id="purchaseBtn" class="pop-item col-ryo">💰 支払い状況</button>
             <button id="invoiceBtn" class="pop-item">📄 請求書発行</button>
+            <button id="custAccountsBtn" class="pop-item col-ryo">📧 客先アカウント（劇場のアドレス）</button>
+            <button id="fillTitlesBtn" class="pop-item col-ryo">🏷 案件名をまとめて付ける（AI）</button>
           </div>
           <div class="pop-group">
             <div class="pop-h">別機能</div>
@@ -135,6 +137,8 @@
       <span class="hdr-lb">会社</span>
       <div id="companyBar" class="rperson-bar co-bar"></div>
     </div>
+    <!-- 客先: 劇場のアドレスで入った時だけ。自分の劇場の案件／全部の劇場 を切り替える -->
+    <div class="hdr-who cust-theater hidden" id="custTheaterBar"></div>
   </header>
   <div hidden>
         <select id="statusFilter">
@@ -236,10 +240,11 @@
             <th class="sortable" data-sort="tcPerson" data-colkey="tcPerson"><span class="th-filter" data-filter="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho tc-label">TC担当者</span></span></th>
             <th class="sortable" data-sort="rPerson" data-colkey="rPerson"><span class="th-filter" data-filter="rPerson">R担当者</span></th>
             <th class="sortable" data-sort="category" data-colkey="category"><span class="th-filter" data-filter="category">種別</span></th>
+            <th class="sortable col-title" data-sort="title" data-colkey="title"><span class="th-filter" data-filter="title">案件名</span></th>
             <th class="sortable" data-sort="content" data-colkey="content"><span class="th-filter" data-filter="content">内容</span></th>
             <th class="col-customer-memo sortable" data-sort="customerMemo" data-colkey="customerMemo"><span class="th-filter" data-filter="customerMemo"><span class="customer-memo-label">顧客メモ</span></span></th>
             <th class="sortable" data-sort="surveyDate" data-colkey="surveyDate"><span class="th-filter" data-filter="surveyDate">調査日</span></th>
-            <th class="sortable" data-sort="certNumber" data-colkey="certNumber"><span class="th-filter" data-filter="certNumber">認証番号</span></th>
+            <th class="sortable" data-sort="certNumber" data-colkey="certNumber"><span class="th-filter" data-filter="certNumber">承認番号</span></th>
             <th class="sortable" data-sort="estimateName" data-colkey="estimateName"><span class="th-filter" data-filter="estimateName">見積り名</span></th>
             <th class="sortable" data-sort="estimateAmount" data-colkey="estimateAmount"><span class="th-filter" data-filter="estimateAmount">見積り金額</span></th>
             <th class="col-tax" data-colkey="tax">見積り金額（税込み）</th>
@@ -727,6 +732,10 @@
       <section class="form-sec" data-sec="content">
         <h3 class="form-sec-h">内容</h3>
         <div class="form-stack">
+          <div class="form-row form-row-wide" data-mode="simple">
+            <label for="caseTitle">案件名</label>
+            <div class="title-row"><input type="text" id="caseTitle" maxlength="40" placeholder="空なら保存の時に AI が内容から付けます（例: シアター7空調機冷えない）"><button type="button" id="caseTitleAiBtn" class="mini-btn ryo-only" title="内容から案件名を AI で作る">🤖 内容から作る</button></div>
+          </div>
           <div class="form-row form-row-wide" data-mode="simple" data-cal="1">
             <label for="content">内容</label>
             <textarea id="content" rows="3" class="autogrow" placeholder="案件の詳細を記入（長文OK・後からクリックでポップアップ編集可）"></textarea>
@@ -780,7 +789,7 @@
             <input type="text" id="estimateAmount" inputmode="numeric" autocomplete="off" placeholder="例：500,000">
           </div>
           <div class="form-row toho-only-field" data-mode="full">
-            <label for="certNumber">認証番号</label>
+            <label for="certNumber">承認番号</label>
             <input type="text" id="certNumber" placeholder="例: 12345-678">
           </div>
           <div class="form-row" data-mode="full">

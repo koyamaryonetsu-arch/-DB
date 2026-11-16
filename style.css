@@ -762,7 +762,15 @@ body.user-toho .col-memo,
 body.user-toho .col-ryo,
 body.user-toho .ryo-only,
 body.user-toho #invoiceBtn,
-body.user-toho #aggBtn { display: none !important; }
+body.user-toho #aggBtn,
+/* 客先は新しい案件を作れない（TOHO の要望 2026-11-16）。直せるのは「自社のメモ」だけ */
+body.user-toho #newCaseBtn,
+body.user-toho #quickCaseBtn,
+body.user-toho #fabNewBtn,
+body.user-toho #modalDeleteBtn,
+body.user-toho #modalDuplicateBtn,
+body.user-toho .m-proxy[data-proxy="quickCaseBtn"] { display: none !important; }
+#caseForm.cust-memo-only input:disabled, #caseForm.cust-memo-only select:disabled, #caseForm.cust-memo-only textarea:disabled { background: #f8fafc; color: #334155; }
 
 /* ---- 内容ポップアップ ---- */
 .modal-content-wide { max-width: 720px; }
@@ -2447,3 +2455,28 @@ td.task-col.ptp-tasks { padding-right: 12px !important; }
 .meeting-co span { font-size: 12px; color: #64748b; }
 .meeting-info { font-weight: 700; color: #15803d; }
 body.meeting-mode #userMenuBtn { box-shadow: 0 0 0 2px #22c55e inset; border-radius: 999px; }
+
+/* TOHO の承認番号が要る案件（見積り金額・税抜が10万円以上）: 種別の文字を黄色に（白い背景でも読めるよう、濃い黄色の文字＋薄い黄色の下地） */
+.cat-approval { color: #a16207; background: #fef08a; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+
+/* 案件名（内容の左）・編集パネルの案件名の行 */
+#casesTable td.col-title { font-weight: 600; white-space: normal; min-width: 160px; }
+.title-row { display: flex; gap: 6px; align-items: center; }
+.title-row input { flex: 1; }
+/* 客先: 劇場の切り替え（自分の劇場／全部の劇場） */
+.hdr-who.cust-theater { display: flex; }
+.hdr-who.cust-theater.hidden { display: none; }
+/* 客先アカウントの一覧 */
+.acct-dlg .acct-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.acct-dlg .acct-add { display: inline-flex; gap: 6px; align-items: center; }
+.acct-dlg .acct-add .tm-input { width: 220px; }
+.acct-dlg .acct-wrap { max-height: 50vh; overflow: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
+.acct-table { width: 100%; min-width: 0; border-collapse: collapse; font-size: 13px; }
+.acct-table th, .acct-table td { border: 1px solid #e5e7eb; padding: 4px 8px; text-align: left; }
+.acct-table th { background: #f1f5f9; position: sticky; top: 0; }
+.acct-table tr.acct-nomatch td { background: #fff7ed; }
+.acct-table .acct-empty { text-align: center; color: #64748b; padding: 14px; }
+/* 小さなお知らせ */
+.lite-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 4000; }
+.lite-toast.on { opacity: .95; }
+.m-title { font-weight: 700; font-size: 14px; margin: 2px 0; }
