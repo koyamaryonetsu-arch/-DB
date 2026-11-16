@@ -17,7 +17,7 @@
 //   outfit86b(O, S, metal) … 金の ベルト・金の かたあて（hero-outfit.js の outfitOf の おわりに 1行。metal は hero-outfit.js の 金ぞくの 色。
 //     この ファイルから hero-outfit.js を import しない〈おたがいに import すると、先に 読まれた 方で まだ ない 名前を 使って しまう〉）
 //   drawProp86b(cv, P, A, O) … 手に もつ 太極の しるし（hero-r26.js の drawProp26 から。かいたら true）
-import { mat, ramp, TH } from './hero-raster.js?v=956fa349b538';
+import { mat, ramp, TH } from './hero-raster.js?v=623eb9504545';
 
 export const R86B_JOBS = ['tenkaichi_king', 'chaos_gunshi'];
 
