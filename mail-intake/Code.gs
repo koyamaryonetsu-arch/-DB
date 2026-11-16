@@ -115,6 +115,7 @@ function importCaseEmails() {
     var lblConfirm = getOrCreateLabel_(CONFIRM_LABEL);
     var lblMulti = getOrCreateLabel_(MULTI_LABEL);
     pruneThreadMemory_(); // 古くなった「やり取り⇔案件」の記録を1日1回掃除
+    if (typeof caseMailLabelReplies_ === 'function') caseMailLabelReplies_(); // 通知メールへの返信も取り込む（CaseMail.gs）
     // 取込対象は「直近に届いたメール」だけ。過去メールは遡って登録しない（newer_than:2d＋下の時間ガード）
     // ※Gmailのラベルは1通ごと。処理済みのやり取りでも、新しい返信には印が無いので再び拾われる
     //   （＝返信は進捗として扱いたいので、これ自体は正しい）。重複しないよう下の「記録」で判定する。
@@ -143,8 +144,17 @@ function importCaseEmails() {
       var m = msgs[msgs.length - 1];        // 最新（進捗判定・受付日フォールバック用）
       var emailText = buildThreadText_(th); // スレッド全体を文脈に（最初の依頼＋以降の進捗）
 
+      // ===== (0) こちらが送った通知メール（件名に [案件#…]。CaseMail.gs）のやり取り =====
+      //   通知を送っただけ（最後が自分の通知メール）なら取り込まない。客先の返信なら、その案件の記録に残し、その案件の更新として読む
+      var noticeCaseId = (typeof caseMailCaseOfThread_ === 'function') ? caseMailCaseOfThread_(th) : null;
+      if (noticeCaseId) {
+        if (caseMailIsOurNotice_(m)) { th.addLabel(lblUpd); return; }
+        caseMailLogReplies_(th, noticeCaseId);
+      }
+
       // ===== (1) このやり取りを前に処理したか（記録 → 無ければ確認待ちの記録 → それも無ければラベル） =====
       var known = recallThread_(th);
+      if (noticeCaseId) known = { kind: 'case', caseId: noticeCaseId, caseIds: [noticeCaseId], pendingIds: [] };
       if (known.kind === 'pending') {
         // 確認待ち（人がまだ新規/更新を選んでいない）→ 同じ問い合わせを繰り返さない
         th.addLabel(lblConfirm); nConfirm++;
