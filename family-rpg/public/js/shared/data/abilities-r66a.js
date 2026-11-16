@@ -76,7 +76,7 @@ export const R66A_ABILITIES = {
   },
   ks_ame: {
     name: '光の剣の雨', kana: 'ひかりのけんのあめ', kind: 'skill', job: 'kenshin', mp: 20, target: 'enemies',
-    effect: { type: 'phys', mult: 0.8, hits: 5, random: true, element: 'light' },
+    effect: { type: 'phys', mult: 0.74, hits: 5, random: true, element: 'light' },
     desc: '空いっぱいに光の剣をうかべて、雨のようにふらせる。敵全体に、ランダムで5回ダメージ。', cast: '{a}が剣をかかげると、空に光の剣がならんだ！', anim: 'r66a_light_rain',
   },
   ks_yaminami: {
@@ -96,9 +96,10 @@ export const R66A_ABILITIES = {
       parts: [
         { type: 'phys', mult: 1.45, element: 'light', ignoreDef: 0.2 },
         { type: 'phys', mult: 1.45, element: 'dark', ignoreDef: 0.2 },
+        { type: 'phys', mult: 0.3, hits: 4, random: true, element: 'light', ignoreDef: 0.2 },
       ],
     },
-    desc: '光の剣と闇の剣を1つに合わせて、天まで光る大きな剣にしてふりおろす、光と闇の剣神の最強の技。敵全体に、光と闇で2回大ダメージ。', cast: '{a}「光と闇、2つの剣を1つに！」', anim: 'kenshin_sig',
+    desc: '光の剣と闇の剣を1つに合わせて、天まで光る大きな剣にしてふりおろす、光と闇の剣神の最強の技。敵全体に、光と闇で2回大ダメージ。さらに、敵にランダムで4回、光の追いうちをかける。', cast: '{a}「光と闇、2つの剣を1つに！」', anim: 'kenshin_sig',
   },
 
   // ───────────── ポケモンマスター（モンスターマスター＋ほかの 超級職 1つ） ─────────────

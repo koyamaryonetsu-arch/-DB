@@ -294,7 +294,7 @@ export const JOB_ABILITIES = {
     desc: '勝負をさける。敵1体の行動ゲージを0にもどす（ボスには効きにくく、もどすのも半分だけ）。', cast: '{a}は{t}を敬遠した！', anim: 'none',
   },
   bb_sayonara: {
-    name: 'サヨナラ打', kana: 'さよならだ', kind: 'skill', job: 'ballplayer', mp: 12, target: 'enemies', weapon: 'bat',
+    name: 'サヨナラ打', kana: 'さよならだ', kind: 'skill', job: 'ballplayer', mp: 9, target: 'enemies', weapon: 'bat',
     effect: { type: 'phys', mult: 1.6 },
     desc: '試合を決める一打。敵全体をまとめてかっとばす。', cast: 'カキーン！{a}のサヨナラ打！', anim: 'bat_swing',
   },
@@ -420,7 +420,7 @@ export const JOB_ABILITIES = {
   },
   sg_oniwaban: {
     name: 'お庭番', kana: 'おにわばん', kind: 'skill', job: 'shogun', mp: 8, target: 'enemies',
-    effect: { type: 'phys', mult: 0.9, hits: 4, random: true, critBonus: 0.1 },
+    effect: { type: 'phys', mult: 0.84, hits: 4, random: true, critBonus: 0.1 },
     desc: 'かくれていた忍びたちが、4回、敵にランダムでおそいかかる。', cast: '{a}の合図で、お庭番の忍びたちが飛び出した！', anim: 'shuriken',
   },
   sg_gunbai: {
@@ -430,8 +430,8 @@ export const JOB_ABILITIES = {
   },
   sg_tenka: {
     name: '天下一の太刀', kana: 'てんかいちのたち', kind: 'skill', job: 'shogun', mp: 18, target: 'enemies', weapon: 'blade',
-    effect: { type: 'phys', mult: 2.5 },
-    desc: '天下をおさめる者の一太刀。敵全体に大ダメージ。', cast: '{a}の天下一の太刀！', anim: 'gigabreak', sword: true,
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.5 }, { type: 'phys', mult: 0.35, hits: 4, random: true }] },
+    desc: '天下をおさめる者の一太刀。敵全体に大ダメージ。さらに、敵にランダムで4回、追いうちをかける。', cast: '{a}の天下一の太刀！', anim: 'gigabreak', sword: true,
   },
 
   // ───────────── 社長 ─────────────

@@ -72,7 +72,7 @@ export const JOBS = {
   warrior: {
     id: 'warrior', name: '戦士', kana: 'せんし', short: '戦士', tier: 0, family: 'phys', color: '#d4574e',
     desc: 'たくましい体で仲間を守る。剣の技「大地斬」「海波斬」が得意。',
-    mods: { hp: 1.25, mp: 0.4, str: 1.25, def: 1.3, agi: 0.85, mag: 0.5, heal: 0.5 },
+    mods: { hp: 1.25, mp: 0.6, str: 1.25, def: 1.3, agi: 0.85, mag: 0.4, heal: 0.4 },
     weapons: ['sword', 'axe', 'dagger'], shield: true, armor: ['cloth', 'heavy', 'gi'], helm: true,
     perLv: { hp: 2 },
     learn: [
@@ -83,7 +83,7 @@ export const JOBS = {
   monk: {
     id: 'monk', name: '武闘家', kana: 'ぶとうか', short: '武闘', tier: 0, family: 'phys', color: '#e0913a',
     desc: 'とても素早く、行動の順番が早く回ってくる。こぶしの技で会心をねらう。',
-    mods: { hp: 1.05, mp: 0.5, str: 1.12, def: 0.9, agi: 1.45, mag: 0.5, heal: 0.7 },
+    mods: { hp: 1.05, mp: 0.85, str: 1.12, def: 0.9, agi: 1.45, mag: 0.45, heal: 0.4 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { agi: 1 },
     learn: [
@@ -163,7 +163,7 @@ export const JOBS = {
   railman: {
     id: 'railman', name: '鉄道員', kana: 'てつどういん', short: '鉄道', tier: 0, family: 'phys', color: '#2a4a8a',
     desc: '時間を守る鉄道員。指さし確認と非常ブレーキで、戦いの流れをととのえる。体がじょうぶ。きわめると運転士になれる。',
-    mods: { hp: 1.2, mp: 0.8, str: 1.1, def: 1.2, agi: 1.0, mag: 0.7, heal: 0.9 },
+    mods: { hp: 1.2, mp: 1.0, str: 1.1, def: 1.2, agi: 1.0, mag: 0.6, heal: 0.8 },
     weapons: ['fan', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { hp: 1, def: 0.5 },
     learn: [
@@ -174,7 +174,7 @@ export const JOBS = {
   ballplayer: {
     id: 'ballplayer', name: 'プロ野球選手', kana: 'ぷろやきゅうせんしゅ', short: '野球', tier: 0, family: 'phys', color: '#d85a3a',
     desc: 'プロの野球選手。バットでかっとばし、ごう速球を投げる。たくさん練習するとメジャーリーガーになれる。',
-    mods: { hp: 1.15, mp: 0.6, str: 1.2, def: 1.0, agi: 1.15, mag: 0.6, heal: 0.8 },
+    mods: { hp: 1.15, mp: 0.95, str: 1.2, def: 1.0, agi: 1.15, mag: 0.4, heal: 0.65 },
     weapons: ['bat', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
     perLv: { str: 0.5, agi: 0.5 },
     learn: [
@@ -187,7 +187,7 @@ export const JOBS = {
   battlemaster: {
     id: 'battlemaster', name: 'バトルマスター', kana: 'ばとるますたー', short: 'バト', tier: 1, req: ['warrior', 'monk'], family: 'phys', color: '#e0503a',
     desc: '戦いの達人。力も素早さも高く、「もろば斬り」や「むそうぎり」で敵をなぎ倒す。',
-    mods: { hp: 1.3, mp: 0.5, str: 1.4, def: 1.15, agi: 1.2, mag: 0.5, heal: 0.6 },
+    mods: { hp: 1.3, mp: 0.8, str: 1.4, def: 1.15, agi: 1.2, mag: 0.4, heal: 0.4 },
     weapons: ['sword', 'axe', 'spear', 'claw', 'none'], shield: true, armor: ['cloth', 'heavy', 'gi'], helm: true,
     perLv: { str: 1, hp: 1 },
     learn: [[1, 'bm_moroba'], [3, 'bm_musou'], [5, 'bm_otakebi'], [7, 'bm_tension'], [10, 'bm_hakai']],
@@ -415,7 +415,7 @@ export const JOBS = {
   schoolkid: {
     id: 'schoolkid', name: '小学生', kana: 'しょうがくせい', short: '小学', tier: 0, family: 'tech', color: '#f2c84e',
     desc: '元気いっぱいの小学生。すばしっこくて運がよく、のびざかりなので職業レベルが上がりやすい。ランドセルアタックやリコーダー、じゃんけんで戦う。',
-    mods: { hp: 0.9, mp: 0.9, str: 0.9, def: 0.85, agi: 1.35, mag: 0.95, heal: 1.0 },
+    mods: { hp: 0.9, mp: 1.0, str: 0.9, def: 0.85, agi: 1.35, mag: 0.85, heal: 1.0 },
     weapons: ['sword', 'staff', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi'], helm: false,
     perLv: { hp: 1, agi: 0.4, str: 0.3 },
     passive: { train: 1.25 },
@@ -532,7 +532,7 @@ export const JOBS = {
   cook: {
     id: 'cook', name: '料理人', kana: 'りょうりにん', short: '料理', tier: 0, family: 'tech', color: '#d8cfb8',
     desc: '料理のうでで仲間を元気にする。包丁さばきで切りつけ、強火で焼き、あったかいスープでじわじわ回復させる。',
-    mods: { hp: 1.1, mp: 0.95, str: 1.05, def: 1.0, agi: 1.0, mag: 0.95, heal: 1.2 },
+    mods: { hp: 1.1, mp: 1.0, str: 1.05, def: 1.0, agi: 1.0, mag: 0.9, heal: 1.2 },
     weapons: ['dagger', 'axe', 'staff'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { hp: 1, heal: 0.5 },
     learn: [
@@ -666,7 +666,7 @@ export const JOBS = {
   saiyan: {
     id: 'saiyan', name: 'サイヤ人', kana: 'さいやじん', short: 'サイヤ', tier: 0, family: 'phys', color: '#2a3a8a',
     desc: '戦いが大すきな戦闘民族。気だんやかめはめ波で戦う。きたえるほど強くなり、いつか金色にかがやくという。',
-    mods: { hp: 1.15, mp: 0.6, str: 1.25, def: 1.0, agi: 1.2, mag: 0.6, heal: 0.6 },
+    mods: { hp: 1.15, mp: 1.0, str: 1.25, def: 1.0, agi: 1.2, mag: 0.4, heal: 0.4 },
     weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
     perLv: { str: 0.5, hp: 1 },
     learn: [
@@ -677,7 +677,7 @@ export const JOBS = {
   super_saiyan: {
     id: 'super_saiyan', name: 'スーパーサイヤ人', kana: 'すーぱーさいやじん', short: 'SS', tier: 1, req: ['saiyan'], family: 'phys', color: '#e8c020',
     desc: 'サイヤ人がいかりで目ざめた、金色のすがた。かみがさか立ち、力も速さもはね上がる。',
-    mods: { hp: 1.3, mp: 0.7, str: 1.45, def: 1.15, agi: 1.35, mag: 0.7, heal: 0.6 },
+    mods: { hp: 1.3, mp: 0.9, str: 1.45, def: 1.15, agi: 1.35, mag: 0.55, heal: 0.55 },
     weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
     perLv: { str: 1, agi: 0.5 },
     learn: [[1, 'sz_kame'], [2, 'sz_aura'], [4, 'sz_kikouha'], [5, 'sz_zanzou'], [6, 'sz_ikari'], [8, 'sz_final'], [10, 'sz_renzoku']],
@@ -685,7 +685,7 @@ export const JOBS = {
   ss2: {
     id: 'ss2', name: 'スーパーサイヤ人2', kana: 'すーぱーさいやじんつー', short: 'SS2', tier: 2, req: ['super_saiyan'], family: 'phys', color: '#f0d040',
     desc: 'スーパーサイヤ人をこえたすがた。体のまわりを青いいなずまが走る。雷の力をまとった技で戦う。',
-    mods: { hp: 1.4, mp: 0.8, str: 1.6, def: 1.25, agi: 1.5, mag: 0.75, heal: 0.65 },
+    mods: { hp: 1.4, mp: 0.95, str: 1.6, def: 1.25, agi: 1.5, mag: 0.6, heal: 0.65 },
     weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
     perLv: { str: 1, agi: 1 },
     learn: [[1, 's2_spark'], [3, 's2_kame'], [5, 's2_aura'], [7, 's2_rush'], [8, 's2_kiaihou'], [10, 's2_final']],
@@ -874,7 +874,7 @@ export const JOBS = {
   kisatsu: {
     id: 'kisatsu', name: 'きさつ隊', kana: 'きさつたい', short: 'きさつ', tier: 1, req: ['warrior', 'monk'], family: 'phys', color: '#2a3442',
     desc: '黒い隊服で、夜の魔物と戦う剣士たち。全集中の呼吸で力を高め、水の呼吸の型で敵を切る。戦士と武闘家をきわめるとなれる。',
-    mods: { hp: 1.25, mp: 0.6, str: 1.4, def: 1.05, agi: 1.35, mag: 0.5, heal: 0.6 },
+    mods: { hp: 1.25, mp: 0.7, str: 1.4, def: 1.05, agi: 1.35, mag: 0.4, heal: 0.6 },
     weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 0.5 },
     learn: [[1, 'ks_minamo'], [2, 'ks_zenshuu'], [3, 'ks_hyoutan'], [5, 'ks_uchishio'], [7, 'ks_nejire'], [10, 'kisatsu_sig']],
@@ -1056,7 +1056,7 @@ export const JOBS = {
   rurouni: {
     id: 'rurouni', name: 'るろうに剣士', kana: 'るろうにけんし', short: 'るろうに', tier: 0, family: 'phys', color: '#c8304a',
     desc: 'ほおに十字のきずがある、旅の剣士。刀のはが反対がわについた「逆ば刀」で、だれもきずつけずに悪いやつをこらしめる。口ぐせは「〜でござる」。きわめると人斬りばっ刀さいになれる。',
-    mods: { hp: 1.05, mp: 0.65, str: 1.25, def: 0.95, agi: 1.35, mag: 0.55, heal: 0.75 },
+    mods: { hp: 1.05, mp: 0.8, str: 1.25, def: 0.95, agi: 1.35, mag: 0.4, heal: 0.75 },
     weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { agi: 0.8, str: 0.5 },
     learn: [[1, 'rr_battou'], [2, 'rr_oro'], [3, 'rr_doryu'], [5, 'rr_ryukan'], [7, 'rr_sentaku'], [10, 'rurouni_sig']],
@@ -1064,7 +1064,7 @@ export const JOBS = {
   hitokiri: {
     id: 'hitokiri', name: '人斬りばっ刀さい', kana: 'ひときりばっとうさい', short: '人斬り', tier: 1, req: ['rurouni'], family: 'phys', color: '#3a3048',
     desc: 'むかし、目にもとまらぬばっ刀術で、おそれられた剣士。気配を消して、するどい一太刀をふるう。攻撃力と素早さはとても高いが、守りはうすい。るろうに剣士をきわめるとなれる。',
-    mods: { hp: 1.1, mp: 0.65, str: 1.5, def: 0.9, agi: 1.55, mag: 0.55, heal: 0.55 },
+    mods: { hp: 1.1, mp: 0.95, str: 1.5, def: 0.9, agi: 1.55, mag: 0.4, heal: 0.4 },
     weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 0.5 },
     learn: [[1, 'htk_ryusho'], [2, 'htk_kenki'], [3, 'htk_soryu'], [5, 'htk_yamiyo'], [7, 'htk_ryumei'], [10, 'hitokiri_sig']],

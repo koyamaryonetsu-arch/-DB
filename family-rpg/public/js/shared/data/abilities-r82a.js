@@ -46,7 +46,7 @@ export const R82A_ABILITIES = {
     desc: 'つめで、目にもとまらない速さで引っかきつづける。敵1体に4回ダメージ。つめか素手の時に使える。', cast: '{a}の、つめの連げき！', anim: 'r82a_claw',
   },
   hanyo_boy_sig: {
-    name: 'あばれんぼうの大づめ', kana: 'あばれんぼうのおおづめ', kind: 'skill', job: 'hanyo_boy', mp: 10, target: 'enemy', weapon: FIST,
+    name: 'あばれんぼうの大づめ', kana: 'あばれんぼうのおおづめ', kind: 'skill', job: 'hanyo_boy', mp: 9, target: 'enemy', weapon: FIST,
     effect: { type: 'phys', mult: 2.6, youkaiMult: 1.35 },
     desc: '大きくとび上がって、つめをふり下ろす。敵1体に大ダメージ。ようかい化している間は、さらに強い。つめか素手の時に使える。', cast: '{a}の、あばれんぼうの大づめ！', anim: 'hanyo_boy_sig',
   },
@@ -78,7 +78,7 @@ export const R82A_ABILITIES = {
     desc: 'つめで3回、すばやく引っかく。敵1体に3回ダメージ。次の番が早く来る。つめか素手の時に使える。', cast: '{a}の、さんこんてっそう・改！', anim: 'r82a_claw',
   },
   tessaiga_user_sig: {
-    name: '風のきず', kana: 'かぜのきず', kind: 'skill', job: 'tessaiga_user', mp: 16, target: 'enemies', weapon: SWORD,
+    name: '風のきず', kana: 'かぜのきず', kind: 'skill', job: 'tessaiga_user', mp: 14, target: 'enemies', weapon: SWORD,
     effect: { type: 'phys', mult: 1.3, ...WIND },
     desc: '風と風のぶつかる「きず」を切って、大きな風をおこす。敵全体に風のダメージ。自分を強くしている敵には、もっと効く。剣の時に使える。', cast: '{a}「風のきず！」', anim: 'tessaiga_user_sig',
   },

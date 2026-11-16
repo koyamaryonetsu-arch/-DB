@@ -91,7 +91,7 @@ export const JOB2_ABILITIES = {
   },
   jh_hankou: {
     name: '反こう期', kana: 'はんこうき', kind: 'skill', job: 'middleschooler', mp: 7, target: 'enemies',
-    effect: { type: 'phys', mult: 0.75, hits: 4, random: true },
+    effect: { type: 'phys', mult: 0.7, hits: 4, random: true },
     desc: '「うるさいなあ！」手当たりしだいにあばれる。4回、敵にランダムで当たる。', cast: '「うるさいなあ！」{a}は手当たりしだいにあばれ出した！', anim: 'punch_multi',
   },
   jh_gassho: {
@@ -101,8 +101,8 @@ export const JOB2_ABILITIES = {
   },
   jh_zenkoku: {
     name: '全国大会', kana: 'ぜんこくたいかい', kind: 'skill', job: 'middleschooler', mp: 14, target: 'enemies',
-    effect: { type: 'phys', mult: 1.7 },
-    desc: '部活の練習の成果を、全部ぶつける。敵全体に大きなダメージ。', cast: 'ついに全国大会！{a}は練習の成果を出しきった！', anim: 'rock_smash',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.7 }, { type: 'phys', mult: 0.5, hits: 3, random: true }] },
+    desc: '部活の練習の成果を、全部ぶつける。敵全体に大きなダメージ。さらに、敵にランダムで3回、追いうちをかける。', cast: 'ついに全国大会！{a}は練習の成果を出しきった！', anim: 'rock_smash',
   },
 
   // ───────────── 高校生（青春の オールラウンダー） ─────────────
@@ -359,13 +359,13 @@ export const JOB2_ABILITIES = {
   },
   dv_renketsu: {
     name: '連結', kana: 'れんけつ', kind: 'skill', job: 'train_driver', mp: 10, target: 'enemies',
-    effect: { type: 'phys', mult: 0.95, hits: 4, random: true },
+    effect: { type: 'phys', mult: 0.89, hits: 4, random: true },
     desc: '車両をつぎつぎつないで体当たり。4回、敵にランダムで当たる。', cast: 'ガッチャン！{a}は車両を連結した！', anim: 'train',
   },
   dv_saikou: {
     name: '最高速度', kana: 'さいこうそくど', kind: 'skill', job: 'train_driver', mp: 15, target: 'enemies',
-    effect: { type: 'phys', mult: 1.9, ignoreDef: 0.25 },
-    desc: '最高速度で走りぬけ、敵全体をはねとばす。守りの固い敵にもよく効く。', cast: '{a}は最高速度で走りだした！', anim: 'train',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.9, ignoreDef: 0.25 }, { type: 'phys', mult: 0.65, hits: 3, random: true, ignoreDef: 0.25 }] },
+    desc: '最高速度で走りぬけ、敵全体をはねとばす。守りの固い敵にもよく効く。さらに、敵にランダムで3回、追いうちをかける。', cast: '{a}は最高速度で走りだした！', anim: 'train',
   },
 
   // ───────────── 京急の運転士（運転士の 超級職） ─────────────
@@ -391,7 +391,7 @@ export const JOB2_ABILITIES = {
   },
   kq_kaitoku: {
     name: '赤い快特', kana: 'あかいかいとく', kind: 'skill', job: 'keikyu_driver', mp: 20, target: 'enemies',
-    effect: { type: 'phys', mult: 2.4, ignoreDef: 0.3 },
-    desc: '赤い電車が、ものすごい速さで駅を通過する。敵全体に大ダメージ。守りの固い敵にもよく効く。', cast: '{a}の赤い快特が、ものすごい速さでかけぬけた！', anim: 'redtrain',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.4, ignoreDef: 0.3 }, { type: 'phys', mult: 0.35, hits: 4, random: true, ignoreDef: 0.3 }] },
+    desc: '赤い電車が、ものすごい速さで駅を通過する。敵全体に大ダメージ。守りの固い敵にもよく効く。さらに、敵にランダムで4回、追いうちをかける。', cast: '{a}の赤い快特が、ものすごい速さでかけぬけた！', anim: 'redtrain',
   },
 };

@@ -9,6 +9,7 @@ import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { computeStats } from '../public/js/shared/stats.js';
 import { jobChar } from './sim-jobs.mjs';
+import { CLONE_MAX } from '../public/js/shared/battle-phantom-a.js';
 
 const LV = [20, 35, 55, 75, 90], RANK = [4, 6, 8, 10, 12];
 const TN = ['基本職', '上級職', '超級職', '伝説', '幻'];
@@ -25,8 +26,10 @@ function measure(id, lv, rank) {
     const a = ABILITIES[sid]; const ps = parts(a.effect);
     let e = 0;
     for (const p of ps) {
-      if (p.type === 'phys') e += b.calcPhys(me, tg, { ...p, element: undefined }, 1, 'phys', true).dmg * (p.hits || 1);
-      else if (p.type === 'magic' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, element: undefined }, 1, true).dmg * (p.hits || 1);
+      // 第87回 C班: かならず 出る 分も 数える（分身を make 人 出して dance 回ずつ・フレア・アローの r85aHits・天候反転の weatherStrike）
+      if (p.type === 'phys') e += b.calcPhys(me, tg, { ...p, element: undefined }, 1, 'phys', true).dmg * ((p.hits || 1) + (p.make && p.dance ? p.dance * Math.min(CLONE_MAX, p.make) : 0));
+      else if (p.type === 'magic' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, element: undefined }, 1, true).dmg * (p.hits || p.r85aHits || 1);
+      else if (p.type === 'weatherStrike' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, type: 'magic', element: undefined }, 1, true).dmg;
     }
     const spell = ps.filter((p) => p.type === 'magic' && Array.isArray(p.base) && p.stat !== 'heal');
     return {

@@ -39,7 +39,7 @@ export const JOB8_ABILITIES = {
     desc: 'たらいで、みんなの服をごしごしあらう。仲間全員のHPが少し回復して、悪いじょうたいも治る。', cast: '{a}「おせんたくは、せっしゃにおまかせでござる」', anim: 'heal1',
   },
   rurouni_sig: {
-    name: '竜つい閃', kana: 'りゅうついせん', kind: 'skill', job: 'rurouni', mp: 10, target: 'enemy',
+    name: '竜つい閃', kana: 'りゅうついせん', kind: 'skill', job: 'rurouni', mp: 8, target: 'enemy',
     effect: { type: 'phys', mult: 2.6 },
     desc: '高く飛び上がり、落ちるいきおいのまま、真上から敵1体に刀を打ち下ろす。', cast: '{a}の飛天御剣流！竜つい閃！', anim: 'rurouni_sig',
   },
@@ -77,7 +77,7 @@ export const JOB8_ABILITIES = {
     desc: 'さやに刀をはげしくおさめて、するどい音をひびかせる。敵全体の動きが止まったり、混乱したりする。', cast: '{a}は、刀をさやへはげしくおさめた！キイイン！', anim: 'warcry',
   },
   hitokiri_sig: {
-    name: '竜巣閃', kana: 'りゅうそうせん', kind: 'skill', job: 'hitokiri', mp: 18, target: 'enemies',
+    name: '竜巣閃', kana: 'りゅうそうせん', kind: 'skill', job: 'hitokiri', mp: 14, target: 'enemies',
     effect: { type: 'phys', mult: 0.7, hits: 6, random: true },
     desc: '目にもとまらぬ速さで、何度も切りつける。敵にランダムで6回当たる。', cast: '{a}の飛天御剣流！竜巣閃！', anim: 'hitokiri_sig',
   },

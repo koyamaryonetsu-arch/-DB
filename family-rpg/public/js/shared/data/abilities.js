@@ -167,7 +167,7 @@ export const ABILITIES = {
     cast: '{a}のつるぎのまい！', anim: 'slash_multi', sword: true,
   },
   tamashii: {
-    name: 'たましいの一撃', kana: 'たましいのいちげき', kind: 'skill', job: 'warrior', mp: 8, target: 'enemy',
+    name: 'たましいの一撃', kana: 'たましいのいちげき', kind: 'skill', job: 'warrior', mp: 6, target: 'enemy',
     effect: { type: 'phys', mult: 2.4 },
     desc: '戦士のたましいをこめた必殺の一撃。',
     cast: '{a}はたましいをこめて切りかかった！', anim: 'slash_heavy',
