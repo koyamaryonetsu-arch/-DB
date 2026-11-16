@@ -85,10 +85,10 @@ Object.assign(PHANTOM_ADJ, { tenkaichi_king: [0.99, 0.84, 0.91], chaos_gunshi: [
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士（幻の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { yokai_bridge: [0.7, 0.46, 0.51], ryujin_kenshi: [0.89, 0.91, 1.2] });
 // 第87回 C班: 看板の 技に 追いうちが ついて まぼろしも 強く なった 試練だけ さがし直した
-//   （tools/sim-trial-tune.mjs 10 0.75 HI=4・TRIAL=その 試練。ゆれの 大きい ゴム人間 一・三／ブラック 三／達人 一 は 20回・SEED 1000 で もう一度）
+//   （tools/sim-trial-tune.mjs 10 0.75 HI=4・TRIAL=その 試練。ゆれの 大きい ゴム人間 一・三／ブラック 三／達人 一・二／社長 三 は 20回・SEED 1000 で もう一度。会長 三 は sim-trial 20回で 合わせた）
 Object.assign(PHANTOM_ADJ, {
-  rubber: [0.62, 0.43, 0.6], gold_cardman: [2.34, 2.05, 2.84], kaichou: [1.1, 0.97, 1.23], black_cardman: [0.99, 0.84, 1.01],
-  keikyu_president: [0.64, 0.54, 0.83], keikyu_driver: [0.42, 0.35, 0.56], hiryu_master: [0.84, 0.88, 0.72],
+  rubber: [0.62, 0.43, 0.6], gold_cardman: [2.34, 2.05, 2.84], black_cardman: [0.99, 0.84, 1.01],
+  keikyu_president: [0.64, 0.54, 0.84], keikyu_driver: [0.42, 0.35, 0.56], hiryu_master: [0.84, 0.7, 0.72], kaichou: [1.1, 0.97, 1.15],
 });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
