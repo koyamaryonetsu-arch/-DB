@@ -174,7 +174,7 @@ export const JOBS = {
   ballplayer: {
     id: 'ballplayer', name: 'プロ野球選手', kana: 'ぷろやきゅうせんしゅ', short: '野球', tier: 0, family: 'phys', color: '#d85a3a',
     desc: 'プロの野球選手。バットでかっとばし、ごう速球を投げる。たくさん練習するとメジャーリーガーになれる。',
-    mods: { hp: 1.15, mp: 0.95, str: 1.2, def: 1.0, agi: 1.15, mag: 0.4, heal: 0.65 },
+    mods: { hp: 1.15, mp: 1.0, str: 1.2, def: 1.0, agi: 1.15, mag: 0.4, heal: 0.6 },
     weapons: ['bat', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
     perLv: { str: 0.5, agi: 0.5 },
     learn: [

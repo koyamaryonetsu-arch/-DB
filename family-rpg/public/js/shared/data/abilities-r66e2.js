@@ -136,7 +136,7 @@ export const R66E2_ABILITIES = {
   gold_cardman_sig: {
     name: '楽天ゴールドカード！', kana: 'らくてんごーるどかーど', kind: 'skill', job: 'gold_cardman', mp: 30, target: 'enemies',
     effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.35, ptScale: 0.05, points: 0.8 }, { type: 'phys', mult: 0.4, hits: 4, random: true }, pt(2, GOLD_CAP)] },
-    desc: '金色にかがやくカードで、敵全体を切りつける。さらに、敵にランダムで4回、追いうちをかける。楽天ポイントが多いほど強い。ポイントバックで、当てた敵のお金の一部がもらえて、ポイントも2たまる。', cast: '{a}「楽天ゴールドカード！」', anim: 'gold_cardman_sig',
+    desc: '金色にかがやくカードで、敵全体を切りつける。楽天ポイントが多いほど強い。ポイントバックで、当てた敵のお金の一部がもらえて、ポイントも2たまる。さらに、敵にランダムで4回、追いうちをかける。', cast: '{a}「楽天ゴールドカード！」', anim: 'gold_cardman_sig',
   },
 
   // ───────────── 楽天ブラックカードマン（伝説の職業。楽天ゴールドカードマン＋ほかの 超級職 1つ） ─────────────
@@ -173,7 +173,7 @@ export const R66E2_ABILITIES = {
   black_cardman_sig: {
     name: '楽天ブラックカード！', kana: 'らくてんぶらっくかーど', kind: 'skill', job: 'black_cardman', mp: 42, target: 'enemies',
     effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.7, ptScale: 0.04, points: 1.0, ignoreDef: 0.2 }, { type: 'phys', mult: 0.8, hits: 4, random: true, ignoreDef: 0.2 }, pt(2, BLACK_CAP)] },
-    desc: '黒くかがやくカードで、敵全体をまとめて切りつける、ブラックカードマンの最強の技。さらに、敵にランダムで4回、追いうちをかける。楽天ポイントが多いほど強い。ポイントバックで、当てた敵のお金の一部がもらえて、ポイントも2たまる。', cast: '{a}「楽天ブラックカード！」', anim: 'black_cardman_sig',
+    desc: '黒くかがやくカードで、敵全体をまとめて切りつける、ブラックカードマンの最強の技。楽天ポイントが多いほど強い。ポイントバックで、当てた敵のお金の一部がもらえて、ポイントも2たまる。さらに、敵にランダムで4回、追いうちをかける。', cast: '{a}「楽天ブラックカード！」', anim: 'black_cardman_sig',
   },
 
   // ───────────── サイキッカー（超級職。超能力者＋賢者） ─────────────

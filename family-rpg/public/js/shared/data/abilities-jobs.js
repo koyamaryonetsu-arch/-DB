@@ -294,7 +294,7 @@ export const JOB_ABILITIES = {
     desc: '勝負をさける。敵1体の行動ゲージを0にもどす（ボスには効きにくく、もどすのも半分だけ）。', cast: '{a}は{t}を敬遠した！', anim: 'none',
   },
   bb_sayonara: {
-    name: 'サヨナラ打', kana: 'さよならだ', kind: 'skill', job: 'ballplayer', mp: 9, target: 'enemies', weapon: 'bat',
+    name: 'サヨナラ打', kana: 'さよならだ', kind: 'skill', job: 'ballplayer', mp: 12, target: 'enemies', weapon: 'bat',
     effect: { type: 'phys', mult: 1.6 },
     desc: '試合を決める一打。敵全体をまとめてかっとばす。', cast: 'カキーン！{a}のサヨナラ打！', anim: 'bat_swing',
   },

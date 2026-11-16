@@ -113,6 +113,6 @@ export const R84B_ABILITIES = {
   hiryu_master_sig: {
     name: '飛竜こうりんだん', kana: 'ひりゅうこうりんだん', kind: 'skill', job: 'hiryu_master', mp: 28, target: 'enemies',
     effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.2, element: 'wind', vsBuff84: 0.2 }, { type: 'phys', mult: 0.75, hits: 4, random: true, element: 'wind' }] },
-    desc: 'かまえなくても、空から大きな竜巻を落とす。敵全体に風のダメージ。さらに、敵にランダムで4回、竜巻で追いうちをかける。敵が強くなっているほど強い。', cast: '{a}「飛竜こうりんだん！」', anim: 'hiryu_master_sig',
+    desc: 'かまえなくても、空から大きな竜巻を落とす。敵全体に風のダメージ。敵が強くなっているほど強い。さらに、敵にランダムで4回、竜巻で追いうちをかける。', cast: '{a}「飛竜こうりんだん！」', anim: 'hiryu_master_sig',
   },
 };

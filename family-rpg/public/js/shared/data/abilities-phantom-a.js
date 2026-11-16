@@ -53,7 +53,7 @@ export const PHANTOM_ABILITIES_A = {
   pirate_king_sig: {
     name: '自由の大船団', kana: 'じゆうのだいせんだん', kind: 'skill', job: 'pirate_king', mp: 42, target: 'enemies', role: 'dmg',
     effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.4, element: 'light', crew: 0.3 }, { type: 'phys', mult: 1, hits: 4, random: true, element: 'light' }, LAUGH] },
-    desc: '海賊王の旗の下に、仲間と大船団がかけつける。敵全体に光の大ほう撃。さらに、敵にランダムで4回、光の追いうちをかける。生きている仲間が多いほど強く（4人なら1.9倍）、笑いころげた敵は動けない（ボスには効きにくい）。', cast: '{a}「海賊王に、おれはなった！」水平線から、大船団があらわれた！', anim: 'nika_drum',
+    desc: '海賊王の旗の下に、仲間と大船団がかけつける。敵全体に光の大ほう撃。生きている仲間が多いほど強く（4人なら1.9倍）、笑いころげた敵は動けない（ボスには効きにくい）。さらに、敵にランダムで4回、光の追いうちをかける。', cast: '{a}「海賊王に、おれはなった！」水平線から、大船団があらわれた！', anim: 'nika_drum',
   },
 
   // ───────────── 伝説の超勇者（ロトの勇者＋スーパーサイヤ人3） ─────────────
@@ -95,7 +95,7 @@ export const PHANTOM_ABILITIES_A = {
   super_hero_sig: {
     name: 'かめはめデイン', kana: 'かめはめでいん', kind: 'skill', job: 'super_hero', mp: 44, target: 'enemies', role: 'dmg',
     effect: { type: 'multi', parts: [{ type: 'phys', mult: 2.8, element: 'bolt', ignoreDef: 0.3, ki: 0.45 }, { type: 'phys', mult: 0.85, hits: 4, random: true, element: 'bolt', ignoreDef: 0.3 }] },
-    desc: '雷をまとったかめはめ波で、敵全体をなぎはらう。雷のダメージ。さらに、敵にランダムで4回、雷の追いうちをかける。「気をためる」でためた気1だんかいごとに、とても強くなる（3だんかいで2.35倍。使うと気は0にもどる）。', cast: '{a}「か…め…は…め…デイーーン！！」', anim: 'kamehameha',
+    desc: '雷をまとったかめはめ波で、敵全体をなぎはらう。雷のダメージ。「気をためる」でためた気1だんかいごとに、敵全体への攻撃がとても強くなる（3だんかいで2.35倍。使うと気は0にもどる）。さらに、敵にランダムで4回、雷の追いうちをかける。', cast: '{a}「か…め…は…め…デイーーン！！」', anim: 'kamehameha',
   },
 
   // ───────────── 日の火影（日の呼吸の使い手＋七代目火影） ─────────────
