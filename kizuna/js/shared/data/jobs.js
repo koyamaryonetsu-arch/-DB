@@ -15,52 +15,52 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=623eb9504545';
-import { JOB_TAGS } from './job-tags.js?v=623eb9504545';
+import { applyField27Learn } from './abilities-field27.js?v=6f7fa0f75e74';
+import { JOB_TAGS } from './job-tags.js?v=6f7fa0f75e74';
 // 第51回 W: 気象予報士 → お天気キャスター → 天候をあやつる者（jobs-weather.js）
-import { WEATHER_JOBS } from './jobs-weather.js?v=623eb9504545';
+import { WEATHER_JOBS } from './jobs-weather.js?v=6f7fa0f75e74';
 // 第51回 C3: 幻の職業（宇宙一のおかん・はかいと創造の神・夢のスタジアム鉄道・天候の神。jobs-phantom-c.js）
-import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=623eb9504545';
+import { PHANTOM_JOBS_C, PHANTOM_HINTS_C } from './jobs-phantom-c.js?v=6f7fa0f75e74';
 // 第51回 C1: 幻の職業（海賊王・伝説の超勇者・日の火影・天才しせつ管理者AI）
-import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=623eb9504545';
+import { PHANTOM_JOBS_A } from './jobs-phantom-a.js?v=6f7fa0f75e74';
 // 第51回 C2: 幻の職業（名探てい王・銀河の女王・大魔導王・天下むそうの剣聖）
-import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=623eb9504545';
+import { PHANTOM_JOBS_B } from './jobs-phantom-b.js?v=6f7fa0f75e74';
 // 第66回: 伝説の職業（A〜D班。docs/plan-r66-legend.md）
-import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js?v=623eb9504545';
-import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js?v=623eb9504545';
-import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js?v=623eb9504545';
-import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js?v=623eb9504545';
-import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js?v=623eb9504545';
-import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js?v=623eb9504545';
-import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js?v=623eb9504545';
+import { LEGEND_R66A_JOBS, LEGEND_R66A_ORDER } from './jobs-legend-r66a.js?v=6f7fa0f75e74';
+import { LEGEND_R66A_HINTS } from './jobs-legend-r66a.js?v=6f7fa0f75e74';
+import { LEGEND_R66B_JOBS, LEGEND_R66B_ORDER } from './jobs-legend-r66b.js?v=6f7fa0f75e74';
+import { LEGEND_R66C_JOBS, LEGEND_R66C_ORDER } from './jobs-legend-r66c.js?v=6f7fa0f75e74';
+import { LEGEND_R66D_JOBS, LEGEND_R66D_ORDER } from './jobs-legend-r66d.js?v=6f7fa0f75e74';
+import { JOBS_R66E1, SUPER_R66E1_ORDER, LEGEND_R66E1_ORDER } from './jobs-r66e1.js?v=6f7fa0f75e74';
+import { JOBS_R66E2, SUPER_R66E2_ORDER, LEGEND_R66E2_ORDER } from './jobs-r66e2.js?v=6f7fa0f75e74';
 // 第66回 B班: 伝説の職業の 神殿の うわさ（jobs-legend-r66b.js）
-import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js?v=623eb9504545';
+import { LEGEND_R66B_HINTS } from './jobs-legend-r66b.js?v=6f7fa0f75e74';
 // 第66回 C班の 伝説の職業の 神殿の うわさ
-import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js?v=623eb9504545';
-import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js?v=623eb9504545';
+import { LEGEND_R66C_HINTS } from './jobs-legend-r66c.js?v=6f7fa0f75e74';
+import { LEGEND_R66D_HINTS } from './jobs-legend-r66d.js?v=6f7fa0f75e74';
 // 第66回 E1班の 神殿の うわさ（jobs-r66e1.js）
-import { HINTS_R66E1 } from './jobs-r66e1.js?v=623eb9504545';
-import { HINTS_R66E2 } from './jobs-r66e2.js?v=623eb9504545';
+import { HINTS_R66E1 } from './jobs-r66e1.js?v=6f7fa0f75e74';
+import { HINTS_R66E2 } from './jobs-r66e2.js?v=6f7fa0f75e74';
 // 第82回 A: 犬夜叉の 系統（半ようの少年 → 鉄さいがの使い手 → 犬夜しゃ → ばくりゅうはの大よう。jobs-r82a.js）
-import { JOBS_R82A, BASE_R82A_ORDER, ADV_R82A_ORDER, SUPER_R82A_ORDER, LEGEND_R82A_ORDER, HINTS_R82A } from './jobs-r82a.js?v=623eb9504545';
+import { JOBS_R82A, BASE_R82A_ORDER, ADV_R82A_ORDER, SUPER_R82A_ORDER, LEGEND_R82A_ORDER, HINTS_R82A } from './jobs-r82a.js?v=6f7fa0f75e74';
 // 第82回 B班: YAIBA の 系統（サムライ小ぞう → 雷神けんの剣士 → ヤイバ → 竜神けんのサムライ。jobs-r82b.js）
-import { JOBS_R82B, R82B_ORDERS, HINTS_R82B } from './jobs-r82b.js?v=623eb9504545';
+import { JOBS_R82B, R82B_ORDERS, HINTS_R82B } from './jobs-r82b.js?v=6f7fa0f75e74';
 // 第83回 B班: ぬ〜べ〜の 系統（小学校の先生 → れい能力教師ぬ〜べ〜 → おにの手のじごく先生。jobs-r83b.js）
-import { JOBS_R83B, R83B_ORDERS, HINTS_R83B } from './jobs-r83b.js?v=623eb9504545';
+import { JOBS_R83B, R83B_ORDERS, HINTS_R83B } from './jobs-r83b.js?v=6f7fa0f75e74';
 // 第83回 A班: 封神演義の 系統（つりをする道士 → せん人界の道士 → 太公望 → ほう神の大軍師。jobs-r83a.js）
-import { JOBS_R83A, R83A_ORDERS, HINTS_R83A } from './jobs-r83a.js?v=623eb9504545';
+import { JOBS_R83A, R83A_ORDERS, HINTS_R83A } from './jobs-r83a.js?v=6f7fa0f75e74';
 // 第84回 B班: らんま1/2 の 系統（無差別格闘流の門下生 → 早おとめ乱馬 → 飛竜しょう天はの達人。jobs-r84b.js）
-import { JOBS_R84B, R84B_ORDERS, HINTS_R84B } from './jobs-r84b.js?v=623eb9504545';
+import { JOBS_R84B, R84B_ORDERS, HINTS_R84B } from './jobs-r84b.js?v=6f7fa0f75e74';
 // 第84回 A班: 幽☆遊☆白書の 系統（ふりょう → れい界探てい → うら飯ゆう助 → 魔界の王の子。jobs-r84a.js）
-import { JOBS_R84A, R84A_ORDERS, HINTS_R84A } from './jobs-r84a.js?v=623eb9504545';
+import { JOBS_R84A, R84A_ORDERS, HINTS_R84A } from './jobs-r84a.js?v=6f7fa0f75e74';
 // 第85回 B班: 烈火の炎の 系統（忍者 → 炎術士 → 八竜の炎術士・烈火。jobs-r85b.js）
-import { JOBS_R85B, R85B_ORDERS, HINTS_R85B } from './jobs-r85b.js?v=623eb9504545';
+import { JOBS_R85B, R85B_ORDERS, HINTS_R85B } from './jobs-r85b.js?v=6f7fa0f75e74';
 // 第85回 A班: スレイヤーズの 系統（大食いの旅の魔道士 → 天才美少女魔道士リナ → ドラまた。jobs-r85a.js）
-import { JOBS_R85A, R85A_ORDERS, HINTS_R85A } from './jobs-r85a.js?v=623eb9504545';
+import { JOBS_R85A, R85A_ORDERS, HINTS_R85A } from './jobs-r85a.js?v=6f7fa0f75e74';
 // 第86回 B班: 幻の職業「天下一の格闘王」「混とんの大軍師」（jobs-r86b.js）
-import { JOBS_R86B, R86B_JOBS, HINTS_R86B } from './jobs-r86b.js?v=623eb9504545';
+import { JOBS_R86B, R86B_JOBS, HINTS_R86B } from './jobs-r86b.js?v=6f7fa0f75e74';
 // 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士（jobs-r86a.js）
-import { JOBS_R86A, R86A_PHANTOM, HINTS_R86A } from './jobs-r86a.js?v=623eb9504545';
+import { JOBS_R86A, R86A_PHANTOM, HINTS_R86A } from './jobs-r86a.js?v=6f7fa0f75e74';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
