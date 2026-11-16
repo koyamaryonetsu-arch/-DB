@@ -22,7 +22,7 @@ export const PHANTOM_MP = 3000;
 //   三の試練（第65回 D1）: 家族 Lv72・オクタリアの ころの ★装備（tools/sim-trial.mjs）。TRIAL=3 HI=4 で 10回ずつ さがした。ガーディアン・二刀流スターは 4 でも 勝ちが 多い
 //   第87回 B班: 能力を うつした（HP・守りが 上がった）職業の 試練を 合わせ直した（sim-trial-tune 10回・SEED 500 と 900 の 平均。docs/plan-balance-r87.md）
 export const PHANTOM_ADJ = {
-  dragon_knight: [1.56, 1.72, 2.39], archmage: [1.56, 1.64, 1.98], high_priest: [1.38, 0.87, 1.89], god_hand: [1.37, 0.89, 1.24], summoner: [1.52, 1.31, 2.08],
+  dragon_knight: [1.56, 1.72, 2.39], archmage: [1.56, 1.64, 1.98], high_priest: [1.38, 0.87, 1.89], god_hand: [1.37, 0.89, 1.24], summoner: [1.52, 1.31, 2.25],
   magic_swordsman: [1.3, 0.99, 1.76], guardian: [2, 2, 4], hero: [1.56, 1.59, 2.5], monster_master: [2, 2, 3.73], star_diva: [1.44, 1.37, 1.8],
   sword_master: [0.65, 0.48, 0.5], shogun: [0.55, 0.37, 0.6], shacho: [1.56, 1.18, 1.72], nitoryu: [3.43, 2.59, 4], highschooler: [1.3, 1.15, 1.43],
   career: [0.87, 0.7, 1.18], fruit_idol: [1.44, 1.18, 1.68], storm_idol: [1.44, 1.41, 2.39], keikyu_driver: [0.42, 0.35, 0.6], star_chef: [1.9, 1.95, 2.88],
@@ -90,6 +90,23 @@ Object.assign(PHANTOM_ADJ, { yokai_bridge: [0.7, 0.46, 0.51], ryujin_kenshi: [0.
 Object.assign(PHANTOM_ADJ, {
   rubber: [0.62, 0.43, 0.6], gold_cardman: [2.34, 2.05, 2.84], black_cardman: [0.99, 0.84, 1.01],
   keikyu_president: [0.64, 0.54, 0.84], keikyu_driver: [0.42, 0.35, 0.56], hiryu_master: [0.84, 0.7, 0.72], kaichou: [1.1, 0.97, 1.15],
+});
+// 第87回 E班（4つの 合わせ）: 呪文と 回復の のび（A班。仲間の 大賢者・大神官も のびる）・B班・C班を 合わせた あと、
+//   sim-trial 20回で 6〜9わりの 外に 出た 試練だけ さがし直した（第87回の 前から 外だった 試練は さわらない）
+//   （tools/sim-trial-tune.mjs 20 0.75・TRIAL=その 試練・SEED 500 と 1000 の 平均。それでも 外の 天地雷鳴士 三・セレニティ 一・守りの神 二・ゆう助 一・雪の女王 一 は sim-trial 20回で 合わせた。
+//    docs/plan-balance-r87.md の 実装メモ E班）
+Object.assign(PHANTOM_ADJ, {
+  tatakiage: [1.41, 1.21, 1.64], summoner: [1.52, 1.31, 2.25], tenkou_tsukai: [1.24, 1.38, 1.81], ranma: [2.08, 1.78, 1.98],
+  loto_hero: [1.3, 1.04, 2.42], abarenbo_shogun: [0.77, 0.7, 0.86], neo_queen: [0.65, 0.72, 1.36], guard_god: [1.13, 0.81, 0.92],
+  new_kawaii: [1.35, 1.49, 1.95], game_god: [1.02, 0.83, 1.04], galaxy_queen: [1.02, 1.11, 1.72], archmage: [1.56, 1.64, 2.02],
+  chaos_creator: [0.53, 0.4, 0.67], meitantei: [1, 1, 1.71], sailor_moon: [1.21, 1.18, 1.62], yusuke: [1.37, 0.95, 1.31], yaiba: [1.12, 0.75, 1.19],
+  triple_face: [1.13, 1.02, 1.05], rekka: [1.34, 1.17, 1.7], grand_magus: [0.63, 0.74, 1.01],
+  highschooler: [1.3, 1.25, 1.43], sword_master: [0.65, 0.48, 0.55], keikyu_driver: [0.42, 0.35, 0.68],
+  doraemon: [2, 1.72, 2.63], snow_queen: [1.62, 1.42, 2.39], koan_zero: [1.14, 0.87, 1.08], nube: [1.87, 1.43, 1.78], enjutsushi: [1.12, 0.9, 1.05],
+  kappa_king: [1.15, 1, 1.27], saiki: [1.39, 1.36, 1.55], doramata: [2.63, 2.49, 3.34], sword_saint: [0.47, 0.35, 0.44],
+  weather_god: [0.83, 0.3, 2.21], god_hand: [1.37, 0.89, 1.36], black_star: [1.5, 0.99, 1.76], mario: [1.48, 1.26, 1.71],
+  psychicer: [1.73, 1.75, 2.06], sennen_mage: [1.35, 1.22, 0.95], bakuryuha: [0.76, 0.57, 0.62], detective_king: [0.81, 0.59, 0.55],
+  cosmic_okan: [1.06, 1.18, 1.27],
 });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

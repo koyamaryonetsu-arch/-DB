@@ -308,14 +308,17 @@ test('戦い: 新しい 2つ（敵Lv88）は お話の ころ（Lv86〜89）の 
     assert.ok(e && !e.boss && e.canFlee === false && e.enemyLv === 88 && !(e.enemyPow > 1), id);
     for (const [sp] of e.group) assert.ok(MONSTER_ART[sp], `${sp} の 絵`);
     for (const jobs of [['warrior', 'priest', 'mage', 'monk'], ['warrior', 'priest'], ['warrior'], ['priest'], ['monk'], ['line'], ['line', 'mage']]) {
+      // 第87回 E班: 6回 全部 勝ちは 運で 通って いた（80回 だと 78/80）。ひとりの 時だけ 40回 で 38 いじょう（95%）に（4人・2人は 6回 全部）
+      const solo = jobs.length === 1;
+      const runs = solo ? 40 : 6, need = solo ? 38 : 6;
       let win = 0;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < runs; i++) {
         const lv = 86 + (i % 4);
         const party = jobs.map((j, k) => (j === 'line' ? as(...line[id], lv, `p${k}`) : makeChar(j, lv, 10, `p${k}`, 58)));
         const r = runBattle(party, e.group.flatMap(([sp, n]) => Array(n).fill(sp)), { seed: 75 + i * 7919, enemyLv: e.enemyLv, enemyPow: e.enemyPow });
         if (r.outcome === 'win') win++;
       }
-      assert.ok(win >= 6, `${id} ${jobs.join('・')} 勝ち ${win}/6`);
+      assert.ok(win >= need, `${id} ${jobs.join('・')} 勝ち ${win}/${runs}`);
     }
   }
 });

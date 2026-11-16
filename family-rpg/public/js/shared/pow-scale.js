@@ -5,7 +5,7 @@
 //     ・技に scaleCap が 書いて ある 物（わざと 頭打ちを 低く して いる 技）は 足さない
 //     ・敵の 側（敵・ボス・試練の まぼろし・鏡の うつし身・かけの 魔物〈flip〉）は 足さない
 // つかう 所: battle.js の calcMagic・heal・healAmountOf、ai.js の 回復の みつもり、
-//   battle-dual.js（合体技の 回復）、skill-power.js・skill-sort.js（技の せつめい・ならび）、world/services.js（町・フィールドの 回復）
+//   battle-dual.js（合体技の 見つもり・回復。下の powScaleDual）、skill-power.js・skill-sort.js（技の せつめい・ならび）、world/services.js（町・フィールドの 回復）
 export const POW_SPAN = 150; // めやすから ＋150 で 2倍
 export const OVER_RATE = 1 / 3; // 頭打ちの あとの のびの 速さ
 export const OVER_MAX = 1; // 頭打ちの あとに 足す 分の 上限
@@ -22,5 +22,9 @@ export function powScaleOf(pow, e, grow = false) {
   return k;
 }
 
-// 戦いの 中の 人 c が つかった 時の 倍率
-export const powScaleFor = (c, pow, e) => powScaleOf(pow, e, growsAfterCap(c));
+// 第87回 E班: 合体技は「頭打ちの あとの のび」の 外（頭打ちで 止まる 前の 式）。合体技は もう 強いので これ いじょう 強く しない
+//   つかう 所: battle-dual.js の skillEstimate（技に dualEst: true を つけて calcMagic へ）・memberHeal
+export const powScaleDual = (pow, e) => powScaleOf(pow, e, false);
+
+// 戦いの 中の 人 c が つかった 時の 倍率（e.dualEst … 合体技の 見つもり。のびない）
+export const powScaleFor = (c, pow, e) => (e?.dualEst ? powScaleDual(pow, e) : powScaleOf(pow, e, growsAfterCap(c)));

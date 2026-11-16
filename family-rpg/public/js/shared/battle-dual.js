@@ -23,8 +23,8 @@ import { dualFor } from './ability-label.js';
 import { reiNeed, reiDualMult } from './battle-r84a.js';
 // 第85回 A班: となえて から うつ 大砲（ドラグ・スレイブ など）は 2ターンで 1発 なので 割り引いて 数える（battle-r85a.js の bigDualMult）
 import { bigDualMult } from './battle-r85a.js';
-// 第87回 A班: 回復の 魔力の 伸び（battle.js の heal と おなじ。pow-scale.js）
-import { powScaleFor } from './pow-scale.js';
+// 第87回 A班・E班: 合体技は 魔力の「頭打ちの あとの のび」の 外（pow-scale.js の powScaleDual。見つもりも 回復も）
+import { powScaleDual } from './pow-scale.js';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 // 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）
@@ -344,7 +344,8 @@ export function skillEstimate(b, m, id, tg, ignoreDef = 0) {
       // 第55回: ランダムに 何回も 当たる 技も その 回数で 見つもる（前は 1回ぶん だけ。ほかの 敵に それる ぶん 少し ひく）
       best = Math.max(best, b.calcPhys(m, tg, eff, pen, 'phys', true).dmg * (p.random ? Math.max(1, (p.hits || 1) * 0.75) : p.hits || 1));
     } else if (p.type === 'magic' && Array.isArray(p.base)) {
-      best = Math.max(best, b.calcMagic(m, tg, { ...p, element: undefined }, pen, true).dmg);
+      // 第87回 E班: dualEst … 魔力の 倍率は 頭打ちで 止まる 式（pow-scale.js の powScaleDual）
+      best = Math.max(best, b.calcMagic(m, tg, { ...p, element: undefined, dualEst: true }, pen, true).dmg);
     }
   }
   return best;
@@ -366,7 +367,7 @@ export function memberPower(b, m, list, tg, ignoreDef = 0) {
 }
 
 // 合体技に 入った 人の 回復の 力: その 組の 回復の 技で いちばん 強い もの（1人ぶん）
-function memberHeal(m, list) {
+export function memberHeal(m, list) {
   let best = 0;
   const set = new Set(list);
   for (const id of m.abilities || []) {
@@ -374,7 +375,7 @@ function memberHeal(m, list) {
     const e = ABILITIES[id]?.effect;
     for (const p of e?.type === 'multi' ? e.parts || [] : [e]) {
       if (p?.type !== 'heal' || !Array.isArray(p.base)) continue;
-      const scale = p.fixed ? 1 : powScaleFor(m, m.healPow, p);
+      const scale = p.fixed ? 1 : powScaleDual(m.healPow, p);
       best = Math.max(best, ((p.base[0] + p.base[1]) / 2) * scale);
     }
   }

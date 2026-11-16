@@ -17,7 +17,9 @@ const LV = [20, 35, 55, 75, 90], RANK = [4, 6, 8, 10, 12];
 const parts = (e) => (e?.type === 'multi' ? e.parts || [] : e ? [e] : []);
 
 // tools/job-fit.mjs の measure と 同じ
-function measure(id) {
+//   dual … 合体技が 使う 見つもり（第87回 E班: 魔力の 倍率は 頭打ちで 止まる 式。pow-scale.js の powScaleDual）
+function measure(id, dual = false) {
+  const est = dual ? { dualEst: true } : {};
   const j = JOBS[id]; const t = j.tier || 0;
   const c = jobChar(id, LV[t], RANK[t]);
   const st = computeStats(c);
@@ -29,8 +31,8 @@ function measure(id) {
     let e = 0;
     for (const p of parts(a.effect)) {
       if (p.type === 'phys') e += b.calcPhys(me, tg, { ...p, element: undefined }, 1, 'phys', true).dmg * ((p.hits || 1) + (p.make && p.dance ? p.dance * Math.min(CLONE_MAX, p.make) : 0));
-      else if (p.type === 'magic' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, element: undefined }, 1, true).dmg * (p.hits || p.r85aHits || 1);
-      else if (p.type === 'weatherStrike' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, type: 'magic', element: undefined }, 1, true).dmg;
+      else if (p.type === 'magic' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, element: undefined, ...est }, 1, true).dmg * (p.hits || p.r85aHits || 1);
+      else if (p.type === 'weatherStrike' && Array.isArray(p.base)) e += b.calcMagic(me, tg, { ...p, type: 'magic', element: undefined, ...est }, 1, true).dmg;
     }
     return { lv, sid, name: a.name, mp: a.mp || 0, target: a.target, e: Math.round(e) };
   });
@@ -83,9 +85,11 @@ test('r87c: 看板の 技は、1体が 相手でも その 職業の 攻撃の �
   }
 });
 
+// 第87回 E班: ねらいは「合体技の 強さの もとを 上げすぎない」なので、合体技が 使う 見つもり（頭打ちで 止まる 式）で はかる
+//   （ひとりで うつ 呪文は A班の のびで 天才しせつ管理者AI・天候の神 などが もっと 強い。合体技は その のびの 外）
 test('r87c: 職業の いちばん 強い 技（合体技の 強さの もと）は、直す 前の 1.1倍まで', () => {
   for (const [id, before] of Object.entries(SIG_JOBS)) {
-    const { sk } = measure(id);
+    const { sk } = measure(id, true);
     const top = Math.max(...sk.map((s) => s.e));
     assert.ok(top <= before * 1.1, `${JOBS[id].name}: ${before} → ${top}`);
   }
