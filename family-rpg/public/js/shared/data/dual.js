@@ -284,9 +284,10 @@ export const DUAL_TECHS = {
   // 第31回: きずな技だった ミナデインが 合体技に。勇者の 系統が 1人 いれば、のこりの 3人は だれでも よい（家族が 決めた れいがい）。
   // 合体技で いちばん 強い 敵1体の 雷（k 1.4 は 合体技で いちばん 大きい。ボスへは さいだいHPの 35%まで・MPも 多め。tools/sim-dual.mjs minadein）
   dt_minadein: {
-    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.42,
+    // 第87回 D班: oncePerBattle … 1つの 戦いで 1度だけ（家族が えらんだ。battle-dual.js の onceUsed）
+    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.42, oncePerBattle: true,
     parts: [{ type: 'power', kind: 'magic', element: 'bolt', k: 1.4, say: 'みんなの力が、1つの大きな雷になった！' }],
-    desc: '勇者が天にかかげた手に、仲間みんなの力が集まる。勇者の系統の人が1人いれば、あとの3人はだれでもよい。敵1体に、合体技でいちばん強い雷をおとす。', anim: 'minadein',
+    desc: '勇者が天にかかげた手に、仲間みんなの力が集まる。勇者の系統の人が1人いれば、あとの3人はだれでもよい。敵1体に、合体技でいちばん強い雷をおとす。1回の戦いに1度だけ。', anim: 'minadein',
   },
 };
 
@@ -772,6 +773,9 @@ export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) 
   }
   return out;
 }
+
+// 第87回 D班: 1つの 戦いで 1度だけの 合体技（oncePerBattle。ミナデイン）を もう 出した 時の わけ（命令の 一覧・サーバーの ことわり）
+export const dualOnceReason = (id) => `${DUAL_TECHS[id]?.name || '合体技'}は1回の戦いに1度だけ`;
 
 // ───── 今の パーティーに 関係する 合体技 ─────
 // メニューの「合体技」の 一覧には、使った ことの ある 技と、パーティーに 関係する 技だけ 出す

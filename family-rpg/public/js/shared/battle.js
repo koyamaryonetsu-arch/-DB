@@ -256,6 +256,8 @@ export class Battle {
     this.boss = !!opts.boss;
     // 呪文が ふうじられた 場所（第4章 Step 4 の 王家のピラミッド 2階）: みかたも 敵も 呪文が 使えない（特技・道具は 使える）
     this.noSpells = !!opts.noSpells;
+    // 第87回 D班: この 戦いで もう 出した 1度だけの 合体技（ミナデイン。battle-dual.js の onceUsed）。戦いの 中だけ
+    this.dualUsed = new Set();
     this.bg = opts.bg || 'grass';
     this.bgm = opts.bgm || 'battle';
     this.combo = { count: 0, actor: null, element: null, time: -99999 };
@@ -2500,6 +2502,8 @@ export class Battle {
       boss: this.boss,
       canFlee: this.canFlee,
       noSpells: this.noSpells,
+      // 第87回 D班: もう 出した 1度だけの 合体技（とちゅうで 入りなおした 人の 一覧も うすく）
+      dualUsed: [...this.dualUsed],
       // 月の鏡の 光（まぼろしの 分身が いる たたかいだけ。battle-ch4.js）
       mirror: mirrorSnap(this),
       // 水の守りの歌の のこり（battle-temple.js）

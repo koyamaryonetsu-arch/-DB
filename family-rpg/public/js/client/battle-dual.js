@@ -5,7 +5,7 @@
 import { el, esc, ListMenu, toast } from './ui/dom.js';
 import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js';
 import { comboAllowed, weaponOk } from '../shared/stats.js';
-import { dualOptions, dualKnown, dualNeedText, dualNeedLabel } from '../shared/data/dual.js';
+import { dualOptions, dualKnown, dualNeedText, dualNeedLabel, dualOnceReason } from '../shared/data/dual.js';
 // 第33回: 男の子の 美少女戦士が 入る ときは 名前・説明が かわる（shared/ability-label.js）
 import { dualFor } from '../shared/ability-label.js';
 import { faceURL } from './field.js';
@@ -43,6 +43,8 @@ export function dualInfo(v, o, more = 0) {
   const when = o.now ? '' : '（よやく）';
   const others = more > 0 ? `（ほか${more}通り）` : '';
   const desc = dualKnown(v.game.me, o.id) ? t.desc : SECRET;
+  // 第87回 D班: 1度だけの 合体技（ミナデイン）を もう 出した: わけを 先に
+  if (v.dualUsed?.has(o.id)) return `【${dualOnceReason(o.id)}】\n${dualNeedLabel(o.id)}：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
   return `【${tags}】${o.partnerName}といっしょに${when}${others}\n${dualNeedLabel(o.id)}：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
 }
 
@@ -62,10 +64,13 @@ export function dualMenu(v, opts) {
     groups.get(o.id).push(o);
   }
   for (const list of groups.values()) list.sort((x, y) => (y.now ? 1 : 0) - (x.now ? 1 : 0));
-  const items = [...groups.values()].map((list) => {
+  // 第87回 D班: 1度だけの 合体技（ミナデイン）を もう 出した 時は、うすく・えらべない・下の 方に（わけは 説明の まど）
+  const used = (list) => !!v.dualUsed?.has(list[0].id);
+  const items = [...groups.values()].sort((x, y) => (used(x) ? 1 : 0) - (used(y) ? 1 : 0)).map((list) => {
     const o = list[0];
     const t = techOf(v, o);
     const n = o.size || 2;
+    if (used(list)) return { html: `<span class="dual-nm">${esc(t.name)}</span><span class="tag muted">使った</span>`, right: `${o.mp[0]}`, value: list, disabled: true, cls: `k-${role(t)} k-dualopt n${n} once-used` };
     return { html: `<span class="dual-nm">${esc(t.name)}</span>`, right: `${o.mp[0]}`, value: list, cls: `k-${role(t)} k-dualopt n${n}${list.some((x) => x.now) ? '' : ' later'}` };
   });
   const fire = (o) => {
