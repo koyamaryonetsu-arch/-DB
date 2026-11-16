@@ -167,8 +167,8 @@ test('第66回 A の 職業: 強さは 今の 伝説の職業の はんい・も
   const top = (k) => Math.max(...LEGEND_ORDER.filter((j) => !NEW.includes(j)).map((j) => JOBS[j].mods[k]));
   // 守りの神: いちばん かたい（守備力は 伝説で いちばん）・回復も 高い
   assert.ok(JOBS.guard_god.mods.def > top('def') && JOBS.guard_god.mods.heal >= 1.6);
-  // 光と闇の剣神: 力が 高い・魔力も 高め（闇の剣・光の剣）
-  assert.ok(JOBS.kenshin.mods.str >= 1.85 && JOBS.kenshin.mods.mag >= 1.4);
+  // 光と闇の剣神: 力が 高い（第87回 B班: 呪文を 覚えないので 魔力は 1.0。むだな 魔力は HP と 守りへ）
+  assert.ok(JOBS.kenshin.mods.str >= 1.85 && JOBS.kenshin.mods.mag <= 1.0 && JOBS.kenshin.mods.def >= 1.6);
   // ポケモンマスター: 魔物が 仲間に なりやすく、仲間の 魔物も モンスターマスターより 強く なる
   assert.ok(JOBS.poke_master.passive.befriend > JOBS.monster_master.passive.befriend);
   assert.ok(JOBS.poke_master.passive.monsterBoost > JOBS.monster_master.passive.monsterBoost);

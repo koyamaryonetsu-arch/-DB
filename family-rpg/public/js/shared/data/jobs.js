@@ -380,7 +380,7 @@ export const JOBS = {
   sword_master: {
     id: 'sword_master', name: 'ソードマスター', kana: 'そーどますたー', short: '剣聖', tier: 2, req: ['samurai', 'paladin', 'magic_knight'], family: 'phys', color: '#c8d0f0',
     desc: 'あらゆる剣技をきわめた剣聖。聖なる剣・よろいをくだく剣・闇の剣を自在にあやつる、剣の頂点。',
-    mods: { hp: 1.45, mp: 1.1, str: 1.65, def: 1.35, agi: 1.3, mag: 1.2, heal: 1.0 },
+    mods: { hp: 1.55, mp: 1.1, str: 1.65, def: 1.45, agi: 1.3, mag: 1.0, heal: 1.0 },
     weapons: ['sword', 'dagger'], shield: true, armor: ['cloth', 'heavy', 'gi'], helm: true,
     perLv: { str: 1, def: 0.5, hp: 1 },
     learn: [[1, 'swm_seiken'], [3, 'swm_haken'], [5, 'swm_ankoku'], [7, 'swm_raijin'], [10, 'swm_zenken']],
@@ -396,7 +396,7 @@ export const JOBS = {
   shacho: {
     id: 'shacho', name: '社長', kana: 'しゃちょう', short: '社長', tier: 2, req: ['bucho'], family: 'tech', color: '#3a3a4a',
     desc: '会社のトップ。ツルの一声で仲間がすぐに動き、大型買収で敵をお金に変える。戦いで手に入るお金がたくさんふえる。',
-    mods: { hp: 1.35, mp: 1.3, str: 1.25, def: 1.3, agi: 1.1, mag: 1.2, heal: 1.25 },
+    mods: { hp: 1.6, mp: 1.4, str: 1.25, def: 1.4, agi: 1.1, mag: 1.0, heal: 1.0 },
     weapons: ['dagger', 'staff', 'fan', 'sword', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: false,
     perLv: { hp: 1, mp: 0.5, def: 0.5 },
     passive: { gold: 1.5 },
@@ -405,7 +405,7 @@ export const JOBS = {
   nitoryu: {
     id: 'nitoryu', name: '二刀流スター', kana: 'にとうりゅうすたー', short: '二刀', tier: 2, req: ['major_leaguer'], family: 'phys', color: '#c83a3a',
     desc: '投げても打っても世界一。「二刀流」で続けて動き、「リアル二刀流」で敵全体をなぎはらう、野球の頂点。',
-    mods: { hp: 1.45, mp: 1.1, str: 1.55, def: 1.2, agi: 1.45, mag: 1.2, heal: 1.0 },
+    mods: { hp: 1.55, mp: 1.1, str: 1.55, def: 1.3, agi: 1.45, mag: 1.0, heal: 1.0 },
     weapons: ['bat', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { str: 1, agi: 1 },
     learn: [[1, 'nt_nitoryu'], [3, 'nt_5050'], [5, 'nt_nemuri'], [7, 'nt_mvp'], [10, 'nt_real']],
@@ -436,9 +436,9 @@ export const JOBS = {
   highschooler: {
     id: 'highschooler', name: '高校生', kana: 'こうこうせい', short: '高校', tier: 2, req: ['middleschooler'], family: 'tech', color: '#4a7ad0',
     desc: '青春まっただ中の高校生。青春アタックで敵を打ちくだき、文化祭で仲間をもり上げる。何でもこなせる、学校の職業の頂点。',
-    mods: { hp: 1.3, mp: 1.2, str: 1.35, def: 1.15, agi: 1.45, mag: 1.2, heal: 1.2 },
+    mods: { hp: 1.4, mp: 1.2, str: 1.35, def: 1.25, agi: 1.45, mag: 1.0, heal: 1.2 },
     weapons: ['sword', 'staff', 'bat', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi', 'robe'], helm: true,
-    perLv: { hp: 1, str: 0.5, agi: 0.5, mag: 0.5 },
+    perLv: { hp: 1, str: 0.5, agi: 0.5, def: 0.5 },
     passive: { train: 1.25 },
     learn: [[1, 'hs_seishun'], [3, 'hs_bunkasai'], [5, 'hs_shuugaku'], [7, 'hs_yuujou'], [10, 'hs_mirai']],
   },
@@ -466,7 +466,7 @@ export const JOBS = {
   career: {
     id: 'career', name: 'キャリア組', kana: 'きゃりあぐみ', short: 'キャ', tier: 2, req: ['civil_national'], family: 'tech', color: '#1e2a3a',
     desc: '国を動かすエリート公務員。政策決定で仲間を強くし、危機管理でみんなを守る。最後は大改革で敵をふきとばす。',
-    mods: { hp: 1.35, mp: 1.35, str: 1.15, def: 1.4, agi: 1.05, mag: 1.25, heal: 1.3 },
+    mods: { hp: 1.5, mp: 1.5, str: 1.15, def: 1.4, agi: 1.05, mag: 1.25, heal: 1.0 },
     weapons: ['dagger', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
     perLv: { def: 1, mp: 0.5, heal: 0.5 },
     learn: [[1, 'cr_seisaku'], [2, 'cr_ronpa'], [3, 'cr_nemawashi'], [5, 'cr_kiki'], [7, 'cr_houkaisei'], [8, 'cr_hakusho'], [10, 'cr_daikaikaku']],
@@ -712,7 +712,7 @@ export const JOBS = {
   ryonetsu: {
     id: 'ryonetsu', name: 'ryonetsu', kana: 'りょうねつ', short: 'ryo', tier: 2, req: ['setsubiya'], family: 'tech', color: '#1a3a7a',
     desc: '空調と省エネのプロフェッショナル集団。古い空調を新しくし、かん気を改善し、建物のすべてを最適に動かす。守りも回復も攻撃もこなし、戦いで手に入るお金がとてもふえる。',
-    mods: { hp: 1.3, mp: 1.3, str: 1.3, def: 1.35, agi: 1.15, mag: 1.3, heal: 1.3 },
+    mods: { hp: 1.35, mp: 1.3, str: 1.25, def: 1.35, agi: 1.15, mag: 1.3, heal: 1.3 },
     weapons: ['axe', 'dagger', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { def: 0.5, hp: 1, mag: 0.5 },
     passive: { gold: 1.3 },
@@ -840,7 +840,7 @@ export const JOBS = {
   facility_genius: {
     id: 'facility_genius', name: '天才しせつ管理者', kana: 'てんさいしせつかんりしゃ', short: '天才', tier: 3, req: ['ryonetsu'], reqSuper: 1, family: 'tech', color: '#20a8c8',
     desc: '建物のすべてを見守る、天才のしせつ管理者。ryonetsuと、ほかの超級職を1つきわめた者だけがなれる。敵の大技の予兆を見ぬいて、仲間みんなが受けるダメージを小さくする。戦いで手に入るお金もとてもふえる。',
-    mods: { hp: 1.45, mp: 1.45, str: 1.25, def: 1.4, agi: 1.2, mag: 1.45, heal: 1.5 },
+    mods: { hp: 1.5, mp: 1.45, str: 1.2, def: 1.4, agi: 1.2, mag: 1.45, heal: 1.5 },
     weapons: ['axe', 'dagger', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { hp: 1.5, mag: 1, heal: 1 },
     passive: { foresee: 0.6, gold: 1.3 },
@@ -852,7 +852,7 @@ export const JOBS = {
   hakaishin: {
     id: 'hakaishin', name: 'はかい神', kana: 'はかいしん', short: 'はかい', tier: 3, req: ['maou', 'god_hand'], family: 'phys', color: '#6a2a8a',
     desc: 'すべてをはかいする神。魔王とゴッドハンドをきわめた者だけがなれる。「はかい」で敵を消し去り、はかい玉で何もかもふきとばす。気まぐれで、よく昼ねをする。',
-    mods: { hp: 1.7, mp: 1.25, str: 1.95, def: 1.45, agi: 1.55, mag: 1.45, heal: 0.85 },
+    mods: { hp: 1.85, mp: 1.35, str: 1.6, def: 1.55, agi: 1.55, mag: 1.45, heal: 0.85 },
     weapons: ['none', 'claw', 'axe'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
     perLv: { hp: 2, str: 1.5, agi: 0.5 },
     learn: [[1, 'hk_hakai'], [3, 'hk_kimagure'], [5, 'hk_hirune'], [7, 'hk_kami'], [8, 'hk_ikari'], [10, 'hk_hakaidama']],
@@ -1026,7 +1026,7 @@ export const JOBS = {
   konoha: {
     id: 'konoha', name: '木の葉の忍び', kana: 'このはのしのび', short: '木の葉', tier: 2, req: ['ninja'], family: 'tech', color: '#e8803a',
     desc: '木の葉の里の忍び。あきらめないど根性で、影分身とらせん丸をあやつる。夢は、里でいちばんの忍びになること。',
-    mods: { hp: 1.35, mp: 1.15, str: 1.45, def: 1.05, agi: 1.65, mag: 1.2, heal: 0.85 },
+    mods: { hp: 1.45, mp: 1.15, str: 1.45, def: 1.15, agi: 1.65, mag: 1.0, heal: 0.85 },
     weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
     perLv: { agi: 1, str: 0.5 },
     learn: [[1, 'kh_kunai'], [2, 'kh_bunshin'], [3, 'konoha_sig'], [5, 'kh_sennin'], [7, 'kh_senpuu'], [10, 'kh_shuriken']],
@@ -1164,9 +1164,9 @@ export const JOBS = {
   fullmetal: {
     id: 'fullmetal', name: 'はがねのれん金術師', kana: 'はがねのれんきんじゅつし', short: 'はがね', tier: 2, req: ['state_alchemist'], family: 'phys', color: '#c83a2a',
     desc: '右うでと左足が、はがねの機械でできたれん金術師。赤いコートで、両手を合わせるだけでれん成できる。大地からやりをつき出す。パーティーにいると、れん金がまの歩数が半分。',
-    mods: { hp: 1.35, mp: 1.2, str: 1.5, def: 1.3, agi: 1.35, mag: 1.25, heal: 0.85 },
+    mods: { hp: 1.45, mp: 1.25, str: 1.5, def: 1.4, agi: 1.35, mag: 1.0, heal: 0.85 },
     weapons: ['spear', 'claw', 'sword', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: false,
-    perLv: { str: 1, def: 0.5, mag: 0.5 },
+    perLv: { str: 1, def: 1 },
     learn: [[1, 'fm_ude'], [2, 'fm_yaiba'], [3, 'fm_kabe'], [5, 'fm_koukan'], [7, 'fm_toge'], [10, 'fullmetal_sig']],
   },
   // 美少女戦士（上級職。中学生＋アイドル）→ セーラームーン（超級職）
@@ -1260,7 +1260,7 @@ export const JOBS = {
   hall_of_fame: {
     id: 'hall_of_fame', name: '野球界の殿堂入り', kana: 'やきゅうかいのでんどういり', short: '殿堂入り', tier: 3, req: ['nitoryu'], reqSuper: 1, family: 'phys', color: '#d6a02e',
     desc: '野球の歴史に名をのこした、伝説の名選手。二刀流スターと、ほかの超級職を1つきわめた者だけがなれる。予告ホームランに消える魔球、仲間との円じんで、チームを勝利にみちびく。',
-    mods: { hp: 1.6, mp: 1.2, str: 1.85, def: 1.35, agi: 1.6, mag: 1.2, heal: 1.05 },
+    mods: { hp: 1.7, mp: 1.2, str: 1.85, def: 1.45, agi: 1.6, mag: 1.0, heal: 1.05 },
     weapons: ['bat', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { str: 1.5, agi: 1, hp: 0.5 },
     learn: [[1, 'hof_yokoku'], [3, 'hof_makyu'], [5, 'hof_enjin'], [7, 'hof_sanshin'], [8, 'hof_allstar'], [10, 'hall_of_fame_sig']],

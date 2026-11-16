@@ -20,9 +20,9 @@ export const LEGEND_R66A_JOBS = {
   kenshin: {
     id: 'kenshin', name: '光と闇の剣神', kana: 'ひかりとやみのけんしん', short: '剣神', tier: 3, req: ['sword_master', 'magic_swordsman'], family: 'phys', color: '#8a6ad8',
     desc: '光の剣と闇の剣、2つの剣をあやつる剣の神。ソードマスターと魔剣士、2つの超級職をきわめた者だけがなれる。光の剣で悪いものをはらい、闇の剣で力をすいとる。',
-    mods: { hp: 1.6, mp: 1.2, str: 1.9, def: 1.4, agi: 1.55, mag: 1.4, heal: 0.85 },
+    mods: { hp: 1.8, mp: 1.2, str: 1.9, def: 1.6, agi: 1.55, mag: 1.0, heal: 0.85 },
     weapons: ['sword', 'dagger', 'axe', 'none'], shield: true, armor: ['cloth', 'heavy', 'gi', 'robe'], helm: true,
-    perLv: { str: 1.5, hp: 1, agi: 0.5, mag: 0.5 },
+    perLv: { str: 1.5, hp: 1, agi: 0.5, def: 0.5 },
     learn: [[1, 'ks_hikari'], [2, 'ks_yami'], [3, 'ks_nitou'], [5, 'ks_ame'], [7, 'ks_yaminami'], [8, 'ks_juuji'], [10, 'kenshin_sig']],
   },
   // モンスターマスター ＋ ほかの 超級職 1つ → ポケモンマスター
@@ -30,7 +30,7 @@ export const LEGEND_R66A_JOBS = {
   poke_master: {
     id: 'poke_master', name: 'ポケモンマスター', kana: 'ぽけもんますたー', short: 'ポケマス', tier: 3, req: ['monster_master'], reqSuper: 1, family: 'tech', color: '#d8303a',
     desc: '世界中の魔物と友だちになった、魔物使いの頂点。モンスターマスターと、ほかの超級職を1つきわめた者だけがなれる。ボールの技と、仲間の魔物との力を合わせた技で戦う。魔物がもっと仲間になりやすく、仲間の魔物もさらに強くなる。',
-    mods: { hp: 1.55, mp: 1.3, str: 1.55, def: 1.35, agi: 1.6, mag: 1.2, heal: 1.25 },
+    mods: { hp: 1.65, mp: 1.3, str: 1.55, def: 1.45, agi: 1.6, mag: 1.0, heal: 1.25 },
     weapons: ['whip', 'claw', 'axe', 'staff', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { hp: 1, str: 1, agi: 1 },
     passive: { befriend: 2.5, monsterBoost: 1.2 },

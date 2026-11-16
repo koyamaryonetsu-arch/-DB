@@ -30,7 +30,7 @@ export const PHANTOM_JOBS_C = {
   dream_stadium: {
     id: 'dream_stadium', name: '夢のスタジアム鉄道', kana: 'ゆめのすたじあむてつどう', short: '夢スタ', tier: 4, req: ['keikyu_president', 'hall_of_fame'], family: 'phys', color: '#d83a2a',
     desc: '線路の終点は、満員のスタジアム。京急の社長と野球界の殿堂入りをきわめ、電車の技と速球の技をたくさん使った者だけがなれる。観客が集まるほど技が強くなり、最後は観客電車が球場ごとつっこむ。戦いで手に入るお金もふえる。',
-    mods: { hp: 1.8, mp: 1.5, str: 2.05, def: 1.65, agi: 1.75, mag: 1.2, heal: 1.2 },
+    mods: { hp: 1.9, mp: 1.5, str: 2.05, def: 1.75, agi: 1.75, mag: 1.0, heal: 1.2 },
     weapons: ['bat', 'fan', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { hp: 1, str: 1.5, agi: 0.5 },
     passive: { gold: 1.3 },
