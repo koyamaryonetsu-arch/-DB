@@ -9,8 +9,11 @@
  *    送り主は、このスクリプトを動かしている Gmail（小山さんのアドレス）。返信も同じ Gmail に届く。
  *  ・宛先: その案件の劇場のアドレス（必ず）＋ 案件の「TOHOシネマズ担当者」と同じ担当者名のアドレス（必ず）＋ ベルを ON にした人。
  *    菱熱（@ryonetsu.com / @ryonetsu-ai.com）には送らない（LINE の通知があるため）。
- *  ・設定（アプリの「📧 客先アカウント」で切り替え。app_settings の case_mail）:
- *      mode = 'test'（試し: テスト劇場の案件だけ送る）/ 'live'（本番: 全部の案件）/ 'off'（送らない）
+ *  ・設定（アプリの「📨 メール通知設定」で切り替え。app_settings の case_mail）:
+ *      mode = 'test'（試し: テスト劇場の案件だけを、テストの宛先 test_to だけに送る。客先には送らない）/ 'live'（本番: 全部の案件）/ 'off'（送らない）
+ *      sender = 送り主にしたいアドレス（例 tc-hvac-desk@ryonetsu.com）。Gmail の「他のアドレスからメールを送信」に登録・確認が済んでいれば
+ *               そのアドレスで送る。まだなら、このスクリプトを動かしている Gmail のアドレスで送る。
+ *    実際に使ったアドレス・別名が使えるか・最後に送った時刻は app_settings の case_mail_status に残す（アプリの画面に出す）。
  *    送らなかった予定は「送らない」と記録して消化する（あとで本番にした時にまとめて飛ばないように）。
  *  ・送ったメールは案件の「メールの記録」(case_mail_log) に残す。客先の返信は Code.gs の取り込みが記録に残し、案件の更新にも使う。
  *
@@ -50,9 +53,47 @@ function caseMailSettings_() {
   try {
     var rows = cmGet_('app_settings?key=eq.case_mail&select=value');
     var v = rows.length ? rows[0].value : null;
-    if (v && typeof v === 'object') return { mode: String(v.mode || 'test'), testTheaters: Array.isArray(v.test_theaters) ? v.test_theaters.map(String) : [] };
+    if (v && typeof v === 'object') return {
+      mode: String(v.mode || 'test'),
+      testTheaters: Array.isArray(v.test_theaters) ? v.test_theaters.map(String) : [],
+      testTo: (Array.isArray(v.test_to) ? v.test_to : []).map(function (x) { return String(x).trim().toLowerCase(); }).filter(cmValidEmail_),
+      sender: String(v.sender || '').trim().toLowerCase()
+    };
   } catch (e) { Logger.log('通知メールの設定を読めない: ' + e); }
-  return { mode: 'test', testTheaters: ['TOHOシネマズ テスト劇場'] };
+  return { mode: 'test', testTheaters: ['TOHOシネマズ テスト劇場'], testTo: [], sender: '' };
+}
+
+// ===== 送り主（別名）と、画面に出す状態 =====
+// このスクリプトを動かしている Gmail のアドレス（Drive の持ち主。新しい Google の許可は要らない）
+function cmMyAddress_() {
+  try { return String(DriveApp.getRootFolder().getOwner().getEmail() || '').toLowerCase(); } catch (e) { return ''; }
+}
+// 送り主: 別名が Gmail に登録済みなら別名、まだならこの Gmail
+function cmSender_(settings) {
+  var aliases = [];
+  try { aliases = (GmailApp.getAliases() || []).map(function (a) { return String(a).toLowerCase(); }); } catch (e) {}
+  var want = settings.sender || '';
+  var ok = !!want && aliases.indexOf(want) !== -1;
+  return { from: ok ? want : '', used: ok ? want : cmMyAddress_(), want: want, aliasOk: ok, aliases: aliases };
+}
+function cmSaveStatus_(patch) {
+  try {
+    var cur = cmGet_('app_settings?key=eq.case_mail_status&select=value');
+    var v = Object.assign({}, (cur.length && cur[0].value) || {}, patch, { checked_at: new Date().toISOString() });
+    cmReq_('post', 'app_settings?on_conflict=key', { key: 'case_mail_status', value: v, updated_at: new Date().toISOString() }, 'resolution=merge-duplicates,return=minimal');
+  } catch (e) { Logger.log('通知メールの状態を残せない: ' + e); }
+}
+// 送り主の状態を、変わった時か1時間ごとに残す（アプリの「📨 メール通知設定」に、今の送り主として出す）
+function cmRefreshStatus_(settings) {
+  try {
+    var cur = cmGet_('app_settings?key=eq.case_mail_status&select=value');
+    var v = (cur.length && cur[0].value) || {};
+    var s = cmSender_(settings);
+    var stale = !v.checked_at || (Date.now() - new Date(v.checked_at).getTime()) > 60 * 60 * 1000;
+    if (stale || v.sender_used !== s.used || v.sender_want !== s.want || v.alias_ok !== s.aliasOk || v.mode !== settings.mode) {
+      cmSaveStatus_({ sender_used: s.used, sender_want: s.want, alias_ok: s.aliasOk, mode: settings.mode });
+    }
+  } catch (e) { Logger.log('通知メールの状態を確かめられない: ' + e); }
 }
 
 // ===== 宛先 =====
@@ -152,9 +193,10 @@ function sendCaseMails() {
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return;
   try {
+    var settings = caseMailSettings_();
+    cmRefreshStatus_(settings);
     var open = cmGet_('case_mail_events?sent_at=is.null&select=id,case_id,kind,detail,created_at&order=created_at.asc&limit=500');
     if (!open.length) return;
-    var settings = caseMailSettings_();
     var byCase = {};
     open.forEach(function (e) { (byCase[e.case_id] = byCase[e.case_id] || []).push(e); });
     var now = Date.now(), nSent = 0, nSkip = 0;
@@ -192,8 +234,14 @@ function sendOneCaseMail_(caseId, evs, settings) {
 
   var accounts = cmGet_('customer_accounts?select=email,company,theater,person');
   var watchers = cmGet_('case_watchers?case_id=eq.' + cmEnc_(caseId) + '&select=email');
-  var to = caseMailRecipients_(c, accounts, watchers);
-  if (!to.length) { cmMarkEvents_(evs, '宛先なし（劇場・担当者のアドレスが未登録で、ベルの人もいない）'); return 'skip'; }
+  var realTo = caseMailRecipients_(c, accounts, watchers);
+  var to = realTo;
+  var isTrial = settings.mode !== 'live';
+  if (isTrial) {
+    // 試し: 客先には送らない。テストの宛先だけに送る（本文の頭に、本番ならだれに届くかを書く）
+    if (!settings.testTo.length) { cmMarkEvents_(evs, '試しモード: テストの宛先が未設定のため送らず'); return 'skip'; }
+    to = settings.testTo.map(function (e) { return { email: e, why: 'テストの宛先' }; });
+  } else if (!to.length) { cmMarkEvents_(evs, '宛先なし（劇場・担当者のアドレスが未登録で、ベルの人もいない）'); return 'skip'; }
 
   // 付ける書類（予定に書いてある書類 id。消された書類は付けない）
   var fileIds = evs.filter(function (e) { return (e.kind === 'quote' || e.kind === 'workapp') && e.detail; }).map(function (e) { return e.detail; });
@@ -219,14 +267,24 @@ function sendOneCaseMail_(caseId, evs, settings) {
   // ※ 1日に送れる数（Gmail の上限）を超えると sendEmail がエラーになる → 印を付けないので、次の回にもう一度送る
   //   （MailApp で残りの数を調べると、Google の許可を新しく取り直す必要があるので使わない）
 
-  var subject = caseMailSubject_(c, cmShortTheater_(c.theater));
+  var subject = (isTrial ? '【試し】' : '') + caseMailSubject_(c, cmShortTheater_(c.theater));
   var body = caseMailBody_(c, evsShown, files);
+  if (isTrial) {
+    body = '【試し】これは通知メールの試しの送信です（客先には送っていません）。\n本番では、次の宛先に送ります: ' +
+      (realTo.length ? realTo.map(function (x) { return x.email + '（' + x.why + '）'; }).join('、') : '（まだ登録されていません）') +
+      '\n────────────────\n\n' + body;
+  }
   var addrs = to.map(function (x) { return x.email; }).join(',');
-  GmailApp.sendEmail(addrs, subject, body, { name: CASE_MAIL_SENDER_NAME, attachments: blobs });
+  var snd = cmSender_(settings);
+  var opt = { name: CASE_MAIL_SENDER_NAME, attachments: blobs };
+  if (snd.from) opt.from = snd.from;
+  GmailApp.sendEmail(addrs, subject, body, opt);
+  cmSaveStatus_({ sender_used: snd.used, sender_want: snd.want, alias_ok: snd.aliasOk, mode: settings.mode,
+    last_sent_at: new Date().toISOString(), last_to: addrs, last_subject: subject });
   cmMarkEvents_(evs, '送った: ' + to.map(function (x) { return x.email + '（' + x.why + '）'; }).join(' / '));
   try {
     cmReq_('post', 'case_mail_log', {
-      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME,
+      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.used || '') + '>',
       subject: subject, body: body, attachments: files.filter(function (f) { return f.attached; }).map(function (f) { return f.name; }).join(' / '),
       test: settings.mode !== 'live'
     }, 'return=minimal');
