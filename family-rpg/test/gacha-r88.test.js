@@ -43,7 +43,7 @@ test('ガチャ: YAIBA は ふつう 4つ・名品 1つ。伝説・はじめの 
   assert.deepEqual([...p.fu].sort(), ['r88_eyepatch', 'r88_kanabo', 'r88_oni_horn', 'r88_shinai']);
   assert.deepEqual(p.mei, ['r88_niten']);
   // G5班: ほう神演義・スレイヤーズ・烈火の炎も ならぶ（G2班の gacha: false を 外した）
-  assert.deepEqual(gachaWorks().slice(0, 4), ['yaiba', 'houshin', 'slayers', 'rekka']); // あとの 係の 作品は この あとに ならぶ
+  assert.deepEqual(gachaWorks().slice(0, 4), ['yaiba', 'houshin', 'slayers', 'rekka']); // G7班から あとの 作品は うしろに
   for (const id of p.all) {
     const it = ITEMS[id];
     assert.ok(['mei', 'fu3', 'fu2'].includes(it.grade), id);
@@ -172,7 +172,7 @@ test('ガチャ: まだ 持って いない 品だけが 出る（同じ 品は 
 });
 
 test('ガチャ: のこりが なくなるまで 回すと 全部 そろう。どの 作品も 品の 数 × 20000G（YAIBA 10万G・スレイヤーズ 32万G・烈火の炎 62万G・ほう神演義 70万G）', () => {
-  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, ranma: 520000, nube: 320000 }; // G8班: らんま1/2・ぬ〜べ〜
+  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000 }; // G8班: らんま1/2・ぬ〜べ〜
   for (const w of gachaWorks()) {
     const p = gachaPool(w);
     assert.equal(p.all.length * GACHA_PRICE, want[w], w);
@@ -343,7 +343,7 @@ test('ガチャ: 台と 店の 人は ルミナの町（星の神殿の 外）�
 
 // ───────────── 5. はじめの 品の 店 ─────────────
 test('はじめの 品: 木刀は ホシフル村の よろず屋に ならぶ（品から 自動で）', () => {
-  assert.deepEqual(r88ShopItems().village.slice(0, 4), ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels']); // G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
+  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels', 'r88_iy_sabi', 'r88_nb_monosashi'] }); // G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
   assert.ok(shopItems(SHOPS.village).includes('r88_bokuto'));
   assert.equal(ITEMS.r88_bokuto.price, 50);
   // 格が「店」の 作品の 品は ぜんぶ どこかの 店に
@@ -517,7 +517,7 @@ test('G6: 斬よう剣（スレイヤーズの 伝説）は 宝の洞窟の い�
   assert.equal(gachaBlock('r88_zanyo'), 'legend', 'ガチャには 出ない');
   assert.ok(TM_R88_DEN.includes('r88_zanyo'));
   assert.deepEqual(TM_R88_DEN.slice(0, 3), ['r88_kokai', 'r88_galvaira', 'r88_ragud']);
-  const last = { chance: () => true, pick: (a) => a[a.length - 1], next: () => 0.5 };
+  const last = { chance: () => true, pick: (a) => a[a.indexOf('r88_zanyo')], next: () => 0.5 }; // G7班: うしろに 伝説が ふえたので 斬よう剣を えらぶ
   assert.deepEqual(r88TmLoot(last, TM_R88_DEN_LV, 'bossB', { gold: 500 }), { item: 'r88_zanyo' });
   assert.notEqual(r88TmLoot(last, TM_R88_DEN_LV - 1, 'bossB', { gold: 500 }).item, 'r88_zanyo');
   // 本当の 宝箱で 出る（Lv48 の 2つめの 主の 宝箱）

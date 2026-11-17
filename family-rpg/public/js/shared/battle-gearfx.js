@@ -129,7 +129,8 @@ export function gearUse(b, c, cmd, ev) {
     return true;
   }
   ev.ability = u.ability;
-  const target = a.target === 'ally' ? c.id : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
+  // G7班: 仲間 1人の 技（暗黒鏡）は、自分 いがいで HPの わりあいが いちばん 少ない 仲間（いなければ 自分）
+  const target = a.target === 'ally' ? (b.sideOf(c, true).filter((x) => x.alive && x !== c).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0]?.id ?? c.id) : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
   const sub = { type: 'ability', id: u.ability, target };
   const targets = b.targetsFor(c, a, sub);
   ev.lines.push(`${a.name}の力が、はなたれた！`);

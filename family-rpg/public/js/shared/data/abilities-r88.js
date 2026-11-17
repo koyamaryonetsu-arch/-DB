@@ -249,6 +249,73 @@ export const R88_ABILITIES = {
     effect: { type: 'multi', parts: [{ type: 'debuff', stat: 'atk', mult: 0.75, dur: 40, chance: 0.9 }, { type: 'debuff', stat: 'agi', mult: 0.75, dur: 40, chance: 0.9 }] },
     desc: '敵1体の年をとらせて、攻撃力と素早さを下げる。', cast: '{a}の輪ねが回ると、{t}の時間が速くすすんだ！', anim: 'debuff',
   },
+  // ── G7班: 犬夜しゃ ──
+  r88u_iy_aka: {
+    name: '赤い刀・けっかいやぶり', kana: 'あかいかたなけっかいやぶり', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'dispel' },
+    desc: '赤くそまった鉄さいがで、敵全体の強くなっていた力を消す。', cast: '{a}の鉄さいがが、まっ赤にそまった！', anim: 'r82a_red',
+  },
+  r88u_iy_meido: {
+    name: '黒い鉄さいが・三日月の道', kana: 'くろいてっさいがみかづきのみち', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'dark', base: [170, 200], thr: 85 },
+    desc: '三日月の形の道をひらいて、同じ種類の敵みんなをのみこむ。', cast: '{a}が黒い鉄さいがをふると、空に三日月の道がひらいた！', anim: 'r82a_moon',
+  },
+  r88u_iy_tenseiga: {
+    name: 'てんせいが・いのちの光', kana: 'てんせいがいのちのひかり', kind: 'skill', mp: 0, target: 'deadAlly', hidden: true, role: 'heal',
+    effect: { type: 'revive', hpRatio: 0.5 },
+    desc: 'たおれた仲間1人を、HPを半分にして生き返らせる。', cast: '{a}がてんせいがをふると、やさしい光があふれた！', anim: 'revive',
+  },
+  r88u_iy_kazaana: {
+    name: '風あな・すいこみ', kana: 'かざあなすいこみ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'banish', chance: 0.6, msg: '{t}は風あなにすいこまれた！', failMsg: '{t}はすいこまれずにふみこらえた！' },
+    desc: 'つけた人のHPを少し使って、風あなで敵みんなをすいこむ（大きな敵にはきかない）。', cast: '{a}が数じゅをほどくと、手のひらに大きな風がうずをまいた！', anim: 'wind2',
+  },
+  r88u_iy_ningyo: {
+    name: '石の人形・おもし', kana: 'いしのにんぎょうおもし', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.7, turns: [1, 2] },
+    desc: '石の人形をくっつけて、敵1体を重くしてマヒさせる。', cast: '{a}は石の人形を{t}になげつけた！', anim: 'debuff',
+  },
+  r88u_iy_ryuraisen: {
+    name: 'ばん竜・竜雷せん', kana: 'ばんりゅうりゅうらいせん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [100, 115], thr: 75 },
+    desc: '雷を空にはなって、敵全体に落とす。', cast: '{a}がばん竜を空につき上げた！', anim: 'bolt2',
+  },
+  // ── G7班: ゆう☆遊☆白書 ──
+  r88u_yh_mejirushi: {
+    name: '目じるしール・ぺたり', kana: 'めじるしーるぺたり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'agi', mult: 0.7, dur: 40, chance: 0.9 },
+    desc: '敵1体に目じるしのシールをはって、素早さを下げる。', cast: '{a}は{t}に、ぺたりとシールをはった！', anim: 'debuff',
+  },
+  r88u_yh_jigento: {
+    name: '次元刀・空間切り', kana: 'じげんとうくうかんぎり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.0, ignoreDef: 0.6 },
+    desc: '空間ごと切りさいて、敵1体に守りをむしした大ダメージ。', cast: '{a}の次元刀が、空間をまっぷたつに切りさいた！', anim: 'r88_jigento',
+  },
+  r88u_yh_mafuukan: {
+    name: 'おしゃぶり・ためた力', kana: 'おしゃぶりためたちから', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'def', mult: 1.4, dur: 30 },
+    desc: 'おしゃぶりにためた力をはなって、仲間みんなの守備力を上げる。', cast: '{a}のおしゃぶりが、まぶしく光った！', anim: 'buff',
+  },
+  r88u_yh_tane: {
+    name: '植物のつる・しばり', kana: 'しょくぶつのつるしばり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.7, turns: [1, 2] },
+    desc: 'たねからつるをのばして、敵1体をしばってマヒさせる。', cast: '{a}がたねをまくと、つるがぐんぐんのびた！', anim: 'debuff',
+  },
+  r88u_yh_zense: {
+    name: '前世の実・むかしのすがた', kana: 'ぜんせのみむかしのすがた', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stats: ['atk', 'mag'], mult: 1.4, dur: 30 },
+    desc: 'むかしのすがたにもどって、しばらく攻撃力と魔力が大きく上がる。', cast: '{a}は前世の実を食べた！むかしのすがたにもどっていく…！', anim: 'buff',
+  },
+  r88u_yh_ankoku: {
+    name: '暗黒鏡・ねがい', kana: 'あんこくきょうねがい', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'heal',
+    effect: { type: 'heal', base: [99999, 99999], fixed: true },
+    desc: 'つけた人のHPを半分使って、仲間1人のHPをすっかり回復する。', cast: '{a}は暗黒鏡にねがいをこめた…！', anim: 'heal1',
+  },
+  r88u_yh_kibidango: {
+    name: 'き美団子・化け', kana: 'きびだんごばけ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'def', mult: 1.8, dur: 30 },
+    desc: 'かたい体のすがたに化けて、守備力が大きく上がる。', cast: '{a}はき美団子を食べて、すがたをかえた！', anim: 'buff',
+  },
 };
 
 // ───── G8班: らんま1/2・地獄先生ぬ〜べ〜（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────

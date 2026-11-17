@@ -9,6 +9,9 @@ export const WORKS = {
   houshin: { name: 'ほう神演義', trialGift: { taikobo: 'r88_dashin' } },
   slayers: { name: 'スレイヤーズ', trialGift: { lina: 'r88_lina_mantle' } },
   rekka: { name: '烈火の炎' },
+  // G7班: 犬夜しゃ → 火ねずみの衣・ゆう助 → れいげきリング（主人公の 名品）
+  inuyasha: { name: '犬夜しゃ', trialGift: { inuyasha: 'r88_iy_hinezumi' } },
+  yuhaku: { name: 'ゆう☆遊☆白書', trialGift: { yusuke: 'r88_yh_ring' } },
 };
 
 export const workName = (id) => WORKS[id]?.name || '';

@@ -127,11 +127,13 @@ export const itemReach = (id) => REACH_OF[baseIt(id)?.reach] || null;
 
 // ───── 生まれ変わりの 条件（data/items-alchemy.js の REBIRTH の need）─────
 //   need: { items: [持って いる 品], sets: { 組の id: 持って いる 数 } }
+const needItemName = (id) => (Array.isArray(id) ? id.map((x) => ITEMS[x]?.name || x).join('か') : ITEMS[id]?.name || id);
 export function rebirthNeedLack(char, need) {
   if (!need) return null;
   const own = ownedIds(char);
   const lack = [];
-  for (const id of need.items || []) if (!own.has(id)) lack.push(`${ITEMS[id]?.name || id}を持っていること`);
+  // G7班: items の 中の 配列は「どれか 1つ」（竜りんの 鉄さいがか 黒い 鉄さいが）
+  for (const id of need.items || []) if (!(Array.isArray(id) ? id.some((x) => own.has(x)) : own.has(id))) lack.push(`${needItemName(id)}を持っていること`);
   for (const [sid, n] of Object.entries(need.sets || {})) if (ownedSetIds(char, sid).length < n) lack.push(`${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`);
   return lack.length ? lack : null;
 }
@@ -205,7 +207,7 @@ export function shapeSource(who, bag) {
 
 export function rebirthNeedText(need) {
   if (!need) return '';
-  const parts = [...(need.items || []).map((id) => `${ITEMS[id]?.name || id}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`)];
+  const parts = [...(need.items || []).map((id) => `${needItemName(id)}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`)];
   return parts.join('・');
 }
 

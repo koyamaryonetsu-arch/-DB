@@ -547,6 +547,8 @@ export function gameFiles() {
     'public/js/shared/data/rivals-r88.js', 'public/js/shared/data/story-rivals-r88.js', 'public/js/shared/rivals-r88.js', 'public/js/shared/battle-rival-r88.js',
     'public/js/shared/battle-rival-fx-r88.js', 'public/js/shared/world/rivals-r88.js', 'public/js/shared/maps/rivals-r88.js', 'public/js/client/ui/rivals-r88.js',
     'public/js/client/render/boards-r88.js',
+    // 第88回 G7班: 犬夜しゃ・ゆう☆遊☆白書
+    'public/js/shared/data/items-r88-inuyasha.js', 'public/js/shared/data/items-r88-yuhaku.js',
     // 第88回 G8班: らんま1/2・じごく先生ぬ〜べ〜
     'public/js/shared/data/items-r88-ranma.js', 'public/js/shared/data/items-r88-nube.js',
   ];

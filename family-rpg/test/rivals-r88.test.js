@@ -113,7 +113,7 @@ const examine = (bot, work = 'yaiba') => {
 
 // ───────────── データ ─────────────
 test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイヤーズ・烈火の炎）。ライバルは 作品の 中で じゅん番。ごほうびの 品・大技・まぼろしが ある', () => {
-  assert.deepEqual(RIVAL_DOORS.map((d) => d.work).slice(0, 4), ['houshin', 'yaiba', 'slayers', 'rekka']); // あとの 係の とびらは この あと
+  assert.deepEqual(RIVAL_DOORS.map((d) => d.work).slice(0, 4), ['houshin', 'yaiba', 'slayers', 'rekka']); // G7班から あとの とびらは それぞれの テスト
   for (const d of RIVAL_DOORS) {
     assert.ok(WORKS[d.work], d.work);
     const list = rivalsOf(d.work);
@@ -198,7 +198,7 @@ test('場所: 星の神殿の 試練の番人の となりに 下り階段 → �
     assert.ok(room.warps.some((w) => w.to.map === HALL_ID), '部屋から 出られる');
   }
   // 作品が ふえても 回ろうが のびるだけ
-  assert.ok(hallLayout(8).w > L.w);
+  assert.ok(hallLayout(RIVAL_DOORS.length + 2).w > L.w);
 });
 
 test('場所: 町の 階段を おりると 回ろうへ。入ると とびらの 光が 持ち物に 合う', async () => {
@@ -512,7 +512,7 @@ test('試練の番人: 回ろうの 案内を はじめの 1回だけ（今の �
 
 // ───────────── G5班: スレイヤーズ・烈火の炎の とびら ─────────────
 test('G5: スレイヤーズ・烈火の炎の とびら（5人ずつ・弱い 順・さいごが Lv100）と ごほうび', () => {
-  assert.equal(RIVALS.filter((r) => ['houshin', 'yaiba', 'slayers', 'rekka'].includes(r.work)).length, 21, '今の 11人 ＋ 10人');
+  assert.equal(RIVALS.filter((x) => ['houshin', 'yaiba', 'slayers', 'rekka'].includes(x.work)).length, 21, '今の 11人 ＋ 10人');
   const s = rivalsOf('slayers');
   assert.deepEqual(s.map((r) => r.id), ['s_naga', 's_zangulus', 's_xellos', 's_igai', 's_shabra']);
   assert.deepEqual(s.map((r) => r.reward), [['r88_naga_spike'], ['r88_zangulus'], ['r88_demonblood'], ['r88_bodigar', 'r88_nezard'], ['r88_gorun']]);

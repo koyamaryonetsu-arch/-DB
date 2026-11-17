@@ -29,7 +29,9 @@ export const RIVAL_DOORS = [
   { work: 'yaiba', mark: 'r88_yaiba', bg: 'hoshiyomi', room: 'wood', jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai', 'ryujin_kenshi'] },
   // G5班: スレイヤーズ（石の 広間・塔の 中）・烈火の炎（火山）
   { work: 'slayers', mark: 'r88_slayers', bg: 'tower', room: 'stone', jobs: ['tabi_madoshi', 'lina', 'doramata'] },
-  { work: 'rekka', mark: 'r88_rekka', bg: 'volcano', room: 'volcano', jobs: ['enjutsushi', 'rekka'] },
+  { work: 'rekka', mark: 'r88_rekka', bg: 'volcano', room: 'volcano', jobs: ['enjutsushi', 'rekka'] },  // G7班: 犬夜しゃ（森の 部屋・森）・ゆう☆遊☆白書（石の 広間・闘技場）
+  { work: 'inuyasha', mark: 'r88_inuyasha', bg: 'forest', room: 'forest', jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'] },
+  { work: 'yuhaku', mark: 'r88_yuhaku', bg: 'arena', room: 'stone', jobs: ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'] },
   ...g8Doors(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
 ];
 
@@ -194,6 +196,83 @@ export const RIVALS = [
     use: 'r88_raijin', reward: ['r88_raijin'], words: 'いい戦いにしましょう。手かげんはしませんよ。',
     sig: { name: '雷神・百のいかずち', el: 'bolt', anim: 'r88_raijin', charge: '{a}の雷神が、ばちばちと光り始めた！\n空いっぱいに、雷の力が集まっていく…！', cast: '{a}の雷神から、百のいかずちがふりそそいだ！' },
     tune: { hp: 0.72, dmg: 1 },
+  },
+
+  // ── G7班 犬夜しゃ（名品を くれる 人は Lv60 ごろ・さいごの 本気の せっしょう丸は Lv100）。神無は 入れない（神無の鏡は ガチャ）──
+  {
+    id: 'iy_kagura', work: 'inuyasha', n: 1, name: '神楽', lv: 60, job: 'tenkou_tsukai', look: L(1, 'bob', 'black', 6, 'fair', 'sharp'),
+    use: 'r88_iy_kagura', reward: ['r88_iy_kagura'], words: '風はだれにもしばられないのさ。',
+    sig: { name: '神楽のおうぎ・風のやいばのまい', el: 'wind', anim: 'wind2', charge: '{a}が、おうぎを大きく広げた！\nまわりの風が、うずを巻き始めた…！', cast: '{a}のおうぎから、たくさんの風のやいばがまいおどった！' },
+    tune: { hp: 1.04, dmg: 1 },
+  },
+  {
+    id: 'iy_kouga', work: 'inuyasha', n: 2, name: 'こうが', lv: 62, job: 'god_hand', look: L(0, 'pony', 'black', 4, 'tan', 'brave'),
+    use: 'r88_iy_goraishi', reward: ['r88_iy_goraishi'], words: 'おれの足の速さに、ついてこられるか！',
+    sig: { name: '五雷指・いなずまのツメ', el: 'bolt', anim: 'bolt2', charge: '{a}のツメが、ばちばちと光り始めた！\nつむじ風のように走り回っている…！', cast: '{a}の五雷指から、いなずまがほとばしった！' },
+    tune: { hp: 1.19, dmg: 1 },
+  },
+  {
+    id: 'iy_shichinin', work: 'inuyasha', n: 3, name: '七人隊', lv: 64,
+    members: [
+      { name: 'ばんこつ', job: 'guardian', look: L(0, 'long', 'black', 1, 'tan', 'brave') },
+      { name: 'じゃこつ', job: 'sword_master', look: L(0, 'long', 'black', 6, 'fair', 'smile') },
+    ],
+    use: 'r88_iy_banryu', reward: ['r88_iy_banryu', 'r88_iy_jakotsu'], words: 'おれたち七人隊の、うでを見せてやる！',
+    sig: { name: 'ばん竜・大竜雷せん', el: 'bolt', anim: 'bolt2', charge: '{a}が、大きなほこを空につき上げた！\n空に、雷の力が集まっていく…！', cast: '{a}のばん竜から、雷がいっせいに落ちてきた！' },
+    tune: { hp: 0.81, dmg: 1 },
+  },
+  {
+    id: 'iy_sessho', work: 'inuyasha', n: 4, name: 'せっしょう丸', lv: 66, job: 'magic_swordsman', look: L(0, 'long', 'silver', 7, 'fair', 'calm'),
+    use: 'r88_iy_toukijin', reward: ['r88_iy_tenseiga', 'r88_iy_toukijin'], words: 'ふん。少しはできるようになったか。',
+    sig: { name: 'とうきじん・そう竜は', el: 'dark', anim: 'dark1', charge: '{a}が、とうきじんをすっと引いた…！\n刀に、黒い力がうずを巻いていく…！', cast: '{a}のとうきじんから、黒いいなずまの竜がほとばしった！' },
+    tune: { hp: 1.39, dmg: 1 },
+  },
+  {
+    id: 'iy_sessho2', work: 'inuyasha', n: 5, name: '本気のせっしょう丸', lv: 100, job: 'sword_master', look: L(0, 'long', 'silver', 7, 'fair', 'sharp'), bg: 'hoshiyomi',
+    use: 'r88_iy_bakusaiga', reward: ['r88_iy_bakusaiga'], words: 'わたし自身の刀で、相手をしてやろう。',
+    sig: { name: '爆さいが・くずれる光', at: 0.8, after: 3, anim: 'r88_bakusai', charge: '{a}の左うでから、みどりの光の刀が生まれた…！\nまわりの空気が、ぴりぴりとふるえている…！', cast: '{a}が爆さいがをふりぬくと、光がつぎつぎとはじけた！' },
+    tune: { hp: 0.33, dmg: 1 },
+  },
+
+  // ── G7班 ゆう☆遊☆白書（名品を くれる 人は Lv60 ごろ・さいごの 幻海は Lv100）。すずこまは 入れない（デビルヨーヨーは ガチャ）──
+  {
+    id: 'yh_hihou', work: 'yuhaku', n: 1, name: '三大秘宝の3人', lv: 60,
+    members: [
+      { name: '飛影', job: 'magic_swordsman', look: L(0, 'spiky', 'black', 0, 'fair', 'sharp') },
+      { name: 'くらま', job: 'monster_master', look: L(0, 'long', 'red', 6, 'fair', 'calm') },
+      { name: 'ごうき', job: 'god_hand', look: L(0, 'buzz', 'blue', 2, 'tan', 'sharp') },
+    ],
+    use: 'r88_yh_goma', reward: ['r88_yh_goma', 'r88_yh_ankoku', 'r88_yh_gakidama'], words: 'れい界の秘宝は、かんたんにはわたさない。',
+    sig: { name: '降魔の剣・闇切り', el: 'dark', anim: 'dark_slash', charge: '{a}が、降魔の剣をかまえた…！\n剣が、黒い光をすいこんでいく…！', cast: '{a}の降魔の剣が、闇のやいばをはなった！' },
+    tune: { hp: 1.05, dmg: 1 },
+  },
+  {
+    id: 'yh_urotogi', work: 'yuhaku', n: 2, name: 'うら御とぎチーム', lv: 62,
+    members: [
+      { name: 'ししわか丸', job: 'sword_master', look: L(0, 'long', 'blue', 3, 'fair', 'sharp') },
+      { name: '黒もも太ろう', job: 'guardian', look: L(0, 'short', 'black', 0, 'light', 'brave') },
+    ],
+    use: 'r88_yh_makoku', reward: ['r88_yh_makoku', 'r88_yh_kibidango'], words: '昔話のヒーローは、わたしたちだ！',
+    sig: { name: '魔こく鳴斬剣・なきさけぶ刀', el: 'dark', anim: 'dark_slash', charge: '{a}が刀をふると、ふしぎななき声がひびき始めた…！\n声が、どんどん大きくなっていく…！', cast: '{a}の刀から、なき声のようなやいばがとんできた！' },
+    tune: { hp: 0.81, dmg: 1 },
+  },
+  {
+    id: 'yh_bui', work: 'yuhaku', n: 3, name: '武威', lv: 64, job: 'guardian', look: L(0, 'bald', 'black', 0, 'tan', 'sharp'),
+    use: 'r88_yh_bui_ono', reward: ['r88_yh_bui_yoroi', 'r88_yh_bui_ono'], words: 'よろいをぬがせてみろ。',
+    sig: { name: '武威の大オノ・とう気のうず', anim: 'slash_heavy', charge: '{a}が、大オノを頭の上で回し始めた！\nとう気が、うずを巻いていく…！', cast: '{a}の大オノから、とう気のうずがおしよせた！' },
+    tune: { hp: 1.43, dmg: 1 },
+  },
+  {
+    id: 'yh_shigure', work: 'yuhaku', n: 4, name: '時雨', lv: 66, job: 'sword_master', look: L(0, 'bald', 'black', 1, 'light', 'calm'),
+    use: 'r88_yh_rinka', reward: ['r88_yh_rinka'], words: 'わが剣の道、見せてやろう。',
+    sig: { name: 'りん火円れき刀・大回転', hit: 1.3, anim: 'slash_multi', charge: '{a}が、大きな輪の刀を回し始めた！\n輪が、うなりを上げて速くなっていく…！', cast: '{a}の輪の刀が、うなりを上げてとんできた！' },
+    tune: { hp: 0.8, dmg: 1 },
+  },
+  {
+    id: 'yh_genkai', work: 'yuhaku', n: 5, name: '幻海', lv: 100, job: 'yusuke', look: L(1, 'short', 'pink', 1, 'light', 'calm'), bg: 'temple3',
+    use: 'r88_yh_reikou', reward: ['r88_yh_reikou'], words: 'わたしの修行は、きびしいよ。',
+    sig: { name: 'れい光はどう・大はどう', el: 'light', anim: 'r88_reikou', charge: '{a}の両手に、青白い光が集まっていく…！\nれい力が、どんどん大きくなっていく…！', cast: '{a}の両手から、大きな光のはどうがはなたれた！' },
+    tune: { hp: 0.63, dmg: 1 },
   },
   ...g8Rivals(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
 ];
