@@ -6,10 +6,10 @@
 //   とびらを 調べると だいほん 'rival_door_<作品>'（data/story-rivals-r88.js）
 // ・とびらの 中 … 1つの 部屋の 形を 使い回して、作品ごとに ゆかと かべを かえる（ROOM_STYLES）。戦いの 前に 家族で 入る（world/rivals-r88.js）
 // ・attachRivalHall(maps) で 今の マップに 足す（ほかの マップの ファイルは かえない）
-import { T } from '../tiles.js?v=3103aa50fe85';
-import { PLACES } from './overworld.js?v=3103aa50fe85';
-import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=3103aa50fe85';
-import { workName } from '../data/works.js?v=3103aa50fe85';
+import { T } from '../tiles.js?v=5cff1704d8aa';
+import { PLACES } from './overworld.js?v=5cff1704d8aa';
+import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=5cff1704d8aa';
+import { workName } from '../data/works.js?v=5cff1704d8aa';
 
 export const HALL_ID = 'rival_hall';
 export const HALL_NAME = 'まぼろしの回ろう';
@@ -134,3 +134,9 @@ export function attachRivalHall(maps) {
   ow.warps.push({ x: S.x, y: S.y, noMark: true /* 町の 中の 階段（宝の地図の 目じるしに しない） */, to: { map: HALL_ID, x: L.stairs.x + 0.5, y: L.stairs.y - 0.4, dir: 'up' } });
   return maps;
 }
+
+// G8班: らんま1/2（木の ゆか・木の かべ・すみに 湯けむりの お湯）・じごく先生ぬ〜べ〜（教室: 木の ゆか・石の かべ・つくえ）。今 ある マスだけ
+Object.assign(ROOM_STYLES, {
+  onsen: { floor: T.FLOOR_WOOD, wall: T.WALL_WOOD, deco: T.HOT_SPRING },
+  school: { floor: T.FLOOR_WOOD, wall: T.WALL_STONE, deco: T.TABLE },
+});

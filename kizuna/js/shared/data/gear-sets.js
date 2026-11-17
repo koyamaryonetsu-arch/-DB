@@ -153,3 +153,37 @@ export const GEAR_SETS = {
 
 export const SET_RULES = ['wear', 'own', 'party'];
 export const tierRule = (set, tier) => tier.rule || set.rule;
+
+// ───── G8班: らんま1/2・地獄先生ぬ〜べ〜（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   cancel … その 段の 品（お湯の やかん）を 持って いて（ふくろでも）、組の ほかの 品を つけて いる 人は、
+//            つけた 品の 下がる 所（bonus の マイナス・resist の 1 より 大きい 所）が 消える（shared/gear-r88.js の cancelSetMinus）
+Object.assign(GEAR_SETS, {
+  // ── らんま1/2: 呪泉郷の 水 3つ ＋ お湯の やかん（アクセは 1人 1つなので、やかんは 持って いれば よい）──
+  jusen: {
+    name: '呪泉郷の水とお湯のやかん',
+    items: ['r88_rm_nyan', 'r88_rm_panda', 'r88_rm_buta', 'r88_rm_yakan'],
+    rule: 'own',
+    tiers: [
+      { n: 2, cancel: 'r88_rm_yakan', text: 'お湯のやかんを持っていて、水をつけていると、水の下がる所が消える' },
+      { n: 4, title: '水とお湯の格闘家', text: '4つ全部持つと、しょう号「水とお湯の格闘家」' },
+    ],
+  },
+  // ── らんま1/2: 止水おけ ＋ 開水つぼ（ジャコウ王朝の 1組の 秘宝。どちらも アクセ）──
+  shisui_kaisui: {
+    name: '止水おけと開水つぼ',
+    items: ['r88_rm_shisui', 'r88_rm_kaisui'],
+    rule: 'own',
+    tiers: [
+      { n: 2, fx: [{ k: 'guard_paralyze', v: 4 }, { k: 'guard_sleep', v: 4 }, { k: 'guard_confuse', v: 4 }], text: '2つとも持って、どちらかをつけていると、マヒ・ねむり・混乱にかかりにくい' },
+    ],
+  },
+  // ── 地獄先生ぬ〜べ〜: 白衣観音経・れい水しょう・念じゅ（つえと アクセ 2つ）──
+  nube_three: {
+    name: 'ぬ〜べ〜の3つの道具',
+    items: ['r88_nb_kannon', 'r88_nb_suisho', 'r88_nb_nenju'],
+    rule: 'own',
+    tiers: [
+      { n: 3, fx: [{ k: 'slay_spirit', v: 5 }], text: '3つとも持って、1つでもつけていると、ゆうれいキラー+5' },
+    ],
+  },
+});

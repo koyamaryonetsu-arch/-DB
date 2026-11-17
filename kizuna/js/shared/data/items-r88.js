@@ -5,15 +5,18 @@
 //   2. data/items-r88-<作品>.js を 作る（items-r88-kit.js の weapon・armor・shield・head・acc で 格を 書く）
 //   3. この ファイルの R88_PARTS に 足す（品・読みがな・生まれ変わり）
 //   4. 使う 技は data/abilities-r88.js（かくし技）・そろいは data/gear-sets.js
-import { REBIRTH } from './items-alchemy.js?v=3103aa50fe85';
-import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js?v=3103aa50fe85';
-import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA, R88_REBIRTH_HOUSHIN } from './items-r88-houshin.js?v=3103aa50fe85';
+import { REBIRTH } from './items-alchemy.js?v=5cff1704d8aa';
+import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js?v=5cff1704d8aa';
+import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA, R88_REBIRTH_HOUSHIN } from './items-r88-houshin.js?v=5cff1704d8aa';
 // 第88回 G2班: スレイヤーズ・烈火の炎
-import { ITEMS_R88_SLAYERS, R88_SLAYERS_KANA, R88_REBIRTH_SLAYERS } from './items-r88-slayers.js?v=3103aa50fe85';
-import { ITEMS_R88_REKKA, R88_REKKA_KANA, R88_REBIRTH_REKKA } from './items-r88-rekka.js?v=3103aa50fe85';
+import { ITEMS_R88_SLAYERS, R88_SLAYERS_KANA, R88_REBIRTH_SLAYERS } from './items-r88-slayers.js?v=5cff1704d8aa';
+import { ITEMS_R88_REKKA, R88_REKKA_KANA, R88_REBIRTH_REKKA } from './items-r88-rekka.js?v=5cff1704d8aa';
 // 第88回 G7班: 犬夜しゃ・ゆう☆遊☆白書
-import { ITEMS_R88_INUYASHA, R88_INUYASHA_KANA, R88_REBIRTH_INUYASHA } from './items-r88-inuyasha.js?v=3103aa50fe85';
-import { ITEMS_R88_YUHAKU, R88_YUHAKU_KANA, R88_REBIRTH_YUHAKU } from './items-r88-yuhaku.js?v=3103aa50fe85';
+import { ITEMS_R88_INUYASHA, R88_INUYASHA_KANA, R88_REBIRTH_INUYASHA } from './items-r88-inuyasha.js?v=5cff1704d8aa';
+import { ITEMS_R88_YUHAKU, R88_YUHAKU_KANA, R88_REBIRTH_YUHAKU } from './items-r88-yuhaku.js?v=5cff1704d8aa';
+// 第88回 G8班: らんま1/2・地獄先生ぬ〜べ〜
+import { ITEMS_R88_RANMA, R88_RANMA_KANA, R88_REBIRTH_RANMA } from './items-r88-ranma.js?v=5cff1704d8aa';
+import { ITEMS_R88_NUBE, R88_NUBE_KANA, R88_REBIRTH_NUBE } from './items-r88-nube.js?v=5cff1704d8aa';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
@@ -23,6 +26,9 @@ const R88_PARTS = [
   // G7班
   { items: ITEMS_R88_INUYASHA, kana: R88_INUYASHA_KANA, rebirth: R88_REBIRTH_INUYASHA },
   { items: ITEMS_R88_YUHAKU, kana: R88_YUHAKU_KANA, rebirth: R88_REBIRTH_YUHAKU },
+  // G8班: らんま1/2・地獄先生ぬ〜べ〜
+  { items: ITEMS_R88_RANMA, kana: R88_RANMA_KANA, rebirth: R88_REBIRTH_RANMA },
+  { items: ITEMS_R88_NUBE, kana: R88_NUBE_KANA, rebirth: R88_REBIRTH_NUBE },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));

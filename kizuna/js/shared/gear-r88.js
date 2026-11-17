@@ -10,8 +10,8 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=3103aa50fe85';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=3103aa50fe85';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=5cff1704d8aa';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=5cff1704d8aa';
 
 export const USE_SLOT_PREFIX = 'use_';
 export const ORB_V = 5;
@@ -81,6 +81,7 @@ export function wearSetPower(char) {
     addTier(out, powerTier(s, 'wear', wornSetIds(char, s).length));
     // G2班: own の 段の 強さ（その 数 持って いて、組の 品を 1つでも つけて いる 人に）
     addTier(out, powerTier(s, 'own', ownedSetIds(char, s).length));
+    cancelSetMinus(char, s, out); // G8班: 呪泉郷の 水 ＋ お湯の やかん
   }
   return out;
 }
@@ -208,4 +209,20 @@ export function rebirthNeedText(need) {
   if (!need) return '';
   const parts = [...(need.items || []).map((id) => `${needItemName(id)}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`)];
   return parts.join('・');
+}
+
+// ───── G8班: 下がる 所を 消す 段（らんま1/2 の 呪泉郷の 水 ＋ お湯の やかん。data/gear-sets.js の tier の cancel）─────
+//   cancel の 品を 持って いて（ふくろ・預かり所・装備）、組の ほかの 品を つけて いる 人は、つけた 品の 下がる 所
+//   （bonus の マイナス・resist の 1 より 大きい 所）を 打ち消す。wearSetPower に まざるので 強さの まど・くらべる まどにも 出る
+export function cancelSetMinus(char, setId, out) {
+  for (const t of GEAR_SETS[setId]?.tiers || []) {
+    if (!t.cancel || !ownedIds(char).has(t.cancel)) continue;
+    for (const id of wornSetIds(char, setId)) {
+      if (id === t.cancel) continue;
+      const it = ITEMS[id];
+      for (const [k, v] of Object.entries(it?.bonus || {})) if (v < 0) out.add[k] = (out.add[k] || 0) - v;
+      for (const [k, v] of Object.entries(it?.resist || {})) if (v > 1) out.resist[k] = (out.resist[k] ?? 1) / v;
+    }
+  }
+  return out;
 }

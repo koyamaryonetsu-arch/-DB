@@ -1,5 +1,5 @@
 // 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら（render/chars.js の paintSpecial の さいごで よぶ。{ p, oc } を かえす）
-import { Painter } from './pixel.js?v=3103aa50fe85';
+import { Painter } from './pixel.js?v=5cff1704d8aa';
 
 // ガチャガチャの 台（上は とうめいな まるい まどに 色とりどりの カプセル・下は 赤い 台と 回す ハンドル・取り出し口）
 function paintGacha(f) {

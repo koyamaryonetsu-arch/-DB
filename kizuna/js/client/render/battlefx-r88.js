@@ -20,6 +20,7 @@ export const R88_HIT = { r88_raikou: 900, r88_hikari: 520, r88_fujin: 640, r88_r
 export const R88_SFX = { r88_raikou: 'thunder', r88_hikari: 'crit', r88_fujin: 'wind', r88_raijin: 'thunder' };
 
 export function playR88Fx(fx, anim, targets, element, opts, W, H) {
+  if (G8_FX[anim]) return G8_FX[anim](fx, targets, W, H); // G8班（ファイルの さいご）
   if (!R88_ANIMS.has(anim)) return false;
   if (anim === 'r88_hikari') return hikari(fx, targets, W, H);
   if (anim === 'r88_fujin') return fujin(fx, targets, W, H);
@@ -162,3 +163,87 @@ const G7_FX = { r88_bakusai: bakusai, r88_reikou: reikou, r88_jigento: jigento }
 for (const id of Object.keys(G7_FX)) R88_ANIMS.add(id);
 Object.assign(R88_HIT, { r88_bakusai: 700, r88_reikou: 680, r88_jigento: 600 });
 Object.assign(R88_SFX, { r88_bakusai: 'crit', r88_reikou: 'blast', r88_jigento: 'crit' });
+
+// ───── G8班: らんま1/2・じごく先生ぬ〜べ〜（ほかの 係の 行と ぶつからない ように、ファイルの さいごに まとめた）─────
+//  r88_onite   おにの手 … 画面が くらく なり、手の まわりに 赤と むらさきの 光が あつまって、大きな こぶしが 敵1体に 打ちこまれる
+//              → 光の 十字の ひび ＋ 大きな 輪（こわく ない よう、血や 顔は 出さない）
+//  r88_kaen    火炎じょう・竜の炎 … つえの 竜が 口を 開き、下から 竜の 形に うねる 炎が 敵みんなを つつむ
+//  r88_hanabi  八宝大か輪 … 花火玉が 空に 上がり、敵みんなの 上で 色とりどりの 花火が ひらく
+const ONI = ['#ffffff', '#ffd0e0', '#ff6a8a', '#a040ff'];
+const FIRE = ['#ffffff', '#fff0a0', '#ffb030', '#ff5a1a'];
+const HANABI = [['#ffffff', '#ff8ac8', '#ff3a8a'], ['#ffffff', '#a0f0ff', '#3ab0ff'], ['#ffffff', '#fff080', '#ffc020'], ['#ffffff', '#a0ffa0', '#3ad860']];
+const centerOf = (targets, W, H) => (targets.length
+  ? { x: targets.reduce((s, t) => s + t.x, 0) / targets.length, y: targets.reduce((s, t) => s + t.y, 0) / targets.length }
+  : { x: W * 0.5, y: H * 0.45 });
+
+function onite(fx, targets, W, H) {
+  fx.tintAt('rgba(30,6,30,0.5)', 1100);
+  const t = targets[0] || { x: W * 0.5, y: H * 0.45 };
+  // 力が あつまる
+  fx.converge(t.x, t.y + 70, { colors: ONI, n: 22, r: 40, delay: 0, life: 360 });
+  fx.glow(t.x, t.y + 70, { color: '#ff4a8a', r: 22, delay: 200, life: 300 });
+  // こぶしが まっすぐ のびる
+  fx.spear(t.x, t.y + 80, t.x, t.y - 2, { len: 70, w: 9, color: '#ffd0e0', glow: '#a040ff', tip: '#ffffff', delay: 420, travel: 90, hold: 120, life: 300 });
+  fx.speedLines(t.x, t.y, { color: '#ffd0e0', n: 18, delay: 470, life: 280, r0: 20, r1: 90 });
+  fx.flashAt(110, '#ffe0f0', 520);
+  fx.impact(t.x, t.y, { r: 26, color: '#ffffff', delay: 520, life: 220 });
+  fx.crack(t.x, t.y + 4, { n: 6, len: 30, color: '#3a0a2a', hi: '#ff8ac8', delay: 530, life: 700 });
+  fx.shock(t.x, t.y, { r0: 8, r1: 60, color: '#ff8ac8', w: 3.5, delay: 520, life: 420 });
+  fx.shock(t.x, t.y, { r0: 4, r1: 40, color: '#c890ff', w: 2, delay: 600, life: 380 });
+  fx.sparks(t.x, t.y, { colors: ONI, n: 28, speed: 170, delay: 540, life: 460 });
+  fx.hitStop(170, 540, 1.7);
+  return true;
+}
+
+function kaen(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  fx.tintAt('rgba(40,10,0,0.4)', 1200);
+  // 竜の 口に 火が ともる
+  fx.glow(c.x - 70, H - 30, { color: '#ffb030', r: 18, delay: 0, life: 400 });
+  // うねる 炎の 竜（左下から 敵の 列の 上を うねりながら 右へ。頭は 大きく、しっぽは 小さく）
+  const x0 = Math.max(10, c.x - 110), x1 = Math.min(W - 10, c.x + 110);
+  for (let k = 0; k < 22; k++) {
+    const f = k / 21;
+    const x = x0 + f * (x1 - x0);
+    const y = c.y - 20 + Math.sin(f * Math.PI * 2.5) * 18 + (1 - f) * 30;
+    const d = 160 + (21 - k) * 28; // 頭（右）から 先に 出て、からだが のびて くる
+    const r = 4 + f * 9;
+    fx.glow(x, y, { color: k % 3 ? '#ff7a1a' : '#ffd040', r: r * 1.8, delay: d, life: 520, alpha: 0.9, grow: 0.3 });
+    fx.puff(x, y, { color: k % 2 ? '#ffb030' : '#ff5a1a', r0: r * 0.6, r1: r * 1.3, vy: -10, delay: d, life: 560, add: true });
+    if (k % 3 === 0) fx.sparks(x, y, { colors: FIRE, n: 4, speed: 50, delay: d + 40, life: 360, g: -50 });
+  }
+  // 頭の 目
+  fx.glow(x1 - 4, c.y - 26, { color: '#ffffff', r: 6, delay: 160, life: 600 });
+  // 敵みんなが 炎に つつまれる
+  targets.forEach((t, i) => {
+    const d = 720 + i * 70;
+    for (let k = 0; k < 5; k++) fx.puff(t.x + (k - 2) * 6, t.y + 6, { color: k % 2 ? '#ffb030' : '#ff5a1a', r0: 5, r1: 16, vy: -40 - k * 6, delay: d + k * 40, life: 520, add: true });
+    fx.glow(t.x, t.y, { color: '#ff9a3a', r: 26, delay: d, life: 460 });
+    fx.sparks(t.x, t.y + 6, { colors: FIRE, n: 20, speed: 110, ang: -Math.PI / 2, spread: 1.2, delay: d + 40, life: 480, g: -60 });
+  });
+  fx.flashAt(100, '#fff0c0', 740);
+  fx.hitStop(120, 760, 1.2);
+  return true;
+}
+
+function hanabi(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  // 花火玉が 上がる
+  fx.proj(c.x, c.y - 40, ['#ffffff', '#fff080'], { size: 3, travel: 360, delay: 0, from: { x: W * 0.5, y: H } });
+  const spots = targets.length ? targets : [c];
+  spots.forEach((t, i) => {
+    const d = 420 + i * 110;
+    const col = HANABI[i % HANABI.length];
+    fx.flashAt(70, '#ffffff', d);
+    fx.sparks(t.x, t.y - 26, { colors: col, n: 34, speed: 150, spread: Math.PI * 2, delay: d, life: 700, g: 40, len: 9 });
+    fx.shock(t.x, t.y - 26, { r0: 4, r1: 46, color: col[1], w: 2.5, delay: d, life: 460 });
+    for (let k = 0; k < 6; k++) fx.twinkle(t.x + (Math.random() - 0.5) * 60, t.y - 30 + (Math.random() - 0.5) * 40, { color: col[2], size: 5, delay: d + 200 + k * 60, life: 420, g: 20 });
+  });
+  fx.hitStop(110, 440, 1.1);
+  return true;
+}
+
+const G8_FX = { r88_onite: onite, r88_kaen: kaen, r88_hanabi: hanabi };
+for (const k of Object.keys(G8_FX)) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_onite: 540, r88_kaen: 760, r88_hanabi: 460 });
+Object.assign(R88_SFX, { r88_onite: 'blast', r88_kaen: 'fire', r88_hanabi: 'blast' });

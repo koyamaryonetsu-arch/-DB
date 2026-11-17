@@ -2,7 +2,7 @@
 //   れい界探ていの 七つ道具（作品に 出る 5つ）・れい光玉・桑原の 剣・蔵馬と 飛影の 品・闇の三大秘宝（そろい yami_hihou）・暗黒武とう会の 相手の 品
 //   作品の 字は 使える 字に 直した（霊撃輪具 → れいげきリング・霊光玉 → れい光玉 など。設計書の「実装メモ（G7班）」）
 //   入れない 品: 七つ道具の のこり 2つ・Dr.イチガキ・魔性使いチーム・五連邪の 品（設計書 2-6）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=3103aa50fe85';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=5cff1704d8aa';
 
 const Y = { work: 'yuhaku' };
 const H = { work: 'yuhaku', set: 'yami_hihou' };

@@ -317,3 +317,79 @@ export const R88_ABILITIES = {
     desc: 'かたい体のすがたに化けて、守備力が大きく上がる。', cast: '{a}はき美団子を食べて、すがたをかえた！', anim: 'buff',
   },
 };
+
+// ───── G8班: らんま1/2・地獄先生ぬ〜べ〜（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+Object.assign(R88_ABILITIES, {
+  // ── らんま1/2 ──
+  r88u_shisui: {
+    name: '止水おけ・すがたかため', kana: 'しすいおけすがたかため', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.7, turns: [1, 2] },
+    desc: '止水おけの水をかけて、敵1体のすがたをかため、マヒさせる。', cast: '{a}は止水おけの水を、{t}にざぶんとかけた！', anim: 'ice1',
+  },
+  r88u_kaisui: {
+    name: '開水つぼ・お湯', kana: 'かいすいつぼおゆ', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'sup',
+    effect: { type: 'dispel' },
+    desc: 'わかしたお湯をかけて、仲間みんなの弱くなっていた力を元にもどす。', cast: '{a}の開水つぼから、ほかほかのお湯がわき出した！', anim: 'heal2',
+  },
+  r88u_senpatsu: {
+    name: 'わすれのつぼおし', kana: 'わすれのつぼおし', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.7, turns: [1, 3] },
+    desc: 'シャンプーとつぼおしで、敵1体に何をするのかわすれさせて、混乱させる。', cast: '{a}は{t}の頭を、あわあわにした！', anim: 'debuff',
+  },
+  r88u_shibire: {
+    name: 'しびれ薬をまく', kana: 'しびれぐすりをまく', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.7, turns: [1, 2] },
+    desc: 'しびれ薬をまいて、敵1体をマヒさせる。', cast: '{a}は花びらといっしょに、しびれ薬をまいた！', anim: 'debuff',
+  },
+  r88u_hanten: {
+    name: '反転宝じゅ・さかさの心', kana: 'はんてんほうじゅさかさのこころ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.7, turns: [1, 3] },
+    desc: 'ブローチをさかさにして、敵1体の心をさかさにし、混乱させる。', cast: '{a}は反転宝じゅを、くるりとさかさにした！', anim: 'debuff',
+  },
+  r88u_kaen: {
+    name: '火炎じょう・竜の炎', kana: 'かえんじょうりゅうのほのお', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [105, 120], thr: 75 },
+    desc: 'つえで地面をつくと、竜が大きな炎をはいて、敵全体をつつむ。', cast: '{a}が火炎じょうで地面をつくと、竜が目をさました！', anim: 'r88_kaen',
+  },
+  r88u_houyou: {
+    name: '熱愛ほうよう香・合言葉', kana: 'ねつあいほうようこうあいことば', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'atbSet', sub: 60, chance: 0.8, msg: '{t}はお香にうっとりして、動きが止まった！', failMsg: '{t}は、はなをつまんだ！' },
+    desc: 'お香をかがせて合言葉を言い、敵1体の動きを少しの間止める。', cast: '{a}はお香をかがせて、合言葉をとなえた！', anim: 'sleep',
+  },
+  r88u_horegusuri: {
+    name: 'ほれ薬・一しゅん玉', kana: 'ほれぐすりいっしゅんだま', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'atbSet', sub: 60, chance: 0.8, msg: '{t}はぽーっとなって、動きが止まった！', failMsg: '{t}は、首をぶんぶんとふった！' },
+    desc: 'うで輪の一しゅん玉で、敵1体の動きを少しの間止める。', cast: '{a}は、うで輪の一しゅん玉をかざした！', anim: 'sleep',
+  },
+  r88u_nanban: {
+    name: 'なんばんミラー・時わたり', kana: 'なんばんみらーときわたり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'escape' },
+    desc: 'かがみの力で、みんなで戦いからにげ出す（にげられない戦いはだめ）。', cast: '{a}のなんばんミラーが、ぴかっと光った…！', anim: 'none',
+  },
+  r88u_happo: {
+    name: '八宝大か輪・大花火', kana: 'はっぽうだいかりんおおはなび', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [100, 115], thr: 70 },
+    desc: '大きな花火玉を投げて、敵全体の上で、はでにはれつさせる。', cast: '{a}は、大きな花火玉に火をつけて投げた！', anim: 'r88_hanabi',
+  },
+  // ── 地獄先生ぬ〜べ〜 ──
+  r88u_onite: {
+    name: 'おにの手・本気の一げき', kana: 'おにのてほんきのいちげき', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.4 },
+    desc: '黒い手ぶくろを外して、おにの手で敵1体を思いきり打つ。形のないものにもとどく。', cast: '{a}は手ぶくろを外した！「生徒には、手出しさせん！」', anim: 'r88_onite',
+  },
+  r88u_suisho: {
+    name: 'れい水しょう・正体あばき', kana: 'れいすいしょうしょうたいあばき', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'def', mult: 0.6, dur: 40, chance: 0.9 },
+    desc: '水しょうの玉を投げつけて、敵1体の正体をあばき、守備力を大きく下げる。', cast: '{a}は、れい水しょうを{t}に投げつけた！', anim: 'debuff',
+  },
+  r88u_okiwa: {
+    name: '御おに輪・おにの刀', kana: 'ぎょきりんおにのかたな', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.8 },
+    desc: 'おにの手を大きな刀の形にかえて、同じ種類の敵みんなを切る。', cast: '{a}のおにの手が、大きな刀の形にかわった！', anim: 'slash_heavy',
+  },
+  r88u_karin: {
+    name: '火輪びの術・きつね火', kana: 'かりんびのじゅつきつねび', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [100, 115], thr: 70 },
+    desc: 'とても熱いきつね火をおこして、敵全体をつつむ。', cast: '{a}がお札をかかげると、青白いきつね火がうずを巻いた！', anim: 'fire3',
+  },
+});
