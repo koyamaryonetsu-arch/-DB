@@ -6,7 +6,7 @@
 //   data/users/<id>/meta    … { v, createdAt, board, deleted: { キャラID: 消した 時こく }, updatedAt }
 //   data/users/<id>/c-<ID>  … { v, savedAt, char }  キャラ 1人 = 1つの 文書（1つ 256KB まで）
 // このブラウザと クラウドの 両方に いる キャラは、あとで セーブした ほうを つかう。
-import { SAVE_VERSION, upgradeSave } from '../shared/world/save.js?v=e69c775f68ea';
+import { SAVE_VERSION, upgradeSave } from '../shared/world/save.js?v=211badf8d6bb';
 
 const OPEN_TIMEOUT = 9000;
 const LOAD_TIMEOUT = 15000;

@@ -13,15 +13,15 @@
 //   7階 大波の 通路（a と b が かわるがわる。となりあわない・あいだに 待てる ゆか）→ おくに 休み所
 //   8階 灯台の てっぺん（千年前だけ）: 灯台の ボス（c7_light。B）→ さいごの 場面 → c7_kai
 // ・魔物: どの 階も t7_light（B）。休み所・ボスの 階・しかけの まわりは 出ない
-import { T } from '../tiles.js?v=e69c775f68ea';
-import { npc } from './npc.js?v=e69c775f68ea';
-import { parseRows16 } from './past.js?v=e69c775f68ea';
-import { C7SL_ROWS, C7SL_W, C7SL_H } from './c7s-light-rows.js?v=e69c775f68ea';
+import { T } from '../tiles.js?v=211badf8d6bb';
+import { npc } from './npc.js?v=211badf8d6bb';
+import { parseRows16 } from './past.js?v=211badf8d6bb';
+import { C7SL_ROWS, C7SL_W, C7SL_H } from './c7s-light-rows.js?v=211badf8d6bb';
 import {
   C7S, LF7, EBB3, OPEN6S, LETTER7S, LETTER7S_LIGHT, WIN7S, C7S_SEA, LIGHT_OUT, c7slMapId, C7SL_FLOORS, C7SL_NOW_FLOORS, C7SL_REST, C7SL_BOSS_FLOOR,
-} from './c7s-flags.js?v=e69c775f68ea';
+} from './c7s-flags.js?v=211badf8d6bb';
 // 宝箱の 中み（B の data/items-c7s.js の C7S_TREASURE。まとめる 時に '../data/items-c7s.js' から）
-import { C7S_TREASURE } from '../data/items-c7s.js?v=e69c775f68ea';
+import { C7S_TREASURE } from '../data/items-c7s.js?v=211badf8d6bb';
 
 export { c7slMapId, C7SL_FLOORS, C7SL_NOW_FLOORS, C7SL_REST, C7SL_BOSS_FLOOR };
 export const C7SL_PAST_MAPS = Array.from({ length: C7SL_FLOORS }, (_, i) => c7slMapId(i + 1));

@@ -1,31 +1,31 @@
 // カジノ（コイン売り場・スロット・ポーカー・景品コーナー）と メダル王の まど
 //   乱数と コインの 計算は サーバー（shared/world/casino.js）。ここは 見せるだけ
 //   キーボード: ←→↑↓ で えらぶ・Z/Enter で 決定・X/Esc で もどる。スマホは ボタンや カードを タップ
-import { el } from './dom.js?v=e69c775f68ea';
-import { Counter, itemInfo } from './counter.js?v=e69c775f68ea';
-import { request } from './shop.js?v=e69c775f68ea';
-import { boardIconURL } from '../render/boards.js?v=e69c775f68ea';
-import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=e69c775f68ea';
-import { celebrate, stopFx, winLevel, casinoSfx } from './casino-fx.js?v=e69c775f68ea';
-import { ITEMS } from '../../shared/data/items.js?v=e69c775f68ea';
-import { itemCount } from '../../shared/stats.js?v=e69c775f68ea';
+import { el } from './dom.js?v=211badf8d6bb';
+import { Counter, itemInfo } from './counter.js?v=211badf8d6bb';
+import { request } from './shop.js?v=211badf8d6bb';
+import { boardIconURL } from '../render/boards.js?v=211badf8d6bb';
+import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=211badf8d6bb';
+import { celebrate, stopFx, winLevel, casinoSfx } from './casino-fx.js?v=211badf8d6bb';
+import { ITEMS } from '../../shared/data/items.js?v=211badf8d6bb';
+import { itemCount } from '../../shared/stats.js?v=211badf8d6bb';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
   medalsHeld, medalsGiven, medalsFound, medalsSpent, COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS,
-} from '../../shared/data/casino.js?v=e69c775f68ea';
+} from '../../shared/data/casino.js?v=211badf8d6bb';
 
 export function casinoUI(game, kind, data) {
   ensureStyle();
   // 第50回 D3: 景品コーナー・メダル王は ui/prizes.js（この ファイルの 部品を つかうので あとから 読む）
-  if (kind === 'medalKing') return import('./prizes.js?v=e69c775f68ea').then((m) => m.medalKingUI(game, data || {}));
+  if (kind === 'medalKing') return import('./prizes.js?v=211badf8d6bb').then((m) => m.medalKingUI(game, data || {}));
   switch (data?.mode) {
     case 'coins': return coinsUI(game, data);
     case 'slot': return slotUI(game, data);
     case 'poker': return pokerUI(game, data);
-    case 'prizes': return import('./prizes.js?v=e69c775f68ea').then((m) => m.prizesUI(game, data));
+    case 'prizes': return import('./prizes.js?v=211badf8d6bb').then((m) => m.prizesUI(game, data));
     // 第37回 B: ルーレット・すごろく場（ui/roulette.js・ui/sugoroku.js。この ファイルの 部品を つかうので あとから 読む）
-    case 'roulette': return import('./roulette.js?v=e69c775f68ea').then((m) => m.rouletteUI(game, data));
-    case 'sugoroku': return import('./sugoroku.js?v=e69c775f68ea').then((m) => m.sugorokuUI(game, data));
+    case 'roulette': return import('./roulette.js?v=211badf8d6bb').then((m) => m.rouletteUI(game, data));
+    case 'sugoroku': return import('./sugoroku.js?v=211badf8d6bb').then((m) => m.sugorokuUI(game, data));
     default: return Promise.resolve();
   }
 }

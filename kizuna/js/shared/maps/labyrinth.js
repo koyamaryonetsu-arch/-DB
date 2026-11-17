@@ -6,12 +6,12 @@
 // ・どの 階も 馬車が いっしょに 入れる（wagon: true。広い 通路。data/wagon.js の wagonMapOk）
 // ・みちびきの糸・帰り道の羽は 使える（長いので）。糸は 砂の海の 小島へ もどる（world/escape.js の 出口さがし）
 // ・たのまれごとの 人（ほかの 町）も ここで マップに 足す（attachLab。maps/index.js から よぶ）
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=e69c775f68ea';
-import { npc } from './npc.js?v=e69c775f68ea';
-import { PLACES } from './overworld.js?v=e69c775f68ea';
-import { NORTH_PLACES } from './north.js?v=e69c775f68ea';
-import { PORT } from './sea.js?v=e69c775f68ea';
-import { MEDAL_SPOT_BY_ID } from './casino.js?v=e69c775f68ea';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=211badf8d6bb';
+import { npc } from './npc.js?v=211badf8d6bb';
+import { PLACES } from './overworld.js?v=211badf8d6bb';
+import { NORTH_PLACES } from './north.js?v=211badf8d6bb';
+import { PORT } from './sea.js?v=211badf8d6bb';
+import { MEDAL_SPOT_BY_ID } from './casino.js?v=211badf8d6bb';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const LAB_OPEN_FLAG = 'c4_clear'; // 古代都市の 門が 出てくる（第4章クリア）

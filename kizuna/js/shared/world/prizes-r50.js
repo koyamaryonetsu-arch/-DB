@@ -4,20 +4,20 @@
 //   はじめて 開いた 人（まだ きろくが ない）は、この回に ふえた 品（r: 50）だけ NEW。あとは 前に 開いた ときに なかった 品が NEW
 //   引っこしの 合言葉（world/transfer.js）には 入れない（なくても こまらない。NEW が 少し 多く 出る だけ）
 // ・景品の 道具（data/items-prize-r50.js）: 乗り物券・よびぶえ・修行の書・経験の書（world/services.js の useItem から）
-import { ITEMS } from '../data/items.js?v=e69c775f68ea';
-import { MONSTERS } from '../data/monsters.js?v=e69c775f68ea';
-import { MONSTER_FRIENDS, ROSTER_MAX, monsterLevelCap } from '../data/companions.js?v=e69c775f68ea';
-import { JOBS } from '../data/jobs.js?v=e69c775f68ea';
-import { jobLevelCap } from '../data/job-trials.js?v=e69c775f68ea';
-import { VEHICLES, cleanVehicles } from '../data/vehicles.js?v=e69c775f68ea';
-import { PRIZES, MEDAL_REWARDS, prizesFor, medalRewardOpen } from '../data/casino.js?v=e69c775f68ea';
-import { STAR_TRADES, starTradesFor } from '../data/shops.js?v=e69c775f68ea';
-import { prizeCatOf } from '../data/prizes-r50.js?v=e69c775f68ea';
+import { ITEMS } from '../data/items.js?v=211badf8d6bb';
+import { MONSTERS } from '../data/monsters.js?v=211badf8d6bb';
+import { MONSTER_FRIENDS, ROSTER_MAX, monsterLevelCap } from '../data/companions.js?v=211badf8d6bb';
+import { JOBS } from '../data/jobs.js?v=211badf8d6bb';
+import { jobLevelCap } from '../data/job-trials.js?v=211badf8d6bb';
+import { VEHICLES, cleanVehicles } from '../data/vehicles.js?v=211badf8d6bb';
+import { PRIZES, MEDAL_REWARDS, prizesFor, medalRewardOpen } from '../data/casino.js?v=211badf8d6bb';
+import { STAR_TRADES, starTradesFor } from '../data/shops.js?v=211badf8d6bb';
+import { prizeCatOf } from '../data/prizes-r50.js?v=211badf8d6bb';
 import {
   addItem, removeItem, itemCount, gainExp, gainJobBattles, expForLevel, MAX_LEVEL, newMonsterCompanion, catchUpLevel, computeStats,
-} from '../stats.js?v=e69c775f68ea';
-import { ensureCompanions, ensureStorage, companionOf, addMonsterCompanion, afterRosterChange, partyOf, STORAGE_MAX } from './party.js?v=e69c775f68ea';
-import { jobLabel } from '../job-label.js?v=e69c775f68ea';
+} from '../stats.js?v=211badf8d6bb';
+import { ensureCompanions, ensureStorage, companionOf, addMonsterCompanion, afterRosterChange, partyOf, STORAGE_MAX } from './party.js?v=211badf8d6bb';
+import { jobLabel } from '../job-label.js?v=211badf8d6bb';
 
 // ───────────── NEW の しるし ─────────────
 const SEEN_MAX = 400;
