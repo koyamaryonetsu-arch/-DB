@@ -782,6 +782,9 @@ Object.assign(ABILITIES, R85A_ABILITIES);
 Object.assign(ABILITIES, R86B_ABILITIES);
 // 第86回 A班: 幻の職業 2つ（abilities-r86a.js）
 Object.assign(ABILITIES, R86A_ABILITIES);
+// 第88回: 装備を「使う」と 出る かくし技（abilities-r88.js。hidden）
+import { R88_ABILITIES } from './abilities-r88.js';
+Object.assign(ABILITIES, R88_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

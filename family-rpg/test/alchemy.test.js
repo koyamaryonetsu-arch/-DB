@@ -201,8 +201,10 @@ test('生まれ変わり（かくし要素）: 1だん目は れん金がまで�
     assert.ok(all.some((r) => r.id === x.id), x.id);
     assert.ok(Object.values(KEEPER_RECIPES).some((l) => l.includes(x.id)), `${x.id}: 親方`);
   }
-  assert.equal(Object.keys(REBIRTH).length, 5);
-  for (const [from, rb] of Object.entries(REBIRTH)) {
+  // 第88回: 作品の 品（work）の 生まれ変わりは test/gear-r88.test.js で たしかめる
+  const OLD_REBIRTH = Object.entries(REBIRTH).filter(([from]) => !ITEMS[from].work);
+  assert.equal(OLD_REBIRTH.length, 5);
+  for (const [from, rb] of OLD_REBIRTH) {
     const r = rebirthOf(from);
     assert.ok(r && ITEMS[rb.to] && ITEMS[rb.to].cat === ITEMS[from].cat, from);
     assert.equal(r.at, upgradeLimit(ITEMS[from]) + CAP_UP_MAX);

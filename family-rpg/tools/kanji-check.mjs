@@ -532,6 +532,11 @@ export function gameFiles() {
     'public/js/shared/guest-rule.js',
     // 第78回 3-10: 家族ミッション・家族の記録
     'public/js/shared/data/missions.js', 'public/js/shared/world/missions.js', 'public/js/client/ui/missions.js', 'public/js/client/ui/r78-mission-css.js',
+    // 第88回 G1班: 作品を 思い出す 装備の しくみ・YAIBA・スーパー宝貝
+    'public/js/shared/data/works.js', 'public/js/shared/data/gear-sets.js', 'public/js/shared/data/items-r88.js', 'public/js/shared/data/items-r88-kit.js',
+    'public/js/shared/data/items-r88-yaiba.js', 'public/js/shared/data/items-r88-houshin.js', 'public/js/shared/data/abilities-r88.js',
+    'public/js/shared/gear-r88.js', 'public/js/shared/gear-r88-view.js', 'public/js/shared/battle-r88.js', 'public/js/client/render/battlefx-r88.js',
+    'public/js/shared/data/gear-fx.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

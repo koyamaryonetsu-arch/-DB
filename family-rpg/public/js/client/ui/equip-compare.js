@@ -7,6 +7,8 @@ import { fxListOf, fxShort } from '../../shared/data/gear-fx.js';
 import { gearCompare, forgeLabel } from '../../shared/gear-base.js';
 import { esc } from './dom.js';
 import { rareNameHtml } from './rarity.js';
+// 第88回: 作品の 品（作品の力・使う・そろい。shared/gear-r88-view.js）
+import { r88Short, setLine } from '../../shared/gear-r88-view.js';
 
 const signed = (v) => (v > 0 ? `+${v}` : `${v}`);
 const arrow = (d) => (d > 0 ? `<span class="eqc-d up">↑${d}</span>` : d < 0 ? `<span class="eqc-d down">↓${-d}</span>` : '<span class="eqc-d same">＝</span>');
@@ -19,6 +21,10 @@ function subLine(c, id) {
   parts.push(f ? `きたえ ${f}` : 'きたえていない');
   const fx = fxShort(fxListOf(c, id));
   if (fx) parts.push(`れん金 ${fx}`);
+  const w = r88Short(id);
+  if (w) parts.push(`作品の力 ${w}`);
+  const st = setLine(id, c);
+  if (st) parts.push(`そろい ${st}`);
   return parts.join('・');
 }
 
