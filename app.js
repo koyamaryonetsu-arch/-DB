@@ -2575,6 +2575,7 @@
         : w.state === 'manual' ? btn('wa-final', '✅ 提出済', '別に提出済み（メールは送っていません）')
         : w.state === 'draft' ? btn('wa-draft', '📝 作成中', '作りかけの作業申請書。押すと続きから直せます')
         : w.state === 'stale' ? btn('wa-stale', '⚠ 日付変更', '作業申請書を作った後に日付が変わりました。押すと作り直せます')
+        : w.date < todayStr() ? btn('wa-past', '—', '過ぎた日付です（作業申請書は決めていません）。押すと作る・申請不要・別に提出済みを選べます')
         : btn('', '📝 作る', '作業申請書を作る（AI が劇場の書式に書き込みます）／申請不要');
       return `<div class="wa-line${due ? ' wa-due' : ''}"${due ? ` title="${P.label}まで7日以内です。作業申請書を決めてください"` : ''}>${lab}${body}${due ? '<span class="wa-warn">⚠</span>' : ''}</div>`;
     });
