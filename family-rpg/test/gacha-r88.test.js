@@ -43,7 +43,7 @@ test('ガチャ: YAIBA は ふつう 4つ・名品 1つ。伝説・はじめの 
   assert.deepEqual([...p.fu].sort(), ['r88_eyepatch', 'r88_kanabo', 'r88_oni_horn', 'r88_shinai']);
   assert.deepEqual(p.mei, ['r88_niten']);
   // G5班: ほう神演義・スレイヤーズ・烈火の炎も ならぶ（G2班の gacha: false を 外した）
-  assert.deepEqual(gachaWorks(), ['yaiba', 'houshin', 'slayers', 'rekka']);
+  assert.deepEqual(gachaWorks().slice(0, 4), ['yaiba', 'houshin', 'slayers', 'rekka']); // G7班から あとの 作品は うしろに
   for (const id of p.all) {
     const it = ITEMS[id];
     assert.ok(['mei', 'fu3', 'fu2'].includes(it.grade), id);
@@ -311,7 +311,7 @@ test('ガチャ: 店の 人に 話して 画面を 開いてから 回す。家�
   const ui = a.bot.msgs.filter((m) => m.t === 'script').flatMap((m) => m.steps).find((st) => st[0] === 'ui' && st[1] === 'gacha');
   assert.ok(ui, '画面が 開く');
   assert.equal(ui[2].price, GACHA_PRICE);
-  assert.deepEqual(ui[2].works.map((w) => w.id), ['yaiba', 'houshin', 'slayers', 'rekka'], 'G5班: 3作品が ならぶ');
+  assert.deepEqual(ui[2].works.map((w) => w.id).slice(0, 4), ['yaiba', 'houshin', 'slayers', 'rekka'], 'G5班: 3作品が ならぶ');
   assert.ok(a.c.flags.r88_gacha_seen);
   const r = spin(a);
   assert.equal(r.ok, true, r.text);
@@ -517,7 +517,7 @@ test('G6: 斬よう剣（スレイヤーズの 伝説）は 宝の洞窟の い�
   assert.equal(gachaBlock('r88_zanyo'), 'legend', 'ガチャには 出ない');
   assert.ok(TM_R88_DEN.includes('r88_zanyo'));
   assert.deepEqual(TM_R88_DEN.slice(0, 3), ['r88_kokai', 'r88_galvaira', 'r88_ragud']);
-  const last = { chance: () => true, pick: (a) => a[a.length - 1], next: () => 0.5 };
+  const last = { chance: () => true, pick: (a) => a[a.indexOf('r88_zanyo')], next: () => 0.5 }; // G7班: うしろに 伝説が ふえたので 斬よう剣を えらぶ
   assert.deepEqual(r88TmLoot(last, TM_R88_DEN_LV, 'bossB', { gold: 500 }), { item: 'r88_zanyo' });
   assert.notEqual(r88TmLoot(last, TM_R88_DEN_LV - 1, 'bossB', { gold: 500 }).item, 'r88_zanyo');
   // 本当の 宝箱で 出る（Lv48 の 2つめの 主の 宝箱）
