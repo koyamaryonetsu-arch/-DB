@@ -261,3 +261,9 @@ body.kotei-big #docTop{ padding:5px 10px; }
 
 /* 作業申請書の書式（TOHO の要望④） */
 .sh-kind.w{ background:#fef3c7; color:#92400e; }
+/* 作業申請書の書式をフォルダごと取り込む */
+.sh-folder-in{ margin-left:12px; cursor:pointer; }
+.sh-ff-wrap{ max-height:50vh; overflow:auto; }
+.sh-ff td{ font-size:12px; }
+.sh-ff-skip td{ color:#94a3b8; }
+.sh-ff-need{ color:#dc2626; }

@@ -73,6 +73,7 @@
       <button id="calBtn" class="hdr-btn col-ryo">📅 カレンダー</button>
       <button id="intakeBtn" class="hdr-btn col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
       <button id="theaterPendingBtn" class="hdr-btn col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
+      <button id="guideBtn" class="hdr-btn col-ryo" title="取説：知りたいことを選ぶと、画面の上で順に案内します">📖<span class="tb-tx"> 取説</span><span id="guideNewBadge" class="tp-badge gd-badge hidden">新</span></button>
       <button id="mailSetBtn" class="hdr-btn col-ryo hidden" title="客先への通知メールの設定（送るアドレス・テスト中か）">📨<span class="tb-tx"> メール通知設定</span> <span id="mailSetBadge" class="ms-badge"></span></button>
       <!-- ☰ の中の機能を開いている時だけ出る「閉じる」ボタン（☰を開かずに戻れるように） -->
       <button id="modeCloseBtn" class="hdr-btn on hidden"></button>
@@ -86,6 +87,7 @@
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="intakeBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="theaterPendingBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="mailSetBtn"></button>
+            <button type="button" class="pop-item m-proxy col-ryo" data-proxy="guideBtn"></button>
           </div>
           <div class="pop-group">
             <div class="pop-h">管理</div>
@@ -93,6 +95,7 @@
             <button id="purchaseBtn" class="pop-item col-ryo">💰 支払い状況</button>
             <button id="invoiceBtn" class="pop-item">📄 請求書発行</button>
             <button id="custAccountsBtn" class="pop-item col-ryo">📧 客先アカウント（劇場のアドレス）</button>
+            <button id="masterBtn" class="pop-item col-ryo">🗂 マスター編集（担当者・会社・劇場）</button>
             <button id="fillTitlesBtn" class="pop-item col-ryo">🏷 案件名をまとめて付ける（AI）</button>
           </div>
           <div class="pop-group">
@@ -252,6 +255,7 @@
             <th class="col-tax" data-colkey="tax">見積り金額（税込み）</th>
             <th class="sortable" data-sort="quoteDate" data-colkey="quoteDate"><span class="th-filter" data-filter="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></span></th>
             <th class="sortable" data-sort="workStartDate" data-colkey="workStartDate"><span class="th-filter" data-filter="workStartDate">作業開始日</span></th>
+            <th class="col-ryo col-workapp" data-colkey="workapp"><span class="th-filter" data-filter="workapp" title="作業申請書: —（まだ）・📝 作成中・✅ 送付済。作業開始日まで7日以内で送っていなければ ⚠">申請書</span></th>
             <th class="sortable" data-sort="workEndDate" data-colkey="workEndDate"><span class="th-filter" data-filter="workEndDate">作業完了日</span></th>
             <th class="sortable" data-sort="invoiceDate" data-colkey="invoiceDate"><span class="th-filter" data-filter="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></span></th>
             <th class="sortable" data-sort="paymentDate" data-colkey="paymentDate"><span class="th-filter" data-filter="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></span></th>
@@ -672,6 +676,7 @@
         <h2 id="modalTitle">新規案件登録</h2>
         <div id="modalSub" class="modal-sub"></div>
       </div>
+      <button id="modalHelpBtn" type="button" class="modal-help col-ryo" title="この画面の取説（登録・ステータス・見積書・作業申請書）">？</button>
       <button id="closeModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <form id="caseForm">
@@ -712,7 +717,7 @@
           </div>
           <div class="form-row" data-mode="simple">
             <label for="rPerson">R担当者</label>
-            <input type="text" id="rPerson" list="rPersonList" placeholder="履歴から選択 or 新規入力">
+            <input type="text" id="rPerson" list="rPersonList" placeholder="担当者を選ぶ（上の担当者ボタンの人）">
             <datalist id="rPersonList"></datalist>
           </div>
           <div class="form-row" data-mode="simple">
@@ -810,8 +815,8 @@
           <p class="form-sec-note" id="cmTo"></p>
           <div class="cm-files" id="cmFiles"></div>
           <div class="cm-upload">
-            <label class="kt-upload">📎 見積書を付けて送る<input type="file" id="cmQuoteFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden></label>
-            <label class="kt-upload">📎 作業申請書を付ける<input type="file" id="cmWorkappFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden></label>
+            <button type="button" class="kt-upload" data-cmup="quote">🆙 見積書をアップロード</button>
+            <button type="button" class="kt-upload" data-cmup="workapp">🆙 作業申請書をアップロード</button>
           </div>
           <div class="cm-log" id="cmLog"></div>
         </div>
@@ -1028,5 +1033,6 @@
 <script src="shelf.js"></script>
 <script src="karte.js"></script>
 <script src="plan.js"></script>
+<script src="guide.js"></script>
 </body>
 </html>

@@ -674,6 +674,18 @@
       }));
       if (error) throw error;
     },
+    // ---- R担当者のマスター（staff）----
+    async fetchStaff() {
+      if (this.mode !== 'supabase') return null;
+      let { data, error } = await sb.from('staff').select('name,email,phone,active,sort_order').order('sort_order').order('name');
+      if (error && /phone/.test(error.message || '')) ({ data, error } = await sb.from('staff').select('name,email,active,sort_order').order('sort_order').order('name'));
+      if (error) return null;   // 表が無い（SETUP_STAFF.sql 未実行）→ 今までどおりブラウザの覚え
+      return data || [];
+    },
+    async saveStaff(rows) {
+      const { error } = await sb.from('staff').upsert(rows.map((r) => Object.assign({ name: r.name, email: r.email || '', active: r.active !== false, sort_order: Number(r.sort_order) || 0, updated_at: new Date().toISOString() }, r.phone !== undefined ? { phone: r.phone || '' } : {})), { onConflict: 'name' });
+      if (error) throw error;
+    },
     // ---- 通知メールの設定（app_settings の case_mail）----
     async fetchCaseMailSettings() {
       if (this.mode !== 'supabase') return null;
@@ -1181,6 +1193,13 @@
   let rPersonFilter = new Set();
   // 客先アカウント（劇場のアドレス）: 自分の劇場・その劇場だけを出すか
   let myAccount = null;
+  let modalOrigTheater = '';
+  let modalOrigRPerson = '';   // 開いた時のR担当者（異動・退職の人の名前は、変えなければそのまま保存できる）
+  // R担当者は、上の担当者ボタンの人（在籍）だけ。候補にない名前は保存しない
+  function rPersonError(v, orig) {
+    if (!v || v === orig || loadTeam().indexOf(v) !== -1) return '';
+    return `R担当者「${v}」は担当者の一覧にいません。上の担当者ボタンの人から選んでください。\n（担当者を足す時は ☰ その他 →「🗂 マスター編集」）`;
+  }   // 開いた時の劇場名（前からある案件は、劇場を変えた時だけ「一覧にない劇場」を確かめる）
   let myTheaterOnly = true;
   // 客先(会社)ボタンによる絞り込み（空=全社・OR）
   const companyFilter = new Set();
@@ -1338,6 +1357,28 @@
     if (!name) return undefined;
     return theaterMaster.find((t) => t.name === name);
   }
+  // 会社の劇場の候補（閉館していない劇場・短い名前・50音順）
+  function theaterChoices(company) {
+    const list = visibleTheaterMaster().filter((t) => t.name && !t.closed && (!company || t.company === company));
+    return Array.from(new Set(list.map((t) => shortTheaterName(t.name) || t.name))).sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+  // その会社の劇場の一覧に、この名前（短い名前・別の呼び方でも）の劇場があるか → 正式名（無ければ ''）
+  function masterTheaterOf(name, company) {
+    const t = canonTheaterName(String(name || '').trim(), company);
+    const hit = theaterMaster.find((x) => x.name === t && x.company === company);
+    return hit ? hit.name : '';
+  }
+  // 新しい劇場の正式名: その会社のほかの劇場と同じ頭の言葉＋打った名前（例: TOHO で「豊洲」→「TOHOシネマズ 豊洲」）
+  function newTheaterName(typed, company) {
+    typed = String(typed || '').trim();
+    const heads = {};
+    theaterMaster.filter((t) => t.company === company && t.name).forEach((t) => {
+      const m = t.name.match(/^(\S+)[\s　]+\S/); if (m) heads[m[1]] = (heads[m[1]] || 0) + 1;
+    });
+    const head = Object.keys(heads).sort((a, b) => heads[b] - heads[a])[0] || company;
+    if (!head || typed.indexOf(head) === 0) return typed;
+    return head + ' ' + typed;
+  }
   function visibleTheaterMaster() {
     if (isPrivileged(currentUser)) return theaterMaster;
     const co = customerCompany(currentUser);
@@ -1398,10 +1439,16 @@
       if (c.tcPerson) tcPersons.add(c.tcPerson);
       if (c.rPerson) rPersons.add(c.rPerson);
     });
-    // 候補は短い名前（打つのも短い名前でよい。保存の時に会社の劇場の正式名にそろえる）
-    fillDatalist('theaterList', Array.from(new Set([...theaters].map((n) => shortTheaterName(n) || n))).sort());
-    fillDatalist('tcPersonList', [...tcPersons].sort());
-    fillDatalist('rPersonList', [...rPersons].sort());
+    // 劇場名の候補: 編集パネルで選んでいる会社の劇場だけ（閉館は出さない）。短い名前で出す（保存の時に正式名にそろえる）
+    const formCo = (isPrivileged(currentUser) && $('company')) ? $('company').value : customerCompany(currentUser);
+    fillDatalist('theaterList', theaterChoices(formCo));
+    // 客先担当者の候補: 選んでいる会社の、過去の案件の担当者と客先アカウントの担当者名
+    const tcs = new Set();
+    visibleCases().forEach((c) => { if (c.tcPerson && (!formCo || c.company === formCo)) tcs.add(c.tcPerson); });
+    (accountsCache || []).forEach((a) => { if (a.person && (!formCo || a.company === formCo)) tcs.add(String(a.person).split(/[\s　]/)[0]); });
+    fillDatalist('tcPersonList', [...tcs].sort((a, b) => a.localeCompare(b, 'ja')));
+    // R担当者の候補: 上の担当者ボタンの人（在籍）だけ
+    fillDatalist('rPersonList', loadTeam());
   }
   // 会社セレクト（モーダル/フィルタ）を会社マスタから再構築
   function populateCompanySelects() {
@@ -1432,7 +1479,10 @@
 
   // ---------- auth ----------
   // ---------- team ----------
+  let staffList = null;   // R担当者のマスター（staff）。null＝表が無い（今までどおりブラウザの覚え）
   function loadTeam() {
+    // マスターに在籍の人がいる時だけマスターを使う（表が空・読めない時は今までどおり）
+    if (staffList && staffList.some((x) => x.active !== false)) return staffList.filter((x) => x.active !== false).map((x) => x.name);
     try {
       const t = JSON.parse(localStorage.getItem(TEAM_KEY));
       return Array.isArray(t) && t.length > 0 ? t : DEFAULT_TEAM.slice();
@@ -1865,8 +1915,27 @@
   // 絞り込み・グルーピングに使う生の値
   function columnValue(c, field) {
     if (field === 'status') return statusOf(c);
+    if (field === 'workapp') return workappLabel(c);
     const v = c[field];
     return v != null ? String(v) : '';
+  }
+  // 上の会社ボタンを切り替えた時: 列の絞り込みの値のうち、その会社の案件に無い値を外す（全部外れた列は絞り込みをやめる）
+  function pruneColumnFiltersForCompany() {
+    const inCo = visibleCases().filter((c) => !companyFilter.size || companyFilter.has(c.company));
+    const removed = [];
+    Object.keys(columnFilters).forEach((f) => {
+      if (f === 'status') return;   // 表示する状態は残す
+      const set = columnFilters[f]; if (!set) return;
+      const present = new Set(inCo.map((c) => columnValue(c, f)));
+      const keep = new Set([...set].filter((v) => present.has(v)));
+      if (keep.size === set.size) return;
+      if (keep.size) columnFilters[f] = keep; else delete columnFilters[f];
+      removed.push(columnLabel(f));
+    });
+    if (removed.length) {
+      document.querySelectorAll('.th-filter[data-filter]').forEach((el) => el.classList.toggle('filtered', !!columnFilters[el.dataset.filter]));
+      showToastLite('会社を切り替えたので、' + removed.map((x) => '「' + x + '」').join('') + 'の絞り込みを外しました（その会社に無い値）');
+    }
   }
   // 表示用ラベル
   function formatColVal(field, v) {
@@ -1879,7 +1948,9 @@
   }
   function columnLabel(field) {
     const th = document.querySelector(`#theadRow th[data-sort="${field}"] .th-filter`);
-    return th ? th.textContent.trim() : field;
+    if (!th) return field;
+    const cl = th.cloneNode(true); cl.querySelectorAll('.th-src').forEach((x) => x.remove());   // ⑥ の印は名前に入れない
+    return cl.textContent.trim();
   }
   function closeColumnFilter() {
     const p = document.getElementById('colFilterPop');
@@ -1892,12 +1963,14 @@
   }
   function openColumnFilter(field, anchorEl) {
     closeColumnFilter();
-    // 候補値（ロール別の可視案件から）を収集
+    // 候補値: 今の絞り込み（上の会社・担当者ボタン・検索・ほかの列）で残る案件の値（Excel と同じ。この列の絞り込みは除く）
     const counts = new Map();
-    visibleCases().forEach((c) => {
+    getFilteredCases({ exceptField: field }).forEach((c) => {
       const v = columnValue(c, field);
       counts.set(v, (counts.get(v) || 0) + 1);
     });
+    // 今チェックしている値は、ほかの絞り込みで0件でも並べる（外せるように）
+    if (columnFilters[field]) columnFilters[field].forEach((v) => { if (!counts.has(v)) counts.set(v, 0); });
     let values = [...counts.keys()];
     if (field === 'status') {
       // ステータスは工程順（STATUS_FILTER_ORDER）で並べる。順序外は末尾に
@@ -1999,6 +2072,7 @@
   // opts.forChips = 状態ボタンの件数を数える用（状態・注意ボタンの絞り込みはかけず、並び替えもしない）
   function getFilteredCases(opts) {
     const forChips = !!(opts && opts.forChips);
+    const exceptField = (opts && opts.exceptField) || '';   // この列の絞り込みだけは使わない（列の候補を作る時）
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = forChips ? '' : $('statusFilter').value;
     // 客先は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
@@ -2028,6 +2102,7 @@
         const f = colFilterFields[i];
         // トップのステータス選択(sf)を使う時は、status列のチェック絞り込みは無視（sfを優先）
         if (f === 'status' && sf) continue;
+        if (f === exceptField) continue;
         const set = columnFilters[f];
         if (set && set.size && !set.has(columnValue(c, f))) return false;
       }
@@ -2110,6 +2185,202 @@
     return base.replace(/客先/g, co);
   }
   // ===== 客先アカウント（劇場のアドレス） =====
+  // ===== R担当者のマスター（2026-11-17）: 在籍の人だけ候補・異動・退職の人の案件は付け替える =====
+  const DONE_STATUSES = ['完了', '請求済', '入金済', '取り下げ'];
+  const isOpenCase = (c) => DONE_STATUSES.indexOf(statusOf(c)) === -1 && c.category !== 'タスク';
+  function leftStaff() { return staffList ? staffList.filter((x) => x.active === false).map((x) => x.name) : []; }
+  function openCasesOf(name) { return cases.filter((c) => c.rPerson === name && isOpenCase(c)); }
+  let accountsCache = [];   // 客先アカウント（客先担当者の候補に使う・菱熱だけ）
+  async function loadStaff() {
+    if (!realPrivileged(currentUser)) return;
+    try { staffList = await store.fetchStaff(); } catch (e) { staffList = null; }
+    try { accountsCache = await store.fetchAccounts(); } catch (e) { accountsCache = []; }
+    await loadWorkappStates();
+    renderRPersonBar(); renderDatalists(); render();
+  }
+  // 異動・退職の人で絞った時: 未完了の案件をまとめて付け替えるバー
+  function renderReassignBar() {
+    let bar = $('rpReassign');
+    const left = leftStaff().filter((n) => rPersonFilter.has(n) && openCasesOf(n).length);
+    if (!left.length || !isPrivileged(currentUser)) { if (bar) bar.remove(); return; }
+    if (!bar) { bar = document.createElement('div'); bar.id = 'rpReassign'; bar.className = 'rp-reassign'; const rb = $('rPersonBar'); rb.parentNode.insertBefore(bar, rb.nextSibling); }
+    const team = loadTeam();
+    bar.innerHTML = left.map((n) => `<span class="rp-re-row">⚠ <b>${escapeHtml(n)}</b> さんは異動・退職です。未完了の案件 <b>${openCasesOf(n).length}</b> 件を
+      <select data-reto="${escapeHtml(n)}"><option value="">担当者を選ぶ</option>${team.map((t) => `<option>${escapeHtml(t)}</option>`).join('')}</select>
+      に <button type="button" data-reassign="${escapeHtml(n)}">付け替える</button></span>`).join('');
+  }
+  async function reassignCases(from, to) {
+    const K = window.KARTE;
+    const list = openCasesOf(from);
+    if (!to) { K.say('付け替える担当者を選んでください'); return; }
+    if (!(await K.ask(`${from} さんの未完了の案件 ${list.length} 件の R担当者を「${to}」に付け替えます。よろしいですか？`, { ok: '付け替える' }))) return;
+    list.forEach((c) => { c.rPerson = to; c.updatedAt = new Date().toISOString(); });
+    await persistCases(list);
+    rPersonFilter.delete(from); rPersonFilter.add(to); saveUserFilter('rpfV1', rPersonFilter);
+    renderRPersonBar(); refresh();
+    showToastLite(`${list.length} 件を ${to} さんに付け替えました`);
+  }
+  // 🗂 マスター編集（担当者・会社・劇場）
+  async function openMasterDialog() {
+    const K = window.KARTE;
+    try { staffList = await store.fetchStaff(); } catch (e) { staffList = null; }
+    if (!staffList) { K.say('担当者の表がありません。SETUP_STAFF.sql を実行してください。'); return; }
+    document.querySelectorAll('#masterDlg').forEach((x) => x.remove());
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'masterDlg';
+    const draw = () => {
+      const rows = staffList.slice().sort((a, b) => (a.active === false) - (b.active === false) || (a.sort_order - b.sort_order) || a.name.localeCompare(b.name, 'ja'));
+      ov.innerHTML = `<div class="kt-dialog kt-dialog-wide ms-dlg"><div class="kt-dlg-head">🗂 マスター編集<button type="button" class="close-btn" data-x>×</button></div>
+        <div class="kt-dlg-body">
+          <h3 class="mst-h">👤 R担当者（菱熱の担当者）</h3>
+          <p class="ms-note">携帯は、作業申請書を作る時に「当日責任者」（その案件のR担当者）の連絡先として使います。<br>在籍の人が、上の担当者ボタン・R担当者の候補・配分に出ます。メール・LINE の取り込みも、在籍の人を菱熱の担当者として見分けます。<br>
+          異動・退職にすると、上のボタンが「○○（異動・退職）⚠ n件」に変わります。押すと、未完了の案件を別の担当者に付け替えられます（過去の案件の名前はそのまま）。<br>
+          名前を変える時は、新しい名前で足して、前の名前を「異動・退職」にしてください。</p>
+          <table class="ms-table mst-table"><thead><tr><th>名前（苗字）</th><th>メールアドレス</th><th>携帯</th><th>状態</th><th>未完了の案件</th><th>並び</th></tr></thead><tbody>
+          ${rows.map((r) => `<tr class="${r.active === false ? 'mst-left' : ''}"><td><b>${escapeHtml(r.name)}</b></td>
+            <td><input type="email" class="tm-input" data-semail="${escapeHtml(r.name)}" value="${escapeHtml(r.email || '')}" placeholder="例: koyama@ryonetsu.com"></td>
+            <td><input type="tel" class="tm-input mst-phone" data-sphone="${escapeHtml(r.name)}" value="${escapeHtml(r.phone || '')}" placeholder="例: 090-1234-5678"></td>
+            <td><select data-sactive="${escapeHtml(r.name)}"><option value="1"${r.active !== false ? ' selected' : ''}>在籍</option><option value="0"${r.active === false ? ' selected' : ''}>異動・退職</option></select></td>
+            <td>${openCasesOf(r.name).length} 件</td>
+            <td>${r.active === false ? '' : `<button type="button" class="mini-btn" data-sup="${escapeHtml(r.name)}" title="上へ">↑</button><button type="button" class="mini-btn" data-sdown="${escapeHtml(r.name)}" title="下へ">↓</button>`}</td></tr>`).join('')}
+          </tbody></table>
+          <div class="acct-add mst-add"><input type="text" id="mstName" class="tm-input" placeholder="足す人の名前（苗字）"><input type="email" id="mstEmail" class="tm-input" placeholder="メールアドレス"><button type="button" data-sadd>＋ 担当者を足す</button></div>
+          <h3 class="mst-h">🏢 会社・🎬 劇場</h3>
+          <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
+          <button type="button" data-opentm>📚 客先マスター（会社・劇場）を開く</button>
+        </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
+    };
+    draw();
+    document.body.appendChild(ov);
+    const after = () => { renderRPersonBar(); renderDatalists(); renderReassignBar(); draw(); };
+    const save = async (rows, msg) => {
+      try { await store.saveStaff(rows); staffList = await store.fetchStaff(); after(); if (msg) showToastLite(msg); }
+      catch (err) { K.say('保存できませんでした: ' + (err.message || err)); }
+    };
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      if (e.target.closest('[data-opentm]')) { ov.remove(); openTheaterMasterModal(); return; }
+      if (e.target.closest('[data-sadd]')) {
+        const name = ov.querySelector('#mstName').value.trim().replace(/(さん|様)$/, '');
+        const email = ov.querySelector('#mstEmail').value.trim().toLowerCase();
+        if (!name) { K.say('名前（苗字）を入れてください'); return; }
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { K.say('メールアドレスが正しくありません'); return; }
+        const ex = staffList.find((x) => x.name === name);
+        if (ex && ex.active !== false) { K.say(`「${name}」はもういます`); return; }
+        const maxOrder = Math.max(0, ...staffList.map((x) => Number(x.sort_order) || 0));
+        await save([ex ? Object.assign({}, ex, { active: true, email: email || ex.email }) : { name, email, active: true, sort_order: maxOrder + 1 }], `${name} さんを足しました`);
+        return;
+      }
+      const mv = e.target.closest('[data-sup],[data-sdown]');
+      if (mv) {
+        const act = staffList.filter((x) => x.active !== false).sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name, 'ja'));
+        const name = mv.dataset.sup || mv.dataset.sdown; const i = act.findIndex((x) => x.name === name);
+        const j = mv.dataset.sup ? i - 1 : i + 1; if (i < 0 || j < 0 || j >= act.length) return;
+        [act[i], act[j]] = [act[j], act[i]];
+        await save(act.map((x, k) => Object.assign({}, x, { sort_order: k + 1 })));
+      }
+    });
+    ov.addEventListener('change', async (e) => {
+      const em = e.target.closest('[data-semail]');
+      if (em) {
+        const r = staffList.find((x) => x.name === em.dataset.semail); const v = em.value.trim().toLowerCase();
+        if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { K.say('メールアドレスが正しくありません'); em.value = r.email || ''; return; }
+        await save([Object.assign({}, r, { email: v })], 'メールアドレスを保存しました');
+        return;
+      }
+      const ph = e.target.closest('[data-sphone]');
+      if (ph) {
+        const r = staffList.find((x) => x.name === ph.dataset.sphone); const v = ph.value.trim();
+        if (v && !/^[0-9０-９\-－()（）\s+]{8,}$/.test(v)) { K.say('携帯の番号が正しくありません'); ph.value = r.phone || ''; return; }
+        await save([Object.assign({}, r, { phone: v.normalize('NFKC') })], '携帯を保存しました（作業申請書の当日責任者の連絡先）');
+        return;
+      }
+      const ac = e.target.closest('[data-sactive]');
+      if (ac) {
+        const r = staffList.find((x) => x.name === ac.dataset.sactive); const active = ac.value === '1';
+        const n = openCasesOf(r.name).length;
+        if (!active && !(await K.ask(`${r.name} さんを「異動・退職」にします。` + (n ? `\n未完了の案件が ${n} 件あります。上の担当者ボタンの「${r.name}（異動・退職）」から、別の担当者に付け替えてください。` : ''), { ok: '異動・退職にする' }))) { ac.value = '1'; return; }
+        if (!active) rPersonFilter.delete(r.name);
+        await save([Object.assign({}, r, { active })], active ? `${r.name} さんを在籍に戻しました` : `${r.name} さんを異動・退職にしました`);
+      }
+    });
+  }
+  // ===== ⑥ 菱熱が手で入れる欄・AI が入れる欄の見える化（2026-11-17・菱熱の画面だけ） =====
+  // ai＝AI が入れる（人も直せる）／mail＝メール・LINE から AI も入れる（普段は菱熱）／hand＝菱熱が手で入れる／cust＝客先が入れる
+  const FIELD_SRC = {
+    company:       { k: 'mail', v: true },
+    theater:       { k: 'mail', v: true },
+    receivedDate:  { k: 'mail', v: true },
+    tcPerson:      { k: 'mail', v: true },
+    rPerson:       { k: 'mail', v: true },
+    category:      { k: 'mail', v: true },
+    caseTitle:     { k: 'ai', v: true, why: '内容から付ける', col: 'title' },
+    content:       { k: 'ai', v: true, why: '社内メモから客先向けにまとめる' },
+    customerMemo:  { k: 'cust', v: true },
+    surveyDate:    { k: 'mail', v: true },
+    quoteDate:     { k: 'mail', v: true },
+    workStartDate: { k: 'mail', v: true },
+    workEndDate:   { k: 'mail', v: true },
+    estimateName:  { k: 'ai', v: true, why: '添付の見積書から読み取る' },
+    estimateAmount:{ k: 'ai', v: true, why: '添付の見積書から読み取る（税抜）' },
+    certNumber:    { k: 'hand', v: true },
+    invoiceDate:   { k: 'hand', v: true },
+    paymentDate:   { k: 'hand', v: true },
+    memo:          { k: 'mail', v: false, why: 'メール・LINE の中身を AI が足していく' },
+    adviceNote:    { k: 'hand', v: false }
+  };
+  function fieldSrcNote(f) {
+    const who = f.k === 'ai' ? '🤖 AI：' + f.why + '（直せる）'
+      : f.k === 'mail' ? '📨 ' + (f.why || 'AI も入れる')
+      : f.k === 'cust' ? '🤝 客先が入れる'
+      : '✋ 手入力だけ';
+    return who + '｜' + (f.v ? '👀 客先に見える' : '🔒 客先に見えない');
+  }
+  function markFieldSources() {
+    Object.keys(FIELD_SRC).forEach((id) => {
+      const f = FIELD_SRC[id];
+      const lab = document.querySelector(`#caseForm label[for="${id}"]`);
+      if (lab && !lab.querySelector('.src-note')) {
+        const sp = document.createElement('span'); sp.className = 'src-note src-' + f.k; sp.textContent = fieldSrcNote(f);
+        sp.title = { ai: 'AI が自動で入れる欄です。人が直すこともできます。', mail: 'メール・LINE を取り込んだ時に AI も入れる欄です。普段は菱熱が入れます。', hand: '菱熱が手で入れる欄です。AI は入れません。', cust: '客先が入れる欄です。菱熱も直せます。' }[f.k] +
+          (f.v ? '客先の画面にも出ます。' : '客先の画面には出ません（社内だけ）。');
+        lab.appendChild(sp);
+        const row = lab.closest('.form-row'); if (row) row.classList.add('src-row-' + f.k);
+      }
+      // 一覧の列の見出し: AI が入れる列に小さい印（説明は指を乗せると出る）
+      if (f.k !== 'ai' && f.k !== 'mail') return;
+      const th = document.querySelector(`#theadRow th[data-sort="${f.col || id}"] .th-filter`);
+      if (th && !th.querySelector('.th-src')) {
+        const ic = document.createElement('span'); ic.className = 'th-src th-src-' + f.k; ic.textContent = f.k === 'ai' ? '🤖' : '📨'; ic.title = fieldSrcNote(f);
+        th.appendChild(ic);
+      }
+    });
+    const st = document.querySelector('#theadRow th[data-sort="status"] .th-filter');
+    if (st && !st.title) st.title = '⚙ 日付から自動で決まります（手で変えることもできます）｜👀 客先にも見えます';
+  }
+  // ===== 作業申請書の状態（一覧の「申請書」列・菱熱だけ） =====
+  let workappStates = new Map();   // 案件 id → 'final'（送付済）/ 'draft'（作成中）
+  async function loadWorkappStates() {
+    if (!caseMailSupported || !realPrivileged(currentUser) || store.mode !== 'supabase') return;
+    try {
+      const { data, error } = await sb.from('case_files').select('case_id,status').eq('kind', 'workapp').is('deleted_at', null);
+      if (error) return;
+      const m = new Map();
+      (data || []).forEach((r) => { const k = String(r.case_id); if (r.status === 'final' || !m.has(k)) m.set(k, r.status === 'final' ? 'final' : (m.get(k) || 'draft')); });
+      workappStates = m;
+    } catch (e) {}
+  }
+  function workappLabel(c) { const st = workappStates.get(String(c.id)); return st === 'final' ? '送付済' : st === 'draft' ? '作成中' : ''; }
+  // 作業開始日が今日から7日以内なのに、まだ送っていない（作成中・未作成）
+  function workappDue(c) {
+    if (!c.workStartDate || workappStates.get(String(c.id)) === 'final') return false;
+    const d = (new Date(c.workStartDate + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 86400000;
+    return d >= 0 && d <= 7;
+  }
+  function workappTd(c) {
+    const lab = workappLabel(c), due = workappDue(c);
+    const html = lab === '送付済' ? '<span class="wa-b wa-final">✅ 送付済</span>' : lab === '作成中' ? '<span class="wa-b wa-draft">📝 作成中</span>' : '<span class="wa-none">—</span>';
+    return `<td class="col-ryo col-workapp${due ? ' wa-due' : ''}" data-colkey="workapp" data-label="申請書"${due ? ' title="作業開始日まで7日以内です。作業申請書を送ってください"' : ''}>${html}${due ? ' <span class="wa-warn">⚠</span>' : ''}</td>`;
+  }
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
   let caseMailSupported = false;          // case_watchers の表がある（SETUP_CASE_MAIL.sql 済み）
   let myWatches = new Set();              // ベルを ON にした案件の id
@@ -2327,23 +2598,45 @@
     try { mail = await store.fetchCaseMailSettings(); } catch (e) { mail = null; }
     const hasMail = !!mail;
     const mailBox = () => !hasMail ? '' : `<div class="acct-mail">📨 通知メール（劇場・担当者・ベルの人へ）: <b>${escapeHtml(MAIL_MODE_LABEL[caseMailSettings.mode] || '')}</b>　<button type="button" data-openmailset>メール通知設定を開く</button></div>`;
+    // 会社ごとのボタン・探す欄（一覧だけ描き直す。探す欄の入力は消さない）
+    let acctCo = '', acctQ = '';
+    const shownRows = () => rows.filter((r) => (!acctCo || r.company === acctCo) &&
+      (!acctQ || [r.email, r.company, r.theater, shortTheaterName(r.theater), r.person, r.note].join(' ').toLowerCase().indexOf(acctQ) !== -1));
+    const bodyHtml = () => {
+      const list = shownRows();
+      return list.length ? list.map((r) => `<tr class="${(r.theater || r.person) ? '' : 'acct-nomatch'}"><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.company)}</td><td title="${escapeHtml(r.theater)}">${r.theater ? escapeHtml(shortTheaterName(r.theater)) : '（会社全体）'}</td><td><input type="text" class="tm-input acct-person" data-person="${escapeHtml(r.email)}" value="${escapeHtml(r.person || '')}" placeholder="—"></td><td>${escapeHtml(r.note || '')}</td><td><button type="button" class="danger" data-del="${escapeHtml(r.email)}">🗑</button></td></tr>`).join('')
+        : `<tr><td colspan="6" class="acct-empty">${rows.length ? '合うアドレスがありません。' : 'まだありません。Excel・CSV を読み込むか、上の欄から足してください。'}</td></tr>`;
+    };
+    const coBar = () => {
+      const cos = Array.from(new Set(rows.map((r) => r.company || ''))).sort((a, b) => companyNames().indexOf(a) - companyNames().indexOf(b));
+      return `<button type="button" class="rperson-btn${acctCo ? '' : ' active'}" data-acco="">全社 ${rows.length}</button>` +
+        cos.map((c) => `<button type="button" class="rperson-btn${acctCo === c ? ' active' : ''}" data-acco="${escapeHtml(c)}">${escapeHtml(c ? companyAbbr(c) : '会社なし')} ${rows.filter((r) => (r.company || '') === c).length}</button>`).join('');
+    };
+    const drawBody = () => {
+      const tb = ov.querySelector('.acct-table tbody'); if (tb) tb.innerHTML = bodyHtml();
+      const cb = ov.querySelector('.acct-cobar'); if (cb) cb.innerHTML = coBar();
+      const n = ov.querySelector('.acct-count'); if (n) n.textContent = `${shownRows().length} 件 ／ 全部 ${rows.length} 件`;
+    };
     const draw = () => {
-      ov.innerHTML = `<div class="kt-dialog kt-dialog-mid acct-dlg"><div class="kt-dlg-head">📧 客先アカウント（劇場のメールアドレス）<button type="button" class="close-btn" data-x>×</button></div>
+      ov.innerHTML = `<div class="kt-dialog acct-dlg acct-full"><div class="kt-dlg-head">📧 客先アカウント（劇場のメールアドレス）<button type="button" class="close-btn" data-x>×</button></div>
         <div class="kt-dlg-body">
           <p class="tm-hint">劇場のメールアドレスで入った人には、その劇場の案件だけが並びます（上の「全部の劇場」で会社の全部も見られます）。客先が直せるのは「自社のメモ」だけです。<br>Excel・CSV（メールアドレスと劇場名の列がある表）を読み込むと、まとめて入れます。同じアドレスは上書きします。見出しに「担当者」の列があれば担当者名も入れます。<br>担当者名は、案件の「TOHOシネマズ担当者」と同じ名前にします（その案件の通知メールが必ず届きます）。</p>
           ${mailBox()}
           <div class="acct-bar"><label class="kt-upload primary-like">⬆ Excel・CSV を読み込む<input type="file" id="acctFile" accept=".xlsx,.csv" hidden></label>
             <span class="acct-add"><input type="email" id="acctEmail" class="tm-input" placeholder="メールアドレス"><input type="text" id="acctTheater" class="tm-input" list="acctTheaterList" placeholder="劇場（短い名前でも可）"><input type="text" id="acctPerson" class="tm-input acct-person-in" placeholder="担当者名（本社の人など）"><datalist id="acctTheaterList">${names.map((n) => `<option value="${escapeHtml(n)}">`).join('')}</datalist><button type="button" data-add>＋ 足す</button></span></div>
+          <div class="acct-find"><span class="rperson-bar acct-cobar">${coBar()}</span><input type="search" id="acctSearch" class="tm-input" placeholder="🔍 アドレス・劇場・担当者名で探す" value="${escapeHtml(acctQ)}"></div>
           <div class="acct-wrap"><table class="acct-table"><thead><tr><th>メールアドレス</th><th>会社</th><th>劇場</th><th>担当者名</th><th>メモ</th><th></th></tr></thead><tbody>
-          ${rows.length ? rows.map((r) => `<tr class="${(r.theater || r.person) ? '' : 'acct-nomatch'}"><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.company)}</td><td title="${escapeHtml(r.theater)}">${r.theater ? escapeHtml(shortTheaterName(r.theater)) : '（会社全体）'}</td><td><input type="text" class="tm-input acct-person" data-person="${escapeHtml(r.email)}" value="${escapeHtml(r.person || '')}" placeholder="—"></td><td>${escapeHtml(r.note || '')}</td><td><button type="button" class="danger" data-del="${escapeHtml(r.email)}">🗑</button></td></tr>`).join('') : '<tr><td colspan="6" class="acct-empty">まだありません。Excel・CSV を読み込むか、上の欄から足してください。</td></tr>'}
+          ${bodyHtml()}
           </tbody></table></div>
-        </div><div class="kt-dlg-foot"><span>${rows.length} 件</span><button type="button" data-x>閉じる</button></div></div>`;
+        </div><div class="kt-dlg-foot"><span class="acct-count">${shownRows().length} 件 ／ 全部 ${rows.length} 件</span><button type="button" data-x>閉じる</button></div></div>`;
     };
     draw();
     document.body.appendChild(ov);
     const reload = async () => { rows = await store.fetchAccounts(); draw(); };
+    ov.addEventListener('input', (e) => { if (e.target.id === 'acctSearch') { acctQ = e.target.value.trim().toLowerCase(); drawBody(); } });
     ov.addEventListener('click', async (e) => {
       if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      const cb = e.target.closest('[data-acco]'); if (cb) { acctCo = cb.dataset.acco; drawBody(); return; }
       if (e.target.closest('[data-add]')) {
         const email = ov.querySelector('#acctEmail').value.trim().toLowerCase();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if (K) K.say('メールアドレスを入れてください'); return; }
@@ -2536,6 +2829,7 @@
     // 客先のベル（✎ の横）の分だけ、編集の列を広げる
     document.body.classList.toggle('case-bells', !!(caseMailSupported && !isPrivileged(currentUser)));
     renderMailSetBtn();
+    if (leftStaff().length) renderRPersonBar();   // 異動・退職の人の「⚠ n件」を最新に
     if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
     renderDatalists();
@@ -2581,6 +2875,7 @@
         <td class="col-tax" data-colkey="tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
+        ${workappTd(c)}
         ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
@@ -2616,7 +2911,7 @@
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
   // 標準の並び。顧客メモは「内容」のすぐ右に置く（既に個人で並べ替えている場合は
   // その設定が優先されるため、標準に戻すには「列並びリセット」を押す）
-  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'title', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
+  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'title', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workapp', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
   // 支払い状況モードの列（左＝案件情報／右＝支払い入力）
   const PURCHASE_COLS = [
     { field: 'company',        label: '会社' },
@@ -2761,7 +3056,6 @@
   }
 
   // ===== 上部の横スクロールバー（本体と同期・位置は個人設定） =====
-  let hScrollSyncing = false;
   function syncHScrollWidth() {
     const inner = $('hScrollTopInner'); const tbl = $('casesTable');
     if (inner && tbl) inner.style.width = tbl.scrollWidth + 'px';
@@ -2769,8 +3063,18 @@
   function bindHScroll() {
     const wrap = document.querySelector('.table-wrap'); const top = $('hScrollTop');
     if (!wrap || !top) return;
-    top.addEventListener('scroll', () => { if (hScrollSyncing) return; hScrollSyncing = true; wrap.scrollLeft = top.scrollLeft; hScrollSyncing = false; });
-    wrap.addEventListener('scroll', () => { if (hScrollSyncing) return; hScrollSyncing = true; top.scrollLeft = wrap.scrollLeft; hScrollSyncing = false; });
+    // 上の横バーと表の横の位置をそろえる。動かしている側（持ち主）だけが相手を動かす。
+    // 相手側の「動いた」の知らせは後から届くので、それで持ち主を引き戻さない（引き戻し合いが、ちらつきの元）。
+    // 表示倍率 125% などで位置が小数になっても、1px 未満の違いは直さない
+    let hsOwner = null, hsTimer = null;
+    const hsSync = (from, to) => {
+      if (hsOwner && hsOwner !== from) return;
+      hsOwner = from;
+      if (Math.abs(to.scrollLeft - from.scrollLeft) >= 1) to.scrollLeft = from.scrollLeft;
+      clearTimeout(hsTimer); hsTimer = setTimeout(() => { hsOwner = null; }, 150);
+    };
+    top.addEventListener('scroll', () => hsSync(top, wrap), { passive: true });
+    wrap.addEventListener('scroll', () => hsSync(wrap, top), { passive: true });
     window.addEventListener('resize', syncHScrollWidth);
   }
   function applyHScrollPos() {
@@ -2814,7 +3118,10 @@
         opts.forEach((opt) => { const o = document.createElement('option'); o.value = opt; o.textContent = opt === '' ? '(未選択)' : opt; el.appendChild(o); });
         break;
       }
-      case 'datalist': el = document.createElement('input'); el.type = 'text'; el.setAttribute('list', cfg.listId); break;
+      case 'datalist':
+        el = document.createElement('input'); el.type = 'text'; el.setAttribute('list', cfg.listId);
+        if (field === 'theater') fillDatalist('theaterList', theaterChoices(c.company));   // その案件の会社の劇場だけ
+        break;
       case 'textarea': el = document.createElement('textarea'); el.rows = 2; break;
       default:         el = document.createElement('input'); el.type = 'text';
     }
@@ -2834,6 +3141,10 @@
       if (done || reEditing) return;
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
+      if (field === 'rPerson') {
+        const rerr = rPersonError(newVal, c.rPerson || '');
+        if (rerr) { done = true; window.KARTE.say(rerr); render(); return; }
+      }
 
       // 作業開始日に「0」→ 日程調整中（自動ステータス）。作業開始日は空にしてフラグを立てる
       if (field === 'workStartDate' && newVal === '0') {
@@ -3021,6 +3332,8 @@
       $('caseId').value = caseObj.id;
       $('company').value = caseObj.company || scopedCompany(companyNames()[0]);
       $('theater').value = theaterForInput(caseObj.theater || '', caseObj.company || '');
+      modalOrigTheater = $('theater').value;
+      modalOrigRPerson = caseObj.rPerson || '';
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
       $('rPerson').value = caseObj.rPerson || '';
@@ -3044,6 +3357,8 @@
       if ($('adviceNote')) $('adviceNote').value = caseObj.adviceNote || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
+      modalOrigTheater = '';
+      modalOrigRPerson = '';
       // 客先・担当者を1つだけ絞っている時は、それを初期選択（複数選択時は標準）
       $('company').value = (isPrivileged(currentUser) && companyFilter.size === 1) ? [...companyFilter][0] : scopedCompany('TOHOシネマズ');
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
@@ -3126,10 +3441,10 @@
         : '';
     } catch (e) { $('cmFiles').innerHTML = `<span class="field-hint">読み込めませんでした: ${escapeHtml(e.message || String(e))}</span>`; }
   }
-  async function cmUpload(kind, file) {
+  async function cmUpload(kind, file, confirmed) {
     const K = window.KARTE; const id = cmCaseId; if (!id || !file) return;
     if (file.size > 20 * 1024 * 1024) { K.say('20MB より大きいファイルは付けられません'); return; }
-    if (kind === 'quote' && !(await K.ask(`見積書「${file.name}」を付けて、客先に通知メールで送ります（5分後にまとめて送ります）。よろしいですか？\n${$('cmTo').textContent}`, { ok: '付けて送る' }))) return;
+    if (kind === 'quote' && !confirmed && !(await K.ask(`見積書「${file.name}」を付けて、客先に通知メールで送ります（5分後にまとめて送ります）。よろしいですか？\n${$('cmTo').textContent}`, { ok: '付けて送る' }))) return;
     const ext = (file.name.match(/\.([A-Za-z0-9]{1,8})$/) || [, 'bin'])[1].toLowerCase();
     const path = `${id}/${Date.now()}_${kind}.${ext}`;
     try {
@@ -3141,13 +3456,39 @@
       showToastLite(kind === 'quote' ? '見積書を付けました（5分後に客先へ送ります）' : '作業申請書を付けました（「完成」を押すと客先へ送ります）');
     } catch (e) { K.say('付けられませんでした: ' + (e.message || e)); }
     const c = cases.find((x) => String(x.id) === id); if (c && cmCaseId === id) renderCaseMailSec(c);
+    if (kind === 'workapp') { await loadWorkappStates(); render(); }
   }
   function currentUserName() { try { return (currentUser && (currentUser.user_metadata && currentUser.user_metadata.name)) || String((currentUser && currentUser.email) || '').split('@')[0]; } catch (e) { return ''; } }
-  document.addEventListener('change', (e) => {
-    if (e.target.id === 'cmQuoteFile' || e.target.id === 'cmWorkappFile') {
-      const f = e.target.files && e.target.files[0]; const kind = e.target.id === 'cmQuoteFile' ? 'quote' : 'workapp';
-      e.target.value = ''; if (f) cmUpload(kind, f);
-    }
+  // 🆙 アップロード画面（ファイルを選ぶ・ドラッグして入れる → 宛先を見て → 付ける）
+  function openUploadDialog(kind) {
+    const K = window.KARTE; if (!cmCaseId) return;
+    document.querySelectorAll('#cmUpDlg').forEach((x) => x.remove());
+    const isQ = kind === 'quote';
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'cmUpDlg';
+    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid"><div class="kt-dlg-head">🆙 ${isQ ? '見積書' : '作業申請書'}をアップロード<button type="button" class="close-btn" data-x>×</button></div>
+      <div class="kt-dlg-body">
+        <p class="ms-note">${isQ ? '付けると、5分後に客先へ通知メール（この見積書を添付）を送ります。送る前なら 🗑 で外せば送りません。' : '付けると「作成中」になります。客先にはまだ送りません。「✅ 完成」を押すと送ります。'}</p>
+        <p class="ms-note">${escapeHtml($('cmTo') ? $('cmTo').textContent : '')}</p>
+        <label class="up-drop" id="cmDrop"><input type="file" id="cmUpFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden>
+          <span class="up-drop-t">ここにファイルをドラッグして入れる<br>または <b>押してファイルを選ぶ</b>（PDF・Excel・Word・写真／20MB まで）</span>
+          <span class="up-drop-f" id="cmUpName"></span></label>
+      </div><div class="kt-dlg-foot"><button type="button" data-x>やめる</button><button type="button" class="primary" data-upok disabled>${isQ ? '付けて送る' : '付ける'}</button></div></div>`;
+    document.body.appendChild(ov);
+    let file = null;
+    const setFile = (f) => { file = f || null; ov.querySelector('#cmUpName').textContent = file ? '📄 ' + file.name + '（' + Math.max(1, Math.round(file.size / 1024)) + ' KB）' : ''; ov.querySelector('[data-upok]').disabled = !file; };
+    const drop = ov.querySelector('#cmDrop');
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); setFile(e.dataTransfer.files && e.dataTransfer.files[0]); });
+    ov.querySelector('#cmUpFile').addEventListener('change', (e) => setFile(e.target.files && e.target.files[0]));
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      if (e.target.closest('[data-upok]') && file) { ov.remove(); await cmUpload(kind, file, true); }
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cmup]'); if (!b) return;
+    e.preventDefault(); openUploadDialog(b.dataset.cmup);
   });
   document.addEventListener('click', async (e) => {
     const sec = e.target.closest('#caseMailSec'); if (!sec) return;
@@ -3169,6 +3510,7 @@
       const { error } = await sb.from('case_files').update({ status: 'final' }).eq('id', fin.dataset.cmfinal);
       if (error) K.say('できませんでした: ' + error.message); else showToastLite('完成にしました（5分後に客先へ送ります）');
       if (c) renderCaseMailSec(c);
+      await loadWorkappStates(); render();
       return;
     }
     const del = e.target.closest('[data-cmdel]');
@@ -3178,6 +3520,7 @@
       const { error } = await sb.from('case_files').update({ deleted_at: new Date().toISOString() }).eq('id', del.dataset.cmdel);
       if (error) K.say('外せませんでした: ' + error.message);
       if (c) renderCaseMailSec(c);
+      await loadWorkappStates(); render();
     }
   });
   function closeModal() {
@@ -4646,6 +4989,7 @@
     renderAggTable();
   }
   function addTeamMember() {
+    if (staffList) { openMasterDialog(); return; }   // マスターがある時は「🗂 マスター編集」で足す
     const name = prompt('追加する担当者名を入力してください');
     if (!name) return;
     const trimmed = name.trim();
@@ -4658,6 +5002,7 @@
     renderAggTable();
   }
   function removeTeamMember(name) {
+    if (staffList) { openMasterDialog(); return; }
     if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持され、再追加すれば復元されます）`)) return;
     saveTeam(loadTeam().filter((m) => m !== name));
     rPersonFilter.delete(name); // 絞り込み中だった場合は外す
@@ -5697,6 +6042,7 @@
     render();
     requestAnimationFrame(fitTableHeight); // 表の高さを画面の残りに合わせる
     loadMyAccount();
+    loadStaff();
     // 「タスク管理」ボタンの件数に個人タスクも入れるため、ログイン時に読み込んでおく
     if (isPrivileged(currentUser)) {
       store.fetchPersonalTasks().then((map) => { personalTasks = map || {}; updateTaskBadge(); }).catch(() => {});
@@ -5762,7 +6108,13 @@
     html += team.map((n) =>
       `<button type="button" class="rperson-btn${rPersonFilter.has(n) ? ' active' : ''}" data-rperson="${escapeHtml(n)}">${escapeHtml(n)}</button>`
     ).join('');
+    // 異動・退職の人で、未完了の案件が残っている人（付け替えると消える）
+    if (isPrivileged(currentUser)) leftStaff().forEach((n) => {
+      const k = openCasesOf(n).length; if (!k) return;
+      html += `<button type="button" class="rperson-btn rp-left${rPersonFilter.has(n) ? ' active' : ''}" data-rperson="${escapeHtml(n)}" title="異動・退職。未完了の案件を別の担当者に付け替えてください">${escapeHtml(n)}（異動・退職）⚠ ${k}件</button>`;
+    });
     bar.innerHTML = html;
+    renderReassignBar();
   }
   // 客先ログインでは社内用のボタンが消えるため、中身が無くなった「☰ その他」の区切り・ボタン自体を隠す
   // （閉じた小窓の中は offsetParent が取れないので、各ボタン自身の display で判定する）
@@ -6044,6 +6396,18 @@
     cases = cases.filter((x) => x.id !== c.id); removeCaseRemote(c.id); closeModal(); render(); if (calMode) renderCalendar();
   });
   $('company').addEventListener('change', updateTohoVisibility);
+  // 会社を変えたら: 劇場の候補をその会社の劇場にする。入っている劇場がその会社の劇場でなければ、選び直してもらう
+  $('company').addEventListener('change', () => {
+    if (!isPrivileged(currentUser)) return;
+    const co = $('company').value;
+    renderDatalists();
+    const th = $('theater').value.trim();
+    if (th && !masterTheaterOf(th, co)) {
+      $('theater').value = '';
+      showToastLite('会社を変えたので、劇場を選び直してください');
+      $('theater').focus();
+    }
+  });
   $('addCompanyBtn').addEventListener('click', addCompany);
 
   $('invoiceBtn').addEventListener('click', openInvoiceModal);
@@ -6322,6 +6686,10 @@
   $('calBtn').addEventListener('click', toggleCalMode);
   $('koteiBtn').addEventListener('click', toggleKoteiMode);
   $('mailSetBtn').addEventListener('click', () => openMailSettings());
+  $('masterBtn').addEventListener('click', () => openMasterDialog());
+  $('guideBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open(); });
+  // 編集パネルの「？」: この画面の取説（登録・ステータス・見積書・作業申請書）
+  $('modalHelpBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open({ only: ['flow', 'docs'] }); });
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
   // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
   $('casesBody').addEventListener('click', (e) => {
@@ -6446,8 +6814,36 @@
   });
 
   // フォーム保存時に日付を一括パース＆バリデーション
+  // 一覧にない劇場（新店）: 確かめてから、劇場の一覧にも登録する
+  let newTheaterOk = '';
+  async function confirmNewTheater(typed, company) {
+    const K = window.KARTE;
+    const name = newTheaterName(typed, company);
+    const ok = K ? await K.ask(`「${typed}」は ${company} の劇場の一覧にありません。\n新しい劇場「${name}」として、劇場の一覧にも登録しますか？\n（打ちまちがいなら「やめる」を押して直してください）`, { ok: '新しい劇場として登録' }) : confirm('新しい劇場として登録しますか？');
+    if (!ok) { $('theater').focus(); return false; }
+    const t = { name, company, address: '', shortName: name === typed ? '' : typed };
+    try {
+      if (!theaterMaster.some((x) => x.name === name)) { theaterMaster.push(t); await store.upsertTheater(t); }
+    } catch (err) { theaterMaster = theaterMaster.filter((x) => x !== t); onPersistError(err); return false; }
+    $('theater').value = typed;
+    newTheaterOk = name;
+    showToastLite('劇場「' + name + '」を劇場の一覧に登録しました');
+    return true;
+  }
   $('caseForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    if (isPrivileged(currentUser) && store.mode === 'supabase') {
+      const typed = $('theater').value.trim(), co = $('company').value;
+      if (typed && co && typed !== modalOrigTheater && !masterTheaterOf(typed, co) && newTheaterOk !== newTheaterName(typed, co)) {
+        confirmNewTheater(typed, co).then((ok) => { if (ok) $('caseForm').requestSubmit(); });
+        return;
+      }
+    }
+    newTheaterOk = '';
+    if (isPrivileged(currentUser)) {
+      const rerr = rPersonError($('rPerson').value.trim(), modalOrigRPerson);
+      if (rerr) { window.KARTE.say(rerr); $('rPerson').focus(); return; }
+    }
     if (!isPrivileged(currentUser)) {
       // 客先は新しい案件を作れない。開いた案件の「自社のメモ」だけ保存する
       const c0 = cases.find((x) => String(x.id) === String($('caseId').value));
@@ -6680,6 +7076,11 @@
 
   $('searchBox').addEventListener('input', refresh);
   $('statusFilter').addEventListener('change', refresh);
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('#rpReassign [data-reassign]'); if (!b) return;
+    const sel = document.querySelector(`#rpReassign select[data-reto="${CSS.escape(b.dataset.reassign)}"]`);
+    reassignCases(b.dataset.reassign, sel ? sel.value : '');
+  });
   $('rPersonBar').addEventListener('click', (e) => {
     const b = e.target.closest('[data-rperson]');
     if (!b) return;
@@ -6699,6 +7100,7 @@
     else if (companyFilter.has(v)) companyFilter.delete(v);
     else companyFilter.add(v);
     saveUserFilter('coFV1', companyFilter);
+    pruneColumnFiltersForCompany();
     renderCompanyBar();
     refresh();
   });
@@ -6915,6 +7317,8 @@
     if (field) startColResize(th, field, e);
   });
 
+  // ⑥ だれが入れる欄か（菱熱の画面だけに出す）。AI が入れる欄だけ色を付ける
+  markFieldSources();
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
 
@@ -6963,6 +7367,9 @@
     // 工程表(kotei.js)が同じSupabaseクライアント・モード・担当者/会社マスタを共有できるよう橋渡し
     window.CINEMA_DB = {
       client: () => sb,
+      // 劇場名をゆるく探す（短い名前・別の呼び方。1つに決まらなければ ''）・会社の略称
+      findTheater: (v, co) => { try { return theaterLoose(v, co); } catch (e) { return ''; } },
+      companyAbbr: (n) => { try { return companyAbbr(n); } catch (e) { return n; } },
       mode: () => store.mode,
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
       companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },

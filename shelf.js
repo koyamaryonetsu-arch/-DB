@@ -295,7 +295,8 @@
   function renderCrumb() {
     const l = S.loc; let h;
     if (l.kind === 'recent') h = '<span class="cur">🕘 最近使った</span>';
-    else if (l.kind === 'forms') h = '<span class="cur">📝 作業申請書の書式</span><span class="sh-note">（劇場ごとの作業申請書の書式。劇場を選んで入れます。各劇場のフォルダにも出ます）</span>';
+    else if (l.kind === 'forms') h = '<span class="cur">📝 作業申請書の書式</span><span class="sh-note">（劇場ごとの作業申請書の書式。各劇場のフォルダにも出ます）</span>' +
+      '<label class="sh-btn sh-folder-in">📂 フォルダごと取り込む<input type="file" id="shFormFolder" webkitdirectory directory multiple hidden></label>';
     else if (l.kind === 'trash') h = '<span class="cur">🗑 ごみ箱</span><span class="sh-note">（削除してから30日で完全に消えます）</span>';
     else if (l.kind === 'unset') h = `<span class="cur">❔ ${UNSET}</span><span class="sh-note">（「⋯」の「フォルダへ移動」で劇場を決められます）</span>`;
     else {
@@ -314,7 +315,7 @@
     return list;
   }
   function subOf(r) {
-    if (r.type === 'form') { const d = r.data || {}; return (d.file_name || '') + (d.size ? `（${Math.max(1, Math.round(d.size / 1024))} KB）` : ''); }
+    if (r.type === 'form') { const d = r.data || {}; return (d.kind === 'workapp_example' ? '記入例（提出した申請書）・' : '') + (d.file_name || '') + (d.size ? `（${Math.max(1, Math.round(d.size / 1024))} KB）` : ''); }
     if (r.type === 'kotei') { try { return window.KOTEI.summary(r.data); } catch (e) { return ''; } }
     if (r.type === 'heat') { try { return window.HL.summary(r.data); } catch (e) { return ''; } }
     const n = ((r.data && r.data.items) || []).length;
@@ -504,6 +505,93 @@
     };
     render();
   }
+
+  /* ---------- 作業申請書の書式をフォルダごと取り込む ----------
+     例: 作業申請書/TOHO/日比谷　作業申請書.pdf … 1つ目のフォルダ＝会社（TOHO・109・UC・CS など）、劇場はファイル名（無ければ中のフォルダ名）。
+     「提出」フォルダ（提出した申請書）は「記入例」として劇場に結びつける（AI がその劇場の書き方をまねる。いくつあってもよい）。
+     同じ劇場の書式があれば、新しい方に入れ替える（古い方はごみ箱へ）。古い Word（.doc）は .docx に保存し直してから入れてもらう */
+  const FORM_EXT = /\.(pdf|xlsx|xlsm|xls|docx|doc)$/i;
+  const CO_ALIAS = { 'ムービックス': 'MOVIX', 'movix': 'MOVIX', 'シネマサンシャイン': '佐々木興業', 'cs': '佐々木興業', 'uc': 'ユナイテッドシネマ', 'ユナイテッド': 'ユナイテッドシネマ', 'toho': 'TOHOシネマズ', 'tc': 'TOHOシネマズ', '109': '109シネマズ', 'コロナ': 'コロナワールド', 'イオン': 'イオンシネマズ', '東レク': '東急レクリエーション' };
+  function companyOfFolder(name) {
+    const n = String(name || '').normalize('NFKC').trim(), k = n.toLowerCase();
+    const cos = companyNames();
+    const hit = cos.find((c) => c === n);
+    if (hit) return hit;
+    const ab = cos.find((c) => { try { return String(DB().companyAbbr(c)).toLowerCase() === k; } catch (e) { return false; } });
+    if (ab) return ab;
+    if (CO_ALIAS[k] && cos.indexOf(CO_ALIAS[k]) !== -1) return CO_ALIAS[k];
+    return cos.find((c) => c.indexOf(n) !== -1 || n.indexOf(c) !== -1) || '';
+  }
+  function theaterOfName(text, co) {
+    const find = (v) => { try { return DB().findTheater(v, co) || ''; } catch (e) { return ''; } };
+    const base = String(text || '').normalize('NFKC').replace(FORM_EXT, '');
+    const cand = [];
+    (base.match(/【([^】]+)】/g) || []).forEach((m) => cand.push(m.replace(/[【】]/g, '')));
+    base.replace(/【[^】]*】/g, ' ').split(/[_\s　・、,（）()\-－]+/).forEach((w) => { if (w) cand.push(w); });
+    for (const c of cand) {
+      const w = c.replace(/^(TC|TOHO|109|UC|CS)/i, '').replace(/(作業|申請|届|許可|入館|外来|時間外|臨時|搬入|搬出|書|の)+$/g, '').trim();
+      for (const v of [c, w]) { if (v && v.length >= 2) { const t = find(v); if (t) return t; } }
+    }
+    return '';
+  }
+  async function importFormFolder(files) {
+    const list = Array.from(files || []).filter((f) => FORM_EXT.test(f.name));
+    if (!list.length) { alert('作業申請書の書式（PDF・Excel・Word）が見つかりませんでした'); return; }
+    const rows = [];
+    list.forEach((f) => {
+      const parts = String(f.webkitRelativePath || f.name).split('/');
+      const dirs = parts.slice(0, -1);
+      // 先頭はえらんだフォルダ（作業申請書）。その下の1つ目＝会社
+      const inner = dirs.length > 1 ? dirs.slice(1) : dirs;
+      if (/\.doc$/i.test(f.name)) { rows.push({ f, path: parts.join('/'), skip: '古い Word（.doc）は、Word で .docx に保存し直してから入れてください' }); return; }
+      const example = inner.some((d) => /^提出/.test(d));
+      let co = ''; for (const d of inner) { co = companyOfFolder(d); if (co) break; }
+      let th = theaterOfName(f.name, co);
+      if (!co && th) co = ((call('theaters', []) || []).find((t) => t.name === th) || {}).company || '';
+      if (!th && co) for (const d of inner.slice(1).reverse()) { th = theaterOfName(d, co); if (th) break; }
+      rows.push({ f, path: parts.join('/'), co, th, example });
+    });
+    const exists = (th) => S.rows.some((r) => r.type === 'form' && !r.deleted_at && r.theater === th && (r.data || {}).kind !== 'workapp_example');
+    const render = () => {
+      const ok = rows.filter((r) => !r.skip && r.th).length, need = rows.filter((r) => !r.skip && !r.th).length;
+      openDlg(`<h3>📂 作業申請書の書式をフォルダごと取り込む</h3><div class="sh-dlg-b">
+        <p class="sh-hint">会社はフォルダ名、劇場はファイル名（無ければ中のフォルダ名）で決めました。分からないものは劇場を選んでください（選ばないものは取り込みません）。同じ劇場の書式があれば、新しい方に入れ替えます（古い方はごみ箱へ・30日は戻せます）。</p>
+        <div class="sh-ff-wrap"><table class="sh-table sh-ff"><thead><tr><th>ファイル</th><th>会社</th><th>劇場</th><th></th></tr></thead><tbody>
+        ${rows.map((r, i) => r.skip ? `<tr class="sh-ff-skip"><td>${esc(r.path)}</td><td colspan="3">${esc(r.skip)}</td></tr>` :
+          `<tr><td>${esc(r.path)}</td><td><select data-ffco="${i}"><option value="">（会社）</option>${companyNames().map((c) => `<option${c === r.co ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></td>
+           <td><select data-ffth="${i}"><option value="">${r.co ? '（劇場を選ぶ）' : '（先に会社）'}</option>${masterTheaters(r.co).map((t) => `<option value="${esc(t)}"${t === r.th ? ' selected' : ''}>${esc(theaterLabel(r.co, t))}</option>`).join('')}</select></td>
+           <td class="sub">${r.example ? '記入例' : ''}${r.th ? (r.example ? '' : exists(r.th) ? '入れ替え' : '新しく') : '<b class="sh-ff-need">劇場を選ぶ</b>'}</td></tr>`).join('')}
+        </tbody></table></div>
+        <p class="sh-hint">取り込む: ${ok} 件 ／ 劇場が分からない: ${need} 件 ／ 取り込まない: ${rows.filter((r) => r.skip).length} 件</p></div>
+        <div class="sh-dlg-f"><button type="button" data-dlg="cancel">やめる</button><button type="button" class="pri" data-dlg="ok"${ok ? '' : ' disabled'}>${ok} 件を取り込む</button></div>`);
+      $('shDlg').querySelector('[data-dlg="cancel"]').addEventListener('click', closeDlg);
+      $('shDlg').querySelectorAll('[data-ffco]').forEach((sel) => sel.addEventListener('change', () => { const r = rows[+sel.dataset.ffco]; r.co = sel.value; r.th = r.co ? theaterOfName(r.f.name, r.co) : ''; render(); }));
+      $('shDlg').querySelectorAll('[data-ffth]').forEach((sel) => sel.addEventListener('change', () => { rows[+sel.dataset.ffth].th = sel.value; render(); }));
+      $('shDlg').querySelector('[data-dlg="ok"]').addEventListener('click', async () => {
+        const go = rows.filter((r) => !r.skip && r.th && r.co);
+        const btn = $('shDlg').querySelector('[data-dlg="ok"]'); btn.disabled = true; btn.textContent = '取り込み中…';
+        let n = 0, rep = 0;
+        try {
+          for (const r of go) {
+            // 同じ劇場の前の書式はごみ箱へ（新しい方に入れ替え）。記入例は入れ替えない
+            if (!r.example) for (const old of S.rows.filter((x) => x.type === 'form' && !x.deleted_at && x.theater === r.th && (x.data || {}).kind !== 'workapp_example')) { replaceRow(await api.update('form', old.id, { deleted_at: new Date().toISOString() })); rep++; }
+            const path = await api.putForm(r.f);
+            const row = await api.insert('form', { name: (r.example ? '記入例 ' : '') + String(r.f.name).replace(FORM_EXT, ''), company: r.co, theater: r.th, folder_id: null, case_id: null,
+              data: { kind: r.example ? 'workapp_example' : 'workapp_template', path, file_name: r.f.name, mime: r.f.type || '', size: r.f.size, source_path: r.path, modified: r.f.lastModified || 0 } });
+            S.rows.push(row); n++;
+          }
+        } catch (e) { fail('取り込み', e); }
+        closeDlg(); S.loc = { kind: 'forms' }; renderShelf();
+        toast(`${n} 件の書式を取り込みました` + (rep ? `（${rep} 件は新しい方に入れ替え）` : ''));
+      });
+    };
+    render();
+  }
+  $('viewShelf').addEventListener('change', (e) => {
+    if (e.target.id !== 'shFormFolder') return;
+    const fl = e.target.files; e.target.value = '';
+    if (fl && fl.length) importFormFolder(fl);
+  });
 
   /* ---------- 書類の操作（⋯ メニュー） ---------- */
   function docMenu(anchor, id) {
@@ -1139,5 +1227,5 @@
     if (!c) return;
     newDialog({ type: type || 'photo', co: c.company || '', th: c.theater || '', caseId: String(c.id), name: (workOf(c) || theaterLabel(c.company, c.theater)) + SUFFIX[type || 'photo'] });
   }
-  window.SHELF = { open, close, requestClose: (then) => confirmLeave(then), isDirty: () => !!(S.cur && S.cur.dirty), newFromCase };
+  window.SHELF = { open, close, requestClose: (then) => confirmLeave(then), isDirty: () => !!(S.cur && S.cur.dirty), newFromCase, importFormFolder };
 })();
