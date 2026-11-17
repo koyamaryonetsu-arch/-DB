@@ -30,6 +30,9 @@ import { MAPS, condOk } from '../maps/index.js';
 import { jobLabel } from '../job-label.js';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
 import { bossHintsSeen } from '../data/boss-hints.js';
+// 第88回 G4班: 作品の ガチャガチャ・七つの玉
+import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js';
+import { workName } from '../data/works.js';
 // 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
 import { rivalTrack, rivalRec } from '../rivals-r88.js';
 
@@ -328,6 +331,30 @@ function chestTrack(c) {
   };
 }
 
+// 第88回 G4班: 作品の ガチャガチャ（店の 人に 話した あと）・七つの玉（うわさを 聞くか 1つ 見つけた あと。data/gacha-r88.js）
+function gachaTrack(c) {
+  if (!c?.flags?.r88_gacha_seen) return null;
+  const items = gachaWorks().map((w) => {
+    const n = gachaPool(w).all.length, got = gachaGot(c, w);
+    return { name: workName(w), where: '', state: got >= n ? 'done' : 'now', right: got >= n ? '全部そろった' : `${got}/${n}` };
+  }).sort(byState);
+  return {
+    id: 'gacha', name: '作品のガチャガチャ', now: items.filter((x) => x.state === 'done').length, total: items.length, unit: '作品', where: 'ルミナの町・王都サファラ',
+    note: `1回${GACHA_PRICE}ゴールド。作品の品が1つ出る。\n${GACHA_PITY}回つづけて名品が出ないと、次はかならず名品。`, items,
+  };
+}
+function orbTrack(c) {
+  const n = orbsFound(c);
+  if (!n && !c?.flags?.r88_orb_heard) return null;
+  const items = ORB_PLACES.map((p) => (c?.chests?.[orbChestId(p)]
+    ? { name: ITEMS[p.item]?.name || p.item, where: '', state: 'done', right: '見つけた' }
+    : { name: '？？？', where: '', state: 'unknown', right: '' })).sort(byState);
+  return {
+    id: 'orbs', name: '七つの玉', now: n, total: ORB_PLACES.length, unit: 'つ', where: npcWhere('r88_gacha_keeper_0') || 'ルミナの町',
+    note: '世界のあちこちに1つずつねむる玉。\nガチャガチャ屋が、うわさを1つずつ教えてくれる。\n7つそろえて山の上のほこらへ。', items,
+  };
+}
+
 // 第78回 3-10: 家族ミッション（家族サーバーの 世界の 側の 数。ctx.missions … サーバーの 返事 world/missions.js の missionView。ひとりモードでは 出さない）
 function missionTrack(c, ctx) {
   const m = ctx?.missions;
@@ -340,8 +367,8 @@ function missionTrack(c, ctx) {
   };
 }
 
-const TRACKS = [missionTrack, boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack];
-export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest'];
+const TRACKS = [missionTrack, boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack, gachaTrack, orbTrack];
+export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest', 'gacha', 'orbs'];
 // 第88回 G3班: まぼろしの回廊（職業の 試練の つぎ）
 TRACKS.splice(TRACKS.indexOf(trialsTrack) + 1, 0, rivalTrack);
 TRACK_IDS.splice(TRACK_IDS.indexOf('trials') + 1, 0, 'rival');
@@ -404,6 +431,8 @@ function sideRecs(c, tracks) {
   // 10. 宝箱の のこり
   const ch = T.chest?.items.find((x) => x.state === 'now');
   if (ch) push('chest', `${ch.name}に、まだ開けていない宝箱があります`, ch.name);
+  // 第88回 G4班: 七つの玉が ぜんぶ 見つかった（まだ 竜神の玉に かえて いない）
+  if (T.orbs && SEVEN_ORBS.every((id) => ownsR88(c, id))) push('orbs', '七つの玉がそろいました。山の上のほこらへ行ってみよう', '');
   // 11. ひみつのダンジョン
   if (T.sd && f(SD_OPEN_FLAG)) push('sd', `ひみつのダンジョンの${T.sd.total}階をめざそう`, T.sd.where);
   return out;

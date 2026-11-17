@@ -541,6 +541,8 @@ export function gameFiles() {
     // 第88回 G2班: スレイヤーズ・烈火の炎
     'public/js/shared/data/items-r88-slayers.js', 'public/js/shared/data/items-r88-rekka.js',
     'public/js/shared/data/gear-fx.js',
+    // 第88回 G4班: 作品の ガチャガチャ・七つの玉・竜神の ほこら・試練の ごほうび
+    'public/js/shared/data/gacha-r88.js', 'public/js/shared/world/gacha-r88.js', 'public/js/shared/maps/gacha-r88.js', 'public/js/client/ui/gacha-r88.js',
     // 第88回 G3班: まぼろしの回廊（とびら・ライバルの まぼろし）
     'public/js/shared/data/rivals-r88.js', 'public/js/shared/data/story-rivals-r88.js', 'public/js/shared/rivals-r88.js', 'public/js/shared/battle-rival-r88.js',
     'public/js/shared/battle-rival-fx-r88.js', 'public/js/shared/world/rivals-r88.js', 'public/js/shared/maps/rivals-r88.js', 'public/js/client/ui/rivals-r88.js',

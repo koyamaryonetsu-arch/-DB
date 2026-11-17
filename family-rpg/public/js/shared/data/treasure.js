@@ -14,6 +14,8 @@ import { makeRng } from '../rng.js';
 import { REWARD_GOLD_RATE } from './difficulty.js';
 import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js';
 import { curveK } from './tm-curve.js';
+// 第88回 G4班: 作品の 名品が まれに（data/gacha-r88.js）
+import { r88TmLoot } from './gacha-r88.js';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 第75回: 地図が いっぱいの ときに 手に入れた 地図は「あずかり」（c.tmPending）に 入れて、どれを 捨てるか 家族に 聞く。
@@ -316,7 +318,11 @@ const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone', '
 // cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）
 // 第65回: 主の 宝箱に 限界の石が 入る 地図の レベル
 export const TM_LIMIT_LV = 30;
+// 第88回 G4班: 地図 Lv26 から、レア装備で ない 中みが まれに 作品の 名品（★4）に かわる（data/gacha-r88.js の r88TmLoot）
 export function chestLoot(rng, lv, kind = 'normal', cave = null) {
+  return r88TmLoot(rng, lv, kind, chestLootBase(rng, lv, kind, cave));
+}
+function chestLootBase(rng, lv, kind = 'normal', cave = null) {
   const pools = equipPools();
   const rank = equipRankOf(lv);
   const rare = () => {

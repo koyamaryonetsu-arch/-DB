@@ -32,6 +32,8 @@ import { sdBoardUI } from './secret.js';
 import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js';
 // 第67回 A班: モンスター闘技場の 受付（ui/monarena.js）
 import { monArenaUI } from './monarena.js';
+// 第88回 G4班: 作品の ガチャガチャ（ui/gacha-r88.js）
+import { gachaUI } from './gacha-r88.js';
 import { shownEquip } from '../../shared/look-equip.js';
 import { jobAskText } from '../../shared/data/job-talk.js';
 import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js';
@@ -69,6 +71,8 @@ export function openServiceUI(game, kind, data) {
     case 'arenaWall': return arenaWallUI(game, data);
     // 第67回 A班: モンスター闘技場（ランク戦・家族対戦・チームの 登録）
     case 'monarena': return monArenaUI(game, data);
+    // 第88回 G4班: 作品の ガチャガチャ（ui/gacha-r88.js）
+    case 'gacha': return gachaUI(game, data);
     default: return Promise.resolve();
   }
 }
