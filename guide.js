@@ -4,7 +4,7 @@
  *  新しい章・項目を足したら GUIDE_VERSION を上げ、その項目に isNew: true を付ける（取説ボタンに「新」の印が付く）。
  */
 (function () {
-  const GUIDE_VERSION = 2;
+  const GUIDE_VERSION = 3;
   const SEEN_KEY = 'guideSeenV';
   const $ = (id) => document.getElementById(id);
   const vis = (el) => !!el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
@@ -75,10 +75,17 @@
         { sel: '#caseMailSec [data-cmup="quote"]', t: '「🆙 見積書をアップロード」を押すと、アップロードの画面が出ます。ファイルをドラッグして入れるか、押して選び、「付けて送る」。5分後にまとめて客先に送ります（添付つき）。間違えたら、送る前なら 🗑 で外せば送りません。' },
         { sel: '#cmLog', t: '送ったメール・客先からの返信は「メールの記録」に残ります。返信はその案件の更新としても取り込みます。', after: A.closeAll }
       ] },
-      { id: 'workapp', title: '作業申請書を付ける・完成にする', isNew: true, steps: [
-        { before: A.openFirst, sel: '#caseMailSec [data-cmup="workapp"]', t: '「🆙 作業申請書をアップロード」で入れると「作成中」になります。まだ客先には送りません。' },
+      { id: 'workapp-auto', title: '作業申請書を AI で作る', isNew: true, steps: [
+        { before: A.closeAll, sel: '#casesBody [data-wamake], #casesBody td.col-workapp', t: '一覧の「申請書」の列の「📝 作る」から作れます。作業開始日が入っていて、まだ送っていない案件に出ます（作りかけは「📝 作成中」）。' },
+        { before: A.openFirst, sel: '#caseMailSec [data-wamake]', t: '案件を ✎ で開いた「書類・通知メール」の「📝 作業申請書を作る（AI）」からも同じです。' },
+        { before: A.closeAll, t: '流れ:\n① 書類棚の「📝 作業申請書の書式」から、この劇場の書式と記入例（前に出した申請書）を探します\n② 先に足りないことを聞きます（作業日時・場所・内容・当日責任者・協力会社・作業者・車両・火気など）。AI が書式を読んで、提出期限や、その書式だけの質問（鍵の貸出など）も出します\n③「📝 作る」で AI が書式に書き込みます（PDF は書いた後に AI がもう一度見て、ずれを直します）\n④ 確認画面で見て「OK（劇場に送る）」。直す時は「✏ 編集」（自分で直す・AI に直してもらう）' },
+        { t: 'OK を押すと:\n・案件の書類が「完成」になり、5分後に劇場へ通知メールで送ります（添付）\n・書類棚に「記入例」として残します（次からこの書き方に合わせます）\n・作業者を協力会社マスターに覚えます（次から候補に出ます）\n「あとで」で閉じると「作成中」のまま。もう一度押すと続きから直せます。' },
+        { before: A.openMore, sel: '#masterBtn', t: '協力会社は「🗂 マスター編集」→「🤝 協力会社マスター」で見られます。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します。違う会社は「候補に出す」を外してください。', after: A.closeAll }
+      ] },
+      { id: 'workapp', title: '作業申請書を自分で付ける・完成にする', steps: [
+        { before: A.openFirst, sel: '#caseMailSec [data-cmup="workapp"]', t: '自分で作った作業申請書は「🆙 作業申請書をアップロード」で入れます。「作成中」になり、まだ客先には送りません。' },
         { sel: '#cmFiles', t: '直し終わったら「✅ 完成（客先に送る）」を押すと、5分後に客先に送ります。' },
-        { before: A.closeAll, t: '劇場ごとの作業申請書の書式は、書類棚の「📝 作業申請書の書式」に、劇場を選んで入れておきます。\n（内容と調査日から、劇場の書式で自動で作るしくみは、これから作ります）' }
+        { before: A.closeAll, t: '劇場ごとの作業申請書の書式は、書類棚の「📝 作業申請書の書式」に入れておきます（「📂 フォルダごと取り込む」で、まとめて入れられます）。' }
       ] }
     ] },
     { id: 'intake', title: '📨 メール・LINE の自動取り込み', items: [

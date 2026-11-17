@@ -2385,6 +2385,9 @@
           <h3 class="mst-h">🏢 会社・🎬 劇場</h3>
           <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
           <button type="button" data-opentm>📚 客先マスター（会社・劇場）を開く</button>
+          <h3 class="mst-h">🤝 協力会社</h3>
+          <p class="ms-note">作業申請書の「協力会社」「作業者」の候補です。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します。</p>
+          <button type="button" data-openpt>🤝 協力会社マスターを開く</button>
         </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
     };
     draw();
@@ -2397,6 +2400,7 @@
     ov.addEventListener('click', async (e) => {
       if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
       if (e.target.closest('[data-opentm]')) { ov.remove(); openTheaterMasterModal(); return; }
+      if (e.target.closest('[data-openpt]')) { ov.remove(); if (window.WORKAPP) window.WORKAPP.openPartners(); return; }
       if (e.target.closest('[data-sadd]')) {
         const name = ov.querySelector('#mstName').value.trim().replace(/(さん|様)$/, '');
         const email = ov.querySelector('#mstEmail').value.trim().toLowerCase();
@@ -2516,7 +2520,11 @@
   }
   function workappTd(c) {
     const lab = workappLabel(c), due = workappDue(c);
-    const html = lab === '送付済' ? '<span class="wa-b wa-final">✅ 送付済</span>' : lab === '作成中' ? '<span class="wa-b wa-draft">📝 作成中</span>' : '<span class="wa-none">—</span>';
+    // 作業開始日が入っていて、まだ送っていない案件は「📝 作る」（作成中なら続きから）。押すと作業申請書の自動作成（workapp.js）
+    const canMake = lab !== '送付済' && !!c.workStartDate && store.mode === 'supabase';
+    const html = lab === '送付済' ? '<span class="wa-b wa-final">✅ 送付済</span>'
+      : canMake ? `<button type="button" class="wa-make${lab === '作成中' ? ' wa-draft' : ''}" data-wamake="${escapeHtml(c.id)}" title="作業申請書を作る（AI が劇場の書式に書き込みます）">📝 ${lab === '作成中' ? '作成中' : '作る'}</button>`
+      : lab === '作成中' ? '<span class="wa-b wa-draft">📝 作成中</span>' : '<span class="wa-none">—</span>';
     return `<td class="col-ryo col-workapp${due ? ' wa-due' : ''}" data-colkey="workapp" data-label="申請書"${due ? ' title="作業開始日まで7日以内です。作業申請書を送ってください"' : ''}>${html}${due ? ' <span class="wa-warn">⚠</span>' : ''}</td>`;
   }
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
@@ -3642,6 +3650,14 @@
     const b = e.target.closest('[data-cmup]'); if (!b) return;
     e.preventDefault(); openUploadDialog(b.dataset.cmup);
   });
+  // 📝 作業申請書を作る（一覧の「申請書」列・編集パネル）。行を押した時の動き（編集を開く）より先に受け取る
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-wamake]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (!window.WORKAPP) { window.KARTE.say('作業申請書の部品を読み込めませんでした。画面を読み込み直してください'); return; }
+    const id = b.dataset.wamake || cmCaseId; if (!id) return;
+    window.WORKAPP.open(id);
+  }, true);
   document.addEventListener('click', async (e) => {
     const sec = e.target.closest('#caseMailSec'); if (!sec) return;
     const K = window.KARTE; const c = cases.find((x) => String(x.id) === cmCaseId);
@@ -7550,7 +7566,14 @@
       // 劇場カルテ(karte.js)用: 不具合の履歴の行から案件を開く
       openCase: (id) => { try { const c = cases.find((x) => String(x.id) === String(id)); if (c) openModalGuarded(c, 'full'); } catch (e) { console.warn(e); } },
       shortTheater: (name) => shortTheaterName(name),
-      userEmail: () => (currentUser && currentUser.email) || ''
+      userEmail: () => (currentUser && currentUser.email) || '',
+      // 作業申請書の自動作成(workapp.js)用: 案件の中身・担当者マスター・書類を変えた後の描き直し・通知メールの宛先の文
+      caseInfo: (id) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? { id: c.id, company: c.company || '', theater: c.theater || '', title: c.title || '', content: c.content || '', category: c.category || '', estimateName: c.estimateName || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', rPerson: c.rPerson || '' } : null; },
+      staff: () => (staffList || []).map((x) => ({ name: x.name, phone: x.phone || '', email: x.email || '', active: x.active !== false })),
+      userName: () => currentUserName(),
+      toast: (t) => showToastLite(t),
+      mailTo: async (id) => { const c = cases.find((x) => String(x.id) === String(id)); try { return c ? await caseMailRecipientsText(c) : ''; } catch (e) { return ''; } },
+      afterWorkapp: async (id) => { await loadWorkappStates(); render(); const c = cases.find((x) => String(x.id) === String(id)); if (c && cmCaseId === String(id)) renderCaseMailSec(c); }
     };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');
