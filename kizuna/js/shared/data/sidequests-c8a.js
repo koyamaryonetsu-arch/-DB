@@ -5,11 +5,11 @@
 //   （3 … 地下迷宮 5階の 月の 門の 手紙は 物語の なぞとき。data/story-c8.js。ごほうびは 3つめ）
 // ・見つけた 時に 1回だけ ごほうび（B の C8A_LETTER_REWARDS）。人と 場所は maps/c8a-field.js
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests-c7.js の c7SubQuests・c7DoneQuests から（c8aSubQuests・c8aDoneQuests）
-import { C8, LETTER8, LETTER8_SIDE } from '../maps/c8a-flags.js?v=793d200b699f';
-import { LETTER8_ASKERS, LETTER8_PLACES, LETTER8_NOW_PLACES } from '../maps/c8a-field.js?v=793d200b699f';
-import { ITEMS } from './items.js?v=793d200b699f';
+import { C8, LETTER8, LETTER8_SIDE } from '../maps/c8a-flags.js?v=79ced434f488';
+import { LETTER8_ASKERS, LETTER8_PLACES, LETTER8_NOW_PLACES } from '../maps/c8a-field.js?v=79ced434f488';
+import { ITEMS } from './items.js?v=79ced434f488';
 // 手紙の ごほうび（B の data/items-c8a.js の C8A_LETTER_REWARDS。まとめる 時に './items-c8a.js' から）
-import { C8A_LETTER_REWARDS } from './items-c8a.js?v=793d200b699f';
+import { C8A_LETTER_REWARDS } from './items-c8a.js?v=79ced434f488';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

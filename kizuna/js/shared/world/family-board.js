@@ -12,13 +12,13 @@
 // ・おなじ（キャラ・しゅるい・職業か 技）は 1回だけ。多く なったら 古い 物から けす（BOARD_MAX）
 // ・のった 時は 遊んでいる 人みんなに とどける（{ t: 'fboardNew', entry }。client/ui/family-board.js）
 // ・まだ 見ていない 印: キャラごとの c.boardSeen（さいごに 見た 時こく）
-import { JOBS, TIER_NAMES, jobReqText, BODY_NAMES } from '../data/jobs.js?v=793d200b699f';
-import { ABILITIES } from '../data/abilities.js?v=793d200b699f';
-import { HIRAMEKI } from '../data/hirameki.js?v=793d200b699f';
-import { DUAL_TECHS, dualSize, dualNeedLabel, dualNeedText } from '../data/dual.js?v=793d200b699f';
-import { abilityLabel } from '../ability-label.js?v=793d200b699f';
-import { jobLabel } from '../job-label.js?v=793d200b699f';
-import { comboJobNames } from '../stats.js?v=793d200b699f';
+import { JOBS, TIER_NAMES, jobReqText, BODY_NAMES } from '../data/jobs.js?v=79ced434f488';
+import { ABILITIES } from '../data/abilities.js?v=79ced434f488';
+import { HIRAMEKI } from '../data/hirameki.js?v=79ced434f488';
+import { DUAL_TECHS, dualSize, dualNeedLabel, dualNeedText } from '../data/dual.js?v=79ced434f488';
+import { abilityLabel } from '../ability-label.js?v=79ced434f488';
+import { jobLabel } from '../job-label.js?v=79ced434f488';
+import { comboJobNames } from '../stats.js?v=79ced434f488';
 
 export const BOARD_MAX = 200;
 // 一覧で 1回に おくる 数（多すぎると スマホが おもい）
