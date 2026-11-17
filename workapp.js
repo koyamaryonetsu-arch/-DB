@@ -476,7 +476,9 @@
     P.syncing = (async () => {
       const sb = sbc(); if (!sb || !P.supported) return 0;
       let added = 0;
-      for (let round = 0; round < 4; round++) {
+      // 全部見終わるまで続ける（1回 60 件。1000 件ほどなら 10 分ほど。画面を閉じたら、次に開いた時に続きから）
+      for (let round = 0; round < 25; round++) {
+        P.progress = { round: round + 1, added };
         const { data, error } = await sb.from('theater_contacts').select('id,company,theater,category,maker,vendor,person,phone,email,note,partner_checked').eq('partner_checked', false).limit(60);
         if (error || !data || !data.length) break;
         const list = data.filter((c) => String(c.vendor || '').trim());
@@ -502,6 +504,7 @@
             if (!ins.error) { P.list.push(Object.assign({ workers: [] }, (ins.data && ins.data[0]) || row)); added++; }
           }
         }
+        try { if (P.onProgress) P.onProgress(); } catch (e) { /* なし */ }
         const ids = data.map((c) => c.id);
         const up = await sb.from('theater_contacts').update({ partner_checked: true }).in('id', ids);
         if (up.error) break;
@@ -546,7 +549,7 @@
         .filter((p) => !q || (p.name + p.theaters + (p.workers || []).map((w) => w.name).join('')).includes(q));
       ov.innerHTML = `<div class="kt-dialog kt-dialog-wide wa-pt-dlg"><div class="kt-dlg-head">🤝 協力会社マスター<button type="button" class="close-btn" data-x>×</button></div>
         <div class="kt-dlg-body">
-          <p class="ms-note">作業申請書の「協力会社」「作業者」の候補に出ます。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します（${P.syncing ? '<b>今、新しい連絡先を見ています…</b>' : '新しい連絡先が入ると、次に開いた時に足します'}）。<br>
+          <p class="ms-note">作業申請書の「協力会社」「作業者」の候補に出ます。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します（${P.syncing ? `<b>今、劇場情報の連絡先を見ています…（${P.progress ? P.progress.round * 60 : 0} 件目あたり。この画面を開いたまま待つと、足した会社がここに出ます）</b>` : '新しい連絡先が入ると、次に開いた時に足します'}）。<br>
           協力会社ではない会社が入っていたら「候補に出す」を外してください。作業者は、作業申請書で入れた人を自動で覚えます（新しい順）。</p>
           <div class="wa-pt-tools"><input type="search" class="tm-input" id="waPtQ" placeholder="🔍 会社名・劇場・作業者で探す" value="${esc(q)}"><span class="ms-note">${rows.length} 社${msg ? '　' + esc(msg) : ''}</span></div>
           <div class="wa-pt-wrap"><table class="ms-table wa-pt-table"><thead><tr><th>会社名</th><th>電話</th><th>住所</th><th>作業者（「、」で区切る）</th><th>候補に出す</th><th>出どころ</th><th></th></tr></thead><tbody>
@@ -565,6 +568,7 @@
     };
     draw();
     document.body.appendChild(ov);
+    P.onProgress = () => { if (document.body.contains(ov) && !ov.contains(document.activeElement)) draw(); };
     if (!P.syncing) syncPartners().then((n) => { if (document.body.contains(ov)) draw(n ? `劇場情報から ${n} 社を足しました` : ''); });
     else P.syncing.then(() => { if (document.body.contains(ov)) draw(); });
     ov.addEventListener('click', async (e) => {

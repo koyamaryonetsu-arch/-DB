@@ -70,7 +70,9 @@
 .wa-make { font-size: 12px; padding: 1px 8px; border: 1px solid #a5b4fc; border-radius: 999px; background: #eef2ff; color: #3730a3; cursor: pointer; white-space: nowrap; }
 .wa-make.wa-draft { background: #fef9c3; border-color: #facc15; color: #854d0e; }
 .wa-make:hover { filter: brightness(.95); }
-.kt-upload.wa-make-btn { background: #eef2ff; border-color: #a5b4fc; }
+.kt-upload.wa-make-btn { background: #4f46e5; color: #fff; }   /* 白い文字に薄い背景だと押せないように見えるので、濃い色に */
+.kt-upload.wa-make-btn:hover { background: #4338ca; }
+.wa-make.wa-past { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; font-weight: 400; }
 /* 協力会社マスター */
 .wa-pt-tools { display: flex; gap: 10px; align-items: center; }
 .wa-pt-tools input { width: 320px; }
