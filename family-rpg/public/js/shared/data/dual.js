@@ -205,9 +205,9 @@ export const DUAL_TECHS = {
     desc: '設備のプロが、建物をまるごと新しくする。敵全体に冷たい風、仲間全員は気持ちよく回復する。', anim: 'aircon',
   },
   dt_hametsu: {
-    name: '破滅のはかい玉', kana: 'はめつのはかいだま', need: [MAOU, HAKAI], mp: [16, 16], target: 'enemies', spell: true, element: 'dark',
+    name: 'カラミティはかい玉', kana: 'からみてぃはかいだま', need: [MAOU, HAKAI], mp: [16, 16], target: 'enemies', spell: true, element: 'dark',
     parts: [{ type: 'power', kind: 'magic', element: 'dark', k: 0.85 }],
-    desc: '魔王の闇と、はかい神の力を1つの玉にまとめる。敵全体に闇の大ダメージ。', anim: 'hakai_ball',
+    desc: '魔王の光のかべと、はかい神の力を1つの玉にまとめる。敵全体に闇の大ダメージ。', anim: 'hakai_ball',
   },
   dt_hikari_yami: {
     name: '光と闇', kana: 'ひかりとやみ', need: [T.light, T.dark], mp: [12, 12], target: 'enemy', spell: true, element: 'void',

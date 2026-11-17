@@ -24,6 +24,8 @@ import { r85bMarks } from './battle-r85b.js';
 import { r85aMarks } from './battle-r85a.js';
 // 第86回 A班: ためた力・きずなの力・人とようかいのきずなの 札（battle-r86a.js）
 import { r86aMarks } from './battle-r86a.js';
+// 第88回 M1班: 天地魔闘の構えの 札（battle-r88m.js）
+import { r88mMarks } from './battle-r88m.js';
 
 const CSS = `
 .b-mem .sts .bm { display: inline-block; font-size: 0.92em; line-height: 1.15; padding: 0 0.25em; margin: 0 0.2em 0.1em 0; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
@@ -62,6 +64,7 @@ export function unitMarks(a) {
   out.push(...r85bMarks(a));
   out.push(...r85aMarks(a));
   out.push(...r86aMarks(a));
+  out.push(...r88mMarks(a));
   return out;
 }
 

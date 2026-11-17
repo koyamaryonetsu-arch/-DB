@@ -35,6 +35,8 @@ export const REFLECT_CAP = 0.3;
 export const SONG = { waves: 1, cut: 0.5 };
 // うつし身が 使わない 技の こうか（戦いを こわす もの・にげる・追い出す・けしさる・生き返らせる・お金・ぬすむ・どれか ひとつ など）
 const MIRROR_SKIP = new Set(['escape', 'banish', 'destroy', 'revive', 'reviveAll', 'goldThrow', 'steal', 'scan', 'allMp', 'random', 'callHelp', 'stance', 'hurt', 'overtime', 'mahouken', 'flee']);
+// 第88回 M1班: 天地魔闘の構えは 仲間だけの しくみ（鏡の うつし身は 使わない。battle-r88m.js）
+MIRROR_SKIP.add('r88mTenchi');
 
 const isSpell = (a) => !!a && (a.kind === 'spell' || !!a.spellLike);
 const foeKinds = new Set(['enemy', 'group', 'enemies']);
