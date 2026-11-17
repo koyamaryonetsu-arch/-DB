@@ -6,14 +6,14 @@
 //   そろえる お金は 品の 数 × 1回の ねだん。売った・分解した 品は また 出る
 // ・竜神の ほこら … 七つの玉を ぜんぶ 持って くると「引きかえますか？」→ 7つが きえて 竜神の玉
 // ・試練の ごほうび … works.js の trialGift。一の試練を こえた 時（world/job-trials.js）と、もう こえて いる 人が 番人に 話した 時
-import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=9beb19e66ed6';
-import { WORKS, workName } from '../data/works.js?v=9beb19e66ed6';
-import { addItem, removeItem, itemCount } from '../stats.js?v=9beb19e66ed6';
-import { trialsCleared } from '../data/job-trials.js?v=9beb19e66ed6';
+import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=3103aa50fe85';
+import { WORKS, workName } from '../data/works.js?v=3103aa50fe85';
+import { addItem, removeItem, itemCount } from '../stats.js?v=3103aa50fe85';
+import { trialsCleared } from '../data/job-trials.js?v=3103aa50fe85';
 import {
   GACHA_PRICE, GACHA_PITY, GACHA_MEI_RATE, gachaWorks, gachaPool, gachaLeft, gachaPity, gachaOwned, rollGacha,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, trialGiftOf, trialGiftFlag,
-} from '../data/gacha-r88.js?v=9beb19e66ed6';
+} from '../data/gacha-r88.js?v=3103aa50fe85';
 
 const GOLD_MAX = 9999999;
 

@@ -6,10 +6,10 @@
 //   とびらを 調べると だいほん 'rival_door_<作品>'（data/story-rivals-r88.js）
 // ・とびらの 中 … 1つの 部屋の 形を 使い回して、作品ごとに ゆかと かべを かえる（ROOM_STYLES）。戦いの 前に 家族で 入る（world/rivals-r88.js）
 // ・attachRivalHall(maps) で 今の マップに 足す（ほかの マップの ファイルは かえない）
-import { T } from '../tiles.js?v=9beb19e66ed6';
-import { PLACES } from './overworld.js?v=9beb19e66ed6';
-import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=9beb19e66ed6';
-import { workName } from '../data/works.js?v=9beb19e66ed6';
+import { T } from '../tiles.js?v=3103aa50fe85';
+import { PLACES } from './overworld.js?v=3103aa50fe85';
+import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=3103aa50fe85';
+import { workName } from '../data/works.js?v=3103aa50fe85';
 
 export const HALL_ID = 'rival_hall';
 export const HALL_NAME = 'まぼろしの回ろう';
@@ -90,7 +90,8 @@ export const ROOM_STYLES = {
   wood: { floor: T.FLOOR_WOOD, wall: T.WALL_WOOD, deco: T.LAMP },
   stone: { floor: T.FLOOR_STONE, wall: T.WALL_STONE, deco: T.PILLAR },
   // G5班: 烈火の炎（火山の 黒い 岩の ゆか・灰の 岩の かべ・火の ともった 火の台）
-  volcano: { floor: T.OBSIDIAN, wall: T.ASH_ROCK, deco: T.BRAZIER_LIT },
+  volcano: { floor: T.OBSIDIAN, wall: T.ASH_ROCK, deco: T.BRAZIER_LIT },  // G7班: 犬夜しゃ（森の 土の ゆか・木の かべ・はりの木の かざり）
+  forest: { floor: T.FOREST_FLOOR, wall: T.TREE, deco: T.PINE },
 };
 const ROOM_W = 13, ROOM_H = 10;
 // 戦いの 前に 家族が 立つ ところ（部屋の まん中より 少し 下）

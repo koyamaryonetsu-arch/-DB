@@ -129,6 +129,26 @@ export const GEAR_SETS = {
       { n: 2, fx: [{ k: 'chase', v: 4 }], text: '2人が1本ずつつけると、戦いの間、みんな追撃+4' },
     ],
   },
+  // ── G7班 犬夜しゃ: 四こんの玉の かけら 5つ（5つと 竜りんの 鉄さいがで、かけらを きたえると 四こんの玉）──
+  shikon_kakera: {
+    name: '四こんの玉のかけら',
+    items: ['r88_iy_kakera1', 'r88_iy_kakera2', 'r88_iy_kakera3', 'r88_iy_kakera4', 'r88_iy_kakera5'],
+    rule: 'own',
+    tiers: [
+      { n: 3, title: 'かけら集め', text: '3つ持つと、しょう号「かけら集め」' },
+      { n: 5, title: '四こんの玉を集めし者', text: '5つ全部持つと、しょう号「四こんの玉を集めし者」。竜りんの鉄さいがを持ってかじ屋でかけらをきたえると、四こんの玉になる' },
+    ],
+  },
+  // ── G7班 ゆう☆遊☆白書: 闇の三大秘宝（1人が 2つ いじょう → 2つ 持って、1つでも つけて いると 闇に 強い）──
+  yami_hihou: {
+    name: '闇の三大秘宝',
+    items: ['r88_yh_goma', 'r88_yh_ankoku', 'r88_yh_gakidama'],
+    rule: 'own',
+    tiers: [
+      { n: 2, resist: { dark: 0.8 }, text: '2つ持って、どれかをつけていると、闇に強い' },
+      { n: 3, title: '闇の三大秘宝の主', text: '3つ全部持つと、しょう号「闇の三大秘宝の主」' },
+    ],
+  },
 };
 
 export const SET_RULES = ['wear', 'own', 'party'];

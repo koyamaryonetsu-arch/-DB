@@ -7,11 +7,11 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=9beb19e66ed6';
-import { ITEMS } from './data/items.js?v=9beb19e66ed6';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=9beb19e66ed6';
+import { ABILITIES } from './data/abilities.js?v=3103aa50fe85';
+import { ITEMS } from './data/items.js?v=3103aa50fe85';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=3103aa50fe85';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost } from './battle-r88.js?v=9beb19e66ed6';
+import { r88Actor, orbMods, onceBlock, useHpCost } from './battle-r88.js?v=3103aa50fe85';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -129,7 +129,8 @@ export function gearUse(b, c, cmd, ev) {
     return true;
   }
   ev.ability = u.ability;
-  const target = a.target === 'ally' ? c.id : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
+  // G7班: 仲間 1人の 技（暗黒鏡）は、自分 いがいで HPの わりあいが いちばん 少ない 仲間（いなければ 自分）
+  const target = a.target === 'ally' ? (b.sideOf(c, true).filter((x) => x.alive && x !== c).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0]?.id ?? c.id) : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
   const sub = { type: 'ability', id: u.ability, target };
   const targets = b.targetsFor(c, a, sub);
   ev.lines.push(`${a.name}の力が、はなたれた！`);

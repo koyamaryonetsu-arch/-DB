@@ -24,6 +24,7 @@ export function playR88Fx(fx, anim, targets, element, opts, W, H) {
   if (anim === 'r88_hikari') return hikari(fx, targets, W, H);
   if (anim === 'r88_fujin') return fujin(fx, targets, W, H);
   if (anim === 'r88_raijin') return raijin(fx, targets, W, H);
+  if (G7_FX[anim]) return G7_FX[anim](fx, targets, W, H); // G7班
   // 空が くらく なる → 雷雲が ゴロゴロ
   fx.tintAt('rgba(20,10,50,0.55)', 1500);
   for (let k = 0; k < 7; k++) {
@@ -98,3 +99,66 @@ function raijin(fx, targets, W, H) {
   fx.hitStop(140, 600, 1.4);
   return true;
 }
+
+// ───── G7班: 犬夜しゃ・ゆう☆遊☆白書 ─────
+//  r88_bakusai  爆さいが（本気の せっしょう丸の 大技）… みどりの 光の 刀が 横に 2回 走り、切った 所から 光が つぎつぎ はじける
+//  r88_reikou   れい光はどう（幻海の 大技）… 手前に 青白い 光が あつまり、大きな 光の 玉が 敵へ とんで 広がる
+//  r88_jigento  次元刀・空間切り … 画面が くらく なり、敵の 前に 黒い 空間の 切れ目が たてに ひらいて、白く 光って とじる
+const GREEN = ['#ffffff', '#e0ffe8', '#8af0b0', '#3ac878'];
+const SPIRIT = ['#ffffff', '#e0f4ff', '#8ad0ff', '#3a9aff'];
+const VOID = ['#ffffff', '#d8c8ff', '#8a6ad0', '#3a2a6a'];
+const center = (targets, W, H) => (targets.length ? { x: targets.reduce((s, t) => s + t.x, 0) / targets.length, y: targets.reduce((s, t) => s + t.y, 0) / targets.length } : { x: W * 0.3, y: H * 0.45 });
+
+function bakusai(fx, targets, W, H) {
+  const c = center(targets, W, H);
+  fx.tintAt('rgba(6,24,14,0.45)', 1300);
+  fx.converge(c.x + 60, c.y + 40, { colors: GREEN, n: 18, r: 40, delay: 0, life: 280 });
+  fx.swipe([c.x - 70, c.y - 20], [c.x, c.y - 6], [c.x + 70, c.y + 8], { w: 8, color: '#e0ffe8', glow: '#3ac878', core: '#ffffff', delay: 280, swing: 140, life: 380, after: 2 });
+  fx.swipe([c.x + 70, c.y - 26], [c.x, c.y], [c.x - 70, c.y + 16], { w: 7, color: '#e0ffe8', glow: '#8af0b0', core: '#ffffff', delay: 440, swing: 130, life: 360, after: 1 });
+  targets.forEach((t, i) => {
+    for (let k = 0; k < 3; k++) {
+      const d = 620 + i * 60 + k * 110;
+      const x = t.x + rnd(-14, 14), y = t.y + rnd(-14, 10);
+      fx.shock(x, y, { r0: 4, r1: 30 + k * 6, color: k % 2 ? '#8af0b0' : '#ffffff', w: 3, delay: d, life: 320 });
+      fx.sparks(x, y, { colors: GREEN, n: 12, speed: 140, delay: d + 20, life: 380 });
+    }
+  });
+  fx.flashAt(160, '#e8fff0', 640);
+  fx.hitStop(150, 680, 1.4);
+  return true;
+}
+
+function reikou(fx, targets, W, H) {
+  const c = center(targets, W, H);
+  const sx = W * 0.82, sy = H * 0.62;
+  fx.tintAt('rgba(8,18,40,0.4)', 1300);
+  fx.converge(sx, sy, { colors: SPIRIT, n: 26, r: 46, delay: 0, life: 420 });
+  fx.shock(sx, sy, { r0: 30, r1: 6, color: '#8ad0ff', w: 2, delay: 120, life: 300 });
+  fx.spear(sx, sy, c.x, c.y, { len: 70, w: 12, color: '#ffffff', glow: '#3a9aff', tip: '#e0f4ff', delay: 440, travel: 200, hold: 80, life: 340 });
+  fx.flashAt(150, '#e0f4ff', 640);
+  fx.shock(c.x, c.y, { r0: 10, r1: 90, color: '#8ad0ff', w: 5, delay: 640, life: 520 });
+  targets.forEach((t, i) => {
+    fx.ring(t.x, t.y, '#ffffff', 3, 660 + i * 50, 420, 40);
+    fx.sparks(t.x, t.y, { colors: SPIRIT, n: 18, speed: 160, delay: 680 + i * 50, life: 420 });
+  });
+  fx.hitStop(150, 680, 1.4);
+  return true;
+}
+
+function jigento(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.3, y: H * 0.45 };
+  fx.tintAt('rgba(10,4,24,0.55)', 1100);
+  fx.pillar(t.x, t.y + 30, '#1a0e36', { w: 4, h: 100, delay: 120, life: 520, edge: '#d8c8ff' });
+  fx.cut(t.x, t.y - 6, { ang: 1.5, len: 80, w: 3, color: '#ffffff', glow: '#8a6ad0', delay: 160, life: 420 });
+  fx.cut(t.x, t.y - 6, { ang: 0.9, len: 60, w: 2.4, color: '#ffffff', glow: '#d8c8ff', delay: 420, life: 300 });
+  fx.flashAt(120, '#ffffff', 560);
+  fx.sparks(t.x, t.y, { colors: VOID, n: 24, speed: 170, delay: 580, life: 420 });
+  fx.shock(t.x, t.y, { r0: 4, r1: 52, color: '#d8c8ff', w: 3, delay: 560, life: 400 });
+  fx.hitStop(150, 580, 1.3);
+  return true;
+}
+
+const G7_FX = { r88_bakusai: bakusai, r88_reikou: reikou, r88_jigento: jigento };
+for (const id of Object.keys(G7_FX)) R88_ANIMS.add(id);
+Object.assign(R88_HIT, { r88_bakusai: 700, r88_reikou: 680, r88_jigento: 600 });
+Object.assign(R88_SFX, { r88_bakusai: 'crit', r88_reikou: 'blast', r88_jigento: 'crit' });
