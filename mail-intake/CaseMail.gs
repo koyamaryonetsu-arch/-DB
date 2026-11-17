@@ -165,6 +165,37 @@ function caseMailSubject_(c, shortName) {
   var what = String(c.title || '').trim() || String(c.category || '').trim() || 'ご依頼の件';
   return '【菱熱工業】' + shortName + ' ' + what + ' のお知らせ [案件#' + String(c.id).replace(/-/g, '').slice(0, 8) + ']';
 }
+// 作業申請書の行: 調査・作業ごとに、日時・場所・内容・人数を細かく書く。申請不要の時は理由を書く
+function cmWorkappLines_(f) {
+  var m = f.meta || {}, a = m.answers || {}, w = a.work || {};
+  var pp = m.purpose === 'survey' ? '調査' : '作業';
+  if (f.status === 'skip') {
+    return ['　・' + (m.for_date ? cmFmtDateW_(m.for_date) + 'の' : '') + pp + 'は、作業申請書の提出は不要です' + (m.skip_reason ? '（理由: ' + m.skip_reason + '）' : '') + '。'];
+  }
+  var out = ['　・' + (m.purpose ? pp + 'の' : '') + '作業申請書を添付します（' + f.name + '）' + (f.attached ? '' : ' ※大きいため添付できませんでした。担当よりお送りします。')];
+  var when = cmFmtWhen_(w.start_date || m.for_date, w.start_time, w.end_date, w.end_time);
+  if (when) out.push('　　' + pp + '日時: ' + when);
+  if (w.place) out.push('　　作業場所: ' + w.place);
+  if (w.content) out.push('　　作業内容: ' + w.content);
+  if (a.headcount) out.push('　　作業人数: ' + a.headcount + '名');
+  return out;
+}
+// 2026年11月25日（火）
+function cmFmtDateW_(d) {
+  var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return String(d || '');
+  var wd = ['日', '月', '火', '水', '木', '金', '土'][new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getDay()];
+  return Number(m[1]) + '年' + Number(m[2]) + '月' + Number(m[3]) + '日（' + wd + '）';
+}
+// 2026年11月25日（火）8:00〜10:00 ／ 日をまたぐ時は 2026年11月25日（火）22:00〜11月26日（水）6:00
+function cmFmtWhen_(sd, st, ed, et) {
+  if (!sd) return '';
+  var tm = function (t) { var x = String(t || '').match(/^(\d{1,2}):(\d{2})/); return x ? Number(x[1]) + ':' + x[2] : ''; };
+  var s = cmFmtDateW_(sd) + (tm(st) ? tm(st) : '');
+  var sameDay = !ed || ed === sd;
+  var e = sameDay ? tm(et) : cmFmtDateW_(ed).replace(/^\d+年/, '') + (tm(et) ? tm(et) : '');
+  return s + (e ? '〜' + e : '');
+}
 function caseMailBody_(c, events, files) {
   var lines = [];
   lines.push((c.company || '') + ' ご担当者様');
@@ -183,7 +214,8 @@ function caseMailBody_(c, events, files) {
   }
   if (kinds.work_start && c.work_start_date) lines.push('　・作業開始日: ' + cmFmtDate_(c.work_start_date) + (c.work_start_time ? ' ' + String(c.work_start_time).slice(0, 5) : ''));
   files.forEach(function (f) {
-    lines.push('　・' + (f.kind === 'workapp' ? '作業申請書' : '見積書') + 'を添付します（' + f.name + '）' + (f.attached ? '' : ' ※大きいため添付できませんでした。担当よりお送りします。'));
+    if (f.kind === 'workapp') { cmWorkappLines_(f).forEach(function (l) { lines.push(l); }); return; }
+    lines.push('　・見積書を添付します（' + f.name + '）' + (f.attached ? '' : ' ※大きいため添付できませんでした。担当よりお送りします。'));
   });
   if (c.content) {
     lines.push('');
@@ -300,9 +332,10 @@ function sendOneCaseMail_(caseId, evs, settings) {
   var fileIds = evs.filter(function (e) { return (e.kind === 'quote' || e.kind === 'workapp') && e.detail; }).map(function (e) { return e.detail; });
   var files = [], blobs = [], total = 0;
   if (fileIds.length) {
-    var fr = cmGet_('case_files?id=in.(' + fileIds.join(',') + ')&deleted_at=is.null&select=id,kind,name,path,mime,size&order=created_at.asc');
+    var fr = cmGet_('case_files?id=in.(' + fileIds.join(',') + ')&deleted_at=is.null&select=id,kind,name,path,mime,size,status,meta&order=created_at.asc');
     fr.forEach(function (f) {
-      var item = { kind: f.kind, name: f.name, attached: false };
+      var item = { kind: f.kind, name: f.name, attached: false, status: f.status || 'final', meta: f.meta || {} };
+      if (item.status === 'skip') { files.push(item); return; }   // 申請不要: 付けるファイルは無い（本文に理由を書く）
       try {
         if (total + Number(f.size || 0) <= CASE_MAIL_MAX_ATTACH && f.path) {
           var b = cmDownload_('case-files', f.path);
