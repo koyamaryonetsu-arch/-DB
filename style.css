@@ -2552,3 +2552,24 @@ body.user-privileged .src-note.src-ai, body.user-privileged .src-note.src-mail{ 
 body.user-privileged .form-row.src-row-ai{ background:#f5f3ff; border-left:3px solid #8b5cf6; padding-left:8px; border-radius:6px; }
 body.user-privileged .form-row.src-row-mail{ background:#faf8ff; border-left:3px solid #d8ccfb; padding-left:8px; border-radius:6px; }
 body.user-privileged .th-src{ display:inline; font-size:10px; margin-left:2px; opacity:.85; }
+/* 📖 取説（チュートリアル） */
+.gd-badge{ background:#ef4444; color:#fff; margin-left:4px; }
+.gd-index .kt-dlg-body{ max-height:70vh; overflow:auto; }
+.gd-note{ font-size:12px; color:#64748b; margin:0 0 6px; }
+.gd-ch{ margin:8px 0; }
+.gd-ch-t{ font-weight:700; font-size:14px; margin-bottom:4px; }
+.gd-item{ display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:8px 10px; margin:3px 0; border:1px solid #e2e8f0; border-radius:8px; background:#fff; cursor:pointer; font-size:13px; }
+.gd-item:hover{ background:#eff6ff; border-color:#93c5fd; }
+.gd-item .gd-n{ margin-left:auto; font-size:11px; color:#94a3b8; }
+.gd-new{ background:#ef4444; color:#fff; font-size:10px; font-weight:700; border-radius:999px; padding:0 6px; }
+.gd-spot{ position:fixed; z-index:10000; border-radius:8px; box-shadow:0 0 0 9999px rgba(15,23,42,.55); outline:3px solid #fbbf24; pointer-events:none; transition:all .2s ease; }
+.gd-spot.gd-full{ inset:0; width:auto; height:auto; outline:none; border-radius:0; box-shadow:none; background:rgba(15,23,42,.55); }
+.gd-tip{ position:fixed; z-index:10001; background:#fff; border-radius:10px; box-shadow:0 12px 40px rgba(0,0,0,.35); padding:12px 14px; width:420px; max-width:calc(100vw - 24px); font-size:14px; line-height:1.6; color:#1e293b; }
+.gd-tip.gd-center{ width:460px; }
+.gd-tip-h{ display:flex; justify-content:space-between; gap:8px; font-size:12px; font-weight:700; color:#2563eb; margin-bottom:6px; }
+.gd-tip-h span{ color:#94a3b8; font-weight:400; }
+.gd-tip-f{ display:flex; gap:6px; align-items:center; margin-top:10px; }
+.gd-tip-f span{ flex:1; }
+.gd-tip-f button{ padding:5px 12px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; cursor:pointer; font-size:13px; }
+.gd-tip-f button.primary{ background:#2563eb; border-color:#2563eb; color:#fff; }
+.gd-tip-f button:disabled{ opacity:.4; cursor:default; }

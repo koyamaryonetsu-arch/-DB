@@ -73,6 +73,7 @@
       <button id="calBtn" class="hdr-btn col-ryo">📅 カレンダー</button>
       <button id="intakeBtn" class="hdr-btn col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
       <button id="theaterPendingBtn" class="hdr-btn col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
+      <button id="guideBtn" class="hdr-btn col-ryo" title="取説：知りたいことを選ぶと、画面の上で順に案内します">📖<span class="tb-tx"> 取説</span><span id="guideNewBadge" class="tp-badge gd-badge hidden">新</span></button>
       <button id="mailSetBtn" class="hdr-btn col-ryo hidden" title="客先への通知メールの設定（送るアドレス・テスト中か）">📨<span class="tb-tx"> メール通知設定</span> <span id="mailSetBadge" class="ms-badge"></span></button>
       <!-- ☰ の中の機能を開いている時だけ出る「閉じる」ボタン（☰を開かずに戻れるように） -->
       <button id="modeCloseBtn" class="hdr-btn on hidden"></button>
@@ -86,6 +87,7 @@
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="intakeBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="theaterPendingBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="mailSetBtn"></button>
+            <button type="button" class="pop-item m-proxy col-ryo" data-proxy="guideBtn"></button>
           </div>
           <div class="pop-group">
             <div class="pop-h">管理</div>
@@ -1029,5 +1031,6 @@
 <script src="shelf.js"></script>
 <script src="karte.js"></script>
 <script src="plan.js"></script>
+<script src="guide.js"></script>
 </body>
 </html>

@@ -6623,6 +6623,7 @@
   $('koteiBtn').addEventListener('click', toggleKoteiMode);
   $('mailSetBtn').addEventListener('click', () => openMailSettings());
   $('masterBtn').addEventListener('click', () => openMasterDialog());
+  $('guideBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open(); });
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
   // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
   $('casesBody').addEventListener('click', (e) => {
