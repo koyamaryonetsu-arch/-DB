@@ -677,12 +677,13 @@
     // ---- R担当者のマスター（staff）----
     async fetchStaff() {
       if (this.mode !== 'supabase') return null;
-      const { data, error } = await sb.from('staff').select('name,email,active,sort_order').order('sort_order').order('name');
+      let { data, error } = await sb.from('staff').select('name,email,phone,active,sort_order').order('sort_order').order('name');
+      if (error && /phone/.test(error.message || '')) ({ data, error } = await sb.from('staff').select('name,email,active,sort_order').order('sort_order').order('name'));
       if (error) return null;   // 表が無い（SETUP_STAFF.sql 未実行）→ 今までどおりブラウザの覚え
       return data || [];
     },
     async saveStaff(rows) {
-      const { error } = await sb.from('staff').upsert(rows.map((r) => ({ name: r.name, email: r.email || '', active: r.active !== false, sort_order: Number(r.sort_order) || 0, updated_at: new Date().toISOString() })), { onConflict: 'name' });
+      const { error } = await sb.from('staff').upsert(rows.map((r) => Object.assign({ name: r.name, email: r.email || '', active: r.active !== false, sort_order: Number(r.sort_order) || 0, updated_at: new Date().toISOString() }, r.phone !== undefined ? { phone: r.phone || '' } : {})), { onConflict: 'name' });
       if (error) throw error;
     },
     // ---- 通知メールの設定（app_settings の case_mail）----
@@ -2231,12 +2232,13 @@
       ov.innerHTML = `<div class="kt-dialog kt-dialog-wide ms-dlg"><div class="kt-dlg-head">🗂 マスター編集<button type="button" class="close-btn" data-x>×</button></div>
         <div class="kt-dlg-body">
           <h3 class="mst-h">👤 R担当者（菱熱の担当者）</h3>
-          <p class="ms-note">在籍の人が、上の担当者ボタン・R担当者の候補・配分に出ます。メール・LINE の取り込みも、在籍の人を菱熱の担当者として見分けます。<br>
+          <p class="ms-note">携帯は、作業申請書を作る時に「当日責任者」（その案件のR担当者）の連絡先として使います。<br>在籍の人が、上の担当者ボタン・R担当者の候補・配分に出ます。メール・LINE の取り込みも、在籍の人を菱熱の担当者として見分けます。<br>
           異動・退職にすると、上のボタンが「○○（異動・退職）⚠ n件」に変わります。押すと、未完了の案件を別の担当者に付け替えられます（過去の案件の名前はそのまま）。<br>
           名前を変える時は、新しい名前で足して、前の名前を「異動・退職」にしてください。</p>
-          <table class="ms-table mst-table"><thead><tr><th>名前（苗字）</th><th>メールアドレス</th><th>状態</th><th>未完了の案件</th><th>並び</th></tr></thead><tbody>
+          <table class="ms-table mst-table"><thead><tr><th>名前（苗字）</th><th>メールアドレス</th><th>携帯</th><th>状態</th><th>未完了の案件</th><th>並び</th></tr></thead><tbody>
           ${rows.map((r) => `<tr class="${r.active === false ? 'mst-left' : ''}"><td><b>${escapeHtml(r.name)}</b></td>
             <td><input type="email" class="tm-input" data-semail="${escapeHtml(r.name)}" value="${escapeHtml(r.email || '')}" placeholder="例: koyama@ryonetsu.com"></td>
+            <td><input type="tel" class="tm-input mst-phone" data-sphone="${escapeHtml(r.name)}" value="${escapeHtml(r.phone || '')}" placeholder="例: 090-1234-5678"></td>
             <td><select data-sactive="${escapeHtml(r.name)}"><option value="1"${r.active !== false ? ' selected' : ''}>在籍</option><option value="0"${r.active === false ? ' selected' : ''}>異動・退職</option></select></td>
             <td>${openCasesOf(r.name).length} 件</td>
             <td>${r.active === false ? '' : `<button type="button" class="mini-btn" data-sup="${escapeHtml(r.name)}" title="上へ">↑</button><button type="button" class="mini-btn" data-sdown="${escapeHtml(r.name)}" title="下へ">↓</button>`}</td></tr>`).join('')}
@@ -2283,6 +2285,13 @@
         const r = staffList.find((x) => x.name === em.dataset.semail); const v = em.value.trim().toLowerCase();
         if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { K.say('メールアドレスが正しくありません'); em.value = r.email || ''; return; }
         await save([Object.assign({}, r, { email: v })], 'メールアドレスを保存しました');
+        return;
+      }
+      const ph = e.target.closest('[data-sphone]');
+      if (ph) {
+        const r = staffList.find((x) => x.name === ph.dataset.sphone); const v = ph.value.trim();
+        if (v && !/^[0-9０-９\-－()（）\s+]{8,}$/.test(v)) { K.say('携帯の番号が正しくありません'); ph.value = r.phone || ''; return; }
+        await save([Object.assign({}, r, { phone: v.normalize('NFKC') })], '携帯を保存しました（作業申請書の当日責任者の連絡先）');
         return;
       }
       const ac = e.target.closest('[data-sactive]');

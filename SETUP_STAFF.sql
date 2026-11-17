@@ -7,10 +7,12 @@
 create table if not exists public.staff (
   name       text primary key,                 -- 苗字（上のボタン・案件の「R担当者」に出る名前）
   email      text not null default '',          -- メールアドレス（1つ）
+  phone      text not null default '',          -- 携帯（作業申請書の「当日責任者」の連絡先）
   active     boolean not null default true,     -- false＝異動・退職
   sort_order int not null default 0,
   updated_at timestamptz not null default now()
 );
+alter table public.staff add column if not exists phone text not null default '';
 alter table public.staff enable row level security;
 drop policy if exists "staff_ryo" on public.staff;
 create policy "staff_ryo" on public.staff for all to authenticated
