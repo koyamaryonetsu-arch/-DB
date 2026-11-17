@@ -1157,6 +1157,10 @@ td[data-field="theater"] {
 #casesTable thead th[data-sort="theater"] {
   z-index: 3;
 }
+/* 横に動かす時のちらつき対策: 左に固定した列があるので、罫線を「重ねない（separate）」描き方にする。
+   Chrome（特に Windows）で border-collapse: collapse と固定列を一緒に使うと、横に動かすたびに罫線や固定列がちらつくため。
+   罫線は各セルの下線だけなので、見た目は変わらない */
+#casesTable { border-collapse: separate; border-spacing: 0; }
 /* 固定域の右端（劇場名）に薄い影を出して、下を流れる列との境目を分かりやすく */
 th[data-sort="theater"],
 td[data-field="theater"] {
