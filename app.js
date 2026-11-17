@@ -1943,6 +1943,8 @@
     const today = todayStr();
     if (needsInitialReport(c)) return 'row-yellow';
     if (!c.surveyDate) {
+      // オレンジは「受付」「調査日調整中」の案件だけ。見積り中など先に進んだ案件で調査日が空なら、色は付けず「調査日が空」と出す
+      if (st !== '受付' && st !== '調査日調整中') return '';
       const base = (c.initialReportAt ? String(c.initialReportAt).slice(0, 10) : '') || c.receivedDate;
       if (base && businessDaysBetween(base, today) > DUE_DAYS) return 'row-orange';
       return '';
@@ -2894,6 +2896,8 @@
       return `<span class="late-days" title="現調の翌日から平日${n}日たっても見積りが出ていません（期日は平日${DUE_DAYS}日）">現調から${n}日</span>`;
     }
     if (cls === 'row-yellow') return '<span class="late-days y" title="初動対応・区分判定の報告がまだです">初動報告まだ</span>';
+    if (!cls && !c.surveyDate && DELAY_CATEGORIES.has(c.category) && ['見積り中', '見積り提出済', '作業中', '日程調整中'].indexOf(st) !== -1 && !/繰越/.test([c.theater, c.title, c.content, c.estimateName].join(' ')))
+      return '<span class="late-days ex" title="ステータスは先に進んでいますが、調査日が入っていません。調査日を入れると、見積りの期日（赤）も分かります">調査日が空</span>';
     if (cls === 'row-orange') {
       const base = c.initialReportAt ? String(c.initialReportAt).slice(0, 10) : c.receivedDate;
       const n = businessDaysBetween(base, today);
