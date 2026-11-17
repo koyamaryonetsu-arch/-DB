@@ -1,102 +1,102 @@
 // フィールドの メニュー
-import { HAND_NAMES, handPref, nextHand } from './hand.js?v=e7674bd14cdd';
-import { layoutEditor, loadLayout, saveLayout } from './layout.js?v=e7674bd14cdd';
-import { fxText, fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=e7674bd14cdd';
+import { HAND_NAMES, handPref, nextHand } from './hand.js?v=9beb19e66ed6';
+import { layoutEditor, loadLayout, saveLayout } from './layout.js?v=9beb19e66ed6';
+import { fxText, fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=9beb19e66ed6';
 // 第88回: 作品の 品の しるし（雷+5・使う。shared/gear-r88-view.js）
-import { r88Short } from '../../shared/gear-r88-view.js?v=e7674bd14cdd';
+import { r88Short } from '../../shared/gear-r88-view.js?v=9beb19e66ed6';
 // 第88回 G2班: 形を かえる 武器（鋼金暗器。shared/gear-r88.js）
-import { shapeSource, shapeForms, shapeTarget } from '../../shared/gear-r88.js?v=e7674bd14cdd';
-import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js?v=e7674bd14cdd';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=e7674bd14cdd';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=e7674bd14cdd';
+import { shapeSource, shapeForms, shapeTarget } from '../../shared/gear-r88.js?v=9beb19e66ed6';
+import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js?v=9beb19e66ed6';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=9beb19e66ed6';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=9beb19e66ed6';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, dualForView } from '../../shared/ability-label.js?v=e7674bd14cdd';
+import { abilityFor, dualForView } from '../../shared/ability-label.js?v=9beb19e66ed6';
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」。第33回）
-import { jobLabel } from '../../shared/job-label.js?v=e7674bd14cdd';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=e7674bd14cdd';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=e7674bd14cdd';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=e7674bd14cdd';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=e7674bd14cdd';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=e7674bd14cdd';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=e7674bd14cdd';
-import { addDualCss } from '../render/dualfx.js?v=e7674bd14cdd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e7674bd14cdd';
+import { jobLabel } from '../../shared/job-label.js?v=9beb19e66ed6';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=9beb19e66ed6';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=9beb19e66ed6';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=9beb19e66ed6';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=9beb19e66ed6';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=9beb19e66ed6';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=9beb19e66ed6';
+import { addDualCss } from '../render/dualfx.js?v=9beb19e66ed6';
+import { MONSTERS } from '../../shared/data/monsters.js?v=9beb19e66ed6';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=e7674bd14cdd';
-import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=e7674bd14cdd';
-import { monsterDrops } from '../../shared/data/loot.js?v=e7674bd14cdd';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=e7674bd14cdd';
+import { colorMon, VARIANT_KINDS } from '../../shared/data/variants.js?v=9beb19e66ed6';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=9beb19e66ed6';
+import { monsterDrops } from '../../shared/data/loot.js?v=9beb19e66ed6';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=9beb19e66ed6';
 // 第44回（ポケモン P1）: 進化の ヒント
-import { EVOLVE_FROM, evolveNote } from '../../shared/data/companions.js?v=e7674bd14cdd';
-import { TACTICS } from '../../shared/ai.js?v=e7674bd14cdd';
-import { PLACES } from '../../shared/maps/overworld.js?v=e7674bd14cdd';
-import { PAST_PLACES, pastVisited } from '../../shared/data/past-places.js?v=e7674bd14cdd';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=e7674bd14cdd';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=e7674bd14cdd';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=e7674bd14cdd';
-import { menuItemText, skillPowerLine, powStats, skillCardInfo } from './skillinfo.js?v=e7674bd14cdd';
+import { EVOLVE_FROM, evolveNote } from '../../shared/data/companions.js?v=9beb19e66ed6';
+import { TACTICS } from '../../shared/ai.js?v=9beb19e66ed6';
+import { PLACES } from '../../shared/maps/overworld.js?v=9beb19e66ed6';
+import { PAST_PLACES, pastVisited } from '../../shared/data/past-places.js?v=9beb19e66ed6';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=9beb19e66ed6';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=9beb19e66ed6';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=9beb19e66ed6';
+import { menuItemText, skillPowerLine, powStats, skillCardInfo } from './skillinfo.js?v=9beb19e66ed6';
 // 第71回: 命令の 一覧に 出さない 技（cmdOff）と オートで 使わない 技（autoOff）を 分けた
-import { cmdOffList } from '../../shared/cmd-off.js?v=e7674bd14cdd';
-import { FAV_MAX, FAV_FULL_TEXT, favApply, favFull } from '../../shared/favorites.js?v=e7674bd14cdd';
+import { cmdOffList } from '../../shared/cmd-off.js?v=9beb19e66ed6';
+import { FAV_MAX, FAV_FULL_TEXT, favApply, favFull } from '../../shared/favorites.js?v=9beb19e66ed6';
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
-import { skillLevel, skillLvLeft } from '../../shared/buff-acts.js?v=e7674bd14cdd';
-import '../battle-buffs.js?v=e7674bd14cdd';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml, gearOwnStats, gearRowHtml } from './info.js?v=e7674bd14cdd';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS, gearScore } from '../../shared/equip-plan.js?v=e7674bd14cdd';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=e7674bd14cdd';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=e7674bd14cdd';
-import { previewCache } from '../render/hero.js?v=e7674bd14cdd';
-import { monsterCanvas } from '../render/monsters.js?v=e7674bd14cdd';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=e7674bd14cdd';
-import { medalItemRow, walletView } from './casino.js?v=e7674bd14cdd';
-import { compareTeam, whoItems } from './counter.js?v=e7674bd14cdd';
-import { faceURL } from '../field.js?v=e7674bd14cdd';
-import { partyRows } from './hud.js?v=e7674bd14cdd';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=e7674bd14cdd';
-import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=e7674bd14cdd';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, EXP_RATE_NOTES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=e7674bd14cdd';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=e7674bd14cdd';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=e7674bd14cdd';
-import { rareNameHtml } from './rarity.js?v=e7674bd14cdd';
+import { skillLevel, skillLvLeft } from '../../shared/buff-acts.js?v=9beb19e66ed6';
+import '../battle-buffs.js?v=9beb19e66ed6';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml, gearOwnStats, gearRowHtml } from './info.js?v=9beb19e66ed6';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS, gearScore } from '../../shared/equip-plan.js?v=9beb19e66ed6';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=9beb19e66ed6';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=9beb19e66ed6';
+import { previewCache } from '../render/hero.js?v=9beb19e66ed6';
+import { monsterCanvas } from '../render/monsters.js?v=9beb19e66ed6';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=9beb19e66ed6';
+import { medalItemRow, walletView } from './casino.js?v=9beb19e66ed6';
+import { compareTeam, whoItems } from './counter.js?v=9beb19e66ed6';
+import { faceURL } from '../field.js?v=9beb19e66ed6';
+import { partyRows } from './hud.js?v=9beb19e66ed6';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=9beb19e66ed6';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=9beb19e66ed6';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, EXP_RATE_NOTES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=9beb19e66ed6';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=9beb19e66ed6';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=9beb19e66ed6';
+import { rareNameHtml } from './rarity.js?v=9beb19e66ed6';
 // 第76回: もとの 強さ（きたえる 前）と 大きな くらべる まど
-import { gearOwnBase, hasBoost, baseStronger } from '../../shared/gear-base.js?v=e7674bd14cdd';
-import { equipCompareHtml } from './equip-compare.js?v=e7674bd14cdd';
-import { themeHex } from '../render/themes.js?v=e7674bd14cdd';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=e7674bd14cdd';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=e7674bd14cdd';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=e7674bd14cdd';
-import { fieldUsableAbilities, splitFieldAbilities } from '../../shared/fieldskills.js?v=e7674bd14cdd';
+import { gearOwnBase, hasBoost, baseStronger } from '../../shared/gear-base.js?v=9beb19e66ed6';
+import { equipCompareHtml } from './equip-compare.js?v=9beb19e66ed6';
+import { themeHex } from '../render/themes.js?v=9beb19e66ed6';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=9beb19e66ed6';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=9beb19e66ed6';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=9beb19e66ed6';
+import { fieldUsableAbilities, splitFieldAbilities } from '../../shared/fieldskills.js?v=9beb19e66ed6';
 // 第69回: 技の ならび（弱い じゅん）・お気に入りの ならびかえ
-import { sortByStdPower, favSection, mergeSectionOrder, moveInGrid } from '../../shared/skill-sort.js?v=e7674bd14cdd';
+import { sortByStdPower, favSection, mergeSectionOrder, moveInGrid } from '../../shared/skill-sort.js?v=9beb19e66ed6';
 // 第71回 E: 覚えた技の 2つの 見方（種類で見る・職業で見る）
-import { LEARN_VIEWS, LEARN_SECS, learnedKindTabs, learnedJobTabs, pickLearnTab, nextLearnTab } from '../../shared/skill-view.js?v=e7674bd14cdd';
-import { MENU_VIEWS, SIMPLE_NOTE, menuSimple, menuViewOf, simpleLearnGroups } from '../../shared/menu-view.js?v=e7674bd14cdd';
-import './r69-css.js?v=e7674bd14cdd';
-import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=e7674bd14cdd';
-import './r35-css.js?v=e7674bd14cdd';
-import { newsView } from './news.js?v=e7674bd14cdd';
+import { LEARN_VIEWS, LEARN_SECS, learnedKindTabs, learnedJobTabs, pickLearnTab, nextLearnTab } from '../../shared/skill-view.js?v=9beb19e66ed6';
+import { MENU_VIEWS, SIMPLE_NOTE, menuSimple, menuViewOf, simpleLearnGroups } from '../../shared/menu-view.js?v=9beb19e66ed6';
+import './r69-css.js?v=9beb19e66ed6';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=9beb19e66ed6';
+import './r35-css.js?v=9beb19e66ed6';
+import { newsView } from './news.js?v=9beb19e66ed6';
 // 第77回 D: 音楽を聞く（ui/soundtest.js）
-import { openSoundTest } from './soundtest.js?v=e7674bd14cdd';
+import { openSoundTest } from './soundtest.js?v=9beb19e66ed6';
 // 第50回 N4: 困っている人（ui/subquest-hints.js）
-import { askSection, askView } from './subquest-hints.js?v=e7674bd14cdd';
-import { hasNewAsk, availableSubQuests } from '../../shared/data/subquest-hints.js?v=e7674bd14cdd';
-import { hasUnreadNews } from '../../shared/data/news.js?v=e7674bd14cdd';
-import { vehicleMenuView } from './vehicles.js?v=e7674bd14cdd';
+import { askSection, askView } from './subquest-hints.js?v=9beb19e66ed6';
+import { hasNewAsk, availableSubQuests } from '../../shared/data/subquest-hints.js?v=9beb19e66ed6';
+import { hasUnreadNews } from '../../shared/data/news.js?v=9beb19e66ed6';
+import { vehicleMenuView } from './vehicles.js?v=9beb19e66ed6';
 // 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
-import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=e7674bd14cdd';
+import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=9beb19e66ed6';
 // 第50回 N6: 家族に 道具を あげる（ui/gift.js）
-import { canGift, giftFlow } from './gift.js?v=e7674bd14cdd';
+import { canGift, giftFlow } from './gift.js?v=9beb19e66ed6';
 // 第50回 N3: 大事な物の すぐ使う ボタン（data/quick-item.js）
-import { quickItemOf, quickUseOf, quickList, quickLabel, QUICK_PADS, quickPadOf, quickPadName } from '../../shared/data/quick-item.js?v=e7674bd14cdd';
-import { openStampEditor } from './stamps.js?v=e7674bd14cdd';
+import { quickItemOf, quickUseOf, quickList, quickLabel, QUICK_PADS, quickPadOf, quickPadName } from '../../shared/data/quick-item.js?v=9beb19e66ed6';
+import { openStampEditor } from './stamps.js?v=9beb19e66ed6';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { familyBoardView, hasBoardUnread } from './family-board.js?v=e7674bd14cdd';
+import { familyBoardView, hasBoardUnread } from './family-board.js?v=9beb19e66ed6';
 // 第51回 F: 幻の書（ui/phantom-book.js）
-import { phantomBookView } from './phantom-book.js?v=e7674bd14cdd';
+import { phantomBookView } from './phantom-book.js?v=9beb19e66ed6';
 // 第78回: 冒険のしおり（ui/shiori.js。入口は MAIN・preview・select の 3か所だけ）
-import { shioriPreview, openShiori } from './shiori.js?v=e7674bd14cdd';
+import { shioriPreview, openShiori } from './shiori.js?v=9beb19e66ed6';
 // 第78回 3-10: 家族ミッション（ui/missions.js。入口は MAIN・open・preview・select の 4か所だけ）
-import { missionsPreview, openMissions, prefetchMissions } from './missions.js?v=e7674bd14cdd';
+import { missionsPreview, openMissions, prefetchMissions } from './missions.js?v=9beb19e66ed6';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';

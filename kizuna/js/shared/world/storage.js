@@ -5,11 +5,11 @@
 //   ・あずけた 魔物は 戦わない・育たない。酒場の 配合の 親には なれる（world/breed.js。「あずかり中」の しるし）
 //   ・戦いの あとに 仲間が いっぱいの 時の「あずかり所へ送る」（world/farewell.js・scripts.js の 'befriend'）
 //   ・酒場で 人間の 仲間を さそう 時に いっぱいの 時の「あずかり所へ送る」（world/services.js の 'recruit' の store）
-import { MONSTERS } from '../data/monsters.js?v=e7674bd14cdd';
-import { ROSTER_MAX } from '../data/companions.js?v=e7674bd14cdd';
-import { SLOTS } from '../data/items.js?v=e7674bd14cdd';
-import { addItem, fullHeal } from '../stats.js?v=e7674bd14cdd';
-import { ensureCompanions, ensureStorage, storedOf, companionOf, afterRosterChange, STORAGE_MAX } from './party.js?v=e7674bd14cdd';
+import { MONSTERS } from '../data/monsters.js?v=9beb19e66ed6';
+import { ROSTER_MAX } from '../data/companions.js?v=9beb19e66ed6';
+import { SLOTS } from '../data/items.js?v=9beb19e66ed6';
+import { addItem, fullHeal } from '../stats.js?v=9beb19e66ed6';
+import { ensureCompanions, ensureStorage, storedOf, companionOf, afterRosterChange, STORAGE_MAX } from './party.js?v=9beb19e66ed6';
 
 export const STORAGE_KEEPER = '魔物あずかり所のモモ';
 

@@ -2,24 +2,26 @@
 //
 // ・ガチャガチャ … 店の 人か 台に 話しかける → 画面（client/ui/gacha-r88.js。['ui', 'gacha', 中み]）→ 回す（svc kind:'gacha'）
 //   1人ずつ（自分の お金・自分の 品）。家族で 遊んで いても、話しかけた 人だけの 画面
-//   同じ 品が 出たら 品は ふえず、はらった お金の 半分が もどる。ぜんぶ 持って いる 作品は 回せない。
-//   お金が ふえる 道は ない（もどるのは いつも はらった 分より 少ない）
+//   第88回 G6班（設計書 7-2）: まだ 持って いない 品だけが 出る（同じ 品は 出ない）。ぜんぶ 持って いる 作品は 回せない。
+//   そろえる お金は 品の 数 × 1回の ねだん。売った・分解した 品は また 出る
 // ・竜神の ほこら … 七つの玉を ぜんぶ 持って くると「引きかえますか？」→ 7つが きえて 竜神の玉
 // ・試練の ごほうび … works.js の trialGift。一の試練を こえた 時（world/job-trials.js）と、もう こえて いる 人が 番人に 話した 時
-import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=e7674bd14cdd';
-import { WORKS, workName } from '../data/works.js?v=e7674bd14cdd';
-import { addItem, removeItem, itemCount } from '../stats.js?v=e7674bd14cdd';
-import { trialsCleared } from '../data/job-trials.js?v=e7674bd14cdd';
+import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=9beb19e66ed6';
+import { WORKS, workName } from '../data/works.js?v=9beb19e66ed6';
+import { addItem, removeItem, itemCount } from '../stats.js?v=9beb19e66ed6';
+import { trialsCleared } from '../data/job-trials.js?v=9beb19e66ed6';
 import {
-  GACHA_PRICE, GACHA_PITY, GACHA_MEI_RATE, gachaRefund, gachaWorks, gachaPool, gachaPity, gachaGot, gachaDone, ownsR88, rollGacha,
+  GACHA_PRICE, GACHA_PITY, GACHA_MEI_RATE, gachaWorks, gachaPool, gachaLeft, gachaPity, gachaOwned, rollGacha,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, trialGiftOf, trialGiftFlag,
-} from '../data/gacha-r88.js?v=e7674bd14cdd';
+} from '../data/gacha-r88.js?v=9beb19e66ed6';
 
 const GOLD_MAX = 9999999;
 
 // ───────────── ガチャガチャ ─────────────
-// 画面に わたす 中み（作品ごとの 持って いる 数・名品 かくていまでの 回数）
+// 画面に わたす 中み（作品ごとの 持って いる 数・のこりの 数・名品 かくていまでの 回数）
+//   left … 名品 かくていまで あと 何回（のこりが 名品だけ・ふつうだけの 時は null）/ rest … のこりの 品の 数
 export function gachaView(c) {
+  const own = gachaOwned(c);
   return {
     price: GACHA_PRICE,
     rate: Math.round(GACHA_MEI_RATE * 100),
@@ -27,10 +29,11 @@ export function gachaView(c) {
     gold: c?.gold || 0,
     works: gachaWorks().map((w) => {
       const p = gachaPool(w);
+      const l = gachaLeft(w, own);
       return {
-        id: w, name: workName(w), total: p.all.length, got: gachaGot(c, w), done: gachaDone(c, w),
-        mei: p.mei.length, fu: p.fu.length, left: p.mei.length && p.fu.length ? Math.max(0, GACHA_PITY - gachaPity(c, w)) : null,
-        items: p.all.map((id) => ({ id, own: ownsR88(c, id), mei: p.mei.includes(id) })),
+        id: w, name: workName(w), total: p.all.length, got: p.all.length - l.all.length, rest: l.all.length, done: !l.all.length,
+        mei: p.mei.length, fu: p.fu.length, left: l.mei.length && l.fu.length ? Math.max(0, GACHA_PITY - gachaPity(c, w)) : null,
+        items: p.all.map((id) => ({ id, own: own.has(id), mei: p.mei.includes(id) })),
       };
     }),
   };
@@ -47,27 +50,27 @@ export function gachaAction(world, s, msg, reply) {
   return reply(true, r.text, { gacha: gachaView(c), got: r.got });
 }
 
-// 1回 回す（純粋な しょり。テストからも よぶ）→ { ok, text, got: { id, name, tier, dup, refund } }
+// 1回 回す（純粋な しょり。テストからも よぶ）→ { ok, text, got: { id, name, tier, rest } }（rest … のこりの 品の 数）
+//   出るのは まだ 持って いない 品だけ。名品が 出ない まま 10回で 次は かならず 名品（数えるのは、名品が のこって いる 時だけ）
 export function gachaSpin(c, work, rng) {
   if (typeof work !== 'string' || !WORKS[work] || !gachaPool(work).all.length) return { ok: false, text: 'その作品のガチャガチャは、まだないよ。' };
-  if (gachaDone(c, work)) return { ok: false, text: `${workName(work)}の品は、全部そろった！\nもう回さなくてもだいじょうぶ。`, done: true };
+  const own = gachaOwned(c);
+  const left = gachaLeft(work, own);
+  if (!left.all.length) return { ok: false, text: `${workName(work)}の品は、全部そろった！\nもう回さなくてもだいじょうぶ。`, done: true };
   const gold = Number.isFinite(c.gold) ? c.gold : 0;
   if (gold < GACHA_PRICE) return { ok: false, text: `お金が足りないみたいだね。\n1回${GACHA_PRICE}ゴールドだよ。` };
   const pity = gachaPity(c, work);
-  const roll = rollGacha(rng, work, pity);
-  if (!roll) return { ok: false, text: 'その作品のガチャガチャは、まだないよ。' };
+  const roll = rollGacha(rng, work, pity, own);
+  if (!roll || own.has(roll.id)) return { ok: false, text: 'その作品のガチャガチャは、まだないよ。' };
   c.gold = gold - GACHA_PRICE;
   c.gacha = c.gacha && typeof c.gacha === 'object' && !Array.isArray(c.gacha) ? c.gacha : {};
-  c.gacha[work] = roll.tier === 'mei' ? 0 : Math.min(GACHA_PITY, pity + 1);
-  const dup = ownsR88(c, roll.id);
-  let refund = 0;
-  if (dup) {
-    refund = gachaRefund(GACHA_PRICE);
-    c.gold = Math.min(GOLD_MAX, c.gold + refund);
-  } else addItem(c, roll.id, 1);
+  // 名品が もう のこって いない 時は 数えない（あとで 名品を 売って、また 出る ように なった 時に こわれない）
+  c.gacha[work] = roll.tier === 'mei' ? 0 : left.mei.length ? Math.min(GACHA_PITY, pity + 1) : pity;
+  addItem(c, roll.id, 1);
+  const rest = left.all.length - 1;
   const name = ITEMS[roll.id]?.name || roll.id;
-  const text = dup ? `${name}…もう持っている品だ。\nはらったお金の半分、${refund}ゴールドがもどってきた。` : `${name}を手に入れた！`;
-  return { ok: true, text, got: { id: roll.id, name, tier: roll.tier, dup, refund } };
+  const text = rest ? `${name}を手に入れた！\n（のこり${rest}こ）` : `${name}を手に入れた！`;
+  return { ok: true, text, got: { id: roll.id, name, tier: roll.tier, rest } };
 }
 
 // 画面を 開く（だいほんの 'call'。ほかの 画面と 同じく 一度 送ってから）
@@ -110,7 +113,7 @@ async function keeperTalk(run, machine = false) {
     steps.push(
       say('いらっしゃい！ここは作品のガチャガチャ。\n物語にでてくる品が、カプセルに入っているよ。'),
       say(`1回${GACHA_PRICE}ゴールド。作品を選んで回してね。\n${GACHA_PITY}回つづけて名品が出なかったら、次はかならず名品だよ！`),
-      say('もう持っている品が出たら、\nはらったお金の半分をかえすからね。'),
+      say('出てくるのは、まだ持っていない品だけ。\n全部そろうまで、同じ品は出ないからね。'),
     );
   }
   if (machine) steps.push(['say', null, 'カプセルがたくさん入った、ガチャガチャの台だ。']);

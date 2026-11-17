@@ -1,10 +1,10 @@
 // 第88回 G4班: 作品の ガチャガチャの 画面（サーバーは shared/world/gacha-r88.js。svc kind:'gacha'）
 //   作品を えらぶ（今 品が ある 作品だけ）→「1回 〇〇ゴールド。回す？」→ カプセルが 出て 開く（短い えんしゅつ）→ 品 →
-//   「もう1回 回す？」。同じ 品なら お金の 半分が もどる。ぜんぶ そろった 作品は 回せない
-import { el } from './dom.js?v=e7674bd14cdd';
-import { Counter, itemInfo } from './counter.js?v=e7674bd14cdd';
-import { request } from './shop.js?v=e7674bd14cdd';
-import { rareNameHtml } from './rarity.js?v=e7674bd14cdd';
+//   「もう1回 回す？」。第88回 G6班: まだ 持って いない 品だけが 出る（まどに「のこり △こ」）。ぜんぶ そろった 作品は 回せない
+import { el } from './dom.js?v=9beb19e66ed6';
+import { Counter, itemInfo } from './counter.js?v=9beb19e66ed6';
+import { request } from './shop.js?v=9beb19e66ed6';
+import { rareNameHtml } from './rarity.js?v=9beb19e66ed6';
 
 const CSS = `
 .gacha-panel .gc-sum { display: flex; flex-direction: column; gap: 0.35em; }
@@ -47,10 +47,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function workBox(view, w) {
   const box = el('div', { class: 'gc-sum' });
   box.append(el('div', { class: 'gc-row' }, el('span', { class: 'gold', text: w ? w.name : 'ガチャガチャ' }), el('span', { class: 'gold', text: `1回 ${view.price}G` })));
-  box.append(el('div', { class: 'small', text: `名品（★4）が出るのは${view.rate}%。\n${view.pity}回つづけて名品が出ないと、次はかならず名品。\nもう持っている品が出たら、お金の半分がもどる。` }));
+  box.append(el('div', { class: 'small', text: `名品（★4）が出るのは${view.rate}%。\n${view.pity}回つづけて名品が出ないと、次はかならず名品。\nまだ持っていない品だけが出る（同じ品は出ない）。` }));
   if (!w) return box;
   box.append(el('div', { class: 'gc-row small' }, el('span', { text: `持っている品 ${w.got}/${w.total}` }),
-    el('span', { class: 'muted', text: w.done ? '全部そろった！' : w.left === null ? '' : `名品かくていまで、あと${w.left}回` })));
+    el('span', { class: w.done ? 'gold' : '', text: w.done ? '全部そろった！' : `のこり${w.rest}こ` })));
+  if (!w.done && w.left !== null) box.append(el('div', { class: 'small muted', text: `名品かくていまで、あと${w.left}回` }));
   const list = el('div', { class: 'gc-list' });
   for (const it of w.items) {
     list.append(el('div', { class: `gc-it ${it.own ? '' : 'no'}`, html: `<span>${it.own ? rareNameHtml(it.id) : '？？？'}</span><span class="gc-tag ${it.mei ? 'mei' : ''}">${it.mei ? '名品' : 'ふつう'}</span>` }));
@@ -68,7 +69,7 @@ async function capsule(ct, got) {
   await sleep(520);
   if (ct.closed) return;
   cap.classList.add('open');
-  ct.game.audio.sfx(got.tier === 'mei' && !got.dup ? 'sparkle' : 'item');
+  ct.game.audio.sfx(got.tier === 'mei' ? 'sparkle' : 'item');
   await sleep(420);
   name.classList.add('on');
 }
@@ -83,7 +84,7 @@ export async function gachaUI(game, data) {
   while (!ct.closed) {
     ct.info(workBox(view, view.works[last] || null));
     await ct.say(line);
-    const items = view.works.map((w) => ({ label: w.name, value: w.id, right: w.done ? 'そろった！' : `${w.got}/${w.total}`, rightCls: w.done ? 'gold' : 'muted' }));
+    const items = view.works.map((w) => ({ label: w.name, value: w.id, right: w.done ? 'そろった！' : `のこり${w.rest}こ`, rightCls: w.done ? 'gold' : 'muted' }));
     items.push({ label: 'やめる', value: 'exit' });
     const cmd = await ct.pick(items, { back: null, start: last, onMove: (it) => { if (it) ct.info(workBox(view, workOf(it.value))); } });
     if (ct.closed) return;
@@ -122,10 +123,10 @@ export async function gachaUI(game, data) {
       if (ct.closed) return;
       const box = itemInfo(game, res.got.id) || el('div');
       box.prepend(el('div', { class: 'gc-row' }, el('span', { class: res.got.tier === 'mei' ? 'gold' : '', text: res.got.tier === 'mei' ? '名品が出た！' : 'ふつうの品' }),
-        el('span', { class: 'small muted', text: res.got.dup ? `もう持っている（+${res.got.refund}G）` : 'NEW' })));
+        el('span', { class: 'small muted', text: res.got.rest ? `NEW・のこり${res.got.rest}こ` : 'NEW・全部そろった！' })));
       ct.info(box);
       await ct.say(res.text, { narr: true });
-      await ct.tap(res.got.dup ? 2600 : 3000);
+      await ct.tap(3000);
       if (workOf(id)?.done) {
         await ct.say(`やったね！${workOf(id).name}の品が、全部そろった！`);
         await ct.tap(2400);
