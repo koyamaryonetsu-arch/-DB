@@ -5,16 +5,16 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { cmdOffList } from '../cmd-off.js?v=9fc120604f44';
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=9fc120604f44';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=9fc120604f44';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=9fc120604f44';
-import { MONSTERS } from '../data/monsters.js?v=9fc120604f44';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=9fc120604f44';
-import { SLOTS, ITEMS } from '../data/items.js?v=9fc120604f44';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=9fc120604f44';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=9fc120604f44';
-import { difficultyOf } from '../data/difficulty.js?v=9fc120604f44';
+import { cmdOffList } from '../cmd-off.js?v=d2a5c31dfc54';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=d2a5c31dfc54';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=d2a5c31dfc54';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=d2a5c31dfc54';
+import { MONSTERS } from '../data/monsters.js?v=d2a5c31dfc54';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=d2a5c31dfc54';
+import { SLOTS, ITEMS } from '../data/items.js?v=d2a5c31dfc54';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=d2a5c31dfc54';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=d2a5c31dfc54';
+import { difficultyOf } from '../data/difficulty.js?v=d2a5c31dfc54';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -650,6 +650,8 @@ export function partyState(world, p) {
     clockShift: Number(world.sessions.get(p.leader)?.char?.timeShift) || 0,
     // 敵の 強さ（リーダーの 設定で 戦う。world/battles.js の enemyRateFor。設定の 画面に 出す）
     enemyRate: difficultyOf(world.sessions.get(p.leader)?.char).enemy,
+    // 第89回: 家族が して いる ボス・物語の 戦い（入って いない 人の 画面に「戦いに入る」ボタン。world.js の partyFights）
+    fights: world.partyFights ? world.partyFights(p) : [],
     bond: p.bond,
     // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
     selfPos: selfPosOf(world, p),

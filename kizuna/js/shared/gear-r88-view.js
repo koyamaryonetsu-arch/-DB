@@ -1,0 +1,68 @@
+// 第88回: 作品を 思い出す 装備の せつめいの 文（装備の まど・くらべる まど・道具の せつめい。client/ui/info.js・equip-compare.js・menu.js）
+//   「作品の力：風の力+5（…）」「使う：…（1つの戦いで1回）」「そろい：七つの玉 3/7」
+import { ITEMS, baseItemId } from './data/items.js?v=d2a5c31dfc54';
+import { ABILITIES } from './data/abilities.js?v=d2a5c31dfc54';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=d2a5c31dfc54';
+import { WORKS } from './data/works.js?v=d2a5c31dfc54';
+import { GRADES } from './data/items-r88-kit.js?v=d2a5c31dfc54';
+import { REBIRTH } from './data/items-alchemy.js?v=d2a5c31dfc54';
+import { fxText, fxShort } from './data/gear-fx.js?v=d2a5c31dfc54';
+import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=d2a5c31dfc54';
+
+const EL = { fire: '炎', ice: '氷', bolt: '雷', wind: '風', light: '光', dark: '闇' };
+const workIt = (id) => {
+  const it = ITEMS[baseItemId(id)];
+  return it?.work ? it : null;
+};
+
+// 名前の よこの みじかい しるし（「雷+5・使う」）
+export function r88Short(id) {
+  const it = workIt(id);
+  if (!it) return '';
+  const parts = [];
+  const f = fxShort(innateFx(id));
+  if (f) parts.push(f);
+  if (it.orb?.el) parts.push(`${EL[it.orb.el] || ''}の玉`);
+  if (it.use?.ability) parts.push('使う');
+  return parts.join('・');
+}
+
+// そろいの 数（「スーパー宝貝 3/7（つけている 2）」）
+export function setLine(id, who = null) {
+  const it = workIt(id);
+  const set = GEAR_SETS[it?.set];
+  if (!set) return '';
+  const own = who ? ownedSetIds(who, it.set).length : 0;
+  const hasWear = set.tiers.some((t) => tierRule(set, t) === 'wear');
+  const wear = who && hasWear ? wornSetIds(who, it.set).length : 0;
+  return `${set.name} ${own}/${set.items.length}${hasWear && who ? `（つけている${wear}）` : ''}`;
+}
+
+// 説明の 行（[文]。作品の 品で ない 物は []）
+export function r88DetailLines(id, who = null) {
+  const it = workIt(id);
+  if (!it) return [];
+  const out = [];
+  const g = GRADES[it.grade];
+  if (WORKS[it.work]) out.push(`作品：${WORKS[it.work].name}${g && it.grade !== 'shop' ? `（${g.name}）` : ''}`);
+  const fx = innateFx(id);
+  if (fx.length) out.push(`作品の力：${fx.map((x) => fxText(x.k, x.v)).join('・')}`);
+  if (it.orb?.el) out.push(`玉：つけると、武器のふつうの攻撃が${EL[it.orb.el] || ''}になる（武器に属性があれば、そちらが先）`);
+  const a = ABILITIES[it.use?.ability];
+  if (a) out.push(`使う：${a.name}（1つの戦いで1回・MPなし）${a.desc ? `\n　${a.desc}` : ''}`);
+  const set = GEAR_SETS[it.set];
+  if (set) {
+    out.push(`そろい：${setLine(id, who)}`);
+    for (const t of set.tiers) out.push(`　${t.text}`);
+  }
+  const rb = REBIRTH[baseItemId(id)];
+  if (rb && ITEMS[rb.to] && rb.need) out.push(`生まれ変わる条件：${rebirthNeedText(rb.need)}`);
+  return out;
+}
+
+// とどく 広さの 文（info.js の ムチ・ブーメランの 行の かわり。ない ときは ''）
+export function r88ReachText(id) {
+  const r = itemReach(id);
+  if (!r) return '';
+  return `${r === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる'}（2体目から少しずつ弱くなる）`;
+}

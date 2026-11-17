@@ -7,8 +7,10 @@
 //   ・効果は「つけた 人の、その 装備の しゅるい」に のこる（char.gearFx[もとの 装備の id] = [{ k, v }]）。
 //     きたえた +1〜 も 同じ しゅるい。きたえると 少し 強く なる（+3 ごとに 値が 1 上がった ぶん）
 //   ・道具として 使える 効果は イオだけ（何回でも。MP は いらない）
-import { ITEMS } from './items.js?v=9fc120604f44';
-import { isShopGear, starsFor } from './items-rare.js?v=9fc120604f44';
+import { ITEMS } from './items.js?v=d2a5c31dfc54';
+import { isShopGear, starsFor } from './items-rare.js?v=d2a5c31dfc54';
+// 第88回: 作品の 品の 生まれつきの 効果・そろいの 効果・「使う」（shared/gear-r88.js）
+import { r88FxList, wearSetPower, r88Uses } from '../gear-r88.js?v=d2a5c31dfc54';
 
 export const STAR = 'star_shard';
 // 使う 素材（武器・防具〈よろい・たて・頭〉）
@@ -165,6 +167,8 @@ export function gearFxTotals(char) {
       out[x.k] = Math.min(FX_VMAX * 2, (out[x.k] || 0) + fxValue(x.v, fxPlus(id)));
     }
   }
+  // 第88回: 生まれつきの 効果（どの 部位でも）・1人が つけた そろいの 効果
+  for (const x of r88FxList(char)) if (GEAR_FX[x.k]) out[x.k] = Math.min(FX_VMAX * 2, (out[x.k] || 0) + x.v);
   return out;
 }
 
@@ -178,15 +182,20 @@ export function gearFxStats(char) {
     if (GEAR_FX[k].resEl) resist[p.el] = (resist[p.el] ?? 1) * p.mult;
     if (GEAR_FX[k].guard) resist[p.st] = (resist[p.st] ?? 1) * p.mult;
   }
+  // 第88回: 1人が つけた そろいの 強さ（魔力・MP など。shared/gear-r88.js）
+  const ws = wearSetPower(char);
+  for (const [k, v] of Object.entries(ws.add)) add[k] = (add[k] || 0) + v;
+  for (const [k, v] of Object.entries(ws.resist)) resist[k] = (resist[k] ?? 1) * v;
   return { add, resist, crit: t.crit ? fxPower('crit', t.crit).crit : 0 };
 }
 
 // 戦いで 道具と して 使える 物（武器の イオだけ。[{ slot, id, ability }]）
 export function gearUses(char) {
   const id = char?.equip?.weapon;
-  if (!id) return [];
-  const x = fxListOf(char, id).find((e) => GEAR_FX[e.k].use);
-  return x ? [{ slot: 'weapon', id, kind: x.k, ability: fxPower(x.k, fxValue(x.v, fxPlus(id))).use }] : [];
+  const x = id ? fxListOf(char, id).find((e) => GEAR_FX[e.k].use) : null;
+  const out = x ? [{ slot: 'weapon', id, kind: x.k, ability: fxPower(x.k, fxValue(x.v, fxPlus(id))).use }] : [];
+  // 第88回: 作品の 品の「使う」（どの 部位でも。1つの 戦いで その 品 1回。shared/gear-r88.js）
+  return [...out, ...r88Uses(char)];
 }
 
 // 第64回の 形（{ id: 'chase' }）→ 第65回の 形（{ id: [{ k, v }] }）。へんな ものは すてる

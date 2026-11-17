@@ -7,9 +7,11 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=9fc120604f44';
-import { ITEMS } from './data/items.js?v=9fc120604f44';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=9fc120604f44';
+import { ABILITIES } from './data/abilities.js?v=d2a5c31dfc54';
+import { ITEMS } from './data/items.js?v=d2a5c31dfc54';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=d2a5c31dfc54';
+// 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
+import { r88Actor, orbMods, onceBlock } from './battle-r88.js?v=d2a5c31dfc54';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -18,7 +20,7 @@ export function gearFxActor(char) {
   const t = gearFxTotals(char);
   const fx = Object.entries(t).map(([k, v]) => ({ kind: k, v, ...fxPower(k, v) }));
   const ev = fx.find((x) => x.kind === 'evade');
-  return { gearFx: fx.length ? fx : null, gearUses: gearUses(char), ...(ev ? { gearEva: ev.eva } : {}) };
+  return { gearFx: fx.length ? fx : null, gearUses: gearUses(char), ...(ev ? { gearEva: ev.eva } : {}), ...r88Actor(char) };
 }
 const fxOf = (c, kind) => (c?.side === 'ally' && Array.isArray(c.gearFx) ? c.gearFx.find((x) => x.kind === kind) : null);
 const fxAll = (c, pred) => (c?.side === 'ally' && Array.isArray(c.gearFx) ? c.gearFx.filter(pred) : []);
@@ -28,6 +30,11 @@ export function attackMods(c, t) {
   let element = 'phys', mult = 1;
   const el = fxAll(c, (x) => x.el && x.kind.startsWith('el_')).sort((a, b) => b.v - a.v)[0];
   if (el) { element = el.el; mult *= el.mult; }
+  else {
+    // 第88回: 玉（武器に 属性が ない ときだけ）
+    const o = orbMods(c);
+    if (o) { element = o.element; mult *= o.mult; }
+  }
   for (const s of fxAll(c, (x) => x.race && x.kind.startsWith('slay_'))) if (t?.race === s.race) mult *= s.mult;
   return { element, mult };
 }
@@ -95,6 +102,8 @@ export function gearUseCheck(b, c, id) {
   if (typeof id !== 'string' || !id.startsWith(GEAR_USE_PREFIX)) return null;
   const u = gearUseOf(c, id);
   if (!u || !ABILITIES[u.ability]) return { ok: false, reason: '使えない' };
+  const once = onceBlock(u); // 第88回: 1つの 戦いで その 品 1回
+  if (once) return { ok: false, reason: once };
   const a = ABILITIES[u.ability];
   if (b.noSpells && (a.kind === 'spell' || a.spellLike)) return { ok: false, reason: '呪文の力がすいこまれる' };
   return { ok: true };
@@ -105,9 +114,14 @@ export function gearUse(b, c, cmd, ev) {
   const a = ABILITIES[u.ability];
   ev.name = a?.name || '';
   ev.lines.push(`${c.name}は${ITEMS[u.id]?.name || '装備'}をかかげた！`);
-  if (!a) {
+  if (!a || onceBlock(u)) {
     ev.lines.push('しかし、何も起こらなかった！');
     return true;
+  }
+  // 第88回: 作品の 品は 1つの 戦いで 1回（ふうじられて いても 使った ことに なる）
+  if (u.once) {
+    u.used = true;
+    if (!ev.upd.includes(c)) ev.upd.push(c);
   }
   if (c.status?.silence && (a.kind === 'spell' || a.spellLike)) {
     ev.lines.push('しかし呪文はふうじこめられている！');

@@ -8,21 +8,23 @@
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
 //             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { sourcesFlow } from './sources.js?v=9fc120604f44';
-import { salvageOf } from '../../shared/data/salvage.js?v=9fc120604f44';
-import { el, esc } from './dom.js?v=9fc120604f44';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=9fc120604f44';
-import { request } from './shop.js?v=9fc120604f44';
-import { rankText } from './info.js?v=9fc120604f44';
-import { rareNameHtml } from './rarity.js?v=9fc120604f44';
-import { ITEMS } from '../../shared/data/items.js?v=9fc120604f44';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=9fc120604f44';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=9fc120604f44';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=9fc120604f44';
-import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=9fc120604f44';
-import { bindAlchemy } from './alchemy.js?v=9fc120604f44';
-import { computeStats, itemCount } from '../../shared/stats.js?v=9fc120604f44';
-import { boardIconURL } from '../render/boards.js?v=9fc120604f44';
+import { sourcesFlow } from './sources.js?v=d2a5c31dfc54';
+import { salvageOf } from '../../shared/data/salvage.js?v=d2a5c31dfc54';
+import { el, esc } from './dom.js?v=d2a5c31dfc54';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=d2a5c31dfc54';
+import { request } from './shop.js?v=d2a5c31dfc54';
+import { rankText } from './info.js?v=d2a5c31dfc54';
+import { rareNameHtml } from './rarity.js?v=d2a5c31dfc54';
+import { ITEMS } from '../../shared/data/items.js?v=d2a5c31dfc54';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=d2a5c31dfc54';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge, rebirthOf } from '../../shared/data/forge.js?v=d2a5c31dfc54';
+// 第88回: 生まれ変わりの 条件（竜神の玉を 持つ など。shared/gear-r88.js）
+import { rebirthNeedLack, rebirthNeedText } from '../../shared/gear-r88.js?v=d2a5c31dfc54';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=d2a5c31dfc54';
+import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=d2a5c31dfc54';
+import { bindAlchemy } from './alchemy.js?v=d2a5c31dfc54';
+import { computeStats, itemCount } from '../../shared/stats.js?v=d2a5c31dfc54';
+import { boardIconURL } from '../render/boards.js?v=d2a5c31dfc54';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
@@ -217,15 +219,17 @@ async function craftOne(game, ct, id) {
 function candidates(game) {
   const out = [];
   // 店で 買える 装備（★1）は きたえられない ので 出さない。生まれ変わりの もとの 店の 武器だけ（seed）出す（第35回）
-  const shown = (id) => !isShopForge(id) || isRebirthSeed(id);
+  // 第88回: 店の 品でも かじ屋で 生まれ変わる 品（rebirthOf の shop。木刀）は ふつうに 出す
+  const shown = (id) => !isShopForge(id) || isRebirthSeed(id) || !!rebirthOf(id);
+  const isSeed = (id) => isShopForge(id) && !rebirthOf(id);
   for (const m of myTeam(game)) {
     for (const slot of UPGRADE_TYPES) {
       const id = m.char.equip?.[slot];
-      if (id && ITEMS[id] && shown(id)) out.push({ id, who: m.key, whoName: m.name, char: m.char, seed: isShopForge(id) });
+      if (id && ITEMS[id] && shown(id)) out.push({ id, who: m.key, whoName: m.name, char: m.char, seed: isSeed(id) });
     }
   }
   for (const e of game.me.items || []) {
-    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isShopForge(e.id) });
+    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isSeed(e.id) });
   }
   return out;
 }
@@ -270,6 +274,11 @@ function upgradeBox(game, cand) {
   }
   if (cost.reborn) {
     box.append(el('div', { class: 'detail forge-reborn', text: `${it.name}が、ふしぎな光をはなっている…。\nもう1回きたえると、${ITEMS[cost.to]?.name || '新しい武器'}に生まれ変わる！` }));
+    // 第88回: 生まれ変わる 条件
+    if (cost.need) {
+      const lack = rebirthNeedLack(game.me, cost.need);
+      box.append(el('div', { class: `small ${lack ? 'dis' : 'gold'}`, text: `生まれ変わるには: ${rebirthNeedText(cost.need)}${lack ? '（まだ）' : '（できる！）'}` }));
+    }
     box.append(costBlock(game, cost));
     return box;
   }

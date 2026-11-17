@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=9fc120604f44';
-import { MONSTERS } from './monsters.js?v=9fc120604f44';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=9fc120604f44';
+import { ITEMS, baseItemId } from './items.js?v=d2a5c31dfc54';
+import { MONSTERS } from './monsters.js?v=d2a5c31dfc54';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=d2a5c31dfc54';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -65,6 +65,8 @@ const SRC_TEXT = {
   arena: '闘技場のごほうびでしか手に入らない',
   // 第5章 Step 9（items-final.js）: 魔王ソリトゥスの いちばん 強い ★5
   final: '魔王ソリトゥスからしか手に入らない',
+  // 第88回: 作品を 思い出す 装備（data/items-r88-*.js。手に入れ方は あとの 回）
+  r88: 'ふつうには手に入らない',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

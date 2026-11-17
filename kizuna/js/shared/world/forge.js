@@ -1,13 +1,15 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=9fc120604f44';
-import { FORGES } from '../data/facilities.js?v=9fc120604f44';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=9fc120604f44';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=9fc120604f44';
-import { partyOf } from './party.js?v=9fc120604f44';
-import { BAG_STACK } from './bank.js?v=9fc120604f44';
-import { forgePotGift } from './alchemy.js?v=9fc120604f44';
-import { salvageOf, salvageBlock } from '../data/salvage.js?v=9fc120604f44';
-import { LB_MAX } from '../data/items-forge.js?v=9fc120604f44';
+import { ITEMS } from '../data/items.js?v=d2a5c31dfc54';
+import { FORGES } from '../data/facilities.js?v=d2a5c31dfc54';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=d2a5c31dfc54';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=d2a5c31dfc54';
+import { partyOf } from './party.js?v=d2a5c31dfc54';
+import { BAG_STACK } from './bank.js?v=d2a5c31dfc54';
+import { forgePotGift } from './alchemy.js?v=d2a5c31dfc54';
+import { salvageOf, salvageBlock } from '../data/salvage.js?v=d2a5c31dfc54';
+import { LB_MAX } from '../data/items-forge.js?v=d2a5c31dfc54';
+// 第88回: 生まれ変わりの 条件（shared/gear-r88.js）
+import { rebirthNeedLack } from '../gear-r88.js?v=d2a5c31dfc54';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
@@ -72,6 +74,9 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
         if (itemCount(c, cost.to) >= BAG_STACK) return reply(false, `${ITEMS[cost.to].name}は、もう持ちきれないようだ。`);
       }
       if (cost.reborn && owner && !canEquipChar(owner, cost.to)) return reply(false, 'その人は、生まれ変わった武器を装備できないようだ。');
+      // 第88回: 生まれ変わる 条件（竜神の玉を 持つ など）
+      const needLack = cost.reborn ? rebirthNeedLack(c, cost.need) : null;
+      if (needLack) return reply(false, `…なにかが足りないようだ。\n生まれ変わるには、${needLack.join('・')}。`);
       const lack = lackOf(c, cost);
       if (lack.mats.length) return reply(false, `素材が足りないようだ。\n（${lack.mats.map((m) => `${ITEMS[m.id]?.name || m.id}があと${m.need - m.have}個`).join('・')}）`);
       if (lack.gold) return reply(false, 'おや？ゴールドが足りないようだな。');

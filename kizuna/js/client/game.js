@@ -1,34 +1,37 @@
 // ゲーム ぜんたいの しんこう
-import { applyHand } from './ui/hand.js?v=9fc120604f44';
-import { bindLayout } from './ui/layout.js?v=9fc120604f44';
-import { Input } from './input.js?v=9fc120604f44';
-import { GameAudio, _TRACKS } from './audio.js?v=9fc120604f44';
+import { applyHand } from './ui/hand.js?v=d2a5c31dfc54';
+import { bindLayout } from './ui/layout.js?v=d2a5c31dfc54';
+import { Input } from './input.js?v=d2a5c31dfc54';
+import { GameAudio, _TRACKS } from './audio.js?v=d2a5c31dfc54';
 // 第77回 C: 場面で かわる 音楽（戦いの 曲・ピンチ・だん・ダンジョンの 深さ・昼夜・まわりの音）
-import { SceneAudio } from './audio-scene.js?v=9fc120604f44';
-import { MONSTERS } from '../shared/data/monsters.js?v=9fc120604f44';
-import { Field } from './field.js?v=9fc120604f44';
-import { Hud, STAMPS } from './ui/hud.js?v=9fc120604f44';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=9fc120604f44';
-import { ScriptPlayer, wait } from './ui/script.js?v=9fc120604f44';
-import { BattleScene } from './battle.js?v=9fc120604f44';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=9fc120604f44';
-import { showServerDown } from './ui/syncui.js?v=9fc120604f44';
-import { toast, confirmBox, el } from './ui/dom.js?v=9fc120604f44';
-import { MAPS } from '../shared/maps/index.js?v=9fc120604f44';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=9fc120604f44';
-import { SkyClient } from './sky.js?v=9fc120604f44';
+import { SceneAudio } from './audio-scene.js?v=d2a5c31dfc54';
+import { MONSTERS } from '../shared/data/monsters.js?v=d2a5c31dfc54';
+import { Field } from './field.js?v=d2a5c31dfc54';
+import { Hud, STAMPS } from './ui/hud.js?v=d2a5c31dfc54';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=d2a5c31dfc54';
+import { ScriptPlayer, wait } from './ui/script.js?v=d2a5c31dfc54';
+import { BattleScene } from './battle.js?v=d2a5c31dfc54';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=d2a5c31dfc54';
+import { showServerDown } from './ui/syncui.js?v=d2a5c31dfc54';
+import { toast, confirmBox, el } from './ui/dom.js?v=d2a5c31dfc54';
+import { MAPS } from '../shared/maps/index.js?v=d2a5c31dfc54';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=d2a5c31dfc54';
+import { SkyClient } from './sky.js?v=d2a5c31dfc54';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=9fc120604f44';
+import { QuickButton } from './ui/quick-item.js?v=d2a5c31dfc54';
 // 第58回: マルチプレイの 自動追跡（リーダーに ついていく）の ボタン
-import { FollowButton } from './ui/follow-btn.js?v=9fc120604f44';
-import { HuntButton } from './ui/sources.js?v=9fc120604f44';
-import { reportError } from './errlog.js?v=9fc120604f44';
+import { FollowButton } from './ui/follow-btn.js?v=d2a5c31dfc54';
+import { HuntButton } from './ui/sources.js?v=d2a5c31dfc54';
+import { reportError } from './errlog.js?v=d2a5c31dfc54';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=9fc120604f44';
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=d2a5c31dfc54';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
-import { onMonLive } from './ui/monarena-live.js?v=9fc120604f44';
+import { onMonLive } from './ui/monarena-live.js?v=d2a5c31dfc54';
 // 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
-import { watchTreasureFull } from './ui/treasure.js?v=9fc120604f44';
+// 第89回: もらった その 場で 聞く（戦いの けっかの 中・サーバーの 'tmAsk'）。戦いが 始まったら 画面だけの まどを 片づける
+import { askTreasureList, onTmAsk, dropTreasureFull } from './ui/treasure.js?v=d2a5c31dfc54';
+// 第89回: 家族の ボス・物語の 戦いに「戦いに入る」ボタン
+import { JoinButton } from './ui/join-btn.js?v=d2a5c31dfc54';
 
 export class Game {
   constructor(net) {
@@ -45,6 +48,7 @@ export class Game {
     // 第50回 N3: 大事な物の すぐ使う ボタン（大鳥・竜の ボタンの 下。ui/quick-item.js）
     this.quick = new QuickButton(this);
     this.followBtn = new FollowButton(this);
+    this.joinBtn = new JoinButton(this);
     this.huntBtn = new HuntButton(this); // 第64回 ⑥a: 素材を 落とす 魔物を さがす
     this.menu = new FieldMenu(this);
     this.script = new ScriptPlayer(this);
@@ -214,10 +218,10 @@ export class Game {
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);
-      watchTreasureFull(this, dt, canMove);
       this.sky.update(dt);
       this.quick.update();
       this.followBtn.update();
+      this.joinBtn.update();
       this.huntBtn.update();
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
@@ -533,6 +537,10 @@ export class Game {
         this.battle?.onReject();
         break;
       case 'battleEnd': return this.onBattleEnd(m);
+      // 第89回: 宝の地図が いっぱい（世界に 入った すぐ・つなぎなおし・だいほんの あと）→ その 場で どれを 捨てるか 聞く
+      case 'tmAsk':
+        onTmAsk(this, m);
+        break;
       // 第61回: リーダーが けっかの まどを とじた（パーティーで いっしょに たたかった 時）
       case 'resultClose':
         if (this.battle && (m.id === undefined || this.battle.id === m.id)) this.battle.leaderClose();
@@ -797,7 +805,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=9fc120604f44').then(({ offlineStorage }) => {
+      import('./offline.js?v=d2a5c31dfc54').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
@@ -807,6 +815,7 @@ export class Game {
   }
 
   async onBattleStart(m) {
+    dropTreasureFull(this); // 第89回: 画面だけの まどを 戦いの 上に のこさない（えらぶのは サーバーが また 聞く）
     this.menu.close();
     this.closeFieldUI();
     if (this.battle) {
@@ -870,6 +879,15 @@ export class Game {
     }
     // 読みおわった（サーバー: つぎの たたかいに まきこめる ように なる・すこしだけ むてき）
     this.net.send({ t: 'resultDone' });
+    // 第89回: 宝の地図を 拾ったが いっぱい → けっかの まどを 閉じる 前に（けっかを 出した まま）どれを 捨てるか えらぶ。
+    //   えらぶまで フィールドに もどらない。家族の けっかの まどは 待たせない（resultDone は 先に 送る）
+    if (m.tmAsk?.length && this.battle === b) {
+      try {
+        await askTreasureList(this, m.tmAsk);
+      } catch (e) {
+        reportError(this, e, 'tmAsk');
+      }
+    }
     // 読んでいる あいだに つぎの たたかいが はじまった（ものがたりの つづき など）: その 画面は そのまま
     if (this.battle !== b) return;
     await this.fade(true);
