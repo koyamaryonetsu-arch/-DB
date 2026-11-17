@@ -11,7 +11,7 @@ import { ABILITIES } from './data/abilities.js';
 import { ITEMS } from './data/items.js';
 import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock } from './battle-r88.js';
+import { r88Actor, orbMods, onceBlock, useHpCost } from './battle-r88.js';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -134,5 +134,6 @@ export function gearUse(b, c, cmd, ev) {
   const targets = b.targetsFor(c, a, sub);
   ev.lines.push(`${a.name}の力が、はなたれた！`);
   b.applyAbility(c, a, sub, ev, 1, targets);
+  useHpCost(c, u, ev); // 第88回 G2班: 使うと HPが 少し へる 品（雷神）
   return true;
 }

@@ -46,6 +46,8 @@ import { casinoOpen, casinoAction } from './casino.js';
 import { useEscapeItem, noEscapeText } from './escape.js';
 import { usePowder } from './powder.js';
 import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
+// 第88回 G2班: 形を かえる 武器（鋼金暗器）
+import { shiftShape } from '../gear-r88.js';
 import { setLookEquip } from '../look-equip.js';
 import { jobDoneText } from '../data/job-talk.js';
 import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js';
@@ -452,6 +454,13 @@ export function menuAction(world, s, msg) {
       who.hp = Math.min(who.hp, st.maxHp);
       who.mp = Math.min(who.mp, st.maxMp);
       return reply(true, `${who === c ? '' : who.name + 'の'}${ITEMS[id].name}を外した。`);
+    }
+    // 第88回 G2班: 形を かえる 武器（鋼金暗器）。msg.to … 形の id。装備して いる 物か、ふくろの 物を その 形で 装備
+    case 'shapeShift': {
+      const who = ownChar(s, msg.who);
+      if (!who || typeof msg.to !== 'string') return reply(false, '');
+      const r = shiftShape(who, c, msg.to, { canEquip: canEquipChar, addItem, removeItem, equip: equipItem });
+      return reply(r.ok, r.text);
     }
     // 仲間（自分も）が 装備している 物と 入れかえる（メニューの 装備。client/ui/menu.js の pickGear）
     //   who が from の 装備を 受けとり、from は who の 今の 装備を 受けとる（装備できない ときは ふくろへ）

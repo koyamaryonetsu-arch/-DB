@@ -7,11 +7,16 @@
 //   4. 使う 技は data/abilities-r88.js（かくし技）・そろいは data/gear-sets.js
 import { REBIRTH } from './items-alchemy.js';
 import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js';
-import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA } from './items-r88-houshin.js';
+import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA, R88_REBIRTH_HOUSHIN } from './items-r88-houshin.js';
+// 第88回 G2班: スレイヤーズ・烈火の炎
+import { ITEMS_R88_SLAYERS, R88_SLAYERS_KANA, R88_REBIRTH_SLAYERS } from './items-r88-slayers.js';
+import { ITEMS_R88_REKKA, R88_REKKA_KANA, R88_REBIRTH_REKKA } from './items-r88-rekka.js';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
-  { items: ITEMS_R88_HOUSHIN, kana: R88_HOUSHIN_KANA },
+  { items: ITEMS_R88_HOUSHIN, kana: R88_HOUSHIN_KANA, rebirth: R88_REBIRTH_HOUSHIN },
+  { items: ITEMS_R88_SLAYERS, kana: R88_SLAYERS_KANA, rebirth: R88_REBIRTH_SLAYERS },
+  { items: ITEMS_R88_REKKA, kana: R88_REKKA_KANA, rebirth: R88_REBIRTH_REKKA },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));

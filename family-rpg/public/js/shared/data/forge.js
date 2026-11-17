@@ -145,6 +145,8 @@ export function canLimitBreak(id, c = viewerChar()) {
 
 export function canUpgrade(id, c = viewerChar()) {
   const it = ITEMS[id];
+  // 第88回 G2班: 生まれ変わる アクセ（オリハルコンの像 → 賢者の石）は かじ屋で 1回だけ きたえられる
+  if (it?.type === 'acc' && rebirthOf(id)) return (it.plus || 0) === rebirthOf(id).at;
   if (!it || !UPGRADE_TYPES.includes(it.type)) return false;
   const plus = it.plus || 0;
   const rb = rebirthOf(id);

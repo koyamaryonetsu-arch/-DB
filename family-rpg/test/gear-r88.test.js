@@ -50,7 +50,7 @@ test('第88回: 品の データ（YAIBA 26・スーパー宝貝 7・作品・�
   const yaiba = R88_IDS.filter((id) => ITEMS[id].work === 'yaiba');
   const houshin = R88_IDS.filter((id) => ITEMS[id].work === 'houshin');
   assert.equal(yaiba.length, 26);
-  assert.equal(houshin.length, 7);
+  assert.equal(houshin.filter((id) => ITEMS[id].set === 'super_paopei').length, 7); // G2班が のこりの 宝貝を 足した
   for (const id of R88_IDS) {
     const it = ITEMS[id];
     assert.ok(WORKS[it.work], `${id}: 作品`);

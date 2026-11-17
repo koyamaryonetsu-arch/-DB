@@ -4,8 +4,10 @@ import { layoutEditor, loadLayout, saveLayout } from './layout.js';
 import { fxText, fxListOf, fxShort } from '../../shared/data/gear-fx.js';
 // 第88回: 作品の 品の しるし（雷+5・使う。shared/gear-r88-view.js）
 import { r88Short } from '../../shared/gear-r88-view.js';
+// 第88回 G2班: 形を かえる 武器（鋼金暗器。shared/gear-r88.js）
+import { shapeSource, shapeForms, shapeTarget } from '../../shared/gear-r88.js';
 import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds, WEAPON_CAT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
 import { abilityFor, dualForView } from '../../shared/ability-label.js';
@@ -1533,6 +1535,9 @@ export class FieldMenu {
     // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
     // （「みんなさいきょう装備」は だれの装備？ の 一覧に ある。whoView）
     items.push({ label: 'さいきょう装備', value: '__best' });
+    // 第88回 G2班: 形を かえる 武器（鋼金暗器）を 装備して いるか、ふくろに ある とき
+    const shapeSrc = shapeSource(c, g.me);
+    if (shapeSrc) items.push({ label: `形をかえる（${ITEMS[shapeSrc].name.split('・')[0]}）`, value: '__shape' });
     // 見た目装備（強さは かわらない。モンスターは 絵に 装備が 出ないので ない。lookView）
     if (!c.species) items.push({ label: '見た目装備', value: '__look' });
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備` }));
@@ -1548,6 +1553,7 @@ export class FieldMenu {
       onMove: (it) => {
         if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを選ぶ（アクセサリーはそのまま）\n何が何に変わるかを見てから、決められる';
         else if (it.value === '__look') detail.textContent = LOOK_HELP;
+        else if (it.value === '__shape') detail.textContent = '武器の形をかえる。その職業が持てる形だけ選べる（きたえた回数・れん金の効果はそのまま）';
         else {
           const eid = c.equip?.[it.value];
           // 第64回 ⑥c: れん金で つけた 効果（data/gear-fx.js）
@@ -1558,6 +1564,12 @@ export class FieldMenu {
       onSelect: async (it) => {
         const slot = it.value;
         if (slot === '__look') return this.pushView(() => this.lookView(who));
+        if (slot === '__shape') {
+          this.sub.blur();
+          const done = await this.shapeAsk(c, who);
+          setTimeout(() => this.redraw(), done ? 250 : 0);
+          return;
+        }
         if (slot === '__best') {
           // いきなり 変えずに「何が 何に 変わるか」を 見せてから えらぶ
           this.sub.blur();
@@ -1573,6 +1585,28 @@ export class FieldMenu {
     });
     box.append(m.root, stats, ...(gear ? [gear] : []), detail);
     return box;
+  }
+
+  // 第88回 G2班: 形を かえる 武器の 形を えらぶ（持てない 形は えらべない）。かえたら true
+  async shapeAsk(c, who) {
+    const src = shapeSource(c, this.game.me);
+    if (!src) return false;
+    const cur = ITEMS[src];
+    const worn = c.equip?.weapon === src;
+    const rows = shapeForms(src).map((f) => {
+      const nid = shapeTarget(src, f);
+      const it = ITEMS[f];
+      const can = !!nid && canEquipChar(c, nid);
+      const now = worn && f === (cur.base || src);
+      const cat = it.formCat ? `${it.formCat}・${WEAPON_CAT_NAMES[it.cat]}と同じ` : WEAPON_CAT_NAMES[it.cat] || '';
+      return { label: `${it.form}（${cat}）${now ? '　今の形' : can ? '' : '　持てない'}`, value: f, disabled: now || !can };
+    });
+    rows.push({ label: 'やめる', value: null });
+    const note = { text: worn ? `今：${cur.name}` : `ふくろの${cur.name}を、選んだ形にして装備する`, cls: 'muted' };
+    const pick = await this.pick(`${cur.name.split('・')[0]}の形をかえる`, rows, { note });
+    if (!pick) return false;
+    const r = await this.menuCall({ t: 'menu', action: 'shapeShift', who, to: pick });
+    return !!r?.ok;
   }
 
   // 1つの 部位を えらぶ まど。出すのは その 人が 装備できる 物だけ（ふくろの 物と、ほかの 仲間が 装備している 物。shared/equip-plan.js の gearChoices）。

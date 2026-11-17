@@ -50,6 +50,9 @@ export function r88DetailLines(id, who = null) {
   if (it.orb?.el) out.push(`玉：つけると、武器のふつうの攻撃が${EL[it.orb.el] || ''}になる（武器に属性があれば、そちらが先）`);
   const a = ABILITIES[it.use?.ability];
   if (a) out.push(`使う：${a.name}（1つの戦いで1回・MPなし）${a.desc ? `\n　${a.desc}` : ''}`);
+  // G2班: 使うと HPが へる 品（雷神）・形を かえる 武器（鋼金暗器）
+  if (a && it.use.hpCost) out.push(`　使うと、HPが少しへる（最大HPの${Math.round(it.use.hpCost * 100)}%）`);
+  if (it.shape && it.form) out.push(`形：${it.form}（装備のまどの「形をかえる」で、持てる形にかえられる）`);
   const set = GEAR_SETS[it.set];
   if (set) {
     out.push(`そろい：${setLine(id, who)}`);

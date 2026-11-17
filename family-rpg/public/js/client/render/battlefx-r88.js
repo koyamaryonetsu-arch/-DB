@@ -1,19 +1,29 @@
 // 第88回: 作品を 思い出す 装備の「使う」の えんしゅつ（かくし技。shared/data/abilities-r88.js）
-//   ほかの 品の えんしゅつは 今 ある 物を 使い回す。雷公べんの 大きな 雷だけ ここで 作る
+//   ほかの 品の えんしゅつは 今 ある 物を 使い回す。作品の 顔に なる 品だけ ここで 作る
 //   battlefx.js の play() で よばれる（ここに ない anim なら false）。文字は 出さない
 //
 //  r88_raikou  雷公べん・大いかずち … 画面が まっくらに なり、空から 金と むらさきの 太い いなずまが 何本も 落ちて、
 //              敵 みんなに 大きな いなずまが つきささる → 白い 光 ＋ 大きな 輪
+//  r88_hikari  光の剣・光のやいば（G2班）… 画面が 少し くらく なり、画面の 手前から 金色の 長い 光の やいばが のびて、
+//              敵に 大きく 2回 切りつける → 白い 光の 十字 ＋ 光の つぶ
+//  r88_fujin   風神・風魂（G2班）… 緑と 白の つむじ風が うずを まいて ふくらみ、風の やいばが 何本も 敵の グループを 切りさく
+//  r88_raijin  雷神・いかずち（G2班）… こての 雷が 青白く ばちばち 光り、敵 みんなの 上から 青い いなずまが ジグザグに 落ちる
 const BOLT = ['#ffffff', '#fff6b0', '#ffd23a', '#c890ff'];
+const LIGHT = ['#ffffff', '#fffbe0', '#ffe680', '#ffd23a'];
+const WIND = ['#ffffff', '#e8fff0', '#9ef0c0', '#4ad890'];
+const BLUE = ['#ffffff', '#d8f0ff', '#7ac8ff', '#3a8aff'];
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 
-export const R88_ANIMS = new Set(['r88_raikou']);
-export const R88_HIT = { r88_raikou: 900 };
-export const R88_SFX = { r88_raikou: 'thunder' };
+export const R88_ANIMS = new Set(['r88_raikou', 'r88_hikari', 'r88_fujin', 'r88_raijin']);
+export const R88_HIT = { r88_raikou: 900, r88_hikari: 520, r88_fujin: 640, r88_raijin: 760 };
+export const R88_SFX = { r88_raikou: 'thunder', r88_hikari: 'crit', r88_fujin: 'wind', r88_raijin: 'thunder' };
 
 export function playR88Fx(fx, anim, targets, element, opts, W, H) {
-  if (anim !== 'r88_raikou') return false;
+  if (!R88_ANIMS.has(anim)) return false;
+  if (anim === 'r88_hikari') return hikari(fx, targets, W, H);
+  if (anim === 'r88_fujin') return fujin(fx, targets, W, H);
+  if (anim === 'r88_raijin') return raijin(fx, targets, W, H);
   // 空が くらく なる → 雷雲が ゴロゴロ
   fx.tintAt('rgba(20,10,50,0.55)', 1500);
   for (let k = 0; k < 7; k++) {
@@ -31,5 +41,60 @@ export function playR88Fx(fx, anim, targets, element, opts, W, H) {
   });
   fx.flashAt(140, '#ffffff', 660);
   fx.hitStop(160, 700, 1.6);
+  return true;
+}
+
+// 光の剣: 光の やいばが のびて、大きく 2回 切る
+function hikari(fx, targets, W, H) {
+  fx.tintAt('rgba(30,24,10,0.35)', 900);
+  const t = targets[0] || { x: W * 0.3, y: H * 0.45 };
+  // 光が あつまる → やいばが のびる
+  fx.converge(t.x - 10, t.y + 80, { colors: LIGHT, n: 16, r: 34, delay: 0, life: 260 });
+  fx.spear(t.x - 10, t.y + 90, t.x, t.y - 6, { len: 90, w: 4, color: '#ffffff', glow: '#ffd23a', tip: '#ffffff', delay: 220, travel: 120, hold: 120, life: 360 });
+  // 大きく 2回 切る
+  fx.swipe([t.x - 34, t.y - 34], [t.x, t.y - 4], [t.x + 30, t.y + 30], { w: 7, color: '#fffbe0', glow: '#ffd23a', core: '#ffffff', delay: 380, swing: 120, life: 360, after: 2 });
+  fx.swipe([t.x + 34, t.y - 30], [t.x, t.y], [t.x - 30, t.y + 30], { w: 6, color: '#fffbe0', glow: '#ffe680', core: '#ffffff', delay: 500, swing: 110, life: 340, after: 1 });
+  fx.flashAt(120, '#fff8d0', 520);
+  fx.pillar(t.x, t.y + 10, '#ffe680', { w: 10, h: 70, delay: 520, life: 520, edge: '#ffffff' });
+  fx.sparks(t.x, t.y, { colors: LIGHT, n: 26, speed: 160, delay: 540, life: 460 });
+  fx.shock(t.x, t.y, { r0: 6, r1: 50, color: '#fff2a0', w: 3, delay: 520, life: 400 });
+  fx.hitStop(150, 540, 1.3);
+  return true;
+}
+
+// 風神: 緑の つむじ風と 風の やいば
+function fujin(fx, targets, W, H) {
+  const cx = targets.length ? targets.reduce((s, t) => s + t.x, 0) / targets.length : W * 0.3;
+  const cy = targets.length ? targets.reduce((s, t) => s + t.y, 0) / targets.length : H * 0.45;
+  fx.swirl(cx, cy + 16, WIND, { n: 34, rad: 30, h: 80, delay: 0, life: 900, size: 1.8 });
+  for (let k = 0; k < 6; k++) fx.gust(cx - 40 + rnd(-10, 10), cy - 30 + k * 12, { len: 90, amp: 6, color: k % 2 ? '#ffffff' : '#9ef0c0', w: 1.4, dir: 1, delay: 80 + k * 50, life: 420 });
+  targets.forEach((t, i) => {
+    const d = 380 + i * 70;
+    fx.cut(t.x, t.y - 4, { ang: 0.7, len: 40, w: 2.2, color: '#ffffff', glow: '#4ad890', delay: d, life: 260 });
+    fx.cut(t.x, t.y - 2, { ang: -0.6, len: 36, w: 2, color: '#e8fff0', glow: '#9ef0c0', delay: d + 70, life: 260 });
+    fx.cut(t.x, t.y, { ang: 1.4, len: 30, w: 1.8, color: '#ffffff', glow: '#4ad890', delay: d + 140, life: 240 });
+    fx.sparks(t.x, t.y, { colors: WIND, n: 14, speed: 120, delay: d + 60, life: 380 });
+  });
+  fx.hitStop(110, 520, 1.1);
+  return true;
+}
+
+// 雷神: 青白い いなずま
+function raijin(fx, targets, W, H) {
+  fx.tintAt('rgba(10,20,50,0.5)', 1200);
+  fx.flashAt(70, '#d8f0ff', 120);
+  for (let k = 0; k < 5; k++) {
+    const x = 30 + k * ((W - 60) / 4) + rnd(-12, 12);
+    fx.zap(x, -10, x + rnd(-30, 30), H * 0.5, { color: '#ffffff', glow: '#3a8aff', w: 1.2, delay: 100 + k * 60, life: 240, forks: 2 });
+  }
+  targets.forEach((t, i) => {
+    const d = 480 + i * 70;
+    fx.zap(t.x + rnd(-8, 8), -20, t.x, t.y - 4, { color: '#ffffff', glow: '#7ac8ff', w: 3, delay: d, life: 360, forks: 3 });
+    fx.zap(t.x + rnd(-16, 16), -20, t.x, t.y - 4, { color: '#d8f0ff', glow: '#3a8aff', w: 2, delay: d + 50, life: 320, forks: 2 });
+    fx.sparks(t.x, t.y, { colors: BLUE, n: 20, speed: 150, delay: d + 70, life: 400 });
+    fx.ring(t.x, t.y, '#7ac8ff', 3, d + 60, 380, 42);
+  });
+  fx.flashAt(120, '#ffffff', 560);
+  fx.hitStop(140, 600, 1.4);
   return true;
 }

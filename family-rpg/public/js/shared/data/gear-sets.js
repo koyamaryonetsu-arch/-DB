@@ -41,6 +41,94 @@ export const GEAR_SETS = {
       { n: 2, title: '風と雷の剣士', text: '2本とも持つと、しょう号「風と雷の剣士」' },
     ],
   },
+  // ───── G2班 ─────
+  //   own の 段に 強さ（bonus・resist・fx）を 書くと「その 数 持って いて、組の 品を 1つでも つけて いる 人」に つく（shared/gear-r88.js の wearSetPower）
+  //   武器や アクセは 1人 1つしか つけられないので、作品の「1人が 3つで」は「3つ 持って 1つ つけて いれば」に した
+  // ── ほう神演義: 哪吒（なた）の 宝貝 ──
+  nataku: {
+    name: 'なたの宝貝',
+    items: ['r88_kenkonken', 'r88_kontenryo', 'r88_kinsen', 'r88_kasenso', 'r88_fukarin'],
+    rule: 'own',
+    tiers: [
+      { n: 3, bonus: { agi: 12 }, text: '3つ持って、1つでもつけていると、素早さ+12' },
+      { n: 5, title: '宝貝の少年', text: '5つ全部持つと、しょう号「宝貝の少年」' },
+    ],
+  },
+  // ── ほう神演義: 黄天化の 剣 ──
+  kotenka: {
+    name: '黄天化の剣',
+    items: ['r88_bakuya', 'r88_bakuya2', 'r88_sanshin'],
+    rule: 'own',
+    tiers: [
+      { n: 2, fx: [{ k: 'el_light', v: 3 }], text: '2つ持って、1つでもつけていると、光の力+3' },
+    ],
+  },
+  // ── ほう神演義: 十天君の じん ──
+  jutenkun: {
+    name: '十天君のじん',
+    items: ['r88_jin_kanpyo', 'r88_jin_retsuen', 'r88_jin_fuko', 'r88_jin_tenzetsu', 'r88_jin_kosa', 'r88_jin_kinko'],
+    rule: 'own',
+    tiers: [
+      { n: 3, title: 'じんの使い手', text: '3つ持つと、しょう号「じんの使い手」' },
+      { n: 6, title: '十天君', text: '6つ全部持つと、しょう号「十天君」' },
+    ],
+  },
+  // ── スレイヤーズ: 異界の 魔王の 5つの 武器 ──
+  igai_maou: {
+    name: '異界の魔王の武器',
+    items: ['r88_gorun', 'r88_galvaira', 'r88_nezard', 'r88_bodigar', 'r88_ragud'],
+    rule: 'own',
+    tiers: [
+      { n: 3, title: '魔王の武器の使い手', text: '3つ持つと、しょう号「魔王の武器の使い手」' },
+      { n: 5, title: '闇を打つ者', text: '5つ全部持つと、しょう号「闇を打つ者」' },
+    ],
+  },
+  // ── 烈火の炎: 風神 ＋ 雷神（どちらも ツメなので 2人で つける）──
+  rekka_fujin_raijin: {
+    name: '風神と雷神（魔導具）',
+    items: ['r88_fujin', 'r88_raijin'],
+    rule: 'party',
+    tiers: [
+      { n: 2, bonus: { str: 10, mag: 10 }, text: '2人が1つずつつけると、戦いの間、みんなの攻撃力と攻撃魔力+10' },
+      { n: 2, rule: 'own', title: '風と雷の魔導具使い', text: '2つとも持つと、しょう号「風と雷の魔導具使い」' },
+    ],
+  },
+  // ── 烈火の炎: 影界玉 ＋ 光界玉 ──
+  eikai_kokai: {
+    name: '影界玉と光界玉',
+    items: ['r88_eikai', 'r88_kokai'],
+    rule: 'own',
+    tiers: [
+      { n: 2, resist: { dark: 0.8 }, text: '2つとも持って、どちらかをつけていると、闇に強い' },
+    ],
+  },
+  // ── 烈火の炎: えん水 ＋ 氷魔えん ──
+  enzui_hyoma: {
+    name: 'えん水と氷魔えん',
+    items: ['r88_ensui', 'r88_hyoma'],
+    rule: 'own',
+    tiers: [
+      { n: 2, fx: [{ k: 'el_ice', v: 3 }], text: '2つとも持って、どちらかをつけていると、氷の力+3' },
+    ],
+  },
+  // ── 烈火の炎: 石ちゅう ＋ 鉄丸（よろいと アクセなので 1人で つけられる）──
+  sekichu_tetsugan: {
+    name: '石ちゅうと鉄丸',
+    items: ['r88_sekichu', 'r88_tetsugan'],
+    rule: 'wear',
+    tiers: [
+      { n: 2, bonus: { def: 20 }, text: '1人が2つつけると、守備力+20' },
+    ],
+  },
+  // ── 烈火の炎: 神りょしん刀（2本 1組。同じ 品を 2人で）──
+  shinryo: {
+    name: '神りょしん刀',
+    items: ['r88_shinryo'],
+    rule: 'party',
+    tiers: [
+      { n: 2, fx: [{ k: 'chase', v: 4 }], text: '2人が1本ずつつけると、戦いの間、みんな追撃+4' },
+    ],
+  },
 };
 
 export const SET_RULES = ['wear', 'own', 'party'];

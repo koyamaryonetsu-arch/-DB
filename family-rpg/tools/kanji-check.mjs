@@ -534,6 +534,8 @@ export function gameFiles() {
     'public/js/shared/data/works.js', 'public/js/shared/data/gear-sets.js', 'public/js/shared/data/items-r88.js', 'public/js/shared/data/items-r88-kit.js',
     'public/js/shared/data/items-r88-yaiba.js', 'public/js/shared/data/items-r88-houshin.js', 'public/js/shared/data/abilities-r88.js',
     'public/js/shared/gear-r88.js', 'public/js/shared/gear-r88-view.js', 'public/js/shared/battle-r88.js', 'public/js/client/render/battlefx-r88.js',
+    // 第88回 G2班: スレイヤーズ・烈火の炎
+    'public/js/shared/data/items-r88-slayers.js', 'public/js/shared/data/items-r88-rekka.js',
     'public/js/shared/data/gear-fx.js',
   ];
   return list.map((f) => join(ROOT, f));

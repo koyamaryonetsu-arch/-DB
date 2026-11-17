@@ -229,7 +229,8 @@ function candidates(game) {
     }
   }
   for (const e of game.me.items || []) {
-    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isSeed(e.id) });
+    // 第88回 G2班: 生まれ変わる アクセ（オリハルコンの像）も 出す
+    if (e.n > 0 && (UPGRADE_TYPES.includes(ITEMS[e.id]?.type) || (ITEMS[e.id]?.type === 'acc' && rebirthOf(e.id))) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isSeed(e.id) });
   }
   return out;
 }

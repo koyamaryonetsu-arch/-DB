@@ -51,4 +51,202 @@ export const R88_ABILITIES = {
     effect: { type: 'phys', mult: 1.7, element: 'dark' },
     desc: '魔王剣から黒い光のやいばをとばして、敵全体を闇で切りさく。', cast: '{a}の魔王剣が、黒い三日月の光をはなった！', anim: 'r82b_slash',
   },
+  // ── G2班: ほう神演義（崑崙・金鰲の 宝貝）──
+  r88u_dashin: {
+    name: '打神べん・大気のうず', kana: 'だしんべんたいきのうず', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [145, 175], thr: 80 },
+    desc: '太極の打神べんで大気をまるごとあやつり、敵全体を大きな風でうつ。', cast: '{a}が打神べんをふると、大気がうなりを上げた！', anim: 'wind2',
+  },
+  r88u_kinsen: {
+    name: '金せん・光線', kana: 'きんせんこうせん', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'light', base: [170, 200], thr: 80 },
+    desc: '金せんから光の光線を打ち出して、敵1体をうつ。', cast: '{a}のかたの金せんが、まぶしく光った！', anim: 'holy',
+  },
+  r88u_fuin: {
+    name: '太極ふ印・元素', kana: 'たいきょくふいんげんそ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'random', options: ['r88u_fuin_fire', 'r88u_fuin_ice', 'r88u_fuin_bolt'] },
+    desc: '元素をあやつって、炎・氷・雷のどれかで敵全体をうつ。', cast: '{a}は太極ふ印に指をすべらせた！', anim: 'none',
+  },
+  r88u_fuin_fire: {
+    name: '太極ふ印・炎', kana: 'たいきょくふいんほのお', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [100, 115], thr: 70 },
+    desc: '元素をあやつって、炎で敵全体をうつ。', cast: '{a}のまわりの元素が、炎にかわった！', anim: 'fire_wave',
+  },
+  r88u_fuin_ice: {
+    name: '太極ふ印・氷', kana: 'たいきょくふいんこおり', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [100, 115], thr: 70 },
+    desc: '元素をあやつって、氷で敵全体をうつ。', cast: '{a}のまわりの元素が、氷にかわった！', anim: 'blizzard',
+  },
+  r88u_fuin_bolt: {
+    name: '太極ふ印・雷', kana: 'たいきょくふいんかみなり', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [100, 115], thr: 70 },
+    desc: '元素をあやつって、雷で敵全体をうつ。', cast: '{a}のまわりの元素が、雷にかわった！', anim: 'bolt2',
+  },
+  r88u_banten: {
+    name: '番天印・しるしの光', kana: 'ばんてんいんしるしのひかり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'light', base: [190, 220], thr: 85 },
+    desc: 'しるしをつけた敵1体に、光の大きなはんこを落とす。', cast: '{a}は番天印を空になげた！', anim: 'holy',
+  },
+  r88u_inyo: {
+    name: 'いん陽鏡・光のあみ', kana: 'いんようきょうひかりのあみ', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'light', base: [120, 140], thr: 75 },
+    desc: 'いくつものかがみで光を集めて、同じ種類の敵みんなをうつ。', cast: '{a}のいん陽鏡が、光をはねかえした！', anim: 'mirror_glow',
+  },
+  r88u_kinto: {
+    name: '混元金と・すいこみ', kana: 'こんげんきんとすいこみ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.85, turns: [2, 2] },
+    desc: 'つぼに敵1体をすいこんで、しばらく動けなくする（大きな敵にはききにくい）。', cast: '{a}が混元金とのふたを開けた！', anim: 'whirlpool',
+  },
+  r88u_jin_kanpyo: {
+    name: '寒氷じん', kana: 'かんぴょうじん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [95, 110], thr: 70 },
+    desc: '寒氷じんを開いて、ふぶきと氷のかたまりで敵全体をうつ。', cast: '{a}がお札をかかげると、あたりがこおりついた！', anim: 'blizzard',
+  },
+  r88u_jin_retsuen: {
+    name: '烈炎じん', kana: 'れつえんじん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [95, 110], thr: 70 },
+    desc: '烈炎じんを開いて、炎で敵全体をうつ。', cast: '{a}がお札をかかげると、あたりが炎につつまれた！', anim: 'fire3',
+  },
+  r88u_jin_fuko: {
+    name: '風こうじん', kana: 'ふうこうじん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [95, 110], thr: 70 },
+    desc: '風こうじんを開いて、たつまきで敵全体をうつ。', cast: '{a}がお札をかかげると、たつまきが起きた！', anim: 'wind2',
+  },
+  r88u_jin_tenzetsu: {
+    name: '天絶じん', kana: 'てんぜつじん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.5 },
+    desc: '天絶じんを開いて、いん石をふらせて敵全体をうつ。', cast: '{a}がお札をかかげると、空からいん石がふってきた！', anim: 'meteor',
+  },
+  r88u_jin_kosa: {
+    name: '紅砂じん', kana: 'こうさじん', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'eva', add: 0.4, dur: 30 },
+    desc: '紅砂じんを開いて、砂の中を一しゅんで動き、敵の攻撃をかわしやすくなる。', cast: '{a}のまわりに、赤い砂がまい上がった！', anim: 'buff',
+  },
+  r88u_jin_kinko: {
+    name: '金光じん', kana: 'きんこうじん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.5, turns: [1, 3] },
+    desc: '金光じんを開いて、光をまげて敵全体の目をくらませ、混乱させる。', cast: '{a}がお札をかかげると、金色の光がうずまいた！', anim: 'debuff',
+  },
+  // ── G2班: スレイヤーズ ──
+  r88u_hikari: {
+    name: '光の剣・光のやいば', kana: 'ひかりのけんひかりのやいば', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.4, element: 'light' },
+    desc: '光のやいばを長くのばして、敵1体を切りさく。', cast: '{a}が「光よ！」とさけぶと、光のやいばがのびた！', anim: 'r88_hikari',
+  },
+  r88u_demonblood: {
+    name: '魔血玉の力', kana: 'まけつぎょくのちから', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'mag', mult: 1.5, dur: 30 },
+    desc: '4つの玉の力をときはなって、しばらく攻撃魔力を大きく上げる。', cast: '{a}の4つの玉が、青・白・黒・赤に光った！', anim: 'buff',
+  },
+  r88u_kage: {
+    name: '影の鏡・かげうち', kana: 'かげのかがみかげうち', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'dark', base: [180, 210], thr: 80 },
+    desc: '影の鏡に敵をうつして、その敵の「かげ」におそわせる。', cast: '{a}の影の鏡から、{t}のかげがとび出した！', anim: 'dark1',
+  },
+  r88u_juho: {
+    name: '呪法球・雷雲', kana: 'じゅほうきゅうらいうん', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [105, 120], thr: 75 },
+    desc: '空をくもらせて、敵全体に雷を落とす。', cast: '{a}が呪法球をかかげると、空がくもった！', anim: 'bolt2',
+  },
+  // ── G2班: 烈火の炎（魔導具）──
+  r88u_kazetsume: {
+    name: '風のツメ・かまいたち', kana: 'かぜのつめかまいたち', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [140, 165], thr: 75 },
+    desc: '風のやいばをとばして、敵1体を切りさく。', cast: '{a}のツメから、風のやいばがとんだ！', anim: 'wind1',
+  },
+  r88u_fujin: {
+    name: '風神・風こん', kana: 'ふうじんふうこん', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [150, 175], thr: 80 },
+    desc: '風神で大きなつむじ風を起こし、風のやいばで同じ種類の敵みんなを切りさく。', cast: '{a}の風神が、うなりを上げた！', anim: 'r88_fujin',
+  },
+  r88u_ensui: {
+    name: 'えん水・水のやいば', kana: 'えんすいみずのやいば', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'multi', parts: [{ type: 'magic', element: 'ice', base: [150, 175], thr: 75 }, { type: 'atbSet', sub: 35, chance: 0.6, msg: '{t}はこおりついて、動きがおそくなった！', failMsg: '{t}はこおらなかった！' }] },
+    desc: '水のやいばで敵1体を切り、こおらせて動きをおそくする。', cast: '{a}のえん水から、水のやいばがのびた！', anim: 'ice2',
+  },
+  r88u_tetsugan: {
+    name: '鉄丸・鉄の体', kana: 'てつがんてつのからだ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'def', mult: 1.8, dur: 30 },
+    desc: '鉄丸をのみこんで、体を鉄のようにかたくする。守備力が大きく上がる。', cast: '{a}の体が、鉄のようにかたくなった！', anim: 'guard',
+  },
+  r88u_kuchibashi: {
+    name: 'くちばし王・しばり', kana: 'くちばしおうしばり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.8 }, { type: 'atbSet', sub: 40, chance: 0.65, msg: '{t}はくさりにしばられた！', failMsg: '{t}はくさりをふりほどいた！' }] },
+    desc: 'くさりで敵1体をうってしばり、動きをおそくする。', cast: '{a}のくちばし王が、くさりをのばした！', anim: 'whip',
+  },
+  r88u_eikai: {
+    name: '影界玉・かげわたり', kana: 'えいかいぎょくかげわたり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'escape' },
+    desc: 'かげを通って、みんなで戦いからにげ出す（にげられない戦いはだめ）。', cast: '{a}の影界玉が、あやしく光った…！', anim: 'none',
+  },
+  r88u_shikigami: {
+    name: '式がみ・かみしばり', kana: 'しきがみかみしばり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.7, turns: [1, 2] },
+    desc: 'かみの毛をのばして、敵1体をしばってマヒさせる。', cast: '{a}のかみの毛が、するするとのびた！', anim: 'debuff',
+  },
+  r88u_raijin: {
+    name: '雷神・いかずち', kana: 'らいじんいかずち', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [160, 190], thr: 85 },
+    desc: 'つけた人のHPを少し使って、敵全体に大きな雷を落とす。', cast: '{a}の雷神が、ばちばちと光った！', anim: 'r88_raijin',
+  },
+  r88u_hyoma: {
+    name: '氷魔えん・氷のはしら', kana: 'ひょうまえんこおりのはしら', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [140, 165], thr: 75 },
+    desc: '氷のはしらを立てて、同じ種類の敵みんなをうつ。', cast: '{a}の氷魔えんが、つめたい声でわらった！', anim: 'ice2',
+  },
+  r88u_taishaku: {
+    name: 'たいしゃくかい天・重力', kana: 'たいしゃくかいてんじゅうりょく', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'atbSet', sub: 35, chance: 0.6, msg: '{t}は重くなって、動きがおそくなった！', failMsg: '{t}には重力がきかなかった！' },
+    desc: '重力で敵全体を重くして、動きをおそくする。', cast: '{a}がほこをつき立てると、ずしりと重くなった！', anim: 'debuff',
+  },
+  r88u_gedoku: {
+    name: '解毒丸をのむ', kana: 'げどくがんをのむ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'cure', statuses: ['poison'] },
+    desc: '解毒丸をのんで、自分の毒を治す。', cast: '{a}は解毒丸をのみこんだ！', anim: 'heal1',
+  },
+  r88u_fukyo: {
+    name: '不きょう和音・しょうげきは', kana: 'ふきょうわおんしょうげきは', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.5 },
+    desc: 'ためた音をしょうげきはにして、敵全体をうつ。', cast: '{a}のむね当てから、ものすごい音がひびいた！', anim: 'blast2',
+  },
+  r88u_kotodama: {
+    name: '言だま・かつもく', kana: 'ことだまかつもく', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.5, turns: [1, 3] },
+    desc: '「かつもく！」の合図で敵全体にまぼろしを見せて、ねむらせる。', cast: '{a}は「かつもく！」とさけんだ！', anim: 'sleep',
+  },
+  r88u_mugen: {
+    name: '夢幻・ちぢみ', kana: 'むげんちぢみ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'atk', mult: 0.6, dur: 40, chance: 0.9 },
+    desc: '敵1体をちぢめて、攻撃力を大きく下げる。', cast: '{a}のつえが光ると、{t}がちぢんでいく！', anim: 'debuff',
+  },
+  r88u_oboro: {
+    name: 'おぼろ・すがた消し', kana: 'おぼろすがたけし', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'eva', add: 0.45, dur: 30 },
+    desc: '布をかぶってすがたを消し、敵の攻撃をかわしやすくなる。', cast: '{a}はおぼろをかぶって、すうっと消えた！', anim: 'buff',
+  },
+  r88u_jigen: {
+    name: '次元界玉・次元とばし', kana: 'じげんかいぎょくじげんとばし', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'banish', chance: 0.6, msg: '{t}はべつの次元へとばされた！', failMsg: '{t}は次元のすきまをふみこらえた！' },
+    desc: '敵1体をべつの次元へとばして、戦いから外す（大きな敵にはきかない）。', cast: '{a}の次元界玉が、空間をゆがめた！', anim: 'void',
+  },
+  r88u_sekkon: {
+    name: '石こん・岩なだれ', kana: 'せっこんいわなだれ', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.6 },
+    desc: '岩をあやつって、同じ種類の敵みんなに岩をぶつける。', cast: '{a}が石こんで地面をたたくと、岩がうき上がった！', anim: 'quake',
+  },
+  r88u_kokai: {
+    name: '光界玉・光の無', kana: 'こうかいぎょくひかりのむ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'light', base: [160, 190], thr: 85 },
+    desc: 'まぶしい光で敵全体をつつみこむ。', cast: '{a}の光界玉が、まっ白にかがやいた！', anim: 'holy',
+  },
+  r88u_shiko: {
+    name: '神りょ思考・心あやつり', kana: 'しんりょしこうこころあやつり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.7, turns: [1, 3] },
+    desc: '敵1体の心に入って、混乱させる。', cast: '{a}は{t}の心の中に入りこんだ…！', anim: 'debuff',
+  },
+  r88u_rinne: {
+    name: '輪ね・年をとらせる', kana: 'りんねとしをとらせる', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'multi', parts: [{ type: 'debuff', stat: 'atk', mult: 0.75, dur: 40, chance: 0.9 }, { type: 'debuff', stat: 'agi', mult: 0.75, dur: 40, chance: 0.9 }] },
+    desc: '敵1体の年をとらせて、攻撃力と素早さを下げる。', cast: '{a}の輪ねが回ると、{t}の時間が速くすすんだ！', anim: 'debuff',
+  },
 };

@@ -7,6 +7,7 @@
 import { GEAR_SETS } from './data/gear-sets.js';
 import { fxPower, GEAR_FX } from './data/gear-fx.js';
 import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js';
+import { ITEMS, baseItemId } from './data/items.js';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {
@@ -78,4 +79,15 @@ export function applyPartySets(b) {
 // 1回だけの 品を 使えるか（使った ときは わけ）
 export function onceBlock(u) {
   return u?.once && u.used ? 'この戦いでは、もう使った' : null;
+}
+
+// G2班: 使うと HPが 少し へる 品（品の use.hpCost … 最大HPの わりあい。雷神）。HPは 1より 下がらない
+export function useHpCost(c, u, ev) {
+  const k = ITEMS[baseItemId(u?.id)]?.use?.hpCost;
+  if (!k || !c?.alive || c.hp <= 1) return 0;
+  const d = Math.min(c.hp - 1, Math.max(1, Math.round(c.maxHp * k)));
+  c.hp -= d;
+  ev.lines.push(`${ITEMS[u.id]?.name || '装備'}が、${c.name}の力を少し使った…（HP-${d}）`);
+  if (!ev.upd.includes(c)) ev.upd.push(c);
+  return d;
 }
