@@ -2,7 +2,7 @@
 //
 // ・入口 … ルミナの町の 星の神殿の「試練の番人」の となりの 下り階段（町の x=28・y=7）
 // ・回廊 … 長い ろうか。北の かべに 作品ごとの とびらが ならぶ（data/rivals-r88.js の RIVAL_DOORS の じゅん。作品が ふえると 回廊も 長く なる）
-//   とびらの 上に 作品の しるし（かんばん）。とびらの 前の 光る わは、その 作品の 品を 3つ 持つと 光る（キャラの flags。shared/rivals-r88.js）
+//   とびらの よこに 作品の しるし（かんばん）。とびらの 前の 光る わは、その 作品の 品を 3つ 持つと 光る（キャラの flags。shared/rivals-r88.js）
 //   とびらを 調べると だいほん 'rival_door_<作品>'（data/story-rivals-r88.js）
 // ・とびらの 中 … 1つの 部屋の 形を 使い回して、作品ごとに ゆかと かべを かえる（ROOM_STYLES）。戦いの 前に 家族で 入る（world/rivals-r88.js）
 // ・attachRivalHall(maps) で 今の マップに 足す（ほかの マップの ファイルは かえない）
@@ -51,7 +51,10 @@ export function buildHall() {
   for (let x = 2; x < w - 2; x += 2) if (!L.doors.some((d) => Math.abs(d.x - x) <= 1)) set(x, 2, T.TORCH);
   const gates = [];
   for (const d of L.doors) {
-    set(d.x, d.y, T.STAR_DOOR);
+    // とびら: 開かない 間は 星の とびら（しまって いる）。その 作品の 品を 3つ 持つと 開いた とびら（入ると まど）
+    set(d.x, d.y, T.DOOR);
+    //   （もとの マスは とびら〈お店の かんばんと おなじ きまり〉。invert: しるしが ない 間は open の 星の とびら・ある 時は closed の とびら）
+    gates.push({ x: d.x, y: d.y, invert: true, open: T.STAR_DOOR, closed: T.DOOR, flag: doorFlag(d.work) });
     // とびらの 前の わ: その 作品の 品を 3つ 持つと 光る
     set(d.x, d.y + 1, T.WARP_RING_OFF);
     gates.push({ x: d.x, y: d.y + 1, closed: T.WARP_RING_OFF, open: T.WARP_RING, flag: doorFlag(d.work) });
@@ -66,11 +69,13 @@ export function buildHall() {
     npcs: [], chests: [],
     signs: [{ x: L.sign.x, y: L.sign.y, text: `${HALL_NAME}\n作品の品を3つ持っていると、その作品のとびらが光って開く。\nとびらの中で、ライバルのまぼろしが待っている。` }],
     warps: [{ x: L.stairs.x, y: L.stairs.y, to: { map: 'overworld', x: HALL_STAIRS.x + 0.5, y: HALL_STAIRS.y + 1.6, dir: 'down' } }],
-    triggers: [], sparkles: [],
+    // 開いた とびらに 入ると まど（とびらを 調べた 時と おなじ）
+    triggers: L.doors.map((d) => ({ id: `rival_door_${d.work}`, x: d.x, y: d.y, w: 1, h: 1, script: `rival_door_${d.work}`, show: { all: [doorFlag(d.work)] } })),
+    sparkles: [],
     // とびらを 調べる（とびらの マス。前の わの 上から）
     actions: L.doors.map((d) => ({ x: d.x, y: d.y, script: `rival_door_${d.work}` })),
-    // とびらの 上の 作品の しるし（client/render/boards.js の かんばんの 絵）
-    boards: L.doors.map((d) => ({ x: d.x, y: d.y - 1, kind: d.mark, name: `${workName(d.work)}のとびら` })),
+    // とびらの よこの 作品の しるし（client/render/boards.js の かんばんの 絵。お店の かんばんと おなじ く 入口の よこの かべ）
+    boards: L.doors.map((d) => ({ x: d.x + 1, y: d.y, kind: d.mark, name: `${workName(d.work)}のとびら` })),
     roofs: [],
     zoneAt: () => 'safe:rival_hall',
     areaName: () => HALL_NAME,

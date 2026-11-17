@@ -181,10 +181,12 @@ test('場所: 星の神殿の 試練の番人の となりに 下り階段 → �
   const L = hallLayout();
   assert.equal(L.doors.length, RIVAL_DOORS.length, 'とびらは データから ならぶ');
   for (const d of L.doors) {
-    assert.equal(hall.tiles[d.y * hall.w + d.x], T.STAR_DOOR);
+    assert.equal(effectiveTile(hall, d.x, d.y, () => false), T.STAR_DOOR, '開かない とびらは しまって いる');
+    assert.equal(effectiveTile(hall, d.x, d.y, () => true), T.DOOR, '開いた とびら');
+    assert.ok(hall.triggers.some((t) => t.x === d.x && t.y === d.y && t.script === `rival_door_${d.work}`), '開いた とびらに 入ると まど');
     assert.ok(hall.actions.some((a) => a.x === d.x && a.y === d.y && SCRIPTS[a.script]), `${d.work}: 調べる`);
-    assert.ok(hall.boards.some((b) => b.x === d.x && b.y === d.y - 1 && b.kind === d.mark), `${d.work}: とびらの 上の しるし`);
-    const gate = hall.gates.find((g) => g.flag === doorFlag(d.work));
+    assert.ok(hall.boards.some((b) => b.x === d.x + 1 && b.y === d.y && b.kind === d.mark), `${d.work}: とびらの よこの しるし`);
+    const gate = hall.gates.find((g) => g.flag === doorFlag(d.work) && g.y === d.y + 1);
     assert.ok(gate, `${d.work}: 光る わ`);
     assert.equal(effectiveTile(hall, gate.x, gate.y, () => false), T.WARP_RING_OFF, '開かない とびらは 光って いない');
     assert.equal(effectiveTile(hall, gate.x, gate.y, () => true), T.WARP_RING, '開くと 光る');
