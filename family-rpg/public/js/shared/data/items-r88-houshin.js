@@ -61,6 +61,8 @@ const GEAR = {
   r88_jin_kinko: { ...acc('mei'), ...JIN, name: '金光じんのお札', bonus: { mag: 14, agi: 4 }, use: { ability: 'r88u_jin_kinko' }, desc: '金光聖母の、空間の宝貝「金光じん」を開くお札。光をまげて敵全体の目をくらませ、混乱させる。' },
 };
 priceUp(GEAR, { r88_tsurizao: 60 });
+// G2班: のこりの 宝貝は、ライバルの まぼろし（G3）を きめるまで ガチャ・宝の 入れ物に 入れない（data/gacha-r88.js の gachaBlock。きめたら この 行を 外す）
+for (const it of Object.values(GEAR)) if (it.set !== 'super_paopei') it.gacha = false;
 
 export const ITEMS_R88_HOUSHIN = GEAR;
 

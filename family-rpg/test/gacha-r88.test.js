@@ -259,7 +259,7 @@ test('ガチャ: 台と 店の 人は ルミナの町（星の神殿の 外）�
 
 // ───────────── 5. はじめの 品の 店 ─────────────
 test('はじめの 品: 木刀は ホシフル村の よろず屋に ならぶ（品から 自動で）', () => {
-  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto'] });
+  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels'] }); // G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
   assert.ok(shopItems(SHOPS.village).includes('r88_bokuto'));
   assert.equal(ITEMS.r88_bokuto.price, 50);
   // 格が「店」の 作品の 品は ぜんぶ どこかの 店に

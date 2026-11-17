@@ -18,6 +18,7 @@ import { rebirthOf, upgradeCost, canUpgrade } from '../public/js/shared/data/for
 import { upgradeId, lbId, upgradeLimit, CAP_UP_MAX } from '../public/js/shared/data/items-forge.js';
 import { rareIds } from '../public/js/shared/data/rare-loot.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
+import { gachaBlock, gachaPool, r88MeiAll } from '../public/js/shared/data/gacha-r88.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { Bot } from './helpers.js';
@@ -61,10 +62,15 @@ test('第88回 G2: 品の 数（ほう神演義 7＋38・スレイヤーズ 28�
   for (const id of GEAR_SETS.jutenkun.items) assert.ok(ITEMS[id].type === 'acc' && ITEMS[id].use, id);
 });
 
-test('第88回 G2: 今の 入れ物（宝の洞窟・ひみつのダンジョン・ボス・魔物・店）に まざらない', () => {
-  const mine = new Set([...ids('houshin'), ...ids('slayers'), ...ids('rekka')]);
+test('第88回 G2: 今の 入れ物（宝の洞窟・ひみつのダンジョン・ボス・魔物・店）・ガチャに まざらない（はじめの 品だけ 店に）', () => {
+  const mine = new Set([...ids('houshin'), ...ids('slayers'), ...ids('rekka')].filter((id) => ITEMS[id].set !== 'super_paopei'));
   for (const src of ['tm', 'boss', 'region', 'sd']) for (const id of rareIds(src)) assert.ok(!mine.has(ITEMS[id]?.base || id), `${src}: ${id}`);
-  for (const s of Object.values(SHOPS)) for (const id of [...(s.items || []), ...(s.more || []).flatMap((m) => m.items || [])]) assert.ok(!mine.has(id), `店に ${id}`);
+  // 店には はじめの 品（格 shop。G4班の きまり）だけ
+  for (const s of Object.values(SHOPS)) for (const id of [...(s.items || []), ...(s.more || []).flatMap((m) => m.items || [])]) assert.ok(!mine.has(id) || ITEMS[id].grade === 'shop', `店に ${id}`);
+  // ガチャ・宝の 入れ物（名品）には ライバルを きめるまで 入れない
+  for (const id of mine) assert.notEqual(gachaBlock(id), null, id);
+  for (const w of ['houshin', 'slayers', 'rekka']) assert.equal(gachaPool(w).all.length, 0, w);
+  for (const id of r88MeiAll()) assert.ok(!mine.has(id), id);
   // 賢者の石（今 ある 品）は かえない
   assert.equal(ITEMS.philosopher_stone.src, 'sd');
   assert.equal(ITEMS.philosopher_stone.work, undefined);

@@ -43,6 +43,8 @@ const GEAR = {
   r88_ragud: { ...weapon('spear', 'den'), ...IM, name: 'ラグドメゼギス', fx: [{ k: 'chase', v: 7 }], bonus: { str: 14, agi: 10 }, look: 'lance', desc: '異界の魔王の武器の1つ、やり「しゅんげきそう」。ときどきもう1回攻撃する。' },
 };
 priceUp(GEAR, { r88_shortsword: 80, r88_jewels: 120 });
+// G2班: ライバルの まぼろし（G3）を きめるまで ガチャ・宝の 入れ物に 入れない（data/gacha-r88.js の gachaBlock。きめたら この 行を 外す）
+for (const it of Object.values(GEAR)) it.gacha = false;
 
 export const ITEMS_R88_SLAYERS = GEAR;
 
