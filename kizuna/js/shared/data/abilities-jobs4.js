@@ -585,10 +585,12 @@ export const JOB4_ABILITIES = {
   },
 
   // ───────────── 魔王（伝説の職業） ─────────────
+  // 第88回 M1班: 技の 名前・ひとこと・えんしゅつを ダイの大冒険の 大魔王・魔王に そろえた（強さの 数字は そのまま。
+  //   Lv1 カイザーフェニックスだけ 闇 → 炎。id は 引っこしコードに 入って いるので かえない。docs/plan-r88-anime-gear.md の 11）
   mo_kokuen: {
-    name: '暗黒の炎', kana: 'あんこくのほのお', kind: 'spell', job: 'maou', mp: 16, target: 'enemies',
-    effect: { type: 'magic', element: 'dark', base: [150, 180], thr: 80 },
-    desc: 'やみの底からわき上がる暗黒の炎で、敵全体を焼く。闇のダメージ。', cast: '{a}は暗黒の炎をよび出した！', anim: 'maou_dark',
+    name: 'カイザーフェニックス', kana: 'かいざーふぇにっくす', kind: 'spell', job: 'maou', mp: 16, target: 'enemies',
+    effect: { type: 'magic', element: 'fire', base: [150, 180], thr: 80 },
+    desc: '大魔王の炎の呪文。大きな火の鳥がつばさを広げて、敵全体を焼く。炎のダメージ。', cast: '{a}の手から、大きな火の鳥がとび立った！', anim: 'maou_dark',
   },
   mo_hadou: {
     name: 'いてつく波動', kana: 'いてつくはどう', kind: 'skill', job: 'maou', mp: 12, target: 'enemies', role: 'sup',
@@ -596,14 +598,14 @@ export const JOB4_ABILITIES = {
     desc: '冷たい波動で、敵全体の強くなっていた力をすべて消す。', cast: '{a}は、いてつく波動を放った！', anim: 'aircon',
   },
   mo_tsume: {
-    name: '魔王のつめ', kana: 'まおうのつめ', kind: 'skill', job: 'maou', mp: 14, target: 'enemy',
+    name: 'ヘルズクロー', kana: 'へるずくろー', kind: 'skill', job: 'maou', mp: 14, target: 'enemy',
     effect: { type: 'phys', mult: 3.0, element: 'dark' },
-    desc: 'するどい魔王のつめで、敵1体を引きさく。闇のダメージ。', cast: '{a}の魔王のつめ！', anim: 'dark_slash',
+    desc: 'こぶしから、するどいつめをのばして、敵1体をつきさす。闇のダメージ。', cast: '{a}のこぶしから、つめがのびた！ヘルズクロー！', anim: 'dark_slash',
   },
   mo_iatsu: {
-    name: '魔王の威圧', kana: 'まおうのいあつ', kind: 'skill', job: 'maou', mp: 16, target: 'enemies', role: 'sup',
+    name: '闘魔くぐつしょう', kana: 'とうまくぐつしょう', kind: 'skill', job: 'maou', mp: 16, target: 'enemies', role: 'sup',
     effect: { type: 'multi', parts: [{ type: 'atbSet', sub: 50, chance: 0.6, msg: '{t}は、こわくて動けない！', failMsg: '{t}は、ふるえながらもこらえた！' }, { type: 'debuff', stat: 'atk', mult: 0.85, dur: 30, chance: 0.7 }] },
-    desc: '魔王の威圧で、敵全体の動きを止め（ボスには効きにくい）、攻撃力も下げる。', cast: '{a}「…ひれふせ」', anim: 'maou_dark',
+    desc: '手から闇の糸をのばして、敵全体をあやつり人形のようにしばる。動きを止め（ボスには効きにくい）、攻撃力も下げる。', cast: '{a}の指先から、闇の糸がのびた！', anim: 'maou_dark',
   },
   mo_koromo: {
     name: '闇の衣', kana: 'やみのころも', kind: 'skill', job: 'maou', mp: 14, target: 'self', role: 'sup',
@@ -611,9 +613,9 @@ export const JOB4_ABILITIES = {
     desc: '闇の衣をまとう。自分の守備力と魔力が大きく上がる。', cast: '{a}は、黒い闇の衣をまとった！', anim: 'dark1',
   },
   mo_hametsu: {
-    name: '破滅の光', kana: 'はめつのひかり', kind: 'spell', job: 'maou', mp: 32, target: 'enemies',
+    name: 'カラミティウォール', kana: 'からみてぃうぉーる', kind: 'spell', job: 'maou', mp: 32, target: 'enemies',
     effect: { type: 'magic', element: 'dark', base: [220, 260], thr: 90 },
-    desc: 'すべてをほろぼす破滅の光で、敵全体にとても大きなダメージ。闇のダメージ。', cast: '{a}「世界ごと、消えるがいい…！」', anim: 'maou_dark',
+    desc: '大きな光のかべを前へはなつ。かべはすすみながら、敵全体をおしながす。とても大きな闇のダメージ。', cast: '{a}が手をふると、光のかべが立ち上がった！', anim: 'maou_dark',
   },
 
   // ───────────── 運しだいの 技の 中み（おぼえない） ─────────────

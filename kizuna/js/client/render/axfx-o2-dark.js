@@ -1,7 +1,9 @@
 // 第49回 O2: 闇と ふしぎの 技（中二病・超能力者・ダ天使・魔王）の え。この ファイルは O2 だけが さわる
 // 時間は shared/data/ax-time-o2.js。play の 時間は はなつ しゅんかんが 0。魔王・ダ天使も まるい 形・コミカル寄り（こわすぎない）
-import { rnd } from './axkit.js?v=d2a5c31dfc54';
-import { obj, txt, bg, claw, whirl, rays, hands, ground, above, per, upMark, downMark, fist } from './axfx-o2-kit.js?v=d2a5c31dfc54';
+import { rnd, pal } from './axkit.js?v=3284401194a3';
+import { add, obj, txt, bg, claw, whirl, rays, hands, ground, above, per, upMark, downMark, fist, angTo } from './axfx-o2-kit.js?v=3284401194a3';
+
+const FIRE_P = pal('fire');
 
 const DARK = { main: '#8a4ae0', glow: '#c8a8f0', core: '#f0e0ff', dark: '#1a0a2a', list: ['#8a5ac8', '#3a2a5a', '#c8a8f0'] };
 const PURPLE = ['#c88aff', '#ffffff', '#8a4ae0'];
@@ -420,53 +422,62 @@ export const AX_O2_DARK = {
       k.shake(340, 2.2, 40);
     },
   },
-  // 魔王のつめ: 大きな 黒い つめ 5本が 上から ザシュッ → むらさきの 5本 線＋闇の 爆ぜ → 黒い ちり
+  // ヘルズクロー（第88回 M1班。Lv5）: こぶしの 先から 黒むらさきの つめ 5本が するどく のびて 敵へ つきさす → むらさきの 爆ぜ → 黒い ちり
   ox_maou_tsume: {
     sfx: 'ax_o2_tsume',
     allyFx: 'claw',
     minParts: 150,
     play(fx, c) {
       const { k } = c;
+      const h = hands(c);
+      c.fx.glow(h.x, h.y, { color: '#8a4ae0', r: 18, delay: 0, life: c.hit, alpha: 0.7 });
       c.each((t, i, d) => {
-        const top = c.fromAlly ? -20 : t.y - 70;
-        obj(c, 'mclaw', { x0: t.x, y0: top, x1: t.x, y1: t.y - 24 * c.sz, travel: c.hit, ease: 'in', s: 26 * c.sz, glow: '#8a4ae0', glowA: 0.3, delay: d, life: c.hit + 260, fout: 220 });
-        claw(c, t.x, t.y - 10, { ang: 1.35, len: 90 * c.sz, n: 5, gap: 10 * c.sz, w: 4.4, color: '#3a1a5a', glow: '#b48aff', core: '#f0e0ff', delay: d + c.hit - 100, swing: 140, life: 900 });
-        for (let j = 0; j < 5; j++) k.dash(t.x + (j - 2) * 10 - 20, top, t.x + (j - 2) * 10 + 10, t.y + 20, { color: '#8a4ae0', travel: 140, w: 3, delay: d + c.hit - 120 + j * 10, n: 2 });
+        const an = angTo(h, t);
+        // こぶしの 先から のびる 5本の つめ（少しずつ ひろがって 敵に ささる）
+        for (let j = 0; j < 5; j++) {
+          const off = (j - 2) * 4 * c.sz;
+          const ex = t.x + Math.cos(an + Math.PI / 2) * off, ey = t.y + Math.sin(an + Math.PI / 2) * off;
+          k.dash(h.x, h.y, ex, ey, { color: j === 2 ? '#f0e0ff' : '#8a4ae0', travel: c.hit - 40, w: j === 2 ? 3.4 : 2.6, delay: d + j * 12, n: 2 });
+        }
+        obj(c, 'mclaw', { x0: h.x, y0: h.y, x1: t.x, y1: t.y - 6 * c.sz, travel: c.hit, ease: 'in', s: 20 * c.sz, glow: '#8a4ae0', glowA: 0.3, delay: d, life: c.hit + 260, fout: 220 });
+        claw(c, t.x, t.y - 4, { ang: an, len: 70 * c.sz, n: 5, gap: 7 * c.sz, w: 4, color: '#3a1a5a', glow: '#b48aff', core: '#f0e0ff', delay: d + c.hit - 60, swing: 90, life: 700 });
         k.explosion(t.x, t.y, { r: 22 * c.sz, pal: DARK, delay: d + c.hit, heavy: true, smoke: '#2a1a3a' });
         k.shockwave(t.x, t.y, { r0: 6, r1: 80 * c.sz, color: '#b48aff', w: 3.4, delay: d + c.hit, n: 2 });
         k.speedLines(t.x, t.y, { delay: d + c.hit, life: 300, r0: 18, r1: 110, n: 24, color: '#d8b8ff' });
         for (let j = 0; j < 14; j++) c.fx.drop(t.x + rnd(-30, 30), t.y + rnd(-30, 0), { color: j % 2 ? '#3a2a5a' : '#8a5ac8', vx: rnd(-20, 20), vy: rnd(-40, 0), g: 60, size: 1.6, delay: d + c.hit + 200 + j * 40, life: 900 });
       });
       k.tint('#3a1a5a', { a: 0.12, delay: c.hit, life: 300 });
-      txt(c, 'ザシュゥッ', c.t.x + 20, c.t.y - 34, { delay: c.hit + 20, size: 15, fill: '#e0c8ff' });
+      txt(c, 'ズシャッ', c.t.x + 20, c.t.y - 34, { delay: c.hit + 20, size: 15, fill: '#e0c8ff' });
       k.flash('#e8d8ff', 90, c.hit);
       k.shake(380, 2.4, c.hit);
     },
   },
-  // 魔王の威圧: 画面の 上に 大きな 赤い 目（まるい）と 王冠 → 敵全体が ふるえて 動けない（青い わく・下向き矢印）→ 赤い 光が 消える
+  // 闘魔くぐつしょう（第88回 M1班。Lv7）: 指先から 闇の 糸が 何本も のびて 敵全体に からみつく →
+  //   糸を くいっと 引くと 敵が あやつり人形のように ぴたっと 止まる（青い わく・下向き矢印）→ 糸が ほどけて 消える
   ox_maou_iatsu: {
-    charge: { color: '#8a4ae0', color2: '#ff3a3a' },
+    charge: { color: '#8a4ae0', color2: '#d8b8ff' },
     sfx: 'ax_o2_iatsu',
     allyFx: 'down',
     minParts: 170,
     play(fx, c) {
       const { k } = c;
-      const ey = c.fromAlly ? 32 : Math.max(24, c.from.y - 20);
-      const ex = c.fromAlly ? c.W / 2 : c.from.x;
-      obj(c, 'eye', { x: ex, y: ey, s: 22, openAt: 60, glow: '#ff3a3a', glowA: 0.55, shake: 1.2, life: c.len - 140, fout: 360 });
-      obj(c, 'crown', { x: ex, y: ey - 26, s: 12, pop: 200, glow: '#ffd23a', glowA: 0.4, delay: 100, life: c.len - 240, fout: 360 });
-      rays(c, ex, ey, { r: 90, n: 16, color: '#ff5a5a', life: c.len - 300, a: 0.22 });
+      const h = hands(c, 20);
+      c.fx.glow(h.x, h.y, { color: '#b48aff', r: 22, delay: 0, life: c.len - 300, alpha: 0.6 });
+      for (let j = 0; j < 5; j++) c.fx.twinkle(h.x + (j - 2) * 5, h.y - 4, { color: '#e0c8ff', size: 4, delay: j * 30, life: 300 });
       c.each((t, i, d) => {
         const at = d + c.hit;
+        // 指先 → 敵へ 糸 3本（ゆれながら のびる）
+        for (let j = 0; j < 3; j++) c.fx.lash(h.x + (j - 1) * 5, h.y, t.x + (j - 1) * 8 * c.sz, t.y - 14 * c.sz + j * 4, { color: '#c8a8f0', glow: '#5a2a9a', w: 1.4, delay: d + j * 40, life: c.len - 400, snap: 0.5, bow: (j - 1) * 14, amp: 5 });
+        // 敵の まわりに からみつく 糸の わ
+        k.shockwave(t.x, t.y, { r0: 34 * c.sz, r1: 8, color: '#b48aff', w: 2.2, delay: d + c.hit - 160, n: 2, gap: 100, life: 300 });
         obj(c, 'frame', { x: t.x, y: t.y, s: 18 * c.sz, pop: 160, color: '#5ab8ff', shake: 1.6, delay: at, life: c.len - c.hit - 200, fout: 260 });
-        k.shockwave(t.x, t.y, { r0: 34 * c.sz, r1: 6, color: '#ff5a5a', w: 2.4, delay: d + 200, n: 2, gap: 120, life: 300 });
         obj(c, 'sweat', { x0: t.x + 16, y0: t.y - 18, x1: t.x + 18, y1: t.y - 6, travel: 400, s: 4, pop: 120, delay: at + 100, life: 500, fout: 160 });
-        downMark(c, t, '#ff3a2a', at + 160, 3);
-        k.particles(t.x, t.y, { n: per(c, 10, 3), colors: ['#ff5a5a', '#ffffff'], speed: 100, delay: at, life: 360 });
+        downMark(c, t, '#8a4ae0', at + 160, 3);
+        k.particles(t.x, t.y, { n: per(c, 10, 3), colors: ['#c8a8f0', '#ffffff'], speed: 100, delay: at, life: 360 });
       });
-      bg(c, 'dark', { life: 600, a: 0.22 });
-      txt(c, 'ゴゴゴゴ', c.center.x, c.center.y - 36, { delay: 160, fill: '#ffb0b0', life: 700 });
-      k.shake(420, 2, 120);
+      bg(c, 'dark', { life: 600, a: 0.18 });
+      txt(c, 'クイッ', c.center.x, c.center.y - 36, { delay: c.hit, fill: '#e0c8ff', life: 600 });
+      k.shake(300, 1.6, c.hit);
     },
   },
   // 闇の衣: 黒い マントの もやが 体に まといつき、ふちが むらさきの 炎で もえる → 守りの 六角と 魔力の 星 → もやが のこる
@@ -489,64 +500,105 @@ export const AX_O2_DARK = {
       k.shake(320, 2, c.hit);
     },
   },
-  // 破滅の光: 空が 一しゅん むらさきに → 天から 太い むらさき黒の 光の 柱が 敵全体に 3本 → 地面が 割れて 光が もれる＋大きな 衝撃波 → 黒い 雪
+  // カラミティウォール（第88回 M1班。Lv10）: 手を ふると 足もとから 半円の 光の かべが 立ち上がり、
+  //   画面の むこうへ すすみながら 大きく なる → 敵全体を おしながす（光の 柱・ふきとぶ ちり）→ 光の ちりが まう
   ox_hametsu_hikari: {
-    charge: { color: '#8a4ae0', color2: '#ffd23a' },
+    charge: { color: '#c88aff', color2: '#fff2c0' },
     sfx: 'ax_o2_hametsu',
     allyFx: 'dark',
     minParts: 250,
     play(fx, c) {
       const { k } = c;
-      k.tint('#5a1a8a', { a: 0.15, life: 300, fin: 60, fout: 160 });
-      const sky = { x: c.center.x, y: c.fromAlly ? 16 : Math.max(14, c.center.y - 70) };
-      obj(c, 'disk', { x: sky.x, y: sky.y, s: 60, sy: 0.32, pop: 200, life: c.hit + 300, fout: 300 });
-      k.glyph(sky.x, sky.y, { r: 60, color: '#b06ae0', color2: '#ffd23a', variant: 'magic', life: c.hit + 300, sy: 0.32 });
-      obj(c, 'crown', { x: sky.x, y: sky.y - 4, s: 9, pop: 200, glow: '#ffd23a', glowA: 0.5, delay: 120, life: c.hit + 100, fout: 200 });
-      k.gather(sky.x, sky.y, { colors: ['#c88aff', '#ffffff', '#ff5a7a'], n: 16, r: 70, life: 320, waves: 2, gap: 200 });
-      const cols = c.all ? c.targets : [c.t, { x: c.t.x - 30, y: c.t.y + 4 }, { x: c.t.x + 30, y: c.t.y + 4 }];
-      cols.slice(0, Math.max(3, c.n)).forEach((p, j) => {
-        const t = c.targets[j % c.n];
-        const at = c.hit - 140 + j * Math.min(120, c.stagger + 40);
-        k.pillar(p.x, p.y + 8, { w: (c.all ? 16 : j ? 12 : 22) * c.sz, color: '#9a4ae8', glow: '#7a2ac8', core: '#f0d8ff', delay: at, life: 620, alpha: 0.95, from: sky.y });
-        void t;
-      });
-      c.fx.crack(c.center.x, Math.min(c.H - 10, c.center.y + 22), { n: 8, len: 100, color: '#1a0a2a', hi: '#c88aff', delay: c.hit + 60, life: c.len - c.hit - 160, sy: 0.3 });
+      const h = hands(c, 10);
+      k.tint('#3a1a6a', { a: 0.14, life: c.hit + 200, fin: 60, fout: 200 });
+      k.gather(h.x, h.y, { colors: ['#e0c8ff', '#ffffff', '#fff2c0'], n: 16, r: 50, life: 260, waves: 1 });
+      // すすむ 半円の かべ（中心は 手。ひろがる わを なんども 重ねて あつい かべに 見せる）
+      for (let j = 0; j < 6; j++) {
+        k.shockwave(h.x, h.y, { r0: 12 + j * 4, r1: 260, color: j % 2 ? '#fff2c0' : '#c88aff', w: 9 - j, sy: 0.55, delay: 60 + j * 26, life: c.hit + 120 });
+      }
+      // かべの 前の ふちに 立つ 光の 柱（すすむ じゅんに）
+      for (let j = 0; j < 7; j++) {
+        const u = (j + 1) / 8;
+        const px = c.fromAlly ? 20 + (c.W - 40) * (j / 6) : c.center.x + (j - 3) * 34;
+        const py = c.fromAlly ? h.y - (h.y - c.center.y) * u - 6 : c.center.y;
+        k.pillar(px, py, { w: 7, color: '#d8b8ff', glow: '#a86aff', core: '#ffffff', delay: 80 + (c.hit - 140) * u, life: 300, alpha: 0.7, from: py - 46, burst: false });
+      }
       c.each((t, i, d) => {
         const at = d + c.hit;
         k.explosion(t.x, t.y, { r: 22 * c.sz, pal: DARK, delay: at, heavy: i === 0, smoke: '#2a1a3a' });
-        k.shockwave(t.x, t.y, { r0: 6, r1: 90 * c.sz, color: '#c88aff', w: 3.4, delay: at, n: 2 });
-        k.beam(t.x, ground(c, t, 18), t.x, t.y - 30, { w: 6, color: '#c88aff', glow: '#e8d8ff', delay: at + 120, grow: 80, life: 400, streaks: false, burst: false });
+        k.shockwave(t.x, t.y, { r0: 6, r1: 90 * c.sz, color: '#fff2c0', w: 3.4, delay: at, n: 2 });
+        k.speedLines(t.x, t.y, { delay: at, life: 320, r0: 16, r1: 90, n: 18, color: '#e0c8ff' });
+        k.debris(t.x, ground(c, t, 14), { n: per(c, 10, 3), colors: ['#5a3a7a', '#e0c8ff', '#fff2c0'], up: 140, delay: at + 40 });
       });
-      for (let j = 0; j < 24; j++) c.fx.drop(rnd(8, c.W - 8), rnd(-4, 30), { color: j % 2 ? '#2a1a3a' : '#5a3a7a', vx: rnd(-8, 8), vy: rnd(10, 30), g: 20, size: 1.8, delay: c.hit + 300 + j * 30, life: 900 });
-      bg(c, 'dark', { delay: c.hit - 100, life: 600, a: 0.24 });
-      txt(c, 'ドドドォン', c.center.x, c.center.y - 40, { delay: c.hit + 40, size: 15, fill: '#e0c8ff' });
-      k.flash('#f0e0ff', 140, c.hit);
-      k.shake(440, 2.8, c.hit);
+      for (let j = 0; j < 20; j++) c.fx.twinkle(rnd(8, c.W - 8), rnd(10, c.H * 0.6), { color: j % 2 ? '#fff2c0' : '#d8b8ff', size: 4, vy: -12, delay: c.hit + 200 + j * 30, life: 700 });
+      bg(c, 'dark', { delay: c.hit - 100, life: 600, a: 0.2 });
+      txt(c, 'ゴオォォッ', c.center.x, c.center.y - 40, { delay: c.hit + 40, size: 15, fill: '#fff2c0' });
+      k.flash('#fff6e0', 140, c.hit);
+      k.shake(460, 2.8, c.hit);
     },
   },
-  // 闇の世界: 背景が むらさきの 夜空に → 黒い 星と 闇の うずが 敵全体を つつむ → 守備↓の 矢印 → 背景が もどる
+  // 超魔爆炎は（第88回 M1班。ひらめき）: うでの 剣が 闇の 炎（むらさき）に つつまれる → 大きく ふりぬく 三日月 →
+  //   敵全体で 闇の 炎の 大爆発（むらさきの 火柱）→ 守備↓の 矢印
   ox_yami_no_sekai: {
-    charge: { color: '#8a4ae0', color2: '#1a0a2a' },
+    charge: { color: '#8a4ae0', color2: '#ff7ad8' },
     sfx: 'ax_o2_yamisekai',
     allyFx: 'dark',
     minParts: 220,
     play(fx, c) {
       const { k } = c;
-      bg(c, 'night', { life: c.len - 220, a: 0.3 });
-      for (let j = 0; j < 14; j++) obj(c, 'swirl', { x: rnd(10, c.W - 10), y: rnd(8, 60), s: rnd(3, 6), color: '#8a4ae0', alpha: 0.6, delay: j * 40, life: c.len - 400, fout: 300 });
+      const h = hands(c, 18);
+      const DFIRE = ['#2a0a4a', '#8a3ae0', '#ff8ae8'];
+      // うでの 剣（上へ のびる 光）と 闇の 炎
+      k.beam(h.x, h.y, h.x + 6, h.y - 40, { w: 4, color: '#c88aff', glow: '#8a3ae0', core: '#ffffff', delay: 0, grow: 80, life: c.hit, streaks: false, burst: false });
+      k.flames(h.x + 3, h.y - 6, { w: 22, h: 46, cols: DFIRE, n: 6, delay: 40, life: c.hit + 60 });
+      // ふりぬく 大きな 三日月（敵の まん中へ）
+      k.crescent(c.center.x, c.center.y + 6, { r: c.all ? 90 : 40, a0: -2.8, a1: 0.2, w: 10, color: '#c88aff', glow: '#8a3ae0', core: '#ffe0ff', delay: c.hit - 160, swing: 160, life: 420, sy: 0.6 });
       c.each((t, i, d) => {
         const at = d + c.hit;
-        whirl(c, t.x, t.y, { r: 34 * c.sz, sy: 0.7, color: '#8a4ae0', color2: '#e8d8ff', deep: '#1a0a2a', spin: 120, delay: d + c.hit - 200, life: 900, shrink: true });
-        k.shapes(t.x, t.y, { shape: 'star', n: per(c, 12, 4), colors: ['#2a1a3a', '#8a4ae0', '#1a0a2a'], speed: 90, size: 3.2, delay: at, life: 700, add: false });
-        k.explosion(t.x, t.y, { r: 18 * c.sz, pal: DARK, delay: at, heavy: i === 0, smoke: '#1a0a2a' });
-        k.shockwave(t.x, t.y, { r0: 50 * c.sz, r1: 6, color: '#c88aff', w: 2.6, delay: at - 160, life: 300 });
+        k.explosion(t.x, t.y, { r: 26 * c.sz, pal: DARK, delay: at, heavy: i === 0, smoke: '#1a0a2a' });
+        k.flames(t.x, ground(c, t, 16), { w: 40 * c.sz, h: 44 * c.sz, cols: DFIRE, n: 7, delay: at + 40, life: 760 });
+        k.shockwave(t.x, t.y, { r0: 6, r1: 80 * c.sz, color: '#ff8ae8', w: 3, delay: at, n: 2 });
         downMark(c, t, '#3a8aff', at + 300, 3);
       });
-      txt(c, 'ズオォォ', c.center.x, c.center.y - 40, { delay: 120, size: 14, fill: '#d8b8ff', life: 700 });
-      k.flash('#e8d8ff', 100, c.hit);
-      k.shake(400, 2.4, c.hit);
+      bg(c, 'dark', { delay: c.hit - 120, life: 600, a: 0.2 });
+      txt(c, 'ドゴォォン', c.center.x, c.center.y - 40, { delay: c.hit + 20, size: 15, fill: '#ffc8f0' });
+      k.flash('#ffe0ff', 120, c.hit);
+      k.shake(460, 2.8, c.hit);
+    },
+  },
+  // カイザーフェニックス（第88回 M1班。Lv1）: 手の 上の 小さな 火が 大きく ふくらむ → つばさを ひろげた 大きな
+  //   火の 鳥が 敵全体へ とびこむ（今のはメラだ の 火の 鳥より 大きい）→ 敵ごとに 火柱と 大爆発 → 火の 羽が まう
+  ox_kaiser_phoenix: {
+    charge: { color: '#ff6a1a', color2: '#ffe0a0' },
+    sfx: 'ax_g4_phoenix',
+    allyFx: 'fire',
+    minParts: 220,
+    play(fx, c) {
+      const { k } = c;
+      const h = hands(c, 22);
+      k.tint('#3a0800', { a: 0.3, life: c.len - 200, fin: 80, fout: 300 });
+      k.orb(h.x, h.y, { r: 5, color: '#ff5a10', glow: '#ffa040', rim: '#fff2a0', grow: 120, hold: 60, life: 220 });
+      c.fx.glow(h.x, h.y, { color: '#ffa040', r: 40, delay: 120, life: 240, alpha: 1 });
+      k.flames(h.x, h.y + 6, { w: 24, h: 26, n: 5, delay: 120, life: 320 });
+      // 大きな 火の 鳥（金の 不死鳥の 形を 赤い 炎の 色で）。小さな 鳥 2羽が 左右に つきそう
+      const to = c.center;
+      add(c, 'g4Loto', { x0: h.x, y0: h.y - 12, x1: to.x, y1: to.y, travel: c.hit - 180, start: 0, ease: 'in', s: 34 * (c.all ? 1.1 : 1), pop: 220, flap: 0.35, color: '#ff5a10', core: '#ffe08a', glow: '#ff8a1a', edge: '#5a1000', gem: '#fff2a0', delay: 180, life: c.hit - 180 + 220 });
+      for (const side of [-1, 1]) add(c, 'g4Loto', { x0: h.x + side * 20, y0: h.y - 4, x1: to.x + side * 44, y1: to.y + 6, travel: c.hit - 220, start: 0, ease: 'in', s: 16, pop: 160, flap: 0.4, color: '#ff8a2a', core: '#ffe8a0', glow: '#ffb040', edge: '#5a1000', gem: '#fff2a0', delay: 220, life: c.hit - 220 + 160 });
+      for (let j = 0; j < 8; j++) { const u = j / 8; c.fx.sparks(h.x + (to.x - h.x) * u, h.y + (to.y - h.y) * u, { colors: ['#ff6a1a', '#ffc060', '#fff2a0'], n: 6, speed: 60, g: -40, delay: 180 + (c.hit - 180) * u, life: 360 }); }
+      c.each((t, i, d) => {
+        k.explosion(t.x, t.y, { r: 30 * c.sz, pal: FIRE_P, delay: d + c.hit, heavy: i === 0 });
+        k.flames(t.x, ground(c, t, 18), { w: 46 * c.sz, h: 44 * c.sz, n: 7, delay: d + c.hit + 60, life: 820 });
+        k.shockwave(t.x, t.y, { r0: 6, r1: 70 * c.sz, color: '#ffc060', w: 3, delay: d + c.hit });
+      });
+      k.shockwave(to.x, to.y, { r0: 10, r1: 170, color: '#ffc060', w: 4, n: 3, gap: 110, delay: c.hit });
+      k.shapes(to.x, to.y, { shape: 'petal', n: 18, colors: ['#ff6a1a', '#ffc060', '#fff2a0'], speed: 90, g: -30, size: 2.4, delay: c.hit + 300, life: 800 });
+      txt(c, 'ゴオォッ', to.x, to.y - 40, { delay: c.hit + 20, size: 15, fill: '#ffe0a0' });
+      k.flash('#fff2a0', 200, c.hit);
+      k.shake(560, 3.2, c.hit);
     },
   },
 };
 void claw;
 void fist;
+void rays;
+void whirl;

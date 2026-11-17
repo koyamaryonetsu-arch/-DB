@@ -7,12 +7,12 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=d2a5c31dfc54';
-import { ABILITIES } from './data/abilities.js?v=d2a5c31dfc54';
-import { strengthenEnemy } from './data/difficulty.js?v=d2a5c31dfc54';
-import { MONSTERS } from './data/monsters.js?v=d2a5c31dfc54';
-import { mirrorSkillOk } from './battle-temple.js?v=d2a5c31dfc54';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=d2a5c31dfc54';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=3284401194a3';
+import { ABILITIES } from './data/abilities.js?v=3284401194a3';
+import { strengthenEnemy } from './data/difficulty.js?v=3284401194a3';
+import { MONSTERS } from './data/monsters.js?v=3284401194a3';
+import { mirrorSkillOk } from './battle-temple.js?v=3284401194a3';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=3284401194a3';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };
@@ -108,6 +108,9 @@ Object.assign(PHANTOM_ADJ, {
   psychicer: [1.73, 1.75, 2.06], sennen_mage: [1.35, 1.22, 0.95], bakuryuha: [0.76, 0.57, 0.62], detective_king: [0.81, 0.59, 0.55],
   cosmic_okan: [1.06, 1.18, 1.27],
 });
+// 第88回 M1班: 魔王の Lv1 カイザーフェニックスが 闇 → 炎に なった（まぼろしも 使う）。前から 外だった 一・二と、下がった 三を 合わせ直した
+//   （tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均。ゆれの 大きい 二は sim-trial 20回で 合わせた。docs/plan-r88-anime-gear.md の 11 の 実装メモ）
+Object.assign(PHANTOM_ADJ, { maou: [0.85, 0.78, 1.04] });
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 第82回 A: おすわり！・ようかい化を おさめる・大よう化・ばくりゅうはの かまえは 仲間の しくみ（まぼろしは 使わない。battle-r82a.js）
@@ -126,6 +129,8 @@ for (const t of ['r85aChant']) NO_USE.add(t);
 for (const t of ['r86bReiHiryu', 'r86bChantAll']) NO_USE.add(t);
 // 第86回 A班: きずなの守り・きずなの力・人とようかいのきずな（2だん）は 仲間の しくみ（まぼろしは 使わない。battle-r86a.js）
 for (const t of ['r86aKabau', 'r86aKizuna', 'r86aSig']) NO_USE.add(t);
+// 第88回 M1班: 天地魔闘の構えは 仲間の しくみ（まぼろしは 使わない。battle-r88m.js）
+NO_USE.add('r88mTenchi');
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;

@@ -24,10 +24,10 @@
 //   今の 職業が その タグを 持つ 人が うけもてる（今の 職業で 判定は そのまま）。
 //   作品の ネタの 技（おかん・カッパ・魔王と はかい神 など）は、前と おなじ「特別な 組」（職業しばり）の まま。
 //   合体技の id・名前・えんしゅつは そのまま（古い セーブ・お気に入り・dualSeen は こわれない）。作品を またぐ 新しい 技を 13こ 足した
-import { ABILITIES } from './abilities.js?v=d2a5c31dfc54';
-import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=d2a5c31dfc54';
-import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=d2a5c31dfc54';
-import { isMasc, jobLabel } from '../job-label.js?v=d2a5c31dfc54';
+import { ABILITIES } from './abilities.js?v=3284401194a3';
+import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=3284401194a3';
+import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=3284401194a3';
+import { isMasc, jobLabel } from '../job-label.js?v=3284401194a3';
 
 // その 職業の 技（ひらめき技も）
 const byJob = (...jobs) => Object.keys(ABILITIES).filter((id) => {
@@ -205,9 +205,9 @@ export const DUAL_TECHS = {
     desc: '設備のプロが、建物をまるごと新しくする。敵全体に冷たい風、仲間全員は気持ちよく回復する。', anim: 'aircon',
   },
   dt_hametsu: {
-    name: '破滅のはかい玉', kana: 'はめつのはかいだま', need: [MAOU, HAKAI], mp: [16, 16], target: 'enemies', spell: true, element: 'dark',
+    name: 'カラミティはかい玉', kana: 'からみてぃはかいだま', need: [MAOU, HAKAI], mp: [16, 16], target: 'enemies', spell: true, element: 'dark',
     parts: [{ type: 'power', kind: 'magic', element: 'dark', k: 0.85 }],
-    desc: '魔王の闇と、はかい神の力を1つの玉にまとめる。敵全体に闇の大ダメージ。', anim: 'hakai_ball',
+    desc: '魔王の光のかべと、はかい神の力を1つの玉にまとめる。敵全体に闇の大ダメージ。', anim: 'hakai_ball',
   },
   dt_hikari_yami: {
     name: '光と闇', kana: 'ひかりとやみ', need: [T.light, T.dark], mp: [12, 12], target: 'enemy', spell: true, element: 'void',

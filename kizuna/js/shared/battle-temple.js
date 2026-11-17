@@ -14,14 +14,14 @@
 //   覚えている 技は うつした 人と おなじ。強さは MIRROR_RATE ばい）。技は 仲間の オートの AI（ai.js の decideAlly）で えらぶ
 // ・シミュレーター（tools/sim.js）: b.knowsTemple … しかけを 知っている 人（大波の 前に 身を 守る・おなじ 呪文を つづけない・
 //   水の衣に 雷の 技・水のろうを こわす）。b.templeNaive … 知らない 人（光っていても 呪文・大波でも 身を 守らない）
-import { MONSTERS } from './data/monsters.js?v=d2a5c31dfc54';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=d2a5c31dfc54';
+import { MONSTERS } from './data/monsters.js?v=3284401194a3';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=3284401194a3';
 // わらべ歌の フラグ（物語の データ。読むだけ）
-import { SONG_FLAGS } from './maps/ch4.js?v=d2a5c31dfc54';
-import { decideAlly } from './ai.js?v=d2a5c31dfc54';
+import { SONG_FLAGS } from './maps/ch4.js?v=3284401194a3';
+import { decideAlly } from './ai.js?v=3284401194a3';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=d2a5c31dfc54';
-import { mirageSync } from './battle-ch4.js?v=d2a5c31dfc54';
+import { atbRate, pub } from './battle.js?v=3284401194a3';
+import { mirageSync } from './battle-ch4.js?v=3284401194a3';
 
 export const UTSUSHIMI = 'utsushimi';
 export const PRISON = 'water_prison';
@@ -35,6 +35,8 @@ export const REFLECT_CAP = 0.3;
 export const SONG = { waves: 1, cut: 0.5 };
 // うつし身が 使わない 技の こうか（戦いを こわす もの・にげる・追い出す・けしさる・生き返らせる・お金・ぬすむ・どれか ひとつ など）
 const MIRROR_SKIP = new Set(['escape', 'banish', 'destroy', 'revive', 'reviveAll', 'goldThrow', 'steal', 'scan', 'allMp', 'random', 'callHelp', 'stance', 'hurt', 'overtime', 'mahouken', 'flee']);
+// 第88回 M1班: 天地魔闘の構えは 仲間だけの しくみ（鏡の うつし身は 使わない。battle-r88m.js）
+MIRROR_SKIP.add('r88mTenchi');
 
 const isSpell = (a) => !!a && (a.kind === 'spell' || !!a.spellLike);
 const foeKinds = new Set(['enemy', 'group', 'enemies']);

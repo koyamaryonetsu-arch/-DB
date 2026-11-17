@@ -1,17 +1,19 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=d2a5c31dfc54';
-import { paintRare } from './rarity.js?v=d2a5c31dfc54';
-import { ListMenu } from './dom.js?v=d2a5c31dfc54';
-import { openServiceUI } from './services.js?v=d2a5c31dfc54';
-import { monsterCanvas } from '../render/monsters.js?v=d2a5c31dfc54';
-import { npcSprite } from '../field.js?v=d2a5c31dfc54';
-import { reportError } from '../errlog.js?v=d2a5c31dfc54';
+import { el } from './dom.js?v=3284401194a3';
+import { paintRare } from './rarity.js?v=3284401194a3';
+import { ListMenu } from './dom.js?v=3284401194a3';
+import { openServiceUI } from './services.js?v=3284401194a3';
+import { monsterCanvas } from '../render/monsters.js?v=3284401194a3';
+import { npcSprite } from '../field.js?v=3284401194a3';
+import { reportError } from '../errlog.js?v=3284401194a3';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=d2a5c31dfc54';
+import { paperPop } from './paper-pop.js?v=3284401194a3';
+// 第88回 G3班: まぼろしの回廊の とびらの まど（rivals-r88.js）
+import { rivalPop } from './rivals-r88.js?v=3284401194a3';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=d2a5c31dfc54';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=3284401194a3';
 // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
-import { askTreasureList } from './treasure.js?v=d2a5c31dfc54';
+import { askTreasureList } from './treasure.js?v=3284401194a3';
 
 const TYPE_MS = 28;
 
@@ -84,6 +86,7 @@ export class ScriptPlayer {
       case 'say': return this.say(a[0] ? this.fill(a[0], msg) : null, this.fill(a[1], msg), msg.spectator);
       case 'choice':
         // 第76回: お仕事いらい板の はり紙は 大きな まど（client/ui/paper-pop.js）
+        if (a[3]?.kind === 'rival') return rivalPop(this, a[3], a[1], msg.spectator, msg.who);
         if (a[3] && typeof a[3] === 'object') return paperPop(this, a[3], a[1], msg.spectator, msg.who);
         return this.choice(this.fill(a[0], msg), a[1], msg.spectator, msg.who, a[2]);
       case 'fade': return g.fade(a[0] === 'out');

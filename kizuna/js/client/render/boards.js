@@ -1,5 +1,7 @@
 // お店の かんばん（たてものに かける）と、地図の しるし
-import { Painter, makeCanvas, ctxOf } from './pixel.js?v=d2a5c31dfc54';
+import { Painter, makeCanvas, ctxOf } from './pixel.js?v=3284401194a3';
+// 第88回 G3班: まぼろしの回廊の 作品の しるし（boards-r88.js）
+import { R88_BOARD_ICONS, R88_BOARD_COLORS } from './boards-r88.js?v=3284401194a3';
 
 // しるしの え（9×9。'.' は とうめい）
 const ICONS = {
@@ -330,6 +332,9 @@ const BOARD = {
   vehicle: ['#2a8a8a', '#0f3a3a', '#5ab8b8'],
   monster: ['#8a6a2a', '#3a2a10', '#c8a050'],
 };
+
+Object.assign(ICONS, R88_BOARD_ICONS);
+Object.assign(BOARD, R88_BOARD_COLORS);
 
 // たてものに かける かんばん（16×15）
 const boardCache = new Map();

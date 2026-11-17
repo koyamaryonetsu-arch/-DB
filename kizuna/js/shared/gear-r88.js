@@ -10,8 +10,8 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=d2a5c31dfc54';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=d2a5c31dfc54';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=3284401194a3';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=3284401194a3';
 
 export const USE_SLOT_PREFIX = 'use_';
 export const ORB_V = 5;

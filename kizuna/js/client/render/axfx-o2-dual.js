@@ -1,7 +1,7 @@
 // 第49回 O2: 合体技（ため なし。顔の カットインの あとに 出る）の え。この ファイルは O2 だけが さわる
 // 時間は shared/data/ax-time-o2.js（2人 1600・3人 1900）。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=d2a5c31dfc54';
-import { add, obj, txt, bg, claw, rays, hands, ground, above, per, upMark, fist, punchHit } from './axfx-o2-kit.js?v=d2a5c31dfc54';
+import { rnd } from './axkit.js?v=3284401194a3';
+import { add, obj, txt, bg, claw, rays, hands, ground, above, per, upMark, fist, punchHit } from './axfx-o2-kit.js?v=3284401194a3';
 
 const DARK = { main: '#8a4ae0', glow: '#c8a8f0', core: '#f0e0ff', dark: '#1a0a2a', list: ['#8a5ac8', '#3a2a5a', '#c8a8f0'] };
 const BLAST = { main: '#ff9a2a', glow: '#ffd66b', core: '#ffffff', dark: '#8a3a0a', list: ['#ffffff', '#ffd66b', '#ff8a2a'] };
@@ -11,7 +11,7 @@ const EARTH = ['#a08060', '#6a5040', '#d8c0a0'];
 const CONF = ['#ff5a5a', '#ffd23a', '#5ab8ff', '#7ae07a', '#ff7ad8'];
 
 export const AX_O2_DUAL = {
-  // 破滅のはかい玉: むらさきと 黒の 2つの 玉が 回りながら 1つに → 大きな はかい玉が ふくらむ → 大爆発＋むらさきの 衝撃波 → 宇宙の ちり
+  // カラミティはかい玉: むらさきと 黒の 2つの 玉が 回りながら 1つに → 大きな はかい玉が ふくらむ → 大爆発＋むらさきの 衝撃波 → 宇宙の ちり
   ox_hametsu_hakaidama: {
     sfx: 'ax_o2_hakaidama',
     allyFx: 'dark',
