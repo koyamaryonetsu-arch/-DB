@@ -2534,3 +2534,10 @@ body.case-bells .row-edit-btn{ opacity: 1; }
 .mst-table th{ width:auto; }
 .mst-table tr.mst-left td{ color:#94a3b8; }
 .mst-add{ margin-top:8px; }
+/* 客先アカウント: 画面いっぱい・会社ごと・探す欄 */
+.kt-dialog.acct-full{ width:calc(100vw - 32px); max-width:none; height:calc(100vh - 32px); max-height:none; display:flex; flex-direction:column; }
+.acct-full .kt-dlg-body{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.acct-dlg.acct-full .acct-wrap{ flex:1; min-height:120px; max-height:none; }
+.acct-find{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:4px 0 8px; }
+.acct-find .rperson-bar{ flex-wrap:wrap; }
+.acct-find #acctSearch{ width:300px; max-width:100%; }

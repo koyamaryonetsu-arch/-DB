@@ -2508,23 +2508,45 @@
     try { mail = await store.fetchCaseMailSettings(); } catch (e) { mail = null; }
     const hasMail = !!mail;
     const mailBox = () => !hasMail ? '' : `<div class="acct-mail">📨 通知メール（劇場・担当者・ベルの人へ）: <b>${escapeHtml(MAIL_MODE_LABEL[caseMailSettings.mode] || '')}</b>　<button type="button" data-openmailset>メール通知設定を開く</button></div>`;
+    // 会社ごとのボタン・探す欄（一覧だけ描き直す。探す欄の入力は消さない）
+    let acctCo = '', acctQ = '';
+    const shownRows = () => rows.filter((r) => (!acctCo || r.company === acctCo) &&
+      (!acctQ || [r.email, r.company, r.theater, shortTheaterName(r.theater), r.person, r.note].join(' ').toLowerCase().indexOf(acctQ) !== -1));
+    const bodyHtml = () => {
+      const list = shownRows();
+      return list.length ? list.map((r) => `<tr class="${(r.theater || r.person) ? '' : 'acct-nomatch'}"><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.company)}</td><td title="${escapeHtml(r.theater)}">${r.theater ? escapeHtml(shortTheaterName(r.theater)) : '（会社全体）'}</td><td><input type="text" class="tm-input acct-person" data-person="${escapeHtml(r.email)}" value="${escapeHtml(r.person || '')}" placeholder="—"></td><td>${escapeHtml(r.note || '')}</td><td><button type="button" class="danger" data-del="${escapeHtml(r.email)}">🗑</button></td></tr>`).join('')
+        : `<tr><td colspan="6" class="acct-empty">${rows.length ? '合うアドレスがありません。' : 'まだありません。Excel・CSV を読み込むか、上の欄から足してください。'}</td></tr>`;
+    };
+    const coBar = () => {
+      const cos = Array.from(new Set(rows.map((r) => r.company || ''))).sort((a, b) => companyNames().indexOf(a) - companyNames().indexOf(b));
+      return `<button type="button" class="rperson-btn${acctCo ? '' : ' active'}" data-acco="">全社 ${rows.length}</button>` +
+        cos.map((c) => `<button type="button" class="rperson-btn${acctCo === c ? ' active' : ''}" data-acco="${escapeHtml(c)}">${escapeHtml(c ? companyAbbr(c) : '会社なし')} ${rows.filter((r) => (r.company || '') === c).length}</button>`).join('');
+    };
+    const drawBody = () => {
+      const tb = ov.querySelector('.acct-table tbody'); if (tb) tb.innerHTML = bodyHtml();
+      const cb = ov.querySelector('.acct-cobar'); if (cb) cb.innerHTML = coBar();
+      const n = ov.querySelector('.acct-count'); if (n) n.textContent = `${shownRows().length} 件 ／ 全部 ${rows.length} 件`;
+    };
     const draw = () => {
-      ov.innerHTML = `<div class="kt-dialog kt-dialog-mid acct-dlg"><div class="kt-dlg-head">📧 客先アカウント（劇場のメールアドレス）<button type="button" class="close-btn" data-x>×</button></div>
+      ov.innerHTML = `<div class="kt-dialog acct-dlg acct-full"><div class="kt-dlg-head">📧 客先アカウント（劇場のメールアドレス）<button type="button" class="close-btn" data-x>×</button></div>
         <div class="kt-dlg-body">
           <p class="tm-hint">劇場のメールアドレスで入った人には、その劇場の案件だけが並びます（上の「全部の劇場」で会社の全部も見られます）。客先が直せるのは「自社のメモ」だけです。<br>Excel・CSV（メールアドレスと劇場名の列がある表）を読み込むと、まとめて入れます。同じアドレスは上書きします。見出しに「担当者」の列があれば担当者名も入れます。<br>担当者名は、案件の「TOHOシネマズ担当者」と同じ名前にします（その案件の通知メールが必ず届きます）。</p>
           ${mailBox()}
           <div class="acct-bar"><label class="kt-upload primary-like">⬆ Excel・CSV を読み込む<input type="file" id="acctFile" accept=".xlsx,.csv" hidden></label>
             <span class="acct-add"><input type="email" id="acctEmail" class="tm-input" placeholder="メールアドレス"><input type="text" id="acctTheater" class="tm-input" list="acctTheaterList" placeholder="劇場（短い名前でも可）"><input type="text" id="acctPerson" class="tm-input acct-person-in" placeholder="担当者名（本社の人など）"><datalist id="acctTheaterList">${names.map((n) => `<option value="${escapeHtml(n)}">`).join('')}</datalist><button type="button" data-add>＋ 足す</button></span></div>
+          <div class="acct-find"><span class="rperson-bar acct-cobar">${coBar()}</span><input type="search" id="acctSearch" class="tm-input" placeholder="🔍 アドレス・劇場・担当者名で探す" value="${escapeHtml(acctQ)}"></div>
           <div class="acct-wrap"><table class="acct-table"><thead><tr><th>メールアドレス</th><th>会社</th><th>劇場</th><th>担当者名</th><th>メモ</th><th></th></tr></thead><tbody>
-          ${rows.length ? rows.map((r) => `<tr class="${(r.theater || r.person) ? '' : 'acct-nomatch'}"><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.company)}</td><td title="${escapeHtml(r.theater)}">${r.theater ? escapeHtml(shortTheaterName(r.theater)) : '（会社全体）'}</td><td><input type="text" class="tm-input acct-person" data-person="${escapeHtml(r.email)}" value="${escapeHtml(r.person || '')}" placeholder="—"></td><td>${escapeHtml(r.note || '')}</td><td><button type="button" class="danger" data-del="${escapeHtml(r.email)}">🗑</button></td></tr>`).join('') : '<tr><td colspan="6" class="acct-empty">まだありません。Excel・CSV を読み込むか、上の欄から足してください。</td></tr>'}
+          ${bodyHtml()}
           </tbody></table></div>
-        </div><div class="kt-dlg-foot"><span>${rows.length} 件</span><button type="button" data-x>閉じる</button></div></div>`;
+        </div><div class="kt-dlg-foot"><span class="acct-count">${shownRows().length} 件 ／ 全部 ${rows.length} 件</span><button type="button" data-x>閉じる</button></div></div>`;
     };
     draw();
     document.body.appendChild(ov);
     const reload = async () => { rows = await store.fetchAccounts(); draw(); };
+    ov.addEventListener('input', (e) => { if (e.target.id === 'acctSearch') { acctQ = e.target.value.trim().toLowerCase(); drawBody(); } });
     ov.addEventListener('click', async (e) => {
       if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      const cb = e.target.closest('[data-acco]'); if (cb) { acctCo = cb.dataset.acco; drawBody(); return; }
       if (e.target.closest('[data-add]')) {
         const email = ov.querySelector('#acctEmail').value.trim().toLowerCase();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if (K) K.say('メールアドレスを入れてください'); return; }
