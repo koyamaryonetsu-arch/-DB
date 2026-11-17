@@ -1,7 +1,7 @@
 // 第88回 G1班: ほう神演義の スーパー宝貝 7つ（docs/plan-r88-anime-gear.md の 2-1。ぜんぶ 伝説・そろいの 組 super_paopei）
 //   G2班: のこりの 宝貝（崑崙 26 ＋ 太極の打神べん・金鰲 11）を 足した
 //   宝貝は「使う」物: use.ability … 戦いの 道具から 1つの 戦いで 1回（data/abilities-r88.js の かくし技）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=3c0f516de814';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=9d87281a3301';
 
 const P = { work: 'houshin', set: 'super_paopei' };
 const H = { work: 'houshin' };
@@ -61,8 +61,7 @@ const GEAR = {
   r88_jin_kinko: { ...acc('mei'), ...JIN, name: '金光じんのお札', bonus: { mag: 14, agi: 4 }, use: { ability: 'r88u_jin_kinko' }, desc: '金光聖母の、空間の宝貝「金光じん」を開くお札。光をまげて敵全体の目をくらませ、混乱させる。' },
 };
 priceUp(GEAR, { r88_tsurizao: 60 });
-// G2班: のこりの 宝貝は、ライバルの まぼろし（G3）を きめるまで ガチャ・宝の 入れ物に 入れない（data/gacha-r88.js の gachaBlock。きめたら この 行を 外す）
-for (const it of Object.values(GEAR)) if (it.set !== 'super_paopei') it.gacha = false;
+// G5班: ライバルの まぼろしが きまったので、ガチャ・宝の 入れ物に 入れる（G2班の gacha: false を 外した。入らない 品は data/gacha-r88.js の gachaBlock が きめる）
 
 export const ITEMS_R88_HOUSHIN = GEAR;
 

@@ -2,7 +2,7 @@
 //   ガウリイの 剣と よろい・リナの 品・なかまと ライバルの 品・魔法の 道具・異界の 魔王の 5つの 武器（そろい igai_maou）
 //   賢者の石は 今 ある 品（items-rare.js の philosopher_stone）に つなぐ: オリハルコンの像を きたえると 生まれ変わる（今の 品は かえない）
 //   品の 形は items-r88-kit.js。作品の しくみ（fx・use・reach・orb・set）は shared/gear-r88.js
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=3c0f516de814';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=9d87281a3301';
 
 const S = { work: 'slayers' };
 const IM = { work: 'slayers', set: 'igai_maou' };
@@ -43,8 +43,7 @@ const GEAR = {
   r88_ragud: { ...weapon('spear', 'den'), ...IM, name: 'ラグドメゼギス', fx: [{ k: 'chase', v: 7 }], bonus: { str: 14, agi: 10 }, look: 'lance', desc: '異界の魔王の武器の1つ、やり「しゅんげきそう」。ときどきもう1回攻撃する。' },
 };
 priceUp(GEAR, { r88_shortsword: 80, r88_jewels: 120 });
-// G2班: ライバルの まぼろし（G3）を きめるまで ガチャ・宝の 入れ物に 入れない（data/gacha-r88.js の gachaBlock。きめたら この 行を 外す）
-for (const it of Object.values(GEAR)) it.gacha = false;
+// G5班: ライバルの まぼろしが きまったので、ガチャ・宝の 入れ物に 入れる（G2班の gacha: false を 外した。入らない 品は data/gacha-r88.js の gachaBlock が きめる）
 
 export const ITEMS_R88_SLAYERS = GEAR;
 

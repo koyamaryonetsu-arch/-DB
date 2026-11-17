@@ -4,7 +4,7 @@
 //     装備の 画面の「形をかえる」で、その 職業が 持てる 形だけ えらべる。きたえた 回数・れん金の 効果は のこる（shared/gear-r88.js の shapeTarget・moveShapeFx）
 //   ・風のツメ → 風神（生まれ変わり）・雷神は 使うと HPが 少し へる（use.hpCost）
 //   ・天堂地獄・砲魔神・縛呪・血種・魂すいのつぼ などは 装備に しない（設計書 2-4）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=3c0f516de814';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=9d87281a3301';
 
 const R = { work: 'rekka' };
 
@@ -69,8 +69,7 @@ for (const f of KOUGON_FORMS) {
   };
 }
 priceUp(GEAR);
-// G2班: ライバルの まぼろし（G3）を きめるまで ガチャ・宝の 入れ物に 入れない（data/gacha-r88.js の gachaBlock。きめたら この 行を 外す）
-for (const it of Object.values(GEAR)) it.gacha = false;
+// G5班: ライバルの まぼろしが きまったので、ガチャ・宝の 入れ物に 入れる（G2班の gacha: false を 外した。入らない 品は data/gacha-r88.js の gachaBlock が きめる）
 
 export const ITEMS_R88_REKKA = GEAR;
 

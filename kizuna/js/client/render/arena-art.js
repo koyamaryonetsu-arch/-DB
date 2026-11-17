@@ -5,7 +5,7 @@
 //   arena_pirate  … 砂嵐三兄弟（赤い バンダナ・三日月刀。色ちがいは tint）
 //   arena_king    … 闘技場の王者ガルム（金の かぶと・赤い マント・大剣）
 //   arena_legend  … 伝説のチャンピオン レオーネ（白銀の よろい・金の たてがみの ような かみ・光る 剣）
-import { fit } from './ch3-draw.js?v=3c0f516de814';
+import { fit } from './ch3-draw.js?v=9d87281a3301';
 
 const BW = 256, BH = 144;
 export const ARENA_BG = {

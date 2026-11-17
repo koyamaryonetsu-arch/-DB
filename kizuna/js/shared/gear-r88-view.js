@@ -1,13 +1,13 @@
 // 第88回: 作品を 思い出す 装備の せつめいの 文（装備の まど・くらべる まど・道具の せつめい。client/ui/info.js・equip-compare.js・menu.js）
 //   「作品の力：風の力+5（…）」「使う：…（1つの戦いで1回）」「そろい：七つの玉 3/7」
-import { ITEMS, baseItemId } from './data/items.js?v=3c0f516de814';
-import { ABILITIES } from './data/abilities.js?v=3c0f516de814';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=3c0f516de814';
-import { WORKS } from './data/works.js?v=3c0f516de814';
-import { GRADES } from './data/items-r88-kit.js?v=3c0f516de814';
-import { REBIRTH } from './data/items-alchemy.js?v=3c0f516de814';
-import { fxText, fxShort } from './data/gear-fx.js?v=3c0f516de814';
-import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=3c0f516de814';
+import { ITEMS, baseItemId } from './data/items.js?v=9d87281a3301';
+import { ABILITIES } from './data/abilities.js?v=9d87281a3301';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=9d87281a3301';
+import { WORKS } from './data/works.js?v=9d87281a3301';
+import { GRADES } from './data/items-r88-kit.js?v=9d87281a3301';
+import { REBIRTH } from './data/items-alchemy.js?v=9d87281a3301';
+import { fxText, fxShort } from './data/gear-fx.js?v=9d87281a3301';
+import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=9d87281a3301';
 
 const EL = { fire: '炎', ice: '氷', bolt: '雷', wind: '風', light: '光', dark: '闇' };
 const workIt = (id) => {
