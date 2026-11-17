@@ -43,7 +43,7 @@ test('ガチャ: YAIBA は ふつう 4つ・名品 1つ。伝説・はじめの 
   assert.deepEqual([...p.fu].sort(), ['r88_eyepatch', 'r88_kanabo', 'r88_oni_horn', 'r88_shinai']);
   assert.deepEqual(p.mei, ['r88_niten']);
   // G5班: ほう神演義・スレイヤーズ・烈火の炎も ならぶ（G2班の gacha: false を 外した）
-  assert.deepEqual(gachaWorks(), ['yaiba', 'houshin', 'slayers', 'rekka']);
+  assert.deepEqual(gachaWorks().slice(0, 4), ['yaiba', 'houshin', 'slayers', 'rekka']); // あとの 係の 作品は この あとに ならぶ
   for (const id of p.all) {
     const it = ITEMS[id];
     assert.ok(['mei', 'fu3', 'fu2'].includes(it.grade), id);
@@ -172,7 +172,7 @@ test('ガチャ: まだ 持って いない 品だけが 出る（同じ 品は 
 });
 
 test('ガチャ: のこりが なくなるまで 回すと 全部 そろう。どの 作品も 品の 数 × 20000G（YAIBA 10万G・スレイヤーズ 32万G・烈火の炎 62万G・ほう神演義 70万G）', () => {
-  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000 };
+  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, ranma: 520000, nube: 320000 }; // G8班: らんま1/2・ぬ〜べ〜
   for (const w of gachaWorks()) {
     const p = gachaPool(w);
     assert.equal(p.all.length * GACHA_PRICE, want[w], w);
@@ -311,7 +311,7 @@ test('ガチャ: 店の 人に 話して 画面を 開いてから 回す。家�
   const ui = a.bot.msgs.filter((m) => m.t === 'script').flatMap((m) => m.steps).find((st) => st[0] === 'ui' && st[1] === 'gacha');
   assert.ok(ui, '画面が 開く');
   assert.equal(ui[2].price, GACHA_PRICE);
-  assert.deepEqual(ui[2].works.map((w) => w.id), ['yaiba', 'houshin', 'slayers', 'rekka'], 'G5班: 3作品が ならぶ');
+  assert.deepEqual(ui[2].works.map((w) => w.id).slice(0, 4), ['yaiba', 'houshin', 'slayers', 'rekka'], 'G5班: 3作品が ならぶ');
   assert.ok(a.c.flags.r88_gacha_seen);
   const r = spin(a);
   assert.equal(r.ok, true, r.text);
@@ -343,7 +343,7 @@ test('ガチャ: 台と 店の 人は ルミナの町（星の神殿の 外）�
 
 // ───────────── 5. はじめの 品の 店 ─────────────
 test('はじめの 品: 木刀は ホシフル村の よろず屋に ならぶ（品から 自動で）', () => {
-  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels'] }); // G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
+  assert.deepEqual(r88ShopItems().village.slice(0, 4), ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels']); // G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
   assert.ok(shopItems(SHOPS.village).includes('r88_bokuto'));
   assert.equal(ITEMS.r88_bokuto.price, 50);
   // 格が「店」の 作品の 品は ぜんぶ どこかの 店に

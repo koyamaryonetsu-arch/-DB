@@ -12,3 +12,10 @@ export const WORKS = {
 };
 
 export const workName = (id) => WORKS[id]?.name || '';
+
+// 第88回 G8班: らんま1/2・地獄先生ぬ〜べ〜（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる。ならびは この あと）
+//   試練の ごほうび: 早おとめ乱馬 → 赤い中国服（乱馬の 名品）・れい能力教師ぬ〜べ〜 → 白衣観音経（ぬ〜べ〜の 名品）
+Object.assign(WORKS, {
+  ranma: { name: 'らんま1/2', trialGift: { ranma: 'r88_rm_china' } },
+  nube: { name: 'じごく先生ぬ〜べ〜', trialGift: { nube: 'r88_nb_kannon' } },
+});

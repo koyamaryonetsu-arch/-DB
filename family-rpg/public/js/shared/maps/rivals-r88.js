@@ -133,3 +133,9 @@ export function attachRivalHall(maps) {
   ow.warps.push({ x: S.x, y: S.y, noMark: true /* 町の 中の 階段（宝の地図の 目じるしに しない） */, to: { map: HALL_ID, x: L.stairs.x + 0.5, y: L.stairs.y - 0.4, dir: 'up' } });
   return maps;
 }
+
+// G8班: らんま1/2（木の ゆか・木の かべ・すみに 湯けむりの お湯）・じごく先生ぬ〜べ〜（教室: 木の ゆか・石の かべ・つくえ）。今 ある マスだけ
+Object.assign(ROOM_STYLES, {
+  onsen: { floor: T.FLOOR_WOOD, wall: T.WALL_WOOD, deco: T.HOT_SPRING },
+  school: { floor: T.FLOOR_WOOD, wall: T.WALL_STONE, deco: T.TABLE },
+});

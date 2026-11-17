@@ -69,3 +69,39 @@ export const R88_BOARD_COLORS = {
   r88_slayers: ['#2a3a6a', '#101830', '#6a8ad0'],
   r88_rekka: ['#4a2a1a', '#1a0a06', '#c06a3a'],
 };
+
+// G8班: らんま1/2（やかんと 湯気）・じごく先生ぬ〜べ〜（黒い 手ぶくろと お経の まき物）
+Object.assign(R88_BOARD_ICONS, {
+  r88_ranma: {
+    rows: [
+      '.w...w...',
+      '..w.w....',
+      '.w...w...',
+      '...sss...',
+      '..sSSSs.s',
+      '.sSSSSSss',
+      '.sSSSSSs.',
+      '.sSSSSSs.',
+      '..sssss..',
+    ],
+    pal: { w: '#ffffff', s: '#8a5a2a', S: '#d8a050' },
+  },
+  r88_nube: {
+    rows: [
+      '.d.d.d...',
+      '.d.d.d.d.',
+      '.ddddddd.',
+      '.dDDDDdd.',
+      '.ddddddd.',
+      '..ddddd..',
+      'yyyyyyy..',
+      'yWWWWWy..',
+      'yyyyyyy..',
+    ],
+    pal: { d: '#14141c', D: '#6a6a80', y: '#e8b84a', W: '#fff4d0' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_ranma: ['#8a1a1a', '#3a0808', '#e06a4a'],
+  r88_nube: ['#2a5a3a', '#0e2a16', '#6aa07a'],
+});

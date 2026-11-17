@@ -30,6 +30,7 @@ export const RIVAL_DOORS = [
   // G5班: スレイヤーズ（石の 広間・塔の 中）・烈火の炎（火山）
   { work: 'slayers', mark: 'r88_slayers', bg: 'tower', room: 'stone', jobs: ['tabi_madoshi', 'lina', 'doramata'] },
   { work: 'rekka', mark: 'r88_rekka', bg: 'volcano', room: 'volcano', jobs: ['enjutsushi', 'rekka'] },
+  ...g8Doors(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -194,6 +195,7 @@ export const RIVALS = [
     sig: { name: '雷神・百のいかずち', el: 'bolt', anim: 'r88_raijin', charge: '{a}の雷神が、ばちばちと光り始めた！\n空いっぱいに、雷の力が集まっていく…！', cast: '{a}の雷神から、百のいかずちがふりそそいだ！' },
     tune: { hp: 0.72, dmg: 1 },
   },
+  ...g8Rivals(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -315,4 +317,83 @@ export function addRivalHidden(table) {
     if (Object.prototype.hasOwnProperty.call(table, id)) continue;
     Object.defineProperty(table, id, { value: { noBefriend: true, ...m }, enumerable: false, configurable: true, writable: true });
   }
+}
+
+// ───────────── G8班: らんま1/2・じごく先生ぬ〜べ〜 ─────────────
+//   ほかの 係の 行と ぶつからない ように、ここに まとめた（上の RIVAL_DOORS・RIVALS が よぶ。function なので 先に よべる）
+//   らんま1/2 … 伝説の 品が ない 作品なので、さいごの コロンも 名品を くれる（Lv80）。部屋 ＝ 木の ゆかと 湯けむり（onsen）・背景 ＝ 草原（grass）
+//   じごく先生ぬ〜べ〜 … こわく しない。部屋 ＝ 教室（school）・背景 ＝ 夜の 町（village_night）。さいごは おにの手の 中の おに（Lv100）
+function g8Doors() {
+  return [
+    { work: 'ranma', mark: 'r88_ranma', bg: 'grass', room: 'onsen', jobs: ['musabetsu_student', 'ranma', 'hiryu_master'] },
+    { work: 'nube', mark: 'r88_nube', bg: 'village_night', room: 'school', jobs: ['elem_teacher', 'nube', 'jigoku_sensei'] },
+  ];
+}
+function g8Rivals() {
+  return [
+    // ── らんま1/2（名品・ふつうを くれる 人は Lv60 ごろ・さいごの コロンも 名品なので Lv80）──
+    {
+      id: 'rm_kuno', work: 'ranma', n: 1, name: '九能帯刀', lv: 60, job: 'sword_master', look: L(0, 'short', 'brown', 6, 'fair', 'brave'),
+      use: 'r88_rm_bokuto', reward: ['r88_rm_bokuto'], words: '風林館高校の青いいかずち、九能帯刀、参る！',
+      sig: { name: '木刀・つきつきつき', at: 0.8, after: 3, anim: 'slash_multi', charge: '{a}が、木刀をまっすぐにかまえた！\n「つきつきつき…！」…！', cast: '{a}の木刀から、目にもとまらぬつきがとんできた！' },
+      tune: { hp: 0.27, dmg: 1.2 },
+    },
+    {
+      id: 'rm_shampoo', work: 'ranma', n: 2, name: 'シャンプー', lv: 62, job: 'god_hand', look: L(1, 'long', 'purple', 6, 'fair', 'smile'),
+      use: 'r88_rm_sosui', reward: ['r88_rm_sosui'], words: 'ニーハオ！わたし、強いね。かくごするよろし！',
+      sig: { name: 'そうすい・大回転', anim: 'punch_multi', charge: '{a}が、2本のこん棒をくるくる回し始めた！\n回るたびに、速くなっていく…！', cast: '{a}のこん棒が、うなりを上げてふりおろされた！' },
+      tune: { hp: 1.19, dmg: 1 },
+    },
+    {
+      id: 'rm_ryoga', work: 'ranma', n: 3, name: '良が', lv: 64, job: 'guardian', look: L(0, 'wild', 'black', 3, 'tan', 'brave'),
+      use: 'r88_rm_bangasa', reward: ['r88_rm_bangasa'], words: 'ここはどこだ…？まあいい、勝負だ！',
+      sig: { name: '番がさ・大地くだき', anim: 'quake', charge: '{a}が、重い番がさを高くふり上げた！\n地面に、ひびが走っていく…！', cast: '{a}の番がさが、地面ごと打ちくだいた！' },
+      tune: { hp: 1.43, dmg: 1 },
+    },
+    {
+      id: 'rm_happosai', work: 'ranma', n: 4, name: '八宝さい', lv: 66, job: 'kaito_kid', look: L(0, 'bald', 'white', 5, 'light', 'smile'),
+      use: 'r88_rm_happo', reward: ['r88_rm_happo', 'r88_rm_nanban'], words: 'ほっほっほ！わしの花火、よけられるかの？',
+      sig: { name: '八宝大か輪・特大花火', el: 'fire', anim: 'r88_hanabi', charge: '{a}が、大きな花火玉に火をつけた！\nじりじりと、火花がちっていく…！', cast: '{a}の花火玉が、空いっぱいにはれつした！' },
+      tune: { hp: 1.25, dmg: 1 },
+    },
+    {
+      id: 'rm_cologne', work: 'ranma', n: 5, name: 'コロン', lv: 80, job: 'daikenja', look: L(1, 'long', 'white', 6, 'light', 'calm'),
+      use: 'r88_rm_kaen', reward: ['r88_rm_kaen', 'r88_rm_hanten'], words: 'ほう、わかいの。女けつ族の長の力、見せてやろうかの。',
+      same: 'ほう、むこどのと同じ道の者か。ならば、えんりょはせんぞ。',
+      sig: { name: '火炎じょう・竜の大炎', el: 'fire', anim: 'r88_kaen', charge: '{a}が、火炎じょうで地面をとんとついた！\nつえの竜が、ゆっくりと口を開いていく…！', cast: '{a}の火炎じょうの竜が、大きな炎をはき出した！' },
+      tune: { hp: 0.98, dmg: 1 },
+    },
+    // ── じごく先生ぬ〜べ〜（名品・ふつうを くれる 人は Lv60 ごろ・さいごの おにの手の おには 伝説で Lv100）──
+    {
+      id: 'nb_izuna', work: 'nube', n: 1, name: 'いずな', lv: 60, job: 'monster_master', look: L(1, 'pony', 'brown', 5, 'fair', 'smile'),
+      use: 'r88_nb_kuda', reward: ['r88_nb_kuda'], words: 'うちの管ぎつねは、なんでもお見通しやで！',
+      sig: { name: '管ぎつね・百ぴき行進', at: 0.8, after: 3, anim: 'r83a_fire', charge: '{a}が、竹づつのふたをぽんと開けた！\n小さなきつねが、つぎつぎに顔を出す…！', cast: '{a}の竹づつから、管ぎつねがどっととび出した！' },
+      tune: { hp: 1.39, dmg: 1 },
+    },
+    {
+      id: 'nb_yukime', work: 'nube', n: 2, name: 'ゆきめ', lv: 62, job: 'snow_queen', look: L(1, 'long', 'silver', 1, 'fair', 'calm'),
+      use: 'r88_nb_kimono', reward: ['r88_nb_kimono'], words: 'わたしの雪、とってもつめたいですよ。',
+      sig: { name: '雪女の大ふぶき', el: 'ice', anim: 'blizzard', charge: '{a}のまわりに、雪がまい始めた！\nあたりが、白くこおっていく…！', cast: '{a}から、大きなふぶきがふきつけた！' },
+      tune: { hp: 1.02, dmg: 1 },
+    },
+    {
+      id: 'nb_tamamo', work: 'nube', n: 3, name: '玉も', lv: 64, job: 'enjutsushi', look: L(0, 'long', 'blonde', 3, 'fair', 'sharp'),
+      use: 'r88_nb_karin', reward: ['r88_nb_sasumata', 'r88_nb_karin'], words: '人間の力、少し調べさせてもらおう。',
+      sig: { name: '火輪びの術', el: 'fire', anim: 'fire3', charge: '{a}のうしろで、きつねのしっぽがゆらめいた！\n青白いきつね火が、集まっていく…！', cast: '{a}のきつね火が、うずを巻いておしよせた！' },
+      tune: { hp: 1.16, dmg: 1 },
+    },
+    {
+      id: 'nb_minki', work: 'nube', n: 4, name: 'みんき', lv: 66, job: 'datenshi', look: L(1, 'twin', 'red', 0, 'fair', 'smile'),
+      use: 'r88_nb_yoroi', reward: ['r88_nb_yoroi'], words: 'お兄ちゃんのために、わたしもがんばるんだから！',
+      sig: { name: 'おにのよろい・空からの一げき', anim: 'slash_heavy', charge: '{a}が、つばさを広げて天じょうまでまい上がった！\nぐんぐん速さをましていく…！', cast: '{a}が、空からまっすぐにおりてきた！' },
+      tune: { hp: 1.43, dmg: 1 },
+    },
+    {
+      id: 'nb_haki', work: 'nube', n: 5, name: 'おにの手のおに', lv: 100, job: 'jigoku_sensei', look: L(0, 'wild', 'red', 0, 'tan', 'sharp'),
+      use: 'r88_nb_onite', reward: ['r88_nb_onite'], words: 'ふん、先生の手の中はたいくつでな。少しあばれさせてもらうぞ！',
+      same: 'ほう、おまえも手ぶくろの先生か。おもしろい、力くらべだ！',
+      sig: { name: 'おにの手・大きなこぶし', anim: 'r88_onite', charge: '{a}の大きな手が、赤くかがやき始めた！\nこぶしに、ものすごい力が集まっていく…！', cast: '{a}の大きなこぶしが、ふりおろされた！' },
+      tune: { hp: 0.5, dmg: 1 },
+    },
+  ];
 }

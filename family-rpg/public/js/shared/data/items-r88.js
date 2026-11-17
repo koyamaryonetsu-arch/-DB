@@ -11,12 +11,18 @@ import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA, R88_REBIRTH_HOUSHIN } from './item
 // 第88回 G2班: スレイヤーズ・烈火の炎
 import { ITEMS_R88_SLAYERS, R88_SLAYERS_KANA, R88_REBIRTH_SLAYERS } from './items-r88-slayers.js';
 import { ITEMS_R88_REKKA, R88_REKKA_KANA, R88_REBIRTH_REKKA } from './items-r88-rekka.js';
+// 第88回 G8班: らんま1/2・地獄先生ぬ〜べ〜
+import { ITEMS_R88_RANMA, R88_RANMA_KANA, R88_REBIRTH_RANMA } from './items-r88-ranma.js';
+import { ITEMS_R88_NUBE, R88_NUBE_KANA, R88_REBIRTH_NUBE } from './items-r88-nube.js';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
   { items: ITEMS_R88_HOUSHIN, kana: R88_HOUSHIN_KANA, rebirth: R88_REBIRTH_HOUSHIN },
   { items: ITEMS_R88_SLAYERS, kana: R88_SLAYERS_KANA, rebirth: R88_REBIRTH_SLAYERS },
   { items: ITEMS_R88_REKKA, kana: R88_REKKA_KANA, rebirth: R88_REBIRTH_REKKA },
+  // G8班: らんま1/2・地獄先生ぬ〜べ〜
+  { items: ITEMS_R88_RANMA, kana: R88_RANMA_KANA, rebirth: R88_REBIRTH_RANMA },
+  { items: ITEMS_R88_NUBE, kana: R88_NUBE_KANA, rebirth: R88_REBIRTH_NUBE },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));
