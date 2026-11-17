@@ -202,7 +202,7 @@ export const RIVALS = [
     id: 'iy_kagura', work: 'inuyasha', n: 1, name: '神楽', lv: 60, job: 'tenkou_tsukai', look: L(1, 'bob', 'black', 6, 'fair', 'sharp'),
     use: 'r88_iy_kagura', reward: ['r88_iy_kagura'], words: '風はだれにもしばられないのさ。',
     sig: { name: '神楽のおうぎ・風のやいばのまい', el: 'wind', anim: 'wind2', charge: '{a}が、おうぎを大きく広げた！\nまわりの風が、うずを巻き始めた…！', cast: '{a}のおうぎから、たくさんの風のやいばがまいおどった！' },
-    tune: { hp: 1.0, dmg: 1 },
+    tune: { hp: 1.04, dmg: 1 },
   },
   {
     id: 'iy_kouga', work: 'inuyasha', n: 2, name: 'こうが', lv: 62, job: 'god_hand', look: L(0, 'pony', 'black', 4, 'tan', 'brave'),
@@ -229,8 +229,8 @@ export const RIVALS = [
   {
     id: 'iy_sessho2', work: 'inuyasha', n: 5, name: '本気のせっしょう丸', lv: 100, job: 'sword_master', look: L(0, 'long', 'silver', 7, 'fair', 'sharp'), bg: 'hoshiyomi',
     use: 'r88_iy_bakusaiga', reward: ['r88_iy_bakusaiga'], words: 'わたし自身の刀で、相手をしてやろう。',
-    sig: { name: '爆さいが・くずれる光', hit: 1.3, anim: 'r88_bakusai', charge: '{a}の左うでから、みどりの光の刀が生まれた…！\nまわりの空気が、ぴりぴりとふるえている…！', cast: '{a}が爆さいがをふりぬくと、光がつぎつぎとはじけた！' },
-    tune: { hp: 0.34, dmg: 1 },
+    sig: { name: '爆さいが・くずれる光', at: 0.8, after: 3, anim: 'r88_bakusai', charge: '{a}の左うでから、みどりの光の刀が生まれた…！\nまわりの空気が、ぴりぴりとふるえている…！', cast: '{a}が爆さいがをふりぬくと、光がつぎつぎとはじけた！' },
+    tune: { hp: 0.33, dmg: 1 },
   },
 
   // ── G7班 ゆう☆遊☆白書（名品を くれる 人は Lv60 ごろ・さいごの 幻海は Lv100）。すずこまは 入れない（デビルヨーヨーは ガチャ）──
@@ -265,7 +265,7 @@ export const RIVALS = [
     id: 'yh_shigure', work: 'yuhaku', n: 4, name: '時雨', lv: 66, job: 'sword_master', look: L(0, 'bald', 'black', 1, 'light', 'calm'),
     use: 'r88_yh_rinka', reward: ['r88_yh_rinka'], words: 'わが剣の道、見せてやろう。',
     sig: { name: 'りん火円れき刀・大回転', hit: 1.3, anim: 'slash_multi', charge: '{a}が、大きな輪の刀を回し始めた！\n輪が、うなりを上げて速くなっていく…！', cast: '{a}の輪の刀が、うなりを上げてとんできた！' },
-    tune: { hp: 0.72, dmg: 1 },
+    tune: { hp: 0.8, dmg: 1 },
   },
   {
     id: 'yh_genkai', work: 'yuhaku', n: 5, name: '幻海', lv: 100, job: 'yusuke', look: L(1, 'short', 'pink', 1, 'light', 'calm'), bg: 'temple3',
