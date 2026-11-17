@@ -1914,6 +1914,7 @@
   // 絞り込み・グルーピングに使う生の値
   function columnValue(c, field) {
     if (field === 'status') return statusOf(c);
+    if (field === 'workapp') return workappLabel(c);
     const v = c[field];
     return v != null ? String(v) : '';
   }
@@ -2193,7 +2194,8 @@
     if (!realPrivileged(currentUser)) return;
     try { staffList = await store.fetchStaff(); } catch (e) { staffList = null; }
     try { accountsCache = await store.fetchAccounts(); } catch (e) { accountsCache = []; }
-    renderRPersonBar(); renderDatalists();
+    await loadWorkappStates();
+    renderRPersonBar(); renderDatalists(); render();
   }
   // 異動・退職の人で絞った時: 未完了の案件をまとめて付け替えるバー
   function renderReassignBar() {
@@ -2345,6 +2347,30 @@
     });
     const st = document.querySelector('#theadRow th[data-sort="status"] .th-filter');
     if (st && !st.title) st.title = '⚙ 日付から自動で決まります（手で変えることもできます）｜👀 客先にも見えます';
+  }
+  // ===== 作業申請書の状態（一覧の「申請書」列・菱熱だけ） =====
+  let workappStates = new Map();   // 案件 id → 'final'（送付済）/ 'draft'（作成中）
+  async function loadWorkappStates() {
+    if (!caseMailSupported || !realPrivileged(currentUser) || store.mode !== 'supabase') return;
+    try {
+      const { data, error } = await sb.from('case_files').select('case_id,status').eq('kind', 'workapp').is('deleted_at', null);
+      if (error) return;
+      const m = new Map();
+      (data || []).forEach((r) => { const k = String(r.case_id); if (r.status === 'final' || !m.has(k)) m.set(k, r.status === 'final' ? 'final' : (m.get(k) || 'draft')); });
+      workappStates = m;
+    } catch (e) {}
+  }
+  function workappLabel(c) { const st = workappStates.get(String(c.id)); return st === 'final' ? '送付済' : st === 'draft' ? '作成中' : ''; }
+  // 作業開始日が今日から7日以内なのに、まだ送っていない（作成中・未作成）
+  function workappDue(c) {
+    if (!c.workStartDate || workappStates.get(String(c.id)) === 'final') return false;
+    const d = (new Date(c.workStartDate + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 86400000;
+    return d >= 0 && d <= 7;
+  }
+  function workappTd(c) {
+    const lab = workappLabel(c), due = workappDue(c);
+    const html = lab === '送付済' ? '<span class="wa-b wa-final">✅ 送付済</span>' : lab === '作成中' ? '<span class="wa-b wa-draft">📝 作成中</span>' : '<span class="wa-none">—</span>';
+    return `<td class="col-ryo col-workapp${due ? ' wa-due' : ''}" data-colkey="workapp" data-label="申請書"${due ? ' title="作業開始日まで7日以内です。作業申請書を送ってください"' : ''}>${html}${due ? ' <span class="wa-warn">⚠</span>' : ''}</td>`;
   }
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
   let caseMailSupported = false;          // case_watchers の表がある（SETUP_CASE_MAIL.sql 済み）
@@ -2840,6 +2866,7 @@
         <td class="col-tax" data-colkey="tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
+        ${workappTd(c)}
         ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
@@ -2875,7 +2902,7 @@
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
   // 標準の並び。顧客メモは「内容」のすぐ右に置く（既に個人で並べ替えている場合は
   // その設定が優先されるため、標準に戻すには「列並びリセット」を押す）
-  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'title', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
+  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'title', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workapp', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
   // 支払い状況モードの列（左＝案件情報／右＝支払い入力）
   const PURCHASE_COLS = [
     { field: 'company',        label: '会社' },
@@ -3420,6 +3447,7 @@
       showToastLite(kind === 'quote' ? '見積書を付けました（5分後に客先へ送ります）' : '作業申請書を付けました（「完成」を押すと客先へ送ります）');
     } catch (e) { K.say('付けられませんでした: ' + (e.message || e)); }
     const c = cases.find((x) => String(x.id) === id); if (c && cmCaseId === id) renderCaseMailSec(c);
+    if (kind === 'workapp') { await loadWorkappStates(); render(); }
   }
   function currentUserName() { try { return (currentUser && (currentUser.user_metadata && currentUser.user_metadata.name)) || String((currentUser && currentUser.email) || '').split('@')[0]; } catch (e) { return ''; } }
   // 🆙 アップロード画面（ファイルを選ぶ・ドラッグして入れる → 宛先を見て → 付ける）
@@ -3473,6 +3501,7 @@
       const { error } = await sb.from('case_files').update({ status: 'final' }).eq('id', fin.dataset.cmfinal);
       if (error) K.say('できませんでした: ' + error.message); else showToastLite('完成にしました（5分後に客先へ送ります）');
       if (c) renderCaseMailSec(c);
+      await loadWorkappStates(); render();
       return;
     }
     const del = e.target.closest('[data-cmdel]');
@@ -3482,6 +3511,7 @@
       const { error } = await sb.from('case_files').update({ deleted_at: new Date().toISOString() }).eq('id', del.dataset.cmdel);
       if (error) K.say('外せませんでした: ' + error.message);
       if (c) renderCaseMailSec(c);
+      await loadWorkappStates(); render();
     }
   });
   function closeModal() {
