@@ -5,7 +5,7 @@
 // ・はじめて 手に 入れた ときは 自動で ボタンに なる（stats.js の addItem → autoQuick）
 // ・ひきつぎの 合言葉（transfer.js）には 入れない（ひきついだ あとは はじめの 1つに もどる）
 // ITEMS だけを 読む（stats.js からも 読むので、maps などは 読まない）
-import { ITEMS } from './items.js?v=a2a86317c288';
+import { ITEMS } from './items.js?v=9c90184bf1d8';
 
 // メニューの 使う と おなじ サーバーの 道具の 名前（world/services.js の menuAction）
 export function quickUseOf(id) {

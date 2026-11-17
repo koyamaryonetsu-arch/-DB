@@ -12,38 +12,38 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=a2a86317c288';
-import { PLACES } from '../maps/overworld.js?v=a2a86317c288';
-import { abilityLabel } from '../ability-label.js?v=a2a86317c288';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=a2a86317c288';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=a2a86317c288';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=a2a86317c288';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=a2a86317c288';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=a2a86317c288';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=a2a86317c288';
+import { POS } from '../maps/index.js?v=9c90184bf1d8';
+import { PLACES } from '../maps/overworld.js?v=9c90184bf1d8';
+import { abilityLabel } from '../ability-label.js?v=9c90184bf1d8';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=9c90184bf1d8';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=9c90184bf1d8';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=9c90184bf1d8';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=9c90184bf1d8';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=9c90184bf1d8';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=9c90184bf1d8';
 // 第2部 第6章「時の砂時計」Step 1・2（story-ch6.js）
-import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=a2a86317c288';
+import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=9c90184bf1d8';
 // 第2部 第7章 第1幕「緑の王国」Step 1・2（story-c7.js）
-import { CH7_STEPS, applyCh7 } from './story-c7.js?v=a2a86317c288';
+import { CH7_STEPS, applyCh7 } from './story-c7.js?v=9c90184bf1d8';
 // 第2部 第8章 第1幕「月の王宮のうらぎり」Step 1・2（story-c8.js）
-import { CH8_STEPS, applyCh8 } from './story-c8.js?v=a2a86317c288';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=a2a86317c288';
-import { SD_SCRIPTS } from './story-secret.js?v=a2a86317c288';
-import { CASINO_SCRIPTS } from './story-casino.js?v=a2a86317c288';
-import { innSteps } from './inn.js?v=a2a86317c288';
-import { NIGHT_SCRIPTS } from './night.js?v=a2a86317c288';
-import { skyScripts } from './sky.js?v=a2a86317c288';
-import { FACILITY_SCRIPTS } from './facilities.js?v=a2a86317c288';
-import { wagonEventSteps } from './wagon.js?v=a2a86317c288';
-import { JOB_GREET } from './job-talk.js?v=a2a86317c288';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=a2a86317c288';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=a2a86317c288';
+import { CH8_STEPS, applyCh8 } from './story-c8.js?v=9c90184bf1d8';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=9c90184bf1d8';
+import { SD_SCRIPTS } from './story-secret.js?v=9c90184bf1d8';
+import { CASINO_SCRIPTS } from './story-casino.js?v=9c90184bf1d8';
+import { innSteps } from './inn.js?v=9c90184bf1d8';
+import { NIGHT_SCRIPTS } from './night.js?v=9c90184bf1d8';
+import { skyScripts } from './sky.js?v=9c90184bf1d8';
+import { FACILITY_SCRIPTS } from './facilities.js?v=9c90184bf1d8';
+import { wagonEventSteps } from './wagon.js?v=9c90184bf1d8';
+import { JOB_GREET } from './job-talk.js?v=9c90184bf1d8';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=9c90184bf1d8';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=9c90184bf1d8';
 // 第37回 A: サファラ闘技場（しょりは world/arena.js）
-import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=a2a86317c288';
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=9c90184bf1d8';
 // 第67回 A班: モンスター闘技場の 人（story-monarena-a.js）
-import { MONARENA_A_SCRIPTS } from './story-monarena-a.js?v=a2a86317c288';
-import { TRIAL_SCRIPTS } from './story-trials.js?v=a2a86317c288';
-import { applyTownHints } from './secret-hints.js?v=a2a86317c288';
+import { MONARENA_A_SCRIPTS } from './story-monarena-a.js?v=9c90184bf1d8';
+import { TRIAL_SCRIPTS } from './story-trials.js?v=9c90184bf1d8';
+import { applyTownHints } from './secret-hints.js?v=9c90184bf1d8';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

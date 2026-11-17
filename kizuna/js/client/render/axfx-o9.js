@@ -9,12 +9,12 @@
 //     axfx-o9-chaos.js   … はかいと創造の神
 //     axfx-o9-stadium.js … 夢のスタジアム鉄道
 //     axfx-o9-weather.js … 天候の神
-import { finish } from './axfx-o4-kit.js?v=a2a86317c288';
-import { AX_O9_KIT_FINE } from './axfx-o9-kit.js?v=a2a86317c288';
-import { AX_O9_OKAN } from './axfx-o9-okan.js?v=a2a86317c288';
-import { AX_O9_CHAOS } from './axfx-o9-chaos.js?v=a2a86317c288';
-import { AX_O9_STADIUM } from './axfx-o9-stadium.js?v=a2a86317c288';
-import { AX_O9_WEATHER } from './axfx-o9-weather.js?v=a2a86317c288';
+import { finish } from './axfx-o4-kit.js?v=9c90184bf1d8';
+import { AX_O9_KIT_FINE } from './axfx-o9-kit.js?v=9c90184bf1d8';
+import { AX_O9_OKAN } from './axfx-o9-okan.js?v=9c90184bf1d8';
+import { AX_O9_CHAOS } from './axfx-o9-chaos.js?v=9c90184bf1d8';
+import { AX_O9_STADIUM } from './axfx-o9-stadium.js?v=9c90184bf1d8';
+import { AX_O9_WEATHER } from './axfx-o9-weather.js?v=9c90184bf1d8';
 
 export const AX_O9 = Object.fromEntries(Object.entries({
   ...AX_O9_OKAN,
