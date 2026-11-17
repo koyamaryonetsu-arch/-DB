@@ -33,7 +33,7 @@ const mainKey = (it) => (it.type === 'weapon' ? 'atk' : 'def');
 // 同じ 部位・ランク・しゅるい（武器の 種類・よろいの 種類・かぶとか ぼうしか）
 const sameKind = (a, b) => a.type === b.type && a.rank === b.rank && (a.type !== 'weapon' || a.cat === b.cat)
   && (a.type !== 'armor' || a.armorType === b.armorType) && (a.type !== 'head' || !!a.helm === !!b.helm);
-const pool = (it) => Object.values(ITEMS).filter((x) => x && !x.base && x !== it && sameKind(x, it));
+const pool = (it) => Object.values(ITEMS).filter((x) => x && !x.base && !x.work && x !== it && sameKind(x, it));
 const shopBest = (it) => Math.max(0, ...pool(it).filter((x) => x.price > 0 && !(x.rarity > 0)).map((x) => x[mainKey(it)] || 0));
 const starBest = (it) => Math.max(0, ...pool(it).filter((x) => !(x.price > 0) && !x.forge && x.rarity >= 2).map((x) => x[mainKey(it)] || 0));
 
