@@ -209,6 +209,12 @@ function sendCaseMails() {
     cmRefreshStatus_(settings);
     var open = cmGet_('case_mail_events?sent_at=is.null&select=id,case_id,kind,detail,created_at&order=created_at.asc&limit=500');
     if (!open.length) return;
+    // 初動報告（アプリの「📣 初動報告」で書いた文）は、まとめずにすぐ送る
+    var reports = open.filter(function (e) { return e.kind === 'initial_report'; });
+    reports.forEach(function (e) {
+      try { sendInitialReport_(e, settings); } catch (err) { Logger.log('初動報告メール（案件 ' + e.case_id + '）でエラー: ' + err); }
+    });
+    open = open.filter(function (e) { return e.kind !== 'initial_report'; });
     var byCase = {};
     open.forEach(function (e) { (byCase[e.case_id] = byCase[e.case_id] || []).push(e); });
     var now = Date.now(), nSent = 0, nSkip = 0;
@@ -229,6 +235,41 @@ function sendCaseMails() {
   } finally {
     lock.releaseLock();
   }
+}
+
+// 初動対応・区分判定の報告メール（件名・本文はアプリで作った文。宛先・試しモードは通知メールと同じ決まり）
+function sendInitialReport_(ev, settings) {
+  var d = {}; try { d = JSON.parse(ev.detail || '{}'); } catch (e) { d = {}; }
+  var rows = cmGet_('cases?id=eq.' + cmEnc_(ev.case_id) + '&select=id,company,theater,tc_person');
+  if (!rows.length) { cmMarkEvents_([ev], '案件が見つからない（消された）'); return 'skip'; }
+  var c = rows[0];
+  if (settings.mode === 'off') { cmMarkEvents_([ev], '通知メールは止めている'); return 'skip'; }
+  var isTest = settings.testTheaters.indexOf(String(c.theater || '')) !== -1;
+  if (settings.mode !== 'live' && !isTest) { cmMarkEvents_([ev], '試しモードのため送らず（テスト劇場ではない）'); return 'skip'; }
+  var realTo = caseMailRecipients_(c, cmGet_('customer_accounts?select=email,company,theater,person'), cmGet_('case_watchers?case_id=eq.' + cmEnc_(ev.case_id) + '&select=email'));
+  var to = realTo, isTrial = settings.mode !== 'live';
+  if (isTrial) {
+    if (!settings.testTo.length) { cmMarkEvents_([ev], '試しモード: テストの宛先が未設定のため送らず'); return 'skip'; }
+    to = settings.testTo.map(function (e) { return { email: e, why: 'テストの宛先' }; });
+  } else if (!to.length) { cmMarkEvents_([ev], '宛先なし（劇場・担当者のアドレスが未登録で、ベルの人もいない）'); return 'skip'; }
+  var subject = (isTrial ? '【試し】' : '') + String(d.subject || '【菱熱工業】初動対応・区分判定のご報告');
+  var body = String(d.body || '') + '\n\n' + CASE_MAIL_FOOTER;
+  if (isTrial) body = '【試し】これは初動報告の試しの送信です（客先には送っていません）。\n本番では、次の宛先に送ります: ' +
+    (realTo.length ? realTo.map(function (x) { return x.email + '（' + x.why + '）'; }).join('、') : '（まだ登録されていません）') + '\n────────────────\n\n' + body;
+  var addrs = to.map(function (x) { return x.email; }).join(',');
+  var snd = cmSender_(settings, '');
+  var opt = { name: CASE_MAIL_SENDER_NAME };
+  if (snd.from) opt.from = snd.from;
+  GmailApp.sendEmail(addrs, subject, body, opt);
+  var mine = cmMyAddressFromSent_();
+  cmMarkEvents_([ev], '初動報告を送った: ' + addrs);
+  cmSaveStatus_({ sender_used: snd.from || mine || CASE_MAIL_MINE_UNKNOWN, sender_want: snd.want, alias_ok: snd.aliasOk, mode: settings.mode, my_address: mine,
+    last_sent_at: new Date().toISOString(), last_to: addrs, last_subject: subject });
+  try {
+    cmReq_('post', 'case_mail_log', { case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.from || mine || '') + '>',
+      subject: subject, body: body, attachments: '', test: isTrial }, 'return=minimal');
+  } catch (e) { Logger.log('メールの記録に失敗: ' + e); }
+  return 'sent';
 }
 
 function cmMarkEvents_(evs, note) {
