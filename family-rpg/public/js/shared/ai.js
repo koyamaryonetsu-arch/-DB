@@ -45,6 +45,8 @@ import { r85aPlan, r85aLocked } from './battle-r85a.js';
 import { r86bPlan } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
 import { r86aPlan } from './battle-r86a.js';
+// 第88回 M1班: 魔王の 天地魔闘の構え（敵の 大技の 前ぶれが ある 時に ときどき。battle-r88m.js）
+import { r88mPlan } from './battle-r88m.js';
 
 // さくせん
 export const TACTICS = {
@@ -63,6 +65,9 @@ export function decideMonster(b, m) {
   // まぼろしの 分身の 本物: まぶしくて 動けない・まぼろしを 作りなおす（battle-ch4.js）
   const forced = mirageAction(b, m);
   if (forced) return forced;
+  // 第88回 G3班: まぼろしの回廊の ライバル（大技の 前ぶれと 大技。shared/battle-rival-r88.js が つける）
+  const rh = m.decideHook?.(b, m);
+  if (rh) return rh;
   // 鏡のうつし身（仲間の オートの AI）・水の衣を また まとう・大波（battle-temple.js）
   const tf = templeAction(b, m);
   if (tf) return tf;
@@ -221,6 +226,9 @@ export function decideAlly(b, c) {
   //   この 2つの 職業の 技を もつ 人だけ（もとの 伝説の 技も 覚えて いるので、その オート〈4.8〜4.96〉より 先に 見る。ほかの 職業は 何も かわらない）
   const r86a = r86aPlan(b, c, foes, mine, allies, fightWeight(b));
   if (r86a) return r86a;
+  // 4.795) 第88回 M1班: 敵の 大技の 前ぶれに 天地魔闘の構え（この 技を ひらめいた 人だけ。battle-r88m.js）
+  const r88m = r88mPlan(b, c, foes, mine);
+  if (r88m) return r88m;
   // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
   const r82 = r82aPlan(b, c, foes, mine, allies);
   if (r82) return r82;

@@ -30,6 +30,8 @@ import { MAPS, condOk } from '../maps/index.js';
 import { jobLabel } from '../job-label.js';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
 import { bossHintsSeen } from '../data/boss-hints.js';
+// 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
+import { rivalTrack, rivalRec } from '../rivals-r88.js';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -340,6 +342,9 @@ function missionTrack(c, ctx) {
 
 const TRACKS = [missionTrack, boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack];
 export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest'];
+// 第88回 G3班: まぼろしの回廊（職業の 試練の つぎ）
+TRACKS.splice(TRACKS.indexOf(trialsTrack) + 1, 0, rivalTrack);
+TRACK_IDS.splice(TRACK_IDS.indexOf('trials') + 1, 0, 'rival');
 
 export function shioriTracks(c, ctx = {}) {
   const out = [];
@@ -371,6 +376,9 @@ function sideRecs(c, tracks) {
   const st = c?.job && JOBS[c.job] ? trialState(c, c.job) : null;
   if (st?.ready) push('trials', `${jobLabel(c.job, c)}の${st.active.name}で、師しょうのまぼろしと戦えます`, T.trials?.where || '');
   else if (st?.canTake) push('trials', `${jobLabel(c.job, c)}の${st.next.name}を受けられます`, T.trials?.where || '');
+  // 4.5 第88回 G3班: まぼろしの回廊で ちょうせん できる ライバル
+  const rv = T.rival ? rivalRec(c) : null;
+  if (rv) push('rival', rv.text, rv.where);
   // 5. 闘技場の つぎの ランク
   const ar = T.arena?.items.find((x) => x.state === 'open');
   if (ar) push('arena', `サファラ闘技場の${ar.name}に、ちょうせんできます`, T.arena.where);

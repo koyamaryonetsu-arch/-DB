@@ -43,6 +43,8 @@ import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js';
 // 第67回 A班: モンスター闘技場の 人（story-monarena-a.js）
 import { MONARENA_A_SCRIPTS } from './story-monarena-a.js';
 import { TRIAL_SCRIPTS } from './story-trials.js';
+// 第88回 G3班: まぼろしの回廊の とびら（story-rivals-r88.js）
+import { RIVAL_SCRIPTS } from './story-rivals-r88.js';
 import { applyTownHints } from './secret-hints.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
@@ -637,6 +639,7 @@ Object.assign(SCRIPTS, ARENA_SCRIPTS);
 for (const id of ARENA_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
 // 第38回 B: 職業の試練（星の神殿の 試練の番人。ひとりずつ。しょりは world/job-trials.js）
 Object.assign(SCRIPTS, TRIAL_SCRIPTS);
+Object.assign(SCRIPTS, RIVAL_SCRIPTS);
 // 第5章「空にうかぶ大地」（story-ch5.js）。第4章クリアの あとの ホシミばあちゃんから はじまる
 Object.assign(SCRIPTS, CH5_SCRIPTS);
 const elderBase = SCRIPTS.elder;

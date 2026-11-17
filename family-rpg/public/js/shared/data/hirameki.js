@@ -63,6 +63,8 @@ import { HIRA_R85A_ABILITIES, HIRAMEKI_R85A } from './hirameki-r85a.js';
 import { HIRA_R86B_ABILITIES, HIRAMEKI_R86B } from './hirameki-r86b.js';
 // 第86回 A班: 幻の職業 2つの ひらめき技（hirameki-r86a.js）
 import { HIRA_R86A_ABILITIES, HIRAMEKI_R86A } from './hirameki-r86a.js';
+// 第88回 M1班: 魔王の ひらめき技 天地魔闘の構え（hirameki-r88m.js）
+import { HIRA_R88M_ABILITIES, HIRAMEKI_R88M } from './hirameki-r88m.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -363,6 +365,9 @@ Object.assign(HIRAMEKI, HIRAMEKI_R86B);
 // 第86回 A班の ひらめき技（hirameki-r86a.js）
 Object.assign(HIRA_ABILITIES, HIRA_R86A_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R86A);
+// 第88回 M1班の ひらめき技（hirameki-r88m.js）
+Object.assign(HIRA_ABILITIES, HIRA_R88M_ABILITIES);
+Object.assign(HIRAMEKI, HIRAMEKI_R88M);
 
 // 回数の 名前（'@atk' など、技 では ない もの）
 export const USE_NAMES = { '@atk': 'ふつうの攻撃' };

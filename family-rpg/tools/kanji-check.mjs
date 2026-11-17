@@ -364,6 +364,8 @@ export function gameFiles() {
     'public/js/shared/data/jobs-r86b.js', 'public/js/shared/data/abilities-r86b.js', 'public/js/shared/data/hirameki-r86b.js', 'public/js/shared/battle-r86b.js', 'public/js/client/battle-r86b.js',
     // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋・竜神の剣士）の 職業・技・ひらめき技・戦いの しかけ・札と えんしゅつの ことば
     'public/js/shared/data/jobs-r86a.js', 'public/js/shared/data/abilities-r86a.js', 'public/js/shared/data/hirameki-r86a.js', 'public/js/shared/battle-r86a.js', 'public/js/client/battle-r86a.js',
+    // 第88回 M1班: 魔王の ひらめき技（天地魔闘の構え）・戦いの しかけ・札と えんしゅつの ことば
+    'public/js/shared/data/hirameki-r88m.js', 'public/js/shared/battle-r88m.js', 'public/js/client/battle-r88m.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',
@@ -539,6 +541,10 @@ export function gameFiles() {
     // 第88回 G2班: スレイヤーズ・烈火の炎
     'public/js/shared/data/items-r88-slayers.js', 'public/js/shared/data/items-r88-rekka.js',
     'public/js/shared/data/gear-fx.js',
+    // 第88回 G3班: まぼろしの回廊（とびら・ライバルの まぼろし）
+    'public/js/shared/data/rivals-r88.js', 'public/js/shared/data/story-rivals-r88.js', 'public/js/shared/rivals-r88.js', 'public/js/shared/battle-rival-r88.js',
+    'public/js/shared/battle-rival-fx-r88.js', 'public/js/shared/world/rivals-r88.js', 'public/js/shared/maps/rivals-r88.js', 'public/js/client/ui/rivals-r88.js',
+    'public/js/client/render/boards-r88.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

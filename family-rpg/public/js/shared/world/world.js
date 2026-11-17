@@ -62,6 +62,8 @@ import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from '
 import './arena.js';
 // 第38回 B: 職業の試練（だいほんの しょりを data/story-trials.js の TRIAL_HOOKS に 入れる）
 import './job-trials.js';
+// 第88回 G3班: まぼろしの回廊（とびら・ライバルの まぼろし。world/rivals-r88.js）
+import { rivalHallEnter } from './rivals-r88.js';
 import { shownEquipKey } from '../look-equip.js';
 // 第67回 C: モンスター闘技場の その場の 対戦
 import { tickMonLive } from './monarena-live.js';
@@ -750,6 +752,8 @@ export class GameWorld {
     notePyramidMove(this, s, mapId);
     // ひみつのダンジョンの ちょうせん（つづきか・とちゅうから 来たか・外へ 出たか。world/secret.js）
     noteSecretMove(this, s, mapId);
+    // 第88回 G3班: まぼろしの回廊へ 入る 時、とびらの 光を 持ち物に 合わせる（world/rivals-r88.js）
+    rivalHallEnter(this, s, mapId);
     s.map = mapId;
     s.x = x;
     s.y = y;

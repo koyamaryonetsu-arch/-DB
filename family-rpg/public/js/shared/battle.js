@@ -101,6 +101,10 @@ import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
 import { r86aTurnStart, r86aCover, r86aEffect, r86aPhys, r86aElement, r86aPhysMult, r86aDamage, r86aMark, r86aCut, r86aStore, r86aResolve, r86aPub } from './battle-r86a.js';
+// 第88回 G3班: まぼろしの回廊の ライバルの 大技（battle-rival-fx-r88.js）
+import { rivalSigEffect } from './battle-rival-fx-r88.js';
+// 第88回 M1班: 魔王の ひらめき技 天地魔闘の構え（受ける ダメージ 半分・手刀の 反撃・とける 時に 火の 鳥）
+import { r88mTurnStart, r88mEffect, r88mMark, r88mCut, r88mNote, r88mResolve, r88mPub } from './battle-r88m.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
 import { powScaleFor } from './pow-scale.js';
 
@@ -570,6 +574,8 @@ export class Battle {
       r85aTurnStart(this, c, ev);
       // 第86回 A班: 身を 守るのも 1回の 行動（人とようかいのきずなの 2だん目・きずなの力の のこり。battle-r86a.js）
       r86aTurnStart(this, c, ev);
+      // 第88回 M1班: 天地魔闘の構えが とける（さいごに 攻撃して きた 敵に 火の 鳥。battle-r88m.js）
+      r88mTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       r85aAfter(this, c, ev);
       this.actEnd(c, held, ev);
@@ -691,6 +697,8 @@ export class Battle {
     r85bTurnStart(this, c, ev);
     // 第86回 A班: 人とようかいのきずなの 2だん目（ためた力の 風）・きずなの力の のこり（battle-r86a.js）
     r86aTurnStart(this, c, ev);
+    // 第88回 M1班: 天地魔闘の構えが とける（さいごに 攻撃して きた 敵に 火の 鳥。battle-r88m.js）
+    r88mTurnStart(this, c, ev);
     // 反撃の構えは つぎの 自分の 番で とける
     if (c.stance) {
       c.stance = null;
@@ -749,6 +757,8 @@ export class Battle {
         this.applyAbility(c, ABILITIES.js_asobu, {}, ev, 1);
       } else this.perform(c, cmd, ev);
       this.resolveCounters(ev);
+      // 第88回 M1班: 天地魔闘の構えの 手刀の 反撃（battle-r88m.js）
+      r88mResolve(this, ev);
       // 第82回 A: ばくりゅうはで 受けとめた 力を 風で 返す（battle-r82a.js）
       r82aResolve(this, ev);
       // 第86回 B班: れい丸・しょう天は（れい丸を のせた 竜巻）・カウンターが 決まると 格闘王の れい丸が もどる（r84bResolve より 先。battle-r86b.js）
@@ -1624,6 +1634,10 @@ export class Battle {
       case 'r86bReiHiryu': case 'r86bChantAll': r86bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // きずなの守り・きずなの力・人とようかいのきずな（第86回 A。battle-r86a.js）
       case 'r86aKabau': case 'r86aKizuna': case 'r86aSig': r86aEffect(this, c, a, eff, ev, targets, powMult); break;
+      // まぼろしの回廊の ライバルの 大技（最大HPの わりあい。身を 守ると へる。第88回 G3班。battle-rival-fx-r88.js）
+      case 'r88Rival': rivalSigEffect(this, c, a, eff, ev, targets); break;
+      // 天地魔闘の構え（第88回 M1。battle-r88m.js）
+      case 'r88mTenchi': r88mEffect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }
@@ -1840,6 +1854,8 @@ export class Battle {
     // 第85回 B班: まどかの 炎の けっかい（受ける ダメージが へる。下げすぎ ふせぎは 下の r85bFloor。battle-r85b.js）
     // 第86回 A班: 人とようかいのきずなの 下限の ため、へらす 前の ダメージを おぼえる（battle-r86a.js）
     r86aMark(t, dmg, info);
+    // 第88回 M1班: 天地魔闘の構えの 下限の ため、へらす 前の ダメージを おぼえる（battle-r88m.js）
+    r88mMark(c, t, dmg, info);
     dmg = r85bCut(this, c, t, dmg, info, ev);
     dmg = r83aDamage(this, c, t, dmg, info, ev);
     // 第83回 B班: 体をはって守る（作戦・先読みと 合わせても 下限より 下げない。battle-r83b.js）
@@ -1848,6 +1864,8 @@ export class Battle {
     dmg = r85bFloor(t, dmg, info);
     // 第86回 A班: 人とようかいのきずなで 受ける ダメージが へる（ほかと 合わせても 下限まで。battle-r86a.js）
     dmg = r86aCut(t, dmg, info);
+    // 第88回 M1班: 天地魔闘の構え（地）で 受ける ダメージが 半分（ほかと 合わせても 下限まで。battle-r88m.js）
+    dmg = r88mCut(t, dmg, info, ev);
     // 第84回 B班: お湯の 守り・おこった 敵・属性で すがたが かわる・飛竜しょう天はの かまえ（battle-r84b.js）
     dmg = r84bDamage(this, c, t, dmg, info, ev);
     // 第85回 A班: たおれると となえた 力が 消える（battle-r85a.js）
@@ -1858,6 +1876,8 @@ export class Battle {
     if (info.r86bCap > 0 && dmg > info.r86bCap) dmg = info.r86bCap;
     // 第86回 A班: かばって 受けた ダメージの 半分を ためた力に（battle-r86a.js）
     r86aStore(this, c, t, dmg, info, ev);
+    // 第88回 M1班: 天地魔闘の構え（天）の 手刀の よやく・さいごに 攻撃して きた 敵（魔）を おぼえる（battle-r88m.js）
+    r88mNote(this, c, t, dmg, info, ev);
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -2696,6 +2716,8 @@ export function pub(c) {
     ...r86bPub(c),
     // ためた力・きずなの力・人とようかいのきずな（第86回 A。battle-r86a.js）
     ...r86aPub(c),
+    // 天地魔闘の構え（第88回 M1。battle-r88m.js）
+    ...r88mPub(c),
   };
 }
 
