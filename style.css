@@ -2545,3 +2545,10 @@ body.case-bells .row-edit-btn{ opacity: 1; }
 .acct-find{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:4px 0 8px; }
 .acct-find .rperson-bar{ flex-wrap:wrap; }
 .acct-find #acctSearch{ width:300px; max-width:100%; }
+/* ⑥ だれが入れる欄か（菱熱の画面だけ）。AI が入れる欄だけ色 */
+.src-note, .th-src{ display:none; }
+body.user-privileged .src-note{ display:block; font-size:11px; font-weight:400; color:#64748b; margin-top:1px; line-height:1.4; }
+body.user-privileged .src-note.src-ai, body.user-privileged .src-note.src-mail{ color:#6d28d9; }
+body.user-privileged .form-row.src-row-ai{ background:#f5f3ff; border-left:3px solid #8b5cf6; padding-left:8px; border-radius:6px; }
+body.user-privileged .form-row.src-row-mail{ background:#faf8ff; border-left:3px solid #d8ccfb; padding-left:8px; border-radius:6px; }
+body.user-privileged .th-src{ display:inline; font-size:10px; margin-left:2px; opacity:.85; }

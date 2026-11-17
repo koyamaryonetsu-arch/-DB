@@ -1946,7 +1946,9 @@
   }
   function columnLabel(field) {
     const th = document.querySelector(`#theadRow th[data-sort="${field}"] .th-filter`);
-    return th ? th.textContent.trim() : field;
+    if (!th) return field;
+    const cl = th.cloneNode(true); cl.querySelectorAll('.th-src').forEach((x) => x.remove());   // ⑥ の印は名前に入れない
+    return cl.textContent.trim();
   }
   function closeColumnFilter() {
     const p = document.getElementById('colFilterPop');
@@ -2290,6 +2292,59 @@
         await save([Object.assign({}, r, { active })], active ? `${r.name} さんを在籍に戻しました` : `${r.name} さんを異動・退職にしました`);
       }
     });
+  }
+  // ===== ⑥ 菱熱が手で入れる欄・AI が入れる欄の見える化（2026-11-17・菱熱の画面だけ） =====
+  // ai＝AI が入れる（人も直せる）／mail＝メール・LINE から AI も入れる（普段は菱熱）／hand＝菱熱が手で入れる／cust＝客先が入れる
+  const FIELD_SRC = {
+    company:       { k: 'mail', v: true },
+    theater:       { k: 'mail', v: true },
+    receivedDate:  { k: 'mail', v: true },
+    tcPerson:      { k: 'mail', v: true },
+    rPerson:       { k: 'mail', v: true },
+    category:      { k: 'mail', v: true },
+    caseTitle:     { k: 'ai', v: true, why: '内容から付ける', col: 'title' },
+    content:       { k: 'ai', v: true, why: '社内メモから客先向けにまとめる' },
+    customerMemo:  { k: 'cust', v: true },
+    surveyDate:    { k: 'mail', v: true },
+    quoteDate:     { k: 'mail', v: true },
+    workStartDate: { k: 'mail', v: true },
+    workEndDate:   { k: 'mail', v: true },
+    estimateName:  { k: 'ai', v: true, why: '添付の見積書から読み取る' },
+    estimateAmount:{ k: 'ai', v: true, why: '添付の見積書から読み取る（税抜）' },
+    certNumber:    { k: 'hand', v: true },
+    invoiceDate:   { k: 'hand', v: true },
+    paymentDate:   { k: 'hand', v: true },
+    memo:          { k: 'mail', v: false, why: 'メール・LINE の中身を AI が足していく' },
+    adviceNote:    { k: 'hand', v: false }
+  };
+  function fieldSrcNote(f) {
+    const who = f.k === 'ai' ? '🤖 AI：' + f.why + '（直せる）'
+      : f.k === 'mail' ? '📨 ' + (f.why || 'AI も入れる')
+      : f.k === 'cust' ? '🤝 客先が入れる'
+      : '✋ 手入力だけ';
+    return who + '｜' + (f.v ? '👀 客先に見える' : '🔒 客先に見えない');
+  }
+  function markFieldSources() {
+    Object.keys(FIELD_SRC).forEach((id) => {
+      const f = FIELD_SRC[id];
+      const lab = document.querySelector(`#caseForm label[for="${id}"]`);
+      if (lab && !lab.querySelector('.src-note')) {
+        const sp = document.createElement('span'); sp.className = 'src-note src-' + f.k; sp.textContent = fieldSrcNote(f);
+        sp.title = { ai: 'AI が自動で入れる欄です。人が直すこともできます。', mail: 'メール・LINE を取り込んだ時に AI も入れる欄です。普段は菱熱が入れます。', hand: '菱熱が手で入れる欄です。AI は入れません。', cust: '客先が入れる欄です。菱熱も直せます。' }[f.k] +
+          (f.v ? '客先の画面にも出ます。' : '客先の画面には出ません（社内だけ）。');
+        lab.appendChild(sp);
+        const row = lab.closest('.form-row'); if (row) row.classList.add('src-row-' + f.k);
+      }
+      // 一覧の列の見出し: AI が入れる列に小さい印（説明は指を乗せると出る）
+      if (f.k !== 'ai' && f.k !== 'mail') return;
+      const th = document.querySelector(`#theadRow th[data-sort="${f.col || id}"] .th-filter`);
+      if (th && !th.querySelector('.th-src')) {
+        const ic = document.createElement('span'); ic.className = 'th-src th-src-' + f.k; ic.textContent = f.k === 'ai' ? '🤖' : '📨'; ic.title = fieldSrcNote(f);
+        th.appendChild(ic);
+      }
+    });
+    const st = document.querySelector('#theadRow th[data-sort="status"] .th-filter');
+    if (st && !st.title) st.title = '⚙ 日付から自動で決まります（手で変えることもできます）｜👀 客先にも見えます';
   }
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
   let caseMailSupported = false;          // case_watchers の表がある（SETUP_CASE_MAIL.sql 済み）
@@ -7195,6 +7250,8 @@
     if (field) startColResize(th, field, e);
   });
 
+  // ⑥ だれが入れる欄か（菱熱の画面だけに出す）。AI が入れる欄だけ色を付ける
+  markFieldSources();
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
 
