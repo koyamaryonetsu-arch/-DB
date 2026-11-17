@@ -10,24 +10,24 @@
 //  9. ハネノの町の名物動画（ユーチューバーの 系統。ハネノの町の 見晴らし台・広場）
 // 10. 湯けむり宿の大そうじ（おかんの 系統。ユノハの 宿屋の 2階。べつの 小さな マップ）
 // 11. 王都のお祭りの手品ショー（手品師の 系統。王都サファラの 南の 広場・宿屋）
-import { T } from '../tiles.js?v=211badf8d6bb';
-import { npc } from './npc.js?v=211badf8d6bb';
-import { NORTH_PLACES } from './north.js?v=211badf8d6bb';
-import { SOUTH_PLACES } from './south.js?v=211badf8d6bb';
-import { PORT } from './sea.js?v=211badf8d6bb';
-import { openSpot } from './labyrinth.js?v=211badf8d6bb';
-import { room } from './fq-kit.js?v=211badf8d6bb';
+import { T } from '../tiles.js?v=a2a86317c288';
+import { npc } from './npc.js?v=a2a86317c288';
+import { NORTH_PLACES } from './north.js?v=a2a86317c288';
+import { SOUTH_PLACES } from './south.js?v=a2a86317c288';
+import { PORT } from './sea.js?v=a2a86317c288';
+import { openSpot } from './labyrinth.js?v=a2a86317c288';
+import { room } from './fq-kit.js?v=a2a86317c288';
 // 第65回 D2: たのまれごと 12〜17 の 人（maps/work-quests2.js）
-import { attachWorkQuests2 } from './work-quests2.js?v=211badf8d6bb';
+import { attachWorkQuests2 } from './work-quests2.js?v=a2a86317c288';
 // 第68回 D班: たのまれごと 18〜23 の 人（maps/work-quests3.js）
-import { attachWorkQuests3 } from './work-quests3.js?v=211badf8d6bb';
+import { attachWorkQuests3 } from './work-quests3.js?v=a2a86317c288';
 // 第73回 D班: たのまれごと 24〜26 の 人（maps/work-quests4.js）
-import { attachWorkQuests4 } from './work-quests4.js?v=211badf8d6bb';
-import { attachWorkQuests5 } from './work-quests5.js?v=211badf8d6bb';
+import { attachWorkQuests4 } from './work-quests4.js?v=a2a86317c288';
+import { attachWorkQuests5 } from './work-quests5.js?v=a2a86317c288';
 // 第75回 D班: たのまれごと 30〜32 の 人（maps/work-quests6.js）
-import { attachWorkQuests6 } from './work-quests6.js?v=211badf8d6bb';
+import { attachWorkQuests6 } from './work-quests6.js?v=a2a86317c288';
 // 第80回 D班: たのまれごと 33〜35 の 人（maps/work-quests7.js）
-import { attachWorkQuests7 } from './work-quests7.js?v=211badf8d6bb';
+import { attachWorkQuests7 } from './work-quests7.js?v=a2a86317c288';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ（maps/family-quests.js の FQ_OPEN と おなじ）
