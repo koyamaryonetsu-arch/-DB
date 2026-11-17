@@ -27,6 +27,9 @@ export const RIVAL_GOLD_PER_LV = 30;
 export const RIVAL_DOORS = [
   { work: 'houshin', mark: 'r88_houshin', bg: 'kumoi', room: 'cloud', jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi', 'chaos_gunshi'] },
   { work: 'yaiba', mark: 'r88_yaiba', bg: 'hoshiyomi', room: 'wood', jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai', 'ryujin_kenshi'] },
+  // G5班: スレイヤーズ（石の 広間・塔の 中）・烈火の炎（火山）
+  { work: 'slayers', mark: 'r88_slayers', bg: 'tower', room: 'stone', jobs: ['tabi_madoshi', 'lina', 'doramata'] },
+  { work: 'rekka', mark: 'r88_rekka', bg: 'volcano', room: 'volcano', jobs: ['enjutsushi', 'rekka'] },
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -101,7 +104,7 @@ export const RIVALS = [
     id: 'y_okita', work: 'yaiba', n: 3, name: '沖田総司', lv: 62, job: 'himura', look: L(0, 'pony', 'black', 1, 'fair', 'calm'),
     use: 'r88_kikuichi', reward: ['r88_kikuichi'], words: 'ぼくの剣は速いですよ。ついてこられますか？',
     sig: { name: 'きく一文字・三だんづき', anim: 'slash_fast', charge: '{a}が、すっと刀をかまえた…！\nするどい気配が、あたりをつつむ…！', cast: '{a}が、目にも見えない三だんづきをはなった！' },
-    tune: { hp: 0.96, dmg: 1 },
+    tune: { hp: 1.02, dmg: 1 },
   },
   {
     id: 'y_kojiro', work: 'yaiba', n: 4, name: '佐々木小次ろう', lv: 64, job: 'sword_master', look: L(0, 'long', 'black', 6, 'fair', 'sharp'),
@@ -113,13 +116,81 @@ export const RIVALS = [
     id: 'y_oni', work: 'yaiba', n: 5, name: 'おに丸', lv: 66, job: 'magic_swordsman', look: L(0, 'spiky', 'black', 0, 'light', 'sharp'),
     use: 'r88_fujin_sword', reward: ['r88_fujin_sword'], words: 'ふん、また会ったな。今日こそ決着をつけるぞ！',
     sig: { name: '風神剣・大竜まき', el: 'wind', anim: 'r82b_slash', charge: '{a}が風神剣をかかげた！\nまわりの風が、ごうごうとうなり始めた…！', cast: '{a}の風神剣から、大きな竜まきがまき起こった！' },
-    tune: { hp: 1.39, dmg: 1 },
+    tune: { hp: 1.5, dmg: 1 },
   },
   {
     id: 'y_oniking', work: 'yaiba', n: 6, name: 'おにの王・おに丸', lv: 100, job: 'maou', look: L(0, 'wild', 'black', 0, 'light', 'sharp'), bg: 'rift_moon',
     use: 'r88_maou_sword', reward: ['r88_maou_sword'], words: '月の力を手に入れたおれは、もう止められんぞ！',
     sig: { name: '魔王剣・満月', el: 'dark', anim: 'r82b_slash', charge: '{a}の魔王剣のあなが、まるい満月の形になった…！\n黒い光が、あふれ出す…！', cast: '{a}の魔王剣から、満月のような黒い光のやいばがはなたれた！' },
     tune: { hp: 0.52, dmg: 1 },
+  },
+
+  // ── スレイヤーズ（G5班。名品・ふつうを くれる 人は Lv60 ごろ・伝説 Lv80 ごろ・さいごの 赤い目の魔王は Lv100）──
+  {
+    id: 's_naga', work: 'slayers', n: 1, name: 'ナーガ', lv: 60, job: 'archmage', look: L(1, 'long', 'black', 3, 'fair', 'smile'),
+    use: 'r88_naga_spike', reward: ['r88_naga_spike'], words: 'おーっほっほっほ！このナーガさまが相手よ！',
+    sig: { name: 'トゲのかたあて大とっしん', anim: 'laugh', charge: '{a}が、高らかに笑い始めた！\nトゲのかたあてが、きらりと光る…！', cast: '{a}が、笑いながらトゲのかたあてで体当たりしてきた！' },
+    tune: { hp: 1.37, dmg: 1 },
+  },
+  {
+    id: 's_zangulus', work: 'slayers', n: 2, name: 'ザングルス', lv: 62, job: 'sword_master', look: L(0, 'wild', 'brown', 4, 'tan', 'brave'),
+    use: 'r88_zangulus', reward: ['r88_zangulus'], words: '剣の勝負なら、だれにも負けん！',
+    sig: { name: 'ザングルスの剣・大回転切り', anim: 'slash_heavy', charge: '{a}が、剣を大きくふりかぶった！\n「今度こそ、負けん！」…！', cast: '{a}の剣が、うなりを上げてふりぬかれた！' },
+    tune: { hp: 0.7, dmg: 1 },
+  },
+  {
+    id: 's_xellos', work: 'slayers', n: 3, name: 'ゼロス', lv: 80, job: 'datenshi', look: L(0, 'bob', 'purple', 3, 'fair', 'smile'),
+    use: 'r88_demonblood', reward: ['r88_demonblood'], words: 'それは、ひみつです。さあ、始めましょうか。',
+    sig: { name: '魔血玉の闇のうず', el: 'dark', anim: 'dark1', charge: '{a}が、にこにこしながらつえをかかげた…！\n4つの玉が、ふしぎな色に光り始めた…！', cast: '{a}のまわりから、闇のうずがおしよせた！' },
+    tune: { hp: 0.96, dmg: 1 },
+  },
+  {
+    id: 's_igai', work: 'slayers', n: 4, name: 'エルロゴスとシーリウス', lv: 82,
+    members: [
+      { name: 'エルロゴス', job: 'guardian', look: L(0, 'buzz', 'gray', 0, 'tan', 'sharp') },
+      { name: 'シーリウス', job: 'magic_swordsman', look: L(0, 'short', 'blonde', 1, 'fair', 'calm') },
+    ],
+    use: 'r88_bodigar', reward: ['r88_bodigar', 'r88_nezard'], words: '異界の魔王の武器の力、見せてあげよう。',
+    sig: { name: 'ボーディガーの大地われ', anim: 'quake', charge: '{a}が、大きなつちを高くふり上げた！\n地面が、ぐらぐらゆれ始めた…！', cast: '{a}のボーディガーが、大地をたたきわった！' },
+    tune: { hp: 0.76, dmg: 1 },
+  },
+  {
+    id: 's_shabra', work: 'slayers', n: 5, name: '赤い目の魔王', lv: 100, job: 'grand_magus', look: L(0, 'long', 'red', 0, 'fair', 'sharp'), bg: 'castle_fire',
+    use: 'r88_gorun', reward: ['r88_gorun'], words: 'よくぞ来た。光の剣の持ち主にふさわしいか、見せてもらおう。',
+    sig: { name: '赤い目の魔王の大火', el: 'fire', anim: 'fire3', charge: '{a}の赤い目が、ぎらりと光った！\nまわりが、まっ赤にそまっていく…！', cast: '{a}から、赤い炎の大波がおしよせた！' },
+    tune: { hp: 0.56, dmg: 1 },
+  },
+
+  // ── 烈火の炎（G5班。名品を くれる 人は Lv60 ごろ・伝説 Lv80 ごろ・さいごの 雷はは Lv100）──
+  {
+    id: 'r_mokuren', work: 'rekka', n: 1, name: '木れん', lv: 60, job: 'monster_master', look: L(0, 'bob', 'green', 2, 'light', 'smile'),
+    use: 'r88_kodama', reward: ['r88_kodama'], words: 'ぼくの木は、どこまでものびるよ！',
+    sig: { name: '木だまの大きな根', anim: 'r83a_whip', charge: '{a}の体から、木の根がのび始めた！\n根が、ぐんぐん大きくなっていく…！', cast: '{a}の木の根が、いっせいにおそいかかった！' },
+    tune: { hp: 1.4, dmg: 1 },
+  },
+  {
+    id: 'r_kai', work: 'rekka', n: 2, name: 'かい', lv: 62, job: 'snow_queen', look: L(0, 'long', 'silver', 1, 'fair', 'calm'),
+    use: 'r88_hyoma', reward: ['r88_hyoma'], words: '氷魔えんのつめたさ、教えてやろう。',
+    sig: { name: '氷魔えん・氷のやいば', el: 'ice', anim: 'blizzard', charge: '{a}の刀から、つめたい空気があふれ出した！\nまわりが、白くこおっていく…！', cast: '{a}の氷魔えんから、氷のやいばがふりそそいだ！' },
+    tune: { hp: 1.05, dmg: 1 },
+  },
+  {
+    id: 'r_joker', work: 'rekka', n: 3, name: 'ジョーカー', lv: 64, job: 'psychicer', look: L(0, 'spiky', 'orange', 6, 'light', 'smile'),
+    use: 'r88_taishaku', reward: ['r88_taishaku'], words: 'ほな、ちょっとあそぼか！',
+    sig: { name: 'たいしゃくかい天・大重力', at: 0.8, after: 3, anim: 'debuff', charge: '{a}が、三つまたのほこをくるくる回し始めた！\nまわりが、ずしりと重くなっていく…！', cast: '{a}のたいしゃくかい天から、大きな重力がおしよせた！' },
+    tune: { hp: 1.32, dmg: 1 },
+  },
+  {
+    id: 'r_koganei', work: 'rekka', n: 4, name: '小金井', lv: 80, job: 'konoha', look: L(0, 'spiky', 'brown', 4, 'light', 'brave'),
+    use: 'r88_kougon_kiba', reward: ['r88_kougon_kiba'], words: 'へへっ、おいらの鋼金暗器、見せてやるよ！',
+    sig: { name: '鋼金暗器・三日月まわし', anim: 'slash_multi', charge: '{a}の鋼金暗器が、かちゃかちゃと形をかえ始めた！\n大きな三日月の形になっていく…！', cast: '{a}の三日月のやいばが、うなりを上げてとんできた！' },
+    tune: { hp: 0.78, dmg: 1 },
+  },
+  {
+    id: 'r_raiha', work: 'rekka', n: 5, name: '雷は', lv: 100, job: 'summoner', look: L(0, 'long', 'blonde', 4, 'fair', 'calm'), bg: 'arena',
+    use: 'r88_raijin', reward: ['r88_raijin'], words: 'いい戦いにしましょう。手かげんはしませんよ。',
+    sig: { name: '雷神・百のいかずち', el: 'bolt', anim: 'r88_raijin', charge: '{a}の雷神が、ばちばちと光り始めた！\n空いっぱいに、雷の力が集まっていく…！', cast: '{a}の雷神から、百のいかずちがふりそそいだ！' },
+    tune: { hp: 0.72, dmg: 1 },
   },
 ];
 

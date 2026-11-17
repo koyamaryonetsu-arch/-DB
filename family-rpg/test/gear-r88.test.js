@@ -22,7 +22,7 @@ import { starsOf, rareIds, pickTmGear, pickSdGear } from '../public/js/shared/da
 import { chestLoot } from '../public/js/shared/data/treasure.js';
 import { sdBigReward, sdSmallReward } from '../public/js/shared/data/secret.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
-import { gachaBlock } from '../public/js/shared/data/gacha-r88.js';
+import { gachaBlock, TM_R88_DEN, TM_R88_DEN_LV } from '../public/js/shared/data/gacha-r88.js';
 import { salvageBlock } from '../public/js/shared/data/salvage.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -405,7 +405,9 @@ test('第88回: 今の レアの 入れ物（宝の洞窟・ひみつのダン�
         for (const theme of ['earth', 'ice', 'lava']) {
           const out = chestLoot(rng, lv, kind, { theme, word: '大地' });
           // 第88回 G4班: 地図 Lv26 からは ガチャに 入る 名品（★4）だけ まれに（data/gacha-r88.js の r88TmLoot）
-          for (const x of [].concat(out || [])) if (x?.item) assert.ok(!isR88(x.item) || (lv >= 26 && ITEMS[x.item].grade === 'mei' && !gachaBlock(x.item)), `宝の洞窟 Lv${lv}: ${x.item}`);
+          // 第88回 G5班: 地図 Lv46 からの 2つめの 主の 宝箱だけ 宝の洞窟の 伝説（光界玉など。data/gacha-r88.js の TM_R88_DEN）
+          const den = (id) => kind === 'bossB' && lv >= TM_R88_DEN_LV && TM_R88_DEN.includes(id);
+          for (const x of [].concat(out || [])) if (x?.item) assert.ok(!isR88(x.item) || den(x.item) || (lv >= 26 && ITEMS[x.item].grade === 'mei' && !gachaBlock(x.item)), `宝の洞窟 Lv${lv}: ${x.item}`);
         }
       }
     }

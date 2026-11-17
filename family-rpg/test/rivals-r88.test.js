@@ -112,8 +112,8 @@ const examine = (bot, work = 'yaiba') => {
 };
 
 // ───────────── データ ─────────────
-test('データ: とびらは 作品ごと（ほう神演義・YAIBA）。ライバルは 作品の 中で じゅん番。ごほうびの 品・大技・まぼろしが ある', () => {
-  assert.deepEqual(RIVAL_DOORS.map((d) => d.work), ['houshin', 'yaiba']);
+test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイヤーズ・烈火の炎）。ライバルは 作品の 中で じゅん番。ごほうびの 品・大技・まぼろしが ある', () => {
+  assert.deepEqual(RIVAL_DOORS.map((d) => d.work), ['houshin', 'yaiba', 'slayers', 'rekka']);
   for (const d of RIVAL_DOORS) {
     assert.ok(WORKS[d.work], d.work);
     const list = rivalsOf(d.work);
@@ -506,4 +506,100 @@ test('試練の番人: 回ろうの 案内を はじめの 1回だけ（今の �
   bot.send({ t: 'interact', kind: 'npc', id: 'trial_keeper' });
   await play(bot);
   assert.ok(!said(bot, 'となりの階段の下', from), '2回めは 言わない');
+});
+
+// ───────────── G5班: スレイヤーズ・烈火の炎の とびら ─────────────
+test('G5: スレイヤーズ・烈火の炎の とびら（5人ずつ・弱い 順・さいごが Lv100）と ごほうび', () => {
+  assert.equal(RIVALS.length, 21, '今の 11人 ＋ 10人');
+  const s = rivalsOf('slayers');
+  assert.deepEqual(s.map((r) => r.id), ['s_naga', 's_zangulus', 's_xellos', 's_igai', 's_shabra']);
+  assert.deepEqual(s.map((r) => r.reward), [['r88_naga_spike'], ['r88_zangulus'], ['r88_demonblood'], ['r88_bodigar', 'r88_nezard'], ['r88_gorun']]);
+  assert.equal(ITEMS.r88_gorun.name, '烈光の剣');
+  const r = rivalsOf('rekka');
+  assert.deepEqual(r.map((x) => x.id), ['r_mokuren', 'r_kai', 'r_joker', 'r_koganei', 'r_raiha']);
+  assert.deepEqual(r.map((x) => x.reward), [['r88_kodama'], ['r88_hyoma'], ['r88_taishaku'], ['r88_kougon_kiba'], ['r88_raijin']]);
+  for (const list of [s, r]) {
+    assert.ok(list.length <= 5, '1つの とびらに 5人まで');
+    // 強さ: 名品・ふつうを くれる 人 60ごろ・伝説 80ごろ・さいご 100ごろ
+    for (const rv of list) {
+      const den = rv.reward.some((id) => ITEMS[id].grade === 'den');
+      const last = rv === list[list.length - 1];
+      assert.equal(rivalTier(rv.lv), last ? 100 : den ? 80 : 60, `${rv.id}: Lv${rv.lv}`);
+      assert.ok(rv.tune && rv.tune.hp > 0, `${rv.id}: tools/sim-rival.mjs で 合わせた`);
+      assert.ok(rv.sig?.charge && rv.sig?.cast, `${rv.id}: 大技の 前ぶれ`);
+    }
+  }
+  // 借りる 職業（ゼロス ＝ 闇・雷は ＝ 雷）
+  assert.equal(RIVAL_BY_ID.s_xellos.sig.el, 'dark');
+  assert.equal(RIVAL_BY_ID.r_raiha.sig.el, 'bolt');
+  assert.equal(RIVAL_BY_ID.r_raiha.job, 'summoner');
+  assert.deepEqual(RIVAL_BY_ID.s_igai.members.map((m) => m.name), ['エルロゴス', 'シーリウス']);
+  // とびら: しるし・部屋・背景・作品の 職業
+  const ds = RIVAL_DOORS.find((d) => d.work === 'slayers');
+  const dr = RIVAL_DOORS.find((d) => d.work === 'rekka');
+  assert.deepEqual(ds.jobs, ['tabi_madoshi', 'lina', 'doramata']);
+  assert.deepEqual(dr.jobs, ['enjutsushi', 'rekka']);
+  for (const d of [ds, dr]) for (const j of d.jobs) assert.ok(JOBS[j], j);
+  assert.equal(FIXED_ENCOUNTERS[rivalEnc('s_naga')].bg, 'tower');
+  assert.equal(FIXED_ENCOUNTERS[rivalEnc('r_kai')].bg, 'volcano');
+  const room = MAPS[roomId('rekka')];
+  assert.equal(room.tiles[3 * room.w + 2], T.BRAZIER_LIT, '烈火の炎の 部屋は 火山の 部屋');
+  // ほう神演義は 今の 5人の まま（四聖・十天君は 入れない）
+  assert.deepEqual(rivalsOf('houshin').map((x) => x.id), ['h_chou', 'h_dakki', 'h_bunchu', 'h_sansen', 'h_shinkou']);
+});
+
+test('G5: 新しい とびらは 品を 3つで 開く。前の 人に 勝つと 次へ。勝つと 品（エルロゴスと シーリウスは 2つ）', () => {
+  const c = newCharacter({ id: 'a', name: 'ア', job: 'warrior', look: {} });
+  c.items.push({ id: 'r88_bandana', n: 1 }, { id: 'r88_zel_hood', n: 1 });
+  assert.equal(doorOpen(c, 'slayers'), false);
+  c.items.push({ id: 'r88_regulus', n: 1 });
+  assert.equal(doorOpen(c, 'slayers'), true);
+  assert.equal(doorOpen(c, 'rekka'), false);
+  for (const id of ['r88_dosei', 'r88_tetsugan', 'r88_idaten']) c.items.push({ id, n: 1 });
+  assert.equal(doorOpen(c, 'rekka'), true);
+  assert.equal(rivalOpen(c, 's_naga'), true);
+  assert.equal(rivalOpen(c, 's_zangulus'), false, '前の 人に 勝つまで');
+  for (const id of ['s_naga', 's_zangulus', 's_xellos']) giveRivalRewards([c], RIVAL_BY_ID[id]);
+  assert.equal(rivalOpen(c, 's_igai'), true);
+  giveRivalRewards([c], RIVAL_BY_ID.s_igai);
+  for (const id of ['r88_naga_spike', 'r88_zangulus', 'r88_demonblood', 'r88_bodigar', 'r88_nezard']) assert.ok(c.items.some((e) => e.id === id), id);
+  assert.equal(nextRival(c, 'slayers').id, 's_shabra');
+  giveRivalRewards([c], RIVAL_BY_ID.r_mokuren);
+  assert.ok(c.items.some((e) => e.id === 'r88_kodama'));
+  assert.equal(nextRival(c, 'rekka').id, 'r_kai');
+});
+
+test('G5: 回ろうに とびらが 4まい（スレイヤーズ・烈火の炎の しるしつき）。まどに ライバルの ならび', async () => {
+  const L = hallLayout();
+  assert.deepEqual(L.doors.map((d) => d.work), ['houshin', 'yaiba', 'slayers', 'rekka']);
+  assert.deepEqual(L.doors.map((d) => d.mark), ['r88_houshin', 'r88_yaiba', 'r88_slayers', 'r88_rekka']);
+  const hall = MAPS[HALL_ID];
+  for (const d of L.doors) assert.ok(d.x > 0 && d.x < hall.w - 2, `${d.work}: かべの 中`);
+  const { bot, c } = await setup(9);
+  for (const id of ['r88_dosei', 'r88_tetsugan', 'r88_idaten']) c.items.push({ id, n: 1 });
+  await toHall(bot, 'rekka');
+  const from = bot.msgs.length;
+  examine(bot, 'rekka');
+  await bot.settle();
+  assert.ok(said(bot, '木れん', from), 'まどに 1人め');
+  assert.ok(said(bot, '木だま', from), 'もらえる 品');
+});
+
+test('G5: 新しい ライバルも 大技を 1回（前ぶれの つぎの 番）', () => {
+  for (const id of ['s_xellos', 'r_raiha']) {
+    const b = rivalBattle(id);
+    const [m] = setupRivalPhantom(b, RIVAL_BY_ID[id]);
+    assert.equal(m.job, RIVAL_BY_ID[id].job);
+    assert.ok(m.abilities.length > 0, `${id}: 職業の 技`);
+    for (const a of b.allies) a.hp = 9e6;
+    m.maxHp = m.hp = 9e7;
+    m.hp = Math.round(m.maxHp * 0.5);
+    const order = [];
+    for (let t = 0; t < 8 * 60 * 1000 && !b.over; t += 50) {
+      for (const ev of b.tick(50)) if (ev.t === 'act' && ev.id === m.id) order.push(ev.ability || 'attack');
+    }
+    assert.equal(order.filter((x) => x === sigId(id)).length, 1, `${id}: 大技は 1回`);
+    const i = order.indexOf(sigChargeId(id));
+    assert.equal(order[i + 1], sigId(id), `${id}: 前ぶれの つぎの 番に 大技`);
+  }
 });

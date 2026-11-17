@@ -41,7 +41,8 @@ test('ガチャ: YAIBA は ふつう 4つ・名品 1つ。伝説・はじめの 
   const p = gachaPool('yaiba');
   assert.deepEqual([...p.fu].sort(), ['r88_eyepatch', 'r88_kanabo', 'r88_oni_horn', 'r88_shinai']);
   assert.deepEqual(p.mei, ['r88_niten']);
-  assert.equal(gachaPool('houshin').all.length, 0);
+  // G5班: ほう神演義・スレイヤーズ・烈火の炎も ならぶ（G2班の gacha: false を 外した）
+  assert.deepEqual(gachaWorks(), ['yaiba', 'houshin', 'slayers', 'rekka']);
   for (const id of p.all) {
     const it = ITEMS[id];
     assert.ok(['mei', 'fu3', 'fu2'].includes(it.grade), id);
@@ -158,7 +159,7 @@ test('ガチャ: お金が 足りないと 回せない・ない 作品は 回�
   assert.equal(c.gold, GACHA_PRICE - 1);
   assert.equal(c.items.some((e) => ITEMS[e.id]?.work), false);
   const d = freshChar();
-  for (const w of ['houshin', 'nope', '__proto__', 7]) assert.equal(gachaSpin(d, w, fixedRng(true)).ok, false, String(w));
+  for (const w of ['nope', '__proto__', 7]) assert.equal(gachaSpin(d, w, fixedRng(true)).ok, false, String(w));
   assert.equal(d.gold, 1000000);
 });
 
@@ -227,7 +228,7 @@ test('ガチャ: 店の 人に 話して 画面を 開いてから 回す。家�
   const ui = a.bot.msgs.filter((m) => m.t === 'script').flatMap((m) => m.steps).find((st) => st[0] === 'ui' && st[1] === 'gacha');
   assert.ok(ui, '画面が 開く');
   assert.equal(ui[2].price, GACHA_PRICE);
-  assert.deepEqual(ui[2].works.map((w) => w.id), ['yaiba']);
+  assert.deepEqual(ui[2].works.map((w) => w.id), ['yaiba', 'houshin', 'slayers', 'rekka'], 'G5班: 3作品が ならぶ');
   assert.ok(a.c.flags.r88_gacha_seen);
   const r = spin(a);
   assert.equal(r.ok, true, r.text);
@@ -377,7 +378,9 @@ test('七つの玉: ガチャガチャ屋が うわさを 1つずつ（まだ �
 
 // ───────────── 7. 宝の 入れ物 ─────────────
 test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 Lv26 から 名品が まれに。レア装備は へらない', () => {
-  assert.deepEqual(r88MeiAll(), ['r88_niten']);
+  // G5班: ぜんぶの 作品の 名品（YAIBA の 二天一流の二刀が 先頭）
+  assert.equal(r88MeiAll()[0], 'r88_niten');
+  assert.ok(r88MeiAll().length > 1);
   for (const id of r88MeiAll()) assert.equal(ITEMS[id].grade, 'mei');
   // ひみつのダンジョン
   assert.deepEqual(r88SdExtra(19, fixedRng(true)), []);
@@ -407,7 +410,8 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
   }
   assert.ok(r88 / N > 0.02 && r88 / N < 0.04, `名品 ${(r88 / N).toFixed(3)}`);
   // 名品が 1つも ない 時（入れ物を 空に して）と くらべる
-  addRivalGifts(['r88_niten']);
+  const meiAll = r88MeiAll();
+  addRivalGifts(meiAll);
   let rare0 = 0;
   try {
     assert.deepEqual(r88MeiAll(), []);
@@ -417,7 +421,7 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
       if ((ITEMS[l.item]?.rarity || 0) >= 2) rare0++;
     }
   } finally {
-    R88_RIVAL_GIFTS.delete('r88_niten');
+    for (const id of meiAll) R88_RIVAL_GIFTS.delete(id);
     clearGachaCache();
   }
   assert.equal(rareN, rare0, 'レア装備の 数は 同じ');
@@ -483,7 +487,7 @@ test('しおり: 店の 人に 話すと「作品のガチャガチャ」、う�
   const g = t.find((x) => x.id === 'gacha');
   const o = t.find((x) => x.id === 'orbs');
   assert.ok(g && o);
-  assert.equal(g.items.length, 1);
+  assert.equal(g.items.length, gachaWorks().length, '作品ごとに 1行');
   assert.equal(o.now, 1);
   assert.equal(o.total, 7);
   assert.equal(o.items.filter((x) => x.name === '？？？').length, 6, 'まだの 玉は 名前を 出さない');

@@ -63,6 +63,13 @@ export const sdR88Rate = (f) => (f >= 40 ? 0.08 : f >= SD_R88_FROM ? 0.05 : 0);
 //   2つめの 主の 宝箱（bossB。お金・道具）… 8% を 名品に / 主の 宝箱（bossA。レア装備か 限界の石・素材）… かえない
 export const TM_R88_LV = 26;
 export const tmR88Rate = (lv, kind = 'normal') => ((lv || 0) < TM_R88_LV ? 0 : kind === 'normal' ? 0.6 : kind === 'bossB' ? 0.08 : 0);
+// G5班: 宝の洞窟の いちばん おく（地図 Lv46 から ＝ 第8章の おわりの 地図）の 2つめの 主の 宝箱（bossB）に、作品の 伝説が ごく まれに
+//   設計書 7-1 の「宝の洞窟」の 品（烈火の炎の 光界玉・スレイヤーズの ガルヴェイラと ラグドメゼギス）。ライバルの まぼろしでは 出ない 伝説
+//   主の 宝箱（bossA）・ふつうの 宝箱は かえない。伝説なので ガチャには 入らない（gachaBlock の legend）
+export const TM_R88_DEN_LV = 46;
+export const TM_R88_DEN_RATE = 0.04;
+export const TM_R88_DEN = ['r88_kokai', 'r88_galvaira', 'r88_ragud'];
+export const tmR88DenRate = (lv, kind = 'normal') => (kind === 'bossB' && (lv || 0) >= TM_R88_DEN_LV ? TM_R88_DEN_RATE : 0);
 
 // ───────────── はじめの 品の 店 ─────────────
 // 作品の 基本職が 始まる ころの 店（ない 作品は R88_SHOP_DEFAULT）。基本職は どれも さいしょから えらべる ので、
@@ -140,6 +147,9 @@ export function rollGacha(rng, work, pity = 0) {
 export function r88TmLoot(rng, lv, kind, loot) {
   const rate = tmR88Rate(lv, kind);
   if (!rate || !loot) return loot;
+  // G5班: いちばん おくの 2つめの 主の 宝箱は、先に 伝説を ごく まれに（お金・道具の かわり）
+  const den = tmR88DenRate(lv, kind) ? TM_R88_DEN.filter((id) => ITEMS[id]) : [];
+  if (den.length && !(loot.item && ITEMS[loot.item] && ['weapon', 'armor', 'shield', 'head', 'acc'].includes(ITEMS[loot.item].type)) && rng.chance(TM_R88_DEN_RATE)) return { item: rng.pick(den) };
   const it = loot.item ? ITEMS[loot.item] : null;
   const shopGear = !!it && ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type) && !(it.rarity > 0) && loot.item !== 'koufuku_kutsu';
   // ふつうの 宝箱は 店の 装備だけ・主の 宝箱（bossB）は 装備で ない 物だけ を かえる（レア装備・こうふくの靴・限界の石は そのまま）

@@ -18,7 +18,10 @@ import { rebirthOf, upgradeCost, canUpgrade } from '../public/js/shared/data/for
 import { upgradeId, lbId, upgradeLimit, CAP_UP_MAX } from '../public/js/shared/data/items-forge.js';
 import { rareIds } from '../public/js/shared/data/rare-loot.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
-import { gachaBlock, gachaPool, r88MeiAll } from '../public/js/shared/data/gacha-r88.js';
+import { gachaBlock, gachaPool, r88MeiAll, r88TmLoot, trialGiftOf, TM_R88_DEN } from '../public/js/shared/data/gacha-r88.js';
+import { trialGiftSteps } from '../public/js/shared/world/gacha-r88.js';
+import { RIVALS } from '../public/js/shared/data/rivals-r88.js';
+import { chestLoot } from '../public/js/shared/data/treasure.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { Bot } from './helpers.js';
@@ -62,15 +65,12 @@ test('第88回 G2: 品の 数（ほう神演義 7＋38・スレイヤーズ 28�
   for (const id of GEAR_SETS.jutenkun.items) assert.ok(ITEMS[id].type === 'acc' && ITEMS[id].use, id);
 });
 
-test('第88回 G2: 今の 入れ物（宝の洞窟・ひみつのダンジョン・ボス・魔物・店）・ガチャに まざらない（はじめの 品だけ 店に）', () => {
+test('第88回 G2: 今の 入れ物（宝の洞窟・ひみつのダンジョン・ボス・魔物・店）に まざらない（はじめの 品だけ 店に）', () => {
   const mine = new Set([...ids('houshin'), ...ids('slayers'), ...ids('rekka')].filter((id) => ITEMS[id].set !== 'super_paopei'));
   for (const src of ['tm', 'boss', 'region', 'sd']) for (const id of rareIds(src)) assert.ok(!mine.has(ITEMS[id]?.base || id), `${src}: ${id}`);
   // 店には はじめの 品（格 shop。G4班の きまり）だけ
   for (const s of Object.values(SHOPS)) for (const id of [...(s.items || []), ...(s.more || []).flatMap((m) => m.items || [])]) assert.ok(!mine.has(id) || ITEMS[id].grade === 'shop', `店に ${id}`);
-  // ガチャ・宝の 入れ物（名品）には ライバルを きめるまで 入れない
-  for (const id of mine) assert.notEqual(gachaBlock(id), null, id);
-  for (const w of ['houshin', 'slayers', 'rekka']) assert.equal(gachaPool(w).all.length, 0, w);
-  for (const id of r88MeiAll()) assert.ok(!mine.has(id), id);
+  // ガチャ・宝の 入れ物（名品）は G5班が ライバルを きめて 入れた（下の G5 の テスト）
   // 賢者の石（今 ある 品）は かえない
   assert.equal(ITEMS.philosopher_stone.src, 'sd');
   assert.equal(ITEMS.philosopher_stone.work, undefined);
@@ -328,3 +328,68 @@ test('第88回 G2: かじ屋で オリハルコンの像 → 賢者の石', asyn
   assert.equal(itemCount(c, 'r88_orihalcon'), 0);
   assert.equal(itemCount(c, 'philosopher_stone'), 1);
 });
+
+// ───────────── G5班: 手に入れ方（ライバル・ガチャ・試練の ごほうび・宝の洞窟）─────────────
+test('第88回 G5: 3作品が ガチャに ならぶ。ライバルの 品・試練の ごほうび・伝説・生まれ変わりの 先・店の 品は 出ない', () => {
+  const rivalGift = new Set(RIVALS.flatMap((r) => r.reward));
+  const trial = new Set(['r88_dashin', 'r88_lina_mantle']);
+  for (const w of ['houshin', 'slayers', 'rekka']) {
+    const p = gachaPool(w);
+    assert.ok(p.fu.length > 0 && p.mei.length > 0, w);
+    for (const id of p.all) {
+      const it = ITEMS[id];
+      assert.equal(it.work, w, id);
+      assert.ok(['mei', 'fu3', 'fu2'].includes(it.grade), `${id}: ${it.grade}`);
+      assert.ok(!rivalGift.has(id), `ライバルの 品 ${id}`);
+      assert.ok(!trial.has(id), `試練の ごほうび ${id}`);
+    }
+  }
+  // わけ
+  for (const id of rivalGift) assert.notEqual(gachaBlock(id), null, id);
+  assert.equal(gachaBlock('r88_naga_spike'), 'rival');
+  assert.equal(gachaBlock('r88_zangulus'), 'rival');
+  assert.equal(gachaBlock('r88_kodama'), 'rival');
+  assert.equal(gachaBlock('r88_hyoma'), 'rival');
+  assert.equal(gachaBlock('r88_taishaku'), 'rival');
+  assert.equal(gachaBlock('r88_dashin'), 'trial');
+  assert.equal(gachaBlock('r88_lina_mantle'), 'trial');
+  assert.equal(gachaBlock('r88_fujin'), 'rebirth', '風神は 風のツメの 生まれ変わり');
+  for (const id of ['r88_kokai', 'r88_raijin', 'r88_gorun', 'r88_kougon_kiba', 'r88_taikyoku']) assert.equal(gachaBlock(id), 'legend', id);
+  for (const id of ['r88_tsurizao', 'r88_shortsword', 'r88_jewels']) assert.equal(gachaBlock(id), 'shop', id);
+  // 開天じゅ・じんの お札・ばく竜さく は ガチャと 宝の 入れ物から
+  for (const id of ['r88_kaitenju', 'r88_jin_kanpyo', 'r88_jin_kinko', 'r88_bakuryu']) assert.equal(gachaBlock(id), null, id);
+  assert.ok(r88MeiAll().includes('r88_jin_kinko'));
+  assert.ok(r88MeiAll().includes('r88_hyoma') === false, 'ライバルの 名品は 宝の 入れ物にも 入らない');
+});
+
+test('第88回 G5: 試練の ごほうび（太公望 → 太公望の打神べん・リナ → 黒いマントと大ガメのかたあて）', () => {
+  assert.equal(trialGiftOf('taikobo'), 'r88_dashin');
+  assert.equal(trialGiftOf('lina'), 'r88_lina_mantle');
+  assert.equal(trialGiftOf('enjutsushi'), null, '烈火 本人の 品は ない');
+  const c = hero('lina', 40);
+  c.jobs.lina = { lv: 10, tr: 1 };
+  c.jobs.taikobo = { lv: 10, tr: 1 };
+  const steps = trialGiftSteps(c, '番人');
+  assert.equal(itemCount(c, 'r88_dashin'), 1);
+  assert.equal(itemCount(c, 'r88_lina_mantle'), 1);
+  assert.ok(steps.some((st) => st[0] === 'say' && /打神べん/.test(st[2])));
+  assert.deepEqual(trialGiftSteps(c, '番人'), [], '2回めは ない');
+});
+
+test('第88回 G5: 宝の洞窟の いちばん おく（Lv46 から）の 2つめの 主の 宝箱に 光界玉など 伝説が ごく まれに', () => {
+  const yes = { chance: () => true, pick: (a) => a[0], next: () => 0.5 };
+  const gold = { gold: 500 };
+  assert.deepEqual(r88TmLoot(yes, 46, 'bossB', gold), { item: 'r88_kokai' });
+  assert.notEqual(r88TmLoot(yes, 45, 'bossB', gold).item, 'r88_kokai', 'Lv45 までは 出ない');
+  assert.notEqual(r88TmLoot(yes, 50, 'bossA', { item: 'limit_stone', n: 1 }).item, 'r88_kokai', '主の 宝箱は かえない');
+  assert.notEqual(r88TmLoot(yes, 50, 'normal', gold).item, 'r88_kokai', 'ふつうの 宝箱は かえない');
+  assert.deepEqual(TM_R88_DEN, ['r88_kokai', 'r88_galvaira', 'r88_ragud']);
+  for (const id of TM_R88_DEN) assert.equal(ITEMS[id].grade, 'den', id);
+  // 本当の 宝箱: Lv48 の 2つめの 主の 宝箱で 伝説は 2〜6%
+  let den = 0;
+  const N = 4000;
+  for (let i = 0; i < N; i++) if (TM_R88_DEN.includes(chestLoot(makeRng(500 + i), 48, 'bossB').item)) den++;
+  assert.ok(den / N > 0.02 && den / N < 0.06, `伝説 ${(den / N).toFixed(3)}`);
+  for (let i = 0; i < 2000; i++) assert.ok(!TM_R88_DEN.includes(chestLoot(makeRng(900 + i), 40, 'bossB').item));
+});
+
