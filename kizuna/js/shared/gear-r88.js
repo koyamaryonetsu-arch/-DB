@@ -10,8 +10,8 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=8b83305b67a0';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=8b83305b67a0';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=3c0f516de814';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=3c0f516de814';
 
 export const USE_SLOT_PREFIX = 'use_';
 export const ORB_V = 5;
@@ -77,7 +77,11 @@ export function addTier(out, t) {
 export function wearSetPower(char) {
   const out = { add: {}, resist: {}, fx: [] };
   const sets = new Set(equipped(char).map(([, id]) => baseIt(id)?.set).filter((s) => GEAR_SETS[s]));
-  for (const s of sets) addTier(out, powerTier(s, 'wear', wornSetIds(char, s).length));
+  for (const s of sets) {
+    addTier(out, powerTier(s, 'wear', wornSetIds(char, s).length));
+    // G2班: own の 段の 強さ（その 数 持って いて、組の 品を 1つでも つけて いる 人に）
+    addTier(out, powerTier(s, 'own', ownedSetIds(char, s).length));
+  }
   return out;
 }
 // 持って いる 数で とどいた 称号（[{ set, title, n }]）。セーブは しない
@@ -130,6 +134,74 @@ export function rebirthNeedLack(char, need) {
   for (const [sid, n] of Object.entries(need.sets || {})) if (ownedSetIds(char, sid).length < n) lack.push(`${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`);
   return lack.length ? lack : null;
 }
+// ───── G2班: 形を かえる 武器（鋼金暗器。品の shape: '組の 名' と form: '形の 名'）─────
+//   1つの 品を 形ごとの id で 書く（data/items-r88-rekka.js の KOUGON_FORMS）。形を かえると id だけ かわる:
+//   きたえた 回数（+5・★1）は そのまま うつる（'r88_kougon_kiba+5_lb1' → 'r88_kougon_ryu+5_lb1'）。
+//   れん金の 効果（char.gearFx[もとの id]）も 新しい 形の id に うつす
+export const shapeOf = (id) => baseIt(id)?.shape || null;
+const SHAPE_FORMS = {};
+export function shapeForms(id) {
+  const s = shapeOf(id);
+  if (!s) return [];
+  if (!SHAPE_FORMS[s]) SHAPE_FORMS[s] = Object.keys(ITEMS).filter((k) => !ITEMS[k].base && ITEMS[k].shape === s);
+  return SHAPE_FORMS[s];
+}
+// id（きたえた 物も）を toBase の 形に した id（ない ときは null）
+export function shapeTarget(id, toBase) {
+  const b = baseItemId(id);
+  const s = shapeOf(b);
+  if (!s || !ITEMS[id] || ITEMS[toBase]?.base || ITEMS[toBase]?.shape !== s) return null;
+  const nid = toBase + id.slice(b.length);
+  return ITEMS[nid] ? nid : null;
+}
+// れん金の 効果を 新しい 形に うつす（同じ 組の 品が べつに あって 効果が ある ときは 入れかえる）
+export function moveShapeFx(char, fromBase, toBase) {
+  const fx = char?.gearFx;
+  if (!fx || typeof fx !== 'object' || fromBase === toBase) return;
+  const a = fx[fromBase], b = fx[toBase];
+  if (a) fx[toBase] = a; else delete fx[toBase];
+  if (b) fx[fromBase] = b; else delete fx[fromBase];
+}
+// 形を かえる（装備して いる 武器。なければ ふくろの 品を その 形に して 装備する）
+//   dep … { canEquip(char, id), addItem(bag, id, n), removeItem(bag, id, n), equip(char, id, bag) }（stats.js・services.js。ここは import しない）
+//   かえす もの: { ok, text, id? }
+export function shiftShape(who, bag, toBase, dep) {
+  const to = ITEMS[toBase];
+  if (!who || !to?.shape || to.base) return { ok: false, text: 'その形にはかえられない' };
+  const cur = who.equip?.weapon;
+  if (cur && shapeOf(cur) === to.shape) {
+    const from = baseItemId(cur);
+    if (from === toBase) return { ok: false, text: 'もうその形になっている' };
+    const nid = shapeTarget(cur, toBase);
+    if (!nid) return { ok: false, text: 'その形にはかえられない' };
+    if (!dep.canEquip(who, nid)) return { ok: false, text: `${who.name}は、その形の武器を持てない` };
+    who.equip.weapon = nid;
+    moveShapeFx(who, from, toBase);
+    return { ok: true, text: `${to.name.split('・')[0]}は、${to.form}にかわった！`, id: nid };
+  }
+  // ふくろの 品（同じ 形の 物が あれば それ）
+  const list = (bag?.items || []).filter((e) => e?.n > 0 && shapeOf(e.id) === to.shape);
+  const e = list.find((x) => baseItemId(x.id) === toBase) || list[0];
+  if (!e) return { ok: false, text: '持っていない' };
+  const old = e.id;
+  const nid = baseItemId(old) === toBase ? old : shapeTarget(old, toBase);
+  if (!nid) return { ok: false, text: 'その形にはかえられない' };
+  if (!dep.canEquip(who, nid)) return { ok: false, text: `${who.name}は、その形の武器を持てない` };
+  if (nid !== old) {
+    if (!dep.removeItem(bag, old, 1)) return { ok: false, text: '' };
+    dep.addItem(bag, nid, 1);
+    moveShapeFx(bag, baseItemId(old), toBase);
+    if (who !== bag) moveShapeFx(who, baseItemId(old), toBase);
+  }
+  if (!dep.equip(who, nid, bag)) return { ok: false, text: `${who.name}は、その形の武器を持てない` };
+  return { ok: true, text: `${to.form}にかえて、${who.name}が装備した！`, id: nid };
+}
+// 形を かえられる 品（装備して いる 武器か、ふくろの 品。ない ときは null）
+export function shapeSource(who, bag) {
+  if (shapeOf(who?.equip?.weapon)) return who.equip.weapon;
+  return (bag?.items || []).find((e) => e?.n > 0 && shapeOf(e.id))?.id || null;
+}
+
 export function rebirthNeedText(need) {
   if (!need) return '';
   const parts = [...(need.items || []).map((id) => `${ITEMS[id]?.name || id}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`)];

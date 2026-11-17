@@ -4,9 +4,10 @@
 //   ・使う（品の use）… 1つの 戦いで その 品 1回（battle-gearfx.js の gearUseCheck・gearUse。u.once・u.used）
 //   ・そろい rule 'party' … 戦いの はじめの 仲間で 数えて、全員に その 段の 強さ（applyPartySets。battle.js の constructor）
 //   どれも 戦いの 中だけ（セーブしない）
-import { GEAR_SETS } from './data/gear-sets.js?v=8b83305b67a0';
-import { fxPower, GEAR_FX } from './data/gear-fx.js?v=8b83305b67a0';
-import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=8b83305b67a0';
+import { GEAR_SETS } from './data/gear-sets.js?v=3c0f516de814';
+import { fxPower, GEAR_FX } from './data/gear-fx.js?v=3c0f516de814';
+import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=3c0f516de814';
+import { ITEMS, baseItemId } from './data/items.js?v=3c0f516de814';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {
@@ -78,4 +79,15 @@ export function applyPartySets(b) {
 // 1回だけの 品を 使えるか（使った ときは わけ）
 export function onceBlock(u) {
   return u?.once && u.used ? 'この戦いでは、もう使った' : null;
+}
+
+// G2班: 使うと HPが 少し へる 品（品の use.hpCost … 最大HPの わりあい。雷神）。HPは 1より 下がらない
+export function useHpCost(c, u, ev) {
+  const k = ITEMS[baseItemId(u?.id)]?.use?.hpCost;
+  if (!k || !c?.alive || c.hp <= 1) return 0;
+  const d = Math.min(c.hp - 1, Math.max(1, Math.round(c.maxHp * k)));
+  c.hp -= d;
+  ev.lines.push(`${ITEMS[u.id]?.name || '装備'}が、${c.name}の力を少し使った…（HP-${d}）`);
+  if (!ev.upd.includes(c)) ev.upd.push(c);
+  return d;
 }

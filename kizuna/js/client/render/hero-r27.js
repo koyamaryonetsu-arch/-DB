@@ -7,7 +7,7 @@
 //   R27_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
 //   drawR27(cv, P, O, layer) … 羽織の 家もん（まえ 2つ・せなか 1つ）
 //   drawProp27(cv, P, A, O) … たての ない 手の せんす（かいたら true）
-import { mat, ramp, TH } from './hero-raster.js?v=8b83305b67a0';
+import { mat, ramp, TH } from './hero-raster.js?v=3c0f516de814';
 
 const GOLD = ['#5a3210', '#9c5e1a', '#d69a2e', '#f6d26c', '#fff6cc'];
 const gold = () => mat({ r: GOLD, th: TH.metal, spec: 0.958, sc: '#ffffff' });

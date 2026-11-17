@@ -1,6 +1,6 @@
 // 第50回 D2: すごろくの 盤の かざり（マスの タイル・しるし・盤の まわりの 草花や サボテン・背景・地下の 道）
 //   render/sugoroku.js の SgBoardView が つかう
-import { starPath, chestArt } from './sugoroku-fx.js?v=8b83305b67a0';
+import { starPath, chestArt } from './sugoroku-fx.js?v=3c0f516de814';
 
 const FONT = "'KizunaDot', 'DotGothic16', monospace";
 

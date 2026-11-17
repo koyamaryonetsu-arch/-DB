@@ -5,6 +5,8 @@
 export const WORKS = {
   yaiba: { name: 'YAIBA' },
   houshin: { name: 'ほう神演義' },
+  slayers: { name: 'スレイヤーズ' },
+  rekka: { name: '烈火の炎' },
 };
 
 export const workName = (id) => WORKS[id]?.name || '';

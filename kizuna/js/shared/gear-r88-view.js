@@ -1,13 +1,13 @@
 // 第88回: 作品を 思い出す 装備の せつめいの 文（装備の まど・くらべる まど・道具の せつめい。client/ui/info.js・equip-compare.js・menu.js）
 //   「作品の力：風の力+5（…）」「使う：…（1つの戦いで1回）」「そろい：七つの玉 3/7」
-import { ITEMS, baseItemId } from './data/items.js?v=8b83305b67a0';
-import { ABILITIES } from './data/abilities.js?v=8b83305b67a0';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=8b83305b67a0';
-import { WORKS } from './data/works.js?v=8b83305b67a0';
-import { GRADES } from './data/items-r88-kit.js?v=8b83305b67a0';
-import { REBIRTH } from './data/items-alchemy.js?v=8b83305b67a0';
-import { fxText, fxShort } from './data/gear-fx.js?v=8b83305b67a0';
-import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=8b83305b67a0';
+import { ITEMS, baseItemId } from './data/items.js?v=3c0f516de814';
+import { ABILITIES } from './data/abilities.js?v=3c0f516de814';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=3c0f516de814';
+import { WORKS } from './data/works.js?v=3c0f516de814';
+import { GRADES } from './data/items-r88-kit.js?v=3c0f516de814';
+import { REBIRTH } from './data/items-alchemy.js?v=3c0f516de814';
+import { fxText, fxShort } from './data/gear-fx.js?v=3c0f516de814';
+import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=3c0f516de814';
 
 const EL = { fire: '炎', ice: '氷', bolt: '雷', wind: '風', light: '光', dark: '闇' };
 const workIt = (id) => {
@@ -50,6 +50,9 @@ export function r88DetailLines(id, who = null) {
   if (it.orb?.el) out.push(`玉：つけると、武器のふつうの攻撃が${EL[it.orb.el] || ''}になる（武器に属性があれば、そちらが先）`);
   const a = ABILITIES[it.use?.ability];
   if (a) out.push(`使う：${a.name}（1つの戦いで1回・MPなし）${a.desc ? `\n　${a.desc}` : ''}`);
+  // G2班: 使うと HPが へる 品（雷神）・形を かえる 武器（鋼金暗器）
+  if (a && it.use.hpCost) out.push(`　使うと、HPが少しへる（最大HPの${Math.round(it.use.hpCost * 100)}%）`);
+  if (it.shape && it.form) out.push(`形：${it.form}（装備のまどの「形をかえる」で、持てる形にかえられる）`);
   const set = GEAR_SETS[it.set];
   if (set) {
     out.push(`そろい：${setLine(id, who)}`);
