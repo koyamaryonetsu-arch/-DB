@@ -51,7 +51,7 @@ const OPEN = (g) => ANY_GROUPS.has(g) || g === MONSTER_ALLY;
 const OLD = {
   dt_taishoumetsu: '対消滅', dt_honoo_tatsumaki: '炎の竜巻', dt_cross_mahouken: 'クロス魔法剣', dt_cross_break: 'クロスブレイク', dt_iyashi_wa: 'いやしの輪', dt_stage: 'ステージショー',
   dt_tsukin_rush: '通勤ラッシュ', dt_jugyo_sankan: '授業参観', dt_manzai: 'まんざい', dt_gomu_kame: 'ゴムゴムのかめはめ波', dt_bentou: 'お弁当とどけに来たよ', dt_hataraki: '早く働きなさい！',
-  dt_gyouretsu: '行列のできる店', dt_zenkan: '全館リニューアル', dt_hametsu: '破滅のはかい玉', dt_hikari_yami: '光と闇', dt_delta: 'デルタストライク', dt_jump: 'せーのでジャンプ',
+  dt_gyouretsu: '行列のできる店', dt_zenkan: '全館リニューアル', dt_hametsu: 'カラミティはかい玉', dt_hikari_yami: '光と闇', dt_delta: 'デルタストライク', dt_jump: 'せーのでジャンプ',
   dt_uukanpi: 'ウーウーカンカンピーポー', dt_oosouji: '大そうじ大作戦', dt_ogori: '部長のおごりだ！', dt_dai_collab: '大コラボ配信', dt_zenin: '全員集合', dt_kazoku_kaigi: '家族会議',
   dt_finale: 'グランドフィナーレ', dt_minadein: 'ミナデイン', dt_hannin: 'おまえが犯人だ！', dt_nantoka: 'なんとかしてよ〜！', dt_kyuuri_zushi: 'キュウリずし', dt_point10: 'ポイント10倍デー',
   dt_nichirin: '日輪の大ほのお', dt_nenriki_meteor: 'ねん力メテオ', dt_okusuri: 'おくすり手帳', dt_megumi: 'め組の大立ち回り', dt_hakkeyoi: 'はっけよい、のこった！', dt_nazo: 'なぞはすべて解けた！',

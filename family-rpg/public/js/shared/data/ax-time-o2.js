@@ -94,6 +94,8 @@ export const AX_TIME_O2 = {
   ox_maou_iatsu: { tier: 'legend', charge: M(300), hit: 500, len: 1600 },
   ox_yami_koromo: { tier: 'legend', charge: M(300), hit: 460, len: 1350, party: true },
   ox_hametsu_hikari: { tier: 'legend', charge: M(300), hit: 620, len: 1900 },
+  // 第88回 M1班: カイザーフェニックス（Lv1。もとは 大技の え なし）
+  ox_kaiser_phoenix: { tier: 'legend', charge: M(300), hit: 620, len: 1800 },
   ox_yami_no_sekai: { tier: 'legend', charge: M(300), hit: 520, len: 1900 },
   // ── 合体技（ため なし。2人 1600・3人 1900）
   ox_hametsu_hakaidama: { tier: 'super', charge: false, hit: 720, len: 1600 },
@@ -131,7 +133,7 @@ export const AX_SKILLS_O2 = {
   // ダ天使（dt_ で はじまるが 合体技で ない）
   dt_hohoemi: 'ox_tenshi_hohoemi', dt_keiyaku: 'ox_kindan_keiyaku', dt_tsubasa: 'ox_kuroi_tsubasa', dt_darkangel: 'ox_dark_angel',
   // 魔王
-  mo_hadou: 'ox_itetsuku_hadou', mo_tsume: 'ox_maou_tsume', mo_iatsu: 'ox_maou_iatsu', mo_koromo: 'ox_yami_koromo', mo_hametsu: 'ox_hametsu_hikari',
+  mo_kokuen: 'ox_kaiser_phoenix', mo_hadou: 'ox_itetsuku_hadou', mo_tsume: 'ox_maou_tsume', mo_iatsu: 'ox_maou_iatsu', mo_koromo: 'ox_yami_koromo', mo_hametsu: 'ox_hametsu_hikari',
   // ひらめき
   hk_sandan: 'ox_sandan_zuki', hk_senpuukyaku: 'ox_senpuu_kyaku', hi_yami_sekai: 'ox_yami_no_sekai', hi_spoon_arashi: 'ox_spoon_arashi',
   hi_tenchi_kudaki: 'ox_tenchi_kudaki', hi_shield_throw: 'ox_shield_throw', hi_mamono_shingeki: 'ox_mamono_shingeki', hi_lucifer: 'ox_lucifer_wing',

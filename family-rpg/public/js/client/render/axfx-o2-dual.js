@@ -11,7 +11,7 @@ const EARTH = ['#a08060', '#6a5040', '#d8c0a0'];
 const CONF = ['#ff5a5a', '#ffd23a', '#5ab8ff', '#7ae07a', '#ff7ad8'];
 
 export const AX_O2_DUAL = {
-  // 破滅のはかい玉: むらさきと 黒の 2つの 玉が 回りながら 1つに → 大きな はかい玉が ふくらむ → 大爆発＋むらさきの 衝撃波 → 宇宙の ちり
+  // カラミティはかい玉: むらさきと 黒の 2つの 玉が 回りながら 1つに → 大きな はかい玉が ふくらむ → 大爆発＋むらさきの 衝撃波 → 宇宙の ちり
   ox_hametsu_hakaidama: {
     sfx: 'ax_o2_hakaidama',
     allyFx: 'dark',
