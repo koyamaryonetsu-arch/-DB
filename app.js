@@ -1828,6 +1828,14 @@
   const DUE_DAYS = 3;   // 平日3日（土日祝は数えない）
   // 手で選んだステータスは、日付が新しく入ったら自動に戻す（取り下げ・失注は戻さない。DB のしくみ cases_auto_status と同じ決まり）
   const AUTO_STATUS_DATES = ['surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate'];
+  // 手で調査日・作業開始日を入れた・変えた時: 保存のあと「作業申請書を作りますか？」（作る／申請不要／あとで）。菱熱だけ
+  function waAfterDates(c, prev) {
+    if (!realPrivileged(currentUser) || store.mode !== 'supabase' || !caseMailSupported) return;
+    const changed = WA_PURPOSES.filter((P) => c[P.field] && c[P.field] !== ((prev || {})[P.field] || '')).map((P) => ({ purpose: P.key, from: (prev || {})[P.field] || '' }));
+    if (!changed.length) return;
+    const id = c.id;
+    setTimeout(() => { if (window.WORKAPP) window.WORKAPP.decide(id, changed.map((x) => x.purpose), { why: 'manual', from: changed }); }, 600);
+  }
   function autoClearOverride(c, prev) {
     if (!c || !c.statusOverride || c.statusOverride === '取り下げ' || c.statusOverride === '失注') return;
     if (prev && prev.statusOverride !== c.statusOverride) return;   // 同じ保存でステータスも選び直した
@@ -2271,7 +2279,27 @@
   // 注意ボタンでの絞り込み: '' = なし / 'row-red' = 見積り遅れ / 'row-yellow' = 初動報告まだ / 'row-orange' = 調査日未定（行の色と同じ意味）
   let attentionFilter = '';
   const CHIP_STATUS_ORDER = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
+  // 色の凡例（トップ・菱熱だけ）: 行の色と、ステータスの色。「たたむ」で小さくできる（ブラウザごとに覚える）
+  const LEGEND_KEY = 'colorLegendOpenV1';
+  function renderColorLegend() {
+    const box = $('colorLegend'); if (!box) return;
+    if (!isPrivileged(currentUser)) { box.innerHTML = ''; return; }
+    let open = true; try { open = localStorage.getItem(LEGEND_KEY) !== '0'; } catch (e) {}
+    if (!open) { box.innerHTML = '<button type="button" class="cl-toggle" data-cltoggle="1" title="行の色・ステータスの色の意味を出します">🎨 色の凡例 ▸</button>'; return; }
+    const rows = [['cl-red', '見積り遅れ'], ['cl-yellow', '初動報告まだ'], ['cl-orange', '調査日未定'], ['cl-blue', '見積り提出済']];
+    const sts = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
+    box.innerHTML = `<span class="cl-h">行の色</span>${rows.map(([c, t]) => `<span class="cl-item"><span class="swatch ${c}"></span>${t}</span>`).join('')}
+      <span class="cl-item"><span class="cl-blink">内容</span>見積り中（赤く点滅）</span>
+      <span class="cl-sep"></span><span class="cl-h">ステータス</span>${sts.map((st) => `<span class="status-badge status-${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))}</span>`).join('')}
+      <button type="button" class="cl-toggle" data-cltoggle="0" title="凡例をたたむ">たたむ ▴</button>`;
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cltoggle]'); if (!b) return;
+    try { localStorage.setItem(LEGEND_KEY, b.dataset.cltoggle); } catch (err) {}
+    renderColorLegend();
+  });
   function renderStatusChips() {
+    renderColorLegend();
     const box = $('statusChips'); if (!box || !currentUser) return;
     const base = getFilteredCases({ forChips: true });
     const cnt = {};
@@ -2335,6 +2363,7 @@
     try { accountsCache = await store.fetchAccounts(); } catch (e) { accountsCache = []; }
     await loadWorkappStates();
     renderRPersonBar(); renderDatalists(); render();
+    setTimeout(() => { try { if (window.WORKAPP && store.mode === 'supabase' && caseMailSupported) window.WORKAPP.checkQueue(); } catch (e) { console.warn(e); } }, 1500);
   }
   // 異動・退職の人で絞った時: 未完了の案件をまとめて付け替えるバー
   function renderReassignBar() {
@@ -2385,6 +2414,9 @@
           <h3 class="mst-h">🏢 会社・🎬 劇場</h3>
           <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
           <button type="button" data-opentm>📚 客先マスター（会社・劇場）を開く</button>
+          <h3 class="mst-h">🤝 協力会社</h3>
+          <p class="ms-note">作業申請書の「協力会社」「作業者」の候補です。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します。</p>
+          <button type="button" data-openpt>🤝 協力会社マスターを開く</button>
         </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
     };
     draw();
@@ -2397,6 +2429,7 @@
     ov.addEventListener('click', async (e) => {
       if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
       if (e.target.closest('[data-opentm]')) { ov.remove(); openTheaterMasterModal(); return; }
+      if (e.target.closest('[data-openpt]')) { ov.remove(); if (window.WORKAPP) window.WORKAPP.openPartners(); return; }
       if (e.target.closest('[data-sadd]')) {
         const name = ov.querySelector('#mstName').value.trim().replace(/(さん|様)$/, '');
         const email = ov.querySelector('#mstEmail').value.trim().toLowerCase();
@@ -2496,28 +2529,59 @@
     if (st && !st.title) st.title = '⚙ 日付から自動で決まります（手で変えることもできます）｜👀 客先にも見えます';
   }
   // ===== 作業申請書の状態（一覧の「申請書」列・菱熱だけ） =====
-  let workappStates = new Map();   // 案件 id → 'final'（送付済）/ 'draft'（作成中）
+  // 作業申請書は「調査」と「作業」で別々（case_files.meta.purpose。前からある行＝作業）。
+  // 1つの用途の状態: none（まだ）/ draft（作成中）/ final（送付済）/ skip（申請不要で通知）/ manual（提出済み・通知しない）/ stale（作った後に日付が変わった）
+  let workappRows = new Map();   // 案件 id → [{ id, status, purpose, for_date, created_at }]（古い順）
+  const WA_PURPOSES = [{ key: 'survey', label: '調査', field: 'surveyDate' }, { key: 'work', label: '作業', field: 'workStartDate' }];
   async function loadWorkappStates() {
     if (!caseMailSupported || !realPrivileged(currentUser) || store.mode !== 'supabase') return;
     try {
-      const { data, error } = await sb.from('case_files').select('case_id,status').eq('kind', 'workapp').is('deleted_at', null);
+      const { data, error } = await sb.from('case_files').select('id,case_id,status,meta,created_at').eq('kind', 'workapp').is('deleted_at', null).order('created_at', { ascending: true });
       if (error) return;
       const m = new Map();
-      (data || []).forEach((r) => { const k = String(r.case_id); if (r.status === 'final' || !m.has(k)) m.set(k, r.status === 'final' ? 'final' : (m.get(k) || 'draft')); });
-      workappStates = m;
+      (data || []).forEach((r) => { const k = String(r.case_id); const meta = r.meta || {};
+        if (!m.has(k)) m.set(k, []);
+        m.get(k).push({ id: r.id, status: r.status, purpose: meta.purpose === 'survey' ? 'survey' : 'work', for_date: meta.for_date || '', created_at: r.created_at }); });
+      workappRows = m;
     } catch (e) {}
   }
-  function workappLabel(c) { const st = workappStates.get(String(c.id)); return st === 'final' ? '送付済' : st === 'draft' ? '作成中' : ''; }
-  // 作業開始日が今日から7日以内なのに、まだ送っていない（作成中・未作成）
-  function workappDue(c) {
-    if (!c.workStartDate || workappStates.get(String(c.id)) === 'final') return false;
-    const d = (new Date(c.workStartDate + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 86400000;
+  function waState(c, purpose) {
+    const P = WA_PURPOSES.find((x) => x.key === purpose); const date = c[P.field] || '';
+    const rows = (workappRows.get(String(c.id)) || []).filter((r) => r.purpose === purpose);
+    const rec = rows[rows.length - 1] || null;
+    if (!rec) return { date, rec: null, state: 'none' };
+    if (rec.status !== 'draft' && rec.for_date && date && rec.for_date !== date) return { date, rec, state: 'stale' };
+    return { date, rec, state: ['draft', 'final', 'skip', 'manual'].includes(rec.status) ? rec.status : 'final' };
+  }
+  const WA_STATE_LABEL = { none: 'まだ', draft: '作成中', final: '送付済', skip: '申請不要', manual: '提出済', stale: '日付が変わった' };
+  function workappLabel(c) {
+    return WA_PURPOSES.filter((P) => c[P.field]).map((P) => P.label + ':' + WA_STATE_LABEL[waState(c, P.key).state]).join(' ');
+  }
+  // 調査日・作業開始日が今日から7日以内なのに、まだ決めていない（作成中・未作成・日付が変わった）
+  function workappDue(c, purpose) {
+    const w = waState(c, purpose); if (!w.date || !['none', 'draft', 'stale'].includes(w.state)) return false;
+    const d = (new Date(w.date + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 86400000;
     return d >= 0 && d <= 7;
   }
   function workappTd(c) {
-    const lab = workappLabel(c), due = workappDue(c);
-    const html = lab === '送付済' ? '<span class="wa-b wa-final">✅ 送付済</span>' : lab === '作成中' ? '<span class="wa-b wa-draft">📝 作成中</span>' : '<span class="wa-none">—</span>';
-    return `<td class="col-ryo col-workapp${due ? ' wa-due' : ''}" data-colkey="workapp" data-label="申請書"${due ? ' title="作業開始日まで7日以内です。作業申請書を送ってください"' : ''}>${html}${due ? ' <span class="wa-warn">⚠</span>' : ''}</td>`;
+    const md = (d) => { const m = String(d || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${+m[1]}/${+m[2]}` : ''; };
+    const can = store.mode === 'supabase';
+    const parts = WA_PURPOSES.filter((P) => c[P.field]).map((P) => {
+      const w = waState(c, P.key), due = workappDue(c, P.key);
+      const lab = `<span class="wa-pp">${P.label} ${md(w.date)}</span>`;
+      const btn = (cls, text, title) => can ? `<button type="button" class="wa-make ${cls}" data-wadecide="${escapeHtml(c.id)}" data-purpose="${P.key}" title="${title}">${text}</button>` : `<span class="wa-b ${cls}">${text}</span>`;
+      const body = w.state === 'final' ? btn('wa-final', '✅ 送付済', '送った作業申請書。押すと作り直せます')
+        : w.state === 'skip' ? btn('wa-skip', '申請不要', '申請不要で客先に通知しました。押すと作れます')
+        : w.state === 'manual' ? btn('wa-final', '✅ 提出済', '別に提出済み（メールは送っていません）')
+        : w.state === 'draft' ? btn('wa-draft', '📝 作成中', '作りかけの作業申請書。押すと続きから直せます')
+        : w.state === 'stale' ? btn('wa-stale', '⚠ 日付変更', '作業申請書を作った後に日付が変わりました。押すと作り直せます')
+        : btn('', '📝 作る', '作業申請書を作る（AI が劇場の書式に書き込みます）／申請不要');
+      return `<div class="wa-line${due ? ' wa-due' : ''}"${due ? ` title="${P.label}まで7日以内です。作業申請書を決めてください"` : ''}>${lab}${body}${due ? '<span class="wa-warn">⚠</span>' : ''}</div>`;
+    });
+    // 日付が無いのに手で付けた申請書がある時は、その状態だけ出す
+    if (!parts.length) { const rows = workappRows.get(String(c.id)) || []; const last = rows[rows.length - 1];
+      if (last) parts.push(last.status === 'draft' ? '<span class="wa-b wa-draft">📝 作成中</span>' : last.status === 'skip' ? '<span class="wa-b wa-skip">申請不要</span>' : '<span class="wa-b wa-final">✅ 送付済</span>'); }
+    return `<td class="col-ryo col-workapp" data-colkey="workapp" data-label="申請書">${parts.join('') || '<span class="wa-none">—</span>'}</td>`;
   }
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
   let caseMailSupported = false;          // case_watchers の表がある（SETUP_CASE_MAIL.sql 済み）
@@ -3334,6 +3398,7 @@
         const before = Object.assign({}, c);
         c[field] = newVal;
         autoClearOverride(c, before);
+        waAfterDates(c, before);
         // 作業開始日に実日付/空が入ったら、日程調整中フラグは解除（自動判定に戻す）
         if (field === 'workStartDate' && c.scheduleAdjusting) c.scheduleAdjusting = false;
         // 請求書発行日を入れたら、入金日(予定)を翌月末で自動入力（予定状態）
@@ -3642,6 +3707,19 @@
     const b = e.target.closest('[data-cmup]'); if (!b) return;
     e.preventDefault(); openUploadDialog(b.dataset.cmup);
   });
+  // 📝 作業申請書（一覧の「申請書」列・編集パネル）。行を押した時の動き（編集を開く）より先に受け取る
+  //   一覧: 調査・作業ごとのボタン → 作る／申請不要／あとで を選ぶ画面（作成中なら続きから）
+  //   編集パネル: 日付の入った用途（調査・作業）を並べて選ぶ
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-wadecide],[data-wamake]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (!window.WORKAPP) { window.KARTE.say('作業申請書の部品を読み込めませんでした。画面を読み込み直してください'); return; }
+    const id = b.dataset.wadecide || b.dataset.wamake || cmCaseId; if (!id) return;
+    const c = cases.find((x) => String(x.id) === String(id)); if (!c) return;
+    const purpose = b.dataset.purpose || '';
+    if (purpose && waState(c, purpose).state === 'draft') { window.WORKAPP.open(id, purpose); return; }
+    window.WORKAPP.decide(id, purpose ? [purpose] : null, { why: 'button' });
+  }, true);
   document.addEventListener('click', async (e) => {
     const sec = e.target.closest('#caseMailSec'); if (!sec) return;
     const K = window.KARTE; const c = cases.find((x) => String(x.id) === cmCaseId);
@@ -7090,6 +7168,7 @@
     // 既存の statusOverride / tasks / 配分 などフォーム外の項目は保持（マージ）
     const saved = Object.assign({}, prev || {}, data);
     autoClearOverride(saved, prev);
+    waAfterDates(saved, prev);
     if (existing >= 0) cases[existing] = saved; else cases.push(saved);
     const p = persistCase(saved);
     // 案件名が空なら、保存のあとに AI が内容から付ける（「どこでどうなった」だけ）
@@ -7550,7 +7629,17 @@
       // 劇場カルテ(karte.js)用: 不具合の履歴の行から案件を開く
       openCase: (id) => { try { const c = cases.find((x) => String(x.id) === String(id)); if (c) openModalGuarded(c, 'full'); } catch (e) { console.warn(e); } },
       shortTheater: (name) => shortTheaterName(name),
-      userEmail: () => (currentUser && currentUser.email) || ''
+      userEmail: () => (currentUser && currentUser.email) || '',
+      // 作業申請書の自動作成(workapp.js)用: 案件の中身・担当者マスター・書類を変えた後の描き直し・通知メールの宛先の文
+      caseInfo: (id) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? { id: c.id, company: c.company || '', theater: c.theater || '', title: c.title || '', content: c.content || '', category: c.category || '', estimateName: c.estimateName || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', rPerson: c.rPerson || '' } : null; },
+      staff: () => (staffList || []).map((x) => ({ name: x.name, phone: x.phone || '', email: x.email || '', active: x.active !== false })),
+      userName: () => currentUserName(),
+      toast: (t) => showToastLite(t),
+      mailTo: async (id) => { const c = cases.find((x) => String(x.id) === String(id)); try { return c ? await caseMailRecipientsText(c) : ''; } catch (e) { return ''; } },
+      afterWorkapp: async (id) => { await loadWorkappStates(); render(); const c = cases.find((x) => String(x.id) === String(id)); if (c && cmCaseId === String(id)) renderCaseMailSec(c); },
+      // 調査・作業ごとの作業申請書の状態（none/draft/final/skip/manual/stale）と、決めていない予定を探す用の案件一覧
+      waState: (id, purpose) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? waState(c, purpose) : null; },
+      waCases: () => cases.filter((c) => isOpenCase(c) && (c.surveyDate || c.workStartDate)).map((c) => ({ id: c.id, theater: c.theater || '', company: c.company || '', rPerson: c.rPerson || '', title: c.title || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '' }))
     };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');

@@ -72,6 +72,7 @@
 ├── templates.js        # 請求書/完了届テンプレート（base64）
 ├── kotei.js            # 工程表（ガントチャート）の編集。開く/保存は shelf.js が担当
 ├── shelf.js            # 書類棚（工程表・工事写真台帳のフォルダ管理・上書き保存/名前を付けて新規に保存）＋写真台帳
+├── workapp.js          # 作業申請書の自動作成（書式＋記入例を AI が読む→先に聞く→PDF/Excel/Word に書き込む→確認→OKで劇場へ送る）＋協力会社マスター。AI は api/workapp-ai.mjs
 ├── shelf.css           # 書類棚・写真台帳の見た目（style.css とは別ファイル）
 ├── karte.js            # 劇場カルテ（各劇場情報の中身）: タブ・1件ずつの持病/備考/設備メモ・機器表（AI読み取り）・別の劇場へ移す・Excel。window.KARTE
 ├── karte.css           # 劇場カルテの見た目

@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="karte.css">
 <link rel="stylesheet" href="plan.css">
 <link rel="stylesheet" href="heatload.css">
+<link rel="stylesheet" href="workapp.css">
 <script src="vendor/supabase.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
 <script src="config.js"></script>
@@ -189,11 +190,12 @@
       <div class="fb-pop-wrap ryo-only">
         <button id="legendBtn" type="button" class="fb-help" aria-haspopup="true" aria-expanded="false" title="色の意味・操作のしかた">?</button>
         <div id="legendPop" class="fb-pop hidden">
-          <div class="fb-pop-h">行の左端の色の意味</div>
-          <div class="legend-item"><span class="swatch swatch-yellow"></span>調査日が未定（受付から3営業日以上）</div>
-          <div class="legend-item"><span class="swatch swatch-yellowgreen"></span>見積り中（調査日から3営業日未満）</div>
-          <div class="legend-item"><span class="swatch swatch-red"></span>見積り遅れ（調査日から3営業日以上）</div>
-          <div class="legend-item"><span class="swatch swatch-blue"></span>客先対応中・見積り提出済</div>
+          <div class="fb-pop-h">行の色の意味（修理・メンテナンス・点検だけ。繰越は色なし）</div>
+          <div class="legend-item"><span class="swatch cl-red"></span>見積り遅れ（現調の翌日から平日3日を過ぎても見積り未提出）</div>
+          <div class="legend-item"><span class="swatch cl-yellow"></span>初動報告まだ（TOHO の自動登録の案件）</div>
+          <div class="legend-item"><span class="swatch cl-orange"></span>調査日未定（受付・調査日調整中のまま平日3日を過ぎた）</div>
+          <div class="legend-item"><span class="swatch cl-blue"></span>見積り提出済（発注待ち）</div>
+          <div class="legend-item"><span class="cl-blink">内容</span>見積り中は「内容」の文字が赤く点滅</div>
           <div class="fb-pop-h">操作のしかた</div>
           <p>セルをクリックするとその場で編集。内容・社内メモ・顧客メモはクリックでポップアップ。行にマウスを乗せると左端に ✎（すべての項目を編集）。</p>
           <p>見出しの ▲ で並び替え（昇順→降順→解除）。列の場所は見出しをドラッグ。</p>
@@ -207,6 +209,8 @@
         <button id="sortStatusBtn" type="button">ステータス順</button>
       </span>
       <span id="caseCount" class="case-count"></span>
+      <!-- 色の凡例（行の色・ステータスの色）。菱熱だけ。たためる（ブラウザごとに覚える） -->
+      <div id="colorLegend" class="color-legend ryo-only"></div>
     </div>
 
     <div id="aggBar" class="agg-bar hidden">
@@ -825,6 +829,7 @@
           <div class="cm-upload">
             <button type="button" class="kt-upload" data-cmup="quote">🆙 見積書をアップロード</button>
             <button type="button" class="kt-upload" data-cmup="workapp">🆙 作業申請書をアップロード</button>
+            <button type="button" class="kt-upload wa-make-btn" data-wamake="" title="劇場の書式（書類棚）に、AI が書き込みます。先に足りないことを聞きます">📝 作業申請書を作る（AI）</button>
           </div>
           <div class="cm-log" id="cmLog"></div>
         </div>
@@ -1042,5 +1047,6 @@
 <script src="karte.js"></script>
 <script src="plan.js"></script>
 <script src="guide.js"></script>
+<script src="workapp.js"></script>
 </body>
 </html>
