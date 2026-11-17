@@ -172,7 +172,7 @@ test('ガチャ: まだ 持って いない 品だけが 出る（同じ 品は 
 });
 
 test('ガチャ: のこりが なくなるまで 回すと 全部 そろう。どの 作品も 品の 数 × 20000G（YAIBA 10万G・スレイヤーズ 32万G・烈火の炎 62万G・ほう神演義 70万G）', () => {
-  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000 }; // G8班: らんま1/2・ぬ〜べ〜
+  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000, naruto: 540000, kimetsu: 500000 }; // G8班: らんま1/2・ぬ〜べ〜 / G10班: ナルト・きめつのやいば
   for (const w of gachaWorks()) {
     const p = gachaPool(w);
     assert.equal(p.all.length * GACHA_PRICE, want[w], w);
@@ -343,7 +343,7 @@ test('ガチャ: 台と 店の 人は ルミナの町（星の神殿の 外）�
 
 // ───────────── 5. はじめの 品の 店 ─────────────
 test('はじめの 品: 木刀は ホシフル村の よろず屋に ならぶ（品から 自動で）', () => {
-  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels', 'r88_iy_sabi', 'r88_nb_monosashi'] }); // G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
+  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels', 'r88_iy_sabi', 'r88_nb_monosashi', 'r88_nr_shuriken'] }); // G10班: 木の葉の手裏剣 / G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
   assert.ok(shopItems(SHOPS.village).includes('r88_bokuto'));
   assert.equal(ITEMS.r88_bokuto.price, 50);
   // 格が「店」の 作品の 品は ぜんぶ どこかの 店に

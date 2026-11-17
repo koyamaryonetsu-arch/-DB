@@ -29,7 +29,8 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { Bot } from './helpers.js';
 
 const R88_IDS = Object.keys(ITEMS_R88);
-const isR88 = (id) => !!ITEMS[ITEMS[id]?.base || id]?.work;
+// G10班: 前から ある 品に 作品を つけた 物（r88Tag。クナイ・日輪刀 など）は 前からの 手に入れ方の まま なので のぞく
+const isR88 = (id) => !!ITEMS[ITEMS[id]?.base || id]?.work && !ITEMS[ITEMS[id]?.base || id]?.r88Tag;
 
 function hero(job = 'warrior', lv = 60) {
   const c = newCharacter({ id: 'p1', name: 'ヒナ', job });

@@ -494,15 +494,15 @@ function g10Rivals() {
     // ── ナルト（名品を くれる 人は Lv60 ごろ・伝説 Lv80 ごろ・さいごの イタチは Lv100）──
     {
       id: 'nr_zabuza', work: 'naruto', n: 1, name: '再不斬', lv: 60, job: 'magic_swordsman', look: L(0, 'buzz', 'black', 0, 'light', 'sharp'), bg: 'swamp',
-      use: 'r88_nr_kubikiri', reward: ['r88_nr_kubikiri'], words: '霧の里の大刀、うけてみるか？',
+      use: 'r88_nr_kubikiri', reward: ['r88_nr_kubikiri'], words: 'きりの里の大刀、受けてみるか？',
       sig: { name: '断刀・かくれ切り', anim: 'slash_heavy', charge: '{a}のまわりに、白いもやが立ちこめた！\n大きな刀のかげが、ゆらりと動く…！', cast: '{a}が、もやの中から大きな刀をふりぬいた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 1.21, dmg: 1 },
     },
     {
       id: 'nr_kisame', work: 'naruto', n: 2, name: 'きさめ', lv: 80, job: 'guardian', look: L(0, 'spiky', 'blue', 3, 'light', 'sharp'), bg: 'sea',
       use: 'r88_nr_samehada', reward: ['r88_nr_samehada'], words: 'さめはだが、おまえのチャクラを食べたがっている。',
       sig: { name: 'さめはだ・大さめの水', anim: 'whirlpool', charge: '{a}のまわりに、水がうずを巻き始めた！\n大きなさめの形になっていく…！', cast: '{a}の水のさめが、大口を開けておそいかかった！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.94, dmg: 1 },
     },
     {
       id: 'nr_kinkaku', work: 'naruto', n: 3, name: '金角と銀角', lv: 82,
@@ -512,45 +512,45 @@ function g10Rivals() {
       ],
       use: 'r88_nr_basho', reward: ['r88_nr_basho', 'r88_nr_benihyoutan'], words: 'おれたち兄弟の宝具、見せてやるぜ！',
       sig: { name: 'ばしょうせん・大あらし', el: 'wind', anim: 'r88_basho', charge: '{a}が、大きなうちわをふりかぶった！\n炎と雷と風が、うちわに集まっていく…！', cast: '{a}のばしょうせんから、大あらしがふき出した！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.81, dmg: 1 },
     },
     {
       id: 'nr_minato', work: 'naruto', n: 4, name: '四代目火影', lv: 84, job: 'konoha', look: L(0, 'spiky', 'blonde', 7, 'fair', 'calm'),
       use: 'r88_nr_hiraishin', reward: ['r88_nr_hiraishin'], words: '里を守る火影の速さ、見せてあげよう。',
       sig: { name: '飛雷神・一しゅんの光', el: 'bolt', anim: 'slash_multi', charge: '{a}が、三つまたのクナイをあちこちに投げた！\nクナイのしるしが、光り始めた…！', cast: '{a}が、光のようにクナイからクナイへとびうつった！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.83, dmg: 1 },
     },
     {
       id: 'nr_itachi', work: 'naruto', n: 5, name: 'イタチ', lv: 100, job: 'enjutsushi', look: L(0, 'long', 'black', 0, 'fair', 'calm'), bg: 'palace_night',
-      use: 'r88_nr_totsuka', reward: ['r88_nr_totsuka', 'r88_nr_yata'], words: 'ゆるせ。これで、さいごだ。',
+      use: 'r88_nr_totsuka', reward: ['r88_nr_totsuka', 'r88_nr_yata'], words: 'ゆるせ。これで最後だ。',
       sig: { name: 'スサノオ・とつかの剣', anim: 'void', charge: '{a}のまわりに、大きなよろいの武者があらわれた…！\n武者が、とつかの剣をかまえる…！', cast: '{a}の武者が、とつかの剣をふりおろした！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.56, dmg: 1 },
     },
     // ── きめつのやいば（柱げいこ。名品を くれる 柱は Lv60 ごろ・岩柱は 伝説で Lv80・さいごの 始まりの剣士は Lv100）──
     {
       id: 'km_giyu', work: 'kimetsu', n: 1, name: 'とみおか義勇', lv: 60, job: 'kisatsu', look: L(0, 'pony', 'black', 1, 'fair', 'calm'),
       use: 'r88_km_mizu', reward: ['r88_km_mizu'], words: '…けいこだ。かまえろ。',
       sig: { name: '水の呼吸・ねじれうず', anim: 'whirlpool', charge: '{a}が、しずかに刀をかまえた…！\n水のうずが、まわりをめぐり始めた…！', cast: '{a}の刀から、大きな水のうずがおしよせた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 1.32, dmg: 1 },
     },
     {
       id: 'km_rengoku', work: 'kimetsu', n: 2, name: '炎柱れんごく', lv: 62, job: 'enbashira', look: L(0, 'wild', 'blonde', 0, 'fair', 'brave'),
       use: 'r88_km_honoo', reward: ['r88_km_honoo'], words: 'うむ！心を燃やせ！いざ、けいこだ！',
       same: 'うむ！同じ炎の道を行く者か！よもや、えんりょはいらんな！',
       sig: { name: '炎の呼吸・れんごく', el: 'fire', anim: 'fire_wave', charge: '{a}が、刀を大きくふりかぶった！\n刀のまわりに、炎がうずを巻く…！', cast: '{a}が、大きな炎とともにつっこんできた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 1.03, dmg: 1 },
     },
     {
       id: 'km_tengen', work: 'kimetsu', n: 3, name: '宇ずい天元', lv: 64, job: 'konoha', look: L(0, 'long', 'white', 4, 'fair', 'smile'),
       use: 'r88_km_oto', reward: ['r88_km_oto'], words: 'はでにいくぜ！ついてこられるか？',
       sig: { name: '音の呼吸・とどろき', el: 'fire', anim: 'blast2', charge: '{a}が、火薬玉をばらまいた！\n二本の刀を、大きくかまえる…！', cast: '{a}の刀が火薬玉をたたき、ばくはつがとどろいた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 1.21, dmg: 1 },
     },
     {
       id: 'km_himejima', work: 'kimetsu', n: 4, name: 'ひめじま', lv: 80, job: 'god_hand', look: L(0, 'bald', 'black', 3, 'tan', 'calm'),
       use: 'r88_km_tekkyu', reward: ['r88_km_tekkyu'], words: 'なむあみだぶつ…。さあ、けいこを始めよう。',
       sig: { name: '岩の呼吸・岩くだき', anim: 'quake', charge: '{a}が、くさりの鉄球を回し始めた！\nくさりが、うなりを上げる…！', cast: '{a}の鉄球が、地面ごと打ちくだいた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.81, dmg: 1 },
     },
     {
       id: 'km_yoriichi', work: 'kimetsu', n: 5, name: '始まりの剣士', lv: 100, job: 'hinokami', look: L(0, 'long', 'red', 1, 'fair', 'calm'), bg: 'hoshiyomi',

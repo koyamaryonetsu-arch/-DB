@@ -196,7 +196,7 @@ Object.assign(GEAR_SETS, {
     items: ['r88_nr_kubikiri', 'r88_nr_samehada', 'r88_nr_nuibari', 'r88_nr_kabutowari', 'r88_nr_shibuki', 'r88_nr_kiba', 'r88_nr_hiramekarei'],
     rule: 'own',
     tiers: [
-      { n: 4, title: '霧の里の刀集め', text: '4本持つと、しょう号「霧の里の刀集め」' },
+      { n: 4, title: 'きりの里の刀集め', text: '4本持つと、しょう号「きりの里の刀集め」' },
       { n: 7, title: '忍刀七人衆', text: '7本全部持つと、しょう号「忍刀七人衆」' },
     ],
   },
