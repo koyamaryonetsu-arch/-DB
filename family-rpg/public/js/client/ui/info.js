@@ -15,6 +15,8 @@ import { BUFF_MARKS } from '../../shared/buff-acts.js';
 import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js';
 // 第76回: もとの 強さ（きたえる 前の 装備。shared/gear-base.js）
 import { GEAR_STAT_LABELS, gearOwn, gearBaseId } from '../../shared/gear-base.js';
+// 第88回: 作品の 品の せつめい（作品の力・使う・そろい・玉・とどく 広さ。shared/gear-r88-view.js）
+import { r88DetailLines, r88ReachText } from '../../shared/gear-r88-view.js';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -109,7 +111,10 @@ export function itemDetail(id, mons = null, who = null) {
   if (where) lines.push(where);
   // ムチ・ブーメラン: ふつうの 攻撃が 何体にも 当たる
   const reach = it.type === 'weapon' ? attackReach(it.cat) : 'enemy';
-  if (reach !== 'enemy') lines.push(`${reach === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる'}（2体目から少しずつ弱くなる）`);
+  const r88Reach = r88ReachText(id);
+  if (r88Reach) lines.push(r88Reach);
+  else if (reach !== 'enemy') lines.push(`${reach === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる'}（2体目から少しずつ弱くなる）`);
+  lines.push(...r88DetailLines(id, who));
   const w = whoCanEquip(id, mons, who);
   if (w) lines.push(w);
   // ふしぎなかじ

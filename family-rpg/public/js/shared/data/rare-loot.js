@@ -65,6 +65,8 @@ const SRC_TEXT = {
   arena: '闘技場のごほうびでしか手に入らない',
   // 第5章 Step 9（items-final.js）: 魔王ソリトゥスの いちばん 強い ★5
   final: '魔王ソリトゥスからしか手に入らない',
+  // 第88回: 作品を 思い出す 装備（data/items-r88-*.js。手に入れ方は あとの 回）
+  r88: 'ふつうには手に入らない',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

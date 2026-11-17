@@ -50,6 +50,9 @@ const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_j
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
 export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX, ...C8C_ALLY_FX, ...C8R_ALLY_FX };
 
+// 第88回: 作品の 品の「使う」の せつめい（ch4ItemEntries が 入れて、ch4ItemInfo が 出す）
+const USE_INFO = new Map();
+
 // 「道具」の はじめに ならべる もの（a … コマンドを えらんでいる 味方）
 export function ch4ItemEntries(scene, a) {
   const out = [];
@@ -58,7 +61,16 @@ export function ch4ItemEntries(scene, a) {
   const acc = a?.acc && ITEMS[a.acc]?.equipUse ? a.acc : null;
   if (acc) out.push({ label: ITEMS[acc].name, right: a.accUsed ? '使った' : '装備中', value: acc, disabled: !!a.accUsed });
   // 第64回 ⑥c: れん金で「使う」効果を つけた 装備（何回でも。MP は いらない）
-  for (const u of a?.gearUses || []) out.push({ label: `${ITEMS[u.id]?.name || '装備'}（${ABILITIES[u.ability]?.name || ''}）`, right: '装備中', value: `gear:${u.slot}` });
+  // 第88回: 作品の 品の「使う」（once。技の 名前で ならべる。1つの 戦いで 1回。使った あとは うすく）
+  for (const u of a?.gearUses || []) {
+    const ab = ABILITIES[u.ability];
+    if (!u.once) {
+      out.push({ label: `${ITEMS[u.id]?.name || '装備'}（${ab?.name || ''}）`, right: '装備中', value: `gear:${u.slot}` });
+      continue;
+    }
+    USE_INFO.set(`gear:${u.slot}`, `${ITEMS[u.id]?.name || '装備'}の作品の力：${ab?.desc || ''}\n1つの戦いで1回だけ。MPはいらない。${u.used ? '（この戦いでは、もう使った）' : ''}`);
+    out.push({ label: ab?.name || ITEMS[u.id]?.name || '装備', right: u.used ? '使った' : '1回', value: `gear:${u.slot}`, disabled: !!u.used });
+  }
   return out;
 }
 
@@ -71,6 +83,7 @@ export function ch4ItemPick(scene, id) {
 
 // 道具の せつめい（月の鏡は 戦いでの 使いかた）
 export function ch4ItemInfo(id) {
+  if (String(id).startsWith('gear:use_')) return USE_INFO.get(id) || '装備の作品の力を使う。1つの戦いで1回だけ。MPはいらない。'; // 第88回
   if (String(id).startsWith('gear:')) return '装備にこめた力を使う。何回でも使える。MPはいらない。\n（使うと、1回の行動になる）';
   return id === MIRROR_ID ? MIRROR_INFO : ITEMS[id]?.desc || '';
 }

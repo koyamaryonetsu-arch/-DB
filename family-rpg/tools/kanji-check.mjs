@@ -184,6 +184,8 @@ export function gameFiles() {
     'public/js/shared/data/treasure.js', 'public/js/shared/data/items-tm.js', 'public/js/shared/data/monsters-tm.js', 'public/js/shared/data/story-tm.js',
     'public/js/shared/maps/treasure-cave.js', 'public/js/shared/world/treasure.js', 'public/js/client/ui/treasure.js', 'public/js/client/render/themes.js',
     'public/js/shared/data/treasure-hint.js', 'public/js/client/render/treasure-glow.js',
+    // 第89回: 宝の地図を その 場で えらぶ・ボス戦に「戦いに入る」
+    'public/js/shared/world/tm-ask.js', 'public/js/shared/join-rule.js', 'public/js/client/ui/join-btn.js',
     // 昼と夜・ルーラ・空の旅
     'public/js/shared/world/clock.js', 'public/js/shared/world/travel.js', 'public/js/shared/data/night.js', 'public/js/shared/data/sky.js',
     'public/js/shared/maps/night-npcs.js', 'public/js/client/sky.js', 'public/js/client/ui/clock.js',
@@ -532,6 +534,11 @@ export function gameFiles() {
     'public/js/shared/guest-rule.js',
     // 第78回 3-10: 家族ミッション・家族の記録
     'public/js/shared/data/missions.js', 'public/js/shared/world/missions.js', 'public/js/client/ui/missions.js', 'public/js/client/ui/r78-mission-css.js',
+    // 第88回 G1班: 作品を 思い出す 装備の しくみ・YAIBA・スーパー宝貝
+    'public/js/shared/data/works.js', 'public/js/shared/data/gear-sets.js', 'public/js/shared/data/items-r88.js', 'public/js/shared/data/items-r88-kit.js',
+    'public/js/shared/data/items-r88-yaiba.js', 'public/js/shared/data/items-r88-houshin.js', 'public/js/shared/data/abilities-r88.js',
+    'public/js/shared/gear-r88.js', 'public/js/shared/gear-r88-view.js', 'public/js/shared/battle-r88.js', 'public/js/client/render/battlefx-r88.js',
+    'public/js/shared/data/gear-fx.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -25,6 +25,8 @@ import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
 import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js';
 import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse, attackMods } from './battle-gearfx.js';
+// 第88回: 作品の 品の とどく 広さ・そろい（パーティー）（battle-r88.js）
+import { reachFor, falloffCat, multiAttackLine, applyPartySets } from './battle-r88.js';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
 import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js';
 import { shownEquipKey } from './look-equip.js';
@@ -279,6 +281,7 @@ export class Battle {
     this.allyActs = 0;
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
+    applyPartySets(this); // 第88回: そろい（パーティーで つけた 数）
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
     // 設定の「敵の強さ」（1・1.2・1.5・2倍。data/difficulty.js）。とちゅうで 来る 魔物にも かける
     this.enemyRate = ENEMY_RATES.includes(opts.enemyRate) ? opts.enemyRate : 1;
@@ -860,7 +863,7 @@ export class Battle {
         }
         ev.name = cmd.confused ? '混乱' : '攻撃';
         // ムチ（グループ）・ブーメラン（全体）
-        const reach = cmd.confused || c.side !== 'ally' ? 'enemy' : attackReach(c.weaponCat);
+        const reach = cmd.confused || c.side !== 'ally' ? 'enemy' : reachFor(c) || attackReach(c.weaponCat);
         if (reach !== 'enemy') {
           this.multiAttack(c, cmd, ev, reach);
           break;
@@ -969,7 +972,7 @@ export class Battle {
 
   // ムチ・ブーメランの ふつうの 攻撃（何体にも あたる。じゅんに ダメージが へる）
   multiAttack(c, cmd, ev, reach) {
-    ev.lines.push(reach === 'enemies' ? `${c.name}はブーメランを投げた！` : `${c.name}はムチをふるった！`);
+    ev.lines.push(multiAttackLine(c, reach));
     const plan = this.attackPlan(c, cmd.target);
     if (!plan.length) return;
     ev.fx = { type: 'attack', actor: c.id, targets: plan.map((p) => p.t.id), weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side, reach };
@@ -992,7 +995,7 @@ export class Battle {
 
   // ふつうの 攻撃で あたる 敵と ダメージの 倍率 [{ t, mult }]（ムチ＝えらんだ 敵の グループ、ブーメラン＝全体）
   attackPlan(c, wanted) {
-    const reach = c.side === 'ally' ? attackReach(c.weaponCat) : 'enemy';
+    const reach = c.side === 'ally' ? reachFor(c) || attackReach(c.weaponCat) : 'enemy';
     const foes = this.sideOf(c, false).filter((x) => x.alive);
     let list;
     if (reach === 'enemies') list = foes;
@@ -1000,7 +1003,7 @@ export class Battle {
       const t = this.peekTarget(c, 'enemy', wanted);
       list = !t ? [] : reach === 'group' ? this.groupOf(c, t) : [t];
     }
-    return list.map((t, i) => ({ t, mult: reach === 'enemy' ? 1 : reachFalloff(c.weaponCat, i) }));
+    return list.map((t, i) => ({ t, mult: reach === 'enemy' ? 1 : reachFalloff(falloffCat(c, reach), i) }));
   }
 
   // t と おなじ グループ（おなじ 種類）の 敵。t が さいしょ、あとは 左から
@@ -2671,6 +2674,8 @@ export function pub(c) {
     gearUses: c.side === 'ally' && c.gearUses?.length ? c.gearUses : undefined,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
+    // 第88回: 品の とどく 広さ（'group' | 'enemies'。client/battle.js の ねらう 相手）
+    reach: c.side === 'ally' && c.gearReach ? c.gearReach : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,
     // 今の 魔力・回復魔力（バフも 入れる）。技の せつめいで 今の 魔力での ダメージを 出す（第50回 N1。shared/skill-power.js）
     pow: c.side === 'ally' ? { mag: Math.round(effMag(c)), heal: Math.round(c.healPow || 0) } : undefined,

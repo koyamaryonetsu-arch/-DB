@@ -2,6 +2,8 @@
 import { HAND_NAMES, handPref, nextHand } from './hand.js';
 import { layoutEditor, loadLayout, saveLayout } from './layout.js';
 import { fxText, fxListOf, fxShort } from '../../shared/data/gear-fx.js';
+// 第88回: 作品の 品の しるし（雷+5・使う。shared/gear-r88-view.js）
+import { r88Short } from '../../shared/gear-r88-view.js';
 import { el, ListMenu, toast, confirmBox, bar, esc, padScroll, scrollerOf } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
@@ -1526,7 +1528,7 @@ export class FieldMenu {
     // モンスターの なかまは しゅぞくで 装備できる 部位が きまる（ドラクエ5 ふう。今 何か 装備している 部位は 出す）
     const slots = c.species ? SLOTS.filter((sl) => monsterSlots(c.species).includes(sl) || c.equip?.[sl]) : SLOTS;
     // 第65回: れん金の 効果を 名前の よこに（［炎+3・追撃+5］）
-    const fxTag = (id) => { const f = id ? fxShort(fxListOf(c, id)) : ''; return f ? `<span class="muted small">［${esc(f)}］</span>` : ''; };
+    const fxTag = (id) => { const f = id ? [fxShort(fxListOf(c, id)), r88Short(id)].filter(Boolean).join('・') : ''; return f ? `<span class="muted small">［${esc(f)}］</span>` : ''; };
     const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, html: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? rareNameHtml(c.equip[sl]) + fxTag(c.equip[sl]) : 'なし'}`, value: sl }));
     // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
     // （「みんなさいきょう装備」は だれの装備？ の 一覧に ある。whoView）

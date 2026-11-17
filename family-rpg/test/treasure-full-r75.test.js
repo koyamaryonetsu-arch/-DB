@@ -1,6 +1,8 @@
 // 第75回: 宝の地図が いっぱいの ときは、今 持っている 地図を 捨てるか 選ばせる
 // （家族の 声:「宝の地図が一杯の時は、今持っている地図を捨てるか選ばせて。」）
 //   いっぱい → 新しい 地図は「あずかり」（c.tmPending。セーブに のこる）→ 画面で 1まい 捨てて もらう／あきらめる
+// 第89回: もらった その 場で 聞く（「あとで決める」・「このあと選んでね」の 文は なくした。test/treasure-join-r89.test.js）。
+//   この ファイルの 文の テストは 新しい きまりに 合わせて 書き直した
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -45,6 +47,8 @@ function fill(world, c, { cleared = false } = {}) {
 }
 const lastRes = (bot) => bot.msgs.filter((m) => m.t === 'menuRes').pop();
 const said = (bot, re) => bot.msgs.some((m) => m.t === 'script' && m.steps.some((s) => s[0] === 'say' && re.test(s[2] || '')));
+// 第89回: 「re」の 文の すぐ あとで その 人に 聞く（['tmAsk', sid, 地図]）
+const askedAfter = (bot, re) => bot.msgs.some((m) => m.t === 'script' && m.steps.some((s, i) => s[0] === 'say' && re.test(s[2] || '') && m.steps[i + 1]?.[0] === 'tmAsk' && m.steps[i + 1][1] === bot.s.id));
 
 test('第75回: いっぱい → あずかり → 1まい 捨てて 新しい 地図を 持つ', async () => {
   const { world, bot, c } = await hero(31);
@@ -133,12 +137,15 @@ test('第75回: 洞窟の 主を たおして いっぱい → あずかり。�
   const ctx = [...world.battles.values()][0];
   assert.ok(ctx, '主と 戦う');
   for (const x of ctx.battle.enemies) x.hp = 1;
-  await bot.settle();
+  // 第89回: えらぶまで「えらんで いる」（busy 'tmfull'）なので、だいほんが 終わるまで すすめる
+  for (let i = 0; i < 4000 && (bot.inBattle || bot.s.busy === 'script' || bot.s.busy === 'battle' || bot.queue.length); i++) { bot.flushQueue(); await tickN(world, 1); }
   assert.equal(bot.battles.pop().outcome, 'win');
   assert.ok(c.flags[clearedFlag(tm.seed)]);
   assert.deepEqual(c.treasureMaps.map((t) => t.id).sort(), ids0, '主を たおした 地図も ふくめて、どれも 消えない');
   assert.equal(c.tmPending?.length, 1, '新しい 地図は あずかり');
-  assert.ok(said(bot, /地図はいっぱい！\nこのあと、どの地図を捨てるか選んでね/), '会話で 知らせる');
+  assert.ok(askedAfter(bot, /宝の地図を見つけた！/), '第89回: 会話の その 場で 聞く');
+  assert.ok(!said(bot, /このあと、どの地図を捨てるか選んでね/), '第89回: 「このあと選んでね」は 出さない');
+  assert.equal(bot.s.busy, 'tmfull', '第89回: えらぶまで「えらんで いる」');
   assert.equal(bot.char.tmPending?.length, 1, '画面にも とどく');
   const pid = c.tmPending[0].id;
   // 今 いる 洞窟の 地図は 捨てられない（主が また あらわれない ように）
@@ -169,7 +176,8 @@ test('第75回: 戦いで 拾った 地図も いっぱいなら あずかり（
   assert.equal(c.treasureMaps.length, TM_MAX);
   assert.equal(c.tmPending?.length, 1);
   assert.ok(per[s.id].lines.some((l) => /宝の地図を拾った/.test(l)));
-  assert.ok(per[s.id].lines.some((l) => /地図がいっぱい！\nあとで、どの地図を捨てるか選んでね/.test(l)));
+  // 第89回: 「あとで選んでね」の 行は 出さない（けっかの まどの 中で すぐ 聞く。battles.js の finishBattle の tmAsk）
+  assert.ok(!per[s.id].lines.some((l) => /あとで/.test(l)));
   // あずかりも いっぱいなら「もう持てない」と 知らせる（だまって なくさない）
   for (let i = 1; i < TM_PEND_MAX; i++) grantTreasureMap(world, c, { lv: 1 });
   const per2 = { [s.id]: { lines: [] } };
@@ -185,13 +193,22 @@ test('第75回: 宝探しのダイゴの 地図も いっぱいなら あずか�
   const n = MAPS.overworld.npcById.tm_hunter;
   world.placeSession(bot.s, 'overworld', n.x + 0.5, n.y + 1.5, 'up');
   Object.assign(bot, { map: 'overworld', x: n.x + 0.5, y: n.y + 1.5, seq: bot.s.posSeq });
-  await bot.talk('tm_hunter');
+  bot.send({ t: 'interact', kind: 'npc', id: 'tm_hunter' });
+  for (let i = 0; i < 400 && (bot.s.busy === 'script' || bot.queue.length); i++) { bot.flushQueue(); await tickN(world, 1); }
   assert.equal(c.treasureMaps.length, TM_MAX);
   assert.equal(c.tmPending?.length, 1, 'あずかり');
-  assert.ok(said(bot, /地図がいっぱいじゃな/));
-  await bot.talk('tm_hunter');
+  assert.ok(askedAfter(bot, /を手に入れた！/), '第89回: 「手に入れた！」の すぐ あとで 聞く');
+  assert.ok(!said(bot, /このあと/));
+  assert.equal(bot.s.busy, 'tmfull', '第89回: えらぶまで「えらんで いる」');
+  // 通信が 切れて のこった あずかり（えらんで いない）の まま 話しかけた → もう くれない。その 場で 聞く
+  bot.s.busy = null;
+  bot.s.tmAsk = false;
+  bot.msgs.length = 0;
+  bot.send({ t: 'interact', kind: 'npc', id: 'tm_hunter' });
+  for (let i = 0; i < 400 && (bot.s.busy === 'script' || bot.queue.length); i++) { bot.flushQueue(); await tickN(world, 1); }
   assert.equal(c.tmPending.length, 1, 'ふえない');
   assert.ok(said(bot, /持ちきれない地図がある/));
+  assert.ok(bot.msgs.some((m) => m.t === 'script' && m.steps.some((st) => st[0] === 'tmAsk')), '第89回: その 場で 聞く');
 });
 
 test('第75回: あずかりは セーブに のこる（つなぎなおし・ログインしなおし）', async () => {
@@ -209,8 +226,10 @@ test('第75回: あずかりは セーブに のこる（つなぎなおし・�
   const b2 = new Bot(world, 'ソラ');
   await b2.login();
   b2.send({ t: 'play', id: c.id });
-  await b2.settle();
   assert.equal(b2.char.tmPending?.[0]?.id, nw.id, 'もどってきても あずかりの 地図');
+  // 入った すぐの 会話（紋章の 夢 など）が あれば その あと
+  for (let i = 0; i < 400 && !b2.msgs.some((m) => m.t === 'tmAsk'); i++) { b2.flushQueue(); await tickN(world, 1); }
+  assert.ok(b2.msgs.some((m) => m.t === 'tmAsk'), '第89回: 入った すぐに 聞く');
   b2.send({ t: 'menu', action: 'tmap', op: 'pendKeep', pid: nw.id, id: c.treasureMaps[0].id });
   assert.ok(lastRes(b2).ok);
   assert.ok(b2.char.treasureMaps.some((t) => t.id === nw.id));

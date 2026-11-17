@@ -1,0 +1,137 @@
+// 第88回: 作品を 思い出す 装備の しくみ（docs/plan-r88-anime-gear.md の 1-2・5・12-1）
+//
+// 品の データ（data/items-r88-*.js）に 書ける もの
+//   work: '作品の id'（data/works.js）
+//   fx: [{ k, v }]   … 生まれつきの 効果（data/gear-fx.js の GEAR_FX の k）。れん金の 効果と 同じ 計算で 効く。
+//                      れん金の わく（1つ・限界とっぱで 2つ）は へらさない。れん金で 消えない・うわ書き されない。
+//                      どの 部位（アクセも）でも よい。きたえると れん金と 同じく +3 ごとに 値が 1 上がる
+//   reach: 'group' | 'all' … ふつうの 攻撃が 1グループ／敵全体に とどく（武器の 種類の きまりを うわ書き。2体めから 少し 弱く なる）
+//   use: { ability } … 戦いの 道具に 出る。1つの 戦いで その 品 1回・MPなし（data/abilities-r88.js の かくし技）
+//   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
+//   set: '組の id'   … そろい（data/gear-sets.js）
+// ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
+import { ITEMS, SLOTS, baseItemId } from './data/items.js';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js';
+
+export const USE_SLOT_PREFIX = 'use_';
+export const ORB_V = 5;
+const REACH_OF = { group: 'group', all: 'enemies', enemies: 'enemies' };
+
+const baseIt = (id) => ITEMS[baseItemId(id)] || null;
+export const isWorkGear = (id) => !!baseIt(id)?.work;
+// きたえた 回数（★も 1回。data/gear-fx.js の fxPlus と 同じ）
+export const plusOf = (id) => (ITEMS[id]?.plus || 0) + (ITEMS[id]?.lb || 0);
+const equipped = (char) => SLOTS.map((sl) => [sl, char?.equip?.[sl]]).filter(([, id]) => id && ITEMS[id]);
+
+// その 品の 生まれつきの 効果（きたえた 分も 足す。[{ k, v }]）
+export function innateFx(id) {
+  const it = baseIt(id);
+  if (!Array.isArray(it?.fx)) return [];
+  const p = Math.floor(plusOf(id) / 3);
+  return it.fx.filter((x) => x && x.k && x.v > 0).map((x) => ({ k: x.k, v: x.v + p }));
+}
+
+// ───── そろい ─────
+// 1人が つけて いる 組の 品（もとの id。同じ 品は 1つ）
+export function wornSetIds(char, setId) {
+  const out = new Set();
+  for (const [, id] of equipped(char)) if (baseIt(id)?.set === setId) out.add(baseItemId(id));
+  return [...out];
+}
+// 持って いる 品（ふくろ・預かり所・装備。もとの id）
+export function ownedIds(char) {
+  const out = new Set();
+  for (const e of Array.isArray(char?.items) ? char.items : []) if (e?.id && e.n > 0 && ITEMS[e.id]) out.add(baseItemId(e.id));
+  for (const e of Array.isArray(char?.bank?.items) ? char.bank.items : []) if (e?.id && e.n > 0 && ITEMS[e.id]) out.add(baseItemId(e.id));
+  for (const [, id] of equipped(char)) out.add(baseItemId(id));
+  return out;
+}
+export function ownedSetIds(char, setId) {
+  const set = GEAR_SETS[setId];
+  if (!set) return [];
+  const own = ownedIds(char);
+  return set.items.filter((id) => own.has(id));
+}
+// 数（rule: 'wear' | 'own'。party は battle-r88.js が 数える）
+export function setCount(char, setId, rule = GEAR_SETS[setId]?.rule) {
+  return rule === 'wear' ? wornSetIds(char, setId).length : ownedSetIds(char, setId).length;
+}
+// その 数え方で とどいた いちばん 上の 段（強さの つく 段だけ。ない ときは null）
+export function powerTier(setId, rule, n) {
+  const set = GEAR_SETS[setId];
+  let best = null;
+  for (const t of set?.tiers || []) {
+    if (tierRule(set, t) !== rule || n < t.n || !(t.bonus || t.resist || t.fx)) continue;
+    if (!best || t.n >= best.n) best = t;
+  }
+  return best;
+}
+// 段の 強さを まとめる（out … { add, resist, fx }）
+export function addTier(out, t) {
+  for (const [k, v] of Object.entries(t?.bonus || {})) out.add[k] = (out.add[k] || 0) + v;
+  for (const [k, v] of Object.entries(t?.resist || {})) out.resist[k] = (out.resist[k] ?? 1) * v;
+  for (const x of t?.fx || []) out.fx.push({ k: x.k, v: x.v });
+  return out;
+}
+// 1人が つけて いる 組の 強さ（rule 'wear' の 段）。強さの まど（data/gear-fx.js の gearFxStats・gearFxTotals）
+export function wearSetPower(char) {
+  const out = { add: {}, resist: {}, fx: [] };
+  const sets = new Set(equipped(char).map(([, id]) => baseIt(id)?.set).filter((s) => GEAR_SETS[s]));
+  for (const s of sets) addTier(out, powerTier(s, 'wear', wornSetIds(char, s).length));
+  return out;
+}
+// 持って いる 数で とどいた 称号（[{ set, title, n }]）。セーブは しない
+export function setTitles(char) {
+  const out = [];
+  for (const [sid, set] of Object.entries(GEAR_SETS)) {
+    const n = ownedSetIds(char, sid).length;
+    for (const t of set.tiers) if (t.title && tierRule(set, t) === 'own' && n >= t.n) out.push({ set: sid, title: t.title, n: t.n });
+  }
+  return out;
+}
+
+// ───── data/gear-fx.js から よぶ ─────
+// その 人の 生まれつきの 効果と そろいの 効果（[{ k, v }]。gearFxTotals が れん金の 効果に 足す）
+export function r88FxList(char) {
+  const out = [];
+  for (const [, id] of equipped(char)) out.push(...innateFx(id));
+  out.push(...wearSetPower(char).fx);
+  return out;
+}
+// 戦いの 道具で 使える 品（[{ slot: 'use_<部位>', id, ability, once: true }]。gearUses が れん金の イオに 足す）
+export function r88Uses(char) {
+  const out = [];
+  for (const [sl, id] of equipped(char)) {
+    const a = baseIt(id)?.use?.ability;
+    if (a) out.push({ slot: `${USE_SLOT_PREFIX}${sl}`, id, ability: a, once: true });
+  }
+  return out;
+}
+
+// ───── shared/battle-r88.js から よぶ ─────
+// 玉（つけて いる アクセの orb。{ el, v } か null）
+export function orbOf(char) {
+  const o = baseIt(char?.equip?.acc)?.orb;
+  return o?.el ? { el: o.el, v: o.v || ORB_V } : null;
+}
+// 武器の とどく 広さ（'group' | 'enemies' か null〈武器の 種類の きまり〉）
+export function reachOf(char) {
+  return REACH_OF[baseIt(char?.equip?.weapon)?.reach] || null;
+}
+export const itemReach = (id) => REACH_OF[baseIt(id)?.reach] || null;
+
+// ───── 生まれ変わりの 条件（data/items-alchemy.js の REBIRTH の need）─────
+//   need: { items: [持って いる 品], sets: { 組の id: 持って いる 数 } }
+export function rebirthNeedLack(char, need) {
+  if (!need) return null;
+  const own = ownedIds(char);
+  const lack = [];
+  for (const id of need.items || []) if (!own.has(id)) lack.push(`${ITEMS[id]?.name || id}を持っていること`);
+  for (const [sid, n] of Object.entries(need.sets || {})) if (ownedSetIds(char, sid).length < n) lack.push(`${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`);
+  return lack.length ? lack : null;
+}
+export function rebirthNeedText(need) {
+  if (!need) return '';
+  const parts = [...(need.items || []).map((id) => `${ITEMS[id]?.name || id}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`)];
+  return parts.join('・');
+}

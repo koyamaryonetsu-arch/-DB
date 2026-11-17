@@ -39,6 +39,9 @@ import { tokiPhantomAfter } from './tokei-phantom.js';
 import { missionBattle, missionFriend } from './missions.js';
 // 第80回 E班: ボスに 負けた 時の ヒント（負けた 回数・勝ったら 消す。world/boss-hints.js）
 import { bossHintAfter } from './boss-hints.js';
+// 第89回: とちゅうから 戦いに 入る きょり（画面と おなじ 数。shared/join-rule.js）・宝の地図を えらんで いる 人（world/tm-ask.js）
+import { JOIN_NEAR, JOIN_LAG } from '../join-rule.js';
+import { tmHold } from './tm-ask.js';
 
 let battleSeq = 1;
 
@@ -49,7 +52,8 @@ export const JOIN_RADIUS = 10;
 export const RESULT_MAX_MS = 120000;
 export const AFTER_RESULT_MS = 2500;
 // とちゅうから さんか できる きょり（たたかっている なかまに ちかづく）
-export const LATE_JOIN_RADIUS = 2.4;
+// 第89回: 画面が 送る きょりと そろえた（shared/join-rule.js）。サーバーは 位置の ずれの 分（JOIN_LAG）だけ ゆるく 見る
+export const LATE_JOIN_RADIUS = JOIN_NEAR;
 
 // いっしょに たたかう 人（おなじ マップの ちかくに いて、ほかの ことを していない パーティーの 人）
 export function battleSessions(world, s) {
@@ -66,18 +70,53 @@ export function battleSessions(world, s) {
   return out;
 }
 
+// 第89回: 「戦いに入る」ボタンで どこからでも 入れる 戦いか（ボス・物語の 戦い。opts.fixed）
+//   1人の けいこ（solo）・闘技場・すごろく・モンスター闘技場・ひみつのダンジョンは 入れない（近づいて 入る 形も 今の まま）
+export function remoteJoinable(ctx) {
+  const o = ctx?.opts || {};
+  if (!o.fixed || o.solo || o.monarena || ctx.mineFor) return false;
+  const enc = FIXED_ENCOUNTERS[o.fixed];
+  if (enc?.arena || enc?.sugoroku || enc?.solo) return false;
+  return !MAPS[ctx.map]?.sd;
+}
+
+// ことわる わけ（自分が ほかの ことを して いる）
+function busyReason(s) {
+  if (s.busy === 'tmfull') return '今は入れない（宝の地図を選んでいる）';
+  if (s.busy === 'script') return '今は入れない（会話のとちゅう）';
+  if (s.busy === 'battle') return '今は入れない（戦いのとちゅう）';
+  return '今は入れない（ほかのことをしている）';
+}
+
 // たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかいも、ボス・物語の たたかいも。
 //   第34回: 会話の 時に そばに いなかった 人・会話の タイミングが ずれた 人も、あとから かけつけられる）
-export function joinBattle(world, s, targetSid) {
-  if (s.busy || s.away || s.flying || !s.inWorld) return { ok: false };
+// 第89回: remote … 「戦いに入る」ボタン（client/ui/join-btn.js）。ボス・物語の 戦いには どこからでも 入れる（自分は 動かない。
+//   戦いの あとは 自分の いた 所に もどる）。近づいて 入る 時は 戦って いる 人の だれか 1人に 近ければ よい。
+//   ことわる 時は かならず わけ（reason）を 返す（world.js が 知らせる。同じ 戦いに 入って いる 時だけ だまる）
+export function joinBattle(world, s, targetSid, { remote = false } = {}) {
+  if (!s.inWorld || s.away) return { ok: false };
   const t = world.sessions.get(targetSid);
-  if (!t || t === s || t.busy !== 'battle' || t.partyId !== s.partyId || t.map !== s.map) return { ok: false };
-  const ctx = world.battles.get(t.battleId);
-  if (!ctx || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
-  if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
+  if (!t || t === s || !s.partyId || t.partyId !== s.partyId) return { ok: false, reason: 'その戦いには入れない' };
+  const ctx = t.busy === 'battle' ? world.battles.get(t.battleId) : null;
+  if (!ctx || ctx.battle.over) return { ok: false, reason: '戦いは、もう終わった' };
   if (ctx.sids.includes(s.id)) return { ok: false };
   // 1人で 戦う きまった 戦い（リオンの けいこ。encounters の solo）には 入れない
   if (ctx.opts.solo) return { ok: false, reason: 'これは1人で戦うけいこだ…' };
+  if (ctx.battle.pendingEnd) return { ok: false, reason: 'もうすぐ戦いが終わる…' };
+  // 同じ だいほんの 中で 戦いに 入らなかった 人（宝の地図を えらんで いた）は、だいほんの 中のまま 入れる
+  const sameRun = s.busy === 'script' && !!s.runId && s.runId === ctx.runId;
+  if (s.busy && !sameRun) return { ok: false, reason: busyReason(s) };
+  if (s.flying) return { ok: false, reason: '空を飛んでいる間は入れない。\n地面におりてから入ろう' };
+  if (remote) {
+    if (!remoteJoinable(ctx)) return { ok: false, reason: 'この戦いには、そばへ行くと入れる' };
+  } else {
+    // 戦って いる 人の だれか 1人に 近ければ よい
+    const near = ctx.sids.some((sid) => {
+      const m = world.sessions.get(sid);
+      return m && m.map === s.map && Math.hypot(m.x - s.x, m.y - s.y) <= LATE_JOIN_RADIUS + JOIN_LAG;
+    });
+    if (!near) return { ok: false, reason: remoteJoinable(ctx) ? 'もう少し近づこう\n（「戦いに入る」ボタンでも入れる）' : 'もう少し近づこう' };
+  }
   // プレイヤーは 5人まで いっしょに 戦える（world/party.js の PARTY_MAX）
   if (ctx.battle.allies.filter((a) => a.kind !== 'guest').length >= PARTY_MAX) return { ok: false, reason: '戦いの場所がいっぱいだ…' };
   const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
@@ -97,7 +136,19 @@ export function joinBattle(world, s, targetSid) {
   }
   world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, joined: true });
   world.broadcastPositions = true;
+  // 「戦いに入る」ボタンを 消す（パーティーの 知らせ。party.js の partyState の fights）
+  const p = world.parties.get(ctx.partyId);
+  if (p && p.members.length > 1) world.sendParty(p);
   return { ok: true };
+}
+
+// 第89回: 戦いの あとの「とちゅう」の しるし。その 戦いを 始めた だいほんに 入って いる 人だけ「だいほん中」に もどす
+//   （前は 物語の 戦いに とちゅうから 入った 人も「だいほん中」に なり、だいほんが ないので ずっと 動けなかった。
+//     サーバーが 位置を うけとらず、次の 戦いにも 入れなかった）。宝の地図を えらんで いる 人は「えらんで いる」へ
+function busyAfter(world, m, ctx) {
+  const inRun = !!ctx.resolve && !!ctx.runId && m.runId === ctx.runId && !!world.runs?.get(ctx.runId);
+  m.busy = inRun ? 'script' : null;
+  if (!inRun) tmHold(world, m, { quiet: true });
 }
 
 // たたかいの けっかを まだ 読んでいるか
@@ -298,7 +349,8 @@ export function startFieldBattle(world, s, sym) {
 export function startFixedBattle(world, initiator, participants, encId, extra = {}) {
   const enc = FIXED_ENCOUNTERS[encId];
   const party = partyOf(world, initiator);
-  const sessions = (enc.solo ? [initiator] : participants).filter((m) => m && m.inWorld);
+  // 第89回: 宝の地図を えらんで いる 人（だいほんの 中で 前の 戦いの けっかを 見て いる）は 戦いに 入れない（あとから「戦いに入る」で 入れる）
+  const sessions = (enc.solo ? [initiator] : participants).filter((m) => m && m.inWorld && (m === initiator || !m.tmAsk));
   const enemies = [];
   const group = typeof enc.pick === 'function' ? enc.pick(world.now()) : enc.group;
   for (const [sp, mn] of group) for (let i = 0; i < mn; i++) enemies.push(sp);
@@ -306,6 +358,11 @@ export function startFixedBattle(world, initiator, participants, encId, extra = 
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
     const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, enemyCurve: !!enc.enemyCurve, loseOk: !!enc.loseOk, solo: !!enc.solo, ...extra });
     ctx.resolve = resolve;
+    // 第89回: どの だいほんの 戦いか（戦いの あと だいほんに もどる 人を きめる。busyAfter）
+    ctx.runId = initiator.runId || null;
+    // 家族の 画面に「戦いに入る」ボタン（party.js の partyState の fights）
+    const p = world.parties.get(ctx.partyId);
+    if (p && p.members.length > 1) world.sendParty(p);
   });
 }
 
@@ -338,7 +395,7 @@ export function abortBattle(world, ctx) {
   for (const sid of ctx.sids) {
     const m = world.sessions.get(sid);
     if (!m || m.battleId !== ctx.id) continue;
-    m.busy = ctx.resolve ? 'script' : null;
+    busyAfter(world, m, ctx);
     m.battleId = null;
     m.reading = false;
     m.invuln = 3000;
@@ -636,7 +693,10 @@ function finishBattle(world, ctx) {
   const leadReads = !!lead && (perSession[lead.id]?.lines || []).length > 0;
   if (lead) { lead.resultFollowers = []; lead.resultFollowId = ctx.id; }
   for (const m of sessions) {
-    m.busy = ctx.resolve ? 'script' : null;
+    // 第89回: 宝の地図が いっぱいで あずかりに 入った 人は、けっかの 中で どれを 捨てるか えらぶ（client/game.js の onBattleEnd）
+    const tmAsk = Array.isArray(m.char?.tmPending) && m.char.tmPending.length ? m.char.tmPending : null;
+    if (tmAsk) m.tmAsk = true;
+    busyAfter(world, m, ctx);
     m.battleId = null;
     // 第44回: レベルが 上がって 進化を まっている 仲間は、けっかを 読みおわった あとで たずねる（world.js の tick・world/evolve.js）
     m.evoCheck = true;
@@ -644,10 +704,11 @@ function finishBattle(world, ctx) {
     // けっかの まどを 読んでいる あいだは むてき（読みおわると AFTER_RESULT_MS だけ のこる）
     m.reading = r.lines.length > 0;
     m.invuln = m.reading ? RESULT_MAX_MS : 3000;
-    const follow = leadReads && m !== lead && m.reading;
+    // 第89回: 宝の地図を えらぶ 人の まどは、リーダーが 閉じても 閉じない（自分で えらんで 閉じる）
+    const follow = leadReads && m !== lead && m.reading && !tmAsk;
     if (follow) lead.resultFollowers.push(m.id);
     world.send(m, { t: 'battleEnd', id: ctx.id, outcome, lines: r.lines, levelUp: !!r.levelUp, story: !!ctx.resolve,
-      ...(follow ? { followLeader: lead.char?.name || 'リーダー' } : {}) });
+      ...(follow ? { followLeader: lead.char?.name || 'リーダー' } : {}), ...(tmAsk ? { tmAsk } : {}) });
   }
   if (outcome === 'lose') {
     // 負けても よい 戦いは その場で 立ち上がって 物語の つづきへ

@@ -17,7 +17,9 @@ import { rankText } from './info.js';
 import { rareNameHtml } from './rarity.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge, rebirthOf } from '../../shared/data/forge.js';
+// 第88回: 生まれ変わりの 条件（竜神の玉を 持つ など。shared/gear-r88.js）
+import { rebirthNeedLack, rebirthNeedText } from '../../shared/gear-r88.js';
 import { REBIRTH_START } from '../../shared/data/items-alchemy.js';
 import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js';
 import { bindAlchemy } from './alchemy.js';
@@ -217,15 +219,17 @@ async function craftOne(game, ct, id) {
 function candidates(game) {
   const out = [];
   // 店で 買える 装備（★1）は きたえられない ので 出さない。生まれ変わりの もとの 店の 武器だけ（seed）出す（第35回）
-  const shown = (id) => !isShopForge(id) || isRebirthSeed(id);
+  // 第88回: 店の 品でも かじ屋で 生まれ変わる 品（rebirthOf の shop。木刀）は ふつうに 出す
+  const shown = (id) => !isShopForge(id) || isRebirthSeed(id) || !!rebirthOf(id);
+  const isSeed = (id) => isShopForge(id) && !rebirthOf(id);
   for (const m of myTeam(game)) {
     for (const slot of UPGRADE_TYPES) {
       const id = m.char.equip?.[slot];
-      if (id && ITEMS[id] && shown(id)) out.push({ id, who: m.key, whoName: m.name, char: m.char, seed: isShopForge(id) });
+      if (id && ITEMS[id] && shown(id)) out.push({ id, who: m.key, whoName: m.name, char: m.char, seed: isSeed(id) });
     }
   }
   for (const e of game.me.items || []) {
-    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isShopForge(e.id) });
+    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isSeed(e.id) });
   }
   return out;
 }
@@ -270,6 +274,11 @@ function upgradeBox(game, cand) {
   }
   if (cost.reborn) {
     box.append(el('div', { class: 'detail forge-reborn', text: `${it.name}が、ふしぎな光をはなっている…。\nもう1回きたえると、${ITEMS[cost.to]?.name || '新しい武器'}に生まれ変わる！` }));
+    // 第88回: 生まれ変わる 条件
+    if (cost.need) {
+      const lack = rebirthNeedLack(game.me, cost.need);
+      box.append(el('div', { class: `small ${lack ? 'dis' : 'gold'}`, text: `生まれ変わるには: ${rebirthNeedText(cost.need)}${lack ? '（まだ）' : '（できる！）'}` }));
+    }
     box.append(costBlock(game, cost));
     return box;
   }

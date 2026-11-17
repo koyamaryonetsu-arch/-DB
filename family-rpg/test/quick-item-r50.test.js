@@ -131,8 +131,10 @@ test('quickUse: メニューの「使う」と おなじ（時の砂時計で �
   // 戦いを おえる（にげた ことに する）
   for (const ctx of [...world.battles.values()]) abortBattle(world, ctx);
   await bot.settle();
-  // 物語の 戦いは おわると だいほんに もどる（ここでは だいほんが ないので もどす）
-  assert.equal(bot.s.busy, 'script');
+  // 物語の 戦いは おわると だいほんに もどる。第89回: その 戦いを 始めた だいほんが ない 時は「だいほん中」に しない
+  //   （前は ない だいほんの「だいほん中」の まま 動けなく なった。test/treasure-join-r89.test.js）。だいほんの 中の ことは ここで 作って たしかめる
+  assert.equal(bot.s.busy, null);
+  bot.s.busy = 'script';
   bot.send({ t: 'menu', action: 'quickUse' });
   assert.equal(lastRes(bot).ok, false, 'だいほんの 中も だめ');
   bot.s.busy = null;

@@ -10,6 +10,8 @@ import { reportError } from '../errlog.js';
 import { paperPop } from './paper-pop.js';
 // 第6章: 時の砂時計の 砂の うず
 import { timeShiftFx, clearTimeShift } from '../time-shift.js';
+// 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
+import { askTreasureList } from './treasure.js';
 
 const TYPE_MS = 28;
 
@@ -151,6 +153,11 @@ export class ScriptPlayer {
         return null;
       case 'crest':
         return this.crest();
+      // 第89回: ['tmAsk', sid, 新しい 地図] … その 人の 画面だけ、えらぶ まどを 出して えらぶまで まつ（world/treasure.js）
+      case 'tmAsk':
+        if (a[0] !== g.sid) return null;
+        this.closeDialog();
+        return askTreasureList(g, a[1] ? [a[1]] : null);
       case 'ui':
         if (msg.spectator) return null;
         this.closeDialog();

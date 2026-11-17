@@ -15,10 +15,18 @@ import {
 } from '../data/treasure.js';
 
 import { ensureTmClears, addTmClear } from '../data/casino-tier.js';
+// 第89回: えらんで いる 人を サーバーが 知る（world/tm-ask.js）
+import { tmHold } from './tm-ask.js';
 
 const HUNTER = '宝探しのダイゴ';
-// 第75回: 地図が いっぱいで あずかりに 入れた ときの ことば
-const PEND_SAY = (name) => `でも、${name}の地図はいっぱい！\nこのあと、どの地図を捨てるか選んでね。`;
+// 第89回（家族の 声:「もらったタイミングで捨てるものを選ばせて。あとでメニュー開かれて選択するのはおかしい。」）:
+//   地図が いっぱいで あずかりに 入れた ときは、だいほんの その 場で 聞く（['tmAsk', その 人の sid, 新しい 地図]。
+//   画面は client/ui/script.js → client/ui/treasure.js の askTreasureList。ほかの 人の 画面では 何も しない）
+//   前の「このあと、どの地図を捨てるか選んでね」の 文は 出さない
+function askStep(m, rec) {
+  m.tmAsk = true;
+  return ['tmAsk', m.id, rec];
+}
 
 // ───────────── ほる 場所 ─────────────
 // 行ける 地面（草・花・砂・丘・森の ゆか）。町・村・たいせつな 場所の そばは えらばない
@@ -94,7 +102,7 @@ function newSeed(world, c) {
 // 第75回（家族の 声:「宝の地図が一杯の時は、今持っている地図を捨てるか選ばせて」）:
 //   いっぱいの ときは 前の ように 主を たおした 古い 地図と だまって 入れかえない。
 //   新しい 地図は「あずかり」（c.tmPending。セーブに のこる）に 入れて、画面で どれを 捨てるか 聞く（keepPendingMap・givePendingMap）
-//   どの 手に入れかた（洞窟の 主・戦いで 拾う・ダイゴ）でも おなじ。戦いの あとや 会話の とちゅうでも、あとで 落ちついてから 聞ける
+//   どの 手に入れかた（洞窟の 主・戦いで 拾う・ダイゴ）でも おなじ。第89回: もらった その 場で 聞く（world/tm-ask.js）
 export function grantTreasureMap(world, c, { lv = 1, map = null } = {}) {
   c.treasureMaps = Array.isArray(c.treasureMaps) ? c.treasureMaps : [];
   const pend = Array.isArray(c.tmPending) ? c.tmPending : [];
@@ -369,8 +377,8 @@ async function bossEvent(run) {
     const got = grantTreasureMap(world, m.char, { lv });
     if (got) steps.push(['sfx', 'item'], ['say', null, `${m.char.name}は宝の地図を見つけた！\n（${tmTitle(got)}）`]);
     else steps.push(['say', null, `${m.char.name}は宝の地図を見つけた！\nしかし、地図がいっぱいで、もう持てない…`]);
-    // 第75回: いっぱい → あずかり。この あと 画面で どの 地図を 捨てるか 聞く（client/ui/treasure.js の askTreasureFull）
-    if (got && isPendingMap(m.char, got)) steps.push(['say', null, PEND_SAY(m.char.name)]);
+    // 第75回: いっぱい → あずかり。第89回: 「宝の地図を見つけた！」の すぐ あとで どの 地図を 捨てるか 聞く
+    if (got && isPendingMap(m.char, got)) steps.push(askStep(m, got));
   }
   world.markDirty();
   await run.runSteps(steps);
@@ -388,7 +396,8 @@ async function hunterTalk(run) {
     if (!rec) return null;
     run.batch.push(['sfx', 'key']);
     run.say(`${c.name}は${tmTitle(rec)}を手に入れた！`);
-    if (isPendingMap(c, rec)) say('おや、地図がいっぱいじゃな。\nこのあと、どの地図を捨てるか選びなされ。');
+    // 第89回: 「手に入れた！」の すぐ あとで 聞く
+    if (isPendingMap(c, rec)) run.batch.push(askStep(run.init, rec));
     return rec;
   };
   if (!c.flags.tm_intro) {
@@ -406,9 +415,10 @@ async function hunterTalk(run) {
     world.markDirty();
     return;
   }
-  // 第75回: あずかりの 地図が ある（どれを 捨てるか まだ 決めていない）
+  // 第75回: あずかりの 地図が ある（どれを 捨てるか まだ 決めていない）→ 第89回: ここで 聞く
   if (c.tmPending?.length) {
-    say('おや、持ちきれない地図があるようじゃな。', 'メニューの「道具」の「宝の地図」で、\nどの地図を捨てるか決めなされ。');
+    say('おや、持ちきれない地図があるようじゃな。\nどの地図を捨てるか、今決めなされ。');
+    run.batch.push(askStep(run.init, c.tmPending[0]));
     return;
   }
   const open = list.filter((t) => !t.cleared);
@@ -441,16 +451,18 @@ export function treasureMenu(world, s, msg) {
     world.sendSelf(s);
     world.markDirty();
   };
-  if (s.busy) return reply(false, '今はできません');
   // 第75回: あずかりの 地図（いっぱいの とき）: 1まい 捨てて もらう・あきらめる
-  if (msg.op === 'pendKeep') {
-    const r = keepPendingMap(world, s, String(msg.pid || ''), String(msg.id || ''));
+  // 第89回: もらった その 場で 聞くので、えらんで いる 間（'tmfull'）・会話の 中（'script'）・戦いの けっかの 中でも うけつける。
+  //   あずかりが なくなったら すぐ 動ける（world/tm-ask.js の tmHold）
+  if (msg.op === 'pendKeep' || msg.op === 'pendGive') {
+    if (s.busy === 'battle') return reply(false, '今はできません');
+    const r = msg.op === 'pendKeep'
+      ? keepPendingMap(world, s, String(msg.pid || ''), String(msg.id || ''))
+      : givePendingMap(world, s, String(msg.pid || ''));
+    tmHold(world, s);
     return reply(r.ok, r.text);
   }
-  if (msg.op === 'pendGive') {
-    const r = givePendingMap(world, s, String(msg.pid || ''));
-    return reply(r.ok, r.text);
-  }
+  if (s.busy) return reply(false, '今はできません');
   const rec = (c.treasureMaps || []).find((t) => t.id === msg.id);
   if (!rec) return reply(false, '');
   if (msg.op === 'dig') {
@@ -484,8 +496,7 @@ export function treasureAfterBattle(world, ctx, sessions, perSession) {
     if (!(p > 0) || !world.rng.chance(p)) continue;
     const rec = grantTreasureMap(world, c, { lv: dropMapLevel(world.rng, maxEnemyLv) });
     if (rec) perSession[m.id].lines.push(`${c.name}は宝の地図を拾った！`, `（${tmTitle(rec)}）`);
-    // 第75回: いっぱい → あずかり（戦いの あと フィールドに もどったら、どの 地図を 捨てるか 聞く）
-    if (rec && isPendingMap(c, rec)) perSession[m.id].lines.push('でも、地図がいっぱい！\nあとで、どの地図を捨てるか選んでね。');
+    // 第75回: いっぱい → あずかり。第89回: けっかの まどの 中で すぐ 聞く（battles.js の finishBattle が battleEnd に tmAsk を 入れる）
     // あずかりも いっぱい（めったに ない）
     if (!rec && (c.treasureMaps || []).length >= TM_MAX) perSession[m.id].lines.push(`${c.name}は宝の地図を見つけた！`, 'しかし、地図がいっぱいで、もう持てない…');
   }

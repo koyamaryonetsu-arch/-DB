@@ -116,8 +116,9 @@ export function isShopForge(id) {
 export function rebirthOf(id) {
   const base = ITEMS[id]?.base || id;
   const rb = REBIRTH[base];
-  if (!rb || !ITEMS[base] || !ITEMS[rb.to] || isShopGear(ITEMS[base])) return null;
-  return { ...rb, at: upgradeLimit(ITEMS[base]) + CAP_UP_MAX };
+  // 第88回: shop … 店の 品（★1）でも 生まれ変わる・at … 生まれ変わる 回数（items-r88-*.js）
+  if (!rb || !ITEMS[base] || !ITEMS[rb.to] || (isShopGear(ITEMS[base]) && !rb.shop)) return null;
+  return { ...rb, at: Number.isInteger(rb.at) ? rb.at : upgradeLimit(ITEMS[base]) + CAP_UP_MAX };
 }
 
 // ほんとうに きたえられる 回数（生まれ変わる 武器は 上限を こえて at まで）
@@ -161,7 +162,8 @@ export function upgradeCost(id, c = viewerChar()) {
   const b = ITEMS[base];
   const n = (it.plus || 0) + 1;
   const rb = rebirthOf(id);
-  if (rb && n === rb.at + 1) return { from: id, to: rb.to, base, n, gold: rb.gold, mats: rb.mats.map(([m, k]) => [m, k]), over: true, reborn: true };
+  // 第88回: keep … きたえた 回数を うけつぐ・need … 生まれ変わる 条件（shared/gear-r88.js の rebirthNeedLack。world/forge.js が たしかめる）
+  if (rb && n === rb.at + 1) return { from: id, to: rb.keep && ITEMS[upgradeId(rb.to, rb.at)] ? upgradeId(rb.to, rb.at) : rb.to, base, n, gold: rb.gold, mats: rb.mats.map(([m, k]) => [m, k]), over: true, reborn: true, ...(rb.need ? { need: rb.need } : {}) };
   const rank = b.rank || 1;
   // 第65回: 上限まで きたえて ある → 限界とっぱ（限界の石・星のかけら。★が ふえるほど 多く）
   if (!(n - 1 < forgeTop(id, c) && ITEMS[nextId(id, n)])) {
