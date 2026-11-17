@@ -28,7 +28,10 @@ import { onBoardMsg, boardOnEnter } from './ui/family-board.js';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
 import { onMonLive } from './ui/monarena-live.js';
 // 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
-import { watchTreasureFull } from './ui/treasure.js';
+// 第89回: もらった その 場で 聞く（戦いの けっかの 中・サーバーの 'tmAsk'）。戦いが 始まったら 画面だけの まどを 片づける
+import { askTreasureList, onTmAsk, dropTreasureFull } from './ui/treasure.js';
+// 第89回: 家族の ボス・物語の 戦いに「戦いに入る」ボタン
+import { JoinButton } from './ui/join-btn.js';
 
 export class Game {
   constructor(net) {
@@ -45,6 +48,7 @@ export class Game {
     // 第50回 N3: 大事な物の すぐ使う ボタン（大鳥・竜の ボタンの 下。ui/quick-item.js）
     this.quick = new QuickButton(this);
     this.followBtn = new FollowButton(this);
+    this.joinBtn = new JoinButton(this);
     this.huntBtn = new HuntButton(this); // 第64回 ⑥a: 素材を 落とす 魔物を さがす
     this.menu = new FieldMenu(this);
     this.script = new ScriptPlayer(this);
@@ -214,10 +218,10 @@ export class Game {
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);
-      watchTreasureFull(this, dt, canMove);
       this.sky.update(dt);
       this.quick.update();
       this.followBtn.update();
+      this.joinBtn.update();
       this.huntBtn.update();
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
@@ -533,6 +537,10 @@ export class Game {
         this.battle?.onReject();
         break;
       case 'battleEnd': return this.onBattleEnd(m);
+      // 第89回: 宝の地図が いっぱい（世界に 入った すぐ・つなぎなおし・だいほんの あと）→ その 場で どれを 捨てるか 聞く
+      case 'tmAsk':
+        onTmAsk(this, m);
+        break;
       // 第61回: リーダーが けっかの まどを とじた（パーティーで いっしょに たたかった 時）
       case 'resultClose':
         if (this.battle && (m.id === undefined || this.battle.id === m.id)) this.battle.leaderClose();
@@ -807,6 +815,7 @@ export class Game {
   }
 
   async onBattleStart(m) {
+    dropTreasureFull(this); // 第89回: 画面だけの まどを 戦いの 上に のこさない（えらぶのは サーバーが また 聞く）
     this.menu.close();
     this.closeFieldUI();
     if (this.battle) {
@@ -870,6 +879,15 @@ export class Game {
     }
     // 読みおわった（サーバー: つぎの たたかいに まきこめる ように なる・すこしだけ むてき）
     this.net.send({ t: 'resultDone' });
+    // 第89回: 宝の地図を 拾ったが いっぱい → けっかの まどを 閉じる 前に（けっかを 出した まま）どれを 捨てるか えらぶ。
+    //   えらぶまで フィールドに もどらない。家族の けっかの まどは 待たせない（resultDone は 先に 送る）
+    if (m.tmAsk?.length && this.battle === b) {
+      try {
+        await askTreasureList(this, m.tmAsk);
+      } catch (e) {
+        reportError(this, e, 'tmAsk');
+      }
+    }
     // 読んでいる あいだに つぎの たたかいが はじまった（ものがたりの つづき など）: その 画面は そのまま
     if (this.battle !== b) return;
     await this.fade(true);

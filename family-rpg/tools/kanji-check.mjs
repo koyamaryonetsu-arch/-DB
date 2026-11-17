@@ -184,6 +184,8 @@ export function gameFiles() {
     'public/js/shared/data/treasure.js', 'public/js/shared/data/items-tm.js', 'public/js/shared/data/monsters-tm.js', 'public/js/shared/data/story-tm.js',
     'public/js/shared/maps/treasure-cave.js', 'public/js/shared/world/treasure.js', 'public/js/client/ui/treasure.js', 'public/js/client/render/themes.js',
     'public/js/shared/data/treasure-hint.js', 'public/js/client/render/treasure-glow.js',
+    // 第89回: 宝の地図を その 場で えらぶ・ボス戦に「戦いに入る」
+    'public/js/shared/world/tm-ask.js', 'public/js/shared/join-rule.js', 'public/js/client/ui/join-btn.js',
     // 昼と夜・ルーラ・空の旅
     'public/js/shared/world/clock.js', 'public/js/shared/world/travel.js', 'public/js/shared/data/night.js', 'public/js/shared/data/sky.js',
     'public/js/shared/maps/night-npcs.js', 'public/js/client/sky.js', 'public/js/client/ui/clock.js',
