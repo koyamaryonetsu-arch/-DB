@@ -1,5 +1,5 @@
 // 家族サーバーの 自動更新（GitHub の にせものを ローカルに たてて ためす）
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -81,8 +81,17 @@ async function fakeGitHub(state) {
   return { srv, base, close: () => new Promise((r) => srv.close(r)) };
 }
 
+// 第89回: 作った 一時の フォルダー（kizuna-up-*）は テストの あとで 消す（のこると ディスクが いっぱいに なる）
+const tmpHomes = [];
+after(() => {
+  for (const home of tmpHomes) {
+    try { fs.rmSync(home, { recursive: true, force: true, maxRetries: 3 }); } catch { /* 消せなくても テストは 落とさない */ }
+  }
+});
+
 function tmpApp(files) {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'kizuna-up-'));
+  tmpHomes.push(home);
   const root = path.join(home, 'Downloads', '-DB-claude-elegant-bell-al2f1w', 'family-rpg');
   for (const [rel, data] of Object.entries(files)) {
     fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });

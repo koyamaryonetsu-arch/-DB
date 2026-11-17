@@ -20,6 +20,8 @@ import { unstickAll } from './hazards.js';
 import { MAPS, isBlocked } from '../maps/index.js';
 // 第44回（ポケモン P1）: 魔物の 進化（world/evolve.js）
 import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js';
+// 第89回: 宝の地図を えらんで いる 人（だいほんが 終わっても えらび おわるまで「えらんで いる」。world/tm-ask.js）
+import { tmHold } from './tm-ask.js';
 
 let runSeq = 1;
 
@@ -119,6 +121,7 @@ export class ScriptRun {
         if (m.runId !== this.id) continue;
         m.runId = null;
         if (m.busy === 'script') m.busy = null;
+        tmHold(this.world, m);
       }
     }
   }
@@ -134,6 +137,7 @@ export class ScriptRun {
       if (m.runId === this.id) {
         m.runId = null;
         if (m.busy === 'script') m.busy = null;
+        tmHold(this.world, m);
         this.world.send(m, { t: 'scriptEnd', runId: this.id });
         this.world.sendSelf(m);
       }
@@ -516,6 +520,8 @@ export class ScriptRun {
         case 'look':
         // 第6章: 時の砂時計の 砂の うず（client/time-shift.js）
         case 'timeShift':
+        // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く（['tmAsk', sid, 新しい 地図]。world/treasure.js）
+        case 'tmAsk':
           this.batch.push(step);
           break;
         default:
