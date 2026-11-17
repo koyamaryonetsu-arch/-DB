@@ -539,6 +539,10 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-yaiba.js', 'public/js/shared/data/items-r88-houshin.js', 'public/js/shared/data/abilities-r88.js',
     'public/js/shared/gear-r88.js', 'public/js/shared/gear-r88-view.js', 'public/js/shared/battle-r88.js', 'public/js/client/render/battlefx-r88.js',
     'public/js/shared/data/gear-fx.js',
+    // 第88回 G3班: まぼろしの回廊（とびら・ライバルの まぼろし）
+    'public/js/shared/data/rivals-r88.js', 'public/js/shared/data/story-rivals-r88.js', 'public/js/shared/rivals-r88.js', 'public/js/shared/battle-rival-r88.js',
+    'public/js/shared/battle-rival-fx-r88.js', 'public/js/shared/world/rivals-r88.js', 'public/js/shared/maps/rivals-r88.js', 'public/js/client/ui/rivals-r88.js',
+    'public/js/client/render/boards-r88.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

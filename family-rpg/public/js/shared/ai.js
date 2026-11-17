@@ -65,6 +65,9 @@ export function decideMonster(b, m) {
   // まぼろしの 分身の 本物: まぶしくて 動けない・まぼろしを 作りなおす（battle-ch4.js）
   const forced = mirageAction(b, m);
   if (forced) return forced;
+  // 第88回 G3班: まぼろしの回廊の ライバル（大技の 前ぶれと 大技。shared/battle-rival-r88.js が つける）
+  const rh = m.decideHook?.(b, m);
+  if (rh) return rh;
   // 鏡のうつし身（仲間の オートの AI）・水の衣を また まとう・大波（battle-temple.js）
   const tf = templeAction(b, m);
   if (tf) return tf;

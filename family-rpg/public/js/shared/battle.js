@@ -101,6 +101,8 @@ import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
 import { r86aTurnStart, r86aCover, r86aEffect, r86aPhys, r86aElement, r86aPhysMult, r86aDamage, r86aMark, r86aCut, r86aStore, r86aResolve, r86aPub } from './battle-r86a.js';
+// 第88回 G3班: まぼろしの回廊の ライバルの 大技（battle-rival-fx-r88.js）
+import { rivalSigEffect } from './battle-rival-fx-r88.js';
 // 第88回 M1班: 魔王の ひらめき技 天地魔闘の構え（受ける ダメージ 半分・手刀の 反撃・とける 時に 火の 鳥）
 import { r88mTurnStart, r88mEffect, r88mMark, r88mCut, r88mNote, r88mResolve, r88mPub } from './battle-r88m.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
@@ -1632,6 +1634,8 @@ export class Battle {
       case 'r86bReiHiryu': case 'r86bChantAll': r86bEffect(this, c, a, eff, ev, targets, cmd, powMult); break;
       // きずなの守り・きずなの力・人とようかいのきずな（第86回 A。battle-r86a.js）
       case 'r86aKabau': case 'r86aKizuna': case 'r86aSig': r86aEffect(this, c, a, eff, ev, targets, powMult); break;
+      // まぼろしの回廊の ライバルの 大技（最大HPの わりあい。身を 守ると へる。第88回 G3班。battle-rival-fx-r88.js）
+      case 'r88Rival': rivalSigEffect(this, c, a, eff, ev, targets); break;
       // 天地魔闘の構え（第88回 M1。battle-r88m.js）
       case 'r88mTenchi': r88mEffect(this, c, a, eff, ev); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）

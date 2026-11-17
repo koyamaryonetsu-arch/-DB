@@ -8,6 +8,8 @@ import { npcSprite } from '../field.js';
 import { reportError } from '../errlog.js';
 // 第76回: お仕事いらい板の 大きな はり紙
 import { paperPop } from './paper-pop.js';
+// 第88回 G3班: まぼろしの回廊の とびらの まど（rivals-r88.js）
+import { rivalPop } from './rivals-r88.js';
 // 第6章: 時の砂時計の 砂の うず
 import { timeShiftFx, clearTimeShift } from '../time-shift.js';
 // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
@@ -84,6 +86,7 @@ export class ScriptPlayer {
       case 'say': return this.say(a[0] ? this.fill(a[0], msg) : null, this.fill(a[1], msg), msg.spectator);
       case 'choice':
         // 第76回: お仕事いらい板の はり紙は 大きな まど（client/ui/paper-pop.js）
+        if (a[3]?.kind === 'rival') return rivalPop(this, a[3], a[1], msg.spectator, msg.who);
         if (a[3] && typeof a[3] === 'object') return paperPop(this, a[3], a[1], msg.spectator, msg.who);
         return this.choice(this.fill(a[0], msg), a[1], msg.spectator, msg.who, a[2]);
       case 'fade': return g.fade(a[0] === 'out');
