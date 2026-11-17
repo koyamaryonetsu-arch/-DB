@@ -22,3 +22,10 @@ Object.assign(WORKS, {
   ranma: { name: 'らんま1/2', trialGift: { ranma: 'r88_rm_china' } },
   nube: { name: 'じごく先生ぬ〜べ〜', trialGift: { nube: 'r88_nb_kannon' } },
 });
+
+// 第88回 G10班: ナルト・きめつのやいば（ファイルの さいごで まぜる）
+//   試練の ごほうび: 木の葉の忍び → 初代火影の首かざり（ナルトの 名品）・炎柱 → 日の耳かざり（主人公の 名品）
+Object.assign(WORKS, {
+  naruto: { name: 'ナルト', trialGift: { konoha: 'r88_nr_kubikazari' } },
+  kimetsu: { name: 'きめつのやいば', trialGift: { enbashira: 'r88_km_mimikazari' } },
+});

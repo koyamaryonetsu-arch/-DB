@@ -187,3 +187,47 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G10班: ナルト・きめつのやいば（ファイルの さいごで まぜる）─────
+Object.assign(GEAR_SETS, {
+  // ── ナルト: 忍刀七人衆の 7本（持って いる 数で しょう号）──
+  shinobi7: {
+    name: '忍刀七人衆の刀',
+    items: ['r88_nr_kubikiri', 'r88_nr_samehada', 'r88_nr_nuibari', 'r88_nr_kabutowari', 'r88_nr_shibuki', 'r88_nr_kiba', 'r88_nr_hiramekarei'],
+    rule: 'own',
+    tiers: [
+      { n: 4, title: '霧の里の刀集め', text: '4本持つと、しょう号「霧の里の刀集め」' },
+      { n: 7, title: '忍刀七人衆', text: '7本全部持つと、しょう号「忍刀七人衆」' },
+    ],
+  },
+  // ── ナルト: 六道せん人の 宝具 5つ（ふうじる 宝具を 3つ 持って つけると、マヒの力〈ふうじる 力〉）──
+  rikudo_hougu: {
+    name: '六道せん人の宝具',
+    items: ['r88_nr_basho', 'r88_nr_benihyoutan', 'r88_nr_kohaku', 'r88_nr_koukin', 'r88_nr_shichisei'],
+    rule: 'own',
+    tiers: [
+      { n: 3, fx: [{ k: 'paralyze', v: 4 }], text: '3つ持って、1つでもつけていると、マヒの力+4（ふうじる力が強くなる）' },
+      { n: 5, title: '六道せん人の宝具の主', text: '5つ全部持つと、しょう号「六道せん人の宝具の主」' },
+    ],
+  },
+  // ── ナルト: とつかの剣 ＋ スサノオのやたの鏡（剣と たて。1人が 両方 つけると 反撃）──
+  totsuka_yata: {
+    name: 'とつかの剣とやたの鏡',
+    items: ['r88_nr_totsuka', 'r88_nr_yata'],
+    rule: 'wear',
+    tiers: [
+      { n: 2, fx: [{ k: 'counter', v: 6 }], text: '1人が2つともつけると、反撃が出やすい' },
+    ],
+  },
+  // ── きめつのやいば: 柱 9人の 刀（持って いる 数で しょう号）──
+  hashira9: {
+    name: '柱の刀',
+    items: ['r88_km_mizu', 'r88_km_honoo', 'r88_km_mushi', 'r88_km_oto', 'r88_km_koi', 'r88_km_hebi', 'r88_km_kaze', 'r88_km_kasumi', 'r88_km_tekkyu'],
+    rule: 'own',
+    tiers: [
+      { n: 3, title: '柱げいこの剣士', text: '3本持つと、しょう号「柱げいこの剣士」' },
+      { n: 6, title: '柱にみとめられた剣士', text: '6本持つと、しょう号「柱にみとめられた剣士」' },
+      { n: 9, title: '九人の柱の友', text: '9本全部持つと、しょう号「九人の柱の友」' },
+    ],
+  },
+});

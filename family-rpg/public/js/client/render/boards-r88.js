@@ -135,3 +135,39 @@ Object.assign(R88_BOARD_COLORS, {
   r88_ranma: ['#8a1a1a', '#3a0808', '#e06a4a'],
   r88_nube: ['#2a5a3a', '#0e2a16', '#6aa07a'],
 });
+
+// G10班: ナルト（うずまきの 葉と クナイ）・きめつのやいば（市松もようと 日輪刀）
+Object.assign(R88_BOARD_ICONS, {
+  r88_naruto: {
+    rows: [
+      '...gg....',
+      '..gGGg...',
+      '.gGooGg..',
+      '.gGoGoG..',
+      '.gGoooG.s',
+      '..gGGg.sS',
+      '...gg.sS.',
+      '....hsS..',
+      '...h.h...',
+    ],
+    pal: { g: '#3a8a3a', G: '#7ad86a', o: '#ff8a1a', s: '#a0a8b8', S: '#e8eef8', h: '#5a3a2a' },
+  },
+  r88_kimetsu: {
+    rows: [
+      '........w',
+      '.......wW',
+      '......wW.',
+      '.....wW..',
+      'gkgk.W...',
+      'kgkgy....',
+      'gkgk.y...',
+      'kgkg..r..',
+      '.......r.',
+    ],
+    pal: { g: '#2a8a5a', k: '#14141c', w: '#2a2a34', W: '#8a8aa0', y: '#e8b84a', r: '#c03a2a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_naruto: ['#c8601a', '#4a2008', '#f0a050'],
+  r88_kimetsu: ['#1a3a2a', '#0a140e', '#5aa07a'],
+});
