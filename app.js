@@ -1917,6 +1917,24 @@
     const v = c[field];
     return v != null ? String(v) : '';
   }
+  // 上の会社ボタンを切り替えた時: 列の絞り込みの値のうち、その会社の案件に無い値を外す（全部外れた列は絞り込みをやめる）
+  function pruneColumnFiltersForCompany() {
+    const inCo = visibleCases().filter((c) => !companyFilter.size || companyFilter.has(c.company));
+    const removed = [];
+    Object.keys(columnFilters).forEach((f) => {
+      if (f === 'status') return;   // 表示する状態は残す
+      const set = columnFilters[f]; if (!set) return;
+      const present = new Set(inCo.map((c) => columnValue(c, f)));
+      const keep = new Set([...set].filter((v) => present.has(v)));
+      if (keep.size === set.size) return;
+      if (keep.size) columnFilters[f] = keep; else delete columnFilters[f];
+      removed.push(columnLabel(f));
+    });
+    if (removed.length) {
+      document.querySelectorAll('.th-filter[data-filter]').forEach((el) => el.classList.toggle('filtered', !!columnFilters[el.dataset.filter]));
+      showToastLite('会社を切り替えたので、' + removed.map((x) => '「' + x + '」').join('') + 'の絞り込みを外しました（その会社に無い値）');
+    }
+  }
   // 表示用ラベル
   function formatColVal(field, v) {
     if (v === '' || v == null) return '（空白）';
@@ -1941,12 +1959,14 @@
   }
   function openColumnFilter(field, anchorEl) {
     closeColumnFilter();
-    // 候補値（ロール別の可視案件から）を収集
+    // 候補値: 今の絞り込み（上の会社・担当者ボタン・検索・ほかの列）で残る案件の値（Excel と同じ。この列の絞り込みは除く）
     const counts = new Map();
-    visibleCases().forEach((c) => {
+    getFilteredCases({ exceptField: field }).forEach((c) => {
       const v = columnValue(c, field);
       counts.set(v, (counts.get(v) || 0) + 1);
     });
+    // 今チェックしている値は、ほかの絞り込みで0件でも並べる（外せるように）
+    if (columnFilters[field]) columnFilters[field].forEach((v) => { if (!counts.has(v)) counts.set(v, 0); });
     let values = [...counts.keys()];
     if (field === 'status') {
       // ステータスは工程順（STATUS_FILTER_ORDER）で並べる。順序外は末尾に
@@ -2048,6 +2068,7 @@
   // opts.forChips = 状態ボタンの件数を数える用（状態・注意ボタンの絞り込みはかけず、並び替えもしない）
   function getFilteredCases(opts) {
     const forChips = !!(opts && opts.forChips);
+    const exceptField = (opts && opts.exceptField) || '';   // この列の絞り込みだけは使わない（列の候補を作る時）
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = forChips ? '' : $('statusFilter').value;
     // 客先は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
@@ -2077,6 +2098,7 @@
         const f = colFilterFields[i];
         // トップのステータス選択(sf)を使う時は、status列のチェック絞り込みは無視（sfを優先）
         if (f === 'status' && sf) continue;
+        if (f === exceptField) continue;
         const set = columnFilters[f];
         if (set && set.size && !set.has(columnValue(c, f))) return false;
       }
@@ -6925,6 +6947,7 @@
     else if (companyFilter.has(v)) companyFilter.delete(v);
     else companyFilter.add(v);
     saveUserFilter('coFV1', companyFilter);
+    pruneColumnFiltersForCompany();
     renderCompanyBar();
     refresh();
   });
