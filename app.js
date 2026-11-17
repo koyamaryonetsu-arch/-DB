@@ -7358,6 +7358,9 @@
     // 工程表(kotei.js)が同じSupabaseクライアント・モード・担当者/会社マスタを共有できるよう橋渡し
     window.CINEMA_DB = {
       client: () => sb,
+      // 劇場名をゆるく探す（短い名前・別の呼び方。1つに決まらなければ ''）・会社の略称
+      findTheater: (v, co) => { try { return theaterLoose(v, co); } catch (e) { return ''; } },
+      companyAbbr: (n) => { try { return companyAbbr(n); } catch (e) { return n; } },
       mode: () => store.mode,
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
       companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },
