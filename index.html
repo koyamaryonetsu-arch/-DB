@@ -768,6 +768,14 @@
             <label for="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></label>
             <input type="text" id="quoteDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
           </div>
+          <div class="form-row form-row-wide col-ryo due-exempt-row hidden" data-mode="full">
+            <label><input type="checkbox" id="dueExempt"> ⏸ 見積りの期日免除（赤にしない）</label>
+            <input type="text" id="dueExemptReason" placeholder="理由（例: 部品の納期の確認待ち・客先の都合で見積り保留）">
+          </div>
+          <div class="form-row form-row-wide col-ryo ir-row hidden" data-mode="full" id="irRow">
+            <label>📣 初動対応・区分判定の報告</label>
+            <div class="ir-state"><span id="irState"></span> <button type="button" id="irOpenBtn" class="mini-btn">📣 初動報告をする</button></div>
+          </div>
           <div class="form-row form-row-wide" data-mode="full" data-cal="1">
             <label for="workStartDate">作業開始日時</label>
             <div class="date-time-row">

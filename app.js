@@ -54,7 +54,7 @@
   // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(客先: TOHO/109/UC 共通)
   const ROLE_STATUS = {
     ryo:  { '見積り提出済': '見積り提出済', '請求済': '請求済',          '入金済': '入金済' },
-    toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済', '失注': '他社依頼' }
+    toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済', '失注': '他社依頼', '客先対応中': '協議中' }
   };
   // 客先ごとの「客先担当者」表示名（TC担当者 の置換）
   // 客先ログインでは略称を使わず、会社名をそのまま使う（TC→TOHOシネマズ 等の表記ゆれ防止）
@@ -66,12 +66,13 @@
     'survey_date', 'cert_number', 'estimate_name', 'estimate_amount', 'quote_date',
     'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
-    'customer_memo', 'last_update_source', 'created_at', 'updated_at', 'title'   // title=案件名（客先にも見せる）
+    'customer_memo', 'last_update_source', 'created_at', 'updated_at', 'title',   // title=案件名（客先にも見せる）
+    'survey_adjusting'   // 調査日調整中（客先にも「調整中」と出す）
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
   // ステータス絞り込みの並び順（列フィルタで status を出す時の順序）
-  const STATUS_FILTER_ORDER = ['受付','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','請求済','入金済','保留','取り下げ','完了','失注'];
+  const STATUS_FILTER_ORDER = ['受付','調査日調整中','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','請求済','入金済','保留','取り下げ','完了','失注'];
   // ログイン時に既定で非表示にするステータス（ステータス列のチェックボックスから外れた状態にする）。
   // 「全件表示」ボタンで一時的に全部見せられる。
   // トップ画で最初は隠す状態（「表示する状態 ▾」で1つずつ表示/非表示を切り替えられる）
@@ -398,6 +399,7 @@
   let tasksSupported = false;
   // cases.schedule_adjusting 列がDBに存在するか（日程調整中フラグ・同上）
   let scheduleAdjustSupported = false;
+  let initialReportSupported = false;   // 初動報告・期日免除・調査日調整中の列（SETUP_INITIAL_REPORT.sql）
   function scheduleAdjustAvailable() { return store.mode === 'local' || scheduleAdjustSupported; }
   // cases.payment_confirmed 列がDBに存在するか（入金 予定/確認・同上）
   let paymentConfirmedSupported = false;
@@ -441,6 +443,15 @@
     if (statusOverrideSupported) row.status_override = c.statusOverride ? c.statusOverride : null;
     if (tasksSupported) row.tasks = Array.isArray(c.tasks) ? c.tasks : [];
     if (scheduleAdjustSupported) row.schedule_adjusting = !!c.scheduleAdjusting;
+    if (initialReportSupported && isPrivileged(currentUser)) {
+      // origin は DB が登録の時に決める（ここでは送らない）
+      row.initial_report_at = c.initialReportAt || null;
+      row.initial_report_kubun = c.initialReportKubun || '';
+      row.initial_report_by = c.initialReportBy || '';
+      row.survey_adjusting = !!c.surveyAdjusting && !c.surveyDate;
+      row.due_exempt = !!c.dueExempt;
+      row.due_exempt_reason = c.dueExemptReason || '';
+    }
     if (paymentConfirmedSupported) row.payment_confirmed = (c.paymentConfirmed !== false);
     if (timeFieldsSupported) {
       row.survey_time = c.surveyTime ? c.surveyTime : null;
@@ -494,6 +505,20 @@
       c.tasks = Array.isArray(r.tasks) ? r.tasks : [];
     } else {
       c.tasks = [];
+    }
+    // 初動報告・期日免除・調査日調整中（SETUP_INITIAL_REPORT.sql）
+    if (Object.prototype.hasOwnProperty.call(r, 'initial_report_at')) {
+      initialReportSupported = true;
+      c.origin = r.origin || '';
+      c.initialReportAt = r.initial_report_at || '';
+      c.initialReportKubun = r.initial_report_kubun || '';
+      c.initialReportBy = r.initial_report_by || '';
+      c.surveyAdjusting = !!r.survey_adjusting;
+      c.dueExempt = !!r.due_exempt;
+      c.dueExemptReason = r.due_exempt_reason || '';
+    } else {
+      c.origin = ''; c.initialReportAt = ''; c.initialReportKubun = ''; c.initialReportBy = '';
+      c.surveyAdjusting = !!r.survey_adjusting; c.dueExempt = false; c.dueExemptReason = '';
     }
     // 日程調整中フラグ
     if (Object.prototype.hasOwnProperty.call(r, 'schedule_adjusting')) {
@@ -1651,6 +1676,7 @@
     if (c.scheduleAdjusting) return '日程調整中'; // 作業開始日に0（自動）
     if (c.quoteDate && c.quoteDate <= today)         return '見積り提出済';
     if (c.surveyDate && c.surveyDate <= today)       return '見積り中';
+    if (c.surveyAdjusting && !c.surveyDate)          return '調査日調整中';   // 初動報告で C工事（調査日を調整中）
     return '受付';
   }
   // 見積り金額が明示的に0円か（空欄は除外）
@@ -1792,29 +1818,134 @@
     refresh();
   }
 
+  // ===== 遅れの色（2026-11-17 小山さんと決めた） =====
+  //  黄＝初動対応・区分判定の報告がまだ（自動登録の TOHO 案件）
+  //  オレンジ＝初動報告の翌日から平日3日を過ぎても調査日が決まっていない（報告の要らない案件は受付日から数える）
+  //  赤＝現調の翌日から平日3日を過ぎても見積りが出ていない（期日免除の案件は赤にしない）
+  //  青＝見積り提出済（発注待ち）。黄緑は廃止
+  //  遅れの色（黄・オレンジ・赤）は 修理・メンテナンス・点検 だけ。行全体を薄く塗る
+  const DELAY_CATEGORIES = new Set(['修理', 'メンテナンス', '点検']);
+  const DUE_DAYS = 3;   // 平日3日（土日祝は数えない）
+  // 手で選んだステータスは、日付が新しく入ったら自動に戻す（取り下げ・失注は戻さない。DB のしくみ cases_auto_status と同じ決まり）
+  const AUTO_STATUS_DATES = ['surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate'];
+  function autoClearOverride(c, prev) {
+    if (!c || !c.statusOverride || c.statusOverride === '取り下げ' || c.statusOverride === '失注') return;
+    if (prev && prev.statusOverride !== c.statusOverride) return;   // 同じ保存でステータスも選び直した
+    if (AUTO_STATUS_DATES.some((f) => c[f] && c[f] !== (prev ? prev[f] : ''))) c.statusOverride = '';
+    if (c.surveyDate) c.surveyAdjusting = false;
+  }
+  // ===== 初動対応・区分判定の報告（自動登録の TOHO 案件・2026-11-17） =====
+  const IR_KUBUN = {
+    A: 'A工事のため、デベロッパー様へご報告をお願いいたします。',
+    B: 'B工事のため、進め方を本社様と協議いたします。',
+    C: '調査日程を調整しております。確定出来次第、ヘルプデスクからのメールで追ってご連絡いたします。'
+  };
+  function irSubject(c) { return `【菱熱工業】${shortTheaterName(c.theater) || c.theater} ${c.title || c.category || 'ご依頼の件'} 初動対応・区分判定のご報告 [案件#${String(c.id).replace(/-/g, '').slice(0, 8)}]`; }
+  function irBody(c, k) {
+    const lines = [`${c.company} ご担当者様`, '', 'いつもお世話になっております。菱熱工業です。', '下記のご依頼について、初動対応・区分判定をご報告いたします。', '',
+      `■ 劇場: ${c.theater || ''}`];
+    if (c.title) lines.push(`■ 案件名: ${c.title}`);
+    lines.push(`■ 内容: ${String(c.content || '').replace(/\s*\n\s*/g, ' ')}`, '', `■ 区分: ${k}工事`, `→ ${IR_KUBUN[k]}`, '',
+      'ご不明な点は、このメールにそのままご返信ください。', '菱熱工業株式会社');
+    return lines.join('\n');
+  }
+  function pendingInitialReports() { return cases.filter((c) => needsInitialReport(c)).sort((a, b) => String(a.receivedDate).localeCompare(String(b.receivedDate))); }
+  let irOpen = false;
+  function checkInitialReportGate() {
+    if (irOpen || !initialReportSupported || !realPrivileged(currentUser) || !isPrivileged(currentUser)) return;
+    if (!(companyFilter.size === 1 && companyFilter.has('TOHOシネマズ'))) return;   // 上で TOHO に絞った時だけ
+    const list = pendingInitialReports();
+    if (list.length) openInitialReport(list[0], { forced: true, left: list.length });
+  }
+  async function openInitialReport(c, opt) {
+    const K = window.KARTE; opt = opt || {};
+    if (irOpen) return; irOpen = true;
+    document.querySelectorAll('#irDlg').forEach((x) => x.remove());
+    const ov = document.createElement('div'); ov.className = 'kt-overlay ir-overlay'; ov.id = 'irDlg';
+    let k = '', edited = false;
+    let to = ''; try { to = caseMailSupported ? await caseMailRecipientsText(c) : ''; } catch (e) { to = ''; }
+    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid ir-dlg"><div class="kt-dlg-head">📣 初動対応・区分判定の報告${opt.forced ? `<span class="ir-left">TOHO の報告がまだ ${opt.left} 件</span>` : '<button type="button" class="close-btn" data-irx>×</button>'}</div>
+      <div class="kt-dlg-body">
+        ${opt.forced ? '<p class="ir-must">TOHO の自動登録の案件は、初動報告をしないと一覧で見られません（契約）。区分を選んで送ってください。</p>' : ''}
+        <table class="ms-table"><tr><th>劇場</th><td>${escapeHtml(c.theater || '')}</td></tr>
+          <tr><th>受付日</th><td>${escapeHtml(c.receivedDate || '')}</td></tr>
+          <tr><th>案件名</th><td>${escapeHtml(c.title || '')}</td></tr>
+          <tr><th>内容</th><td class="ir-content">${escapeHtml(c.content || '')}</td></tr></table>
+        <div class="ir-kubun">区分: ${['A', 'B', 'C'].map((x) => `<label><input type="radio" name="irK" value="${x}"> ${x}工事</label>`).join('')}</div>
+        <p class="ms-note ir-to">${escapeHtml(to)}</p>
+        <textarea id="irBody" rows="12" class="ir-body" placeholder="区分を選ぶと、送る文が出ます（直せます）"></textarea>
+      </div><div class="kt-dlg-foot">
+        ${opt.forced ? '<button type="button" data-irother>ほかの会社を見る</button>' : '<button type="button" data-irx>やめる</button>'}
+        <button type="button" class="danger" data-irdrop>案件ではない（取り下げにする）</button>
+        <button type="button" class="primary" data-irsend disabled>送って報告済みにする</button></div></div>`;
+    document.body.appendChild(ov);
+    const close = () => { ov.remove(); irOpen = false; };
+    ov.querySelector('#irBody').addEventListener('input', () => { edited = true; });
+    ov.addEventListener('change', (e) => {
+      if (e.target.name !== 'irK') return;
+      k = e.target.value;
+      if (!edited || !ov.querySelector('#irBody').value.trim()) { ov.querySelector('#irBody').value = irBody(c, k); edited = false; }
+      ov.querySelector('[data-irsend]').disabled = false;
+    });
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-irx]')) { close(); return; }
+      if (e.target.closest('[data-irother]')) {
+        close(); companyFilter.clear(); saveUserFilter('coFV1', companyFilter); renderCompanyBar(); refresh();
+        showToastLite('全社にしました（TOHO の報告がまだの案件は、中身を隠しています）'); return;
+      }
+      if (e.target.closest('[data-irdrop]')) {
+        if (!(await K.ask('この案件を「取り下げ」にします（初動報告のメールは送りません）。よろしいですか？', { ok: '取り下げにする', danger: true }))) return;
+        c.statusOverride = '取り下げ'; c.updatedAt = new Date().toISOString();
+        await persistCase(c); close(); render(); return;
+      }
+      if (e.target.closest('[data-irsend]')) {
+        const body = ov.querySelector('#irBody').value.trim();
+        if (!k || !body) { K.say('区分を選んで、送る文を確かめてください'); return; }
+        const btn = ov.querySelector('[data-irsend]'); btn.disabled = true; btn.textContent = '送っています…';
+        try {
+          if (caseMailSupported && store.mode === 'supabase') {
+            const { error } = await sb.from('case_mail_events').insert({ case_id: String(c.id), kind: 'initial_report', detail: JSON.stringify({ subject: irSubject(c), body, kubun: k }) });
+            if (error) throw error;
+          }
+          c.initialReportAt = new Date().toISOString(); c.initialReportKubun = k; c.initialReportBy = currentUserName();
+          if (k === 'C') c.surveyAdjusting = !c.surveyDate;
+          else if (!c.statusOverride) c.statusOverride = '客先対応中';   // A・B: 劇場側の答え待ち（TOHO には「協議中」）
+          c.updatedAt = new Date().toISOString();
+          await persistCase(c);
+          close(); render();
+          showToastLite('初動報告を送りました（' + k + '工事）' + (caseMailSettings.mode === 'live' ? '' : '｜🧪 テスト中: 客先には届きません'));
+        } catch (err) { btn.disabled = false; btn.textContent = '送って報告済みにする'; K.say('送れませんでした: ' + (err.message || err)); }
+      }
+    });
+  }
+  function renderIrRow(c) {
+    const row = $('irRow'); if (!row) return;
+    const show = !!(c && initialReportSupported && isPrivileged(currentUser) && c.company === 'TOHOシネマズ');
+    row.classList.toggle('hidden', !show);
+    if (!show) return;
+    const fmt = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()}`; };
+    $('irState').textContent = c.initialReportAt ? `✅ 報告済み（${c.initialReportKubun}工事・${fmt(c.initialReportAt)}・${c.initialReportBy || ''}）`
+      : (needsInitialReport(c) ? '⚠ まだ（自動登録の TOHO 案件なので必須）' : '（自動登録の案件ではないので必須ではありません）');
+    $('irOpenBtn').classList.toggle('hidden', !!c.initialReportAt);
+    $('irOpenBtn').onclick = () => { closeModal(); openInitialReport(c); };
+  }
+  function needsInitialReport(c) {
+    return !!(initialReportSupported && c && c.company === 'TOHOシネマズ' && c.origin === 'auto' && !c.initialReportAt &&
+      !TERMINAL_LIKE_STATUSES.has(statusOf(c)));
+  }
   function rowColorClass(c) {
     const st = statusOf(c);
-    if (st === '保留') return '';
-    if (st === '日程調整中') return ''; // 日程調整中は注意喚起色なし
-    // 完了・対応済み・請求済・入金済 は色なし
-    if (NO_COLOR_STATUSES.has(st)) return '';
-    // 客先対応中・見積り提出済 → 文字全体を青（種別を問わず全ての種別で適用）
-    if (st === '見積り提出済' || st === '客先対応中') return 'row-blue';
-    // 以降の遅延色（黄・赤・黄緑）は 種別＝修理 のときだけ適用
-    if (c.category !== '修理') return '';
+    if (st === '見積り提出済') return 'row-blue';
+    if (st === '保留' || st === '日程調整中' || st === '客先対応中' || NO_COLOR_STATUSES.has(st) || TERMINAL_LIKE_STATUSES.has(st)) return '';
+    if (!DELAY_CATEGORIES.has(c.category)) return '';
     const today = todayStr();
-    // 調査日が未記入 → 黄（受付から3営業日以上＝土日祝を除く）。調査日を記入すると解除
+    if (needsInitialReport(c)) return 'row-yellow';
     if (!c.surveyDate) {
-      if (c.receivedDate) {
-        if (businessDaysBetween(c.receivedDate, today) >= 3) return 'row-yellow';
-      }
+      const base = (c.initialReportAt ? String(c.initialReportAt).slice(0, 10) : '') || c.receivedDate;
+      if (base && businessDaysBetween(base, today) > DUE_DAYS) return 'row-orange';
       return '';
     }
-    // 見積り中（調査済・見積り未提出）→ 調査日から3営業日未満は黄緑、3営業日以上は赤
-    if (st === '見積り中') {
-      if (businessDaysBetween(c.surveyDate, today) >= 3) return 'row-red';
-      return 'row-yellowgreen';
-    }
+    if (st === '見積り中' && !c.dueExempt && businessDaysBetween(c.surveyDate, today) > DUE_DAYS) return 'row-red';
     return '';
   }
   function escapeHtml(s) {
@@ -1845,7 +1976,7 @@
   // ---------- sort ----------
   // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
   const STATUS_SORT_ORDER = {
-    '受付': 1, '見積り中': 2, '見積り提出済': 3, '日程調整中': 3.2, '客先対応中': 3.5, '作業中': 4,
+    '受付': 1, '調査日調整中': 1.5, '見積り中': 2, '見積り提出済': 3, '日程調整中': 3.2, '客先対応中': 3.5, '作業中': 4,
     '対応済み': 5, '完了': 6, '請求済': 7, '入金済': 8, '取り下げ': 9, '失注': 10, '保留': 99
   };
   function getSortValue(c, field) {
@@ -1863,9 +1994,10 @@
   // 標準（未ソート時）の並び順グループ: 赤=0 → 黄=1 → それ以外(黒)=2
   function defaultSortRank(c) {
     const cls = rowColorClass(c);
-    if (cls === 'row-red') return 0;
-    if (cls === 'row-yellow') return 1;
-    return 2;
+    if (cls === 'row-yellow') return 0;   // 初動報告まだ（契約で一番急ぐ）
+    if (cls === 'row-red') return 1;
+    if (cls === 'row-orange') return 2;
+    return 3;
   }
   function sortCases(arr) {
     if (!sortState.field) {
@@ -2132,9 +2264,9 @@
   }
 
   // ===== ⑤ 状態ごとの件数ボタン（押すとその状態だけ・もう一度押すと戻る）＋注意ボタン =====
-  // 注意ボタンでの絞り込み: '' = なし / 'row-red' = 見積り遅れ / 'row-yellow' = 調査日未定（行の左端の色と同じ意味）
+  // 注意ボタンでの絞り込み: '' = なし / 'row-red' = 見積り遅れ / 'row-yellow' = 初動報告まだ / 'row-orange' = 調査日未定（行の色と同じ意味）
   let attentionFilter = '';
-  const CHIP_STATUS_ORDER = ['受付', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
+  const CHIP_STATUS_ORDER = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
   function renderStatusChips() {
     const box = $('statusChips'); if (!box || !currentUser) return;
     const base = getFilteredCases({ forChips: true });
@@ -2147,8 +2279,10 @@
     if (isPrivileged(currentUser)) {
       const nR = base.filter((c) => rowColorClass(c) === 'row-red').length;
       const nY = base.filter((c) => rowColorClass(c) === 'row-yellow').length;
-      html += `<button type="button" class="fb-chip warn-r${attentionFilter === 'row-red' ? ' on' : ''}" data-attn="row-red" title="調査日から3営業日以上たっても見積りが出ていない案件（行の左端が赤）">見積り遅れ <i>${nR}</i></button>`;
-      html += `<button type="button" class="fb-chip warn-y${attentionFilter === 'row-yellow' ? ' on' : ''}" data-attn="row-yellow" title="受付から3営業日以上たっても調査日が決まっていない案件（行の左端が黄）">調査日未定 <i>${nY}</i></button>`;
+      const nO = base.filter((c) => rowColorClass(c) === 'row-orange').length;
+      html += `<button type="button" class="fb-chip warn-r${attentionFilter === 'row-red' ? ' on' : ''}" data-attn="row-red" title="現調の翌日から平日3日を過ぎても見積りが出ていない案件（赤）">見積り遅れ <i>${nR}</i></button>`;
+      html += `<button type="button" class="fb-chip warn-y${attentionFilter === 'row-yellow' ? ' on' : ''}" data-attn="row-yellow" title="初動対応・区分判定の報告がまだの案件（黄）">初動報告まだ <i>${nY}</i></button>`;
+      html += `<button type="button" class="fb-chip warn-o${attentionFilter === 'row-orange' ? ' on' : ''}" data-attn="row-orange" title="初動報告（または受付）の翌日から平日3日を過ぎても調査日が決まっていない案件（オレンジ）">調査日未定 <i>${nO}</i></button>`;
       html += '<span class="fb-chip-sep"></span>';
     }
     html += `<button type="button" class="fb-chip${!sf && !attentionFilter ? ' on' : ''}" data-chip-status="">すべて <i>${base.length}</i></button>`;
@@ -2751,13 +2885,17 @@
     if (!isPrivileged(currentUser)) return '';
     const cls = rowColorClass(c);
     const today = todayStr();
+    const st = statusOf(c);
+    if (st === '見積り中' && c.dueExempt && DELAY_CATEGORIES.has(c.category)) return `<span class="late-days ex" title="見積りの期日免除${c.dueExemptReason ? '：' + escapeHtml(c.dueExemptReason) : ''}">期日免除</span>`;
     if (cls === 'row-red' && c.surveyDate) {
-      const n = daysBetween(c.surveyDate, today);
-      if (n !== null && n > 0) return `<span class="late-days" title="調査日から${n}日たっても見積りが出ていません">調査から${n}日</span>`;
+      const n = businessDaysBetween(c.surveyDate, today);
+      return `<span class="late-days" title="現調の翌日から平日${n}日たっても見積りが出ていません（期日は平日${DUE_DAYS}日）">現調から${n}日</span>`;
     }
-    if (cls === 'row-yellow' && c.receivedDate) {
-      const n = daysBetween(c.receivedDate, today);
-      if (n !== null && n > 0) return `<span class="late-days y" title="受付から${n}日たっても調査日が決まっていません">受付から${n}日</span>`;
+    if (cls === 'row-yellow') return '<span class="late-days y" title="初動対応・区分判定の報告がまだです">初動報告まだ</span>';
+    if (cls === 'row-orange') {
+      const base = c.initialReportAt ? String(c.initialReportAt).slice(0, 10) : c.receivedDate;
+      const n = businessDaysBetween(base, today);
+      return `<span class="late-days o" title="${c.initialReportAt ? '初動報告' : '受付'}の翌日から平日${n}日たっても調査日が決まっていません">${c.initialReportAt ? '報告' : '受付'}から${n}日</span>`;
     }
     return '';
   }
@@ -2830,6 +2968,7 @@
     document.body.classList.toggle('case-bells', !!(caseMailSupported && !isPrivileged(currentUser)));
     renderMailSetBtn();
     if (leftStaff().length) renderRPersonBar();   // 異動・退職の人の「⚠ n件」を最新に
+    setTimeout(checkInitialReportGate, 0);   // TOHO に絞った時は、初動報告がまだの案件の報告画面を出す
     if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
     renderDatalists();
@@ -2842,6 +2981,7 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
+      if (isPrivileged(currentUser) && needsInitialReport(c)) tr.classList.add('ir-lock');   // 初動報告まで中身を見せない
       if (editingCaseId && String(editingCaseId) === String(c.id)) tr.classList.add('row-editing');
       const companyHtml = buildCompanyTag(c);
       const statusCell = buildStatusCell(c);
@@ -2866,17 +3006,17 @@
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', needsApprovalNo(c) ? `<span class="cat-approval" title="見積り金額（税抜）が10万円以上：TOHO の承認番号が必要です">${escapeHtml(c.category)}</span>` : escapeHtml(c.category))}
         ${editableTd(c, 'title', escapeHtml(c.title || ''), 'col-title')}
-        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
+        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell' + (isPrivileged(currentUser) && statusOf(c) === '見積り中' ? ' quote-blink' : ''))}
         ${editableTd(c, 'customerMemo', escapeHtml(c.customerMemo), 'col-customer-memo')}
-        ${editableTd(c, 'surveyDate', escapeHtml(fmtDateTime(c.surveyDate, c.surveyTime)))}
+        ${editableTd(c, 'surveyDate', c.surveyDate ? escapeHtml(fmtDateTime(c.surveyDate, c.surveyTime)) : (c.surveyAdjusting ? '<span class="adj">調整中</span>' : ''))}
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
         <td class="col-tax" data-colkey="tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
-        ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
+        ${editableTd(c, 'workStartDate', c.workStartDate ? escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)) : ((c.surveyAdjusting || c.scheduleAdjusting) ? '<span class="adj">調整中</span>' : ''))}
         ${workappTd(c)}
-        ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
+        ${editableTd(c, 'workEndDate', c.workEndDate ? escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)) : ((c.surveyAdjusting || c.scheduleAdjusting) ? '<span class="adj">調整中</span>' : ''))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
@@ -3185,7 +3325,9 @@
       if (field === 'tcPerson') newVal = stripHonorific(newVal); // 客先担当者の「さん／様」は保存時に除去
 
       if (String(newVal) !== String(oldVal)) {
+        const before = Object.assign({}, c);
         c[field] = newVal;
+        autoClearOverride(c, before);
         // 作業開始日に実日付/空が入ったら、日程調整中フラグは解除（自動判定に戻す）
         if (field === 'workStartDate' && c.scheduleAdjusting) c.scheduleAdjusting = false;
         // 請求書発行日を入れたら、入金日(予定)を翌月末で自動入力（予定状態）
@@ -3319,6 +3461,9 @@
     $('modalDeleteBtn').classList.toggle('hidden', !caseObj || isCalEdit);
     $('modalPhotoBtn').classList.toggle('hidden', !caseObj || isCalEdit || !isPrivileged(currentUser));
     renderCaseMailSec(caseObj && !isCalEdit ? caseObj : null);
+    // 期日免除・初動報告の欄（菱熱・列がある時だけ）
+    document.querySelectorAll('.due-exempt-row').forEach((el) => el.classList.toggle('hidden', !(initialReportSupported && isPrivileged(currentUser) && !isCalEdit)));
+    renderIrRow(caseObj && !isCalEdit ? caseObj : null);
 
     if (isPrivileged(currentUser)) {
       $('company').disabled = false;
@@ -3333,6 +3478,7 @@
       $('company').value = caseObj.company || scopedCompany(companyNames()[0]);
       $('theater').value = theaterForInput(caseObj.theater || '', caseObj.company || '');
       modalOrigTheater = $('theater').value;
+      if ($('dueExempt')) { $('dueExempt').checked = !!caseObj.dueExempt; $('dueExemptReason').value = caseObj.dueExemptReason || ''; }
       modalOrigRPerson = caseObj.rPerson || '';
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
@@ -4684,8 +4830,10 @@
       });
       if (cls === 'row-red' && c.surveyDate) {
         add('quote', '見積りを提出する', `調査から${daysBetween(c.surveyDate, today)}日 見積り未提出`, 'high');
-      } else if (cls === 'row-yellow' && c.receivedDate) {
-        add('survey', '調査日を決める', `受付から${daysBetween(c.receivedDate, today)}日 調査日未定`, 'mid');
+      } else if (cls === 'row-yellow') {
+        add('report', '初動対応・区分判定を報告する', '初動報告まだ', 'high');
+      } else if (cls === 'row-orange') {
+        add('survey', '調査日を決める', `${c.initialReportAt ? '初動報告' : '受付'}から 調査日未定`, 'mid');
       }
       if ((st === '見積り提出済' || st === '客先対応中') && c.quoteDate && !c.workStartDate) {
         const n = daysBetween(c.quoteDate, today);
@@ -4808,7 +4956,7 @@
         ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'title', escapeHtml(c.title || ''), 'col-title')}
-        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
+        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell' + (isPrivileged(currentUser) && statusOf(c) === '見積り中' ? ' quote-blink' : ''))}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="task-col" data-colkey="tasks">
           <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスクを追加・編集">＋ 追加</button>
@@ -6689,7 +6837,7 @@
   $('masterBtn').addEventListener('click', () => openMasterDialog());
   $('guideBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open(); });
   // 編集パネルの「？」: この画面の取説（登録・ステータス・見積書・作業申請書）
-  $('modalHelpBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open({ only: ['flow', 'docs'] }); });
+  $('modalHelpBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open({ only: ['flow', 'report', 'docs'] }); });
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
   // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
   $('casesBody').addEventListener('click', (e) => {
@@ -6899,6 +7047,8 @@
       memo: $('memo').value.trim(),
       customerMemo: $('customerMemo') ? $('customerMemo').value.trim() : '',
       adviceNote: $('adviceNote') ? $('adviceNote').value.trim() : '',
+      dueExempt: !!($('dueExempt') && $('dueExempt').checked),
+      dueExemptReason: $('dueExemptReason') ? $('dueExemptReason').value.trim() : '',
       updatedAt: new Date().toISOString()
     };
     addToHistory('theaters', data.theater);
@@ -6933,6 +7083,7 @@
     }
     // 既存の statusOverride / tasks / 配分 などフォーム外の項目は保持（マージ）
     const saved = Object.assign({}, prev || {}, data);
+    autoClearOverride(saved, prev);
     if (existing >= 0) cases[existing] = saved; else cases.push(saved);
     const p = persistCase(saved);
     // 案件名が空なら、保存のあとに AI が内容から付ける（「どこでどうなった」だけ）
@@ -6974,7 +7125,7 @@
       const id = actEl.dataset.id;
       const c = cases.find((x) => x.id === id);
       if (!c) return;
-      if (action === 'edit') openModalGuarded(c, 'full');
+      if (action === 'edit') { if (needsInitialReport(c)) openInitialReport(c); else openModalGuarded(c, 'full'); }
       // 二重の可能性バッジ: 相手の案件を見るか、疑いを解除するか
       else if (action === 'dup-open') {
         e.stopPropagation();
@@ -7038,6 +7189,7 @@
       return;
     }
     if (nameClickTimer) { clearTimeout(nameClickTimer.t); nameClickTimer = null; }
+    if (needsInitialReport(c)) { openInitialReport(c); return; }
     startInlineEdit(td, c, td.dataset.field);
   });
 
@@ -7255,6 +7407,7 @@
   // ⑨ スマホ: カードをタップ → 編集（タスク管理中はそのタスクの編集）
   function openFromCard(card) {
     const c = cases.find((x) => String(x.id) === String(card.dataset.mcase)); if (!c) return;
+    if (isPrivileged(currentUser) && needsInitialReport(c)) { openInitialReport(c); return; }
     if (taskMode) openTaskModal(c); else openModal(c, 'full');
   }
   $('mobileCards').addEventListener('click', (e) => {

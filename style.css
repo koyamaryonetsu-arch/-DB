@@ -2589,3 +2589,37 @@ button.kt-upload{ border:none; }
 .wa-none{ color:#cbd5e1; }
 td.wa-due{ background:#fef2f2 !important; }
 .wa-warn{ color:#dc2626; font-weight:700; }
+/* ===== 遅れの色（2026-11-17）: 行全体を薄く塗る（左に固定した列も同じ色）＋左端に濃い帯 ===== */
+#casesTable tbody tr.row-red > td    { background: #fde8e8; }
+#casesTable tbody tr.row-yellow > td { background: #fff6cc; }
+#casesTable tbody tr.row-orange > td { background: #ffe8d1; }
+#casesTable tbody tr.row-blue > td   { background: #e6efff; }
+#casesTable tbody tr.row-red:hover > td    { background: #fbd5d5; }
+#casesTable tbody tr.row-yellow:hover > td { background: #ffeea8; }
+#casesTable tbody tr.row-orange:hover > td { background: #ffdab5; }
+#casesTable tbody tr.row-blue:hover > td   { background: #d6e4ff; }
+tr.row-orange td.col-edit { box-shadow: inset 6px 0 0 #f97316; }
+tr.row-red td.col-edit    { box-shadow: inset 6px 0 0 #dc2626; }
+tr.row-yellow td.col-edit { box-shadow: inset 6px 0 0 #eab308; }
+tr.row-blue td.col-edit   { box-shadow: inset 6px 0 0 #2563eb; }
+.m-card.row-orange { border-left: 6px solid #f97316; background: #fff4e8; }
+.late-days.o { background: #ffedd5; color: #c2410c; }
+.late-days.ex { background: #e2e8f0; color: #334155; }
+.fb-chip.warn-o { border-color: #fdba74; color: #c2410c; }
+.fb-chip.warn-o.on { background: #f97316; color: #fff; border-color: #f97316; }
+.adj { font-size: 11px; font-weight: 700; color: #7c3aed; background: #f3e8ff; border-radius: 4px; padding: 1px 6px; }
+.status-調査日調整中 { background: #f3e8ff; color: #6b21a8; }
+/* 見積り中: 内容の文字だけ赤く点滅 */
+td.quote-blink { color: #dc2626; animation: quoteBlink 1.4s ease-in-out infinite; }
+@keyframes quoteBlink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { td.quote-blink { animation: none; } }
+/* 初動報告 */
+tr.ir-lock td:not(.col-edit):not(.col-status):not([data-colkey="company"]):not([data-field="theater"]):not([data-colkey="receivedDate"]) { filter: blur(4px); user-select: none; }
+.ir-overlay { z-index: 9000; }
+.ir-dlg .ir-must { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #78350f; margin: 0 0 8px; }
+.ir-left { margin-left: 10px; font-size: 12px; font-weight: 700; color: #b91c1c; }
+.ir-kubun { display: flex; gap: 16px; align-items: center; margin: 10px 0; font-weight: 700; }
+.ir-kubun label { font-weight: 400; }
+.ir-body { width: 100%; font-size: 13px; line-height: 1.6; }
+.ir-content { white-space: pre-wrap; max-height: 120px; overflow: auto; display: block; }
+.ir-state { display: flex; gap: 10px; align-items: center; font-size: 13px; }

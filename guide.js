@@ -4,7 +4,7 @@
  *  新しい章・項目を足したら GUIDE_VERSION を上げ、その項目に isNew: true を付ける（取説ボタンに「新」の印が付く）。
  */
 (function () {
-  const GUIDE_VERSION = 1;
+  const GUIDE_VERSION = 2;
   const SEEN_KEY = 'guideSeenV';
   const $ = (id) => document.getElementById(id);
   const vis = (el) => !!el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
@@ -31,7 +31,7 @@
   };
 
   // ---- 章と項目（steps: sel＝光らせる場所、t＝説明、before＝その前に画面を動かす） ----
-  const STATUS_FLOW = '受付 → 見積り中 → 見積り提出済 → （日程調整中）→ 作業中 → 対応済み → 請求済 → 入金済';
+  const STATUS_FLOW = '受付 → （調査日調整中）→ 見積り中 → 見積り提出済 → （日程調整中）→ 作業中 → 対応済み → 請求済 → 入金済';
   const CHAPTERS = [
     { id: 'flow', title: '🗂 案件の流れ（登録から完了まで）', items: [
       { id: 'new', title: '案件を新しく登録する', steps: [
@@ -54,8 +54,18 @@
         { sel: '#invoiceDate', t: '⑤ 請求書発行日を入れると「請求済」。' },
         { sel: '#paymentDate', t: '⑥ 入金日を入れると「入金済」（一覧の「予定／確認」で、確認済みの時だけ入金済）。' },
         { sel: '#memo', t: '社内メモか内容に「保留」と書くと、日付より先に「保留」になります。' },
-        { before: A.closeAll, sel: '#casesBody .status-pick', t: '取り下げ・失注・完了などは、一覧のステータスを押して手で選びます（先頭の「自動」で自動に戻ります）。' },
+        { before: A.closeAll, sel: '#casesBody .status-pick', t: '取り下げ・失注・完了などは、一覧のステータスを押して手で選びます。手で選んだあとに日付が入ると、自動に戻ります（取り下げ・失注はそのまま）。' },
         { sel: '#statusVisBtn', t: '完了・入金済などの終わった案件は、最初は一覧に出ません。「表示する状態」で出せます。' }
+      ] }
+    ] },
+    { id: 'report', title: '📣 初動報告・期日免除', items: [
+      { id: 'report', title: '初動対応・区分判定を報告する（TOHO）', isNew: true, steps: [
+        { before: A.closeAll, sel: '#companyBar', t: 'メール・LINE から自動で登録された TOHO の案件は、初動対応・区分判定の報告（A工事・B工事・C工事）が必要です（契約）。上の会社ボタンで TOHO にすると、報告がまだの案件の報告画面が出て、報告するまで閉じられません。' },
+        { sel: '#casesBody tr.ir-lock, #casesBody tr[data-case-id]', t: '全社の時は、報告がまだの案件は黄色で、中身がぼかしてあります。✎ を押すと報告画面が出ます。' },
+        { t: '報告画面で区分を選ぶと、送る文が出ます（直せます）。\nA工事＝デベロッパー様へ報告をお願い → ステータスは「客先対応中」（TOHO には「協議中」）\nB工事＝本社様と協議 → 「客先対応中」\nC工事＝調査日程を調整中 → 「調査日調整中」。調査日・工事開始日・工事終了日に「調整中」と出ます。\n「送って報告済みにする」で、劇場・担当者・ベルの人にメールが届きます（テスト中はテストの宛先だけ）。案件でなければ「取り下げにする」。' }
+      ] },
+      { id: 'exempt', title: '見積りの期日免除', isNew: true, steps: [
+        { before: A.openFirst, sel: '#dueExempt', t: '部品の納期待ちなどで見積りが遅れてよい時は、「⏸ 見積りの期日免除」に印を付けて、理由を書きます。赤になりません。一覧のステータスの下に「期日免除」と出ます（理由は指を乗せると出ます）。', after: A.closeAll }
       ] }
     ] },
     { id: 'docs', title: '📎 見積書・作業申請書', items: [
@@ -94,7 +104,7 @@
         { before: A.closeAll, sel: '#rPersonBar', t: '担当者ボタンで、その人の案件だけにします（複数押せます）。異動・退職の人に未完了の案件があると「⚠ n件」のボタンが出ます。押して別の人に付け替えます。' },
         { sel: '#companyBar', t: '会社ボタンで会社を絞ります。列の絞り込みの候補も、その会社の案件の値だけになります。' },
         { sel: '#theadRow .th-filter[data-filter="theater"]', t: '列の名前を押すと、その列の値で絞り込めます（Excel と同じ）。値の文字を押すと、それだけに絞ります。見出しの 🤖・📨 は AI も入れる列です。' },
-        { sel: '#casesBody tr[data-case-id]', t: '行の左の色: 黄＝修理で受付から3営業日たっても調査日が無い、黄緑＝見積り中、赤＝調査から3営業日たっても見積りが出ていない、青い文字＝見積り提出済・客先対応中。' },
+        { sel: '#casesBody tr[data-case-id]', t: '行の色（修理・メンテナンス・点検）: 黄＝初動報告まだ（自動登録の TOHO 案件）、オレンジ＝初動報告（または受付）の翌日から平日3日を過ぎても調査日未定、赤＝現調の翌日から平日3日を過ぎても見積りが出ていない（期日免除なら赤にしない）、青＝見積り提出済（発注待ち）。見積り中は内容の文字が赤く点滅します。' },
         { sel: '#casesBody td.editable', t: 'セルをダブルクリックすると、その場で直せます。全部の項目は左の ✎ から。' },
         { sel: '#searchBox', t: '上の検索欄で、劇場名・担当者・内容などから探せます。' }
       ] }
