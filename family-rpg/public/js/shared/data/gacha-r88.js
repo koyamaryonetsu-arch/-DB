@@ -71,6 +71,8 @@ export const TM_R88_DEN_LV = 46;
 export const TM_R88_DEN_RATE = 0.04;
 //   G6班: スレイヤーズの 斬よう剣（r88_zanyo）も 足した（7-2）
 export const TM_R88_DEN = ['r88_kokai', 'r88_galvaira', 'r88_ragud', 'r88_zanyo'];
+//   G7班: 犬夜しゃの そううんが（父の 刀）・ゆう☆遊☆白書の 次元刀（ライバルの まぼろしでは 出ない 伝説）
+TM_R88_DEN.push('r88_iy_sounga', 'r88_yh_jigento');
 export const tmR88DenRate = (lv, kind = 'normal') => (kind === 'bossB' && (lv || 0) >= TM_R88_DEN_LV ? TM_R88_DEN_RATE : 0);
 
 // ───────────── はじめの 品の 店 ─────────────

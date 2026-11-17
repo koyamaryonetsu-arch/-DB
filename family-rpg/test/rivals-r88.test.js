@@ -113,7 +113,7 @@ const examine = (bot, work = 'yaiba') => {
 
 // ───────────── データ ─────────────
 test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイヤーズ・烈火の炎）。ライバルは 作品の 中で じゅん番。ごほうびの 品・大技・まぼろしが ある', () => {
-  assert.deepEqual(RIVAL_DOORS.map((d) => d.work), ['houshin', 'yaiba', 'slayers', 'rekka']);
+  assert.deepEqual(RIVAL_DOORS.map((d) => d.work).slice(0, 4), ['houshin', 'yaiba', 'slayers', 'rekka']); // G7班から あとの とびらは それぞれの テスト
   for (const d of RIVAL_DOORS) {
     assert.ok(WORKS[d.work], d.work);
     const list = rivalsOf(d.work);
@@ -510,7 +510,7 @@ test('試練の番人: 回ろうの 案内を はじめの 1回だけ（今の �
 
 // ───────────── G5班: スレイヤーズ・烈火の炎の とびら ─────────────
 test('G5: スレイヤーズ・烈火の炎の とびら（5人ずつ・弱い 順・さいごが Lv100）と ごほうび', () => {
-  assert.equal(RIVALS.length, 21, '今の 11人 ＋ 10人');
+  assert.equal(RIVALS.filter((x) => ['houshin', 'yaiba', 'slayers', 'rekka'].includes(x.work)).length, 21, '今の 11人 ＋ 10人');
   const s = rivalsOf('slayers');
   assert.deepEqual(s.map((r) => r.id), ['s_naga', 's_zangulus', 's_xellos', 's_igai', 's_shabra']);
   assert.deepEqual(s.map((r) => r.reward), [['r88_naga_spike'], ['r88_zangulus'], ['r88_demonblood'], ['r88_bodigar', 'r88_nezard'], ['r88_gorun']]);
@@ -571,8 +571,8 @@ test('G5: 新しい とびらは 品を 3つで 開く。前の 人に 勝つと
 
 test('G5: 回ろうに とびらが 4まい（スレイヤーズ・烈火の炎の しるしつき）。まどに ライバルの ならび', async () => {
   const L = hallLayout();
-  assert.deepEqual(L.doors.map((d) => d.work), ['houshin', 'yaiba', 'slayers', 'rekka']);
-  assert.deepEqual(L.doors.map((d) => d.mark), ['r88_houshin', 'r88_yaiba', 'r88_slayers', 'r88_rekka']);
+  assert.deepEqual(L.doors.map((d) => d.work).slice(0, 4), ['houshin', 'yaiba', 'slayers', 'rekka']);
+  assert.deepEqual(L.doors.map((d) => d.mark).slice(0, 4), ['r88_houshin', 'r88_yaiba', 'r88_slayers', 'r88_rekka']);
   const hall = MAPS[HALL_ID];
   for (const d of L.doors) assert.ok(d.x > 0 && d.x < hall.w - 2, `${d.work}: かべの 中`);
   const { bot, c } = await setup(9);

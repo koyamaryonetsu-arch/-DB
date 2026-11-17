@@ -90,7 +90,8 @@ export const ROOM_STYLES = {
   wood: { floor: T.FLOOR_WOOD, wall: T.WALL_WOOD, deco: T.LAMP },
   stone: { floor: T.FLOOR_STONE, wall: T.WALL_STONE, deco: T.PILLAR },
   // G5班: 烈火の炎（火山の 黒い 岩の ゆか・灰の 岩の かべ・火の ともった 火の台）
-  volcano: { floor: T.OBSIDIAN, wall: T.ASH_ROCK, deco: T.BRAZIER_LIT },
+  volcano: { floor: T.OBSIDIAN, wall: T.ASH_ROCK, deco: T.BRAZIER_LIT },  // G7班: 犬夜しゃ（森の 土の ゆか・木の かべ・はりの木の かざり）
+  forest: { floor: T.FOREST_FLOOR, wall: T.TREE, deco: T.PINE },
 };
 const ROOM_W = 13, ROOM_H = 10;
 // 戦いの 前に 家族が 立つ ところ（部屋の まん中より 少し 下）

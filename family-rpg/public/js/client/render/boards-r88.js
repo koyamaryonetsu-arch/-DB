@@ -60,6 +60,35 @@ export const R88_BOARD_ICONS = {
       '..ddddd..',
     ],
     pal: { r: '#d83a10', R: '#ff7a2a', y: '#ffd040', W: '#fff4c0', d: '#3a2a2a', D: '#6a5a5a' },
+  },  // G7班 犬夜しゃ: 大きな 刀（鉄さいが）と 風の きず
+  r88_inuyasha: {
+    rows: [
+      '.......Ww',
+      '......WWw',
+      '.c...WWw.',
+      '..c.WWw..',
+      '...WWw.c.',
+      '..rWw..c.',
+      '.rrr...c.',
+      'rr.r.....',
+      'r........',
+    ],
+    pal: { W: '#f0f4ff', w: '#a8b4cc', r: '#d0202c', c: '#9af0d0' },
+  },
+  // G7班 ゆう☆遊☆白書: 指先の 青い れい丸
+  r88_yuhaku: {
+    rows: [
+      '.....bbb.',
+      '....bBWBb',
+      '....bWWWb',
+      '....bBWBb',
+      '..s..bbb.',
+      '..s......',
+      '.sss.....',
+      '.ssss....',
+      '.ssss....',
+    ],
+    pal: { b: '#2a7ae8', B: '#7ac8ff', W: '#ffffff', s: '#f0c8a0' },
   },
 };
 // かんばんの いろ（いた・ふち・うえの ひかり）
@@ -67,5 +96,6 @@ export const R88_BOARD_COLORS = {
   r88_houshin: ['#5a3a8a', '#24143a', '#9a7ad0'],
   r88_yaiba: ['#8a2a2a', '#3a1010', '#d06a5a'],
   r88_slayers: ['#2a3a6a', '#101830', '#6a8ad0'],
-  r88_rekka: ['#4a2a1a', '#1a0a06', '#c06a3a'],
+  r88_rekka: ['#4a2a1a', '#1a0a06', '#c06a3a'],  r88_inuyasha: ['#3a2a3a', '#140a14', '#c04a5a'],
+  r88_yuhaku: ['#1a3a2a', '#081a10', '#4aa86a'],
 };
