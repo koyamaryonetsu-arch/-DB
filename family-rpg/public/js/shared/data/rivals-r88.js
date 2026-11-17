@@ -71,7 +71,9 @@ export const RIVALS = [
       { name: '通天教主', job: 'archmage', look: L(0, 'long', 'silver', 3, 'fair', 'sharp') },
       { name: '太上老君', job: 'high_priest', look: L(0, 'long', 'white', 5, 'light', 'calm') },
     ],
-    use: 'r88_banko', reward: ['r88_banko', 'r88_rokkon'], words: 'せん人界の三人が、そなたらの力を見とどけよう。',
+    // G6班（設計書 7-2）: 太極図の巻物（太上老君の 品）も。もう 勝って いる 人は、もう一度 勝つと 持って いない 分だけ もらえる
+    //   added … あとから 足した ごほうび（勝ちずみの 人に しおりの おすすめで 知らせる。shared/rivals-r88.js の rivalRec）
+    use: 'r88_banko', reward: ['r88_banko', 'r88_rokkon', 'r88_taikyoku'], added: ['r88_taikyoku'], words: 'せん人界の三人が、そなたらの力を見とどけよう。',
     sig: { name: 'ばん古ばんの大重力', anim: 'debuff', charge: '{a}が、ばん古ばんの旗を大きくかかげた！\nまわりが、ずしりと重くなっていく…！', cast: '{a}のばん古ばんから、大地をゆらす重力がおしよせた！' },
     tune: { hp: 0.83, dmg: 1 },
   },

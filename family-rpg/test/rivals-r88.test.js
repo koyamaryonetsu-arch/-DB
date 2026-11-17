@@ -17,9 +17,9 @@ import { WORKS } from '../public/js/shared/data/works.js';
 import { JOBS, jobBattlesForLevel } from '../public/js/shared/data/jobs.js';
 import {
   RIVAL_DOORS, RIVALS, RIVAL_BY_ID, DOOR_NEED, rivalsOf, rivalOpen, rivalWon, nextRival, rivalTier, rivalEnc, sigId, sigChargeId, doorFlag,
-  repairRivals, mergeRivals, RIVAL_GOLD_PER_LV,
+  repairRivals, mergeRivals, RIVAL_GOLD_PER_LV, markRivalWin,
 } from '../public/js/shared/data/rivals-r88.js';
-import { workOwned, doorOpen, refreshDoorFlags, rivalPaper, rivalButtons, rivalTrack } from '../public/js/shared/rivals-r88.js';
+import { workOwned, doorOpen, refreshDoorFlags, rivalPaper, rivalButtons, rivalTrack, rivalRec } from '../public/js/shared/rivals-r88.js';
 import { HALL_ID, HALL_STAIRS, hallLayout, doorFront, roomId } from '../public/js/shared/maps/rivals-r88.js';
 import { setupRivalPhantom } from '../public/js/shared/battle-rival-r88.js';
 import { rivalSigEffect } from '../public/js/shared/battle-rival-fx-r88.js';
@@ -123,9 +123,9 @@ test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイ
     assert.equal(rivalTier(list[list.length - 1].lv), 100, `${d.work}: さいごは Lv100 ごろ`);
     for (let i = 1; i < list.length; i++) assert.ok(list[i].lv >= list[i - 1].lv, `${d.work}: 後の 人ほど 強い`);
   }
-  // ほう神演義: ちょう公明 → だっき → 聞仲 → 三人の大せん人 → 申公ひょう（雷公べん）。太極図は 出さない
-  assert.deepEqual(rivalsOf('houshin').map((r) => r.reward), [['r88_kinkosen'], ['r88_keisei'], ['r88_kinben'], ['r88_banko', 'r88_rokkon'], ['r88_raikoben']]);
-  assert.ok(!RIVALS.some((r) => r.reward.includes('r88_taikyoku')), '太極図は 主人公の 品');
+  // ほう神演義: ちょう公明 → だっき → 聞仲 → 三人の大せん人 → 申公ひょう（雷公べん）。G6班: 太極図の巻物は 三人の大せん人（太上老君）
+  assert.deepEqual(rivalsOf('houshin').map((r) => r.reward), [['r88_kinkosen'], ['r88_keisei'], ['r88_kinben'], ['r88_banko', 'r88_rokkon', 'r88_taikyoku'], ['r88_raikoben']]);
+  assert.deepEqual(RIVALS.filter((r) => r.reward.includes('r88_taikyoku')).map((r) => r.id), ['h_sansen']);
   // YAIBA: さいごは おに丸（おにの王）→ 魔王剣・その 前の おに丸 → 風神剣・小次ろう → 物ほしざお
   const y = rivalsOf('yaiba');
   assert.deepEqual(y[y.length - 1].reward, ['r88_maou_sword']);
@@ -602,4 +602,45 @@ test('G5: 新しい ライバルも 大技を 1回（前ぶれの つぎの 番�
     const i = order.indexOf(sigChargeId(id));
     assert.equal(order[i + 1], sigId(id), `${id}: 前ぶれの つぎの 番に 大技`);
   }
+});
+
+// ───────────── G6班: 太極図の巻物（設計書 7-2）─────────────
+test('G6: 三人の大せん人に 勝つと ばん古ばん・六こんばん・太極図の巻物の 3つ', () => {
+  const c = newCharacter({ id: 'g6a', name: 'ア', job: 'warrior', look: {} });
+  const rv = RIVAL_BY_ID.h_sansen;
+  assert.equal(ITEMS.r88_taikyoku.name, '太極図の巻物');
+  const lines = giveRivalRewards([c], rv);
+  for (const id of ['r88_banko', 'r88_rokkon', 'r88_taikyoku']) assert.equal(c.items.find((e) => e.id === id)?.n, 1, id);
+  assert.ok(lines.some((l) => l.includes('太極図の巻物を手に入れた')));
+  assert.equal(rivalWon(c, 'h_sansen'), true);
+});
+
+test('G6: もう 勝って いる 人は、もう一度 勝つと 持って いない 太極図の巻物だけ もらえる（持って いる 2つは お金）。とびらの まどと おすすめで 知らせる', () => {
+  // 太極図の巻物を 足す 前に 勝った 人（ばん古ばん・六こんばんを 持つ。ばん古ばんは きたえて ある）
+  const c = newCharacter({ id: 'g6b', name: 'イ', job: 'warrior', look: {} });
+  for (const id of ['h_chou', 'h_dakki', 'h_bunchu', 'h_sansen']) markRivalWin(c, id);
+  c.items.push({ id: 'r88_rokkon', n: 1 }, { id: 'r88_kinkosen', n: 1 });
+  assert.ok(ITEMS['r88_banko+1'], 'きたえた ばん古ばん');
+  c.equip.weapon = 'r88_banko+1';
+  // とびらの まど: 勝った 人の 行に「まだ持っていない品」
+  const row = rivalPaper(c, 'houshin').rivals.find((r) => r.id === 'h_sansen');
+  assert.equal(row.state, 'won');
+  assert.deepEqual(row.miss, ['太極図の巻物']);
+  assert.ok(row.rewards.some((x) => x.id === 'r88_taikyoku'));
+  assert.deepEqual(rivalPaper(c, 'houshin').rivals.find((r) => r.id === 'h_chou').miss, [], '持って いる ごほうびは 出さない');
+  // おすすめ（つぎの 申公ひょうが 先。勝つと 太極図の 知らせ）
+  assert.match(rivalRec(c).text, /申公ひょう/);
+  markRivalWin(c, 'h_shinkou');
+  c.items.push({ id: 'r88_raikoben', n: 1 });
+  assert.match(rivalRec(c)?.text || '', /三人の大せん人にもう一度勝つと、太極図の巻物がもらえます/);
+  // もう一度 勝つ
+  const gold = c.gold;
+  const lines = giveRivalRewards([c], RIVAL_BY_ID.h_sansen);
+  assert.equal(c.items.find((e) => e.id === 'r88_taikyoku')?.n, 1);
+  assert.equal(c.items.find((e) => e.id === 'r88_rokkon')?.n, 1, '六こんばんは ふえない');
+  assert.ok(!c.items.some((e) => e.id === 'r88_banko'), 'ばん古ばんは ふえない（きたえた 物も 持って いる）');
+  assert.equal(c.gold, gold + 2 * RIVAL_BY_ID.h_sansen.lv * RIVAL_GOLD_PER_LV, '持って いる 2つは お金');
+  assert.ok(lines.some((l) => l.includes('太極図の巻物を手に入れた')));
+  assert.deepEqual(rivalPaper(c, 'houshin').rivals.find((r) => r.id === 'h_sansen').miss, []);
+  assert.equal(rivalRec(c), null, 'もらったら おすすめは 消える');
 });

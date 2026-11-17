@@ -1,5 +1,5 @@
 // 第88回 G4班: 作品を 思い出す 装備の 手に入れ方（docs/plan-r88-anime-gear.md の 7・実装メモ（G4班））
-//   ガチャガチャ（入れ物・わりあい・10回の あとの 名品・同じ 品・全部 そろう・お金）・はじめの 品の 店・七つの玉と 竜神の ほこら・
+//   ガチャガチャ（入れ物・わりあい・10回の あとの 名品・G6班: まだ 持って いない 品だけ・全部 そろう・お金）・はじめの 品の 店・七つの玉と 竜神の ほこら・
 //   宝の 入れ物・試練の ごほうび・しおり・セーブと 引っこしコード
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,10 +17,11 @@ import { repairChar } from '../public/js/shared/world/save.js';
 import { shioriOf } from '../public/js/shared/world/shiori.js';
 import { chestLoot } from '../public/js/shared/data/treasure.js';
 import { addItem, itemCount, newCharacter } from '../public/js/shared/stats.js';
+import { lbId } from '../public/js/shared/data/items-forge.js';
 import {
-  GACHA_PRICE, GACHA_MEI_RATE, GACHA_PITY, gachaRefund, gachaBlock, gachaPool, gachaWorks, rollGacha, clearGachaCache, R88_RIVAL_GIFTS,
+  GACHA_PRICE, GACHA_MEI_RATE, GACHA_PITY, gachaBlock, gachaTier, gachaOwned, gachaPool, gachaWorks, rollGacha, clearGachaCache, R88_RIVAL_GIFTS,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, HOKORA, r88TmLoot, r88SdExtra, tmR88Rate, sdR88Rate, r88MeiAll, r88ShopItems, ownsR88,
-  gachaDone, trialGiftFlag, addRivalGifts, rivalGiftIds,
+  gachaDone, trialGiftFlag, addRivalGifts, rivalGiftIds, TM_R88_DEN, TM_R88_DEN_LV,
 } from '../public/js/shared/data/gacha-r88.js';
 import { gachaSpin, gachaView, hokoraExchange, trialGiftSteps } from '../public/js/shared/world/gacha-r88.js';
 import { GACHA_SPOTS } from '../public/js/shared/maps/gacha-r88.js';
@@ -100,44 +101,106 @@ test('ガチャ: 名品は 2わり（ふつう 8わり）', () => {
 
 test('ガチャ: 名品が 出ない まま 10回 回すと、次は かならず 名品（キャラごと・作品ごとの 数）', () => {
   const c = freshChar();
-  const miss = fixedRng(false, 0); // いつも ふつうの 1番め（2回めからは 同じ 品）
+  const miss = fixedRng(false, 0); // いつも ふつうの のこりの 1番め（同じ 品は 出ないので 毎回 ちがう 品）
+  const ix = gachaWorks().indexOf('houshin');
+  const seen = new Set();
   for (let i = 1; i <= GACHA_PITY; i++) {
-    const r = gachaSpin(c, 'yaiba', miss);
+    const r = gachaSpin(c, 'houshin', miss);
     assert.equal(r.ok, true, r.text);
     assert.equal(r.got.tier, 'fu', `${i}回め`);
-    assert.equal(c.gacha.yaiba, i);
+    assert.ok(!seen.has(r.got.id), `${i}回め: 同じ 品は 出ない`);
+    seen.add(r.got.id);
+    assert.equal(c.gacha.houshin, i);
   }
-  assert.equal(gachaView(c).works[0].left, 0);
-  const r = gachaSpin(c, 'yaiba', miss);
+  assert.equal(gachaView(c).works[ix].left, 0);
+  const r = gachaSpin(c, 'houshin', miss);
   assert.equal(r.got.tier, 'mei', '11回めは かならず 名品');
-  assert.equal(r.got.id, 'r88_niten');
-  assert.equal(c.gacha.yaiba, 0, '名品で もどる');
+  assert.equal(r.got.id, gachaPool('houshin').mei[0]);
+  assert.equal(c.gacha.houshin, 0, '名品で もどる');
   // ほかの キャラは べつの 数
   const d = freshChar();
   assert.equal(d.gacha, undefined);
-  assert.equal(gachaView(d).works[0].left, GACHA_PITY);
+  assert.equal(gachaView(d).works[ix].left, GACHA_PITY);
 });
 
-// ───────────── 3. 同じ 品・全部 そろう・お金 ─────────────
-test('ガチャ: 同じ 品が 出たら 品は ふえず、はらった お金の 半分が もどる', () => {
+test('ガチャ: のこりが ふつうだけ・名品だけ なら、のこって いる 方から。名品が ない 間は 10回の 数が すすまない', () => {
+  const p = gachaPool('slayers');
+  // 名品を 全部 持って いる → ふつうだけ（当たりの 目でも ふつう）。数は すすまない
+  const c = freshChar();
+  for (const id of p.mei) addItem(c, id, 1);
+  c.gacha = { slayers: 7 };
+  const r1 = gachaSpin(c, 'slayers', fixedRng(true, 0));
+  assert.equal(r1.got.tier, 'fu');
+  assert.equal(c.gacha.slayers, 7, '名品が のこって いない 間は 数えない');
+  assert.equal(gachaView(c).works.find((w) => w.id === 'slayers').left, null);
+  // あとで 名品を 1つ 売ると、また 名品が 出る（数は こわれて いない）
+  c.items = c.items.filter((e) => e.id !== p.mei[0]);
+  assert.equal(gachaView(c).works.find((w) => w.id === 'slayers').left, GACHA_PITY - 7);
+  // ふつうを 全部 持って いる → 名品だけ（はずれの 目でも 名品）
+  const d = freshChar();
+  for (const id of p.fu) addItem(d, id, 1);
+  d.gacha = { slayers: 3 };
+  const r2 = gachaSpin(d, 'slayers', fixedRng(false, 0));
+  assert.equal(r2.got.tier, 'mei');
+  assert.equal(d.gacha.slayers, 0);
+  // rollGacha も のこりから（持って いる 品を わたす）
+  const own = new Set(p.all.slice(1));
+  assert.deepEqual(rollGacha(fixedRng(true, 0), 'slayers', 0, own), { id: p.all[0], tier: gachaTier(p.all[0]) });
+  assert.equal(rollGacha(fixedRng(true, 0), 'slayers', 0, new Set(p.all)), null);
+});
+
+// ───────────── 3. 同じ 品は 出ない・全部 そろう・お金 ─────────────
+test('ガチャ: まだ 持って いない 品だけが 出る（同じ 品は 出ない。お金も もどらない）', () => {
   const c = freshChar(100000);
   const r1 = gachaSpin(c, 'yaiba', fixedRng(false, 0));
-  assert.equal(r1.got.dup, false);
   assert.equal(c.gold, 100000 - GACHA_PRICE);
   const id = r1.got.id;
   assert.equal(itemCount(c, id), 1);
+  assert.equal(r1.got.rest, 4);
+  assert.match(r1.text, /のこり4こ/);
+  assert.equal(r1.got.dup, undefined, '「同じ 品」の しくみは ない');
+  assert.equal(r1.got.refund, undefined);
   const r2 = gachaSpin(c, 'yaiba', fixedRng(false, 0));
-  assert.equal(r2.got.id, id);
-  assert.equal(r2.got.dup, true);
-  assert.equal(r2.got.refund, gachaRefund());
-  assert.equal(gachaRefund(), GACHA_PRICE / 2);
-  assert.equal(itemCount(c, id), 1, '品は ふえない');
-  assert.equal(c.gold, 100000 - 2 * GACHA_PRICE + GACHA_PRICE / 2);
-  // 預かり所・仲間の 装備に ある 品も「持って いる」
+  assert.notEqual(r2.got.id, id, '同じ 目でも ちがう 品');
+  assert.equal(itemCount(c, r2.got.id), 1);
+  assert.equal(c.gold, 100000 - 2 * GACHA_PRICE);
+  // 預かり所に ある 品も「持って いる」→ 出ない
   const d = freshChar();
   d.bank = { gold: 0, items: [{ id, n: 1 }] };
   assert.ok(ownsR88(d, id));
-  assert.equal(gachaSpin(d, 'yaiba', fixedRng(false, 0)).got.dup, true);
+  for (let i = 0; i < 4; i++) assert.notEqual(gachaSpin(d, 'yaiba', makeRng(30 + i)).got.id, id);
+});
+
+test('ガチャ: のこりが なくなるまで 回すと 全部 そろう。どの 作品も 品の 数 × 20000G（YAIBA 10万G・スレイヤーズ 32万G・烈火の炎 62万G・ほう神演義 70万G）', () => {
+  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000 };
+  for (const w of gachaWorks()) {
+    const p = gachaPool(w);
+    assert.equal(p.all.length * GACHA_PRICE, want[w], w);
+    for (const seed of [1, 2, 3]) {
+      const c = freshChar(10000000);
+      const rng = makeRng(seed * 31 + w.length);
+      const got = [];
+      let rest = p.all.length;
+      while (!gachaDone(c, w)) {
+        const r = gachaSpin(c, w, rng);
+        assert.equal(r.ok, true, r.text);
+        assert.ok(!got.includes(r.got.id), `${w}: ${r.got.id} は 1回だけ`);
+        got.push(r.got.id);
+        rest--;
+        assert.equal(r.got.rest, rest);
+        assert.equal(gachaView(c).works.find((x) => x.id === w).rest, rest, 'まどの のこり');
+        assert.ok(got.length <= p.all.length);
+      }
+      assert.deepEqual([...got].sort(), [...p.all].sort(), `${w}: 全部 1つずつ`);
+      assert.equal(10000000 - c.gold, want[w], `${w}: そろえる お金`);
+      // 名品が 出ない まま 11回めに なる ことは ない（10回の きまり）
+      let miss = 0;
+      for (const id of got) {
+        miss = gachaTier(id) === 'mei' ? 0 : miss + 1;
+        assert.ok(miss <= GACHA_PITY || !got.slice(got.indexOf(id)).some((x) => gachaTier(x) === 'mei'), `${w}: 10回の きまり`);
+      }
+    }
+  }
 });
 
 test('ガチャ: その 作品の 品を 全部 持って いると「全部そろった！」で 回せない', () => {
@@ -148,7 +211,52 @@ test('ガチャ: その 作品の 品を 全部 持って いると「全部そ�
   assert.equal(r.ok, false);
   assert.match(r.text, /全部そろった/);
   assert.equal(c.gold, 100000, 'お金は へらない');
-  assert.equal(gachaView(c).works[0].done, true);
+  const v = gachaView(c).works[0];
+  assert.equal(v.done, true);
+  assert.equal(v.rest, 0);
+});
+
+test('ガチャ: 「持って いる」は きたえた 物・限界とっぱ・装備・生まれ変わった 先・形を かえた 物も。売ると また 出る', () => {
+  const p = gachaPool('yaiba');
+  const c = freshChar();
+  // きたえた 二天一流の二刀（+3）を 装備・限界とっぱの 竹刀は ふくろ
+  c.equip.weapon = 'r88_niten+3';
+  assert.ok(ITEMS[lbId('r88_shinai', 4, 1)], '竹刀+4★1');
+  c.items.push({ id: lbId('r88_shinai', 4, 1), n: 1 });
+  const own = gachaOwned(c);
+  assert.ok(own.has('r88_niten') && own.has('r88_shinai'));
+  assert.equal(gachaView(c).works[0].rest, p.all.length - 2);
+  for (let i = 0; i < 3; i++) {
+    const r = gachaSpin(c, 'yaiba', makeRng(70 + i));
+    assert.ok(!['r88_niten', 'r88_shinai'].includes(r.got.id), r.got.id);
+  }
+  assert.ok(gachaDone(c, 'yaiba'), 'のこり 3つで そろう');
+  // 生まれ変わった 先: 風神を 持って いれば 風のツメも 持って いる（烈火の炎）
+  assert.equal(REBIRTH.r88_kaze_tsume.to, 'r88_fujin');
+  assert.ok(gachaPool('rekka').all.includes('r88_kaze_tsume'));
+  const d = freshChar();
+  d.bank = { gold: 0, items: [{ id: 'r88_fujin', n: 1 }] };
+  assert.ok(ownsR88(d, 'r88_kaze_tsume'));
+  assert.ok(gachaView(d).works.find((w) => w.id === 'rekka').items.find((x) => x.id === 'r88_kaze_tsume').own);
+  // 作品の 品で ない 先（賢者の石）を 持って いても、オリハルコンの像は まだ 出る
+  const e = freshChar();
+  e.items.push({ id: 'philosopher_stone', n: 1 });
+  assert.ok(!ownsR88(e, 'r88_orihalcon'));
+  // 形を かえた 物（同じ shape の 品）は 1つの 品
+  const forms = Object.keys(ITEMS).filter((id) => ITEMS[id].shape === 'kougon' && !ITEMS[id].base);
+  assert.ok(forms.length >= 2);
+  const f = freshChar();
+  f.equip.weapon = forms[1];
+  for (const id of forms) assert.ok(ownsR88(f, id), id);
+  // 売った（ふくろから なくなった）品は また 出る
+  const g = freshChar();
+  for (const id of p.all) addItem(g, id, 1);
+  assert.ok(gachaDone(g, 'yaiba'));
+  g.items = g.items.filter((x) => x.id !== 'r88_kanabo');
+  assert.ok(!gachaDone(g, 'yaiba'));
+  const r = gachaSpin(g, 'yaiba', makeRng(5));
+  assert.equal(r.got.id, 'r88_kanabo', '売った 品が また 出る');
+  assert.ok(gachaDone(g, 'yaiba'));
 });
 
 test('ガチャ: お金が 足りないと 回せない・ない 作品は 回せない', () => {
@@ -163,39 +271,14 @@ test('ガチャ: お金が 足りないと 回せない・ない 作品は 回�
   assert.equal(d.gold, 1000000);
 });
 
-test('ガチャ: お金が ふえる 道は ない（売っても 同じ 品の もどりでも はらった 分より 少ない）', () => {
-  for (const id of gachaPool('yaiba').all) {
-    const s = sellPrice(id);
-    assert.ok(s > 0, id);
-    assert.ok(s <= GACHA_PRICE / 4, `${id} 売り値 ${s} は ねだんの 4分の1 いか`);
+test('ガチャ: お金が ふえる 道は ない（売っても はらった 分より 少ない）', () => {
+  for (const w of gachaWorks()) {
+    for (const id of gachaPool(w).all) {
+      const s = sellPrice(id);
+      assert.ok(s > 0, id);
+      assert.ok(s <= GACHA_PRICE / 4, `${id} 売り値 ${s} は ねだんの 4分の1 いか`);
+    }
   }
-  // 何回 回しても、お金は へる ばかり
-  const c = freshChar(5000000);
-  const rng = makeRng(4);
-  let gold = c.gold;
-  for (let i = 0; i < 300; i++) {
-    const r = gachaSpin(c, 'yaiba', rng);
-    if (!r.ok) break;
-    const sell = r.got.dup ? 0 : sellPrice(r.got.id);
-    assert.ok(c.gold + sell < gold, `${i}回め`);
-    gold = c.gold;
-  }
-});
-
-test('ガチャ: 1つの 作品を そろえる お金の めやす（YAIBA）', () => {
-  const rng = makeRng(2026);
-  const costs = [];
-  for (let k = 0; k < 400; k++) {
-    const c = freshChar(10000000);
-    const start = c.gold;
-    let n = 0;
-    while (!gachaDone(c, 'yaiba') && n < 200) { gachaSpin(c, 'yaiba', rng); n++; }
-    costs.push(start - c.gold);
-  }
-  costs.sort((a, b) => a - b);
-  const mid = costs[costs.length >> 1];
-  // 1回 20000G。まん中は 10回ほどで 15万G くらい（第8章の 戦い 1回 2000G ほど ＝ 75回 ぶん）
-  assert.ok(mid >= 100000 && mid <= 220000, `まん中 ${mid}`);
 });
 
 // ───────────── 4. サーバーの 窓口（1人ずつ）─────────────
@@ -426,6 +509,23 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
   }
   assert.equal(rareN, rare0, 'レア装備の 数は 同じ');
   assert.ok(rareN / N > 0.1, `レア装備 ${(rareN / N).toFixed(3)}`);
+});
+
+test('G6: 斬よう剣（スレイヤーズの 伝説）は 宝の洞窟の いちばん おくの 伝説の 入れ物に（光界玉・ガルヴェイラ・ラグドメゼギスと いっしょ）', () => {
+  assert.equal(ITEMS.r88_zanyo.name, '斬よう剣');
+  assert.equal(ITEMS.r88_zanyo.work, 'slayers');
+  assert.equal(gachaBlock('r88_zanyo'), 'legend', 'ガチャには 出ない');
+  assert.ok(TM_R88_DEN.includes('r88_zanyo'));
+  assert.deepEqual(TM_R88_DEN.slice(0, 3), ['r88_kokai', 'r88_galvaira', 'r88_ragud']);
+  const last = { chance: () => true, pick: (a) => a[a.length - 1], next: () => 0.5 };
+  assert.deepEqual(r88TmLoot(last, TM_R88_DEN_LV, 'bossB', { gold: 500 }), { item: 'r88_zanyo' });
+  assert.notEqual(r88TmLoot(last, TM_R88_DEN_LV - 1, 'bossB', { gold: 500 }).item, 'r88_zanyo');
+  // 本当の 宝箱で 出る（Lv48 の 2つめの 主の 宝箱）
+  let n = 0;
+  for (let i = 0; i < 6000 && !n; i++) if (chestLoot(makeRng(300 + i), 48, 'bossB').item === 'r88_zanyo') n++;
+  assert.ok(n > 0, '斬よう剣が 出る');
+  // ほかに 斬よう剣が 手に 入る 所は ない（ライバルでは ない）
+  assert.ok(!RIVALS.some((r) => (r.reward || []).includes('r88_zanyo')));
 });
 
 // ───────────── 8. 試練の ごほうび ─────────────

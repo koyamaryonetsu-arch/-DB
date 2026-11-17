@@ -10,10 +10,11 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS, baseItemId } from './items.js';
+import { ITEMS } from './items.js';
 import { REBIRTH } from './items-alchemy.js';
 import { WORKS } from './works.js';
 import { RIVALS } from './rivals-r88.js';
+import { ownedIds } from '../gear-r88.js';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -22,8 +23,8 @@ export const GACHA_PRICE = 20000;
 export const GACHA_MEI_RATE = 0.2;
 // 名品が 出ない まま この 回数 回すと、次は かならず 名品（キャラごと・作品ごと。c.gacha[作品]）
 export const GACHA_PITY = 10;
-// 同じ 品が 出た 時に もどる お金（はらった お金の 半分）
-export const gachaRefund = (price = GACHA_PRICE) => Math.floor(price / 2);
+// 第88回 G6班（設計書 7-2）: まだ 持って いない 品だけが 出る（同じ 品は 出ない。「半分 もどる」は なくした）。
+//   そろえる お金は いつも 品の 数 × GACHA_PRICE
 
 // ───────────── 入らない 物 ─────────────
 // ライバルの まぼろしが くれる 品（7-1）は G3班の data/rivals-r88.js の RIVALS の reward から 読む（rivalGiftIds）。
@@ -68,7 +69,8 @@ export const tmR88Rate = (lv, kind = 'normal') => ((lv || 0) < TM_R88_LV ? 0 : k
 //   主の 宝箱（bossA）・ふつうの 宝箱は かえない。伝説なので ガチャには 入らない（gachaBlock の legend）
 export const TM_R88_DEN_LV = 46;
 export const TM_R88_DEN_RATE = 0.04;
-export const TM_R88_DEN = ['r88_kokai', 'r88_galvaira', 'r88_ragud'];
+//   G6班: スレイヤーズの 斬よう剣（r88_zanyo）も 足した（7-2）
+export const TM_R88_DEN = ['r88_kokai', 'r88_galvaira', 'r88_ragud', 'r88_zanyo'];
 export const tmR88DenRate = (lv, kind = 'normal') => (kind === 'bossB' && (lv || 0) >= TM_R88_DEN_LV ? TM_R88_DEN_RATE : 0);
 
 // ───────────── はじめの 品の 店 ─────────────
@@ -82,6 +84,8 @@ const GRADE_TIER = { mei: 'mei', fu3: 'fu', fu2: 'fu' };
 let cache = null;
 export function clearGachaCache() {
   cache = null;
+  rebirthFrom = null;
+  shapeOf = null;
 }
 function build() {
   const rebirthTo = new Set(Object.values(REBIRTH).map((r) => r?.to).filter(Boolean));
@@ -131,9 +135,19 @@ export const gachaWorks = () => Object.keys(WORKS).filter((w) => gachaPool(w).al
 // 宝の 入れ物に 入る 名品（ぜんぶの 作品の、ガチャに 入る 名品）
 export const r88MeiAll = () => gachaWorks().flatMap((w) => gachaPool(w).mei);
 
-// 1回 引く（rng … 世界の 乱数。pity … 名品が 出ない まま 回した 回数）→ { id, tier }
-export function rollGacha(rng, work, pity = 0) {
+// のこりの 品（まだ 持って いない 品。{ fu, mei, all }。own … gachaOwned(c) の 結果）
+export function gachaLeft(work, own) {
   const p = gachaPool(work);
+  const fu = p.fu.filter((id) => !own.has(id));
+  const mei = p.mei.filter((id) => !own.has(id));
+  return { fu, mei, all: [...fu, ...mei] };
+}
+
+// 1回 引く（rng … 世界の 乱数。pity … 名品が 出ない まま 回した 回数。own … 持って いる 品〈gachaOwned。ない ときは 何も 持って いない〉）
+//   → { id, tier }（のこりが ない 時は null）
+//   出るのは のこりの 品だけ。のこりが 名品だけ・ふつうだけ なら その 方から
+export function rollGacha(rng, work, pity = 0, own = new Set()) {
+  const p = gachaLeft(work, own);
   if (!p.all.length) return null;
   let tier;
   if (!p.mei.length) tier = 'fu';
@@ -190,20 +204,53 @@ export function gachaPity(c, work) {
   const v = c?.gacha?.[work];
   return Number.isFinite(v) ? Math.max(0, Math.min(GACHA_PITY, Math.floor(v))) : 0;
 }
-// 持って いるか（ふくろ・預かり所・自分と 仲間の 装備。きたえた 品も もとの 品で）
-export function ownsR88(c, id) {
-  const has = (x) => x && baseItemId(x) === id;
-  if ((Array.isArray(c?.items) ? c.items : []).some((e) => e?.n > 0 && has(e.id))) return true;
-  if ((Array.isArray(c?.bank?.items) ? c.bank.items : []).some((e) => e?.n > 0 && has(e.id))) return true;
-  if (Object.values(c?.equip || {}).some(has)) return true;
-  return (Array.isArray(c?.companions) ? c.companions : []).some((e) => Object.values(e?.char?.equip || {}).some(has));
+// 持って いる 品（もとの id の Set）。とびらの 条件（shared/gear-r88.js の ownedIds: ふくろ・預かり所・装備。きたえた 物・限界とっぱも もとの 品）に、
+//   G6班（7-2）: 仲間の 装備（G4班の まま）・形を かえた 物（同じ shape の 品。鋼金暗器）・生まれ変わった 先（作品の 品に 生まれ変わった 時だけ。
+//   風神を 持って いれば 風のツメも 持って いる）を 足す。売った・分解した 品は 入らない（また 出る）
+let rebirthFrom = null;
+let shapeOf = null;
+function links() {
+  if (rebirthFrom) return;
+  rebirthFrom = new Map();
+  for (const [from, r] of Object.entries(REBIRTH)) {
+    if (!r?.to || !ITEMS[r.to]?.work) continue;
+    if (!rebirthFrom.has(r.to)) rebirthFrom.set(r.to, []);
+    rebirthFrom.get(r.to).push(from);
+  }
+  shapeOf = new Map();
+  for (const [id, it] of Object.entries(ITEMS)) {
+    if (!it?.shape || it.base) continue;
+    if (!shapeOf.has(it.shape)) shapeOf.set(it.shape, []);
+    shapeOf.get(it.shape).push(id);
+  }
 }
+export function gachaOwned(c) {
+  links();
+  const out = ownedIds(c);
+  for (const e of Array.isArray(c?.companions) ? c.companions : []) {
+    for (const x of Object.values(e?.char?.equip || {})) if (x && ITEMS[x]) out.add(ITEMS[x].base || x);
+  }
+  const todo = [...out];
+  const add = (id) => {
+    if (out.has(id)) return;
+    out.add(id);
+    todo.push(id);
+  };
+  while (todo.length) {
+    const id = todo.pop();
+    for (const f of rebirthFrom.get(id) || []) add(f);
+    const sh = ITEMS[id]?.shape;
+    for (const f of (sh && shapeOf.get(sh)) || []) add(f);
+  }
+  return out;
+}
+export const ownsR88 = (c, id) => gachaOwned(c).has(id);
 // その 作品の 品を いくつ 持って いるか
-export function gachaGot(c, work) {
-  return gachaPool(work).all.filter((id) => ownsR88(c, id)).length;
+export function gachaGot(c, work, own = gachaOwned(c)) {
+  return gachaPool(work).all.filter((id) => own.has(id)).length;
 }
 // ぜんぶ そろったか
-export const gachaDone = (c, work) => gachaPool(work).all.every((id) => ownsR88(c, id));
+export const gachaDone = (c, work, own = gachaOwned(c)) => gachaPool(work).all.every((id) => own.has(id));
 
 // 試練の ごほうび（works.js の trialGift）: その 職業で もらえる 品（なければ null）
 export function trialGiftOf(job) {

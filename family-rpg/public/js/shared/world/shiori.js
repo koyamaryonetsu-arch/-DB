@@ -336,11 +336,11 @@ function gachaTrack(c) {
   if (!c?.flags?.r88_gacha_seen) return null;
   const items = gachaWorks().map((w) => {
     const n = gachaPool(w).all.length, got = gachaGot(c, w);
-    return { name: workName(w), where: '', state: got >= n ? 'done' : 'now', right: got >= n ? '全部そろった' : `${got}/${n}` };
+    return { name: workName(w), where: '', state: got >= n ? 'done' : 'now', right: got >= n ? '全部そろった' : `${got}/${n}（のこり${n - got}こ）` };
   }).sort(byState);
   return {
     id: 'gacha', name: '作品のガチャガチャ', now: items.filter((x) => x.state === 'done').length, total: items.length, unit: '作品', where: 'ルミナの町・王都サファラ',
-    note: `1回${GACHA_PRICE}ゴールド。作品の品が1つ出る。\n${GACHA_PITY}回つづけて名品が出ないと、次はかならず名品。`, items,
+    note: `1回${GACHA_PRICE}ゴールド。まだ持っていない作品の品が1つ出る（同じ品は出ない）。\n${GACHA_PITY}回つづけて名品が出ないと、次はかならず名品。`, items,
   };
 }
 function orbTrack(c) {

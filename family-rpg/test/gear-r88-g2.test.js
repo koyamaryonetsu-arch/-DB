@@ -383,7 +383,7 @@ test('第88回 G5: 宝の洞窟の いちばん おく（Lv46 から）の 2つ�
   assert.notEqual(r88TmLoot(yes, 45, 'bossB', gold).item, 'r88_kokai', 'Lv45 までは 出ない');
   assert.notEqual(r88TmLoot(yes, 50, 'bossA', { item: 'limit_stone', n: 1 }).item, 'r88_kokai', '主の 宝箱は かえない');
   assert.notEqual(r88TmLoot(yes, 50, 'normal', gold).item, 'r88_kokai', 'ふつうの 宝箱は かえない');
-  assert.deepEqual(TM_R88_DEN, ['r88_kokai', 'r88_galvaira', 'r88_ragud']);
+  assert.deepEqual(TM_R88_DEN, ['r88_kokai', 'r88_galvaira', 'r88_ragud', 'r88_zanyo'], 'G6班: 斬よう剣も');
   for (const id of TM_R88_DEN) assert.equal(ITEMS[id].grade, 'den', id);
   // 本当の 宝箱: Lv48 の 2つめの 主の 宝箱で 伝説は 2〜6%
   let den = 0;

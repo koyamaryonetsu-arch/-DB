@@ -40,10 +40,16 @@ export function refreshDoorFlags(c) {
 // 品の 名前（ない 品は 書かない。あとの 係が 足す 品）
 const itemName = (id) => ITEMS[id]?.name || '';
 export const rewardIds = (rv) => (rv?.reward || []).filter((id) => ITEMS[id]);
+// G6班: ごほうびの うち、まだ 持って いない 品（勝つと もらえる。持って いる 品は お金）
+export function missingRewards(c, rv) {
+  const own = ownedIds(c);
+  return rewardIds(rv).filter((id) => !own.has(id));
+}
 
 // とびらを 調べた 時の まど（client/ui/rivals-r88.js の rivalPop）
 //   { kind: 'rival', work, workName, mark, own, need, rivals: [{ id, name, members, lv, state: 'won' | 'next' | 'open' | 'lock', use, rewards: [{ id, name }], words }], ask }
 //   state … won: 勝った（何回でも ちょうせん できる）/ next: つぎの 相手 / lock: 前の 人に 勝つと ちょうせん できる
+//   miss … G6班: 勝った 人の ごほうびで、まだ 持って いない 品の 名前（あとから 足した 太極図の巻物 など。もう一度 勝つと もらえる）
 export function rivalPaper(c, work) {
   const d = doorOf(work);
   const list = rivalsOf(work).map((rv) => {
@@ -53,6 +59,7 @@ export function rivalPaper(c, work) {
       id: rv.id, name: rv.name, lv: rv.lv, state, members: rivalMembers(rv).length > 1 ? rivalMembers(rv).map((m) => m.name) : null,
       use: itemName(rv.use), rewards: rewardIds(rv).map((id) => ({ id, name: itemName(id) })),
       words: state === 'lock' ? '' : rv.words,
+      miss: won ? missingRewards(c, rv).map(itemName) : [],
     };
   });
   return {
@@ -93,6 +100,14 @@ export function rivalRec(c) {
     if (!doorOpen(c, d.work)) continue;
     const nx = rivalsOf(d.work).find((r) => !rivalWon(c, r.id));
     if (nx) return { text: `まぼろしの回ろうで、${workName(d.work)}の${nx.name}にちょうせんできます`, where: 'ルミナの町の星の神殿' };
+  }
+  // G6班: 勝った 人の ごほうびに、あとから 品が 足された（太極図の巻物）。もう一度 勝つと もらえる
+  for (const d of RIVAL_DOORS) {
+    if (!doorOpen(c, d.work)) continue;
+    for (const r of rivalsOf(d.work)) {
+      const add = rivalWon(c, r.id) ? (r.added || []).filter((id) => missingRewards(c, r).includes(id)) : [];
+      if (add.length) return { text: `まぼろしの回ろうで、${r.name}にもう一度勝つと、${add.map(itemName).join('と')}がもらえます`, where: 'ルミナの町の星の神殿' };
+    }
   }
   return null;
 }

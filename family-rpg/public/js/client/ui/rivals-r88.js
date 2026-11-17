@@ -1,6 +1,6 @@
 // 第88回 G3班: まぼろしの回ろうの とびらを 調べた 時の まど（大きな まど 1まい。client/ui/paper-pop.js と おなじ 作り）
 //   中み（p）は shared/rivals-r88.js の rivalPaper:
-//     { kind: 'rival', work, workName, mark, own, need, rivals: [{ id, name, members, lv, state, use, rewards: [{ id, name }], words }], ask }
+//     { kind: 'rival', work, workName, mark, own, need, rivals: [{ id, name, members, lv, state, use, rewards: [{ id, name }], words, miss }], ask }
 //   下の 大きな ボタン（「○○とたたかう」／やめる）で えらぶ。キーボード・ゲームパッド・タッチで うごく。
 //   見ている だけの 人（spectator）は 少しの 間 見せて とじる
 import { el, ListMenu, esc } from './dom.js';
@@ -75,6 +75,7 @@ export function rivalBody(p) {
         el('span', { class: 'rv-lv', text: `Lv${r.lv}くらい` }),
         el('span', { class: `rv-st ${r.state}`, text: STATE_TEXT[r.state] || '' })),
       el('div', { class: 'rv-sub', html: `${r.use ? `使う品：${esc(r.use)}　` : ''}もらえる品：${rw || '—'}` }),
+      r.miss?.length ? el('div', { class: 'rv-sub', text: `まだ持っていない品：${r.miss.join('・')}（もう一度勝つともらえる）` }) : null,
       r.words ? el('div', { class: 'rv-words', text: `「${r.words}」` }) : null);
   });
   return [head, el('ul', { class: 'rv-list' }, ...rows)];
