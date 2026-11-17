@@ -8,6 +8,8 @@ import { BAG_STACK } from './bank.js';
 import { forgePotGift } from './alchemy.js';
 import { salvageOf, salvageBlock } from '../data/salvage.js';
 import { LB_MAX } from '../data/items-forge.js';
+// 第88回: 生まれ変わりの 条件（shared/gear-r88.js）
+import { rebirthNeedLack } from '../gear-r88.js';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
@@ -72,6 +74,9 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
         if (itemCount(c, cost.to) >= BAG_STACK) return reply(false, `${ITEMS[cost.to].name}は、もう持ちきれないようだ。`);
       }
       if (cost.reborn && owner && !canEquipChar(owner, cost.to)) return reply(false, 'その人は、生まれ変わった武器を装備できないようだ。');
+      // 第88回: 生まれ変わる 条件（竜神の玉を 持つ など）
+      const needLack = cost.reborn ? rebirthNeedLack(c, cost.need) : null;
+      if (needLack) return reply(false, `…なにかが足りないようだ。\n生まれ変わるには、${needLack.join('・')}。`);
       const lack = lackOf(c, cost);
       if (lack.mats.length) return reply(false, `素材が足りないようだ。\n（${lack.mats.map((m) => `${ITEMS[m.id]?.name || m.id}があと${m.need - m.have}個`).join('・')}）`);
       if (lack.gold) return reply(false, 'おや？ゴールドが足りないようだな。');

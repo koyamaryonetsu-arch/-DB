@@ -78,6 +78,8 @@ import { R86B_SFX, R86B_HIT } from './render/battlefx-r86b.js';
 import { r86bPresent } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
 import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
+// 第88回: 作品の 品を「使う」えんしゅつ（render/battlefx-r88.js）
+import { R88_SFX, R88_HIT } from './render/battlefx-r88.js';
 import { r86aPresent } from './battle-r86a.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
@@ -187,6 +189,7 @@ Object.assign(HIT_DELAY, R85B_HIT);
 Object.assign(HIT_DELAY, R85A_HIT);
 Object.assign(HIT_DELAY, R86B_HIT);
 Object.assign(HIT_DELAY, R86A_HIT);
+Object.assign(HIT_DELAY, R88_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
 Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
@@ -316,6 +319,7 @@ Object.assign(ANIM_SFX, R85B_SFX);
 Object.assign(ANIM_SFX, R85A_SFX);
 Object.assign(ANIM_SFX, R86B_SFX);
 Object.assign(ANIM_SFX, R86A_SFX);
+Object.assign(ANIM_SFX, R88_SFX);
 
 // ひらめきの 電球（ドット絵ふう）
 const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
@@ -698,7 +702,7 @@ export class BattleScene {
       switch (it.value) {
         case 'attack': {
           // ムチは グループ、ブーメランは 敵全体（えらばない）
-          const reach = attackReach(a.weaponCat);
+          const reach = a.reach || attackReach(a.weaponCat); // 第88回: 品の とどく 広さ（shared/battle-r88.js）
           return this.pickFoe(reach, (t) => this.send({ type: 'attack', target: t }), reach === 'group' ? 'どのグループをねらう？' : 'だれをねらう？');
         }
         case 'spell': return this.abilityMenu(spells, 'spell');

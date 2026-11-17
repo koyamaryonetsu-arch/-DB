@@ -18,6 +18,8 @@ export function salvageBlock(id) {
   if (isShopGear(base)) return '店の品（★1）は、分解しても素材にならないんだ。\n売ってしまうといい。';
   if (base.unique || base.boss) return 'それは大事な品だ。分解はやめておこう。';
   if (base.perk || base.equipUse) return 'ふしぎな力のある品だ。分解はやめておこう。';
+  // 第88回: 作品の 伝説の 品・「使う」品（data/items-r88-*.js）
+  if (base.work && (base.grade === 'den' || base.use)) return '作品の力がやどる大事な品だ。分解はやめておこう。';
   return null;
 }
 
