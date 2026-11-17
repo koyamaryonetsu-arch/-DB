@@ -8,8 +8,8 @@
 //   ・ほかの しるしと まぜない: きらきら（白と 黄色の 十字）・宝の地図（赤むらさきの 光の 柱）
 //
 // ここは 絵と きまり だけ（three.js は つかわない。テストで しらべる）
-import { T } from '../../shared/tiles.js?v=79ced434f488';
-import { Painter } from './pixel.js?v=79ced434f488';
+import { T } from '../../shared/tiles.js?v=e69c775f68ea';
+import { Painter } from './pixel.js?v=e69c775f68ea';
 
 // さわれる 物の 見え方（どの 物を 立体の 形に するか）
 export const TOUCH_LOOK = {

@@ -9,13 +9,13 @@
 // ・炎の 柱（a・b）は 時間で かわるがわる ふき上がる（'@fireA'・'@fireB'。world/clock.js の timeFlag）
 // ・みちびきの糸・リレミトは 使える（1階の 城の 門 → 影の城の 前の 小島）。魔物は B8 の 出現表（plan-ch5.md の 17）
 // クモイ地方の 影の城の 前の 小島から 城の 門への 風の道（c5_croad の あと）も ここで たす（attachCastle）。だいほんは data/story-castle.js
-import { T, parseRows } from '../tiles.js?v=79ced434f488';
-import { npc } from './npc.js?v=79ced434f488';
-import { CASTLE_ROWS, CASTLE_W, CASTLE_H, CASTLE_OX, CASTLE_OY } from './castle-rows.js?v=79ced434f488';
-import { KUMOI_POS } from './kumoi.js?v=79ced434f488';
-import { K7 } from './earth.js?v=79ced434f488';
-import { CASTLE_TREASURE } from '../data/items-castle.js?v=79ced434f488';
-import { CASTLE_TOP_ARRIVE } from './castle-top.js?v=79ced434f488';
+import { T, parseRows } from '../tiles.js?v=e69c775f68ea';
+import { npc } from './npc.js?v=e69c775f68ea';
+import { CASTLE_ROWS, CASTLE_W, CASTLE_H, CASTLE_OX, CASTLE_OY } from './castle-rows.js?v=e69c775f68ea';
+import { KUMOI_POS } from './kumoi.js?v=e69c775f68ea';
+import { K7 } from './earth.js?v=e69c775f68ea';
+import { CASTLE_TREASURE } from '../data/items-castle.js?v=e69c775f68ea';
+import { CASTLE_TOP_ARRIVE } from './castle-top.js?v=e69c775f68ea';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_gather の うしろ。plan-ch5.md の 17 の 名前の 約束）
