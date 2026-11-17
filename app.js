@@ -2965,7 +2965,6 @@
   }
 
   // ===== 上部の横スクロールバー（本体と同期・位置は個人設定） =====
-  let hScrollSyncing = false;
   function syncHScrollWidth() {
     const inner = $('hScrollTopInner'); const tbl = $('casesTable');
     if (inner && tbl) inner.style.width = tbl.scrollWidth + 'px';
@@ -2973,8 +2972,18 @@
   function bindHScroll() {
     const wrap = document.querySelector('.table-wrap'); const top = $('hScrollTop');
     if (!wrap || !top) return;
-    top.addEventListener('scroll', () => { if (hScrollSyncing) return; hScrollSyncing = true; wrap.scrollLeft = top.scrollLeft; hScrollSyncing = false; });
-    wrap.addEventListener('scroll', () => { if (hScrollSyncing) return; hScrollSyncing = true; top.scrollLeft = wrap.scrollLeft; hScrollSyncing = false; });
+    // 上の横バーと表の横の位置をそろえる。動かしている側（持ち主）だけが相手を動かす。
+    // 相手側の「動いた」の知らせは後から届くので、それで持ち主を引き戻さない（引き戻し合いが、ちらつきの元）。
+    // 表示倍率 125% などで位置が小数になっても、1px 未満の違いは直さない
+    let hsOwner = null, hsTimer = null;
+    const hsSync = (from, to) => {
+      if (hsOwner && hsOwner !== from) return;
+      hsOwner = from;
+      if (Math.abs(to.scrollLeft - from.scrollLeft) >= 1) to.scrollLeft = from.scrollLeft;
+      clearTimeout(hsTimer); hsTimer = setTimeout(() => { hsOwner = null; }, 150);
+    };
+    top.addEventListener('scroll', () => hsSync(top, wrap), { passive: true });
+    wrap.addEventListener('scroll', () => hsSync(wrap, top), { passive: true });
     window.addEventListener('resize', syncHScrollWidth);
   }
   function applyHScrollPos() {
