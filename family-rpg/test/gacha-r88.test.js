@@ -387,13 +387,17 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
   assert.equal(sdR88Rate(40), 0.08);
   // 宝の洞窟
   assert.equal(tmR88Rate(25), 0);
+  assert.equal(tmR88Rate(30, 'bossA'), 0);
   const gold = { gold: 500 };
-  assert.deepEqual(r88TmLoot(fixedRng(true), 25, 'normal', gold), gold, 'Lv25 までは かわらない');
-  assert.deepEqual(r88TmLoot(fixedRng(true), 30, 'normal', gold), { item: 'r88_niten' });
+  const shopEq = { item: 'iron_sword' };
+  assert.deepEqual(r88TmLoot(fixedRng(true), 25, 'normal', shopEq), shopEq, 'Lv25 までは かわらない');
+  assert.deepEqual(r88TmLoot(fixedRng(true), 30, 'normal', shopEq), { item: 'r88_niten' }, '店の 装備の かわり');
+  assert.deepEqual(r88TmLoot(fixedRng(true), 30, 'normal', gold), gold, 'ふつうの 宝箱の お金は そのまま（装備の 出やすさを かえない）');
+  assert.deepEqual(r88TmLoot(fixedRng(true), 30, 'bossB', gold), { item: 'r88_niten' });
   const rare = Object.keys(ITEMS).find((id) => ITEMS[id].src === 'tm' && ITEMS[id].rarity >= 3);
   assert.deepEqual(r88TmLoot(fixedRng(true), 30, 'bossA', { item: rare }), { item: rare }, 'レア装備は そのまま');
   assert.deepEqual(r88TmLoot(fixedRng(true), 30, 'bossA', { item: 'limit_stone', n: 1 }), { item: 'limit_stone', n: 1 });
-  // 本当の 宝箱: Lv30 の ふつうの 宝箱で 名品は 2〜6%・レア装備（★2〜）の 出る 数は 名品が ない 時と 同じ
+  // 本当の 宝箱: Lv30 の ふつうの 宝箱で 名品は 2〜4%・レア装備（★2〜）の 出る 数は 名品が ない 時と 同じ
   let r88 = 0, rareN = 0;
   const N = 6000;
   for (let i = 0; i < N; i++) {
@@ -401,7 +405,7 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
     if (ITEMS[l.item]?.work) r88++;
     else if ((ITEMS[l.item]?.rarity || 0) >= 2) rareN++;
   }
-  assert.ok(r88 / N > 0.02 && r88 / N < 0.06, `名品 ${(r88 / N).toFixed(3)}`);
+  assert.ok(r88 / N > 0.02 && r88 / N < 0.04, `名品 ${(r88 / N).toFixed(3)}`);
   // 名品が 1つも ない 時（入れ物を 空に して）と くらべる
   addRivalGifts(['r88_niten']);
   let rare0 = 0;

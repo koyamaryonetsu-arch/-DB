@@ -58,9 +58,11 @@ export const HOKORA = { map: 'peak_top', x: 21, y: 3 };
 // ひみつのダンジョンの ごほうびの 宝箱（休み所。★4 が 出る 20階から）: 今の ごほうびに 足す（今の 品は へらない）
 export const SD_R88_FROM = 20;
 export const sdR88Rate = (f) => (f >= 40 ? 0.08 : f >= SD_R88_FROM ? 0.05 : 0);
-// 宝の洞窟の 宝箱（地図 Lv26 から ＝ 深い 宝の洞窟）: レア装備で ない 中み（素材・お金・道具）の 一部を 名品に かえる（レア装備は へらない）
+// 宝の洞窟の 宝箱（地図 Lv26 から ＝ 深い 宝の洞窟）。今の レア装備・装備の 出やすさ（第64回 ⑥d）は かえない
+//   ふつうの 宝箱 … 店の 装備（★1）が 出た 時の 6わりを 名品に（宝箱 ぜんたいの 3% ほど。装備が 出る わりあいは かわらない）
+//   2つめの 主の 宝箱（bossB。お金・道具）… 8% を 名品に / 主の 宝箱（bossA。レア装備か 限界の石・素材）… かえない
 export const TM_R88_LV = 26;
-export const tmR88Rate = (lv, kind = 'normal') => ((lv || 0) < TM_R88_LV ? 0 : kind === 'normal' ? 0.04 : 0.08);
+export const tmR88Rate = (lv, kind = 'normal') => ((lv || 0) < TM_R88_LV ? 0 : kind === 'normal' ? 0.6 : kind === 'bossB' ? 0.08 : 0);
 
 // ───────────── はじめの 品の 店 ─────────────
 // 作品の 基本職が 始まる ころの 店（ない 作品は R88_SHOP_DEFAULT）。基本職は どれも さいしょから えらべる ので、
@@ -139,8 +141,9 @@ export function r88TmLoot(rng, lv, kind, loot) {
   const rate = tmR88Rate(lv, kind);
   if (!rate || !loot) return loot;
   const it = loot.item ? ITEMS[loot.item] : null;
-  // もう レア装備（★2〜）・こうふくの靴・限界の石は そのまま（今の レアは へらさない）
-  if (it && ((it.rarity || 0) >= 2 || loot.item === 'koufuku_kutsu' || loot.item === 'limit_stone')) return loot;
+  const shopGear = !!it && ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type) && !(it.rarity > 0) && loot.item !== 'koufuku_kutsu';
+  // ふつうの 宝箱は 店の 装備だけ・主の 宝箱（bossB）は 装備で ない 物だけ を かえる（レア装備・こうふくの靴・限界の石は そのまま）
+  if (kind === 'normal' ? !shopGear : (it && (['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type) || loot.item === 'limit_stone'))) return loot;
   const list = r88MeiAll();
   if (!list.length || !rng.chance(rate)) return loot;
   return { item: rng.pick(list) };
