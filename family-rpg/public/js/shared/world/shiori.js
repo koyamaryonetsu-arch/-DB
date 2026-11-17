@@ -33,6 +33,8 @@ import { bossHintsSeen } from '../data/boss-hints.js';
 // 第88回 G4班: 作品の ガチャガチャ・七つの玉
 import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js';
 import { workName } from '../data/works.js';
+// 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
+import { rivalTrack, rivalRec } from '../rivals-r88.js';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -367,6 +369,9 @@ function missionTrack(c, ctx) {
 
 const TRACKS = [missionTrack, boardTrack, sideTrack, arenaTrack, monArenaTrack, tmapTrack, sdTrack, limitTrack, phantomTrack, jobsTrack, trialsTrack, zukanTrack, medalTrack, chestTrack, gachaTrack, orbTrack];
 export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap', 'sd', 'limit', 'phantom', 'jobs', 'trials', 'zukan', 'medal', 'chest', 'gacha', 'orbs'];
+// 第88回 G3班: まぼろしの回廊（職業の 試練の つぎ）
+TRACKS.splice(TRACKS.indexOf(trialsTrack) + 1, 0, rivalTrack);
+TRACK_IDS.splice(TRACK_IDS.indexOf('trials') + 1, 0, 'rival');
 
 export function shioriTracks(c, ctx = {}) {
   const out = [];
@@ -398,6 +403,9 @@ function sideRecs(c, tracks) {
   const st = c?.job && JOBS[c.job] ? trialState(c, c.job) : null;
   if (st?.ready) push('trials', `${jobLabel(c.job, c)}の${st.active.name}で、師しょうのまぼろしと戦えます`, T.trials?.where || '');
   else if (st?.canTake) push('trials', `${jobLabel(c.job, c)}の${st.next.name}を受けられます`, T.trials?.where || '');
+  // 4.5 第88回 G3班: まぼろしの回廊で ちょうせん できる ライバル
+  const rv = T.rival ? rivalRec(c) : null;
+  if (rv) push('rival', rv.text, rv.where);
   // 5. 闘技場の つぎの ランク
   const ar = T.arena?.items.find((x) => x.state === 'open');
   if (ar) push('arena', `サファラ闘技場の${ar.name}に、ちょうせんできます`, T.arena.where);

@@ -8,11 +8,12 @@
 //
 // ガチャに 入る 品は、品の データから 自動で きまる（gachaBlock）。あとの 係が 品を 足すと 自動で 入る
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
-//   ライバルが くれる 品（7-1。R88_RIVAL_GIFTS と addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
+//   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
 import { ITEMS, baseItemId } from './items.js';
 import { REBIRTH } from './items-alchemy.js';
 import { WORKS } from './works.js';
+import { RIVALS } from './rivals-r88.js';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -25,13 +26,10 @@ export const GACHA_PITY = 10;
 export const gachaRefund = (price = GACHA_PRICE) => Math.floor(price / 2);
 
 // ───────────── 入らない 物 ─────────────
-// ライバルの まぼろしが くれる 品（7-1）。G3班の まぼろしの 回廊が できたら addRivalGifts で 足す（品に rival: true でも よい）
-export const R88_RIVAL_GIFTS = new Set([
-  // YAIBA: 八鬼・五右衛門・沖田・小次郎・おに丸
-  'r88_snake_spear', 'r88_frog_axe', 'r88_saber', 'r88_iron_kasa', 'r88_kikuichi', 'r88_monohoshi', 'r88_fujin_sword', 'r88_maou_sword',
-  // ほう神演義: スーパー宝貝（申公豹・聞仲・元始天尊 など）
-  'r88_raikoben', 'r88_kinben', 'r88_taikyoku', 'r88_kinkosen', 'r88_keisei', 'r88_rokkon', 'r88_banko',
-]);
+// ライバルの まぼろしが くれる 品（7-1）は G3班の data/rivals-r88.js の RIVALS の reward から 読む（rivalGiftIds）。
+// ほかに 外したい ライバルの 品が あれば addRivalGifts で 足す（品に rival: true でも よい）
+export const R88_RIVAL_GIFTS = new Set();
+export const rivalGiftIds = () => new Set([...RIVALS.flatMap((r) => r?.reward || []), ...R88_RIVAL_GIFTS]);
 export function addRivalGifts(ids) {
   for (const id of ids || []) if (typeof id === 'string') R88_RIVAL_GIFTS.add(id);
   clearGachaCache();
@@ -81,7 +79,7 @@ function build() {
   const trial = new Set();
   for (const w of Object.values(WORKS)) for (const id of Object.values(w?.trialGift || {})) trial.add(id);
   const orbs = new Set(SEVEN_ORBS);
-  return { rebirthTo, trial, orbs, pools: new Map() };
+  return { rebirthTo, trial, orbs, rivals: rivalGiftIds(), pools: new Map() };
 }
 const C = () => (cache ||= build());
 
@@ -96,7 +94,7 @@ export function gachaBlock(id) {
   if (!GRADE_TIER[it.grade]) return 'grade';
   const c = C();
   if (c.rebirthTo.has(id)) return 'rebirth';
-  if (it.rival || R88_RIVAL_GIFTS.has(id)) return 'rival';
+  if (it.rival || c.rivals.has(id)) return 'rival';
   if (R88_SET_GIFTS.has(id)) return 'set';
   if (c.orbs.has(id)) return 'orb';
   if (c.trial.has(id)) return 'trial';

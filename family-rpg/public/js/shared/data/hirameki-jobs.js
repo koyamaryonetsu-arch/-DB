@@ -191,10 +191,10 @@ export const HIRA_JOB_ABILITIES = {
     cast: '{a}「今のはメラゾーマではない…メラだ」', anim: 'fire3',
   },
   hi_yami_sekai: {
-    name: '闇の世界', kana: 'やみのせかい', kind: 'spell', job: 'maou', mp: 20, target: 'enemies', hirameki: true,
+    name: '超魔爆炎は', kana: 'ちょうまばくえんは', kind: 'spell', job: 'maou', mp: 20, target: 'enemies', hirameki: true,
     effect: { type: 'multi', parts: [{ type: 'magic', element: 'dark', base: [120, 150], thr: 80 }, { type: 'debuff', stat: 'def', mult: 0.8, dur: 30, chance: 0.7 }] },
-    desc: '辺りを闇の世界に変える。敵全体に闇のダメージ。守備力が下がることがある。',
-    cast: '{a}「ここは、わが闇の世界…」辺りが真っ暗になった！', anim: 'maou_dark',
+    desc: 'うでの剣に闇の炎をこめて、ふりぬく。大きな爆発が、敵全体をのみこむ。闇のダメージ。守備力が下がることがある。',
+    cast: '{a}のうでの剣が、闇の炎につつまれた！', anim: 'maou_dark',
   },
   // ───────────── おかん（最強のおかん） ─────────────
   hi_idobata: {

@@ -787,7 +787,7 @@ export const JOBS = {
   // 魔王（伝説の職業。勇者と ダ天使、光と やみの 両方を きわめた 者）
   maou: {
     id: 'maou', name: '魔王', kana: 'まおう', short: '魔王', tier: 3, req: ['hero', 'datenshi'], family: 'magic', color: '#4a1a5a',
-    desc: '世界をやみにつつむ、すべての魔物の王。勇者とダ天使をきわめた者だけがなれる。暗黒の炎と破滅の光で、すべてをほろぼす。',
+    desc: '世界をやみにつつむ、すべての魔物の王。勇者とダ天使をきわめた者だけがなれる。火の鳥のカイザーフェニックスと、光のかべのカラミティウォールで、すべてをおしながす。',
     mods: { hp: 1.6, mp: 1.4, str: 1.5, def: 1.45, agi: 1.25, mag: 1.65, heal: 1.0 },
     weapons: ['sword', 'staff', 'axe', 'claw'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { hp: 2, mag: 1, str: 0.5 },

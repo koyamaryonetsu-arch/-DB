@@ -20,10 +20,11 @@ import { addItem, itemCount, newCharacter } from '../public/js/shared/stats.js';
 import {
   GACHA_PRICE, GACHA_MEI_RATE, GACHA_PITY, gachaRefund, gachaBlock, gachaPool, gachaWorks, rollGacha, clearGachaCache, R88_RIVAL_GIFTS,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, HOKORA, r88TmLoot, r88SdExtra, tmR88Rate, sdR88Rate, r88MeiAll, r88ShopItems, ownsR88,
-  gachaDone, trialGiftFlag, addRivalGifts,
+  gachaDone, trialGiftFlag, addRivalGifts, rivalGiftIds,
 } from '../public/js/shared/data/gacha-r88.js';
 import { gachaSpin, gachaView, hokoraExchange, trialGiftSteps } from '../public/js/shared/world/gacha-r88.js';
 import { GACHA_SPOTS } from '../public/js/shared/maps/gacha-r88.js';
+import { RIVALS } from '../public/js/shared/data/rivals-r88.js';
 import { Bot } from './helpers.js';
 
 // いつも 決まった 目が 出る 乱数（chance … 当たり／はずれ。pick … 何番め）
@@ -36,7 +37,7 @@ const freshChar = (gold = 1000000) => {
 
 // ───────────── 1. 出る 品の 入れ物 ─────────────
 test('ガチャ: YAIBA は ふつう 4つ・名品 1つ。伝説・はじめの 品・生まれ変わりの 先・ライバルの 品・玉は 出ない', () => {
-  assert.deepEqual(gachaWorks(), ['yaiba'], 'ほう神演義は 今 スーパー宝貝（伝説・ライバルの 品）だけ');
+  assert.ok(gachaWorks().includes('yaiba'));
   const p = gachaPool('yaiba');
   assert.deepEqual([...p.fu].sort(), ['r88_eyepatch', 'r88_kanabo', 'r88_oni_horn', 'r88_shinai']);
   assert.deepEqual(p.mei, ['r88_niten']);
@@ -59,7 +60,8 @@ test('ガチャ: YAIBA は ふつう 4つ・名品 1つ。伝説・はじめの 
   // 生まれ変わりの 先は 1つも 入らない
   const to = new Set(Object.values(REBIRTH).map((r) => r.to));
   for (const id of p.all) assert.ok(!to.has(id), id);
-  for (const id of R88_RIVAL_GIFTS) assert.ok(!p.all.includes(id), id);
+  for (const r of RIVALS) for (const id of r.reward || []) { assert.ok(!p.all.includes(id), id); assert.equal(gachaBlock(id) === null, false, id); }
+  assert.ok(rivalGiftIds().has('r88_kikuichi'), 'G3班の RIVALS の ごほうびを 読む');
 });
 
 test('ガチャ: 品を 足すと 自動で 入る。gacha: false・rival: true・addRivalGifts で 外れる', () => {

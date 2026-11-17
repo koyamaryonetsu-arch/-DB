@@ -25,6 +25,8 @@ import { attachCh6 } from './ch6.js';
 import { attachMonArena } from './monarena-a.js';
 // 第88回 G4班: 作品の ガチャガチャ（maps/gacha-r88.js）
 import { attachGachaR88 } from './gacha-r88.js';
+// 第88回 G3班: まぼろしの回廊（ルミナの町の 星の神殿の 下。maps/rivals-r88.js）
+import { attachRivalHall } from './rivals-r88.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -331,6 +333,8 @@ function buildMaps() {
   attachMonArena(maps);
   // 第88回 G4班: 作品の ガチャガチャ・七つの玉の 宝箱・竜神の ほこら（maps/gacha-r88.js）
   attachGachaR88(maps);
+  // 第88回 G3班: まぼろしの回廊（maps/rivals-r88.js。星の神殿の 試練の番人の となりの 階段から）
+  attachRivalHall(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

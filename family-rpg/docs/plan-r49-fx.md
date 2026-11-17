@@ -45,7 +45,7 @@
 - **作り直す**：上 いがい ぜんぶ。とくに
   - 共有の 汎用 anim（`buff` 58技・`warcry` 46技・`debuff`・`charge`・`guard`・`heal1/2`・`heal_dance`・`dance`・`tackle`・`hit`・`hit_all`・`slash_heavy/fast/multi`・`punch(_multi)`・`kick`・`quake`・`wind1/2`・`holy`・`meteor`・`void`・`cards`・`laugh`・`stage`・`notes` …）
   - 呪文の 段で ない 技が 呪文の anim を かりて いる もの（設備屋の 大工事＝quake、海賊の うずしお＝ice2（水なのに 氷）、パティシエの チョコフォンデュ＝fire2 など）
-  - 自分だけの anim でも **ふつうの 攻撃より 弱い** もの：`spy_sig`（13こ/0.69s）・`assassin_sig`（17こ/0.45s）・`creator_sig`（16こ/0.86s）・`horn`（警笛 5こ）・`stamp`（ハンコ連打 12こ/0.46s）・`pillow`（まくら投げ 9こ）、合体技の `hakai_ball`（破滅のはかい玉。はかい玉が 第48回で 大技に なり、合体技だけが 古い 1.0s の 玉の まま）
+  - 自分だけの anim でも **ふつうの 攻撃より 弱い** もの：`spy_sig`（13こ/0.69s）・`assassin_sig`（17こ/0.45s）・`creator_sig`（16こ/0.86s）・`horn`（警笛 5こ）・`stamp`（ハンコ連打 12こ/0.46s）・`pillow`（まくら投げ 9こ）、合体技の `hakai_ball`（カラミティはかい玉。はかい玉が 第48回で 大技に なり、合体技だけが 古い 1.0s の 玉の まま）
 
 ### 1-3. 数
 
@@ -163,7 +163,7 @@
 ### 1-5. そのまま に する 技（89こ）
 
 - **呪文の 段（第27回で 段が ある）**（64）：かまいたち（`kamaitachi`・wind1 31/0.96s）、ホイミ（`hoimi`・heal1 19/1.04s）、スカラ（`sukara`・buff 8/0.91s）、キアリー（`kiarii`・heal1 22/1.04s）、バギ（`bagi`・wind1 31/0.96s）、マホトーン（`mahoton`・debuff 10/0.99s）、ベホイミ（`behoimi`・heal2 25/1.1s）、ザオ（`zao`・revive 12/1.15s）、聖なる光（`sr_seikou`・holy 32/1.01s）、スクルト（`sukuruto`・buff 10/0.99s）、キアリク（`kiariku`・heal1 22/1.04s）、バギマ（`bagima`・wind2 40/1.01s）、ベホマラー（`behomara`・heal2 25/1.1s）、メラ（`mera`・fire1 37/1.01s）、ヒャド（`hyado`・ice1 41/0.86s）、ギラ（`gira`・fire_wave 29/0.85s）、ルカニ（`rukani`・debuff 10/0.99s）、ラリホー（`rariho`・sleep 10/1.44s）、イオ（`io`・blast1 23/0.61s）、メラミ（`merami`・fire2 52/1.09s）、ヒャダルコ（`hyadaruko`・ice2 49/1.2s）、ベギラマ（`begirama`・fire_wave 36/0.88s）、イオラ（`iora`・blast2 55/0.82s）、メラゾーマ（`merazoma`・fire3 72/1.3s）、ピオリム（`piorimu`・buff 10/0.99s）、マヌーサ（`manusa`・debuff 10/0.99s）、バイキルト（`baikiruto`・buff 10/0.99s）、いやしの光（`pl_hikari`・heal2 25/1.1s）、ライデイン（`mk_raiden`・bolt1 34/0.58s）、マジックバースト（`mk_burst`・blast2 76/1.14s）、かとんの術（`nj_katon`・fire_wave 29/0.85s）、風神の術（`nj_fuujin`・wind2 40/1.01s）、ベホマ（`sg_behoma`・heal2 32/1.15s）、バギクロス（`sg_bagikurosu`・wind2 51/1.09s）、ザオラル（`sg_zaoral`・revive 15/1.22s）、マヒャド（`sg_mahyado`・ice2 61/1.31s）、賢者のいのり（`sg_inori`・heal2 32/1.15s）、ベギラゴン（`am_begiragon`・fire_wave 62/0.93s）、イオナズン（`am_ionazun`・blast2 76/1.14s）、メラガイアー（`am_meragaia`・fire3 109/1.55s）、聖なるいのり（`hp_seinaru`・heal1 28/1.1s）、ホーリーライト（`hp_holy`・holy 48/1.2s）、ザオリク（`hp_zaoriku`・revive 18/1.28s）、バギムーチョ（`hp_bagimuta`・wind2 97/1.54s）、ベホマズン（`hp_behomazun`・heal2 38/1.14s）、神のさばき（`hp_sabaki`・meteor 35/1.04s）、天使の歌声（`hp_tenshi`・revive 22/1.34s）、げんま「雷神」（`sm_raijin`・bolt2 41/0.82s）、ジゴスパーク（`sm_jigo`・dark1 60/0.86s）、いやしのたて（`gd_iyashi`・heal2 32/1.15s）、ほうき星（`sd_comet`・meteor 23/0.93s）、流星群（`sd_meteor`・meteor 35/1.04s）、マヒャデドス（`dz_mahyadedos`・ice2 107/1.49s）、ザオリク（`dz_zaoriku`・revive 18/1.28s）、イオグランデ（`dz_iogurande`・blast2 87/1.34s）、ベホマズン（`dz_behomazun`・heal2 38/1.14s）、マダンテ（`dz_madante`・void 40/1.12s）、落ちた光（`dt_ochita`・dark1 50/0.85s）、いやしの風（`hk_iyashi_kaze`・heal_dance 29/1.12s）、聖なる光（`hk_holy_light`・holy 32/1.01s）、トリプルメラ（`hk_triple_mera`・fire1 52/1.1s）、ギラグレイド（`hi_giragureido`・fire_wave 74/1.17s）、ドルマドン（`hi_dorumadon`・dark1 50/0.86s）、エターナルフォースブリザード（`hi_eternal_blizzard`・blizzard 53/1.23s）
-- **元の 持ち主（職業の 形の anim を 作った 技）**（16）：満員電車（`rw_manin`・train 21/0.94s）、ヒット（`bb_hit`・bat_swing 21/0.86s）、スパチャ（`yt_superchat`・superchat 65/1.5s）、炎上（`yt_enjou`・flame_up 56/1.47s）、ごはんできたよ（`ok_gohan`・gohan 37/1.5s）、スリッパではたく（`ok_slipper`・slipper_smack 22/0.82s）、おかんのいかり（`ok_ikari`・okan_kaminari 24/1.1s）、パトカー出動（`po_patocar`・siren 23/0.72s）、しっ黒の炎（`cu_kokuen`・chuuni_flame 34/1.02s）、エアコン全開（`sb_aircon`・aircon 52/1.65s）、通勤ラッシュ（`sk_tsukin`・manin_densha 31/0.82s）、サービス残業（`sk_zangyou`・zangyou 14/1.5s）、黒い羽根（`dt_hane`・dark_wings 45/0.78s）、ブラックきぎょうの星（`bk_star`・black_star 41/0.93s）、暗黒の炎（`mo_kokuen`・maou_dark 65/1.34s）、見える化（`fg_mieruka`・mieruka 18/1.41s）
+- **元の 持ち主（職業の 形の anim を 作った 技）**（16）：満員電車（`rw_manin`・train 21/0.94s）、ヒット（`bb_hit`・bat_swing 21/0.86s）、スパチャ（`yt_superchat`・superchat 65/1.5s）、炎上（`yt_enjou`・flame_up 56/1.47s）、ごはんできたよ（`ok_gohan`・gohan 37/1.5s）、スリッパではたく（`ok_slipper`・slipper_smack 22/0.82s）、おかんのいかり（`ok_ikari`・okan_kaminari 24/1.1s）、パトカー出動（`po_patocar`・siren 23/0.72s）、しっ黒の炎（`cu_kokuen`・chuuni_flame 34/1.02s）、エアコン全開（`sb_aircon`・aircon 52/1.65s）、通勤ラッシュ（`sk_tsukin`・manin_densha 31/0.82s）、サービス残業（`sk_zangyou`・zangyou 14/1.5s）、黒い羽根（`dt_hane`・dark_wings 45/0.78s）、ブラックきぎょうの星（`bk_star`・black_star 41/0.93s）、カイザーフェニックス（`mo_kokuen`・maou_dark 65/1.34s）、見える化（`fg_mieruka`・mieruka 18/1.41s）
 - **その 技だけの anim（ゆたか）**（9）：大玉ころがし（`es_odama`・odama 20/0.75s）、おたまでポカリ（`ok_otama`・okan_otama 17/1.18s）、早くねなさい！（`ok_nenasai`・oyasumi 16/1.52s）、楽天カード！（`rakuten_cardman_sig`・rakuten_cardman_sig 28/0.9s）、超能力全開（`esper_sig`・esper_sig 21/1.33s）、24時間戦えますか（`bk_24h`・black_aura 77/1.31s）、予兆保全・極（`fg_yochou`・yochou_shield 28/1.46s）、氷の矢（`hk_koori_ya`・ice_arrow 27/0.99s）、海賊のうずまき（`hi_oouzushio`・whirlpool 54/1.58s）
 
 ※ 呪文の 段の 技は 職業が ちがっても おなじ 段の 見た目（ホイミは 僧侶でも パラディンでも ホイミ）。作り直さない。
@@ -205,7 +205,7 @@
   | `star` | 星・流れ星・スーパースター・遊び人の 超ラッキー |
   | `generic` | 力ため・気合い・会社の 金色・おかんの 雷・ほか（色の 光の わ） |
 - 5章の 「構え」の 列：`kind:見える もの`（例 `sword:刀身の きらり`）。見える ものは `chargeExtra` を 書かず、kind の 色で 出せる はんいで よい（足りない ときは `play` の はじめ 0〜80ms で 小さく 足す）。
-- **画面を 暗く しない**（`k.dim` は 発射の あとも つかわない）。`k.tint` は 発射・命中で 0.15 まで・0.3s まで（魔神斬り・破滅の光・闇の世界 など）。`k.cutIn` は つかわない。
+- **画面を 暗く しない**（`k.dim` は 発射の あとも つかわない）。`k.tint` は 発射・命中で 0.15 まで・0.3s まで（魔神斬り・カラミティウォール・超魔爆炎は など）。`k.cutIn` は つかわない。
 - 背景（夜空・朝日・城・球場…）は **発射の あと** 一しゅん（0.3〜0.6s）だけ。うすく（a 0.35 まで）。
 
 ---
@@ -529,17 +529,18 @@
 | 技 | 段 | いま | 構え | 発射 → 命中 → 余韻 | 音 | 新 anim |
 |---|---|---|---|---|---|---|
 | `mo_hadou` いてつく波動（Lv3） | L 1.9（0.3） | aircon 52/1.65 ×8 | magic:青白い 魔法陣 | 両手から 青白い 冷たい 波動の 輪（ゆがむ 空気）が 画面いっぱいに 2回 → 敵の 上の 強化の 上向き矢印が パリンと こおって 割れる → 氷の ちり（いまは エアコンの anim） | ヴォォン→パリーン | `ox_itetsuku_hadou` |
-| `mo_tsume` 魔王のつめ（Lv5） | L 1.9（なし） | dark_slash 16/0.64 ×13 | — | 大きな 黒い つめの シルエット 5本が 上から ザシュッ → むらさきの 5本 線＋闇の 爆ぜ → 黒い ちり | ザシュゥッ | `ox_maou_tsume` |
-| `mo_iatsu` 魔王の威圧（Lv7） | L 1.9（0.3） | maou_dark 65/1.3 ×6 | magic:むらさきの 魔法陣 | 画面の 上に 大きな 赤い 目（まるい、こわすぎない）と 王冠の シルエット → 敵全体が ふるえて 動けない（青い わく・下向き矢印）→ 赤い 光が すっと 消える | ゴゴゴゴ… | `ox_maou_iatsu` |
+| `mo_tsume` ヘルズクロー（Lv5） | L 1.9（なし） | dark_slash 16/0.64 ×13 | — | （第88回 M1班で 直した）こぶしの 先から 黒むらさきの つめ 5本が のびて 敵に つきさす → 闇の 爆ぜ → 黒い ちり | ズシャッ | `ox_maou_tsume` |
+| `mo_iatsu` 闘魔くぐつしょう（Lv7） | L 1.9（0.3） | maou_dark 65/1.3 ×6 | magic:むらさきの 魔法陣 | （第88回 M1班で 直した）指先から 闇の 糸が のびて 敵全体に からみつく → 糸を 引くと あやつり人形のように 止まる（青い わく・下向き矢印） | クイッ | `ox_maou_iatsu` |
 | `mo_koromo` 闇の衣（Lv8） | L 1.65（0.3）※ | dark1 50/0.86 ×21 | magic:黒い 魔法陣 | 黒い マントの 形の もやが 体に まといつき、ふちが むらさきの 炎で もえる → 守りの 六角と 魔力の 星 → もやが うすく のこる | ズズズ… | `ox_yami_koromo` |
-| `mo_hametsu` 破滅の光（Lv10） | L 2.2（0.3）★ | maou_dark 65/1.33 ×6 | magic:むらさきの 魔法陣と 王冠 | 空が 一しゅん むらさきに（発射の tint）→ 天から 太い むらさき黒の 光の 柱が 敵全体に 3本 → 地面が 割れて 光が もれる＋大きな 衝撃波 → 黒い 雪の ような ちり | キュイイ→ドドドォン | `ox_hametsu_hikari` |
-| `hi_yami_sekai` 闇の世界（ひらめき） | L 2.2（0.3）★ | maou_dark 65/1.39 ×6 | magic:黒い 魔法陣 | 発射と 同時に 背景が むらさきの 夜空に → 黒い 星と 闇の うずが 敵全体を つつむ → 守備↓の 矢印 → 背景が もどる | ズオォォ | `ox_yami_no_sekai` |
+| `mo_hametsu` カラミティウォール（Lv10） | L 2.2（0.3）★ | maou_dark 65/1.33 ×6 | magic:むらさきの 魔法陣と 王冠 | （第88回 M1班で 直した）手を ふると 半円の 光の かべが 立ち上がり、すすみながら 大きく なる → 敵全体を おしながす → 光の ちり | ゴオォォッ | `ox_hametsu_hikari` |
+| `hi_yami_sekai` 超魔爆炎は（ひらめき） | L 2.2（0.3）★ | maou_dark 65/1.39 ×6 | magic:黒い 魔法陣 | （第88回 M1班で 直した）うでの 剣が 闇の 炎に つつまれる → 大きな 三日月で ふりぬく → 敵全体で 闇の 炎の 大爆発 → 守備↓の 矢印 | ドゴォォン | `ox_yami_no_sekai` |
+| `mo_kokuen` カイザーフェニックス（Lv1。第88回 M1班で 足した。炎） | L 1.8（0.3） | — | magic | 手の 上の 火が ふくらむ → 大きな 火の 鳥（今のはメラだ より 大きい）と 小さな 鳥 2羽が 敵全体へ → 火柱と 大爆発 → 火の 羽 | ゴオォッ | `ox_kaiser_phoenix` |
 
 **合体技（ため なし）**
 
 | 技 | 段 | いま | 構え | 発射 → 命中 → 余韻 | 音 | 新 anim |
 |---|---|---|---|---|---|---|
-| `dt_hametsu` 破滅のはかい玉（2人） | 合体2人 1.6 | hakai_ball 48/1.04 ×2 | — | むらさき（はかい神）と 黒（魔王）の 2つの 玉が 回りながら 1つに → 大きな はかい玉が 敵全体の 上で ふくらむ → 大爆発＋むらさきの 衝撃波 → 宇宙の ちり | ギュルル→ドオォォン | `ox_hametsu_hakaidama` |
+| `dt_hametsu` カラミティはかい玉（2人） | 合体2人 1.6 | hakai_ball 48/1.04 ×2 | — | むらさき（はかい神）と 黒（魔王）の 2つの 玉が 回りながら 1つに → 大きな はかい玉が 敵全体の 上で ふくらむ → 大爆発＋むらさきの 衝撃波 → 宇宙の ちり | ギュルル→ドオォォン | `ox_hametsu_hakaidama` |
 | `dt_nenriki_meteor` ねん力メテオ（2人） | 合体2人 1.6 | meteor 35/1.04 ×18 | — | 仲間の 呪文が 空の 岩を くだく → 岩が むらさきの ねん力で 浮かんで 敵の 上へ → いっせいに 落ちて 爆発 → がれき | ドカッ→フワ→ドドドドン | `ox_nenriki_meteor` |
 | `dt_beast_cross` ビーストクロス（2人） | 合体2人 1.6 | cross_slash 30/1.04 ×7 | — | ムチの すじと 魔物の 牙の すじが ×に → 2回 光 → 爪あと | パシン→ガブッ | `ox_beast_cross` |
 | `dt_circus` 大サーカス（2人） | 合体2人 1.6 | hit_all 21/0.42 ×34 | — | 画面の 下に 赤白 しまの テント → 魔物が 玉のり・火の輪くぐり（輪の 光）で 敵全体へ とびこむ → 紙ふぶき | パッパカパーン | `ox_dai_circus` |
@@ -1262,7 +1263,7 @@
 ### O2 こぶし・守り・魔物・闇
 
 - 職業：monk（武闘家）、pirate（海賊）、holyfist（聖拳士）、tamer（魔物使い）、chuuni（中二病）、esper（超能力者）、god_hand（ゴッドハンド）、guardian（ガーディアン）、monster_master（モンスターマスター）、datenshi（ダ天使）、maou（魔王）
-- 合体技：dt_hametsu（破滅のはかい玉）、dt_nenriki_meteor（ねん力メテオ）、dt_beast_cross（ビーストクロス）、dt_circus（大サーカス）、dt_oozora（大空のさんぽ）、dt_shitei（師弟の一げき）、dt_oodate（守りの大たて）、dt_wild_rush（ワイルドラッシュ）、dt_henshin_hero（変身ヒーロー大集合）
+- 合体技：dt_hametsu（カラミティはかい玉）、dt_nenriki_meteor（ねん力メテオ）、dt_beast_cross（ビーストクロス）、dt_circus（大サーカス）、dt_oozora（大空のさんぽ）、dt_shitei（師弟の一げき）、dt_oodate（守りの大たて）、dt_wild_rush（ワイルドラッシュ）、dt_henshin_hero（変身ヒーロー大集合）
 - 自分の ファイル：`shared/data/ax-time-o2.js`・`client/render/axfx-o2.js`・`client/sfx-ax-o2.js`・`test/ax-o2.test.js`（つぶ `o2…`・音 `ax_o2_…`）
 - `AX_SKILLS_O2` の 技（80）：seiken, mikawashi, bakuretsu, kiaitame, mouko, mawashigeri, issen, hyakuretsu, pr_kaizokugiri, pr_dokuro, pr_uzushio, pr_ikari, pr_utage, pr_takara, pr_cannon, hf_seikou, hf_meisou, hf_mikiri, hf_tenshou, hf_hyakka, tm_shippu, tm_beast, tm_ranbu, tm_kemono, tm_kizuna, tm_majuu, cu_migite, cu_jakigan, cu_note, cu_kurorekishi, cu_wagana, cu_judgment, ep_spoon, ep_nenriki, ep_yochi, ep_teleport, ep_psycho, gh_shinsoku, gh_tenchi, gh_musou, gh_ikazuchi, gh_godfist, gd_wall, gd_youzai, gd_bash, gd_protect, gd_daichi, gd_fortress, mm_whip, mm_iyashi, mm_howl, mm_kizuna, mm_daikoushin, mm_king, dt_hohoemi, dt_keiyaku, dt_tsubasa, dt_darkangel, mo_hadou, mo_tsume, mo_iatsu, mo_koromo, mo_hametsu, hk_sandan, hk_senpuukyaku, hi_yami_sekai, hi_spoon_arashi, hi_tenchi_kudaki, hi_shield_throw, hi_mamono_shingeki, hi_lucifer, dt_hametsu, dt_nenriki_meteor, dt_beast_cross, dt_circus, dt_oozora, dt_shitei, dt_oodate, dt_wild_rush, dt_henshin_hero
 - anim（80）：`ox_seiken_zuki`, `ox_mikawashi`, `ox_bakuretsu_ken`, `ox_kiaitame`, `ox_mouko_hasai`, `ox_mawashi_geri`, `ox_issen_zuki`, `ox_hyakuretsu_ken`, `ox_kaizoku_giri`, `ox_dokuro_hata`, `ox_uzushio`, `ox_ikari_ippatsu`, `ox_utage_uta`, `ox_otakara_sagashi`, `ox_kaizoku_taihou`, `ox_seikou_ken`, `ox_meisou`, `ox_mikiri`, `ox_tenshou_reppa`, `ox_seinaru_hyakuretsu`, `ox_shippu_muchi`, `ox_beast_mode`, `ox_muchi_ranbu`, `ox_kemono_sakebi`, `ox_kizuna_hoegoe`, `ox_majuu_ichigeki`, `ox_fuuin_migite`, `ox_jakigan`, `ox_settei_note`, `ox_kuro_rekishi`, `ox_waga_na_wa`, `ox_judgment_black`, `ox_spoon_mage`, `ox_nenriki`, `ox_yochi`, `ox_teleport`, `ox_psychokinesis`, `ox_shinsoku_ken`, `ox_tenchi_kamae`, `ox_musou_ken`, `ox_ikazuchi_kobushi`, `ox_god_hand`, `ox_teppeki`, `ox_youzai_ichigeki`, `ox_shield_attack`, `ox_minna_mamoru`, `ox_daichi_tate`, `ox_fudou_youzai`, `ox_majuu_muchi`, `ox_mamono_iyashi`, `ox_wild_howl`, `ox_mamono_kizuna`, `ox_mamono_daikoushin`, `ox_kemono_no_ou`, `ox_tenshi_hohoemi`, `ox_kindan_keiyaku`, `ox_kuroi_tsubasa`, `ox_dark_angel`, `ox_itetsuku_hadou`, `ox_maou_tsume`, `ox_maou_iatsu`, `ox_yami_koromo`, `ox_hametsu_hikari`, `ox_sandan_zuki`, `ox_senpuu_kyaku`, `ox_yami_no_sekai`, `ox_spoon_arashi`, `ox_tenchi_kudaki`, `ox_shield_throw`, `ox_mamono_shingeki`, `ox_lucifer_wing`, `ox_hametsu_hakaidama`, `ox_nenriki_meteor`, `ox_beast_cross`, `ox_dai_circus`, `ox_oozora_sanpo`, `ox_shitei_ichigeki`, `ox_mamori_oodate`, `ox_wild_rush`, `ox_henshin_hero`
