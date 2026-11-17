@@ -674,6 +674,17 @@
       }));
       if (error) throw error;
     },
+    // ---- R担当者のマスター（staff）----
+    async fetchStaff() {
+      if (this.mode !== 'supabase') return null;
+      const { data, error } = await sb.from('staff').select('name,email,active,sort_order').order('sort_order').order('name');
+      if (error) return null;   // 表が無い（SETUP_STAFF.sql 未実行）→ 今までどおりブラウザの覚え
+      return data || [];
+    },
+    async saveStaff(rows) {
+      const { error } = await sb.from('staff').upsert(rows.map((r) => ({ name: r.name, email: r.email || '', active: r.active !== false, sort_order: Number(r.sort_order) || 0, updated_at: new Date().toISOString() })), { onConflict: 'name' });
+      if (error) throw error;
+    },
     // ---- 通知メールの設定（app_settings の case_mail）----
     async fetchCaseMailSettings() {
       if (this.mode !== 'supabase') return null;
@@ -1181,7 +1192,13 @@
   let rPersonFilter = new Set();
   // 客先アカウント（劇場のアドレス）: 自分の劇場・その劇場だけを出すか
   let myAccount = null;
-  let modalOrigTheater = '';   // 開いた時の劇場名（前からある案件は、劇場を変えた時だけ「一覧にない劇場」を確かめる）
+  let modalOrigTheater = '';
+  let modalOrigRPerson = '';   // 開いた時のR担当者（異動・退職の人の名前は、変えなければそのまま保存できる）
+  // R担当者は、上の担当者ボタンの人（在籍）だけ。候補にない名前は保存しない
+  function rPersonError(v, orig) {
+    if (!v || v === orig || loadTeam().indexOf(v) !== -1) return '';
+    return `R担当者「${v}」は担当者の一覧にいません。上の担当者ボタンの人から選んでください。\n（担当者を足す時は ☰ その他 →「🗂 マスター編集」）`;
+  }   // 開いた時の劇場名（前からある案件は、劇場を変えた時だけ「一覧にない劇場」を確かめる）
   let myTheaterOnly = true;
   // 客先(会社)ボタンによる絞り込み（空=全社・OR）
   const companyFilter = new Set();
@@ -1424,8 +1441,13 @@
     // 劇場名の候補: 編集パネルで選んでいる会社の劇場だけ（閉館は出さない）。短い名前で出す（保存の時に正式名にそろえる）
     const formCo = (isPrivileged(currentUser) && $('company')) ? $('company').value : customerCompany(currentUser);
     fillDatalist('theaterList', theaterChoices(formCo));
-    fillDatalist('tcPersonList', [...tcPersons].sort());
-    fillDatalist('rPersonList', [...rPersons].sort());
+    // 客先担当者の候補: 選んでいる会社の、過去の案件の担当者と客先アカウントの担当者名
+    const tcs = new Set();
+    visibleCases().forEach((c) => { if (c.tcPerson && (!formCo || c.company === formCo)) tcs.add(c.tcPerson); });
+    (accountsCache || []).forEach((a) => { if (a.person && (!formCo || a.company === formCo)) tcs.add(String(a.person).split(/[\s　]/)[0]); });
+    fillDatalist('tcPersonList', [...tcs].sort((a, b) => a.localeCompare(b, 'ja')));
+    // R担当者の候補: 上の担当者ボタンの人（在籍）だけ
+    fillDatalist('rPersonList', loadTeam());
   }
   // 会社セレクト（モーダル/フィルタ）を会社マスタから再構築
   function populateCompanySelects() {
@@ -1456,7 +1478,10 @@
 
   // ---------- auth ----------
   // ---------- team ----------
+  let staffList = null;   // R担当者のマスター（staff）。null＝表が無い（今までどおりブラウザの覚え）
   function loadTeam() {
+    // マスターに在籍の人がいる時だけマスターを使う（表が空・読めない時は今までどおり）
+    if (staffList && staffList.some((x) => x.active !== false)) return staffList.filter((x) => x.active !== false).map((x) => x.name);
     try {
       const t = JSON.parse(localStorage.getItem(TEAM_KEY));
       return Array.isArray(t) && t.length > 0 ? t : DEFAULT_TEAM.slice();
@@ -2134,6 +2159,116 @@
     return base.replace(/客先/g, co);
   }
   // ===== 客先アカウント（劇場のアドレス） =====
+  // ===== R担当者のマスター（2026-11-17）: 在籍の人だけ候補・異動・退職の人の案件は付け替える =====
+  const DONE_STATUSES = ['完了', '請求済', '入金済', '取り下げ'];
+  const isOpenCase = (c) => DONE_STATUSES.indexOf(statusOf(c)) === -1 && c.category !== 'タスク';
+  function leftStaff() { return staffList ? staffList.filter((x) => x.active === false).map((x) => x.name) : []; }
+  function openCasesOf(name) { return cases.filter((c) => c.rPerson === name && isOpenCase(c)); }
+  let accountsCache = [];   // 客先アカウント（客先担当者の候補に使う・菱熱だけ）
+  async function loadStaff() {
+    if (!realPrivileged(currentUser)) return;
+    try { staffList = await store.fetchStaff(); } catch (e) { staffList = null; }
+    try { accountsCache = await store.fetchAccounts(); } catch (e) { accountsCache = []; }
+    renderRPersonBar(); renderDatalists();
+  }
+  // 異動・退職の人で絞った時: 未完了の案件をまとめて付け替えるバー
+  function renderReassignBar() {
+    let bar = $('rpReassign');
+    const left = leftStaff().filter((n) => rPersonFilter.has(n) && openCasesOf(n).length);
+    if (!left.length || !isPrivileged(currentUser)) { if (bar) bar.remove(); return; }
+    if (!bar) { bar = document.createElement('div'); bar.id = 'rpReassign'; bar.className = 'rp-reassign'; const rb = $('rPersonBar'); rb.parentNode.insertBefore(bar, rb.nextSibling); }
+    const team = loadTeam();
+    bar.innerHTML = left.map((n) => `<span class="rp-re-row">⚠ <b>${escapeHtml(n)}</b> さんは異動・退職です。未完了の案件 <b>${openCasesOf(n).length}</b> 件を
+      <select data-reto="${escapeHtml(n)}"><option value="">担当者を選ぶ</option>${team.map((t) => `<option>${escapeHtml(t)}</option>`).join('')}</select>
+      に <button type="button" data-reassign="${escapeHtml(n)}">付け替える</button></span>`).join('');
+  }
+  async function reassignCases(from, to) {
+    const K = window.KARTE;
+    const list = openCasesOf(from);
+    if (!to) { K.say('付け替える担当者を選んでください'); return; }
+    if (!(await K.ask(`${from} さんの未完了の案件 ${list.length} 件の R担当者を「${to}」に付け替えます。よろしいですか？`, { ok: '付け替える' }))) return;
+    list.forEach((c) => { c.rPerson = to; c.updatedAt = new Date().toISOString(); });
+    await persistCases(list);
+    rPersonFilter.delete(from); rPersonFilter.add(to); saveUserFilter('rpfV1', rPersonFilter);
+    renderRPersonBar(); refresh();
+    showToastLite(`${list.length} 件を ${to} さんに付け替えました`);
+  }
+  // 🗂 マスター編集（担当者・会社・劇場）
+  async function openMasterDialog() {
+    const K = window.KARTE;
+    try { staffList = await store.fetchStaff(); } catch (e) { staffList = null; }
+    if (!staffList) { K.say('担当者の表がありません。SETUP_STAFF.sql を実行してください。'); return; }
+    document.querySelectorAll('#masterDlg').forEach((x) => x.remove());
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'masterDlg';
+    const draw = () => {
+      const rows = staffList.slice().sort((a, b) => (a.active === false) - (b.active === false) || (a.sort_order - b.sort_order) || a.name.localeCompare(b.name, 'ja'));
+      ov.innerHTML = `<div class="kt-dialog kt-dialog-wide ms-dlg"><div class="kt-dlg-head">🗂 マスター編集<button type="button" class="close-btn" data-x>×</button></div>
+        <div class="kt-dlg-body">
+          <h3 class="mst-h">👤 R担当者（菱熱の担当者）</h3>
+          <p class="ms-note">在籍の人が、上の担当者ボタン・R担当者の候補・配分に出ます。メール・LINE の取り込みも、在籍の人を菱熱の担当者として見分けます。<br>
+          異動・退職にすると、上のボタンが「○○（異動・退職）⚠ n件」に変わります。押すと、未完了の案件を別の担当者に付け替えられます（過去の案件の名前はそのまま）。<br>
+          名前を変える時は、新しい名前で足して、前の名前を「異動・退職」にしてください。</p>
+          <table class="ms-table mst-table"><thead><tr><th>名前（苗字）</th><th>メールアドレス</th><th>状態</th><th>未完了の案件</th><th>並び</th></tr></thead><tbody>
+          ${rows.map((r) => `<tr class="${r.active === false ? 'mst-left' : ''}"><td><b>${escapeHtml(r.name)}</b></td>
+            <td><input type="email" class="tm-input" data-semail="${escapeHtml(r.name)}" value="${escapeHtml(r.email || '')}" placeholder="例: koyama@ryonetsu.com"></td>
+            <td><select data-sactive="${escapeHtml(r.name)}"><option value="1"${r.active !== false ? ' selected' : ''}>在籍</option><option value="0"${r.active === false ? ' selected' : ''}>異動・退職</option></select></td>
+            <td>${openCasesOf(r.name).length} 件</td>
+            <td>${r.active === false ? '' : `<button type="button" class="mini-btn" data-sup="${escapeHtml(r.name)}" title="上へ">↑</button><button type="button" class="mini-btn" data-sdown="${escapeHtml(r.name)}" title="下へ">↓</button>`}</td></tr>`).join('')}
+          </tbody></table>
+          <div class="acct-add mst-add"><input type="text" id="mstName" class="tm-input" placeholder="足す人の名前（苗字）"><input type="email" id="mstEmail" class="tm-input" placeholder="メールアドレス"><button type="button" data-sadd>＋ 担当者を足す</button></div>
+          <h3 class="mst-h">🏢 会社・🎬 劇場</h3>
+          <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
+          <button type="button" data-opentm>📚 客先マスター（会社・劇場）を開く</button>
+        </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
+    };
+    draw();
+    document.body.appendChild(ov);
+    const after = () => { renderRPersonBar(); renderDatalists(); renderReassignBar(); draw(); };
+    const save = async (rows, msg) => {
+      try { await store.saveStaff(rows); staffList = await store.fetchStaff(); after(); if (msg) showToastLite(msg); }
+      catch (err) { K.say('保存できませんでした: ' + (err.message || err)); }
+    };
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      if (e.target.closest('[data-opentm]')) { ov.remove(); openTheaterMasterModal(); return; }
+      if (e.target.closest('[data-sadd]')) {
+        const name = ov.querySelector('#mstName').value.trim().replace(/(さん|様)$/, '');
+        const email = ov.querySelector('#mstEmail').value.trim().toLowerCase();
+        if (!name) { K.say('名前（苗字）を入れてください'); return; }
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { K.say('メールアドレスが正しくありません'); return; }
+        const ex = staffList.find((x) => x.name === name);
+        if (ex && ex.active !== false) { K.say(`「${name}」はもういます`); return; }
+        const maxOrder = Math.max(0, ...staffList.map((x) => Number(x.sort_order) || 0));
+        await save([ex ? Object.assign({}, ex, { active: true, email: email || ex.email }) : { name, email, active: true, sort_order: maxOrder + 1 }], `${name} さんを足しました`);
+        return;
+      }
+      const mv = e.target.closest('[data-sup],[data-sdown]');
+      if (mv) {
+        const act = staffList.filter((x) => x.active !== false).sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name, 'ja'));
+        const name = mv.dataset.sup || mv.dataset.sdown; const i = act.findIndex((x) => x.name === name);
+        const j = mv.dataset.sup ? i - 1 : i + 1; if (i < 0 || j < 0 || j >= act.length) return;
+        [act[i], act[j]] = [act[j], act[i]];
+        await save(act.map((x, k) => Object.assign({}, x, { sort_order: k + 1 })));
+      }
+    });
+    ov.addEventListener('change', async (e) => {
+      const em = e.target.closest('[data-semail]');
+      if (em) {
+        const r = staffList.find((x) => x.name === em.dataset.semail); const v = em.value.trim().toLowerCase();
+        if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { K.say('メールアドレスが正しくありません'); em.value = r.email || ''; return; }
+        await save([Object.assign({}, r, { email: v })], 'メールアドレスを保存しました');
+        return;
+      }
+      const ac = e.target.closest('[data-sactive]');
+      if (ac) {
+        const r = staffList.find((x) => x.name === ac.dataset.sactive); const active = ac.value === '1';
+        const n = openCasesOf(r.name).length;
+        if (!active && !(await K.ask(`${r.name} さんを「異動・退職」にします。` + (n ? `\n未完了の案件が ${n} 件あります。上の担当者ボタンの「${r.name}（異動・退職）」から、別の担当者に付け替えてください。` : ''), { ok: '異動・退職にする' }))) { ac.value = '1'; return; }
+        if (!active) rPersonFilter.delete(r.name);
+        await save([Object.assign({}, r, { active })], active ? `${r.name} さんを在籍に戻しました` : `${r.name} さんを異動・退職にしました`);
+      }
+    });
+  }
   // ===== 通知メール（TOHO の要望④）: 客先のベル・テスト劇場 =====
   let caseMailSupported = false;          // case_watchers の表がある（SETUP_CASE_MAIL.sql 済み）
   let myWatches = new Set();              // ベルを ON にした案件の id
@@ -2560,6 +2695,7 @@
     // 客先のベル（✎ の横）の分だけ、編集の列を広げる
     document.body.classList.toggle('case-bells', !!(caseMailSupported && !isPrivileged(currentUser)));
     renderMailSetBtn();
+    if (leftStaff().length) renderRPersonBar();   // 異動・退職の人の「⚠ n件」を最新に
     if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
     renderDatalists();
@@ -2861,6 +2997,10 @@
       if (done || reEditing) return;
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
+      if (field === 'rPerson') {
+        const rerr = rPersonError(newVal, c.rPerson || '');
+        if (rerr) { done = true; window.KARTE.say(rerr); render(); return; }
+      }
 
       // 作業開始日に「0」→ 日程調整中（自動ステータス）。作業開始日は空にしてフラグを立てる
       if (field === 'workStartDate' && newVal === '0') {
@@ -3049,6 +3189,7 @@
       $('company').value = caseObj.company || scopedCompany(companyNames()[0]);
       $('theater').value = theaterForInput(caseObj.theater || '', caseObj.company || '');
       modalOrigTheater = $('theater').value;
+      modalOrigRPerson = caseObj.rPerson || '';
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
       $('rPerson').value = caseObj.rPerson || '';
@@ -3073,6 +3214,7 @@
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       modalOrigTheater = '';
+      modalOrigRPerson = '';
       // 客先・担当者を1つだけ絞っている時は、それを初期選択（複数選択時は標準）
       $('company').value = (isPrivileged(currentUser) && companyFilter.size === 1) ? [...companyFilter][0] : scopedCompany('TOHOシネマズ');
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
@@ -4675,6 +4817,7 @@
     renderAggTable();
   }
   function addTeamMember() {
+    if (staffList) { openMasterDialog(); return; }   // マスターがある時は「🗂 マスター編集」で足す
     const name = prompt('追加する担当者名を入力してください');
     if (!name) return;
     const trimmed = name.trim();
@@ -4687,6 +4830,7 @@
     renderAggTable();
   }
   function removeTeamMember(name) {
+    if (staffList) { openMasterDialog(); return; }
     if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持され、再追加すれば復元されます）`)) return;
     saveTeam(loadTeam().filter((m) => m !== name));
     rPersonFilter.delete(name); // 絞り込み中だった場合は外す
@@ -5726,6 +5870,7 @@
     render();
     requestAnimationFrame(fitTableHeight); // 表の高さを画面の残りに合わせる
     loadMyAccount();
+    loadStaff();
     // 「タスク管理」ボタンの件数に個人タスクも入れるため、ログイン時に読み込んでおく
     if (isPrivileged(currentUser)) {
       store.fetchPersonalTasks().then((map) => { personalTasks = map || {}; updateTaskBadge(); }).catch(() => {});
@@ -5791,7 +5936,13 @@
     html += team.map((n) =>
       `<button type="button" class="rperson-btn${rPersonFilter.has(n) ? ' active' : ''}" data-rperson="${escapeHtml(n)}">${escapeHtml(n)}</button>`
     ).join('');
+    // 異動・退職の人で、未完了の案件が残っている人（付け替えると消える）
+    if (isPrivileged(currentUser)) leftStaff().forEach((n) => {
+      const k = openCasesOf(n).length; if (!k) return;
+      html += `<button type="button" class="rperson-btn rp-left${rPersonFilter.has(n) ? ' active' : ''}" data-rperson="${escapeHtml(n)}" title="異動・退職。未完了の案件を別の担当者に付け替えてください">${escapeHtml(n)}（異動・退職）⚠ ${k}件</button>`;
+    });
     bar.innerHTML = html;
+    renderReassignBar();
   }
   // 客先ログインでは社内用のボタンが消えるため、中身が無くなった「☰ その他」の区切り・ボタン自体を隠す
   // （閉じた小窓の中は offsetParent が取れないので、各ボタン自身の display で判定する）
@@ -6077,7 +6228,7 @@
   $('company').addEventListener('change', () => {
     if (!isPrivileged(currentUser)) return;
     const co = $('company').value;
-    fillDatalist('theaterList', theaterChoices(co));
+    renderDatalists();
     const th = $('theater').value.trim();
     if (th && !masterTheaterOf(th, co)) {
       $('theater').value = '';
@@ -6363,6 +6514,7 @@
   $('calBtn').addEventListener('click', toggleCalMode);
   $('koteiBtn').addEventListener('click', toggleKoteiMode);
   $('mailSetBtn').addEventListener('click', () => openMailSettings());
+  $('masterBtn').addEventListener('click', () => openMasterDialog());
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
   // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
   $('casesBody').addEventListener('click', (e) => {
@@ -6513,6 +6665,10 @@
       }
     }
     newTheaterOk = '';
+    if (isPrivileged(currentUser)) {
+      const rerr = rPersonError($('rPerson').value.trim(), modalOrigRPerson);
+      if (rerr) { window.KARTE.say(rerr); $('rPerson').focus(); return; }
+    }
     if (!isPrivileged(currentUser)) {
       // 客先は新しい案件を作れない。開いた案件の「自社のメモ」だけ保存する
       const c0 = cases.find((x) => String(x.id) === String($('caseId').value));
@@ -6745,6 +6901,11 @@
 
   $('searchBox').addEventListener('input', refresh);
   $('statusFilter').addEventListener('change', refresh);
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('#rpReassign [data-reassign]'); if (!b) return;
+    const sel = document.querySelector(`#rpReassign select[data-reto="${CSS.escape(b.dataset.reassign)}"]`);
+    reassignCases(b.dataset.reassign, sel ? sel.value : '');
+  });
   $('rPersonBar').addEventListener('click', (e) => {
     const b = e.target.closest('[data-rperson]');
     if (!b) return;
