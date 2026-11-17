@@ -218,7 +218,7 @@ export function drawTreasurePicture(canvas, tm) {
 // ───────────── 地図を 見る（ほる・捨てる）─────────────
 export function openTreasureMap(menu, id) {
   const g = menu.game;
-  if (pendOf(g, id)) return askTreasureFull(g, { menu }); // 第75回: あずかりの 地図
+  if (pendOf(g, id)) return askTreasureFull(g, { menu, nw: pendOf(g, id) }); // 第75回: あずかりの 地図
   const tm = findMap(g, id);
   if (!tm) return;
   ensureCss();
@@ -300,9 +300,14 @@ export function syncTreasureGates(game) {
 
 // ───────────── 第75回: 地図が いっぱい → どれを 捨てるか えらぶ ─────────────
 // 家族の 声:「宝の地図が一杯の時は、今持っている地図を捨てるか選ばせて。」
-// サーバーは 新しい 地図を「あずかり」（c.tmPending。セーブに のこる）に 入れて まつ（world/treasure.js の grantTreasureMap）。
-// 画面は フィールドで 落ちついた とき（会話・戦い・メニューが ない）に この まどを 出す（watchTreasureFull。game.js の frame から）。
-// 「あとで決める」・B なら しまって、メニューの「道具」→「宝の地図」の いちばん 上の 行から いつでも 選べる。
+// 第89回（家族の 声:「もらったタイミングで捨てるものを選ばせて。あとでメニュー開かれて選択するのはおかしい。」）:
+//   サーバーは 新しい 地図を「あずかり」（c.tmPending）に 入れて、もらった その 場で 聞く:
+//   ・戦いの けっかの まどの 中（client/game.js の onBattleEnd。battleEnd の tmAsk）
+//   ・だいほんの「宝の地図を見つけた！」「手に入れた！」の すぐ あと（client/ui/script.js の 'tmAsk'）
+//   ・通信が 切れて のこった あずかりは、次に 世界に 入った すぐ（サーバーの 'tmAsk'。onTmAsk）
+//   あとから かってに 開く まど（前の watchTreasureFull）と「あとで決める」は なくした。
+//   B・まどの 外を おすと「新しい地図をあきらめますか？」（「やめる」で えらぶ まどに もどる）。
+//   えらんで いる 間は サーバーも 知って いる（world/tm-ask.js。ほかの 人の 戦い・だいほんに まきこまれない）
 const pendOf = (game, id) => {
   const pid = String(id || '').startsWith('pend:') ? String(id).slice(5) : null;
   return pid ? (game.me?.tmPending || []).find((t) => t.id === pid) || null : null;
@@ -322,32 +327,52 @@ export function discardOrder(list) {
   return [...list].sort((a, b) => rank(a) - rank(b) || (a.at || 0) - (b.at || 0));
 }
 
-const fullState = { open: false, t: 0, later: new Set() };
+// open … まどが 出て いる / sent … もう 答えた あずかり（サーバーの 返事が とどく 前に 2回 聞かない）/ chain … 聞く じゅんばん / close … 今の まどを 閉じる
+const fullState = { open: false, sent: new Set(), chain: null, close: null };
 
-// フィールドで 落ちついたら（idle）、あずかりの 地図を 聞く。「あとで」に した 地図は もう 聞かない（メニューから 選べる）
-export function watchTreasureFull(game, dt, idle) {
-  const pend = game.me?.tmPending;
-  if (!idle || fullState.open || !Array.isArray(pend) || !pend.some((t) => !fullState.later.has(t.id))) {
-    fullState.t = 0;
-    return;
-  }
-  fullState.t += dt;
-  if (fullState.t < 700) return;
-  fullState.t = 0;
-  askTreasureFull(game);
+// 聞く あずかりを じゅんに 1まいずつ（list … サーバーから とどいた あずかり。ない 時は 自分の キャラの あずかり）
+// 終わったら（全部 えらんだら）resolve する Promise
+export function askTreasureList(game, list = null, opts = {}) {
+  const run = async () => {
+    for (let i = 0; i < 8; i++) {
+      const src = i === 0 && Array.isArray(list) && list.length ? list : game.me?.tmPending || [];
+      const nw = src.find((t) => t?.id && !fullState.sent.has(t.id));
+      if (!nw) return;
+      await askTreasureFull(game, { ...opts, nw });
+      // サーバーの 返事（キャラの 中み）を 少し まつ
+      await new Promise((r) => setTimeout(r, 120));
+    }
+  };
+  fullState.chain = (fullState.chain || Promise.resolve()).then(run, run);
+  return fullState.chain;
 }
 
-// menu … メニューから 開いた ときの FieldMenu（おわったら 道具の 一覧に もどる）
-export function askTreasureFull(game, { menu = null } = {}) {
+// サーバーの 'tmAsk'（世界に 入った すぐ・つなぎなおし・だいほんの あと）: フィールドで 会話・戦いが ない 時に 聞く
+export async function onTmAsk(game, m) {
+  for (let i = 0; i < 600 && (game.state !== 'field' || game.busy || game.battleClosing || (game.menuOpen && !fullState.open)); i++) await new Promise((r) => setTimeout(r, 200));
+  if (game.state !== 'field' || fullState.open) return;
+  return askTreasureList(game, m?.pend || null);
+}
+
+// 戦いが 始まった 時など: 画面だけの まどを 片づける（えらぶのは サーバーが また 聞く）
+export function dropTreasureFull(game) {
+  if (!fullState.open) return;
+  fullState.close?.(true);
+  if (game) game.menuOpen = false;
+}
+
+// 1まいの 新しい 地図（nw）を どう するか 聞く。menu … メニューの「道具」から 開いた ときの FieldMenu（おわったら 道具の 一覧に もどる）
+// 答えた（捨てた・あきらめた）／閉じた ときに resolve する Promise
+export function askTreasureFull(game, { menu = null, nw = null } = {}) {
   const g = game;
   const c = g.me;
-  const nw = (c?.tmPending || []).find((t) => menu || !fullState.later.has(t.id)) || c?.tmPending?.[0];
-  if (!nw || fullState.open || typeof document === 'undefined') return;
+  nw = nw || (c?.tmPending || []).find((t) => !fullState.sent.has(t.id)) || null;
+  if (!nw || fullState.open || typeof document === 'undefined' || !c) return Promise.resolve(false);
   ensureCss();
   fullState.open = true;
   const sfx = (k) => g.audio?.sfx(k);
   if (menu) menu.sub?.blur();
-  else g.menuOpen = true;
+  if (!menu) g.menuOpen = true;
   sfx('confirm');
   // 今 いる 洞窟の 地図は 捨てられない（サーバーと おなじ きまり）
   const here = /^tm_([0-9a-z]+)_/.exec(g.field?.mapId || '')?.[1];
@@ -361,7 +386,7 @@ export function askTreasureFull(game, { menu = null } = {}) {
       el('div', { class: 'tmf-name', text: `${tmTitle(nw)}（${STATE_TXT(nw)}）` }),
       el('div', { class: 'small tmf-ask', text: tmInfoLine(nw) })),
     el('div', { class: 'small tmf-ask', text: `持てる地図は${TM_MAX}まいまで。\nどれか1まい捨てると、新しい地図を持てるよ。` }));
-  // 「あきらめる」「あとで」は 上に（20まいの 下まで さがさなくても 見える）。カーソルは はじめの 地図
+  // 「あきらめる」は 上に（20まいの 下まで さがさなくても 見える）。カーソルは はじめの 地図
   const mapRows = list.map((tm) => {
     const busyHere = here && tm.id === here;
     const [cls, label] = STATE(tm);
@@ -374,54 +399,65 @@ export function askTreasureFull(game, { menu = null } = {}) {
   });
   const items = [
     { label: '新しい地図をあきらめる', value: '#give', cls: 'tmf-act' },
-    { label: 'あとで決める', value: '#later' },
     { header: true, label: '捨てる地図を選ぶ' },
     ...mapRows,
   ];
   const start = items.findIndex((it) => !it.header && !it.disabled && !String(it.value).startsWith('#'));
-  const finish = (sent) => {
-    lm.blur();
-    back.remove();
-    box.remove();
-    fullState.open = false;
-    fullState.t = 0;
-    if (menu) {
-      menu.popupOpen = false;
-      setTimeout(() => { if (menu.root) menu.focusSub(menu.itemsList(true)); }, sent ? 250 : 0);
-    } else g.menuOpen = false;
-  };
-  const later = () => {
-    fullState.later.add(nw.id);
-    if (!menu) toast('メニューの「道具」→「宝の地図」で、あとで選べるよ', 4200);
-    finish(false);
-  };
-  const send = (msg) => {
-    g.net.send({ t: 'menu', action: 'tmap', pid: nw.id, ...msg });
-    finish(true);
-  };
-  const lm = new ListMenu(g.input, {
-    items,
-    sound: sfx,
-    back: null,
-    start,
-    className: 'tmf-list',
-    onCancel: () => later(),
-    onSelect: async (it) => {
-      if (it.value === '#later') return later();
+  return new Promise((resolve) => {
+    let asking = false;
+    const finish = (sent, dropped = false) => {
+      if (!fullState.open) return;
       lm.blur();
-      if (it.value === '#give') {
-        const ok = await confirmBox(g.input, `${tmTitle(nw)}をあきらめますか？\n（持っている地図は、そのまま）`, 'あきらめる', 'やめる', sfx);
-        if (ok) return send({ op: 'pendGive' });
-      } else {
-        const ok = await confirmBox(g.input, `${it.label}を捨てて、\n${tmTitle(nw)}を持ちますか？\n（捨てた地図は、もどってこない）`, '捨てる', 'やめる', sfx);
-        if (ok) return send({ op: 'pendKeep', id: it.value });
-      }
+      back.remove();
+      box.remove();
+      fullState.open = false;
+      fullState.close = null;
+      if (menu) {
+        menu.popupOpen = false;
+        setTimeout(() => { if (menu.root) menu.focusSub(menu.itemsList(true)); }, sent ? 250 : 0);
+      } else if (!dropped) g.menuOpen = false;
+      resolve(sent);
+    };
+    fullState.close = (dropped) => finish(false, dropped);
+    const send = (msg) => {
+      fullState.sent.add(nw.id);
+      g.net.send({ t: 'menu', action: 'tmap', pid: nw.id, ...msg });
+      finish(true);
+    };
+    // あきらめるか 聞く（B・まどの 外・「あきらめる」）。「やめる」で えらぶ まどに もどる
+    const giveUp = async () => {
+      if (asking || !fullState.open) return;
+      asking = true;
+      lm.blur();
+      const ok = await confirmBox(g.input, `${tmTitle(nw)}をあきらめますか？\n（持っている地図は、そのまま）`, 'あきらめる', 'やめる', sfx);
+      asking = false;
+      if (!fullState.open) return;
+      if (ok) return send({ op: 'pendGive' });
       lm.focus();
-    },
+    };
+    const lm = new ListMenu(g.input, {
+      items,
+      sound: sfx,
+      back: null,
+      start,
+      className: 'tmf-list',
+      onCancel: () => giveUp(),
+      onSelect: async (it) => {
+        if (it.value === '#give') return giveUp();
+        if (asking) return;
+        asking = true;
+        lm.blur();
+        const ok = await confirmBox(g.input, `${it.label}を捨てて、\n${tmTitle(nw)}を持ちますか？\n（捨てた地図は、もどってこない）`, '捨てる', 'やめる', sfx);
+        asking = false;
+        if (!fullState.open) return;
+        if (ok) return send({ op: 'pendKeep', id: it.value });
+        lm.focus();
+      },
+    });
+    box.append(head, lm.root);
+    back.addEventListener('click', () => { if (asking) return; sfx('cancel'); giveUp(); });
+    document.getElementById('ui').append(back, box);
+    if (menu) menu.popupOpen = true;
+    lm.focus();
   });
-  box.append(head, lm.root);
-  back.addEventListener('click', () => { sfx('cancel'); later(); });
-  document.getElementById('ui').append(back, box);
-  if (menu) menu.popupOpen = true;
-  lm.focus();
 }

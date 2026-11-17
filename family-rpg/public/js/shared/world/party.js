@@ -650,6 +650,8 @@ export function partyState(world, p) {
     clockShift: Number(world.sessions.get(p.leader)?.char?.timeShift) || 0,
     // 敵の 強さ（リーダーの 設定で 戦う。world/battles.js の enemyRateFor。設定の 画面に 出す）
     enemyRate: difficultyOf(world.sessions.get(p.leader)?.char).enemy,
+    // 第89回: 家族が して いる ボス・物語の 戦い（入って いない 人の 画面に「戦いに入る」ボタン。world.js の partyFights）
+    fights: world.partyFights ? world.partyFights(p) : [],
     bond: p.bond,
     // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
     selfPos: selfPosOf(world, p),

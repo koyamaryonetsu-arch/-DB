@@ -16,7 +16,10 @@ import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob 
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js';
 import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js';
 import { chestVanishes } from '../data/fieldchests.js';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone, remoteJoinable } from './battles.js';
+// 第89回: 宝の地図が いっぱいの 時に えらんで いる 人（world/tm-ask.js）・同じ ことわりの 文を 何回も 出さない 間
+import { tmAskBegin } from './tm-ask.js';
+import { JOIN_COOLDOWN_MS } from '../join-rule.js';
 import { runScript, runSteps } from './scripts.js';
 // 第44回（ポケモン P1）: 進化を まっている 仲間（world/evolve.js）
 import { checkEvolve } from './scripts.js';
@@ -186,6 +189,7 @@ export class GameWorld {
     }
     const run = s.runId && this.runs.get(s.runId);
     if (run) run.resend(s);
+    tmAskBegin(this, s); // 第89回: えらんで いる とちゅうなら もう一度 聞く
   }
 
   // クライアントの エラー: セーブの errorLog に さいきんの 30こ（家族サーバーの 画面にも 出す）
@@ -235,6 +239,7 @@ export class GameWorld {
     }
     const run = t.runId && this.runs.get(t.runId);
     if (run) run.resend(t);
+    tmAskBegin(this, t); // 第89回: 宝の地図を えらんで いる とちゅうなら もう一度 聞く
     if (p && p.members.length > 1) {
       for (const sid of p.members) if (sid !== t.id) this.send(this.sessions.get(sid), { t: 'toast', text: `${t.char.name}がもどってきた！` });
       this.sendParty(p);
@@ -255,6 +260,7 @@ export class GameWorld {
     }
     s.inWorld = false;
     s.busy = null;
+    s.tmAsk = false; // 第89回: あずかりの 地図は セーブに のこる。次に 入った すぐに 聞く
     this.leaveParty(s, true);
     this.broadcast({ t: 'left', sid: s.id, name: s.char?.name }, s);
     this.broadcastPlayers();
@@ -331,8 +337,14 @@ export class GameWorld {
       // クライアントで おきた エラー（ふぐあいの きろく）
       case 'clientError': return this.onClientError(s, msg);
       case 'joinBattle': {
-        const r = joinBattle(this, s, msg.sid);
-        if (!r.ok && r.reason) this.send(s, { t: 'toast', text: r.reason });
+        // 第89回: remote … 「戦いに入る」ボタン（どこからでも）。ことわる 時は かならず わけを 出す（同じ 文は 間を あけて）
+        const r = joinBattle(this, s, msg.sid, { remote: !!msg.remote });
+        if (!r.ok && r.reason) {
+          const now = this.now();
+          if (msg.remote || r.reason !== s.joinRejText || now - (s.joinRejAt || 0) >= JOIN_COOLDOWN_MS) this.send(s, { t: 'toast', text: r.reason });
+          s.joinRejText = r.reason;
+          s.joinRejAt = now;
+        }
         return;
       }
     }
@@ -516,6 +528,20 @@ export class GameWorld {
     if (!c.flags.p_opening) runScript(this, s, 'opening');
     // まえの バージョンで 森の ぬしを たおしていた 人は、ゆめの なかで 紋章の ちからに めざめる
     else if (c.flags.c1_treant && !c.flags.monster_bond) runScript(this, s, 'bond_dream');
+    // 第89回: 通信が 切れて のこった 宝の地図の あずかりは、入った すぐに どれを 捨てるか 聞く（world/tm-ask.js）
+    tmAskBegin(this, s);
+  }
+
+  // 第89回: パーティーの 家族が して いる ボス・物語の 戦い（「戦いに入る」ボタン。party.js の partyState の fights）
+  partyFights(p) {
+    const out = [];
+    for (const ctx of this.battles.values()) {
+      if (ctx.partyId !== p.id || ctx.battle.over || !remoteJoinable(ctx)) continue;
+      const names = ctx.sids.map((sid) => this.sessions.get(sid)?.char?.name).filter(Boolean);
+      if (!names.length) continue;
+      out.push({ id: ctx.id, sid: ctx.sids[0], name: names.length > 1 ? `${names[0]}たち` : names[0], sids: [...ctx.sids], boss: !!ctx.opts.boss });
+    }
+    return out;
   }
 
   // たおした まものが なかまに なりたがっている（レベルは いつも 1。party.js の befriendLevel）
@@ -523,7 +549,8 @@ export class GameWorld {
   //   share: いっしょに 戦った 家族の キャラの id（「はい」の とき その 人たちの 酒場にも 入る。world/recruit-share.js）
   offerBefriend(s, species, level = befriendLevel(), share = null) {
     const m = MONSTERS[species];
-    if (!m || s.busy) return;
+    // 第89回: 宝の地図を えらんで いる 人（'tmfull'）にも 聞く（画面は 戦いの けっか・地図の まどの あとで 会話を 出す）
+    if (!m || (s.busy && s.busy !== 'tmfull')) return;
     const c = s.char;
     ensureCompanions(c);
     dropMissingFam(this, c);

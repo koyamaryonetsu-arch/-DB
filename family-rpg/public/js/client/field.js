@@ -25,6 +25,8 @@ import { timeFlag } from '../shared/world/clock.js';
 import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js';
 import { rideShown, chosenVehicle } from '../shared/data/vehicles.js';
 import { huntMatch } from './ui/sources.js';
+// 第89回: とちゅうから 戦いに 入る きょり・自動追跡で 止まる きょり（サーバーと おなじ 数。shared/join-rule.js）
+import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -673,7 +675,7 @@ export class Field {
     if (!leader) { tr.length = 0; return null; }
     // リーダーが たたかっていても そばへ いく（ちかづけば とちゅうから さんか）
     const dl = Math.hypot(leader.x - me.x, leader.y - me.y);
-    if (dl < 1.4) { tr.length = 0; this.followStuck = 0; return null; }
+    if (dl < FOLLOW_STOP) { tr.length = 0; this.followStuck = 0; return null; }
     if (dl > 45) return null;
     // もう とおりすぎた パンくずは すてる
     let k = -1;
@@ -723,6 +725,7 @@ export class Field {
   }
 
   // たたかっている なかまに ちかづいたら さんかする
+  // 第89回: きょりは サーバーと おなじ（JOIN_NEAR）。自動追跡で 止まる 所（FOLLOW_STOP）からでも 入れる
   checkJoin() {
     const myParty = this.game.party?.id;
     if (!myParty) return;
@@ -730,8 +733,8 @@ export class Field {
     if (now < (this.joinCooldown || 0)) return;
     for (const o of this.others.values()) {
       if (!o.battle || o.partyId !== myParty) continue;
-      if (Math.hypot(o.x - this.me.x, o.y - this.me.y) < 2.0) {
-        this.joinCooldown = now + 1500;
+      if (Math.hypot(o.x - this.me.x, o.y - this.me.y) <= JOIN_NEAR) {
+        this.joinCooldown = now + JOIN_COOLDOWN_MS;
         this.game.net.send({ t: 'joinBattle', sid: o.sid });
         return;
       }
