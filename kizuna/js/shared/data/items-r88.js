@@ -5,9 +5,9 @@
 //   2. data/items-r88-<作品>.js を 作る（items-r88-kit.js の weapon・armor・shield・head・acc で 格を 書く）
 //   3. この ファイルの R88_PARTS に 足す（品・読みがな・生まれ変わり）
 //   4. 使う 技は data/abilities-r88.js（かくし技）・そろいは data/gear-sets.js
-import { REBIRTH } from './items-alchemy.js?v=3284401194a3';
-import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js?v=3284401194a3';
-import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA } from './items-r88-houshin.js?v=3284401194a3';
+import { REBIRTH } from './items-alchemy.js?v=8b83305b67a0';
+import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js?v=8b83305b67a0';
+import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA } from './items-r88-houshin.js?v=8b83305b67a0';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
