@@ -1181,6 +1181,7 @@
   let rPersonFilter = new Set();
   // 客先アカウント（劇場のアドレス）: 自分の劇場・その劇場だけを出すか
   let myAccount = null;
+  let modalOrigTheater = '';   // 開いた時の劇場名（前からある案件は、劇場を変えた時だけ「一覧にない劇場」を確かめる）
   let myTheaterOnly = true;
   // 客先(会社)ボタンによる絞り込み（空=全社・OR）
   const companyFilter = new Set();
@@ -1338,6 +1339,28 @@
     if (!name) return undefined;
     return theaterMaster.find((t) => t.name === name);
   }
+  // 会社の劇場の候補（閉館していない劇場・短い名前・50音順）
+  function theaterChoices(company) {
+    const list = visibleTheaterMaster().filter((t) => t.name && !t.closed && (!company || t.company === company));
+    return Array.from(new Set(list.map((t) => shortTheaterName(t.name) || t.name))).sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+  // その会社の劇場の一覧に、この名前（短い名前・別の呼び方でも）の劇場があるか → 正式名（無ければ ''）
+  function masterTheaterOf(name, company) {
+    const t = canonTheaterName(String(name || '').trim(), company);
+    const hit = theaterMaster.find((x) => x.name === t && x.company === company);
+    return hit ? hit.name : '';
+  }
+  // 新しい劇場の正式名: その会社のほかの劇場と同じ頭の言葉＋打った名前（例: TOHO で「豊洲」→「TOHOシネマズ 豊洲」）
+  function newTheaterName(typed, company) {
+    typed = String(typed || '').trim();
+    const heads = {};
+    theaterMaster.filter((t) => t.company === company && t.name).forEach((t) => {
+      const m = t.name.match(/^(\S+)[\s　]+\S/); if (m) heads[m[1]] = (heads[m[1]] || 0) + 1;
+    });
+    const head = Object.keys(heads).sort((a, b) => heads[b] - heads[a])[0] || company;
+    if (!head || typed.indexOf(head) === 0) return typed;
+    return head + ' ' + typed;
+  }
   function visibleTheaterMaster() {
     if (isPrivileged(currentUser)) return theaterMaster;
     const co = customerCompany(currentUser);
@@ -1398,8 +1421,9 @@
       if (c.tcPerson) tcPersons.add(c.tcPerson);
       if (c.rPerson) rPersons.add(c.rPerson);
     });
-    // 候補は短い名前（打つのも短い名前でよい。保存の時に会社の劇場の正式名にそろえる）
-    fillDatalist('theaterList', Array.from(new Set([...theaters].map((n) => shortTheaterName(n) || n))).sort());
+    // 劇場名の候補: 編集パネルで選んでいる会社の劇場だけ（閉館は出さない）。短い名前で出す（保存の時に正式名にそろえる）
+    const formCo = (isPrivileged(currentUser) && $('company')) ? $('company').value : customerCompany(currentUser);
+    fillDatalist('theaterList', theaterChoices(formCo));
     fillDatalist('tcPersonList', [...tcPersons].sort());
     fillDatalist('rPersonList', [...rPersons].sort());
   }
@@ -2814,7 +2838,10 @@
         opts.forEach((opt) => { const o = document.createElement('option'); o.value = opt; o.textContent = opt === '' ? '(未選択)' : opt; el.appendChild(o); });
         break;
       }
-      case 'datalist': el = document.createElement('input'); el.type = 'text'; el.setAttribute('list', cfg.listId); break;
+      case 'datalist':
+        el = document.createElement('input'); el.type = 'text'; el.setAttribute('list', cfg.listId);
+        if (field === 'theater') fillDatalist('theaterList', theaterChoices(c.company));   // その案件の会社の劇場だけ
+        break;
       case 'textarea': el = document.createElement('textarea'); el.rows = 2; break;
       default:         el = document.createElement('input'); el.type = 'text';
     }
@@ -3021,6 +3048,7 @@
       $('caseId').value = caseObj.id;
       $('company').value = caseObj.company || scopedCompany(companyNames()[0]);
       $('theater').value = theaterForInput(caseObj.theater || '', caseObj.company || '');
+      modalOrigTheater = $('theater').value;
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
       $('rPerson').value = caseObj.rPerson || '';
@@ -3044,6 +3072,7 @@
       if ($('adviceNote')) $('adviceNote').value = caseObj.adviceNote || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
+      modalOrigTheater = '';
       // 客先・担当者を1つだけ絞っている時は、それを初期選択（複数選択時は標準）
       $('company').value = (isPrivileged(currentUser) && companyFilter.size === 1) ? [...companyFilter][0] : scopedCompany('TOHOシネマズ');
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
@@ -6044,6 +6073,18 @@
     cases = cases.filter((x) => x.id !== c.id); removeCaseRemote(c.id); closeModal(); render(); if (calMode) renderCalendar();
   });
   $('company').addEventListener('change', updateTohoVisibility);
+  // 会社を変えたら: 劇場の候補をその会社の劇場にする。入っている劇場がその会社の劇場でなければ、選び直してもらう
+  $('company').addEventListener('change', () => {
+    if (!isPrivileged(currentUser)) return;
+    const co = $('company').value;
+    fillDatalist('theaterList', theaterChoices(co));
+    const th = $('theater').value.trim();
+    if (th && !masterTheaterOf(th, co)) {
+      $('theater').value = '';
+      showToastLite('会社を変えたので、劇場を選び直してください');
+      $('theater').focus();
+    }
+  });
   $('addCompanyBtn').addEventListener('click', addCompany);
 
   $('invoiceBtn').addEventListener('click', openInvoiceModal);
@@ -6446,8 +6487,32 @@
   });
 
   // フォーム保存時に日付を一括パース＆バリデーション
+  // 一覧にない劇場（新店）: 確かめてから、劇場の一覧にも登録する
+  let newTheaterOk = '';
+  async function confirmNewTheater(typed, company) {
+    const K = window.KARTE;
+    const name = newTheaterName(typed, company);
+    const ok = K ? await K.ask(`「${typed}」は ${company} の劇場の一覧にありません。\n新しい劇場「${name}」として、劇場の一覧にも登録しますか？\n（打ちまちがいなら「やめる」を押して直してください）`, { ok: '新しい劇場として登録' }) : confirm('新しい劇場として登録しますか？');
+    if (!ok) { $('theater').focus(); return false; }
+    const t = { name, company, address: '', shortName: name === typed ? '' : typed };
+    try {
+      if (!theaterMaster.some((x) => x.name === name)) { theaterMaster.push(t); await store.upsertTheater(t); }
+    } catch (err) { theaterMaster = theaterMaster.filter((x) => x !== t); onPersistError(err); return false; }
+    $('theater').value = typed;
+    newTheaterOk = name;
+    showToastLite('劇場「' + name + '」を劇場の一覧に登録しました');
+    return true;
+  }
   $('caseForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    if (isPrivileged(currentUser) && store.mode === 'supabase') {
+      const typed = $('theater').value.trim(), co = $('company').value;
+      if (typed && co && typed !== modalOrigTheater && !masterTheaterOf(typed, co) && newTheaterOk !== newTheaterName(typed, co)) {
+        confirmNewTheater(typed, co).then((ok) => { if (ok) $('caseForm').requestSubmit(); });
+        return;
+      }
+    }
+    newTheaterOk = '';
     if (!isPrivileged(currentUser)) {
       // 客先は新しい案件を作れない。開いた案件の「自社のメモ」だけ保存する
       const c0 = cases.find((x) => String(x.id) === String($('caseId').value));
