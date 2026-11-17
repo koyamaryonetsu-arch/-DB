@@ -1,10 +1,10 @@
 // 第88回 G3班: まぼろしの回ろうの きまり（持ち物で とびらが 開くか・とびらの まどの 中み・冒険のしおり）
 //   データは data/rivals-r88.js。サーバー（world/rivals-r88.js）・冒険のしおり（world/shiori.js）・画面（client/ui/rivals-r88.js）が 使う
 //   持ち物の 数え方は G1 の そろいの own と おなじ（shared/gear-r88.js の ownedIds: ふくろ・預かり所・装備。同じ 品は 1つ）
-import { ITEMS } from './data/items.js?v=9d87281a3301';
-import { ownedIds } from './gear-r88.js?v=9d87281a3301';
-import { workName } from './data/works.js?v=9d87281a3301';
-import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag } from './data/rivals-r88.js?v=9d87281a3301';
+import { ITEMS } from './data/items.js?v=e7674bd14cdd';
+import { ownedIds } from './gear-r88.js?v=e7674bd14cdd';
+import { workName } from './data/works.js?v=e7674bd14cdd';
+import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag } from './data/rivals-r88.js?v=e7674bd14cdd';
 
 export const HALL_NAME = 'まぼろしの回ろう';
 

@@ -6,14 +6,14 @@
 //   お金が ふえる 道は ない（もどるのは いつも はらった 分より 少ない）
 // ・竜神の ほこら … 七つの玉を ぜんぶ 持って くると「引きかえますか？」→ 7つが きえて 竜神の玉
 // ・試練の ごほうび … works.js の trialGift。一の試練を こえた 時（world/job-trials.js）と、もう こえて いる 人が 番人に 話した 時
-import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=9d87281a3301';
-import { WORKS, workName } from '../data/works.js?v=9d87281a3301';
-import { addItem, removeItem, itemCount } from '../stats.js?v=9d87281a3301';
-import { trialsCleared } from '../data/job-trials.js?v=9d87281a3301';
+import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=e7674bd14cdd';
+import { WORKS, workName } from '../data/works.js?v=e7674bd14cdd';
+import { addItem, removeItem, itemCount } from '../stats.js?v=e7674bd14cdd';
+import { trialsCleared } from '../data/job-trials.js?v=e7674bd14cdd';
 import {
   GACHA_PRICE, GACHA_PITY, GACHA_MEI_RATE, gachaRefund, gachaWorks, gachaPool, gachaPity, gachaGot, gachaDone, ownsR88, rollGacha,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, trialGiftOf, trialGiftFlag,
-} from '../data/gacha-r88.js?v=9d87281a3301';
+} from '../data/gacha-r88.js?v=e7674bd14cdd';
 
 const GOLD_MAX = 9999999;
 

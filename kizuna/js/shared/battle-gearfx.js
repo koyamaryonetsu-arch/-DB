@@ -7,11 +7,11 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=9d87281a3301';
-import { ITEMS } from './data/items.js?v=9d87281a3301';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=9d87281a3301';
+import { ABILITIES } from './data/abilities.js?v=e7674bd14cdd';
+import { ITEMS } from './data/items.js?v=e7674bd14cdd';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=e7674bd14cdd';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost } from './battle-r88.js?v=9d87281a3301';
+import { r88Actor, orbMods, onceBlock, useHpCost } from './battle-r88.js?v=e7674bd14cdd';
 
 export const GEAR_USE_PREFIX = 'gear:';
 

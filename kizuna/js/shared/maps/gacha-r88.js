@@ -2,9 +2,9 @@
 //   ・ガチャガチャ … ルミナの町（星の神殿の 東の 外。神殿の 中は さわらない）と 王都サファラ（市場の 東）。台と 店の 人
 //   ・七つの玉 … ORB_PLACES の 7つの 宝箱（ダンジョンの 宝箱 ＝ c.chests。フィールドの 宝箱は 開けると きえる。どれも キャラごとに 1回）
 //   ・竜神の ほこら … 星竜山の 頂上の すみ（HOKORA）
-import { npc } from './npc.js?v=9d87281a3301';
-import { PLACES } from './overworld.js?v=9d87281a3301';
-import { ORB_PLACES, orbChestId, HOKORA } from '../data/gacha-r88.js?v=9d87281a3301';
+import { npc } from './npc.js?v=e7674bd14cdd';
+import { PLACES } from './overworld.js?v=e7674bd14cdd';
+import { ORB_PLACES, orbChestId, HOKORA } from '../data/gacha-r88.js?v=e7674bd14cdd';
 
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
 

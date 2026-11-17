@@ -6,13 +6,13 @@
 // ・今: 森に おちた ようさいの 残がい（c8_sky から 見える。c8_fortress の あと 出入り口が 開く → 空中ようさいの残がい）
 //   時をこえる手紙を 見つける 所（今の 鏡の湖の 東の ほとり・ささやきの森の 入口）
 // だいほんは data/story-c8c.js・data/sidequests-c8c.js
-import { T, TILE_INFO } from '../tiles.js?v=9d87281a3301';
-import { npc } from './npc.js?v=9d87281a3301';
-import { SPRING, PAST_POS } from './past.js?v=9d87281a3301';
+import { T, TILE_INFO } from '../tiles.js?v=e7674bd14cdd';
+import { npc } from './npc.js?v=e7674bd14cdd';
+import { SPRING, PAST_POS } from './past.js?v=e7674bd14cdd';
 import {
   C8C, ARRIVE8C, ENTRY8C, CALM8C, LETTER8C, LETTER8C_SIDE, PAST_FIELD_ID, NOW_FIELD_ID, ENTRANCE8C, WRECK8C,
-} from './c8c-flags.js?v=9d87281a3301';
-import { c8cArrive, c8cMapId } from './c8c-fort.js?v=9d87281a3301';
+} from './c8c-flags.js?v=e7674bd14cdd';
+import { c8cArrive, c8cMapId } from './c8c-fort.js?v=e7674bd14cdd';
 
 const inRect = (x, y, r, pad = 0) => x >= r.x - pad && y >= r.y - pad && x < r.x + r.w + pad && y < r.y + r.h + pad;
 // 森の 原っぱ（いかり・残がいの まわり）
