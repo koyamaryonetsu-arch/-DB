@@ -2623,3 +2623,20 @@ tr.ir-lock td:not(.col-edit):not(.col-status):not([data-colkey="company"]):not([
 .ir-body { width: 100%; font-size: 13px; line-height: 1.6; }
 .ir-content { white-space: pre-wrap; max-height: 120px; overflow: auto; display: block; }
 .ir-state { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+/* 色の凡例（トップ・菱熱だけ） */
+.color-legend { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 12px; color: #475569; padding: 4px 2px 0; }
+.color-legend:empty { display: none; }
+.color-legend .cl-h { font-weight: 700; color: #334155; }
+.color-legend .cl-item { display: inline-flex; align-items: center; gap: 4px; }
+.color-legend .cl-sep { width: 1px; height: 16px; background: #cbd5e1; margin: 0 4px; }
+.color-legend .status-badge { font-size: 11px; padding: 1px 7px; }
+.cl-toggle { font-size: 12px; border: 1px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 1px 10px; cursor: pointer; color: #475569; }
+.swatch.cl-red { background: #fde8e8; border: 1px solid #ef4444; }
+.swatch.cl-yellow { background: #fff6cc; border: 1px solid #f59e0b; }
+.swatch.cl-orange { background: #ffe8d1; border: 1px solid #f97316; }
+.swatch.cl-blue { background: #e6efff; border: 1px solid #3b82f6; }
+.cl-blink { color: #dc2626; font-weight: 700; animation: quoteBlink 1.4s ease-in-out infinite; margin-right: 4px; }
+@media (prefers-reduced-motion: reduce) { .cl-blink { animation: none; } }
+/* 凡例はバーの下の1行に（バーは折り返す。凡例より前のボタン・スイッチは1行目のまま） */
+.legend.filter-bar:has(#colorLegend:not(:empty)) { flex-wrap: wrap; }
+.legend.filter-bar #colorLegend { order: 99; flex: 1 1 100%; border-top: 1px dashed #e2e8f0; margin-top: 2px; padding-top: 6px; }

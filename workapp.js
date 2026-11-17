@@ -645,15 +645,23 @@
     foot().innerHTML = '<button type="button" data-wax>やめる</button>';
   }
 
-  async function open(caseId) {
+  const PURPOSE_LABEL = { survey: '調査', work: '作業' };
+  const mdOf = (iso) => { const m = String(iso || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${+m[1]}/${+m[2]}` : ''; };
+  const WD = ['日', '月', '火', '水', '木', '金', '土'];
+  const mdw = (iso) => { const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/); if (!m) return ''; const d = new Date(+m[1], +m[2] - 1, +m[3]); return `${+m[2]}/${+m[3]}（${WD[d.getDay()]}）`; };
+  // purpose: 'survey'（調査）/ 'work'（作業）。調査と作業で、作業申請書は別々に作る
+  async function open(caseId, purpose) {
     const sb = sbc(); if (!sb) { K().say('作業申請書の自動作成は、ログインして使ってください'); return; }
     const c = DB().caseInfo ? DB().caseInfo(caseId) : null;
     if (!c) { K().say('案件が見つかりません'); return; }
     if (!c.theater) { K().say('先に案件の「劇場名」を入れて保存してください'); return; }
-    S = { caseId: String(caseId), c, busy: false };
+    const pp = purpose === 'survey' ? 'survey' : 'work';
+    const caseDate = pp === 'survey' ? c.surveyDate : c.workStartDate;
+    if (!caseDate) { K().say(`先に案件の「${pp === 'survey' ? '調査日' : '作業開始日'}」を入れて保存してください`); return; }
+    S = { caseId: String(caseId), c, busy: false, purpose: pp, caseDate };
     const my = S;
     overlay();
-    document.getElementById('waTitle').textContent = `📝 作業申請書を作る — ${c.theater}`;
+    document.getElementById('waTitle').textContent = `📝 作業申請書を作る（${PURPOSE_LABEL[pp]} ${mdw(caseDate)}）— ${c.theater}`;
     busy('書類棚で、この劇場の書式を探しています…');
     try {
       const [forms, last, , to] = await Promise.all([findForms(c.theater), lastAnswers(c.theater, c.rPerson), loadPartners(), DB().mailTo ? DB().mailTo(caseId) : '']);
@@ -661,8 +669,8 @@
       S.forms = forms; S.last = last; S.mailTo = to || '';
       syncPartners();   // 劇場情報から協力会社を足す（後ろで）
       // 作成中の申請書があれば、続きから直せる
-      const { data: drafts } = await sb.from('case_files').select('*').eq('case_id', S.caseId).eq('kind', 'workapp').eq('status', 'draft').is('deleted_at', null).order('created_at', { ascending: false }).limit(1);
-      const draft = drafts && drafts[0] && drafts[0].meta && drafts[0].meta.plan ? drafts[0] : null;
+      const { data: drafts } = await sb.from('case_files').select('*').eq('case_id', S.caseId).eq('kind', 'workapp').eq('status', 'draft').is('deleted_at', null).order('created_at', { ascending: false }).limit(20);
+      const draft = (drafts || []).find((d) => d.meta && d.meta.plan && (d.meta.purpose === 'survey' ? 'survey' : 'work') === pp) || null;
       if (!forms.templates.length) return noTemplate();
       if (draft && await K().ask(`作成中の作業申請書（${draft.name}）があります。続きから直しますか？\n「新しく作る」を押すと、最初から作り直します。`, { ok: '続きから直す', cancel: '新しく作る' })) return resumeDraft(draft);
       if (my.closed) return;
@@ -740,9 +748,9 @@
     const st = staff.find((x) => x.name === c.rPerson) || {};
     const lead = last.leader || {};
     S.form = {
-      start_date: c.workStartDate || c.surveyDate || '', end_date: c.workEndDate || c.workStartDate || c.surveyDate || '',
+      start_date: S.caseDate, end_date: S.purpose === 'survey' ? S.caseDate : (c.workEndDate && c.workEndDate >= S.caseDate ? c.workEndDate : S.caseDate),
       start_time: (prev.work && prev.work.start_time) || '09:00', end_time: (prev.work && prev.work.end_time) || '18:00',
-      place: '', content: c.title || c.estimateName || '', kubun: '',
+      place: '', content: S.purpose === 'survey' ? '現地調査（' + (c.title || c.estimateName || c.category || '') + '）' : (c.title || c.estimateName || ''), kubun: '',
       leader_name: lead.name || c.rPerson || '', leader_phone: st.phone || lead.phone || '',
       partners: (prev.partners || []).map((p) => p.name).filter((n) => (P.list || []).some((x) => x.name === n && x.active !== false)),
       workers: {}, headcount: '',
@@ -789,6 +797,7 @@
         : '<div class="wa-ai"><span class="wa-spin sm"></span> 🤖 AI が書式と記入例を読んでいます（30秒ほど）。その間に下を入れてください。</div>';
     const exN = S.forms.examples.length;
     body().innerHTML = `<div id="waAsk" class="wa-ask">
+      <div class="wa-pp-h">${S.purpose === 'survey' ? '🔍 調査' : '🛠 作業'}の作業申請書（${esc(mdw(S.caseDate))}）</div>
       <div class="wa-src">📄 書式: <b>${esc(S.tpl.data.file_name || S.tpl.name)}</b>　📑 記入例: ${exN ? exN + ' 件（新しい ' + Math.min(exN, 2) + ' 件に合わせます）' : 'なし（記入例を書類棚に入れると、書き方を合わせます）'}</div>
       ${aiBox}
       <div class="wa-grid">
@@ -857,6 +866,7 @@
     const extra = {}; (S.plan && S.plan.questions || []).forEach((q) => { extra[q.label] = f.extra[q.key] || ''; });
     return {
       apply_date: isoDay(new Date()), applicant: APPLICANT,
+      purpose: S.purpose === 'survey' ? '調査（現場調査・現地確認）' : '作業（工事・点検・メンテナンス・修理）',
       leader: { staff: S.c.rPerson || '', name: f.leader_name, phone: f.leader_phone },
       work: { start_date: f.start_date, start_time: f.start_time, end_date: f.end_date, end_time: f.end_time, place: f.place, content: f.content, kubun: f.kubun },
       partners, workers: groups, headcount: f.headcount ? Number(f.headcount) : countWorkers(),
@@ -902,7 +912,7 @@
   }
   function fileName() {
     const short = cleanName((DB().shortTheater ? DB().shortTheater(S.c.theater) : '') || S.c.theater);
-    const label = cleanName((S.result && S.result.file_label) || (String(S.form.start_date).slice(5).replace('-', '') + (S.form.content || '作業')));
+    const label = String(S.form.start_date || S.caseDate || '').slice(5, 10).replace('-', '') || '0000';
     return `【${short}】${yymmdd()}_作業申請書_${label}_菱熱工業`;
   }
   async function saveDraft() {
@@ -917,7 +927,7 @@
     const blob = new Blob([S.outBytes], { type: MIME[S.fmt] });
     const up = await sb.storage.from(CASE_BUCKET).upload(path, blob, { contentType: MIME[S.fmt], upsert: false });
     if (up.error) throw new Error('作った申請書を保存できませんでした（' + up.error.message + '）');
-    const meta = { theater: S.c.theater, template_id: S.tpl.id, template_path: S.tpl.data.path, template_name: S.tpl.data.file_name, format: S.fmt, answers: S.answers, form: S.form, plan: slimPlan(S.result),
+    const meta = { theater: S.c.theater, purpose: S.purpose, for_date: S.caseDate, template_id: S.tpl.id, template_path: S.tpl.data.path, template_name: S.tpl.data.file_name, format: S.fmt, answers: S.answers, form: S.form, plan: slimPlan(S.result),
       summary: S.result.summary || '', unfilled: S.result.unfilled || [], warnings: S.result.warnings || [], ai_plan: S.plan ? { deadline: S.plan.deadline || '', deadline_warning: S.plan.deadline_warning || '', other_docs: S.plan.other_docs || '', questions: S.plan.questions || [] } : null };
     const row = { case_id: S.caseId, kind: 'workapp', name, path, mime: MIME[S.fmt], size: S.outBytes.length, status: 'draft', created_by: DB().userName ? DB().userName() : '', meta };
     if (S.fileId) {
@@ -1067,5 +1077,132 @@
     } catch (e) { if (!my.closed) fail(e); }
   }
 
-  window.WORKAPP = { open, openPartners, syncPartners, _xl: XL, _docx: DOCX, _pdf: PDF, _state: () => S };
+  /* ============================================================
+     作る？／申請不要／あとで（調査日・作業開始日を入れた時・一覧のボタン・開いた時にまだ決めていない予定）
+     ============================================================ */
+  const SNOOZE_KEY = 'waSnoozeV1';
+  const snoozeKey = (id, pp, date) => `${id}|${pp}|${date}`;
+  const snoozed = () => { try { return JSON.parse(sessionStorage.getItem(SNOOZE_KEY) || '[]'); } catch (e) { return []; } };
+  const snooze = (k) => { try { const a = snoozed(); if (!a.includes(k)) a.push(k); sessionStorage.setItem(SNOOZE_KEY, JSON.stringify(a)); } catch (e) { /* なし */ } };
+  const STATE_TEXT = { none: 'まだ決めていません', draft: '作成中', final: '✅ 送付済', skip: '申請不要で通知済み', manual: '✅ 別に提出済み', stale: '⚠ 作った後に日付が変わりました' };
+  // 申請不要の理由（会社・劇場で共通。使った理由を溜めていく）: app_settings の workapp_skip_reasons = { reasons: [...] }
+  async function loadReasons() {
+    const sb = sbc(); if (!sb) return [];
+    try { const { data } = await sb.from('app_settings').select('value').eq('key', 'workapp_skip_reasons').limit(1); const v = data && data[0] && data[0].value; return (v && Array.isArray(v.reasons)) ? v.reasons : []; } catch (e) { return []; }
+  }
+  async function addReason(r) {
+    const list = await loadReasons(); if (!r || list.includes(r)) return;
+    await sbc().from('app_settings').upsert({ key: 'workapp_skip_reasons', value: { reasons: list.concat(r) }, updated_at: new Date().toISOString() });
+  }
+  // items: [{ caseId, purpose }]。opts.why: 'manual'（手で日付を入れた）/ 'queue'（開いた時）/ 'button'、opts.from: [{ purpose, from }]（前の日付）
+  async function decide(caseId, purposes, opts) {
+    const c = DB().caseInfo ? DB().caseInfo(caseId) : null; if (!c) return;
+    const list = (purposes && purposes.length ? purposes : ['survey', 'work']).map((pp) => ({ caseId: String(caseId), purpose: pp }));
+    return decisionDialog(list, opts || {});
+  }
+  async function decisionDialog(items, opts) {
+    const sb = sbc(); if (!sb) return;
+    document.querySelectorAll('#waDecide').forEach((x) => x.remove());
+    const rows = items.map((it) => {
+      const c = DB().caseInfo(it.caseId); if (!c) return null;
+      const date = it.purpose === 'survey' ? c.surveyDate : c.workStartDate;
+      const st = DB().waState ? DB().waState(it.caseId, it.purpose) : null;
+      const from = (st && st.rec && st.rec.for_date) || '';   // 前に作った（決めた）時の日付
+      return Object.assign({}, it, { c, date, state: st ? st.state : 'none', from });
+    }).filter(Boolean);
+    if (!rows.length) return;
+    const reasons = await loadReasons();
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'waDecide';
+    const queue = opts.why === 'queue';
+    const draw = () => {
+      const live = rows.filter((r) => !r.done);
+      if (!live.length) { ov.remove(); return; }
+      ov.innerHTML = `<div class="kt-dialog kt-dialog-mid wa-dec"><div class="kt-dlg-head">📝 作業申請書${queue ? ` — まだ決めていない予定（${live.length} 件）` : ' — ' + esc(live[0].c.theater)}<button type="button" class="close-btn" data-dx>×</button></div>
+        <div class="kt-dlg-body">
+          <p class="ms-note">${queue ? 'メール・LINE の取り込みなどで調査日・作業開始日が入った予定のうち、作業申請書をまだ決めていないものです' + (opts.allCases ? '（R担当者のメールアドレスがマスターに無いので、全部の案件を出しています。☰ その他 →「🗂 マスター編集」で入れると、自分の案件だけになります）。' : '（あなたが R担当者の案件）。') : '調査日・作業開始日が入りました。作業申請書を作りますか？'}
+            「申請不要」を選ぶと、理由を付けて客先に通知メールで知らせます（5分後にまとめて）。</p>
+          ${live.map((r) => {
+            const i = rows.indexOf(r); const lab = PURPOSE_LABEL[r.purpose];
+            const changed = r.state === 'stale' && r.from && r.date;
+            return `<div class="wa-dec-row" data-di="${i}">
+              <div class="wa-dec-h"><b>${r.purpose === 'survey' ? '🔍' : '🛠'} ${lab} ${r.date ? esc(mdw(r.date)) : '（日付なし）'}</b>${queue ? `　${esc(r.c.theater)}${r.c.title ? '　' + esc(r.c.title) : ''}` : ''}
+                <span class="wa-dec-st">${changed ? `⚠ ${lab}日が ${esc(mdw(r.from))} → ${esc(mdw(r.date))} に変わりました。作り直しますか？` : esc(STATE_TEXT[r.state] || '')}</span></div>
+              ${!r.date ? `<div class="ms-note">${lab === '調査' ? '調査日' : '作業開始日'}が入っていません。入れて保存すると作れます。</div>` : r.skipping ? `<div class="wa-skip">
+                <label>申請不要の理由</label>
+                <select data-dsel="${i}"><option value="">（理由を選ぶ）</option>${reasons.map((x) => `<option${r.reason === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}<option value="__new"${r.reason === '__new' ? ' selected' : ''}>＋ 新しい理由を入れる</option></select>
+                ${r.reason === '__new' || !reasons.length ? `<input type="text" class="tm-input" data-dnew="${i}" placeholder="例: 目視の確認だけで工具を使わないため" value="${esc(r.newReason || '')}">` : ''}
+                <button type="button" class="primary" data-dskipgo="${i}">申請不要で通知する</button><button type="button" data-dskipno="${i}">やめる</button>
+                <div class="ms-note">新しい理由は、次から選べるように溜めていきます（会社・劇場で共通）。</div></div>`
+              : `<div class="wa-dec-btns"><button type="button" class="primary" data-dmake="${i}">📝 ${r.state === 'draft' ? '続きを直す' : (r.state === 'final' || r.state === 'stale' || r.state === 'skip' || r.state === 'manual') ? '作り直す' : '作る'}</button>
+                <button type="button" data-dskip="${i}">申請不要</button><button type="button" data-dlater="${i}">あとで</button>
+                <button type="button" class="link-btn" data-dmanual="${i}" title="作業申請書を別に（紙・メールなどで）出した時。通知メールは送りません">別に提出済み（メールは送らない）</button></div>`}
+            </div>`;
+          }).join('')}
+        </div><div class="kt-dlg-foot"><span class="ms-note">${queue ? '「あとで」は、次にアプリを開いた時にもう一度聞きます' : ''}</span><button type="button" data-dx>閉じる</button></div></div>`;
+    };
+    draw(); document.body.appendChild(ov);
+    const later = (r) => { if (r.date) snooze(snoozeKey(r.caseId, r.purpose, r.date)); r.done = true; };
+    ov.addEventListener('change', (e) => {
+      const sel = e.target.closest('[data-dsel]'); if (sel) { const r = rows[+sel.dataset.dsel]; r.reason = sel.value; draw(); }
+    });
+    ov.addEventListener('input', (e) => { const n = e.target.closest('[data-dnew]'); if (n) rows[+n.dataset.dnew].newReason = n.value; });
+    ov.addEventListener('click', async (e) => {
+      const t = e.target;
+      if (t.closest('[data-dx]') || t === ov) { rows.filter((r) => !r.done).forEach(later); ov.remove(); return; }
+      const g = (k) => { const b = t.closest(`[data-${k}]`); return b ? rows[+b.getAttribute(`data-${k}`)] : null; };
+      let r;
+      if ((r = g('dmake'))) { r.done = true; ov.remove(); open(r.caseId, r.purpose); return; }
+      if ((r = g('dlater'))) { later(r); draw(); return; }
+      if ((r = g('dskip'))) { r.skipping = true; draw(); return; }
+      if ((r = g('dskipno'))) { r.skipping = false; draw(); return; }
+      if ((r = g('dmanual'))) {
+        if (!(await K().ask(`${PURPOSE_LABEL[r.purpose]} ${mdw(r.date)} の作業申請書は、別に提出済みにします（客先に通知メールは送りません）。よろしいですか？`, { ok: '提出済みにする' }))) return;
+        const ok = await saveDecision(r, 'manual', ''); if (ok) { r.done = true; draw(); }
+        return;
+      }
+      if ((r = g('dskipgo'))) {
+        const reason = (r.reason && r.reason !== '__new' ? r.reason : (r.newReason || '')).trim();
+        if (!reason) { K().say('申請不要の理由を選ぶか、入れてください'); return; }
+        const to = DB().mailTo ? await DB().mailTo(r.caseId) : '';
+        if (!(await K().ask(`「${PURPOSE_LABEL[r.purpose]} ${mdw(r.date)}：作業申請書は不要（理由: ${reason}）」と、客先に通知メールで知らせます（5分後にまとめて送ります）。よろしいですか？\n${to}`, { ok: '申請不要で通知する' }))) return;
+        const ok = await saveDecision(r, 'skip', reason);
+        if (ok) { if (!reasons.includes(reason)) { reasons.push(reason); addReason(reason).catch(() => {}); } r.done = true; draw(); }
+      }
+    });
+  }
+  // 申請不要（skip: 通知メールで知らせる）・別に提出済み（manual: 知らせない）を案件の書類に残す
+  async function saveDecision(r, status, reason) {
+    const sb = sbc();
+    const name = status === 'skip' ? `作業申請書 不要（${PURPOSE_LABEL[r.purpose]} ${mdOf(r.date)}）` : `作業申請書 別に提出済み（${PURPOSE_LABEL[r.purpose]} ${mdOf(r.date)}）`;
+    const row = { case_id: r.caseId, kind: 'workapp', name, path: '', mime: '', size: 0, status, created_by: DB().userName ? DB().userName() : '',
+      meta: { theater: r.c.theater, purpose: r.purpose, for_date: r.date, skip_reason: reason || '' } };
+    const res = await sb.from('case_files').insert(row);
+    if (res.error) { K().say('保存できませんでした: ' + res.error.message); return false; }
+    try { if (DB().afterWorkapp) await DB().afterWorkapp(r.caseId); } catch (e) { /* なし */ }
+    toast(status === 'skip' ? '申請不要にしました（5分後に客先へ通知します）' : '別に提出済みにしました');
+    return true;
+  }
+  // 開いた時: まだ決めていない予定（今日以降の調査日・作業開始日）を、その案件の R担当者に聞く
+  function checkQueue() {
+    if (!sbc() || !DB().waCases || !DB().waState) return;
+    if (document.querySelector('#waDecide, #waDlg')) return;
+    const email = String(DB().userEmail ? DB().userEmail() : '').toLowerCase();
+    const me = ((DB().staff ? DB().staff() : []) || []).find((x) => x.email && x.email.toLowerCase() === email);
+    const today = isoDay(new Date()); const sn = snoozed();
+    const items = [];
+    DB().waCases().forEach((c) => {
+      if (me && c.rPerson && c.rPerson !== me.name) return;   // 自分が R担当者の案件（R担当者が空の案件は全員。マスターにメールアドレスが無い人には全部）
+      ['survey', 'work'].forEach((pp) => {
+        const date = pp === 'survey' ? c.surveyDate : c.workStartDate;
+        if (!date || date < today || sn.includes(snoozeKey(c.id, pp, date))) return;
+        const st = DB().waState(c.id, pp); if (!st || !['none', 'stale'].includes(st.state)) return;
+        items.push({ caseId: String(c.id), purpose: pp, date });
+      });
+    });
+    if (!items.length) return;
+    items.sort((a, b) => a.date.localeCompare(b.date));
+    decisionDialog(items.slice(0, 20), { why: 'queue', allCases: !me });
+  }
+
+  window.WORKAPP = { open, decide, checkQueue, openPartners, syncPartners, _xl: XL, _docx: DOCX, _pdf: PDF, _state: () => S };
 })();
