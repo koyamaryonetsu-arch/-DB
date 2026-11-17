@@ -25,6 +25,8 @@ import { mergeTreasureMaps } from '../data/treasure.js';
 import { mergeSecret } from '../data/secret.js';
 import { mergeAlchemy } from './alchemy.js';
 import { mergeArena } from '../data/arena.js';
+// 第88回 G3班: まぼろしの回廊の 勝った 記録（data/rivals-r88.js）
+import { mergeRivals } from '../data/rivals-r88.js';
 import { COIN_MAX } from '../data/casino.js';
 // 第51回 F: 幻の職業の 記録（両方で ふえた ぶんを たす・どちらの 数より 下に しない）
 import { mergeFeats } from './phantom.js';
@@ -178,6 +180,8 @@ function mergeBody(b, a, t, tLater) {
       case 'alchemy': out.alchemy = mergeAlchemy(vb, va, vt, tLater); break;
       // 第37回 A: 闘技場の 記録（勝ちぬいた 回数は 両方で ふえた ぶん・はじめての 時こくは 早い ほう。data/arena.js）
       case 'arena': out.arena = mergeArena(vb, va, vt); break;
+      // 第88回 G3班: まぼろしの回廊の 勝った 記録（どちらかで 勝って いれば 勝った。data/rivals-r88.js）
+      case 'rivals': out.rivals = mergeRivals(vb, va, vt); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

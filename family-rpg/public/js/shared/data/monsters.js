@@ -25,6 +25,7 @@ import { MONSTERS_LAB } from './monsters-lab.js';
 import { addArenaHidden } from './monsters-arena.js';
 // 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
 import { addTrialHidden } from './monsters-trial.js';
+import { addRivalHidden } from './rivals-r88.js';
 import { MONSTERS_CH5 } from './monsters-ch5.js';
 import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
 import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js';
@@ -311,6 +312,8 @@ addC8rHidden(MONSTERS);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
+// 第88回 G3班: まぼろしの回廊の ライバルの まぼろし（数えない 形。data/rivals-r88.js）
+addRivalHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTERS, MONSTERS_BOSS);

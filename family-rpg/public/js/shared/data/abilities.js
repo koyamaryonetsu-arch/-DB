@@ -785,6 +785,9 @@ Object.assign(ABILITIES, R86A_ABILITIES);
 // 第88回: 装備を「使う」と 出る かくし技（abilities-r88.js。hidden）
 import { R88_ABILITIES } from './abilities-r88.js';
 Object.assign(ABILITIES, R88_ABILITIES);
+// 第88回 G3班: まぼろしの回廊の ライバルの 大技と 前ぶれ（data/rivals-r88.js）
+import { rivalAbilities } from './rivals-r88.js';
+Object.assign(ABILITIES, rivalAbilities());
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

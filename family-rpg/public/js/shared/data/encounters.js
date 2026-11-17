@@ -30,6 +30,7 @@ import { ENCOUNTERS_C8R, FIXED_C8R, ZONE_BG_C8R } from './encounters-c8r.js';
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
 import { FIXED_TRIAL } from './monsters-trial.js';
+import { FIXED_RIVAL } from './rivals-r88.js';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -147,6 +148,8 @@ Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_ARENA);
 Object.assign(FIXED_ENCOUNTERS, FIXED_TRIAL);
+// 第88回 G3班: まぼろしの回廊の ライバル（data/rivals-r88.js）
+Object.assign(FIXED_ENCOUNTERS, FIXED_RIVAL);
 Object.assign(ZONE_BG, ZONE_BG_EARTH);
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（encounters-final.js）
 Object.assign(FIXED_ENCOUNTERS, FIXED_FINAL);

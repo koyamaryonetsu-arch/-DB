@@ -23,6 +23,8 @@ import { attachFamilyQuests } from './family-quests.js';
 import { attachCh6 } from './ch6.js';
 // 第67回 A班: モンスター闘技場（ルミナの町の 東門の 外。maps/monarena-a.js）
 import { attachMonArena } from './monarena-a.js';
+// 第88回 G3班: まぼろしの回廊（ルミナの町の 星の神殿の 下。maps/rivals-r88.js）
+import { attachRivalHall } from './rivals-r88.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -327,6 +329,8 @@ function buildMaps() {
   attachCh6(maps);
   // 第67回 A班: モンスター闘技場（maps/monarena-a.js。千年前の マップには 出さない ので attachCh6 の あと）
   attachMonArena(maps);
+  // 第88回 G3班: まぼろしの回廊（maps/rivals-r88.js。星の神殿の 試練の番人の となりの 階段から）
+  attachRivalHall(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);
