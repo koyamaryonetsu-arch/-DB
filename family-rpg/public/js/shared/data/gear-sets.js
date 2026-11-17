@@ -187,3 +187,35 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G9班: ドラゴンボール・ワンピース（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+Object.assign(GEAR_SETS, {
+  // ── ドラゴンボール: 7つ（そろえて 星見の丘の さいだんで 神龍の ねがい。data/shenron-r88.js）──
+  dragon_balls: {
+    name: 'ドラゴンボール',
+    items: ['r88_db_ball1', 'r88_db_ball2', 'r88_db_ball3', 'r88_db_ball4', 'r88_db_ball5', 'r88_db_ball6', 'r88_db_ball7'],
+    rule: 'own',
+    tiers: [
+      { n: 7, title: 'ドラゴンボールを集めし者', text: '7つ全部持つと、しょう号「ドラゴンボールを集めし者」。星見の丘のさいだんで、ねがいを1つかなえてもらえる' },
+    ],
+  },
+  // ── ドラゴンボール: ポタラ（2つで 1組。同じ 品を 2人で）──
+  potara: {
+    name: 'ポタラ',
+    items: ['r88_db_potara'],
+    rule: 'party',
+    tiers: [
+      { n: 2, bonus: { str: 20, mag: 20 }, text: '2人が1つずつつけると、戦いの間、みんなの攻撃力と攻撃魔力+20' },
+    ],
+  },
+  // ── ワンピース: 三刀流（ゾロの 刀。3本 持って いると、どれを つけても 追撃）──
+  santoryu: {
+    name: '三刀流',
+    items: ['r88_op_wado', 'r88_op_kitetsu', 'r88_op_yubashiri', 'r88_op_shusui', 'r88_op_enma'],
+    rule: 'own',
+    tiers: [
+      { n: 3, fx: [{ k: 'chase', v: 6 }], text: '3本持って、どれかをつけていると、追撃+6' },
+      { n: 5, title: '三刀流の剣士', text: '5本全部持つと、しょう号「三刀流の剣士」' },
+    ],
+  },
+});

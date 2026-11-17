@@ -68,10 +68,19 @@ export function ch4ItemEntries(scene, a) {
       out.push({ label: `${ITEMS[u.id]?.name || '装備'}（${ab?.name || ''}）`, right: '装備中', value: `gear:${u.slot}` });
       continue;
     }
-    USE_INFO.set(`gear:${u.slot}`, `${ITEMS[u.id]?.name || '装備'}の作品の力：${ab?.desc || ''}\n1つの戦いで1回だけ。MPはいらない。${u.used ? '（この戦いでは、もう使った）' : ''}`);
-    out.push({ label: ab?.name || ITEMS[u.id]?.name || '装備', right: u.used ? '使った' : '1回', value: `gear:${u.slot}`, disabled: !!u.used });
+    // G9班: 天候棒を 天候の 職業が つけて いる 時は、今の 天気で 技が かわる（u.weather。shared/battle-r88.js の useAbilityOf）
+    const wx = u.weather ? weatherUseInfo(u) : '';
+    USE_INFO.set(`gear:${u.slot}`, `${ITEMS[u.id]?.name || '装備'}の作品の力：${wx || ab?.desc || ''}\n1つの戦いで1回だけ。MPはいらない。${u.used ? '（この戦いでは、もう使った）' : ''}`);
+    out.push({ label: u.weather ? `${ITEMS[u.id]?.name || '装備'}（天気でかわる）` : ab?.name || ITEMS[u.id]?.name || '装備', right: u.used ? '使った' : '1回', value: `gear:${u.slot}`, disabled: !!u.used });
   }
   return out;
+}
+
+// G9班: 天候棒の 天気ごとの 技（晴れ・雨・かみなり）
+function weatherUseInfo(u) {
+  const nm = (id) => ABILITIES[id]?.name || '';
+  const w = u.weather || {};
+  return [w.sun && `晴れ：${nm(w.sun)}`, w.rain && `雨：${nm(w.rain)}`, `かみなり・ふつうの空：${nm(w.thunder || u.ability)}`].filter(Boolean).join('／') + '\n今の天気で、使う技がかわる。';
 }
 
 // えらんだ 道具が 第4章の とくべつな 道具なら、そのまま 使う（true）。だれも ねらわない

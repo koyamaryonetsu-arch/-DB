@@ -551,6 +551,9 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-inuyasha.js', 'public/js/shared/data/items-r88-yuhaku.js',
     // 第88回 G8班: らんま1/2・じごく先生ぬ〜べ〜
     'public/js/shared/data/items-r88-ranma.js', 'public/js/shared/data/items-r88-nube.js',
+    // 第88回 G9班: ドラゴンボール・ワンピース・神龍の ねがい
+    'public/js/shared/data/items-r88-dragonball.js', 'public/js/shared/data/items-r88-onepiece.js',
+    'public/js/shared/data/shenron-r88.js', 'public/js/shared/world/shenron-r88.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

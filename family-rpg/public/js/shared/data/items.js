@@ -320,7 +320,7 @@ import { ITEMS_CRAFT_R65, CRAFT_R65_KANA } from './items-craft-r65.js'; Object.a
 // 第81回: 全滅で へる お金が 少なく なる アクセサリー（items-r81.js）
 import { ITEMS_R81, R81_ITEM_KANA } from './items-r81.js'; Object.assign(ITEMS, ITEMS_R81);
 // 第88回: 作品を 思い出す 装備（items-r88.js）。伝説の 数字は その 種類の いちばん 強い 品に 合わせる（fitR88Legends。新しい 品は この 行より 上に）
-import { ITEMS_R88, R88_ITEM_KANA, fitR88Legends } from './items-r88.js'; Object.assign(ITEMS, ITEMS_R88); fitR88Legends(ITEMS);
+import { ITEMS_R88, R88_ITEM_KANA, fitR88Legends, tagR88Old } from './items-r88.js'; Object.assign(ITEMS, ITEMS_R88); fitR88Legends(ITEMS); tagR88Old(ITEMS);
 assignRarity(ITEMS);
 // 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
 applyGearLooks(ITEMS);

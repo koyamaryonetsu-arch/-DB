@@ -393,3 +393,83 @@ Object.assign(R88_ABILITIES, {
     desc: 'とても熱いきつね火をおこして、敵全体をつつむ。', cast: '{a}がお札をかかげると、青白いきつね火がうずを巻いた！', anim: 'fire3',
   },
 });
+
+// ───── G9班: ドラゴンボール・ワンピース（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   天候棒の 4つ（r88u_op_cyclone・thunderbolt・raiun・zeus）と、天候の 職業が 持つ 時の 晴れ（mirage）・雨（rain）は
+//   品の use.weather で えらぶ（shared/battle-r88.js の useAbilityOf）
+Object.assign(R88_ABILITIES, {
+  // ── ドラゴンボール ──
+  r88u_db_mafuba: {
+    name: '魔ふうば', kana: 'まふうば', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.85, turns: [2, 2] },
+    desc: 'うずまく風で敵1体をつつみ、電子ジャーにふうじこめて、少しの間動けなくする（大きな敵にはききにくい）。', cast: '{a}は両手をつき出した！「魔ふうば！」', anim: 'wind2',
+  },
+  r88u_db_senzu: {
+    name: 'せん豆を食べる', kana: 'せんずをたべる', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'heal',
+    effect: { type: 'heal', base: [99999, 99999], fixed: true },
+    desc: 'せん豆を1つぶ食べて、自分のHPを全部回復する。', cast: '{a}は、せん豆を1つぶ、ぽりぽり食べた！', anim: 'heal1',
+  },
+  r88u_db_stop: {
+    name: 'きん急停止スイッチ', kana: 'きんきゅうていしすいっち', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.75, turns: [1, 2] },
+    desc: 'コントローラーのボタンをおして、敵1体をマヒさせる（大きな敵にはききにくい）。', cast: '{a}は、コントローラーのボタンをおした！', anim: 'debuff',
+  },
+  r88u_db_whis: {
+    name: '時もどし', kana: 'ときもどし', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'heal',
+    effect: { type: 'multi', parts: [{ type: 'heal', base: [99999, 99999], fixed: true }, { type: 'mpHeal', base: [9999, 9999] }] },
+    desc: 'つえで地面をこつんとついて、時を3分もどす。自分のHPとMPが、戦いの始めのように元にもどる。', cast: '{a}がつえで地面をこつんとつくと、時がさかさに流れ始めた…！', anim: 'r88_whis',
+  },
+  // ── ワンピース ──
+  r88u_op_rumble: {
+    name: 'ランブル', kana: 'らんぶる', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'atk', mult: 1.4, dur: 30 },
+    desc: 'ランブルボールをかじって、少しの間、攻撃力を上げる。', cast: '{a}は、ランブルボールをがりっとかじった！', anim: 'buff',
+  },
+  r88u_op_reject: {
+    name: 'はいげき', kana: 'はいげき', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.4 },
+    desc: 'ためた力を10倍にして、敵1体に大きな一げき。使った人のHPも少しへる。', cast: '{a}は、はいげき貝を{t}におしあてた！', anim: 'blast2',
+  },
+  r88u_op_murakumo: {
+    name: 'むら雲切・大地ゆらし', kana: 'むらくもぎりだいちゆらし', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.8 },
+    desc: 'なぎなたで大地をたたいて、地面ごとゆらし、敵全体を打つ。', cast: '{a}がむら雲切をふり下ろすと、大地が大きくゆれた！', anim: 'quake',
+  },
+  r88u_op_shikomi: {
+    name: '重力の雨', kana: 'じゅうりょくのあめ', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'agi', mult: 0.6, dur: 40, chance: 0.9 },
+    desc: '空から重さをかけて、同じ種類の敵みんなの素早さを大きく下げる。', cast: '{a}がつえをぬくと、空から見えない重さがのしかかった！', anim: 'debuff',
+  },
+  // 天候棒の 4だん（かみなりの 天気・天候の 職業で ない 人）
+  r88u_op_cyclone: {
+    name: 'サイクロン＝テンポ', kana: 'さいくろんてんぽ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [150, 175], thr: 70 },
+    desc: 'つめたい風と暖かい風の玉をぶつけて、小さなたつまきをおこす。敵1体に風のダメージ。', cast: '{a}は天候棒から、つめたい玉と暖かい玉をとばした！', anim: 'wind2',
+  },
+  r88u_op_thunderbolt: {
+    name: 'サンダーボルト＝テンポ', kana: 'さんだーぼるとてんぽ', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [120, 140], thr: 75 },
+    desc: '天候棒で作った雷雲から、同じ種類の敵みんなに雷を落とす。', cast: '{a}の天候棒から、小さな雷雲がわき上がった！', anim: 'bolt2',
+  },
+  r88u_op_raiun: {
+    name: 'ブラックボール・雷雲ロッド', kana: 'ぶらっくぼーるらいうんろっど', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [105, 120], thr: 75 },
+    desc: '黒い雷雲の玉をいくつもうかべて、敵全体に雷を落とす。', cast: '{a}は天候棒から、黒い雲の玉をつぎつぎにうかべた！', anim: 'bolt2',
+  },
+  r88u_op_zeus: {
+    name: '雷げき・ゼウス', kana: 'らいげきぜうす', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [160, 190], thr: 85 },
+    desc: 'しゃべる雷雲ゼウスをよび出して、敵全体に大きな雷を落とす。', cast: '{a}「ゼウス！」天候棒の雷雲が、大きくふくれ上がった！', anim: 'r88_zeus',
+  },
+  // 天候の 職業が 持つ 時（晴れ・雨）
+  r88u_op_mirage: {
+    name: 'ミラージュ＝テンポ', kana: 'みらーじゅてんぽ', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'eva', add: 0.3, dur: 30 },
+    desc: '晴れた空の熱で、しんきろうを作る。少しの間、仲間全員が敵の攻撃をかわしやすくなる。', cast: '{a}が天候棒をふると、あたりの景色がゆらゆらとゆれ始めた…！', anim: 'buff',
+  },
+  r88u_op_rain: {
+    name: 'レイン＝テンポ', kana: 'れいんてんぽ', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'heal',
+    effect: { type: 'heal', base: [70, 90], thr: 40 },
+    desc: '雨雲から、やさしい雨をふらせる。仲間全員のHPを少し回復する。', cast: '{a}の天候棒から、しとしとと雨がふりだした…', anim: 'heal2',
+  },
+});

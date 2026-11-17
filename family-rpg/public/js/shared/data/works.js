@@ -22,3 +22,11 @@ Object.assign(WORKS, {
   ranma: { name: 'らんま1/2', trialGift: { ranma: 'r88_rm_china' } },
   nube: { name: 'じごく先生ぬ〜べ〜', trialGift: { nube: 'r88_nb_kannon' } },
 });
+
+// 第88回 G9班: ドラゴンボール・ワンピース（ファイルの さいごで まぜる）
+//   試練の ごほうび: スーパーサイヤ人3 → せん豆のふくろ（悟空が 食べて 力を とりもどす 名品）・ゴム人間 → エースのぼうし（兄の 名品）
+//   どちらの 主人公も 表に 自分の 名品が ないので、いちばん 近い 名品に した（設計書の「実装メモ（G9班）」）
+Object.assign(WORKS, {
+  dragonball: { name: 'ドラゴンボール', trialGift: { ss3: 'r88_db_senzu' } },
+  onepiece: { name: 'ワンピース', trialGift: { rubber: 'r88_op_ace' } },
+});

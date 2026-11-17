@@ -91,3 +91,12 @@ export function useHpCost(c, u, ev) {
   if (!ev.upd.includes(c)) ev.upd.push(c);
   return d;
 }
+
+// G9班: 天候棒（品の use.weather）を 天候の 職業が つけて いる 時は、今の 天気で 使う 技が かわる（docs/plan-r88-anime-gear.md の 4-12）
+//   晴れ ＝ ミラージュ＝テンポ・雨 ＝ レイン＝テンポ（2だんから）・かみなりと 天気なし ＝ その だんの 技（use.ability）
+//   u.weather は gear-r88.js の r88Uses が 天候の 職業の 時だけ わたす。どちらの 側の 天気でも よい
+export function useAbilityOf(b, c, u) {
+  const w = u?.weather;
+  const kind = b?.weather?.kind;
+  return (w && kind && w[kind]) || u?.ability;
+}
