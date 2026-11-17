@@ -3405,10 +3405,10 @@
         : '';
     } catch (e) { $('cmFiles').innerHTML = `<span class="field-hint">読み込めませんでした: ${escapeHtml(e.message || String(e))}</span>`; }
   }
-  async function cmUpload(kind, file) {
+  async function cmUpload(kind, file, confirmed) {
     const K = window.KARTE; const id = cmCaseId; if (!id || !file) return;
     if (file.size > 20 * 1024 * 1024) { K.say('20MB より大きいファイルは付けられません'); return; }
-    if (kind === 'quote' && !(await K.ask(`見積書「${file.name}」を付けて、客先に通知メールで送ります（5分後にまとめて送ります）。よろしいですか？\n${$('cmTo').textContent}`, { ok: '付けて送る' }))) return;
+    if (kind === 'quote' && !confirmed && !(await K.ask(`見積書「${file.name}」を付けて、客先に通知メールで送ります（5分後にまとめて送ります）。よろしいですか？\n${$('cmTo').textContent}`, { ok: '付けて送る' }))) return;
     const ext = (file.name.match(/\.([A-Za-z0-9]{1,8})$/) || [, 'bin'])[1].toLowerCase();
     const path = `${id}/${Date.now()}_${kind}.${ext}`;
     try {
@@ -3422,11 +3422,36 @@
     const c = cases.find((x) => String(x.id) === id); if (c && cmCaseId === id) renderCaseMailSec(c);
   }
   function currentUserName() { try { return (currentUser && (currentUser.user_metadata && currentUser.user_metadata.name)) || String((currentUser && currentUser.email) || '').split('@')[0]; } catch (e) { return ''; } }
-  document.addEventListener('change', (e) => {
-    if (e.target.id === 'cmQuoteFile' || e.target.id === 'cmWorkappFile') {
-      const f = e.target.files && e.target.files[0]; const kind = e.target.id === 'cmQuoteFile' ? 'quote' : 'workapp';
-      e.target.value = ''; if (f) cmUpload(kind, f);
-    }
+  // 🆙 アップロード画面（ファイルを選ぶ・ドラッグして入れる → 宛先を見て → 付ける）
+  function openUploadDialog(kind) {
+    const K = window.KARTE; if (!cmCaseId) return;
+    document.querySelectorAll('#cmUpDlg').forEach((x) => x.remove());
+    const isQ = kind === 'quote';
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'cmUpDlg';
+    ov.innerHTML = `<div class="kt-dialog kt-dialog-mid"><div class="kt-dlg-head">🆙 ${isQ ? '見積書' : '作業申請書'}をアップロード<button type="button" class="close-btn" data-x>×</button></div>
+      <div class="kt-dlg-body">
+        <p class="ms-note">${isQ ? '付けると、5分後に客先へ通知メール（この見積書を添付）を送ります。送る前なら 🗑 で外せば送りません。' : '付けると「作成中」になります。客先にはまだ送りません。「✅ 完成」を押すと送ります。'}</p>
+        <p class="ms-note">${escapeHtml($('cmTo') ? $('cmTo').textContent : '')}</p>
+        <label class="up-drop" id="cmDrop"><input type="file" id="cmUpFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden>
+          <span class="up-drop-t">ここにファイルをドラッグして入れる<br>または <b>押してファイルを選ぶ</b>（PDF・Excel・Word・写真／20MB まで）</span>
+          <span class="up-drop-f" id="cmUpName"></span></label>
+      </div><div class="kt-dlg-foot"><button type="button" data-x>やめる</button><button type="button" class="primary" data-upok disabled>${isQ ? '付けて送る' : '付ける'}</button></div></div>`;
+    document.body.appendChild(ov);
+    let file = null;
+    const setFile = (f) => { file = f || null; ov.querySelector('#cmUpName').textContent = file ? '📄 ' + file.name + '（' + Math.max(1, Math.round(file.size / 1024)) + ' KB）' : ''; ov.querySelector('[data-upok]').disabled = !file; };
+    const drop = ov.querySelector('#cmDrop');
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); setFile(e.dataTransfer.files && e.dataTransfer.files[0]); });
+    ov.querySelector('#cmUpFile').addEventListener('change', (e) => setFile(e.target.files && e.target.files[0]));
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      if (e.target.closest('[data-upok]') && file) { ov.remove(); await cmUpload(kind, file, true); }
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cmup]'); if (!b) return;
+    e.preventDefault(); openUploadDialog(b.dataset.cmup);
   });
   document.addEventListener('click', async (e) => {
     const sec = e.target.closest('#caseMailSec'); if (!sec) return;
@@ -6624,6 +6649,8 @@
   $('mailSetBtn').addEventListener('click', () => openMailSettings());
   $('masterBtn').addEventListener('click', () => openMasterDialog());
   $('guideBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open(); });
+  // 編集パネルの「？」: この画面の取説（登録・ステータス・見積書・作業申請書）
+  $('modalHelpBtn').addEventListener('click', () => { if (window.GUIDE) window.GUIDE.open({ only: ['flow', 'docs'] }); });
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
   // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
   $('casesBody').addEventListener('click', (e) => {

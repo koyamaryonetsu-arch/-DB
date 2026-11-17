@@ -62,11 +62,11 @@
       { id: 'quote', title: '見積書を案件に付けて客先に送る', isNew: true, steps: [
         { before: A.openFirst, sel: '#caseMailSec', t: '案件を ✎ で開くと、下の方に「書類・通知メール」の欄があります（菱熱だけ）。' },
         { sel: '#cmTo', t: 'ここに、だれに送るかが出ます（劇場のアドレス・案件の担当者・ベルを押した人）。テスト中は、テストの宛先だけに送ります。' },
-        { sel: '#caseMailSec .cm-upload label:first-child', t: '「📎 見積書を付けて送る」でファイル（PDF・Excel など）を選びます。確かめのあと、5分後にまとめて客先に送ります（添付つき）。間違えたら、送る前なら 🗑 で外せば送りません。' },
+        { sel: '#caseMailSec [data-cmup="quote"]', t: '「🆙 見積書をアップロード」を押すと、アップロードの画面が出ます。ファイルをドラッグして入れるか、押して選び、「付けて送る」。5分後にまとめて客先に送ります（添付つき）。間違えたら、送る前なら 🗑 で外せば送りません。' },
         { sel: '#cmLog', t: '送ったメール・客先からの返信は「メールの記録」に残ります。返信はその案件の更新としても取り込みます。', after: A.closeAll }
       ] },
       { id: 'workapp', title: '作業申請書を付ける・完成にする', isNew: true, steps: [
-        { before: A.openFirst, sel: '#caseMailSec .cm-upload label:last-child', t: '「📎 作業申請書を付ける」で入れると「作成中」になります。まだ客先には送りません。' },
+        { before: A.openFirst, sel: '#caseMailSec [data-cmup="workapp"]', t: '「🆙 作業申請書をアップロード」で入れると「作成中」になります。まだ客先には送りません。' },
         { sel: '#cmFiles', t: '直し終わったら「✅ 完成（客先に送る）」を押すと、5分後に客先に送ります。' },
         { before: A.closeAll, t: '劇場ごとの作業申請書の書式は、書類棚の「📝 作業申請書の書式」に、劇場を選んで入れておきます。\n（内容と調査日から、劇場の書式で自動で作るしくみは、これから作ります）' }
       ] }
@@ -116,13 +116,14 @@
   function renderBadge() { const b = $('guideNewBadge'); if (b) b.classList.toggle('hidden', seenVersion() >= GUIDE_VERSION); }
 
   // ---- 章を選ぶ画面 ----
-  function openIndex() {
+  function openIndex(opts) {
+    const only = opts && opts.only;   // 編集パネルの「？」: この画面の章だけ
     document.querySelectorAll('#guideIndex').forEach((x) => x.remove());
     const isNewVer = seenVersion() < GUIDE_VERSION;
     const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'guideIndex';
     ov.innerHTML = `<div class="kt-dialog kt-dialog-mid gd-index"><div class="kt-dlg-head">📖 取説：知りたいことを選んでください<button type="button" class="close-btn" data-x>×</button></div>
       <div class="kt-dlg-body"><p class="gd-note">選ぶと、実際の画面の上で順に案内します（保存はしません）。途中で「終わる」を押せばいつでもやめられます。</p>
-      ${CHAPTERS.map((c) => `<div class="gd-ch"><div class="gd-ch-t">${c.title}</div>${c.items.map((it) => `<button type="button" class="gd-item" data-gch="${c.id}" data-git="${it.id}">▶ ${it.title}${it.isNew && isNewVer ? ' <span class="gd-new">新</span>' : ''}<span class="gd-n">${it.steps.length} ステップ</span></button>`).join('')}</div>`).join('')}
+      ${CHAPTERS.filter((c) => !only || only.indexOf(c.id) !== -1).map((c) => `<div class="gd-ch"><div class="gd-ch-t">${c.title}</div>${c.items.map((it) => `<button type="button" class="gd-item" data-gch="${c.id}" data-git="${it.id}">▶ ${it.title}${it.isNew && isNewVer ? ' <span class="gd-new">新</span>' : ''}<span class="gd-n">${it.steps.length} ステップ</span></button>`).join('')}</div>`).join('')}
       </div><div class="kt-dlg-foot"><button type="button" data-x>閉じる</button></div></div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click', (e) => {

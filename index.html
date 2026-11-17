@@ -675,6 +675,7 @@
         <h2 id="modalTitle">新規案件登録</h2>
         <div id="modalSub" class="modal-sub"></div>
       </div>
+      <button id="modalHelpBtn" type="button" class="modal-help col-ryo" title="この画面の取説（登録・ステータス・見積書・作業申請書）">？</button>
       <button id="closeModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <form id="caseForm">
@@ -813,8 +814,8 @@
           <p class="form-sec-note" id="cmTo"></p>
           <div class="cm-files" id="cmFiles"></div>
           <div class="cm-upload">
-            <label class="kt-upload">📎 見積書を付けて送る<input type="file" id="cmQuoteFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden></label>
-            <label class="kt-upload">📎 作業申請書を付ける<input type="file" id="cmWorkappFile" accept=".pdf,.xlsx,.xls,.docx,.doc,image/*" hidden></label>
+            <button type="button" class="kt-upload" data-cmup="quote">🆙 見積書をアップロード</button>
+            <button type="button" class="kt-upload" data-cmup="workapp">🆙 作業申請書をアップロード</button>
           </div>
           <div class="cm-log" id="cmLog"></div>
         </div>
