@@ -38,19 +38,19 @@
 //   守りぬく … 小おにを 先に たおす・ともしびの HP が へったら 回復・大風の 前に 身を 守る（b.c8rNoPuff）
 //   一騎うち … おうえんを 使いわける・大剣の 前に リオンは 身を 守る
 //   ソリトゥス … 心が ゆらいだら すぐ よびかける（b.c8rNoCall）・ひとりの 仲間に よびかける・大技の 前に 身を 守る・千年の約束を 使う
-import { MONSTERS } from './data/monsters.js?v=d6c3a310ffbb';
-import { ABILITIES } from './data/abilities.js?v=d6c3a310ffbb';
-import { GUESTS } from './data/shops.js?v=d6c3a310ffbb';
+import { MONSTERS } from './data/monsters.js?v=9fc120604f44';
+import { ABILITIES } from './data/abilities.js?v=9fc120604f44';
+import { GUESTS } from './data/shops.js?v=9fc120604f44';
 import {
   C8_WIND, C8_PUFF, GATE_FINAL_ACTIONS, FINAL_NAME, HEARTS, HEART_ACTIONS, STAR_ACTIONS, PROMISE_ACTIONS,
-} from './data/monsters-c8r.js?v=d6c3a310ffbb';
+} from './data/monsters-c8r.js?v=9fc120604f44';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub, allyFromCharacter } from './battle.js?v=d6c3a310ffbb';
-import { canUse } from './ai.js?v=d6c3a310ffbb';
-import { AUTO_GUARD } from './battle-ch6.js?v=d6c3a310ffbb';
-import { trap } from './battle-earth.js?v=d6c3a310ffbb';
-import { fightPower, scaleGuestActor } from './guest-rule.js?v=d6c3a310ffbb';
-import { makeNpcSupportChar } from './world/party.js?v=d6c3a310ffbb';
+import { atbRate, pub, allyFromCharacter } from './battle.js?v=9fc120604f44';
+import { canUse } from './ai.js?v=9fc120604f44';
+import { AUTO_GUARD } from './battle-ch6.js?v=9fc120604f44';
+import { trap } from './battle-earth.js?v=9fc120604f44';
+import { fightPower, scaleGuestActor } from './guest-rule.js?v=9fc120604f44';
+import { makeNpcSupportChar } from './world/party.js?v=9fc120604f44';
 
 export const ORB = 'm8g_orb';
 export const ORBFAIL = 'm8g_orbfail';

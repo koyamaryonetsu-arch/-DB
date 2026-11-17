@@ -7,13 +7,13 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=d6c3a310ffbb';
-import { ITEMS, SLOTS } from './items.js?v=d6c3a310ffbb';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=d6c3a310ffbb';
-import { makeRng } from '../rng.js?v=d6c3a310ffbb';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=d6c3a310ffbb';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=d6c3a310ffbb';
-import { curveK } from './tm-curve.js?v=d6c3a310ffbb';
+import { MONSTERS } from './monsters.js?v=9fc120604f44';
+import { ITEMS, SLOTS } from './items.js?v=9fc120604f44';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=9fc120604f44';
+import { makeRng } from '../rng.js?v=9fc120604f44';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=9fc120604f44';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=9fc120604f44';
+import { curveK } from './tm-curve.js?v=9fc120604f44';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 第75回: 地図が いっぱいの ときに 手に入れた 地図は「あずかり」（c.tmPending）に 入れて、どれを 捨てるか 家族に 聞く。
