@@ -1938,6 +1938,8 @@
     if (st === '見積り提出済') return 'row-blue';
     if (st === '保留' || st === '日程調整中' || st === '客先対応中' || NO_COLOR_STATUSES.has(st) || TERMINAL_LIKE_STATUSES.has(st)) return '';
     if (!DELAY_CATEGORIES.has(c.category)) return '';
+    // 「繰越」の案件（保守の契約など）は遅れの色を付けない（2026-11-17 小山さん）
+    if (/繰越/.test([c.theater, c.title, c.content, c.estimateName].join(' '))) return '';
     const today = todayStr();
     if (needsInitialReport(c)) return 'row-yellow';
     if (!c.surveyDate) {
