@@ -54,6 +54,7 @@ function testConversationsDryRun() {
 
 function cvRun_(isContinue) {
   cvDeleteContinueTriggers_();
+  if (typeof refreshMembers_ === 'function') refreshMembers_();   // 菱熱の担当者（アプリのマスター）
   var kind = isContinue ? '続き' : '定時';
   var lock = LockService.getScriptLock();
   // メールの取り込み（5分ごと）が動いている時は、終わるまで少し待つ
@@ -294,7 +295,7 @@ function cvParseCases_(apiKey, text, source, date) {
     '  ただし、ある劇場の工事の進み具合として話していれば、その案件の progress に入れる。',
     '会社は次のいずれかに正規化: ' + JSON.stringify(COMPANY_LIST) + '。' + COMPANY_HINT,
     '種別は次のいずれか: ' + JSON.stringify(CATEGORY_LIST),
-    '担当者: r_person=菱熱工業のメンバーの苗字（' + JSON.stringify(RYONETSU_MEMBERS) + ' のどれか。違えば空文字）、tc_person=客先の担当者の苗字。敬称は付けない。分からなければ空文字。',
+    '担当者: r_person=菱熱工業のメンバーの苗字（' + membersText_() + ' のどれか。違えば空文字）、tc_person=客先の担当者の苗字。敬称は付けない。分からなければ空文字。',
     'intent: 新しい依頼・新しい工事の話なら "new"、今ある案件の続き（調査・見積・発注・作業・報告・日程の決定）なら "progress"。',
     'content: その案件が何か（劇場・設備・工事）を1〜2文。',
     'progress.note: 今回わかった新しい進展・決まったこと・次にすることを1〜3文。経緯の繰り返しはしない。無ければ空文字。',

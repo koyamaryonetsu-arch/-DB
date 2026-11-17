@@ -77,6 +77,26 @@ var CATEGORY_LIST = ['新規工事', '更新案件', '修理', 'メンテナン�
 var RYONETSU_MEMBERS = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
 // 菱熱工業メンバー（内部）の差出人ヒント。ここからのメールは進捗報告の可能性が高い
 var MEMBER_HINT = '@ryonetsu.com / @ryonetsu-ai.com、および 金子/若山/山口/大和/細萱/小山 などの個人アドレス';
+// 菱熱の担当者は、アプリの「🗂 マスター編集」（Supabase の staff 表）の在籍の人を使う。表が無い・読めない時は上の一覧のまま
+var MEMBER_EMAILS = {};   // メールアドレス → 苗字（マスターに入れたアドレス）
+function refreshMembers_() {
+  try {
+    var key = cfg_('SUPABASE_SERVICE_ROLE_KEY'); if (!key) return;
+    var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/staff?active=eq.true&select=name,email&order=sort_order', {
+      method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true });
+    if (res.getResponseCode() >= 300) return;
+    var rows = JSON.parse(res.getContentText()) || [];
+    if (!rows.length) return;
+    RYONETSU_MEMBERS = rows.map(function (r) { return String(r.name); });
+    MEMBER_EMAILS = {};
+    rows.forEach(function (r) { if (r.email) MEMBER_EMAILS[String(r.email).toLowerCase()] = String(r.name); });
+  } catch (e) { Logger.log('担当者のマスターを読めない（今までの一覧で続ける）: ' + e); }
+}
+// AI に渡す「菱熱の担当者」の説明（苗字と、分かればメールアドレス）
+function membersText_() {
+  var em = Object.keys(MEMBER_EMAILS).map(function (k) { return MEMBER_EMAILS[k] + '=' + k; });
+  return JSON.stringify(RYONETSU_MEMBERS) + (em.length ? '（メールアドレス: ' + em.join('、') + '）' : '');
+}
 
 function cfg_(k, d) {
   var v = PropertiesService.getScriptProperties().getProperty(k);
@@ -114,6 +134,7 @@ function importCaseEmails() {
     var lblOld = getOrCreateLabel_(OLD_LABEL);
     var lblConfirm = getOrCreateLabel_(CONFIRM_LABEL);
     var lblMulti = getOrCreateLabel_(MULTI_LABEL);
+    refreshMembers_();    // 菱熱の担当者（アプリのマスター）
     pruneThreadMemory_(); // 古くなった「やり取り⇔案件」の記録を1日1回掃除
     if (typeof caseMailLabelReplies_ === 'function') caseMailLabelReplies_(); // 通知メールへの返信も取り込む（CaseMail.gs）
     // 取込対象は「直近に届いたメール」だけ。過去メールは遡って登録しない（newer_than:2d＋下の時間ガード）
@@ -244,7 +265,7 @@ function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl, aiOpt
   var sys = [
     'あなたは菱熱工業（シネコン設備の保守・工事会社）の業務アシスタントです。',
     'メールやLINEのやり取り、会議・電話の記録（Plaud の要約）から、菱熱工業のメンバーがこれからやるべき具体的な作業（個人タスク）を拾い出します。JSONのみ出力（前後に文章なし）。',
-    '菱熱工業のメンバー（苗字）: ' + JSON.stringify(RYONETSU_MEMBERS),
+    '菱熱工業のメンバー（苗字）: ' + membersText_(),
     '拾うもの: メンバーが頼まれた・引き受けた・約束した、まだ終わっていない作業。',
     '  例: 資料や見積書を送る／日程を連絡する／発注・手配する／確認して回答する／現地へ行く／書類を作る。',
     '拾わないもの: すでに終わったこと／客先や協力会社など相手側がやること／',
@@ -467,7 +488,7 @@ function parseEmailCases_(emailText, opts) {
     '- intent: "new"＝新しい依頼・新しい仕事 / "progress"＝すでにある仕事の進み具合（日程・見積り提出・完了報告など）',
     '- title: 案件名＝「どこで・どうなった（何をする）」だけ。20字以内。劇場名・会社名・日付・人の名前・「〜の件」「対応」は入れない（例: シアター7空調機冷えない・SCR3 GHP更新工事・ロビートイレ天井水漏れ）。category: 次のいずれか ' + JSON.stringify(CATEGORY_LIST) + '。content: その案件の要点1〜3文（ほかの案件の話は入れない）',
     '- received_date: その案件の依頼の日 YYYY-MM-DD（分からなければ空文字）',
-    '- r_person: 菱熱工業の担当（次のリストの苗字と一致する時だけ。無ければ空文字）' + JSON.stringify(RYONETSU_MEMBERS) + '。tc_person: 客先（劇場・運営会社）の担当の苗字（菱熱工業の人は入れない）。敬称は付けない',
+    '- r_person: 菱熱工業の担当（次のリストの苗字と一致する時だけ。無ければ空文字）' + membersText_() + '。tc_person: 客先（劇場・運営会社）の担当の苗字（菱熱工業の人は入れない）。敬称は付けない',
     '- progress: survey_date=現地調査の日 / quote_date=見積書の提出日 / work_start_date=作業・工事の開始日 / work_end_date=作業・工事の完了日（YYYY-MM-DD。無ければ空文字）。',
     '  note=その案件について一番新しいメッセージで分かった新しい進展だけ1〜3文（経緯の繰り返し・日付の列挙はしない。無ければ空文字）',
     '- confidence: 0〜1（その案件が本当に案件だと言える確かさ）',
