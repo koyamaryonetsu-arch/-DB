@@ -28,6 +28,8 @@ import {
   sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice, sdKeyRewards,
 } from '../data/secret.js';
 import { ensureSdShop } from '../data/secret-shop.js';
+// 第88回 G4班: 作品の 名品が まれに（data/gacha-r88.js）
+import { r88SdExtra } from '../data/gacha-r88.js';
 import {
   SD_THEME, sdPartyMask, SD_CRAFTSMAN, SD_CRAFT_HELLO, SD_FAKE_STAIRS, SD_BOX_EMPTY, SD_BOX_JACK, SD_BOX_HIT, SD_TEA_LINES, SD_CART_LINE,
   SD_KOTATSU_LINE, sdDirText,
@@ -455,7 +457,8 @@ async function chestEvent(run) {
     r.took.push(f);
     const big = !r.mid && !sd.got.includes(f);
     // 第45回: 40階の 四季のこよみ（大事な物。1人 1つ。data/secret.js の sdKeyRewards）
-    const list = [...(big ? sdBigReward(f) : [sdSmallReward(f, world.rng)]), ...sdKeyRewards(f, c)];
+    // 第88回 G4班: 20階からは 作品の 名品（★4）も まれに（今の ごほうびに 足す。data/gacha-r88.js）
+    const list = [...(big ? sdBigReward(f) : [sdSmallReward(f, world.rng)]), ...sdKeyRewards(f, c), ...r88SdExtra(f, world.rng)];
     if (big) sd.got.push(f);
     for (const e of list) {
       if (e.gold) c.gold = Math.min(9999999, (c.gold || 0) + e.gold);

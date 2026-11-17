@@ -66,6 +66,8 @@ import { phantomGot, phantomPeople } from './phantom.js';
 import { monArenaAction } from './monarena.js';
 // 第67回 C: その場の 対戦（world/monarena-live.js）
 import { monLiveAction } from './monarena-live.js';
+// 第88回 G4班: 作品の ガチャガチャ（world/gacha-r88.js）
+import { gachaAction } from './gacha-r88.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -183,6 +185,8 @@ export function serviceAction(world, s, msg) {
     // 第67回 B: モンスター闘技場（world/monarena.js）
     case 'monarena': return monArenaAction(world, s, msg, reply);
     case 'monlive': return monLiveAction(world, s, msg);
+    // 第88回 G4班: 作品の ガチャガチャ（world/gacha-r88.js）
+    case 'gacha': return gachaAction(world, s, msg, reply);
     case 'shop': {
       const shop = SHOPS[s.openShop];
       if (msg.action === 'buy') {

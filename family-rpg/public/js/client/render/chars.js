@@ -13,6 +13,8 @@ import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js';
 import { TOP_NPC_LOOKS } from './ch5-top-art.js';
 import { FAMILY_NPC_LOOKS } from './family-art.js';
 import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js';
+// 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら
+import { paintGachaSpecial } from './gacha-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
@@ -2445,7 +2447,8 @@ export function paintSpecial(kind, dir, f) {
     default: {
       // 第5章: 星の塔・星祭りの かざり（render/ch5-art.js）
       // 第6章: 勇者の像・星の木・ちびアステル・ゼンマイ など（render/ch6-art.js）
-      const c5 = paintCh5Special(kind, dir, f) || paintCh6Special(kind, dir, f);
+      // 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら（render/gacha-art.js）
+      const c5 = paintCh5Special(kind, dir, f) || paintCh6Special(kind, dir, f) || paintGachaSpecial(kind, dir, f);
       return c5 ? fine(c5.p, c5.oc) : null;
     }
   }

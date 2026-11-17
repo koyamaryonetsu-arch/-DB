@@ -22,6 +22,7 @@ import { starsOf, rareIds, pickTmGear, pickSdGear } from '../public/js/shared/da
 import { chestLoot } from '../public/js/shared/data/treasure.js';
 import { sdBigReward, sdSmallReward } from '../public/js/shared/data/secret.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
+import { gachaBlock } from '../public/js/shared/data/gacha-r88.js';
 import { salvageBlock } from '../public/js/shared/data/salvage.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -115,7 +116,8 @@ test('第88回: 強さ（伝説 ＝ ★5・その 種類の 今 いちばん 強
   assert.equal(Math.max(...whips.map((it) => it.atk)), ITEMS.r88_raikoben.atk);
   // 店の 品（木刀）は 店の 強さ・売っていない
   assert.ok(ITEMS.r88_bokuto.price > 0 && ITEMS.r88_bokuto.rank === 1);
-  for (const s of Object.values(SHOPS)) for (const id of [...(s.items || []), ...(s.more || []).flatMap((m) => m.items || [])]) assert.ok(!isR88(id), `店に ${id}`);
+  // 第88回 G4班: 店に ならぶのは 格が「店」の 品（木刀）だけ
+  for (const s of Object.values(SHOPS)) for (const id of [...(s.items || []), ...(s.more || []).flatMap((m) => m.items || [])]) assert.ok(!isR88(id) || ITEMS[id].grade === 'shop', `店に ${id}`);
   // 売り値・分解（伝説・使う 品は 分解 できない）
   for (const id of R88_IDS) if (ITEMS[id].grade !== 'shop') assert.ok(ITEMS[id].sell > 0, id);
   assert.ok(salvageBlock('r88_raikoben'));
@@ -402,7 +404,8 @@ test('第88回: 今の レアの 入れ物（宝の洞窟・ひみつのダン�
       for (let i = 0; i < 12; i++) {
         for (const theme of ['earth', 'ice', 'lava']) {
           const out = chestLoot(rng, lv, kind, { theme, word: '大地' });
-          for (const x of [].concat(out || [])) if (x?.item) assert.ok(!isR88(x.item), `宝の洞窟 Lv${lv}: ${x.item}`);
+          // 第88回 G4班: 地図 Lv26 からは ガチャに 入る 名品（★4）だけ まれに（data/gacha-r88.js の r88TmLoot）
+          for (const x of [].concat(out || [])) if (x?.item) assert.ok(!isR88(x.item) || (lv >= 26 && ITEMS[x.item].grade === 'mei' && !gachaBlock(x.item)), `宝の洞窟 Lv${lv}: ${x.item}`);
         }
       }
     }

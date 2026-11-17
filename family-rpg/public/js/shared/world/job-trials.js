@@ -14,6 +14,8 @@ import { STAT_NAMES } from '../stats.js';
 import { startFixedBattle, battleSessions } from './battles.js';
 import { partyOf } from './party.js';
 import { setupTrialPhantom } from '../battle-trial.js';
+// 第88回 G4班: 試練の ごほうび（world/gacha-r88.js）
+import { trialGiftSteps } from './gacha-r88.js';
 
 const say = (text) => ['say', TRIAL_KEEPER, text];
 const note = (text) => ['say', null, text];
@@ -47,6 +49,8 @@ export async function keeperTalk(run) {
     );
     c.flags.trial_seen = true;
   }
+  // 第88回 G4班: もう 一の試練を こえて いる 人に、作品の ごほうび（works.js の trialGift。world/gacha-r88.js）
+  steps.push(...trialGiftSteps(c, TRIAL_KEEPER));
   if (st.why === 'tier') {
     const tier = JOBS[id]?.tier || 0;
     steps.push(say(`${c.name}は今、${J}（${TIER_NAMES[tier]}）じゃな。\n試練は、超級職か伝説の職業でないと受けられぬ。`), say('上の職業をきわめたら、また来るがよい。'));
@@ -163,6 +167,8 @@ export async function trialBattle(run, id, n) {
     w.markDirty();
     const lines = [['sfx', 'win'], note(`${c.name}は、${trialName(id, n, c)}をこえた！`)];
     if (r) lines.push(note(`${jobLabel(id, c)}の職業レベルの上限が、Lv${r.cap}になった！`));
+    // 第88回 G4班: 一の試練の ごほうび（works.js の trialGift）
+    lines.push(...trialGiftSteps(c, TRIAL_KEEPER));
     lines.push(say(`見事じゃ。${masterName(id, c)}も、\nきっと、よろこんでおるじゃろう。`));
     if (r && r.cap < jobTopCap(id)) lines.push(say(`職業レベルが${r.cap}になったら、\n次の試練を受けに来るがよい。`));
     else lines.push(say(`これで${jobLabel(id, c)}の試練は、すべてこえた。\nLv${r?.cap || jobTopCap(id)}をめざして、きたえるがよい。`));

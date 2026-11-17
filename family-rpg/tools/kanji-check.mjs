@@ -537,6 +537,8 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-yaiba.js', 'public/js/shared/data/items-r88-houshin.js', 'public/js/shared/data/abilities-r88.js',
     'public/js/shared/gear-r88.js', 'public/js/shared/gear-r88-view.js', 'public/js/shared/battle-r88.js', 'public/js/client/render/battlefx-r88.js',
     'public/js/shared/data/gear-fx.js',
+    // 第88回 G4班: 作品の ガチャガチャ・七つの玉・竜神の ほこら・試練の ごほうび
+    'public/js/shared/data/gacha-r88.js', 'public/js/shared/world/gacha-r88.js', 'public/js/shared/maps/gacha-r88.js', 'public/js/client/ui/gacha-r88.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

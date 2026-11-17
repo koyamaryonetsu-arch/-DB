@@ -43,6 +43,8 @@ import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js';
 // 第67回 A班: モンスター闘技場の 人（story-monarena-a.js）
 import { MONARENA_A_SCRIPTS } from './story-monarena-a.js';
 import { TRIAL_SCRIPTS } from './story-trials.js';
+// 第88回 G4班: 作品の ガチャガチャ・竜神の ほこら
+import { GACHA_R88_SCRIPTS } from '../world/gacha-r88.js';
 import { applyTownHints } from './secret-hints.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
@@ -662,3 +664,6 @@ export { comboUnlocked };
 
 // 第67回 A班: モンスター闘技場（ルミナの町の 東門の 外。受付・観客。ひとりずつ）
 Object.assign(SCRIPTS, MONARENA_A_SCRIPTS);
+
+// 第88回 G4班: 作品の ガチャガチャ・竜神の ほこら（world/gacha-r88.js。ひとりずつ）
+Object.assign(SCRIPTS, GACHA_R88_SCRIPTS);
