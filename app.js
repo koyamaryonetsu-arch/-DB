@@ -67,7 +67,8 @@
     'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
     'customer_memo', 'last_update_source', 'created_at', 'updated_at', 'title',   // title=案件名（客先にも見せる）
-    'survey_adjusting'   // 調査日調整中（客先にも「調整中」と出す）
+    'survey_adjusting',   // 調査日調整中（客先にも「調整中」と出す）
+    'origin', 'initial_report_at', 'due_exempt'   // 行の色（黄＝初動報告前・赤＝見積り遅れ。期日免除なら赤にしない）を客先の画面でも同じにする。免除の理由は渡さない
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
@@ -1943,7 +1944,7 @@
   }
   function rowColorClass(c) {
     const st = statusOf(c);
-    if (st === '見積り提出済') return 'row-blue';
+    if (st === '見積り提出済') return isPrivileged(currentUser) ? 'row-blue' : '';   // 客先の画面は赤・黄・オレンジだけ（2026-11-18 小山さん）
     if (st === '保留' || st === '日程調整中' || st === '客先対応中' || NO_COLOR_STATUSES.has(st) || TERMINAL_LIKE_STATUSES.has(st)) return '';
     if (!DELAY_CATEGORIES.has(c.category)) return '';
     // 「繰越」の案件（保守の契約など）は遅れの色を付けない（2026-11-17 小山さん）
@@ -2283,7 +2284,14 @@
   const LEGEND_KEY = 'colorLegendOpenV1';
   function renderColorLegend() {
     const box = $('colorLegend'); if (!box) return;
-    if (!isPrivileged(currentUser)) { box.innerHTML = ''; return; }
+    if (!isPrivileged(currentUser)) {
+      // 客先: 赤・黄・オレンジの意味だけ（ほかの行の色は付けない）
+      box.innerHTML = `<span class="cl-h">行の色</span>
+        <span class="cl-item"><span class="swatch cl-red"></span>赤＝見積り遅れ（現地調査の翌日から平日3日を過ぎても、見積りが未提出）</span>
+        <span class="cl-item"><span class="swatch cl-yellow"></span>黄＝初動対応・区分判定のご報告前</span>
+        <span class="cl-item"><span class="swatch cl-orange"></span>オレンジ＝調査日が未定（受付から平日3日を過ぎている）</span>`;
+      return;
+    }
     let open = true; try { open = localStorage.getItem(LEGEND_KEY) !== '0'; } catch (e) {}
     if (!open) { box.innerHTML = '<button type="button" class="cl-toggle" data-cltoggle="1" title="行の色・ステータスの色の意味を出します">🎨 色の凡例 ▸</button>'; return; }
     const rows = [['cl-red', '見積り遅れ'], ['cl-yellow', '初動報告まだ'], ['cl-orange', '調査日未定'], ['cl-blue', '見積り提出済']];
@@ -3068,7 +3076,9 @@
         : `<td class="toho-empty" data-colkey="certNumber" data-label="承認番号">—</td>`;
 
       tr.innerHTML = `
-        <td class="col-edit" data-colkey="edit" data-label="編集"><button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件のすべての項目を編集" aria-label="編集">✎<span class="edit-lbl"> 編集</span></button>${bellHtml(c)}</td>
+        <td class="col-edit" data-colkey="edit" data-label="${isPrivileged(currentUser) ? '編集' : '見る'}">${isPrivileged(currentUser)
+          ? `<button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件のすべての項目を編集" aria-label="編集">✎<span class="edit-lbl"> 編集</span></button>`
+          : `<button type="button" class="row-edit-btn row-view-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件を見る（自社のメモは書き込めます）" aria-label="見る">👁<span class="edit-lbl"> 見る</span></button>`}${bellHtml(c)}</td>
         ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
@@ -3301,10 +3311,10 @@
     const cfg = EDITABLE_FIELDS[field];
     if (!cfg) return;
     if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
+    // ポップアップ項目は、編集できない場合でも「閲覧用」として開く（客先の「内容」も全文が読めるように）
+    if (cfg.type === 'popup' && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ')) { openContentModal(c, field); return; }
     if (!isPrivileged(currentUser) && field !== 'customerMemo') return;   // 客先は「自社のメモ」だけ
     if (cfg.tohoOnly && c.company !== 'TOHOシネマズ') return;
-    // ポップアップ項目は、編集できない場合でも「閲覧用」として開く（全文が読めるように）
-    if (cfg.type === 'popup') { openContentModal(c, field); return; }
     if (cfg.readonlyForCustomer && !isPrivileged(currentUser)) return; // 内容は客先は閲覧のみ
 
     const oldVal = c[field] != null ? c[field] : '';
@@ -7211,7 +7221,7 @@
       const id = actEl.dataset.id;
       const c = cases.find((x) => x.id === id);
       if (!c) return;
-      if (action === 'edit') { if (needsInitialReport(c)) openInitialReport(c); else openModalGuarded(c, 'full'); }
+      if (action === 'edit') { if (isPrivileged(currentUser) && needsInitialReport(c)) openInitialReport(c); else openModalGuarded(c, 'full'); }
       // 二重の可能性バッジ: 相手の案件を見るか、疑いを解除するか
       else if (action === 'dup-open') {
         e.stopPropagation();
@@ -7275,7 +7285,7 @@
       return;
     }
     if (nameClickTimer) { clearTimeout(nameClickTimer.t); nameClickTimer = null; }
-    if (needsInitialReport(c)) { openInitialReport(c); return; }
+    if (isPrivileged(currentUser) && needsInitialReport(c)) { openInitialReport(c); return; }
     startInlineEdit(td, c, td.dataset.field);
   });
 
