@@ -172,7 +172,7 @@ test('ガチャ: まだ 持って いない 品だけが 出る（同じ 品は 
 });
 
 test('ガチャ: のこりが なくなるまで 回すと 全部 そろう。どの 作品も 品の 数 × 20000G（YAIBA 10万G・スレイヤーズ 32万G・烈火の炎 62万G・ほう神演義 70万G）', () => {
-  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000, naruto: 540000, kimetsu: 500000, dragonball: 360000, onepiece: 540000, kenshin: 380000, conan: 380000, kaito: 140000, doraemon: 480000, sailormoon: 460000, hagaren: 340000, frozen: 340000, dai: 260000, dq: 340000, harrypotter: 580000, mario: 520000, pokemon: 400000 }; // G16班: ポケモン / // G13班: ハリー・ポッター・マリオ / // G15班: ダイの大冒険・ドラゴンクエスト // G11班: るろうに剣心・コナン・快と // G8班: らんま1/2・ぬ〜べ〜 / G10班: ナルト・きめつのやいば / G9班: ドラゴンボール・ワンピース / G12班: ドラえもん・セーラームーン
+  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000, naruto: 540000, kimetsu: 500000, dragonball: 360000, onepiece: 540000, kenshin: 380000, conan: 380000, kaito: 140000, doraemon: 480000, sailormoon: 460000, hagaren: 340000, frozen: 340000, dai: 260000, dq: 340000, harrypotter: 580000, mario: 520000, pokemon: 400000, spyfamily: 220000, original: 320000 }; // G19班: SPY×FAMILY・オリジナル / G16班: ポケモン / // G13班: ハリー・ポッター・マリオ / // G15班: ダイの大冒険・ドラゴンクエスト // G11班: るろうに剣心・コナン・快と // G8班: らんま1/2・ぬ〜べ〜 / G10班: ナルト・きめつのやいば / G9班: ドラゴンボール・ワンピース / G12班: ドラえもん・セーラームーン
   for (const w of gachaWorks()) {
     const p = gachaPool(w);
     assert.equal(p.all.length * GACHA_PRICE, want[w], w);
