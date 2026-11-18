@@ -394,6 +394,67 @@ Object.assign(R88_ABILITIES, {
   },
 });
 
+// ───── G10班: ナルト・きめつのやいば（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+Object.assign(R88_ABILITIES, {
+  // ── ナルト ──
+  r88u_nr_kibaku: {
+    name: '起爆札・ばくはつ', kana: 'きばくふだばくはつ', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [110, 125], thr: 70 },
+    desc: 'お札をまいたクナイを投げて、同じ種類の敵みんなの近くで、ばくはつさせる。', cast: '{a}は、お札をまいたクナイを投げた！', anim: 'blast2',
+  },
+  r88u_nr_kuchiyose: {
+    name: '口寄せ・大ガマ', kana: 'くちよせおおがま', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.7 },
+    desc: '大きなガマをよび出して、敵全体をおしつぶす。', cast: '{a}がまき物に手をつくと、けむりの中から大きなガマがあらわれた！', anim: 'quake',
+  },
+  r88u_nr_basho: {
+    name: 'うちわの五つの力', kana: 'うちわのいつつのちから', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'random', options: ['r88u_nr_basho_fire', 'r88u_nr_basho_bolt', 'r88u_nr_basho_wind'] },
+    desc: '大きなうちわをあおいで、炎・雷・風のどれかを、敵全体にふき出す。', cast: '{a}は、ばしょうせんを大きくふりかぶった！', anim: 'none',
+  },
+  r88u_nr_basho_fire: {
+    name: '炎のうちわ', kana: 'ほのおのうちわ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [150, 175], thr: 80 },
+    desc: 'ばしょうせんから炎をふき出して、敵全体をつつむ。', cast: 'ばしょうせんから、大きな炎がふき出した！', anim: 'r88_basho',
+  },
+  r88u_nr_basho_bolt: {
+    name: '雷のうちわ', kana: 'かみなりのうちわ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [150, 175], thr: 80 },
+    desc: 'ばしょうせんから雷をふき出して、敵全体をうつ。', cast: 'ばしょうせんから、雷がほとばしった！', anim: 'r88_basho',
+  },
+  r88u_nr_basho_wind: {
+    name: '風のうちわ', kana: 'かぜのうちわ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [150, 175], thr: 80 },
+    desc: 'ばしょうせんから大風をふき出して、敵全体をふきとばす。', cast: 'ばしょうせんから、大風がふきあれた！', anim: 'r88_basho',
+  },
+  r88u_nr_benihyoutan: {
+    name: '紅ひょうたん・すいこみ', kana: 'べにひょうたんすいこみ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.85, turns: [2, 2] },
+    desc: '口ぐせを言わせてすいこみ、敵1体を2回の間動けなくする（大きな敵にはききにくい）。', cast: '{a}は、紅ひょうたんのふたを開けた！', anim: 'whirlpool',
+  },
+  r88u_nr_kohaku: {
+    name: 'こはくのじょうへい・よびかけ', kana: 'こはくのじょうへいよびかけ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.7, turns: [1, 3] },
+    desc: '名前をよんで、返事をした敵1体をすいこみ、ねむらせる。', cast: '{a}は、{t}の名前をよんだ！', anim: 'sleep',
+  },
+  r88u_nr_totsuka: {
+    name: 'とつかの剣・夢のふういん', kana: 'とつかのけんゆめのふういん', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'banish', chance: 0.6, msg: '{t}は夢の世界にふうじられた！', failMsg: '{t}はふうじられずにふみこらえた！' },
+    desc: '敵1体をさして、夢の世界にふうじ、戦いから外す（大きな敵にはきかない）。', cast: '{a}のとつかの剣が、まぼろしの光をはなった！', anim: 'void',
+  },
+  // ── きめつのやいば ──
+  r88u_km_oto: {
+    name: '音の日輪刀・火薬玉', kana: 'おとのにちりんとうかやくだま', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.8, element: 'fire' },
+    desc: '火薬玉をまいて、二本の刀でたたき、同じ種類の敵みんなを音とばくはつでつつむ。', cast: '{a}は、火薬玉をまいて二本の刀をふりぬいた！', anim: 'blast2',
+  },
+  r88u_km_kakuto: {
+    name: '赤い日輪刀・炎の一げき', kana: 'あかいにちりんとうほのおのいちげき', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.4, element: 'fire' },
+    desc: '刀をまっ赤にそめて、敵1体に炎の一げき。', cast: '{a}の日輪刀が、まっ赤にそまった！', anim: 'r88_kakuto',
+  },
+});
+
 // ───── G9班: ドラゴンボール・ワンピース（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
 //   天候棒の 4つ（r88u_op_cyclone・thunderbolt・raiun・zeus）と、天候の 職業が 持つ 時の 晴れ（mirage）・雨（rain）は
 //   品の use.weather で えらぶ（shared/battle-r88.js の useAbilityOf）

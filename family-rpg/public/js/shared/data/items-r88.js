@@ -17,9 +17,12 @@ import { ITEMS_R88_YUHAKU, R88_YUHAKU_KANA, R88_REBIRTH_YUHAKU } from './items-r
 // 第88回 G8班: らんま1/2・地獄先生ぬ〜べ〜
 import { ITEMS_R88_RANMA, R88_RANMA_KANA, R88_REBIRTH_RANMA } from './items-r88-ranma.js';
 import { ITEMS_R88_NUBE, R88_NUBE_KANA, R88_REBIRTH_NUBE } from './items-r88-nube.js';
-// 第88回 G9班: ドラゴンボール・ワンピース（old … 今 ある 品に 作品を つける。tagR88Old）
-import { ITEMS_R88_DRAGONBALL, R88_DRAGONBALL_KANA, R88_REBIRTH_DRAGONBALL, R88_OLD_DRAGONBALL } from './items-r88-dragonball.js';
-import { ITEMS_R88_ONEPIECE, R88_ONEPIECE_KANA, R88_REBIRTH_ONEPIECE, R88_OLD_ONEPIECE } from './items-r88-onepiece.js';
+// 第88回 G10班: ナルト・きめつのやいば（tag … 今 ある 品を 作品の 品として 数える）
+import { ITEMS_R88_NARUTO, R88_NARUTO_KANA, R88_REBIRTH_NARUTO, R88_TAG_NARUTO } from './items-r88-naruto.js';
+import { ITEMS_R88_KIMETSU, R88_KIMETSU_KANA, R88_REBIRTH_KIMETSU, R88_TAG_KIMETSU } from './items-r88-kimetsu.js';
+// 第88回 G9班: ドラゴンボール・ワンピース（tag … 今 ある 品を 作品の 品として 数える。G10班の tagR88Works）
+import { ITEMS_R88_DRAGONBALL, R88_DRAGONBALL_KANA, R88_REBIRTH_DRAGONBALL, R88_TAG_DRAGONBALL } from './items-r88-dragonball.js';
+import { ITEMS_R88_ONEPIECE, R88_ONEPIECE_KANA, R88_REBIRTH_ONEPIECE, R88_TAG_ONEPIECE } from './items-r88-onepiece.js';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
@@ -32,9 +35,12 @@ const R88_PARTS = [
   // G8班: らんま1/2・地獄先生ぬ〜べ〜
   { items: ITEMS_R88_RANMA, kana: R88_RANMA_KANA, rebirth: R88_REBIRTH_RANMA },
   { items: ITEMS_R88_NUBE, kana: R88_NUBE_KANA, rebirth: R88_REBIRTH_NUBE },
+  // G10班: ナルト・きめつのやいば
+  { items: ITEMS_R88_NARUTO, kana: R88_NARUTO_KANA, rebirth: R88_REBIRTH_NARUTO, tag: R88_TAG_NARUTO },
+  { items: ITEMS_R88_KIMETSU, kana: R88_KIMETSU_KANA, rebirth: R88_REBIRTH_KIMETSU, tag: R88_TAG_KIMETSU },
   // G9班: ドラゴンボール・ワンピース
-  { items: ITEMS_R88_DRAGONBALL, kana: R88_DRAGONBALL_KANA, rebirth: R88_REBIRTH_DRAGONBALL, old: R88_OLD_DRAGONBALL },
-  { items: ITEMS_R88_ONEPIECE, kana: R88_ONEPIECE_KANA, rebirth: R88_REBIRTH_ONEPIECE, old: R88_OLD_ONEPIECE },
+  { items: ITEMS_R88_DRAGONBALL, kana: R88_DRAGONBALL_KANA, rebirth: R88_REBIRTH_DRAGONBALL, tag: R88_TAG_DRAGONBALL },
+  { items: ITEMS_R88_ONEPIECE, kana: R88_ONEPIECE_KANA, rebirth: R88_REBIRTH_ONEPIECE, tag: R88_TAG_ONEPIECE },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));
@@ -75,14 +81,20 @@ export function fitR88Legends(table) {
     const key = legendKey(it);
     if (key && top[key]) it[legendStat(it)] = top[key];
   }
+  tagR88Works(table); // G10班: 今 ある 品に 作品を つける（いちばんを 決めた あと）
   return table;
 }
 
-// 第88回 G9班: 今 ある 品に 作品を つける（R88_PARTS の old: { 品の id: 作品の id }。強さ・手に入れ方・値段は かえない）
-//   とびらの 数（作品の 品を 3つ）に 入る。ガチャには 入らない（格が ない）。伝説の 数字（fitR88Legends）は もとの まま
-//   items.js が fitR88Legends の あとに よぶ
-export const R88_OLD_WORK = Object.assign({}, ...R88_PARTS.map((p) => p.old || {}));
-export function tagR88Old(table) {
-  for (const [id, w] of Object.entries(R88_OLD_WORK)) if (table[id] && !table[id].work) table[id].work = w;
+// ───── G10班: 今 ある 品を 作品の 品として 数える（R88_PARTS の tag。{ 品の id: 作品 }）─────
+//   とびらの 数・ガチャの「持って いる」・せつめいの「作品：」に 入る。強さ・手に入れ方（店・宝の 入れ物）は かえない
+//   r88Tag … 前から ある 品の しるし（格〈grade〉が ないので ガチャには 入らない。テストで 作品の 新しい 品と 分ける）
+export const R88_WORK_TAGS = Object.assign({}, ...R88_PARTS.map((p) => p.tag || {}));
+export function tagR88Works(table) {
+  for (const [id, w] of Object.entries(R88_WORK_TAGS)) {
+    const it = table[id];
+    if (!it || it.work || it.base) continue;
+    it.work = w;
+    it.r88Tag = true;
+  }
   return table;
 }

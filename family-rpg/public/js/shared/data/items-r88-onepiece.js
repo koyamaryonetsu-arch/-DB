@@ -6,7 +6,7 @@
 //     4だんめへは ビッグ・マムの まぼろしに 勝って いる こと（need.rivals）
 //   ・三刀流 … ゾロの 刀を 3本 持って いると、どれを つけても 追撃（そろい santoryu）
 //   ・悪魔の実 … 力が 大きく 上がり、氷に 弱く なる（作品では 海に 弱い）
-//   ・今 ある 麦わらぼうしにも 作品を つけた（R88_OLD_ONEPIECE。強さ・手に入れ方は かえない）
+//   ・今 ある 麦わらぼうしにも 作品を つけた（R88_TAG_ONEPIECE。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（鬼 → おに・閻魔 → えんま・衝撃 → しょうげき・海楼石 → 海ろう石 など。設計書の「実装メモ（G9班）」）
 //   入れない 品: 古代兵器・フランキーの 武器（設計書 3-2）
 import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js';
@@ -71,10 +71,10 @@ export const R88_REBIRTH_ONEPIECE = {
   r88_op_tact1: { to: 'r88_op_tact2', at: 3, gold: 8000, mats: [['star_shard', 6], ['wind_feather', 5]] },
   r88_op_tact2: { to: 'r88_op_tact3', at: 4, gold: 12000, mats: [['star_shard', 8], ['magic_powder', 5]] },
   r88_op_tact3: { to: 'r88_op_tact4', keep: true, gold: 30000, mats: [['star_shard', 12], ['dragon_scale', 5], ['limit_stone', 2]], need: { rivals: ['op_bigmom'] } },
-  r88_op_kabuto: { to: 'r88_op_kurokabuto', gold: 12000, mats: [['star_shard', 8], ['beast_fang', 5]] },
+  r88_op_kabuto: { to: 'r88_op_kurokabuto', gold: 20000, mats: [['star_shard', 10], ['beast_fang', 5]] },
 };
-// 今 ある 品に 作品を つける（強さ・手に入れ方は かえない。items-r88.js の tagR88Old）
-export const R88_OLD_ONEPIECE = { straw_hat: 'onepiece' };
+// 今 ある 品に 作品を つける（強さ・手に入れ方は かえない。items-r88.js の tagR88Works）
+export const R88_TAG_ONEPIECE = { straw_hat: 'onepiece' };
 
 export const R88_ONEPIECE_KANA = {
   r88_op_vest: 'あかいべすと', r88_op_wado: 'わどういちもんじ', r88_op_kitetsu: 'さんだいおにてつ', r88_op_yubashiri: 'ゆばしり', r88_op_shusui: 'しゅうすい',

@@ -248,6 +248,56 @@ for (const k of Object.keys(G8_FX)) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_onite: 540, r88_kaen: 760, r88_hanabi: 460 });
 Object.assign(R88_SFX, { r88_onite: 'blast', r88_kaen: 'fire', r88_hanabi: 'blast' });
 
+// ───── G10班: ナルト・きめつのやいば（G8班の 表に まぜる。playR88Fx は さわらない）─────
+//  r88_kakuto  赤く光る日輪刀 … 刀が まっ赤に そまって 光り、炎を まとった 大きな 3つの 切りすじが 敵1体を 切る → 赤い 火の 輪
+//  r88_basho   ばしょうせん … 大きな うちわの 形の 風の うずが 画面を 横切り、炎・雷・風の 色の すじが 敵みんなを ふきぬける
+const KAKU = ['#ffffff', '#ffe0c0', '#ff5a2a', '#c81a1a'];
+function kakuto(fx, targets, W, H) {
+  fx.tintAt('rgba(40,0,0,0.45)', 1000);
+  const t = targets[0] || { x: W * 0.4, y: H * 0.45 };
+  // 刀が 赤く そまる（下から 赤い 光が あつまる）
+  fx.converge(t.x - 30, t.y + 60, { colors: KAKU, n: 18, r: 36, delay: 0, life: 300 });
+  fx.glow(t.x - 30, t.y + 60, { color: '#ff3a1a', r: 20, delay: 180, life: 320 });
+  // 炎を まとった 3つの 切りすじ
+  const cuts = [[[-40, -30], [0, -2], [38, 30]], [[40, -32], [0, 0], [-36, 30]], [[-46, 4], [0, -4], [46, -2]]];
+  cuts.forEach((c, i) => {
+    const d = 380 + i * 130;
+    fx.swipe([t.x + c[0][0], t.y + c[0][1]], [t.x + c[1][0], t.y + c[1][1]], [t.x + c[2][0], t.y + c[2][1]], { w: 7 - i, color: '#ffb080', glow: '#ff2a1a', core: '#ffffff', delay: d, swing: 110, life: 380, after: 2 });
+    for (let k = 0; k < 4; k++) fx.puff(t.x + c[1][0] + (k - 1.5) * 12, t.y + c[1][1], { color: k % 2 ? '#ff7a2a' : '#ff3a1a', r0: 4, r1: 13, vy: -30, delay: d + 60, life: 460, add: true });
+  });
+  fx.flashAt(110, '#ffd0b0', 640);
+  fx.shock(t.x, t.y, { r0: 6, r1: 56, color: '#ff5a2a', w: 3.5, delay: 660, life: 420 });
+  fx.sparks(t.x, t.y, { colors: KAKU, n: 30, speed: 160, delay: 670, life: 480, g: -40 });
+  fx.hitStop(160, 660, 1.6);
+  return true;
+}
+const BASHO = [['#ffffff', '#ffd040', '#ff5a1a'], ['#ffffff', '#fff6b0', '#c890ff'], ['#ffffff', '#e8fff0', '#4ad890']];
+function basho(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  fx.tintAt('rgba(10,20,30,0.35)', 1100);
+  // 大きな うちわの ひとあおぎ（左から 右へ ひろがる 3色の すじ）
+  for (let k = 0; k < 14; k++) {
+    const col = BASHO[k % 3];
+    const y = c.y - 40 + k * 6 + rnd(-3, 3);
+    const d = 120 + k * 30;
+    fx.swipe([-10, y + 20], [c.x - 30, y], [W + 10, y - 16], { w: 3, color: col[1], glow: col[2], core: col[0], delay: d, swing: 260, life: 420, after: 1 });
+  }
+  // 敵みんなの まわりで うず
+  targets.forEach((t, i) => {
+    const d = 560 + i * 70;
+    const col = BASHO[i % 3];
+    fx.shock(t.x, t.y, { r0: 4, r1: 40, color: col[2], w: 2.5, delay: d, life: 420 });
+    fx.sparks(t.x, t.y, { colors: col, n: 18, speed: 130, spread: Math.PI * 2, delay: d + 30, life: 460 });
+  });
+  fx.flashAt(90, '#ffffff', 560);
+  fx.hitStop(110, 600, 1.2);
+  return true;
+}
+Object.assign(G8_FX, { r88_kakuto: kakuto, r88_basho: basho });
+for (const k of ['r88_kakuto', 'r88_basho']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_kakuto: 680, r88_basho: 600 });
+Object.assign(R88_SFX, { r88_kakuto: 'fire', r88_basho: 'wind' });
+
 // ───── G9班: ドラゴンボール・ワンピース（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
 //  r88_zeus  ゼウスの 天候棒・雷げき（ナミ）／カイドウ・ビッグ・マムの 大技 … 空が まっくらに なり、
 //            まるい 雷雲（白い 目の ついた ゼウス）が ふくらんで、敵 みんなに 太い 金色の いなずまが 何本も 落ちる

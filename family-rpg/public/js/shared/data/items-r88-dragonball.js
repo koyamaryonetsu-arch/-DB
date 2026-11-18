@@ -3,7 +3,7 @@
 //   ・ドラゴンボール 7つ（一星球〜七星球。名品の アクセ。小さな 力）… 世界の 7つの 宝箱に 1つずつ。7つ そろえて 星見の丘の
 //     さいだんで 神龍を よぶと、ねがいを 1つ（作品の 名品から 好きな 品を 1つ。data/shenron-r88.js）
 //   ・ポタラ … 2人が 1つずつ つけると、戦いの 間 みんなの 力と 魔力が 上がる（そろい potara。rule party）
-//   ・今 ある 品（サイヤ人の戦闘服・にょいぼう・きんと雲のかけら）にも 作品を つけた（R88_OLD_DRAGONBALL。強さ・手に入れ方は かえない）
+//   ・今 ある 品（サイヤ人の戦闘服・にょいぼう・きんと雲のかけら）にも 作品を つけた（R88_TAG_DRAGONBALL。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（亀仙流 → かめせん流・封 → ふう・仙豆 → せん豆・緊急 → きん急 など。設計書の「実装メモ（G9班）」）
 //   入れない 品: 超神水・ニセの 超聖水（設計書 3-1）
 import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js';
@@ -48,7 +48,7 @@ const GEAR = {
   r88_db_beerus: { ...acc('mei'), ...D, name: 'はかい神の首かざり', fx: [{ k: 'res_dark', v: 5 }], bonus: { mag: 10 }, desc: 'ねむってばかりの、ネコのような神様の首かざり。攻撃魔力が上がり、闇に強い。' },
   // ───── 伝説 ─────
   r88_db_zsword: { ...weapon('sword', 'den'), ...D, name: 'Zソード', fx: [{ k: 'atk', v: 8 }], bonus: { str: 30, agi: -16 }, look: 'great', desc: 'かい王神の星の岩にささっていた、とても重い伝説の剣。ぬけるのは、とても強い者だけ。力がとても上がるが、素早さが下がる。' },
-  r88_db_potara: { ...acc('den'), ...D, set: 'potara', bonus: { str: 24, mag: 24, hp: 40 }, name: 'ポタラ', desc: 'かい王神の耳かざり。力と魔力が大きく上がる。2人が1つずつつけると、戦いの間、力と魔力がもっと上がる。' },
+  r88_db_potara: { ...acc('den'), ...D, set: 'potara', bonus: { str: 60, mag: 60, hp: 90, agi: 30 }, name: 'ポタラ', desc: 'かい王神の耳かざり。力と魔力が大きく上がる。2人が1つずつつけると、戦いの間、力と魔力がもっと上がる。' },
   r88_db_whis: { ...weapon('staff', 'den'), ...D, name: '天使のつえ', fx: [{ k: 'mpregen', v: 6 }], bonus: { mag: 24, heal: 20, agi: 10 }, use: { ability: 'r88u_db_whis' }, look: 'ankh', desc: 'はかい神のおともの天使のつえ。てっぺんに光る玉がうかぶ。行動するたびにMPが少し回復する。使うと、時を3分もどして、自分のHPとMPを元にもどす。' },
 };
 // ドラゴンボール 7つ（そろいの 組）
@@ -64,8 +64,8 @@ priceUp(GEAR, { r88_db_seiryu: 90 });
 export const ITEMS_R88_DRAGONBALL = GEAR;
 // 生まれ変わりは ない
 export const R88_REBIRTH_DRAGONBALL = {};
-// 今 ある 品に 作品を つける（強さ・手に入れ方は かえない。items-r88.js の tagR88Old）
-export const R88_OLD_DRAGONBALL = { battle_suit: 'dragonball', nyoibo: 'dragonball', kinto_cloud: 'dragonball' };
+// 今 ある 品に 作品を つける（強さ・手に入れ方は かえない。items-r88.js の tagR88Works）
+export const R88_TAG_DRAGONBALL = { battle_suit: 'dragonball', nyoibo: 'dragonball', kinto_cloud: 'dragonball' };
 
 export const R88_DRAGONBALL_KANA = {
   r88_db_seiryu: 'せいりゅうとう', r88_db_kamegi: 'かめせんりゅうのどうぎ', r88_db_koura: 'おもいこうら', r88_db_omori: 'おもいりすとばんどとくつ',
