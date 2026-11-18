@@ -25,7 +25,7 @@ export const R88B_WEAPON_LOOK = {
   r88_pk_superball: { shape: 'ball', top: '#2a62d8', pat: 'stripes', patc: '#e8302a' },
   r88_pk_hyperball: { shape: 'ball', top: '#24222c', pat: 'h', patc: '#ffd23a' },
   r88_pk_masterball: { shape: 'ball', top: '#7a3ac8', pat: 'master', patc: '#ff7ac8' },
-  r88_sm_glaive: { shape: 'glaive', len: 11.0, fx: 'dark' },
+  r88_sm_glaive: { shape: 'glaive', len: 8.8, fx: 'dark' },
   r88_ab_matoi: { shape: 'matoi', len: 10.0 },
 };
 
@@ -290,9 +290,9 @@ function ball(cv, W, F) {
 }
 
 // ───────────── やり ─────────────
-function pole(cv, F, L, c, collar) {
+function pole(cv, F, L, c, collar, w = 0.6) {
   cv.part({ ol: 'line' });
-  cv.poly(F.P([[-12, -0.6], [L - 1.6, -0.6], [L - 1.6, 0.6], [-12, 0.6]]), leather(c), { n: 'row', cx: 0.75 });
+  cv.poly(F.P([[-12, -w], [L - 1.6, -w], [L - 1.6, w], [-12, w]]), leather(c), { n: 'row', cx: 0.75 });
   const id = cv.cur;
   cv.crease(F.P([[1.5, -0.6], [1.5, 0.6]]), 0.22, -0.4, { parts: [id] });
   cv.crease(F.P([[-1.7, -0.6], [-1.7, 0.6]]), 0.22, -0.4, { parts: [id] });
@@ -301,26 +301,32 @@ function pole(cv, F, L, c, collar) {
     cv.poly(F.P([[L - 2.4, -0.95], [L - 1.2, -0.95], [L - 1.2, 0.95], [L - 2.4, 0.95]]), metal(collar), { n: 'row', cx: 0.6 });
   }
 }
-// サイレンス・グレイブ: 長い 柄の 先に、大きく そった 黒むらさきの やいば
+// サイレンス・グレイブ: 長い 柄の 先に、上へ のびる 大きな やいばが 1まい（外がわへ そって 先が とがる）。
+//   つけねの 反対がわに 小さな 下むきの かぎ、つけねに 丸い かざり
 function glaive(cv, W, F, o) {
-  const L = W.len || 11;
-  pole(cv, F, L, '#6a5a8c', 'gold');
-  const bm = mat({ r: ['#14081e', '#2e1646', '#4e2a72', '#8a62b8', '#d8c4f4'], th: TH.metal, spec: 0.95, sc: '#f0e4ff' });
-  // 上の とげ
+  const L = W.len || 8.8;
+  pole(cv, F, L, '#8a68c0', 'silver', 0.78);
+  const bm = mat({ r: ['#3a2e5e', '#6a5aa0', '#a89ad6', '#e4dcf6', '#ffffff'], th: TH.metal, spec: 0.94, sc: '#ffffff' });
+  // 大きな やいば（そとがわへ そる）
+  const edge = [[L - 1.2, 0.9], [L + 1.6, 1.9], [L + 3.8, 2.6], [L + 5.8, 3.2], [L + 7.4, 4.0]];
+  const back = [[L + 5.6, 2.0], [L + 3.6, 0.9], [L + 1.6, -0.2], [L - 1.2, -0.9]];
   cv.part({ ol: 'line' });
-  cv.poly(F.P([[L - 1.2, -0.55], [L + 2.2, 0], [L - 1.2, 0.55]]), bm, { n: 'bevel', bw: 0.3 });
-  // 大きく そった やいば（そとがわへ 出て、柄の 方へ もどる）
-  const outer = [[L - 1.6, 0.5], [L + 0.8, 1.2], [L + 2.4, 2.8], [L + 2.6, 4.8], [L + 1.4, 6.6], [L - 0.8, 7.6], [L - 3.4, 7.8]];
-  const inner = [[L - 1.4, 6.2], [L + 0.2, 5.0], [L + 0.6, 3.4], [L - 0.2, 2.0], [L - 1.6, 1.2]];
-  cv.part({ ol: 'line' });
-  cv.poly(F.P(OB([...outer, ...inner], o)), bm, { n: 'bevel', bw: 0.7, bs: 0.8 });
+  cv.poly(F.P(OB([...edge, ...back], o)), bm, { n: 'bevel', bw: 0.6, bs: 0.8 });
   const id = cv.cur;
-  cv.crease(F.P(OB([[L + 0.6, 1.8], [L + 1.8, 3.2], [L + 1.8, 5.0], [L + 0.6, 6.4], [L - 1.4, 7.2]], o)), 0.2, 0.55, { parts: [id] });
-  // ねもとの 金の かざり
+  // むらさきの 光（みねに そって）と 刃の ふち
+  cv.part({ ol: 'none', cast: false, clip: id });
+  cv.stroke(F.P(OB([[L - 0.6, -0.3], [L + 1.6, 0.5], [L + 3.6, 1.4], [L + 5.6, 2.4]], o)), 0.42, glow('#b47aff'), { n: [0, 0] });
+  cv.crease(F.P(OB([[L - 0.6, 0.8], [L + 1.6, 1.7], [L + 3.8, 2.4], [L + 5.8, 3.0]], o)), 0.18, 0.6, { parts: [id] });
+  // 反対がわの 小さな かぎ（下むき）
   cv.part({ ol: 'line' });
-  cv.ell(...F.T(L - 1.6, 0.4 * o), 0.85, 0.85, metal('gold'), { bulge: 0.9 });
-  if (W.fx || W.plus || W.star) sparkleList(cv, F, [[L + 3.0, 4.0 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
-  ornate(cv, F, W, { gem: [L - 1.6, 0.4 * o, 0.6], line: OB([[L + 0.4, 2.0], [L + 1.4, 3.4], [L + 1.4, 5.0], [L, 6.4]], o), clip: id, lw: 0.22, glints: [[L + 2.6, 0.4], [L - 3.6, 8.2 * o], [L + 3.0, 5.0 * o], [L - 4.0, -1.4 * o]] });
+  cv.poly(F.P(OB([[L - 0.4, -0.7], [L - 0.5, -2.0], [L - 2.8, -3.1], [L - 1.9, -1.9], [L - 1.9, -0.7]], o)), bm, { n: 'bevel', bw: 0.3 });
+  // つけねの 丸い かざり
+  cv.part({ ol: 'line' });
+  cv.ell(...F.T(L - 1.4, 0), 0.95, 0.95, metal('gold'), { bulge: 0.9 });
+  cv.part({ ol: 'soft' });
+  cv.ell(...F.T(L - 1.4, 0), 0.5, 0.5, gem('#b45aff'), { bulge: 0.9 });
+  if (W.fx || W.plus || W.star) sparkleList(cv, F, [[L + 7.6, 3.0 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+  ornate(cv, F, W, { gem: [L - 1.4, 0, 0.6], line: OB([[L, 0.9], [L + 2.4, 1.8], [L + 4.8, 2.5]], o), clip: id, lw: 0.22, glints: [[L + 7.8, 4.4 * o], [L + 2.6, -1.4 * o], [L + 4.4, 3.6 * o], [L - 3.0, -3.4 * o]] });
 }
 // め組の まとい: 棒の 先に 白い かざりと、下がった 白い ふさ
 function matoi(cv, W, F, o) {
