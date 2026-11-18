@@ -10,7 +10,7 @@ const KO = { work: 'houshin', set: 'kotenka' };
 const JIN = { work: 'houshin', set: 'jutenkun' };
 
 const GEAR = {
-  r88_raikoben: { ...weapon('whip', 'den'), ...P, name: '雷公べん', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 16, mag: 16 }, use: { ability: 'r88u_raikou' }, look: 'royal', desc: 'スーパー宝貝の1つ。ムチの中でいちばん強い、最強の雷のムチ。ふつうの攻撃が雷になる。' },
+  r88_raikoben: { ...weapon('whip', 'den'), ...P, name: '雷公べん', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 16, mag: 16 }, use: { ability: 'r88u_raikou' }, look: 'raikou', desc: 'スーパー宝貝の1つ。ムチの中でいちばん強い、最強の雷のムチ。ふつうの攻撃が雷になる。' },
   r88_kinben: { ...weapon('whip', 'den'), ...P, name: '禁べん', reach: 'all', bonus: { str: 18, agi: 8 }, use: { ability: 'r88u_kinben' }, look: 'chain', desc: 'スーパー宝貝の1つ。遠くはなれた敵までとどいて、打ちすえるムチ。ふつうの攻撃が敵全体にとどく。' },
   r88_taikyoku: { ...acc('den'), ...P, name: '太極図の巻物', fx: [{ k: 'mpregen', v: 8 }], bonus: { hp: 100, str: 20, def: 28, mag: 38, agi: 26, heal: 34, mp: 30 }, use: { ability: 'r88u_taikyoku' }, desc: 'スーパー宝貝の1つ。ほかの宝貝の力を消してしまう、白と黒の図の巻物。行動するたびにMPが回復する。' },
   r88_kinkosen: { ...weapon('dagger', 'den'), ...P, name: '金こうせん', fx: [{ k: 'chase', v: 8 }], bonus: { agi: 16, str: 10 }, use: { ability: 'r88u_kinko' }, look: 'jambiya', desc: 'スーパー宝貝の1つ。大きなはさみの形の宝貝。七色の竜をよび出す。ふつうの攻撃のあと、ときどきもう1回攻撃する。' },
@@ -19,8 +19,8 @@ const GEAR = {
   r88_banko: { ...weapon('staff', 'den'), ...P, name: 'ばん古ばん', bonus: { mag: 46, heal: 24 }, use: { ability: 'r88u_banko' }, look: 'dragon', desc: 'スーパー宝貝の1つ。重力をあやつる旗。攻撃魔力がとても上がる。' },
 
   // ───── G2班: 崑崙の 宝貝（太公望と 仲間・十二仙）─────
-  r88_dashin: { ...weapon('whip', 'mei'), ...H, name: '太公望の打神べん', fx: [{ k: 'el_wind', v: 5 }], bonus: { mag: 10 }, look: 'whip', desc: '太公望が元始天尊からもらった宝貝。大気と風をあやつる。ふつうの攻撃が風になる。きたえぬくと、太極図の力で生まれ変わるという。' },
-  r88_dashin_taikyoku: { ...weapon('whip', 'den'), ...H, name: '太極の打神べん', fx: [{ k: 'el_wind', v: 7 }], bonus: { mag: 22, str: 10, mp: 20 }, use: { ability: 'r88u_dashin' }, look: 'royal', desc: '太極図の力を合わせて生まれ変わった打神べん。風のすべてをあやつる。ふつうの攻撃が風になる。' },
+  r88_dashin: { ...weapon('whip', 'mei'), ...H, name: '太公望の打神べん', fx: [{ k: 'el_wind', v: 5 }], bonus: { mag: 10 }, look: 'dashin', desc: '太公望が元始天尊からもらった宝貝。大気と風をあやつる。ふつうの攻撃が風になる。きたえぬくと、太極図の力で生まれ変わるという。' },
+  r88_dashin_taikyoku: { ...weapon('whip', 'den'), ...H, name: '太極の打神べん', fx: [{ k: 'el_wind', v: 7 }], bonus: { mag: 22, str: 10, mp: 20 }, use: { ability: 'r88u_dashin' }, look: 'dashin', desc: '太極図の力を合わせて生まれ変わった打神べん。風のすべてをあやつる。ふつうの攻撃が風になる。' },
   r88_tsurizao: { ...weapon('staff', 'shop'), ...H, name: 'まっすぐな針のつりざお', bonus: { mag: 1 }, look: 'cane', desc: '太公望がつりに使う、まがっていない針のつりざお。魚はつれないが、のんびりした心になれる。' },
   r88_kenkonken: { ...weapon('boomerang', 'mei'), ...NA, name: 'けんこんけん', fx: [{ k: 'chase', v: 6 }], bonus: { agi: 6 }, look: 'crescent', desc: 'なたの宝貝。うでわの形で、とばして敵に当てる。ふつうの攻撃のあと、ときどきもう1回攻撃する。' },
   r88_kontenryo: { ...weapon('whip', 'fu3'), ...NA, name: '混天りょう', fx: [{ k: 'el_ice', v: 4 }], look: 'snake', desc: 'なたの宝貝の、長い布。水をふるわせてあやつる。ふつうの攻撃が氷になる。' },

@@ -22,7 +22,7 @@ const GEAR = {
   r88_km_hebi: { ...weapon('sword', 'mei'), ...H, name: 'へびの日輪刀', fx: [{ k: 'crit', v: 6 }], bonus: { agi: 4 }, look: 'scimitar', desc: 'へび柱の、へびのようにうねった日輪刀。思いがけない所から切りかかる。会心の一撃が出やすい。' },
   r88_km_kaze: { ...weapon('sword', 'mei'), ...H, name: '風の日輪刀', fx: [{ k: 'el_wind', v: 6 }], bonus: { str: 6 }, look: 'katana', desc: '風柱の、緑の日輪刀。とげとげのもようが入っている。ふつうの攻撃が風になる。' },
   r88_km_kasumi: { ...weapon('sword', 'mei'), ...H, name: 'かすみの日輪刀', fx: [{ k: 'chase', v: 6 }], bonus: { agi: 6 }, look: 'katana', desc: 'かすみ柱の、白い日輪刀。かすみのように、すがたをつかませない。ときどきもう1回攻撃する。' },
-  r88_km_tekkyu: { ...weapon('axe', 'den'), ...H, name: 'くさりの鉄球と手オノ', reach: 'group', bonus: { str: 34, hp: 40, agi: -12 }, look: 'pick', desc: '岩柱の、くさりでつないだ大きな鉄球と手オノ。柱の中でいちばん強い。ふつうの攻撃が同じ種類の敵みんなにとどき、力がとても上がるが、素早さが下がる。' },
+  r88_km_tekkyu: { ...weapon('axe', 'den'), ...H, name: 'くさりの鉄球と手オノ', reach: 'group', bonus: { str: 34, hp: 40, agi: -12 }, look: 'tekkyu', desc: '岩柱の、くさりでつないだ大きな鉄球と手オノ。柱の中でいちばん強い。ふつうの攻撃が同じ種類の敵みんなにとどき、力がとても上がるが、素早さが下がる。' },
   // ───── 仲間の 刀 ─────
   r88_km_kaminari: { ...weapon('sword', 'mei'), ...K, name: '雷の日輪刀', fx: [{ k: 'el_bolt', v: 6 }], bonus: { agi: 8 }, look: 'katana', desc: '黄色に、いなずまのもようが入った日輪刀。ねむっている時ほど強い？ふつうの攻撃が雷になる。' },
   r88_km_gizagiza: { ...weapon('dagger', 'mei'), ...K, name: 'ギザギザの二刀', fx: [{ k: 'chase', v: 6 }], bonus: { str: 6 }, look: 'kris', desc: 'いのししの少年が、自分で石でたたいてギザギザにした2本の刀。ときどきもう1回攻撃する。' },

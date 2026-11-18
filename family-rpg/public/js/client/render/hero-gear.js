@@ -45,6 +45,7 @@ import {
 } from './hero-gear-looks.js';
 // 第88回 絵A班: 作品の 顔に なる 剣の 新しい 形と 日輪刀の 色（hero-gear-looks-r88a.js）
 import { R88A_WEAPON_LOOK, R88A_LEN, R88A_SWORD, R88A_AXE, drawR88aLook, katanaR88a } from './hero-gear-looks-r88a.js';
+import { R88B_WEAPON_LOOK, drawR88bLook } from './hero-gear-looks-r88b.js';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };
@@ -131,6 +132,8 @@ const WEAPON_LOOK = {
 // 第33回の ぶき（マジックステッキ・チョーク・指し棒・ニワトコのつえ。hero-r33.js）
 Object.assign(WEAPON_LOOK, R33_WEAPON_LOOK);
 Object.assign(WEAPON_LOOK, R88A_WEAPON_LOOK); // 第88回 絵A班
+// 第88回 絵B班: 顔に なる ムチ・ツメ・オノ・ブーメラン・やりの 形と 色（hero-gear-looks-r88b.js）
+Object.assign(WEAPON_LOOK, R88B_WEAPON_LOOK);
 
 // 名前で わかる 道具（これから ふえる 品も おなじ かたちに）
 const NAME_LOOK = [
@@ -366,6 +369,7 @@ const NEW_DRAW = {
 function drawWeaponNow(cv, P, A, W0, g) {
   // あるく コマ（ゆれる ふさ・★の きらめきの 場所）
   const W = { ...W0, f: P.f || 0 };
+  if (drawR88bLook(cv, P, A, W, (k) => frame(...A.hand, holdAngle(P, k)), P.side ? P.facing : (P.back ? 1 : -1))) return;
   if (g === 'claw') {
     if (isNewLook(W)) return drawClawLook(cv, frame(...A.hand, holdAngle(P, 'claw')), W);
     drawClaw(cv, P, A, W);
