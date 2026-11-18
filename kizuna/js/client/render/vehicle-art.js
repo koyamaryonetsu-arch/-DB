@@ -9,36 +9,36 @@
 //    rider(view, f) … { x, y（人の 絵の ひだりうえ。du）, crop（上から 何ドット 見せるか）, frame（人の コマ） }
 //  ・じめんは 絵の いちばん 下から 2ドット 上（人の 絵と おなじ。2D の かげ・2.5D の 足もとが そろう）
 // テスト（test/vehicles.test.js）は paintVehicle で、すべての 乗り物・むき・コマに 絵が あるかを 見る
-import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, shade } from './pixel.js?v=609ed6a900ec';
-import { addFamilyVehicleArt } from './family-art.js?v=609ed6a900ec';
+import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, shade } from './pixel.js?v=2bf9080b36ff';
+import { addFamilyVehicleArt } from './family-art.js?v=2bf9080b36ff';
 // 第50回 D3: 景品の 乗り物（色がえで 使い回す）
-import { addPrizeVehicleArt } from './prize-vehicle-art.js?v=609ed6a900ec';
+import { addPrizeVehicleArt } from './prize-vehicle-art.js?v=2bf9080b36ff';
 // 第2部 第6章 Step 6: ぜんまい馬（千年前でも 乗れる。vehicle-tokei.js）
-import { addTokeiVehicleArt } from './vehicle-tokei.js?v=609ed6a900ec';
+import { addTokeiVehicleArt } from './vehicle-tokei.js?v=2bf9080b36ff';
 // 第43回: ヨッシー（マリオ・ピーチ）
-import { addR43jVehicleArt } from './vehicle-r43j.js?v=609ed6a900ec';
+import { addR43jVehicleArt } from './vehicle-r43j.js?v=2bf9080b36ff';
 // 第79回: 幻の職業の 乗り物（vehicle-phantom.js）
-import { addPhantomVehicleArt } from './vehicle-phantom.js?v=609ed6a900ec';
+import { addPhantomVehicleArt } from './vehicle-phantom.js?v=2bf9080b36ff';
 // 第82回 A: 二またの大ねこ（犬夜叉の 系統。vehicle-r82a.js）
-import { addR82aVehicleArt } from './vehicle-r82a.js?v=609ed6a900ec';
+import { addR82aVehicleArt } from './vehicle-r82a.js?v=2bf9080b36ff';
 // 第82回 B班: 大きなトラ（YAIBA の 系統。vehicle-r82b.js）
-import { addR82bVehicleArt } from './vehicle-r82b.js?v=609ed6a900ec';
+import { addR82bVehicleArt } from './vehicle-r82b.js?v=2bf9080b36ff';
 // 第83回 B班: がたがたの先生の自転車（ぬ〜べ〜の 系統。vehicle-r83b.js）
-import { addR83bVehicleArt } from './vehicle-r83b.js?v=609ed6a900ec';
+import { addR83bVehicleArt } from './vehicle-r83b.js?v=2bf9080b36ff';
 // 第83回 A班: 空飛ぶカバ（封神演義の 系統。vehicle-r83a.js）
-import { addR83aVehicleArt } from './vehicle-r83a.js?v=609ed6a900ec';
+import { addR83aVehicleArt } from './vehicle-r83a.js?v=2bf9080b36ff';
 // 第84回 B班: パンダ（らんま1/2 の 系統。vehicle-r84b.js）
-import { addR84bVehicleArt } from './vehicle-r84b.js?v=609ed6a900ec';
+import { addR84bVehicleArt } from './vehicle-r84b.js?v=2bf9080b36ff';
 // 第84回 A班: 青いれい界の鳥（幽☆遊☆白書の 系統。vehicle-r84a.js）
-import { addR84aVehicleArt } from './vehicle-r84a.js?v=609ed6a900ec';
+import { addR84aVehicleArt } from './vehicle-r84a.js?v=2bf9080b36ff';
 // 第85回 B班: 火竜（烈火の炎の 系統。長い 体が うねる 竜。vehicle-r85b.js）
-import { addR85bVehicleArt } from './vehicle-r85b.js?v=609ed6a900ec';
+import { addR85bVehicleArt } from './vehicle-r85b.js?v=2bf9080b36ff';
 // 第85回 A班: ごちそうの荷車（スレイヤーズの 系統。vehicle-r85a.js）
-import { addR85aVehicleArt } from './vehicle-r85a.js?v=609ed6a900ec';
+import { addR85aVehicleArt } from './vehicle-r85a.js?v=2bf9080b36ff';
 // 第86回 B班: 幻の職業の 乗り物（武術会のリング・空飛ぶカバの軍師台。vehicle-r86b.js）
-import { addR86bVehicleArt } from './vehicle-r86b.js?v=609ed6a900ec';
+import { addR86bVehicleArt } from './vehicle-r86b.js?v=2bf9080b36ff';
 // 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（幻の職業 2つ。vehicle-r86a.js）
-import { addR86aVehicleArt } from './vehicle-r86a.js?v=609ed6a900ec';
+import { addR86aVehicleArt } from './vehicle-r86a.js?v=2bf9080b36ff';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;

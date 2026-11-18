@@ -7,16 +7,16 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=609ed6a900ec';
-import { ITEMS } from './data/items.js?v=609ed6a900ec';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=609ed6a900ec';
+import { ABILITIES } from './data/abilities.js?v=2bf9080b36ff';
+import { ITEMS } from './data/items.js?v=2bf9080b36ff';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=2bf9080b36ff';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js?v=609ed6a900ec';
-import { r88dqAtkMult } from './battle-r88-dq.js?v=609ed6a900ec'; // 第88回 G15班
+import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js?v=2bf9080b36ff';
+import { r88dqAtkMult } from './battle-r88-dq.js?v=2bf9080b36ff'; // 第88回 G15班
 // 第88回 G13班: 使った あと（スーパースター）
-import { r88AfterUse } from './battle-r88.js?v=609ed6a900ec';
+import { r88AfterUse } from './battle-r88.js?v=2bf9080b36ff';
 // 第88回 G19班: 変装のマスク（battle-r88-g19.js）
-import { r88g19AfterUse } from './battle-r88-g19.js?v=609ed6a900ec';
+import { r88g19AfterUse } from './battle-r88-g19.js?v=2bf9080b36ff';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -142,7 +142,8 @@ export function gearUse(b, c, cmd, ev) {
   const target = a.target === 'ally' ? (b.sideOf(c, true).filter((x) => x.alive && x !== c).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0]?.id ?? c.id) : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
   const sub = { type: 'ability', id: abId, target };
   const targets = b.targetsFor(c, a, sub);
-  ev.lines.push(`${a.name}の力が、はなたれた！`);
+  // 第88回 G18班: 技に useSay（使った 時の ことば）が あれば、それを 出す（おしり探ていの スーツ）
+  ev.lines.push(...(a.useSay ? a.useSay.replace(/\{a\}/g, c.name).split('\n') : [`${a.name}の力が、はなたれた！`]));
   b.applyAbility(c, a, sub, ev, 1, targets);
   useHpCost(c, u, ev); // 第88回 G2班: 使うと HPが 少し へる 品（雷神）
   r88AfterUse(b, c, a, ev); // 第88回 G13班: スーパースター

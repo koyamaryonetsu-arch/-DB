@@ -4,7 +4,7 @@
 //   ・ぬ〜べ〜の 3つ（白衣観音経・れい水しょう・念じゅ）… そろい nube_three
 //   ・こわく しない。入れない 品: 玉もの 頭の 骨・絶おに・口さけ女 など（設計書 2-8）
 //   ・名前の 字: 「霊・鬼・珠・狐・敷・勾・尾・符・晶・克」は 習わない 字なので かな
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=609ed6a900ec';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=2bf9080b36ff';
 
 const N = { work: 'nube' };
 const N3 = { work: 'nube', set: 'nube_three' };

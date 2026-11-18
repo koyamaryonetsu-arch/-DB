@@ -92,3 +92,14 @@ Object.assign(WORKS, {
   spyfamily: { name: 'SPY×FAMILY' },
   original: { name: 'オリジナル', trialGift: { datenshi: 'r88_or_wa', kenshin: 'r88_or_kabuto', tenkou_tsukai: 'r88_or_teru', weather_god: 'r88_or_teru' } },
 });
+
+// 第88回 G18班: はなかっぱ・おしり探てい・暴れんぼう将軍・3年B組（ファイルの さいごで まぜる）
+//   試練の ごほうび: はなかっぱ → 頭のつぼみ（大人の花に 生まれ変わる）・おしり探てい → しん士のステッキ・
+//   暴れんぼう将軍 → 白い着流し・3年B組の担任 → 3年B組の出席ぼ
+//   まぼろしの回ろうの とびらは 2まい（「はなかっぱ・おしり探てい」・「暴れんぼう将軍・3年B組」。data/rivals-r88.js の g18Doors）
+Object.assign(WORKS, {
+  hanakappa: { name: 'はなかっぱ', trialGift: { hanakappa: 'r88_hk_tsubomi' } },
+  oshiri: { name: 'おしり探てい', trialGift: { oshiri_tantei: 'r88_os_stick' } },
+  abarenbo: { name: '暴れんぼう将軍', trialGift: { abarenbo_shogun: 'r88_ab_kinagashi' } },
+  class3b: { name: '3年B組', trialGift: { homeroom_3b: 'r88_3b_shusseki' } },
+});

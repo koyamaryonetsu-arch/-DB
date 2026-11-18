@@ -2,15 +2,15 @@
 //   ・ガチャガチャ … ルミナの町（星の神殿の 東の 外。神殿の 中は さわらない）と 王都サファラ（市場の 東）。台と 店の 人
 //   ・七つの玉 … ORB_PLACES の 7つの 宝箱（ダンジョンの 宝箱 ＝ c.chests。フィールドの 宝箱は 開けると きえる。どれも キャラごとに 1回）
 //   ・竜神の ほこら … 星竜山の 頂上の すみ（HOKORA）
-import { npc } from './npc.js?v=609ed6a900ec';
-import { PLACES } from './overworld.js?v=609ed6a900ec';
-import { ORB_PLACES, orbChestId, HOKORA } from '../data/gacha-r88.js?v=609ed6a900ec';
+import { npc } from './npc.js?v=2bf9080b36ff';
+import { PLACES } from './overworld.js?v=2bf9080b36ff';
+import { ORB_PLACES, orbChestId, HOKORA } from '../data/gacha-r88.js?v=2bf9080b36ff';
 // 第88回 G9班: ドラゴンボールの 宝箱 7つ（だいほんで 開ける。ねがいの あとの 待ちが ある）・神龍の さいだん（星見の丘）
-import { DB_PLACES, dbChestId, dbChestScript, SHENRON } from '../data/shenron-r88.js?v=609ed6a900ec';
+import { DB_PLACES, dbChestId, dbChestScript, SHENRON } from '../data/shenron-r88.js?v=2bf9080b36ff';
 // 第88回 G12班: 聖はいの 水しょうの台（鏡の湖の 東の ほとり）
-import { GRAIL_ALTAR } from '../data/items-r88-sailormoon.js?v=609ed6a900ec';
+import { GRAIL_ALTAR } from '../data/items-r88-sailormoon.js?v=2bf9080b36ff';
 // 第88回 G14班: 第5のせいれいのドレスの 氷の石の台（白銀の湖の 北の ほとり）
-import { FIFTH_ALTAR } from '../data/items-r88-frozen.js?v=609ed6a900ec';
+import { FIFTH_ALTAR } from '../data/items-r88-frozen.js?v=2bf9080b36ff';
 
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
 

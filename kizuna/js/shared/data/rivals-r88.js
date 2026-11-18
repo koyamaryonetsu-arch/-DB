@@ -42,6 +42,7 @@ export const RIVAL_DOORS = [
   ...g13Doors(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
   ...g16Doors(), // G16班: ポケモン（ファイルの さいご）
   ...g19Doors(), // G19班: SPY×FAMILY・オリジナル（ファイルの さいご）
+  ...g18Doors(), // G18班: はなかっぱ・おしり探てい／暴れんぼう将軍・3年B組（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -293,6 +294,7 @@ export const RIVALS = [
   ...g13Rivals(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
   ...g16Rivals(), // G16班: ポケモン（ジムリーダーは 曜日で かわる。ファイルの さいご）
   ...g19Rivals(), // G19班: SPY×FAMILY・オリジナル（ファイルの さいご）
+  ...g18Rivals(), // G18班: はなかっぱ・おしり探てい／暴れんぼう将軍・3年B組（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -1278,6 +1280,100 @@ function g19Rivals() {
       use: 'r88_or_white', reward: ['r88_or_white', 'r88_or_black'], words: '光だけでも、闇だけでもない。来い。',
       sig: { name: '夜明けとたそがれの十字', anim: 'r88_kouan', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、白い剣と黒い剣を十字にかさねた…！\n光と闇が、ひとつにまざっていく…！', cast: '{a}の2本の剣が、光と闇の十字をえがいた！' },
       tune: { hp: 0.74, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G18班: はなかっぱ・おしり探てい／暴れんぼう将軍・3年B組 ─────────────
+//   どちらも 2作品を 1まいの とびらに まとめた（G11班の コナン・快と と 同じ 形。works。とびらの 品の 数は 2作品の 合計）
+//   はなかっぱ・おしり探てい … 部屋 ＝ 木の 部屋（wood）・背景 ＝ 草原（grass）。ちょう兵衛 ＝ 森・かいとうU ＝ 夜の 町・満月の かいとうU ＝ 塔の 上
+//     がりぞー → 黒羽屋ちょう兵衛 → かいとうU → ちょう兵衛と がりぞー（わかランの花を とり返す）→ 満月の かいとうU（風のみちしるべ）
+//   暴れんぼう将軍・3年B組 … 部屋 ＝ 木の 部屋（wood）・背景 ＝ 東の 野原（plains_east）。悪代官 ＝ 夜の 町・金八先生 ＝ 草原（川の 土手）・
+//     親玉 ＝ 夜の 宮でん・上様 ＝ 海（はま辺を 白い 馬で かける）。伝説の 品が ない 作品なので さいごは Lv80 ごろ・4人
+function g18Doors() {
+  return [
+    {
+      work: 'hanakappa', works: ['hanakappa', 'oshiri'], name: 'はなかっぱ・おしり探てい', mark: 'r88_kids', bg: 'grass', room: 'wood',
+      jobs: ['kappa', 'hanakappa', 'kinniku_kappa', 'kappa_king', 'shonen_tantei', 'oshiri_tantei'],
+    },
+    {
+      work: 'abarenbo', works: ['abarenbo', 'class3b'], name: '暴れんぼう将軍・3年B組', mark: 'r88_jidai', bg: 'plains_east', room: 'wood',
+      jobs: ['shogun', 'abarenbo_shogun', 'sword_saint', 'homeroom_3b', 'cosmic_okan'],
+    },
+  ];
+}
+function g18Rivals() {
+  const CHO = L(0, 'slick', 'black', 0, 'fair', 'sharp');
+  const GARI = L(0, 'buzz', 'black', 6, 'light', 'smile');
+  const KU = L(0, 'short', 'black', 7, 'fair', 'smile');
+  return [
+    // ── はなかっぱ・おしり探てい（名品・ふつうを くれる 人は Lv60 ごろ・伝説の わかランの花は Lv90・さいごの 満月の かいとうUは Lv100）──
+    {
+      id: 'hk_garizo', work: 'hanakappa', n: 1, name: 'がりぞー', lv: 60, job: 'ninja', look: GARI, bg: 'forest',
+      use: 'r88_hk_megane', reward: ['r88_hk_megane'], words: 'ちょう兵衛さまのために、がんばるぞー！',
+      sig: { name: 'ガリガリだっしゅ', anim: 'slash_fast', charge: '{a}が、メガネをくいっと上げた！\nその場の足ぶみが、どんどん速くなる…！', cast: '{a}が、ものすごい速さでつっこんできた！' },
+      tune: { hp: 1.63, dmg: 1 },
+    },
+    {
+      id: 'hk_chobee', work: 'hanakappa', n: 2, name: '黒羽屋ちょう兵衛', lv: 64, job: 'datenshi', look: CHO, bg: 'forest',
+      use: 'r88_hk_ougi', reward: ['r88_hk_ougi'], words: 'わかランの花は、わしがいただく！',
+      sig: { name: '黒い羽根のつむじ風', el: 'dark', anim: 'dark1', charge: '{a}が、黒い羽根のおうぎを大きく広げた！\n黒い羽根が、くるくるまい始めた…！', cast: '{a}のおうぎから、黒い羽根のつむじ風がふきあれた！' },
+      tune: { hp: 1.39, dmg: 1 },
+    },
+    {
+      id: 'os_kaitou', work: 'hanakappa', n: 3, name: 'かいとうU', lv: 80, job: 'kaito', look: KU, bg: 'village_night',
+      use: 'r88_os_hensou', reward: ['r88_os_hensou'], words: 'こんばんは。今夜のお宝は、いただきますよ。',
+      same: 'おや、名探ていのお仲間ですか。では、なぞときで勝負です。',
+      sig: { name: '変装の早がわり', anim: 'slash_multi', charge: '{a}が、マントでさっと体をかくした！\nだれかに化けて、すぐそばまで近づいてくる…！', cast: '{a}の早がわりから、いっせいにおそいかかった！' },
+      tune: { hp: 1.04, dmg: 1 },
+    },
+    {
+      id: 'hk_wakaran', work: 'hanakappa', n: 4, name: 'ちょう兵衛とがりぞー', lv: 90, bg: 'forest',
+      members: [
+        { name: '黒羽屋ちょう兵衛', job: 'datenshi', look: CHO },
+        { name: 'がりぞー', job: 'ninja', look: GARI },
+      ],
+      use: 'r88_hk_wakaran', reward: ['r88_hk_wakaran'], words: 'わかランの花を、手に入れたぞ！返してほしくば、勝ってみよ！',
+      sig: { name: 'わかランの大つむじ風', el: 'wind', anim: 'wind2', charge: '{a}が、わかランの花を高くかかげた！\n花びらと黒い羽根が、うずを巻いていく…！', cast: '{a}の大つむじ風が、みんなをまきこんだ！' },
+      tune: { hp: 1.03, dmg: 1 },
+    },
+    {
+      id: 'os_kaitou_moon', work: 'hanakappa', n: 5, name: '満月のかいとうU', lv: 100, job: 'triple_face', look: KU, bg: 'tower_top',
+      use: 'r88_os_michishirube', reward: ['r88_os_michishirube'], words: '満月の夜は、わたしの時間です。さあ、ショーの始まり！',
+      same: 'おや、名探ていのお仲間ですか。では、なぞときで勝負です。',
+      sig: { at: 0.8, after: 3, name: '風のみちしるべ・大せんぷう', el: 'wind', anim: 'r88_fujin', charge: '{a}が、青く光る石を満月にかざした！\n空とぶ島の風が、ごうごうと集まっていく…！', cast: '{a}のまわりから、大きな風がふきあれた！' },
+      tune: { hp: 0.39, dmg: 1 },
+    },
+    // ── 暴れんぼう将軍・3年B組（名品を くれる 人は Lv60〜70・さいごの 上様は Lv80。伝説の 品は ない）──
+    {
+      id: 'ab_daikan', work: 'abarenbo', n: 1, name: '悪代官と用心ぼう', lv: 60, bg: 'village_night',
+      members: [
+        { name: '悪代官', job: 'shacho', look: L(0, 'bald', 'black', 3, 'light', 'sharp') },
+        { name: '用心ぼう', job: 'samurai', look: L(0, 'long', 'black', 0, 'tan', 'sharp') },
+      ],
+      use: 'r88_ab_shinobi', reward: ['r88_ab_shinobi'], words: 'ふっふっふ。この町は、わしらのものじゃ！',
+      sig: { name: '用心ぼうの大立ち回り', anim: 'slash_heavy', charge: '{a}が「先生、おねがいしますぞ！」と声をかけた！\n用心ぼうが、ゆっくりと刀をぬいた…！', cast: '{a}の合図で、用心ぼうの刀が大きくふりぬかれた！' },
+      tune: { hp: 1.07, dmg: 1 },
+    },
+    {
+      id: 'cb_kinpachi', work: 'abarenbo', n: 2, name: '金八先生', lv: 64, job: 'homeroom_3b', look: L(0, 'long', 'black', 2, 'light', 'calm'), bg: 'grass',
+      use: 'r88_3b_album', reward: ['r88_3b_album'], words: '人という字は、人と人とがささえ合っているんです。',
+      same: 'おや、同じ先生の道を行く人ですか。いっしょに学びましょう。',
+      sig: { at: 0.8, after: 3, name: '愛のじゅぎょう', anim: 'warcry', charge: '{a}が、黒板に大きな字を書き始めた…！\n「みなさん、よーく聞いてください」…！', cast: '{a}の愛のじゅぎょうが、みんなの心にずしんとひびいた！' },
+      tune: { hp: 0.78, dmg: 1 },
+    },
+    {
+      id: 'ab_oyadama', work: 'abarenbo', n: 3, name: '悪代官の親玉', lv: 70, job: 'sword_master', look: L(0, 'slick', 'white', 3, 'light', 'sharp'), bg: 'palace_night',
+      use: 'r88_ab_ougi', reward: ['r88_ab_ougi'], words: 'えーい、であえ、であえ！',
+      sig: { at: 0.8, after: 3, name: '親玉の大号令', anim: 'slash_multi', charge: '{a}が、大きな声で家来をよび集めた！\n「であえ、であえーっ！」…！', cast: '{a}の家来たちが、いっせいにおそいかかった！' },
+      tune: { hp: 0.87, dmg: 1 },
+    },
+    {
+      id: 'ab_uesama', work: 'abarenbo', n: 4, name: '上様', lv: 80, job: 'abarenbo_shogun', look: L(0, 'slick', 'black', 4, 'light', 'brave'), bg: 'sea',
+      use: 'r88_ab_meito', reward: ['r88_ab_meito'], words: '余の顔を、見わすれたか！',
+      same: 'ほう、同じ上様の道を行く者か。ならば、手かげんはせぬぞ。',
+      sig: { name: '成敗のみねうち', anim: 'slash_heavy', charge: '{a}が、刀をくるりとかえした！\n「みねうちじゃ、安心いたせ」…！', cast: '{a}のみねうちが、つぎつぎと決まった！' },
+      tune: { hp: 0.39, dmg: 1 },
     },
   ];
 }

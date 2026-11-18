@@ -7,7 +7,7 @@
 //
 // 1. 王宮の子どもと、迷子の子ラクダ（王宮の 子どもナシム。妹ルルの 子守歌・東の 門の 見張り → 王家の森の 子ラクダ）
 // 2. 市場のずるい分銅（布売りハビブ。果物売りの おばさん・市場の はかり → 大臣の 家来ズルリ）
-import { C8D_OPEN, CAMEL8, CAMEL8_VOICES, MARKET8, MARKET8_VOICES, MARKET8_STEPS } from '../maps/c8d-side.js?v=609ed6a900ec';
+import { C8D_OPEN, CAMEL8, CAMEL8_VOICES, MARKET8, MARKET8_VOICES, MARKET8_STEPS } from '../maps/c8d-side.js?v=2bf9080b36ff';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

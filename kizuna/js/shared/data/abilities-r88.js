@@ -916,3 +916,14 @@ Object.assign(R88_ABILITIES, {
     desc: '雲の衣をひるがえして、空を晴れにする。晴れの間は、味方の炎と光が強くなる。', cast: '{a}が雲の衣をひるがえすと、空の雲がさっと晴れていく！', anim: 'r88_moshimo',
   },
 });
+
+// ───── G18班: おしり探てい（ファイルの さいごで まぜる）─────
+//   名探ていのスーツとちょうネクタイ … ていねいに ことわってから、ふしぎな 風で 敵1グループを ねむらせる（ボスには 今の ねむりの きまりで ききにくい）
+Object.assign(R88_ABILITIES, {
+  r88u_os_shitsurei: {
+    name: 'しつれい、こかせていただきます', kana: 'しつれいこかせていただきます', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.65, turns: [1, 3] },
+    desc: 'ていねいにことわってから、ふしぎな風をふわっと出す。同じ種類の敵みんなを、ねむらせる。', cast: '{a}「しつれい、こかせていただきます」', anim: 'r88_oshiri',
+    useSay: '{a}「しつれい、こかせていただきます」\nプゥ〜…！ふしぎな風が、ふわりと広がった！',
+  },
+});
