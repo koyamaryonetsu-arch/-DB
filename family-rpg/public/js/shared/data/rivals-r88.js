@@ -863,7 +863,7 @@ function g14Rivals() {
       id: 'hg_mustang', work: 'hagaren', n: 4, name: 'マスタング', lv: 80, job: 'state_alchemist', look: L(0, 'short', 'black', 1, 'light', 'sharp'),
       use: 'r88_hg_hakka', reward: ['r88_hg_hakka'], words: '指をならせば、それで終わりだ。',
       same: 'ほう、同じ国家れん金術師か。手かげんはしないぞ。',
-      sig: { name: 'ほのおの大うず', el: 'fire', anim: 'r88_snap', charge: '{a}が、白い手ぶくろの指をこすり合わせた！\n火花が、ちりちりと光る…！', cast: '{a}が指を鳴らすと、大きな炎がふき上がった！' },
+      sig: { name: 'まっ赤な大ほのお', el: 'fire', anim: 'r88_snap', charge: '{a}が、白い手ぶくろの指をこすり合わせた！\n火花が、ちりちりと光る…！', cast: '{a}が指を鳴らすと、大きな炎がふき上がった！' },
       tune: { hp: 1.14, dmg: 1 },
     },
     {
