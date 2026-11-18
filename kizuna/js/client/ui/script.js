@@ -1,19 +1,19 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=5cff1704d8aa';
-import { paintRare } from './rarity.js?v=5cff1704d8aa';
-import { ListMenu } from './dom.js?v=5cff1704d8aa';
-import { openServiceUI } from './services.js?v=5cff1704d8aa';
-import { monsterCanvas } from '../render/monsters.js?v=5cff1704d8aa';
-import { npcSprite } from '../field.js?v=5cff1704d8aa';
-import { reportError } from '../errlog.js?v=5cff1704d8aa';
+import { el } from './dom.js?v=eba5674896dc';
+import { paintRare } from './rarity.js?v=eba5674896dc';
+import { ListMenu } from './dom.js?v=eba5674896dc';
+import { openServiceUI } from './services.js?v=eba5674896dc';
+import { monsterCanvas } from '../render/monsters.js?v=eba5674896dc';
+import { npcSprite } from '../field.js?v=eba5674896dc';
+import { reportError } from '../errlog.js?v=eba5674896dc';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=5cff1704d8aa';
+import { paperPop } from './paper-pop.js?v=eba5674896dc';
 // 第88回 G3班: まぼろしの回廊の とびらの まど（rivals-r88.js）
-import { rivalPop } from './rivals-r88.js?v=5cff1704d8aa';
+import { rivalPop } from './rivals-r88.js?v=eba5674896dc';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=5cff1704d8aa';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=eba5674896dc';
 // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
-import { askTreasureList } from './treasure.js?v=5cff1704d8aa';
+import { askTreasureList } from './treasure.js?v=eba5674896dc';
 
 const TYPE_MS = 28;
 

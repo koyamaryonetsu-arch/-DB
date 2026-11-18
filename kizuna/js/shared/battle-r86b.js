@@ -23,13 +23,13 @@
 // battle.js から よぶ: r86bEffect（switch）・r86bMagic（'magic' の はじめ）・r86bResolve（行動の あと）・r86bPub（pub）
 // ai.js から よぶ: r86bPlan（オートの 動き。この 2つの 職業の 技だけを 見る）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=5cff1704d8aa';
-import { ABILITIES } from './data/abilities.js?v=5cff1704d8aa';
-import { mpCost, weaponOk } from './stats.js?v=5cff1704d8aa';
-import { reiLeft, reiMax } from './battle-r84a.js?v=5cff1704d8aa';
-import { boostCount, hiryuMult, HIRYU_MP_BACK } from './battle-r84b.js?v=5cff1704d8aa';
-import { activePlan, r83aDispel, normalBuffs } from './battle-r83a.js?v=5cff1704d8aa';
-import { chanting, CHANT_LEFT, HAYAKUCHI_ATB, GIGA_PER, GIGA_BOSS, GIGA_CAP, ENEMY_BIG } from './battle-r85a.js?v=5cff1704d8aa';
+import { JOBS } from './data/jobs.js?v=eba5674896dc';
+import { ABILITIES } from './data/abilities.js?v=eba5674896dc';
+import { mpCost, weaponOk } from './stats.js?v=eba5674896dc';
+import { reiLeft, reiMax } from './battle-r84a.js?v=eba5674896dc';
+import { boostCount, hiryuMult, HIRYU_MP_BACK } from './battle-r84b.js?v=eba5674896dc';
+import { activePlan, r83aDispel, normalBuffs } from './battle-r83a.js?v=eba5674896dc';
+import { chanting, CHANT_LEFT, HAYAKUCHI_ATB, GIGA_PER, GIGA_BOSS, GIGA_CAP, ENEMY_BIG } from './battle-r85a.js?v=eba5674896dc';
 
 export const R86B_JOBS = ['tenkaichi_king', 'chaos_gunshi'];
 // カウンターが 決まった 時に もどる れい丸の 数

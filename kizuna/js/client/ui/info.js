@@ -1,22 +1,22 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=5cff1704d8aa';
-import { abilityTypeText } from '../../shared/data/abilities.js?v=5cff1704d8aa';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=5cff1704d8aa';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=5cff1704d8aa';
-import { jobLabel } from '../../shared/job-label.js?v=5cff1704d8aa';
-import { MONSTERS } from '../../shared/data/monsters.js?v=5cff1704d8aa';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=5cff1704d8aa';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=5cff1704d8aa';
-import { attackReach } from '../../shared/battle.js?v=5cff1704d8aa';
-import { maxPlus } from '../../shared/data/forge.js?v=5cff1704d8aa';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=5cff1704d8aa';
-import { perkText } from '../../shared/data/items-r31.js?v=5cff1704d8aa';
-import { BUFF_MARKS } from '../../shared/buff-acts.js?v=5cff1704d8aa';
-import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=5cff1704d8aa';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=eba5674896dc';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=eba5674896dc';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=eba5674896dc';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=eba5674896dc';
+import { jobLabel } from '../../shared/job-label.js?v=eba5674896dc';
+import { MONSTERS } from '../../shared/data/monsters.js?v=eba5674896dc';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=eba5674896dc';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=eba5674896dc';
+import { attackReach } from '../../shared/battle.js?v=eba5674896dc';
+import { maxPlus } from '../../shared/data/forge.js?v=eba5674896dc';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=eba5674896dc';
+import { perkText } from '../../shared/data/items-r31.js?v=eba5674896dc';
+import { BUFF_MARKS } from '../../shared/buff-acts.js?v=eba5674896dc';
+import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=eba5674896dc';
 // 第76回: もとの 強さ（きたえる 前の 装備。shared/gear-base.js）
-import { GEAR_STAT_LABELS, gearOwn, gearBaseId } from '../../shared/gear-base.js?v=5cff1704d8aa';
+import { GEAR_STAT_LABELS, gearOwn, gearBaseId } from '../../shared/gear-base.js?v=eba5674896dc';
 // 第88回: 作品の 品の せつめい（作品の力・使う・そろい・玉・とどく 広さ。shared/gear-r88-view.js）
-import { r88DetailLines, r88ReachText } from '../../shared/gear-r88-view.js?v=5cff1704d8aa';
+import { r88DetailLines, r88ReachText } from '../../shared/gear-r88-view.js?v=eba5674896dc';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）

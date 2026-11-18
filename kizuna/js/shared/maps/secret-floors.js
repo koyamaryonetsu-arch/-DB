@@ -8,12 +8,12 @@
 //     しかけを 置くたびに「着いた 所から 下り階段へ 行けるか・どこで 止まっても 下り階段へ 行けるか・人や 立てふだに 話せるか」を
 //     たしかめる（sdReach。だめなら もとに もどす）
 // 階の 形は ID（階と ちょうせんの seed）だけで きまる（サーバー・画面・家族で おなじ）
-import { T, TILE_INFO } from '../tiles.js?v=5cff1704d8aa';
-import { makeRng, hash2 } from '../rng.js?v=5cff1704d8aa';
-import { layoutFloor } from './treasure-cave.js?v=5cff1704d8aa';
-import { npc } from './npc.js?v=5cff1704d8aa';
-import { MONSTERS } from '../data/monsters.js?v=5cff1704d8aa';
-import { SD_THEME, sdCraftsmanHere, SD_CRAFTSMAN } from '../data/secret-themes.js?v=5cff1704d8aa';
+import { T, TILE_INFO } from '../tiles.js?v=eba5674896dc';
+import { makeRng, hash2 } from '../rng.js?v=eba5674896dc';
+import { layoutFloor } from './treasure-cave.js?v=eba5674896dc';
+import { npc } from './npc.js?v=eba5674896dc';
+import { MONSTERS } from '../data/monsters.js?v=eba5674896dc';
+import { SD_THEME, sdCraftsmanHere, SD_CRAFTSMAN } from '../data/secret-themes.js?v=eba5674896dc';
 
 const D4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 const FLOOR = T.CAVE_FLOOR, WALL = T.CAVE_WALL;

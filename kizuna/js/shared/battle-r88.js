@@ -4,10 +4,10 @@
 //   ・使う（品の use）… 1つの 戦いで その 品 1回（battle-gearfx.js の gearUseCheck・gearUse。u.once・u.used）
 //   ・そろい rule 'party' … 戦いの はじめの 仲間で 数えて、全員に その 段の 強さ（applyPartySets。battle.js の constructor）
 //   どれも 戦いの 中だけ（セーブしない）
-import { GEAR_SETS } from './data/gear-sets.js?v=5cff1704d8aa';
-import { fxPower, GEAR_FX } from './data/gear-fx.js?v=5cff1704d8aa';
-import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=5cff1704d8aa';
-import { ITEMS, baseItemId } from './data/items.js?v=5cff1704d8aa';
+import { GEAR_SETS } from './data/gear-sets.js?v=eba5674896dc';
+import { fxPower, GEAR_FX } from './data/gear-fx.js?v=eba5674896dc';
+import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=eba5674896dc';
+import { ITEMS, baseItemId } from './data/items.js?v=eba5674896dc';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {

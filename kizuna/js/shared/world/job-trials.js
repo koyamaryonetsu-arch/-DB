@@ -4,18 +4,18 @@
 // ・1. 修行（その 職業の 技を、勝った 戦いで N回 使う。world/battles.js が 数える）→ 2. 師しょうのまぼろしと 戦う → 上限が 15・20・25 に
 // ・ひとりずつ（自分の 職業）。師しょうのまぼろしの 戦いには、そばに いる 家族も 入る（とちゅうから かけつけても よい）。
 //   勝っても 上限が 上がるのは 試練を 受けた 人だけ。負けても お金は へらない（その場で 立ち上がる）
-import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=5cff1704d8aa';
+import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=eba5674896dc';
 import {
   TRIALS, TRIAL_FLAG_TEXT, trialState, acceptTrial, clearTrial, trialName, masterName, trialWords, titleFor, jobUpKeys, jobTopCap,
-} from '../data/job-trials.js?v=5cff1704d8aa';
-import { JOBS, TIER_NAMES, JOB_MAX_LEVEL } from '../data/jobs.js?v=5cff1704d8aa';
-import { jobLabel } from '../job-label.js?v=5cff1704d8aa';
-import { STAT_NAMES } from '../stats.js?v=5cff1704d8aa';
-import { startFixedBattle, battleSessions } from './battles.js?v=5cff1704d8aa';
-import { partyOf } from './party.js?v=5cff1704d8aa';
-import { setupTrialPhantom } from '../battle-trial.js?v=5cff1704d8aa';
+} from '../data/job-trials.js?v=eba5674896dc';
+import { JOBS, TIER_NAMES, JOB_MAX_LEVEL } from '../data/jobs.js?v=eba5674896dc';
+import { jobLabel } from '../job-label.js?v=eba5674896dc';
+import { STAT_NAMES } from '../stats.js?v=eba5674896dc';
+import { startFixedBattle, battleSessions } from './battles.js?v=eba5674896dc';
+import { partyOf } from './party.js?v=eba5674896dc';
+import { setupTrialPhantom } from '../battle-trial.js?v=eba5674896dc';
 // 第88回 G4班: 試練の ごほうび（world/gacha-r88.js）
-import { trialGiftSteps } from './gacha-r88.js?v=5cff1704d8aa';
+import { trialGiftSteps } from './gacha-r88.js?v=eba5674896dc';
 
 const say = (text) => ['say', TRIAL_KEEPER, text];
 const note = (text) => ['say', null, text];

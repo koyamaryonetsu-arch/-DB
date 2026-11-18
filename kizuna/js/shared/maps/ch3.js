@@ -1,19 +1,19 @@
 // 第3章「星の竜がねむる山」の マップ
 // シロガネ地方（フィールド）・氷の洞窟・鉱山・炎の山・竜の試練の神殿・星竜山
 // 町や 村の 形は north-rows.js、ダンジョンの 形は ch3-rows.js（1文字 = 1マス）
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=5cff1704d8aa';
-import { makeRng } from '../rng.js?v=5cff1704d8aa';
-import { npc } from './npc.js?v=5cff1704d8aa';
-import { SEA_PLACES } from './ch2.js?v=5cff1704d8aa';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=eba5674896dc';
+import { makeRng } from '../rng.js?v=eba5674896dc';
+import { npc } from './npc.js?v=eba5674896dc';
+import { SEA_PLACES } from './ch2.js?v=eba5674896dc';
 import {
   buildNorth, northZoneAt, northAreaName, northWeatherAt, northBgmAt, NORTH_PLACES, NORTH_POS, TEMPLE_AREA, LAKE3,
   DRAGON_GATE_Y, DRAGON_GATE_X, ROPE, LANDING_FIELD,
-} from './north.js?v=5cff1704d8aa';
+} from './north.js?v=eba5674896dc';
 import {
   ICECAVE1_ROWS, ICECAVE2_ROWS, MINE1_ROWS, MINE2_ROWS, MINE3_ROWS, VOLCANO1_ROWS, VOLCANO2_ROWS, VOLCANO3_ROWS,
   TEMPLE_HALL_ROWS, TEMPLE_COURAGE_ROWS, TEMPLE_WISDOM_ROWS, TEMPLE_BOND_ROWS,
   PEAK1_ROWS, PEAK2_ROWS, PEAK3_ROWS, PEAK4_ROWS, PEAK5_ROWS, PEAK_TOP_ROWS,
-} from './ch3-rows.js?v=5cff1704d8aa';
+} from './ch3-rows.js?v=eba5674896dc';
 
 const VIL = NORTH_PLACES.dragon_village, KAN = NORTH_PLACES.kanatoko, YUN = NORTH_PLACES.yunoha;
 const V = (x, y) => [VIL.x + x, VIL.y + y];
