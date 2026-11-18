@@ -99,7 +99,10 @@ async function build(size, seed) {
   const R = makeRng(seed * 7 + 1).next;
   const monsters = Object.keys(MONSTERS);
   const abil = Object.keys(ABILITIES).filter((k) => !k.startsWith('m_') && !k.startsWith('zz_'));
-  const items = Object.keys(ITEMS).filter((k) => ITEMS[k].type !== 'key');
+  // 第88回: ふつう（第4章くらい）は 作品の 品（work の ある 品・src 'r88'。ガチャ 1回 2万G・ライバルは Lv60 から）を えらばない
+  //   （作品が ふえるほど 乱数の えらび方が ゆれて、第4章の 人が 持てない 品が まざる ため）。いちばん 大きい 時は 全部から
+  const workItem = (k) => !!(ITEMS[k].work || ITEMS[k].src === 'r88' || ITEMS[ITEMS[k].base]?.work);
+  const items = Object.keys(ITEMS).filter((k) => ITEMS[k].type !== 'key' && (big || !workItem(k)));
   const keys = Object.keys(ITEMS).filter((k) => ITEMS[k].type === 'key');
   const maps = Object.values(MAPS);
 
@@ -174,3 +177,35 @@ async function build(size, seed) {
 
 export const biggestChar = (seed = 78) => build('big', seed);
 export const typicalChar = (seed = 41) => build('typical', seed);
+
+// 第88回: 作品の 品を たくさん 持った ふつうの セーブ（ふつうの セーブ ＋ 作品の 品 n こ〈ふくろ 3/4・預かり所 1/4。きたえた 物・そろいの 品を まぜる〉
+//   ＋ ガチャの 回数・ライバルに 勝った 記録・玉の 宝箱の 記録・とびら・試練の ごほうびの しるし）。n = 0 なら 品は 足さない
+export async function typicalWorkChar(seed = 41, n = 40) {
+  const c = await typicalChar(seed);
+  const { WORKS } = await import('../public/js/shared/data/works.js');
+  const { RIVALS } = await import('../public/js/shared/data/rivals-r88.js');
+  const { GEAR_SETS } = await import('../public/js/shared/data/gear-sets.js');
+  const R = makeRng(seed * 11 + 3).next;
+  const works = Object.keys(WORKS);
+  c.gacha = Object.fromEntries(works.map((w) => [w, int(R, 0, 10)]));
+  c.rivals = Object.fromEntries(shuffle(R, RIVALS.map((r) => r.id)).slice(0, 20).map((id) => [id, 1]));
+  for (const w of works) c.flags[`r88door_${w}`] = true;
+  for (const w of works.slice(0, 4)) c.flags[`r88tg_${w}`] = true;
+  c.flags.r88_gacha_seen = true;
+  c.flags.r88_orb_heard = true;
+  for (const id of ['fire', 'water', 'ice', 'dark', 'gold']) c.chests[`r88orb_${id}`] = true;
+  for (const id of ['1', '2', '3', '4']) c.chests[`r88db_${id}`] = true;
+  const base = Object.keys(ITEMS).filter((k) => !ITEMS[k].base && ITEMS[k].src === 'r88' && ITEMS[k].work);
+  const forged = Object.keys(ITEMS).filter((k) => ITEMS[k].base && ITEMS[ITEMS[k].base]?.src === 'r88' && ITEMS[ITEMS[k].base]?.work);
+  const sets = Object.values(GEAR_SETS).flatMap((s) => s.items).filter((k) => ITEMS[k]);
+  const want = [...shuffle(R, sets).slice(0, Math.round(n * 0.25)), ...shuffle(R, forged).slice(0, Math.round(n * 0.25))];
+  for (const k of shuffle(R, base)) {
+    if (want.length >= n) break;
+    if (!want.includes(k)) want.push(k);
+  }
+  const list = want.slice(0, n);
+  const inBank = Math.floor(n / 4);
+  for (const id of list.slice(inBank)) addItem(c, id, 1);
+  c.bank.items.push(...list.slice(0, inBank).map((id) => ({ id, n: 1 })));
+  return JSON.parse(JSON.stringify(c));
+}

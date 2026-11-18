@@ -16,7 +16,7 @@ import { PRIME_5 } from '../public/js/shared/world/transfer-prime.js';
 import { repairChar, SAVE_VERSION } from '../public/js/shared/world/save.js';
 import { MAPS } from '../public/js/shared/maps/index.js';
 import { makeRng } from '../public/js/shared/rng.js';
-import { biggestChar, typicalChar, walkExplored } from './transfer-big-save.js';
+import { biggestChar, typicalChar, typicalWorkChar, walkExplored } from './transfer-big-save.js';
 
 const enc = (s) => new TextEncoder().encode(s);
 const dec = (b) => new TextDecoder().decode(b);
@@ -230,4 +230,19 @@ test('見はり: ふつうの セーブは LINE の 1通に よゆうを もっ�
     assert.ok(v5.length < zl, `zlib -9 より みじかい: ${rows.at(-1)}`);
   }
   console.log(rows.join('\n'));
+});
+
+// 第88回: 作品の 品を たくさん 持った ふつうの セーブ（作品の 品 40こ〈ふくろ・預かり所。きたえた 物・そろいの 品〉・ガチャの 回数・
+//   ライバルに 勝った 記録・玉の 宝箱の 記録）も、1通（LINE_MAX）に 入る。作品の 品 1こで 8文字 ほど ふえる（docs/plan-r78-transfer.md）
+test('見はり: 作品の 品を たくさん 持った ふつうの セーブも 1通に 入る', { timeout: 120000 }, async () => {
+  const c = await typicalWorkChar(41, 40);
+  const base = exportCode(await typicalWorkChar(41, 0));
+  const code = exportCode(c);
+  const row = `作品の 品 40こ: KIZUNA-5 ${code.length}文字（LINE の ${Math.round((code.length / LINE_MAX) * 100)}%・${splitCode(code).length}通。品なし ${base.length}文字・1こ ${((code.length - base.length) / 40).toFixed(1)}文字）`;
+  console.log(row);
+  assert.ok(code.length <= LINE_MAX, row);
+  assert.equal(splitCode(code).length, 1, row);
+  const r = parseCode(code);
+  assert.equal(r.ok, true, r.reason);
+  assert.deepEqual(r.char, want(c));
 });
