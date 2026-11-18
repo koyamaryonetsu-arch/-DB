@@ -20,9 +20,9 @@
 // battle.js から よぶ: r83bTurnStart（行動の はじめ）・r83bCover（resolveTarget）・r83bEffect（applyAbility）・r83bPhysMult（calcPhys）・
 //   r83bMagicMult（calcMagic）・r83bDamage（damage の はじめ）・r83bPub（pub）
 // ai.js から よぶ: r83bPlan（オートの 動き）
-import { JOBS } from './data/jobs.js?v=f9111f3bfd76';
+import { JOBS } from './data/jobs.js?v=dd43a69561ed';
 // 受ける ダメージを へらしすぎない 下限（軍師の 系統と おなじ 数。第83回 A班）
-import { CUT_FLOOR } from './battle-r83a.js?v=f9111f3bfd76';
+import { CUT_FLOOR } from './battle-r83a.js?v=dd43a69561ed';
 
 export const ONI_STEP = 0.15;
 export const ONI_DRAIN = 0.06;

@@ -914,7 +914,8 @@ function g14Rivals() {
 //     「大魔王の城」（work: 'dai_maou'。works: ['dai'] … 品は ダイの大冒険の 品を 数える。data/works.js には 足さない）…
 //       部屋 ＝ 石の 広間（stone）・背景 ＝ 夜の 宮でん（palace_night）。大魔王バーンは 火の 城（castle_fire）
 //     2まいとも、ダイの大冒険の 品を 3つ 持つと 開く（とびらごとに 光る。品は 2重に 数えない）
-//   ドラゴンクエスト … 部屋 ＝ 石の 広間（stone）・背景 ＝ 東の 野原（plains_east）。竜王 ＝ 火の 城・デスピサロ ＝ 夜の 宮でん・ゾーマ ＝ 月の さけめ
+//   ドラゴンクエスト … 部屋 ＝ 石の 広間（stone）・背景 ＝ 東の 野原（plains_east）。竜王 ＝ 火の 城・あくまのきし ＝ どうくつ・デスピサロ ＝ 夜の 宮でん・ゾーマ ＝ 月の さけめ
+//     ロトの装備 5つは ライバル（剣・たて ＝ ゾーマ・よろい ＝ あくまのきし）と ガチャ（かぶと・聖なる守り）で だれでも そろう
 //     竜王のひ孫は、ロトの装備を 5つ 持って いる 人だけ ちょうせん できる（needSet。shared/rivals-r88.js の rivalNeedLack）
 function g15Doors() {
   return [
@@ -993,19 +994,26 @@ function g15Rivals() {
       tune: { hp: 1.12, dmg: 1 },
     },
     {
-      id: 'dq_psaro', work: 'dq', n: 2, name: 'デスピサロ', lv: 80, job: 'magic_swordsman', look: L(0, 'long', 'silver', 3, 'fair', 'sharp'), bg: 'palace_night',
+      // メインの 決定（ロトの装備は ライバルと ガチャで だれでも そろう）: ドムドーラで ロトのよろいを 守って いる きし
+      id: 'dq_akuma', work: 'dq', n: 2, name: 'あくまのきし', lv: 80, job: 'paladin', look: L(0, 'buzz', 'gray', 3, 'light', 'sharp'), bg: 'cave',
+      use: 'r88_dq_roto_armor', reward: ['r88_dq_roto_armor'], words: 'このよろいは、わたさぬぞ！',
+      sig: { name: 'あくまのきしの大ぶり', anim: 'slash_heavy', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、大きなオノをゆっくりふりかぶった！\nよろいが、ぎしぎしと鳴っている…！', cast: '{a}のオノが、うなりを上げてふり下ろされた！' },
+      tune: { hp: 0.96, dmg: 1 },
+    },
+    {
+      id: 'dq_psaro', work: 'dq', n: 3, name: 'デスピサロ', lv: 80, job: 'magic_swordsman', look: L(0, 'long', 'silver', 3, 'fair', 'sharp'), bg: 'palace_night',
       use: 'r88_dq_tenku_shield', reward: ['r88_dq_tenku_shield'], words: '人間め…。この剣で、思い知らせてやろう。',
       sig: { name: 'まわりをこおらせるふぶき', el: 'ice', anim: 'blizzard', charge: '{a}のまわりが、急にひえこんできた…！\n白い息が、うずを巻く…！', cast: '{a}から、こごえるふぶきがふきつけた！' },
       tune: { hp: 0.85, dmg: 1 },
     },
     {
-      id: 'dq_zoma', work: 'dq', n: 3, name: 'ゾーマ', lv: 100, job: 'archmage', look: L(0, 'long', 'white', 7, 'fair', 'calm'), bg: 'rift_moon',
-      use: 'r88_dq_roto_sword', reward: ['r88_dq_roto_sword'], words: 'なにゆえ、もがき生きるのか。',
+      id: 'dq_zoma', work: 'dq', n: 4, name: 'ゾーマ', lv: 100, job: 'archmage', look: L(0, 'long', 'white', 7, 'fair', 'calm'), bg: 'rift_moon',
+      use: 'r88_dq_roto_sword', reward: ['r88_dq_roto_sword', 'r88_dq_roto_shield'], words: 'なにゆえ、もがき生きるのか。',
       sig: { name: '闇の衣のこごえるいき', el: 'ice', anim: 'blizzard', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、闇の衣を大きく広げた！\nあたりが、しんとひえていく…！', cast: '{a}から、すべてをこおらせるいきがはき出された！' },
       tune: { hp: 0.93, dmg: 1 },
     },
     {
-      id: 'dq_hiko', work: 'dq', n: 4, name: '竜王のひ孫', lv: 100, job: 'ryumajin', look: L(0, 'short', 'purple', 6, 'fair', 'smile'), bg: 'castle_fire',
+      id: 'dq_hiko', work: 'dq', n: 5, name: '竜王のひ孫', lv: 100, job: 'ryumajin', look: L(0, 'short', 'purple', 6, 'fair', 'smile'), bg: 'castle_fire',
       // needSet … この 組の 品を n こ 持って いる 人だけ ちょうせん できる（shared/rivals-r88.js の rivalNeedLack）
       needSet: { set: 'roto', n: 5, text: 'ロトの装備を5つそろえると、ちょうせんできる' },
       use: 'r88_dq_ryuken', reward: ['r88_dq_ryuken'], words: 'ロトの装備の勇者よ、ひいおじいさんにかわって、手合わせだ！',

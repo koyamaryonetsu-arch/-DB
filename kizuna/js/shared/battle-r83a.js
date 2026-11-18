@@ -23,11 +23,11 @@
 // ■ オート（ai.js の decideAlly から r83aPlan）: 前ぶれ → 先読みの策・守りの旗／作戦が ない → 作戦（ボスは 守り・ふつうは 攻め）／
 //   敵が 強化 → 太極図（2体 いじょう・仲間も 弱って いる）か 強化ふうじ／ボスで ほう神計画・軍師の号令
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=f9111f3bfd76';
-import { BUFF_ACTS } from './buff-acts.js?v=f9111f3bfd76';
+import { JOBS } from './data/jobs.js?v=dd43a69561ed';
+import { BUFF_ACTS } from './buff-acts.js?v=dd43a69561ed';
 // 第86回 B班: 4つ目の 作戦「大魔法の時間」（となえて いる 仲間〈battle-r85a.js〉を 守り、となえて うつ 呪文を 強く する）
-import { ABILITIES } from './data/abilities.js?v=f9111f3bfd76';
-import { chanting } from './battle-r85a.js?v=f9111f3bfd76';
+import { ABILITIES } from './data/abilities.js?v=dd43a69561ed';
+import { chanting } from './battle-r85a.js?v=dd43a69561ed';
 
 export const R83A_LINE = ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'];
 // 作戦の 表（ならびは 作戦を立てる メニューの じゅん）
