@@ -1,19 +1,22 @@
 // 第88回 G3班: まぼろしの回ろうの きまり（持ち物で とびらが 開くか・とびらの まどの 中み・冒険のしおり）
 //   データは data/rivals-r88.js。サーバー（world/rivals-r88.js）・冒険のしおり（world/shiori.js）・画面（client/ui/rivals-r88.js）が 使う
 //   持ち物の 数え方は G1 の そろいの own と おなじ（shared/gear-r88.js の ownedIds: ふくろ・預かり所・装備。同じ 品は 1つ）
-import { ITEMS } from './data/items.js?v=e971858cca51';
-import { ownedIds } from './gear-r88.js?v=e971858cca51';
-import { workName } from './data/works.js?v=e971858cca51';
-import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag } from './data/rivals-r88.js?v=e971858cca51';
+import { ITEMS } from './data/items.js?v=3a53c2352ad9';
+import { ownedIds } from './gear-r88.js?v=3a53c2352ad9';
+import { workName } from './data/works.js?v=3a53c2352ad9';
+import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag, doorWorks } from './data/rivals-r88.js?v=3a53c2352ad9';
 
 export const HALL_NAME = 'まぼろしの回ろう';
 
-// その 作品の 品を いくつ 持って いるか
+// その 作品の 品を いくつ 持って いるか（G11班: 2作品を まとめた とびら〈コナン・快と〉は 2作品の 合計）
 export function workOwned(c, work) {
+  const ws = doorWorks(work);
   let n = 0;
-  for (const id of ownedIds(c)) if (ITEMS[id]?.work === work) n++;
+  for (const id of ownedIds(c)) if (ws.includes(ITEMS[id]?.work)) n++;
   return n;
 }
+// G11班: とびらの 名前（まとめた とびらは その 名前。ふつうは 作品の 名前）
+export const doorName = (work) => doorOf(work)?.name || workName(work);
 export const doorOpen = (c, work) => workOwned(c, work) >= DOOR_NEED;
 // あと いくつで 開くか（開いて いれば 0）
 export const doorLeft = (c, work) => Math.max(0, DOOR_NEED - workOwned(c, work));
@@ -63,7 +66,7 @@ export function rivalPaper(c, work) {
     };
   });
   return {
-    kind: 'rival', work, workName: workName(work), mark: d?.mark || '', own: workOwned(c, work), need: DOOR_NEED,
+    kind: 'rival', work, workName: doorName(work), mark: d?.mark || '', own: workOwned(c, work), need: DOOR_NEED,
     rivals: list, ask: list.some((r) => r.state === 'next') ? 'だれにちょうせんする？' : 'もう一度、戦う？',
   };
 }
@@ -84,7 +87,7 @@ export function rivalTrack(c) {
     const won = all.filter((r) => rivalWon(c, r.id)).length;
     const left = doorLeft(c, d.work);
     const state = won >= all.length ? 'done' : left ? 'wait' : 'open';
-    return { name: `${workName(d.work)}のとびら`, where: left ? `品をあと${left}つ集めると開く` : '', state, right: `${won}/${all.length}人` };
+    return { name: `${doorName(d.work)}のとびら`, where: left ? `品をあと${left}つ集めると開く` : '', state, right: `${won}/${all.length}人` };
   });
   return {
     id: 'rival', name: HALL_NAME, now: items.reduce((s, x) => s + Number(x.right.split('/')[0]), 0),
@@ -99,7 +102,7 @@ export function rivalRec(c) {
   for (const d of RIVAL_DOORS) {
     if (!doorOpen(c, d.work)) continue;
     const nx = rivalsOf(d.work).find((r) => !rivalWon(c, r.id));
-    if (nx) return { text: `まぼろしの回ろうで、${workName(d.work)}の${nx.name}にちょうせんできます`, where: 'ルミナの町の星の神殿' };
+    if (nx) return { text: `まぼろしの回ろうで、${doorName(d.work)}の${nx.name}にちょうせんできます`, where: 'ルミナの町の星の神殿' };
   }
   // G6班: 勝った 人の ごほうびに、あとから 品が 足された（太極図の巻物）。もう一度 勝つと もらえる
   for (const d of RIVAL_DOORS) {

@@ -1,8 +1,8 @@
 // カジノ・メダル王の城・小さなメダルの 人の だいほん（story.js で まぜる）
 // カジノの まど（コイン・スロット・ポーカー・景品）と メダル王の まどは client/ui/casino.js
-import { medalsFound, medalsHeld, COIN_PRICE } from './casino.js?v=e971858cca51';
-import { tierInfo, TIER_AT } from './casino-tier.js?v=e971858cca51';
-import { SG_HOOKS, BOARDS, TICKET_COINS, MEDAL_TICKETS } from './sugoroku.js?v=e971858cca51';
+import { medalsFound, medalsHeld, COIN_PRICE } from './casino.js?v=3a53c2352ad9';
+import { tierInfo, TIER_AT } from './casino-tier.js?v=3a53c2352ad9';
+import { SG_HOOKS, BOARDS, TICKET_COINS, MEDAL_TICKETS } from './sugoroku.js?v=3a53c2352ad9';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 

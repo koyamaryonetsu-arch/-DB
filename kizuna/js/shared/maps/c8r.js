@@ -4,10 +4,10 @@
 // ・maps/c8r-wings.js … つばさ 4つ（c8r_moon_1〜c8r_ice_2。_now も）・最後の 回廊（c8r_last_1〜3。_now も）。階の 形は maps/c8r-rows.js、しくみは maps/c8r-floor.js
 // ・maps/c8r-field.js … 今の ほしみの丘の 時の さけめ・4人の 勇者の 像
 // ・maps/c8r-flags.js … フラグ・マップの ID
-import { buildC8rFloors, C8R_WING_MAPS, C8R_LAST_MAPS } from './c8r-wings.js?v=e971858cca51';
-import { buildHall, buildCore } from './c8r-hall.js?v=e971858cca51';
-import { attachC8rField, RIFT8R_OUT } from './c8r-field.js?v=e971858cca51';
-import { HALL_ID, CORE_ID } from './c8r-flags.js?v=e971858cca51';
+import { buildC8rFloors, C8R_WING_MAPS, C8R_LAST_MAPS } from './c8r-wings.js?v=3a53c2352ad9';
+import { buildHall, buildCore } from './c8r-hall.js?v=3a53c2352ad9';
+import { attachC8rField, RIFT8R_OUT } from './c8r-field.js?v=3a53c2352ad9';
+import { HALL_ID, CORE_ID } from './c8r-flags.js?v=3a53c2352ad9';
 
 // 第8章 第4幕の マップの ID（セーブに のこるので かえない）
 export const C8R_MAPS = [HALL_ID, ...C8R_WING_MAPS, ...C8R_LAST_MAPS, CORE_ID];

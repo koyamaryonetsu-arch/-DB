@@ -7,10 +7,10 @@
 //   ・効果は「つけた 人の、その 装備の しゅるい」に のこる（char.gearFx[もとの 装備の id] = [{ k, v }]）。
 //     きたえた +1〜 も 同じ しゅるい。きたえると 少し 強く なる（+3 ごとに 値が 1 上がった ぶん）
 //   ・道具として 使える 効果は イオだけ（何回でも。MP は いらない）
-import { ITEMS } from './items.js?v=e971858cca51';
-import { isShopGear, starsFor } from './items-rare.js?v=e971858cca51';
+import { ITEMS } from './items.js?v=3a53c2352ad9';
+import { isShopGear, starsFor } from './items-rare.js?v=3a53c2352ad9';
 // 第88回: 作品の 品の 生まれつきの 効果・そろいの 効果・「使う」（shared/gear-r88.js）
-import { r88FxList, wearSetPower, r88Uses } from '../gear-r88.js?v=e971858cca51';
+import { r88FxList, wearSetPower, r88Uses } from '../gear-r88.js?v=3a53c2352ad9';
 
 export const STAR = 'star_shard';
 // 使う 素材（武器・防具〈よろい・たて・頭〉）

@@ -35,6 +35,7 @@ export const RIVAL_DOORS = [
   ...g8Doors(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
   ...g10Doors(), // G10班: ナルト・きめつのやいば（ファイルの さいご）
   ...g9Doors(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
+  ...g11Doors(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -279,6 +280,7 @@ export const RIVALS = [
   ...g8Rivals(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
   ...g10Rivals(), // G10班: ナルト・きめつのやいば（ファイルの さいご）
   ...g9Rivals(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
+  ...g11Rivals(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -290,6 +292,8 @@ export const SIG_AFTER = 5;
 // ───────────── 引く 物 ─────────────
 export const RIVAL_BY_ID = Object.fromEntries(RIVALS.map((r) => [r.id, r]));
 export const doorOf = (work) => RIVAL_DOORS.find((d) => d.work === work) || null;
+// G11班: とびらの 品を 数える 作品（2作品を 1まいに まとめた とびらは works。ふつうは その 作品だけ）
+export const doorWorks = (work) => doorOf(work)?.works || [work];
 // とびらが 光って いる しるし（キャラの flags。maps/rivals-r88.js の とびらの 前の 光る わ。shared/rivals-r88.js の refreshDoorFlags）
 export const doorFlag = (work) => `r88door_${work}`;
 // その 作品の ライバル（n の じゅん）
@@ -638,6 +642,91 @@ function g9Rivals() {
       use: 'r88_op_hassaikai', reward: ['r88_op_hassaikai'], words: 'ウォロロロ…！おもしろい。かかってこい！',
       sig: { name: '雷鳴八け', el: 'bolt', anim: 'r88_zeus', charge: '{a}が、金棒を大きくふりかぶった！\n金棒のまわりで、雷がばちばち鳴り始めた…！', cast: '{a}の金棒が、雷といっしょにふり下ろされた！' },
       tune: { hp: 0.62, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G11班: るろうに剣心・コナンと快と ─────────────
+//   るろうに剣心 … 部屋 ＝ 木の 道場（wood）・背景 ＝ 東の 野原（plains_east）。ししおは 火の 城（castle_fire）・比古は 山の 上（peak）
+//   コナンと 快と … 2作品を 1まいの とびらに まとめた（works。とびらの 品の 数は 2作品の 合計・name は とびらの 名前）。
+//     ライバルの work は とびらの 作品（conan）。ごほうびの 品の 作品は それぞれ（キッドの 品は kaito）。
+//     部屋 ＝ 石の 広間（stone）・背景 ＝ 夜の 町（village_night）。月夜の キッドは 塔の 上（tower_top）
+//     7-1 の 行は 2作品で 7人。5人に しぼった（小泉紅子〈紅子の魔法の鏡〉・ジン〈黒ずくめの服〉は ガチャの 名品に）
+function g11Doors() {
+  return [
+    { work: 'kenshin', mark: 'r88_kenshin', bg: 'plains_east', room: 'wood', jobs: ['rurouni', 'hitokiri', 'himura', 'hiten'] },
+    {
+      work: 'conan', works: ['conan', 'kaito'], name: 'コナン・快と', mark: 'r88_conan', bg: 'village_night', room: 'stone',
+      jobs: ['shonen_tantei', 'meitantei', 'detective_king', 'koan_zero', 'triple_face', 'black_org', 'ano_kata', 'magician', 'kaito', 'kaito_kid', 'gekka'],
+    },
+  ];
+}
+function g11Rivals() {
+  return [
+    // ── るろうに剣心（名品を くれる 人は Lv60 ごろ・伝説の 無限じんは Lv80・さいごの 比古清十ろうは Lv100）──
+    {
+      id: 'ks_aoshi', work: 'kenshin', n: 1, name: 'しのもりあおし', lv: 60, job: 'ninja', look: L(0, 'short', 'black', 3, 'fair', 'sharp'),
+      use: 'r88_ks_kodachi', reward: ['r88_ks_kodachi'], words: '御庭番衆の御頭として、手かげんはしない。',
+      sig: { name: '小太刀二刀・回天けんぶ', anim: 'slash_multi', charge: '{a}が、2本の小太刀をさか手にかまえた！\nするどい気配が、うずを巻いていく…！', cast: '{a}の小太刀が、うずのように回りながらおそいかかった！' },
+      tune: { hp: 1.63, dmg: 1 },
+    },
+    {
+      id: 'ks_sojiro', work: 'kenshin', n: 2, name: 'せた宗次ろう', lv: 62, job: 'hitokiri', look: L(0, 'short', 'black', 1, 'fair', 'smile'),
+      use: 'r88_ks_kikuichi', reward: ['r88_ks_kikuichi'], words: 'あはは。ぼく、ちょっと速いですよ。',
+      sig: { name: 'しゅく地の一太刀', anim: 'slash_fast', charge: '{a}が、にこにこしたまま、とんとんと足ぶみを始めた…！\n足音が、だんだん聞こえなくなっていく…！', cast: '{a}が消えた…と思ったしゅん間、一太刀がとどいた！' },
+      tune: { hp: 1.46, dmg: 1 },
+    },
+    {
+      id: 'ks_enishi', work: 'kenshin', n: 3, name: '雪代えにし', lv: 64, job: 'sword_master', look: L(0, 'spiky', 'white', 0, 'fair', 'sharp'),
+      use: 'r88_ks_wato', reward: ['r88_ks_wato'], words: 'わ刀術の力、見せてやる。',
+      sig: { name: 'わ刀術・大回転', at: 0.8, after: 3, hit: 1.3, anim: 'slash_heavy', charge: '{a}が、わ刀を体ごと大きくひねった！\nまわりの空気が、ぴりぴりとふるえる…！', cast: '{a}が、回りながらわ刀をふりぬいた！' },
+      tune: { hp: 0.5, dmg: 1.2 },
+    },
+    {
+      id: 'ks_shishio', work: 'kenshin', n: 4, name: 'ししお真実', lv: 80, job: 'enjutsushi', look: L(0, 'bald', 'black', 0, 'light', 'sharp'), bg: 'castle_fire',
+      use: 'r88_ks_mugen', reward: ['r88_ks_mugen'], words: 'この国のてっぺんを取るのは、おれだ。',
+      sig: { name: '紅れんかいな・大火', el: 'fire', anim: 'r88_guren', charge: '{a}が、無限じんを地面にこすりつけた！\n火花がとびちり、刀が赤く燃え上がる…！', cast: '{a}の燃える手から、大きな火の玉がはじけた！' },
+      tune: { hp: 0.72, dmg: 1 },
+    },
+    {
+      id: 'ks_hiko', work: 'kenshin', n: 5, name: '比古清十ろう', lv: 100, job: 'magic_swordsman', look: L(0, 'long', 'black', 7, 'tan', 'calm'), bg: 'peak',
+      use: 'r88_ks_fuyutsuki', reward: ['r88_ks_mantle', 'r88_ks_fuyutsuki'], words: 'ばか弟子の仲間か。少し、見てやろう。',
+      same: 'ほう、飛天の剣を学ぶ者か。ならば、手かげんはせん。',
+      sig: { name: '師しょうの九つの竜の一げき', anim: 'slash_multi', charge: '{a}が、白いマントをばさりとぬぎすてた！\nまわりの空気が、ずしりと重くなっていく…！', cast: '{a}の刀から、九つの竜のような一げきが、同時におそいかかった！' },
+      tune: { hp: 0.65, dmg: 1 },
+    },
+    // ── コナン・快と（名品・ふつうを くれる 人は Lv60 ごろ・さいごの 月夜の キッドは 伝説の パンドラで Lv100）──
+    {
+      id: 'cn_kyogoku', work: 'conan', n: 1, name: '京極真', lv: 60, job: 'god_hand', look: L(0, 'buzz', 'black', 0, 'tan', 'brave'),
+      use: 'r88_cn_kyogoku', reward: ['r88_cn_kyogoku'], words: 'おす！全力でお相手します！',
+      sig: { name: 'けりの大れんげき', anim: 'punch_multi', charge: '{a}が、ふかく、ふかくこしを落とした！\n足に、ものすごい力がたまっていく…！', cast: '{a}のけりが、あらしのようにおそいかかった！' },
+      tune: { hp: 1.12, dmg: 1 },
+    },
+    {
+      id: 'kt_hakuba', work: 'conan', n: 2, name: '白馬探', lv: 62, job: 'meitantei', look: L(0, 'wavy', 'blonde', 7, 'fair', 'calm'),
+      use: 'r88_kt_watch', reward: ['r88_kt_watch'], words: 'ぼくの推理に、まちがいはありません。',
+      sig: { name: 'ワトソンの急こう', anim: 'slash_fast', charge: '{a}が、かいちゅう時計をぱちんと開いた！\n空の上で、タカが大きく回っている…！', cast: '{a}の合図で、タカのワトソンがいっせいにまいおりた！' },
+      tune: { hp: 1.41, dmg: 1 },
+    },
+    {
+      id: 'cn_akai', work: 'conan', n: 3, name: '赤井しゅう一', lv: 64, job: 'koan_zero', look: L(0, 'long', 'black', 0, 'light', 'sharp'),
+      use: 'r88_cn_knit', reward: ['r88_cn_knit'], words: 'ここから先は、通さない。',
+      sig: { name: 'ジークンドーのれんげき', anim: 'punch_multi', charge: '{a}が、ニットぼうを目ぶかにかぶり直した！\nしずかに、かまえを取る…！', cast: '{a}のするどいこぶしが、つぎつぎにとんできた！' },
+      tune: { hp: 1.16, dmg: 1 },
+    },
+    {
+      id: 'kt_kid', work: 'conan', n: 4, name: 'かいとうキッド', lv: 66, job: 'kaito_kid', look: L(0, 'short', 'white', 7, 'fair', 'smile'),
+      use: 'r88_kt_card', reward: ['r88_kt_card', 'r88_kt_suit'], words: 'こんばんは。今夜のショーへ、ようこそ。',
+      same: 'おや、同じ手品の道の方ですか。では、マジック勝負といきましょう。',
+      sig: { name: 'トランプのあらし', anim: 'r88_kid', charge: '{a}が、パチンと指を鳴らした！\nシルクハットから、トランプがどんどんあふれ出す…！', cast: '{a}のトランプじゅうから、トランプのあらしがふきあれた！' },
+      tune: { hp: 1.25, dmg: 1 },
+    },
+    {
+      id: 'kt_kidmoon', work: 'conan', n: 5, name: '月夜のかいとうキッド', lv: 100, job: 'gekka', look: L(0, 'short', 'white', 7, 'fair', 'smile'), bg: 'tower_top',
+      use: 'r88_kt_pandora', reward: ['r88_kt_pandora'], words: '月が出ましたね。さあ、さいごのマジックです。',
+      same: 'おや、同じ手品の道の方ですか。では、マジック勝負といきましょう。',
+      sig: { name: '満月のイリュージョン', el: 'light', anim: 'r88_kid', charge: '{a}が、大きな宝石を月にかざした！\n宝石の中で、赤い光がゆらめく…！', cast: '{a}のマントがひるがえり、月の光がいっせいにふりそそいだ！' },
+      tune: { hp: 0.4, dmg: 1 },
     },
   ];
 }
