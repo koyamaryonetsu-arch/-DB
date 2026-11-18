@@ -8,6 +8,8 @@
 //              敵に 大きく 2回 切りつける → 白い 光の 十字 ＋ 光の つぶ
 //  r88_fujin   風神・風魂（G2班）… 緑と 白の つむじ風が うずを まいて ふくらみ、風の やいばが 何本も 敵の グループを 切りさく
 //  r88_raijin  雷神・いかずち（G2班）… こての 雷が 青白く ばちばち 光り、敵 みんなの 上から 青い いなずまが ジグザグに 落ちる
+// G12班: 味方に かける えんしゅつ（もしもボックス・ムーン・ヒーリング）を PARTY_ANIMS に まぜる（client/battle.js が 画面の 下に 出す）
+import { PARTY_ANIMS } from './battlefx-jobs2.js';
 const BOLT = ['#ffffff', '#fff6b0', '#ffd23a', '#c890ff'];
 const LIGHT = ['#ffffff', '#fffbe0', '#ffe680', '#ffd23a'];
 const WIND = ['#ffffff', '#e8fff0', '#9ef0c0', '#4ad890'];
@@ -425,5 +427,6 @@ Object.assign(G8_FX, { r88_dokan: dokan, r88_moshimo: moshimo, r88_moonheal: moo
 for (const k of ['r88_dokan', 'r88_moshimo', 'r88_moonheal']) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_dokan: 560, r88_moshimo: 800, r88_moonheal: 700 });
 Object.assign(R88_SFX, { r88_dokan: 'blast', r88_moshimo: 'sparkle', r88_moonheal: 'heal' });
-// 味方に かける えんしゅつ（client/battle.js が たたかいの 画面の 下に 出す）
+// 味方に かける えんしゅつ（client/battle.js・テストが 見る PARTY_ANIMS に まぜる。M1班と 同じ）
 export const R88_PARTY_ANIMS = new Set(['r88_moshimo', 'r88_moonheal']);
+for (const a of R88_PARTY_ANIMS) PARTY_ANIMS.add(a);
