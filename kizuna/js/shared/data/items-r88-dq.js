@@ -9,7 +9,7 @@
 //   ・いのりの指輪 … 使うと 自分の MPを 回復（こわれる 所は 作らない。1つの 戦いで 1回）
 //   ・今 ある はやぶさの剣・天空の剣・天空のよろい・ドラゴンスレイヤーにも 作品を つけた（R88_TAG_DQ。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（設計書の「実装メモ（G15班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const Q = { work: 'dq' };
 const R = { work: 'dq', set: 'roto' };
@@ -21,19 +21,19 @@ export const TENKU_GEAR = ['tenku_sword', 'tenku_mail', 'r88_dq_tenku_shield', '
 
 const GEAR = {
   // ───── ロトの装備 ─────
-  r88_dq_roto_sword: { ...weapon('sword', 'den'), ...R, name: 'ロトの剣', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 18, agi: 10 }, use: { ability: 'r88u_dq_roto' }, look: 'holy', desc: '伝説の勇者ロトの剣。王者の剣ともよばれる。ふつうの攻撃が光になる。使うと、大きな風の呪文で、同じ種類の敵みんなを切りさく。' },
+  r88_dq_roto_sword: { ...weapon('sword', 'den'), ...R, name: 'ロトの剣', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 18, agi: 10 }, use: { ability: 'r88u_dq_roto' }, look: 'roto', desc: '伝説の勇者ロトの剣。王者の剣ともよばれる。ふつうの攻撃が光になる。使うと、大きな風の呪文で、同じ種類の敵みんなを切りさく。' },
   r88_dq_roto_armor: { ...armor('heavy', 'den'), ...R, name: 'ロトのよろい', fx: [{ k: 'regen', v: 6 }], bonus: { hp: 40, def: 10 }, desc: '伝説の勇者ロトのよろい。光のよろいともよばれる。行動するたびにHPが少し回復する。' },
   r88_dq_roto_shield: { ...shield('den'), ...R, name: 'ロトのたて', bonus: { def: 10, hp: 30 }, resist: { fire: 0.8, ice: 0.8 }, look: 'crest', desc: '伝説の勇者ロトのたて。勇者のたてともよばれる。炎と氷に強い。' },
   r88_dq_roto_helm: { ...head('mei', true), ...R, name: 'ロトのかぶと', bonus: { def: 4 }, resist: { sleep: 0.6, confuse: 0.6 }, desc: '伝説の勇者ロトのかぶと。ねむりと混乱にかかりにくい。' },
   r88_dq_roto_mark: { ...acc('mei'), ...R, name: 'ロトの聖なる守り', fx: [{ k: 'res_dark', v: 6 }], bonus: { hp: 30, mag: 6 }, desc: 'ロトの血をひく者のあかし。ロトのしるしともよばれる。闇に強い。ロトの装備を5つそろえると……？' },
-  r88_dq_ryuken: { ...weapon('sword', 'den'), ...Q, name: 'ロトの竜剣', fx: [{ k: 'slay_dragon', v: 8 }], bonus: { str: 20, def: 10 }, look: 'dragon', desc: 'ロトの装備で竜王のひ孫に勝った者だけがもらえる、竜の力をひめた剣。ドラゴンにとても強い。' },
+  r88_dq_ryuken: { ...weapon('sword', 'den'), ...Q, name: 'ロトの竜剣', fx: [{ k: 'slay_dragon', v: 8 }], bonus: { str: 20, def: 10 }, look: 'roto', desc: 'ロトの装備で竜王のひ孫に勝った者だけがもらえる、竜の力をひめた剣。ドラゴンにとても強い。' },
   // ───── そのほかの 品 ─────
   r88_dq_hikaritama: { ...acc('mei'), ...Q, name: 'ロトの光の玉', fx: [{ k: 'res_dark', v: 4 }], bonus: { mag: 8 }, use: { ability: 'r88u_dq_tama' }, desc: '竜の女王から勇者にたくされた、光の玉。闇に強い。使うと、敵全体の強くなっていた力を消す。' },
   r88_dq_raijin: { ...weapon('sword', 'mei'), ...Q, name: '雷神の剣', bonus: { str: 4, mag: 8 }, use: { ability: 'r88u_dq_raijin' }, look: 'flame', desc: 'いかずちの神の名をもつ剣。使うと、ほのおの呪文で、同じ種類の敵みんなをやきつくす。' },
   r88_dq_inazuma: { ...weapon('sword', 'mei'), ...Q, name: 'いなずまのつるぎ', bonus: { str: 4, mag: 8 }, use: { ability: 'r88u_dq_inazuma' }, look: 'bolt', desc: '空にかかげると、ばく発の呪文がおこる剣。使うと、敵全体をばく発でつつむ。' },
   r88_dq_kiseki: { ...weapon('sword', 'mei'), ...Q, name: 'きせきの剣', fx: [{ k: 'drain', v: 6 }], look: 'crystal', desc: '切りつけるたびに、きずがいえていく、ふしぎな剣。あたえたダメージの一部だけHPが回復する。' },
-  r88_dq_tekkyu: { ...weapon('axe', 'den'), ...Q, name: 'はかいの鉄球', reach: 'all', bonus: { str: 16, agi: -8 }, look: 'hammer', desc: 'くさりの先に、トゲの大きな鉄球がついた武器。ふつうの攻撃が、敵全体にとどく。重くて、素早さが下がる。' },
-  r88_dq_gringham: { ...weapon('whip', 'den'), ...Q, name: 'グリンガムのムチ', reach: 'group', bonus: { str: 14, agi: 10 }, look: 'royal', desc: '3本に分かれた、伝説のムチ。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
+  r88_dq_tekkyu: { ...weapon('axe', 'den'), ...Q, name: 'はかいの鉄球', reach: 'all', bonus: { str: 16, agi: -8 }, look: 'tekkyu', desc: 'くさりの先に、トゲの大きな鉄球がついた武器。ふつうの攻撃が、敵全体にとどく。重くて、素早さが下がる。' },
+  r88_dq_gringham: { ...weapon('whip', 'den'), ...Q, name: 'グリンガムのムチ', reach: 'group', bonus: { str: 14, agi: 10 }, look: 'gringham', desc: '3本に分かれた、伝説のムチ。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
   r88_dq_mk_sword: { ...weapon('sword', 'den'), ...Q, name: 'メタルキングの剣', fx: [{ k: 'slay_dragon', v: 6 }], bonus: { str: 16, def: 16 }, look: 'crystal', desc: 'はぐれたメタルの王さまの、とてもかたい剣。ドラゴンに強い。守備力も上がる。' },
   r88_dq_mk_armor: { ...armor('heavy', 'mei'), ...Q, name: 'メタルキングのよろい', bonus: { def: 10 }, resist: { fire: 0.8, ice: 0.8 }, desc: 'メタルの王さまのように、銀色にかがやくよろい。炎と氷に強い。' },
   r88_dq_mk_shield: { ...shield('mei'), ...Q, name: 'メタルキングのたて', fx: [{ k: 'def', v: 6 }], look: 'round', desc: 'メタルの王さまのように、かたい銀色のたて。守備力が上がる。' },

@@ -8,20 +8,21 @@
 //   3. 料理・そうじの 道具・マイク などの「道具の 形」（TOOL_LOOKS）は その 道具の 絵（hero-gear.js の 道具の 形）
 //
 // ★4・★5 の 品（items-rare.js の starsFor）は 宝石・光の すじ・きらめき が つく（絵の がわで きめる）
-import { starsFor } from './items-rare.js?v=1bbfc18c8d9d';
+import { starsFor } from './items-rare.js?v=a31118b071f7';
 
 // 武器種ごとの 形（ならびは だいたい 弱い 形 → 強い 形）
 export const WEAPON_LOOKS = {
-  sword: ['wood', 'leaf', 'broad', 'rapier', 'scimitar', 'great', 'flame', 'crystal', 'bolt', 'dragon', 'holy', 'katana'],
-  axe: ['stone', 'axe', 'pirate', 'battle', 'crescent', 'hammer', 'pick', 'dragon'],
+  sword: ['wood', 'leaf', 'broad', 'rapier', 'scimitar', 'great', 'flame', 'crystal', 'bolt', 'dragon', 'holy', 'katana',
+    'raijin', 'hikari', 'tessaiga', 'yoru', 'dai', 'shinma', 'roto', 'tenku', 'saber'],
+  axe: ['stone', 'axe', 'pirate', 'battle', 'crescent', 'hammer', 'pick', 'dragon', 'tekkyu'],
   dagger: ['knife', 'dirk', 'kunai', 'jambiya', 'stiletto', 'kris', 'star'],
-  spear: ['spear', 'spear2', 'coral', 'halberd', 'trident', 'lance', 'winged', 'dragon', 'pennant', 'rod'],
-  claw: ['knuckle', 'claw', 'fang', 'beast', 'tiger', 'katar', 'fist', 'dragon'],
-  whip: ['whip', 'chain', 'thorn', 'snake', 'scorpion', 'star', 'royal'],
-  staff: ['oak', 'wizard', 'healing', 'wave', 'star', 'crystal', 'ring', 'wing', 'dragon', 'ankh', 'broom', 'cane'],
+  spear: ['spear', 'spear2', 'coral', 'halberd', 'trident', 'lance', 'winged', 'dragon', 'pennant', 'rod', 'glaive', 'matoi'],
+  claw: ['knuckle', 'claw', 'fang', 'beast', 'tiger', 'katar', 'fist', 'dragon', 'fujin'],
+  whip: ['whip', 'chain', 'thorn', 'snake', 'scorpion', 'star', 'royal', 'raikou', 'dashin', 'gringham'],
+  staff: ['oak', 'wizard', 'healing', 'wave', 'star', 'crystal', 'ring', 'wing', 'dragon', 'ankh', 'broom', 'cane', 'clima', 'moonstick', 'heartrod', 'elder', 'kouma', 'frieren'],
   fan: ['feather', 'fan', 'tessen', 'wing', 'phoenix', 'moon'],
-  bat: ['bat', 'bamboo', 'mbat', 'gbat', 'club', 'spiked'],
-  boomerang: ['boomer', 'cross', 'crescent', 'star', 'wing', 'bone'],
+  bat: ['bat', 'bamboo', 'mbat', 'gbat', 'club', 'spiked', 'tekkyu'],
+  boomerang: ['boomer', 'cross', 'crescent', 'star', 'wing', 'bone', 'ball'],
 };
 // 道具の 形（武器種に かかわらず、その 道具の 絵）
 export const TOOL_LOOKS = ['pen', 'penlight', 'harisen', 'flag', 'kitchen', 'chefknife', 'pan', 'wok', 'ladle', 'whisk', 'mop', 'brush', 'standmic', 'mic',
@@ -32,18 +33,24 @@ export const TOOL_SHIELD_LOOKS = ['case', 'plaque'];
 
 // 形の 名前（開発用の 一覧・テストの 見出し）
 export const LOOK_NAMES = {
-  sword: { wood: '木の剣', leaf: '木の葉の剣', broad: 'ブロードソード', rapier: '細身の剣', scimitar: '三日月刀', great: '大剣', flame: '炎の剣', crystal: '水晶の剣', bolt: 'いなずまの剣', dragon: '竜の剣', holy: '聖剣', katana: '刀' },
-  axe: { stone: '石のオノ', axe: 'オノ', pirate: 'ひげのオノ', battle: '両刃のオノ', crescent: '大まさかり', hammer: '大づち', pick: 'つるはし', dragon: '竜のオノ' },
+  sword: { wood: '木の剣', leaf: '木の葉の剣', broad: 'ブロードソード', rapier: '細身の剣', scimitar: '三日月刀', great: '大剣', flame: '炎の剣', crystal: '水晶の剣', bolt: 'いなずまの剣', dragon: '竜の剣', holy: '聖剣', katana: '刀',
+    raijin: '玉の剣', hikari: '光の剣', tessaiga: 'きばの大刀', yoru: '黒い十字の大刀', dai: '竜のつばさの剣', shinma: '竜の頭の剣', roto: '鳥のつばさの剣', tenku: '天空の剣', saber: 'サーベル' },
+  axe: { stone: '石のオノ', axe: 'オノ', pirate: 'ひげのオノ', battle: '両刃のオノ', crescent: '大まさかり', hammer: '大づち', pick: 'つるはし', dragon: '竜のオノ', tekkyu: 'トゲの鉄球' },
   dagger: { knife: 'ナイフ', dirk: 'ダガー', kunai: 'クナイ', jambiya: 'まがった短剣', stiletto: 'はりの短剣', kris: '波の短剣', star: '星の短剣' },
-  spear: { spear: '木の葉のやり', spear2: 'つばさのやり', coral: 'サンゴのやり', halberd: 'ほこやり', trident: '三つまた', lance: '騎士のやり', winged: '羽のやり', dragon: '竜のやり', pennant: '旗のやり', rod: 'ぼう' },
-  claw: { knuckle: 'ナックル', claw: 'ツメ', fang: 'キバ', beast: 'けもののツメ', tiger: '長いツメ', katar: 'カタール', fist: '大きなこぶし', dragon: '竜のツメ' },
-  whip: { whip: 'ムチ', chain: 'くさり', thorn: 'いばら', snake: 'ヘビ', scorpion: 'サソリ', star: '星のムチ', royal: '王のムチ' },
-  staff: { oak: '木のつえ', wizard: '三日月のつえ', healing: '十字のつえ', wave: 'うずのつえ', star: '星のつえ', crystal: '水晶のつえ', ring: 'わのつえ', wing: '羽のつえ', dragon: '竜のつえ', ankh: 'アンク', broom: 'ほうき', cane: 'ステッキ' },
+  spear: { spear: '木の葉のやり', spear2: 'つばさのやり', coral: 'サンゴのやり', halberd: 'ほこやり', trident: '三つまた', lance: '騎士のやり', winged: '羽のやり', dragon: '竜のやり', pennant: '旗のやり', rod: 'ぼう', glaive: '大がまのやり', matoi: 'まとい' },
+  claw: { knuckle: 'ナックル', claw: 'ツメ', fang: 'キバ', beast: 'けもののツメ', tiger: '長いツメ', katar: 'カタール', fist: '大きなこぶし', dragon: '竜のツメ', fujin: '風のこて' },
+  whip: { whip: 'ムチ', chain: 'くさり', thorn: 'いばら', snake: 'ヘビ', scorpion: 'サソリ', star: '星のムチ', royal: '王のムチ', raikou: '金の雷のムチ', dashin: 'ふしの棒', gringham: '三つまたのムチ' },
+  staff: { oak: '木のつえ', wizard: '三日月のつえ', healing: '十字のつえ', wave: 'うずのつえ', star: '星のつえ', crystal: '水晶のつえ', ring: 'わのつえ', wing: '羽のつえ', dragon: '竜のつえ', ankh: 'アンク', broom: 'ほうき', cane: 'ステッキ',
+    clima: '天候棒', moonstick: '月のスティック', heartrod: 'ハートのロッド', elder: 'ニワトコのつえ', kouma: '光のやいばのつえ', frieren: '千年のつえ' },
   fan: { feather: '羽のおうぎ', fan: 'おうぎ', tessen: '鉄のおうぎ', wing: 'つばさのおうぎ', phoenix: 'ほのおのおうぎ', moon: 'まるいうちわ' },
-  bat: { bat: '木のバット', bamboo: '竹のバット', mbat: '金属バット', gbat: '金のバット', club: 'こんぼう', spiked: 'トゲのこんぼう' },
-  boomerang: { boomer: 'くの字', cross: '十字', crescent: '三日月', star: '星', wing: 'つばさ', bone: 'ほね' },
+  bat: { bat: '木のバット', bamboo: '竹のバット', mbat: '金属バット', gbat: '金のバット', club: 'こんぼう', spiked: 'トゲのこんぼう', tekkyu: 'トゲの鉄球' },
+  boomerang: { boomer: 'くの字', cross: '十字', crescent: '三日月', star: '星', wing: 'つばさ', bone: 'ほね', ball: 'ボール' },
   shield: { round: '丸い盾', kite: 'カイトシールド', heater: 'ヒーターシールド', tower: 'タワーシールド', crest: '紋章の盾', dragon: '竜のうろこの盾', light: '光の盾', mirror: '鏡の盾', moon: '三日月の盾', shell: '貝の盾' },
 };
+
+// 第88回 絵A班: 大刀・さめはだ（ナルト）は オノの 品なので オノの 形に 足す（剣の 新しい 形は 上の sword の 2行め）
+WEAPON_LOOKS.axe.push('samehada');
+LOOK_NAMES.axe.samehada = 'とげの大刀';
 
 // ───── 品ごとの 形（名前に あう 形。ボスの 品・★4・★5・伝説の 名前の 品 など） ─────
 export const GEAR_LOOK = {
@@ -52,7 +59,7 @@ export const GEAR_LOOK = {
   sakabatou: 'katana', silver_sword: 'rapier', thunder_sword: 'bolt', flame_sword: 'flame', storm_sword: 'bolt', hayabusa_sword: 'rapier', kira_sword: 'crystal',
   joker_sword: 'scimitar', casino_king_sword: 'great', heaven_dice_sword: 'crystal', frost_blade: 'crystal', obsidian_sword: 'great', meteor_sword: 'crystal',
   shamshir: 'scimitar', crescent_blade: 'scimitar', royal_gold_sword: 'great', platinum_sword: 'rapier', ancient_blade: 'great', scale_sword: 'dragon',
-  light_sword: 'holy', tenku_sword: 'holy', hayate_sword: 'rapier', hoshi_sword: 'crystal', mem_lightshadow_sword: 'holy', akatsuki_sword: 'flame',
+  light_sword: 'holy', tenku_sword: 'tenku', hayate_sword: 'rapier', hoshi_sword: 'crystal', mem_lightshadow_sword: 'holy', akatsuki_sword: 'flame',
   et_earth_sword: 'great', et_alch_sword: 'holy', nocto2_night_blade: 'scimitar', solitus_dawn_sword: 'holy', cs_castle_sword: 'flame', cs_alch_sword: 'holy',
   mirage_sword: 'rapier', master_sakabatou: 'katana', winter_katana: 'katana', kagutsuchi: 'flame', majin_scimitar: 'scimitar', old_fang_sword: 'dragon',
   muramasa: 'katana', masamune: 'katana', kusanagi: 'leaf', lake_holy_sword: 'holy', heaven_earth_sword: 'holy', ifrit_sword: 'flame', dragon_slayer: 'great',
@@ -90,7 +97,7 @@ export const GEAR_LOOK = {
   shiraha_staff: 'wing', et_spring_staff: 'wave', gift_miko_staff: 'ring', cs_candle_staff: 'crystal', cloud_staff: 'wave', detective_cane: 'cane',
   rune_staff: 'crystal', aurora_staff: 'crystal', treant_staff: 'oak', witch_broom: 'broom', ankh_staff: 'ankh', thunder_god_staff: 'dragon',
   forest_sage_staff: 'oak', walpurgis_broom: 'broom', pharaoh_staff: 'ankh', magic_school_staff: 'wizard', merlin_staff: 'star',
-  magic_wand: 'wand33', chalk: 'wand33', pointer_stick: 'wand33', elder_wand: 'wand33',
+  magic_wand: 'wand33', chalk: 'wand33', pointer_stick: 'wand33', elder_wand: 'elder',
   // おうぎ
   feather_fan: 'feather', dancer_fan: 'fan', harisen: 'harisen', signal_flag: 'flag', whisk: 'whisk', pillow: 'pillow', slipper: 'slipper', sea_fan: 'fan',
   royal_fan: 'tessen', ice_fan: 'tessen', sandwind_fan: 'tessen', ripple_fan: 'fan', sphinx_fan: 'wing', wingbeat_fan: 'wing', vane_fan: 'wing',

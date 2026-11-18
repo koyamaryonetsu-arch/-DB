@@ -8,7 +8,7 @@
 //   ・今 ある 熱血先生のジャージ・指し棒 は こわさず、作品の 品として 数える（R88_TAG_JIDAI。チョークは 鋼のれん金術師の まま）
 //   ・入れない 品: 「くさったミカン」（品に すると 子どもに つたわりにくい）
 //   作品の 字は 使える 字に 直した（葵 → あおい／扇 → おうぎ／纏 → まとい／贈る → おくる／譜 → ふ／簿 → ぼ など）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const A = { work: 'abarenbo' };
 const B = { work: 'class3b' };
@@ -19,7 +19,7 @@ const GEAR = {
   r88_ab_ougi: { ...weapon('fan', 'mei'), ...A, name: 'あおいのもんのおうぎ', fx: [{ k: 'crit', v: 6 }], look: 'tessen', desc: 'あおいの葉のもんがえがかれた、上様のおうぎ。ぱっと開くと、みんながははーっとひれふす。会心の一撃が出やすい。' },
   r88_ab_kinagashi: { ...armor('gi', 'fu3'), ...A, name: '白い着流し', bonus: { agi: 10 }, desc: 'びんぼう旗本の三男、新さんのいつもの着流し。町を気ままに歩くのにぴったり。素早さが上がる。' },
   r88_ab_kura: { ...acc('fu3'), ...A, name: '白馬のくら', bonus: { agi: 14 }, desc: '白い馬にのせる、りっぱなくら。はま辺をかけぬける上様の馬。素早さが上がる。' },
-  r88_ab_matoi: { ...weapon('spear', 'mei'), ...A, name: 'め組のまとい', reach: 'group', look: 'pennant', desc: 'め組の頭、たつ五ろうがふり回す火消しのまとい。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
+  r88_ab_matoi: { ...weapon('spear', 'mei'), ...A, name: 'め組のまとい', reach: 'group', look: 'matoi', desc: 'め組の頭、たつ五ろうがふり回す火消しのまとい。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
   r88_ab_happi: { ...armor('cloth', 'fu3'), ...A, name: '火消しのはっぴ', fx: [{ k: 'res_fire', v: 4 }], desc: 'め組の火消したちがきる、いきなはっぴ。だれでも装備できる。炎に強い。' },
   r88_ab_shinobi: { ...weapon('dagger', 'mei'), ...A, name: 'お庭番の忍び刀', fx: [{ k: 'crit', v: 6 }], look: 'kunai', desc: '上様にかげからつかえる、お庭番の忍び刀。「成敗！」の合図で、すっとあらわれる。会心の一撃が出やすい。' },
   // ───── 3年B組 ─────

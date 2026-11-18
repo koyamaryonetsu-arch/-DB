@@ -4,7 +4,7 @@
 //   ・柱 9人の 刀（そろい hashira9。持って いる 数で しょう号）。日輪刀は 持ち主の 呼吸で 色が かわる
 //   ・今 ある 日輪刀・炎の羽織 は こわさず、作品の 品として 数える（R88_TAG_KIMETSU。強さ・手に入れ方は かえない）
 //   ・入れない 品: 鬼の 血鬼術・本物の 銃（設計書 3-4）。こわい 名前は やさしく した
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const K = { work: 'kimetsu' };
 const H = { work: 'kimetsu', set: 'hashira9' };
@@ -15,18 +15,18 @@ const GEAR = {
   r88_km_kakuto: { ...weapon('sword', 'den'), ...K, name: '赤く光る日輪刀', fx: [{ k: 'slay_demon', v: 8 }], bonus: { str: 20, agi: 10 }, use: { ability: 'r88u_km_kakuto' }, look: 'katana', desc: '強い思いで、まっ赤にそまった日輪刀。あくま系の敵に大きなダメージ。使うと、赤い刀で敵1体に炎の一げき。' },
   // ───── 柱 9人の 刀（そろい）─────
   r88_km_mizu: { ...weapon('sword', 'mei'), ...H, name: '水の日輪刀', fx: [{ k: 'evade', v: 6 }], bonus: { agi: 6 }, look: 'katana', desc: '水柱の、青くすんだ日輪刀。しずかな水面のように、どんな攻撃もうけ流す。敵の攻撃をかわしやすくなる。' },
-  r88_km_honoo: { ...weapon('sword', 'mei'), ...H, name: '炎の日輪刀', fx: [{ k: 'el_fire', v: 6 }], bonus: { str: 6 }, look: 'flame', desc: '炎柱の、赤い日輪刀。つばも炎の形。心を燃やして戦う。ふつうの攻撃が炎になる。' },
+  r88_km_honoo: { ...weapon('sword', 'mei'), ...H, name: '炎の日輪刀', fx: [{ k: 'el_fire', v: 6 }], bonus: { str: 6 }, look: 'katana', desc: '炎柱の、赤い日輪刀。つばも炎の形。心を燃やして戦う。ふつうの攻撃が炎になる。' },
   r88_km_mushi: { ...weapon('dagger', 'mei'), ...H, name: '虫の日輪刀', fx: [{ k: 'poison', v: 6 }], bonus: { agi: 8 }, look: 'stiletto', desc: '虫柱の、細い日輪刀。先だけで、ちょうのように軽くつく。さやにしまう時に、薬を入れかえる。ときどき敵を毒にする。' },
   r88_km_oto: { ...weapon('axe', 'mei'), ...H, name: '音の日輪刀', bonus: { str: 8 }, use: { ability: 'r88u_km_oto' }, look: 'crescent', desc: '音柱の、くさりでつないだ大きな二本の刀。とてもはで。使うと、火薬玉をまいて、同じ種類の敵みんなを、音とばくはつでつつむ。' },
   r88_km_koi: { ...weapon('whip', 'mei'), ...H, name: 'こいの日輪刀', reach: 'group', bonus: { agi: 6 }, look: 'whip', desc: 'こい柱の、うすくて長い桜色の日輪刀。ムチのようにしなる。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
   r88_km_hebi: { ...weapon('sword', 'mei'), ...H, name: 'へびの日輪刀', fx: [{ k: 'crit', v: 6 }], bonus: { agi: 4 }, look: 'scimitar', desc: 'へび柱の、へびのようにうねった日輪刀。思いがけない所から切りかかる。会心の一撃が出やすい。' },
   r88_km_kaze: { ...weapon('sword', 'mei'), ...H, name: '風の日輪刀', fx: [{ k: 'el_wind', v: 6 }], bonus: { str: 6 }, look: 'katana', desc: '風柱の、緑の日輪刀。とげとげのもようが入っている。ふつうの攻撃が風になる。' },
   r88_km_kasumi: { ...weapon('sword', 'mei'), ...H, name: 'かすみの日輪刀', fx: [{ k: 'chase', v: 6 }], bonus: { agi: 6 }, look: 'katana', desc: 'かすみ柱の、白い日輪刀。かすみのように、すがたをつかませない。ときどきもう1回攻撃する。' },
-  r88_km_tekkyu: { ...weapon('axe', 'den'), ...H, name: 'くさりの鉄球と手オノ', reach: 'group', bonus: { str: 34, hp: 40, agi: -12 }, look: 'pick', desc: '岩柱の、くさりでつないだ大きな鉄球と手オノ。柱の中でいちばん強い。ふつうの攻撃が同じ種類の敵みんなにとどき、力がとても上がるが、素早さが下がる。' },
+  r88_km_tekkyu: { ...weapon('axe', 'den'), ...H, name: 'くさりの鉄球と手オノ', reach: 'group', bonus: { str: 34, hp: 40, agi: -12 }, look: 'tekkyu', desc: '岩柱の、くさりでつないだ大きな鉄球と手オノ。柱の中でいちばん強い。ふつうの攻撃が同じ種類の敵みんなにとどき、力がとても上がるが、素早さが下がる。' },
   // ───── 仲間の 刀 ─────
-  r88_km_kaminari: { ...weapon('sword', 'mei'), ...K, name: '雷の日輪刀', fx: [{ k: 'el_bolt', v: 6 }], bonus: { agi: 8 }, look: 'bolt', desc: '黄色に、いなずまのもようが入った日輪刀。ねむっている時ほど強い？ふつうの攻撃が雷になる。' },
+  r88_km_kaminari: { ...weapon('sword', 'mei'), ...K, name: '雷の日輪刀', fx: [{ k: 'el_bolt', v: 6 }], bonus: { agi: 8 }, look: 'katana', desc: '黄色に、いなずまのもようが入った日輪刀。ねむっている時ほど強い？ふつうの攻撃が雷になる。' },
   r88_km_gizagiza: { ...weapon('dagger', 'mei'), ...K, name: 'ギザギザの二刀', fx: [{ k: 'chase', v: 6 }], bonus: { str: 6 }, look: 'kris', desc: 'いのししの少年が、自分で石でたたいてギザギザにした2本の刀。ときどきもう1回攻撃する。' },
-  r88_km_hana: { ...weapon('sword', 'mei'), ...K, name: '花の日輪刀', fx: [{ k: 'crit', v: 6 }], bonus: { agi: 6 }, look: 'leaf', desc: 'もも色で、うめの花の形のつばがついた日輪刀。目がとてもよく、すきを見のがさない。会心の一撃が出やすい。' },
+  r88_km_hana: { ...weapon('sword', 'mei'), ...K, name: '花の日輪刀', fx: [{ k: 'crit', v: 6 }], bonus: { agi: 6 }, look: 'katana', desc: 'もも色で、うめの花の形のつばがついた日輪刀。目がとてもよく、すきを見のがさない。会心の一撃が出やすい。' },
   r88_km_iro: { ...weapon('sword', 'fu3'), ...K, name: '色のかわらない日輪刀', bonus: { str: 10, mag: -10 }, look: 'broad', desc: '呼吸が使えない剣士の、色のかわらない日輪刀。それでも、あきらめずに戦う。力が上がるが、魔力が下がる。' },
   r88_km_hajimari: { ...weapon('sword', 'den'), ...K, name: '始まりの剣士の日輪刀', fx: [{ k: 'slay_demon', v: 8 }], bonus: { str: 22, agi: 12 }, look: 'katana', desc: 'すべての呼吸のはじまりの剣士の、黒い日輪刀。あくま系の敵に大きなダメージ。' },
   // ───── 防具・小物 ─────

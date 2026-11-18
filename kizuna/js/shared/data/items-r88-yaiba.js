@@ -1,16 +1,16 @@
 // 第88回 G1班: YAIBA の 品（docs/plan-r88-anime-gear.md の 2-2。26こ）
 //   刃の 剣（木刀 → 雷神剣 → 竜神剣 → は王剣 の 生まれ変わり。R88_REBIRTH_YAIBA）・おに丸の 剣・七つの玉 ＋ 竜神の玉・ほかの 人の 品
 //   品の 形は items-r88-kit.js。作品の しくみ（fx・use・reach・orb・set）は shared/gear-r88.js
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const Y = { work: 'yaiba' };
 
 const GEAR = {
   // ───── 刃の 剣（1本が 生まれ変わる）─────
   r88_bokuto: { ...weapon('sword', 'shop'), ...Y, name: '木刀', atk: 7, bonus: { agi: 1 }, look: 'wood', desc: 'けいこに使う、かしの木の刀。しゅぎょうをつむと、何かが目をさますかもしれない。' },
-  r88_raijin_sword: { ...weapon('sword', 'mei'), ...Y, name: '雷神剣', fx: [{ k: 'el_bolt', v: 5 }], bonus: { agi: 4 }, look: 'bolt', desc: '雷神がやどる魔剣。しゅぎょうして、やっと言うことを聞くようになった。ふつうの攻撃が雷になる。' },
-  r88_ryujin_sword: { ...weapon('sword', 'den'), ...Y, name: '竜神剣', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 16, hp: 40 }, look: 'dragon', desc: '雷神剣に竜神の玉をはめた、竜の神の剣。ふつうの攻撃が光になる。' },
-  r88_haou_sword: { ...weapon('sword', 'den'), ...Y, name: 'は王剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 20, agi: 10 }, look: 'great', desc: '雷神剣と風神剣が1つになった剣。風雷剣ともよばれる。会心の一撃がとても出やすい。' },
+  r88_raijin_sword: { ...weapon('sword', 'mei'), ...Y, name: '雷神剣', fx: [{ k: 'el_bolt', v: 5 }], bonus: { agi: 4 }, look: 'raijin', desc: '雷神がやどる魔剣。しゅぎょうして、やっと言うことを聞くようになった。ふつうの攻撃が雷になる。' },
+  r88_ryujin_sword: { ...weapon('sword', 'den'), ...Y, name: '竜神剣', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 16, hp: 40 }, look: 'raijin', desc: '雷神剣に竜神の玉をはめた、竜の神の剣。ふつうの攻撃が光になる。' },
+  r88_haou_sword: { ...weapon('sword', 'den'), ...Y, name: 'は王剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 20, agi: 10 }, look: 'raijin', desc: '雷神剣と風神剣が1つになった剣。風雷剣ともよばれる。会心の一撃がとても出やすい。' },
   // ───── おに丸の 剣 ─────
   r88_fujin_sword: { ...weapon('sword', 'mei'), ...Y, name: '風神剣', fx: [{ k: 'el_wind', v: 5 }], bonus: { str: 12, def: -10 }, look: 'scimitar', desc: 'おに丸の家につたわる、風神がやどる、かた方だけが切れる魔剣。力が上がるが、身の守りが下がる。ふつうの攻撃が風になる。' },
   r88_maou_sword: { ...weapon('sword', 'den'), ...Y, name: '魔王剣', fx: [{ k: 'el_dark', v: 6 }], bonus: { str: 18, mag: 10 }, use: { ability: 'r88u_maou' }, look: 'scimitar', desc: '月で作られたという魔剣。三日月の形のあなが、だんだん満ちていく。ふつうの攻撃が闇になる。' },
@@ -32,7 +32,7 @@ const GEAR = {
   r88_eyepatch: { ...acc('fu3'), ...Y, name: '眼帯', fx: [{ k: 'crit', v: 4 }], bonus: { str: 4 }, desc: 'かた目の剣士の眼帯。ねらいがさだまって、会心の一撃が出やすい。' },
   r88_snake_spear: { ...weapon('spear', 'mei'), ...Y, name: 'へび神のほこ', fx: [{ k: 'poison', v: 6 }], bonus: { str: 4 }, look: 'trident', desc: 'へびの神の力をもつ、三つまたのほこ。ときどき敵を毒にする。' },
   r88_frog_axe: { ...weapon('axe', 'fu3'), ...Y, name: 'カエル男のオノ', fx: [{ k: 'chase', v: 4 }], look: 'axe', desc: 'のびる舌といっしょに使うオノ。ふつうの攻撃のあと、ときどきもう1回攻撃する。' },
-  r88_saber: { ...weapon('sword', 'mei'), ...Y, name: '西洋サーベル', fx: [{ k: 'chase', v: 6 }], bonus: { agi: 6 }, look: 'rapier', desc: '空をとぶ速さで切りつける、細身の西洋の剣。ふつうの攻撃のあと、ときどきもう1回攻撃する。' },
+  r88_saber: { ...weapon('sword', 'mei'), ...Y, name: '西洋サーベル', fx: [{ k: 'chase', v: 6 }], bonus: { agi: 6 }, look: 'saber', desc: '空をとぶ速さで切りつける、細身の西洋の剣。ふつうの攻撃のあと、ときどきもう1回攻撃する。' },
   r88_kanabo: { ...weapon('bat', 'fu3'), ...Y, name: '金棒', fx: [{ k: 'crit', v: 4 }], bonus: { str: 4 }, look: 'spiked', desc: '大男のおぼうさんがふり回す、鉄のこん棒。会心の一撃が出やすい。' },
   r88_iron_kasa: { ...shield('fu3'), ...Y, name: '鉄のかさ', fx: [{ k: 'def', v: 4 }], look: 'round', desc: '大どろぼうが使った、鉄でできたかさ。開くとたてになる。' },
   r88_kusanagi: { ...weapon('sword', 'den'), ...Y, name: 'クサナギ', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 18, agi: 10 }, look: 'holy', desc: '大きなへびのしっぽにあたる島の先で見つかった、神話の剣。ふつうの攻撃が光になる。' },

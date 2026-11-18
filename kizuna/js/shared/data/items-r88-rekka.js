@@ -4,7 +4,7 @@
 //     装備の 画面の「形をかえる」で、その 職業が 持てる 形だけ えらべる。きたえた 回数・れん金の 効果は のこる（shared/gear-r88.js の shapeTarget・moveShapeFx）
 //   ・風のツメ → 風神（生まれ変わり）・雷神は 使うと HPが 少し へる（use.hpCost）
 //   ・天堂地獄・砲魔神・縛呪・血種・魂すいのつぼ などは 装備に しない（設計書 2-4）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const R = { work: 'rekka' };
 
@@ -21,7 +21,7 @@ const NAME_OF = { r88_kougon_kiba: 'きば', r88_kougon_ryu: '竜', r88_kougon_k
 const GEAR = {
   // ───── 火影忍軍の 品 ─────
   r88_kaze_tsume: { ...weapon('claw', 'fu3'), ...R, name: '風のツメ', fx: [{ k: 'el_wind', v: 4 }], use: { ability: 'r88u_kazetsume' }, look: 'claw', desc: '風神に、おにのツメのしんをはめた魔導具。ふつうの攻撃が風になる。きたえぬくと、本当の「風」のしんがもどるという。' },
-  r88_fujin: { ...weapon('claw', 'mei'), ...R, set: 'rekka_fujin_raijin', name: '風神', fx: [{ k: 'el_wind', v: 6 }], bonus: { agi: 8 }, use: { ability: 'r88u_fujin' }, look: 'katar', desc: '風をあやつる、こての形の魔導具。雷神と対になっている。ふつうの攻撃が風になる。' },
+  r88_fujin: { ...weapon('claw', 'mei'), ...R, set: 'rekka_fujin_raijin', name: '風神', fx: [{ k: 'el_wind', v: 6 }], bonus: { agi: 8 }, use: { ability: 'r88u_fujin' }, look: 'fujin', desc: '風をあやつる、こての形の魔導具。雷神と対になっている。ふつうの攻撃が風になる。' },
   r88_ensui: { ...weapon('sword', 'mei'), ...R, set: 'enzui_hyoma', name: 'えん水', fx: [{ k: 'el_ice', v: 6 }], bonus: { agi: 4 }, use: { ability: 'r88u_ensui' }, look: 'crystal', desc: 'つかだけの剣。水でやいばを作る魔導具。氷魔えんと対になっている。ふつうの攻撃が氷になる。' },
   r88_dosei: { ...acc('fu3'), ...R, name: '土星の輪', bonus: { str: 12, hp: 10 }, desc: '「土」の字の指輪の魔導具。力が上がる。' },
   r88_tetsugan: { ...acc('fu3'), ...R, set: 'sekichu_tetsugan', name: '鉄丸', bonus: { def: 12 }, use: { ability: 'r88u_tetsugan' }, desc: 'のみこむと体が鉄のようになる魔導具。石ちゅうと対になっている。使うと、守備力が大きく上がる。' },

@@ -10,7 +10,7 @@
 //   ・ゴールドフェザー・き眼の力の「動けなく する」は ボスに 効かない（effect r88dq の bind）
 //   ・魔だんじゅうは「呪文を こめて うち出す 道具」（本物の 銃の ようには 書かない）。黒の核しょうは 入れない
 //   作品の 字は 使える 字に 直した（設計書の「実装メモ（G15班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const D = { work: 'dai' };
 const A = { work: 'dai', set: 'aban_mark' };
@@ -25,8 +25,8 @@ export const HASHA_CROWN = 'r88_da_crown';
 const GEAR = {
   // ───── ダイと アバンの 使徒 ─────
   r88_da_papnica: { ...weapon('dagger', 'shop'), ...D, name: 'パプニカのナイフ', bonus: { agi: 2 }, look: 'knife', desc: 'パプニカの王家につたわる、小さなナイフ。お姫さまから、勇者の少年におくられた。' },
-  r88_da_daisword: { ...weapon('sword', 'den'), ...D, name: 'ダイの剣', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 20, agi: 10 }, use: { ability: 'r88u_da_saya' }, look: 'holy', desc: '伝説の名工が、は者のかんむりのオリハルコンで打った、竜の騎士の剣。ふつうの攻撃が雷になる。使うと、さやにおさめて力をため、次の攻撃がとても強くなる。' },
-  r88_da_shinma: { ...weapon('sword', 'den'), ...D, name: '真魔ごう竜剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 22, def: 10 }, look: 'dragon', desc: '竜の騎士だけが持つことをゆるされた、神々の作った剣。会心の一撃がとても出やすい。' },
+  r88_da_daisword: { ...weapon('sword', 'den'), ...D, name: 'ダイの剣', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 20, agi: 10 }, use: { ability: 'r88u_da_saya' }, look: 'dai', desc: '伝説の名工が、は者のかんむりのオリハルコンで打った、竜の騎士の剣。ふつうの攻撃が雷になる。使うと、さやにおさめて力をため、次の攻撃がとても強くなる。' },
+  r88_da_shinma: { ...weapon('sword', 'den'), ...D, name: '真魔ごう竜剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 22, def: 10 }, look: 'shinma', desc: '竜の騎士だけが持つことをゆるされた、神々の作った剣。会心の一撃がとても出やすい。' },
   r88_da_hasha: { ...weapon('sword', 'mei'), ...D, name: 'は者の剣', fx: [{ k: 'crit', v: 6 }], bonus: { str: 6 }, look: 'great', desc: 'ロモスの国の宝の、オリハルコンの剣。会心の一撃が出やすい。は者のかんむりを持ってかじ屋できたえると……？' },
   r88_da_crown: { ...head('fu3'), ...D, name: 'は者のかんむり', fx: [{ k: 'def', v: 4 }], desc: 'ロモスの王さまが、小さな勇者におくった金のかんむり。じつはオリハルコンでできている。守備力が上がる。' },
   r88_da_booster: { ...weapon('staff', 'shop'), ...D, name: 'マジカルブースター', bonus: { mag: 3 }, look: 'wizard', desc: '先生が、魔法使いの弟子にわたした、始めのつえ。魔法の力を少し強くする。' },
@@ -55,7 +55,7 @@ const GEAR = {
   r88_da_fue: { ...weapon('axe', 'mei'), ...D, name: 'キルバーンの笛', fx: [{ k: 'paralyze', v: 6 }], bonus: { agi: 6 }, look: 'crescent', desc: '大きなかまにもなる、ふしぎな笛。音で体の感じをうばい、ときどき敵をマヒさせる。' },
   r88_da_shahal: { ...shield('den'), ...D, name: 'シャハルの鏡', bonus: { mag: 12, def: 10 }, resist: { fire: 0.85, ice: 0.85 }, use: { ability: 'r88u_da_mirror' }, look: 'mirror', desc: '親衛騎団の騎士の、伝説のたて。炎と氷に少し強い。使うと、次に受ける呪文1回をはね返す。' },
   r88_da_kigan: { ...acc('den'), ...T, name: 'き眼の力', bonus: { mag: 70, hp: 90, mp: 40, def: 26, agi: 24, heal: 20 }, use: { ability: 'r88u_da_kigan' }, desc: '大魔王のひたいの、第三の目の力。攻撃魔力がとても上がる。使うと、敵1体を「ひとみ」にとじこめて、少しの間動けなくする（大きな敵には効かない）。天地魔闘の3つの品の1つ。' },
-  r88_da_kouma: { ...weapon('staff', 'den'), ...T, name: '光魔のつえ', atkMp: true, bonus: { mag: 24, mp: 30 }, look: 'dragon', desc: '伝説の名工が作った、大魔王のつえ。MPが多いほど攻撃力が上がるが、ふつうの攻撃のたびにMPがへる。天地魔闘の3つの品の1つ。' },
+  r88_da_kouma: { ...weapon('staff', 'den'), ...T, name: '光魔のつえ', atkMp: true, bonus: { mag: 24, mp: 30 }, look: 'kouma', desc: '伝説の名工が作った、大魔王のつえ。MPが多いほど攻撃力が上がるが、ふつうの攻撃のたびにMPがへる。天地魔闘の3つの品の1つ。' },
   r88_da_white: { ...armor('robe', 'mei'), ...D, name: '大魔王の白い衣', fx: [{ k: 'res_fire', v: 6 }], bonus: { mag: 10 }, desc: '大魔王が、いつも着ていた白い衣。だれでも装備できる。炎に強い。' },
 };
 priceUp(GEAR, { r88_da_papnica: 90, r88_da_booster: 100 });

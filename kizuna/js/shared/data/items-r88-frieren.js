@@ -6,7 +6,7 @@
 //   ・鏡れん華の指輪と 鏡れん華のうでわ … そろい kagami_renge（2人が 1つずつ つけると、2人とも 最大HPが 少し 上がる。battle-r88-fr.js）
 //   入れない 物: 子どもに 合わない 名前の 魔法・黄金郷（4-6 の とおり）
 //   名前の 直し（使える 字・かぶり）は 設計書の「実装メモ（G17班）」
-import { weapon, shield, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, shield, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const F = { work: 'frieren' };
 const KR = { work: 'frieren', set: 'kagami_renge' };
@@ -17,7 +17,7 @@ export const KAGAMI_RENGE = ['r88_fr_ring', 'r88_fr_bangle'];
 
 const GEAR = {
   // ───── フリーレン ─────
-  r88_fr_staff: { ...weapon('staff', 'mei'), ...F, name: '千年のつえ', fx: [{ k: 'mpregen', v: 6 }], bonus: { mag: 14 }, look: 'crystal', desc: '千年も旅をつづけてきた、エルフの魔法使いのつえ。攻撃魔力が上がる。行動するたびにMPが回復する。' },
+  r88_fr_staff: { ...weapon('staff', 'mei'), ...F, name: '千年のつえ', fx: [{ k: 'mpregen', v: 6 }], bonus: { mag: 14 }, look: 'frieren', desc: '千年も旅をつづけてきた、エルフの魔法使いのつえ。攻撃魔力が上がる。行動するたびにMPが回復する。' },
   r88_fr_earring: { ...acc('fu3'), ...F, name: 'フリーレンの耳かざり', fx: [{ k: 'evade', v: 4 }], desc: 'エルフの魔法使いの、小さな耳かざり。敵の攻撃をかわしやすくなる。' },
   r88_fr_ring: { ...acc('mei'), ...KR, name: '鏡れん華の指輪', bonus: { hp: 30, mp: 20 }, desc: '旅のとちゅう、エルフの魔法使いがえらび、勇者がおくった指輪。花の言葉は「ずっとつづく愛」。最大HPと最大MPが上がる。鏡れん華のうでわと、2人が1つずつつけると……？' },
   r88_fr_bangle: { ...acc('mei'), ...KR, name: '鏡れん華のうでわ', fx: [{ k: 'evade', v: 5 }], desc: '戦士の少年が、弟子の魔法使いにおくったうでわ。敵の攻撃をかわしやすくなる。鏡れん華の指輪と、2人が1つずつつけると……？' },

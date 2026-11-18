@@ -6,7 +6,7 @@
 //   ・今 ある 逆ば刀・名工の逆ば刀 は こわさず、作品の 品として 数える（R88_TAG_KENSHIN。強さ・手に入れ方は かえない）
 //   ・入れない 品: アームストロング砲・銃剣（本物の 大砲と 銃）・毒の 隠し武器（設計書 3-5）
 //   作品の 字は 使える 字に 直した（刃 → じん・ば／牙 → が／鎖 → くさり／翁 → おきな／倭 → わ／桔梗仙 → ききょうせん など）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const K = { work: 'kenshin' };
 const TR = { work: 'kenshin', set: 'tinbe_rochin' };
@@ -21,7 +21,7 @@ const GEAR = {
   r88_ks_gyunabe: { ...acc('fu3'), ...K, name: '赤べこの牛なべ', bonus: { hp: 40 }, desc: '道場の近くの牛なべ屋「赤べこ」の、あつあつの牛なべ。みんなで食べると元気が出る。最大HPが上がる。' },
   // ───── 御庭番衆 ─────
   r88_ks_kodachi: { ...weapon('dagger', 'mei'), ...K, name: '小太刀二刀', fx: [{ k: 'chase', v: 6 }], bonus: { agi: 6 }, look: 'dirk', desc: '御庭番衆の若い御頭が使う、2本の小太刀。守りと攻めを、一度にこなす。ときどきもう1回攻撃する。' },
-  r88_ks_tekkyu: { ...weapon('bat', 'fu3'), ...K, name: 'くさりつき鉄球', reach: 'group', bonus: { str: 6 }, look: 'spiked', desc: 'くさりのついた、大きな鉄の玉。ぶんぶん回して投げつける。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
+  r88_ks_tekkyu: { ...weapon('bat', 'fu3'), ...K, name: 'くさりつき鉄球', reach: 'group', bonus: { str: 6 }, look: 'tekkyu', desc: 'くさりのついた、大きな鉄の玉。ぶんぶん回して投げつける。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
   r88_ks_kunai: { ...weapon('boomerang', 'fu3'), ...K, name: '操の苦無', fx: [{ k: 'chase', v: 4 }], look: 'star', desc: '御庭番衆の元気な女の子が、いくつも投げる苦無。ときどきもう1回攻撃する。' },
   r88_ks_tonfa: { ...weapon('bat', 'fu3'), ...K, name: 'おきなのトンファー', fx: [{ k: 'crit', v: 4 }], look: 'club', desc: '御庭番衆の長老が、本気の時だけ取り出す、2本のトンファー。会心の一撃が出やすい。' },
   r88_ks_gatotsu: { ...weapon('sword', 'mei'), ...K, name: 'がとつの刀', fx: [{ k: 'crit', v: 6 }], bonus: { str: 6 }, look: 'katana', desc: '元新選組の剣士の刀。左手1本で、まっすぐにつきさす「がとつ」をくり出す。会心の一撃が出やすい。' },

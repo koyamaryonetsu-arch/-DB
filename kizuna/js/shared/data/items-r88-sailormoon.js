@@ -8,7 +8,7 @@
 //     水しょうの台へ 行くと 聖はい（伝説）が あらわれる（タリスマンは なくならない。world/grail-r88.js）
 //   ・今 ある ティアラ・銀水しょうにも 作品を つけた（R88_TAG_SAILORMOON。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（水晶 → 水しょう・杖 → つえ・邪 → じゃ・聖杯 → 聖はい など。設計書の「実装メモ（G12班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const S = { work: 'sailormoon' };
 const P = { work: 'sailormoon', set: 'henshin_pen' };
@@ -25,9 +25,9 @@ export const GRAIL_ALTAR = { map: 'overworld', x: 98, y: 86 };
 
 const GEAR = {
   // ───── うさぎの スティック（生まれ変わる）─────
-  r88_sm_stick1: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'うさぎのムーンスティック', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 8, heal: 6 }, look: 'wand33', desc: '先に三日月のかざりがついた、始めのスティック。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。かじ屋できたえると……？' },
-  r88_sm_stick2: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'キューティムーンロッド', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 12, heal: 8 }, look: 'wand33', desc: 'ハートの形に、つばさのかざりがついたロッド。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。' },
-  r88_sm_stick3: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'スパイラルハートムーンロッド', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 16, heal: 10 }, look: 'wand33', desc: 'ハートのまわりを、リボンがくるくるまいたロッド。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。' },
+  r88_sm_stick1: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'うさぎのムーンスティック', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 8, heal: 6 }, look: 'moonstick', desc: '先に三日月のかざりがついた、始めのスティック。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。かじ屋できたえると……？' },
+  r88_sm_stick2: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'キューティムーンロッド', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 12, heal: 8 }, look: 'heartrod', desc: 'ハートの形に、つばさのかざりがついたロッド。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。' },
+  r88_sm_stick3: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'スパイラルハートムーンロッド', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 16, heal: 10 }, look: 'heartrod', desc: 'ハートのまわりを、リボンがくるくるまいたロッド。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。' },
   r88_sm_stick4: { ...weapon('staff', 'mei'), ...S, ...MOON, name: 'カレイドムーンスコープ', fx: [{ k: 'el_light', v: 7 }], bonus: { mag: 20, heal: 12, agi: 4 }, look: 'crystal', desc: '中をのぞくと、まんげきょうのように光がうつる、細い剣の形のスティック。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治す。' },
   r88_sm_stick5: { ...weapon('staff', 'den'), ...S, name: 'エターナルティアル', fx: [{ k: 'el_light', v: 8 }], bonus: { mag: 26, heal: 18, agi: 6 }, use: { ability: 'r88u_sm_eternal' }, look: 'wing', desc: '天使のつばさのような、白くかがやくスティック。ふつうの攻撃が光になる。使うと、仲間全員の状態異常を治して、HPを回復する。' },
   // ───── 変身の 品（生まれ変わる）─────
@@ -50,7 +50,7 @@ const GEAR = {
   r88_sm_tiara: { ...head('mei'), ...S, name: 'ジュピターのティアラ', fx: [{ k: 'res_bolt', v: 6 }], bonus: { str: 4 }, desc: 'ひらいしんのアンテナがのびる、木の星の戦士のティアラ。かみなりを集めて、はなつ。雷に強い。' },
   r88_sm_chain: { ...weapon('whip', 'mei'), ...S, name: 'ラブ・ミー・チェーン', fx: [{ k: 'el_light', v: 6 }], bonus: { agi: 4 }, look: 'chain', desc: '金の星の戦士の、こしの金色のくさり。ムチのようにふるう。ふつうの攻撃が光になる。' },
   r88_sm_crescent: { ...weapon('boomerang', 'fu3'), ...S, name: 'クレッセント・コンパクト', fx: [{ k: 'crit', v: 4 }], look: 'crescent', desc: '白いネコからわたされた、三日月のコンパクト。本当のすがたをうつし、投げても使える。会心の一撃が出やすい。' },
-  r88_sm_pinkstick: { ...weapon('staff', 'mei'), ...S, name: 'ピンク・ムーン・スティック', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 8, agi: 4 }, look: 'wand33', desc: '未来から来た小さな戦士の、ピンクのスティック。ふつうの攻撃が光になる。' },
+  r88_sm_pinkstick: { ...weapon('staff', 'mei'), ...S, name: 'ピンク・ムーン・スティック', fx: [{ k: 'el_light', v: 6 }], bonus: { mag: 8, agi: 4 }, look: 'moonstick', desc: '未来から来た小さな戦士の、ピンクのスティック。ふつうの攻撃が光になる。' },
   r88_sm_lunap: { ...weapon('boomerang', 'fu3'), ...S, name: 'ルナPボール', fx: [{ k: 'chase', v: 4 }], look: 'star', desc: 'ネコの顔のついた、ふしぎなボール。いろいろな物に変身する。ときどきもう1回攻撃する。' },
   r88_sm_key: { ...acc('fu3'), ...S, name: '時空のかぎ', bonus: { agi: 12 }, desc: '時の門番からもらった、時をこえるかぎ。素早さが上がる。' },
   // ───── 3つの タリスマン（そろえると 聖はい）─────
@@ -59,7 +59,7 @@ const GEAR = {
   r88_sm_orb: { ...acc('mei'), ...T, name: 'ガーネット・オーブ', bonus: { def: 14, hp: 20 }, desc: 'めい王星の戦士のタリスマン。守る役の、赤むらさきの玉。守備力が上がる。' },
   r88_sm_rod: { ...weapon('staff', 'mei'), ...S, name: 'ガーネット・ロッド', fx: [{ k: 'el_dark', v: 6 }], bonus: { mag: 10 }, look: 'ankh', desc: '時の門番の戦士の、かぎの形の長いロッド。ふつうの攻撃が闇になる。' },
   r88_sm_grail: { ...acc('den'), ...S, name: '聖はい', fx: [{ k: 'mpregen', v: 8 }], bonus: { hp: 96, mag: 48, heal: 42, def: 30, agi: 30 }, desc: '3つのタリスマンがそろうと、あらわれる金色のさかずき。行動するたびにMPが回復する。' },
-  r88_sm_glaive: { ...weapon('spear', 'den'), ...S, name: 'サイレンス・グレイブ', fx: [{ k: 'el_dark', v: 8 }], bonus: { mag: 20, hp: 40 }, use: { ability: 'r88u_sm_silence' }, look: 'halberd', desc: '土星の戦士の、大きなかまの形のやり。ふつうの攻撃が闇になる。使うと、仲間全員を守るかべを作る。' },
+  r88_sm_glaive: { ...weapon('spear', 'den'), ...S, name: 'サイレンス・グレイブ', fx: [{ k: 'el_dark', v: 8 }], bonus: { mag: 20, hp: 40 }, use: { ability: 'r88u_sm_silence' }, look: 'glaive', desc: '土星の戦士の、大きなかまの形のやり。ふつうの攻撃が闇になる。使うと、仲間全員を守るかべを作る。' },
   // ───── タキシード仮面・ルナ ─────
   r88_sm_bara: { ...weapon('dagger', 'fu3'), ...S, name: '赤いバラ', fx: [{ k: 'crit', v: 4 }], look: 'stiletto', desc: 'ピンチの時に、どこからかとんでくる赤いバラ。会心の一撃が出やすい。' },
   r88_sm_mask: { ...head('fu3'), ...S, name: '仮面とシルクハット', fx: [{ k: 'evade', v: 4 }], desc: '月夜のしんしの、白い仮面と黒いシルクハット。敵の攻撃をかわしやすくなる。' },

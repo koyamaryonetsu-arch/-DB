@@ -3,7 +3,7 @@
 //   四こんの玉の かけら 5つ（そろい shikon_kakera）＋ 竜りんの 鉄さいが（か 黒い 鉄さいが）→ かじ屋で かけらを きたえると 四こんの玉
 //   作品の 字は 使える 字に 直した（犬夜叉 → 犬夜しゃ・鉄砕牙 → 鉄さいが・天生牙 → てんせいが など。設計書の「実装メモ（G7班）」）
 //   入れない 品: 霧骨・銀骨・凶骨・赤子・白夜の 品・煉骨の 砲筒（設計書 2-5）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const I = { work: 'inuyasha' };
 const K = { work: 'inuyasha', set: 'shikon_kakera' };
@@ -15,12 +15,12 @@ export const SHIKON = 'r88_iy_shikon';
 const GEAR = {
   // ───── 鉄さいが（1本が 生まれ変わる）─────
   r88_iy_sabi: { ...weapon('sword', 'shop'), ...I, name: 'さびついた刀', look: 'katana', desc: 'ぼろぼろにさびついた、古い刀。でも、守りたい人のためにふると……？かじ屋できたえると、何かが目をさますかもしれない。' },
-  r88_iy_kazenokizu: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・風のきず', fx: [{ k: 'el_wind', v: 6 }], bonus: { str: 4 }, look: 'great', desc: '父のきばから、刀かじがきたえた大きな刀。よう気のぶつかる「風のきず」を切る。ふつうの攻撃が風になる。' },
-  r88_iy_bakuryu: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・ばくりゅうは', fx: [{ k: 'counter', v: 6 }], bonus: { str: 6 }, look: 'great', desc: '敵のよう気を風のきずでまきこんで、そのまま返す技をおぼえた鉄さいが。ときどきやりかえす。' },
-  r88_iy_aka: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・赤', fx: [{ k: 'crit', v: 6 }], bonus: { str: 6 }, use: { ability: 'r88u_iy_aka' }, look: 'flame', desc: 'けっかいをやぶる、赤くそまった鉄さいが。会心の一撃が出やすい。使うと、敵全体の強くなっていた力を消す。' },
-  r88_iy_kongou: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・金ごうそうは', fx: [{ k: 'chase', v: 6 }], bonus: { str: 8 }, look: 'crystal', desc: '金ごう石のやりを、たくさんとばす技をおぼえた鉄さいが。ときどきもう1回攻撃する。' },
-  r88_iy_ryurin: { ...weapon('sword', 'den'), ...I, name: '鉄さいが・竜りん', fx: [{ k: 'mana', v: 7 }], bonus: { str: 18, hp: 30 }, look: 'dragon', desc: '竜のうろこのように光る鉄さいが。敵のよう気をすいとる。攻撃が当たるとMPが回復する。' },
-  r88_iy_kuro: { ...weapon('sword', 'den'), ...I, name: '黒い鉄さいが', fx: [{ k: 'el_dark', v: 8 }], bonus: { str: 20, agi: 8 }, use: { ability: 'r88u_iy_meido' }, look: 'great', desc: '三日月の形の「めいどう」をひらく技をうけついだ、黒い鉄さいが。ふつうの攻撃が闇になる。使うと、三日月の道が同じ種類の敵みんなをのみこむ。' },
+  r88_iy_kazenokizu: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・風のきず', fx: [{ k: 'el_wind', v: 6 }], bonus: { str: 4 }, look: 'tessaiga', desc: '父のきばから、刀かじがきたえた大きな刀。よう気のぶつかる「風のきず」を切る。ふつうの攻撃が風になる。' },
+  r88_iy_bakuryu: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・ばくりゅうは', fx: [{ k: 'counter', v: 6 }], bonus: { str: 6 }, look: 'tessaiga', desc: '敵のよう気を風のきずでまきこんで、そのまま返す技をおぼえた鉄さいが。ときどきやりかえす。' },
+  r88_iy_aka: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・赤', fx: [{ k: 'crit', v: 6 }], bonus: { str: 6 }, use: { ability: 'r88u_iy_aka' }, look: 'tessaiga', desc: 'けっかいをやぶる、赤くそまった鉄さいが。会心の一撃が出やすい。使うと、敵全体の強くなっていた力を消す。' },
+  r88_iy_kongou: { ...weapon('sword', 'mei'), ...I, name: '鉄さいが・金ごうそうは', fx: [{ k: 'chase', v: 6 }], bonus: { str: 8 }, look: 'tessaiga', desc: '金ごう石のやりを、たくさんとばす技をおぼえた鉄さいが。ときどきもう1回攻撃する。' },
+  r88_iy_ryurin: { ...weapon('sword', 'den'), ...I, name: '鉄さいが・竜りん', fx: [{ k: 'mana', v: 7 }], bonus: { str: 18, hp: 30 }, look: 'tessaiga', desc: '竜のうろこのように光る鉄さいが。敵のよう気をすいとる。攻撃が当たるとMPが回復する。' },
+  r88_iy_kuro: { ...weapon('sword', 'den'), ...I, name: '黒い鉄さいが', fx: [{ k: 'el_dark', v: 8 }], bonus: { str: 20, agi: 8 }, use: { ability: 'r88u_iy_meido' }, look: 'tessaiga', desc: '三日月の形の「めいどう」をひらく技をうけついだ、黒い鉄さいが。ふつうの攻撃が闇になる。使うと、三日月の道が同じ種類の敵みんなをのみこむ。' },
   // ───── せっしょう丸と 父の 刀 ─────
   r88_iy_tenseiga: { ...weapon('sword', 'mei'), ...I, name: 'てんせいが', atk: 40, bonus: { heal: 14, mag: 6 }, use: { ability: 'r88u_iy_tenseiga' }, look: 'holy', desc: 'この世の物は切れない、やさしい刀。攻撃力はひくい。使うと、たおれた仲間1人を生き返らせる。' },
   r88_iy_toukijin: { ...weapon('sword', 'mei'), ...I, name: 'とうきじん', fx: [{ k: 'el_dark', v: 6 }], bonus: { str: 12 }, resist: { confuse: 1.3 }, look: 'scimitar', desc: '大きなようかいのきばから作られた刀。力が上がるが、心がまよいやすく、混乱にかかりやすい。ふつうの攻撃が闇になる。' },

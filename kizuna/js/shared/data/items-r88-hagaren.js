@@ -7,7 +7,7 @@
 //     （R88_TAG_HAGAREN。強さ・手に入れ方は かえない）
 //   ・入れない 品: 本物の 銃（ホークアイの 銃 など）
 //   作品の 字は 使える 字に 直した（錬 → れん・鎧 → よろい・矛 → ほこ・盾 → たて・眼帯 → がんたい・陣 → じん。設計書の「実装メモ（G14班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=1bbfc18c8d9d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
 
 const H = { work: 'hagaren' };
 
@@ -40,7 +40,7 @@ const GEAR = {
   r88_hg_scar: { ...weapon('claw', 'mei'), ...H, name: 'スカーの右うで', fx: [{ k: 'slay_material', v: 6 }], use: { ability: 'r88u_hg_bunkai' }, look: 'tiger', desc: 'もようのきざまれた右うで。ふれた物を分解する。物質系の敵に強い。使うと、敵1体を大きくうつ。' },
   r88_hg_tate: { ...shield('mei'), ...H, name: '最強のたて', fx: [{ k: 'def', v: 6 }], bonus: { def: 10 }, look: 'crest', desc: '体の中の炭素をかたくして作る、何も通さないたて。守備力が大きく上がる。' },
   r88_hg_hoko: { ...weapon('claw', 'mei'), ...H, name: '最強のほこ', reach: 'group', look: 'claw', desc: 'のびるツメ。何でもつらぬく。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },
-  r88_hg_saber: { ...weapon('sword', 'den'), ...H, name: '大総統のサーベル', fx: [{ k: 'crit', v: 8 }], bonus: { agi: 10, str: 6 }, look: 'rapier', desc: '国でいちばんえらい人の、細いサーベル。2本を同時にあやつる。会心の一撃が出やすい。' },
+  r88_hg_saber: { ...weapon('sword', 'den'), ...H, name: '大総統のサーベル', fx: [{ k: 'crit', v: 8 }], bonus: { agi: 10, str: 6 }, look: 'saber', desc: '国でいちばんえらい人の、細いサーベル。2本を同時にあやつる。会心の一撃が出やすい。' },
   r88_hg_patch: { ...acc('mei'), ...H, name: '大総統のがんたい', fx: [{ k: 'evade', v: 6 }], bonus: { agi: 6 }, desc: 'どんな動きも見ぬく目を、かくしていた黒いがんたい。敵の攻撃をかわしやすくなる。' },
 };
 priceUp(GEAR, { r88_hg_yari: 80 });
