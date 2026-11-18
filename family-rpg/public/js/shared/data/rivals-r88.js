@@ -1236,7 +1236,7 @@ function g18Rivals() {
       id: 'hk_garizo', work: 'hanakappa', n: 1, name: 'がりぞー', lv: 60, job: 'ninja', look: GARI, bg: 'forest',
       use: 'r88_hk_megane', reward: ['r88_hk_megane'], words: 'ちょう兵衛さまのために、がんばるぞー！',
       sig: { name: 'ガリガリだっしゅ', anim: 'slash_fast', charge: '{a}が、メガネをくいっと上げた！\nその場の足ぶみが、どんどん速くなる…！', cast: '{a}が、ものすごい速さでつっこんできた！' },
-      tune: { hp: 1.63, dmg: 1 },
+      tune: { hp: 1.6, dmg: 1 },
     },
     {
       id: 'hk_chobee', work: 'hanakappa', n: 2, name: '黒羽屋ちょう兵衛', lv: 64, job: 'datenshi', look: CHO, bg: 'forest',
@@ -1249,7 +1249,7 @@ function g18Rivals() {
       use: 'r88_os_hensou', reward: ['r88_os_hensou'], words: 'こんばんは。今夜のお宝は、いただきますよ。',
       same: 'おや、名探ていのお仲間ですか。では、なぞときで勝負です。',
       sig: { name: '変装の早がわり', anim: 'slash_multi', charge: '{a}が、マントでさっと体をかくした！\nだれかに化けて、すぐそばまで近づいてくる…！', cast: '{a}の早がわりから、いっせいにおそいかかった！' },
-      tune: { hp: 1.05, dmg: 1 },
+      tune: { hp: 1.02, dmg: 1 },
     },
     {
       id: 'hk_wakaran', work: 'hanakappa', n: 4, name: 'ちょう兵衛とがりぞー', lv: 90, bg: 'forest',
@@ -1266,7 +1266,7 @@ function g18Rivals() {
       use: 'r88_os_michishirube', reward: ['r88_os_michishirube'], words: '満月の夜は、わたしの時間です。さあ、ショーの始まり！',
       same: 'おや、名探ていのお仲間ですか。では、なぞときで勝負です。',
       sig: { at: 0.8, after: 3, name: '風のみちしるべ・大せんぷう', el: 'wind', anim: 'r88_fujin', charge: '{a}が、青く光る石を満月にかざした！\n空とぶ島の風が、ごうごうと集まっていく…！', cast: '{a}のまわりから、大きな風がふきあれた！' },
-      tune: { hp: 0.38, dmg: 1 },
+      tune: { hp: 0.39, dmg: 1 },
     },
     // ── 暴れんぼう将軍・3年B組（名品を くれる 人は Lv60〜70・さいごの 上様は Lv80。伝説の 品は ない）──
     {
@@ -1277,27 +1277,27 @@ function g18Rivals() {
       ],
       use: 'r88_ab_shinobi', reward: ['r88_ab_shinobi'], words: 'ふっふっふ。この町は、わしらのものじゃ！',
       sig: { name: '用心ぼうの大立ち回り', anim: 'slash_heavy', charge: '{a}が「先生、おねがいしますぞ！」と声をかけた！\n用心ぼうが、ゆっくりと刀をぬいた…！', cast: '{a}の合図で、用心ぼうの刀が大きくふりぬかれた！' },
-      tune: { hp: 1.1, dmg: 1 },
+      tune: { hp: 1.07, dmg: 1 },
     },
     {
       id: 'cb_kinpachi', work: 'abarenbo', n: 2, name: '金八先生', lv: 64, job: 'homeroom_3b', look: L(0, 'long', 'black', 2, 'light', 'calm'), bg: 'grass',
       use: 'r88_3b_album', reward: ['r88_3b_album'], words: '人という字は、人と人とがささえ合っているんです。',
       same: 'おや、同じ先生の道を行く人ですか。いっしょに学びましょう。',
       sig: { at: 0.8, after: 3, name: '愛のじゅぎょう', anim: 'warcry', charge: '{a}が、黒板に大きな字を書き始めた…！\n「みなさん、よーく聞いてください」…！', cast: '{a}の愛のじゅぎょうが、みんなの心にずしんとひびいた！' },
-      tune: { hp: 0.76, dmg: 1 },
+      tune: { hp: 0.78, dmg: 1 },
     },
     {
       id: 'ab_oyadama', work: 'abarenbo', n: 3, name: '悪代官の親玉', lv: 70, job: 'sword_master', look: L(0, 'slick', 'white', 3, 'light', 'sharp'), bg: 'palace_night',
       use: 'r88_ab_ougi', reward: ['r88_ab_ougi'], words: 'えーい、であえ、であえ！',
       sig: { at: 0.8, after: 3, name: '親玉の大号令', anim: 'slash_multi', charge: '{a}が、大きな声で家来をよび集めた！\n「であえ、であえーっ！」…！', cast: '{a}の家来たちが、いっせいにおそいかかった！' },
-      tune: { hp: 0.92, dmg: 1 },
+      tune: { hp: 0.87, dmg: 1 },
     },
     {
       id: 'ab_uesama', work: 'abarenbo', n: 4, name: '上様', lv: 80, job: 'abarenbo_shogun', look: L(0, 'slick', 'black', 4, 'light', 'brave'), bg: 'sea',
       use: 'r88_ab_meito', reward: ['r88_ab_meito'], words: '余の顔を、見わすれたか！',
       same: 'ほう、同じ上様の道を行く者か。ならば、手かげんはせぬぞ。',
       sig: { name: '成敗のみねうち', anim: 'slash_heavy', charge: '{a}が、刀をくるりとかえした！\n「みねうちじゃ、安心いたせ」…！', cast: '{a}のみねうちが、つぎつぎと決まった！' },
-      tune: { hp: 0.36, dmg: 1 },
+      tune: { hp: 0.37, dmg: 1 },
     },
   ];
 }
