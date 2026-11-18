@@ -23,6 +23,9 @@ import { ITEMS_R88_KIMETSU, R88_KIMETSU_KANA, R88_REBIRTH_KIMETSU, R88_TAG_KIMET
 // 第88回 G9班: ドラゴンボール・ワンピース（tag … 今 ある 品を 作品の 品として 数える。G10班の tagR88Works）
 import { ITEMS_R88_DRAGONBALL, R88_DRAGONBALL_KANA, R88_REBIRTH_DRAGONBALL, R88_TAG_DRAGONBALL } from './items-r88-dragonball.js';
 import { ITEMS_R88_ONEPIECE, R88_ONEPIECE_KANA, R88_REBIRTH_ONEPIECE, R88_TAG_ONEPIECE } from './items-r88-onepiece.js';
+// 第88回 G12班: ドラえもん・セーラームーン（tag … 今 ある 品を 作品の 品として 数える）
+import { ITEMS_R88_DORAEMON, R88_DORAEMON_KANA, R88_REBIRTH_DORAEMON, R88_TAG_DORAEMON } from './items-r88-doraemon.js';
+import { ITEMS_R88_SAILORMOON, R88_SAILORMOON_KANA, R88_REBIRTH_SAILORMOON, R88_TAG_SAILORMOON } from './items-r88-sailormoon.js';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
@@ -41,6 +44,9 @@ const R88_PARTS = [
   // G9班: ドラゴンボール・ワンピース
   { items: ITEMS_R88_DRAGONBALL, kana: R88_DRAGONBALL_KANA, rebirth: R88_REBIRTH_DRAGONBALL, tag: R88_TAG_DRAGONBALL },
   { items: ITEMS_R88_ONEPIECE, kana: R88_ONEPIECE_KANA, rebirth: R88_REBIRTH_ONEPIECE, tag: R88_TAG_ONEPIECE },
+  // G12班: ドラえもん・セーラームーン
+  { items: ITEMS_R88_DORAEMON, kana: R88_DORAEMON_KANA, rebirth: R88_REBIRTH_DORAEMON, tag: R88_TAG_DORAEMON },
+  { items: ITEMS_R88_SAILORMOON, kana: R88_SAILORMOON_KANA, rebirth: R88_REBIRTH_SAILORMOON, tag: R88_TAG_SAILORMOON },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));
