@@ -43,6 +43,7 @@ import {
   drawSwordLook, drawDaggerLook, drawAxeLook, drawSpearLook, drawClawLook, drawWhipLook, drawStaffLook, drawFanLook, drawBatLook, drawBoomerangLook,
   ornate, shieldOutline2, shieldFace2, shieldOrnate, shieldBackOrnate, shieldTint,
 } from './hero-gear-looks.js';
+import { R88C_WEAPON_LOOK, R88C_STAFF, R88C_STAFF_LEN } from './hero-gear-looks-r88c.js';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };
@@ -128,6 +129,8 @@ const WEAPON_LOOK = {
 };
 // 第33回の ぶき（マジックステッキ・チョーク・指し棒・ニワトコのつえ。hero-r33.js）
 Object.assign(WEAPON_LOOK, R33_WEAPON_LOOK);
+// 第88回 絵C班: 作品の つえ（天候棒・ムーンスティック・ニワトコのつえ など。hero-gear-looks-r88c.js）
+Object.assign(WEAPON_LOOK, R88C_WEAPON_LOOK);
 
 // 名前で わかる 道具（これから ふえる 品も おなじ かたちに）
 const NAME_LOOK = [
@@ -193,6 +196,7 @@ const LOOK_LEN = {
   fan: { feather: 7, fan: 7.4, tessen: 7.4, wing: 7.6, phoenix: 7.2, moon: 7.4 },
   bat: { bat: 11.5, bamboo: 11.5, mbat: 11.8, gbat: 12.4, club: 11.8, spiked: 12.0 },
 };
+Object.assign(LOOK_LEN.staff, R88C_STAFF_LEN); // 第88回 絵C班
 // 名前の ことばで きまる ざいしつ（ランクで きまる ものは null）
 const nameMetal = (name) => { const a = metalOfName(name, 1); return a === metalOfName(name, 10) ? a : null; };
 const DARK_NAME = /影|黒|闇|やみ|夜/;
@@ -351,6 +355,7 @@ const NEW_LOOK = {
   claw: new Set(['beast', 'tiger', 'katar', 'fist', 'dragon']),
   whip: new Set(['snake', 'scorpion', 'star', 'royal']),
 };
+for (const k of R88C_STAFF) NEW_LOOK.staff.add(k); // 第88回 絵C班
 const isNewLook = (W) => !SHAPE_GROUP[W.shape] && !!NEW_LOOK[W.cat]?.has(W.shape);
 const NEW_DRAW = {
   sword: drawSwordLook, dagger: drawDaggerLook, axe: drawAxeLook, spear: drawSpearLook, staff: drawStaffLook,

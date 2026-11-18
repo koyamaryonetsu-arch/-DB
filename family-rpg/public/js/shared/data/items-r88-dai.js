@@ -55,7 +55,7 @@ const GEAR = {
   r88_da_fue: { ...weapon('axe', 'mei'), ...D, name: 'キルバーンの笛', fx: [{ k: 'paralyze', v: 6 }], bonus: { agi: 6 }, look: 'crescent', desc: '大きなかまにもなる、ふしぎな笛。音で体の感じをうばい、ときどき敵をマヒさせる。' },
   r88_da_shahal: { ...shield('den'), ...D, name: 'シャハルの鏡', bonus: { mag: 12, def: 10 }, resist: { fire: 0.85, ice: 0.85 }, use: { ability: 'r88u_da_mirror' }, look: 'mirror', desc: '親衛騎団の騎士の、伝説のたて。炎と氷に少し強い。使うと、次に受ける呪文1回をはね返す。' },
   r88_da_kigan: { ...acc('den'), ...T, name: 'き眼の力', bonus: { mag: 70, hp: 90, mp: 40, def: 26, agi: 24, heal: 20 }, use: { ability: 'r88u_da_kigan' }, desc: '大魔王のひたいの、第三の目の力。攻撃魔力がとても上がる。使うと、敵1体を「ひとみ」にとじこめて、少しの間動けなくする（大きな敵には効かない）。天地魔闘の3つの品の1つ。' },
-  r88_da_kouma: { ...weapon('staff', 'den'), ...T, name: '光魔のつえ', atkMp: true, bonus: { mag: 24, mp: 30 }, look: 'dragon', desc: '伝説の名工が作った、大魔王のつえ。MPが多いほど攻撃力が上がるが、ふつうの攻撃のたびにMPがへる。天地魔闘の3つの品の1つ。' },
+  r88_da_kouma: { ...weapon('staff', 'den'), ...T, name: '光魔のつえ', atkMp: true, bonus: { mag: 24, mp: 30 }, look: 'kouma', desc: '伝説の名工が作った、大魔王のつえ。MPが多いほど攻撃力が上がるが、ふつうの攻撃のたびにMPがへる。天地魔闘の3つの品の1つ。' },
   r88_da_white: { ...armor('robe', 'mei'), ...D, name: '大魔王の白い衣', fx: [{ k: 'res_fire', v: 6 }], bonus: { mag: 10 }, desc: '大魔王が、いつも着ていた白い衣。だれでも装備できる。炎に強い。' },
 };
 priceUp(GEAR, { r88_da_papnica: 90, r88_da_booster: 100 });
