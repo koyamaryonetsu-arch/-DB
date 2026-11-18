@@ -97,15 +97,12 @@ function clima(cv, F, W, o) {
   cv.part({ ol: 'line' });
   cv.ell(...F.T(L + 0.1, 0), 0.7, 0.7, metal('silver'), { bulge: 0.9 });
   cv.part({ ol: 'line' });
-  cv.poly(F.P(OB([[L + 1.4, 1.0], [L + 0.6, 2.6], [L + 1.4, 2.6], [L + 0.4, 4.2], [L + 2.2, 2.2], [L + 1.4, 2.2], [L + 2.2, 1.0]], o)), glow('#ffe46a'), { n: [0, 0] });
+  cv.poly(F.P(OB([[L + 1.8, 1.4], [L + 0.8, 2.9], [L + 1.6, 2.8], [L + 0.6, 4.0], [L + 2.6, 2.6], [L + 1.8, 2.5], [L + 2.8, 1.4]], o)), shine('#ffe23a'), { n: 'bevel', bw: 0.3 });
   puffs(cv, F, [[L + 2.2, 0, 1.6], [L + 1.6, -1.6 * o, 1.05], [L + 1.6, 1.5 * o, 1.05], [L + 3.4, -0.9 * o, 1.05], [L + 3.3, 1.0 * o, 1.0]], cloth('#5a5a7e'));
   // 顔（白い 目 2つ と 口）
-  if (!cv.trial) {
-    cv.part({ ol: 'none', cast: false });
-    for (const sb of [-0.75, 0.75]) { const [x, y] = F.T(L + 2.6, sb); cv.px(cv.X(x), cv.Y(y), '#ffffff'); }
-    const [mx, my] = F.T(L + 1.5, 0);
-    cv.px(cv.X(mx), cv.Y(my), '#ffd23a');
-  }
+  for (const sb of [-0.8, 0.8]) { cv.part({ ol: 'soft', cast: false }); cv.ell(...F.T(L + 2.5, sb), 0.42, 0.42, cloth('#ffffff'), { n: [0, 0] }); }
+  cv.part({ ol: 'soft', cast: false });
+  cv.ell(...F.T(L + 1.4, 0), 0.5, 0.3, cloth('#2a2034'), { n: [0, 0] });
   ornate(cv, F, W, { gems: [[L - 0.6, 0, 0.5]], glints: [[L + 5.0, 1.4], [L + 1.0, -3.6], [L + 4.2, -2.4], [L + 0.6, 4.2 * o]] });
 }
 
@@ -171,7 +168,7 @@ function heartrod(cv, F, W, o) {
 // ───── ニワトコのつえ（細く 短い。丸い ふしが ならぶ） ─────
 function elder(cv, F, W) {
   const L = W.len || 10.8;
-  const m = mat({ r: ['#3a3230', '#6a605a', '#9a908a', '#d0c8c0'], th: TH.matte });
+  const m = mat({ r: ['#4a3a2e', '#7e6a58', '#ad9a84', '#dccdb8'], th: TH.matte });
   // 手もとは 少し 太く、先へ 細く
   cv.part({ ol: 'line' });
   cv.poly(F.P([[-2.8, -0.72], [1.0, -0.62], [L - 1.0, -0.32], [L + 0.2, 0], [L - 1.0, 0.32], [1.0, 0.62], [-2.8, 0.72]]), m, { n: 'row', cx: 0.7 });
@@ -179,7 +176,7 @@ function elder(cv, F, W) {
   cv.ell(...F.T(-2.8, 0), 0.85, 0.85, m, { bulge: 0.85 });
   // ニワトコの 実の ような 丸い ふし
   cv.part({ ol: 'line' });
-  for (const [a, r] of [[1.0, 0.82], [2.9, 0.72], [4.7, 0.66], [6.4, 0.6], [8.0, 0.52]]) cv.ell(...F.T(a * (L / 10.8), 0), r, r, m, { bulge: 0.85 });
+  for (const [a, r] of [[1.2, 0.78], [3.4, 0.66], [5.4, 0.58], [7.3, 0.5]]) cv.ell(...F.T(a * (L / 10.8), 0), r, r, m, { bulge: 0.85 });
   ornate(cv, F, W, { gems: [[-1.0, 0, 0.45]], glints: [[L + 1.4, 1.2], [L * 0.5, -2.2], [L - 1.0, 1.8], [1.4, -2.2]] });
 }
 
@@ -192,7 +189,7 @@ function kouma(cv, F, W, o) {
   // 光の やいば（まわりに うすい 光・まん中は 白く 明るい）
   const B = 6.6;
   cv.part({ ol: 'none', cast: false });
-  cv.poly(F.P([[L - 0.4, -1.5], [L + B * 0.55, -1.25], [L + B + 1.2, 0], [L + B * 0.55, 1.25], [L - 0.4, 1.5]]), glow('#fff4b8'), { n: [0, 0] });
+  cv.poly(F.P([[L - 0.4, -1.5], [L + B * 0.55, -1.25], [L + B + 1.2, 0], [L + B * 0.55, 1.25], [L - 0.4, 1.5]]), glow('#ffe680'), { n: [0, 0] });
   cv.part({ ol: 'soft', lc: '#e8b84a' });
   cv.poly(F.P([[L - 0.2, -0.7], [L + B * 0.6, -0.6], [L + B, 0], [L + B * 0.6, 0.6], [L - 0.2, 0.7]]), glow('#ffffff'), { n: [0, 0] });
   // 根もとの 黒と 金の かざり（よこに つの）

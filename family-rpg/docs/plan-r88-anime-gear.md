@@ -3488,6 +3488,14 @@ SPY×FAMILYと オリジナルの 職業（中二病・ダ天使／光と闇の�
 - 戦いの 画面・装備の まど・フィールドで 見て、何の 武器か わかる こと。画面写真を メインが 見る。
 - 作品の しるし・ロゴ・文字（会社の マーク など）は かかない。形と 色だけで 表す（M と H の 字は 玉の もようなので よい）。
 
+### 実装メモ（絵C班）
+- 形: `WEAPON_LOOKS.staff` に `clima`・`moonstick`・`heartrod`・`elder`・`kouma`・`frieren`（つえは 18こ）。名前は `LOOK_NAMES`（天候棒・月のスティック・ハートのロッド・ニワトコのつえ・光のやいばのつえ・千年のつえ）
+- 絵: 新しい `client/render/hero-gear-looks-r88c.js`（`drawStaffR88c`）。`hero-gear-looks.js` の `drawStaffLook` から 1行で よぶ。品ごとの 色・長さ・かざりは 同じ ファイルの `R88C_WEAPON_LOOK`（`hero-gear.js` の `WEAPON_LOOK` に 足す）。形の 長さ `R88C_STAFF_LEN`・新しい 形の 一覧 `R88C_STAFF` も `hero-gear.js` で 足す（それぞれ 1行）
+- 天候棒の 先の かざりは 品の みための `tip`（`none` なし・`cloud` 小さな 雲・`bubble` 丸い 玉と あわ・`zeus` 目と 口の ある 黒い 雷雲と いなずま）。4だんとも 同じ 青い 3節の 棒（つなぎめに 銀の わ）
+- 使う 品: 天候棒 4だん（`r88_op_tact1〜4`）→ `clima`／うさぎのムーンスティック・ピンク・ムーン・スティック（`r88_sm_stick1`・`r88_sm_pinkstick`）→ `moonstick`（ピンクの 方は 水しょうも ピンク）／キューティムーンロッド・スパイラルハートムーンロッド（`r88_sm_stick2`・`r88_sm_stick3`）→ `heartrod`（スパイラルは 金の ふちと 左右に リボンの わ）／ニワトコのつえ（`elder_wand`。`GEAR_LOOK` を `wand33` から かえた）→ `elder`／光魔のつえ（`r88_da_kouma`）→ `kouma`／千年のつえ（`r88_fr_staff`）→ `frieren`
+- カレイドムーンスコープ（`crystal`）・エターナルティアル（`wing`）は 今の 形の まま
+- 千年のつえの 三日月は からだの 外へ ひらく むき（ムーンスティックの 三日月は 先へ ひらく）。光魔のつえの やいばは 白い しんと うすい 黄色の 光
+
 ## 出どころ（検索で たしかめた 所）
 
 - 封神演義: https://honcierge.jp/articles/shelf_story/5102 ・ https://w.atwiki.jp/aniwotawiki/pages/13793.html ・ http://www.ktr.to/Comic/paopee.html

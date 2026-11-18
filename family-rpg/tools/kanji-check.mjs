@@ -574,6 +574,8 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-kids.js', 'public/js/shared/data/items-r88-jidai.js',
     // 第88回 G17班: フリーレン・さいきくすお（服従のてんびん・鏡れん華の そろい）
     'public/js/shared/data/items-r88-frieren.js', 'public/js/shared/data/items-r88-saiki.js', 'public/js/shared/battle-r88-fr.js',
+    // 第88回 絵C班: 作品の つえの 新しい 形の 絵
+    'public/js/client/render/hero-gear-looks-r88c.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
