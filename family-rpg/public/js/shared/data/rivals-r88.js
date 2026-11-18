@@ -698,12 +698,12 @@ function g12Rivals() {
     {
       id: 'sm_sisters', work: 'sailormoon', n: 2, name: 'あやかしの姉妹', lv: 62,
       members: [
-        { name: 'コーアン', job: 'archmage', look: L(1, 'long', 'purple', 3, 'fair', 'sharp') },
+        { name: 'コーアン', job: 'enjutsushi', look: L(1, 'long', 'purple', 3, 'fair', 'sharp') },
         { name: 'ベルチェ', job: 'snow_queen', look: L(1, 'wavy', 'blue', 1, 'fair', 'calm') },
       ],
       use: 'r88_sm_pierce', reward: ['r88_sm_pierce'], words: 'わたしたち姉妹に、勝てるかしら？',
-      sig: { name: '姉妹の黒い光', el: 'dark', hit: 0.9, anim: 'dark1', charge: '{a}たちが、手をつないで輪になった！\n黒い水しょうのピアスが、光り始めた…！', cast: '{a}たちの黒い光が、いっせいにおそいかかった！' },
-      tune: { hp: 0.55, dmg: 1 },
+      sig: { name: '姉妹の黒い光', el: 'dark', anim: 'dark1', charge: '{a}たちが、手をつないで輪になった！\n黒い水しょうのピアスが、光り始めた…！', cast: '{a}たちの黒い光が、いっせいにおそいかかった！' },
+      tune: { hp: 0.8, dmg: 0.8 },
     },
     {
       id: 'sm_outer', work: 'sailormoon', n: 3, name: '3人の戦士', lv: 64,
@@ -720,7 +720,7 @@ function g12Rivals() {
       id: 'sm_saturn', work: 'sailormoon', n: 4, name: 'サターン', lv: 80, job: 'monster_master', look: L(1, 'bob', 'black', 3, 'fair', 'calm'),
       use: 'r88_sm_glaive', reward: ['r88_sm_glaive'], words: '…あなたたちの力、たしかめさせて。',
       sig: { name: 'サイレンス・グレイブ・ふり下ろし', el: 'dark', anim: 'dark_slash', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、大きなグレイブを高くかかげた…！\nあたりが、しんと静まりかえる…！', cast: '{a}のグレイブが、しずかにふり下ろされた！' },
-      tune: { hp: 1.06, dmg: 1 },
+      tune: { hp: 1.02, dmg: 1 },
     },
     {
       id: 'sm_galaxia', work: 'sailormoon', n: 5, name: 'ギャラクシア', lv: 100, job: 'grand_magus', look: L(1, 'long', 'orange', 4, 'tan', 'sharp'), bg: 'rift_moon',
