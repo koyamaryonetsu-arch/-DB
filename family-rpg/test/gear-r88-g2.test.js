@@ -73,7 +73,8 @@ test('第88回 G2: 今の 入れ物（宝の洞窟・ひみつのダンジョン
   // ガチャ・宝の 入れ物（名品）は G5班が ライバルを きめて 入れた（下の G5 の テスト）
   // 賢者の石（今 ある 品）は かえない
   assert.equal(ITEMS.philosopher_stone.src, 'sd');
-  assert.equal(ITEMS.philosopher_stone.work, undefined);
+  assert.equal(ITEMS.philosopher_stone.work, 'hagaren'); // G14班: 鋼のれん金術師の 品として 数える（tag。強さ・手に入れ方は かえない）
+  assert.ok(ITEMS.philosopher_stone.r88Tag);
 });
 
 // ───────────── 使う（ぜんぶ 動く）─────────────

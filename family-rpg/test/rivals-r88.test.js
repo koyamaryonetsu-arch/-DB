@@ -115,6 +115,8 @@ const examine = (bot, work = 'yaiba') => {
 // ───────────── データ ─────────────
 test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイヤーズ・烈火の炎）。ライバルは 作品の 中で じゅん番。ごほうびの 品・大技・まぼろしが ある', () => {
   assert.deepEqual(RIVAL_DOORS.map((d) => d.work).slice(0, 4), ['houshin', 'yaiba', 'slayers', 'rekka']); // G7班から あとの とびらは それぞれの テスト
+  // G14班: 伝説を ライバル いがいで もらう 作品（アナと雪の女王 … 第5のせいれいのドレスは 氷の石の台）も、さいごの 人は Lv100 ごろ
+  const DEN_ELSEWHERE = new Set(['frozen']);
   for (const d of RIVAL_DOORS) {
     assert.ok(WORKS[d.work], d.work);
     const list = rivalsOf(d.work);
@@ -122,7 +124,7 @@ test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイ
     assert.deepEqual(list.map((r) => r.n), list.map((_, i) => i + 1), `${d.work}: 1から じゅんに`);
     // 強さは 3だん（60・80・100）。さいごの 人が いちばん 強い
     // G8班: 伝説の 品が ない 作品（らんま1/2）は、さいごの 人も 名品なので Lv80 ごろ
-    const hasDen = list.some((r) => r.reward.some((id) => ITEMS[id]?.grade === 'den'));
+    const hasDen = list.some((r) => r.reward.some((id) => ITEMS[id]?.grade === 'den')) || DEN_ELSEWHERE.has(d.work);
     assert.equal(rivalTier(list[list.length - 1].lv), hasDen ? 100 : 80, `${d.work}: さいごは Lv100 ごろ`);
     for (let i = 1; i < list.length; i++) assert.ok(list[i].lv >= list[i - 1].lv, `${d.work}: 後の 人ほど 強い`);
   }
