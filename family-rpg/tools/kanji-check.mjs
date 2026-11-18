@@ -568,6 +568,8 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-harrypotter.js', 'public/js/shared/data/items-r88-mario.js',
     // 第88回 G16班: ポケモン（オボンのみ・いのちのたま）
     'public/js/shared/data/items-r88-pokemon.js', 'public/js/shared/battle-r88-pokemon.js',
+    // 第88回 G18班: はなかっぱ・おしり探てい・暴れんぼう将軍・3年B組
+    'public/js/shared/data/items-r88-kids.js', 'public/js/shared/data/items-r88-jidai.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

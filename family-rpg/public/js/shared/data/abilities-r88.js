@@ -878,3 +878,13 @@ Object.assign(R88_ABILITIES, {
     desc: 'ピッピにんぎょうをぽいっと投げる。敵が気を取られているうちに、みんなでにげ出す（にげられない戦いはだめ）。', cast: '{a}は、ピッピにんぎょうをぽいっと投げた！', anim: 'none',
   },
 });
+
+// ───── G18班: おしり探てい（ファイルの さいごで まぜる）─────
+//   名探ていのスーツとちょうネクタイ … ていねいに ことわってから、ふしぎな 風で 敵1グループを ねむらせる（ボスには 今の ねむりの きまりで ききにくい）
+Object.assign(R88_ABILITIES, {
+  r88u_os_shitsurei: {
+    name: 'しつれい・ねむりのかぜ', kana: 'しつれいねむりのかぜ', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.65, turns: [1, 3] },
+    desc: 'ていねいにことわってから、ふしぎな風をふわっと出す。同じ種類の敵みんなを、ねむらせる。', cast: '{a}「しつれい、こかせていただきます」\nプゥ〜…！ふしぎな風が、ふわりと広がった！', anim: 'r88_oshiri',
+  },
+});
