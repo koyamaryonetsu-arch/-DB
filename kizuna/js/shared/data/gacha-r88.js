@@ -10,11 +10,11 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS } from './items.js?v=eba5674896dc';
-import { REBIRTH } from './items-alchemy.js?v=eba5674896dc';
-import { WORKS } from './works.js?v=eba5674896dc';
-import { RIVALS } from './rivals-r88.js?v=eba5674896dc';
-import { ownedIds } from '../gear-r88.js?v=eba5674896dc';
+import { ITEMS } from './items.js?v=e971858cca51';
+import { REBIRTH } from './items-alchemy.js?v=e971858cca51';
+import { WORKS } from './works.js?v=e971858cca51';
+import { RIVALS } from './rivals-r88.js?v=e971858cca51';
+import { ownedIds } from '../gear-r88.js?v=e971858cca51';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -75,6 +75,8 @@ export const TM_R88_DEN = ['r88_kokai', 'r88_galvaira', 'r88_ragud', 'r88_zanyo'
 TM_R88_DEN.push('r88_iy_sounga', 'r88_yh_jigento');
 //   G10班: ナルトの 六道せん人のしゃくじょう（ライバルの まぼろしでは 出ない 伝説）
 TM_R88_DEN.push('r88_nr_shakujo');
+//   G9班: ドラゴンボールの Zソード・ポタラ（ライバルの まぼろしでは 出ない 伝説）
+TM_R88_DEN.push('r88_db_zsword', 'r88_db_potara');
 export const tmR88DenRate = (lv, kind = 'normal') => (kind === 'bossB' && (lv || 0) >= TM_R88_DEN_LV ? TM_R88_DEN_RATE : 0);
 
 // ───────────── はじめの 品の 店 ─────────────

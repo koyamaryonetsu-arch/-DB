@@ -9,23 +9,23 @@
 //   c.medalsGiven  … メダル王に わたした 数
 //   c.medalRewards … もらった ごほうび { 5: true, 10: true, … }
 //   c.prizeSeen    … 第50回 D3: 景品の NEW の しるしの ため 見た 品（world/prizes-r50.js）
-import { ITEMS } from '../data/items.js?v=eba5674896dc';
-import { addItem } from '../stats.js?v=eba5674896dc';
+import { ITEMS } from '../data/items.js?v=e971858cca51';
+import { addItem } from '../stats.js?v=e971858cca51';
 import {
   COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS, coinsOf, SLOT_BETS, REELS, slotLine, slotPay,
   POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, prizesFor, MEDAL_REWARDS,
   medalsFound, medalsGiven, medalsHeld, medalRewardOpen,
-} from '../data/casino.js?v=eba5674896dc';
+} from '../data/casino.js?v=e971858cca51';
 // 第50回 D3: 景品の NEW の しるし・なかま・乗り物券の かさなり・メダル王の お話で ふえる ごほうび
-import { casinoPrizeShelf, prizeBlock, prizeHave, medalRewardRows, medalFresh } from './prizes-r50.js?v=eba5674896dc';
-import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=eba5674896dc';
-import { MAPS, tileAt, condOk } from '../maps/index.js?v=eba5674896dc';
-import { T } from '../tiles.js?v=eba5674896dc';
+import { casinoPrizeShelf, prizeBlock, prizeHave, medalRewardRows, medalFresh } from './prizes-r50.js?v=e971858cca51';
+import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=e971858cca51';
+import { MAPS, tileAt, condOk } from '../maps/index.js?v=e971858cca51';
+import { T } from '../tiles.js?v=e971858cca51';
 // 第37回 B: ルーレット・すごろく場・宝の地図の 段で ふえる 景品
-import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js?v=eba5674896dc';
-import { tierInfo } from '../data/casino-tier.js?v=eba5674896dc';
-import { sugorokuInfo, sugorokuAction } from './sugoroku.js?v=eba5674896dc';
-import { SUGOROKU_MAP } from '../data/sugoroku.js?v=eba5674896dc';
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js?v=e971858cca51';
+import { tierInfo } from '../data/casino-tier.js?v=e971858cca51';
+import { sugorokuInfo, sugorokuAction } from './sugoroku.js?v=e971858cca51';
+import { SUGOROKU_MAP } from '../data/sugoroku.js?v=e971858cca51';
 
 // 見つけた 光る 場所は もう 光らない（sparkles の 時こくを ずっと 先に）
 export const MEDAL_TAKEN_AT = 9e15;

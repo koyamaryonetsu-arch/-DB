@@ -10,8 +10,12 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=eba5674896dc';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=eba5674896dc';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=e971858cca51';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=e971858cca51';
+// G9班: 生まれ変わりの 条件の ライバル（need.rivals）
+import { RIVAL_BY_ID } from './data/rivals-r88.js?v=e971858cca51';
+// G9班: 天候の 職業（気象予報士〜天候の神）。天候棒の「使う」が 今の 天気で かわる（docs/plan-r88-anime-gear.md の 4-12）
+export const WEATHER_JOBS = new Set(['kishou', 'otenki_caster', 'tenkou_tsukai', 'weather_god']);
 
 export const USE_SLOT_PREFIX = 'use_';
 export const ORB_V = 5;
@@ -108,7 +112,9 @@ export function r88Uses(char) {
   const out = [];
   for (const [sl, id] of equipped(char)) {
     const a = baseIt(id)?.use?.ability;
-    if (a) out.push({ slot: `${USE_SLOT_PREFIX}${sl}`, id, ability: a, once: true });
+    // G9班: 天気で かわる 品（天候棒）を 天候の 職業が つけて いる 時は weather（{ 天気: 技 }）も わたす（shared/battle-r88.js の useAbilityOf）
+    const w = WEATHER_JOBS.has(char?.job) ? baseIt(id)?.use?.weather : null;
+    if (a) out.push({ slot: `${USE_SLOT_PREFIX}${sl}`, id, ability: a, once: true, ...(w ? { weather: { ...w } } : {}) });
   }
   return out;
 }
@@ -132,6 +138,8 @@ export function rebirthNeedLack(char, need) {
   if (!need) return null;
   const own = ownedIds(char);
   const lack = [];
+  // G9班: rivals … まぼろしの回ろうで 勝って いる ライバル（ゼウスの 天候棒 ＝ ビッグ・マム）
+  for (const id of need.rivals || []) if (!char?.rivals?.[id]) lack.push(`${RIVAL_BY_ID[id]?.name || id}のまぼろしに勝っていること`);
   // G7班: items の 中の 配列は「どれか 1つ」（竜りんの 鉄さいがか 黒い 鉄さいが）
   for (const id of need.items || []) if (!(Array.isArray(id) ? id.some((x) => own.has(x)) : own.has(id))) lack.push(`${needItemName(id)}を持っていること`);
   for (const [sid, n] of Object.entries(need.sets || {})) if (ownedSetIds(char, sid).length < n) lack.push(`${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`);
@@ -207,7 +215,8 @@ export function shapeSource(who, bag) {
 
 export function rebirthNeedText(need) {
   if (!need) return '';
-  const parts = [...(need.items || []).map((id) => `${needItemName(id)}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`)];
+  const parts = [...(need.items || []).map((id) => `${needItemName(id)}を持っていること`), ...Object.entries(need.sets || {}).map(([sid, n]) => `${GEAR_SETS[sid]?.name || sid}を${n}つ持っていること`),
+    ...(need.rivals || []).map((id) => `${RIVAL_BY_ID[id]?.name || id}のまぼろしに勝っていること`)]; // G9班
   return parts.join('・');
 }
 

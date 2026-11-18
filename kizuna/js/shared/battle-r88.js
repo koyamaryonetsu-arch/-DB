@@ -4,10 +4,10 @@
 //   ・使う（品の use）… 1つの 戦いで その 品 1回（battle-gearfx.js の gearUseCheck・gearUse。u.once・u.used）
 //   ・そろい rule 'party' … 戦いの はじめの 仲間で 数えて、全員に その 段の 強さ（applyPartySets。battle.js の constructor）
 //   どれも 戦いの 中だけ（セーブしない）
-import { GEAR_SETS } from './data/gear-sets.js?v=eba5674896dc';
-import { fxPower, GEAR_FX } from './data/gear-fx.js?v=eba5674896dc';
-import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=eba5674896dc';
-import { ITEMS, baseItemId } from './data/items.js?v=eba5674896dc';
+import { GEAR_SETS } from './data/gear-sets.js?v=e971858cca51';
+import { fxPower, GEAR_FX } from './data/gear-fx.js?v=e971858cca51';
+import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=e971858cca51';
+import { ITEMS, baseItemId } from './data/items.js?v=e971858cca51';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {
@@ -90,4 +90,13 @@ export function useHpCost(c, u, ev) {
   ev.lines.push(`${ITEMS[u.id]?.name || '装備'}が、${c.name}の力を少し使った…（HP-${d}）`);
   if (!ev.upd.includes(c)) ev.upd.push(c);
   return d;
+}
+
+// G9班: 天候棒（品の use.weather）を 天候の 職業が つけて いる 時は、今の 天気で 使う 技が かわる（docs/plan-r88-anime-gear.md の 4-12）
+//   晴れ ＝ ミラージュ＝テンポ・雨 ＝ レイン＝テンポ（2だんから）・かみなりと 天気なし ＝ その だんの 技（use.ability）
+//   u.weather は gear-r88.js の r88Uses が 天候の 職業の 時だけ わたす。どちらの 側の 天気でも よい
+export function useAbilityOf(b, c, u) {
+  const w = u?.weather;
+  const kind = b?.weather?.kind;
+  return (w && kind && w[kind]) || u?.ability;
 }

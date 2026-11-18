@@ -297,3 +297,61 @@ Object.assign(G8_FX, { r88_kakuto: kakuto, r88_basho: basho });
 for (const k of ['r88_kakuto', 'r88_basho']) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_kakuto: 680, r88_basho: 600 });
 Object.assign(R88_SFX, { r88_kakuto: 'fire', r88_basho: 'wind' });
+
+// ───── G9班: ドラゴンボール・ワンピース（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_zeus  ゼウスの 天候棒・雷げき（ナミ）／カイドウ・ビッグ・マムの 大技 … 空が まっくらに なり、
+//            まるい 雷雲（白い 目の ついた ゼウス）が ふくらんで、敵 みんなに 太い 金色の いなずまが 何本も 落ちる
+//  r88_whis  天使の つえ・時もどし（ウイス）… つえの 玉が 光り、時計の 輪が さかさに 回って、白い 光の つぶが 体へ もどって いく
+const ZEUS = ['#ffffff', '#fff6b0', '#ffd23a', '#7ac8ff'];
+const WHIS = ['#ffffff', '#e8f0ff', '#b8d0ff', '#8ab0ff'];
+
+function zeus(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  fx.tintAt('rgba(10,10,40,0.6)', 1500);
+  // 雷雲ゼウスが ふくらむ（上の まん中）
+  const zx = c.x, zy = Math.max(18, c.y - 54);
+  for (let k = 0; k < 9; k++) {
+    const a = (k / 9) * Math.PI * 2;
+    fx.puff(zx + Math.cos(a) * 16, zy + Math.sin(a) * 7, { color: k % 2 ? '#9a9ab8' : '#7a7a9a', r0: 8, r1: 16, vy: 0, delay: k * 30, life: 1100 });
+  }
+  fx.glow(zx, zy, { color: '#b0b0d8', r: 26, delay: 120, life: 1000, alpha: 0.7 });
+  // 白い 目（ゼウスの 顔）
+  fx.glow(zx - 6, zy - 1, { color: '#ffffff', r: 3, delay: 300, life: 800 });
+  fx.glow(zx + 6, zy - 1, { color: '#ffffff', r: 3, delay: 300, life: 800 });
+  fx.sparks(zx, zy, { colors: ZEUS, n: 14, speed: 60, delay: 320, life: 400 });
+  // 敵 みんなに 太い いなずま
+  const list = targets.length ? targets : [c];
+  list.forEach((t, i) => {
+    const d = 620 + i * 70;
+    fx.zap(zx + (i - list.length / 2) * 6, zy + 6, t.x, t.y - 4, { color: '#ffffff', glow: '#ffd23a', w: 3.2, delay: d, life: 380, forks: 3 });
+    fx.zap(zx + (i - list.length / 2) * 8, zy + 4, t.x + rnd(-8, 8), t.y - 2, { color: '#e0f0ff', glow: '#7ac8ff', w: 2, delay: d + 50, life: 320, forks: 2 });
+    fx.sparks(t.x, t.y, { colors: ZEUS, n: 20, speed: 150, delay: d + 80, life: 420 });
+    fx.shock(t.x, t.y, { r0: 6, r1: 44, color: '#ffe680', w: 3, delay: d + 60, life: 380 });
+  });
+  fx.flashAt(120, '#fffbe0', 640);
+  fx.hitStop(150, 680, 1.5);
+  return true;
+}
+
+function whis(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.5 };
+  fx.tintAt('rgba(20,30,60,0.35)', 1300);
+  // つえの 玉が 光る
+  fx.glow(t.x, t.y - 26, { color: '#b8d0ff', r: 10, delay: 0, life: 1100, grow: 0.4 });
+  // 時計の 輪が さかさに（外から 内へ ちぢむ 輪を 3つ）
+  for (let k = 0; k < 3; k++) fx.shock(t.x, t.y, { r0: 60 - k * 6, r1: 8, color: k % 2 ? '#ffffff' : '#8ab0ff', w: 2.5, delay: 150 + k * 220, life: 520 });
+  // 時計の はり（12本の 光の 点が 左回りに）
+  for (let k = 0; k < 12; k++) {
+    const a = -Math.PI / 2 - (k / 12) * Math.PI * 2;
+    fx.twinkle(t.x + Math.cos(a) * 34, t.y + Math.sin(a) * 34, { color: '#ffffff', size: 4, delay: 120 + k * 55, life: 360, g: 0 });
+  }
+  // 光の つぶが 体へ もどる
+  fx.converge(t.x, t.y, { colors: WHIS, n: 26, r: 56, delay: 500, life: 520 });
+  fx.flashAt(90, '#f0f6ff', 1000);
+  return true;
+}
+
+Object.assign(G8_FX, { r88_zeus: zeus, r88_whis: whis });
+for (const k of ['r88_zeus', 'r88_whis']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_zeus: 700, r88_whis: 1000 });
+Object.assign(R88_SFX, { r88_zeus: 'thunder', r88_whis: 'heal' });

@@ -9,12 +9,12 @@
 //   axfx-o1-wa.js     … 和の 仕事（忍者・サムライ・将軍）
 //   axfx-o1-kage.js   … かげの 仕事（スパイ・殺し屋）
 //   axfx-o1-combo.js  … 掛け合わせ技 ＋ 合体技
-import { O1_FINE, capLife } from './axfx-o1-kit.js?v=eba5674896dc';
-import { AX_O1_KEN } from './axfx-o1-ken.js?v=eba5674896dc';
-import { AX_O1_KEN2 } from './axfx-o1-ken2.js?v=eba5674896dc';
-import { AX_O1_WA } from './axfx-o1-wa.js?v=eba5674896dc';
-import { AX_O1_KAGE } from './axfx-o1-kage.js?v=eba5674896dc';
-import { AX_O1_COMBO } from './axfx-o1-combo.js?v=eba5674896dc';
+import { O1_FINE, capLife } from './axfx-o1-kit.js?v=e971858cca51';
+import { AX_O1_KEN } from './axfx-o1-ken.js?v=e971858cca51';
+import { AX_O1_KEN2 } from './axfx-o1-ken2.js?v=e971858cca51';
+import { AX_O1_WA } from './axfx-o1-wa.js?v=e971858cca51';
+import { AX_O1_KAGE } from './axfx-o1-kage.js?v=e971858cca51';
+import { AX_O1_COMBO } from './axfx-o1-combo.js?v=e971858cca51';
 
 // どの え も「はなって から len ＋ 敵全体の ずらし ＋ 200ms」までに つぶが きえる（つぎの 行動に かぶらない）
 const guard = (defs) => Object.fromEntries(Object.entries(defs).map(([anim, d]) => [anim, {

@@ -7,11 +7,11 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=eba5674896dc';
-import { ITEMS } from './data/items.js?v=eba5674896dc';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=eba5674896dc';
+import { ABILITIES } from './data/abilities.js?v=e971858cca51';
+import { ITEMS } from './data/items.js?v=e971858cca51';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=e971858cca51';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost } from './battle-r88.js?v=eba5674896dc';
+import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf } from './battle-r88.js?v=e971858cca51';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -101,17 +101,18 @@ export function gearUseOf(c, id) {
 export function gearUseCheck(b, c, id) {
   if (typeof id !== 'string' || !id.startsWith(GEAR_USE_PREFIX)) return null;
   const u = gearUseOf(c, id);
-  if (!u || !ABILITIES[u.ability]) return { ok: false, reason: '使えない' };
+  if (!u || !ABILITIES[useAbilityOf(b, c, u)]) return { ok: false, reason: '使えない' };
   const once = onceBlock(u); // 第88回: 1つの 戦いで その 品 1回
   if (once) return { ok: false, reason: once };
-  const a = ABILITIES[u.ability];
+  const a = ABILITIES[useAbilityOf(b, c, u)]; // G9班: 天候棒は 天気で かわる
   if (b.noSpells && (a.kind === 'spell' || a.spellLike)) return { ok: false, reason: '呪文の力がすいこまれる' };
   return { ok: true };
 }
 export function gearUse(b, c, cmd, ev) {
   const u = gearUseOf(c, cmd.id);
   if (!u) return false;
-  const a = ABILITIES[u.ability];
+  const abId = useAbilityOf(b, c, u); // G9班: 天候棒は 天気で かわる（shared/battle-r88.js）
+  const a = ABILITIES[abId];
   ev.name = a?.name || '';
   ev.lines.push(`${c.name}は${ITEMS[u.id]?.name || '装備'}をかかげた！`);
   if (!a || onceBlock(u)) {
@@ -128,10 +129,10 @@ export function gearUse(b, c, cmd, ev) {
     ev.fx = { type: 'fizzle', actor: c.id };
     return true;
   }
-  ev.ability = u.ability;
+  ev.ability = abId;
   // G7班: 仲間 1人の 技（暗黒鏡）は、自分 いがいで HPの わりあいが いちばん 少ない 仲間（いなければ 自分）
   const target = a.target === 'ally' ? (b.sideOf(c, true).filter((x) => x.alive && x !== c).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0]?.id ?? c.id) : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
-  const sub = { type: 'ability', id: u.ability, target };
+  const sub = { type: 'ability', id: abId, target };
   const targets = b.targetsFor(c, a, sub);
   ev.lines.push(`${a.name}の力が、はなたれた！`);
   b.applyAbility(c, a, sub, ev, 1, targets);

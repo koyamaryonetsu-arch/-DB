@@ -6,10 +6,10 @@
 //   とびらを 調べると だいほん 'rival_door_<作品>'（data/story-rivals-r88.js）
 // ・とびらの 中 … 1つの 部屋の 形を 使い回して、作品ごとに ゆかと かべを かえる（ROOM_STYLES）。戦いの 前に 家族で 入る（world/rivals-r88.js）
 // ・attachRivalHall(maps) で 今の マップに 足す（ほかの マップの ファイルは かえない）
-import { T } from '../tiles.js?v=eba5674896dc';
-import { PLACES } from './overworld.js?v=eba5674896dc';
-import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=eba5674896dc';
-import { workName } from '../data/works.js?v=eba5674896dc';
+import { T } from '../tiles.js?v=e971858cca51';
+import { PLACES } from './overworld.js?v=e971858cca51';
+import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=e971858cca51';
+import { workName } from '../data/works.js?v=e971858cca51';
 
 export const HALL_ID = 'rival_hall';
 export const HALL_NAME = 'まぼろしの回ろう';
@@ -139,4 +139,9 @@ export function attachRivalHall(maps) {
 Object.assign(ROOM_STYLES, {
   onsen: { floor: T.FLOOR_WOOD, wall: T.WALL_WOOD, deco: T.HOT_SPRING },
   school: { floor: T.FLOOR_WOOD, wall: T.WALL_STONE, deco: T.TABLE },
+});
+
+// G9班: ワンピース（船の 甲板: 木の ゆか・まわりは 海・たる）。ドラゴンボールは 石の 広間（stone）
+Object.assign(ROOM_STYLES, {
+  ship: { floor: T.FLOOR_WOOD, wall: T.WATER, deco: T.BARREL },
 });

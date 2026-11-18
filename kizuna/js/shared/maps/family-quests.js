@@ -10,15 +10,15 @@
 //  3. カナトコの料理大会（鉱山の町カナトコの 広場・町の 北の 雪原の きのこ・南の 道の モグラ）
 //  4. ルミナの町の、消えた教会のかね（ルミナの町の 教会の まわり・北西の すみの 大きな 木）
 //  5. 鉱山トロッコの線路（鉱山の町カナトコの 北の 古い 鉱山 → だれも 知らない 小べや）
-import { T, TILE_INFO } from '../tiles.js?v=eba5674896dc';
-import { npc } from './npc.js?v=eba5674896dc';
-import { grid, room, stamp } from './fq-kit.js?v=eba5674896dc';
+import { T, TILE_INFO } from '../tiles.js?v=e971858cca51';
+import { npc } from './npc.js?v=e971858cca51';
+import { grid, room, stamp } from './fq-kit.js?v=e971858cca51';
 // 第41回: ふえた 6つの たのまれごとの 人と へや（maps/work-quests.js）
-import { attachWorkQuests } from './work-quests.js?v=eba5674896dc';
-import { PLACES } from './overworld.js?v=eba5674896dc';
-import { NORTH_PLACES } from './north.js?v=eba5674896dc';
-import { SOUTH_PLACES } from './south.js?v=eba5674896dc';
-import { openSpot } from './labyrinth.js?v=eba5674896dc';
+import { attachWorkQuests } from './work-quests.js?v=e971858cca51';
+import { PLACES } from './overworld.js?v=e971858cca51';
+import { NORTH_PLACES } from './north.js?v=e971858cca51';
+import { SOUTH_PLACES } from './south.js?v=e971858cca51';
+import { openSpot } from './labyrinth.js?v=e971858cca51';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const FQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ

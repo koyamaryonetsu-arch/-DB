@@ -171,3 +171,39 @@ Object.assign(R88_BOARD_COLORS, {
   r88_naruto: ['#c8601a', '#4a2008', '#f0a050'],
   r88_kimetsu: ['#1a3a2a', '#0a140e', '#5aa07a'],
 });
+
+// G9班: ドラゴンボール（星の 入った オレンジの 玉）・ワンピース（麦わらぼうし）
+Object.assign(R88_BOARD_ICONS, {
+  r88_dragonball: {
+    rows: [
+      '...ooo...',
+      '.oOOOOOo.',
+      '.OWOOOOo.',
+      'oOOrOrOOo',
+      'oOOOrOOOo',
+      'oOOrOrOOo',
+      '.OOOOOOo.',
+      '.ooOOOoo.',
+      '...ooo...',
+    ],
+    pal: { o: '#c8641a', O: '#ff9a2a', W: '#fff4d0', r: '#e8201a' },
+  },
+  r88_onepiece: {
+    rows: [
+      '.........',
+      '...yyy...',
+      '..yYYYy..',
+      '..yYYYy..',
+      '..rrrrr..',
+      'yyyyyyyyy',
+      'yYYYYYYYy',
+      '.yyyyyyy.',
+      '.........',
+    ],
+    pal: { y: '#c89a3a', Y: '#f2d27a', r: '#d8201a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_dragonball: ['#1a3a8a', '#081a4a', '#5a8ae8'],
+  r88_onepiece: ['#2a6a9a', '#0a2a4a', '#6ab0e0'],
+});
