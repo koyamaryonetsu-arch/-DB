@@ -715,7 +715,7 @@ Object.assign(R88_ABILITIES, {
     desc: '手ぶくろを外して王しゃくを持ち、同じ種類の敵みんなを氷でつつむ。', cast: '{a}が王しゃくをにぎると、あたりがこおり始めた！', anim: 'ice2',
   },
   r88u_fz_dress: {
-    name: '第5のせいれいの雪の結しょう', kana: 'だいごのせいれいのゆきのけっしょう', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    name: 'せいれいの雪の結しょう', kana: 'せいれいのゆきのけっしょう', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
     effect: { type: 'magic', element: 'ice', base: [160, 190], thr: 85 },
     desc: '4つのせいれいの力を1つにして、大きな雪の結しょうで敵全体を氷でつつむ。', cast: '{a}のドレスが、白くかがやき始めた…！', anim: 'r88_elsa',
   },
