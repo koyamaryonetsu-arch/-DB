@@ -14,7 +14,7 @@ import { gearFxTotals } from '../public/js/shared/data/gear-fx.js';
 import { setTitles, rebirthNeedLack, rebirthNeedText } from '../public/js/shared/gear-r88.js';
 import { Battle } from '../public/js/shared/battle.js';
 import { newCharacter, gainExp, expForLevel, fullHeal, addItem, itemCount, removeItem } from '../public/js/shared/stats.js';
-import { gachaBlock, gachaPool, gachaWorks, trialGiftOf, r88ShopItems, ORB_PLACES } from '../public/js/shared/data/gacha-r88.js';
+import { gachaBlock, gachaPool, gachaWorks, trialGiftOf, r88ShopItems, ORB_PLACES, TM_R88_DEN } from '../public/js/shared/data/gacha-r88.js';
 import { RIVAL_DOORS, RIVAL_BY_ID, rivalsOf, rivalTier, rivalEnc } from '../public/js/shared/data/rivals-r88.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { ROOM_STYLES } from '../public/js/shared/maps/rivals-r88.js';
@@ -402,6 +402,8 @@ test('G9: ガチャガチャ（2作品が ならぶ。ライバル・伝説・�
   // はじめの 品（青竜刀）は 店
   assert.equal(ITEMS.r88_db_seiryu.grade, 'shop');
   assert.ok(r88ShopItems().village.includes('r88_db_seiryu'));
+  // ライバルの 行に ない 伝説（Zソード・ポタラ）は 宝の洞窟の いちばん おく
+  for (const id of ['r88_db_zsword', 'r88_db_potara']) assert.ok(TM_R88_DEN.includes(id), id);
 });
 
 test('G9: 試練の ごほうび（スーパーサイヤ人3 → せん豆のふくろ・ゴム人間 → エースのぼうし）', () => {
