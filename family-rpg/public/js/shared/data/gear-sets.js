@@ -367,6 +367,32 @@ Object.assign(GEAR_SETS, {
   },
 });
 
+// ───── G13班: ハリー・ポッター（ファイルの さいごで まぜる）─────
+Object.assign(GEAR_SETS, {
+  // ── 死の 秘宝（今 ある ニワトコのつえ〈武器〉・とうめいマント〈よろい〉＋ よみがえりの石〈アクセ〉。部位が ちがうので 1人で 3つ つけられる）──
+  //   1人が 3つ つけると「ふんばる」（1つの 戦いで 1回、たおれても HP1 で のこる。shared/battle-r88.js の r88Endure）
+  //   ニワトコのつえ・とうめいマントの set は items-r88.js の tagR88Sets が つける
+  deathly_hallows: {
+    name: '死の秘宝',
+    items: ['elder_wand', 'invisible_cloak', 'r88_hp_stone'],
+    rule: 'wear',
+    tiers: [
+      { n: 3, fx: [{ k: 'endure', v: 1 }], text: '1人が3つともつけると、1つの戦いで1回、たおれるダメージを受けてもHP1でのこる（ふんばる）' },
+      { n: 3, rule: 'own', title: '死の秘宝の主', text: '3つ全部持つと、しょう号「死の秘宝の主」' },
+    ],
+  },
+  // ── ホグワーツの 4つの 品（持って いる 数で しょう号）──
+  hogwarts4: {
+    name: 'ホグワーツの4つの品',
+    items: ['r88_hp_gsword', 'r88_hp_diadem', 'r88_hp_cup', 'r88_hp_locket'],
+    rule: 'own',
+    tiers: [
+      { n: 2, title: 'ホグワーツの品さがし', text: '2つ持つと、しょう号「ホグワーツの品さがし」' },
+      { n: 4, title: '4つのりょうの友', text: '4つ全部持つと、しょう号「4つのりょうの友」' },
+    ],
+  },
+});
+
 // ───── G16班: ポケモン（ファイルの さいごで まぜる）─────
 //   ジムバッジ … own（持って いる 数で しょう号）。8つ 持つ 人だけ、まぼろしの回ろうの チャンピオン・ワタルに ちょうせん できる（data/rivals-r88.js の needSet）
 Object.assign(GEAR_SETS, {

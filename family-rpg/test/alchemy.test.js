@@ -19,6 +19,7 @@ import { T } from '../public/js/shared/tiles.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { alchemySteps, repairAlchemy, mergeAlchemy, alchemyMemoLoot, MEMO_CHEST_RATE } from '../public/js/shared/world/alchemy.js';
 import { upgradeSave } from '../public/js/shared/world/save.js';
+import { R88_REBIRTH } from '../public/js/shared/data/items-r88.js'; // G13班
 import { mergeChars } from '../public/js/shared/world/merge.js';
 import { newCharacter, itemCount, addItem, computeStats, gainExp, expForLevel, hasKeyItem } from '../public/js/shared/stats.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -202,7 +203,8 @@ test('生まれ変わり（かくし要素）: 1だん目は れん金がまで�
     assert.ok(Object.values(KEEPER_RECIPES).some((l) => l.includes(x.id)), `${x.id}: 親方`);
   }
   // 第88回: 作品の 品（work）の 生まれ変わりは test/gear-r88.test.js で たしかめる
-  const OLD_REBIRTH = Object.entries(REBIRTH).filter(([from]) => !ITEMS[from].work);
+  // G13班: 前から ある 品に 作品を つけた 物（r88Tag。魔法学校のつえ）は 前の 生まれ変わりの まま 数える（作品の 生まれ変わりの 表 R88_REBIRTH に ない 物）
+  const OLD_REBIRTH = Object.entries(REBIRTH).filter(([from]) => !ITEMS[from].work || (ITEMS[from].r88Tag && !R88_REBIRTH[from]));
   assert.equal(OLD_REBIRTH.length, 5);
   for (const [from, rb] of OLD_REBIRTH) {
     const r = rebirthOf(from);

@@ -5,6 +5,7 @@
 //     むらさきのマスターボール（伝説）は いちばん 強い（チャンピオン・ワタルが くれる）
 //   ・ジムバッジ 8つ（アクセ。1つずつ 小さな 力）… 持って いる 数で しょう号。8つ 持つ 人だけ チャンピオン・ワタルに ちょうせん できる
 //   ・がくしゅうそうち（経験値 2わり ふえる）・おまもりこばん（お金 5わり ふえる）… つけた 人だけ・1人に 1つ分（shared/gear-r88-pokemon.js）
+//   ・きあいのタスキ … HPが 満タンの 時だけ「ふんばる」（G13班の endure と 同じ 1人 1回。shared/battle-r88.js の r88Endure）
 //   ・オボンのみ（HPが 半分を 切ると 1回 回復）・いのちのたま（攻撃の たびに HPが 少し へる）… shared/battle-r88-pokemon.js
 //   ・しんかのきせき … 基本職・上級職の 人が つけると 守りが 大きく 上がる（shared/gear-r88-pokemon.js。強さの まどにも 出る）
 //   ・こだわり 3つ・いのちのたま … 上がる 所と 下がる 所（bonus の マイナス）
@@ -37,6 +38,7 @@ const GEAR = {
   r88_pk_tabenokoshi: { ...acc('mei'), ...P, name: 'たべのこし', fx: [{ k: 'regen', v: 6 }], desc: '食べのこしたごちそう。行動するたびに、少しずつ食べてHPが回復する。' },
   r88_pk_oboni: { ...acc('fu3'), ...P, name: 'オボンのみ', bonus: { hp: 20 }, pkBerry: 0.25, desc: '持たせておく木の実。HPが半分を切ると、自分で食べてHPが回復する（1つの戦いで1回）。' },
   r88_pk_rumu: { ...acc('fu3'), ...P, name: 'ラムのみ', fx: [{ k: 'guard_poison', v: 4 }, { k: 'guard_confuse', v: 3 }], desc: '持たせておく木の実。毒と混乱にかかりにくい。' },
+  r88_pk_tasuki: { ...acc('mei'), ...P, name: 'きあいのタスキ', pkSash: true, bonus: { hp: 20 }, desc: '気あいの入ったタスキ。HPがまんたんの時に、たおれるダメージを受けても、HP1でもちこたえる（1つの戦いで1回）。' },
   r88_pk_hachimaki: { ...head('mei'), ...P, name: 'こだわりハチマキ', bonus: { str: 24, mag: -16 }, desc: 'ひとつのことに、こだわるハチマキ。力が大きく上がるが、魔力が下がる。' },
   r88_pk_megane: { ...head('mei'), ...P, name: 'こだわりメガネ', bonus: { mag: 24, str: -16 }, desc: 'ひとつのことに、こだわるメガネ。魔力が大きく上がるが、力が下がる。' },
   r88_pk_scarf: { ...acc('mei'), ...P, name: 'こだわりスカーフ', bonus: { agi: 30, str: -12 }, desc: 'ひとつのことに、こだわるスカーフ。素早さが大きく上がるが、力が下がる。' },
@@ -79,7 +81,7 @@ export const R88_POKEMON_KANA = {
   r88_pk_cap: 'さとしのぼうし', r88_pk_glove: 'さとしのてぶくろ', r88_pk_zring: 'ぜっとりんぐ', r88_pk_ball: 'からのもんすたーぼーる',
   r88_pk_superball: 'すーぱーぼーる', r88_pk_hyperball: 'はいぱーぼーる', r88_pk_masterball: 'むらさきのますたーぼーる', r88_pk_zukan: 'ぽけもんずかん',
   r88_pk_denkidama: 'でんきだま', r88_pk_mokutan: 'もくたん', r88_pk_tabenokoshi: 'たべのこし', r88_pk_oboni: 'おぼんのみ', r88_pk_rumu: 'らむのみ',
-  r88_pk_hachimaki: 'こだわりはちまき', r88_pk_megane: 'こだわりめがね', r88_pk_scarf: 'こだわりすかーふ', r88_pk_inochi: 'いのちのたま',
+  r88_pk_tasuki: 'きあいのたすき', r88_pk_hachimaki: 'こだわりはちまき', r88_pk_megane: 'こだわりめがね', r88_pk_scarf: 'こだわりすかーふ', r88_pk_inochi: 'いのちのたま',
   r88_pk_gotsugotsu: 'ごつごつめっと', r88_pk_chokki: 'とつげきちょっき', r88_pk_kiseki: 'しんかのきせき', r88_pk_tsume: 'せんせいのつめ',
   r88_pk_pinto: 'ぴんとれんず', r88_pk_suzu: 'かいがらのすず', r88_pk_pippi: 'ぴっぴにんぎょう', r88_pk_gakushu: 'がくしゅうそうち',
   r88_pk_oujya: 'おうじゃのしるし', r88_pk_megaring: 'めがりんぐ', r88_pk_hai: 'せいなるはい', r88_pk_koban: 'おまもりこばん',

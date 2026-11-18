@@ -60,10 +60,10 @@ const useGear = (b, me, slot) => {
 };
 
 // ───────────── 品 ─────────────
-test('G16: 品の 数（38）・今 ある 進化の 石 4つも 作品の 品（強さ・手に入れ方は そのまま）', () => {
+test('G16: 品の 数（39）・今 ある 進化の 石 4つも 作品の 品（強さ・手に入れ方は そのまま）', () => {
   assert.equal(WORKS.pokemon.name, 'ポケモン');
-  assert.equal(Object.keys(ITEMS_R88_POKEMON).length, 38);
-  assert.equal(mine().length, 38);
+  assert.equal(Object.keys(ITEMS_R88_POKEMON).length, 39);
+  assert.equal(mine().length, 39);
   assert.deepEqual(ids().filter((id) => ITEMS[id].src !== 'r88').sort(), [...STONES].sort());
   for (const id of STONES) {
     assert.ok(ITEMS[id].r88Tag, id);
@@ -276,6 +276,31 @@ test('G16: いのちのたま … 力と 魔力が 上がり、敵に 攻撃す�
   assert.equal(me.hp, 100);
 });
 
+test('G16: きあいのタスキ … HPが 満タンの 時だけ、たおれる ダメージを 受けても HP1 で のこる（1つの 戦いで 1回。ふんばると 同じ 数え方）', () => {
+  const c = hero();
+  c.equip.acc = 'r88_pk_tasuki';
+  const b = fight([c]);
+  const me = b.allies[0];
+  const foe = b.enemies[0];
+  const hit = () => { const ev = { lines: [], upd: [], results: [] }; b.damage(foe, me, me.maxHp * 3, ev, { element: 'phys' }); return ev; };
+  // 満タンでなければ たおれる
+  me.hp = me.maxHp - 1;
+  hit();
+  assert.equal(me.hp, 0);
+  assert.ok(!me.r88Endured);
+  // 満タンなら HP1
+  me.hp = me.maxHp; me.alive = true;
+  const ev = hit();
+  assert.equal(me.hp, 1);
+  assert.ok(ev.lines.join('').includes('きあいのタスキでもちこたえた'), ev.lines.join('/'));
+  // 2回めは ない（また 満タンでも）
+  me.hp = me.maxHp;
+  hit();
+  assert.equal(me.hp, 0);
+  // ふんばる（G13班の endure）と 同じ しるし
+  assert.ok(me.r88Endured);
+});
+
 test('G16: しんかのきせき … 基本職・上級職の 人だけ 守りが 大きく 上がる（超級職・伝説では 効かない）', () => {
   for (const [job, ok] of [['warrior', true], ['paladin', true], ['hero', false], ['poke_master', false]]) {
     const c = hero(job, 50);
@@ -456,8 +481,8 @@ test('G16: チャンピオン・ワタル … ジムバッジを 8つ 持って 
 test('G16: ガチャガチャ … ライバルの 品（バッジ 8つも）・伝説・生まれ変わりの 先・店の 品・試練の ごほうびは 出ない', () => {
   assert.ok(gachaWorks().includes(W));
   const pool = gachaPool(W);
-  assert.equal(pool.all.length, 19);
-  assert.equal(pool.all.length * GACHA_PRICE, 380000);
+  assert.equal(pool.all.length, 20);
+  assert.equal(pool.all.length * GACHA_PRICE, 400000);
   const rivals = rivalsOf(W).flatMap((r) => r.reward);
   for (const id of mine()) {
     const it = ITEMS[id];

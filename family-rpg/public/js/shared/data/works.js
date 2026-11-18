@@ -70,6 +70,13 @@ Object.assign(WORKS, {
   dq: { name: 'ドラゴンクエスト', trialGift: { loto_hero: 'r88_dq_roto_mark' } },
 });
 
+// 第88回 G13班: ハリー・ポッター・マリオ（ファイルの さいごで まぜる）
+//   試練の ごほうび: ハリーポッター → ひいらぎのつえ（主人公の 名品）・マリオ → マリオのぼうし（主人公の 品。表では ふつう）
+Object.assign(WORKS, {
+  harrypotter: { name: 'ハリー・ポッター', trialGift: { harry: 'r88_hp_holly' } },
+  mario: { name: 'マリオ', trialGift: { mario: 'r88_mr_cap' } },
+});
+
 // 第88回 G16班: ポケモン（ファイルの さいごで まぜる）
 //   試練の ごほうび: ポケモンマスター → サトシのぼうし（サトシの 品）
 //   まぼろしの回ろうの ジムリーダーは 曜日で かわる（data/rivals-r88.js の g16Rivals）

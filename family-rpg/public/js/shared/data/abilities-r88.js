@@ -795,6 +795,64 @@ Object.assign(R88_ABILITIES, {
   },
 });
 
+// ───── G13班: ハリー・ポッター・マリオ（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   r88Star … 使った 人が その 回数の 行動の 間 状態異常に ならない（shared/battle-r88.js の r88AfterUse・r88StatusBlock）
+//   noBoss … ボスには きかない（キャッピー。r88StatusBlock）
+Object.assign(R88_ABILITIES, {
+  // ── ハリー・ポッター ──
+  r88u_hp_pigtail: {
+    name: 'ぶたのしっぽ', kana: 'ぶたのしっぽ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'agi', mult: 0.65, dur: 40, chance: 0.85 },
+    desc: 'かさの先をむけて、敵1体にくるんとしたぶたのしっぽをはやす。おどろいた敵の素早さが下がる。', cast: '{a}は、ピンクのかさの先を{t}にむけた！', anim: 'debuff',
+  },
+  r88u_hp_hatsword: {
+    name: 'ぼうしからぬいた剣', kana: 'ぼうしからぬいたけん', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.0, element: 'light' },
+    desc: '組分けぼうしの中から、光る銀の剣を引きぬいて、敵1体を切りつける。', cast: '{a}は、組分けぼうしの中に手を入れた…剣が出てきた！', anim: 'holy',
+  },
+  r88u_hp_time: {
+    name: '時をもどす', kana: 'ときをもどす', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'atbSet', value: 100, msg: '{t}のまわりだけ、時間がもどった！すぐにもう1回動ける！' },
+    desc: '逆転時計をくるりと回して、自分のまわりの時間をもどす。すぐにもう1回動ける。', cast: '{a}は、逆転時計をくるりと回した！', anim: 'r88_timeturner',
+  },
+  r88u_hp_twoway: {
+    name: '両面鏡のよびかけ', kana: 'りょうめんきょうのよびかけ', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'heal',
+    effect: { type: 'heal', base: [150, 190], thr: 50 },
+    desc: '両面鏡で助けをよび、仲間1人のHPを回復する。', cast: '{a}は、両面鏡に名前をよんだ！', anim: 'heal1',
+  },
+  r88u_hp_lighter: {
+    name: '明かりをすいとる', kana: 'あかりをすいとる', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'blind', chance: 0.6, turns: [2, 3] },
+    desc: '灯けしライターで、あたりの明かりをすいとり、敵全体をまぼろしにつつむ。', cast: '{a}は、灯けしライターをカチッとおした！あたりがまっくらになった！', anim: 'debuff',
+  },
+  r88u_hp_howler: {
+    name: 'ほえメールの大声', kana: 'ほえめーるのおおごえ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'atk', mult: 0.75, dur: 40, chance: 0.8 },
+    desc: '赤いふうとうを開けて、大きな声でしかりつける。敵全体の攻撃力を下げる。', cast: '{a}は、赤いふうとうを開けた！「こらーっ！」', anim: 'debuff',
+  },
+  // ── マリオ ──
+  r88u_mr_star: {
+    name: 'むてきのスター', kana: 'むてきのすたー', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup', r88Star: 3,
+    effect: { type: 'multi', parts: [{ type: 'cure', statuses: ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'] }, { type: 'buff', stat: 'atk', mult: 1.5, dur: 40 }] },
+    desc: 'スーパースターをとって、ぴかぴか光る。3回の行動の間、状態異常にならず、攻撃力が上がる。', cast: '{a}は、スーパースターをつかまえた！', anim: 'r88_superstar',
+  },
+  r88u_mr_cappy: {
+    name: 'キャプチャー', kana: 'きゃぷちゃー', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.85, turns: [2, 3], noBoss: true },
+    desc: 'キャッピーを投げて、敵1体にのりうつり、混乱させる（ボスにはきかない）。', cast: '{a}は、キャッピーを{t}にむかって投げた！', anim: 'debuff',
+  },
+  r88u_mr_pow: {
+    name: 'POWブロックをたたく', kana: 'ぱうぶろっくをたたく', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.2 },
+    desc: 'POWブロックをたたいて、敵全体をゆらし、小さなダメージ。', cast: '{a}は、POWブロックをドンとたたいた！', anim: 'quake',
+  },
+  r88u_mr_thunder: {
+    name: 'サンダーで小さく', kana: 'さんだーでちいさく', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'atk', mult: 0.7, dur: 40, chance: 0.85 },
+    desc: 'いなずまを落として、敵みんなを小さくする。敵全体の攻撃力を下げる。', cast: '{a}は、サンダーを使った！', anim: 'bolt2',
+  },
+});
+
 // ───── G16班: ポケモン（ファイルの さいごで まぜる）─────
 //   Zリング … 力を ためる（次の 攻撃が とても 強い。ダイの剣の さやと 同じ charge）・メガリング … 力・守り・素早さが 大きく 上がる（強化）
 //   せいなる灰 … たおれた 仲間 全員を 生き返らせて HPを まんたん・ピッピにんぎょう … かならず にげられる（にげられない 戦いは だめ）

@@ -36,6 +36,9 @@ import { ITEMS_R88_FROZEN, R88_FROZEN_KANA, R88_REBIRTH_FROZEN, R88_TAG_FROZEN }
 // 第88回 G15班: ダイの大冒険・ドラゴンクエスト（setTag … 今 ある 品を そろいの 組に 入れる）
 import { ITEMS_R88_DAI, R88_DAI_KANA, R88_REBIRTH_DAI, R88_TAG_DAI } from './items-r88-dai.js';
 import { ITEMS_R88_DQ, R88_DQ_KANA, R88_REBIRTH_DQ, R88_TAG_DQ, R88_SETTAG_DQ } from './items-r88-dq.js';
+// 第88回 G13班: ハリー・ポッター・マリオ（tagSet … 今 ある 品に そろいも つける）
+import { ITEMS_R88_HARRYPOTTER, R88_HARRYPOTTER_KANA, R88_REBIRTH_HARRYPOTTER, R88_TAG_HARRYPOTTER, R88_TAG_SET_HARRYPOTTER } from './items-r88-harrypotter.js';
+import { ITEMS_R88_MARIO, R88_MARIO_KANA, R88_REBIRTH_MARIO } from './items-r88-mario.js';
 // 第88回 G16班: ポケモン（tag … 今 ある 進化の 石を 作品の 品として 数える）
 import { ITEMS_R88_POKEMON, R88_POKEMON_KANA, R88_REBIRTH_POKEMON, R88_TAG_POKEMON } from './items-r88-pokemon.js';
 
@@ -69,6 +72,9 @@ const R88_PARTS = [
   // G15班: ダイの大冒険・ドラゴンクエスト
   { items: ITEMS_R88_DAI, kana: R88_DAI_KANA, rebirth: R88_REBIRTH_DAI, tag: R88_TAG_DAI },
   { items: ITEMS_R88_DQ, kana: R88_DQ_KANA, rebirth: R88_REBIRTH_DQ, tag: R88_TAG_DQ, setTag: R88_SETTAG_DQ },
+  // G13班: ハリー・ポッター・マリオ
+  { items: ITEMS_R88_HARRYPOTTER, kana: R88_HARRYPOTTER_KANA, rebirth: R88_REBIRTH_HARRYPOTTER, tag: R88_TAG_HARRYPOTTER, tagSet: R88_TAG_SET_HARRYPOTTER },
+  { items: ITEMS_R88_MARIO, kana: R88_MARIO_KANA, rebirth: R88_REBIRTH_MARIO },
   // G16班: ポケモン
   { items: ITEMS_R88_POKEMON, kana: R88_POKEMON_KANA, rebirth: R88_REBIRTH_POKEMON, tag: R88_TAG_POKEMON },
 ];
@@ -127,6 +133,15 @@ export function tagR88Works(table) {
     it.r88Tag = true;
     if (R88_SET_TAGS[id]) it.set = R88_SET_TAGS[id]; // G15班: 天空の剣・天空のよろい → 天空の装備（ファイルの さいご）
   }
+  tagR88Sets(table); // G13班: 今 ある 品に そろいも つける（ファイルの さいご）
+  return table;
+}
+
+// ───── G13班: 今 ある 品に そろいも つける（R88_PARTS の tagSet。{ 品の id: そろいの id }）─────
+//   ニワトコのつえ・とうめいマント → 死の 秘宝（data/gear-sets.js の deathly_hallows）。強さ・手に入れ方は かえない
+export const R88_TAG_SETS = Object.assign({}, ...R88_PARTS.map((p) => p.tagSet || {}));
+export function tagR88Sets(table) {
+  for (const [id, s] of Object.entries(R88_TAG_SETS)) if (table[id] && !table[id].base && !table[id].set) table[id].set = s;
   return table;
 }
 

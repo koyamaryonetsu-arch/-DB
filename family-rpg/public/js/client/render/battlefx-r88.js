@@ -650,6 +650,57 @@ Object.assign(R88_HIT, { r88_saya: 640, r88_namida: 800, r88_mirror: 460 });
 Object.assign(R88_SFX, { r88_saya: 'thunder', r88_namida: 'heal', r88_mirror: 'sparkle' });
 // 味方に かける えんしゅつ（G12班と 同じ。client/battle.js が 画面の 下に 出す）
 for (const a of ['r88_saya', 'r88_namida', 'r88_mirror']) PARTY_ANIMS.add(a);
+// ───── G13班: ハリー・ポッター・マリオ（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_superstar  スーパースター … 上から 金の 星が 回りながら おりて きて、体に とびこむ。
+//                 七色の 光の 輪が ひろがり、星の つぶが ぴかぴか ちらばる（味方に かける。画面の 下に 出す）
+//  r88_timeturner 逆転時計 … 金の 砂時計の 光が うかび、時計の 輪が 外から 内へ さかさに ちぢんで、
+//                 光の つぶが 体へ もどる（味方に かける）
+const STAR7 = ['#ff5a5a', '#ffb84a', '#ffe85a', '#7ae08a', '#6ab8ff', '#b88aff', '#ffffff'];
+const SAND = ['#ffffff', '#fff6c8', '#ffe08a', '#e8b84a'];
+
+function superstar(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.6 };
+  // 星が 回りながら おりて くる（光の 点を 5つの とがりに ならべて、少しずつ 下へ）
+  for (let s = 0; s < 6; s++) {
+    const y = t.y - 70 + s * 12;
+    for (let k = 0; k < 5; k++) {
+      const a = s * 0.5 + (k / 5) * Math.PI * 2 - Math.PI / 2;
+      fx.glow(t.x + Math.cos(a) * 9, y + Math.sin(a) * 9, { color: '#ffe85a', r: 3, delay: s * 70, life: 160 });
+    }
+    fx.glow(t.x, y, { color: '#fff6b0', r: 7, delay: s * 70, life: 160 });
+  }
+  // 体に とびこむ → 七色の 輪
+  fx.glow(t.x, t.y, { color: '#ffffff', r: 26, delay: 440, life: 520, alpha: 0.8 });
+  STAR7.forEach((col, i) => fx.shock(t.x, t.y, { r0: 4, r1: 30 + i * 8, color: col, w: 2.5, delay: 460 + i * 45, life: 420 }));
+  // 星の つぶ
+  for (let k = 0; k < 16; k++) fx.twinkle(t.x + rnd(-30, 30), t.y + rnd(-34, 14), { color: STAR7[k % STAR7.length], size: rnd(3, 5), delay: 520 + k * 30, life: 520, g: 0 });
+  fx.sparks(t.x, t.y, { colors: STAR7, n: 24, speed: 120, delay: 480, life: 520, g: -20 });
+  fx.flashAt(460, '#fffbe0', 520);
+  return true;
+}
+
+function timeturner(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.6 };
+  const cy = t.y - 10;
+  fx.tintAt('rgba(40,30,10,0.3)', 1100);
+  // 砂時計（上と 下の 三角を 光の 点で）
+  for (let k = 0; k < 6; k++) {
+    const d = k * 3;
+    for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) fx.glow(t.x + sx * (12 - d * 0.66), cy + sy * (18 - d), { color: '#ffe08a', r: 2.5, delay: k * 20, life: 900 });
+  }
+  // 時計の 輪が さかさに ちぢむ（大きい 輪から 小さい 輪へ）
+  for (let k = 0; k < 4; k++) fx.shock(t.x, cy, { r0: 70 - k * 12, r1: 6, color: k % 2 ? '#ffe08a' : '#ffffff', w: 2, delay: 240 + k * 110, life: 420 });
+  // 光の つぶが 体へ もどる
+  fx.converge(t.x, cy, { colors: SAND, n: 26, r: 60, delay: 300, life: 520 });
+  fx.glow(t.x, cy, { color: '#fff6c8', r: 22, delay: 760, life: 420, alpha: 0.7 });
+  fx.flashAt(760, '#fff8e0', 420);
+  return true;
+}
+
+Object.assign(G8_FX, { r88_superstar: superstar, r88_timeturner: timeturner });
+for (const k of ['r88_superstar', 'r88_timeturner']) { R88_ANIMS.add(k); R88_PARTY_ANIMS.add(k); PARTY_ANIMS.add(k); }
+Object.assign(R88_HIT, { r88_superstar: 700, r88_timeturner: 800 });
+Object.assign(R88_SFX, { r88_superstar: 'sparkle', r88_timeturner: 'heal' });
 
 // ───── G16班: ポケモン（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
 //   r88_zpower … Zリング。うでわの 石が 光り、5色の 光の すじが 体に あつまって、金色の Z の 字が かがやく
