@@ -33,6 +33,9 @@ import { ITEMS_R88_SAILORMOON, R88_SAILORMOON_KANA, R88_REBIRTH_SAILORMOON, R88_
 // 第88回 G14班: 鋼のれん金術師・アナと雪の女王（tag … 今 ある 品を 作品の 品として 数える）
 import { ITEMS_R88_HAGAREN, R88_HAGAREN_KANA, R88_REBIRTH_HAGAREN, R88_TAG_HAGAREN } from './items-r88-hagaren.js';
 import { ITEMS_R88_FROZEN, R88_FROZEN_KANA, R88_REBIRTH_FROZEN, R88_TAG_FROZEN } from './items-r88-frozen.js';
+// 第88回 G15班: ダイの大冒険・ドラゴンクエスト（setTag … 今 ある 品を そろいの 組に 入れる）
+import { ITEMS_R88_DAI, R88_DAI_KANA, R88_REBIRTH_DAI, R88_TAG_DAI } from './items-r88-dai.js';
+import { ITEMS_R88_DQ, R88_DQ_KANA, R88_REBIRTH_DQ, R88_TAG_DQ, R88_SETTAG_DQ } from './items-r88-dq.js';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
@@ -61,6 +64,9 @@ const R88_PARTS = [
   // G14班: 鋼のれん金術師・アナと雪の女王
   { items: ITEMS_R88_HAGAREN, kana: R88_HAGAREN_KANA, rebirth: R88_REBIRTH_HAGAREN, tag: R88_TAG_HAGAREN },
   { items: ITEMS_R88_FROZEN, kana: R88_FROZEN_KANA, rebirth: R88_REBIRTH_FROZEN, tag: R88_TAG_FROZEN },
+  // G15班: ダイの大冒険・ドラゴンクエスト
+  { items: ITEMS_R88_DAI, kana: R88_DAI_KANA, rebirth: R88_REBIRTH_DAI, tag: R88_TAG_DAI },
+  { items: ITEMS_R88_DQ, kana: R88_DQ_KANA, rebirth: R88_REBIRTH_DQ, tag: R88_TAG_DQ, setTag: R88_SETTAG_DQ },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));
@@ -115,6 +121,11 @@ export function tagR88Works(table) {
     if (!it || it.work || it.base) continue;
     it.work = w;
     it.r88Tag = true;
+    if (R88_SET_TAGS[id]) it.set = R88_SET_TAGS[id]; // G15班: 天空の剣・天空のよろい → 天空の装備（ファイルの さいご）
   }
   return table;
 }
+
+// ───── G15班: 今 ある 品を そろいの 組に 入れる（R88_PARTS の setTag。{ 品の id: 組の id }。tagR88Works が つける）─────
+//   天空の剣・天空のよろい（今 ある 品）→ 天空の装備（data/gear-sets.js の tenku）。強さ・手に入れ方は かえない
+export const R88_SET_TAGS = Object.assign({}, ...R88_PARTS.map((p) => p.setTag || {}));

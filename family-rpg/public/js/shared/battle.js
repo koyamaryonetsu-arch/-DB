@@ -105,6 +105,8 @@ import { r86aTurnStart, r86aCover, r86aEffect, r86aPhys, r86aElement, r86aPhysMu
 import { rivalSigEffect } from './battle-rival-fx-r88.js';
 // 第88回 M1班: 魔王の ひらめき技 天地魔闘の構え（受ける ダメージ 半分・手刀の 反撃・とける 時に 火の 鳥）
 import { r88mTurnStart, r88mEffect, r88mMark, r88mCut, r88mNote, r88mResolve, r88mPub } from './battle-r88m.js';
+// 第88回 G15班: 呪文を はね返す・動けなく する・光魔のつえ・まじんのかなづち（battle-r88-dq.js）
+import { r88dqEffect, r88MirrorSpell, r88dqAcc, r88dqAfterAttack } from './battle-r88-dq.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
 import { powScaleFor } from './pow-scale.js';
 
@@ -877,9 +879,10 @@ export class Battle {
         ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side };
         // 第65回: れん金の 属性の 力・キラー（ふつうの 攻撃の 属性と 倍率。battle-gearfx.js）
         const gm = attackMods(c, t);
-        const dmg = this.physHit(c, t, { mult: gm.mult }, ev, gm.element);
+        const dmg = this.physHit(c, t, { mult: gm.mult, acc: r88dqAcc(c) }, ev, gm.element); // G15班: まじんのかなづちは 外れやすい
         if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3] }, ev, 1);
         gearAfterAttack(this, c, t, dmg, ev, true); // 第64回 ⑥c: れん金の 効果（追撃・HP吸収・MP吸収）
+        r88dqAfterAttack(this, c, ev); // 第88回 G15班: 光魔のつえは 攻撃の たびに MPが へる
         this.afterDamage(c, ev, 'phys');
         break;
       }
@@ -959,6 +962,8 @@ export class Battle {
         if (pen.penalized) ev.penalized = true;
         // 光っている 敵・鏡写し: 呪文を はね返す（battle-temple.js）
         if (reflectSpell(this, c, a, cmd, ev, pen.powMult, targets)) break;
+        // 第88回 G15班: シャハルの鏡・天空のたての 光の かべが 敵の 呪文を はね返す（battle-r88-dq.js）
+        if (r88MirrorSpell(this, c, a, cmd, ev, pen.powMult, targets)) break;
         const pow = pen.powMult * classmateMult(this, c);
         this.applyAbility(c, a, cmd, ev, pow, targets);
         // 第51回: 天候をあやつる者の 技は 空も かえる（battle-weather.js）
@@ -1638,6 +1643,8 @@ export class Battle {
       case 'r88Rival': rivalSigEffect(this, c, a, eff, ev, targets); break;
       // 天地魔闘の構え（第88回 M1。battle-r88m.js）
       case 'r88mTenchi': r88mEffect(this, c, a, eff, ev); break;
+      // 呪文を はね返す 光の かべ・動けなく する（第88回 G15班。battle-r88-dq.js）
+      case 'r88dq': r88dqEffect(this, c, a, eff, ev, targets, powMult); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }

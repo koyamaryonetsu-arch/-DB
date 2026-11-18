@@ -581,3 +581,72 @@ Object.assign(G8_FX, { r88_snap: snap, r88_elsa: elsa });
 for (const k of ['r88_snap', 'r88_elsa']) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_snap: 520, r88_elsa: 940 });
 Object.assign(R88_SFX, { r88_snap: 'fire', r88_elsa: 'ice' });
+
+// ───── G15班: ダイの大冒険・ドラゴンクエスト（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_saya    ダイの剣・さやに おさめる … 剣の 光が さやへ すいこまれ、青白い いなずまが 体の まわりを はしって、金色の 光が たまる
+//  r88_namida  神のなみだ … 上に 金色の 小さな 光の 玉（スライムの 形）が うかび、金の しずくが 仲間 みんなに ふりそそいで 体が 光る
+//  r88_mirror  シャハルの鏡・天空のたて … 体の 前に 六角の 光の かべが ひらき、まわりを 光の すじが かけめぐる
+//              （シグマの まぼろしの 大技にも。敵 みんなに 光が はね返る）
+const GOLDN = ['#ffffff', '#fff6c0', '#ffe680', '#ffd23a'];
+const MIRR = ['#ffffff', '#eaf6ff', '#bfe4ff', '#d8c8ff'];
+
+function saya(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.6 };
+  fx.tintAt('rgba(10,20,40,0.3)', 1000);
+  // 剣の 光が すいこまれる
+  fx.converge(t.x, t.y - 4, { colors: BLUE, n: 20, r: 40, delay: 0, life: 360 });
+  // 青白い いなずまが 体の まわりを はしる
+  for (let k = 0; k < 4; k++) {
+    const a = (k * Math.PI) / 2 + 0.4;
+    fx.zap(t.x + Math.cos(a) * 26, t.y + Math.sin(a) * 18 - 10, t.x, t.y - 4, { color: '#ffffff', glow: '#7ac8ff', w: 1.4, delay: 260 + k * 70, life: 220, forks: 1 });
+  }
+  // 金色の 光が たまる
+  fx.glow(t.x, t.y - 4, { color: '#ffe680', r: 18, delay: 520, life: 600 });
+  fx.pillar(t.x, t.y + 8, '#8ac8ff', { w: 8, h: 50, delay: 560, life: 460, edge: '#ffffff' });
+  fx.sparks(t.x, t.y, { colors: GOLDN, n: 16, speed: 80, delay: 600, life: 420, g: -40 });
+  fx.flashAt(70, '#e8f4ff', 560);
+  return true;
+}
+
+function namida(fx, targets, W, H) {
+  const list = targets.length ? targets : [{ x: W * 0.5, y: H * 0.6 }];
+  const c = centerOf(list, W, H);
+  const mx = c.x, my = Math.max(18, c.y - 64);
+  fx.tintAt('rgba(40,30,0,0.25)', 1300);
+  // 金色の 小さな 光の 玉（しずくの 形）
+  fx.glow(mx, my, { color: '#ffd23a', r: 10, delay: 0, life: 1100 });
+  fx.glow(mx, my - 6, { color: '#fff6c0', r: 5, delay: 0, life: 1100 });
+  fx.shock(mx, my, { r0: 4, r1: 40, color: '#ffe680', w: 2, delay: 200, life: 600 });
+  // 金の しずくが ふりそそぐ
+  list.forEach((t, i) => {
+    for (let k = 0; k < 8; k++) fx.twinkle(t.x + rnd(-12, 12), t.y - 50 + rnd(-8, 8), { color: GOLDN[k % GOLDN.length], size: rnd(3, 5), vy: 60, delay: 360 + i * 70 + k * 40, life: 520 });
+    fx.glow(t.x, t.y, { color: '#fff2a0', r: 20, delay: 700 + i * 70, life: 560, alpha: 0.75 });
+    fx.sparks(t.x, t.y, { colors: GOLDN, n: 12, speed: 70, delay: 740 + i * 70, life: 460, g: -30 });
+  });
+  fx.flashAt(90, '#fffbe0', 700);
+  return true;
+}
+
+function mirror(fx, targets, W, H) {
+  const list = targets.length ? targets : [{ x: W * 0.5, y: H * 0.6 }];
+  list.forEach((t, i) => {
+    const d = i * 60;
+    // 六角の 光の かべ
+    for (let k = 0; k < 6; k++) {
+      const a0 = (k * Math.PI) / 3, a1 = ((k + 1) * Math.PI) / 3;
+      fx.spear(t.x + Math.cos(a0) * 22, t.y - 6 + Math.sin(a0) * 22, t.x + Math.cos(a1) * 22, t.y - 6 + Math.sin(a1) * 22, { len: 22, w: 2, color: '#ffffff', glow: '#bfe4ff', tip: '#ffffff', delay: d + 100 + k * 40, travel: 80, hold: 260, life: 420, over: 0 });
+    }
+    fx.glow(t.x, t.y - 6, { color: '#d8f0ff', r: 20, delay: d + 300, life: 560, alpha: 0.6 });
+    fx.shock(t.x, t.y - 6, { r0: 6, r1: 40, color: '#ffffff', w: 2, delay: d + 340, life: 420 });
+    fx.sparks(t.x, t.y - 6, { colors: MIRR, n: 14, speed: 110, delay: d + 360, life: 420 });
+  });
+  fx.flashAt(80, '#f4f8ff', 340);
+  return true;
+}
+
+Object.assign(G8_FX, { r88_saya: saya, r88_namida: namida, r88_mirror: mirror });
+for (const k of ['r88_saya', 'r88_namida', 'r88_mirror']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_saya: 640, r88_namida: 800, r88_mirror: 460 });
+Object.assign(R88_SFX, { r88_saya: 'thunder', r88_namida: 'heal', r88_mirror: 'sparkle' });
+// 味方に かける えんしゅつ（G12班と 同じ。client/battle.js が 画面の 下に 出す）
+for (const a of ['r88_saya', 'r88_namida', 'r88_mirror']) PARTY_ANIMS.add(a);

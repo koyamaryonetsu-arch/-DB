@@ -271,3 +271,9 @@ export const trialGiftFlag = (job) => `r88tg_${job}`;
 
 // 七つの玉の 宝箱を 開けた 数（しおり）
 export const orbsFound = (c) => ORB_PLACES.filter((p) => c?.chests?.[orbChestId(p)]).length;
+
+// 第88回 G15班: 宝の洞窟の いちばん おく（TM_R88_DEN）に、ライバルの まぼろしでは 出ない 伝説を 足す（ほかの 係の 行と ぶつからない ように さいごに）
+//   ダイの大冒険: 星皇剣・神のなみだ（ダイの剣は は者の剣から 生まれ変わる）
+//   ドラゴンクエスト: ロトのよろい・ロトのたて・はかいの鉄球・グリンガムのムチ・メタルキングの剣・天空のかぶと・ルビスの守り
+TM_R88_DEN.push('r88_da_seiou', 'r88_da_namida');
+TM_R88_DEN.push('r88_dq_roto_armor', 'r88_dq_roto_shield', 'r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss');
