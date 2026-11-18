@@ -423,3 +423,39 @@ Object.assign(R88_BOARD_ICONS, {
 Object.assign(R88_BOARD_COLORS, {
   r88_pokemon: ['#c82a2a', '#3a0a0a', '#ff9a8a'],
 });
+
+// G18班: はなかっぱ・おしり探てい（頭の 花と 緑の 顔）・暴れんぼう将軍・3年B組（あおいの もんの 丸）
+Object.assign(R88_BOARD_ICONS, {
+  r88_kids: {
+    rows: [
+      '...p.p...',
+      '..pPpPp..',
+      '...pYp...',
+      '....g....',
+      '..ggggg..',
+      '.gGkGkGg.',
+      '.gGGGGGg.',
+      '.gGGrGGg.',
+      '..ggggg..',
+    ],
+    pal: { p: '#ff7ab0', P: '#ffc0d8', Y: '#ffe25a', g: '#3a9a3a', G: '#7ad84a', k: '#1a1a22', r: '#e84a4a' },
+  },
+  r88_jidai: {
+    rows: [
+      '...yyy...',
+      '.yyYYYyy.',
+      '.yYgYgYy.',
+      'yYgggggYy',
+      'yYYgYgYYy',
+      'yYgggggYy',
+      '.yYgYgYy.',
+      '.yyYYYyy.',
+      '...yyy...',
+    ],
+    pal: { y: '#c8a040', Y: '#ffe08a', g: '#2a6a2a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_kids: ['#3a8a4a', '#123a1a', '#ff9ac8'],
+  r88_jidai: ['#2c4a9c', '#0e1a3a', '#e0c060'],
+});
