@@ -114,6 +114,12 @@ export function r88Uses(char) {
     const a = baseIt(id)?.use?.ability;
     // G9班: 天気で かわる 品（天候棒）を 天候の 職業が つけて いる 時は weather（{ 天気: 技 }）も わたす（shared/battle-r88.js の useAbilityOf）
     const w = WEATHER_JOBS.has(char?.job) ? baseIt(id)?.use?.weather : null;
+    // G12班: えらんで 使う 品（もしもボックス。use.pick）は 技ごとに 1行。group が 同じ 行は、どれか 1つを 使うと みんな 使った ことに なる
+    const pick = baseIt(id)?.use?.pick;
+    if (a && Array.isArray(pick)) {
+      pick.forEach((ab, i) => out.push({ slot: `${USE_SLOT_PREFIX}${sl}${i ? `_${i}` : ''}`, id, ability: ab, once: true, group: `${USE_SLOT_PREFIX}${sl}` }));
+      continue;
+    }
     if (a) out.push({ slot: `${USE_SLOT_PREFIX}${sl}`, id, ability: a, once: true, ...(w ? { weather: { ...w } } : {}) });
   }
   return out;

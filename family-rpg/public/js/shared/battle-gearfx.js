@@ -122,6 +122,7 @@ export function gearUse(b, c, cmd, ev) {
   // 第88回: 作品の 品は 1つの 戦いで 1回（ふうじられて いても 使った ことに なる）
   if (u.once) {
     u.used = true;
+    if (u.group) for (const x of c.gearUses || []) if (x.group === u.group) x.used = true; // G12班: もしもボックス（えらんで 使う 品）
     if (!ev.upd.includes(c)) ev.upd.push(c);
   }
   if (c.status?.silence && (a.kind === 'spell' || a.spellLike)) {

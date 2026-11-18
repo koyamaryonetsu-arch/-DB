@@ -557,7 +557,7 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-dragonball.js', 'public/js/shared/data/items-r88-onepiece.js',
     'public/js/shared/data/shenron-r88.js', 'public/js/shared/world/shenron-r88.js',
     // 第88回 G12班: ドラえもん・セーラームーン・聖はいの 台
-    'public/js/shared/data/items-r88-doraemon.js', 'public/js/shared/data/items-r88-sailormoon.js',
+    'public/js/shared/data/items-r88-doraemon.js', 'public/js/shared/data/items-r88-sailormoon.js', 'public/js/shared/world/grail-r88.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

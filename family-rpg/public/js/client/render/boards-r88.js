@@ -207,3 +207,39 @@ Object.assign(R88_BOARD_COLORS, {
   r88_dragonball: ['#1a3a8a', '#081a4a', '#5a8ae8'],
   r88_onepiece: ['#2a6a9a', '#0a2a4a', '#6ab0e0'],
 });
+
+// G12班: ドラえもん（赤い 首わと 金の すず）・セーラームーン（三日月と ハートの 変身ブローチ）
+Object.assign(R88_BOARD_ICONS, {
+  r88_doraemon: {
+    rows: [
+      '.........',
+      'rrrrrrrrr',
+      'RRRRRRRRR',
+      '...yyy...',
+      '..yYYYy..',
+      '.yYWYYYy.',
+      '.yykkkyy.',
+      '..yykyy..',
+      '...yyy...',
+    ],
+    pal: { r: '#c81a1a', R: '#ff4a3a', y: '#c8961a', Y: '#ffd23a', W: '#fff8d0', k: '#5a3a0a' },
+  },
+  r88_sailormoon: {
+    rows: [
+      '...yy....',
+      '..y......',
+      '.y...p.p.',
+      '.y..pPpPp',
+      '.y..pPPPp',
+      '..y..pPp.',
+      '...yy.p..',
+      '.........',
+      '.........',
+    ],
+    pal: { y: '#ffd23a', p: '#d8307a', P: '#ff8ac0' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_doraemon: ['#1a8ae0', '#0a3a7a', '#7ac8ff'],
+  r88_sailormoon: ['#2a1a5a', '#0a0a2a', '#8a6ae0'],
+});

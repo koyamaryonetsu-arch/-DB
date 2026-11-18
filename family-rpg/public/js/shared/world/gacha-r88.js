@@ -16,6 +16,8 @@ import {
 } from '../data/gacha-r88.js';
 // 第88回 G9班: ドラゴンボールの 宝箱と 神龍の さいだん（world/shenron-r88.js。この ファイルの だいほんと いっしょに まぜる）
 import { SHENRON_SCRIPTS } from './shenron-r88.js';
+// 第88回 G12班: 3つの タリスマンと 聖はいの 水しょうの台（world/grail-r88.js）
+import { GRAIL_SCRIPTS } from './grail-r88.js';
 
 const GOLD_MAX = 9999999;
 
@@ -222,3 +224,5 @@ export const GACHA_R88_SCRIPTS = {
 };
 // G9班: ドラゴンボールの 宝箱・神龍の さいだん
 Object.assign(GACHA_R88_SCRIPTS, SHENRON_SCRIPTS);
+// G12班: 聖はいの 水しょうの台
+Object.assign(GACHA_R88_SCRIPTS, GRAIL_SCRIPTS);

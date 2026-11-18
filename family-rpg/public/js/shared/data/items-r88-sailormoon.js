@@ -20,6 +20,8 @@ export const MOON_STICKS = ['r88_sm_stick1', 'r88_sm_stick2', 'r88_sm_stick3', '
 export const MOON_BROOCHES = ['r88_sm_brooch', 'r88_sm_crystalstar', 'r88_sm_cosmic'];
 export const TALISMANS = ['r88_sm_sword', 'r88_sm_mirror', 'r88_sm_orb'];
 export const HOLY_GRAIL = 'r88_sm_grail';
+// 聖はいの あらわれる 水しょうの台（鏡の湖の 東の ほとり。ミドリナ地方の マス。maps/gacha-r88.js が おく・world/grail-r88.js が 話す）
+export const GRAIL_ALTAR = { map: 'overworld', x: 98, y: 86 };
 
 const GEAR = {
   // ───── うさぎの スティック（生まれ変わる）─────
