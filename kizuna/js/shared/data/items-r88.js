@@ -5,28 +5,31 @@
 //   2. data/items-r88-<作品>.js を 作る（items-r88-kit.js の weapon・armor・shield・head・acc で 格を 書く）
 //   3. この ファイルの R88_PARTS に 足す（品・読みがな・生まれ変わり）
 //   4. 使う 技は data/abilities-r88.js（かくし技）・そろいは data/gear-sets.js
-import { REBIRTH } from './items-alchemy.js?v=3a53c2352ad9';
-import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js?v=3a53c2352ad9';
-import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA, R88_REBIRTH_HOUSHIN } from './items-r88-houshin.js?v=3a53c2352ad9';
+import { REBIRTH } from './items-alchemy.js?v=87f5df649c81';
+import { ITEMS_R88_YAIBA, R88_YAIBA_KANA, R88_REBIRTH_YAIBA } from './items-r88-yaiba.js?v=87f5df649c81';
+import { ITEMS_R88_HOUSHIN, R88_HOUSHIN_KANA, R88_REBIRTH_HOUSHIN } from './items-r88-houshin.js?v=87f5df649c81';
 // 第88回 G2班: スレイヤーズ・烈火の炎
-import { ITEMS_R88_SLAYERS, R88_SLAYERS_KANA, R88_REBIRTH_SLAYERS } from './items-r88-slayers.js?v=3a53c2352ad9';
-import { ITEMS_R88_REKKA, R88_REKKA_KANA, R88_REBIRTH_REKKA } from './items-r88-rekka.js?v=3a53c2352ad9';
+import { ITEMS_R88_SLAYERS, R88_SLAYERS_KANA, R88_REBIRTH_SLAYERS } from './items-r88-slayers.js?v=87f5df649c81';
+import { ITEMS_R88_REKKA, R88_REKKA_KANA, R88_REBIRTH_REKKA } from './items-r88-rekka.js?v=87f5df649c81';
 // 第88回 G7班: 犬夜しゃ・ゆう☆遊☆白書
-import { ITEMS_R88_INUYASHA, R88_INUYASHA_KANA, R88_REBIRTH_INUYASHA } from './items-r88-inuyasha.js?v=3a53c2352ad9';
-import { ITEMS_R88_YUHAKU, R88_YUHAKU_KANA, R88_REBIRTH_YUHAKU } from './items-r88-yuhaku.js?v=3a53c2352ad9';
+import { ITEMS_R88_INUYASHA, R88_INUYASHA_KANA, R88_REBIRTH_INUYASHA } from './items-r88-inuyasha.js?v=87f5df649c81';
+import { ITEMS_R88_YUHAKU, R88_YUHAKU_KANA, R88_REBIRTH_YUHAKU } from './items-r88-yuhaku.js?v=87f5df649c81';
 // 第88回 G8班: らんま1/2・地獄先生ぬ〜べ〜
-import { ITEMS_R88_RANMA, R88_RANMA_KANA, R88_REBIRTH_RANMA } from './items-r88-ranma.js?v=3a53c2352ad9';
-import { ITEMS_R88_NUBE, R88_NUBE_KANA, R88_REBIRTH_NUBE } from './items-r88-nube.js?v=3a53c2352ad9';
+import { ITEMS_R88_RANMA, R88_RANMA_KANA, R88_REBIRTH_RANMA } from './items-r88-ranma.js?v=87f5df649c81';
+import { ITEMS_R88_NUBE, R88_NUBE_KANA, R88_REBIRTH_NUBE } from './items-r88-nube.js?v=87f5df649c81';
 // 第88回 G10班: ナルト・きめつのやいば（tag … 今 ある 品を 作品の 品として 数える）
-import { ITEMS_R88_NARUTO, R88_NARUTO_KANA, R88_REBIRTH_NARUTO, R88_TAG_NARUTO } from './items-r88-naruto.js?v=3a53c2352ad9';
-import { ITEMS_R88_KIMETSU, R88_KIMETSU_KANA, R88_REBIRTH_KIMETSU, R88_TAG_KIMETSU } from './items-r88-kimetsu.js?v=3a53c2352ad9';
+import { ITEMS_R88_NARUTO, R88_NARUTO_KANA, R88_REBIRTH_NARUTO, R88_TAG_NARUTO } from './items-r88-naruto.js?v=87f5df649c81';
+import { ITEMS_R88_KIMETSU, R88_KIMETSU_KANA, R88_REBIRTH_KIMETSU, R88_TAG_KIMETSU } from './items-r88-kimetsu.js?v=87f5df649c81';
 // 第88回 G9班: ドラゴンボール・ワンピース（tag … 今 ある 品を 作品の 品として 数える。G10班の tagR88Works）
-import { ITEMS_R88_DRAGONBALL, R88_DRAGONBALL_KANA, R88_REBIRTH_DRAGONBALL, R88_TAG_DRAGONBALL } from './items-r88-dragonball.js?v=3a53c2352ad9';
-import { ITEMS_R88_ONEPIECE, R88_ONEPIECE_KANA, R88_REBIRTH_ONEPIECE, R88_TAG_ONEPIECE } from './items-r88-onepiece.js?v=3a53c2352ad9';
+import { ITEMS_R88_DRAGONBALL, R88_DRAGONBALL_KANA, R88_REBIRTH_DRAGONBALL, R88_TAG_DRAGONBALL } from './items-r88-dragonball.js?v=87f5df649c81';
+import { ITEMS_R88_ONEPIECE, R88_ONEPIECE_KANA, R88_REBIRTH_ONEPIECE, R88_TAG_ONEPIECE } from './items-r88-onepiece.js?v=87f5df649c81';
 // 第88回 G11班: るろうに剣心・名探ていコナン・まじっく快と
-import { ITEMS_R88_KENSHIN, R88_KENSHIN_KANA, R88_REBIRTH_KENSHIN, R88_TAG_KENSHIN } from './items-r88-kenshin.js?v=3a53c2352ad9';
-import { ITEMS_R88_CONAN, R88_CONAN_KANA, R88_REBIRTH_CONAN, R88_TAG_CONAN } from './items-r88-conan.js?v=3a53c2352ad9';
-import { ITEMS_R88_KAITO, R88_KAITO_KANA, R88_REBIRTH_KAITO, R88_TAG_KAITO } from './items-r88-kaito.js?v=3a53c2352ad9';
+import { ITEMS_R88_KENSHIN, R88_KENSHIN_KANA, R88_REBIRTH_KENSHIN, R88_TAG_KENSHIN } from './items-r88-kenshin.js?v=87f5df649c81';
+import { ITEMS_R88_CONAN, R88_CONAN_KANA, R88_REBIRTH_CONAN, R88_TAG_CONAN } from './items-r88-conan.js?v=87f5df649c81';
+import { ITEMS_R88_KAITO, R88_KAITO_KANA, R88_REBIRTH_KAITO, R88_TAG_KAITO } from './items-r88-kaito.js?v=87f5df649c81';
+// 第88回 G12班: ドラえもん・セーラームーン（tag … 今 ある 品を 作品の 品として 数える）
+import { ITEMS_R88_DORAEMON, R88_DORAEMON_KANA, R88_REBIRTH_DORAEMON, R88_TAG_DORAEMON } from './items-r88-doraemon.js?v=87f5df649c81';
+import { ITEMS_R88_SAILORMOON, R88_SAILORMOON_KANA, R88_REBIRTH_SAILORMOON, R88_TAG_SAILORMOON } from './items-r88-sailormoon.js?v=87f5df649c81';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
@@ -49,6 +52,9 @@ const R88_PARTS = [
   { items: ITEMS_R88_KENSHIN, kana: R88_KENSHIN_KANA, rebirth: R88_REBIRTH_KENSHIN, tag: R88_TAG_KENSHIN },
   { items: ITEMS_R88_CONAN, kana: R88_CONAN_KANA, rebirth: R88_REBIRTH_CONAN, tag: R88_TAG_CONAN },
   { items: ITEMS_R88_KAITO, kana: R88_KAITO_KANA, rebirth: R88_REBIRTH_KAITO, tag: R88_TAG_KAITO },
+  // G12班: ドラえもん・セーラームーン
+  { items: ITEMS_R88_DORAEMON, kana: R88_DORAEMON_KANA, rebirth: R88_REBIRTH_DORAEMON, tag: R88_TAG_DORAEMON },
+  { items: ITEMS_R88_SAILORMOON, kana: R88_SAILORMOON_KANA, rebirth: R88_REBIRTH_SAILORMOON, tag: R88_TAG_SAILORMOON },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));

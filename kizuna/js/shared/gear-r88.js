@@ -10,10 +10,10 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=3a53c2352ad9';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=3a53c2352ad9';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=87f5df649c81';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=87f5df649c81';
 // G9班: 生まれ変わりの 条件の ライバル（need.rivals）
-import { RIVAL_BY_ID } from './data/rivals-r88.js?v=3a53c2352ad9';
+import { RIVAL_BY_ID } from './data/rivals-r88.js?v=87f5df649c81';
 // G9班: 天候の 職業（気象予報士〜天候の神）。天候棒の「使う」が 今の 天気で かわる（docs/plan-r88-anime-gear.md の 4-12）
 export const WEATHER_JOBS = new Set(['kishou', 'otenki_caster', 'tenkou_tsukai', 'weather_god']);
 
@@ -114,6 +114,12 @@ export function r88Uses(char) {
     const a = baseIt(id)?.use?.ability;
     // G9班: 天気で かわる 品（天候棒）を 天候の 職業が つけて いる 時は weather（{ 天気: 技 }）も わたす（shared/battle-r88.js の useAbilityOf）
     const w = WEATHER_JOBS.has(char?.job) ? baseIt(id)?.use?.weather : null;
+    // G12班: えらんで 使う 品（もしもボックス。use.pick）は 技ごとに 1行。group が 同じ 行は、どれか 1つを 使うと みんな 使った ことに なる
+    const pick = baseIt(id)?.use?.pick;
+    if (a && Array.isArray(pick)) {
+      pick.forEach((ab, i) => out.push({ slot: `${USE_SLOT_PREFIX}${sl}${i ? `_${i}` : ''}`, id, ability: ab, once: true, group: `${USE_SLOT_PREFIX}${sl}` }));
+      continue;
+    }
     if (a) out.push({ slot: `${USE_SLOT_PREFIX}${sl}`, id, ability: a, once: true, ...(w ? { weather: { ...w } } : {}) });
   }
   return out;

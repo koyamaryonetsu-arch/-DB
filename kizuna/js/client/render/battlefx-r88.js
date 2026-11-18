@@ -8,6 +8,8 @@
 //              敵に 大きく 2回 切りつける → 白い 光の 十字 ＋ 光の つぶ
 //  r88_fujin   風神・風魂（G2班）… 緑と 白の つむじ風が うずを まいて ふくらみ、風の やいばが 何本も 敵の グループを 切りさく
 //  r88_raijin  雷神・いかずち（G2班）… こての 雷が 青白く ばちばち 光り、敵 みんなの 上から 青い いなずまが ジグザグに 落ちる
+// G12班: 味方に かける えんしゅつ（もしもボックス・ムーン・ヒーリング）を PARTY_ANIMS に まぜる（client/battle.js が 画面の 下に 出す）
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=87f5df649c81';
 const BOLT = ['#ffffff', '#fff6b0', '#ffd23a', '#c890ff'];
 const LIGHT = ['#ffffff', '#fffbe0', '#ffe680', '#ffd23a'];
 const WIND = ['#ffffff', '#e8fff0', '#9ef0c0', '#4ad890'];
@@ -431,3 +433,76 @@ Object.assign(G8_FX, { r88_guren: guren, r88_masui: masui, r88_kid: kid });
 for (const k of ['r88_guren', 'r88_masui', 'r88_kid']) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_guren: 540, r88_masui: 480, r88_kid: 600 });
 Object.assign(R88_SFX, { r88_guren: 'fire', r88_masui: 'sleep', r88_kid: 'wind' });
+
+// ───── G12班: ドラえもん・セーラームーン（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_dokan     空気ほう「ドカン！」… 手前に 空気が うずを まいて あつまり、すきとおった 大きな 空気の 玉が とんで、
+//                敵1体に ぶつかって はじける（白い 輪が 3つ ＋ 風の つぶ）
+//  r88_moshimo   もしもボックス … 画面が ゆらりと ゆがみ、まん中から 七色の 大きな 輪が 何回も ひろがって、世界が かわる（星の つぶ）
+//  r88_moonheal  ムーン・ヒーリング（うさぎの スティック）… 上に 金色の 三日月が うかび、ピンクと 金の 光の つぶが
+//                仲間 みんなに ふりそそいで、体が やさしく 光る
+const AIR = ['#ffffff', '#eaf6ff', '#bfe4ff', '#8ac8ff'];
+const RAINBOW = ['#ff7a7a', '#ffb84a', '#ffe85a', '#7ae08a', '#6ab8ff', '#b88aff'];
+const MOON = ['#ffffff', '#fff2b0', '#ffd8ec', '#ff9ac8'];
+
+function dokan(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.35, y: H * 0.45 };
+  const sx = Math.min(W - 20, t.x + 120), sy = t.y + 20;
+  // 空気が あつまる
+  fx.converge(sx, sy, { colors: AIR, n: 18, r: 30, delay: 0, life: 280 });
+  fx.glow(sx, sy, { color: '#d8f0ff', r: 12, delay: 200, life: 260 });
+  // 空気の 玉が とぶ（すきとおった まるを ならべて うごかす）
+  for (let k = 0; k < 6; k++) {
+    const p = k / 5;
+    fx.puff(sx + (t.x - sx) * p, sy + (t.y - sy) * p, { color: k % 2 ? '#eaf6ff' : '#bfe4ff', r0: 6 + k, r1: 14 + k * 2, delay: 300 + k * 35, life: 220, alpha: 0.55, add: true });
+  }
+  // ぶつかって はじける
+  for (let k = 0; k < 3; k++) fx.shock(t.x, t.y, { r0: 4, r1: 34 + k * 14, color: k % 2 ? '#bfe4ff' : '#ffffff', w: 3 - k * 0.6, delay: 520 + k * 70, life: 380 });
+  fx.sparks(t.x, t.y, { colors: AIR, n: 26, speed: 170, delay: 530, life: 420 });
+  for (let k = 0; k < 5; k++) fx.gust(t.x - 30, t.y - 20 + k * 10, { len: 60, amp: 4, color: '#ffffff', w: 1.2, dir: -1, delay: 540 + k * 30, life: 320 });
+  fx.flashAt(90, '#f0f8ff', 520);
+  fx.hitStop(140, 540, 1.5);
+  return true;
+}
+
+function moshimo(fx, targets, W, H) {
+  const cx = W / 2, cy = H * 0.45;
+  fx.tintAt('rgba(40,20,60,0.35)', 1300);
+  // 七色の 輪が 何回も ひろがる
+  RAINBOW.forEach((col, i) => fx.shock(cx, cy, { r0: 4, r1: Math.max(W, H) * 0.7, color: col, w: 3, delay: 120 + i * 90, life: 760 }));
+  // 星の つぶ
+  for (let k = 0; k < 18; k++) {
+    fx.twinkle(rnd(10, W - 10), rnd(10, H * 0.8), { color: RAINBOW[k % RAINBOW.length], size: rnd(3, 6), delay: 200 + k * 40, life: 520, g: 0 });
+  }
+  fx.glow(cx, cy, { color: '#ffffff', r: 26, delay: 100, life: 600, alpha: 0.6 });
+  fx.flashAt(120, '#fff8ff', 760);
+  return true;
+}
+
+function moonheal(fx, targets, W, H) {
+  const list = targets.length ? targets : [{ x: W * 0.5, y: H * 0.6 }];
+  const c = centerOf(list, W, H);
+  const mx = c.x, my = Math.max(16, c.y - 60);
+  fx.tintAt('rgba(30,10,40,0.3)', 1200);
+  // 三日月（金色の 光の 点を 弓の 形に）
+  for (let k = 0; k < 11; k++) {
+    const a = -Math.PI * 0.75 + (k / 10) * Math.PI * 1.5;
+    fx.glow(mx + Math.cos(a) * 14, my + Math.sin(a) * 14, { color: '#ffe680', r: 3, delay: k * 25, life: 1000 });
+  }
+  fx.glow(mx, my, { color: '#fff6c0', r: 20, delay: 120, life: 900, alpha: 0.5 });
+  // 光の つぶが ふりそそぐ
+  list.forEach((t, i) => {
+    for (let k = 0; k < 7; k++) fx.twinkle(t.x + rnd(-14, 14), t.y - 50 + rnd(-10, 10), { color: MOON[k % MOON.length], size: rnd(3, 5), vy: 50, delay: 300 + i * 60 + k * 40, life: 560 });
+    fx.glow(t.x, t.y, { color: '#ffc0e0', r: 18, delay: 620 + i * 60, life: 520, alpha: 0.7 });
+    fx.sparks(t.x, t.y, { colors: MOON, n: 12, speed: 70, delay: 660 + i * 60, life: 460, g: -30 });
+  });
+  fx.flashAt(70, '#fff0f8', 640);
+  return true;
+}
+
+Object.assign(G8_FX, { r88_dokan: dokan, r88_moshimo: moshimo, r88_moonheal: moonheal });
+for (const k of ['r88_dokan', 'r88_moshimo', 'r88_moonheal']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_dokan: 560, r88_moshimo: 800, r88_moonheal: 700 });
+Object.assign(R88_SFX, { r88_dokan: 'blast', r88_moshimo: 'sparkle', r88_moonheal: 'heal' });
+// 味方に かける えんしゅつ（client/battle.js・テストが 見る PARTY_ANIMS に まぜる。M1班と 同じ）
+export const R88_PARTY_ANIMS = new Set(['r88_moshimo', 'r88_moonheal']);
+for (const a of R88_PARTY_ANIMS) PARTY_ANIMS.add(a);

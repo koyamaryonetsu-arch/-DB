@@ -46,3 +46,10 @@ Object.assign(WORKS, {
   conan: { name: '名探ていコナン', trialGift: { meitantei: 'r88_cn_masui' } },
   kaito: { name: 'まじっく快と', trialGift: { kaito_kid: 'r88_kt_monocle' } },
 });
+
+// 第88回 G12班: ドラえもん・セーラームーン（ファイルの さいごで まぜる）
+//   試練の ごほうび: ドラえもん → ひらりマント（ドラえもんの 名品の たて）・セーラームーン → うさぎのムーンスティック（5だんに 生まれ変わる はじめの スティック）
+Object.assign(WORKS, {
+  doraemon: { name: 'ドラえもん', trialGift: { doraemon: 'r88_dr_hirari' } },
+  sailormoon: { name: 'セーラームーン', trialGift: { sailor_moon: 'r88_sm_stick1' } },
+});

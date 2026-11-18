@@ -36,6 +36,7 @@ export const RIVAL_DOORS = [
   ...g10Doors(), // G10班: ナルト・きめつのやいば（ファイルの さいご）
   ...g9Doors(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
   ...g11Doors(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
+  ...g12Doors(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -281,6 +282,7 @@ export const RIVALS = [
   ...g10Rivals(), // G10班: ナルト・きめつのやいば（ファイルの さいご）
   ...g9Rivals(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
   ...g11Rivals(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
+  ...g12Rivals(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -727,6 +729,93 @@ function g11Rivals() {
       same: 'おや、同じ手品の道の方ですか。では、マジック勝負といきましょう。',
       sig: { name: '満月のイリュージョン', el: 'light', anim: 'r88_kid', charge: '{a}が、大きな宝石を月にかざした！\n宝石の中で、赤い光がゆらめく…！', cast: '{a}のマントがひるがえり、月の光がいっせいにふりそそいだ！' },
       tune: { hp: 0.4, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G12班: ドラえもん・セーラームーン ─────────────
+//   ドラえもん … 部屋 ＝ 木の 部屋（wood）・背景 ＝ 草原（grass。空き地の かわり）。さいごの ドラえもんの まぼろしは 雲の上（kumoi）
+//   セーラームーン … 部屋 ＝ 石の 広間（stone）・背景 ＝ 夜の 宮でん（palace_night）。ギャラクシアは 月の さけめ（rift_moon）
+//   ウラヌス・ネプチューン・プルートの 3人に 勝つと、3つの タリスマン（そろえて 鏡の湖の ほとりで 聖はい。world/grail-r88.js）
+function g12Doors() {
+  return [
+    { work: 'doraemon', mark: 'r88_doraemon', bg: 'grass', room: 'wood', jobs: ['neko_robot', 'mimi_robot', 'doraemon', 'nobu_dora'] },
+    { work: 'sailormoon', mark: 'r88_sailormoon', bg: 'palace_night', room: 'stone', jobs: ['sailor_soldier', 'sailor_moon', 'neo_queen'] },
+  ];
+}
+function g12Rivals() {
+  return [
+    // ── ドラえもん（名品を くれる 人は Lv60 ごろ・さいごの ドラえもんの まぼろしは 伝説で Lv100）──
+    {
+      id: 'dr_nobita', work: 'doraemon', n: 1, name: 'のび太', lv: 60, job: 'kaito_kid', look: L(0, 'short', 'black', 4, 'light', 'round'),
+      use: 'r88_dr_shock', reward: ['r88_dr_shock'], words: 'あやとりとうつのだけは、だれにも負けないぞ！',
+      sig: { name: 'ショックガン・早うち', anim: 'bolt2', charge: '{a}が、めがねをくいっと上げた…！\nショックガンを、すっとかまえる…！', cast: '{a}のショックガンから、光線がつぎつぎとんできた！' },
+      tune: { hp: 1.05, dmg: 1 },
+    },
+    {
+      id: 'dr_gian', work: 'doraemon', n: 2, name: 'ガキ大将', lv: 60, job: 'god_hand', look: L(0, 'short', 'black', 4, 'tan', 'brave'),
+      use: 'r88_dr_mic', reward: ['r88_dr_mic', 'r88_dr_bat'], words: 'おれさまのリサイタルを、聞いていけ！',
+      sig: { name: 'ボエ〜リサイタル', anim: 'blast2', charge: '{a}がマイクをにぎって、大きくいきをすいこんだ！\nみんな、耳をふさいで！…！', cast: '{a}の、とんでもない歌声がひびきわたった！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'dr_suneo', work: 'doraemon', n: 3, name: 'スネ夫', lv: 64, job: 'kaito_kid', look: L(0, 'slick', 'black', 5, 'light', 'smile'),
+      use: 'r88_dr_houdai', reward: ['r88_dr_houdai'], words: 'ぼくの無敵ほう台は、未来のデパートで買ったんだぞ！',
+      sig: { name: '無敵ほう台・発射', el: 'blast', anim: 'blast2', charge: '{a}が、こっちを指さした！\nほう台が、くるりとこちらを向く…！', cast: '{a}「発射！」ほう台の玉が、まっすぐとんできた！' },
+      tune: { hp: 1.18, dmg: 1 },
+    },
+    {
+      id: 'dr_dorami', work: 'doraemon', n: 4, name: 'ドラミ', lv: 66, job: 'daikenja', look: L(1, 'bald', 'blonde', 4, 'fair', 'smile'),
+      use: 'r88_dr_ribbon', reward: ['r88_dr_ribbon', 'r88_dr_melonpan'], words: 'お兄ちゃんの友だち？わたしもテストするわね！',
+      sig: { name: 'ひみつ道具・大そうじ', anim: 'wind2', charge: '{a}が、ポケットに手を入れた！\n大きな道具が、出てきそうだ…！', cast: '{a}の道具から、つむじ風がふき出した！' },
+      tune: { hp: 1.46, dmg: 1 },
+    },
+    {
+      id: 'dr_dora', work: 'doraemon', n: 5, name: 'ドラえもんのまぼろし', lv: 100, job: 'doraemon', look: L(0, 'bald', 'blue', 1, 'fair', 'round'), bg: 'kumoi',
+      use: 'r88_dr_moshimo', reward: ['r88_dr_moshimo'], words: 'ひみつ道具のテストだよ。ぼくに勝てるかな？',
+      same: 'きみもネコ型ロボットなの？どら焼き、すき？',
+      sig: { name: 'もしもの大あらし', el: 'wind', anim: 'r88_moshimo', charge: '{a}が、ポケットから電話ボックスを出した！\n「もしも、ここが大あらしだったら…」', cast: '{a}の言葉どおり、大あらしがまき起こった！' },
+      tune: { hp: 0.83, dmg: 1 },
+    },
+    // ── セーラームーン（名品を くれる 人は Lv60 ごろ・サイレンス・グレイブは 伝説で Lv80・さいごの ギャラクシアは Lv100）──
+    {
+      id: 'sm_beryl', work: 'sailormoon', n: 1, name: 'クイン・ベリル', lv: 60, job: 'archmage', look: L(1, 'long', 'red', 3, 'fair', 'sharp'),
+      use: 'r88_sm_beryl', reward: ['r88_sm_beryl'], words: 'わらわの闇の力、思い知るがよい！',
+      sig: { name: '黒水しょうの闇', el: 'dark', anim: 'dark1', charge: '{a}のつえの黒い水しょうが、あやしく光り始めた…！', cast: '{a}のつえから、黒い光があふれ出した！' },
+      tune: { hp: 1.39, dmg: 1 },
+    },
+    {
+      id: 'sm_sisters', work: 'sailormoon', n: 2, name: 'あやかしの姉妹', lv: 62,
+      members: [
+        { name: 'コーアン', job: 'enjutsushi', look: L(1, 'long', 'purple', 3, 'fair', 'sharp') },
+        { name: 'ベルチェ', job: 'snow_queen', look: L(1, 'wavy', 'blue', 1, 'fair', 'calm') },
+      ],
+      use: 'r88_sm_pierce', reward: ['r88_sm_pierce'], words: 'わたしたち姉妹に、勝てるかしら？',
+      sig: { name: '姉妹の黒い光', el: 'dark', anim: 'dark1', charge: '{a}たちが、手をつないで輪になった！\n黒い水しょうのピアスが、光り始めた…！', cast: '{a}たちの黒い光が、いっせいにおそいかかった！' },
+      tune: { hp: 0.8, dmg: 0.8 },
+    },
+    {
+      id: 'sm_outer', work: 'sailormoon', n: 3, name: '3人の戦士', lv: 64,
+      members: [
+        { name: 'ウラヌス', job: 'sword_master', look: L(1, 'short', 'blonde', 4, 'light', 'sharp') },
+        { name: 'ネプチューン', job: 'star_diva', look: L(1, 'wavy', 'aqua', 5, 'fair', 'calm') },
+        { name: 'プルート', job: 'guardian', look: L(1, 'long', 'green', 3, 'tan', 'calm') },
+      ],
+      use: 'r88_sm_sword', reward: ['r88_sm_sword', 'r88_sm_mirror', 'r88_sm_orb'], words: 'タリスマンをわたすかどうか、力で見せてもらう。',
+      sig: { name: '3つのタリスマンの光', anim: 'holy', charge: '{a}たちが、剣と鏡と玉をかかげた！\n3つの光が、1つに集まっていく…！', cast: '{a}たちのタリスマンから、大きな光がはなたれた！' },
+      tune: { hp: 0.27, dmg: 1 },
+    },
+    {
+      id: 'sm_saturn', work: 'sailormoon', n: 4, name: 'サターン', lv: 80, job: 'monster_master', look: L(1, 'bob', 'black', 3, 'fair', 'calm'),
+      use: 'r88_sm_glaive', reward: ['r88_sm_glaive'], words: '…あなたたちの力、たしかめさせて。',
+      sig: { name: 'サイレンス・グレイブ・ふり下ろし', el: 'dark', anim: 'dark_slash', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、大きなグレイブを高くかかげた…！\nあたりが、しんと静まりかえる…！', cast: '{a}のグレイブが、しずかにふり下ろされた！' },
+      tune: { hp: 1.02, dmg: 1 },
+    },
+    {
+      id: 'sm_galaxia', work: 'sailormoon', n: 5, name: 'ギャラクシア', lv: 100, job: 'grand_magus', look: L(1, 'long', 'orange', 4, 'tan', 'sharp'), bg: 'rift_moon',
+      use: 'r88_sm_bracelet', reward: ['r88_sm_bracelet'], words: '銀河でいちばんの力、見せてあげよう。',
+      sig: { name: '銀河の大はどう', el: 'light', anim: 'holy', charge: '{a}の金のブレスレットが、まぶしく光り始めた！\n星の光が、どんどん集まっていく…！', cast: '{a}から、銀河の光の大きな波がおしよせた！' },
+      tune: { hp: 0.56, dmg: 1 },
     },
   ];
 }

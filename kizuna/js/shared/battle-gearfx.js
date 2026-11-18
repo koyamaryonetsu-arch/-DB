@@ -7,11 +7,11 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=3a53c2352ad9';
-import { ITEMS } from './data/items.js?v=3a53c2352ad9';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=3a53c2352ad9';
+import { ABILITIES } from './data/abilities.js?v=87f5df649c81';
+import { ITEMS } from './data/items.js?v=87f5df649c81';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=87f5df649c81';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf } from './battle-r88.js?v=3a53c2352ad9';
+import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf } from './battle-r88.js?v=87f5df649c81';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -122,6 +122,7 @@ export function gearUse(b, c, cmd, ev) {
   // 第88回: 作品の 品は 1つの 戦いで 1回（ふうじられて いても 使った ことに なる）
   if (u.once) {
     u.used = true;
+    if (u.group) for (const x of c.gearUses || []) if (x.group === u.group) x.used = true; // G12班: もしもボックス（えらんで 使う 品）
     if (!ev.upd.includes(c)) ev.upd.push(c);
   }
   if (c.status?.silence && (a.kind === 'spell' || a.spellLike)) {

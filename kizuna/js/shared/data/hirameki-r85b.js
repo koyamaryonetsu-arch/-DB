@@ -4,7 +4,7 @@
 //   from … その 道の 技を 使った 回数
 //   強さは その 職業の 同じくらいの MPの 技と おなじくらい
 // ・id は hi_ で はじめる。炎の 技は 晴れの 天気で ×1.3（R85B_FIRE に 足す）
-import { R85B_FIRE } from './abilities-r85b.js?v=3a53c2352ad9';
+import { R85B_FIRE } from './abilities-r85b.js?v=87f5df649c81';
 
 const sk = (job, o) => ({ kind: 'skill', job, hirameki: true, ...o });
 

@@ -6,16 +6,18 @@
 //   そろえる お金は 品の 数 × 1回の ねだん。売った・分解した 品は また 出る
 // ・竜神の ほこら … 七つの玉を ぜんぶ 持って くると「引きかえますか？」→ 7つが きえて 竜神の玉
 // ・試練の ごほうび … works.js の trialGift。一の試練を こえた 時（world/job-trials.js）と、もう こえて いる 人が 番人に 話した 時
-import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=3a53c2352ad9';
-import { WORKS, workName } from '../data/works.js?v=3a53c2352ad9';
-import { addItem, removeItem, itemCount } from '../stats.js?v=3a53c2352ad9';
-import { trialsCleared } from '../data/job-trials.js?v=3a53c2352ad9';
+import { ITEMS, SLOTS, baseItemId } from '../data/items.js?v=87f5df649c81';
+import { WORKS, workName } from '../data/works.js?v=87f5df649c81';
+import { addItem, removeItem, itemCount } from '../stats.js?v=87f5df649c81';
+import { trialsCleared } from '../data/job-trials.js?v=87f5df649c81';
 import {
   GACHA_PRICE, GACHA_PITY, GACHA_MEI_RATE, gachaWorks, gachaPool, gachaLeft, gachaPity, gachaOwned, rollGacha,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, trialGiftOf, trialGiftFlag,
-} from '../data/gacha-r88.js?v=3a53c2352ad9';
+} from '../data/gacha-r88.js?v=87f5df649c81';
 // 第88回 G9班: ドラゴンボールの 宝箱と 神龍の さいだん（world/shenron-r88.js。この ファイルの だいほんと いっしょに まぜる）
-import { SHENRON_SCRIPTS } from './shenron-r88.js?v=3a53c2352ad9';
+import { SHENRON_SCRIPTS } from './shenron-r88.js?v=87f5df649c81';
+// 第88回 G12班: 3つの タリスマンと 聖はいの 水しょうの台（world/grail-r88.js）
+import { GRAIL_SCRIPTS } from './grail-r88.js?v=87f5df649c81';
 
 const GOLD_MAX = 9999999;
 
@@ -222,3 +224,5 @@ export const GACHA_R88_SCRIPTS = {
 };
 // G9班: ドラゴンボールの 宝箱・神龍の さいだん
 Object.assign(GACHA_R88_SCRIPTS, SHENRON_SCRIPTS);
+// G12班: 聖はいの 水しょうの台
+Object.assign(GACHA_R88_SCRIPTS, GRAIL_SCRIPTS);

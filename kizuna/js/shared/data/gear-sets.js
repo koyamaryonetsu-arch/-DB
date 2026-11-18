@@ -285,3 +285,25 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G12班: セーラームーン（ファイルの さいごで まぜる）─────
+Object.assign(GEAR_SETS, {
+  // ── 4人の 戦士の 変身ペン（パーティーで 4本 つけると、戦いの 間 みんなの 攻撃魔力）──
+  henshin_pen: {
+    name: '変身ペン',
+    items: ['r88_sm_pen_mercury', 'r88_sm_pen_mars', 'r88_sm_pen_jupiter', 'r88_sm_pen_venus'],
+    rule: 'party',
+    tiers: [
+      { n: 4, bonus: { mag: 12 }, text: '4人が1本ずつつけると、戦いの間、みんなの攻撃魔力+12' },
+    ],
+  },
+  // ── 3つの タリスマン（3つ 持って 鏡の湖の ほとりの 水しょうの台へ 行くと、聖はいが あらわれる。world/grail-r88.js）──
+  talisman: {
+    name: 'タリスマン',
+    items: ['r88_sm_sword', 'r88_sm_mirror', 'r88_sm_orb'],
+    rule: 'own',
+    tiers: [
+      { n: 3, title: 'タリスマンの守り手', text: '3つ全部持つと、しょう号「タリスマンの守り手」。鏡の湖のほとりの水しょうの台へ行くと、聖はいがあらわれる' },
+    ],
+  },
+});

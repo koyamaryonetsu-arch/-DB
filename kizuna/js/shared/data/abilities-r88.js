@@ -571,3 +571,115 @@ Object.assign(R88_ABILITIES, {
     desc: 'いつの間にか、自分そっくりの人形と入れかわる。少しの間、敵の攻撃をかわしやすくなる。', cast: '{a}が、ぽんっとけむりにつつまれた！…そこにいたのは、人形だ！', anim: 'buff',
   },
 });
+
+// ───── G12班: ドラえもん・セーラームーン（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   もしもボックスの 3つ（晴れ・雨・かみなり）は 品の use.pick で 道具に 3つ ならぶ（どれか 1つを 使うと 3つとも 使った ことに なる。shared/gear-r88.js の r88Uses）
+Object.assign(R88_ABILITIES, {
+  // ── ドラえもん ──
+  r88u_dr_dokan: {
+    name: 'ドカン！', kana: 'どかん', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.0, element: 'wind' },
+    desc: '「ドカン！」と言って、大きな空気のかたまりを敵1体にぶつける。', cast: '{a}「ドカン！」', anim: 'r88_dokan',
+  },
+  r88u_dr_setchaku: {
+    name: 'しゅんかん接着', kana: 'しゅんかんせっちゃく', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'paralyze', chance: 0.85, turns: [2, 2] },
+    desc: '接着ざいをとばして、敵1体を2回の間動けなくする（大きな敵にはききにくい）。', cast: '{a}は、{t}にむけて接着ざいをとばした！', anim: 'debuff',
+  },
+  r88u_dr_small: {
+    name: 'ちぢめる光', kana: 'ちぢめるひかり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'atk', mult: 0.6, dur: 40, chance: 0.9 },
+    desc: 'スモールライトの光を当てて、敵1体を小さくし、攻撃力を大きく下げる。', cast: '{a}は、{t}にスモールライトの光を当てた！', anim: 'debuff',
+  },
+  r88u_dr_big: {
+    name: '大きくなる光', kana: 'おおきくなるひかり', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'atk', mult: 1.4, dur: 40 },
+    desc: 'ビッグライトの光を当てて、仲間1人を大きくし、攻撃力を上げる。', cast: '{a}は、ビッグライトの光を当てた！', anim: 'buff',
+  },
+  r88u_dr_barrier: {
+    name: '見えないかべ', kana: 'みえないかべ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'def', mult: 1.6, dur: 40 },
+    desc: 'バリヤーポイントのボタンをおして、体のまわりに見えないかべを作る。少しの間、自分の守備力が大きく上がる。', cast: '{a}は、バリヤーポイントのボタンをおした！', anim: 'buff',
+  },
+  r88u_dr_hoop: {
+    name: 'すりぬけ', kana: 'すりぬけ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'eva', add: 0.35, dur: 30 },
+    desc: '通りぬけフープを体にかけて、少しの間、敵の攻撃をすりぬけやすくなる。', cast: '{a}は、通りぬけフープをくぐった！', anim: 'buff',
+  },
+  r88u_dr_koe: {
+    name: '声のかたまり', kana: 'こえのかたまり', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.8, element: 'blast' },
+    desc: 'コエカタマリンを飲んで大声を出し、字のかたまりを、同じ種類の敵みんなにぶつける。', cast: '{a}は、コエカタマリンを飲んで大声を出した！「ワーッ！」', anim: 'blast2',
+  },
+  r88u_dr_korobashi: {
+    name: 'ころばせる', kana: 'ころばせる', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'atbSet', sub: 60, chance: 0.8, msg: '{t}はすってんころりん！動くのがおそくなった！', failMsg: '{t}は、ころばなかった！' },
+    desc: '小さな人形が走っていって、敵1体をころばせる。動く番がおそくなる。', cast: '{a}は、ころばし屋に10円を入れた！', anim: 'debuff',
+  },
+  r88u_dr_kibi: {
+    name: 'きびだんごをあげる', kana: 'きびだんごをあげる', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.7, turns: [2, 3] },
+    desc: 'きびだんごを食べさせて、同じ種類の敵みんなをおとなしくさせ、ねむらせる。', cast: '{a}は、きびだんごをほうり投げた！', anim: 'sleep',
+  },
+  r88u_dr_tanma: {
+    name: 'タンマ！', kana: 'たんま', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'atbSet', sub: 40, chance: 0.7, msg: '{t}の時間が、少し止まった！', failMsg: '{t}の時間は止まらなかった！' },
+    desc: 'タンマウォッチをおして時間を止め、敵全体の動く番をおくらせる。', cast: '{a}「タンマ！」タンマウォッチのボタンをおした！', anim: 'debuff',
+  },
+  r88u_dr_furoshiki: {
+    name: '時もどしのふろしき', kana: 'ときもどしのふろしき', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'sup',
+    effect: { type: 'multi', parts: [{ type: 'cure', statuses: ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'] }, { type: 'dispel' }] },
+    desc: 'ふろしきでつつんで時間をもどし、仲間1人の状態異常と、下がった力を元にもどす。', cast: '{a}は、タイムふろしきをばさっと広げた！', anim: 'heal1',
+  },
+  r88u_dr_door: {
+    name: 'どこでもにげる', kana: 'どこでもにげる', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'escape' },
+    desc: 'どこでもドアを開けて、みんなでにげ出す（にげられない戦いはだめ）。', cast: '{a}は、どこでもドアを開けた！', anim: 'buff',
+  },
+  r88u_dr_moshimo_sun: {
+    name: 'もしも晴れだったら', kana: 'もしもはれだったら', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'weather', kind: 'sun', turns: 12 },
+    desc: 'もしもボックスで、空を晴れにする。晴れの間は、味方の炎と光が強くなる。', cast: '{a}「もしも、空がからりと晴れていたら！」', anim: 'r88_moshimo',
+  },
+  r88u_dr_moshimo_rain: {
+    name: 'もしも雨だったら', kana: 'もしもあめだったら', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'weather', kind: 'rain', turns: 12 },
+    desc: 'もしもボックスで、空を雨にする。雨の間は、味方の水と回復が強くなる。', cast: '{a}「もしも、ざあざあ雨がふっていたら！」', anim: 'r88_moshimo',
+  },
+  r88u_dr_moshimo_thunder: {
+    name: 'もしもかみなりだったら', kana: 'もしもかみなりだったら', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'weather', kind: 'thunder', turns: 12 },
+    desc: 'もしもボックスで、空をかみなりにする。かみなりの間は、味方の雷と風が強くなる。', cast: '{a}「もしも、ゴロゴロかみなりが鳴っていたら！」', anim: 'r88_moshimo',
+  },
+  r88u_dr_recital: {
+    name: 'リサイタルの歌声', kana: 'りさいたるのうたごえ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.55, turns: [1, 3] },
+    desc: 'マイクで、すごい歌声をひびかせて、敵全体を混乱させる。', cast: '{a}「ボエ〜〜♪」', anim: 'debuff',
+  },
+  r88u_dr_violin: {
+    name: 'ふしぎな音色', kana: 'ふしぎなねいろ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'debuff', stat: 'def', mult: 0.7, dur: 40, chance: 0.85 },
+    desc: 'バイオリンをひいて、敵全体の守備力を下げる。', cast: '{a}は、バイオリンをひきはじめた…', anim: 'debuff',
+  },
+  r88u_dr_houdai: {
+    name: '発射！', kana: 'はっしゃ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'blast', base: [200, 235], thr: 80 },
+    desc: '指さして「発射」と言うと、ほう台から玉がとび出し、敵1体にかならず当たる。', cast: '{a}は、{t}を指さした！「発射！」', anim: 'blast2',
+  },
+  // ── セーラームーン ──
+  r88u_sm_moonheal: {
+    name: 'ムーン・ヒーリング', kana: 'むーんひーりんぐ', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'sup',
+    effect: { type: 'cure', statuses: ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'] },
+    desc: 'スティックから月の光をはなって、仲間全員の状態異常を治す。', cast: '{a}は、スティックを高くかかげた！', anim: 'r88_moonheal',
+  },
+  r88u_sm_eternal: {
+    name: 'エターナル・ヒーリング', kana: 'えたーなるひーりんぐ', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'heal',
+    effect: { type: 'multi', parts: [{ type: 'cure', statuses: ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'] }, { type: 'heal', base: [110, 140], thr: 50 }] },
+    desc: 'エターナルティアルの光で、仲間全員の状態異常を治して、HPを回復する。', cast: '{a}は、エターナルティアルを高くかかげた！', anim: 'r88_moonheal',
+  },
+  r88u_sm_silence: {
+    name: 'サイレンス・ウォール', kana: 'さいれんすうぉーる', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'def', mult: 1.4, dur: 40 },
+    desc: 'グレイブを地面につき立てて、仲間全員を守るかべを作る。仲間全員の守備力が上がる。', cast: '{a}は、サイレンス・グレイブを地面につき立てた！', anim: 'buff',
+  },
+});
