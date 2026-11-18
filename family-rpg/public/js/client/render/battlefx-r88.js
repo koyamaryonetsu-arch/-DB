@@ -355,3 +355,79 @@ Object.assign(G8_FX, { r88_zeus: zeus, r88_whis: whis });
 for (const k of ['r88_zeus', 'r88_whis']) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_zeus: 700, r88_whis: 1000 });
 Object.assign(R88_SFX, { r88_zeus: 'thunder', r88_whis: 'heal' });
+
+// ───── G11班: るろうに剣心・名探ていコナン・まじっく快と（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_guren  無限じん・紅れんかいな（志々お）… 刀から 火花が ばちばち とびちり、燃える 手が 敵1体に つっこんで、
+//             赤と 金の 大きな 火の 玉が はじける → 炎の 輪
+//  r88_masui  うで時計型ますいじゅう（コナン）… 小さな 時計の 光が ぴかっと 光り、細い はりが 1本 すうっと とんで 敵に ささる →
+//             「Z」の 形の 光が ふわふわ 上がって、ねむりの あわ
+//  r88_kid    キッドの ハンググライダー（かいとうキッド）… 夜空が くらく なり、大きな 月が 光る。白い つばさの 三角が 画面を よこぎり、
+//             白い トランプと ハトの はねが ひらひら まう
+const GUREN = ['#ffffff', '#fff0a0', '#ffb030', '#ff4a1a'];
+function guren(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.4, y: H * 0.45 };
+  fx.tintAt('rgba(40,8,0,0.45)', 1100);
+  // 刀から 火花（ギザギザの はが こすれる）
+  const sx = t.x - 70, sy = t.y + 34;
+  for (let k = 0; k < 4; k++) fx.sparks(sx + k * 6, sy - k * 3, { colors: GUREN, n: 10, speed: 120, ang: -Math.PI / 4, spread: 1.2, delay: k * 70, life: 320 });
+  fx.glow(sx, sy, { color: '#ff7a2a', r: 14, delay: 60, life: 360 });
+  // 燃える 手が つっこむ（炎の すじ）
+  fx.spear(sx, sy, t.x, t.y, { len: 70, w: 5, color: '#ffb030', glow: '#ff3a1a', tip: '#ffffff', delay: 300, travel: 140, hold: 80, life: 320 });
+  for (let k = 0; k < 6; k++) fx.puff(sx + ((t.x - sx) * k) / 6, sy + ((t.y - sy) * k) / 6, { color: k % 2 ? '#ff7a2a' : '#ffb030', r0: 3, r1: 10, vy: -20, delay: 320 + k * 25, life: 420, add: true });
+  // 大きな 火の 玉が はじける
+  fx.glow(t.x, t.y, { color: '#ff5a1a', r: 30, delay: 460, life: 520, grow: 0.8 });
+  fx.flashAt(110, '#ffd8a0', 470);
+  fx.shock(t.x, t.y, { r0: 6, r1: 60, color: '#ff8a2a', w: 4, delay: 480, life: 440 });
+  fx.shock(t.x, t.y, { r0: 4, r1: 40, color: '#fff0a0', w: 2, delay: 540, life: 380 });
+  fx.sparks(t.x, t.y, { colors: GUREN, n: 34, speed: 170, spread: Math.PI * 2, delay: 490, life: 520, g: -30 });
+  fx.hitStop(150, 480, 1.5);
+  return true;
+}
+const MASUI = ['#ffffff', '#e8f4ff', '#b8d8ff', '#8ab0ff'];
+function masui(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.4, y: H * 0.45 };
+  // うで時計の ふたが 開いて、照じゅんの 光
+  const sx = W * 0.82, sy = H * 0.72;
+  fx.glow(sx, sy, { color: '#ffe680', r: 6, delay: 0, life: 360 });
+  fx.twinkle(sx, sy, { color: '#ffffff', size: 7, delay: 40, life: 260, spin: 4 });
+  fx.shock(t.x, t.y, { r0: 22, r1: 6, color: '#ff6a6a', w: 1.5, delay: 60, life: 320 });
+  // 細い はりが 1本 すうっと
+  fx.spear(sx, sy, t.x, t.y - 4, { len: 14, w: 1.2, color: '#ffffff', glow: '#9ad8ff', tip: '#ffffff', delay: 300, travel: 160, hold: 40, life: 220 });
+  fx.impact(t.x, t.y - 4, { r: 8, color: '#ffffff', delay: 470, life: 160 });
+  // ねむりの Z と あわ
+  for (let k = 0; k < 3; k++) {
+    const x0 = t.x + 8 + k * 7, y0 = t.y - 14 - k * 9, d = 620 + k * 180, s = 3 + k;
+    fx.cut(x0 - s, y0 - s, { ang: 0, len: s * 2, w: 1.4, color: '#ffffff', glow: '#8ab0ff', delay: d, life: 520, speed: 0 });
+    fx.cut(x0, y0, { ang: 2.36, len: s * 2.8, w: 1.4, color: '#ffffff', glow: '#8ab0ff', delay: d + 40, life: 480, speed: 0 });
+    fx.cut(x0 - s, y0 + s, { ang: 0, len: s * 2, w: 1.4, color: '#ffffff', glow: '#8ab0ff', delay: d + 80, life: 440, speed: 0 });
+  }
+  for (let k = 0; k < 6; k++) fx.bubble(t.x + rnd(-12, 12), t.y + rnd(-6, 6), { color: MASUI[k % 4], size: 1.8, vy: -24, delay: 560 + k * 90, life: 800 });
+  fx.flashAt(60, '#e8f0ff', 480);
+  return true;
+}
+const KID = ['#ffffff', '#f4f6ff', '#d8e0ff', '#a8b8f0'];
+function kid(fx, targets, W, H) {
+  fx.tintAt('rgba(8,10,40,0.55)', 1500);
+  // 大きな 月
+  const mx = W * 0.78, my = H * 0.22;
+  fx.glow(mx, my, { color: '#fff6d0', r: 22, delay: 0, life: 1400, grow: 0.1 });
+  fx.glow(mx, my, { color: '#ffffff', r: 12, delay: 60, life: 1300, grow: 0.1 });
+  // 白い つばさ（三角）が 画面を よこぎる
+  for (let k = 0; k < 3; k++) {
+    const d = 260 + k * 40;
+    const y = H * 0.36 + k * 3;
+    fx.swipe([-30, y + 10], [W * 0.5, y - 14], [W + 30, y - 30], { w: 6 - k * 2, color: '#ffffff', glow: '#a8b8f0', core: '#ffffff', delay: d, swing: 560, life: 640, after: 2, pow: 1 });
+  }
+  // トランプと ハトの はねが まう
+  for (let k = 0; k < 18; k++) {
+    const x = rnd(10, W - 10), y = rnd(-10, H * 0.3);
+    fx.twinkle(x, y, { color: KID[k % 4], size: k % 3 ? 4 : 6, delay: 380 + k * 40, life: 900, vx: rnd(-20, 20), vy: 40, g: 10, spin: rnd(-6, 6) });
+  }
+  for (let k = 0; k < 8; k++) fx.petal(rnd(20, W - 20), rnd(0, H * 0.4), { color: '#ffffff', vx: rnd(-20, 20), vy: 10, size: 1.6, delay: 500 + k * 70, life: 1000, g: 25 });
+  fx.flashAt(80, '#f4f6ff', 300);
+  return true;
+}
+Object.assign(G8_FX, { r88_guren: guren, r88_masui: masui, r88_kid: kid });
+for (const k of ['r88_guren', 'r88_masui', 'r88_kid']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_guren: 540, r88_masui: 480, r88_kid: 600 });
+Object.assign(R88_SFX, { r88_guren: 'fire', r88_masui: 'sleep', r88_kid: 'wind' });

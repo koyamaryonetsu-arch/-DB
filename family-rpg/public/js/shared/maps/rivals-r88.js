@@ -75,7 +75,7 @@ export function buildHall() {
     // とびらを 調べる（とびらの マス。前の わの 上から）
     actions: L.doors.map((d) => ({ x: d.x, y: d.y, script: `rival_door_${d.work}` })),
     // とびらの よこの 作品の しるし（client/render/boards.js の かんばんの 絵。お店の かんばんと おなじ く 入口の よこの かべ）
-    boards: L.doors.map((d) => ({ x: d.x + 1, y: d.y, kind: d.mark, name: `${workName(d.work)}のとびら` })),
+    boards: L.doors.map((d) => ({ x: d.x + 1, y: d.y, kind: d.mark, name: `${RIVAL_DOORS.find((x) => x.work === d.work)?.name || workName(d.work)}のとびら` })),
     roofs: [],
     zoneAt: () => 'safe:rival_hall',
     areaName: () => HALL_NAME,
