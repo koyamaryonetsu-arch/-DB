@@ -6,6 +6,7 @@
 // ざひょう: F（hero-gear.js の frame）… a: 手から ぶきの さきへ、b: よこ。o / outward: からだの そとがわの b の むき
 import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js';
 import { metal, cloth, leather, gem, glow } from './hero-outfit.js';
+import { R88C_STAFF, drawStaffR88c } from './hero-gear-looks-r88c.js'; // 第88回 絵C班の つえ
 
 const D = Math.PI / 180;
 export const FX_COL = { fire: '#ff8a3a', bolt: '#ffe46a', star: '#9ad8ff', poison: '#b07ae0', wind: '#7af0c0', ice: '#9ae6ff', dark: '#8a4ae0', holy: '#fff0a0', shine: '#fff6b0' };
@@ -759,6 +760,7 @@ export function drawWhipLook(cv, P, A, W) {
 // ───────────── つえ ─────────────
 export function drawStaffLook(cv, F, W, outward) {
   const shape = W.shape;
+  if (R88C_STAFF.has(shape)) return drawStaffR88c(cv, F, W, outward);
   const L = W.len || (shape === 'cane' ? 11.5 : 17.4);
   const orbC = W.orb || accentOf({ ...W, gemc: null }) || '#c070ff';
   const gm = metal(W.mk === 'silver' ? 'silver' : 'gold');

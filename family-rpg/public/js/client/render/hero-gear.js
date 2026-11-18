@@ -46,6 +46,7 @@ import {
 // 第88回 絵A班: 作品の 顔に なる 剣の 新しい 形と 日輪刀の 色（hero-gear-looks-r88a.js）
 import { R88A_WEAPON_LOOK, R88A_LEN, R88A_SWORD, R88A_AXE, drawR88aLook, katanaR88a } from './hero-gear-looks-r88a.js';
 import { R88B_WEAPON_LOOK, drawR88bLook } from './hero-gear-looks-r88b.js';
+import { R88C_WEAPON_LOOK, R88C_STAFF, R88C_STAFF_LEN } from './hero-gear-looks-r88c.js';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };
@@ -134,6 +135,8 @@ Object.assign(WEAPON_LOOK, R33_WEAPON_LOOK);
 Object.assign(WEAPON_LOOK, R88A_WEAPON_LOOK); // 第88回 絵A班
 // 第88回 絵B班: 顔に なる ムチ・ツメ・オノ・ブーメラン・やりの 形と 色（hero-gear-looks-r88b.js）
 Object.assign(WEAPON_LOOK, R88B_WEAPON_LOOK);
+// 第88回 絵C班: 作品の つえ（天候棒・ムーンスティック・ニワトコのつえ など。hero-gear-looks-r88c.js）
+Object.assign(WEAPON_LOOK, R88C_WEAPON_LOOK);
 
 // 名前で わかる 道具（これから ふえる 品も おなじ かたちに）
 const NAME_LOOK = [
@@ -200,6 +203,7 @@ const LOOK_LEN = {
   bat: { bat: 11.5, bamboo: 11.5, mbat: 11.8, gbat: 12.4, club: 11.8, spiked: 12.0 },
 };
 for (const [cat, m] of Object.entries(R88A_LEN)) Object.assign(LOOK_LEN[cat], m); // 第88回 絵A班
+Object.assign(LOOK_LEN.staff, R88C_STAFF_LEN); // 第88回 絵C班
 // 名前の ことばで きまる ざいしつ（ランクで きまる ものは null）
 const nameMetal = (name) => { const a = metalOfName(name, 1); return a === metalOfName(name, 10) ? a : null; };
 const DARK_NAME = /影|黒|闇|やみ|夜/;
@@ -360,6 +364,7 @@ const NEW_LOOK = {
 };
 for (const lk of R88A_SWORD) NEW_LOOK.sword.add(lk); // 第88回 絵A班（hero-gear-looks-r88a.js で かく）
 for (const lk of R88A_AXE) NEW_LOOK.axe.add(lk);
+for (const k of R88C_STAFF) NEW_LOOK.staff.add(k); // 第88回 絵C班
 const isNewLook = (W) => !SHAPE_GROUP[W.shape] && !!NEW_LOOK[W.cat]?.has(W.shape);
 const NEW_DRAW = {
   sword: drawSwordLook, dagger: drawDaggerLook, axe: drawAxeLook, spear: drawSpearLook, staff: drawStaffLook,

@@ -3503,6 +3503,13 @@ SPY×FAMILYと オリジナルの 職業（中二病・ダ天使／光と闇の�
 - 鉄さいが: だんごとに `blade`（やいばの 色）と `pat`（風の すじ・ダイヤ・竜の うろこ・黒〈むらさきの 光の ふち〉）
 - 日輪刀の なかま: 刀の 形の まま `edge`（やいばの 色）・`tsuba`（炎・うめの 花）・`mark`（いなずまの もよう）・`hot`（赤く 光る）。炎・雷・花の 日輪刀は 形を 刀に（今まで 炎の剣・いなずまの剣・木の葉の剣）。へび（三日月刀）・虫（はりの 短剣）・こい（ムチ）は 形は そのまま 色だけ。今 ある 店の 日輪刀は 色が かわる 前なので 今の まま
 - テスト: 決まった 数の 直しは なし（形の 数は 4つ以上の きまりだけ）。`weapon-looks`・`client-names`・`hero-art`・`gear-r88*` 188件 とおる
+### 実装メモ（絵C班）
+- 形: `WEAPON_LOOKS.staff` に `clima`・`moonstick`・`heartrod`・`elder`・`kouma`・`frieren`（つえは 18こ）。名前は `LOOK_NAMES`（天候棒・月のスティック・ハートのロッド・ニワトコのつえ・光のやいばのつえ・千年のつえ）
+- 絵: 新しい `client/render/hero-gear-looks-r88c.js`（`drawStaffR88c`）。`hero-gear-looks.js` の `drawStaffLook` から 1行で よぶ。品ごとの 色・長さ・かざりは 同じ ファイルの `R88C_WEAPON_LOOK`（`hero-gear.js` の `WEAPON_LOOK` に 足す）。形の 長さ `R88C_STAFF_LEN`・新しい 形の 一覧 `R88C_STAFF` も `hero-gear.js` で 足す（それぞれ 1行）
+- 天候棒の 先の かざりは 品の みための `tip`（`none` なし・`cloud` 小さな 雲・`bubble` 丸い 玉と あわ・`zeus` 目と 口の ある 黒い 雷雲と いなずま）。4だんとも 同じ 青い 3節の 棒（つなぎめに 銀の わ）
+- 使う 品: 天候棒 4だん（`r88_op_tact1〜4`）→ `clima`／うさぎのムーンスティック・ピンク・ムーン・スティック（`r88_sm_stick1`・`r88_sm_pinkstick`）→ `moonstick`（ピンクの 方は 水しょうも ピンク）／キューティムーンロッド・スパイラルハートムーンロッド（`r88_sm_stick2`・`r88_sm_stick3`）→ `heartrod`（スパイラルは 金の ふちと 左右に リボンの わ）／ニワトコのつえ（`elder_wand`。`GEAR_LOOK` を `wand33` から かえた）→ `elder`／光魔のつえ（`r88_da_kouma`）→ `kouma`／千年のつえ（`r88_fr_staff`）→ `frieren`
+- カレイドムーンスコープ（`crystal`）・エターナルティアル（`wing`）は 今の 形の まま
+- 千年のつえの 三日月は からだの 外へ ひらく むき（ムーンスティックの 三日月は 先へ ひらく）。光魔のつえの やいばは 白い しんと うすい 黄色の 光
 
 ## 出どころ（検索で たしかめた 所）
 

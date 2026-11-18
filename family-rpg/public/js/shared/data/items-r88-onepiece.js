@@ -39,10 +39,10 @@ const GEAR = {
   r88_op_logpose: { ...acc('fu3'), ...O, name: '記録指針', bonus: { agi: 10, mag: 4 }, desc: '次の島の方角をさす、うで時計のような道具。グランドラインの旅にかかせない。素早さが上がる。' },
   r88_op_vivre: { ...acc('fu3'), ...O, fx: [{ k: 'regen', v: 4 }], name: 'ビブルカード', bonus: { hp: 16 }, desc: '持ち主のいる方へ、少しずつ動く紙。持ち主が元気だと、紙も元気。行動するたびにHPが少し回復する。' },
   // ───── ナミの 天候棒（4だんに 生まれ変わる）─────
-  r88_op_tact1: { ...weapon('staff', 'fu3'), ...O, name: '天候棒', fx: [{ k: 'el_bolt', v: 4 }], bonus: { mag: 6 }, use: tact('r88u_op_cyclone', false), look: 'wave', desc: '航海士のために、仲間が作った3本の棒。風や雷のまねができる。ふつうの攻撃が雷になる。使うと、敵1体に風。天候の職業が持つと、今の天気で使う技がかわる。' },
-  r88_op_tact2: { ...weapon('staff', 'mei'), ...O, name: '完成版天候棒', fx: [{ k: 'el_bolt', v: 6 }], bonus: { mag: 12 }, use: tact('r88u_op_thunderbolt', true), look: 'wave', desc: '空島の貝を入れて作り直した天候棒。本物の雲が作れる。ふつうの攻撃が雷になる。使うと、敵1グループに雷。天候の職業が持つと、今の天気で使う技がかわる。' },
-  r88_op_tact3: { ...weapon('staff', 'mei'), ...O, name: '魔法の天候棒', fx: [{ k: 'el_bolt', v: 6 }], bonus: { mag: 18, agi: 6 }, use: tact('r88u_op_raiun', true), look: 'crystal', desc: '空にうかぶ天気の研究所で、天気の科学を組みこんだ天候棒。天気のたまごを出す。ふつうの攻撃が雷になる。使うと、敵全体に雷。天候の職業が持つと、今の天気で使う技がかわる。' },
-  r88_op_tact4: { ...weapon('staff', 'den'), ...O, name: 'ゼウスの天候棒', fx: [{ k: 'el_bolt', v: 8 }], bonus: { mag: 26, agi: 8, heal: 10 }, use: tact('r88u_op_zeus', true), look: 'crystal', desc: 'しゃべる雷雲ゼウスが、航海士の仲間になって1つになった天候棒。ふつうの攻撃が雷になる。使うと、敵全体に大きな雷。天候の職業が持つと、今の天気で使う技がかわる。' },
+  r88_op_tact1: { ...weapon('staff', 'fu3'), ...O, name: '天候棒', fx: [{ k: 'el_bolt', v: 4 }], bonus: { mag: 6 }, use: tact('r88u_op_cyclone', false), look: 'clima', desc: '航海士のために、仲間が作った3本の棒。風や雷のまねができる。ふつうの攻撃が雷になる。使うと、敵1体に風。天候の職業が持つと、今の天気で使う技がかわる。' },
+  r88_op_tact2: { ...weapon('staff', 'mei'), ...O, name: '完成版天候棒', fx: [{ k: 'el_bolt', v: 6 }], bonus: { mag: 12 }, use: tact('r88u_op_thunderbolt', true), look: 'clima', desc: '空島の貝を入れて作り直した天候棒。本物の雲が作れる。ふつうの攻撃が雷になる。使うと、敵1グループに雷。天候の職業が持つと、今の天気で使う技がかわる。' },
+  r88_op_tact3: { ...weapon('staff', 'mei'), ...O, name: '魔法の天候棒', fx: [{ k: 'el_bolt', v: 6 }], bonus: { mag: 18, agi: 6 }, use: tact('r88u_op_raiun', true), look: 'clima', desc: '空にうかぶ天気の研究所で、天気の科学を組みこんだ天候棒。天気のたまごを出す。ふつうの攻撃が雷になる。使うと、敵全体に雷。天候の職業が持つと、今の天気で使う技がかわる。' },
+  r88_op_tact4: { ...weapon('staff', 'den'), ...O, name: 'ゼウスの天候棒', fx: [{ k: 'el_bolt', v: 8 }], bonus: { mag: 26, agi: 8, heal: 10 }, use: tact('r88u_op_zeus', true), look: 'clima', desc: 'しゃべる雷雲ゼウスが、航海士の仲間になって1つになった天候棒。ふつうの攻撃が雷になる。使うと、敵全体に大きな雷。天候の職業が持つと、今の天気で使う技がかわる。' },
   // ───── ライバル・海軍の 品 ─────
   r88_op_amenohabakiri: { ...weapon('sword', 'mei'), ...O, name: '天羽々斬', fx: [{ k: 'crit', v: 6 }], bonus: { agi: 4 }, look: 'katana', desc: 'ワノ国の大名がのこした、2本の名刀の1本。今はその子どもが受けついでいる。会心の一撃が出やすい。' },
   r88_op_yoru: { ...weapon('sword', 'den'), ...O, name: '黒刀・夜', fx: [{ k: 'crit', v: 8 }], bonus: { str: 20, agi: 6 }, look: 'yoru', desc: '世界一の剣士がせおう、十字の形の大きな黒い刀。剣の中で、いちばんの名刀。会心の一撃がとても出やすい。' },
