@@ -9,7 +9,7 @@ const IM = { work: 'slayers', set: 'igai_maou' };
 
 const GEAR = {
   // ───── ガウリイの 剣と よろい ─────
-  r88_gorun: { ...weapon('sword', 'den'), ...IM, name: '烈光の剣', fx: [{ k: 'el_light', v: 8 }], bonus: { str: 18, agi: 8 }, use: { ability: 'r88u_hikari' }, look: 'holy', desc: 'ガブリエフ家の家宝の「光の剣」。つかから光のやいばが出て、魔族も切れる。むかし大きな魔物をたおした。ふつうの攻撃が光になる。' },
+  r88_gorun: { ...weapon('sword', 'den'), ...IM, name: '烈光の剣', fx: [{ k: 'el_light', v: 8 }], bonus: { str: 18, agi: 8 }, use: { ability: 'r88u_hikari' }, look: 'hikari', desc: 'ガブリエフ家の家宝の「光の剣」。つかから光のやいばが出て、魔族も切れる。むかし大きな魔物をたおした。ふつうの攻撃が光になる。' },
   r88_zanyo: { ...weapon('sword', 'den'), ...S, name: '斬よう剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 22 }, look: 'great', desc: 'まわりの魔力を切れ味にかえて、何でも切ってしまう魔剣。さやまで切れるので、さやに切れ味を落とす呪文をかけてある。会心の一撃がとても出やすい。' },
   r88_serpent: { ...armor('cloth', 'mei'), ...S, name: 'アイアンサーペントのよろい', fx: [{ k: 'def', v: 5 }], bonus: { hp: 20 }, desc: '大きなアイアンサーペントのうろこで作ったよろい。だれでも装備できる。守備力が上がる。' },
   // ───── リナの 品 ─────
@@ -26,7 +26,7 @@ const GEAR = {
   r88_naga_spike: { ...armor('cloth', 'fu3'), ...S, name: 'トゲのかたあて', fx: [{ k: 'guard_confuse', v: 4 }], bonus: { str: 4 }, desc: '母の形見のトゲトゲのかたあて。高笑いすると、心がまよわない。混乱にかかりにくい。' },
   r88_naga_skull: { ...acc('fu3'), ...S, name: 'ドクロのかざり', fx: [{ k: 'guard_sleep', v: 4 }], bonus: { str: 4 }, desc: 'トゲのかたあてについているドクロのかざり。ねむりにかかりにくい。' },
   r88_filia_mace: { ...weapon('bat', 'fu3'), ...S, name: 'フィリアのメイス', fx: [{ k: 'crit', v: 4 }], look: 'spiked', desc: '竜の神官の少女が、からかわれるとふり回すメイス。会心の一撃が出やすい。' },
-  r88_pokota: { ...weapon('sword', 'mei'), ...S, name: '光の剣のレプリカ', fx: [{ k: 'el_light', v: 5 }], look: 'holy', desc: 'ポコタがおなかのファスナーの中にしまっている、光の剣のレプリカ。本物より少し弱い。ふつうの攻撃が光になる。' },
+  r88_pokota: { ...weapon('sword', 'mei'), ...S, name: '光の剣のレプリカ', fx: [{ k: 'el_light', v: 5 }], look: 'hikari', desc: 'ポコタがおなかのファスナーの中にしまっている、光の剣のレプリカ。本物より少し弱い。ふつうの攻撃が光になる。' },
   r88_milina: { ...weapon('sword', 'fu3'), ...S, name: 'ミリーナの剣', fx: [{ k: 'evade', v: 4 }], bonus: { mag: 4 }, look: 'rapier', desc: '剣と魔法を使う魔法戦士の剣。敵の攻撃をかわしやすくなる。' },
   r88_zangulus: { ...weapon('sword', 'fu3'), ...S, name: 'ザングルスの剣', fx: [{ k: 'chase', v: 4 }], look: 'broad', desc: 'ガウリイに負けてから、ずっとガウリイをねらう剣士の剣。ときどきもう1回攻撃する。' },
   // ───── 魔法の 道具 ─────

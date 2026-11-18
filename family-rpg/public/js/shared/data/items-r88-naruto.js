@@ -39,7 +39,7 @@ const GEAR = {
   r88_nr_shakujo: { ...weapon('staff', 'den'), ...N, name: '六道せん人のしゃくじょう', fx: [{ k: 'el_light', v: 8 }], bonus: { mag: 24, heal: 10 }, look: 'ring', desc: '忍びのはじまりの人が持っていた、黒い玉から作られたしゃくじょう。ふつうの攻撃が光になる。' },
   // ───── 忍刀七人衆の 7本（霧の 里の 刀。持ち主が かわって 受けつぐ）─────
   r88_nr_kubikiri: { ...weapon('axe', 'mei'), ...S7, name: '断刀・大包丁', fx: [{ k: 'drain', v: 6 }], bonus: { str: 6 }, look: 'battle', desc: '大きな包丁のような形の刀。かけても、元にもどる。あたえたダメージの一部だけHPが回復する。' },
-  r88_nr_samehada: { ...weapon('axe', 'den'), ...S7, name: '大刀・さめはだ', fx: [{ k: 'mana', v: 8 }], bonus: { str: 20, hp: 30 }, look: 'stone', desc: 'さめのはだのような、ざらざらのうろこでおおわれた大きな刀。生きているように動き、チャクラを食べる。攻撃が当たるとMPが回復する。' },
+  r88_nr_samehada: { ...weapon('axe', 'den'), ...S7, name: '大刀・さめはだ', fx: [{ k: 'mana', v: 8 }], bonus: { str: 20, hp: 30 }, look: 'samehada', desc: 'さめのはだのような、ざらざらのうろこでおおわれた大きな刀。生きているように動き、チャクラを食べる。攻撃が当たるとMPが回復する。' },
   r88_nr_nuibari: { ...weapon('spear', 'mei'), ...S7, name: '長刀・ぬいばり', fx: [{ k: 'paralyze', v: 5 }], bonus: { agi: 4 }, look: 'rod', desc: '長い糸のついた、はりのような刀。さしたものを糸でぬいとめる。ときどき敵をマヒさせる。' },
   r88_nr_kabutowari: { ...weapon('axe', 'mei'), ...S7, name: 'どん刀・かぶとわり', fx: [{ k: 'crit', v: 6 }], bonus: { str: 8 }, look: 'hammer', desc: 'オノとつちを、くさりでつないだ刀。どんなにかたい守りも打ちくだく。会心の一撃が出やすい。' },
   r88_nr_shibuki: { ...weapon('sword', 'mei'), ...S7, name: '爆刀・しぶき', reach: 'group', bonus: { str: 4 }, look: 'broad', desc: 'たくさんの起爆札がまかれた刀。ふるたびに、ばくはつがおこる。ふつうの攻撃が、同じ種類の敵みんなにとどく。' },

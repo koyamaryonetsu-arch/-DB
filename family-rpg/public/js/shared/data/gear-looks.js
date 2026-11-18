@@ -12,7 +12,8 @@ import { starsFor } from './items-rare.js';
 
 // 武器種ごとの 形（ならびは だいたい 弱い 形 → 強い 形）
 export const WEAPON_LOOKS = {
-  sword: ['wood', 'leaf', 'broad', 'rapier', 'scimitar', 'great', 'flame', 'crystal', 'bolt', 'dragon', 'holy', 'katana'],
+  sword: ['wood', 'leaf', 'broad', 'rapier', 'scimitar', 'great', 'flame', 'crystal', 'bolt', 'dragon', 'holy', 'katana',
+    'raijin', 'hikari', 'tessaiga', 'yoru', 'dai', 'shinma', 'roto', 'tenku', 'saber'],
   axe: ['stone', 'axe', 'pirate', 'battle', 'crescent', 'hammer', 'pick', 'dragon'],
   dagger: ['knife', 'dirk', 'kunai', 'jambiya', 'stiletto', 'kris', 'star'],
   spear: ['spear', 'spear2', 'coral', 'halberd', 'trident', 'lance', 'winged', 'dragon', 'pennant', 'rod'],
@@ -32,7 +33,8 @@ export const TOOL_SHIELD_LOOKS = ['case', 'plaque'];
 
 // 形の 名前（開発用の 一覧・テストの 見出し）
 export const LOOK_NAMES = {
-  sword: { wood: '木の剣', leaf: '木の葉の剣', broad: 'ブロードソード', rapier: '細身の剣', scimitar: '三日月刀', great: '大剣', flame: '炎の剣', crystal: '水晶の剣', bolt: 'いなずまの剣', dragon: '竜の剣', holy: '聖剣', katana: '刀' },
+  sword: { wood: '木の剣', leaf: '木の葉の剣', broad: 'ブロードソード', rapier: '細身の剣', scimitar: '三日月刀', great: '大剣', flame: '炎の剣', crystal: '水晶の剣', bolt: 'いなずまの剣', dragon: '竜の剣', holy: '聖剣', katana: '刀',
+    raijin: '玉の剣', hikari: '光の剣', tessaiga: 'きばの大刀', yoru: '黒い十字の大刀', dai: '竜のつばさの剣', shinma: '竜の頭の剣', roto: '鳥のつばさの剣', tenku: '天空の剣', saber: 'サーベル' },
   axe: { stone: '石のオノ', axe: 'オノ', pirate: 'ひげのオノ', battle: '両刃のオノ', crescent: '大まさかり', hammer: '大づち', pick: 'つるはし', dragon: '竜のオノ' },
   dagger: { knife: 'ナイフ', dirk: 'ダガー', kunai: 'クナイ', jambiya: 'まがった短剣', stiletto: 'はりの短剣', kris: '波の短剣', star: '星の短剣' },
   spear: { spear: '木の葉のやり', spear2: 'つばさのやり', coral: 'サンゴのやり', halberd: 'ほこやり', trident: '三つまた', lance: '騎士のやり', winged: '羽のやり', dragon: '竜のやり', pennant: '旗のやり', rod: 'ぼう' },
@@ -45,6 +47,10 @@ export const LOOK_NAMES = {
   shield: { round: '丸い盾', kite: 'カイトシールド', heater: 'ヒーターシールド', tower: 'タワーシールド', crest: '紋章の盾', dragon: '竜のうろこの盾', light: '光の盾', mirror: '鏡の盾', moon: '三日月の盾', shell: '貝の盾' },
 };
 
+// 第88回 絵A班: 大刀・さめはだ（ナルト）は オノの 品なので オノの 形に 足す（剣の 新しい 形は 上の sword の 2行め）
+WEAPON_LOOKS.axe.push('samehada');
+LOOK_NAMES.axe.samehada = 'とげの大刀';
+
 // ───── 品ごとの 形（名前に あう 形。ボスの 品・★4・★5・伝説の 名前の 品 など） ─────
 export const GEAR_LOOK = {
   // 剣
@@ -52,7 +58,7 @@ export const GEAR_LOOK = {
   sakabatou: 'katana', silver_sword: 'rapier', thunder_sword: 'bolt', flame_sword: 'flame', storm_sword: 'bolt', hayabusa_sword: 'rapier', kira_sword: 'crystal',
   joker_sword: 'scimitar', casino_king_sword: 'great', heaven_dice_sword: 'crystal', frost_blade: 'crystal', obsidian_sword: 'great', meteor_sword: 'crystal',
   shamshir: 'scimitar', crescent_blade: 'scimitar', royal_gold_sword: 'great', platinum_sword: 'rapier', ancient_blade: 'great', scale_sword: 'dragon',
-  light_sword: 'holy', tenku_sword: 'holy', hayate_sword: 'rapier', hoshi_sword: 'crystal', mem_lightshadow_sword: 'holy', akatsuki_sword: 'flame',
+  light_sword: 'holy', tenku_sword: 'tenku', hayate_sword: 'rapier', hoshi_sword: 'crystal', mem_lightshadow_sword: 'holy', akatsuki_sword: 'flame',
   et_earth_sword: 'great', et_alch_sword: 'holy', nocto2_night_blade: 'scimitar', solitus_dawn_sword: 'holy', cs_castle_sword: 'flame', cs_alch_sword: 'holy',
   mirage_sword: 'rapier', master_sakabatou: 'katana', winter_katana: 'katana', kagutsuchi: 'flame', majin_scimitar: 'scimitar', old_fang_sword: 'dragon',
   muramasa: 'katana', masamune: 'katana', kusanagi: 'leaf', lake_holy_sword: 'holy', heaven_earth_sword: 'holy', ifrit_sword: 'flame', dragon_slayer: 'great',

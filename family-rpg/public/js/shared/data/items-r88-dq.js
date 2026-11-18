@@ -21,12 +21,12 @@ export const TENKU_GEAR = ['tenku_sword', 'tenku_mail', 'r88_dq_tenku_shield', '
 
 const GEAR = {
   // ───── ロトの装備 ─────
-  r88_dq_roto_sword: { ...weapon('sword', 'den'), ...R, name: 'ロトの剣', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 18, agi: 10 }, use: { ability: 'r88u_dq_roto' }, look: 'holy', desc: '伝説の勇者ロトの剣。王者の剣ともよばれる。ふつうの攻撃が光になる。使うと、大きな風の呪文で、同じ種類の敵みんなを切りさく。' },
+  r88_dq_roto_sword: { ...weapon('sword', 'den'), ...R, name: 'ロトの剣', fx: [{ k: 'el_light', v: 6 }], bonus: { str: 18, agi: 10 }, use: { ability: 'r88u_dq_roto' }, look: 'roto', desc: '伝説の勇者ロトの剣。王者の剣ともよばれる。ふつうの攻撃が光になる。使うと、大きな風の呪文で、同じ種類の敵みんなを切りさく。' },
   r88_dq_roto_armor: { ...armor('heavy', 'den'), ...R, name: 'ロトのよろい', fx: [{ k: 'regen', v: 6 }], bonus: { hp: 40, def: 10 }, desc: '伝説の勇者ロトのよろい。光のよろいともよばれる。行動するたびにHPが少し回復する。' },
   r88_dq_roto_shield: { ...shield('den'), ...R, name: 'ロトのたて', bonus: { def: 10, hp: 30 }, resist: { fire: 0.8, ice: 0.8 }, look: 'crest', desc: '伝説の勇者ロトのたて。勇者のたてともよばれる。炎と氷に強い。' },
   r88_dq_roto_helm: { ...head('mei', true), ...R, name: 'ロトのかぶと', bonus: { def: 4 }, resist: { sleep: 0.6, confuse: 0.6 }, desc: '伝説の勇者ロトのかぶと。ねむりと混乱にかかりにくい。' },
   r88_dq_roto_mark: { ...acc('mei'), ...R, name: 'ロトの聖なる守り', fx: [{ k: 'res_dark', v: 6 }], bonus: { hp: 30, mag: 6 }, desc: 'ロトの血をひく者のあかし。ロトのしるしともよばれる。闇に強い。ロトの装備を5つそろえると……？' },
-  r88_dq_ryuken: { ...weapon('sword', 'den'), ...Q, name: 'ロトの竜剣', fx: [{ k: 'slay_dragon', v: 8 }], bonus: { str: 20, def: 10 }, look: 'dragon', desc: 'ロトの装備で竜王のひ孫に勝った者だけがもらえる、竜の力をひめた剣。ドラゴンにとても強い。' },
+  r88_dq_ryuken: { ...weapon('sword', 'den'), ...Q, name: 'ロトの竜剣', fx: [{ k: 'slay_dragon', v: 8 }], bonus: { str: 20, def: 10 }, look: 'roto', desc: 'ロトの装備で竜王のひ孫に勝った者だけがもらえる、竜の力をひめた剣。ドラゴンにとても強い。' },
   // ───── そのほかの 品 ─────
   r88_dq_hikaritama: { ...acc('mei'), ...Q, name: 'ロトの光の玉', fx: [{ k: 'res_dark', v: 4 }], bonus: { mag: 8 }, use: { ability: 'r88u_dq_tama' }, desc: '竜の女王から勇者にたくされた、光の玉。闇に強い。使うと、敵全体の強くなっていた力を消す。' },
   r88_dq_raijin: { ...weapon('sword', 'mei'), ...Q, name: '雷神の剣', bonus: { str: 4, mag: 8 }, use: { ability: 'r88u_dq_raijin' }, look: 'flame', desc: 'いかずちの神の名をもつ剣。使うと、ほのおの呪文で、同じ種類の敵みんなをやきつくす。' },

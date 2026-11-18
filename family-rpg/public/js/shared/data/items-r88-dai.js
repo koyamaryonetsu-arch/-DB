@@ -25,8 +25,8 @@ export const HASHA_CROWN = 'r88_da_crown';
 const GEAR = {
   // ───── ダイと アバンの 使徒 ─────
   r88_da_papnica: { ...weapon('dagger', 'shop'), ...D, name: 'パプニカのナイフ', bonus: { agi: 2 }, look: 'knife', desc: 'パプニカの王家につたわる、小さなナイフ。お姫さまから、勇者の少年におくられた。' },
-  r88_da_daisword: { ...weapon('sword', 'den'), ...D, name: 'ダイの剣', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 20, agi: 10 }, use: { ability: 'r88u_da_saya' }, look: 'holy', desc: '伝説の名工が、は者のかんむりのオリハルコンで打った、竜の騎士の剣。ふつうの攻撃が雷になる。使うと、さやにおさめて力をため、次の攻撃がとても強くなる。' },
-  r88_da_shinma: { ...weapon('sword', 'den'), ...D, name: '真魔ごう竜剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 22, def: 10 }, look: 'dragon', desc: '竜の騎士だけが持つことをゆるされた、神々の作った剣。会心の一撃がとても出やすい。' },
+  r88_da_daisword: { ...weapon('sword', 'den'), ...D, name: 'ダイの剣', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 20, agi: 10 }, use: { ability: 'r88u_da_saya' }, look: 'dai', desc: '伝説の名工が、は者のかんむりのオリハルコンで打った、竜の騎士の剣。ふつうの攻撃が雷になる。使うと、さやにおさめて力をため、次の攻撃がとても強くなる。' },
+  r88_da_shinma: { ...weapon('sword', 'den'), ...D, name: '真魔ごう竜剣', fx: [{ k: 'crit', v: 8 }], bonus: { str: 22, def: 10 }, look: 'shinma', desc: '竜の騎士だけが持つことをゆるされた、神々の作った剣。会心の一撃がとても出やすい。' },
   r88_da_hasha: { ...weapon('sword', 'mei'), ...D, name: 'は者の剣', fx: [{ k: 'crit', v: 6 }], bonus: { str: 6 }, look: 'great', desc: 'ロモスの国の宝の、オリハルコンの剣。会心の一撃が出やすい。は者のかんむりを持ってかじ屋できたえると……？' },
   r88_da_crown: { ...head('fu3'), ...D, name: 'は者のかんむり', fx: [{ k: 'def', v: 4 }], desc: 'ロモスの王さまが、小さな勇者におくった金のかんむり。じつはオリハルコンでできている。守備力が上がる。' },
   r88_da_booster: { ...weapon('staff', 'shop'), ...D, name: 'マジカルブースター', bonus: { mag: 3 }, look: 'wizard', desc: '先生が、魔法使いの弟子にわたした、始めのつえ。魔法の力を少し強くする。' },

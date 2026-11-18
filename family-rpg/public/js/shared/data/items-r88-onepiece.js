@@ -45,7 +45,7 @@ const GEAR = {
   r88_op_tact4: { ...weapon('staff', 'den'), ...O, name: 'ゼウスの天候棒', fx: [{ k: 'el_bolt', v: 8 }], bonus: { mag: 26, agi: 8, heal: 10 }, use: tact('r88u_op_zeus', true), look: 'crystal', desc: 'しゃべる雷雲ゼウスが、航海士の仲間になって1つになった天候棒。ふつうの攻撃が雷になる。使うと、敵全体に大きな雷。天候の職業が持つと、今の天気で使う技がかわる。' },
   // ───── ライバル・海軍の 品 ─────
   r88_op_amenohabakiri: { ...weapon('sword', 'mei'), ...O, name: '天羽々斬', fx: [{ k: 'crit', v: 6 }], bonus: { agi: 4 }, look: 'katana', desc: 'ワノ国の大名がのこした、2本の名刀の1本。今はその子どもが受けついでいる。会心の一撃が出やすい。' },
-  r88_op_yoru: { ...weapon('sword', 'den'), ...O, name: '黒刀・夜', fx: [{ k: 'crit', v: 8 }], bonus: { str: 20, agi: 6 }, look: 'great', desc: '世界一の剣士がせおう、十字の形の大きな黒い刀。剣の中で、いちばんの名刀。会心の一撃がとても出やすい。' },
+  r88_op_yoru: { ...weapon('sword', 'den'), ...O, name: '黒刀・夜', fx: [{ k: 'crit', v: 8 }], bonus: { str: 20, agi: 6 }, look: 'yoru', desc: '世界一の剣士がせおう、十字の形の大きな黒い刀。剣の中で、いちばんの名刀。会心の一撃がとても出やすい。' },
   r88_op_murakumo: { ...weapon('spear', 'den'), ...O, name: 'むら雲切', reach: 'group', bonus: { str: 22, hp: 40 }, use: { ability: 'r88u_op_murakumo' }, look: 'halberd', desc: '白いひげの大海賊の、大きななぎなた。ふつうの攻撃が、同じ種類の敵みんなにとどく。使うと、大地をゆらして敵全体を打つ。' },
   r88_op_hassaikai: { ...weapon('bat', 'den'), ...O, name: '八さいかい', fx: [{ k: 'el_bolt', v: 8 }], bonus: { str: 24, hp: 50 }, look: 'spiked', desc: '空をとぶ竜の大海賊の、トゲのついた金棒。ふり下ろすと、雷がとどろく。ふつうの攻撃が雷になる。' },
   r88_op_griffon: { ...weapon('sword', 'mei'), ...O, name: 'グリフォン', fx: [{ k: 'crit', v: 6 }], bonus: { str: 4 }, look: 'scimitar', desc: '赤いかみの大海賊の、少しまがった刀。会心の一撃が出やすい。' },
