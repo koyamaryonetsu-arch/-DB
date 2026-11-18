@@ -280,3 +280,6 @@ export const orbsFound = (c) => ORB_PLACES.filter((p) => c?.chests?.[orbChestId(
 //   ドラゴンクエスト: はかいの鉄球・グリンガムのムチ・メタルキングの剣・天空のかぶと・ルビスの守り
 TM_R88_DEN.push('r88_da_seiou', 'r88_da_namida');
 TM_R88_DEN.push('r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss');
+
+// 第88回 G16班: ポケモンの メガリング・せいなる灰（ライバルの まぼろしでは 出ない 伝説。宝の洞窟の いちばん おく）
+TM_R88_DEN.push('r88_pk_megaring', 'r88_pk_hai');
