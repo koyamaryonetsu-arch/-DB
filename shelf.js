@@ -589,8 +589,9 @@
   }
   $('viewShelf').addEventListener('change', (e) => {
     if (e.target.id !== 'shFormFolder') return;
-    const fl = e.target.files; e.target.value = '';
-    if (fl && fl.length) importFormFolder(fl);
+    // 先にファイルの一覧を写しておく（入力欄を空に戻すと、Chrome では受け取った一覧まで空になり、何も起きなかった）
+    const fl = Array.from(e.target.files || []); e.target.value = '';
+    if (fl.length) importFormFolder(fl);
   });
 
   /* ---------- 書類の操作（⋯ メニュー） ---------- */
