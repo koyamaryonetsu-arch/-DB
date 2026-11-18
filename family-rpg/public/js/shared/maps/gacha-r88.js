@@ -39,5 +39,5 @@ function attachShenron(maps) {
     if (m) m.chests.push({ id: dbChestId(p), x: p.x, y: p.y, item: p.item, script: dbChestScript(p) });
   }
   const ow = maps[SHENRON.map];
-  if (ow) ow.npcs.push(npc('r88_shenron_altar', '神龍のさいだん', [SHENRON.x, SHENRON.y], 'r88_shenron_altar', 'r88_shenron', { dir: 'down' }));
+  if (ow) ow.npcs.push(npc('r88_shenron_altar', 'シェンロンのさいだん', [SHENRON.x, SHENRON.y], 'r88_shenron_altar', 'r88_shenron', { dir: 'down' }));
 }

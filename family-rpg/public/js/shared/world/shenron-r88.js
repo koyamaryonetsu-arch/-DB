@@ -1,8 +1,8 @@
-// 第88回 G9班: ドラゴンボールの 宝箱と 神龍の ねがい（きまりと 数は data/shenron-r88.js）
+// 第88回 G9班: ドラゴンボールの 宝箱と シェンロンの ねがい（きまりと 数は data/shenron-r88.js）
 //
 // ・玉の 宝箱 … ふつうの 宝箱と 同じ（キャラごとに 1回）。ねがいの あと WISH_WAIT_DAYS 日は「石に なって ねむって いる」で 空っぽ
-// ・さいだん … 7つ ない 時は 光る 数と、ドラゴンレーダーを 持って いれば まだの 地方。7つ ある 時は「神龍を よぶ？」
-//   → 空が くらく なり 神龍が 出る → 作品を えらぶ → 品を えらぶ（もどれる）→ ねがいが かなう → 玉は 空へ とびちる
+// ・さいだん … 7つ ない 時は 光る 数と、ドラゴンレーダーを 持って いれば まだの 地方。7つ ある 時は「シェンロンを よぶ？」
+//   → 空が くらく なり シェンロンが 出る → 作品を えらぶ → 品を えらぶ（もどれる）→ ねがいが かなう → 玉は 空へ とびちる
 //   作品・品の まどで「やめる」を えらぶと、何も かわらない（玉は なくならない）
 import { ITEMS } from '../data/items.js';
 import { workName } from '../data/works.js';
@@ -13,7 +13,7 @@ import {
 } from '../data/shenron-r88.js';
 import { gachaOwned } from '../data/gacha-r88.js';
 
-const SHENRON_NAME = '神龍';
+const SHENRON_NAME = 'シェンロン';
 const note = (t) => ['say', null, t];
 
 // ───────────── 玉の 宝箱 ─────────────
@@ -41,7 +41,7 @@ function ballChest(p) {
   };
 }
 
-// ───────────── 神龍の さいだん ─────────────
+// ───────────── シェンロンの さいだん ─────────────
 async function altarTalk(run) {
   const c = run.init.char;
   const n = ballsHeld(c);
@@ -58,19 +58,19 @@ async function altarTalk(run) {
   }
   return run.runSteps([
     note('石のさいだんだ。\n7つのくぼみに、ドラゴンボールが、いっせいに光り始めた！'),
-    ['choice', '神龍をよびますか？', ['よぶ', 'やめる'], [
+    ['choice', 'シェンロンをよびますか？', ['よぶ', 'やめる'], [
       [['call', summon]],
       [note('ドラゴンボールの光が、しずかに消えた。')],
     ]],
   ]);
 }
 
-// 神龍が 出る（空が くらく なる → 地ひびき → 光の 柱から 竜）
+// シェンロンが 出る（空が くらく なる → 地ひびき → 光の 柱から 竜）
 async function summon(run) {
   const actor = { sprite: 'r88_shenron', x: SHENRON.x + 0.5, y: SHENRON.y - 1.6, dir: 'down' };
   await run.runSteps([
     ['bgm', null], ['night', true], ['sfx', 'rumble'], ['shake'],
-    note('「いでよ、神龍！そして、ねがいをかなえたまえ！」\n空が、みるみる暗くなっていく…！'),
+    note('「いでよ、シェンロン！そして、ねがいをかなえたまえ！」\n空が、みるみる暗くなっていく…！'),
     ['look', SHENRON.x + 0.5, SHENRON.y - 1.5], ['flash'], ['sfx', 'thunder'],
     ['actor', 'r88_shenron', actor],
     ['bgm', 'boss'],
@@ -79,7 +79,7 @@ async function summon(run) {
   return pickWork(run);
 }
 
-// おわり（神龍が 消えて、空が 明るく なる）
+// おわり（シェンロンが 消えて、空が 明るく なる）
 function farewell(text) {
   return [
     ['say', SHENRON_NAME, text],
