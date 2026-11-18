@@ -103,3 +103,11 @@ Object.assign(WORKS, {
   abarenbo: { name: '暴れんぼう将軍', trialGift: { abarenbo_shogun: 'r88_ab_kinagashi' } },
   class3b: { name: '3年B組', trialGift: { homeroom_3b: 'r88_3b_shusseki' } },
 });
+
+// 第88回 G17班: フリーレン（千年の大魔法使い）・さいきくすお（ファイルの さいごで まぜる）
+//   作品の 名前は 職業の 名前に 合わせて 使える 字で（「葬送」は 使えない 字なので、作品の 名前は 主人公の 名前「フリーレン」）
+//   試練の ごほうび: 千年の大魔法使い → 花畑を出す魔法の魔導書・さいきくすお → コーヒーゼリー
+Object.assign(WORKS, {
+  frieren: { name: 'フリーレン', trialGift: { sennen_mage: 'r88_fr_hanabatake' } },
+  saiki: { name: 'さいきくすお', trialGift: { saiki: 'r88_sk_coffee' } },
+});

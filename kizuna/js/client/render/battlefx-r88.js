@@ -9,7 +9,7 @@
 //  r88_fujin   風神・風魂（G2班）… 緑と 白の つむじ風が うずを まいて ふくらみ、風の やいばが 何本も 敵の グループを 切りさく
 //  r88_raijin  雷神・いかずち（G2班）… こての 雷が 青白く ばちばち 光り、敵 みんなの 上から 青い いなずまが ジグザグに 落ちる
 // G12班: 味方に かける えんしゅつ（もしもボックス・ムーン・ヒーリング）を PARTY_ANIMS に まぜる（client/battle.js が 画面の 下に 出す）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=2bf9080b36ff';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=1bbfc18c8d9d';
 const BOLT = ['#ffffff', '#fff6b0', '#ffd23a', '#c890ff'];
 const LIGHT = ['#ffffff', '#fffbe0', '#ffe680', '#ffd23a'];
 const WIND = ['#ffffff', '#e8fff0', '#9ef0c0', '#4ad890'];
@@ -841,3 +841,53 @@ Object.assign(G8_FX, { r88_oshiri: oshiri });
 R88_ANIMS.add('r88_oshiri');
 Object.assign(R88_HIT, { r88_oshiri: 900 });
 Object.assign(R88_SFX, { r88_oshiri: 'sleep' });
+
+// ───── G17班: フリーレン・さいきくすお（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_tenbin  服従のてんびん … 敵の 上に 金の てんびんが あらわれ、2つの 皿に 光（魔力）が のって、ぐらりと かたむく。
+//              かたむいた 方から 金の 光の 輪が 敵に おりて、動きを 止める
+//  r88_seigyo  頭の制御装置 … 頭の 2本の かざりから ピンクの 火花が はじけ、むらさきの 念の 輪が 何回も ひろがる（味方に かける）
+const SCALE = ['#ffffff', '#fff6c0', '#ffe680', '#c8961a'];
+const PSY = ['#ffffff', '#ffd8f0', '#ff8ad0', '#a86ad8'];
+
+function tenbin(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.3, y: H * 0.45 };
+  const cx = t.x, cy = Math.max(20, t.y - 46);
+  fx.tintAt('rgba(30,20,0,0.3)', 1200);
+  // 柱と うで（はじめは まっすぐ → かたむく）
+  fx.spear(cx, cy + 22, cx, cy - 4, { len: 26, w: 2.4, color: '#ffe680', glow: '#c8961a', tip: '#ffffff', delay: 0, travel: 160, hold: 900, life: 1100, over: 0 });
+  fx.spear(cx - 22, cy - 4, cx + 22, cy - 4, { len: 44, w: 2, color: '#ffe680', glow: '#c8961a', tip: '#ffffff', delay: 120, travel: 160, hold: 240, life: 420, over: 0 });
+  fx.spear(cx - 22, cy - 12, cx + 22, cy + 6, { len: 48, w: 2, color: '#fff6c0', glow: '#ffd23a', tip: '#ffffff', delay: 560, travel: 120, hold: 420, life: 560, over: 0 });
+  // 2つの 皿に のる 光（左 ＝ 使った 人の 魔力・右 ＝ 敵の 魔力）
+  fx.glow(cx - 22, cy + 4, { color: '#bfe4ff', r: 9, delay: 260, life: 400 });
+  fx.glow(cx + 22, cy + 4, { color: '#ff9ac8', r: 6, delay: 300, life: 360 });
+  fx.glow(cx - 22, cy - 4, { color: '#ffffff', r: 12, delay: 640, life: 520 });
+  fx.glow(cx + 22, cy + 14, { color: '#ffd23a', r: 8, delay: 640, life: 520 });
+  // 金の 光の 輪が 敵に おりる
+  for (let k = 0; k < 3; k++) fx.shock(t.x, t.y - 4 + k * 4, { r0: 30 - k * 6, r1: 8, color: '#ffe680', w: 2.5, delay: 760 + k * 90, life: 360 });
+  fx.sparks(t.x, t.y, { colors: SCALE, n: 18, speed: 90, delay: 900, life: 460 });
+  fx.flashAt(80, '#fff6d0', 640);
+  return true;
+}
+
+function seigyo(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.6 };
+  fx.tintAt('rgba(40,10,40,0.3)', 1200);
+  // 頭の 2本の かざりから 火花
+  for (const dx of [-7, 7]) {
+    fx.glow(t.x + dx, t.y - 22, { color: '#ff8ad0', r: 5, delay: 0, life: 420 });
+    fx.sparks(t.x + dx, t.y - 22, { colors: PSY, n: 10, speed: 90, delay: 120, life: 360, g: 40 });
+  }
+  // むらさきの 念の 輪
+  for (let k = 0; k < 4; k++) fx.shock(t.x, t.y - 6, { r0: 6, r1: 34 + k * 14, color: k % 2 ? '#ff8ad0' : '#a86ad8', w: 2.5, delay: 360 + k * 120, life: 460 });
+  fx.glow(t.x, t.y - 6, { color: '#ffd8f0', r: 22, delay: 420, life: 700, alpha: 0.7 });
+  fx.pillar(t.x, t.y + 8, '#a86ad8', { w: 10, h: 56, delay: 480, life: 520, edge: '#ffd8f0' });
+  fx.flashAt(90, '#ffe8f6', 420);
+  return true;
+}
+
+Object.assign(G8_FX, { r88_tenbin: tenbin, r88_seigyo: seigyo });
+for (const k of ['r88_tenbin', 'r88_seigyo']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_tenbin: 900, r88_seigyo: 520 });
+Object.assign(R88_SFX, { r88_tenbin: 'sparkle', r88_seigyo: 'sparkle' });
+// 味方に かける えんしゅつ（client/battle.js が 画面の 下に 出す）
+PARTY_ANIMS.add('r88_seigyo');

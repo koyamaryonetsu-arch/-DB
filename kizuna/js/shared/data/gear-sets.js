@@ -432,3 +432,17 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G17班: フリーレン（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   rule 'pair' … この 班の 新しい 数え方（shared/battle-r88-fr.js の applyPairSets）。戦いの はじめの 仲間で、
+//     組の ちがう 品を べつべつの 2人が つけて いると、つけて いる 2人だけに その 段の 強さ（戦いの 中だけ）
+Object.assign(GEAR_SETS, {
+  kagami_renge: {
+    name: '鏡れん華の指輪とうでわ',
+    items: ['r88_fr_ring', 'r88_fr_bangle'],
+    rule: 'pair',
+    tiers: [
+      { n: 2, bonus: { hp: 60 }, text: '指輪とうでわを、2人が1つずつつけると、戦いの間、その2人の最大HP+60' },
+    ],
+  },
+});

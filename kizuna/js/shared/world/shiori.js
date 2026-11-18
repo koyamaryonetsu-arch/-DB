@@ -7,36 +7,36 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=2bf9080b36ff';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=2bf9080b36ff';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=2bf9080b36ff';
-import { jobLine } from '../data/fq-common.js?v=2bf9080b36ff';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=2bf9080b36ff';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=2bf9080b36ff';
-import { tmLvCap, tmTitle } from '../data/treasure.js?v=2bf9080b36ff';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=2bf9080b36ff';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=2bf9080b36ff';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=2bf9080b36ff';
-import { phantomBook } from '../data/phantom.js?v=2bf9080b36ff';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=2bf9080b36ff';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=2bf9080b36ff';
-import { bestiaryOrder } from '../data/companions.js?v=2bf9080b36ff';
-import { MONSTERS } from '../data/monsters.js?v=2bf9080b36ff';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=2bf9080b36ff';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=2bf9080b36ff';
-import { LB_MAX } from '../data/items-forge.js?v=2bf9080b36ff';
-import { ITEMS } from '../data/items.js?v=2bf9080b36ff';
-import { MAPS, condOk } from '../maps/index.js?v=2bf9080b36ff';
-import { jobLabel } from '../job-label.js?v=2bf9080b36ff';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=1bbfc18c8d9d';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=1bbfc18c8d9d';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=1bbfc18c8d9d';
+import { jobLine } from '../data/fq-common.js?v=1bbfc18c8d9d';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=1bbfc18c8d9d';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=1bbfc18c8d9d';
+import { tmLvCap, tmTitle } from '../data/treasure.js?v=1bbfc18c8d9d';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=1bbfc18c8d9d';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=1bbfc18c8d9d';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=1bbfc18c8d9d';
+import { phantomBook } from '../data/phantom.js?v=1bbfc18c8d9d';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=1bbfc18c8d9d';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=1bbfc18c8d9d';
+import { bestiaryOrder } from '../data/companions.js?v=1bbfc18c8d9d';
+import { MONSTERS } from '../data/monsters.js?v=1bbfc18c8d9d';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=1bbfc18c8d9d';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=1bbfc18c8d9d';
+import { LB_MAX } from '../data/items-forge.js?v=1bbfc18c8d9d';
+import { ITEMS } from '../data/items.js?v=1bbfc18c8d9d';
+import { MAPS, condOk } from '../maps/index.js?v=1bbfc18c8d9d';
+import { jobLabel } from '../job-label.js?v=1bbfc18c8d9d';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
-import { bossHintsSeen } from '../data/boss-hints.js?v=2bf9080b36ff';
+import { bossHintsSeen } from '../data/boss-hints.js?v=1bbfc18c8d9d';
 // 第88回 G4班: 作品の ガチャガチャ・七つの玉
-import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=2bf9080b36ff';
-import { workName } from '../data/works.js?v=2bf9080b36ff';
+import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=1bbfc18c8d9d';
+import { workName } from '../data/works.js?v=1bbfc18c8d9d';
 // 第88回 G9班: ドラゴンボール（data/shenron-r88.js）
-import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=2bf9080b36ff';
+import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=1bbfc18c8d9d';
 // 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
-import { rivalTrack, rivalRec } from '../rivals-r88.js?v=2bf9080b36ff';
+import { rivalTrack, rivalRec } from '../rivals-r88.js?v=1bbfc18c8d9d';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';

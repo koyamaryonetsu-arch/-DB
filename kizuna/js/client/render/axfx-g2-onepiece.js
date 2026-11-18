@@ -1,8 +1,8 @@
 // 第48回 G2: ワンピース（ゴム人間・ニカ）の 大技の え
 // ・ゴムの うでは 1つの つぶ（g2Arm）で のびて ちぢむ。ギア5（ニカ）は 白く マンガっぽく（白い ぬり＋黒い ふち）
 // ・時間は shared/data/ax-time-g2.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { rnd, lerp } from './axkit.js?v=2bf9080b36ff';
-import { darken, bg, blow, icon, arm, text } from './axfx-g2-kit.js?v=2bf9080b36ff';
+import { rnd, lerp } from './axkit.js?v=1bbfc18c8d9d';
+import { darken, bg, blow, icon, arm, text } from './axfx-g2-kit.js?v=1bbfc18c8d9d';
 
 const SKIN = ['#ffffff', '#ffe0c0', '#ffb070'];
 const WHITE = ['#ffffff', '#fff6d0', '#e8e0ff'];

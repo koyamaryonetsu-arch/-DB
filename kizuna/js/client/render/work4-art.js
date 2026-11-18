@@ -4,7 +4,7 @@
 //     （子ザルは 今までの サル、子ラクダは 今までの ラクダの 絵。ハネノの島は 人の 絵だけ）
 // ・WORK4_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まざる）
 // かきかたは work-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=2bf9080b36ff';
+import { spark } from './ch3-draw.js?v=1bbfc18c8d9d';
 
 // ───────────── 人の みため ─────────────
 export const WORK4_NPC_LOOKS = {

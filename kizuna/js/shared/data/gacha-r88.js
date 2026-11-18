@@ -10,12 +10,12 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS } from './items.js?v=2bf9080b36ff';
-import { REBIRTH } from './items-alchemy.js?v=2bf9080b36ff';
-import { WORKS } from './works.js?v=2bf9080b36ff';
-import { RIVALS } from './rivals-r88.js?v=2bf9080b36ff';
-import { GEAR_SETS } from './gear-sets.js?v=2bf9080b36ff'; // G15班
-import { ownedIds } from '../gear-r88.js?v=2bf9080b36ff';
+import { ITEMS } from './items.js?v=1bbfc18c8d9d';
+import { REBIRTH } from './items-alchemy.js?v=1bbfc18c8d9d';
+import { WORKS } from './works.js?v=1bbfc18c8d9d';
+import { RIVALS } from './rivals-r88.js?v=1bbfc18c8d9d';
+import { GEAR_SETS } from './gear-sets.js?v=1bbfc18c8d9d'; // G15班
+import { ownedIds } from '../gear-r88.js?v=1bbfc18c8d9d';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -285,3 +285,7 @@ TM_R88_DEN.push('r88_mr_star');
 
 // 第88回 G16班: ポケモンの メガリング・せいなる灰（ライバルの まぼろしでは 出ない 伝説。宝の洞窟の いちばん おく）
 TM_R88_DEN.push('r88_pk_megaring', 'r88_pk_hai');
+
+// 第88回 G17班: 宝の洞窟の いちばん おく（TM_R88_DEN）に、ライバルの まぼろしでは 出ない 伝説を 足す（ほかの 係の 行と ぶつからない ように さいごに）
+//   フリーレン: 剣の里の勇者の剣（服従のてんびんは アウラ・頭の制御装置は 兄の 空助が くれる）
+TM_R88_DEN.push('r88_fr_yusha');
