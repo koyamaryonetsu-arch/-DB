@@ -913,6 +913,6 @@ Object.assign(R88_ABILITIES, {
   r88u_or_hare: {
     name: '雲の衣の晴れ', kana: 'くものころものはれ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
     effect: { type: 'weather', kind: 'sun', turns: 12 },
-    desc: '雲の衣をひるがえして、空を晴れにする。晴れの間は、味方の炎と光が強くなる。', cast: '{a}が雲の衣をひるがえすと、空の雲がさっと晴れていく！', anim: 'holy',
+    desc: '雲の衣をひるがえして、空を晴れにする。晴れの間は、味方の炎と光が強くなる。', cast: '{a}が雲の衣をひるがえすと、空の雲がさっと晴れていく！', anim: 'r88_moshimo',
   },
 });

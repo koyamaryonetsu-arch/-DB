@@ -1226,13 +1226,13 @@ function g19Rivals() {
       id: 'sf_franky', work: 'spyfamily', n: 1, name: 'フランキー', lv: 60, job: 'guardian', look: L(0, 'wild', 'brown', 6, 'light', 'smile'),
       use: 'r88_sf_exo', reward: ['r88_sf_exo'], words: '見ろ！おれさまの発明、超人外こっかくだ！',
       sig: { name: '超人外こっかくパンチ', anim: 'blast2', charge: '{a}のきかいが、ガタガタふるえ始めた！\n「出力さいだい！…あれ？けむりが…」', cast: '{a}のきかいが、どかーんとこわれて、ばく風がおそいかかった！' },
-      tune: { hp: 1.3, dmg: 1 },
+      tune: { hp: 1.28, dmg: 1 },
     },
     {
       id: 'sf_yuri', work: 'spyfamily', n: 2, name: 'ユーリ', lv: 64, job: 'magic_swordsman', look: L(0, 'short', 'black', 0, 'fair', 'sharp'), bg: 'palace_night',
       use: 'r88_sf_cap', reward: ['r88_sf_cap'], words: '姉さんに近づく者は、ぼくがしらべる！',
       sig: { name: '秘密けいさつの取りしらべ', anim: 'slash_fast', charge: '{a}が、ぼうしをぐっとかぶり直した！\n「姉さんのために…！」', cast: '{a}の、すばやいれんぞくこうげき！' },
-      tune: { hp: 1.38, dmg: 1 },
+      tune: { hp: 1.34, dmg: 1 },
     },
     {
       id: 'sf_fiona', work: 'spyfamily', n: 3, name: 'フィオナ〈よとばり〉', lv: 70, job: 'major_leaguer', look: L(1, 'long', 'silver', 0, 'fair', 'calm'), bg: 'arena',
@@ -1251,7 +1251,7 @@ function g19Rivals() {
       id: 'sf_thorn', work: 'spyfamily', n: 5, name: '〈いばら姫〉', lv: 100, job: 'ninja', look: L(1, 'long', 'black', 0, 'fair', 'calm'), bg: 'palace_night',
       use: 'r88_sf_stiletto', reward: ['r88_sf_stiletto'], words: 'あの…お相手を、つとめさせていただきます。',
       sig: { name: '金のはなびらのまい・いばら', anim: 'r88_ibara', at: 0.8, after: 3, charge: '{a}が、2本の金色のスティレットをさか手にかまえた…！\nまわりの空気が、しんとしずまる…！', cast: '{a}のスティレットが、はなびらのようにまいおどった！' },
-      tune: { hp: 1.1, dmg: 1 },
+      tune: { hp: 1.06, dmg: 1 },
     },
     // ── オリジナル（中二病のかげ Lv60・落ちた天使のかげ Lv80・空の神 Lv100・さいごの 剣神のかげ Lv100）──
     {
@@ -1264,19 +1264,19 @@ function g19Rivals() {
       id: 'or_datenshi', work: 'original', n: 2, name: '落ちた天使のかげ', lv: 80, job: 'datenshi', look: L(1, 'long', 'purple', 6, 'fair', 'calm'),
       use: 'r88_or_keiyaku', reward: ['r88_or_keiyaku'], words: '天から落ちたこの身…あなたに分かるかしら。',
       sig: { name: '禁断のけい約・黒い光', el: 'dark', anim: 'dark_wings', charge: '{a}が、古い紙をかかげた…！\nせなかに、黒いつばさが広がっていく…！', cast: '{a}の黒い光が、空からふりそそいだ！' },
-      tune: { hp: 0.98, dmg: 1 },
+      tune: { hp: 0.97, dmg: 1 },
     },
     {
       id: 'or_soranokami', work: 'original', n: 3, name: '空の神', lv: 100, job: 'tenkou_tsukai', look: L(0, 'long', 'white', 1, 'fair', 'calm'), bg: 'kumoi',
       use: 'r88_or_kumo', reward: ['r88_or_kumo'], words: '晴れも雨も、わが心ひとつ。',
       same: 'ほう、空をよむ者か。ならば、空の大きさを見せよう。',
       sig: { name: '空のいかずち', el: 'bolt', anim: 'r88_zeus', charge: '{a}が、雲の衣をひろげた！\n空が、みるみるくらくなっていく…！', cast: '{a}の空から、大きないかずちが落ちてきた！' },
-      tune: { hp: 0.68, dmg: 1 },
+      tune: { hp: 0.7, dmg: 1 },
     },
     {
       id: 'or_kenshin', work: 'original', n: 4, name: '光と闇の剣神のかげ', lv: 100, job: 'magic_swordsman', look: L(0, 'long', 'white', 0, 'fair', 'sharp'), bg: 'hoshimichi',
       use: 'r88_or_white', reward: ['r88_or_white', 'r88_or_black'], words: '光だけでも、闇だけでもない。来い。',
-      sig: { name: '夜明けとたそがれの十字', anim: 'r88_kouan', at: 0.8, after: 3, charge: '{a}が、白い剣と黒い剣を十字にかさねた…！\n光と闇が、ひとつにまざっていく…！', cast: '{a}の2本の剣が、光と闇の十字をえがいた！' },
+      sig: { name: '夜明けとたそがれの十字', anim: 'r88_kouan', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、白い剣と黒い剣を十字にかさねた…！\n光と闇が、ひとつにまざっていく…！', cast: '{a}の2本の剣が、光と闇の十字をえがいた！' },
       tune: { hp: 0.8, dmg: 1 },
     },
   ];
