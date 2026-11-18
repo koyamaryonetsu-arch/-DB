@@ -366,3 +366,39 @@ Object.assign(R88_BOARD_COLORS, {
   r88_daimaou: ['#3a1a4a', '#140a1e', '#a86ad8'],
   r88_dq: ['#a82a2a', '#3a0a0a', '#ff8a6a'],
 });
+
+// G17班: フリーレン（金の つえと 青い 花〈そう月草〉）・さいきくすお（緑の メガネと 頭の 2本の かざり）
+Object.assign(R88_BOARD_ICONS, {
+  r88_frieren: {
+    rows: [
+      '.....bb..',
+      '....bBBb.',
+      '..y..bb..',
+      '.yYy..g..',
+      '..y..g...',
+      '..g.g....',
+      '..gg.....',
+      '..g......',
+      '..g......',
+    ],
+    pal: { y: '#c8961a', Y: '#fff2a0', g: '#e8e0d0', b: '#3a7ae8', B: '#bfe4ff' },
+  },
+  r88_saiki: {
+    rows: [
+      '.p.....p.',
+      '.pk...kp.',
+      '..k...k..',
+      '.........',
+      'ggggggggg',
+      'gGGg.gGGg',
+      'gGGg.gGGg',
+      '.gg...gg.',
+      '.........',
+    ],
+    pal: { p: '#ff6ab0', k: '#2a2a2a', g: '#1a8a3a', G: '#8af0b0' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_frieren: ['#3a5a7a', '#14202e', '#bfe4ff'],
+  r88_saiki: ['#b83a7a', '#3a0a24', '#ff9ad0'],
+});
