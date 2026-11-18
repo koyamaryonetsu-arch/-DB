@@ -1,5 +1,7 @@
 // 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら（render/chars.js の paintSpecial の さいごで よぶ。{ p, oc } を かえす）
 import { Painter } from './pixel.js';
+// 第88回 G9班: 神龍の さいだんと 神龍（render/shenron-art.js）
+import { paintShenronSpecial } from './shenron-art.js';
 
 // ガチャガチャの 台（上は とうめいな まるい まどに 色とりどりの カプセル・下は 赤い 台と 回す ハンドル・取り出し口）
 function paintGacha(f) {
@@ -70,6 +72,6 @@ export function paintGachaSpecial(kind, dir, f) {
   switch (kind) {
     case 'r88_gacha': return paintGacha(f);
     case 'r88_hokora': return paintHokora(f);
-    default: return null;
+    default: return paintShenronSpecial(kind, dir, f); // G9班
   }
 }

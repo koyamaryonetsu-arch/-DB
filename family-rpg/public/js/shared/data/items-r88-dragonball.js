@@ -54,7 +54,7 @@ const GEAR = {
 // ドラゴンボール 7つ（そろいの 組）
 BALL_NUM.forEach((n, i) => {
   GEAR[DRAGON_BALLS[i]] = {
-    ...acc('mei'), ...B, name: `${n}星球`, bonus: { ...BALL_BONUS[i] },
+    ...acc('mei'), ...B, gacha: false, name: `${n}星球`, bonus: { ...BALL_BONUS[i] },
     desc: `オレンジ色の玉の中に、星が${n}つ光るドラゴンボール。${BALL_TEXT[i]}。7つ集めて星見の丘のさいだんへ持っていくと……？`,
   };
 });

@@ -140,3 +140,8 @@ Object.assign(ROOM_STYLES, {
   onsen: { floor: T.FLOOR_WOOD, wall: T.WALL_WOOD, deco: T.HOT_SPRING },
   school: { floor: T.FLOOR_WOOD, wall: T.WALL_STONE, deco: T.TABLE },
 });
+
+// G9班: ワンピース（船の 甲板: 木の ゆか・まわりは 海・たる）。ドラゴンボールは 石の 広間（stone）
+Object.assign(ROOM_STYLES, {
+  ship: { floor: T.FLOOR_WOOD, wall: T.WATER, deco: T.BARREL },
+});

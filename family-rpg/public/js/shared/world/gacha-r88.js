@@ -14,6 +14,8 @@ import {
   GACHA_PRICE, GACHA_PITY, GACHA_MEI_RATE, gachaWorks, gachaPool, gachaLeft, gachaPity, gachaOwned, rollGacha,
   ORB_PLACES, orbChestId, SEVEN_ORBS, RYUJIN_ORB, trialGiftOf, trialGiftFlag,
 } from '../data/gacha-r88.js';
+// 第88回 G9班: ドラゴンボールの 宝箱と 神龍の さいだん（world/shenron-r88.js。この ファイルの だいほんと いっしょに まぜる）
+import { SHENRON_SCRIPTS } from './shenron-r88.js';
 
 const GOLD_MAX = 9999999;
 
@@ -218,3 +220,5 @@ export const GACHA_R88_SCRIPTS = {
   r88_gacha: () => [['call', (r) => keeperTalk(r, true)]],
   r88_hokora: () => [['call', hokoraTalk]],
 };
+// G9班: ドラゴンボールの 宝箱・神龍の さいだん
+Object.assign(GACHA_R88_SCRIPTS, SHENRON_SCRIPTS);

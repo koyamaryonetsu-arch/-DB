@@ -33,6 +33,7 @@ export const RIVAL_DOORS = [
   { work: 'inuyasha', mark: 'r88_inuyasha', bg: 'forest', room: 'forest', jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'] },
   { work: 'yuhaku', mark: 'r88_yuhaku', bg: 'arena', room: 'stone', jobs: ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'] },
   ...g8Doors(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
+  ...g9Doors(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -275,6 +276,7 @@ export const RIVALS = [
     tune: { hp: 0.63, dmg: 1 },
   },
   ...g8Rivals(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
+  ...g9Rivals(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -473,6 +475,85 @@ function g8Rivals() {
       same: 'ほう、おまえも手ぶくろの先生か。おもしろい、力くらべだ！',
       sig: { name: 'おにの手・大きなこぶし', anim: 'r88_onite', charge: '{a}の大きな手が、赤くかがやき始めた！\nこぶしに、ものすごい力が集まっていく…！', cast: '{a}の大きなこぶしが、ふりおろされた！' },
       tune: { hp: 0.5, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G9班: ドラゴンボール・ワンピース ─────────────
+//   ドラゴンボール … 部屋 ＝ 石の 広間（stone）・背景 ＝ 闘技場（arena。天下一の 武道会の 石の 台）。さいごの ウイスは 雲の上（kumoi）
+//   ワンピース … 部屋 ＝ 船の 甲板（ship: 木の ゆか・まわりは 海・たる）・背景 ＝ 大きな 船の 甲板（whale_deck）。カイドウは 火の 城（castle_fire）
+//   ビッグ・マムに 勝つと、天候棒の 4だんめ（ゼウスの 天候棒）に 生まれ変われる（data/items-r88-onepiece.js の need.rivals）
+function g9Doors() {
+  return [
+    { work: 'dragonball', mark: 'r88_dragonball', bg: 'arena', room: 'stone', jobs: ['saiyan', 'super_saiyan', 'ss2', 'ss3'] },
+    { work: 'onepiece', mark: 'r88_onepiece', bg: 'whale_deck', room: 'ship', jobs: ['pirate', 'rubber', 'nika', 'pirate_king'] },
+  ];
+}
+function g9Rivals() {
+  return [
+    // ── ドラゴンボール（名品を くれる 人は Lv60 ごろ・さいごの ウイスは 伝説で Lv100）──
+    {
+      id: 'db_piccolo', work: 'dragonball', n: 1, name: 'ピッコロ', lv: 60, job: 'god_hand', look: L(0, 'bald', 'green', 6, 'light', 'sharp'),
+      use: 'r88_db_turban', reward: ['r88_db_turban'], words: '重いマントを外させてみろ。修行をつけてやる。',
+      sig: { name: 'まかんこうさっぽう', anim: 'ki_blast', charge: '{a}が、指を2本ひたいに当てた！\n指先に、ばちばちと気が集まっていく…！', cast: '{a}の指先から、うずを巻く光線がはなたれた！' },
+      tune: { hp: 1.12, dmg: 1 },
+    },
+    {
+      id: 'db_vegeta', work: 'dragonball', n: 2, name: 'ベジータ', lv: 62, job: 'super_saiyan', look: L(0, 'spiky', 'black', 2, 'light', 'sharp'),
+      use: 'r88_db_scouter', reward: ['r88_db_scouter', 'r88_db_suit'], words: 'ふん、サイヤ人の王子の力を見せてやる！',
+      same: 'ほう、きさまもサイヤ人か。だが、王子はこのおれだ！',
+      sig: { name: 'ギャリックほう', at: 0.8, after: 3, el: 'light', anim: 'kamehameha', charge: '{a}が、両手を体の前でかまえた！\nむらさき色の気が、ぐんぐん大きくなっていく…！', cast: '{a}の両手から、大きな気の光線がはなたれた！' },
+      tune: { hp: 1.29, dmg: 1 },
+    },
+    {
+      id: 'db_dabura', work: 'dragonball', n: 3, name: 'ダーブラ', lv: 64, job: 'magic_swordsman', look: L(0, 'bald', 'red', 0, 'tan', 'sharp'),
+      use: 'r88_db_dabura', reward: ['r88_db_dabura'], words: 'わたしは魔界の王。少しあそんでやろう。',
+      sig: { name: '魔界の大剣', el: 'dark', anim: 'dark_slash', charge: '{a}の手に、大きな剣があらわれた！\n剣から、黒いほのおがゆらめき始めた…！', cast: '{a}の大剣が、黒いほのおといっしょにふり下ろされた！' },
+      tune: { hp: 1.34, dmg: 1 },
+    },
+    {
+      id: 'db_beerus', work: 'dragonball', n: 4, name: 'ビルス', lv: 66, job: 'archmage', look: L(0, 'bald', 'purple', 5, 'fair', 'calm'),
+      use: 'r88_db_beerus', reward: ['r88_db_beerus'], words: 'ふあぁ…。おいしい物を持ってきたら、手かげんしてあげるよ。',
+      sig: { name: 'はかいの玉', anim: 'hakai', charge: '{a}が、指先を空に向けた！\n小さな光の玉が、どんどん大きくなっていく…！', cast: '{a}の光の玉が、まっすぐ落ちてきた！' },
+      tune: { hp: 1.59, dmg: 1 },
+    },
+    {
+      id: 'db_whis', work: 'dragonball', n: 5, name: 'ウイス', lv: 100, job: 'daikenja', look: L(0, 'long', 'white', 5, 'fair', 'smile'), bg: 'kumoi',
+      use: 'r88_db_whis', reward: ['r88_db_whis'], words: 'ほっほっほ。では、少しだけ修行の相手をしましょうか。',
+      sig: { name: '天使のつえ・光のうず', el: 'light', anim: 'r88_whis', charge: '{a}が、つえで地面をこつんとついた！\nつえの玉が、ふしぎな光を集めていく…！', cast: '{a}のつえから、光のうずがあふれ出した！' },
+      tune: { hp: 0.81, dmg: 1 },
+    },
+    // ── ワンピース（名品を くれる 人は Lv60 ごろ・伝説の 黒刀・夜は Lv80・さいごの カイドウは Lv100）──
+    {
+      id: 'op_crocodile', work: 'onepiece', n: 1, name: 'クロコダイル', lv: 60, job: 'magic_swordsman', look: L(0, 'slick', 'black', 3, 'light', 'sharp'),
+      use: 'r88_op_claw', reward: ['r88_op_claw'], words: 'クハハハ！砂の力、見せてやろう。',
+      sig: { name: '砂あらし', el: 'wind', anim: 'wind2', charge: '{a}が、右手を地面につけた！\nまわりの砂が、うずを巻いて集まっていく…！', cast: '{a}の砂あらしが、ごうごうとふきあれた！' },
+      tune: { hp: 1.2, dmg: 1 },
+    },
+    {
+      id: 'op_smoker', work: 'onepiece', n: 2, name: 'スモーカー', lv: 62, job: 'guardian', look: L(0, 'short', 'white', 7, 'tan', 'sharp'),
+      use: 'r88_op_jitte', reward: ['r88_op_jitte'], words: '海軍の名にかけて、ここは通さねえ。',
+      sig: { name: '白いけむりのこぶし', anim: 'punch_multi', charge: '{a}の体から、白いけむりがもくもくとあふれ出した！\nけむりが、大きなこぶしの形になっていく…！', cast: '{a}のけむりのこぶしが、いっせいにとんできた！' },
+      tune: { hp: 1.35, dmg: 1 },
+    },
+    {
+      id: 'op_bigmom', work: 'onepiece', n: 3, name: 'ビッグ・マム', lv: 66, job: 'star_diva', look: L(1, 'wavy', 'pink', 0, 'light', 'smile'),
+      use: 'r88_op_napoleon', reward: ['r88_op_napoleon'], words: 'ハ〜ハハママママ！おかしはどこだい！',
+      sig: { name: 'ゼウスの大雷', el: 'bolt', anim: 'r88_zeus', charge: '{a}のそばで、しゃべる雷雲がむくむくふくらんだ！\n「ママ、まかせて〜！」…！', cast: '{a}の雷雲ゼウスから、大きな雷が落ちてきた！' },
+      tune: { hp: 1.3, dmg: 1 },
+    },
+    {
+      id: 'op_mihawk', work: 'onepiece', n: 4, name: 'ミホーク', lv: 80, job: 'sword_master', look: L(0, 'slick', 'black', 0, 'light', 'sharp'),
+      use: 'r88_op_yoru', reward: ['r88_op_yoru'], words: '世界一の剣、見せてやろう。かかってこい。',
+      same: 'ほう、海の者か。その心意気、見せてみろ。',
+      sig: { name: '黒刀・大ざん', at: 0.8, after: 3, hit: 1.3, anim: 'slash_heavy', charge: '{a}が、せなかの大きな黒い刀に手をかけた…！\nするどい気配が、あたりをつつむ…！', cast: '{a}の黒刀から、大きな切りかえしがとんできた！' },
+      tune: { hp: 0.27, dmg: 1.2 },
+    },
+    {
+      id: 'op_kaido', work: 'onepiece', n: 5, name: 'カイドウ', lv: 100, job: 'dragon_knight', look: L(0, 'long', 'black', 0, 'tan', 'sharp'), bg: 'castle_fire',
+      use: 'r88_op_hassaikai', reward: ['r88_op_hassaikai'], words: 'ウォロロロ…！おもしろい。かかってこい！',
+      sig: { name: '雷鳴八け', el: 'bolt', anim: 'r88_zeus', charge: '{a}が、金棒を大きくふりかぶった！\n金棒のまわりで、雷がばちばち鳴り始めた…！', cast: '{a}の金棒が、雷といっしょにふり下ろされた！' },
+      tune: { hp: 0.62, dmg: 1 },
     },
   ];
 }

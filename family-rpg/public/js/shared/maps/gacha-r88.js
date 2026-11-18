@@ -5,6 +5,8 @@
 import { npc } from './npc.js';
 import { PLACES } from './overworld.js';
 import { ORB_PLACES, orbChestId, HOKORA } from '../data/gacha-r88.js';
+// 第88回 G9班: ドラゴンボールの 宝箱 7つ（だいほんで 開ける。ねがいの あとの 待ちが ある）・神龍の さいだん（星見の丘）
+import { DB_PLACES, dbChestId, dbChestScript, SHENRON } from '../data/shenron-r88.js';
 
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
 
@@ -26,5 +28,16 @@ export function attachGachaR88(maps) {
   }
   const top = maps[HOKORA.map];
   if (top) top.npcs.push(npc('r88_hokora', '竜神のほこら', [HOKORA.x, HOKORA.y], 'r88_hokora', 'r88_hokora', { dir: 'down' }));
+  attachShenron(maps); // G9班: ドラゴンボールの 宝箱・神龍の さいだん
   return maps;
+}
+
+// G9班: ドラゴンボールの 宝箱（chest.script … world/shenron-r88.js が 開ける）・神龍の さいだん
+function attachShenron(maps) {
+  for (const p of DB_PLACES) {
+    const m = maps[p.map];
+    if (m) m.chests.push({ id: dbChestId(p), x: p.x, y: p.y, item: p.item, script: dbChestScript(p) });
+  }
+  const ow = maps[SHENRON.map];
+  if (ow) ow.npcs.push(npc('r88_shenron_altar', '神龍のさいだん', [SHENRON.x, SHENRON.y], 'r88_shenron_altar', 'r88_shenron', { dir: 'down' }));
 }

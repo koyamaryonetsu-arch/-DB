@@ -33,6 +33,8 @@ import { bossHintsSeen } from '../data/boss-hints.js';
 // 第88回 G4班: 作品の ガチャガチャ・七つの玉
 import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js';
 import { workName } from '../data/works.js';
+// 第88回 G9班: ドラゴンボール（data/shenron-r88.js）
+import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js';
 // 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
 import { rivalTrack, rivalRec } from '../rivals-r88.js';
 
@@ -372,6 +374,9 @@ export const TRACK_IDS = ['mission', 'board', 'side', 'arena', 'monarena', 'tmap
 // 第88回 G3班: まぼろしの回廊（職業の 試練の つぎ）
 TRACKS.splice(TRACKS.indexOf(trialsTrack) + 1, 0, rivalTrack);
 TRACK_IDS.splice(TRACK_IDS.indexOf('trials') + 1, 0, 'rival');
+// 第88回 G9班: ドラゴンボール（七つの玉の つぎ）
+TRACKS.splice(TRACKS.indexOf(orbTrack) + 1, 0, dballTrack);
+TRACK_IDS.splice(TRACK_IDS.indexOf('orbs') + 1, 0, 'dballs');
 
 export function shioriTracks(c, ctx = {}) {
   const out = [];
@@ -433,6 +438,8 @@ function sideRecs(c, tracks) {
   if (ch) push('chest', `${ch.name}に、まだ開けていない宝箱があります`, ch.name);
   // 第88回 G4班: 七つの玉が ぜんぶ 見つかった（まだ 竜神の玉に かえて いない）
   if (T.orbs && SEVEN_ORBS.every((id) => ownsR88(c, id))) push('orbs', '七つの玉がそろいました。山の上のほこらへ行ってみよう', '');
+  // 第88回 G9班: ドラゴンボールが 7つ そろった（神龍の さいだんへ）
+  if (T.dballs && ballsAll(c)) push('dballs', 'ドラゴンボールが7つそろいました。星見の丘のさいだんへ行ってみよう', '星見の丘');
   // 11. ひみつのダンジョン
   if (T.sd && f(SD_OPEN_FLAG)) push('sd', `ひみつのダンジョンの${T.sd.total}階をめざそう`, T.sd.where);
   return out;
@@ -469,4 +476,25 @@ export function trackCount(t) {
 export function trackRate(t) {
   if (!t.total) return 0;
   return Math.max(0, Math.min(1, t.now / t.total));
+}
+
+// 第88回 G9班: ドラゴンボール（1つ 見つけるか、ドラゴンレーダーを 持つか、ねがった ことが ある 時から）
+//   ドラゴンレーダーを 持って いると、まだの 玉の 地方が わかる。ねがいの あとは、また 集められるまでの 日数
+function dballTrack(c, ctx) {
+  const n = ballsFound(c);
+  const radar = hasRadar(c);
+  const wished = Number(c?.flags?.[WISH_N_FLAG]) || 0;
+  if (!n && !radar && !wished) return null;
+  const items = DB_PLACES.map((p) => (c?.chests?.[dbChestId(p)]
+    ? { name: ITEMS[p.item]?.name || p.item, where: p.where, state: 'done', right: '見つけた' }
+    : { name: '？？？', where: radar ? p.area : '', state: 'unknown', right: radar ? 'レーダーに反応' : '' })).sort(byState);
+  const wait = c?.flags?.[WISH_AT_FLAG] ? wishWaitLeft(c, ctx?.now || Date.now()) : 0;
+  const note = [
+    '世界のダンジョンの宝箱に、1つずつねむる7つの玉。',
+    radar ? 'ドラゴンレーダーで、まだの玉の地方がわかる。' : 'ドラゴンレーダーがあれば、玉の地方がわかる。',
+    '7つそろえて星見の丘のさいだんへ。ねがいを1つかなえてもらえる。',
+    ...(wished ? [`これまでのねがい ${wished}回。`] : []),
+    ...(wait > 0 ? [`玉は石になってねむっている。また集められるのは、${wishWaitDays(wait)}日くらいあと。`] : []),
+  ].join('\n');
+  return { id: 'dballs', name: 'ドラゴンボール', now: n, total: DB_PLACES.length, unit: 'つ', where: '星見の丘', note, items };
 }
