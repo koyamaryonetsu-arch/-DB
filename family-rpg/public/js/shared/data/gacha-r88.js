@@ -270,3 +270,6 @@ export const trialGiftFlag = (job) => `r88tg_${job}`;
 
 // 七つの玉の 宝箱を 開けた 数（しおり）
 export const orbsFound = (c) => ORB_PLACES.filter((p) => c?.chests?.[orbChestId(p)]).length;
+
+// G13班: マリオの スーパースター（ライバルの まぼろしでは 出ない 伝説。宝の洞窟の いちばん おく）
+TM_R88_DEN.push('r88_mr_star');

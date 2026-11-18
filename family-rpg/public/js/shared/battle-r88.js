@@ -8,6 +8,8 @@ import { GEAR_SETS } from './data/gear-sets.js';
 import { fxPower, GEAR_FX } from './data/gear-fx.js';
 import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js';
 import { ITEMS, baseItemId } from './data/items.js';
+// G13班: 百味ビーンズの 味
+import { BEANS } from './data/items-r88-harrypotter.js';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {
@@ -24,6 +26,7 @@ export function r88Actor(char) {
     if (ids.length) sets[sid] = ids;
   }
   if (Object.keys(sets).length) out.r88Sets = sets;
+  if (ITEMS[baseItemId(char?.equip?.acc)]?.beans) out.r88Beans = true; // G13班: 百味ビーンズ（r88BattleStart）
   return out;
 }
 
@@ -99,4 +102,69 @@ export function useAbilityOf(b, c, u) {
   const w = u?.weather;
   const kind = b?.weather?.kind;
   return (w && kind && w[kind]) || u?.ability;
+}
+
+// ───────────── G13班: ふんばる・百味ビーンズ・スーパースター・ボスに きかない 技 ─────────────
+// ふんばる（GEAR_FX の endure。緑の1UPキノコの 生まれつき・死の 秘宝の そろい）: 1つの 戦いで 1回、たおれる ダメージを
+//   受けても HP1 で のこる。1人に 1回（品と そろいの 両方でも 1回）。味方だけ（敵は 持たない）。
+//   battle.js の damage が「たおれる 前」（第84回 A班の 立ち上がりの あと）に よぶ。t.r88Endured は 戦いの 中だけ（次の 戦いで また 使える）
+export function r88Endure(b, t, ev) {
+  if (!t || t.side !== 'ally' || !t.alive || t.hp > 0 || t.r88Endured || t.fled) return false;
+  if (!(Array.isArray(t.gearFx) && t.gearFx.some((x) => x.kind === 'endure' && x.v > 0))) return false;
+  t.r88Endured = true;
+  t.hp = 1;
+  ev.lines.push(`${t.name}は、たおれそうになった…`, `${t.name}は、ふんばった！`);
+  (ev.results = ev.results || []).push({ id: t.id, heal: 0, endure: true });
+  if (!ev.upd.includes(t)) ev.upd.push(t);
+  ev.r88Endure = t.id;
+  return true;
+}
+
+// 百味ビーンズ（品の beans）: 戦いの はじめに 1つぶ 食べて、6つの 小さな 力（BEANS）から 1つが つく（戦いの 中だけ）
+//   battle.js の constructor（applyPartySets の あと）が よぶ
+export function r88BattleStart(b) {
+  const lines = [];
+  for (const c of b.combatants) {
+    if (c.side !== 'ally' || !c.r88Beans) continue;
+    const bean = b.rng.pick(BEANS);
+    const list = Array.isArray(c.gearFx) ? c.gearFx : (c.gearFx = []);
+    const now = list.find((e) => e.kind === bean.k);
+    const v = (now?.v || 0) + bean.v;
+    const e = { kind: bean.k, v, ...fxPower(bean.k, v) };
+    if (now) Object.assign(now, e);
+    else list.push(e);
+    if (bean.k === 'evade') c.gearEva = e.eva;
+    c.r88Bean = bean.name;
+    lines.push(`${c.name}は、百味ビーンズを1つぶ食べた…${bean.name}だ！`, `${c.name}に、${bean.power}がついた！`);
+  }
+  if (lines.length) b.emit({ t: 'msg', lines, dur: 1100 });
+}
+
+// 使った あと（battle-gearfx.js の gearUse）: スーパースター（技の r88Star）… その 回数の 行動の 間 状態異常に ならない
+export function r88AfterUse(b, c, a, ev) {
+  if (!a?.r88Star || !c?.alive) return;
+  c.r88Star = { left: a.r88Star, fresh: true };
+  ev.lines.push(`${c.name}は、ぴかぴか光りだした！（${a.r88Star}回の行動の間、状態異常にならない）`);
+}
+// 行動の おわり（battle.js の 行動の おわり。gearRegen の あと）: スターの のこりを へらす（使った 行動は 数えない）
+export function r88ActEnd(b, c, ev) {
+  const s = c?.r88Star;
+  if (!s) return;
+  if (s.fresh) { s.fresh = false; return; }
+  s.left--;
+  if (s.left > 0 && c.alive) return;
+  delete c.r88Star;
+  if (c.alive) ev.lines.push(`${c.name}の光が、きえた。`);
+}
+// 状態異常を かける 前（battle.js の tryStatus）: スターの 間は かからない・noBoss の 技は ボスに きかない。止めた ときは true
+export function r88StatusBlock(b, c, t, eff, ev) {
+  if (t?.r88Star) {
+    if (!eff?.quiet) ev.lines.push(`${t.name}は、スターの光ではね返した！`);
+    return true;
+  }
+  if (eff?.noBoss && t?.boss) {
+    ev.lines.push(`しかし${t.name}には、のりうつれなかった！`);
+    return true;
+  }
+  return false;
 }

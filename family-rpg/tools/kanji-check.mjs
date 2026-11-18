@@ -560,6 +560,8 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-kenshin.js', 'public/js/shared/data/items-r88-conan.js', 'public/js/shared/data/items-r88-kaito.js',
     // 第88回 G12班: ドラえもん・セーラームーン・聖はいの 台
     'public/js/shared/data/items-r88-doraemon.js', 'public/js/shared/data/items-r88-sailormoon.js', 'public/js/shared/world/grail-r88.js',
+    // 第88回 G13班: ハリー・ポッター・マリオ
+    'public/js/shared/data/items-r88-harrypotter.js', 'public/js/shared/data/items-r88-mario.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

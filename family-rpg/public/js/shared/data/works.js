@@ -53,3 +53,10 @@ Object.assign(WORKS, {
   doraemon: { name: 'ドラえもん', trialGift: { doraemon: 'r88_dr_hirari' } },
   sailormoon: { name: 'セーラームーン', trialGift: { sailor_moon: 'r88_sm_stick1' } },
 });
+
+// 第88回 G13班: ハリー・ポッター・マリオ（ファイルの さいごで まぜる）
+//   試練の ごほうび: ハリーポッター → ひいらぎのつえ（主人公の 名品）・マリオ → マリオのぼうし（主人公の 品。表では ふつう）
+Object.assign(WORKS, {
+  harrypotter: { name: 'ハリー・ポッター', trialGift: { harry: 'r88_hp_holly' } },
+  mario: { name: 'マリオ', trialGift: { mario: 'r88_mr_cap' } },
+});

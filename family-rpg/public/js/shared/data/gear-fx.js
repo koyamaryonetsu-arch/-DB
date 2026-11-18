@@ -54,6 +54,9 @@ export const GEAR_FX = {
   mpregen: { name: 'MPのいずみ', short: 'MP', slots: A, w: 4, desc: '行動するたびにMPが少し回復する', text: (v) => `行動ごとにMP+${fxPower('mpregen', v).mp}` },
   counter: { name: '反撃', short: '反撃', slots: A, w: 4, desc: 'ふつうの攻撃をされるとときどきやりかえす', text: (v) => `${pct(fxPower('counter', v).chance)}で反撃` },
   evade: { name: 'みかわし', short: 'かわし', slots: A, w: 4, desc: '敵の攻撃をかわしやすくなる', text: (v) => `かわす+${(v * 0.8).toFixed(1)}%` },
+  // 第88回 G13班: ふんばる（作品の 品の 生まれつきの 効果・そろいの 効果だけ。れん金では 出ない〈アクセには れん金が できない〉。
+  //   1つの 戦いで 1回、たおれる ダメージを 受けても HP1 で のこる。値が いくつでも 1回。shared/battle-r88.js の r88Endure）
+  endure: { name: 'ふんばる', short: 'ふんばる', slots: ['acc'], w: 1, desc: '1つの戦いで1回、たおれるダメージを受けてもHP1でのこる', text: () => '1つの戦いで1回、HP1でのこる' },
 };
 export const GEAR_FX_ORDER = Object.keys(GEAR_FX);
 

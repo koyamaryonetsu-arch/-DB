@@ -279,3 +279,39 @@ Object.assign(R88_BOARD_COLORS, {
   r88_doraemon: ['#1a8ae0', '#0a3a7a', '#7ac8ff'],
   r88_sailormoon: ['#2a1a5a', '#0a0a2a', '#8a6ae0'],
 });
+
+// G13班: ハリー・ポッター（いなずまの きずと 丸メガネ）・マリオ（赤い キノコ）
+Object.assign(R88_BOARD_ICONS, {
+  r88_harrypotter: {
+    rows: [
+      '....yy...',
+      '...yy....',
+      '..yyyy...',
+      '....yy...',
+      '...yy....',
+      '.........',
+      'kkk...kkk',
+      'k.k.k.k.k',
+      'kkk...kkk',
+    ],
+    pal: { y: '#ffd23a', k: '#2a1a0a' },
+  },
+  r88_mario: {
+    rows: [
+      '...rrr...',
+      '..rWWrr..',
+      '.rrWWrrW.',
+      'rWrrrrrWr',
+      'rrrrWWrrr',
+      '..sssss..',
+      '..sksks..',
+      '..sssss..',
+      '...sss...',
+    ],
+    pal: { r: '#e8201a', W: '#ffffff', s: '#fff0d0', k: '#2a1a0a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_harrypotter: ['#7a1a2a', '#2a0a10', '#e0b040'],
+  r88_mario: ['#2a8a2a', '#0a3a0a', '#ffd23a'],
+});
