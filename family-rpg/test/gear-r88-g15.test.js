@@ -121,9 +121,11 @@ test('G15: 手に 入らない 品は ない（店・ガチャ・ライバル・
       if (ITEMS[id].grade === 'den') assert.ok(how.some((h) => ['ライバル', '宝', '生まれ変わり'].includes(h)), `${id}: ${how}`);
     }
   }
-  for (const id of ['r88_da_seiou', 'r88_da_namida', 'r88_dq_roto_armor', 'r88_dq_roto_shield', 'r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss']) {
+  for (const id of ['r88_da_seiou', 'r88_da_namida', 'r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss']) {
     assert.ok(TM_R88_DEN.includes(id), `${id}: 宝の洞窟の いちばん おく`);
   }
+  // ロトのよろい・ロトのたては ライバルの 品に なったので 宝の 入れ物から 外れた
+  for (const id of ['r88_dq_roto_armor', 'r88_dq_roto_shield']) assert.ok(!TM_R88_DEN.includes(id), id);
   assert.ok(shop.has('r88_da_papnica') && shop.has('r88_da_booster'), 'はじめの 品は 店に');
 });
 
@@ -350,8 +352,9 @@ test('G15: とびら 3まい（ダイの大冒険・大魔王の城・ドラゴ�
   assert.deepEqual(rivalsOf('dai').map((x) => x.reward), [['r88_da_shinku'], ['r88_da_makenarmor'], ['r88_da_masou'], ['r88_da_shinma']]);
   assert.deepEqual(rivalsOf('dai_maou').map((x) => x.id), ['da_killvearn', 'da_sigma', 'da_hadlar', 'da_mist', 'da_vearn']);
   assert.deepEqual(rivalsOf('dai_maou').map((x) => x.reward), [['r88_da_fue'], ['r88_da_shahal'], ['r88_da_hellclaw', 'r88_da_hasha'], ['r88_da_yami'], ['r88_da_kouma', 'r88_da_kigan']]);
-  assert.deepEqual(rivalsOf('dq').map((x) => x.id), ['dq_ryuou', 'dq_psaro', 'dq_zoma', 'dq_hiko']);
-  assert.deepEqual(rivalsOf('dq').map((x) => x.reward), [['r88_dq_hikaritama'], ['r88_dq_tenku_shield'], ['r88_dq_roto_sword'], ['r88_dq_ryuken']]);
+  assert.deepEqual(rivalsOf('dq').map((x) => x.id), ['dq_ryuou', 'dq_akuma', 'dq_psaro', 'dq_zoma', 'dq_hiko']);
+  assert.deepEqual(rivalsOf('dq').map((x) => x.reward), [['r88_dq_hikaritama'], ['r88_dq_roto_armor'], ['r88_dq_tenku_shield'], ['r88_dq_roto_sword', 'r88_dq_roto_shield'], ['r88_dq_ryuken']]);
+  assert.equal(RIVAL_BY_ID.dq_akuma.lv, 80);
   for (const w of ['dai', 'dai_maou', 'dq']) {
     const list = rivalsOf(w);
     assert.ok(list.length <= 5);
@@ -395,7 +398,7 @@ test('G15: 竜王のひ孫 … ロトの装備を 5つ 持って いる 人だ�
   assert.deepEqual(hiko.needSet && { set: hiko.needSet.set, n: hiko.needSet.n }, { set: 'roto', n: 5 });
   const c = hero('loto_hero', 90);
   for (const id of ['r88_dq_raijin', 'r88_dq_kiseki', 'r88_dq_inochi']) addItem(c, id, 1);
-  c.rivals = { dq_ryuou: 1, dq_psaro: 1, dq_zoma: 1 };
+  c.rivals = { dq_ryuou: 1, dq_akuma: 1, dq_psaro: 1, dq_zoma: 1 };
   addItem(c, 'r88_dq_roto_sword', 1);
   assert.equal(rivalNeedLack(c, hiko), 4);
   assert.ok(!rivalReady(c, hiko));
@@ -427,21 +430,35 @@ test('G15: ガチャガチャ（2作品が ならぶ。ライバル・伝説・�
   assert.ok(gachaWorks().includes('dai') && gachaWorks().includes('dq'));
   const pd = gachaPool('dai'), pq = gachaPool('dq');
   assert.equal(pd.all.length, 13);
-  assert.equal(pq.all.length, 16);
+  assert.equal(pq.all.length, 17);
   assert.equal(pd.all.length * GACHA_PRICE, 260000);
-  assert.equal(pq.all.length * GACHA_PRICE, 320000);
+  assert.equal(pq.all.length * GACHA_PRICE, 340000);
   const trial = [trialGiftOf('dragon_knight'), trialGiftOf('maou'), trialGiftOf('loto_hero')];
   for (const [w, p] of [['dai', pd], ['dq', pq]]) {
     const all = new Set(p.all);
     const rivals = RIVAL_DOORS.filter((d) => doorWorks(d.work).includes(w)).flatMap((d) => rivalsOf(d.work).flatMap((rv) => rv.reward));
     for (const id of newIds(w)) {
       const it = ITEMS[id];
-      const out = it.grade === 'den' || it.grade === 'shop' || rivals.includes(id) || trial.includes(id) || Object.values(REBIRTH).some((x) => x.to === id);
+      const roto = GEAR_SETS.roto.items.includes(id); // ライバルの じょうけんの そろいの 品は 試練の ごほうびでも 出る
+      const out = it.grade === 'den' || it.grade === 'shop' || rivals.includes(id) || (trial.includes(id) && !roto) || Object.values(REBIRTH).some((x) => x.to === id);
       assert.equal(all.has(id), !out, `${id}: ${gachaBlock(id)}`);
     }
   }
   for (const id of ABAN_MARKS.slice(1)) assert.ok(pd.all.includes(id), id);
   assert.ok(pq.all.includes('r88_dq_roto_helm'));
+  assert.ok(pq.all.includes('r88_dq_roto_mark'), 'ロトの聖なる守りは 試練の ごほうびでも ガチャに 出る');
+  assert.equal(gachaBlock('r88_da_mark_blue'), 'trial', 'ほかの 試練の ごほうびは 出ない');
+});
+
+test('G15: ロトの装備 5つは、ライバル（竜王の前まで）と ガチャだけで そろう（ロトの勇者で なくても よい）', () => {
+  const pq = new Set(gachaPool('dq').all);
+  const rv = rivalsOf('dq').filter((r) => r.id !== 'dq_hiko').flatMap((r) => r.reward);
+  for (const id of ROTO_GEAR) assert.ok(rv.includes(id) || pq.has(id), `${id}: ライバルか ガチャ`);
+  for (const id of ROTO_GEAR) assert.ok(!TM_R88_DEN.includes(id), id);
+  const c = hero('warrior', 90);
+  for (const id of ROTO_GEAR) addItem(c, id, 1);
+  c.rivals = { dq_ryuou: 1, dq_akuma: 1, dq_psaro: 1, dq_zoma: 1 };
+  assert.ok(rivalReady(c, RIVAL_BY_ID.dq_hiko));
 });
 
 test('G15: 試練の ごほうび（竜の騎士 → アバンのしるし・青・魔王 → 大魔王の白い衣・ロトの勇者 → ロトの聖なる守り）', () => {
@@ -450,7 +467,7 @@ test('G15: 試練の ごほうび（竜の騎士 → アバンのしるし・青
   assert.equal(trialGiftOf('loto_hero'), 'r88_dq_roto_mark');
   for (const id of ['r88_da_mark_blue', 'r88_da_white', 'r88_dq_roto_mark']) {
     assert.equal(ITEMS[id].grade, 'mei', id);
-    assert.equal(gachaBlock(id), 'trial', id);
+    assert.equal(gachaBlock(id), id === 'r88_dq_roto_mark' ? null : 'trial', id);
   }
 });
 

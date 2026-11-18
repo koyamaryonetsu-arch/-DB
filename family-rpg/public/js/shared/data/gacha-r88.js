@@ -14,6 +14,7 @@ import { ITEMS } from './items.js';
 import { REBIRTH } from './items-alchemy.js';
 import { WORKS } from './works.js';
 import { RIVALS } from './rivals-r88.js';
+import { GEAR_SETS } from './gear-sets.js'; // G15班
 import { ownedIds } from '../gear-r88.js';
 
 // ───────────── ねだん・わりあい ─────────────
@@ -98,7 +99,9 @@ function build() {
   const trial = new Set();
   for (const w of Object.values(WORKS)) for (const id of Object.values(w?.trialGift || {})) trial.add(id);
   const orbs = new Set(SEVEN_ORBS);
-  return { rebirthTo, trial, orbs, rivals: rivalGiftIds(), pools: new Map() };
+  // G15班: ライバルの じょうけん（needSet）に 入って いる そろいの 品（ロトの装備）。試練の ごほうびでも ガチャに 出る
+  const needSet = new Set(RIVALS.flatMap((r) => (r?.needSet ? GEAR_SETS[r.needSet.set]?.items || [] : [])));
+  return { rebirthTo, trial, orbs, needSet, rivals: rivalGiftIds(), pools: new Map() };
 }
 const C = () => (cache ||= build());
 
@@ -116,7 +119,7 @@ export function gachaBlock(id) {
   if (it.rival || c.rivals.has(id)) return 'rival';
   if (R88_SET_GIFTS.has(id)) return 'set';
   if (c.orbs.has(id)) return 'orb';
-  if (c.trial.has(id)) return 'trial';
+  if (c.trial.has(id) && !c.needSet.has(id)) return 'trial'; // G15班: ライバルの じょうけん（needSet）の そろいの 品は、試練の ごほうびでも 出る
   return null;
 }
 export const gachaTier = (id) => GRADE_TIER[ITEMS[id]?.grade] || null;
@@ -274,6 +277,6 @@ export const orbsFound = (c) => ORB_PLACES.filter((p) => c?.chests?.[orbChestId(
 
 // 第88回 G15班: 宝の洞窟の いちばん おく（TM_R88_DEN）に、ライバルの まぼろしでは 出ない 伝説を 足す（ほかの 係の 行と ぶつからない ように さいごに）
 //   ダイの大冒険: 星皇剣・神のなみだ（ダイの剣は は者の剣から 生まれ変わる）
-//   ドラゴンクエスト: ロトのよろい・ロトのたて・はかいの鉄球・グリンガムのムチ・メタルキングの剣・天空のかぶと・ルビスの守り
+//   ドラゴンクエスト: はかいの鉄球・グリンガムのムチ・メタルキングの剣・天空のかぶと・ルビスの守り
 TM_R88_DEN.push('r88_da_seiou', 'r88_da_namida');
-TM_R88_DEN.push('r88_dq_roto_armor', 'r88_dq_roto_shield', 'r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss');
+TM_R88_DEN.push('r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss');
