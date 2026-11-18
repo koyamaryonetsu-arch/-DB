@@ -534,3 +534,40 @@ Object.assign(R88_ABILITIES, {
     desc: '雨雲から、やさしい雨をふらせる。仲間全員のHPを少し回復する。', cast: '{a}の天候棒から、しとしとと雨がふりだした…', anim: 'heal2',
   },
 });
+
+// ───── G11班: るろうに剣心・名探ていコナン・まじっく快と（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+Object.assign(R88_ABILITIES, {
+  // ── るろうに剣心 ──
+  r88u_ks_guren: {
+    name: '紅れんかいな', kana: 'ぐれんかいな', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.4, element: 'fire' },
+    desc: '無限じんの火花を手にまとって、敵1体に大きな炎の一げき。', cast: '{a}の無限じんから、火花がばちばちととびちった！', anim: 'r88_guren',
+  },
+  // ── 名探ていコナン（博士の 発明）──
+  r88u_cn_voice: {
+    name: '変声機・声まね', kana: 'へんせいきこえまね', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.7, turns: [1, 3] },
+    desc: '変声機のダイヤルを回して、聞いたことのある声で敵1体をだまし、混乱させる。', cast: '{a}は、ちょうネクタイのダイヤルをくるりと回した！', anim: 'debuff',
+  },
+  r88u_cn_masui: {
+    name: 'ますいばり・1発', kana: 'ますいばりいっぱつ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.9, turns: [2, 3] },
+    desc: 'うで時計のふたを開けて、ねむくなるはりを1発。敵1体をぐっすりねむらせる（大きな敵にはききにくい）。', cast: '{a}は、うで時計のふたをぱかっと開けた！', anim: 'r88_masui',
+  },
+  // ── まじっく快と（キッドの 道具）──
+  r88u_kt_glider: {
+    name: 'ハンググライダー・夜空へ', kana: 'はんぐぐらいだーよぞらへ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'escape' },
+    desc: 'マントを白いつばさにかえて、みんなで夜空へにげ出す（にげられない戦いはだめ）。', cast: '{a}のマントが、ばさっと白いつばさになった！', anim: 'r88_kid',
+  },
+  r88u_kt_spray: {
+    name: 'さいみんスプレー・ひとふき', kana: 'さいみんすぷれーひとふき', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.6, turns: [1, 3] },
+    desc: 'スプレーをしゅっとひとふき。同じ種類の敵みんなをねむらせる。', cast: '{a}は、さいみんスプレーをしゅっとふきつけた！', anim: 'sleep',
+  },
+  r88u_kt_dummy: {
+    name: 'ダミー人形・入れかわり', kana: 'だみーにんぎょういれかわり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'eva', add: 0.45, dur: 30 },
+    desc: 'いつの間にか、自分そっくりの人形と入れかわる。少しの間、敵の攻撃をかわしやすくなる。', cast: '{a}が、ぽんっとけむりにつつまれた！…そこにいたのは、人形だ！', anim: 'buff',
+  },
+});

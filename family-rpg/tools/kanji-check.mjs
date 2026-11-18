@@ -556,6 +556,8 @@ export function gameFiles() {
     // 第88回 G9班: ドラゴンボール・ワンピース・神龍の ねがい
     'public/js/shared/data/items-r88-dragonball.js', 'public/js/shared/data/items-r88-onepiece.js',
     'public/js/shared/data/shenron-r88.js', 'public/js/shared/world/shenron-r88.js',
+    // 第88回 G11班: るろうに剣心・名探ていコナン・まじっく快と
+    'public/js/shared/data/items-r88-kenshin.js', 'public/js/shared/data/items-r88-conan.js', 'public/js/shared/data/items-r88-kaito.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
