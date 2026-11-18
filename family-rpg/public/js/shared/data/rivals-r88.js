@@ -1274,10 +1274,10 @@ function g19Rivals() {
       tune: { hp: 0.7, dmg: 1 },
     },
     {
-      id: 'or_kenshin', work: 'original', n: 4, name: '光と闇の剣神のかげ', lv: 100, job: 'magic_swordsman', look: L(0, 'long', 'white', 0, 'fair', 'sharp'), bg: 'hoshimichi',
+      id: 'or_kenshin', work: 'original', n: 4, name: '光と闇の剣神のかげ', lv: 100, job: 'paladin', look: L(0, 'long', 'white', 0, 'fair', 'sharp'), bg: 'hoshimichi',
       use: 'r88_or_white', reward: ['r88_or_white', 'r88_or_black'], words: '光だけでも、闇だけでもない。来い。',
       sig: { name: '夜明けとたそがれの十字', anim: 'r88_kouan', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、白い剣と黒い剣を十字にかさねた…！\n光と闇が、ひとつにまざっていく…！', cast: '{a}の2本の剣が、光と闇の十字をえがいた！' },
-      tune: { hp: 0.8, dmg: 1 },
+      tune: { hp: 0.74, dmg: 1 },
     },
   ];
 }
