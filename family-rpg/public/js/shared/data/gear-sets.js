@@ -407,3 +407,28 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G19班: SPY×FAMILY・オリジナルの 職業（ファイルの さいごで まぜる）─────
+//   ステラ（imperial_scholar。own）… 星（ステラ）を 持って いて、SPY×FAMILYの 品を 合わせて 8つ いじょう 持つと しょう号「こうていの学徒」
+//     （同じ 品は 8こ 持てないので、表の「8つ」を この 形に した。メインの 設計）。段の need … その 品を 持って いる 時だけ（shared/gear-r88.js の setTitles）
+//   光と闇の2本の剣（kouan_ken。own）… 2本とも 持って どちらかを つけて いると、光の力と HP吸収の 両方が のる
+Object.assign(GEAR_SETS, {
+  imperial_scholar: {
+    name: 'こうていの学徒',
+    items: ['r88_sf_mask', 'r88_sf_suit', 'r88_sf_order', 'r88_sf_stiletto', 'r88_sf_dress', 'r88_sf_hairpin', 'r88_sf_horns', 'r88_sf_peanuts',
+      'r88_sf_chimera', 'r88_sf_penguin', 'r88_sf_stella', 'r88_sf_tonitrus', 'r88_sf_collar', 'r88_sf_racket', 'r88_sf_exo', 'r88_sf_cap'],
+    rule: 'own',
+    tiers: [
+      { n: 8, need: 'r88_sf_stella', title: 'こうていの学徒', text: '星（ステラ）を持っていて、SPY×FAMILYの品を合わせて8ついじょう持つと、しょう号「こうていの学徒」' },
+    ],
+  },
+  kouan_ken: {
+    name: '光と闇の2本の剣',
+    items: ['r88_or_white', 'r88_or_black'],
+    rule: 'own',
+    tiers: [
+      { n: 2, fx: [{ k: 'el_light', v: 4 }, { k: 'drain', v: 4 }], text: '2本とも持って、どちらかをつけていると、光の力とHP吸収の両方がのる' },
+      { n: 2, title: '光と闇の二刀の主', text: '2本とも持つと、しょう号「光と闇の二刀の主」' },
+    ],
+  },
+});

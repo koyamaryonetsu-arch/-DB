@@ -41,6 +41,9 @@ import { ITEMS_R88_HARRYPOTTER, R88_HARRYPOTTER_KANA, R88_REBIRTH_HARRYPOTTER, R
 import { ITEMS_R88_MARIO, R88_MARIO_KANA, R88_REBIRTH_MARIO } from './items-r88-mario.js';
 // 第88回 G16班: ポケモン（tag … 今 ある 進化の 石を 作品の 品として 数える）
 import { ITEMS_R88_POKEMON, R88_POKEMON_KANA, R88_REBIRTH_POKEMON, R88_TAG_POKEMON } from './items-r88-pokemon.js';
+// 第88回 G19班: SPY×FAMILY・オリジナルの 職業
+import { ITEMS_R88_SPYFAMILY, R88_SPYFAMILY_KANA, R88_REBIRTH_SPYFAMILY } from './items-r88-spyfamily.js';
+import { ITEMS_R88_ORIGINAL, R88_ORIGINAL_KANA, R88_REBIRTH_ORIGINAL } from './items-r88-original.js';
 // 第88回 G18班: はなかっぱ・おしり探てい（kids）・暴れんぼう将軍・3年B組（jidai）
 import { ITEMS_R88_KIDS, R88_KIDS_KANA, R88_REBIRTH_KIDS, R88_TAG_KIDS } from './items-r88-kids.js';
 import { ITEMS_R88_JIDAI, R88_JIDAI_KANA, R88_REBIRTH_JIDAI, R88_TAG_JIDAI } from './items-r88-jidai.js';
@@ -80,6 +83,9 @@ const R88_PARTS = [
   { items: ITEMS_R88_MARIO, kana: R88_MARIO_KANA, rebirth: R88_REBIRTH_MARIO },
   // G16班: ポケモン
   { items: ITEMS_R88_POKEMON, kana: R88_POKEMON_KANA, rebirth: R88_REBIRTH_POKEMON, tag: R88_TAG_POKEMON },
+  // G19班: SPY×FAMILY・オリジナルの 職業
+  { items: ITEMS_R88_SPYFAMILY, kana: R88_SPYFAMILY_KANA, rebirth: R88_REBIRTH_SPYFAMILY },
+  { items: ITEMS_R88_ORIGINAL, kana: R88_ORIGINAL_KANA, rebirth: R88_REBIRTH_ORIGINAL },
   // G18班: はなかっぱ・おしり探てい・暴れんぼう将軍・3年B組
   { items: ITEMS_R88_KIDS, kana: R88_KIDS_KANA, rebirth: R88_REBIRTH_KIDS, tag: R88_TAG_KIDS },
   { items: ITEMS_R88_JIDAI, kana: R88_JIDAI_KANA, rebirth: R88_REBIRTH_JIDAI, tag: R88_TAG_JIDAI },

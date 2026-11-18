@@ -749,6 +749,57 @@ Object.assign(R88_SFX, { r88_zpower: 'crit', r88_mega: 'sparkle' });
 // 味方に かける えんしゅつ（G12班と 同じ。client/battle.js が 画面の 下に 出す）
 for (const a of ['r88_zpower', 'r88_mega']) PARTY_ANIMS.add(a);
 
+// ───── G19班: SPY×FAMILY・オリジナル（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//   r88_ibara … スティレット（〈いばら姫〉の 大技にも）。画面が しずかに くらく なり、金色の 細い 光の すじが 何本も 走って、
+//              切った 所から 金と 赤の 花びらが まう
+//   r88_kouan … 光と闇の剣神のかげの 大技。白い 光の すじと 黒むらさきの すじが 十字に かさなり、まん中で 光と 闇が はじける
+const IBARA = ['#ffffff', '#fff2a0', '#e8b020', '#c83a4a'];
+function ibara(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  fx.tintAt('rgba(20,6,14,0.5)', 1200);
+  // 金色の 細い すじが 何本も 走る（2本ずつ さか手の 形）
+  for (let k = 0; k < 6; k++) {
+    const y = c.y - 34 + k * 13 + rnd(-4, 4);
+    const d = 160 + k * 70;
+    fx.swipe([c.x - 70, y + (k % 2 ? 18 : -18)], [c.x, y], [c.x + 70, y + (k % 2 ? -18 : 18)], { w: 2.2, color: '#fff2a0', glow: '#e8b020', core: '#ffffff', delay: d, swing: 90, life: 300, after: 1 });
+  }
+  targets.forEach((t, i) => {
+    const d = 360 + i * 60;
+    fx.cut(t.x, t.y - 4, { ang: 0.8, len: 34, w: 1.8, color: '#ffffff', glow: '#e8b020', delay: d, life: 240 });
+    fx.cut(t.x, t.y - 2, { ang: -0.8, len: 34, w: 1.8, color: '#ffffff', glow: '#e8b020', delay: d + 60, life: 240 });
+    fx.sparks(t.x, t.y, { colors: IBARA, n: 14, speed: 120, delay: d + 80, life: 380 });
+  });
+  // 金と 赤の 花びらが まう
+  for (let k = 0; k < 14; k++) fx.petal(c.x + rnd(-80, 80), c.y + rnd(-50, 10), { color: k % 3 ? '#e8b020' : '#c83a4a', vx: rnd(-30, 30), vy: rnd(-10, 10), size: 1.8, delay: 520 + k * 40, life: 900, g: 30 });
+  fx.flashAt(90, '#fff2c8', 520);
+  fx.hitStop(110, 560, 1.2);
+  return true;
+}
+const KOU = ['#ffffff', '#fffbe0', '#ffe680'];
+const AN = ['#ffffff', '#d8c8ff', '#8a6ad0', '#3a2a6a'];
+function kouan(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  fx.tintAt('rgba(16,8,30,0.5)', 1300);
+  // 光（左上 → 右下）と 闇（右上 → 左下）の 大きな すじ
+  fx.swipe([c.x - 80, c.y - 60], [c.x, c.y - 4], [c.x + 80, c.y + 56], { w: 8, color: '#fffbe0', glow: '#ffe680', core: '#ffffff', delay: 200, swing: 140, life: 460, after: 2 });
+  fx.swipe([c.x + 80, c.y - 60], [c.x, c.y - 4], [c.x - 80, c.y + 56], { w: 8, color: '#b8a0f0', glow: '#3a2a6a', core: '#ffffff', delay: 340, swing: 140, life: 460, after: 2 });
+  // まん中で 光と 闇が はじける
+  fx.glow(c.x, c.y - 4, { color: '#ffffff', r: 26, delay: 480, life: 420, alpha: 0.8 });
+  fx.shock(c.x, c.y - 4, { r0: 6, r1: 70, color: '#ffe680', w: 3.5, delay: 500, life: 460 });
+  fx.shock(c.x, c.y - 4, { r0: 6, r1: 56, color: '#8a6ad0', w: 3, delay: 560, life: 460 });
+  targets.forEach((t, i) => {
+    const d = 540 + i * 50;
+    fx.sparks(t.x, t.y, { colors: i % 2 ? AN : KOU, n: 18, speed: 150, delay: d, life: 440 });
+  });
+  fx.flashAt(120, '#ffffff', 500);
+  fx.hitStop(150, 540, 1.4);
+  return true;
+}
+Object.assign(G8_FX, { r88_ibara: ibara, r88_kouan: kouan });
+for (const k of ['r88_ibara', 'r88_kouan']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_ibara: 560, r88_kouan: 600 });
+Object.assign(R88_SFX, { r88_ibara: 'crit', r88_kouan: 'crit' });
+
 // ───── G18班: おしり探てい（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
 //   r88_oshiri … 名探ていのスーツとちょうネクタイ「しつれい、こかせていただきます」。
 //                手前で「ぽん・ぽん・ぽん」と 小さな 黄色い 輪が 3つ はじけ、ふんわり した 黄緑の 雲が ころころ ころがって 敵の 方へ。

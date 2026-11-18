@@ -121,8 +121,9 @@ test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイ
     assert.ok(WORKS[d.work] || doorWorks(d.work).every((w) => WORKS[w]), d.work); // G15班: 大魔王の城の とびらは ダイの大冒険の 品（works）
     const list = rivalsOf(d.work);
     // G15班: ダイの大冒険（2まいに 分けた 1まい め）は 4人（メインの 設計）
+    // G19班: オリジナル（中二病のかげ・落ちた天使のかげ・空の神・剣神のかげ）も 4人（メインの 設計）
+    assert.ok(list.length >= (['dai', 'original', 'abarenbo'].includes(d.work) ? 4 : 5), d.work);
     // G18班: 暴れんぼう将軍・3年B組（伝説の ない 小さな 作品 2つを まとめた とびら）も 4人（メインの 設計）
-    assert.ok(list.length >= (['dai', 'abarenbo'].includes(d.work) ? 4 : 5), d.work);
     assert.deepEqual(list.map((r) => r.n), list.map((_, i) => i + 1), `${d.work}: 1から じゅんに`);
     // 強さは 3だん（60・80・100）。さいごの 人が いちばん 強い
     // G8班: 伝説の 品が ない 作品（らんま1/2）は、さいごの 人も 名品なので Lv80 ごろ
