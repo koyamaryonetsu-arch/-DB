@@ -38,7 +38,7 @@ const GEAR = {
   r88_hp_umbrella: { ...weapon('staff', 'fu3'), ...H, name: 'ピンクのかさ', bonus: { str: 6, hp: 30 }, use: { ability: 'r88u_hp_pigtail' }, look: 'cane', desc: '森の番人の大男が、いつも持っているピンクのかさ。中に、おれたつえのかけらがかくしてあるらしい。使うと、敵1体にぶたのしっぽをはやして、素早さを下げる。' },
   // ───── ホグワーツの 4つの 品・組分けぼうし ─────
   r88_hp_hat: { ...head('mei'), ...H, name: '組分けぼうし', bonus: { mag: 10, heal: 6 }, use: { ability: 'r88u_hp_hatsword' }, desc: '新入生をかぶらせて、4つのりょうに分ける、おしゃべりな古いぼうし。使うと、ぼうしの中から光る剣を引きぬいて、敵1体を切りつける。' },
-  r88_hp_gsword: { ...weapon('sword', 'den'), ...HOG, name: 'グリフィンドールの剣', fx: [{ k: 'poison', v: 8 }], bonus: { str: 20, agi: 10 }, look: 'holy', desc: '赤い宝石がはまった、ゆう気ある者の銀の剣。大へびの毒をすいこんでいる。ときどき敵を毒にする。' },
+  r88_hp_gsword: { ...weapon('sword', 'den'), ...HOG, name: 'グリフィンドールの銀の剣', fx: [{ k: 'poison', v: 8 }], bonus: { str: 20, agi: 10 }, look: 'holy', desc: '赤い宝石がはまった、ゆう気ある者の銀の剣。大へびの毒をすいこんでいる。ときどき敵を毒にする。' },
   r88_hp_diadem: { ...head('mei'), ...HOG, name: 'レイブンクローのかみかざり', bonus: { mag: 14 }, desc: 'かしこさをたいせつにするりょうの、青い宝石のかみかざり。攻撃魔力が上がる。' },
   r88_hp_cup: { ...acc('mei'), ...HOG, name: 'ハッフルパフのカップ', fx: [{ k: 'regen', v: 6 }], desc: 'やさしさとがんばりをたいせつにするりょうの、アナグマのもようの金のカップ。行動するたびにHPが少し回復する。' },
   r88_hp_locket: { ...acc('mei'), ...HOG, name: 'スリザリンのロケット', bonus: { mag: 18 }, resist: { confuse: 1.3 }, desc: '大きな目標をめざすりょうの、へびの形のSがかざられた金のロケット。攻撃魔力が上がるが、混乱にかかりやすい。' },
@@ -82,7 +82,7 @@ export const R88_TAG_SET_HARRYPOTTER = { elder_wand: 'deathly_hallows', invisibl
 export const R88_HARRYPOTTER_KANA = {
   r88_hp_holly: 'ひいらぎのつえ', r88_hp_vine: 'ぶどうのきのつえ', r88_hp_ash: 'とねりこのつえ', r88_hp_willow: 'やなぎのつえ',
   r88_hp_hawthorn: 'さんざしのつえ', r88_hp_yew: 'いちいのつえ', r88_hp_umbrella: 'ぴんくのかさ',
-  r88_hp_hat: 'くみわけぼうし', r88_hp_gsword: 'ぐりふぃんどーるのけん', r88_hp_diadem: 'れいぶんくろーのかみかざり', r88_hp_cup: 'はっふるぱふのかっぷ',
+  r88_hp_hat: 'くみわけぼうし', r88_hp_gsword: 'ぐりふぃんどーるのぎんのけん', r88_hp_diadem: 'れいぶんくろーのかみかざり', r88_hp_cup: 'はっふるぱふのかっぷ',
   r88_hp_locket: 'すりざりんのろけっと', r88_hp_stone: 'よみがえりのいし',
   r88_hp_time: 'ぎゃくてんどけい', r88_hp_beadbag: 'びーずのばっぐ', r88_hp_map: 'しのびのちず', r88_hp_mirror: 'みぞのかがみ',
   r88_hp_twoway: 'りょうめんきょう', r88_hp_lighter: 'ひけしらいたー', r88_hp_remember: 'おもいだしだま', r88_hp_sneako: 'かくれんぼうしき',
