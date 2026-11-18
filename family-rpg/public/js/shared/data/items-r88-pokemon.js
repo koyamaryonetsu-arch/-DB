@@ -50,8 +50,8 @@ const GEAR = {
   r88_pk_pippi: { ...acc('fu3'), ...P, name: 'ピッピにんぎょう', bonus: { agi: 6 }, use: { ability: 'r88u_pk_pippi' }, desc: 'ピンクのかわいい人形。使うと、人形に気を取られているうちに、かならずにげられる（にげられない戦いはだめ）。' },
   r88_pk_gakushu: { ...acc('mei'), ...P, name: 'がくしゅうそうち', pkExp: 1.2, desc: 'せなかにつける機械。つけた人が戦いでもらう経験値が、2わりふえる。' },
   r88_pk_oujya: { ...acc('fu3'), ...P, name: 'おうじゃのしるし', fx: [{ k: 'paralyze', v: 3 }], desc: '王さまの、かんむりの形のしるし。ふつうの攻撃で、ときどき敵が動けなくなる。' },
-  r88_pk_megaring: { ...acc('den'), ...P, name: 'メガリング', bonus: { str: 20, def: 20, agi: 20, hp: 60 }, use: { ability: 'r88u_pk_mega' }, desc: 'キーストーンのはまったうでわ。使うと、メガシンカの光につつまれ、しばらく力・守り・素早さが大きく上がる。' },
-  r88_pk_hai: { ...acc('den'), ...P, name: 'せいなる灰', bonus: { heal: 30, mag: 20, hp: 60, mp: 40 }, use: { ability: 'r88u_pk_hai' }, desc: 'にじ色の鳥がのこした、かがやく灰。使うと、たおれた仲間全員を生き返らせて、HPをまんたんにする。' },
+  r88_pk_megaring: { ...acc('den'), ...P, name: 'メガリング', bonus: { str: 40, def: 40, agi: 40, hp: 100, mag: 20, heal: 20 }, use: { ability: 'r88u_pk_mega' }, desc: 'キーストーンのはまったうでわ。使うと、メガシンカの光につつまれ、しばらく力・守り・素早さが大きく上がる。' },
+  r88_pk_hai: { ...acc('den'), ...P, name: 'せいなる灰', bonus: { heal: 60, mag: 50, hp: 100, mp: 60 }, use: { ability: 'r88u_pk_hai' }, desc: 'にじ色の鳥がのこした、かがやく灰。使うと、たおれた仲間全員を生き返らせて、HPをまんたんにする。' },
   r88_pk_koban: { ...acc('fu3'), ...P, name: 'おまもりこばん', pkGold: 1.5, desc: '小さな金色のこばん。つけた人が戦いでもらうお金が、5わりふえる。' },
   r88_pk_uniform: { ...armor('cloth', 'fu3'), ...P, name: 'わるい団の制服', fx: [{ k: 'evade', v: 4 }], bonus: { agi: 6 }, desc: '白い服に、赤い大きな文字。にげ足がはやくなって、敵の攻撃をかわしやすい。' },
   // ───── ジムバッジ（1つずつ 小さな 力。持って いる 数で しょう号）─────

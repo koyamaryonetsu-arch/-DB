@@ -5,6 +5,7 @@ import { ITEMS } from './data/items.js';
 import { ownedIds } from './gear-r88.js';
 import { workName } from './data/works.js';
 import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag, doorWorks } from './data/rivals-r88.js';
+import { rivalToday, dailyRivalOf, weekdayOf, WEEKDAY_NAMES } from './data/rivals-r88.js'; // G16班: 曜日で かわる ジムリーダー
 import { GEAR_SETS } from './data/gear-sets.js'; // G15班: 竜王のひ孫の じょうけん（ロトの装備 5つ）
 
 export const HALL_NAME = 'まぼろしの回ろう';
@@ -54,9 +55,10 @@ export function missingRewards(c, rv) {
 //   { kind: 'rival', work, workName, mark, own, need, rivals: [{ id, name, members, lv, state: 'won' | 'next' | 'open' | 'lock', use, rewards: [{ id, name }], words }], ask }
 //   state … won: 勝った（何回でも ちょうせん できる）/ next: つぎの 相手 / lock: 前の 人に 勝つと ちょうせん できる
 //   miss … G6班: 勝った 人の ごほうびで、まだ 持って いない 品の 名前（あとから 足した 太極図の巻物 など。もう一度 勝つと もらえる）
-export function rivalPaper(c, work) {
+//   G16班: 曜日の ライバル（ジムリーダー）は その 日の 1人だけ 出す。notes … とびらの 上の 行（今日の ジムリーダー・持って いる バッジ）
+export function rivalPaper(c, work, now = Date.now()) {
   const d = doorOf(work);
-  const list = rivalsOf(work).map((rv) => {
+  const list = rivalsOf(work).filter((rv) => rivalToday(rv, now)).map((rv) => {
     const won = rivalWon(c, rv.id);
     // G15班: じょうけんの ある ライバル（竜王のひ孫）は、前の 人に 勝って いても、じょうけんが たりなければ 'need'
     const state = won ? 'won' : !rivalOpen(c, rv.id) ? 'lock' : rivalNeedLack(c, rv) ? 'need' : 'next';
@@ -71,6 +73,7 @@ export function rivalPaper(c, work) {
   return {
     kind: 'rival', work, workName: doorName(work), goodsName: doorGoods(work), mark: d?.mark || '', own: workOwned(c, work), need: DOOR_NEED,
     rivals: list, ask: list.some((r) => r.state === 'next') ? 'だれにちょうせんする？' : 'もう一度、戦う？',
+    notes: dailyNotes(c, work, now), // G16班
   };
 }
 // まどの ボタン（ちょうせん できる 人。つぎの 人が 先・やめる が さいご）。もどりち: [{ id, label }]
@@ -101,10 +104,11 @@ export function rivalTrack(c) {
   };
 }
 // おすすめ（ちょうせん できる 人が いる とびら。なければ null）
-export function rivalRec(c) {
+export function rivalRec(c, now = Date.now()) {
   for (const d of RIVAL_DOORS) {
     if (!doorOpen(c, d.work)) continue;
-    const nx = rivalsOf(d.work).find((r) => !rivalWon(c, r.id));
+    // G16班: 曜日の ライバル（ジムリーダー）は その 日の 人・前の 人に 勝って いる 人だけ
+    const nx = rivalsOf(d.work).find((r) => !rivalWon(c, r.id) && (r.day === undefined || (rivalToday(r, now) && rivalOpen(c, r.id))));
     if (nx && !rivalNeedLack(c, nx)) return { text: `まぼろしの回ろうで、${doorName(d.work)}の${nx.name}にちょうせんできます`, where: 'ルミナの町の星の神殿' };
   }
   // G6班: 勝った 人の ごほうびに、あとから 品が 足された（太極図の巻物）。もう一度 勝つと もらえる
@@ -138,4 +142,21 @@ export function rivalNeedText(c, rv) {
   return `${ns.text || `${GEAR_SETS[ns.set]?.name || ''}を${n}つそろえると、ちょうせんできる`}（今は${have}/${n}）`;
 }
 // ちょうせん できるか（前の 人に 勝って いて、じょうけんも ある）
-export const rivalReady = (c, rv) => !!rv && rivalOpen(c, rv.id) && !rivalNeedLack(c, rv);
+export const rivalReady = (c, rv, now = Date.now()) => !!rv && rivalOpen(c, rv.id) && !rivalNeedLack(c, rv) && rivalToday(rv, now); // G16班: 曜日
+
+// ───────────── G16班: 曜日で かわる ライバル（ポケモンの ジムリーダー）─────────────
+// とびらの まどの 上の 行（とびらの daily: { group, label, set }。ない とびらは []）
+//   「今日のジムリーダー：マチス（水曜日）」・「持っているジムバッジ：グレー・ブルー（2/8）」
+export function dailyNotes(c, work, now = Date.now()) {
+  const dl = doorOf(work)?.daily;
+  if (!dl) return [];
+  const rv = dailyRivalOf(work, dl.group, now);
+  const out = [`今日の${dl.label}：${rv ? rv.name : 'お休み'}（${WEEKDAY_NAMES[weekdayOf(now)]}曜日）`];
+  const set = GEAR_SETS[dl.set];
+  if (set) {
+    const own = ownedIds(c);
+    const have = set.items.filter((id) => own.has(id));
+    out.push(`持っている${set.name}：${have.length ? have.map(itemName).join('・') : 'まだない'}（${have.length}/${set.items.length}）`);
+  }
+  return out;
+}

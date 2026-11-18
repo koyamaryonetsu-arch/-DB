@@ -31,6 +31,9 @@ const CSS = `
 .rival-pop .rv-row.need { opacity: 0.8; border-style: dashed; }
 .rival-pop .rv-st.need { color: #ffb0b0; background: rgba(255, 120, 120, 0.14); }
 .rival-pop .rv-need { font-size: var(--fs-small); color: #ffcf7a; }
+.rival-pop .rv-notes { flex: none; margin-top: 0.35em; padding: 0.3em 0.6em; border-radius: 6px; background: rgba(255, 214, 107, 0.1); border: 1px solid rgba(255, 214, 107, 0.35); }
+.rival-pop .rv-note { font-size: var(--fs-small); color: #ffe6a8; overflow-wrap: anywhere; }
+.rival-pop .rv-note:first-child { font-weight: bold; color: var(--accent); }
 .rival-pop .rv-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2em 0.7em; }
 .rival-pop .rv-n { color: var(--muted); font-size: var(--fs-small); }
 .rival-pop .rv-name { font-weight: bold; font-size: 1.08em; }
@@ -82,7 +85,9 @@ export function rivalBody(p) {
       r.need ? el('div', { class: 'rv-need', text: `★${r.need}` }) : null,
       r.words ? el('div', { class: 'rv-words', text: `「${r.words}」` }) : null);
   });
-  return [head, el('ul', { class: 'rv-list' }, ...rows)];
+  // G16班: とびらの 上の 行（今日の ジムリーダー・持って いる バッジ。shared/rivals-r88.js の dailyNotes）
+  const notes = p.notes?.length ? el('div', { class: 'rv-notes' }, ...p.notes.map((t) => el('div', { class: 'rv-note', text: t }))) : null;
+  return [head, notes, el('ul', { class: 'rv-list' }, ...rows)].filter(Boolean);
 }
 
 // sp … ScriptPlayer・options … ボタンの 名前（さいごは やめる）・かえす もの: えらんだ ばんごう
