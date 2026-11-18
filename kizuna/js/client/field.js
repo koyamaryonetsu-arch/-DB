@@ -1,32 +1,32 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=6918d1c14678';
-import { T, TILE_INFO } from '../shared/tiles.js?v=6918d1c14678';
-import { PLACES } from '../shared/maps/overworld.js?v=6918d1c14678';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=6918d1c14678';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=6918d1c14678';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=6918d1c14678';
-import { shownEquip } from '../shared/look-equip.js?v=6918d1c14678';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=6918d1c14678';
-import { MONSTERS } from '../shared/data/monsters.js?v=6918d1c14678';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=f9111f3bfd76';
+import { T, TILE_INFO } from '../shared/tiles.js?v=f9111f3bfd76';
+import { PLACES } from '../shared/maps/overworld.js?v=f9111f3bfd76';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=f9111f3bfd76';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=f9111f3bfd76';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=f9111f3bfd76';
+import { shownEquip } from '../shared/look-equip.js?v=f9111f3bfd76';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=f9111f3bfd76';
+import { MONSTERS } from '../shared/data/monsters.js?v=f9111f3bfd76';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=6918d1c14678';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=6918d1c14678';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=6918d1c14678';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=6918d1c14678';
-import { boardCanvas } from './render/boards.js?v=6918d1c14678';
-import { el } from './ui/dom.js?v=6918d1c14678';
-import { syncTreasureGates } from './ui/treasure.js?v=6918d1c14678';
-import { skyNpcSprite } from './render/sky-art.js?v=6918d1c14678';
-import { wagonDraws } from './render/wagon.js?v=6918d1c14678';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=6918d1c14678';
-import { Weather } from './render/weather.js?v=6918d1c14678';
-import { flySpeed } from '../shared/data/sky.js?v=6918d1c14678';
-import { timeFlag } from '../shared/world/clock.js?v=6918d1c14678';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=6918d1c14678';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=6918d1c14678';
-import { huntMatch } from './ui/sources.js?v=6918d1c14678';
+import { colorMon } from '../shared/data/variants.js?v=f9111f3bfd76';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=f9111f3bfd76';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=f9111f3bfd76';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=f9111f3bfd76';
+import { boardCanvas } from './render/boards.js?v=f9111f3bfd76';
+import { el } from './ui/dom.js?v=f9111f3bfd76';
+import { syncTreasureGates } from './ui/treasure.js?v=f9111f3bfd76';
+import { skyNpcSprite } from './render/sky-art.js?v=f9111f3bfd76';
+import { wagonDraws } from './render/wagon.js?v=f9111f3bfd76';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=f9111f3bfd76';
+import { Weather } from './render/weather.js?v=f9111f3bfd76';
+import { flySpeed } from '../shared/data/sky.js?v=f9111f3bfd76';
+import { timeFlag } from '../shared/world/clock.js?v=f9111f3bfd76';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=f9111f3bfd76';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=f9111f3bfd76';
+import { huntMatch } from './ui/sources.js?v=f9111f3bfd76';
 // 第89回: とちゅうから 戦いに 入る きょり・自動追跡で 止まる きょり（サーバーと おなじ 数。shared/join-rule.js）
-import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js?v=6918d1c14678';
+import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js?v=f9111f3bfd76';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -235,7 +235,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=6918d1c14678');
+          const { Field3D } = await import('./render/field3d.js?v=f9111f3bfd76');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);

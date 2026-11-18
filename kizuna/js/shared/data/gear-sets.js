@@ -320,3 +320,49 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G15班: ダイの大冒険・ドラゴンクエスト（ファイルの さいごで まぜる）─────
+//   アバンのしるし … party（パーティーで つけた 数だけ、みんなが 状態異常に かかりにくい）
+//   天地魔闘 … wear（1人が 3つで 反撃）・ロトの装備 … own（1人が 3つ つけると 力・5つ 持つと しょう号）・天空の装備 … own（1人が 4つ つけると 炎・氷）
+//   天空の剣・天空のよろいは 今 ある 品（data/items-r88.js の R88_SET_TAGS で set が つく）
+const ABAN_RES = (k) => Object.fromEntries(['sleep', 'poison', 'confuse', 'paralyze', 'blind', 'silence'].map((s) => [s, k]));
+Object.assign(GEAR_SETS, {
+  aban_mark: {
+    name: 'アバンのしるし',
+    items: ['r88_da_mark_blue', 'r88_da_mark_green', 'r88_da_mark_red', 'r88_da_mark_white', 'r88_da_mark_purple'],
+    rule: 'party',
+    tiers: [
+      { n: 1, resist: ABAN_RES(0.9), text: 'パーティーで1つつけると、戦いの間、みんなが状態異常に少しかかりにくい' },
+      { n: 2, resist: ABAN_RES(0.8), text: 'パーティーで2つつけると、もっとかかりにくい' },
+      { n: 3, resist: ABAN_RES(0.7), text: 'パーティーで3つつけると、もっとかかりにくい' },
+      { n: 4, resist: ABAN_RES(0.6), text: 'パーティーで4つつけると、とてもかかりにくい' },
+      { n: 5, resist: ABAN_RES(0.5), text: 'パーティーで5つ全部つけると、いちばんかかりにくい' },
+    ],
+  },
+  tenchi_matou: {
+    name: '天地魔闘',
+    items: ['r88_da_kouma', 'r88_da_kigan', 'r88_da_yami'],
+    rule: 'wear',
+    tiers: [
+      { n: 3, fx: [{ k: 'counter', v: 8 }], text: '1人が3つともつけると、反撃が出やすい' },
+    ],
+  },
+  roto: {
+    name: 'ロトの装備',
+    items: ['r88_dq_roto_sword', 'r88_dq_roto_armor', 'r88_dq_roto_shield', 'r88_dq_roto_helm', 'r88_dq_roto_mark'],
+    rule: 'own',
+    tiers: [
+      { n: 3, rule: 'wear', bonus: { str: 10, mag: 10 }, text: '1人が3ついじょうつけると、攻撃力と攻撃魔力+10' },
+      { n: 5, title: 'ロトの血をひく者', text: '5つ全部持つと、しょう号「ロトの血をひく者」。まぼろしの回ろうの、竜王のひ孫にちょうせんできる' },
+    ],
+  },
+  tenku: {
+    name: '天空の装備',
+    items: ['tenku_sword', 'tenku_mail', 'r88_dq_tenku_shield', 'r88_dq_tenku_helm'],
+    rule: 'own',
+    tiers: [
+      { n: 4, rule: 'wear', resist: { fire: 0.8, ice: 0.8 }, text: '1人が4つともつけると、炎と氷に強い' },
+      { n: 4, title: '天空の勇者', text: '4つ全部持つと、しょう号「天空の勇者」' },
+    ],
+  },
+});

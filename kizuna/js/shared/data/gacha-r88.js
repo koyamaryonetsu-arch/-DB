@@ -10,11 +10,11 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS } from './items.js?v=6918d1c14678';
-import { REBIRTH } from './items-alchemy.js?v=6918d1c14678';
-import { WORKS } from './works.js?v=6918d1c14678';
-import { RIVALS } from './rivals-r88.js?v=6918d1c14678';
-import { ownedIds } from '../gear-r88.js?v=6918d1c14678';
+import { ITEMS } from './items.js?v=f9111f3bfd76';
+import { REBIRTH } from './items-alchemy.js?v=f9111f3bfd76';
+import { WORKS } from './works.js?v=f9111f3bfd76';
+import { RIVALS } from './rivals-r88.js?v=f9111f3bfd76';
+import { ownedIds } from '../gear-r88.js?v=f9111f3bfd76';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -271,3 +271,9 @@ export const trialGiftFlag = (job) => `r88tg_${job}`;
 
 // 七つの玉の 宝箱を 開けた 数（しおり）
 export const orbsFound = (c) => ORB_PLACES.filter((p) => c?.chests?.[orbChestId(p)]).length;
+
+// 第88回 G15班: 宝の洞窟の いちばん おく（TM_R88_DEN）に、ライバルの まぼろしでは 出ない 伝説を 足す（ほかの 係の 行と ぶつからない ように さいごに）
+//   ダイの大冒険: 星皇剣・神のなみだ（ダイの剣は は者の剣から 生まれ変わる）
+//   ドラゴンクエスト: ロトのよろい・ロトのたて・はかいの鉄球・グリンガムのムチ・メタルキングの剣・天空のかぶと・ルビスの守り
+TM_R88_DEN.push('r88_da_seiou', 'r88_da_namida');
+TM_R88_DEN.push('r88_dq_roto_armor', 'r88_dq_roto_shield', 'r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss');

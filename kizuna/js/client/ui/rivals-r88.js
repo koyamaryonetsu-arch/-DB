@@ -3,11 +3,11 @@
 //     { kind: 'rival', work, workName, mark, own, need, rivals: [{ id, name, members, lv, state, use, rewards: [{ id, name }], words, miss }], ask }
 //   下の 大きな ボタン（「○○とたたかう」／やめる）で えらぶ。キーボード・ゲームパッド・タッチで うごく。
 //   見ている だけの 人（spectator）は 少しの 間 見せて とじる
-import { el, ListMenu, esc } from './dom.js?v=6918d1c14678';
-import { rareNameHtml } from './rarity.js?v=6918d1c14678';
-import { boardIconURL } from '../render/boards.js?v=6918d1c14678';
+import { el, ListMenu, esc } from './dom.js?v=f9111f3bfd76';
+import { rareNameHtml } from './rarity.js?v=f9111f3bfd76';
+import { boardIconURL } from '../render/boards.js?v=f9111f3bfd76';
 
-const STATE_TEXT = { won: '○勝った', next: 'つぎの相手', lock: 'まだ' };
+const STATE_TEXT = { won: '○勝った', next: 'つぎの相手', lock: 'まだ', need: 'じょうけん' }; // G15班: need … じょうけんが たりない（竜王のひ孫）
 
 const CSS = `
 .rival-pop {
@@ -28,6 +28,9 @@ const CSS = `
 .rival-pop .rv-row { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(255, 255, 255, 0.05); padding: 0.4em 0.7em; min-width: 0; }
 .rival-pop .rv-row.next { border-color: var(--accent); background: rgba(255, 214, 107, 0.1); }
 .rival-pop .rv-row.lock { opacity: 0.55; }
+.rival-pop .rv-row.need { opacity: 0.8; border-style: dashed; }
+.rival-pop .rv-st.need { color: #ffb0b0; background: rgba(255, 120, 120, 0.14); }
+.rival-pop .rv-need { font-size: var(--fs-small); color: #ffcf7a; }
 .rival-pop .rv-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2em 0.7em; }
 .rival-pop .rv-n { color: var(--muted); font-size: var(--fs-small); }
 .rival-pop .rv-name { font-weight: bold; font-size: 1.08em; }
@@ -64,7 +67,7 @@ export function rivalBody(p) {
     el('span', { class: 'rv-kind', text: 'まぼろしの回ろう' }),
     icon ? el('img', { class: 'rv-mark', src: icon, alt: '' }) : null,
     el('h2', { class: 'rv-title', text: `${p.workName}のとびら` }),
-    el('span', { class: 'rv-own', text: `${p.workName}の品 ${p.own}こ（${p.need}こで開く）` }));
+    el('span', { class: 'rv-own', text: `${p.goodsName || p.workName}の品 ${p.own}こ（${p.need}こで開く）` }));
   const rows = (p.rivals || []).map((r, i) => {
     const who = r.members ? `${r.name}（${r.members.join('・')}）` : r.name;
     const rw = (r.rewards || []).map((x) => rareNameHtml(x.id, x.name)).join('・');
@@ -76,6 +79,7 @@ export function rivalBody(p) {
         el('span', { class: `rv-st ${r.state}`, text: STATE_TEXT[r.state] || '' })),
       el('div', { class: 'rv-sub', html: `${r.use ? `使う品：${esc(r.use)}　` : ''}もらえる品：${rw || '—'}` }),
       r.miss?.length ? el('div', { class: 'rv-sub', text: `まだ持っていない品：${r.miss.join('・')}（もう一度勝つともらえる）` }) : null,
+      r.need ? el('div', { class: 'rv-need', text: `★${r.need}` }) : null,
       r.words ? el('div', { class: 'rv-words', text: `「${r.words}」` }) : null);
   });
   return [head, el('ul', { class: 'rv-list' }, ...rows)];

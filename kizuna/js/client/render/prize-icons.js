@@ -1,6 +1,6 @@
 // 第50回 D3: 景品の なかまの 小さな 絵（12×12 ドット。ui/prizes.js の 一覧の 左）
 //   gear 強い装備（剣）/ look 見た目（リボン）/ tool 便利な道具（本）/ mon めずらしい魔物（ぷるりん）/ star 星のかけら
-import { Painter, scale2x } from './pixel.js?v=6918d1c14678';
+import { Painter, scale2x } from './pixel.js?v=f9111f3bfd76';
 
 const ICONS = {
   gear: {
