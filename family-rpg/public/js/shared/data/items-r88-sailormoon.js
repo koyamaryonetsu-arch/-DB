@@ -59,7 +59,7 @@ const GEAR = {
   r88_sm_orb: { ...acc('mei'), ...T, name: 'ガーネット・オーブ', bonus: { def: 14, hp: 20 }, desc: 'めい王星の戦士のタリスマン。守る役の、赤むらさきの玉。守備力が上がる。' },
   r88_sm_rod: { ...weapon('staff', 'mei'), ...S, name: 'ガーネット・ロッド', fx: [{ k: 'el_dark', v: 6 }], bonus: { mag: 10 }, look: 'ankh', desc: '時の門番の戦士の、かぎの形の長いロッド。ふつうの攻撃が闇になる。' },
   r88_sm_grail: { ...acc('den'), ...S, name: '聖はい', fx: [{ k: 'mpregen', v: 8 }], bonus: { hp: 96, mag: 48, heal: 42, def: 30, agi: 30 }, desc: '3つのタリスマンがそろうと、あらわれる金色のさかずき。行動するたびにMPが回復する。' },
-  r88_sm_glaive: { ...weapon('spear', 'den'), ...S, name: 'サイレンス・グレイブ', fx: [{ k: 'el_dark', v: 8 }], bonus: { mag: 20, hp: 40 }, use: { ability: 'r88u_sm_silence' }, look: 'halberd', desc: '土星の戦士の、大きなかまの形のやり。ふつうの攻撃が闇になる。使うと、仲間全員を守るかべを作る。' },
+  r88_sm_glaive: { ...weapon('spear', 'den'), ...S, name: 'サイレンス・グレイブ', fx: [{ k: 'el_dark', v: 8 }], bonus: { mag: 20, hp: 40 }, use: { ability: 'r88u_sm_silence' }, look: 'glaive', desc: '土星の戦士の、大きなかまの形のやり。ふつうの攻撃が闇になる。使うと、仲間全員を守るかべを作る。' },
   // ───── タキシード仮面・ルナ ─────
   r88_sm_bara: { ...weapon('dagger', 'fu3'), ...S, name: '赤いバラ', fx: [{ k: 'crit', v: 4 }], look: 'stiletto', desc: 'ピンチの時に、どこからかとんでくる赤いバラ。会心の一撃が出やすい。' },
   r88_sm_mask: { ...head('fu3'), ...S, name: '仮面とシルクハット', fx: [{ k: 'evade', v: 4 }], desc: '月夜のしんしの、白い仮面と黒いシルクハット。敵の攻撃をかわしやすくなる。' },
