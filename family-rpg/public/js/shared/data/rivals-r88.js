@@ -41,6 +41,7 @@ export const RIVAL_DOORS = [
   ...g15Doors(), // G15班: ダイの大冒険（2まい）・ドラゴンクエスト（ファイルの さいご）
   ...g13Doors(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
   ...g16Doors(), // G16班: ポケモン（ファイルの さいご）
+  ...g19Doors(), // G19班: SPY×FAMILY・オリジナル（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -291,6 +292,7 @@ export const RIVALS = [
   ...g15Rivals(), // G15班: ダイの大冒険・大魔王の城・ドラゴンクエスト（ファイルの さいご）
   ...g13Rivals(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
   ...g16Rivals(), // G16班: ポケモン（ジムリーダーは 曜日で かわる。ファイルの さいご）
+  ...g19Rivals(), // G19班: SPY×FAMILY・オリジナル（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -1202,6 +1204,80 @@ function g16Rivals() {
       use: 'r88_pk_masterball', reward: ['r88_pk_masterball'], words: 'ドラゴンつかいのワタル、全力で相手をしよう！',
       sig: { name: 'はかいこうせん', el: 'fire', anim: 'fire_wave', charge: '{a}のドラゴンが、大きく口を開けた！\n口のおくに、まぶしい光がたまっていく…！', cast: '{a}のドラゴンから、太い光のすじがはなたれた！' },
       tune: { hp: 0.63, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G19班: SPY×FAMILY・オリジナル ─────────────
+//   SPY×FAMILY … 部屋 ＝ 木の 部屋（wood。家の 中）・背景 ＝ 夜の 町（village_night）。ユーリ ＝ 夜の 宮でん・フィオナ ＝ 闘技場（地下の テニス大会）・
+//     〈いばら姫〉 ＝ 夜の 宮でん。本物の 銃は 出さない。〈いばら姫〉は よび名と スティレットだけ（仕事の 中みは 書かない）
+//   オリジナル … 部屋 ＝ 石の 広間（stone）・背景 ＝ 月の さけめ（rift_moon）。中二病のかげ ＝ 夜の 町・空の神 ＝ 雲の上・剣神のかげ ＝ 星の道
+//     7-1 の 行（3人）に 中二病のかげを 足して 4人（メインの 設計。test/rivals-r88.test.js の「4人 いじょう」の 例外）
+function g19Doors() {
+  return [
+    { work: 'spyfamily', mark: 'r88_spyfamily', bg: 'village_night', room: 'wood', jobs: ['spy', 'assassin'] },
+    { work: 'original', mark: 'r88_original', bg: 'rift_moon', room: 'stone', jobs: ['chuuni', 'datenshi', 'kenshin', 'kishou', 'otenki_caster', 'tenkou_tsukai', 'weather_god'] },
+  ];
+}
+function g19Rivals() {
+  return [
+    // ── SPY×FAMILY（名品を くれる 人は Lv60〜70・〈たそがれ〉は Lv90・さいごの 〈いばら姫〉は Lv100）──
+    {
+      id: 'sf_franky', work: 'spyfamily', n: 1, name: 'フランキー', lv: 60, job: 'guardian', look: L(0, 'wild', 'brown', 6, 'light', 'smile'),
+      use: 'r88_sf_exo', reward: ['r88_sf_exo'], words: '見ろ！おれさまの発明、超人外こっかくだ！',
+      sig: { name: '超人外こっかくパンチ', anim: 'blast2', charge: '{a}のきかいが、ガタガタふるえ始めた！\n「出力さいだい！…あれ？けむりが…」', cast: '{a}のきかいが、どかーんとこわれて、ばく風がおそいかかった！' },
+      tune: { hp: 1.15, dmg: 1 },
+    },
+    {
+      id: 'sf_yuri', work: 'spyfamily', n: 2, name: 'ユーリ', lv: 64, job: 'magic_swordsman', look: L(0, 'short', 'black', 0, 'fair', 'sharp'), bg: 'palace_night',
+      use: 'r88_sf_cap', reward: ['r88_sf_cap'], words: '姉さんに近づく者は、ぼくがしらべる！',
+      sig: { name: '秘密けいさつの取りしらべ', anim: 'slash_fast', charge: '{a}が、ぼうしをぐっとかぶり直した！\n「姉さんのために…！」', cast: '{a}の、すばやいれんぞくこうげき！' },
+      tune: { hp: 1.15, dmg: 1 },
+    },
+    {
+      id: 'sf_fiona', work: 'spyfamily', n: 3, name: 'フィオナ〈よとばり〉', lv: 70, job: 'major_leaguer', look: L(1, 'long', 'silver', 0, 'fair', 'calm'), bg: 'arena',
+      use: 'r88_sf_racket', reward: ['r88_sf_racket'], words: '……先ぱいのとなりは、わたしの場所です。',
+      sig: { name: 'ものすごいサーブ', anim: 'blast2', charge: '{a}が、テニスのボールを高くなげ上げた…！\nラケットを、大きくふりかぶる…！', cast: '{a}のサーブが、ものすごい速さでとんできた！' },
+      tune: { hp: 1.3, dmg: 1 },
+    },
+    {
+      id: 'sf_twilight', work: 'spyfamily', n: 4, name: '〈たそがれ〉', lv: 90, job: 'kaito_kid', look: L(0, 'short', 'blonde', 0, 'fair', 'calm'),
+      use: 'r88_sf_mask', reward: ['r88_sf_mask'], words: 'これも、せかいの平和のためだ。',
+      same: 'ほう、同じスパイの道か。手かげんはしない。',
+      sig: { name: '変装からのふいうち', anim: 'slash_multi', at: 0.8, after: 3, charge: '{a}のすがたが、ふっと消えた…！\nどこかで、マスクをかぶり直す音がする…！', cast: 'べつの人に変装した{a}が、うしろからおそいかかった！' },
+      tune: { hp: 1, dmg: 1 },
+    },
+    {
+      id: 'sf_thorn', work: 'spyfamily', n: 5, name: '〈いばら姫〉', lv: 100, job: 'ninja', look: L(1, 'long', 'black', 0, 'fair', 'calm'), bg: 'palace_night',
+      use: 'r88_sf_stiletto', reward: ['r88_sf_stiletto'], words: 'あの…お相手を、つとめさせていただきます。',
+      sig: { name: '金のはなびらのまい・いばら', anim: 'r88_ibara', at: 0.8, after: 3, charge: '{a}が、2本の金色のスティレットをさか手にかまえた…！\nまわりの空気が、しんとしずまる…！', cast: '{a}のスティレットが、はなびらのようにまいおどった！' },
+      tune: { hp: 0.6, dmg: 1 },
+    },
+    // ── オリジナル（中二病のかげ Lv60・落ちた天使のかげ Lv80・空の神 Lv100・さいごの 剣神のかげ Lv100）──
+    {
+      id: 'or_chuuni', work: 'original', n: 1, name: '中二病のかげ', lv: 60, job: 'chuuni', look: L(0, 'spiky', 'black', 6, 'fair', 'sharp'), bg: 'village_night',
+      use: 'r88_or_maken', reward: ['r88_or_maken'], words: 'われこそは、しっ黒のやみの王…！（と、自分で言う）',
+      sig: { name: 'しっ黒の魔剣・ファイナルやみ', el: 'dark', anim: 'chuuni_flame', charge: '{a}「くっ…右手がうずく…！みんな、はなれていろ…！」\n黒い気が、ぐるぐるうずまく…！', cast: '{a}「くらえ、しっ黒の魔剣・ファイナルやみ！」' },
+      tune: { hp: 1.2, dmg: 1 },
+    },
+    {
+      id: 'or_datenshi', work: 'original', n: 2, name: '落ちた天使のかげ', lv: 80, job: 'datenshi', look: L(1, 'long', 'purple', 6, 'fair', 'calm'),
+      use: 'r88_or_keiyaku', reward: ['r88_or_keiyaku'], words: '天から落ちたこの身…あなたに分かるかしら。',
+      sig: { name: '禁断のけい約・黒い光', el: 'dark', anim: 'dark_wings', charge: '{a}が、古い紙をかかげた…！\nせなかに、黒いつばさが広がっていく…！', cast: '{a}の黒い光が、空からふりそそいだ！' },
+      tune: { hp: 1, dmg: 1 },
+    },
+    {
+      id: 'or_soranokami', work: 'original', n: 3, name: '空の神', lv: 100, job: 'tenkou_tsukai', look: L(0, 'long', 'white', 1, 'fair', 'calm'), bg: 'kumoi',
+      use: 'r88_or_kumo', reward: ['r88_or_kumo'], words: '晴れも雨も、わが心ひとつ。',
+      same: 'ほう、空をよむ者か。ならば、空の大きさを見せよう。',
+      sig: { name: '空のいかずち', el: 'bolt', anim: 'r88_zeus', charge: '{a}が、雲の衣をひろげた！\n空が、みるみるくらくなっていく…！', cast: '{a}の空から、大きないかずちが落ちてきた！' },
+      tune: { hp: 0.6, dmg: 1 },
+    },
+    {
+      id: 'or_kenshin', work: 'original', n: 4, name: '光と闇の剣神のかげ', lv: 100, job: 'kenshin', look: L(0, 'long', 'white', 0, 'fair', 'sharp'), bg: 'hoshimichi',
+      use: 'r88_or_white', reward: ['r88_or_white', 'r88_or_black'], words: '光だけでも、闇だけでもない。来い。',
+      sig: { name: '夜明けとたそがれの十字', anim: 'r88_kouan', at: 0.8, after: 3, charge: '{a}が、白い剣と黒い剣を十字にかさねた…！\n光と闇が、ひとつにまざっていく…！', cast: '{a}の2本の剣が、光と闇の十字をえがいた！' },
+      tune: { hp: 0.6, dmg: 1 },
     },
   ];
 }

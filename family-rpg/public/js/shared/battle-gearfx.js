@@ -15,6 +15,8 @@ import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from '.
 import { r88dqAtkMult } from './battle-r88-dq.js'; // 第88回 G15班
 // 第88回 G13班: 使った あと（スーパースター）
 import { r88AfterUse } from './battle-r88.js';
+// 第88回 G19班: 変装のマスク（battle-r88-g19.js）
+import { r88g19AfterUse } from './battle-r88-g19.js';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -144,5 +146,6 @@ export function gearUse(b, c, cmd, ev) {
   b.applyAbility(c, a, sub, ev, 1, targets);
   useHpCost(c, u, ev); // 第88回 G2班: 使うと HPが 少し へる 品（雷神）
   r88AfterUse(b, c, a, ev); // 第88回 G13班: スーパースター
+  r88g19AfterUse(b, c, a, ev); // 第88回 G19班: 変装のマスク（次に 受ける 1回の 攻撃を かわす）
   return true;
 }
