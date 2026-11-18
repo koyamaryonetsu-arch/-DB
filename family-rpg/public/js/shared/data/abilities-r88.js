@@ -684,6 +684,117 @@ Object.assign(R88_ABILITIES, {
   },
 });
 
+// ───── G14班: 鋼のれん金術師・アナと雪の女王（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   発火布の 指パッチンは、雨の 時は しめって 火が 出ない（品の use.wet。shared/battle-r88.js の useWet。1回は へらない）
+Object.assign(R88_ABILITIES, {
+  // ── 鋼のれん金術師 ──
+  r88u_hg_snap: {
+    name: '指パッチンの大きな炎', kana: 'ゆびぱっちんのおおきなほのお', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [160, 190], thr: 85 },
+    desc: '発火布の手ぶくろで指を鳴らし、火花から大きな炎を作って、敵全体をつつむ。雨の日は、しめって火が出ない。', cast: '{a}は、指をパチンと鳴らした！', anim: 'r88_snap',
+  },
+  r88u_hg_bunkai: {
+    name: '右うでの分解', kana: 'みぎうでのぶんかい', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.2 },
+    desc: '右うでで敵1体にふれて、分解の力で大きくうつ。', cast: '{a}は、右うでを{t}につき出した！', anim: 'blast2',
+  },
+  r88u_hg_toge: {
+    name: '岩のとげのれん成', kana: 'いわのとげのれんせい', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.8 },
+    desc: '手こうで地面をなぐってれん成し、岩のとげで同じ種類の敵みんなをつき上げる。', cast: '{a}は、手こうで地面を思いきりなぐった！', anim: 'r33_alchemy_spear',
+  },
+  // ── アナと雪の女王 ──
+  r88u_fz_troll: {
+    name: 'トロールのいやし', kana: 'とろーるのいやし', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'heal',
+    effect: { type: 'multi', parts: [{ type: 'cure', statuses: ['confuse', 'sleep'] }, { type: 'heal', base: [150, 180], thr: 60 }] },
+    desc: 'トロールの長老の光で、仲間1人の混乱とねむりを治して、HPを回復する。', cast: '{a}の手の中で、やさしい光がゆれた…', anim: 'heal1',
+  },
+  r88u_fz_scepter: {
+    name: '王しゃくの氷', kana: 'おうしゃくのこおり', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [110, 130], thr: 60 },
+    desc: '手ぶくろを外して王しゃくを持ち、同じ種類の敵みんなを氷でつつむ。', cast: '{a}が王しゃくをにぎると、あたりがこおり始めた！', anim: 'ice2',
+  },
+  r88u_fz_dress: {
+    name: 'せいれいの雪の結しょう', kana: 'せいれいのゆきのけっしょう', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [160, 190], thr: 85 },
+    desc: '4つのせいれいの力を1つにして、大きな雪の結しょうで敵全体を氷でつつむ。', cast: '{a}のドレスが、白くかがやき始めた…！', anim: 'r88_elsa',
+  },
+});
+
+// ───── G15班: ダイの大冒険・ドラゴンクエスト（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   r88dq … この 班の 新しい 効果（shared/battle-r88-dq.js の r88dqEffect）
+//     mirror … 次に 受ける 呪文 1回を はね返す（シャハルの鏡・天空のたて。同じ 作り）
+//     bind   … 敵1体を 少しの 間 動けなく する（マヒ。ボスには 効かない。ゴールドフェザー・き眼の力）
+Object.assign(R88_ABILITIES, {
+  // ── ダイの大冒険 ──
+  r88u_da_saya: {
+    name: 'さやにおさめる', kana: 'さやにおさめる', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'charge', mult: 2.5 },
+    desc: 'ダイの剣をさやにおさめて、雷の力をためる。次の攻撃がとても強くなる。', cast: '{a}は、ダイの剣をさやにおさめた！\nさやの中で、雷の力がたまっていく…！', anim: 'r88_saya',
+  },
+  r88u_da_madan: {
+    name: '回復の呪文の玉', kana: 'かいふくのじゅもんのたま', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'heal',
+    effect: { type: 'heal', base: [150, 180], thr: 60 },
+    desc: '魔だんじゅうに、こめておいた回復の呪文の玉をうちこんで、仲間1人のHPを回復する。', cast: '{a}は、魔だんじゅうから回復の呪文の玉をうち出した！', anim: 'heal1',
+  },
+  r88u_da_feather: {
+    name: '金の羽根のしばり', kana: 'きんのはねのしばり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'r88dq', kind: 'bind', chance: 0.85, turns: [2, 2] },
+    desc: '金の羽根を敵1体にさして、少しの間動けなくする（大きな敵には効かない）。', cast: '{a}は、ゴールドフェザーを{t}に投げた！', anim: 'debuff',
+  },
+  r88u_da_namida: {
+    name: '神のなみだのねがい', kana: 'かみのなみだのねがい', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'heal',
+    effect: { type: 'heal', base: [99999, 99999], fixed: true },
+    desc: '小さな金色のスライムが、みんなの無事をねがう。仲間全員のHPを全部回復する。', cast: '{a}の手の中で、金色の小さなスライムが光った…！\n「ピィ〜！」', anim: 'r88_namida',
+  },
+  r88u_da_mirror: {
+    name: 'シャハルの鏡の光', kana: 'しゃはるのかがみのひかり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'r88dq', kind: 'mirror' },
+    desc: 'シャハルの鏡をかまえる。次に受ける呪文1回を、となえた敵にはね返す。', cast: '{a}は、シャハルの鏡を前にかまえた！', anim: 'r88_mirror',
+  },
+  r88u_da_kigan: {
+    name: 'ひとみのとじこめ', kana: 'ひとみのとじこめ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'r88dq', kind: 'bind', chance: 0.9, turns: [2, 3] },
+    desc: '第三の目の力で、敵1体を小さな玉にとじこめて、少しの間動けなくする（大きな敵には効かない）。', cast: '{a}のひたいの目が、ぎょろりと開いた！', anim: 'dark1',
+  },
+  // ── ドラゴンクエスト ──
+  r88u_dq_roto: {
+    name: '王者の剣の大かまいたち', kana: 'おうじゃのけんのおおかまいたち', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [150, 180], thr: 80 },
+    desc: 'ロトの剣を天にかかげて、大きな風の呪文で、同じ種類の敵みんなを切りさく。', cast: '{a}がロトの剣をかかげると、十字のかまいたちがまき起こった！', anim: 'wind2',
+  },
+  r88u_dq_tama: {
+    name: '光の玉のかがやき', kana: 'ひかりのたまのかがやき', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'sup',
+    effect: { type: 'dispel' },
+    desc: 'ロトの光の玉をかかげて、敵全体の強くなっていた力を消す。', cast: '{a}は、ロトの光の玉を高くかかげた！\nまぶしい光が、あたりをてらす…！', anim: 'taikobo_sig',
+  },
+  r88u_dq_raijin: {
+    name: '雷神の剣のほのお', kana: 'らいじんのけんのほのお', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [110, 130], thr: 60 },
+    desc: '雷神の剣をかかげて、ほのおの呪文で、同じ種類の敵みんなをやく。', cast: '{a}が雷神の剣をかかげると、ほのおのかべが走った！', anim: 'fire_wave',
+  },
+  r88u_dq_inazuma: {
+    name: 'いなずまのつるぎのばく発', kana: 'いなずまのつるぎのばくはつ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'blast', base: [95, 115], thr: 55 },
+    desc: 'いなずまのつるぎを空にかかげて、ばく発の呪文で敵全体をつつむ。', cast: '{a}がいなずまのつるぎをかかげた！', anim: 'blast2',
+  },
+  r88u_dq_mirror: {
+    name: '天空のたての光', kana: 'てんくうのたてのひかり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'r88dq', kind: 'mirror' },
+    desc: '天空のたてをかまえる。次に受ける呪文1回を、となえた敵にはね返す。', cast: '{a}は、天空のたてを前にかまえた！', anim: 'r88_mirror',
+  },
+  r88u_dq_inori: {
+    name: 'いのりの指輪のいのり', kana: 'いのりのゆびわのいのり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'heal',
+    effect: { type: 'mpHeal', base: [60, 90] },
+    desc: '指輪にいのりをこめて、自分のMPを回復する。', cast: '{a}は、いのりの指輪に、いのりをこめた…', anim: 'heal1',
+  },
+  r88u_dq_sabaki: {
+    name: 'さばきのつえのかまいたち', kana: 'さばきのつえのかまいたち', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'wind', base: [100, 120], thr: 55 },
+    desc: 'さばきのつえをふって、かまいたちで同じ種類の敵みんなを切りさく。', cast: '{a}がさばきのつえをふると、するどい風がまき起こった！', anim: 'wind2',
+  },
+});
+
 // ───── G13班: ハリー・ポッター・マリオ（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
 //   r88Star … 使った 人が その 回数の 行動の 間 状態異常に ならない（shared/battle-r88.js の r88AfterUse・r88StatusBlock）
 //   noBoss … ボスには きかない（キャッピー。r88StatusBlock）

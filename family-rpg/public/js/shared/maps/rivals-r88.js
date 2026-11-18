@@ -145,3 +145,8 @@ Object.assign(ROOM_STYLES, {
 Object.assign(ROOM_STYLES, {
   ship: { floor: T.FLOOR_WOOD, wall: T.WATER, deco: T.BARREL },
 });
+
+// G14班: アナと雪の女王（雪の 部屋: 雪の ゆか・氷の かたまりの かべ・雪の 木）。鋼のれん金術師は 石の 広間（stone）
+Object.assign(ROOM_STYLES, {
+  snow: { floor: T.SNOW, wall: T.ICE_BLOCK, deco: T.SNOW_PINE },
+});

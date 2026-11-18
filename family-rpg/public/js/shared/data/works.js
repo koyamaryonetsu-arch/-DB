@@ -54,6 +54,22 @@ Object.assign(WORKS, {
   sailormoon: { name: 'セーラームーン', trialGift: { sailor_moon: 'r88_sm_stick1' } },
 });
 
+// 第88回 G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいごで まぜる）
+//   試練の ごほうび: はがねのれん金術師 → 赤いコート（主人公の 名品）・雪の女王 → 氷のドレス（主人公の 名品）
+//   アナと雪の女王の 伝説「第5のせいれいのドレス」は、4つの せいれいの しるしを 持って 氷の石の台へ（world/frozen-r88.js）
+Object.assign(WORKS, {
+  hagaren: { name: '鋼のれん金術師', trialGift: { fullmetal: 'r88_hg_coat' } },
+  frozen: { name: 'アナと雪の女王', trialGift: { snow_queen: 'r88_fz_icedress' } },
+});
+
+// 第88回 G15班: ダイの大冒険・ドラゴンクエスト（ファイルの さいごで まぜる）
+//   試練の ごほうび: 竜の騎士（ダイの 職業）→ アバンのしるし・青・魔王 → 大魔王の白い衣・ロトの勇者 → ロトの聖なる守り（ロトのしるし。技の 名前と かぶるので かえた）
+//   ダイの大冒険は まぼろしの回ろうの とびらが 2まい（「ダイの大冒険」と「大魔王の城」。data/rivals-r88.js の g15Doors）。作品は 1つ（ガチャも 1つ）
+Object.assign(WORKS, {
+  dai: { name: 'ダイの大冒険', trialGift: { dragon_knight: 'r88_da_mark_blue', maou: 'r88_da_white' } },
+  dq: { name: 'ドラゴンクエスト', trialGift: { loto_hero: 'r88_dq_roto_mark' } },
+});
+
 // 第88回 G13班: ハリー・ポッター・マリオ（ファイルの さいごで まぜる）
 //   試練の ごほうび: ハリーポッター → ひいらぎのつえ（主人公の 名品）・マリオ → マリオのぼうし（主人公の 品。表では ふつう）
 Object.assign(WORKS, {

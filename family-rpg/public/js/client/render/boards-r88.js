@@ -280,6 +280,93 @@ Object.assign(R88_BOARD_COLORS, {
   r88_sailormoon: ['#2a1a5a', '#0a0a2a', '#8a6ae0'],
 });
 
+// G14班: 鋼のれん金術師（れん成の 円と 赤い 星）・アナと雪の女王（雪の 結しょう）
+Object.assign(R88_BOARD_ICONS, {
+  r88_hagaren: {
+    rows: [
+      '...www...',
+      '.ww...ww.',
+      '.w..r..w.',
+      'w..rRr..w',
+      'w.rRRRr.w',
+      'w..r.r..w',
+      '.w.....w.',
+      '.ww...ww.',
+      '...www...',
+    ],
+    pal: { w: '#f0f0ff', r: '#c81a1a', R: '#ff4a3a' },
+  },
+  r88_frozen: {
+    rows: [
+      '....w....',
+      '.w..W..w.',
+      '..w.W.w..',
+      '...wWw...',
+      'wWWWbWWWw',
+      '...wWw...',
+      '..w.W.w..',
+      '.w..W..w.',
+      '....w....',
+    ],
+    pal: { w: '#bfe6ff', W: '#ffffff', b: '#7ac8ff' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_hagaren: ['#2a3a6a', '#0a1430', '#6a8ad8'],
+  r88_frozen: ['#2a7ab8', '#0a2a5a', '#a8e0ff'],
+});
+
+// G15班: ダイの大冒険（竜の 紋章と 剣）・大魔王の城（光魔のつえと 第三の目）・ドラゴンクエスト（ロトの 紋章の 鳥）
+Object.assign(R88_BOARD_ICONS, {
+  r88_dai: {
+    rows: [
+      '....w....',
+      '...wWw...',
+      '.b.wWw.b.',
+      'bBb.W.bBb',
+      '.bBbWbBb.',
+      '..bBWBb..',
+      '...yyy...',
+      '....g....',
+      '...ggg...',
+    ],
+    pal: { w: '#ffffff', W: '#d8e2f0', b: '#2a8ae0', B: '#8ad0ff', y: '#ffd23a', g: '#7a4a22' },
+  },
+  r88_daimaou: {
+    rows: [
+      '...rrr...',
+      '..rRRRr..',
+      '..rRkRr..',
+      '...rrr...',
+      '....y....',
+      '...yYy...',
+      '....y....',
+      '....y....',
+      '...yyy...',
+    ],
+    pal: { r: '#8a1a3a', R: '#ff5a7a', k: '#1a0a14', y: '#c8961a', Y: '#ffe680' },
+  },
+  r88_dq: {
+    rows: [
+      '....y....',
+      'y..yYy..y',
+      'yy.yYy.yy',
+      '.yyyYyyy.',
+      '..yYYYy..',
+      '...yYy...',
+      '..y.y.y..',
+      '.y..y..y.',
+      '....y....',
+    ],
+    pal: { y: '#c8961a', Y: '#ffe680' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_dai: ['#1a5a3a', '#0a2a18', '#5ac88a'],
+  r88_daimaou: ['#3a1a4a', '#140a1e', '#a86ad8'],
+  r88_dq: ['#a82a2a', '#3a0a0a', '#ff8a6a'],
+});
+
 // G13班: ハリー・ポッター（いなずまの きずと 丸メガネ）・マリオ（赤い キノコ）
 Object.assign(R88_BOARD_ICONS, {
   r88_harrypotter: {

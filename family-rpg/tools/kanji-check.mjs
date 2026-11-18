@@ -560,6 +560,10 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-kenshin.js', 'public/js/shared/data/items-r88-conan.js', 'public/js/shared/data/items-r88-kaito.js',
     // 第88回 G12班: ドラえもん・セーラームーン・聖はいの 台
     'public/js/shared/data/items-r88-doraemon.js', 'public/js/shared/data/items-r88-sailormoon.js', 'public/js/shared/world/grail-r88.js',
+    // 第88回 G14班: 鋼のれん金術師・アナと雪の女王・第5のせいれいの 氷の石の台
+    'public/js/shared/data/items-r88-hagaren.js', 'public/js/shared/data/items-r88-frozen.js', 'public/js/shared/world/frozen-r88.js',
+    // 第88回 G15班: ダイの大冒険・ドラゴンクエスト（呪文を はね返す・動けなく する・光魔のつえ）
+    'public/js/shared/data/items-r88-dai.js', 'public/js/shared/data/items-r88-dq.js', 'public/js/shared/battle-r88-dq.js',
     // 第88回 G13班: ハリー・ポッター・マリオ
     'public/js/shared/data/items-r88-harrypotter.js', 'public/js/shared/data/items-r88-mario.js',
   ];

@@ -30,6 +30,12 @@ import { ITEMS_R88_KAITO, R88_KAITO_KANA, R88_REBIRTH_KAITO, R88_TAG_KAITO } fro
 // 第88回 G12班: ドラえもん・セーラームーン（tag … 今 ある 品を 作品の 品として 数える）
 import { ITEMS_R88_DORAEMON, R88_DORAEMON_KANA, R88_REBIRTH_DORAEMON, R88_TAG_DORAEMON } from './items-r88-doraemon.js';
 import { ITEMS_R88_SAILORMOON, R88_SAILORMOON_KANA, R88_REBIRTH_SAILORMOON, R88_TAG_SAILORMOON } from './items-r88-sailormoon.js';
+// 第88回 G14班: 鋼のれん金術師・アナと雪の女王（tag … 今 ある 品を 作品の 品として 数える）
+import { ITEMS_R88_HAGAREN, R88_HAGAREN_KANA, R88_REBIRTH_HAGAREN, R88_TAG_HAGAREN } from './items-r88-hagaren.js';
+import { ITEMS_R88_FROZEN, R88_FROZEN_KANA, R88_REBIRTH_FROZEN, R88_TAG_FROZEN } from './items-r88-frozen.js';
+// 第88回 G15班: ダイの大冒険・ドラゴンクエスト（setTag … 今 ある 品を そろいの 組に 入れる）
+import { ITEMS_R88_DAI, R88_DAI_KANA, R88_REBIRTH_DAI, R88_TAG_DAI } from './items-r88-dai.js';
+import { ITEMS_R88_DQ, R88_DQ_KANA, R88_REBIRTH_DQ, R88_TAG_DQ, R88_SETTAG_DQ } from './items-r88-dq.js';
 // 第88回 G13班: ハリー・ポッター・マリオ（tagSet … 今 ある 品に そろいも つける）
 import { ITEMS_R88_HARRYPOTTER, R88_HARRYPOTTER_KANA, R88_REBIRTH_HARRYPOTTER, R88_TAG_HARRYPOTTER, R88_TAG_SET_HARRYPOTTER } from './items-r88-harrypotter.js';
 import { ITEMS_R88_MARIO, R88_MARIO_KANA, R88_REBIRTH_MARIO } from './items-r88-mario.js';
@@ -58,6 +64,12 @@ const R88_PARTS = [
   // G12班: ドラえもん・セーラームーン
   { items: ITEMS_R88_DORAEMON, kana: R88_DORAEMON_KANA, rebirth: R88_REBIRTH_DORAEMON, tag: R88_TAG_DORAEMON },
   { items: ITEMS_R88_SAILORMOON, kana: R88_SAILORMOON_KANA, rebirth: R88_REBIRTH_SAILORMOON, tag: R88_TAG_SAILORMOON },
+  // G14班: 鋼のれん金術師・アナと雪の女王
+  { items: ITEMS_R88_HAGAREN, kana: R88_HAGAREN_KANA, rebirth: R88_REBIRTH_HAGAREN, tag: R88_TAG_HAGAREN },
+  { items: ITEMS_R88_FROZEN, kana: R88_FROZEN_KANA, rebirth: R88_REBIRTH_FROZEN, tag: R88_TAG_FROZEN },
+  // G15班: ダイの大冒険・ドラゴンクエスト
+  { items: ITEMS_R88_DAI, kana: R88_DAI_KANA, rebirth: R88_REBIRTH_DAI, tag: R88_TAG_DAI },
+  { items: ITEMS_R88_DQ, kana: R88_DQ_KANA, rebirth: R88_REBIRTH_DQ, tag: R88_TAG_DQ, setTag: R88_SETTAG_DQ },
   // G13班: ハリー・ポッター・マリオ
   { items: ITEMS_R88_HARRYPOTTER, kana: R88_HARRYPOTTER_KANA, rebirth: R88_REBIRTH_HARRYPOTTER, tag: R88_TAG_HARRYPOTTER, tagSet: R88_TAG_SET_HARRYPOTTER },
   { items: ITEMS_R88_MARIO, kana: R88_MARIO_KANA, rebirth: R88_REBIRTH_MARIO },
@@ -115,6 +127,7 @@ export function tagR88Works(table) {
     if (!it || it.work || it.base) continue;
     it.work = w;
     it.r88Tag = true;
+    if (R88_SET_TAGS[id]) it.set = R88_SET_TAGS[id]; // G15班: 天空の剣・天空のよろい → 天空の装備（ファイルの さいご）
   }
   tagR88Sets(table); // G13班: 今 ある 品に そろいも つける（ファイルの さいご）
   return table;
@@ -127,3 +140,7 @@ export function tagR88Sets(table) {
   for (const [id, s] of Object.entries(R88_TAG_SETS)) if (table[id] && !table[id].base && !table[id].set) table[id].set = s;
   return table;
 }
+
+// ───── G15班: 今 ある 品を そろいの 組に 入れる（R88_PARTS の setTag。{ 品の id: 組の id }。tagR88Works が つける）─────
+//   天空の剣・天空のよろい（今 ある 品）→ 天空の装備（data/gear-sets.js の tenku）。強さ・手に入れ方は かえない
+export const R88_SET_TAGS = Object.assign({}, ...R88_PARTS.map((p) => p.setTag || {}));

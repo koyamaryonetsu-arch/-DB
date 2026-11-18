@@ -37,6 +37,8 @@ export const RIVAL_DOORS = [
   ...g9Doors(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
   ...g11Doors(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
   ...g12Doors(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
+  ...g14Doors(), // G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいご）
+  ...g15Doors(), // G15班: ダイの大冒険（2まい）・ドラゴンクエスト（ファイルの さいご）
   ...g13Doors(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
 ];
 
@@ -284,6 +286,8 @@ export const RIVALS = [
   ...g9Rivals(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
   ...g11Rivals(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
   ...g12Rivals(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
+  ...g14Rivals(), // G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいご）
+  ...g15Rivals(), // G15班: ダイの大冒険・大魔王の城・ドラゴンクエスト（ファイルの さいご）
   ...g13Rivals(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
 ];
 
@@ -818,6 +822,205 @@ function g12Rivals() {
       use: 'r88_sm_bracelet', reward: ['r88_sm_bracelet'], words: '銀河でいちばんの力、見せてあげよう。',
       sig: { name: '銀河の大はどう', el: 'light', anim: 'holy', charge: '{a}の金のブレスレットが、まぶしく光り始めた！\n星の光が、どんどん集まっていく…！', cast: '{a}から、銀河の光の大きな波がおしよせた！' },
       tune: { hp: 0.56, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G14班: 鋼のれん金術師・アナと雪の女王 ─────────────
+//   鋼のれん金術師 … 部屋 ＝ 石の 広間（stone）・背景 ＝ 東の 野原（plains_east）。スカー ＝ 砂ばく（desert）・
+//     グリードとラスト ＝ どうくつ（cave。地下の 町）・オリヴィエ ＝ 雪原（snowfield。北の とりで）・大総統 ＝ 夜の 宮でん（palace_night）
+//     7-1 の 6組を 5つに した（グリードと ラストを 1つの 戦いに まとめた。勝つと 最強のたてと 最強のほこの 2つ）
+//   アナと雪の女王 … 部屋 ＝ 雪の 部屋（新しい snow: 雪の ゆか・氷の かべ・雪の 木）・背景 ＝ 雪原（snowfield）。
+//     マシュマロウ ＝ 氷の 洞くつ（ice_cave）・ブルーニ ＝ 森（forest）・ノック ＝ 海（sea）・アース・ジャイアント ＝ 山の 上（summit）
+function g14Doors() {
+  return [
+    { work: 'hagaren', mark: 'r88_hagaren', bg: 'plains_east', room: 'stone', jobs: ['alchemist', 'state_alchemist', 'fullmetal', 'truth_gate'] },
+    { work: 'frozen', mark: 'r88_frozen', bg: 'snowfield', room: 'snow', jobs: ['snow_queen', 'fifth_spirit'] },
+  ];
+}
+function g14Rivals() {
+  return [
+    // ── 鋼のれん金術師（名品を くれる 人は Lv60 ごろ・発火布の マスタングは 伝説で Lv80・さいごの 大総統は Lv100）──
+    {
+      id: 'hg_scar', work: 'hagaren', n: 1, name: 'スカー', lv: 60, job: 'god_hand', look: L(0, 'buzz', 'white', 0, 'brown', 'sharp'), bg: 'desert',
+      use: 'r88_hg_scar', reward: ['r88_hg_scar'], words: '…れん金術師か。手かげんはしない。',
+      sig: { name: '分解のれん金術', anim: 'blast2', charge: '{a}が、もようのある右うでを大きくかまえた！\nうでのもようが、青く光り始めた…！', cast: '{a}の右うでから、分解の光がはじけた！' },
+      tune: { hp: 1.12, dmg: 1 },
+    },
+    {
+      id: 'hg_greed', work: 'hagaren', n: 2, name: 'グリードとラスト', lv: 62,
+      members: [
+        { name: 'グリード', job: 'guardian', look: L(0, 'spiky', 'black', 0, 'light', 'smile') },
+        { name: 'ラスト', job: 'magic_swordsman', look: L(1, 'long', 'black', 7, 'fair', 'calm') },
+      ],
+      use: 'r88_hg_hoko', reward: ['r88_hg_tate', 'r88_hg_hoko'], words: '最強のたてと、最強のほこ。どっちが上か、ためしてみな。',
+      sig: { name: 'たてとほこの大こうげき', anim: 'slash_multi', charge: '{a}たちが、たてとツメをかまえた！\nツメが、ぐんぐんのびていく…！', cast: '{a}たちの、のびるツメがいっせいにおそいかかった！' },
+      tune: { hp: 1.18, dmg: 0.8 },
+    },
+    {
+      id: 'hg_olivier', work: 'hagaren', n: 3, name: 'オリヴィエ', lv: 64, job: 'sword_master', look: L(1, 'long', 'blonde', 1, 'fair', 'sharp'), bg: 'snowfield',
+      use: 'r88_hg_meito', reward: ['r88_hg_meito'], words: '北のとりでは、弱い者を通さない。',
+      sig: { name: '名刀・北のふぶき', el: 'ice', anim: 'slash_fast', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、家に伝わる名刀をすらりとぬいた！\nつめたい風が、ふき始めた…！', cast: '{a}の名刀が、ふぶきのようにひらめいた！' },
+      tune: { hp: 0.42, dmg: 1.2 },
+    },
+    {
+      id: 'hg_mustang', work: 'hagaren', n: 4, name: 'マスタング', lv: 80, job: 'state_alchemist', look: L(0, 'short', 'black', 1, 'light', 'sharp'),
+      use: 'r88_hg_hakka', reward: ['r88_hg_hakka'], words: '指をならせば、それで終わりだ。',
+      same: 'ほう、同じ国家れん金術師か。手かげんはしないぞ。',
+      sig: { name: 'まっ赤な大ほのお', el: 'fire', anim: 'r88_snap', charge: '{a}が、白い手ぶくろの指をこすり合わせた！\n火花が、ちりちりと光る…！', cast: '{a}が指を鳴らすと、大きな炎がふき上がった！' },
+      tune: { hp: 1.14, dmg: 1 },
+    },
+    {
+      id: 'hg_bradley', work: 'hagaren', n: 5, name: '大総統', lv: 100, job: 'sword_master', look: L(0, 'short', 'black', 1, 'light', 'sharp'), bg: 'palace_night',
+      use: 'r88_hg_saber', reward: ['r88_hg_saber', 'r88_hg_patch'], words: 'わたしの目から、のがれられるかね。',
+      sig: { name: '2本のサーベル', anim: 'slash_multi', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、がんたいを外した…！\n2本のサーベルを、しずかにかまえる…！', cast: '{a}の2本のサーベルが、目にも止まらぬ速さでおそいかかった！' },
+      tune: { hp: 0.32, dmg: 1 },
+    },
+    // ── アナと雪の女王（名品・ふつうを くれる 人は Lv60 ごろ・さいごの アース・ジャイアントは Lv100）──
+    {
+      id: 'fz_marshmallow', work: 'frozen', n: 1, name: 'マシュマロウ', lv: 60, job: 'guardian', look: L(0, 'bald', 'white', 7, 'fair', 'round'), bg: 'ice_cave',
+      use: 'r88_fz_claw', reward: ['r88_fz_claw'], words: 'ここから先は、入っちゃだめ！',
+      sig: { name: '雪の大男のふみつけ', el: 'ice', anim: 'blizzard', charge: '{a}が、大きくいきをすいこんだ！\nまわりの雪が、ぐんぐん集まっていく…！', cast: '{a}が足をふみならすと、ふぶきがおしよせた！' },
+      tune: { hp: 1.27, dmg: 1 },
+    },
+    {
+      id: 'fz_hans', work: 'frozen', n: 2, name: 'ハンス', lv: 62, job: 'magic_swordsman', look: L(0, 'short', 'auburn', 5, 'fair', 'smile'),
+      use: 'r88_fz_hans', reward: ['r88_fz_hans'], words: 'ぼくは南の島の王子。よろしくね。',
+      sig: { name: '王子の剣・ふり下ろし', anim: 'slash_heavy', charge: '{a}が、にっこりわらって剣をぬいた…！\n剣を、高くふり上げる…！', cast: '{a}の剣が、いきおいよくふり下ろされた！' },
+      tune: { hp: 1.25, dmg: 1 },
+    },
+    {
+      id: 'fz_bruni', work: 'frozen', n: 3, name: 'ブルーニ', lv: 64, job: 'enjutsushi', look: L(0, 'bald', 'aqua', 5, 'fair', 'round'), bg: 'forest',
+      use: 'r88_fz_bruni', reward: ['r88_fz_bruni'], words: '（小さなサラマンダーが、ぺろりと舌を出した）',
+      sig: { name: '森をかけるむらさきの炎', el: 'fire', anim: 'fire_wave', charge: '{a}の体が、青くかがやき始めた！\n森の中を、ぐるぐる走り回る…！', cast: '{a}の走ったあとから、炎がいっせいにふき上がった！' },
+      tune: { hp: 1.16, dmg: 1 },
+    },
+    {
+      id: 'fz_nokk', work: 'frozen', n: 4, name: 'ノック', lv: 66, job: 'tenkou_tsukai', look: L(0, 'long', 'aqua', 1, 'fair', 'calm'), bg: 'sea',
+      use: 'r88_fz_mane', reward: ['r88_fz_mane'], words: '（水の馬が、大きな波の上で、ひとこえいなないた）',
+      sig: { name: '暗い海の大波', anim: 'big_wave', charge: '{a}が、前足を高く上げた！\n海が、大きくもり上がっていく…！', cast: '{a}といっしょに、大きな波がおしよせた！' },
+      tune: { hp: 1.15, dmg: 1 },
+    },
+    {
+      id: 'fz_giant', work: 'frozen', n: 5, name: 'アース・ジャイアント', lv: 100, job: 'god_hand', look: L(0, 'bald', 'gray', 6, 'brown', 'calm'), bg: 'summit',
+      use: 'r88_fz_rock', reward: ['r88_fz_rock'], words: '（岩のきょ人が、ゆっくりと目を開けた…）',
+      sig: { name: '大地のきょ人の大岩', anim: 'quake', charge: '{a}が、大きな岩を持ち上げた！\n地面が、ぐらぐらゆれ始めた…！', cast: '{a}の大岩が、ずしんと投げつけられた！' },
+      tune: { hp: 0.63, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G15班: ダイの大冒険（2まい）・ドラゴンクエスト ─────────────
+//   ダイの大冒険 … 7-1 の 9組を、とびら 2まいに 分けた（メインの 設計）。作品は 1つ（品・ガチャは work: 'dai'）
+//     「ダイの大冒険」（work: 'dai'）… 部屋 ＝ 石の 広間（stone）・背景 ＝ 草原（grass）。クロコダイン ＝ 森・ヒュンケル ＝ どうくつ・バラン ＝ 山の 上
+//     「大魔王の城」（work: 'dai_maou'。works: ['dai'] … 品は ダイの大冒険の 品を 数える。data/works.js には 足さない）…
+//       部屋 ＝ 石の 広間（stone）・背景 ＝ 夜の 宮でん（palace_night）。大魔王バーンは 火の 城（castle_fire）
+//     2まいとも、ダイの大冒険の 品を 3つ 持つと 開く（とびらごとに 光る。品は 2重に 数えない）
+//   ドラゴンクエスト … 部屋 ＝ 石の 広間（stone）・背景 ＝ 東の 野原（plains_east）。竜王 ＝ 火の 城・あくまのきし ＝ どうくつ・デスピサロ ＝ 夜の 宮でん・ゾーマ ＝ 月の さけめ
+//     ロトの装備 5つは ライバル（剣・たて ＝ ゾーマ・よろい ＝ あくまのきし）と ガチャ（かぶと・聖なる守り）で だれでも そろう
+//     竜王のひ孫は、ロトの装備を 5つ 持って いる 人だけ ちょうせん できる（needSet。shared/rivals-r88.js の rivalNeedLack）
+function g15Doors() {
+  return [
+    { work: 'dai', mark: 'r88_dai', bg: 'grass', room: 'stone', jobs: ['dragon_knight', 'ryumajin'] },
+    { work: 'dai_maou', works: ['dai'], name: '大魔王の城', goods: 'ダイの大冒険', mark: 'r88_daimaou', bg: 'palace_night', room: 'stone', jobs: ['maou'] },
+    { work: 'dq', mark: 'r88_dq', bg: 'plains_east', room: 'stone', jobs: ['hero', 'loto_hero', 'super_hero'] },
+  ];
+}
+function g15Rivals() {
+  return [
+    // ── ダイの大冒険（名品を くれる 人は Lv60 ごろ・さいごの バランは Lv100）──
+    {
+      id: 'da_crocodine', work: 'dai', n: 1, name: 'クロコダイン', lv: 60, job: 'guardian', look: L(0, 'bald', 'green', 2, 'tan', 'brave'), bg: 'forest',
+      use: 'r88_da_shinku', reward: ['r88_da_shinku'], words: 'わしはじゅう王クロコダイン！正面から行くぞ！',
+      sig: { name: '真空のオノ・大つむじ風', el: 'wind', anim: 'wind2', charge: '{a}が、真空のオノを大きくふりかぶった！\nまわりの空気が、うずを巻き始めた…！', cast: '{a}の真空のオノから、大きなつむじ風がまき起こった！' },
+      tune: { hp: 1.3, dmg: 1 },
+    },
+    {
+      id: 'da_hyunckel', work: 'dai', n: 2, name: 'ヒュンケル', lv: 62, job: 'magic_swordsman', look: L(0, 'short', 'silver', 3, 'fair', 'sharp'), bg: 'cave',
+      use: 'r88_da_makenarmor', reward: ['r88_da_makenarmor'], words: 'よろいの魔剣の力、見せてやろう。',
+      same: 'ほう、同じ竜の力を持つ者か。手かげんはしない。',
+      sig: { name: 'よろいの魔剣・大うずまきづき', anim: 'slash_heavy', charge: '{a}が、よろいの魔剣を体の前でかまえた！\n剣の先に、うずまく力が集まっていく…！', cast: '{a}の魔剣が、うずを巻いてつき進んだ！' },
+      tune: { hp: 1.24, dmg: 1 },
+    },
+    {
+      id: 'da_laharl', work: 'dai', n: 3, name: 'ラーハルト', lv: 64, job: 'sword_master', look: L(0, 'short', 'blonde', 1, 'tan', 'sharp'),
+      use: 'r88_da_masou', reward: ['r88_da_masou'], words: 'おれの速さに、ついてこられるか。',
+      sig: { name: 'よろいの魔そう・千本づき', anim: 'slash_fast', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、すっと魔そうをかまえた…！\n足もとの風が、ぴたりと止まった…！', cast: '{a}の魔そうが、目にもとまらぬ速さで、何本もつきささった！' },
+      tune: { hp: 0.5, dmg: 1.2 },
+    },
+    {
+      id: 'da_baran', work: 'dai', n: 4, name: 'バラン', lv: 100, job: 'dragon_knight', look: L(0, 'wild', 'brown', 3, 'tan', 'sharp'), bg: 'summit',
+      use: 'r88_da_shinma', reward: ['r88_da_shinma'], words: '竜の騎士の力、その身で知るがよい。',
+      same: 'ほう…竜の紋章を持つ者か。ならば、本気で行くぞ。',
+      sig: { name: '真魔ごう竜剣・竜のいかずち', el: 'bolt', anim: 'r88_raikou', charge: '{a}が、真魔ごう竜剣を天に向けた！\n空に、黒い雲がうずを巻いていく…！', cast: '{a}の剣に、大きないかずちが落ちて、そのままふり下ろされた！' },
+      tune: { hp: 0.63, dmg: 1 },
+    },
+    // ── 大魔王の城（名品を くれる 人は Lv60 ごろ・伝説の シグマは Lv80・さいごの 大魔王バーンは Lv100）──
+    {
+      id: 'da_killvearn', work: 'dai_maou', n: 1, name: 'キルバーン', lv: 60, job: 'kaito_kid', look: L(0, 'slick', 'black', 0, 'fair', 'smile'),
+      use: 'r88_da_fue', reward: ['r88_da_fue'], words: 'ウフフ…ゲームを始めようか。',
+      sig: { name: 'ふしぎな笛の音', anim: 'debuff', charge: '{a}が、笛をそっと口にあてた…！\nふしぎな音が、少しずつ大きくなる…！', cast: '{a}の笛の音が、あたりいっぱいにひびきわたった！' },
+      tune: { hp: 1.05, dmg: 1 },
+    },
+    {
+      id: 'da_sigma', work: 'dai_maou', n: 2, name: 'シグマ', lv: 80, job: 'guardian', look: L(0, 'buzz', 'silver', 6, 'light', 'calm'),
+      use: 'r88_da_shahal', reward: ['r88_da_shahal'], words: '親衛騎団のシグマ。いざ、しょう負！',
+      sig: { name: 'シャハルの鏡・光のはね返し', el: 'light', anim: 'r88_mirror', charge: '{a}が、シャハルの鏡を高くかかげた！\n鏡に、まぶしい光が集まっていく…！', cast: '{a}の鏡から、集めた光がいっせいにはね返された！' },
+      tune: { hp: 0.94, dmg: 1 },
+    },
+    {
+      id: 'da_hadlar', work: 'dai_maou', n: 3, name: 'ハドラー', lv: 82, job: 'magic_swordsman', look: L(0, 'wild', 'white', 0, 'brown', 'sharp'),
+      use: 'r88_da_hasha', reward: ['r88_da_hellclaw', 'r88_da_hasha'], words: 'おれは、ほこりをかけて戦う！',
+      sig: { name: 'うでの剣の大ばく炎', el: 'fire', anim: 'r88_kaen', charge: '{a}が、うでの剣に黒いほのおをまとわせた！\nほのおが、どんどん大きくなる…！', cast: '{a}がうでの剣をふりぬくと、ほのおが大きくはじけた！' },
+      tune: { hp: 0.9, dmg: 1 },
+    },
+    {
+      id: 'da_mist', work: 'dai_maou', n: 4, name: 'ミストバーン', lv: 84, job: 'datenshi', look: L(0, 'long', 'white', 0, 'fair', 'calm'),
+      use: 'r88_da_yami', reward: ['r88_da_yami'], words: '……。',
+      sig: { name: '闇の糸のしばり', el: 'dark', anim: 'dark1', charge: '{a}の指先から、黒い糸がのび始めた…！', cast: '{a}の闇の糸が、みんなにからみついた！' },
+      tune: { hp: 1.03, dmg: 1 },
+    },
+    {
+      id: 'da_vearn', work: 'dai_maou', n: 5, name: '大魔王バーン', lv: 100, job: 'maou', look: L(0, 'long', 'white', 0, 'fair', 'calm'), bg: 'castle_fire',
+      use: 'r88_da_kouma', reward: ['r88_da_kouma', 'r88_da_kigan'], words: '余の前に、よくぞ来た。少しあそんでやろう。',
+      same: 'ほう、魔王を名のる者か。おもしろい。',
+      sig: { name: '光魔のつえ・大きな光のかべ', anim: 'r88_raikou', charge: '{a}が、光魔のつえをしずかにかまえた…！\nつえに、ものすごい魔力が流れこんでいく…！', cast: '{a}の光魔のつえから、大きな光のかべがおしよせた！' },
+      tune: { hp: 0.52, dmg: 1 },
+    },
+    // ── ドラゴンクエスト（竜王 Lv60・デスピサロ Lv80・ゾーマと 竜王のひ孫は Lv100）──
+    {
+      id: 'dq_ryuou', work: 'dq', n: 1, name: '竜王', lv: 60, job: 'dragon_knight', look: L(0, 'long', 'purple', 6, 'fair', 'sharp'), bg: 'castle_fire',
+      use: 'r88_dq_hikaritama', reward: ['r88_dq_hikaritama'], words: 'よくぞ来た、勇者よ。わしが王の中の王、竜王だ。',
+      same: 'ほう、ロトの名をつぐ者か。ならば、手かげんはせぬぞ。',
+      sig: { name: '竜王のはげしいほのお', el: 'fire', anim: 'fire_wave', charge: '{a}が、大きくいきをすいこんだ！\nのどのおくが、赤く光っている…！', cast: '{a}が、はげしいほのおをはき出した！' },
+      tune: { hp: 1.12, dmg: 1 },
+    },
+    {
+      // メインの 決定（ロトの装備は ライバルと ガチャで だれでも そろう）: ドムドーラで ロトのよろいを 守って いる きし
+      id: 'dq_akuma', work: 'dq', n: 2, name: 'あくまのきし', lv: 80, job: 'paladin', look: L(0, 'buzz', 'gray', 3, 'light', 'sharp'), bg: 'cave',
+      use: 'r88_dq_roto_armor', reward: ['r88_dq_roto_armor'], words: 'このよろいは、わたさぬぞ！',
+      sig: { name: 'あくまのきしの大ぶり', anim: 'slash_heavy', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、大きなオノをゆっくりふりかぶった！\nよろいが、ぎしぎしと鳴っている…！', cast: '{a}のオノが、うなりを上げてふり下ろされた！' },
+      tune: { hp: 0.96, dmg: 1 },
+    },
+    {
+      id: 'dq_psaro', work: 'dq', n: 3, name: 'デスピサロ', lv: 80, job: 'magic_swordsman', look: L(0, 'long', 'silver', 3, 'fair', 'sharp'), bg: 'palace_night',
+      use: 'r88_dq_tenku_shield', reward: ['r88_dq_tenku_shield'], words: '人間め…。この剣で、思い知らせてやろう。',
+      sig: { name: 'まわりをこおらせるふぶき', el: 'ice', anim: 'blizzard', charge: '{a}のまわりが、急にひえこんできた…！\n白い息が、うずを巻く…！', cast: '{a}から、こごえるふぶきがふきつけた！' },
+      tune: { hp: 0.85, dmg: 1 },
+    },
+    {
+      id: 'dq_zoma', work: 'dq', n: 4, name: 'ゾーマ', lv: 100, job: 'archmage', look: L(0, 'long', 'white', 7, 'fair', 'calm'), bg: 'rift_moon',
+      use: 'r88_dq_roto_sword', reward: ['r88_dq_roto_sword', 'r88_dq_roto_shield'], words: 'なにゆえ、もがき生きるのか。',
+      sig: { name: '闇の衣のこごえるいき', el: 'ice', anim: 'blizzard', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、闇の衣を大きく広げた！\nあたりが、しんとひえていく…！', cast: '{a}から、すべてをこおらせるいきがはき出された！' },
+      tune: { hp: 0.93, dmg: 1 },
+    },
+    {
+      id: 'dq_hiko', work: 'dq', n: 5, name: '竜王のひ孫', lv: 100, job: 'ryumajin', look: L(0, 'short', 'purple', 6, 'fair', 'smile'), bg: 'castle_fire',
+      // needSet … この 組の 品を n こ 持って いる 人だけ ちょうせん できる（shared/rivals-r88.js の rivalNeedLack）
+      needSet: { set: 'roto', n: 5, text: 'ロトの装備を5つそろえると、ちょうせんできる' },
+      use: 'r88_dq_ryuken', reward: ['r88_dq_ryuken'], words: 'ロトの装備の勇者よ、ひいおじいさんにかわって、手合わせだ！',
+      sig: { name: '竜のひ孫のほのお', el: 'fire', anim: 'fire_wave', at: 0.8, after: 3, hit: 1.3, charge: '{a}の体が、竜のすがたにかわっていく…！\n大きなつばさが、広がった…！', cast: '{a}が、竜のほのおをいっぱいにはき出した！' },
+      tune: { hp: 0.5, dmg: 1.2 },
     },
   ];
 }

@@ -5,6 +5,7 @@ import { ITEMS } from './data/items.js';
 import { ownedIds } from './gear-r88.js';
 import { workName } from './data/works.js';
 import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag, doorWorks } from './data/rivals-r88.js';
+import { GEAR_SETS } from './data/gear-sets.js'; // G15班: 竜王のひ孫の じょうけん（ロトの装備 5つ）
 
 export const HALL_NAME = 'まぼろしの回ろう';
 
@@ -57,22 +58,24 @@ export function rivalPaper(c, work) {
   const d = doorOf(work);
   const list = rivalsOf(work).map((rv) => {
     const won = rivalWon(c, rv.id);
-    const state = won ? 'won' : rivalOpen(c, rv.id) ? 'next' : 'lock';
+    // G15班: じょうけんの ある ライバル（竜王のひ孫）は、前の 人に 勝って いても、じょうけんが たりなければ 'need'
+    const state = won ? 'won' : !rivalOpen(c, rv.id) ? 'lock' : rivalNeedLack(c, rv) ? 'need' : 'next';
     return {
       id: rv.id, name: rv.name, lv: rv.lv, state, members: rivalMembers(rv).length > 1 ? rivalMembers(rv).map((m) => m.name) : null,
       use: itemName(rv.use), rewards: rewardIds(rv).map((id) => ({ id, name: itemName(id) })),
       words: state === 'lock' ? '' : rv.words,
       miss: won ? missingRewards(c, rv).map(itemName) : [],
+      need: rivalNeedText(c, rv),
     };
   });
   return {
-    kind: 'rival', work, workName: doorName(work), mark: d?.mark || '', own: workOwned(c, work), need: DOOR_NEED,
+    kind: 'rival', work, workName: doorName(work), goodsName: doorGoods(work), mark: d?.mark || '', own: workOwned(c, work), need: DOOR_NEED,
     rivals: list, ask: list.some((r) => r.state === 'next') ? 'だれにちょうせんする？' : 'もう一度、戦う？',
   };
 }
 // まどの ボタン（ちょうせん できる 人。つぎの 人が 先・やめる が さいご）。もどりち: [{ id, label }]
 export function rivalButtons(paper) {
-  const can = paper.rivals.filter((r) => r.state !== 'lock');
+  const can = paper.rivals.filter((r) => r.state !== 'lock' && r.state !== 'need'); // G15班: じょうけんが たりない 人は ボタンを 出さない
   can.sort((a, b) => (a.state === 'next' ? -1 : 0) - (b.state === 'next' ? -1 : 0));
   return can.map((r) => ({ id: r.id, label: `${r.name}と戦う` }));
 }
@@ -102,7 +105,7 @@ export function rivalRec(c) {
   for (const d of RIVAL_DOORS) {
     if (!doorOpen(c, d.work)) continue;
     const nx = rivalsOf(d.work).find((r) => !rivalWon(c, r.id));
-    if (nx) return { text: `まぼろしの回ろうで、${doorName(d.work)}の${nx.name}にちょうせんできます`, where: 'ルミナの町の星の神殿' };
+    if (nx && !rivalNeedLack(c, nx)) return { text: `まぼろしの回ろうで、${doorName(d.work)}の${nx.name}にちょうせんできます`, where: 'ルミナの町の星の神殿' };
   }
   // G6班: 勝った 人の ごほうびに、あとから 品が 足された（太極図の巻物）。もう一度 勝つと もらえる
   for (const d of RIVAL_DOORS) {
@@ -114,3 +117,25 @@ export function rivalRec(c) {
   }
   return null;
 }
+
+// ───────────── G15班: とびらの 品の 名前・ライバルごとの じょうけん ─────────────
+// とびらの 品の 名前（大魔王の城の とびらは「ダイの大冒険の品」。ふつうは とびらの 名前）
+export const doorGoods = (work) => doorOf(work)?.goods || doorName(work);
+// ライバルごとの じょうけん（rv.needSet: { set, n, text }。その 組の 品を n こ 持って いる）。たりない 時は のこりの 数・ある 時は 0
+export function rivalNeedLack(c, rv) {
+  const ns = rv?.needSet;
+  if (!ns) return 0;
+  const own = ownedIds(c);
+  const have = (GEAR_SETS[ns.set]?.items || []).filter((id) => own.has(id)).length;
+  return Math.max(0, (ns.n || 0) - have);
+}
+// とびらの まどの じょうけんの 行（ない 人は ''）
+export function rivalNeedText(c, rv) {
+  const ns = rv?.needSet;
+  if (!ns) return '';
+  const n = ns.n || 0;
+  const have = n - rivalNeedLack(c, rv);
+  return `${ns.text || `${GEAR_SETS[ns.set]?.name || ''}を${n}つそろえると、ちょうせんできる`}（今は${have}/${n}）`;
+}
+// ちょうせん できるか（前の 人に 勝って いて、じょうけんも ある）
+export const rivalReady = (c, rv) => !!rv && rivalOpen(c, rv.id) && !rivalNeedLack(c, rv);

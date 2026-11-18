@@ -104,6 +104,14 @@ export function useAbilityOf(b, c, u) {
   return (w && kind && w[kind]) || u?.ability;
 }
 
+// G14班: 雨で しめる 品（品の use.wet。発火布の手ぶくろ）… 今の 戦いの 天気が 雨（どちらの 側の 天気でも）の 時は、
+//   火が 出ず 何も 起きない。その 戦いの 1回は へらない（使った ことに ならない）。しめったら true
+export function useWet(b, c, u, ev) {
+  if (!ITEMS[baseItemId(u?.id)]?.use?.wet || b?.weather?.kind !== 'rain') return false;
+  ev.lines.push('しかし、雨で手ぶくろがしめっていて、火が出ない！');
+  ev.fx = { type: 'fizzle', actor: c.id };
+  return true;
+}
 // ───────────── G13班: ふんばる・百味ビーンズ・スーパースター・ボスに きかない 技 ─────────────
 // ふんばる（GEAR_FX の endure。緑の1UPキノコの 生まれつき・死の 秘宝の そろい）: 1つの 戦いで 1回、たおれる ダメージを
 //   受けても HP1 で のこる。1人に 1回（品と そろいの 両方でも 1回）。味方だけ（敵は 持たない）。

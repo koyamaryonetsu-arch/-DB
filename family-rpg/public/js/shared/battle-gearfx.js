@@ -11,7 +11,8 @@ import { ABILITIES } from './data/abilities.js';
 import { ITEMS } from './data/items.js';
 import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf } from './battle-r88.js';
+import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js';
+import { r88dqAtkMult } from './battle-r88-dq.js'; // 第88回 G15班
 // 第88回 G13班: 使った あと（スーパースター）
 import { r88AfterUse } from './battle-r88.js';
 
@@ -38,6 +39,7 @@ export function attackMods(c, t) {
     if (o) { element = o.element; mult *= o.mult; }
   }
   for (const s of fxAll(c, (x) => x.race && x.kind.startsWith('slay_'))) if (t?.race === s.race) mult *= s.mult;
+  mult *= r88dqAtkMult(c); // 第88回 G15班: 光魔のつえ（MP）・ブラックロッド（攻撃魔力）
   return { element, mult };
 }
 
@@ -121,6 +123,7 @@ export function gearUse(b, c, cmd, ev) {
     ev.lines.push('しかし、何も起こらなかった！');
     return true;
   }
+  if (useWet(b, c, u, ev)) return true; // G14班: 発火布の手ぶくろは 雨だと しめって 火が 出ない（1回は へらない）
   // 第88回: 作品の 品は 1つの 戦いで 1回（ふうじられて いても 使った ことに なる）
   if (u.once) {
     u.used = true;

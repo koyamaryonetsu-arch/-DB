@@ -18,6 +18,8 @@ import {
 import { SHENRON_SCRIPTS } from './shenron-r88.js';
 // 第88回 G12班: 3つの タリスマンと 聖はいの 水しょうの台（world/grail-r88.js）
 import { GRAIL_SCRIPTS } from './grail-r88.js';
+// 第88回 G14班: 第5のせいれいのドレスの 氷の石の台（world/frozen-r88.js）
+import { FROZEN_SCRIPTS } from './frozen-r88.js';
 
 const GOLD_MAX = 9999999;
 
@@ -226,3 +228,5 @@ export const GACHA_R88_SCRIPTS = {
 Object.assign(GACHA_R88_SCRIPTS, SHENRON_SCRIPTS);
 // G12班: 聖はいの 水しょうの台
 Object.assign(GACHA_R88_SCRIPTS, GRAIL_SCRIPTS);
+// G14班: 第5のせいれいのドレスの 氷の石の台
+Object.assign(GACHA_R88_SCRIPTS, FROZEN_SCRIPTS);
