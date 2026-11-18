@@ -408,7 +408,7 @@ Object.assign(R88_ABILITIES, {
     desc: '大きなガマをよび出して、敵全体をおしつぶす。', cast: '{a}がまき物に手をつくと、けむりの中から大きなガマがあらわれた！', anim: 'quake',
   },
   r88u_nr_basho: {
-    name: 'ばしょうせん・五つの力', kana: 'ばしょうせんいつつのちから', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    name: 'うちわの五つの力', kana: 'うちわのいつつのちから', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
     effect: { type: 'random', options: ['r88u_nr_basho_fire', 'r88u_nr_basho_bolt', 'r88u_nr_basho_wind'] },
     desc: '大きなうちわをあおいで、炎・雷・風のどれかを、敵全体にふき出す。', cast: '{a}は、ばしょうせんを大きくふりかぶった！', anim: 'none',
   },

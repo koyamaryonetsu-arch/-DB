@@ -204,7 +204,7 @@ test('G10: とびら 2まいと ライバル（5人ずつ・弱い 順・さい�
       for (const id of rv.reward) assert.equal(ITEMS[id].work, rv.work, id);
     }
   }
-  assert.equal(RIVAL_BY_ID.km_yoriichi.job, 'hinokami');
+  assert.equal(RIVAL_BY_ID.km_yoriichi.job, 'enbashira');
   assert.equal(RIVAL_BY_ID.km_rengoku.job, 'enbashira');
   assert.equal(FIXED_ENCOUNTERS[rivalEnc('km_giyu')].bg, 'village_night');
   assert.equal(FIXED_ENCOUNTERS[rivalEnc('nr_minato')].bg, 'forest');

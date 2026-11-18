@@ -496,13 +496,13 @@ function g10Rivals() {
       id: 'nr_zabuza', work: 'naruto', n: 1, name: '再不斬', lv: 60, job: 'magic_swordsman', look: L(0, 'buzz', 'black', 0, 'light', 'sharp'), bg: 'swamp',
       use: 'r88_nr_kubikiri', reward: ['r88_nr_kubikiri'], words: 'きりの里の大刀、受けてみるか？',
       sig: { name: '断刀・かくれ切り', anim: 'slash_heavy', charge: '{a}のまわりに、白いもやが立ちこめた！\n大きな刀のかげが、ゆらりと動く…！', cast: '{a}が、もやの中から大きな刀をふりぬいた！' },
-      tune: { hp: 1.21, dmg: 1 },
+      tune: { hp: 1.18, dmg: 1 },
     },
     {
       id: 'nr_kisame', work: 'naruto', n: 2, name: 'きさめ', lv: 80, job: 'guardian', look: L(0, 'spiky', 'blue', 3, 'light', 'sharp'), bg: 'sea',
       use: 'r88_nr_samehada', reward: ['r88_nr_samehada'], words: 'さめはだが、おまえのチャクラを食べたがっている。',
-      sig: { name: 'さめはだ・大さめの水', anim: 'whirlpool', charge: '{a}のまわりに、水がうずを巻き始めた！\n大きなさめの形になっていく…！', cast: '{a}の水のさめが、大口を開けておそいかかった！' },
-      tune: { hp: 0.94, dmg: 1 },
+      sig: { name: 'さめはだ・大さめの水', at: 0.8, after: 3, anim: 'whirlpool', charge: '{a}のまわりに、水がうずを巻き始めた！\n大きなさめの形になっていく…！', cast: '{a}の水のさめが、大口を開けておそいかかった！' },
+      tune: { hp: 0.96, dmg: 1 },
     },
     {
       id: 'nr_kinkaku', work: 'naruto', n: 3, name: '金角と銀角', lv: 82,
@@ -512,13 +512,13 @@ function g10Rivals() {
       ],
       use: 'r88_nr_basho', reward: ['r88_nr_basho', 'r88_nr_benihyoutan'], words: 'おれたち兄弟の宝具、見せてやるぜ！',
       sig: { name: 'ばしょうせん・大あらし', el: 'wind', anim: 'r88_basho', charge: '{a}が、大きなうちわをふりかぶった！\n炎と雷と風が、うちわに集まっていく…！', cast: '{a}のばしょうせんから、大あらしがふき出した！' },
-      tune: { hp: 0.81, dmg: 1 },
+      tune: { hp: 0.82, dmg: 1 },
     },
     {
       id: 'nr_minato', work: 'naruto', n: 4, name: '四代目火影', lv: 84, job: 'konoha', look: L(0, 'spiky', 'blonde', 7, 'fair', 'calm'),
       use: 'r88_nr_hiraishin', reward: ['r88_nr_hiraishin'], words: '里を守る火影の速さ、見せてあげよう。',
       sig: { name: '飛雷神・一しゅんの光', el: 'bolt', anim: 'slash_multi', charge: '{a}が、三つまたのクナイをあちこちに投げた！\nクナイのしるしが、光り始めた…！', cast: '{a}が、光のようにクナイからクナイへとびうつった！' },
-      tune: { hp: 0.83, dmg: 1 },
+      tune: { hp: 0.85, dmg: 1 },
     },
     {
       id: 'nr_itachi', work: 'naruto', n: 5, name: 'イタチ', lv: 100, job: 'enjutsushi', look: L(0, 'long', 'black', 0, 'fair', 'calm'), bg: 'palace_night',
@@ -538,7 +538,7 @@ function g10Rivals() {
       use: 'r88_km_honoo', reward: ['r88_km_honoo'], words: 'うむ！心を燃やせ！いざ、けいこだ！',
       same: 'うむ！同じ炎の道を行く者か！よもや、えんりょはいらんな！',
       sig: { name: '炎の呼吸・れんごく', el: 'fire', anim: 'fire_wave', charge: '{a}が、刀を大きくふりかぶった！\n刀のまわりに、炎がうずを巻く…！', cast: '{a}が、大きな炎とともにつっこんできた！' },
-      tune: { hp: 1.03, dmg: 1 },
+      tune: { hp: 1.04, dmg: 1 },
     },
     {
       id: 'km_tengen', work: 'kimetsu', n: 3, name: '宇ずい天元', lv: 64, job: 'konoha', look: L(0, 'long', 'white', 4, 'fair', 'smile'),
@@ -550,13 +550,13 @@ function g10Rivals() {
       id: 'km_himejima', work: 'kimetsu', n: 4, name: 'ひめじま', lv: 80, job: 'god_hand', look: L(0, 'bald', 'black', 3, 'tan', 'calm'),
       use: 'r88_km_tekkyu', reward: ['r88_km_tekkyu'], words: 'なむあみだぶつ…。さあ、けいこを始めよう。',
       sig: { name: '岩の呼吸・岩くだき', anim: 'quake', charge: '{a}が、くさりの鉄球を回し始めた！\nくさりが、うなりを上げる…！', cast: '{a}の鉄球が、地面ごと打ちくだいた！' },
-      tune: { hp: 0.81, dmg: 1 },
+      tune: { hp: 0.82, dmg: 1 },
     },
     {
-      id: 'km_yoriichi', work: 'kimetsu', n: 5, name: '始まりの剣士', lv: 100, job: 'hinokami', look: L(0, 'long', 'red', 1, 'fair', 'calm'), bg: 'hoshiyomi',
+      id: 'km_yoriichi', work: 'kimetsu', n: 5, name: '始まりの剣士', lv: 100, job: 'enbashira', look: L(0, 'long', 'red', 1, 'fair', 'calm'), bg: 'hoshiyomi',
       use: 'r88_km_hajimari', reward: ['r88_km_hajimari'], words: 'あなたたちの剣を、見せてほしい。',
       sig: { name: '日の呼吸・日のまい', el: 'fire', anim: 'r88_kakuto', charge: '{a}が、しずかに刀をかまえた…！\nまわりが、朝日のように明るくなっていく…！', cast: '{a}の刀が、日の光のようにまいおどった！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.54, dmg: 1 },
     },
   ];
 }
