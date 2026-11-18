@@ -413,17 +413,17 @@ Object.assign(R88_ABILITIES, {
     desc: '大きなうちわをあおいで、炎・雷・風のどれかを、敵全体にふき出す。', cast: '{a}は、ばしょうせんを大きくふりかぶった！', anim: 'none',
   },
   r88u_nr_basho_fire: {
-    name: 'ばしょうせん・炎', kana: 'ばしょうせんほのお', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    name: '炎のうちわ', kana: 'ほのおのうちわ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
     effect: { type: 'magic', element: 'fire', base: [150, 175], thr: 80 },
     desc: 'ばしょうせんから炎をふき出して、敵全体をつつむ。', cast: 'ばしょうせんから、大きな炎がふき出した！', anim: 'r88_basho',
   },
   r88u_nr_basho_bolt: {
-    name: 'ばしょうせん・雷', kana: 'ばしょうせんかみなり', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    name: '雷のうちわ', kana: 'かみなりのうちわ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
     effect: { type: 'magic', element: 'bolt', base: [150, 175], thr: 80 },
     desc: 'ばしょうせんから雷をふき出して、敵全体をうつ。', cast: 'ばしょうせんから、雷がほとばしった！', anim: 'r88_basho',
   },
   r88u_nr_basho_wind: {
-    name: 'ばしょうせん・風', kana: 'ばしょうせんかぜ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    name: '風のうちわ', kana: 'かぜのうちわ', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
     effect: { type: 'magic', element: 'wind', base: [150, 175], thr: 80 },
     desc: 'ばしょうせんから大風をふき出して、敵全体をふきとばす。', cast: 'ばしょうせんから、大風がふきあれた！', anim: 'r88_basho',
   },
