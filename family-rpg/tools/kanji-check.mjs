@@ -560,6 +560,8 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-kenshin.js', 'public/js/shared/data/items-r88-conan.js', 'public/js/shared/data/items-r88-kaito.js',
     // 第88回 G12班: ドラえもん・セーラームーン・聖はいの 台
     'public/js/shared/data/items-r88-doraemon.js', 'public/js/shared/data/items-r88-sailormoon.js', 'public/js/shared/world/grail-r88.js',
+    // 第88回 G14班: 鋼のれん金術師・アナと雪の女王・第5のせいれいの 氷の石の台
+    'public/js/shared/data/items-r88-hagaren.js', 'public/js/shared/data/items-r88-frozen.js', 'public/js/shared/world/frozen-r88.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

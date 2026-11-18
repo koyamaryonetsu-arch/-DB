@@ -219,7 +219,8 @@ function links() {
   if (rebirthFrom) return;
   rebirthFrom = new Map();
   for (const [from, r] of Object.entries(REBIRTH)) {
-    if (!r?.to || !ITEMS[r.to]?.work) continue;
+    // G14班: 先が べつの 作品の 品（オリハルコンの像〈スレイヤーズ〉→ 賢者の石〈鋼のれん金術師〉）は つながない
+    if (!r?.to || !ITEMS[r.to]?.work || ITEMS[r.to].work !== ITEMS[from]?.work) continue;
     if (!rebirthFrom.has(r.to)) rebirthFrom.set(r.to, []);
     rebirthFrom.get(r.to).push(from);
   }

@@ -307,3 +307,16 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G14班: アナと雪の女王（ファイルの さいごで まぜる）─────
+Object.assign(GEAR_SETS, {
+  // ── 4つの せいれいの しるし（1人が 4つ 持つと しょう号。白銀の湖の 北の ほとりの 氷の石の台で、第5のせいれいのドレス。world/frozen-r88.js）──
+  frozen_spirits: {
+    name: '4つのせいれいのしるし',
+    items: ['r88_fz_mark_wind', 'r88_fz_mark_fire', 'r88_fz_mark_water', 'r88_fz_mark_earth'],
+    rule: 'own',
+    tiers: [
+      { n: 4, title: '第5のせいれい', text: '4つ全部持つと、しょう号「第5のせいれい」。白銀の湖の北のほとりの、氷の石の台へ行くと……？' },
+    ],
+  },
+});

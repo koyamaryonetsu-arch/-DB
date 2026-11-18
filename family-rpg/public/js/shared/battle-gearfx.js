@@ -11,7 +11,7 @@ import { ABILITIES } from './data/abilities.js';
 import { ITEMS } from './data/items.js';
 import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf } from './battle-r88.js';
+import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -119,6 +119,7 @@ export function gearUse(b, c, cmd, ev) {
     ev.lines.push('しかし、何も起こらなかった！');
     return true;
   }
+  if (useWet(b, c, u, ev)) return true; // G14班: 発火布の手ぶくろは 雨だと しめって 火が 出ない（1回は へらない）
   // 第88回: 作品の 品は 1つの 戦いで 1回（ふうじられて いても 使った ことに なる）
   if (u.once) {
     u.used = true;

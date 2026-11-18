@@ -9,6 +9,8 @@ import { ORB_PLACES, orbChestId, HOKORA } from '../data/gacha-r88.js';
 import { DB_PLACES, dbChestId, dbChestScript, SHENRON } from '../data/shenron-r88.js';
 // 第88回 G12班: 聖はいの 水しょうの台（鏡の湖の 東の ほとり）
 import { GRAIL_ALTAR } from '../data/items-r88-sailormoon.js';
+// 第88回 G14班: 第5のせいれいのドレスの 氷の石の台（白銀の湖の 北の ほとり）
+import { FIFTH_ALTAR } from '../data/items-r88-frozen.js';
 
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
 
@@ -32,6 +34,7 @@ export function attachGachaR88(maps) {
   if (top) top.npcs.push(npc('r88_hokora', '竜神のほこら', [HOKORA.x, HOKORA.y], 'r88_hokora', 'r88_hokora', { dir: 'down' }));
   attachShenron(maps); // G9班: ドラゴンボールの 宝箱・神龍の さいだん
   attachGrail(maps); // G12班: 聖はいの 水しょうの台
+  attachFifth(maps); // G14班: 第5のせいれいのドレスの 氷の石の台
   return maps;
 }
 
@@ -49,4 +52,10 @@ function attachShenron(maps) {
 function attachGrail(maps) {
   const m = maps[GRAIL_ALTAR.map];
   if (m) m.npcs.push(npc('r88_grail_altar', '水しょうの台', [GRAIL_ALTAR.x, GRAIL_ALTAR.y], 'r88_grail_altar', 'r88_grail', { dir: 'down' }));
+}
+
+// G14班: 第5のせいれいのドレスの 氷の石の台（白銀の湖の 北の ほとり。4つの せいれいの しるしを 持って 行くと ドレス。world/frozen-r88.js）
+function attachFifth(maps) {
+  const m = maps[FIFTH_ALTAR.map];
+  if (m) m.npcs.push(npc('r88_fifth_altar', '氷の石の台', [FIFTH_ALTAR.x, FIFTH_ALTAR.y], 'r88_fifth_altar', 'r88_fifth', { dir: 'down' }));
 }

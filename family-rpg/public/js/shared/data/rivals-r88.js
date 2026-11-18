@@ -37,6 +37,7 @@ export const RIVAL_DOORS = [
   ...g9Doors(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
   ...g11Doors(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
   ...g12Doors(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
+  ...g14Doors(), // G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいご）
 ];
 
 // 見た目（今 ある 職業の 絵と 色を 使い回す。style・hcol・tone は data/looks.js の id）
@@ -283,6 +284,7 @@ export const RIVALS = [
   ...g9Rivals(), // G9班: ドラゴンボール・ワンピース（ファイルの さいご）
   ...g11Rivals(), // G11班: るろうに剣心・コナンと快と（ファイルの さいご）
   ...g12Rivals(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
+  ...g14Rivals(), // G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいご）
 ];
 
 // その 作品の 職業の 家族が いる 時の ひとこと（rv.same が ない とき）
@@ -816,6 +818,90 @@ function g12Rivals() {
       use: 'r88_sm_bracelet', reward: ['r88_sm_bracelet'], words: '銀河でいちばんの力、見せてあげよう。',
       sig: { name: '銀河の大はどう', el: 'light', anim: 'holy', charge: '{a}の金のブレスレットが、まぶしく光り始めた！\n星の光が、どんどん集まっていく…！', cast: '{a}から、銀河の光の大きな波がおしよせた！' },
       tune: { hp: 0.56, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G14班: 鋼のれん金術師・アナと雪の女王 ─────────────
+//   鋼のれん金術師 … 部屋 ＝ 石の 広間（stone）・背景 ＝ 東の 野原（plains_east）。スカー ＝ 砂ばく（desert）・
+//     グリードとラスト ＝ どうくつ（cave。地下の 町）・オリヴィエ ＝ 雪原（snowfield。北の とりで）・大総統 ＝ 夜の 宮でん（palace_night）
+//     7-1 の 6組を 5つに した（グリードと ラストを 1つの 戦いに まとめた。勝つと 最強のたてと 最強のほこの 2つ）
+//   アナと雪の女王 … 部屋 ＝ 雪の 部屋（新しい snow: 雪の ゆか・氷の かべ・雪の 木）・背景 ＝ 雪原（snowfield）。
+//     マシュマロウ ＝ 氷の 洞くつ（ice_cave）・ブルーニ ＝ 森（forest）・ノック ＝ 海（sea）・アース・ジャイアント ＝ 山の 上（summit）
+function g14Doors() {
+  return [
+    { work: 'hagaren', mark: 'r88_hagaren', bg: 'plains_east', room: 'stone', jobs: ['alchemist', 'state_alchemist', 'fullmetal', 'truth_gate'] },
+    { work: 'frozen', mark: 'r88_frozen', bg: 'snowfield', room: 'snow', jobs: ['snow_queen', 'fifth_spirit'] },
+  ];
+}
+function g14Rivals() {
+  return [
+    // ── 鋼のれん金術師（名品を くれる 人は Lv60 ごろ・発火布の マスタングは 伝説で Lv80・さいごの 大総統は Lv100）──
+    {
+      id: 'hg_scar', work: 'hagaren', n: 1, name: 'スカー', lv: 60, job: 'god_hand', look: L(0, 'buzz', 'white', 0, 'brown', 'sharp'), bg: 'desert',
+      use: 'r88_hg_scar', reward: ['r88_hg_scar'], words: '…れん金術師か。手かげんはしない。',
+      sig: { name: '分解のれん金術', anim: 'blast2', charge: '{a}が、もようのある右うでを大きくかまえた！\nうでのもようが、青く光り始めた…！', cast: '{a}の右うでから、分解の光がはじけた！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'hg_greed', work: 'hagaren', n: 2, name: 'グリードとラスト', lv: 62,
+      members: [
+        { name: 'グリード', job: 'guardian', look: L(0, 'spiky', 'black', 0, 'light', 'smile') },
+        { name: 'ラスト', job: 'magic_swordsman', look: L(1, 'long', 'black', 7, 'fair', 'calm') },
+      ],
+      use: 'r88_hg_hoko', reward: ['r88_hg_tate', 'r88_hg_hoko'], words: '最強のたてと、最強のほこ。どっちが上か、ためしてみな。',
+      sig: { name: 'たてとほこの大こうげき', anim: 'slash_multi', charge: '{a}たちが、たてとツメをかまえた！\nツメが、ぐんぐんのびていく…！', cast: '{a}たちの、のびるツメがいっせいにおそいかかった！' },
+      tune: { hp: 0.8, dmg: 0.8 },
+    },
+    {
+      id: 'hg_olivier', work: 'hagaren', n: 3, name: 'オリヴィエ', lv: 64, job: 'sword_master', look: L(1, 'long', 'blonde', 1, 'fair', 'sharp'), bg: 'snowfield',
+      use: 'r88_hg_meito', reward: ['r88_hg_meito'], words: '北のとりでは、弱い者を通さない。',
+      sig: { name: '名刀・北のふぶき', el: 'ice', anim: 'slash_fast', charge: '{a}が、家に伝わる名刀をすらりとぬいた！\nつめたい風が、ふき始めた…！', cast: '{a}の名刀が、ふぶきのようにひらめいた！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'hg_mustang', work: 'hagaren', n: 4, name: 'マスタング', lv: 80, job: 'state_alchemist', look: L(0, 'short', 'black', 1, 'light', 'sharp'),
+      use: 'r88_hg_hakka', reward: ['r88_hg_hakka'], words: '指をならせば、それで終わりだ。',
+      same: 'ほう、同じ国家れん金術師か。手かげんはしないぞ。',
+      sig: { name: 'ほのおの大うず', el: 'fire', anim: 'r88_snap', charge: '{a}が、白い手ぶくろの指をこすり合わせた！\n火花が、ちりちりと光る…！', cast: '{a}が指を鳴らすと、大きな炎がふき上がった！' },
+      tune: { hp: 1, dmg: 1 },
+    },
+    {
+      id: 'hg_bradley', work: 'hagaren', n: 5, name: '大総統', lv: 100, job: 'sword_master', look: L(0, 'short', 'black', 1, 'light', 'sharp'), bg: 'palace_night',
+      use: 'r88_hg_saber', reward: ['r88_hg_saber', 'r88_hg_patch'], words: 'わたしの目から、のがれられるかね。',
+      sig: { name: '2本のサーベル', anim: 'slash_multi', at: 0.8, after: 3, charge: '{a}が、がんたいを外した…！\n2本のサーベルを、しずかにかまえる…！', cast: '{a}の2本のサーベルが、目にも止まらぬ速さでおそいかかった！' },
+      tune: { hp: 0.5, dmg: 1 },
+    },
+    // ── アナと雪の女王（名品・ふつうを くれる 人は Lv60 ごろ・さいごの アース・ジャイアントは Lv100）──
+    {
+      id: 'fz_marshmallow', work: 'frozen', n: 1, name: 'マシュマロウ', lv: 60, job: 'guardian', look: L(0, 'bald', 'white', 7, 'fair', 'round'), bg: 'ice_cave',
+      use: 'r88_fz_claw', reward: ['r88_fz_claw'], words: 'ここから先は、入っちゃだめ！',
+      sig: { name: '雪の大男のふみつけ', el: 'ice', anim: 'blizzard', charge: '{a}が、大きくいきをすいこんだ！\nまわりの雪が、ぐんぐん集まっていく…！', cast: '{a}が足をふみならすと、ふぶきがおしよせた！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'fz_hans', work: 'frozen', n: 2, name: 'ハンス', lv: 62, job: 'magic_swordsman', look: L(0, 'short', 'auburn', 5, 'fair', 'smile'),
+      use: 'r88_fz_hans', reward: ['r88_fz_hans'], words: 'ぼくは南の島の王子。よろしくね。',
+      sig: { name: '王子の剣・ふり下ろし', anim: 'slash_heavy', charge: '{a}が、にっこりわらって剣をぬいた…！\n剣を、高くふり上げる…！', cast: '{a}の剣が、いきおいよくふり下ろされた！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'fz_bruni', work: 'frozen', n: 3, name: 'ブルーニ', lv: 64, job: 'enjutsushi', look: L(0, 'bald', 'aqua', 5, 'fair', 'round'), bg: 'forest',
+      use: 'r88_fz_bruni', reward: ['r88_fz_bruni'], words: '（小さなサラマンダーが、ぺろりと舌を出した）',
+      sig: { name: '森をかけるむらさきの炎', el: 'fire', anim: 'fire_wave', charge: '{a}の体が、青くかがやき始めた！\n森の中を、ぐるぐる走り回る…！', cast: '{a}の走ったあとから、炎がいっせいにふき上がった！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'fz_nokk', work: 'frozen', n: 4, name: 'ノック', lv: 66, job: 'tenkou_tsukai', look: L(0, 'long', 'aqua', 1, 'fair', 'calm'), bg: 'sea',
+      use: 'r88_fz_mane', reward: ['r88_fz_mane'], words: '（水の馬が、大きな波の上で、ひとこえいなないた）',
+      sig: { name: '暗い海の大波', anim: 'big_wave', charge: '{a}が、前足を高く上げた！\n海が、大きくもり上がっていく…！', cast: '{a}といっしょに、大きな波がおしよせた！' },
+      tune: { hp: 1.1, dmg: 1 },
+    },
+    {
+      id: 'fz_giant', work: 'frozen', n: 5, name: 'アース・ジャイアント', lv: 100, job: 'god_hand', look: L(0, 'bald', 'gray', 6, 'brown', 'calm'), bg: 'summit',
+      use: 'r88_fz_rock', reward: ['r88_fz_rock'], words: '（岩のきょ人が、ゆっくりと目を開けた…）',
+      sig: { name: '大地のきょ人の大岩', anim: 'quake', charge: '{a}が、大きな岩を持ち上げた！\n地面が、ぐらぐらゆれ始めた…！', cast: '{a}の大岩が、ずしんと投げつけられた！' },
+      tune: { hp: 0.5, dmg: 1 },
     },
   ];
 }

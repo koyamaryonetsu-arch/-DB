@@ -506,3 +506,78 @@ Object.assign(R88_SFX, { r88_dokan: 'blast', r88_moshimo: 'sparkle', r88_moonhea
 // 味方に かける えんしゅつ（client/battle.js・テストが 見る PARTY_ANIMS に まぜる。M1班と 同じ）
 export const R88_PARTY_ANIMS = new Set(['r88_moshimo', 'r88_moonheal']);
 for (const a of R88_PARTY_ANIMS) PARTY_ANIMS.add(a);
+
+// ───── G14班: 鋼のれん金術師・アナと雪の女王（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//  r88_snap   発火布の 指パッチン … 「パチン」と 白い 火花が 1つ はじけ、火花の すじが 敵の 列へ 走って、
+//             敵みんなの まわりで 大きな 炎が ふき上がる（オレンジの 光 ＋ 火の 粉 ＋ 輪）
+//  r88_elsa   第5のせいれいの 雪の 結しょう … 画面が 青く しずまり、まん中に 6本の うでの 大きな 雪の 結しょうが ひらき、
+//             まわりに 4つの せいれいの 色の 光（風 白・火 むらさき・水 青・大地 茶）→ 敵みんなが 氷の 光に つつまれ、雪が まう
+const SNAP = ['#ffffff', '#fff0a0', '#ffb030', '#ff5a1a'];
+const SNOWC = ['#ffffff', '#e8f8ff', '#bfe6ff', '#7ac8ff'];
+const SPIRITS4 = ['#ffffff', '#c890ff', '#5aa8ff', '#c8a060'];
+
+function snap(fx, targets, W, H) {
+  const c = centerOf(targets, W, H);
+  const sx = Math.min(W - 16, c.x + 120), sy = Math.max(20, c.y - 30);
+  // 指を ならす 火花
+  fx.glow(sx, sy, { color: '#ffffff', r: 8, delay: 0, life: 200 });
+  fx.sparks(sx, sy, { colors: ['#ffffff', '#fff6b0'], n: 10, speed: 90, delay: 0, life: 240 });
+  fx.flashAt(50, '#fffbe0', 60);
+  // 火花の すじが 敵へ 走る
+  const spots = targets.length ? targets : [c];
+  spots.forEach((t, i) => {
+    fx.spear(sx, sy, t.x, t.y, { len: 30, w: 1.6, color: '#fff0a0', glow: '#ff9a3a', tip: '#ffffff', delay: 160 + i * 40, travel: 140, hold: 20, life: 220 });
+  });
+  // 大きな 炎が ふき上がる
+  spots.forEach((t, i) => {
+    const d = 340 + i * 60;
+    fx.glow(t.x, t.y, { color: '#ff9a3a', r: 30, delay: d, life: 520 });
+    for (let k = 0; k < 7; k++) fx.puff(t.x + (k - 3) * 6, t.y + 8, { color: k % 2 ? '#ffb030' : '#ff5a1a', r0: 6, r1: 20, vy: -50 - k * 5, delay: d + k * 30, life: 560, add: true });
+    fx.shock(t.x, t.y, { r0: 6, r1: 44, color: '#ffd040', w: 3, delay: d, life: 420 });
+    fx.sparks(t.x, t.y + 6, { colors: SNAP, n: 22, speed: 130, ang: -Math.PI / 2, spread: 1.4, delay: d + 30, life: 520, g: -60 });
+  });
+  fx.tintAt('rgba(60,20,0,0.3)', 900);
+  fx.flashAt(110, '#fff0c0', 360);
+  fx.hitStop(130, 380, 1.4);
+  return true;
+}
+
+function elsa(fx, targets, W, H) {
+  const cx = W / 2, cy = H * 0.42;
+  fx.tintAt('rgba(10,30,70,0.45)', 1500);
+  // 4つの せいれいの 光が まわりから あつまる
+  SPIRITS4.forEach((col, i) => {
+    const a = -Math.PI / 2 + (i * Math.PI) / 2 + Math.PI / 4;
+    fx.glow(cx + Math.cos(a) * 60, cy + Math.sin(a) * 36, { color: col, r: 10, delay: i * 80, life: 600 });
+    fx.converge(cx, cy, { colors: [col, '#ffffff'], n: 8, r: 50, delay: 100 + i * 80, life: 360 });
+  });
+  // 6本の うでの 雪の 結しょう
+  for (let k = 0; k < 6; k++) {
+    const a = (k * Math.PI) / 3;
+    const x = cx + Math.cos(a) * 44, y = cy + Math.sin(a) * 44;
+    fx.spear(cx, cy, x, y, { len: 44, w: 3, color: '#ffffff', glow: '#7ac8ff', tip: '#e8f8ff', delay: 480, travel: 160, hold: 300, life: 700, over: 0 });
+    // うでの とちゅうの 小さな えだ
+    const mx = cx + Math.cos(a) * 26, my = cy + Math.sin(a) * 26;
+    for (const da of [-0.6, 0.6]) fx.spear(mx, my, mx + Math.cos(a + da) * 12, my + Math.sin(a + da) * 12, { len: 12, w: 2, color: '#e8f8ff', glow: '#7ac8ff', tip: '#ffffff', delay: 600, travel: 100, hold: 260, life: 560, over: 0 });
+  }
+  fx.glow(cx, cy, { color: '#ffffff', r: 14, delay: 480, life: 800 });
+  fx.shock(cx, cy, { r0: 6, r1: Math.max(W, H) * 0.6, color: '#bfe6ff', w: 3, delay: 760, life: 700 });
+  // 敵みんなが 氷の 光に つつまれる
+  const spots = targets.length ? targets : [{ x: W * 0.3, y: H * 0.45 }];
+  spots.forEach((t, i) => {
+    const d = 880 + i * 60;
+    fx.glow(t.x, t.y, { color: '#a8e0ff', r: 26, delay: d, life: 520 });
+    fx.shock(t.x, t.y, { r0: 4, r1: 34, color: '#ffffff', w: 2.5, delay: d, life: 380 });
+    fx.sparks(t.x, t.y, { colors: SNOWC, n: 18, speed: 110, delay: d + 20, life: 480 });
+  });
+  // 雪が まう
+  for (let k = 0; k < 22; k++) fx.twinkle(rnd(8, W - 8), rnd(-10, H * 0.5), { color: SNOWC[k % 4], size: rnd(2, 5), vy: 30, vx: rnd(-10, 10), delay: 300 + k * 45, life: 1000, g: 8 });
+  fx.flashAt(120, '#eaf8ff', 880);
+  fx.hitStop(120, 900, 1.2);
+  return true;
+}
+
+Object.assign(G8_FX, { r88_snap: snap, r88_elsa: elsa });
+for (const k of ['r88_snap', 'r88_elsa']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_snap: 520, r88_elsa: 940 });
+Object.assign(R88_SFX, { r88_snap: 'fire', r88_elsa: 'ice' });
