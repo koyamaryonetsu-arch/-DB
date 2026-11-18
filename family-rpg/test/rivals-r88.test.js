@@ -118,9 +118,10 @@ test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイ
   // G14班: 伝説を ライバル いがいで もらう 作品（アナと雪の女王 … 第5のせいれいのドレスは 氷の石の台）も、さいごの 人は Lv100 ごろ
   const DEN_ELSEWHERE = new Set(['frozen']);
   for (const d of RIVAL_DOORS) {
-    assert.ok(WORKS[d.work], d.work);
+    assert.ok(WORKS[d.work] || doorWorks(d.work).every((w) => WORKS[w]), d.work); // G15班: 大魔王の城の とびらは ダイの大冒険の 品（works）
     const list = rivalsOf(d.work);
-    assert.ok(list.length >= 5, d.work);
+    // G15班: ダイの大冒険（2まいに 分けた 1まい め）・ドラゴンクエストは 4人（メインの 設計）
+    assert.ok(list.length >= (['dai', 'dq'].includes(d.work) ? 4 : 5), d.work);
     assert.deepEqual(list.map((r) => r.n), list.map((_, i) => i + 1), `${d.work}: 1から じゅんに`);
     // 強さは 3だん（60・80・100）。さいごの 人が いちばん 強い
     // G8班: 伝説の 品が ない 作品（らんま1/2）は、さいごの 人も 名品なので Lv80 ごろ
