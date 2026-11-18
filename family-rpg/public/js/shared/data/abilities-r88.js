@@ -794,3 +794,29 @@ Object.assign(R88_ABILITIES, {
     desc: 'さばきのつえをふって、かまいたちで同じ種類の敵みんなを切りさく。', cast: '{a}がさばきのつえをふると、するどい風がまき起こった！', anim: 'wind2',
   },
 });
+
+// ───── G16班: ポケモン（ファイルの さいごで まぜる）─────
+//   Zリング … 力を ためる（次の 攻撃が とても 強い。ダイの剣の さやと 同じ charge）・メガリング … 力・守り・素早さが 大きく 上がる（強化）
+//   せいなる灰 … たおれた 仲間 全員を 生き返らせて HPを まんたん・ピッピにんぎょう … かならず にげられる（にげられない 戦いは だめ）
+Object.assign(R88_ABILITIES, {
+  r88u_pk_z: {
+    name: 'ぜんりょくのZパワー', kana: 'ぜんりょくのぜっとぱわー', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'charge', mult: 2.2 },
+    desc: 'Zリングでポーズをきめて、全力の力をためる。次の攻撃がとても強くなる。', cast: '{a}は、Zリングをかかげて、ポーズをきめた！\nZリングに、全力の力が集まっていく…！', anim: 'r88_zpower',
+  },
+  r88u_pk_mega: {
+    name: 'メガシンカのかがやき', kana: 'めがしんかのかがやき', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.35 },
+    desc: 'メガリングのキーストーンにふれて、メガシンカの光につつまれる。しばらく力・守り・素早さが大きく上がる。', cast: '{a}は、メガリングのキーストーンにふれた！\nにじ色の光が、体をつつむ…！', anim: 'r88_mega',
+  },
+  r88u_pk_hai: {
+    name: 'せいなる灰のいのち', kana: 'せいなるはいのいのち', kind: 'skill', mp: 0, target: 'deadAllies', hidden: true, role: 'heal',
+    effect: { type: 'revive', hpRatio: 1 },
+    desc: 'せいなる灰をまいて、たおれた仲間全員を生き返らせる。HPはまんたんになる。', cast: '{a}は、せいなる灰を空にまいた！\nにじ色の光が、ふりそそぐ…！', anim: 'revive',
+  },
+  r88u_pk_pippi: {
+    name: 'ピッピにんぎょうのおとり', kana: 'ぴっぴにんぎょうのおとり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'escape' },
+    desc: 'ピッピにんぎょうをぽいっと投げる。敵が気を取られているうちに、みんなでにげ出す（にげられない戦いはだめ）。', cast: '{a}は、ピッピにんぎょうをぽいっと投げた！', anim: 'none',
+  },
+});

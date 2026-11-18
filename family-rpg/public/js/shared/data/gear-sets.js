@@ -366,3 +366,18 @@ Object.assign(GEAR_SETS, {
     ],
   },
 });
+
+// ───── G16班: ポケモン（ファイルの さいごで まぜる）─────
+//   ジムバッジ … own（持って いる 数で しょう号）。8つ 持つ 人だけ、まぼろしの回ろうの チャンピオン・ワタルに ちょうせん できる（data/rivals-r88.js の needSet）
+Object.assign(GEAR_SETS, {
+  gym_badge: {
+    name: 'ジムバッジ',
+    items: ['r88_pk_b_gray', 'r88_pk_b_blue', 'r88_pk_b_orange', 'r88_pk_b_rainbow', 'r88_pk_b_pink', 'r88_pk_b_gold', 'r88_pk_b_crimson', 'r88_pk_b_green'],
+    rule: 'own',
+    tiers: [
+      { n: 3, title: 'ジムめぐりのトレーナー', text: '3つ持つと、しょう号「ジムめぐりのトレーナー」' },
+      { n: 6, title: 'うでききのトレーナー', text: '6つ持つと、しょう号「うでききのトレーナー」' },
+      { n: 8, title: 'ポケモンリーグのちょうせん者', text: '8つ全部持つと、しょう号「ポケモンリーグのちょうせん者」。まぼろしの回ろうの、チャンピオン・ワタルにちょうせんできる' },
+    ],
+  },
+});

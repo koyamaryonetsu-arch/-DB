@@ -69,3 +69,10 @@ Object.assign(WORKS, {
   dai: { name: 'ダイの大冒険', trialGift: { dragon_knight: 'r88_da_mark_blue', maou: 'r88_da_white' } },
   dq: { name: 'ドラゴンクエスト', trialGift: { loto_hero: 'r88_dq_roto_mark' } },
 });
+
+// 第88回 G16班: ポケモン（ファイルの さいごで まぜる）
+//   試練の ごほうび: ポケモンマスター → サトシのぼうし（サトシの 品）
+//   まぼろしの回ろうの ジムリーダーは 曜日で かわる（data/rivals-r88.js の g16Rivals）
+Object.assign(WORKS, {
+  pokemon: { name: 'ポケモン', trialGift: { poke_master: 'r88_pk_cap' } },
+});

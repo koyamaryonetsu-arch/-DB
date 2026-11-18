@@ -107,6 +107,8 @@ import { rivalSigEffect } from './battle-rival-fx-r88.js';
 import { r88mTurnStart, r88mEffect, r88mMark, r88mCut, r88mNote, r88mResolve, r88mPub } from './battle-r88m.js';
 // 第88回 G15班: 呪文を はね返す・動けなく する・光魔のつえ・まじんのかなづち（battle-r88-dq.js）
 import { r88dqEffect, r88MirrorSpell, r88dqAcc, r88dqAfterAttack } from './battle-r88-dq.js';
+// 第88回 G16班: オボンのみ・いのちのたま（battle-r88-pokemon.js）
+import { r88pkActEnd } from './battle-r88-pokemon.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
 import { powScaleFor } from './pow-scale.js';
 
@@ -788,6 +790,7 @@ export class Battle {
     }
     if (c.mpRegen && c.alive && c.side === 'ally') c.mp = Math.min(c.maxMp, c.mp + c.mpRegen); // レア装備: 行動ごとの MP回復
     gearRegen(this, c, ev); // 第64回 ⑥c: れん金の いやし
+    r88pkActEnd(this, c, ev); // 第88回 G16班: オボンのみ・いのちのたま（battle-r88-pokemon.js）
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
     // 第48回の 大技: ためて はなつ 時間だけ ev.extraLock を のばす（2回目は ため 半分。ev.fx.ax で クライアントに つたえる）

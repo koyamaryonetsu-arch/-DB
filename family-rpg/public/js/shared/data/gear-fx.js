@@ -11,6 +11,7 @@ import { ITEMS } from './items.js';
 import { isShopGear, starsFor } from './items-rare.js';
 // 第88回: 作品の 品の 生まれつきの 効果・そろいの 効果・「使う」（shared/gear-r88.js）
 import { r88FxList, wearSetPower, r88Uses } from '../gear-r88.js';
+import { pkWearAdd } from '../gear-r88-pokemon.js'; // 第88回 G16班: しんかのきせき
 
 export const STAR = 'star_shard';
 // 使う 素材（武器・防具〈よろい・たて・頭〉）
@@ -186,6 +187,7 @@ export function gearFxStats(char) {
   const ws = wearSetPower(char);
   for (const [k, v] of Object.entries(ws.add)) add[k] = (add[k] || 0) + v;
   for (const [k, v] of Object.entries(ws.resist)) resist[k] = (resist[k] ?? 1) * v;
+  for (const [k, v] of Object.entries(pkWearAdd(char))) add[k] = (add[k] || 0) + v; // G16班: しんかのきせき（基本職・上級職）
   return { add, resist, crit: t.crit ? fxPower('crit', t.crit).crit : 0 };
 }
 
