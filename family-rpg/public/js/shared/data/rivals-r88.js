@@ -674,7 +674,7 @@ function g11Rivals() {
       id: 'ks_sojiro', work: 'kenshin', n: 2, name: 'せた宗次ろう', lv: 62, job: 'hitokiri', look: L(0, 'short', 'black', 1, 'fair', 'smile'),
       use: 'r88_ks_kikuichi', reward: ['r88_ks_kikuichi'], words: 'あはは。ぼく、ちょっと速いですよ。',
       sig: { name: 'しゅく地の一太刀', anim: 'slash_fast', charge: '{a}が、にこにこしたまま、とんとんと足ぶみを始めた…！\n足音が、だんだん聞こえなくなっていく…！', cast: '{a}が消えた…と思ったしゅん間、一太刀がとどいた！' },
-      tune: { hp: 1.4, dmg: 1 },
+      tune: { hp: 1.46, dmg: 1 },
     },
     {
       id: 'ks_enishi', work: 'kenshin', n: 3, name: '雪代えにし', lv: 64, job: 'sword_master', look: L(0, 'spiky', 'white', 0, 'fair', 'sharp'),
@@ -700,19 +700,19 @@ function g11Rivals() {
       id: 'cn_kyogoku', work: 'conan', n: 1, name: '京極真', lv: 60, job: 'god_hand', look: L(0, 'buzz', 'black', 0, 'tan', 'brave'),
       use: 'r88_cn_kyogoku', reward: ['r88_cn_kyogoku'], words: 'おす！全力でお相手します！',
       sig: { name: 'けりの大れんげき', anim: 'punch_multi', charge: '{a}が、ふかく、ふかくこしを落とした！\n足に、ものすごい力がたまっていく…！', cast: '{a}のけりが、あらしのようにおそいかかった！' },
-      tune: { hp: 1.15, dmg: 1 },
+      tune: { hp: 1.12, dmg: 1 },
     },
     {
       id: 'kt_hakuba', work: 'conan', n: 2, name: '白馬探', lv: 62, job: 'meitantei', look: L(0, 'wavy', 'blonde', 7, 'fair', 'calm'),
       use: 'r88_kt_watch', reward: ['r88_kt_watch'], words: 'ぼくの推理に、まちがいはありません。',
       sig: { name: 'ワトソンの急こう', anim: 'slash_fast', charge: '{a}が、かいちゅう時計をぱちんと開いた！\n空の上で、タカが大きく回っている…！', cast: '{a}の合図で、タカのワトソンがいっせいにまいおりた！' },
-      tune: { hp: 1.45, dmg: 1 },
+      tune: { hp: 1.41, dmg: 1 },
     },
     {
-      id: 'cn_akai', work: 'conan', n: 3, name: '赤井しゅう一', lv: 64, job: 'black_org', look: L(0, 'long', 'black', 0, 'light', 'sharp'),
+      id: 'cn_akai', work: 'conan', n: 3, name: '赤井しゅう一', lv: 64, job: 'koan_zero', look: L(0, 'long', 'black', 0, 'light', 'sharp'),
       use: 'r88_cn_knit', reward: ['r88_cn_knit'], words: 'ここから先は、通さない。',
       sig: { name: 'ジークンドーのれんげき', anim: 'punch_multi', charge: '{a}が、ニットぼうを目ぶかにかぶり直した！\nしずかに、かまえを取る…！', cast: '{a}のするどいこぶしが、つぎつぎにとんできた！' },
-      tune: { hp: 1.18, dmg: 1 },
+      tune: { hp: 1.16, dmg: 1 },
     },
     {
       id: 'kt_kid', work: 'conan', n: 4, name: 'かいとうキッド', lv: 66, job: 'kaito_kid', look: L(0, 'short', 'white', 7, 'fair', 'smile'),
