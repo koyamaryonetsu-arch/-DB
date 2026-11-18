@@ -262,9 +262,9 @@ function zeus(fx, targets, W, H) {
   const zx = c.x, zy = Math.max(18, c.y - 54);
   for (let k = 0; k < 9; k++) {
     const a = (k / 9) * Math.PI * 2;
-    fx.puff(zx + Math.cos(a) * 16, zy + Math.sin(a) * 7, { color: k % 2 ? '#5a5a7a' : '#3a3a5a', r0: 8, r1: 16, vy: 0, delay: k * 30, life: 1100 });
+    fx.puff(zx + Math.cos(a) * 16, zy + Math.sin(a) * 7, { color: k % 2 ? '#9a9ab8' : '#7a7a9a', r0: 8, r1: 16, vy: 0, delay: k * 30, life: 1100 });
   }
-  fx.glow(zx, zy, { color: '#8a8ab0', r: 26, delay: 120, life: 1000, alpha: 0.7 });
+  fx.glow(zx, zy, { color: '#b0b0d8', r: 26, delay: 120, life: 1000, alpha: 0.7 });
   // 白い 目（ゼウスの 顔）
   fx.glow(zx - 6, zy - 1, { color: '#ffffff', r: 3, delay: 300, life: 800 });
   fx.glow(zx + 6, zy - 1, { color: '#ffffff', r: 3, delay: 300, life: 800 });

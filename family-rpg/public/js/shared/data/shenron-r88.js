@@ -36,7 +36,7 @@ export const DB_PLACES = [
 export const dbChestId = (p) => `r88db_${p.id}`;
 export const dbChestScript = (p) => `r88_dball_${p.id}`;
 // 神龍の さいだん（星見の丘。ミドリナ地方の マス）
-export const SHENRON = { map: 'overworld', x: 68, y: 80 };
+export const SHENRON = { map: 'overworld', x: 64, y: 79 };
 
 // ───── 玉を 持って いるか（ふくろと 自分の 装備）─────
 export function ballHave(c, id) {
