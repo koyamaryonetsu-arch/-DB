@@ -680,7 +680,7 @@ function g11Rivals() {
       id: 'ks_enishi', work: 'kenshin', n: 3, name: '雪代えにし', lv: 64, job: 'sword_master', look: L(0, 'spiky', 'white', 0, 'fair', 'sharp'),
       use: 'r88_ks_wato', reward: ['r88_ks_wato'], words: 'わ刀術の力、見せてやる。',
       sig: { name: 'わ刀術・大回転', at: 0.8, after: 3, hit: 1.3, anim: 'slash_heavy', charge: '{a}が、わ刀を体ごと大きくひねった！\nまわりの空気が、ぴりぴりとふるえる…！', cast: '{a}が、回りながらわ刀をふりぬいた！' },
-      tune: { hp: 0.3, dmg: 1.2 },
+      tune: { hp: 0.5, dmg: 1.2 },
     },
     {
       id: 'ks_shishio', work: 'kenshin', n: 4, name: 'ししお真実', lv: 80, job: 'enjutsushi', look: L(0, 'bald', 'black', 0, 'light', 'sharp'), bg: 'castle_fire',
@@ -693,26 +693,26 @@ function g11Rivals() {
       use: 'r88_ks_fuyutsuki', reward: ['r88_ks_mantle', 'r88_ks_fuyutsuki'], words: 'ばか弟子の仲間か。少し、見てやろう。',
       same: 'ほう、飛天の剣を学ぶ者か。ならば、手かげんはせん。',
       sig: { name: '師しょうの九つの竜の一げき', anim: 'slash_multi', charge: '{a}が、白いマントをばさりとぬぎすてた！\nまわりの空気が、ずしりと重くなっていく…！', cast: '{a}の刀から、九つの竜のような一げきが、同時におそいかかった！' },
-      tune: { hp: 0.5, dmg: 1 },
+      tune: { hp: 0.65, dmg: 1 },
     },
     // ── コナン・快と（名品・ふつうを くれる 人は Lv60 ごろ・さいごの 月夜の キッドは 伝説の パンドラで Lv100）──
     {
       id: 'cn_kyogoku', work: 'conan', n: 1, name: '京極真', lv: 60, job: 'god_hand', look: L(0, 'buzz', 'black', 0, 'tan', 'brave'),
       use: 'r88_cn_kyogoku', reward: ['r88_cn_kyogoku'], words: 'おす！全力でお相手します！',
       sig: { name: 'けりの大れんげき', anim: 'punch_multi', charge: '{a}が、ふかく、ふかくこしを落とした！\n足に、ものすごい力がたまっていく…！', cast: '{a}のけりが、あらしのようにおそいかかった！' },
-      tune: { hp: 1.1, dmg: 1 },
+      tune: { hp: 1.15, dmg: 1 },
     },
     {
       id: 'kt_hakuba', work: 'conan', n: 2, name: '白馬探', lv: 62, job: 'meitantei', look: L(0, 'wavy', 'blonde', 7, 'fair', 'calm'),
       use: 'r88_kt_watch', reward: ['r88_kt_watch'], words: 'ぼくの推理に、まちがいはありません。',
       sig: { name: 'ワトソンの急こう', anim: 'slash_fast', charge: '{a}が、かいちゅう時計をぱちんと開いた！\n空の上で、タカが大きく回っている…！', cast: '{a}の合図で、タカのワトソンがいっせいにまいおりた！' },
-      tune: { hp: 1.39, dmg: 1 },
+      tune: { hp: 1.45, dmg: 1 },
     },
     {
       id: 'cn_akai', work: 'conan', n: 3, name: '赤井しゅう一', lv: 64, job: 'black_org', look: L(0, 'long', 'black', 0, 'light', 'sharp'),
       use: 'r88_cn_knit', reward: ['r88_cn_knit'], words: 'ここから先は、通さない。',
       sig: { name: 'ジークンドーのれんげき', anim: 'punch_multi', charge: '{a}が、ニットぼうを目ぶかにかぶり直した！\nしずかに、かまえを取る…！', cast: '{a}のするどいこぶしが、つぎつぎにとんできた！' },
-      tune: { hp: 1.2, dmg: 1 },
+      tune: { hp: 1.18, dmg: 1 },
     },
     {
       id: 'kt_kid', work: 'conan', n: 4, name: 'かいとうキッド', lv: 66, job: 'kaito_kid', look: L(0, 'short', 'white', 7, 'fair', 'smile'),
@@ -726,7 +726,7 @@ function g11Rivals() {
       use: 'r88_kt_pandora', reward: ['r88_kt_pandora'], words: '月が出ましたね。さあ、さいごのマジックです。',
       same: 'おや、同じ手品の道の方ですか。では、マジック勝負といきましょう。',
       sig: { name: '満月のイリュージョン', el: 'light', anim: 'r88_kid', charge: '{a}が、大きな宝石を月にかざした！\n宝石の中で、赤い光がゆらめく…！', cast: '{a}のマントがひるがえり、月の光がいっせいにふりそそいだ！' },
-      tune: { hp: 0.42, dmg: 1 },
+      tune: { hp: 0.4, dmg: 1 },
     },
   ];
 }

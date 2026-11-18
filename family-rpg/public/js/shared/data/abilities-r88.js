@@ -558,7 +558,7 @@ Object.assign(R88_ABILITIES, {
   r88u_kt_glider: {
     name: 'ハンググライダー・夜空へ', kana: 'はんぐぐらいだーよぞらへ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
     effect: { type: 'escape' },
-    desc: 'マントを白いつばさにかえて、みんなで夜空へにげ出す（にげられない戦いはだめ）。', cast: '{a}のマントが、ばさっと白いつばさになった！', anim: 'r88_kid',
+    desc: 'マントを白いつばさにかえて、みんなで夜空へにげ出す（にげられない戦いはだめ）。', cast: '{a}のマントが、ばさっと白いつばさになった！', anim: 'none',
   },
   r88u_kt_spray: {
     name: 'さいみんスプレー・ひとふき', kana: 'さいみんすぷれーひとふき', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',

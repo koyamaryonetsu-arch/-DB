@@ -156,7 +156,8 @@ test('G11: 使う 品は ぜんぶ 戦いで 動く（1回・MPなし）。え�
     assert.equal(playR88Fx(fake, an, [{ x: 100, y: 60 }, { x: 150, y: 70 }], null, {}, 256, 144), true, an);
   }
   assert.equal(ABILITIES.r88u_ks_guren.anim, 'r88_guren');
-  assert.equal(ABILITIES.r88u_kt_glider.anim, 'r88_kid');
+  assert.equal(RIVAL_BY_ID.kt_kid.sig.anim, 'r88_kid'); // キッドの 大技（にげる 技は えんしゅつ なし）
+  assert.equal(RIVAL_BY_ID.kt_kidmoon.sig.anim, 'r88_kid');
 });
 
 test('G11: そろい（ティンベーとローチン・シューズとボール射出ベルト）', () => {
