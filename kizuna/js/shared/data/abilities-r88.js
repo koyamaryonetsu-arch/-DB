@@ -683,3 +683,40 @@ Object.assign(R88_ABILITIES, {
     desc: 'グレイブを地面につき立てて、仲間全員を守るかべを作る。仲間全員の守備力が上がる。', cast: '{a}は、サイレンス・グレイブを地面につき立てた！', anim: 'buff',
   },
 });
+
+// ───── G14班: 鋼のれん金術師・アナと雪の女王（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   発火布の 指パッチンは、雨の 時は しめって 火が 出ない（品の use.wet。shared/battle-r88.js の useWet。1回は へらない）
+Object.assign(R88_ABILITIES, {
+  // ── 鋼のれん金術師 ──
+  r88u_hg_snap: {
+    name: '指パッチンの大きな炎', kana: 'ゆびぱっちんのおおきなほのお', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'fire', base: [160, 190], thr: 85 },
+    desc: '発火布の手ぶくろで指を鳴らし、火花から大きな炎を作って、敵全体をつつむ。雨の日は、しめって火が出ない。', cast: '{a}は、指をパチンと鳴らした！', anim: 'r88_snap',
+  },
+  r88u_hg_bunkai: {
+    name: '右うでの分解', kana: 'みぎうでのぶんかい', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 3.2 },
+    desc: '右うでで敵1体にふれて、分解の力で大きくうつ。', cast: '{a}は、右うでを{t}につき出した！', anim: 'blast2',
+  },
+  r88u_hg_toge: {
+    name: '岩のとげのれん成', kana: 'いわのとげのれんせい', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 1.8 },
+    desc: '手こうで地面をなぐってれん成し、岩のとげで同じ種類の敵みんなをつき上げる。', cast: '{a}は、手こうで地面を思いきりなぐった！', anim: 'r33_alchemy_spear',
+  },
+  // ── アナと雪の女王 ──
+  r88u_fz_troll: {
+    name: 'トロールのいやし', kana: 'とろーるのいやし', kind: 'skill', mp: 0, target: 'ally', hidden: true, role: 'heal',
+    effect: { type: 'multi', parts: [{ type: 'cure', statuses: ['confuse', 'sleep'] }, { type: 'heal', base: [150, 180], thr: 60 }] },
+    desc: 'トロールの長老の光で、仲間1人の混乱とねむりを治して、HPを回復する。', cast: '{a}の手の中で、やさしい光がゆれた…', anim: 'heal1',
+  },
+  r88u_fz_scepter: {
+    name: '王しゃくの氷', kana: 'おうしゃくのこおり', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [110, 130], thr: 60 },
+    desc: '手ぶくろを外して王しゃくを持ち、同じ種類の敵みんなを氷でつつむ。', cast: '{a}が王しゃくをにぎると、あたりがこおり始めた！', anim: 'ice2',
+  },
+  r88u_fz_dress: {
+    name: 'せいれいの雪の結しょう', kana: 'せいれいのゆきのけっしょう', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'ice', base: [160, 190], thr: 85 },
+    desc: '4つのせいれいの力を1つにして、大きな雪の結しょうで敵全体を氷でつつむ。', cast: '{a}のドレスが、白くかがやき始めた…！', anim: 'r88_elsa',
+  },
+});

@@ -1,9 +1,11 @@
 // 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら（render/chars.js の paintSpecial の さいごで よぶ。{ p, oc } を かえす）
-import { Painter } from './pixel.js?v=87f5df649c81';
+import { Painter } from './pixel.js?v=6918d1c14678';
 // 第88回 G9班: 神龍の さいだんと 神龍（render/shenron-art.js）
-import { paintShenronSpecial } from './shenron-art.js?v=87f5df649c81';
+import { paintShenronSpecial } from './shenron-art.js?v=6918d1c14678';
 // 第88回 G12班: 聖はいの 水しょうの台（render/grail-art.js）
-import { paintGrailSpecial } from './grail-art.js?v=87f5df649c81';
+import { paintGrailSpecial } from './grail-art.js?v=6918d1c14678';
+// 第88回 G14班: 第5のせいれいのドレスの 氷の石の台（render/frozen-art.js）
+import { paintFifthSpecial } from './frozen-art.js?v=6918d1c14678';
 
 // ガチャガチャの 台（上は とうめいな まるい まどに 色とりどりの カプセル・下は 赤い 台と 回す ハンドル・取り出し口）
 function paintGacha(f) {
@@ -74,6 +76,6 @@ export function paintGachaSpecial(kind, dir, f) {
   switch (kind) {
     case 'r88_gacha': return paintGacha(f);
     case 'r88_hokora': return paintHokora(f);
-    default: return paintShenronSpecial(kind, dir, f) || paintGrailSpecial(kind, dir, f); // G9班・G12班
+    default: return paintShenronSpecial(kind, dir, f) || paintGrailSpecial(kind, dir, f) || paintFifthSpecial(kind, dir, f); // G9班・G12班・G14班
   }
 }

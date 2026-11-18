@@ -279,3 +279,39 @@ Object.assign(R88_BOARD_COLORS, {
   r88_doraemon: ['#1a8ae0', '#0a3a7a', '#7ac8ff'],
   r88_sailormoon: ['#2a1a5a', '#0a0a2a', '#8a6ae0'],
 });
+
+// G14班: 鋼のれん金術師（れん成の 円と 赤い 星）・アナと雪の女王（雪の 結しょう）
+Object.assign(R88_BOARD_ICONS, {
+  r88_hagaren: {
+    rows: [
+      '...www...',
+      '.ww...ww.',
+      '.w..r..w.',
+      'w..rRr..w',
+      'w.rRRRr.w',
+      'w..r.r..w',
+      '.w.....w.',
+      '.ww...ww.',
+      '...www...',
+    ],
+    pal: { w: '#f0f0ff', r: '#c81a1a', R: '#ff4a3a' },
+  },
+  r88_frozen: {
+    rows: [
+      '....w....',
+      '.w..W..w.',
+      '..w.W.w..',
+      '...wWw...',
+      'wWWWbWWWw',
+      '...wWw...',
+      '..w.W.w..',
+      '.w..W..w.',
+      '....w....',
+    ],
+    pal: { w: '#bfe6ff', W: '#ffffff', b: '#7ac8ff' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_hagaren: ['#2a3a6a', '#0a1430', '#6a8ad8'],
+  r88_frozen: ['#2a7ab8', '#0a2a5a', '#a8e0ff'],
+});

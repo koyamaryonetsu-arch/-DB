@@ -6,10 +6,10 @@
 //   とびらを 調べると だいほん 'rival_door_<作品>'（data/story-rivals-r88.js）
 // ・とびらの 中 … 1つの 部屋の 形を 使い回して、作品ごとに ゆかと かべを かえる（ROOM_STYLES）。戦いの 前に 家族で 入る（world/rivals-r88.js）
 // ・attachRivalHall(maps) で 今の マップに 足す（ほかの マップの ファイルは かえない）
-import { T } from '../tiles.js?v=87f5df649c81';
-import { PLACES } from './overworld.js?v=87f5df649c81';
-import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=87f5df649c81';
-import { workName } from '../data/works.js?v=87f5df649c81';
+import { T } from '../tiles.js?v=6918d1c14678';
+import { PLACES } from './overworld.js?v=6918d1c14678';
+import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=6918d1c14678';
+import { workName } from '../data/works.js?v=6918d1c14678';
 
 export const HALL_ID = 'rival_hall';
 export const HALL_NAME = 'まぼろしの回ろう';
@@ -144,4 +144,9 @@ Object.assign(ROOM_STYLES, {
 // G9班: ワンピース（船の 甲板: 木の ゆか・まわりは 海・たる）。ドラゴンボールは 石の 広間（stone）
 Object.assign(ROOM_STYLES, {
   ship: { floor: T.FLOOR_WOOD, wall: T.WATER, deco: T.BARREL },
+});
+
+// G14班: アナと雪の女王（雪の 部屋: 雪の ゆか・氷の かたまりの かべ・雪の 木）。鋼のれん金術師は 石の 広間（stone）
+Object.assign(ROOM_STYLES, {
+  snow: { floor: T.SNOW, wall: T.ICE_BLOCK, deco: T.SNOW_PINE },
 });

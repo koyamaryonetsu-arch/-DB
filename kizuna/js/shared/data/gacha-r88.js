@@ -10,11 +10,11 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS } from './items.js?v=87f5df649c81';
-import { REBIRTH } from './items-alchemy.js?v=87f5df649c81';
-import { WORKS } from './works.js?v=87f5df649c81';
-import { RIVALS } from './rivals-r88.js?v=87f5df649c81';
-import { ownedIds } from '../gear-r88.js?v=87f5df649c81';
+import { ITEMS } from './items.js?v=6918d1c14678';
+import { REBIRTH } from './items-alchemy.js?v=6918d1c14678';
+import { WORKS } from './works.js?v=6918d1c14678';
+import { RIVALS } from './rivals-r88.js?v=6918d1c14678';
+import { ownedIds } from '../gear-r88.js?v=6918d1c14678';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -219,7 +219,8 @@ function links() {
   if (rebirthFrom) return;
   rebirthFrom = new Map();
   for (const [from, r] of Object.entries(REBIRTH)) {
-    if (!r?.to || !ITEMS[r.to]?.work) continue;
+    // G14班: 先が べつの 作品の 品（オリハルコンの像〈スレイヤーズ〉→ 賢者の石〈鋼のれん金術師〉）は つながない
+    if (!r?.to || !ITEMS[r.to]?.work || ITEMS[r.to].work !== ITEMS[from]?.work) continue;
     if (!rebirthFrom.has(r.to)) rebirthFrom.set(r.to, []);
     rebirthFrom.get(r.to).push(from);
   }

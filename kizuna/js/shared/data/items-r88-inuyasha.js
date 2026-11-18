@@ -3,7 +3,7 @@
 //   四こんの玉の かけら 5つ（そろい shikon_kakera）＋ 竜りんの 鉄さいが（か 黒い 鉄さいが）→ かじ屋で かけらを きたえると 四こんの玉
 //   作品の 字は 使える 字に 直した（犬夜叉 → 犬夜しゃ・鉄砕牙 → 鉄さいが・天生牙 → てんせいが など。設計書の「実装メモ（G7班）」）
 //   入れない 品: 霧骨・銀骨・凶骨・赤子・白夜の 品・煉骨の 砲筒（設計書 2-5）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=87f5df649c81';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=6918d1c14678';
 
 const I = { work: 'inuyasha' };
 const K = { work: 'inuyasha', set: 'shikon_kakera' };

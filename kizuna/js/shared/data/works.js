@@ -53,3 +53,11 @@ Object.assign(WORKS, {
   doraemon: { name: 'ドラえもん', trialGift: { doraemon: 'r88_dr_hirari' } },
   sailormoon: { name: 'セーラームーン', trialGift: { sailor_moon: 'r88_sm_stick1' } },
 });
+
+// 第88回 G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいごで まぜる）
+//   試練の ごほうび: はがねのれん金術師 → 赤いコート（主人公の 名品）・雪の女王 → 氷のドレス（主人公の 名品）
+//   アナと雪の女王の 伝説「第5のせいれいのドレス」は、4つの せいれいの しるしを 持って 氷の石の台へ（world/frozen-r88.js）
+Object.assign(WORKS, {
+  hagaren: { name: '鋼のれん金術師', trialGift: { fullmetal: 'r88_hg_coat' } },
+  frozen: { name: 'アナと雪の女王', trialGift: { snow_queen: 'r88_fz_icedress' } },
+});

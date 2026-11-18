@@ -3,7 +3,7 @@
 //   ・r85aRow   … 命令の 一覧（技の メニュー）で、となえて いない 時の 大砲の 呪文を うすく して「となえてから」の 札を 出す（client/battle.js の abilityMenu）
 //   ・r85aPresent … となえた（札が 金色に 光る）・早口（「早口！」）・大砲を うった（ギガ・スレイブは 画面が 黒く ゆれる）
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { isBig } from '../shared/battle-r85a.js?v=87f5df649c81';
+import { isBig } from '../shared/battle-r85a.js?v=6918d1c14678';
 
 export const CHANT_COLOR = '#ffd36a';
 const CSS = `

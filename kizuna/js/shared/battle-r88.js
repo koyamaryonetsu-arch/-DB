@@ -4,10 +4,10 @@
 //   ・使う（品の use）… 1つの 戦いで その 品 1回（battle-gearfx.js の gearUseCheck・gearUse。u.once・u.used）
 //   ・そろい rule 'party' … 戦いの はじめの 仲間で 数えて、全員に その 段の 強さ（applyPartySets。battle.js の constructor）
 //   どれも 戦いの 中だけ（セーブしない）
-import { GEAR_SETS } from './data/gear-sets.js?v=87f5df649c81';
-import { fxPower, GEAR_FX } from './data/gear-fx.js?v=87f5df649c81';
-import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=87f5df649c81';
-import { ITEMS, baseItemId } from './data/items.js?v=87f5df649c81';
+import { GEAR_SETS } from './data/gear-sets.js?v=6918d1c14678';
+import { fxPower, GEAR_FX } from './data/gear-fx.js?v=6918d1c14678';
+import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=6918d1c14678';
+import { ITEMS, baseItemId } from './data/items.js?v=6918d1c14678';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {
@@ -99,4 +99,13 @@ export function useAbilityOf(b, c, u) {
   const w = u?.weather;
   const kind = b?.weather?.kind;
   return (w && kind && w[kind]) || u?.ability;
+}
+
+// G14班: 雨で しめる 品（品の use.wet。発火布の手ぶくろ）… 今の 戦いの 天気が 雨（どちらの 側の 天気でも）の 時は、
+//   火が 出ず 何も 起きない。その 戦いの 1回は へらない（使った ことに ならない）。しめったら true
+export function useWet(b, c, u, ev) {
+  if (!ITEMS[baseItemId(u?.id)]?.use?.wet || b?.weather?.kind !== 'rain') return false;
+  ev.lines.push('しかし、雨で手ぶくろがしめっていて、火が出ない！');
+  ev.fx = { type: 'fizzle', actor: c.id };
+  return true;
 }
