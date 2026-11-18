@@ -130,7 +130,8 @@ export function forgeTop(id, c = viewerChar()) {
 // 第65回: 限界とっぱ（★1〜★3。items-forge.js の LB_MAX）
 export const LIMIT_STONE = 'limit_stone';
 // 生まれ変わりの 武器（2だん目から）も 限界とっぱ しない（かくし要素の 道すじの まま）
-const REBORN_TO = new Set(Object.values(REBIRTH).map((r) => r.to));
+//   第88回 G11班: lbOk … 生まれ変わりの 先が 前から ある 品（名工の逆ば刀）の ときは、今の まま 限界とっぱ できる
+const REBORN_TO = new Set(Object.values(REBIRTH).filter((r) => !r.lbOk).map((r) => r.to));
 export const lbOf = (id) => ITEMS[id]?.lb || 0;
 // 次に きたえた ときの id（★は そのまま）
 const nextId = (id, n) => lbId(ITEMS[id]?.base || id, n, lbOf(id));

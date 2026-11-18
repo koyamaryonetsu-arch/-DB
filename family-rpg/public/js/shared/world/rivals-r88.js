@@ -7,11 +7,11 @@
 import { RIVAL_HOOKS } from '../data/story-rivals-r88.js';
 import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js';
 import { RIVAL_BY_ID, DOOR_NEED, RIVAL_GOLD_PER_LV, rivalOpen, markRivalWin, rivalEnc, rivalMembers } from '../data/rivals-r88.js';
-import { workName } from '../data/works.js';
+// G11班: とびらの 名前は shared/rivals-r88.js の doorName（workName は 使わなく なった）
 import { ITEMS } from '../data/items.js';
 import { addItem } from '../stats.js';
 import { ownedIds } from '../gear-r88.js';
-import { workOwned, doorLeft, refreshDoorFlags, rivalPaper, rivalButtons, rewardIds, HALL_NAME } from '../rivals-r88.js';
+import { workOwned, doorLeft, refreshDoorFlags, rivalPaper, rivalButtons, rewardIds, HALL_NAME, doorName } from '../rivals-r88.js';
 import { HALL_ID, roomId, ROOM_START, doorFront } from '../maps/rivals-r88.js';
 import { startFixedBattle, battleSessions } from './battles.js';
 import { partyOf } from './party.js';
@@ -43,7 +43,7 @@ export async function doorTalk(run, work) {
   const steps = [];
   const changed = refreshDoorFlags(c);
   const left = doorLeft(c, work);
-  const name = workName(work);
+  const name = doorName(work); // G11班: まとめた とびら（コナン・快と）は とびらの 名前
   if (left > 0) {
     steps.push(
       note(`${name}のとびらだ。\nとびらは、光っていない…`),

@@ -38,6 +38,15 @@ Object.assign(WORKS, {
   onepiece: { name: 'ワンピース', trialGift: { rubber: 'r88_op_ace' } },
 });
 
+// 第88回 G11班: るろうに剣心・名探ていコナン・まじっく快と（ファイルの さいごで まぜる）
+//   試練の ごほうび: ひ村ばっ刀さい → 赤い着物（剣心の 品）・名探てい → うで時計型ますいじゅう・かいとうキッド → モノクル
+//   コナンと 快とは まぼろしの回ろうの とびらを 1まいに まとめた（data/rivals-r88.js の g11Doors。品は 作品ごと）
+Object.assign(WORKS, {
+  kenshin: { name: 'るろうに剣心', trialGift: { himura: 'r88_ks_kimono' } },
+  conan: { name: '名探ていコナン', trialGift: { meitantei: 'r88_cn_masui' } },
+  kaito: { name: 'まじっく快と', trialGift: { kaito_kid: 'r88_kt_monocle' } },
+});
+
 // 第88回 G12班: ドラえもん・セーラームーン（ファイルの さいごで まぜる）
 //   試練の ごほうび: ドラえもん → ひらりマント（ドラえもんの 名品の たて）・セーラームーン → うさぎのムーンスティック（5だんに 生まれ変わる はじめの スティック）
 Object.assign(WORKS, {

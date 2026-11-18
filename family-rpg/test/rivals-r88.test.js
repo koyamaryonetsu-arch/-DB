@@ -20,6 +20,7 @@ import {
   repairRivals, mergeRivals, RIVAL_GOLD_PER_LV, markRivalWin,
 } from '../public/js/shared/data/rivals-r88.js';
 import { workOwned, doorOpen, refreshDoorFlags, rivalPaper, rivalButtons, rivalTrack, rivalRec } from '../public/js/shared/rivals-r88.js';
+import { doorWorks } from '../public/js/shared/data/rivals-r88.js'; // G11班
 import { HALL_ID, HALL_STAIRS, hallLayout, doorFront, roomId } from '../public/js/shared/maps/rivals-r88.js';
 import { setupRivalPhantom } from '../public/js/shared/battle-rival-r88.js';
 import { rivalSigEffect } from '../public/js/shared/battle-rival-fx-r88.js';
@@ -136,9 +137,10 @@ test('データ: とびらは 作品ごと（ほう神演義・YAIBA・スレイ
   for (const rv of RIVALS) {
     for (const id of rv.reward) {
       assert.ok(ITEMS[id], `${rv.id}: ${id}`);
-      assert.equal(ITEMS[id].work, rv.work, `${rv.id}: ${id} は その 作品の 品`);
+      // G11班: 2作品を まとめた とびら（コナン・快と）は、とびらの どちらかの 作品の 品
+      assert.ok(doorWorks(rv.work).includes(ITEMS[id].work), `${rv.id}: ${id} は その 作品の 品`);
     }
-    assert.equal(ITEMS[rv.use]?.work, rv.work, `${rv.id}: 使う 品`);
+    assert.ok(doorWorks(rv.work).includes(ITEMS[rv.use]?.work), `${rv.id}: 使う 品`);
     for (const m of rv.members || [rv]) assert.ok(JOBS[m.job], `${rv.id}: 借りる 職業 ${m.job}`);
     assert.ok(rv.words && rv.words.length <= 40, `${rv.id}: ひとことは みじかく`);
     // 戦い・まぼろし・大技

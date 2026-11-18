@@ -208,6 +208,42 @@ Object.assign(R88_BOARD_COLORS, {
   r88_onepiece: ['#2a6a9a', '#0a2a4a', '#6ab0e0'],
 });
 
+// G11班: るろうに剣心（十字の きずと 逆ば刀）・コナン・快と（白い シルクハットと 赤い ちょうネクタイ）
+Object.assign(R88_BOARD_ICONS, {
+  r88_kenshin: {
+    rows: [
+      '........w',
+      '.......wW',
+      '.r...rwW.',
+      '..r.rwW..',
+      '...rwW...',
+      '..rwWr...',
+      '.hhh..r..',
+      'hhh......',
+      'hh.......',
+    ],
+    pal: { w: '#e8eef8', W: '#a0a8b8', r: '#e8303a', h: '#7a2a1a' },
+  },
+  r88_conan: {
+    rows: [
+      '..wwwww..',
+      '..wWWWw..',
+      '..wWWWw..',
+      '..wWWWw..',
+      '.bbbbbbb.',
+      'wwwwwwwww',
+      '.........',
+      'rr..o..rr',
+      'rRRRoRRRr',
+    ],
+    pal: { w: '#ffffff', W: '#e0e6f4', b: '#3a5ad8', r: '#c0182a', R: '#ff3a4a', o: '#8a0a1a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_kenshin: ['#6a1a24', '#2a0a10', '#c8404a'],
+  r88_conan: ['#1a2a5a', '#0a1028', '#5a7ae0'],
+});
+
 // G12班: ドラえもん（赤い 首わと 金の すず）・セーラームーン（三日月と ハートの 変身ブローチ）
 Object.assign(R88_BOARD_ICONS, {
   r88_doraemon: {
