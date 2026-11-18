@@ -10,12 +10,12 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS } from './items.js?v=dd43a69561ed';
-import { REBIRTH } from './items-alchemy.js?v=dd43a69561ed';
-import { WORKS } from './works.js?v=dd43a69561ed';
-import { RIVALS } from './rivals-r88.js?v=dd43a69561ed';
-import { GEAR_SETS } from './gear-sets.js?v=dd43a69561ed'; // G15班
-import { ownedIds } from '../gear-r88.js?v=dd43a69561ed';
+import { ITEMS } from './items.js?v=0d338e47b7e9';
+import { REBIRTH } from './items-alchemy.js?v=0d338e47b7e9';
+import { WORKS } from './works.js?v=0d338e47b7e9';
+import { RIVALS } from './rivals-r88.js?v=0d338e47b7e9';
+import { GEAR_SETS } from './gear-sets.js?v=0d338e47b7e9'; // G15班
+import { ownedIds } from '../gear-r88.js?v=0d338e47b7e9';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
@@ -280,3 +280,5 @@ export const orbsFound = (c) => ORB_PLACES.filter((p) => c?.chests?.[orbChestId(
 //   ドラゴンクエスト: はかいの鉄球・グリンガムのムチ・メタルキングの剣・天空のかぶと・ルビスの守り
 TM_R88_DEN.push('r88_da_seiou', 'r88_da_namida');
 TM_R88_DEN.push('r88_dq_tekkyu', 'r88_dq_gringham', 'r88_dq_mk_sword', 'r88_dq_tenku_helm', 'r88_dq_rubiss');
+// G13班: マリオの スーパースター（ライバルの まぼろしでは 出ない 伝説。宝の洞窟の いちばん おく）
+TM_R88_DEN.push('r88_mr_star');
