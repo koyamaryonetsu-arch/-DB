@@ -423,3 +423,39 @@ Object.assign(R88_BOARD_ICONS, {
 Object.assign(R88_BOARD_COLORS, {
   r88_pokemon: ['#c82a2a', '#3a0a0a', '#ff9a8a'],
 });
+
+// G19班: SPY×FAMILY（金色の 星〈ステラ〉と 黒い マスク）・オリジナル（白い 剣と 黒い 剣の 十字）
+Object.assign(R88_BOARD_ICONS, {
+  r88_spyfamily: {
+    rows: [
+      '....y....',
+      '...yYy...',
+      'yyyyYyyyy',
+      '.yyYYYyy.',
+      '..yyYyy..',
+      '.kkkkkkk.',
+      'kkWkkkWkk',
+      '.kkk.kkk.',
+      '.........',
+    ],
+    pal: { y: '#e8b020', Y: '#fff2a0', k: '#1a1a22', W: '#ffffff' },
+  },
+  r88_original: {
+    rows: [
+      'w.......k',
+      '.w.....k.',
+      '..w...k..',
+      '...w.k...',
+      '....y....',
+      '...k.w...',
+      '..g...g..',
+      '.k.....w.',
+      'g.......g',
+    ],
+    pal: { w: '#ffffff', k: '#2a1a3a', y: '#ffe680', g: '#c8961a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_spyfamily: ['#2a3a5a', '#0a1020', '#e8b020'],
+  r88_original: ['#4a3a6a', '#140a1e', '#d8c8ff'],
+});

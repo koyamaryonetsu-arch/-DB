@@ -10,10 +10,10 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=2a2abae0c26c';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=2a2abae0c26c';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=609ed6a900ec';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=609ed6a900ec';
 // G9班: 生まれ変わりの 条件の ライバル（need.rivals）
-import { RIVAL_BY_ID } from './data/rivals-r88.js?v=2a2abae0c26c';
+import { RIVAL_BY_ID } from './data/rivals-r88.js?v=609ed6a900ec';
 // G9班: 天候の 職業（気象予報士〜天候の神）。天候棒の「使う」が 今の 天気で かわる（docs/plan-r88-anime-gear.md の 4-12）
 export const WEATHER_JOBS = new Set(['kishou', 'otenki_caster', 'tenkou_tsukai', 'weather_god']);
 
@@ -94,7 +94,7 @@ export function setTitles(char) {
   const out = [];
   for (const [sid, set] of Object.entries(GEAR_SETS)) {
     const n = ownedSetIds(char, sid).length;
-    for (const t of set.tiers) if (t.title && tierRule(set, t) === 'own' && n >= t.n) out.push({ set: sid, title: t.title, n: t.n });
+    for (const t of set.tiers) if (t.title && tierRule(set, t) === 'own' && n >= t.n && (!t.need || ownedIds(char).has(t.need))) out.push({ set: sid, title: t.title, n: t.n }); // G19班: need … その 品を 持って いる 時だけ（星〈ステラ〉）
   }
   return out;
 }

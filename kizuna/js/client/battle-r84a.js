@@ -4,7 +4,7 @@
 //   ・reiTag … 技の 一覧の れい丸の 技に「丸1」「丸全部」の しるし（client/battle.js の abilityMenu）
 //   ・reiBlock … れい丸が 足りない 技は うすく（えらべない）・わけ（「れい丸がもうない」など）を せつめいの 先に【】で 出す
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { reiOf, reiNeed } from '../shared/battle-r84a.js?v=2a2abae0c26c';
+import { reiOf, reiNeed } from '../shared/battle-r84a.js?v=609ed6a900ec';
 
 const CSS = `
 .b-mem .sts .bm.rei { color: #8ad8ff; background: rgba(20, 40, 80, 0.6); font-weight: bold; }

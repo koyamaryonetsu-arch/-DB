@@ -11,11 +11,11 @@
 // 27. 海鳴りの小島の、かげぼうしどろぼう（ソードマスターか魔剣士 → 光と闇の剣神。月の 夜に かげの 魔物と 戦う）
 // 28. 北の海辺の、ハサミ団（黒の組織 → あの方。かくれ岩の 用心棒と 戦って、「あの方」として 団長に 命じる）
 // 29. 白銀の湖の、ねむらない氷の像づくり（社ちく → 働き方改革の星。がんこな 親方に 休んでもらう）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=2a2abae0c26c';
-import { rewardSteps } from './sidequests-work2.js?v=2a2abae0c26c';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=609ed6a900ec';
+import { rewardSteps } from './sidequests-work2.js?v=609ed6a900ec';
 import {
   WQ5, WQ5_OPEN, SHD_VOICES, SHD_STEPS, GANG_VOICES, GANG_STEPS, ICE_VOICES, ICE_STEPS,
-} from '../maps/work-quests5.js?v=2a2abae0c26c';
+} from '../maps/work-quests5.js?v=609ed6a900ec';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;
