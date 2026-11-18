@@ -425,3 +425,5 @@ Object.assign(G8_FX, { r88_dokan: dokan, r88_moshimo: moshimo, r88_moonheal: moo
 for (const k of ['r88_dokan', 'r88_moshimo', 'r88_moonheal']) R88_ANIMS.add(k);
 Object.assign(R88_HIT, { r88_dokan: 560, r88_moshimo: 800, r88_moonheal: 700 });
 Object.assign(R88_SFX, { r88_dokan: 'blast', r88_moshimo: 'sparkle', r88_moonheal: 'heal' });
+// 味方に かける えんしゅつ（client/battle.js が たたかいの 画面の 下に 出す）
+export const R88_PARTY_ANIMS = new Set(['r88_moshimo', 'r88_moonheal']);

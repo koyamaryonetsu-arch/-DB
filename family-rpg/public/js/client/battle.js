@@ -79,7 +79,7 @@ import { r86bPresent } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
 import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
 // 第88回: 作品の 品を「使う」えんしゅつ（render/battlefx-r88.js）
-import { R88_SFX, R88_HIT } from './render/battlefx-r88.js';
+import { R88_SFX, R88_HIT, R88_PARTY_ANIMS } from './render/battlefx-r88.js';
 import { r86aPresent } from './battle-r86a.js';
 // 第88回 M1班: 魔王の 天地魔闘の構え（render/battlefx-r88m.js。かまえの えんしゅつは PARTY_ANIMS に まぜて ある）・手刀の 反撃・火の 鳥（battle-r88m.js）
 import { R88M_SFX, R88M_HIT } from './render/battlefx-r88m.js';
@@ -1464,6 +1464,8 @@ export class BattleScene {
     } else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || PARTY_ANIMS_R41B.has(anim) || PARTY_ANIMS_R41A.has(anim) || PARTY_ANIMS_R43J.has(anim) || PARTY_ANIMS_R66C.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // 第66回 E2 の 味方に かける えんしゅつ（セーブ・ロード・制御装置。render/battlefx-r66e2.js）も、たたかいの 画面の 下に 大きく
     if (fromAlly && !axT && PARTY_ANIMS_R66E2.has(anim) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
+    // 第88回 G12班: 味方に かける 作品の 品の えんしゅつ（もしもボックス・ムーン・ヒーリング。render/battlefx-r88.js）も、たたかいの 画面の 下に 大きく
+    if (fromAlly && !axT && R88_PARTY_ANIMS.has(anim) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);

@@ -679,31 +679,31 @@ function g12Rivals() {
       id: 'dr_dorami', work: 'doraemon', n: 4, name: 'ドラミ', lv: 66, job: 'daikenja', look: L(1, 'bald', 'blonde', 4, 'fair', 'smile'),
       use: 'r88_dr_ribbon', reward: ['r88_dr_ribbon', 'r88_dr_melonpan'], words: 'お兄ちゃんの友だち？わたしもテストするわね！',
       sig: { name: 'ひみつ道具・大そうじ', anim: 'wind2', charge: '{a}が、ポケットに手を入れた！\n大きな道具が、出てきそうだ…！', cast: '{a}の道具から、つむじ風がふき出した！' },
-      tune: { hp: 1.5, dmg: 1 },
+      tune: { hp: 1.46, dmg: 1 },
     },
     {
       id: 'dr_dora', work: 'doraemon', n: 5, name: 'ドラえもんのまぼろし', lv: 100, job: 'doraemon', look: L(0, 'bald', 'blue', 1, 'fair', 'round'), bg: 'kumoi',
       use: 'r88_dr_moshimo', reward: ['r88_dr_moshimo'], words: 'ひみつ道具のテストだよ。ぼくに勝てるかな？',
       same: 'きみもネコ型ロボットなの？どら焼き、すき？',
       sig: { name: 'もしもの大あらし', el: 'wind', anim: 'r88_moshimo', charge: '{a}が、ポケットから電話ボックスを出した！\n「もしも、ここが大あらしだったら…」', cast: '{a}の言葉どおり、大あらしがまき起こった！' },
-      tune: { hp: 0.95, dmg: 1 },
+      tune: { hp: 0.83, dmg: 1 },
     },
     // ── セーラームーン（名品を くれる 人は Lv60 ごろ・サイレンス・グレイブは 伝説で Lv80・さいごの ギャラクシアは Lv100）──
     {
       id: 'sm_beryl', work: 'sailormoon', n: 1, name: 'クイン・ベリル', lv: 60, job: 'archmage', look: L(1, 'long', 'red', 3, 'fair', 'sharp'),
       use: 'r88_sm_beryl', reward: ['r88_sm_beryl'], words: 'わらわの闇の力、思い知るがよい！',
       sig: { name: '黒水しょうの闇', el: 'dark', anim: 'dark1', charge: '{a}のつえの黒い水しょうが、あやしく光り始めた…！', cast: '{a}のつえから、黒い光があふれ出した！' },
-      tune: { hp: 1.41, dmg: 1 },
+      tune: { hp: 1.39, dmg: 1 },
     },
     {
       id: 'sm_sisters', work: 'sailormoon', n: 2, name: 'あやかしの姉妹', lv: 62,
       members: [
-        { name: 'コーアン', job: 'enjutsushi', look: L(1, 'long', 'purple', 3, 'fair', 'sharp') },
+        { name: 'コーアン', job: 'archmage', look: L(1, 'long', 'purple', 3, 'fair', 'sharp') },
         { name: 'ベルチェ', job: 'snow_queen', look: L(1, 'wavy', 'blue', 1, 'fair', 'calm') },
       ],
       use: 'r88_sm_pierce', reward: ['r88_sm_pierce'], words: 'わたしたち姉妹に、勝てるかしら？',
-      sig: { name: '姉妹の黒い光', el: 'dark', anim: 'dark1', charge: '{a}たちが、手をつないで輪になった！\n黒い水しょうのピアスが、光り始めた…！', cast: '{a}たちの黒い光が、いっせいにおそいかかった！' },
-      tune: { hp: 0.7, dmg: 1 },
+      sig: { name: '姉妹の黒い光', el: 'dark', hit: 0.9, anim: 'dark1', charge: '{a}たちが、手をつないで輪になった！\n黒い水しょうのピアスが、光り始めた…！', cast: '{a}たちの黒い光が、いっせいにおそいかかった！' },
+      tune: { hp: 0.55, dmg: 1 },
     },
     {
       id: 'sm_outer', work: 'sailormoon', n: 3, name: '3人の戦士', lv: 64,
@@ -717,10 +717,10 @@ function g12Rivals() {
       tune: { hp: 0.27, dmg: 1 },
     },
     {
-      id: 'sm_saturn', work: 'sailormoon', n: 4, name: 'サターン', lv: 80, job: 'datenshi', look: L(1, 'bob', 'black', 3, 'fair', 'calm'),
+      id: 'sm_saturn', work: 'sailormoon', n: 4, name: 'サターン', lv: 80, job: 'monster_master', look: L(1, 'bob', 'black', 3, 'fair', 'calm'),
       use: 'r88_sm_glaive', reward: ['r88_sm_glaive'], words: '…あなたたちの力、たしかめさせて。',
-      sig: { name: 'サイレンス・グレイブ・ふり下ろし', el: 'dark', anim: 'dark_slash', at: 0.8, after: 3, charge: '{a}が、大きなグレイブを高くかかげた…！\nあたりが、しんと静まりかえる…！', cast: '{a}のグレイブが、しずかにふり下ろされた！' },
-      tune: { hp: 1.02, dmg: 1 },
+      sig: { name: 'サイレンス・グレイブ・ふり下ろし', el: 'dark', anim: 'dark_slash', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、大きなグレイブを高くかかげた…！\nあたりが、しんと静まりかえる…！', cast: '{a}のグレイブが、しずかにふり下ろされた！' },
+      tune: { hp: 1.06, dmg: 1 },
     },
     {
       id: 'sm_galaxia', work: 'sailormoon', n: 5, name: 'ギャラクシア', lv: 100, job: 'grand_magus', look: L(1, 'long', 'orange', 4, 'tan', 'sharp'), bg: 'rift_moon',
