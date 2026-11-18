@@ -3488,6 +3488,14 @@ SPY×FAMILYと オリジナルの 職業（中二病・ダ天使／光と闇の�
 - 戦いの 画面・装備の まど・フィールドで 見て、何の 武器か わかる こと。画面写真を メインが 見る。
 - 作品の しるし・ロゴ・文字（会社の マーク など）は かかない。形と 色だけで 表す（M と H の 字は 玉の もようなので よい）。
 
+### 実装メモ（絵A班）
+- 絵は 新しい `client/render/hero-gear-looks-r88a.js`（10の 形・日輪刀の 刀 `katanaR88a`・品ごとの 見た目 `R88A_WEAPON_LOOK`）。`hero-gear.js` からは 数行で よぶ（WEAPON_LOOK・LOOK_LEN・NEW_LOOK に まぜる・`drawR88aLook`・刀は `edge` が ある 時だけ `katanaR88a`）。`hero-gear-looks.js` は さわって いない
+- 形の 名前は `gear-looks.js` の `WEAPON_LOOKS.sword` の 2行め（9つ）と `LOOK_NAMES`。天空の剣（今 ある `tenku_sword`）は `GEAR_LOOK` で `tenku`
+- **設計と ちがう 所**: 大刀・さめはだは オノの 品なので、`samehada` は オノの 形（`WEAPON_LOOKS.axe.push`。べつの 行）。鉄さいがの さいしょの「さびついた刀」は 刀の 形の まま、さびの 色だけ。ロトの竜剣の やいばは うすい 青緑
+- 鉄さいが: だんごとに `blade`（やいばの 色）と `pat`（風の すじ・ダイヤ・竜の うろこ・黒〈むらさきの 光の ふち〉）
+- 日輪刀の なかま: 刀の 形の まま `edge`（やいばの 色）・`tsuba`（炎・うめの 花）・`mark`（いなずまの もよう）・`hot`（赤く 光る）。炎・雷・花の 日輪刀は 形を 刀に（今まで 炎の剣・いなずまの剣・木の葉の剣）。へび（三日月刀）・虫（はりの 短剣）・こい（ムチ）は 形は そのまま 色だけ。今 ある 店の 日輪刀は 色が かわる 前なので 今の まま
+- テスト: 決まった 数の 直しは なし（形の 数は 4つ以上の きまりだけ）。`weapon-looks`・`client-names`・`hero-art`・`gear-r88*` 188件 とおる
+
 ## 出どころ（検索で たしかめた 所）
 
 - 封神演義: https://honcierge.jp/articles/shelf_story/5102 ・ https://w.atwiki.jp/aniwotawiki/pages/13793.html ・ http://www.ktr.to/Comic/paopee.html

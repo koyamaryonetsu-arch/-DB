@@ -133,7 +133,7 @@ function hikari(cv, F, W) {
   // まわりの 光（レプリカは うすい ので なし）
   if (!W.faint) {
     cv.part({ ol: 'none', cast: false });
-    cv.poly(F.P([[2.4, -1.8], [L - 1.6, -1.8], [L + 1.2, 0], [L - 1.6, 1.8], [2.4, 1.8]]), glow('#8ad8ff'), { n: 'flat' });
+    cv.poly(F.P([[2.2, -2.2], [L - 1.6, -2.2], [L + 1.4, 0], [L - 1.6, 2.2], [2.2, 2.2]]), glow('#6ac4ff'), { n: 'flat' });
   }
   // 光の やいば（金属で なく 光）
   cv.part({ ol: 'soft', lc: W.faint ? '#8aa0b8' : '#6ab8f0' });
@@ -166,7 +166,7 @@ function tessaiga(cv, F, W, outward) {
   }
   const pts = [...up, [L + 0.5, -2.3 * e], ...dn.reverse()];
   const pat = W.pat;
-  const m = pat === 'diamond' ? crystalM(W.blade) : pat === 'dark' ? colM(W.blade, 1.5) : bladeM(W, 'silver');
+  const m = pat === 'diamond' ? crystalM(W.blade) : pat === 'dark' ? mat({ r: ['#08060e', '#1a1626', '#2c2840', '#504a6e', '#a8a0d0'], th: TH.metal, spec: 0.94, sc: '#ffffff' }) : bladeM(W, 'silver');
   cv.part({ ol: 'line' });
   const id = blade(cv, F, pts, m);
   const ids = [id, cv.cur];
@@ -310,7 +310,7 @@ function roto(cv, F, W) {
   cv.part({ ol: 'line' });
   cv.poly(F.P(sym([[1.3, -1.0], [2.9, -1.0], [3.5, -0.5], [3.9, 0]])), gm, { n: 'bevel', bw: 0.4 });
   // は
-  const bm = W.ryu ? colM('#7ab8c8') : metal('silver');
+  const bm = W.ryu ? colM('#5a8a9c', 1.0) : metal('silver');
   cv.part({ ol: 'line' });
   const id = blade(cv, F, straight(3.2, L, 1.35), bm);
   cv.crease(F.P([[3.8, 0], [L - 2.2, 0]]), 0.22, 0.4, { parts: [id, cv.cur] });
@@ -415,7 +415,7 @@ function samehada(cv, F, W) {
   cv.part({ ol: 'none', clip: ids });
   for (let a = 2.6; a < L * 0.55; a += 1.0) cv.stroke(F.P([[a, -w - 0.2], [a + 0.9, w + 0.2]]), 0.34, bm, { n: [0, -0.3] });
   fxGlints(cv, F, W, L, 2.4);
-  ornate(cv, F, W, { gem: [L - 2.4, 0, 0.6], glints: [[L + 0.6, 1.4], [L * 0.6, -w - 1.0], [L - 1.4, w + 1.0], [3.0, -2.4]] });
+  ornate(cv, F, W, { gem: [2.0, 0, 0.6], glints: [[L + 0.6, 1.4], [L * 0.6, -w - 1.0], [L - 1.4, w + 1.0], [3.0, -2.4]] });
 }
 
 // ───────────── 日輪刀の なかまの 刀（形は 刀。色と つばを かえる） ─────────────
