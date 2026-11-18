@@ -107,6 +107,8 @@ import { rivalSigEffect } from './battle-rival-fx-r88.js';
 import { r88mTurnStart, r88mEffect, r88mMark, r88mCut, r88mNote, r88mResolve, r88mPub } from './battle-r88m.js';
 // 第88回 G15班: 呪文を はね返す・動けなく する・光魔のつえ・まじんのかなづち（battle-r88-dq.js）
 import { r88dqEffect, r88MirrorSpell, r88dqAcc, r88dqAfterAttack } from './battle-r88-dq.js';
+// 第88回 G17班: 服従のてんびん（魔力くらべ）・鏡れん華の そろい（2人だけ。battle-r88-fr.js）
+import { r88frEffect, applyPairSets } from './battle-r88-fr.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
 import { powScaleFor } from './pow-scale.js';
 
@@ -286,6 +288,7 @@ export class Battle {
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
     applyPartySets(this); // 第88回: そろい（パーティーで つけた 数）
+    applyPairSets(this); // 第88回 G17班: そろい rule 'pair'（つけた 2人だけ。battle-r88-fr.js）
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
     // 設定の「敵の強さ」（1・1.2・1.5・2倍。data/difficulty.js）。とちゅうで 来る 魔物にも かける
     this.enemyRate = ENEMY_RATES.includes(opts.enemyRate) ? opts.enemyRate : 1;
@@ -1645,6 +1648,8 @@ export class Battle {
       case 'r88mTenchi': r88mEffect(this, c, a, eff, ev); break;
       // 呪文を はね返す 光の かべ・動けなく する（第88回 G15班。battle-r88-dq.js）
       case 'r88dq': r88dqEffect(this, c, a, eff, ev, targets, powMult); break;
+      // 服従のてんびん（第88回 G17班。battle-r88-fr.js）
+      case 'r88fr': r88frEffect(this, c, a, eff, ev, targets); break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
       default: if (!templeEffect(this, c, a, eff, ev, targets) && !phantomCEffect(this, c, a, eff, ev, targets, powMult)) towerEffect(this, c, a, eff, ev, targets); break;
     }

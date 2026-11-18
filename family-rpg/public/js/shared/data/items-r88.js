@@ -36,6 +36,9 @@ import { ITEMS_R88_FROZEN, R88_FROZEN_KANA, R88_REBIRTH_FROZEN, R88_TAG_FROZEN }
 // 第88回 G15班: ダイの大冒険・ドラゴンクエスト（setTag … 今 ある 品を そろいの 組に 入れる）
 import { ITEMS_R88_DAI, R88_DAI_KANA, R88_REBIRTH_DAI, R88_TAG_DAI } from './items-r88-dai.js';
 import { ITEMS_R88_DQ, R88_DQ_KANA, R88_REBIRTH_DQ, R88_TAG_DQ, R88_SETTAG_DQ } from './items-r88-dq.js';
+// 第88回 G17班: フリーレン（千年の大魔法使い）・さいきくすお
+import { ITEMS_R88_FRIEREN, R88_FRIEREN_KANA, R88_REBIRTH_FRIEREN, R88_TAG_FRIEREN } from './items-r88-frieren.js';
+import { ITEMS_R88_SAIKI, R88_SAIKI_KANA, R88_REBIRTH_SAIKI, R88_TAG_SAIKI } from './items-r88-saiki.js';
 
 const R88_PARTS = [
   { items: ITEMS_R88_YAIBA, kana: R88_YAIBA_KANA, rebirth: R88_REBIRTH_YAIBA },
@@ -67,6 +70,9 @@ const R88_PARTS = [
   // G15班: ダイの大冒険・ドラゴンクエスト
   { items: ITEMS_R88_DAI, kana: R88_DAI_KANA, rebirth: R88_REBIRTH_DAI, tag: R88_TAG_DAI },
   { items: ITEMS_R88_DQ, kana: R88_DQ_KANA, rebirth: R88_REBIRTH_DQ, tag: R88_TAG_DQ, setTag: R88_SETTAG_DQ },
+  // G17班: フリーレン・さいきくすお
+  { items: ITEMS_R88_FRIEREN, kana: R88_FRIEREN_KANA, rebirth: R88_REBIRTH_FRIEREN, tag: R88_TAG_FRIEREN },
+  { items: ITEMS_R88_SAIKI, kana: R88_SAIKI_KANA, rebirth: R88_REBIRTH_SAIKI, tag: R88_TAG_SAIKI },
 ];
 
 export const ITEMS_R88 = Object.assign({}, ...R88_PARTS.map((p) => p.items));

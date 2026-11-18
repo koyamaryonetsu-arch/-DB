@@ -794,3 +794,19 @@ Object.assign(R88_ABILITIES, {
     desc: 'さばきのつえをふって、かまいたちで同じ種類の敵みんなを切りさく。', cast: '{a}がさばきのつえをふると、するどい風がまき起こった！', anim: 'wind2',
   },
 });
+
+// ───── G17班: フリーレン・さいきくすお（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
+//   r88fr … この 班の 新しい 効果（shared/battle-r88-fr.js の r88frEffect）
+//     tenbin … 使った 人と 敵1体の 攻撃魔力を くらべて、上なら その 敵が 1回 動けない（下だと 効かない・ボスは だめ）
+Object.assign(R88_ABILITIES, {
+  r88u_fr_tenbin: {
+    name: 'てんびんの魔力くらべ', kana: 'てんびんのまりょくくらべ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'r88fr', kind: 'tenbin' },
+    desc: '服従のてんびんに、自分と敵1体の魔力をのせてくらべる。自分の魔力の方が上なら、てんびんがかたむいて、その敵は1回動けない。魔力が下だと効かない（大きな敵には効かない）。', cast: '{a}は、服従のてんびんを{t}に向けた！', anim: 'r88_tenbin',
+  },
+  r88u_sk_seigyo: {
+    name: '制御装置を全部外す', kana: 'せいぎょそうちをぜんぶはずす', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'mag', mult: 1.7, dur: 30 },
+    desc: '頭の制御装置を全部外して、ふだんはおさえている超能力を出す。しばらくの間、自分の攻撃魔力がとても上がる。', cast: '{a}は、頭の制御装置を全部外した…！\n「やれやれ…少しだけだ」', anim: 'r88_seigyo',
+  },
+});

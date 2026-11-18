@@ -564,6 +564,8 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-hagaren.js', 'public/js/shared/data/items-r88-frozen.js', 'public/js/shared/world/frozen-r88.js',
     // 第88回 G15班: ダイの大冒険・ドラゴンクエスト（呪文を はね返す・動けなく する・光魔のつえ）
     'public/js/shared/data/items-r88-dai.js', 'public/js/shared/data/items-r88-dq.js', 'public/js/shared/battle-r88-dq.js',
+    // 第88回 G17班: フリーレン・さいきくすお（服従のてんびん・鏡れん華の そろい）
+    'public/js/shared/data/items-r88-frieren.js', 'public/js/shared/data/items-r88-saiki.js', 'public/js/shared/battle-r88-fr.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
