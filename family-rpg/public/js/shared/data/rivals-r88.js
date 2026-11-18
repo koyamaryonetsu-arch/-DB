@@ -1236,7 +1236,7 @@ function g18Rivals() {
       id: 'hk_garizo', work: 'hanakappa', n: 1, name: 'がりぞー', lv: 60, job: 'ninja', look: GARI, bg: 'forest',
       use: 'r88_hk_megane', reward: ['r88_hk_megane'], words: 'ちょう兵衛さまのために、がんばるぞー！',
       sig: { name: 'ガリガリだっしゅ', anim: 'slash_fast', charge: '{a}が、メガネをくいっと上げた！\nその場の足ぶみが、どんどん速くなる…！', cast: '{a}が、ものすごい速さでつっこんできた！' },
-      tune: { hp: 1.6, dmg: 1 },
+      tune: { hp: 1.63, dmg: 1 },
     },
     {
       id: 'hk_chobee', work: 'hanakappa', n: 2, name: '黒羽屋ちょう兵衛', lv: 64, job: 'datenshi', look: CHO, bg: 'forest',
@@ -1249,7 +1249,7 @@ function g18Rivals() {
       use: 'r88_os_hensou', reward: ['r88_os_hensou'], words: 'こんばんは。今夜のお宝は、いただきますよ。',
       same: 'おや、名探ていのお仲間ですか。では、なぞときで勝負です。',
       sig: { name: '変装の早がわり', anim: 'slash_multi', charge: '{a}が、マントでさっと体をかくした！\nだれかに化けて、すぐそばまで近づいてくる…！', cast: '{a}の早がわりから、いっせいにおそいかかった！' },
-      tune: { hp: 1.02, dmg: 1 },
+      tune: { hp: 1.04, dmg: 1 },
     },
     {
       id: 'hk_wakaran', work: 'hanakappa', n: 4, name: 'ちょう兵衛とがりぞー', lv: 90, bg: 'forest',
@@ -1297,7 +1297,7 @@ function g18Rivals() {
       use: 'r88_ab_meito', reward: ['r88_ab_meito'], words: '余の顔を、見わすれたか！',
       same: 'ほう、同じ上様の道を行く者か。ならば、手かげんはせぬぞ。',
       sig: { name: '成敗のみねうち', anim: 'slash_heavy', charge: '{a}が、刀をくるりとかえした！\n「みねうちじゃ、安心いたせ」…！', cast: '{a}のみねうちが、つぎつぎと決まった！' },
-      tune: { hp: 0.37, dmg: 1 },
+      tune: { hp: 0.39, dmg: 1 },
     },
   ];
 }
