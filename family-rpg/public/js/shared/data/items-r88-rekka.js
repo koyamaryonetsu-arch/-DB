@@ -21,7 +21,7 @@ const NAME_OF = { r88_kougon_kiba: 'きば', r88_kougon_ryu: '竜', r88_kougon_k
 const GEAR = {
   // ───── 火影忍軍の 品 ─────
   r88_kaze_tsume: { ...weapon('claw', 'fu3'), ...R, name: '風のツメ', fx: [{ k: 'el_wind', v: 4 }], use: { ability: 'r88u_kazetsume' }, look: 'claw', desc: '風神に、おにのツメのしんをはめた魔導具。ふつうの攻撃が風になる。きたえぬくと、本当の「風」のしんがもどるという。' },
-  r88_fujin: { ...weapon('claw', 'mei'), ...R, set: 'rekka_fujin_raijin', name: '風神', fx: [{ k: 'el_wind', v: 6 }], bonus: { agi: 8 }, use: { ability: 'r88u_fujin' }, look: 'katar', desc: '風をあやつる、こての形の魔導具。雷神と対になっている。ふつうの攻撃が風になる。' },
+  r88_fujin: { ...weapon('claw', 'mei'), ...R, set: 'rekka_fujin_raijin', name: '風神', fx: [{ k: 'el_wind', v: 6 }], bonus: { agi: 8 }, use: { ability: 'r88u_fujin' }, look: 'fujin', desc: '風をあやつる、こての形の魔導具。雷神と対になっている。ふつうの攻撃が風になる。' },
   r88_ensui: { ...weapon('sword', 'mei'), ...R, set: 'enzui_hyoma', name: 'えん水', fx: [{ k: 'el_ice', v: 6 }], bonus: { agi: 4 }, use: { ability: 'r88u_ensui' }, look: 'crystal', desc: 'つかだけの剣。水でやいばを作る魔導具。氷魔えんと対になっている。ふつうの攻撃が氷になる。' },
   r88_dosei: { ...acc('fu3'), ...R, name: '土星の輪', bonus: { str: 12, hp: 10 }, desc: '「土」の字の指輪の魔導具。力が上がる。' },
   r88_tetsugan: { ...acc('fu3'), ...R, set: 'sekichu_tetsugan', name: '鉄丸', bonus: { def: 12 }, use: { ability: 'r88u_tetsugan' }, desc: 'のみこむと体が鉄のようになる魔導具。石ちゅうと対になっている。使うと、守備力が大きく上がる。' },

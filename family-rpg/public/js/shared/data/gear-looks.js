@@ -13,15 +13,15 @@ import { starsFor } from './items-rare.js';
 // 武器種ごとの 形（ならびは だいたい 弱い 形 → 強い 形）
 export const WEAPON_LOOKS = {
   sword: ['wood', 'leaf', 'broad', 'rapier', 'scimitar', 'great', 'flame', 'crystal', 'bolt', 'dragon', 'holy', 'katana'],
-  axe: ['stone', 'axe', 'pirate', 'battle', 'crescent', 'hammer', 'pick', 'dragon'],
+  axe: ['stone', 'axe', 'pirate', 'battle', 'crescent', 'hammer', 'pick', 'dragon', 'tekkyu'],
   dagger: ['knife', 'dirk', 'kunai', 'jambiya', 'stiletto', 'kris', 'star'],
-  spear: ['spear', 'spear2', 'coral', 'halberd', 'trident', 'lance', 'winged', 'dragon', 'pennant', 'rod'],
-  claw: ['knuckle', 'claw', 'fang', 'beast', 'tiger', 'katar', 'fist', 'dragon'],
-  whip: ['whip', 'chain', 'thorn', 'snake', 'scorpion', 'star', 'royal'],
+  spear: ['spear', 'spear2', 'coral', 'halberd', 'trident', 'lance', 'winged', 'dragon', 'pennant', 'rod', 'glaive', 'matoi'],
+  claw: ['knuckle', 'claw', 'fang', 'beast', 'tiger', 'katar', 'fist', 'dragon', 'fujin'],
+  whip: ['whip', 'chain', 'thorn', 'snake', 'scorpion', 'star', 'royal', 'raikou', 'dashin', 'gringham'],
   staff: ['oak', 'wizard', 'healing', 'wave', 'star', 'crystal', 'ring', 'wing', 'dragon', 'ankh', 'broom', 'cane'],
   fan: ['feather', 'fan', 'tessen', 'wing', 'phoenix', 'moon'],
-  bat: ['bat', 'bamboo', 'mbat', 'gbat', 'club', 'spiked'],
-  boomerang: ['boomer', 'cross', 'crescent', 'star', 'wing', 'bone'],
+  bat: ['bat', 'bamboo', 'mbat', 'gbat', 'club', 'spiked', 'tekkyu'],
+  boomerang: ['boomer', 'cross', 'crescent', 'star', 'wing', 'bone', 'ball'],
 };
 // 道具の 形（武器種に かかわらず、その 道具の 絵）
 export const TOOL_LOOKS = ['pen', 'penlight', 'harisen', 'flag', 'kitchen', 'chefknife', 'pan', 'wok', 'ladle', 'whisk', 'mop', 'brush', 'standmic', 'mic',
@@ -33,15 +33,15 @@ export const TOOL_SHIELD_LOOKS = ['case', 'plaque'];
 // 形の 名前（開発用の 一覧・テストの 見出し）
 export const LOOK_NAMES = {
   sword: { wood: '木の剣', leaf: '木の葉の剣', broad: 'ブロードソード', rapier: '細身の剣', scimitar: '三日月刀', great: '大剣', flame: '炎の剣', crystal: '水晶の剣', bolt: 'いなずまの剣', dragon: '竜の剣', holy: '聖剣', katana: '刀' },
-  axe: { stone: '石のオノ', axe: 'オノ', pirate: 'ひげのオノ', battle: '両刃のオノ', crescent: '大まさかり', hammer: '大づち', pick: 'つるはし', dragon: '竜のオノ' },
+  axe: { stone: '石のオノ', axe: 'オノ', pirate: 'ひげのオノ', battle: '両刃のオノ', crescent: '大まさかり', hammer: '大づち', pick: 'つるはし', dragon: '竜のオノ', tekkyu: 'トゲの鉄球' },
   dagger: { knife: 'ナイフ', dirk: 'ダガー', kunai: 'クナイ', jambiya: 'まがった短剣', stiletto: 'はりの短剣', kris: '波の短剣', star: '星の短剣' },
-  spear: { spear: '木の葉のやり', spear2: 'つばさのやり', coral: 'サンゴのやり', halberd: 'ほこやり', trident: '三つまた', lance: '騎士のやり', winged: '羽のやり', dragon: '竜のやり', pennant: '旗のやり', rod: 'ぼう' },
-  claw: { knuckle: 'ナックル', claw: 'ツメ', fang: 'キバ', beast: 'けもののツメ', tiger: '長いツメ', katar: 'カタール', fist: '大きなこぶし', dragon: '竜のツメ' },
-  whip: { whip: 'ムチ', chain: 'くさり', thorn: 'いばら', snake: 'ヘビ', scorpion: 'サソリ', star: '星のムチ', royal: '王のムチ' },
+  spear: { spear: '木の葉のやり', spear2: 'つばさのやり', coral: 'サンゴのやり', halberd: 'ほこやり', trident: '三つまた', lance: '騎士のやり', winged: '羽のやり', dragon: '竜のやり', pennant: '旗のやり', rod: 'ぼう', glaive: '大がまのやり', matoi: 'まとい' },
+  claw: { knuckle: 'ナックル', claw: 'ツメ', fang: 'キバ', beast: 'けもののツメ', tiger: '長いツメ', katar: 'カタール', fist: '大きなこぶし', dragon: '竜のツメ', fujin: '風のこて' },
+  whip: { whip: 'ムチ', chain: 'くさり', thorn: 'いばら', snake: 'ヘビ', scorpion: 'サソリ', star: '星のムチ', royal: '王のムチ', raikou: '金の雷のムチ', dashin: 'ふしの棒', gringham: '三つまたのムチ' },
   staff: { oak: '木のつえ', wizard: '三日月のつえ', healing: '十字のつえ', wave: 'うずのつえ', star: '星のつえ', crystal: '水晶のつえ', ring: 'わのつえ', wing: '羽のつえ', dragon: '竜のつえ', ankh: 'アンク', broom: 'ほうき', cane: 'ステッキ' },
   fan: { feather: '羽のおうぎ', fan: 'おうぎ', tessen: '鉄のおうぎ', wing: 'つばさのおうぎ', phoenix: 'ほのおのおうぎ', moon: 'まるいうちわ' },
-  bat: { bat: '木のバット', bamboo: '竹のバット', mbat: '金属バット', gbat: '金のバット', club: 'こんぼう', spiked: 'トゲのこんぼう' },
-  boomerang: { boomer: 'くの字', cross: '十字', crescent: '三日月', star: '星', wing: 'つばさ', bone: 'ほね' },
+  bat: { bat: '木のバット', bamboo: '竹のバット', mbat: '金属バット', gbat: '金のバット', club: 'こんぼう', spiked: 'トゲのこんぼう', tekkyu: 'トゲの鉄球' },
+  boomerang: { boomer: 'くの字', cross: '十字', crescent: '三日月', star: '星', wing: 'つばさ', bone: 'ほね', ball: 'ボール' },
   shield: { round: '丸い盾', kite: 'カイトシールド', heater: 'ヒーターシールド', tower: 'タワーシールド', crest: '紋章の盾', dragon: '竜のうろこの盾', light: '光の盾', mirror: '鏡の盾', moon: '三日月の盾', shell: '貝の盾' },
 };
 
