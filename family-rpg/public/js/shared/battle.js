@@ -27,6 +27,8 @@ import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRem
 import { gearFxActor, gearAfterAttack, gearRegen, gearCounterNote, gearUseCheck, gearUse, attackMods } from './battle-gearfx.js';
 // 第88回: 作品の 品の とどく 広さ・そろい（パーティー）（battle-r88.js）
 import { reachFor, falloffCat, multiAttackLine, applyPartySets } from './battle-r88.js';
+// 第88回 G13班: ふんばる・百味ビーンズ・スーパースター（battle-r88.js）
+import { r88Endure, r88BattleStart, r88ActEnd, r88StatusBlock } from './battle-r88.js';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
 import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js';
 import { shownEquipKey } from './look-equip.js';
@@ -109,6 +111,8 @@ import { r88mTurnStart, r88mEffect, r88mMark, r88mCut, r88mNote, r88mResolve, r8
 import { r88dqEffect, r88MirrorSpell, r88dqAcc, r88dqAfterAttack } from './battle-r88-dq.js';
 // 第88回 G17班: 服従のてんびん（魔力くらべ）・鏡れん華の そろい（2人だけ。battle-r88-fr.js）
 import { r88frEffect, applyPairSets } from './battle-r88-fr.js';
+// 第88回 G16班: オボンのみ・いのちのたま（battle-r88-pokemon.js）
+import { r88pkActEnd } from './battle-r88-pokemon.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
 import { powScaleFor } from './pow-scale.js';
 
@@ -289,6 +293,7 @@ export class Battle {
     for (const a of opts.allies || []) this.addAlly(a);
     applyPartySets(this); // 第88回: そろい（パーティーで つけた 数）
     applyPairSets(this); // 第88回 G17班: そろい rule 'pair'（つけた 2人だけ。battle-r88-fr.js）
+    r88BattleStart(this); // 第88回 G13班: 百味ビーンズ
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
     // 設定の「敵の強さ」（1・1.2・1.5・2倍。data/difficulty.js）。とちゅうで 来る 魔物にも かける
     this.enemyRate = ENEMY_RATES.includes(opts.enemyRate) ? opts.enemyRate : 1;
@@ -791,6 +796,8 @@ export class Battle {
     }
     if (c.mpRegen && c.alive && c.side === 'ally') c.mp = Math.min(c.maxMp, c.mp + c.mpRegen); // レア装備: 行動ごとの MP回復
     gearRegen(this, c, ev); // 第64回 ⑥c: れん金の いやし
+    r88ActEnd(this, c, ev); // 第88回 G13班: スーパースターの のこり
+    r88pkActEnd(this, c, ev); // 第88回 G16班: オボンのみ・いのちのたま（battle-r88-pokemon.js）
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
     // 第48回の 大技: ためて はなつ 時間だけ ev.extraLock を のばす（2回目は ため 半分。ev.fx.ax で クライアントに つたえる）
@@ -1904,6 +1911,7 @@ export class Battle {
       ev.results.push({ id: t.id, dmg: 0 });
       return;
     }
+    if (t.side === 'ally') t.r88WasFull = t.hp >= t.maxHp; // 第88回 G16班: きあいのタスキ（HPが 満タンの 時だけ ふんばる。battle-r88.js の r88Endure）
     t.hp = Math.max(0, t.hp - dmg);
     if (t.shade) mirageSync(this, t);
     if (t.side === 'enemy' && c?.side === 'ally') this.featDmg(c, dmg, info, ev);
@@ -1935,6 +1943,7 @@ export class Battle {
     }
     // 第84回 A班: 1回だけ 立ち上がる（うら飯ゆう助・魔界の王の子。たおれる 前に。battle-r84a.js）
     if (t.hp <= 0) r84aRise(this, t, ev);
+    if (t.hp <= 0) r88Endure(this, t, ev); // 第88回 G13班: ふんばる（1つの 戦いで 1回 HP1 で のこる。battle-r88.js）
     if (t.hp <= 0) ev.lines.push(...this.kill(t, info.element, ev));
     else if (t.boss) this.checkPhase(t, ev);
   }
@@ -2123,6 +2132,7 @@ export class Battle {
   tryStatus(c, t, eff, ev, powMult = 1) {
     if (!t.alive) return false;
     if (mirageHit(this, c, t, ev)) return false;
+    if (r88StatusBlock(this, c, t, eff, ev)) return false; // 第88回 G13班: スーパースターの 間・ボスに きかない 技（battle-r88.js）
     const st = eff.status;
     const r = t.resist[st] ?? 1;
     const chance = (eff.chance ?? 0.5) * r * (0.6 + 0.4 * powMult);

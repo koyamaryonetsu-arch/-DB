@@ -13,6 +13,8 @@ import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
 import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js';
 import { r88dqAtkMult } from './battle-r88-dq.js'; // 第88回 G15班
+// 第88回 G13班: 使った あと（スーパースター）
+import { r88AfterUse } from './battle-r88.js';
 
 export const GEAR_USE_PREFIX = 'gear:';
 
@@ -141,5 +143,6 @@ export function gearUse(b, c, cmd, ev) {
   ev.lines.push(`${a.name}の力が、はなたれた！`);
   b.applyAbility(c, a, sub, ev, 1, targets);
   useHpCost(c, u, ev); // 第88回 G2班: 使うと HPが 少し へる 品（雷神）
+  r88AfterUse(b, c, a, ev); // 第88回 G13班: スーパースター
   return true;
 }

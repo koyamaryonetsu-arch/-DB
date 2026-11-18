@@ -172,7 +172,7 @@ test('ガチャ: まだ 持って いない 品だけが 出る（同じ 品は 
 });
 
 test('ガチャ: のこりが なくなるまで 回すと 全部 そろう。どの 作品も 品の 数 × 20000G（YAIBA 10万G・スレイヤーズ 32万G・烈火の炎 62万G・ほう神演義 70万G）', () => {
-  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000, naruto: 540000, kimetsu: 500000, dragonball: 360000, onepiece: 540000, kenshin: 380000, conan: 380000, kaito: 140000, doraemon: 480000, sailormoon: 460000, hagaren: 340000, frozen: 340000, dai: 260000, dq: 340000, frieren: 240000, saiki: 160000 }; // G17班: フリーレン・さいきくすお // G15班: ダイの大冒険・ドラゴンクエスト // G11班: るろうに剣心・コナン・快と // G8班: らんま1/2・ぬ〜べ〜 / G10班: ナルト・きめつのやいば / G9班: ドラゴンボール・ワンピース / G12班: ドラえもん・セーラームーン
+  const want = { yaiba: 100000, slayers: 320000, rekka: 620000, houshin: 700000, inuyasha: 380000, yuhaku: 360000, ranma: 520000, nube: 320000, naruto: 540000, kimetsu: 500000, dragonball: 360000, onepiece: 540000, kenshin: 380000, conan: 380000, kaito: 140000, doraemon: 480000, sailormoon: 460000, hagaren: 340000, frozen: 340000, dai: 260000, dq: 340000, harrypotter: 580000, mario: 520000, pokemon: 400000, frieren: 240000, saiki: 160000 }; // G17班: フリーレン・さいきくすお // G16班: ポケモン / // G13班: ハリー・ポッター・マリオ / // G15班: ダイの大冒険・ドラゴンクエスト // G11班: るろうに剣心・コナン・快と // G8班: らんま1/2・ぬ〜べ〜 / G10班: ナルト・きめつのやいば / G9班: ドラゴンボール・ワンピース / G12班: ドラえもん・セーラームーン
   for (const w of gachaWorks()) {
     const p = gachaPool(w);
     assert.equal(p.all.length * GACHA_PRICE, want[w], w);
@@ -343,7 +343,7 @@ test('ガチャ: 台と 店の 人は ルミナの町（星の神殿の 外）�
 
 // ───────────── 5. はじめの 品の 店 ─────────────
 test('はじめの 品: 木刀は ホシフル村の よろず屋に ならぶ（品から 自動で）', () => {
-  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels', 'r88_iy_sabi', 'r88_nb_monosashi', 'r88_nr_shuriken', 'r88_db_seiryu', 'r88_ks_shinai', 'r88_hg_yari', 'r88_fz_boots', 'r88_da_papnica', 'r88_da_booster', 'r88_sk_uniform'] }); // G17班: PK学園の制服 // G15班: パプニカのナイフ・マジカルブースター // G14班: れん成のやり・冬のブーツ // G11班: 神谷道場の竹刀 // G10班: 木の葉の手裏剣 / G9班: 青竜刀 / G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
+  assert.deepEqual(r88ShopItems(), { village: ['r88_bokuto', 'r88_tsurizao', 'r88_shortsword', 'r88_jewels', 'r88_iy_sabi', 'r88_nb_monosashi', 'r88_nr_shuriken', 'r88_db_seiryu', 'r88_ks_shinai', 'r88_hg_yari', 'r88_fz_boots', 'r88_da_papnica', 'r88_da_booster', 'r88_mr_overall', 'r88_sk_uniform'] }); // G17班: PK学園の制服 // G13班: オーバーオール // G15班: パプニカのナイフ・マジカルブースター // G14班: れん成のやり・冬のブーツ // G11班: 神谷道場の竹刀 // G10班: 木の葉の手裏剣 / G9班: 青竜刀 / G2班の はじめの 品（つりざお・リナのショートソード・ジュエルズアミュレット）も
   assert.ok(shopItems(SHOPS.village).includes('r88_bokuto'));
   assert.equal(ITEMS.r88_bokuto.price, 50);
   // 格が「店」の 作品の 品は ぜんぶ どこかの 店に
@@ -488,7 +488,7 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
   const N = 6000;
   for (let i = 0; i < N; i++) {
     const l = chestLoot(makeRng(1000 + i), 30, 'normal');
-    if (ITEMS[l.item]?.work) r88++;
+    if (ITEMS[l.item]?.work && !ITEMS[l.item].r88Tag) r88++; // G16班: 今 ある 品に 作品を つけた 物（進化の 石）は 前からの 宝箱の 品
     else if ((ITEMS[l.item]?.rarity || 0) >= 2) rareN++;
   }
   assert.ok(r88 / N > 0.02 && r88 / N < 0.04, `名品 ${(r88 / N).toFixed(3)}`);
@@ -500,7 +500,7 @@ test('宝の 入れ物: ひみつのダンジョン 20階から・宝の洞窟 L
     assert.deepEqual(r88MeiAll(), []);
     for (let i = 0; i < N; i++) {
       const l = chestLoot(makeRng(1000 + i), 30, 'normal');
-      assert.ok(!ITEMS[l.item]?.work);
+      assert.ok(!ITEMS[l.item]?.work || ITEMS[l.item].r88Tag); // G16班: 進化の 石（前からの 品）は のぞく
       if ((ITEMS[l.item]?.rarity || 0) >= 2) rare0++;
     }
   } finally {

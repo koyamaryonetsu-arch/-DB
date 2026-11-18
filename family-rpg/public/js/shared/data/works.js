@@ -70,6 +70,20 @@ Object.assign(WORKS, {
   dq: { name: 'ドラゴンクエスト', trialGift: { loto_hero: 'r88_dq_roto_mark' } },
 });
 
+// 第88回 G13班: ハリー・ポッター・マリオ（ファイルの さいごで まぜる）
+//   試練の ごほうび: ハリーポッター → ひいらぎのつえ（主人公の 名品）・マリオ → マリオのぼうし（主人公の 品。表では ふつう）
+Object.assign(WORKS, {
+  harrypotter: { name: 'ハリー・ポッター', trialGift: { harry: 'r88_hp_holly' } },
+  mario: { name: 'マリオ', trialGift: { mario: 'r88_mr_cap' } },
+});
+
+// 第88回 G16班: ポケモン（ファイルの さいごで まぜる）
+//   試練の ごほうび: ポケモンマスター → サトシのぼうし（サトシの 品）
+//   まぼろしの回ろうの ジムリーダーは 曜日で かわる（data/rivals-r88.js の g16Rivals）
+Object.assign(WORKS, {
+  pokemon: { name: 'ポケモン', trialGift: { poke_master: 'r88_pk_cap' } },
+});
+
 // 第88回 G17班: フリーレン（千年の大魔法使い）・さいきくすお（ファイルの さいごで まぜる）
 //   作品の 名前は 職業の 名前に 合わせて 使える 字で（「葬送」は 使えない 字なので、作品の 名前は 主人公の 名前「フリーレン」）
 //   試練の ごほうび: 千年の大魔法使い → 花畑を出す魔法の魔導書・さいきくすお → コーヒーゼリー

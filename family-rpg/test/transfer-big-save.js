@@ -101,7 +101,8 @@ async function build(size, seed) {
   const abil = Object.keys(ABILITIES).filter((k) => !k.startsWith('m_') && !k.startsWith('zz_'));
   // 第88回: ふつう（第4章くらい）は 作品の 品（work の ある 品・src 'r88'。ガチャ 1回 2万G・ライバルは Lv60 から）を えらばない
   //   （作品が ふえるほど 乱数の えらび方が ゆれて、第4章の 人が 持てない 品が まざる ため）。いちばん 大きい 時は 全部から
-  const workItem = (k) => !!(ITEMS[k].work || ITEMS[k].src === 'r88' || ITEMS[ITEMS[k].base]?.work);
+  //   G16班: 前から ある 品に 作品を つけた 物（r88Tag。クナイ・進化の 石 など）は 第4章の 人も 持てるので、えらんで よい
+  const workItem = (k) => !!((ITEMS[k].work && !ITEMS[k].r88Tag) || ITEMS[k].src === 'r88' || (ITEMS[ITEMS[k].base]?.work && !ITEMS[ITEMS[k].base]?.r88Tag));
   const items = Object.keys(ITEMS).filter((k) => ITEMS[k].type !== 'key' && (big || !workItem(k)));
   const keys = Object.keys(ITEMS).filter((k) => ITEMS[k].type === 'key');
   const maps = Object.values(MAPS);

@@ -4,6 +4,7 @@ import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficult
 import { POWDER, powderLeft } from '../data/friend-powder.js';
 import { MONSTERS } from '../data/monsters.js';
 import { ITEMS } from '../data/items.js';
+import { pkExpMult, pkGoldMult, ballBefriendMult } from '../gear-r88-pokemon.js'; // 第88回 G16班: がくしゅうそうち・おまもりこばん・ボール
 import { abilityLabel } from '../ability-label.js';
 import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
@@ -535,12 +536,15 @@ function finishBattle(world, ctx) {
       const c = m.char;
       // ゲームの むずかしさ（設定）で 経験値が へる（difficulty.js）
       const hm = hat(c);
-      const myExp = scaleExp(c, exp) * hm;
+      // 第88回 G16班: がくしゅうそうち（経験値 2わり）・おまもりこばん（お金 5わり）。つけた 人だけ（gear-r88-pokemon.js）
+      const pkX = pkExpMult(c), pkG = pkGoldMult(c);
+      const myExp = pkX > 1 ? Math.round(scaleExp(c, exp) * hm * pkX) : scaleExp(c, exp) * hm;
+      const myGold = pkG > 1 ? Math.round(gold * pkG) : gold;
       const lines = [];
       lines.push(res.killed.length ? '魔物たちをやっつけた！' : '戦いに勝った！');
-      if (myExp > 0) lines.push(`${c.name}は${myExp}ポイントの経験値をかくとく！${hm > 1 ? '（しあわせのぼうしで2倍）' : ''}`);
-      if (gold > 0) lines.push(`${gold}ゴールドを手に入れた！`);
-      c.gold = Math.min(9999999, c.gold + gold);
+      if (myExp > 0) lines.push(`${c.name}は${myExp}ポイントの経験値をかくとく！${hm > 1 ? '（しあわせのぼうしで2倍）' : ''}${pkX > 1 ? '（がくしゅうそうちでふえた）' : ''}`);
+      if (myGold > 0) lines.push(`${myGold}ゴールドを手に入れた！${pkG > 1 ? '（おまもりこばんでふえた）' : ''}`);
+      c.gold = Math.min(9999999, c.gold + myGold);
       for (const sp of res.killed) c.kills[sp] = (c.kills[sp] || 0) + 1;
       // ドロップ（1体から 1つまで。ボスは かならず。loot.js）
       const drops = [];
@@ -605,6 +609,7 @@ function finishBattle(world, ctx) {
       const target = sessions.find((m) => m.id === party?.leader) || sessions[0];
       // まもの使い・モンスターマスターが いると なかまに なりやすい
       let mult = Math.max(1, ...b.allies.map((a) => JOBS[a.job]?.passive?.befriend || 1));
+      mult *= ballBefriendMult(b.allies); // 第88回 G16班: ボール（いちばん 大きい 1つ。gear-r88-pokemon.js）
       // 仲間の粉（data/friend-powder.js）: いっしょに 戦った だれかが 使っていれば 2倍。使った 人 みんな のこりが 1回 へる
       // （仲間に なれる 魔物が いた 戦い だけ 数える）
       const can = !!target?.char?.flags?.monster_bond && res.killed.some((x) => befriendChance(target.char, x) > 0);

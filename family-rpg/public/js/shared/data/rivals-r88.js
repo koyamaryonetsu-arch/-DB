@@ -39,6 +39,8 @@ export const RIVAL_DOORS = [
   ...g12Doors(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
   ...g14Doors(), // G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいご）
   ...g15Doors(), // G15班: ダイの大冒険（2まい）・ドラゴンクエスト（ファイルの さいご）
+  ...g13Doors(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
+  ...g16Doors(), // G16班: ポケモン（ファイルの さいご）
   ...g17Doors(), // G17班: フリーレン・さいきくすお（ファイルの さいご）
 ];
 
@@ -288,6 +290,8 @@ export const RIVALS = [
   ...g12Rivals(), // G12班: ドラえもん・セーラームーン（ファイルの さいご）
   ...g14Rivals(), // G14班: 鋼のれん金術師・アナと雪の女王（ファイルの さいご）
   ...g15Rivals(), // G15班: ダイの大冒険・大魔王の城・ドラゴンクエスト（ファイルの さいご）
+  ...g13Rivals(), // G13班: ハリー・ポッター・マリオ（ファイルの さいご）
+  ...g16Rivals(), // G16班: ポケモン（ジムリーダーは 曜日で かわる。ファイルの さいご）
   ...g17Rivals(), // G17班: フリーレン・さいきくすお（ファイルの さいご）
 ];
 
@@ -338,7 +342,7 @@ export function nextRival(c, work) {
 export function rivalOpen(c, id) {
   const rv = RIVAL_BY_ID[id];
   if (!rv) return false;
-  return rivalsOf(rv.work).filter((r) => r.n < rv.n).every((r) => rivalWon(c, r.id));
+  return prevWon(c, rv); // G16班: 曜日の ライバル（ジムリーダー）は 組の だれか 1人で よい（ファイルの さいご）
 }
 // 古い セーブ・引っこしで こわれた 記録を ととのえる（world/save.js の repairChar。知らない id は のこす〈あとで 足す 作品〉）
 export function repairRivals(c) {
@@ -1021,6 +1025,185 @@ function g15Rivals() {
       use: 'r88_dq_ryuken', reward: ['r88_dq_ryuken'], words: 'ロトの装備の勇者よ、ひいおじいさんにかわって、手合わせだ！',
       sig: { name: '竜のひ孫のほのお', el: 'fire', anim: 'fire_wave', at: 0.8, after: 3, hit: 1.3, charge: '{a}の体が、竜のすがたにかわっていく…！\n大きなつばさが、広がった…！', cast: '{a}が、竜のほのおをいっぱいにはき出した！' },
       tune: { hp: 0.5, dmg: 1.2 },
+    },
+  ];
+}
+
+// ───────────── G13班: ハリー・ポッター・マリオ ─────────────
+//   ハリー・ポッター … 部屋 ＝ 石の 広間（stone）・背景 ＝ 塔の 中（tower。魔法の 学校の 塔）。毒の 大へびは 海鳴りの洞窟（sea_cave。地下の 部屋の かわり）・
+//     さいごの ヴォルデモートは 城の 上（castle_top）
+//   マリオ … 部屋 ＝ 木の 部屋（wood）・背景 ＝ 草原（grass。キノコの 国の かわり）。キングテレサは 夜の 町（village_night。おばけやしきの かわり）・
+//     クッパは 火の 城（castle_fire）・さいごの 星の世界のクッパは 星の道（hoshimichi）
+function g13Doors() {
+  return [
+    { work: 'harrypotter', mark: 'r88_harrypotter', bg: 'tower', room: 'stone', jobs: ['wizard_student', 'harry', 'grand_magus'] },
+    { work: 'mario', mark: 'r88_mario', bg: 'grass', room: 'wood', jobs: ['plumber', 'mustache', 'mario', 'rosetta'] },
+  ];
+}
+function g13Rivals() {
+  return [
+    // ── ハリー・ポッター（名品を くれる 人は Lv60 ごろ・グリフィンドールの剣は 伝説で Lv80・さいごの ヴォルデモートは Lv100）──
+    {
+      id: 'hp_draco', work: 'harrypotter', n: 1, name: 'ドラコ', lv: 60, job: 'wizard_student', look: L(0, 'slick', 'blonde', 3, 'fair', 'sharp'),
+      use: 'r88_hp_hawthorn', reward: ['r88_hp_hawthorn'], words: 'ぼくのほうが上だって、見せてやる！',
+      same: 'きみも魔法学校の生徒か。決とうだ！',
+      sig: { name: 'サンザシのつえ・決とうの呪文', anim: 'bolt2', charge: '{a}が、つえをまっすぐかまえた…！\n「決とうだ！」', cast: '{a}のつえから、するどい光がつぎつぎとんできた！' },
+      tune: { hp: 1.72, dmg: 1 },
+    },
+    {
+      id: 'hp_twins', work: 'harrypotter', n: 2, name: 'フレッドとジョージ', lv: 62,
+      members: [
+        { name: 'フレッド', job: 'nitoryu', look: L(0, 'short', 'red', 4, 'light', 'smile') },
+        { name: 'ジョージ', job: 'major_leaguer', look: L(0, 'short', 'red', 4, 'light', 'brave') },
+      ],
+      use: 'r88_hp_club', reward: ['r88_hp_club'], words: 'クィディッチの練習相手、たのむぜ！',
+      sig: { name: 'ふたごのブラッジャー打ち', anim: 'blast2', charge: '{a}が、こん棒を大きくふりかぶった！\n2つの玉が、こっちをねらっている…！', cast: '{a}の打った玉が、2つまとめてとんできた！' },
+      tune: { hp: 1.22, dmg: 0.8 },
+    },
+    {
+      id: 'hp_snape', work: 'harrypotter', n: 3, name: 'スネイプ', lv: 64, job: 'archmage', look: L(0, 'long', 'black', 3, 'fair', 'sharp'),
+      use: 'r88_hp_book', reward: ['r88_hp_book'], words: '…授業を始める。よく見ておくことだ。',
+      sig: { name: '魔法薬の大なべ', el: 'dark', anim: 'dark1', charge: '{a}が、大なべに何かを入れた…！\nあやしいけむりが、ぶくぶく上がっていく…！', cast: '{a}の大なべから、黒いけむりがあふれ出した！' },
+      tune: { hp: 1.53, dmg: 1 },
+    },
+    {
+      id: 'hp_basilisk', work: 'harrypotter', n: 4, name: '毒の大へび', lv: 80, job: 'monster_master', look: L(0, 'bald', 'green', 2, 'tan', 'sharp'), bg: 'sea_cave',
+      use: 'r88_hp_gsword', reward: ['r88_hp_gsword'], words: 'シャーッ…………',
+      same: 'シャーッ！（ゆう気のある者のにおいがする…）',
+      sig: { name: '大へびのしっぽ', anim: 'quake', at: 0.8, after: 3, charge: '{a}が、長い体をぐるりとまいた…！\n大きなしっぽが、持ち上がっていく…！', cast: '{a}の大きなしっぽが、いきおいよくふり下ろされた！' },
+      tune: { hp: 1.02, dmg: 1 },
+    },
+    {
+      id: 'hp_voldemort', work: 'harrypotter', n: 5, name: 'ヴォルデモート', lv: 100, job: 'grand_magus', look: L(0, 'bald', 'white', 3, 'fair', 'sharp'), bg: 'castle_top',
+      use: 'r88_hp_yew', reward: ['r88_hp_yew', 'r88_hp_stone'], words: 'わたしの魔法に、勝てるかな？',
+      same: 'その目……あの少年と同じ目だ。',
+      sig: { name: 'イチイのつえの大魔法', el: 'dark', anim: 'dark1', charge: '{a}が、白いつえを高くかかげた…！\nあたりが、すうっと暗くなっていく…！', cast: '{a}のつえから、黒い光の大きな波がおしよせた！' },
+      tune: { hp: 0.56, dmg: 1 },
+    },
+    // ── マリオ（名品を くれる 人は Lv60 ごろ・さいごの 星の世界のクッパは 伝説で Lv100）──
+    {
+      id: 'mr_noko', work: 'mario', n: 1, name: 'ノコノコ', lv: 60, job: 'guardian', look: L(0, 'bald', 'green', 2, 'light', 'round'),
+      use: 'r88_mr_spiny', reward: ['r88_mr_spiny'], words: 'こうらレースなら、ぜったい1位だよ！',
+      sig: { name: 'トゲゾーこうら・大ばくはつ', el: 'blast', anim: 'blast2', charge: '{a}が、とげとげの青いこうらを取り出した！\nこうらが、ぶるぶるふるえている…！', cast: '{a}のトゲゾーこうらが、空からまっすぐおちてきた！' },
+      tune: { hp: 1.28, dmg: 1 },
+    },
+    {
+      id: 'mr_wario', work: 'mario', n: 2, name: 'ワリオ', lv: 62, job: 'mustache', look: L(0, 'short', 'brown', 5, 'light', 'brave'),
+      use: 'r88_mr_garlic', reward: ['r88_mr_garlic'], words: 'ガハハ！お宝は、ぜんぶいただきだ！',
+      same: 'お、ひげ仲間か？でも、お宝はわたさないぞ！',
+      sig: { name: 'ニンニクパワー・体当たり', anim: 'quake', charge: '{a}が、ニンニクをむしゃむしゃ食べた！\n体が、むくむく大きくなっていく…！', cast: '{a}が、ものすごいいきおいで体当たりしてきた！' },
+      tune: { hp: 1.43, dmg: 1 },
+    },
+    {
+      id: 'mr_kingboo', work: 'mario', n: 3, name: 'キングテレサ', lv: 64, job: 'datenshi', look: L(0, 'bald', 'white', 0, 'fair', 'smile'), bg: 'village_night',
+      use: 'r88_mr_poltergust', reward: ['r88_mr_poltergust'], words: 'ケケケ…かくれんぼ、しようよ！',
+      sig: { name: 'おばけの大行進', el: 'dark', anim: 'dark1', charge: '{a}のかんむりが、ぼんやり光った…！\n小さなおばけが、どんどん集まってくる…！', cast: '{a}のおばけたちが、いっせいにとびかかってきた！' },
+      tune: { hp: 1.39, dmg: 1 },
+    },
+    {
+      id: 'mr_bowser', work: 'mario', n: 4, name: 'クッパ', lv: 66, job: 'enjutsushi', look: L(0, 'wild', 'red', 4, 'tan', 'brave'), bg: 'castle_fire',
+      use: 'r88_mr_bshell', reward: ['r88_mr_bshell'], words: 'ガハハ！このクッパさまに勝てるかな？',
+      sig: { name: 'クッパの火の息', el: 'fire', anim: 'fire3', charge: '{a}が、大きくいきをすいこんだ！\n口のおくが、まっ赤に光っている…！', cast: '{a}の口から、ごうごうと火がふき出した！' },
+      tune: { hp: 1.2, dmg: 1 },
+    },
+    {
+      id: 'mr_gbowser', work: 'mario', n: 5, name: '星の世界のクッパ', lv: 100, job: 'maou', look: L(0, 'wild', 'orange', 4, 'tan', 'brave'), bg: 'hoshimichi',
+      use: 'r88_mr_grand', reward: ['r88_mr_grand'], words: 'こんどこそ、星の世界はワガハイのものだ！',
+      same: 'またおまえか、ひげの配管工め！',
+      sig: { name: 'ギガクッパの大じしん', anim: 'quake', charge: '{a}が、星をのみこんで大きくなっていく…！\nあしもとが、ぐらぐらゆれ始めた…！', cast: '{a}が、大きな足で星の地面をふみならした！' },
+      tune: { hp: 0.52, dmg: 1 },
+    },
+  ];
+}
+
+// ───────────── G16班: ポケモン ─────────────
+//   ほかの 係の 行と ぶつからない ように、ここに まとめた（上の RIVAL_DOORS・RIVALS が よぶ）
+//   とびら 1まい: わるい団の2人 → ジムリーダー（曜日で かわる 7人。その 日の 1人と 戦える）→ サカキ → シゲル → チャンピオン・ワタル
+//   ・ジムリーダー … rv.daily（組の 名前）・rv.day（曜日。0 ＝ 日曜〜6 ＝ 土曜。日本の 日付）。7人は べつべつに 勝った 記録を 持つ。
+//     次の サカキへ 進むには、組の だれか 1人に 勝てば よい（rivalOpen の prevWon）。同じ 組の 人どうしは 前後に しない
+//   ・チャンピオン・ワタル … ジムバッジを 8つ 持って いる 人だけ（needSet。G15班の しくみ）
+//   部屋 ＝ 石の 広間（stone）・背景 ＝ 闘技場（arena）。ジムは タイプに 合う 背景
+const JST_MS = 9 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+export const WEEKDAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
+// 日本の 日付の 曜日（0 ＝ 日曜。1970-01-01 は 木曜）
+export const weekdayOf = (now = Date.now()) => ((Math.floor((Number(now) + JST_MS) / DAY_MS) + 4) % 7 + 7) % 7;
+// その 日に ちょうせん できる ライバルか（曜日の ない 人は いつでも）
+export const rivalToday = (rv, now = Date.now()) => !rv || rv.day === undefined || rv.day === weekdayOf(now);
+// その 日の 曜日の ライバル（組の 中で。いなければ null）
+export const dailyRivalOf = (work, group, now = Date.now()) => RIVALS.find((r) => r.work === work && r.daily === group && rivalToday(r, now)) || null;
+// 前の 人たちに 勝って いるか（同じ 組〈daily〉の 人は、だれか 1人に 勝って いれば よい。自分と 同じ 組の 人は 数えない）
+function prevWon(c, rv) {
+  const groups = new Map();
+  for (const r of rivalsOf(rv.work)) {
+    if (r.n >= rv.n || (rv.daily && r.daily === rv.daily)) continue;
+    const k = r.daily ? `daily:${r.daily}` : r.id;
+    groups.set(k, [...(groups.get(k) || []), r]);
+  }
+  return [...groups.values()].every((g) => g.some((r) => rivalWon(c, r.id)));
+}
+
+function g16Doors() {
+  return [
+    { work: 'pokemon', mark: 'r88_pokemon', bg: 'arena', room: 'stone', jobs: ['poke_master', 'monster_master', 'tamer'], daily: { group: 'gym', label: 'ジムリーダー', set: 'gym_badge' } },
+  ];
+}
+function g16Rivals() {
+  // ジムリーダー（曜日）。gym(day, …) … 月〜日の じゅんに Lv 62〜74
+  const gym = (n, day, id, name, lv, job, look, badge, sig, extra = {}) => ({
+    id, work: 'pokemon', n, daily: 'gym', day, name, lv, job, look, use: badge, reward: [badge], sig, ...extra,
+  });
+  return [
+    {
+      id: 'pk_rocket', work: 'pokemon', n: 1, name: 'ムサシとコジロウ', lv: 60, bg: 'village_night',
+      members: [
+        { name: 'ムサシ', job: 'kaito', look: L(1, 'long', 'red', 7, 'fair', 'smile') },
+        { name: 'コジロウ', job: 'tamer', look: L(0, 'short', 'blue', 7, 'fair', 'smile') },
+      ],
+      use: 'r88_pk_uniform', reward: ['r88_pk_uniform', 'r88_pk_koban'], words: 'なんだかんだと聞かれたら、答えてあげるが世のなさけ！',
+      sig: { name: 'わるい団の大作戦', anim: 'blast2', charge: '{a}が、大きなメカのスイッチに手をかけた！\n「今日こそ、うまくいくはず！」…！', cast: '{a}のメカが、どかーんと大ばく発した！' },
+      tune: { hp: 1.17, dmg: 1 },
+    },
+    gym(2, 1, 'pk_takeshi', 'タケシ', 62, 'guardian', L(0, 'spiky', 'brown', 3, 'tan', 'calm'), 'r88_pk_b_gray',
+      { name: 'いわなだれ', anim: 'quake', charge: '{a}が、大きな岩をいくつも持ち上げた！\nごろごろと、地面がゆれ始めた…！', cast: '{a}の岩が、なだれのようにおしよせた！' },
+      { tune: { hp: 1.34, dmg: 1 }, bg: 'cave', words: 'かたい石のような、がまん強さで行くぞ！' }),
+    gym(3, 2, 'pk_kasumi', 'カスミ', 64, 'snow_queen', L(1, 'pony', 'orange', 1, 'fair', 'smile'), 'r88_pk_b_blue',
+      { name: 'ハイドロポンプ', el: 'ice', anim: 'blizzard', charge: '{a}のまわりに、水のうずが集まっていく！\n水しぶきが、どんどん高く上がる…！', cast: '{a}から、ものすごい水がいきおいよくはなたれた！' },
+      { tune: { hp: 1.12, dmg: 1 }, bg: 'sea', words: 'おてんば人魚の、水の力を見せてあげる！' }),
+    gym(4, 3, 'pk_matis', 'マチス', 66, 'summoner', L(0, 'buzz', 'blonde', 2, 'tan', 'brave'), 'r88_pk_b_orange',
+      { name: '10まんボルト', el: 'bolt', anim: 'r88_raikou', charge: '{a}のまわりで、ばちばちと電気が走り始めた！\n空気が、ぴりぴりしてきた…！', cast: '{a}から、ものすごい電気がほとばしった！' },
+      { tune: { hp: 1.3, dmg: 1 }, bg: 'tower', words: 'ヘイ、キッド！しびれる勝負をしようぜ！' }),
+    gym(5, 4, 'pk_erika', 'エリカ', 68, 'hanakappa', L(1, 'bob', 'black', 2, 'fair', 'calm'), 'r88_pk_b_rainbow',
+      { name: 'はなびらのまい', anim: 'r88_hanabi', charge: '{a}のまわりで、花びらがくるくるまい始めた…！\nあまいかおりが、ただよってくる…！', cast: '{a}の花びらが、うずを巻いておそいかかった！' },
+      { tune: { hp: 1.99, dmg: 1 }, bg: 'forest', words: 'お花のように、やさしく、でも負けませんわ。' }),
+    gym(6, 5, 'pk_kyou', 'キョウ', 70, 'ninja', L(0, 'long', 'purple', 6, 'light', 'sharp'), 'r88_pk_b_pink',
+      { name: 'どくどくのきり', anim: 'dark1', charge: '{a}が、すっとすがたを消した…！\nむらさきのきりが、ただよい始めた…！', cast: '{a}のどくのきりが、あたりいっぱいに広がった！' },
+      { tune: { hp: 2.03, dmg: 1 }, bg: 'swamp', words: 'しのびの技、見切れるかな？' }),
+    gym(7, 6, 'pk_natsume', 'ナツメ', 72, 'psychicer', L(1, 'long', 'black', 3, 'fair', 'calm'), 'r88_pk_b_gold',
+      { name: 'サイコキネシス', anim: 'debuff', charge: '{a}の目が、ふしぎな光をおびた…！\nまわりの物が、ふわりとうき上がる…！', cast: '{a}のふしぎな力が、みんなをもち上げてゆさぶった！' },
+      { tune: { hp: 1.65, dmg: 1 }, bg: 'palace_night', words: 'あなたが来ることは、わかっていたわ。' }),
+    gym(8, 0, 'pk_katsura', 'カツラ', 74, 'enjutsushi', L(0, 'bald', 'white', 0, 'light', 'smile'), 'r88_pk_b_crimson',
+      { name: 'だいもんじ', el: 'fire', anim: 'fire3', charge: '{a}が、大きくむねをはった！\n「クイズ！ほのおに強いのは？」…！', cast: '{a}から、大の字の大きなほのおがはなたれた！' },
+      { tune: { hp: 1.48, dmg: 1 }, bg: 'volcano', words: 'うおーっす！もえるクイズと勝負だ！' }),
+    {
+      id: 'pk_sakaki', work: 'pokemon', n: 9, name: 'サカキ', lv: 80, job: 'god_hand', look: L(0, 'slick', 'black', 0, 'light', 'sharp'), bg: 'cave',
+      use: 'r88_pk_inochi', reward: ['r88_pk_b_green', 'r88_pk_inochi'], words: 'ここまで来たか。わたしの力を見せてやろう。',
+      sig: { name: 'じしん', anim: 'quake', charge: '{a}が、ゆっくりと地面に手をついた…！\n地の底から、ごごご…と音がする…！', cast: '{a}の力で、大地が大きくゆれた！' },
+      tune: { hp: 0.81, dmg: 1 },
+    },
+    {
+      id: 'pk_shigeru', work: 'pokemon', n: 10, name: 'シゲル', lv: 90, job: 'monster_master', look: L(0, 'spiky', 'brown', 6, 'fair', 'smile'), bg: 'grass',
+      use: 'r88_pk_zukan', reward: ['r88_pk_zukan', 'r88_pk_tsume'], words: 'よう！おまえなんかに、負けるもんか！',
+      sig: { name: 'ハイドロカノン', el: 'ice', anim: 'blizzard', at: 0.8, after: 3, charge: '{a}が、ポケモンに大声で合図をした！\n水の大きなかたまりが、ふくらんでいく…！', cast: '{a}のポケモンから、大きな水のかたまりがはなたれた！' },
+      tune: { hp: 1.26, dmg: 1 },
+    },
+    {
+      id: 'pk_wataru', work: 'pokemon', n: 11, name: 'チャンピオン・ワタル', lv: 100, job: 'dragon_knight', look: L(0, 'spiky', 'red', 0, 'fair', 'brave'),
+      // needSet … ジムバッジを 8つ 持って いる 人だけ（shared/rivals-r88.js の rivalNeedLack。バッジは なくならない）
+      needSet: { set: 'gym_badge', n: 8, text: 'ジムバッジを8つそろえると、ちょうせんできる' },
+      use: 'r88_pk_masterball', reward: ['r88_pk_masterball'], words: 'ドラゴンつかいのワタル、全力で相手をしよう！',
+      sig: { name: 'はかいこうせん', el: 'fire', anim: 'fire_wave', charge: '{a}のドラゴンが、大きく口を開けた！\n口のおくに、まぶしい光がたまっていく…！', cast: '{a}のドラゴンから、太い光のすじがはなたれた！' },
+      tune: { hp: 0.63, dmg: 1 },
     },
   ];
 }

@@ -7,6 +7,7 @@
 import { RIVAL_HOOKS } from '../data/story-rivals-r88.js';
 import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js';
 import { RIVAL_BY_ID, DOOR_NEED, RIVAL_GOLD_PER_LV, rivalOpen, markRivalWin, rivalEnc, rivalMembers } from '../data/rivals-r88.js';
+import { rivalToday, WEEKDAY_NAMES } from '../data/rivals-r88.js'; // G16班: 曜日で かわる ジムリーダー
 // G11班: とびらの 名前は shared/rivals-r88.js の doorName（workName は 使わなく なった）
 import { ITEMS } from '../data/items.js';
 import { addItem } from '../stats.js';
@@ -54,7 +55,7 @@ export async function doorTalk(run, work) {
     return run.runSteps(steps);
   }
   if (changed) steps.push(['sfx', 'key'], note(`${goods}の品が${DOOR_NEED}つそろった！\nとびらの前の光の輪が、かがやき始めた！`), ['sync']);
-  const paper = rivalPaper(c, work);
+  const paper = rivalPaper(c, work, run.world.now()); // G16班: 曜日の ジムリーダーは サーバーの 日付
   const btns = rivalButtons(paper);
   const labels = [...btns.map((b) => b.label), 'やめる'];
   const branches = [...btns.map((b) => [['call', (r) => rivalBattle(r, b.id)]]), [note('とびらから、はなれた。')]];
@@ -112,6 +113,7 @@ export async function rivalBattle(run, id) {
   const rv = RIVAL_BY_ID[id];
   if (!rv || !rivalOpen(c, id)) return run.runSteps([note('…今は、ちょうせんできないようだ。')]);
   if (rivalNeedLack(c, rv)) return run.runSteps([note(`…今は、ちょうせんできないようだ。\n（${rivalNeedText(c, rv)}）`)]); // G15班: 竜王のひ孫
+  if (!rivalToday(rv, w.now())) return run.runSteps([note(`今日は、${rv.name}はいないようだ。\n（${WEEKDAY_NAMES[rv.day]}曜日に来よう）`)]); // G16班: 曜日の ジムリーダー
   gatherFamily(run);
   const others = run.everyone.filter((m) => m !== run.init).map((m) => m.char.name);
   const front = doorFront(rv.work) || { x: 7.5, y: 3.6 };

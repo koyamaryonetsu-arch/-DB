@@ -367,6 +367,63 @@ Object.assign(R88_BOARD_COLORS, {
   r88_dq: ['#a82a2a', '#3a0a0a', '#ff8a6a'],
 });
 
+// G13班: ハリー・ポッター（いなずまの きずと 丸メガネ）・マリオ（赤い キノコ）
+Object.assign(R88_BOARD_ICONS, {
+  r88_harrypotter: {
+    rows: [
+      '....yy...',
+      '...yy....',
+      '..yyyy...',
+      '....yy...',
+      '...yy....',
+      '.........',
+      'kkk...kkk',
+      'k.k.k.k.k',
+      'kkk...kkk',
+    ],
+    pal: { y: '#ffd23a', k: '#2a1a0a' },
+  },
+  r88_mario: {
+    rows: [
+      '...rrr...',
+      '..rWWrr..',
+      '.rrWWrrW.',
+      'rWrrrrrWr',
+      'rrrrWWrrr',
+      '..sssss..',
+      '..sksks..',
+      '..sssss..',
+      '...sss...',
+    ],
+    pal: { r: '#e8201a', W: '#ffffff', s: '#fff0d0', k: '#2a1a0a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_harrypotter: ['#7a1a2a', '#2a0a10', '#e0b040'],
+  r88_mario: ['#2a8a2a', '#0a3a0a', '#ffd23a'],
+});
+
+// G16班: ポケモン（モンスターボールの 形。上が 赤・下が 白・まん中に 黒い 帯と ボタン）
+Object.assign(R88_BOARD_ICONS, {
+  r88_pokemon: {
+    rows: [
+      '...kkk...',
+      '..kRRrk..',
+      '.kRRrrrk.',
+      '.kRrrrrk.',
+      'kkkkWkkkk',
+      '.kwwkwwk.',
+      '.kWwwwwk.',
+      '..kWwwk..',
+      '...kkk...',
+    ],
+    pal: { k: '#1a1a22', R: '#ff6a6a', r: '#e02a2a', W: '#ffffff', w: '#e0e4ec' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_pokemon: ['#c82a2a', '#3a0a0a', '#ff9a8a'],
+});
+
 // G17班: フリーレン（金の つえと 青い 花〈そう月草〉）・さいきくすお（緑の メガネと 頭の 2本の かざり）
 Object.assign(R88_BOARD_ICONS, {
   r88_frieren: {
