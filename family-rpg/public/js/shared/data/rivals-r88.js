@@ -943,7 +943,7 @@ function g15Rivals() {
       id: 'da_laharl', work: 'dai', n: 3, name: 'ラーハルト', lv: 64, job: 'sword_master', look: L(0, 'short', 'blonde', 1, 'tan', 'sharp'),
       use: 'r88_da_masou', reward: ['r88_da_masou'], words: 'おれの速さに、ついてこられるか。',
       sig: { name: 'よろいの魔そう・千本づき', anim: 'slash_fast', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、すっと魔そうをかまえた…！\n足もとの風が、ぴたりと止まった…！', cast: '{a}の魔そうが、目にもとまらぬ速さで、何本もつきささった！' },
-      tune: { hp: 0.52, dmg: 1.2 },
+      tune: { hp: 0.5, dmg: 1.2 },
     },
     {
       id: 'da_baran', work: 'dai', n: 4, name: 'バラン', lv: 100, job: 'dragon_knight', look: L(0, 'wild', 'brown', 3, 'tan', 'sharp'), bg: 'summit',
@@ -1002,7 +1002,7 @@ function g15Rivals() {
       id: 'dq_zoma', work: 'dq', n: 3, name: 'ゾーマ', lv: 100, job: 'archmage', look: L(0, 'long', 'white', 7, 'fair', 'calm'), bg: 'rift_moon',
       use: 'r88_dq_roto_sword', reward: ['r88_dq_roto_sword'], words: 'なにゆえ、もがき生きるのか。',
       sig: { name: '闇の衣のこごえるいき', el: 'ice', anim: 'blizzard', at: 0.8, after: 3, hit: 1.3, charge: '{a}が、闇の衣を大きく広げた！\nあたりが、しんとひえていく…！', cast: '{a}から、すべてをこおらせるいきがはき出された！' },
-      tune: { hp: 0.92, dmg: 1 },
+      tune: { hp: 0.93, dmg: 1 },
     },
     {
       id: 'dq_hiko', work: 'dq', n: 4, name: '竜王のひ孫', lv: 100, job: 'ryumajin', look: L(0, 'short', 'purple', 6, 'fair', 'smile'), bg: 'castle_fire',
@@ -1010,7 +1010,7 @@ function g15Rivals() {
       needSet: { set: 'roto', n: 5, text: 'ロトの装備を5つそろえると、ちょうせんできる' },
       use: 'r88_dq_ryuken', reward: ['r88_dq_ryuken'], words: 'ロトの装備の勇者よ、ひいおじいさんにかわって、手合わせだ！',
       sig: { name: '竜のひ孫のほのお', el: 'fire', anim: 'fire_wave', at: 0.8, after: 3, hit: 1.3, charge: '{a}の体が、竜のすがたにかわっていく…！\n大きなつばさが、広がった…！', cast: '{a}が、竜のほのおをいっぱいにはき出した！' },
-      tune: { hp: 0.52, dmg: 1 },
+      tune: { hp: 0.5, dmg: 1.2 },
     },
   ];
 }
