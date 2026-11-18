@@ -9,7 +9,7 @@
 //  r88_fujin   風神・風魂（G2班）… 緑と 白の つむじ風が うずを まいて ふくらみ、風の やいばが 何本も 敵の グループを 切りさく
 //  r88_raijin  雷神・いかずち（G2班）… こての 雷が 青白く ばちばち 光り、敵 みんなの 上から 青い いなずまが ジグザグに 落ちる
 // G12班: 味方に かける えんしゅつ（もしもボックス・ムーン・ヒーリング）を PARTY_ANIMS に まぜる（client/battle.js が 画面の 下に 出す）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=0d338e47b7e9';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=2a2abae0c26c';
 const BOLT = ['#ffffff', '#fff6b0', '#ffd23a', '#c890ff'];
 const LIGHT = ['#ffffff', '#fffbe0', '#ffe680', '#ffd23a'];
 const WIND = ['#ffffff', '#e8fff0', '#9ef0c0', '#4ad890'];
@@ -701,3 +701,50 @@ Object.assign(G8_FX, { r88_superstar: superstar, r88_timeturner: timeturner });
 for (const k of ['r88_superstar', 'r88_timeturner']) { R88_ANIMS.add(k); R88_PARTY_ANIMS.add(k); PARTY_ANIMS.add(k); }
 Object.assign(R88_HIT, { r88_superstar: 700, r88_timeturner: 800 });
 Object.assign(R88_SFX, { r88_superstar: 'sparkle', r88_timeturner: 'heal' });
+
+// ───── G16班: ポケモン（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//   r88_zpower … Zリング。うでわの 石が 光り、5色の 光の すじが 体に あつまって、金色の Z の 字が かがやく
+//   r88_mega   … メガリング。にじ色の 光の まゆに つつまれ、たまごの からが われる ように 光が はじける
+const ZCOL = ['#ffffff', '#fff6b0', '#ffd23a', '#ff9a3a'];
+const MEGA = ['#ff7a7a', '#ffb84a', '#ffe85a', '#7ae08a', '#6ab8ff', '#b88aff'];
+function zpower(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.6 };
+  fx.tintAt('rgba(30,20,0,0.3)', 1100);
+  fx.glow(t.x + 8, t.y - 2, { color: '#ffffff', r: 6, delay: 0, life: 500 });
+  // 5色の 光の すじが まわりから あつまる
+  MEGA.slice(0, 5).forEach((col, k) => {
+    const a = (k * 2 * Math.PI) / 5 - Math.PI / 2;
+    fx.zap(t.x + Math.cos(a) * 44, t.y - 6 + Math.sin(a) * 32, t.x, t.y - 6, { color: '#ffffff', glow: col, w: 1.6, delay: 120 + k * 60, life: 260, forks: 0 });
+  });
+  fx.converge(t.x, t.y - 6, { colors: ZCOL, n: 24, r: 46, delay: 160, life: 380 });
+  // 金色の Z（3本の 線）
+  const z = [[-10, -22, 10, -22], [10, -22, -10, 4], [-10, 4, 10, 4]];
+  z.forEach(([x0, y0, x1, y1], k) => fx.spear(t.x + x0, t.y + y0 - 8, t.x + x1, t.y + y1 - 8, { len: 22, w: 3, color: '#fff6b0', glow: '#ffd23a', tip: '#ffffff', delay: 560 + k * 90, travel: 90, hold: 320, life: 460, over: 0 }));
+  fx.shock(t.x, t.y - 12, { r0: 6, r1: 52, color: '#ffd23a', w: 3, delay: 860, life: 420 });
+  fx.sparks(t.x, t.y - 12, { colors: ZCOL, n: 22, speed: 120, delay: 880, life: 460 });
+  fx.flashAt(100, '#fff6c0', 860);
+  return true;
+}
+function mega(fx, targets, W, H) {
+  const t = targets[0] || { x: W * 0.5, y: H * 0.6 };
+  fx.tintAt('rgba(20,10,40,0.35)', 1300);
+  // にじ色の 光の まゆ
+  MEGA.forEach((col, k) => fx.glow(t.x, t.y - 8, { color: col, r: 30 - k * 3, delay: 80 + k * 70, life: 700, alpha: 0.5 }));
+  fx.converge(t.x, t.y - 8, { colors: MEGA, n: 30, r: 52, delay: 100, life: 520 });
+  // からが われる ように、光の すじが 外へ
+  for (let k = 0; k < 8; k++) {
+    const a = (k * Math.PI) / 4 + 0.2;
+    fx.spear(t.x, t.y - 8, t.x + Math.cos(a) * 46, t.y - 8 + Math.sin(a) * 38, { len: 18, w: 2, color: '#ffffff', glow: MEGA[k % MEGA.length], tip: '#ffffff', delay: 720 + k * 20, travel: 160, hold: 120, life: 340, over: 0 });
+  }
+  fx.shock(t.x, t.y - 8, { r0: 8, r1: 60, color: '#ffffff', w: 3, delay: 740, life: 460 });
+  fx.pillar(t.x, t.y + 8, '#d8c8ff', { w: 10, h: 60, delay: 760, life: 520, edge: '#ffffff' });
+  fx.sparks(t.x, t.y - 8, { colors: MEGA, n: 26, speed: 130, delay: 760, life: 520 });
+  fx.flashAt(110, '#f4eeff', 740);
+  return true;
+}
+Object.assign(G8_FX, { r88_zpower: zpower, r88_mega: mega });
+for (const k of ['r88_zpower', 'r88_mega']) R88_ANIMS.add(k);
+Object.assign(R88_HIT, { r88_zpower: 860, r88_mega: 760 });
+Object.assign(R88_SFX, { r88_zpower: 'crit', r88_mega: 'sparkle' });
+// 味方に かける えんしゅつ（G12班と 同じ。client/battle.js が 画面の 下に 出す）
+for (const a of ['r88_zpower', 'r88_mega']) PARTY_ANIMS.add(a);

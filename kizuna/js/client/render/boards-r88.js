@@ -402,3 +402,24 @@ Object.assign(R88_BOARD_COLORS, {
   r88_harrypotter: ['#7a1a2a', '#2a0a10', '#e0b040'],
   r88_mario: ['#2a8a2a', '#0a3a0a', '#ffd23a'],
 });
+
+// G16班: ポケモン（モンスターボールの 形。上が 赤・下が 白・まん中に 黒い 帯と ボタン）
+Object.assign(R88_BOARD_ICONS, {
+  r88_pokemon: {
+    rows: [
+      '...kkk...',
+      '..kRRrk..',
+      '.kRRrrrk.',
+      '.kRrrrrk.',
+      'kkkkWkkkk',
+      '.kwwkwwk.',
+      '.kWwwwwk.',
+      '..kWwwk..',
+      '...kkk...',
+    ],
+    pal: { k: '#1a1a22', R: '#ff6a6a', r: '#e02a2a', W: '#ffffff', w: '#e0e4ec' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_pokemon: ['#c82a2a', '#3a0a0a', '#ff9a8a'],
+});

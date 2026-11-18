@@ -4,20 +4,21 @@
 //   勝つと 戦った 家族 ぜんいんが その ライバルの 品を 1つずつ（もう 持って いる 人には かわりに 少しの お金）。勝った 記録は 1人ずつ（char.rivals）
 //   負けても お金は へらない（HP・MPも もどる）。何回でも
 // ・試練の番人が 回廊の 案内も する（はじめて 話した ときに 1回。world/job-trials.js の 番人の 話の あと）
-import { RIVAL_HOOKS } from '../data/story-rivals-r88.js?v=0d338e47b7e9';
-import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=0d338e47b7e9';
-import { RIVAL_BY_ID, DOOR_NEED, RIVAL_GOLD_PER_LV, rivalOpen, markRivalWin, rivalEnc, rivalMembers } from '../data/rivals-r88.js?v=0d338e47b7e9';
+import { RIVAL_HOOKS } from '../data/story-rivals-r88.js?v=2a2abae0c26c';
+import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=2a2abae0c26c';
+import { RIVAL_BY_ID, DOOR_NEED, RIVAL_GOLD_PER_LV, rivalOpen, markRivalWin, rivalEnc, rivalMembers } from '../data/rivals-r88.js?v=2a2abae0c26c';
+import { rivalToday, WEEKDAY_NAMES } from '../data/rivals-r88.js?v=2a2abae0c26c'; // G16班: 曜日で かわる ジムリーダー
 // G11班: とびらの 名前は shared/rivals-r88.js の doorName（workName は 使わなく なった）
-import { ITEMS } from '../data/items.js?v=0d338e47b7e9';
-import { addItem } from '../stats.js?v=0d338e47b7e9';
-import { ownedIds } from '../gear-r88.js?v=0d338e47b7e9';
-import { workOwned, doorLeft, refreshDoorFlags, rivalPaper, rivalButtons, rewardIds, HALL_NAME, doorName, doorGoods, rivalNeedLack, rivalNeedText } from '../rivals-r88.js?v=0d338e47b7e9';
-import { HALL_ID, roomId, ROOM_START, doorFront } from '../maps/rivals-r88.js?v=0d338e47b7e9';
-import { startFixedBattle, battleSessions } from './battles.js?v=0d338e47b7e9';
-import { partyOf } from './party.js?v=0d338e47b7e9';
-import { setupRivalPhantom } from '../battle-rival-r88.js?v=0d338e47b7e9';
+import { ITEMS } from '../data/items.js?v=2a2abae0c26c';
+import { addItem } from '../stats.js?v=2a2abae0c26c';
+import { ownedIds } from '../gear-r88.js?v=2a2abae0c26c';
+import { workOwned, doorLeft, refreshDoorFlags, rivalPaper, rivalButtons, rewardIds, HALL_NAME, doorName, doorGoods, rivalNeedLack, rivalNeedText } from '../rivals-r88.js?v=2a2abae0c26c';
+import { HALL_ID, roomId, ROOM_START, doorFront } from '../maps/rivals-r88.js?v=2a2abae0c26c';
+import { startFixedBattle, battleSessions } from './battles.js?v=2a2abae0c26c';
+import { partyOf } from './party.js?v=2a2abae0c26c';
+import { setupRivalPhantom } from '../battle-rival-r88.js?v=2a2abae0c26c';
 // 番人の 話（TRIAL_HOOKS.keeper）を 先に 入れて おく
-import './job-trials.js?v=0d338e47b7e9';
+import './job-trials.js?v=2a2abae0c26c';
 
 const note = (text) => ['say', null, text];
 const keeper = (text) => ['say', TRIAL_KEEPER, text];
@@ -54,7 +55,7 @@ export async function doorTalk(run, work) {
     return run.runSteps(steps);
   }
   if (changed) steps.push(['sfx', 'key'], note(`${goods}の品が${DOOR_NEED}つそろった！\nとびらの前の光の輪が、かがやき始めた！`), ['sync']);
-  const paper = rivalPaper(c, work);
+  const paper = rivalPaper(c, work, run.world.now()); // G16班: 曜日の ジムリーダーは サーバーの 日付
   const btns = rivalButtons(paper);
   const labels = [...btns.map((b) => b.label), 'やめる'];
   const branches = [...btns.map((b) => [['call', (r) => rivalBattle(r, b.id)]]), [note('とびらから、はなれた。')]];
@@ -112,6 +113,7 @@ export async function rivalBattle(run, id) {
   const rv = RIVAL_BY_ID[id];
   if (!rv || !rivalOpen(c, id)) return run.runSteps([note('…今は、ちょうせんできないようだ。')]);
   if (rivalNeedLack(c, rv)) return run.runSteps([note(`…今は、ちょうせんできないようだ。\n（${rivalNeedText(c, rv)}）`)]); // G15班: 竜王のひ孫
+  if (!rivalToday(rv, w.now())) return run.runSteps([note(`今日は、${rv.name}はいないようだ。\n（${WEEKDAY_NAMES[rv.day]}曜日に来よう）`)]); // G16班: 曜日の ジムリーダー
   gatherFamily(run);
   const others = run.everyone.filter((m) => m !== run.init).map((m) => m.char.name);
   const front = doorFront(rv.work) || { x: 7.5, y: 3.6 };

@@ -4,12 +4,12 @@
 //   ・使う（品の use）… 1つの 戦いで その 品 1回（battle-gearfx.js の gearUseCheck・gearUse。u.once・u.used）
 //   ・そろい rule 'party' … 戦いの はじめの 仲間で 数えて、全員に その 段の 強さ（applyPartySets。battle.js の constructor）
 //   どれも 戦いの 中だけ（セーブしない）
-import { GEAR_SETS } from './data/gear-sets.js?v=0d338e47b7e9';
-import { fxPower, GEAR_FX } from './data/gear-fx.js?v=0d338e47b7e9';
-import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=0d338e47b7e9';
-import { ITEMS, baseItemId } from './data/items.js?v=0d338e47b7e9';
+import { GEAR_SETS } from './data/gear-sets.js?v=2a2abae0c26c';
+import { fxPower, GEAR_FX } from './data/gear-fx.js?v=2a2abae0c26c';
+import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=2a2abae0c26c';
+import { ITEMS, baseItemId } from './data/items.js?v=2a2abae0c26c';
 // G13班: 百味ビーンズの 味
-import { BEANS } from './data/items-r88-harrypotter.js?v=0d338e47b7e9';
+import { BEANS } from './data/items-r88-harrypotter.js?v=2a2abae0c26c';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {
@@ -118,10 +118,13 @@ export function useWet(b, c, u, ev) {
 //   battle.js の damage が「たおれる 前」（第84回 A班の 立ち上がりの あと）に よぶ。t.r88Endured は 戦いの 中だけ（次の 戦いで また 使える）
 export function r88Endure(b, t, ev) {
   if (!t || t.side !== 'ally' || !t.alive || t.hp > 0 || t.r88Endured || t.fled) return false;
-  if (!(Array.isArray(t.gearFx) && t.gearFx.some((x) => x.kind === 'endure' && x.v > 0))) return false;
+  const fx = Array.isArray(t.gearFx) && t.gearFx.some((x) => x.kind === 'endure' && x.v > 0);
+  // G16班: きあいのタスキ（アクセの pkSash）… HPが 満タンの 時に 受けた ダメージだけ（t.r88WasFull は battle.js の damage）。1人 1回は 同じ 数え方
+  const sash = !fx && ITEMS[baseItemId(t.acc)]?.pkSash && t.r88WasFull;
+  if (!fx && !sash) return false;
   t.r88Endured = true;
   t.hp = 1;
-  ev.lines.push(`${t.name}は、たおれそうになった…`, `${t.name}は、ふんばった！`);
+  ev.lines.push(`${t.name}は、たおれそうになった…`, sash ? `${t.name}は、きあいのタスキでもちこたえた！` : `${t.name}は、ふんばった！`);
   (ev.results = ev.results || []).push({ id: t.id, heal: 0, endure: true });
   if (!ev.upd.includes(t)) ev.upd.push(t);
   ev.r88Endure = t.id;

@@ -76,3 +76,10 @@ Object.assign(WORKS, {
   harrypotter: { name: 'ハリー・ポッター', trialGift: { harry: 'r88_hp_holly' } },
   mario: { name: 'マリオ', trialGift: { mario: 'r88_mr_cap' } },
 });
+
+// 第88回 G16班: ポケモン（ファイルの さいごで まぜる）
+//   試練の ごほうび: ポケモンマスター → サトシのぼうし（サトシの 品）
+//   まぼろしの回ろうの ジムリーダーは 曜日で かわる（data/rivals-r88.js の g16Rivals）
+Object.assign(WORKS, {
+  pokemon: { name: 'ポケモン', trialGift: { poke_master: 'r88_pk_cap' } },
+});
