@@ -1060,7 +1060,7 @@ function g16Doors() {
 function g16Rivals() {
   // ジムリーダー（曜日）。gym(day, …) … 月〜日の じゅんに Lv 62〜74
   const gym = (n, day, id, name, lv, job, look, badge, sig, extra = {}) => ({
-    id, work: 'pokemon', n, daily: 'gym', day, name, lv, job, look, use: badge, reward: [badge], ...extra, sig, tune: { hp: 1, dmg: 1 },
+    id, work: 'pokemon', n, daily: 'gym', day, name, lv, job, look, use: badge, reward: [badge], sig, ...extra,
   });
   return [
     {
@@ -1071,40 +1071,40 @@ function g16Rivals() {
       ],
       use: 'r88_pk_uniform', reward: ['r88_pk_uniform', 'r88_pk_koban'], words: 'なんだかんだと聞かれたら、答えてあげるが世のなさけ！',
       sig: { name: 'わるい団の大作戦', anim: 'blast2', charge: '{a}が、大きなメカのスイッチに手をかけた！\n「今日こそ、うまくいくはず！」…！', cast: '{a}のメカが、どかーんと大ばく発した！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 1.17, dmg: 1 },
     },
     gym(2, 1, 'pk_takeshi', 'タケシ', 62, 'guardian', L(0, 'spiky', 'brown', 3, 'tan', 'calm'), 'r88_pk_b_gray',
       { name: 'いわなだれ', anim: 'quake', charge: '{a}が、大きな岩をいくつも持ち上げた！\nごろごろと、地面がゆれ始めた…！', cast: '{a}の岩が、なだれのようにおしよせた！' },
-      { bg: 'cave', words: 'かたい石のような、がまん強さで行くぞ！' }),
+      { tune: { hp: 1.34, dmg: 1 }, bg: 'cave', words: 'かたい石のような、がまん強さで行くぞ！' }),
     gym(3, 2, 'pk_kasumi', 'カスミ', 64, 'snow_queen', L(1, 'pony', 'orange', 1, 'fair', 'smile'), 'r88_pk_b_blue',
       { name: 'ハイドロポンプ', el: 'ice', anim: 'blizzard', charge: '{a}のまわりに、水のうずが集まっていく！\n水しぶきが、どんどん高く上がる…！', cast: '{a}から、ものすごい水がいきおいよくはなたれた！' },
-      { bg: 'sea', words: 'おてんば人魚の、水の力を見せてあげる！' }),
+      { tune: { hp: 1.12, dmg: 1 }, bg: 'sea', words: 'おてんば人魚の、水の力を見せてあげる！' }),
     gym(4, 3, 'pk_matis', 'マチス', 66, 'summoner', L(0, 'buzz', 'blonde', 2, 'tan', 'brave'), 'r88_pk_b_orange',
       { name: '10まんボルト', el: 'bolt', anim: 'r88_raikou', charge: '{a}のまわりで、ばちばちと電気が走り始めた！\n空気が、ぴりぴりしてきた…！', cast: '{a}から、ものすごい電気がほとばしった！' },
-      { bg: 'tower', words: 'ヘイ、キッド！しびれる勝負をしようぜ！' }),
+      { tune: { hp: 1.3, dmg: 1 }, bg: 'tower', words: 'ヘイ、キッド！しびれる勝負をしようぜ！' }),
     gym(5, 4, 'pk_erika', 'エリカ', 68, 'hanakappa', L(1, 'bob', 'black', 2, 'fair', 'calm'), 'r88_pk_b_rainbow',
       { name: 'はなびらのまい', anim: 'r88_hanabi', charge: '{a}のまわりで、花びらがくるくるまい始めた…！\nあまいかおりが、ただよってくる…！', cast: '{a}の花びらが、うずを巻いておそいかかった！' },
-      { bg: 'forest', words: 'お花のように、やさしく、でも負けませんわ。' }),
+      { tune: { hp: 1.99, dmg: 1 }, bg: 'forest', words: 'お花のように、やさしく、でも負けませんわ。' }),
     gym(6, 5, 'pk_kyou', 'キョウ', 70, 'ninja', L(0, 'long', 'purple', 6, 'light', 'sharp'), 'r88_pk_b_pink',
       { name: 'どくどくのきり', anim: 'dark1', charge: '{a}が、すっとすがたを消した…！\nむらさきのきりが、ただよい始めた…！', cast: '{a}のどくのきりが、あたりいっぱいに広がった！' },
-      { bg: 'swamp', words: 'しのびの技、見切れるかな？' }),
+      { tune: { hp: 2.03, dmg: 1 }, bg: 'swamp', words: 'しのびの技、見切れるかな？' }),
     gym(7, 6, 'pk_natsume', 'ナツメ', 72, 'psychicer', L(1, 'long', 'black', 3, 'fair', 'calm'), 'r88_pk_b_gold',
       { name: 'サイコキネシス', anim: 'debuff', charge: '{a}の目が、ふしぎな光をおびた…！\nまわりの物が、ふわりとうき上がる…！', cast: '{a}のふしぎな力が、みんなをもち上げてゆさぶった！' },
-      { bg: 'palace_night', words: 'あなたが来ることは、わかっていたわ。' }),
+      { tune: { hp: 1.65, dmg: 1 }, bg: 'palace_night', words: 'あなたが来ることは、わかっていたわ。' }),
     gym(8, 0, 'pk_katsura', 'カツラ', 74, 'enjutsushi', L(0, 'bald', 'white', 0, 'light', 'smile'), 'r88_pk_b_crimson',
       { name: 'だいもんじ', el: 'fire', anim: 'fire3', charge: '{a}が、大きくむねをはった！\n「クイズ！ほのおに強いのは？」…！', cast: '{a}から、大の字の大きなほのおがはなたれた！' },
-      { bg: 'volcano', words: 'うおーっす！もえるクイズと勝負だ！' }),
+      { tune: { hp: 1.48, dmg: 1 }, bg: 'volcano', words: 'うおーっす！もえるクイズと勝負だ！' }),
     {
       id: 'pk_sakaki', work: 'pokemon', n: 9, name: 'サカキ', lv: 80, job: 'god_hand', look: L(0, 'slick', 'black', 0, 'light', 'sharp'), bg: 'cave',
       use: 'r88_pk_inochi', reward: ['r88_pk_b_green', 'r88_pk_inochi'], words: 'ここまで来たか。わたしの力を見せてやろう。',
       sig: { name: 'じしん', anim: 'quake', charge: '{a}が、ゆっくりと地面に手をついた…！\n地の底から、ごごご…と音がする…！', cast: '{a}の力で、大地が大きくゆれた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.81, dmg: 1 },
     },
     {
       id: 'pk_shigeru', work: 'pokemon', n: 10, name: 'シゲル', lv: 90, job: 'monster_master', look: L(0, 'spiky', 'brown', 6, 'fair', 'smile'), bg: 'grass',
       use: 'r88_pk_zukan', reward: ['r88_pk_zukan', 'r88_pk_tsume'], words: 'よう！おまえなんかに、負けるもんか！',
-      sig: { name: 'ハイドロカノン', el: 'ice', anim: 'blizzard', charge: '{a}が、ポケモンに大声で合図をした！\n水の大きなかたまりが、ふくらんでいく…！', cast: '{a}のポケモンから、大きな水のかたまりがはなたれた！' },
-      tune: { hp: 1, dmg: 1 },
+      sig: { name: 'ハイドロカノン', el: 'ice', anim: 'blizzard', at: 0.8, after: 3, charge: '{a}が、ポケモンに大声で合図をした！\n水の大きなかたまりが、ふくらんでいく…！', cast: '{a}のポケモンから、大きな水のかたまりがはなたれた！' },
+      tune: { hp: 1.26, dmg: 1 },
     },
     {
       id: 'pk_wataru', work: 'pokemon', n: 11, name: 'チャンピオン・ワタル', lv: 100, job: 'dragon_knight', look: L(0, 'spiky', 'red', 0, 'fair', 'brave'),
@@ -1112,7 +1112,7 @@ function g16Rivals() {
       needSet: { set: 'gym_badge', n: 8, text: 'ジムバッジを8つそろえると、ちょうせんできる' },
       use: 'r88_pk_masterball', reward: ['r88_pk_masterball'], words: 'ドラゴンつかいのワタル、全力で相手をしよう！',
       sig: { name: 'はかいこうせん', el: 'fire', anim: 'fire_wave', charge: '{a}のドラゴンが、大きく口を開けた！\n口のおくに、まぶしい光がたまっていく…！', cast: '{a}のドラゴンから、太い光のすじがはなたれた！' },
-      tune: { hp: 1, dmg: 1 },
+      tune: { hp: 0.63, dmg: 1 },
     },
   ];
 }
