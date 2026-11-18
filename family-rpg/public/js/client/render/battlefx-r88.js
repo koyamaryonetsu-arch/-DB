@@ -748,3 +748,45 @@ Object.assign(R88_HIT, { r88_zpower: 860, r88_mega: 760 });
 Object.assign(R88_SFX, { r88_zpower: 'crit', r88_mega: 'sparkle' });
 // 味方に かける えんしゅつ（G12班と 同じ。client/battle.js が 画面の 下に 出す）
 for (const a of ['r88_zpower', 'r88_mega']) PARTY_ANIMS.add(a);
+
+// ───── G18班: おしり探てい（G8_FX に まぜる。playR88Fx の はじめの 行で よばれる）─────
+//   r88_oshiri … 名探ていのスーツとちょうネクタイ「しつれい、こかせていただきます」。
+//                手前で「ぽん・ぽん・ぽん」と 小さな 黄色い 輪が 3つ はじけ、ふんわり した 黄緑の 雲が ころころ ころがって 敵の 方へ。
+//                敵の 上で 雲が ふくらんで つつみ、きらきらの 星 → 「Z」と ねむりの あわが ふわふわ 上がる（ゆかいで、やさしい 形）
+const PUU = ['#ffffff', '#fffbd0', '#f4f0a0', '#d8f0a0'];
+function oshiri(fx, targets, W, H) {
+  const c = targets.length ? center(targets, W, H) : { x: W * 0.3, y: H * 0.45 };
+  const sx = W * 0.8, sy = H * 0.72;
+  fx.tintAt('rgba(60,60,10,0.18)', 1500);
+  // ぽん・ぽん・ぽん（小さな 輪が 3つ）
+  for (let k = 0; k < 3; k++) {
+    fx.shock(sx - k * 8, sy - k * 4, { r0: 2, r1: 12 + k * 4, color: '#f4e870', w: 2, delay: k * 140, life: 260 });
+    fx.puff(sx - k * 8, sy - k * 4, { color: '#f8f0a0', r0: 2, r1: 7 + k * 2, vy: -8, delay: k * 140 + 20, life: 360, add: true });
+  }
+  // ふんわり 雲が ころころ ころがって いく
+  for (let k = 0; k < 8; k++) {
+    const t = k / 7;
+    const x = sx + (c.x - sx) * t, y = sy + (c.y - sy) * t - Math.sin(t * Math.PI) * 16;
+    fx.puff(x, y, { color: PUU[(k % 3) + 1], r0: 4, r1: 11 + k, vy: -6, delay: 440 + k * 55, life: 520, add: true });
+  }
+  // 敵の 上で 雲が ふくらんで つつむ
+  for (const t of targets.length ? targets : [c]) {
+    fx.glow(t.x, t.y - 4, { color: '#f4f0a0', r: 22, delay: 860, life: 700, grow: 0.5, alpha: 0.6 });
+    for (let k = 0; k < 4; k++) fx.puff(t.x + rnd(-12, 12), t.y + rnd(-8, 6), { color: PUU[(k % 3) + 1], r0: 6, r1: 16, vy: -10, delay: 880 + k * 40, life: 620, add: true });
+    // きらきらの 星
+    for (let k = 0; k < 3; k++) fx.twinkle(t.x + rnd(-14, 14), t.y - 18 + rnd(-6, 6), { color: '#ffffff', size: 4, delay: 960 + k * 80, life: 420, spin: 3 });
+    // ねむりの Z と あわ
+    for (let k = 0; k < 2; k++) {
+      const x0 = t.x + 8 + k * 7, y0 = t.y - 16 - k * 9, d = 1180 + k * 160, z = 3 + k;
+      fx.cut(x0 - z, y0 - z, { ang: 0, len: z * 2, w: 1.4, color: '#ffffff', glow: '#8ab0ff', delay: d, life: 480, speed: 0 });
+      fx.cut(x0, y0, { ang: 2.36, len: z * 2.8, w: 1.4, color: '#ffffff', glow: '#8ab0ff', delay: d + 40, life: 440, speed: 0 });
+      fx.cut(x0 - z, y0 + z, { ang: 0, len: z * 2, w: 1.4, color: '#ffffff', glow: '#8ab0ff', delay: d + 80, life: 400, speed: 0 });
+    }
+    for (let k = 0; k < 3; k++) fx.bubble(t.x + rnd(-10, 10), t.y + rnd(-4, 4), { color: '#d8e8ff', size: 1.6, vy: -22, delay: 1100 + k * 110, life: 760 });
+  }
+  return true;
+}
+Object.assign(G8_FX, { r88_oshiri: oshiri });
+R88_ANIMS.add('r88_oshiri');
+Object.assign(R88_HIT, { r88_oshiri: 900 });
+Object.assign(R88_SFX, { r88_oshiri: 'sleep' });

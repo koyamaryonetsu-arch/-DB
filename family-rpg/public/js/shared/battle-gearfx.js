@@ -140,7 +140,8 @@ export function gearUse(b, c, cmd, ev) {
   const target = a.target === 'ally' ? (b.sideOf(c, true).filter((x) => x.alive && x !== c).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0]?.id ?? c.id) : a.target === 'enemy' || a.target === 'group' ? b.aliveEnemies()[0]?.id : undefined;
   const sub = { type: 'ability', id: abId, target };
   const targets = b.targetsFor(c, a, sub);
-  ev.lines.push(`${a.name}の力が、はなたれた！`);
+  // 第88回 G18班: 技に useSay（使った 時の ことば）が あれば、それを 出す（おしり探ていの スーツ）
+  ev.lines.push(...(a.useSay ? a.useSay.replace(/\{a\}/g, c.name).split('\n') : [`${a.name}の力が、はなたれた！`]));
   b.applyAbility(c, a, sub, ev, 1, targets);
   useHpCost(c, u, ev); // 第88回 G2班: 使うと HPが 少し へる 品（雷神）
   r88AfterUse(b, c, a, ev); // 第88回 G13班: スーパースター
