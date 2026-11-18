@@ -92,6 +92,11 @@ async function start(seed) {
   return { world, bot, c: world.data.characters[bot.char.id] };
 }
 
+// 第88回 T2班: ふつう（第4章くらい）の 人が 行った マップ・立てた フラグ・あけた 宝箱・たおした 魔物の 数は、決まった 数に する
+//   （前は ゲーム 全体の 数の「何わり」だった ため、後半の 部屋・フラグが ふえる たびに 第4章の 人の セーブが 太って 見えた）。
+//   数は、見はりが さいごに 通った 609ed6a90 での 何わり（マップ 307×0.35・フラグ 391×0.45・宝箱 590×0.4・魔物 333×0.4）の 値
+const TYPICAL = { maps: 107, flags: 175, chests: 236, monsters: 133 };
+
 // size: 'big'（いちばん 大きい）・'typical'（ふつう）
 async function build(size, seed) {
   const big = size === 'big';
@@ -126,21 +131,21 @@ async function build(size, seed) {
   c.bank = { gold: big ? 9999999 : 5000, items: shuffle(R, items).slice(0, big ? BANK_KINDS : 10).map((id) => ({ id, n: int(R, 1, 99) })) };
   // フラグ・宝箱・きらきら
   const flags = allFlags();
-  for (const f of big ? flags : flags.slice(0, Math.floor(flags.length * 0.45))) c.flags[f] = true;
+  for (const f of big ? flags : flags.slice(0, Math.min(flags.length, TYPICAL.flags))) c.flags[f] = true;
   c.flags.monster_bond = true;
   c.flags.zz_count = 3;
   const chests = maps.flatMap((m) => (m.chests || []).map((x) => x.id));
-  for (const id of big ? chests : chests.slice(0, Math.floor(chests.length * 0.4))) c.chests[id] = true;
+  for (const id of big ? chests : chests.slice(0, Math.min(chests.length, TYPICAL.chests))) c.chests[id] = true;
   const sparkles = maps.flatMap((m) => (m.sparkles || []).map((x) => x.id));
   for (const id of sparkles) c.sparkles[id] = 1794488401253 - int(R, 0, 9e8);
   // マップ（行った・きり）
-  const visit = big ? maps : maps.slice(0, Math.floor(maps.length * 0.35));
+  const visit = big ? maps : maps.slice(0, Math.min(maps.length, TYPICAL.maps));
   for (const m of visit) {
     c.visited[m.id] = true;
     c.explored[m.id] = walkExplored(m, R, big ? 0.6 + R() * 0.35 : 0.3 + R() * 0.5);
   }
   // 魔物（たおした 数・図鑑）
-  const ms = big ? monsters : monsters.slice(0, Math.floor(monsters.length * 0.4));
+  const ms = big ? monsters : monsters.slice(0, Math.min(monsters.length, TYPICAL.monsters));
   for (const m of ms) {
     c.kills[m] = logInt(R, 1, big ? 9999 : 120);
     noteSeen(c, [m]);
