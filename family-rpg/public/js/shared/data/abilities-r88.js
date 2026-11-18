@@ -879,6 +879,55 @@ Object.assign(R88_ABILITIES, {
   },
 });
 
+// ───── G19班: SPY×FAMILY・オリジナルの 職業（ファイルの さいごで まぜる）─────
+//   変装のマスク … 変装して、次に 受ける 1回の 攻撃（物理）を かならず かわす（技の r88Dodge。shared/battle-r88-g19.js）
+//   スティレット … 金色の スティレットが はなびらの ように まう（敵に ランダムで 6回。えんしゅつ r88_ibara）
+//   じゃ気眼のがんたい・大きなかさ・天気図の指しぼう … 職業の 技（じゃ気眼・みんなでかさ・かみなりマーク）より 弱い
+//   空の神の雲の衣 … 空を 晴れに する（もしもボックスと 同じ 天気の 効果。日本晴れと ちがい、仲間の 強化は ない）
+Object.assign(R88_ABILITIES, {
+  r88u_sf_hensou: {
+    name: 'マスクの早がわり', kana: 'ますくのはやがわり', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup', r88Dodge: 1,
+    effect: { type: 'buff', stat: 'eva', add: 0.1, dur: 30 },
+    desc: '変装のマスクで、あっというまにべつの人になる。次に受ける1回の攻撃を、かならずかわす。', cast: '{a}は、マスクをかぶって、べつの人になりすました！', anim: 'buff',
+  },
+  r88u_sf_stiletto: {
+    name: '金のはなびらのまい', kana: 'きんのはなびらのまい', kind: 'skill', mp: 0, target: 'enemies', hidden: true, role: 'dmg',
+    effect: { type: 'phys', mult: 0.55, hits: 6, random: true },
+    desc: '2本の金色のスティレットが、はなびらのようにまう。敵にランダムで6回当たる。', cast: '{a}は、2本のスティレットをさか手にかまえた…！', anim: 'r88_ibara',
+  },
+  r88u_or_jakigan: {
+    name: 'がんたいの下のにらみ', kana: 'がんたいのしたのにらみ', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'confuse', chance: 0.35, turns: [1, 2] },
+    desc: 'がんたいをずらして、敵1体をにらむ。混乱させることがある。', cast: '{a}「このがんたいの下を、見たいか…！」', anim: 'debuff',
+  },
+  r88u_or_kasa: {
+    name: '大きなかさの守り', kana: 'おおきなかさのまもり', kind: 'skill', mp: 0, target: 'allies', hidden: true, role: 'sup',
+    effect: { type: 'buff', stat: 'def', mult: 1.12, dur: 40 },
+    desc: '大きなかさを広げて、仲間全員を入れる。仲間全員の守備力が少し上がる。', cast: '{a}は、大きなかさをばさっと広げた！', anim: 'guard',
+  },
+  r88u_or_kaminari: {
+    name: '指しぼうのかみなり', kana: 'さしぼうのかみなり', kind: 'skill', mp: 0, target: 'enemy', hidden: true, role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [46, 56], thr: 40 },
+    desc: '天気図にかみなりマークをはって、敵1体に雷を落とす。', cast: '{a}は、指しぼうで天気図をぴしっとさした！', anim: 'bolt1',
+  },
+  r88u_or_hare: {
+    name: '雲の衣の晴れ', kana: 'くものころものはれ', kind: 'skill', mp: 0, target: 'self', hidden: true, role: 'sup',
+    effect: { type: 'weather', kind: 'sun', turns: 12 },
+    desc: '雲の衣をひるがえして、空を晴れにする。晴れの間は、味方の炎と光が強くなる。', cast: '{a}が雲の衣をひるがえすと、空の雲がさっと晴れていく！', anim: 'r88_moshimo',
+  },
+});
+
+// ───── G18班: おしり探てい（ファイルの さいごで まぜる）─────
+//   名探ていのスーツとちょうネクタイ … ていねいに ことわってから、ふしぎな 風で 敵1グループを ねむらせる（ボスには 今の ねむりの きまりで ききにくい）
+Object.assign(R88_ABILITIES, {
+  r88u_os_shitsurei: {
+    name: 'しつれい、こかせていただきます', kana: 'しつれいこかせていただきます', kind: 'skill', mp: 0, target: 'group', hidden: true, role: 'sup',
+    effect: { type: 'status', status: 'sleep', chance: 0.65, turns: [1, 3] },
+    desc: 'ていねいにことわってから、ふしぎな風をふわっと出す。同じ種類の敵みんなを、ねむらせる。', cast: '{a}「しつれい、こかせていただきます」', anim: 'r88_oshiri',
+    useSay: '{a}「しつれい、こかせていただきます」\nプゥ〜…！ふしぎな風が、ふわりと広がった！',
+  },
+});
+
 // ───── G17班: フリーレン・さいきくすお（ほかの 係の 行と ぶつからない ように、ファイルの さいごで まぜる）─────
 //   r88fr … この 班の 新しい 効果（shared/battle-r88-fr.js の r88frEffect）
 //     tenbin … 使った 人と 敵1体の 攻撃魔力を くらべて、上なら その 敵が 1回 動けない（下だと 効かない・ボスは だめ）

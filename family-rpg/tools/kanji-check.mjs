@@ -568,6 +568,10 @@ export function gameFiles() {
     'public/js/shared/data/items-r88-harrypotter.js', 'public/js/shared/data/items-r88-mario.js',
     // 第88回 G16班: ポケモン（オボンのみ・いのちのたま）
     'public/js/shared/data/items-r88-pokemon.js', 'public/js/shared/battle-r88-pokemon.js',
+    // 第88回 G19班: SPY×FAMILY・オリジナルの 職業（変装のマスク）
+    'public/js/shared/data/items-r88-spyfamily.js', 'public/js/shared/data/items-r88-original.js', 'public/js/shared/battle-r88-g19.js',
+    // 第88回 G18班: はなかっぱ・おしり探てい・暴れんぼう将軍・3年B組
+    'public/js/shared/data/items-r88-kids.js', 'public/js/shared/data/items-r88-jidai.js',
     // 第88回 G17班: フリーレン・さいきくすお（服従のてんびん・鏡れん華の そろい）
     'public/js/shared/data/items-r88-frieren.js', 'public/js/shared/data/items-r88-saiki.js', 'public/js/shared/battle-r88-fr.js',
   ];

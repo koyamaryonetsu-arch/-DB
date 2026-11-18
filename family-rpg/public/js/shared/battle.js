@@ -113,6 +113,8 @@ import { r88dqEffect, r88MirrorSpell, r88dqAcc, r88dqAfterAttack } from './battl
 import { r88frEffect, applyPairSets } from './battle-r88-fr.js';
 // 第88回 G16班: オボンのみ・いのちのたま（battle-r88-pokemon.js）
 import { r88pkActEnd } from './battle-r88-pokemon.js';
+// 第88回 G19班: 変装のマスク（battle-r88-g19.js）
+import { r88DodgeTake } from './battle-r88-g19.js';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（味方は 頭打ちの あとも 3分の 1 の 速さで のびる。pow-scale.js）
 import { powScaleFor } from './pow-scale.js';
 
@@ -1743,6 +1745,7 @@ export class Battle {
     // 第85回 B班: るいの まぼろし（今の よけと 合わせて 上限まで。前ぶれの 大技は よけられない。battle-r85b.js）
     const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1) + r84bEva(this, c, t) + r85bEva(this, c, t);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
+    if (r88DodgeTake(c, t, estimate)) return { miss: true, dmg: 0 }; // 第88回 G19班: 変装のマスク（次の 1回は かならず かわす。battle-r88-g19.js）
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };
     let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0) + (c.crit || 0) + kenkiCrit(c);
     const crit = !estimate && (eff.forceCrit || this.rng.chance(critChance));

@@ -84,6 +84,26 @@ Object.assign(WORKS, {
   pokemon: { name: 'ポケモン', trialGift: { poke_master: 'r88_pk_cap' } },
 });
 
+// 第88回 G19班: SPY×FAMILY・オリジナルの 職業（ファイルの さいごで まぜる。オリジナルは 1つの 作品として あつかう）
+//   試練の ごほうびは 試練の ある 職業（超級職から 上）だけ: ダ天使 → われた天使の輪・光と闇の剣神 → 十字のかぶと・
+//   天候をあやつる者と 天候の神 → てるてるぼうず（気象予報士・お天気キャスターは 試練が ない）
+//   スパイ・殺し屋・中二病は 試練の ない 職業なので、〈ふくろう〉の指令書・金色の花のかみかざり・ふう印されし右手のほうたいは ガチャから
+Object.assign(WORKS, {
+  spyfamily: { name: 'SPY×FAMILY' },
+  original: { name: 'オリジナル', trialGift: { datenshi: 'r88_or_wa', kenshin: 'r88_or_kabuto', tenkou_tsukai: 'r88_or_teru', weather_god: 'r88_or_teru' } },
+});
+
+// 第88回 G18班: はなかっぱ・おしり探てい・暴れんぼう将軍・3年B組（ファイルの さいごで まぜる）
+//   試練の ごほうび: はなかっぱ → 頭のつぼみ（大人の花に 生まれ変わる）・おしり探てい → しん士のステッキ・
+//   暴れんぼう将軍 → 白い着流し・3年B組の担任 → 3年B組の出席ぼ
+//   まぼろしの回ろうの とびらは 2まい（「はなかっぱ・おしり探てい」・「暴れんぼう将軍・3年B組」。data/rivals-r88.js の g18Doors）
+Object.assign(WORKS, {
+  hanakappa: { name: 'はなかっぱ', trialGift: { hanakappa: 'r88_hk_tsubomi' } },
+  oshiri: { name: 'おしり探てい', trialGift: { oshiri_tantei: 'r88_os_stick' } },
+  abarenbo: { name: '暴れんぼう将軍', trialGift: { abarenbo_shogun: 'r88_ab_kinagashi' } },
+  class3b: { name: '3年B組', trialGift: { homeroom_3b: 'r88_3b_shusseki' } },
+});
+
 // 第88回 G17班: フリーレン（千年の大魔法使い）・さいきくすお（ファイルの さいごで まぜる）
 //   作品の 名前は 職業の 名前に 合わせて 使える 字で（「葬送」は 使えない 字なので、作品の 名前は 主人公の 名前「フリーレン」）
 //   試練の ごほうび: 千年の大魔法使い → 花畑を出す魔法の魔導書・さいきくすお → コーヒーゼリー

@@ -94,7 +94,7 @@ export function setTitles(char) {
   const out = [];
   for (const [sid, set] of Object.entries(GEAR_SETS)) {
     const n = ownedSetIds(char, sid).length;
-    for (const t of set.tiers) if (t.title && tierRule(set, t) === 'own' && n >= t.n) out.push({ set: sid, title: t.title, n: t.n });
+    for (const t of set.tiers) if (t.title && tierRule(set, t) === 'own' && n >= t.n && (!t.need || ownedIds(char).has(t.need))) out.push({ set: sid, title: t.title, n: t.n }); // G19班: need … その 品を 持って いる 時だけ（星〈ステラ〉）
   }
   return out;
 }

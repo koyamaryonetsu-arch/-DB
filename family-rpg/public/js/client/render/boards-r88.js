@@ -424,6 +424,78 @@ Object.assign(R88_BOARD_COLORS, {
   r88_pokemon: ['#c82a2a', '#3a0a0a', '#ff9a8a'],
 });
 
+// G19班: SPY×FAMILY（金色の 星〈ステラ〉と 黒い マスク）・オリジナル（白い 剣と 黒い 剣の 十字）
+Object.assign(R88_BOARD_ICONS, {
+  r88_spyfamily: {
+    rows: [
+      '....y....',
+      '...yYy...',
+      'yyyyYyyyy',
+      '.yyYYYyy.',
+      '..yyYyy..',
+      '.kkkkkkk.',
+      'kkWkkkWkk',
+      '.kkk.kkk.',
+      '.........',
+    ],
+    pal: { y: '#e8b020', Y: '#fff2a0', k: '#1a1a22', W: '#ffffff' },
+  },
+  r88_original: {
+    rows: [
+      'w.......k',
+      '.w.....k.',
+      '..w...k..',
+      '...w.k...',
+      '....y....',
+      '...k.w...',
+      '..g...g..',
+      '.k.....w.',
+      'g.......g',
+    ],
+    pal: { w: '#ffffff', k: '#2a1a3a', y: '#ffe680', g: '#c8961a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_spyfamily: ['#2a3a5a', '#0a1020', '#e8b020'],
+  r88_original: ['#4a3a6a', '#140a1e', '#d8c8ff'],
+});
+
+// G18班: はなかっぱ・おしり探てい（頭の 花と 緑の 顔）・暴れんぼう将軍・3年B組（金の 丸に あおいの 葉 3まい）
+Object.assign(R88_BOARD_ICONS, {
+  r88_kids: {
+    rows: [
+      '...p.p...',
+      '..pPpPp..',
+      '...pYp...',
+      '....g....',
+      '..ggggg..',
+      '.gGkGkGg.',
+      '.gGGGGGg.',
+      '.gGGrGGg.',
+      '..ggggg..',
+    ],
+    pal: { p: '#ff7ab0', P: '#ffc0d8', Y: '#ffe25a', g: '#3a9a3a', G: '#7ad84a', k: '#1a1a22', r: '#e84a4a' },
+  },
+  r88_jidai: {
+    rows: [
+      '..yyyyy..',
+      '.y..G..y.',
+      'y..gGg..y',
+      'y...g...y',
+      'y.Gg.gG.y',
+      'yggg.gggy',
+      'y.g...g.y',
+      '.y.....y.',
+      '..yyyyy..',
+    ],
+    pal: { y: '#ffd860', g: '#3a9a3a', G: '#8ad86a' },
+  },
+});
+Object.assign(R88_BOARD_COLORS, {
+  r88_kids: ['#3a8a4a', '#123a1a', '#ff9ac8'],
+  r88_jidai: ['#2c4a9c', '#0e1a3a', '#e0c060'],
+});
+
 // G17班: フリーレン（金の つえと 青い 花〈そう月草〉）・さいきくすお（緑の メガネと 頭の 2本の かざり）
 Object.assign(R88_BOARD_ICONS, {
   r88_frieren: {
