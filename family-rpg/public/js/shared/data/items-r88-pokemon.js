@@ -30,7 +30,7 @@ const GEAR = {
   r88_pk_ball: { ...weapon('boomerang', 'fu3'), ...P, name: 'からのモンスターボール', befriend: 1.3, look: 'crescent', desc: '赤と白の、からっぽのボール。ふつうの攻撃が敵全体にとどく。たおした魔物が、仲間になりやすい。' },
   r88_pk_superball: { ...weapon('boomerang', 'mei'), ...P, name: 'スーパーボール', befriend: 1.6, fx: [{ k: 'crit', v: 4 }], look: 'crescent', desc: '青いもようのボール。会心が出やすい。たおした魔物が、もっと仲間になりやすい。' },
   r88_pk_hyperball: { ...weapon('boomerang', 'mei'), ...P, name: 'ハイパーボール', befriend: 2, fx: [{ k: 'crit', v: 6 }], look: 'crescent', desc: '黒と黄色のボール。会心が出やすい。たおした魔物が、とても仲間になりやすい。' },
-  r88_pk_masterball: { ...weapon('boomerang', 'den'), ...P, name: 'むらさきのマスターボール', befriend: 3, fx: [{ k: 'crit', v: 8 }], bonus: { agi: 10 }, look: 'royal', desc: 'むらさきにかがやく、とくべつなボール。会心がとても出やすい。たおした魔物が、いちばん仲間になりやすい。' },
+  r88_pk_masterball: { ...weapon('boomerang', 'den'), ...P, name: 'むらさきのマスターボール', befriend: 3, fx: [{ k: 'crit', v: 8 }], bonus: { agi: 10 }, look: 'star', desc: 'むらさきにかがやく、とくべつなボール。会心がとても出やすい。たおした魔物が、いちばん仲間になりやすい。' },
   // ───── 持たせる 道具 ─────
   r88_pk_zukan: { ...acc('mei'), ...P, name: 'ポケモン図かん', fx: [{ k: 'crit', v: 6 }], bonus: { mag: 6 }, desc: '出会った魔物のことが、なんでもわかる図かん。弱いところが見えて、会心が出やすい。' },
   r88_pk_denkidama: { ...acc('mei'), ...P, name: 'でんきだま', orb: { el: 'bolt', v: 6 }, bonus: { str: 6 }, desc: 'ぱちぱちと電気が走る玉。武器のふつうの攻撃が雷の属性になる。' },
