@@ -1065,7 +1065,7 @@ function g17Rivals() {
     },
     // ── さいきくすお（海藤 Lv60・はいろ Lv62・照橋 Lv64・さいごの 兄の空助は Lv100）──
     {
-      id: 'sk_kaido', work: 'saiki', n: 1, name: '海藤', lv: 60, job: 'datenshi', look: L(0, 'short', 'black', 0, 'light', 'sharp'), bg: 'village_night',
+      id: 'sk_kaido', work: 'saiki', n: 1, name: 'かいどう', lv: 60, job: 'datenshi', look: L(0, 'short', 'black', 0, 'light', 'sharp'), bg: 'village_night',
       use: 'r88_sk_houtai', reward: ['r88_sk_houtai'], words: 'われこそは「しっ黒のつばさ」！右手がうずく…！',
       sig: { name: 'しっ黒のつばさ・右手のふういん', el: 'dark', anim: 'dark1', charge: '{a}が、右手の包帯をおさえた！\n「くっ…右手の力が、あばれだす…！」', cast: '{a}「ダークネス・フレイム！」\n…右手から、それっぽい光が出た！' },
       tune: { hp: 1.25, dmg: 1 },
