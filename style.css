@@ -2322,6 +2322,27 @@ body.booting #loginScreen { display: none !important; }
   #personTaskTable td { white-space: normal; }
   .m-card.row-red .status-badge { background: #fee2e2; color: #b91c1c; }
   header .hdr-btn .tb-sh { display: inline; }
+
+  /* 2026-11-19: 上部は2行（1行目＝タイトル・タスク管理・☰・自分／2行目＝検索）。取説・メール通知設定は ☰ の中から */
+  #guideBtn, #mailSetBtn { display: none !important; }
+  .hdr-top h1 { font-size: 15px; }
+  .hdr-btn { padding: 0 10px; }
+  .hdr-user { padding: 0 6px; }
+  /* 会社のボタンは担当者の下の行に */
+  .hdr-who.col-ryo { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; row-gap: 6px; column-gap: 6px; }
+  .hdr-who.col-ryo .hdr-sep { display: none; }
+  .hdr-who.col-ryo .rperson-bar { min-width: 0; }
+  /* カードを小さく（内容は出さず案件名だけ） */
+  .m-cards { gap: 6px; }
+  .m-card { padding: 7px 10px; gap: 2px; border-radius: 8px; }
+  .m-th { font-size: 14px; }
+  .m-card .m-title { font-size: 13.5px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-card .m-title-ct { font-weight: 400; color: #374151; }
+  .m-l2 .status-badge { font-size: 11px; padding: 1px 7px; }
+  .m-l3 { font-size: 11.5px; gap: 4px 10px; align-items: center; }
+  .m-l1 .status-badge { flex: none; font-size: 11px; padding: 1px 7px; }
+  .m-l3 .late-days { display: inline; margin: 0; font-size: 11px; }
+  .color-legend { font-size: 11px; }
 }
 .hdr-btn .tb-sh { display: none; }
 
@@ -2460,7 +2481,7 @@ td.task-col.ptp-tasks { padding-right: 12px !important; }
 .meeting-info { font-weight: 700; color: #15803d; }
 body.meeting-mode #userMenuBtn { box-shadow: 0 0 0 2px #22c55e inset; border-radius: 999px; }
 
-/* TOHO の承認番号が要る案件（見積り金額・税抜が10万円以上）: 種別の文字を黄色に（白い背景でも読めるよう、濃い黄色の文字＋薄い黄色の下地） */
+/* TOHO の決裁番号が要る案件（見積り金額・税抜が3万円以上）: 種別の文字を黄色に（白い背景でも読めるよう、濃い黄色の文字＋薄い黄色の下地） */
 .cat-approval { color: #a16207; background: #fef08a; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
 
 /* 案件名（内容の左）・編集パネルの案件名の行 */
@@ -2640,3 +2661,44 @@ tr.ir-lock td:not(.col-edit):not(.col-status):not([data-colkey="company"]):not([
 /* 凡例はバーの下の1行に（バーは折り返す。凡例より前のボタン・スイッチは1行目のまま） */
 .legend.filter-bar:has(#colorLegend:not(:empty)) { flex-wrap: wrap; }
 .legend.filter-bar #colorLegend { order: 99; flex: 1 1 100%; border-top: 1px dashed #e2e8f0; margin-top: 2px; padding-top: 6px; }
+/* ===== 2026-11-19: 社内アドバイス・🚩 緊急・他社案件・通知設定・請求/入金の列 ===== */
+/* ポップアップの上の「どこから入る・どこへ行く」 */
+.content-flow { font-size: 12.5px; line-height: 1.6; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin: 0 0 8px; color: #334155; }
+.content-flow:empty { display: none; }
+.content-flow .cf-in::before { content: '📥 入るもの: '; font-weight: 700; color: #1e293b; }
+.content-flow .cf-out::before { content: '📤 書いた内容は: '; font-weight: 700; color: #1e293b; }
+.content-flow .cf-out { margin-top: 2px; }
+/* 社内アドバイスの列（社内メモと同じ幅） */
+#casesTable td.col-advice { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #475569; }
+/* 🚩 緊急 */
+.urgent-btn { border: none; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 3px; margin-left: 2px; border-radius: 6px; vertical-align: middle; filter: grayscale(1); opacity: 0; transition: opacity .1s; }
+tbody tr:hover .urgent-btn { opacity: .35; }
+.urgent-btn.on { filter: none; opacity: 1 !important; }
+.urgent-flag { font-size: 14px; margin-left: 2px; vertical-align: middle; }
+@media (hover: none) { .urgent-btn:not(.on) { display: none; } }
+/* 他社案件の列: TOHO を見ている時だけ */
+#casesTable .col-other { display: none; }
+body.show-other #casesTable .col-other { display: table-cell; }
+.auto-rate { color: #94a3b8; font-size: 10px; margin-left: 2px; }
+td.other-fee-td { font-weight: 700; color: #0f766e; }
+.other-grid { display: grid; grid-template-columns: 1.4fr 1fr .8fr 1.4fr; gap: 6px; align-items: center; }
+.other-grid input { width: 100%; box-sizing: border-box; }
+.other-fee { font-weight: 700; color: #0f766e; font-size: 13px; }
+@media (max-width: 760px) { .other-grid { grid-template-columns: 1fr 1fr; } }
+/* 請求書発行日・入金日の列を隠す（客先は菱熱が会社ごとに・菱熱は各自） */
+body.hide-acct #casesTable [data-colkey="invoiceDate"], body.hide-acct #casesTable [data-colkey="paymentDate"] { display: none; }
+body.user-toho.hide-acct .acct-row { display: none; }
+body.hide-acct .m-acct { display: none; }
+/* 🔔 通知設定（本社の決裁者） */
+.np-all { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+.np-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.np-wrap { overflow: auto; max-height: 55vh; }
+.np-table { min-width: 0 !important; width: 100%; }
+.np-table.np-off { opacity: .5; }
+.np-sw { border-radius: 999px; border: 1px solid #cbd5e1; padding: 1px 10px; font-size: 12px; cursor: pointer; background: #fff; white-space: nowrap; }
+.np-sw.on { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+.np-sw.off { background: #f1f5f9; color: #64748b; }
+.mst-acct { display: flex; flex-wrap: wrap; gap: 6px; }
+.mst-rates { min-width: 0 !important; width: auto; }
+.mst-rates input.mst-under { width: 120px; }
+.mst-rates input.mst-rate { width: 70px; }

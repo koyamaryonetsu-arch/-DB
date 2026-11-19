@@ -29,7 +29,7 @@
   // 色判定を除外するカテゴリ
   const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
   // 完了以降のステータス（黄/赤の遅延色を解除して通常表示に戻す）
-  const NO_COLOR_STATUSES = new Set(['対応済み', '完了', '請求済', '入金済']);
+  const NO_COLOR_STATUSES = new Set(['対応済み', '完了', '請求済', '入金済', '他社対応']);
   const DEFAULT_MARGIN_RATE = 20;
   // 経営集計のデフォルトチームと配分ルール
   const DEFAULT_TEAM = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
@@ -68,12 +68,13 @@
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
     'customer_memo', 'last_update_source', 'created_at', 'updated_at', 'title',   // title=案件名（客先にも見せる）
     'survey_adjusting',   // 調査日調整中（客先にも「調整中」と出す）
-    'origin', 'initial_report_at', 'due_exempt'   // 行の色（黄＝初動報告前・赤＝見積り遅れ。期日免除なら赤にしない）を客先の画面でも同じにする。免除の理由は渡さない
+    'origin', 'initial_report_at', 'due_exempt',   // 行の色（黄＝初動報告前・赤＝見積り遅れ。期日免除なら赤にしない）を客先の画面でも同じにする。免除の理由は渡さない
+    'urgent', 'other_vendor', 'other_amount', 'other_rate'   // 🚩 緊急・他社案件（保守会社名・金額・利率）は TOHO にも見せる（2026-11-19）
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
   // ステータス絞り込みの並び順（列フィルタで status を出す時の順序）
-  const STATUS_FILTER_ORDER = ['受付','調査日調整中','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','請求済','入金済','保留','取り下げ','完了','失注'];
+  const STATUS_FILTER_ORDER = ['受付','調査日調整中','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','他社対応','請求済','入金済','保留','取り下げ','完了','失注'];
   // ログイン時に既定で非表示にするステータス（ステータス列のチェックボックスから外れた状態にする）。
   // 「全件表示」ボタンで一時的に全部見せられる。
   // トップ画で最初は隠す状態（「表示する状態 ▾」で1つずつ表示/非表示を切り替えられる）
@@ -366,6 +367,12 @@
     invoiceDate:    { type: 'date' },
     paymentDate:    { type: 'date' },
     memo:           { type: 'popup', privilegedOnly: true },
+    // 社内アドバイス: Plaud・LINE の記録が入る（AI の要約はしない・LINE 通知もしない・客先に見えない）
+    adviceNote:     { type: 'popup', privilegedOnly: true },
+    // 他社案件（既存の保守会社が対応）: 菱熱が入れる。TOHO には見えるだけ
+    otherVendor:    { type: 'text',   privilegedOnly: true },
+    otherAmount:    { type: 'number', privilegedOnly: true },
+    otherRate:      { type: 'number', privilegedOnly: true },
     // 顧客メモ: 客先が記入。菱熱も閲覧・編集可（内容への要約対象外＝そのまま表示）
     customerMemo:   { type: 'popup' }
   };
@@ -410,6 +417,8 @@
   let workEndTimeSupported = false;
   // cases.advice_note 列（Lv4: 人が確定した正しい対応メモ＝学習データ）
   let adviceNoteSupported = false;
+  // cases.urgent / other_vendor / other_amount / other_rate（SETUP_TOHO_V2.sql）があるか
+  let tohoV2Supported = false;
   // theaters.equipment/chronic_issues/partner 列（Lv3: 劇場カルテ）
   let theaterKarteSupported = false;
   let theaterInfoSupported = false;      // theaters に manager 等の劇場情報列があるか
@@ -460,6 +469,12 @@
     }
     if (workEndTimeSupported) row.work_end_time = c.workEndTime ? c.workEndTime : null;
     if (adviceNoteSupported) row.advice_note = c.adviceNote ? c.adviceNote : null;
+    if (tohoV2Supported && isPrivileged(currentUser)) {
+      row.urgent = !!c.urgent;
+      row.other_vendor = c.otherVendor || '';
+      row.other_amount = (c.otherAmount === '' || c.otherAmount == null || isNaN(Number(c.otherAmount))) ? null : Number(c.otherAmount);
+      row.other_rate = (c.otherRate === '' || c.otherRate == null || isNaN(Number(c.otherRate))) ? null : Number(c.otherRate);
+    }
     // 顧客メモ（列がある時のみ送信）。客先が記入する項目
     if (customerMemoSupported) row.customer_memo = c.customerMemo ? c.customerMemo : null;
     if (titleSupported) row.title = c.title || '';
@@ -521,6 +536,12 @@
       c.origin = ''; c.initialReportAt = ''; c.initialReportKubun = ''; c.initialReportBy = '';
       c.surveyAdjusting = !!r.survey_adjusting; c.dueExempt = false; c.dueExemptReason = '';
     }
+    // 🚩 緊急・他社案件（SETUP_TOHO_V2.sql）
+    if (Object.prototype.hasOwnProperty.call(r, 'urgent')) {
+      tohoV2Supported = true;
+      c.urgent = !!r.urgent; c.otherVendor = r.other_vendor || '';
+      c.otherAmount = r.other_amount == null ? '' : Number(r.other_amount); c.otherRate = r.other_rate == null ? '' : Number(r.other_rate);
+    } else { c.urgent = false; c.otherVendor = ''; c.otherAmount = ''; c.otherRate = ''; }
     // 日程調整中フラグ
     if (Object.prototype.hasOwnProperty.call(r, 'schedule_adjusting')) {
       scheduleAdjustSupported = true;
@@ -1832,6 +1853,7 @@
   // 手で調査日・作業開始日を入れた・変えた時: 保存のあと「作業申請書を作りますか？」（作る／申請不要／あとで）。菱熱だけ
   function waAfterDates(c, prev) {
     if (!realPrivileged(currentUser) || store.mode !== 'supabase' || !caseMailSupported) return;
+    if (c.company !== WA_COMPANY) return;   // 今は TOHO だけ
     const changed = WA_PURPOSES.filter((P) => c[P.field] && c[P.field] !== ((prev || {})[P.field] || '')).map((P) => ({ purpose: P.key, from: (prev || {})[P.field] || '' }));
     if (!changed.length) return;
     const id = c.id;
@@ -1847,14 +1869,16 @@
   const IR_KUBUN = {
     A: 'A工事のため、デベロッパー様へご報告をお願いいたします。',
     B: 'B工事のため、進め方を本社様と協議いたします。',
-    C: '調査日程を調整しております。確定出来次第、ヘルプデスクからのメールで追ってご連絡いたします。'
+    C: '調査日程を調整しております。確定出来次第、ヘルプデスクからのメールで追ってご連絡いたします。',
+    '他社': '既存の保守会社様にて対応いただく案件と判断いたしました。'
   };
+  const irKubunLabel = (k) => k === '他社' ? '他社案件' : k + '工事';
   function irSubject(c) { return `【菱熱工業】${shortTheaterName(c.theater) || c.theater} ${c.title || c.category || 'ご依頼の件'} 初動対応・区分判定のご報告 [案件#${String(c.id).replace(/-/g, '').slice(0, 8)}]`; }
   function irBody(c, k) {
     const lines = [`${c.company} ご担当者様`, '', 'いつもお世話になっております。菱熱工業です。', '下記のご依頼について、初動対応・区分判定をご報告いたします。', '',
       `■ 劇場: ${c.theater || ''}`];
     if (c.title) lines.push(`■ 案件名: ${c.title}`);
-    lines.push(`■ 内容: ${String(c.content || '').replace(/\s*\n\s*/g, ' ')}`, '', `■ 区分: ${k}工事`, `→ ${IR_KUBUN[k]}`, '',
+    lines.push(`■ 内容: ${String(c.content || '').replace(/\s*\n\s*/g, ' ')}`, '', `■ 区分: ${irKubunLabel(k)}`, `→ ${IR_KUBUN[k]}`, '',
       'ご不明な点は、このメールにそのままご返信ください。', '菱熱工業株式会社');
     return lines.join('\n');
   }
@@ -1880,7 +1904,7 @@
           <tr><th>受付日</th><td>${escapeHtml(c.receivedDate || '')}</td></tr>
           <tr><th>案件名</th><td>${escapeHtml(c.title || '')}</td></tr>
           <tr><th>内容</th><td class="ir-content">${escapeHtml(c.content || '')}</td></tr></table>
-        <div class="ir-kubun">区分: ${['A', 'B', 'C'].map((x) => `<label><input type="radio" name="irK" value="${x}"> ${x}工事</label>`).join('')}</div>
+        <div class="ir-kubun">区分: ${['A', 'B', 'C', '他社'].map((x) => `<label><input type="radio" name="irK" value="${x}"> ${x === '他社' ? '他社案件（既存の保守会社が対応）' : x + '工事'}</label>`).join('')}</div>
         <p class="ms-note ir-to">${escapeHtml(to)}</p>
         <textarea id="irBody" rows="12" class="ir-body" placeholder="区分を選ぶと、送る文が出ます（直せます）"></textarea>
       </div><div class="kt-dlg-foot">
@@ -1918,14 +1942,43 @@
           }
           c.initialReportAt = new Date().toISOString(); c.initialReportKubun = k; c.initialReportBy = currentUserName();
           if (k === 'C') c.surveyAdjusting = !c.surveyDate;
+          else if (k === '他社') c.statusOverride = '他社対応';   // 既存の保守会社が対応。保守会社名・金額は編集画面の「🏢 他社案件」で
           else if (!c.statusOverride) c.statusOverride = '客先対応中';   // A・B: 劇場側の答え待ち（TOHO には「協議中」）
           c.updatedAt = new Date().toISOString();
           await persistCase(c);
           close(); render();
-          showToastLite('初動報告を送りました（' + k + '工事）' + (caseMailSettings.mode === 'live' ? '' : '｜🧪 テスト中: 客先には届きません'));
+          showToastLite('初動報告を送りました（' + irKubunLabel(k) + '）' + (caseMailSettings.mode === 'live' ? '' : '｜🧪 テスト中: 客先には届きません'));
         } catch (err) { btn.disabled = false; btn.textContent = '送って報告済みにする'; K.say('送れませんでした: ' + (err.message || err)); }
       }
     });
+  }
+  // 編集画面のステータス（菱熱）: 「自動（今は ○○）」か、手で選ぶ。スマホでもここで変えられる
+  function renderStatusRow(c) {
+    const row = $('statusRow'); if (!row) return;
+    const show = !!(c && isPrivileged(currentUser) && statusOverrideAvailable());
+    row.classList.toggle('hidden', !show);
+    if (!show) return;
+    const sel = $('statusOverrideSel');
+    sel.innerHTML = `<option value="">自動（今は「${escapeHtml(statusDisplayLabel(deriveStatus(c)))}」）</option>` +
+      Object.keys(STATUS_SORT_ORDER).map((code) => `<option value="${escapeHtml(code)}"${c.statusOverride === code ? ' selected' : ''}>${escapeHtml(statusDisplayLabel(code))}</option>`).join('');
+  }
+  // 編集画面の「🏢 他社案件」（菱熱・TOHO の案件だけ）。支払額はその場で計算
+  function renderOtherRow() {
+    const row = $('otherRow'); if (!row) return;
+    const show = !!(tohoV2Supported && isPrivileged(currentUser) && $('company').value === 'TOHOシネマズ');
+    row.classList.toggle('hidden', !show);
+    if (!show) return;
+    const dl = $('otherVendorList');
+    if (dl) dl.innerHTML = [...new Set(cases.map((x) => (x.otherVendor || '').trim()).filter(Boolean))].sort().map((v) => `<option value="${escapeHtml(v)}">`).join('');
+    renderOtherFee();
+  }
+  function renderOtherFee() {
+    const el = $('otherFee'); if (!el) return;
+    const tmp = { otherVendor: $('otherVendor').value.trim(), otherAmount: $('otherAmount').value.replace(/[^\d]/g, '') === '' ? '' : Number($('otherAmount').value.replace(/[^\d]/g, '')),
+      otherRate: $('otherRate').value.trim() === '' ? '' : Number($('otherRate').value.trim()) };
+    const r = otherRateOf(tmp);
+    $('otherRate').placeholder = r.auto && r.rate != null ? `利率 %（空なら自動: ${r.rate}%）` : '利率 %（空なら自動）';
+    el.textContent = tmp.otherVendor && r.rate != null && tmp.otherAmount !== '' ? `菱熱への支払額 ${fmtAmount(otherFeeOf(tmp))}（${r.rate}%${r.auto ? '・自動' : ''}）` : '';
   }
   function renderIrRow(c) {
     const row = $('irRow'); if (!row) return;
@@ -1933,7 +1986,7 @@
     row.classList.toggle('hidden', !show);
     if (!show) return;
     const fmt = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()}`; };
-    $('irState').textContent = c.initialReportAt ? `✅ 報告済み（${c.initialReportKubun}工事・${fmt(c.initialReportAt)}・${c.initialReportBy || ''}）`
+    $('irState').textContent = c.initialReportAt ? `✅ 報告済み（${irKubunLabel(c.initialReportKubun)}・${fmt(c.initialReportAt)}・${c.initialReportBy || ''}）`
       : (needsInitialReport(c) ? '⚠ まだ（自動登録の TOHO 案件なので必須）' : '（自動登録の案件ではないので必須ではありません）');
     $('irOpenBtn').classList.toggle('hidden', !!c.initialReportAt);
     $('irOpenBtn').onclick = () => { closeModal(); openInitialReport(c); };
@@ -1989,7 +2042,7 @@
   // ---------- sort ----------
   // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
   const STATUS_SORT_ORDER = {
-    '受付': 1, '調査日調整中': 1.5, '見積り中': 2, '見積り提出済': 3, '日程調整中': 3.2, '客先対応中': 3.5, '作業中': 4,
+    '受付': 1, '調査日調整中': 1.5, '見積り中': 2, '見積り提出済': 3, '日程調整中': 3.2, '客先対応中': 3.5, '他社対応': 3.6, '作業中': 4,
     '対応済み': 5, '完了': 6, '請求済': 7, '入金済': 8, '取り下げ': 9, '失注': 10, '保留': 99
   };
   function getSortValue(c, field) {
@@ -2061,6 +2114,7 @@
   function columnValue(c, field) {
     if (field === 'status') return statusOf(c);
     if (field === 'workapp') return workappLabel(c);
+    if (field === 'tcPerson' || field === 'rPerson') return stripHonorific(c[field] || '') || '';   // 「青木さん」と「青木」を同じに数える
     const v = c[field];
     return v != null ? String(v) : '';
   }
@@ -2218,7 +2272,8 @@
   function getFilteredCases(opts) {
     const forChips = !!(opts && opts.forChips);
     const exceptField = (opts && opts.exceptField) || '';   // この列の絞り込みだけは使わない（列の候補を作る時）
-    const q = $('searchBox').value.trim().toLowerCase();
+    // 検索: 担当者の敬称（さん・様）は付けても付けなくても同じに探す
+    const q = String(stripHonorific($('searchBox').value.trim()) || '').toLowerCase();
     const sf = forChips ? '' : $('statusFilter').value;
     // 客先は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
     const cf = isPrivileged(currentUser) ? '' : customerCompany(currentUser);
@@ -2264,12 +2319,12 @@
       // 「完了・取り下げ」の既定非表示は、ログイン時に seed する columnFilters['status'] で行う
       // （＝チェックボックスの状態＝表示、が常に一致する）。上の列フィルタのループで反映済み。
       if (!q) return true;
-      const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.title, c.content,
+      const hayArr = [c.company, c.theater, shortTheaterName(c.theater), stripHonorific(c.tcPerson), c.rPerson, c.category, c.title, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
         c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
         c.customerMemo, statusOf(c), statusDisplayLabel(statusOf(c))];
       // memo は ryonetsu ユーザーのみ検索対象（情報漏洩防止）
-      if (isPrivileged(currentUser)) hayArr.push(c.memo);
+      if (isPrivileged(currentUser)) hayArr.push(c.memo, c.adviceNote);
       const hay = hayArr.map((x) => (x || '').toString().toLowerCase()).join(' ');
       return hay.includes(q);
     });
@@ -2279,7 +2334,7 @@
   // ===== ⑤ 状態ごとの件数ボタン（押すとその状態だけ・もう一度押すと戻る）＋注意ボタン =====
   // 注意ボタンでの絞り込み: '' = なし / 'row-red' = 見積り遅れ / 'row-yellow' = 初動報告まだ / 'row-orange' = 調査日未定（行の色と同じ意味）
   let attentionFilter = '';
-  const CHIP_STATUS_ORDER = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
+  const CHIP_STATUS_ORDER = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '他社対応', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
   // 色の凡例（トップ・菱熱だけ）: 行の色と、ステータスの色。「たたむ」で小さくできる（ブラウザごとに覚える）
   const LEGEND_KEY = 'colorLegendOpenV1';
   function renderColorLegend() {
@@ -2292,10 +2347,10 @@
         <span class="cl-item"><span class="swatch cl-orange"></span>オレンジ＝調査日が未定（受付から平日3日を過ぎている）</span>`;
       return;
     }
-    let open = true; try { open = localStorage.getItem(LEGEND_KEY) !== '0'; } catch (e) {}
+    let open = true; try { const v = localStorage.getItem(LEGEND_KEY); open = v == null ? !isMobile() : v !== '0'; } catch (e) {}   // スマホは最初たたむ
     if (!open) { box.innerHTML = '<button type="button" class="cl-toggle" data-cltoggle="1" title="行の色・ステータスの色の意味を出します">🎨 色の凡例 ▸</button>'; return; }
     const rows = [['cl-red', '見積り遅れ'], ['cl-yellow', '初動報告まだ'], ['cl-orange', '調査日未定'], ['cl-blue', '見積り提出済']];
-    const sts = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
+    const sts = ['受付', '調査日調整中', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '他社対応', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
     box.innerHTML = `<span class="cl-h">行の色</span>${rows.map(([c, t]) => `<span class="cl-item"><span class="swatch ${c}"></span>${t}</span>`).join('')}
       <span class="cl-item"><span class="cl-blink">内容</span>見積り中（赤く点滅）</span>
       <span class="cl-sep"></span><span class="cl-h">ステータス</span>${sts.map((st) => `<span class="status-badge status-${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))}</span>`).join('')}
@@ -2344,7 +2399,7 @@
   const FIELD_LABELS = {
     status: 'ステータス', company: '会社', theater: '劇場名', receivedDate: '受付日',
     tcPerson: '客先担当者', rPerson: 'R担当者', category: '種別', content: '内容',
-    surveyDate: '調査日', certNumber: '承認番号', estimateName: '見積り名', title: '案件名',
+    surveyDate: '調査日', certNumber: '決裁番号', estimateName: '見積り名', title: '案件名',
     estimateAmount: '見積り金額', quoteDate: '見積り提出日', workStartDate: '作業開始日',
     workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: '社内メモ',
     customerMemo: '顧客メモ'
@@ -2422,6 +2477,19 @@
           <h3 class="mst-h">🏢 会社・🎬 劇場</h3>
           <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
           <button type="button" data-opentm>📚 客先マスター（会社・劇場）を開く</button>
+          <h3 class="mst-h">📧 TOHO 本社の決裁者（見積り3万円以上の通知メール）</h3>
+          <p class="ms-note">見積り金額が3万円以上（税抜）の TOHO の案件は、担当がだれでも、この人に通知メールが届きます。異動・退職の時はここで変えてください。</p>
+          <div class="acct-add"><select id="mstApprover"><option value="">（決裁者を選ぶ）</option>${(accountsCache || []).filter((a) => a.company === 'TOHOシネマズ').map((a) => `<option value="${escapeHtml(String(a.email).toLowerCase())}"${approverPref() && String(approverPref().email).toLowerCase() === String(a.email).toLowerCase() ? ' selected' : ''}>${escapeHtml((a.person || '（名前なし）') + '｜' + a.email + (a.theater ? '｜' + a.theater : '｜本社'))}</option>`).join('')}</select>
+            <button type="button" data-mstapprover>決裁者にする</button>${approverPref() ? `<button type="button" data-mstnp>🔔 ${escapeHtml(approverPref().name || '')} さんの通知設定を見る</button>` : ''}</div>
+          <h3 class="mst-h">🧾 請求書発行日・入金日の列を見せない客先の会社</h3>
+          <p class="ms-note">印を付けた会社の客先の画面には、請求書発行日・入金日の列と欄を出しません（案件の進み具合だけを見てもらう）。菱熱の画面は、各自が上の「請求・入金」で切り替えます。</p>
+          <div class="mst-acct">${companyNames().map((co) => `<label class="wa-chip"><input type="checkbox" data-mstacct="${escapeHtml(co)}"${hideAccounting.companies.indexOf(co) !== -1 ? ' checked' : ''}> ${escapeHtml(co)}</label>`).join('')}</div>
+          <h3 class="mst-h">🏢 他社案件の利率（他社が請け負った金額・税抜で決まる）</h3>
+          <p class="ms-note">他社案件の「利率」が空の時は、この段階で決まります。案件ごとに手で入れた利率があれば、そちらを使います。</p>
+          <table class="ms-table mst-rates"><thead><tr><th>他社の金額（税抜）</th><th>利率</th></tr></thead><tbody>
+            ${otherRates.map((t, i) => `<tr><td>${i === otherRates.length - 1 ? `${fmtAmount(otherRates[i - 1] ? otherRates[i - 1].under : 0)} 以上` : `<input type="text" class="tm-input mst-under" data-mstunder="${i}" value="${escapeHtml(formatThousands(t.under))}"> 円 未満`}</td>
+              <td><input type="number" class="tm-input mst-rate" data-mstrate="${i}" min="0" max="100" step="0.1" value="${escapeHtml(t.rate)}"> %</td></tr>`).join('')}
+          </tbody></table>
           <h3 class="mst-h">🤝 協力会社</h3>
           <p class="ms-note">作業申請書の「協力会社」「作業者」の候補です。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します。</p>
           <button type="button" data-openpt>🤝 協力会社マスターを開く</button>
@@ -2438,6 +2506,21 @@
       if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
       if (e.target.closest('[data-opentm]')) { ov.remove(); openTheaterMasterModal(); return; }
       if (e.target.closest('[data-openpt]')) { ov.remove(); if (window.WORKAPP) window.WORKAPP.openPartners(); return; }
+      if (e.target.closest('[data-mstnp]')) { const ap = approverPref(); if (ap) { ov.remove(); openNotifyPrefs(ap.email); } return; }
+      if (e.target.closest('[data-mstapprover]')) {
+        const email = ov.querySelector('#mstApprover').value; if (!email) { K.say('決裁者を選んでください'); return; }
+        const acc = (accountsCache || []).find((a) => String(a.email).toLowerCase() === email) || {};
+        if (!(await K.ask(`見積り3万円以上の TOHO の案件の通知メールを、${acc.person || email} さんに送るようにします。よろしいですか？`, { ok: '決裁者にする' }))) return;
+        try {
+          const { error: e1 } = await sb.from('notify_prefs').update({ approver: false }).eq('approver', true); if (e1) throw e1;
+          const ex = notifyPrefs.find((p) => String(p.email).toLowerCase() === email);
+          const { error: e2 } = ex ? await sb.from('notify_prefs').update({ approver: true, name: acc.person || ex.name || '' }).eq('email', ex.email)
+            : await sb.from('notify_prefs').insert({ email, name: acc.person || '', approver: true, enabled: true, muted_case_ids: [] });
+          if (e2) throw e2;
+          await loadTohoSettings(); draw(); showToastLite('決裁者を変えました');
+        } catch (err) { K.say('保存できませんでした: ' + (err.message || err)); }
+        return;
+      }
       if (e.target.closest('[data-sadd]')) {
         const name = ov.querySelector('#mstName').value.trim().replace(/(さん|様)$/, '');
         const email = ov.querySelector('#mstEmail').value.trim().toLowerCase();
@@ -2459,6 +2542,24 @@
       }
     });
     ov.addEventListener('change', async (e) => {
+      const hac = e.target.closest('[data-mstacct]');
+      if (hac) {
+        const set = new Set(hideAccounting.companies); if (hac.checked) set.add(hac.dataset.mstacct); else set.delete(hac.dataset.mstacct);
+        const v = { companies: [...set] };
+        const { error } = await sb.from('app_settings').upsert({ key: 'hide_accounting', value: v, updated_at: new Date().toISOString() });
+        if (error) { K.say('保存できませんでした: ' + error.message); return; }
+        hideAccounting = v; showToastLite(`${hac.dataset.mstacct} の客先の画面で、請求書・入金の列を${hac.checked ? '隠します' : '出します'}`); return;
+      }
+      if (e.target.closest('[data-mstunder],[data-mstrate]')) {
+        const tiers = otherRates.map((t, i) => {
+          const u = ov.querySelector(`[data-mstunder="${i}"]`), r = ov.querySelector(`[data-mstrate="${i}"]`);
+          return { under: u ? Number(String(u.value).replace(/[^\d]/g, '')) || null : null, rate: r ? Number(r.value) : t.rate };
+        });
+        for (let i = 1; i < tiers.length - 1; i++) if (!(tiers[i].under > tiers[i - 1].under)) { K.say('金額は上から順に大きくしてください'); draw(); return; }
+        const { error } = await sb.from('app_settings').upsert({ key: 'other_vendor_rates', value: { tiers }, updated_at: new Date().toISOString() });
+        if (error) { K.say('保存できませんでした: ' + error.message); return; }
+        otherRates = tiers; draw(); render(); showToastLite('他社案件の利率を変えました'); return;
+      }
       const em = e.target.closest('[data-semail]');
       if (em) {
         const r = staffList.find((x) => x.name === em.dataset.semail); const v = em.value.trim().toLowerCase();
@@ -2504,8 +2605,8 @@
     certNumber:    { k: 'hand', v: true },
     invoiceDate:   { k: 'hand', v: true },
     paymentDate:   { k: 'hand', v: true },
-    memo:          { k: 'mail', v: false, why: 'メール・LINE の中身を AI が足していく' },
-    adviceNote:    { k: 'hand', v: false }
+    memo:          { k: 'mail', v: false, why: 'メールの中身を AI が足していく → AI が要約して「内容」へ' },
+    adviceNote:    { k: 'mail', v: false, why: 'Plaud・LINE の中身を AI が足していく（要約しない・LINE 通知しない）' }
   };
   function fieldSrcNote(f) {
     const who = f.k === 'ai' ? '🤖 AI：' + f.why + '（直せる）'
@@ -2541,6 +2642,7 @@
   // 1つの用途の状態: none（まだ）/ draft（作成中）/ final（送付済）/ skip（申請不要で通知）/ manual（提出済み・通知しない）/ stale（作った後に日付が変わった）
   let workappRows = new Map();   // 案件 id → [{ id, status, purpose, for_date, created_at }]（古い順）
   const WA_PURPOSES = [{ key: 'survey', label: '調査', field: 'surveyDate' }, { key: 'work', label: '作業', field: 'workStartDate' }];
+  const WA_COMPANY = 'TOHOシネマズ';   // 作業申請書の自動作成（作りますか？の画面・📝 作る）は、今は TOHO だけ
   async function loadWorkappStates() {
     if (!caseMailSupported || !realPrivileged(currentUser) || store.mode !== 'supabase') return;
     try {
@@ -2574,7 +2676,8 @@
   function workappTd(c) {
     const md = (d) => { const m = String(d || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${+m[1]}/${+m[2]}` : ''; };
     const can = store.mode === 'supabase';
-    const parts = WA_PURPOSES.filter((P) => c[P.field]).map((P) => {
+    // 作業申請書の自動作成は、今は TOHO シネマズの案件だけ（ほかの会社は追々。2026-11-19）
+    const parts = (c.company === WA_COMPANY ? WA_PURPOSES : []).filter((P) => c[P.field]).map((P) => {
       const w = waState(c, P.key), due = workappDue(c, P.key);
       const lab = `<span class="wa-pp">${P.label} ${md(w.date)}</span>`;
       const btn = (cls, text, title) => can ? `<button type="button" class="wa-make ${cls}" data-wadecide="${escapeHtml(c.id)}" data-purpose="${P.key}" title="${title}">${text}</button>` : `<span class="wa-b ${cls}">${text}</span>`;
@@ -2710,6 +2813,32 @@
   function bellLocked(c) {
     return !!(myAccount && ((myAccount.theater && myAccount.theater === c.theater) || (myAccount.person && (!myAccount.company || myAccount.company === c.company) && cmPersonMatch(c.tcPerson, myAccount.person))));
   }
+  // 🚩 緊急案件（メールの件名の【緊急】で自動。菱熱は押して付け外し・TOHO は見るだけ）
+  function urgentHtml(c) {
+    if (!tohoV2Supported) return '';
+    if (isPrivileged(currentUser)) return `<button type="button" class="urgent-btn${c.urgent ? ' on' : ''}" data-urgent="${escapeHtml(c.id)}" title="${c.urgent ? '緊急案件（押すと外します）' : '押すと緊急案件にします'}" aria-pressed="${!!c.urgent}">🚩</button>`;
+    return c.urgent ? '<span class="urgent-flag" title="緊急案件">🚩</span>' : '';
+  }
+  // 他社案件: 利率は手で入れた値、無ければ他社の金額の段階（マスター）で決まる。菱熱への支払額＝金額×利率
+  let otherRates = [{ under: 30000, rate: 10 }, { under: 100000, rate: 7 }, { under: 1000000, rate: 5 }, { under: null, rate: 3 }];
+  function otherRateOf(c) {
+    if (c.otherRate !== '' && c.otherRate != null && !isNaN(Number(c.otherRate))) return { rate: Number(c.otherRate), auto: false };
+    const amt = Number(c.otherAmount); if (c.otherAmount === '' || c.otherAmount == null || isNaN(amt)) return { rate: null, auto: true };
+    const t = otherRates.find((x) => x.under == null || amt < Number(x.under));
+    return { rate: t ? Number(t.rate) : null, auto: true };
+  }
+  function otherFeeOf(c) { const r = otherRateOf(c), amt = Number(c.otherAmount); return (r.rate == null || c.otherAmount === '' || isNaN(amt)) ? '' : Math.round(amt * r.rate / 100); }
+  function otherTds(c) {
+    const on = !!(c.otherVendor || '').trim(); const r = otherRateOf(c);
+    return `${editableTd(c, 'otherVendor', escapeHtml(c.otherVendor || ''), 'col-other')}
+      ${editableTd(c, 'otherAmount', on ? fmtAmount(c.otherAmount) : '', 'col-other')}
+      ${editableTd(c, 'otherRate', on && r.rate != null ? `${r.rate}%${r.auto ? '<small class="auto-rate">（自動）</small>' : ''}` : '', 'col-other')}
+      <td class="col-other other-fee-td" data-colkey="otherFee" data-label="菱熱への支払額">${on ? fmtAmount(otherFeeOf(c)) : ''}</td>`;
+  }
+  // TOHO を見ている時だけ他社案件の列を出す（TOHO の画面・菱熱で上の会社を TOHO にした時）
+  function showOtherCols() {
+    return isPrivileged(currentUser) ? (companyFilter.size === 1 && companyFilter.has('TOHOシネマズ')) : customerCompany(currentUser) === 'TOHOシネマズ';
+  }
   function bellHtml(c) {
     if (!caseMailSupported || isPrivileged(currentUser)) return '';
     const locked = bellLocked(c);
@@ -2733,9 +2862,93 @@
       render();
     } catch (e) { showToastLite('切り替えられませんでした: ' + (e.message || e)); }
   }
+  // TOHO 向けの設定（2026-11-19）: 他社案件の利率の段階・請求書/入金の列を隠す客先の会社・本社の決裁者の通知設定
+  let hideAccounting = { companies: [] };
+  let notifyPrefs = [];     // 菱熱: 全員分／客先: 自分の分だけ（RLS）
+  async function loadTohoSettings() {
+    if (store.mode !== 'supabase') return;
+    try {
+      const { data } = await sb.from('app_settings').select('key,value').in('key', ['other_vendor_rates', 'hide_accounting']);
+      (data || []).forEach((r) => {
+        if (r.key === 'other_vendor_rates' && r.value && Array.isArray(r.value.tiers) && r.value.tiers.length) otherRates = r.value.tiers;
+        if (r.key === 'hide_accounting' && r.value) hideAccounting = { companies: Array.isArray(r.value.companies) ? r.value.companies : [] };
+      });
+    } catch (e) {}
+    try { const { data, error } = await sb.from('notify_prefs').select('*'); notifyPrefs = error ? [] : (data || []); } catch (e) { notifyPrefs = []; }
+    applyAcctCols(); renderNotifyPrefBtn();
+  }
+  function myNotifyPref() { const em = String((currentUser && currentUser.email) || '').toLowerCase(); return notifyPrefs.find((p) => String(p.email).toLowerCase() === em) || null; }
+  function approverPref() { return notifyPrefs.find((p) => p.approver) || null; }
+  // 請求書発行日・入金日の列: 客先は菱熱が会社ごとに決める／菱熱は各自（ブラウザごと）
+  function acctHidden() {
+    if (isPrivileged(currentUser)) { try { return localStorage.getItem('acctColsV1') === '0'; } catch (e) { return false; } }
+    return hideAccounting.companies.indexOf(customerCompany(currentUser)) !== -1;
+  }
+  function applyAcctCols() {
+    const hid = acctHidden();
+    document.body.classList.toggle('hide-acct', hid);
+    if ($('acctToggleBtn')) setSwitch($('acctToggleBtn'), !hid);
+  }
+  function renderNotifyPrefBtn() {
+    const b = $('notifyPrefBtn'); if (!b) return;
+    const me = myNotifyPref();
+    b.classList.toggle('hidden', !(me && me.approver && !isPrivileged(currentUser)));
+  }
+  // 🔔 通知設定（本社の決裁者）: 見積り3万円以上（税抜）の TOHO の案件の通知メール。全体の ON/OFF と、案件ごと（選んで一括）
+  function openNotifyPrefs(email) {
+    const K = window.KARTE;
+    const pref = notifyPrefs.find((p) => String(p.email).toLowerCase() === String(email).toLowerCase());
+    if (!pref) { K.say('通知の設定が見つかりません'); return; }
+    document.querySelectorAll('#npDlg').forEach((x) => x.remove());
+    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'npDlg';
+    const muted = () => new Set((pref.muted_case_ids || []).map(String));
+    const sel = new Set();
+    const list = () => cases.filter((c) => c.company === 'TOHOシネマズ' && Number(c.estimateAmount) >= APPROVAL_NO_AMOUNT && !TERMINAL_LIKE_STATUSES.has(statusOf(c)))
+      .sort((a, b) => String(b.receivedDate || '').localeCompare(String(a.receivedDate || '')));
+    const save = async (patch, msg) => {
+      const { error } = await sb.from('notify_prefs').update(patch).eq('email', pref.email);
+      if (error) { K.say('保存できませんでした: ' + error.message); return; }
+      Object.assign(pref, patch); draw(); if (msg) showToastLite(msg);
+    };
+    const draw = () => {
+      const m = muted(), L = list();
+      ov.innerHTML = `<div class="kt-dialog kt-dialog-wide np-dlg"><div class="kt-dlg-head">🔔 通知設定 — ${escapeHtml(pref.name || pref.email)} さん<button type="button" class="close-btn" data-x>×</button></div>
+        <div class="kt-dlg-body">
+          <p class="ms-note">見積り金額が3万円以上（税抜）の案件は、担当が劇場でも本社のほかの人でも、通知メールが ${escapeHtml(pref.name || '')} さん（${escapeHtml(pref.email)}）にも届きます。<br>
+            案件の担当者（本社のほかの人など）には、その人のアドレスにも届きます。</p>
+          <label class="np-all"><input type="checkbox" data-npall${pref.enabled !== false ? ' checked' : ''}> 3万円以上の案件の通知メールを受け取る（全体）</label>
+          <div class="np-tools"><span class="ms-note">今の対象: ${L.length} 件（通知する ${L.filter((c) => !m.has(String(c.id))).length} 件）</span>
+            <button type="button" data-npbulk="on"${sel.size ? '' : ' disabled'}>選んだ案件を通知する</button><button type="button" data-npbulk="off"${sel.size ? '' : ' disabled'}>選んだ案件を止める</button>
+            <button type="button" data-npevery="on">全部 通知する</button><button type="button" data-npevery="off">全部 止める</button></div>
+          <div class="np-wrap"><table class="ms-table np-table${pref.enabled === false ? ' np-off' : ''}"><thead><tr><th><input type="checkbox" data-npselall${L.length && L.every((c) => sel.has(String(c.id))) ? ' checked' : ''} title="全部選ぶ"></th><th>通知</th><th>劇場</th><th>案件名</th><th>見積り金額（税抜）</th><th>ステータス</th><th>受付日</th></tr></thead><tbody>
+          ${L.map((c) => { const id = String(c.id), on = !m.has(id); return `<tr><td><input type="checkbox" data-npsel="${escapeHtml(id)}"${sel.has(id) ? ' checked' : ''}></td>
+            <td><button type="button" class="np-sw ${on ? 'on' : 'off'}" data-nptoggle="${escapeHtml(id)}">${on ? '🔔 通知する' : '🔕 止めた'}</button></td>
+            <td>${escapeHtml(shortTheaterName(c.theater))}</td><td>${escapeHtml(c.title || c.category || '')}</td><td>${fmtAmount(c.estimateAmount)}</td>
+            <td>${escapeHtml(statusDisplayLabel(statusOf(c)))}</td><td>${escapeHtml(fmtDateShort(c.receivedDate))}</td></tr>`; }).join('') || '<tr><td colspan="7" class="sub">3万円以上の案件はありません</td></tr>'}
+          </tbody></table></div>
+        </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
+    };
+    draw(); document.body.appendChild(ov);
+    ov.addEventListener('change', async (e) => {
+      if (e.target.matches('[data-npall]')) { await save({ enabled: e.target.checked }, e.target.checked ? '受け取るにしました' : '止めました（全体）'); return; }
+      if (e.target.matches('[data-npselall]')) { const L = list(); if (e.target.checked) L.forEach((c) => sel.add(String(c.id))); else sel.clear(); draw(); return; }
+      const s1 = e.target.closest('[data-npsel]'); if (s1) { if (s1.checked) sel.add(s1.dataset.npsel); else sel.delete(s1.dataset.npsel); draw(); }
+    });
+    ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      const m = muted();
+      const t = e.target.closest('[data-nptoggle]');
+      if (t) { const id = t.dataset.nptoggle; if (m.has(id)) m.delete(id); else m.add(id); await save({ muted_case_ids: [...m] }); return; }
+      const b = e.target.closest('[data-npbulk]');
+      if (b && sel.size) { sel.forEach((id) => { if (b.dataset.npbulk === 'on') m.delete(id); else m.add(id); }); const n = sel.size; sel.clear(); await save({ muted_case_ids: [...m] }, `${n} 件を${b.dataset.npbulk === 'on' ? '通知する' : '止める'}にしました`); return; }
+      const ev = e.target.closest('[data-npevery]');
+      if (ev) { const L = list().map((c) => String(c.id)); L.forEach((id) => { if (ev.dataset.npevery === 'on') m.delete(id); else m.add(id); }); await save({ muted_case_ids: [...m] }, ev.dataset.npevery === 'on' ? '全部 通知するにしました' : '全部 止めました'); }
+    });
+  }
   async function loadMyAccount() {
     myAccount = null;
     await loadCaseMail();
+    await loadTohoSettings();
     if (realPrivileged(currentUser)) { renderCustTheaterBar(); return; }
     try { myAccount = await store.fetchMyAccount(); } catch (e) { myAccount = null; }
     try { const v = localStorage.getItem(userFilterKey('myTheaterOnlyV1')); myTheaterOnly = v !== '0'; } catch (e) { myTheaterOnly = true; }
@@ -2934,8 +3147,8 @@
     if (!el) { el = document.createElement('div'); el.id = 'liteToast'; el.className = 'lite-toast'; document.body.appendChild(el); }
     el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 4000);
   }
-  // TOHO の承認番号が要る案件（見積り金額・税抜が10万円以上）。種別の文字を黄色にする（承認番号を入れても黄色のまま）
-  const APPROVAL_NO_AMOUNT = 100000;
+  // TOHO の決裁番号が要る案件（見積り金額・税抜が3万円以上）。種別の文字を黄色にする（決裁番号を入れても黄色のまま）
+  const APPROVAL_NO_AMOUNT = 30000;   // 2026-11-19: 10万円 → 3万円（TOHO の決裁番号）
   function needsApprovalNo(c) {
     if (!c || c.company !== 'TOHOシネマズ') return false;
     const a = Number(String(c.estimateAmount == null ? '' : c.estimateAmount).replace(/[^\d.]/g, ''));
@@ -3043,8 +3256,11 @@
     return `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(shown)}</span>`;
   }
   function render() {
-    // 客先のベル（✎ の横）の分だけ、編集の列を広げる
-    document.body.classList.toggle('case-bells', !!(caseMailSupported && !isPrivileged(currentUser)));
+    if (!isPrivileged(currentUser) && showTax) { showTax = false; document.body.classList.remove('show-tax'); }   // 客先は税抜きだけ
+    applyAcctCols();
+    // 🚩（✎ の横）の分だけ、編集の列を広げる。ベルは廃止（2026-11-19）
+    document.body.classList.toggle('case-bells', !!tohoV2Supported);
+    document.body.classList.toggle('show-other', !!tohoV2Supported && showOtherCols());
     renderMailSetBtn();
     if (leftStaff().length) renderRPersonBar();   // 異動・退職の人の「⚠ n件」を最新に
     setTimeout(checkInitialReportGate, 0);   // TOHO に絞った時は、初動報告がまだの案件の報告画面を出す
@@ -3073,27 +3289,28 @@
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
-        : `<td class="toho-empty" data-colkey="certNumber" data-label="承認番号">—</td>`;
+        : `<td class="toho-empty" data-colkey="certNumber" data-label="決裁番号">—</td>`;
 
       tr.innerHTML = `
         <td class="col-edit" data-colkey="edit" data-label="${isPrivileged(currentUser) ? '編集' : '見る'}">${isPrivileged(currentUser)
           ? `<button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件のすべての項目を編集" aria-label="編集">✎<span class="edit-lbl"> 編集</span></button>`
-          : `<button type="button" class="row-edit-btn row-view-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件を見る（自社のメモは書き込めます）" aria-label="見る">👁<span class="edit-lbl"> 見る</span></button>`}${bellHtml(c)}</td>
+          : `<button type="button" class="row-edit-btn row-view-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件を見る（自社のメモは書き込めます）" aria-label="見る">👁<span class="edit-lbl"> 見る</span></button>`}${urgentHtml(c)}</td>
         ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
         ${editableTd(c, 'receivedDate', fmtDateShort(c.receivedDate))}
         ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
-        ${editableTd(c, 'category', needsApprovalNo(c) ? `<span class="cat-approval" title="見積り金額（税抜）が10万円以上：TOHO の承認番号が必要です">${escapeHtml(c.category)}</span>` : escapeHtml(c.category))}
-        ${editableTd(c, 'title', escapeHtml(c.title || ''), 'col-title')}
-        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell' + (isPrivileged(currentUser) && statusOf(c) === '見積り中' ? ' quote-blink' : ''))}
+        ${editableTd(c, 'category', needsApprovalNo(c) ? `<span class="cat-approval" title="見積り金額（税抜）が3万円以上：TOHO の決裁番号が必要です">${escapeHtml(c.category)}</span>` : escapeHtml(c.category))}
+        ${editableTd(c, 'title', escapeHtml(c.title || ''), 'col-title' + (isPrivileged(currentUser) && statusOf(c) === '見積り中' ? ' quote-blink' : ''))}
+        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'customerMemo', escapeHtml(c.customerMemo), 'col-customer-memo')}
         ${editableTd(c, 'surveyDate', c.surveyDate ? escapeHtml(fmtDateTime(c.surveyDate, c.surveyTime)) : (c.surveyAdjusting ? '<span class="adj">調整中</span>' : ''))}
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
         <td class="col-tax" data-colkey="tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
+        ${otherTds(c)}
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', c.workStartDate ? escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)) : ((c.surveyAdjusting || c.scheduleAdjusting) ? '<span class="adj">調整中</span>' : ''))}
         ${workappTd(c)}
@@ -3101,6 +3318,7 @@
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
+        ${editableTd(c, 'adviceNote', escapeHtml(c.adviceNote || ''), 'col-ryo col-advice')}
       `;
       tbody.appendChild(tr);
     });
@@ -3132,7 +3350,7 @@
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
   // 標準の並び。顧客メモは「内容」のすぐ右に置く（既に個人で並べ替えている場合は
   // その設定が優先されるため、標準に戻すには「列並びリセット」を押す）
-  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'title', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workapp', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
+  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'title', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'otherVendor', 'otherAmount', 'otherRate', 'otherFee', 'quoteDate', 'workStartDate', 'workapp', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo', 'adviceNote'];
   // 支払い状況モードの列（左＝案件情報／右＝支払い入力）
   const PURCHASE_COLS = [
     { field: 'company',        label: '会社' },
@@ -3496,8 +3714,8 @@
   }
 
   // ---------- modal (new / edit) ----------
-  // 承認番号（TOHOのみ）の表示。簡易登録・予定の編集で隠している行は、TOHOでも隠したままにする
-  // （以前は会社がTOHOだと、隠すはずの簡易登録・予定の編集でも承認番号が出ていた）
+  // 決裁番号（TOHOのみ）の表示。簡易登録・予定の編集で隠している行は、TOHOでも隠したままにする
+  // （以前は会社がTOHOだと、隠すはずの簡易登録・予定の編集でも決裁番号が出ていた）
   let modalMode = 'full';
   function updateTohoVisibility() {
     const isToho = $('company').value === 'TOHOシネマズ';
@@ -3546,6 +3764,8 @@
     // 期日免除・初動報告の欄（菱熱・列がある時だけ）
     document.querySelectorAll('.due-exempt-row').forEach((el) => el.classList.toggle('hidden', !(initialReportSupported && isPrivileged(currentUser) && !isCalEdit)));
     renderIrRow(caseObj && !isCalEdit ? caseObj : null);
+    renderStatusRow(caseObj && !isCalEdit ? caseObj : null);
+    setTimeout(() => { if (!isCalEdit) renderOtherRow(); else if ($('otherRow')) $('otherRow').classList.add('hidden'); }, 0);   // 会社の欄が入ってから決める
 
     if (isPrivileged(currentUser)) {
       $('company').disabled = false;
@@ -3561,6 +3781,9 @@
       $('theater').value = theaterForInput(caseObj.theater || '', caseObj.company || '');
       modalOrigTheater = $('theater').value;
       if ($('dueExempt')) { $('dueExempt').checked = !!caseObj.dueExempt; $('dueExemptReason').value = caseObj.dueExemptReason || ''; }
+      if ($('caseUrgent')) $('caseUrgent').checked = !!caseObj.urgent;
+      if ($('otherVendor')) { $('otherVendor').value = caseObj.otherVendor || ''; $('otherAmount').value = formatThousands(caseObj.otherAmount); $('otherRate').value = caseObj.otherRate === '' || caseObj.otherRate == null ? '' : String(caseObj.otherRate); }
+      if (!isCalEdit) renderOtherRow();
       modalOrigRPerson = caseObj.rPerson || '';
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
@@ -3623,15 +3846,17 @@
   function cmDate(s) { const d = new Date(s); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
   // 通知メールの宛先（GAS の CaseMail.gs と同じ決まり）を、画面に出すために数える
   async function caseMailRecipientsText(c) {
-    const [{ data: accs }, { data: ws }] = await Promise.all([
-      sb.from('customer_accounts').select('email,company,theater,person'),
-      sb.from('case_watchers').select('email').eq('case_id', String(c.id))
-    ]);
+    const { data: accs } = await sb.from('customer_accounts').select('email,company,theater,person');
     const out = [], seen = new Set();
     const add = (email, why) => { email = String(email || '').toLowerCase(); if (!email || /@ryonetsu(-ai)?\.com$/.test(email) || seen.has(email)) return; seen.add(email); out.push(`${email}（${why}）`); };
     (accs || []).forEach((a) => { if (a.theater && a.theater === c.theater) add(a.email, '劇場'); });
     (accs || []).forEach((a) => { if (a.person && (!a.company || a.company === c.company) && cmPersonMatch(c.tcPerson, a.person)) add(a.email, '担当者'); });
-    (ws || []).forEach((w) => add(w.email, 'ベル'));
+    // 見積り3万円以上（税抜）の TOHO の案件は、本社の決裁者にも（ベルは廃止 2026-11-19）
+    const ap = approverPref();
+    if (ap && c.company === 'TOHOシネマズ' && Number(c.estimateAmount) >= APPROVAL_NO_AMOUNT) {
+      const muted = Array.isArray(ap.muted_case_ids) && ap.muted_case_ids.map(String).indexOf(String(c.id)) !== -1;
+      if (ap.enabled !== false && !muted) add(ap.email, '本社の決裁者・3万円以上');
+    }
     const mode = caseMailSettings.mode;
     const real = out.length ? out.join('、') : 'なし（劇場・担当者のアドレスが未登録）';
     if (mode === 'off') return '通知メールは止めています（本番の宛先: ' + real + '）';
@@ -3647,6 +3872,7 @@
     sec.classList.toggle('hidden', !show);
     cmCaseId = show ? String(c.id) : null;
     if (!show) return;
+    sec.querySelectorAll('[data-wamake]').forEach((b) => b.classList.toggle('hidden', c.company !== WA_COMPANY));
     const id = cmCaseId;
     $('cmFiles').innerHTML = '<span class="field-hint">読み込み中…</span>'; $('cmLog').innerHTML = ''; $('cmTo').textContent = '';
     try {
@@ -3718,6 +3944,16 @@
     const b = e.target.closest('[data-cmup]'); if (!b) return;
     e.preventDefault(); openUploadDialog(b.dataset.cmup);
   });
+  // 🚩 緊急の付け外し（菱熱）
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-urgent]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (!isPrivileged(currentUser)) return;
+    const c = cases.find((x) => String(x.id) === b.dataset.urgent); if (!c) return;
+    const to = !c.urgent;
+    if (!(await window.KARTE.ask(to ? `「${shortTheaterName(c.theater)} ${c.title || c.category || ''}」を緊急案件（🚩）にしますか？` : `「${shortTheaterName(c.theater)} ${c.title || c.category || ''}」の 🚩 を外しますか？`, { ok: to ? '🚩 緊急にする' : '外す' }))) return;
+    c.urgent = to; c.updatedAt = new Date().toISOString(); persistCase(c); render();
+  }, true);
   // 📝 作業申請書（一覧の「申請書」列・編集パネル）。行を押した時の動き（編集を開く）より先に受け取る
   //   一覧: 調査・作業ごとのボタン → 作る／申請不要／あとで を選ぶ画面（作成中なら続きから）
   //   編集パネル: 日付の入った用途（調査・作業）を並べて選ぶ
@@ -3897,7 +4133,20 @@
 
   // ---------- ポップアップ編集（内容 / メモ 共用） ----------
   let popupEditField = 'content';
-  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: '社内メモを編集' };
+  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: '社内メモを編集', adviceNote: '社内アドバイスを編集' };
+  // ポップアップの上に「どこから入るか・書いた内容はどこへ行くか」（2026-11-19）
+  function popupFlowHtml(field) {
+    const ryo = isPrivileged(currentUser);
+    const F = {
+      content: ryo ? ['🤖 「社内メモ」に書いた・足された内容を、AI が客先向けにまとめてここに入れます（社内のこと・金額・協力会社の名前は除きます）。', '👀 客先に見えます。ここを直すと、そのまま客先の画面に出て、LINE で通知します。']
+        : ['菱熱工業の担当者のメモをもとに、AI がまとめた内容です。', '（閲覧のみ）'],
+      memo: ['✍ 手で書いた内容と、メールの自動取り込み（AI）が足した進み具合が入ります。', '🤖 新しく足した分を AI が要約して「内容」に入れます（「内容」は客先に見えます）。社内メモそのものは客先に見えません。'],
+      adviceNote: ['🎙 Plaud（会議・電話の記録）と LINE のやり取りを、AI がここに足します。手でも書けます。', '🔒 AI の要約はしません（「内容」には入りません）。LINE 通知もしません。客先に見えません。この劇場の今後の AI 初期対応診断の参考になります。'],
+      customerMemo: ryo ? ['🤝 客先が書いたメモです（菱熱も書けます）。', '📝 要約しません。そのまま客先にも見えます。客先が書くと LINE で通知します。']
+        : ['ご自由にお書きください。', '📝 要約されず、そのまま菱熱工業に届きます。']
+    }[field];
+    return F ? `<div class="cf-in">${escapeHtml(F[0])}</div><div class="cf-out">${escapeHtml(F[1])}</div>` : '';
+  }
   // 顧客メモの表示名（客先=○○メモ / 菱熱=顧客メモ）
   function customerMemoLabel() {
     return isPrivileged(currentUser) ? '顧客メモ' : customerLabel('メモ');
@@ -3913,7 +4162,9 @@
     const titleEl = $('contentModal').querySelector('.modal-header h2');
     if (titleEl) titleEl.textContent = popupFieldTitle(field);
     $('contentEditor').value = c[field] || '';
+    if ($('contentFlow')) $('contentFlow').innerHTML = popupFlowHtml(field);
     $('contentEditor').placeholder = field === 'memo' ? '社内メモ／「保留」と書くとステータス自動切替'
+      : field === 'adviceNote' ? '社内アドバイス（例: エアバランスはVD交換より潤滑剤調整を先に試す）'
       : (field === 'customerMemo' ? customerMemoLabel() + 'を記入' : '案件の詳細を記入');
     // 閲覧のみ（客先の「内容」）は編集不可にして保存ボタンを隠す
     const cfgPopup = EDITABLE_FIELDS[field] || {};
@@ -3972,7 +4223,7 @@
     const includesMemo = isPrivileged(currentUser);
     const isToho = !includesMemo;
     const headers = ['会社', '劇場名', '受付日', fieldLabel('tcPerson'), 'R担当者', '種別', '内容',
-      '調査日', '承認番号', '見積り名', '見積り金額',
+      '調査日', '決裁番号', '見積り名', '見積り金額',
       isToho ? '見積り受領日' : '見積り提出日',
       '作業開始日', '作業完了日',
       isToho ? '請求書受領日' : '請求書発行日',
@@ -5050,8 +5301,8 @@
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
         ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
-        ${editableTd(c, 'title', escapeHtml(c.title || ''), 'col-title')}
-        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell' + (isPrivileged(currentUser) && statusOf(c) === '見積り中' ? ' quote-blink' : ''))}
+        ${editableTd(c, 'title', escapeHtml(c.title || ''), 'col-title' + (isPrivileged(currentUser) && statusOf(c) === '見積り中' ? ' quote-blink' : ''))}
+        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="task-col" data-colkey="tasks">
           <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスクを追加・編集">＋ 追加</button>
@@ -5099,13 +5350,14 @@
       } else {
         const amt = c.estimateAmount ? `<span>${fmtAmount(c.estimateAmount)}</span>` : '';
         const nTask = priv ? (Array.isArray(c.tasks) ? c.tasks.filter((t) => !t.done).length : 0) : 0;
-        body = `${c.title ? `<div class="m-title">${escapeHtml(c.title)}</div>` : ''}<div class="m-ct">${escapeHtml(c.content || '')}</div>
+        // 案件名が出るので、内容はカードに書かない（小さくして、たくさん並べる。2026-11-19）
+        const nm = c.title || String(c.content || '').replace(/\s+/g, ' ').slice(0, 40);
+        body = `${nm ? `<div class="m-title${c.title ? '' : ' m-title-ct'}">${escapeHtml(nm)}</div>` : ''}
           <div class="m-l3"><span>${nextPlanHtml(c)}</span>${amt}${nTask ? `<span>タスク <b>${nTask}</b></span>` : ''}</div>`;
       }
       return `<div class="m-card ${cls}" role="button" tabindex="0" data-mcase="${escapeHtml(c.id)}">
-        <span class="m-l1">${bellHtml(c)}${coTag}<span class="m-th">${escapeHtml(shortTheaterName(c.theater) || '（劇場名なし）')}</span><span class="m-rp">${escapeHtml(c.rPerson || '')}</span></span>
-        <span class="m-l2"><span class="status-badge status-${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))}</span>${needsApprovalNo(c) ? ` <span class="cat-approval" title="見積り金額（税抜）が10万円以上：承認番号が必要">${escapeHtml(c.category || '要承認番号')}</span>` : ''}${lateDaysHtml(c)}${dup}</span>
-        ${body}
+        <span class="m-l1">${c.urgent ? '<span class="urgent-flag" title="緊急案件">🚩</span>' : ''}${coTag}<span class="m-th">${escapeHtml(shortTheaterName(c.theater) || '（劇場名なし）')}</span><span class="status-badge status-${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))}</span><span class="m-rp">${escapeHtml(c.rPerson || '')}</span></span>
+        ${taskMode ? '' : ''}${body.replace('<div class="m-l3">', `<div class="m-l3">${needsApprovalNo(c) ? `<span class="cat-approval" title="見積り金額（税抜）が3万円以上：決裁番号が必要">${escapeHtml(c.category || '要決裁番号')}</span>` : ''}${lateDaysHtml(c)}${dup}`)}
       </div>`;
     }).join('');
   }
@@ -5870,6 +6122,10 @@
       customerMemo: '', adviceNote: '', purchases: [],
       updatedAt: new Date().toISOString()
     };
+    // LINE・Plaud の話（進み具合）は社内アドバイスへ（AI の要約はしない・LINE 通知もしない。2026-11-19）
+    if (/^【(LINE|Plaud)】/.test(it.title || '') && String(it.progress_note || '').trim()) {
+      c.adviceNote = '【' + (/^【Plaud】/.test(it.title) ? 'Plaud' : 'LINE') + '自動登録 ' + today + '】\n' + String(it.progress_note).trim();
+    }
     cases.push(c);
     await persistCase(c, 'auto');   // 社内メモ→内容のAI要約はサーバ側(webhook)が行う
     await store.decideIntakePending(it.id, 'registered', c.id);
@@ -5882,8 +6138,11 @@
     if (!c) { alert('対象の案件が見つかりませんでした。画面を再読み込みしてください。'); return; }
     const today = todayStr();
     const note = String(it.progress_note || it.content || '').trim();
-    const block = '【AI自動更新 ' + today + '】（登録確認で「更新」を選択）\n' + note;
-    c.memo = c.memo ? (c.memo + '\n\n' + block) : block;
+    const conv = /^【(LINE|Plaud)】/.test(it.title || '');
+    const block = '【' + (conv ? (/^【Plaud】/.test(it.title) ? 'Plaud' : 'LINE') + '自動更新' : 'AI自動更新') + ' ' + today + '】（登録確認で「更新」を選択）\n' + note;
+    // LINE・Plaud の話は社内アドバイスへ（要約しない・LINE 通知しない）。メールは今までどおり社内メモへ
+    if (conv) c.adviceNote = c.adviceNote ? (c.adviceNote + '\n\n' + block) : block;
+    else c.memo = c.memo ? (c.memo + '\n\n' + block) : block;
     // 空いている日程だけ、メールから拾った日付で埋める（既存の手入力は上書きしない）
     if (it.survey_date && !c.surveyDate) c.surveyDate = it.survey_date;
     if (it.quote_date && !c.quoteDate) c.quoteDate = it.quote_date;
@@ -6639,6 +6898,8 @@
     cases = cases.filter((x) => x.id !== c.id); removeCaseRemote(c.id); closeModal(); render(); if (calMode) renderCalendar();
   });
   $('company').addEventListener('change', updateTohoVisibility);
+  $('company').addEventListener('change', () => renderOtherRow());
+  ['otherVendor', 'otherAmount', 'otherRate'].forEach((id) => { const el = $(id); if (el) el.addEventListener('input', () => { if (id === 'otherAmount') formatAmountFieldLive(el); renderOtherFee(); }); });
   // 会社を変えたら: 劇場の候補をその会社の劇場にする。入っている劇場がその会社の劇場でなければ、選び直してもらう
   $('company').addEventListener('change', () => {
     if (!isPrivileged(currentUser)) return;
@@ -7130,7 +7391,7 @@
       surveyTime: $('surveyTime').value || '',
       workStartTime: $('workStartTime').value || '',
       workEndTime: $('workEndTime').value || '',
-      // 承認番号は保存値として保持（表示・編集はTOHOのときだけ）。会社を切替えても消えないようにする
+      // 決裁番号は保存値として保持（表示・編集はTOHOのときだけ）。会社を切替えても消えないようにする
       certNumber: $('certNumber').value.trim(),
       estimateName: $('estimateName').value.trim(),
       estimateAmount: amountRaw === '' ? '' : Number(amountRaw),
@@ -7143,6 +7404,11 @@
       customerMemo: $('customerMemo') ? $('customerMemo').value.trim() : '',
       adviceNote: $('adviceNote') ? $('adviceNote').value.trim() : '',
       dueExempt: !!($('dueExempt') && $('dueExempt').checked),
+      urgent: !!($('caseUrgent') && $('caseUrgent').checked),
+      ...(($('statusRow') && !$('statusRow').classList.contains('hidden')) ? { statusOverride: $('statusOverrideSel').value } : {}),
+      otherVendor: $('otherVendor') ? $('otherVendor').value.trim() : '',
+      otherAmount: $('otherAmount') && $('otherAmount').value.replace(/[^\d]/g, '') !== '' ? Number($('otherAmount').value.replace(/[^\d]/g, '')) : '',
+      otherRate: $('otherRate') && $('otherRate').value.trim() !== '' && !isNaN(Number($('otherRate').value.trim())) ? Number($('otherRate').value.trim()) : '',
       dueExemptReason: $('dueExemptReason') ? $('dueExemptReason').value.trim() : '',
       updatedAt: new Date().toISOString()
     };
@@ -7401,6 +7667,12 @@
 
   // 税込み/税抜き表示トグル（標準=税抜き。税込みにすると「見積り金額（税込み）」列を表示）
   let showTax = false;
+  $('acctToggleBtn').addEventListener('click', () => {
+    const show = acctHidden();   // 今隠れている → 出す
+    try { localStorage.setItem('acctColsV1', show ? '1' : '0'); } catch (e) {}
+    applyAcctCols();
+  });
+  $('notifyPrefBtn').addEventListener('click', () => { const me = myNotifyPref(); if (me) openNotifyPrefs(me.email); });
   $('taxToggleBtn').addEventListener('click', () => {
     showTax = !showTax;
     document.body.classList.toggle('show-tax', showTax);
@@ -7650,7 +7922,7 @@
       afterWorkapp: async (id) => { await loadWorkappStates(); render(); const c = cases.find((x) => String(x.id) === String(id)); if (c && cmCaseId === String(id)) renderCaseMailSec(c); },
       // 調査・作業ごとの作業申請書の状態（none/draft/final/skip/manual/stale）と、決めていない予定を探す用の案件一覧
       waState: (id, purpose) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? waState(c, purpose) : null; },
-      waCases: () => cases.filter((c) => isOpenCase(c) && (c.surveyDate || c.workStartDate)).map((c) => ({ id: c.id, theater: c.theater || '', company: c.company || '', rPerson: c.rPerson || '', title: c.title || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '' }))
+      waCases: () => cases.filter((c) => c.company === WA_COMPANY && isOpenCase(c) && (c.surveyDate || c.workStartDate)).map((c) => ({ id: c.id, theater: c.theater || '', company: c.company || '', rPerson: c.rPerson || '', title: c.title || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '' }))
     };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');
