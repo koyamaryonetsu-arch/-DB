@@ -503,9 +503,13 @@ function parseEmailCases_(emailText, opts) {
   j.cases.forEach(fixTheater_);   // 劇場名をアプリの劇場の一覧にそろえる（同じ劇場を別の名前で増やさない）
   return j;
 }
+// 緊急案件: メールの件名に【緊急】（[緊急] も）があれば、案件に 🚩（cases.urgent）を付ける。自動では外さない（外すのは菱熱が手で）
+var URGENT_SUBJECT_RE = /【\s*緊急\s*】|\[\s*緊急\s*\]|［\s*緊急\s*］/;
+function isUrgentMail_(m) { try { return !!(m && URGENT_SUBJECT_RE.test(String(m.getSubject() || ''))); } catch (e) { return false; } }
 // 取り出した案件1件を、新規／更新／確認待ち のどれかにする
 function handleCaseItem_(p, ctx) {
   fixPersons_(p);
+  var urgent = isUrgentMail_(ctx.m);
   var received = clampReceivedDate_(p.received_date, ctx.lastDateStr);
   var quote = pickQuoteFor_(ctx.quotes, p, ctx.single);
   var prog = p.progress || {};
@@ -513,7 +517,7 @@ function handleCaseItem_(p, ctx) {
   // 前にこのやり取りで登録した案件で、同じ劇場のもの → その案件の続き（AIの判断はしない）
   var kc = matchKnownRow_(ctx.knownRows, p, ctx.single);
   if (kc) {
-    if (hasNews || quote) { updateCase_(kc, prog, p.content, quote); return { kind: 'upd', caseId: kc.id }; }
+    if (hasNews || quote || urgent) { updateCase_(kc, prog, p.content, quote, null, { urgent: urgent }); return { kind: 'upd', caseId: kc.id }; }
     return { kind: 'dup', caseId: kc.id };
   }
   var decision = decideCaseWithRecheck_(p, received, ctx.participants, ctx.emailText, ctx.legacy);
@@ -522,7 +526,7 @@ function handleCaseItem_(p, ctx) {
     return { kind: 'dup' };
   }
   if (decision.decision === 'update' && decision.row) {
-    if (p.intent === 'progress' || quote || hasNews) { updateCase_(decision.row, prog, p.content, quote); return { kind: 'upd', caseId: decision.row.id }; }
+    if (p.intent === 'progress' || quote || hasNews || urgent) { updateCase_(decision.row, prog, p.content, quote, null, { urgent: urgent }); return { kind: 'upd', caseId: decision.row.id }; }
     Logger.log('既存と同一（新情報なし）で登録せず: ' + (p.title || '') + ' → id=' + decision.row.id);
     return { kind: 'dup', caseId: decision.row.id };
   }
@@ -534,6 +538,7 @@ function handleCaseItem_(p, ctx) {
   var near = findNearbyActiveCases_(p, received);
   if (near.length) return { kind: 'conf', pendingId: queueIntakeConfirm_(p, received, ctx.m, ctx.th, INTAKE_CONFIRM_DAYS_() + '日以内に同じ劇場の進行中案件があります', near) };
   var newId = insertCase_({
+    urgent: urgent,
     dup_suspect_id: findDupSuspect_(p, received),
     company: normalizeCompany_(p.company), theater: p.theater || '', received_date: received,
     tc_person: p.tc_person || '', r_person: p.r_person || '',
@@ -611,7 +616,7 @@ function queryCases_(filter, limit) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return []; }
   var params = filter +
-    '&select=id,company,theater,received_date,category,content,memo,customer_memo,status,r_person,tc_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
+    '&select=id,company,theater,received_date,category,content,memo,customer_memo,advice_note,status,r_person,tc_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
     '&order=received_date.desc&limit=' + (limit || 25);
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?' + params, {
     method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
@@ -1113,6 +1118,7 @@ function insertCase_(f) {
   };
   // 二重登録の疑い（アプリで「⚠️二重の可能性」表示・LINE通知にも出す）
   if (f.dup_suspect_id) body.dup_suspect_id = f.dup_suspect_id;
+  if (f.urgent) body.urgent = true;   // 件名に【緊急】
   // 添付見積書のOCR結果があれば書き込む（空はnullでスキップ）
   if (f.estimate_name) body.estimate_name = f.estimate_name;
   if (f.estimate_amount) body.estimate_amount = normalizeAmount_(f.estimate_amount);
@@ -1128,8 +1134,8 @@ function insertCase_(f) {
     headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=representation' },
     payload: JSON.stringify(body), muteHttpExceptions: true
   });
-  if (res.getResponseCode() >= 300 && body.title && /title/.test(res.getContentText())) {
-    delete body.title;
+  if (res.getResponseCode() >= 300 && (body.title || body.urgent) && /title|urgent/.test(res.getContentText())) {
+    if (/urgent/.test(res.getContentText())) delete body.urgent; else delete body.title;
     res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases', {
       method: 'post', contentType: 'application/json',
       headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=representation' },
@@ -1145,10 +1151,15 @@ function insertCase_(f) {
 
 // ===== Supabase: 進捗UPDATE（該当案件に日付/内容を反映） =====
 // tag（任意）: 社内メモに付ける印。既定は「AI自動更新」（メール）。LINE・Plaud は「LINE自動更新」「Plaud自動更新」
-function updateCase_(matched, prog, summary, quote, tag) {
+function updateCase_(matched, prog, summary, quote, tag, opts) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) return;
+  opts = opts || {};
   var patch = {};
+  if (opts.urgent && !matched.urgent) patch.urgent = true;   // 件名に【緊急】
+  // LINE・Plaud の記録は「社内アドバイス(advice_note)」へ（AI の要約はしない＝「内容」に入らない・LINE 通知もしない。2026-11-19）
+  //   メールは今までどおり「社内メモ(memo)」へ（サーバーが要約して「内容」へ）
+  var noteField = /^(LINE|Plaud)/.test(String(tag || '')) ? 'advice_note' : 'memo';
   // 日付は「まだ空」の項目に記入（既存値は上書きしない＝手動入力を尊重）
   if (prog.survey_date && !matched.survey_date) patch.survey_date = prog.survey_date;
   if (prog.quote_date && !matched.quote_date) patch.quote_date = prog.quote_date;
@@ -1174,13 +1185,13 @@ function updateCase_(matched, prog, summary, quote, tag) {
   //   メールでも来た場合の二重記入を自動スキップ）。体裁は「空行＋[進捗 日付]＋改行＋本文」。
   var note = (prog.note || '').trim();
   if (note && isDuplicateNote_(matched.customer_memo, note)) {
-    Logger.log('顧客メモと重複のため社内メモへ追記せず: id=' + matched.id);
-  } else if (note && !isDuplicateNote_(matched.memo, note)) {
+    Logger.log('顧客メモと重複のため追記せず: id=' + matched.id);
+  } else if (note && !isDuplicateNote_(matched[noteField], note) && !(noteField === 'advice_note' && isDuplicateNote_(matched.memo, note))) {
     var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
-    var base = reformatProgress_(String(matched.memo || '')); // 既存の詰まった進捗も読みやすく再整形
+    var base = reformatProgress_(String(matched[noteField] || '')); // 既存の詰まった進捗も読みやすく再整形
     // AIが自動更新したものと分かるようタグを付ける（内容への要約時はこのタグは含めない）
     var block = '【' + (tag || 'AI自動更新') + ' ' + today + '】\n' + note;
-    patch.memo = base ? (base + '\n\n' + block) : block;
+    patch[noteField] = base ? (base + '\n\n' + block) : block;
   } else if (note) {
     Logger.log('社内メモと重複のため追記せず: id=' + matched.id);
   }
@@ -1196,6 +1207,14 @@ function updateCase_(matched, prog, summary, quote, tag) {
     headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
     payload: JSON.stringify(patch), muteHttpExceptions: true
   });
+  if (res.getResponseCode() >= 300 && patch.urgent && /urgent/.test(res.getContentText())) {   // 緊急の列がまだ無い DB
+    delete patch.urgent;
+    res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?id=eq.' + encodeURIComponent(matched.id), {
+      method: 'patch', contentType: 'application/json',
+      headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
+      payload: JSON.stringify(patch), muteHttpExceptions: true
+    });
+  }
   if (res.getResponseCode() >= 300) Logger.log('UPDATE失敗: ' + res.getContentText());
   else Logger.log('進捗更新: id=' + matched.id + ' 項目=' + Object.keys(patch).join(','));
 }

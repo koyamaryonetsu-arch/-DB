@@ -48,6 +48,8 @@ function cmReq_(method, path, body, prefer) {
   try { return JSON.parse(t); } catch (e) { return null; }
 }
 function cmGet_(path) { return cmReq_('get', path) || []; }
+// 本社の決裁者（notify_prefs の approver。表が無い時は null）
+function cmApprover_() { try { var r = cmGet_('notify_prefs?approver=eq.true&select=email,name,enabled,muted_case_ids&limit=1'); return r[0] || null; } catch (e) { return null; } }
 function cmEnc_(s) { return encodeURIComponent(String(s)); }
 
 function caseMailSettings_() {
@@ -127,7 +129,9 @@ function cmPersonMatch_(casePerson, accPerson) {
   return shortS.length >= 2 && longS.indexOf(shortS) === 0;
 }
 // 案件の通知の宛先 → [{ email, why }]
-function caseMailRecipients_(c, accounts, watchers) {
+// 宛先: 劇場のアドレス・案件の担当者（その会社の人）・本社の決裁者（見積り3万円以上の TOHO の案件）。ベルは廃止（2026-11-19）
+var CM_APPROVER_AMOUNT = 30000;
+function caseMailRecipients_(c, accounts, approver) {
   var out = [], seen = {};
   function add(email, why) {
     email = String(email || '').trim().toLowerCase();
@@ -144,7 +148,11 @@ function caseMailRecipients_(c, accounts, watchers) {
       if (a.person && (!a.company || a.company === c.company) && cmPersonMatch_(p, a.person)) add(a.email, '担当者');
     });
   });
-  (watchers || []).forEach(function (w) { add(w.email, 'ベル'); });
+  // 見積り3万円以上（税抜）の TOHO の案件は、担当がだれでも本社の決裁者にも（本人が通知設定で止めた案件・全体を止めた時は送らない）
+  if (approver && approver.email && c.company === 'TOHOシネマズ' && Number(c.estimate_amount) >= CM_APPROVER_AMOUNT && approver.enabled !== false) {
+    var muted = Array.isArray(approver.muted_case_ids) ? approver.muted_case_ids.map(String) : [];
+    if (muted.indexOf(String(c.id)) === -1) add(approver.email, '本社の決裁者・3万円以上');
+  }
   return out;
 }
 
@@ -272,13 +280,13 @@ function sendCaseMails() {
 // 初動対応・区分判定の報告メール（件名・本文はアプリで作った文。宛先・試しモードは通知メールと同じ決まり）
 function sendInitialReport_(ev, settings) {
   var d = {}; try { d = JSON.parse(ev.detail || '{}'); } catch (e) { d = {}; }
-  var rows = cmGet_('cases?id=eq.' + cmEnc_(ev.case_id) + '&select=id,company,theater,tc_person');
+  var rows = cmGet_('cases?id=eq.' + cmEnc_(ev.case_id) + '&select=id,company,theater,tc_person,estimate_amount');
   if (!rows.length) { cmMarkEvents_([ev], '案件が見つからない（消された）'); return 'skip'; }
   var c = rows[0];
   if (settings.mode === 'off') { cmMarkEvents_([ev], '通知メールは止めている'); return 'skip'; }
   var isTest = settings.testTheaters.indexOf(String(c.theater || '')) !== -1;
   if (settings.mode !== 'live' && !isTest) { cmMarkEvents_([ev], '試しモードのため送らず（テスト劇場ではない）'); return 'skip'; }
-  var realTo = caseMailRecipients_(c, cmGet_('customer_accounts?select=email,company,theater,person'), cmGet_('case_watchers?case_id=eq.' + cmEnc_(ev.case_id) + '&select=email'));
+  var realTo = caseMailRecipients_(c, cmGet_('customer_accounts?select=email,company,theater,person'), cmApprover_());
   var to = realTo, isTrial = settings.mode !== 'live';
   if (isTrial) {
     if (!settings.testTo.length) { cmMarkEvents_([ev], '試しモード: テストの宛先が未設定のため送らず'); return 'skip'; }
@@ -310,7 +318,7 @@ function cmMarkEvents_(evs, note) {
 }
 
 function sendOneCaseMail_(caseId, evs, settings) {
-  var rows = cmGet_('cases?id=eq.' + cmEnc_(caseId) + '&select=id,company,theater,title,category,content,tc_person,work_start_date,work_start_time');
+  var rows = cmGet_('cases?id=eq.' + cmEnc_(caseId) + '&select=id,company,theater,title,category,content,tc_person,work_start_date,work_start_time,estimate_amount');
   if (!rows.length) { cmMarkEvents_(evs, '案件が見つからない（消された）'); return 'skip'; }
   var c = rows[0];
   if (settings.mode === 'off') { cmMarkEvents_(evs, '通知メールは止めている'); return 'skip'; }
@@ -318,8 +326,7 @@ function sendOneCaseMail_(caseId, evs, settings) {
   if (settings.mode !== 'live' && !isTest) { cmMarkEvents_(evs, '試しモードのため送らず（テスト劇場ではない）'); return 'skip'; }
 
   var accounts = cmGet_('customer_accounts?select=email,company,theater,person');
-  var watchers = cmGet_('case_watchers?case_id=eq.' + cmEnc_(caseId) + '&select=email');
-  var realTo = caseMailRecipients_(c, accounts, watchers);
+  var realTo = caseMailRecipients_(c, accounts, cmApprover_());
   var to = realTo;
   var isTrial = settings.mode !== 'live';
   if (isTrial) {
