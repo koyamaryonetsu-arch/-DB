@@ -20,7 +20,7 @@
 //     「REPLICA IDENTITY FULL」が必要（Database Webhook作成時に自動設定される）。
 
 const LINE_PUSH_URL = 'https://api.line.me/v2/bot/message/push';
-import { claudeText } from '../lib/claude.mjs';
+import { claudeText, claudeJson } from '../lib/claude.mjs';
 const APP_URL = 'https://cinema-cases.vercel.app';
 // 新規の修理案件の「AI初期対応診断」（依頼先・注意点・過去の類似）。最新の Sonnet。使えない時は以前の Sonnet
 const AI_MODEL = 'claude-sonnet-5-5';
@@ -131,7 +131,8 @@ async function accumulatePendingUpdate(c, changes) {
 // flush 側（api/flush-notifications.mjs）から使う共有関数をエクスポート
 export {
   detectChanges, buildUpdateMessage, summarizeCaseOneLine,
-  isDuplicateNotification, notifySignature, pushLineMessage, pushLineMessages, sbDeleteReturning
+  isDuplicateNotification, notifySignature, pushLineMessage, pushLineMessages, sbDeleteReturning,
+  summarizeMemoForCustomer   // 試験用
 };
 
 // AI診断は「修理案件」のみ実施（依頼先＝社外パートナー企業の選定が目的）
@@ -572,7 +573,9 @@ async function summarizeMemoForCustomer(delta, currentContent, customerMemo) {
     '悪い例（話し言葉NG）: 「シアター3の空調を点検し、部品交換のお見積りを提出予定です。」',
     '良い例（書き言葉・1項目）: 「シアター3空調を点検。部品交換の見積を提出予定。」',
     '良い例（書き言葉・複数）: 「・シアター3空調の点検を実施\n・部品交換の見積を今週提出予定\n・調査日は要調整」',
-    '共有なしの例: NONE'
+    '',
+    '答えは決まった形（JSON）で返す: share＝客先に共有する新情報があるか（無ければ false・text は空）、text＝客先がそのまま読む本文だけ（日本語）。',
+    '考えた過程・確認・言い訳・英語の文は text に絶対に入れない。'
   ].join('\n');
   const user = [
     '# 既存の「内容」（客先も見る。ここに書かれている事は繰り返さない）',
@@ -585,14 +588,31 @@ async function summarizeMemoForCustomer(delta, currentContent, customerMemo) {
     norm(delta)
   ].join('\n');
   try {
-    let s = (await summaryText(sys, user, 300)).trim();
-    // 「NONE」「(なし)」等の“共有なし”は内容へ書かない（却下理由の混入を防ぐ頑丈判定）
-    if (isNoShareSummary(s)) return '';
+    // 決まった形（JSON）で受け取る。AI の考え途中の文（「Wait — …」「重複を避けると次のように…」）が本文に混ざって客先に見えたため（2026-11-19）
+    const out = await claudeJson({ model: SUMMARY_MODEL, prevModel: SUMMARY_MODEL_PREV, system: sys, content: [{ type: 'text', text: user }], schema: SUMMARY_SCHEMA, maxTokens: 2000, effort: 'low' });
+    if (out.error || !out.data) { console.error('内容要約: 答えを受け取れず書かない', out.error); return ''; }
+    const s = String(out.data.text || '').trim();
+    if (!out.data.share || isNoShareSummary(s)) return '';
+    if (looksLikeAiNote(s)) { console.error('内容要約: AI の作業メモらしい文のため書かない:', s.slice(0, 200)); return ''; }
     return s;
   } catch (e) {
     console.error('内容要約エラー', e);
     return '';
   }
+}
+const SUMMARY_SCHEMA = {
+  type: 'object', additionalProperties: false, required: ['share', 'text'],
+  properties: { share: { type: 'boolean' }, text: { type: 'string' } }
+};
+// 客先に見せる本文に、AI の考え途中・作業メモが混ざっていないか（混ざっていれば書かない）
+export function looksLikeAiNote(s) {
+  s = String(s || '');
+  if (!s.trim()) return false;
+  if (/\b(Wait|output|must|should|Let me|I will|I need|Note|summary|However|Actually)\b/i.test(s)) return true;   // 英語の独り言
+  if (/重複を避け|次のようになります|要約すると|要約文|出力(は|する|形式|ルール|の形)|既存の?「内容」|「顧客メモ」|社内メモ|共有(する|できる)(新)?情報|NONE/.test(s)) return true;   // 指示文へのつぶやき（「出力低下」などの設備の言葉は通す）
+  const latin = (s.match(/[A-Za-z]/g) || []).length;
+  if (latin > 20 && latin / s.replace(/\s/g, '').length > 0.3) return true;   // 英語が多い
+  return false;
 }
 // 要約結果が「客先に共有なし」を意味するか（内容へ書かない判定・頑丈版）。
 // "NONE"を含む／先頭が「なし」系／「該当なし」等 → 共有なし扱い。
