@@ -659,6 +659,7 @@
     const c = DB().caseInfo ? DB().caseInfo(caseId) : null;
     if (!c) { K().say('案件が見つかりません'); return; }
     if (!c.theater) { K().say('先に案件の「劇場名」を入れて保存してください'); return; }
+    if (c.company !== 'TOHOシネマズ') { K().say('作業申請書の自動作成は、今は TOHO シネマズの案件だけです（ほかの会社は追々）'); return; }
     const pp = purpose === 'survey' ? 'survey' : 'work';
     const caseDate = pp === 'survey' ? c.surveyDate : c.workStartDate;
     if (!caseDate) { K().say(`先に案件の「${pp === 'survey' ? '調査日' : '作業開始日'}」を入れて保存してください`); return; }
@@ -1101,6 +1102,7 @@
   // items: [{ caseId, purpose }]。opts.why: 'manual'（手で日付を入れた）/ 'queue'（開いた時）/ 'button'、opts.from: [{ purpose, from }]（前の日付）
   async function decide(caseId, purposes, opts) {
     const c = DB().caseInfo ? DB().caseInfo(caseId) : null; if (!c) return;
+    if (c.company !== 'TOHOシネマズ') { K().say('作業申請書の自動作成は、今は TOHO シネマズの案件だけです（ほかの会社は追々）'); return; }
     const list = (purposes && purposes.length ? purposes : ['survey', 'work']).map((pp) => ({ caseId: String(caseId), purpose: pp }));
     return decisionDialog(list, opts || {});
   }
