@@ -1257,7 +1257,9 @@ function summarizeForCustomer_(delta, currentContent, customerMemo) {
     '悪い例（話し言葉NG）: 「シアター3の空調を点検し、部品交換のお見積りを提出予定です。」',
     '良い例（書き言葉・1項目）: 「シアター3空調を点検。部品交換の見積を提出予定。」',
     '良い例（書き言葉・複数）: 「・シアター3空調の点検を実施\n・部品交換の見積を今週提出予定\n・調査日は要調整」',
-    '共有なしの例: NONE'
+    '',
+    '答えは JSON だけ: {"share": true/false, "text": "客先がそのまま読む本文だけ（日本語）"}。共有する新情報が無ければ share=false・text は空。',
+    '考えた過程・確認・言い訳・英語の文は text に絶対に入れない。'
   ].join('\n');
   var user = [
     '# 既存の「内容」（客先も見る。ここに書かれている事は繰り返さない）',
@@ -1269,9 +1271,24 @@ function summarizeForCustomer_(delta, currentContent, customerMemo) {
     '# 社内メモ（この中から客先に共有してよい部分だけ要約）',
     delta
   ].join('\n');
-  var s = (anthropicText_(apiKey, sys, user, 300) || '').trim();
-  if (isNoShareSummary_(s)) return '';
+  // 決まった形（JSON）で受け取る。AI の考え途中の文（「Wait — …」「重複を避けると次のように…」）が客先の「内容」に混ざったため（2026-11-19）
+  var j = safeJson_(anthropicText_(apiKey, sys, user, 300, { schema: CM_SUMMARY_SCHEMA }) || '');
+  if (!j) { Logger.log('内容の要約: 答えを読めないため書かない'); return ''; }
+  var s = String(j.text || '').trim();
+  if (!j.share || isNoShareSummary_(s)) return '';
+  if (looksLikeAiNote_(s)) { Logger.log('内容の要約: AI の作業メモらしい文のため書かない: ' + s.slice(0, 200)); return ''; }
   return s;
+}
+var CM_SUMMARY_SCHEMA = { type: 'object', additionalProperties: false, required: ['share', 'text'], properties: { share: { type: 'boolean' }, text: { type: 'string' } } };
+// 客先に見せる本文に、AI の考え途中・作業メモが混ざっていないか（混ざっていれば書かない。api/case-created.mjs と同じ決まり）
+function looksLikeAiNote_(s) {
+  s = String(s || '');
+  if (!s.trim()) return false;
+  if (/\b(Wait|output|must|should|Let me|I will|I need|Note|summary|However|Actually)\b/i.test(s)) return true;
+  if (/重複を避け|次のようになります|要約すると|要約文|出力(は|する|形式|ルール|の形)|既存の?「内容」|「顧客メモ」|社内メモ|共有(する|できる)(新)?情報|NONE/.test(s)) return true;
+  var latin = (s.match(/[A-Za-z]/g) || []).length;
+  if (latin > 20 && latin / s.replace(/\s/g, '').length > 0.3) return true;
+  return false;
 }
 // 要約結果が「客先に共有なし」を意味するか（内容へ書かない判定・頑丈版）。
 // "NONE"を含む／先頭が「なし」系／「該当なし」等 → 共有なし扱い。
@@ -1511,6 +1528,7 @@ function anthropicText_(apiKey, system, user, maxTokens, opts) {
     // 最新のモデルは「考える分」も上限(max_tokens)に数えるので余裕を持たせる。読み取り・要約・判断とも単純なので effort は low
     body.max_tokens = Math.max(body.max_tokens, opts.model ? 4000 : 3000);
     body.output_config = { effort: opts.effort || 'low' };
+    if (opts.schema) body.output_config.format = { type: 'json_schema', schema: opts.schema };   // 決まった形（JSON）で答えてもらう
   }
   if (supportsFallback_(useModel)) {
     // 上位モデル: 安全機能で応答を断られた時は、自動で別のモデルに切り替えて答えさせる
