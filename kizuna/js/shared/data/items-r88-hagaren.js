@@ -7,7 +7,7 @@
 //     （R88_TAG_HAGAREN。強さ・手に入れ方は かえない）
 //   ・入れない 品: 本物の 銃（ホークアイの 銃 など）
 //   作品の 字は 使える 字に 直した（錬 → れん・鎧 → よろい・矛 → ほこ・盾 → たて・眼帯 → がんたい・陣 → じん。設計書の「実装メモ（G14班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=dd9bfc47ef83';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=06a27cc70d31';
 
 const H = { work: 'hagaren' };
 

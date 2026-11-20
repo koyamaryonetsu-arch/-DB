@@ -2,25 +2,25 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=dd9bfc47ef83';
-import { tileCanvas } from './tiles.js?v=dd9bfc47ef83';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=dd9bfc47ef83';
-import { paintStorm } from './tiles-ch4.js?v=dd9bfc47ef83';
-import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=dd9bfc47ef83';
+import { T } from '../../shared/tiles.js?v=06a27cc70d31';
+import { tileCanvas } from './tiles.js?v=06a27cc70d31';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=06a27cc70d31';
+import { paintStorm } from './tiles-ch4.js?v=06a27cc70d31';
+import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=06a27cc70d31';
 // 第4章 Step 7: 砂の底の神殿の たてた もの（3色の レバー・水の 柱の ろう・砂の海賊の ほこら）
-import { TEMPLE_PROPS } from './tiles-temple.js?v=dd9bfc47ef83';
-import { LAB_PROPS } from './tiles-lab.js?v=dd9bfc47ef83';
-import { TOWER_PROPS } from './tiles-tower.js?v=dd9bfc47ef83';
-import { KUMOI_PROPS } from './tiles-kumoi.js?v=dd9bfc47ef83';
-import { MEMORY_PROPS } from './tiles-memory.js?v=dd9bfc47ef83';
-import { EARTH_PROPS } from './tiles-earth.js?v=dd9bfc47ef83';
-import { CASTLE_PROPS } from './tiles-castle.js?v=dd9bfc47ef83';
-import { TOP_PROPS } from './tiles-top.js?v=dd9bfc47ef83';
-import { CH6_PROPS } from './tiles-ch6.js?v=dd9bfc47ef83';
+import { TEMPLE_PROPS } from './tiles-temple.js?v=06a27cc70d31';
+import { LAB_PROPS } from './tiles-lab.js?v=06a27cc70d31';
+import { TOWER_PROPS } from './tiles-tower.js?v=06a27cc70d31';
+import { KUMOI_PROPS } from './tiles-kumoi.js?v=06a27cc70d31';
+import { MEMORY_PROPS } from './tiles-memory.js?v=06a27cc70d31';
+import { EARTH_PROPS } from './tiles-earth.js?v=06a27cc70d31';
+import { CASTLE_PROPS } from './tiles-castle.js?v=06a27cc70d31';
+import { TOP_PROPS } from './tiles-top.js?v=06a27cc70d31';
+import { CH6_PROPS } from './tiles-ch6.js?v=06a27cc70d31';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
-} from './tiles-canal.js?v=dd9bfc47ef83';
+} from './tiles-canal.js?v=06a27cc70d31';
 
 const TAU = Math.PI * 2;
 

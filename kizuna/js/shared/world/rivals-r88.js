@@ -4,21 +4,21 @@
 //   勝つと 戦った 家族 ぜんいんが その ライバルの 品を 1つずつ（もう 持って いる 人には かわりに 少しの お金）。勝った 記録は 1人ずつ（char.rivals）
 //   負けても お金は へらない（HP・MPも もどる）。何回でも
 // ・試練の番人が 回廊の 案内も する（はじめて 話した ときに 1回。world/job-trials.js の 番人の 話の あと）
-import { RIVAL_HOOKS } from '../data/story-rivals-r88.js?v=dd9bfc47ef83';
-import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=dd9bfc47ef83';
-import { RIVAL_BY_ID, DOOR_NEED, RIVAL_GOLD_PER_LV, rivalOpen, markRivalWin, rivalEnc, rivalMembers } from '../data/rivals-r88.js?v=dd9bfc47ef83';
-import { rivalToday, WEEKDAY_NAMES } from '../data/rivals-r88.js?v=dd9bfc47ef83'; // G16班: 曜日で かわる ジムリーダー
+import { RIVAL_HOOKS } from '../data/story-rivals-r88.js?v=06a27cc70d31';
+import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=06a27cc70d31';
+import { RIVAL_BY_ID, DOOR_NEED, RIVAL_GOLD_PER_LV, rivalOpen, markRivalWin, rivalEnc, rivalMembers } from '../data/rivals-r88.js?v=06a27cc70d31';
+import { rivalToday, WEEKDAY_NAMES } from '../data/rivals-r88.js?v=06a27cc70d31'; // G16班: 曜日で かわる ジムリーダー
 // G11班: とびらの 名前は shared/rivals-r88.js の doorName（workName は 使わなく なった）
-import { ITEMS } from '../data/items.js?v=dd9bfc47ef83';
-import { addItem } from '../stats.js?v=dd9bfc47ef83';
-import { ownedIds } from '../gear-r88.js?v=dd9bfc47ef83';
-import { workOwned, doorLeft, refreshDoorFlags, rivalPaper, rivalButtons, rewardIds, HALL_NAME, doorName, doorGoods, rivalNeedLack, rivalNeedText } from '../rivals-r88.js?v=dd9bfc47ef83';
-import { HALL_ID, roomId, ROOM_START, doorFront } from '../maps/rivals-r88.js?v=dd9bfc47ef83';
-import { startFixedBattle, battleSessions } from './battles.js?v=dd9bfc47ef83';
-import { partyOf } from './party.js?v=dd9bfc47ef83';
-import { setupRivalPhantom } from '../battle-rival-r88.js?v=dd9bfc47ef83';
+import { ITEMS } from '../data/items.js?v=06a27cc70d31';
+import { addItem } from '../stats.js?v=06a27cc70d31';
+import { ownedIds } from '../gear-r88.js?v=06a27cc70d31';
+import { workOwned, doorLeft, refreshDoorFlags, rivalPaper, rivalButtons, rewardIds, HALL_NAME, doorName, doorGoods, rivalNeedLack, rivalNeedText } from '../rivals-r88.js?v=06a27cc70d31';
+import { HALL_ID, roomId, ROOM_START, doorFront } from '../maps/rivals-r88.js?v=06a27cc70d31';
+import { startFixedBattle, battleSessions } from './battles.js?v=06a27cc70d31';
+import { partyOf } from './party.js?v=06a27cc70d31';
+import { setupRivalPhantom } from '../battle-rival-r88.js?v=06a27cc70d31';
 // 番人の 話（TRIAL_HOOKS.keeper）を 先に 入れて おく
-import './job-trials.js?v=dd9bfc47ef83';
+import './job-trials.js?v=06a27cc70d31';
 
 const note = (text) => ['say', null, text];
 const keeper = (text) => ['say', TRIAL_KEEPER, text];

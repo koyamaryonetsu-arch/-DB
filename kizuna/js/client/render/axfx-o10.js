@@ -6,10 +6,10 @@
 // ・分けた ファイル: axfx-o10-sky.js（気象予報士・お天気キャスター）・axfx-o10-storm.js（天候をあやつる者）。
 //   つぶの かきかたは axfx-o10-fine.js、小さな どうぐは axfx-o10-kit.js
 // ・どの え も さいごに balance（段の つぶの かず: 敵1体でも 下限 いじょう、敵5体でも 上限 いか）
-import { AX_O10_SKY } from './axfx-o10-sky.js?v=dd9bfc47ef83';
-import { AX_O10_STORM } from './axfx-o10-storm.js?v=dd9bfc47ef83';
-import { AX_O10_FINE as FINE } from './axfx-o10-fine.js?v=dd9bfc47ef83';
-import { withBalance } from './axfx-o10-kit.js?v=dd9bfc47ef83';
+import { AX_O10_SKY } from './axfx-o10-sky.js?v=06a27cc70d31';
+import { AX_O10_STORM } from './axfx-o10-storm.js?v=06a27cc70d31';
+import { AX_O10_FINE as FINE } from './axfx-o10-fine.js?v=06a27cc70d31';
+import { withBalance } from './axfx-o10-kit.js?v=06a27cc70d31';
 
 export const AX_O10 = withBalance({ ...AX_O10_SKY, ...AX_O10_STORM });
 

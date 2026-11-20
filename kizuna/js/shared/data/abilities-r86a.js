@@ -15,7 +15,7 @@
 //  ・火竜をよぶ・竜神（type 'r85bRyu'・set 'kenshi'）… 烈火の 火竜から 4ひき（さいは・なだれ・まどか・れっしん）。メニューは 烈火と おなじ
 //  ・玉がえ（type 'tamagae'）… YAIBA と おなじ 画面。竜神の剣士は 雷・水・氷・風・竜神の 5つ（炎は いつも 持って いるので 入れない）
 
-import { RYU_SET } from './abilities-r85b.js?v=dd9bfc47ef83';
+import { RYU_SET } from './abilities-r85b.js?v=06a27cc70d31';
 
 // 竜神の剣士が よべる 火竜（攻めの 2ひき ＋ 守りの 1ぴき ＋ 生き返りの 1ぴき）
 RYU_SET.kenshi = ['saiha', 'nadare', 'madoka', 'resshin'];

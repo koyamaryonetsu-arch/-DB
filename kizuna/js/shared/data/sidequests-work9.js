@@ -16,10 +16,10 @@
 // 39. 大地の下の、かれたわき水（半ようの 流れ。鼻が きく・風のきず・かばう心 → すいしょうのカニと 戦う）
 // 40. ヒカリゴケの里の、キノコどろぼう（旅の魔道士の 流れ。ライティング・待ちぶせ → どうくつコウモリと 戦う → 分けあう）
 // 41. 大地の下の、ゆうれいの声（ふりょうの 流れ。れい力を さぐる・正体を 見ぬく・れい丸で ひもを うつ。戦いは ない）
-import { S, N, proOf, need } from './fq-common.js?v=dd9bfc47ef83';
-import { rewardSteps } from './sidequests-work2.js?v=dd9bfc47ef83';
-import { C9B_KING_NAME } from '../maps/c9b-flags.js?v=dd9bfc47ef83';
-import { WQ9, WQ9_OPEN } from '../maps/work-quests9.js?v=dd9bfc47ef83';
+import { S, N, proOf, need } from './fq-common.js?v=06a27cc70d31';
+import { rewardSteps } from './sidequests-work2.js?v=06a27cc70d31';
+import { C9B_KING_NAME } from '../maps/c9b-flags.js?v=06a27cc70d31';
+import { WQ9, WQ9_OPEN } from '../maps/work-quests9.js?v=06a27cc70d31';
 
 const accept = (ask, yes, no, flag) => [['choice', ask, ['引き受ける', 'またこんど'], [[...yes, ['flag', flag], ['sync']], no]]];
 // 戦い（パーティー全員で 見る。WORK9_STORY_SCRIPTS）

@@ -6,7 +6,7 @@
 //     作品の 品として 数える（R88_TAG_CONAN。強さ・手に入れ方は かえない）
 //   ・入れない 品: 本物の 銃（設計書 3-6）
 //   作品の 字は 使える 字に 直した（蝶 → ちょう／腕 → うで／麻酔 → ますい／携 → けい／偵 → てい／帽 → ぼう など）
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=dd9bfc47ef83';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=06a27cc70d31';
 
 const C = { work: 'conan' };
 const KS = { work: 'conan', set: 'conan_kick' };

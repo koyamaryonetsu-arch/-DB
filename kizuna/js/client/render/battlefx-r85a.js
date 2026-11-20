@@ -16,7 +16,7 @@
 // みかたに つかう えんしゅつ（PARTY_ANIMS_R85A。がめんの 下の まん中に 出す。battlefx-jobs2.js の PARTY_ANIMS に まぜる）
 //  r85a_chant（上）・r85a_food 定食（湯気と 白い ごはんの つぶ・ハートの ような 光）・r85a_wing レイ・ウイング（風の から）・r85a_stone ぞうふくの石（4つの 赤い 石の 光）
 // ・どれも 2.4びょう いないで おわる。あたる じかんは R85A_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=dd9bfc47ef83';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=06a27cc70d31';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 

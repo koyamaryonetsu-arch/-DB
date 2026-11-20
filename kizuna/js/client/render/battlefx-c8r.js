@@ -5,7 +5,7 @@
 // c8s_promise（千年の約束）は 4つの 紋章（とくべつな つぶ c8rcrest）が まわって 1つの 光の 柱に なる。
 // 大玉・最終形態・くらい心の あらし・星の なみだ・時の くずれ・千年の約束・大風・影の 大剣は がめんの まん中に 大きく（client/battle-c8r.js の C8R_SCREEN_ANIMS）
 // 第3部 第1章 第1幕（battlefx-c9a.js）
-import { playC9aFx, C9A_FINE } from './battlefx-c9a.js?v=dd9bfc47ef83';
+import { playC9aFx, C9A_FINE } from './battlefx-c9a.js?v=06a27cc70d31';
 
 const SAND = ['#f0d070', '#fff4c0', '#c89a4a', '#ffffff'];
 const SOUL = ['#b06af0', '#e0c0ff', '#6a2aa8', '#ffffff'];
