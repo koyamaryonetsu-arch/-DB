@@ -255,7 +255,14 @@ export function c9aPresent(scene, ev, fx, anim, actor) {
   if (ev.c9tSuck && !ev.c9tSuck.guard) { scene.shake?.(700, 8); warn(`星の子の光が、すわれた…！（${spicaStars(ev.c9tSuck.light, scene.c9spica?.max || 3)}）`); }
   if (ev.c9tBreak) good(ev.c9tBreak.stop ? 'すいこみ口をこわした！すいこみが止まった！' : 'すいこみ口をこわした！', 'sparkle');
   if (ev.c9tFix) warn('すいこみ口が、なおってしまった…！');
-  if (ev.c9tDown) { scene.shake?.(900, 10); good('3人組は、空のかなたへ、ふっとんでいった！', 'sparkle'); }
+  if (ev.c9tDown) {
+    // メカが ばくはつして 3人組が 空の かなたへ（たのしい えんしゅつ。render/battlefx-c9a.js の c9t_boom）
+    const m = scene.c?.get?.(ev.c9tDown.id);
+    const pt = m && scene.center?.(m);
+    if (pt) scene.fx?.play?.('c9t_boom', [pt]);
+    scene.shake?.(900, 10);
+    good('3人組は、空のかなたへ、ふっとんでいった！', 'sparkle');
+  }
   // ホシモリ
   if (ev.c9hWarn) warn(`！やみのいぶき…！ねらいは${ev.c9hWarn.ids.map(nm).join('と')}。身を守ろう！`);
   if (ev.c9hBreath) {
