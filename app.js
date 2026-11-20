@@ -2460,11 +2460,16 @@
   ];
   let masterTab = (() => { try { return localStorage.getItem('masterTabV1') || 'staff'; } catch (e) { return 'staff'; } })();
   // TOHO の客先担当者の候補: 案件の「TOHOシネマズ担当者」と客先アカウントの担当者名（敬称を除く・同じ人は1つ）
+  // 人の名前でない言葉（担当者の欄に書かれていることがある）は候補に出さない（2026-11-20）
+  const NOT_PERSON_RE = /劇場|テスト|支配人|本社|本部|担当|店長|スタッフ|事務|未定|不明|なし|無し|全員|各位|御中|管理|センター|会社|株式|シネマ|TOHO|toho/;
+  // 字の違い（髙／高・﨑／崎 など）は同じ人として数える
+  const ITAIJI = { '髙': '高', '﨑': '崎', '邊': '辺', '邉': '辺', '濵': '浜', '德': '徳', '櫻': '桜', '澤': '沢', '嶋': '島', '廣': '広', '冨': '富', '齋': '斎', '齊': '斉' };
+  const personBase = (s) => String(s || '').replace(/[髙﨑邊邉濵德櫻澤嶋廣冨齋齊]/g, (c) => ITAIJI[c] || c);
   function tohoPersonCands() {
     const m = new Map();
     const add = (name, email) => {
-      const k = cmPersonKey(name); if (!k || k.length < 2 || /@/.test(k)) return;
-      const hit = [...m.keys()].find((x) => cmPersonMatch(x, k));
+      const k = cmPersonKey(name); if (!k || k.length < 2 || /@/.test(k) || NOT_PERSON_RE.test(k)) return;
+      const hit = [...m.keys()].find((x) => cmPersonMatch(personBase(x), personBase(k)));
       const key = hit || k;
       const cur = m.get(key) || { name: k, email: '', n: 0 };
       if (k.length > cur.name.length) cur.name = k;
