@@ -16,21 +16,21 @@
 // ・オートの 仲間（ふつう）は、大砂流・ギアプレスが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（AUTO_GUARD。氷・雷は 使い分けない）。
 //   シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は ch6Plan
 //   （b.c6NoIce・b.c6NoBolt・b.c6NoGuard … 知っている 人の しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=ed660e1d3991';
-import { ABILITIES } from './data/abilities.js?v=ed660e1d3991';
-import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=ed660e1d3991';
-import { BUFF_ACTS } from './buff-acts.js?v=ed660e1d3991';
+import { MONSTERS } from './data/monsters.js?v=02b3721e7c0a';
+import { ABILITIES } from './data/abilities.js?v=02b3721e7c0a';
+import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=02b3721e7c0a';
+import { BUFF_ACTS } from './buff-acts.js?v=02b3721e7c0a';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=ed660e1d3991';
-import { canUse } from './ai.js?v=ed660e1d3991';
+import { atbRate } from './battle.js?v=02b3721e7c0a';
+import { canUse } from './ai.js?v=02b3721e7c0a';
 // 第2部 第6章 Step 3・4: 星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・星座の 魔物（昼と 夜）。battle-road.js
-import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=ed660e1d3991';
+import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=02b3721e7c0a';
 // 第2部 第6章 Step 5: カリヨン（時のかね。知っている 人・かねの 前の 守り）。battle-tokei.js
-import { tokeiKnow, bellBefore } from './battle-tokei.js?v=ed660e1d3991';
+import { tokeiKnow, bellBefore } from './battle-tokei.js?v=02b3721e7c0a';
 // 第2部 第6章 Step 6: ゼンマイ（家来の しかけを じゅんばんに・2だんめの 針と 歯車）。battle-tokei6.js
-import { setupTokei6, tokei6TurnStart, tokei6TurnEnd, tokei6Effect, tokei6Know, tokei6Pub, collapseBefore } from './battle-tokei6.js?v=ed660e1d3991';
+import { setupTokei6, tokei6TurnStart, tokei6TurnEnd, tokei6Effect, tokei6Know, tokei6Pub, collapseBefore } from './battle-tokei6.js?v=02b3721e7c0a';
 // 第2部 第7章 第1幕: ウツボきょうだい（2ひきで 1組・大うずしお）・オクタリア（声うばい・声の貝）。battle-c7.js
-import { setupC7, c7TurnStart, c7Effect, c7Plan, c7Pub, c7Damage } from './battle-c7.js?v=ed660e1d3991';
+import { setupC7, c7TurnStart, c7Effect, c7Plan, c7Pub, c7Damage } from './battle-c7.js?v=02b3721e7c0a';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';

@@ -8,7 +8,7 @@
 //           むかし きたえた 店の 品（+1〜）は セーブが こわれない ように 今までどおり 作っておく（rankLimit）
 //   base: もとの 装備の ID / plus: きたえた 回数。みため・エフェクト・読みがなは もとの 装備と おなじ
 
-import { isShopGear } from './items-rare.js?v=ed660e1d3991';
+import { isShopGear } from './items-rare.js?v=02b3721e7c0a';
 
 export const ITEMS_FORGE = {
   // ───── 素材 ─────

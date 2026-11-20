@@ -4,7 +4,7 @@
 // 学校の 職業（jobs.js の SCHOOL_JOBS）に 今 ついている 人 1人に つき、技の 力が classmates（0.1）ずつ 上がる（3人まで）。
 // ダメージ・回復に かかる。補助の 上がりかたは 上限の まま（battle.js の applyBuff は 力が 1倍を こえても かわらない。時間だけ 少し のびる）
 // battle.js の 'ability' が powMult に かける
-import { JOBS, SCHOOL_JOBS } from './data/jobs.js?v=ed660e1d3991';
+import { JOBS, SCHOOL_JOBS } from './data/jobs.js?v=02b3721e7c0a';
 
 export const CLASSMATES_MAX = 3;
 

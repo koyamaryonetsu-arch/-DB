@@ -5,7 +5,7 @@
 //   ・緑のメガネ・父のメガネ … マヒを 防ぐ（作品の「石に する 力」は ゲームに ないので マヒに おきかえ。4-7 の とおり）
 //   ・ゲルマニウムリング … 混乱を 防ぐ（テレパシーを 止める 指輪）
 //   名前の 直し（使える 字・かぶり）は 設計書の「実装メモ（G17班）」
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=ed660e1d3991';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=02b3721e7c0a';
 
 const S = { work: 'saiki' };
 

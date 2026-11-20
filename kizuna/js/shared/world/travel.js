@@ -13,18 +13,18 @@
 // ・パーティーの リーダーが よぶと、なかまに「いっしょに 乗る？」と きく（askRiders）。乗る なかまは リーダーの そばへ、
 //   「ついていく」に なって いっしょに とび、いっしょに おりる・となりの 地方へ いく。乗らない なかまは 地上に のこる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=ed660e1d3991';
-import { PLACES } from '../maps/overworld.js?v=ed660e1d3991';
-import { SEA_PLACES } from '../maps/ch2.js?v=ed660e1d3991';
-import { ABILITIES } from '../data/abilities.js?v=ed660e1d3991';
-import { ITEMS } from '../data/items.js?v=ed660e1d3991';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=ed660e1d3991';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=ed660e1d3991';
-import { runScript } from './scripts.js?v=ed660e1d3991';
-import { partyOf } from './party.js?v=ed660e1d3991';
-import { warpDest } from './services.js?v=ed660e1d3991';
-import { advanceClock, clockOwner } from './clock.js?v=ed660e1d3991';
-import { PAST_PLACES, pastWarpTowns } from '../data/past-places.js?v=ed660e1d3991';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=02b3721e7c0a';
+import { PLACES } from '../maps/overworld.js?v=02b3721e7c0a';
+import { SEA_PLACES } from '../maps/ch2.js?v=02b3721e7c0a';
+import { ABILITIES } from '../data/abilities.js?v=02b3721e7c0a';
+import { ITEMS } from '../data/items.js?v=02b3721e7c0a';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=02b3721e7c0a';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=02b3721e7c0a';
+import { runScript } from './scripts.js?v=02b3721e7c0a';
+import { partyOf } from './party.js?v=02b3721e7c0a';
+import { warpDest } from './services.js?v=02b3721e7c0a';
+import { advanceClock, clockOwner } from './clock.js?v=02b3721e7c0a';
+import { PAST_PLACES, pastWarpTowns } from '../data/past-places.js?v=02b3721e7c0a';
 
 const FOLLOW_RANGE = 12;
 

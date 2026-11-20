@@ -14,15 +14,15 @@
 //                             （2だん。battle-temple.js の 大波と おなじ。身を 守ると 半分）。前ぶれで 水かさは 0 に もどる。
 //                             水の衣を 雷で はじくと 水かさが tide.down 下がる
 // ・オートの 仲間（ふつう）は 何も かわらない。シミュレーター（tools/sim-phantom.mjs）の 知っている 人（b.knowsPhantom）は phantomPlan
-import { MONSTERS } from './data/monsters.js?v=ed660e1d3991';
-import { ABILITIES } from './data/abilities.js?v=ed660e1d3991';
-import { PHANTOM_STORM, PHANTOM_IGNIA, PHANTOM_MORGANA, PHANTOM_SOLDIER, PHANTOM_FLAME } from './data/monsters-phantom.js?v=ed660e1d3991';
+import { MONSTERS } from './data/monsters.js?v=02b3721e7c0a';
+import { ABILITIES } from './data/abilities.js?v=02b3721e7c0a';
+import { PHANTOM_STORM, PHANTOM_IGNIA, PHANTOM_MORGANA, PHANTOM_SOLDIER, PHANTOM_FLAME } from './data/monsters-phantom.js?v=02b3721e7c0a';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=ed660e1d3991';
-import { templeEffect } from './battle-temple.js?v=ed660e1d3991';
-import { mirrorPlan } from './battle-ch4.js?v=ed660e1d3991';
-import { bestHit } from './battle-earth.js?v=ed660e1d3991';
-import { actKind, dodgeCmd } from './battle-ch5.js?v=ed660e1d3991';
+import { atbRate, pub } from './battle.js?v=02b3721e7c0a';
+import { templeEffect } from './battle-temple.js?v=02b3721e7c0a';
+import { mirrorPlan } from './battle-ch4.js?v=02b3721e7c0a';
+import { bestHit } from './battle-earth.js?v=02b3721e7c0a';
+import { actKind, dodgeCmd } from './battle-ch5.js?v=02b3721e7c0a';
 
 export { PHANTOM_STORM, PHANTOM_IGNIA, PHANTOM_MORGANA, PHANTOM_SOLDIER, PHANTOM_FLAME };
 export const WALL = 'm_ps_wall';

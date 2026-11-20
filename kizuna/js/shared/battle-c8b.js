@@ -21,16 +21,16 @@
 //   小おに … 相談の 間は いちばん 大きい 1回の 攻撃を 1ぴきに 当てる（b.c8bNoPlot … しない）・パニックの 小おにを ねらう・2ひきの HP を
 //     そろえて へらす（HP の 多い ほうを ねらう。b.c8bNoOrder … しない）・大がったいの 前に 身を 守る（b.c6NoGuard）
 //   ハデロス … けいやくの 間は 炎を 当てる（b.c8bNoBurn）・ふん火の 前ぶれに 氷を 当てる（b.c8bNoChill）・大ふん火の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=ed660e1d3991';
-import { ABILITIES } from './data/abilities.js?v=ed660e1d3991';
-import { C8_PAIN, C8_PANIC, C8_HADES, HADES_BLUE, HADES_RED, RED_ACTIONS } from './data/monsters-c8b.js?v=ed660e1d3991';
-import { BUFF_ACTS } from './buff-acts.js?v=ed660e1d3991';
+import { MONSTERS } from './data/monsters.js?v=02b3721e7c0a';
+import { ABILITIES } from './data/abilities.js?v=02b3721e7c0a';
+import { C8_PAIN, C8_PANIC, C8_HADES, HADES_BLUE, HADES_RED, RED_ACTIONS } from './data/monsters-c8b.js?v=02b3721e7c0a';
+import { BUFF_ACTS } from './buff-acts.js?v=02b3721e7c0a';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=ed660e1d3991';
-import { canUse } from './ai.js?v=ed660e1d3991';
-import { AUTO_GUARD } from './battle-ch6.js?v=ed660e1d3991';
+import { atbRate } from './battle.js?v=02b3721e7c0a';
+import { canUse } from './ai.js?v=02b3721e7c0a';
+import { AUTO_GUARD } from './battle-ch6.js?v=02b3721e7c0a';
 // 第2部 第8章 第3幕: マジカメック（でっかくなあれ）・初代大魔王クッパード（ギガクッパード・橋のオノ）。battle-c8c.js
-import { setupC8c, c8cTurnStart, c8cEffect, c8cPlan, c8cPub, c8cDamage, c8cKill } from './battle-c8c.js?v=ed660e1d3991';
+import { setupC8c, c8cTurnStart, c8cEffect, c8cPlan, c8cPub, c8cDamage, c8cKill } from './battle-c8c.js?v=02b3721e7c0a';
 
 export { C8_PAIN, C8_PANIC, C8_HADES };
 export const FUSE = 'm8i_fuse';
