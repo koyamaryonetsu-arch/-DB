@@ -10,10 +10,10 @@
 //   orb: { el, v? }  … アクセの 玉。武器の ふつうの 攻撃に その 属性（武器に 属性が あれば そちらが 先。v は 強さ。ない ときは 5）
 //   set: '組の id'   … そろい（data/gear-sets.js）
 // ここは ITEMS と 組の データだけを 見る（data/gear-fx.js が よぶので、gear-fx.js は import しない）
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=e280d20a9f0b';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=e280d20a9f0b';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=d61110f93b38';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=d61110f93b38';
 // G9班: 生まれ変わりの 条件の ライバル（need.rivals）
-import { RIVAL_BY_ID } from './data/rivals-r88.js?v=e280d20a9f0b';
+import { RIVAL_BY_ID } from './data/rivals-r88.js?v=d61110f93b38';
 // G9班: 天候の 職業（気象予報士〜天候の神）。天候棒の「使う」が 今の 天気で かわる（docs/plan-r88-anime-gear.md の 4-12）
 export const WEATHER_JOBS = new Set(['kishou', 'otenki_caster', 'tenkou_tsukai', 'weather_god']);
 

@@ -8,28 +8,28 @@
 //   → 時のいせき（今）・時の神殿（千年前）の 7階（c6_ruin）→ 番人の 間で ゼンマイの 番兵 ギアドン（geardon。c6_gear）
 //   → 泉の里の 時が 動き出す・勇者の像が 今に もどる → 「第6章の続きはアップデートで！」（c6_flow。ミナモは はなれる）
 // 魔物・きまった 戦い（sand_clock・geardon）・品・ミナモの 強さは B（戦い・品）が 作る（plan-ch6.md の 9）
-import { MAPS } from '../maps/index.js?v=e280d20a9f0b';
-import { PLACES } from '../maps/overworld.js?v=e280d20a9f0b';
+import { MAPS } from '../maps/index.js?v=d61110f93b38';
+import { PLACES } from '../maps/overworld.js?v=d61110f93b38';
 import {
   C6, HOSHIYO_FLAG, DEW_FLAG, PLANT_FLAG, END_A6, CHIEF_FLAG, PAST_ID, PAST_POS, SPRING, HAMLET,
-} from '../maps/past.js?v=e280d20a9f0b';
-import { SHRINE_POS, SF, SAND_FLAG, shrineArrive, shrineMapId } from '../maps/toki-shrine.js?v=e280d20a9f0b';
+} from '../maps/past.js?v=d61110f93b38';
+import { SHRINE_POS, SF, SAND_FLAG, shrineArrive, shrineMapId } from '../maps/toki-shrine.js?v=d61110f93b38';
 import {
   RUIN_POS, RUIN_OBJS, RF, LEVER_FLAG, OPEN7, BOSS_SEEN, objIndex, objOn, ruinMapId, RUIN_BOSS_ID, RUIN_FLOORS, RUIN_REST,
-} from '../maps/toki-ruin.js?v=e280d20a9f0b';
-import { flipSand, shiftSteps } from '../world/time-glass.js?v=e280d20a9f0b';
-import { isNightFor, advanceClock } from '../world/clock.js?v=e280d20a9f0b';
-import { unstickAll } from '../world/hazards.js?v=e280d20a9f0b';
-import { partyOf } from '../world/party.js?v=e280d20a9f0b';
-import { TOP_OBJ } from './story-castle-top.js?v=e280d20a9f0b';
+} from '../maps/toki-ruin.js?v=d61110f93b38';
+import { flipSand, shiftSteps } from '../world/time-glass.js?v=d61110f93b38';
+import { isNightFor, advanceClock } from '../world/clock.js?v=d61110f93b38';
+import { unstickAll } from '../world/hazards.js?v=d61110f93b38';
+import { partyOf } from '../world/party.js?v=d61110f93b38';
+import { TOP_OBJ } from './story-castle-top.js?v=d61110f93b38';
 // 第6章 Step 3・4（story-ch6b.js）: 星読みの社・星めぐりの古道・ペンデュラ・今の カナタ（ここで まぜる）
 import {
   CH6B_STEPS, C6B_OBJ, CH6B_OBJECTIVE_TARGETS, CH6B_OBJECTIVE_TALK, CH6B_PROGRESS, applyCh6b, elderCh6b, ch6StaleObjective,
-} from './story-ch6b.js?v=e280d20a9f0b';
+} from './story-ch6b.js?v=d61110f93b38';
 // 第6章 Step 5（story-ch6c.js）: 北の山の 止まった時計塔・リオン・カリヨン（ここで まぜる）
-import { CH6C_STEPS, CH6C_OBJECTIVE_TARGETS, CH6C_OBJECTIVE_TALK, CH6C_PROGRESS, applyCh6c } from './story-ch6c.js?v=e280d20a9f0b';
+import { CH6C_STEPS, CH6C_OBJECTIVE_TARGETS, CH6C_OBJECTIVE_TALK, CH6C_PROGRESS, applyCh6c } from './story-ch6c.js?v=d61110f93b38';
 // 第6章 Step 6（story-ch6d.js）: 時計塔の 6〜10階・ゼンマイ・第6章クリア（ここで まぜる）
-import { CH6D_STEPS, CH6D_OBJECTIVE_TARGETS, CH6D_OBJECTIVE_TALK, CH6D_PROGRESS, applyCh6d } from './story-ch6d.js?v=e280d20a9f0b';
+import { CH6D_STEPS, CH6D_OBJECTIVE_TARGETS, CH6D_OBJECTIVE_TALK, CH6D_PROGRESS, applyCh6d } from './story-ch6d.js?v=d61110f93b38';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

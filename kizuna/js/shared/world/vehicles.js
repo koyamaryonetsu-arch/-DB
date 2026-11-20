@@ -1,5 +1,5 @@
 // 乗り物屋と「乗り物」の メニュー（サーバー。きまりは data/vehicles.js）
-import { VEHICLE_SHOP, vehicleShelf, ownedVehicles, chosenVehicle, buyVehicle, chooseVehicle, cleanVehicles } from '../data/vehicles.js?v=e280d20a9f0b';
+import { VEHICLE_SHOP, vehicleShelf, ownedVehicles, chosenVehicle, buyVehicle, chooseVehicle, cleanVehicles } from '../data/vehicles.js?v=d61110f93b38';
 
 // 店に 入った とき（ui に わたす）
 export function vehicleShopInfo(world, s) {

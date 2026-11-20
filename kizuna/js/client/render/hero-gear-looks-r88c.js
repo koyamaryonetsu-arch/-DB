@@ -5,9 +5,9 @@
 //   天候棒の 先の かざりは 品の tip: 'none'（なし）・'cloud'（小さな 雲）・'bubble'（丸い あわ）・'zeus'（顔の ある 雷雲）
 //
 // ざひょう: F … a: 手から つえの 先へ、b: よこ。o: からだの そとがわの b の むき（hero-gear-looks.js と 同じ）
-import { mat, ramp, TH } from './hero-raster.js?v=e280d20a9f0b';
-import { metal, cloth, gem, glow } from './hero-outfit.js?v=e280d20a9f0b';
-import { ornate, sparkleList } from './hero-gear-looks.js?v=e280d20a9f0b';
+import { mat, ramp, TH } from './hero-raster.js?v=d61110f93b38';
+import { metal, cloth, gem, glow } from './hero-outfit.js?v=d61110f93b38';
+import { ornate, sparkleList } from './hero-gear-looks.js?v=d61110f93b38';
 
 // この ファイルで かく つえの 形
 export const R88C_STAFF = new Set(['clima', 'moonstick', 'heartrod', 'elder', 'kouma', 'frieren']);

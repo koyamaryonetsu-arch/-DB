@@ -1,11 +1,11 @@
 // 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら（render/chars.js の paintSpecial の さいごで よぶ。{ p, oc } を かえす）
-import { Painter } from './pixel.js?v=e280d20a9f0b';
+import { Painter } from './pixel.js?v=d61110f93b38';
 // 第88回 G9班: 神龍の さいだんと 神龍（render/shenron-art.js）
-import { paintShenronSpecial } from './shenron-art.js?v=e280d20a9f0b';
+import { paintShenronSpecial } from './shenron-art.js?v=d61110f93b38';
 // 第88回 G12班: 聖はいの 水しょうの台（render/grail-art.js）
-import { paintGrailSpecial } from './grail-art.js?v=e280d20a9f0b';
+import { paintGrailSpecial } from './grail-art.js?v=d61110f93b38';
 // 第88回 G14班: 第5のせいれいのドレスの 氷の石の台（render/frozen-art.js）
-import { paintFifthSpecial } from './frozen-art.js?v=e280d20a9f0b';
+import { paintFifthSpecial } from './frozen-art.js?v=d61110f93b38';
 
 // ガチャガチャの 台（上は とうめいな まるい まどに 色とりどりの カプセル・下は 赤い 台と 回す ハンドル・取り出し口）
 function paintGacha(f) {

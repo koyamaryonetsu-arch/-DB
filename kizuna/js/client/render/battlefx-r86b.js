@@ -15,7 +15,7 @@
 //  tenkaichi_king_sig（上）・r86b_mikiri 見切りのかまえ（しずかな 白い 輪）・r86b_charge 天下一のとう気（青い 気が 集まる）・
 //  r86b_plan 混とんの作戦（白と 黒の 旗）・r86b_chant 混とんのとなえ（白と 黒の 光の 輪）・r86b_food まんぷく定食（湯気）・r86b_minna みんなでとなえる（金の 輪が みんなに）
 // ・どれも 2.4びょう いないで おわる。あたる じかんは R86B_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=e280d20a9f0b';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=d61110f93b38';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 

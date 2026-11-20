@@ -1,48 +1,48 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=e280d20a9f0b';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=e280d20a9f0b';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=e280d20a9f0b';
-import { MONSTERS } from '../data/monsters.js?v=e280d20a9f0b';
-import { ITEMS } from '../data/items.js?v=e280d20a9f0b';
-import { pkExpMult, pkGoldMult, ballBefriendMult } from '../gear-r88-pokemon.js?v=e280d20a9f0b'; // 第88回 G16班: がくしゅうそうち・おまもりこばん・ボール
-import { abilityLabel } from '../ability-label.js?v=e280d20a9f0b';
-import { JOBS } from '../data/jobs.js?v=e280d20a9f0b';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=e280d20a9f0b';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=e280d20a9f0b';
+import { Battle, normBattleSettings } from '../battle.js?v=d61110f93b38';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=d61110f93b38';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=d61110f93b38';
+import { MONSTERS } from '../data/monsters.js?v=d61110f93b38';
+import { ITEMS } from '../data/items.js?v=d61110f93b38';
+import { pkExpMult, pkGoldMult, ballBefriendMult } from '../gear-r88-pokemon.js?v=d61110f93b38'; // 第88回 G16班: がくしゅうそうち・おまもりこばん・ボール
+import { abilityLabel } from '../ability-label.js?v=d61110f93b38';
+import { JOBS } from '../data/jobs.js?v=d61110f93b38';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=d61110f93b38';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=d61110f93b38';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=e280d20a9f0b';
-import { befriendShare } from './recruit-share.js?v=e280d20a9f0b';
-import { GUESTS } from '../data/shops.js?v=e280d20a9f0b';
-import { guestForBattle, scaleGuestActor, guestAfterBattle } from '../guest-rule.js?v=e280d20a9f0b';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=e280d20a9f0b';
-import { rollDrops, stealPick } from '../data/loot.js?v=e280d20a9f0b';
-import { MAPS } from '../maps/index.js?v=e280d20a9f0b';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=e280d20a9f0b';
-import { treasureAfterBattle } from './treasure.js?v=e280d20a9f0b';
-import { wipeGoldLoss, bankGold } from './bank.js?v=e280d20a9f0b';
-import { lureOn, lureGroup } from './field27.js?v=e280d20a9f0b';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=e280d20a9f0b';
-import { growthSummary } from './growth.js?v=e280d20a9f0b';
-import { topLevel, battleTeamChars, expHatMult, wipeGuard } from './perks.js?v=e280d20a9f0b';
-import { wipeShare } from '../data/items-r81.js?v=e280d20a9f0b';
-import { battleTactics } from './tactics.js?v=e280d20a9f0b';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=d61110f93b38';
+import { befriendShare } from './recruit-share.js?v=d61110f93b38';
+import { GUESTS } from '../data/shops.js?v=d61110f93b38';
+import { guestForBattle, scaleGuestActor, guestAfterBattle } from '../guest-rule.js?v=d61110f93b38';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=d61110f93b38';
+import { rollDrops, stealPick } from '../data/loot.js?v=d61110f93b38';
+import { MAPS } from '../maps/index.js?v=d61110f93b38';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=d61110f93b38';
+import { treasureAfterBattle } from './treasure.js?v=d61110f93b38';
+import { wipeGoldLoss, bankGold } from './bank.js?v=d61110f93b38';
+import { lureOn, lureGroup } from './field27.js?v=d61110f93b38';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=d61110f93b38';
+import { growthSummary } from './growth.js?v=d61110f93b38';
+import { topLevel, battleTeamChars, expHatMult, wipeGuard } from './perks.js?v=d61110f93b38';
+import { wipeShare } from '../data/items-r81.js?v=d61110f93b38';
+import { battleTactics } from './tactics.js?v=d61110f93b38';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
-import { isNightFor } from './clock.js?v=e280d20a9f0b';
+import { isNightFor } from './clock.js?v=d61110f93b38';
 // 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
-import { MONSTER_FRIENDS } from '../data/companions.js?v=e280d20a9f0b';
+import { MONSTER_FRIENDS } from '../data/companions.js?v=d61110f93b38';
 // 第51回 B: 家族のけいじ板（ひらめき技・合体技を はじめて 覚えた）
-import { boardHirameki, boardDual } from './family-board.js?v=e280d20a9f0b';
+import { boardHirameki, boardDual } from './family-board.js?v=d61110f93b38';
 // 第51回 F: 幻の職業の 記録（自分の キャラの 戦いの 記録を 足す・条件が 見えた／なれるように なった 知らせ）
-import { addFeats, phantomAfterBattle } from './phantom.js?v=e280d20a9f0b';
+import { addFeats, phantomAfterBattle } from './phantom.js?v=d61110f93b38';
 // 第53回 B: 第6章 Step 6 の 時のまぼろし（1日1回の ★5の 素材・はじめて 勝った 時の けいじ板）
-import { tokiPhantomAfter } from './tokei-phantom.js?v=e280d20a9f0b';
+import { tokiPhantomAfter } from './tokei-phantom.js?v=d61110f93b38';
 // 第78回 3-10: 家族ミッション（人間の キャラが 2人 いじょうの 戦いだけ 数える。world/missions.js）
-import { missionBattle, missionFriend } from './missions.js?v=e280d20a9f0b';
+import { missionBattle, missionFriend } from './missions.js?v=d61110f93b38';
 // 第80回 E班: ボスに 負けた 時の ヒント（負けた 回数・勝ったら 消す。world/boss-hints.js）
-import { bossHintAfter } from './boss-hints.js?v=e280d20a9f0b';
+import { bossHintAfter } from './boss-hints.js?v=d61110f93b38';
 // 第89回: とちゅうから 戦いに 入る きょり（画面と おなじ 数。shared/join-rule.js）・宝の地図を えらんで いる 人（world/tm-ask.js）
-import { JOIN_NEAR, JOIN_LAG } from '../join-rule.js?v=e280d20a9f0b';
-import { tmHold } from './tm-ask.js?v=e280d20a9f0b';
+import { JOIN_NEAR, JOIN_LAG } from '../join-rule.js?v=d61110f93b38';
+import { tmHold } from './tm-ask.js?v=d61110f93b38';
 
 let battleSeq = 1;
 

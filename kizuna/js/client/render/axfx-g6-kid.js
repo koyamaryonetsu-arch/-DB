@@ -1,7 +1,7 @@
 // 第48回 G6: まじっく快斗（手品師・かいとう・かいとうキッド）の 大技の え
 // トランプ（白い カード・青い うら）・シルクハットと 白い ハト・けむり玉・白い ハンググライダー・満月の 夜・ダイヤの きらめき
-import { spr, txt, cloud, night, frame, curtain, spot, glitter, along, org, gnd, q, EASE } from './axfx-g6-lib.js?v=e280d20a9f0b';
-import { rnd, angleOf } from './axkit.js?v=e280d20a9f0b';
+import { spr, txt, cloud, night, frame, curtain, spot, glitter, along, org, gnd, q, EASE } from './axfx-g6-lib.js?v=d61110f93b38';
+import { rnd, angleOf } from './axkit.js?v=d61110f93b38';
 
 const SUIT = ['h', 's', 'd', 'c'];
 // トランプを 1まい とばす（まわりながら）。へんじ: とどく 時間
