@@ -44,8 +44,8 @@ function hanging(x, hor) {
   x.globalAlpha = 1;
   // 遠くの 小さな 明かり（地下の 村）
   for (const [cx, cy] of [[112, hor - 26], [120, hor - 24], [116, hor - 30]]) {
-    x.globalAlpha = 0.25;
-    disc(x, cx, cy, 4, '#ffd66b');
+    x.globalAlpha = 0.35;
+    disc(x, cx, cy, 2, '#ffd66b');
     x.globalAlpha = 0.9;
     x.fillStyle = '#ffe9a0';
     x.fillRect(cx, cy, 1, 1);

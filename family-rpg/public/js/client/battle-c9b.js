@@ -161,8 +161,14 @@ export function c9bDraw(scene, x, m, c, px, py, w, h, base) {
   // 見えにくい 魔物（大ミミズ）: 暗い かげ
   if (c.hide9) {
     x.globalAlpha = base * (0.55 + Math.sin(T / 300) * 0.08);
-    x.fillStyle = '#05050f';
-    x.fillRect(Math.round(px), Math.round(py), Math.round(w), Math.round(h));
+    const g = x.createRadialGradient(px + w / 2, py + h / 2, 2, px + w / 2, py + h / 2, Math.max(w, h) * 0.62);
+    if (g?.addColorStop) {
+      g.addColorStop(0, 'rgba(5,5,15,0.9)');
+      g.addColorStop(0.7, 'rgba(5,5,15,0.75)');
+      g.addColorStop(1, 'rgba(5,5,15,0)');
+    }
+    x.fillStyle = g?.addColorStop ? g : '#05050f';
+    x.fillRect(Math.round(px - w * 0.15), Math.round(py - h * 0.15), Math.round(w * 1.3), Math.round(h * 1.3));
     x.globalAlpha = base;
     tag(x, px + w / 2, py + h + 4, '見えにくい', base, '#14142a', '#d8d8ff', 40);
   }
