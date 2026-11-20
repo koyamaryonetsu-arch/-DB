@@ -64,15 +64,15 @@ test('名前の 約束: 小さな フラグ・マップ・決まった 戦い・
   assert.deepEqual(C9A_TRACK_IDS, ['c9a_festival', 'c9a_forest', 'c9a_child', 'c9a_cave', 'c9a_trio', 'c9a_trial']);
   assert.equal(C9A_TRACKS.trial, 'c9a_trial');
   for (const id of C9A_TRACK_IDS) assert.ok(isPart3Track(id), `${id} は 第3部の 曲`);
-  // タイル 407〜426 は この 幕の ために あいて いる（今の さいごは 406）
+  // タイル 407〜426 は この 幕の もの（第90回 A班が 407〜425 を 足した。さいごは 426 まで）
   assert.equal(C9A_TILE_FIRST, 407);
   assert.equal(C9A_TILE_LAST, 426);
   const used = Object.values(T);
-  assert.equal(Math.max(...used), 406, '今の さいごの タイルは 406（A班が 407 から 足したら この 行を かえる）');
+  assert.ok(Math.max(...used) <= C9A_TILE_LAST, '今の さいごの タイルは 第3部 第1章 第1幕の わくの 中（A班が 407〜425 を 足した）');
   for (let n = C9A_TILE_FIRST; n <= C9A_TILE_LAST; n++) assert.ok(!used.includes(n) || Object.keys(T).find((k) => T[k] === n).startsWith('C9A_'), `タイル ${n}`);
-  // まだ 第3部の マップ・魔物・本物の 戦いは ない（A・B が 作る）
-  for (const id of C9A_MAP_IDS) assert.ok(!(id in MAPS), `${id} は まだ ない`);
-  assert.ok(!Object.keys(MAPS).some((id) => isPart3Map(id)), '第3部の マップは まだ ない');
+  // 第3部の マップは A班が 作った（maps/c9a.js）。ほかの 第3部の マップは まだ ない。魔物・本物の 戦いは B が 作る
+  for (const id of C9A_MAP_IDS) assert.ok(id in MAPS, `${id} は A班が 作った`);
+  assert.deepEqual(Object.keys(MAPS).filter((id) => isPart3Map(id)).sort(), [...C9A_MAP_IDS].sort(), '第3部の マップは 第1幕の 6まいだけ');
   for (const id of Object.values(C9A_BOSS_MON)) assert.ok(!MONSTERS[id], `${id} は まだ ない`);
 });
 
@@ -98,10 +98,10 @@ test('第2部を クリアした セーブ: 目標・しおり・なおし は �
   // 仲間の ひとこと・行き先は 第2部の 物の まま
   assert.ok(/第2部/.test(OBJECTIVE_TALK[P2_END].bold));
   assert.notDeepEqual(OBJECTIVE_TARGETS[P2_END], C9_START_TARGETS);
-  // 第3部の 目標の 文の 表は まだ から
-  assert.equal(CH9_PROGRESS.length, 0);
-  assert.equal(Object.keys(CH9_OBJECTIVE_TARGETS).length, 0);
-  assert.equal(Object.keys(CH9_OBJECTIVE_TALK).length, 0);
+  // 第3部の 目標の 文の 表は 第1幕の 物（第90回 A班。c9_festival から）。第2部 クリアの 文は PART3_OPEN まで かわらない
+  assert.ok(CH9_PROGRESS.length > 0 && CH9_PROGRESS[0][0] === 'c9_festival');
+  assert.equal(Object.keys(CH9_OBJECTIVE_TARGETS).length, Object.keys(CH9_OBJECTIVE_TALK).length);
+  for (const [, t] of CH9_PROGRESS) assert.ok(KNOWN_OBJECTIVES.has(t) && CH9_OBJECTIVE_TARGETS[t] && CH9_OBJECTIVE_TALK[t], t);
   assert.ok(!KNOWN_OBJECTIVES.has(C9_OBJ.start), '新しい 目標の 文は まだ 出ない');
 });
 
@@ -116,13 +116,12 @@ test('目標の 文の 入れかえの しくみ（PART3_OPEN を true に し�
   // 題の 画面（9-1 の 1）
   assert.deepEqual(C9_TITLE, { part: '第3部　ほしのね', chapter: '第1章　おちてきた星の子', act: '第1幕　星ふるえの夜' });
   assert.deepEqual(c9TitleSteps(), [['chapter', '第3部　ほしのね', '第1章　おちてきた星の子'], ['chapter', '第1章　おちてきた星の子', '第1幕　星ふるえの夜']]);
-  // applyCh9 は 今は 何も しない
-  const before = Object.keys(SCRIPTS).length;
-  const sc = { ...SCRIPTS };
+  // applyCh9 は 第1幕の 台本（data/story-c9a.js の applyCh9a）を まぜる（第90回 A班）
+  const sc = {};
   const ss = new Set();
   applyCh9(sc, ss);
-  assert.equal(Object.keys(sc).length, before);
-  assert.equal(ss.size, 0);
+  assert.ok(sc.c9a_morning && sc.c9a_child_event && sc.c9a_trial && ss.has('c9a_morning'));
+  assert.ok(JSON.stringify(sc.c9a_morning({ flag: (f) => f === 'c8_solitus' })).length > 2);
 });
 
 // ───────────── しおり ─────────────
@@ -184,8 +183,9 @@ test('曲の わく: 第3部の マップ（c9〜c11）は battle3（ない 間�
     assert.equal(battleBgm({ snapBgm: 'battle', mapId: id, has: (t) => t !== 'battle3' }), 'battle', `${id}: 曲が まだ ない`);
     assert.equal(battleBgm({ snapBgm: 'battle', mapId: id, has: () => true }), 'battle3', `${id}: F班の 曲が できたら`);
   }
-  // 今の マップは 1つも 第3部 あつかいに ならない
+  // 今の マップは 第3部 第1章 第1幕の 6まい（第90回 A班）の ほかは 第3部 あつかいに ならない
   for (const id of Object.keys(MAPS)) {
+    if (C9A_MAP_IDS.includes(id)) continue;
     assert.ok(!isPart3Map(id, MAPS[id]), `${id}`);
   }
   assert.equal(battleBgm({ snapBgm: 'battle', mapId: 'c8r_hall', has: () => true }), 'battle2');
