@@ -14,6 +14,7 @@ import { attachC8dSide } from './c8d-side.js';
 import { attachC8bdSide } from './c8bd-side.js';
 import { attachC8cdSide } from './c8cd-side.js';
 import { attachC8rdSide } from './c8rd-side.js';
+import { attachC9adSide } from './c9ad-side.js';
 
 // 第7章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH7_MAPS = [...C7_FIELD_MAPS, ...C7T_MAPS];
@@ -39,4 +40,6 @@ export function attachCh7(maps) {
   attachC8cdSide(maps);
   // 第80回 D班: 第8章 第4幕の より道（今の ホシフル村に 人を 足す。maps/c8rd-side.js）
   attachC8rdSide(maps);
+  // 第90回 D班: 第3部 第1章 第1幕の より道（今の ルミナ・ホシフル村・平原・鏡の湖に 人と 物を 足す。maps/c9ad-side.js）
+  attachC9adSide(maps);
 }

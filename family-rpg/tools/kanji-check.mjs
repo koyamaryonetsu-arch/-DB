@@ -586,6 +586,11 @@ export function gameFiles() {
     'public/js/shared/data/story-c9a.js', 'public/js/shared/maps/c9a.js', 'public/js/shared/maps/c9a-rows.js', 'public/js/shared/maps/c9a-cave.js',
     'public/js/shared/maps/c9a-forest.js', 'public/js/shared/maps/c9a-field.js', 'public/js/shared/maps/c9a-light.js', 'public/js/shared/world/c9a-steps.js',
     'public/js/client/c9a-light.js', 'public/js/client/render/tiles-c9a.js', 'public/js/client/render/c9a-npc-art.js',
+    // 第90回 F班: 第3部 第1章 第1幕の 曲
+    'public/js/client/audio-c9a.js',
+    // 第90回 D班: お仕事いらい 36〜38・より道「星ふるえで、まいごになった物」
+    'public/js/shared/data/sidequests-work8.js', 'public/js/shared/maps/work-quests8.js', 'public/js/client/render/work8-art.js',
+    'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

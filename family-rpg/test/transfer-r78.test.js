@@ -16,7 +16,11 @@ import { PRIME_5 } from '../public/js/shared/world/transfer-prime.js';
 import { repairChar, SAVE_VERSION } from '../public/js/shared/world/save.js';
 import { MAPS } from '../public/js/shared/maps/index.js';
 import { makeRng } from '../public/js/shared/rng.js';
-import { biggestChar, typicalChar, typicalWorkChar, walkExplored } from './transfer-big-save.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { MONSTERS } from '../public/js/shared/data/monsters.js';
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
+import { JOBS } from '../public/js/shared/data/jobs.js';
+import { biggestChar, typicalChar, typicalWorkChar, typicalSaved, walkExplored } from './transfer-big-save.js';
 
 const enc = (s) => new TextEncoder().encode(s);
 const dec = (b) => new TextDecoder().decode(b);
@@ -245,4 +249,101 @@ test('見はり: 作品の 品を たくさん 持った ふつうの セーブ�
   const r = parseCode(code);
   assert.equal(r.ok, true, r.reason);
   assert.deepEqual(r.char, want(c));
+});
+
+// 第90回 T3班: 見はりの「ふつうの セーブ」は 取って おいた 第4章の セーブ（test/fixtures/typical-ch4-seed41.json）。
+//   中みの id が 今の ゲームから 消えたら ここで 分かる（消えた 時は、id を 今の 物に 直すか、見本を わざと 作り直す）
+test('見本の ふつうの セーブ: 品・技・魔物・マップ・職業の id が 今の ゲームに 全部 ある', async () => {
+  const c = await typicalChar();
+  const gone = [];
+  const need = (kind, table, ids) => {
+    for (const id of ids) if (id && !Object.hasOwn(table, id)) gone.push(`${kind}: ${id}`);
+  };
+  const everyone = [c, ...c.companions.map((e) => e.char)];
+  for (const x of everyone) {
+    need('品', ITEMS, (x.items || []).map((it) => it.id));
+    need('品', ITEMS, Object.values(x.equip || {}));
+    need('職業', JOBS, Object.keys(x.jobs || {}));
+    if (x.job) need('職業', JOBS, [x.job]);
+  }
+  need('品', ITEMS, c.keyItems);
+  need('品', ITEMS, c.bank.items.map((it) => it.id));
+  need('技', ABILITIES, [...Object.keys(c.skillUse), ...c.hirameki, ...c.favorites]);
+  need('魔物', MONSTERS, [...Object.keys(c.kills), ...Object.keys(c.bestiary)]);
+  need('魔物', MONSTERS, c.companions.filter((e) => e.kind === 'monster').map((e) => e.species));
+  // village は むかしの 版の 名前（normalizeChar が 入れる きまった 値。マップの 表には ない）
+  need('マップ', MAPS, [...Object.keys(c.visited).filter((m) => m !== 'village'), ...Object.keys(c.explored), c.pos?.map]);
+  assert.deepEqual(gone, []);
+});
+
+// 第90回 T3班: ゲームに 品が ふえても 見本の 長さは かわらない（前は 品が 1つ ふえる だけで 乱数の えらび方が ずれて ±70文字 ゆれた）
+test('見本の ふつうの セーブ: ゲームに 品が ふえても 長さが かわらない', async () => {
+  const at = 1794488401253;
+  const before = exportCode(await typicalChar(), at);
+  const extra = ['zz_t3_test_sword', 'zz_t3_test_herb'];
+  try {
+    ITEMS[extra[0]] = { name: 'ためしの剣', type: 'weapon', slot: 'weapon', price: 10, atk: 1 };
+    ITEMS[extra[1]] = { name: 'ためしの草', type: 'use', price: 1 };
+    const after = exportCode(await typicalChar(), at);
+    assert.equal(after.length, before.length);
+    assert.equal(after, before);
+  } finally {
+    for (const k of extra) delete ITEMS[k];
+  }
+  const raw = exportCode(typicalSaved(), at);
+  console.log(`見本: 取って おいた まま ${raw.length}文字・サーバーの 直しを かけて ${before.length}文字（LINE の ${Math.round((before.length / LINE_MAX) * 100)}%）`);
+});
+
+// 第90回 T3班: 仲間の 空の 入れ物（読む ときの repairChar が 同じ 形に もどす 物）を はぶく ように した。
+//   行って もどると、書き出す 前に 同じ 直しを かけた 物と まったく 同じ
+test('仲間の 空の 入れ物: 書き出し → 読みこみ → 直しで、書き出す 前に 直した 物と 同じ（ふつう・いちばん 大きい）', { timeout: 120000 }, () => {
+  for (const c of [typical, biggest]) {
+    const before = repairChar(JSON.parse(JSON.stringify(c)));
+    const r = parseCode(exportCode(before));
+    assert.equal(r.ok, true, r.reason);
+    assert.deepEqual(repairChar(r.char), before);
+    // はぶいた 項目が もどって いる
+    for (const e of r.char.companions) {
+      assert.ok(Number.isFinite(e.char.gold), e.key);
+      assert.ok(e.char.visited && typeof e.char.visited === 'object', e.key);
+      if (e.kind === 'npc') assert.deepEqual([e.char.vehicles, e.char.vehicle], [[], null], e.key);
+    }
+  }
+});
+
+// 第90回 T3班: 前の 書き出し（仲間の gold 0・visited・vehicles・vehicle・alchemy を はぶかない slimChar5）で 作った コードも、同じ 結果に 読める。
+//   人の 仲間 ミナ・魔物の 仲間 プル（pururin）を つれた ユイ（repairChar を かけた 物）を、直す 前の exportCode（at 1794488401253）で 書いた
+const OLD_T3_CODE = 'KIZUNA-5-7636c2aa-52-mAYXToOQaForkiNS_Wr931Qc0Q4C-WXP1GK5aop0SBygfvkVrRPf_XQ4X2-d21fd1YC92Bgbd4o6CiSmC7gymO_pZ-XnGwe_saQUL1O7Zh57gvxfdMRQK9FK8SDJkEQO8Ch4AQKaRboQ5ylVwoDeesfJ4y5kDnPxtI0OB_p9hdX3pe8djr6hJQ';
+test('仲間の 空の 入れ物: 前の 書き出しの コードも 同じ 結果に 読める', () => {
+  const old = parseCode(OLD_T3_CODE);
+  assert.equal(old.ok, true, old.reason);
+  assert.equal(old.char.companions.length, 2);
+  const now = exportCode(old.char, 1794488401253);
+  assert.ok(now.length < OLD_T3_CODE.length, `${now.length} < ${OLD_T3_CODE.length}`);
+  const r = parseCode(now);
+  assert.equal(r.ok, true, r.reason);
+  assert.deepEqual(r.char, old.char);
+  const [mina, pru] = old.char.companions.map((e) => e.char);
+  assert.deepEqual([mina.gold, mina.visited, mina.vehicles, mina.vehicle, mina.alchemy], [0, { village: true }, [], null, { fill: 1 }]);
+  assert.deepEqual([pru.gold, pru.visited], [0, {}]);
+});
+
+test('仲間の 空の 入れ物: 中みが ある 時は はぶかない', () => {
+  const c = repairChar({
+    id: 't3full', name: 'ユイ', job: 'warrior', level: 5,
+    companions: [
+      { key: 'npc_mina', kind: 'npc', char: { id: 't3full:npc_mina', name: 'ミナ', job: 'priest', level: 3, gold: 5, visited: { overworld: true },
+        skillUse: { heal: 3 }, hirameki: ['hi_hana_fubuki'], kills: { pururin: 2 }, alchemy: { fill: 1 } } },
+      { key: 'm1', kind: 'monster', species: 'pururin', char: { id: 't3full:m1', name: 'プル', species: 'pururin', level: 2, gold: 7, visited: { overworld: true }, skillUse: { heal: 1 } } },
+    ],
+  });
+  const slim = slimChar5(c).companions.map((e) => e.char);
+  for (const k of ['gold', 'visited', 'skillUse', 'hirameki', 'kills', 'alchemy']) assert.ok(k in slim[0], `ミナの ${k}`);
+  for (const k of ['gold', 'visited', 'skillUse']) assert.ok(k in slim[1], `プルの ${k}`);
+  const r = parseCode(exportCode(c));
+  assert.equal(r.ok, true, r.reason);
+  assert.deepEqual(r.char, repairChar(JSON.parse(JSON.stringify(r.char))));
+  assert.deepEqual(r.char.companions[0].char.skillUse, { heal: 3 });
+  assert.deepEqual(r.char.companions[0].char.hirameki, ['hi_hana_fubuki']);
+  assert.equal(r.char.companions[1].char.gold, 7);
 });

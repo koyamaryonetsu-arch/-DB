@@ -1,8 +1,11 @@
 // テスト用: 引っこしコードを はかる ための セーブ（第78回）
 //   biggestChar() … 今 考えられる いちばん 大きな セーブ（データから 自動で 作る。魔物・技・道具・マップを 足すと 大きく なる）
-//   typicalChar() … ふつうに 遊んでいる とちゅうの セーブ（第4章くらい）
+//   typicalChar() … ふつうに 遊んでいる とちゅうの セーブ（第4章くらい。たね 41 は 取って おいた ファイル test/fixtures/typical-ch4-seed41.json）
 // どちらも 同じ たねなら 同じ 中み（数は たねつきの ふりこ）
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { GameWorld } from '../public/js/shared/world/world.js';
+import { repairChar } from '../public/js/shared/world/save.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, isBlocked } from '../public/js/shared/maps/index.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
@@ -182,7 +185,42 @@ async function build(size, seed) {
 }
 
 export const biggestChar = (seed = 78) => build('big', seed);
-export const typicalChar = (seed = 41) => build('typical', seed);
+
+// 第90回 T3班: 見はりが 使う「ふつうの セーブ」（たね 41）は、ある 日の 第4章の 人の セーブを そのまま 取って おいた 物（下の ファイル）。
+//   前は 今の カタログ 全体から 乱数で えらんで 作って いた ので、ゲームに 品が 1つ ふえる だけで えらび方が ずれて 長さが ±70文字 ゆれた。
+//   第4章の 人の セーブは、あとから 後半の 中みが ふえても かわらない。たね 41 いがいは 今の 作り方の まま（はかる 時に 使う）
+export const TYPICAL_FIXTURE = new URL('./fixtures/typical-ch4-seed41.json', import.meta.url);
+const TYPICAL_SEED = 41;
+
+export function typicalSaved() {
+  return JSON.parse(readFileSync(TYPICAL_FIXTURE, 'utf8'));
+}
+
+// 読んだ あと、サーバーが 古い セーブを 読む 時と 同じ 直し（save.js の repairChar ＋ ログインの 時の world.js の normalizeChar）を かける。
+//   本物の セーブは サーバーで 1回 読まれると この 形に なる。どの セーブにも 足される 新しい 入れ物が できた 時は 見本にも 入り、見はりが 気づける。
+//   normalizeChar は 外から よべない ので、ほんとうに「play」で 入って もらう
+export async function typicalCharLikeServer() {
+  const c = repairChar(typicalSaved());
+  const world = new GameWorld({ offline: true, rng: makeRng(TYPICAL_SEED), rateLimit: false });
+  world.data.characters[c.id] = c;
+  const bot = new Bot(world, c.name);
+  await bot.login();
+  bot.send({ t: 'play', id: c.id });
+  if (!bot.msgs.some((m) => m.t === 'enter')) throw new Error('見本の セーブで 入れなかった');
+  return JSON.parse(JSON.stringify(world.data.characters[c.id]));
+}
+
+export const typicalChar = (seed = TYPICAL_SEED) => (seed === TYPICAL_SEED ? typicalCharLikeServer() : build('typical', seed));
+
+// 見本を 作り直す 道具: node test/transfer-big-save.js --write-typical
+//   ふだんは 作り直さない（作り直すと 見本が 今の カタログで ゆれて、見はりの 意味が なくなる）。
+//   作り直すのは、見本の 人の 中みを わざと かえる 時だけ（その 時は docs/plan-r78-transfer.md の 7 に わけを 書く）
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && process.argv.includes('--write-typical')) {
+  const c = await build('typical', TYPICAL_SEED);
+  const txt = JSON.stringify(c);
+  writeFileSync(TYPICAL_FIXTURE, `${txt}\n`);
+  console.log(`${fileURLToPath(TYPICAL_FIXTURE)}: ${txt.length}文字`);
+}
 
 // 第88回: 作品の 品を たくさん 持った ふつうの セーブ（ふつうの セーブ ＋ 作品の 品 n こ〈ふくろ 3/4・預かり所 1/4。きたえた 物・そろいの 品を まぜる〉
 //   ＋ ガチャの 回数・ライバルに 勝った 記録・玉の 宝箱の 記録・とびら・試練の ごほうびの しるし）。n = 0 なら 品は 足さない
