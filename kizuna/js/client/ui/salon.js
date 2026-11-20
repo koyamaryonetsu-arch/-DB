@@ -1,13 +1,13 @@
 // 美容室（ドラクエ風の カウンター）
 //   「どんなご用でしょう？」→ かみがた／かみの色／目もと／はだの色 を えらぶ（みぎに 大きな みほん。くるくる 回る）
 //   → 決める →「〇〇ゴールドになりますが、よろしいですか？」はい／いいえ → サーバーで たしかめて 変わる
-import { el, esc } from './dom.js?v=d61110f93b38';
-import { Counter } from './counter.js?v=d61110f93b38';
-import { request } from './shop.js?v=d61110f93b38';
-import { boardIconURL } from '../render/boards.js?v=d61110f93b38';
-import { previewCache } from '../render/hero.js?v=d61110f93b38';
-import { HAIR_STYLES, HAIR_COLORS, FACES, SKIN_TONES, SALON_FEE, lookIds, STYLE_BY_ID, HCOL_BY_ID, FACE_BY_ID, TONE_BY_ID } from '../../shared/data/looks.js?v=d61110f93b38';
-import { shownEquip } from '../../shared/look-equip.js?v=d61110f93b38';
+import { el, esc } from './dom.js?v=c14a906fd512';
+import { Counter } from './counter.js?v=c14a906fd512';
+import { request } from './shop.js?v=c14a906fd512';
+import { boardIconURL } from '../render/boards.js?v=c14a906fd512';
+import { previewCache } from '../render/hero.js?v=c14a906fd512';
+import { HAIR_STYLES, HAIR_COLORS, FACES, SKIN_TONES, SALON_FEE, lookIds, STYLE_BY_ID, HCOL_BY_ID, FACE_BY_ID, TONE_BY_ID } from '../../shared/data/looks.js?v=c14a906fd512';
+import { shownEquip } from '../../shared/look-equip.js?v=c14a906fd512';
 
 const DIRS = ['down', 'left', 'up', 'right'];
 const PARTS = [

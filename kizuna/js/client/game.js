@@ -1,37 +1,37 @@
 // ゲーム ぜんたいの しんこう
-import { applyHand } from './ui/hand.js?v=d61110f93b38';
-import { bindLayout } from './ui/layout.js?v=d61110f93b38';
-import { Input } from './input.js?v=d61110f93b38';
-import { GameAudio, _TRACKS } from './audio.js?v=d61110f93b38';
+import { applyHand } from './ui/hand.js?v=c14a906fd512';
+import { bindLayout } from './ui/layout.js?v=c14a906fd512';
+import { Input } from './input.js?v=c14a906fd512';
+import { GameAudio, _TRACKS } from './audio.js?v=c14a906fd512';
 // 第77回 C: 場面で かわる 音楽（戦いの 曲・ピンチ・だん・ダンジョンの 深さ・昼夜・まわりの音）
-import { SceneAudio } from './audio-scene.js?v=d61110f93b38';
-import { MONSTERS } from '../shared/data/monsters.js?v=d61110f93b38';
-import { Field } from './field.js?v=d61110f93b38';
-import { Hud, STAMPS } from './ui/hud.js?v=d61110f93b38';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=d61110f93b38';
-import { ScriptPlayer, wait } from './ui/script.js?v=d61110f93b38';
-import { BattleScene } from './battle.js?v=d61110f93b38';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=d61110f93b38';
-import { showServerDown } from './ui/syncui.js?v=d61110f93b38';
-import { toast, confirmBox, el } from './ui/dom.js?v=d61110f93b38';
-import { MAPS } from '../shared/maps/index.js?v=d61110f93b38';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=d61110f93b38';
-import { SkyClient } from './sky.js?v=d61110f93b38';
+import { SceneAudio } from './audio-scene.js?v=c14a906fd512';
+import { MONSTERS } from '../shared/data/monsters.js?v=c14a906fd512';
+import { Field } from './field.js?v=c14a906fd512';
+import { Hud, STAMPS } from './ui/hud.js?v=c14a906fd512';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=c14a906fd512';
+import { ScriptPlayer, wait } from './ui/script.js?v=c14a906fd512';
+import { BattleScene } from './battle.js?v=c14a906fd512';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=c14a906fd512';
+import { showServerDown } from './ui/syncui.js?v=c14a906fd512';
+import { toast, confirmBox, el } from './ui/dom.js?v=c14a906fd512';
+import { MAPS } from '../shared/maps/index.js?v=c14a906fd512';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=c14a906fd512';
+import { SkyClient } from './sky.js?v=c14a906fd512';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=d61110f93b38';
+import { QuickButton } from './ui/quick-item.js?v=c14a906fd512';
 // 第58回: マルチプレイの 自動追跡（リーダーに ついていく）の ボタン
-import { FollowButton } from './ui/follow-btn.js?v=d61110f93b38';
-import { HuntButton } from './ui/sources.js?v=d61110f93b38';
-import { reportError } from './errlog.js?v=d61110f93b38';
+import { FollowButton } from './ui/follow-btn.js?v=c14a906fd512';
+import { HuntButton } from './ui/sources.js?v=c14a906fd512';
+import { reportError } from './errlog.js?v=c14a906fd512';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=d61110f93b38';
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=c14a906fd512';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
-import { onMonLive } from './ui/monarena-live.js?v=d61110f93b38';
+import { onMonLive } from './ui/monarena-live.js?v=c14a906fd512';
 // 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
 // 第89回: もらった その 場で 聞く（戦いの けっかの 中・サーバーの 'tmAsk'）。戦いが 始まったら 画面だけの まどを 片づける
-import { askTreasureList, onTmAsk, dropTreasureFull } from './ui/treasure.js?v=d61110f93b38';
+import { askTreasureList, onTmAsk, dropTreasureFull } from './ui/treasure.js?v=c14a906fd512';
 // 第89回: 家族の ボス・物語の 戦いに「戦いに入る」ボタン
-import { JoinButton } from './ui/join-btn.js?v=d61110f93b38';
+import { JoinButton } from './ui/join-btn.js?v=c14a906fd512';
 
 export class Game {
   constructor(net) {
@@ -805,7 +805,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=d61110f93b38').then(({ offlineStorage }) => {
+      import('./offline.js?v=c14a906fd512').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
