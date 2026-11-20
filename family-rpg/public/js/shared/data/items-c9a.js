@@ -54,7 +54,7 @@ const PB = { src: 'pastboss' };
 const BOSS = {
   // スイトール1号（3人組）: 1人 1つの アクセサリー（drops.boss）と、キラジョのおうぎ（drops.rare の 1回に 1回。今までで いちばん 強い おうぎ）
   c9b_trio_badge: {
-    ...C(3), ...PB, boss: 'c9a_suitoru', unique: true, name: 'ホシドロ一味のバッジ', bonus: { hp: 128, str: 36, def: 33, mag: 36, agi: 32, heal: 28 }, resist: { bolt: 0.7, fire: 0.85 },
+    ...C(3), ...PB, boss: 'c9a_suitoru', unique: true, name: 'ホシドロ一味のバッジ', bonus: { hp: 126, str: 35, def: 32, mag: 35, agi: 30, heal: 26 }, resist: { bolt: 0.7, fire: 0.85 },
     desc: '3人組が、にげるときに落としていった、星の形のバッジ。だれでも装備でき、すべての力が大きく上がる。雷に強い。',
   },
   c9b_kirajo_fan: {
@@ -63,7 +63,7 @@ const BOSS = {
   },
   // ホシモリ（ともしびの ためし）: 1人 1つの アクセサリー（第3部 第1章 第1幕の お守り）と、ホシモリのつえ（今までで いちばん 強い つえ）
   c9b_dawn_feather: {
-    ...C(3), ...PB, boss: 'c9a_hoshimori', unique: true, name: '夜明けのはね', bonus: { hp: 132, str: 37, def: 34, mag: 37, agi: 33, heal: 29 }, resist: { dark: 0.7, light: 0.85 },
+    ...C(3), ...PB, boss: 'c9a_hoshimori', unique: true, name: '夜明けのはね', bonus: { hp: 128, str: 35, def: 33, mag: 35, agi: 30, heal: 26 }, resist: { dark: 0.7, light: 0.85 },
     desc: 'ホシモリが、うなずいてくれた夜明けに、そっと落ちてきた石のはね。だれでも装備でき、すべての力が大きく上がる。闇に強い。',
   },
   c9b_owl_staff: {

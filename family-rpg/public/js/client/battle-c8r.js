@@ -11,11 +11,11 @@
 import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js';
 import { monsterCanvas } from './render/monsters.js';
 // 第3部 第1章 第1幕（battle-c9a.js）
-import { C9A_OWN_TELE, C9A_SCREEN_ANIMS, C9A_ALLY_FX, C9A_SFX, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js';
+import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
 export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE];
-export const C8R_SCREEN_ANIMS = ['c8g_orb', 'c8g_final', 'c8t_gust', 'c8d_big', 'c8s_big', 'c8s_harden', 'c8s_tear', 'c8s_crack', 'c8s_hoard', ...C9A_SCREEN_ANIMS];
+export const C8R_SCREEN_ANIMS = ['c8g_orb', 'c8g_final', 'c8t_gust', 'c8d_big', 'c8s_big', 'c8s_harden', 'c8s_tear', 'c8s_crack', 'c8s_hoard'];
 export const C8R_ALLY_FX = {
   c8rn_flame: 'fire', c8rn_drain: 'down', c8rn_bite: 'claw', c8rn_sand: 'wind', c8rn_gnaw: 'claw', c8rn_flutter: 'wind', c8rn_chomp: 'claw', c8rn_tail: 'quake',
   c8rn_slash: 'claw', c8rn_flow: 'down', c8rn_slow: 'down', c8rn_powder: 'down',
@@ -23,7 +23,6 @@ export const C8R_ALLY_FX = {
   c8t_breeze: 'wind', c8t_gust: 'wind', c8t_puff: 'wind', c8d_slash: 'claw', c8d_big: 'quake', c8d_mock: 'down',
   c8s_greed: 'down', c8s_anger: 'fire', c8s_hoard: 'quake', c8s_scorn: 'bolt', c8s_claw: 'claw', c8s_big: 'quake', c8s_harden: 'quake',
   c8s_tear: 'quake', c8s_comet: 'bolt', c8s_crack: 'quake',
-  ...C9A_ALLY_FX,
 };
 export const C8R_SFX = {
   c8rn_flame: 'fire', c8rn_slow: 'warn', c8rn_drain: 'hit', c8rn_bite: 'hit', c8rn_sand: 'hit', c8rn_rewind: 'buff', c8rn_powder: 'sparkle', c8rn_gnaw: 'hit',
@@ -34,7 +33,6 @@ export const C8R_SFX = {
   c8s_greed: 'warn', c8s_anger: 'fire', c8s_hoard: 'smash', c8s_scorn: 'bolt', c8s_claw: 'hit', c8s_big: 'blast', c8s_harden: 'blast', c8s_bound: 'hit',
   c8s_tear: 'blast', c8s_comet: 'bolt', c8s_alone: 'warn', c8s_crack: 'blast', c8s_call: 'sparkle', c8s_promise: 'blast', c8s_shell: 'hit',
   c8r_help_guard: 'buff', c8r_help_power: 'buff', c8r_help_heal: 'sparkle', c8r_help_mp: 'sparkle', c8r_help_hit: 'smash',
-  ...C9A_SFX,
 };
 const HEART_COL = ['#6ad0a0', '#ff6a5a', '#ffb040', '#a0a0ff'];
 const HEART_TXT = ['よくばりの心', 'いかりの心', 'ひとりじめの心', '見くだす心'];

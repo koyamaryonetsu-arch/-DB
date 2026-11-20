@@ -206,9 +206,9 @@ export function c9aDraw(scene, x, m, c, px, py, w, h, base) {
     }
   }
   // ホシモリ: 夜明けの めもり（HPの 線の かわり）・やみの いぶきまでの しるし
-  if (c.dawnMax) {
+  if (c.hmDawnMax) {
     const bw = Math.max(70, w * 0.9), bx = px + w / 2 - bw / 2, by = Math.max(12, py + 4);
-    const k = Math.min(1, (c.dawn || 0) / c.dawnMax);
+    const k = Math.min(1, (c.hmDawn || 0) / c.hmDawnMax);
     x.globalAlpha = base * 0.85;
     x.fillStyle = '#0a0a1e';
     x.fillRect(Math.round(bx) - 1, Math.round(by) - 1, Math.round(bw) + 2, 6);
@@ -219,16 +219,16 @@ export function c9aDraw(scene, x, m, c, px, py, w, h, base) {
     x.fillStyle = g;
     x.fillRect(Math.round(bx), Math.round(by), Math.round(bw * k), 4);
     x.fillStyle = 'rgba(10,10,30,0.6)';
-    for (let i = 1; i < c.dawnMax; i++) x.fillRect(Math.round(bx + (bw * i) / c.dawnMax), Math.round(by), 1, 4);
+    for (let i = 1; i < c.hmDawnMax; i++) x.fillRect(Math.round(bx + (bw * i) / c.hmDawnMax), Math.round(by), 1, 4);
     // 半分の しるし（ここから いぶきが 2人に）
     x.fillStyle = '#ff8a6a';
     x.fillRect(Math.round(bx + bw / 2), Math.round(by) - 2, 1, 8);
-    tag(x, px + w / 2, by + 11, c.hmWin ? '夜明け！' : `夜明け ${c.dawn || 0}/${c.dawnMax}`, base, '#2a1a40', '#fff4c0', 50);
+    tag(x, px + w / 2, by + 11, c.hmWin ? '夜明け！' : `夜明け ${c.hmDawn || 0}/${c.hmDawnMax}`, base, '#2a1a40', '#fff4c0', 50);
     if (!c.hmWin) {
-      if ((c.breathAim || []).length) {
-        const names = c.breathAim.map((id) => scene.c?.get?.(id)?.name).filter(Boolean).join('と');
+      if ((c.hmBreathAim || []).length) {
+        const names = c.hmBreathAim.map((id) => scene.c?.get?.(id)?.name).filter(Boolean).join('と');
         tag(x, px + w / 2, py + h * 0.62, `やみのいぶき…！ねらい：${names}`, base, '#14142a', '#d8d8ff', Math.min(150, 50 + names.length * 7));
-      } else if (c.breathEvery) dots(x, px + w / 2, by + 21, c.breathLeft || 0, c.breathEvery, base, T, ['#9a9ad0', '#ff4a6a', '#2a2040']);
+      } else if (c.hmBreathEvery) dots(x, px + w / 2, by + 21, c.hmBreathLeft || 0, c.hmBreathEvery, base, T, ['#9a9ad0', '#ff4a6a', '#2a2040']);
     }
   }
 }

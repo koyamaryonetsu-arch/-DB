@@ -266,11 +266,12 @@ test('ひみつのダンジョン: 専用の ★4〜★5 は ここだけ。深�
   for (let i = 0; i < 3000; i++) if (SD.has(sdSmallReward(40, rng).item)) small++;
   assert.ok(small > 50 && small < 400, `小さな ごほうび ${small}/3000`);
   for (let i = 0; i < 500; i++) assert.ok(!SD.has(sdSmallReward(25, rng).item));
-  // ダンジョンの 中の 魔物（第64回 ⑥d: 番人は 4回に 1回）
+  // ダンジョンの 中の 魔物（第64回 ⑥d: 番人は 4回に 1回）。ここは 自分の 乱数（魔物の 数が ふえても 上の ループで ずれない。第90回）
   let guard = 0, mob = 0;
+  const rng64 = makeRng(64);
   for (let i = 0; i < 3000; i++) {
-    if (rollDrops('tm_golem', rng, { map: 'sd_40' }).some((id) => SD.has(id))) guard++;
-    if (rollDrops('wolf', rng, { map: 'sd_40' }).some((id) => SD.has(id))) mob++;
+    if (rollDrops('tm_golem', rng64, { map: 'sd_40' }).some((id) => SD.has(id))) guard++;
+    if (rollDrops('wolf', rng64, { map: 'sd_40' }).some((id) => SD.has(id))) mob++;
   }
   assert.ok(guard > 600 && guard < 900, `番人 ${guard}/3000`);
   assert.ok(mob > 5 && mob < 50, `ふつうの 魔物 ${mob}/3000`);

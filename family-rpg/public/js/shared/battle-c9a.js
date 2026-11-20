@@ -575,7 +575,7 @@ export function c9aSoon(b, c, e) {
 // ───────────── がめんへ（battle.js の pub の さいご。味方も 敵も）─────────────
 // 味方: torch9（ともしび 1 ついて いる・0 消えた。ためしの 戦いだけ）
 // スイトール1号: c9Aim（向けて いる）・c9AimLeft・c9AimEvery・c9Broken（すいこみ口が こわれて いる）・c9FixLeft
-// すいこみ口: c9Nozzle / ホシモリ: dawn・dawnMax・breathLeft・breathEvery・breathAim（ねらう 人の id）・hmWin（うなずいた）
+// すいこみ口: c9Nozzle / ホシモリ: hmDawn・hmDawnMax・hmBreathLeft・hmBreathEvery・hmBreathAim（ねらう 人の id）・hmWin（うなずいた）
 export function c9aPub(c) {
   const o = {};
   if (c.side === 'ally') {
@@ -594,11 +594,11 @@ export function c9aPub(c) {
   if (c.species === C9A_NOZZLE) o.c9Nozzle = 1;
   if (c.c9h) {
     const h = c.c9h;
-    o.dawn = h.dawn;
-    o.dawnMax = h.max;
-    o.breathLeft = h.aim.length ? 0 : h.left;
-    o.breathEvery = trialConf(c).every;
-    o.breathAim = h.aim.slice();
+    o.hmDawn = h.dawn;
+    o.hmDawnMax = h.max;
+    o.hmBreathLeft = h.aim.length ? 0 : h.left;
+    o.hmBreathEvery = trialConf(c).every;
+    o.hmBreathAim = h.aim.slice();
     o.hmWin = h.won ? 1 : 0;
   }
   return o;
