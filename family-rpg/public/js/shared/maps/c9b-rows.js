@@ -45,7 +45,7 @@ export const SHAFT = [
 ];
 export const SHAFT_POS = {
   up: { x: 9, y: 1 }, // 上り 階段（鉱山の いちばん 下の 下り 階段と つながる）
-  ledge: { x: 3, y: 21, w: 12, h: 3 }, // 足もとが なくなる 所（おどろきの 場面）
+  ledge: { x: 2, y: 21, w: 16, h: 3 }, // 足もとが なくなる 所（おどろきの 場面）
   view: { x: 9, y: 29 }, // 空どうを 見わたす 所（カメラ）
   exit: { x: 20, y: 33 }, // 大地の下への 出口
 };
@@ -114,10 +114,10 @@ export const UNDER_POS = {
 };
 // 天じょうから ぶら下がる 今までの ダンジョンの 底（かざりの 絵。client/c9b-light.js）。x, y … 下の はし（かげの まん中）/ w, h … 絵の 大きさ（マス）
 export const UNDER_DECOR = [
-  { kind: 'mine', x: 10, y: 4, w: 11, h: 7 }, // カナトコ鉱山の 底（たてあなの 出口の 上）
-  { kind: 'temple', x: 24, y: 42, w: 12, h: 9 }, // 水の神殿の 底
-  { kind: 'pyramid', x: 66, y: 52, w: 14, h: 10 }, // ピラミッドの 底（川の 先）
-  { kind: 'town', x: 5, y: 46, w: 10, h: 8, far: true }, // さかさの 町（遠くの かざり。入れない）
+  { kind: 'mine', x: 10, y: 7, w: 11, h: 7 }, // カナトコ鉱山の 底（たてあなの 出口の 上。下を 通ると かげ）
+  { kind: 'temple', x: 28, y: 54, w: 12, h: 9 }, // 神殿の 底（川の むこう）
+  { kind: 'pyramid', x: 66, y: 55, w: 14, h: 10 }, // ピラミッドの 底（川の 先）
+  { kind: 'town', x: 5, y: 50, w: 10, h: 8, far: true }, // さかさの 町（西の 空どうの 上。遠くの かざり。入れない）
 ];
 // たてあなの 空どうの かざり（おどろきの 場面で 見る）
 export const SHAFT_DECOR = [

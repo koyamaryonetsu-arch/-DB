@@ -145,7 +145,9 @@ async function build(size, seed) {
   const visit = big ? maps : maps.slice(0, Math.min(maps.length, TYPICAL.maps));
   for (const m of visit) {
     c.visited[m.id] = true;
-    c.explored[m.id] = walkExplored(m, R, big ? 0.6 + R() * 0.35 : 0.3 + R() * 0.5);
+    // 第91回 A班: 大地の下（map.noExplore）は ゲームでも「行った 所」を 取らない（world.js の onExplored）
+    const e = walkExplored(m, R, big ? 0.6 + R() * 0.35 : 0.3 + R() * 0.5); // たねの ならびを かえない ため 作っては おく
+    if (!m.noExplore) c.explored[m.id] = e;
   }
   // 魔物（たおした 数・図鑑）
   const ms = big ? monsters : monsters.slice(0, Math.min(monsters.length, TYPICAL.monsters));

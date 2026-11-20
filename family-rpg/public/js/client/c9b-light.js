@@ -161,81 +161,105 @@ export function drawC9bDark3D(field, ctx, P) {
 
 // ───── 天じょうから ぶら下がる ダンジョンの 底（かざりの 絵）─────
 // 1マス 8ドット。下の はしが 先（ぶら下がった 先）。上は 天じょうの やみに とける
+// 暗い 色で かき、ふちだけ 青白く 光らせる（やみの 中に うかぶ）。近く（真下）では うすく、遠いほど はっきり
 const DPX = 8;
 const decorCache = new Map();
+// 形（行ごとの [左, 右]）を ぬる: 石の だん・れんがの すじ・左は 光・右は かげ・ふちは 青白い 光
+function fillShape(p, rows, C, opt = {}) {
+  const brick = opt.brick || 4;
+  const y0 = opt.y0 || 0;
+  rows.forEach(([a, b], k) => {
+    const y = y0 + k;
+    if (b < a) return;
+    for (let x = a; x <= b; x++) {
+      const u = (x - a) / Math.max(1, b - a);
+      let c = u < 0.22 ? C.l : u > 0.75 ? C.d : C.b;
+      if (y % brick === 0) c = C.d;
+      else if ((x + (Math.floor(y / brick) % 2) * 3) % 7 === 0) c = C.d;
+      if (opt.speck && (x * 7 + y * 13) % 23 === 0) c = C.hl;
+      p.set(x, y, c);
+    }
+    p.set(a, y, C.rim); p.set(b, y, C.rim2 || C.rim);
+  });
+}
 function decorCanvas(kind, w, h) {
   const key = `${kind}|${w}|${h}`;
   if (decorCache.has(key)) return decorCache.get(key);
   const W = w * DPX, H = h * DPX;
   const p = new Painter(W, H);
   const cx = W / 2;
+  const R = (n, fn) => Array.from({ length: n }, (_, y) => fn(y));
   if (kind === 'mine') {
-    // さかさの 岩山（先が 細い）・つき出た 坑道の 木わく・ぶら下がる ランタン
-    for (let y = 0; y < H; y++) {
-      const half = (W / 2) * Math.pow(1 - y / H, 0.8) * (0.9 + 0.1 * Math.sin(y * 0.7));
-      for (let x = Math.round(cx - half); x <= Math.round(cx + half); x++) p.set(x, y, ((x * 3 + y * 5) % 11 < 2) ? '#4a4258' : (x < cx - half * 0.4 ? '#2e2838' : '#3a3448'));
-    }
-    for (const [bx, by] of [[0.3, 0.25], [0.65, 0.4], [0.45, 0.6]]) {
+    // さかさの 岩山（先が 細い。ごつごつ）・つき出た 坑道の 木わく・レール・ぶら下がる ランタン
+    const C = { d: '#1e1a28', b: '#2c2638', l: '#3c3450', hl: '#5a5276', rim: '#7a8ab8', rim2: '#3a4462' };
+    fillShape(p, R(H - 2, (y) => {
+      const half = (W / 2 - 1) * Math.pow(1 - y / (H - 2), 0.75) * (0.86 + 0.14 * Math.sin(y * 0.9 + 1));
+      return [Math.round(cx - half), Math.round(cx + half * (0.9 + 0.1 * Math.cos(y * 0.6)))];
+    }), C, { brick: 5, speck: true });
+    for (const [bx, by] of [[0.28, 0.22], [0.6, 0.36], [0.42, 0.55]]) {
       const x0 = Math.round(W * bx), y0 = Math.round(H * by);
-      p.rect(x0, y0, 7, 2, '#8a6a3a'); p.vline(x0, y0, y0 + 6, '#6a4a2a'); p.vline(x0 + 6, y0, y0 + 6, '#6a4a2a');
+      p.rect(x0, y0, 8, 2, '#7a5a32'); p.hline(x0, x0 + 7, y0, '#a8804a'); p.vline(x0, y0, y0 + 7, '#5a4024'); p.vline(x0 + 7, y0, y0 + 7, '#5a4024');
+      p.rect(x0 + 1, y0 + 2, 6, 6, '#0a080e');
     }
-    p.vline(Math.round(cx) + 3, H - 10, H - 4, '#8a8a9a'); p.ellipse(cx + 3, H - 3, 2, 2, '#ffc85a');
+    p.hline(Math.round(W * 0.2), Math.round(W * 0.55), Math.round(H * 0.45), '#6a6a7a'); // レール
+    p.vline(Math.round(cx) + 2, H - 12, H - 4, '#8a8a9a'); p.ellipse(cx + 2, H - 3, 2.2, 2, '#ffc85a'); p.set(Math.round(cx) + 2, H - 3, '#fff4c0');
   } else if (kind === 'pyramid') {
-    // さかさの ピラミッド（だんだんの 石・先から 砂が こぼれる）
-    for (let y = 0; y < H - 4; y++) {
-      const half = (W / 2) * (1 - y / (H - 4));
-      const step = Math.floor(y / 4) % 2;
-      for (let x = Math.round(cx - half); x <= Math.round(cx + half); x++) p.set(x, y, step ? '#8a7448' : '#a08a58');
-      p.set(Math.round(cx - half), y, '#c8b078');
-    }
-    for (let y = H - 5; y < H; y++) if (y % 2 === 0) p.set(Math.round(cx), y, '#e0c88a');
+    // さかさの ピラミッド（だんだんの 石・入口の あと・先から 砂が こぼれる）
+    const C = { d: '#4a3c22', b: '#6a5634', l: '#8a7246', hl: '#b09660', rim: '#d8c48a', rim2: '#6a5a3a' };
+    fillShape(p, R(H - 5, (y) => { const half = (W / 2 - 1) * (1 - y / (H - 5)); const st = Math.floor(y / 3) * 3; const hs = (W / 2 - 1) * (1 - st / (H - 5)); return [Math.round(cx - Math.max(half, hs - 1)), Math.round(cx + Math.max(half, hs - 1))]; }), C, { brick: 3 });
+    p.rect(Math.round(cx) - 3, Math.round(H * 0.2), 6, 5, '#1a140a'); p.hline(Math.round(cx) - 4, Math.round(cx) + 3, Math.round(H * 0.2) - 1, C.hl);
+    for (let y = H - 6; y < H; y++) if (y % 2 === 0) { p.set(Math.round(cx), y, '#e0c88a'); p.set(Math.round(cx) + (y % 4 ? 1 : -1), y + 1, '#b8a070'); }
   } else if (kind === 'temple') {
-    // さかさの 神殿（上に 土台・下に むかって 柱と 屋根の 三角。水が しずく）
-    const base = Math.round(H * 0.28);
-    p.rect(Math.round(W * 0.05), 0, Math.round(W * 0.9), base, '#5a6a8a');
-    p.hline(Math.round(W * 0.05), Math.round(W * 0.95), base - 1, '#8aa0c8');
+    // さかさの 神殿（上に 土台・下へ のびる 柱・さかさの 屋根の 三角。水の しずく）
+    const S = { d: '#22283a', b: '#34405a', l: '#4a5a7a', hl: '#6a7a9a', rim: '#9ab8e8', rim2: '#3a4a66' };
+    const base = Math.round(H * 0.26);
+    fillShape(p, R(base, () => [Math.round(W * 0.04), Math.round(W * 0.96)]), S, { brick: 3 });
     for (let i = 0; i < 5; i++) {
-      const x0 = Math.round(W * (0.15 + i * 0.17));
-      p.rect(x0, base, 3, Math.round(H * 0.4), '#7a8aa8'); p.vline(x0, base, base + Math.round(H * 0.4), '#a8b8d8');
+      const x0 = Math.round(W * (0.14 + i * 0.17));
+      for (let y = base; y < base + Math.round(H * 0.38); y++) { p.set(x0, y, S.rim); p.set(x0 + 1, y, S.l); p.set(x0 + 2, y, S.b); p.set(x0 + 3, y, S.d); }
     }
-    const r0 = base + Math.round(H * 0.4);
-    for (let y = r0; y < H - 2; y++) {
-      const half = (W * 0.45) * (1 - (y - r0) / (H - 2 - r0));
-      p.hline(Math.round(cx - half), Math.round(cx + half), y, '#4a5a7a');
-    }
-    p.set(Math.round(cx), H - 1, '#8ad0ff'); p.set(Math.round(W * 0.3), base + Math.round(H * 0.45), '#8ad0ff');
+    const r0 = base + Math.round(H * 0.38);
+    fillShape(p, R(H - 2 - r0, (k) => { const half = (W * 0.47) * (1 - k / (H - 2 - r0)); return [Math.round(cx - half), Math.round(cx + half)]; }), S, { brick: 4, y0: r0 });
+    for (const [dx, dy] of [[0, 1], [-0.22, 0.6], [0.25, 0.7]]) p.set(Math.round(cx + dx * W), Math.min(H - 1, Math.round(r0 + dy * (H - r0))), '#8ad0ff');
   } else if (kind === 'town') {
-    // さかさの 町（屋根が 下・まどに 明かり）
+    // さかさの 町（家が 天じょうから さかさに ならぶ。屋根が 下・まどに あたたかい 明かり）
     const n = Math.max(3, Math.floor(w / 2.5));
     for (let i = 0; i < n; i++) {
-      const x0 = Math.round((i + 0.1) * (W / n)), hw = Math.round(W / n * 0.8);
-      const hh = Math.round(H * (0.4 + ((i * 37) % 5) * 0.08));
-      p.rect(x0, 0, hw, hh, i % 2 ? '#3a3448' : '#443a52');
-      for (let y = hh; y < hh + Math.round(hw / 2); y++) { const k = y - hh; p.hline(x0 + k, x0 + hw - 1 - k, y, '#5a3a4a'); }
-      p.set(x0 + 2, Math.round(hh * 0.5), '#ffd88a'); p.set(x0 + hw - 3, Math.round(hh * 0.3), '#ffd88a');
+      const x0 = Math.round((i + 0.08) * (W / n)), hw = Math.round(W / n * 0.84);
+      const hh = Math.round(H * (0.38 + ((i * 37) % 5) * 0.07));
+      const wall = { d: '#1e1a28', b: i % 2 ? '#2e2838' : '#342c40', l: '#443a52', hl: '#5a4e6a', rim: '#8a7ab0' };
+      fillShape(p, R(hh, () => [x0, x0 + hw - 1]), wall, { brick: 4 });
+      for (let k = 0; k < Math.round(hw / 2); k++) { p.hline(x0 + k, x0 + hw - 1 - k, hh + k, k % 2 ? '#4a2a3a' : '#5a3446'); p.set(x0 + k, hh + k, '#a87a98'); }
+      p.rect(x0 + 2, Math.round(hh * 0.45), 2, 2, '#ffd88a'); p.rect(x0 + hw - 4, Math.round(hh * 0.25), 2, 2, '#ffc86a');
     }
   }
   // 上の はしは やみに とける（天じょう）
-  for (let y = 0; y < Math.min(6, H); y++) for (let x = 0; x < W; x++) if (p.get(x, y) && (x + y) % (y + 1) === 0) p.set(x, y, '#100c18');
+  for (let y = 0; y < Math.min(8, H); y++) for (let x = 0; x < W; x++) if (p.get(x, y) && (x * 3 + y * 5) % (y + 2) === 0) p.set(x, y, '#0a0812');
   const c = p.toCanvas(1);
   decorCache.set(key, c);
   return c;
 }
+// 見る 人との きょりで うすさを かえる（真下は うすく・はなれると はっきり）
+const decorAlpha = (D, field) => {
+  const d = Math.hypot(D.x - field.me.x, D.y - D.h * 0.5 - field.me.y);
+  const a = Math.max(0.22, Math.min(0.78, (d - 2) / 10));
+  return D.far ? Math.min(a, 0.5) : a;
+};
 // ゆかの かげ（人や 物より 先に）
 export function drawC9bShade2D(field, camX, camY) {
   const ctx = field.ctx;
   for (const D of field.map.c9bDecor || []) {
     if (D.far) continue;
     const px = (D.x + 0.5) * TS - camX, py = (D.y + 0.5) * TS - camY;
-    const rx = D.w * TS * 0.42, ry = D.h * TS * 0.28;
-    const gr = ctx.createRadialGradient(px, py - ry * 0.6, 1, px, py - ry * 0.6, rx);
-    gr.addColorStop(0, 'rgba(0, 0, 6, 0.45)');
+    const rx = D.w * TS * 0.42;
+    const gr = ctx.createRadialGradient(px, py, 1, px, py, rx);
+    gr.addColorStop(0, 'rgba(0, 0, 6, 0.4)');
     gr.addColorStop(1, 'rgba(0, 0, 6, 0)');
     ctx.fillStyle = gr;
-    ctx.fillRect(px - rx, py - ry * 0.6 - rx, rx * 2, rx * 2);
+    ctx.fillRect(px - rx, py - rx, rx * 2, rx * 2);
   }
 }
-// ぶら下がる 絵（くらやみの あと。暗い 所でも 青白い ふちで うかんで 見える）
+// ぶら下がる 絵（くらやみの あと。暗い 所でも ふちが 青白く うかんで 見える）
 export function drawC9bDecor2D(field, camX, camY) {
   const ctx = field.ctx;
   const t = field.time;
@@ -243,38 +267,38 @@ export function drawC9bDecor2D(field, camX, camY) {
     const c = decorCanvas(D.kind, D.w, D.h);
     const sw = D.w * TS, sh = D.h * TS;
     const bob = Math.sin(t / 1400 + D.x) * 2;
-    const x = Math.round((D.x + 0.5) * TS - camX - sw / 2), y = Math.round((D.y + 0.5) * TS - camY - sh - TS * 2 + bob);
+    const x = Math.round((D.x + 0.5) * TS - camX - sw / 2), y = Math.round((D.y + 0.5) * TS - camY - sh - TS * 3 + bob);
     if (x > field.vw || y > field.vh || x + sw < 0 || y + sh < 0) continue;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
-    ctx.globalAlpha = D.far ? 0.55 : 0.82;
+    ctx.globalAlpha = decorAlpha(D, field);
     ctx.drawImage(c, x, y, sw, sh);
-    ctx.globalAlpha = 1;
     ctx.restore();
   }
 }
-// 2.5D: 天じょうの 高さに うかべる（P(x, y, up)）
-const DECOR_UP = 5.5;
+// 2.5D: 天じょうの 高さに うかべる（P(x, y, up)）。大きさは ゆかの 1マスの 大きさで（近くで 大きく なりすぎない）
+const DECOR_UP = 3.2;
 export function drawC9bDecor3D(field, ctx, P) {
   const t = field.time;
   for (const D of field.map.c9bDecor || []) {
     if (Math.abs(D.x - field.me.x) > 40 || Math.abs(D.y - field.me.y) > 40) continue;
     const c = decorCanvas(D.kind, D.w, D.h);
+    const s = P(D.x + 0.5, D.y + 0.5, 0.02);
+    if (!Number.isFinite(s.k) || s.k <= 0 || s.k > 400) continue;
     // かげ（ゆか）
     if (!D.far) {
-      const s = P(D.x + 0.5, D.y + 0.5, 0.02);
       const rx = D.w * s.k * 0.42;
       const gr = ctx.createRadialGradient(s.x, s.y, 1, s.x, s.y, rx);
-      gr.addColorStop(0, 'rgba(0, 0, 6, 0.45)');
+      gr.addColorStop(0, 'rgba(0, 0, 6, 0.4)');
       gr.addColorStop(1, 'rgba(0, 0, 6, 0)');
       ctx.fillStyle = gr;
       ctx.fillRect(s.x - rx, s.y - rx * 0.5, rx * 2, rx);
     }
     const p = P(D.x + 0.5, D.y + 0.5, DECOR_UP + Math.sin(t / 1400 + D.x) * 0.05);
-    const sw = D.w * p.k, sh = D.h * p.k;
+    const sw = D.w * s.k, sh = D.h * s.k;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
-    ctx.globalAlpha = D.far ? 0.55 : 0.85;
+    ctx.globalAlpha = decorAlpha(D, field);
     ctx.drawImage(c, Math.round(p.x - sw / 2), Math.round(p.y - sh), sw, sh);
     ctx.restore();
   }

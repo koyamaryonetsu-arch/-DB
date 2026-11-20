@@ -12,12 +12,12 @@ export const C9B_NPC_LOOKS = {
 
 // 地下の 民（16×18）
 const FOLK = {
-  c9b_folk1: { body: '#8a7aa8', dark: '#5a4a78', cap: '#c8b8e0' },
-  c9b_folk2: { body: '#c88a9a', dark: '#985a6a', cap: '#f0c8d0' },
-  c9b_folk3: { body: '#7aa88a', dark: '#4a785a', cap: '#c8e8d0' },
-  c9b_folk4: { body: '#b8a070', dark: '#887040', cap: '#f0e0b8' },
-  c9b_chief: { body: '#6a6a8a', dark: '#40405a', cap: '#d8d8f0', beard: true },
-  c9b_kid: { body: '#9ab0d8', dark: '#6a80a8', cap: '#e0e8ff', small: true },
+  c9b_folk1: { body: '#8a7aa8', dark: '#5a4a78', cap: '#e8d0b8' },
+  c9b_folk2: { body: '#c86a7a', dark: '#984a5a', cap: '#f0d0b8' },
+  c9b_folk3: { body: '#5a9a6a', dark: '#3a6a4a', cap: '#e0d4b0' },
+  c9b_folk4: { body: '#c8904a', dark: '#986a2a', cap: '#f0dcc0' },
+  c9b_chief: { body: '#5a5a9a', dark: '#3a3a6a', cap: '#d8c8b0', beard: true },
+  c9b_kid: { body: '#5a8ad8', dark: '#3a5aa8', cap: '#f0d8c0', small: true },
 };
 function paintFolk(kind, dir, f) {
   const C = FOLK[kind];
@@ -34,8 +34,10 @@ function paintFolk(kind, dir, f) {
   p.ellipse(8, 7 + oy, 4.2, 3.8, C.cap);
   if (dir !== 'up') {
     const ex = dir === 'left' ? -1 : dir === 'right' ? 1 : 0;
-    p.ellipse(6 + ex, 7 + oy, 1.4, 1.6, '#ffffff'); p.ellipse(10 + ex, 7 + oy, 1.4, 1.6, '#ffffff');
-    p.set(6 + ex, 7 + oy, '#1a1a2a'); p.set(10 + ex, 7 + oy, '#1a1a2a'); p.set(6 + ex, 8 + oy, '#1a1a2a'); p.set(10 + ex, 8 + oy, '#1a1a2a');
+    // 大きな 黒目（光の つぶ）・ほっぺ
+    p.ellipse(6 + ex, 7.5 + oy, 1.3, 1.7, '#2a1a30'); p.ellipse(10 + ex, 7.5 + oy, 1.3, 1.7, '#2a1a30');
+    p.set(6 + ex, 7 + oy, '#ffffff'); p.set(10 + ex, 7 + oy, '#ffffff');
+    p.set(4 + ex, 9 + oy, '#f0a0a0'); p.set(12 + ex, 9 + oy, '#f0a0a0');
     if (C.beard) { p.hline(6, 10, 10 + oy, '#f4f4f8'); p.set(8, 11 + oy, '#f4f4f8'); }
   }
   // 頭の ランタン（光る こけ）
