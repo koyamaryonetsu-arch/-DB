@@ -70,7 +70,7 @@ const CSS = `
 .b-mem .c9a-fire { display: inline-block; width: 0.62em; height: 0.9em; margin: 0 0.15em 0 0.25em; vertical-align: -0.05em;
   background: radial-gradient(ellipse at 50% 70%, #fff3a0 0 28%, #ffb84a 40%, #ff7a2a 62%, transparent 66%); border-radius: 50% 50% 45% 45% / 70% 70% 30% 30%; }
 .b-mem .c9a-fire.out { background: radial-gradient(ellipse at 50% 75%, #6a6a7a 0 30%, #3a3a4a 55%, transparent 60%); opacity: 0.8; }
-@media (max-aspect-ratio: 1/1) { .c9a-hud { font-size: 11px; padding: 1px 6px 1px 3px; } .c9a-hud canvas { width: 18px; height: 18px; } }
+@media (max-aspect-ratio: 1/1) { .c9a-hud { top: auto; bottom: 4px; font-size: 11px; padding: 1px 6px 1px 3px; } .c9a-hud canvas { width: 18px; height: 18px; } }
 `;
 function addCss() {
   if (typeof document === 'undefined' || document.getElementById('c9a-css')) return;
