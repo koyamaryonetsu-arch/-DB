@@ -574,10 +574,12 @@ function craftsScene() {
     ['chapter', '第1章　第1幕　星ふるえの夜', 'クリア！'],
     ...S('ノクト', '…7つの星の音、か。\n次は、どこへ行く？'),
     ...S(SP, '…{name}の、行く所。'),
-    ['objective', C9A_OBJ.act1],
+    ['objective', act1End9a],
     ['bgm', 'resume'],
   ];
 }
+// 第1幕 クリアの 目標の 文（第2幕が 開くと story-c9.js の act1ClearObjective。applyCh9a の 引数 act1End）
+let act1End9a = C9A_OBJ.act1;
 const SHOP9A = 'c9a_crater';
 if (!SHOPS[SHOP9A]) {
   SHOPS[SHOP9A] = {
@@ -755,7 +757,8 @@ const wrap = (SCRIPTS, id, fn) => {
   SCRIPTS[id] = Object.assign((x) => fn(x, base), base);
 };
 const festivalTime = (x) => x.flag(C9A.festival) && !x.flag(C9A.starfall);
-export function applyCh9a(SCRIPTS, STORY_SCRIPTS, { title = () => [] } = {}) {
+export function applyCh9a(SCRIPTS, STORY_SCRIPTS, { title = () => [], act1End = C9A_OBJ.act1 } = {}) {
+  act1End9a = act1End;
   Object.assign(SCRIPTS, c9aScripts(title));
   for (const id of CH9A_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   // ホシミばあちゃん: 第3部の 間は 第3部の ことば

@@ -29,6 +29,8 @@ import { attachGachaR88 } from './gacha-r88.js';
 import { attachRivalHall } from './rivals-r88.js';
 // 第90回 A班: 第3部 第1章 第1幕「星ふるえの夜」（maps/c9a.js）
 import { attachC9a } from './c9a.js';
+// 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（maps/c9b.js）
+import { attachC9b } from './c9b.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -339,6 +341,8 @@ function buildMaps() {
   attachRivalHall(maps);
   // 第3部 第1章 第1幕: 星ふるえの森・ながれ星のくぼ地・星の石の地下道・村の 祭り（maps/c9a.js。今の フィールドを ぜんぶ 作った あと）
   attachC9a(maps);
+  // 第3部 第1章 第2幕: たてあな・大地の下・大王のやしき・鉱山の 下り 階段・くぼ地の 武具屋（maps/c9b.js。第1幕の あと）
+  attachC9b(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

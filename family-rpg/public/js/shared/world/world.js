@@ -73,6 +73,8 @@ import { missionMessage, missionChest, missionFloor, chatName } from './missions
 import { stepC8r } from './c8r-steps.js';
 // 第90回 A班: 第3部 第1章 第1幕の 光の輪・星の子の 連れ（world/c9a-steps.js）
 import { stepC9a, c9aSnap, spicaFollows, spicaLook } from './c9a-steps.js';
+// 第91回 A班: 第3部 第1章 第2幕の 大地の下（柱の 明かりと 魔物。world/c9b-steps.js）
+import './c9b-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -1127,6 +1129,7 @@ export class GameWorld {
 
   onExplored(s, msg) {
     if (!MAPS[msg.map] || typeof msg.data !== 'string' || msg.data.length > 20000) return;
+    if (MAPS[msg.map].noExplore) return; // 第91回 A班: 大地の下は「行った 所」を 取らない（地図は 柱の 明るさ）
     s.char.explored = s.char.explored || {};
     s.char.explored[msg.map] = msg.data;
     this.markDirty();

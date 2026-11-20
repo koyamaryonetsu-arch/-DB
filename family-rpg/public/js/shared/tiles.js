@@ -101,6 +101,10 @@ export const T = {
   C9A_MOSS: 407, C9A_SOURCE: 408, C9A_CRYSTAL: 409, C9A_CRYSTAL_ON: 410, C9A_DOOR: 411, C9A_HOLE: 412, C9A_LOG: 413, C9A_SHARD: 414,
   C9A_STARROCK: 415, C9A_CRATER: 416, C9A_TENT: 417, C9A_BOARD: 418, C9A_CHALKDOOR: 419, C9A_ICEDOOR: 420, C9A_ROPE: 421,
   C9A_TRIALDOOR: 422, C9A_PEDESTAL: 423, C9A_LANTERN: 424, C9A_LANTERN_ON: 425, C9A_RIM: 426,
+  // 第3部 第1章 第2幕「鉱山の底の先」（第91回 A班。427〜446）
+  C9B_GROUND: 427, C9B_ROCK: 428, C9B_PILLAR: 429, C9B_PILLAR_ON: 430, C9B_MOSS: 431, C9B_VOID: 432, C9B_CLIFF: 433, C9B_SHAFT: 434,
+  C9B_RIVER: 435, C9B_DOCK: 436, C9B_HUT: 437, C9B_LUMP: 438, C9B_LUMP_ON: 439, C9B_HALL: 440, C9B_HALLWALL: 441, C9B_TABLE: 442,
+  C9B_BOX: 443, C9B_GATE: 444, C9B_CRATE: 445, C9B_LAMP: 446,
 };
 
 export const TILE_INFO = {};
@@ -547,6 +551,27 @@ def(T.C9A_PEDESTAL, 'c9a_pedestal', { solid: true, talkThrough: true, light: tru
 def(T.C9A_LANTERN, 'c9a_lantern', { solid: true, talkThrough: true, mapColor: '#8a5a3a' }); // 祭りの ちょうちん（まだ 火が ない）
 def(T.C9A_LANTERN_ON, 'c9a_lantern_on', { solid: true, talkThrough: true, light: true, mapColor: '#ffb84a' }); // 火の ともった ちょうちん
 def(T.C9A_RIM, 'c9a_rim', { solid: true, mapColor: '#4a3626' }); // くぼ地の ふち（ながれ星が 落ちて もり上がった 焼けた 土）
+// 第3部 第1章 第2幕「鉱山の底の先」（第91回 A班。大地の下・たてあな・ヒカリゴケの里・大王のやしき。明るさは world/c9b-steps.js・client/c9b-light.js）
+def(T.C9B_GROUND, 'c9b_ground', { mapColor: '#3a3448' }); // 大地の下の ゆか（暗い 土）
+def(T.C9B_ROCK, 'c9b_rock', { solid: true, mapColor: '#16141e' }); // 大地の下の 岩
+def(T.C9B_PILLAR, 'c9b_pillar', { solid: true, talkThrough: true, mapColor: '#5a6a8a' }); // 水晶の 柱（まだ ともって いない）
+def(T.C9B_PILLAR_ON, 'c9b_pillar_on', { solid: true, talkThrough: true, light: true, anim: true, mapColor: '#d8f8ff' }); // ともった 水晶の 柱
+def(T.C9B_MOSS, 'c9b_moss', { mapColor: '#2e4a3a' }); // 光る こけの 原（ふむと しばらく 光る）
+def(T.C9B_VOID, 'c9b_void', { solid: true, mapColor: '#05040a' }); // 大きな 空どう（足もとが ない）
+def(T.C9B_CLIFF, 'c9b_cliff', { solid: true, mapColor: '#2a2430' }); // たてあなの 岩かべ
+def(T.C9B_SHAFT, 'c9b_shaft', { mapColor: '#5a5060' }); // たてあなの 道
+def(T.C9B_RIVER, 'c9b_river', { solid: true, water: true, anim: true, mapColor: '#1a3a5a' }); // 地下の 川
+def(T.C9B_DOCK, 'c9b_dock', { mapColor: '#7a5a3a' }); // 船着き場（木の さんばし）
+def(T.C9B_HUT, 'c9b_hut', { solid: true, mapColor: '#6a5a4a' }); // 地下の 民の 家（キノコの 形の 石の 家）
+def(T.C9B_LUMP, 'c9b_lump', { solid: true, talkThrough: true, mapColor: '#4a4a3a' }); // 村の 明かりの 台（光る こけが ない）
+def(T.C9B_LUMP_ON, 'c9b_lump_on', { solid: true, talkThrough: true, light: true, anim: true, mapColor: '#c8ffb0' }); // 村の 明かり（光る こけの 大きな かたまり）
+def(T.C9B_HALL, 'c9b_hall', { mapColor: '#8a4a3a' }); // 大王のやしきの ゆか
+def(T.C9B_HALLWALL, 'c9b_hallwall', { solid: true, mapColor: '#3a2a22' }); // 大王のやしきの かべ
+def(T.C9B_TABLE, 'c9b_table', { solid: true, talkThrough: true, mapColor: '#b8884a' }); // ごちそうの テーブル
+def(T.C9B_BOX, 'c9b_box', { solid: true, talkThrough: true, mapColor: '#d8a84a' }); // 村の ごちそうの はこ（食料庫）
+def(T.C9B_GATE, 'c9b_gate', { solid: true, mapColor: '#a87a3a' }); // 大王のやしきの 門
+def(T.C9B_CRATE, 'c9b_crate', { solid: true, mapColor: '#6a4a2a' }); // 食料庫の たる・からの はこ
+def(T.C9B_LAMP, 'c9b_lamp', { solid: true, talkThrough: true, light: true, mapColor: '#b8f0a0' }); // 村の 小さな こけの 明かり
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

@@ -83,6 +83,8 @@ export const CHAPTERS = [
     n: 9, part: 3, start: 'c9_festival', clear: null, title: 'おちてきた星の子',
     acts: [
       { n: 1, start: 'c9_festival', title: '星ふるえの夜', seen: 'c9_festival', clear: 'c9_act1' },
+      // 第91回 A班: 第2幕（くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと）
+      { n: 2, start: 'c9_ring2', title: '鉱山の底の先', seen: 'c9_ring2', clear: 'c9_act2' },
     ],
   },
 ];

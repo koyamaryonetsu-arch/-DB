@@ -596,7 +596,8 @@ export function gameFiles() {
     'public/js/shared/data/sidequests-work8.js', 'public/js/shared/maps/work-quests8.js', 'public/js/client/render/work8-art.js',
     'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
     // 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（名前の 約束・台本・マップ・明かりを 広げる 探検・絵）
-    'public/js/shared/maps/c9b-flags.js',
+    'public/js/shared/maps/c9b-flags.js', 'public/js/shared/data/story-c9b.js', 'public/js/shared/maps/c9b.js', 'public/js/shared/maps/c9b-rows.js',
+    'public/js/shared/maps/c9b-under.js', 'public/js/shared/maps/c9b-light.js', 'public/js/shared/world/c9b-steps.js', 'public/js/shared/data/c9b-stub.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
