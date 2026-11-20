@@ -102,7 +102,12 @@ export const MONSTERS_C9A = {
     race: 'material', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9b_trio_badge'], bonus: ['limit_stone'], rare: ['c9b_kirajo_fan', 1] },
     resist: { ...BOSS_STATUS, bolt: 1.2, fire: 1.0, ice: 1.0, wind: 0.9, light: 1.0, dark: 1.0 },
-    c9a: { kind: 'trio', aim: 3, suck: { mult: 2.1 }, lost: { heal: 0.06, up: 1.12 }, fix: 3, light: 3 },
+    c9a: {
+      kind: 'trio', aim: 3, suck: { mult: 2.1 }, lost: { heal: 0.06, up: 1.12 }, fix: 3, light: 3,
+      // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: guard … 家族の キャラが 受けとめる すいこみの ばい /
+      //   nozzle … すいこみ口の HP の ばい / wait … すいこみ口を 向けてから すいこむまでに ふつうに 動く 回数
+      few: { guard: [0.55, 0.6, 0.8, 1, 1.3], nozzle: [0.7, 0.75, 0.9, 1, 1.3], wait: [1, 1, 0, 0, 0] },
+    },
     actions: [{ w: 3, id: 'm9t_punch' }, { w: 2, id: 'm9t_hose' }, { w: 2, id: 'm9t_bomb', cond: 'notRecent:m9t_bomb' }, { w: 1, id: 'm9t_pochi', cond: 'notRecent:m9t_pochi' }],
     desc: 'ホシドロ一味のキラジョ・ボヤッチ・ズラッカが乗る、そうじきの形の大きなメカ。星の光を、すいこもうとねらっている。',
   },
@@ -118,7 +123,13 @@ export const MONSTERS_C9A = {
     race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.55, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9b_dawn_feather'], bonus: ['limit_stone'], rare: ['c9b_owl_staff', 1] },
     resist: { ...BOSS_STATUS, light: 0.8, dark: 0.6, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0 },
-    c9a: { kind: 'trial', dawn: 16, every: 2, big: 9000, half: 0.5, spicaEvery: 3, two: 0.5, breath: [420, 450] },
+    c9a: {
+      kind: 'trial', dawn: 16, every: 2, big: 9000, half: 0.5, spicaEvery: 3, two: 0.5, breath: [420, 450],
+      // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: dawn … 夜明けまでの めもり / every … やみの いぶきまでの 行動 /
+      //   two … いぶきが 2人に なる めもりの わりあい（5人は はじめから 2人）
+      //   人が 少ない ときは めもりを みじかく・いぶきを 多く（いぶきの 番は ほかの 攻撃を しない ので、HP の けずりあいより しくみの 戦いに なる）
+      few: { dawn: [9, 12, 15, 16, 18], every: [1, 1, 2, 2, 1], two: [0.5, 0.5, 0.5, 0.5, 0] },
+    },
     actions: [{ w: 3, id: 'm9h_wing' }, { w: 2, id: 'm9h_hoot' }, { w: 1, id: 'm9h_gaze', cond: 'notRecent:m9h_gaze' }, { w: 1, id: 'attack' }],
     desc: '千年のあいだ、星の石の根を守ってきた、石のふくろう。明かりを消さずに夜明けまでたえられるか、ためしてくる。',
   },

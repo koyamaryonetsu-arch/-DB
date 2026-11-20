@@ -48,6 +48,10 @@ import { rankPoints } from '../tools/gen-monster-ranks.mjs';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { startFixedBattle } from '../public/js/shared/world/battles.js';
 import { Bot, tickN } from './helpers.js';
+import { readFileSync } from 'node:fs';
+import { peopleOf, trioConf as trioConfOf, dawnStage, AUTO_SHARE_EVERY } from '../public/js/shared/battle-c9a.js';
+import { PARTIES9, ch9Allies } from '../tools/sim-ch9.mjs';
+import { battlePhase, FORM_KEYS } from '../public/js/client/audio-scene.js';
 
 const ev0 = () => ({ lines: [], upd: [], results: [] });
 const turn = (b, c, cmd = { type: 'ai' }) => {
@@ -633,4 +637,183 @@ test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-che
     assert.ok(g, `${f} は gameFiles に ある`);
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
+});
+
+// ───────────── 人数で 合わせる（ひとりで 遊ぶ・2人で 遊ぶ・5人）─────────────
+// kinds … 味方の 種類（'player' 家族の キャラ・'support' 酒場の 人・'monster' 魔物の 仲間）
+function battleP(which, kinds, { seed = 3 } = {}) {
+  const four = ch9Party(which, CH9_LV[which]);
+  const allies = kinds.map((k, i) => ({ char: structuredClone(four[i % 4]), kind: k, controller: k === 'player' ? 'sim' : null, auto: true, tactics: 'balanced' }));
+  return new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: groupOf(C9A_BATTLE[which]) });
+}
+
+test('人数で 合わせる: 家族の キャラの 数（1〜5。いない 戦いは 4人）で すいこみ口の HP・受けとめる ダメージ・すいこむまでの 間・夜明けの めもり・いぶきの 間', () => {
+  const P = ['player'];
+  const S = 'support';
+  // 数え方
+  assert.equal(peopleOf(battle('trio')), 4, '家族の キャラが いない（テスト）は 4人');
+  assert.equal(peopleOf(battleP('trio', [...P, S, S, S])), 1);
+  assert.equal(peopleOf(battleP('trio', ['player', 'player', S, 'monster'])), 2);
+  assert.equal(peopleOf(battleP('trio', Array(5).fill('player'))), 5);
+  // 中ボス: すいこみ口の HP（1人は 小さく・5人は 大きく）
+  const nz4 = nozzleOf(battleP('trio', Array(4).fill('player'))).maxHp;
+  assert.equal(nz4, C9A_HIDDEN[C9A_NOZZLE].hp ?? nz4);
+  const b1 = battleP('trio', [...P, S, S, S]);
+  assert.ok(nozzleOf(b1).maxHp < nz4 && nozzleOf(b1).hp === nozzleOf(b1).maxHp);
+  assert.ok(nozzleOf(battleP('trio', Array(5).fill('player'))).maxHp > nz4);
+  const conf = MONSTERS[C9A_SUITORU].c9a.few;
+  for (const k of ['guard', 'nozzle', 'wait']) assert.equal(conf[k].length, 5, k);
+  assert.equal(conf.guard[3], 1, '4人は 今までと おなじ');
+  assert.equal(conf.nozzle[3], 1);
+  assert.equal(conf.wait[3], 0);
+  assert.ok(trioConfOf(mechaOf(b1), b1).guard < 1);
+  // 1人: すいこみ口を 向けた あと、メカは 1回 ふつうに 動いてから すいこむ
+  const m = mechaOf(b1);
+  let ev = effect(b1, m, AIM);
+  assert.ok(m.c9t.aim && m.c9t.wait === 1 && ev.lines.some((l) => l.includes('もうすこしで')));
+  m.queued = true;
+  ev = turn(b1, m);
+  assert.ok(ev.c9tWait && !m.telegraph, '1回目は ふつうの 行動');
+  ev = turn(b1, m);
+  assert.equal(m.telegraph, SUCK, '2回目で すいこむ');
+  // 4人は すぐ（今までと おなじ）
+  const b4 = battleP('trio', Array(4).fill('player'));
+  const m4 = mechaOf(b4);
+  effect(b4, m4, AIM);
+  m4.queued = true;
+  turn(b4, m4);
+  assert.equal(m4.telegraph, SUCK);
+  // 1人: 家族の キャラが 受けとめる すいこみは 小さい（酒場の 人は そのまま）
+  const hit = (b, g) => {
+    const mm = mechaOf(b);
+    for (const x of b.allies) x.defending = x === g;
+    mm.c9t.aim = true;
+    const hp0 = g.hp;
+    effect(b, mm, SUCK);
+    const d = hp0 - g.hp;
+    g.hp = g.maxHp;
+    return d;
+  };
+  const bb = battleP('trio', [...P, S, S, S], { seed: 2 });
+  const bb4 = battleP('trio', Array(4).fill('player'), { seed: 2 });
+  bb.rng = makeRng(11);
+  bb4.rng = makeRng(11);
+  const d1 = hit(bb, bb.allies[0]);
+  const d4 = hit(bb4, bb4.allies[0]);
+  assert.ok(d1 > 0 && d1 < d4 * 0.7, `1人 ${d1} < 4人 ${d4}`);
+  // ためし: 夜明けの めもり・いぶきの 間
+  const fewH = MONSTERS[C9A_HOSHIMORI].c9a.few;
+  assert.equal(fewH.dawn[3], MONSTERS[C9A_HOSHIMORI].c9a.dawn, '4人は 今までと おなじ');
+  assert.equal(fewH.every[3], MONSTERS[C9A_HOSHIMORI].c9a.every);
+  const t1 = battleP('trial', [...P, S, S, S]);
+  const h1 = hoshimoriOf(t1);
+  assert.equal(h1.c9h.max, fewH.dawn[0]);
+  assert.equal(c9aPub(h1).hmDawnMax, fewH.dawn[0]);
+  assert.equal(c9aPub(h1).hmBreathEvery, fewH.every[0]);
+  assert.ok(fewH.dawn[0] < fewH.dawn[3] && fewH.dawn[4] > fewH.dawn[3], '1人は みじかく・5人は 長く');
+  assert.equal(hoshimoriOf(battleP('trial', Array(5).fill('player'))).c9h.max, fewH.dawn[4]);
+  // 5人は はじめから 2人を ねらう
+  const t5 = battleP('trial', Array(5).fill('player'));
+  const h5 = hoshimoriOf(t5);
+  h5.queued = true;
+  h5.c9h.left = 1;
+  const tv = turn(t5, h5);
+  assert.equal(tv.c9hWarn.ids.length, 2);
+});
+
+test('自動の 仲間: ともしびが 消えた 仲間が いて 自分の 火が ある 時、3回に 1回「明かりをわける」（家族の キャラの オート・魔物の 仲間は わけない）', () => {
+  const decide = () => ({ type: 'attack' });
+  assert.equal(AUTO_SHARE_EVERY, 3);
+  const b = battleP('trial', ['player', 'support', 'support', 'monster']);
+  const [p, s1, s2, mon] = b.allies;
+  p.c9torch = false;
+  const got = [];
+  for (let i = 0; i < 6; i++) got.push(c9aPlan(b, i % 2 ? s2 : s1, decide));
+  assert.deepEqual(got.map((x) => !!x), [false, false, true, false, false, true], '自動の 仲間 みんなで 3回に 1回');
+  assert.deepEqual(got[2], { type: 'ability', id: SHARE, target: p.id });
+  // 自分の 火が ない・消えた 仲間が いない ときは わけない（数も すすまない）
+  s1.c9torch = false;
+  const n0 = b.c9autoShare;
+  assert.equal(c9aPlan(b, s1, decide), null);
+  p.c9torch = true;
+  s1.c9torch = true;
+  assert.equal(c9aPlan(b, s2, decide), null);
+  assert.equal(b.c9autoShare, n0);
+  // 家族の キャラの オート・魔物の 仲間は わけない
+  s1.c9torch = false;
+  for (let i = 0; i < 6; i++) {
+    assert.equal(c9aPlan(b, p, decide), null, '家族の キャラの オート');
+    assert.equal(c9aPlan(b, mon, decide), null, '魔物の 仲間');
+  }
+  // 3人組の 戦いでは 何も しない（防御も しない）
+  const t = battleP('trio', ['player', 'support', 'support', 'support']);
+  mechaOf(t).c9t.aim = true;
+  for (let i = 0; i < 4; i++) assert.equal(c9aPlan(t, t.allies[1], decide), null);
+});
+
+test('強さ（人数）: 1人が 知って いる ＋ 自動の 仲間 3人でも 勝てる・全員 自動では 勝てない（少しの 回数）', { timeout: 600000 }, () => {
+  assert.deepEqual(Object.keys(PARTIES9).sort(), ['k1mon', 'k1npc', 'k2npc', 'p4', 'p5', 'solo'].sort());
+  // 人数の やり方の 味方: 人は 知って いる・のこりは 自動
+  const al = ch9Allies('trial', 98, 'k1npc');
+  assert.equal(al.length, 4);
+  assert.deepEqual(al.map((x) => x.know), [true, false, false, false]);
+  assert.equal(ch9Allies('trial', 98, 'p5').length, 5);
+  assert.equal(ch9Allies('trial', 98, 'solo').length, 1);
+  assert.ok(ch9Allies('trial', 98, 'k1mon').slice(1).every((x) => x.monster));
+  for (const boss of ['trio', 'trial']) {
+    const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { party: 'k1npc' }));
+    assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss}: 1人＋酒場3人 ${know.map((r) => r.outcome).join(',')}`);
+    const auto = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'auto', 9090 + s * 7919, { party: 'k1npc' }));
+    assert.ok(auto.filter((r) => r.outcome === 'win').length <= 1, `${boss}: 全員 自動 ${auto.map((r) => r.outcome).join(',')}`);
+  }
+});
+
+test('曲の もりあがり: ためしの 夜明けの めもりの 段 dawnStage（1 夜・2 夜明け前・3 夜明け・4 さいご）が pub に 出て、めもりが 進むと 曲の だんが 上がる', () => {
+  assert.ok(FORM_KEYS.includes('dawnStage'), 'F班の audio-scene.js');
+  // めやす（めもり 16）: 0〜4 → 1・5〜9 → 2・10〜13 → 3・14〜 → 4
+  assert.deepEqual([0, 4, 5, 9, 10, 13, 14, 16].map((d) => dawnStage(d, 16)), [1, 1, 2, 2, 3, 3, 4, 4]);
+  assert.equal(dawnStage(3, 16, true), 4, 'うなずいたら さいご');
+  const b = battle('trial');
+  const h = hoshimoriOf(b);
+  let prev = 0;
+  const phases = [];
+  for (let d = 0; d <= h.c9h.max; d++) {
+    h.c9h.dawn = d;
+    const p = c9aPub(h);
+    assert.equal(p.dawnStage, dawnStage(d, h.c9h.max));
+    // クライアントの ボスの すがた（pub の 中身）で 曲の だんを きめる
+    prev = battlePhase({ boss: true, enemies: [{ ...pub(h), species: h.species, side: 'enemy' }], monsters: MONSTERS, prev });
+    phases.push(prev);
+  }
+  assert.equal(phases[0], 0, 'はじめは 曲の 形のまま');
+  assert.equal(phases.at(-1), 3, 'さいごは だん 3');
+  assert.deepEqual([...new Set(phases)], [0, 1, 2, 3], '1つずつ 上がる');
+  // HP が へっても めもりが 進まなければ 上がらない（めもりの 段が 先）
+  h.c9h.dawn = 0;
+  h.hp = 1;
+  assert.equal(battlePhase({ boss: true, enemies: [{ ...pub(h), species: h.species, side: 'enemy' }], monsters: MONSTERS }), 0);
+  // 3人組・ほかの 敵には 出ない
+  const t = battle('trio');
+  assert.equal(c9aPub(mechaOf(t)).dawnStage, undefined);
+});
+
+test('名前: メカは「スイトール1号」・3人組は「ホシドロ一味」（キラジョ・ボヤッチ・ズラッカ）・ボスは「ホシモリ」（「すいとる号」「星守りのふくろう」は 出ない）', () => {
+  assert.equal(MONSTERS[C9A_SUITORU].name, 'スイトール1号');
+  assert.equal(MONSTERS[C9A_HOSHIMORI].name, 'ホシモリ');
+  assert.deepEqual(TRIO, { group: 'ホシドロ一味', leader: 'キラジョ', maker: 'ボヤッチ', strong: 'ズラッカ' });
+  const gf = gameFiles().filter((f) => /c9a/.test(f));
+  assert.ok(gf.length >= 8);
+  for (const f of gf) {
+    const s = readFileSync(f, 'utf8');
+    assert.ok(!/すいとる号|星守りのふくろう/.test(s), f);
+  }
+  // メカを たおすと「ホシドロ一味は、空のかなたへ」
+  const b = battle('trio');
+  const m = mechaOf(b);
+  const ev = ev0();
+  b.kill(m, null, ev);
+  assert.ok((ev.postLines || []).some((l) => l.startsWith('ホシドロ一味は、空のかなたへ')));
+  assert.ok(ITEMS.c9b_trio_badge.desc.startsWith('ホシドロ一味が'));
+  // 負けた 時の ヒントの 3回目は「仲間も つれて 来い」（ひとりだけでは 勝てない 強さ）
+  for (const id of [C9A_BATTLE.trio, C9A_BATTLE.trial]) assert.ok(C9A_BOSS_HINTS[id][2].includes('仲間もつれて来い'), id);
 });

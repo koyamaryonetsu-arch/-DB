@@ -7,7 +7,10 @@
 //     auto  … 完全オート（ふつうの オート。しくみを 使わない ＝「ぼうぎょ」も「明かりをわける」も えらばない）
 //     blind … 知らない 人（しくみを 知らない。合体技は する）
 //     know  … 知っている 人（しくみを 知って 戦う）
-//   LOG=1 … 1回だけ ようすを 出す（BOSS=trio・MODE=know・LV・SEED）
+//   PARTY=k1npc,solo … 人数の やり方（PARTIES9。PARTY=all … 全部。人4人 いがいは おすすめの レベルで 完全オートと 知っている 人）
+//     めやす: 1人＋自動 3人 … 5わり いじょう・2人＋自動 2人 … 5〜7わり・5人 … 9わりを こえない・完全オート … 0わり 近く
+//     （人数で 合わせる 表は monsters-c9a.js の c9a.few。ひとりだけ〈仲間 なし〉は 勝てない … ノクトの ヒントの 3回目）
+//   LOG=1 … 1回だけ ようすを 出す（BOSS=trio・MODE=know・LV・SEED・PARTY）
 //   HPK・ATKK・MAGK・SPD … 敵の 強さを かけて ためす
 import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -19,6 +22,8 @@ import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
 import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
+import { monsterChar } from './sim-monster-party.mjs';
+import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
 import './sim-ch8.mjs';
 
 export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial };
@@ -56,6 +61,47 @@ export function ch9Party(boss, lv, kit = true) {
     fullHeal(c);
     return c;
   });
+}
+// ───── 人数の やり方（PARTIES9）─────
+//   人 … 知って いる（または 知らない）人が 動かす キャラ。CH9_KIT の ★装備
+//   npc … 酒場の 人の 仲間（NPC_SUPPORTS の ポポロ・リン・ミーナ。この ころには 転職して 大賢者・ゴッドハンド・大神官。
+//         ★装備は 人が 持つので 店の いちばん よい 品。作戦は その 人の）。自動。人の 職業と かさなる 人は 出ない
+//   mon … 魔物の 仲間（この ころの Sランク: キラーからくり・ヴァルドラゴン・せかいじゅの子〈回復〉。＋15・店の いちばん よい 品）。自動
+//   人が 動かす キャラの じゅん: 勇者・大神官・大賢者・ゴッドハンド・（5人目）ガーディアン（店の 品）
+const HUMAN_ORDER = ['hero', 'high_priest', 'daikenja', 'god_hand'];
+const NPC9 = [['npc_poporo', 'daikenja'], ['npc_rin', 'god_hand'], ['npc_mina', 'high_priest']];
+const MON9 = [['killer_karakuri', 'aggressive'], ['yggdra_child', 'heal'], ['great_dragon', 'balanced']];
+export const PARTIES9 = {
+  p4: { label: '人4人　　　　', humans: 4, npc: 0, mon: 0 },
+  k1npc: { label: '1人＋酒場3人', humans: 1, npc: 3, mon: 0 },
+  k1mon: { label: '1人＋魔物3', humans: 1, npc: 0, mon: 3 },
+  k2npc: { label: '2人＋酒場2人', humans: 2, npc: 2, mon: 0 },
+  solo: { label: 'ひとりだけ　', humans: 1, npc: 0, mon: 0 },
+  p5: { label: '人5人　　　　', humans: 5, npc: 0, mon: 0 },
+};
+function npcChar(id, job, lv) {
+  const d = NPC_SUPPORTS.find((n) => n.id === id);
+  const c = jobChar(job, lv, 10, d.name);
+  c.tactics = d.tactics;
+  return c;
+}
+// 1回 ぶんの 味方（{ char, know }。know … その キャラを 人が 動かすか）
+export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
+  const P = PARTIES9[partyKey];
+  if (!P) throw new Error(`party: ${partyKey}`);
+  const four = ch9Party(boss, lv, kit);
+  // ならびは 人4人の ときと おなじ（先頭ほど ねらわれやすい）
+  const pick = HUMAN_ORDER.slice(0, Math.min(4, P.humans));
+  const humans = four.filter((c) => pick.includes(c.job));
+  if (P.humans >= 5) humans.push(jobChar('guardian', lv, 10, 'ガーディアン'));
+  const out = humans.map((c) => ({ char: c, know: true }));
+  for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv), know: false });
+  for (const [sp, tac] of MON9.slice(0, P.mon)) {
+    const c = monsterChar(sp, lv, 15, 10);
+    c.tactics = tac;
+    out.push({ char: c, know: false, monster: true });
+  }
+  return out;
 }
 const group = (boss) => FIXED_ENCOUNTERS[CH9_IDS[boss]].group.flatMap(([sp, n]) => Array(n).fill(sp));
 
@@ -99,14 +145,19 @@ export function addSpica9(b, boss) {
 }
 
 // 1回 戦う。mode … 'auto' | 'blind' | 'know'
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true } = {}) {
+// party … PARTIES9 の キー（人数の やり方。ない ときは 人4人）
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4' } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
-  const party = ch9Party(boss, lv, kit);
-  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !M.know, tactics: 'balanced' }));
+  const list = ch9Allies(boss, lv, party, kit);
+  // 人が 動かす キャラは 家族の キャラ（kind 'player'。完全オートの ときは その 人の「オート」）・のこりは 自動の 仲間
+  const allies = list.map((x) => (x.know
+    ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics: 'balanced' }
+    : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: x.char.tactics || 'balanced' }));
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss) });
   addSpica9(b, boss);
-  if (M.know) b.knowsCh9 = mode;
+  // 人が 動かす キャラだけ しくみを 知って いる（自動の 仲間は ふつうの オート）
+  if (M.know) b.allies.forEach((a, i) => { if (list[i]?.know) a.knows9 = mode; });
   for (const e of b.enemies) {
     const k = (v) => Number(process.env[v] || 1);
     e.maxHp = e.hp = Math.round(e.maxHp * k('HPK'));
@@ -137,7 +188,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true } = {}) {
     }
     if (!M.know) continue;
     for (const a of b.allies) {
-      if (!a.ready || !a.alive || a.kind === 'guest') continue;
+      if (!a.ready || !a.alive || a.kind === 'guest' || !a.knows9) continue;
       if (!M.act || !M.act(b, a, boss)) {
         a.ready = false;
         b.enqueue(a, { type: 'ai' });
@@ -174,7 +225,7 @@ if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
   const seedOf = (i) => 9090 + i * 7919;
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'trio';
-    console.log(ch9Run(boss, Number(process.env.LV || CH9_LV[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true }));
+    console.log(ch9Run(boss, Number(process.env.LV || CH9_LV[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4' }));
   } else {
     for (const boss of which) {
       const base = CH9_LV[boss];
@@ -186,10 +237,16 @@ if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
         const s = computeStats(c);
         console.log(`  ${c.name.padEnd(8, '　')} HP${s.maxHp} MP${s.maxMp} 攻${s.atk} 守${s.dfn} 魔${s.mag} 速${s.agi}  ${SLOTS.map((k) => ITEMS[c.equip[k]]?.name || '-').join('・')}`);
       }
-      for (const lv of lvs) {
-        for (const mode of Object.keys(MODES9)) {
-          const res = [...Array(N).keys()].map((i) => ch9Run(boss, lv, mode, seedOf(i)));
-          console.log(`  Lv${lv} ${MODES9[mode].label} ${summary9(res).text}`);
+      // PARTY=k1npc,solo … 人数の やり方（ない ときは 人4人で 3つの やり方。PARTY=all … 全部の 人数を おすすめの レベルで）
+      const parties = !process.env.PARTY ? ['p4'] : process.env.PARTY === 'all' ? Object.keys(PARTIES9) : process.env.PARTY.split(',');
+      for (const party of parties) {
+        const plvs = party === 'p4' || process.argv[4] ? lvs : [base];
+        for (const lv of plvs) {
+          for (const mode of Object.keys(MODES9)) {
+            if (party !== 'p4' && mode === 'blind') continue;
+            const res = [...Array(N).keys()].map((i) => ch9Run(boss, lv, mode, seedOf(i), { party }));
+            console.log(`  ${PARTIES9[party].label} Lv${lv} ${MODES9[mode].label} ${summary9(res).text}`);
+          }
         }
       }
     }
