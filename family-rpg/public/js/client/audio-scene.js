@@ -87,6 +87,28 @@ addFormKey('gForm', 'slStage');
 addFormKey('dawnStage');
 // 第90回 F: 星の石の地下道（c9a_cave）は「ダンジョンの 深さ」の まま（c9a_b1〜c9a_b4 → 0.4・0.6・0.8・1.0。曲の パートが 1つずつ ふえる）
 export const C9A_CAVE_TRACK = 'c9a_cave';
+// 第91回 F: 大地の下（c9b_under）は 水晶の 柱を ともした 数 pillarStage（0〜6）で 楽器が ふえる（強さ 0.4 + 0.1 × 数）。
+//   A班が 画面の 状態 pillarStage を 出せば それを（field.pillarStage・game.pillarStage。数 でも 関数 でも よい）、
+//   出て いない 間は 柱の フラグ c9_pillar1〜6 の 数を 使う。名前は addFormKey にも 入れて おく（戦いの pub に 出ても こまらない 段の 名前）
+addFormKey('pillarStage');
+export const C9B_UNDER_TRACK = 'c9b_under';
+export const C9B_PILLAR_FLAGS = ['c9_pillar1', 'c9_pillar2', 'c9_pillar3', 'c9_pillar4', 'c9_pillar5', 'c9_pillar6'];
+export function pillarIntensity(stage) {
+  const n = Math.max(0, Math.min(C9B_PILLAR_FLAGS.length, Math.floor(Number(stage) || 0)));
+  return Math.round((DEPTH_MIN + ((1 - DEPTH_MIN) * n) / C9B_PILLAR_FLAGS.length) * 1000) / 1000;
+}
+export function pillarStageOf(game, hasFlag = () => false) {
+  for (const src of [game?.field, game]) {
+    let v = src?.pillarStage;
+    try { if (typeof v === 'function') v = v.call(src); } catch { v = null; }
+    if (v !== null && v !== undefined && Number.isFinite(Number(v))) return Math.max(0, Math.min(C9B_PILLAR_FLAGS.length, Math.floor(Number(v))));
+  }
+  let n = 0;
+  for (const f of C9B_PILLAR_FLAGS) {
+    try { if (hasFlag(f)) n++; } catch { /* */ }
+  }
+  return n;
+}
 
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
@@ -341,6 +363,7 @@ export class SceneAudio {
     }
     let intensity = 1;
     if (areaTrack === HALL_TRACK) intensity = hallIntensity(hasFlag);
+    else if (areaTrack === C9B_UNDER_TRACK) intensity = pillarIntensity(pillarStageOf(game, hasFlag));
     else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);

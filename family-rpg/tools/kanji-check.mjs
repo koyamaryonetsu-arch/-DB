@@ -599,6 +599,8 @@ export function gameFiles() {
     'public/js/shared/maps/c9b-flags.js', 'public/js/shared/data/story-c9b.js', 'public/js/shared/maps/c9b.js', 'public/js/shared/maps/c9b-rows.js',
     'public/js/shared/maps/c9b-under.js', 'public/js/shared/maps/c9b-light.js', 'public/js/shared/world/c9b-steps.js', 'public/js/shared/data/c9b-stub.js',
     'public/js/client/c9b-light.js', 'public/js/client/render/tiles-c9b.js', 'public/js/client/render/c9b-npc-art.js',
+    // 第91回 F班: 第3部 第1章 第2幕の 曲
+    'public/js/client/audio-c9b.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
