@@ -25,7 +25,10 @@
   const hhmm = (s) => { const d = new Date(s || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   const TYPES = { kotei: { table: 'koutei', label: '工程表', icon: '📊' }, photo: { table: 'photo_ledgers', label: '写真台帳', icon: '📷' }, heat: { table: 'heat_loads', label: '空調負荷計算', icon: '❄' }, form: { table: 'doc_files', label: '作業申請書の書式', icon: '📝' } };
   const DEFAULT_NAME = { kotei: '工程表', photo: '工事写真台帳', heat: '空調負荷計算', form: '作業申請書の書式' };
-  const FORM_BUCKET = 'doc-files';   // 作業申請書の書式（劇場ごとのファイル。SETUP_CASE_MAIL.sql）
+  const FORM_BUCKET = 'doc-files';
+  // 菱熱のひな形（2026-11-20）: 安全書類・大口予算書。doc_files に data.kind で入れる（劇場なし）。中身を見てから「作る」しくみを作る
+  const TPL = { safety: { kind: 'safety_tpl', label: '安全書類', icon: '🦺' }, budget: { kind: 'budget_tpl', label: '大口予算書', icon: '💰' } };
+  const tplOf = (r) => (r && r.type === 'form' && r.data && Object.keys(TPL).find((k) => TPL[k].kind === r.data.kind)) || '';   // 作業申請書の書式（劇場ごとのファイル。SETUP_CASE_MAIL.sql）
   const TRASH_DAYS = 30;
   const UNSET = '（劇場未設定）';
   const BUCKET = 'ledger-photos';
@@ -254,7 +257,9 @@
     if (l.kind === 'trash') return !!r.deleted_at;
     if (r.deleted_at) return false;
     if (l.kind === 'recent') return true;
-    if (l.kind === 'forms') return r.type === 'form';
+    if (l.kind === 'forms') return r.type === 'form' && !tplOf(r);
+    if (l.kind === 'tpl') return tplOf(r) === l.tpl;
+    if (tplOf(r)) return false;   // ひな形は劇場のフォルダ・劇場未設定には出さない
     if (l.kind === 'unset') return !r.company || !r.theater;
     if (r.company !== l.co) return false;
     if (!l.th) return true;
@@ -264,11 +269,12 @@
   function renderTree() {
     const l = S.loc;
     const cnt = (fn) => live().filter(fn).length;
-    const nUnset = cnt((r) => !r.company || !r.theater);
+    const nUnset = cnt((r) => (!r.company || !r.theater) && !tplOf(r));
     const nTrash = S.rows.filter((r) => r.deleted_at).length;
     let h = `<div class="sh-th">すばやく開く</div>
       <button type="button" class="sh-tn${l.kind === 'recent' ? ' on' : ''}" data-loc="recent"><span class="tw"></span>🕘 最近使った</button>
-      ${setupMissing.form ? '' : `<button type="button" class="sh-tn${l.kind === 'forms' ? ' on' : ''}" data-loc="forms"><span class="tw"></span>📝 作業申請書の書式<span class="ct">${cnt((r) => r.type === 'form') || ''}</span></button>`}
+      ${setupMissing.form ? '' : `<button type="button" class="sh-tn${l.kind === 'forms' ? ' on' : ''}" data-loc="forms"><span class="tw"></span>📝 作業申請書の書式<span class="ct">${cnt((r) => r.type === 'form' && !tplOf(r)) || ''}</span></button>`}
+      ${setupMissing.form ? '' : Object.keys(TPL).map((k) => `<button type="button" class="sh-tn${l.kind === 'tpl' && l.tpl === k ? ' on' : ''}" data-tpl="${k}"><span class="tw"></span>${TPL[k].icon} ${TPL[k].label}のひな形<span class="ct">${cnt((r) => tplOf(r) === k) || ''}</span></button>`).join('')}
       <div class="sh-th">会社 › 劇場</div>`;
     companyNames().forEach((co) => {
       const n = cnt((r) => r.company === co && r.theater);
@@ -297,6 +303,9 @@
     if (l.kind === 'recent') h = '<span class="cur">🕘 最近使った</span>';
     else if (l.kind === 'forms') h = '<span class="cur">📝 作業申請書の書式</span><span class="sh-note">（劇場ごとの作業申請書の書式。各劇場のフォルダにも出ます）</span>' +
       '<label class="sh-btn sh-folder-in">📂 フォルダごと取り込む<input type="file" id="shFormFolder" webkitdirectory directory multiple hidden></label>';
+    else if (l.kind === 'tpl') h = `<span class="cur">${TPL[l.tpl].icon} ${TPL[l.tpl].label}のひな形</span><span class="sh-note">（菱熱のひな形と、前に作った記入例を入れておく場所。中身を読んで、次に「作る」しくみを作ります）</span>` +
+      `<label class="sh-btn sh-folder-in">⬆ ファイルを入れる<input type="file" class="sh-tpl-in" data-tplin="${l.tpl}" multiple accept=".pdf,.xlsx,.xls,.xlsm,.docx,.doc,.pptx,.jpg,.jpeg,.png" hidden></label>` +
+      `<label class="sh-btn sh-folder-in">📂 フォルダごと入れる<input type="file" class="sh-tpl-in" data-tplin="${l.tpl}" webkitdirectory directory multiple hidden></label>`;
     else if (l.kind === 'trash') h = '<span class="cur">🗑 ごみ箱</span><span class="sh-note">（削除してから30日で完全に消えます）</span>';
     else if (l.kind === 'unset') h = `<span class="cur">❔ ${UNSET}</span><span class="sh-note">（「⋯」の「フォルダへ移動」で劇場を決められます）</span>`;
     else {
@@ -350,7 +359,7 @@
         <td class="ra">${actions}</td></tr>`;
     });
     if (body) h += `<table class="sh-table"><thead><tr><th></th><th>名前</th><th>種類</th><th>${l.kind === 'trash' ? '削除した日' : '更新'}</th><th>更新した人</th><th></th></tr></thead><tbody>${body}</tbody></table>`;
-    else h += `<div class="sh-empty">${l.kind === 'trash' ? 'ごみ箱は空です。' : S.q ? '見つかりませんでした。' : l.kind === 'forms' ? 'まだ書式がありません。<br>右上の「＋ 新しく作る」→「📝 作業申請書の書式」で、劇場を選んでファイル（PDF・Excel・Word）を入れます。' : 'この場所にはまだ書類がありません。<br>右上の「＋ 新しく作る」から作れます。'}</div>`;
+    else h += `<div class="sh-empty">${l.kind === 'trash' ? 'ごみ箱は空です。' : S.q ? '見つかりませんでした。' : l.kind === 'tpl' ? `まだ${TPL[l.tpl].label}のひな形がありません。<br>上の「⬆ ファイルを入れる」か「📂 フォルダごと入れる」で、ひな形と前に作った記入例を入れてください。` : l.kind === 'forms' ? 'まだ書式がありません。<br>右上の「＋ 新しく作る」→「📝 作業申請書の書式」で、劇場を選んでファイル（PDF・Excel・Word）を入れます。' : 'この場所にはまだ書類がありません。<br>右上の「＋ 新しく作る」から作れます。'}</div>`;
     $('shList').innerHTML = h;
   }
   function renderShelf() {
@@ -426,7 +435,8 @@
   function caseList(co, th) {
     return (call('cases', []) || []).filter((c) => (!co || c.company === co) && (!th || c.theater === th));
   }
-  const workOf = (c) => String(c.estimateName || c.content || '').split('\n')[0].trim().slice(0, 40);
+  // 案件から作る時の名前は「案件名」（無ければ見積り名・内容の1行目）（2026-11-20）
+  const workOf = (c) => String(c.title || c.estimateName || c.content || '').split('\n')[0].trim().slice(0, 40);
   const SUFFIX = { kotei: ' 工程表', photo: ' 写真台帳', heat: ' 空調負荷計算' };
   function newDialog(p) {
     p = Object.assign({ type: 'kotei', co: '', th: '', folder: '', caseId: '', name: '', kind: 'date', start: today(), copyFrom: '', hk: '' }, p);
@@ -438,7 +448,7 @@
         ${p.type === 'form' ? `<p class="sh-hint">劇場の作業申請書の書式（劇場からもらったファイル）を入れます。劇場を選んでください（作業申請書を作る時に、この劇場の書式を使います）。</p><div class="sh-f"><label for="nFile">ファイル（PDF・Excel・Word）${p.file ? `　選んだファイル: ${esc(p.file.name)}` : ''}</label><input id="nFile" type="file" accept=".pdf,.xlsx,.xls,.xlsm,.docx,.doc"></div>` : ''}
         ${p.type === 'heat' ? `<div class="sh-f"><label>何を計算しますか？</label><div class="sh-seg sh-seg2"><button type="button" class="${p.hk === 'theater' ? 'on' : ''}" data-nhk="theater">🎬 シアター<small>機器表とホームページの座席数で</small></button><button type="button" class="${p.hk === 'other' ? 'on' : ''}" data-nhk="other">🏢 シアター以外<small>ロビー・売店・事務所など（図面で）</small></button></div></div>` : ''}
         ${placeFields(p)}
-        <div class="sh-f${p.type === 'form' ? ' hidden' : ''}"><label for="nCase">案件から作る（工事名などが自動で入ります）</label><select id="nCase"><option value="">案件を選ばない</option>${cs.map((c) => `<option value="${esc(c.id)}"${String(p.caseId) === String(c.id) ? ' selected' : ''}>${esc(theaterLabel(c.company, c.theater))}　${esc(workOf(c) || '（見積り名なし）')}</option>`).join('')}</select>${p.th ? '' : '<p class="sh-hint">劇場を選ぶと、その劇場の案件にしぼれます。</p>'}</div>
+        <div class="sh-f${p.type === 'form' ? ' hidden' : ''}"><label for="nCase">案件から作る（案件名などが自動で入ります）</label><select id="nCase"><option value="">案件を選ばない</option>${cs.map((c) => `<option value="${esc(c.id)}"${String(p.caseId) === String(c.id) ? ' selected' : ''}>${esc(theaterLabel(c.company, c.theater))}　${esc(workOf(c) || '（案件名なし）')}</option>`).join('')}</select>${p.th ? '' : '<p class="sh-hint">劇場を選ぶと、その劇場の案件にしぼれます。</p>'}</div>
         <div class="sh-f"><label for="nName">名前</label><input id="nName" value="${esc(p.name)}" placeholder="${p.type === 'form' ? '例：日比谷 作業申請書（空欄ならファイル名）' : p.type === 'kotei' ? '例：SCR3 空調機更新 工程表' : p.type === 'heat' ? (p.hk === 'theater' ? '例：シアター 冷房能力の確認' : '例：2F ロビー・売店 空調負荷計算') : '例：コンセッション環境改善工事 写真台帳'}"></div>
         ${p.type === 'kotei' ? `<div class="sh-row2"><div class="sh-f"><label for="nKind">種類</label><select id="nKind"><option value="date"${p.kind === 'date' ? ' selected' : ''}>通常（日付）</option><option value="zero"${p.kind === 'zero' ? ' selected' : ''}>ゼロ工程表（1日目〜）</option><option value="master-week"${p.kind === 'master-week' ? ' selected' : ''}>マスター工程（週）</option><option value="master-month"${p.kind === 'master-month' ? ' selected' : ''}>マスター工程（月）</option></select></div>
           <div class="sh-f"><label for="nStart">着工日</label><input id="nStart" type="date" value="${esc(p.start)}"></div></div>
@@ -587,7 +597,27 @@
     };
     render();
   }
+  // ひな形を入れる（いくつでも・フォルダごとも）。フォルダの中の場所（相対パス）も覚えておく
+  async function importTemplates(k, files) {
+    const ok = files.filter((f) => /\.(pdf|xlsx|xls|xlsm|docx|doc|pptx|jpe?g|png)$/i.test(f.name) && !/^~\$/.test(f.name));
+    if (!ok.length) { alert('入れられるファイル（PDF・Excel・Word・PowerPoint・写真）がありませんでした'); return; }
+    if (ok.some((f) => f.size > 20 * 1024 * 1024)) { alert('20MB をこえるファイルは入れられません（' + ok.filter((f) => f.size > 20 * 1024 * 1024).map((f) => f.name).join('、') + '）'); return; }
+    let n = 0;
+    toast(`${TPL[k].label}のひな形を入れています…（${ok.length} 件）`);
+    for (const f of ok) {
+      try {
+        const path = await api.putForm(f);
+        const rel = String(f.webkitRelativePath || f.name);
+        await api.insert('form', { name: f.name, company: '', theater: '', data: { kind: TPL[k].kind, path, mime: f.type || '', size: f.size, file_name: f.name, rel_path: rel } });
+        n++;
+      } catch (e) { fail(f.name + ' を入れる', e); break; }
+    }
+    await reload(); S.loc = { kind: 'tpl', tpl: k }; renderShelf();
+    if (n) toast(`${n} 件入れました（${TPL[k].label}のひな形）`);
+  }
   $('viewShelf').addEventListener('change', (e) => {
+    const ti = e.target.closest('[data-tplin]');
+    if (ti) { const fl = Array.from(ti.files || []); ti.value = ''; if (fl.length) importTemplates(ti.dataset.tplin, fl); return; }
     if (e.target.id !== 'shFormFolder') return;
     // 先にファイルの一覧を写しておく（入力欄を空に戻すと、Chrome では受け取った一覧まで空になり、何も起きなかった）
     const fl = Array.from(e.target.files || []); e.target.value = '';
@@ -703,6 +733,7 @@
     const t = e.target;
     const tog = t.closest('[data-tog]'); if (tog) { e.stopPropagation(); S.open[tog.dataset.tog] = !S.open[tog.dataset.tog]; renderTree(); return; }
     const lc = t.closest('[data-loc]'); if (lc) { S.loc = { kind: lc.dataset.loc }; S.sel = ''; S.treeOpen = false; renderShelf(); return; }
+    const tp = t.closest('[data-tpl]'); if (tp) { S.loc = { kind: 'tpl', tpl: tp.dataset.tpl }; S.sel = ''; S.treeOpen = false; renderShelf(); return; }
     const tn = t.closest('.sh-tn[data-co]'); if (tn) { goPlace(tn.dataset.co, tn.dataset.th, tn.dataset.folder); return; }
     if (t.closest('[data-act="newfolder"]')) {
       const l = S.loc;
@@ -961,7 +992,10 @@
   const KOSHU_BASE = ['仮設・養生', '解体・撤去', '機器据付', '配管', 'ダクト・排気口', '排気フード', '送風機', '電気', '風量測定', '試運転', 'その他'];
   const COMPANY = { name: '菱熱工業株式会社', addr: '東京都品川区北品川6-7-29 ガーデンシティ品川御殿山', tel: '03-6456-4201', logo: 'img/ryonetsu-logo.png' };
   const PH = (function () {
-    let d = null, urls = {}, sel = new Set(), sortMode = '', hl = '', uploading = 0, pvTimer = null, dragId = null;
+    let d = null, urls = {}, sel = new Set(), sortMode = '', hl = '', uploading = 0, pvTimer = null, dragId = null, aiBusy = 0, lbId = '';
+    const small = {};   // 入れたばかりの写真の小さい画像（AI に見せる・保存しない）
+    const lsv = (k, dflt) => { try { return localStorage.getItem(k) || dflt; } catch (e) { return dflt; } };
+    const lss = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
     const N = () => markDirty();
     const dayOf = (it) => String(it.shot || '').slice(0, 10);
     function normalizeData(o) {
@@ -969,7 +1003,7 @@
       return {
         theater: o.theater || '', work: o.work || '', date: o.date || today(), cover: o.cover !== false,
         showKoshu: o.showKoshu !== false, showShot: o.showShot !== false,
-        items: (o.items || []).map((it) => ({ id: it.id || uid(), ref: it.ref || it.path || it.src || '', kubun: it.kubun || '工事前', koshu: it.koshu || '', shot: it.shot || '', place: it.place || '', memo: it.memo || '' }))
+        items: (o.items || []).map((it) => ({ id: it.id || uid(), ref: it.ref || it.path || it.src || '', kubun: it.kubun || '工事前', koshu: it.koshu || '', shot: it.shot || '', place: it.place || '', memo: it.memo || '', ai: (it.ai && typeof it.ai === 'object') ? it.ai : {} }))
       };
     }
     async function load(data) {
@@ -977,27 +1011,57 @@
       $('phTheater').value = d.theater; $('phWork').value = d.work; $('phDate').value = d.date;
       $('phOptCover').checked = d.cover; $('phOptKoshu').checked = d.showKoshu; $('phOptShot').checked = d.showShot;
       $('viewPhoto').classList.remove('pv-open');
+      applyView();
       renderAll();
       try { Object.assign(urls, await api.photoUrls(d.items.map((x) => x.ref).filter((r) => r && !urls[r]))); } catch (e) { console.error('写真の読み込み', e); toast('写真を読み込めませんでした（通信を確認してください）'); }
       renderAll();
     }
     const getData = () => JSON.parse(JSON.stringify(d));
-    function koshuList() { const used = []; d.items.forEach((x) => { if (x.koshu && used.indexOf(x.koshu) < 0) used.push(x.koshu); }); return used.concat(KOSHU_BASE.filter((k) => used.indexOf(k) < 0)); }
+    // 前の台帳で人が付けた工種・場所（AI が入れたまま直していないものは除く）。same＝同じ劇場（2026-11-20）
+    function ledgerHistory() {
+      const row = S.cur && S.cur.row; const curId = row && row.id;
+      const th = (row && row.theater) || '', thText = d.theater || '';
+      const out = [];
+      S.rows.filter((r) => r.type === 'photo' && !r.deleted_at && r.id !== curId).forEach((r) => {
+        const same = !!((th && r.theater === th) || (thText && r.data && r.data.theater === thText));
+        ((r.data && r.data.items) || []).forEach((it) => {
+          const ai = it.ai || {};
+          const koshu = ai.koshu ? '' : (it.koshu || ''), place = ai.place ? '' : (it.place || '');
+          if (koshu || place) out.push({ koshu, place, memo: String(it.memo || '').slice(0, 40), same });
+        });
+      });
+      return out;
+    }
+    // 候補: この台帳で使ったもの → 同じ劇場で使ったもの（多い順）→（工種は決まりの一覧）→ ほかの劇場で使ったもの（多い順）
+    function choices(field, base) {
+      const cur = [], same = new Map(), oth = new Map();
+      d.items.forEach((x) => { if (x[field] && cur.indexOf(x[field]) < 0) cur.push(x[field]); });
+      ledgerHistory().forEach((h) => { const v = h[field]; if (!v) return; const m = h.same ? same : oth; m.set(v, (m.get(v) || 0) + 1); });
+      const byCount = (m) => [...m.entries()].sort((a, b) => b[1] - a[1]).map((x) => x[0]);
+      const out = [];
+      const add = (arr, tag) => arr.forEach((v) => { if (!out.some((o) => o.v === v)) out.push({ v, tag }); });
+      add(cur, 'この台帳'); add(byCount(same), 'この劇場'); add(base || [], ''); add(byCount(oth), 'ほかの劇場');
+      return out.slice(0, 120);
+    }
+    function koshuList() { return choices('koshu', KOSHU_BASE).map((o) => o.v); }
+    let koshuOpts = [];
     function cardHtml(it, i) {
       const src = urls[it.ref];
-      return `<div class="ph-card${sel.has(it.id) ? ' sel' : ''}${hl === it.id ? ' flash' : ''}" draggable="true" data-card="${esc(it.id)}">
+      return `<div class="ph-card${sel.has(it.id) ? ' sel' : ''}${hl === it.id ? ' flash' : ''}${it.koshu && koshuOpts.indexOf(it.koshu) < 0 ? ' ph-kfree' : ''}" draggable="true" data-card="${esc(it.id)}">
         <div class="ph-cl"><input type="checkbox" data-csel="${esc(it.id)}" ${sel.has(it.id) ? 'checked' : ''} aria-label="${i + 1}枚目を選ぶ"><span class="ph-grip" title="つかんで並べ替え">⋮⋮</span><span class="ph-no">${i + 1}</span></div>
-        <div class="ph-thumb">${src ? `<img src="${esc(src)}" alt="" draggable="false">` : '<span>読み込み中…</span>'}</div>
+        <div class="ph-thumb">${src ? `<img src="${esc(src)}" alt="" draggable="false" data-lb="${esc(it.id)}" title="ダブルクリックで大きく見る">` : '<span>読み込み中…</span>'}</div>
         <div class="ph-fx">
           <div class="ph-seg sm">${KUBUN.map((k) => `<button type="button" class="${it.kubun === k ? 'on' : ''}" data-ckubun="${esc(it.id)}" data-v="${k}">${k}</button>`).join('')}</div>
-          <div class="ph-meta"><input type="datetime-local" class="ph-dt" value="${esc(it.shot)}" data-cshot="${esc(it.id)}" aria-label="撮影日時" title="撮影日時（写真から自動で読み取り）"><input value="${esc(it.koshu)}" placeholder="工種（例：送風機）" list="koshuList" data-ckoshu="${esc(it.id)}" aria-label="工種"></div>
-          <input value="${esc(it.place)}" placeholder="場所（例：コンセッション内・屋上 送風機）" data-cplace="${esc(it.id)}" aria-label="場所">
+          <div class="ph-meta"><input type="datetime-local" class="ph-dt" value="${esc(it.shot)}" data-cshot="${esc(it.id)}" aria-label="撮影日時" title="撮影日時（写真から自動で読み取り）"><span class="ph-kwrap"><select class="ph-koshu-sel" data-ckoshusel="${esc(it.id)}" aria-label="工種を選ぶ"><option value="">工種を選ぶ</option>${koshuOpts.map((k) => `<option${k === it.koshu ? ' selected' : ''}>${esc(k)}</option>`).join('')}<option value="__other"${it.koshu && koshuOpts.indexOf(it.koshu) < 0 ? ' selected' : ''}>その他（手で入れる）</option></select><input class="ph-koshu-in${it.ai.koshu ? ' ph-ai' : ''}" value="${esc(it.koshu)}" placeholder="工種（例：送風機）" list="koshuList" data-ckoshu="${esc(it.id)}" aria-label="工種"${it.ai.koshu ? ' title="🤖 AI が入れました（直せます）"' : ''}></span></div>
+          <input class="ph-place-in${it.ai.place ? ' ph-ai' : ''}" value="${esc(it.place)}" placeholder="場所（例：コンセッション内・屋上 送風機）▼で前に使った場所" list="placeList" data-cplace="${esc(it.id)}" aria-label="場所"${it.ai.place ? ' title="🤖 AI が入れました（直せます）"' : ''}>
+          ${it.ai.koshu || it.ai.place ? '<span class="ph-aitag" title="写真を見て AI が入れました。直すと印が消えます">🤖 AI が入れた欄があります（色の付いた欄・直せます）</span>' : ''}
           <textarea rows="2" placeholder="メモ（測定値・作業内容など。改行もそのまま台帳に出ます）" data-cmemo="${esc(it.id)}" aria-label="メモ">${esc(it.memo)}</textarea>
         </div>
         <button type="button" class="ph-rm" data-crm="${esc(it.id)}" title="この写真を外す" aria-label="この写真を外す">×</button></div>`;
     }
     function renderCards() {
       let last = null;
+      koshuOpts = koshuList();
       const html = d.items.map((it, i) => {
         let head = '';
         if (sortMode === 'koshu' && (it.koshu || '（工種なし）') !== last) { last = it.koshu || '（工種なし）'; head = `<div class="ph-grp">■ ${esc(last)}<span>${d.items.filter((x) => (x.koshu || '（工種なし）') === last).length} 枚</span></div>`; }
@@ -1005,11 +1069,12 @@
         return head + cardHtml(it, i);
       }).join('');
       $('phCards').innerHTML = html || '<div class="ph-empty">まだ写真がありません。「＋ 写真を追加」から入れてください。</div>';
-      $('koshuList').innerHTML = koshuList().map((k) => `<option value="${esc(k)}">`).join('');
+      $('koshuList').innerHTML = choices('koshu', KOSHU_BASE).map((o) => `<option value="${esc(o.v)}"${o.tag ? ` label="${esc(o.v)}（${o.tag}）"` : ''}>`).join('');
+      $('placeList').innerHTML = choices('place').map((o) => `<option value="${esc(o.v)}" label="${esc(o.v)}（${o.tag}）">`).join('');
     }
     function renderBar() {
       const pages = Math.ceil(d.items.length / 3);
-      $('phCount').textContent = `写真 ${d.items.length} 枚・${pages} ページ${d.cover ? '＋表紙' : ''}${uploading ? `（${uploading} 枚を入れています…）` : ''}`;
+      $('phCount').textContent = `写真 ${d.items.length} 枚・${pages} ページ${d.cover ? '＋表紙' : ''}${uploading ? `（${uploading} 枚を入れています…）` : ''}${aiBusy ? `（🤖 ${aiBusy} 枚の工種・場所を AI が見ています…）` : ''}`;
       $('phBulk').innerHTML = sel.size
         ? `<span class="ph-bulk">選んだ ${sel.size} 枚を ${KUBUN.slice(0, 3).map((k) => `<button type="button" class="ph-btn sm" data-bulk="${k}">${k}</button>`).join('')} <input id="phBulkKoshu" list="koshuList" placeholder="工種" aria-label="まとめて付ける工種"><button type="button" class="ph-btn sm" data-bulkkoshu="1">工種にする</button> <button type="button" class="ph-btn sm" data-bulkdel="1">外す</button><button type="button" class="ph-btn sm" data-bulkclear="1">選ぶのをやめる</button></span>`
         : '<span class="ph-cnt">☑ で選ぶと「工事前」や工種を一度に付けられます</span>';
@@ -1036,8 +1101,19 @@
     }
     // 見本の縮尺は、見本の欄の幅に合わせる（A4の幅 595pt＝793px）
     function fitPreview() { const w = $('phPv').clientWidth; if (w) $('phPv').style.setProperty('--pvs', String(Math.min(0.56, Math.max(0.3, (w - 30) / 793)).toFixed(3))); }
-    function renderPreview() { fitPreview(); $('phPv').innerHTML = pagesHtml(false); }
-    window.addEventListener('resize', () => { if (d && !$('viewPhoto').classList.contains('hidden')) fitPreview(); });
+    // 見本: パソコンは最初は隠す（「📄 見本を出す」で右に出す・ブラウザごとに覚える）。狭い画面は「見本を見る」で全画面（2026-11-20）
+    const pvShown = () => window.innerWidth <= 1100 ? $('viewPhoto').classList.contains('pv-open') : $('viewPhoto').classList.contains('pv-show');
+    function applyView() {
+      const v = $('viewPhoto');
+      const show = lsv('phPvShowV1', '0') === '1';
+      v.classList.toggle('pv-show', show);
+      $('phPvToggle').textContent = show ? '📄 見本を隠す' : '📄 見本を出す';
+      const sz = lsv('phSizeV1', 'm');
+      ['s', 'm', 'l'].forEach((k) => v.classList.toggle('ph-sz-' + k, k === sz));
+      document.querySelectorAll('#phSize [data-phsz]').forEach((b) => { b.classList.toggle('on', b.dataset.phsz === sz); b.setAttribute('aria-pressed', b.dataset.phsz === sz); });
+    }
+    function renderPreview() { if (!pvShown()) return; fitPreview(); $('phPv').innerHTML = pagesHtml(false); }
+    window.addEventListener('resize', () => { if (d && !$('viewPhoto').classList.contains('hidden') && pvShown()) renderPreview(); });
     function previewSoon() { clearTimeout(pvTimer); pvTimer = setTimeout(renderPreview, 120); }
     function renderAll() {
       const c = $('phCards'), st = c.scrollTop;
@@ -1102,7 +1178,7 @@
     async function addFiles(files) {
       const list = [...files].filter((f) => /^image\//.test(f.type)); if (!list.length) return;
       uploading += list.length; renderBar();
-      let ok = 0, ng = 0;
+      let ok = 0, ng = 0; const added = [];
       for (const f of list) {
         try {
           let shot = '';
@@ -1111,7 +1187,10 @@
           const { blob, dataUrl } = await shrink(f);
           const ref = await api.putPhoto(blob, dataUrl);
           urls[ref] = sbc() ? URL.createObjectURL(blob) : dataUrl;
-          d.items.push({ id: uid(), ref, kubun: '工事前', koshu: '', shot, place: '', memo: '' });
+          const nid = uid();
+          d.items.push({ id: nid, ref, kubun: '工事前', koshu: '', shot, place: '', memo: '', ai: {} });
+          try { small[nid] = await smallJpeg(dataUrl); } catch (e) {}
+          added.push(nid);
           ok++; N();
         } catch (e) { ng++; console.error('写真の追加', e); }
         uploading--; renderAll();
@@ -1119,6 +1198,91 @@
       if (sortMode) sortMode = '';
       toast(ng ? `${ok} 枚入れました。${ng} 枚は入れられませんでした（通信や画像の形式を確認してください）` : `${ok} 枚入れました（自動で小さくしています）`);
       renderBar();
+      aiFill(added);   // 待たない（AI が見ている間も、ほかの操作はできる）
+    }
+
+    // ---- 写真を大きく見る（ダブルクリック。←→ で前後・Esc で閉じる） ----
+    function openLb(id) {
+      const i = d.items.findIndex((x) => x.id === id); if (i < 0) return;
+      lbId = id;
+      let ov = $('phLb');
+      if (!ov) {
+        ov = document.createElement('div'); ov.id = 'phLb'; ov.className = 'ph-lb'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+        document.body.appendChild(ov);
+        ov.addEventListener('click', (e) => {
+          if (e.target.closest('[data-lbprev]')) { stepLb(-1); return; }
+          if (e.target.closest('[data-lbnext]')) { stepLb(1); return; }
+          if (e.target.closest('[data-lbx]') || e.target === ov) closeLb();
+        });
+      }
+      const it = d.items[i];
+      const cap = [`${i + 1} / ${d.items.length}`, it.kubun, it.koshu, it.place, it.shot ? jpDay(it.shot) : ''].filter(Boolean).join('　');
+      ov.innerHTML = `<button type="button" class="ph-lb-x" data-lbx aria-label="閉じる">✕</button>
+        <button type="button" class="ph-lb-nav prev" data-lbprev aria-label="前の写真"${i ? '' : ' disabled'}>‹</button>
+        <figure><img src="${esc(urls[it.ref] || '')}" alt=""><figcaption>${esc(cap)}${it.memo ? `<div class="ph-lb-memo">${esc(it.memo)}</div>` : ''}</figcaption></figure>
+        <button type="button" class="ph-lb-nav next" data-lbnext aria-label="次の写真"${i < d.items.length - 1 ? '' : ' disabled'}>›</button>`;
+      ov.style.display = 'flex';
+    }
+    function stepLb(k) { const i = d.items.findIndex((x) => x.id === lbId); const j = i + k; if (i < 0 || j < 0 || j >= d.items.length) return; openLb(d.items[j].id); }
+    function closeLb() { const ov = $('phLb'); if (ov) ov.style.display = 'none'; lbId = ''; }
+    document.addEventListener('keydown', (e) => {
+      if (!lbId) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeLb(); } else if (e.key === 'ArrowLeft') { e.preventDefault(); stepLb(-1); } else if (e.key === 'ArrowRight') { e.preventDefault(); stepLb(1); }
+    });
+
+    // ---- 写真を入れたら、AI が工種・場所を入れる（空の欄だけ・🤖 の印・直せる）。前の台帳で人が付けた言い方を見せて当てやすくする ----
+    function smallJpeg(dataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const sc = Math.min(1, 640 / Math.max(img.naturalWidth, img.naturalHeight));
+          const cv = document.createElement('canvas'); cv.width = Math.round(img.naturalWidth * sc); cv.height = Math.round(img.naturalHeight * sc);
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          resolve(cv.toDataURL('image/jpeg', 0.72).replace(/^data:image\/jpeg;base64,/, ''));
+        };
+        img.onerror = () => resolve('');
+        img.src = dataUrl;
+      });
+    }
+    async function aiFill(ids) {
+      const sb = sbc(); if (!sb || !ids.length) return;
+      const dd = d;
+      const todo = ids.map((id) => dd.items.find((x) => x.id === id)).filter((it) => it && small[it.id] && (!it.koshu || !it.place));
+      if (!todo.length) return;
+      let token = '';
+      try { const { data } = await sb.auth.getSession(); token = (data && data.session && data.session.access_token) || ''; } catch (e) {}
+      if (!token) return;
+      const row = S.cur && S.cur.row;
+      const ci = row && row.case_id && DB().caseInfo ? DB().caseInfo(row.case_id) : null;
+      const hist = ledgerHistory().sort((a, b) => (b.same ? 1 : 0) - (a.same ? 1 : 0)).slice(0, 120);
+      aiBusy += todo.length; renderBar();
+      let filled = 0, pending = todo.length;
+      try {
+        for (let i = 0; i < todo.length; i += 6) {
+          const part = todo.slice(i, i + 6);
+          try {
+            const r = await fetch('/api/photo-ai', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+              body: JSON.stringify({ theater: dd.theater, work: dd.work, content: ci ? ci.content : '', koshuList: KOSHU_BASE.concat(choices('koshu').map((o) => o.v)).slice(0, 60), history: hist,
+                photos: part.map((it) => ({ id: it.id, image: small[it.id] })) }) });
+            const j = await r.json().catch(() => null);
+            if (!r.ok || !j || !Array.isArray(j.results)) throw new Error((j && j.error) || ('通信に失敗しました（' + r.status + '）'));
+            j.results.forEach((res) => {
+              const it = dd.items.find((x) => x.id === res.id); if (!it) return;
+              if (res.confidence < 0.45) return;
+              let hit = false;
+              if (!it.koshu && res.koshu) { it.koshu = res.koshu; it.ai.koshu = 1; hit = true; }
+              if (!it.place && res.place) { it.place = res.place; it.ai.place = 1; hit = true; }
+              if (hit) filled++;
+            });
+          } catch (e) { console.warn('写真の AI 判定', e); toast('工種・場所の AI 判定ができませんでした（手で入れてください）'); break; }
+          finally { aiBusy -= part.length; pending -= part.length; part.forEach((it) => { delete small[it.id]; }); }
+          if (d === dd) { N(); renderAll(); }
+        }
+      } finally {
+        todo.forEach((it) => { delete small[it.id]; });
+        aiBusy = Math.max(0, aiBusy - pending); if (d === dd) renderBar();
+      }
+      if (filled && d === dd) toast(`🤖 ${filled} 枚の工種・場所を AI が入れました（色の付いた欄。直せます）`);
     }
 
     // ---- 印刷（A4縦。写真が全部読み込まれてから印刷の画面を出す） ----
@@ -1153,11 +1317,19 @@
         const c = document.querySelector(`#phCards [data-card="${CSS.escape(hl)}"]`); if (c) c.scrollIntoView({ block: 'center', behavior: 'smooth' });
         setTimeout(() => { hl = ''; }, 1200); return;
       }
-      if (t.closest('#phPvBtn')) { view.classList.add('pv-open'); fitPreview(); return; }
+      if (t.closest('#phPvBtn')) { view.classList.add('pv-open'); renderPreview(); return; }
+      if (t.closest('#phPvToggle')) { lss('phPvShowV1', view.classList.contains('pv-show') ? '0' : '1'); applyView(); renderPreview(); return; }
+      const sz = t.closest('[data-phsz]'); if (sz) { lss('phSizeV1', sz.dataset.phsz); applyView(); return; }
       if (t.closest('#phPvClose')) { view.classList.remove('pv-open'); return; }
     });
+    view.addEventListener('dblclick', (e) => { const im = e.target.closest('[data-lb]'); if (im) { e.preventDefault(); openLb(im.dataset.lb); } });
     view.addEventListener('change', (e) => {
       const t = e.target;
+      if (t.dataset.ckoshusel) {   // スマホの工種のプルダウン
+        const it = item(t.dataset.ckoshusel); const card = t.closest('.ph-card');
+        if (t.value === '__other') { card.classList.add('ph-kfree'); const inp = card.querySelector('[data-ckoshu]'); if (inp) { inp.value = ''; inp.focus(); } return; }
+        it.koshu = t.value; delete it.ai.koshu; card.classList.remove('ph-kfree'); N(); renderAll(); return;
+      }
       if (t.dataset.csel) { if (t.checked) sel.add(t.dataset.csel); else sel.delete(t.dataset.csel); renderBar(); t.closest('.ph-card').classList.toggle('sel', t.checked); return; }
       if (t.id === 'phAddInput') { addFiles(t.files).finally(() => { t.value = ''; }); return; }
       if (t.id === 'phOptCover') { d.cover = t.checked; N(); renderAll(); return; }
@@ -1171,8 +1343,8 @@
       if (t.id === 'phTheater') { d.theater = t.value; N(); previewSoon(); return; }
       if (t.id === 'phWork') { d.work = t.value; N(); previewSoon(); return; }
       if (t.id === 'phDate') { d.date = t.value; N(); previewSoon(); return; }
-      if (t.dataset.ckoshu) { item(t.dataset.ckoshu).koshu = t.value; N(); previewSoon(); return; }
-      if (t.dataset.cplace) { item(t.dataset.cplace).place = t.value; N(); previewSoon(); return; }
+      if (t.dataset.ckoshu) { const it = item(t.dataset.ckoshu); it.koshu = t.value; if (it.ai.koshu) { delete it.ai.koshu; t.classList.remove('ph-ai'); t.removeAttribute('title'); } N(); previewSoon(); return; }
+      if (t.dataset.cplace) { const it = item(t.dataset.cplace); it.place = t.value; if (it.ai.place) { delete it.ai.place; t.classList.remove('ph-ai'); t.removeAttribute('title'); } N(); previewSoon(); return; }
       if (t.dataset.cmemo) { item(t.dataset.cmemo).memo = t.value; N(); previewSoon(); return; }
     });
     // 並べ替え（カードをつかんで上下へ）と、写真ファイルのドラッグ＆ドロップ

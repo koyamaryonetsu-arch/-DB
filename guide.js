@@ -4,7 +4,7 @@
  *  新しい章・項目を足したら GUIDE_VERSION を上げ、その項目に isNew: true を付ける（取説ボタンに「新」の印が付く）。
  */
 (function () {
-  const GUIDE_VERSION = 4;
+  const GUIDE_VERSION = 5;
   const SEEN_KEY = 'guideSeenV';
   const $ = (id) => document.getElementById(id);
   const vis = (el) => !!el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
@@ -25,6 +25,12 @@
       await A.closeAll();
       const b = q('#casesBody .row-edit-btn');
       if (b) { b.click(); await wait(400); }
+    },
+    openMaster: async (tab) => {
+      await A.closeAll(); if ($('masterBtn')) $('masterBtn').click();
+      for (let i = 0; i < 30 && !document.querySelector('#masterDlg .mst-pane'); i++) await wait(100);   // マスター編集が開くまで待つ
+      const b = tab && document.querySelector(`#masterDlg [data-msttab="${tab}"]`); if (b) b.click();
+      await wait(300);
     },
     openMore: async () => { const m = $('moreMenu'); if (m && m.classList.contains('hidden')) $('moreMenuBtn').click(); await wait(150); },
     openUser: async () => { const m = $('userMenu'); if (m && m.classList.contains('hidden')) $('userMenuBtn').click(); await wait(150); }
@@ -106,7 +112,7 @@
         { t: '宛先は、①その劇場のアドレス ②案件の客先担当者と同じ担当者名のアドレス ③見積り3万円以上（税抜）の TOHO の案件は、本社の決裁者（☰ その他 →「🗂 マスター編集」で決める。異動の時はここで変える）。菱熱には送りません（LINE の通知があるため）。ベルは廃止しました。', isNew: true },
         { t: '本社の決裁者は、TOHO の画面の上の「🔔 通知設定」で、全体の ON/OFF と、案件ごと（選んで一括）の ON/OFF を変えられます。菱熱は「🗂 マスター編集」から同じ画面を開けます。' },
         { t: '🚩 赤旗は緊急案件です。メールの件名に【緊急】があると自動で付きます。菱熱は一覧の 🚩 を押して付け外しできます（TOHO の画面は見るだけ）。' },
-        { sel: '#mailSetBtn', t: 'テスト中は、テスト劇場の案件だけを、テストの宛先だけに送ります。本番にするのは、客先アカウント（劇場のアドレス）を入れてからです。' }
+        { sel: '#mailSetBtn', t: 'テスト中は、全部の案件の通知を、テストの宛先だけに送ります（メールの頭に「本番ならだれに届くか」を書きます）。切り替えは「🗂 マスター編集」→「📨 メール通知」。本番にするのは、客先アカウント（劇場のアドレス）を入れてからです。' }
       ] }
     ] },
     { id: 'list', title: '📋 一覧の使い方', items: [
@@ -122,8 +128,10 @@
     ] },
     { id: 'other', title: '🧰 マスター・その他の機能', items: [
       { id: 'other', title: 'マスター編集・客先アカウント・書類棚など', isNew: true, steps: [
-        { before: A.openMore, sel: '#masterBtn', t: '「🗂 マスター編集」: R担当者（在籍・異動・退職・メールアドレス・並び）と、会社・劇場（客先マスター）を直します。' },
-        { before: A.openMore, sel: '#custAccountsBtn', t: '「📧 客先アカウント」: 劇場のアドレスと担当者名を入れます（TOHO からの一覧を Excel・CSV で読み込めます）。通知メールの宛先になります。' },
+        { before: A.openMore, sel: '#masterBtn', t: '設定は全部「🗂 マスター編集」から直します。' },
+        { before: () => A.openMaster('staff'), sel: '#masterDlg .mst-tabs', t: '上のタブで分かれています: 👤 R担当者／📧 客先アカウント（劇場・本社のアドレスと担当者名。表の中で直せます）／📋 TOHO の設定（本社の決裁者・請求列・他社案件の利率）／📨 メール通知（テスト中・本番）／🏢 会社・劇場／🤝 協力会社。' },
+        { before: () => A.openMaster('toho'), sel: '#masterDlg .mst-approver', t: '本社の決裁者は、TOHO の客先担当者の名前から選び（下の名前のボタンでも）、メールアドレスを入れて「決裁者にする」。客先アカウントにも自動で登録します。', after: A.closeAll },
+        { before: A.openMore, sel: '#koteiBtn', t: '「📁 書類棚」: 工程表・写真台帳・空調負荷計算・作業申請書の書式を、会社・劇場ごとのフォルダにしまいます。安全書類・大口予算書のひな形も、ここの「🦺／💰 …のひな形」に入れます。' },
         { before: A.openMore, sel: '#koteiBtn', t: '「📁 書類棚」: 工程表・写真台帳・空調負荷計算・作業申請書の書式を、会社・劇場ごとのフォルダにしまいます。' },
         { before: A.openMore, sel: '#planBtn', t: '「🗓 工事予定表」: 案件から工事の予定を引っ張って、Excel のように並べます。' },
         { before: A.openUser, sel: '#meetingBtn', t: '右上の 👤 →「🤝 打合せモード」: 客先と一緒に画面を見る時に、その会社の客先の見え方にします。終わる時はタブを閉じてもOKです。', after: A.closeAll }

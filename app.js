@@ -605,6 +605,7 @@
     if (Object.prototype.hasOwnProperty.call(r, 'last_update_source')) {
       lastUpdateSourceSupported = true;
     }
+    c.fieldSources = (r.field_sources && typeof r.field_sources === 'object') ? r.field_sources : {};   // 欄ごとの最後の入れ手（菱熱の画面の印）
     return c;
   }
 
@@ -1644,6 +1645,7 @@
   // 各種入力を YYYY-MM-DD に正規化
   // 例: 528 / 0528 / 5/28 / 5-28 / 20260528 / 2026/5/28 / 2026-5-28
   function parseSmartDate(input) {
+    if (window.DATEIN) return window.DATEIN.parse(input);   // dateinput.js（全角→半角・「2026/1/9（金）」・年なしは今日以降で一番近い日）
     if (input == null) return '';
     const s = String(input).trim().replace(/\s/g, '');
     if (!s) return '';
@@ -2426,6 +2428,7 @@
     try { accountsCache = await store.fetchAccounts(); } catch (e) { accountsCache = []; }
     await loadWorkappStates();
     renderRPersonBar(); renderDatalists(); render();
+    checkForcedIntake();   // 自分の分の登録確認があれば、決めるまで上に出す（2026-11-20）
     setTimeout(() => { try { if (window.WORKAPP && store.mode === 'supabase' && caseMailSupported) window.WORKAPP.checkQueue(); } catch (e) { console.warn(e); } }, 1500);
   }
   // 異動・退職の人で絞った時: 未完了の案件をまとめて付け替えるバー
@@ -2450,18 +2453,51 @@
     renderRPersonBar(); refresh();
     showToastLite(`${list.length} 件を ${to} さんに付け替えました`);
   }
-  // 🗂 マスター編集（担当者・会社・劇場）
-  async function openMasterDialog() {
+  // 🗂 マスター編集（2026-11-20: 上のタブで分ける。設定は全部ここから）
+  const MASTER_TABS = [
+    { k: 'staff', label: '👤 R担当者' }, { k: 'accounts', label: '📧 客先アカウント' }, { k: 'toho', label: '📋 TOHO の設定' },
+    { k: 'mail', label: '📨 メール通知' }, { k: 'theaters', label: '🏢 会社・劇場' }, { k: 'partners', label: '🤝 協力会社' }
+  ];
+  let masterTab = (() => { try { return localStorage.getItem('masterTabV1') || 'staff'; } catch (e) { return 'staff'; } })();
+  // TOHO の客先担当者の候補: 案件の「TOHOシネマズ担当者」と客先アカウントの担当者名（敬称を除く・同じ人は1つ）
+  function tohoPersonCands() {
+    const m = new Map();
+    const add = (name, email) => {
+      const k = cmPersonKey(name); if (!k || k.length < 2 || /@/.test(k)) return;
+      const hit = [...m.keys()].find((x) => cmPersonMatch(x, k));
+      const key = hit || k;
+      const cur = m.get(key) || { name: k, email: '', n: 0 };
+      if (k.length > cur.name.length) cur.name = k;
+      if (email && !cur.email) cur.email = String(email).toLowerCase();
+      cur.n++;
+      if (hit && hit !== cur.name) { m.delete(hit); m.set(cur.name, cur); } else m.set(key, cur);
+    };
+    (accountsCache || []).filter((a) => a.company === WA_COMPANY && a.person).forEach((a) => add(a.person, a.email));
+    cases.filter((c) => c.company === WA_COMPANY && c.tcPerson).forEach((c) => String(c.tcPerson).split(/[、,，\/／・]/).forEach((p) => add(p, '')));
+    return [...m.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, 'ja'));
+  }
+  async function openMasterDialog(tab) {
     const K = window.KARTE;
     try { staffList = await store.fetchStaff(); } catch (e) { staffList = null; }
     if (!staffList) { K.say('担当者の表がありません。SETUP_STAFF.sql を実行してください。'); return; }
+    try { accountsCache = await store.fetchAccounts(); } catch (e) {}
     document.querySelectorAll('#masterDlg').forEach((x) => x.remove());
     const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'masterDlg';
+    if (tab && MASTER_TABS.some((t) => t.k === tab)) masterTab = tab;
+    ov.innerHTML = `<div class="kt-dialog ms-dlg mst-full"><div class="kt-dlg-head">🗂 マスター編集<button type="button" class="close-btn" data-x>×</button></div>
+      <div class="mst-tabs" role="tablist">${MASTER_TABS.map((t) => `<button type="button" role="tab" class="mst-tab" data-msttab="${t.k}">${t.label}</button>`).join('')}</div>
+      <div class="kt-dlg-body mst-body"><div class="mst-pane"></div></div>
+      <div class="kt-dlg-foot"><span class="ms-note mst-foot-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
+    document.body.appendChild(ov);
+    const close = () => ov.remove();
+    // 1つのタブの中身（staff・toho は draw で描き直す。accounts・mail はそれぞれの画面をここに埋め込む）
     const draw = () => {
-      const rows = staffList.slice().sort((a, b) => (a.active === false) - (b.active === false) || (a.sort_order - b.sort_order) || a.name.localeCompare(b.name, 'ja'));
-      ov.innerHTML = `<div class="kt-dialog kt-dialog-wide ms-dlg"><div class="kt-dlg-head">🗂 マスター編集<button type="button" class="close-btn" data-x>×</button></div>
-        <div class="kt-dlg-body">
-          <h3 class="mst-h">👤 R担当者（菱熱の担当者）</h3>
+      const pane = ov.querySelector('.mst-pane');
+      ov.querySelectorAll('[data-msttab]').forEach((b) => { const on = b.dataset.msttab === masterTab; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+      ov.querySelector('.mst-foot-note').textContent = masterTab === 'mail' ? '「保存」を押すと変わります（5分以内に GAS に伝わります）' : '変えた所はすぐ保存されます';
+      if (masterTab === 'staff') {
+        const rows = staffList.slice().sort((a, b) => (a.active === false) - (b.active === false) || (a.sort_order - b.sort_order) || a.name.localeCompare(b.name, 'ja'));
+        pane.innerHTML = `<h3 class="mst-h">👤 R担当者（菱熱の担当者）</h3>
           <p class="ms-note">携帯は、作業申請書を作る時に「当日責任者」（その案件のR担当者）の連絡先として使います。<br>在籍の人が、上の担当者ボタン・R担当者の候補・配分に出ます。メール・LINE の取り込みも、在籍の人を菱熱の担当者として見分けます。<br>
           異動・退職にすると、上のボタンが「○○（異動・退職）⚠ n件」に変わります。押すと、未完了の案件を別の担当者に付け替えられます（過去の案件の名前はそのまま）。<br>
           名前を変える時は、新しい名前で足して、前の名前を「異動・退職」にしてください。</p>
@@ -2473,14 +2509,19 @@
             <td>${openCasesOf(r.name).length} 件</td>
             <td>${r.active === false ? '' : `<button type="button" class="mini-btn" data-sup="${escapeHtml(r.name)}" title="上へ">↑</button><button type="button" class="mini-btn" data-sdown="${escapeHtml(r.name)}" title="下へ">↓</button>`}</td></tr>`).join('')}
           </tbody></table>
-          <div class="acct-add mst-add"><input type="text" id="mstName" class="tm-input" placeholder="足す人の名前（苗字）"><input type="email" id="mstEmail" class="tm-input" placeholder="メールアドレス"><button type="button" data-sadd>＋ 担当者を足す</button></div>
-          <h3 class="mst-h">🏢 会社・🎬 劇場</h3>
-          <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
-          <button type="button" data-opentm>📚 客先マスター（会社・劇場）を開く</button>
-          <h3 class="mst-h">📧 TOHO 本社の決裁者（見積り3万円以上の通知メール）</h3>
-          <p class="ms-note">見積り金額が3万円以上（税抜）の TOHO の案件は、担当がだれでも、この人に通知メールが届きます。異動・退職の時はここで変えてください。</p>
-          <div class="acct-add"><select id="mstApprover"><option value="">（決裁者を選ぶ）</option>${(accountsCache || []).filter((a) => a.company === 'TOHOシネマズ').map((a) => `<option value="${escapeHtml(String(a.email).toLowerCase())}"${approverPref() && String(approverPref().email).toLowerCase() === String(a.email).toLowerCase() ? ' selected' : ''}>${escapeHtml((a.person || '（名前なし）') + '｜' + a.email + (a.theater ? '｜' + a.theater : '｜本社'))}</option>`).join('')}</select>
-            <button type="button" data-mstapprover>決裁者にする</button>${approverPref() ? `<button type="button" data-mstnp>🔔 ${escapeHtml(approverPref().name || '')} さんの通知設定を見る</button>` : ''}</div>
+          <div class="acct-add mst-add"><input type="text" id="mstName" class="tm-input" placeholder="足す人の名前（苗字）"><input type="email" id="mstEmail" class="tm-input" placeholder="メールアドレス"><button type="button" data-sadd>＋ 担当者を足す</button></div>`;
+      } else if (masterTab === 'toho') {
+        const ap = approverPref();
+        const cands = tohoPersonCands();
+        pane.innerHTML = `<h3 class="mst-h">📧 TOHO 本社の決裁者（見積り3万円以上の通知メール）</h3>
+          <p class="ms-note">見積り金額が3万円以上（税抜）の TOHO の案件は、担当がだれでも、この人に通知メールが届きます。異動・退職の時はここで変えてください。<br>
+          名前は、TOHO の案件の「TOHOシネマズ担当者」と客先アカウントの担当者名から選べます。メールアドレスを入れて「決裁者にする」を押すと、客先アカウント（会社 TOHOシネマズ・本社）にも登録します。</p>
+          <div class="mst-approver-now">今の決裁者: ${ap ? `<b>${escapeHtml(ap.name || '（名前なし）')}</b>　${escapeHtml(ap.email)}` : '<b>まだいません</b>'}</div>
+          <div class="acct-add mst-approver"><input type="text" id="mstApproverName" class="tm-input" list="mstApproverNames" placeholder="担当者名（例: 青木）" autocomplete="off">
+            <datalist id="mstApproverNames">${cands.map((p) => `<option value="${escapeHtml(p.name)}">${escapeHtml(p.email || '')}</option>`).join('')}</datalist>
+            <input type="email" id="mstApproverEmail" class="tm-input" placeholder="メールアドレス" autocomplete="off">
+            <button type="button" class="primary" data-mstapprover>決裁者にする</button>${ap ? `<button type="button" data-mstnp>🔔 ${escapeHtml(ap.name || '')} さんの通知設定を見る</button>` : ''}</div>
+          ${cands.length ? `<div class="mst-cands">${cands.slice(0, 30).map((p) => `<button type="button" class="wa-chip" data-mstpick="${escapeHtml(p.name)}" title="${escapeHtml(p.email || 'メールアドレスはまだ分かりません')}">${escapeHtml(p.name)}${p.email ? ' ✉' : ''}</button>`).join('')}</div>` : ''}
           <h3 class="mst-h">🧾 請求書発行日・入金日の列を見せない客先の会社</h3>
           <p class="ms-note">印を付けた会社の客先の画面には、請求書発行日・入金日の列と欄を出しません（案件の進み具合だけを見てもらう）。菱熱の画面は、各自が上の「請求・入金」で切り替えます。</p>
           <div class="mst-acct">${companyNames().map((co) => `<label class="wa-chip"><input type="checkbox" data-mstacct="${escapeHtml(co)}"${hideAccounting.companies.indexOf(co) !== -1 ? ' checked' : ''}> ${escapeHtml(co)}</label>`).join('')}</div>
@@ -2489,35 +2530,71 @@
           <table class="ms-table mst-rates"><thead><tr><th>他社の金額（税抜）</th><th>利率</th></tr></thead><tbody>
             ${otherRates.map((t, i) => `<tr><td>${i === otherRates.length - 1 ? `${fmtAmount(otherRates[i - 1] ? otherRates[i - 1].under : 0)} 以上` : `<input type="text" class="tm-input mst-under" data-mstunder="${i}" value="${escapeHtml(formatThousands(t.under))}"> 円 未満`}</td>
               <td><input type="number" class="tm-input mst-rate" data-mstrate="${i}" min="0" max="100" step="0.1" value="${escapeHtml(t.rate)}"> %</td></tr>`).join('')}
-          </tbody></table>
-          <h3 class="mst-h">🤝 協力会社</h3>
+          </tbody></table>`;
+      } else if (masterTab === 'theaters') {
+        pane.innerHTML = `<h3 class="mst-h">🏢 会社・🎬 劇場</h3>
+          <p class="ms-note">会社・劇場の一覧は、客先マスターの画面で直します。新しい劇場は、案件の新規登録で一覧にない劇場を打った時にも登録できます。</p>
+          <button type="button" class="primary" data-opentm>📚 客先マスター（会社・劇場）を開く</button>`;
+      } else if (masterTab === 'partners') {
+        pane.innerHTML = `<h3 class="mst-h">🤝 協力会社</h3>
           <p class="ms-note">作業申請書の「協力会社」「作業者」の候補です。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します。</p>
-          <button type="button" data-openpt>🤝 協力会社マスターを開く</button>
-        </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
+          <button type="button" class="primary" data-openpt>🤝 協力会社マスターを開く</button>`;
+      } else if (masterTab === 'accounts') {
+        pane.innerHTML = ''; openAccountsDialog(pane, (t) => { masterTab = t; draw(); });
+      } else if (masterTab === 'mail') {
+        pane.innerHTML = ''; openMailSettings(pane);
+      }
     };
-    draw();
-    document.body.appendChild(ov);
-    const after = () => { renderRPersonBar(); renderDatalists(); renderReassignBar(); draw(); };
+    // タブを変えると、中身の要素を作り直す（埋め込んだ画面の押した時の動きを残さない）
+    const switchTab = (t) => {
+      masterTab = t; try { localStorage.setItem('masterTabV1', t); } catch (e) {}
+      const old = ov.querySelector('.mst-pane'); const fresh = document.createElement('div'); fresh.className = 'mst-pane'; old.replaceWith(fresh);
+      draw();
+    };
+    switchTab(masterTab);
+    const after = () => { renderRPersonBar(); renderDatalists(); renderReassignBar(); if (masterTab === 'staff') draw(); };
     const save = async (rows, msg) => {
       try { await store.saveStaff(rows); staffList = await store.fetchStaff(); after(); if (msg) showToastLite(msg); }
       catch (err) { K.say('保存できませんでした: ' + (err.message || err)); }
     };
+    ov.addEventListener('input', (e) => {
+      if (e.target.id !== 'mstApproverName') return;
+      const p = tohoPersonCands().find((x) => cmPersonMatch(x.name, e.target.value));
+      const em = ov.querySelector('#mstApproverEmail');
+      if (p && p.email && em && !em.value) em.value = p.email;
+    });
     ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
-      if (e.target.closest('[data-opentm]')) { ov.remove(); openTheaterMasterModal(); return; }
-      if (e.target.closest('[data-openpt]')) { ov.remove(); if (window.WORKAPP) window.WORKAPP.openPartners(); return; }
-      if (e.target.closest('[data-mstnp]')) { const ap = approverPref(); if (ap) { ov.remove(); openNotifyPrefs(ap.email); } return; }
+      if (e.target.closest('[data-x]') || e.target === ov) { close(); return; }
+      const tb = e.target.closest('[data-msttab]'); if (tb) { switchTab(tb.dataset.msttab); return; }
+      if (e.target.closest('[data-opentm]')) { close(); openTheaterMasterModal(); return; }
+      if (e.target.closest('[data-openpt]')) { close(); if (window.WORKAPP) window.WORKAPP.openPartners(); return; }
+      if (e.target.closest('[data-mstnp]')) { const ap = approverPref(); if (ap) { close(); openNotifyPrefs(ap.email); } return; }
+      const pk = e.target.closest('[data-mstpick]');
+      if (pk) {
+        const p = tohoPersonCands().find((x) => x.name === pk.dataset.mstpick);
+        ov.querySelector('#mstApproverName').value = pk.dataset.mstpick;
+        ov.querySelector('#mstApproverEmail').value = (p && p.email) || '';
+        if (!(p && p.email)) ov.querySelector('#mstApproverEmail').focus();
+        return;
+      }
       if (e.target.closest('[data-mstapprover]')) {
-        const email = ov.querySelector('#mstApprover').value; if (!email) { K.say('決裁者を選んでください'); return; }
-        const acc = (accountsCache || []).find((a) => String(a.email).toLowerCase() === email) || {};
-        if (!(await K.ask(`見積り3万円以上の TOHO の案件の通知メールを、${acc.person || email} さんに送るようにします。よろしいですか？`, { ok: '決裁者にする' }))) return;
+        const name = cmPersonKey(ov.querySelector('#mstApproverName').value);
+        const email = ov.querySelector('#mstApproverEmail').value.trim().toLowerCase();
+        if (!name) { K.say('決裁者の名前を入れてください'); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { K.say('決裁者のメールアドレスを入れてください'); return; }
+        const acc = (accountsCache || []).find((a) => String(a.email).toLowerCase() === email);
+        if (acc && acc.company && acc.company !== WA_COMPANY) { K.say(`${email} は「${acc.company}」の客先アカウントです。TOHO の人のアドレスを入れてください。`); return; }
+        if (!(await K.ask(`見積り3万円以上の TOHO の案件の通知メールを、${name} さん（${email}）に送るようにします。\n客先アカウントにも「TOHOシネマズ・本社・${name}」で登録します。よろしいですか？`, { ok: '決裁者にする' }))) return;
         try {
+          // 客先アカウント: 無ければ足す（本社）。あれば担当者名だけ入れる（劇場はそのまま）
+          await store.saveAccounts([acc ? Object.assign({}, acc, { company: WA_COMPANY, person: name }) : { email, company: WA_COMPANY, theater: '', person: name, note: '本社の決裁者' }]);
+          accountsCache = await store.fetchAccounts();
           const { error: e1 } = await sb.from('notify_prefs').update({ approver: false }).eq('approver', true); if (e1) throw e1;
           const ex = notifyPrefs.find((p) => String(p.email).toLowerCase() === email);
-          const { error: e2 } = ex ? await sb.from('notify_prefs').update({ approver: true, name: acc.person || ex.name || '' }).eq('email', ex.email)
-            : await sb.from('notify_prefs').insert({ email, name: acc.person || '', approver: true, enabled: true, muted_case_ids: [] });
+          const { error: e2 } = ex ? await sb.from('notify_prefs').update({ approver: true, name }).eq('email', ex.email)
+            : await sb.from('notify_prefs').insert({ email, name, approver: true, enabled: true, muted_case_ids: [] });
           if (e2) throw e2;
-          await loadTohoSettings(); draw(); showToastLite('決裁者を変えました');
+          await loadTohoSettings(); draw(); showToastLite(`決裁者を ${name} さんにしました`);
         } catch (err) { K.say('保存できませんでした: ' + (err.message || err)); }
         return;
       }
@@ -2594,7 +2671,7 @@
     rPerson:       { k: 'mail', v: true },
     category:      { k: 'mail', v: true },
     caseTitle:     { k: 'ai', v: true, why: '内容から付ける', col: 'title' },
-    content:       { k: 'ai', v: true, why: '社内メモから客先向けにまとめる' },
+    content:       { k: 'sum', v: true, why: '社内メモを AI が客先向けにまとめて入れる' },
     customerMemo:  { k: 'cust', v: true },
     surveyDate:    { k: 'mail', v: true },
     quoteDate:     { k: 'mail', v: true },
@@ -2610,12 +2687,44 @@
   };
   function fieldSrcNote(f) {
     const who = f.k === 'ai' ? '🤖 AI：' + f.why + '（直せる）'
+      : f.k === 'sum' ? '📝 ' + f.why + '（直せる）'
       : f.k === 'mail' ? '📨 ' + (f.why || 'AI も入れる')
       : f.k === 'cust' ? '🤝 客先が入れる'
       : '✋ 手入力だけ';
     return who + '｜' + (f.v ? '👀 客先に見える' : '🔒 客先に見えない');
   }
+  // その案件で、この欄を最後に入れたのはだれか（cases.field_sources・SETUP_FIELD_SOURCES.sql）
+  const FS_LABEL = { hand: ['✋ 直した', '菱熱が手で入れた・直した'], ai: ['🤖 AI のまま', 'メール・LINE・AI が入れたまま（人はまだ直していない）'], cust: ['🤝 客先', '客先が入れた'] };
+  const fsCol = (id) => FIELD_SRC[id].col || ({ caseTitle: 'title' })[id] || id.replace(/[A-Z]/g, (x) => '_' + x.toLowerCase());
+  function markCaseFieldSources(c) {
+    const fs = (c && c.fieldSources) || {};
+    Object.keys(FIELD_SRC).forEach((id) => {
+      const lab = document.querySelector(`#caseForm label[for="${id}"]`); if (!lab) return;
+      let b = lab.querySelector('.fs-now');
+      const v = FS_LABEL[fs[fsCol(id)]];
+      if (!v) { if (b) b.remove(); return; }
+      if (!b) { b = document.createElement('span'); const sn = lab.querySelector(':scope > .src-note'); if (sn) lab.insertBefore(b, sn); else lab.appendChild(b); }
+      b.className = 'fs-now fs-' + fs[fsCol(id)]; b.textContent = v[0]; b.title = 'この案件では: ' + v[1];
+    });
+  }
   function markFieldSources() {
+    // 見出し: 客先にも見える欄／社内だけの欄（2026-11-20）と、色の説明
+    document.querySelectorAll('#caseForm .form-sec').forEach((sec) => {
+      const k = sec.dataset.sec; const h = sec.querySelector('.form-sec-h');
+      if (!h || h.querySelector('.vis-tag, .lock-tag')) return;
+      if (['basic', 'content', 'sched', 'money'].indexOf(k) !== -1) {
+        sec.classList.add('form-sec-cust');
+        const t = document.createElement('span'); t.className = 'vis-tag col-ryo'; t.textContent = '👀 客先にも見える'; h.appendChild(t);
+      }
+    });
+    const form = $('caseForm');
+    if (form && !form.querySelector('.fs-legend')) {
+      const lg = document.createElement('div'); lg.className = 'fs-legend col-ryo';
+      lg.innerHTML = '<span class="fs-lg fs-lg-ai">🤖 AI が入れる</span><span class="fs-lg fs-lg-sum">📝 AI が要約して入れる</span><span class="fs-lg fs-lg-mail">📨 メールからも入る</span><span class="fs-lg fs-lg-hand">✋ 手で入れる</span><span class="fs-lg fs-lg-cust">🤝 客先が入れる</span>' +
+        '<span class="fs-lg-sep">｜</span><span class="fs-lg-box fs-lg-vis">白い枠＝客先にも見える</span><span class="fs-lg-box fs-lg-in">黄色い枠＝社内だけ</span>' +
+        '<span class="fs-lg-sep">｜</span><span class="fs-now fs-hand">✋ 直した</span><span class="fs-now fs-ai">🤖 AI のまま</span><span class="fs-lg-note">＝この案件で最後に入れた人</span>';
+      const first = form.querySelector('.form-sec'); if (first) first.parentNode.insertBefore(lg, first);
+    }
     Object.keys(FIELD_SRC).forEach((id) => {
       const f = FIELD_SRC[id];
       const lab = document.querySelector(`#caseForm label[for="${id}"]`);
@@ -2757,38 +2866,36 @@
     else if (want && st.alias_ok) note = '希望の送り主のアドレスで送っています';
     return { addr, note };
   }
-  async function openMailSettings() {
+  // host を渡すと、マスター編集の「📨 メール通知」タブの中に出す（2026-11-20）。渡さない時はマスター編集をそのタブで開く
+  async function openMailSettings(host) {
     const K = window.KARTE;
+    if (!host) { openMasterDialog('mail'); return; }
     try { await loadCaseMail(); } catch (e) {}
-    if (!caseMailSupported) { if (K) K.say('通知メールの表がありません。SETUP_CASE_MAIL.sql を実行してください。'); return; }
-    document.querySelectorAll('#mailSetDlg').forEach((x) => x.remove());
-    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'mailSetDlg';
+    if (!caseMailSupported) { host.innerHTML = '<p class="empty-msg">通知メールの表がありません。SETUP_CASE_MAIL.sql を実行してください。</p>'; return; }
+    const ov = host; ov.id = 'mailPane';
     const m = Object.assign({}, caseMailSettings);
     const fmt = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); };
     const draw = () => {
       const st = caseMailStatus || {};
       const snd = mailSenderText();
       const banner = m.mode === 'test'
-        ? `<div class="ms-banner ms-test">🧪 <b>テスト環境（試し）</b>です。客先にはメールを送りません。<br>テスト劇場（${escapeHtml((m.test_theaters || []).map((t) => shortTheaterName(t) || t).join('、') || '未設定')}）の案件だけを、<b>テストの宛先（${escapeHtml((m.test_to || []).join('、') || '未設定')}）</b>だけに送ります。</div>`
+        ? `<div class="ms-banner ms-test">🧪 <b>テスト中</b>です。客先にはメールを送りません。<br>全部の案件の通知を、<b>テストの宛先（${escapeHtml((m.test_to || []).join('、') || '未設定')}）</b>だけに送ります。メールの頭に「本番ならだれに届くか」を書きます。</div>`
         : m.mode === 'live' ? '<div class="ms-banner ms-live">🟢 <b>本番</b>です。劇場・担当者・ベルの人に、通知メールを送ります。</div>'
         : '<div class="ms-banner ms-off">⏸ <b>止めています</b>。通知メールは送りません。</div>';
-      ov.innerHTML = `<div class="kt-dialog kt-dialog-mid ms-dlg"><div class="kt-dlg-head">📨 メール通知設定<button type="button" class="close-btn" data-x>×</button></div>
-        <div class="kt-dlg-body">
+      ov.innerHTML = `<h3 class="mst-h">📨 メール通知（客先・決裁者への通知メール）</h3>
           ${banner}
           <table class="ms-table">
             <tr><th>今の送るアドレス</th><td><b class="ms-addr">${escapeHtml(snd.addr)}</b>（差出人の名前「菱熱工業」）${snd.note ? `<div class="ms-note">${escapeHtml(snd.note)}</div>` : ''}${st.checked_at ? `<div class="ms-note">GAS が確かめた時刻: ${escapeHtml(fmt(st.checked_at))}</div>` : ''}</td></tr>
             <tr><th>最後に送ったメール</th><td>${st.last_sent_at ? `${escapeHtml(fmt(st.last_sent_at))}　${escapeHtml(st.last_to || '')}<div class="ms-note">${escapeHtml(st.last_subject || '')}</div>` : 'まだありません'}</td></tr>
-            <tr><th>モード</th><td>${[['test', '🧪 試し（テスト劇場だけ・テストの宛先だけ）'], ['live', '🟢 本番（全部の案件・客先へ）'], ['off', '⏸ 止める']].map(([v, l]) => `<label class="ms-radio"><input type="radio" name="msMode" value="${v}"${m.mode === v ? ' checked' : ''}> ${l}</label>`).join('')}</td></tr>
+            <tr><th>モード</th><td>${[['test', '🧪 テスト（全部の案件をテストの宛先だけへ）'], ['live', '🟢 本番（全部の案件・客先へ）'], ['off', '⏸ 止める']].map(([v, l]) => `<label class="ms-radio"><input type="radio" name="msMode" value="${v}"${m.mode === v ? ' checked' : ''}> ${l}</label>`).join('')}</td></tr>
             <tr><th>テストの宛先</th><td><input type="text" id="msTestTo" class="tm-input" value="${escapeHtml((m.test_to || []).join('、'))}" placeholder="テスト用のメールアドレス（複数は「、」で区切る）"><div class="ms-note">試しの間は、ここにだけ送ります。小山さんの Gmail（送る側）は入れないでください（返信がまた取り込まれるため）。</div></td></tr>
-            <tr><th>テスト劇場</th><td><input type="text" id="msTestTheaters" class="tm-input" value="${escapeHtml((m.test_theaters || []).join('、'))}" placeholder="TOHOシネマズ テスト劇場"></td></tr>
+            <tr><th>テスト劇場</th><td><input type="text" id="msTestTheaters" class="tm-input" value="${escapeHtml((m.test_theaters || []).join('、'))}" placeholder="TOHOシネマズ テスト劇場"><div class="ms-note">テスト劇場の案件は、客先の画面に出しません（そのテスト劇場のアドレスで入った時だけ）。</div></td></tr>
             <tr><th>送り主にしたいアドレス</th><td><input type="text" id="msSender" class="tm-input" value="${escapeHtml(m.sender || '')}" placeholder="例: tc-hvac-desk@ryonetsu.com"><div class="ms-note">Gmail の「設定 → アカウント → 他のアドレスからメールを送信」に登録して確認が済むと、このアドレスで送ります。それまでは小山さんの Gmail から送ります。</div></td></tr>
           </table>
-        </div><div class="kt-dlg-foot"><span class="ms-note">切り替えは5分以内に GAS に伝わります</span><button type="button" data-x>閉じる</button><button type="button" class="primary" data-mssave>保存</button></div></div>`;
+          <div class="ms-save-row"><span class="ms-note">切り替えは5分以内に GAS に伝わります</span><button type="button" class="primary" data-mssave>保存</button></div>`;
     };
     draw();
-    document.body.appendChild(ov);
     ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
       if (!e.target.closest('[data-mssave]')) return;
       const split = (v) => String(v || '').split(/[、,，\s\n]+/).map((x) => x.trim()).filter(Boolean);
       const mode = (ov.querySelector('input[name="msMode"]:checked') || {}).value || 'test';
@@ -2799,7 +2906,7 @@
       if (sender && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sender)) { K.say('送り主のアドレスが正しくありません'); return; }
       const tt = ov.querySelector('#msTestTheaters').value.split(/[、,，\n]/).map((x) => x.trim()).filter(Boolean).map((x) => theaterLoose(x, '') || x);
       if (mode === 'test' && !testTo.length && !(await K.ask('テストの宛先が空です。試しの間は、どこにも送りません。よろしいですか？', { ok: 'このまま保存' }))) return;
-      if (mode === 'live' && m.mode !== 'live' && !(await K.ask('本番にすると、全部の案件で客先（劇場・担当者・ベルの人）に通知メールが送られます。よろしいですか？', { ok: '本番にする', danger: true }))) return;
+      if (mode === 'live' && m.mode !== 'live' && !(await K.ask('本番にすると、全部の案件で客先（劇場・担当者・決裁者）に通知メールが送られます。よろしいですか？', { ok: '本番にする', danger: true }))) return;
       try {
         const v = { mode, test_theaters: tt, test_to: testTo, sender };
         await store.saveCaseMailSettings(v);
@@ -3011,24 +3118,28 @@
     });
     return out;
   }
-  async function openAccountsDialog() {
+  // マスター編集の「📧 客先アカウント」タブの中に出す（2026-11-20）。host が無い時はマスター編集をそのタブで開く
+  async function openAccountsDialog(host, goTab) {
     const K = window.KARTE;
+    if (!host) { openMasterDialog('accounts'); return; }
     let rows = [];
-    try { rows = await store.fetchAccounts(); } catch (e) { if (K) K.say('客先アカウントの表がありません。SETUP_TOHO_REQUESTS.sql を実行してください。（' + (e.message || e) + '）'); return; }
-    document.querySelectorAll('#acctDlg').forEach((x) => x.remove());
-    const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'acctDlg';
+    try { rows = await store.fetchAccounts(); } catch (e) { host.innerHTML = '<p class="empty-msg">客先アカウントの表がありません。SETUP_TOHO_REQUESTS.sql を実行してください。（' + escapeHtml(e.message || e) + '）</p>'; return; }
+    const ov = host; ov.id = 'acctPane'; ov.classList.add('acct-dlg');
     const names = theaterMaster.filter((t) => t.name && !t.closed).map((t) => t.name);
     let mail = null;
     try { mail = await store.fetchCaseMailSettings(); } catch (e) { mail = null; }
     const hasMail = !!mail;
-    const mailBox = () => !hasMail ? '' : `<div class="acct-mail">📨 通知メール（劇場・担当者・ベルの人へ）: <b>${escapeHtml(MAIL_MODE_LABEL[caseMailSettings.mode] || '')}</b>　<button type="button" data-openmailset>メール通知設定を開く</button></div>`;
+    const mailBox = () => !hasMail ? '' : `<div class="acct-mail">📨 通知メール（劇場・担当者・決裁者へ）: <b>${escapeHtml(MAIL_MODE_LABEL[caseMailSettings.mode] || '')}</b>　<button type="button" data-openmailset>📨 メール通知のタブへ</button></div>`;
     // 会社ごとのボタン・探す欄（一覧だけ描き直す。探す欄の入力は消さない）
     let acctCo = '', acctQ = '';
     const shownRows = () => rows.filter((r) => (!acctCo || r.company === acctCo) &&
       (!acctQ || [r.email, r.company, r.theater, shortTheaterName(r.theater), r.person, r.note].join(' ').toLowerCase().indexOf(acctQ) !== -1));
     const bodyHtml = () => {
       const list = shownRows();
-      return list.length ? list.map((r) => `<tr class="${(r.theater || r.person) ? '' : 'acct-nomatch'}"><td>${escapeHtml(r.email)}</td><td>${escapeHtml(r.company)}</td><td title="${escapeHtml(r.theater)}">${r.theater ? escapeHtml(shortTheaterName(r.theater)) : '（会社全体）'}</td><td><input type="text" class="tm-input acct-person" data-person="${escapeHtml(r.email)}" value="${escapeHtml(r.person || '')}" placeholder="—"></td><td>${escapeHtml(r.note || '')}</td><td><button type="button" class="danger" data-del="${escapeHtml(r.email)}">🗑</button></td></tr>`).join('')
+      const cos = companyNames();
+      return list.length ? list.map((r) => `<tr class="${(r.theater || r.person) ? '' : 'acct-nomatch'}"><td><input type="email" class="tm-input acct-email" data-accem="${escapeHtml(r.email)}" value="${escapeHtml(r.email)}"></td>
+        <td><select class="acct-co" data-accco="${escapeHtml(r.email)}"><option value="">（会社なし）</option>${cos.concat(r.company && cos.indexOf(r.company) === -1 ? [r.company] : []).map((co) => `<option${co === r.company ? ' selected' : ''}>${escapeHtml(co)}</option>`).join('')}</select></td>
+        <td title="${escapeHtml(r.theater)}"><input type="text" class="tm-input acct-th" data-accth="${escapeHtml(r.email)}" list="acctTheaterList" value="${escapeHtml(r.theater ? shortTheaterName(r.theater) : '')}" placeholder="（本社・会社全体）"></td><td><input type="text" class="tm-input acct-person" data-person="${escapeHtml(r.email)}" value="${escapeHtml(r.person || '')}" placeholder="—"></td><td>${escapeHtml(r.note || '')}</td><td><button type="button" class="danger" data-del="${escapeHtml(r.email)}">🗑</button></td></tr>`).join('')
         : `<tr><td colspan="6" class="acct-empty">${rows.length ? '合うアドレスがありません。' : 'まだありません。Excel・CSV を読み込むか、上の欄から足してください。'}</td></tr>`;
     };
     const coBar = () => {
@@ -3042,9 +3153,8 @@
       const n = ov.querySelector('.acct-count'); if (n) n.textContent = `${shownRows().length} 件 ／ 全部 ${rows.length} 件`;
     };
     const draw = () => {
-      ov.innerHTML = `<div class="kt-dialog acct-dlg acct-full"><div class="kt-dlg-head">📧 客先アカウント（劇場のメールアドレス）<button type="button" class="close-btn" data-x>×</button></div>
-        <div class="kt-dlg-body">
-          <p class="tm-hint">劇場のメールアドレスで入った人には、その劇場の案件だけが並びます（上の「全部の劇場」で会社の全部も見られます）。客先が直せるのは「自社のメモ」だけです。<br>Excel・CSV（メールアドレスと劇場名の列がある表）を読み込むと、まとめて入れます。同じアドレスは上書きします。見出しに「担当者」の列があれば担当者名も入れます。<br>担当者名は、案件の「TOHOシネマズ担当者」と同じ名前にします（その案件の通知メールが必ず届きます）。</p>
+      ov.innerHTML = `<h3 class="mst-h">📧 客先アカウント（劇場・本社のメールアドレス）</h3>
+          <p class="tm-hint">劇場のメールアドレスで入った人には、その劇場の案件だけが並びます（上の「全部の劇場」で会社の全部も見られます）。客先が直せるのは「自社のメモ」だけです。<br>Excel・CSV（メールアドレスと劇場名の列がある表）を読み込むと、まとめて入れます。同じアドレスは上書きします。見出しに「担当者」の列があれば担当者名も入れます。<br>担当者名は、案件の「TOHOシネマズ担当者」と同じ名前にします（その案件の通知メールが必ず届きます）。<br>メールアドレス・会社・劇場・担当者名は、表の中でそのまま直せます（劇場を空にすると「本社・会社全体」）。</p>
           ${mailBox()}
           <div class="acct-bar"><label class="kt-upload primary-like">⬆ Excel・CSV を読み込む<input type="file" id="acctFile" accept=".xlsx,.csv" hidden></label>
             <span class="acct-add"><input type="email" id="acctEmail" class="tm-input" placeholder="メールアドレス"><input type="text" id="acctTheater" class="tm-input" list="acctTheaterList" placeholder="劇場（短い名前でも可）"><input type="text" id="acctPerson" class="tm-input acct-person-in" placeholder="担当者名（本社の人など）"><datalist id="acctTheaterList">${names.map((n) => `<option value="${escapeHtml(n)}">`).join('')}</datalist><button type="button" data-add>＋ 足す</button></span></div>
@@ -3052,14 +3162,12 @@
           <div class="acct-wrap"><table class="acct-table"><thead><tr><th>メールアドレス</th><th>会社</th><th>劇場</th><th>担当者名</th><th>メモ</th><th></th></tr></thead><tbody>
           ${bodyHtml()}
           </tbody></table></div>
-        </div><div class="kt-dlg-foot"><span class="acct-count">${shownRows().length} 件 ／ 全部 ${rows.length} 件</span><button type="button" data-x>閉じる</button></div></div>`;
+          <div class="acct-count ms-note">${shownRows().length} 件 ／ 全部 ${rows.length} 件</div>`;
     };
     draw();
-    document.body.appendChild(ov);
     const reload = async () => { rows = await store.fetchAccounts(); draw(); };
     ov.addEventListener('input', (e) => { if (e.target.id === 'acctSearch') { acctQ = e.target.value.trim().toLowerCase(); drawBody(); } });
     ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
       const cb = e.target.closest('[data-acco]'); if (cb) { acctCo = cb.dataset.acco; drawBody(); return; }
       if (e.target.closest('[data-add]')) {
         const email = ov.querySelector('#acctEmail').value.trim().toLowerCase();
@@ -3075,7 +3183,7 @@
         try { await store.saveAccounts([row]); await reload(); } catch (err) { if (K) K.say('保存できませんでした: ' + (err.message || err)); }
         return;
       }
-      if (e.target.closest('[data-openmailset]')) { ov.remove(); openMailSettings(); return; }
+      if (e.target.closest('[data-openmailset]')) { if (goTab) goTab('mail'); return; }
       const del = e.target.closest('[data-del]');
       if (del) {
         if (K && !(await K.ask(`${del.dataset.del} を消しますか？`, { ok: '消す', danger: true }))) return;
@@ -3083,6 +3191,37 @@
       }
     });
     ov.addEventListener('change', async (e) => {
+      // 会社・劇場・メールアドレスを表の中で直す
+      const ce = e.target.closest('[data-accco],[data-accth],[data-accem]');
+      if (ce) {
+        const key = ce.dataset.accco || ce.dataset.accth || ce.dataset.accem;
+        const r = rows.find((x) => x.email === key); if (!r) return;
+        try {
+          if (ce.dataset.accco !== undefined) {
+            const company = ce.value;
+            const theater = r.theater && company && companyOfTheater(r.theater) && companyOfTheater(r.theater) !== company ? '' : r.theater;
+            await store.saveAccounts([Object.assign({}, r, { company, theater })]);
+            showToastLite('会社を保存しました' + (theater !== r.theater ? '（劇場は会社が違うので空にしました）' : ''));
+          } else if (ce.dataset.accth !== undefined) {
+            const tIn = ce.value.trim();
+            const theater = tIn ? (accountTheaterOf([tIn], r.company) || '') : '';
+            if (tIn && !theater) { K.say(`「${tIn}」に合う劇場が見つかりません（会社: ${r.company || '不明'}）`); ce.value = r.theater ? shortTheaterName(r.theater) : ''; return; }
+            await store.saveAccounts([Object.assign({}, r, { theater, company: r.company || (theater ? companyOfTheater(theater) : '') })]);
+            showToastLite(theater ? `劇場を「${shortTheaterName(theater)}」にしました` : '劇場を空にしました（本社・会社全体）');
+          } else {
+            const email = ce.value.trim().toLowerCase();
+            if (email === r.email) return;
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { K.say('メールアドレスが正しくありません'); ce.value = r.email; return; }
+            if (rows.some((x) => x.email === email)) { K.say(`${email} はもうあります`); ce.value = r.email; return; }
+            // アドレスは表の鍵なので、新しいアドレスで足してから前のを消す
+            await store.saveAccounts([Object.assign({}, r, { email })]);
+            await store.deleteAccount(r.email);
+            showToastLite('メールアドレスを直しました');
+          }
+          await reload(); accountsCache = rows;
+        } catch (err) { K.say('保存できませんでした: ' + (err.message || err)); await reload(); }
+        return;
+      }
       const pe = e.target.closest('[data-person]');
       if (pe) {
         const r = rows.find((x) => x.email === pe.dataset.person); if (!r) return;
@@ -3565,8 +3704,8 @@
       default:         el = document.createElement('input'); el.type = 'text';
     }
     el.className = 'inline-edit' + (cfg.type === 'date' ? ' smart-date' : '');
-    // 日付セルは編集中は YYYY/MM/DD で表示
-    el.value = cfg.type === 'date' ? fmtDateFull(oldVal)
+    // 日付セルは編集中は「2026/1/9（金）」で表示
+    el.value = cfg.type === 'date' ? fmtDateIn(oldVal)
       : (cfg.type === 'number' ? formatThousands(oldVal) : oldVal);
     td.innerHTML = '';
     td.appendChild(el);
@@ -3606,7 +3745,7 @@
         if (parsed === null) {
           // 不正な日付は破棄せず、編集状態を維持して再入力させる（中断は Esc）
           reEditing = true;
-          alert('日付として認識できません: ' + newVal + '\n例: 5/28 / 0528 / 2026/5/28');
+          alert('日付として認識できません: ' + newVal + '\n例: 5/28 / 0528 / 2026/5/28（年を省くと今日以降の日。前の日は年まで）');
           setTimeout(() => {
             reEditing = false;
             el.focus();
@@ -3725,13 +3864,15 @@
       el.classList.toggle('hidden', !isToho || hiddenByMode);
     });
   }
-  function setDateField(id, iso) { $(id).value = fmtDateFull(iso); }
+  function setDateField(id, iso) { $(id).value = fmtDateIn(iso); }
+  // 日付の欄に出す形（2026/1/9（金））
+  function fmtDateIn(iso) { return iso ? (window.DATEIN ? window.DATEIN.fmt(iso) : fmtDateFull(iso)) : ''; }
   function readDateField(id, label) {
     const raw = $(id).value.trim();
     if (raw === '') return '';
     const parsed = parseSmartDate(raw);
     if (parsed === null) {
-      alert(`${label}の日付が認識できません: ${raw}\n例: 5/28 / 0528 / 2026/5/28`);
+      alert(`${label}の日付が認識できません: ${raw}\n例: 5/28 / 0528 / 2026/5/28（年を省くと今日以降の日。前の日は年まで）`);
       $(id).focus();
       $(id).classList.add('invalid');
       return undefined;
@@ -3765,6 +3906,7 @@
     document.querySelectorAll('.due-exempt-row').forEach((el) => el.classList.toggle('hidden', !(initialReportSupported && isPrivileged(currentUser) && !isCalEdit)));
     renderIrRow(caseObj && !isCalEdit ? caseObj : null);
     renderStatusRow(caseObj && !isCalEdit ? caseObj : null);
+    markCaseFieldSources(caseObj);
     setTimeout(() => { if (!isCalEdit) renderOtherRow(); else if ($('otherRow')) $('otherRow').classList.add('hidden'); }, 0);   // 会社の欄が入ってから決める
 
     if (isPrivileged(currentUser)) {
@@ -3861,7 +4003,6 @@
     const real = out.length ? out.join('、') : 'なし（劇場・担当者のアドレスが未登録）';
     if (mode === 'off') return '通知メールは止めています（本番の宛先: ' + real + '）';
     if (mode === 'test') {
-      if (!isTestTheater(c.theater)) return '🧪 テスト中: この案件は送りません（テスト劇場の案件だけ送ります）。本番の宛先: ' + real;
       return '🧪 テスト中: テストの宛先（' + ((caseMailSettings.test_to || []).join('、') || '未設定') + '）だけに送ります。本番の宛先: ' + real;
     }
     return '通知メールの宛先: ' + real;
@@ -4048,10 +4189,14 @@
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
   // textarea を中身の高さに合わせて自動拡張（全文表示）
+  // 長い文の欄は、画面の半分の高さで止めて、欄の中でスクロール（スマホで画面全体が動かなくなるのを防ぐ・2026-11-20）
   function autoGrowTextarea(el) {
     if (!el) return;
+    const max = Math.max(160, Math.round((window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.5));
     el.style.height = 'auto';
-    el.style.height = (el.scrollHeight + 2) + 'px';
+    const h = el.scrollHeight + 2;
+    el.style.height = Math.min(h, max) + 'px';
+    el.style.overflowY = h > max ? 'auto' : 'hidden';
   }
   // 金額入力欄を、入力途中でもカンマ区切りに整形（キャレット位置を維持）
   function formatAmountFieldLive(el) {
@@ -4358,7 +4503,7 @@
   function openInvoiceModal() {
     const month = currentMonth();
     $('invoiceMonth').value = month;
-    $('invoiceIssueDate').value = fmtDateFull(lastDayOfMonth(month));
+    $('invoiceIssueDate').value = fmtDateIn(lastDayOfMonth(month));
     updateInvoicePreview();
     $('invoiceModal').classList.remove('hidden');
   }
@@ -4862,6 +5007,8 @@
     calMode = true;
     if (calYear == null) { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); }
     $('calBtn').textContent = '✕ カレンダーを閉じる';
+    document.body.classList.add('cal-full');   // 開いたら全画面（右上の「✕ 閉じる」で戻る）
+    renderCalFilterNote();
     document.querySelector('.table-wrap').classList.add('hidden');
     document.querySelector('.legend').classList.add('hidden');
     $('calendarView').classList.remove('hidden');
@@ -4869,12 +5016,37 @@
   }
   function exitCalMode() {
     calMode = false;
+    document.body.classList.remove('cal-full'); hideCalTip();
     $('calBtn').textContent = '📅 カレンダー';
     $('calendarView').classList.add('hidden');
     document.querySelector('.table-wrap').classList.remove('hidden');
     document.querySelector('.legend').classList.remove('hidden');
   }
   function toggleCalMode() { if (calMode) exitCalMode(); else enterCalMode(); }
+  // 全画面では上のボタンが見えないので、今の絞り込み（会社・担当者）を書いておく
+  function renderCalFilterNote() {
+    const el = $('calFilterNote'); if (!el) return;
+    const parts = [];
+    if (companyFilter.size) parts.push([...companyFilter].map((c) => companyAbbr(c) || c).join('・'));
+    if (rPersonFilter.size) parts.push([...rPersonFilter].join('・'));
+    el.textContent = parts.length ? '絞り込み: ' + parts.join('／') + '（閉じて上のボタンで変えられます）' : '全部の案件';
+  }
+  // 帯に指を乗せると、案件名と内容の全文を小さく出す
+  function showCalTip(bar, x, y) {
+    const c = cases.find((k) => String(k.id) === String(bar.dataset.caseId)); if (!c) return;
+    let tip = $('calTip');
+    if (!tip) { tip = document.createElement('div'); tip.id = 'calTip'; tip.className = 'cal-tip'; document.body.appendChild(tip); }
+    const kind = bar.dataset.kind === 'survey' ? '調査' : '作業';
+    const when = bar.dataset.kind === 'survey' ? `${fmtDateShort(c.surveyDate)}${c.surveyTime ? ' ' + c.surveyTime : ''}`
+      : `${fmtDateShort(c.workStartDate || c.workEndDate)}${c.workStartTime ? ' ' + c.workStartTime : ''}${c.workEndDate && c.workEndDate !== c.workStartDate ? '〜' + fmtDateShort(c.workEndDate) : ''}`;
+    tip.innerHTML = `<div class="cal-tip-h">${escapeHtml(kind)}　${escapeHtml(when)}　${escapeHtml(shortTheaterName(c.theater) || c.theater || '')}</div>
+      <div class="cal-tip-t">${escapeHtml(calCaseName(c))}</div>${c.content ? `<div class="cal-tip-b">${escapeHtml(c.content)}</div>` : ''}<div class="cal-tip-f">押すと日時などを直せます</div>`;
+    tip.style.display = 'block';
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + 'px';
+    tip.style.top = (y + 16 + h > window.innerHeight ? Math.max(8, y - h - 12) : y + 16) + 'px';
+  }
+  function hideCalTip() { const t = $('calTip'); if (t) t.style.display = 'none'; }
 
   // ===== 書類棚（工程表・工事写真台帳）モード — 中身は shelf.js / kotei.js =====
   let koteiMode = false;
@@ -4995,10 +5167,10 @@
       const rowsHtml = (purchases.length ? purchases : [{}]).map((it) => purchaseRowHtml(it)).join('');
       tr.innerHTML = `
         <td data-colkey="company" class="col-company">${buildCompanyTag(c)}</td>
-        <td data-colkey="theater" title="${escapeHtml(c.theater || '')}">${escapeHtml(shortTheaterName(c.theater))}</td>
+        <td data-colkey="theater" title="${escapeHtml(c.theater || '')}">${escapeHtml(shortTheaterName(c.theater))}<div class="pv-mtitle">${escapeHtml(calCaseName(c))}</div></td>
         <td data-colkey="content" class="content-cell">${escapeHtml(c.content)}</td>
-        <td data-colkey="estimateName">${escapeHtml(c.estimateName)}</td>
-        <td data-colkey="estimateAmount" class="pv-amount-col">${fmtAmount(c.estimateAmount)}</td>
+        <td data-colkey="estimateName" data-label="見積り名">${escapeHtml(c.estimateName)}</td>
+        <td data-colkey="estimateAmount" class="pv-amount-col" data-label="見積り">${fmtAmount(c.estimateAmount)}</td>
         <td data-colkey="purchases" class="pv-cell">
           <div class="pv-rows">${rowsHtml}</div>
           <button type="button" class="pv-add">＋業者を追加</button>
@@ -5029,6 +5201,12 @@
   function dayDiff(isoA, isoB) {
     return Math.round((new Date(isoB) - new Date(isoA)) / 86400000);
   }
+  // カレンダーの帯に出す名前: 案件名（空なら内容の1行目を短く）（2026-11-20）
+  function calCaseName(c) {
+    const t = String(c.title || '').trim(); if (t) return t;
+    const first = String(c.content || '').split('\n').map((x) => x.replace(/^[・\-\s]+/, '').trim()).find(Boolean);
+    return first ? first.slice(0, 24) : (c.category || '');
+  }
   // カレンダーの予定: 調査=点、作業=開始〜終了の帯
   function collectCalItems() {
     const items = [];
@@ -5036,14 +5214,14 @@
       const theater = shortTheaterName(c.theater) || '(劇場未入力)';
       const co = companyAbbr(c.company) || '';
       if (c.surveyDate && String(c.surveyDate).length >= 10) {
-        items.push({ id: c.id, kind: 'survey', start: c.surveyDate, end: c.surveyDate, time: c.surveyTime || '', co: co, theater: theater, full: c.content || '' });
+        items.push({ id: c.id, kind: 'survey', start: c.surveyDate, end: c.surveyDate, time: c.surveyTime || '', co: co, theater: theater, name: calCaseName(c), full: c.content || '' });
       }
       const ws = (c.workStartDate && String(c.workStartDate).length >= 10) ? c.workStartDate : '';
       const we = (c.workEndDate && String(c.workEndDate).length >= 10) ? c.workEndDate : '';
       if (ws || we) {
         let s = ws || we, e = we || ws;
         if (s > e) { const t = s; s = e; e = t; }
-        items.push({ id: c.id, kind: 'work', start: s, end: e, time: c.workStartTime || '', co: co, theater: theater, full: c.content || '' });
+        items.push({ id: c.id, kind: 'work', start: s, end: e, time: c.workStartTime || '', co: co, theater: theater, name: calCaseName(c), full: c.content || '' });
       }
     });
     return items;
@@ -5056,7 +5234,10 @@
     const startDate = new Date(first); startDate.setDate(1 - first.getDay()); // 週初め(日曜)へ
     const lastDay = new Date(calYear, calMonth + 1, 0);
     const endDate = new Date(lastDay); endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay())); // 週末(土)へ
-    const DAYNUM_H = 22, LANE_H = 21;
+    const DAYNUM_H = 24, LANE_H = 38;   // 帯は2行まで（全画面・文字を大きく）
+    // 全画面では、週の高さを画面いっぱいに分ける（予定が多い週はその分のびる）
+    const nWeeks = Math.round((endDate - startDate) / 86400000 / 7) + 1;
+    const fillH = document.body.classList.contains('cal-full') ? Math.floor(Math.max(0, window.innerHeight - 130) / nWeeks) : 0;
     let html = '';
     const cur = new Date(startDate);
     while (cur <= endDate) {
@@ -5076,7 +5257,7 @@
         if (lane === -1) { lane = lanes.length; lanes.push(ev.ec); } else { lanes[lane] = ev.ec; }
         ev.lane = lane;
       });
-      const weekH = DAYNUM_H + Math.max(1, lanes.length) * LANE_H + 4;
+      const weekH = Math.max(fillH, DAYNUM_H + Math.max(1, lanes.length) * LANE_H + 4);
       let daysHtml = '';
       days.forEach((d, i) => {
         const iso = isoOf(d);
@@ -5092,10 +5273,9 @@
         const cls = it.kind === 'survey' ? 'ev-survey' : 'ev-work';
         const lbl = it.kind === 'survey' ? '調査' : '作業';
         const prefix = `${it.co || ''}${it.theater || ''}`; // 例: TOHO川崎
-        const body = it.full || '';
-        const txt = `${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}${escapeHtml(prefix)}　${lbl}${body ? '：' + escapeHtml(body) : ''}`;
-        const titleTxt = `${prefix}　${lbl}${it.time ? ' ' + it.time : ''}${body ? '：' + body : ''}`;
-        barsHtml += `<div class="cal-ev-bar ${cls}${ev.contL ? ' cont-l' : ''}${ev.contR ? ' cont-r' : ''}" data-case-id="${escapeHtml(it.id)}" style="left:${left}%;width:${width}%;top:${top}px" title="${escapeHtml(titleTxt)}">${txt}</div>`;
+        // 帯: 時刻・劇場・案件名（調査/作業は色と小さな印）。指を乗せると内容の全文（calTip）
+        const txt = `<span class="cal-kind">${lbl}</span>${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}${escapeHtml(prefix)} <span class="cal-name">${escapeHtml(it.name || '')}</span>`;
+        barsHtml += `<div class="cal-ev-bar ${cls}${ev.contL ? ' cont-l' : ''}${ev.contR ? ' cont-r' : ''}" data-case-id="${escapeHtml(it.id)}" data-kind="${it.kind}" style="left:${left}%;width:${width}%;top:${top}px">${txt}</div>`;
       });
       html += `<div class="cal-week" style="height:${weekH}px"><div class="cal-week-grid">${daysHtml}</div><div class="cal-week-bars">${barsHtml}</div></div>`;
       cur.setDate(cur.getDate() + 7);
@@ -5192,11 +5372,19 @@
     });
     return out;
   }
+  // 連絡するだけのタスクか（メールする・電話する・返信する・連絡する・伝える…）。見積り・書類など作る物があれば残す
+  // ※ GAS（Code.gs の isContactOnlyTask_）と同じ決まり。今たまっている提案も、これに当たるものは出さない（2026-11-20）
+  function isContactOnlyTask(text) {
+    const t = String(text || '').replace(/^[^：:]{1,20}[：:]/, '').replace(/\s/g, '');
+    if (/見積|書類|資料|図面|申請書|報告書|計画書|写真|請求書|発注|手配|注文/.test(t)) return false;
+    return /(メール|電話|TEL|ＴＥＬ|連絡|返信|返事|伝える|伝達|リマインド|折り返|一報|お礼|フォロー)/.test(t) &&
+      /(する|しておく|を送る|を入れる|をかける|をする|伝える|入れる|送る|かける|返す|確認する)$/.test(t);
+  }
   // 表示する提案（担当者ごと）。止まり＋メール/LINE の提案中から、押したものを除く
   function currentSuggestions() {
     if (store.mode === 'supabase' && !taskSuggestionsSupported) return [];
     const decided = new Set(taskSuggestionRows.filter((r) => r.status !== 'pending').map((r) => r.dedupe_key));
-    const fromTable = taskSuggestionRows.filter((r) => r.status === 'pending' && r.source !== 'stall');
+    const fromTable = taskSuggestionRows.filter((r) => r.status === 'pending' && r.source !== 'stall' && !isContactOnlyTask(r.text));
     return stallSuggestions().concat(fromTable).filter((x) => x.person && !decided.has(x.dedupe_key));
   }
   const SUGG_SOURCE_LABEL = { stall: '止まり', mail: 'メール', line: 'LINE', plaud: 'Plaud' };
@@ -5208,18 +5396,19 @@
       const openable = (x.source === 'stall' && x.case_id) || x.source_url;
       const due = x.due ? `<span class="task-due">〜${escapeHtml(fmtDateShort(x.due))}</span>` : '';
       return `<li class="sugg-item" data-sugg="${k}">
+        <span class="sugg-btns"><button type="button" class="sugg-accept" data-sugg-accept="${k}" title="個人タスクに登録する">＋ 登録</button><button type="button" class="sugg-done" data-sugg-done="${k}" title="もう済んでいる。個人タスクに「完了」で入れる">✔ 完了済み</button><button type="button" class="sugg-dismiss" data-sugg-dismiss="${k}" title="タスクにしない">破棄</button></span>
         <span class="sugg-src sugg-src-${escapeHtml(x.source)}">${escapeHtml(SUGG_SOURCE_LABEL[x.source] || x.source)}</span>
         <span class="sugg-body"><span class="sugg-text${openable ? ' sugg-link' : ''}" ${openable ? `data-sugg-open="${k}" title="${SUGG_OPEN_TIP[x.source] || '元の記録を開く'}"` : ''}>${escapeHtml(x.text)}</span>${due}
           ${x.reason ? `<span class="sugg-why">${escapeHtml(x.reason)}</span>` : ''}</span>
-        <span class="sugg-btns"><button type="button" class="sugg-accept" data-sugg-accept="${k}">＋ タスク登録</button><button type="button" class="sugg-dismiss" data-sugg-dismiss="${k}">破棄</button></span>
       </li>`;
     }).join('')}</ul></div>`;
   }
   function findSuggestion(key) { return currentSuggestions().find((x) => x.dedupe_key === key); }
+  // accept: true＝登録 / 'done'＝完了済みとして登録 / false＝破棄
   async function decideSuggestion(key, accept) {
     const sug = findSuggestion(key); if (!sug) return;
     if (accept) {
-      personTasks(sug.person).push({ text: sug.text, done: false, priority: sug.priority || 'mid', due: sug.due || '' });
+      personTasks(sug.person).push({ text: sug.text, done: accept === 'done', priority: sug.priority || 'mid', due: sug.due || '' });
       savePersonTasks(sug.person);
     }
     const status = accept ? 'accepted' : 'dismissed';
@@ -5484,7 +5673,7 @@
     renderAggTable();
   }
   function addTeamMember() {
-    if (staffList) { openMasterDialog(); return; }   // マスターがある時は「🗂 マスター編集」で足す
+    if (staffList) { openMasterDialog('staff'); return; }   // マスターがある時は「🗂 マスター編集」で足す
     const name = prompt('追加する担当者名を入力してください');
     if (!name) return;
     const trimmed = name.trim();
@@ -5497,7 +5686,7 @@
     renderAggTable();
   }
   function removeTeamMember(name) {
-    if (staffList) { openMasterDialog(); return; }
+    if (staffList) { openMasterDialog('staff'); return; }
     if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持され、再追加すれば復元されます）`)) return;
     saveTeam(loadTeam().filter((m) => m !== name));
     rPersonFilter.delete(name); // 絞り込み中だった場合は外す
@@ -6049,15 +6238,66 @@
         </div>`;
       }).join('') + '</div>';
   }
+  // 登録確認を決める人（2026-11-20）: 似ている案件のR担当者 → 無ければその劇場で一番新しい案件のR担当者 → だれもいなければ小山
+  function intakeOwners(it) {
+    const team = loadTeam();
+    const pick = (rp) => team.filter((n) => String(rp || '').includes(n));
+    const out = new Set();
+    (Array.isArray(it.candidates) ? it.candidates : []).forEach((cd) => {
+      const c = cases.find((x) => String(x.id) === String(cd.id));
+      pick(c ? c.rPerson : (cd.r_person || '')).forEach((n) => out.add(n));
+    });
+    if (out.size) return { names: [...out], why: '似ている案件のR担当者' };
+    const th = canonTheaterName(it.theater || '', it.company || '');
+    const latest = th ? cases.filter((c) => c.theater === th && pick(c.rPerson).length)
+      .sort((a, b) => String(b.receivedDate || '').localeCompare(String(a.receivedDate || '')))[0] : null;
+    if (latest) return { names: pick(latest.rPerson), why: 'この劇場の一番新しい案件のR担当者' };
+    return { names: ['小山'], why: '担当が分からないため' };
+  }
+  // ログインした人（菱熱の担当者マスターのメールアドレスで見分ける）の苗字
+  function myStaffName() {
+    const em = String((currentUser && currentUser.email) || '').toLowerCase();
+    const me = em && (staffList || []).find((x) => x.active !== false && String(x.email || '').toLowerCase() === em);
+    return me ? me.name : '';
+  }
+  // ログイン・再読み込みの時、自分の分の登録確認があれば、決めるまで一覧の上に出す（× なし。案件を見るのはできる）
+  let ikForceOn = false;
+  async function checkForcedIntake() {
+    if (!realPrivileged(currentUser) || !isPrivileged(currentUser) || store.mode !== 'supabase') return;
+    const me = myStaffName(); if (!me) return;
+    try { intakePending = await store.fetchIntakePending(); } catch (e) { return; }
+    if (!intakePending.some((it) => intakeOwners(it).names.indexOf(me) !== -1)) return;
+    ikForceOn = true; renderForcedIntake();
+  }
+  function renderForcedIntake() {
+    let ov = $('ikForce');
+    const me = myStaffName();
+    const mine = ikForceOn && me ? intakePending.filter((it) => intakeOwners(it).names.indexOf(me) !== -1) : [];
+    if (!mine.length) {
+      if (ov) { ov.remove(); if (ikForceOn) showToastLite('登録確認が終わりました'); }
+      ikForceOn = false; return;
+    }
+    if (!ov) { ov = document.createElement('div'); ov.id = 'ikForce'; ov.className = 'ik-force'; ov.addEventListener('click', handleIntakeClick); document.body.appendChild(ov); }
+    ov.innerHTML = `<div class="ik-force-panel" role="dialog" aria-modal="true" aria-labelledby="ikForceTitle">
+      <div class="ik-force-head"><h2 id="ikForceTitle">🆕 登録確認（${escapeHtml(me)} さんの分 ${mine.length} 件）</h2>
+        <p>メール・LINE から来た案件で、新規か更新か AI が迷ったものです。<b>全部「新規」「更新」「破棄」のどれかに決めると、一覧に進めます。</b>「案件を見る」で、似ている案件を開いて確かめられます。</p></div>
+      <div class="ik-force-list">${mine.map((it) => intakeItemHtml(it)).join('')}</div></div>`;
+  }
   function renderIntakeList() {
     const box = $('ikList'); if (!box) return;
     if (!intakePending.length) {
       box.innerHTML = '';
       $('ikEmpty').classList.remove('hidden');
+      renderForcedIntake();
       return;
     }
     $('ikEmpty').classList.add('hidden');
-    box.innerHTML = intakePending.map((it) => `
+    box.innerHTML = intakePending.map((it) => intakeItemHtml(it)).join('');
+    renderForcedIntake();
+  }
+  function intakeItemHtml(it) {
+    const ow = intakeOwners(it);
+    return `
       <div class="ik-item" data-id="${escapeHtml(String(it.id))}">
         <div class="ik-head">
           <span class="ik-theater" title="${escapeHtml(it.theater || '')}">🎬 ${escapeHtml(shortTheaterName(canonTheaterName(it.theater || '', it.company || '')) || '(劇場未設定)')}</span>
@@ -6067,13 +6307,14 @@
         </div>
         <div class="ik-title">${escapeHtml(it.title || '(件名なし)')}${it.thread_url ? ` <a class="ik-src" href="${escapeHtml(it.thread_url)}" target="_blank" rel="noopener">${/^【LINE】/.test(it.title || '') ? '元のLINEを開く' : /^【Plaud】/.test(it.title || '') ? '元の会議・電話の記録を開く' : '元のメールを開く'}</a>` : ''}</div>
         <div class="ik-content">${escapeHtml(String(it.content || '').slice(0, 500))}</div>
+        <div class="ik-owner">👤 確認する人: <b>${escapeHtml(ow.names.join('・'))}</b>（${escapeHtml(ow.why)}）</div>
         ${it.reason ? `<div class="ik-reason">迷った理由: ${escapeHtml(it.reason)}</div>` : ''}
         ${intakeCandHtml(it)}
         <div class="ik-actions">
           <button type="button" class="primary" data-ik="new" data-id="${escapeHtml(String(it.id))}">＋ 新規として登録</button>
           <button type="button" class="danger" data-ik="discard" data-id="${escapeHtml(String(it.id))}">破棄（登録しない）</button>
         </div>
-      </div>`).join('');
+      </div>`;
   }
   async function enterIntakeMode() {
     if (aggMode) exitAggMode();
@@ -7093,7 +7334,8 @@
   if ($('intakeBtn')) $('intakeBtn').addEventListener('click', toggleIntakeMode);
   if ($('closeIntakeView')) $('closeIntakeView').addEventListener('click', exitIntakeMode);
   if ($('ikCloseBtn')) $('ikCloseBtn').addEventListener('click', exitIntakeMode);
-  if ($('intakeView')) $('intakeView').addEventListener('click', async (e) => {
+  if ($('intakeView')) $('intakeView').addEventListener('click', handleIntakeClick);
+  async function handleIntakeClick(e) {
     const btn = e.target.closest('[data-ik]'); if (!btn) return;
     const act = btn.dataset.ik;
     if (act === 'open') {
@@ -7118,7 +7360,7 @@
     } catch (err) {
       alert('処理に失敗しました: ' + (err && err.message ? err.message : err));
     } finally { btn.disabled = false; }
-  });
+  }
   $('closeTheaterPendingModal').addEventListener('click', closeTheaterPendingModal);
   $('tpCloseBtn').addEventListener('click', closeTheaterPendingModal);
   $('tpBody').addEventListener('click', handlePendingClick);
@@ -7144,6 +7386,8 @@
   $('personTaskBody').addEventListener('click', (e) => {
     const sa = e.target.closest('[data-sugg-accept]');
     if (sa) { decideSuggestion(sa.dataset.suggAccept, true); return; }
+    const sdn = e.target.closest('[data-sugg-done]');
+    if (sdn) { decideSuggestion(sdn.dataset.suggDone, 'done'); return; }
     const sd = e.target.closest('[data-sugg-dismiss]');
     if (sd) { decideSuggestion(sd.dataset.suggDismiss, false); return; }
     const so = e.target.closest('[data-sugg-open]');
@@ -7225,7 +7469,15 @@
   $('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
   $('calToday').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendar(); });
   // カレンダーの予定をクリック → 簡易編集（調査/開始/終了 日時・内容・メモのみ）
+  $('calGrid').addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') return;
+    const bar = e.target.closest('.cal-ev-bar'); if (bar) showCalTip(bar, e.clientX, e.clientY); else hideCalTip();
+  });
+  $('calGrid').addEventListener('pointerleave', hideCalTip);
+  if ($('calCloseBtn')) $('calCloseBtn').addEventListener('click', () => exitCalMode());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && calMode && !document.querySelector('#modal:not(.hidden), .kt-overlay')) exitCalMode(); });
   $('calGrid').addEventListener('click', (e) => {
+    hideCalTip();
     const ev = e.target.closest('.cal-ev-bar'); if (!ev) return;
     const c = cases.find((x) => x.id === ev.dataset.caseId);
     if (c) openModal(c, 'calendar');
@@ -7825,6 +8077,7 @@
     ['appHeader', 'filterBar', 'personTaskPanel', 'hScrollTop', 'aggBar'].forEach((id) => { if ($(id)) ro.observe($(id)); });
   }
   window.addEventListener('resize', fitTableHeight);
+  window.addEventListener('resize', () => { if (calMode) renderCalendar(); });   // 全画面のカレンダーは画面の高さに合わせる
 
   // 列幅ドラッグ: 通常モードのthead にハンドルを付与してから保存（復元してもハンドルが残る）
   addResizers($('casesTable').querySelector('thead'));
@@ -7896,7 +8149,7 @@
       companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },
       // 書類棚(shelf.js)用: 劇場マスタ・案件（見えている分）・ログイン中の人
       theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '', manager: t.manager || '', theaterPhone: t.theaterPhone || '', maintenance: t.maintenance || '', gem2: t.gem2 || '', gem2Co2: t.gem2Co2 || '', gem2Th: t.gem2Th || '', homepage: t.homepage || '', closed: !!t.closed, closedOn: t.closedOn || '', closedNote: t.closedNote || '' })); } catch (e) { return []; } },
-      cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', receivedDate: c.receivedDate || '', category: c.category || '', status: deriveStatus(c), surveyDate: c.surveyDate || '', workEndDate: c.workEndDate || '', tcPerson: c.tcPerson || '', rPerson: c.rPerson || '' })); } catch (e) { return []; } },
+      cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, title: c.title || '', estimateName: c.estimateName || '', content: c.content || '', receivedDate: c.receivedDate || '', category: c.category || '', status: deriveStatus(c), surveyDate: c.surveyDate || '', workEndDate: c.workEndDate || '', tcPerson: c.tcPerson || '', rPerson: c.rPerson || '' })); } catch (e) { return []; } },
       // 工事予定表(plan.js)用: 案件の一覧（見えている分）と、案件を直す（予定表で直した項目を案件にも入れる）
       casesFull: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', estimateAmount: c.estimateAmount, marginRate: c.marginRate, rPerson: c.rPerson || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', receivedDate: c.receivedDate || '', status: deriveStatus(c) })); } catch (e) { return []; } },
       updateCase: (id, patch) => {
