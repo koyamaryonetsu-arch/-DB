@@ -74,7 +74,9 @@ export function buildC9aForest(overworld) {
   set(P.arrive.x, P.arrive.y, get(P.arrive.x, P.arrive.y) === T.DIRT ? T.DIRT : T.FOREST_FLOOR);
 
   const m = {
-    id: C9A_MAP.forest, name: '星ふるえの森', kind: 'field', bgm: C9A_TRACKS.forest, dark: false, theme: 'c9a_forest',
+    // 森の 中の 新しい マップ（世界地図では ない）: kind は dungeon（曲は bgm・2.5D の まわりは 海では なく 森の やみ）
+    id: C9A_MAP.forest, name: '星ふるえの森', kind: 'dungeon', bgm: C9A_TRACKS.forest, dark: false, theme: 'c9a_forest', bg2d: '#0e1a10',
+    sky3d: { bg: '#0e1a10', fog: 0x1a2a1a },
     w, h, tiles, gates: [],
     npcs: [], chests: [], signs: [], warps: [], triggers: [], actions: [], sparkles: [], roofs: [], links: [],
     areaName: () => '星ふるえの森',
@@ -128,7 +130,8 @@ export function buildC9aCrater() {
   const t = parseRows16(rows, CRATER_LEGEND);
   const P = CRATER_POS;
   const m = {
-    id: C9A_MAP.crater, name: 'ながれ星のくぼ地', kind: 'field', bgm: C9A_TRACKS.child, dark: false, theme: 'c9a_forest',
+    id: C9A_MAP.crater, name: 'ながれ星のくぼ地', kind: 'dungeon', bgm: C9A_TRACKS.child, dark: false, theme: 'c9a_forest', bg2d: '#0e1a10',
+    sky3d: { bg: '#0e1a10', fog: 0x1a2a1a },
     w: t.w, h: t.h, tiles: t.tiles, gates: [],
     npcs: [], chests: [], signs: [], warps: [], triggers: [], actions: [], sparkles: [], roofs: [], links: [],
     areaName: () => 'ながれ星のくぼ地',

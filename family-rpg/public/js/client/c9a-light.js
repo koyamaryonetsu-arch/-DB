@@ -86,13 +86,18 @@ export function drawC9aDark2D(field, camX, camY, x0, y0, x1, y1) {
     const px = (cx + 0.5) * TS - camX, py = (cy + 0.5) * TS - camY;
     const big = kind === 'source' || kind === 'crystal';
     const pulse = 0.75 + Math.sin(t / 260 + cx * 1.7 + cy) * 0.25;
-    const rad = big ? 14 : kind === 'link' ? 9 : 7;
+    const rad = big ? 16 : kind === 'link' ? 12 : 10;
     const col = kind === 'moss' ? '120, 255, 200' : kind === 'link' ? '110, 230, 255' : '170, 235, 255';
     const gr = ctx.createRadialGradient(px, py, 1, px, py, rad);
-    gr.addColorStop(0, `rgba(${col}, ${(big ? 0.6 : kind === 'link' ? 0.55 : 0.4) * pulse})`);
+    gr.addColorStop(0, `rgba(${col}, ${(big ? 0.65 : kind === 'link' ? 0.8 : 0.6) * pulse})`);
     gr.addColorStop(1, `rgba(${col}, 0)`);
     ctx.fillStyle = gr;
     ctx.fillRect(px - rad, py - rad, rad * 2, rad * 2);
+    // 光って いる こけの マスは うすく 色が つく（つながると 青く）
+    if (!big) {
+      ctx.fillStyle = `rgba(${col}, ${0.16 * pulse})`;
+      ctx.fillRect(px - TS / 2, py - TS / 2, TS, TS);
+    }
   }
   ctx.globalCompositeOperation = 'source-over';
   // くらやみ虫の 目（暗い 所だけ）
@@ -154,10 +159,10 @@ export function drawC9aDark3D(field, ctx, P) {
     const big = kind === 'source' || kind === 'crystal';
     const p = P(cx + 0.5, cy + 0.5, big ? 0.8 : 0.05);
     const pulse = 0.75 + Math.sin(t / 260 + cx * 1.7 + cy) * 0.25;
-    const rad = (big ? 0.9 : kind === 'link' ? 0.6 : 0.45) * p.k;
+    const rad = (big ? 1 : kind === 'link' ? 0.8 : 0.65) * p.k;
     const col = kind === 'moss' ? '120, 255, 200' : kind === 'link' ? '110, 230, 255' : '170, 235, 255';
     const gr = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rad);
-    gr.addColorStop(0, `rgba(${col}, ${(big ? 0.6 : kind === 'link' ? 0.55 : 0.4) * pulse})`);
+    gr.addColorStop(0, `rgba(${col}, ${(big ? 0.65 : kind === 'link' ? 0.8 : 0.6) * pulse})`);
     gr.addColorStop(1, `rgba(${col}, 0)`);
     ctx.fillStyle = gr;
     ctx.fillRect(p.x - rad, p.y - rad, rad * 2, rad * 2);
