@@ -149,7 +149,10 @@ function spawnIn(world, ms, zone, tod, loads, near, table = null) {
       const [x, y] = world.rng.pick(c.tiles);
       // プレイヤーの めの まえには でない
       if (near(x, y, 9)) continue;
-      ms.symbols.set(...newSymbol(world, zone, x, y, tod, table));
+      const [sid, sym] = newSymbol(world, zone, x, y, tod, table);
+      // 第90回 A班: くらやみ虫は 光って いる マスには 出ない（map.symBlock。world/c9a-steps.js）
+      if (MAPS[ms.id].symBlock?.(world, sym, sym.x, sym.y)) continue;
+      ms.symbols.set(sid, sym);
       return true;
     }
   }
@@ -202,6 +205,8 @@ export function moveSymbols(world, ms, dt, players) {
   const sec = dt / 1000;
   for (const s of ms.symbols.values()) {
     if (s.busy) continue;
+    // 第90回 A班: くらやみ虫の いる マスが 光ったら、光に おどろいて 消える（world/c9a-steps.js）
+    if (map.symBlock?.(world, s, s.x, s.y)) { ms.symbols.delete(s.id); continue; }
     if (s.stun > 0) {
       s.stun -= dt;
       continue;
@@ -262,8 +267,8 @@ export function moveSymbols(world, ms, dt, players) {
     const sp = s.state === 'chase' ? s.speed * 1.55 : s.state === 'flee' ? s.speed * 1.3 : s.speed * 0.6;
     const nx = s.x + s.vx * sp * sec;
     const ny = s.y + s.vy * sp * sec;
-    const okX = canStand(map, nx, s.y, s.zone);
-    const okY = canStand(map, s.x, ny, s.zone);
+    const okX = canStand(map, nx, s.y, s.zone) && !map.symBlock?.(world, s, nx, s.y);
+    const okY = canStand(map, s.x, ny, s.zone) && !map.symBlock?.(world, s, s.x, ny);
     if (okX) s.x = nx; else s.vx = -s.vx * 0.5;
     if (okY) s.y = ny; else s.vy = -s.vy * 0.5;
     if (Math.abs(s.vx) > Math.abs(s.vy)) s.dir = s.vx > 0 ? 'right' : 'left';

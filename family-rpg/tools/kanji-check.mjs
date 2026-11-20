@@ -582,6 +582,10 @@ export function gameFiles() {
     'public/js/client/render/hero-gear-looks-r88a.js',
     // 第88回 絵C班: 作品の つえの 新しい 形の 絵
     'public/js/client/render/hero-gear-looks-r88c.js',
+    // 第90回 A班: 第3部 第1章 第1幕「星ふるえの夜」（台本・マップ・光の輪・絵）
+    'public/js/shared/data/story-c9a.js', 'public/js/shared/maps/c9a.js', 'public/js/shared/maps/c9a-rows.js', 'public/js/shared/maps/c9a-cave.js',
+    'public/js/shared/maps/c9a-forest.js', 'public/js/shared/maps/c9a-field.js', 'public/js/shared/maps/c9a-light.js', 'public/js/shared/world/c9a-steps.js',
+    'public/js/client/c9a-light.js', 'public/js/client/render/tiles-c9a.js', 'public/js/client/render/c9a-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

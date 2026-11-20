@@ -71,6 +71,8 @@ import { tickMonLive } from './monarena-live.js';
 import { missionMessage, missionChest, missionFloor, chatName } from './missions.js';
 // 第8章 第4幕「時のはざま」: 青い 火が 歩くと 消える（world/c8r-steps.js）
 import { stepC8r } from './c8r-steps.js';
+// 第90回 A班: 第3部 第1章 第1幕の 光の輪・星の子の 連れ（world/c9a-steps.js）
+import { stepC9a, c9aSnap, spicaFollows, spicaLook } from './c9a-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -651,7 +653,9 @@ export class GameWorld {
     if (!guarded) s.stairGuard = null;
     if (s.flying) return;
     const map = MAPS[s.map];
-    const warp = !guarded && map.warpAt.get(ty * map.w + tx);
+    // 第90回 A班: フラグで 出てくる 出入り口（warp.show。守り星の石の 南の 階段 など）
+    const w0 = !guarded && map.warpAt.get(ty * map.w + tx);
+    const warp = w0 && (!w0.show || condOk(w0.show, this.hasFlagFn(s))) ? w0 : null;
     if (warp) {
       const to = warp.to;
       const fromMap = s.map, fx = s.x, fy = s.y;
@@ -675,6 +679,8 @@ export class GameWorld {
     }
     // 第8章 第4幕: 青い 火は 歩くと 消える（world/c8r-steps.js）
     stepC8r(this, s, tx, ty);
+    // 第3部 第1章 第1幕: 光の輪（こけ・とびら・見えない 穴。world/c9a-steps.js）
+    if (stepC9a(this, s, tx, ty)) return;
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);
@@ -1200,7 +1206,8 @@ export class GameWorld {
         }));
         for (const p of players) {
           const fc = fieldChestSnap(p, ms);
-          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}) });
+          const c9a = c9aSnap(this, p); // 第90回 A班: 光の輪（パーティーの 明かり）
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}) });
         }
       }
     }
@@ -1217,6 +1224,8 @@ export class GameWorld {
     return [
       ...p.supports.map((x) => ({ look: x.char.look, job: x.char.job, eq: equipLook(x.char), mon: colorMon(x.char.species, x.char.color), name: x.char.name })),
       ...p.guests.map((g) => ({ look: g.char.look, job: g.char.job, eq: equipLook(g.char), name: g.char.name, guest: g.id })),
+      // 第90回 A班: 星の子（フィールドだけの 連れ。world/c9a-steps.js）
+      ...(spicaFollows(s) ? [spicaLook()] : []),
     ];
   }
 

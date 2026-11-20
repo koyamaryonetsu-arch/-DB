@@ -5,6 +5,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第3部 第1章 第1幕「星ふるえの夜」の タイル（render/tiles-c9a.js。ここで まぜる）
+import { C9A_PAINTERS, C9A_FRAMES, C9A_SPEED, C9A_FLOOR_H, c9aBlockSpec, C9A_PROPS, C9A_PROPS_KEEP, C9A_THEMES } from './tiles-c9a.js';
 
 const VO = { d: '#120a26', b: '#21153e', l: '#3a2a66', s: '#f4ecff' }; // 時のはざまの 空
 const SA = { d: '#8a6420', b: '#c8a050', l: '#f0d890', w: '#fff8e0' }; // 時の砂
@@ -120,20 +122,23 @@ export const C8R_PAINTERS = {
   [T.C8R_WINGDOOR]: (p, v, f) => paintWingDoor(p, v, f),
   [T.C8R_WISP]: (p, v, f) => paintWisp(p, v, f),
   [T.C8R_RIFT]: (p, v, f) => paintRift(p, v, f),
+  ...C9A_PAINTERS,
 };
 export const C8R_FRAMES = {
   [T.C8R_VOID]: VOID_FRAMES8R, [T.C8R_SANDFLOW]: SAND_FRAMES8R, [T.C8R_FORD]: SAND_FRAMES8R, [T.C8R_WINGDOOR]: ARCH_FRAMES8R, [T.C8R_WISP]: WISP_FRAMES8R, [T.C8R_RIFT]: RIFT_FRAMES8R,
+  ...C9A_FRAMES,
 };
 export const C8R_SPEED = {
   [T.C8R_VOID]: 700, [T.C8R_SANDFLOW]: 160, [T.C8R_FORD]: 300, [T.C8R_WINGDOOR]: 220, [T.C8R_WISP]: 180, [T.C8R_RIFT]: 150,
+  ...C9A_SPEED,
 };
 
 // ───── 2.5D ─────
 // 時のはざまの 空は ひくい（下に 星）・時の砂の 川は 少し ひくい。紋章の 台・大とびら・にげる 青い 火は たてた もの
-export const C8R_FLOOR_H = { [T.C8R_VOID]: -0.6, [T.C8R_SANDFLOW]: -0.2, [T.C8R_FORD]: -0.06, [T.C8R_RIFT]: -0.02 };
-export function c8rBlockSpec(id) {
+export const C8R_FLOOR_H = { [T.C8R_VOID]: -0.6, [T.C8R_SANDFLOW]: -0.2, [T.C8R_FORD]: -0.06, [T.C8R_RIFT]: -0.02, ...C9A_FLOOR_H };
+export function c8rBlockSpec(id, v) {
   switch (id) {
-    default: return null;
+    default: return c9aBlockSpec(id, v);
   }
 }
 const crestProp = (kind) => [16, 22, (p) => {
@@ -166,7 +171,8 @@ export const C8R_PROPS = {
   }],
 };
 // たてた ものでも 色を かえない（紋章の 光・大とびらの むらさき・青い 火）
-export const C8R_PROPS_KEEP = new Set([T.C8R_CREST_MOON, T.C8R_CREST_FIRE, T.C8R_CREST_IRON, T.C8R_CREST_ICE, T.C8R_BIGDOOR, T.C8R_WISP]);
+export const C8R_PROPS_KEEP = new Set([T.C8R_CREST_MOON, T.C8R_CREST_FIRE, T.C8R_CREST_IRON, T.C8R_CREST_ICE, T.C8R_BIGDOOR, T.C8R_WISP, ...C9A_PROPS_KEEP]);
+Object.assign(C8R_PROPS, C9A_PROPS);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -204,4 +210,6 @@ export const C8R_THEMES = {
     gem: G([0, '#1a1030'], [0.5, '#9a80e0'], [1, '#ffffff']),
     flame: G([0, '#2a0a3a'], [0.5, '#a05ad8'], [1, '#f8eaff']),
   },
+  // 第3部 第1章 第1幕「星ふるえの夜」
+  ...C9A_THEMES,
 };

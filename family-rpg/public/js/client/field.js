@@ -27,6 +27,9 @@ import { rideShown, chosenVehicle } from '../shared/data/vehicles.js';
 import { huntMatch } from './ui/sources.js';
 // 第89回: とちゅうから 戦いに 入る きょり・自動追跡で 止まる きょり（サーバーと おなじ 数。shared/join-rule.js）
 import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js';
+// 第90回 A班: 第3部 第1章 第1幕の 光の輪の 絵・星の子の 連れ（client/c9a-light.js）
+import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap } from './c9a-light.js';
+import { C9A } from '../shared/maps/c9a-flags.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -120,6 +123,7 @@ export function trailAt(o, want) {
 }
 
 export function followerSprite(f, dir, frame) {
+  if (f.spica) return npcSprite('c9a_spica', dir, frame); // 第90回 A班: 星の子（フィールドだけの 連れ）
   if (f.mon) {
     const c = monsterCanvas(f.mon, frame, FOLLOW_MAX);
     if (dir !== 'right') return c;
@@ -825,6 +829,7 @@ export class Field {
   // ───────────── サーバーからの じょうほう ─────────────
   onSnap(msg) {
     if (msg.map !== this.mapId) return;
+    noteC9aSnap(this, msg.c9a); // 第90回 A班: 光の輪（パーティーの 明かり）
     if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
@@ -1085,7 +1090,8 @@ export class Field {
       ctx.drawImage(c, Math.round(b.x * TS + (TS - c.width) / 2 - camX), Math.round(b.y * TS - 4 - camY));
     }
     // くらやみ・よる
-    if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
+    if (m.c9a) drawC9aDark2D(this, camX, camY, x0, y0, x1, y1); // 第90回 A班: 光の輪
+    else if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1205,8 +1211,9 @@ export class Field {
         }
       }
     }
-    // くらやみ（どうくつ）
-    if (m.dark) {
+    // くらやみ（どうくつ）。第90回 A班: 光の輪の 階は client/c9a-light.js
+    if (m.c9a) drawC9aDark3D(this, ctx, P);
+    else if (m.dark) {
       const d = this.darkCanvas;
       const x = ctxOf(d);
       x.globalCompositeOperation = 'source-over';
@@ -1420,6 +1427,8 @@ export class Field {
     // 見た目装備（lookEquip）が あれば その 絵（shared/look-equip.js）
     for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) });
     if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, eq: g.equip, guest: true });
+    // 第90回 A班: 星の子（戦いの わくには 入らない フィールドだけの 連れ）
+    if (!this.hideGuests && this.hasFlag(C9A.child)) out.push({ spica: true, guest: true });
     return out;
   }
 

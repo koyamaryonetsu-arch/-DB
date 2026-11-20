@@ -14,6 +14,8 @@
 //   → 仲間の ひとこと（C9_START_TALK）・行き先（C9_START_TARGETS）も 新しい 文の 物に かわる
 // ほかの ファイルは 読まない（maps/c9a-flags.js だけ）。story-c8r.js から 読まれるので、story.js や story-c8*.js を import しない こと
 import { C9A_LINE } from '../maps/c9a-flags.js';
+// 第1幕「星ふるえの夜」（第90回 A班。data/story-c9a.js。story-c9a.js は ここを import しない）
+import { applyCh9a, CH9A_PROGRESS, CH9A_OBJECTIVE_TARGETS, CH9A_OBJECTIVE_TALK } from './story-c9a.js';
 
 // ───── 第3部の 章の すすみかた（STORY_STEPS の c8_solitus の うしろ。plan-part3.md の 9-4 の 名前の 約束）─────
 // 第1幕: c9_festival → c9_night → c9_starfall → c9_child → c9_trio → c9_stairs → c9_b1 → c9_b2 → c9_b3 → c9_trial → c9_fork → c9_act1
@@ -55,17 +57,16 @@ export const C9_START_TALK = {
 };
 export const C9_START_TARGETS = [{ npc: 'elder' }];
 
-// ───── 目標の 文の 表の わく（A班が 幕の 目標を 足す。今は から）─────
+// ───── 目標の 文の 表（幕ごとに 足す。第1幕 … story-c9a.js）─────
 // すすみぐあい（progress.js の PROGRESS の さいご）: [フラグ か (c) => 真偽, 目標の 文]
-export const CH9_PROGRESS = [];
+export const CH9_PROGRESS = [...CH9A_PROGRESS];
 // 行き先（quest-targets.js）: { [目標の 文]: [{ npc } か { map, x, y }] }
-export const CH9_OBJECTIVE_TARGETS = {};
+export const CH9_OBJECTIVE_TARGETS = { ...CH9A_OBJECTIVE_TARGETS };
 // 仲間の ひとこと（party-talk.js）: { [目標の 文]: { self, bold, kind, kid } }
-export const CH9_OBJECTIVE_TALK = {};
+export const CH9_OBJECTIVE_TALK = { ...CH9A_OBJECTIVE_TALK };
 
-// ───── story.js から: だいほんを まぜる（今は 何も つながない）─────
-// A班は ここで 第1幕の だいほん（data/story-c9a.js の applyCh9a）を よぶ。パーティー全員で 見る イベントは STORY_SCRIPTS に 足す
+// ───── story.js から: だいほんを まぜる ─────
+// 第1幕の だいほん（data/story-c9a.js の applyCh9a）。パーティー全員で 見る イベントは STORY_SCRIPTS に 足す。題の 画面は c9TitleSteps
 export function applyCh9(SCRIPTS, STORY_SCRIPTS) {
-  void SCRIPTS;
-  void STORY_SCRIPTS;
+  applyCh9a(SCRIPTS, STORY_SCRIPTS, { title: c9TitleSteps });
 }

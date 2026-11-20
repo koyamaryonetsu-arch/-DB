@@ -110,7 +110,8 @@ export function paintC8cSpecial(kind, dir, f) {
     case 'c8c_bowser_npc': return paintBowser(f);
     case 'c8c_kamek_npc': return paintKamek(f);
     case 'c8r_gate_npc': return paintC8rSpecial(kind, dir, f);
-    default: return null;
+    // 第3部 第1章 第1幕（render/c9a-npc-art.js。c8r-npc-art.js を とおして）
+    default: return paintC8rSpecial(kind, dir, f);
   }
 }
 export const C8C_SPECIALS = ['c8c_bowser_npc', 'c8c_kamek_npc'];
