@@ -6,9 +6,9 @@
 // ・皿: 見られて いる 皿に 金の わと「ねらわれている！こわせ！」・まっ暗の 間は「？」
 // ・まっ暗: がめん ぜんたいを 暗い 青で おおう（こわく しない。スピカの 光の まわりは 少し 明るい）。てらすと うすく なる
 // ・見えにくい 魔物（大ミミズ）: 暗い かげで おおう（てらすと 消える）
-import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=3e6a025be338';
-import { TERU } from '../shared/data/abilities-c9b.js?v=3e6a025be338';
-import { monsterCanvas } from './render/monsters.js?v=3e6a025be338';
+import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=1be7df3e023c';
+import { TERU } from '../shared/data/abilities-c9b.js?v=1be7df3e023c';
+import { monsterCanvas } from './render/monsters.js?v=1be7df3e023c';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];

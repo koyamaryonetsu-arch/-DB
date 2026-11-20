@@ -1,36 +1,36 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=3e6a025be338';
-import { makeRng, hash2 } from '../rng.js?v=3e6a025be338';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=3e6a025be338';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=3e6a025be338';
-import { npc } from './npc.js?v=3e6a025be338';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=3e6a025be338';
-import { buildTreasureFloor } from './treasure-cave.js?v=3e6a025be338';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=3e6a025be338';
-import { addNightNpcs } from './night-npcs.js?v=3e6a025be338';
-import { attachCasino } from './casino.js?v=3e6a025be338';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=3e6a025be338';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=3e6a025be338';
-import { attachLab } from './labyrinth.js?v=3e6a025be338';
-import { attachTower } from './tower.js?v=3e6a025be338';
-import { attachKumoi } from './kumoi.js?v=3e6a025be338';
-import { attachHoshiyomi } from './hoshiyomi.js?v=3e6a025be338';
-import { attachEarth } from './earth.js?v=3e6a025be338';
-import { attachCastle } from './castle.js?v=3e6a025be338';
-import { attachCastleTop } from './castle-top.js?v=3e6a025be338';
-import { attachFamilyQuests } from './family-quests.js?v=3e6a025be338';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=1be7df3e023c';
+import { makeRng, hash2 } from '../rng.js?v=1be7df3e023c';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=1be7df3e023c';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=1be7df3e023c';
+import { npc } from './npc.js?v=1be7df3e023c';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=1be7df3e023c';
+import { buildTreasureFloor } from './treasure-cave.js?v=1be7df3e023c';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=1be7df3e023c';
+import { addNightNpcs } from './night-npcs.js?v=1be7df3e023c';
+import { attachCasino } from './casino.js?v=1be7df3e023c';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=1be7df3e023c';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=1be7df3e023c';
+import { attachLab } from './labyrinth.js?v=1be7df3e023c';
+import { attachTower } from './tower.js?v=1be7df3e023c';
+import { attachKumoi } from './kumoi.js?v=1be7df3e023c';
+import { attachHoshiyomi } from './hoshiyomi.js?v=1be7df3e023c';
+import { attachEarth } from './earth.js?v=1be7df3e023c';
+import { attachCastle } from './castle.js?v=1be7df3e023c';
+import { attachCastleTop } from './castle-top.js?v=1be7df3e023c';
+import { attachFamilyQuests } from './family-quests.js?v=1be7df3e023c';
 // 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
-import { attachCh6 } from './ch6.js?v=3e6a025be338';
+import { attachCh6 } from './ch6.js?v=1be7df3e023c';
 // 第67回 A班: モンスター闘技場（ルミナの町の 東門の 外。maps/monarena-a.js）
-import { attachMonArena } from './monarena-a.js?v=3e6a025be338';
+import { attachMonArena } from './monarena-a.js?v=1be7df3e023c';
 // 第88回 G4班: 作品の ガチャガチャ（maps/gacha-r88.js）
-import { attachGachaR88 } from './gacha-r88.js?v=3e6a025be338';
+import { attachGachaR88 } from './gacha-r88.js?v=1be7df3e023c';
 // 第88回 G3班: まぼろしの回廊（ルミナの町の 星の神殿の 下。maps/rivals-r88.js）
-import { attachRivalHall } from './rivals-r88.js?v=3e6a025be338';
+import { attachRivalHall } from './rivals-r88.js?v=1be7df3e023c';
 // 第90回 A班: 第3部 第1章 第1幕「星ふるえの夜」（maps/c9a.js）
-import { attachC9a } from './c9a.js?v=3e6a025be338';
+import { attachC9a } from './c9a.js?v=1be7df3e023c';
 // 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（maps/c9b.js）
-import { attachC9b } from './c9b.js?v=3e6a025be338';
+import { attachC9b } from './c9b.js?v=1be7df3e023c';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
