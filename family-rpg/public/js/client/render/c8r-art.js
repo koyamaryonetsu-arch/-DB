@@ -7,6 +7,8 @@
 // 門番の 第3形態は コマ 0・1、最終形態は コマ 2・3（client/battle-c8r.js の c8rSprite が pub の gForm で えらぶ）
 // ソリトゥスは コマ 0・1 … くらい心を まとった 黒い 星 / 2・3 … ひとりぼっちの 星（からに とじこもる）/ 4・5 … 光が あふれる 星（pub の slStage）
 import { fit, spark, bez } from './ch3-draw.js';
+// 第3部 第1章 第1幕（c9a-art.js）
+import { addC9aArt } from './c9a-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
@@ -490,4 +492,6 @@ export function addC8rArt(ART) {
   ART.c8_solitus = { size: [248, 248], npc: 0.6, pal: pal(SL), draw: solitus };
   // 心の ためしの やみの風
   ART.c8_trial_wind = { size: [96, 100], pal: pal(WD), draw: darkWind };
+  // 第3部 第1章 第1幕（c9a-art.js）
+  addC9aArt(ART);
 }

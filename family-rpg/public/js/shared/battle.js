@@ -99,6 +99,8 @@ import { r84aPhys, r84aPhysMult, r84aEffect, r84aTurnStart, r84aRise, r84aPub, r
 import { r85bTurnStart, r85bEffect, r85bEva, r85bDamage, r85bCut, r85bFloor, r85bPub } from './battle-r85b.js';
 // 第85回 A班: スレイヤーズの 系統（となえる・大砲の 呪文・ギガ・スレイブ・ラグナ・ブレード・とう賊たいじ・早口。battle-r85a.js）
 import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage, r85aPub, LOCK_REASON as R85A_LOCK } from './battle-r85a.js';
+// 第3部 第1章 第1幕: 星の子の ほのかな光（味方が みんな 動いた あと）・ともしび・がめんへ（battle-c9a.js）
+import { c9aAfter, c9aPub, c9aSnap, c9aHealMul } from './battle-c9a.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
@@ -590,6 +592,9 @@ export class Battle {
       r88mTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       r85aAfter(this, c, ev);
+      c9aAfter(this, c, ev); // 第3部 第1章 第1幕: 星の子の ほのかな光
+      if (ev.postLines) ev.lines.push(...ev.postLines);
+      delete ev.postLines;
       this.actEnd(c, held, ev);
       ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));
       this.emit(ev);
@@ -784,6 +789,7 @@ export class Battle {
     }
     // 第85回 A班: 3回 動いたら となえた 力が 消える（battle-r85a.js）
     r85aAfter(this, c, ev);
+    c9aAfter(this, c, ev); // 第3部 第1章 第1幕: 星の子の ほのかな光（battle-c9a.js）
     if (ev.postLines) ev.lines.push(...ev.postLines);
     delete ev.postLines;
     // 行動の おわり: バフ・デバフ・かばう の のこりを 1回 へらす（合体技は 出した 仲間も）
@@ -2041,7 +2047,7 @@ export class Battle {
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= powScaleFor(c, c.healPow, eff);
     // 第51回 C3: 雨の 天気は かけた 側の 回復が 強い（battle-weather.js）
-    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c) * weatherMult(this, c.side, 'heal'));
+    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c) * weatherMult(this, c.side, 'heal') * c9aHealMul(this, c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     // 第51回 F: 自分の 技・呪文で 回復した ぶん（道具は ev.ability が ない ので 入らない）
@@ -2560,6 +2566,8 @@ export class Battle {
       temple: templeSnap(this),
       // 第51回 C3: 戦いの 天気（battle-weather.js）
       weather: weatherSnap(this),
+      // 第3部 第1章 第1幕: 星の子の光（{ light, max }。いない 戦いは null。battle-c9a.js）
+      spica: c9aSnap(this),
       // 敵の 強さ（1 … ふつう。ハードなどの ときは 画面に しるし）
       enemyRate: this.enemyRate,
       speed: this.speed,
@@ -2743,6 +2751,8 @@ export function pub(c) {
     ...r86aPub(c),
     // 天地魔闘の構え（第88回 M1。battle-r88m.js）
     ...r88mPub(c),
+    // ともしび・スイトール1号・ホシモリの 夜明けの めもり（第3部 第1章 第1幕。battle-c9a.js）
+    ...c9aPub(c),
   };
 }
 

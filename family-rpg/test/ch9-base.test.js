@@ -70,10 +70,10 @@ test('名前の 約束: 小さな フラグ・マップ・決まった 戦い・
   const used = Object.values(T);
   assert.ok(Math.max(...used) <= C9A_TILE_LAST, '今の さいごの タイルは 第3部 第1章 第1幕の わくの 中（A班が 407〜425 を 足した）');
   for (let n = C9A_TILE_FIRST; n <= C9A_TILE_LAST; n++) assert.ok(!used.includes(n) || Object.keys(T).find((k) => T[k] === n).startsWith('C9A_'), `タイル ${n}`);
-  // 第3部の マップは A班が 作った（maps/c9a.js）。ほかの 第3部の マップは まだ ない。魔物・本物の 戦いは B が 作る
+  // 第3部の マップは A班が 作った（maps/c9a.js）。ほかの 第3部の マップは まだ ない。ボスの 魔物は B班が 作った（data/monsters-c9a.js）
   for (const id of C9A_MAP_IDS) assert.ok(id in MAPS, `${id} は A班が 作った`);
   assert.deepEqual(Object.keys(MAPS).filter((id) => isPart3Map(id)).sort(), [...C9A_MAP_IDS].sort(), '第3部の マップは 第1幕の 6まいだけ');
-  for (const id of Object.values(C9A_BOSS_MON)) assert.ok(!MONSTERS[id], `${id} は まだ ない`);
+  for (const id of Object.values(C9A_BOSS_MON)) assert.ok(MONSTERS[id]?.boss, `${id} は B班の ボス`);
 });
 
 // ───────────── 第2部を クリアした セーブ ─────────────
@@ -207,8 +207,9 @@ test('かりの 置き場（data/c9a-stub.js）は ゲームの 本体から つ
   const files = [...walk(join(ROOT, 'public')), ...walk(join(ROOT, 'server'))];
   const users = files.filter((p) => /c9a-stub/.test(readFileSync(p, 'utf8')) && !p.endsWith('c9a-stub.js')).map((p) => relative(ROOT, p));
   assert.deepEqual(users, [], 'public・server の どこも かりの 置き場を 読まない');
-  // 本体を 読みこんだ 今、かりの 戦い・マップは 入って いない
-  assert.ok(!FIXED_ENCOUNTERS.c9a_trio && !FIXED_ENCOUNTERS.c9a_trial, 'かりの 戦いは 入って いない');
+  // 本体を 読みこんだ 今、かりの 戦い・マップは 入って いない（決まった 戦いは B班の 本物 … data/encounters-c9a.js）
+  assert.equal(FIXED_ENCOUNTERS.c9a_trio?.group?.[0]?.[0], C9A_BOSS_MON.trio, 'かりの 戦いは 入って いない（3人組は B班の 本物）');
+  assert.equal(FIXED_ENCOUNTERS.c9a_trial?.group?.[0]?.[0], C9A_BOSS_MON.trial, 'かりの 戦いは 入って いない（ためしは B班の 本物）');
   assert.ok(!('c9a_stub_room' in MAPS) && !SCRIPTS.c9a_stub_boss);
   // 字の きまり（kanji-check.mjs の gameFiles に 入って いる）
   const mine = ['public/js/shared/data/story-c9.js', 'public/js/shared/maps/c9a-flags.js', 'public/js/shared/data/c9a-stub.js', 'public/js/shared/world/shiori.js', 'public/js/shared/data/story-c8r.js'];
@@ -291,17 +292,18 @@ test('かりの 置き場: 決まった 戦い c9a_trio・c9a_trial と 部屋�
   assert.equal(storyPlace(c).label, '第3部 第1章 第1幕');
 });
 
-test('しらべる 道具の わく（tools/sim-ch9.mjs）: 3つの やり方で、かりの 戦いが 動く', async () => {
+test('しらべる 道具の わく（tools/sim-ch9.mjs）: 3つの やり方で、本物の 戦いが 動く（B班の 戦い）', async () => {
   const sim = await import('../tools/sim-ch9.mjs');
   assert.deepEqual(Object.keys(sim.MODES9), ['auto', 'blind', 'know']);
   assert.deepEqual(sim.CH9_LV, { trio: 96, trial: 98 });
   const party = sim.ch9Party('trio', 96);
   assert.deepEqual(party.map((c) => c.job), ['hero', 'daikenja', 'god_hand', 'high_priest']);
+  // B班の 本物の 戦い: どの やり方でも 終わる（勝つか 負ける。強さの 数字は test/ch9-act1-b.test.js）
   for (const boss of ['trio', 'trial']) {
     for (const mode of Object.keys(sim.MODES9)) {
       const r = sim.ch9Run(boss, sim.CH9_LV[boss], mode, 1);
-      assert.equal(r.outcome, 'win', `${boss} ${mode}`);
+      assert.ok(['win', 'lose'].includes(r.outcome), `${boss} ${mode}: ${r.outcome}`);
     }
   }
-  assert.match(sim.summary9([sim.ch9Run('trio', 96, 'know', 2)]).text, /勝率 100%/);
+  assert.match(sim.summary9([sim.ch9Run('trio', 96, 'know', 2)]).text, /勝率 +\d+%/);
 });

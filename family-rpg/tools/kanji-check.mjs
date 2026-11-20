@@ -586,6 +586,10 @@ export function gameFiles() {
     'public/js/shared/data/story-c9a.js', 'public/js/shared/maps/c9a.js', 'public/js/shared/maps/c9a-rows.js', 'public/js/shared/maps/c9a-cave.js',
     'public/js/shared/maps/c9a-forest.js', 'public/js/shared/maps/c9a-field.js', 'public/js/shared/maps/c9a-light.js', 'public/js/shared/world/c9a-steps.js',
     'public/js/client/c9a-light.js', 'public/js/client/render/tiles-c9a.js', 'public/js/client/render/c9a-npc-art.js',
+    // 第90回 B班: 第3部 第1章 第1幕（魔物・星の子・3人組と スイトール1号・ホシモリの ためし・品・ヒント・絵・背景・えんしゅつ）
+    'public/js/shared/data/monsters-c9a.js', 'public/js/shared/data/abilities-c9a.js', 'public/js/shared/data/encounters-c9a.js', 'public/js/shared/data/companions-c9a.js',
+    'public/js/shared/data/items-c9a.js', 'public/js/shared/data/boss-hints-c9a.js', 'public/js/shared/battle-c9a.js', 'public/js/client/battle-c9a.js',
+    'public/js/client/render/c9a-art.js', 'public/js/client/render/c9a-bg.js', 'public/js/client/render/battlefx-c9a.js',
     // 第90回 F班: 第3部 第1章 第1幕の 曲
     'public/js/client/audio-c9a.js',
     // 第90回 D班: お仕事いらい 36〜38・より道「星ふるえで、まいごになった物」
