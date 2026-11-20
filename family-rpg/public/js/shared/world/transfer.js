@@ -153,6 +153,20 @@ const COMP_EMPTY = {
 };
 const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip', 'tactics'];
 const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// 第90回 T3班: 読む ときの 直し（save.js の repairChar。仲間 1人ずつ かける）が、まったく 同じ 形に もどす 空の 項目も はぶく
+//   （サーバーで 1回 読んだ セーブは 仲間に これが 入って、ふつうの セーブで 40文字 ほど 長く なって いた）。
+//   gold 0（num の きまった 値）・行った 所（魔物は {}、人は { village: true }）・乗り物（人だけ: [] と null。cleanVehicles）・
+//   れん金（人で たおした 数が 空の 時の { fill: 1 }。repairAlchemy）。中みが 入って いる 時は はぶかない
+function repairedDefault(k, v, ch) {
+  const mon = !!ch.species;
+  const noKills = ch.kills === undefined || sameJson(ch.kills, {});
+  if (k === 'gold') return v === 0;
+  if (k === 'visited') return sameJson(v, mon ? {} : { village: true });
+  if (k === 'vehicles') return !mon && sameJson(v, []);
+  if (k === 'vehicle') return !mon && v === null && (ch.vehicles === undefined || sameJson(ch.vehicles, []));
+  if (k === 'alchemy') return !mon && noKills && sameJson(v, { fill: 1 });
+  return false;
+}
 // 魔物あずかり所の 魔物（c.storage。第43回 C）も 同じ 形なので いっしょに はぶく
 const slimList = (char, list) => list.map((e) => {
   if (!e?.char || typeof e.char !== 'object') return e;
@@ -163,6 +177,7 @@ const slimList = (char, list) => list.map((e) => {
     if (k === 'species' && v === e.species) continue;
     // 第71回: 空の cmdOff は、autoOff も 空なら はぶく（読む ときの うつしかえ〈migrateCmdOffAll〉で 同じ [] に もどる）
     if (k === 'cmdOff' && Array.isArray(v) && !v.length && !(e.char.autoOff?.length)) continue;
+    if (repairedDefault(k, v, e.char)) continue;
     ch[k] = v;
   }
   return { ...e, char: ch };

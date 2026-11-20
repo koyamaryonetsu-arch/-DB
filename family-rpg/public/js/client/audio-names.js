@@ -93,6 +93,14 @@ export const TRACK_NAMES = {
   c8r_last: '最後のかいろう',
   c8r_solitus: '最後の戦い',
   ending2: 'エンディング（第2部）',
+  // 第90回 F: 第3部 第1章 第1幕（audio-c9a.js）
+  c9a_festival: '1年後の星祭り',
+  c9a_forest: '星ふるえの森',
+  c9a_child: '星の子のテーマ',
+  c9a_cave: '星の石の地下道',
+  c9a_trio: 'ドタバタ3人組',
+  c9a_trial: 'ともしびのためし',
+  battle3: '戦い・その3',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）

@@ -45,4 +45,9 @@ export const FIXED_FAMILY = {
   fq_oasguard: { group: [['scorpion_soldier', 2, 2], ['sandstone_golem', 1, 1]], bg: 'desert', bgm: 'battle', canFlee: false, enemyLv: 91, enemyPow: 0.4 },
   // 35. 炎の山のふもとの お湯の 土管の 中: すみついた パックンフラワーと ノコノコ
   fq_pipeplant: { group: [['pakkun', 2, 2], ['nokonoko', 1, 1]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 91, enemyPow: 0.3 },
+  // ───── 第90回 D班（data/sidequests-work8.js）。第3部 第1章 第1幕（Lv96 の ころ）なので 敵Lv96（それでも 完全オートで 勝てる 軽さ。enemyPow で 弱く する）─────
+  // 37. 鏡の湖の こおった 小舟の 氷から 出てきた 雪の 魔物（ゆきだるまんと ゆきぷるりん）
+  fq_frostlake: { group: [['snowman', 1, 1], ['snow_slime', 2, 2]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
+  // 38. 大岩の 下の あなの 岩もぐら（おうちの 上に 岩が ころがって おこっていた）
+  fq_roadmole: { group: [['rock_mole', 2, 2], ['rockman', 1, 1]], bg: 'grass', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
 };
