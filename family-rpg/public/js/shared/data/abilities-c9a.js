@@ -99,7 +99,7 @@ export const C9A_ABILITIES = {
     desc: '体をかたくして、自分の守りを上げる。',
   },
   m9n_is_gaze: {
-    name: '石のまなざし', kind: 'monster', mp: 3, target: 'enemies',
+    name: 'じいっと見つめる', kind: 'monster', mp: 3, target: 'enemies',
     effect: { type: 'debuff', stat: 'atk', mult: 0.8, chance: 0.4 }, cast: '{a}が、じっと見つめてきた…', anim: 'c9n_gaze',
     desc: '敵みんなの攻撃力を、下げることがある。',
   },
@@ -148,7 +148,7 @@ export const C9A_ABILITIES = {
 
   // ── 幕の ボス: ホシモリ ──
   m9h_wing: {
-    name: '石のつばさ', kind: 'monster', mp: 0, target: 'enemy',
+    name: 'ふくろうの石のはね', kind: 'monster', mp: 0, target: 'enemy',
     effect: { type: 'phys', mult: 1.3 }, cast: '{a}が、石のつばさで、{t}を打った！', anim: 'c9h_wing',
     desc: '石のつばさで、1人に大きなダメージ。',
   },
@@ -168,7 +168,7 @@ export const C9A_ABILITIES = {
     desc: 'ねらった人のともしびを消す。身を守ると、手でかこって消えない。',
   },
   m9h_dawn: {
-    name: '夜明け', kind: 'monster', target: 'self',
+    name: 'ためしの夜明け', kind: 'monster', target: 'self',
     effect: { type: 'c9hDawn' }, cast: '地下のおくまで、夜明けの光が、すうっとさしこんできた…', anim: 'c9h_dawn',
     desc: '夜が明けて、ためしが終わる。',
   },
