@@ -11,7 +11,7 @@
 //   ・こだわり 3つ・いのちのたま … 上がる 所と 下がる 所（bonus の マイナス）
 //   ・今 ある 進化の 石 4つにも 作品を つけた（R88_TAG_POKEMON。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（設計書の「実装メモ（G16班）」）
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=69e37e491d1f';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=42ed545c18b5';
 
 const P = { work: 'pokemon' };
 const B = { work: 'pokemon', set: 'gym_badge' };

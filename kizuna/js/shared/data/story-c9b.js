@@ -14,17 +14,17 @@
 // ※ 第1部・第2部の ひみつに ふれる せりふは 書かない。もとの 作品（星のカービィ）の 名前・せりふは 使わない（大王は 大きな もぐらの 王さま）
 import {
   C9B, C9B_PILLARS, c9bPillar, C9B_BOXES, C9B_MAP, C9B_BATTLE, C9B_GUARDS, C9B_BOSS_MON, C9B_KING_NAME, UNDER_RAFT, C9B_TRACKS,
-} from '../maps/c9b-flags.js?v=69e37e491d1f';
-import { SPICA_NAME, STAR_FORK, C9A } from '../maps/c9a-flags.js?v=69e37e491d1f';
-import { UNDER_POS, HALL_POS, SHAFT_POS } from '../maps/c9b-rows.js?v=69e37e491d1f';
-import { FOLK9B } from '../maps/c9b-under.js?v=69e37e491d1f';
-import { MINE_STAIRS9B, MINER9B, c9bGuardFlag, C9B_SHAFT_SEEN } from '../maps/c9b.js?v=69e37e491d1f';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=69e37e491d1f';
-import { SHOPS } from './shops.js?v=69e37e491d1f';
-import { C7_SHOP_TOOLS } from './items-c7.js?v=69e37e491d1f';
-import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js?v=69e37e491d1f';
-import { innSteps } from './inn.js?v=69e37e491d1f';
-import { mergeBossHints } from './boss-hints.js?v=69e37e491d1f';
+} from '../maps/c9b-flags.js?v=42ed545c18b5';
+import { SPICA_NAME, STAR_FORK, C9A } from '../maps/c9a-flags.js?v=42ed545c18b5';
+import { UNDER_POS, HALL_POS, SHAFT_POS } from '../maps/c9b-rows.js?v=42ed545c18b5';
+import { FOLK9B } from '../maps/c9b-under.js?v=42ed545c18b5';
+import { MINE_STAIRS9B, MINER9B, c9bGuardFlag, C9B_SHAFT_SEEN } from '../maps/c9b.js?v=42ed545c18b5';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=42ed545c18b5';
+import { SHOPS } from './shops.js?v=42ed545c18b5';
+import { C7_SHOP_TOOLS } from './items-c7.js?v=42ed545c18b5';
+import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js?v=42ed545c18b5';
+import { innSteps } from './inn.js?v=42ed545c18b5';
+import { mergeBossHints } from './boss-hints.js?v=42ed545c18b5';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -13,12 +13,12 @@
 //   はこ（c9_box1〜3）1つに つき、はじめの 皿が 1つ へる（late 回 動くと 持って くる）
 //   たおれない: HPが 1 に なると、おなかを 鳴らして すわりこむ（勝ち。b.killed に 入れて 経験値・落とし物は ふつう）
 // ・自動の 仲間（酒場の 人）は、見えて いる 皿を 3回に 1回 ねらう（AUTO_DISH_EVERY。家族の キャラの「オート」と 魔物の 仲間は ねらわない）
-import { MONSTERS } from './data/monsters.js?v=69e37e491d1f';
-import { ABILITIES } from './data/abilities.js?v=69e37e491d1f';
-import { TERU } from './data/abilities-c9b.js?v=69e37e491d1f';
-import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=69e37e491d1f';
-import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=69e37e491d1f';
-import { canUse } from './ai.js?v=69e37e491d1f';
+import { MONSTERS } from './data/monsters.js?v=42ed545c18b5';
+import { ABILITIES } from './data/abilities.js?v=42ed545c18b5';
+import { TERU } from './data/abilities-c9b.js?v=42ed545c18b5';
+import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=42ed545c18b5';
+import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=42ed545c18b5';
+import { canUse } from './ai.js?v=42ed545c18b5';
 
 export { TERU };
 export const WATCH = 'm9k_watch';

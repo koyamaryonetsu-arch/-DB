@@ -21,7 +21,7 @@
 //  r84b_kokoro  心の水（しずかな 水の わ）
 //  ranma_sig    （上の 看板の技）
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R84B_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=69e37e491d1f';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=42ed545c18b5';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 
