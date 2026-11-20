@@ -74,6 +74,11 @@ export const ACT1_END_OLD = C9A_OBJ.act1;
 const ACT1_END = act1ClearObjective();
 const swapAct1 = (k) => (k === C9A_OBJ.act1 ? ACT1_END : k);
 
+// ───── 第3幕「さかさのピラミッド」を 開ける 切りかえ（plan-part3.md の 11-5・11-6。第92回 A班）─────
+// ★ B班（戦い）・D班を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第2幕 クリアの 目標は「第3幕へ（続きはアップデートで！）」・
+//   船着き場の 番人に 話しても 幕は 始まらない / true … 目標が「ヒカリゴケの里の船着き場から、いかだで川を下ろう」に かわる）
+export const PART3_ACT3_OPEN = false;
+
 // ───── 目標の 文の 表（幕ごとに 足す。第1幕 … story-c9a.js）─────
 // すすみぐあい（progress.js の PROGRESS の さいご）: [フラグ か (c) => 真偽, 目標の 文]
 // 第2幕は 幕が 開いて から（PART3_ACT2_OPEN）。開くと 第1幕の さいごの 文が 第2幕の はじまりの 文に かわる
