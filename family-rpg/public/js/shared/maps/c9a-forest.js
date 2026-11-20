@@ -156,13 +156,11 @@ export function buildC9aCrater() {
   cells('n').forEach((p, i) => {
     m.gates.push({ x: p.x, y: p.y, closed: T.FOREST_FLOOR, open: T.C9A_TENT, flag: C9A.act1 });
     const c = CRAFTS9A[i];
-    m.npcs.push(npc(c.id, c.name, [p.x, p.y + 1], c.sprite, c.script, { show: { all: [C9A.act1] }, dir: 'down' }));
+    m.npcs.push(npc(c.id, c.name, [p.x + 1, p.y], c.sprite, c.script, { show: { all: [C9A.act1] }, dir: 'down' })); // テントの 右どなり（テントが かくれない）
   });
   // 星の音さの れんしゅう: かくれた 宝箱（鳴らすと 光る）
   const H = cells('$')[0];
   m.chests.push({ id: C9A_CHEST_IDS.fork, x: H.x, y: H.y, show: { all: [C9A_FORK_RING] }, ...chestItem9a.get(C9A_CHEST_IDS.fork) });
-  // 幕の あと: テントの よこに 火の ともった ちょうちん（小さな 町の はじまり）
-  cells('n').forEach((p) => m.gates.push({ x: p.x + 1, y: p.y, closed: T.FOREST_FLOOR, open: T.C9A_LANTERN_ON, flag: C9A.act1 }));
   // 絵の ための ようす（client/c9a-light.js の くぼ地の 絵）: まん中が しずんだ くぼ地・ちらばった 光る かけら・星の子の まわりの 光
   const glints = [];
   rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === 'c' && ((x * 7 + y * 13) % 9 === 0)) glints.push([x, y]); }));
