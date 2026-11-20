@@ -54,8 +54,11 @@
   function classify(r) {
     const name = String(r.data.file_name || r.name || ''), path = String(r.data.rel_path || name);
     if (/不要/.test(name)) return { role: 'skip', why: '名前に「不要」' };
+    const vendor = /業者分/.test(path) || VENDOR_RE.test(name);
+    // PDF・写真・Word（掲示物など）は書き込まずに、そのまま ZIP に入れる（2026-11-20）
+    if (/\.(pdf|jpe?g|png|docx?)$/i.test(name)) return { role: 'asis', vendor };
     if (!/\.xlsx$/i.test(name)) return { role: 'skip', why: 'Excel（.xlsx）ではない（.xlsx で保存し直して入れてください）' };
-    if (/業者分/.test(path) || VENDOR_RE.test(name)) return { role: 'vendor' };
+    if (vendor) return { role: 'vendor' };
     return { role: 'ryonetsu' };
   }
   const tplLabel = (r) => String(r.data.file_name || r.name || '').replace(/\.xlsx$/i, '').replace(/^\s*\d{2,4}[\s　_-]*/, '').replace(/〝新〟|全建(?:統一)?[書様]式|参考様式|第\s*[０-９\d]+\s*号(?:[－-][甲乙])?/g, '').replace(/[\s　_]+/g, ' ').trim();
@@ -219,7 +222,7 @@
     let tpls = [];
     try { tpls = await loadTemplates('safety_tpl'); } catch (e) { K().say(e.message); return; }
     const use = tpls.map((r) => Object.assign({ r }, classify(r)));
-    const ry = use.filter((x) => x.role === 'ryonetsu'), ve = use.filter((x) => x.role === 'vendor'), sk = use.filter((x) => x.role === 'skip');
+    const ry = use.filter((x) => x.role === 'ryonetsu'), ve = use.filter((x) => x.role === 'vendor'), sk = use.filter((x) => x.role === 'skip'), as = use.filter((x) => x.role === 'asis');
     if (!ry.length && !ve.length) {
       K().say(tpls.length
         ? `書類棚の「🦺 安全書類のひな形」に ${tpls.length} 件ありますが、使えるひな形（.xlsx）がありません。\n\n` + sk.map((x) => `・${x.r.data.file_name || x.r.name}（${x.why}）`).join('\n') + '\n\n.xlsx で保存し直したものを入れてください（古い .xls は 🗑 で外してください）。'
@@ -248,7 +251,7 @@
     const pOpts = (id) => `<option value="">（協力会社を選ぶ）</option>` + partners.map((p) => `<option value="${esc(p.id)}"${String(p.id) === String(id) ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
     const draw = () => {
       d.body.innerHTML = `
-        <p class="ms-note">書類棚のひな形から、<b>菱熱分 ${ry.length} 枚</b>（${ry.map((x) => esc(tplLabel(x.r))).join('・')}）と、<b>入る会社ごとに業者分 ${ve.length} 枚</b>（${ve.map((x) => esc(tplLabel(x.r))).join('・')}）を作ります。${sk.length ? `<br>使わないひな形: ${sk.map((x) => esc(tplLabel(x.r)) + '（' + esc(x.why) + '）').join('・')}` : ''}<br>
+        <p class="ms-note">書類棚のひな形から、<b>菱熱分 ${ry.length} 枚</b>（${ry.map((x) => esc(tplLabel(x.r))).join('・')}）と、<b>入る会社ごとに業者分 ${ve.length} 枚</b>（${ve.map((x) => esc(tplLabel(x.r))).join('・')}）を作ります。${as.length ? `<br>そのまま入れるもの（書き込まない）: ${as.map((x) => esc(x.r.data.file_name || x.r.name) + (x.vendor ? '（会社ごと）' : '')).join('・')}` : ''}${sk.length ? `<br>使わないひな形: ${sk.map((x) => esc(tplLabel(x.r)) + '（' + esc(x.why) + '）').join('・')}` : ''}<br>
         分からない欄は空けて作ります（あとで Excel で直せます）。会社の住所・許可番号・保険などは、協力会社が書く欄として空けます。</p>
         <h3 class="mst-h">🏗 工事</h3>
         <div class="dg-grid">
@@ -361,6 +364,8 @@
       };
       const jobs = [];
       ry.forEach((x) => jobs.push({ tpl: x.r, kind: 'ryonetsu', folder: '菱熱分', label: tplLabel(x.r), data: base }));
+      as.filter((x) => !x.vendor).forEach((x) => jobs.push({ tpl: x.r, asis: true, folder: '菱熱分', label: x.r.data.file_name || x.r.name }));
+      A.companies.forEach((co) => as.filter((x) => x.vendor).forEach((x) => jobs.push({ tpl: x.r, asis: true, folder: '業者分_' + clean(co.name), label: x.r.data.file_name || x.r.name })));
       A.companies.forEach((co) => ve.forEach((x) => jobs.push({ tpl: x.r, kind: 'vendor', folder: '業者分_' + clean(co.name), label: tplLabel(x.r) + '（' + co.name + '）',
         data: Object.assign({}, base, { company: Object.assign({}, base.companies.find((b) => b.name === co.name), { worker_details: workerData(co) }) }) })));
       await runJobs(jobs);
@@ -369,7 +374,8 @@
       d.foot.innerHTML = '<span class="ms-note dg-prog"></span><button type="button" data-dgx>閉じる</button>';
       const listHtml = () => jobs.map((j, i) => `<div class="dg-job ${j.state || ''}" data-ji="${i}"><span class="dg-job-st">${j.state === 'done' ? '✅' : j.state === 'err' ? '⚠' : j.state === 'run' ? '⏳' : '・'}</span>
         <span class="dg-job-n">${esc(j.folder)} / ${esc(j.label)}</span>
-        ${j.state === 'done' ? `<button type="button" class="mini-btn" data-jprev="${i}">👁 見る</button><button type="button" class="mini-btn" data-jfix="${i}">✏️ 直す</button>${j.res.unfilled.length ? `<span class="ms-note" title="${esc(j.res.unfilled.join('\n'))}">空けた欄 ${j.res.unfilled.length}</span>` : ''}` : ''}
+        ${j.state === 'done' && j.asis ? '<span class="ms-note">そのまま入れます（書き込まない）</span>' : ''}
+        ${j.state === 'done' && !j.asis ? `<button type="button" class="mini-btn" data-jprev="${i}">👁 見る</button><button type="button" class="mini-btn" data-jfix="${i}">✏️ 直す</button>${j.res.unfilled.length ? `<span class="ms-note" title="${esc(j.res.unfilled.join('\n'))}">空けた欄 ${j.res.unfilled.length}</span>` : ''}` : ''}
         ${j.state === 'err' ? `<span class="ms-note">${esc(j.err)}</span><button type="button" class="mini-btn" data-jretry="${i}">もう一度</button>` : ''}</div>`).join('');
       const warnHtml = () => { const w = [...new Set(jobs.filter((j) => j.res).flatMap((j) => j.res.warnings))]; return w.length ? `<div class="dg-warn"><b>⚠ 提出の前に:</b><ul>${w.slice(0, 15).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''; };
       const redraw = () => {
@@ -379,7 +385,11 @@
       };
       const runOne = async (j, instruction) => {
         j.state = 'run'; redraw();
-        try { j.res = await fillOne(j.tpl, j.kind, j.data, instruction); j.state = 'done'; }
+        try {
+          if (j.asis) j.res = { bytes: await bytesOf(j.tpl.data.path), entries: [], unfilled: [], warnings: [] };
+          else j.res = await fillOne(j.tpl, j.kind, j.data, instruction);
+          j.state = 'done';
+        }
         catch (err) { j.state = 'err'; j.err = err.message || String(err); }
         redraw();
       };
@@ -389,7 +399,7 @@
       let zipBytes = null; const zipName = `【${clean(c.theaterShort || c.theater)}】${yymmdd()}_安全書類_菱熱工業.zip`;
       const buildZip = async () => {
         const zip = new window.JSZip();
-        jobs.filter((j) => j.state === 'done').forEach((j) => zip.file(`${j.folder}/${clean(j.label)}.xlsx`, j.res.bytes));
+        jobs.filter((j) => j.state === 'done').forEach((j) => zip.file(j.asis ? `${j.folder}/${j.label}` : `${j.folder}/${clean(j.label)}.xlsx`, j.res.bytes));
         zipBytes = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
       };
       const keepAll = async () => {
