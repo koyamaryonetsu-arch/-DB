@@ -7,9 +7,9 @@
 //   作品の しるし・文字・こわい 物は かかない
 //
 // ざひょう: F（hero-gear.js の frame）… a: 手から ぶきの さきへ、b: よこ。o / outward: からだの そとがわの b の むき
-import { mat, ramp, TH } from './hero-raster.js?v=02b3721e7c0a';
-import { metal, cloth, leather, gem, glow } from './hero-outfit.js?v=02b3721e7c0a';
-import { ornate, sparkleList, FX_COL } from './hero-gear-looks.js?v=02b3721e7c0a';
+import { mat, ramp, TH } from './hero-raster.js?v=36fc3022ee45';
+import { metal, cloth, leather, gem, glow } from './hero-outfit.js?v=36fc3022ee45';
+import { ornate, sparkleList, FX_COL } from './hero-gear-looks.js?v=36fc3022ee45';
 
 // 剣の 形と オノの 形（gear-looks.js の WEAPON_LOOKS に 足した 名前と 同じ）
 export const R88A_SWORD = ['raijin', 'hikari', 'tessaiga', 'yoru', 'dai', 'shinma', 'roto', 'tenku', 'saber'];

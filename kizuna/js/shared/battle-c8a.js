@@ -23,16 +23,16 @@
 //   イアゴン … 聞き耳の 間は 呪文を 当てない（物理の 攻撃に かえる。b.c8aNoQuiet … しない）・オウムがえしの 前に（覚えて いれば）身を 守る（b.c6NoGuard）
 //   ジャハール … さいみんじゅつが 近い ときは つえを こわす（b.c8aNoStaff）・とぐろの 間は コブラを 攻撃しない（b.c8aNoCoil）・
 //     黒いランプを 先に こわす（b.c8aNoLamp）・むげんの魔力の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=02b3721e7c0a';
-import { ABILITIES } from './data/abilities.js?v=02b3721e7c0a';
-import { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP, COBRA_ACTIONS, GENIE_ACTIONS } from './data/monsters-c8a.js?v=02b3721e7c0a';
-import { BUFF_ACTS } from './buff-acts.js?v=02b3721e7c0a';
+import { MONSTERS } from './data/monsters.js?v=36fc3022ee45';
+import { ABILITIES } from './data/abilities.js?v=36fc3022ee45';
+import { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP, COBRA_ACTIONS, GENIE_ACTIONS } from './data/monsters-c8a.js?v=36fc3022ee45';
+import { BUFF_ACTS } from './buff-acts.js?v=36fc3022ee45';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=02b3721e7c0a';
-import { canUse } from './ai.js?v=02b3721e7c0a';
-import { AUTO_GUARD } from './battle-ch6.js?v=02b3721e7c0a';
+import { atbRate, pub } from './battle.js?v=36fc3022ee45';
+import { canUse } from './ai.js?v=36fc3022ee45';
+import { AUTO_GUARD } from './battle-ch6.js?v=36fc3022ee45';
 // 第2部 第8章 第2幕: ペイニックと パニクル（ばけばけ大作戦）・よみの王ハデロス（たましいのけいやく → おこった 赤い 炎）。battle-c8b.js
-import { setupC8b, c8bTurnStart, c8bEffect, c8bPlan, c8bPub, c8bDamage, c8bKill } from './battle-c8b.js?v=02b3721e7c0a';
+import { setupC8b, c8bTurnStart, c8bEffect, c8bPlan, c8bPub, c8bDamage, c8bKill } from './battle-c8b.js?v=36fc3022ee45';
 
 export { C8_PET, C8_JAFAR, C8_STAFF, C8_LAMP };
 export const ECHO = 'm8p_echo';

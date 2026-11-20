@@ -8,8 +8,8 @@
 // ・4人の 勇者と 時の 女の人は 出さない（物語の 先に ふれない）
 //
 // ゆうびん屋さん（千年前から あずかっている 手紙）→ 村の 子ども 3人の やきいもの やき方 → あて名の 子を えらぶ → とどける → 返事
-import { npc } from './npc.js?v=02b3721e7c0a';
-import { openSpot } from './labyrinth.js?v=02b3721e7c0a';
+import { npc } from './npc.js?v=36fc3022ee45';
+import { openSpot } from './labyrinth.js?v=36fc3022ee45';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第4幕の「時の広間に 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 9-2）

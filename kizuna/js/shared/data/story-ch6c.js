@@ -7,15 +7,15 @@
 //   → 塔の 上で 大時計が 動き出す・ゼンマイの 声 →「第6章の続きはアップデートで！」（c6_heart）
 // 魔物・きまった 戦い（carillon）・品・リオンの 強さ（RION_GUEST）は B（戦い・品）が 作る（plan-ch6.md の 15）
 // このファイルは story-ch6.js・story-ch6b.js を 読まない（story-ch6.js・story-ch6b.js が ここを 読んで まぜる）
-import { MAPS } from '../maps/index.js?v=02b3721e7c0a';
-import { PAST_ID } from '../maps/past.js?v=02b3721e7c0a';
-import { C6B } from '../maps/hoshimichi.js?v=02b3721e7c0a';
+import { MAPS } from '../maps/index.js?v=36fc3022ee45';
+import { PAST_ID } from '../maps/past.js?v=36fc3022ee45';
+import { C6B } from '../maps/hoshimichi.js?v=36fc3022ee45';
 import {
   C6C, BELL_NEWS, MURAL6, TF, HOUR, TURN3, OPEN5, WAIT5, TBOSS, TK_POS, TK_OUT, TK_FLOORS, TK_LINK, TK_BOSS_FLOOR, LINK_TOWER,
   MURAL_NEW_AT, VANE_AT, CLOCKS, handCells, hourOf, hourWord, tkMapId,
-} from '../maps/tokei.js?v=02b3721e7c0a';
-import { unstickAll } from '../world/hazards.js?v=02b3721e7c0a';
-import { partyOf } from '../world/party.js?v=02b3721e7c0a';
+} from '../maps/tokei.js?v=36fc3022ee45';
+import { unstickAll } from '../world/hazards.js?v=36fc3022ee45';
+import { partyOf } from '../world/party.js?v=36fc3022ee45';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -4,7 +4,7 @@
 // ・lab_ruin_arch … 砂の古代都市の 門（砂の海の 小島）
 // ・lab_ironwood … 古代の鉄木（地下4階）・lab_glint … ダイゴの コンパス（地下7階で 光る）
 // かきかたは monsters.js・ch3-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { fit, bez, taper, spark } from './ch3-draw.js?v=02b3721e7c0a';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=36fc3022ee45';
 
 // ───── 古竜オルドラ ─────
 const OD = {

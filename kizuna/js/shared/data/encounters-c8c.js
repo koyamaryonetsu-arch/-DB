@@ -6,7 +6,7 @@
 //   めやす: メラバブル … 30%いじょう（F）／トンカチブロス … 12〜20%（E）／ブリキクッパ … 12〜20%（D）／ドッシーン … 6〜12%（C）／ドデカキラー … 6〜12%（A）
 //   （トンカチブロスは 仲間に なりやすい 1/11・ブリキクッパは ときどき 1/15 なので、おなじ 出やすさでも ランクが ちがう）
 //   第8章の B〜S は 2わりまで（test/monsters-r43a.test.js）なので、第3幕の B〜S は ドデカキラーだけ
-import { C8_KAMEK, C8_BOWSER, KAMEK_KIDS } from './monsters-c8c.js?v=02b3721e7c0a';
+import { C8_KAMEK, C8_BOWSER, KAMEK_KIDS } from './monsters-c8c.js?v=36fc3022ee45';
 
 export const ENCOUNTERS_C8C = {
   t8c_fort: [

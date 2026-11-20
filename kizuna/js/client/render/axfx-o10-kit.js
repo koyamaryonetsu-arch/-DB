@@ -1,7 +1,7 @@
 // 第51回 W（天気の 職業）: え で つかう 小さな どうぐ（つぶ o10〜 を 足す）と つぶの かずの あわせ（balance）。この ファイルは W だけが さわる
 // しくみは axfx-o5-kit.js と おなじ（段の 予算 AX_BUDGET_ORIG に あわせて こまかい つぶを へらす・足す）
-import { rnd } from './axkit.js?v=02b3721e7c0a';
-import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=02b3721e7c0a';
+import { rnd } from './axkit.js?v=36fc3022ee45';
+import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=36fc3022ee45';
 
 // つぶを 1つ 足す（kind は o10〜）。x,y は 画面の 中の いち（とおい つぶの しらべに つかう）
 export function add(c, kind, o) {
