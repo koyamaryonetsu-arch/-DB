@@ -37,7 +37,7 @@ export const C9C_ZONES = Object.keys(ENCOUNTERS_C9C);
 //   c9c_trio2  … ホシドロ一味と ヒックリカエール2号（音の 間。Lv102）
 //   どちらも スピカは かならず 出る。曲は F班の id（C9C_TRACKS。曲が まだ ない ときは 今の しくみの まま）
 export const FIXED_C9C = {
-  [C9C_BATTLE.riddle]: { group: [[C9C_NAZOKAKE, 1, 1]], bg: 'c9c_riddle', bgm: C9C_TRACKS.riddle, canFlee: false, boss: true },
+  [C9C_BATTLE.riddle]: { group: [[C9C_NAZOKAKE, 1, 1]], bg: 'c9c_pyramid', bgm: C9C_TRACKS.riddle, canFlee: false, boss: true },
   [C9C_BATTLE.trio2]: { group: [[C9C_HIKKURI, 1, 1]], bg: 'c9c_note', bgm: C9C_TRACKS.trio2, canFlee: false, boss: true },
 };
 

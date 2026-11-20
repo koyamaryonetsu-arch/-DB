@@ -605,6 +605,10 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
+    // 第92回 B班: 第3部 第1章 第3幕（魔物・ナゾカケと なぞの たね・ヒックリカエール2号・品・ヒント・絵・背景・えんしゅつ。c9c-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/c9c-names-b.js', 'public/js/shared/data/monsters-c9c.js', 'public/js/shared/data/abilities-c9c.js', 'public/js/shared/data/riddles-c9c.js',
+    'public/js/shared/data/encounters-c9c.js', 'public/js/shared/data/companions-c9c.js', 'public/js/shared/data/items-c9c.js', 'public/js/shared/data/boss-hints-c9c.js',
+    'public/js/shared/battle-c9c.js', 'public/js/client/battle-c9c.js', 'public/js/client/render/c9c-art.js', 'public/js/client/render/c9c-bg.js', 'public/js/client/render/battlefx-c9c.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

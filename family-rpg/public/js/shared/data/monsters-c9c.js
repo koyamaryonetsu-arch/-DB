@@ -96,7 +96,7 @@ export const MONSTERS_C9C = {
   //   wrong … はずれた 人の さかさま（こんらん）の 回数 / timeout … 時間切れの 全体の 攻撃の 強さ / hard … むずかしい なぞに なる HPの わりあい /
   //   slow … なぞが 出て いる 間の ゲージの 速さ（小さい 子が 読んで 答える 間。tmul）
   [C9C_NAZOKAKE]: {
-    name: NAZOKAKE_NAME, short: 'ナゾカケ', lv: 101, hp: 82000, mp: 9999, str: 3800, def: 350, agi: 240, mag: 980, exp: 122000, gold: 41000,
+    name: NAZOKAKE_NAME, short: 'ナゾカケ', lv: 101, hp: 74000, mp: 9999, str: 3230, def: 350, agi: 240, mag: 980, exp: 122000, gold: 41000,
     race: 'material', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9cb_riddle_charm'], bonus: ['limit_stone'], rare: ['c9cb_riddle_boomerang', 1] },
     resist: { ...BOSS_STATUS, light: 1.1, dark: 0.8, fire: 0.9, ice: 1.0, wind: 1.0, bolt: 1.1 },
@@ -105,8 +105,8 @@ export const MONSTERS_C9C = {
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk … ナゾカケの HP・攻撃力の ばい
       //   limit … 時間切れまでの 行動（人が 少ない ときは 答える 人の 番が 来る まで 長く）
       //   solo … 仲間なしの ひとり（戦う 人が 1人だけ）の とき。few より 先に 見る
-      few: { hp: [0.74, 0.9, 0.95, 1, 1.05], atk: [0.81, 0.92, 0.96, 1, 1], limit: [2, 2, 2, 2, 2] },
-      solo: { hp: 0.2, atk: 0.42, limit: 2 },
+      few: { hp: [0.82, 0.9, 0.95, 1, 1.1], atk: [0.95, 0.92, 0.96, 1, 1.06], limit: [2, 2, 2, 2, 2] },
+      solo: { hp: 0.2, atk: 0.3, limit: 2, timeoutK: 2.6 },
       monK: { hp: 0.03, atk: 0.02 },
     },
     actions: [{ w: 3, id: 'm9z_claw' }, { w: 2, id: 'm9z_tail' }, { w: 1, id: 'm9z_gaze', cond: 'notRecent:m9z_gaze' }, { w: 1, id: 'm9z_roar', cond: 'notRecent:m9z_roar' }],
@@ -119,7 +119,7 @@ export const MONSTERS_C9C = {
   //   boom … 大ばくはつ（全体 mult・身を 守った 人の ばい guardCut）/ counter … まだ早い の 反げき / addAt … 砂を 足す HPの わりあい（2つぶずつ）/
   //   pochi … ポチッとねの 前ぶれまでの 行動（every）と 強さ（mult）
   [C9C_HIKKURI]: {
-    name: HIKKURI_NAME, short: 'ヒックリカエール', lv: 102, hp: 90000, mp: 9999, str: 3460, def: 360, agi: 240, mag: 1000, exp: 128000, gold: 43000,
+    name: HIKKURI_NAME, short: 'ヒックリカエール', lv: 102, hp: 84000, mp: 9999, str: 3110, def: 360, agi: 240, mag: 1000, exp: 128000, gold: 43000,
     race: 'material', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9cb_trio_goggles'], bonus: ['limit_stone'], rare: ['c9cb_sand_dagger', 1] },
     resist: { ...BOSS_STATUS, bolt: 1.2, ice: 1.1, fire: 0.9, wind: 1.0, light: 1.0, dark: 1.0 },
@@ -127,8 +127,8 @@ export const MONSTERS_C9C = {
       kind: 'sand', sand: 6, dizzyAt: 2, dizzyMult: 1.5, boom: { mult: 1.25, guardCut: 0.5 }, counter: { mult: 1.5 }, addAt: 0.5,
       pochi: { every: 5, mult: 2.2 },
       // 人数で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk … メカの HP・攻撃力の ばい / boom … 大ばくはつの ばい
-      few: { hp: [0.8, 0.8, 0.95, 1, 1.08], atk: [0.86, 0.86, 0.96, 1, 1.03], boom: [1, 1, 1, 1, 1] },
-      solo: { hp: 0.17, atk: 0.36, boom: 2.6 },
+      few: { hp: [0.85, 0.83, 0.95, 1, 1.08], atk: [0.92, 0.9, 0.97, 1, 1.03], boom: [1, 1, 1, 1, 1] },
+      solo: { hp: 0.14, atk: 0.3, boom: 4 },
       monK: { hp: 0, atk: 0 },
     },
     actions: [{ w: 3, id: 'm9s_punch' }, { w: 2, id: 'm9s_sandgun' }, { w: 1, id: 'm9s_drill', cond: 'notRecent:m9s_drill' }],

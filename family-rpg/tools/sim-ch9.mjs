@@ -32,6 +32,7 @@ import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';
 import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
+import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
 import './sim-ch8.mjs';
 
 export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial, king: C9B_BATTLE.king, riddle: C9C_BATTLE.riddle, trio2: C9C_BATTLE.trio2 };
@@ -112,6 +113,9 @@ export const PARTIES9 = {
   k2npc: { label: '2人＋酒場2人', humans: 2, npc: 2, mon: 0 },
   solo: { label: 'ひとりだけ　', humans: 1, npc: 0, mon: 0 },
   p5: { label: '人5人　　　　', humans: 5, npc: 0, mon: 0 },
+  // 第92回: ゲームの 酒場と おなじ 作りの 仲間（world/party.js の makeNpcSupportChar。ものがたりで 入る ときと おなじ 勇者の 1つ下の レベル・
+  //   はじめの 職業〈魔法使い・武闘家・僧侶〉・その レベルの 店の 装備）。ブラウザで 人が 遊んだ ときと おなじ 顔ぶれ（11-4 の さいご）
+  k1tav: { label: '1人＋酒場3人(本物)', humans: 1, npc: 3, mon: 0, tavern: true },
 };
 function npcChar(id, job, lv) {
   const d = NPC_SUPPORTS.find((n) => n.id === id);
@@ -129,7 +133,8 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   const humans = four.filter((c) => pick.includes(c.job));
   if (P.humans >= 5) humans.push(jobChar('guardian', lv, 10, 'ガーディアン'));
   const out = humans.map((c) => ({ char: c, know: true }));
-  for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv), know: false });
+  if (P.tavern) for (const [id] of NPC9.slice(0, P.npc)) out.push({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false });
+  else for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv), know: false });
   for (const [sp, tac] of MON9.slice(0, P.mon)) {
     const c = monsterChar(sp, lv, 15, 10);
     c.tactics = tac;

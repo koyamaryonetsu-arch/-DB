@@ -9,6 +9,8 @@
 // ・皿 3つ … にく・ケーキ・からいスープ（ボスの しかけの 部ひん。ふつうの こまかさ）
 import { fit, spark, bez } from './ch3-draw.js';
 import { sparkled } from './c9a-art.js';
+// 第3部 第1章 第3幕（c9c-art.js）
+import { addC9cArt } from './c9c-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
@@ -315,4 +317,6 @@ export function addC9bArt(ART) {
   ART.c9b_dish_meat = { size: [44, 36], pal: pal(DS), draw: dishMeat };
   ART.c9b_dish_cake = { size: [44, 36], pal: pal(DS), draw: dishCake };
   ART.c9b_dish_soup = { size: [44, 36], pal: pal(DS), draw: dishSoup };
+  // 第3部 第1章 第3幕（c9c-art.js）
+  addC9cArt(ART);
 }

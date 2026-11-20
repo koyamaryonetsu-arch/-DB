@@ -85,7 +85,7 @@ export const C9C_ABILITIES = {
     desc: '砂の玉をころがして、敵みんなにダメージ。',
   },
   m9c_sc_shine: {
-    name: 'こがねのひかり', kind: 'monster', mp: 3, target: 'enemies',
+    name: 'こがねの光', kind: 'monster', mp: 3, target: 'enemies',
     effect: { type: 'status', status: 'blind', chance: 0.2, turns: [2, 3] }, cast: '{a}のせなかが、ぴかーっと金色に光った！', anim: 'c9c_shine',
     desc: '金色に光って、敵みんなの目をくらませることがある。',
   },

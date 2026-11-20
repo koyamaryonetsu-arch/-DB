@@ -67,7 +67,7 @@ export function riddleConf(m, b = null) {
   const pick = picker(c, b);
   const mm = monMul(c, b);
   return {
-    every: c.every ?? 3, limit: pick('limit', c.limit ?? 2), guard: c.guard ?? 0.3, wrong: c.wrong ?? 2, timeout: { mult: 0.95, ...(c.timeout || {}) },
+    every: c.every ?? 3, limit: pick('limit', c.limit ?? 2), guard: c.guard ?? 0.3, wrong: c.wrong ?? 2, timeout: { mult: 0.95, ...(c.timeout || {}) }, timeoutK: pick('timeoutK', 1),
     hard: c.hard ?? 0.5, slow: c.slow ?? 0.5, hp: pick('hp', 1) * mm.hp, atk: pick('atk', 1) * mm.atk,
   };
 }
@@ -256,7 +256,7 @@ function timeout(b, c, ev) {
   ev.fx = { type: 'ability', anim: 'c9z_timeout', actor: c.id, targets: targets.map((x) => x.id), side: 'enemy' };
   if (ans) ev.lines.push(`${c.name}「答えは『${ans}』だ。」`);
   ev.lines.push('天じょうから、石の雨がふってきた！');
-  for (const t of targets) b.physHit(c, t, { mult: rc.timeout.mult, acc: 9 }, ev, 'phys');
+  for (const t of targets) b.physHit(c, t, { mult: rc.timeout.mult * rc.timeoutK, acc: 9 }, ev, 'phys');
   ev.c9zTimeout = { id: c.id, answer: ans };
   clearRiddle(c);
   // つぎの なぞ（すぐ）
