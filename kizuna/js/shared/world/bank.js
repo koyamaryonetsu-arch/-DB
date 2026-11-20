@@ -3,9 +3,9 @@
 // c.bank = { gold, items: [{ id, n }] } … ない ときも ある（はじめて 預けた ときに できる）
 // ・どこの 預かり所でも おなじ 中み（キャラごと）
 // ・全滅すると 持っている お金が 半分に なる（はしたは 切りすて）。預けた お金は へらない
-import { ITEMS } from '../data/items.js?v=36fc3022ee45';
-import { BANKS, BANK_GOLD_MAX, BANK_KINDS, BANK_STACK } from '../data/facilities.js?v=36fc3022ee45';
-import { addItem, removeItem, itemCount } from '../stats.js?v=36fc3022ee45';
+import { ITEMS } from '../data/items.js?v=e280d20a9f0b';
+import { BANKS, BANK_GOLD_MAX, BANK_KINDS, BANK_STACK } from '../data/facilities.js?v=e280d20a9f0b';
+import { addItem, removeItem, itemCount } from '../stats.js?v=e280d20a9f0b';
 
 // ふくろに 入る 1しゅるいの 数（stats.js の addItem と おなじ）
 export const BAG_STACK = 99;

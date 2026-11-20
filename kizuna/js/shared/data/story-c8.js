@@ -11,20 +11,22 @@
 // より道「時をこえる手紙」（緑の王国の 2つ）は data/sidequests-c8a.js。魔物・きまった 戦い・品は B（plan-ch8.md の 5-2）。ゲストは カリム
 import {
   C8, ARRIVE8, ENTRY8, PF8, NADIA4, VOICE7, WIN8, KING8, MIRROR8, LETTER8, LETTER8_PALACE, NADIA_LETTER, C7_FIELD_ID, SOUTH_ID, STAIR8, c8aMapId,
-} from '../maps/c8a-flags.js?v=36fc3022ee45';
-import { C7I } from '../maps/c7i-flags.js?v=36fc3022ee45';
-import { C8A_POS, bridgeOf } from '../maps/c8a-palace.js?v=36fc3022ee45';
-import { C8A_FIELD_POS } from '../maps/c8a-field.js?v=36fc3022ee45';
-import { MAPS } from '../maps/index.js?v=36fc3022ee45';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=36fc3022ee45';
-import { MONSTERS } from './monsters.js?v=36fc3022ee45';
-import { applyC8aSide, letterReward8 } from './sidequests-c8a.js?v=36fc3022ee45';
+} from '../maps/c8a-flags.js?v=e280d20a9f0b';
+import { C7I } from '../maps/c7i-flags.js?v=e280d20a9f0b';
+import { C8A_POS, bridgeOf } from '../maps/c8a-palace.js?v=e280d20a9f0b';
+import { C8A_FIELD_POS } from '../maps/c8a-field.js?v=e280d20a9f0b';
+import { MAPS } from '../maps/index.js?v=e280d20a9f0b';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=e280d20a9f0b';
+import { MONSTERS } from './monsters.js?v=e280d20a9f0b';
+import { applyC8aSide, letterReward8 } from './sidequests-c8a.js?v=e280d20a9f0b';
 // 第2幕「よみの青い火」（Step 3・4。story-c8b.js）
-import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js?v=36fc3022ee45';
+import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_PROGRESS, applyCh8b } from './story-c8b.js?v=e280d20a9f0b';
 // 第3幕「くろがねの空中要塞」（Step 5・6。story-c8c.js）
-import { CH8C_STEPS, C8C_OBJ, CH8C_OBJECTIVE_TARGETS, CH8C_OBJECTIVE_TALK, CH8C_PROGRESS, applyCh8c } from './story-c8c.js?v=36fc3022ee45';
+import { CH8C_STEPS, C8C_OBJ, CH8C_OBJECTIVE_TARGETS, CH8C_OBJECTIVE_TALK, CH8C_PROGRESS, applyCh8c } from './story-c8c.js?v=e280d20a9f0b';
 // 第4幕「時のはざま」（Step 7・8。story-c8r.js）
-import { CH8R_STEPS, C8R_OBJ, CH8R_OBJECTIVE_TARGETS, CH8R_OBJECTIVE_TALK, CH8R_PROGRESS, applyCh8r } from './story-c8r.js?v=36fc3022ee45';
+import { CH8R_STEPS, C8R_OBJ, CH8R_OBJECTIVE_TARGETS, CH8R_OBJECTIVE_TALK, CH8R_PROGRESS, applyCh8r } from './story-c8r.js?v=e280d20a9f0b';
+// 第3部の はじまりの 目標の 入れかえ（第90回 Z班）
+import { PART3_OPEN, PART2_END_OBJ } from './story-c9.js?v=e280d20a9f0b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -73,6 +75,8 @@ export const OLD_C8_OBJ = {
 };
 // 第3幕の さいごの 前の 版の 文（今は story-c8c.js の C8C_OBJ.bowser「第8章　第3幕クリア！今のほしみの丘のトキネに会いに行こう…」）
 OLD_C8_OBJ.bowser = '第8章　第4幕へ（続きはアップデートで！）';
+// 第2部 クリアの 前の 版の 文（第3部が できて story-c9.js の PART3_OPEN が true の 時だけ。今は C8R_OBJ.solitus の まま）
+if (PART3_OPEN) OLD_C8_OBJ.solitus = PART2_END_OBJ;
 export { C8B_OBJ, C8C_OBJ };
 export { C8R_OBJ };
 

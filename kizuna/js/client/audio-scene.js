@@ -10,10 +10,23 @@ const PART2_PREFIX = ['overworld_past', 'toki_shrine', 'toki_ruin', 'hoshimichi'
 PART2_PREFIX.push('c8r_');
 
 export function isPart2Map(mapId, map = null) {
+  if (isPart3Map(mapId, map)) return false;
   if (map && typeof map.past === 'boolean') return true;
   const id = String(mapId || map?.id || '');
   return PART2_PREFIX.some((p) => id.startsWith(p));
 }
+
+// 第90回 Z班: 第3部（第3部 第1章〜。中の 名前は c9〜c11）の 場所。この 名前で はじまる マップ（c9a_forest・c9a_b1 など）
+//   曲は F班が 作る（第1幕の 曲の id は maps/c9a-flags.js の C9A_TRACKS。どれも c9 で はじまる）。今は 第3部の マップが ない ので、鳴り方は かわらない
+export const PART3_PREFIX = ['c9', 'c10', 'c11'];
+export function isPart3Map(mapId, map = null) {
+  const id = String(mapId || map?.id || '');
+  return PART3_PREFIX.some((p) => id.startsWith(p));
+}
+// 第3部の 曲の id か（c9a_festival など）
+export const isPart3Track = (id) => PART3_PREFIX.some((p) => String(id || '').startsWith(p));
+// 第3部の ふつうの 戦いの 曲（F班が 作ったら TRACKS に 入る。まだ ない 間は 下の battleBgm が battle に もどす）
+export const PART3_BATTLE = 'battle3';
 
 // 強敵（ボスでは ない）: 宝の地図の 洞窟（tm_）・ひみつのダンジョン（sd_）・モンスター闘技場・
 //   物語の きまった 戦い（闘技場の 試合・たのまれごとの 戦い・待ちぶせ など。サーバーの story）・ボスの しるしの ある 魔物が まざった 戦い
@@ -29,11 +42,13 @@ export function isStrongBattle({ mapId = '', boss = false, story = false, enemie
 }
 
 // 戦いの 曲の id。snap.bgm が 'battle'（ふつうの 戦い。サーバーは フィールドでも 'battle' を 入れる）か ない 時だけ えらぶ。
-//   battle_strong（強敵）→ battle2（第2部）→ battle。曲が まだ ない 時は battle に もどる（has(id) で 見る）
+//   battle_strong（強敵）→ battle3（第3部）→ battle2（第2部）→ battle。曲が まだ ない 時は battle に もどる（has(id) で 見る）
 export function battleBgm({ snapBgm = null, boss = false, story = false, mapId = '', map = null, enemies = [], monsters = {}, has = () => true } = {}) {
   if (snapBgm && snapBgm !== 'battle') return snapBgm;
   if (!snapBgm && boss) return 'boss';
   if (isStrongBattle({ mapId, boss, story, enemies, monsters }) && has('battle_strong')) return 'battle_strong';
+  // 第3部（曲が できるまでは battle。第2部の battle2 には しない）
+  if (isPart3Map(mapId, map)) return has(PART3_BATTLE) ? PART3_BATTLE : 'battle';
   if (isPart2Map(mapId, map) && has('battle2')) return 'battle2';
   return 'battle';
 }

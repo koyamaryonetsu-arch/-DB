@@ -4,7 +4,7 @@
 // ・WORK2_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まざる）
 // ・addWork2VehicleArt(ART, kit) … もらう 乗り物の 絵（お天気の気球・金色のふわふわ雲。2D と 2.5D は 同じ 絵）
 // かきかたは work-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=36fc3022ee45';
+import { spark } from './ch3-draw.js?v=e280d20a9f0b';
 
 // ───────────── 人の みため ─────────────
 export const WORK2_NPC_LOOKS = {

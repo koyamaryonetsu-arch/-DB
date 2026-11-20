@@ -10,10 +10,10 @@
 //   - 酒場が いっぱい（ROSTER_MAX）なら 入れない（今の しくみと 同じ。その 人に「いっぱいだった」と 知らせる）
 // ・知らせ: 遊んでいる 人には その 場で（戦いの けっかを とじてから）。今 いない 人は c.tavernNews に のこし、
 //   つぎに 入った ときに 出す（world.js の takeTavernNews）
-import { MONSTERS } from '../data/monsters.js?v=36fc3022ee45';
-import { addMonsterEntry } from './party.js?v=36fc3022ee45';
+import { MONSTERS } from '../data/monsters.js?v=e280d20a9f0b';
+import { addMonsterEntry } from './party.js?v=e280d20a9f0b';
 // 第50回 N6: 家族から もらった 道具の 知らせも 同じ 所に のこす（world/gift.js）
-import { giftNewsText } from './gift.js?v=36fc3022ee45';
+import { giftNewsText } from './gift.js?v=e280d20a9f0b';
 
 export const TAVERN_NEWS_MAX = 10;
 

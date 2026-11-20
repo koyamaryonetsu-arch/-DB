@@ -7,36 +7,36 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=36fc3022ee45';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=36fc3022ee45';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=36fc3022ee45';
-import { jobLine } from '../data/fq-common.js?v=36fc3022ee45';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=36fc3022ee45';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=36fc3022ee45';
-import { tmLvCap, tmTitle } from '../data/treasure.js?v=36fc3022ee45';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=36fc3022ee45';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=36fc3022ee45';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=36fc3022ee45';
-import { phantomBook } from '../data/phantom.js?v=36fc3022ee45';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=36fc3022ee45';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=36fc3022ee45';
-import { bestiaryOrder } from '../data/companions.js?v=36fc3022ee45';
-import { MONSTERS } from '../data/monsters.js?v=36fc3022ee45';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=36fc3022ee45';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=36fc3022ee45';
-import { LB_MAX } from '../data/items-forge.js?v=36fc3022ee45';
-import { ITEMS } from '../data/items.js?v=36fc3022ee45';
-import { MAPS, condOk } from '../maps/index.js?v=36fc3022ee45';
-import { jobLabel } from '../job-label.js?v=36fc3022ee45';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=e280d20a9f0b';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=e280d20a9f0b';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=e280d20a9f0b';
+import { jobLine } from '../data/fq-common.js?v=e280d20a9f0b';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=e280d20a9f0b';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=e280d20a9f0b';
+import { tmLvCap, tmTitle } from '../data/treasure.js?v=e280d20a9f0b';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=e280d20a9f0b';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=e280d20a9f0b';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=e280d20a9f0b';
+import { phantomBook } from '../data/phantom.js?v=e280d20a9f0b';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=e280d20a9f0b';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=e280d20a9f0b';
+import { bestiaryOrder } from '../data/companions.js?v=e280d20a9f0b';
+import { MONSTERS } from '../data/monsters.js?v=e280d20a9f0b';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=e280d20a9f0b';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=e280d20a9f0b';
+import { LB_MAX } from '../data/items-forge.js?v=e280d20a9f0b';
+import { ITEMS } from '../data/items.js?v=e280d20a9f0b';
+import { MAPS, condOk } from '../maps/index.js?v=e280d20a9f0b';
+import { jobLabel } from '../job-label.js?v=e280d20a9f0b';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
-import { bossHintsSeen } from '../data/boss-hints.js?v=36fc3022ee45';
+import { bossHintsSeen } from '../data/boss-hints.js?v=e280d20a9f0b';
 // 第88回 G4班: 作品の ガチャガチャ・七つの玉
-import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=36fc3022ee45';
-import { workName } from '../data/works.js?v=36fc3022ee45';
+import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=e280d20a9f0b';
+import { workName } from '../data/works.js?v=e280d20a9f0b';
 // 第88回 G9班: ドラゴンボール（data/shenron-r88.js）
-import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=36fc3022ee45';
+import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=e280d20a9f0b';
 // 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
-import { rivalTrack, rivalRec } from '../rivals-r88.js?v=36fc3022ee45';
+import { rivalTrack, rivalRec } from '../rivals-r88.js?v=e280d20a9f0b';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -78,8 +78,25 @@ export const CHAPTERS = [
       { n: 4, start: 'c8_bowser', title: '時のはざま', seen: 'c8r_arrive', clear: 'c8_solitus' },
     ],
   },
+  {
+    // 第90回 Z班: 第3部「ほしのね」第1章（中の 番号は 9。表示は chapterLabel で「第1章」）。幕の 名前は 題の 画面（c9_festival）の あと
+    n: 9, part: 3, start: 'c9_festival', clear: null, title: 'おちてきた星の子',
+    acts: [
+      { n: 1, start: 'c9_festival', title: '星ふるえの夜', seen: 'c9_festival', clear: 'c9_act1' },
+    ],
+  },
 ];
-const PART_NAMES = { 1: '第1部', 2: '第2部' };
+const PART_NAMES = { 1: '第1部', 2: '第2部', 3: '第3部' };
+// 部の はじめの 章の 中の 番号（第3部だけ 部の 中の 番号で 出す。第1・2部は 通しの 番号「第8章」の まま）
+const PART_FIRST_CHAPTER = { 3: 9 };
+const partOfChapter = (n) => CHAPTERS.find((C) => C.n === n)?.part || (n >= PART_FIRST_CHAPTER[3] ? 3 : 0);
+
+// 章の 表示（0 … 序章 / 1〜8 … 第○章 / 9〜 … 第3部の 中の 番号「第1章」）
+export function chapterLabel(n) {
+  if (!n) return '序章';
+  const first = PART_FIRST_CHAPTER[partOfChapter(n)];
+  return `第${first ? n - first + 1 : n}章`;
+}
 
 // 今の 章・幕。{ part, chapter, act, label, title, actTitle, cleared }
 export function storyPlace(c) {
@@ -89,7 +106,7 @@ export function storyPlace(c) {
   let act = null;
   for (const A of ch.acts || []) if (f(A.start)) act = A;
   const cleared = act?.clear ? f(act.clear) : !!(ch.clear && f(ch.clear) && ch.n > 0);
-  const chName = ch.n === 0 ? '序章' : `第${ch.n}章`;
+  const chName = chapterLabel(ch.n);
   const title = !ch.titleSeen || f(ch.titleSeen) ? ch.title : '';
   const actTitle = act?.title && f(act.seen) ? act.title : '';
   const parts = [ch.n === 0 ? '' : PART_NAMES[ch.part], chName, act ? `第${act.n}幕` : ''].filter(Boolean);

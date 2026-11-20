@@ -8,24 +8,26 @@
 //   → ソリトゥス（きまった 戦い c8_solitus。3だん。B）→ ふういんと 千年の約束 → 今の ほしみの丘（4人の 勇者の 像・トキネは 砂時計の 中へ）→ 第2部 完（c8_solitus）
 // 魔物・きまった 戦い・品・ゲストの 強さ・戦いの 中の えんしゅつは B（plan-ch8.md の 9-2）
 // 負けた 時の ヒント（B の 文・E の しくみ）。もう一度 いどむ 行き先は 台本の マス
-import { C8R_BOSS_HINTS } from './boss-hints-c8r.js?v=36fc3022ee45';
-import { mergeBossHints } from './boss-hints.js?v=36fc3022ee45';
-import { C8C } from '../maps/c8c-flags.js?v=36fc3022ee45';
+import { C8R_BOSS_HINTS } from './boss-hints-c8r.js?v=e280d20a9f0b';
+import { mergeBossHints } from './boss-hints.js?v=e280d20a9f0b';
+import { C8C } from '../maps/c8c-flags.js?v=e280d20a9f0b';
 import {
   C8R, WINGS, WING_MARK, WING_NAME, HERO_GUEST, wingCount, ARRIVE8R, GATE_DUE8R, WIN_GATE8R, CORE8R, WIN_SOL8R, SEAL8R, TRIAL_SEEN8R, FLOOR_SEEN8R,
   MIR8R, FIRE8R, DEV8R, CHASE8R, STAR8R, MISS8R, HALL_ID, NOW_FIELD_ID, lastMapId,
-} from '../maps/c8r-flags.js?v=36fc3022ee45';
-import { FLOOR_SPECS } from '../maps/c8r-wings.js?v=36fc3022ee45';
-import { floorPos } from '../maps/c8r-floor.js?v=36fc3022ee45';
-import { FIRE2_CHASE, FIRE2_CATCH } from '../maps/c8r-rows.js?v=36fc3022ee45';
-import { HALL_POS, HALL_DOORS, CORE_POS } from '../maps/c8r-hall.js?v=36fc3022ee45';
-import { RIFT8R, STATUES8R, HALL_ENTER8R } from '../maps/c8r-field.js?v=36fc3022ee45';
-import { TOKINE_SPOT } from '../maps/ch6c-side.js?v=36fc3022ee45';
-import { MAPS } from '../maps/index.js?v=36fc3022ee45';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=36fc3022ee45';
-import { MONSTERS } from './monsters.js?v=36fc3022ee45';
-import { shiftPeople } from '../world/time-glass.js?v=36fc3022ee45';
-import { lightFire8r } from '../world/c8r-steps.js?v=36fc3022ee45';
+} from '../maps/c8r-flags.js?v=e280d20a9f0b';
+import { FLOOR_SPECS } from '../maps/c8r-wings.js?v=e280d20a9f0b';
+import { floorPos } from '../maps/c8r-floor.js?v=e280d20a9f0b';
+import { FIRE2_CHASE, FIRE2_CATCH } from '../maps/c8r-rows.js?v=e280d20a9f0b';
+import { HALL_POS, HALL_DOORS, CORE_POS } from '../maps/c8r-hall.js?v=e280d20a9f0b';
+import { RIFT8R, STATUES8R, HALL_ENTER8R } from '../maps/c8r-field.js?v=e280d20a9f0b';
+import { TOKINE_SPOT } from '../maps/ch6c-side.js?v=e280d20a9f0b';
+import { MAPS } from '../maps/index.js?v=e280d20a9f0b';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=e280d20a9f0b';
+import { MONSTERS } from './monsters.js?v=e280d20a9f0b';
+import { shiftPeople } from '../world/time-glass.js?v=e280d20a9f0b';
+import { lightFire8r } from '../world/c8r-steps.js?v=e280d20a9f0b';
+// 第3部の はじまりの 目標（story-c9.js の PART3_OPEN で 入れかわる。第90回 Z班）
+import { part2ClearObjective, PART3_OPEN, C9_START_TALK, C9_START_TARGETS } from './story-c9.js?v=e280d20a9f0b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -57,8 +59,9 @@ export const C8R_OBJ = {
   gather: '最後の戦い。千年前と今のみんなの力で、立ち向かおう',
   win: '時のはざまのおくで、続きを見よう',
   seal: '今のほしみの丘で、続きを見よう',
-  // 第8章 クリア・第2部 完（あとの 部が できたら、この 文は story-c8.js の OLD_C8_OBJ に のこす）
-  solitus: '第2部　完！第3部へ（続きはアップデートで！）',
+  // 第8章 クリア・第2部 完。今は「第2部　完！第3部へ（続きはアップデートで！）」（story-c9.js の PART2_END_OBJ）
+  //   第3部が できたら story-c9.js の PART3_OPEN を true に → 「ホシフル村の星祭りに行こう…」に かわり、前の 文は story-c8.js の OLD_C8_OBJ.solitus に のこる
+  solitus: part2ClearObjective(),
 };
 
 // パーティー全員で 見る イベント（ためし・しかけ・浅せは ひとりでも〈家族が 分かれて 同時に〉できる ように 入れない）
@@ -902,7 +905,7 @@ export const CH8R_OBJECTIVE_TARGETS = {
   [C8R_OBJ.gather]: [{ map: 'c8r_core', x: CORE_POS.solitus.x, y: CORE_POS.trigger.y }],
   [C8R_OBJ.win]: [{ map: 'c8r_core', x: CORE_POS.solitus.x, y: CORE_POS.trigger.y }],
   [C8R_OBJ.seal]: [{ map: 'c8r_core', x: CORE_POS.solitus.x, y: CORE_POS.trigger.y }],
-  [C8R_OBJ.solitus]: [{ map: NOW_FIELD_ID, x: STATUES8R[1].x, y: STATUES8R[1].y + 1 }],
+  [C8R_OBJ.solitus]: PART3_OPEN ? C9_START_TARGETS : [{ map: NOW_FIELD_ID, x: STATUES8R[1].x, y: STATUES8R[1].y + 1 }],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント。どれも 9字 いじょう）─────
@@ -940,7 +943,7 @@ export const CH8R_OBJECTIVE_TALK = {
     'おくへ行けば、続きが見られるそうです。', '続きを、見に行こう！'),
   [C8R_OBJ.seal]: T4('続きが見られる。時のはざまのおくへ。', 'もう少しだけ、続きがあるぞ！',
     'もう少しだけ、続きがあるそうです。', '続きを、見に行こう！'),
-  [C8R_OBJ.solitus]: T4('第2部、完。ほしみの丘の、4人の勇者の像を見に行こう。', 'やったな！第2部、クリアだ！',
+  [C8R_OBJ.solitus]: PART3_OPEN ? C9_START_TALK : T4('第2部、完。ほしみの丘の、4人の勇者の像を見に行こう。', 'やったな！第2部、クリアだ！',
     '第2部、クリアです。ほんとうに、おつかれさまでした。', 'だい2ぶ、クリアだよ！'),
 };
 

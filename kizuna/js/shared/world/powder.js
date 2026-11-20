@@ -1,9 +1,9 @@
 // 仲間の粉を 使う（メニューの 道具。world/services.js の useItem から よぶ）
 // 決まりは data/friend-powder.js。戦いの おわりで へらすのは world/battles.js
-import { ITEMS } from '../data/items.js?v=36fc3022ee45';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=36fc3022ee45';
-import { itemCount, removeItem } from '../stats.js?v=36fc3022ee45';
-import { MAPS } from '../maps/index.js?v=36fc3022ee45';
+import { ITEMS } from '../data/items.js?v=e280d20a9f0b';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=e280d20a9f0b';
+import { itemCount, removeItem } from '../stats.js?v=e280d20a9f0b';
+import { MAPS } from '../maps/index.js?v=e280d20a9f0b';
 
 export function usePowder(world, s, c, id, reply) {
   const it = ITEMS[id];

@@ -7,11 +7,11 @@
 //   ・効果は「つけた 人の、その 装備の しゅるい」に のこる（char.gearFx[もとの 装備の id] = [{ k, v }]）。
 //     きたえた +1〜 も 同じ しゅるい。きたえると 少し 強く なる（+3 ごとに 値が 1 上がった ぶん）
 //   ・道具として 使える 効果は イオだけ（何回でも。MP は いらない）
-import { ITEMS } from './items.js?v=36fc3022ee45';
-import { isShopGear, starsFor } from './items-rare.js?v=36fc3022ee45';
+import { ITEMS } from './items.js?v=e280d20a9f0b';
+import { isShopGear, starsFor } from './items-rare.js?v=e280d20a9f0b';
 // 第88回: 作品の 品の 生まれつきの 効果・そろいの 効果・「使う」（shared/gear-r88.js）
-import { r88FxList, wearSetPower, r88Uses } from '../gear-r88.js?v=36fc3022ee45';
-import { pkWearAdd } from '../gear-r88-pokemon.js?v=36fc3022ee45'; // 第88回 G16班: しんかのきせき
+import { r88FxList, wearSetPower, r88Uses } from '../gear-r88.js?v=e280d20a9f0b';
+import { pkWearAdd } from '../gear-r88-pokemon.js?v=e280d20a9f0b'; // 第88回 G16班: しんかのきせき
 
 export const STAR = 'star_shard';
 // 使う 素材（武器・防具〈よろい・たて・頭〉）

@@ -1,7 +1,7 @@
 // 第2部 第6章 Step 1・2（B）「千年前のミドリナ地方」「時のほこら」「時のいせき」の 魔物と、サンドクロック・ギアドンの え（shared/data/monsters-past.js）
 // render/monsters.js が addPastArt を よぶ。かきかたは ch5-phantom-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // ボスは 台本の showMon でも 大きく 見える 大きさ（サンドクロック 100×112・ギアドン 124×112。ソリトゥスは 176×124）
-import { fit, spark } from './ch3-draw.js?v=36fc3022ee45';
+import { fit, spark } from './ch3-draw.js?v=e280d20a9f0b';
 
 // ───── こけむしツノジカ ─────
 const DEER = {

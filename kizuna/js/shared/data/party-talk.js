@@ -5,15 +5,16 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=36fc3022ee45';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=36fc3022ee45';
-import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=36fc3022ee45';
-import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=36fc3022ee45';
-import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=36fc3022ee45';
-import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=36fc3022ee45';
-import { CH7_OBJECTIVE_TALK } from './story-c7.js?v=36fc3022ee45';
-import { CH8_OBJECTIVE_TALK } from './story-c8.js?v=36fc3022ee45';
-import { nextPartyHint } from './secret-hints.js?v=36fc3022ee45';
+import { MONSTERS } from './monsters.js?v=e280d20a9f0b';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=e280d20a9f0b';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=e280d20a9f0b';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=e280d20a9f0b';
+import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=e280d20a9f0b';
+import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=e280d20a9f0b';
+import { CH7_OBJECTIVE_TALK } from './story-c7.js?v=e280d20a9f0b';
+import { CH8_OBJECTIVE_TALK } from './story-c8.js?v=e280d20a9f0b';
+import { CH9_OBJECTIVE_TALK } from './story-c9.js?v=e280d20a9f0b';
+import { nextPartyHint } from './secret-hints.js?v=e280d20a9f0b';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
@@ -193,6 +194,8 @@ Object.assign(OBJECTIVE_TALK, CH6_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH7_OBJECTIVE_TALK);
 // 第8章（story-c8.js）
 Object.assign(OBJECTIVE_TALK, CH8_OBJECTIVE_TALK);
+// 第3部 第1章（story-c9.js。今は から）
+Object.assign(OBJECTIVE_TALK, CH9_OBJECTIVE_TALK);
 
 // 目標の 文の 章（第3〜5章の 表に あれば その章。ほかは 第2章まで あつかい）
 export function objectiveChapter(objective) {
@@ -200,6 +203,8 @@ export function objectiveChapter(objective) {
   // 第6章の 目標は、かくし要素の ヒントでは 第5章（第1部の さいご）と おなじ あつかい
   if (CH5_OBJECTIVE_TALK[o] || CH6_OBJECTIVE_TALK[o] || CH7_OBJECTIVE_TALK[o]) return 5;
   if (CH8_OBJECTIVE_TALK[o]) return 5;
+  // 第3部も 第5章 あつかい（かくし要素の ヒントは ぜんぶ 出して よい だん）
+  if (CH9_OBJECTIVE_TALK[o]) return 5;
   if (CH4_OBJECTIVE_TALK[o]) return 4;
   if (CH3_OBJECTIVE_TALK[o] || o === C3_LEAD_OBJECTIVE) return 3;
   return 2;
