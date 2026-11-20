@@ -1,9 +1,9 @@
 // 第90回 Z班: 第3部の 下じき（docs/plan-part3.md の 9。物語は まだ 進まない）
 // 名前の 約束（フラグの 順・id）・第2部を クリアした セーブの 目標と しおりが 今の まま・しおりの「第3部 第1章」・
-// 第1・2部の 表示が かわって いない・ゲストの 強さが かわって いない・かりの 置き場（data/c9a-stub.js）が 本体から つながって いない
+// 第1・2部の 表示が かわって いない・ゲストの 強さが かわって いない・かりの 置き場（data/c9a-stub.js）は A・B を 合わせた 時に 消した
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -77,32 +77,33 @@ test('名前の 約束: 小さな フラグ・マップ・決まった 戦い・
 });
 
 // ───────────── 第2部を クリアした セーブ ─────────────
-test('第2部を クリアした セーブ: 目標・しおり・なおし は 今の まま（物語は 進まない）', () => {
-  assert.equal(PART3_OPEN, false, '幕が できるまでは 入れかえない');
+test('第2部を クリアした セーブ: 目標は 第3部の はじまりに（PART3_OPEN。第90回 A・B を 合わせた 時）・前の 文は なおる', () => {
+  assert.equal(PART3_OPEN, true, '第1幕が できたので 入れかえた');
   assert.equal(PART2_END_OBJ, P2_END);
-  assert.equal(C8R_OBJ.solitus, P2_END);
-  assert.ok(!('solitus' in OLD_C8_OBJ), '前の 版の 文に まだ 回さない');
+  assert.equal(C8R_OBJ.solitus, C9_OBJ.start);
+  assert.equal(OLD_C8_OBJ.solitus, P2_END, '前の 版の 文に 回した');
   const flags = flagsOf(...UPTO('c8_solitus'), 'c8r_arrive');
-  assert.equal(objectiveFromFlags({ flags }), P2_END);
-  assert.ok(KNOWN_OBJECTIVES.has(P2_END));
+  assert.equal(objectiveFromFlags({ flags }), C9_OBJ.start);
+  assert.ok(KNOWN_OBJECTIVES.has(C9_OBJ.start));
+  assert.ok(!KNOWN_OBJECTIVES.has(P2_END), '「第2部　完！…」は もう 出ない');
+  // 前の 版で セーブした 人（「第2部　完！…」の まま）は 開いた 時に なおる
   const c = { flags, objective: P2_END };
-  assert.equal(repairObjective(c), false, 'なおさない');
-  assert.equal(c.objective, P2_END);
-  // しおり
+  assert.equal(repairObjective(c), true, 'なおす');
+  assert.equal(c.objective, C9_OBJ.start);
+  // しおり（まだ 星祭りに 行って いない 間は 第2部の クリアの まま）
   const st = storyPlace(c);
   assert.deepEqual(st, { part: 2, chapter: 8, act: 4, label: '第2部 第8章 第4幕', title: '千年の約束', actTitle: '時のはざま', cleared: true });
   const nx = storyNext(c);
-  assert.equal(nx.objective, P2_END);
-  assert.equal(nx.end, true, '「続きはアップデートで！」の あつかい');
-  assert.ok(nx.where, '行き先（4人の 勇者の 像）');
-  // 仲間の ひとこと・行き先は 第2部の 物の まま
-  assert.ok(/第2部/.test(OBJECTIVE_TALK[P2_END].bold));
-  assert.notDeepEqual(OBJECTIVE_TARGETS[P2_END], C9_START_TARGETS);
-  // 第3部の 目標の 文の 表は 第1幕の 物（第90回 A班。c9_festival から）。第2部 クリアの 文は PART3_OPEN まで かわらない
+  assert.equal(nx.objective, C9_OBJ.start);
+  assert.equal(nx.end, false, '「続きはアップデートで！」では ない');
+  assert.equal(nx.where, 'ホシフル村');
+  // 仲間の ひとこと・行き先は 第3部の はじまりの 物
+  assert.deepEqual(OBJECTIVE_TALK[C9_OBJ.start], C9_START_TALK);
+  assert.deepEqual(OBJECTIVE_TARGETS[C9_OBJ.start], C9_START_TARGETS);
+  // 第3部の 目標の 文の 表は 第1幕の 物（第90回 A班。c9_festival から）
   assert.ok(CH9_PROGRESS.length > 0 && CH9_PROGRESS[0][0] === 'c9_festival');
   assert.equal(Object.keys(CH9_OBJECTIVE_TARGETS).length, Object.keys(CH9_OBJECTIVE_TALK).length);
   for (const [, t] of CH9_PROGRESS) assert.ok(KNOWN_OBJECTIVES.has(t) && CH9_OBJECTIVE_TARGETS[t] && CH9_OBJECTIVE_TALK[t], t);
-  assert.ok(!KNOWN_OBJECTIVES.has(C9_OBJ.start), '新しい 目標の 文は まだ 出ない');
 });
 
 test('目標の 文の 入れかえの しくみ（PART3_OPEN を true に した 時の 文）', () => {
@@ -203,17 +204,30 @@ function walk(dir, out = []) {
   return out;
 }
 
-test('かりの 置き場（data/c9a-stub.js）は ゲームの 本体から つながって いない・字の きまりは 守る', () => {
-  const files = [...walk(join(ROOT, 'public')), ...walk(join(ROOT, 'server'))];
-  const users = files.filter((p) => /c9a-stub/.test(readFileSync(p, 'utf8')) && !p.endsWith('c9a-stub.js')).map((p) => relative(ROOT, p));
-  assert.deepEqual(users, [], 'public・server の どこも かりの 置き場を 読まない');
-  // 本体を 読みこんだ 今、かりの 戦い・マップは 入って いない（決まった 戦いは B班の 本物 … data/encounters-c9a.js）
-  assert.equal(FIXED_ENCOUNTERS.c9a_trio?.group?.[0]?.[0], C9A_BOSS_MON.trio, 'かりの 戦いは 入って いない（3人組は B班の 本物）');
-  assert.equal(FIXED_ENCOUNTERS.c9a_trial?.group?.[0]?.[0], C9A_BOSS_MON.trial, 'かりの 戦いは 入って いない（ためしは B班の 本物）');
+test('かりの 置き場（data/c9a-stub.js）は 消した（A・B を 合わせた）・決まった 戦いは B班の 本物・字の きまりは 守る', () => {
+  assert.ok(!existsSync(join(ROOT, 'public/js/shared/data/c9a-stub.js')), 'かりの 置き場は ない');
+  const files = [...walk(join(ROOT, 'public')), ...walk(join(ROOT, 'server')), ...walk(join(ROOT, 'tools')), ...walk(join(ROOT, 'test'))];
+  const users = files.filter((p) => /c9a-stub\.js'/.test(readFileSync(p, 'utf8')) && !p.endsWith('ch9-base.test.js')).map((p) => relative(ROOT, p));
+  assert.deepEqual(users, [], 'どこも かりの 置き場を 読まない');
+  // 決まった 戦いは B班の 本物（data/encounters-c9a.js）
+  assert.equal(FIXED_ENCOUNTERS.c9a_trio?.group?.[0]?.[0], C9A_BOSS_MON.trio, '3人組は B班の 本物');
+  assert.equal(FIXED_ENCOUNTERS.c9a_trial?.group?.[0]?.[0], C9A_BOSS_MON.trial, 'ためしは B班の 本物');
+  for (const id of Object.values(C9A_BATTLE)) {
+    const fx = FIXED_ENCOUNTERS[id];
+    assert.ok(fx && fx.boss && fx.canFlee === false, id);
+    for (const [sp] of fx.group) assert.ok(MONSTERS[sp], `${id}: ${sp}`);
+  }
   assert.ok(!('c9a_stub_room' in MAPS) && !SCRIPTS.c9a_stub_boss);
+  // 台本は ['showMon', ボスの 魔物] → ['battle', 決まった 戦い]
+  const ctx = { flag: (k) => ['c9_child', 'c9_b3'].includes(k), has: () => false, count: () => 0, name: 'ソラ' };
+  for (const [sc, k] of [['c9a_child_event', 'trio'], ['c9a_trial', 'trial']]) {
+    const steps = JSON.stringify(SCRIPTS[sc](ctx));
+    assert.ok(steps.includes(`["showMon","${C9A_BOSS_MON[k]}"]`) && steps.includes(`["battle","${C9A_BATTLE[k]}"]`), sc);
+  }
   // 字の きまり（kanji-check.mjs の gameFiles に 入って いる）
-  const mine = ['public/js/shared/data/story-c9.js', 'public/js/shared/maps/c9a-flags.js', 'public/js/shared/data/c9a-stub.js', 'public/js/shared/world/shiori.js', 'public/js/shared/data/story-c8r.js'];
+  const mine = ['public/js/shared/data/story-c9.js', 'public/js/shared/maps/c9a-flags.js', 'public/js/shared/world/shiori.js', 'public/js/shared/data/story-c8r.js'];
   const gf = gameFiles();
+  assert.ok(!gf.some((x) => /c9a-stub/.test(x)));
   for (const f of mine) {
     const g = gf.find((x) => x.replace(/\\/g, '/').endsWith(f));
     assert.ok(g, `${f} は gameFiles に ある`);
@@ -222,75 +236,6 @@ test('かりの 置き場（data/c9a-stub.js）は ゲームの 本体から つ
   }
 });
 
-test('かりの 置き場: 決まった 戦い c9a_trio・c9a_trial と 部屋・台本（showMon → battle）が 動く', async () => {
-  const stub = await import('../public/js/shared/data/c9a-stub.js');
-  assert.equal(stub.C9A_STUB, true);
-  for (const id of Object.values(C9A_BATTLE)) {
-    const fx = FIXED_ENCOUNTERS[id];
-    assert.ok(fx && fx.boss && fx.canFlee === false, id);
-    for (const [sp] of fx.group) assert.ok(MONSTERS[sp], `${id}: ${sp}`);
-  }
-  assert.deepEqual({ id: stub.C9A_STUB_SPICA.id, name: stub.C9A_STUB_SPICA.name }, { id: 'spica', name: 'スピカ' });
-  stub.installC9aStub({ maps: MAPS, scripts: SCRIPTS });
-  const room = MAPS[stub.C9A_STUB_ROOM_ID];
-  assert.ok(room && room.npcById.c9a_stub_boss);
-  const ctx = (f) => ({ flag: (k) => !!f[k], has: () => false, count: () => 0, name: 'ソラ' });
-  const s1 = SCRIPTS.c9a_stub_boss(ctx({}));
-  assert.deepEqual(s1.filter((s) => s[0] === 'showMon' || s[0] === 'battle').map((s) => s[0]), ['showMon', 'battle']);
-  assert.ok(s1.some((s) => s[0] === 'battle' && s[1] === 'c9a_trio'));
-  assert.ok(SCRIPTS.c9a_stub_boss(ctx({ c9_trio: true })).some((s) => s[0] === 'battle' && s[1] === 'c9a_trial'));
-
-  // 本当に 世界で: 部屋で 話しかけて 戦って 勝つと 先へ 進む
-  const world = new GameWorld({ offline: true, rng: makeRng(9090), rateLimit: false });
-  const bot = new Bot(world, 'ソラ');
-  await bot.login();
-  await bot.createAndPlay('warrior');
-  await bot.settle();
-  const c = world.data.characters[bot.char.id];
-  for (const f of UPTO('c8_solitus')) c.flags[f] = true;
-  c.objective = objectiveFromFlags(c);
-  bot.s.repelUntil = 1e15;
-  const S = stub.C9A_STUB_ROOM_POS.start;
-  world.placeSession(bot.s, stub.C9A_STUB_ROOM_ID, S.x + 0.5, S.y + 0.5, 'up', true);
-  const fought = [];
-  const play = async () => {
-    for (let i = 0; i < 20000; i++) {
-      for (const c2 of world.battles.values()) {
-        if (c2.battle.over || c2.battle.pendingEnd || c2.done) continue;
-        c2.done = true;
-        fought.push(c2.opts.fixed);
-        for (let k = 0; k < 20; k++) {
-          const alive = c2.battle.enemies.filter((e) => e.alive);
-          if (!alive.length) break;
-          for (const e of alive) c2.battle.kill(e);
-        }
-        c2.battle.checkEnd();
-      }
-      bot.flushQueue();
-      await tickN(world, 1);
-      bot.flushQueue();
-      if (!bot.s.busy && !bot.queue.length && !bot.inBattle && !world.battles.size) {
-        await tickN(world, 2);
-        bot.flushQueue();
-        if (!bot.s.busy && !bot.queue.length && !bot.inBattle && !world.battles.size) return;
-      }
-    }
-  };
-  await play();
-  // ボスの 前に 立って 話しかける
-  world.placeSession(bot.s, stub.C9A_STUB_ROOM_ID, 4.5, 2.5, 'up', true);
-  await play();
-  bot.send({ t: 'interact', kind: 'npc', id: 'c9a_stub_boss' });
-  await play();
-  assert.ok(c.flags.c9_trio, '中ボス（かり）に 勝って c9_trio');
-  bot.send({ t: 'interact', kind: 'npc', id: 'c9a_stub_boss' });
-  await play();
-  assert.ok(c.flags.c9_trial, 'ためし（かり）に 勝って c9_trial');
-  assert.deepEqual(fought, ['c9a_trio', 'c9a_trial']);
-  // 一本の 線の 前の フラグも 立つ（setStoryFlag）。しおりは 第3部 第1章
-  assert.ok(c.flags.c9_festival && c.flags.c9_b3 && !c.flags.c9_fork);
-  assert.equal(storyPlace(c).label, '第3部 第1章 第1幕');
-});
 
 test('しらべる 道具の わく（tools/sim-ch9.mjs）: 3つの やり方で、本物の 戦いが 動く（B班の 戦い）', async () => {
   const sim = await import('../tools/sim-ch9.mjs');

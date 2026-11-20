@@ -2,10 +2,9 @@
 // c8_solitus → ホシフル村（1年ぶりの 朝・c9_festival）→ したく 3つ（どれから でも）→ 星祭りの 夜（c9_night・c9_starfall）
 // → 光る 道しるべ → 星ふるえの森 → ながれ星のくぼ地（c9_child・3人組 c9a_trio）→ 守り星の石の 階段（c9_stairs）
 // → 星の石の地下道 4階（光の輪 c9_b1〜c9_b3）→ ともしびの ためし（c9a_trial）→ 星の音さ（c9_fork）→ くぼ地の 職人（c9_act1）
-// 戦いの 中みは B班。ここでは かりの 戦い（data/c9a-stub.js）を テストの 中で 勝たせる
+// 戦いの 中みは B班（data/encounters-c9a.js・monsters-c9a.js・items-c9a.js）。ここでは 戦いを テストの 中で 勝たせる（本当の 戦いは test/ch9-act1.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import '../public/js/shared/data/c9a-stub.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, isBlocked, canStand, condOk, effectiveTile } from '../public/js/shared/maps/index.js';
@@ -14,7 +13,7 @@ import {
   C9A, C9A_LINE, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_PREP_ASK, C9A_SECRETS, C9A_MAP, C9A_MAP_IDS, C9A_BATTLE, C9A_ROPE, C9A_FORK_RING,
   C9A_SHARD_N, c9aShard, c9aSeen, C9A_FOREST_IN, C9A_TABLE, C9A_CHEST_IDS, STAR_FORK, SPICA, SPICA_NAME, C9A_TILE_FIRST, C9A_TILE_LAST,
 } from '../public/js/shared/maps/c9a-flags.js';
-import { CH9A_MAPS, C9A_CAVE_IDS, C9A_TABLE_FALLBACK, c9aTableOf } from '../public/js/shared/maps/c9a.js';
+import { CH9A_MAPS, C9A_CAVE_IDS } from '../public/js/shared/maps/c9a.js';
 import { cavePos, caveEntry, STAIRS9A, WELL9A } from '../public/js/shared/maps/c9a-cave.js';
 import { FOREST9A, FOREST_POS9A, SIGNPOST9A } from '../public/js/shared/maps/c9a-forest.js';
 import { LAMPS9A, FLOWERS9A, KIDS9A } from '../public/js/shared/maps/c9a-field.js';
@@ -30,6 +29,7 @@ import { OBJECTIVE_TALK } from '../public/js/shared/data/party-talk.js';
 import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
+import { c9aChest, C9A_TREASURE } from '../public/js/shared/data/items-c9a.js';
 import { BOSS_RETRY, BOSS_HINT_WHO, BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
 import { retrySpot } from '../public/js/shared/world/boss-hints.js';
 import { stairsPair, warpLanding } from '../public/js/shared/world/stairs.js';
@@ -39,137 +39,11 @@ import { gainExp, expForLevel } from '../public/js/shared/stats.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { Bot, tickN } from './helpers.js';
 import { solveCave, downGoal, rectGoal } from './c9a-solver.js';
+import {
+  UPTO, flagsOf, said, D4, addPlayer, setup, play, place, stepOn, examine, touch, talkTo, walkTo, pathTo,
+} from './c9a-play.js';
 
-const UPTO = (f) => STORY_STEPS.slice(0, STORY_STEPS.indexOf(f) + 1);
-const flagsOf = (...l) => Object.fromEntries(l.map((k) => [k, true]));
-const said = (bot, text, from = 0) => bot.msgs.slice(from).some((m) => m.t === 'script' && JSON.stringify(m.steps).includes(text));
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => false, count: () => 0, ...extra });
-const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-
-function boost(c, level) {
-  gainExp(c, expForLevel(level) - c.exp);
-  c.jobs[c.job] = { lv: 10, b: 999 };
-}
-async function addPlayer(world, name, upto, extra = [], job = 'warrior') {
-  const bot = new Bot(world, name);
-  await bot.login();
-  await bot.createAndPlay(job);
-  await bot.settle();
-  const c = world.data.characters[bot.char.id];
-  for (const f of UPTO(upto)) c.flags[f] = true;
-  for (const f of extra) c.flags[f] = true;
-  c.guests = [];
-  c.objective = objectiveFromFlags(c);
-  boost(c, 96);
-  world.sendSelf(bot.s);
-  bot.s.repelUntil = 1e15;
-  return { bot, c };
-}
-async function setup(seed, upto = 'c8_solitus', extra = [], job = 'warrior') {
-  const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false });
-  const { bot, c } = await addPlayer(world, 'ソラ', upto, extra, job);
-  return { world, bot, c };
-}
-function finish(ctx2, lose) {
-  const b = ctx2.battle;
-  if (lose) {
-    for (const a of b.allies) if (a.alive) b.kill(a);
-  } else {
-    for (let k = 0; k < 20; k++) {
-      const alive = b.enemies.filter((e) => e.alive);
-      if (!alive.length) break;
-      for (const e of alive) b.kill(e);
-    }
-  }
-  b.checkEnd();
-}
-async function play(bot, { lose = () => false, fought = null, max = 40000, bots = [] } = {}) {
-  const world = bot.world;
-  const all = [bot, ...bots];
-  for (let i = 0; i < max; i++) {
-    for (const c2 of world.battles.values()) {
-      if (c2.battle.over || c2.battle.pendingEnd || c2.done) continue;
-      c2.done = true;
-      if (fought) fought.push(c2.opts.fixed || c2.opts.symbolId || 'field');
-      finish(c2, lose(c2.opts.fixed));
-    }
-    for (const b of all) b.flushQueue();
-    await tickN(world, 1);
-    for (const b of all) b.flushQueue();
-    const idle = (b) => !b.s.busy && !b.queue.length && !b.inBattle;
-    if (all.every(idle) && !world.battles.size) {
-      await tickN(world, 2);
-      for (const b of all) b.flushQueue();
-      if (all.every(idle) && !world.battles.size) return true;
-    }
-  }
-  return false;
-}
-const place = async (bot, map, x, y, dir = 'up') => {
-  bot.world.placeSession(bot.s, map, x + 0.5, y + 0.5, dir, true);
-  await play(bot);
-};
-async function stepOn(bot, x, y, opts) {
-  bot.x = x + 0.5;
-  bot.y = y + 0.5;
-  bot.send({ t: 'move', x: bot.x, y: bot.y, dir: 'up', moving: true, seq: bot.seq });
-  await tickN(bot.world, 1);
-  return play(bot, opts);
-}
-const talk = (bot, id, opts) => { bot.send({ t: 'interact', kind: 'npc', id }); return play(bot, opts); };
-const examine = (bot, x, y, opts) => { bot.send({ t: 'interact', kind: 'tile', x, y }); return play(bot, opts); };
-// となりに 立って しらべて えらぶ
-async function touch(bot, p, choice = 0, opts) {
-  const map = MAPS[bot.s.map];
-  const has = bot.world.hasFlagFn(bot.s);
-  const side = D4.map(([dx, dy]) => [p.x + dx, p.y + dy]).find(([x, y]) => canStand(map, x + 0.5, y + 0.5, has));
-  assert.ok(side, `${map.id} ${p.x},${p.y} の となりに 立てる`);
-  await place(bot, bot.s.map, side[0], side[1]);
-  bot.choice = choice;
-  await examine(bot, p.x, p.y, opts);
-  bot.choice = 0;
-}
-// 人の となりに 立って 話す
-async function talkTo(bot, mapId, id, choice = 0, opts) {
-  const n = MAPS[mapId].npcById[id];
-  assert.ok(n, id);
-  const has = bot.world.hasFlagFn(bot.s);
-  const side = D4.map(([dx, dy]) => [Math.floor(n.x) + dx, Math.floor(n.y) + dy]).find(([x, y]) => canStand(MAPS[mapId], x + 0.5, y + 0.5, has));
-  assert.ok(side, `${id} の となり`);
-  await place(bot, mapId, side[0], side[1]);
-  bot.choice = choice;
-  await talk(bot, id, opts);
-  bot.choice = 0;
-}
-// 今の 場所から (tx, ty) まで 1歩ずつ 歩く（かべ・宝箱・見えない 穴・出入り口は よける。行き先が 出入り口なら ふむ）
-function pathTo(map, sx, sy, tx, ty, has, avoidHoles = true) {
-  const holes = new Set(avoidHoles ? map.c9a?.holes || [] : []);
-  const prev = new Map([[sy * map.w + sx, null]]);
-  const q = [[sx, sy]];
-  for (let h = 0; h < q.length; h++) {
-    const [x, y] = q[h];
-    if (x === tx && y === ty) {
-      const out = [];
-      for (let k = y * map.w + x; k !== sy * map.w + sx; k = prev.get(k)) out.unshift([k % map.w, Math.floor(k / map.w)]);
-      return out;
-    }
-    for (const [dx, dy] of D4) {
-      const nx = x + dx, ny = y + dy, k = ny * map.w + nx;
-      if (nx < 0 || ny < 0 || nx >= map.w || ny >= map.h || prev.has(k)) continue;
-      if (isBlocked(map, nx, ny, has) || map.chestAt.has(k) || holes.has(k)) continue;
-      if (map.warpAt.has(k) && !(nx === tx && ny === ty)) continue;
-      prev.set(k, y * map.w + x);
-      q.push([nx, ny]);
-    }
-  }
-  return null;
-}
-async function walkTo(bot, tx, ty, opts) {
-  const map = MAPS[bot.s.map];
-  const path = pathTo(map, Math.floor(bot.s.x), Math.floor(bot.s.y), tx, ty, bot.world.hasFlagFn(bot.s));
-  assert.ok(path, `${map.id}: ${tx},${ty} まで 歩ける`);
-  for (const [x, y] of path) await stepOn(bot, x, y, opts);
-}
 
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束: マップ 6まい・タイル 407〜・宝箱の id・決まった 戦い・台本・やり直しの 行き先・だいじな 物', () => {
@@ -196,7 +70,7 @@ test('名前の 約束: マップ 6まい・タイル 407〜・宝箱の id・�
   for (const id of [...C9A_CHEST_IDS.forest, ...['b1', 'b2', 'b3', 'b4'].flatMap((k) => C9A_CHEST_IDS[k]), ...C9A_CHEST_IDS.secret, C9A_CHEST_IDS.fork]) assert.ok(chestIds.has(id), id);
   assert.deepEqual(C9A_CHEST_IDS.forest, ['c9a_f1', 'c9a_f2']);
   assert.deepEqual(C9A_CHEST_IDS.secret, ['c9a_s1', 'c9a_s2']);
-  // 決まった 戦い（B班。今は かり）・やり直しの 行き先・ヒントを 言う 人
+  // 決まった 戦い（B班）・やり直しの 行き先・ヒントを 言う 人
   for (const id of Object.values(C9A_BATTLE)) assert.ok(FIXED_ENCOUNTERS[id], id);
   assert.equal(BOSS_RETRY.c9a_trio, 'c9a_child_event');
   assert.equal(BOSS_RETRY.c9a_trial, 'c9a_trial');
@@ -212,15 +86,33 @@ test('名前の 約束: マップ 6まい・タイル 407〜・宝箱の id・�
   }
   for (const id of CH9A_STORY_SCRIPTS) assert.ok(STORY_SCRIPTS.has(id), id);
   for (const id of ['c9a_lamp1', 'c9a_flower1', 'c9a_kid1', 'c9a_secret1', 'c9a_board', 'c9a_shard1', 'c9a_well']) assert.ok(SCRIPTS[id] && !STORY_SCRIPTS.has(id), `${id} は ひとりでも`);
-  // 魔物の 出る 表（B班の 名前。ない 間は 第8章の 表を かりに）
+  // 魔物の 出る 表（B班の 名前。森 t9a_forest・地下道 t9a_b1〜t9a_b4。かりの 表は もう ない）
+  assert.deepEqual(C9A_TABLE, { forest: 't9a_forest', b1: 't9a_b1', b2: 't9a_b2', b3: 't9a_b3', b4: 't9a_b4' });
+  for (const z of Object.values(C9A_TABLE)) assert.ok(ENCOUNTER_TABLES[z]?.length, z);
   assert.equal(MAPS.c9a_forest.spawnCounts[C9A_TABLE.forest] > 0, true);
-  for (const z of Object.values(C9A_TABLE)) assert.ok(ENCOUNTER_TABLES[c9aTableOf(z)], z);
-  for (const z of Object.values(C9A_TABLE)) if (!ENCOUNTER_TABLES[z]) assert.equal(c9aTableOf(z), C9A_TABLE_FALLBACK[z]);
-  assert.deepEqual(MAPS.c9a_b4.spawnCounts, {}, '地下4階（広間）は 魔物が 出ない');
+  for (const n of [1, 2, 3, 4]) {
+    const m = MAPS[`c9a_b${n}`];
+    assert.deepEqual(Object.keys(m.spawnCounts), [C9A_TABLE[`b${n}`]], `地下${n}階`);
+    assert.ok(!m.tableFor, 'かりの 表の 入れかえは ない');
+  }
+  assert.equal(MAPS.c9a_forest.tableFor, undefined);
+  // 地下4階の ためしの 間（とびらの 先）は 魔物が 出ない
+  const TD = cavePos(4).trial;
+  assert.equal(MAPS.c9a_b4.zoneAt(TD.x, TD.y - 1), 'safe:rest');
+  // くらやみ虫（darkOnly）は 地下3・4階の 表に いる
+  for (const z of ['t9a_b3', 't9a_b4']) assert.ok(ENCOUNTER_TABLES[z].some((e) => e.group.some(([sp]) => MONSTERS[sp]?.darkOnly)), z);
   assert.deepEqual(MAPS.c9a_crater.spawnCounts, {});
+  // 宝箱の 中みは B班の 表（13こ。かりの「星のかけら 3こ」では ない）
+  const all = C9A_MAP_IDS.flatMap((id) => MAPS[id].chests.filter((c) => /^c9a_/.test(c.id)));
+  assert.equal(all.length, 13);
+  for (const c of all) {
+    assert.deepEqual({ item: c.item, n: c.n }, c9aChest(c.id), c.id);
+    assert.ok(ITEMS[c.item], `${c.id}: ${c.item}`);
+  }
+  assert.deepEqual(all.map((c) => c.id).sort(), Object.keys(C9A_TREASURE).sort());
   // 一本の 線
   assert.deepEqual(C9A_LINE.slice(-1), ['c9_act1']);
-  assert.equal(PART3_OPEN, false, 'PART3_OPEN は メインが 合わせる 時に 入れる');
+  assert.equal(PART3_OPEN, true, '第1幕を つないだ（第2部 クリアの 目標が 星祭りに）');
 });
 
 // ───────────── 第1章を 遊んで いる 人の 世界地図 ─────────────
@@ -650,10 +542,9 @@ test('光の輪（サーバー）: 家族で 同じ 明かり・こけが 消え
 test('くらやみ虫（darkOnly）: 光って いる マスには 入らない・出ない・光ると 消える', async () => {
   const world = new GameWorld({ offline: true, rng: makeRng(9303), rateLimit: false });
   const { bot } = await addPlayer(world, 'ソラ', 'c9_b2');
-  const sp = Object.keys(MONSTERS).find((k) => MONSTERS[k].darkOnly) || 'pururin';
-  const was = MONSTERS[sp].darkOnly;
-  MONSTERS[sp].darkOnly = true; // B班の くらやみ虫が 入るまでの かり（今 ある 魔物に しるしを つけて ためす）
-  try {
+  const sp = 'c9a_yamimushi'; // B班の くらやみ虫
+  assert.equal(MONSTERS[sp]?.darkOnly, true);
+  {
     const m = MAPS.c9a_b3;
     const S = cavePos(3).sources[0];
     assert.ok(c9aLitAt(world, 'c9a_b3', S.x, S.y - 1), 'みなもとの まわりは 光って いる');
@@ -671,12 +562,10 @@ test('くらやみ虫（darkOnly）: 光って いる マスには 入らない�
     // 光の 中に いた 虫は 消える・光の 中には 出ない
     const { mapState, moveSymbols } = await import('../public/js/shared/world/monsters.js');
     const ms = mapState(world, 'c9a_b3');
-    ms.symbols.set('bug1', { id: 'bug1', sp, x: 11.5, y: 8.5, hx: 11.5, hy: 8.5, vx: 0, vy: 0, t: 0, state: 'wander', busy: false, stun: 0, speed: 1, aggro: true, level: 97, zone: C9A_TABLE.deep, group: [sp] });
-    ms.symbols.set('bug2', { id: 'bug2', sp, x: 2.5, y: 6.5, hx: 2.5, hy: 6.5, vx: 0, vy: 0, t: 0, state: 'wander', busy: false, stun: 0, speed: 1, aggro: true, level: 97, zone: C9A_TABLE.deep, group: [sp] });
+    ms.symbols.set('bug1', { id: 'bug1', sp, x: 11.5, y: 8.5, hx: 11.5, hy: 8.5, vx: 0, vy: 0, t: 0, state: 'wander', busy: false, stun: 0, speed: 1, aggro: true, level: 97, zone: C9A_TABLE.b3, group: [sp] });
+    ms.symbols.set('bug2', { id: 'bug2', sp, x: 2.5, y: 6.5, hx: 2.5, hy: 6.5, vx: 0, vy: 0, t: 0, state: 'wander', busy: false, stun: 0, speed: 1, aggro: true, level: 97, zone: C9A_TABLE.b3, group: [sp] });
     moveSymbols(world, ms, 50, []);
     assert.ok(!ms.symbols.has('bug1') && ms.symbols.has('bug2'));
-  } finally {
-    MONSTERS[sp].darkOnly = was;
   }
 });
 

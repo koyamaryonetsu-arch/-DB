@@ -115,7 +115,7 @@ function distSeg(px, py, ax, ay, bx, by) {
 
 // ───── ながれ星のくぼ地 ─────
 const CRATER_LEGEND = {
-  T: T.TREE, P: T.PINE, '.': T.FOREST_FLOOR, ',': T.FLOWERS, r: T.ROCK, c: T.C9A_CRATER, '*': T.C9A_STARROCK, n: T.FOREST_FLOOR, $: T.C9A_CRATER, E: T.FOREST_FLOOR,
+  T: T.TREE, P: T.PINE, '.': T.FOREST_FLOOR, ',': T.FLOWERS, r: T.C9A_RIM, c: T.C9A_CRATER, '*': T.C9A_STARROCK, n: T.FOREST_FLOOR, $: T.C9A_CRATER, E: T.FOREST_FLOOR,
 };
 // 職人（幕の あと。テントの 前）
 export const CRAFTS9A = [
@@ -161,6 +161,12 @@ export function buildC9aCrater() {
   // 星の音さの れんしゅう: かくれた 宝箱（鳴らすと 光る）
   const H = cells('$')[0];
   m.chests.push({ id: C9A_CHEST_IDS.fork, x: H.x, y: H.y, show: { all: [C9A_FORK_RING] }, ...chestItem9a.get(C9A_CHEST_IDS.fork) });
+  // 幕の あと: テントの よこに 火の ともった ちょうちん（小さな 町の はじまり）
+  cells('n').forEach((p) => m.gates.push({ x: p.x + 1, y: p.y, closed: T.FOREST_FLOOR, open: T.C9A_LANTERN_ON, flag: C9A.act1 }));
+  // 絵の ための ようす（client/c9a-light.js の くぼ地の 絵）: まん中が しずんだ くぼ地・ちらばった 光る かけら・星の子の まわりの 光
+  const glints = [];
+  rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === 'c' && ((x * 7 + y * 13) % 9 === 0)) glints.push([x, y]); }));
+  m.c9aCrater = { cx: P.rock.x + 0.5, cy: P.rock.y + 0.6, r: 7.5, glints, rock: P.rock };
   m.gateAt = new Map(m.gates.map((g) => [g.y * m.w + g.x, g]));
   return m;
 }

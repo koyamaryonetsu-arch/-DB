@@ -6,10 +6,11 @@
 // ・その 階の 水しょうが 全部 光ると とびらが 開く（フラグ c9_b1〜c9_b3 を 世界の もちぬし〈パーティーなら リーダー〉に。開いた まま）
 // ・見えない 穴に 落ちると その 階の 入口へ（ダメージ なし）
 // ・くらやみ虫（B班の 魔物。MONSTERS[種].darkOnly）は 光って いる マスに 入らない（map.symBlock。world/monsters.js から）
+// ・こけ玉（B班の 魔物。MONSTERS[種].mossGlow）に 勝つと、たおした 所の まわりの こけが 光る（world/battles.js から）
 // ・星の子の フィールドの 連れ（戦いの わくには 入らない）: c9_child の あと、リーダーの うしろを 歩く（world.js の followerLooks）
 import { MAPS } from '../maps/index.js';
 import { MONSTERS } from '../data/monsters.js';
-import { newLight, stepLight, doorOpen, packLit, litCells } from '../maps/c9a-light.js';
+import { newLight, stepLight, glowMoss, doorOpen, packLit, litCells } from '../maps/c9a-light.js';
 import { C9A, SPICA, SPICA_NAME } from '../maps/c9a-flags.js';
 import { C9A_CAVE_IDS } from '../maps/c9a-cave.js';
 import { partyOf } from './party.js';
@@ -80,6 +81,17 @@ export function stepC9a(world, s, tx, ty) {
     return true;
   }
   return false;
+}
+
+// こけ玉（MONSTERS[種].mossGlow）に 勝った: たおした 所の まわりの こけが 光る（world/battles.js の 戦いの あと）
+export function c9aMossWin(world, s, mapId, sym) {
+  const map = MAPS[mapId];
+  const info = map?.c9a;
+  if (!info || !s || !(sym?.group || [sym?.sp]).some((g) => MONSTERS[Array.isArray(g) ? g[0] : g]?.mossGlow)) return false;
+  const st = lightFor(world, s, mapId);
+  const ok = glowMoss(info, st, Math.floor(sym.x), Math.floor(sym.y), s.id);
+  if (ok && map.c9aDoorFlag && !st.opened && doorOpen(info, st.lit)) openDoor(world, s, map, st);
+  return ok;
 }
 
 // snap に のせる その 人の パーティーの 光（くらい 階に いる 時だけ）。1びょうに 1回 だれも いない 階の 光を 消す

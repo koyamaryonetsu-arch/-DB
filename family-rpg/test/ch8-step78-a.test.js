@@ -228,7 +228,12 @@ test('目標: 第3幕クリアの 前の 版の 文は なおる・フラグご�
   assert.equal(of(...UPTO('c8_corridor'), CORE8R), C8R_OBJ.core);
   assert.equal(of(...UPTO('c8_gather'), WIN_SOL8R, SEAL8R), C8R_OBJ.seal);
   assert.equal(of(...UPTO('c8_solitus')), C8R_OBJ.solitus);
-  assert.ok(/アップデート/.test(C8R_OBJ.solitus) && C8R_OBJ.solitus.includes('第2部'));
+  // 第3部が できた（story-c9.js の PART3_OPEN）: 第2部 クリアの 目標は 第3部の はじまりに。前の「第2部　完！…」は 前の 版の 文（なおる）
+  assert.ok(C8R_OBJ.solitus.includes('星祭り') && !/アップデート/.test(C8R_OBJ.solitus));
+  assert.ok(/アップデート/.test(OLD_C8_OBJ.solitus) && OLD_C8_OBJ.solitus.includes('第2部'));
+  const old2 = { flags: flagsOf(...UPTO('c8_solitus')), objective: OLD_C8_OBJ.solitus };
+  assert.ok(repairObjective(old2));
+  assert.equal(old2.objective, C8R_OBJ.solitus);
   for (const [, t] of CH8R_PROGRESS) assert.ok(KNOWN_OBJECTIVES.has(t), t);
   for (const t of Object.values(C8R_OBJ)) {
     const talk = CH8_OBJECTIVE_TALK[t];

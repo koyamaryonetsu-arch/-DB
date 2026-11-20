@@ -88,6 +88,23 @@ export function stepLight(info, st, x, y, by) {
   return changed;
 }
 
+// こけ玉（B班の 魔物。mossGlow）を たおした: その まわり r マスの こけが 光る（ふんだ 時と 同じ。つながれば ずっと）
+export function glowMoss(info, st, x, y, by, r = 2) {
+  let changed = false;
+  for (let yy = y - r; yy <= y + r; yy++) for (let xx = x - r; xx <= x + r; xx++) {
+    const k = yy * info.w + xx;
+    if (xx < 0 || yy < 0 || xx >= info.w || yy >= info.h || !info.mossSet.has(k)) continue;
+    const e = st.lit.get(k);
+    if (!e) { st.lit.set(k, { left: MOSS_STEPS, by }); changed = true; } else if (e.left !== Infinity) { e.left = MOSS_STEPS; e.by = by; }
+  }
+  for (const c of connectedOf(info, st.lit)) {
+    const e = st.lit.get(c);
+    if (e.left !== Infinity) { e.left = Infinity; changed = true; }
+  }
+  if (changed) st.ver = (st.ver || 0) + 1;
+  return changed;
+}
+
 // 光の まん中と はんい（[x, y, r, しゅるい]）。みなもと・光って いる こけ・光った 水しょう・たいまつ
 //  opened … その 階の とびらが もう 開いて いる（水しょうは ずっと 光る）
 export function lightCenters(info, lit, opened = false) {

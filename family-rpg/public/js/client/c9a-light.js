@@ -5,6 +5,7 @@
 // ・見えない 穴: こけ・みなもと・水しょうの 光が とどいた 時だけ 見える
 // ・くらやみ虫（darkOnly の 魔物）: 暗い 所では 目だけが 光って 見える
 // 2D も 2.5D も 同じ 計算（shared/maps/c9a-light.js）。光の ようすは サーバーの snap の c9a（パーティーで 同じ）
+// ・ながれ星のくぼ地（明るい マップ）: まん中が しずんだ かげ・光る かけら・星の子の まわりの 光（map.c9aCrater）
 import { T } from '../shared/tiles.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { LIGHT_ME, lightCenters, litCells, unpackLit } from '../shared/maps/c9a-light.js';
@@ -178,4 +179,88 @@ export function drawC9aDark3D(field, ctx, P) {
     ctx.fillRect(Math.round(p.x - 3 * k), Math.round(p.y), 2 * k, 2 * k);
     ctx.fillRect(Math.round(p.x + k), Math.round(p.y), 2 * k, 2 * k);
   }
+}
+
+// ───── ながれ星のくぼ地（明るい マップ。map.c9aCrater）─────
+// まん中が しずんで 見える かげ・ちらばった 光る かけら・ながれ星の 石と 星の子の まわりの やさしい 光
+function craterGlowAt(field) {
+  const out = [];
+  const n = field.map.npcById?.c9a_spica_npc;
+  if (n && field.npcVisible(n)) { const s = field.npcState.get(n.id); if (s) out.push([s.x, s.y - 0.4]); }
+  for (const a of field.actors.values()) if (a.sprite === 'c9a_spica') out.push([a.x, a.y - 0.4]);
+  return out;
+}
+// 2D: ゆかの 上（人や 物より 先）
+export function drawC9aCraterFloor2D(field, camX, camY) {
+  const c = field.map.c9aCrater;
+  const ctx = field.ctx;
+  const t = field.time;
+  const px = c.cx * TS - camX, py = c.cy * TS - camY, R = c.r * TS;
+  const gr = ctx.createRadialGradient(px, py, TS * 1.2, px, py, R);
+  gr.addColorStop(0, 'rgba(8, 4, 0, 0.42)');
+  gr.addColorStop(0.7, 'rgba(8, 4, 0, 0.18)');
+  gr.addColorStop(1, 'rgba(8, 4, 0, 0)');
+  ctx.fillStyle = gr;
+  ctx.fillRect(px - R, py - R, R * 2, R * 2);
+  // 石から 外へ のびる こげた すじ
+  ctx.strokeStyle = 'rgba(16, 8, 2, 0.35)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 10; i++) {
+    const a = i * 0.63 + 0.2;
+    ctx.beginPath();
+    ctx.moveTo(px + Math.cos(a) * TS * 1.1, py + Math.sin(a) * TS * 0.9);
+    ctx.lineTo(px + Math.cos(a) * TS * (4 + (i % 3)), py + Math.sin(a) * TS * (3.2 + (i % 2)));
+    ctx.stroke();
+  }
+  // 光る かけら
+  for (const [x, y] of c.glints) {
+    const on = (Math.floor(t / 300 + x * 3 + y) % 5) !== 0;
+    const gx = Math.round(x * TS - camX + 4 + ((x * 5) % 8)), gy = Math.round(y * TS - camY + 4 + ((y * 3) % 8));
+    ctx.fillStyle = '#e0b040';
+    ctx.fillRect(gx, gy, 2, 3);
+    if (on) { ctx.fillStyle = '#fffcf0'; ctx.fillRect(gx, gy, 1, 1); }
+  }
+}
+// 2D: 人や 物の あと（光を かさねる）
+export function drawC9aCraterGlow2D(field, camX, camY) {
+  const c = field.map.c9aCrater;
+  const ctx = field.ctx;
+  const t = field.time;
+  const glow = (x, y, rad, col, a) => {
+    const gr = ctx.createRadialGradient(x, y, 1, x, y, rad);
+    gr.addColorStop(0, `rgba(${col}, ${a})`);
+    gr.addColorStop(1, `rgba(${col}, 0)`);
+    ctx.fillStyle = gr;
+    ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  };
+  ctx.globalCompositeOperation = 'lighter';
+  const pulse = 0.8 + Math.sin(t / 420) * 0.2;
+  glow((c.rock.x + 0.5) * TS - camX, (c.rock.y + 0.4) * TS - camY, TS * 1.6, '255, 220, 140', 0.28 * pulse);
+  for (const [x, y] of craterGlowAt(field)) glow(x * TS - camX, y * TS - camY, TS * 2.2, '200, 235, 255', 0.42 * pulse);
+  for (const [x, y] of c.glints) glow((x + 0.5) * TS - camX, (y + 0.5) * TS - camY, 7, '255, 230, 150', 0.35 * pulse);
+  ctx.globalCompositeOperation = 'source-over';
+}
+// 2.5D（render3d の 上に かさねる）
+export function drawC9aCrater3D(field, ctx, P) {
+  const c = field.map.c9aCrater;
+  const t = field.time;
+  const glow = (p, rad, col, a) => {
+    const gr = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, rad);
+    gr.addColorStop(0, `rgba(${col}, ${a})`);
+    gr.addColorStop(1, `rgba(${col}, 0)`);
+    ctx.fillStyle = gr;
+    ctx.fillRect(p.x - rad, p.y - rad, rad * 2, rad * 2);
+  };
+  const pulse = 0.8 + Math.sin(t / 420) * 0.2;
+  ctx.globalCompositeOperation = 'lighter';
+  { const p = P(c.rock.x + 0.5, c.rock.y + 0.5, 0.5); glow(p, p.k * 1.6, '255, 220, 140', 0.3 * pulse); }
+  for (const [x, y] of craterGlowAt(field)) { const p = P(x, y + 0.4, 0.6); glow(p, p.k * 2, '200, 235, 255', 0.42 * pulse); }
+  for (const [x, y] of c.glints) {
+    const p = P(x + 0.5, y + 0.5, -0.14);
+    const k = Math.max(1, Math.round(p.k / 16));
+    glow(p, p.k * 0.45, '255, 230, 150', 0.4 * pulse);
+    ctx.fillStyle = (Math.floor(t / 300 + x * 3 + y) % 5) ? '#fffcf0' : '#e0b040';
+    ctx.fillRect(Math.round(p.x - k), Math.round(p.y - k), 2 * k, 2 * k);
+  }
+  ctx.globalCompositeOperation = 'source-over';
 }

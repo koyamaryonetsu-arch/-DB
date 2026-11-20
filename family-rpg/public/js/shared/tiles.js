@@ -100,7 +100,7 @@ export const T = {
   // 第3部 第1章 第1幕「星ふるえの夜」（maps/c9a-*.js・render/tiles-c9a.js）。407〜426
   C9A_MOSS: 407, C9A_SOURCE: 408, C9A_CRYSTAL: 409, C9A_CRYSTAL_ON: 410, C9A_DOOR: 411, C9A_HOLE: 412, C9A_LOG: 413, C9A_SHARD: 414,
   C9A_STARROCK: 415, C9A_CRATER: 416, C9A_TENT: 417, C9A_BOARD: 418, C9A_CHALKDOOR: 419, C9A_ICEDOOR: 420, C9A_ROPE: 421,
-  C9A_TRIALDOOR: 422, C9A_PEDESTAL: 423, C9A_LANTERN: 424, C9A_LANTERN_ON: 425,
+  C9A_TRIALDOOR: 422, C9A_PEDESTAL: 423, C9A_LANTERN: 424, C9A_LANTERN_ON: 425, C9A_RIM: 426,
 };
 
 export const TILE_INFO = {};
@@ -546,6 +546,7 @@ def(T.C9A_TRIALDOOR, 'c9a_trialdoor', { solid: true, mapColor: '#8a7a6a' }); // 
 def(T.C9A_PEDESTAL, 'c9a_pedestal', { solid: true, talkThrough: true, light: true, mapColor: '#e8d8a8' }); // 星の音さの 台
 def(T.C9A_LANTERN, 'c9a_lantern', { solid: true, talkThrough: true, mapColor: '#8a5a3a' }); // 祭りの ちょうちん（まだ 火が ない）
 def(T.C9A_LANTERN_ON, 'c9a_lantern_on', { solid: true, talkThrough: true, light: true, mapColor: '#ffb84a' }); // 火の ともった ちょうちん
+def(T.C9A_RIM, 'c9a_rim', { solid: true, mapColor: '#4a3626' }); // くぼ地の ふち（ながれ星が 落ちて もり上がった 焼けた 土）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

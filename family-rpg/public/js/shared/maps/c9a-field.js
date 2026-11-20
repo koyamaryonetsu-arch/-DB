@@ -8,7 +8,7 @@
 import { T } from '../tiles.js';
 import { npc } from './npc.js';
 import { PLACES } from './overworld.js';
-import { C9A, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_ROPE } from './c9a-flags.js';
+import { C9A, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_ROPE, C9A_TRACKS } from './c9a-flags.js';
 import { STAIRS9A, WELL9A, caveEntry } from './c9a-cave.js';
 import { SIGNPOST9A } from './c9a-forest.js';
 
@@ -30,6 +30,10 @@ export function attachC9aField(maps) {
   const at = (p) => s.tiles[p.y * s.w + p.x];
   // 1年ぶりの 朝
   const V = VILLAGE9A;
+  // 祭りの 日（星ふるえまで）の 村は 星祭りの 曲（ほかの 所・ほかの 時は いつもの 曲。client/field.js の areaBgm）
+  const bgm0 = s.bgmAt;
+  s.bgmAt = (x, y, night, has) => (x >= V.x && y >= V.y && x < V.x + V.w && y < V.y + V.h && has?.(C9A.festival) && !has?.(C9A.starfall)
+    ? C9A_TRACKS.festival : bgm0?.(x, y, night, has));
   s.triggers.push({ id: 'c9a_morning', x: V.x, y: V.y, w: V.w, h: V.h, script: 'c9a_morning', show: { all: ['c8_solitus'], not: [C9A.festival] } });
   // 祭りの ちょうちん（したくの 間は 火の ない ちょうちん。火を 入れると 光る。祭りの あとも 光った まま）
   LAMPS9A.forEach((p, i) => {

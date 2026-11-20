@@ -8,6 +8,7 @@ import { T } from '../tiles.js';
 import { parseRows16 } from './past.js';
 import { lightInfo } from './c9a-light.js';
 import { CAVE_ROWS, B4_TRIAL } from './c9a-rows.js';
+import { c9aChest } from '../data/items-c9a.js';
 import { C9A, C9A_MAP, c9aCaveId, C9A_CAVE_FLOORS, C9A_SECRETS, C9A_ROPE, c9aSeen, C9A_TABLE, C9A_CHEST_IDS, C9A_TRACKS } from './c9a-flags.js';
 
 // 村の 井戸の となり（地下4階の ひもから 出る 所）・守り星の石の 南の 階段（maps/c9a-field.js と おなじ）
@@ -16,8 +17,8 @@ export const WELL9A_OUT = { x: WELL9A.x + 0.5, y: WELL9A.y + 1.5 };
 export const STAIRS9A = { x: 27, y: 102 };
 // 階ごとの とびらの フラグ（地下4階は なし）
 export const DOOR_FLAG9A = { 1: C9A.b1, 2: C9A.b2, 3: C9A.b3 };
-// 階ごとの 魔物の 出る 表と 数（地下4階は 広間で 出ない）
-const SPAWN9A = { 1: [C9A_TABLE.cave, 2], 2: [C9A_TABLE.cave, 2], 3: [C9A_TABLE.deep, 4] };
+// 階ごとの 魔物の 出る 表と 数（B班の 表。くらやみ虫は 地下3・4階の 暗い 所だけ）
+const SPAWN9A = { 1: [C9A_TABLE.b1, 2], 2: [C9A_TABLE.b2, 2], 3: [C9A_TABLE.b3, 4], 4: [C9A_TABLE.b4, 2] };
 
 const LEGEND9A = {
   '#': T.CAVE_WALL, '.': T.CAVE_FLOOR, U: T.STAIRS_UP, D: T.STAIRS_DOWN, S: T.C9A_SOURCE, m: T.C9A_MOSS, c: T.C9A_CRYSTAL, d: T.C9A_DOOR,
@@ -50,9 +51,8 @@ function beside(rows, P, n) {
 export const caveEntry = (n) => beside(CAVE_ROWS[n - 1], one(CAVE_ROWS[n - 1], 'U'), n);
 const downOf = (n) => beside(CAVE_ROWS[n - 1], one(CAVE_ROWS[n - 1], 'D'), n);
 
-// 宝箱の 中み（B班の 物が 入るまでの かり。B班の data/items-c9a.js が できたら そこから）
-export const C9A_CHEST_STUB = { item: 'star_shard', n: 3 };
-export const chestItem9a = { get: (id) => C9A_CHEST_STUB };
+// 宝箱の 中み（B班の data/items-c9a.js の c9aChest。13この id）
+export const chestItem9a = { get: (id) => c9aChest(id) || {} };
 
 export const caveName = (n) => `星の石の地下道　地下${n}階`;
 
@@ -126,7 +126,7 @@ function buildFloor(n) {
   // その 階に 来た ときの ことば（1回だけ。上り 階段の まわり）
   const U = P.up;
   m.triggers.push({ id: `c9a_seen_b${n}`, x: U.x - 2, y: U.y - 2, w: 5, h: 5, script: `c9a_seen_b${n}`, show: { not: [c9aSeen(n)] } });
-  // 魔物の 出ない 所（階段・とびら・みなもと・水しょうの まわり・ひみつの 部屋・地下4階）
+  // 魔物の 出ない 所（階段・とびら・みなもと・水しょうの まわり・ひみつの 部屋・地下4階の ためしの 間）
   m.zoneAt = zoneOf9a(n, rows, P);
   m.gateAt = new Map(m.gates.map((g) => [g.y * m.w + g.x, g]));
   return m;
@@ -135,9 +135,10 @@ function buildFloor(n) {
 function zoneOf9a(n, rows, P) {
   const table = SPAWN9A[n]?.[0] || null;
   const safe = [];
-  for (const p of [P.up, P.down, P.font, P.secret, P.board, ...P.door, ...P.sources, ...P.crystals]) if (p) safe.push([p.x - 2, p.y - 2, p.x + 2, p.y + 2]);
+  for (const p of [P.up, P.down, P.font, P.secret, P.board, P.rope, P.trial, ...P.door, ...P.sources, ...P.crystals]) if (p) safe.push([p.x - 2, p.y - 2, p.x + 2, p.y + 2]);
   return (x, y) => {
     if (!table) return 'safe:rest';
+    if (P.trial && y <= P.trial.y) return 'safe:rest'; // ためしの 間（ホシモリの 広間）
     for (const [x0, y0, x1, y1] of safe) if (x >= x0 && y >= y0 && x <= x1 && y <= y1) return 'safe:device';
     return table;
   };

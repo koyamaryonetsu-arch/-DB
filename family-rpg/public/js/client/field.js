@@ -28,7 +28,7 @@ import { huntMatch } from './ui/sources.js';
 // 第89回: とちゅうから 戦いに 入る きょり・自動追跡で 止まる きょり（サーバーと おなじ 数。shared/join-rule.js）
 import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js';
 // 第90回 A班: 第3部 第1章 第1幕の 光の輪の 絵・星の子の 連れ（client/c9a-light.js）
-import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap } from './c9a-light.js';
+import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap, drawC9aCraterFloor2D, drawC9aCraterGlow2D, drawC9aCrater3D } from './c9a-light.js';
 import { C9A } from '../shared/maps/c9a-flags.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
@@ -1038,6 +1038,7 @@ export class Field {
         }
       }
     }
+    if (m.c9aCrater) drawC9aCraterFloor2D(this, camX, camY); // 第90回 A班: ながれ星のくぼ地の ゆか
     // 宝の地図の 場所（まだ ほっていない）: 赤むらさきの 光の 柱（きらきらと ちがう 色）
     for (const sp of this.treasureSpots()) {
       if (sp.x < x0 - 2 || sp.x > x1 + 2 || sp.y < y0 - 1 || sp.y > y1 + 4) continue;
@@ -1081,6 +1082,7 @@ export class Field {
     if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, shownEquip(this.game.me)) });
     objs.sort((a, b) => a.y - b.y);
     for (const o of objs) o.draw();
+    if (m.c9aCrater) drawC9aCraterGlow2D(this, camX, camY); // 第90回 A班: ながれ星の 石・星の子の 光
     // やね
     for (const roof of m.roofs || []) this.drawRoof(roof, camX, camY);
     // お店の かんばん（やねの うえに かける）
@@ -1213,6 +1215,7 @@ export class Field {
     }
     // くらやみ（どうくつ）。第90回 A班: 光の輪の 階は client/c9a-light.js
     if (m.c9a) drawC9aDark3D(this, ctx, P);
+    else if (m.c9aCrater) drawC9aCrater3D(this, ctx, P); // 第90回 A班: ながれ星のくぼ地
     else if (m.dark) {
       const d = this.darkCanvas;
       const x = ctxOf(d);
@@ -1736,7 +1739,9 @@ export class Field {
   areaBgm() {
     // 第4章の 砂ばくは 昼と 夜で 曲が かわる（maps/south.js の southBgmAt）
     // 第5章 Step 7: クモイ地方は 影の城が うかぶと 曲が かわる（4つめ … 世界の フラグ）
-    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight(), (f) => this.hasFlag(f));
+    // 第90回 A班: bgmAt が 何も 返さない 時は いつもの 曲（ミドリナ地方の 星祭りの 村）
+    const at = this.map.bgmAt?.(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight(), (f) => this.hasFlag(f));
+    if (at) return at;
     if (this.map.kind === 'dungeon') return this.map.bgm || 'cave';
     const name = this.areaName();
     for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;

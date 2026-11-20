@@ -18,8 +18,7 @@ import { FOREST_POS9A } from '../maps/c9a-forest.js';
 import { cavePos, caveEntry, STAIRS9A } from '../maps/c9a-cave.js';
 import { LAMPS9A, KIDS9A } from '../maps/c9a-field.js';
 import { PLACES } from '../maps/overworld.js';
-import { FIXED_ENCOUNTERS } from './encounters.js';
-import { MONSTERS } from './monsters.js';
+import { SUITORU_NAME, HOSHIMORI_NAME } from './monsters-c9a.js';
 import { SHOPS } from './shops.js';
 import { C7_SHOP_TOOLS } from './items-c7.js';
 import { innSteps } from './inn.js';
@@ -30,11 +29,9 @@ const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
 const SP = SPICA_NAME;
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
-// きまった 戦いの 魔物の 絵（showMon）: その id の 魔物が いれば それ、いなければ B の むれの はじめの 魔物
-export const monOf9a = (id) => (MONSTERS[id] ? id : FIXED_ENCOUNTERS[id]?.group?.[0]?.[0] || id);
 // 3人組（ドロンボー一味が もと。名前は もじり）
-export const TRIO9A = { band: 'ホシドロ一味', boss: 'キラジョ', mecha: 'ボヤッチ', power: 'ズラッカ', catch: 'ポチッとね' };
-export const OWL9A = 'ホシモリ';
+export const TRIO9A = { band: 'ホシドロ一味', boss: 'キラジョ', mecha: 'ボヤッチ', power: 'ズラッカ', catch: 'ポチッとね', mecha9: SUITORU_NAME };
+export const OWL9A = HOSHIMORI_NAME;
 
 // ───── 目標の 文（ネタバレしない。場所と しくみだけ）─────
 export const C9A_OBJ = {
@@ -335,7 +332,8 @@ function trioScene(again) {
     ...S(TRIO9A.boss, `${TRIO9A.mecha}、メカを出しなさい！`),
     ...S(TRIO9A.mecha, `ほな、いきまっせ！\n${TRIO9A.catch}！`),
     ['sfx', 'door'], ['shake'],
-    ['showMon', monOf9a(C9A_BATTLE.trio)],
+    ['showMon', C9A_BOSS_MON.trio],
+    ...S(TRIO9A.boss, `ゆけっ、「${TRIO9A.mecha9}」！`),
     ...N('そうじきの形をした、大きなメカがあらわれた！'),
     ['showMon', null],
     ...S(SP, '…こわい…。'),
@@ -492,7 +490,7 @@ function trialSteps(x) {
     ...S(OWL9A, '星の音さを、求める者よ。\nその光が、本物か、ためさせてもらう。'),
     ...S(OWL9A, 'これは「ともしびのためし」。\nわしを、たおすのではない。', '夜明けまで、明かりを、消さずに、たえてみせよ。'),
     ...S(SP, '…みんなの、明かり…。\nわたしも、手つだう…！'),
-    ['showMon', monOf9a(C9A_BATTLE.trial)],
+    ['showMon', C9A_BOSS_MON.trial],
     ['sfx', 'dark'], ['flash'],
     ['showMon', null],
     ['bgm', C9A_TRACKS.trial],

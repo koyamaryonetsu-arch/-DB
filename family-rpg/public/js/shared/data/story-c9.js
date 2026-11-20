@@ -39,7 +39,7 @@ export function c9TitleSteps() {
 
 // ───── 第2部 クリアの 目標の 文の 入れかえ（plan-part3.md の 8-1・9-5 の 0）─────
 // ★ 幕を つなぐ 時に かえるのは ここだけ（false … 今の まま「第2部　完！…」/ true … 第3部の はじまり）
-export const PART3_OPEN = false;
+export const PART3_OPEN = true;
 // 今の 第2部 クリアの 文（入れかえた あとは story-c8.js の OLD_C8_OBJ.solitus）
 export const PART2_END_OBJ = '第2部　完！第3部へ（続きはアップデートで！）';
 // 第3部の 目標の 文（A班が 幕の 中の 文を 足す）

@@ -76,8 +76,8 @@ export const C9A_FOREST_IN = 'c9_forest_in'; // 星ふるえの森に 入った�
 export const c9aSeen = (n) => `c9_seen_b${n}`; // 地下道 n 階に 来た（はじめの ことばを 見た）
 export const C9A_ROPE = 'c9_rope'; // ルカが 井戸の ひもを 下ろした（地下4階 ⇄ 村の 井戸の 近道）
 export const C9A_FORK_RING = 'c9_forkring'; // くぼ地で 星の音さを 鳴らした（かくれた 宝箱が 光る。れんしゅう）
-// 魔物の 出る 表（B班が data/encounters-c9a.js で 作る 名前。ない 間は maps/c9a.js の C9A_TABLE_FALLBACK を かりに 使う）
-export const C9A_TABLE = { forest: 't9a_forest', cave: 't9a_cave', deep: 't9a_deep' };
+// 魔物の 出る 表（B班の data/encounters-c9a.js の 名前。森と 地下道の 階ごと）
+export const C9A_TABLE = { forest: 't9a_forest', b1: 't9a_b1', b2: 't9a_b2', b3: 't9a_b3', b4: 't9a_b4' };
 // 宝箱の id（B班が 中みを 決める。maps/c9a-*.js が この 名前で 置く）
 export const C9A_CHEST_IDS = {
   forest: ['c9a_f1', 'c9a_f2'],

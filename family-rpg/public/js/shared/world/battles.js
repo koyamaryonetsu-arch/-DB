@@ -43,6 +43,7 @@ import { bossHintAfter } from './boss-hints.js';
 // 第89回: とちゅうから 戦いに 入る きょり（画面と おなじ 数。shared/join-rule.js）・宝の地図を えらんで いる 人（world/tm-ask.js）
 import { JOIN_NEAR, JOIN_LAG } from '../join-rule.js';
 import { tmHold } from './tm-ask.js';
+import { c9aMossWin } from './c9a-steps.js';
 
 let battleSeq = 1;
 
@@ -685,7 +686,11 @@ function finishBattle(world, ctx) {
     const ms = world.mapStates.get(ctx.opts.mapId);
     const sym = ms?.symbols.get(ctx.opts.symbolId);
     if (sym) {
-      if (outcome === 'win') ms.symbols.delete(sym.id);
+      if (outcome === 'win') {
+        ms.symbols.delete(sym.id);
+        // 第90回 A班: 星の石の地下道で こけ玉に 勝つと まわりの こけが 光る（world/c9a-steps.js）
+        c9aMossWin(world, sessions[0], ctx.opts.mapId, sym);
+      }
       else {
         sym.busy = false;
         sym.stun = 3000;

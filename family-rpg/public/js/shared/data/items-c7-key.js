@@ -15,7 +15,6 @@ import { MIKO_LETTER8B } from '../maps/c8b-flags.js';
 // 第8章 第3幕: ポコの手紙（空中ようさい 4階の 泉の里の 子ポコが 書いてくれる。5階の 千年前の 鉄の ポストに 入れると なくなる。時をこえる手紙）
 import { POCO_LETTER8C } from '../maps/c8c-flags.js';
 // 第3部 第1章 第1幕（第90回 A班）: 星の音さ（星の石の地下道 4階の おくの 台。鳴らすと 遠くで 7つの 星の音が こたえる）
-import { STAR_FORK } from '../maps/c9a-flags.js';
 
 export const C7_KEY_ITEMS = {
   [MIKO_LETTER]: {
@@ -42,10 +41,6 @@ export const C7_KEY_ITEMS = {
     name: 'ポコの手紙', type: 'key',
     desc: '泉の里の子ポコが書いた手紙。ようさいのとびらの「合言葉」が書いてある（ポコいわく、ちょっとはずかしい言葉）。空中ようさいの5階のとびらのよこの、鉄のポストに入れると、千年先までのこるという。',
   },
-  [STAR_FORK]: {
-    name: '星の音さ', type: 'key',
-    desc: '星の石の地下道のおくにあった、金色の音さ。鳴らすと、遠くの空で、7つの星の音がこたえる。かくれた物の近くで鳴らすと、ひびき合うらしい。',
-  },
 };
 export const C7_KEY_KANA = {
   [MIKO_LETTER]: 'みこのてがみ',
@@ -54,5 +49,4 @@ export const C7_KEY_KANA = {
   [NADIA_LETTER]: 'おうじょナディアのてがみ',
   [MIKO_LETTER8B]: 'みこのいわいのてがみ',
   [POCO_LETTER8C]: 'ポコのてがみ',
-  [STAR_FORK]: 'ほしのおんさ',
 };

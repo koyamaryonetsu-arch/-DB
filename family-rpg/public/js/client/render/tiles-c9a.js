@@ -3,7 +3,7 @@
 //   とびらの 水しょう（409 光って いない・410 光った）/ 光の とびら（411）/ 見えない 穴（412。光が とどいた 時だけ client/c9a-light.js が かく）
 // ・たおれた 木（413）/ 光る かけら（414。3コマ）/ ながれ星の 石（415。3コマ）/ くぼ地の ゆか（416）/ 職人の テント（417）
 // ・黒板（418）/ 黒板の とびら（419）/ こおった とびら（420）/ 井戸の ひも（421）/ ためしの とびら（422）/ 星の音さの 台（423）
-// ・祭りの ちょうちん（424 火が ない・425 火が ともった。2コマ）
+// ・祭りの ちょうちん（424 火が ない・425 火が ともった。2コマ）/ くぼ地の ふち（426。焼けた 土の もり上がり）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
@@ -111,20 +111,45 @@ function paintStarRock(p, v, f) {
   p.set(9, 10, GD.b); p.set(10, 9, GD.l); p.set(5, 10, GD.b);
   p.set(...[[2, 2], [13, 3], [12, 1]][k], GD.w);
 }
+// くぼ地の ゆか: 焼けて 黒っぽい 土・ひびわれ・はい・ちいさな 星の かけら
 function paintCrater(p, v) {
-  p.rect(0, 0, 16, 16, CR.b);
+  p.rect(0, 0, 16, 16, CR.d);
   const r = prand(v * 19 + 2);
-  for (let i = 0; i < 7; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), CR.d);
-  for (let i = 0; i < 4; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), CR.l);
-  if (v % 3 === 0) { p.set(5, 6, GD.d); p.set(11, 12, GD.d); }
+  for (let i = 0; i < 6; i++) p.ellipse(Math.floor(r() * 16), Math.floor(r() * 16), 2, 1, CR.b);
+  for (let i = 0; i < 6; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#1e140c');
+  // ひびわれ（ななめに のびる）
+  let x = Math.floor(r() * 10) + 3, y = Math.floor(r() * 6) + 2;
+  for (let i = 0; i < 6; i++) { p.set(x, y, '#140c06'); x += r() < 0.5 ? 1 : 0; y += 1; }
+  // はい（白っぽい）
+  for (let i = 0; i < 3; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#8a8070');
+  // 小さな かけら
+  if (v % 2 === 0) { const a = 3 + Math.floor(r() * 10), b = 3 + Math.floor(r() * 10); p.set(a, b, GD.b); p.set(a, b - 1, GD.l); }
 }
+// くぼ地の ふち: もり上がった 焼けた 土（上が 明るい。こげた あと・まだ あつい 赤い 火の こ）
+function paintRim(p, v) {
+  p.rect(0, 0, 16, 16, '#2e2018');
+  const r = prand(v * 29 + 11);
+  for (let y = 0; y < 16; y++) {
+    const top = 3 + Math.round(Math.sin((y + v) * 0.9) * 1.5);
+    p.hline(top, 15 - top, y, y < 8 ? CR.b : CR.d);
+  }
+  p.hline(2, 13, 2, CR.l); p.hline(4, 11, 1, CR.hl);
+  for (let i = 0; i < 7; i++) p.set(Math.floor(r() * 16), 3 + Math.floor(r() * 13), '#160e08');
+  for (let i = 0; i < 4; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#7a6a5a');
+  if (v % 2 === 1) { p.set(4 + Math.floor(r() * 8), 9 + Math.floor(r() * 5), '#e0703a'); }
+  p.hline(0, 15, 15, '#1a120c');
+}
+// 職人の テント（しまの ぬの・入口から あたたかい 明かり・てっぺんに 小さな 旗）
+const TENT9A = [['#e8d0a0', '#c8a870'], ['#e88a7a', '#f4e0c8'], ['#8aaad8', '#f0f0f8']];
 function paintTent(p, v) {
   p.rect(0, 0, 16, 16, '#3a5a2a');
-  const c = ['#d8b878', '#c8706a', '#7a9ac8'][v % 3];
-  for (let y = 2; y < 15; y++) { const w = Math.round((y - 2) * 0.55); p.hline(8 - w, 8 + w, y, c); }
-  p.vline(8, 2, 14, '#5a3a20');
-  for (let y = 8; y < 15; y++) p.hline(7, 9, y, '#2a1a10');
-  p.hline(1, 15, 15, '#2a3a1a');
+  const [a, b] = TENT9A[v % 3];
+  p.ellipse(8, 15, 7, 1.2, '#1e2e14');
+  for (let y = 3; y < 15; y++) { const w = Math.round((y - 3) * 0.6); for (let x = 8 - w; x <= 8 + w; x++) p.set(x, y, ((x + 16) >> 1) % 2 ? a : b); }
+  p.vline(8, 0, 3, '#5a3a20'); p.hline(9, 11, 0, '#e04a3a'); p.set(9, 1, '#e04a3a');
+  for (let y = 9; y < 15; y++) { const w = Math.round((y - 9) * 0.5); p.hline(8 - w, 8 + w, y, '#ffcf6a'); }
+  p.set(8, 12, '#fff4c0');
+  p.set(1, 14, '#5a3a20'); p.set(15, 14, '#5a3a20');
 }
 function paintBoard(p, v) {
   stone(p, v);
@@ -194,6 +219,7 @@ export const C9A_PAINTERS = {
   [T.C9A_STARROCK]: (p, v, f) => paintStarRock(p, v, f),
   [T.C9A_CRATER]: (p, v) => paintCrater(p, v),
   [T.C9A_TENT]: (p, v) => paintTent(p, v),
+  [T.C9A_RIM]: (p, v) => paintRim(p, v),
   [T.C9A_BOARD]: (p, v) => paintBoard(p, v),
   [T.C9A_CHALKDOOR]: (p) => paintChalkDoor(p),
   [T.C9A_ICEDOOR]: (p) => paintIceDoor(p),
@@ -213,12 +239,13 @@ export const C9A_SPEED = {
 // ───── 2.5D ─────
 // くぼ地の ゆかは 少し ひくい。とびら 4つは かべ（洞窟の かべと おなじ 高さ）。たおれた 木は ひくい ブロック。
 // みなもと・水しょう・ながれ星の 石・テント・黒板・音さの 台・ちょうちんは たてた もの
-export const C9A_FLOOR_H = { [T.C9A_CRATER]: -0.05, [T.C9A_MOSS]: -0.01 };
+export const C9A_FLOOR_H = { [T.C9A_CRATER]: -0.16, [T.C9A_MOSS]: -0.01 };
 export function c9aBlockSpec(id, v) {
   switch (id) {
     case T.C9A_DOOR: case T.C9A_CHALKDOOR: case T.C9A_ICEDOOR: case T.C9A_TRIALDOOR:
       return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', id, 0, 0] };
     case T.C9A_LOG: return { h: 0.55, top: ['t', T.C9A_LOG, v, 0], side: ['t', T.C9A_LOG, v, 0] };
+    case T.C9A_RIM: return { h: 0.42, top: ['t', T.C9A_RIM, v, 0], side: ['t', T.C9A_RIM, v, 0] }; // くぼ地の ふち（ひくい 土の もり上がり）
     default: return null;
   }
 }
@@ -245,9 +272,15 @@ export const C9A_PROPS = {
     p.ellipse(8, 9, 6, 5, '#5a5468'); p.ellipse(7, 8, 4.5, 3.5, '#8a84a0'); p.ellipse(6, 7, 2, 1.5, '#c8c4e0');
     p.set(9, 10, GD.b); p.set(10, 9, GD.l); p.set(5, 10, GD.b); p.set(12, 3, GD.w);
   }],
-  [T.C9A_TENT]: [16, 18, (p) => {
-    for (let y = 2; y < 17; y++) { const w = Math.round((y - 2) * 0.5); p.hline(8 - w, 8 + w, y, '#d8b878'); }
-    p.vline(8, 1, 16, '#5a3a20'); for (let y = 10; y < 17; y++) p.hline(7, 9, y, '#2a1a10');
+  [T.C9A_TENT]: [26, 26, (p, v = 0) => {
+    const [a, b] = TENT9A[v % 3];
+    p.ellipse(13, 24, 12, 2, '#14200e');
+    for (let y = 5; y < 24; y++) { const w = Math.round((y - 5) * 0.62); for (let x = 13 - w; x <= 13 + w; x++) p.set(x, y, ((x + 26) >> 1) % 2 ? a : b); }
+    p.vline(13, 0, 5, '#5a3a20'); p.rect(14, 0, 5, 3, '#e04a3a'); p.set(18, 3, '#e04a3a');
+    for (let y = 14; y < 24; y++) { const w = Math.round((y - 14) * 0.55); p.hline(13 - w, 13 + w, y, '#ffcf6a'); }
+    p.vline(13, 15, 23, '#fff4c0'); p.hline(11, 15, 22, '#fff4c0');
+    p.vline(1, 20, 24, '#5a3a20'); p.vline(25, 20, 24, '#5a3a20');
+    for (let i = 0; i < 6; i++) { p.set(2 + i, 19 + Math.floor(i / 2), '#a89070'); p.set(24 - i, 19 + Math.floor(i / 2), '#a89070'); }
   }],
   [T.C9A_BOARD]: [16, 16, (p) => {
     p.rect(1, 2, 14, 10, WD.b); p.rect(2, 3, 12, 8, '#2a4a3a');
