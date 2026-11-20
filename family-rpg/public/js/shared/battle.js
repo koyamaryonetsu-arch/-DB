@@ -101,6 +101,8 @@ import { r85bTurnStart, r85bEffect, r85bEva, r85bDamage, r85bCut, r85bFloor, r85
 import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage, r85aPub, LOCK_REASON as R85A_LOCK } from './battle-r85a.js';
 // 第3部 第1章 第1幕: 星の子の ほのかな光（味方が みんな 動いた あと）・ともしび・がめんへ（battle-c9a.js）
 import { c9aAfter, c9aPub, c9aSnap, c9aHealMul } from './battle-c9a.js';
+// 第3部 第1章 第2幕: 暗い 所の 魔物の「見えにくい」（スピカの てらすで 消える。battle-c9b.js）
+import { c9bEva } from './battle-c9b.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
@@ -1749,7 +1751,7 @@ export class Battle {
     const acc = (eff.acc ?? 1) * (c.status.blind ? 0.4 : 1);
     // 第84回 B班: 水の すがた・敵前だい逃亡（前ぶれの 大技は よけられない。battle-r84b.js）
     // 第85回 B班: るいの まぼろし（今の よけと 合わせて 上限まで。前ぶれの 大技は よけられない。battle-r85b.js）
-    const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1) + r84bEva(this, c, t) + r85bEva(this, c, t);
+    const eva = (t.buffs.eva?.add || 0) + (t.gearEva || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1) + r84bEva(this, c, t) + r85bEva(this, c, t) + c9bEva(this, c, t);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
     if (r88DodgeTake(c, t, estimate)) return { miss: true, dmg: 0 }; // 第88回 G19班: 変装のマスク（次の 1回は かならず かわす。battle-r88-g19.js）
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };

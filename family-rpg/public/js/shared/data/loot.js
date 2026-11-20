@@ -40,6 +40,7 @@ import { C8B_MAT_DROPS } from './monsters-c8b.js';
 import { C8C_MAT_DROPS } from './monsters-c8c.js';
 import { C8R_MAT_DROPS } from './monsters-c8r.js';
 import { C9A_MAT_DROPS } from './monsters-c9a.js';
+import { C9B_MAT_DROPS } from './monsters-c9b.js';
 import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js';
 import { sdFloorOf } from './secret.js';
 
@@ -119,6 +120,8 @@ export const MAT_DROPS = {
   ...C8R_MAT_DROPS,
   // 第3部 第1章 第1幕（monsters-c9a.js）
   ...C9A_MAT_DROPS,
+  // 第3部 第1章 第2幕（monsters-c9b.js）
+  ...C9B_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

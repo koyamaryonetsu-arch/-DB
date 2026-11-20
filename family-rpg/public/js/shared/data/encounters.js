@@ -27,6 +27,7 @@ import { ENCOUNTERS_C8B, FIXED_C8B, ZONE_BG_C8B } from './encounters-c8b.js';
 import { ENCOUNTERS_C8C, FIXED_C8C, ZONE_BG_C8C } from './encounters-c8c.js';
 import { ENCOUNTERS_C8R, FIXED_C8R, ZONE_BG_C8R } from './encounters-c8r.js';
 import { ENCOUNTERS_C9A, FIXED_C9A, ZONE_BG_C9A } from './encounters-c9a.js';
+import { ENCOUNTERS_C9B, FIXED_C9B, ZONE_BG_C9B } from './encounters-c9b.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -206,6 +207,10 @@ Object.assign(ZONE_BG, ZONE_BG_C8R);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C9A);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C9A);
 Object.assign(ZONE_BG, ZONE_BG_C9A);
+// 第3部 第1章 第2幕「鉱山の底の先」・デデドン大王・やしきの 手下（encounters-c9b.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C9B);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C9B);
+Object.assign(ZONE_BG, ZONE_BG_C9B);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';
