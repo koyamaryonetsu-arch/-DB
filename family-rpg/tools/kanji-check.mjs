@@ -609,6 +609,13 @@ export function gameFiles() {
     'public/js/shared/data/c9c-names-b.js', 'public/js/shared/data/monsters-c9c.js', 'public/js/shared/data/abilities-c9c.js', 'public/js/shared/data/riddles-c9c.js',
     'public/js/shared/data/encounters-c9c.js', 'public/js/shared/data/companions-c9c.js', 'public/js/shared/data/items-c9c.js', 'public/js/shared/data/boss-hints-c9c.js',
     'public/js/shared/battle-c9c.js', 'public/js/client/battle-c9c.js', 'public/js/client/render/c9c-art.js', 'public/js/client/render/c9c-bg.js', 'public/js/client/render/battlefx-c9c.js',
+    // 第92回 D班: お仕事いらい 39〜41・より道「大王の、大きなランタン」「まいごの、もぐら兵」
+    'public/js/shared/data/sidequests-work9.js', 'public/js/shared/maps/work-quests9.js', 'public/js/client/render/work9-art.js',
+    'public/js/shared/data/sidequests-c9bd.js', 'public/js/shared/maps/c9bd-side.js',
+    // 第92回 F班: 第3部 第1章 第3幕の 曲
+    'public/js/client/audio-c9c.js',
+    // 第93回 F班: 第3部 第1章 第4幕の 曲
+    'public/js/client/audio-c9d.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

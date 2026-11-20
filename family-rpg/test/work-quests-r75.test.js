@@ -62,7 +62,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つながる 系統・1〜29 の どれとも かさならない）・今の 時代の まだ いらいの ない 場所・c8_spring の あとだけ', () => {
   assert.equal(WORK6_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 38); // 第80回: 33〜35・第90回: 36〜38 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 41); // 第80回: 33〜35・第90回: 36〜38・第92回: 39〜41 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(29, 32), WORK6_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(26, 29), WORK5_QUESTS);
   assert.deepEqual(WORK6_QUESTS.map((x) => x.roots), [['rubber'], ['dragon_knight'], ['konoha']]);

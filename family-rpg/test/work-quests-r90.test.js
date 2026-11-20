@@ -62,8 +62,8 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（新しい 流れの 職業）・今の 時代の 場所（A班の c9a_* には 置かない）・c9_starfall の あとだけ', () => {
   assert.equal(WORK8_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 38);
-  assert.deepEqual(FAMILY_QUESTS.slice(35), WORK8_QUESTS);
+  assert.equal(FAMILY_QUESTS.length, 41); // 第92回: 39〜41 が うしろに ふえた
+  assert.deepEqual(FAMILY_QUESTS.slice(35, 38), WORK8_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(32, 35), WORK7_QUESTS);
   assert.deepEqual(WORK8_QUESTS.map((x) => x.roots), [['elem_teacher'], ['enjutsushi'], ['fishing_doshi']]);
   assert.deepEqual(WORK8_QUESTS.map((x) => x.legend), ['jigoku_sensei', 'rekka', 'hoshin_gunshi']);
@@ -288,7 +288,7 @@ test('お仕事いらい板: c9_starfall の 前は 35まい（6ページ）・�
   assert.equal(boardPages(before), 6);
   assert.equal(boardList(after).length, 38);
   assert.equal(boardPages(after), 7);
-  assert.equal(boardPages(), 7);
+  assert.equal(boardPages(), 7); // 第92回: 41まいでも 7ページ
   const { bot, c } = await setup(904, { flags: OPEN });
   const qd = W.road;
   const map = npcAnywhere(qd.npc).map;
@@ -301,7 +301,7 @@ test('お仕事いらい板: c9_starfall の 前は 35まい（6ページ）・�
   assert.match(menus[5][1], /6\/7ページ/);
   assert.deepEqual(menus[5][2], [...FAMILY_QUESTS.slice(30, 36).map((x) => x.name), 'つぎのページへ', '前のページへ', 'やめる']);
   assert.match(menus[6][1], /7\/7ページ/);
-  assert.deepEqual(menus[6][2], [...FAMILY_QUESTS.slice(36).map((x) => x.name), '前のページへ', 'やめる']);
+  assert.deepEqual(menus[6][2], [...FAMILY_QUESTS.slice(36, 38).map((x) => x.name), '前のページへ', 'やめる']); // 第92回の 39〜41 は c9_act2 の あとから
   assert.equal(menus[6][3].length, menus[6][2].length, 'カーソルの せつめいも 同じ 数');
   assert.match(menus[6][3][1], /^必要な職業：つりをする道士の系統（×いない）/);
   assert.ok(said(msgs, /道が通れなくなった/) && said(msgs, /このいらいを、うける？/) && said(msgs, /を受けた！/));
