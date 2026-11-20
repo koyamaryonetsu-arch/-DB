@@ -143,7 +143,9 @@
     return HIST;
   }
   const histOpts = (k, extra) => [...new Set((extra || []).concat((HIST && HIST[k]) || []))].map((v) => `<option value="${esc(v)}">`).join('');
-  const histList = (k) => `<datalist id="dgH_${k}">${histOpts(k)}</datalist>`;
+  // 定番の候補（前に入れた値の下に並べる）
+  const HIST_BASE = { work_hours: ['8:00〜17:00', '9:00〜18:00', '閉館後 24:00〜翌6:00（夜間）'] };
+  const histList = (k) => `<datalist id="dgH_${k}">${[...new Set(((HIST && HIST[k]) || []).concat(HIST_BASE[k] || []))].map((v) => `<option value="${esc(v)}">`).join('')}</datalist>`;
 
   /* ============================================================
      なれる条件（労働安全衛生法）
