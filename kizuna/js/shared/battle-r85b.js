@@ -21,13 +21,13 @@
 //   r85bCut（damage の 作戦の 前）・r85bFloor（damage の 体をはって守る の あと）・r85bPub（pub）
 // ai.js から よぶ: r85bPlan（オートの 動き。この 系統の 技だけを 見る）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { ABILITIES } from './data/abilities.js?v=c14a906fd512';
-import { RYU, RYU_SET, R85B_FIRE } from './data/abilities-r85b.js?v=c14a906fd512';
-import { mpCost } from './stats.js?v=c14a906fd512';
-import { BUFF_ACTS } from './buff-acts.js?v=c14a906fd512';
-import { weatherMult, WEATHER_UP } from './battle-weather.js?v=c14a906fd512';
-import { CUT_FLOOR } from './battle-r83a.js?v=c14a906fd512';
-import { r84bEva } from './battle-r84b.js?v=c14a906fd512';
+import { ABILITIES } from './data/abilities.js?v=cb65ec3f97f7';
+import { RYU, RYU_SET, R85B_FIRE } from './data/abilities-r85b.js?v=cb65ec3f97f7';
+import { mpCost } from './stats.js?v=cb65ec3f97f7';
+import { BUFF_ACTS } from './buff-acts.js?v=cb65ec3f97f7';
+import { weatherMult, WEATHER_UP } from './battle-weather.js?v=cb65ec3f97f7';
+import { CUT_FLOOR } from './battle-r83a.js?v=cb65ec3f97f7';
+import { r84bEva } from './battle-r84b.js?v=cb65ec3f97f7';
 
 export const R85B_LINE = ['enjutsushi', 'rekka'];
 // 強化の よけ・水の すがた・敵前だい逃亡・るい を 合わせた よけの 上限（るいは この 上限までしか 足さない）

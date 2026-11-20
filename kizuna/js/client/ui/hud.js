@@ -1,21 +1,21 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=c14a906fd512';
-import { computeStats } from '../../shared/stats.js?v=c14a906fd512';
-import { JOBS } from '../../shared/data/jobs.js?v=c14a906fd512';
-import { jobShort } from '../../shared/job-label.js?v=c14a906fd512';
-import { hasUnreadNews } from '../../shared/data/news.js?v=c14a906fd512';
-import { hasPot } from '../../shared/data/alchemy.js?v=c14a906fd512';
-import { alchemyUI } from './alchemy.js?v=c14a906fd512';
-import { renderMiniMap, openWorldMap } from './menu.js?v=c14a906fd512';
-import { makeCanvas } from '../render/pixel.js?v=c14a906fd512';
-import { ClockBadge } from './clock.js?v=c14a906fd512';
+import { el, bar, askText, ListMenu } from './dom.js?v=cb65ec3f97f7';
+import { computeStats } from '../../shared/stats.js?v=cb65ec3f97f7';
+import { JOBS } from '../../shared/data/jobs.js?v=cb65ec3f97f7';
+import { jobShort } from '../../shared/job-label.js?v=cb65ec3f97f7';
+import { hasUnreadNews } from '../../shared/data/news.js?v=cb65ec3f97f7';
+import { hasPot } from '../../shared/data/alchemy.js?v=cb65ec3f97f7';
+import { alchemyUI } from './alchemy.js?v=cb65ec3f97f7';
+import { renderMiniMap, openWorldMap } from './menu.js?v=cb65ec3f97f7';
+import { makeCanvas } from '../render/pixel.js?v=cb65ec3f97f7';
+import { ClockBadge } from './clock.js?v=cb65ec3f97f7';
 // 第50回 N4: 困っている人の 知らせ・●（ui/subquest-hints.js）
-import { AskWatcher } from './subquest-hints.js?v=c14a906fd512';
-import { hasNewAsk } from '../../shared/data/subquest-hints.js?v=c14a906fd512';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=c14a906fd512';
-import { auraLabel } from '../../shared/data/abilities-field27.js?v=c14a906fd512';
-import { DEFAULT_STAMPS, STAMP_EDIT, stampMenuItems } from '../../shared/data/stamps.js?v=c14a906fd512';
-import { openStampEditor } from './stamps.js?v=c14a906fd512';
+import { AskWatcher } from './subquest-hints.js?v=cb65ec3f97f7';
+import { hasNewAsk } from '../../shared/data/subquest-hints.js?v=cb65ec3f97f7';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=cb65ec3f97f7';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=cb65ec3f97f7';
+import { DEFAULT_STAMPS, STAMP_EDIT, stampMenuItems } from '../../shared/data/stamps.js?v=cb65ec3f97f7';
+import { openStampEditor } from './stamps.js?v=cb65ec3f97f7';
 
 // 第50回 N7: スタンプは キャラごとに 変えられる（shared/data/stamps.js。STAMPS は はじめの スタンプ）
 export const STAMPS = DEFAULT_STAMPS;

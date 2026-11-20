@@ -10,7 +10,7 @@
 //   ・ゴールドフェザー・き眼の力の「動けなく する」は ボスに 効かない（effect r88dq の bind）
 //   ・魔だんじゅうは「呪文を こめて うち出す 道具」（本物の 銃の ようには 書かない）。黒の核しょうは 入れない
 //   作品の 字は 使える 字に 直した（設計書の「実装メモ（G15班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=c14a906fd512';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=cb65ec3f97f7';
 
 const D = { work: 'dai' };
 const A = { work: 'dai', set: 'aban_mark' };

@@ -4,7 +4,7 @@
 //   ・r83aMarks … 仲間の まどの 小さな 札（作戦「攻め25%」・先読み・旗）と 敵の 足もとの 札（強化ふうじ「ふうじ3」）。battle-buffs.js の unitMarks
 //     家族 みんなの 画面に 出る（pub の r83aPlan・r83aSeal・r83aSaki・r83aHata）
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { SAKUSEN, sakusenSet, sakusenPct } from '../shared/battle-r83a.js?v=c14a906fd512';
+import { SAKUSEN, sakusenSet, sakusenPct } from '../shared/battle-r83a.js?v=cb65ec3f97f7';
 
 const CSS = `
 .b-mem .sts .bm.sk { color: var(--sk, #ff8a5a); background: rgba(20, 20, 40, 0.55); font-weight: bold; }
