@@ -57,6 +57,11 @@ export const C9_START_TALK = {
 };
 export const C9_START_TARGETS = [{ npc: 'elder' }];
 
+// ───── 第2幕「鉱山の底の先」を 開ける 切りかえ（plan-part3.md の 10-5。第91回 A班）─────
+// ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第1幕 クリアの 目標は「第2幕へ（続きはアップデートで！）」・
+//   くぼ地で 星の音さを 鳴らしても 幕は 始まらない / true … 目標が「ながれ星のくぼ地で、星の音さを鳴らしてみよう」に かわり、前の 文は 古い 文の 表へ）
+export const PART3_ACT2_OPEN = false;
+
 // ───── 目標の 文の 表（幕ごとに 足す。第1幕 … story-c9a.js）─────
 // すすみぐあい（progress.js の PROGRESS の さいご）: [フラグ か (c) => 真偽, 目標の 文]
 export const CH9_PROGRESS = [...CH9A_PROGRESS];

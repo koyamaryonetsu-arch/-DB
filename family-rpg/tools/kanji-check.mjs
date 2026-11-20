@@ -595,6 +595,8 @@ export function gameFiles() {
     // 第90回 D班: お仕事いらい 36〜38・より道「星ふるえで、まいごになった物」
     'public/js/shared/data/sidequests-work8.js', 'public/js/shared/maps/work-quests8.js', 'public/js/client/render/work8-art.js',
     'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
+    // 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（名前の 約束・台本・マップ・明かりを 広げる 探検・絵）
+    'public/js/shared/maps/c9b-flags.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
