@@ -236,7 +236,8 @@ export class Game {
       if (this.exploredTimer <= 0 && this.field.exploredDirty) {
         this.exploredTimer = 12000;
         this.field.exploredDirty = false;
-        this.net.send({ t: 'explored', map: this.field.mapId, data: this.field.exploredB64() });
+        // 第91回 A班: 大地の下（map.noExplore）は「行った 所」を 取らない（きろくが ない マップには 送らない）
+        if (this.field.explored[this.field.mapId]) this.net.send({ t: 'explored', map: this.field.mapId, data: this.field.exploredB64() });
       }
     } else if (this.state === 'battle' || this.state === 'battle-intro') {
       this.battle?.update(dt);
