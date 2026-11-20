@@ -582,6 +582,8 @@ export function gameFiles() {
     'public/js/client/render/hero-gear-looks-r88a.js',
     // 第88回 絵C班: 作品の つえの 新しい 形の 絵
     'public/js/client/render/hero-gear-looks-r88c.js',
+    // 第90回 F班: 第3部 第1章 第1幕の 曲
+    'public/js/client/audio-c9a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

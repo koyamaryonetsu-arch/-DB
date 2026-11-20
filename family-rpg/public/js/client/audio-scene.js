@@ -82,6 +82,11 @@ export function addFormKey(...keys) {
 }
 // 第8章 第4幕（B班の 戦いの しるし）: 門番の 形態 gForm（1〜4）・最後の ボスの 段 slStage（1〜3）
 addFormKey('gForm', 'slStage');
+// 第90回 F: ともしびの ためし（c9a_trial）の 夜明けの めもりの 段 dawnStage（1 夜 → 2 夜明け前 → 3 夜明け → 4 夜明けを 2つ 上で）。
+//   B班が 戦いの pub に この 名前で 出すと だん 0〜3 に なる（出さない 間は 曲の 形が 時間で 進む）。くわしくは docs/plan-part3.md の「実装メモ（F班）」
+addFormKey('dawnStage');
+// 第90回 F: 星の石の地下道（c9a_cave）は「ダンジョンの 深さ」の まま（c9a_b1〜c9a_b4 → 0.4・0.6・0.8・1.0。曲の パートが 1つずつ ふえる）
+export const C9A_CAVE_TRACK = 'c9a_cave';
 
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
