@@ -7,12 +7,12 @@
 // ・仲間の まど: 名前の 横に ともしびの 火の しるし（消えると 黒い しるし。c9aStatus）
 // ・コマンド: ともしびが 消えた 仲間が いる ときの「明かりをわける」を いちばん 上に（c9aCmdItems・c9aCmdPick。スマホでも 大きな ボタン）
 // ・バナー・大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c8r.js に まぜる）
-import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=42ed545c18b5';
-import { SHARE } from '../shared/data/abilities-c9a.js?v=42ed545c18b5';
-import { monsterCanvas } from './render/monsters.js?v=42ed545c18b5';
+import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=dd9bfc47ef83';
+import { SHARE } from '../shared/data/abilities-c9a.js?v=dd9bfc47ef83';
+import { monsterCanvas } from './render/monsters.js?v=dd9bfc47ef83';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王・皿（battle-c9b.js）
 // （C9B_OWN_TELE・C9B_SCREEN_ANIMS・C9B_ALLY_FX・C9B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js?v=42ed545c18b5';
+import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js?v=dd9bfc47ef83';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];

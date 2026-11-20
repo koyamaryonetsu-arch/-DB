@@ -4,7 +4,7 @@
 //   ・パンドラ（伝説）… 月の 夜の キッドの まぼろしに 勝つと もらえる
 //   ・今 ある マジックステッキ・シルクハット・かいとうの白いマント は こわさず、作品の 品として 数える（R88_TAG_KAITO。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（快斗 → 快と／銃 → じゅう／催眠 → さいみん／懐中 → かいちゅう など）
-import { weapon, armor, acc, priceUp } from './items-r88-kit.js?v=42ed545c18b5';
+import { weapon, armor, acc, priceUp } from './items-r88-kit.js?v=dd9bfc47ef83';
 
 const T = { work: 'kaito' };
 

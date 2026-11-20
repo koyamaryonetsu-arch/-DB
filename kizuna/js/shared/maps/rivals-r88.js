@@ -6,10 +6,10 @@
 //   とびらを 調べると だいほん 'rival_door_<作品>'（data/story-rivals-r88.js）
 // ・とびらの 中 … 1つの 部屋の 形を 使い回して、作品ごとに ゆかと かべを かえる（ROOM_STYLES）。戦いの 前に 家族で 入る（world/rivals-r88.js）
 // ・attachRivalHall(maps) で 今の マップに 足す（ほかの マップの ファイルは かえない）
-import { T } from '../tiles.js?v=42ed545c18b5';
-import { PLACES } from './overworld.js?v=42ed545c18b5';
-import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=42ed545c18b5';
-import { workName } from '../data/works.js?v=42ed545c18b5';
+import { T } from '../tiles.js?v=dd9bfc47ef83';
+import { PLACES } from './overworld.js?v=dd9bfc47ef83';
+import { RIVAL_DOORS, doorFlag } from '../data/rivals-r88.js?v=dd9bfc47ef83';
+import { workName } from '../data/works.js?v=dd9bfc47ef83';
 
 export const HALL_ID = 'rival_hall';
 export const HALL_NAME = 'まぼろしの回ろう';

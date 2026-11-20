@@ -4,9 +4,9 @@
 // ・中 … 砂の 戦いの 場（さく で かこむ）と 観客せき。受付は 3つ（ランク戦・家族対戦・チームの 登録）
 //   受付の 画面は client/ui/monarena.js（サーバーの 窓口 svc kind:'monarena' は B班）
 // ・attachMonArena(maps) で 今の マップに たす（ほかの マップの ファイルは かえない）
-import { T, parseRows } from '../tiles.js?v=42ed545c18b5';
-import { npc } from './npc.js?v=42ed545c18b5';
-import { PLACES } from './overworld.js?v=42ed545c18b5';
+import { T, parseRows } from '../tiles.js?v=dd9bfc47ef83';
+import { npc } from './npc.js?v=dd9bfc47ef83';
+import { PLACES } from './overworld.js?v=dd9bfc47ef83';
 
 export const MONARENA_MAP = 'monarena';
 export const MONARENA_NAME = 'モンスター闘技場';

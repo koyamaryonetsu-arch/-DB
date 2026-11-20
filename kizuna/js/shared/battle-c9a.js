@@ -20,16 +20,16 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=42ed545c18b5';
-import { ABILITIES } from './data/abilities.js?v=42ed545c18b5';
-import { SHARE } from './data/abilities-c9a.js?v=42ed545c18b5';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=42ed545c18b5';
-import { C9A } from './maps/c9a-flags.js?v=42ed545c18b5';
+import { MONSTERS } from './data/monsters.js?v=dd9bfc47ef83';
+import { ABILITIES } from './data/abilities.js?v=dd9bfc47ef83';
+import { SHARE } from './data/abilities-c9a.js?v=dd9bfc47ef83';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=dd9bfc47ef83';
+import { C9A } from './maps/c9a-flags.js?v=dd9bfc47ef83';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=42ed545c18b5';
-import { canUse } from './ai.js?v=42ed545c18b5';
+import { pub, atbRate } from './battle.js?v=dd9bfc47ef83';
+import { canUse } from './ai.js?v=dd9bfc47ef83';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub } from './battle-c9b.js?v=42ed545c18b5';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub } from './battle-c9b.js?v=dd9bfc47ef83';
 
 export { SHARE };
 export const AIM = 'm9t_aim';

@@ -113,6 +113,12 @@ export const TRACK_NAMES = {
   c9c_trio2: 'またまたドタバタ3人組',
   c9c_algol: 'つめたい光',
   c9c_note: 'ひとつめの星の音',
+  // 第93回 F: 第3部 第1章 第4幕（audio-c9d.js。ボスの 名前・はかばの 先の 話は 出さない）
+  c9d_lane: 'ふたごの道',
+  c9d_grave: '星のはかば',
+  c9d_mu: 'あそび歌のおいかけっこ',
+  c9d_song: 'スピカの歌',
+  c9d_end: 'おちてきた星の子',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）
