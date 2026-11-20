@@ -296,7 +296,7 @@ function feastScene() {
   const L = P.lump;
   return [
     ['fade', 'out'],
-    ['teleport', C9B_MAP.under, L.x + 0.5, L.y + 2.5, 'up'],
+    ['teleport', C9B_MAP.under, L.x + 3.5, L.y + 2.5, 'left'], // 人や 家に 体が かからない 所（test/stuck.test.js）
     ...FEAST_ACTORS().map(([id, sprite, ax, ay, dir]) => ['actor', id, { sprite, x: ax, y: ay, dir }]),
     ['fade', 'in'],
     ['bgm', C9B_TRACKS.village],

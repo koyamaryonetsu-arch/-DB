@@ -26,6 +26,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { addItem, itemCount, gainExp, expForLevel, fullHeal, newCharacter } from '../public/js/shared/stats.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
+import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
 import { Bot, tickN } from './helpers.js';
 
 const GEAR = ['weapon', 'armor', 'shield', 'head'];
@@ -33,7 +34,9 @@ const mainKey = (it) => (it.type === 'weapon' ? 'atk' : 'def');
 // 同じ 部位・ランク・しゅるい（武器の 種類・よろいの 種類・かぶとか ぼうしか）
 const sameKind = (a, b) => a.type === b.type && a.rank === b.rank && (a.type !== 'weapon' || a.cat === b.cat)
   && (a.type !== 'armor' || a.armorType === b.armorType) && (a.type !== 'head' || !!a.helm === !!b.helm);
-const pool = (it) => Object.values(ITEMS).filter((x) => x && !x.base && !x.work && x !== it && sameKind(x, it));
+// 第91回: 第3部 第1章 第2幕の 品（くぼ地の 武具屋〈k 2.06〜〉・宝箱）は のぞく（第1・2部の ころの 店では ない）
+const C9B_SET = new Set(Object.values(ITEMS_C9B));
+const pool = (it) => Object.values(ITEMS).filter((x) => x && !x.base && !x.work && !C9B_SET.has(x) && x !== it && sameKind(x, it));
 const shopBest = (it) => Math.max(0, ...pool(it).filter((x) => x.price > 0 && !(x.rarity > 0)).map((x) => x[mainKey(it)] || 0));
 const starBest = (it) => Math.max(0, ...pool(it).filter((x) => !(x.price > 0) && !x.forge && x.rarity >= 2).map((x) => x[mainKey(it)] || 0));
 

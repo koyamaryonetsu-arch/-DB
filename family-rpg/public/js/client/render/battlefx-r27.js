@@ -1484,6 +1484,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('buff')) return 'buff';
   // 第90回: 第3部 第1幕の「明かりをわける」（c9aShare）… わけて もらった 仲間の 下にも 光（技の 絵は render/battlefx-c9a.js）
   if (types.includes('c9aShare')) return 'buff';
+  // 第91回: 第3部 第2幕の「スピカ：てらす」（c9bTeru）… 光が 広がる（技の 絵は render/battlefx-c9b.js）
+  if (types.includes('c9bTeru')) return 'buff';
   return null;
 }
 
