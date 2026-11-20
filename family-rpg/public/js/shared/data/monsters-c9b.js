@@ -65,7 +65,7 @@ export const MONSTERS_C9B = {
   // ── 大地の下の 暗い 所（Lv100）──
   // くらやみの大ミミズ: 暗い マスだけを 歩く（darkOnly）。戦いでは「見えにくい」（hide … こちらの 物理の 攻撃が 外れやすく なる わりあい）
   [C9B_MIMIZU]: {
-    name: 'くらやみの大ミミズ', lv: 100, hp: 3320, mp: 180, str: 420, def: 340, agi: 210, mag: 260, exp: 6400, gold: 2100,
+    name: 'くらやみの大ミミズ', lv: 100, hp: 4800, mp: 180, str: 420, def: 340, agi: 210, mag: 260, exp: 6400, gold: 2100,
     race: 'beast', size: 'l', hit: 'bite', region: 6, darkOnly: true, c9b: { hide: 0.35 },
     resist: { light: 1.4, dark: 0.5, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, poison: 0.3, sleep: 0.4, confuse: 0.4 }, drops: { common: ['elf_drink', 30], rare: ['c7i_snow_mail', 80] },
     actions: [{ w: 3, id: 'm9u_mz_wrap' }, { w: 2, id: 'm9u_mz_dust', cond: 'notRecent:m9u_mz_dust' }, { w: 1, id: 'm9u_mz_dig', cond: 'notRecent:m9u_mz_dig' }, { w: 1, id: 'attack' }],
