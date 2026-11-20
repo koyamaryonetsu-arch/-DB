@@ -8,6 +8,8 @@
 //   ホシモリ … 石の ふくろう。コマ 0・1 … ためし / 2・3 … 夜明けに しずかに うなずく（client/battle-c9a.js の c9aSprite が pub の hmWin で えらぶ）
 // ・すいこみ口 … ボスの しかけの 部ひん（ふつうの こまかさ）
 import { fit, spark, bez } from './ch3-draw.js';
+// 第3部 第1章 第2幕（c9b-art.js）
+import { addC9bArt } from './c9b-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
@@ -346,4 +348,6 @@ export function addC9aArt(ART) {
   ART.c9a_hoshimori = { size: [224, 240], npc: 0.6, pal: pal(HM), draw: hoshimori };
   // すいこみ口（ボスの しかけの 部ひん）
   ART.c9a_suikomi = { size: [40, 40], pal: pal(NZ), draw: nozzle };
+  // 第3部 第1章 第2幕（c9b-art.js）
+  addC9bArt(ART);
 }

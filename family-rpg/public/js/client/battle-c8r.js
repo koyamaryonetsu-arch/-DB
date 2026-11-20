@@ -12,9 +12,11 @@ import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } fro
 import { monsterCanvas } from './render/monsters.js';
 // 第3部 第1章 第1幕（battle-c9a.js）
 import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js';
+import { C9B_OWN_TELE } from './battle-c9b.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
-export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE];
+// 第3部 第1章 第2幕（battle-c9b.js）
+export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE, ...C9B_OWN_TELE];
 export const C8R_SCREEN_ANIMS = ['c8g_orb', 'c8g_final', 'c8t_gust', 'c8d_big', 'c8s_big', 'c8s_harden', 'c8s_tear', 'c8s_crack', 'c8s_hoard'];
 export const C8R_ALLY_FX = {
   c8rn_flame: 'fire', c8rn_drain: 'down', c8rn_bite: 'claw', c8rn_sand: 'wind', c8rn_gnaw: 'claw', c8rn_flutter: 'wind', c8rn_chomp: 'claw', c8rn_tail: 'quake',
@@ -297,7 +299,7 @@ export function c8rCmdItems(scene, a) {
   return { items, info };
 }
 export function c8rCmdPick(scene, a, value) {
-  if (value === 'c9ashare') return c9aCmdPick(scene, a, value);
+  if (value === 'c9ashare' || value === 'c9bteru') return c9aCmdPick(scene, a, value);
   const s = solOf(scene);
   if (value === 'c8rcall') return scene.send({ type: 'ability', id: CALL, target: s?.id });
   if (value === 'c8rpromise') return scene.send({ type: 'ability', id: PROMISE, target: s?.id });

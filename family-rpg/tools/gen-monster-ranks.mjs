@@ -37,6 +37,7 @@ import { ENCOUNTERS_C8B } from '../public/js/shared/data/encounters-c8b.js';
 import { ENCOUNTERS_C8C } from '../public/js/shared/data/encounters-c8c.js';
 import { ENCOUNTERS_C8R } from '../public/js/shared/data/encounters-c8r.js';
 import { ENCOUNTERS_C9A } from '../public/js/shared/data/encounters-c9a.js';
+import { ENCOUNTERS_C9B } from '../public/js/shared/data/encounters-c9b.js';
 import { MONSTER_FRIENDS, JOIN_TIERS, joinTier, RANKS } from '../public/js/shared/data/companions.js';
 
 // 章の まとまり（どの 章の 出現表か。テストの「どの 章にも F〜C」にも 使う）
@@ -48,8 +49,8 @@ const CHAPTER_SRC = [
   ['第7章', [ENCOUNTERS_C7, ENCOUNTERS_C7S, ENCOUNTERS_C7I]],
   // 第2部 第8章（第1幕 月の王宮の 地下迷宮／第2幕 よみの 海底神殿／第3幕 くろがねの 空中ようさい／第4幕 時のはざま）
   ['第8章', [ENCOUNTERS_C8A, ENCOUNTERS_C8B, ENCOUNTERS_C8C, ENCOUNTERS_C8R]],
-  // 第3部 第1章（第1幕 星ふるえの森・星の石の地下道）
-  ['第3部 第1章', [ENCOUNTERS_C9A]],
+  // 第3部 第1章（第1幕 星ふるえの森・星の石の地下道・第2幕 大地の下・大王の やしき）
+  ['第3部 第1章', [ENCOUNTERS_C9A, ENCOUNTERS_C9B]],
 ];
 export const BANDS = ['第1・2章', '第3・4章', '第5章', '第6章', '第7章', '第8章', '第3部 第1章'];
 export function zoneBand(zone) {

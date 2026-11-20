@@ -1,6 +1,7 @@
 // 第3部 第1章 第1幕「星ふるえの夜」: 3人組と スイトール1号（c9a_trio。中ボス Lv96）・ホシモリの ともしびの ためし（c9a_trial。幕の ボス Lv98）の 強さを 見る
 // 第90回 Z班: わく（sim-ch8.mjs と おなじ 作り）。B班: 中の 戦い方（知っている・知らない の 動き）と 星の子（shared/battle-c9a.js）
-// つかいかた: node tools/sim-ch9.mjs [回数] [trio|trial|all] [lv,…]
+// 第91回 B班: 第2幕の ボス「デデドン大王」（c9b_king。Lv100。king）。皿を 先に こわす・まっ暗で てらす・大ジャンプで 身を 守る（shared/battle-c9b.js）
+// つかいかた: node tools/sim-ch9.mjs [回数] [trio|trial|king|all] [lv,…]
 //   めやす（docs/plan-part3.md の 9-3）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）・その ころの ★装備で
 //     知っている 人 … 6〜7わり・知らない 人 … 3わり いか・完全オート … 0わり 近く。長さは 4〜6分
 //   3つの やり方（MODES9）:
@@ -20,15 +21,20 @@ import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
 import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
+import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
+import { C9B_BATTLE } from '../public/js/shared/data/c9b-names-b.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';
 import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
 import './sim-ch8.mjs';
 
-export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial };
+export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial, king: C9B_BATTLE.king };
 // おすすめの レベル（plan-part3.md の 9-3: 中ボス Lv96・ボス Lv98）
 export const CH9_LV = { trio: 96, trial: 98 };
+// 第2幕の ボス（plan-part3.md の 10-3: Lv100）。CH9_LV は 第1幕の まま（test/ch9-base.test.js）
+export const CH9B_LV = { king: 100 };
+export const LV9 = { ...CH9_LV, ...CH9B_LV };
 // その ころの ★装備（[武器, よろい, たて, 頭, アクセ]。null は 店の いちばん よい 品）
 //   3人組 … 第8章 第4幕の さいごまでの ★（＋ ソリトゥスの 品）・星ふるえの森の 宝箱（星くずのツメ）
 //   ためし … ＋ 3人組の 品（バッジ・キラジョのおうぎ）・星の石の地下道 地下1〜4階の 宝箱
@@ -44,6 +50,13 @@ export const CH9_KIT = {
     daikenja: ['c8rt_sand_staff', 'c9at_moss_robe', null, 'c9at_owl_hat', 'c9b_trio_badge'],
     god_hand: ['c9at_star_claw', 'c8rt_fire_gi', null, 'c7it_bear_hat', 'c9b_trio_badge'],
     high_priest: ['c8k_magic_staff', 'c9at_moss_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9b_trio_badge'],
+  },
+  // 大王 … ＋ ホシモリの 品（夜明けのはね・ホシモリのつえ）・大地の下と やしきの 宝箱（水晶のやり・ヒカリゴケのぼうし・もぐらの大オノ・ごちそうの大皿のたて）
+  king: {
+    hero: ['c8s_star_sword', 'c9at_dawn_mail', 'c9bt_table_shield', 'c8rt_moon_helm', 'c9b_dawn_feather'],
+    daikenja: ['c9b_owl_staff', 'c9at_moss_robe', null, 'c9bt_moss_hat', 'c9b_dawn_feather'],
+    god_hand: ['c9at_star_claw', 'c8rt_fire_gi', null, 'c7it_bear_hat', 'c9b_dawn_feather'],
+    high_priest: ['c9b_owl_staff', 'c9at_moss_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9b_dawn_feather'],
   },
 };
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
@@ -135,7 +148,7 @@ function busy9(b) {
   if (m?.c9t && (m.c9t.aim || (!m.c9t.broken && m.c9t.aimLeft <= 1))) return true;
   const h = hoshimoriOf(b);
   if (h?.c9h && (h.c9h.aim.length || b.aliveAllies().some((x) => !x.c9torch))) return true;
-  return false;
+  return c9bBusy(b);
 }
 
 // 星の子（戦いの わくを 使わない 味方。shared/battle-c9a.js）: 戦いを 作った すぐ あとに よぶ（3人組・ためしは 戦いが 自分で 入れる）
@@ -166,7 +179,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
     if (e.boss) e.speed = (e.speed || 1) * k('SPD');
   }
   let real = 0;
-  const n = { duals: 0, aims: 0, guards: 0, lost: 0, breaks: 0, breaths: 0, outs: 0, kept: 0, shares: 0, glows: 0 };
+  const n = { duals: 0, aims: 0, guards: 0, lost: 0, breaks: 0, breaths: 0, outs: 0, kept: 0, shares: 0, glows: 0, eats: 0, stops: 0, jumps: 0, teru: 0 };
   while (!b.over && real < 30 * 60 * 1000) {
     const evs = b.tick(50);
     real += 50;
@@ -185,6 +198,10 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
       }
       if (e.c9hShare) n.shares++;
       if (e.c9Spica?.glow) n.glows++;
+      if (e.c9kEat) n.eats++;
+      if (e.c9kBreak?.stop) n.stops++;
+      if (e.c9kJump) n.jumps++;
+      if (e.c9bTeru) n.teru++;
     }
     if (!M.know) continue;
     for (const a of b.allies) {
@@ -198,7 +215,9 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   const al = b.allies;
   const foes = b.enemies.filter((e) => e.boss).length ? b.enemies.filter((e) => e.boss) : b.enemies;
   const h = hoshimoriOf(b);
+  const kg = kingOf(b);
   return {
+    kDark: kg?.c9k?.dark ? 1 : 0,
     light: b.c9sp?.light ?? 0, dawn: h?.c9h?.dawn ?? 0, dark: h?.c9h?.dark ? 1 : 0, bigs: h?.c9h?.bigs ?? 0,
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
     hpLeft: al.reduce((s, x) => s + x.hp, 0) / al.reduce((s, x) => s + x.maxHp, 0), deaths: al.filter((x) => !x.alive).length,
@@ -215,20 +234,21 @@ export function summary9(res) {
   return {
     rate: w / res.length, sec: wsec,
     text: `勝率 ${pct(w, res.length)}  平均${avg('seconds').toFixed(0).padStart(4)}秒（勝ち${wsec.toFixed(0).padStart(4)}秒）  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  ボスの残${(avg('bossLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  合体技${avg('duals').toFixed(1)}`
-      + `  光${avg('light').toFixed(1)} 守${avg('guards').toFixed(1)} こわす${avg('breaks').toFixed(1)}  夜明け${avg('dawn').toFixed(1)} いぶき${avg('breaths').toFixed(1)}(消${avg('outs').toFixed(1)}/守${avg('kept').toFixed(1)}) わける${avg('shares').toFixed(1)} 大${avg('bigs').toFixed(1)} まっくら${avg('dark').toFixed(2)}`,
+      + `  光${avg('light').toFixed(1)} 守${avg('guards').toFixed(1)} こわす${avg('breaks').toFixed(1)}  夜明け${avg('dawn').toFixed(1)} いぶき${avg('breaths').toFixed(1)}(消${avg('outs').toFixed(1)}/守${avg('kept').toFixed(1)}) わける${avg('shares').toFixed(1)} 大${avg('bigs').toFixed(1)} まっくら${avg('dark').toFixed(2)}`
+      + `  食べ${avg('eats').toFixed(1)} 止め${avg('stops').toFixed(1)} ジャンプ${avg('jumps').toFixed(1)} てらす${avg('teru').toFixed(1)} まっ暗${avg('kDark').toFixed(2)}`,
   };
 }
 
 if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
   const N = Number(process.argv[2] || 40);
-  const which = !process.argv[3] || process.argv[3] === 'all' ? ['trio', 'trial'] : [process.argv[3]];
+  const which = !process.argv[3] || process.argv[3] === 'all' ? ['trio', 'trial', 'king'] : [process.argv[3]];
   const seedOf = (i) => 9090 + i * 7919;
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'trio';
-    console.log(ch9Run(boss, Number(process.env.LV || CH9_LV[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4' }));
+    console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4' }));
   } else {
     for (const boss of which) {
-      const base = CH9_LV[boss];
+      const base = LV9[boss];
       // 弱め（−5）・ふつう・強め（＋8）の 家族
       const lvs = process.argv[4] ? process.argv[4].split(',').map(Number) : [base - 5, base, base + 8];
       const mon = MONSTERS[FIXED_ENCOUNTERS[CH9_IDS[boss]].group[0][0]];

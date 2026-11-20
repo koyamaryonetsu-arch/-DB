@@ -3,6 +3,9 @@
 // 色: 星くず＝白と 水色、こけ＝みどりの 光、くらやみ＝あい色、メカ＝ピンクと 黄色、ホシモリ＝石の 灰色と 夜明けの 金色、ともしび＝だいだい
 // c9t_suck（すいこみ）は 星の 光の つぶが すいこみ口へ すいよせられる（とくべつな つぶ c9aflame は ともしびの 火）。
 // すいこみ・やみの いぶき・夜明け・ホウホウのこえは がめんの まん中に 大きく（client/battle-c9a.js の C9A_SCREEN_ANIMS）
+// 第3部 第1章 第2幕（battlefx-c9b.js）
+import { playC9bFx } from './battlefx-c9b.js';
+
 const STAR = ['#ffffff', '#bff4ff', '#fff2a8', '#8ad8ff'];
 const MOSS = ['#8aff9a', '#c8ffb0', '#4a9a4a'];
 const DARK = ['#2a2a44', '#5a5a8a', '#14142a', '#9a9ad0'];
@@ -171,7 +174,7 @@ export function playC9aFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
       return true;
     }
     default:
-      void element;
-      return false;
+      // 第3部 第1章 第2幕（battlefx-c9b.js）
+      return playC9bFx(fx, anim, targets, element, opts, W, H);
   }
 }
