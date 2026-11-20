@@ -258,6 +258,14 @@ function suggestTasksFromMail_(th, m) {
     return suggestTasksFromText_(apiKey, text, 'mail', 'mail:' + m.getId(), th ? threadUrl_(th) : '');
   } catch (e) { Logger.log('タスク提案(メール)エラー: ' + e); return 0; }
 }
+// 連絡するだけのタスクか（メールする・電話する・返信する・連絡する・伝える…）。見積り・書類など作る物があれば残す
+// ※ アプリ（app.js の isContactOnlyTask）と同じ決まり
+function isContactOnlyTask_(text) {
+  var t = String(text || '').replace(/^[^：:]{1,20}[：:]/, '').replace(/\s/g, '');
+  if (/見積|書類|資料|図面|申請書|報告書|計画書|写真|請求書|発注|手配|注文/.test(t)) return false;
+  return /(メール|電話|TEL|ＴＥＬ|連絡|返信|返事|伝える|伝達|リマインド|折り返|一報|お礼|フォロー)/.test(t) &&
+    /(する|しておく|を送る|を入れる|をかける|をする|伝える|入れる|送る|かける|返す|確認する)$/.test(t);
+}
 // 文章からやることを拾って task_suggestions に入れる。入れた件数を返す
 // aiOpts（任意）: { model, effort } … LINE・Plaud は Sonnet 5.5 で読む（Conversations.gs）。CV_DRY の時は書き込まない
 function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl, aiOpts) {
@@ -267,8 +275,9 @@ function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl, aiOpt
     'メールやLINEのやり取り、会議・電話の記録（Plaud の要約）から、菱熱工業のメンバーがこれからやるべき具体的な作業（個人タスク）を拾い出します。JSONのみ出力（前後に文章なし）。',
     '菱熱工業のメンバー（苗字）: ' + membersText_(),
     '拾うもの: メンバーが頼まれた・引き受けた・約束した、まだ終わっていない作業。',
-    '  例: 資料や見積書を送る／日程を連絡する／発注・手配する／確認して回答する／現地へ行く／書類を作る。',
+    '  例: 見積書を作って出す／発注・手配する／日程を決める／確認して回答する／現地へ行く／書類を作る。',
     '拾わないもの: すでに終わったこと／客先や協力会社など相手側がやること／',
+    '  連絡するだけのこと（「〜にメールする」「〜に電話する」「返信する」「連絡する」「伝える」「確認の連絡をする」など。書類・見積りなど作る物が無いもの）／',
     '  新しい修理・工事の依頼そのもの（案件として別に登録している）／挨拶・お礼・雑談・情報共有だけのもの。',
     'person: 担当がメンバーの誰か、名指し・宛先・「○○さんお願いします」・本人の「対応します」などで',
     '  はっきり分かる時だけ、その苗字（上のリストの表記）。はっきりしなければ、その作業は出さない。',
@@ -287,6 +296,7 @@ function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl, aiOpt
     var body = String(t.text || '').trim().slice(0, 60);
     var conf = (typeof t.confidence === 'number') ? t.confidence : 0;
     if (!person || !body || conf < SUGG_MIN_CONF) return;
+    if (isContactOnlyTask_(body)) return;   // メール・電話・返信など連絡だけのものは入れない（2026-11-20）
     var due = /^\d{4}-\d{2}-\d{2}$/.test(String(t.due || '')) ? t.due : null;
     rows.push({
       person: person, text: body, due: due, priority: 'mid', source: source,

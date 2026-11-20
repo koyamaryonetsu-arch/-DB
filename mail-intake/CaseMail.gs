@@ -9,8 +9,8 @@
  *    送り主は、このスクリプトを動かしている Gmail（小山さんのアドレス）。返信も同じ Gmail に届く。
  *  ・宛先: その案件の劇場のアドレス（必ず）＋ 案件の「TOHOシネマズ担当者」と同じ担当者名のアドレス（必ず）＋ ベルを ON にした人。
  *    菱熱（@ryonetsu.com / @ryonetsu-ai.com）には送らない（LINE の通知があるため）。
- *  ・設定（アプリの「📨 メール通知設定」で切り替え。app_settings の case_mail）:
- *      mode = 'test'（試し: テスト劇場の案件だけを、テストの宛先 test_to だけに送る。客先には送らない）/ 'live'（本番: 全部の案件）/ 'off'（送らない）
+ *  ・設定（アプリの「🗂 マスター編集 → 📨 メール通知」で切り替え。app_settings の case_mail）:
+ *      mode = 'test'（テスト: 全部の案件を、テストの宛先 test_to だけに送る。本文の頭に本番の宛先。客先には送らない）/ 'live'（本番: 全部の案件）/ 'off'（送らない）
  *      sender = 送り主にしたいアドレス（例 tc-hvac-desk@ryonetsu.com）。Gmail の「他のアドレスからメールを送信」に登録・確認が済んでいれば
  *               そのアドレスで送る。まだなら、このスクリプトを動かしている Gmail のアドレスで送る。
  *    実際に使ったアドレス・別名が使えるか・最後に送った時刻は app_settings の case_mail_status に残す（アプリの画面に出す）。
@@ -284,17 +284,16 @@ function sendInitialReport_(ev, settings) {
   if (!rows.length) { cmMarkEvents_([ev], '案件が見つからない（消された）'); return 'skip'; }
   var c = rows[0];
   if (settings.mode === 'off') { cmMarkEvents_([ev], '通知メールは止めている'); return 'skip'; }
-  var isTest = settings.testTheaters.indexOf(String(c.theater || '')) !== -1;
-  if (settings.mode !== 'live' && !isTest) { cmMarkEvents_([ev], '試しモードのため送らず（テスト劇場ではない）'); return 'skip'; }
+  // テスト中（2026-11-20〜）: 全部の案件を、テストの宛先だけに送る（客先には送らない）
   var realTo = caseMailRecipients_(c, cmGet_('customer_accounts?select=email,company,theater,person'), cmApprover_());
   var to = realTo, isTrial = settings.mode !== 'live';
   if (isTrial) {
-    if (!settings.testTo.length) { cmMarkEvents_([ev], '試しモード: テストの宛先が未設定のため送らず'); return 'skip'; }
+    if (!settings.testTo.length) { cmMarkEvents_([ev], 'テスト中: テストの宛先が未設定のため送らず'); return 'skip'; }
     to = settings.testTo.map(function (e) { return { email: e, why: 'テストの宛先' }; });
-  } else if (!to.length) { cmMarkEvents_([ev], '宛先なし（劇場・担当者のアドレスが未登録で、ベルの人もいない）'); return 'skip'; }
-  var subject = (isTrial ? '【試し】' : '') + String(d.subject || '【菱熱工業】初動対応・区分判定のご報告');
+  } else if (!to.length) { cmMarkEvents_([ev], '宛先なし（劇場・担当者・決裁者のアドレスが未登録）'); return 'skip'; }
+  var subject = (isTrial ? '【テスト】' : '') + String(d.subject || '【菱熱工業】初動対応・区分判定のご報告');
   var body = String(d.body || '') + '\n\n' + CASE_MAIL_FOOTER;
-  if (isTrial) body = '【試し】これは初動報告の試しの送信です（客先には送っていません）。\n本番では、次の宛先に送ります: ' +
+  if (isTrial) body = '【テスト】これは初動報告のテストの送信です（客先には送っていません）。\n本番なら、次の宛先に届きます: ' +
     (realTo.length ? realTo.map(function (x) { return x.email + '（' + x.why + '）'; }).join('、') : '（まだ登録されていません）') + '\n────────────────\n\n' + body;
   var addrs = to.map(function (x) { return x.email; }).join(',');
   var snd = cmSender_(settings, '');
@@ -322,8 +321,7 @@ function sendOneCaseMail_(caseId, evs, settings) {
   if (!rows.length) { cmMarkEvents_(evs, '案件が見つからない（消された）'); return 'skip'; }
   var c = rows[0];
   if (settings.mode === 'off') { cmMarkEvents_(evs, '通知メールは止めている'); return 'skip'; }
-  var isTest = settings.testTheaters.indexOf(String(c.theater || '')) !== -1;
-  if (settings.mode !== 'live' && !isTest) { cmMarkEvents_(evs, '試しモードのため送らず（テスト劇場ではない）'); return 'skip'; }
+  // テスト中（2026-11-20〜）: 全部の案件を、テストの宛先だけに送る（客先には送らない）
 
   var accounts = cmGet_('customer_accounts?select=email,company,theater,person');
   var realTo = caseMailRecipients_(c, accounts, cmApprover_());
@@ -331,9 +329,9 @@ function sendOneCaseMail_(caseId, evs, settings) {
   var isTrial = settings.mode !== 'live';
   if (isTrial) {
     // 試し: 客先には送らない。テストの宛先だけに送る（本文の頭に、本番ならだれに届くかを書く）
-    if (!settings.testTo.length) { cmMarkEvents_(evs, '試しモード: テストの宛先が未設定のため送らず'); return 'skip'; }
+    if (!settings.testTo.length) { cmMarkEvents_(evs, 'テスト中: テストの宛先が未設定のため送らず'); return 'skip'; }
     to = settings.testTo.map(function (e) { return { email: e, why: 'テストの宛先' }; });
-  } else if (!to.length) { cmMarkEvents_(evs, '宛先なし（劇場・担当者のアドレスが未登録で、ベルの人もいない）'); return 'skip'; }
+  } else if (!to.length) { cmMarkEvents_(evs, '宛先なし（劇場・担当者・決裁者のアドレスが未登録）'); return 'skip'; }
 
   // 付ける書類（予定に書いてある書類 id。消された書類は付けない）
   var fileIds = evs.filter(function (e) { return (e.kind === 'quote' || e.kind === 'workapp') && e.detail; }).map(function (e) { return e.detail; });
@@ -360,10 +358,10 @@ function sendOneCaseMail_(caseId, evs, settings) {
   // ※ 1日に送れる数（Gmail の上限）を超えると sendEmail がエラーになる → 印を付けないので、次の回にもう一度送る
   //   （残りの数を調べる方法は、Google の許可を新しく取り直す必要があるので使わない）
 
-  var subject = (isTrial ? '【試し】' : '') + caseMailSubject_(c, cmShortTheater_(c.theater));
+  var subject = (isTrial ? '【テスト】' : '') + caseMailSubject_(c, cmShortTheater_(c.theater));
   var body = caseMailBody_(c, evsShown, files);
   if (isTrial) {
-    body = '【試し】これは通知メールの試しの送信です（客先には送っていません）。\n本番では、次の宛先に送ります: ' +
+    body = '【テスト】これは通知メールのテストの送信です（客先には送っていません）。\n本番なら、次の宛先に届きます: ' +
       (realTo.length ? realTo.map(function (x) { return x.email + '（' + x.why + '）'; }).join('、') : '（まだ登録されていません）') +
       '\n────────────────\n\n' + body;
   }
