@@ -7,7 +7,7 @@
 //   スイトール1号 … そうじきの 形の メカに 3人組（キラジョ・ボヤッチ・ズラッカ）が 乗る。ホースは 右へ（となりの すいこみ口へ）
 //   ホシモリ … 石の ふくろう。コマ 0・1 … ためし / 2・3 … 夜明けに しずかに うなずく（client/battle-c9a.js の c9aSprite が pub の hmWin で えらぶ）
 // ・すいこみ口 … ボスの しかけの 部ひん（ふつうの こまかさ）
-import { fit, spark, bez } from './ch3-draw.js?v=bb73dc4f9aca';
+import { fit, spark, bez } from './ch3-draw.js?v=6f2d42a85ac3';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

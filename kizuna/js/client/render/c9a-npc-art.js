@@ -4,7 +4,7 @@
 //   かけら買いの スズ・村の 子ども ラン
 // とくべつな え（paintC9aSpecial）: 星の子 スピカ（小さな 光る 子。フィールドの 連れと くぼ地の 子。コマで 光が またたく）・
 //   石の ふくろう ホシモリ（ためしの 場面。24×24）・光る 道しるべ（ささやきの森の 入口）
-import { Painter } from './pixel.js?v=bb73dc4f9aca';
+import { Painter } from './pixel.js?v=6f2d42a85ac3';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },

@@ -5,8 +5,8 @@
 // ・黒板（418）/ 黒板の とびら（419）/ こおった とびら（420）/ 井戸の ひも（421）/ ためしの とびら（422）/ 星の音さの 台（423）
 // ・祭りの ちょうちん（424 火が ない・425 火が ともった。2コマ）/ くぼ地の ふち（426。焼けた 土の もり上がり）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=bb73dc4f9aca';
-import { prand } from './pixel.js?v=bb73dc4f9aca';
+import { T } from '../../shared/tiles.js?v=6f2d42a85ac3';
+import { prand } from './pixel.js?v=6f2d42a85ac3';
 
 const ST = { d: '#1a1a2a', b: '#2c2c44', l: '#44466a', hl: '#6a6c98', ln: '#10101c' }; // 地下道の 石
 const MS = { d: '#1c3a2c', b: '#2e5a40', l: '#4a8a5a', hl: '#7ac08a' }; // こけ

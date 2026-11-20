@@ -900,3 +900,5 @@ export const C9A_TRACKS = {
   battle3,
 };
 export const C9A_IDS = Object.keys(C9A_TRACKS);
+// 第91回 F: 第2幕の 曲（audio-c9b.js）も 同じ 小さな 道具で 書く
+export const C9A_TOOLS = { SHARP, FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL };

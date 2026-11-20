@@ -7,9 +7,9 @@
 // ・仲間の まど: 名前の 横に ともしびの 火の しるし（消えると 黒い しるし。c9aStatus）
 // ・コマンド: ともしびが 消えた 仲間が いる ときの「明かりをわける」を いちばん 上に（c9aCmdItems・c9aCmdPick。スマホでも 大きな ボタン）
 // ・バナー・大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c8r.js に まぜる）
-import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=bb73dc4f9aca';
-import { SHARE } from '../shared/data/abilities-c9a.js?v=bb73dc4f9aca';
-import { monsterCanvas } from './render/monsters.js?v=bb73dc4f9aca';
+import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=6f2d42a85ac3';
+import { SHARE } from '../shared/data/abilities-c9a.js?v=6f2d42a85ac3';
+import { monsterCanvas } from './render/monsters.js?v=6f2d42a85ac3';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];

@@ -6,10 +6,10 @@
 //   ・r85bMarks … 仲間の まどの 小さな 札（「けっかい3」・「かげろう3」）。battle-buffs.js の unitMarks。家族 みんなの 画面に 出る（pub の r85bMadoka・r85bRui）
 //   ・r85bPresent … 二ひき同時の 2ひきめの えんしゅつ・けっかいと かげろうが かかった 人の まどが 光る
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { RYU } from '../shared/data/abilities-r85b.js?v=bb73dc4f9aca';
-import { ABILITIES } from '../shared/data/abilities.js?v=bb73dc4f9aca';
-import { ryuSetOf, ryuMp } from '../shared/battle-r85b.js?v=bb73dc4f9aca';
-import { BW, BH } from './render/battlefx.js?v=bb73dc4f9aca';
+import { RYU } from '../shared/data/abilities-r85b.js?v=6f2d42a85ac3';
+import { ABILITIES } from '../shared/data/abilities.js?v=6f2d42a85ac3';
+import { ryuSetOf, ryuMp } from '../shared/battle-r85b.js?v=6f2d42a85ac3';
+import { BW, BH } from './render/battlefx.js?v=6f2d42a85ac3';
 
 const CSS = `
 .menu .ryu-dot { display: inline-block; width: 0.85em; height: 0.85em; border-radius: 50% 50% 50% 0; margin-right: 0.35em; vertical-align: -0.05em; border: 2px solid var(--ryu2, #fff); transform: rotate(-45deg); }

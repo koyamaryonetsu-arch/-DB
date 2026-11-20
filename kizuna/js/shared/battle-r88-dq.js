@@ -7,7 +7,7 @@
 //   ・ブラックロッド（品の atkMag）… 攻撃魔力が 高いほど ふつうの 攻撃が 強い
 //   ・まじんのかなづち（品の atkAcc）… ふつうの 攻撃が 外れやすい（会心は 品の crit）
 //   どれも 戦いの 中だけ（セーブしない）。battle.js は import しない（battle.js・battle-gearfx.js から よばれる）
-import { ITEMS, baseItemId } from './data/items.js?v=bb73dc4f9aca';
+import { ITEMS, baseItemId } from './data/items.js?v=6f2d42a85ac3';
 
 // はね返った 呪文の 強さ（となえた 敵に 当たる。1回で たおれて しまわない ように、さいだいHPの MIRROR_CAP まで）
 export const MIRROR_MULT = 1;

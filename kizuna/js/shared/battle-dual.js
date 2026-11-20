@@ -10,21 +10,21 @@
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
 // 第50回 D4: 合体技の 補助の だんかい・回数（skill-tier.js）
-import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=bb73dc4f9aca';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=bb73dc4f9aca';
-import { DUAL_TECHS, dualOptions, partnerNow, dualOnceReason } from './data/dual.js?v=bb73dc4f9aca';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=bb73dc4f9aca';
+import { tierMods, DUAL_TIER, SUPPORT_TYPES } from './skill-tier.js?v=6f2d42a85ac3';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=6f2d42a85ac3';
+import { DUAL_TECHS, dualOptions, partnerNow, dualOnceReason } from './data/dual.js?v=6f2d42a85ac3';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=6f2d42a85ac3';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=bb73dc4f9aca';
-import { MONSTERS } from './data/monsters.js?v=bb73dc4f9aca';
+import { deduceElement } from './data/abilities-jobs6.js?v=6f2d42a85ac3';
+import { MONSTERS } from './data/monsters.js?v=6f2d42a85ac3';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=bb73dc4f9aca';
+import { dualFor } from './ability-label.js?v=6f2d42a85ac3';
 // 第84回 A班: れい丸の 技は 合体技の 強さに 使う 数の √ で わって 数える（合体技は れい丸を 使わない ため。battle-r84a.js）
-import { reiNeed, reiDualMult } from './battle-r84a.js?v=bb73dc4f9aca';
+import { reiNeed, reiDualMult } from './battle-r84a.js?v=6f2d42a85ac3';
 // 第85回 A班: となえて から うつ 大砲（ドラグ・スレイブ など）は 2ターンで 1発 なので 割り引いて 数える（battle-r85a.js の bigDualMult）
-import { bigDualMult } from './battle-r85a.js?v=bb73dc4f9aca';
+import { bigDualMult } from './battle-r85a.js?v=6f2d42a85ac3';
 // 第87回 A班・E班: 合体技は 魔力の「頭打ちの あとの のび」の 外（pow-scale.js の powScaleDual。見つもりも 回復も）
-import { powScaleDual } from './pow-scale.js?v=bb73dc4f9aca';
+import { powScaleDual } from './pow-scale.js?v=6f2d42a85ac3';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 // 第55回: マルチプレイで 弱すぎると 家族の 声。2人分の 番と まつ 時間に 見あう ように 上げた（前は 1.8・2.2・3.0）

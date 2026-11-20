@@ -3,9 +3,9 @@
 //   ・画面を 大きく 使う まど 1まい（冒険のしおりと おなじ 考え。たて画面は 1列、よこ画面・PC は 2〜3列）
 //   ・キーボード・ゲームパッド（上下左右・決定・もどる）・タップの どれでも（dom.js の ListMenu）
 //   ・ひとりで遊ぶサイトでは「家族サーバーでいっしょに遊ぶと進みます」だけ（エラーに しない）
-import { el, ListMenu, esc, toast } from './dom.js?v=bb73dc4f9aca';
-import './r78-mission-css.js?v=bb73dc4f9aca';
-import { request } from './syncui.js?v=bb73dc4f9aca';
+import { el, ListMenu, esc, toast } from './dom.js?v=6f2d42a85ac3';
+import './r78-mission-css.js?v=6f2d42a85ac3';
+import { request } from './syncui.js?v=6f2d42a85ac3';
 
 const OFFLINE_TEXT = '家族サーバーでいっしょに遊ぶと進みます';
 const HOW = '人間のキャラが2人いじょう、同じパーティーで遊んだ時だけ進む。ひとりの時は進まない。';
