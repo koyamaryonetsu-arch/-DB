@@ -36,7 +36,6 @@ const CSS = `
 .c9c-top .ch { margin-top: 5px; font-size: 19px; font-weight: bold; color: #d8e8ff; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .c9c-top .ch span { display: block; padding: 0 10px; border-radius: 6px; background: rgba(90, 110, 180, 0.35); }
 .c9c-top .lim { margin-top: 4px; font-size: 14px; color: #ffc8b0; }
-/* 第92回 A班: なぞの まどが 出て いる 間は 戦いの 知らせ（バナー）を 下に 出す（かさならない ように） */
 .c9c-has-top .b-banner { top: auto; bottom: 6%; }
 .c9c-top .lim.last { color: #ff8a8a; animation: c9c-blink 0.8s infinite; }
 .c9c-top.hard { border-color: rgba(255, 120, 160, 0.9); }
@@ -51,6 +50,7 @@ const CSS = `
 .c9c-top.sand.boom { border-color: #ff4a4a; box-shadow: 0 0 14px rgba(255, 74, 74, 0.9); }
 .c9c-top.sand.boom .tx { color: #ff9a9a; animation: c9c-blink 0.5s infinite; }
 .c9c-top.sand.dizzy { border-color: #8affc8; }
+.c9c-top.c9c-flow { position: relative; left: auto; top: auto; transform: none; margin: 3px auto 0; max-width: 98%; flex: none; box-sizing: border-box; }
 @keyframes c9c-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @media (max-aspect-ratio: 1/1) { .c9c-top { top: 4px; max-width: 98%; min-width: 72%; padding: 3px 8px 4px; } .c9c-top .q { font-size: 19px; letter-spacing: 0; }
   .c9c-top .ch { font-size: 16px; margin-top: 3px; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px 6px; } .c9c-top .ch span { padding: 0 6px; }
@@ -103,16 +103,21 @@ function sandCls(c) {
   if ((c.sGrains ?? 9) <= (c.sDizzyAt ?? 2)) return 'c9c-top sand low';
   return 'c9c-top sand';
 }
+// 第92回 A班: スマホの たてでは 戦いの 絵が 小さいので、なぞの まどは 絵の すぐ 下に ならべる（絵と 知らせを かくさない）
+const portrait = () => typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
 function showTop(scene, html, cls) {
   const el = topEl(scene);
   if (!el) return;
-  const key = cls + '|' + html;
+  const flow = portrait() && !!scene.stage.parentElement;
+  if (flow && el.parentElement !== scene.stage.parentElement) scene.stage.after(el);
+  else if (!flow && el.parentElement !== scene.stage) scene.stage.append(el);
+  const key = cls + '|' + html + '|' + flow;
   if (el.dataset.k === key) return;
   el.dataset.k = key;
-  el.className = cls;
+  el.className = cls + (flow ? ' c9c-flow' : '');
   el.innerHTML = html;
   el.style.display = html ? '' : 'none';
-  scene.stage?.classList?.toggle('c9c-has-top', !!html);
+  scene.stage?.classList?.toggle('c9c-has-top', !!html && !flow);
 }
 
 // ───────────── え（client/battle-c9b.js の c9bSprite の あと）─────────────
@@ -192,8 +197,8 @@ export function c9cPresent(scene, ev) {
   const g = scene.game;
   const warn = (t) => { g.audio.sfx('warn'); scene.banner(t, 'danger'); };
   const good = (t, s = 'crit') => { g.audio.sfx(s); scene.banner(t, 'combo'); };
-  // 第92回 A班: なぞが 出た 時は まどが 出るので バナーは 出さない（音と ゆれだけ。まどと かさならない ように）
-  if (ev.c9zRiddle) { g.audio.sfx('warn'); scene.shake?.(300, 3); }
+  // 第92回 A班: なぞの まどが 出て いる 間の バナーは 戦いの 絵の 下の ほうに 出す（CSS の .c9c-has-top。かさならない）
+  if (ev.c9zRiddle) warn(ev.c9zRiddle.hard ? '！むずかしいなぞだ…「こたえる」で答えよう！' : '！なぞが出た！「こたえる」で答えよう！');
   if (ev.c9zAnswer) {
     if (ev.c9zAnswer.ok) good('せいかい！なぞの守りが消えた！', 'sparkle');
     else warn('ちがう…！頭がさかさまに…');
