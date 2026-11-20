@@ -115,6 +115,7 @@ test('しくみ: 3つの 新しい たのまれごと（新しい 流れの 職�
   for (const id of WORK8_NPC_IDS) {
     const { map, n } = npcAnywhere(id);
     assert.ok(!isBlocked(MAPS[map], Math.floor(n.x), Math.floor(n.y), () => true) || n.solid, `${id} の 場所`);
+    assert.ok(!(MAPS[map].roofs || []).some((r) => n.x >= r.x && n.x < r.x + r.w && n.y >= r.y && n.y < r.y + r.h), `${id} は たてものの 中では ない`);
     if (n.sprite.startsWith('mon:')) assert.ok(MONSTER_ART[n.sprite.slice(4)], `${id} の 絵`);
     else assert.ok(npcOpts(n.sprite), `${id} の みため`);
     assert.ok(!MAPS[map].npcs.some((o) => o !== n && !(pair.has(o.id) && pair.has(n.id)) && Math.floor(o.x) === Math.floor(n.x) && Math.floor(o.y) === Math.floor(n.y)), `${id} は ほかの 人と かさならない`);

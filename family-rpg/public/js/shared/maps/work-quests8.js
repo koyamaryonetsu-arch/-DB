@@ -36,8 +36,8 @@ export const GLOW_STEPS = ['fq_glow_s1', 'fq_glow_s2', 'fq_glow_s3']; // 小舟�
 export const ROAD_VOICES = ['fq_road_v1', 'fq_road_v2', 'fq_road_v3']; // 薬屋の おねえさん・ミルク売りの おじさん・材木屋の おじいさん
 export const ROAD_STEPS = ['fq_road_s1', 'fq_road_s2', 'fq_road_s3']; // 作戦の 立て方・岩の どかし方・通す じゅんばん
 
-// 36. ルミナの 町の 西の 小さな 黒板（星ぞら教室）
-export const BOARD_SPOT = { x: 38, y: 37 };
+// 36. ルミナの 町の 西の 小さな 広場の 黒板（星ぞら教室。たてものの 外）
+export const BOARD_SPOT = { x: 45, y: 36 };
 // 37. 鏡の湖の 北の ほとりの かがり火
 export const FIRE_SPOT = { x: 91, y: 73 };
 // 38. ルミナと ホシフル村の 間の 道の 大岩（平原の まん中。道は ふさがない）
@@ -50,8 +50,8 @@ const after = (done) => ({ all: [OPEN, done] });
 const WORK8_NPCS = [
   // 36. ルミナの町: 星ぞら教室の 黒板（いつも）・こわがっている 子どもたち・お母さん・ねむれない 男の子・星読みの おじいさん・おねえちゃん
   ['fq_kids_board', '星ぞら教室の黒板', 'mon:fq_star_board', 'fq_kids_board', 'overworld', BOARD_SPOT.x, BOARD_SPOT.y, { show: SHOWN, fixed: true }],
-  ['fq_kids_kids', 'こわがっている子どもたち', 'fq_scared_kids', 'fq_kids_kids', 'overworld', 40, 37, { show: SHOWN }],
-  ['fq_kids_host', '子どもたちのお母さんサナ', 'fq_kids_mom', 'fq_kids_host', 'overworld', 36, 40, { show: SHOWN }],
+  ['fq_kids_kids', 'こわがっている子どもたち', 'fq_scared_kids', 'fq_kids_kids', 'overworld', 47, 36, { show: SHOWN }],
+  ['fq_kids_host', '子どもたちのお母さんサナ', 'fq_kids_mom', 'fq_kids_host', 'overworld', 43, 38, { show: SHOWN }],
   ['fq_kids_v1', 'ねむれない男の子テト', 'fq_sleepy_boy', 'fq_kids_v1', 'overworld', 34, 41, { show: SHOWN }],
   ['fq_kids_v2', '星読みのおじいさん', 'fq_star_elder', 'fq_kids_v2', 'overworld', 41, 33, { show: SHOWN }],
   ['fq_kids_v3', 'おねえちゃんのリリ', 'fq_big_sister', 'fq_kids_v3', 'overworld', 47, 38, { show: SHOWN, wander: 1 }],

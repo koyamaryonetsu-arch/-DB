@@ -65,6 +65,7 @@ test('しくみ: 今の ミドリナ地方に 人を 足すだけ・c9_starfall 
     assert.ok(SCRIPTS[at.n.script] && SCRIPTS[at.n.script] === C9AD_SCRIPTS[at.n.script], `${id} の だいほん`);
     const n = at.n;
     assert.ok(!isBlocked(m, Math.floor(n.x), Math.floor(n.y), () => true) || n.solid, `${id} の 場所`);
+    assert.ok(!(m.roofs || []).some((r) => n.x >= r.x && n.x < r.x + r.w && n.y >= r.y && n.y < r.y + r.h), `${id} は たてものの 中では ない`);
     if (n.sprite.startsWith('mon:')) assert.ok(MONSTER_ART[n.sprite.slice(4)], `${id} の 絵`);
     else assert.ok(npcOpts(n.sprite), `${id} の みため`);
     assert.ok(!SECRET.test(n.name), `${id} の 名前`);
