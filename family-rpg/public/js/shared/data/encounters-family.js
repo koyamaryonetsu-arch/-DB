@@ -50,4 +50,9 @@ export const FIXED_FAMILY = {
   fq_frostlake: { group: [['snowman', 1, 1], ['snow_slime', 2, 2]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
   // 38. 大岩の 下の あなの 岩もぐら（おうちの 上に 岩が ころがって おこっていた）
   fq_roadmole: { group: [['rock_mole', 2, 2], ['rockman', 1, 1]], bg: 'grass', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
+  // ───── 第92回 D班（data/sidequests-work9.js）。第3部 第1章 第2幕の あと（Lv98 の ころ）なので 敵Lv98（大地の下の 魔物は もとが 強いので、魔法使い ひとりでも 完全オートで 勝てる ように enemyPow を 0.2〜0.25 に）─────
+  // 39. かれた わき水の われめに すんで いた すいしょうのカニ（水が 来て おどろいた）
+  fq_springcrab: { group: [['c9b_crab', 2, 2]], bg: 'c9b_under', bgm: 'battle', canFlee: false, enemyLv: 98, enemyPow: 0.25 },
+  // 40. キノコ畑の どろぼう（おなかを すかせた どうくつコウモリ）
+  fq_batthief: { group: [['c9b_bat', 3, 3]], bg: 'c9b_under', bgm: 'battle', canFlee: false, enemyLv: 98, enemyPow: 0.2 },
 };

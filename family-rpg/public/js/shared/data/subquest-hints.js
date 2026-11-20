@@ -28,6 +28,8 @@ import { C8C, LETTER8C } from '../maps/c8c-flags.js';
 import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js';
 // 第90回 D班: 第3部 第1章 第1幕の より道（今の ルミナ・ホシフル村）
 import { C9AD_OPEN, LOST9 } from '../maps/c9ad-side.js';
+// 第92回 D班: 第3部 第1章 第2幕の あとの より道（大地の下・ヒカリゴケの里）
+import { C9BD_OPEN, LAMP9, MOLE9 } from '../maps/c9bd-side.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -103,6 +105,9 @@ const build = () => [
   { id: 'c8rd_last', name: '時をこえる手紙の、最後の1通', open: [C8RD_OPEN], start: LAST9.start, done: LAST9.done, place: 'ホシフル村', who: '手紙をあずかるゆうびん屋さん', npc: 'c8rd_last_host', hint: '千年前からあずかっている手紙の、とどけ先を探しているらしい。' },
   // 第3部 第1章 第1幕（第90回 D班。今の ルミナの町の より道。sidequests-c9ad.js）
   { id: 'c9ad_lost', name: '星ふるえで、まいごになった物', open: [C9AD_OPEN], start: LOST9.start, done: LOST9.done, place: 'ルミナの町', who: '落とし物あずかり所のおねえさん', npc: 'c9ad_host', hint: '星ふるえで、あちこちにころがった落とし物を、探しているらしい。' },
+  // 第3部 第1章 第2幕の あと（第92回 D班。大地の下の より道。sidequests-c9bd.js）
+  { id: 'c9bd_lamp', name: '大王の、大きなランタン', open: [C9BD_OPEN], start: LAMP9.start, done: LAMP9.done, place: 'ヒカリゴケの里', who: 'ヒカリゴケの子どもコロン', npc: 'c9bd_l_host', hint: '大王さまのために、何かを作りたいらしい。' },
+  { id: 'c9bd_mole', name: 'まいごの、もぐら兵', open: [C9BD_OPEN], start: MOLE9.start, done: MOLE9.done, place: '大地の下', who: 'もぐら兵の隊長ドドン', npc: 'c9bd_m_host', hint: 'いちばん小さなもぐら兵が、帰ってこないらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

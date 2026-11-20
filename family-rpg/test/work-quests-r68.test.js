@@ -64,7 +64,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 6つの 新しい たのまれごと（第66回の 新しい 伝説の 職業に つながる 系統）・今の 時代の 町・カリムの あとだけ・だいほんと 戦い', () => {
   assert.equal(WORK3_QUESTS.length, 6);
-  assert.equal(FAMILY_QUESTS.length, 38); // 第73回: 24〜26・第74回: 27〜29・第75回: 30〜32・第80回: 33〜35・第90回: 36〜38 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 41); // 第73回: 24〜26・第74回: 27〜29・第75回: 30〜32・第80回: 33〜35・第90回: 36〜38・第92回: 39〜41 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(17, 23), WORK3_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(11, 17), WORK2_QUESTS);
   assert.deepEqual(WORK3_QUESTS.map((x) => x.roots[0]), ['career', 'star_chef', 'neko_robot', 'firefighter', 'daikenja', 'kappa']);
