@@ -4,12 +4,10 @@
 // ・光る こけは 第1幕の 光の輪の しくみ（world/c9a-steps.js の stepC9a。map.c9a の mossSteps = 40。パーティーで 1つ・セーブしない）
 // ・魔物（map.symBlock）: ふつうの 魔物は ともった 柱の 明かりの 中だけ・大ミミズ（MONSTERS[種].darkOnly）は 暗い 所だけ
 //   （柱・こけ・村の 明かりの 中に 入らない・出ない・光ったら 消える）。柱を ともすほど 安全
-// ・魔物の 出る 表が まだ ない 間（B班の 表を 合わせる 前）は 第1幕の 表を かりる（tableFor）
 import { MAPS } from '../maps/index.js';
 import { MONSTERS } from '../data/monsters.js';
-import { ENCOUNTER_TABLES } from '../data/encounters.js';
 import { brightCells9b, mapCells9b, pillarStage } from '../maps/c9b-light.js';
-import { C9B_MAP, C9B_TABLE } from '../maps/c9b-flags.js';
+import { C9B_MAP } from '../maps/c9b-flags.js';
 import { c9aLitAt } from './c9a-steps.js';
 
 // その マップに いる 人の 世界の フラグ（だれか 1人でも 柱を ともして いれば、その 明かりは ある）
@@ -40,12 +38,6 @@ export function underBlocked(world, sym, x, y) {
 }
 if (MAPS[C9B_MAP.under]) MAPS[C9B_MAP.under].symBlock = (world, sym, x, y) => underBlocked(world, sym, x, y);
 
-// 魔物の 出る 表（B班の 表が ない 間は 第1幕の 表。大地の下は くらやみ虫〈darkOnly〉の いる 地下3階の 表）
-export const C9B_TABLE_FALLBACK = { [C9B_TABLE.shaft]: 't9a_b2', [C9B_TABLE.light]: 't9a_b3', [C9B_TABLE.hall]: 't9a_b1' };
-for (const id of [C9B_MAP.shaft, C9B_MAP.under, C9B_MAP.hall]) {
-  const m = MAPS[id];
-  if (m) m.tableFor = (zone) => (ENCOUNTER_TABLES[zone] ? null : C9B_TABLE_FALLBACK[zone] || null);
-}
 
 // ともした 柱の 数（0〜6。画面の pillarStage と おなじ）
 export const pillarStageOf = (world, s) => pillarStage(world.hasFlagFn(s));

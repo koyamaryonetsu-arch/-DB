@@ -66,7 +66,7 @@ export const C9_START_TARGETS = [{ npc: 'elder' }];
 // ───── 第2幕「鉱山の底の先」を 開ける 切りかえ（plan-part3.md の 10-5。第91回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第1幕 クリアの 目標は「第2幕へ（続きはアップデートで！）」・
 //   くぼ地で 星の音さを 鳴らしても 幕は 始まらない / true … 目標が「ながれ星のくぼ地で、星の音さを鳴らしてみよう」に かわり、前の 文は 古い 文の 表へ）
-export const PART3_ACT2_OPEN = false;
+export const PART3_ACT2_OPEN = true;
 // 第1幕 クリア（c9_act1）の 目標の 文（開いた あとは「ながれ星のくぼ地で、星の音さを鳴らしてみよう」。前の 文は 古い 文 ACT1_END_OLD）
 export const act1ClearObjective = (open = PART3_ACT2_OPEN) => (open ? C9B_OBJ.start : C9A_OBJ.act1);
 // 幕を 開けた あと、セーブに のこる 前の 文（今は 知らない 文に なるので、progress.js の repairObjective が すすみぐあいから なおす）

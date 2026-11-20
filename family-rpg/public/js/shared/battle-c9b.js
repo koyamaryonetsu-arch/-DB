@@ -17,7 +17,7 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { TERU } from './data/abilities-c9b.js';
 import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js';
-import { C9B_ACT1, C9B_BOXES } from './data/c9b-names-b.js';
+import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js';
 import { canUse } from './ai.js';
 
 export { TERU };

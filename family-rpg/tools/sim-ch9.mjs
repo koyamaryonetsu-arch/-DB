@@ -22,7 +22,7 @@ import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
 import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
 import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
-import { C9B_BATTLE } from '../public/js/shared/data/c9b-names-b.js';
+import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';

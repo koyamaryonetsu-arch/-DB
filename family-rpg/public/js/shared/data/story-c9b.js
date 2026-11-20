@@ -22,7 +22,7 @@ import { MINE_STAIRS9B, MINER9B, c9bGuardFlag, C9B_SHAFT_SEEN } from '../maps/c9
 import { FIXED_ENCOUNTERS } from './encounters.js';
 import { SHOPS } from './shops.js';
 import { C7_SHOP_TOOLS } from './items-c7.js';
-import { PAST_SHOP_WEAPONS, PAST_SHOP_ARMOR } from './items-past.js';
+import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js';
 import { innSteps } from './inn.js';
 import { mergeBossHints } from './boss-hints.js';
 
@@ -33,8 +33,8 @@ const KING = C9B_KING_NAME;
 const CHIEF = FOLK9B.chief.name;
 const ARMORER = '武具屋のガンツ';
 const P = UNDER_POS;
-// きまった 戦いの はじめの 魔物（showMon。B班の 魔物が 入るまでは かりの 戦いの 魔物）
-const monOf = (id) => (id === C9B_BATTLE.king && FIXED_ENCOUNTERS[id]?.group?.some((g) => g[0] === C9B_BOSS_MON) ? C9B_BOSS_MON : FIXED_ENCOUNTERS[id]?.group?.[0]?.[0] || null);
+// きまった 戦いの はじめの 魔物（showMon。大王は デデドン大王・手下は その 戦いの はじめの もぐら兵。B班の data/encounters-c9b.js）
+const monOf = (id) => (id === C9B_BATTLE.king ? C9B_BOSS_MON : FIXED_ENCOUNTERS[id]?.group?.[0]?.[0] || null);
 
 // ───── 目標の 文（ネタバレしない。場所と しくみだけ）─────
 export const C9B_OBJ = {
@@ -378,11 +378,10 @@ const SHOP9B_VILLAGE = 'c9b_village';
 if (!SHOPS[SHOP9B_VILLAGE]) {
   SHOPS[SHOP9B_VILLAGE] = { name: 'ヒカリゴケの道具屋', kind: 'item', keeper: '道具屋のピコ', hello: 'いらっしゃい！\n地下の民の、とっておきの道具だよ。', items: C7_SHOP_TOOLS };
 }
-// くぼ地の 武具屋（品は B班の data/items-c9b.js。合わせるまでは かり）
+// くぼ地の 武具屋（品は B班の data/items-c9b.js）
 const SHOP9B_CRATER = 'c9b_crater';
-export const C9B_SHOP_STUB = [...PAST_SHOP_WEAPONS, ...PAST_SHOP_ARMOR];
 if (!SHOPS[SHOP9B_CRATER]) {
-  SHOPS[SHOP9B_CRATER] = { name: 'くぼ地の武具屋', kind: 'arms', keeper: ARMORER, hello: 'いらっしゃい！\n星の光で、きたえた武器と防具だぜ。', items: C9B_SHOP_STUB };
+  SHOPS[SHOP9B_CRATER] = { name: 'くぼ地の武具屋', kind: 'arms', keeper: ARMORER, hello: 'いらっしゃい！\n星の光で、きたえた武器と防具だぜ。', items: [...C9B_SHOP_WEAPONS, ...C9B_SHOP_ARMOR] };
 }
 export const C9B_SHOPS = { village: SHOP9B_VILLAGE, crater: SHOP9B_CRATER };
 

@@ -17,7 +17,7 @@ import { MONSTER_RANKS } from '../public/js/shared/data/monster-ranks.js';
 import { rareWhereText } from '../public/js/shared/data/rare-loot.js';
 import { BOSS_HINTS, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
 import { canEquip } from '../public/js/shared/stats.js';
-import { C9B_ACT1, C9B_BOXES, C9B_BATTLE, C9B_BOSS_MON, C9B_MON_PREFIX, C9B_TABLE, C9B_TRACKS, UNDER_RAFT } from '../public/js/shared/data/c9b-names-b.js';
+import { C9B_ACT1, C9B_BOXES, C9B_BATTLE, C9B_BOSS_MON, C9B_MON_PREFIX, C9B_TABLE, C9B_TRACKS, UNDER_RAFT } from '../public/js/shared/maps/c9b-flags.js';
 import {
   MONSTERS_C9B, C9B_MINIONS, C9B_UNDER_MON, C9B_HALL_MON, C9B_RECOLOR_BASE, C9B_HIDDEN, C9B_MAT_DROPS, C9B_DEDEDON, C9B_DISHES, C9B_DISH_IDS, C9B_MIMIZU, DEDEDON_NAME,
 } from '../public/js/shared/data/monsters-c9b.js';
@@ -85,7 +85,7 @@ test('名前の 約束（10-4）: 決まった 戦い c9b_king・c9b_guard1〜3�
   assert.deepEqual(C9B_DISHES, { meat: 'c9b_dish_meat', cake: 'c9b_dish_cake', soup: 'c9b_dish_soup' });
   assert.ok(king.boss && king.canFlee === false && !king.loseOk);
   assert.equal(king.bgm, C9B_TRACKS.king);
-  assert.equal(C9B_DEDEDON, C9B_BOSS_MON.king);
+  assert.equal(C9B_DEDEDON, C9B_BOSS_MON);
   assert.equal(C9B_MIMIZU, 'c9b_mimizu');
   for (const g of ['guard1', 'guard2', 'guard3']) assert.ok(FIXED_ENCOUNTERS[C9B_BATTLE[g]].group.every(([sp]) => C9B_HALL_MON.includes(sp)), g);
   for (const f of Object.values(FIXED_C9B)) assert.ok(battleBgSpec(f.bg), f.bg);
@@ -528,7 +528,7 @@ test('がめん: てらすの たまりぐあい・コマンド「スピカ：�
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c9b-names-b.js', 'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
+    'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
   ];

@@ -15,6 +15,8 @@ export const C9B = {
   act2: 'c9_act2', // 第2幕 クリア
 };
 // 一本の 線の じゅん（この じゅんで CH9_STEPS に ならぶ）
+// 第1幕 クリア（スピカの「てらす」が 出る。B班 battle-c9b.js）
+export const C9B_ACT1 = 'c9_act1';
 export const C9B_LINE = ['ring2', 'mine', 'under', 'village', 'gate', 'king', 'raft', 'act2'].map((k) => C9B[k]);
 
 // ───── 水晶の 柱（6本。セーブする）・食料庫の はこ（3つ）─────

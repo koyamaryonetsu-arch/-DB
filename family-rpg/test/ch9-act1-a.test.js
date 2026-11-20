@@ -21,7 +21,7 @@ import { CRATER_POS, B4_TRIAL } from '../public/js/shared/maps/c9a-rows.js';
 import { newLight, stepLight, doorOpen, crystalsLit, litCells, connectedOf, MOSS_STEPS, LIGHT_ME } from '../public/js/shared/maps/c9a-light.js';
 import { lightFor, c9aSnap, c9aLitAt, pruneC9a } from '../public/js/shared/world/c9a-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
-import { CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, CH9_OBJECTIVE_TALK, applyCh9, PART3_OPEN } from '../public/js/shared/data/story-c9.js';
+import { CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, CH9_OBJECTIVE_TALK, applyCh9, PART3_OPEN, act1ClearObjective } from '../public/js/shared/data/story-c9.js';
 import { C9A_OBJ, CH9A_STORY_SCRIPTS, CH9A_PROGRESS, C9A_TOWN_LINES, TRIO9A } from '../public/js/shared/data/story-c9a.js';
 import { objectiveFromFlags, KNOWN_OBJECTIVES } from '../public/js/shared/data/progress.js';
 import { OBJECTIVE_TARGETS, questMarks } from '../public/js/shared/data/quest-targets.js';
@@ -293,7 +293,7 @@ test('階段: 守り星の石の 南の 階段 ⇄ 地下1階・地下の 階段
 // ───────────── 目標・しおり ─────────────
 test('目標・行き先・仲間の ひとこと・しおり（第3部 第1章 第1幕）', () => {
   assert.ok(CH9_PROGRESS.length >= CH9A_PROGRESS.length);
-  for (const [, t] of CH9A_PROGRESS) {
+  for (const [, t] of CH9_PROGRESS.slice(0, CH9A_PROGRESS.length)) { // 第91回: 第1幕 クリアの 文は 第2幕の はじまりに（story-c9.js が 入れかえた 表）
     assert.ok(KNOWN_OBJECTIVES.has(t), t);
     const talk = OBJECTIVE_TALK[t];
     assert.ok(talk, t);
@@ -322,7 +322,9 @@ test('目標・行き先・仲間の ひとこと・しおり（第3部 第1章 
   assert.equal(of(...UPTO('c9_b1'), c9aSeen(1), c9aSeen(2)), C9A_OBJ.cave2);
   assert.equal(of(...UPTO('c9_b3'), c9aSeen(4)), C9A_OBJ.cave4);
   assert.equal(of(...UPTO('c9_fork')), C9A_OBJ.fork);
-  assert.equal(of(...UPTO('c9_act1')), C9A_OBJ.act1);
+  // 第91回: 第2幕が 開いた（PART3_ACT2_OPEN）。第1幕 クリアの 目標は 第2幕の はじまりに。前の「第2幕へ（続きはアップデートで！）」は なおる 文
+  assert.equal(of(...UPTO('c9_act1')), act1ClearObjective());
+  assert.equal(act1ClearObjective(), 'ながれ星のくぼ地で、星の音さを鳴らしてみよう');
   assert.ok(/アップデート/.test(C9A_OBJ.act1) && C9A_OBJ.act1.includes('第3部'));
   // 地図の しるし（したくの 間は 星の花・ちょうちん・子ども。すんだ 物は 出ない）
   const c = { flags: flagsOf(...P2, C9A.festival, C9A_PREP_ASK, C9A_LAMPS[0]), objective: C9A_OBJ.ask };
@@ -469,7 +471,7 @@ test('通し: 第2部を クリアした セーブから 1年ぶりの 朝・し
   await place(bot, C9A_MAP.crater, C.enter.x, C.enter.y);
   await stepOn(bot, C.craft.x + 4, C.craft.y + 1);
   assert.ok(c.flags[C9A.act1]);
-  assert.equal(c.objective, C9A_OBJ.act1);
+  assert.equal(c.objective, act1ClearObjective()); // 第91回: 第2幕が 開いた
   assert.ok(storyPlace(c).cleared);
   for (const id of ['c9a_inn', 'c9a_shop', 'c9a_buyer']) assert.ok(condOk(MAPS.c9a_crater.npcById[id].show, (f) => !!c.flags[f]), id);
   // 星の音さの れんしゅう（くぼ地で 鳴らすと かくれた 宝箱が 光る）

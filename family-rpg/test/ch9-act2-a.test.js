@@ -9,7 +9,6 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, isBlocked, canStand, condOk, effectiveTile } from '../public/js/shared/maps/index.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
-import '../public/js/shared/data/c9b-stub.js';
 import {
   C9B, C9B_LINE, C9B_PILLARS, C9B_BOXES, C9B_MAP, C9B_MAP_IDS, C9B_BATTLE, C9B_GUARDS, C9B_CHEST_IDS, C9B_CHEST_ALL, C9B_TABLE,
   C9B_TRACK_IDS, C9B_TILE_FIRST, C9B_TILE_LAST, UNDER_RAFT, C9B_PILLAR_RADIUS, C9B_MOSS_STEPS, C9B_SPICA_LIGHT,

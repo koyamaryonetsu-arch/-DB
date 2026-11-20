@@ -6,7 +6,7 @@
 //   t9b_hall … 大王の やしき（c9b_hall。Lv99。もぐら兵）
 // ふつうの 魔物 6しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、ランクが ちらばる ように する（tools/gen-monster-ranks.mjs）
 import { C9B_DEDEDON, C9B_DISHES, C9B_MIMIZU } from './monsters-c9b.js';
-import { C9B_BATTLE, C9B_TRACKS } from './c9b-names-b.js';
+import { C9B_BATTLE, C9B_TRACKS } from '../maps/c9b-flags.js';
 // 負けた 時の ヒントの 文（boss-hints-c9b.js が mergeBossHints を よぶ）
 import './boss-hints-c9b.js';
 

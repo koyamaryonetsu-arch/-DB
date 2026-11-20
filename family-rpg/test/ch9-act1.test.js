@@ -13,7 +13,7 @@ import { FOREST_POS9A } from '../public/js/shared/maps/c9a-forest.js';
 import { LAMPS9A } from '../public/js/shared/maps/c9a-field.js';
 import { CRATER_POS, B4_TRIAL } from '../public/js/shared/maps/c9a-rows.js';
 import { lightFor, c9aSnap } from '../public/js/shared/world/c9a-steps.js';
-import { C9_OBJ } from '../public/js/shared/data/story-c9.js';
+import { C9_OBJ, act1ClearObjective } from '../public/js/shared/data/story-c9.js';
 import { C9A_OBJ } from '../public/js/shared/data/story-c9a.js';
 import { C9A_TREASURE } from '../public/js/shared/data/items-c9a.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -161,7 +161,7 @@ test('通し（本当の 戦い）: 第2部 クリア → 星祭り → 森 → 
   await place(bot, C9A_MAP.crater, C.enter.x, C.enter.y);
   await stepOn(bot, C.craft.x + 4, C.craft.y + 1);
   assert.ok(c.flags[C9A.act1]);
-  assert.equal(c.objective, C9A_OBJ.act1);
+  assert.equal(c.objective, act1ClearObjective()); // 第91回: 第2幕が 開いた
   assert.ok(storyPlace(c).cleared);
   await touch(bot, C.rock, 0);
   assert.ok(c.flags[C9A_FORK_RING]);

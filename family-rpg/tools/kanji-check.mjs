@@ -597,12 +597,12 @@ export function gameFiles() {
     'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
     // 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（名前の 約束・台本・マップ・明かりを 広げる 探検・絵）
     'public/js/shared/maps/c9b-flags.js', 'public/js/shared/data/story-c9b.js', 'public/js/shared/maps/c9b.js', 'public/js/shared/maps/c9b-rows.js',
-    'public/js/shared/maps/c9b-under.js', 'public/js/shared/maps/c9b-light.js', 'public/js/shared/world/c9b-steps.js', 'public/js/shared/data/c9b-stub.js',
+    'public/js/shared/maps/c9b-under.js', 'public/js/shared/maps/c9b-light.js', 'public/js/shared/world/c9b-steps.js',
     'public/js/client/c9b-light.js', 'public/js/client/render/tiles-c9b.js', 'public/js/client/render/c9b-npc-art.js',
     // 第91回 F班: 第3部 第1章 第2幕の 曲
     'public/js/client/audio-c9b.js',
     // 第91回 B班: 第3部 第1章 第2幕（魔物・スピカの てらす・デデドン大王と 皿・品・ヒント・絵・背景・えんしゅつ）
-    'public/js/shared/data/c9b-names-b.js', 'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
+    'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
   ];

@@ -11,6 +11,7 @@ import { npc } from './npc.js';
 import { lightInfo } from './c9a-light.js';
 import { UNDER_POS, UNDER_W, UNDER_H, UNDER_DECOR, HALL_POS, SHAFT_POS } from './c9b-rows.js';
 import { LAMPS9B } from './c9b-light.js';
+import { c9bChest } from '../data/items-c9b.js';
 import { C9B, C9B_MAP, C9B_PILLARS, C9B_CHEST_IDS, C9B_TABLE, C9B_TRACKS, C9B_MOSS_STEPS } from './c9b-flags.js';
 
 const W = UNDER_W, H = UNDER_H;
@@ -203,10 +204,5 @@ export function buildC9bUnder() {
   return m;
 }
 
-// 宝箱の 中み（B班の data/items-c9b.js の c9bChest。合わせるまでは かり）
-let chestFn9b = null;
-export const setChestFn9b = (fn) => { chestFn9b = fn; };
-export function chestOf9b(id) {
-  const r = chestFn9b?.(id);
-  return r && r.item ? r : { item: 'star_shard', n: 2 }; // かり（B班の 品が 入るまで）
-}
+// 宝箱の 中み（B班の data/items-c9b.js の c9bChest。10この id）
+export const chestOf9b = (id) => c9bChest(id) || {};
