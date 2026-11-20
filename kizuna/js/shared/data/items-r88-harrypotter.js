@@ -10,7 +10,7 @@
 //   ・今 ある 魔法学校のローブ・ニワトコのつえ・とうめいマント・ニンバス2000・魔法学校のつえにも 作品を つけた（R88_TAG_HARRYPOTTER。強さ・手に入れ方は かえない）
 //   ・「賢者の石」は 鋼の錬金術師に 同じ 名前の 品が あるので 足さない
 //   作品の 字は 使える 字に 直した（杖 → つえ・柊 → ひいらぎ・吼え → ほえ・涙 → なみだ など。設計書の「実装メモ（G13班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=a31118b071f7';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=ed660e1d3991';
 
 const H = { work: 'harrypotter' };
 const HOG = { work: 'harrypotter', set: 'hogwarts4' };

@@ -1,22 +1,22 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=a31118b071f7';
-import { SEA_POS } from '../maps/sea.js?v=a31118b071f7';
-import { T, TILE_INFO } from '../tiles.js?v=a31118b071f7';
-import { makeRng } from '../rng.js?v=a31118b071f7';
-import { MONSTERS } from '../data/monsters.js?v=a31118b071f7';
-import { TM_HOOKS } from '../data/story-tm.js?v=a31118b071f7';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=a31118b071f7';
-import { ScriptRun } from './scripts.js?v=a31118b071f7';
-import { partyOf } from './party.js?v=a31118b071f7';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=ed660e1d3991';
+import { SEA_POS } from '../maps/sea.js?v=ed660e1d3991';
+import { T, TILE_INFO } from '../tiles.js?v=ed660e1d3991';
+import { makeRng } from '../rng.js?v=ed660e1d3991';
+import { MONSTERS } from '../data/monsters.js?v=ed660e1d3991';
+import { TM_HOOKS } from '../data/story-tm.js?v=ed660e1d3991';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=ed660e1d3991';
+import { ScriptRun } from './scripts.js?v=ed660e1d3991';
+import { partyOf } from './party.js?v=ed660e1d3991';
 import {
   TM_MAX, TM_PEND_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps, tmLvCap,
-} from '../data/treasure.js?v=a31118b071f7';
+} from '../data/treasure.js?v=ed660e1d3991';
 
-import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=a31118b071f7';
+import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=ed660e1d3991';
 // 第89回: えらんで いる 人を サーバーが 知る（world/tm-ask.js）
-import { tmHold } from './tm-ask.js?v=a31118b071f7';
+import { tmHold } from './tm-ask.js?v=ed660e1d3991';
 
 const HUNTER = '宝探しのダイゴ';
 // 第89回（家族の 声:「もらったタイミングで捨てるものを選ばせて。あとでメニュー開かれて選択するのはおかしい。」）:

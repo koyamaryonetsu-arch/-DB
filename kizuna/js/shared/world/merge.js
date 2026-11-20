@@ -11,25 +11,25 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=a31118b071f7';
-import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=a31118b071f7';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=ed660e1d3991';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=ed660e1d3991';
 // 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
-import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=a31118b071f7';
-import { ITEMS, SLOTS } from '../data/items.js?v=a31118b071f7';
-import { STORY_STEPS } from '../data/story.js?v=a31118b071f7';
-import { COMPANION_SLOTS } from '../data/companions.js?v=a31118b071f7';
-import { STORAGE_MAX } from './party.js?v=a31118b071f7';
-import { WAGON_SLOTS } from '../data/wagon.js?v=a31118b071f7';
-import { repairChar } from './save.js?v=a31118b071f7';
-import { mergeTreasureMaps } from '../data/treasure.js?v=a31118b071f7';
-import { mergeSecret } from '../data/secret.js?v=a31118b071f7';
-import { mergeAlchemy } from './alchemy.js?v=a31118b071f7';
-import { mergeArena } from '../data/arena.js?v=a31118b071f7';
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=ed660e1d3991';
+import { ITEMS, SLOTS } from '../data/items.js?v=ed660e1d3991';
+import { STORY_STEPS } from '../data/story.js?v=ed660e1d3991';
+import { COMPANION_SLOTS } from '../data/companions.js?v=ed660e1d3991';
+import { STORAGE_MAX } from './party.js?v=ed660e1d3991';
+import { WAGON_SLOTS } from '../data/wagon.js?v=ed660e1d3991';
+import { repairChar } from './save.js?v=ed660e1d3991';
+import { mergeTreasureMaps } from '../data/treasure.js?v=ed660e1d3991';
+import { mergeSecret } from '../data/secret.js?v=ed660e1d3991';
+import { mergeAlchemy } from './alchemy.js?v=ed660e1d3991';
+import { mergeArena } from '../data/arena.js?v=ed660e1d3991';
 // 第88回 G3班: まぼろしの回廊の 勝った 記録（data/rivals-r88.js）
-import { mergeRivals } from '../data/rivals-r88.js?v=a31118b071f7';
-import { COIN_MAX } from '../data/casino.js?v=a31118b071f7';
+import { mergeRivals } from '../data/rivals-r88.js?v=ed660e1d3991';
+import { COIN_MAX } from '../data/casino.js?v=ed660e1d3991';
 // 第51回 F: 幻の職業の 記録（両方で ふえた ぶんを たす・どちらの 数より 下に しない）
-import { mergeFeats } from './phantom.js?v=a31118b071f7';
+import { mergeFeats } from './phantom.js?v=ed660e1d3991';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));

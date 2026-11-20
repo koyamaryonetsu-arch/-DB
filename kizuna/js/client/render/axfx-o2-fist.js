@@ -1,7 +1,7 @@
 // 第49回 O2: こぶしと 守りの 技（武闘家・聖拳士・ゴッドハンド・ガーディアン）の え。この ファイルは O2 だけが さわる
 // 時間は shared/data/ax-time-o2.js。play の 時間は はなつ しゅんかんが 0。下の 段ほど 小さく・上の 段ほど 大きく 長く 色が ふえる
-import { rnd } from './axkit.js?v=a31118b071f7';
-import { obj, txt, bg, claw, rays, hands, ground, above, per, solo, upMark, downMark, fist, punchHit } from './axfx-o2-kit.js?v=a31118b071f7';
+import { rnd } from './axkit.js?v=ed660e1d3991';
+import { obj, txt, bg, claw, rays, hands, ground, above, per, solo, upMark, downMark, fist, punchHit } from './axfx-o2-kit.js?v=ed660e1d3991';
 
 const ORANGE = ['#ffffff', '#ffa040', '#ffe080'];
 const HOLY = ['#ffffff', '#fff0a0', '#ffe08a'];
