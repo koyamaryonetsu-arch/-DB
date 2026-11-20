@@ -98,13 +98,6 @@
     document.body.appendChild(ov);
     return { ov, body: ov.querySelector('.dg-body'), foot: ov.querySelector('.dg-foot') };
   }
-  function previewFile(name, book, entries) {
-    const x = XL(); const d = dialog('dgPrev', '👁 ' + esc(name), true);
-    const hits = new Set(); entries.forEach((e) => { const sh = book.sheets.find((s) => s.name.trim() === String(e.sheet || '').trim()) || book.sheets[0]; if (sh) hits.add(sh.path + '!' + x.topLeft(sh, e.cell)); });
-    d.body.innerHTML = '<p class="ms-note">黄色が書き込んだ所です。</p>' + x.previewHtml(book, hits);
-    d.foot.innerHTML = '<button type="button" data-dgx>閉じる</button>';
-    d.ov.addEventListener('click', (e) => { if (e.target.closest('[data-dgx]') || e.target === d.ov) d.ov.remove(); });
-  }
   // 文字を入れてもらう小さな画面（ブラウザの入力ダイアログは使わない）
   function askText(msg, ph) {
     return new Promise((resolve) => {
@@ -119,27 +112,264 @@
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bytes], { type: mime })); a.download = name; document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   }
-  // 案件の書類（case-files）と書類棚（doc-files・劇場のフォルダ）に残す。客先には送らない（kind が safety / budget は通知メールの対象外）
-  async function keep(c, kind, name, bytes, mime, meta) {
-    const sb = sbc(); const ext = (name.match(/\.(\w+)$/) || [, 'bin'])[1];
-    const by = (DB().userName && DB().userName()) || '';
-    const p1 = `${c.id}/${Date.now()}_${kind}.${ext}`;
-    const up1 = await sb.storage.from('case-files').upload(p1, new Blob([bytes], { type: mime }), { contentType: mime, upsert: false });
-    if (up1.error) throw up1.error;
-    const ins = await sb.from('case_files').insert({ case_id: String(c.id), kind, name, path: p1, mime, size: bytes.length, status: 'final', created_by: by, meta });
-    if (ins.error) throw ins.error;
-    const p2 = `out/${Date.now()}_${kind}.${ext}`;
-    const up2 = await sb.storage.from('doc-files').upload(p2, new Blob([bytes], { type: mime }), { contentType: mime, upsert: false });
-    if (!up2.error) await sb.from('doc_files').insert({ name, company: c.company || '', theater: c.theater || '', folder_id: null, case_id: String(c.id), updated_by_name: by,
-      data: { kind: kind + '_doc', path: p2, mime, size: bytes.length, file_name: name } });
-    try { if (DB().afterWorkapp) DB().afterWorkapp(c.id); } catch (e) { /* なし */ }
-  }
   async function lastMeta(kind, c) {
     try {
       const { data } = await sbc().from('case_files').select('case_id,meta,created_at').eq('kind', kind).is('deleted_at', null).order('created_at', { ascending: false }).limit(100);
       const rows = (data || []).filter((r) => r.meta && r.meta.answers);
       return (rows.find((r) => String(r.case_id) === String(c.id)) || rows.find((r) => r.meta.theater === c.theater) || rows.find((r) => r.meta.company === c.company) || rows[0] || {}).meta || null;
     } catch (e) { return null; }
+  }
+
+  /* ============================================================
+     前に入れた値（プルダウンの候補）: 使った回数の多い順・会社や劇場は分けない（2026-11-20）
+     ============================================================ */
+  let HIST = null;
+  async function loadHistory() {
+    if (HIST) return HIST;
+    const H = {};
+    const add = (k, v) => { v = String(v == null ? '' : v).trim(); if (!v || v.length > 300) return; const m = H[k] || (H[k] = new Map()); m.set(v, (m.get(v) || 0) + 1); };
+    try {
+      const { data } = await sbc().from('case_files').select('kind,meta').in('kind', ['safety', 'budget']).is('deleted_at', null).order('created_at', { ascending: false }).limit(500);
+      (data || []).forEach((r) => {
+        const a = r.meta && r.meta.answers; if (!a) return;
+        if (r.kind === 'safety') {
+          ['work_name', 'orderer', 'work_hours', 'content'].forEach((k) => add(k, a[k]));
+          (a.companies || []).forEach((co) => { add('co_work', co.work); add('person', co.safety_person); add('person', co.chief_engineer); USES.forEach(([k]) => { const u = (co.uses || {})[k]; if (u && u.used) add('use_' + k, u.detail); }); });
+        } else { ['orderer', 'site', 'work_name'].forEach((k) => add('b_' + k, a[k])); (a.lines || []).forEach((l) => add('b_item', l.item)); }
+      });
+    } catch (e) { /* 読めない時は候補なし */ }
+    HIST = {};
+    Object.keys(H).forEach((k) => { HIST[k] = [...H[k].entries()].sort((x, y) => y[1] - x[1]).map((x) => x[0]).slice(0, 40); });
+    return HIST;
+  }
+  const histOpts = (k, extra) => [...new Set((extra || []).concat((HIST && HIST[k]) || []))].map((v) => `<option value="${esc(v)}">`).join('');
+  const histList = (k) => `<datalist id="dgH_${k}">${histOpts(k)}</datalist>`;
+
+  /* ============================================================
+     なれる条件（労働安全衛生法）
+     ============================================================ */
+  const LAW = {
+    chief: '統括安全衛生責任者（労働安全衛生法 第15条）: 元請の現場で、作業員が常時50人以上（ずい道・橋梁などは30人以上）の時に選任。その現場の仕事を統括して管理する人（所長など）。資格の決まりはありません。',
+    safety_manager: '元方安全衛生管理者（同 第15条の2・規則 第18条の4）: 統括安全衛生責任者を選任した現場で、その事業場に専属の人から選任。大学・高専の理科系卒＋建設工事の安全衛生の実務3年以上／高校の理科系卒＋5年以上／そのほか8年以上。',
+    site_manager: '職長（同 第60条）: 作業者を直接指導・監督する人。職長教育（職長・安全衛生責任者教育）を受けていること。',
+    safety_person: '安全衛生責任者（同 第16条・協力会社側）: 協力会社が現場ごとに選び、元請との連絡や作業者への指示をする人。資格の決まりはありませんが、職長・安全衛生責任者教育を受けた人が望ましい。'
+  };
+  // 担当者マスターの資格の印で確かめる（印の列がある時だけ）
+  function qualWarn(staff, role, name) {
+    const s = staff.find((x) => x.name === name); if (!s || !s.qualsOn) return '';
+    if (role === 'safety_manager' && !(s.quals || {}).motokata) return `${name} さんに「元方の要件」の印がありません（担当者マスターで確かめてください）`;
+    if (role === 'site_manager' && !(s.quals || {}).shokucho) return `${name} さんに「職長教育」の印がありません（担当者マスターで確かめてください）`;
+    return '';
+  }
+
+  /* ============================================================
+     作った書類を1枚ずつ残す（案件の書類＋書類棚の「安全書類 日付」のフォルダ）・その場で開いて直す
+     ============================================================ */
+  async function keepFiles(c, kind, groupName, files, answers, into) {
+    const sb = sbc(); const by = (DB().userName && DB().userName()) || '';
+    const gid = (into && into.gid) || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+    let folderId = into ? into.folderId : null;
+    if (!into && c.company && c.theater) { try { const f = await sb.from('doc_folders').insert({ company: c.company, theater: c.theater, name: groupName }).select('id').single(); if (!f.error && f.data) folderId = f.data.id; } catch (e) { /* フォルダなし */ } }
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i]; const ext = (f.name.match(/\.(\w+)$/) || [, 'bin'])[1];
+      const path = `${c.id}/${Date.now()}_${i}_${kind}.${ext}`;
+      const up = await sb.storage.from('case-files').upload(path, new Blob([f.bytes], { type: f.mime }), { contentType: f.mime, upsert: false });
+      if (up.error) throw up.error;
+      const meta = { group: gid, group_name: groupName, folder: f.folder || '', theater: c.theater, company: c.company, fill: f.fill || null, versions: [] };
+      if (i === 0) meta.answers = answers;
+      const ins = await sb.from('case_files').insert({ case_id: String(c.id), kind, name: f.name, path, mime: f.mime, size: f.bytes.length, status: 'final', created_by: by, meta }).select('id').single();
+      if (ins.error) throw ins.error;
+      const df = await sb.from('doc_files').insert({ name: (f.folder ? f.folder + '／' : '') + f.name, company: c.company || '', theater: c.theater || '', folder_id: folderId, case_id: String(c.id), updated_by_name: by,
+        data: { kind: kind + '_doc', bucket: 'case-files', path, mime: f.mime, size: f.bytes.length, file_name: f.name, case_file_id: ins.data.id, group: gid } }).select('id').single();
+      if (!df.error && df.data) await sb.from('case_files').update({ meta: Object.assign({}, meta, { doc_file_id: df.data.id }) }).eq('id', ins.data.id);
+      f.kept = { cf: ins.data.id };
+    }
+    HIST = null;
+    try { if (DB().afterWorkapp) DB().afterWorkapp(c.id); } catch (e) { /* なし */ }
+    return { gid, folderId };
+  }
+  // 新しい版として保存（前の版は meta.versions に残す・10 個まで）
+  async function saveVersion(cfId, bytes, note) {
+    const sb = sbc(); const by = (DB().userName && DB().userName()) || '';
+    const { data: row, error } = await sb.from('case_files').select('*').eq('id', cfId).maybeSingle();
+    if (error || !row) throw new Error('書類が見つかりません');
+    const ext = (row.name.match(/\.(\w+)$/) || [, 'bin'])[1];
+    const path = `${row.case_id}/${Date.now()}_${row.kind}_v.${ext}`;
+    const up = await sb.storage.from('case-files').upload(path, new Blob([bytes], { type: row.mime }), { contentType: row.mime, upsert: false });
+    if (up.error) throw up.error;
+    const meta = Object.assign({}, row.meta || {});
+    meta.versions = [{ path: row.path, at: new Date().toISOString(), by, note: note || '' }].concat(meta.versions || []).slice(0, 10);
+    const u = await sb.from('case_files').update({ path, size: bytes.length, meta }).eq('id', cfId);
+    if (u.error) throw u.error;
+    if (meta.doc_file_id) {
+      const d = await sb.from('doc_files').select('data').eq('id', meta.doc_file_id).maybeSingle();
+      if (d.data) await sb.from('doc_files').update({ data: Object.assign({}, d.data.data || {}, { path, size: bytes.length }), updated_by_name: by }).eq('id', meta.doc_file_id);
+    }
+    return Object.assign({}, row, { path, meta });
+  }
+  async function caseFileBytes(path) {
+    const { data, error } = await sbc().storage.from('case-files').download(path);
+    if (error) throw new Error('書類を読めませんでした（' + error.message + '）');
+    return new Uint8Array(await data.arrayBuffer());
+  }
+  // 1枚の書類をその場で開く（Excel は表で見て、セルを押して直す。PDF などは開くだけ）
+  async function openDoc(cfId) {
+    const sb = sbc(); if (!sb) return;
+    let { data: row } = await sb.from('case_files').select('*').eq('id', cfId).maybeSingle();
+    if (!row) { K().say('書類が見つかりません'); return; }
+    if (!/\.xlsx$/i.test(row.name)) {
+      const r = await sb.storage.from('case-files').createSignedUrl(row.path, 600);
+      if (r.error) { K().say('開けませんでした: ' + r.error.message); return; }
+      window.open(r.data.signedUrl, '_blank', 'noopener'); return;
+    }
+    const x = XL();
+    let book = await x.open(await caseFileBytes(row.path));
+    let changes = new Map(), hits = new Set();
+    const d = dialog('dgDoc', '📄 ' + esc((row.meta && row.meta.folder ? row.meta.folder + ' ／ ' : '') + row.name), true);
+    const vis = () => book.sheets.filter((sh) => !sh.hidden);
+    const draw = (msg) => {
+      d.body.innerHTML = `<p class="ms-note">セルを押すと直せます（灰色は式のセル）。直したら「💾 保存」。前の版は残ります。${msg ? '<br><b>' + esc(msg) + '</b>' : ''}</p>` + x.previewHtml(book, hits);
+      const tables = d.body.querySelectorAll('table.wa-xl');
+      tables.forEach((t, i) => {
+        const sh = vis()[i]; if (!sh) return;
+        const fset = new Set(x.cells(book, sh).filter((cc) => cc.f).map((cc) => String(cc.ref).toUpperCase()));
+        t.querySelectorAll('td[title]').forEach((td) => {
+          if (fset.has(td.title)) { td.classList.add('dg-f'); return; }
+          td.contentEditable = 'true'; td.dataset.si = i; td.spellcheck = false;
+          if (changes.has(i + '!' + td.title)) td.classList.add('dg-chg');
+        });
+      });
+      const nv = ((row.meta && row.meta.versions) || []).length;
+      d.foot.innerHTML = `<span class="ms-note dg-chgn">${changes.size ? `直した所 ${changes.size}` : ''}</span>
+        ${row.meta && row.meta.fill ? '<button type="button" data-daifix>✏️ AI に直してもらう</button>' : ''}
+        ${nv ? `<button type="button" data-drevert>↩ 前の版に戻す（${nv}）</button>` : ''}
+        <button type="button" data-ddl>⬇ ダウンロード</button><button type="button" data-dgx>閉じる</button><button type="button" class="primary" data-dsave>💾 保存</button>`;
+    };
+    draw();
+    d.body.addEventListener('input', (e) => {
+      const td = e.target.closest('td[contenteditable]'); if (!td) return;
+      changes.set(td.dataset.si + '!' + td.title, td.innerText.replace(/\n+$/, '')); td.classList.add('dg-chg');
+      const n = d.foot.querySelector('.dg-chgn'); if (n) n.textContent = `直した所 ${changes.size}`;
+    });
+    const applyChanges = () => { changes.forEach((v, k) => { const [i, ref] = k.split('!'); const sh = vis()[+i]; if (sh) { x.setCell(sh, ref, v); hits.add(sh.path + '!' + x.topLeft(sh, ref)); } }); changes = new Map(); };
+    const save = async (note) => {
+      applyChanges();
+      const bytes = await x.save(book);
+      row = await saveVersion(row.id, bytes, note || '手で直した');
+      book = await x.open(bytes); draw('保存しました');
+      toast('保存しました（前の版も残っています）');
+    };
+    d.ov.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-dgx]') || e.target === d.ov) {
+        if (changes.size && !(await K().ask('保存していない直しがあります。保存せずに閉じますか？', { ok: '保存せずに閉じる', cancel: '戻る' }))) return;
+        d.ov.remove(); return;
+      }
+      if (e.target.closest('[data-dsave]')) { try { await save(); } catch (err) { K().say('保存できませんでした: ' + (err.message || err)); } return; }
+      if (e.target.closest('[data-ddl]')) { applyChanges(); download(row.name, await x.save(book), row.mime || 'application/octet-stream'); book = await x.open(await x.save(book)); draw(); return; }
+      if (e.target.closest('[data-drevert]')) {
+        const v = row.meta.versions[0];
+        if (!(await K().ask(`${String(v.at).slice(0, 16).replace('T', ' ')} の版（${v.by || ''}${v.note ? '・' + v.note : ''}）に戻しますか？（今の版も残ります）`, { ok: '戻す', cancel: 'やめる' }))) return;
+        const bytes = await caseFileBytes(v.path); row = await saveVersion(row.id, bytes, '前の版に戻した'); book = await x.open(bytes); changes = new Map(); hits = new Set(); draw('前の版に戻しました'); return;
+      }
+      if (e.target.closest('[data-daifix]')) {
+        const ins = await askText('どう直しますか？', '例: 工期の年を2027にする・作業員の欄は空ける'); if (!ins) return;
+        applyChanges(); draw('🤖 AI が直しています…（1分ほど）');
+        try {
+          const res = await api('fill', { template: { name: row.name, kind: row.meta.fill.kind, sheets: describe(book) }, data: row.meta.fill.data, instruction: ins });
+          x.apply(book, res.entries); res.entries.forEach((en) => { const sh = book.sheets.find((s2) => s2.name.trim() === String(en.sheet || '').trim()) || book.sheets[0]; if (sh) hits.add(sh.path + '!' + x.topLeft(sh, en.cell)); });
+          await save('AI が直した（' + ins.slice(0, 40) + '）');
+        } catch (err) { draw('直せませんでした: ' + (err.message || err)); }
+      }
+    });
+  }
+  // 1回分（同じ時に作った書類）をまとめて ZIP
+  async function zipGroup(caseId, gid) {
+    const sb = sbc();
+    const { data } = await sb.from('case_files').select('*').eq('case_id', String(caseId)).is('deleted_at', null);
+    const rows = (data || []).filter((r) => r.meta && r.meta.group === gid);
+    if (!rows.length) { K().say('書類が見つかりません'); return; }
+    const zip = new window.JSZip();
+    for (const r of rows) zip.file((r.meta.folder ? r.meta.folder + '/' : '') + r.name, await caseFileBytes(r.path));
+    const head = rows.find((r) => r.meta.answers) || rows[0];
+    download(`【${clean(String(head.meta.theater || '').replace(/^\S+\s/, ''))}】${clean(head.meta.group_name || '安全書類')}_菱熱工業.zip`, await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' }), 'application/zip');
+  }
+
+  /* ============================================================
+     現場案内（送り出し資料）の地図: OpenStreetMap。ひな形の地図の画像を、場所と大きさはそのままで入れ替える
+     ============================================================ */
+  const MAP_RE = /現場案内|送り出し/;
+  async function geocode(addr) {
+    const q = String(addr || '').trim(); if (!q) throw new Error('住所がありません');
+    try {   // 国土地理院の住所検索（日本の住所に強い）
+      const r = await fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + encodeURIComponent(q));
+      const j = await r.json(); if (Array.isArray(j) && j[0] && j[0].geometry) { const [lon, lat] = j[0].geometry.coordinates; return { lat: +lat, lon: +lon }; }
+    } catch (e) { /* 次へ */ }
+    const r2 = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q));
+    const j2 = await r2.json(); if (Array.isArray(j2) && j2[0]) return { lat: +j2[0].lat, lon: +j2[0].lon };
+    throw new Error('住所から場所が見つかりませんでした');
+  }
+  function loadImg(url) { return new Promise((resolve, reject) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => resolve(im); im.onerror = () => reject(new Error('地図の画像を読めませんでした')); im.src = url; }); }
+  async function renderMap(pt, zoom, W, H) {
+    const n = 256 * Math.pow(2, zoom);
+    const cx = (pt.lon + 180) / 360 * n;
+    const lr = pt.lat * Math.PI / 180;
+    const cy = (1 - Math.log(Math.tan(lr) + 1 / Math.cos(lr)) / Math.PI) / 2 * n;
+    const x0 = cx - W / 2, y0 = cy - H / 2;
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+    g.fillStyle = '#eef0f2'; g.fillRect(0, 0, W, H);
+    const jobs = [];
+    for (let tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + W) / 256); tx++) {
+      for (let ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + H) / 256); ty++) {
+        const m = Math.pow(2, zoom); const wx = ((tx % m) + m) % m;
+        jobs.push(loadImg(`https://tile.openstreetmap.org/${zoom}/${wx}/${ty}.png`).then((im) => g.drawImage(im, tx * 256 - x0, ty * 256 - y0)).catch(() => {}));
+      }
+    }
+    await Promise.all(jobs);
+    // 現場の印（赤いピン）
+    const px = W / 2, py = H / 2, r = Math.max(10, Math.round(W / 60));
+    g.fillStyle = '#e11d48'; g.strokeStyle = '#fff'; g.lineWidth = Math.max(2, r / 4);
+    g.beginPath(); g.arc(px, py - r * 1.6, r, Math.PI * 0.85, Math.PI * 2.15); g.lineTo(px, py); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(px, py - r * 1.6, r * 0.4, 0, Math.PI * 2); g.fill();
+    // 出典（OpenStreetMap の決まり）
+    const fs = Math.max(11, Math.round(W / 80)); g.font = `${fs}px sans-serif`;
+    const t = '© OpenStreetMap contributors'; const tw = g.measureText(t).width;
+    g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(W - tw - 12, H - fs - 10, tw + 12, fs + 10); g.fillStyle = '#333'; g.fillText(t, W - tw - 6, H - 8);
+    return cv;
+  }
+  // xlsx の中の地図の画像（いちばん大きい絵）を入れ替える
+  async function replaceMapImage(bytes, pt, zoom, manualBlob) {
+    const zip = await window.JSZip.loadAsync(bytes);
+    const draws = Object.keys(zip.files).filter((n) => /^xl\/drawings\/drawing\d+\.xml$/.test(n));
+    let best = null;
+    for (const dn of draws) {
+      const xml = await zip.file(dn).async('string');
+      const relF = zip.file(dn.replace('drawings/', 'drawings/_rels/') + '.rels'); if (!relF) continue;
+      const rels = await relF.async('string');
+      for (const m of xml.matchAll(/<xdr:pic\b[\s\S]*?<\/xdr:pic>/g)) {
+        const pic = m[0]; const rid = (pic.match(/r:embed="([^"]+)"/) || [])[1]; if (!rid) continue;
+        const ext = pic.match(/<a:ext\s+cx="(\d+)"\s+cy="(\d+)"/) || [];
+        const before = xml.slice(Math.max(0, m.index - 400), m.index); const ext2 = before.match(/<xdr:ext\s+cx="(\d+)"\s+cy="(\d+)"[^>]*\/>\s*$/) || [];
+        const cxv = +(ext[1] || ext2[1] || 0), cyv = +(ext[2] || ext2[2] || 0);
+        const tgt = ((rels.match(new RegExp('<Relationship\\b[^>]*Id="' + rid + '"[^>]*>')) || [''])[0].match(/Target="([^"]+)"/) || [])[1]; if (!tgt) continue;
+        const media = 'xl/' + tgt.replace(/^\.\.\//, '').replace(/^\/?xl\//, '');
+        if (!zip.file(media)) continue;
+        const area = cxv * cyv || (await zip.file(media).async('uint8array')).length;
+        if (!best || area > best.area) best = { media, cx: cxv, cy: cyv, area };
+      }
+    }
+    if (!best) throw new Error('ひな形に地図の画像が見つかりません');
+    const W = 1400, H = Math.round(W * ((best.cy && best.cx) ? best.cy / best.cx : 0.75));
+    const isPng = /\.png$/i.test(best.media);
+    let out;
+    if (manualBlob) {
+      const url = URL.createObjectURL(manualBlob); const im = await loadImg(url); URL.revokeObjectURL(url);
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+      const s = Math.max(W / im.naturalWidth, H / im.naturalHeight); g.drawImage(im, (W - im.naturalWidth * s) / 2, (H - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s);
+      out = cv;
+    } else out = await renderMap(pt, zoom, W, H);
+    const blob = await new Promise((res) => out.toBlob(res, isPng ? 'image/png' : 'image/jpeg', 0.9));
+    zip.file(best.media, new Uint8Array(await blob.arrayBuffer()));
+    return new Uint8Array(await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' }));
   }
 
   /* ============================================================
@@ -231,6 +461,8 @@
     }
     const partners = (await partnersList()).filter((p) => p.active !== false && p.kind !== 'trader');
     const staff = (DB().staff ? DB().staff() : []).filter((s) => s.active);
+    await loadHistory();
+    const mapTpl = use.find((x) => (x.role === 'ryonetsu' || x.role === 'vendor') && MAP_RE.test(x.r.data.file_name || x.r.name));
     const prev = await lastMeta('safety', c);
     const pa = (prev && prev.answers) || {};
     let saved = {};
@@ -244,8 +476,10 @@
       work_hours: pa.work_hours || '', content: String(c.title || '') + (c.content ? '：' + String(c.content).split('\n')[0].slice(0, 60) : ''),
       chief: rp, general_safety: rp, site_manager: rp, safety_manager: rp,
       companies: (pa.case_id === c.id && Array.isArray(pa.companies) ? pa.companies : []).map((x) => Object.assign({}, x)),
-      emergency: Object.assign({}, saved)
+      emergency: Object.assign({}, saved),
+      map: { zoom: (pa.map && pa.map.zoom) || 16, pt: null, msg: '' }
     };
+    let mapManual = null;   // 手で入れた地図の画像（残さない）
     const d = dialog('dgSafety', `🦺 安全書類を作る — ${esc(c.theaterShort || c.theater)}　${esc(c.title || '')}`, true);
     const staffOpts = (sel) => `<option value="">（選ぶ）</option>` + staff.map((s) => `<option${s.name === sel ? ' selected' : ''}>${esc(s.name)}</option>`).join('');
     const pOpts = (id) => `<option value="">（協力会社を選ぶ）</option>` + partners.map((p) => `<option value="${esc(p.id)}"${String(p.id) === String(id) ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
@@ -255,20 +489,21 @@
         分からない欄は空けて作ります（あとで Excel で直せます）。会社の住所・許可番号・保険などは、協力会社が書く欄として空けます。</p>
         <h3 class="mst-h">🏗 工事</h3>
         <div class="dg-grid">
-          <label><span>工事名</span><input class="tm-input" data-a="work_name" value="${esc(A.work_name)}"></label>
-          <label><span>発注者（正式な会社名）</span><input class="tm-input" data-a="orderer" value="${esc(A.orderer)}" placeholder="例: TOHOシネマズ株式会社"></label>
+          <label><span>工事名</span><input class="tm-input" data-a="work_name" list="dgH_work_name" value="${esc(A.work_name)}"></label>
+          <label><span>発注者（正式な会社名）</span><input class="tm-input" data-a="orderer" list="dgH_orderer" value="${esc(A.orderer)}" placeholder="例: TOHOシネマズ株式会社"></label>
           <label><span>現場（劇場）</span><input class="tm-input" data-a="site" value="${esc(A.site)}"></label>
           <label><span>現場の住所</span><input class="tm-input" data-a="site_address" value="${esc(A.site_address)}"></label>
           <label><span>工期（自）</span><input type="date" class="tm-input" data-a="period_from" value="${esc(A.period_from)}"></label>
           <label><span>工期（至）</span><input type="date" class="tm-input" data-a="period_to" value="${esc(A.period_to)}"></label>
-          <label><span>作業時間</span><input class="tm-input" data-a="work_hours" value="${esc(A.work_hours)}" placeholder="例: 8:00〜17:00"></label>
-          <label class="dg-wide2"><span>工事の内容（短く）</span><input class="tm-input" data-a="content" value="${esc(A.content)}"></label>
+          <label><span>作業時間</span><input class="tm-input" data-a="work_hours" list="dgH_work_hours" value="${esc(A.work_hours)}" placeholder="例: 8:00〜17:00"></label>
+          <label class="dg-wide2"><span>工事の内容（短く）</span><input class="tm-input" data-a="content" list="dgH_content" value="${esc(A.content)}"></label>
         </div>
+        ${histList('work_name')}${histList('orderer')}${histList('work_hours')}${histList('content')}${histList('co_work')}
         <h3 class="mst-h">👷 菱熱の責任者（携帯は担当者マスターから）</h3>
-        <div class="dg-grid">
-          <label><span>所長・統括安全衛生責任者</span><select data-a="chief">${staffOpts(A.chief)}</select></label>
-          <label><span>元方安全衛生管理者</span><select data-a="safety_manager">${staffOpts(A.safety_manager)}</select></label>
-          <label><span>作業責任者・職長</span><select data-a="site_manager">${staffOpts(A.site_manager)}</select></label>
+        <div class="dg-grid dg-roles">
+          <label><span>所長・統括安全衛生責任者</span><select data-a="chief">${staffOpts(A.chief)}</select><small class="dg-law">${esc(LAW.chief)}</small></label>
+          <label><span>元方安全衛生管理者</span><select data-a="safety_manager">${staffOpts(A.safety_manager)}</select><small class="dg-law">${esc(LAW.safety_manager)}</small>${qualWarn(staff, 'safety_manager', A.safety_manager) ? `<small class="dg-qwarn">⚠ ${esc(qualWarn(staff, 'safety_manager', A.safety_manager))}</small>` : ''}</label>
+          <label><span>作業責任者・職長</span><select data-a="site_manager">${staffOpts(A.site_manager)}</select><small class="dg-law">${esc(LAW.site_manager)}</small>${qualWarn(staff, 'site_manager', A.site_manager) ? `<small class="dg-qwarn">⚠ ${esc(qualWarn(staff, 'site_manager', A.site_manager))}</small>` : ''}</label>
         </div>
         <h3 class="mst-h">🤝 入る会社（一次・二次）</h3>
         <div class="dg-companies">${A.companies.map((co, i) => companyHtml(co, i)).join('') || '<p class="sub">まだありません。「＋ 会社を足す」で選んでください。</p>'}</div>
@@ -276,7 +511,13 @@
         <h3 class="mst-h">🚑 緊急連絡先（${esc(c.theaterShort || c.theater)}）</h3>
         <p class="ms-note">${saved.checked_at ? `前に確かめた連絡先です（${esc(String(saved.checked_at).slice(0, 10))}）。` : 'まだ残っていません。「🤖 AI で調べる」で、劇場の住所から管轄の警察署・消防署などを調べます（必ず確かめてください）。'}直すと劇場ごとに残ります。</p>
         <div class="dg-emg">${EMERGENCY.map(([k, l]) => { const v = A.emergency[k] || {}; return `<label><span>${l}</span><input class="tm-input" data-e="${k}" data-ef="name" value="${esc(v.name || '')}" placeholder="名前"><input class="tm-input dg-tel" data-e="${k}" data-ef="tel" value="${esc(v.tel || '')}" placeholder="電話"></label>`; }).join('')}</div>
-        <button type="button" data-emg>🤖 AI で調べる</button><span class="ms-note dg-emg-msg"></span>`;
+        <button type="button" data-emg>🤖 AI で調べる</button><span class="ms-note dg-emg-msg"></span>
+        ${mapTpl ? `<h3 class="mst-h">🗺 現場案内の地図（OpenStreetMap）</h3>
+        <p class="ms-note">「${esc(tplLabel(mapTpl.r))}」の地図の画像を、現場の住所の地図に入れ替えます（場所・大きさはそのまま）。${esc(A.map.msg || '')}</p>
+        <div class="dg-map"><div class="dg-map-view">${mapManual ? '<span class="ms-note">手で入れた画像を使います</span>' : A.map.pt ? '<canvas class="dg-map-cv"></canvas>' : '<span class="ms-note">住所から場所を探しています…</span>'}</div>
+          <div class="dg-map-tools"><button type="button" data-mapz="1">＋ 近づける</button><button type="button" data-mapz="-1">－ 広く</button><button type="button" data-mapfind>📍 住所から探し直す</button>
+          <label class="kt-upload">🖼 画像を自分で入れる<input type="file" id="dgMapImg" accept="image/*" hidden></label>${mapManual ? '<button type="button" data-mapclr>手で入れた画像をやめる</button>' : ''}</div></div>` : ''}`;
+      if (mapTpl && A.map.pt && !mapManual) { const cv0 = d.body.querySelector('.dg-map-cv'); renderMap(A.map.pt, A.map.zoom, 640, 400).then((cv) => { cv0.width = cv.width; cv0.height = cv.height; cv0.getContext('2d').drawImage(cv, 0, 0); }).catch(() => {}); }
       d.foot.innerHTML = '<span class="ms-note">「作る」を押すと、AI がひな形に書き込みます（数分かかります）</span><button type="button" data-dgx>やめる</button><button type="button" class="primary" data-make>🦺 作る</button>';
     };
     const companyHtml = (co, i) => {
@@ -288,16 +529,17 @@
           <label><span>会社</span><select data-c="partner_id">${pOpts(co.partner_id)}</select></label>
           <label><span>次数</span><select data-c="tier"><option value="1"${Number(co.tier) !== 2 ? ' selected' : ''}>一次</option><option value="2"${Number(co.tier) === 2 ? ' selected' : ''}>二次</option></select></label>
           ${Number(co.tier) === 2 ? `<label><span>上の会社（一次）</span><select data-c="parent"><option value="">（選ぶ）</option>${parents.map((x) => `<option${x.name === co.parent ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>` : ''}
-          <label class="dg-wide2"><span>担当工事内容</span><input class="tm-input" data-c="work" value="${esc(co.work || '')}" placeholder="例: 空調・冷媒配管工事"></label>
+          <label class="dg-wide2"><span>担当工事内容</span><input class="tm-input" data-c="work" list="dgH_co_work" value="${esc(co.work || '')}" placeholder="例: 空調・冷媒配管工事"></label>
           <label><span>工期（自）</span><input type="date" class="tm-input" data-c="period_from" value="${esc(co.period_from || A.period_from)}"></label>
           <label><span>工期（至）</span><input type="date" class="tm-input" data-c="period_to" value="${esc(co.period_to || A.period_to)}"></label>
-          <label><span>安全衛生責任者</span><input class="tm-input" list="dgW${i}" data-c="safety_person" value="${esc(co.safety_person || '')}"></label>
+          <label><span>安全衛生責任者</span><input class="tm-input" list="dgW${i}" data-c="safety_person" value="${esc(co.safety_person || '')}"><small class="dg-law">${esc(LAW.safety_person)}</small></label>
           <label><span>主任技術者</span><input class="tm-input" list="dgW${i}" data-c="chief_engineer" value="${esc(co.chief_engineer || '')}"></label>
-          <datalist id="dgW${i}">${ws.map((w) => `<option value="${esc(w.name)}">`).join('')}</datalist>
+          <datalist id="dgW${i}">${histOpts('person', ws.map((w) => w.name))}</datalist>
         </div>
         <div class="dg-wsel"><span class="ms-note">入る作業員:</span> ${ws.map((w) => `<label class="wa-chip"><input type="checkbox" data-cw="${esc(w.name)}"${(co.workers || []).indexOf(w.name) !== -1 ? ' checked' : ''}> ${esc(w.name)}</label>`).join('') || '<span class="sub">作業員がまだいません</span>'}
           ${p ? `<button type="button" class="mini-btn" data-cwork="${esc(p.id)}">👷 作業員を入れる・直す</button>` : ''}</div>
-        <div class="dg-uses">${USES.map(([k, l, ph]) => { const u = (co.uses || {})[k] || {}; return `<div class="dg-use"><label><input type="checkbox" data-cu="${k}"${u.used ? ' checked' : ''}> ${l}</label>${u.used ? `<textarea class="tm-input" rows="2" data-cud="${k}" placeholder="${esc(ph)}">${esc(u.detail || '')}</textarea>` : '<span class="ms-note">使わない →「該当なし」と書きます</span>'}</div>`; }).join('')}</div>
+        <div class="dg-uses">${USES.map(([k, l, ph]) => { const u = (co.uses || {})[k] || {}; const hs = (HIST && HIST['use_' + k]) || [];
+          return `<div class="dg-use"><label><input type="checkbox" data-cu="${k}"${u.used ? ' checked' : ''}> ${l}</label>${u.used ? `${hs.length ? `<select class="dg-hpick" data-hpick="${k}"><option value="">前に入れた内容から選ぶ（${hs.length}）</option>${hs.map((v) => `<option value="${esc(v)}">${esc(v.slice(0, 60))}</option>`).join('')}</select>` : ''}<textarea class="tm-input" rows="2" data-cud="${k}" placeholder="${esc(ph)}">${esc(u.detail || '')}</textarea>` : '<span class="ms-note">使わない →「該当なし」と書きます</span>'}</div>`; }).join('')}</div>
         <button type="button" class="mini-btn danger dg-codel" data-cdel="${i}">この会社を外す</button></div>`;
     };
     const collect = () => {
@@ -314,11 +556,25 @@
       });
     };
     draw();
-    d.ov.addEventListener('change', (e) => { if (e.target.closest('[data-c="partner_id"],[data-c="tier"],[data-cu]')) { collect(); draw(); } });
+    d.ov.addEventListener('change', async (e) => {
+      const hp = e.target.closest('[data-hpick]');
+      if (hp) { const ta = hp.parentNode.querySelector(`[data-cud="${hp.dataset.hpick}"]`); if (ta && hp.value) ta.value = hp.value; hp.value = ''; return; }
+      if (e.target.id === 'dgMapImg' && e.target.files[0]) { collect(); mapManual = e.target.files[0]; e.target.value = ''; draw(); return; }
+      if (e.target.closest('[data-c="partner_id"],[data-c="tier"],[data-cu],[data-a="safety_manager"],[data-a="site_manager"]')) { collect(); draw(); }
+    });
+    const findMap = async () => {
+      if (!mapTpl) return;
+      try { A.map.pt = await geocode(A.site_address || A.site); A.map.msg = ''; } catch (err) { A.map.pt = null; A.map.msg = '⚠ ' + (err.message || err) + '（住所を直して「📍 住所から探し直す」か、画像を自分で入れてください）'; }
+      collect(); draw();
+    };
+    findMap();
     d.ov.addEventListener('click', async (e) => {
       if (e.target.closest('[data-dgx]') || e.target === d.ov) { if (await K().ask('安全書類を作るのをやめますか？（入れた内容は残りません）', { ok: 'やめて閉じる', cancel: '続ける' })) d.ov.remove(); return; }
       if (e.target.closest('[data-cadd]')) { collect(); A.companies.push({ tier: 1, period_from: A.period_from, period_to: A.period_to, workers: [], uses: {} }); draw(); return; }
       const del = e.target.closest('[data-cdel]'); if (del) { collect(); A.companies.splice(+del.dataset.cdel, 1); draw(); return; }
+      const mz = e.target.closest('[data-mapz]'); if (mz) { collect(); A.map.zoom = Math.max(12, Math.min(18, A.map.zoom + Number(mz.dataset.mapz))); draw(); return; }
+      if (e.target.closest('[data-mapfind]')) { collect(); A.map.pt = null; draw(); await findMap(); return; }
+      if (e.target.closest('[data-mapclr]')) { collect(); mapManual = null; draw(); return; }
       const cw = e.target.closest('[data-cwork]'); if (cw) { collect(); openWorkers(cw.dataset.cwork, (p) => { const ix = partners.findIndex((x) => String(x.id) === String(p.id)); if (ix >= 0) partners[ix] = p; draw(); }); return; }
       if (e.target.closest('[data-emg]')) {
         collect(); const msg = d.body.querySelector('.dg-emg-msg'); msg.textContent = '🤖 調べています…（1分ほど）';
@@ -350,6 +606,8 @@
         USES.forEach(([k, l]) => { if (co.uses[k] && co.uses[k].used && !co.uses[k].detail) miss.push(`${n} の${l.replace(/^\S+\s/, '').replace(/（.*/, '')}の内容`); });
       });
       EMERGENCY.slice(0, 4).forEach(([k, l]) => { if (!(A.emergency[k] && A.emergency[k].tel)) miss.push(`緊急連絡先: ${l}`); });
+      ['safety_manager', 'site_manager'].forEach((r) => { const w = qualWarn(staff, r, A[r]); if (w) miss.push(w); });
+      if (mapTpl && !A.map.pt && !mapManual) miss.push('現場案内の地図（場所が見つからないので、ひな形の地図のままになります）');
       if (A.companies.some((co) => !co.name)) { K().say('会社を選んでいない行があります。選ぶか「この会社を外す」を押してください。'); return; }
       if (miss.length && !(await K().ask('次の情報がまだです。入れてから作るのがおすすめです。\n\n・' + miss.join('\n・') + '\n\nこのまま（空欄のまま）作りますか？', { ok: 'このまま作る', cancel: '戻って入れる' }))) return;
       // 劇場の緊急連絡先を残す
@@ -363,60 +621,66 @@
         emergency: A.emergency
       };
       const jobs = [];
-      ry.forEach((x) => jobs.push({ tpl: x.r, kind: 'ryonetsu', folder: '菱熱分', label: tplLabel(x.r), data: base }));
+      ry.forEach((x) => jobs.push({ tpl: x.r, kind: 'ryonetsu', folder: '菱熱分', label: tplLabel(x.r), data: base, map: x === mapTpl }));
       as.filter((x) => !x.vendor).forEach((x) => jobs.push({ tpl: x.r, asis: true, folder: '菱熱分', label: x.r.data.file_name || x.r.name }));
       A.companies.forEach((co) => as.filter((x) => x.vendor).forEach((x) => jobs.push({ tpl: x.r, asis: true, folder: '業者分_' + clean(co.name), label: x.r.data.file_name || x.r.name })));
-      A.companies.forEach((co) => ve.forEach((x) => jobs.push({ tpl: x.r, kind: 'vendor', folder: '業者分_' + clean(co.name), label: tplLabel(x.r) + '（' + co.name + '）',
+      A.companies.forEach((co) => ve.forEach((x) => jobs.push({ tpl: x.r, kind: 'vendor', map: x === mapTpl, folder: '業者分_' + clean(co.name), label: tplLabel(x.r) + '（' + co.name + '）',
         data: Object.assign({}, base, { company: Object.assign({}, base.companies.find((b) => b.name === co.name), { worker_details: workerData(co) }) }) })));
       await runJobs(jobs);
     }
     async function runJobs(jobs) {
       d.foot.innerHTML = '<span class="ms-note dg-prog"></span><button type="button" data-dgx>閉じる</button>';
+      const groupName = `安全書類 ${yymmdd()} ${c.title || ''}`.trim();
+      let kept = null;   // { gid, folderId }（残したあと）
       const listHtml = () => jobs.map((j, i) => `<div class="dg-job ${j.state || ''}" data-ji="${i}"><span class="dg-job-st">${j.state === 'done' ? '✅' : j.state === 'err' ? '⚠' : j.state === 'run' ? '⏳' : '・'}</span>
         <span class="dg-job-n">${esc(j.folder)} / ${esc(j.label)}</span>
         ${j.state === 'done' && j.asis ? '<span class="ms-note">そのまま入れます（書き込まない）</span>' : ''}
-        ${j.state === 'done' && !j.asis ? `<button type="button" class="mini-btn" data-jprev="${i}">👁 見る</button><button type="button" class="mini-btn" data-jfix="${i}">✏️ 直す</button>${j.res.unfilled.length ? `<span class="ms-note" title="${esc(j.res.unfilled.join('\n'))}">空けた欄 ${j.res.unfilled.length}</span>` : ''}` : ''}
+        ${j.state === 'done' && j.kept ? `<button type="button" class="mini-btn" data-jopen="${i}">📄 開く（見る・直す）</button>` : ''}
+        ${j.state === 'done' && !j.asis && j.res.unfilled.length ? `<span class="ms-note" title="${esc(j.res.unfilled.join('\n'))}">空けた欄 ${j.res.unfilled.length}</span>` : ''}
         ${j.state === 'err' ? `<span class="ms-note">${esc(j.err)}</span><button type="button" class="mini-btn" data-jretry="${i}">もう一度</button>` : ''}</div>`).join('');
       const warnHtml = () => { const w = [...new Set(jobs.filter((j) => j.res).flatMap((j) => j.res.warnings))]; return w.length ? `<div class="dg-warn"><b>⚠ 提出の前に:</b><ul>${w.slice(0, 15).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''; };
-      const redraw = () => {
+      const redraw = (keepMsg) => {
         const done = jobs.filter((j) => j.state === 'done').length;
-        d.body.innerHTML = `<p class="ms-note">AI がひな形に書き込んでいます（1枚 30秒〜1分ほど・同時に3枚）。終わったら ZIP にまとめて、案件の書類と書類棚（${esc(c.theaterShort || c.theater)} のフォルダ）に残します。</p><div class="dg-jobs">${listHtml()}</div>${warnHtml()}${done === jobs.length ? `<div class="dg-done"><button type="button" class="primary" data-zip>⬇ ZIP でダウンロード</button> <span class="ms-note dg-keep"></span></div>` : ''}`;
+        d.body.innerHTML = `<p class="ms-note">AI がひな形に書き込んでいます（1枚 30秒〜1分ほど・同時に3枚）。終わったら1枚ずつ、案件の書類と書類棚（${esc(c.theaterShort || c.theater)} の「${esc(groupName)}」フォルダ）に残します。「📄 開く」でその場で見て直せます。</p><div class="dg-jobs">${listHtml()}</div>${warnHtml()}${done === jobs.length ? `<div class="dg-done"><button type="button" class="primary" data-zip>⬇ ZIP でまとめてダウンロード</button> <span class="ms-note dg-keep">${esc(keepMsg || '')}</span></div>` : ''}`;
         const pr = d.foot.querySelector('.dg-prog'); if (pr) pr.textContent = `${done} / ${jobs.length} 枚`;
       };
-      const runOne = async (j, instruction) => {
+      const runOne = async (j) => {
         j.state = 'run'; redraw();
         try {
           if (j.asis) j.res = { bytes: await bytesOf(j.tpl.data.path), entries: [], unfilled: [], warnings: [] };
-          else j.res = await fillOne(j.tpl, j.kind, j.data, instruction);
+          else {
+            j.res = await fillOne(j.tpl, j.kind, j.data);
+            if (j.map && (A.map.pt || mapManual)) {
+              try { j.res.bytes = await replaceMapImage(j.res.bytes, A.map.pt, A.map.zoom, mapManual); }
+              catch (err) { j.res.warnings.push('現場案内の地図を入れ替えられませんでした（' + (err.message || err) + '）。ひな形の地図のままです'); }
+            }
+          }
           j.state = 'done';
-        }
-        catch (err) { j.state = 'err'; j.err = err.message || String(err); }
+        } catch (err) { j.state = 'err'; j.err = err.message || String(err); }
         redraw();
+      };
+      const fileOf = (j) => ({ name: j.asis ? j.label : clean(j.label) + '.xlsx', folder: j.folder, bytes: j.res.bytes,
+        mime: j.asis ? (j.tpl.data.mime || 'application/octet-stream') : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', fill: j.asis ? null : { kind: j.kind, data: j.data } });
+      const keepJobs = async (list) => {
+        const files = list.map(fileOf);
+        const r = await keepFiles(c, 'safety', groupName, files, Object.assign({ case_id: c.id }, A, { emergency: undefined, map: { zoom: A.map.zoom } }), kept);
+        kept = kept || r; list.forEach((j, i) => { j.kept = files[i].kept; });
       };
       redraw();
       let next = 0;
       await Promise.all([0, 1, 2].map(async () => { while (next < jobs.length) { const j = jobs[next++]; await runOne(j); } }));
-      let zipBytes = null; const zipName = `【${clean(c.theaterShort || c.theater)}】${yymmdd()}_安全書類_菱熱工業.zip`;
-      const buildZip = async () => {
-        const zip = new window.JSZip();
-        jobs.filter((j) => j.state === 'done').forEach((j) => zip.file(j.asis ? `${j.folder}/${j.label}` : `${j.folder}/${clean(j.label)}.xlsx`, j.res.bytes));
-        zipBytes = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
-      };
-      const keepAll = async () => {
-        await buildZip();
-        const k = d.body.querySelector('.dg-keep'); if (k) k.textContent = '案件と書類棚に残しています…';
-        try {
-          await keep(c, 'safety', zipName, zipBytes, 'application/zip', { theater: c.theater, company: c.company, answers: Object.assign({ case_id: c.id }, A, { emergency: undefined }), files: jobs.filter((j) => j.state === 'done').map((j) => j.folder + '/' + j.label) });
-          const k2 = d.body.querySelector('.dg-keep'); if (k2) k2.textContent = '✅ 案件の書類と書類棚に残しました';
-        } catch (err) { const k2 = d.body.querySelector('.dg-keep'); if (k2) k2.textContent = '残せませんでした: ' + (err.message || err); }
-      };
-      if (jobs.some((j) => j.state === 'done')) await keepAll();
+      const zipName = `【${clean(c.theaterShort || c.theater)}】${yymmdd()}_安全書類_菱熱工業.zip`;
+      try { if (jobs.some((j) => j.state === 'done')) { redraw('案件と書類棚に残しています…'); await keepJobs(jobs.filter((j) => j.state === 'done')); } redraw('✅ 1枚ずつ、案件の書類と書類棚に残しました'); }
+      catch (err) { redraw('残せませんでした: ' + (err.message || err)); }
       d.ov.addEventListener('click', async (e) => {
-        const pv = e.target.closest('[data-jprev]'); if (pv) { const j = jobs[+pv.dataset.jprev]; previewFile(j.folder + ' / ' + j.label, j.res.book, j.res.entries); return; }
-        const rt = e.target.closest('[data-jretry]'); if (rt) { await runOne(jobs[+rt.dataset.jretry]); await keepAll(); return; }
-        const fx = e.target.closest('[data-jfix]');
-        if (fx) { const j = jobs[+fx.dataset.jfix]; const ins = await askText(`「${j.label}」をどう直しますか？`, '例: 工期の年を2027にする・作業員の欄は空ける'); if (!ins) return; await runOne(j, ins); await keepAll(); return; }
-        if (e.target.closest('[data-zip]')) { if (!zipBytes) await buildZip(); download(zipName, zipBytes, 'application/zip'); }
+        const op = e.target.closest('[data-jopen]'); if (op) { const j = jobs[+op.dataset.jopen]; if (j.kept) openDoc(j.kept.cf); return; }
+        const rt = e.target.closest('[data-jretry]');
+        if (rt) { const j = jobs[+rt.dataset.jretry]; await runOne(j); if (j.state === 'done') { try { await keepJobs([j]); redraw('✅ 残しました'); } catch (err) { redraw('残せませんでした: ' + (err.message || err)); } } return; }
+        if (e.target.closest('[data-zip]')) {
+          if (kept) { await zipGroup(c.id, kept.gid); return; }
+          const zip = new window.JSZip(); jobs.filter((j) => j.state === 'done').forEach((j) => { const f = fileOf(j); zip.file(`${f.folder}/${f.name}`, f.bytes); });
+          download(zipName, await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' }), 'application/zip');
+        }
       });
     }
   }
@@ -433,6 +697,7 @@
     try { tpls = (await loadTemplates('budget_tpl')).filter((r) => /\.xlsx$/i.test(r.data.file_name || r.name)); } catch (e) { K().say(e.message); return; }
     if (!tpls.length) { K().say('書類棚の「💰 大口予算書のひな形」に、ひな形（.xlsx）がありません。先にひな形を入れてください。'); return; }
     let partners = (await partnersList()).filter((p) => p.active !== false);
+    await loadHistory();
     const prev = await lastMeta('budget', c);
     const pa = (prev && prev.answers && prev.answers.case_id === c.id) ? prev.answers : null;
     const B = pa ? JSON.parse(JSON.stringify(pa)) : {
@@ -452,9 +717,9 @@
       d.body.innerHTML = `
         <p class="ms-note">原価は案件アプリに無いので、支払先（商社・協力会社）ごとに支払う金額を入れてください。商社は「A 空調資材費」、協力会社は「B 空調外注費」を最初に選びます（変えられます）。工事番号・発注・支払の欄は空けて作ります。</p>
         <div class="dg-grid">
-          <label><span>註文先</span><input class="tm-input" data-b="orderer" value="${esc(B.orderer)}"></label>
-          <label><span>現場名</span><input class="tm-input" data-b="site" value="${esc(B.site)}"></label>
-          <label><span>工事名称</span><input class="tm-input" data-b="work_name" value="${esc(B.work_name)}"></label>
+          <label><span>註文先</span><input class="tm-input" data-b="orderer" list="dgH_b_orderer" value="${esc(B.orderer)}"></label>
+          <label><span>現場名</span><input class="tm-input" data-b="site" list="dgH_b_site" value="${esc(B.site)}"></label>
+          <label><span>工事名称</span><input class="tm-input" data-b="work_name" list="dgH_b_work_name" value="${esc(B.work_name)}"></label>${histList('b_orderer')}${histList('b_site')}${histList('b_work_name')}${histList('b_item')}
           <label><span>納期</span><input type="date" class="tm-input" data-b="due" value="${esc(B.due)}"></label>
           <label><span>契約金額・工事指図書金額（税抜）</span><input class="tm-input dg-amt" data-b="contract_amount" value="${esc(yen(B.contract_amount))}"></label>
         </div>
@@ -465,7 +730,7 @@
         <table class="ms-table dg-lines"><thead><tr><th>支払先</th><th>区分</th><th>品名・仕様（任意）</th><th>金額（税抜）</th><th></th></tr></thead><tbody>
           ${B.lines.map((l, i) => `<tr data-li="${i}"><td><input class="tm-input" list="dgVendors" data-l="vendor" value="${esc(l.vendor)}"></td>
             <td><select data-l="category">${Object.keys(CAT).map((k) => `<option value="${k}"${l.category === k ? ' selected' : ''}>${CAT[k]}</option>`).join('')}</select></td>
-            <td><input class="tm-input" data-l="item" value="${esc(l.item || '')}" placeholder="空なら支払先の名前"></td>
+            <td><input class="tm-input" data-l="item" list="dgH_b_item" value="${esc(l.item || '')}" placeholder="空なら支払先の名前"></td>
             <td><input class="tm-input dg-amt" data-l="amount" value="${esc(l.amount ? yen(l.amount) : '')}" placeholder="0"></td>
             <td><button type="button" class="mini-btn danger" data-ldel="${i}">🗑</button></td></tr>`).join('') || '<tr><td colspan="5" class="sub">まだありません。上の会社を押すか「＋ 行を足す」</td></tr>'}
         </tbody></table>
@@ -521,16 +786,19 @@
         const name = `【${clean(c.theaterShort || c.theater)}】${yymmdd()}_大口工事予算書_菱熱工業.xlsx`;
         const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
         d.body.innerHTML = `<p>✅ できました。<b>${esc(name)}</b></p>${res.unfilled.length ? `<p class="ms-note">空けた欄: ${esc(res.unfilled.join('・'))}</p>` : ''}${res.warnings.length ? `<p class="ms-note">⚠ ${esc(res.warnings.join('・'))}</p>` : ''}
-          <p><button type="button" class="primary" data-bdl>⬇ Excel をダウンロード</button> <button type="button" data-bprev>👁 見る</button> <span class="ms-note dg-keep">案件と書類棚に残しています…</span></p>`;
+          <p><button type="button" class="primary" data-bopen disabled>📄 開く（見る・直す）</button> <button type="button" data-bdl>⬇ Excel をダウンロード</button> <span class="ms-note dg-keep">案件と書類棚に残しています…</span></p>`;
+        const file = { name, folder: '', bytes: res.bytes, mime, fill: { kind: 'budget', data } };
         d.ov.addEventListener('click', (e) => {
           if (e.target.closest('[data-bdl]')) download(name, res.bytes, mime);
-          if (e.target.closest('[data-bprev]')) previewFile(name, res.book, res.entries);
+          if (e.target.closest('[data-bopen]') && file.kept) openDoc(file.kept.cf);
         });
-        try { await keep(c, 'budget', name, res.bytes, mime, { theater: c.theater, company: c.company, answers: B }); d.body.querySelector('.dg-keep').textContent = '✅ 案件の書類と書類棚に残しました'; }
-        catch (err) { d.body.querySelector('.dg-keep').textContent = '残せませんでした: ' + (err.message || err); }
+        try {
+          await keepFiles(c, 'budget', `大口予算書 ${yymmdd()} ${c.title || ''}`.trim(), [file], Object.assign({}, B, { case_id: c.id }));
+          d.body.querySelector('.dg-keep').textContent = '✅ 案件の書類と書類棚に残しました'; d.body.querySelector('[data-bopen]').disabled = false;
+        } catch (err) { d.body.querySelector('.dg-keep').textContent = '残せませんでした: ' + (err.message || err); }
       } catch (err) { d.body.innerHTML = `<p>⚠ 作れませんでした: ${esc(err.message || err)}</p>`; }
     }
   }
 
-  window.DOCGEN = { openSafety, openBudget, openWorkers, isLarge, _classify: classify, _describe: describe };
+  window.DOCGEN = { openSafety, openBudget, openWorkers, openDoc, zipGroup, isLarge, _classify: classify, _describe: describe };
 })();

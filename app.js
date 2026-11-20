@@ -725,13 +725,14 @@
     // ---- R担当者のマスター（staff）----
     async fetchStaff() {
       if (this.mode !== 'supabase') return null;
-      let { data, error } = await sb.from('staff').select('name,email,phone,active,sort_order').order('sort_order').order('name');
+      let { data, error } = await sb.from('staff').select('name,email,phone,active,sort_order,quals').order('sort_order').order('name');
+      if (error && /quals/.test(error.message || '')) ({ data, error } = await sb.from('staff').select('name,email,phone,active,sort_order').order('sort_order').order('name'));   // 資格の列がまだ（SETUP_SAFETY_V2.sql）
       if (error && /phone/.test(error.message || '')) ({ data, error } = await sb.from('staff').select('name,email,active,sort_order').order('sort_order').order('name'));
       if (error) return null;   // 表が無い（SETUP_STAFF.sql 未実行）→ 今までどおりブラウザの覚え
       return data || [];
     },
     async saveStaff(rows) {
-      const { error } = await sb.from('staff').upsert(rows.map((r) => Object.assign({ name: r.name, email: r.email || '', active: r.active !== false, sort_order: Number(r.sort_order) || 0, updated_at: new Date().toISOString() }, r.phone !== undefined ? { phone: r.phone || '' } : {})), { onConflict: 'name' });
+      const { error } = await sb.from('staff').upsert(rows.map((r) => Object.assign({ name: r.name, email: r.email || '', active: r.active !== false, sort_order: Number(r.sort_order) || 0, updated_at: new Date().toISOString() }, r.phone !== undefined ? { phone: r.phone || '' } : {}, r.quals !== undefined ? { quals: r.quals || {} } : {})), { onConflict: 'name' });
       if (error) throw error;
     },
     // ---- 通知メールの設定（app_settings の case_mail）----
@@ -2501,15 +2502,18 @@
       ov.querySelectorAll('[data-msttab]').forEach((b) => { const on = b.dataset.msttab === masterTab; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
       ov.querySelector('.mst-foot-note').textContent = masterTab === 'mail' ? '「保存」を押すと変わります（5分以内に GAS に伝わります）' : '変えた所はすぐ保存されます';
       if (masterTab === 'staff') {
+        const qualsOn = staffList.some((x) => Object.prototype.hasOwnProperty.call(x, 'quals'));   // 資格の列（SETUP_SAFETY_V2.sql）
         const rows = staffList.slice().sort((a, b) => (a.active === false) - (b.active === false) || (a.sort_order - b.sort_order) || a.name.localeCompare(b.name, 'ja'));
         pane.innerHTML = `<h3 class="mst-h">👤 R担当者（菱熱の担当者）</h3>
           <p class="ms-note">携帯は、作業申請書を作る時に「当日責任者」（その案件のR担当者）の連絡先として使います。<br>在籍の人が、上の担当者ボタン・R担当者の候補・配分に出ます。メール・LINE の取り込みも、在籍の人を菱熱の担当者として見分けます。<br>
           異動・退職にすると、上のボタンが「○○（異動・退職）⚠ n件」に変わります。押すと、未完了の案件を別の担当者に付け替えられます（過去の案件の名前はそのまま）。<br>
           名前を変える時は、新しい名前で足して、前の名前を「異動・退職」にしてください。</p>
-          <table class="ms-table mst-table"><thead><tr><th>名前（苗字）</th><th>メールアドレス</th><th>携帯</th><th>状態</th><th>未完了の案件</th><th>並び</th></tr></thead><tbody>
+          <table class="ms-table mst-table"><thead><tr><th>名前（苗字）</th><th>メールアドレス</th><th>携帯</th>${qualsOn ? '<th title="安全書類で使う資格の印（労働安全衛生法）">資格（安全書類）</th>' : ''}<th>状態</th><th>未完了の案件</th><th>並び</th></tr></thead><tbody>
           ${rows.map((r) => `<tr class="${r.active === false ? 'mst-left' : ''}"><td><b>${escapeHtml(r.name)}</b></td>
             <td><input type="email" class="tm-input" data-semail="${escapeHtml(r.name)}" value="${escapeHtml(r.email || '')}" placeholder="例: koyama@ryonetsu.com"></td>
             <td><input type="tel" class="tm-input mst-phone" data-sphone="${escapeHtml(r.name)}" value="${escapeHtml(r.phone || '')}" placeholder="例: 090-1234-5678"></td>
+            ${qualsOn ? `<td class="mst-quals"><label title="職長教育（職長・安全衛生責任者教育）を受けた"><input type="checkbox" data-squal="${escapeHtml(r.name)}" data-q="shokucho"${(r.quals || {}).shokucho ? ' checked' : ''}> 職長教育</label>
+              <label title="元方安全衛生管理者の要件: 大学・高専の理科系卒＋建設工事の安全衛生の実務3年以上／高校の理科系卒＋5年以上／そのほか8年以上"><input type="checkbox" data-squal="${escapeHtml(r.name)}" data-q="motokata"${(r.quals || {}).motokata ? ' checked' : ''}> 元方の要件</label></td>` : ''}
             <td><select data-sactive="${escapeHtml(r.name)}"><option value="1"${r.active !== false ? ' selected' : ''}>在籍</option><option value="0"${r.active === false ? ' selected' : ''}>異動・退職</option></select></td>
             <td>${openCasesOf(r.name).length} 件</td>
             <td>${r.active === false ? '' : `<button type="button" class="mini-btn" data-sup="${escapeHtml(r.name)}" title="上へ">↑</button><button type="button" class="mini-btn" data-sdown="${escapeHtml(r.name)}" title="下へ">↓</button>`}</td></tr>`).join('')}
@@ -2647,6 +2651,13 @@
         const r = staffList.find((x) => x.name === em.dataset.semail); const v = em.value.trim().toLowerCase();
         if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { K.say('メールアドレスが正しくありません'); em.value = r.email || ''; return; }
         await save([Object.assign({}, r, { email: v })], 'メールアドレスを保存しました');
+        return;
+      }
+      const sq = e.target.closest('[data-squal]');
+      if (sq) {
+        const r = staffList.find((x) => x.name === sq.dataset.squal); if (!r) return;
+        const q = Object.assign({}, r.quals || {}, { [sq.dataset.q]: sq.checked });
+        await save([Object.assign({}, r, { quals: q })], `${r.name} さんの資格の印を保存しました`);
         return;
       }
       const ph = e.target.closest('[data-sphone]');
@@ -4032,8 +4043,14 @@
       ]);
       if (cmCaseId !== id) return;
       $('cmTo').textContent = to;
-      const files = fr.data || [];
-      $('cmFiles').innerHTML = files.length ? files.map((f) => `<div class="cm-file"><span class="cm-kind cm-${escapeHtml(f.kind)}">${CM_KIND[f.kind] || '書類'}</span>
+      const files0 = fr.data || [];
+      // 安全書類・予算書は1回分（同じ時に作った書類）をまとめて、たためる箱に（2026-11-20）
+      const groups = new Map(); const files = [];
+      files0.forEach((f) => { const g = (f.kind === 'safety' || f.kind === 'budget') && f.meta && f.meta.group; if (!g) { files.push(f); return; } if (!groups.has(g)) { groups.set(g, []); files.push({ _group: g }); } groups.get(g).push(f); });
+      $('cmFiles').innerHTML = files.length ? files.map((f) => f._group ? (() => { const gs = groups.get(f._group); const h = gs[0];
+          return `<details class="cm-group"><summary><span class="cm-kind cm-${escapeHtml(h.kind)}">${CM_KIND[h.kind] || '書類'}</span> <b>${escapeHtml(h.meta.group_name || '')}</b> <span class="field-hint">${gs.length} 枚・${cmDate(h.created_at)} ${escapeHtml(h.created_by || '')}</span>
+            <button type="button" data-cmzip="${escapeHtml(f._group)}">⬇ ZIP</button><span class="cm-final cm-inner">🔒 社内（客先には送りません）</span></summary>
+            ${gs.map((g) => `<div class="cm-file cm-sub"><button type="button" class="link-btn" data-cmopen="${escapeHtml(g.id)}">${escapeHtml((g.meta.folder ? g.meta.folder + ' ／ ' : '') + g.name)}</button>${(g.meta.versions || []).length ? `<span class="field-hint">直した版 ${(g.meta.versions || []).length}</span>` : ''}<button type="button" class="danger" data-cmdel="${escapeHtml(g.id)}" title="外す">🗑</button></div>`).join('')}</details>`; })() : `<div class="cm-file"><span class="cm-kind cm-${escapeHtml(f.kind)}">${CM_KIND[f.kind] || '書類'}</span>
           <button type="button" class="link-btn" data-cmopen="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>
           <span class="field-hint">${cmDate(f.created_at)} ${escapeHtml(f.created_by || '')}</span>
           ${f.kind === 'safety' || f.kind === 'budget' ? '<span class="cm-final cm-inner">🔒 社内（客先には送りません）</span>' : f.status === 'draft' ? `<span class="cm-draft">作成中</span><button type="button" data-cmfinal="${escapeHtml(f.id)}">✅ 完成（客先に送る）</button>` : '<span class="cm-final">送る/送った</span>'}
@@ -4119,9 +4136,14 @@
   document.addEventListener('click', async (e) => {
     const sec = e.target.closest('#caseMailSec'); if (!sec) return;
     const K = window.KARTE; const c = cases.find((x) => String(x.id) === cmCaseId);
+    const zp = e.target.closest('[data-cmzip]');
+    if (zp) { e.preventDefault(); if (window.DOCGEN) window.DOCGEN.zipGroup(cmCaseId, zp.dataset.cmzip); return; }
     const op = e.target.closest('[data-cmopen]');
     if (op) {
       e.preventDefault();
+      // 安全書類・予算書（Excel）はその場で開いて直せる
+      if (window.DOCGEN) { const { data: fr1 } = await sb.from('case_files').select('kind,name,meta').eq('id', op.dataset.cmopen).limit(1); const f1 = fr1 && fr1[0];
+        if (f1 && (f1.kind === 'safety' || f1.kind === 'budget') && /\.xlsx$/i.test(f1.name)) { window.DOCGEN.openDoc(op.dataset.cmopen); return; } }
       const { data } = await sb.from('case_files').select('path').eq('id', op.dataset.cmopen).limit(1);
       const path = data && data[0] && data[0].path; if (!path) return;
       const r = await sb.storage.from('case-files').createSignedUrl(path, 600);
@@ -8183,7 +8205,7 @@
       // 作業申請書の自動作成(workapp.js)用: 案件の中身・担当者マスター・書類を変えた後の描き直し・通知メールの宛先の文
       caseInfo: (id) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? { id: c.id, company: c.company || '', theater: c.theater || '', title: c.title || '', content: c.content || '', category: c.category || '', estimateName: c.estimateName || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', rPerson: c.rPerson || '', tcPerson: c.tcPerson || '', estimateAmount: c.estimateAmount,
         theaterShort: shortTheaterName(c.theater) || c.theater || '', theaterAddress: ((theaterMaster.find((t) => t.name === c.theater) || {}).address) || '' } : null; },
-      staff: () => (staffList || []).map((x) => ({ name: x.name, phone: x.phone || '', email: x.email || '', active: x.active !== false })),
+      staff: () => (staffList || []).map((x) => ({ name: x.name, phone: x.phone || '', email: x.email || '', active: x.active !== false, quals: x.quals || {}, qualsOn: Object.prototype.hasOwnProperty.call(x, 'quals') })),
       userName: () => currentUserName(),
       toast: (t) => showToastLite(t),
       mailTo: async (id) => { const c = cases.find((x) => String(x.id) === String(id)); try { return c ? await caseMailRecipientsText(c) : ''; } catch (e) { return ''; } },

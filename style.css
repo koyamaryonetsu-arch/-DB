@@ -2907,3 +2907,21 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
   .dg-emg label{ flex-wrap:wrap; } .dg-emg label > span{ width:100%; }
   .dg-lines thead{ display:none; } .dg-lines tr{ display:grid; grid-template-columns:1fr 1fr; gap:4px; border-bottom:1px solid #e2e8f0; padding:6px 0; } .dg-lines td{ border:none; padding:0; }
 }
+
+/* 安全書類 v2（2026-11-20）: なれる条件・資格の注意・地図・その場で直す表・案件の書類のまとまり */
+.dg-law{ display:block; font-size:11px; font-weight:400; color:#64748b; line-height:1.45; margin-top:2px; }
+.dg-qwarn{ display:block; font-size:11.5px; color:#b45309; background:#fffbeb; border-radius:4px; padding:2px 6px; margin-top:3px; }
+.dg-roles{ grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); }
+.dg-hpick{ font-size:12px; max-width:100%; }
+.dg-map{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+.dg-map-view{ width:min(640px, 100%); min-height:120px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden; background:#f8fafc; display:flex; align-items:center; justify-content:center; }
+.dg-map-cv{ width:100%; height:auto; display:block; }
+.dg-map-tools{ display:flex; flex-direction:column; gap:6px; }
+#dgDoc .wa-xl td[contenteditable]{ cursor:text; }
+#dgDoc .wa-xl td[contenteditable]:hover{ outline:1px solid #93c5fd; }
+#dgDoc .wa-xl td[contenteditable]:focus{ outline:2px solid #2563eb; background:#eff6ff; }
+#dgDoc .wa-xl td.dg-f{ background:#f1f5f9; color:#64748b; }
+#dgDoc .wa-xl td.dg-chg{ background:#fef9c3 !important; }
+.cm-group{ border:1px solid #e2e8f0; border-radius:8px; padding:4px 8px; margin:4px 0; background:#fff; }
+.cm-group summary{ cursor:pointer; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.cm-sub{ margin-left:14px; }
