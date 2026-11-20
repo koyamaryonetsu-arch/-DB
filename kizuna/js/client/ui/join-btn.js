@@ -5,8 +5,8 @@
 // ・おすと どこに いても（べつの マップ・だいほんで 運ばれた 先でも）その 戦いに 入る（サーバーの joinBattle の remote）
 // ・会話・地図を えらぶ・お店の 間も ボタンは 出た まま。おすと「終わったら入れる」と 知らせる
 // ・ことわられた 時は サーバーが わけを 知らせる（world.js の joinBattle）
-import { el, toast } from './dom.js?v=1be7df3e023c';
-import { JOIN_COOLDOWN_MS } from '../../shared/join-rule.js?v=1be7df3e023c';
+import { el, toast } from './dom.js?v=69e37e491d1f';
+import { JOIN_COOLDOWN_MS } from '../../shared/join-rule.js?v=69e37e491d1f';
 
 const CSS = `
 .hud-btn.hud-join { color: #ffe9a8; border-color: #e0a040; background: rgba(90, 40, 10, 0.88); font-weight: bold; }

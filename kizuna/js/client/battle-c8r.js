@@ -8,11 +8,11 @@
 //   あらし・なみだ・くずれ までの しるし・千年の約束の 光の ゲージ・こうら・へび
 // ・コマンド: 心が ゆらいだ 時の「よびかける」・光が たまった 時の「千年の約束」・一騎うちの「おうえん」を いちばん 上に（c8rCmdItems・c8rCmdPick）
 // ・バナー・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=1be7df3e023c';
-import { monsterCanvas } from './render/monsters.js?v=1be7df3e023c';
+import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=69e37e491d1f';
+import { monsterCanvas } from './render/monsters.js?v=69e37e491d1f';
 // 第3部 第1章 第1幕（battle-c9a.js）
-import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js?v=1be7df3e023c';
-import { C9B_OWN_TELE } from './battle-c9b.js?v=1be7df3e023c';
+import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js?v=69e37e491d1f';
+import { C9B_OWN_TELE } from './battle-c9b.js?v=69e37e491d1f';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
 // 第3部 第1章 第2幕（battle-c9b.js）

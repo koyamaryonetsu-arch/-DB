@@ -16,7 +16,7 @@
 //  r86a_kokoro       竜の心（みかた）… 青い 竜と 赤い 竜が 体の まわりを まわる
 //  ryujin_kenshi_sig 竜神・火竜・二重の太刀 … 青い 雷の 竜 → 赤い 火の 竜が つづけて とびこみ、十字の 大きな 切りあと
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R86A_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=1be7df3e023c';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=69e37e491d1f';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 

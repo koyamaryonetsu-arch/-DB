@@ -7,9 +7,9 @@
 // ・砂時計の とびら … 台を しらべると 砂時計が ひっくり返り、砂が 落ちきるまで（自分で 歩いた 歩数。流される 間は 数えない）とびらが 開く
 //   （world/time-glass.js の stepSand。フラグ c6_sd_<階><番> は 開いている 間だけ。閉じると 消える）
 // ・みちびきの糸・リレミトは 使える（1階の 上りかいだん → ほしみの丘）。時の砂時計は 使えない（timePair なし）
-import { T } from '../tiles.js?v=1be7df3e023c';
-import { parseRows16 } from './past.js?v=1be7df3e023c';
-import { PAST_TREASURE } from '../data/items-past.js?v=1be7df3e023c';
+import { T } from '../tiles.js?v=69e37e491d1f';
+import { parseRows16 } from './past.js?v=69e37e491d1f';
+import { PAST_TREASURE } from '../data/items-past.js?v=69e37e491d1f';
 
 export const SHRINE_FLOORS = 3;
 export const shrineMapId = (n) => `toki_shrine_${n}f`;

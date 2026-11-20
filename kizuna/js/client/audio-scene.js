@@ -112,6 +112,23 @@ export function pillarStageOf(game, hasFlag = () => false) {
   return n;
 }
 
+// 第92回 F: さかさのピラミッド（c9c_pyramid）は 画面の 状態 flipStage（0 ふつう・1 さかさ）で 楽器が かわる（曲の だん 0・1。
+//   だん 1 は さかさの 形〈オルゴールの ふし・ベースの のばし・リムと オープンハット〉。次の 小節から かわり、もどる 時は イントロから）。
+//   A班が 画面の 状態 flipStage を 出す（field.flipStage・game.flipStage。数・true/false・関数 どれでも よい）。出て いない 間は 0（ふつう）。
+//   名前は addFormKey にも 入れて おく（戦いの pub に 出ても こまらない 段の 名前）
+addFormKey('flipStage');
+export const C9C_PYRAMID_TRACK = 'c9c_pyramid';
+export function flipStageOf(game) {
+  for (const src of [game?.field, game]) {
+    let v = src?.flipStage;
+    try { if (typeof v === 'function') v = v.call(src); } catch { v = null; }
+    if (v === true) return 1;
+    if (v === false) return 0;
+    if (v !== null && v !== undefined && Number.isFinite(Number(v))) return Number(v) >= 1 ? 1 : 0;
+  }
+  return 0;
+}
+
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
   let n = null;
@@ -344,6 +361,8 @@ export class SceneAudio {
     const id = this.audio.music?.id || null;
     // 強さは 今 鳴っている 曲が その 場所の 曲の 時だけ（イベントの 曲・ジングルは さわらない）
     if (id && id === st.areaTrack) this.send('intensity', st.intensity, (v) => this.audio.setIntensity(v));
+    // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド）
+    if (id && id === st.areaTrack && st.phase !== null && st.phase !== undefined) this.send('phase', st.phase, (v) => this.audio.setPhase(v));
     this.send('tod', st.tod, (v) => this.audio.setTimeOfDay(v));
     // まわりの音は その 場所の 曲が 鳴って いる 間だけ（イベントの 曲・ジングルの 間は 止める）
     this.setAmbience(id && id === st.areaTrack ? st.ambience : null);
@@ -370,6 +389,8 @@ export class SceneAudio {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
     }
+    // さかさの ピラミッドの 曲の 時だけ だん（ふつう 0・さかさ 1）。ほかの 曲では だんを 送らない
+    const phase = areaTrack === C9C_PYRAMID_TRACK ? flipStageOf(game) : null;
     let area = '';
     try { area = f.areaName(); } catch { /* */ }
     let weather = null;
@@ -378,6 +399,7 @@ export class SceneAudio {
     return {
       areaTrack,
       intensity,
+      phase,
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };

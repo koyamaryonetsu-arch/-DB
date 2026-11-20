@@ -2,8 +2,8 @@
 // C9B_BOSS_HINTS[戦いの id] = [1回目（ぼんやり）, 2回目（もう 少し）, 3回目（はっきり）]。言う 人は ノクト
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c9b.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=1be7df3e023c';
-import { C9B_BATTLE } from '../maps/c9b-flags.js?v=1be7df3e023c';
+import { mergeBossHints } from './boss-hints.js?v=69e37e491d1f';
+import { C9B_BATTLE } from '../maps/c9b-flags.js?v=69e37e491d1f';
 
 export const C9B_HINT_WHO = 'ノクト';
 export const C9B_BOSS_HINTS = {

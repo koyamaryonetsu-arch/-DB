@@ -4,9 +4,9 @@
 //   かけら買いの スズ・村の 子ども ラン
 // とくべつな え（paintC9aSpecial）: 星の子 スピカ（小さな 光る 子。フィールドの 連れと くぼ地の 子。コマで 光が またたく）・
 //   石の ふくろう ホシモリ（ためしの 場面。24×24）・光る 道しるべ（ささやきの森の 入口）
-import { Painter } from './pixel.js?v=1be7df3e023c';
+import { Painter } from './pixel.js?v=69e37e491d1f';
 // 第91回 A班: 第3部 第1章 第2幕の 人の え（render/c9b-npc-art.js。ここで まぜる）
-import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=1be7df3e023c';
+import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=69e37e491d1f';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },

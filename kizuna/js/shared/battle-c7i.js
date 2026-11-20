@@ -20,16 +20,16 @@
 // ・知っている 人（シミュレーター tools/sim-ch7.mjs。b.knowsCh6）: のろい・いきの 前に 身を 守る（b.c6NoGuard … しない）／
 //   いばらのかべが ある 間は かべを 先に こわす（炎の 技が あれば 炎。b.c7iNoThorn … しない）／
 //   ねらわれたら、ブーメランの 前に 身を 守って はね返す（b.c7iNoGuardAim … しない）
-import { MONSTERS } from './data/monsters.js?v=1be7df3e023c';
-import { ABILITIES } from './data/abilities.js?v=1be7df3e023c';
-import { C7_WITCH, C7_THORN, C7_SHADOW, DRAGON_ACTIONS } from './data/monsters-c7i.js?v=1be7df3e023c';
-import { BUFF_ACTS } from './buff-acts.js?v=1be7df3e023c';
+import { MONSTERS } from './data/monsters.js?v=69e37e491d1f';
+import { ABILITIES } from './data/abilities.js?v=69e37e491d1f';
+import { C7_WITCH, C7_THORN, C7_SHADOW, DRAGON_ACTIONS } from './data/monsters-c7i.js?v=69e37e491d1f';
+import { BUFF_ACTS } from './buff-acts.js?v=69e37e491d1f';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=1be7df3e023c';
-import { canUse } from './ai.js?v=1be7df3e023c';
-import { AUTO_GUARD } from './battle-ch6.js?v=1be7df3e023c';
+import { atbRate } from './battle.js?v=69e37e491d1f';
+import { canUse } from './ai.js?v=69e37e491d1f';
+import { AUTO_GUARD } from './battle-ch6.js?v=69e37e491d1f';
 // 第2部 第8章 第1幕: オウムのイアゴン（オウムがえし）・大臣ジャハール（さいみんじゅつ → とぐろ → ランプ）。battle-c8a.js
-import { setupC8a, c8aTurnStart, c8aEffect, c8aPlan, c8aPub, c8aDamage, c8aKill } from './battle-c8a.js?v=1be7df3e023c';
+import { setupC8a, c8aTurnStart, c8aEffect, c8aPlan, c8aPub, c8aDamage, c8aKill } from './battle-c8a.js?v=69e37e491d1f';
 
 export { C7_WITCH, C7_THORN, C7_SHADOW };
 export const CURSE = 'm7m_curse';

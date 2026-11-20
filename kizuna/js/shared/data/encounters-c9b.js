@@ -5,10 +5,10 @@
 //     （A班の フィールドで 暗い マスだけを 歩く。柱を ともすと その まわりには 来ない）
 //   t9b_hall … 大王の やしき（c9b_hall。Lv99。もぐら兵）
 // ふつうの 魔物 6しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、ランクが ちらばる ように する（tools/gen-monster-ranks.mjs）
-import { C9B_DEDEDON, C9B_DISHES, C9B_MIMIZU } from './monsters-c9b.js?v=1be7df3e023c';
-import { C9B_BATTLE, C9B_TRACKS } from '../maps/c9b-flags.js?v=1be7df3e023c';
+import { C9B_DEDEDON, C9B_DISHES, C9B_MIMIZU } from './monsters-c9b.js?v=69e37e491d1f';
+import { C9B_BATTLE, C9B_TRACKS } from '../maps/c9b-flags.js?v=69e37e491d1f';
 // 負けた 時の ヒントの 文（boss-hints-c9b.js が mergeBossHints を よぶ）
-import './boss-hints-c9b.js?v=1be7df3e023c';
+import './boss-hints-c9b.js?v=69e37e491d1f';
 
 export const ENCOUNTERS_C9B = {
   t9b_shaft: [

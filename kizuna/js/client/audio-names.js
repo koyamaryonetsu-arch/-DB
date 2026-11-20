@@ -106,6 +106,13 @@ export const TRACK_NAMES = {
   c9b_village: 'ヒカリゴケの里',
   c9b_hall: '大王のやしき',
   c9b_king: 'デデドン大王',
+  // 第92回 F: 第3部 第1章 第3幕（audio-c9c.js。ボスの 名前は 出さない）
+  c9c_river: '地下の川',
+  c9c_pyramid: 'さかさのピラミッド',
+  c9c_riddle: 'なぞなぞ勝負',
+  c9c_trio2: 'またまたドタバタ3人組',
+  c9c_algol: 'つめたい光',
+  c9c_note: 'ひとつめの星の音',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）

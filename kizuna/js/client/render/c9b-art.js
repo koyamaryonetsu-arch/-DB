@@ -7,8 +7,8 @@
 //   コマ 0・1 … 戦い（大づちを かつぐ）/ 2・3 … すわりこんで おなかが 鳴る（client/battle-c9b.js の c9bSprite が pub の kDown で えらぶ）
 //   もとの 作品（星のカービィ）の 絵は 使わない（ペンギンでは なく もぐら・青い ぼうしでは なく 小さな 金の かんむり）
 // ・皿 3つ … にく・ケーキ・からいスープ（ボスの しかけの 部ひん。ふつうの こまかさ）
-import { fit, spark, bez } from './ch3-draw.js?v=1be7df3e023c';
-import { sparkled } from './c9a-art.js?v=1be7df3e023c';
+import { fit, spark, bez } from './ch3-draw.js?v=69e37e491d1f';
+import { sparkled } from './c9a-art.js?v=69e37e491d1f';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
