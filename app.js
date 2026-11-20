@@ -7597,6 +7597,8 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    // 上に別の画面（安全書類・作業申請書・劇場カルテ・確認など）が開いている時は、後ろの画面を閉じない
+    if (Array.prototype.some.call(document.querySelectorAll('.kt-overlay, .kt-ask-ov'), (x) => !x.classList.contains('hidden') && x.getClientRects().length)) return;
     // 最後に開いたものを優先的に閉じる
     if (!$('contentModal').classList.contains('hidden')) { closeContentModal(); return; }
     if (!$('theaterInfoModal').classList.contains('hidden')) { closeTheaterInfoModal(); return; }
