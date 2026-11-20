@@ -4,6 +4,9 @@
 // c8g_orb（時の大玉）は 大きな 光の 玉（とくべつな つぶ c8rorb）が ゆっくり おちて はじける。
 // c8s_promise（千年の約束）は 4つの 紋章（とくべつな つぶ c8rcrest）が まわって 1つの 光の 柱に なる。
 // 大玉・最終形態・くらい心の あらし・星の なみだ・時の くずれ・千年の約束・大風・影の 大剣は がめんの まん中に 大きく（client/battle-c8r.js の C8R_SCREEN_ANIMS）
+// 第3部 第1章 第1幕（battlefx-c9a.js）
+import { playC9aFx, C9A_FINE } from './battlefx-c9a.js';
+
 const SAND = ['#f0d070', '#fff4c0', '#c89a4a', '#ffffff'];
 const SOUL = ['#b06af0', '#e0c0ff', '#6a2aa8', '#ffffff'];
 const FZL = ['#fff6a0', '#ffffff', '#d8a8f0', '#9a4ac8'];
@@ -49,7 +52,7 @@ function c8rcrest(x, p, t) {
   x.fillRect(-1, -1, 2, 2);
   x.restore();
 }
-export const C8R_FINE = { c8rorb, c8rcrest };
+export const C8R_FINE = { c8rorb, c8rcrest, ...C9A_FINE };
 
 // 1人ずつの ふつうの 当たり（色・大きさ）
 function hitEach(fx, targets, cols, opts = {}) {
@@ -261,7 +264,8 @@ export function playC8rFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
     case 'c8r_help_mp': for (const t of targets) fx.glow(t.x, t.y - 6, { color: '#6ab8ff', r: 20, life: 700, alpha: 0.5 }); return true;
     case 'c8r_help_hit': hitEach(fx, targets, CREST, { from: (t) => ({ x: t.x - 70, y: t.y + 10 }), r: 26, n: 16, stop: 160 }); return true;
     default:
-      void element; void GREEN; void SAND;
-      return false;
+      void GREEN; void SAND;
+      // 第3部 第1章 第1幕（battlefx-c9a.js）
+      return playC9aFx(fx, anim, targets, element, opts, W, H);
   }
 }

@@ -116,7 +116,7 @@ function setupTrial(b, h, lines) {
     if (!a.abilities.includes(SHARE)) a.abilities = [SHARE, ...a.abilities];
   }
   lines.push(
-    'ホシモリ「…千年、まっていた。星の子をつれた者たちよ。」',
+    'ホシモリ「…千年、待っていた。星の子をつれた者たちよ。」',
     'ホシモリ「その明かり、夜明けまで、消さずにいられるか。」',
     '（みんなの「ともしび」を、夜明けまで守ろう！火が消えた仲間には「明かりをわける」！）',
   );
@@ -328,7 +328,7 @@ function suck(b, c, ev) {
   ev.warn = true;
   ev.upd.push(c);
   if (s.light <= 0) {
-    post(ev).push('星の子の光が、ぜんぶすいこまれてしまった…。');
+    post(ev).push('星の子の光が、全部すいこまれてしまった…。');
     b.pendingEnd = { outcome: 'lose' };
     b.queue = [];
   }

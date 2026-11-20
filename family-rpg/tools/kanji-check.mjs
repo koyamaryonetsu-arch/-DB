@@ -582,6 +582,10 @@ export function gameFiles() {
     'public/js/client/render/hero-gear-looks-r88a.js',
     // 第88回 絵C班: 作品の つえの 新しい 形の 絵
     'public/js/client/render/hero-gear-looks-r88c.js',
+    // 第90回 B班: 第3部 第1章 第1幕（魔物・星の子・3人組と スイトール1号・ホシモリの ためし・品・ヒント・絵・背景・えんしゅつ）
+    'public/js/shared/data/monsters-c9a.js', 'public/js/shared/data/abilities-c9a.js', 'public/js/shared/data/encounters-c9a.js', 'public/js/shared/data/companions-c9a.js',
+    'public/js/shared/data/items-c9a.js', 'public/js/shared/data/boss-hints-c9a.js', 'public/js/shared/battle-c9a.js', 'public/js/client/battle-c9a.js',
+    'public/js/client/render/c9a-art.js', 'public/js/client/render/c9a-bg.js', 'public/js/client/render/battlefx-c9a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

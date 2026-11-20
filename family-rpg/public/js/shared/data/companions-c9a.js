@@ -15,7 +15,7 @@ export const FRIENDS_C9A = {
     growth: { hp: 1.05, mp: 0.5, str: 1.3, def: 0.95, agi: 1.35, mag: 0.4, heal: 0.4 },
     learn: [[1, 'm_bite'], [4, 'm9n_wf_fang'], [9, 'baikiruto'], [14, 'm9n_wf_howl'], [20, 'm9n_wf_dash']],
     gear: { weapons: [], armor: ['cloth'], shield: false, head: false },
-    note: '星くずの毛なみのウルフ。仲間になると、夜になるたびに、ながれ星をさがして空を見上げている。',
+    note: '星くずの毛なみのウルフ。仲間になると、夜になるたびに、ながれ星を探して空を見上げている。',
   },
   // 植物 E（1/11）
   c9a_star_kinoko: {

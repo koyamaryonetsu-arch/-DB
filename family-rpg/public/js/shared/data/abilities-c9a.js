@@ -83,7 +83,7 @@ export const C9A_ABILITIES = {
     desc: '敵みんなの素早さを、下げることがある。',
   },
   m9n_kd_glow: {
-    name: 'ひかりごけ', kind: 'monster', mp: 4, target: 'ally',
+    name: '光ごけ', kind: 'monster', mp: 4, target: 'ally',
     effect: { type: 'heal', base: [320, 360], thr: 99 }, cast: '{a}のこけが、やさしく光った！', anim: 'c9n_mossglow',
     desc: '光るこけで、仲間1体のHPを回復する。',
   },
@@ -170,7 +170,7 @@ export const C9A_ABILITIES = {
   m9h_dawn: {
     name: '夜明け', kind: 'monster', target: 'self',
     effect: { type: 'c9hDawn' }, cast: '地下のおくまで、夜明けの光が、すうっとさしこんできた…', anim: 'c9h_dawn',
-    desc: '夜が明けて、ためしがおわる。',
+    desc: '夜が明けて、ためしが終わる。',
   },
 
   // ── 星の子・ともしびの ためし（みんな）──

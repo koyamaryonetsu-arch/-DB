@@ -123,6 +123,8 @@ import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-
 import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js';
 // 第2部 第8章 第4幕: よびかける・千年の約束・おうえん（battle-c8r.js）
 import { c8rCmdItems, c8rCmdPick, C8R_SFX } from './battle-c8r.js';
+// 第3部 第1章 第1幕: 星の子の光（左上）・ともしびの しるし（battle-c9a.js）
+import { c9aStart, c9aStatus } from './battle-c9a.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -373,6 +375,8 @@ export class BattleScene {
     this.build();
     // 水の守りの歌の しるし（battle-temple.js）
     templeStart(this, msg.snap);
+    // 第3部 第1章 第1幕: 星の子の光（battle-c9a.js）
+    c9aStart(this, msg.snap);
     // 第77回 C: ふつうの 戦いの 曲は 場所で かわる（第2部 battle2・強敵 battle_strong。曲が まだ なければ battle。client/audio-scene.js）
     const sa = this.game.sceneAudio;
     const f = this.game.field;
@@ -573,6 +577,7 @@ export class BattleScene {
       s.mp.num.textContent = `${Math.max(0, a.mp)}/${a.maxMp}`;
       s.tag.textContent = a.auto && a.controller ? 'オート' : a.controller && a.kind !== 'player' ? '命令' : a.kind === 'support' ? '仲間' : a.kind === 'monster' ? '魔物' : a.kind === 'guest' ? 'ゲスト' : '';
       fillStatusRow(s.sts, a);
+      c9aStatus(s, a); // 第3部 第1章 第1幕: ともしびの しるし（battle-c9a.js）
     }
   }
 
@@ -718,7 +723,7 @@ export class BattleScene {
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
         case 'reach': return earthReachPick(this, a);
-        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': return c8rCmdPick(this, a, it.value);
+        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
