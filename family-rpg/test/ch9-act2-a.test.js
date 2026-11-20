@@ -79,8 +79,10 @@ test('名前の 約束: マップ 3まい・タイル 427〜446・宝箱の id�
   for (const v of ids) assert.ok(TILE_INFO[v], String(v));
   // 一本の 線（第1幕の うしろ）
   assert.deepEqual(C9B_LINE, ['c9_ring2', 'c9_mine', 'c9_under', 'c9_village', 'c9_gate', 'c9_king', 'c9_raft', 'c9_act2']);
-  assert.deepEqual(CH9_STEPS.slice(-9), ['c9_act1', ...C9B_LINE]);
-  assert.deepEqual(STORY_STEPS.slice(-9), ['c9_act1', ...C9B_LINE]);
+  // 第92回 A班: うしろに 第3幕が ある（test/ch9-act3-a.test.js）
+  const a1 = CH9_STEPS.indexOf('c9_act1');
+  assert.deepEqual(CH9_STEPS.slice(a1, a1 + 9), ['c9_act1', ...C9B_LINE]);
+  assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c9_act1'), STORY_STEPS.indexOf('c9_act1') + 9), ['c9_act1', ...C9B_LINE]);
   // 宝箱（10こ。大地の下 6・村 1・やしき 3）
   const chests = C9B_MAP_IDS.flatMap((id) => MAPS[id].chests.map((c) => c.id));
   assert.deepEqual(chests.sort(), [...C9B_CHEST_ALL].sort());

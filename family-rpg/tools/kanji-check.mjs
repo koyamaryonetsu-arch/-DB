@@ -605,6 +605,10 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
+    // 第92回 A班: 第3部 第1章 第3幕「さかさのピラミッド」（名前の 約束・台本・マップ・川下り・さかさの 台と ふきぬけ・絵）。c9c-stub.js は かり（合わせる 時に 消す）
+    'public/js/shared/maps/c9c-flags.js', 'public/js/shared/data/story-c9c.js', 'public/js/shared/maps/c9c.js', 'public/js/shared/maps/c9c-rows.js',
+    'public/js/shared/maps/c9c-flip.js', 'public/js/shared/world/c9c-steps.js', 'public/js/shared/data/c9c-stub.js',
+    'public/js/client/c9c-view.js', 'public/js/client/render/tiles-c9c.js', 'public/js/client/render/c9c-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -31,6 +31,8 @@ import { attachRivalHall } from './rivals-r88.js';
 import { attachC9a } from './c9a.js';
 // 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（maps/c9b.js）
 import { attachC9b } from './c9b.js';
+// 第92回 A班: 第3部 第1章 第3幕「さかさのピラミッド」（maps/c9c.js）
+import { attachC9c } from './c9c.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -343,6 +345,8 @@ function buildMaps() {
   attachC9a(maps);
   // 第3部 第1章 第2幕: たてあな・大地の下・大王のやしき・鉱山の 下り 階段・くぼ地の 武具屋（maps/c9b.js。第1幕の あと）
   attachC9b(maps);
+  // 第3部 第1章 第3幕: 地下の川・さかさのピラミッド 4階・第4章の ピラミッドの 地下の 階段・くぼ地の 音の 台（maps/c9c.js。第2幕の あと）
+  attachC9c(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

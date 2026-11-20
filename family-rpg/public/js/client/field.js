@@ -32,6 +32,8 @@ import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap, drawC9aCraterFloor2D, drawC9
 import { C9A } from '../shared/maps/c9a-flags.js';
 // 第91回 A班: 第3部 第1章 第2幕の 明かりを 広げる 探検・天じょうの かざり（client/c9b-light.js）
 import { drawC9bDark2D, drawC9bDark3D, drawC9bShade2D, drawC9bDecor2D, drawC9bDecor3D, mapLit9b } from './c9b-light.js';
+// 第92回 A班: 第3部 第1章 第3幕の 地下の川（くらやみ・いかだ）・さかさのピラミッド（向きの 見え方）（client/c9c-view.js）
+import { noteC9cTheme, c9cOtherAlpha, c9cChestAlpha, raftAt9c, drawRaft2D, raftEntity9c, drawC9cDark2D, drawC9cDark3D, drawC9cFlip2D, drawC9cFlip3D } from './c9c-view.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -327,6 +329,8 @@ export class Field {
   // 世界の フラグ（人の いち・橋・とびら など）。さそわれて 手伝っている ときは リーダーの ものがたりの 世界
   hasFlag(f) {
     // 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人）・お日さまの むき（'@noon' など。第4章の オベリスクの 影）
+    // 第92回 A班: '@flip' … 自分の 向きが さかさ（さかさのピラミッド。人ごと）
+    if (f === '@flip') return !!this.game.me?.c9cFlip;
     if (f[0] === '@') return this.game.sky ? timeFlag(f, this.game.sky.frac()) : false;
     const world = this.game.worldFlagSet;
     if (world && this.game.visitingLeader()) return world.has(f);
@@ -843,6 +847,7 @@ export class Field {
       }
       Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], air: !!p.air, ride: !!p.ride, wg: !!p.wg, vh: p.vh || null });
       o.mt = p.mt || null; // のりもの（'dragon' … 星の竜。sky.js）
+      o.fp = !!p.fp; // 第92回 A班: さかさのピラミッドで さかさ（client/c9c-view.js）
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
@@ -998,6 +1003,7 @@ export class Field {
   }
 
   render() {
+    if (this.map?.c9cPyr) noteC9cTheme(this); // 第92回 A班: さかさの 時は 天じょうの 色
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;
@@ -1055,7 +1061,8 @@ export class Field {
     const hasF = (f) => this.hasFlag(f);
     for (const ch of m.chests) {
       if (!condOk(ch.show, hasF) || this.chestGone(ch)) continue;
-      objs.push({ y: ch.y + 0.95, draw: () => this.drawChest(ch, camX, camY) });
+      const ca = c9cChestAlpha(this, ch); // 第92回 A班: 天じょうの 宝箱・ゆかの 宝箱
+      objs.push({ y: ch.y + 0.95, draw: () => { if (ca < 1) ctx.globalAlpha = ca; this.drawChest(ch, camX, camY); ctx.globalAlpha = 1; } });
     }
     for (const fc of this.fchests) objs.push({ y: fc.y + 0.95, draw: () => this.drawChest(fc, camX, camY) });
     for (const n of m.npcs) {
@@ -1071,14 +1078,14 @@ export class Field {
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp && !o.air && !this.otherVehicle(o) && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
+        if (tp && !o.air && !this.otherVehicle(o) && !this.isOnWater(tp.x, tp.y) && !raftAt9c(this, tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
       });
     }
     // じぶんの なかま（酒場の なかま・モンスター・ゲスト）
     const fl = this.myVehicle() ? [] : this.myFollowers(); // 乗り物に 乗っている 間は みんなで 乗っている（第37回）
     fl.forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
+      if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y) && !raftAt9c(this, tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
     });
     // 馬車（render/wagon.js）
     for (const w of wagonDraws(this)) objs.push({ y: w.y, draw: () => this.drawAt(w.canvas, w.x, w.y, camX, camY) });
@@ -1099,9 +1106,11 @@ export class Field {
     }
     // くらやみ・よる
     if (m.c9b) drawC9bDark2D(this, camX, camY); // 第91回 A班: 大地の下（柱・こけ・スピカの 光）
+    else if (m.c9cDark) drawC9cDark2D(this, camX, camY); // 第92回 A班: 地下の川（スピカの 光・さんばしの 明かり）
     else if (m.c9a) drawC9aDark2D(this, camX, camY, x0, y0, x1, y1); // 第90回 A班: 光の輪
     else if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
     if (m.c9bDecor) drawC9bDecor2D(this, camX, camY); // 第91回 A班: 天じょうから ぶら下がる ダンジョンの 底
+    if (m.c9cPyr) drawC9cFlip2D(this); // 第92回 A班: さかさの 時の 画面
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1223,6 +1232,7 @@ export class Field {
     }
     // くらやみ（どうくつ）。第90回 A班: 光の輪の 階は client/c9a-light.js
     if (m.c9b) drawC9bDark3D(this, ctx, P); // 第91回 A班: 大地の下
+    else if (m.c9cDark) drawC9cDark3D(this, ctx, P); // 第92回 A班: 地下の川
     else if (m.c9a) drawC9aDark3D(this, ctx, P);
     else if (m.c9aCrater) drawC9aCrater3D(this, ctx, P); // 第90回 A班: ながれ星のくぼ地
     else if (m.dark) {
@@ -1257,6 +1267,7 @@ export class Field {
       ctx.drawImage(d, 0, 0);
     }
     if (m.c9bDecor) drawC9bDecor3D(this, ctx, P); // 第91回 A班: 天じょうから ぶら下がる ダンジョンの 底
+    if (m.c9cPyr) drawC9cFlip3D(this, ctx); // 第92回 A班: さかさの 時の 画面
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();
@@ -1304,7 +1315,7 @@ export class Field {
     const hasF = (f) => this.hasFlag(f);
     for (const ch of m.chests) {
       if (!condOk(ch.show, hasF) || this.chestGone(ch)) continue;
-      out.push({ key: 'c:' + ch.id, canvas: chestCanvas3d(!!this.game.me?.chests?.[ch.id]), x: ch.x + 0.5, y: ch.y + 0.8, anchor: 1, shadowScale: 1.3 });
+      out.push({ key: 'c:' + ch.id, canvas: chestCanvas3d(!!this.game.me?.chests?.[ch.id]), x: ch.x + 0.5, y: ch.y + 0.8, anchor: 1, shadowScale: 1.3, alpha: c9cChestAlpha(this, ch) });
     }
     for (const fc of this.fchests) out.push({ key: 'f:' + fc.id, canvas: chestCanvas3d(false), x: fc.x + 0.5, y: fc.y + 0.8, anchor: 1, shadowScale: 1.3 });
     // お店の かんばん（かべの まえに うかべる。なかに いる たてものの かんばんは かくす）
@@ -1349,18 +1360,19 @@ export class Field {
       const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame(), this.map.ship)
         : oVeh ? this.vehicleSprite(oVeh, o.look, o.job, o.eq, o.dir)
           : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
-      out.push({ key: 'p:' + o.sid, canvas: oc, x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null, ...(oShip ? SHIP3D : {}), ...(oVeh ? { shadowScale: vehicleShadow(oVeh) } : {}) });
+      if (raftAt9c(this, o.x, o.y)) out.push(raftEntity9c(this, 'raft:' + o.sid, o.x, o.y)); // 第92回 A班: いかだ
+      out.push({ key: 'p:' + o.sid, canvas: oc, x: o.x, y: o.y, alpha: o.away ? 0.45 : c9cOtherAlpha(this, o), ghost: mate ? '#ffd66b' : null, ...(oShip ? SHIP3D : {}), ...(oVeh ? { shadowScale: vehicleShadow(oVeh) } : {}) });
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         if (oVeh) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp && !this.isOnWater(tp.x, tp.y)) out.push({ key: `pf:${o.sid}:${i}`, canvas: followerSprite(f, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
+        if (tp && !this.isOnWater(tp.x, tp.y) && !raftAt9c(this, tp.x, tp.y)) out.push({ key: `pf:${o.sid}:${i}`, canvas: followerSprite(f, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
       });
     }
     const myVeh = this.myVehicle();
     (myVeh ? [] : this.myFollowers()).forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
+      if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y) && !raftAt9c(this, tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
     for (const w of wagonDraws(this)) out.push({ key: w.key, canvas: w.canvas, x: w.x, y: w.y, shadowScale: w.side ? 1.65 : 1.1 });
     for (const a of this.actors.values()) {
@@ -1373,6 +1385,7 @@ export class Field {
       const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame(), this.map.ship)
         : myVeh ? this.vehicleSprite(myVeh, this.game.me.look, this.game.me.job, shownEquip(this.game.me), this.me.dir)
           : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), shownEquip(this.game.me));
+      if (raftAt9c(this, this.me.x, this.me.y)) out.push(raftEntity9c(this, 'raft:me', this.me.x, this.me.y)); // 第92回 A班: いかだ
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}), ...(myVeh && !ship ? { shadowScale: vehicleShadow(myVeh) } : {}) });
       // トロッコに のっている（第3章）
       if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
@@ -1496,7 +1509,9 @@ export class Field {
       ctx.stroke();
       ctx.restore();
     }
+    if (raftAt9c(this, o.x, o.y)) drawRaft2D(this, o.x, o.y, camX, camY); // 第92回 A班: いかだ（地下の川）
     if (o.away) ctx.globalAlpha = 0.45;
+    else if (!mine) ctx.globalAlpha = c9cOtherAlpha(this, o); // 第92回 A班: ちがう 向きの 家族は うすく
     this.drawAt(c, o.x, o.y + (ship ? 0.2 : 0), camX, camY, !ship);
     ctx.globalAlpha = 1;
     // トロッコに のっている（第3章）: 足もとを トロッコで かくす

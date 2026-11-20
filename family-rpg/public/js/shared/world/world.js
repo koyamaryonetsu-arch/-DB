@@ -75,6 +75,8 @@ import { stepC8r } from './c8r-steps.js';
 import { stepC9a, c9aSnap, spicaFollows, spicaLook } from './c9a-steps.js';
 // 第91回 A班: 第3部 第1章 第2幕の 大地の下（柱の 明かりと 魔物。world/c9b-steps.js）
 import './c9b-steps.js';
+// 第92回 A班: 第3部 第1章 第3幕の さかさの 台と ふきぬけ（world/c9c-steps.js）
+import { stepC9c, noteC9cMove, c9cOnPlay, c9cChestSteps, c9cFlipSnap } from './c9c-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -507,6 +509,8 @@ export class GameWorld {
     s.y = pos.y;
     s.dir = pos.dir || 'down';
     s.inWorld = true;
+    // 第92回 A班: さかさのピラミッドで 場所と 向きが 食いちがったら、さいごに ふんだ 台へ（world/c9c-steps.js）
+    c9cOnPlay(this, s);
     s.busy = null;
     s.level = c.level;
     // 第44回: 前に 進化を まっていた 仲間が いれば、フィールドに 出た あとで たずねる
@@ -645,7 +649,8 @@ export class GameWorld {
   // '@noon'・'@am'・'@pm' … お日さまの むき（第4章の オベリスクの 影。clock.js の timeFlag）
   hasFlagFn(s) {
     const flags = this.worldFlags(s);
-    return (f) => (f[0] === '@' ? timeFlag(f, fracFor(this, s)) : !!flags[f]);
+    // 第92回 A班: '@flip' … その 人の 向きが さかさ（さかさのピラミッド。人ごと。world/c9c-steps.js）
+    return (f) => (f === '@flip' ? !!s.char?.c9cFlip : f[0] === '@' ? timeFlag(f, fracFor(this, s)) : !!flags[f]);
   }
 
   onEnterTile(s, tx, ty) {
@@ -683,6 +688,8 @@ export class GameWorld {
     stepC8r(this, s, tx, ty);
     // 第3部 第1章 第1幕: 光の輪（こけ・とびら・見えない 穴。world/c9a-steps.js）
     if (stepC9a(this, s, tx, ty)) return;
+    // 第3部 第1章 第3幕: さかさの 台・ふきぬけ（world/c9c-steps.js）
+    if (stepC9c(this, s, tx, ty)) return;
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);
@@ -758,6 +765,8 @@ export class GameWorld {
     noteDungeonEntry(s, { map: s.map, x: s.x, y: s.y, dir: s.dir }, mapId);
     // のろいの宝の のろいは ピラミッドの 外に 出ると とける（world/pyramid.js）
     notePyramidMove(this, s, mapId);
+    // 第92回 A班: さかさのピラミッドの 向きは 階を かわると ふつうに もどる（world/c9c-steps.js）
+    noteC9cMove(this, s, mapId);
     // ひみつのダンジョンの ちょうせん（つづきか・とちゅうから 来たか・外へ 出たか。world/secret.js）
     noteSecretMove(this, s, mapId);
     // 第88回 G3班: まぼろしの回廊へ 入る 時、とびらの 光を 持ち物に 合わせる（world/rivals-r88.js）
@@ -900,6 +909,9 @@ export class GameWorld {
     const c = s.char;
     // だいほんで 開ける 宝箱（第6章 Step 6 の てっぺんの 宝箱。中みを えらぶ。data/story-ch6d.js）
     if (chest.script) return runScript(this, s, chest.script);
+    // 第92回 A班: さかさのピラミッドの 天じょうの 宝箱・ゆかの 宝箱（world/c9c-steps.js）
+    const c9c = !c.chests[chest.id] && c9cChestSteps(this, s, chest);
+    if (c9c) return runSteps(this, s, c9c);
     if (c.chests[chest.id]) return runSteps(this, s, [['say', null, '宝箱は空っぽだ。']]);
     if (chest.medal) return runSteps(this, s, medalChestSteps(this, s, chest));
     // 手伝いに 来ている ときは、ものがたりの 大事な物は とらない（自分の 冒険で）
@@ -1200,6 +1212,8 @@ export class GameWorld {
           sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, eq: equipLook(p.char), x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
           dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId, aw: p.away ? 1 : 0,
           fl: this.followerLooks(p), wg: wagonLook(this, p),
+          // 第92回 A班: さかさのピラミッドで さかさの 人（ちがう 向きの 家族は うすく 見える）
+          ...(c9cFlipSnap(p) ? { fp: 1 } : {}),
           // 大鳥で とんでいる / なかまの 大鳥に いっしょに のっている
           ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
           // 星の竜に のって とんでいる（第3章の あと。client/sky.js が 竜の え に する）

@@ -329,7 +329,7 @@ function giveRaft() {
 }
 
 // ───── 9 川の 先（船着き場）─────
-function dockScene() {
+function dockScene(act2End = C9B_OBJ.act2) {
   const Y = { x: 66.5, y: 51 };
   return [
     ['bgm', null],
@@ -346,7 +346,7 @@ function dockScene() {
     ['chapter', '第1章　第2幕　鉱山の底の先', 'クリア！'],
     ...S('ノクト', '…川を下るのは、もう少し、じゅんびをしてからだな。'),
     ...S(SP, '…{name}と、いっしょなら、こわくない。'),
-    ['objective', C9B_OBJ.act2],
+    ['objective', act2End],
     ['bgm', 'resume'],
   ];
 }
@@ -404,7 +404,8 @@ const LINES9B = {
 
 // ───── だいほん ─────
 //   open … 幕が 開いて いるか（story-c9.js の PART3_ACT2_OPEN）。false の 間は 幕の はじまりが 動かない
-export function c9bScripts(title, open) {
+//   act2End … 第2幕 クリアの 目標の 文（第92回: story-c9.js の act2ClearObjective。第3幕が 開くと かわる）
+export function c9bScripts(title, open, act2End = C9B_OBJ.act2) {
   return {
     ...LINES9B,
     c9b_ring: (x) => (open && x.flag(C9A.act1) && !x.flag(C9B.ring2) && x.has(STAR_FORK) ? ringScene(title) : []),
@@ -416,7 +417,7 @@ export function c9bScripts(title, open) {
     ...Object.fromEntries(C9B_GUARDS.map((id, k) => [id, (x) => guardSteps(x, k)])),
     ...Object.fromEntries(C9B_BOXES.map((_, k) => [`c9b_box${k + 1}`, (x) => boxSteps(x, k)])),
     c9b_king_event: (x) => (x.flag(C9B.king) ? [] : kingScene(x)),
-    c9b_dock: (x) => (x.flag(C9B.raft) && !x.flag(C9B.act2) ? dockScene() : []),
+    c9b_dock: (x) => (x.flag(C9B.raft) && !x.flag(C9B.act2) ? dockScene(act2End) : []),
   };
 }
 
@@ -472,8 +473,8 @@ export const CH9B_PROGRESS = [
 
 // ───── story-c9.js の applyCh9 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん（story-c9.js の c9bTitleSteps）/ open … 幕が 開いて いるか（PART3_ACT2_OPEN）
-export function applyCh9b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  Object.assign(SCRIPTS, c9bScripts(title, open));
+export function applyCh9b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act2End = C9B_OBJ.act2 } = {}) {
+  Object.assign(SCRIPTS, c9bScripts(title, open, act2End));
   for (const id of CH9B_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
 }
 
