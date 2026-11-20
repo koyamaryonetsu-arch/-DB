@@ -605,6 +605,8 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
+    // 第92回 F班: 第3部 第1章 第3幕の 曲
+    'public/js/client/audio-c9c.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -902,3 +902,5 @@ export const C9A_TRACKS = {
 export const C9A_IDS = Object.keys(C9A_TRACKS);
 // 第91回 F: 第2幕の 曲（audio-c9b.js）も 同じ 小さな 道具で 書く
 export const C9A_TOOLS = { SHARP, FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL };
+// 第92回 F: 第3幕の 3人組の 曲（audio-c9c.js の c9c_trio2）が 同じ ふしを 使う（ヘ長調の まま。むこうで 調を うつす）
+export const C9A_TRIO_THEME = { chords: TRIO, A: TRIO_A, A2: TRIO_A2, D: TRIO_D };
