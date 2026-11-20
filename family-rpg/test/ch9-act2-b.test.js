@@ -188,6 +188,10 @@ test('大王: 3回 動くと 皿を じっと 見る（前ぶれに 皿の 名�
   assert.ok(w.lines.some((l) => l.includes('じーっと見ている') && l.includes({ meat: 'にく', cake: 'ケーキ', soup: 'からいスープ' }[d.c9d.kind])), w.lines.join('/'));
   assert.equal(c9bPub(d).dishWatched, 1);
   assert.equal(c9bPub(k).kWatch, d.id);
+  // 第92回 第2便（人が できる 動き）: 見てから 食べるまでに ふつうに 動く 回数（4人は 3回）
+  assert.equal(k.c9k.wait, kingConf(k, b).wait);
+  assert.equal(kingConf(k, b).wait, 3);
+  for (let i = 0; i < 3; i++) assert.notEqual(kingAct(b).tg, EAT, `${i + 1}回目は ふつう`);
   // 次の 番で 食べる
   const atk0 = k.atk, hp0 = (k.hp = Math.round(k.maxHp * 0.6));
   const e = kingAct(b);
@@ -356,10 +360,10 @@ test('人数で 合わせる: 家族の キャラの 数で 皿の HP・見る �
   const solo = battle({ kinds: ['player'] });
   assert.equal(kingOf(solo).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.solo.hp));
   assert.equal(dishHp(solo), Math.round(base * conf.solo.dish));
-  // 魔物の 仲間（半人ぶん ＋ 少し 強く）
+  // 魔物の 仲間（半人ぶん。第92回 第2便で 1体ごとの 上げは 0 … 人が できる 動きでは 魔物の 仲間の 方が 長く かかる ため）
   const mon = battle({ kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.equal(kingPeople(mon), 2);
-  assert.ok(kingOf(mon).maxHp > Math.round(MONSTERS[C9B_DEDEDON].hp * conf.few.hp[1]));
+  assert.equal(kingOf(mon).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.few.hp[1]));
 });
 
 test('自動の 仲間: 酒場の 人は 見えて いる 皿を 3回に 1回 ねらう（家族の キャラの オート・魔物の 仲間は ねらわない）', () => {

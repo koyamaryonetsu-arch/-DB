@@ -246,7 +246,7 @@ test('ナゾカケ: はずれは 2回「さかさま」（こんらん）で な
   }
 });
 
-test('ナゾカケ: 自動の 仲間 … 酒場の 人は 3回に 1回 正しく 答える・家族の キャラの オートと 魔物の 仲間は 答えない・知って いる 人は 答える', () => {
+test('ナゾカケ: 自動の 仲間 … 酒場の 人は なぞ 3つに 1つ 正しく 答える・家族の キャラの オートと 魔物の 仲間は 答えない・知って いる 人は 答える', () => {
   const b = battle(C9C_BATTLE.riddle, { kinds: ['player', 'support', 'support', 'monster'] });
   const n = nazoOf(b);
   n.c9z.left = 1;
@@ -255,10 +255,12 @@ test('ナゾカケ: 自動の 仲間 … 酒場の 人は 3回に 1回 正しく
   const [pl, s1, s2, mon] = b.allies;
   assert.equal(c9cPlan(b, pl, decide, bestHit), null, '家族の キャラの オート');
   assert.equal(c9cPlan(b, mon, decide, bestHit), null, '魔物の 仲間');
-  const picks = [];
-  for (let i = 0; i < AUTO_EVERY * 2; i++) picks.push(c9cPlan(b, i % 2 ? s1 : s2, decide, bestHit));
-  const answers = picks.filter((x) => x?.id === ANSWER);
-  assert.equal(answers.length, 2, '3回に 1回');
+  // 第92回 第2便: 番ごとでは なく なぞ 3つの うち 1つ（3つめ・6つめ…）。その なぞの 間は 番が 来れば 答える
+  const ask = (k) => { n.c9z.asks = k; return [s1, s2].map((x) => c9cPlan(b, x, decide, bestHit)); };
+  assert.deepEqual(ask(1).map((x) => x?.id ?? null), [null, null], '1つめの なぞ');
+  assert.deepEqual(ask(2).map((x) => x?.id ?? null), [null, null], '2つめの なぞ');
+  const answers = ask(AUTO_EVERY).filter((x) => x?.id === ANSWER);
+  assert.equal(answers.length, 2, '3つめの なぞ');
   for (const x of answers) assert.equal(x.choice, n.c9z.riddle.correct, '正しく 答える');
   // 知って いる 人
   pl.knows9 = 'know';
@@ -360,7 +362,7 @@ test('メカ: ひっくり返す … 2つぶ いかで 目が回る（1回 休�
   assert.ok(k.c9sDown && k.lines.some((l) => l.includes('ひっくり返って')) && k.lines.some((l) => l.includes('にげて')), k.lines.join('/'));
 });
 
-test('メカ: 自動の 仲間 … 酒場の 人は 砂が 2つぶ いかの 時に 3回に 1回 ひっくり返す・家族の キャラの オートと 魔物の 仲間は しない・知って いる 人は ひっくり返す／ポチッとねは 身を 守る', () => {
+test('メカ: 自動の 仲間 … 酒場の 人は 砂が 2つぶ いかに なる 3回に 1回 ひっくり返す・家族の キャラの オートと 魔物の 仲間は しない・知って いる 人は ひっくり返す／ポチッとねは 身を 守る', () => {
   const b = battle(C9C_BATTLE.trio2, { kinds: ['player', 'support', 'support', 'monster'] });
   const m = mechaOf9c(b);
   const decide = () => ({ type: 'attack', target: m.id });
@@ -370,9 +372,18 @@ test('メカ: 自動の 仲間 … 酒場の 人は 砂が 2つぶ いかの 時
   m.c9s.grains = 2;
   assert.equal(c9cPlan(b, pl, decide, bestHit), null);
   assert.equal(c9cPlan(b, mon, decide, bestHit), null);
-  const picks = [];
-  for (let i = 0; i < AUTO_EVERY * 2; i++) picks.push(c9cPlan(b, i % 2 ? s1 : s2, decide, bestHit));
-  assert.equal(picks.filter((x) => x?.id === FLIP).length, 2, '3回に 1回');
+  // 第92回 第2便: 番ごとでは なく 砂が 少なく なった 3回の うち 1回（lows … dropSand が 数える）
+  const low = (k) => { m.c9s.lows = k; return [s1, s2].map((x) => c9cPlan(b, x, decide, bestHit)?.id ?? null); };
+  assert.deepEqual(low(1), [null, null]);
+  assert.deepEqual(low(2), [null, null]);
+  assert.deepEqual(low(AUTO_EVERY), [FLIP, FLIP]);
+  // 砂が 少なく なる たびに 数える
+  const bb = battle(C9C_BATTLE.trio2);
+  const mm = mechaOf9c(bb);
+  mm.c9s.pochiLeft = 99;
+  for (let i = 0; i < 4; i++) bossAct(bb, mm);
+  assert.equal(mm.c9s.grains, 2);
+  assert.equal(mm.c9s.lows, 1);
   pl.knows9 = 'know';
   assert.equal(c9aPlan(b, pl, decide).id, FLIP);
   m.c9s.grains = 6;
@@ -408,7 +419,7 @@ test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウ�
     assert.equal(auto.filter((r) => r.outcome === 'win').length, 0, `${boss} 完全オート`);
     const wins = know.filter((r) => r.outcome === 'win');
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
-    assert.ok(sec >= 200 && sec <= 480, `${boss} 長さ ${sec}秒`);
+    assert.ok(sec >= 200 && sec <= 520, `${boss} 長さ ${sec}秒`);
     for (const [job, kit] of Object.entries(CH9_KIT[boss])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
   }
   assert.equal(LV9.riddle, 101);

@@ -26,6 +26,7 @@ import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
 import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
 import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
 import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
+import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from '../public/js/shared/data/items-c9b.js';
 import { nazoOf, mechaOf9c } from '../public/js/shared/battle-c9c.js';
 import { C9C_BATTLE } from '../public/js/shared/data/c9c-names-b.js';
 import { jobChar } from './sim-jobs.mjs';
@@ -82,10 +83,14 @@ export const CH9_KIT = {
   },
 };
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
+// 第92回 第2便: その 幕で 買える くぼ地の 武具屋の 品（第2幕から）。★装備の ない 所・酒場の 仲間の 装備に えらんで よい
+//   （前の 章の 計算の SHOP_GEAR には まぜない … tools/sim-jobs.mjs の jobChar の extra）
+export const CRATER_SHOP9 = { king: [...C9B_SHOP_WEAPONS, ...C9B_SHOP_ARMOR], riddle: [...C9B_SHOP_WEAPONS, ...C9B_SHOP_ARMOR], trio2: [...C9B_SHOP_WEAPONS, ...C9B_SHOP_ARMOR] };
+const shop9 = (boss) => CRATER_SHOP9[boss] || [];
 
 export function ch9Party(boss, lv, kit = true) {
   return CH6_JOBS.map(([job, name]) => {
-    const c = jobChar(job, lv, 10, name);
+    const c = jobChar(job, lv, 10, name, shop9(boss));
     const k = kit ? CH9_KIT[boss]?.[job] || [] : [];
     SLOTS.forEach((sl, i) => {
       if (!k[i]) return;
@@ -121,9 +126,9 @@ export const EXTRA_PARTIES9 = {
   k1tav: { label: '1人＋酒場3人(本物)', humans: 1, npc: 3, mon: 0, tavern: true },
 };
 const partyOf9 = (k) => PARTIES9[k] || EXTRA_PARTIES9[k];
-function npcChar(id, job, lv) {
+function npcChar(id, job, lv, boss = null) {
   const d = NPC_SUPPORTS.find((n) => n.id === id);
-  const c = jobChar(job, lv, 10, d.name);
+  const c = jobChar(job, lv, 10, d.name, shop9(boss));
   c.tactics = d.tactics;
   return c;
 }
@@ -138,7 +143,7 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   if (P.humans >= 5) humans.push(jobChar('guardian', lv, 10, 'ガーディアン'));
   const out = humans.map((c) => ({ char: c, know: true }));
   if (P.tavern) for (const [id] of NPC9.slice(0, P.npc)) out.push({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false });
-  else for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv), know: false });
+  else for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv, boss), know: false });
   for (const [sp, tac] of MON9.slice(0, P.mon)) {
     const c = monsterChar(sp, lv, 15, 10);
     c.tactics = tac;
@@ -189,9 +194,14 @@ export function addSpica9(b, boss) {
 
 // 1回 戦う。mode … 'auto' | 'blind' | 'know'
 // party … PARTIES9 の キー（人数の やり方。ない ときは 人4人）
+// 第92回 第2便: 第3部の ボスの 物さしは「人が 画面で できる 動き」… 人が 動かす キャラは 番が 来てから 2びょうで えらぶ・ブラウザの はじめの 速さ
+//   （前の 数字と くらべる ときは REACT=0 BSPEED=1 TSPEED=1）
+export const REACT9 = 2000;
+export const SPEED9 = [0.85, 0.8];
+const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' ? Number(process.env[k]) : d);
 // react … 人が 動かす キャラが 番に なってから えらぶまでの ミリびょう（0 … すぐ。ブラウザの 人に 近づける とき 3000 など）
 // speed・textSpeed … 戦いの 速さ（ない ときは 1。ブラウザの はじめの 設定は 0.85・0.8）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = Number(process.env.REACT || 0), speed = Number(process.env.BSPEED || 1), textSpeed = Number(process.env.TSPEED || 1) } = {}) {
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]) } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   const list = ch9Allies(boss, lv, party, kit);
