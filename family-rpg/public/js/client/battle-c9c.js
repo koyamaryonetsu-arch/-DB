@@ -50,7 +50,7 @@ const CSS = `
 .c9c-top.sand.boom .tx { color: #ff9a9a; animation: c9c-blink 0.5s infinite; }
 .c9c-top.sand.dizzy { border-color: #8affc8; }
 @keyframes c9c-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-@media (max-aspect-ratio: 1/1) { .c9c-top { top: 30px; max-width: 94%; min-width: 60%; padding: 2px 6px 3px; } .c9c-top .q { font-size: 13px; letter-spacing: 0; } .c9c-top .ch { font-size: 11px; }
+@media (max-aspect-ratio: 1/1) { .c9c-top { top: 30px; max-width: 94%; min-width: 60%; padding: 2px 6px 3px; } .c9c-top .q { font-size: 13px; letter-spacing: 0; } .c9c-top .ch { font-size: 11px; margin-top: 1px; } .c9c-top .ch span { margin: 0 3px; } .c9c-top .lim { margin-top: 0; font-size: 10px; } .c9c-top .lim .hint { display: none; }
   .c9c-top.sand { min-width: 0; gap: 4px; padding: 2px 6px; } .c9c-top.sand .glass { display: none; } .c9c-top.sand .gr { font-size: 12px; letter-spacing: 1px; } .c9c-top.sand .tx { font-size: 11px; } }
 `;
 function addCss() {
@@ -82,7 +82,7 @@ export function riddleHtml(c) {
   const dots = '●'.repeat(left) + '○'.repeat(Math.max(0, (c.zLimit || 2) - left));
   return `<div class="q">${esc(r.text)}</div>`
     + `<div class="ch">${r.choices.map((t, i) => `<span>${i + 1}．${esc(t)}</span>`).join('')}</div>`
-    + `<div class="lim${left <= 1 ? ' last' : ''}">時間切れまで ${dots}（「こたえる」で答えよう）</div>`;
+    + `<div class="lim${left <= 1 ? ' last' : ''}">時間切れまで ${dots}<span class="hint">（「こたえる」で答えよう）</span></div>`;
 }
 // 砂の めもり（HTML）
 export function sandHtml(c) {

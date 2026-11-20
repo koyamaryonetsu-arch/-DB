@@ -113,10 +113,14 @@ export const PARTIES9 = {
   k2npc: { label: '2人＋酒場2人', humans: 2, npc: 2, mon: 0 },
   solo: { label: 'ひとりだけ　', humans: 1, npc: 0, mon: 0 },
   p5: { label: '人5人　　　　', humans: 5, npc: 0, mon: 0 },
-  // 第92回: ゲームの 酒場と おなじ 作りの 仲間（world/party.js の makeNpcSupportChar。ものがたりで 入る ときと おなじ 勇者の 1つ下の レベル・
-  //   はじめの 職業〈魔法使い・武闘家・僧侶〉・その レベルの 店の 装備）。ブラウザで 人が 遊んだ ときと おなじ 顔ぶれ（11-4 の さいご）
+};
+// 第92回: ゲームの 酒場と おなじ 作りの 仲間（world/party.js の makeNpcSupportChar。ものがたりで 入る ときと おなじ 勇者の 1つ下の レベル・
+//   はじめの 職業〈魔法使い・武闘家・僧侶〉・その レベルの 店の 装備）。ブラウザで 人が 遊んだ ときと おなじ 顔ぶれ（11-4 の さいご）
+//   PARTY=all には 入れない（PARTY=k1tav で えらぶ）
+export const EXTRA_PARTIES9 = {
   k1tav: { label: '1人＋酒場3人(本物)', humans: 1, npc: 3, mon: 0, tavern: true },
 };
+const partyOf9 = (k) => PARTIES9[k] || EXTRA_PARTIES9[k];
 function npcChar(id, job, lv) {
   const d = NPC_SUPPORTS.find((n) => n.id === id);
   const c = jobChar(job, lv, 10, d.name);
@@ -125,7 +129,7 @@ function npcChar(id, job, lv) {
 }
 // 1回 ぶんの 味方（{ char, know }。know … その キャラを 人が 動かすか）
 export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
-  const P = PARTIES9[partyKey];
+  const P = partyOf9(partyKey);
   if (!P) throw new Error(`party: ${partyKey}`);
   const four = ch9Party(boss, lv, kit);
   // ならびは 人4人の ときと おなじ（先頭ほど ねらわれやすい）
@@ -310,7 +314,7 @@ if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
           for (const mode of Object.keys(MODES9)) {
             if (party !== 'p4' && mode === 'blind') continue;
             const res = [...Array(N).keys()].map((i) => ch9Run(boss, lv, mode, seedOf(i), { party }));
-            console.log(`  ${PARTIES9[party].label} Lv${lv} ${MODES9[mode].label} ${summary9(res).text}`);
+            console.log(`  ${partyOf9(party).label} Lv${lv} ${MODES9[mode].label} ${summary9(res).text}`);
           }
         }
       }
