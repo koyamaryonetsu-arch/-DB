@@ -28,6 +28,7 @@ import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 // 第90回 B班: 第3部 第1章 第1幕の 品（その 章の いちばんの テストから のぞく）
 import { ITEMS_C9A } from '../public/js/shared/data/items-c9a.js';
 import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
+import { ITEMS_C9C } from '../public/js/shared/data/items-c9c.js';
 import { C7I_K } from '../public/js/shared/data/items-c7i.js';
 import {
   ECHO, DIZZY, HYPNO, DAZE, COBRA, COIL, STRIKE, GENIE, BLAST, SEALED, COBRA_NAME, GENIE_NAME,
@@ -608,7 +609,7 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8j_ruby_charm') > sum('c8p_feather_charm') && sum('c8p_feather_charm') > sum('c7h_shadow_charm'));
   // 第8章 第3幕の 品（ITEMS_C8C。マジカメックの つえ など）は のぞく。第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。氷河の女王のつえ）も のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !ITEMS_C9B[id] && !(it.tmStep >= 15) && !it.work).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !ITEMS_C9B[id] && !ITEMS_C9C[id] && !(it.tmStep >= 15) && !it.work).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('fan'), 'c8p_parrot_fan');
   assert.equal(top('staff'), 'c8j_snake_staff');
   assert.equal(top('sword'), 'c8at_palace_sword');

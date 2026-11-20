@@ -33,6 +33,7 @@ import { FRIENDS_C8C } from './companions-c8c.js';
 import { FRIENDS_C8R } from './companions-c8r.js';
 import { FRIENDS_C9A } from './companions-c9a.js';
 import { FRIENDS_C9B } from './companions-c9b.js';
+import { FRIENDS_C9C } from './companions-c9c.js';
 import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js';
 // 第43回 A: やせいの 魔物の ランク（めずらしさ）の 表（tools/gen-monster-ranks.mjs が 作る）
 import { MONSTER_RANKS } from './monster-ranks.js';
@@ -333,6 +334,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_C8R);
 Object.assign(MONSTER_FRIENDS, FRIENDS_C9A);
 // 第3部 第1章 第2幕 の 魔物（companions-c9b.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_C9B);
+// 第3部 第1章 第3幕 の 魔物（companions-c9c.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_C9C);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
 // 第44回（ポケモン P1）: ポケモンの 魔物。配合と 進化でしか 会えない（companions-pokemon.js）

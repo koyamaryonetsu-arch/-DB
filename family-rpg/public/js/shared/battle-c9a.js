@@ -204,7 +204,8 @@ export function c9aTurnStart(b, c, ev, stuck) {
   if (c.side === 'ally') return;
   if (c.c9t) trioTurn(b, c, ev, stuck);
   else if (c.c9h) trialTurn(b, c, ev, stuck);
-  else if (c.c9k) c9bTurnStart(b, c, ev, stuck);
+  // 第3部 第1章 第2幕・第3幕（battle-c9b.js・battle-c9c.js）
+  else c9bTurnStart(b, c, ev, stuck);
 }
 
 function trioTurn(b, c, ev, stuck) {

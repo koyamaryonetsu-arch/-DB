@@ -60,7 +60,7 @@ export const MONSTERS_C9A = {
   },
   // 星くずランプの精: 星の 光を すいこんで 明るく なった ランプの精
   c9a_star_lamp: {
-    name: '星くずランプの精', lv: 97, hp: 2560, mp: 360, str: 280, def: 270, agi: 290, mag: 440, exp: 5600, gold: 1860,
+    name: '星くずランプの精', lv: 97, hp: 2150, mp: 360, str: 280, def: 270, agi: 290, mag: 440, exp: 5600, gold: 1860,
     race: 'spirit', size: 'm', flying: true, hit: 'claw', region: 6,
     resist: { fire: 0.3, ice: 1.35, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.0, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['c7i_snow_robe', 80] },
     actions: [{ w: 3, id: 'm9n_lp_fire' }, { w: 2, id: 'm9n_lp_flare', cond: 'notRecent:m9n_lp_flare' }, { w: 1, id: 'm9n_lp_dazzle', cond: 'notRecent:m9n_lp_dazzle' }, { w: 1, id: 'attack' }],
@@ -78,7 +78,7 @@ export const MONSTERS_C9A = {
   },
   // こけ玉: 光る こけが 丸まった 魔物（mossGlow … たおすと まわりの こけが 光る〈A班〉）
   c9a_kokedama: {
-    name: 'こけ玉', lv: 97, hp: 2840, mp: 220, str: 330, def: 340, agi: 200, mag: 320, exp: 5700, gold: 1900,
+    name: 'こけ玉', lv: 97, hp: 2300, mp: 220, str: 330, def: 340, agi: 200, mag: 320, exp: 5700, gold: 1900,
     race: 'plant', size: 'm', hit: 'claw', region: 6, mossGlow: true,
     resist: { fire: 1.4, ice: 0.8, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.0, poison: 0.3, sleep: 0.4, confuse: 0.4 }, drops: { common: ['toku_herb', 10], rare: ['c7i_snow_mail', 80] },
     actions: [{ w: 3, id: 'm9n_kd_roll' }, { w: 2, id: 'm9n_kd_moss', cond: 'notRecent:m9n_kd_moss' }, { w: 1, id: 'm9n_kd_glow', cond: 'allyHurt' }, { w: 1, id: 'attack' }],
@@ -86,7 +86,7 @@ export const MONSTERS_C9A = {
   },
   // 石の子ども: 星の石の 根を 守る ホシモリの、小さい 石像。めったに 見ない
   c9a_ishinoko: {
-    name: '石の子ども', lv: 98, hp: 2900, mp: 200, str: 384, def: 380, agi: 220, mag: 240, exp: 5900, gold: 1960,
+    name: '石の子ども', lv: 98, hp: 2350, mp: 200, str: 384, def: 380, agi: 220, mag: 240, exp: 5900, gold: 1960,
     race: 'material', size: 'm', flying: true, hit: 'bite', region: 6,
     resist: { bolt: 1.35, fire: 0.8, ice: 0.9, wind: 1.0, light: 0.8, dark: 1.0, poison: 0, sleep: 0, confuse: 0.3 }, drops: { common: ['elf_drink', 30], rare: ['c7i_snow_sword', 80] },
     actions: [{ w: 3, id: 'm9n_is_peck' }, { w: 2, id: 'm9n_is_harden', cond: 'notRecent:m9n_is_harden' }, { w: 1, id: 'm9n_is_gaze', cond: 'notRecent:m9n_is_gaze' }, { w: 1, id: 'attack' }],

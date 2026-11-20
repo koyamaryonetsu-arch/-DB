@@ -151,8 +151,8 @@ test('ふつうの 魔物 6しゅ: 仲間に なる・素材・出る 表・ラ�
   for (const r of ['F', 'E', 'D', 'C']) assert.ok(ranks.includes(r), r);
   assert.ok(ranks.filter((r) => ['B', 'A', 'S'].includes(r)).length <= 1);
   for (const sp of C9A_MINIONS) assert.equal(rankPoints(sp).band, '第3部 第1章', sp);
-  // 第8章 第4幕の さいごの 魔物より 少し 強い
-  for (const sp of C9A_MINIONS) assert.ok(MONSTERS[sp].hp >= 2500 && MONSTERS[sp].exp > MONSTERS.sand_knight.exp, sp);
+  // 第8章 第4幕の さいごの 魔物より 少し 強い（経験値）。HP は 第92回で ふつうの 戦いの 長さを そろえた（11-4。こけ玉・石の子ども・ランプの精を 2100〜2400 に）
+  for (const sp of C9A_MINIONS) assert.ok(MONSTERS[sp].hp >= 2100 && MONSTERS[sp].exp > MONSTERS.sand_knight.exp, sp);
 });
 
 // ───────────── 星の子 ─────────────

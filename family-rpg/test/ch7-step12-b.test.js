@@ -30,6 +30,7 @@ import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 // 第90回 B班: 第3部 第1章 第1幕の 品（その 章の いちばんの テストから のぞく）
 import { ITEMS_C9A } from '../public/js/shared/data/items-c9a.js';
 import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
+import { ITEMS_C9C } from '../public/js/shared/data/items-c9c.js';
 import { TOKEI_TREASURE_HIGH } from '../public/js/shared/data/items-tokei.js';
 import { SWIRL, CALL, STEAL, CHORUS, swirlBefore, chorusBefore, voicesOf, c7Plan, c7Effect } from '../public/js/shared/battle-c7.js';
 import { AUTO_GUARD } from '../public/js/shared/battle-ch6.js';
@@ -444,7 +445,7 @@ test('ボスの 品・時をこえる手紙の ごほうび・緑の王国の �
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c7t_witch_charm') > sum('c7g_twin_charm') && sum('c7g_twin_charm') > sum('p6z_zenmai_charm'));
   // 第7章 第3幕の 品（items-c7i.js。黒竜のやり）は のぞく。第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。古代の王のやり）も のぞく
-  const topSpear = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'spear' && !it.base && !it.work && !ITEMS_C7I[id] && !ITEMS_C8B[id] && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !ITEMS_C9B[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const topSpear = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'spear' && !it.base && !it.work && !ITEMS_C7I[id] && !ITEMS_C8B[id] && !ITEMS_C8C[id] && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !ITEMS_C9B[id] && !ITEMS_C9C[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(topSpear, 'c7t_trident');
   for (const id of C7_LETTER_REWARDS) {
     assert.ok(ITEMS[id] && ITEMS[id].src === 'letter7' && starsOf(id) === 5, id);
