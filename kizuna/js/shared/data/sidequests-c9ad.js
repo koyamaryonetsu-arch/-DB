@@ -10,7 +10,7 @@
 // ・物語の 先（星の子・3人組 など）と、第1部・第2部の ひみつには ふれない
 // クエストの 画面・地図の しるしは data/sidequests-c7.js の c7SubQuests・c7DoneQuests から、だいほんは applyC7Side から まぜる
 // （第8章 第4幕の data/sidequests-c8rd.js と おなじ 形）
-import { C9AD_OPEN, LOST9, LOST9_FOUND, LOST9_BACK } from '../maps/c9ad-side.js?v=ce41aac08237';
+import { C9AD_OPEN, LOST9, LOST9_FOUND, LOST9_BACK } from '../maps/c9ad-side.js?v=26d09a2ba259';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

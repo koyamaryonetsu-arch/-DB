@@ -20,16 +20,16 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=ce41aac08237';
-import { ABILITIES } from './data/abilities.js?v=ce41aac08237';
-import { SHARE } from './data/abilities-c9a.js?v=ce41aac08237';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=ce41aac08237';
-import { C9A } from './maps/c9a-flags.js?v=ce41aac08237';
+import { MONSTERS } from './data/monsters.js?v=26d09a2ba259';
+import { ABILITIES } from './data/abilities.js?v=26d09a2ba259';
+import { SHARE } from './data/abilities-c9a.js?v=26d09a2ba259';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=26d09a2ba259';
+import { C9A } from './maps/c9a-flags.js?v=26d09a2ba259';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=ce41aac08237';
-import { canUse } from './ai.js?v=ce41aac08237';
+import { pub, atbRate } from './battle.js?v=26d09a2ba259';
+import { canUse } from './ai.js?v=26d09a2ba259';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub } from './battle-c9b.js?v=ce41aac08237';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub } from './battle-c9b.js?v=26d09a2ba259';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -55,22 +55,41 @@ export function peopleOf(b) {
   return Math.max(1, Math.min(5, n || 4));
 }
 const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf(b) - 1] ?? d : d);
+// 第92回 第2便: 人数の 表（few）・仲間なしの ひとり（solo … 戦う 人が 1人だけ。few より 先）から えらぶ
+function pick9(c, b) {
+  const f = c.few || {};
+  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
+  return (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+}
+// ボスの HP・攻撃力を 人数で 合わせる（few.hp・few.atk・solo）
+function scale9(b, m, conf) {
+  const pick = pick9(conf, b);
+  // 魔物の 仲間 1体ごとの 上げ（monK。家族の キャラが いる とき）
+  const mons = (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
+  const hp = pick('hp', 1) * (1 + (conf.monK?.hp || 0) * mons), atk = pick('atk', 1) * (1 + (conf.monK?.atk || 0) * mons);
+  if (hp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * hp));
+  if (atk !== 1) m.atk = Math.max(1, Math.round(m.atk * atk));
+}
 export function trioConf(m, b = null) {
   const c = confOf(m) || {};
   const f = c.few || {};
+  void f;
+  const pick = pick9(c, b);
   return {
-    aim: c.aim ?? 3, suck: { mult: 2.1, ...(c.suck || {}) }, lost: { heal: 0.06, up: 1.12, ...(c.lost || {}) }, fix: c.fix ?? 3, light: c.light ?? SPICA_LIGHT,
-    guard: b ? few(f.guard, b, 1) : 1, nozzle: b ? few(f.nozzle, b, 1) : 1, wait: b ? few(f.wait, b, 0) : 0,
+    aim: pick('aim', c.aim ?? 3), suck: { mult: 2.1, ...(c.suck || {}) }, lost: { heal: 0.06, up: 1.12, ...(c.lost || {}) }, fix: c.fix ?? 3, light: c.light ?? SPICA_LIGHT,
+    guard: pick('guard', 1), nozzle: pick('nozzle', 1), wait: pick('wait', 0),
   };
 }
 export function trialConf(m, b = null) {
   const c = confOf(m) || {};
-  const f = c.few || {};
+  const pick = pick9(c, b);
   const every = c.every ?? 3;
   const dawn = c.dawn ?? 16;
   return {
-    dawn: b ? few(f.dawn, b, dawn) : dawn, every: b ? few(f.every, b, every) : every,
-    big: c.big ?? 9000, half: c.half ?? 0.5, spicaEvery: c.spicaEvery ?? 3, two: b ? few(f.two, b, c.two ?? 0.5) : c.two ?? 0.5, breath: c.breath || [300, 330],
+    dawn: pick('dawn', dawn), every: pick('every', every),
+    big: c.big ?? 9000, half: c.half ?? 0.5, spicaEvery: c.spicaEvery ?? 3, two: pick('two', c.two ?? 0.5), breath: c.breath || [300, 330],
+    // 第92回 第2便: 息を すいこんでから いぶきまでに ふつうに 動く 回数（人が 読んで 身を 守る・わける 間）
+    bwait: pick('bwait', c.bwait ?? 0),
   };
 }
 export const mechaOf = (b) => (b.c9trio ? b.get(b.c9trio.mecha) : null);
@@ -123,6 +142,7 @@ export function spicaPub(b) {
 
 function setupTrio(b, m, lines) {
   const tc = trioConf(m, b);
+  scale9(b, m, confOf(m));
   const nz = b.enemies.find((e) => e.species === C9A_NOZZLE);
   // すいこみ口の HP は 人数で 合わせる（few.nozzle）
   if (nz && tc.nozzle !== 1) nz.maxHp = nz.hp = Math.max(1, Math.round(nz.maxHp * tc.nozzle));
@@ -138,6 +158,7 @@ function setupTrio(b, m, lines) {
 
 function setupTrial(b, h, lines) {
   const hc = trialConf(h, b);
+  scale9(b, h, confOf(h));
   h.c9h = { acts: 0, dawn: 0, max: hc.dawn, every: hc.every, left: hc.every, aim: [], dmg: 0, bigs: 0, breaths: 0, shares: 0, kept: 0, outs: 0, relit: 0, won: false, dark: false };
   b.c9trial = { hm: h.id };
   for (const a of b.allies) {
@@ -280,6 +301,12 @@ function trialTurn(b, c, ev, stuck) {
     return;
   }
   if (h.aim.length) {
+    if (h.wait > 0) {
+      h.wait--;
+      ev.c9hWait = { id: c.id, left: h.wait };
+      ev.upd.push(c);
+      return;
+    }
     if (!stuck) c.telegraph = BREATH;
     ev.upd.push(c);
     return;
@@ -292,6 +319,7 @@ function trialTurn(b, c, ev, stuck) {
     while (aim.length < n && pool.length) aim.push(pool.splice(b.rng.int(0, pool.length - 1), 1)[0]);
     if (aim.length) {
       h.aim = aim.map((x) => x.id);
+      h.wait = hc.bwait;
       ev.lines.push(`${c.name}が、大きく息をすいこんだ…！`, `（ねらいは${aim.map((x) => x.name).join('と')}のともしび…！身を守るか、消えたら「明かりをわける」！）`);
       ev.c9hWarn = { id: c.id, ids: h.aim.slice() };
       ev.warn = true;
