@@ -6,8 +6,6 @@
 // ・家族 2人: 同じ 光を 見る・ためしの とちゅうから 入れる（第89回 の きまり）・回線が 切れても 続きから
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GameWorld } from '../public/js/shared/world/world.js';
-import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, canStand } from '../public/js/shared/maps/index.js';
 import { C9A, C9A_MAP, C9A_PREP, C9A_FORK_RING, C9A_SECRETS, C9A_CHEST_IDS, STAR_FORK, c9aShard, c9aSeen } from '../public/js/shared/maps/c9a-flags.js';
 import { cavePos, caveEntry, STAIRS9A } from '../public/js/shared/maps/c9a-cave.js';
@@ -24,7 +22,7 @@ import { storyPlace } from '../public/js/shared/world/shiori.js';
 import { itemCount } from '../public/js/shared/stats.js';
 import { ch9Party } from '../tools/sim-ch9.mjs';
 import { Bot, tickN } from './helpers.js';
-import { UPTO, said, play, place, stepOn, examine, touch, talkTo, walkTo, pathTo, D4, addPlayer } from './c9a-play.js';
+import { fixedWorld, UPTO, said, play, place, stepOn, examine, touch, talkTo, walkTo, pathTo, D4, addPlayer } from './c9a-play.js';
 
 const COPY = ['level', 'exp', 'job', 'jobs', 'jobSys', 'skillUse', 'hirameki', 'equip', 'hp', 'mp', 'status'];
 // 家族の キャラを 超級職 4人に（その ころの ★装備。boss … 'trio' | 'trial'）
@@ -34,7 +32,7 @@ function gear(chars, boss, lv) {
 }
 // 家族 4人（ソラ が 遊ぶ。ほかの 3人は ソラの パーティーに 入って いる 家族の キャラ）
 async function family(seed) {
-  const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false });
+  const world = fixedWorld(seed);
   const ids = [];
   for (const name of ['パパ', 'ミク', 'ユイ']) {
     const b = new Bot(world, name);
@@ -187,7 +185,7 @@ test('通し（本当の 戦い）: 第2部 クリア → 星祭り → 森 → 
 });
 
 test('家族 2人: 同じ 光・ためしの とちゅうから 入れる（そばに 行く・「戦いに入る」ボタン）・いっしょに 勝つ', { timeout: 600000 }, async () => {
-  const world = new GameWorld({ offline: true, rng: makeRng(9010), rateLimit: false });
+  const world = fixedWorld(9010);
   const A = await addPlayer(world, 'ソラ', 'c9_b3');
   const B = await addPlayer(world, 'ミク', 'c9_b3');
   const P = await addPlayer(world, 'パパ', 'c9_b3');
@@ -237,7 +235,7 @@ test('家族 2人: 同じ 光・ためしの とちゅうから 入れる（そ�
 
 test('回線が 切れた 時の つづき: 地下2階の とちゅうで 切れて つなぎなおす → 同じ 場所・同じ フラグ・同じ 光・星の子も うしろに', { timeout: 300000 }, async () => {
   // 切れても しばらく 待つ 世界（offline で ない。合言葉は なんでも よい）
-  const world = new GameWorld({ offline: false, rng: makeRng(9020), checkPassword: () => true, rateLimit: false });
+  const world = fixedWorld(9020, { offline: false, checkPassword: () => true });
   const A = await addPlayer(world, 'ソラ', 'c9_b1', [c9aSeen(1)]);
   const B = await addPlayer(world, 'ミク', 'c9_b1');
   A.bot.send({ t: 'party', action: 'invite', sid: B.bot.s.id });

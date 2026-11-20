@@ -455,17 +455,18 @@
 | ファイル | 中み |
 |---|---|
 | `shared/data/story-c9a.js` | 台本（場面 1〜11）・目標の 文 `C9A_OBJ`・行き先 `CH9A_OBJECTIVE_TARGETS`・仲間の ひとこと `CH9A_OBJECTIVE_TALK`・すすみぐあい `CH9A_PROGRESS`・村の 人の「1年後」の せりふ `C9A_TOWN_LINES`・`applyCh9a`・負けた 時の やり直しの 行き先（`mergeBossHints`）。`story-c9.js` を import しない（題の 画面は `applyCh9a` の 引数 `title` で もらう） |
-| `shared/maps/c9a.js` | マップを まとめる `attachC9a`（`maps/index.js` の `buildMaps`）・魔物の 表の かり `C9A_TABLE_FALLBACK`・`c9aTableOf` |
+| `shared/maps/c9a.js` | マップを まとめる `attachC9a`（`maps/index.js` の `buildMaps`）。魔物の 表の かりは まとめた 時に 消した |
 | `shared/maps/c9a-rows.js` | 地下道 4階（`B1`〜`B4`）と くぼ地（`CRATER`）の 形 |
-| `shared/maps/c9a-cave.js` | 星の石の地下道 `c9a_b1`〜`c9a_b4` を 作る（`map.c9a` ＝ 光の 物の ならび・`c9aDoorFlag`・`c9aEntry`）。宝箱の かり `C9A_CHEST_STUB`・`chestItem9a` |
+| `shared/maps/c9a-cave.js` | 星の石の地下道 `c9a_b1`〜`c9a_b4` を 作る（`map.c9a` ＝ 光の 物の ならび・`c9aDoorFlag`・`c9aEntry`）。宝箱の 中みは B班の `c9aChest`（`chestItem9a`） |
 | `shared/maps/c9a-forest.js` | 星ふるえの森 `c9a_forest`（世界地図の ささやきの森 x88〜123・y6〜49 を うつして、たおれた 木で 道を かえた）・ながれ星のくぼ地 `c9a_crater` |
 | `shared/maps/c9a-field.js` | 今の 世界地図に 足す 物（1年ぶりの 朝の マス・ちょうちん 4つ・星の花 3本・子ども 3人・守り星の石の 南の 階段・井戸・光る 道しるべ） |
 | `shared/maps/c9a-light.js` | 光の輪の 計算（サーバー・画面・とく 道具が 同じ 物を 使う）: `stepLight`・`connectedOf`・`crystalsLit`・`doorOpen`・`lightCenters`・`litCells` |
 | `shared/world/c9a-steps.js` | 光の輪の サーバー（パーティーで 1つ・セーブしない `world.c9aLight`・とびら・見えない 穴・snap・くらやみ虫の `symBlock`）・星の子の フィールドの 連れ |
 | `client/c9a-light.js` | 光の輪の 絵（2D・2.5D。まっ暗・光の まる・光る こけ・光の 中の 穴・くらやみ虫の 目） |
-| `client/render/tiles-c9a.js` | タイル 407〜425 の 絵・2.5D・テーマ `c9a_cave`・`c9a_forest` |
+| `client/render/tiles-c9a.js` | タイル 407〜426 の 絵・2.5D・テーマ `c9a_cave`・`c9a_forest` |
 | `client/render/c9a-npc-art.js` | 人の え（第1部の 仲間 5人・3人組・かけら買い・村の 子）・星の子 `c9a_spica`・石の ふくろう `c9a_owl`・光る 道しるべ `c9a_signpost` |
 | `test/ch9-act1-a.test.js`・`test/c9a-solver.js` | テスト 17こ（下）・地下道の とく 道具 |
+| `test/ch9-act1.test.js`・`test/c9a-play.js` | 本当の 戦いの 通し（まとめた 時。下）・世界で 遊ぶ 手（2つの テストで 使う） |
 
 **場面と フラグ**（一本の 線は 9-4 の まま）
 - 1 1年ぶりの 朝: 世界地図の ホシフル村（`PLACES.village` ぜんぶ）に 入ると だいほん `c9a_morning`（`c8_solitus` が あって `c9_festival` が ない 人）。ルカが ゲームの はじめと 同じ せりふ →「…なんか、1年前も、同じこと言ったな」→ 題の 画面（`c9TitleSteps()`）→ `c9_festival`
@@ -514,7 +515,7 @@
 7. F班の 曲: マップ `c9a_forest`（森）・`c9a_child`（くぼ地）・`c9a_cave`（地下道）、場面 `c9a_festival`（朝・夜）・`c9a_trio`・`c9a_trial`
 8. D班: ホシフル村の 四すみ（ちょうちん）・広場の まわりの 子ども 3人・星見の丘の ほこらの まわり・ささやきの森の 入口（100,49）・守り星の石の 南西（27,102）・井戸（26,106）は A が 使った
 
-**引っこしコード**: いちばん 大きい セーブ 29897字（3通）→ 約30100字（LINE の 301%・**4通**。見はり「4通まで」の 中）。新しい マップ 6まいの「行った 所」・宝箱 13こ・フラグ。ふつうの セーブは かわらず 1通（70%）。B・F・D班の 物が 入ると もう少し のびる
+**引っこしコード**（A班の 時）: いちばん 大きい セーブ 29897字（3通）→ 約30100字（LINE の 301%・**4通**。見はり「4通まで」の 中。まとめた 時の 数は 下）。新しい マップ 6まいの「行った 所」・宝箱 13こ・フラグ。ふつうの セーブは かわらず 1通（70%）。B・F・D班の 物が 入ると もう少し のびる
 
 **テスト**（`test/ch9-act1-a.test.js` 17こ）: 名前の 約束・第1章の 世界地図が かわらない・光の輪の 計算・各階が ひとりで とける（`c9a-solver.js`）・森の 道・階段（真上に 着く）・目標と しおり・したくは どの じゅんでも・通し（`c8_solitus` → `c9_act1`。かりの 戦い）・光の輪の サーバー（家族で 同じ・消える・とびら・穴・階を 出ると もどる）・くらやみ虫・ひみつの 部屋・負けた 時・回線が 切れた 時（2つ）・台本の きまり（もとの 作品の 名前を 使わない・ひみつに ふれない）・絵。`test/ch9-base.test.js` は Z班の メモの とおり 5か所（タイルの さいご・第3部の マップ・目標の 表・`applyCh9`・曲の わく）を なおした
 
@@ -531,6 +532,24 @@
 - `tools/kanji-check.mjs`（`gameFiles()` の さいごに 3行）
 - `test/ch9-base.test.js`（上の 5か所）
 - `news.js`・README・B／F／D の ファイル・`transfer-prime.js`・`c9a-stub.js` は さわって いない
+
+**まとめた 時**（第90回・2026-11-20。メインの ブランチ → B班の ブランチの じゅんに 取りこんだ あと）
+- つないだ 物
+  - 宝箱 13こ: かりの「星のかけら 3こ」を やめ、B班の `c9aChest(id)`（`C9A_TREASURE`）。★5 装備は 森・地下1〜4階に 1つずつ
+  - 魔物の 出る 表: B班の 名前（森 `t9a_forest`・地下道 `t9a_b1`〜`t9a_b4`）。`c9a-flags.js` の `C9A_TABLE` を 5つに。かりの 表（`C9A_TABLE_FALLBACK`・`c9aTableOf`）は 消した。地下4階も 2ひき（ためしの とびらの 先は 出ない）
+  - くらやみ虫 `c9a_yamimushi`（`darkOnly`）: 地下3・4階の 表に いる。光の 中に 入らない・出ない（テストも 本物で）
+  - こけ玉 `c9a_kokedama`（`mossGlow`）: 勝つと たおした 所の まわり 2マスの こけが 光る（`maps/c9a-light.js` の `glowMoss`・`world/c9a-steps.js` の `c9aMossWin`。`world/battles.js` に 1行）
+  - 決まった 戦い: 台本は `['showMon', C9A_BOSS_MON.trio]`（スイトール1号）→ `['battle', 'c9a_trio']`・`['showMon', C9A_BOSS_MON.trial]`（ホシモリ）→ `['battle', 'c9a_trial']`。`monOf9a` は 消した。メカの 名前・ふくろうの 名前は B班の `SUITORU_NAME`・`HOSHIMORI_NAME` から（キラジョが「ゆけっ、『スイトール1号』！」）
+  - 負けた 時の ヒント: B班の `boss-hints-c9a.js`（ノクト）と A の やり直しの 行き先が そろった。負けると 回数を 数え、「もう一度いどむ」で 手前から
+  - 曲: 森 `c9a_forest`・くぼ地 `c9a_child`・地下道 `c9a_cave`（`kind: 'dungeon'` なので 深い 階ほど 楽器が ふえる）・3人組 `c9a_trio`・ためし `c9a_trial`。祭りの 日（`c9_festival`〜`c9_starfall`）は 村の 中が `c9a_festival`（世界地図の `bgmAt`。`client/field.js` の `areaBgm` を「何も 返さない 時は いつもの 曲」に）
+  - 星の音さ: 品の データは B班の `items-c9a.js` の 1つに（A が `items-c7-key.js` に 足した 物は 消した）
+  - かりの 置き場 `data/c9a-stub.js` を 消した（`kanji-check.mjs` の 行・`ch9-base` の 2つの テスト・`ch9-act1-a` の import）
+  - `PART3_OPEN` を true に: 第2部 クリアの 目標は「ホシフル村の星祭りに行こう（…）」。前の「第2部　完！…」は `OLD_C8_OBJ.solitus`（開くと なおる）。`ch9-base`・`ch8-step78-a` の その 行を なおした
+- くぼ地の 絵: ふちを 新しい タイル 426（`C9A_RIM` … もり上がった 焼けた 土。2.5D は ひくい ブロック）に。ゆかは こげた 土・ひびわれ・はい・小さな かけら。2.5D で ゆかを ひくく（-0.16）。2D は まん中ほど こい かげ・石から のびる こげた すじ・光る かけら（`map.c9aCrater` の `glints`）。ながれ星の 石と 星の子の まわりに やさしい 光（`client/c9a-light.js` の `drawC9aCraterFloor2D`・`drawC9aCraterGlow2D`・`drawC9aCrater3D`）。テントは しまの ぬの・入口の 明かり・旗（2.5D は 大きく）。幕の あと テントの よこに 火の ともった ちょうちん（門）
+- 本当の 戦いの 通し（`test/ch9-act1.test.js`）: 家族 4人（勇者・大賢者・ゴッドハンド・大神官。ソラ ＋ パーティーに 入れた 家族の キャラ 3人。`tools/sim-ch9.mjs` の ★装備）。2つの 戦いは しくみを 知って いる 動き（`know`・合体技も。たねは 9001）。はじめの 3人組は 完全オートで 戦って 負ける → ノクトの ヒント →「もう一度いどむ」→ 勝つ。宝箱 13こを 全部 開けて B班の 中みが 入る。家族 2人で 同じ 光・ためしの とちゅうから「戦いに入る」で 入る（そばに いない 時の ことわりも）・いっしょに 勝つ。地下2階で 回線が 切れて つなぎなおすと 同じ 場所・光・星の子
+  - 世界の 戦いで 合体技を 出すには、家族の キャラ（パーティーの 仲間）の 手を `'sim'` に する（`test/c9a-play.js` の `drive`）。人が 動かす キャラは オート（`knowsCh9` が あるので しくみは 知って いる）
+- 引っこしコード: いちばん 大きい セーブ 30186字（LINE の 302%・**4通**。見はり「4通まで・4通の 90% 以下」の 中）。第1幕の 分は 約 180字（行った 所 72・フラグ 69・宝箱 33・行った マップ 10）。3通（30000字）まで あと 186字
+  - 3通に もどす 案（まだ して いない）: ① 地下道 4階は まっ暗なので「行った 所」を 取らない（約 35字）② 星ふるえの森は 世界地図の 一部なので 世界地図の「行った 所」を 使う（約 22字）③ 地下道の「来た」フラグ `c9_seen_b1`〜`b4` を 1つの 数に（約 25字）④ 宝箱の id を 短く（`c9a_b1a` → 番号。約 15字）。①〜④ で 約 100字。のこりは 第1・2部の 分を へらす（`transfer-prime.js` の 見なおしは メインで）
 
 ### 実装メモ（B班 … 戦いと 品。第3部 第1章 第1幕。第90回・2026-11-20）
 

@@ -30,10 +30,16 @@ export function attachC9aField(maps) {
   const at = (p) => s.tiles[p.y * s.w + p.x];
   // 1年ぶりの 朝
   const V = VILLAGE9A;
-  // 祭りの 日（星ふるえまで）の 村は 星祭りの 曲（ほかの 所・ほかの 時は いつもの 曲。client/field.js の areaBgm）
+  // 祭りの 日（星ふるえまで）の 村は 星祭りの 曲。ほかの 所・ほかの 時は いつもの 曲（client/field.js の areaBgm と 同じ 決め方）
   const bgm0 = s.bgmAt;
+  const usual = (x, y, night, has) => {
+    if (bgm0) return bgm0(x, y, night, has);
+    const name = s.areaName?.(x, y);
+    for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;
+    return name === 'ささやきの森' ? 'forest' : s.bgm || 'field';
+  };
   s.bgmAt = (x, y, night, has) => (x >= V.x && y >= V.y && x < V.x + V.w && y < V.y + V.h && has?.(C9A.festival) && !has?.(C9A.starfall)
-    ? C9A_TRACKS.festival : bgm0?.(x, y, night, has));
+    ? C9A_TRACKS.festival : usual(x, y, night, has));
   s.triggers.push({ id: 'c9a_morning', x: V.x, y: V.y, w: V.w, h: V.h, script: 'c9a_morning', show: { all: ['c8_solitus'], not: [C9A.festival] } });
   // 祭りの ちょうちん（したくの 間は 火の ない ちょうちん。火を 入れると 光る。祭りの あとも 光った まま）
   LAMPS9A.forEach((p, i) => {

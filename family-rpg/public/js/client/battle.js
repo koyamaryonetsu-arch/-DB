@@ -644,7 +644,8 @@ export class BattleScene {
       this.cmdEl.append(
         el('div', { class: 'who', text: a.name }),
         el('div', { class: 'wait', text: dw }),
-        a.waitDual ? el('button', { class: 'btn dual-cancel', text: 'よやくをやめる', onclick: () => this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'dualCancel' } }) }) : null,
+        // 第90回: よやくを して いない（ほかの 人の 合体技を 待つ）時に「null」の 字が 出て いた（append は null を 字に する）
+        ...(a.waitDual ? [el('button', { class: 'btn dual-cancel', text: 'よやくをやめる', onclick: () => this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'dualCancel' } }) })] : []),
       );
       return;
     }

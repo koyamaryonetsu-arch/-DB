@@ -36,6 +36,14 @@ export async function addPlayer(world, name, upto, extra = [], job = 'warrior') 
   bot.s.repelUntil = 1e15;
   return { bot, c };
 }
+// 決まった 時計の 世界（たねと 時計が 同じなら 戦いも 同じ。時計は 1回の tick で dt すすむ。昼の 10時から）
+export function fixedWorld(seed, opts = {}) {
+  let t = Date.UTC(2026, 10, 20, 1, 0, 0);
+  const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false, now: () => t, ...opts });
+  const tick0 = world.tick.bind(world);
+  world.tick = (dt) => { t += dt; return tick0(dt); };
+  return world;
+}
 export async function setup(seed, upto = 'c8_solitus', extra = [], job = 'warrior') {
   const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false });
   const { bot, c } = await addPlayer(world, 'ソラ', upto, extra, job);
