@@ -3,7 +3,7 @@
 // 3人の まぼろし（phantom_storm・phantom_ignia・phantom_morgana）と 新しい しかけ「風のかべ」「かげ火の力」「水かさ」・前の しかけ・
 // ふつうの オートと 知っている 人の オート・シミュレーション・品（影の城の 宝箱・まぼろしの 品・素材・れん金）・★の きまり・絵・背景・エフェクト・がめん・文字
 import { test } from 'node:test';
-import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
+import { PART3_LATE_ITEMS } from '../public/js/shared/data/items.js';
 import assert from 'node:assert/strict';
 import { Battle, pub } from '../public/js/shared/battle.js';
 import { decideAlly, decideMonster } from '../public/js/shared/ai.js';
@@ -252,7 +252,8 @@ test('影の城の 宝箱（CASTLE_TREASURE）: 1〜12階に 1〜2こ。ぜん�
   // 第50回 D3: 第6章の 区切りの あとに ならぶ 景品（data/items-prize-r50.js）も もっと あと
   const prizeR50 = new Set(Object.values(ITEMS_PRIZE_R50));
   // 第91回: 第3部 第1章 第2幕の くぼ地の 武具屋の 品（ランク10・k 2.06〜。第3部の 品）も もっと あと
-  for (const it of Object.values(ITEMS_C9B)) prizeR50.add(it);
+  //   第92回: 第3幕の 品も（items.js の PART3_LATE_ITEMS）
+  for (const id of PART3_LATE_ITEMS) prizeR50.add(ITEMS[id]);
   const swords = Object.values(ITEMS).filter((it) => it.type === 'weapon' && it.cat === 'sword' && !it.base && it.rank <= 10 && it.src !== 'alchemy' && it.src !== 'final' && it.src !== 'past' && it.src !== 'pastboss' && it.src !== 'road' && it.src !== 'tokei' && it.src !== 'clear6' && it.src !== 'c7' && it.src !== 'c7s' && it.src !== 'c7i' && it.src !== 'c8a' && it.src !== 'c8b' && it.src !== 'c8c' && it.src !== 'c8r' && it.src !== 'letter7' && !it.tmStep && !prizeR50.has(it) && !it.work);
   // ソリトゥスの 夜明けの星の剣（B9。src: 'final'）は もっと 強い（いちばん 最後の 品）
   assert.ok(Object.values(ITEMS).filter((it) => it.src === 'final' && it.cat === 'sword').every((s) => s.atk > ITEMS.cs_castle_sword.atk));

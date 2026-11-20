@@ -1003,7 +1003,7 @@ export class Field {
   }
 
   render() {
-    if (this.map?.c9cPyr) noteC9cTheme(this); // 第92回 A班: さかさの 時は 天じょうの 色
+    noteC9cTheme(this); // 第92回 A班: さかさの 時は 天じょうの 色・曲の flipStage
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;

@@ -1486,6 +1486,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c9aShare')) return 'buff';
   // 第91回: 第3部 第2幕の「スピカ：てらす」（c9bTeru）… 光が 広がる（技の 絵は render/battlefx-c9b.js）
   if (types.includes('c9bTeru')) return 'buff';
+  // 第92回: 第3部 第3幕の「こたえる」（c9zAnswer）・「ひっくり返す」（c9sFlip）… 答えた 人・とびついた 人の 下に 光（技の 絵は render/battlefx-c9c.js）
+  if (types.includes('c9zAnswer') || types.includes('c9sFlip')) return 'buff';
   return null;
 }
 

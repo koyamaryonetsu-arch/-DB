@@ -22,6 +22,9 @@ import { RIVER_POS, PYR_C_POS } from '../maps/c9c-rows.js';
 import { C9C_SEEN, C9C_BUTTONS, C9C_BUTTON_FLAGS, PEDESTALS9C, PED_MI, PYR_B1_STAIRS9C } from '../maps/c9c.js';
 import { TRIO9A } from './story-c9a.js';
 import { MONSTERS } from './monsters.js';
+import { SHOPS } from './shops.js';
+import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js';
+import { C9C_SHOP_ADD } from './items-c9c.js';
 import { mergeBossHints } from './boss-hints.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -392,6 +395,13 @@ const pedSteps = (x) => (x.flag(C9C.act3)
   ? N('7つの音の台。\n黄色い台だけが、やさしく光っている。（のこりの台は、まだ、からっぽだ）')
   : N('7つの、小さな石の台だ。'));
 
+// ───── くぼ地の 武具屋（幕の クリアの あと 品が 4つ ふえる。品は B班の data/items-c9c.js の C9C_SHOP_ADD）─────
+const SHOP9C_CRATER = 'c9c_crater';
+if (!SHOPS[SHOP9C_CRATER]) {
+  SHOPS[SHOP9C_CRATER] = { name: 'くぼ地の武具屋', kind: 'arms', keeper: '武具屋のガンツ', hello: 'いらっしゃい！\n星の音のおかげで、いい品が入ったぜ。', items: [...C9B_SHOP_WEAPONS, ...C9B_SHOP_ARMOR, ...C9C_SHOP_ADD] };
+}
+export const C9C_SHOPS = { crater: SHOP9C_CRATER };
+
 // ───── だいほん ─────
 //   open … 幕が 開いて いるか（story-c9.js の PART3_ACT3_OPEN）。false の 間は 船着き場の 番人に 話しても 始まらない
 export function c9cScripts(title, open) {
@@ -492,6 +502,8 @@ export function applyCh9c(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = fal
     if (!x.flag(C9C.raftGo)) return S9.c9c_ferry(x);
     return [...S(FERRY, 'いかだで、川を下るかね？'), ...ferryMenu(x, 'village')];
   };
+  const armOld = SCRIPTS.c9b_armorer;
+  SCRIPTS.c9b_armorer = (x) => (x.flag(C9C.act3) ? [['shop', SHOP9C_CRATER]] : armOld ? armOld(x) : []);
   const dockOld = SCRIPTS.c9b_dock_end;
   SCRIPTS.c9b_dock_end = (x) => (x.flag(C9C_ACT2) ? N('船着き場だ。\n（いかだに乗るなら、船着き場の番人に話そう）') : dockOld ? dockOld(x) : []);
 }

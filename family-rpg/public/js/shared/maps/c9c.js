@@ -12,6 +12,7 @@ import { RIVER_ROWS, RIVER_POS, RIVER_LIGHTS, RIVER_DECOR, PYR_C1, PYR_C2, PYR_C
 import { FLIP_FLAG } from './c9c-flip.js';
 import { UNDER_POS } from './c9b-rows.js';
 import { CRATER_POS } from './c9a-rows.js';
+import { c9cChest } from '../data/items-c9c.js';
 import {
   C9C, C9C_MAP, C9C_MAP_IDS, C9C_CHEST_IDS, C9C_TABLE, C9C_TRACKS, C9C_SPICA_LIGHT, C9C_SONG, ALGOL,
 } from './c9c-flags.js';
@@ -36,11 +37,8 @@ export const PED_COLORS9C = ['赤', 'だいだい', '黄', '緑', '青', 'あい
 export const PED_MI = 2;
 export const CRATER_EVENT9C = { x: 8, y: 11, w: 9, h: 5 }; // くぼ地に 入る 所（音を 持って 来た 場面）
 
-// 宝箱の 中み（B班の data/items-c9c.js の c9cChest が できるまでは かり）
-export const C9C_CHEST_STUB = { item: 'star_shard', n: 3 };
-let chestFn = null;
-export const setC9cChest = (fn) => { chestFn = fn; };
-export const chestOf9c = (id) => (chestFn && chestFn(id)) || { ...C9C_CHEST_STUB };
+// 宝箱の 中み（B班の data/items-c9c.js の c9cChest。11この id）
+export const chestOf9c = (id) => c9cChest(id) || {};
 
 const cells = (rows, ch) => { const out = []; rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === ch) out.push({ x, y }); })); return out; };
 const base = (id, name, t, extra) => ({

@@ -1,7 +1,10 @@
 // 第3部 第1章 第1幕「星ふるえの夜」: 3人組と スイトール1号（c9a_trio。中ボス Lv96）・ホシモリの ともしびの ためし（c9a_trial。幕の ボス Lv98）の 強さを 見る
 // 第90回 Z班: わく（sim-ch8.mjs と おなじ 作り）。B班: 中の 戦い方（知っている・知らない の 動き）と 星の子（shared/battle-c9a.js）
 // 第91回 B班: 第2幕の ボス「デデドン大王」（c9b_king。Lv100。king）。皿を 先に こわす・まっ暗で てらす・大ジャンプで 身を 守る（shared/battle-c9b.js）
-// つかいかた: node tools/sim-ch9.mjs [回数] [trio|trial|king|all] [lv,…]
+// 第92回 B班: 第3幕の 中ボス「なぞの番人 ナゾカケ」（c9c_riddle。Lv101。riddle）・ボス「ヒックリカエール2号」（c9c_trio2。Lv102。trio2）
+//   なぞに 答える・砂が 少なく なったら ひっくり返す・ポチッとねで 身を 守る（shared/battle-c9c.js）
+//   REACT=ミリびょう … 人が 動かす キャラが 自分の 番に なってから コマンドを えらぶまでの 時間（ブラウザの 人に 近づける。11-4 の さいご）
+// つかいかた: node tools/sim-ch9.mjs [回数] [trio|trial|king|riddle|trio2|all] [lv,…]
 //   めやす（docs/plan-part3.md の 9-3）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）・その ころの ★装備で
 //     知っている 人 … 6〜7わり・知らない 人 … 3わり いか・完全オート … 0わり 近く。長さは 4〜6分
 //   3つの やり方（MODES9）:
@@ -23,18 +26,23 @@ import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
 import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
 import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
 import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
+import { nazoOf, mechaOf9c } from '../public/js/shared/battle-c9c.js';
+import { C9C_BATTLE } from '../public/js/shared/maps/c9c-flags.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';
 import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
+import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
 import './sim-ch8.mjs';
 
-export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial, king: C9B_BATTLE.king };
+export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial, king: C9B_BATTLE.king, riddle: C9C_BATTLE.riddle, trio2: C9C_BATTLE.trio2 };
 // おすすめの レベル（plan-part3.md の 9-3: 中ボス Lv96・ボス Lv98）
 export const CH9_LV = { trio: 96, trial: 98 };
 // 第2幕の ボス（plan-part3.md の 10-3: Lv100）。CH9_LV は 第1幕の まま（test/ch9-base.test.js）
 export const CH9B_LV = { king: 100 };
-export const LV9 = { ...CH9_LV, ...CH9B_LV };
+// 第3幕の 中ボス・ボス（plan-part3.md の 11-4: Lv101・Lv102）
+export const CH9C_LV = { riddle: 101, trio2: 102 };
+export const LV9 = { ...CH9_LV, ...CH9B_LV, ...CH9C_LV };
 // その ころの ★装備（[武器, よろい, たて, 頭, アクセ]。null は 店の いちばん よい 品）
 //   3人組 … 第8章 第4幕の さいごまでの ★（＋ ソリトゥスの 品）・星ふるえの森の 宝箱（星くずのツメ）
 //   ためし … ＋ 3人組の 品（バッジ・キラジョのおうぎ）・星の石の地下道 地下1〜4階の 宝箱
@@ -57,6 +65,20 @@ export const CH9_KIT = {
     daikenja: ['c9b_owl_staff', 'c9at_moss_robe', null, 'c9bt_moss_hat', 'c9b_dawn_feather'],
     god_hand: ['c9at_star_claw', 'c8rt_fire_gi', null, 'c7it_bear_hat', 'c9b_dawn_feather'],
     high_priest: ['c9b_owl_staff', 'c9at_moss_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9b_dawn_feather'],
+  },
+  // ナゾカケ … ＋ 大王の 品（大王のナプキン・大王の木づち）・地下の川の 宝箱（地下の川のムチ）
+  riddle: {
+    hero: ['c8s_star_sword', 'c9at_dawn_mail', 'c9bt_table_shield', 'c8rt_moon_helm', 'c9bb_king_bib'],
+    daikenja: ['c9b_owl_staff', 'c9at_moss_robe', null, 'c9bt_moss_hat', 'c9bb_king_bib'],
+    god_hand: ['c9at_star_claw', 'c8rt_fire_gi', null, 'c7it_bear_hat', 'c9bb_king_bib'],
+    high_priest: ['c9b_owl_staff', 'c9at_moss_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9bb_king_bib'],
+  },
+  // ヒックリカエール2号 … ＋ ナゾカケの 品（くびかざり・ブーメラン）・ピラミッドの 宝箱（こがねスカラベの道着・さかさ王のかぶと・さかさの星のローブ）
+  trio2: {
+    hero: ['c8s_star_sword', 'c9at_dawn_mail', 'c9bt_table_shield', 'c9ct_upside_helm', 'c9cb_riddle_charm'],
+    daikenja: ['c9b_owl_staff', 'c9ct_star_robe', null, 'c9bt_moss_hat', 'c9cb_riddle_charm'],
+    god_hand: ['c9at_star_claw', 'c9ct_scarab_gi', null, 'c7it_bear_hat', 'c9cb_riddle_charm'],
+    high_priest: ['c9b_owl_staff', 'c9ct_star_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9cb_riddle_charm'],
   },
 };
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
@@ -92,6 +114,13 @@ export const PARTIES9 = {
   solo: { label: 'ひとりだけ　', humans: 1, npc: 0, mon: 0 },
   p5: { label: '人5人　　　　', humans: 5, npc: 0, mon: 0 },
 };
+// 第92回: ゲームの 酒場と おなじ 作りの 仲間（world/party.js の makeNpcSupportChar。ものがたりで 入る ときと おなじ 勇者の 1つ下の レベル・
+//   はじめの 職業〈魔法使い・武闘家・僧侶〉・その レベルの 店の 装備）。ブラウザで 人が 遊んだ ときと おなじ 顔ぶれ（11-4 の さいご）
+//   PARTY=all には 入れない（PARTY=k1tav で えらぶ）
+export const EXTRA_PARTIES9 = {
+  k1tav: { label: '1人＋酒場3人(本物)', humans: 1, npc: 3, mon: 0, tavern: true },
+};
+const partyOf9 = (k) => PARTIES9[k] || EXTRA_PARTIES9[k];
 function npcChar(id, job, lv) {
   const d = NPC_SUPPORTS.find((n) => n.id === id);
   const c = jobChar(job, lv, 10, d.name);
@@ -100,7 +129,7 @@ function npcChar(id, job, lv) {
 }
 // 1回 ぶんの 味方（{ char, know }。know … その キャラを 人が 動かすか）
 export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
-  const P = PARTIES9[partyKey];
+  const P = partyOf9(partyKey);
   if (!P) throw new Error(`party: ${partyKey}`);
   const four = ch9Party(boss, lv, kit);
   // ならびは 人4人の ときと おなじ（先頭ほど ねらわれやすい）
@@ -108,7 +137,8 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   const humans = four.filter((c) => pick.includes(c.job));
   if (P.humans >= 5) humans.push(jobChar('guardian', lv, 10, 'ガーディアン'));
   const out = humans.map((c) => ({ char: c, know: true }));
-  for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv), know: false });
+  if (P.tavern) for (const [id] of NPC9.slice(0, P.npc)) out.push({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false });
+  else for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv), know: false });
   for (const [sp, tac] of MON9.slice(0, P.mon)) {
     const c = monsterChar(sp, lv, 15, 10);
     c.tactics = tac;
@@ -159,7 +189,9 @@ export function addSpica9(b, boss) {
 
 // 1回 戦う。mode … 'auto' | 'blind' | 'know'
 // party … PARTIES9 の キー（人数の やり方。ない ときは 人4人）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4' } = {}) {
+// react … 人が 動かす キャラが 番に なってから えらぶまでの ミリびょう（0 … すぐ。ブラウザの 人に 近づける とき 3000 など）
+// speed・textSpeed … 戦いの 速さ（ない ときは 1。ブラウザの はじめの 設定は 0.85・0.8）
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = Number(process.env.REACT || 0), speed = Number(process.env.BSPEED || 1), textSpeed = Number(process.env.TSPEED || 1) } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   const list = ch9Allies(boss, lv, party, kit);
@@ -167,7 +199,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   const allies = list.map((x) => (x.know
     ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics: 'balanced' }
     : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: x.char.tactics || 'balanced' }));
-  const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss) });
+  const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed });
   addSpica9(b, boss);
   // 人が 動かす キャラだけ しくみを 知って いる（自動の 仲間は ふつうの オート）
   if (M.know) b.allies.forEach((a, i) => { if (list[i]?.know) a.knows9 = mode; });
@@ -179,7 +211,11 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
     if (e.boss) e.speed = (e.speed || 1) * k('SPD');
   }
   let real = 0;
-  const n = { duals: 0, aims: 0, guards: 0, lost: 0, breaks: 0, breaths: 0, outs: 0, kept: 0, shares: 0, glows: 0, eats: 0, stops: 0, jumps: 0, teru: 0 };
+  const n = { duals: 0, aims: 0, guards: 0, lost: 0, breaks: 0, breaths: 0, outs: 0, kept: 0, shares: 0, glows: 0, eats: 0, stops: 0, jumps: 0, teru: 0, asks: 0, rights: 0, wrongs: 0, timeouts: 0, booms: 0, flips: 0, dizzies: 0, early: 0, pochis: 0 };
+  // なぞが 出てから 時間切れまでの 本当の 時間（ミリびょう。小さい 子が 読んで 答える 間）
+  const riddleAt = [];
+  let riddleT0 = null;
+  const readyAt = new Map();
   while (!b.over && real < 30 * 60 * 1000) {
     const evs = b.tick(50);
     real += 50;
@@ -202,10 +238,22 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
       if (e.c9kBreak?.stop) n.stops++;
       if (e.c9kJump) n.jumps++;
       if (e.c9bTeru) n.teru++;
+      if (e.c9zRiddle) { n.asks++; riddleT0 = real; }
+      if (e.c9zAnswer) { if (e.c9zAnswer.ok) { n.rights++; riddleT0 = null; } else n.wrongs++; }
+      if (e.c9zTimeout) { n.timeouts++; if (riddleT0 != null) riddleAt.push(real - riddleT0); }
+      if (e.c9sBoom) n.booms++;
+      if (e.c9sFlip) { n.flips++; if (e.c9sFlip.dizzy) n.dizzies++; else n.early++; }
+      if (e.c9sPochi) n.pochis++;
     }
     if (!M.know) continue;
     for (const a of b.allies) {
-      if (!a.ready || !a.alive || a.kind === 'guest' || !a.knows9) continue;
+      if (!a.ready || !a.alive || a.kind === 'guest' || !a.knows9) { readyAt.delete(a.id); continue; }
+      // 人が えらぶ 時間（REACT）
+      if (react > 0) {
+        if (!readyAt.has(a.id)) readyAt.set(a.id, real);
+        if (real - readyAt.get(a.id) < react) continue;
+        readyAt.delete(a.id);
+      }
       if (!M.act || !M.act(b, a, boss)) {
         a.ready = false;
         b.enqueue(a, { type: 'ai' });
@@ -217,7 +265,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   const h = hoshimoriOf(b);
   const kg = kingOf(b);
   return {
-    kDark: kg?.c9k?.dark ? 1 : 0,
+    kDark: kg?.c9k?.dark ? 1 : 0, timeoutMs: riddleAt.length ? Math.min(...riddleAt) : null, nazoLeft: nazoOf(b)?.alive ? 1 : 0, mechaLeft: mechaOf9c(b)?.alive ? 1 : 0,
     light: b.c9sp?.light ?? 0, dawn: h?.c9h?.dawn ?? 0, dark: h?.c9h?.dark ? 1 : 0, bigs: h?.c9h?.bigs ?? 0,
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
     hpLeft: al.reduce((s, x) => s + x.hp, 0) / al.reduce((s, x) => s + x.maxHp, 0), deaths: al.filter((x) => !x.alive).length,
@@ -235,13 +283,14 @@ export function summary9(res) {
     rate: w / res.length, sec: wsec,
     text: `勝率 ${pct(w, res.length)}  平均${avg('seconds').toFixed(0).padStart(4)}秒（勝ち${wsec.toFixed(0).padStart(4)}秒）  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  ボスの残${(avg('bossLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  合体技${avg('duals').toFixed(1)}`
       + `  光${avg('light').toFixed(1)} 守${avg('guards').toFixed(1)} こわす${avg('breaks').toFixed(1)}  夜明け${avg('dawn').toFixed(1)} いぶき${avg('breaths').toFixed(1)}(消${avg('outs').toFixed(1)}/守${avg('kept').toFixed(1)}) わける${avg('shares').toFixed(1)} 大${avg('bigs').toFixed(1)} まっくら${avg('dark').toFixed(2)}`
-      + `  食べ${avg('eats').toFixed(1)} 止め${avg('stops').toFixed(1)} ジャンプ${avg('jumps').toFixed(1)} てらす${avg('teru').toFixed(1)} まっ暗${avg('kDark').toFixed(2)}`,
+      + `  食べ${avg('eats').toFixed(1)} 止め${avg('stops').toFixed(1)} ジャンプ${avg('jumps').toFixed(1)} てらす${avg('teru').toFixed(1)} まっ暗${avg('kDark').toFixed(2)}`
+      + `  なぞ${avg('asks').toFixed(1)}(正${avg('rights').toFixed(1)}/ちがう${avg('wrongs').toFixed(1)}/時間切れ${avg('timeouts').toFixed(1)})  ばくはつ${avg('booms').toFixed(1)} ひっくり${avg('flips').toFixed(1)}(目回し${avg('dizzies').toFixed(1)}/早い${avg('early').toFixed(1)}) ポチッ${avg('pochis').toFixed(1)}`,
   };
 }
 
 if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
   const N = Number(process.argv[2] || 40);
-  const which = !process.argv[3] || process.argv[3] === 'all' ? ['trio', 'trial', 'king'] : [process.argv[3]];
+  const which = !process.argv[3] || process.argv[3] === 'all' ? ['trio', 'trial', 'king', 'riddle', 'trio2'] : process.argv[3].split(',');
   const seedOf = (i) => 9090 + i * 7919;
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'trio';
@@ -265,7 +314,7 @@ if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
           for (const mode of Object.keys(MODES9)) {
             if (party !== 'p4' && mode === 'blind') continue;
             const res = [...Array(N).keys()].map((i) => ch9Run(boss, lv, mode, seedOf(i), { party }));
-            console.log(`  ${PARTIES9[party].label} Lv${lv} ${MODES9[mode].label} ${summary9(res).text}`);
+            console.log(`  ${partyOf9(party).label} Lv${lv} ${MODES9[mode].label} ${summary9(res).text}`);
           }
         }
       }

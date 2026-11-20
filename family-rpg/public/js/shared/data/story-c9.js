@@ -83,7 +83,7 @@ const swapAct1 = (k) => (k === C9A_OBJ.act1 ? ACT1_END : k);
 // ───── 第3幕「さかさのピラミッド」を 開ける 切りかえ（plan-part3.md の 11-5・11-6。第92回 A班）─────
 // ★ B班（戦い）・D班を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第2幕 クリアの 目標は「第3幕へ（続きはアップデートで！）」・
 //   船着き場の 番人に 話しても 幕は 始まらない / true … 目標が「ヒカリゴケの里の船着き場から、いかだで川を下ろう」に かわる）
-export const PART3_ACT3_OPEN = false;
+export const PART3_ACT3_OPEN = true;
 // 第2幕 クリア（c9_act2）の 目標の 文（開いた あとは「ヒカリゴケの里の船着き場から、いかだで川を下ろう」。前の 文は 古い 文 ACT2_END_OLD）
 export const act2ClearObjective = (open = PART3_ACT3_OPEN) => (open ? C9C_OBJ.start : C9B_OBJ.act2);
 export const ACT2_END_OLD = C9B_OBJ.act2;

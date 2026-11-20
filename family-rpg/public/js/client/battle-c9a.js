@@ -304,7 +304,7 @@ export function c9aCmdItems(scene, a) {
   return { items, info };
 }
 export function c9aCmdPick(scene, a, value) {
-  if (value === 'c9bteru') return c9bCmdPick(scene, a, value);
+  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

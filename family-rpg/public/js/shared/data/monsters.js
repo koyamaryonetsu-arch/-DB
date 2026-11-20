@@ -45,6 +45,7 @@ import { MONSTERS_C8C, addC8cHidden } from './monsters-c8c.js';
 import { MONSTERS_C8R, addC8rHidden } from './monsters-c8r.js';
 import { MONSTERS_C9A, addC9aHidden } from './monsters-c9a.js';
 import { MONSTERS_C9B, addC9bHidden } from './monsters-c9b.js';
+import { MONSTERS_C9C } from './monsters-c9c.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -317,6 +318,8 @@ addC9aHidden(MONSTERS);
 // 第3部 第1章 第2幕「鉱山の底の先」の 魔物・デデドン大王（皿）（monsters-c9b.js）
 Object.assign(MONSTERS, MONSTERS_C9B);
 addC9bHidden(MONSTERS);
+// 第3部 第1章 第3幕「さかさのピラミッド」の 魔物・ナゾカケ・ヒックリカエール2号（monsters-c9c.js）
+Object.assign(MONSTERS, MONSTERS_C9C);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);

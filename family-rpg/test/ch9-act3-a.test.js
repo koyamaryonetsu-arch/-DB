@@ -2,7 +2,7 @@
 // c9_act2 → 船着き場で いかだ（c9_raft_go）→ 地下の川 → ピラミッドの 岸（c9_river）→ さかさのピラミッド 1階 → 2階（c9_p2）→ なぞの番人（c9c_riddle）→ c9_riddle
 // → 3階（c9_p3）→ 4階（c9_p4）→ 歌の ボタンを さかさに（c9_song）→ 音の 間: ヒックリカエール2号（c9c_trio2）→ c9_trio2 → 少年 → 星の音（c9_note1）
 // → 第4章の ピラミッドの 地下の 階段 → ながれ星のくぼ地（c9_act3）
-// 戦いの 中みは B班。ここでは かりの 戦い（data/c9c-stub.js）を テストの 中で 勝たせる。幕は まだ 閉じて いる（PART3_ACT3_OPEN = false）ので、
+// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当の 戦いは test/ch9-act3.test.js）。幕は まだ 閉じて いる（PART3_ACT3_OPEN = false）ので、
 // 通しの テストでは 台本を 開いた 形で まぜなおす（applyCh9c(…, { open: true })）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,14 +20,13 @@ import { UNDER_RAFT } from '../public/js/shared/maps/c9b-flags.js';
 import { CH9C_MAPS, C9C_SEEN, C9C_BUTTONS, PYR_B1_STAIRS9C, PEDESTALS9C, PED_MI, CRATER_EVENT9C } from '../public/js/shared/maps/c9c.js';
 import { RIVER_POS, PYR_C_POS, RIVER_W, RIVER_H } from '../public/js/shared/maps/c9c-rows.js';
 import { flipReach, withFlip, FLIP_FLAG, isPadTile, isShaftTile } from '../public/js/shared/maps/c9c-flip.js';
-import '../public/js/shared/data/c9c-stub.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import {
   CH9_STEPS, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, PART3_ACT3_OPEN, act2ClearObjective, ACT2_END_OLD, c9cTitleSteps,
 } from '../public/js/shared/data/story-c9.js';
 import { C9C_OBJ, CH9C_STORY_SCRIPTS, CH9C_PROGRESS, CH9C_OBJECTIVE_TARGETS, CH9C_OBJECTIVE_TALK, c9cScripts, applyCh9c } from '../public/js/shared/data/story-c9c.js';
 import { C9B_OBJ } from '../public/js/shared/data/story-c9b.js';
-import { objectiveFromFlags } from '../public/js/shared/data/progress.js';
+import { objectiveFromFlags, repairObjective, KNOWN_OBJECTIVES } from '../public/js/shared/data/progress.js';
 import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
@@ -128,7 +127,7 @@ test('名前の 約束: マップ 5まい・タイル 447〜・宝箱の id・�
   assert.equal(C9C_CHEST_IDS.river.length, 3);
   assert.equal(C9C_CHEST_IDS.pyr.length, 8);
   assert.ok(C9C_PYR_MAPS.some((id) => MAPS[id].chests.some((c) => c.c9cSide === 'ceil')));
-  // 決まった 戦い（B班。今は かり）・やり直しの 行き先・ヒントを 言う 人
+  // 決まった 戦い（B班）・やり直しの 行き先・ヒントを 言う 人
   for (const id of Object.values(C9C_BATTLE)) assert.ok(FIXED_ENCOUNTERS[id], id);
   assert.deepEqual(C9C_BOSS_MON, { riddle: 'c9c_nazokake', trio2: 'c9c_hikkuri' });
   assert.equal(BOSS_RETRY.c9c_riddle, 'c9c_riddle_event');
@@ -159,30 +158,31 @@ test('名前の 約束: マップ 5まい・タイル 447〜・宝箱の id・�
     assert.ok(g, `${f} は gameFiles に ある`);
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場は ゲームの 本体から 読まない（テストと 係の 手元だけ）
-  for (const f of gameFiles()) {
-    if (f.endsWith('c9c-stub.js') || !f.includes('/public/js/')) continue;
-    assert.ok(!readFileSync(f, 'utf8').includes('c9c-stub'), `${f} は かりを 読まない`);
-  }
+  // かりの 置き場（A の c9c-stub.js・B の c9c-names-b.js）は 合わせた 時に 消した
+  for (const f of gameFiles()) assert.ok(!/c9c-stub|c9c-names-b/.test(f), f);
 });
 
 // ───────────── 幕が 閉じて いる 間・第4章の ピラミッド ─────────────
-test('幕が 閉じて いる 間は 今の まま: 第2幕 クリアの 目標・船着き場の 番人・第4章の ピラミッドの 地下・くぼ地', () => {
-  assert.equal(PART3_ACT3_OPEN, false);
+test('幕を 開けた（PART3_ACT3_OPEN）: 第2幕 クリアの 目標・前の 文の なおし・船着き場の 番人（閉じた 形も のこる）・第4章の ピラミッドの 地下・くぼ地', () => {
+  assert.equal(PART3_ACT3_OPEN, true);
   assert.equal(act2ClearObjective(false), C9B_OBJ.act2);
   assert.equal(act2ClearObjective(true), C9C_OBJ.start);
   assert.equal(ACT2_END_OLD, '第3部　第1章　第3幕へ（続きはアップデートで！）');
   const a2 = flagsOf(...UPTO('c9_act2'));
-  assert.equal(objectiveFromFlags({ flags: a2 }), C9B_OBJ.act2, '第2幕 クリアの 目標は 今の まま');
-  assert.ok(!CH9_PROGRESS.some(([f]) => C9C_LINE.includes(f)), '第3幕の すすみぐあいは まだ 入れない');
-  assert.ok(!CH9_OBJECTIVE_TARGETS[C9C_OBJ.start]);
-  // 船着き場の 番人: 閉じて いる 間は 第2幕の ことば・幕は 始まらない
+  assert.equal(objectiveFromFlags({ flags: a2 }), C9C_OBJ.start, '第2幕 クリアの 目標は 第3幕の はじまり');
+  const old = { flags: a2, objective: ACT2_END_OLD };
+  repairObjective(old);
+  assert.equal(old.objective, C9C_OBJ.start, '前の 文は なおる');
+  for (const [f, t] of CH9C_PROGRESS) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), t, f);
+  assert.ok(CH9_OBJECTIVE_TARGETS[C9C_OBJ.start] && KNOWN_OBJECTIVES.has(C9C_OBJ.start));
+  // 船着き場の 番人: いかだを 持って いれば 幕が 始まる（パーティー みんなで 乗る）
   const x = ctx(a2, { has: (id) => id === UNDER_RAFT });
-  const folk = JSON.stringify(SCRIPTS.c9b_folk6(x));
-  assert.ok(!folk.includes('c9_raft_go') && folk.includes('さかさまの'), '第2幕の 船着き場の 番人の まま');
-  assert.deepEqual(SCRIPTS.c9c_ferry(x), []);
-  assert.ok(JSON.stringify(c9cScripts(c9cTitleSteps, true).c9c_ferry(x)).includes('"flag","c9_raft_go"'), '開くと 始まる');
-  assert.deepEqual(c9cScripts(c9cTitleSteps, true).c9c_ferry(ctx(a2)), [], 'いかだが ないと 始まらない');
+  assert.ok(JSON.stringify(SCRIPTS.c9b_folk6(x)).includes('"flag","c9_raft_go"'));
+  assert.ok(STORY_SCRIPTS.has('c9b_folk6'));
+  assert.ok(!JSON.stringify(SCRIPTS.c9b_folk6(ctx(flagsOf(...UPTO('c9_raft'))))).includes('c9_raft_go'), '第2幕の 間は 今の ことば');
+  // 閉じた 形（open false）は 何も 始まらない
+  assert.deepEqual(c9cScripts(c9cTitleSteps, false).c9c_ferry(x), []);
+  assert.deepEqual(SCRIPTS.c9c_ferry(ctx(a2)), [], 'いかだが ないと 始まらない');
   // 第4章を 遊んで いる 人の ピラミッドの 地下: 階段は 見えない
   const b1 = MAPS.pyramid_b1, S = PYR_B1_STAIRS9C;
   const ch4 = (f) => UPTO('c4_clear').includes(f);
@@ -407,7 +407,6 @@ test('回線が 切れた 時: 場所と 向きを いっしょに おぼえる�
 
 // ───────────── 通し（ひとりで c9_act2 → c9_act3）─────────────
 test('通し: 船着き場 → 川下り → ピラミッド 1〜4階（ひとりで）→ 番人 → 歌 → 3人組 → 少年 → 星の音 → 地下の 階段 → くぼ地（c9_act3）', async () => {
-  openAct();
   const world = new GameWorld({ offline: true, rng: makeRng(9203), rateLimit: false });
   const { bot, c } = await act2Player(world, 'ソラ');
   c.objective = C9C_OBJ.start;

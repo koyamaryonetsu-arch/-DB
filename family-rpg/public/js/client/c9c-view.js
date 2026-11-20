@@ -18,6 +18,8 @@ export const myFlip9c = (field) => !!field.map?.c9cPyr && !!field.game?.me?.c9cF
 // テーマ（ふつう … c9c_pyr / さかさ … c9c_flip）。2.5D は 向きが かわると とびらの しるしが かわって 作りなおす
 export function noteC9cTheme(field) {
   const m = field.map;
+  // F班の 曲: さかさの 時は 楽器が かわる（画面の 状態 flipStage 0・1。client/audio-scene.js）
+  field.flipStage = myFlip9c(field) ? 1 : 0;
   if (!m?.c9cPyr) return;
   const th = myFlip9c(field) ? 'c9c_flip' : 'c9c_pyr';
   if (m.theme !== th) m.theme = th;

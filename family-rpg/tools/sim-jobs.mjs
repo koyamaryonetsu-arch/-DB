@@ -8,8 +8,7 @@
 import { Battle } from '../public/js/shared/battle.js';
 import { newCharacter, gainExp, expForLevel, fullHeal, canEquip } from '../public/js/shared/stats.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, SCHOOL_JOBS } from '../public/js/shared/data/jobs.js';
-import { ITEMS } from '../public/js/shared/data/items.js';
-import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
+import { ITEMS, PART3_LATE_ITEMS } from '../public/js/shared/data/items.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { runBattle } from './sim.js';
@@ -33,7 +32,8 @@ function masterChain(c, jid) {
 
 // 店の 品（レア度なし・★なし）で、ランク R までの いちばん よい 装備
 //   第91回: 第3部 第1章 第2幕の くぼ地の 武具屋（data/items-c9b.js。ランク10 でも 強さの かけ算 k 2.06〜）は のぞく（職業の はかりの もとを かえない）
-const LATE_SHOP = new Set(Object.keys(ITEMS_C9B));
+//   第92回: 第3幕の 足す 品（items-c9c.js）も。items.js の PART3_LATE_ITEMS（幕を 足す ときは そこに 足す）
+const LATE_SHOP = PART3_LATE_ITEMS;
 const SHOP_GEAR = Object.entries(ITEMS).filter(([id, it]) => it && !it.base && !it.star && !it.src && it.price > 0 && !(it.rarity > 0) && !LATE_SHOP.has(id)
   && ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)).map(([id]) => id);
 function bestGear(job, R) {

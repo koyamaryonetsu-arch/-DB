@@ -1111,6 +1111,8 @@ export class Battle {
 
   applyAbility(c, a, cmd, ev, powMult, givenTargets) {
     const eff = a.effect;
+    // 第3部 第1章 第3幕: こたえる の えらんだ 答え（cmd.choice。battle-c9c.js）
+    this.curCmd = cmd;
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };

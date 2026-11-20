@@ -20,6 +20,8 @@ import { WORK6_NPC_LOOKS, addWork6Art } from './work6-art.js';
 import { WORK7_NPC_LOOKS, addWork7Art } from './work7-art.js';
 // 第90回 D班: たのまれごと 36〜38 と より道「星ふるえで、まいごになった物」の 絵（render/work8-art.js）
 import { WORK8_NPC_LOOKS, addWork8Art } from './work8-art.js';
+// 第92回 D班: たのまれごと 39〜41 と より道「大王の、大きなランタン」「まいごの、もぐら兵」の 物の 絵（render/work9-art.js）
+import { addWork9Art } from './work9-art.js';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {
@@ -193,6 +195,7 @@ export function addWorkArt(ART) {
   addWork6Art(ART);
   addWork7Art(ART);
   addWork8Art(ART);
+  addWork9Art(ART);
 }
 
 // ───────────── もらう 乗り物 ─────────────

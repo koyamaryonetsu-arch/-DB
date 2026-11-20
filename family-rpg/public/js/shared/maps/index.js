@@ -8,6 +8,8 @@ import { buildCh2Maps, SEA_PLACES } from './ch2.js';
 import { buildTreasureFloor } from './treasure-cave.js';
 import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js';
 import { addNightNpcs } from './night-npcs.js';
+// 第92回 D班: 第3部 第1章 第2幕の あとの より道と お仕事いらい 39〜41（大地の下に 人を 足す。maps/c9bd-side.js・maps/work-quests9.js）
+import { attachC9bdSide } from './c9bd-side.js';
 import { attachCasino } from './casino.js';
 import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js';
 import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js';
@@ -349,6 +351,8 @@ function buildMaps() {
   attachC9c(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
+  // 第92回 D班: 第2幕の あとの より道と お仕事いらい 39〜41（大地の下が できた あと。maps/c9bd-side.js）
+  attachC9bdSide(maps);
   for (const m of Object.values(maps)) finishMap(m);
   return maps;
 }
