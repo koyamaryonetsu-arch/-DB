@@ -23,6 +23,8 @@ import { subQuests, questMarks } from '../public/js/shared/data/quest-targets.js
 import { availableSubQuests, subQuestHint } from '../public/js/shared/data/subquest-hints.js';
 import { itemCount, fullHeal } from '../public/js/shared/stats.js';
 import { medalsFound } from '../public/js/shared/data/casino.js';
+import { starsFor } from '../public/js/shared/data/items-rare.js';
+import { itemSources } from '../public/js/shared/item-sources.js';
 import { makeChar, runBattle } from '../tools/sim.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { npcOpts } from '../public/js/client/render/chars.js';
@@ -124,10 +126,20 @@ test('しくみ: 3つの 新しい たのまれごと（新しい 流れの 職�
   assert.ok(shows('fq_glow_lit', lit) && !shows('fq_glow_fire', lit), 'ともった あとは 1つだけ');
 });
 
-test('ごほうび: 第64回の きまり（装備・乗り物なし。今回は ★5の アクセサリーも なし ＝ 新しい 品を 足さない）・素材や 道具・ゴールド・小さなメダル・はり紙と 同じ', () => {
-  // 新しい 品を 足すと 引っこしコードの 見はり（ふつうの セーブ）の 乱数の ならびが かわる ため、品は 今 ある 物だけ
-  for (const qd of WORK8_QUESTS) assert.ok(!qd.reward.item, `${qd.id}: アクセサリーなし`);
-  assert.ok(WORK8_QUESTS.every((qd) => qd.reward.goods.length >= 2), '素材や 道具は 2しゅ いじょう');
+test('ごほうび: 第64回の きまり（★5の アクセサリーは 36 の 1つだけ・乗り物なし）・素材や 道具・ゴールド・小さなメダル・はり紙と 同じ・入手先', () => {
+  const accs = WORK8_QUESTS.filter((x) => x.reward.item);
+  assert.deepEqual(accs.map((x) => x.id), ['kids'], '★5は 36 の 1つだけ');
+  const sum = (b) => Object.values(b).reduce((s, v) => s + v, 0);
+  for (const qd of accs) {
+    const it = ITEMS[qd.reward.item];
+    assert.ok(it && it.type === 'acc' && starsFor(it) === 5 && it.src === 'gift' && !(it.price > 0), qd.id);
+    // 今までの お仕事いらいの ★5（86〜92）の はば。闘技場 ランク10 の ブローチより 弱い
+    const s = sum(it.bonus);
+    assert.ok(s >= sum(ITEMS.fq_twin_tassel.bonus) && s <= sum(ITEMS.fq_sand_amulet.bonus) && s < sum(ITEMS.ar_star_king_brooch.bonus), `${qd.id}: ${s}`);
+    // 入手先（しらべる 画面）に お仕事いらいの ごほうびと 出る
+    assert.ok(itemSources(qd.reward.item).some((x) => x.kind === 'note' && x.name.includes(qd.name)), `${qd.id}: 入手先`);
+    assert.deepEqual(checkText(it.name + it.desc).filter((p) => p.kind !== 'kana'), []);
+  }
   for (const qd of WORK8_QUESTS) {
     const r = qd.reward;
     assert.ok(!r.vehicle, `${qd.id}: 乗り物なし`);
@@ -142,7 +154,7 @@ test('ごほうび: 第64回の きまり（装備・乗り物なし。今回は
 });
 
 // ───── 36. 子どもたち ─────
-test('ルミナの、星をこわがる子どもたち: 3人の話 → 目の高さで聞く・黒板でお話・手をつなぐ（やり直し）→ 星を見る → ごほうび。先生の流れがいないと出てきてくれない（戦いなし）', async () => {
+test('ルミナの、星をこわがる子どもたち: 3人の話 → 目の高さで聞く・黒板でお話・手をつなぐ（やり直し）→ 星を見る → ★5 → ごほうび。先生の流れがいないと出てきてくれない（戦いなし）', async () => {
   const { bot, c } = await setup(901, { job: 'warrior', flags: OPEN });
   const qd = W.kids;
   await talkTo(bot, 'fq_kids_host', [0]);
