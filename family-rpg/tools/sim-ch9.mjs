@@ -31,7 +31,10 @@ import './sim-ch8.mjs';
 
 export const CH9_IDS = { trio: C9A_BATTLE.trio, trial: C9A_BATTLE.trial, king: C9B_BATTLE.king };
 // おすすめの レベル（plan-part3.md の 9-3: 中ボス Lv96・ボス Lv98）
-export const CH9_LV = { trio: 96, trial: 98, king: 100 };
+export const CH9_LV = { trio: 96, trial: 98 };
+// 第2幕の ボス（plan-part3.md の 10-3: Lv100）。CH9_LV は 第1幕の まま（test/ch9-base.test.js）
+export const CH9B_LV = { king: 100 };
+export const LV9 = { ...CH9_LV, ...CH9B_LV };
 // その ころの ★装備（[武器, よろい, たて, 頭, アクセ]。null は 店の いちばん よい 品）
 //   3人組 … 第8章 第4幕の さいごまでの ★（＋ ソリトゥスの 品）・星ふるえの森の 宝箱（星くずのツメ）
 //   ためし … ＋ 3人組の 品（バッジ・キラジョのおうぎ）・星の石の地下道 地下1〜4階の 宝箱
@@ -242,10 +245,10 @@ if (process.argv[1]?.endsWith('sim-ch9.mjs')) {
   const seedOf = (i) => 9090 + i * 7919;
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'trio';
-    console.log(ch9Run(boss, Number(process.env.LV || CH9_LV[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4' }));
+    console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4' }));
   } else {
     for (const boss of which) {
-      const base = CH9_LV[boss];
+      const base = LV9[boss];
       // 弱め（−5）・ふつう・強め（＋8）の 家族
       const lvs = process.argv[4] ? process.argv[4].split(',').map(Number) : [base - 5, base, base + 8];
       const mon = MONSTERS[FIXED_ENCOUNTERS[CH9_IDS[boss]].group[0][0]];

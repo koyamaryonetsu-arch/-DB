@@ -27,6 +27,7 @@ import { ITEMS_C8A, C8A_K } from '../public/js/shared/data/items-c8a.js';
 import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 // 第90回 B班: 第3部 第1章 第1幕の 品（その 章の いちばんの テストから のぞく）
 import { ITEMS_C9A } from '../public/js/shared/data/items-c9a.js';
+import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
 import {
   FUSE, QUARREL, PANIC, RAGE, SOLO, CONTRACT, SOUL, HOT, ANGER, ERUPT, COOL, RED_NAME,
   impsConf, hadesConf, plotting, bothUp, bound, eruptSoon, impBigBefore, hadesBigBefore, c8bPlan, c8bEffect,
@@ -612,7 +613,7 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8h_flame_charm') > sum('c8i_imp_charm') && sum('c8i_imp_charm') > sum('c8j_ruby_charm'));
   // 第8章 第4幕の 品（ITEMS_C8R。氷のつばさのやり など）と、第8章クリアの あとの 宝の地図 Lv46〜50 の 品（tmStep 15。古代の王のやり など）は のぞく
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !it.work && !id.includes('+') && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !it.work && !id.includes('+') && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !ITEMS_C9B[id] && !(it.tmStep >= 15)).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('bat'), 'c8i_imp_club');
   assert.equal(top('spear'), 'c8h_bident');
   assert.equal(top('dagger'), 'c8bt_yomi_dagger');

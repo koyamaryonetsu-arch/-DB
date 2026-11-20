@@ -30,6 +30,7 @@ import { ITEMS_C8C, C8C_TREASURE, C8C_TREASURE_N, c8cChest, C8C_LETTER_REWARDS, 
 import { ITEMS_C8R } from '../public/js/shared/data/items-c8r.js';
 // 第90回 B班: 第3部 第1章 第1幕の 品（その 章の いちばんの テストから のぞく）
 import { ITEMS_C9A } from '../public/js/shared/data/items-c9a.js';
+import { ITEMS_C9B } from '../public/js/shared/data/items-c9b.js';
 import { ITEMS_C8B, C8B_K } from '../public/js/shared/data/items-c8b.js';
 import {
   GROW, SUMMON, BROOM, FIZZLE, POUND, GIGA, GIGAFIRE, FALLEN,
@@ -137,7 +138,7 @@ test('名前の 約束（plan-ch8.md の 8-2）: c8_kamek・c8_bowser・t8c_fort
   assert.equal(g.job, GUESTS.rion.job);
   for (const id of Object.values(g.gear)) assert.ok(ITEMS[id] && canEquip(g.job, id), id);
   // 家族の 装備より 強く ない（ボスの 品・第3幕の 宝箱は 持たない）
-  for (const id of Object.values(g.gear)) assert.ok(!ITEMS_C8C[id] && !ITEMS_C8R[id] && !ITEMS_C9A[id] && ITEMS[id].src !== 'pastboss', id);
+  for (const id of Object.values(g.gear)) assert.ok(!ITEMS_C8C[id] && !ITEMS_C8R[id] && !ITEMS_C9A[id] && !ITEMS_C9B[id] && ITEMS[id].src !== 'pastboss', id);
 });
 
 // ───────────── 手下の 魔物 ─────────────
@@ -544,7 +545,7 @@ test('ボスの 品・時をこえる手紙の ごほうび: いちばん 強い
   }
   const sum = (id) => Object.values(ITEMS[id].bonus).reduce((s, v) => s + v, 0);
   assert.ok(sum('c8w_king_charm') > sum('c8k_magic_charm') && sum('c8k_magic_charm') > sum('c8h_flame_charm'));
-  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C9A[id] && !it.work).sort((x, y) => y[1].atk - x[1].atk)[0][0];
+  const top = (cat) => Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === cat && !it.base && !id.includes('+') && !ITEMS_C9A[id] && !ITEMS_C9B[id] && !it.work).sort((x, y) => y[1].atk - x[1].atk)[0][0];
   assert.equal(top('staff'), 'c8k_magic_staff');
   assert.equal(top('claw'), 'c8w_king_claw');
   assert.equal(top('axe'), 'c8ct_iron_axe');

@@ -11,26 +11,23 @@ import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-
 import { SHARE } from '../shared/data/abilities-c9a.js';
 import { monsterCanvas } from './render/monsters.js';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王・皿（battle-c9b.js）
-import {
-  C9B_OWN_TELE, C9B_SCREEN_ANIMS, C9B_ALLY_FX, C9B_SFX, c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick,
-} from './battle-c9b.js';
+// （C9B_OWN_TELE・C9B_SCREEN_ANIMS・C9B_ALLY_FX・C9B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
+import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
-export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI, ...C9B_OWN_TELE];
-export const C9A_SCREEN_ANIMS = ['c9t_suck', 'c9h_breath', 'c9h_dawn', 'c9h_hoot', 'c9t_boom', ...C9B_SCREEN_ANIMS];
+export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];
+export const C9A_SCREEN_ANIMS = ['c9t_suck', 'c9h_breath', 'c9h_dawn', 'c9h_hoot', 'c9t_boom'];
 export const C9A_ALLY_FX = {
   c9n_fang: 'claw', c9n_dash: 'wind', c9n_bonk: 'quake', c9n_spore: 'down', c9n_fire: 'fire', c9n_flare: 'bolt', c9n_dazzle: 'down',
   c9n_bite: 'claw', c9n_dust: 'wind', c9n_drain: 'down', c9n_roll: 'quake', c9n_moss: 'down', c9n_peck: 'claw', c9n_gaze: 'down',
   c9t_punch: 'quake', c9t_hose: 'wind', c9t_bomb: 'fire', c9t_beam: 'bolt', c9t_suck: 'quake',
   c9h_wing: 'claw', c9h_hoot: 'down', c9h_gaze: 'down', c9h_breath: 'wind',
-  ...C9B_ALLY_FX,
 };
 export const C9A_SFX = {
   c9n_fang: 'hit', c9n_dash: 'hit', c9n_howl: 'buff', c9n_bonk: 'hit', c9n_spore: 'sparkle', c9n_glow: 'sparkle', c9n_fire: 'fire', c9n_flare: 'bolt', c9n_dazzle: 'warn',
   c9n_bite: 'hit', c9n_dust: 'hit', c9n_drain: 'hit', c9n_roll: 'smash', c9n_moss: 'warn', c9n_mossglow: 'sparkle', c9n_peck: 'hit', c9n_harden: 'buff', c9n_gaze: 'warn',
   c9t_punch: 'smash', c9t_hose: 'hit', c9t_bomb: 'blast', c9t_beam: 'bolt', c9t_aim: 'warn', c9t_suck: 'blast', c9t_rest: 'hit', c9t_boom: 'blast',
   c9h_wing: 'smash', c9h_hoot: 'blast', c9h_gaze: 'warn', c9h_breath: 'blast', c9h_dawn: 'sparkle', c9a_share: 'sparkle',
-  ...C9B_SFX,
 };
 
 // ───────────── 星の子の 小さな 絵（12×12 の ドット。Y 星の 光・W 白・H かみ・S はだ・K 目・P ほお・D 服）─────────────

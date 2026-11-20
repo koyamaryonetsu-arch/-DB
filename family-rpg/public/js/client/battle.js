@@ -125,6 +125,8 @@ import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } fro
 import { c8rCmdItems, c8rCmdPick, C8R_SFX } from './battle-c8r.js';
 // 第3部 第1章 第1幕: 星の子の光（左上）・ともしびの しるし（battle-c9a.js）
 import { c9aStart, c9aStatus, C9A_SFX } from './battle-c9a.js';
+// 第3部 第1章 第2幕: てらす・デデドン大王の 音（battle-c9b.js）
+import { C9B_SFX } from './battle-c9b.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -309,6 +311,7 @@ const ANIM_SFX = {
   ...C8C_SFX,
   ...C8R_SFX,
   ...C9A_SFX,
+  ...C9B_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
