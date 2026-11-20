@@ -20,14 +20,16 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=6f2d42a85ac3';
-import { ABILITIES } from './data/abilities.js?v=6f2d42a85ac3';
-import { SHARE } from './data/abilities-c9a.js?v=6f2d42a85ac3';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=6f2d42a85ac3';
-import { C9A } from './maps/c9a-flags.js?v=6f2d42a85ac3';
+import { MONSTERS } from './data/monsters.js?v=3e6a025be338';
+import { ABILITIES } from './data/abilities.js?v=3e6a025be338';
+import { SHARE } from './data/abilities-c9a.js?v=3e6a025be338';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=3e6a025be338';
+import { C9A } from './maps/c9a-flags.js?v=3e6a025be338';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=6f2d42a85ac3';
-import { canUse } from './ai.js?v=6f2d42a85ac3';
+import { pub, atbRate } from './battle.js?v=3e6a025be338';
+import { canUse } from './ai.js?v=3e6a025be338';
+// 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub } from './battle-c9b.js?v=3e6a025be338';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -98,6 +100,11 @@ export function setupC9a(b) {
       on = true;
     }
   }
+  // 第3部 第1章 第2幕: デデドン大王・てらす（リーダーが c9_act1）
+  if (setupC9b(b, lines)) {
+    addSpica(b);
+    addTeru(b);
+  }
   if (on) addSpica(b);
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1500, c9Spica: spicaPub(b) });
 }
@@ -111,7 +118,7 @@ export function addSpica(b, light = null) {
 }
 export function spicaPub(b) {
   const s = b.c9sp;
-  return s ? { light: s.light, max: s.max, glows: s.glows } : null;
+  return s ? { light: s.light, max: s.max, glows: s.glows, ...(s.teru ? { teru: teruPub(b) } : {}) } : null;
 }
 
 function setupTrio(b, m, lines) {
@@ -187,6 +194,8 @@ function glow(b, ev) {
       ev.upd.push(u);
     }
   }
+  // 第3部 第1章 第2幕: てらすが たまる・明るい 番が へる（battle-c9b.js）
+  c9bGlow(b, out, lines);
   ev.c9Spica = out;
 }
 
@@ -195,6 +204,7 @@ export function c9aTurnStart(b, c, ev, stuck) {
   if (c.side === 'ally') return;
   if (c.c9t) trioTurn(b, c, ev, stuck);
   else if (c.c9h) trialTurn(b, c, ev, stuck);
+  else if (c.c9k) c9bTurnStart(b, c, ev, stuck);
 }
 
 function trioTurn(b, c, ev, stuck) {
@@ -303,7 +313,8 @@ export function c9aEffect(b, c, a, eff, ev) {
     case 'c9hBreath': breath(b, c, ev); return true;
     case 'c9hDawn': dawn(b, c, ev); return true;
     case 'c9aShare': share(b, c, ev); return true;
-    default: return false;
+    // 第3部 第1章 第2幕（battle-c9b.js）
+    default: return c9bEffect(b, c, a, eff, ev);
   }
 }
 
@@ -466,7 +477,8 @@ export function c9aDamage(b, c, t, dmg, info, ev) {
     dmg = Math.max(0, Math.min(dmg, t.hp - 1));
     t.c9h.dmg += dmg;
   }
-  return dmg;
+  // 第3部 第1章 第2幕: 大王は すわりこむ（battle-c9b.js）
+  return c9bDamage(b, c, t, dmg, info, ev);
 }
 // 回復の 強さ（battle.js の heal）。ともしびが 消えた 人の 回復は 半分
 export function c9aHealMul(b, c) {
@@ -477,6 +489,8 @@ export function c9aHealMul(b, c) {
 // ───────────── たおれた（battle-c8r.js の c8rKill の はじめ。t.alive は まだ true）─────────────
 export function c9aKill(b, t, ev) {
   if (!t) return;
+  // 第3部 第1章 第2幕: 皿を こわした（battle-c9b.js）
+  c9bKill(b, t, ev);
   // ためし: たおれた 人の ともしびは 消える → まっくらか
   if (t.side === 'ally' && b.c9trial) {
     if (t.c9torch && ev) post(ev).push(`${t.name}のともしびも、消えてしまった…。`);
@@ -528,6 +542,9 @@ const hurtCmd = (a) => a && ['enemy', 'group', 'enemies'].includes(a.target) && 
 export const AUTO_SHARE_EVERY = 3;
 export function c9aPlan(b, c, decide) {
   if (c.side !== 'ally' || b.c9Inner || c.status?.rift) return null;
+  // 第3部 第1章 第2幕: デデドン大王（battle-c9b.js）
+  const p9b = c9bPlan(b, c, decide, bestHit);
+  if (p9b !== undefined) return p9b;
   const mode = c.knows9 ?? b.knowsCh9;
   const m = mechaOf(b);
   const h = hoshimoriOf(b);
@@ -594,7 +611,7 @@ function autoShare(b, c) {
   return { type: 'ability', id: SHARE, target: t.id };
 }
 // その 敵に いちばん 大きい ダメージの 1回の 行動
-function bestHit(b, c, t) {
+export function bestHit(b, c, t) {
   const r0 = b.calcPhys(c, t, { mult: 1 }, 1, 'phys', true);
   let best = { cmd: { type: 'attack', target: t.id }, dmg: r0.dmg * r0.hit };
   for (const id of c.abilities || []) {
@@ -652,7 +669,8 @@ export function c9aPub(c) {
     // 曲の もりあがり（client/audio-scene.js の addFormKey('dawnStage')）: 1 夜・2 夜明け前・3 夜明け・4 夜明けの さいご
     o.dawnStage = dawnStage(h.dawn, h.max, h.won);
   }
-  return o;
+  // 第3部 第1章 第2幕: 大王・皿・見えにくい 魔物（battle-c9b.js）
+  return Object.assign(o, c9bPub(c));
 }
 // 夜明けの めもりの 段（docs/plan-part3.md の「実装メモ（F班）」… めもり 16 の 0〜4 → 1・5〜9 → 2・10〜13 → 3・14〜 → 4。
 //   人数で めもりの 数が かわるので、わりあいで きめる）

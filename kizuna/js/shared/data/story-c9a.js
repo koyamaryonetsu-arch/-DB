@@ -12,18 +12,18 @@
 import {
   C9A, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_PREP_ASK, C9A_SHARD_N, c9aShard, C9A_FOREST_IN, c9aSeen, C9A_ROPE, C9A_FORK_RING,
   C9A_MAP, C9A_BATTLE, C9A_BOSS_MON, SPICA_NAME, STAR_FORK, C9A_TRACKS, C9A_SECRETS, C9A_SECRET_ROOTS, c9aCaveId,
-} from '../maps/c9a-flags.js?v=6f2d42a85ac3';
-import { CRATER_POS } from '../maps/c9a-rows.js?v=6f2d42a85ac3';
-import { FOREST_POS9A } from '../maps/c9a-forest.js?v=6f2d42a85ac3';
-import { cavePos, caveEntry, STAIRS9A } from '../maps/c9a-cave.js?v=6f2d42a85ac3';
-import { LAMPS9A, KIDS9A } from '../maps/c9a-field.js?v=6f2d42a85ac3';
-import { PLACES } from '../maps/overworld.js?v=6f2d42a85ac3';
-import { SUITORU_NAME, HOSHIMORI_NAME } from './monsters-c9a.js?v=6f2d42a85ac3';
-import { SHOPS } from './shops.js?v=6f2d42a85ac3';
-import { C7_SHOP_TOOLS } from './items-c7.js?v=6f2d42a85ac3';
-import { innSteps } from './inn.js?v=6f2d42a85ac3';
-import { lineMember, jobLineNames } from './fq-common.js?v=6f2d42a85ac3';
-import { mergeBossHints } from './boss-hints.js?v=6f2d42a85ac3';
+} from '../maps/c9a-flags.js?v=3e6a025be338';
+import { CRATER_POS } from '../maps/c9a-rows.js?v=3e6a025be338';
+import { FOREST_POS9A } from '../maps/c9a-forest.js?v=3e6a025be338';
+import { cavePos, caveEntry, STAIRS9A } from '../maps/c9a-cave.js?v=3e6a025be338';
+import { LAMPS9A, KIDS9A } from '../maps/c9a-field.js?v=3e6a025be338';
+import { PLACES } from '../maps/overworld.js?v=3e6a025be338';
+import { SUITORU_NAME, HOSHIMORI_NAME } from './monsters-c9a.js?v=3e6a025be338';
+import { SHOPS } from './shops.js?v=3e6a025be338';
+import { C7_SHOP_TOOLS } from './items-c7.js?v=3e6a025be338';
+import { innSteps } from './inn.js?v=3e6a025be338';
+import { lineMember, jobLineNames } from './fq-common.js?v=3e6a025be338';
+import { mergeBossHints } from './boss-hints.js?v=3e6a025be338';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -574,10 +574,12 @@ function craftsScene() {
     ['chapter', '第1章　第1幕　星ふるえの夜', 'クリア！'],
     ...S('ノクト', '…7つの星の音、か。\n次は、どこへ行く？'),
     ...S(SP, '…{name}の、行く所。'),
-    ['objective', C9A_OBJ.act1],
+    ['objective', act1End9a],
     ['bgm', 'resume'],
   ];
 }
+// 第1幕 クリアの 目標の 文（第2幕が 開くと story-c9.js の act1ClearObjective。applyCh9a の 引数 act1End）
+let act1End9a = C9A_OBJ.act1;
 const SHOP9A = 'c9a_crater';
 if (!SHOPS[SHOP9A]) {
   SHOPS[SHOP9A] = {
@@ -755,7 +757,8 @@ const wrap = (SCRIPTS, id, fn) => {
   SCRIPTS[id] = Object.assign((x) => fn(x, base), base);
 };
 const festivalTime = (x) => x.flag(C9A.festival) && !x.flag(C9A.starfall);
-export function applyCh9a(SCRIPTS, STORY_SCRIPTS, { title = () => [] } = {}) {
+export function applyCh9a(SCRIPTS, STORY_SCRIPTS, { title = () => [], act1End = C9A_OBJ.act1 } = {}) {
+  act1End9a = act1End;
   Object.assign(SCRIPTS, c9aScripts(title));
   for (const id of CH9A_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   // ホシミばあちゃん: 第3部の 間は 第3部の ことば

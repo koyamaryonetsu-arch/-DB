@@ -7,9 +7,12 @@
 // ・仲間の まど: 名前の 横に ともしびの 火の しるし（消えると 黒い しるし。c9aStatus）
 // ・コマンド: ともしびが 消えた 仲間が いる ときの「明かりをわける」を いちばん 上に（c9aCmdItems・c9aCmdPick。スマホでも 大きな ボタン）
 // ・バナー・大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c8r.js に まぜる）
-import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=6f2d42a85ac3';
-import { SHARE } from '../shared/data/abilities-c9a.js?v=6f2d42a85ac3';
-import { monsterCanvas } from './render/monsters.js?v=6f2d42a85ac3';
+import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=3e6a025be338';
+import { SHARE } from '../shared/data/abilities-c9a.js?v=3e6a025be338';
+import { monsterCanvas } from './render/monsters.js?v=3e6a025be338';
+// 第3部 第1章 第2幕: スピカの てらす・デデドン大王・皿（battle-c9b.js）
+// （C9B_OWN_TELE・C9B_SCREEN_ANIMS・C9B_ALLY_FX・C9B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
+import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js?v=3e6a025be338';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];
@@ -109,6 +112,8 @@ export function c9aHud(scene, flash = null) {
     h.el.classList.add(flash);
     setTimeout(() => h.el.classList.remove(flash), 700);
   }
+  // 第3部 第1章 第2幕: てらすの たまりぐあい（battle-c9b.js）
+  c9bHud(scene);
 }
 
 // ───────────── 仲間の まど（client/battle.js の renderStatus）: 名前の 横に ともしびの しるし ─────────────
@@ -133,7 +138,8 @@ export function c9aStatus(s, a) {
 // ───────────── え（client/battle-c8r.js の c8rSprite の はじめ）─────────────
 export function c9aSprite(c, frame) {
   if (c?.species === C9A_HOSHIMORI && c.hmWin) return monsterCanvas(C9A_HOSHIMORI, (frame ? 1 : 0) + 2);
-  return null;
+  // 第3部 第1章 第2幕: すわりこむ 大王（battle-c9b.js）
+  return c9bSprite(c, frame);
 }
 
 function tag(x, tx, ty, text, base, bg, fg, wd = 30) {
@@ -170,6 +176,8 @@ function dots(x, cx, y, on, max, base, T, cols) {
 
 // ───────────── たたかいの え（client/battle-c8r.js の c8rDraw の さいご）─────────────
 export function c9aDraw(scene, x, m, c, px, py, w, h, base) {
+  // 第3部 第1章 第2幕: 大王・皿・見えにくい 魔物・まっ暗（battle-c9b.js）
+  c9bDraw(scene, x, m, c, px, py, w, h, base);
   if (!c?.alive) return;
   const T = scene.time || 0;
   // スイトール1号
@@ -275,12 +283,17 @@ export function c9aPresent(scene, ev, fx, anim, actor) {
   if (ev.c9hDawn?.gain >= 2) good('大きな一撃！夜明けが近づいた！', 'sparkle');
   if (ev.c9hWin) { scene.shake?.(600, 4); good('夜明け！ホシモリがうなずいた。', 'sparkle'); }
   if (ev.c9hDark) { scene.shake?.(800, 6); scene.banner('あたりが、まっくらに…', 'danger'); }
+  // 第3部 第1章 第2幕（battle-c9b.js）
+  c9bPresent(scene, ev);
   void fx; void anim; void actor;
 }
 
 // ───────────── コマンド（client/battle-c8r.js の c8rCmdItems・c8rCmdPick）─────────────
 const unlit = (scene) => (scene.allies?.() || []).filter((x) => x.alive && x.torch9 === 0);
 export function c9aCmdItems(scene, a) {
+  // 第3部 第1章 第2幕: スピカ：てらす（battle-c9b.js）
+  const tb = c9bCmdItems(scene, a);
+  if (tb.items.length) return tb;
   const items = [];
   let info = '';
   if (!a || a.torch9 !== 1 || !(a.abilities || []).includes(SHARE)) return { items, info };
@@ -291,6 +304,7 @@ export function c9aCmdItems(scene, a) {
   return { items, info };
 }
 export function c9aCmdPick(scene, a, value) {
+  if (value === 'c9bteru') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

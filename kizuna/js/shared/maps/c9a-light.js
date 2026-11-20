@@ -77,8 +77,9 @@ export function stepLight(info, st, x, y, by) {
   const k = y * info.w + x;
   if (info.mossSet.has(k)) {
     const e = st.lit.get(k);
-    if (!e) { st.lit.set(k, { left: MOSS_STEPS, by }); changed = true; }
-    else if (e.left !== Infinity) { e.left = MOSS_STEPS; e.by = by; }
+    const n = info.mossSteps || MOSS_STEPS; // 第91回: 大地の下の こけは 40歩（maps/c9b-under.js）
+    if (!e) { st.lit.set(k, { left: n, by }); changed = true; }
+    else if (e.left !== Infinity) { e.left = n; e.by = by; }
   }
   for (const c of connectedOf(info, st.lit)) {
     const e = st.lit.get(c);
@@ -95,7 +96,8 @@ export function glowMoss(info, st, x, y, by, r = 2) {
     const k = yy * info.w + xx;
     if (xx < 0 || yy < 0 || xx >= info.w || yy >= info.h || !info.mossSet.has(k)) continue;
     const e = st.lit.get(k);
-    if (!e) { st.lit.set(k, { left: MOSS_STEPS, by }); changed = true; } else if (e.left !== Infinity) { e.left = MOSS_STEPS; e.by = by; }
+    const n = info.mossSteps || MOSS_STEPS;
+    if (!e) { st.lit.set(k, { left: n, by }); changed = true; } else if (e.left !== Infinity) { e.left = n; e.by = by; }
   }
   for (const c of connectedOf(info, st.lit)) {
     const e = st.lit.get(c);

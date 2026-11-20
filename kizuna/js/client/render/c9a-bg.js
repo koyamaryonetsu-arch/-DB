@@ -1,11 +1,15 @@
 // 第3部 第1章 第1幕「星ふるえの夜」の 戦いの 背景（battlefx.js の battleBackground から よぶ。BW×BH の まま かく。hor … 地面の たかさ）
 // ・c9a_forest（deco 'c9a_forest'）… 星ふるえの森: 星の 夜空と ながれ星の すじ・たおれた 木・光る かけらが ちらばる 森（3人組の 戦いも ここ）
 // ・c9a_cave（deco 'c9a_cave'）… 星の石の地下道: 暗い 石の 道・光る こけ・星の石の 根・大きな 光の 水しょう（ホシモリの ためしも ここ）
+// 第3部 第1章 第2幕（大地の下・ごちそうの 間。c9b-bg.js）もここから
+import { C9B_BG, C9B_DECOS, drawC9bBg, drawC9bFloorBg } from './c9b-bg.js?v=3e6a025be338';
+
 const BW = 256, BH = 144;
 
 export const C9A_BG = {
   c9a_forest: { sky: ['#060a1c', '#0c1430', '#18224a', '#283462'], far: '#142438', near: '#0e1c2a', ground: ['#22382a', '#1a2c22'], deco: 'c9a_forest' },
   c9a_cave: { sky: ['#06060e', '#0c0c1a', '#141426', '#1c1c32'], far: '#1a1a2c', near: '#141424', ground: ['#2a2a3a', '#22222e'], deco: 'c9a_cave' },
+  ...C9B_BG,
 };
 export const C9A_DECOS = new Set(Object.keys(C9A_BG));
 
@@ -147,12 +151,14 @@ function drawCave(x, hor) {
 }
 
 export function drawC9aBg(x, d, hor) {
+  if (C9B_DECOS.has(d.deco)) return drawC9bBg(x, d, hor);
   if (d.deco === 'c9a_cave') drawCave(x, hor);
   else drawForest(x, hor);
 }
 
 // ゆか: 森 … 草と 光る かけら ／ 地下道 … 石だたみと 光る こけ
 export function drawC9aFloorBg(x, d, hor) {
+  if (C9B_DECOS.has(d.deco)) return drawC9bFloorBg(x, d, hor);
   if (d.deco === 'c9a_cave') {
     x.fillStyle = 'rgba(0,0,0,0.25)';
     for (let y = hor + 8; y < BH; y += 9) x.fillRect(0, y, BW, 1);

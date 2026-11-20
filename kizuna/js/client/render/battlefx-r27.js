@@ -13,8 +13,8 @@
 // ・敵1体・敵全体・味方（がめんの した。playAllyR27）・味方全体の どれでも 形が くずれない
 // ・ダメージの 数字が 出る じかん（r27Hit）と、エフェクトが あたる じかんを そろえる
 // ・スマホで おもく ならない ように、つぶの かずは 1技 だいたい 250こ まで（ひばなは まとめて かかれるので かるい）
-import { makeCanvas, hexToRgb } from './pixel.js?v=6f2d42a85ac3';
-import { ABILITIES } from '../../shared/data/abilities.js?v=6f2d42a85ac3';
+import { makeCanvas, hexToRgb } from './pixel.js?v=3e6a025be338';
+import { ABILITIES } from '../../shared/data/abilities.js?v=3e6a025be338';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -1484,6 +1484,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('buff')) return 'buff';
   // 第90回: 第3部 第1幕の「明かりをわける」（c9aShare）… わけて もらった 仲間の 下にも 光（技の 絵は render/battlefx-c9a.js）
   if (types.includes('c9aShare')) return 'buff';
+  // 第91回: 第3部 第2幕の「スピカ：てらす」（c9bTeru）… 光が 広がる（技の 絵は render/battlefx-c9b.js）
+  if (types.includes('c9bTeru')) return 'buff';
   return null;
 }
 

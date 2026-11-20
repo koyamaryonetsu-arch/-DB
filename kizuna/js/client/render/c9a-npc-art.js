@@ -4,7 +4,9 @@
 //   かけら買いの スズ・村の 子ども ラン
 // とくべつな え（paintC9aSpecial）: 星の子 スピカ（小さな 光る 子。フィールドの 連れと くぼ地の 子。コマで 光が またたく）・
 //   石の ふくろう ホシモリ（ためしの 場面。24×24）・光る 道しるべ（ささやきの森の 入口）
-import { Painter } from './pixel.js?v=6f2d42a85ac3';
+import { Painter } from './pixel.js?v=3e6a025be338';
+// 第91回 A班: 第3部 第1章 第2幕の 人の え（render/c9b-npc-art.js。ここで まぜる）
+import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=3e6a025be338';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },
@@ -17,6 +19,7 @@ export const C9A_NPC_LOOKS = {
   c9a_zurakka: { hair: 1, hairStyle: 'bald', skin: 2, outfit: 'tunic', cloth: '#8a5a2a', beard: true },
   c9a_buyer: { hair: 4, hairStyle: 'bun', skin: 0, outfit: 'apron', cloth: '#f2c14e', female: true },
   c9a_kid: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#3fa35a', small: true },
+  ...C9B_NPC_LOOKS,
 };
 
 // 星の子 スピカ（16×21。白い ワンピース・金の 星の かみかざり・体の まわりに 光の つぶ）
@@ -96,7 +99,7 @@ export function paintC9aSpecial(kind, dir, f) {
     case 'c9a_spica': return paintSpica(dir, f);
     case 'c9a_owl': return paintOwl(f);
     case 'c9a_signpost': return paintSignpost(f);
-    default: return null;
+    default: return paintC9bSpecial(kind, dir, f);
   }
 }
-export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost'];
+export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS];
