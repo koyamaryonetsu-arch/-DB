@@ -31,7 +31,7 @@ export const TRACK_TRIM = {
   c9a_trio: -0.6,
   c9b_hall: 3,
   c9b_king: -0.8,
-  c9b_under: -0.5,
+  c9b_under: -0.6,
   c9b_village: 0.7,
   canal: 2.4,
   casino: 1.3,

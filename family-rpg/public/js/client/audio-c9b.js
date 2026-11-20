@@ -45,9 +45,9 @@ const c9bUnder = {
   parts: [
     { i: 'flute', v: 0.1, role: 'lead', minIntensity: 0.5 },
     { i: 'sub_bass', v: 0.16, role: 'bass', minIntensity: 0.6 },
-    { i: 'pad', v: 0.034, role: 'harmony', minIntensity: 0, pan: -0.3 },
-    { i: 'pluck', v: 0.04, role: 'harmony', minIntensity: 0, pan: 0.2 },
-    { i: 'bell', v: 0.032, role: 'harmony', minIntensity: 0.8, pan: 0.15 },
+    { i: 'pad', v: 0.05, role: 'harmony', minIntensity: 0, pan: -0.05 },
+    { i: 'pluck', v: 0.055, role: 'harmony', minIntensity: 0, pan: 0.15 },
+    { i: 'bell', v: 0.032, role: 'harmony', minIntensity: 0.8, pan: -0.05 },
     { drums: true, v: 0.28, minIntensity: 0.7 },
     { drums: true, v: 0.3, minIntensity: 0.9 },
     { drums: true, v: 0.32, minIntensity: 1 },
@@ -376,7 +376,7 @@ const c9bKing = {
 
 for (const tr of [c9bUnder, c9bVillage, c9bHall, c9bKing]) tr.ch = oldView(tr);
 // 大地の下の 前の音: 低音の 長い のばし（三角の 波）と 3つの たいこ（どれも k・s に なる）が かさなって われる ので 小さく
-c9bUnder.ch = c9bUnder.ch.map((ch, i) => (ch.drums || i === 1 ? { ...ch, v: Math.round(ch.v * 0.5 * 1000) / 1000 } : ch));
+c9bUnder.ch = c9bUnder.ch.map((ch, i) => (ch.drums || i === 1 ? { ...ch, v: Math.round(ch.v * 0.4 * 1000) / 1000 } : ch));
 
 // 星の子の 7つの 音（ド〜シ）と 同じ 形（全音・全音・半音・全音・全音・全音）を ト長調で のぼる ことを テストが 見る
 export const C9B_SEVEN = SEVEN_UP(5);
