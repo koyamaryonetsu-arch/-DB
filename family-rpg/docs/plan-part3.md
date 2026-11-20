@@ -325,3 +325,38 @@
 ### 9-7. 家族の 答え（2026-11-20）
 - **「進めて。実行はOpusでね」** → 9-1〜9-5 の とおりに 作る。実装は Opus の 係。
 - 星の子の 名前は、ほかの 声が なかったので おすすめの **「スピカ」** で 作る（id は `spica`。あとから 名前を かえても id は かえない）。
+
+### 実装メモ（Z班 … 第3部の 下じき。第90回・2026-11-20）
+物語は まだ 進まない（遊ぶ 人から 見て 何も かわらない）。A・B・F・D は ここの 名前と 置き場を 使う。
+
+**ファイルと 中み**
+| ファイル | 中み |
+|---|---|
+| `shared/maps/c9a-flags.js` | 名前の 約束（9-4）の 定数。ほかの ファイルを 読まない ので どこからでも 読める。`C9A`（一本の 線 `festival`〜`act1`）・`C9A_LINE`（その じゅんの 配列）・`C9A_PREP`（`flower`・`lamp`・`story`）・`C9A_LAMPS`（4つ）・`C9A_SECRETS`（2つ）・`C9A_MAP`（`forest`・`crater`・`b1`〜`b4`）・`C9A_MAP_IDS`・`c9aCaveId(n)`・`C9A_CAVE_FLOORS`・`C9A_BATTLE`（`trio`・`trial`）・`C9A_MON_PREFIX`・`C9A_BOSS_MON`（`c9a_suitoru`・`c9a_hoshimori`）・`SPICA`（`'spica'`）・`SPICA_NAME`・`STAR_FORK`・`C9A_TRACKS`（6曲）・`C9A_TRACK_IDS`・`C9A_TILE_FIRST`（407）・`C9A_TILE_LAST`（426） |
+| `shared/data/story-c9.js` | 章の まとめ。`CH9_STEPS`（`story.js` の `STORY_STEPS` の さいご。第2幕からは `CH9_STEPS.push`）・`applyCh9`（`story.js` が `applyCh8` の あとに よぶ。今は から）・`CH9_PROGRESS`（`progress.js` の さいご）・`CH9_OBJECTIVE_TARGETS`（`quest-targets.js`）・`CH9_OBJECTIVE_TALK`（`party-talk.js`。`objectiveChapter` は 5 あつかい）・題の 画面 `C9_TITLE`・`c9TitleSteps()`・目標の 入れかえ `PART3_OPEN`・`PART2_END_OBJ`・`C9_OBJ.start`・`part2ClearObjective()`・`C9_START_TALK`・`C9_START_TARGETS`（`{ npc: 'elder' }`）。**story.js・story-c8*.js を import しない**（story-c8r.js から 読まれる） |
+| `shared/data/c9a-stub.js` | **かり**（合わせる 時に 消す）。下の「かりの 置き場」 |
+| `shared/world/shiori.js` | `CHAPTERS` に 第3部 第1章（`n: 9, part: 3`・題「おちてきた星の子」）と 第1幕（「星ふるえの夜」・`start`/`seen: 'c9_festival'`・`clear: 'c9_act1'`）。`PART_NAMES[3] = '第3部'`。`chapterLabel(n)`（0 序章・1〜8 は 今の まま・9〜 は 第3部の 中の 番号）。`storyNext` は かえて いない（「アップデート」を ふくむ 文なら `end`） |
+| `shared/guest-rule.js` | `GUEST_MAX_LEVEL` 99 → 110。今の ゲストは どれも 上限が 99 より 下（いちばん 上が `karim8r`・`minamo8` の 97）なので 強さは かわらない |
+| `client/audio-scene.js` | `PART3_PREFIX`（`c9`・`c10`・`c11`）・`isPart3Map`・`isPart3Track`・`PART3_BATTLE`（`'battle3'`）。`battleBgm` は 第3部の マップで `battle3`（ない 間は `battle`。`battle2` には しない）。`isPart2Map` は 第3部の マップで false |
+| `tools/sim-ch9.mjs` | `sim-ch8.mjs` と おなじ 作り。`CH9_IDS`・`CH9_LV`（trio 96・trial 98）・`CH9_KIT`（今は 第8章 第4幕の ソリトゥスの ころの ★）・`ch9Party`・`ch9Run(boss, lv, mode, seed)`・`summary9`・`MODES9`（`auto` 完全オート・`blind` 知らない・`know` 知っている。中の `act(b, a, boss)` は B班が 書く。今は 合体技だけ）・`addSpica9(b, boss)`（星の子の 入れ物）。`node tools/sim-ch9.mjs [回数] [trio|trial|all] [lv,…]` |
+| `test/ch9-base.test.js` | 名前の 約束・第2部 クリアの セーブが 今の まま・しおりの「第3部 第1章」・第1・2部の 表示・ゲストの 強さ・曲の わく・かりの 置き場が 本体から つながって いない・かりの 戦いが 世界で 動く・sim-ch9 |
+
+**かりの 置き場（`data/c9a-stub.js`）の 使い方**（ゲームの 本体からは つながない。`test/ch9-base.test.js` が public・server の どこも 読んで いない ことを 見はる）
+- `import '../public/js/shared/data/c9a-stub.js'` だけで、かりの 決まった 戦い `c9a_trio`（ぷるりん 3びき）・`c9a_trial`（ツノうさぎ 1ぴき）が `FIXED_ENCOUNTERS` に 入る（B の 本物が あれば 上がき しない）。勝てば 先へ 進む
+- 星の子の かりの 置き場: `C9A_STUB_SPICA`（`{ id: 'spica', name: 'スピカ', heal: 0.06, light: 3 }`）
+- B班の ため: `installC9aStub({ maps: MAPS, scripts: SCRIPTS })` で かりの 部屋 `c9a_stub_room`（9×7。ボスの NPC `c9a_stub_boss`）と 台本 `C9A_STUB_SCRIPTS.c9a_stub_boss`（`['showMon', 魔物]` → `['battle', 'c9a_trio']` → `['flag', 'c9_trio']`、その あとは `c9a_trial`）を 足す。`world.placeSession(s, 'c9a_stub_room', 4.5, 5.5, 'up', true)` で 入れる（使い方は `test/ch9-base.test.js` の「かりの 置き場: … 動く」）。手元で ゲームを 立てて 見る 時だけ 一時的に よび、コミットしない
+- `tools/sim-ch9.mjs` も 今は かりの 戦いで 動く
+
+**幕を つなぐ 時（A・B を 合わせる 時）に かえる 所**
+1. **目標の 文の 入れかえ**: `story-c9.js` の `PART3_OPEN` を `true` に する（**この 1か所**）。→ `story-c8r.js` の `C8R_OBJ.solitus` が `part2ClearObjective()` で「ホシフル村の星祭りに行こう（ホシミばあちゃんが呼んでいる）」に、その 行き先と 仲間の ひとことも `C9_START_TARGETS`・`C9_START_TALK` に かわり、前の 文「第2部　完！第3部へ（続きはアップデートで！）」は `story-c8.js` の `OLD_C8_OBJ.solitus` に 回る（知らない 文に なるので `repairObjective` が なおす）。あわせて `test/ch9-base.test.js` の「第2部を クリアした セーブ」と `test/ch8-step78-a.test.js` の `C8R_OBJ.solitus` の 行（「アップデート」「第2部」を ふくむ）を 新しい 文に 合わせる（前の 幕の とき と おなじ。前の 文が 知らない 文に なり なおる ことを たしかめる）
+2. **台本**: `story-c9.js` の `applyCh9` の 中で A の `applyCh9a(SCRIPTS, STORY_SCRIPTS)`（`data/story-c9a.js`）を よぶ。題の 画面は `c9TitleSteps()` を 台本に 入れる
+3. **目標の 表**: A の 第1幕の 目標を `CH9_PROGRESS`・`CH9_OBJECTIVE_TARGETS`・`CH9_OBJECTIVE_TALK` に 足す（`story-c8.js` が `CH8R_*` を まぜて いる 形と おなじ）
+4. **かりを 消す**: `data/c9a-stub.js` を 消す。`tools/kanji-check.mjs` の `gameFiles()` の その 行・`tools/sim-ch9.mjs` の `import '…/c9a-stub.js'`・`test/ch9-base.test.js` の かりの 置き場の テスト 2つ（「つながって いない」の 見はりは のこして よい）を なおす
+5. **タイル**: A が `shared/tiles.js` の `T` に `C9A_…: 407〜426` を 足したら、`test/ch9-base.test.js` の「今の さいごの タイルは 406」の 行を かえる
+6. **曲**: F が `client/audio-c9a.js` の `C9A_TRACKS` を `client/audio.js` の さいご（`overlayTracks(TRACKS, C8R_TRACKS)` の あと）で まぜる。第3部の ふつうの 戦いの 曲を 作るなら id は `battle3`（`audio-scene.js` が 自動で 使う）
+7. **ゲスト**: 第3部の ゲストは `maxLevel` を 99 より 上に して よい（上限 110）。星の子は 戦いの わくを 使わない ので この 上限に かからない
+
+**設計と ちがう 所**
+- 目標の 文の 入れかえは「`OLD_C8_OBJ` へ 回す 文」を 前もって 書いて おき、`PART3_OPEN` 1つで 入れかわる 形に した（前の 幕は A が `C8x_OBJ` の 文を 手で 書きかえて いた）
+- `objectiveChapter`（かくし要素の ヒントの 章）は 第3部の 目標も 5 あつかい
+- 題「ほしのね」は ひらがなの まま（kanji-check の「ひらがなのまま（目安）」に 1件 出る。使えない漢字・スペースでは ない）

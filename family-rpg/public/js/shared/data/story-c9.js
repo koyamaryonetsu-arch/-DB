@@ -21,6 +21,7 @@ import { C9A_LINE } from '../maps/c9a-flags.js';
 export const CH9_STEPS = [...C9A_LINE];
 
 // ───── 題の 画面（9-1 の 場面 1。村に 入って ルカが かけて きた あと）─────
+// 題「ほしのね」は 家族が きめた 名前（ひらがなの まま。kanji-check の ひらがなの 目安に 出るが それで よい）
 export const C9_TITLE = {
   part: '第3部　ほしのね',
   chapter: '第1章　おちてきた星の子',
@@ -50,7 +51,7 @@ export const C9_START_TALK = {
   self: '今日は、1年に一度の星祭りだ。ホシミばあちゃんが呼んでいる。ホシフル村へ行こう。',
   bold: '星祭りか！あれから、もう1年だな。ホシフル村へ行こうぜ！',
   kind: 'ホシフル村の星祭りですね。ホシミばあちゃんが、待っていますよ。',
-  kid: 'ほしまつりだ！ホシフルむらへ、いこう！',
+  kid: 'ほしまつりだ！ホシフル村へ、いこう！',
 };
 export const C9_START_TARGETS = [{ npc: 'elder' }];
 
