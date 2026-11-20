@@ -863,6 +863,8 @@
 
   async function openDoc(id, fresh) {
     const meta = S.rows.find((x) => x.id === id); if (!meta) return;
+    // 案件から作った安全書類・予算書（1枚ずつ）は、その場で開いて直せる（docgen.js）
+    if (meta.type === 'form' && meta.data && meta.data.case_file_id && window.DOCGEN) { window.DOCGEN.openDoc(meta.data.case_file_id); return; }
     if (meta.type === 'form') {   // 作業申請書の書式はファイルなので、ダウンロードして開く
       const w = window.open('', '_blank');
       try { const url = await api.formUrl((meta.data || {}).path); if (w) w.location.href = url; else window.location.href = url; }
