@@ -4,7 +4,7 @@
 //
 // 出現表（encounters-c9b.js）: t9b_shaft＝たてあな（Lv98）・t9b_light＝大地の下（明るい 所 Lv98〜99。暗い 所の 大ミミズも）・t9b_hall＝大王の やしき（Lv99）
 // ふつうの 魔物 6しゅ（どれも 仲間に なる。region: 6）
-//   大地の下 3しゅ … 今 いる 魔物の 色ちがい（c9b-art.js）: 水晶のカニ（星座ガニ）・光るキノコ（ねむりキノコ）・どうくつコウモリ（つららコウモリ）
+//   大地の下 3しゅ … 今 いる 魔物の 色ちがい（c9b-art.js）: すいしょうのカニ（星座ガニ）・光るキノコ（ねむりキノコ）・どうくつコウモリ（つららコウモリ）
 //   くらやみの大ミミズ … 新しい 絵。darkOnly（A班の フィールドで 暗い マスだけを 歩く）。
 //     戦いでは「見えにくい」（c9b.hide … こちらの 物理の 攻撃が 外れやすい）。スピカの「てらす」で 消える（battle-c9b.js）
 //   もぐら兵（やり）・もぐら兵（なべ）… 新しい 絵（1つの かき方の 2つの すがた）。大王の 手下。にくめない
@@ -37,13 +37,13 @@ export const C9B_RECOLOR_BASE = { c9b_crab: 'crab_star', c9b_kinoko: 'nemuri', c
 
 export const MONSTERS_C9B = {
   // ── 大地の下（明るい 所 Lv98〜99）──
-  // 水晶のカニ: こうらに 水晶が 生えた カニ（星座ガニの 色ちがい）
+  // すいしょうのカニ: こうらに すいしょうが 生えた カニ（星座ガニの 色ちがい）
   c9b_crab: {
-    name: '水晶のカニ', lv: 98, hp: 3020, mp: 120, str: 392, def: 420, agi: 150, mag: 220, exp: 6000, gold: 1980,
+    name: 'すいしょうのカニ', lv: 98, hp: 3020, mp: 120, str: 392, def: 420, agi: 150, mag: 220, exp: 6000, gold: 1980,
     race: 'beast', size: 'l', hit: 'claw', region: 6,
     resist: { bolt: 1.35, ice: 0.7, fire: 0.9, wind: 1.0, light: 1.0, dark: 1.0, poison: 0.4, sleep: 0.4, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['c7i_snow_shield', 80] },
     actions: [{ w: 3, id: 'm9u_cr_pinch' }, { w: 2, id: 'm9u_cr_bubble', cond: 'notRecent:m9u_cr_bubble' }, { w: 1, id: 'm9u_cr_shell', cond: 'notRecent:m9u_cr_shell' }, { w: 1, id: 'attack' }],
-    desc: 'こうらに、すきとおった水晶が生えたカニ。とてもかたい。雷がよく効く。',
+    desc: 'こうらに、すきとおったすいしょうが生えたカニ。とてもかたい。雷がよく効く。',
   },
   // 光るキノコ: 大地の下で ぼうっと 光る キノコ（ねむりキノコの 色ちがい）
   c9b_kinoko: {

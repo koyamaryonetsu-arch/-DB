@@ -308,6 +308,7 @@ export function battleBackground(id) {
       case 'fort_deck': case 'fort_engine': case 'fort_bridge': h = 0; break; // くろがねの 空中ようさい・大橋は あとで（c8c-bg.js）
       case 'rift_wing': case 'rift_last': case 'rift_hall': case 'rift_moon': case 'rift_ice': case 'rift_core': h = 0; break; // 時のはざまは あとで（c8r-bg.js）
       case 'c9a_forest': case 'c9a_cave': h = 0; break; // 星ふるえの森・星の石の地下道は あとで（c9a-bg.js）
+      case 'c9b_under': case 'c9b_feast': h = 0; break; // 大地の下・ごちそうの間は あとで（c9b-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {

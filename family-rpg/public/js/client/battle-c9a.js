@@ -10,21 +10,27 @@
 import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js';
 import { SHARE } from '../shared/data/abilities-c9a.js';
 import { monsterCanvas } from './render/monsters.js';
+// 第3部 第1章 第2幕: スピカの てらす・デデドン大王・皿（battle-c9b.js）
+import {
+  C9B_OWN_TELE, C9B_SCREEN_ANIMS, C9B_ALLY_FX, C9B_SFX, c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick,
+} from './battle-c9b.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
-export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];
-export const C9A_SCREEN_ANIMS = ['c9t_suck', 'c9h_breath', 'c9h_dawn', 'c9h_hoot', 'c9t_boom'];
+export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI, ...C9B_OWN_TELE];
+export const C9A_SCREEN_ANIMS = ['c9t_suck', 'c9h_breath', 'c9h_dawn', 'c9h_hoot', 'c9t_boom', ...C9B_SCREEN_ANIMS];
 export const C9A_ALLY_FX = {
   c9n_fang: 'claw', c9n_dash: 'wind', c9n_bonk: 'quake', c9n_spore: 'down', c9n_fire: 'fire', c9n_flare: 'bolt', c9n_dazzle: 'down',
   c9n_bite: 'claw', c9n_dust: 'wind', c9n_drain: 'down', c9n_roll: 'quake', c9n_moss: 'down', c9n_peck: 'claw', c9n_gaze: 'down',
   c9t_punch: 'quake', c9t_hose: 'wind', c9t_bomb: 'fire', c9t_beam: 'bolt', c9t_suck: 'quake',
   c9h_wing: 'claw', c9h_hoot: 'down', c9h_gaze: 'down', c9h_breath: 'wind',
+  ...C9B_ALLY_FX,
 };
 export const C9A_SFX = {
   c9n_fang: 'hit', c9n_dash: 'hit', c9n_howl: 'buff', c9n_bonk: 'hit', c9n_spore: 'sparkle', c9n_glow: 'sparkle', c9n_fire: 'fire', c9n_flare: 'bolt', c9n_dazzle: 'warn',
   c9n_bite: 'hit', c9n_dust: 'hit', c9n_drain: 'hit', c9n_roll: 'smash', c9n_moss: 'warn', c9n_mossglow: 'sparkle', c9n_peck: 'hit', c9n_harden: 'buff', c9n_gaze: 'warn',
   c9t_punch: 'smash', c9t_hose: 'hit', c9t_bomb: 'blast', c9t_beam: 'bolt', c9t_aim: 'warn', c9t_suck: 'blast', c9t_rest: 'hit', c9t_boom: 'blast',
   c9h_wing: 'smash', c9h_hoot: 'blast', c9h_gaze: 'warn', c9h_breath: 'blast', c9h_dawn: 'sparkle', c9a_share: 'sparkle',
+  ...C9B_SFX,
 };
 
 // ───────────── 星の子の 小さな 絵（12×12 の ドット。Y 星の 光・W 白・H かみ・S はだ・K 目・P ほお・D 服）─────────────
@@ -109,6 +115,8 @@ export function c9aHud(scene, flash = null) {
     h.el.classList.add(flash);
     setTimeout(() => h.el.classList.remove(flash), 700);
   }
+  // 第3部 第1章 第2幕: てらすの たまりぐあい（battle-c9b.js）
+  c9bHud(scene);
 }
 
 // ───────────── 仲間の まど（client/battle.js の renderStatus）: 名前の 横に ともしびの しるし ─────────────
@@ -133,7 +141,8 @@ export function c9aStatus(s, a) {
 // ───────────── え（client/battle-c8r.js の c8rSprite の はじめ）─────────────
 export function c9aSprite(c, frame) {
   if (c?.species === C9A_HOSHIMORI && c.hmWin) return monsterCanvas(C9A_HOSHIMORI, (frame ? 1 : 0) + 2);
-  return null;
+  // 第3部 第1章 第2幕: すわりこむ 大王（battle-c9b.js）
+  return c9bSprite(c, frame);
 }
 
 function tag(x, tx, ty, text, base, bg, fg, wd = 30) {
@@ -170,6 +179,8 @@ function dots(x, cx, y, on, max, base, T, cols) {
 
 // ───────────── たたかいの え（client/battle-c8r.js の c8rDraw の さいご）─────────────
 export function c9aDraw(scene, x, m, c, px, py, w, h, base) {
+  // 第3部 第1章 第2幕: 大王・皿・見えにくい 魔物・まっ暗（battle-c9b.js）
+  c9bDraw(scene, x, m, c, px, py, w, h, base);
   if (!c?.alive) return;
   const T = scene.time || 0;
   // スイトール1号
@@ -275,12 +286,17 @@ export function c9aPresent(scene, ev, fx, anim, actor) {
   if (ev.c9hDawn?.gain >= 2) good('大きな一撃！夜明けが近づいた！', 'sparkle');
   if (ev.c9hWin) { scene.shake?.(600, 4); good('夜明け！ホシモリがうなずいた。', 'sparkle'); }
   if (ev.c9hDark) { scene.shake?.(800, 6); scene.banner('あたりが、まっくらに…', 'danger'); }
+  // 第3部 第1章 第2幕（battle-c9b.js）
+  c9bPresent(scene, ev);
   void fx; void anim; void actor;
 }
 
 // ───────────── コマンド（client/battle-c8r.js の c8rCmdItems・c8rCmdPick）─────────────
 const unlit = (scene) => (scene.allies?.() || []).filter((x) => x.alive && x.torch9 === 0);
 export function c9aCmdItems(scene, a) {
+  // 第3部 第1章 第2幕: スピカ：てらす（battle-c9b.js）
+  const tb = c9bCmdItems(scene, a);
+  if (tb.items.length) return tb;
   const items = [];
   let info = '';
   if (!a || a.torch9 !== 1 || !(a.abilities || []).includes(SHARE)) return { items, info };
@@ -291,6 +307,7 @@ export function c9aCmdItems(scene, a) {
   return { items, info };
 }
 export function c9aCmdPick(scene, a, value) {
+  if (value === 'c9bteru') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

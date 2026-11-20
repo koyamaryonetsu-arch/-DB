@@ -6,11 +6,11 @@
 // anim は c9u_〜（ふつうの 魔物）・c9k_〜（デデドン大王）・c9b_teru（てらす）。client/render/battlefx-c9b.js
 export const TERU = 'm9_teru';
 export const C9B_ABILITIES = {
-  // ── 水晶のカニ ──
+  // ── すいしょうのカニ ──
   m9u_cr_pinch: {
-    name: '水晶のハサミ', kind: 'monster', mp: 2, target: 'enemy',
-    effect: { type: 'phys', mult: 1.4 }, cast: '{a}が、水晶のハサミで、{t}をはさんだ！', anim: 'c9u_pinch',
-    desc: '水晶のハサミで、1人に大きなダメージ。',
+    name: 'すいしょうのハサミ', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'phys', mult: 1.4 }, cast: '{a}が、すいしょうのハサミで、{t}をはさんだ！', anim: 'c9u_pinch',
+    desc: 'すいしょうのハサミで、1人に大きなダメージ。',
   },
   m9u_cr_bubble: {
     name: 'きらきらのあわ', kind: 'monster', mp: 4, target: 'enemies',
@@ -18,8 +18,8 @@ export const C9B_ABILITIES = {
     desc: 'つめたいあわで、敵みんなに氷のダメージ。',
   },
   m9u_cr_shell: {
-    name: '水晶のこうら', kind: 'monster', mp: 2, target: 'self',
-    effect: { type: 'buff', stat: 'def', mult: 1.3 }, cast: '{a}のこうらの水晶が、きらりと光った！', anim: 'c9u_shell',
+    name: 'すいしょうのこうら', kind: 'monster', mp: 2, target: 'self',
+    effect: { type: 'buff', stat: 'def', mult: 1.3 }, cast: '{a}のこうらのすいしょうが、きらりと光った！', anim: 'c9u_shell',
     desc: 'こうらを光らせて、自分の守りを上げる。',
   },
   // ── 光るキノコ ──
@@ -122,7 +122,7 @@ export const C9B_ABILITIES = {
   },
   m9k_spin: {
     name: '大づちぐるぐる', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'phys', mult: 0.72 }, cast: '{a}が、大づちをもって、ぐるぐる回り出した！', anim: 'c9k_spin',
+    effect: { type: 'phys', mult: 0.72 }, cast: '{a}が、大づちを持って、ぐるぐる回り出した！', anim: 'c9k_spin',
     desc: '大づちをふり回して、敵みんなにダメージ。',
   },
   m9k_watch: {

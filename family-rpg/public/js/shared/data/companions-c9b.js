@@ -12,7 +12,7 @@ export const FRIENDS_C9B = {
     growth: { hp: 1.15, mp: 0.5, str: 1.2, def: 1.4, agi: 0.6, mag: 0.6, heal: 0.4 },
     learn: [[1, 'm_bite'], [4, 'm9u_cr_pinch'], [9, 'sukara'], [14, 'm9u_cr_shell'], [20, 'm9u_cr_bubble']],
     gear: { weapons: [], armor: ['cloth'], shield: false, head: false },
-    note: '水晶のこうらのカニ。仲間になると、こうらの水晶を、毎日ていねいにみがいている。',
+    note: 'すいしょうのこうらのカニ。仲間になると、こうらのすいしょうを、毎日ていねいにみがいている。',
   },
   c9b_kinoko: {
     rate: 1 / 10, mix: ['slime'], names: ['ヒカリタケ', 'ポワン', 'アカリ', 'キノピカ'],

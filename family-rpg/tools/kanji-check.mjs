@@ -595,6 +595,10 @@ export function gameFiles() {
     // 第90回 D班: お仕事いらい 36〜38・より道「星ふるえで、まいごになった物」
     'public/js/shared/data/sidequests-work8.js', 'public/js/shared/maps/work-quests8.js', 'public/js/client/render/work8-art.js',
     'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
+    // 第91回 B班: 第3部 第1章 第2幕（魔物・スピカの てらす・デデドン大王と 皿・品・ヒント・絵・背景・えんしゅつ）
+    'public/js/shared/data/c9b-names-b.js', 'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
+    'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
+    'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

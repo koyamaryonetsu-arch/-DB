@@ -48,8 +48,8 @@ const SHOP = {
 
 const TK = { src: 'c9b' };
 const TREASURE = {
-  // 大地の下（水晶の 野原）
-  c9bt_crystal_spear: { ...W('spear', 4, K.u2), ...TK, name: '水晶のやり', bonus: { str: 18, agi: 12 }, resist: { ice: 0.85 }, desc: '大地の下の水晶をけずって作った、すきとおったやり。力と素早さが上がる。氷に少し強い。' },
+  // 大地の下（すいしょうの 野原）
+  c9bt_crystal_spear: { ...W('spear', 4, K.u2), ...TK, name: 'すいしょうのやり', bonus: { str: 18, agi: 12 }, resist: { ice: 0.85 }, desc: '大地の下のすいしょうをけずって作った、すきとおったやり。力と素早さが上がる。氷に少し強い。' },
   // 大地の下（光る こけの 原）
   c9bt_moss_hat: { ...H(false, 4, K.u4), ...TK, name: 'ヒカリゴケのぼうし', bonus: { hp: 48, mag: 14, heal: 12 }, resist: { dark: 0.8 }, desc: '光るこけを、ふんわりあんだぼうし。魔力と回復の力が上がる。闇に強い。' },
   // 大王の やしき（食料庫）

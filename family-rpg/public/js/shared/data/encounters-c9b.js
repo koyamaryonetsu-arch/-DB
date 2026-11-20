@@ -12,22 +12,22 @@ import './boss-hints-c9b.js';
 
 export const ENCOUNTERS_C9B = {
   t9b_shaft: [
-    { w: 5, group: [['c9b_kinoko', 1, 2]] },
-    { w: 3, group: [['c9b_bat', 1, 2]] },
+    { w: 6, group: [['c9b_kinoko', 1, 2]] },
+    { w: 2, group: [['c9b_bat', 1, 1], ['c9b_kinoko', 1, 1]] },
     { w: 2, group: [['c9b_crab', 1, 1], ['c9b_kinoko', 1, 1]] },
   ],
   t9b_light: [
-    { w: 5, group: [['c9b_kinoko', 1, 2]] },
-    { w: 4, group: [['c9b_bat', 1, 2]] },
+    { w: 6, group: [['c9b_kinoko', 1, 2]] },
     { w: 3, group: [['c9b_crab', 1, 1], ['c9b_kinoko', 1, 1]] },
-    { w: 2, group: [['c9b_crab', 1, 2]] },
+    { w: 2, group: [['c9b_bat', 1, 1], ['c9b_kinoko', 1, 1]] },
+    { w: 1, group: [['c9b_crab', 1, 2]] },
     { w: 1, group: [[C9B_MIMIZU, 1, 1]] },
     { w: 1, group: [[C9B_MIMIZU, 1, 1], ['c9b_bat', 1, 1]] },
   ],
   t9b_hall: [
-    { w: 5, group: [['c9b_mole_spear', 1, 2]] },
-    { w: 3, group: [['c9b_mole_spear', 1, 1], ['c9b_mole_pot', 1, 1]] },
-    { w: 2, group: [['c9b_mole_pot', 1, 2]] },
+    { w: 6, group: [['c9b_mole_spear', 1, 2]] },
+    { w: 2, group: [['c9b_mole_spear', 1, 2], ['c9b_mole_pot', 1, 1]] },
+    { w: 1, group: [['c9b_mole_pot', 1, 1], ['c9b_mole_spear', 1, 1]] },
   ],
 };
 export const C9B_ZONES = Object.keys(ENCOUNTERS_C9B);

@@ -297,7 +297,7 @@ export function c8rCmdItems(scene, a) {
   return { items, info };
 }
 export function c8rCmdPick(scene, a, value) {
-  if (value === 'c9ashare') return c9aCmdPick(scene, a, value);
+  if (value === 'c9ashare' || value === 'c9bteru') return c9aCmdPick(scene, a, value);
   const s = solOf(scene);
   if (value === 'c8rcall') return scene.send({ type: 'ability', id: CALL, target: s?.id });
   if (value === 'c8rpromise') return scene.send({ type: 'ability', id: PROMISE, target: s?.id });
