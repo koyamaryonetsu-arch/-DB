@@ -129,12 +129,52 @@ export function flipStageOf(game) {
   return 0;
 }
 
+// 第93回 F: ふたごの道（c9d_lane）は 画面の 状態 apartStage（0 スピカと いっしょ・1 はなれて いる）で、はなれると ふしが 片方だけに なる（曲の だん 0・1）。
+//   A班が 画面の 状態 apartStage を 出す（field.apartStage・game.apartStage。数・true/false・関数 どれでも よい）。出て いない 間は 0。
+//   名前は addFormKey にも 入れて おく（戦いの pub に 出ても こまらない 段の 名前）
+addFormKey('apartStage');
+export const C9D_LANE_TRACK = 'c9d_lane';
+export function apartStageOf(game) {
+  for (const src of [game?.field, game]) {
+    let v = src?.apartStage;
+    try { if (typeof v === 'function') v = v.call(src); } catch { v = null; }
+    if (v === true) return 1;
+    if (v === false) return 0;
+    if (v !== null && v !== undefined && Number.isFinite(Number(v))) return Number(v) >= 1 ? 1 : 0;
+  }
+  return 0;
+}
+// 第93回 F: スピカの歌（c9d_song）は 画面の 状態 songStage（1〜7。歌える ふしの 数）で だん 0〜6（のこりの ふしは 伴そうだけ）。
+//   イベントの 曲でも よい（鳴って いる 曲が c9d_song なら、その 場所の 曲で なくても だんを 送る）。出て いない 間は 1
+export const C9D_SONG_TRACK = 'c9d_song';
+export const SONG_STAGES = 7;
+export function songStageOf(game) {
+  for (const src of [game?.field, game]) {
+    let v = src?.songStage;
+    try { if (typeof v === 'function') v = v.call(src); } catch { v = null; }
+    if (v !== null && v !== undefined && v !== false && Number.isFinite(Number(v))) return Math.max(1, Math.min(SONG_STAGES, Math.floor(Number(v))));
+  }
+  return 1;
+}
+// 第93回 F: 0 から 数える 形態の しるし（0 が はじめ）。あそびたい魔人（c9d_mu）の muStage（B班の 戦いの pub。0 1体・1 2体に 分かれた）→ だん 0・1
+export const FORM_KEYS0 = [];
+export function addFormKey0(...keys) {
+  for (const k of keys) if (typeof k === 'string' && k && !FORM_KEYS0.includes(k)) FORM_KEYS0.push(k);
+  return FORM_KEYS0;
+}
+addFormKey0('muStage');
+
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
   let n = null;
   for (const k of FORM_KEYS) {
     const v = Number(c[k]);
     if (Number.isFinite(v) && v >= 1) n = Math.max(n ?? 0, v - 1);
+  }
+  for (const k of FORM_KEYS0) {
+    if (c[k] === null || c[k] === undefined || c[k] === '') continue;
+    const v = Number(c[k]);
+    if (Number.isFinite(v) && v >= 0) n = Math.max(n ?? 0, Math.floor(v));
   }
   if (c.p2) n = Math.max(n ?? 0, 1);
   return n;
@@ -361,8 +401,10 @@ export class SceneAudio {
     const id = this.audio.music?.id || null;
     // 強さは 今 鳴っている 曲が その 場所の 曲の 時だけ（イベントの 曲・ジングルは さわらない）
     if (id && id === st.areaTrack) this.send('intensity', st.intensity, (v) => this.audio.setIntensity(v));
-    // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド）
+    // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド・第93回 ふたごの道）
     if (id && id === st.areaTrack && st.phase !== null && st.phase !== undefined) this.send('phase', st.phase, (v) => this.audio.setPhase(v));
+    // 第93回 F: スピカの歌は イベントの 曲でも 歌える ふしの 数を 送る
+    else if (id === C9D_SONG_TRACK && st.songPhase !== null && st.songPhase !== undefined) this.send('phase', st.songPhase, (v) => this.audio.setPhase(v));
     this.send('tod', st.tod, (v) => this.audio.setTimeOfDay(v));
     // まわりの音は その 場所の 曲が 鳴って いる 間だけ（イベントの 曲・ジングルの 間は 止める）
     this.setAmbience(id && id === st.areaTrack ? st.ambience : null);
@@ -390,7 +432,11 @@ export class SceneAudio {
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
     }
     // さかさの ピラミッドの 曲の 時だけ だん（ふつう 0・さかさ 1）。ほかの 曲では だんを 送らない
-    const phase = areaTrack === C9C_PYRAMID_TRACK ? flipStageOf(game) : null;
+    let phase = areaTrack === C9C_PYRAMID_TRACK ? flipStageOf(game) : null;
+    // 第93回 F: ふたごの道（いっしょ 0・はなれて いる 1）・スピカの歌（歌える ふしの 数 - 1）
+    if (areaTrack === C9D_LANE_TRACK) phase = apartStageOf(game);
+    else if (areaTrack === C9D_SONG_TRACK) phase = songStageOf(game) - 1;
+    const songPhase = songStageOf(game) - 1;
     let area = '';
     try { area = f.areaName(); } catch { /* */ }
     let weather = null;
@@ -400,6 +446,7 @@ export class SceneAudio {
       areaTrack,
       intensity,
       phase,
+      songPhase,
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };

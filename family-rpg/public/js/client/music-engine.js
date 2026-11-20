@@ -382,6 +382,8 @@ export function expandPass(c, segName, variant = 0) {
 
 // ───────────── 場面で かわる 音楽（チーム C の つかう ところ） ─────────────
 // set〜 は「次の 小節の 頭」で 効く（latch）。強さは 曲ごとに おぼえる（戦いの あとに ダンジョンの 曲へ もどっても そのまま）
+// だんの 上限。戦いの だんは 0〜3（audio-scene.js の bossStage）。第93回 F: スピカの歌（c9d_song）の 歌える ふしの 数（だん 0〜6）の ため 7 まで
+export const MAX_PHASE = 7;
 export class AdaptiveState {
   constructor() {
     this.want = { intensity: 1, pinch: false, phase: 0, tod: 'day' };
@@ -400,7 +402,7 @@ export class AdaptiveState {
 
   setPhase(n) {
     const v = Math.round(Number(n));
-    this.want.phase = Number.isFinite(v) ? Math.max(0, Math.min(3, v)) : 0;
+    this.want.phase = Number.isFinite(v) ? Math.max(0, Math.min(MAX_PHASE, v)) : 0;
   }
 
   setTimeOfDay(tod) { this.want.tod = tod === 'night' ? 'night' : 'day'; }

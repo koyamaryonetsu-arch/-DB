@@ -24,6 +24,7 @@ import { C8R_TRACKS } from './audio-c8r.js';
 import { C9A_TRACKS } from './audio-c9a.js';
 import { C9B_TRACKS } from './audio-c9b.js';
 import { C9C_TRACKS } from './audio-c9c.js';
+import { C9D_TRACKS } from './audio-c9d.js';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
 import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js';
@@ -889,6 +890,8 @@ overlayTracks(TRACKS, C9A_TRACKS);
 overlayTracks(TRACKS, C9B_TRACKS);
 // 第92回 F: 第3部 第1章 第3幕「さかさのピラミッド」の 曲（audio-c9c.js。新しい id だけ）
 overlayTracks(TRACKS, C9C_TRACKS);
+// 第93回 F: 第3部 第1章 第4幕「星のはかば」の 曲（audio-c9d.js。新しい id だけ）
+overlayTracks(TRACKS, C9D_TRACKS);
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

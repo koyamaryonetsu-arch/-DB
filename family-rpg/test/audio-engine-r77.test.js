@@ -311,8 +311,9 @@ test('第77回: 場面で かわる 音楽の じょうたい（次の 小節の
   assert.equal(a.want.intensity, 0);
   a.setIntensity('x');
   assert.equal(a.want.intensity, 1);
+  // 第93回 F: 上限は 7（スピカの歌の だん 0〜6 の ため。戦いの だんは audio-scene.js で 0〜3）
   a.setPhase(9);
-  assert.equal(a.want.phase, 3);
+  assert.equal(a.want.phase, 7);
   a.setTimeOfDay('dusk');
   assert.equal(a.want.tod, 'day');
   // テンポは 1小節ごとに 1/3 ずつ 近づく
