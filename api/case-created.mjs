@@ -638,7 +638,8 @@ async function summarizeMemoIntoContent(before, after) {
   const cur = norm(after.content);
   const newContent = cur ? cur + '\n\n' + summary : summary;
   if (newContent === cur) return false;
-  await sbPatch(`cases?id=eq.${encodeURIComponent(String(after.id))}`, { content: newContent });
+  // field_sources の _by=ai: 「内容」は AI がまとめた印（SETUP_FIELD_SOURCES.sql のしくみが欄ごとに残す）
+  await sbPatch(`cases?id=eq.${encodeURIComponent(String(after.id))}`, { content: newContent, field_sources: { _by: 'ai' } });
   return true;
 }
 

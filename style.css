@@ -2414,7 +2414,8 @@ td.task-col.ptp-tasks { padding-right: 12px !important; }
 .sugg-h { font-size: 12px; font-weight: 700; color: #92400e; margin-bottom: 4px; }
 .sugg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .sugg-item {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 8px; align-items: center;
+  /* ボタンは左に同じ幅で（押した後も、次の行のボタンが同じ場所に来る・2026-11-20） */
+  display: grid; grid-template-columns: 252px auto minmax(0, 1fr); column-gap: 8px; align-items: start;
   padding: 4px 0; border-top: 1px solid #f6e3b4;
 }
 .sugg-item:first-child { border-top: none; }
@@ -2429,16 +2430,20 @@ td.task-col.ptp-tasks { padding-right: 12px !important; }
 .sugg-link { cursor: pointer; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 3px; }
 .sugg-link:hover { color: #2563eb; text-decoration-color: #2563eb; }
 .sugg-why { font-size: 11px; color: #92400e; }
-.sugg-btns { display: inline-flex; gap: 6px; white-space: nowrap; }
-.sugg-accept, .sugg-dismiss { height: 26px; padding: 0 10px; font-size: 12px; border-radius: 6px; font-weight: 600; }
+.sugg-btns { display: grid; grid-template-columns: 70px 96px 70px; gap: 6px; white-space: nowrap; }
+.sugg-src { margin-top: 5px; }
+.sugg-body { padding-top: 3px; }
+.sugg-accept, .sugg-dismiss, .sugg-done { height: 26px; padding: 0 4px; font-size: 12px; border-radius: 6px; font-weight: 600; width: 100%; }
+.sugg-done { background: #ecfdf5; border: 1px solid #10b981; color: #065f46; }
+.sugg-done:hover { background: #d1fae5; }
 .sugg-accept { background: #2563eb; border: 1px solid #2563eb; color: #fff; }
 .sugg-accept:hover { background: #1d4ed8; }
 .sugg-dismiss { background: #fff; border: 1px solid #d1d5db; color: #4b5563; }
 .sugg-dismiss:hover { background: #f3f4f6; }
 @media (max-width: 600px) {
   .sugg-item { grid-template-columns: auto minmax(0, 1fr); row-gap: 6px; }
-  .sugg-btns { grid-column: 1 / -1; justify-content: flex-end; }
-  .sugg-accept, .sugg-dismiss { height: 34px; padding: 0 14px; font-size: 13px; }
+  .sugg-btns { grid-column: 1 / -1; grid-row: 1; grid-template-columns: 1fr 1.3fr 1fr; }
+  .sugg-accept, .sugg-dismiss, .sugg-done { height: 34px; font-size: 13px; }
 }
 /* 「表示する状態 ▾」（完了・対応済み・請求済・入金済・取り下げ・失注・保留 を1つずつ） */
 .sv-btn {
@@ -2570,8 +2575,30 @@ body.case-bells .row-edit-btn{ opacity: 1; }
 .src-note, .th-src{ display:none; }
 body.user-privileged .src-note{ display:block; font-size:11px; font-weight:400; color:#64748b; margin-top:1px; line-height:1.4; }
 body.user-privileged .src-note.src-ai, body.user-privileged .src-note.src-mail{ color:#6d28d9; }
-body.user-privileged .form-row.src-row-ai{ background:#f5f3ff; border-left:3px solid #8b5cf6; padding-left:8px; border-radius:6px; }
-body.user-privileged .form-row.src-row-mail{ background:#faf8ff; border-left:3px solid #d8ccfb; padding-left:8px; border-radius:6px; }
+/* 欄の左の色の帯（2026-11-20）: 🤖AI=紫／📝AI要約=濃い紫／📨メールからも=青／✋手入力=灰／🤝客先=緑 */
+body.user-privileged #caseForm .form-row[class*="src-row-"]{ border-left:4px solid transparent; padding-left:8px; border-radius:6px; }
+body.user-privileged .form-row.src-row-ai{ background:#f5f3ff; border-left-color:#a78bfa !important; }
+body.user-privileged .form-row.src-row-sum{ background:#ede9fe; border-left-color:#6d28d9 !important; }
+body.user-privileged .form-row.src-row-mail{ background:#f0f7ff; border-left-color:#60a5fa !important; }
+body.user-privileged .form-row.src-row-hand{ background:#f8fafc; border-left-color:#94a3b8 !important; }
+body.user-privileged .form-row.src-row-cust{ background:#f0fdf4; border-left-color:#22c55e !important; }
+body.user-privileged .src-note.src-sum{ color:#5b21b6; }
+body.user-privileged .src-note.src-mail{ color:#1d4ed8 !important; }
+body.user-privileged .src-note.src-cust{ color:#15803d; }
+/* 客先にも見える枠（白）／社内だけの枠（今までどおり黄色） */
+body.user-privileged #caseForm .form-sec-cust{ border:1px solid #bfdbfe; border-radius:8px; padding:10px 12px 6px; margin-top:10px; background:#fff; }
+.vis-tag{ font-size:11px; font-weight:700; letter-spacing:0; background:#dbeafe; color:#1e40af; border-radius:4px; padding:0 6px; }
+.fs-legend{ display:none; }
+body.user-privileged .fs-legend{ display:flex; flex-wrap:wrap; gap:4px 8px; align-items:center; font-size:11px; color:#475569; padding:6px 8px; margin:2px 0 4px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; }
+.fs-lg{ border-left:4px solid; padding:0 5px; border-radius:3px; }
+.fs-lg-ai{ border-color:#a78bfa; background:#f5f3ff; } .fs-lg-sum{ border-color:#6d28d9; background:#ede9fe; } .fs-lg-mail{ border-color:#60a5fa; background:#f0f7ff; }
+.fs-lg-hand{ border-color:#94a3b8; background:#f8fafc; } .fs-lg-cust{ border-color:#22c55e; background:#f0fdf4; }
+.fs-lg-sep{ color:#cbd5e1; }
+.fs-lg-box{ border-radius:4px; padding:0 5px; }
+.fs-lg-vis{ border:1px solid #bfdbfe; background:#fff; } .fs-lg-in{ border:1px solid #efe2c2; background:#fbf7ee; }
+.fs-now{ display:none; }
+body.user-privileged .fs-now{ display:inline-block; font-size:10.5px; font-weight:700; border-radius:999px; padding:0 7px; margin-left:6px; vertical-align:1px; }
+.fs-now.fs-hand{ background:#e2e8f0; color:#334155; } .fs-now.fs-ai{ background:#ede9fe; color:#5b21b6; } .fs-now.fs-cust{ background:#dcfce7; color:#166534; }
 body.user-privileged .th-src{ display:inline; font-size:10px; margin-left:2px; opacity:.85; }
 /* 📖 取説（チュートリアル） */
 .gd-badge{ background:#ef4444; color:#fff; margin-left:4px; }
@@ -2702,3 +2729,133 @@ body.hide-acct .m-acct { display: none; }
 .mst-rates { min-width: 0 !important; width: auto; }
 .mst-rates input.mst-under { width: 120px; }
 .mst-rates input.mst-rate { width: 70px; }
+
+/* ===== 🗂 マスター編集: 上のタブで分ける（2026-11-20） ===== */
+.kt-dialog.mst-full{ width:calc(100vw - 32px); max-width:1400px; height:calc(100vh - 32px); max-height:none; display:flex; flex-direction:column; }
+.mst-full .mst-tabs{ display:flex; flex-wrap:wrap; gap:4px; padding:8px 14px 0; border-bottom:2px solid #c7d2fe; background:#f8fafc; }
+.mst-full .mst-tab{ border:1px solid #cbd5e1; border-bottom:none; border-radius:8px 8px 0 0; background:#eef2f7; color:#334155; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:-2px; }
+.mst-full .mst-tab:hover{ background:#e0e7ff; }
+.mst-full .mst-tab.active{ background:#fff; color:#3730a3; border-color:#c7d2fe; border-bottom:2px solid #fff; }
+.mst-full .mst-body{ flex:1; min-height:0; overflow:auto; }
+.mst-full .mst-pane{ min-height:100%; display:flex; flex-direction:column; }
+.mst-full #acctPane .acct-wrap{ flex:1; min-height:160px; max-height:none; }
+.mst-full .mst-h:first-child{ margin-top:0; }
+.ms-save-row{ display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:12px; }
+.mst-approver-now{ margin:6px 0; font-size:14px; }
+.mst-approver .tm-input{ width:220px; }
+.mst-cands{ display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px; }
+.mst-cands .wa-chip{ cursor:pointer; }
+.acct-table .acct-email{ width:100%; min-width:14em; }
+.acct-table .acct-th{ width:12em; }
+.acct-table .acct-co{ max-width:12em; }
+@media (max-width: 600px){
+  .kt-dialog.mst-full{ width:100vw; height:100dvh; border-radius:0; }
+  .mst-full .mst-tabs{ flex-wrap:nowrap; overflow-x:auto; padding:6px 8px 0; }
+  .mst-full .mst-tab{ white-space:nowrap; padding:6px 10px; }
+  .mst-approver .tm-input{ width:100%; }
+}
+
+/* ===== 📅 カレンダー: 開いたら全画面・帯は「時刻・劇場・案件名」を2行まで（2026-11-20） ===== */
+.cal-close{ display:none; }
+body.cal-full #calendarView{ position:fixed; inset:0; z-index:90; background:#fff; overflow:auto; padding:12px 16px 24px; }
+body.cal-full .cal-close{ display:inline-block; margin-left:auto; font-weight:700; padding:6px 14px; }
+body.cal-full .cal-title{ font-size:20px; }
+body.cal-full .cal-weekhead span{ font-size:14px; }
+.cal-filter-note{ color:#475569; font-size:12px; }
+.cal-dn{ font-size:13px; }
+.cal-ev-bar{ height:34px; line-height:16px; font-size:12.5px; padding:1px 7px; border-radius:7px; white-space:normal;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-overflow:clip; }
+.cal-ev-bar .cal-kind{ display:inline-block; font-size:10px; line-height:14px; padding:0 4px; margin-right:4px; border-radius:4px; background:rgba(255,255,255,.28); font-weight:700; vertical-align:1px; }
+.cal-ev-bar .cal-name{ font-weight:700; }
+.cal-tip{ position:fixed; z-index:95; display:none; max-width:420px; background:#0f172a; color:#f8fafc; border-radius:8px; padding:8px 10px; font-size:12.5px; line-height:1.55; box-shadow:0 6px 20px rgba(0,0,0,.3); pointer-events:none; }
+.cal-tip-h{ color:#cbd5e1; font-size:11.5px; }
+.cal-tip-t{ font-weight:700; font-size:14px; margin:2px 0 4px; }
+.cal-tip-b{ max-height:40vh; overflow:hidden; white-space:pre-wrap; }
+.cal-tip-f{ color:#94a3b8; font-size:11px; margin-top:4px; }
+@media (max-width: 600px){
+  body.cal-full #calendarView{ padding:8px 6px 20px; }
+  .cal-ev-bar{ font-size:11px; padding:1px 4px; }
+  .cal-ev-bar .cal-kind{ display:none; }
+}
+
+/* ===== 🔎 劇場情報更新確認: 長い文が「確信度」に重ならないように（2026-11-20） ===== */
+#theaterPendingModal .tp-table{ min-width:0; width:100%; table-layout:fixed; }
+#theaterPendingModal .tp-table th, #theaterPendingModal .tp-table td{ white-space:normal; overflow-wrap:anywhere; word-break:normal; overflow:hidden; }
+#theaterPendingModal .tp-col-act{ width:150px; }
+#theaterPendingModal .tp-col-conf{ width:76px; text-align:center; }
+#theaterPendingModal .tp-actions{ white-space:nowrap; }
+#theaterPendingModal .tp-theater-row td{ white-space:normal; }
+@media (max-width: 600px){
+  #theaterPendingModal .tp-col-act{ width:92px; }
+  #theaterPendingModal .tp-actions button{ display:block; width:100%; margin:0 0 4px; }
+  #theaterPendingModal .tp-col-conf{ width:48px; }
+}
+
+/* ===== 🆕 登録確認: 自分の分を決めるまで一覧の上に出す（2026-11-20） ===== */
+.ik-force{ position:fixed; inset:0; z-index:95; background:rgba(15,23,42,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+.ik-force-panel{ background:#fff; border-radius:12px; width:min(980px,100%); max-height:calc(100vh - 32px); display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.35); }
+.ik-force-head{ padding:14px 18px 8px; border-bottom:1px solid #e5e7eb; }
+.ik-force-head h2{ margin:0 0 4px; font-size:18px; }
+.ik-force-head p{ margin:0; font-size:13px; color:#475569; line-height:1.6; }
+.ik-force-list{ overflow:auto; padding:10px 18px 16px; }
+.ik-owner{ font-size:12px; color:#334155; margin:4px 0; }
+@media (max-width: 600px){ .ik-force{ padding:0; } .ik-force-panel{ max-height:100dvh; height:100dvh; border-radius:0; } }
+
+/* ===== 日付の入力: 打つ＋📅 で選ぶ（dateinput.js・2026-11-20） ===== */
+.di-pick{ position:relative; display:inline-flex; align-items:center; vertical-align:middle; flex:none; }
+.di-cal{ border:1px solid #cbd5e1; background:#fff; border-radius:6px; padding:0 6px; height:30px; min-width:32px; cursor:pointer; font-size:15px; line-height:1; margin-left:4px; }
+.di-cal:hover{ background:#eef2ff; border-color:#a5b4fc; }
+.di-hidden{ position:absolute; left:0; bottom:0; width:1px; height:1px; opacity:0; pointer-events:none; border:0; padding:0; }
+.di-native{ display:none !important; }
+.di-box{ display:inline-flex; align-items:center; gap:0; max-width:100%; }
+.di-box .di-text{ width:10.5em; min-width:0; font-variant-numeric:tabular-nums; }
+.di-text.invalid{ border-color:#dc2626 !important; background:#fef2f2; }
+.di-wrap{ display:flex; align-items:center; min-width:0; width:100%; }
+.di-wrap > .smart-date{ flex:1 1 auto; min-width:0; }
+.date-time-row .di-wrap{ flex:1 1 auto; width:auto; }
+.date-time-row .di-pick{ margin-right:4px; }
+@media (max-width: 600px){ .di-cal{ height:36px; min-width:38px; } .smart-date, .di-text{ font-size:16px; } }
+
+/* ===== スマホの編集画面: 長い欄は画面の半分まで・欄の中でスクロール・押しても勝手に拡大しない（2026-11-20） ===== */
+#caseForm textarea{ max-height:50vh; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+.modal.drawer .form-scroll{ overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+@media (max-width: 600px){
+  /* iPhone は 16px より小さい文字の欄を押すと拡大し、そのまま戻らないことがある */
+  .modal.drawer input, .modal.drawer select, .modal.drawer textarea,
+  .kt-dialog input, .kt-dialog select, .kt-dialog textarea { font-size:16px !important; }
+  .modal.drawer .modal-content{ height:100dvh; max-height:100dvh; }
+  .modal.drawer #caseForm .form-row{ min-width:0; }
+  .modal.drawer #caseForm .form-row > *{ max-width:100%; }
+  #caseForm textarea{ width:100%; box-sizing:border-box; }
+}
+
+/* ===== スマホの 💰 支払い状況: 1案件を1枚のカードに（横スクロールなし・その場で直せる・2026-11-20） ===== */
+.pv-mtitle{ display:none; }
+@media (max-width: 600px){
+  .table-wrap:has(#casesTable.purchase-mode){ overflow-x:hidden; max-height:none; background:transparent; box-shadow:none; }
+  #casesTable.purchase-mode{ display:block; min-width:0 !important; width:100%; table-layout:auto; }
+  #casesTable.purchase-mode thead{ display:none; }
+  #casesTable.purchase-mode tbody{ display:grid; grid-template-columns:minmax(0,1fr); gap:8px; padding-bottom:88px; width:100%; }
+  #casesTable.purchase-mode tr{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:4px 8px; align-items:start;
+    background:#fff; border:1px solid #e5e7eb; border-left:5px solid #d8dee8; border-radius:10px; padding:10px 12px; }
+  #casesTable.purchase-mode tr.row-red{ border-left-color:#ef4444; } #casesTable.purchase-mode tr.row-yellow{ border-left-color:#eab308; } #casesTable.purchase-mode tr.row-orange{ border-left-color:#f97316; }
+  #casesTable.purchase-mode tr{ width:100%; box-sizing:border-box; min-width:0; height:auto !important; max-height:none !important; overflow:visible !important; }
+  #casesTable.purchase-mode td{ height:auto !important; max-height:none !important; overflow:visible !important; }
+  body:has(#casesTable.purchase-mode) .m-cards{ display:none !important; }
+  #casesTable.purchase-mode td{ display:block; border:none; padding:0; white-space:normal; min-width:0 !important; width:auto !important; max-width:none; background:transparent !important; }
+  #casesTable.purchase-mode td[data-colkey="company"]{ grid-column:1; grid-row:1; }
+  #casesTable.purchase-mode td[data-colkey="theater"]{ grid-column:2; grid-row:1; font-weight:700; font-size:14px; overflow-wrap:anywhere; }
+  #casesTable.purchase-mode td[data-colkey="estimateAmount"]{ grid-column:3; grid-row:1; font-weight:700; text-align:right; white-space:nowrap; }
+  #casesTable.purchase-mode td[data-colkey="content"]{ display:none; }
+  #casesTable.purchase-mode td[data-colkey="estimateName"]{ grid-column:1 / -1; grid-row:2; font-size:12px; color:#64748b; }
+  #casesTable.purchase-mode td[data-colkey="estimateName"]:empty{ display:none; }
+  #casesTable.purchase-mode td[data-colkey="estimateName"]:not(:empty)::before{ content:'見積り名: '; }
+  #casesTable.purchase-mode td.pv-cell{ grid-column:1 / -1; grid-row:3; padding:4px 0 0; border-top:1px dashed #e5e7eb !important; }
+  #casesTable.purchase-mode .pv-mtitle{ display:block; font-weight:600; font-size:13px; color:#334155; margin-top:2px; }
+  #casesTable.purchase-mode .pv-row{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:6px; padding:6px 0; border-bottom:1px solid #f1f5f9; }
+  #casesTable.purchase-mode .pv-row input{ width:100% !important; min-width:0; font-size:16px; height:38px; box-sizing:border-box; }
+  #casesTable.purchase-mode .pv-row .pur-amount{ grid-column:1; }
+  #casesTable.purchase-mode .pv-row .pur-del{ grid-column:2; justify-self:end; width:38px; height:38px; }
+  #casesTable.purchase-mode .pv-add{ width:100%; height:38px; margin-top:6px; }
+  #casesTable.purchase-mode .col-resizer, #casesTable.purchase-mode .col-sort{ display:none; }
+}

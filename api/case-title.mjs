@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     for (const r of rows) {
       const t = map[String(r.id)];
       if (!t) continue;
-      await sbPatch(`cases?id=eq.${enc(r.id)}`, { title: t });
+      await sbPatch(`cases?id=eq.${enc(r.id)}`, { title: t, field_sources: { _by: 'ai' } });   // 案件名は AI が付けた印
       done++;
     }
     let remaining = null;

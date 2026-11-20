@@ -13,6 +13,7 @@
 <script src="vendor/supabase.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
 <script src="config.js"></script>
+<script src="dateinput.js"></script>
 <script src="templates.js"></script>
 </head>
 <body class="booting">
@@ -89,7 +90,6 @@
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="calBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="intakeBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="theaterPendingBtn"></button>
-            <button type="button" class="pop-item m-proxy col-ryo" data-proxy="mailSetBtn"></button>
             <button type="button" class="pop-item m-proxy col-ryo" data-proxy="guideBtn"></button>
           </div>
           <div class="pop-group">
@@ -97,8 +97,7 @@
             <button id="aggBtn" class="pop-item col-ryo">📊 A集計</button>
             <button id="purchaseBtn" class="pop-item col-ryo">💰 支払い状況</button>
             <button id="invoiceBtn" class="pop-item">📄 請求書発行</button>
-            <button id="custAccountsBtn" class="pop-item col-ryo">📧 客先アカウント（劇場のアドレス）</button>
-            <button id="masterBtn" class="pop-item col-ryo">🗂 マスター編集（担当者・会社・劇場）</button>
+            <button id="masterBtn" class="pop-item col-ryo">🗂 マスター編集（担当者・客先アカウント・メール通知などの設定）</button>
             <button id="fillTitlesBtn" class="pop-item col-ryo">🏷 案件名をまとめて付ける（AI）</button>
           </div>
           <div class="pop-group">
@@ -292,7 +291,9 @@
         <div class="cal-eventlegend">
           <span><span class="ev-dot ev-survey"></span>調査</span>
           <span><span class="ev-dot ev-work"></span>作業（開始〜完了）</span>
+          <span id="calFilterNote" class="cal-filter-note"></span>
         </div>
+        <button id="calCloseBtn" type="button" class="cal-close">✕ 閉じる</button>
       </div>
       <div class="cal-weekhead">
         <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
@@ -408,8 +409,8 @@
     <div id="viewPhoto" class="hidden">
       <div class="ph-left">
         <div class="ph-hdr">
-          <div class="ph-f"><label for="phTheater">劇場名</label><input type="text" id="phTheater"></div>
-          <div class="ph-f"><label for="phWork">工事名</label><input type="text" id="phWork"></div>
+          <div class="ph-f"><label for="phTheater">劇場名（表紙の1行目）</label><input type="text" id="phTheater"></div>
+          <div class="ph-f"><label for="phWork">案件名（表紙の2行目）</label><input type="text" id="phWork"></div>
           <div class="ph-f ph-f-date"><label for="phDate">表紙の日付</label><input type="date" id="phDate"></div>
         </div>
         <div class="ph-act">
@@ -418,6 +419,8 @@
           <span class="ph-cnt" id="phCount"></span>
           <span class="ph-grow"></span>
           <span id="phBulk" class="ph-bulk-wrap"></span>
+          <span class="ph-size" id="phSize" role="group" aria-label="写真の大きさ"><span class="ph-lbl">写真</span><button type="button" data-phsz="s">小</button><button type="button" data-phsz="m">中</button><button type="button" data-phsz="l">大</button></span>
+          <button type="button" class="ph-btn ph-pvtoggle" id="phPvToggle">📄 見本を出す</button>
           <button type="button" class="ph-btn ph-pvbtn" id="phPvBtn">見本を見る</button>
         </div>
         <div class="ph-act ph-sortrow">
@@ -430,6 +433,7 @@
         <div class="ph-drop" id="phDrop">📷 写真はここへドラッグでも入れられます（何枚でも一度に）・スマホは「＋ 写真を追加」でカメラも使えます</div>
         <div class="ph-cards" id="phCards"></div>
         <datalist id="koshuList"></datalist>
+        <datalist id="placeList"></datalist>
       </div>
       <div class="ph-right" id="phRight">
         <div class="ph-pvbar">
@@ -637,12 +641,12 @@
           <div class="tp-ai-bar"><button type="button" id="tpAiBtn" class="primary">🤖 AIでまとめて判定する（Opus）</button><span id="tpAiMsg" class="tp-ai-msg"></span></div>
           <div id="tpSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_AUTOUPDATE.sql をSupabaseで1回実行してください。</div>
           <div class="tm-table-wrap">
-            <table class="tm-table">
+            <table class="tm-table tp-table">
               <thead>
                 <tr>
-                  <th style="width: 18%;">操作</th>
-                  <th style="width: 72%;">内容</th>
-                  <th style="width: 10%;">確信度</th>
+                  <th class="tp-col-act">操作</th>
+                  <th>内容</th>
+                  <th class="tp-col-conf">確信度</th>
                 </tr>
               </thead>
               <tbody id="tpBody"></tbody>
@@ -898,7 +902,7 @@
       </div>
       <div class="form-row">
         <label for="invoiceIssueDate">発行日（請求書発行日として記録）</label>
-        <input type="text" id="invoiceIssueDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD">
+        <input type="text" id="invoiceIssueDate" class="smart-date" inputmode="numeric" placeholder="例 2026/1/9">
       </div>
       <div class="invoice-preview">
         <div class="invoice-preview-header">
