@@ -22,6 +22,7 @@ import { R77A_TRACKS } from './audio-r77a.js';
 import { R77B_TRACKS } from './audio-r77b.js';
 import { C8R_TRACKS } from './audio-c8r.js';
 import { C9A_TRACKS } from './audio-c9a.js';
+import { C9B_TRACKS } from './audio-c9b.js';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
 import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js';
@@ -883,6 +884,8 @@ overlayTracks(TRACKS, { ...R77A_TRACKS, ...R77B_TRACKS });
 overlayTracks(TRACKS, C8R_TRACKS);
 // 第90回 F: 第3部 第1章 第1幕「星ふるえの夜」の 曲と 第3部の ふつうの 戦い（audio-c9a.js。新しい id だけ。c9a_festival の 前の音は お祭りの 曲）
 overlayTracks(TRACKS, C9A_TRACKS);
+// 第91回 F: 第3部 第1章 第2幕「鉱山の底の先」の 曲（audio-c9b.js。新しい id だけ）
+overlayTracks(TRACKS, C9B_TRACKS);
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

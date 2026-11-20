@@ -595,6 +595,8 @@ export function gameFiles() {
     // 第90回 D班: お仕事いらい 36〜38・より道「星ふるえで、まいごになった物」
     'public/js/shared/data/sidequests-work8.js', 'public/js/shared/maps/work-quests8.js', 'public/js/client/render/work8-art.js',
     'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
+    // 第91回 F班: 第3部 第1章 第2幕の 曲
+    'public/js/client/audio-c9b.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

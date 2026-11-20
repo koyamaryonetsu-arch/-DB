@@ -101,6 +101,11 @@ export const TRACK_NAMES = {
   c9a_trio: 'ドタバタ3人組',
   c9a_trial: 'ともしびのためし',
   battle3: '戦い・その3',
+  // 第91回 F: 第3部 第1章 第2幕（audio-c9b.js）
+  c9b_under: '大地の下',
+  c9b_village: 'ヒカリゴケの里',
+  c9b_hall: '大王のやしき',
+  c9b_king: 'デデドン大王',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）
