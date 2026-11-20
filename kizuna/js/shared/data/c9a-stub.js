@@ -4,17 +4,17 @@
 //
 // 中み:
 //   ・A班の ため: かりの 決まった 戦い c9a_trio・c9a_trial（今 いる 弱い 魔物。勝てば 先へ 進む）と、星の子の かりの 置き場（C9A_STUB_SPICA）
-//       → import './c9a-stub.js?v=cb65ec3f97f7' だけで FIXED_ENCOUNTERS に 入る（B の 物が あれば そちらが 使われる。上がきは しない）
+//       → import './c9a-stub.js?v=ae365c90037d' だけで FIXED_ENCOUNTERS に 入る（B の 物が あれば そちらが 使われる。上がきは しない）
 //   ・B班の ため: かりの マップ 1まい（ボスと 戦える 小さな 部屋 c9a_stub_room）と、台本から ['showMon', id] → ['battle', id] を よぶ 形（C9A_STUB_SCRIPTS）
 //       → installC9aStub({ maps: MAPS, scripts: SCRIPTS }) で 足す（係の 手元で ためす 時だけ。コミットする ゲームの ファイルからは よばない）
 //
 // 消す 時に かえる 所: この ファイルを import して いる テスト・tools（test/ch9-base.test.js・tools/sim-ch9.mjs の import を B の
 //   data/encounters-c9a.js などに）と、tools/kanji-check.mjs の gameFiles() の 'public/js/shared/data/c9a-stub.js' の 行
-import { FIXED_ENCOUNTERS } from './encounters.js?v=cb65ec3f97f7';
-import { T } from '../tiles.js?v=cb65ec3f97f7';
-import { npc } from '../maps/npc.js?v=cb65ec3f97f7';
-import { parseRows16 } from '../maps/past.js?v=cb65ec3f97f7';
-import { C9A, C9A_BATTLE, SPICA, SPICA_NAME } from '../maps/c9a-flags.js?v=cb65ec3f97f7';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=ae365c90037d';
+import { T } from '../tiles.js?v=ae365c90037d';
+import { npc } from '../maps/npc.js?v=ae365c90037d';
+import { parseRows16 } from '../maps/past.js?v=ae365c90037d';
+import { C9A, C9A_BATTLE, SPICA, SPICA_NAME } from '../maps/c9a-flags.js?v=ae365c90037d';
 
 export const C9A_STUB = true;
 

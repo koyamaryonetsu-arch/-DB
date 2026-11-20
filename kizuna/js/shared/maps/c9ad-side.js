@@ -8,9 +8,9 @@
 //
 // ルミナの 落とし物あずかり所 → 3人の 落とし物（ふえ・かみかざり・すず）を さがして 返す → 返す たびに「1年前の 星祭りの 思い出」→
 // さいごに ホシフル村の 北の 木に ひっかかった たこ（家族で 行くと かたぐるま。ひとりでも はしごで とれる）
-import { npc } from './npc.js?v=cb65ec3f97f7';
-import { openSpot } from './labyrinth.js?v=cb65ec3f97f7';
-import { C9A } from './c9a-flags.js?v=cb65ec3f97f7';
+import { npc } from './npc.js?v=ae365c90037d';
+import { openSpot } from './labyrinth.js?v=ae365c90037d';
+import { C9A } from './c9a-flags.js?v=ae365c90037d';
 
 // ───────────── フラグ（セーブに のこるので かえない。引っこしコードの ため 短く）─────────────
 export const C9AD_OPEN = C9A.starfall;

@@ -3,19 +3,21 @@
 //     ダンジョンでしか 出ない ときは ダンジョンの 名前。図鑑で 見た 魔物は 名前、まだの 魔物は ？？？（場所は 出す）
 //   ・店で 売っている（data/shops.js）・宝箱（マップの chests）は そのまま 場所
 //   データから 自動で 作る（魔物や マップが ふえても 書きたさなくて よい）
-import { ITEMS } from './data/items.js?v=cb65ec3f97f7';
-import { MONSTERS } from './data/monsters.js?v=cb65ec3f97f7';
-import { MAT_DROPS, DROP_N } from './data/loot.js?v=cb65ec3f97f7';
-import { ENCOUNTER_TABLES } from './data/encounters.js?v=cb65ec3f97f7';
-import { NIGHT_ZONES } from './data/night.js?v=cb65ec3f97f7';
-import { SHOPS } from './data/shops.js?v=cb65ec3f97f7';
-import { MAPS } from './maps/index.js?v=cb65ec3f97f7';
+import { ITEMS } from './data/items.js?v=ae365c90037d';
+import { MONSTERS } from './data/monsters.js?v=ae365c90037d';
+import { MAT_DROPS, DROP_N } from './data/loot.js?v=ae365c90037d';
+import { ENCOUNTER_TABLES } from './data/encounters.js?v=ae365c90037d';
+import { NIGHT_ZONES } from './data/night.js?v=ae365c90037d';
+import { SHOPS } from './data/shops.js?v=ae365c90037d';
+import { MAPS } from './maps/index.js?v=ae365c90037d';
 
 let cache = null;
 
 // 第65回: データから 自動で わからない 入手先（宝の地図・闘技場・ひみつのダンジョンの ごほうび）
 export const EXTRA_SOURCES = {
   limit_stone: ['宝の地図の洞窟（Lv30から）の主の宝箱', '闘技場のランク9・10のごほうび', 'ひみつのダンジョンの30階からの休み所'],
+  // 第90回 D班: お仕事いらい 36 の ごほうび（1回だけ）
+  fq_star_charm: ['お仕事いらい「ルミナの、星をこわがる子どもたち」のごほうび'],
 };
 
 // 出現表 → その表を 使う 場所（{ map, name, field }）。昼の 表と 夜の 表は 同じ 場所

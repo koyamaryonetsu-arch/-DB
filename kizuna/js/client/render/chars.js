@@ -2,64 +2,64 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=cb65ec3f97f7';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=cb65ec3f97f7';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=cb65ec3f97f7';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=cb65ec3f97f7';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=cb65ec3f97f7';
-import { paintCh5Special } from './ch5-art.js?v=cb65ec3f97f7';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=cb65ec3f97f7';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=cb65ec3f97f7';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=cb65ec3f97f7';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=cb65ec3f97f7';
-import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=cb65ec3f97f7';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=ae365c90037d';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=ae365c90037d';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=ae365c90037d';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=ae365c90037d';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=ae365c90037d';
+import { paintCh5Special } from './ch5-art.js?v=ae365c90037d';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=ae365c90037d';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=ae365c90037d';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=ae365c90037d';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=ae365c90037d';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=ae365c90037d';
 // 第88回 G4班: 作品の ガチャガチャの 台・竜神の ほこら
-import { paintGachaSpecial } from './gacha-art.js?v=cb65ec3f97f7';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=cb65ec3f97f7';
-import { R26_OLD_LOOK } from './hero-r26.js?v=cb65ec3f97f7';
-import { R27_OLD_LOOK } from './hero-r27.js?v=cb65ec3f97f7';
-import { R29_OLD_LOOK } from './hero-r29.js?v=cb65ec3f97f7';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=cb65ec3f97f7';
-import { R40_OLD_LOOK } from './hero-r40.js?v=cb65ec3f97f7';
-import { R41B_OLD_LOOK } from './hero-r41b.js?v=cb65ec3f97f7';
-import { R41A_OLD_LOOK } from './hero-r41a.js?v=cb65ec3f97f7';
-import { R43J_OLD_LOOK } from './hero-r43j.js?v=cb65ec3f97f7';
+import { paintGachaSpecial } from './gacha-art.js?v=ae365c90037d';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=ae365c90037d';
+import { R26_OLD_LOOK } from './hero-r26.js?v=ae365c90037d';
+import { R27_OLD_LOOK } from './hero-r27.js?v=ae365c90037d';
+import { R29_OLD_LOOK } from './hero-r29.js?v=ae365c90037d';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=ae365c90037d';
+import { R40_OLD_LOOK } from './hero-r40.js?v=ae365c90037d';
+import { R41B_OLD_LOOK } from './hero-r41b.js?v=ae365c90037d';
+import { R41A_OLD_LOOK } from './hero-r41a.js?v=ae365c90037d';
+import { R43J_OLD_LOOK } from './hero-r43j.js?v=ae365c90037d';
 // 第51回 W の 天気の 職業
-import { WEATHER_OLD_LOOK } from './hero-weather.js?v=cb65ec3f97f7';
+import { WEATHER_OLD_LOOK } from './hero-weather.js?v=ae365c90037d';
 // 第66回 B班の 伝説の 職業
-import { R66B_OLD_LOOK } from './hero-r66b.js?v=cb65ec3f97f7';
+import { R66B_OLD_LOOK } from './hero-r66b.js?v=ae365c90037d';
 // 第66回 A の 伝説の 職業 4つ
-import { R66A_OLD_LOOK } from './hero-r66a.js?v=cb65ec3f97f7';
+import { R66A_OLD_LOOK } from './hero-r66a.js?v=ae365c90037d';
 // 第66回 C班の 伝説の職業（総理大臣・会長・働き方改革の星・あの方）
-import { R66C_OLD_LOOK } from './hero-r66c.js?v=cb65ec3f97f7';
+import { R66C_OLD_LOOK } from './hero-r66c.js?v=ae365c90037d';
 // 第66回 D班の 伝説の 職業の 古い え（hero-r66d.js）
-import { R66D_OLD_LOOK } from './hero-r66d.js?v=cb65ec3f97f7';
+import { R66D_OLD_LOOK } from './hero-r66d.js?v=ae365c90037d';
 // 第66回 E1班の 6つの 職業（hero-r66e1.js）
-import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=cb65ec3f97f7';
+import { R66E1_OLD_LOOK } from './hero-r66e1.js?v=ae365c90037d';
 // 第66回 E2 の 6つの 職業の 古い え（hero-r66e2.js）
-import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=cb65ec3f97f7';
+import { R66E2_OLD_LOOK } from './hero-r66e2.js?v=ae365c90037d';
 // 第82回 B班: YAIBA の 系統（hero-r82b.js）
-import { R82B_OLD_LOOK } from './hero-r82b.js?v=cb65ec3f97f7';
+import { R82B_OLD_LOOK } from './hero-r82b.js?v=ae365c90037d';
 // 第79回: 幻の職業の 古い 小さな え（hero-r79.js）
-import { R79_OLD_LOOK } from './hero-r79.js?v=cb65ec3f97f7';
+import { R79_OLD_LOOK } from './hero-r79.js?v=ae365c90037d';
 // 第82回 A: 犬夜叉の 系統の 古い 小さな え（hero-r82a.js）
-import { R82A_OLD_LOOK } from './hero-r82a.js?v=cb65ec3f97f7';
+import { R82A_OLD_LOOK } from './hero-r82a.js?v=ae365c90037d';
 // 第83回 B班: ぬ〜べ〜の 系統の 古い 小さな え（hero-r83b.js）
-import { R83B_OLD_LOOK } from './hero-r83b.js?v=cb65ec3f97f7';
+import { R83B_OLD_LOOK } from './hero-r83b.js?v=ae365c90037d';
 // 第83回 A班: 封神演義の 系統の 古い 小さな え（hero-r83a.js）
-import { R83A_OLD_LOOK } from './hero-r83a.js?v=cb65ec3f97f7';
+import { R83A_OLD_LOOK } from './hero-r83a.js?v=ae365c90037d';
 // 第84回 B班: らんま1/2 の 系統の 古い 小さな え（hero-r84b.js）
-import { R84B_OLD_LOOK } from './hero-r84b.js?v=cb65ec3f97f7';
+import { R84B_OLD_LOOK } from './hero-r84b.js?v=ae365c90037d';
 // 第84回 A班: 幽☆遊☆白書の 系統の 古い 小さな え（hero-r84a.js）
-import { R84A_OLD_LOOK } from './hero-r84a.js?v=cb65ec3f97f7';
+import { R84A_OLD_LOOK } from './hero-r84a.js?v=ae365c90037d';
 // 第85回 B班: 烈火の炎の 系統の 古い 小さな え（hero-r85b.js）
-import { R85B_OLD_LOOK } from './hero-r85b.js?v=cb65ec3f97f7';
+import { R85B_OLD_LOOK } from './hero-r85b.js?v=ae365c90037d';
 // 第85回 A班: スレイヤーズの 系統の 古い 小さな え（hero-r85a.js）
-import { R85A_OLD_LOOK } from './hero-r85a.js?v=cb65ec3f97f7';
+import { R85A_OLD_LOOK } from './hero-r85a.js?v=ae365c90037d';
 // 第86回 B班: 天下一の格闘王・混とんの大軍師の 古い 小さな え（hero-r86b.js）
-import { R86B_OLD_LOOK } from './hero-r86b.js?v=cb65ec3f97f7';
+import { R86B_OLD_LOOK } from './hero-r86b.js?v=ae365c90037d';
 // 第86回 A班: 幻の職業 2つの 古い 小さな え（hero-r86a.js）
-import { R86A_OLD_LOOK } from './hero-r86a.js?v=cb65ec3f97f7';
+import { R86A_OLD_LOOK } from './hero-r86a.js?v=ae365c90037d';
 
 export const CW = 16;
 export const CH = 21;

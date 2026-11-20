@@ -15,7 +15,7 @@
 //   R86A_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
 //   AURA86A       … オーラ（hero-aura.js の AURA に まぜる。cols2 は みぎ半分の 色）
 //   koteMark86(cv, A, P, O) … 左右の こて（hero.js の 手の あと）
-import { mat, TH } from './hero-raster.js?v=cb65ec3f97f7';
+import { mat, TH } from './hero-raster.js?v=ae365c90037d';
 
 export const R86A_JOBS = ['yokai_bridge', 'ryujin_kenshi'];
 

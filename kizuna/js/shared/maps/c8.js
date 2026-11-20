@@ -11,14 +11,14 @@
 // ・maps/c8c-fort.js … くろがねの空中要塞（千年前 c8c_fort_1f〜8f・今 c8c_fort_1f_now〜7f_now）
 // ・maps/c8c-field.js … 千年前の ミドリナ地方（overworld_past）の 森の いかりと、今の ミドリナ地方（overworld）の 森の 残がいに たす もの（入口・人・時をこえる手紙）
 // ・maps/c8c-flags.js … フラグ・マップの ID・だいじな 場所
-import { buildC8aPalaceMaps, C8A_MAPS } from './c8a-palace.js?v=cb65ec3f97f7';
-import { attachC8aField } from './c8a-field.js?v=cb65ec3f97f7';
-import { buildC8bTempleMaps, C8B_MAPS } from './c8b-temple.js?v=cb65ec3f97f7';
-import { attachC8bSea } from './c8b-sea.js?v=cb65ec3f97f7';
-import { buildC8cFortMaps, C8C_MAPS } from './c8c-fort.js?v=cb65ec3f97f7';
-import { attachC8cField } from './c8c-field.js?v=cb65ec3f97f7';
+import { buildC8aPalaceMaps, C8A_MAPS } from './c8a-palace.js?v=ae365c90037d';
+import { attachC8aField } from './c8a-field.js?v=ae365c90037d';
+import { buildC8bTempleMaps, C8B_MAPS } from './c8b-temple.js?v=ae365c90037d';
+import { attachC8bSea } from './c8b-sea.js?v=ae365c90037d';
+import { buildC8cFortMaps, C8C_MAPS } from './c8c-fort.js?v=ae365c90037d';
+import { attachC8cField } from './c8c-field.js?v=ae365c90037d';
 // 第4幕「時のはざま」（Step 7・8。maps/c8r.js）
-import { attachC8r, C8R_MAPS } from './c8r.js?v=cb65ec3f97f7';
+import { attachC8r, C8R_MAPS } from './c8r.js?v=ae365c90037d';
 
 // 第8章 第1幕の マップの ID（セーブに のこるので かえない）
 export const CH8A_MAPS = [...C8A_MAPS];

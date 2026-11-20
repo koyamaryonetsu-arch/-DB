@@ -7,19 +7,17 @@
 //   先生の 流れ（小学校の先生から）・炎術士の 流れ（炎術士から。忍者は 前から ある 職業なので 入れない）・軍師の 流れ（つりをする道士から）
 //   解決の だいじな 所は、パーティーの だれかが その 流れの 時だけ（data/fq-common.js の jobLine）。話を 聞く・調べる・戦うのは だれでも できる
 // ・まちがえても、何度でも やり直せる（合っていた 所は おぼえていて、続きから）。ひとりでも とける（戦いは 敵Lv96。完全オートで 勝てる 軽さ）
-// ・ごほうび（第64回の きまり）: ゴールド・小さなメダル・素材や 道具。1回だけ。
-//   ★5の アクセサリーは 今回は なし（新しい 品を 1つ 足すと、引っこしコードの 見はり〈ふつうの セーブ〉の 乱数の ならびが かわり、
-//   ぎりぎり〈6992／7000文字〉を こえる ため。B班の 品と 合わせる 時に メインが 見はりと いっしょに 考える）
+// ・ごほうび（第64回の きまり）: ゴールド・小さなメダル・素材や 道具。★5の アクセサリーは 36 の 1つだけ。1回だけ
 // ・物語の 先（星の子・3人組 など）には ふれない。星ふるえの 夜の ことだけ
 //
 // 36. ルミナの、星をこわがる子どもたち（先生の 流れ。目の 高さで 聞く・黒板で お話・「先生がついてる」）
 // 37. 鏡の湖の、こおったかがり火（炎術士の 流れ。火の玉を ばらまく・炎の やいば・小さな 火を そっと うつす）
 // 38. 星ふるえで、通れなくなった道（軍師の 流れ。作戦を 立てる・丸太の「ころ」・急ぐ 物から 通す）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=cb65ec3f97f7';
-import { rewardSteps } from './sidequests-work2.js?v=cb65ec3f97f7';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=ae365c90037d';
+import { rewardSteps } from './sidequests-work2.js?v=ae365c90037d';
 import {
   WQ8, WQ8_OPEN, KIDS_VOICES, KIDS_STEPS, GLOW_VOICES, GLOW_STEPS, ROAD_VOICES, ROAD_STEPS,
-} from '../maps/work-quests8.js?v=cb65ec3f97f7';
+} from '../maps/work-quests8.js?v=ae365c90037d';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;
@@ -51,7 +49,7 @@ export const WORK8_QUESTS = [
   { id: 'kids', name: 'ルミナの、星をこわがる子どもたち', done: WQ8.kidsDone, roots: ['elem_teacher'], job: '小学校の先生', legend: 'jigoku_sensei', town: 'ルミナの町', open: [WQ8_OPEN],
     start: WQ8.kidsStart, who: '子どもたちのお母さんサナ', npc: 'fq_kids_host', where: 'ルミナの町の、西の小さな黒板の前',
     paper: '星ふるえの夜から、子どもたちが、空をこわがって、外に出られません。\n子どもの心に、そっとよりそえる先生、来てください！',
-    reward: { gold: 3000, medals: 2, goods: [['seed_def', 2], ['seed_heal', 2], ['hoshi_konpeito', 3]] } },
+    reward: { item: 'fq_star_charm', gold: 3000, medals: 2, goods: [['seed_def', 2], ['seed_heal', 2]] } },
   { id: 'glow', name: '鏡の湖の、こおったかがり火', done: WQ8.glowDone, roots: ['enjutsushi'], job: '炎術士', legend: 'rekka', town: '鏡の湖', open: [WQ8_OPEN],
     start: WQ8.glowStart, who: '湖のわたし守ナギサ', npc: 'fq_glow_host', where: '鏡の湖の、北のほとり',
     paper: '星ふるえの夜、つめたい星のしずくがふって、湖のかがり火が、こおってしまいました！\nふつうの火では、とけません。火の名人、来てください！',
@@ -102,7 +100,7 @@ const kidsHost = (x) => {
       ...S(SANA, 'ありがとう！\n子どもたち、笑いながら、星の歌を、うたっているわ。'),
       ...S('おねえちゃんのリリ', '先生、また、星ぞら教室、ひらいてね！'),
       ...S(proName(x, Q.kids), 'ああ。\nいつでも、来るぞ！'),
-      ...S(SANA, 'これは、町のみんなからの、お礼。', '子どもたちが、「先生に」って、星のこんぺいとうも、入れてくれたのよ。'),
+      ...S(SANA, 'これは、子どもたちが作った、お礼のお守り。', '「先生を、守ってくれますように」って。'),
       ...rewardSteps(Q.kids),
     ];
   }
