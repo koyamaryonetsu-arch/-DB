@@ -4,11 +4,11 @@
 // ・光る こけは 第1幕の 光の輪の しくみ（world/c9a-steps.js の stepC9a。map.c9a の mossSteps = 40。パーティーで 1つ・セーブしない）
 // ・魔物（map.symBlock）: ふつうの 魔物は ともった 柱の 明かりの 中だけ・大ミミズ（MONSTERS[種].darkOnly）は 暗い 所だけ
 //   （柱・こけ・村の 明かりの 中に 入らない・出ない・光ったら 消える）。柱を ともすほど 安全
-import { MAPS } from '../maps/index.js?v=06a27cc70d31';
-import { MONSTERS } from '../data/monsters.js?v=06a27cc70d31';
-import { brightCells9b, mapCells9b, pillarStage } from '../maps/c9b-light.js?v=06a27cc70d31';
-import { C9B_MAP } from '../maps/c9b-flags.js?v=06a27cc70d31';
-import { c9aLitAt } from './c9a-steps.js?v=06a27cc70d31';
+import { MAPS } from '../maps/index.js?v=ce41aac08237';
+import { MONSTERS } from '../data/monsters.js?v=ce41aac08237';
+import { brightCells9b, mapCells9b, pillarStage } from '../maps/c9b-light.js?v=ce41aac08237';
+import { C9B_MAP } from '../maps/c9b-flags.js?v=ce41aac08237';
+import { c9aLitAt } from './c9a-steps.js?v=ce41aac08237';
 
 // その マップに いる 人の 世界の フラグ（だれか 1人でも 柱を ともして いれば、その 明かりは ある）
 function flagSets(world, mapId) {

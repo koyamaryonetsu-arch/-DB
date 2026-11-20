@@ -8,16 +8,16 @@
 // ・時の砂時計（world/time-glass.js）: south ⇔ c7_field（timePair）。第6章クリアの あと、トキネの 話を 聞くと 使える（c7_start。map.timeSpot）
 // ・時をこえる手紙（data/sidequests-c7.js）: 千年前で うめる 所と、今の おなじ 座標で 見つける 所（王国の 市場・湖の ほとり・お城の 庭）
 // だいほんは data/story-c7.js
-import { T, TILE_INFO } from '../tiles.js?v=06a27cc70d31';
-import { fbm, hash2 } from '../rng.js?v=06a27cc70d31';
-import { npc } from './npc.js?v=06a27cc70d31';
-import { parseRows16, wideTiles } from './past.js?v=06a27cc70d31';
-import { SOUTH_PLACES, OASIS_CAMP, SOUTH_ARRIVE, PYRAMID, PYRAMID_PLAZA } from './south.js?v=06a27cc70d31';
-import { KINGDOM_ROWS } from './c7-kingdom-rows.js?v=06a27cc70d31';
+import { T, TILE_INFO } from '../tiles.js?v=ce41aac08237';
+import { fbm, hash2 } from '../rng.js?v=ce41aac08237';
+import { npc } from './npc.js?v=ce41aac08237';
+import { parseRows16, wideTiles } from './past.js?v=ce41aac08237';
+import { SOUTH_PLACES, OASIS_CAMP, SOUTH_ARRIVE, PYRAMID, PYRAMID_PLAZA } from './south.js?v=ce41aac08237';
+import { KINGDOM_ROWS } from './c7-kingdom-rows.js?v=ce41aac08237';
 import {
   C7, ARRIVE7, C7_FIELD, PRESENT_FIELD, KINGDOM, TEMPLE_WALL, TEMPLE_DOOR, TEMPLE_YARD, GATE_BOSS, LETTER, LETTER_SIDE, c7tMapId,
-} from './c7-flags.js?v=06a27cc70d31';
-import { c7tArrive } from './c7-temple.js?v=06a27cc70d31';
+} from './c7-flags.js?v=ce41aac08237';
+import { c7tArrive } from './c7-temple.js?v=ce41aac08237';
 
 export const C7_FIELD_NAME = '千年前のコガネ地方';
 const HAM = SOUTH_PLACES.hamil;

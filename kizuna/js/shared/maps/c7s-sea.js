@@ -9,17 +9,17 @@
 // ・時の砂時計（world/time-glass.js）: kumoi ⇔ c7s_sea（timePair）。カリムが 仲間に なった あと、トキネの 話を 聞くと 使える（c7_sea。map.timeSpot）
 // ・時をこえる手紙（data/sidequests-c7s.js）: 千年前で うめる 所と、今の おなじ 座標で 見つける 所（ナギの村の 浜・貝がらの小島・星見の島）
 // だいほんは data/story-c7s.js
-import { T, TILE_INFO } from '../tiles.js?v=06a27cc70d31';
-import { hash2 } from '../rng.js?v=06a27cc70d31';
-import { npc } from './npc.js?v=06a27cc70d31';
-import { parseRows16, wideTiles } from './past.js?v=06a27cc70d31';
-import { KUMOI_ISLES, KUMOI_ROADS, KUMOI_JUNCTIONS, KUMOI_POS, KUMOI_TOWN, STAR_TOWN } from './kumoi.js?v=06a27cc70d31';
-import { EARTH_OUT } from './earth.js?v=06a27cc70d31';
-import { VILLAGE_ROWS, VILLAGE_SPOTS, VILLAGE_ROOFS } from './c7s-village-rows.js?v=06a27cc70d31';
+import { T, TILE_INFO } from '../tiles.js?v=ce41aac08237';
+import { hash2 } from '../rng.js?v=ce41aac08237';
+import { npc } from './npc.js?v=ce41aac08237';
+import { parseRows16, wideTiles } from './past.js?v=ce41aac08237';
+import { KUMOI_ISLES, KUMOI_ROADS, KUMOI_JUNCTIONS, KUMOI_POS, KUMOI_TOWN, STAR_TOWN } from './kumoi.js?v=ce41aac08237';
+import { EARTH_OUT } from './earth.js?v=ce41aac08237';
+import { VILLAGE_ROWS, VILLAGE_SPOTS, VILLAGE_ROOFS } from './c7s-village-rows.js?v=ce41aac08237';
 import {
   C7S, ARRIVE7S, C7S_SEA, PRESENT_SEA, VILLAGE, LIGHT_WALL, LIGHT_DOOR, REEF_ZONE, REEF_SHIP, LETTER7S, LETTER7S_SIDE, WIN7S,
-} from './c7s-flags.js?v=06a27cc70d31';
-import { c7slArrive } from './c7s-light.js?v=06a27cc70d31';
+} from './c7s-flags.js?v=ce41aac08237';
+import { c7slArrive } from './c7s-light.js?v=ce41aac08237';
 
 export const C7S_SEA_NAME = '千年前のクモイの海';
 const V = (x, y) => ({ x: VILLAGE.x + x, y: VILLAGE.y + y });

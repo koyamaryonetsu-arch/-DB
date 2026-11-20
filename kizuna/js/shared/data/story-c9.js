@@ -13,12 +13,12 @@
 //     （今は 知らない 文に なるので、progress.js の repairObjective が すすみぐあいから 新しい 文に なおす）
 //   → 仲間の ひとこと（C9_START_TALK）・行き先（C9_START_TARGETS）も 新しい 文の 物に かわる
 // ほかの ファイルは 読まない（maps/c9a-flags.js だけ）。story-c8r.js から 読まれるので、story.js や story-c8*.js を import しない こと
-import { C9A_LINE } from '../maps/c9a-flags.js?v=06a27cc70d31';
+import { C9A_LINE } from '../maps/c9a-flags.js?v=ce41aac08237';
 // 第1幕「星ふるえの夜」（第90回 A班。data/story-c9a.js。story-c9a.js は ここを import しない）
-import { applyCh9a, CH9A_PROGRESS, CH9A_OBJECTIVE_TARGETS, CH9A_OBJECTIVE_TALK, C9A_OBJ } from './story-c9a.js?v=06a27cc70d31';
+import { applyCh9a, CH9A_PROGRESS, CH9A_OBJECTIVE_TARGETS, CH9A_OBJECTIVE_TALK, C9A_OBJ } from './story-c9a.js?v=ce41aac08237';
 // 第2幕「鉱山の底の先」（第91回 A班。data/story-c9b.js。story-c9b.js は ここを import しない）
-import { C9B_LINE } from '../maps/c9b-flags.js?v=06a27cc70d31';
-import { applyCh9b, CH9B_PROGRESS, CH9B_OBJECTIVE_TARGETS, CH9B_OBJECTIVE_TALK, C9B_OBJ } from './story-c9b.js?v=06a27cc70d31';
+import { C9B_LINE } from '../maps/c9b-flags.js?v=ce41aac08237';
+import { applyCh9b, CH9B_PROGRESS, CH9B_OBJECTIVE_TARGETS, CH9B_OBJECTIVE_TALK, C9B_OBJ } from './story-c9b.js?v=ce41aac08237';
 
 // ───── 第3部の 章の すすみかた（STORY_STEPS の c8_solitus の うしろ。plan-part3.md の 9-4 の 名前の 約束）─────
 // 第1幕: c9_festival → c9_night → c9_starfall → c9_child → c9_trio → c9_stairs → c9_b1 → c9_b2 → c9_b3 → c9_trial → c9_fork → c9_act1

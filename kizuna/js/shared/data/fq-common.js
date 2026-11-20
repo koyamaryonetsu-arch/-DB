@@ -1,10 +1,10 @@
 // お仕事いらい板の たのまれごとで 使う どうぐ（第39回 C の sidequests-family.js から 分けた。第41回）
 // ・職業の 系統（jobLine）・その 系統の 人（lineMember）・いない 時の ヒント（need）・乗り物を もらう（vehicleSteps）
 // ・sidequests-family.js（はじめの 5つ）と sidequests-work.js（第41回の 6つ）の どちらも ここを 使う
-import { JOBS, jobAncestry } from './jobs.js?v=06a27cc70d31';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=06a27cc70d31';
+import { JOBS, jobAncestry } from './jobs.js?v=ce41aac08237';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=ce41aac08237';
 // 第6章 Step 6: ぜんまい馬（vehicles-tokei.js）も おなじ 形で わたせる
-import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=06a27cc70d31';
+import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=ce41aac08237';
 
 export const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 export const N = (...lines) => lines.map((l) => ['say', null, l]);
