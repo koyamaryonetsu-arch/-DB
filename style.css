@@ -2859,3 +2859,51 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
   #casesTable.purchase-mode .pv-add{ width:100%; height:38px; margin-top:6px; }
   #casesTable.purchase-mode .col-resizer, #casesTable.purchase-mode .col-sort{ display:none; }
 }
+
+/* ===== 🦺 安全書類・💰 大口予算書・👷 作業員（docgen.js・2026-11-20） ===== */
+.kt-dialog.dg-dlg{ width:min(1100px, calc(100vw - 32px)); max-height:calc(100vh - 32px); display:flex; flex-direction:column; }
+.kt-dialog.dg-dlg.dg-wide{ width:min(1400px, calc(100vw - 32px)); }
+.dg-dlg .dg-body{ flex:1; min-height:0; overflow:auto; }
+.dg-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:8px 12px; margin:6px 0 10px; }
+.dg-grid label, .dg-emg label, .dg-wgrid label{ display:flex; flex-direction:column; gap:2px; font-size:12px; color:#475569; min-width:0; }
+.dg-grid label > span, .dg-wgrid label > span{ font-weight:700; }
+.dg-grid .dg-wide2{ grid-column:span 2; }
+.dg-co{ border:1px solid #cbd5e1; border-radius:10px; padding:10px 12px; margin:8px 0; background:#f8fafc; }
+.dg-wsel{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 8px; }
+.dg-uses{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:6px 12px; }
+.dg-use{ display:flex; flex-direction:column; gap:4px; font-size:13px; }
+.dg-use textarea{ width:100%; box-sizing:border-box; }
+.dg-codel{ margin-top:6px; }
+.dg-emg{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:6px 12px; margin:6px 0; }
+.dg-emg label{ flex-direction:row; align-items:center; gap:6px; }
+.dg-emg label > span{ width:8.5em; flex:none; font-weight:700; }
+.dg-emg .tm-input{ flex:1; min-width:0; } .dg-emg .dg-tel{ flex:0 0 9.5em; }
+.dg-tools{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:6px 0 10px; }
+.dg-worker{ border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px; margin:6px 0; background:#fff; }
+.dg-worker summary{ cursor:pointer; display:flex; align-items:center; gap:8px; }
+.dg-worker summary .mini-btn{ margin-left:auto; }
+.dg-wgrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:6px 10px; margin-top:8px; }
+.dg-jobs{ display:flex; flex-direction:column; gap:4px; margin:8px 0; }
+.dg-job{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:6px; background:#fff; font-size:13px; }
+.dg-job.run{ background:#fffbeb; } .dg-job.done{ background:#f0fdf4; } .dg-job.err{ background:#fef2f2; }
+.dg-job-n{ flex:1; min-width:12em; }
+.dg-warn{ border:1px solid #f59e0b; background:#fffbeb; border-radius:8px; padding:8px 12px; font-size:13px; margin:8px 0; }
+.dg-warn ul{ margin:4px 0 0 18px; padding:0; }
+.dg-done{ margin:10px 0; }
+.dg-pick{ line-height:2.1; margin:4px 0 8px; }
+.dg-pick .wa-chip{ cursor:pointer; margin:0 2px; }
+.dg-lines{ min-width:0; width:100%; table-layout:auto; }
+.dg-lines td{ white-space:normal; }
+.dg-lines .tm-input{ width:100%; box-sizing:border-box; }
+.dg-amt{ text-align:right; font-variant-numeric:tabular-nums; }
+.dg-sum{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:4px 16px; margin:10px 0; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; }
+.dg-sum b{ float:right; font-variant-numeric:tabular-nums; }
+.dg-neg b{ color:#dc2626; }
+.dg-asktext{ width:100%; box-sizing:border-box; margin:8px 0; }
+.cm-inner{ background:#f1f5f9 !important; color:#334155 !important; }
+@media (max-width: 600px){
+  .kt-dialog.dg-dlg, .kt-dialog.dg-dlg.dg-wide{ width:100vw; max-height:100dvh; height:100dvh; border-radius:0; }
+  .dg-grid .dg-wide2{ grid-column:auto; }
+  .dg-emg label{ flex-wrap:wrap; } .dg-emg label > span{ width:100%; }
+  .dg-lines thead{ display:none; } .dg-lines tr{ display:grid; grid-template-columns:1fr 1fr; gap:4px; border-bottom:1px solid #e2e8f0; padding:6px 0; } .dg-lines td{ border:none; padding:0; }
+}

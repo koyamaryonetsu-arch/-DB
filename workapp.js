@@ -468,6 +468,7 @@
     const { data, error } = await sb.from('partners').select('*').order('sort_order', { ascending: true }).order('name', { ascending: true });
     if (error) { P.supported = false; P.list = []; return P.list; }
     P.supported = true; P.list = (data || []).map((r) => Object.assign({}, r, { workers: Array.isArray(r.workers) ? r.workers : [] }));
+    P.kindSupported = P.list.length ? Object.prototype.hasOwnProperty.call(P.list[0], 'kind') : P.kindSupported;
     return P.list;
   }
   // 劇場情報の連絡先から、AI が協力会社だけを選んで足す（まだ見ていない連絡先だけ。何回かに分けて）
@@ -543,6 +544,7 @@
     document.querySelectorAll('#waPartnerDlg').forEach((x) => x.remove());
     const ov = document.createElement('div'); ov.className = 'kt-overlay'; ov.id = 'waPartnerDlg';
     const SRC = { auto: '🤖 劇場情報から', manual: '✋ 手で足した', workapp: '📝 申請書から' };
+    const hasKind = P.list.length ? Object.prototype.hasOwnProperty.call(P.list[0], 'kind') : P.kindSupported;   // 区分の列（SETUP_SAFETY_BUDGET.sql）
     let q = '';
     const draw = (msg) => {
       const rows = P.list.slice().sort((a, b) => (a.active === false) - (b.active === false) || a.name.localeCompare(b.name, 'ja'))
@@ -552,17 +554,18 @@
           <p class="ms-note">作業申請書の「協力会社」「作業者」の候補に出ます。劇場情報のパートナー連絡先から、AI が協力会社だけを選んで自動で足します（${P.syncing ? `<b>今、劇場情報の連絡先を見ています…（${P.progress ? P.progress.round * 60 : 0} 件目あたり。この画面を開いたまま待つと、足した会社がここに出ます）</b>` : '新しい連絡先が入ると、次に開いた時に足します'}）。<br>
           協力会社ではない会社が入っていたら「候補に出す」を外してください。作業者は、作業申請書で入れた人を自動で覚えます（新しい順）。</p>
           <div class="wa-pt-tools"><input type="search" class="tm-input" id="waPtQ" placeholder="🔍 会社名・劇場・作業者で探す" value="${esc(q)}"><span class="ms-note">${rows.length} 社${msg ? '　' + esc(msg) : ''}</span></div>
-          <div class="wa-pt-wrap"><table class="ms-table wa-pt-table"><thead><tr><th>会社名</th><th>電話</th><th>住所</th><th>作業者（「、」で区切る）</th><th>候補に出す</th><th>出どころ</th><th></th></tr></thead><tbody>
+          <div class="wa-pt-wrap"><table class="ms-table wa-pt-table"><thead><tr><th>会社名</th>${hasKind ? '<th>区分</th>' : ''}<th>電話</th><th>住所</th><th>作業員</th><th>候補に出す</th><th>出どころ</th><th></th></tr></thead><tbody>
           ${rows.map((p) => `<tr class="${p.active === false ? 'mst-left' : ''}" data-pid="${esc(p.id)}">
             <td><input type="text" class="tm-input" data-pf="name" value="${esc(p.name)}"></td>
+            ${hasKind ? `<td><select data-pf="kind"><option value="partner"${p.kind !== 'trader' ? ' selected' : ''}>🤝 協力会社</option><option value="trader"${p.kind === 'trader' ? ' selected' : ''}>🏬 商社</option></select></td>` : ''}
             <td><input type="tel" class="tm-input wa-pt-phone" data-pf="phone" value="${esc(p.phone || '')}"></td>
             <td><input type="text" class="tm-input" data-pf="address" value="${esc(p.address || '')}"></td>
-            <td><input type="text" class="tm-input" data-pf="workers" value="${esc((p.workers || []).map((w) => w.name).join('、'))}"></td>
+            <td><button type="button" class="mini-btn" data-pworkers="${esc(p.id)}" title="${esc((p.workers || []).map((w) => w.name).join('、') || 'まだいません')}">👷 ${(p.workers || []).length} 人</button></td>
             <td class="wa-c"><input type="checkbox" data-pf="active"${p.active !== false ? ' checked' : ''}></td>
             <td class="sub" title="${esc(p.theaters || '')}">${SRC[p.source] || esc(p.source || '')}${p.theaters ? '<br><small>' + esc(String(p.theaters).slice(0, 30)) + '</small>' : ''}</td>
-            <td><button type="button" class="mini-btn danger" data-pdel="${esc(p.id)}" title="消す">🗑</button></td></tr>`).join('') || '<tr><td colspan="7" class="sub">まだありません</td></tr>'}
+            <td><button type="button" class="mini-btn danger" data-pdel="${esc(p.id)}" title="消す">🗑</button></td></tr>`).join('') || `<tr><td colspan="${hasKind ? 8 : 7}" class="sub">まだありません</td></tr>`}
           </tbody></table></div>
-          <div class="acct-add"><input type="text" id="waPtName" class="tm-input" placeholder="足す協力会社の名前"><input type="tel" id="waPtPhone" class="tm-input" placeholder="電話"><button type="button" data-padd>＋ 協力会社を足す</button></div>
+          <div class="acct-add"><input type="text" id="waPtName" class="tm-input" placeholder="足す協力会社の名前"><input type="tel" id="waPtPhone" class="tm-input" placeholder="電話">${hasKind ? '<select id="waPtKind"><option value="partner">🤝 協力会社</option><option value="trader">🏬 商社</option></select>' : ''}<button type="button" data-padd>＋ 協力会社を足す</button></div>
         </div><div class="kt-dlg-foot"><span class="ms-note">変えた所はすぐ保存されます</span><button type="button" data-x>閉じる</button></div></div>`;
       const qi = ov.querySelector('#waPtQ'); qi.addEventListener('input', () => { q = qi.value.trim(); const pos = qi.selectionStart; draw(); const n = ov.querySelector('#waPtQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { /* なし */ } });
     };
@@ -573,12 +576,16 @@
     else P.syncing.then(() => { if (document.body.contains(ov)) draw(); });
     ov.addEventListener('click', async (e) => {
       if (e.target.closest('[data-x]') || e.target === ov) { ov.remove(); return; }
+      const wb = e.target.closest('[data-pworkers]');
+      if (wb) { if (window.DOCGEN) window.DOCGEN.openWorkers(wb.dataset.pworkers, () => { if (document.body.contains(ov)) draw(); }); return; }
       if (e.target.closest('[data-padd]')) {
         const name = ov.querySelector('#waPtName').value.trim(); const phone = ov.querySelector('#waPtPhone').value.trim();
         if (!name) { K().say('会社名を入れてください'); return; }
         const key = nameKey(name);
         if (P.list.some((p) => p.name_key === key)) { K().say(`「${name}」はもうあります`); return; }
-        const ins = await sbc().from('partners').insert({ name, name_key: key, phone, address: '', email: '', workers: [], active: true, source: 'manual', theaters: '', note: '' }).select();
+        const row = { name, name_key: key, phone, address: '', email: '', workers: [], active: true, source: 'manual', theaters: '', note: '' };
+        if (hasKind && ov.querySelector('#waPtKind')) row.kind = ov.querySelector('#waPtKind').value;
+        const ins = await sbc().from('partners').insert(row).select();
         if (ins.error) { K().say('足せませんでした: ' + ins.error.message); return; }
         P.list.push(Object.assign({ workers: [] }, ins.data && ins.data[0])); draw(`${name} を足しました`); return;
       }
@@ -618,7 +625,8 @@
     if (error) throw new Error('書類棚を読めませんでした（' + error.message + '）');
     const rows = (data || []).filter((r) => r.data && r.data.path);
     const ts = (r) => Math.max(Number(r.data.modified) || 0, Date.parse(r.updated_at || r.created_at || '') || 0);
-    const templates = rows.filter((r) => (r.data.kind || 'workapp_template') !== 'workapp_example').sort((a, b) => ts(b) - ts(a));
+    // 作業申請書の書式だけ（安全書類・予算書のひな形や、作った書類は入れない）
+    const templates = rows.filter((r) => (r.data.kind || 'workapp_template') === 'workapp_template').sort((a, b) => ts(b) - ts(a));
     const examples = rows.filter((r) => r.data.kind === 'workapp_example').sort((a, b) => ts(b) - ts(a));
     return { templates, examples };
   }
@@ -1210,5 +1218,5 @@
     decisionDialog(items.slice(0, 20), { why: 'queue', allCases: !me });
   }
 
-  window.WORKAPP = { open, decide, checkQueue, openPartners, syncPartners, _xl: XL, _docx: DOCX, _pdf: PDF, _state: () => S };
+  window.WORKAPP = { open, decide, checkQueue, openPartners, syncPartners, loadPartners, partners: () => P, _xl: XL, _docx: DOCX, _pdf: PDF, _state: () => S };
 })();
