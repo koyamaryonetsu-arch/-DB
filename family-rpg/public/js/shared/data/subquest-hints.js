@@ -26,6 +26,8 @@ import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js';
 import { C8C, LETTER8C } from '../maps/c8c-flags.js';
 // 第80回 D班: 第8章 第4幕の より道（今の ホシフル村）
 import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js';
+// 第90回 D班: 第3部 第1章 第1幕の より道（今の ルミナ・ホシフル村）
+import { C9AD_OPEN, LOST9 } from '../maps/c9ad-side.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -99,6 +101,8 @@ const build = () => [
   { id: 'c8cd_bub', name: '泉の里の、しゃぼん玉', open: [C8CD_OPEN], start: BUB8.start, done: BUB8.done, place: '千年前の泉の里', who: 'しゃぼん玉の好きな女の子ポポ', npc: 'c8cd_bub_host', hint: '里の空に、しゃぼん玉をとばしたいらしい。' },
   // 第8章 第4幕（第80回 D班。今の ホシフル村の より道。sidequests-c8rd.js）
   { id: 'c8rd_last', name: '時をこえる手紙の、最後の1通', open: [C8RD_OPEN], start: LAST9.start, done: LAST9.done, place: 'ホシフル村', who: '手紙をあずかるゆうびん屋さん', npc: 'c8rd_last_host', hint: '千年前からあずかっている手紙の、とどけ先を探しているらしい。' },
+  // 第3部 第1章 第1幕（第90回 D班。今の ルミナの町の より道。sidequests-c9ad.js）
+  { id: 'c9ad_lost', name: '星ふるえで、まいごになった物', open: [C9AD_OPEN], start: LOST9.start, done: LOST9.done, place: 'ルミナの町', who: '落とし物あずかり所のおねえさん', npc: 'c9ad_host', hint: '星ふるえで、あちこちにころがった落とし物を、さがしているらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

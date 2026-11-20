@@ -582,6 +582,9 @@ export function gameFiles() {
     'public/js/client/render/hero-gear-looks-r88a.js',
     // 第88回 絵C班: 作品の つえの 新しい 形の 絵
     'public/js/client/render/hero-gear-looks-r88c.js',
+    // 第90回 D班: お仕事いらい 36〜38・より道「星ふるえで、まいごになった物」
+    'public/js/shared/data/sidequests-work8.js', 'public/js/shared/maps/work-quests8.js', 'public/js/client/render/work8-art.js',
+    'public/js/shared/data/sidequests-c9ad.js', 'public/js/shared/maps/c9ad-side.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

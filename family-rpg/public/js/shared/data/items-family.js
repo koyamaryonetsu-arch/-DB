@@ -111,6 +111,12 @@ export const FAMILY_GIFTS = {
     ...GIFT, name: '守る剣のはちまき', bonus: { hp: 56, str: 14, agi: 12, def: 8 }, resist: { confuse: 0.5, sleep: 0.6, dark: 0.8 },
     desc: '人を守る剣の道場で、入門のときにわたす、白いはちまき。だれでも装備でき、HPと力と素早さが上がり、混乱とねむりに強い。',
   },
+  // ───── 第90回 D班（data/sidequests-work8.js）。★5 は 36 の 1つだけ（第80回と おなじ くらい。闘技場 ランク10 の ブローチより 弱い）─────
+  // 36. ルミナの、星をこわがる子どもたち（先生の 流れ）: 子どもたちが 作った 星の おまもり
+  fq_star_charm: {
+    ...GIFT, name: '子どもたちの星のおまもり', bonus: { hp: 60, def: 14, heal: 10, agi: 6 }, resist: { dark: 0.6, sleep: 0.6, confuse: 0.7 },
+    desc: 'ルミナの子どもたちが、「先生を守ってくれますように」と作った、星の形のおまもり。だれでも装備でき、HPと守りと回復の力が上がり、闇とねむりと混乱に強い。',
+  },
 };
 for (const it of Object.values(FAMILY_GIFTS)) it.sell = Math.round(SELL[it.rank] * (0.7 + 0.15 * it.rarity) / 10) * 10;
 
@@ -144,5 +150,6 @@ export const FAMILY_ITEM_KANA = {
   fq_twin_tassel: 'ひかりとやみのかざりひも',
   fq_dragon_charm: 'せいりゅうのうろこのおまもり',
   fq_dojo_band: 'まもるけんのはちまき',
+  fq_star_charm: 'こどもたちのほしのおまもり',
   fq_dress: 'すてーじのいしょう', fq_silk_hat: 'まじーろのしるくはっと', fq_cards: 'まじーろのとらんぷ', fq_dove: 'しろいはと',
 };
