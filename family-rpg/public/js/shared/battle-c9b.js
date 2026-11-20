@@ -12,7 +12,7 @@
 //   大ジャンプ（jump 回 動く ごとに m9k_jumpup → 次に m9k_jump。身を 守ると guardCut ばい）
 //   はこ（c9_box1〜3）1つに つき、はじめの 皿が 1つ へる（late 回 動くと 持って くる）
 //   たおれない: HPが 1 に なると、おなかを 鳴らして すわりこむ（勝ち。b.killed に 入れて 経験値・落とし物は ふつう）
-// ・自動の 仲間（酒場の 人・魔物の 仲間）は、見えて いる 皿を 3回に 1回 ねらう（AUTO_DISH_EVERY。家族の キャラの「オート」は ねらわない）
+// ・自動の 仲間（酒場の 人）は、見えて いる 皿を 3回に 1回 ねらう（AUTO_DISH_EVERY。家族の キャラの「オート」と 魔物の 仲間は ねらわない）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { TERU } from './data/abilities-c9b.js';
@@ -36,20 +36,28 @@ const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || {} : a
 const post = (ev) => (ev.postLines = ev.postLines || []);
 const confOf = (m) => MONSTERS[m?.species]?.c9b || null;
 
-// 人数（家族の キャラ ＝ kind 'player' の 数。1〜5。battle-c9a.js の peopleOf と おなじ）
-function peopleOf(b) {
-  if (b?.c9people) return b.c9people;
-  const n = (b?.allies || []).filter((a) => a.kind === 'player').length;
+// 人数（家族の キャラ ＝ kind 'player' の 数。1〜5。battle-c9a.js の peopleOf と おなじ。ただし 魔物の 仲間も 数える）
+// 大王は 魔物の 仲間も 半人ぶんに 数える（魔物の 仲間は かたくて 強い ので、酒場の 人と おなじ 表に すると 全員 自動でも 勝って しまう）
+export function kingPeople(b) {
+  if (b?.c9kPeople) return b.c9kPeople;
+  const al = b?.allies || [];
+  const p = al.filter((a) => a.kind === 'player').length;
+  const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf(b) - 1] ?? d : d);
+const few = (arr, b, d) => (Array.isArray(arr) ? arr[kingPeople(b) - 1] ?? d : d);
+// 仲間なしの ひとり（戦う 人が 1人だけ）は c9b.solo の 数を 先に 見る（人数の 表 few は 家族の キャラの 数。1人 ＋ 自動の 仲間と 分ける）
 export function kingConf(m, b = null) {
   const c = confOf(m) || {};
   const f = c.few || {};
+  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
+  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  // 魔物の 仲間 1体ごとに 大王を 少し 強く（monK。魔物の 仲間は かたい）
+  const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
-    watch: b ? few(f.watch, b, c.watch ?? 3) : c.watch ?? 3, back: c.back ?? 3, late: c.late ?? 6, jump: c.jump ?? 5,
+    watch: pick('watch', c.watch ?? 3), back: c.back ?? 3, late: c.late ?? 6, jump: pick('jump', c.jump ?? 5),
     jumpMult: c.jumpMult ?? 1.7, guardCut: c.guardCut ?? 0.6, meat: { up: 1.2, max: 3, ...(c.meat || {}) }, cake: c.cake ?? 0.1,
-    lit: c.lit ?? TERU_LIT, dish: b ? few(f.dish, b, 1) : 1, wait: b ? few(f.wait, b, 0) : 0,
+    lit: c.lit ?? TERU_LIT, dish: pick('dish', 1), wait: pick('wait', 0), hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons),
   };
 }
 export const kingOf = (b) => (b.c9king ? b.get(b.c9king.id) : null);
@@ -103,6 +111,9 @@ export function teruPub(b) {
 
 function setupKing(b, m, lines) {
   const kc = kingConf(m, b);
+  // 大王の HP・攻撃力も 人数で 合わせる（few.hp・few.atk）
+  if (kc.hp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * kc.hp));
+  if (kc.atk !== 1) m.atk = Math.max(1, Math.round(m.atk * kc.atk));
   m.c9k = {
     acts: 0, watchLeft: kc.watch, watch: null, wait: 0, rest: 0, jumpLeft: kc.jump, jumpReady: false, dark: false, down: false,
     power: 1, atk0: m.atk, meats: 0, eats: 0, cakes: 0, soups: 0, breaks: 0, stops: 0, sulks: 0, jumps: 0, guards: 0, backs: 0,
@@ -459,8 +470,9 @@ export function c9bPlan(b, c, decide, bestHit) {
   const a = cmd?.type === 'ability' ? ABILITIES[cmd.id] : null;
   // だれかが とても あぶない ときの 回復・生き返りは そのまま
   if (a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type) && b.allies.some((x) => !x.fled && (!x.alive || x.hp / x.maxHp < 0.4))) return cmd;
-  // まっ暗: てらす（だれかが もう えらんで いれば ほかは ふつう）
-  if (k.dark && !litNow(b) && teruReady(b) && canUse(b, c, TERU) && !b.queue.some((q) => q.cmd?.id === TERU)) return { type: 'ability', id: TERU };
+  // まっ暗: てらす（だれかが もう えらんで いれば ほかは ふつう。ひとりの ときは 何かを 見て いる 時だけ … 番が 短い ので）
+  const alone = b.allies.length === 1;
+  if (k.dark && (k.watch || !alone) && !litNow(b) && teruReady(b) && canUse(b, c, TERU) && !b.queue.some((q) => q.cmd?.id === TERU)) return { type: 'ability', id: TERU };
   // 見て いる 皿を 先に こわす
   if (watched?.alive) {
     const hit = bestHit(b, c, watched);
@@ -480,9 +492,9 @@ function base(b, c, decide) {
     b.c9Inner = false;
   }
 }
-// 自動の 人の 仲間（酒場の 人・魔物の 仲間）: 見えて いる 皿を 3回に 1回 ねらう（数は 自動の 仲間 みんなで 1つ）
+// 自動の 人の 仲間（酒場の 人。魔物の 仲間は かたいので ねらわない）: 見えて いる 皿を 3回に 1回 ねらう（数は 自動の 仲間 みんなで 1つ）
 function autoDish(b, c, watched, bestHit) {
-  if (c.kind === 'player' || !watched?.alive) return null;
+  if (c.kind === 'player' || c.kind === 'monster' || !watched?.alive) return null;
   b.c9kAuto = (b.c9kAuto || 0) + 1;
   if (b.c9kAuto % AUTO_DISH_EVERY) return null;
   return bestHit(b, c, watched);
@@ -493,7 +505,7 @@ export function c9bBusy(b) {
   if (!k || k.down) return false;
   if (k.jumpReady) return true;
   if (k.watch && kingVisible(b) && b.get(k.watch)?.alive) return true;
-  if (k.dark && !litNow(b) && teruReady(b)) return true;
+  if (k.dark && (k.watch || b.allies.length > 1) && !litNow(b) && teruReady(b)) return true;
   return false;
 }
 
@@ -506,7 +518,7 @@ export function c9bPub(c, b = c?._b9) {
   const o = {};
   if (c.c9k && b) {
     const k = c.c9k;
-    const kc = kingConf(c);
+    const kc = kingConf(c, b);
     const vis = kingVisible(b);
     o.kWatch = k.watch ? (vis ? k.watch : '?') : null;
     o.kWatchLeft = Math.max(0, k.watchLeft);
