@@ -196,10 +196,9 @@ export function typicalSaved() {
   return JSON.parse(readFileSync(TYPICAL_FIXTURE, 'utf8'));
 }
 
-// 取って おいた 見本に、サーバーが 古い セーブを 読む 時と 同じ 直し（save.js の repairChar ＋ ログインの 時の world.js の normalizeChar）を
-//   かけた 物。normalizeChar は 外から よべない ので、ほんとうに「play」で 入って もらう。
-//   今は 見はりには 使わず、長さを 見せる だけ（仲間の 空の 入れ物〈gold 0・chests {} など〉が ふえて 40文字 ほど 長く なる。
-//   docs/plan-r78-transfer.md の 7）
+// 読んだ あと、サーバーが 古い セーブを 読む 時と 同じ 直し（save.js の repairChar ＋ ログインの 時の world.js の normalizeChar）を かける。
+//   本物の セーブは サーバーで 1回 読まれると この 形に なる。どの セーブにも 足される 新しい 入れ物が できた 時は 見本にも 入り、見はりが 気づける。
+//   normalizeChar は 外から よべない ので、ほんとうに「play」で 入って もらう
 export async function typicalCharLikeServer() {
   const c = repairChar(typicalSaved());
   const world = new GameWorld({ offline: true, rng: makeRng(TYPICAL_SEED), rateLimit: false });
@@ -211,7 +210,7 @@ export async function typicalCharLikeServer() {
   return JSON.parse(JSON.stringify(world.data.characters[c.id]));
 }
 
-export const typicalChar = async (seed = TYPICAL_SEED) => (seed === TYPICAL_SEED ? typicalSaved() : build('typical', seed));
+export const typicalChar = (seed = TYPICAL_SEED) => (seed === TYPICAL_SEED ? typicalCharLikeServer() : build('typical', seed));
 
 // 見本を 作り直す 道具: node test/transfer-big-save.js --write-typical
 //   ふだんは 作り直さない（作り直すと 見本が 今の カタログで ゆれて、見はりの 意味が なくなる）。
