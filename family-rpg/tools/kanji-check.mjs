@@ -608,6 +608,8 @@ export function gameFiles() {
     // 第92回 D班: お仕事いらい 39〜41・より道「大王の、大きなランタン」「まいごの、もぐら兵」
     'public/js/shared/data/sidequests-work9.js', 'public/js/shared/maps/work-quests9.js', 'public/js/client/render/work9-art.js',
     'public/js/shared/data/sidequests-c9bd.js', 'public/js/shared/maps/c9bd-side.js',
+    // 第92回 F班: 第3部 第1章 第3幕の 曲
+    'public/js/client/audio-c9c.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
