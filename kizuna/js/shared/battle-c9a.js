@@ -20,14 +20,14 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=57b39f318137';
-import { ABILITIES } from './data/abilities.js?v=57b39f318137';
-import { SHARE } from './data/abilities-c9a.js?v=57b39f318137';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=57b39f318137';
-import { C9A } from './maps/c9a-flags.js?v=57b39f318137';
+import { MONSTERS } from './data/monsters.js?v=bb73dc4f9aca';
+import { ABILITIES } from './data/abilities.js?v=bb73dc4f9aca';
+import { SHARE } from './data/abilities-c9a.js?v=bb73dc4f9aca';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=bb73dc4f9aca';
+import { C9A } from './maps/c9a-flags.js?v=bb73dc4f9aca';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=57b39f318137';
-import { canUse } from './ai.js?v=57b39f318137';
+import { pub, atbRate } from './battle.js?v=bb73dc4f9aca';
+import { canUse } from './ai.js?v=bb73dc4f9aca';
 
 export { SHARE };
 export const AIM = 'm9t_aim';

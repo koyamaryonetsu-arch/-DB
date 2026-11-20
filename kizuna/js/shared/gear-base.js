@@ -13,11 +13,11 @@
 //   sameForgeId(id, level, char) … もとの 装備を level 回 きたえた ときの id（きたえられる 回数で 止める）
 //   gearCompare(char, slot, curId, candId) … くらべる まどの 数字（今・もと・同じだけ きたえると）
 //   baseStronger(char, slot, curId, candId) … もとの 装備どうしで くらべて 強いか（「もとが強い」の しるし）
-import { ITEMS, baseItemId } from './data/items.js?v=57b39f318137';
-import { UPGRADE_TYPES, upgradeId, lbId, LB_MAX } from './data/items-forge.js?v=57b39f318137';
-import { maxPlus, rebirthOf } from './data/forge.js?v=57b39f318137';
-import { computeStats } from './stats.js?v=57b39f318137';
-import { gearScore } from './equip-plan.js?v=57b39f318137';
+import { ITEMS, baseItemId } from './data/items.js?v=bb73dc4f9aca';
+import { UPGRADE_TYPES, upgradeId, lbId, LB_MAX } from './data/items-forge.js?v=bb73dc4f9aca';
+import { maxPlus, rebirthOf } from './data/forge.js?v=bb73dc4f9aca';
+import { computeStats } from './stats.js?v=bb73dc4f9aca';
+import { gearScore } from './equip-plan.js?v=bb73dc4f9aca';
 
 // 装備で 変わる 強さ（お店の くらべ counter.js・装備の まどと おなじ ならび）
 export const GEAR_STAT_LABELS = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早さ'], ['mag', '攻撃魔力'], ['heal', '回復魔力'], ['maxHp', '最大HP'], ['maxMp', '最大MP']];
