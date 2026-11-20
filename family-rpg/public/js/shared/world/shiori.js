@@ -78,8 +78,25 @@ export const CHAPTERS = [
       { n: 4, start: 'c8_bowser', title: '時のはざま', seen: 'c8r_arrive', clear: 'c8_solitus' },
     ],
   },
+  {
+    // 第90回 Z班: 第3部「ほしのね」第1章（中の 番号は 9。表示は chapterLabel で「第1章」）。幕の 名前は 題の 画面（c9_festival）の あと
+    n: 9, part: 3, start: 'c9_festival', clear: null, title: 'おちてきた星の子',
+    acts: [
+      { n: 1, start: 'c9_festival', title: '星ふるえの夜', seen: 'c9_festival', clear: 'c9_act1' },
+    ],
+  },
 ];
-const PART_NAMES = { 1: '第1部', 2: '第2部' };
+const PART_NAMES = { 1: '第1部', 2: '第2部', 3: '第3部' };
+// 部の はじめの 章の 中の 番号（第3部だけ 部の 中の 番号で 出す。第1・2部は 通しの 番号「第8章」の まま）
+const PART_FIRST_CHAPTER = { 3: 9 };
+const partOfChapter = (n) => CHAPTERS.find((C) => C.n === n)?.part || (n >= PART_FIRST_CHAPTER[3] ? 3 : 0);
+
+// 章の 表示（0 … 序章 / 1〜8 … 第○章 / 9〜 … 第3部の 中の 番号「第1章」）
+export function chapterLabel(n) {
+  if (!n) return '序章';
+  const first = PART_FIRST_CHAPTER[partOfChapter(n)];
+  return `第${first ? n - first + 1 : n}章`;
+}
 
 // 今の 章・幕。{ part, chapter, act, label, title, actTitle, cleared }
 export function storyPlace(c) {
@@ -89,7 +106,7 @@ export function storyPlace(c) {
   let act = null;
   for (const A of ch.acts || []) if (f(A.start)) act = A;
   const cleared = act?.clear ? f(act.clear) : !!(ch.clear && f(ch.clear) && ch.n > 0);
-  const chName = ch.n === 0 ? '序章' : `第${ch.n}章`;
+  const chName = chapterLabel(ch.n);
   const title = !ch.titleSeen || f(ch.titleSeen) ? ch.title : '';
   const actTitle = act?.title && f(act.seen) ? act.title : '';
   const parts = [ch.n === 0 ? '' : PART_NAMES[ch.part], chName, act ? `第${act.n}幕` : ''].filter(Boolean);

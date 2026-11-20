@@ -508,6 +508,8 @@ export function gameFiles() {
     // 第80回 D班: お仕事いらい 33〜35・より道「時をこえる手紙の、最後の1通」
     'public/js/shared/data/sidequests-work7.js', 'public/js/shared/maps/work-quests7.js', 'public/js/client/render/work7-art.js',
     'public/js/shared/data/sidequests-c8rd.js', 'public/js/shared/maps/c8rd-side.js',
+    // 第90回 Z班: 第3部の 下じき（章の まとめ・名前の 約束）。c9a-stub.js は かり（A・B を 合わせる 時に この 行から 消す）
+    'public/js/shared/data/story-c9.js', 'public/js/shared/maps/c9a-flags.js', 'public/js/shared/data/c9a-stub.js',
     // 第50回 N4: 困っている人（まだ 受けていない たのまれごとの お知らせ）
     'public/js/shared/data/subquest-hints.js', 'public/js/client/ui/subquest-hints.js', 'public/js/client/ui/casino-fx.js',
     // 第51回 B: 家族のけいじ板

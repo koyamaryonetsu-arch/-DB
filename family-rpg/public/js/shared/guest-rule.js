@@ -28,7 +28,8 @@ export const GUEST_BAND = [0.90, 0.97];
 export const GUEST_K = [0.85, 1.15];
 // レベルの 上限（def.maxLevel が ない ゲスト）: minLevel ＋ これ
 export const GUEST_LV_SPAN = 8;
-export const GUEST_MAX_LEVEL = 99;
+// 第90回 Z班: 第3部で 99 → 110（plan-part3.md の 8-5。今 いる ゲストは どれも minLevel ＋ 8 か maxLevel が 99 より 下なので かわらない）
+export const GUEST_MAX_LEVEL = 110;
 
 // そのままの 戦う 力（computeStats の 形か、戦いの 中の 人〈atk・dfn・mag・healPow・agi・maxHp〉）
 export function fightPower(st) {

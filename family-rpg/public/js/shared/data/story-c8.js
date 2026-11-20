@@ -25,6 +25,8 @@ import { CH8B_STEPS, C8B_OBJ, CH8B_OBJECTIVE_TARGETS, CH8B_OBJECTIVE_TALK, CH8B_
 import { CH8C_STEPS, C8C_OBJ, CH8C_OBJECTIVE_TARGETS, CH8C_OBJECTIVE_TALK, CH8C_PROGRESS, applyCh8c } from './story-c8c.js';
 // 第4幕「時のはざま」（Step 7・8。story-c8r.js）
 import { CH8R_STEPS, C8R_OBJ, CH8R_OBJECTIVE_TARGETS, CH8R_OBJECTIVE_TALK, CH8R_PROGRESS, applyCh8r } from './story-c8r.js';
+// 第3部の はじまりの 目標の 入れかえ（第90回 Z班）
+import { PART3_OPEN, PART2_END_OBJ } from './story-c9.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -73,6 +75,8 @@ export const OLD_C8_OBJ = {
 };
 // 第3幕の さいごの 前の 版の 文（今は story-c8c.js の C8C_OBJ.bowser「第8章　第3幕クリア！今のほしみの丘のトキネに会いに行こう…」）
 OLD_C8_OBJ.bowser = '第8章　第4幕へ（続きはアップデートで！）';
+// 第2部 クリアの 前の 版の 文（第3部が できて story-c9.js の PART3_OPEN が true の 時だけ。今は C8R_OBJ.solitus の まま）
+if (PART3_OPEN) OLD_C8_OBJ.solitus = PART2_END_OBJ;
 export { C8B_OBJ, C8C_OBJ };
 export { C8R_OBJ };
 

@@ -26,6 +26,8 @@ import { FIXED_ENCOUNTERS } from './encounters.js';
 import { MONSTERS } from './monsters.js';
 import { shiftPeople } from '../world/time-glass.js';
 import { lightFire8r } from '../world/c8r-steps.js';
+// 第3部の はじまりの 目標（story-c9.js の PART3_OPEN で 入れかわる。第90回 Z班）
+import { part2ClearObjective, PART3_OPEN, C9_START_TALK, C9_START_TARGETS } from './story-c9.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -57,8 +59,9 @@ export const C8R_OBJ = {
   gather: '最後の戦い。千年前と今のみんなの力で、立ち向かおう',
   win: '時のはざまのおくで、続きを見よう',
   seal: '今のほしみの丘で、続きを見よう',
-  // 第8章 クリア・第2部 完（あとの 部が できたら、この 文は story-c8.js の OLD_C8_OBJ に のこす）
-  solitus: '第2部　完！第3部へ（続きはアップデートで！）',
+  // 第8章 クリア・第2部 完。今は「第2部　完！第3部へ（続きはアップデートで！）」（story-c9.js の PART2_END_OBJ）
+  //   第3部が できたら story-c9.js の PART3_OPEN を true に → 「ホシフル村の星祭りに行こう…」に かわり、前の 文は story-c8.js の OLD_C8_OBJ.solitus に のこる
+  solitus: part2ClearObjective(),
 };
 
 // パーティー全員で 見る イベント（ためし・しかけ・浅せは ひとりでも〈家族が 分かれて 同時に〉できる ように 入れない）
@@ -902,7 +905,7 @@ export const CH8R_OBJECTIVE_TARGETS = {
   [C8R_OBJ.gather]: [{ map: 'c8r_core', x: CORE_POS.solitus.x, y: CORE_POS.trigger.y }],
   [C8R_OBJ.win]: [{ map: 'c8r_core', x: CORE_POS.solitus.x, y: CORE_POS.trigger.y }],
   [C8R_OBJ.seal]: [{ map: 'c8r_core', x: CORE_POS.solitus.x, y: CORE_POS.trigger.y }],
-  [C8R_OBJ.solitus]: [{ map: NOW_FIELD_ID, x: STATUES8R[1].x, y: STATUES8R[1].y + 1 }],
+  [C8R_OBJ.solitus]: PART3_OPEN ? C9_START_TARGETS : [{ map: NOW_FIELD_ID, x: STATUES8R[1].x, y: STATUES8R[1].y + 1 }],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント。どれも 9字 いじょう）─────
@@ -940,7 +943,7 @@ export const CH8R_OBJECTIVE_TALK = {
     'おくへ行けば、続きが見られるそうです。', '続きを、見に行こう！'),
   [C8R_OBJ.seal]: T4('続きが見られる。時のはざまのおくへ。', 'もう少しだけ、続きがあるぞ！',
     'もう少しだけ、続きがあるそうです。', '続きを、見に行こう！'),
-  [C8R_OBJ.solitus]: T4('第2部、完。ほしみの丘の、4人の勇者の像を見に行こう。', 'やったな！第2部、クリアだ！',
+  [C8R_OBJ.solitus]: PART3_OPEN ? C9_START_TALK : T4('第2部、完。ほしみの丘の、4人の勇者の像を見に行こう。', 'やったな！第2部、クリアだ！',
     '第2部、クリアです。ほんとうに、おつかれさまでした。', 'だい2ぶ、クリアだよ！'),
 };
 
