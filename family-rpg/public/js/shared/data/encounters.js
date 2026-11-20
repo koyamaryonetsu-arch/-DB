@@ -26,6 +26,7 @@ import { ENCOUNTERS_C8A, FIXED_C8A, ZONE_BG_C8A } from './encounters-c8a.js';
 import { ENCOUNTERS_C8B, FIXED_C8B, ZONE_BG_C8B } from './encounters-c8b.js';
 import { ENCOUNTERS_C8C, FIXED_C8C, ZONE_BG_C8C } from './encounters-c8c.js';
 import { ENCOUNTERS_C8R, FIXED_C8R, ZONE_BG_C8R } from './encounters-c8r.js';
+import { ENCOUNTERS_C9A, FIXED_C9A, ZONE_BG_C9A } from './encounters-c9a.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -201,6 +202,10 @@ Object.assign(ZONE_BG, ZONE_BG_C8C);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C8R);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C8R);
 Object.assign(ZONE_BG, ZONE_BG_C8R);
+// 第3部 第1章 第1幕「星ふるえの夜」・3人組と スイトール1号・ホシモリの ともしびの ためし（encounters-c9a.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C9A);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C9A);
+Object.assign(ZONE_BG, ZONE_BG_C9A);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';

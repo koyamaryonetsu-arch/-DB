@@ -210,4 +210,11 @@ export const MONSTER_RANKS = {
   toki_moth: 'D', // 出2＋仲1
   chikutaku_wani: 'C', // 出3＋仲1
   sand_knight: 'A', // 出3＋仲3
+  // 第3部 第1章（F2 E1 D1 C1 B0 A1 S0）
+  c9a_star_wolf: 'F', // 出0＋仲0
+  c9a_star_kinoko: 'E', // 出2＋仲0
+  c9a_star_lamp: 'D', // 出2＋仲1
+  c9a_yamimushi: 'C', // 出3＋仲1
+  c9a_kokedama: 'F', // 出0＋仲0
+  c9a_ishinoko: 'A', // 出3＋仲3
 };
