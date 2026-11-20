@@ -247,13 +247,13 @@ export function c9aPresent(scene, ev, fx, anim, actor) {
       c9aHud(scene, ev.c9Spica.lost ? 'lost' : ev.c9Spica.glow ? 'glow' : null);
     }
     if (ev.c9Spica.to) scene.glowStatus?.(ev.c9Spica.to, '#fff2a8');
-    if (ev.c9Spica.relit) { scene.glowStatus?.(ev.c9Spica.relit, '#ffb84a'); good(`星の子の光で、${nm(ev.c9Spica.relit)}のともしびがともった！`, 'sparkle'); }
+    if (ev.c9Spica.relit) { scene.glowStatus?.(ev.c9Spica.relit, '#ffb84a'); good(`星の子の光で、${nm(ev.c9Spica.relit)}の火がついた！`, 'sparkle'); }
   }
   // 3人組
-  if (ev.c9tAim) warn('！すいこみ口が、星の子をねらっている！「防御」で前に立とう！');
+  if (ev.c9tAim) warn('！星の子がねらわれた！「防御」で守ろう！');
   if (ev.c9tSuck?.guard) { scene.glowStatus?.(ev.c9tSuck.guard, '#bff4ff'); good(`${nm(ev.c9tSuck.guard)}が、星の子を守った！`); }
   if (ev.c9tSuck && !ev.c9tSuck.guard) { scene.shake?.(700, 8); warn(`星の子の光が、すわれた…！（${spicaStars(ev.c9tSuck.light, scene.c9spica?.max || 3)}）`); }
-  if (ev.c9tBreak) good(ev.c9tBreak.stop ? 'すいこみ口をこわした！すいこみが止まった！' : 'すいこみ口をこわした！', 'sparkle');
+  if (ev.c9tBreak) good(ev.c9tBreak.stop ? 'すいこみが止まった！' : 'すいこみ口をこわした！', 'sparkle');
   if (ev.c9tFix) warn('すいこみ口が、なおってしまった…！');
   if (ev.c9tDown) {
     // メカが ばくはつして 3人組が 空の かなたへ（たのしい えんしゅつ。render/battlefx-c9a.js の c9t_boom）
@@ -261,19 +261,19 @@ export function c9aPresent(scene, ev, fx, anim, actor) {
     const pt = m && scene.center?.(m);
     if (pt) scene.fx?.play?.('c9t_boom', [pt]);
     scene.shake?.(900, 10);
-    good('3人組は、空のかなたへ、ふっとんでいった！', 'sparkle');
+    good('3人組は、空のかなたへ！', 'sparkle');
   }
   // ホシモリ
-  if (ev.c9hWarn) warn(`！やみのいぶき…！ねらいは${ev.c9hWarn.ids.map(nm).join('と')}。身を守ろう！`);
+  if (ev.c9hWarn) warn(`！やみのいぶき…ねらいは${ev.c9hWarn.ids.map(nm).join('と')}！`);
   if (ev.c9hBreath) {
     for (const id of ev.c9hBreath.out) scene.glowStatus?.(id, '#3a3a6a');
     for (const id of ev.c9hBreath.kept) scene.glowStatus?.(id, '#ffb84a');
-    if (ev.c9hBreath.out.length) warn('ともしびが消えた…！「明かりをわける」で、つけ直そう！');
+    if (ev.c9hBreath.out.length) warn('火が消えた！「明かりをわける」を！');
     else if (ev.c9hBreath.kept.length) good('ともしびを、手でかこって守った！', 'sparkle');
   }
   if (ev.c9hShare) { scene.glowStatus?.(ev.c9hShare.to, '#ffb84a'); good(`${nm(ev.c9hShare.to)}のともしびが、ともった！`, 'sparkle'); }
   if (ev.c9hDawn?.gain >= 2) good('大きな一撃！夜明けが近づいた！', 'sparkle');
-  if (ev.c9hWin) { scene.shake?.(600, 4); good('夜明け！ホシモリが、しずかにうなずいた。', 'sparkle'); }
+  if (ev.c9hWin) { scene.shake?.(600, 4); good('夜明け！ホシモリがうなずいた。', 'sparkle'); }
   if (ev.c9hDark) { scene.shake?.(800, 6); scene.banner('あたりが、まっくらに…', 'danger'); }
   void fx; void anim; void actor;
 }
