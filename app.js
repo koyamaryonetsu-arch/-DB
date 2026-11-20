@@ -3906,6 +3906,9 @@
     $('modalDuplicateBtn').classList.toggle('hidden', !caseObj || isCalEdit);
     $('modalDeleteBtn').classList.toggle('hidden', !caseObj || isCalEdit);
     $('modalPhotoBtn').classList.toggle('hidden', !caseObj || isCalEdit || !isPrivileged(currentUser));
+    // 🦺 安全書類（どの案件でも）・💰 大口予算書（大口の案件だけ）（2026-11-20）
+    if ($('modalSafetyBtn')) $('modalSafetyBtn').classList.toggle('hidden', !caseObj || isCalEdit || !realPrivileged(currentUser) || !window.DOCGEN);
+    if ($('modalBudgetBtn')) $('modalBudgetBtn').classList.toggle('hidden', !caseObj || isCalEdit || !realPrivileged(currentUser) || !window.DOCGEN || !window.DOCGEN.isLarge(caseObj));
     renderCaseMailSec(caseObj && !isCalEdit ? caseObj : null);
     // 期日免除・初動報告の欄（菱熱・列がある時だけ）
     document.querySelectorAll('.due-exempt-row').forEach((el) => el.classList.toggle('hidden', !(initialReportSupported && isPrivileged(currentUser) && !isCalEdit)));
@@ -3989,7 +3992,7 @@
   }
   // ===== 案件の書類（見積書・作業申請書）と通知メールの記録（菱熱だけ・TOHO の要望④） =====
   let cmCaseId = null;
-  const CM_KIND = { quote: '見積書', workapp: '作業申請書', other: '書類' };
+  const CM_KIND = { quote: '見積書', workapp: '作業申請書', safety: '🦺 安全書類', budget: '💰 大口予算書', other: '書類' };
   function cmDate(s) { const d = new Date(s); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
   // 通知メールの宛先（GAS の CaseMail.gs と同じ決まり）を、画面に出すために数える
   async function caseMailRecipientsText(c) {
@@ -4033,7 +4036,7 @@
       $('cmFiles').innerHTML = files.length ? files.map((f) => `<div class="cm-file"><span class="cm-kind cm-${escapeHtml(f.kind)}">${CM_KIND[f.kind] || '書類'}</span>
           <button type="button" class="link-btn" data-cmopen="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>
           <span class="field-hint">${cmDate(f.created_at)} ${escapeHtml(f.created_by || '')}</span>
-          ${f.status === 'draft' ? `<span class="cm-draft">作成中</span><button type="button" data-cmfinal="${escapeHtml(f.id)}">✅ 完成（客先に送る）</button>` : '<span class="cm-final">送る/送った</span>'}
+          ${f.kind === 'safety' || f.kind === 'budget' ? '<span class="cm-final cm-inner">🔒 社内（客先には送りません）</span>' : f.status === 'draft' ? `<span class="cm-draft">作成中</span><button type="button" data-cmfinal="${escapeHtml(f.id)}">✅ 完成（客先に送る）</button>` : '<span class="cm-final">送る/送った</span>'}
           <button type="button" class="danger" data-cmdel="${escapeHtml(f.id)}" title="外す">🗑</button></div>`).join('')
         : '<span class="field-hint">付けた書類はありません</span>';
       const logs = lr.data || [];
@@ -7134,10 +7137,16 @@
     const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
     if (caseFormSnapshot() !== modalSnapshot && !confirm('編集中の内容が保存されていません。\n保存せずに写真台帳を作りますか？')) return;
     closeModal();
-    const opts = { newFromCase: { id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '' }, type: 'photo' };
+    const opts = { newFromCase: { id: c.id, company: c.company, theater: c.theater, title: c.title || '', estimateName: c.estimateName || '', content: c.content || '' }, type: 'photo' };
     if (koteiMode && window.SHELF) window.SHELF.requestClose(() => { exitKoteiMode(); enterKoteiMode(opts); });
     else enterKoteiMode(opts);
   });
+  // 🦺 安全書類・💰 大口予算書を作る（編集パネルの上に画面を出す。保存していない変更は先に保存してもらう）
+  ['modalSafetyBtn', 'modalBudgetBtn'].forEach((bid) => { if ($(bid)) $(bid).addEventListener('click', async () => {
+    const c = cases.find((x) => x.id === $('caseId').value); if (!c || !window.DOCGEN) return;
+    if (caseFormSnapshot() !== modalSnapshot && !(await window.KARTE.ask('編集中の内容がまだ保存されていません。保存した内容で作ります。続けますか？', { ok: '続ける' }))) return;
+    if (bid === 'modalSafetyBtn') window.DOCGEN.openSafety(c.id); else window.DOCGEN.openBudget(c.id);
+  }); });
   $('modalDeleteBtn').addEventListener('click', () => {
     const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
     if (!confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) return;
@@ -8172,7 +8181,8 @@
       shortTheater: (name) => shortTheaterName(name),
       userEmail: () => (currentUser && currentUser.email) || '',
       // 作業申請書の自動作成(workapp.js)用: 案件の中身・担当者マスター・書類を変えた後の描き直し・通知メールの宛先の文
-      caseInfo: (id) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? { id: c.id, company: c.company || '', theater: c.theater || '', title: c.title || '', content: c.content || '', category: c.category || '', estimateName: c.estimateName || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', rPerson: c.rPerson || '' } : null; },
+      caseInfo: (id) => { const c = cases.find((x) => String(x.id) === String(id)); return c ? { id: c.id, company: c.company || '', theater: c.theater || '', title: c.title || '', content: c.content || '', category: c.category || '', estimateName: c.estimateName || '', surveyDate: c.surveyDate || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', rPerson: c.rPerson || '', tcPerson: c.tcPerson || '', estimateAmount: c.estimateAmount,
+        theaterShort: shortTheaterName(c.theater) || c.theater || '', theaterAddress: ((theaterMaster.find((t) => t.name === c.theater) || {}).address) || '' } : null; },
       staff: () => (staffList || []).map((x) => ({ name: x.name, phone: x.phone || '', email: x.email || '', active: x.active !== false })),
       userName: () => currentUserName(),
       toast: (t) => showToastLite(t),

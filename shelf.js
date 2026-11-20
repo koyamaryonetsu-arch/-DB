@@ -28,7 +28,10 @@
   const FORM_BUCKET = 'doc-files';
   // 菱熱のひな形（2026-11-20）: 安全書類・大口予算書。doc_files に data.kind で入れる（劇場なし）。中身を見てから「作る」しくみを作る
   const TPL = { safety: { kind: 'safety_tpl', label: '安全書類', icon: '🦺' }, budget: { kind: 'budget_tpl', label: '大口予算書', icon: '💰' } };
-  const tplOf = (r) => (r && r.type === 'form' && r.data && Object.keys(TPL).find((k) => TPL[k].kind === r.data.kind)) || '';   // 作業申請書の書式（劇場ごとのファイル。SETUP_CASE_MAIL.sql）
+  const tplOf = (r) => (r && r.type === 'form' && r.data && Object.keys(TPL).find((k) => TPL[k].kind === r.data.kind)) || '';
+  // 案件から作った安全書類・大口予算書（ZIP・Excel）。劇場のフォルダに出す（作業申請書の書式には混ぜない）
+  const OUT = { safety_doc: { icon: '🦺', label: '安全書類' }, budget_doc: { icon: '💰', label: '大口予算書' } };
+  const outOf = (r) => (r && r.type === 'form' && r.data && OUT[r.data.kind]) || null;   // 作業申請書の書式（劇場ごとのファイル。SETUP_CASE_MAIL.sql）
   const TRASH_DAYS = 30;
   const UNSET = '（劇場未設定）';
   const BUCKET = 'ledger-photos';
@@ -257,7 +260,7 @@
     if (l.kind === 'trash') return !!r.deleted_at;
     if (r.deleted_at) return false;
     if (l.kind === 'recent') return true;
-    if (l.kind === 'forms') return r.type === 'form' && !tplOf(r);
+    if (l.kind === 'forms') return r.type === 'form' && !tplOf(r) && !outOf(r);
     if (l.kind === 'tpl') return tplOf(r) === l.tpl;
     if (tplOf(r)) return false;   // ひな形は劇場のフォルダ・劇場未設定には出さない
     if (l.kind === 'unset') return !r.company || !r.theater;
@@ -273,7 +276,7 @@
     const nTrash = S.rows.filter((r) => r.deleted_at).length;
     let h = `<div class="sh-th">すばやく開く</div>
       <button type="button" class="sh-tn${l.kind === 'recent' ? ' on' : ''}" data-loc="recent"><span class="tw"></span>🕘 最近使った</button>
-      ${setupMissing.form ? '' : `<button type="button" class="sh-tn${l.kind === 'forms' ? ' on' : ''}" data-loc="forms"><span class="tw"></span>📝 作業申請書の書式<span class="ct">${cnt((r) => r.type === 'form' && !tplOf(r)) || ''}</span></button>`}
+      ${setupMissing.form ? '' : `<button type="button" class="sh-tn${l.kind === 'forms' ? ' on' : ''}" data-loc="forms"><span class="tw"></span>📝 作業申請書の書式<span class="ct">${cnt((r) => r.type === 'form' && !tplOf(r) && !outOf(r)) || ''}</span></button>`}
       ${setupMissing.form ? '' : Object.keys(TPL).map((k) => `<button type="button" class="sh-tn${l.kind === 'tpl' && l.tpl === k ? ' on' : ''}" data-tpl="${k}"><span class="tw"></span>${TPL[k].icon} ${TPL[k].label}のひな形<span class="ct">${cnt((r) => tplOf(r) === k) || ''}</span></button>`).join('')}
       <div class="sh-th">会社 › 劇場</div>`;
     companyNames().forEach((co) => {
@@ -351,9 +354,9 @@
         ? `<button type="button" class="sh-mini" data-restore="${esc(r.id)}">元に戻す</button> <button type="button" class="sh-mini danger" data-purge="${esc(r.id)}">完全に削除</button>`
         : `<button type="button" class="sh-mini pri" data-openid="${esc(r.id)}">開く</button> <button type="button" class="sh-mini" data-dmenu="${esc(r.id)}" aria-label="ほかの操作">⋯</button>`;
       body += `<tr class="sh-drow${S.sel === r.id ? ' sel' : ''}" data-doc="${esc(r.id)}">
-        <td class="ic">${TYPES[r.type].icon}</td>
+        <td class="ic">${outOf(r) ? outOf(r).icon : TYPES[r.type].icon}</td>
         <td><div class="nm">${esc(r.name)}${r.type === 'heat' && r.is_basis ? ' <span class="sh-pin" title="この劇場の正式な計算書（劇場情報の基）">📌 劇場情報の基</span>' : ''}</div><div class="sub">${esc(subOf(r))}</div>${where}</td>
-        <td><span class="sh-kind ${r.type === 'kotei' ? 'k' : r.type === 'heat' ? 'h' : r.type === 'form' ? 'w' : 'p'}">${TYPES[r.type].label}</span></td>
+        <td><span class="sh-kind ${r.type === 'kotei' ? 'k' : r.type === 'heat' ? 'h' : r.type === 'form' ? 'w' : 'p'}">${outOf(r) ? outOf(r).label : TYPES[r.type].label}</span></td>
         <td class="sub">${l.kind === 'trash' ? '削除 ' + esc(fmtUpdated(r.deleted_at)) : esc(fmtUpdated(r.updated_at))}</td>
         <td class="sub">${esc(r.updated_by_name || '')}</td>
         <td class="ra">${actions}</td></tr>`;

@@ -4,7 +4,7 @@
  *  新しい章・項目を足したら GUIDE_VERSION を上げ、その項目に isNew: true を付ける（取説ボタンに「新」の印が付く）。
  */
 (function () {
-  const GUIDE_VERSION = 5;
+  const GUIDE_VERSION = 6;
   const SEEN_KEY = 'guideSeenV';
   const $ = (id) => document.getElementById(id);
   const vis = (el) => !!el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
@@ -133,6 +133,7 @@
         { before: () => A.openMaster('toho'), sel: '#masterDlg .mst-approver', t: '本社の決裁者は、TOHO の客先担当者の名前から選び（下の名前のボタンでも）、メールアドレスを入れて「決裁者にする」。客先アカウントにも自動で登録します。', after: A.closeAll },
         { before: A.openMore, sel: '#koteiBtn', t: '「📁 書類棚」: 工程表・写真台帳・空調負荷計算・作業申請書の書式を、会社・劇場ごとのフォルダにしまいます。安全書類・大口予算書のひな形も、ここの「🦺／💰 …のひな形」に入れます。' },
         { before: A.openMore, sel: '#koteiBtn', t: '「📁 書類棚」: 工程表・写真台帳・空調負荷計算・作業申請書の書式を、会社・劇場ごとのフォルダにしまいます。' },
+        { before: A.openFirst, sel: '#modalSafetyBtn', t: '案件の ✎ の下の「🦺 安全書類」: 工事・菱熱の責任者・入る会社（一次・二次）・作業員・火気/車両/持込機械・緊急連絡先（AI が住所から調べる）を聞いてから、書類棚のひな形に AI が書き込み、菱熱分と会社ごとの業者分を ZIP にします。大口の案件には「💰 予算書」も出ます（支払先ごとの金額を入れて Excel）。作業員は 🤝 協力会社マスターの「👷」で入れます（業者の名簿を読み込めます）。', after: A.closeAll },
         { before: A.openMore, sel: '#planBtn', t: '「🗓 工事予定表」: 案件から工事の予定を引っ張って、Excel のように並べます。' },
         { before: A.openUser, sel: '#meetingBtn', t: '右上の 👤 →「🤝 打合せモード」: 客先と一緒に画面を見る時に、その会社の客先の見え方にします。終わる時はタブを閉じてもOKです。', after: A.closeAll }
       ] }
