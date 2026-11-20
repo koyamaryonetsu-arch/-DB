@@ -36,7 +36,8 @@ function masterChain(c, jid) {
 const LATE_SHOP = PART3_LATE_ITEMS;
 const SHOP_GEAR = Object.entries(ITEMS).filter(([id, it]) => it && !it.base && !it.star && !it.src && it.price > 0 && !(it.rarity > 0) && !LATE_SHOP.has(id)
   && ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)).map(([id]) => id);
-function bestGear(job, R) {
+// extra … ほかに えらんで よい 品（第3部の くぼ地の 武具屋 など。SHOP_GEAR には まぜない）
+function bestGear(job, R, extra = []) {
   const m = JOBS[job].mods;
   const b = (it, k) => it.bonus?.[k] || 0;
   const score = (it) => {
@@ -46,20 +47,20 @@ function bestGear(job, R) {
   };
   const eq = { weapon: null, armor: null, shield: null, head: null, acc: null };
   for (const slot of Object.keys(eq)) {
-    const list = SHOP_GEAR.filter((id) => ITEMS[id].type === slot && ITEMS[id].rank <= R && canEquip(job, id));
+    const list = [...SHOP_GEAR, ...extra].filter((id) => ITEMS[id].type === slot && ITEMS[id].rank <= R && canEquip(job, id));
     list.sort((x, y) => score(ITEMS[y]) - score(ITEMS[x]));
     eq[slot] = list[0] || null;
   }
   return eq;
 }
 
-export function jobChar(job, lv, R, name = job) {
+export function jobChar(job, lv, R, name = job, extra = []) {
   const c = newCharacter({ id: name, name, job: 'warrior', look: { body: JOBS[job].body ?? 0 } });
   gainExp(c, expForLevel(lv));
   masterChain(c, job);
   c.jobs[job] = { lv: JOB_MAX_LEVEL, b: 999 };
   c.job = job;
-  c.equip = bestGear(job, R);
+  c.equip = bestGear(job, R, extra);
   fullHeal(c);
   return c;
 }

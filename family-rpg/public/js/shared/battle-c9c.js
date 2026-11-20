@@ -17,7 +17,7 @@
 //     それより 多い → 「まだ早い！」（休まない。ひっくり返した 人に 反げき）
 //   ときどき「ポチッとね」（pochi.every 回 ごとに 前ぶれ・ねらいの 人 → つぎの 番に 1人に 大きな ダメージ）
 //   勝つと メカは 自分で ひっくり返って 止まる。3人組は にげる
-// ・自動の 仲間（酒場の 人）は、なぞ・砂の めもりが dizzyAt いかの 時に 3回に 1回 正しく 答える・ひっくり返す（AUTO_EVERY。数は みんなで 1つ）
+// ・自動の 仲間（酒場の 人）は、なぞ 3つの うち 1つに 正しく 答える・砂が 少なく なる 3回の うち 1回 ひっくり返す（AUTO_EVERY。番ごとでは なく できごとごと）
 //   家族の キャラの「オート」と 魔物の 仲間は しない（完全オートは 勝てない まま）
 // ・人数で 合わせる（few・solo・monK）は 第2幕の 大王と おなじ 数え方（battle-c9b.js の kingPeople。魔物の 仲間は 半人ぶん）
 import { MONSTERS } from './data/monsters.js';
@@ -342,7 +342,11 @@ function sandTurn(b, c, ev, stuck) {
 // 砂が 落ちる。0 に なったら true
 function dropSand(b, c, ev) {
   const s = c.c9s;
+  const was = s.grains;
   s.grains = Math.max(0, s.grains - s.drop);
+  // 砂が 少なく なった 回数（自動の 仲間の 3回に 1回）
+  const at = sandConf(c, b).dizzyAt;
+  if (was > at && s.grains <= at) s.lows = (s.lows || 0) + 1;
   ev.c9sSand = { id: c.id, grains: s.grains, max: s.max };
   return s.grains <= 0;
 }
@@ -517,9 +521,9 @@ function riddlePlan(b, c, n, mode, decide, bestHit) {
   const r = z.riddle;
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: なぞが 出て いる 番の 3回に 1回 正しく 答える（家族の キャラの オート・魔物の 仲間は 答えない）
+    //   第92回 第2便: 3回に 1回 ＝ なぞ 3つの うち 1つ（番ごとに 数えると 3人の 酒場の 人で ほぼ 毎回 答えて しまい、完全オートが 勝つ ため）
     if (c.kind === 'player' || c.kind === 'monster' || !r || queued(b, ANSWER)) return null;
-    b.c9zAuto = (b.c9zAuto || 0) + 1;
-    if (b.c9zAuto % AUTO_EVERY) return null;
+    if (z.asks % AUTO_EVERY) return null;
     return answerCmd(r);
   }
   if (r && !queued(b, ANSWER)) {
@@ -537,9 +541,9 @@ function sandPlan(b, c, m, mode, decide, bestHit) {
   const low = s.grains <= sc.dizzyAt && !(s.dizzy > 0);
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: めもりが dizzyAt いかの 番の 3回に 1回 ひっくり返す
+    //   第92回 第2便: 3回に 1回 ＝ 砂が 少なく なる 3回の うち 1回（番ごとでは ない）
     if (c.kind === 'player' || c.kind === 'monster' || !low || queued(b, FLIP)) return null;
-    b.c9sAuto = (b.c9sAuto || 0) + 1;
-    if (b.c9sAuto % AUTO_EVERY) return null;
+    if ((s.lows || 0) % AUTO_EVERY) return null;
     return { type: 'ability', id: FLIP };
   }
   if (mode === 'blind') {
