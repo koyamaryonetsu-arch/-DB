@@ -172,7 +172,7 @@
     };
     draw();
     d.ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-dgx]') || e.target === d.ov) { collect(); if (JSON.stringify(workers) !== JSON.stringify(p.workers || []) && !(await K().ask('保存していない変更があります。閉じますか？', { ok: '閉じる' }))) return; d.ov.remove(); return; }
+      if (e.target.closest('[data-dgx]') || e.target === d.ov) { collect(); if (JSON.stringify(workers) !== JSON.stringify(p.workers || []) && !(await K().ask('保存していない変更があります。保存せずに閉じますか？', { ok: '保存せずに閉じる', cancel: '戻る' }))) return; d.ov.remove(); return; }
       if (e.target.closest('[data-wadd]')) { collect(); workers.push({ name: '' }); draw(); return; }
       const del = e.target.closest('[data-wdel]'); if (del) { e.preventDefault(); collect(); const w = workers[+del.dataset.wdel]; if (await K().ask(`${w.name || 'この人'} を消しますか？`, { ok: '消す', danger: true })) { workers.splice(+del.dataset.wdel, 1); draw(); } return; }
       if (e.target.closest('[data-wsave]')) { if (await save()) d.ov.remove(); }
@@ -220,7 +220,12 @@
     try { tpls = await loadTemplates('safety_tpl'); } catch (e) { K().say(e.message); return; }
     const use = tpls.map((r) => Object.assign({ r }, classify(r)));
     const ry = use.filter((x) => x.role === 'ryonetsu'), ve = use.filter((x) => x.role === 'vendor'), sk = use.filter((x) => x.role === 'skip');
-    if (!ry.length && !ve.length) { K().say('書類棚の「🦺 安全書類のひな形」に、ひな形（.xlsx）がありません。先にひな形を入れてください。'); return; }
+    if (!ry.length && !ve.length) {
+      K().say(tpls.length
+        ? `書類棚の「🦺 安全書類のひな形」に ${tpls.length} 件ありますが、使えるひな形（.xlsx）がありません。\n\n` + sk.map((x) => `・${x.r.data.file_name || x.r.name}（${x.why}）`).join('\n') + '\n\n.xlsx で保存し直したものを入れてください（古い .xls は 🗑 で外してください）。'
+        : '書類棚の「🦺 安全書類のひな形」に、ひな形（.xlsx）がありません。先にひな形を入れてください。');
+      return;
+    }
     const partners = (await partnersList()).filter((p) => p.active !== false && p.kind !== 'trader');
     const staff = (DB().staff ? DB().staff() : []).filter((s) => s.active);
     const prev = await lastMeta('safety', c);
@@ -308,7 +313,7 @@
     draw();
     d.ov.addEventListener('change', (e) => { if (e.target.closest('[data-c="partner_id"],[data-c="tier"],[data-cu]')) { collect(); draw(); } });
     d.ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-dgx]') || e.target === d.ov) { if (await K().ask('安全書類を作るのをやめますか？（入れた内容は残りません）', { ok: 'やめる' })) d.ov.remove(); return; }
+      if (e.target.closest('[data-dgx]') || e.target === d.ov) { if (await K().ask('安全書類を作るのをやめますか？（入れた内容は残りません）', { ok: 'やめて閉じる', cancel: '続ける' })) d.ov.remove(); return; }
       if (e.target.closest('[data-cadd]')) { collect(); A.companies.push({ tier: 1, period_from: A.period_from, period_to: A.period_to, workers: [], uses: {} }); draw(); return; }
       const del = e.target.closest('[data-cdel]'); if (del) { collect(); A.companies.splice(+del.dataset.cdel, 1); draw(); return; }
       const cw = e.target.closest('[data-cwork]'); if (cw) { collect(); openWorkers(cw.dataset.cwork, (p) => { const ix = partners.findIndex((x) => String(x.id) === String(p.id)); if (ix >= 0) partners[ix] = p; draw(); }); return; }
@@ -343,7 +348,7 @@
       });
       EMERGENCY.slice(0, 4).forEach(([k, l]) => { if (!(A.emergency[k] && A.emergency[k].tel)) miss.push(`緊急連絡先: ${l}`); });
       if (A.companies.some((co) => !co.name)) { K().say('会社を選んでいない行があります。選ぶか「この会社を外す」を押してください。'); return; }
-      if (miss.length && !(await K().ask('次の情報がまだです。入れてから作るのがおすすめです。\n\n・' + miss.join('\n・') + '\n\nこのまま（空欄のまま）作りますか？', { ok: 'このまま作る' }))) return;
+      if (miss.length && !(await K().ask('次の情報がまだです。入れてから作るのがおすすめです。\n\n・' + miss.join('\n・') + '\n\nこのまま（空欄のまま）作りますか？', { ok: 'このまま作る', cancel: '戻って入れる' }))) return;
       // 劇場の緊急連絡先を残す
       try { await sbc().from('theater_safety').upsert({ theater: c.theater, data: Object.assign({}, A.emergency, { checked_at: new Date().toISOString() }), updated_by: (DB().userName && DB().userName()) || '', updated_at: new Date().toISOString() }); } catch (err) { /* 表が無い時は残さない */ }
       const st = (n) => staff.find((s) => s.name === n) || {};
@@ -474,7 +479,7 @@
       if (e.target.matches('[data-l="amount"],[data-b="contract_amount"]')) { collect(); draw(); }
     });
     d.ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-dgx]') || e.target === d.ov) { if (await K().ask('大口予算書を作るのをやめますか？（入れた内容は残りません）', { ok: 'やめる' })) d.ov.remove(); return; }
+      if (e.target.closest('[data-dgx]') || e.target === d.ov) { if (await K().ask('大口予算書を作るのをやめますか？（入れた内容は残りません）', { ok: 'やめて閉じる', cancel: '続ける' })) d.ov.remove(); return; }
       const pk = e.target.closest('[data-bpick]'); if (pk) { collect(); B.lines.push({ vendor: pk.dataset.bpick, category: catOf(pk.dataset.bpick), item: '', amount: 0 }); draw(); const ins = d.body.querySelectorAll('[data-l="amount"]'); if (ins.length) ins[ins.length - 1].focus(); return; }
       if (e.target.closest('[data-ladd]')) { collect(); B.lines.push({ vendor: '', category: 'B', item: '', amount: 0 }); draw(); return; }
       const dl = e.target.closest('[data-ldel]'); if (dl) { collect(); B.lines.splice(+dl.dataset.ldel, 1); draw(); return; }
@@ -486,7 +491,7 @@
       if (!B.lines.length) { K().say('支払先と金額を1行以上入れてください'); draw(); return; }
       B.lines.forEach((l, i) => { if (!l.vendor) miss.push(`${i + 1} 行目の支払先`); if (!l.amount) miss.push(`${l.vendor || i + 1 + ' 行目'} の金額`); });
       if (!B.contract_amount) miss.push('契約金額（見積り金額）');
-      if (miss.length && !(await K().ask('次の情報がまだです。\n\n・' + miss.join('\n・') + '\n\nこのまま作りますか？', { ok: 'このまま作る' }))) { draw(); return; }
+      if (miss.length && !(await K().ask('次の情報がまだです。\n\n・' + miss.join('\n・') + '\n\nこのまま作りますか？', { ok: 'このまま作る', cancel: '戻って入れる' }))) { draw(); return; }
       // 一覧に無い支払先は協力会社マスターにも残す（A なら商社・ほかは協力会社）
       const sb = sbc(); const key = (s) => String(s || '').normalize('NFKC').replace(/株式会社|有限会社|合同会社|\(株\)|\(有\)|㈱|㈲|\s|　/g, '').toLowerCase();
       for (const l of B.lines) {

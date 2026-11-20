@@ -645,7 +645,7 @@
     ov.innerHTML = '<div class="kt-dialog wa-dlg"><div class="kt-dlg-head"><span id="waTitle">📝 作業申請書を作る</span><button type="button" class="close-btn" data-wax>×</button></div><div class="kt-dlg-body" id="waBody"></div><div class="kt-dlg-foot" id="waFoot"></div></div>';
     document.body.appendChild(ov);
     ov.addEventListener('click', async (e) => {
-      if (e.target.closest('[data-wax]')) { if (S && S.busy && !(await K().ask('AI が作っている途中です。やめますか？', { ok: 'やめる' }))) return; close(); }
+      if (e.target.closest('[data-wax]')) { if (S && S.busy && !(await K().ask('AI が作っている途中です。やめますか？', { ok: 'やめて閉じる', cancel: '続ける' }))) return; close(); }
     });
     return ov;
   }
