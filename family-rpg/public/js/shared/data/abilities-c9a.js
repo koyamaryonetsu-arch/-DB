@@ -117,12 +117,12 @@ export const C9A_ABILITIES = {
   },
   m9t_bomb: {
     name: 'びっくりばくだん', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'magic', base: [210, 232], thr: 99, element: 'fire' }, cast: 'ボヤッチ「ポチッとね、でございマス！」\n{a}から、ばくだんが、ぽんぽんとび出した！', anim: 'c9t_bomb',
+    effect: { type: 'magic', base: [330, 360], thr: 99, element: 'fire' }, cast: 'ボヤッチ「ポチッとね、でございマス！」\n{a}から、ばくだんが、ぽんぽんとび出した！', anim: 'c9t_bomb',
     desc: 'ばくだんで、敵みんなに炎のダメージ。',
   },
   m9t_pochi: {
     name: 'ビリビリこうせん', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'magic', base: [380, 410], thr: 99, element: 'bolt' }, cast: 'キラジョ「さあ、やっちゃいなさい！」\nボヤッチ「ポチッとね！」\n{a}の頭から、ビリビリ光線がとび出した！', anim: 'c9t_beam',
+    effect: { type: 'magic', base: [520, 560], thr: 99, element: 'bolt' }, cast: 'キラジョ「さあ、やっちゃいなさい！」\nボヤッチ「ポチッとね！」\n{a}の頭から、ビリビリ光線がとび出した！', anim: 'c9t_beam',
     desc: 'ビリビリ光線で、1人に雷の大ダメージ。',
   },
   m9t_aim: {
@@ -154,7 +154,7 @@ export const C9A_ABILITIES = {
   },
   m9h_hoot: {
     name: 'ホウホウのこえ', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'magic', base: [170, 188], thr: 99, element: 'dark' }, cast: '{a}「ホウ…ホウ…」\nひくい声が、地下にひびきわたった！', anim: 'c9h_hoot',
+    effect: { type: 'magic', base: [540, 570], thr: 99, element: 'dark' }, cast: '{a}「ホウ…ホウ…」\nひくい声が、地下にひびきわたった！', anim: 'c9h_hoot',
     desc: 'ひくい声をひびかせて、敵みんなに闇のダメージ。',
   },
   m9h_gaze: {

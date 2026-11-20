@@ -1,0 +1,611 @@
+// 第3部 第1章 第1幕「星ふるえの夜」の 戦いの しかけ（battle-c8r.js と battle.js から 短い よびだしで よぶ。ほかの たたかいは かわらない）
+// docs/plan-part3.md の 9-3
+//
+// ・星の子（スピカ）… 戦いの わくを 使わない 味方（第8章 第4幕の「かけつけ」と おなじ 考え。何人で 遊んでも おなじ）
+//   出る 条件: パーティーの リーダーが c9_child を 持って いる（hooks.leaderFlag）。3人組・ためしの 戦いは かならず 出る
+//   味方が 全員 1回ずつ 動いた あとに「ほのかな光」… HPが いちばん 少ない（わりあい）仲間を 最大HPの heal（6%）回復。攻撃は しない
+//   画面の 上に「星の子の光 ★★★」（snapshot の spica・ev.c9Spica）
+// ・中ボス「3人組と スイトール1号」（monsters-c9a.js の c9a.kind 'trio'）… 星の子の 光を 守る
+//   メカは aim 回 動く ごとに すいこみ口を 星の子に 向ける（m9t_aim。前ぶれの 文）→ 次の メカの 番で すいこむ（m9t_suck）
+//   その 間に だれかが「防御」を えらぶ（か「かばう」を して いる）と、前に 立って 代わりに 受ける（中くらいの ダメージ）
+//   すいこみ口（c9a_suikomi。べつの 的）を こわすと すいこみは 止まり、メカは 1回 休む（m9t_rest）。fix 回 動くと 直る
+//   守れないと 星の子の 光が 1つ へり、メカが 回復して 攻撃が 強く なる（lost.heal・lost.up）。光が 0 で 負け
+// ・幕の ボス「ホシモリの ともしびの ためし」（c9a.kind 'trial'）… 明かりを 消さずに、夜明けまで たえる
+//   はじめに 味方 全員が「ともしび」（a.c9torch）。やみの いぶき（every 回 動く ごとに 前ぶれ・ねらう 人が 出る → 次の 番）で 消える
+//   （身を 守って いる 人は 手で かこって 消えない）。消えた 人は 与える ダメージと 回復が half ばい
+//   明かりを わける（m9_share。ともしびが ある 人だけ。仲間 1人の ともしびを つけ直す）。星の子の ほのかな光も spicaEvery 回に 1回 つける
+//   夜明けの めもり: ホシモリが 動く たびに 1（ともしびが 1つでも あれば）。その 前の ホシモリの 番から big の ダメージを 与えて いれば もう 1
+//   dawn で 勝ち（たおれずに うなずく）。全員の ともしびが 消えると「まっくら」で 負け。HPが 0 の 人の ともしびは 消える
+//   めもりが two（半分）を こえると、いぶきは 2人に。HP は 1 より 下がらない（たおす ボスでは ない）
+// ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
+// ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
+//   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
+import { MONSTERS } from './data/monsters.js';
+import { ABILITIES } from './data/abilities.js';
+import { SHARE } from './data/abilities-c9a.js';
+import { C9A_NOZZLE } from './data/monsters-c9a.js';
+import { C9A } from './maps/c9a-flags.js';
+// たがいに よびあうが、つかうのは たたかいの 中だけ
+import { pub, atbRate } from './battle.js';
+import { canUse } from './ai.js';
+
+export { SHARE };
+export const AIM = 'm9t_aim';
+export const SUCK = 'm9t_suck';
+export const REST = 'm9t_rest';
+export const BREATH = 'm9h_breath';
+export const DAWN = 'm9h_dawn';
+export const SPICA_HEAL = 0.06;
+export const SPICA_LIGHT = 3;
+export const SPICA_SAY = 'スピカ';
+
+const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || {} : a?.effect || {});
+const post = (ev) => (ev.postLines = ev.postLines || []);
+const confOf = (m) => MONSTERS[m?.species]?.c9a || null;
+const stars = (n, max) => '★'.repeat(Math.max(0, n)) + '☆'.repeat(Math.max(0, max - n));
+
+export function trioConf(m) {
+  const c = confOf(m) || {};
+  return { aim: c.aim ?? 3, suck: { mult: 2.1, ...(c.suck || {}) }, lost: { heal: 0.06, up: 1.12, ...(c.lost || {}) }, fix: c.fix ?? 3, light: c.light ?? SPICA_LIGHT };
+}
+export function trialConf(m) {
+  const c = confOf(m) || {};
+  return { dawn: c.dawn ?? 16, every: c.every ?? 3, big: c.big ?? 9000, half: c.half ?? 0.5, spicaEvery: c.spicaEvery ?? 3, two: c.two ?? 0.5, breath: c.breath || [300, 330] };
+}
+export const mechaOf = (b) => (b.c9trio ? b.get(b.c9trio.mecha) : null);
+export const nozzleOf = (b) => (b.c9trio ? b.get(b.c9trio.nozzle) : null);
+export const hoshimoriOf = (b) => (b.c9trial ? b.get(b.c9trial.hm) : null);
+export const spicaOf = (b) => b.c9sp || null;
+// ともしびが ついて いる 生きた 仲間
+export const litAllies = (b, but = null) => b.aliveAllies().filter((x) => x !== but && x.c9torch);
+export const unlitAllies = (b) => b.aliveAllies().filter((x) => !x.c9torch);
+
+// ───────────── はじめ（battle-c8r.js の setupC8r の さいご）─────────────
+export function setupC9a(b) {
+  const lines = [];
+  let on = false;
+  try {
+    on = !!b.hooks?.leaderFlag?.(C9A.child);
+  } catch { /* */ }
+  for (const e of b.enemies) {
+    const conf = confOf(e);
+    if (!conf) continue;
+    if (conf.kind === 'trio') {
+      setupTrio(b, e, lines);
+      on = true;
+    } else if (conf.kind === 'trial') {
+      setupTrial(b, e, lines);
+      on = true;
+    }
+  }
+  if (on) addSpica(b);
+  if (lines.length) b.emit({ t: 'msg', lines, dur: 1500, c9Spica: spicaPub(b) });
+}
+
+// 星の子を 戦いに 入れる（わくは 使わない。何回 よんでも おなじ。シミュレーター・テストからも よぶ）
+export function addSpica(b, light = null) {
+  if (b.c9sp) return b.c9sp;
+  const max = light ?? (mechaOf(b) ? trioConf(mechaOf(b)).light : SPICA_LIGHT);
+  b.c9sp = { light: max, max, acted: [], glows: 0, heals: 0, relit: 0 };
+  return b.c9sp;
+}
+export function spicaPub(b) {
+  const s = b.c9sp;
+  return s ? { light: s.light, max: s.max, glows: s.glows } : null;
+}
+
+function setupTrio(b, m, lines) {
+  const tc = trioConf(m);
+  const nz = b.enemies.find((e) => e.species === C9A_NOZZLE);
+  m.c9t = { acts: 0, aimLeft: tc.aim, aim: false, broken: !nz, rest: 0, fix: 0, power: 1, atk0: m.atk, sucks: 0, guards: 0, lost: 0, breaks: 0, fixes: 0 };
+  b.c9trio = { mecha: m.id, nozzle: nz?.id || null };
+  lines.push(
+    'キラジョ「オーッホッホ！その子の光は、わたしたちホシドロ一味がいただくわ！」',
+    'ボヤッチ「すいこみメカ、スイトール1号でございマス！」',
+    'ズラッカ「ぜーんぶ、すいこむだっぺ！」',
+    '（すいこみ口が星の子をむいたら「防御」で前に立とう！すいこみ口をこわすと、止まるかも…！）',
+  );
+}
+
+function setupTrial(b, h, lines) {
+  const hc = trialConf(h);
+  h.c9h = { acts: 0, dawn: 0, max: hc.dawn, left: hc.every, aim: [], dmg: 0, bigs: 0, breaths: 0, shares: 0, kept: 0, outs: 0, relit: 0, won: false, dark: false };
+  b.c9trial = { hm: h.id };
+  for (const a of b.allies) {
+    a.c9torch = true;
+    if (!a.abilities.includes(SHARE)) a.abilities = [SHARE, ...a.abilities];
+  }
+  lines.push(
+    'ホシモリ「…千年、まっていた。星の子をつれた者たちよ。」',
+    'ホシモリ「その明かり、夜明けまで、消さずにいられるか。」',
+    '（みんなの「ともしび」を、夜明けまで守ろう！火が消えた仲間には「明かりをわける」！）',
+  );
+}
+
+// ───────────── 味方が 1回 動いた あと（battle.js の executeNext・防御の さいご）: 星の子の ほのかな光 ─────────────
+export function c9aAfter(b, c, ev) {
+  const s = b.c9sp;
+  if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
+  for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
+  const alive = b.aliveAllies();
+  if (!alive.length || alive.some((x) => !s.acted.includes(x.id))) return;
+  s.acted = [];
+  glow(b, ev);
+}
+function glow(b, ev) {
+  const s = b.c9sp;
+  s.glows++;
+  const alive = b.aliveAllies();
+  const t = alive.slice().sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
+  const lines = post(ev);
+  const out = { glow: true, light: s.light, max: s.max, glows: s.glows };
+  if (t) {
+    const real = Math.min(t.maxHp - t.hp, Math.max(1, Math.round(t.maxHp * SPICA_HEAL)));
+    if (real > 0) {
+      t.hp += real;
+      s.heals += real;
+      ev.results = ev.results || [];
+      ev.results.push({ id: t.id, heal: real });
+      lines.push(`${SPICA_SAY}のほのかな光！${t.name}のHPが${real}回復した！`);
+      out.to = t.id;
+      out.heal = real;
+    } else lines.push(`${SPICA_SAY}のほのかな光が、みんなをてらした。`);
+    ev.upd.push(t);
+  }
+  // ともしびの ためし: spicaEvery 回に 1回、消えた ともしびを 1つ つける
+  const h = hoshimoriOf(b);
+  if (h?.c9h && s.glows % trialConf(h).spicaEvery === 0) {
+    const u = unlitAllies(b)[0];
+    if (u) {
+      u.c9torch = true;
+      s.relit++;
+      h.c9h.relit++;
+      lines.push(`${SPICA_SAY}の光で、${u.name}のともしびが、ふたたびともった！`);
+      out.relit = u.id;
+      ev.upd.push(u);
+    }
+  }
+  ev.c9Spica = out;
+}
+
+// ───────────── 行動の はじめ（battle-c8r.js の c8rTurnStart の はじめ。敵の 番だけ）─────────────
+export function c9aTurnStart(b, c, ev, stuck) {
+  if (c.side === 'ally') return;
+  if (c.c9t) trioTurn(b, c, ev, stuck);
+  else if (c.c9h) trialTurn(b, c, ev, stuck);
+}
+
+function trioTurn(b, c, ev, stuck) {
+  const t = c.c9t;
+  const tc = trioConf(c);
+  if (c.telegraph) return;
+  t.acts++;
+  // すいこみ口が こわれて いる: 1回 休む → fix 回 動くと 直る
+  if (t.broken) {
+    t.fix++;
+    if (t.rest > 0) {
+      t.rest--;
+      if (!stuck) c.telegraph = REST;
+    }
+    if (t.fix >= tc.fix && fixNozzle(b, c, ev)) {
+      t.broken = false;
+      t.aimLeft = tc.aim;
+    } else ev.c9tFixLeft = { id: c.id, left: Math.max(0, tc.fix - t.fix) };
+    ev.upd.push(c);
+    return;
+  }
+  // すいこみ口を 向けて いる: すいこむ
+  if (t.aim) {
+    if (!stuck) c.telegraph = SUCK;
+    ev.upd.push(c);
+    return;
+  }
+  t.aimLeft--;
+  if (t.aimLeft <= 0 && !stuck) c.telegraph = AIM;
+  ev.c9tAimLeft = { id: c.id, left: Math.max(0, t.aimLeft), every: tc.aim };
+  ev.upd.push(c);
+}
+// すいこみ口が 直る（たおれた すいこみ口を もう一度 出す。クライアントは「生き返った 敵」と おなじ）
+function fixNozzle(b, c, ev) {
+  const n = nozzleOf(b);
+  if (!n) return false;
+  if (!n.alive) {
+    Object.assign(n, { alive: true, hp: n.maxHp, status: {}, buffs: {}, debuffs: {}, atb: 0, ready: false, queued: false });
+    ev.upd.push(n);
+  }
+  c.c9t.fixes++;
+  ev.lines.push('ボヤッチ「すいこみ口、なおったでございマス！」', 'キラジョ「さあ、もう一度、ねらうのよ！」');
+  ev.c9tFix = { id: c.id, nozzle: n.id };
+  return true;
+}
+
+function trialTurn(b, c, ev, stuck) {
+  const h = c.c9h;
+  const hc = trialConf(c);
+  if (c.telegraph || h.won) return;
+  // 1つの 番に 2回 動く（turns: 2）ときは、はじめの 1回で めもり・いぶきを 数える（あとの 1回は ふつうの 行動。battle.js の onReady）
+  if ((c.turns || 1) > 1 && !c.queued) return;
+  h.acts++;
+  // 夜明けの めもり（ともしびが 1つでも あれば）。大きな ダメージを 与えた 番は もう 1つ
+  const gain = (litAllies(b).length ? 1 : 0) + (h.dmg >= hc.big ? 1 : 0);
+  if (h.dmg >= hc.big) {
+    h.bigs++;
+    ev.lines.push('（大きな一撃で、夜明けが、ぐっと近づいた！）');
+  }
+  h.dmg = 0;
+  h.dawn = Math.min(h.max, h.dawn + gain);
+  ev.c9hDawn = { id: c.id, dawn: h.dawn, max: h.max, gain };
+  if (h.dawn >= h.max) {
+    c.telegraph = DAWN;
+    ev.upd.push(c);
+    return;
+  }
+  if (h.aim.length) {
+    if (!stuck) c.telegraph = BREATH;
+    ev.upd.push(c);
+    return;
+  }
+  h.left--;
+  if (h.left <= 0) {
+    const n = h.dawn > h.max * hc.two ? 2 : 1;
+    const pool = litAllies(b);
+    const aim = [];
+    while (aim.length < n && pool.length) aim.push(pool.splice(b.rng.int(0, pool.length - 1), 1)[0]);
+    if (aim.length) {
+      h.aim = aim.map((x) => x.id);
+      ev.lines.push(`${c.name}が、大きく息をすいこんだ…！`, `（ねらいは${aim.map((x) => x.name).join('と')}のともしび…！身を守るか、消えたら「明かりをわける」！）`);
+      ev.c9hWarn = { id: c.id, ids: h.aim.slice() };
+      ev.warn = true;
+    } else h.left = hc.every;
+  }
+  ev.c9hBreathLeft = { id: c.id, left: Math.max(0, h.left), every: hc.every };
+  ev.upd.push(c);
+}
+
+// ───────────── 技の こうか（battle-c8r.js の c8rEffect の のこり）─────────────
+export function c9aEffect(b, c, a, eff, ev) {
+  switch (eff.type) {
+    case 'c9tAim': aim(b, c, ev); return true;
+    case 'c9tSuck': suck(b, c, ev); return true;
+    case 'c9tRest': {
+      ev.lines.push('ボヤッチ「直しているあいだは、動けないでございマス〜！」');
+      ev.c9tRest = { id: c.id };
+      return true;
+    }
+    case 'c9hBreath': breath(b, c, ev); return true;
+    case 'c9hDawn': dawn(b, c, ev); return true;
+    case 'c9aShare': share(b, c, ev); return true;
+    default: return false;
+  }
+}
+
+function aim(b, c, ev) {
+  const t = c.c9t;
+  if (!t) return;
+  t.aim = true;
+  ev.lines.push('すいこみ口が、星の子の方を向いた！', '（次にメカが動くと、すいこまれる…！だれかが「防御」で、星の子の前に立とう！）');
+  ev.c9tAim = { id: c.id };
+  ev.warn = true;
+  ev.upd.push(c);
+}
+// 星の子の 前に 立つ 人（身を 守って いる・みんなを かばって いる。HPの 多い 人）
+export function guardOf(b) {
+  const g = b.aliveAllies().filter((x) => x.defending || (x.cover && (x.cover.target === 'all' || x.cover.left > 0)));
+  return g.sort((x, y) => (y.defending ? 1 : 0) - (x.defending ? 1 : 0) || y.hp - x.hp)[0] || null;
+}
+function suck(b, c, ev) {
+  const t = c.c9t;
+  const tc = trioConf(c);
+  const s = b.c9sp || addSpica(b);
+  t.aim = false;
+  t.aimLeft = tc.aim;
+  t.sucks++;
+  const g = guardOf(b);
+  if (g) {
+    t.guards++;
+    ev.lines.push(`${g.name}が、星の子の前に立って、すいこみを受けとめた！`);
+    ev.fx = { type: 'ability', anim: 'c9t_suck', actor: c.id, targets: [g.id], side: 'enemy' };
+    b.physHit(c, g, { mult: tc.suck.mult, acc: 9 }, ev, 'phys');
+    ev.c9tSuck = { id: c.id, guard: g.id, light: s.light };
+    ev.upd.push(c);
+    return;
+  }
+  // 守れなかった: 星の子の 光が 1つ へる → メカが 回復して 強く なる
+  s.light = Math.max(0, s.light - 1);
+  t.lost++;
+  const heal = Math.min(c.maxHp - c.hp, Math.round(c.maxHp * tc.lost.heal));
+  c.hp += heal;
+  t.power *= tc.lost.up;
+  c.atk = Math.round(t.atk0 * t.power);
+  ev.fx = { type: 'ability', anim: 'c9t_suck', actor: c.id, targets: [c.id], side: 'enemy' };
+  ev.results = ev.results || [];
+  if (heal > 0) ev.results.push({ id: c.id, heal });
+  ev.lines.push('スピカ「きゃっ…！」', `星の子の光が、1つすいこまれてしまった…！（${stars(s.light, s.max)}）`);
+  if (heal > 0) ev.lines.push(`${c.name}のHPが${heal}回復した！`);
+  ev.lines.push('ズラッカ「光をすったら、力がわいてきたっぺ！」（メカの攻撃力が上がった）');
+  ev.c9tSuck = { id: c.id, guard: null, light: s.light };
+  ev.c9Spica = { light: s.light, max: s.max, lost: true };
+  ev.warn = true;
+  ev.upd.push(c);
+  if (s.light <= 0) {
+    post(ev).push('星の子の光が、ぜんぶすいこまれてしまった…。');
+    b.pendingEnd = { outcome: 'lose' };
+    b.queue = [];
+  }
+}
+
+function breath(b, c, ev) {
+  const h = c.c9h;
+  const hc = trialConf(c);
+  const ids = h.aim.slice();
+  h.aim = [];
+  h.left = hc.every;
+  h.breaths++;
+  const targets = ids.map((id) => b.get(id)).filter((x) => x?.alive);
+  ev.fx = { type: 'ability', anim: 'c9h_breath', actor: c.id, targets: targets.map((x) => x.id), side: 'enemy', element: 'dark' };
+  const out = [];
+  const kept = [];
+  for (const t of targets) {
+    const r = b.calcMagic(c, t, { base: hc.breath, thr: 99, element: 'dark' }, 1);
+    if (r.dmg > 0 && !r.resisted) b.damage(c, t, Math.round(r.dmg), ev, { element: 'dark' });
+    if (!t.alive || !t.c9torch) continue;
+    if (t.defending) {
+      kept.push(t.id);
+      h.kept++;
+      ev.lines.push(`${t.name}は、ともしびを手でかこって守った！`);
+    } else {
+      t.c9torch = false;
+      out.push(t.id);
+      h.outs++;
+      ev.lines.push(`${t.name}のともしびが、ふっと消えた…！`);
+    }
+    ev.upd.push(t);
+  }
+  ev.c9hBreath = { id: c.id, out, kept };
+  ev.warn = true;
+  darkCheck(b, ev);
+}
+// 全員の ともしびが 消えた: まっくらで 負け
+function darkCheck(b, ev, but = null) {
+  const h = hoshimoriOf(b);
+  if (!h?.c9h || h.c9h.won || b.pendingEnd || b.over) return;
+  const alive = b.aliveAllies().filter((x) => x !== but);
+  if (!alive.length || litAllies(b, but).length) return;
+  h.c9h.dark = true;
+  if (ev) {
+    post(ev).push('あたりが、まっくらになってしまった…。', 'ホシモリ「…明かりは、つながらなかったか。」');
+    ev.c9hDark = { id: h.id };
+  }
+  b.pendingEnd = { outcome: 'lose' };
+  b.queue = [];
+}
+// 夜明け（たおれずに うなずく。たおした ことに して 経験値・お金・落とし物は ふつう）
+function dawn(b, c, ev) {
+  const h = c.c9h;
+  h.won = true;
+  ev.lines.push('星の石の根に、夜明けの光が、とどいた…！', `${c.name}は、しずかに、うなずいた。`, `${c.name}「…よくぞ、明かりをつないだ。」`);
+  ev.fx = { type: 'ability', anim: 'c9h_dawn', actor: c.id, targets: [c.id], side: 'enemy' };
+  ev.c9hWin = { id: c.id };
+  b.killed.push(c.species);
+  c.telegraph = null;
+  b.pendingEnd = { outcome: 'win' };
+  b.queue = [];
+  ev.upd.push(c);
+}
+// 明かりを わける（ともしびが ある 人 → 仲間 1人）
+function share(b, c, ev) {
+  const h = hoshimoriOf(b);
+  const t = (ev.fx?.targets || []).map((id) => b.get(id))[0] || null;
+  if (!h?.c9h) {
+    ev.lines.push('しかし、何も起こらなかった。');
+    return;
+  }
+  if (!c.c9torch) {
+    ev.lines.push('しかし、自分のともしびが消えている！');
+    return;
+  }
+  if (!t?.alive) {
+    ev.lines.push('しかし、わける相手がいない！');
+    return;
+  }
+  if (t.c9torch) {
+    ev.lines.push(`${t.name}のともしびは、もうついている。`);
+    return;
+  }
+  t.c9torch = true;
+  h.c9h.shares++;
+  ev.lines.push(`${t.name}のともしびが、ふたたびともった！`);
+  ev.c9hShare = { by: c.id, to: t.id };
+  ev.upd.push(t, c);
+}
+
+// ───────────── ダメージ（battle-c8r.js の c8rDamage の はじめ。味方 → 敵 だけ）─────────────
+// ともしびが 消えた 人の 攻撃は 半分・ホシモリは HP 1 より 下がらない（与えた ダメージは めもりの「大きな 一撃」に 数える）
+export function c9aDamage(b, c, t, dmg, info, ev) {
+  if (!(dmg > 0) || c?.side !== 'ally') return dmg;
+  if (b.c9trial && !c.c9torch) {
+    dmg = Math.max(1, Math.round(dmg * trialConf(hoshimoriOf(b)).half));
+    if (!ev.c9hHalf) {
+      ev.c9hHalf = true;
+      post(ev).push(`（${c.name}のともしびが消えているので、力が半分…）`);
+    }
+  }
+  if (t.c9h) {
+    dmg = Math.max(0, Math.min(dmg, t.hp - 1));
+    t.c9h.dmg += dmg;
+  }
+  return dmg;
+}
+// 回復の 強さ（battle.js の heal）。ともしびが 消えた 人の 回復は 半分
+export function c9aHealMul(b, c) {
+  if (!b?.c9trial || c?.side !== 'ally' || c.c9torch) return 1;
+  return trialConf(hoshimoriOf(b)).half;
+}
+
+// ───────────── たおれた（battle-c8r.js の c8rKill の はじめ。t.alive は まだ true）─────────────
+export function c9aKill(b, t, ev) {
+  if (!t) return;
+  // ためし: たおれた 人の ともしびは 消える → まっくらか
+  if (t.side === 'ally' && b.c9trial) {
+    if (t.c9torch && ev) post(ev).push(`${t.name}のともしびも、消えてしまった…。`);
+    t.c9torch = false;
+    darkCheck(b, ev, t);
+    return;
+  }
+  if (t.side !== 'enemy' || !b.c9trio) return;
+  const m = mechaOf(b);
+  // すいこみ口を こわした: すいこみは 止まり、メカは 1回 休む
+  if (t.species === C9A_NOZZLE && m?.alive && m.c9t) {
+    const k = m.c9t;
+    const wasAim = k.aim;
+    Object.assign(k, { broken: true, rest: 1, fix: 0, aim: false, aimLeft: trioConf(m).aim });
+    k.breaks++;
+    if (m.telegraph === SUCK || m.telegraph === AIM) m.telegraph = null;
+    if (ev) {
+      post(ev).push('すいこみ口が、ボカーンとこわれた！', 'ボヤッチ「あわわ、すいこみ口がーっ！」', wasAim ? '（すいこみが止まった！メカは、しばらく動けない…！）' : '（メカは、しばらく動けない…！）');
+      ev.c9tBreak = { id: m.id, nozzle: t.id, stop: wasAim };
+      ev.upd.push(m);
+    }
+    return;
+  }
+  // メカを たおした: すいこみ口も いっしょに。3人組は 空の かなたへ
+  if (t === m) {
+    const n = nozzleOf(b);
+    if (n?.alive) {
+      b.kill(n, null, ev);
+      if (ev) ev.upd.push(n);
+    }
+    if (ev) {
+      post(ev).push(
+        'スイトール1号が、プスプスとけむりを上げ始めた…！',
+        'キラジョ「ちょっとボヤッチ！なんとかしなさいよ！」',
+        'ボヤッチ「もう、むりでございマ〜ス！」',
+        'ドッカーン！！',
+        '3人組は、空のかなたへ、ふっとんでいった…',
+        'ズラッカ「おぼえてろだっぺ〜！」',
+      );
+      ev.c9tDown = { id: m.id };
+    }
+  }
+}
+
+// ───────────── オート（battle-c8r.js の c8rPlan の はじめ）─────────────
+// 第3部 第1章 第1幕の しかけが なければ null（ほかの ボスの 考えへ）。ふつうの オートも null（しくみを 使わない）
+const hurtCmd = (a) => a && ['enemy', 'group', 'enemies'].includes(a.target) && ['phys', 'magic'].includes(prim(a).type);
+export function c9aPlan(b, c, decide) {
+  if (c.side !== 'ally' || b.c9Inner || c.status?.rift) return null;
+  const mode = b.knowsCh9;
+  if (mode !== 'know' && mode !== 'blind') return null;
+  const m = mechaOf(b);
+  const h = hoshimoriOf(b);
+  if (!(m?.alive && m.c9t) && !(h?.alive && h.c9h)) return null;
+  if (m?.c9t) return trioPlan(b, c, m, mode, decide);
+  return trialPlan(b, c, h, mode, decide);
+}
+function base(b, c, decide) {
+  b.c9Inner = true;
+  try {
+    return decide(b, c);
+  } finally {
+    b.c9Inner = false;
+  }
+}
+function trioPlan(b, c, m, mode, decide) {
+  const t = m.c9t;
+  const n = nozzleOf(b);
+  const guarded = guardOf(b) || b.queue.some((q) => q.cmd?.type === 'defend');
+  // 前ぶれ: だれも 守って いなければ 自分が 星の子の 前に 立つ（知らない 人は たまに 気づく）
+  if (t.aim && !guarded && (mode === 'know' || b.rng.chance(0.12))) return { type: 'defend' };
+  if (mode !== 'know') return null;
+  const cmd = base(b, c, decide);
+  const a = cmd?.type === 'ability' ? ABILITIES[cmd.id] : null;
+  // だれかが とても あぶない ときの 回復・生き返りは そのまま
+  if (a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type) && b.allies.some((x) => !x.fled && (!x.alive || x.hp / x.maxHp < 0.4))) return cmd;
+  // すいこみ口が もうすぐ 向く・向いて いる 間は、すいこみ口を こわしに いく
+  if (n?.alive && (t.aim || t.aimLeft <= 1)) {
+    if (hurtCmd(a) && a.target !== 'enemy') return cmd;
+    const hit = bestHit(b, c, n);
+    if (hit) return hit;
+  }
+  // ふだんは メカの 本体を ねらう
+  if (cmd?.type === 'attack' && cmd.target === n?.id) return { type: 'attack', target: m.id };
+  if (a?.target === 'enemy' && cmd.target === n?.id) return { ...cmd, target: m.id };
+  return cmd;
+}
+function trialPlan(b, c, h, mode, decide) {
+  const hh = h.c9h;
+  // ともしびが 消えた 仲間に 明かりを わける（だれかが 行って いれば ほかは ふつう。知らない 人は たまに 気づく）
+  if (c.c9torch && canUse(b, c, SHARE) && (mode === 'know' || b.rng.chance(0.18))) {
+    const t = unlitAllies(b).find((x) => !b.queue.some((q) => q.cmd?.id === SHARE && q.cmd.target === x.id));
+    if (t) return { type: 'ability', id: SHARE, target: t.id };
+  }
+  if (mode !== 'know') return null;
+  // やみの いぶきで ねらわれて いる: 身を 守る（手で かこう）
+  if (hh.aim.includes(c.id) && !c.defending) return { type: 'defend' };
+  return base(b, c, decide);
+}
+// その 敵に いちばん 大きい ダメージの 1回の 行動
+function bestHit(b, c, t) {
+  const r0 = b.calcPhys(c, t, { mult: 1 }, 1, 'phys', true);
+  let best = { cmd: { type: 'attack', target: t.id }, dmg: r0.dmg * r0.hit };
+  for (const id of c.abilities || []) {
+    const a = ABILITIES[id];
+    if (!a || a.target !== 'enemy' || c.autoOff?.includes(id) || a.noAuto || !canUse(b, c, id)) continue;
+    const e = prim(a);
+    let dmg = 0;
+    if (e.type === 'phys') {
+      const r = b.calcPhys(c, t, e, 1, e.element || 'phys', true);
+      dmg = r.dmg * r.hit * (e.random ? 1 : e.hits || 1);
+    } else if (e.type === 'magic') dmg = b.calcMagic(c, t, e, 1, true).dmg;
+    else continue;
+    if (dmg > best.dmg) best = { cmd: { type: 'ability', id, target: t.id }, dmg };
+  }
+  return best.dmg > 0 ? best.cmd : null;
+}
+
+// ───────────── 大技が 近いか（c の 次の 番より 先に メカ・ホシモリが 動くか）─────────────
+export function c9aSoon(b, c, e) {
+  if (!e?.alive) return false;
+  const re = atbRate(e);
+  if (!(re > 0)) return false;
+  const t0 = e.ready || e.queued ? 0 : (100 - e.atb) / re;
+  return t0 <= 100 / atbRate(c);
+}
+
+// ───────────── がめんへ（battle.js の pub の さいご。味方も 敵も）─────────────
+// 味方: torch9（ともしび 1 ついて いる・0 消えた。ためしの 戦いだけ）
+// スイトール1号: c9Aim（向けて いる）・c9AimLeft・c9AimEvery・c9Broken（すいこみ口が こわれて いる）・c9FixLeft
+// すいこみ口: c9Nozzle / ホシモリ: dawn・dawnMax・breathLeft・breathEvery・breathAim（ねらう 人の id）・hmWin（うなずいた）
+export function c9aPub(c) {
+  const o = {};
+  if (c.side === 'ally') {
+    if (c.c9torch !== undefined) o.torch9 = c.c9torch ? 1 : 0;
+    return o;
+  }
+  if (c.c9t) {
+    const t = c.c9t;
+    const tc = trioConf(c);
+    o.c9Aim = t.aim ? 1 : 0;
+    o.c9AimLeft = t.broken ? 0 : t.aimLeft;
+    o.c9AimEvery = tc.aim;
+    o.c9Broken = t.broken ? 1 : 0;
+    o.c9FixLeft = t.broken ? Math.max(0, tc.fix - t.fix) : 0;
+  }
+  if (c.species === C9A_NOZZLE) o.c9Nozzle = 1;
+  if (c.c9h) {
+    const h = c.c9h;
+    o.dawn = h.dawn;
+    o.dawnMax = h.max;
+    o.breathLeft = h.aim.length ? 0 : h.left;
+    o.breathEvery = trialConf(c).every;
+    o.breathAim = h.aim.slice();
+    o.hmWin = h.won ? 1 : 0;
+  }
+  return o;
+}
+// クライアントへ おくる じょうほう（battle.js の snapshot）
+export function c9aSnap(b) {
+  return spicaPub(b);
+}
+// pub を 使う ところ（テストの ため）
+export const c9aPubOf = (c) => ({ ...pub(c) });
