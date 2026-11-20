@@ -7,6 +7,8 @@
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
+// 第91回 A班: 第3部 第1章 第2幕の タイル（render/tiles-c9b.js。ここで まぜる）
+import { C9B_PAINTERS, C9B_FRAMES, C9B_SPEED, C9B_FLOOR_H, c9bBlockSpec, C9B_PROPS, C9B_PROPS_KEEP, C9B_THEMES } from './tiles-c9b.js';
 
 const ST = { d: '#1a1a2a', b: '#2c2c44', l: '#44466a', hl: '#6a6c98', ln: '#10101c' }; // 地下道の 石
 const MS = { d: '#1c3a2c', b: '#2e5a40', l: '#4a8a5a', hl: '#7ac08a' }; // こけ
@@ -228,25 +230,26 @@ export const C9A_PAINTERS = {
   [T.C9A_PEDESTAL]: (p, v) => paintPedestal(p, v),
   [T.C9A_LANTERN]: (p, v) => paintLantern(p, v, false),
   [T.C9A_LANTERN_ON]: (p, v, f) => paintLantern(p, v, true, f),
+  ...C9B_PAINTERS,
 };
 export const C9A_FRAMES = {
-  [T.C9A_SOURCE]: SOURCE_FRAMES9A, [T.C9A_CRYSTAL_ON]: 2, [T.C9A_SHARD]: SHARD_FRAMES9A, [T.C9A_STARROCK]: ROCK_FRAMES9A, [T.C9A_LANTERN_ON]: LANTERN_FRAMES9A,
+  [T.C9A_SOURCE]: SOURCE_FRAMES9A, [T.C9A_CRYSTAL_ON]: 2, [T.C9A_SHARD]: SHARD_FRAMES9A, [T.C9A_STARROCK]: ROCK_FRAMES9A, [T.C9A_LANTERN_ON]: LANTERN_FRAMES9A, ...C9B_FRAMES,
 };
 export const C9A_SPEED = {
-  [T.C9A_SOURCE]: 260, [T.C9A_CRYSTAL_ON]: 400, [T.C9A_SHARD]: 220, [T.C9A_STARROCK]: 320, [T.C9A_LANTERN_ON]: 300,
+  [T.C9A_SOURCE]: 260, [T.C9A_CRYSTAL_ON]: 400, [T.C9A_SHARD]: 220, [T.C9A_STARROCK]: 320, [T.C9A_LANTERN_ON]: 300, ...C9B_SPEED,
 };
 
 // ───── 2.5D ─────
 // くぼ地の ゆかは 少し ひくい。とびら 4つは かべ（洞窟の かべと おなじ 高さ）。たおれた 木は ひくい ブロック。
 // みなもと・水しょう・ながれ星の 石・テント・黒板・音さの 台・ちょうちんは たてた もの
-export const C9A_FLOOR_H = { [T.C9A_CRATER]: -0.16, [T.C9A_MOSS]: -0.01 };
+export const C9A_FLOOR_H = { [T.C9A_CRATER]: -0.16, [T.C9A_MOSS]: -0.01, ...C9B_FLOOR_H };
 export function c9aBlockSpec(id, v) {
   switch (id) {
     case T.C9A_DOOR: case T.C9A_CHALKDOOR: case T.C9A_ICEDOOR: case T.C9A_TRIALDOOR:
       return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', id, 0, 0] };
     case T.C9A_LOG: return { h: 0.55, top: ['t', T.C9A_LOG, v, 0], side: ['t', T.C9A_LOG, v, 0] };
     case T.C9A_RIM: return { h: 0.42, top: ['t', T.C9A_RIM, v, 0], side: ['t', T.C9A_RIM, v, 0] }; // くぼ地の ふち（ひくい 土の もり上がり）
-    default: return null;
+    default: return c9bBlockSpec(id, v);
   }
 }
 const crystalProp = (c, h = 24) => [16, h, (p) => {
@@ -293,9 +296,10 @@ export const C9A_PROPS = {
   }],
   [T.C9A_LANTERN]: lanternProp(false),
   [T.C9A_LANTERN_ON]: lanternProp(true),
+  ...C9B_PROPS,
 };
 // たてた ものでも 色を かえない
-export const C9A_PROPS_KEEP = new Set([T.C9A_SOURCE, T.C9A_CRYSTAL, T.C9A_CRYSTAL_ON, T.C9A_STARROCK, T.C9A_TENT, T.C9A_BOARD, T.C9A_PEDESTAL, T.C9A_LANTERN, T.C9A_LANTERN_ON]);
+export const C9A_PROPS_KEEP = new Set([T.C9A_SOURCE, T.C9A_CRYSTAL, T.C9A_CRYSTAL_ON, T.C9A_STARROCK, T.C9A_TENT, T.C9A_BOARD, T.C9A_PEDESTAL, T.C9A_LANTERN, T.C9A_LANTERN_ON, ...C9B_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -317,4 +321,5 @@ export const C9A_THEMES = {
     gem: G([0, '#3a2a08'], [0.5, '#f0c850'], [1, '#fffcf0']),
     flame: G([0, '#4a2a0a'], [0.5, '#f0b050'], [1, '#fff8e0']),
   },
+  ...C9B_THEMES,
 };
