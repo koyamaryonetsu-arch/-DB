@@ -91,6 +91,8 @@ export const C9A_CAVE_TRACK = 'c9a_cave';
 //   A班が 画面の 状態 pillarStage を 出せば それを（field.pillarStage・game.pillarStage。数 でも 関数 でも よい）、
 //   出て いない 間は 柱の フラグ c9_pillar1〜6 の 数を 使う。名前は addFormKey にも 入れて おく（戦いの pub に 出ても こまらない 段の 名前）
 addFormKey('pillarStage');
+// 第91回 A班（つなぐ 時）: デデドン大王（c9b_king）の 段 kingStage（B班の pub。1 ふつう・2 まっ暗・3 HP 2わり いか・4 すわりこんだ）→ だん 0〜3
+addFormKey('kingStage');
 export const C9B_UNDER_TRACK = 'c9b_under';
 export const C9B_PILLAR_FLAGS = ['c9_pillar1', 'c9_pillar2', 'c9_pillar3', 'c9_pillar4', 'c9_pillar5', 'c9_pillar6'];
 export function pillarIntensity(stage) {
