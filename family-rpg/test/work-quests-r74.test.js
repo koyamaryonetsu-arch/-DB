@@ -61,7 +61,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（第66回の 伝説の 職業に つながる 系統・18〜26 と かさならない）・今の 時代の まだ いらいの ない 場所・c8_abyss の あとだけ', () => {
   assert.equal(WORK5_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 38); // 第75回: 30〜32・第80回: 33〜35・第90回: 36〜38 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 41); // 第75回: 30〜32・第80回: 33〜35・第90回: 36〜38・第92回: 39〜41 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(26, 29), WORK5_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(23, 26), WORK4_QUESTS);
   assert.deepEqual(WORK5_QUESTS.map((x) => x.roots), [['sword_master', 'magic_swordsman'], ['black_org'], ['shachiku']]);

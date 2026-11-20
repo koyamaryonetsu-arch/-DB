@@ -605,6 +605,9 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
+    // 第92回 D班: お仕事いらい 39〜41・より道「大王の、大きなランタン」「まいごの、もぐら兵」
+    'public/js/shared/data/sidequests-work9.js', 'public/js/shared/maps/work-quests9.js', 'public/js/client/render/work9-art.js',
+    'public/js/shared/data/sidequests-c9bd.js', 'public/js/shared/maps/c9bd-side.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

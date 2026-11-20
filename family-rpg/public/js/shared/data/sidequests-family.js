@@ -40,6 +40,8 @@ import { WORK6_QUESTS, WORK6_SCRIPTS, WORK6_STORY_SCRIPTS, workSubQuests6 } from
 import { WORK7_QUESTS, WORK7_SCRIPTS, WORK7_STORY_SCRIPTS, workSubQuests7 } from './sidequests-work7.js';
 // 第90回 D班: たのまれごと 36〜38（data/sidequests-work8.js。第3部 第1章 第1幕の 星ふるえの あとから）
 import { WORK8_QUESTS, WORK8_SCRIPTS, WORK8_STORY_SCRIPTS, workSubQuests8 } from './sidequests-work8.js';
+// 第92回 D班: たのまれごと 39〜41（data/sidequests-work9.js。第3部 第1章 第2幕の クリアの あとから）
+import { WORK9_QUESTS, WORK9_SCRIPTS, WORK9_STORY_SCRIPTS, workSubQuests9 } from './sidequests-work9.js';
 // はり紙の ごほうびの 素材・道具の 名前（使う 時に 見る。読みこみの じゅんばんに よらない）
 import { ITEMS } from './items.js';
 
@@ -79,6 +81,8 @@ export const FAMILY_QUESTS = [
   ...WORK7_QUESTS,
   // 36〜38（第90回 D班。data/sidequests-work8.js。open … c9_starfall から）
   ...WORK8_QUESTS,
+  // 39〜41（第92回 D班。data/sidequests-work9.js。open … c9_act2 から）
+  ...WORK9_QUESTS,
 ];
 const Q = Object.fromEntries(FAMILY_QUESTS.map((q) => [q.id, q]));
 
@@ -149,6 +153,8 @@ export function familySubQuests(c, f, has) {
   out.push(...workSubQuests7(c, f, has));
   // 36〜38（第90回 D班）
   out.push(...workSubQuests8(c, f, has));
+  // 39〜41（第92回 D班）
+  out.push(...workSubQuests9(c, f, has));
   // 第65回 D2: お仕事いらい板で 受けて、まだ たのみたい 人に 会っていない（地図の しるしは その 人）
   for (const fq of FAMILY_QUESTS) {
     if (f(takeFlag(fq)) && !f(fq.start) && !f(fq.done)) out.push({ name: fq.name, who: fq.npc, ready: false, text: `${fq.who}に会おう`, hint: `お仕事いらい板で受けた。${fq.where}にいる、${fq.who}に話しかけよう。` });
@@ -922,6 +928,7 @@ export const FAMILY_SCRIPTS = {
   ...WORK6_SCRIPTS,
   ...WORK7_SCRIPTS,
   ...WORK8_SCRIPTS,
+  ...WORK9_SCRIPTS,
 };
 // パーティー全員で 見る イベント（戦い・トロッコ）
-export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS, ...WORK4_STORY_SCRIPTS, ...WORK5_STORY_SCRIPTS, ...WORK6_STORY_SCRIPTS, ...WORK7_STORY_SCRIPTS, ...WORK8_STORY_SCRIPTS];
+export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS, ...WORK2_STORY_SCRIPTS, ...WORK3_STORY_SCRIPTS, ...WORK4_STORY_SCRIPTS, ...WORK5_STORY_SCRIPTS, ...WORK6_STORY_SCRIPTS, ...WORK7_STORY_SCRIPTS, ...WORK8_STORY_SCRIPTS, ...WORK9_STORY_SCRIPTS];
