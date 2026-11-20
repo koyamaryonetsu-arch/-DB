@@ -261,7 +261,7 @@ export function c9aPresent(scene, ev, fx, anim, actor) {
     const pt = m && scene.center?.(m);
     if (pt) scene.fx?.play?.('c9t_boom', [pt]);
     scene.shake?.(900, 10);
-    good('3人組は、空のかなたへ！', 'sparkle');
+    good('ホシドロ一味は、空のかなたへ！', 'sparkle');
   }
   // ホシモリ
   if (ev.c9hWarn) warn(`！やみのいぶき…ねらいは${ev.c9hWarn.ids.map(nm).join('と')}！`);

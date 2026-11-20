@@ -44,13 +44,32 @@ const post = (ev) => (ev.postLines = ev.postLines || []);
 const confOf = (m) => MONSTERS[m?.species]?.c9a || null;
 const stars = (n, max) => '★'.repeat(Math.max(0, n)) + '☆'.repeat(Math.max(0, max - n));
 
-export function trioConf(m) {
-  const c = confOf(m) || {};
-  return { aim: c.aim ?? 3, suck: { mult: 2.1, ...(c.suck || {}) }, lost: { heal: 0.06, up: 1.12, ...(c.lost || {}) }, fix: c.fix ?? 3, light: c.light ?? SPICA_LIGHT };
+// 人数（家族の キャラ ＝ kind 'player' の 数。1〜5）で 合わせる 表（monsters-c9a.js の c9a.few。[1人, 2人, 3人, 4人, 5人]）
+//   人が 動かす キャラが 少ない ときは、自動の 仲間が しくみを 使わない ぶん やさしく する（しくみは おなじ）
+//   家族の キャラが 1人も いない 戦い（テスト・古い シミュレーター）は 4人と おなじ
+export function peopleOf(b) {
+  if (b?.c9people) return b.c9people;
+  const n = (b?.allies || []).filter((a) => a.kind === 'player').length;
+  return Math.max(1, Math.min(5, n || 4));
 }
-export function trialConf(m) {
+const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf(b) - 1] ?? d : d);
+export function trioConf(m, b = null) {
   const c = confOf(m) || {};
-  return { dawn: c.dawn ?? 16, every: c.every ?? 3, big: c.big ?? 9000, half: c.half ?? 0.5, spicaEvery: c.spicaEvery ?? 3, two: c.two ?? 0.5, breath: c.breath || [300, 330] };
+  const f = c.few || {};
+  return {
+    aim: c.aim ?? 3, suck: { mult: 2.1, ...(c.suck || {}) }, lost: { heal: 0.06, up: 1.12, ...(c.lost || {}) }, fix: c.fix ?? 3, light: c.light ?? SPICA_LIGHT,
+    guard: b ? few(f.guard, b, 1) : 1, nozzle: b ? few(f.nozzle, b, 1) : 1, wait: b ? few(f.wait, b, 0) : 0,
+  };
+}
+export function trialConf(m, b = null) {
+  const c = confOf(m) || {};
+  const f = c.few || {};
+  const every = c.every ?? 3;
+  const dawn = c.dawn ?? 16;
+  return {
+    dawn: b ? few(f.dawn, b, dawn) : dawn, every: b ? few(f.every, b, every) : every,
+    big: c.big ?? 9000, half: c.half ?? 0.5, spicaEvery: c.spicaEvery ?? 3, two: b ? few(f.two, b, c.two ?? 0.5) : c.two ?? 0.5, breath: c.breath || [300, 330],
+  };
 }
 export const mechaOf = (b) => (b.c9trio ? b.get(b.c9trio.mecha) : null);
 export const nozzleOf = (b) => (b.c9trio ? b.get(b.c9trio.nozzle) : null);
@@ -64,6 +83,7 @@ export const unlitAllies = (b) => b.aliveAllies().filter((x) => !x.c9torch);
 export function setupC9a(b) {
   const lines = [];
   let on = false;
+  b.c9people = peopleOf(b);
   try {
     on = !!b.hooks?.leaderFlag?.(C9A.child);
   } catch { /* */ }
@@ -95,9 +115,11 @@ export function spicaPub(b) {
 }
 
 function setupTrio(b, m, lines) {
-  const tc = trioConf(m);
+  const tc = trioConf(m, b);
   const nz = b.enemies.find((e) => e.species === C9A_NOZZLE);
-  m.c9t = { acts: 0, aimLeft: tc.aim, aim: false, broken: !nz, rest: 0, fix: 0, power: 1, atk0: m.atk, sucks: 0, guards: 0, lost: 0, breaks: 0, fixes: 0 };
+  // すいこみ口の HP は 人数で 合わせる（few.nozzle）
+  if (nz && tc.nozzle !== 1) nz.maxHp = nz.hp = Math.max(1, Math.round(nz.maxHp * tc.nozzle));
+  m.c9t = { acts: 0, aimLeft: tc.aim, aim: false, wait: 0, broken: !nz, rest: 0, fix: 0, power: 1, atk0: m.atk, sucks: 0, guards: 0, lost: 0, breaks: 0, fixes: 0 };
   b.c9trio = { mecha: m.id, nozzle: nz?.id || null };
   lines.push(
     'キラジョ「オーッホッホ！その子の光は、わたしたちホシドロ一味がいただくわ！」',
@@ -108,8 +130,8 @@ function setupTrio(b, m, lines) {
 }
 
 function setupTrial(b, h, lines) {
-  const hc = trialConf(h);
-  h.c9h = { acts: 0, dawn: 0, max: hc.dawn, left: hc.every, aim: [], dmg: 0, bigs: 0, breaths: 0, shares: 0, kept: 0, outs: 0, relit: 0, won: false, dark: false };
+  const hc = trialConf(h, b);
+  h.c9h = { acts: 0, dawn: 0, max: hc.dawn, every: hc.every, left: hc.every, aim: [], dmg: 0, bigs: 0, breaths: 0, shares: 0, kept: 0, outs: 0, relit: 0, won: false, dark: false };
   b.c9trial = { hm: h.id };
   for (const a of b.allies) {
     a.c9torch = true;
@@ -177,7 +199,7 @@ export function c9aTurnStart(b, c, ev, stuck) {
 
 function trioTurn(b, c, ev, stuck) {
   const t = c.c9t;
-  const tc = trioConf(c);
+  const tc = trioConf(c, b);
   if (c.telegraph) return;
   t.acts++;
   // すいこみ口が こわれて いる: 1回 休む → fix 回 動くと 直る
@@ -194,8 +216,14 @@ function trioTurn(b, c, ev, stuck) {
     ev.upd.push(c);
     return;
   }
-  // すいこみ口を 向けて いる: すいこむ
+  // すいこみ口を 向けて いる: すいこむ（人が 少ない ときは wait 回 ふつうに 動いて から）
   if (t.aim) {
+    if (t.wait > 0) {
+      t.wait--;
+      ev.c9tWait = { id: c.id, left: t.wait };
+      ev.upd.push(c);
+      return;
+    }
     if (!stuck) c.telegraph = SUCK;
     ev.upd.push(c);
     return;
@@ -221,7 +249,7 @@ function fixNozzle(b, c, ev) {
 
 function trialTurn(b, c, ev, stuck) {
   const h = c.c9h;
-  const hc = trialConf(c);
+  const hc = trialConf(c, b);
   if (c.telegraph || h.won) return;
   // 1つの 番に 2回 動く（turns: 2）ときは、はじめの 1回で めもり・いぶきを 数える（あとの 1回は ふつうの 行動。battle.js の onReady）
   if ((c.turns || 1) > 1 && !c.queued) return;
@@ -283,7 +311,10 @@ function aim(b, c, ev) {
   const t = c.c9t;
   if (!t) return;
   t.aim = true;
-  ev.lines.push('すいこみ口が、星の子の方を向いた！', '（次にメカが動くと、すいこまれる…！だれかが「防御」で、星の子の前に立とう！）');
+  t.wait = trioConf(c, b).wait;
+  ev.lines.push('すいこみ口が、星の子の方を向いた！', t.wait > 0
+    ? '（もうすこしで、すいこまれる…！だれかが「防御」で、星の子の前に立とう！）'
+    : '（次にメカが動くと、すいこまれる…！だれかが「防御」で、星の子の前に立とう！）');
   ev.c9tAim = { id: c.id };
   ev.warn = true;
   ev.upd.push(c);
@@ -295,7 +326,7 @@ export function guardOf(b) {
 }
 function suck(b, c, ev) {
   const t = c.c9t;
-  const tc = trioConf(c);
+  const tc = trioConf(c, b);
   const s = b.c9sp || addSpica(b);
   t.aim = false;
   t.aimLeft = tc.aim;
@@ -305,7 +336,8 @@ function suck(b, c, ev) {
     t.guards++;
     ev.lines.push(`${g.name}が、星の子の前に立って、すいこみを受けとめた！`);
     ev.fx = { type: 'ability', anim: 'c9t_suck', actor: c.id, targets: [g.id], side: 'enemy' };
-    b.physHit(c, g, { mult: tc.suck.mult, acc: 9 }, ev, 'phys');
+    // 人が 動かす キャラ（家族の キャラ）が 受けとめる ときは、人数で 合わせる（few.guard）
+    b.physHit(c, g, { mult: tc.suck.mult * (g.kind === 'player' ? tc.guard : 1), acc: 9 }, ev, 'phys');
     ev.c9tSuck = { id: c.id, guard: g.id, light: s.light };
     ev.upd.push(c);
     return;
@@ -336,7 +368,7 @@ function suck(b, c, ev) {
 
 function breath(b, c, ev) {
   const h = c.c9h;
-  const hc = trialConf(c);
+  const hc = trialConf(c, b);
   const ids = h.aim.slice();
   h.aim = [];
   h.left = hc.every;
@@ -481,7 +513,7 @@ export function c9aKill(b, t, ev) {
         'キラジョ「ちょっとボヤッチ！なんとかしなさいよ！」',
         'ボヤッチ「もう、むりでございマ〜ス！」',
         'ドッカーン！！',
-        '3人組は、空のかなたへ、ふっとんでいった…',
+        'ホシドロ一味は、空のかなたへ、ふっとんでいった…',
         'ズラッカ「おぼえてろだっぺ〜！」',
       );
       ev.c9tDown = { id: m.id };
@@ -492,13 +524,15 @@ export function c9aKill(b, t, ev) {
 // ───────────── オート（battle-c8r.js の c8rPlan の はじめ）─────────────
 // 第3部 第1章 第1幕の しかけが なければ null（ほかの ボスの 考えへ）。ふつうの オートも null（しくみを 使わない）
 const hurtCmd = (a) => a && ['enemy', 'group', 'enemies'].includes(a.target) && ['phys', 'magic'].includes(prim(a).type);
+// 1人ずつの 知りかた（c.knows9。シミュレーターが 人数ごとに 入れる）が あれば そちらを 先に 見る
+export const AUTO_SHARE_EVERY = 3;
 export function c9aPlan(b, c, decide) {
   if (c.side !== 'ally' || b.c9Inner || c.status?.rift) return null;
-  const mode = b.knowsCh9;
-  if (mode !== 'know' && mode !== 'blind') return null;
+  const mode = c.knows9 ?? b.knowsCh9;
   const m = mechaOf(b);
   const h = hoshimoriOf(b);
   if (!(m?.alive && m.c9t) && !(h?.alive && h.c9h)) return null;
+  if (mode !== 'know' && mode !== 'blind') return h?.c9h ? autoShare(b, c) : null;
   if (m?.c9t) return trioPlan(b, c, m, mode, decide);
   return trialPlan(b, c, h, mode, decide);
 }
@@ -534,6 +568,8 @@ function trioPlan(b, c, m, mode, decide) {
 }
 function trialPlan(b, c, h, mode, decide) {
   const hh = h.c9h;
+  // 知っている 人が 少ない（家族の キャラが 2人 まで）: 自分が ねらわれて いれば、わけるより 先に 身を 守る（自分の 火が 消えると わけられない）
+  if (mode === 'know' && peopleOf(b) <= 2 && hh.aim.includes(c.id) && !c.defending) return { type: 'defend' };
   // ともしびが 消えた 仲間に 明かりを わける（だれかが 行って いれば ほかは ふつう。知らない 人は たまに 気づく）
   if (c.c9torch && canUse(b, c, SHARE) && (mode === 'know' || b.rng.chance(0.18))) {
     const t = unlitAllies(b).find((x) => !b.queue.some((q) => q.cmd?.id === SHARE && q.cmd.target === x.id));
@@ -543,6 +579,19 @@ function trialPlan(b, c, h, mode, decide) {
   // やみの いぶきで ねらわれて いる: 身を 守る（手で かこう）
   if (hh.aim.includes(c.id) && !c.defending) return { type: 'defend' };
   return base(b, c, decide);
+}
+// 自動の 人の 仲間（酒場の 人・家族の キャラの 仲間・ゲスト）: ともしびが 消えた 仲間が いて、自分の 火が ある 番の 3回に 1回だけ 明かりを わける
+//   （ひとりで 遊ぶ 家族の ため。数は 自動の 仲間 みんなで 1つ … 何人 いても 3回に 1回。
+//    全員 オートだと それでも 間に あわずに 負ける。いぶきから 身を 守る ことは しない）
+//   魔物の 仲間は わけない（魔物の 仲間は かたくて、わけまで すると 完全オートでも 5わり 勝って しまう。tools/sim-ch9.mjs の k1mon）
+function autoShare(b, c) {
+  // 家族の キャラ（kind 'player'）の「オート」は 今までどおり（完全オートは 勝てない まま）
+  if (c.kind === 'player' || c.kind === 'monster' || !c.c9torch || !canUse(b, c, SHARE)) return null;
+  const t = unlitAllies(b).find((x) => !b.queue.some((q) => q.cmd?.id === SHARE && q.cmd.target === x.id));
+  if (!t) return null;
+  b.c9autoShare = (b.c9autoShare || 0) + 1;
+  if (b.c9autoShare % AUTO_SHARE_EVERY) return null;
+  return { type: 'ability', id: SHARE, target: t.id };
 }
 // その 敵に いちばん 大きい ダメージの 1回の 行動
 function bestHit(b, c, t) {
@@ -597,11 +646,20 @@ export function c9aPub(c) {
     o.hmDawn = h.dawn;
     o.hmDawnMax = h.max;
     o.hmBreathLeft = h.aim.length ? 0 : h.left;
-    o.hmBreathEvery = trialConf(c).every;
+    o.hmBreathEvery = h.every ?? trialConf(c).every;
     o.hmBreathAim = h.aim.slice();
     o.hmWin = h.won ? 1 : 0;
+    // 曲の もりあがり（client/audio-scene.js の addFormKey('dawnStage')）: 1 夜・2 夜明け前・3 夜明け・4 夜明けの さいご
+    o.dawnStage = dawnStage(h.dawn, h.max, h.won);
   }
   return o;
+}
+// 夜明けの めもりの 段（docs/plan-part3.md の「実装メモ（F班）」… めもり 16 の 0〜4 → 1・5〜9 → 2・10〜13 → 3・14〜 → 4。
+//   人数で めもりの 数が かわるので、わりあいで きめる）
+export function dawnStage(dawn, max, won = false) {
+  if (won || !(max > 0)) return 4;
+  const r = dawn / max;
+  return r >= 14 / 16 ? 4 : r >= 10 / 16 ? 3 : r >= 5 / 16 ? 2 : 1;
 }
 // クライアントへ おくる じょうほう（battle.js の snapshot）
 export function c9aSnap(b) {

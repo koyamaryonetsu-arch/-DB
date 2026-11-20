@@ -57,7 +57,7 @@ const BOSS = {
   // スイトール1号（3人組）: 1人 1つの アクセサリー（drops.boss）と、キラジョのおうぎ（drops.rare の 1回に 1回。今までで いちばん 強い おうぎ）
   c9b_trio_badge: {
     ...C(3), ...PB, boss: 'c9a_suitoru', unique: true, name: 'ホシドロ一味のバッジ', bonus: { hp: 126, str: 35, def: 32, mag: 35, agi: 30, heal: 26 }, resist: { bolt: 0.7, fire: 0.85 },
-    desc: '3人組が、にげるときに落としていった、星の形のバッジ。だれでも装備でき、すべての力が大きく上がる。雷に強い。',
+    desc: 'ホシドロ一味が、にげるときに落としていった、星の形のバッジ。だれでも装備でき、すべての力が大きく上がる。雷に強い。',
   },
   c9b_kirajo_fan: {
     ...W('fan', 5, 2.04), ...PB, boss: 'c9a_suitoru', name: 'キラジョのおうぎ', bonus: { mag: 20, agi: 18, heal: 12 }, crit: 0.03, resist: { bolt: 0.85 },
