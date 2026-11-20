@@ -1482,6 +1482,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('cover')) return 'guard';
   if (types.includes('charge')) return 'charge';
   if (types.includes('buff')) return 'buff';
+  // 第90回: 第3部 第1幕の「明かりをわける」（c9aShare）… わけて もらった 仲間の 下にも 光（技の 絵は render/battlefx-c9a.js）
+  if (types.includes('c9aShare')) return 'buff';
   return null;
 }
 
