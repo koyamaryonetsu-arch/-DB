@@ -1,32 +1,35 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=ae365c90037d';
-import { T, TILE_INFO } from '../shared/tiles.js?v=ae365c90037d';
-import { PLACES } from '../shared/maps/overworld.js?v=ae365c90037d';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=ae365c90037d';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=ae365c90037d';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=ae365c90037d';
-import { shownEquip } from '../shared/look-equip.js?v=ae365c90037d';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=ae365c90037d';
-import { MONSTERS } from '../shared/data/monsters.js?v=ae365c90037d';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=57b39f318137';
+import { T, TILE_INFO } from '../shared/tiles.js?v=57b39f318137';
+import { PLACES } from '../shared/maps/overworld.js?v=57b39f318137';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=57b39f318137';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=57b39f318137';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=57b39f318137';
+import { shownEquip } from '../shared/look-equip.js?v=57b39f318137';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=57b39f318137';
+import { MONSTERS } from '../shared/data/monsters.js?v=57b39f318137';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=ae365c90037d';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=ae365c90037d';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=ae365c90037d';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=ae365c90037d';
-import { boardCanvas } from './render/boards.js?v=ae365c90037d';
-import { el } from './ui/dom.js?v=ae365c90037d';
-import { syncTreasureGates } from './ui/treasure.js?v=ae365c90037d';
-import { skyNpcSprite } from './render/sky-art.js?v=ae365c90037d';
-import { wagonDraws } from './render/wagon.js?v=ae365c90037d';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=ae365c90037d';
-import { Weather } from './render/weather.js?v=ae365c90037d';
-import { flySpeed } from '../shared/data/sky.js?v=ae365c90037d';
-import { timeFlag } from '../shared/world/clock.js?v=ae365c90037d';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=ae365c90037d';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=ae365c90037d';
-import { huntMatch } from './ui/sources.js?v=ae365c90037d';
+import { colorMon } from '../shared/data/variants.js?v=57b39f318137';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=57b39f318137';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=57b39f318137';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=57b39f318137';
+import { boardCanvas } from './render/boards.js?v=57b39f318137';
+import { el } from './ui/dom.js?v=57b39f318137';
+import { syncTreasureGates } from './ui/treasure.js?v=57b39f318137';
+import { skyNpcSprite } from './render/sky-art.js?v=57b39f318137';
+import { wagonDraws } from './render/wagon.js?v=57b39f318137';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=57b39f318137';
+import { Weather } from './render/weather.js?v=57b39f318137';
+import { flySpeed } from '../shared/data/sky.js?v=57b39f318137';
+import { timeFlag } from '../shared/world/clock.js?v=57b39f318137';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=57b39f318137';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=57b39f318137';
+import { huntMatch } from './ui/sources.js?v=57b39f318137';
 // 第89回: とちゅうから 戦いに 入る きょり・自動追跡で 止まる きょり（サーバーと おなじ 数。shared/join-rule.js）
-import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js?v=ae365c90037d';
+import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js?v=57b39f318137';
+// 第90回 A班: 第3部 第1章 第1幕の 光の輪の 絵・星の子の 連れ（client/c9a-light.js）
+import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap, drawC9aCraterFloor2D, drawC9aCraterGlow2D, drawC9aCrater3D } from './c9a-light.js?v=57b39f318137';
+import { C9A } from '../shared/maps/c9a-flags.js?v=57b39f318137';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -120,6 +123,7 @@ export function trailAt(o, want) {
 }
 
 export function followerSprite(f, dir, frame) {
+  if (f.spica) return npcSprite('c9a_spica', dir, frame); // 第90回 A班: 星の子（フィールドだけの 連れ）
   if (f.mon) {
     const c = monsterCanvas(f.mon, frame, FOLLOW_MAX);
     if (dir !== 'right') return c;
@@ -235,7 +239,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=ae365c90037d');
+          const { Field3D } = await import('./render/field3d.js?v=57b39f318137');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -825,6 +829,7 @@ export class Field {
   // ───────────── サーバーからの じょうほう ─────────────
   onSnap(msg) {
     if (msg.map !== this.mapId) return;
+    noteC9aSnap(this, msg.c9a); // 第90回 A班: 光の輪（パーティーの 明かり）
     if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
@@ -1033,6 +1038,7 @@ export class Field {
         }
       }
     }
+    if (m.c9aCrater) drawC9aCraterFloor2D(this, camX, camY); // 第90回 A班: ながれ星のくぼ地の ゆか
     // 宝の地図の 場所（まだ ほっていない）: 赤むらさきの 光の 柱（きらきらと ちがう 色）
     for (const sp of this.treasureSpots()) {
       if (sp.x < x0 - 2 || sp.x > x1 + 2 || sp.y < y0 - 1 || sp.y > y1 + 4) continue;
@@ -1076,6 +1082,7 @@ export class Field {
     if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, shownEquip(this.game.me)) });
     objs.sort((a, b) => a.y - b.y);
     for (const o of objs) o.draw();
+    if (m.c9aCrater) drawC9aCraterGlow2D(this, camX, camY); // 第90回 A班: ながれ星の 石・星の子の 光
     // やね
     for (const roof of m.roofs || []) this.drawRoof(roof, camX, camY);
     // お店の かんばん（やねの うえに かける）
@@ -1085,7 +1092,8 @@ export class Field {
       ctx.drawImage(c, Math.round(b.x * TS + (TS - c.width) / 2 - camX), Math.round(b.y * TS - 4 - camY));
     }
     // くらやみ・よる
-    if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
+    if (m.c9a) drawC9aDark2D(this, camX, camY, x0, y0, x1, y1); // 第90回 A班: 光の輪
+    else if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1205,8 +1213,10 @@ export class Field {
         }
       }
     }
-    // くらやみ（どうくつ）
-    if (m.dark) {
+    // くらやみ（どうくつ）。第90回 A班: 光の輪の 階は client/c9a-light.js
+    if (m.c9a) drawC9aDark3D(this, ctx, P);
+    else if (m.c9aCrater) drawC9aCrater3D(this, ctx, P); // 第90回 A班: ながれ星のくぼ地
+    else if (m.dark) {
       const d = this.darkCanvas;
       const x = ctxOf(d);
       x.globalCompositeOperation = 'source-over';
@@ -1420,6 +1430,8 @@ export class Field {
     // 見た目装備（lookEquip）が あれば その 絵（shared/look-equip.js）
     for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) });
     if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, eq: g.equip, guest: true });
+    // 第90回 A班: 星の子（戦いの わくには 入らない フィールドだけの 連れ）
+    if (!this.hideGuests && this.hasFlag(C9A.child)) out.push({ spica: true, guest: true });
     return out;
   }
 
@@ -1727,7 +1739,9 @@ export class Field {
   areaBgm() {
     // 第4章の 砂ばくは 昼と 夜で 曲が かわる（maps/south.js の southBgmAt）
     // 第5章 Step 7: クモイ地方は 影の城が うかぶと 曲が かわる（4つめ … 世界の フラグ）
-    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight(), (f) => this.hasFlag(f));
+    // 第90回 A班: bgmAt が 何も 返さない 時は いつもの 曲（ミドリナ地方の 星祭りの 村）
+    const at = this.map.bgmAt?.(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight(), (f) => this.hasFlag(f));
+    if (at) return at;
     if (this.map.kind === 'dungeon') return this.map.bgm || 'cave';
     const name = this.areaName();
     for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;

@@ -6,8 +6,8 @@
 //       戦いの はじめの 仲間で、組の ちがう 品を べつべつの 2人が つけて いると、つけて いる 2人だけ その 段の 強さ
 //       （party は 全員・pair は つけた 人だけ。battle.js の constructor で applyPartySets の あとに よぶ）
 //   どれも 戦いの 中だけ（セーブしない）。battle.js は import しない（battle.js から よばれる）
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=ae365c90037d';
-import { ITEMS, baseItemId } from './data/items.js?v=ae365c90037d';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=57b39f318137';
+import { ITEMS, baseItemId } from './data/items.js?v=57b39f318137';
 
 // 攻撃魔力（強化・弱化を かけた 今の 数。battle.js の effMag と 同じ 式）
 export function magNow(c) {

@@ -4,20 +4,20 @@
 //   ・装備は「▲12」… 自分か 仲間が 装備すると いちばん 強くなる ぶん（くわしくは みぎの まどの くらべ）
 //   ・こうかんの えんしゅつ（きらきら ＋ ファンファーレ）。乱数・コインの 計算は サーバー（shared/world/casino.js）
 //   カジノの まどの 部品（CasinoCounter など）は ui/casino.js から（この ファイルは ui/casino.js が あとから 読む）
-import { el, esc } from './dom.js?v=ae365c90037d';
-import { itemInfo, compareTeam } from './counter.js?v=ae365c90037d';
-import { request } from './shop.js?v=ae365c90037d';
-import { boardIconURL } from '../render/boards.js?v=ae365c90037d';
-import { prizeIconURL } from '../render/prize-icons.js?v=ae365c90037d';
-import { monsterCanvas } from '../render/monsters.js?v=ae365c90037d';
-import { ITEMS } from '../../shared/data/items.js?v=ae365c90037d';
-import { MONSTERS } from '../../shared/data/monsters.js?v=ae365c90037d';
-import { MONSTER_FRIENDS, RACE_NAMES, rankOf } from '../../shared/data/companions.js?v=ae365c90037d';
-import { VEHICLES } from '../../shared/data/vehicles.js?v=ae365c90037d';
-import { itemCount } from '../../shared/stats.js?v=ae365c90037d';
-import { coinsOf, medalsHeld, medalsGiven } from '../../shared/data/casino.js?v=ae365c90037d';
-import { PRIZE_CATS, prizeCatOf } from '../../shared/data/prizes-r50.js?v=ae365c90037d';
-import { CasinoCounter, fmt, sendClose, ensureStyle } from './casino.js?v=ae365c90037d';
+import { el, esc } from './dom.js?v=57b39f318137';
+import { itemInfo, compareTeam } from './counter.js?v=57b39f318137';
+import { request } from './shop.js?v=57b39f318137';
+import { boardIconURL } from '../render/boards.js?v=57b39f318137';
+import { prizeIconURL } from '../render/prize-icons.js?v=57b39f318137';
+import { monsterCanvas } from '../render/monsters.js?v=57b39f318137';
+import { ITEMS } from '../../shared/data/items.js?v=57b39f318137';
+import { MONSTERS } from '../../shared/data/monsters.js?v=57b39f318137';
+import { MONSTER_FRIENDS, RACE_NAMES, rankOf } from '../../shared/data/companions.js?v=57b39f318137';
+import { VEHICLES } from '../../shared/data/vehicles.js?v=57b39f318137';
+import { itemCount } from '../../shared/stats.js?v=57b39f318137';
+import { coinsOf, medalsHeld, medalsGiven } from '../../shared/data/casino.js?v=57b39f318137';
+import { PRIZE_CATS, prizeCatOf } from '../../shared/data/prizes-r50.js?v=57b39f318137';
+import { CasinoCounter, fmt, sendClose, ensureStyle } from './casino.js?v=57b39f318137';
 
 const itemsText = (items) => items.map(([id, n]) => `${ITEMS[id]?.name || id}${n > 1 ? `×${n}` : ''}`).join('と');
 const CAT_ORDER = ['gear', 'look', 'tool', 'monster'];

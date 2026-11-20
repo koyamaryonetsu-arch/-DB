@@ -5,9 +5,9 @@
 // とくべつな え（paintC8cSpecial）: 初代大魔王クッパード（8階の 大きな すがた 40×48。とげの ついた みどりの こうら・赤い かみ・つの・
 //   大きな 口と きば。コマで いばって むねを はる）・マジカメック（4階の 大きな すがた 40×40。ほうきに のって ふわふわ。つえの 先が ぴかぴか）
 // まほうの おりの ミナモは 第6章の ミナモの え（minamo）を そのまま 使う
-import { Painter } from './pixel.js?v=ae365c90037d';
+import { Painter } from './pixel.js?v=57b39f318137';
 // 第8章 第4幕: 時の門番フリーゾン（render/c8r-npc-art.js。ここで まぜる）
-import { C8R_NPC_LOOKS, paintC8rSpecial, C8R_SPECIALS } from './c8r-npc-art.js?v=ae365c90037d';
+import { C8R_NPC_LOOKS, paintC8rSpecial, C8R_SPECIALS } from './c8r-npc-art.js?v=57b39f318137';
 
 const person = (o) => o;
 export const C8C_NPC_LOOKS = {
@@ -110,7 +110,8 @@ export function paintC8cSpecial(kind, dir, f) {
     case 'c8c_bowser_npc': return paintBowser(f);
     case 'c8c_kamek_npc': return paintKamek(f);
     case 'c8r_gate_npc': return paintC8rSpecial(kind, dir, f);
-    default: return null;
+    // 第3部 第1章 第1幕（render/c9a-npc-art.js。c8r-npc-art.js を とおして）
+    default: return paintC8rSpecial(kind, dir, f);
   }
 }
 export const C8C_SPECIALS = ['c8c_bowser_npc', 'c8c_kamek_npc'];

@@ -64,3 +64,26 @@ export const C9A_TRACK_IDS = Object.values(C9A_TRACKS);
 // ───── タイルの 番号（shared/tiles.js の T に A が C9A_ で 足す）。407〜426 を この 幕に とって おく ─────
 export const C9A_TILE_FIRST = 407;
 export const C9A_TILE_LAST = 426;
+
+// ───── A班（世界と 物語）が 足した 名前（第90回 A班。9-4 に ない 小さな 物。かえない）─────
+// したくの 中の 小さな フラグ（したくが 終わると 消す。セーブを 小さく する）
+export const C9A_FLOWERS = ['c9_flower1', 'c9_flower2', 'c9_flower3']; // 星見の丘の 星の花 3本
+export const C9A_KIDS = ['c9_kid1', 'c9_kid2', 'c9_kid3']; // 勇者の 像の 話を した 子ども 3人
+export const C9A_PREP_ASK = 'c9_prep_ask'; // ホシミばあちゃんに したくを たのまれた
+export const C9A_SHARD_N = 5; // 星ふるえの森の 光る かけら
+export const c9aShard = (k) => `c9_shard${k}`; // 光る かけらを 拾った（星の子に 会うと 消す）
+export const C9A_FOREST_IN = 'c9_forest_in'; // 星ふるえの森に 入った（星の子に 会うと 消す）
+export const c9aSeen = (n) => `c9_seen_b${n}`; // 地下道 n 階に 来た（はじめの ことばを 見た）
+export const C9A_ROPE = 'c9_rope'; // ルカが 井戸の ひもを 下ろした（地下4階 ⇄ 村の 井戸の 近道）
+export const C9A_FORK_RING = 'c9_forkring'; // くぼ地で 星の音さを 鳴らした（かくれた 宝箱が 光る。れんしゅう）
+// 魔物の 出る 表（B班の data/encounters-c9a.js の 名前。森と 地下道の 階ごと）
+export const C9A_TABLE = { forest: 't9a_forest', b1: 't9a_b1', b2: 't9a_b2', b3: 't9a_b3', b4: 't9a_b4' };
+// 宝箱の id（B班が 中みを 決める。maps/c9a-*.js が この 名前で 置く）
+export const C9A_CHEST_IDS = {
+  forest: ['c9a_f1', 'c9a_f2'],
+  b1: ['c9a_b1a', 'c9a_b1b'], b2: ['c9a_b2a', 'c9a_b2b'], b3: ['c9a_b3a', 'c9a_b3b'], b4: ['c9a_b4a', 'c9a_b4b'],
+  secret: ['c9a_s1', 'c9a_s2'],
+  fork: 'c9a_fork1',
+};
+// ひみつの 部屋を 開ける 職業の 流れ（data/fq-common.js の jobLine の もと）。地下2階 … 先生・地下3階 … 炎術士
+export const C9A_SECRET_ROOTS = [['elem_teacher'], ['enjutsushi']];

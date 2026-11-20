@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=ae365c90037d';
-import { MONSTERS } from './monsters.js?v=ae365c90037d';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=ae365c90037d';
+import { ITEMS, baseItemId } from './items.js?v=57b39f318137';
+import { MONSTERS } from './monsters.js?v=57b39f318137';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=57b39f318137';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -59,6 +59,8 @@ const SRC_TEXT = {
   c8c: 'くろがねの空中ようさいの宝箱でしか手に入らない',
   // 第2部 第8章 第4幕（items-c8r.js）: 時のはざまの 宝箱
   c8r: '時のはざまの宝箱でしか手に入らない',
+  // 第3部 第1章 第1幕（items-c9a.js）: 星ふるえの森・星の石の地下道の 宝箱
+  c9a: '星ふるえの夜の宝箱でしか手に入らない',
   // 第37回 B: カジノの 景品（宝の地図の 段で ふえる）・すごろくの ゴールや 宝箱
   casino: 'カジノの景品でしか手に入らない', sugoroku: 'すごろくでしか手に入らない',
   // 第37回 A: サファラ闘技場の ごほうび（items-arena.js）

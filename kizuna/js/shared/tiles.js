@@ -97,6 +97,10 @@ export const T = {
   // 第2部 第8章 第4幕「時のはざま」（maps/c8r-*.js・render/tiles-c8r.js）。395 から
   C8R_VOID: 395, C8R_SANDFLOW: 396, C8R_FORD: 397, C8R_CREST: 398, C8R_CREST_MOON: 399, C8R_CREST_FIRE: 400, C8R_CREST_IRON: 401, C8R_CREST_ICE: 402,
   C8R_BIGDOOR: 403, C8R_WINGDOOR: 404, C8R_WISP: 405, C8R_RIFT: 406,
+  // 第3部 第1章 第1幕「星ふるえの夜」（maps/c9a-*.js・render/tiles-c9a.js）。407〜426
+  C9A_MOSS: 407, C9A_SOURCE: 408, C9A_CRYSTAL: 409, C9A_CRYSTAL_ON: 410, C9A_DOOR: 411, C9A_HOLE: 412, C9A_LOG: 413, C9A_SHARD: 414,
+  C9A_STARROCK: 415, C9A_CRATER: 416, C9A_TENT: 417, C9A_BOARD: 418, C9A_CHALKDOOR: 419, C9A_ICEDOOR: 420, C9A_ROPE: 421,
+  C9A_TRIALDOOR: 422, C9A_PEDESTAL: 423, C9A_LANTERN: 424, C9A_LANTERN_ON: 425, C9A_RIM: 426,
 };
 
 export const TILE_INFO = {};
@@ -522,6 +526,27 @@ def(T.C8R_BIGDOOR, 'c8r_bigdoor', { solid: true, mapColor: '#8a7ab8' }); // 最�
 def(T.C8R_WINGDOOR, 'c8r_wingdoor', { anim: true, light: true, mapColor: '#e8d8ff' }); // つばさの 入口の 光の アーチ（歩ける）
 def(T.C8R_WISP, 'c8r_wisp', { solid: true, anim: true, light: true, mapColor: '#8ae8ff' }); // にげる 青い 火（追いかけっこ）
 def(T.C8R_RIFT, 'c8r_rift', { anim: true, light: true, mapColor: '#b89aff' }); // 時の さけめ（時の広間への 入口・近道。歩ける）
+// 第3部 第1章 第1幕「星ふるえの夜」（光の輪・星ふるえの森・ながれ星のくぼ地・星の石の地下道）
+def(T.C9A_MOSS, 'c9a_moss', { mapColor: '#3a4a3a' }); // 光る こけ（ふむと 光る。光って いるかは 光の輪の しくみ〈world/c9a-steps.js〉）
+def(T.C9A_SOURCE, 'c9a_source', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#bff0ff' }); // 光の みなもと（大きな 水しょう）
+def(T.C9A_CRYSTAL, 'c9a_crystal', { solid: true, talkThrough: true, mapColor: '#5a6a8a' }); // とびらの 水しょう（まだ 光って いない）
+def(T.C9A_CRYSTAL_ON, 'c9a_crystal_on', { solid: true, talkThrough: true, light: true, mapColor: '#d8f8ff' }); // 光った とびらの 水しょう
+def(T.C9A_DOOR, 'c9a_door', { solid: true, mapColor: '#6a6aa8' }); // 光の とびら（水しょうが 光ると 開く）
+def(T.C9A_HOLE, 'c9a_hole', { mapColor: '#3a3446' }); // 見えない 穴（ゆかに 見える。光が とどくと 見える。落ちると 階の 入口へ）
+def(T.C9A_LOG, 'c9a_log', { solid: true, mapColor: '#6a4a2a' }); // たおれた 木（星ふるえで たおれた）
+def(T.C9A_SHARD, 'c9a_shard', { anim: true, light: true, mapColor: '#f8f0b0' }); // 光る かけら（拾える。ならびが 道しるべ）
+def(T.C9A_STARROCK, 'c9a_starrock', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#f0e8c8' }); // ながれ星の 石（くぼ地の まん中）
+def(T.C9A_CRATER, 'c9a_crater', { mapColor: '#6a5848' }); // くぼ地の ゆか（焼けた 土）
+def(T.C9A_TENT, 'c9a_tent', { solid: true, mapColor: '#d8b878' }); // 職人の テント
+def(T.C9A_BOARD, 'c9a_board', { solid: true, talkThrough: true, mapColor: '#2a4a3a' }); // 黒板（ひみつの 部屋 1）
+def(T.C9A_CHALKDOOR, 'c9a_chalkdoor', { solid: true, mapColor: '#5a7a5a' }); // 黒板の とびら（先生の 流れの 職業で 開く）
+def(T.C9A_ICEDOOR, 'c9a_icedoor', { solid: true, mapColor: '#a8e0f8' }); // こおった とびら（炎術士の 流れの 職業で とける）
+def(T.C9A_ROPE, 'c9a_rope', { light: true, mapColor: '#c8a870' }); // 井戸の ひも（村の 井戸への 近道。歩ける）
+def(T.C9A_TRIALDOOR, 'c9a_trialdoor', { solid: true, mapColor: '#8a7a6a' }); // ためしの とびら（ふくろうの もよう）
+def(T.C9A_PEDESTAL, 'c9a_pedestal', { solid: true, talkThrough: true, light: true, mapColor: '#e8d8a8' }); // 星の音さの 台
+def(T.C9A_LANTERN, 'c9a_lantern', { solid: true, talkThrough: true, mapColor: '#8a5a3a' }); // 祭りの ちょうちん（まだ 火が ない）
+def(T.C9A_LANTERN_ON, 'c9a_lantern_on', { solid: true, talkThrough: true, light: true, mapColor: '#ffb84a' }); // 火の ともった ちょうちん
+def(T.C9A_RIM, 'c9a_rim', { solid: true, mapColor: '#4a3626' }); // くぼ地の ふち（ながれ星が 落ちて もり上がった 焼けた 土）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

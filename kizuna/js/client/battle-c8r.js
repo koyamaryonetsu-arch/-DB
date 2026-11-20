@@ -8,11 +8,13 @@
 //   あらし・なみだ・くずれ までの しるし・千年の約束の 光の ゲージ・こうら・へび
 // ・コマンド: 心が ゆらいだ 時の「よびかける」・光が たまった 時の「千年の約束」・一騎うちの「おうえん」を いちばん 上に（c8rCmdItems・c8rCmdPick）
 // ・バナー・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=ae365c90037d';
-import { monsterCanvas } from './render/monsters.js?v=ae365c90037d';
+import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=57b39f318137';
+import { monsterCanvas } from './render/monsters.js?v=57b39f318137';
+// 第3部 第1章 第1幕（battle-c9a.js）
+import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js?v=57b39f318137';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
-export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW];
+export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE];
 export const C8R_SCREEN_ANIMS = ['c8g_orb', 'c8g_final', 'c8t_gust', 'c8d_big', 'c8s_big', 'c8s_harden', 'c8s_tear', 'c8s_crack', 'c8s_hoard'];
 export const C8R_ALLY_FX = {
   c8rn_flame: 'fire', c8rn_drain: 'down', c8rn_bite: 'claw', c8rn_sand: 'wind', c8rn_gnaw: 'claw', c8rn_flutter: 'wind', c8rn_chomp: 'claw', c8rn_tail: 'quake',
@@ -40,6 +42,9 @@ const CHEERS = ['m8d_cheer_pow', 'm8d_cheer_def', 'm8d_cheer_heal'];
 
 // ───────────── え（client/battle.js の monsterCanvas の かわり）─────────────
 export function c8rSprite(c, frame) {
+  // 第3部 第1章 第1幕: 夜明けに うなずく ホシモリ（battle-c9a.js）
+  const s9 = c9aSprite(c, frame);
+  if (s9) return s9;
   const sp = c?.species;
   const f = frame ? 1 : 0;
   if (sp === C8_GATEKEEPER && c.gForm === 4) return monsterCanvas(sp, f + 2);
@@ -222,6 +227,8 @@ export function c8rDraw(scene, x, m, c, px, py, w, h, base) {
     if (c.shell) tag(x, px + w / 2, py + h * 0.2, 'こうらでまもる', base, '#1a3a1a', '#c8ff8a', 50);
     if (c.bound) tag(x, px + w / 2, py + h * 0.3, 'へびでしばった', base, '#1a3a2a', '#8affc8', 50);
   }
+  // 第3部 第1章 第1幕（battle-c9a.js）
+  c9aDraw(scene, x, m, c, px, py, w, h, base);
 }
 
 // ───────────── イベントを 見せる とき（client/battle-c8c.js の c8cPresent から）─────────────
@@ -257,7 +264,8 @@ export function c8rPresent(scene, ev, fx, anim, actor) {
   if (ev.c8sPromise) { scene.shake?.(1400, 12); scene.banner('千年の約束！！', 'combo'); }
   if (ev.c8sShell) good('こうらが、攻撃をはね返した！', 'hit');
   if (ev.c8rHelp) g.audio.sfx('buff');
-  void fx; void anim; void actor;
+  // 第3部 第1章 第1幕（battle-c9a.js）
+  c9aPresent(scene, ev, fx, anim, actor);
 }
 
 // ───────────── コマンド（client/battle.js の openCommand）─────────────
@@ -280,9 +288,16 @@ export function c8rCmdItems(scene, a) {
     ['おうえん（力）', 'おうえん（守り）', 'おうえん（回復）'].forEach((label, i) => items.push({ html: `<span class="dual-cmd">${label}</span>`, value: `c8rcheer${i}`, cls: 'k-dual' }));
     info = 'これは、リオンの一騎うち。みんなは「おうえん」でリオンをささえよう（ゆうきが3つたまると、ゆうきの一撃）。';
   }
+  // 第3部 第1章 第1幕: 明かりをわける（battle-c9a.js）
+  const c9 = c9aCmdItems(scene, a);
+  if (c9.items.length) {
+    items.unshift(...c9.items);
+    info = c9.info;
+  }
   return { items, info };
 }
 export function c8rCmdPick(scene, a, value) {
+  if (value === 'c9ashare') return c9aCmdPick(scene, a, value);
   const s = solOf(scene);
   if (value === 'c8rcall') return scene.send({ type: 'ability', id: CALL, target: s?.id });
   if (value === 'c8rpromise') return scene.send({ type: 'ability', id: PROMISE, target: s?.id });

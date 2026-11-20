@@ -38,19 +38,21 @@
 //   守りぬく … 小おにを 先に たおす・ともしびの HP が へったら 回復・大風の 前に 身を 守る（b.c8rNoPuff）
 //   一騎うち … おうえんを 使いわける・大剣の 前に リオンは 身を 守る
 //   ソリトゥス … 心が ゆらいだら すぐ よびかける（b.c8rNoCall）・ひとりの 仲間に よびかける・大技の 前に 身を 守る・千年の約束を 使う
-import { MONSTERS } from './data/monsters.js?v=ae365c90037d';
-import { ABILITIES } from './data/abilities.js?v=ae365c90037d';
-import { GUESTS } from './data/shops.js?v=ae365c90037d';
+import { MONSTERS } from './data/monsters.js?v=57b39f318137';
+import { ABILITIES } from './data/abilities.js?v=57b39f318137';
+import { GUESTS } from './data/shops.js?v=57b39f318137';
 import {
   C8_WIND, C8_PUFF, GATE_FINAL_ACTIONS, FINAL_NAME, HEARTS, HEART_ACTIONS, STAR_ACTIONS, PROMISE_ACTIONS,
-} from './data/monsters-c8r.js?v=ae365c90037d';
+} from './data/monsters-c8r.js?v=57b39f318137';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub, allyFromCharacter } from './battle.js?v=ae365c90037d';
-import { canUse } from './ai.js?v=ae365c90037d';
-import { AUTO_GUARD } from './battle-ch6.js?v=ae365c90037d';
-import { trap } from './battle-earth.js?v=ae365c90037d';
-import { fightPower, scaleGuestActor } from './guest-rule.js?v=ae365c90037d';
-import { makeNpcSupportChar } from './world/party.js?v=ae365c90037d';
+import { atbRate, pub, allyFromCharacter } from './battle.js?v=57b39f318137';
+import { canUse } from './ai.js?v=57b39f318137';
+import { AUTO_GUARD } from './battle-ch6.js?v=57b39f318137';
+import { trap } from './battle-earth.js?v=57b39f318137';
+import { fightPower, scaleGuestActor } from './guest-rule.js?v=57b39f318137';
+import { makeNpcSupportChar } from './world/party.js?v=57b39f318137';
+// 第3部 第1章 第1幕: 星の子・3人組と スイトール1号・ホシモリの ともしびの ためし（battle-c9a.js）
+import { setupC9a, c9aTurnStart, c9aEffect, c9aPlan, c9aDamage, c9aKill } from './battle-c9a.js?v=57b39f318137';
 
 export const ORB = 'm8g_orb';
 export const ORBFAIL = 'm8g_orbfail';
@@ -165,6 +167,8 @@ export function setupC8r(b) {
     else if (conf.kind === 'solitus') setupSolitus(b, e, conf, lines);
   }
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1400 });
+  // 第3部 第1章 第1幕（battle-c9a.js）
+  setupC9a(b);
 }
 
 function setupGate(b, e, conf, lines) {
@@ -754,6 +758,8 @@ export function syncGauge(b) {
 // ───────────── 行動の はじめ（battle-c8c.js の c8cTurnStart の はじめ。敵の 番だけ）─────────────
 // 動けない 番も しるしを 数える
 export function c8rTurnStart(b, c, ev, stuck) {
+  // 第3部 第1章 第1幕（battle-c9a.js）
+  c9aTurnStart(b, c, ev, stuck);
   helperTurn(b, c, ev);
   syncGauge(b);
   if (c.side === 'ally') return;
@@ -993,12 +999,15 @@ export function c8rEffect(b, c, a, eff, ev) {
       ev.warn = true;
       return true;
     }
-    default: return false;
+    // 第3部 第1章 第1幕（battle-c9a.js）
+    default: return c9aEffect(b, c, a, eff, ev);
   }
 }
 
 // ───────────── ダメージ（battle-c8c.js の c8cDamage の はじめ）─────────────
 export function c8rDamage(b, c, t, dmg, info, ev) {
+  // 第3部 第1章 第1幕: ともしびが 消えた 人は 半分・ホシモリは たおれない（battle-c9a.js）
+  dmg = c9aDamage(b, c, t, dmg, info, ev);
   if (!(dmg > 0)) return dmg;
   if (t.c8s) syncGauge(b);
   if (c?.side !== 'ally') return dmg;
@@ -1109,6 +1118,8 @@ function solDamage(b, c, t, dmg, info, ev) {
 
 // ───────────── たおれた（battle-c8c.js の c8cKill の はじめ）─────────────
 export function c8rKill(b, t, ev) {
+  // 第3部 第1章 第1幕: すいこみ口・メカ・ともしび（battle-c9a.js）
+  c9aKill(b, t, ev);
   // ともしびが 消えた・リオンが たおれた: 負け
   if (t?.c8torch || t?.c8rion) {
     b.pendingEnd = { outcome: 'lose' };
@@ -1180,6 +1191,9 @@ const hurtCmd = (a) => a && FOES.has(a.target) && ['phys', 'magic'].includes(pri
 // ───────────── オート（battle-c8c.js の c8cPlan の はじめ）─────────────
 // 第8章 第4幕の しかけが なければ null（ほかの ボスの 考えへ）
 export function c8rPlan(b, c, decide) {
+  // 第3部 第1章 第1幕（battle-c9a.js）
+  const p9 = c9aPlan(b, c, decide);
+  if (p9) return p9;
   if (c.side !== 'ally' || b.c8rInner || c.status?.rift) return null;
   if (c.c8torch) return { type: 'defend' };
   const g = gateOf(b);
