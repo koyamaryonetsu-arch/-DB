@@ -1,7 +1,7 @@
 // 第90回 D班: お仕事いらい 36〜38（docs/plan-part3.md の 9-5 の 4）。新しい 流れの 職業（第83回・第85回）で とける たのまれごと
 // 36. ルミナの、星をこわがる子どもたち（先生の 流れ: 小学校の先生 → れい能力教師ぬ〜べ〜 → おにの手のじごく先生）・
 // 37. 鏡の湖の、こおったかがり火（炎術士の 流れ: 炎術士 → 八竜の炎術士・烈火）・
-// 38. 星ふるえで、ふさがった道（軍師の 流れ: つりをする道士 → せん人界の道士 → 太公望 → ほう神の大軍師）
+// 38. 星ふるえで、通れなくなった道（軍師の 流れ: つりをする道士 → せん人界の道士 → 太公望 → ほう神の大軍師）
 // 受けて → すすめて → ごほうび・職業の しばり（いる／いない）・まちがえても やり直せる・ひとりで とける・ごほうびは 1回だけ・
 // 星ふるえ（c9_starfall）の あとから（はり紙も 人も。持たない 人には 見えない ＝ 今の ゲームは かわらない）・地図の しるし・
 // 困っている人・漢字・軽い 戦い（敵Lv96）・お仕事いらい板: 38まい・7ページ（c9_starfall の 前は 35まい・6ページの まま）
@@ -22,7 +22,6 @@ import { labDoneQuests, sideQuestHint } from '../public/js/shared/data/sidequest
 import { subQuests, questMarks } from '../public/js/shared/data/quest-targets.js';
 import { availableSubQuests, subQuestHint } from '../public/js/shared/data/subquest-hints.js';
 import { itemCount, fullHeal } from '../public/js/shared/stats.js';
-import { starsFor } from '../public/js/shared/data/items-rare.js';
 import { medalsFound } from '../public/js/shared/data/casino.js';
 import { makeChar, runBattle } from '../tools/sim.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
@@ -124,16 +123,10 @@ test('しくみ: 3つの 新しい たのまれごと（新しい 流れの 職�
   assert.ok(shows('fq_glow_lit', lit) && !shows('fq_glow_fire', lit), 'ともった あとは 1つだけ');
 });
 
-test('ごほうび: 第64回の きまり（★5の アクセサリーは 1つだけ・乗り物なし）・素材や 道具・ゴールド・小さなメダル・はり紙と 同じ', () => {
-  const accs = WORK8_QUESTS.filter((x) => x.reward.item);
-  assert.equal(accs.length, 1, '★5は 1つだけ');
-  const sum = (b) => Object.values(b).reduce((s, v) => s + v, 0);
-  for (const qd of accs) {
-    const it = ITEMS[qd.reward.item];
-    assert.ok(it && it.type === 'acc' && starsFor(it) === 5 && it.src === 'gift' && !(it.price > 0), qd.id);
-    const s = sum(it.bonus);
-    assert.ok(s >= sum(ITEMS.fq_twin_tassel.bonus) && s <= sum(ITEMS.fq_sand_amulet.bonus) && s < sum(ITEMS.ar_star_king_brooch.bonus), `${qd.id}: ${s}`);
-  }
+test('ごほうび: 第64回の きまり（装備・乗り物なし。今回は ★5の アクセサリーも なし ＝ 新しい 品を 足さない）・素材や 道具・ゴールド・小さなメダル・はり紙と 同じ', () => {
+  // 新しい 品を 足すと 引っこしコードの 見はり（ふつうの セーブ）の 乱数の ならびが かわる ため、品は 今 ある 物だけ
+  for (const qd of WORK8_QUESTS) assert.ok(!qd.reward.item, `${qd.id}: アクセサリーなし`);
+  assert.ok(WORK8_QUESTS.every((qd) => qd.reward.goods.length >= 2), '素材や 道具は 2しゅ いじょう');
   for (const qd of WORK8_QUESTS) {
     const r = qd.reward;
     assert.ok(!r.vehicle, `${qd.id}: 乗り物なし`);
@@ -148,7 +141,7 @@ test('ごほうび: 第64回の きまり（★5の アクセサリーは 1つ�
 });
 
 // ───── 36. 子どもたち ─────
-test('ルミナの、星をこわがる子どもたち: 3人の話 → 目の高さで聞く・黒板でお話・手をつなぐ（やり直し）→ 星を見る → ★5 → ごほうび。先生の流れがいないと出てきてくれない（戦いなし）', async () => {
+test('ルミナの、星をこわがる子どもたち: 3人の話 → 目の高さで聞く・黒板でお話・手をつなぐ（やり直し）→ 星を見る → ごほうび。先生の流れがいないと出てきてくれない（戦いなし）', async () => {
   const { bot, c } = await setup(901, { job: 'warrior', flags: OPEN });
   const qd = W.kids;
   await talkTo(bot, 'fq_kids_host', [0]);
@@ -212,7 +205,7 @@ test('鏡の湖の、こおったかがり火: 3人の話 → 火の玉をばら
 });
 
 // ───── 38. 道 ─────
-test('星ふるえで、ふさがった道: 3人の話 → 作戦を立てる・丸太のころ → 岩もぐらと戦う（1回だけ）→ 急ぐ物から（やり直し）→ 道があく → ごほうび。軍師の流れ（つりをする道士）がいないと まとまらない', async () => {
+test('星ふるえで、通れなくなった道: 3人の話 → 作戦を立てる・丸太のころ → 岩もぐらと戦う（1回だけ）→ 急ぐ物から（やり直し）→ 道があく → ごほうび。軍師の流れ（つりをする道士）がいないと まとまらない', async () => {
   const { bot, c } = await setup(903, { job: 'mage', flags: OPEN });
   const qd = W.road;
   assert.ok(shows('fq_road_rock', c));
@@ -220,7 +213,7 @@ test('星ふるえで、ふさがった道: 3人の話 → 作戦を立てる・
   assert.ok(c.flags[WQ8.roadStart]);
   assert.equal(q(c, qd.name).find, 'fq_road_v1');
   let msgs = await talkTo(bot, 'fq_road_rock');
-  assert.ok(said(msgs, /話を聞こう/) && !battled(msgs, 'fq_rockmole'));
+  assert.ok(said(msgs, /話を聞こう/) && !battled(msgs, 'fq_roadmole'));
   for (const id of ['fq_road_v1', 'fq_road_v2', 'fq_road_v3']) await talkTo(bot, id);
   assert.ok(ROAD_VOICES.every((k) => c.flags[k]) && q(c, qd.name).find === 'fq_road_rock');
   const ans = ROAD_PLAN.map((x) => x.ans);
@@ -231,12 +224,12 @@ test('星ふるえで、ふさがった道: 3人の話 → 作戦を立てる・
   assert.ok(!c.flags[ROAD_STEPS[0]] && said(msgs, /魚は、つれた/), '1つ目の まちがい（つりをして待つ）');
   c.job = 'taikobo';
   msgs = await talkTo(bot, 'fq_road_rock', [ans[0], wrong(ans[1])]);
-  assert.ok(c.flags[ROAD_STEPS[0]] && !c.flags[ROAD_STEPS[1]] && !battled(msgs, 'fq_rockmole'), '2つ目で まちがい（まだ 戦わない）');
+  assert.ok(c.flags[ROAD_STEPS[0]] && !c.flags[ROAD_STEPS[1]] && !battled(msgs, 'fq_roadmole'), '2つ目で まちがい（まだ 戦わない）');
   msgs = await talkTo(bot, 'fq_road_rock', [ans[1], 0]);
-  assert.ok(c.flags[ROAD_STEPS[1]] && battled(msgs, 'fq_rockmole') && c.flags[WQ8.roadFight] && !c.flags[ROAD_STEPS[2]] && said(msgs, /ねつを出した子/), 'ころで どかして 戦った・3つ目で まちがい');
+  assert.ok(c.flags[ROAD_STEPS[1]] && battled(msgs, 'fq_roadmole') && c.flags[WQ8.roadFight] && !c.flags[ROAD_STEPS[2]] && said(msgs, /ねつを出した子/), 'ころで どかして 戦った・3つ目で まちがい');
   c.job = 'fishing_doshi';
   msgs = await talkTo(bot, 'fq_road_rock', [ans[2]]);
-  assert.ok(!battled(msgs, 'fq_rockmole'), '2回目は 戦わない');
+  assert.ok(!battled(msgs, 'fq_roadmole'), '2回目は 戦わない');
   assert.ok(c.flags[WQ8.roadOpen] && said(msgs, /作戦どおり/) && !shows('fq_road_rock', c), '大岩が どいた');
   assert.ok(q(c, qd.name).ready && q(c, qd.name).who === 'fq_road_host');
   c.job = 'warrior';
@@ -298,7 +291,7 @@ test('お仕事いらい板: c9_starfall の 前は 35まい（6ページ）・�
   assert.deepEqual(menus[6][2], [...FAMILY_QUESTS.slice(36).map((x) => x.name), '前のページへ', 'やめる']);
   assert.equal(menus[6][3].length, menus[6][2].length, 'カーソルの せつめいも 同じ 数');
   assert.match(menus[6][3][1], /^必要な職業：つりをする道士の系統（×いない）/);
-  assert.ok(said(msgs, /道がふさがった/) && said(msgs, /このいらいを、うける？/) && said(msgs, /を受けた！/));
+  assert.ok(said(msgs, /道が通れなくなった/) && said(msgs, /このいらいを、うける？/) && said(msgs, /を受けた！/));
   assert.ok(c.flags[takeFlag(qd)] && !c.flags[qd.start]);
   assert.match(menus[8][1], /7\/7ページ/, '読んだら 7ページ目に もどる');
   assert.equal(menus[8][2][1], `${qd.name}（受けている）`);
@@ -322,8 +315,8 @@ test('戦い: 新しい 2つ（敵Lv96）は 第3部の はじめ（Lv95〜98）
     fullHeal(c);
     return c;
   };
-  const line = { fq_frostlake: ['monk', 'enjutsushi'], fq_rockmole: ['mage', 'taikobo'] };
-  for (const id of ['fq_frostlake', 'fq_rockmole']) {
+  const line = { fq_frostlake: ['monk', 'enjutsushi'], fq_roadmole: ['mage', 'taikobo'] };
+  for (const id of ['fq_frostlake', 'fq_roadmole']) {
     const e = FIXED_ENCOUNTERS[id];
     assert.ok(e && !e.boss && e.canFlee === false && e.enemyLv === 96 && !(e.enemyPow > 1), id);
     for (const [sp] of e.group) assert.ok(MONSTER_ART[sp], `${sp} の 絵`);
@@ -348,5 +341,4 @@ test('漢字: 新しい ファイルは gameFiles() に 入っていて、使え
   for (const f of files) for (const p of checkFile(f)) if (p.kind !== 'kana') bad.push(`${f.split('/').pop()}:${p.line} [${p.kind} ${p.detail}] ${p.text}`);
   assert.deepEqual(bad, []);
   for (const qd of WORK8_QUESTS) for (const t of [qd.name, qd.paper, qd.who, qd.where, qd.job]) assert.deepEqual(checkText(t).filter((p) => p.kind !== 'kana'), [], t);
-  assert.deepEqual(checkText(ITEMS.fq_star_charm.name + ITEMS.fq_star_charm.desc).filter((p) => p.kind !== 'kana'), []);
 });

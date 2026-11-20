@@ -389,7 +389,7 @@ test('鉱山トロッコの線路: 鉄道員の系統が いないと 線路を�
 
 // ───── ごほうび ─────
 test('ごほうび: ★5の アクセサリー（ランク10・店で買えない）・たのまれごとでしか もらえない乗り物（乗り物屋に「もらった物」として出る・買えない・乗れる）', () => {
-  assert.equal(Object.keys(FAMILY_GIFTS).length, 20); // 第39回 5・第41回 6・第65回 2・第68回 2・第73回 1・第74回 1・第75回 1・第80回 1・第90回 1
+  assert.equal(Object.keys(FAMILY_GIFTS).length, 19); // 第39回 5・第41回 6・第65回 2・第68回 2・第73回 1・第74回 1・第75回 1・第80回 1（第90回は なし）
   for (const [id, it] of Object.entries(FAMILY_GIFTS)) {
     assert.equal(ITEMS[id], it);
     assert.equal(it.type, 'acc');

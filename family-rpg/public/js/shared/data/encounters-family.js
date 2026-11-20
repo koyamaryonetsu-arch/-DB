@@ -49,5 +49,5 @@ export const FIXED_FAMILY = {
   // 37. 鏡の湖の こおった 小舟の 氷から 出てきた 雪の 魔物（ゆきだるまんと ゆきぷるりん）
   fq_frostlake: { group: [['snowman', 1, 1], ['snow_slime', 2, 2]], bg: 'snowfield', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
   // 38. 大岩の 下の あなの 岩もぐら（おうちの 上に 岩が ころがって おこっていた）
-  fq_rockmole: { group: [['rock_mole', 2, 2], ['rockman', 1, 1]], bg: 'grass', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
+  fq_roadmole: { group: [['rock_mole', 2, 2], ['rockman', 1, 1]], bg: 'grass', bgm: 'battle', canFlee: false, enemyLv: 96, enemyPow: 0.3 },
 };

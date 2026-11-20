@@ -7,12 +7,14 @@
 //   先生の 流れ（小学校の先生から）・炎術士の 流れ（炎術士から。忍者は 前から ある 職業なので 入れない）・軍師の 流れ（つりをする道士から）
 //   解決の だいじな 所は、パーティーの だれかが その 流れの 時だけ（data/fq-common.js の jobLine）。話を 聞く・調べる・戦うのは だれでも できる
 // ・まちがえても、何度でも やり直せる（合っていた 所は おぼえていて、続きから）。ひとりでも とける（戦いは 敵Lv96。完全オートで 勝てる 軽さ）
-// ・ごほうび（第64回の きまり）: ゴールド・小さなメダル・素材や 道具。★5の アクセサリーは 36 の 1つだけ。1回だけ
+// ・ごほうび（第64回の きまり）: ゴールド・小さなメダル・素材や 道具。1回だけ。
+//   ★5の アクセサリーは 今回は なし（新しい 品を 1つ 足すと、引っこしコードの 見はり〈ふつうの セーブ〉の 乱数の ならびが かわり、
+//   ぎりぎり〈6992／7000文字〉を こえる ため。B班の 品と 合わせる 時に メインが 見はりと いっしょに 考える）
 // ・物語の 先（星の子・3人組 など）には ふれない。星ふるえの 夜の ことだけ
 //
 // 36. ルミナの、星をこわがる子どもたち（先生の 流れ。目の 高さで 聞く・黒板で お話・「先生がついてる」）
 // 37. 鏡の湖の、こおったかがり火（炎術士の 流れ。火の玉を ばらまく・炎の やいば・小さな 火を そっと うつす）
-// 38. 星ふるえで、ふさがった道（軍師の 流れ。作戦を 立てる・丸太の「ころ」・急ぐ 物から 通す）
+// 38. 星ふるえで、通れなくなった道（軍師の 流れ。作戦を 立てる・丸太の「ころ」・急ぐ 物から 通す）
 import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js';
 import { rewardSteps } from './sidequests-work2.js';
 import {
@@ -49,14 +51,14 @@ export const WORK8_QUESTS = [
   { id: 'kids', name: 'ルミナの、星をこわがる子どもたち', done: WQ8.kidsDone, roots: ['elem_teacher'], job: '小学校の先生', legend: 'jigoku_sensei', town: 'ルミナの町', open: [WQ8_OPEN],
     start: WQ8.kidsStart, who: '子どもたちのお母さんサナ', npc: 'fq_kids_host', where: 'ルミナの町の、西の小さな黒板の前',
     paper: '星ふるえの夜から、子どもたちが、空をこわがって、外に出られません。\n子どもの心に、そっとよりそえる先生、来てください！',
-    reward: { item: 'fq_star_charm', gold: 3000, medals: 2, goods: [['seed_def', 2], ['seed_heal', 2]] } },
+    reward: { gold: 3000, medals: 2, goods: [['seed_def', 2], ['seed_heal', 2], ['hoshi_konpeito', 3]] } },
   { id: 'glow', name: '鏡の湖の、こおったかがり火', done: WQ8.glowDone, roots: ['enjutsushi'], job: '炎術士', legend: 'rekka', town: '鏡の湖', open: [WQ8_OPEN],
     start: WQ8.glowStart, who: '湖のわたし守ナギサ', npc: 'fq_glow_host', where: '鏡の湖の、北のほとり',
     paper: '星ふるえの夜、つめたい星のしずくがふって、湖のかがり火が、こおってしまいました！\nふつうの火では、とけません。火の名人、来てください！',
     reward: { gold: 3500, medals: 3, goods: [['seed_mag', 3], ['flame_stone', 5], ['elf_drink', 1]] } },
-  { id: 'road', name: '星ふるえで、ふさがった道', done: WQ8.roadDone, roots: ['fishing_doshi'], job: 'つりをする道士', legend: 'hoshin_gunshi', town: 'ミドリナ平原', open: [WQ8_OPEN],
+  { id: 'road', name: '星ふるえで、通れなくなった道', done: WQ8.roadDone, roots: ['fishing_doshi'], job: 'つりをする道士', legend: 'hoshin_gunshi', town: 'ミドリナ平原', open: [WQ8_OPEN],
     start: WQ8.roadStart, who: '見回りの兵士ガンテ', npc: 'fq_road_host', where: 'ミドリナ平原の、ルミナとホシフル村の間の道',
-    paper: '星ふるえで、大岩がころがってきて、道がふさがった！\n荷車が、みんな、立ち往生。作戦を立てるのが、とくいな人、来てくれ！',
+    paper: '星ふるえで、大岩がころがってきて、道が通れなくなった！\n荷車が、みんな、立ち往生。作戦を立てるのが、とくいな人、来てくれ！',
     reward: { gold: 4000, medals: 3, goods: [['seed_agi', 3], ['star_sand', 5], ['magic_water', 2]] } },
 ];
 const Q = Object.fromEntries(WORK8_QUESTS.map((q) => [q.id, q]));
@@ -100,7 +102,7 @@ const kidsHost = (x) => {
       ...S(SANA, 'ありがとう！\n子どもたち、笑いながら、星の歌を、うたっているわ。'),
       ...S('おねえちゃんのリリ', '先生、また、星ぞら教室、ひらいてね！'),
       ...S(proName(x, Q.kids), 'ああ。\nいつでも、来るぞ！'),
-      ...S(SANA, 'これは、子どもたちが作った、お礼のおまもり。', '「先生を、守ってくれますように」って。'),
+      ...S(SANA, 'これは、町のみんなからの、お礼。', '子どもたちが、「先生に」って、星のこんぺいとうも、入れてくれたのよ。'),
       ...rewardSteps(Q.kids),
     ];
   }
@@ -218,7 +220,7 @@ const glowV1 = glowVoice(0, '湖のつりびと', ['小ぶねは、ほとりの�
 const glowV2 = glowVoice(1, '湖の子どもミズキ', ['かがり火の台の氷はね、すっごく大きくて、すっごく、かたいの！', '小さな火じゃ、ぜんぜん、とけないよ。\nするどいやいばみたいな火で、すぱっと、切れたらなあ。'], ['あたし、ミズキ！\n湖で、およぐのが、とくいなの！'], 'かがり火、きれいだね！');
 const glowV3 = glowVoice(2, '見はり番のおばあさん', ['かがり火の、まきはね、ちょっと、しめっておるんじゃ。', '大きな火を、いきなり、ぶつけたら、台ごと、もえてしまう。\n火は、そっと、うつすものじゃよ。'], ['わしは、このかがり火の、見はり番じゃ。'], 'あんたの火は、やさしい火じゃのう。');
 
-// ───────────── 38. 星ふるえで、ふさがった道 ─────────────
+// ───────────── 38. 星ふるえで、通れなくなった道 ─────────────
 const GANTE = '見回りの兵士ガンテ';
 export const ROAD_PLAN = [
   { pre: N('道のまん中に、大きな岩が、どーんと、ころがっている。', '岩の前で、荷車が3台、立ち往生。\nみんな「わたしが先だ！」と、言い合っている。'),
@@ -241,7 +243,7 @@ const roadRaid = [
   ['sfx', 'rumble'], ['shake'],
   ...N('岩がどくと…その下のあなから、何かが、ぼこっと、顔を出した！'),
   ...S('岩もぐらたち', 'もぐもぐ！\nおうちの上に、岩をころがしたのは、だれだー！'),
-  ...fight('rock_mole', 'fq_rockmole', WQ8.roadFight),
+  ...fight('rock_mole', 'fq_roadmole', WQ8.roadFight),
   ...N('岩もぐらたちは、目を回して…', '岩がどいて、おうちのあなが、あいたのに、気がついた。\nよろこんで、あなへ、もどっていった。'),
 ];
 const roadPlan = (x) => ROAD_PLAN.map((P, k) => (k === 2 ? { ...P, pre: [...(x.flag(WQ8.roadFight) ? [] : roadRaid), ...P.pre] } : P));
