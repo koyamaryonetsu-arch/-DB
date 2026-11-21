@@ -311,6 +311,10 @@ Object.assign(JOB_TAGS, {
   ryujin_kenshi: ['bolt', 'light', 'master'], // 竜神の剣士（雷の 玉・竜神の 光・2つの 道を きわめた。炎の 組は 職業 20 まで〈test/jobs-r27 の 日輪〉なので つけない）
 });
 
+// 第98回: きずなの職業（data/jobs-r98-*.js の tags。一覧は kizuna.js。新しい タグは 作らない）
+import { kizunaMap } from './kizuna.js';
+Object.assign(JOB_TAGS, kizunaMap('tags'));
+
 // そのタグの 職業（JOB_TAGS の じゅん）
 export function jobsWithTag(...tags) {
   return Object.keys(JOB_TAGS).filter((j) => JOB_TAGS[j].some((t) => tags.includes(t)));

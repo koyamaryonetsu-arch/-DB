@@ -80,17 +80,20 @@ function soloDamage(job, lv, R, seed, ms = SOLO_MS) {
 }
 
 const median = (a) => { const s = [...a].sort((x, y) => x - y); return s[s.length >> 1]; };
-const LV = [22, 30, 38, 44];
+// 第98回: 幻の職業（ランク4）も くらべる（Lv50・装備ランク7。きずなの職業を 今の 幻 16この まん中と くらべる ため）
+const LV = [22, 30, 38, 44, 50];
 // SOLO … 戦う 時間（びょう。みじかいと MPの 多い 職業が 強く、長いと MPの つづく 職業が 強い）
 const SOLO_MS = Number(process.env.SOLO || 60) * 1000;
-const RANK = [5, 5, 6, 6];
+const RANK = [5, 5, 6, 6, 7];
 
 if (MODE === 'all' || MODE === 'solo') {
   console.log(`■ 1人の ダメージ（${SOLO_MS / 1000}びょう・かかし3体・${N}回の へいきん）`);
-  for (let t = 0; t < 4; t++) {
+  for (let t = 0; t < LV.length; t++) {
+    if (process.env.TIER && Number(process.env.TIER) !== t) continue;
     const jobs = ALL_JOBS.filter((j) => tierOf(j) === t);
     const res = jobs.map((j) => [j, [...Array(N).keys()].reduce((s, i) => s + soloDamage(j, LV[t], RANK[t], 100 + i), 0) / N]);
-    const med = median(res.map(([, d]) => d));
+    // EXCL=1 … まん中は ONLY の 職業を のぞいて 出す（新しい 職業を 今の 職業の まん中と くらべる。第98回）
+    const med = median(res.filter(([j]) => !(process.env.EXCL && (ONLY || []).includes(j))).map(([, d]) => d));
     res.sort((a, b) => b[1] - a[1]);
     console.log(`ランク${t}（Lv${LV[t]}・装備ランク${RANK[t]}・${jobs.length}職業） まん中 ${Math.round(med)}  いちばん上 ${JOBS[res[0][0]].name} ${Math.round(res[0][1])}  いちばん下 ${JOBS[res.at(-1)[0]].name} ${Math.round(res.at(-1)[1])}`);
     for (const [j, d] of res) {
@@ -116,11 +119,13 @@ if (MODE === 'all' || MODE === 'boss') {
     }
     return [w / N, sec / N];
   };
-  for (let t = 0; t < 4; t++) {
+  for (let t = 0; t < LV.length; t++) {
+    if (process.env.TIER && Number(process.env.TIER) !== t) continue;
     const jobs = ALL_JOBS.filter((j) => tierOf(j) === t);
     const res = jobs.map((j) => [j, ...run(j)]);
-    const medW = median(res.map((r) => r[1]));
-    const medS = median(res.map((r) => r[2]));
+    const base = res.filter(([j]) => !(process.env.EXCL && (ONLY || []).includes(j)));
+    const medW = median(base.map((r) => r[1]));
+    const medS = median(base.map((r) => r[2]));
     console.log(`ランク${t}: 勝率の まん中 ${Math.round(medW * 100)}%・時間の まん中 ${Math.round(medS)}びょう（${jobs.length}職業。いちばん はやい ${JOBS[res.sort((a, b) => a[2] - b[2])[0][0]].name}）`);
     for (const [j, w, s] of res) if (NEW.includes(j) || (ONLY || []).includes(j)) console.log(`  ${JOBS[j].name.padEnd(12, '　')} 勝率 ${String(Math.round(w * 100)).padStart(3)}%  ${Math.round(s)}びょう`);
   }

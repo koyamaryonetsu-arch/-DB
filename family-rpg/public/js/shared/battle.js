@@ -1151,7 +1151,7 @@ export class Battle {
         if (eff.rei) { r84aPhys(this, c, a, cmd, ev, powMult, targets); break; }
         // 第86回 A班: 竜神の剣士の 剣（今の 玉の 属性と 炎の、よく 効く 方。battle-r86a.js）
         if (eff.r86a) { r86aPhys(this, c, a, cmd, ev, powMult, targets); break; }
-        if (eff.crew || eff.ki || eff.dance) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
+        if (eff.crew || eff.ki || eff.dance || eff.will) { phantomAPhys(this, c, a, cmd, ev, powMult, targets); break; }
         const hits = eff.hits || 1;
         if (eff.random) {
           for (let i = 0; i < hits; i++) {

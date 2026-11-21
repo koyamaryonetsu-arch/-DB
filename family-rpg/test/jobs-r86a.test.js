@@ -101,7 +101,8 @@ const evOf = (id = 'x') => ({ id, lines: [], upd: [], results: [] });
 test('第86回 A: 2つの 幻の職業（tier 4・きわめる 職業 2つ・幻の はんいの 能力・技 8こ・ならびの おわり）', () => {
   assert.deepEqual(Object.keys(JOBS_R86A), NEW);
   assert.deepEqual(R86A_PHANTOM, NEW);
-  assert.deepEqual(PHANTOM_ORDER.slice(-2), NEW, 'B班の 2つの あと・おわり（掲示板の しるしの 番号は かわらない）');
+  // 第98回: この あとに きずなの職業が 足された（data/kizuna.js）。B班の 2つの すぐ あと（15・16番め）の まま
+  assert.deepEqual(PHANTOM_ORDER.slice(14, 16), NEW, 'B班の 2つの あと（掲示板の しるしの 番号は かわらない）');
   for (const id of NEW) {
     const j = JOBS[id];
     assert.equal(j.tier, 4);

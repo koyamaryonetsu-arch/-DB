@@ -9,8 +9,9 @@ export function addR85bVehicleArt(ART, kit) {
   ART.fire_dragon = dragonArt(kit);
 }
 
-function dragonArt({ seg, poly, shade, seat }) {
-  const R = '#d8301c', RD = shade(R, -0.22), RL = shade(R, 0.18), BEL = '#ffb040', MANE = '#f2c14e', HORN = '#fff0c0', EYE = '#1b1330';
+// 第98回: 色を かえて 使える ように した（col … { body, belly, mane, horn }。八竜の火影の 火影の大火竜 ＝ client/render/kizuna-hokage.js）
+export function dragonArt({ seg, poly, shade, seat }, col = {}) {
+  const R = col.body || '#d8301c', RD = shade(R, -0.22), RL = shade(R, 0.18), BEL = col.belly || '#ffb040', MANE = col.mane || '#f2c14e', HORN = col.horn || '#fff0c0', EYE = '#1b1330';
   const FL = ['#fff0a0', '#ffb040', '#ff6a1c'];
   const BOB = [0, -1, -0.5];
   // 体の 中心の 線（よこ。左が 頭）。f で うねりが 流れる
