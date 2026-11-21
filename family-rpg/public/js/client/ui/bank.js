@@ -86,7 +86,7 @@ async function goldFlow(game, ct, deposit) {
   await ct.say(deposit ? `いくら預けますか？\n（持っているお金: ${me.gold}ゴールド）` : `いくら引き出しますか？\n（預けているお金: ${bankGold(me)}ゴールド）`);
   const opts = [100, 1000, 10000].filter((v) => v < max).map((v) => ({ label: `${v}ゴールド`, value: v }));
   opts.push({ label: `全部（${max}ゴールド）`, value: max }, { label: '金額を入れる', value: 'input' });
-  const pick = await ct.pick(opts, { back: 'もどる', onMove: () => ct.info(summary(game, HINTS[deposit ? 'depositGold' : 'withdrawGold'])) });
+  const pick = await ct.pick(opts, { back: 'もどる', list: false, onMove: () => ct.info(summary(game, HINTS[deposit ? 'depositGold' : 'withdrawGold'])) });
   if (ct.closed || !pick) return;
   let amt = pick.value;
   if (amt === 'input') {

@@ -234,7 +234,7 @@ export async function monArenaUI(game, data = {}) {
     await ct.say(line);
     items = mainItems(ctx);
     ct.info(mainInfo(ctx, items[start]));
-    const cmd = await ct.pick(items, { back: null, start, onMove: (x) => ct.info(mainInfo(ctx, x)) });
+    const cmd = await ct.pick(items, { back: null, start, list: false, onMove: (x) => ct.info(mainInfo(ctx, x)) });
     if (ct.closed) return;
     if (!cmd || cmd.value === 'exit') break;
     start = Math.max(0, items.findIndex((x) => x.value === cmd.value));

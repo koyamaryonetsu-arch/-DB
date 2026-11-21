@@ -18,7 +18,7 @@
 //   第96回 T班: 作戦を えらんで はかる（ai.js の TACTICS の キー。ない 時は 今まで どおり）
 //     TAC=aggressive … 人が 動かす キャラの オートの 作戦（完全オートの 時の 作戦。知って いる 人が AI に まかせる 番も）
 //     SUPTAC=heal … 自動の 仲間（酒場・家族の 仲間・魔物）の 作戦を みんな これに（ない 時は その 仲間の 作戦）
-//     ch9Run(…, { tac, supTac }) でも えらべる
+//     ch9Run(…, { tactics, supTac }) でも えらべる
 //   HPK・ATKK・MAGK・SPD … 敵の 強さを かけて ためす
 import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -316,13 +316,15 @@ const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' 
 // react … 人が 動かす キャラが 番に なってから えらぶまでの ミリびょう（0 … すぐ。ブラウザの 人に 近づける とき 3000 など）
 // speed・textSpeed … 戦いの 速さ（ない ときは 1。ブラウザの はじめの 設定は 0.85・0.8）
 // flags … リーダーの フラグ（第94回: 先に 取った 音の スピカの ごほうび など。FLAGS=a,b でも）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tac = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null } = {}) {
+// tactics … 人が 動かす キャラの 作戦（第97回: 完全オートの 作戦を えらべる ように。ない ときは バッチリがんばれ）
+//   （第96回 T班: TAC=… でも。SUPTAC=… / supTac … 自動の 仲間 みんなの 作戦）
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   const list = ch9Allies(boss, lv, party, kit);
   // 人が 動かす キャラは 家族の キャラ（kind 'player'。完全オートの ときは その 人の「オート」）・のこりは 自動の 仲間
   const allies = list.map((x) => (x.know
-    ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics: tac }
+    ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics }
     : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: supTac || x.char.tactics || 'balanced' }));
   const hooks = flags.length ? { leaderFlag: (f) => flags.includes(f) } : undefined;
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed, hooks });

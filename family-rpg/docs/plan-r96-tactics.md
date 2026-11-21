@@ -124,7 +124,7 @@ MP の 重さを 3→10 に しても（ひとり 大王 83%）・ボスで MP �
 - ガンガンいこうぜ・MPせつやく は 家族の 声の とおりに 作った（ボスでも 大きな 技・MP を ならして 使う）ので、作戦の 方では 弱めて いない。メインの 判断を おねがい します（例: この 2つも ボス戦では MP の 重さを 前と 同じに する／ボスの 数字）
 
 ### 4-1-2. 計算の 道具で 作戦を えらぶ（第3幕の アルゴル など、あとで 作戦ごとに はかる ため）
-- `tools/sim-ch9.mjs`・`sim-ch10.mjs`（`ch9Run`）: `TAC=aggressive` … 人が 動かす キャラの オートの 作戦（完全オート・知って いる 人が AI に まかせる 番）／`SUPTAC=heal` … 自動の 仲間 みんなの 作戦（ない 時は その 仲間の 作戦）。`ch9Run(boss, lv, mode, seed, { tac, supTac })` でも
+- `tools/sim-ch9.mjs`・`sim-ch10.mjs`（`ch9Run`）: `TAC=aggressive` … 人が 動かす キャラの オートの 作戦（完全オート・知って いる 人が AI に まかせる 番）／`SUPTAC=heal` … 自動の 仲間 みんなの 作戦（ない 時は その 仲間の 作戦）。`ch9Run(boss, lv, mode, seed, { tactics, supTac })` でも
 - `tools/sim-ch9-field.mjs`: `TAC`（勇者）・`SUPTAC`（酒場の 仲間）
 - れい: `TAC=savemp PARTY=solo MODES=auto node tools/sim-ch10.mjs 20 gecko,owl`
 

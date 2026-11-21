@@ -101,6 +101,7 @@ export function openShiori(menu) {
       for (const t of data.tracks) items.push({ html: trackHtml(t), value: { go: t.id }, cls: `sh-track ${isFull(t) ? 'full' : ''}` });
       list = new ListMenu(g.input, {
         items,
+        list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
         className: 'sh-list',
         sound: sfx,
         back: null,
@@ -158,6 +159,7 @@ export function openShiori(menu) {
       const first = items.findIndex((it) => it.value?.state && it.value.state !== 'done');
       list = new ListMenu(g.input, {
         items,
+        list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
         className: 'sh-dlist',
         sound: sfx,
         back: null,

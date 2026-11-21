@@ -135,6 +135,8 @@ import { C9D_SFX } from './battle-c9d.js';
 import { C10A_SFX } from './battle-c10a.js';
 // 第3部 第2章 第2幕: ゲッコー・シロフクロウの 音（battle-c10b.js）
 import { C10B_SFX } from './battle-c10b.js';
+// 第3部 第2章 第3幕: たいさ・アルゴルの 音（battle-c10c.js）
+import { C10C_SFX } from './battle-c10c.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -324,6 +326,7 @@ const ANIM_SFX = {
   ...C9D_SFX,
   ...C10A_SFX,
   ...C10B_SFX,
+  ...C10C_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -744,7 +747,7 @@ export class BattleScene {
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
         case 'reach': return earthReachPick(this, a);
-        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': return c8rCmdPick(this, a, it.value);
+        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': case 'c10bring': case 'c10cmove': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
@@ -776,6 +779,9 @@ export class BattleScene {
       start,
       fit: true,
       tapConfirm,
+      // 第96回: 呪文・特技・道具の 一覧は 一覧の まど（タップ 1回め … せつめい・同じ 行を もう1回 … 使う。設定で 1回にも できる）。
+      //   いちばん 上の コマンド・的を えらぶ 所は 1回で 決定
+      list: tapConfirm,
     });
     // スクロールの 場所を もどす 前に 入れる（あとで 入れかえると スクロールが 0に もどる）
     this.cmdEl.append(pager && this.touchUi() ? this.pagerWrap(m) : m.root);
