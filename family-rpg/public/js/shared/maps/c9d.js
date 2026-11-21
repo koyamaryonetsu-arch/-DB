@@ -14,6 +14,7 @@ import {
   C9D, C9D_ACT3, C9D_MAP, C9D_MAP_IDS, C9D_ECHO, C9D_CHEST_IDS, C9D_TABLE, C9D_TRACKS, C9D_SPICA_LIGHT, C9D_APART_LIGHT, C9D_MOSS_STEPS,
 } from './c9d-flags.js';
 import { C9C_MAP } from './c9c-flags.js';
+import { c9dChest } from '../data/items-c9d.js';
 
 // 第3部 第1章 第4幕の マップの ID（セーブに のこるので かえない）
 export const CH9D_MAPS = [...C9D_MAP_IDS];
@@ -22,10 +23,8 @@ export const C9D_SEEN = { door: 'c9d_seen_door', g1: 'c9d_seen_g1' };
 // ながれ星のくぼ地の 黄の 台の 前（場面 1。幕が 始まる）
 export const CRATER_SONG9D = { x: 5, y: 6, w: 14, h: 2 };
 
-// 宝箱の 中み（B班の data/items-c9d.js の c9dChest。B が 入るまでは かりの お金）
-let chestFn = null;
-export function setChestOf9d(fn) { chestFn = fn; }
-export const chestOf9d = (id) => (chestFn && chestFn(id)) || { gold: 500 };
+// 宝箱の 中み（B班の data/items-c9d.js の c9dChest。8この id）
+export const chestOf9d = (id) => c9dChest(id) || {};
 
 const cells = (rows, ch) => { const out = []; rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === ch) out.push({ x, y }); })); return out; };
 const base = (id, name, t, extra) => ({
@@ -158,6 +157,7 @@ function addLaneChests(m, rows, ids) {
 function attachShore(maps) {
   const m = maps[C9C_MAP.river];
   const D = SHORE_DOOR9D;
+  m.camPadR = 5; // 岸は マップの 右の はし。画面の 右の ボタンの 下に 主人公が かくれない ように（client/field.js）
   m.gates.push({ x: D.x, y: D.y, closed: m.tiles[D.y * m.w + D.x], levels: [[C9D.door, T.C9D_DOOR_OPEN], [C9D.song1, T.C9D_DOOR]] });
   const G1 = C9D_POS.c9d_g1.enter;
   m.warps.push({ x: D.x, y: D.y, to: { map: C9D_MAP.g1, x: G1.x + 0.5, y: G1.y + 1.5, dir: 'up' }, show: { all: [C9D.door] } });

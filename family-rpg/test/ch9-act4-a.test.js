@@ -1,12 +1,10 @@
 // 第3部 第1章 第4幕「星のはかば」（第93回 A班: 世界と 物語）※ ネタバレ注意（物語の 中みを ためす）
 // c9_act3 → くぼ地の 黄の 台で スピカが 歌う（c9_song1）→ ピラミッドの 岸の ひびきの とびら（c9_echo1 → c9_door）→ ふたごの道 1階（echo2・echo3）
 // → 2階（c9_g2。echo4・こだま echo5）→ 星のはかば（c9_grave）→ 魔人（c9d_mu）→ c9_mu → 大きな くぼみ（c9_hollow）→ くぼ地（c9_act4）
-// 戦いの 中みは B班。ここでは かりの 戦い（data/c9d-stub.js）を テストの 中で すぐ 勝たせる。幕は まだ 閉じて いる（PART3_ACT4_OPEN = false）ので、
-// 通しの テストでは 台本を 開いた 形で まぜなおす（applyCh9d(…, { open: true })）
+// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当の 戦いは test/ch9-act4.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import '../public/js/shared/data/c9d-stub.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, isBlocked, canStand, effectiveTile } from '../public/js/shared/maps/index.js';
@@ -21,11 +19,12 @@ import { C9D_POS, SHORE_DOOR9D, SHORE_STONES9D } from '../public/js/shared/maps/
 import { stoneFront9d, laneCenters9d, laneBright9d, apartStage9d, FORK_MS9D } from '../public/js/shared/maps/c9d-lane.js';
 import { stoneSteps9d, laneState9d, spicaAway9d, spicaLeft9d, spicaHelpHidden9d, c9dSnap, pruneC9d } from '../public/js/shared/world/c9d-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
-import { CH9_STEPS, PART3_ACT4_OPEN, act3ClearObjective, ACT3_END_OLD, c9dTitleSteps, CH9_PROGRESS } from '../public/js/shared/data/story-c9.js';
+import { CH9_STEPS, PART3_ACT4_OPEN, act3ClearObjective, ACT3_END_OLD, c9dTitleSteps, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS } from '../public/js/shared/data/story-c9.js';
 import { C9C_OBJ } from '../public/js/shared/data/story-c9c.js';
 import { C9D_OBJ, CH9D_STORY_SCRIPTS, CH9D_PROGRESS, CH9D_OBJECTIVE_TARGETS, CH9D_OBJECTIVE_TALK, c9dScripts, applyCh9d } from '../public/js/shared/data/story-c9d.js';
-import { objectiveFromFlags } from '../public/js/shared/data/progress.js';
+import { objectiveFromFlags, repairObjective, KNOWN_OBJECTIVES } from '../public/js/shared/data/progress.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
+import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN } from './helpers.js';
@@ -33,7 +32,7 @@ import { UPTO, flagsOf, said, D4, addPlayer, play, place, stepOn, examine, talkT
 
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
 const FILES9D = ['public/js/shared/maps/c9d-flags.js', 'public/js/shared/data/story-c9d.js', 'public/js/shared/maps/c9d.js', 'public/js/shared/maps/c9d-rows.js',
-  'public/js/shared/maps/c9d-lane.js', 'public/js/shared/world/c9d-steps.js', 'public/js/shared/data/c9d-stub.js',
+  'public/js/shared/maps/c9d-lane.js', 'public/js/shared/world/c9d-steps.js',
   'public/js/client/c9d-view.js', 'public/js/client/render/tiles-c9d.js', 'public/js/client/render/c9d-npc-art.js'];
 const openScripts = () => c9dScripts(c9dTitleSteps, true);
 let opened = false;
@@ -138,25 +137,33 @@ test('名前の 約束: マップ 3まい・タイル 471〜・宝箱の id・�
     const g = gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f));
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 戦いは ゲームの 本体から 読まない
-  for (const f of gameFiles()) {
-    if (f.endsWith('c9d-stub.js') || !f.endsWith('.js')) continue;
-    assert.ok(!readFileSync(f, 'utf8').includes("c9d-stub.js'"), `${f} は かりを 読まない`);
-  }
+  // かりの 置き場（A の c9d-stub.js・B の c9d-names-b.js）は 合わせた 時に 消した
+  for (const f of gameFiles()) assert.ok(!/c9d-stub|c9d-names-b/.test(f), f);
+  // 宝箱の 中みは B班の 品（お金では ない）
+  for (const id of C9D_MAP_IDS) for (const ch of MAPS[id].chests) assert.ok(ch.item && !ch.gold, ch.id);
+  assert.ok(ENCOUNTER_TABLES.t9d_lane && ENCOUNTER_TABLES.t9d_lane2 && FIXED_ENCOUNTERS.c9d_mu);
 });
 
-test('幕は まだ 閉じて いる（PART3_ACT4_OPEN = false）: 第3幕 クリアの 目標は 今の まま・黄の 台の 前で 始まらない', () => {
-  assert.equal(PART3_ACT4_OPEN, false);
-  assert.equal(act3ClearObjective(), C9C_OBJ.act3);
-  assert.equal(act3ClearObjective(true), C9D_OBJ.start);
-  assert.equal(ACT3_END_OLD, C9C_OBJ.act3);
-  assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO('c9_act3')) }), C9C_OBJ.act3);
-  assert.ok(!CH9_PROGRESS.some(([f]) => C9D_LINE.includes(f)), '閉じて いる 間は 第4幕の すすみぐあいを まぜない');
+test('幕を 開けた（PART3_ACT4_OPEN）: 第3幕 クリアの 目標・前の 文の なおし・黄の 台の 前で 始まる（閉じた 形も のこる）', () => {
+  assert.equal(PART3_ACT4_OPEN, true);
+  assert.equal(act3ClearObjective(), C9D_OBJ.start);
+  assert.equal(act3ClearObjective(false), C9C_OBJ.act3);
+  assert.equal(ACT3_END_OLD, '第3部　第1章　第4幕へ（続きはアップデートで！）');
+  const a3 = flagsOf(...UPTO('c9_act3'));
+  assert.equal(objectiveFromFlags({ flags: a3 }), C9D_OBJ.start, '第3幕 クリアの 目標は 第4幕の はじまり');
+  const old = { flags: a3, objective: ACT3_END_OLD };
+  repairObjective(old);
+  assert.equal(old.objective, C9D_OBJ.start, '前の 文は なおる');
+  for (const [f, t] of CH9D_PROGRESS) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), t, f);
+  assert.ok(CH9_PROGRESS.some(([f]) => f === 'c9_act4'));
+  assert.ok(KNOWN_OBJECTIVES.has(C9D_OBJ.start) && CH9_OBJECTIVE_TARGETS[C9D_OBJ.start]);
+  // 閉じた 形（open false）は 何も 始まらない
   const closed = c9dScripts(c9dTitleSteps, false);
-  assert.deepEqual(closed.c9d_song_event(ctx(flagsOf(...UPTO('c9_act3')))), []);
-  const open = openScripts();
-  assert.ok(open.c9d_song_event(ctx(flagsOf(...UPTO('c9_act3')))).length > 0);
-  assert.ok(JSON.stringify(open.c9d_song_event(ctx(flagsOf(...UPTO('c9_act3'))))).includes('第4幕　星のはかば'), '題の 画面');
+  assert.deepEqual(closed.c9d_song_event(ctx(a3)), []);
+  assert.ok(SCRIPTS.c9d_song_event(ctx(a3)).length > 0);
+  assert.ok(JSON.stringify(SCRIPTS.c9d_song_event(ctx(a3))).includes('第4幕　星のはかば'), '題の 画面');
+  assert.ok(JSON.stringify(SCRIPTS.c9c_ped(ctx(a3))).includes('c9_song1'), '黄の 台を しらべても 始まる');
+  assert.deepEqual(SCRIPTS.c9d_song_event(ctx(flagsOf(...UPTO('c9_note1')))), [], '第3幕の 間は 始まらない');
   // 岸の とびら・石は c9_song1 から（閉じて いる 間は 出ない）
   const river = MAPS.c9c_river;
   const no = () => false, yes = (f) => f === C9D.song1;

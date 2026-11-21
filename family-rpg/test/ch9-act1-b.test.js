@@ -326,22 +326,28 @@ test('ボス「ホシモリの ともしびの ためし」: 全員に ともし
   }
   assert.equal(h.turns, 2, '1つの 番に 2回 動く');
   // 番の はじめ（1回目）で めもりと いぶきを 数える
+  // 第92回 第3便: 4人は いぶきの 前ぶれが 毎番（every 1）・前ぶれから いぶきまで 1回 ふつうに 動く（bwait 1。人が えらぶのを 待つ 間に 身を 守る）
+  assert.equal(trialConf(h, b).every, 1);
+  assert.equal(trialConf(h, b).bwait, 1);
   h.queued = true;
   let ev = turn(b, h);
   assert.equal(h.c9h.dawn, 1);
   assert.equal(ev.c9hDawn.dawn, 1);
-  h.queued = false;
-  turn(b, h);
-  assert.equal(h.c9h.dawn, 1, '2回目の 行動は 数えない');
-  h.queued = true;
-  ev = turn(b, h);
-  assert.equal(h.c9h.dawn, 2);
   assert.equal(ev.c9hWarn.ids.length, 1, '前ぶれ・ねらう 人は 1人');
   assert.ok(ev.lines.some((l) => l.includes('大きく息をすいこんだ')));
   const [tid] = ev.c9hWarn.ids;
   const t = b.get(tid);
   assert.deepEqual(c9aPub(h).hmBreathAim, [tid]);
-  // 次の 番: やみの いぶき
+  h.queued = false;
+  turn(b, h);
+  assert.equal(h.c9h.dawn, 1, '2回目の 行動は 数えない');
+  // 次の 番は ふつうに 動く（bwait）
+  h.queued = true;
+  ev = turn(b, h);
+  assert.equal(h.c9h.dawn, 2);
+  assert.equal(ev.c9hWait.left, 0);
+  assert.ok(!h.telegraph);
+  // その 次の 番: やみの いぶき
   ev = turn(b, h);
   assert.equal(h.telegraph, BREATH);
   h.telegraph = null;
@@ -383,7 +389,7 @@ test('ボス「ホシモリの ともしびの ためし」: 全員に ともし
   assert.equal(h1.results[0].heal, h2.results[0].heal * 2);
 });
 
-test('ボス: 明かりを わける（ともしびが ある 人だけ）・星の子の 光は 3回に 1回 つける・夜明けの めもり（大きな 一撃で もう 1・16 で 勝ち・うなずく）・まっくらで 負け・半分から 2人', () => {
+test('ボス: 明かりを わける（ともしびが ある 人だけ）・星の子の 光は 6回に 1回 つける・夜明けの めもり（大きな 一撃で もう 1・16 で 勝ち・うなずく）・まっくらで 負け・半分から 2人', () => {
   const b = battle('trial');
   const h = hoshimoriOf(b);
   const [a, c2] = b.allies;
@@ -400,12 +406,14 @@ test('ボス: 明かりを わける（ともしびが ある 人だけ）・星
   b.allies[2].c9torch = true;
   const e = act(b, b.allies[2], { type: 'ability', id: SHARE, target: a.id });
   assert.ok(e.c9hShare && a.c9torch);
-  // 星の子の ほのかな光: 3回に 1回 消えた ともしびを つける
-  b.c9sp.glows = 2;
+  // 星の子の ほのかな光: spicaEvery 回に 1回 消えた ともしびを つける（第92回 第3便: 3 → 6。完全オートが 星の子の 光だけで 夜明けまで もたない ように）
+  const se = trialConf(h).spicaEvery;
+  assert.equal(se, 6);
+  b.c9sp.glows = se - 1;
   c2.c9torch = false;
   for (const x of b.allies) act(b, x, { type: 'defend' });
-  assert.equal(b.c9sp.glows, 3);
-  assert.ok(c2.c9torch, '3回目の 光で つく');
+  assert.equal(b.c9sp.glows, se);
+  assert.ok(c2.c9torch, 'spicaEvery 回目の 光で つく');
   // 夜明けの めもり: 大きな 一撃で もう 1
   h.queued = true;
   h.c9h.dmg = trialConf(h).big;
@@ -463,7 +471,7 @@ test('オート: 完全オートは 防御も 明かりを わけるも えら�
 });
 
 // ───────────── 強さ ─────────────
-test('強さ: 知って いる 人は 勝てる・完全オートは 勝てない（3人組・ためし。少しの 回数）', { timeout: 600000 }, () => {
+test('強さ: 知って いる 人は 勝てる（えらぶのに 5びょう でも）・完全オートは 勝てない（3人組・ためし。少しの 回数）', { timeout: 1200000 }, () => {
   for (const boss of ['trio', 'trial']) {
     const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919));
     assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
@@ -473,6 +481,9 @@ test('強さ: 知って いる 人は 勝てる・完全オートは 勝てな�
     const wins = know.filter((r) => r.outcome === 'win');
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
     assert.ok(sec >= 200 && sec <= 420, `${boss}: 長さ ${sec}秒`);
+    // 第92回 第3便: 前ぶれの 間は えらぶ 人を 待つ（battle-tell.js）ので、えらぶのに 5びょう かかる 人も 勝てる
+    const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { react: 5000 }));
+    assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `${boss}: 5びょう ${slow.map((r) => r.outcome).join(',')}`);
   }
   // その ころの ★装備は だれでも つけられる
   for (const boss of ['trio', 'trial']) for (const [job, kit] of Object.entries(CH9_KIT[boss])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);

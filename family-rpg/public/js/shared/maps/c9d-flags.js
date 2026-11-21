@@ -71,3 +71,7 @@ export const C9D_SONG_STAGE_MAX = 7; // スピカの歌の ふしの 数
 // くぼ地の 音の 台に 置いた 星の音の 数。置いた しるしの フラグを ここに 足して いく（第2章・第3章で ふえる）
 export const C9D_NOTES_PLACED = ['c9_act3']; // c9_act3 … 黄の 台に ミを 置いた
 export const songStage9 = (has) => Math.max(1, Math.min(C9D_SONG_STAGE_MAX, C9D_NOTES_PLACED.filter((f) => has(f)).length));
+
+// ───── B班の かりの 置き場（data/c9d-names-b.js。合わせた 時に 消した）に あった 名前（同じ 物）─────
+export const C9D_ECHOES = C9D_ECHO;
+export const C9D_OPEN = 'PART3_ACT4_OPEN'; // 幕の 切りかえ（data/story-c9.js）

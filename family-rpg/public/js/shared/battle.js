@@ -103,6 +103,10 @@ import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage
 import { c9aAfter, c9aPub, c9aSnap, c9aHealMul } from './battle-c9a.js';
 // 第3部 第1章 第2幕: 暗い 所の 魔物の「見えにくい」（スピカの てらすで 消える。battle-c9b.js）
 import { c9bEva } from './battle-c9b.js';
+// 第3部 第1章 第4幕: おかし（動けない・受ける ダメージが ふえる。魔人ムウの おかしビーム。battle-c9d.js）
+import { c9dTaken, c9dIncap } from './battle-c9d.js';
+// 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（battle-tell.js）
+import { tellHold } from './battle-tell.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
@@ -253,7 +257,7 @@ export function reachFalloff(weaponCat, i) {
 }
 
 const STATUS_NAMES = {
-  sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒',
+  sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒', okashi: 'おかし',
 };
 
 export class Battle {
@@ -450,7 +454,9 @@ export class Battle {
     }
     // ウェイトモード: だれかが コマンドを えらんでいる あいだは とまる
     const choosing = this.wait && this.humans().some((h) => h.alive && h.ready);
-    if (!choosing) this.advance(dt);
+    // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（敵の ゲージだけ 止める。battle-tell.js）
+    const hold = tellHold(this, dtReal, choosing);
+    if (!choosing) this.advance(dt, hold);
     this.gaugeTimer += dtReal;
     if (this.gaugeTimer >= 200) {
       this.gaugeTimer = 0;
@@ -470,7 +476,7 @@ export class Battle {
     this.emit({ t: 'g', g });
   }
 
-  advance(dt) {
+  advance(dt, hold = false) {
     this.time += dt;
     // バフ・デバフ・かばう・じわじわ回復は 行動の 回数で 数える（第38回 C。executeNext の actStart・actEnd）
     // どく（4びょうごと）
@@ -497,6 +503,8 @@ export class Battle {
     for (const c of this.combatants) {
       // 合体技の よやくで まっている 人は ゲージが すすまない（ダメージで みだれて ためなおしている 間は すすむ。battle-dual.js）
       if (!c.alive || c.fled || c.ready || c.queued || (c.waitDual && !c.waitDual.slow) || c.dualHold) continue;
+      // 前ぶれの 間に 人が えらんで いる（battle-tell.js）
+      if (hold && c.side === 'enemy') continue;
       c.atb += atbRate(c) * dt;
       if (c.atb >= 100) {
         c.atb = 100;
@@ -513,8 +521,8 @@ export class Battle {
   }
 
   onReady(c) {
-    // ねむり・まひ・水のろう・地われ（のみこまれ）は じゅんばんが とばされる
-    if (c.status.sleep || c.status.paralyze || c.status.prison || c.status.rift) {
+    // ねむり・まひ・水のろう・地われ（のみこまれ）・おかし（battle-c9d.js）は じゅんばんが とばされる
+    if (c.status.sleep || c.status.paralyze || c.status.prison || c.status.rift || c.status.okashi) {
       this.enqueue(c, { type: 'incapacitated' });
       return;
     }
@@ -691,7 +699,7 @@ export class Battle {
     }
     let cmd = q.cmd;
     // ねむりが ダメージで さめていたら ふつうに こうどうできる
-    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison && !c.status.rift) {
+    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison && !c.status.rift && !c.status.okashi) {
       if (c.controller && !c.auto) {
         c.queued = false;
         c.ready = true;
@@ -827,6 +835,8 @@ export class Battle {
     if (c.status.prison) return prisonTurn(this, c, ev);
     // 地われに 落ちている・のみこまれている（battle-earth.js）
     if (c.status.rift) return riftTurn(this, c, ev);
+    // おかし（魔人ムウの おかしビーム。battle-c9d.js）
+    if (c.status.okashi && c9dIncap(this, c, ev)) return;
     if (c.status.sleep) {
       const s = c.status.sleep;
       s.turns--;
@@ -1066,7 +1076,7 @@ export class Battle {
 
   coverRedirect(t) {
     const cover = this.allies.find((x) => x.alive && x !== t && x.cover && (x.cover.target === 'all' || x.cover.target === t.id)
-      && !x.status.sleep && !x.status.paralyze && !x.status.rift);
+      && !x.status.sleep && !x.status.paralyze && !x.status.rift && !x.status.okashi);
     if (cover) {
       if (this.cur) this.cur.coverMsg = `${cover.name}が${t.name}をかばった！`;
       return cover;
@@ -1730,7 +1740,7 @@ export class Battle {
     delete ev.counters;
     for (const { by, on, gear } of list || []) {
       const t = this.get(by), a = this.get(on);
-      if (!t?.alive || (!gear && t.stance?.kind !== 'counter') || !a?.alive || t.status.sleep || t.status.paralyze) continue;
+      if (!t?.alive || (!gear && t.stance?.kind !== 'counter') || !a?.alive || t.status.sleep || t.status.paralyze || t.status.okashi) continue;
       ev.lines.push(`${t.name}の反撃！`);
       ev.counter = (ev.counter || []).concat({ actor: t.id, target: a.id });
       const res = this.calcPhys(t, a, gear ? { mult: gear } : { mult: t.stance.mult, ignoreDef: t.stance.ignoreDef });
@@ -1872,6 +1882,8 @@ export class Battle {
     dmg = phantomCDamage(this, c, t, dmg, info, ev);
     // 第85回 B班: 晴れの 天気で 烈火の炎の 系統の 炎の 技が ×1.3（今の 天気の 倍と 足さない。battle-r85b.js）
     dmg = r85bDamage(this, c, t, dmg, info, ev);
+    // 第3部 第1章 第4幕: おかしの 人は 受ける ダメージが ふえる（battle-c9d.js）
+    dmg = c9dTaken(this, c, t, dmg, ev);
     // 第38回 B: 与える ダメージの 倍率（職業の試練の 師しょうのまぼろし。プレイヤーの 技を 使う ので 弱める。battle-trial.js）
     if (c?.dmgRate > 0 && c.side !== t.side && dmg > 0) dmg = Math.max(1, Math.round(dmg * c.dmgRate));
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）

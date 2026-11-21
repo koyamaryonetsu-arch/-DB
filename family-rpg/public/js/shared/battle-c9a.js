@@ -29,7 +29,7 @@ import { C9A } from './maps/c9a-flags.js';
 import { pub, atbRate } from './battle.js';
 import { canUse } from './ai.js';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub } from './battle-c9b.js';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -174,6 +174,8 @@ function setupTrial(b, h, lines) {
 
 // ───────────── 味方が 1回 動いた あと（battle.js の executeNext・防御の さいご）: 星の子の ほのかな光 ─────────────
 export function c9aAfter(b, c, ev) {
+  // 第92回 第3便: 前ぶれの しるし（battle-tell.js。敵・味方の どの 行動の あとも 入れ直す）
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
@@ -181,6 +183,16 @@ export function c9aAfter(b, c, ev) {
   if (!alive.length || alive.some((x) => !s.acted.includes(x.id))) return;
   s.acted = [];
   glow(b, ev);
+}
+// 今、こたえが いる 前ぶれが 出て いるか（battle-tell.js の b.tell。null … ない）
+//   すいこみ口が 星の子を 向いた（3人組）・やみの いぶきの ねらい（ためし）・大王・第3幕（battle-c9b.js の c9bTell）
+export function c9Tell(b) {
+  if (b.over || b.pendingEnd) return null;
+  const m = mechaOf(b);
+  if (m?.alive && m.c9t?.aim) return 'suck';
+  const h = hoshimoriOf(b);
+  if (h?.alive && h.c9h && !h.c9h.won && h.c9h.aim.length) return 'breath';
+  return c9bTell(b);
 }
 function glow(b, ev) {
   const s = b.c9sp;

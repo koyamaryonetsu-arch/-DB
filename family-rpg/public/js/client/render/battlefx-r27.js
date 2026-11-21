@@ -1488,6 +1488,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c9bTeru')) return 'buff';
   // 第92回: 第3部 第3幕の「こたえる」（c9zAnswer）・「ひっくり返す」（c9sFlip）… 答えた 人・とびついた 人の 下に 光（技の 絵は render/battlefx-c9c.js）
   if (types.includes('c9zAnswer') || types.includes('c9sFlip')) return 'buff';
+  // 第93回: 第3部 第4幕の「スピカ：星のうた」（c9dSong）… みんなの 下に 回復の 光（技の 絵は render/battlefx-c9d.js）
+  if (types.includes('c9dSong')) return 'heal2';
   return null;
 }
 

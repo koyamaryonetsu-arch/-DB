@@ -23,12 +23,15 @@ import { ITEMS } from '../public/js/shared/data/items.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
-import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
-import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
+import { addSpica, mechaOf, hoshimoriOf, nozzleOf, guardOf, unlitAllies } from '../public/js/shared/battle-c9a.js';
+import { kingOf, c9bBusy, kingVisible, litNow, teruReady } from '../public/js/shared/battle-c9b.js';
 import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
 import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from '../public/js/shared/data/items-c9b.js';
-import { nazoOf, mechaOf9c } from '../public/js/shared/battle-c9c.js';
+import { nazoOf, mechaOf9c, sandConf } from '../public/js/shared/battle-c9c.js';
 import { C9C_BATTLE } from '../public/js/shared/maps/c9c-flags.js';
+// 第93回 B班: 第4幕の ボス（下の「第4幕」の かたまり）
+import { muState, okashiOf, songReady } from '../public/js/shared/battle-c9d.js';
+import { C9D_BATTLE } from '../public/js/shared/maps/c9d-flags.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';
@@ -82,6 +85,38 @@ export const CH9_KIT = {
     high_priest: ['c9b_owl_staff', 'c9ct_star_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9cb_riddle_charm'],
   },
 };
+// ───── 第93回 B班: 第4幕の ボス「あそびたい魔人 ムウ」（c9d_mu。Lv104。mu）─────
+//   2体を 同じくらいに けずる（HPの 多い 方を ねらう）・おかしビームの ねらいは 身を 守る・いっしょに ドーンの 前は 身を 守る・
+//   おかしの 仲間が いれば 星のうた（shared/battle-c9d.js の c9dPlan）。node tools/sim-ch9.mjs 20 mu
+//   ★装備 … ＋ ヒックリカエール2号の 品（ゴーグル）・ふたごの道の 宝箱（こだまのぼうし・ふたご星のたて・谷かぜの道着・ねむり星のよろい）
+CH9_IDS.mu = C9D_BATTLE.mu;
+export const CH9D_LV = { mu: 104 };
+Object.assign(LV9, CH9D_LV);
+CH9_KIT.mu = {
+  hero: ['c8s_star_sword', 'c9dt_sleep_mail', 'c9dt_twin_shield', 'c9ct_upside_helm', 'c9cb_trio_goggles'],
+  daikenja: ['c9b_owl_staff', 'c9ct_star_robe', null, 'c9dt_echo_hat', 'c9cb_trio_goggles'],
+  god_hand: ['c9at_star_claw', 'c9dt_valley_gi', null, 'c7it_bear_hat', 'c9cb_trio_goggles'],
+  high_priest: ['c9b_owl_staff', 'c9ct_star_robe', 'c9dt_twin_shield', 'c7l_kingdom_crown', 'c9cb_trio_goggles'],
+};
+// 1回の 戦いの ムウの ようす（ch9Run の かえす 値に まぜる）
+function muStats9(b) {
+  const s = muState(b);
+  if (!s) return {};
+  return { mSplit: s.split ? 1 : 0, mWakes: s.wakes, mKos: s.kos, mAngers: s.angers, mBeams: s.beams, mBlocked: s.blocked, mOkashi: s.okashi, mDoons: s.doons, mDoonG: s.doonGuards, mSongs: b.c9sp?.song?.uses || 0 };
+}
+// 知って いる 人の 合体技の ねらい: 2体の うち HPの 多い 方（同じくらいに けずる）
+function muTarget9(b) {
+  const s = muState(b);
+  if (!s) return null;
+  const up = b.aliveEnemies().filter((e) => e.c9m);
+  return up.sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp)[0]?.species || null;
+}
+function muText9(res) {
+  if (!res.some((r) => r.mSplit !== undefined)) return '';
+  const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
+  return `  分かれ${avg('mSplit').toFixed(2)} ばたん${avg('mKos').toFixed(1)} 起こす${avg('mWakes').toFixed(1)} おこる${avg('mAngers').toFixed(1)} ビーム${avg('mBeams').toFixed(1)}(守${avg('mBlocked').toFixed(1)}/おかし${avg('mOkashi').toFixed(1)}) ドーン${avg('mDoons').toFixed(1)}(守${avg('mDoonG').toFixed(1)}) うた${avg('mSongs').toFixed(1)}`;
+}
+
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
 // 第92回 第2便: その 幕で 買える くぼ地の 武具屋の 品（第2幕から）。★装備の ない 所・酒場の 仲間の 装備に えらんで よい
 //   （前の 章の 計算の SHOP_GEAR には まぜない … tools/sim-jobs.mjs の jobChar の extra）
@@ -151,6 +186,18 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   }
   return out;
 }
+// ためし用: PATCH='{"c9a_suitoru":{"c9a":{"few":{"wait":[0,0,0,0,0]}}}}' … 魔物の 数を かえて はかる（配列は おきかえ）
+function deepMerge(t, p) {
+  for (const [k, v] of Object.entries(p)) {
+    if (v && typeof v === 'object' && !Array.isArray(v) && t[k] && typeof t[k] === 'object') deepMerge(t[k], v);
+    else t[k] = v;
+  }
+}
+if (process.env.PATCH) deepMerge(MONSTERS, JSON.parse(process.env.PATCH));
+if (process.env.PATCHF) {
+  const { readFileSync } = await import('node:fs');
+  deepMerge(MONSTERS, JSON.parse(readFileSync(process.env.PATCHF, 'utf8')));
+}
 const group = (boss) => FIXED_ENCOUNTERS[CH9_IDS[boss]].group.flatMap(([sp, n]) => Array(n).fill(sp));
 
 // ───── 3つの やり方 ─────
@@ -169,7 +216,7 @@ export const MODES9 = {
   //   合体技は しくみの 用が ない 時だけ（前ぶれの 間・消えた 仲間が いる 間は しない）
   know: {
     label: '知っている　', know: true,
-    act: (b, a, boss) => (busy9(b) ? false : dualPlan(b, a, bossSpecies(b, boss), null)),
+    act: (b, a, boss) => (need9(b, a) ? false : dualPlan(b, a, muTarget9(b) || bossSpecies(b, boss), null)),
   },
 };
 function bossSpecies(b, boss) {
@@ -185,6 +232,60 @@ function busy9(b) {
   if (h?.c9h && (h.c9h.aim.length || b.aliveAllies().some((x) => !x.c9torch))) return true;
   return c9bBusy(b);
 }
+
+// 第92回 第3便: この 人の 番に しくみの 用が あるか（知っている 人は、自分の 用が ない ときは 前ぶれの 間でも 合体技を する）
+//   前ぶれ 1つに つき、しくみの 役は 先に 番が 来た 人が 受けもつ（b.simClaim。こわす 的は NEEDHITS 人）。のこりの 人は ふだん どおり
+//   自分が ねらわれて いる（いぶき・ポチッとね・大ジャンプ）ときは 自分で 身を 守る
+const needHits = () => envNum('NEEDHITS', 1);
+function claim(b, key, n = 1) {
+  const m = (b.simClaim = b.simClaim || new Map());
+  const k = m.get(key) || 0;
+  if (k >= n) return false;
+  m.set(key, k + 1);
+  return true;
+}
+function need9(b, a) {
+  const m = mechaOf(b);
+  if (m?.alive && m.c9t) {
+    const t = m.c9t;
+    const nz = nozzleOf(b);
+    if (t.aim && !guardOf(b) && claim(b, `guard${t.sucks}`)) return true;
+    if (nz?.alive && (t.aim || t.aimLeft <= 1) && claim(b, `nozzle${t.sucks}.${t.breaks}`, needHits())) return true;
+  }
+  const h = hoshimoriOf(b);
+  if (h?.alive && h.c9h && !h.c9h.won) {
+    if (h.c9h.aim.includes(a.id) && !a.defending) return true;
+    const un = unlitAllies(b);
+    if (a.c9torch && un.length && claim(b, `share${h.c9h.outs}.${un.map((x) => x.id).join()}`, un.length)) return true;
+  }
+  const kg = kingOf(b);
+  const k = kg?.alive ? kg.c9k : null;
+  if (k && !k.down) {
+    if (k.jumpReady && !a.defending) return true;
+    if (k.watch && kingVisible(b) && b.get(k.watch)?.alive && claim(b, `dish${k.watch}.${k.eats}.${k.breaks}`, needHits())) return true;
+    if (k.dark && !litNow(b) && teruReady(b) && claim(b, `teru${teruOfUses(b)}`)) return true;
+  }
+  const n = nazoOf(b);
+  if (n?.alive && n.c9z?.riddle && claim(b, `riddle${n.c9z.asks}.${n.c9z.wrongs}.${n.c9z.timeouts}`)) return true;
+  const mc = mechaOf9c(b);
+  const s = mc?.alive ? mc.c9s : null;
+  if (s) {
+    if (s.grains <= sandConf(mc, b).dizzyAt && !(s.dizzy > 0) && claim(b, `flip${s.flips}.${s.booms}`)) return true;
+    if (s.pochiAim === a.id && !a.defending) return true;
+  }
+  // 第93回 B班: 魔人ムウ … おかしビームの ねらいは 自分で 身を 守る・ドーンの 前は みんな 身を 守る・おかしの 仲間には 1人が 星のうた
+  if (b.c9mu && !b.c9mu.won) {
+    const mus = b.enemies.filter((e) => e.c9m && e.alive);
+    const soon = (w) => !(w > 0) || b.allies.length > 1;
+    if (mus.some((x) => x.c9m.beamAim === a.id && soon(x.c9m.beamWait)) && !a.defending) return true;
+    if (mus.some((x) => x.c9m.doon && soon(x.c9m.doonWait)) && !a.defending) return true;
+    const ok = b.aliveAllies().filter((x) => okashiOf(x));
+    if (ok.length && songReady(b) && claim(b, `song${b.c9mu.okashi}.${b.c9sp?.song?.uses || 0}`)) return true;
+  }
+  return false;
+}
+const teruOfUses = (b) => b.c9sp?.teru?.uses || 0;
+void busy9;
 
 // 星の子（戦いの わくを 使わない 味方。shared/battle-c9a.js）: 戦いを 作った すぐ あとに よぶ（3人組・ためしは 戦いが 自分で 入れる）
 export function addSpica9(b, boss) {
@@ -277,6 +378,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   return {
     kDark: kg?.c9k?.dark ? 1 : 0, timeoutMs: riddleAt.length ? Math.min(...riddleAt) : null, nazoLeft: nazoOf(b)?.alive ? 1 : 0, mechaLeft: mechaOf9c(b)?.alive ? 1 : 0,
     light: b.c9sp?.light ?? 0, dawn: h?.c9h?.dawn ?? 0, dark: h?.c9h?.dark ? 1 : 0, bigs: h?.c9h?.bigs ?? 0,
+    ...muStats9(b),
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
     hpLeft: al.reduce((s, x) => s + x.hp, 0) / al.reduce((s, x) => s + x.maxHp, 0), deaths: al.filter((x) => !x.alive).length,
     bossLeft: foes.reduce((s, e) => s + Math.max(0, e.hp), 0) / Math.max(1, foes.reduce((s, e) => s + e.maxHp, 0)), ...n,
@@ -294,7 +396,8 @@ export function summary9(res) {
     text: `勝率 ${pct(w, res.length)}  平均${avg('seconds').toFixed(0).padStart(4)}秒（勝ち${wsec.toFixed(0).padStart(4)}秒）  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  ボスの残${(avg('bossLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  合体技${avg('duals').toFixed(1)}`
       + `  光${avg('light').toFixed(1)} 守${avg('guards').toFixed(1)} こわす${avg('breaks').toFixed(1)}  夜明け${avg('dawn').toFixed(1)} いぶき${avg('breaths').toFixed(1)}(消${avg('outs').toFixed(1)}/守${avg('kept').toFixed(1)}) わける${avg('shares').toFixed(1)} 大${avg('bigs').toFixed(1)} まっくら${avg('dark').toFixed(2)}`
       + `  食べ${avg('eats').toFixed(1)} 止め${avg('stops').toFixed(1)} ジャンプ${avg('jumps').toFixed(1)} てらす${avg('teru').toFixed(1)} まっ暗${avg('kDark').toFixed(2)}`
-      + `  なぞ${avg('asks').toFixed(1)}(正${avg('rights').toFixed(1)}/ちがう${avg('wrongs').toFixed(1)}/時間切れ${avg('timeouts').toFixed(1)})  ばくはつ${avg('booms').toFixed(1)} ひっくり${avg('flips').toFixed(1)}(目回し${avg('dizzies').toFixed(1)}/早い${avg('early').toFixed(1)}) ポチッ${avg('pochis').toFixed(1)}`,
+      + `  なぞ${avg('asks').toFixed(1)}(正${avg('rights').toFixed(1)}/ちがう${avg('wrongs').toFixed(1)}/時間切れ${avg('timeouts').toFixed(1)})  ばくはつ${avg('booms').toFixed(1)} ひっくり${avg('flips').toFixed(1)}(目回し${avg('dizzies').toFixed(1)}/早い${avg('early').toFixed(1)}) ポチッ${avg('pochis').toFixed(1)}`
+      + muText9(res),
   };
 }
 

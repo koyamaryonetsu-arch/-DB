@@ -129,6 +129,8 @@ import { c9aStart, c9aStatus, C9A_SFX } from './battle-c9a.js';
 import { C9B_SFX } from './battle-c9b.js';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号の 音（battle-c9c.js）
 import { C9C_SFX } from './battle-c9c.js';
+// 第3部 第1章 第4幕: ムウ・星のうたの 音（battle-c9d.js）
+import { C9D_SFX } from './battle-c9d.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -315,6 +317,7 @@ const ANIM_SFX = {
   ...C9A_SFX,
   ...C9B_SFX,
   ...C9C_SFX,
+  ...C9D_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -423,7 +426,7 @@ export class BattleScene {
     while (this.readyQ.length) {
       const id = this.readyQ[0];
       const a = this.c.get(id);
-      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift');
+      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift' || x === 'okashi');
       if (a && a.alive && a.ready && !a.auto && !stuck && !this.ended) {
         this.cur = id;
         this.openCommand();
@@ -475,7 +478,11 @@ export class BattleScene {
     const foe = this.enemyRate > 1
       ? el('div', { class: `b-foe r${String(this.enemyRate).replace('.', '')}`, text: ENEMY_RATE_NAMES[this.enemyRate], title: `敵の強さ：${this.enemyRate}倍` })
       : null;
-    this.stage = el('div', { class: 'b-stage' }, this.canvas, this.floatEl, tools, foe);
+    // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（サーバーの { t: 'hold' }。shared/battle-tell.js）
+    this.holdEl = el('div', { class: 'b-hold', text: 'えらぶまで、待っているよ' });
+    this.holdEl.hidden = true;
+    this.tellHold = false;
+    this.stage = el('div', { class: 'b-stage' }, this.canvas, this.floatEl, tools, foe, this.holdEl);
     this.canvas.addEventListener('click', (e) => this.onCanvasClick(e));
     this.cmdEl = el('div', { class: 'win b-cmd' });
     this.msgEl = el('div', { class: 'win b-msg' });
@@ -731,7 +738,7 @@ export class BattleScene {
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
         case 'reach': return earthReachPick(this, a);
-        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': return c8rCmdPick(this, a, it.value);
+        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
@@ -1279,6 +1286,11 @@ export class BattleScene {
             if (c) c.atb = v;
           }
           break;
+        // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（敵の ゲージが 止まる。shared/battle-tell.js）
+        case 'hold':
+          this.tellHold = !!ev.on;
+          if (this.holdEl) this.holdEl.hidden = !this.tellHold;
+          break;
         case 'ready': {
           const c = this.c.get(ev.id);
           if (c) { c.ready = true; c.atb = 100; c.waitDual = null; c.dualHold = false; }
@@ -1642,7 +1654,7 @@ export class BattleScene {
     if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
-    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift') || !cur.ready)) this.dropReady(cur.id);
+    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift' || x === 'okashi') || !cur.ready)) this.dropReady(cur.id);
     else if (!this.cur && this.menu && !this.targeting) this.renderCmdIdle();
     this.renderStatus();
     this.updateAutoBtn();
@@ -1951,6 +1963,8 @@ export class BattleScene {
     const locked = !!this.showing || this.choosingPause();
     for (const c of this.c.values()) {
       if (!c.alive || c.ready || locked) continue;
+      // 前ぶれの 間に 人が えらんで いる: 敵の ゲージは 止まる（サーバーと おなじ。shared/battle-tell.js）
+      if (this.tellHold && c.side === 'enemy') continue;
       if (c.rate && c.atb < 100) c.atb = Math.min(99.5, c.atb + c.rate * dt * (this.fxSpeed || 1) * 0.6);
       if (c.flash > 0) c.flash -= dt;
       if (c.lunge > 0) c.lunge -= dt;

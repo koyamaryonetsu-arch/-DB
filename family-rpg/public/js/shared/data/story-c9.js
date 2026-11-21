@@ -99,7 +99,7 @@ const swapAct2 = (k) => (k === C9B_OBJ.act2 ? ACT2_END : k);
 // ───── 第4幕「星のはかば」を 開ける 切りかえ（plan-part3-c9d.md の 12-4・12-5。第93回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第3幕 クリアの 目標は「第4幕へ（続きはアップデートで！）」・
 //   くぼ地の 黄の 台を 見ても 幕は 始まらない / true … 目標が「ながれ星のくぼ地の、黄色い音の台を見に行こう」に かわる）
-export const PART3_ACT4_OPEN = false;
+export const PART3_ACT4_OPEN = true;
 // 第3幕 クリア（c9_act3）の 目標の 文（開いた あとは「ながれ星のくぼ地の、黄色い音の台を見に行こう」。前の 文は 古い 文 ACT3_END_OLD）
 export const act3ClearObjective = (open = PART3_ACT4_OPEN) => (open ? C9D_OBJ.start : C9C_OBJ.act3);
 export const ACT3_END_OLD = C9C_OBJ.act3;

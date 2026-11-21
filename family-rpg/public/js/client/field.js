@@ -323,7 +323,9 @@ export class Field {
     const at = this.lookAt || this.me;
     let cx = at.x * TS - this.vw / 2;
     let cy = (at.y - 0.5) * TS - this.vh / 2;
-    if (mw > this.vw) cx = Math.max(0, Math.min(mw - this.vw, cx)); else cx = (mw - this.vw) / 2;
+    // 第93回 A班: map.camPadR … 右の はしで カメラを その マス数 だけ 外へ 出せる（地下の川の 岸。主人公が 右の ボタンの 下に かくれない）
+    const padR = (this.map.camPadR || 0) * TS;
+    if (mw > this.vw) cx = Math.max(0, Math.min(mw - this.vw + padR, cx)); else cx = (mw - this.vw) / 2;
     if (mh > this.vh) cy = Math.max(0, Math.min(mh - this.vh, cy)); else cy = (mh - this.vh) / 2;
     return { x: cx, y: cy };
   }

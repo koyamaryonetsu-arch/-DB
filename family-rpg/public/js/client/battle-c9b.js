@@ -11,6 +11,8 @@ import { TERU } from '../shared/data/abilities-c9b.js';
 import { monsterCanvas } from './render/monsters.js';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js。C9C_OWN_TELE・C9C_SCREEN_ANIMS・C9C_ALLY_FX・C9C_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
 import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js';
+// 第3部 第1章 第4幕: 星のうた・あそびたい魔人 ムウ（battle-c9d.js。C9D_OWN_TELE・C9D_SCREEN_ANIMS・C9D_ALLY_FX・C9D_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
+import { c9dHud, c9dSprite, c9dDraw, c9dPresent, c9dCmdItems, c9dCmdPick } from './battle-c9d.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];
@@ -60,6 +62,8 @@ export function c9bHud(scene) {
   }
   h.teru.textContent = teruText(t);
   h.teru.classList.toggle('ok', t.charge >= t.max);
+  // 第3部 第1章 第4幕: 星のうたの たまりぐあい（battle-c9d.js）
+  c9dHud(scene);
 }
 
 // まっ暗の おおい（大王の 戦い。がめんの 上に 1まい）
@@ -82,6 +86,9 @@ function darkLayer(scene, on, lit) {
 
 // ───────────── え（client/battle-c9a.js の c9aSprite の あと）─────────────
 export function c9bSprite(c, frame) {
+  // 第3部 第1章 第4幕: ムウの ばたんきゅう・すわりこむ（battle-c9d.js）
+  const d = c9dSprite(c, frame);
+  if (d) return d;
   if (c?.species === C9B_DEDEDON && c.kDown) return monsterCanvas(C9B_DEDEDON, (frame ? 1 : 0) + 2);
   // 第3部 第1章 第3幕: 目を 回した メカ（battle-c9c.js）
   return c9cSprite(c, frame);
@@ -124,6 +131,8 @@ export function c9bDraw(scene, x, m, c, px, py, w, h, base) {
   const T = scene.time || 0;
   // 第3部 第1章 第3幕: なぞ・砂の めもり（battle-c9c.js）
   c9cDraw(scene, x, m, c, px, py, w, h, base);
+  // 第3部 第1章 第4幕: ムウの まど・しるし（battle-c9d.js）
+  c9dDraw(scene, x, m, c, px, py, w, h, base);
   // 大王
   if (c?.species === C9B_DEDEDON) {
     darkLayer(scene, c.alive && c.kDark, c.alive && c.kLit);
@@ -203,6 +212,8 @@ export function c9bPresent(scene, ev) {
   if (ev.c9kDown) { scene.shake?.(500, 3); good('大王は、おなかを鳴らして、すわりこんだ！', 'sparkle'); }
   // 第3部 第1章 第3幕（battle-c9c.js）
   c9cPresent(scene, ev);
+  // 第3部 第1章 第4幕（battle-c9d.js）
+  c9dPresent(scene, ev);
 }
 
 // ───────────── コマンド（client/battle-c9a.js の c9aCmdItems・c9aCmdPick）─────────────
@@ -214,8 +225,10 @@ function teruUseful(scene) {
 export function c9bCmdItems(scene, a) {
   // 第3部 第1章 第3幕: こたえる・ひっくり返す（battle-c9c.js。てらすより 先）
   const cc = c9cCmdItems(scene, a);
-  const items = [...cc.items];
-  let info = cc.info;
+  // 第3部 第1章 第4幕: スピカ：星のうた（battle-c9d.js）
+  const cd = c9dCmdItems(scene, a);
+  const items = [...cc.items, ...cd.items];
+  let info = cc.info || cd.info;
   const t = scene.c9spica?.teru;
   if (!a || !t || t.charge < t.max || !(a.abilities || []).includes(TERU) || !teruUseful(scene)) return { items, info };
   items.push({ html: '<span class="dual-cmd">スピカ：てらす</span>', value: 'c9bteru', cls: 'k-dual' });
@@ -224,6 +237,7 @@ export function c9bCmdItems(scene, a) {
 }
 export function c9bCmdPick(scene, a, value) {
   if (value === 'c9canswer' || value === 'c9cflip') return c9cCmdPick(scene, a, value);
+  if (value === 'c9dsong') return c9dCmdPick(scene, a, value);
   if (value !== 'c9bteru') return false;
   scene.send({ type: 'ability', id: TERU });
   return true;

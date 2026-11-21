@@ -10,7 +10,6 @@
 // ・スピカと はなれて いる 人の 戦いには スピカの 助けが ない（spicaAway9d。world/battles.js の hooks.leaderFlag）
 import { MAPS } from '../maps/index.js';
 import { MONSTERS } from '../data/monsters.js';
-import { ENCOUNTER_TABLES } from '../data/encounters.js';
 import { SCRIPTS } from '../data/story.js';
 import { C9D_LANE_MAPS, C9D_SONG_SKILL } from '../maps/c9d-flags.js';
 import { C9A, SPICA_NAME, STAR_FORK } from '../maps/c9a-flags.js';
@@ -259,8 +258,6 @@ for (const id of C9D_LANE_MAPS) {
   const m = MAPS[id];
   if (!m) continue;
   m.symBlock = (world, sym, x, y) => !!MONSTERS[sym?.sp]?.darkOnly && brightAt(world, id, Math.floor(x), Math.floor(y));
-  // ※ かり: B班の 魔物の 出る 表（t9d_lane・t9d_lane2）が 入るまでは 第3幕の ピラミッドの 表で 出す（合わせる 時に 消す）
-  m.tableFor = (zone) => (ENCOUNTER_TABLES[zone] ? null : 't9c_pyr2');
 }
 
 // ───── ひびきの石の 台本（SCRIPTS に 入れる。ひとりずつ。物語の 場面は story-c9d.js）─────
