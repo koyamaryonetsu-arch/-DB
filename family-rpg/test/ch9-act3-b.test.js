@@ -410,7 +410,7 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物
 });
 
 // ───────────── 強さ ─────────────
-test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）で 知って いる 人は 勝てる・完全オートは 勝てない（少しの 回数）', { timeout: 1200000 }, () => {
+test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）で 知って いる 人は 勝てる・完全オートは 勝てない（少しの 回数）', { timeout: 2400000 }, () => {
   const human = { react: 2000, speed: 0.85, textSpeed: 0.8 };
   for (const boss of ['riddle', 'trio2']) {
     const know = [1, 2, 3, 4, 5].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, human));
@@ -420,6 +420,9 @@ test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウ�
     const wins = know.filter((r) => r.outcome === 'win');
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
     assert.ok(sec >= 200 && sec <= 520, `${boss} 長さ ${sec}秒`);
+    // 第92回 第3便: なぞ・砂・ポチッとねの 間は えらぶ 人を 待つ ので、えらぶのに 5びょう かかる 人も 勝てる
+    const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, { ...human, react: 5000 }));
+    assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `${boss} 5びょう ${slow.map((r) => r.outcome).join(',')}`);
     for (const [job, kit] of Object.entries(CH9_KIT[boss])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
   }
   assert.equal(LV9.riddle, 101);

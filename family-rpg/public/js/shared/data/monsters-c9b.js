@@ -94,19 +94,19 @@ export const MONSTERS_C9B = {
   //   jump … 大ジャンプまでの 行動 / jumpMult … 大ジャンプの 強さ / guardCut … 身を 守った 人の 大ジャンプの ばい（身を 守る 半分と かける）/
   //   meat … にくで 強く なる ばい（max 回まで）/ cake … ケーキの 回復（最大HPの わりあい）/ soup … からいスープの 炎 / lit … てらすで 見える 番
   [C9B_DEDEDON]: {
-    name: DEDEDON_NAME, short: '大王', lv: 100, hp: 70000, mp: 9999, str: 1640, def: 340, agi: 240, mag: 960, exp: 116000, gold: 39000,
+    name: DEDEDON_NAME, short: '大王', lv: 100, hp: 77000, mp: 9999, str: 1800, def: 340, agi: 240, mag: 960, exp: 116000, gold: 39000,
     race: 'beast', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9bb_king_bib'], bonus: ['limit_stone'], rare: ['c9bb_king_mallet', 1] },
     resist: { ...BOSS_STATUS, wind: 1.2, light: 1.1, dark: 0.8, fire: 0.9, ice: 1.0, bolt: 1.0 },
     c9b: {
       kind: 'king', watch: 3, back: 3, late: 6, jump: 5, jumpMult: 1.7, guardCut: 0.5,
-      meat: { up: 1.4, max: 4 }, cake: 0.25, soup: [600, 640], lit: 3,
+      meat: { up: 1.5, max: 4 }, cake: 0.35, soup: [600, 640], lit: 3,
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: dish … 皿の HP の ばい / watch … 皿を 見るまでの 行動 /
       //   wait … 皿を 見てから 食べるまでに ふつうに 動く 回数（人が 少ない ときは こわす 間が 長い）/ jump … 大ジャンプまでの 行動 /
       //   hp・atk … 大王の HP・攻撃力の ばい（酒場・魔物の 仲間は しくみを あまり 使わない ので、人が 少ない ときは 弱く）
       //   solo … 仲間なしの ひとり（戦う 人が 1人だけ）の とき。few より 先に 見る
-      few: { dish: [0.45, 0.6, 0.9, 1, 1.25], watch: [5, 4, 3, 3, 3], wait: [3, 3, 3, 3, 2], jump: [7, 6, 5, 5, 4], hp: [0.7, 0.65, 0.92, 1, 1.12], atk: [0.95, 1.15, 0.96, 1, 1.04] },
-      solo: { hp: 0.105, atk: 0.5, dish: 0.4, watch: 3, jump: 3, wait: 2 },
+      few: { dish: [0.45, 0.6, 0.9, 1, 1.25], watch: [5, 4, 3, 3, 3], wait: [3, 3, 3, 3, 2], jump: [7, 6, 5, 5, 4], hp: [0.55, 0.5, 0.92, 1, 1.12], atk: [0.9, 1.2, 0.96, 1, 1.04] },
+      solo: { hp: 0.12, atk: 0.45, dish: 0.25, watch: 3, jump: 8, wait: 2 },
       // 魔物の 仲間 1体ごとの 大王の HP・攻撃力の 上げ（人数は 魔物の 仲間を 半人ぶんに 数えた うえで）
       monK: { hp: 0, atk: 0 },
     },
