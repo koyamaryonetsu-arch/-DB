@@ -107,13 +107,14 @@ export function setWide10a(field, on) {
 // field.resize の 中で よぶ（2D の 1マスの 大きさを 小さく する）
 export const wideScale10a = (field, scale) => (field.wide10a ? Math.max(1, Math.round(scale * 0.55)) : scale);
 
-// ───── HUD「ようがんまで あと ○だん」・メニューで 止める ─────
+// ───── HUD「ようがんまで あと ○だん」・メニューで 止める・2行の 目標（すきな じゅんの 幕）を 行で 分けて 見せる（.hud-obj の pre-line）─────
 const CSS = `
 .c10-lava { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 64px); transform: translateX(-50%); z-index: 30;
   padding: 4px 14px; border-radius: 10px; background: rgba(40, 6, 2, 0.82); border: 2px solid #ff7a3a; color: #ffe0c0;
   font-weight: bold; font-size: 18px; pointer-events: none; white-space: nowrap; text-shadow: 0 1px 2px #000; }
 .c10-lava.near { color: #fff; border-color: #ffd040; background: rgba(120, 16, 4, 0.9); }
 .c10-lava b { color: #ffd060; font-size: 22px; margin: 0 2px; }
+.hud-obj { white-space: pre-line; }
 @media (max-width: 600px) { .c10-lava { top: calc(env(safe-area-inset-top, 0px) + 96px); font-size: 15px; } .c10-lava b { font-size: 18px; } }
 `;
 export const lavaHudText10a = (gap) => `ようがんまで、あと${Math.max(0, gap)}だん`;
@@ -139,6 +140,7 @@ export class C10aLavaHud {
       g.net?.send?.({ t: 'menu', action: 'c10Hold', on: hold });
     }
     if (!this.box) return;
+    if (!this.box.isConnected) document.getElementById('ui')?.append(this.box);
     if (!run) { if (!this.box.hidden) this.box.hidden = true; return; }
     const gap = lavaGapOf10a(f);
     const near = gap <= 3;
