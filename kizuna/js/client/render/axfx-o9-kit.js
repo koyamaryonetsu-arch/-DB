@@ -12,8 +12,8 @@
 // ・o9Rainbow … にじ（7色の 弧が のびる）。x・y・r
 // ・o9Zabuton … ざぶとん（正座）。keys・size
 // どれも ふちどり つき。毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
-import { softGlow, disc, clamp01, lerp, easeOut, hash } from './axkit.js?v=27b736e61284';
-import { kf, envOf } from './axfx-o4-kit.js?v=27b736e61284';
+import { softGlow, disc, clamp01, lerp, easeOut, hash } from './axkit.js?v=8433acec5263';
+import { kf, envOf } from './axfx-o4-kit.js?v=8433acec5263';
 
 const TAU = Math.PI * 2;
 const OUT = '#1c1a2a';

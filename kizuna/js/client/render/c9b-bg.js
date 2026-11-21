@@ -3,13 +3,13 @@
 //   遠くに 小さな 明かり・すいしょうの 柱・光る こけ（たてあな・大地の下・暗い 所の 大ミミズ）
 // ・c9b_feast（deco 'c9b_feast'）… 大王の やしきの ごちそうの 間: 赤い たれまく・明かりの つぼ・長い テーブル（手下・大王の 戦い）
 // 第3部 第1章 第3幕（地下の川・さかさのピラミッド・音の間。c9c-bg.js）もここから
-import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js?v=27b736e61284';
+import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js?v=8433acec5263';
 // 第3部 第1章 第4幕（ふたごの道・星のはかば。c9d-bg.js）
-import { C9D_BG, C9D_DECOS, drawC9dBg, drawC9dFloorBg } from './c9d-bg.js?v=27b736e61284';
+import { C9D_BG, C9D_DECOS, drawC9dBg, drawC9dFloorBg } from './c9d-bg.js?v=8433acec5263';
 // 第3部 第2章 第1幕（古い道・熱の間・根の国・大木の前。c10a-bg.js）
-import { C10A_BG, C10A_DECOS, drawC10aBg, drawC10aFloorBg } from './c10a-bg.js?v=27b736e61284';
+import { C10A_BG, C10A_DECOS, drawC10aBg, drawC10aFloorBg } from './c10a-bg.js?v=8433acec5263';
 // 第3部 第2章 第2幕（水鏡の うら・かれた間・氷の下の道・月の間。c10b-bg.js）
-import { C10B_BG, C10B_DECOS, drawC10bBg, drawC10bFloorBg } from './c10b-bg.js?v=27b736e61284';
+import { C10B_BG, C10B_DECOS, drawC10bBg, drawC10bFloorBg } from './c10b-bg.js?v=8433acec5263';
 
 const BW = 256, BH = 144;
 

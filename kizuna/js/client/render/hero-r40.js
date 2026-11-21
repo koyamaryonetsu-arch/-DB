@@ -20,9 +20,9 @@
 //   face40(cv, H, B, view, phase) … ひたいの 竜の紋章・三日月（face26 から よぶ）
 //   drawProp40(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。銀水しょうの つえ。かいたら true）
 //   handMark40(cv, A, P, O) … 手の こうの 竜の紋章（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH } from './hero-raster.js?v=27b736e61284';
+import { mat, ramp, TH } from './hero-raster.js?v=8433acec5263';
 // 第72回: 竜の紋章の ドットの かたち（crest-shapes.js。つの・つばさ・まん中の 赤い ひし形・下の とがり）
-import { DRAGON_STAMP } from './crest-shapes.js?v=27b736e61284';
+import { DRAGON_STAMP } from './crest-shapes.js?v=8433acec5263';
 
 export const R40_JOBS = ['ryumajin', 'neo_queen'];
 

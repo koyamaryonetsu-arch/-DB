@@ -7,8 +7,8 @@
 //  r88m_hand    カラミティエンド（手刀の 反撃。client/battle-r88m.js が ev.r88mHands で 出す）… 白金の 大きな 手刀の すじ ＋ 光の はじけ
 //  r88m_bird    カイザーフェニックス（かまえが とける 時の 火の 鳥。ev.r88mBird）… 下から 火の 鳥が とんで 敵で 炎の 爆発
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R88M_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=27b736e61284';
-import { flames, explosion, pal } from './axkit.js?v=27b736e61284';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=8433acec5263';
+import { flames, explosion, pal } from './axkit.js?v=8433acec5263';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const FIRE = pal('fire');

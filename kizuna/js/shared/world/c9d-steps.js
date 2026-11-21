@@ -8,18 +8,18 @@
 // ・スピカを よぶ … 石・HUD の ボタン（menu の c9dCall）。いつでも やめられる。スピカを ひとりに しても ばつは ない（時間の 切れも ない）
 // ・暗い 所だけを 歩く 魔物（MONSTERS[種].darkOnly）は スピカ・光った ランプ・光る こけの 中に 入らない（map.symBlock）
 // ・スピカと はなれて いる 人の 戦いには スピカの 助けが ない（spicaAway9d。world/battles.js の hooks.leaderFlag）
-import { MAPS } from '../maps/index.js?v=27b736e61284';
-import { MONSTERS } from '../data/monsters.js?v=27b736e61284';
-import { SCRIPTS } from '../data/story.js?v=27b736e61284';
-import { C9D_LANE_MAPS, C9D_SONG_SKILL } from '../maps/c9d-flags.js?v=27b736e61284';
-import { C9A, SPICA_NAME, STAR_FORK } from '../maps/c9a-flags.js?v=27b736e61284';
-import { C9C_MAP } from '../maps/c9c-flags.js?v=27b736e61284';
+import { MAPS } from '../maps/index.js?v=8433acec5263';
+import { MONSTERS } from '../data/monsters.js?v=8433acec5263';
+import { SCRIPTS } from '../data/story.js?v=8433acec5263';
+import { C9D_LANE_MAPS, C9D_SONG_SKILL } from '../maps/c9d-flags.js?v=8433acec5263';
+import { C9A, SPICA_NAME, STAR_FORK } from '../maps/c9a-flags.js?v=8433acec5263';
+import { C9C_MAP } from '../maps/c9c-flags.js?v=8433acec5263';
 import {
   FORK_MS9D, LAMP_MS9D, stonesOf9d, stoneById9d, groupOf9d, ringingIds9d, groupRinging9d, spicaPos9d, withSpica9d, otherLane9d, laneBright9d,
-} from '../maps/c9d-lane.js?v=27b736e61284';
-import { stoneScript9d } from '../maps/c9d.js?v=27b736e61284';
-import { partyOf } from './party.js?v=27b736e61284';
-import { c9aLitAt } from './c9a-steps.js?v=27b736e61284';
+} from '../maps/c9d-lane.js?v=8433acec5263';
+import { stoneScript9d } from '../maps/c9d.js?v=8433acec5263';
+import { partyOf } from './party.js?v=8433acec5263';
+import { c9aLitAt } from './c9a-steps.js?v=8433acec5263';
 
 const SP = SPICA_NAME;
 const N = (...lines) => lines.map((l) => ['say', null, l]);
