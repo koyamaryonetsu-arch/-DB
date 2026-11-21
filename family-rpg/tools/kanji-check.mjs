@@ -372,8 +372,8 @@ export function gameFiles() {
     'public/js/shared/data/jobs-r86a.js', 'public/js/shared/data/abilities-r86a.js', 'public/js/shared/data/hirameki-r86a.js', 'public/js/shared/battle-r86a.js', 'public/js/client/battle-r86a.js',
     // 第88回 M1班: 魔王の ひらめき技（天地魔闘の構え）・戦いの しかけ・札と えんしゅつの ことば
     'public/js/shared/data/hirameki-r88m.js', 'public/js/shared/battle-r88m.js', 'public/js/client/battle-r88m.js',
-    // 第98回: きずなの職業（一覧・戦いの しかけ・札。1つ 1ファイルの データと 絵〈data/jobs-r98-*.js・client/render/kizuna-*.js〉は kizunaFiles〈gameFiles の 上〉で ぜんぶ 入る）
-    'public/js/shared/data/kizuna.js', 'public/js/shared/battle-kizuna.js', 'public/js/client/battle-kizuna.js',
+    // 第98回: きずなの職業（一覧・オートの まとめ。1つ 1ファイルの データと 絵〈data/jobs-r98-*.js・client/render/kizuna-*.js〉は kizunaFiles〈gameFiles の 上〉で ぜんぶ 入る）
+    'public/js/shared/data/kizuna.js', 'public/js/shared/battle-kizuna.js',
     ...kizunaFiles(),
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',

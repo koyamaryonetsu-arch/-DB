@@ -16,7 +16,7 @@ RYU_SET.hokage = ['saiha', 'nadare', 'setsuna', 'resshin'];
 export const KIZUNA_HOKAGE = {
   job: {
     id: 'hachiryu_hokage', name: '八竜の火影', kana: 'はちりゅうのほかげ', short: '竜火影', tier: 4, req: ['rekka', 'hokage'], family: 'tech', color: '#c8281c',
-    desc: '影分身の1人1人が、火竜を1ぴきずつつれて戦う、火の里の長。八竜の炎術士・烈火と七代目火影をきわめ、火竜と忍術をたくさん使った者だけがなれる。仲間がたおれるほど、火の意志が強くなる。',
+    desc: '影分身の1人1人が、火竜を1ぴきずつ、つれて戦う、火の里の長。八竜の炎術士・烈火と七代目火影をきわめ、火竜と忍術をたくさん使った者だけがなれる。仲間がたおれるほど、火の意志が強くなる。',
     mods: { hp: 1.9, mp: 1.7, str: 2.0, def: 1.5, agi: 1.85, mag: 1.0, heal: 1.05 },
     weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
     perLv: { hp: 1.5, str: 1, agi: 1 },
