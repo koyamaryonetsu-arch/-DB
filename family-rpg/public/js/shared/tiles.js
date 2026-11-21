@@ -116,7 +116,7 @@ export const T = {
   C10A_ROAD: 491, C10A_WALL: 492, C10A_GLOW: 493, C10A_VINEWALL: 494, C10A_VINEWALL_OPEN: 495, C10A_ORB: 496,
   C10A_GROUND: 497, C10A_ROOTWALL: 498, C10A_GAP: 499, C10A_CLIFF: 500, C10A_BUD: 501, C10A_BUD_OPEN: 502, C10A_VINE: 503,
   C10A_LEAF: 504, C10A_SPROUT: 505, C10A_SHROOM: 506, C10A_LOOKOUT: 507, C10A_TREE: 508, C10A_HOLLOW: 509, C10A_ICEBUD: 510,
-  C10A_FIREBLOOM: 511, C10A_HANGROOT: 512, C10A_STUMP: 513, C10A_SPORE: 514,
+  C10A_FIREBLOOM: 511, C10A_HANGROOT: 512, C10A_STUMP: 513, C10A_SPORE: 514, C10A_ROOT_H: 515, C10A_ROOT_V: 516,
 };
 
 export const TILE_INFO = {};
@@ -631,7 +631,7 @@ def(T.C10A_GLOW, 'c10a_glow', { solid: true, anim: true, light: true, mapColor: 
 def(T.C10A_VINEWALL, 'c10a_vinewall', { solid: true, talkThrough: true, mapColor: '#4a5a3a' }); // つるの からまった かべ（緑の 音で ひらく。おまけの 部屋）
 def(T.C10A_VINEWALL_OPEN, 'c10a_vinewall_open', { mapColor: '#3a4a2e' }); // ひらいた つるの かべ
 def(T.C10A_ORB, 'c10a_orb', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ff5a2a' }); // 赤い 光の 玉（熱の 間）
-def(T.C10A_GROUND, 'c10a_ground', { mapColor: '#5a7a3a' }); // 根の国の 地面（こけと 落ち葉）
+def(T.C10A_GROUND, 'c10a_ground', { mapColor: '#215248' }); // 根の国の 地面（こけと 落ち葉）
 def(T.C10A_ROOTWALL, 'c10a_rootwall', { solid: true, mapColor: '#4a3020' }); // 大きな 根の かべ
 def(T.C10A_GAP, 'c10a_gap', { solid: true, mapColor: '#0e1a10' }); // 深い 谷（大きな 葉が のびると 橋）
 def(T.C10A_CLIFF, 'c10a_cliff', { solid: true, mapColor: '#6a4a2a' }); // 高い 段の がけ（つるが のびると はしご）
@@ -648,7 +648,9 @@ def(T.C10A_ICEBUD, 'c10a_icebud', { solid: true, talkThrough: true, mapColor: '#
 def(T.C10A_FIREBLOOM, 'c10a_firebloom', { anim: true, mapColor: '#ff8a3a' }); // さいた 火の 花（通れる）
 def(T.C10A_HANGROOT, 'c10a_hangroot', { solid: true, talkThrough: true, mapColor: '#7a5a3a' }); // 天じょうから たれ下がる 大きな 根（大地の下の 西の がけ）
 def(T.C10A_STUMP, 'c10a_stump', { mapColor: '#8a6a42' }); // 切りかぶの 近道（ささやきの森の ひらけた 所）
-def(T.C10A_SPORE, 'c10a_spore', { mapColor: '#6a8a4a' }); // 光る 胞子の 草（根の国の 地面）
+def(T.C10A_SPORE, 'c10a_spore', { mapColor: '#2e6c5c' }); // 光る 胞子の 草（根の国の 地面）
+def(T.C10A_ROOT_H, 'c10a_root_h', { mapColor: '#4a3020' }); // 地面を はう 太い 根（よこ。上を 歩ける）
+def(T.C10A_ROOT_V, 'c10a_root_v', { mapColor: '#4a3020' }); // 地面を はう 太い 根（たて。上を 歩ける）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

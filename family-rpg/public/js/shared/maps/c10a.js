@@ -119,6 +119,7 @@ function buildR3() {
 const GREEN_LEGEND = {
   '#': T.C10A_ROOTWALL, '.': T.C10A_GROUND, ',': T.C10A_SPORE, '~': T.C10A_GAP, '=': T.C10A_CLIFF, b: T.C10A_BUD, v: T.C10A_CLIFF, l: T.C10A_GAP,
   m: T.C10A_SPROUT, O: T.C10A_LOOKOUT, T: T.C10A_TREE, H: T.C10A_HOLLOW, i: T.C10A_ICEBUD, c: T.C10A_GROUND, S: T.STAIRS_DOWN, N: T.C10A_HOLLOW,
+  r: T.C10A_ROOT_H, q: T.C10A_ROOT_V,
 };
 export const budScript10a = (n) => `c10g_bud${n}`;
 function greenMap(id, name, rows, P, chests, table, lookN) {
@@ -153,7 +154,7 @@ function greenMap(id, name, rows, P, chests, table, lookN) {
   m.zoneAt = (x, y) => {
     if (Math.abs(x - S.x) <= 5 && y >= S.y - 5) return 'safe:roots';
     const tile = m.tiles[y * m.w + x];
-    if (tile !== T.C10A_GROUND && tile !== T.C10A_SPORE) return 'safe:roots';
+    if (tile !== T.C10A_GROUND && tile !== T.C10A_SPORE && tile !== T.C10A_ROOT_H && tile !== T.C10A_ROOT_V) return 'safe:roots';
     return tableOr(table, 'safe:wait');
   };
   return m;

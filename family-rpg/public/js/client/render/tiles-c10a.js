@@ -59,15 +59,9 @@ function ground(p, v) {
   for (let i = 0; i < 5; i++) { const x = Math.floor(r() * 14) + 1, y = Math.floor(r() * 14) + 1; p.ellipse(x, y, 2, 1.2, i % 2 ? GD.l : GD.d); }
   for (let i = 0; i < 3; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), GD.hl);
   // 地面を はう 太い 根（ところどころ）
-  if (v % 11 === 0) {
-    // 太い 根が 地面を はう（こけに うもれて、こぶが ある）
-    const y0 = 6 + (v % 5);
-    for (let x = 0; x < 16; x++) { const y = y0 + Math.round(Math.sin((x + v) / 3) * 1.2); p.vline(x, y - 2, y + 2, RT.b); p.set(x, y - 2, RT.hl); p.set(x, y - 1, RT.l); p.set(x, y + 2, RT.d); }
-    p.ellipse(4 + (v % 8), y0, 2.5, 3, RT.l);
-    p.set(3 + (v % 8), y0 - 3, '#4ac8a0'); p.set(9, y0 + 3, '#2e6c5c');
-  } else if (v % 13 === 5) {
-    // 小さな 光る きのこの むれ
-    for (const [x, y] of [[4, 10], [7, 12], [11, 9]]) { p.vline(x, y, y + 2, '#d8e8e0'); p.ellipse(x, y, 2, 1.2, '#3ac8d8'); p.set(x, y - 1, '#c8ffff'); }
+  if (v === 3) {
+    // 小さな 光る きのこ
+    for (const [x, y] of [[4, 10], [11, 7]]) { p.vline(x, y, y + 2, '#d8e8e0'); p.ellipse(x, y, 2, 1.2, '#3ac8d8'); p.set(x, y - 1, '#c8ffff'); }
   }
   // 光る ほうしの つぶ
   if (v % 3 === 0) { const x = Math.floor(r() * 12) + 2, y = Math.floor(r() * 12) + 2; p.set(x, y, '#c8ffe8'); p.set(x + 1, y, '#7affd0'); }
@@ -77,6 +71,18 @@ function spore(p, v) {
   const r = prand(v * 7 + 3);
   // 光る ほうしの くさ（先が 光る）
   for (let i = 0; i < 4; i++) { const x = Math.floor(r() * 14) + 1, y = Math.floor(r() * 10) + 5; p.vline(x, y, y + 3, '#2a7a5a'); p.set(x, y - 1, '#d8fff0'); p.set(x - 1, y - 1, '#7affd0'); p.set(x + 1, y - 1, '#7affd0'); }
+}
+// 地面を はう 太い 根（よこ・たて。となりの 根と つながる）
+function crawlRoot(p, v, vert) {
+  ground(p, v === 3 ? 1 : v);
+  for (let i = 0; i < 16; i++) {
+    const o = Math.round(Math.sin((i + v * 4) / 2.6) * 1.2);
+    const a = 8 + o;
+    if (vert) { p.hline(a - 3, a + 3, i, RT.b); p.set(a - 3, i, RT.hl); p.set(a - 2, i, RT.l); p.set(a + 3, i, RT.d); }
+    else { p.vline(i, a - 3, a + 3, RT.b); p.set(i, a - 3, RT.hl); p.set(i, a - 2, RT.l); p.set(i, a + 3, RT.d); }
+  }
+  // こぶと こけ
+  if (vert) { p.ellipse(8, 5 + v * 2, 3.5, 2, RT.l); p.set(6, 4 + v * 2, '#4ac8a0'); } else { p.ellipse(5 + v * 2, 8, 2, 3.5, RT.l); p.set(4 + v * 2, 6, '#4ac8a0'); }
 }
 function rootWall(p, v) {
   p.rect(0, 0, 16, 16, RT.b);
@@ -213,13 +219,15 @@ export const C10A_PAINTERS = {
   [T.C10A_HANGROOT]: (p, v) => hangRoot(p, v),
   [T.C10A_STUMP]: (p, v) => stump(p, v),
   [T.C10A_SPORE]: (p, v) => spore(p, v),
+  [T.C10A_ROOT_H]: (p, v) => crawlRoot(p, v, false),
+  [T.C10A_ROOT_V]: (p, v) => crawlRoot(p, v, true),
 };
 export const C10A_FRAMES = { [T.C10A_GLOW]: GLOW_FRAMES10A, [T.C10A_ORB]: ORB_FRAMES10A, [T.C10A_BUD]: BUD_FRAMES10A, [T.C10A_FIREBLOOM]: BLOOM_FRAMES10A };
 export const C10A_SPEED = { [T.C10A_GLOW]: 520, [T.C10A_ORB]: 360, [T.C10A_BUD]: 700, [T.C10A_FIREBLOOM]: 300 };
 
 // ───── 2.5D ─────
 // 溶岩・谷は ずっと 下。かべ・根・がけ・大木は ブロック
-export const C10A_FLOOR_H = { [T.C10A_GLOW]: -1.1, [T.C10A_GAP]: -1.2, [T.C10A_LEAF]: -0.05 };
+export const C10A_FLOOR_H = { [T.C10A_GLOW]: -1.1, [T.C10A_GAP]: -1.2, [T.C10A_LEAF]: -0.05, [T.C10A_ROOT_H]: 0.12, [T.C10A_ROOT_V]: 0.12 };
 export function c10aBlockSpec(id, v) {
   const t = (k = 0) => ['t', id, v, k];
   switch (id) {
