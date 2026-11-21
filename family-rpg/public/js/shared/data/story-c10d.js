@@ -331,7 +331,7 @@ function bridgeScene() {
 
 // ───── E くぼ地の 金の 台 → 8つめの 台 ─────
 // act3Obj … 第2章 クリアの あとの 目標（第3章が 開くまでは「第3部　第3章へ（続きは…）」）
-function endScene() {
+function endScene(act4Obj = C10D_OBJ.act4) {
   const cx = 12.5, cy = PD.y + 1.6;
   return [
     ['bgm', null],
@@ -361,22 +361,23 @@ function endScene() {
     ['look'],
     ['flag', C10D.act4], ['unflag', C10D_PED.do], ['sync'],
     ['chapter', '第2章　七つの星の音', 'クリア！'],
-    ['objective', C10D_OBJ.act4],
+    ['objective', act4Obj],
     ['bgm', 'resume'],
   ];
 }
-function pedSteps(old) {
+function pedSteps(old, act4Obj) {
   return (x) => {
     if (x.flag(C10D.act4)) return N('金の台が、やさしく光っている。');
     if (!x.flag(C10D.start) || !x.flag(C10D.note)) return old ? old(x) : [];
     if (!x.flag(C10D.bridge)) return [...N('金の台だ。'), ...S(SP, '…まだ。\n星見の丘が、呼んでる。')];
-    return [['sfx', 'sparkle'], ['flag', C10D_PED.do], ['sync'], ...N('金の台に、星の音（ド）を、置いた。\n金の台が、ぽうっと、光った！'), ...endScene()];
+    return [['sfx', 'sparkle'], ['flag', C10D_PED.do], ['sync'], ...N('金の台に、星の音（ド）を、置いた。\n金の台が、ぽうっと、光った！'), ...endScene(act4Obj)];
   };
 }
 
 // ───── だいほん ─────
 //   open … 幕が 開いて いるか（story-c10.js の PART3_C10D_OPEN）。false の 間は くぼ地で 音さを 鳴らしても 始まらない
-export function c10dScripts(title, open, old = {}) {
+//   act4Obj … 第2章 クリアの あとの 目標（第100回 A班: 第3章 第1幕が 開いた あとは story-c10.js の act4ClearObjective）
+export function c10dScripts(title, open, old = {}, act4Obj = C10D_OBJ.act4) {
   const out = {
     c10d_fork_event: (x) => (open && x.flag(C10D_ACT3) && !x.flag(C10D.start) ? forkScene(title) : []),
     c10d_top_event: (x) => (x.flag(C10D.start) && !x.flag(C10D.top) ? topScene() : []),
@@ -384,7 +385,7 @@ export function c10dScripts(title, open, old = {}) {
     c10d_orb: orbSteps,
     c10d_bridge_event: (x) => (x.flag(C10D.note) && !x.flag(C10D.bridge) ? bridgeScene() : []),
     c10d_bridge_look: () => N('とちゅうで止まった、光の橋だ。\n空の、ずっと上へ、のびている…。'),
-    c10_ped_do: pedSteps(old.ped),
+    c10_ped_do: pedSteps(old.ped, act4Obj),
     c10d_ped8: () => N('8つめの、石の台だ。\n…何も、のっていない。'),
   };
   for (let g = 1; g <= 4; g++) out[`${C10D_GATE_BATTLES[g - 1]}_event`] = (x) => (gateOk(x, g) ? gateScene(g) : []);
@@ -437,8 +438,8 @@ export const CH10D_PROGRESS = [
 // ───── story-c10.js の applyCh10 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん / open … 幕が 開いて いるか（PART3_C10D_OPEN）
 //   今の 台本に 足す 物（どれも フラグで 出る）: 星の塔の てっぺんの さいだん（c10d_start から 光の 階段の 場面）
-export function applyCh10d(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S10 = c10dScripts(title, open, { ped: SCRIPTS.c9c_ped });
+export function applyCh10d(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act4Obj = C10D_OBJ.act4 } = {}) {
+  const S10 = c10dScripts(title, open, { ped: SCRIPTS.c9c_ped }, act4Obj);
   Object.assign(SCRIPTS, S10);
   for (const id of CH10D_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   if (!SCRIPTS.c5_altar?.c10d) {

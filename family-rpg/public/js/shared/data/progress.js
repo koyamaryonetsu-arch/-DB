@@ -13,6 +13,7 @@ import { CH7_PROGRESS } from './story-c7.js';
 import { CH8_PROGRESS } from './story-c8.js';
 import { CH9_PROGRESS } from './story-c9.js';
 import { CH10_PROGRESS } from './story-c10.js';
+import { CH11_PROGRESS } from './story-c11.js';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [
@@ -51,6 +52,8 @@ const PROGRESS = [
   ...CH9_PROGRESS,
   // 第3部 第2章（story-c10.js。幕が 開いて いる 時だけ）
   ...CH10_PROGRESS,
+  // 第3部 第3章（story-c11.js。幕が 開いて いる 時だけ）
+  ...CH11_PROGRESS,
 ];
 
 // 今の 版に ある 目標の 文

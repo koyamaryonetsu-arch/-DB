@@ -32,6 +32,8 @@ import { CH9_STEPS, applyCh9 } from './story-c9.js';
 import { wrapC9cdGrave } from './sidequests-c9cd.js';
 // 第94回 A班: 第3部 第2章「七つの星の音」（story-c10.js）
 import { CH10_STEPS, applyCh10 } from './story-c10.js';
+// 第100回 A班: 第3部 第3章「星の海」（story-c11.js）
+import { CH11_STEPS, applyCh11 } from './story-c11.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { SD_SCRIPTS } from './story-secret.js';
 import { CASINO_SCRIPTS } from './story-casino.js';
@@ -71,6 +73,7 @@ export const STORY_STEPS = [
   ...CH8_STEPS,
   ...CH9_STEPS,
   ...CH10_STEPS,
+  ...CH11_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
@@ -672,6 +675,8 @@ applyCh9(SCRIPTS, STORY_SCRIPTS);
 wrapC9cdGrave(SCRIPTS);
 // 第3部 第2章（story-c10.js）: 第1幕「赤と緑」（PART3_C10A_OPEN が false の 間は 始まらない）
 applyCh10(SCRIPTS, STORY_SCRIPTS);
+// 第3部 第3章（story-c11.js）: 第1幕「星の船と、星座の島」（PART3_C11A_OPEN が false の 間は 始まらない）
+applyCh11(SCRIPTS, STORY_SCRIPTS);
 
 // 第35回: かくし要素の ヒント（町の 人の さいごに 1行。secret-hints.js）
 applyTownHints(SCRIPTS);

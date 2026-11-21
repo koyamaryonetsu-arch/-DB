@@ -104,6 +104,13 @@ export const CHAPTERS = [
       { n: 4, start: 'c10d_start', title: '金の音と、星の橋', seen: 'c10d_start', clear: 'c10_act4' },
     ],
   },
+  {
+    // 第100回 A班: 第3部 第3章（中の 番号は 11。表示は chapterLabel で「第3章」）。くぼ地で ガンツと 話して 題の 画面を 見た あと
+    n: 11, part: 3, start: 'c11a_start', clear: null, title: '星の海',
+    acts: [
+      { n: 1, start: 'c11a_start', title: '星の船と、星座の島', seen: 'c11a_start', clear: 'c11_act1' },
+    ],
+  },
 ];
 const PART_NAMES = { 1: '第1部', 2: '第2部', 3: '第3部' };
 // 部の はじめの 章の 中の 番号（第3部だけ 部の 中の 番号で 出す。第1・2部は 通しの 番号「第8章」の まま）

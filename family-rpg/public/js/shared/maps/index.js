@@ -47,6 +47,8 @@ import { attachC10b } from './c10b.js';
 import { attachC10c } from './c10c.js';
 // 第99回 A班: 第3部 第2章 第4幕「金の音と、星の橋」（maps/c10d.js）
 import { attachC10d } from './c10d.js';
+// 第100回 A班: 第3部 第3章 第1幕「星の船と、星座の島」（maps/c11a.js）
+import { attachC11a } from './c11a.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -371,6 +373,8 @@ function buildMaps() {
   attachC10c(maps);
   // 第3部 第2章 第4幕: 星の 階段・いただき・星の塔の 金色の ゆかと 光の 階段・星見の丘の 星の橋・くぼ地の 金の 台と 8つめの 台（maps/c10d.js。第3幕の あと）
   attachC10d(maps);
+  // 第3部 第3章 第1幕: 星の海・とまり木の島・星座の島・灯台島の レンズの 星座・星見の丘の 乗り場・くぼ地の 場面（maps/c11a.js。第2章の あと）
+  attachC11a(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   // 第92回 D班: 第2幕の あとの より道と お仕事いらい 39〜41（大地の下が できた あと。maps/c9bd-side.js）
