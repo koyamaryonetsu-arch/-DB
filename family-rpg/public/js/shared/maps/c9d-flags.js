@@ -66,3 +66,8 @@ export const C9D_FORK_SECONDS = 20; // 星の音さで 鳴らした ひびきの
 export const C9D_MOSS_STEPS = 40; // 光る こけ（ふむと 40歩 光る。第2幕と 同じ）
 export const C9D_SONG_SKILL = 'c9_song1'; // スピカの「星のうた」が 使える 条件（フラグ）
 export const C9D_SONG_STAGE_MAX = 7; // スピカの歌の ふしの 数
+
+// ───── スピカの歌の 歌える ふし（songStage。F班の 曲 c9d_song）─────
+// くぼ地の 音の 台に 置いた 星の音の 数。置いた しるしの フラグを ここに 足して いく（第2章・第3章で ふえる）
+export const C9D_NOTES_PLACED = ['c9_act3']; // c9_act3 … 黄の 台に ミを 置いた
+export const songStage9 = (has) => Math.max(1, Math.min(C9D_SONG_STAGE_MAX, C9D_NOTES_PLACED.filter((f) => has(f)).length));

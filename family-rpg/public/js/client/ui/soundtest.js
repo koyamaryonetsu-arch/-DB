@@ -6,6 +6,15 @@ import { el, ListMenu } from './dom.js';
 import { TRACK_IDS } from '../audio.js';
 import { trackName, AMBIENCE_NAMES } from '../audio-names.js';
 import { AMBIENCES } from '../music-amb.js';
+import { songStage9 } from '../../shared/maps/c9d-flags.js';
+
+// だんの 上限（0 から 数える）。第93回 A班: スピカの歌（c9d_song）は くぼ地の 台に 置いた 星の音の 数の ふしまで（まだ 集めて いない ふしは 聞けない）
+export const SONG_TRACK9D = 'c9d_song';
+export function phaseMaxOf(id, has = () => false) {
+  if (id === SONG_TRACK9D) return Math.min(3, songStage9(has) - 1);
+  return 3;
+}
+const hasOf = (g) => (f) => (g?.field?.hasFlag ? !!g.field.hasFlag(f) : !!g?.me?.flags?.[f]);
 
 const Z = 8;
 const INT_STEPS = [0, 0.25, 0.5, 0.75, 1];
@@ -67,13 +76,14 @@ export function openSoundTest(g) {
     };
     const play = (id) => {
       playing = id;
+      st.phase = Math.min(st.phase, phaseMaxOf(id, hasOf(g)));
       au.play(id, { force: true });
       // 曲が かわると ピンチ・だんは もとに もどるので、えらんで いる 値を もう一度
       apply();
     };
     const change = (v, d) => {
       if (v === 'int') st.intensity = INT_STEPS[Math.max(0, Math.min(INT_STEPS.length - 1, INT_STEPS.indexOf(st.intensity) + d))];
-      else if (v === 'phase') st.phase = Math.max(0, Math.min(3, st.phase + d));
+      else if (v === 'phase') st.phase = Math.max(0, Math.min(phaseMaxOf(playing, hasOf(g)), st.phase + d));
       else if (v === 'amb') {
         const list = [null, ...AMBIENCES];
         st.amb = list[(list.indexOf(st.amb) + d + list.length) % list.length];

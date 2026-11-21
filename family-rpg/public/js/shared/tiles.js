@@ -109,6 +109,9 @@ export const T = {
   C9C_CAVE: 447, C9C_BANK: 448, C9C_RIV_N: 449, C9C_RIV_E: 450, C9C_RIV_S: 451, C9C_RIV_W: 452, C9C_POOL: 453, C9C_RIVROCK: 454,
   C9C_DOCK: 455, C9C_WALL: 456, C9C_FLOOR: 457, C9C_HOLE: 458, C9C_HOLE_C: 459, C9C_STONE: 460, C9C_STONE_LOW: 461, C9C_PAD: 462,
   C9C_SHAFT: 463, C9C_SHAFT_UP: 464, C9C_FENCE: 465, C9C_FOUNT: 466, C9C_TABLET: 467,
+  // 第3部 第1章 第4幕「星のはかば」（第93回 A班。471〜490。maps/c9d*.js・render/tiles-c9d.js）
+  C9D_ROCK: 471, C9D_FLOOR: 472, C9D_CHASM: 473, C9D_BRIDGE: 474, C9D_ECHO: 475, C9D_LAMP: 476, C9D_MOSS: 477, C9D_DOOR: 478,
+  C9D_DOOR_OPEN: 479, C9D_GRAVE: 480, C9D_HOLLOW: 481, C9D_HOLLOW_BIG: 482, C9D_GRAVE_ROCK: 483, C9D_TABLET: 484,
 };
 
 export const TILE_INFO = {};
@@ -601,6 +604,21 @@ def(T.C9C_SHAFT_UP, 'c9c_shaft_up', { anim: true, mapColor: '#c8a8f0' }); // ふ
 def(T.C9C_FENCE, 'c9c_fence', { solid: true, mapColor: '#8a6a3a' }); // ふきぬけの ふちの さく（2階。さかさの 人だけ とおさない）
 def(T.C9C_FOUNT, 'c9c_fount', { solid: true, talkThrough: true, anim: true, mapColor: '#6ac8f0' }); // 回復の いずみ（3階）
 def(T.C9C_TABLET, 'c9c_tablet', { solid: true, talkThrough: true, mapColor: '#c8b078' }); // わらべ歌の 石の 板（3階）
+// 第3部 第1章 第4幕「星のはかば」（第93回 A班。ふたごの道・星のはかば・ピラミッドの 岸の ひびきの とびら）
+def(T.C9D_ROCK, 'c9d_rock', { solid: true, mapColor: '#1a1626' }); // ふたごの道の 岩かべ
+def(T.C9D_FLOOR, 'c9d_floor', { mapColor: '#3a3450' }); // ふたごの道の ゆか
+def(T.C9D_CHASM, 'c9d_chasm', { solid: true, mapColor: '#04030a' }); // 深い 谷（左右の 道の 間。橋が かかる 所も）
+def(T.C9D_BRIDGE, 'c9d_bridge', { mapColor: '#8a6a9a' }); // 光の 橋（ひびきの石が 2つ 同時に 鳴ると かかる。かかった まま）
+def(T.C9D_ECHO, 'c9d_echo', { solid: true, talkThrough: true, mapColor: '#9ad8ff' }); // ひびきの石（しらべると 鳴らせる）
+def(T.C9D_LAMP, 'c9d_lamp', { solid: true, mapColor: '#c8a05a' }); // 道の ランプ（向こうの 道の 石が 鳴ると しばらく 光る）
+def(T.C9D_MOSS, 'c9d_moss', { mapColor: '#2e4a40' }); // 光る こけ（ふむと 40歩 光る。第2幕と 同じ）
+def(T.C9D_DOOR, 'c9d_door', { solid: true, mapColor: '#6a6a8a' }); // ひびきの とびら（ピラミッドの 岸の 岩かべ）
+def(T.C9D_DOOR_OPEN, 'c9d_door_open', { mapColor: '#2a2440' }); // 開いた ひびきの とびら（ふたごの道へ）
+def(T.C9D_GRAVE, 'c9d_grave', { mapColor: '#3a3e5a' }); // 星のはかばの 地面（しずかな 灰色の 砂）
+def(T.C9D_HOLLOW, 'c9d_hollow', { solid: true, talkThrough: true, mapColor: '#8a8a9a' }); // 小さな くぼみと ねむる 星（灰色の 石）
+def(T.C9D_HOLLOW_BIG, 'c9d_hollow_big', { solid: true, talkThrough: true, mapColor: '#0e0c1a' }); // いちばん 大きな くぼみ（中は から）
+def(T.C9D_GRAVE_ROCK, 'c9d_grave_rock', { solid: true, mapColor: '#22223a' }); // はかばの まわりの 岩
+def(T.C9D_TABLET, 'c9d_tablet', { solid: true, talkThrough: true, mapColor: '#9a96a8' }); // 古い 石の 文字
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

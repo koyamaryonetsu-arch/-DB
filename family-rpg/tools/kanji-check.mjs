@@ -621,7 +621,9 @@ export function gameFiles() {
     // 第93回 F班: 第3部 第1章 第4幕の 曲
     'public/js/client/audio-c9d.js',
     // 第93回 A班: 第3部 第1章 第4幕「星のはかば」（名前の 約束・台本・マップ・スピカと ふた手に）
-    'public/js/shared/maps/c9d-flags.js',
+    'public/js/shared/maps/c9d-flags.js', 'public/js/shared/data/story-c9d.js', 'public/js/shared/maps/c9d.js', 'public/js/shared/maps/c9d-rows.js',
+    'public/js/shared/maps/c9d-lane.js', 'public/js/shared/world/c9d-steps.js', 'public/js/shared/data/c9d-stub.js',
+    'public/js/client/c9d-view.js', 'public/js/client/render/tiles-c9d.js', 'public/js/client/render/c9d-npc-art.js',
     // 第94回 F班: 第3部 第2章 第1幕の 曲
     'public/js/client/audio-c10a.js',
   ];

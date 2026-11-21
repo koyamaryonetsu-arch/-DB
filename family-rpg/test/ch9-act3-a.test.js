@@ -119,8 +119,11 @@ test('名前の 約束: マップ 5まい・タイル 447〜・宝箱の id・�
   for (const v of ids) assert.ok(TILE_INFO[v], String(v));
   // 一本の 線（第2幕の うしろ）
   assert.deepEqual(C9C_LINE, ['c9_raft_go', 'c9_river', 'c9_p2', 'c9_riddle', 'c9_p3', 'c9_p4', 'c9_song', 'c9_trio2', 'c9_note1', 'c9_act3']);
-  assert.deepEqual(CH9_STEPS.slice(-11), ['c9_act2', ...C9C_LINE]);
-  assert.deepEqual(STORY_STEPS.slice(-11), ['c9_act2', ...C9C_LINE]);
+  // 第93回 A班: うしろに 第4幕の 一本の 線（c9_song1〜）が 続く。第3幕の 線は 第2幕の すぐ うしろ
+  const at2 = (L) => L.slice(L.indexOf('c9_act2'), L.indexOf('c9_act2') + 11);
+  assert.deepEqual(at2(CH9_STEPS), ['c9_act2', ...C9C_LINE]);
+  assert.deepEqual(at2(STORY_STEPS), ['c9_act2', ...C9C_LINE]);
+  assert.equal(STORY_STEPS[STORY_STEPS.indexOf('c9_act3') + 1], 'c9_song1');
   // 宝箱（11こ。川 3・ピラミッド 8。天じょうの 宝箱が ある）
   const chests = C9C_MAP_IDS.flatMap((id) => MAPS[id].chests.map((c) => c.id));
   assert.deepEqual(chests.sort(), [...C9C_CHEST_ALL].sort());

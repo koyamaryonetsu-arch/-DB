@@ -70,6 +70,8 @@ import { monArenaAction } from './monarena.js';
 import { monLiveAction } from './monarena-live.js';
 // 第88回 G4班: 作品の ガチャガチャ（world/gacha-r88.js）
 import { gachaAction } from './gacha-r88.js';
+// 第93回 A班: ふたごの道で スピカを よぶ（world/c9d-steps.js）
+import { c9dCallMenu } from './c9d-steps.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -573,6 +575,8 @@ export function menuAction(world, s, msg) {
     case 'timeGlass': return useTimeGlass(world, s, reply);
     case 'starSight': return useStarSight(world, s, reply);
     case 'bookmark': return useBookmark(world, s, reply);
+    // 第93回 A班: ふたごの道で スピカを よぶ（HUD の ボタン。world/c9d-steps.js）
+    case 'c9dCall': return c9dCallMenu(world, s, reply);
     // 第50回 N3: すぐ使う ボタン（HUD・コントローラー・T キー。data/quick-item.js）。メニューの「使う」と おなじ
     case 'quickUse': {
       const id = quickItemOf(c);
