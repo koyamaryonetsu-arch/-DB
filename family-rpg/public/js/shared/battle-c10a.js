@@ -78,7 +78,7 @@ export function c10Conf(species, b = null) {
     mist: { n: pick('mistN', c.mist?.n ?? 2), half: pick('mistHalf', c.mist?.half ?? 3) },
     wall: c.wall ?? 0.5,
     bomb: { every: 4, wait: 1, mult: 2, guardCut: 0.4, ...(c.bomb || {}), mult: (c.bomb?.mult ?? 2) * pick('bombK', 1) },
-    hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons),
+    hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
 }
 export const c10State = (b) => b?.c10 || null;
@@ -108,6 +108,7 @@ export function setupC10a(b, lines) {
   const cf = c10Conf(boss.species, b);
   if (cf.hp !== 1) boss.maxHp = boss.hp = Math.max(1, Math.round(boss.maxHp * cf.hp));
   if (cf.atk !== 1) boss.atk = Math.max(1, Math.round(boss.atk * cf.atk));
+  if (cf.spd !== 1) boss.speed = (boss.speed || 1) * cf.spd;
   Object.defineProperty(boss, '_b10', { value: b, enumerable: false, configurable: true, writable: true });
   b.c10 = { kind: cf.kind, id: boss.id, won: false, half: false, nobose: 0, overs: 0, drills: 0, drillGuards: 0, cools: 0, mists: 0, kinoko: 0, bombs: 0, bombGuards: 0, cleans: 0 };
   b.c9songOn = true;
@@ -136,7 +137,8 @@ export function setupC10a(b, lines) {
 }
 
 // ───────────── スピカ（battle-c9a.js の glow・battle-c9b.js の addTeru から）─────────────
-export const c10GlowHeal = (b, d) => b?.c10rew?.heal || d;
+// （仲間なしの ひとりは ほのかな光が 1回 動く たびに 来る ので、ごほうびの 上がりは 半分 … どちらを 先に しても 差が 小さく なる ように）
+export const c10GlowHeal = (b, d) => (b?.c10rew?.heal ? (b.allies?.length === 1 ? d + (b.c10rew.heal - d) / 2 : b.c10rew.heal) : d);
 export const c10TeruMax = (b, d) => b?.c10rew?.teruMax || d;
 
 // ───────────── 今 前ぶれ中か（battle-tell.js の b.tell。battle-c9b.js の c9bTell から）─────────────

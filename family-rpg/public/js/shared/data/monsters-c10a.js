@@ -120,7 +120,9 @@ export const MONSTERS_C10A = {
       drill: { every: 5, half: 3, wait: 1, mult: 2.4, guardCut: 0.3 },
       coolAt: 0.5,
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk … HP・攻撃力の ばい・drillK … ドリルの 強さ
-      //   solo … 仲間なしの ひとり（戦う 人が 1人だけ）。monK … 魔物の 仲間 1体ごとの HP・攻撃
+      //   solo … 仲間なしの ひとり（戦う 人が 1人だけ。nobose … のぼせた 時の ダメージを 大きく … 休まない オートとの 差）。monK … 魔物の 仲間 1体ごとの HP・攻撃
+      //   tools/sim-ch10.mjs（人が 画面で できる 動き・2秒と 5秒・赤 → 緑 と 緑 → 赤）で 合わせた（docs/plan-part3-c10a.md の 実装メモ）
+      //   中ボスの 戦いは いつも 人が えらぶのを 待つ（battle-c10a.js の tellAll）ので、HP・攻撃は 前の 幕より 大きい
       few: { hp: [0.5, 0.7, 1, 1, 0.9], atk: [0.8, 1.3, 1, 1, 1.35], drillK: [0.6, 0.8, 1, 1, 1] },
       solo: { hp: 0.15, atk: 0.2, drillK: 0.5, nobose: 0.35 },
       monK: { hp: -0.15, atk: -0.03 },
@@ -135,8 +137,8 @@ export const MONSTERS_C10A = {
   //   mist … カビの きり（n … 人数・half … HP 半分 いかの 人数）・wall … カビの かべ（受ける ダメージの ばい）
   //   bomb … 大カビばくだん（HP 半分 いか。every・wait・mult・guardCut）
   [C10G_MOLD]: {
-    name: MOLD_NAME, short: 'モルド', lv: 108, hp: 32000, mp: 9999, str: 3400, def: 380, agi: 240, mag: 1100, exp: 80000, gold: 27000,
-    race: 'demon', size: 'xl', boss: true, turns: 1, speed: 0.7, hit: 'smash', artScale: 0.5,
+    name: MOLD_NAME, short: 'モルド', lv: 108, hp: 30000, mp: 9999, str: 3400, def: 380, agi: 240, mag: 1100, exp: 80000, gold: 27000,
+    race: 'demon', size: 'xl', boss: true, turns: 1, speed: 0.8, hit: 'smash', artScale: 0.5,
     drops: { boss: ['c10gb_monocle'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 1.2, ice: 1.0, wind: 1.0, bolt: 1.0, light: 1.2, dark: 0.8 },
     c10: {
@@ -145,8 +147,9 @@ export const MONSTERS_C10A = {
       mist: { n: 2, half: 3 },
       wall: 0.5,
       bomb: { every: 4, wait: 1, mult: 2.2, guardCut: 0.35 },
-      few: { hp: [0.75, 0.75, 1, 1, 1.1], atk: [0.95, 1.25, 1, 1, 2.2], bombK: [0.6, 0.8, 1, 1, 1] },
-      solo: { hp: 0.14, atk: 0.3, bombK: 0.6, mistN: 1, mistHalf: 1, kinokoTurns: 2 },
+      // 人数で 合わせる（タマゴンと おなじ 形。spd … はやさの ばい）。solo … mistN・mistHalf … きりは 1人・kinokoTurns … きのこの 番の 数（ひとりの オートとの 差）
+      few: { hp: [0.75, 0.75, 1, 1, 1.1], atk: [0.95, 1.25, 1, 1, 2.2], bombK: [0.6, 0.8, 1, 1, 1], spd: [0.875, 0.875, 1, 1, 0.875] },
+      solo: { hp: 0.14, atk: 0.26, bombK: 0.6, mistN: 1, mistHalf: 1, kinokoTurns: 2, spd: 0.875 },
       monK: { hp: -0.15, atk: -0.08 },
     },
     actions: [{ w: 3, id: 'm10m_cane' }, { w: 2, id: 'm10m_prop', cond: 'notRecent:m10m_prop' }, { w: 2, id: 'm10m_damp' }],
