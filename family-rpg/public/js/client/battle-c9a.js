@@ -310,8 +310,8 @@ export function c9aCmdItems(scene, a) {
   return { items, info };
 }
 export function c9aCmdPick(scene, a, value) {
-  // 第97回: 水の音を鳴らす（第2幕）・うつる（第3幕）も c9bCmdPick へ
-  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove') return c9bCmdPick(scene, a, value);
+  // 第97回: 水の音を鳴らす（第2幕）・うつる（第3幕）も c9bCmdPick へ。第99回: 音を鳴らす（第4幕）も
+  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove' || value === 'c10dring') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

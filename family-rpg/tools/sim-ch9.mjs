@@ -318,15 +318,16 @@ const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' 
 // flags … リーダーの フラグ（第94回: 先に 取った 音の スピカの ごほうび など。FLAGS=a,b でも）
 // tactics … 人が 動かす キャラの 作戦（第97回: 完全オートの 作戦を えらべる ように。ない ときは バッチリがんばれ）
 //   （第96回 T班: TAC=… でも。SUPTAC=… / supTac … 自動の 仲間 みんなの 作戦）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null } = {}) {
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null, list: preList = null, moreHooks = null, onEnd = null } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
-  const list = ch9Allies(boss, lv, party, kit);
+  // 第99回 B班: list … 前の 戦いから 引きつぐ 味方（連戦。HP・MPは char の まま）・moreHooks … 戦いの hooks に 足す・onEnd(b) … おわった 戦い
+  const list = preList || ch9Allies(boss, lv, party, kit);
   // 人が 動かす キャラは 家族の キャラ（kind 'player'。完全オートの ときは その 人の「オート」）・のこりは 自動の 仲間
   const allies = list.map((x) => (x.know
     ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics }
     : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: supTac || x.char.tactics || 'balanced' }));
-  const hooks = flags.length ? { leaderFlag: (f) => flags.includes(f) } : undefined;
+  const hooks = flags.length || moreHooks ? { ...(flags.length ? { leaderFlag: (f) => flags.includes(f) } : {}), ...(moreHooks || {}) } : undefined;
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed, hooks });
   addSpica9(b, boss);
   // 人が 動かす キャラだけ しくみを 知って いる（自動の 仲間は ふつうの オート）
@@ -388,6 +389,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
       }
     }
   }
+  onEnd?.(b);
   const al = b.allies;
   const foes = b.enemies.filter((e) => e.boss).length ? b.enemies.filter((e) => e.boss) : b.enemies;
   const h = hoshimoriOf(b);

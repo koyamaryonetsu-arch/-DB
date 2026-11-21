@@ -35,6 +35,8 @@ import { ENCOUNTERS_C10A, FIXED_C10A, ZONE_BG_C10A } from './encounters-c10a.js'
 import { ENCOUNTERS_C10B, FIXED_C10B, ZONE_BG_C10B } from './encounters-c10b.js';
 // 第97回 B班: 第3部 第2章 第3幕（encounters-c10c.js）
 import { ENCOUNTERS_C10C, FIXED_C10C, ZONE_BG_C10C } from './encounters-c10c.js';
+// 第99回 B班: 第3部 第2章 第4幕（encounters-c10d.js。きまった 戦いだけ）
+import { FIXED_C10D } from './encounters-c10d.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -238,6 +240,8 @@ Object.assign(ZONE_BG, ZONE_BG_C10B);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C10C);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C10C);
 Object.assign(ZONE_BG, ZONE_BG_C10C);
+// 第3部 第2章 第4幕「金の音と、星の橋」の 門の 番人・ミラーレ（encounters-c10d.js）
+Object.assign(FIXED_ENCOUNTERS, FIXED_C10D);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';

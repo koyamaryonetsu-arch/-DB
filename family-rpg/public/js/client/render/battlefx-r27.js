@@ -1494,6 +1494,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c10xRing')) return 'buff';
   // 第97回: 第3部 第2章 第3幕の「うつる」（c10kMove）… とびうつった 人の 下に 光（技の 絵は render/battlefx-c10c.js）
   if (types.includes('c10kMove')) return 'buff';
+  // 第99回: 第3部 第2章 第4幕の「音を鳴らす」（c10dRing）… 鳴らした 人の 下に 光（技の 絵は render/battlefx-c10d.js）
+  if (types.includes('c10dRing')) return 'buff';
   return null;
 }
 

@@ -316,6 +316,7 @@ export function battleBackground(id) {
       case 'c10r_road': case 'c10r_heat': case 'c10g_roots': case 'c10g_tree': h = 0; break; // 古い道・熱の間・根の国・大木の前は あとで（c10a-bg.js）
       case 'c10b_mirror': case 'c10b_dry': case 'c10b_ice': case 'c10b_moon': h = 0; break; // 水鏡のうら・かれた間・氷の下の道・月の間は あとで（c10b-bg.js）
       case 'c10c_sky': case 'c10c_ruin': case 'c10c_belt': case 'c10c_room': h = 0; break; // 空の小島・うかぶいせき・ベルトの工場・少年の間は あとで（c10c-bg.js）
+      case 'c10d_stair': case 'c10d_summit': h = 0; break; // 星の階段・いただきは あとで（c10d-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
