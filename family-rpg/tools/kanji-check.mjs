@@ -659,6 +659,8 @@ export function gameFiles() {
     'public/js/shared/battle-c10c.js', 'public/js/client/battle-c10c.js', 'public/js/client/render/c10c-art.js', 'public/js/client/render/c10c-bg.js', 'public/js/client/render/battlefx-c10c.js',
     // 第97回 F班: 第3部 第2章 第3幕の 曲
     'public/js/client/audio-c10c.js',
+    // 第99回 F班: 第3部 第2章 第4幕の 曲
+    'public/js/client/audio-c10d.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

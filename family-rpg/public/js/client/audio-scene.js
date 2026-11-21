@@ -229,6 +229,21 @@ export function bridgeIntensity(stage) {
   return Math.round((n / (BRIDGE_STAGES - 1)) * 1000) / 1000;
 }
 
+// 第99回 F: 空への星の階段（c10d_stairs）は 画面の 状態 gateStage（開けた 門の 数 0〜4）で 強さ 0・0.25・0.5・0.75・1
+//   （門を 1つ 開ける ごとに 楽器が 1つ ふえる）と だん 0〜4（調が 半音ずつ・テンポが 1% ずつ 上がる。形は かえない ＝
+//   ふしの とちゅうから 止まらない。かわるのは 次の 小節の 頭から）。
+//   A班が 画面の 状態 gateStage を 出す（field.gateStage・game.gateStage。数・関数 どれでも よい。true は 4）。出て いない 間は 0。
+//   イベントの 曲でも よい（鳴って いる 曲が c10d_stairs なら、その 場所の 曲で なくても 送る）。
+//   ダンジョン（kind: 'dungeon'）の 階でも 深さの 強さより gateStage が 先。0 から 数える しるし なので addFormKey0 にも 入れて おく
+addFormKey0('gateStage');
+export const C10D_STAIRS_TRACK = 'c10d_stairs';
+export const GATE_STAGES = 5;
+export const gateStageOf = (game) => stageOf(game, 'gateStage', GATE_STAGES, 0);
+export function gateIntensity(stage) {
+  const n = Math.max(0, Math.min(GATE_STAGES - 1, Math.floor(Number(stage) || 0)));
+  return Math.round((n / (GATE_STAGES - 1)) * 1000) / 1000;
+}
+
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
   let n = null;
@@ -472,6 +487,8 @@ export class SceneAudio {
     else if (id === C10B_WHITE_TRACK && st.alertIntensity !== null && st.alertIntensity !== undefined) this.send('intensity', st.alertIntensity, (v) => this.audio.setIntensity(v));
     // 第97回 F: 空にかかる音の橋は イベントの 曲でも 橋の 数で 強さを 送る
     else if (id === C10C_ISLES_TRACK && st.bridgeIntensity !== null && st.bridgeIntensity !== undefined) this.send('intensity', st.bridgeIntensity, (v) => this.audio.setIntensity(v));
+    // 第99回 F: 空への星の階段は イベントの 曲でも 開けた 門の 数で 強さを 送る
+    else if (id === C10D_STAIRS_TRACK && st.gateIntensity !== null && st.gateIntensity !== undefined) this.send('intensity', st.gateIntensity, (v) => this.audio.setIntensity(v));
     // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド・第93回 ふたごの道）
     if (id && id === st.areaTrack && st.phase !== null && st.phase !== undefined) this.send('phase', st.phase, (v) => this.audio.setPhase(v));
     // 第93回 F: スピカの歌は イベントの 曲でも 歌える ふしの 数を 送る
@@ -480,6 +497,8 @@ export class SceneAudio {
     // 第95回 F: 水鏡のうらがわ・氷の下のしのび足（イベントの 曲でも）
     else if (id === C10B_BLUE_TRACK && st.waterPhase !== null && st.waterPhase !== undefined) this.send('phase', st.waterPhase, (v) => this.audio.setPhase(v));
     else if (id === C10B_WHITE_TRACK && st.alertPhase !== null && st.alertPhase !== undefined) this.send('phase', st.alertPhase, (v) => this.audio.setPhase(v));
+    // 第99回 F: 空への星の階段（イベントの 曲でも）
+    else if (id === C10D_STAIRS_TRACK && st.gatePhase !== null && st.gatePhase !== undefined) this.send('phase', st.gatePhase, (v) => this.audio.setPhase(v));
     this.send('tod', st.tod, (v) => this.audio.setTimeOfDay(v));
     // まわりの音は その 場所の 曲が 鳴って いる 間だけ（イベントの 曲・ジングルの 間は 止める）
     this.setAmbience(id && id === st.areaTrack ? st.ambience : null);
@@ -505,6 +524,7 @@ export class SceneAudio {
     else if (areaTrack === C10R_RUN_TRACK) intensity = lavaIntensity(lavaStageOf(game));
     else if (areaTrack === C10B_WHITE_TRACK) intensity = alertIntensity(alertStageOf(game));
     else if (areaTrack === C10C_ISLES_TRACK) intensity = bridgeIntensity(bridgeStageOf(game));
+    else if (areaTrack === C10D_STAIRS_TRACK) intensity = gateIntensity(gateStageOf(game));
     else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
@@ -517,6 +537,7 @@ export class SceneAudio {
     else if (areaTrack === C10R_RUN_TRACK) phase = lavaStageOf(game);
     else if (areaTrack === C10B_BLUE_TRACK) phase = waterStageOf(game);
     else if (areaTrack === C10B_WHITE_TRACK) phase = alertStageOf(game);
+    else if (areaTrack === C10D_STAIRS_TRACK) phase = gateStageOf(game);
     const songPhase = songStageOf(game) - 1;
     // 第94回 F: かけ上がる帰り道（イベントの 曲の 時も 使う）
     const lavaPhase = lavaStageOf(game);
@@ -525,6 +546,8 @@ export class SceneAudio {
     const alertPhase = alertStageOf(game);
     // 第97回 F: かかって いる 音の 橋の 数（イベントの 曲の 時も 使う）
     const bridgePhase = bridgeStageOf(game);
+    // 第99回 F: 開けた 門の 数（イベントの 曲の 時も 使う）
+    const gatePhase = gateStageOf(game);
     let area = '';
     try { area = f.areaName(); } catch { /* */ }
     let weather = null;
@@ -541,6 +564,8 @@ export class SceneAudio {
       alertPhase,
       alertIntensity: alertIntensity(alertPhase),
       bridgeIntensity: bridgeIntensity(bridgePhase),
+      gatePhase,
+      gateIntensity: gateIntensity(gatePhase),
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };

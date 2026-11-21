@@ -140,6 +140,12 @@ export const TRACK_NAMES = {
   c10c_fort: 'ガッチャンベルト工場',
   c10c_rival: 'ふたつの光',
   c10c_six: 'そろった六つの音',
+  // 第99回 F: 第3部 第2章 第4幕（audio-c10d.js。ボスの 名前・「止まる」「足りない」は 出さない）
+  c10d_stairs: '空への星の階段',
+  c10d_gate: '色ガラスの門',
+  c10d_mirror: 'さかさまメヌエット',
+  c10d_bridge: 'のびてゆく星の橋',
+  c10d_seven: 'そろった七つの音',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）
