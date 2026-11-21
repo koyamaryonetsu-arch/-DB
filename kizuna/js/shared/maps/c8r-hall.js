@@ -4,13 +4,13 @@
 //   入口の よこの 紋章の 台は、その つばさの ためしを クリアすると 光る。北の 大とびら（門番を たおすと 開く）の おくに 最後の 回廊への 階段。
 //   南の 時の さけめ … 今の ほしみの丘へ。つばさから もどって 広場に 入ると（しるしが ふえていれば）時の門番が あらわれる
 // ・さいごの 場所（20×14）: 千年前と 今の あいだの いちばん おく。時の砂時計は 使えない。ソリトゥスの 本当の すがたが 目を さます
-import { T } from '../tiles.js?v=8433acec5263';
-import { npc } from './npc.js?v=8433acec5263';
-import { parseRows16 } from './past.js?v=8433acec5263';
-import { C8R, WING_MARK, GATE_DUE8R, WIN_GATE8R, CORE8R, WIN_SOL8R, HALL_ID, CORE_ID, NOW_FIELD_ID, lastMapId } from './c8r-flags.js?v=8433acec5263';
-import { CORE_ARRIVE, belowUp } from './c8r-wings.js?v=8433acec5263';
-import { LAST1, LAST3, MOON1, FIRE1, IRON1, ICE1 } from './c8r-rows.js?v=8433acec5263';
-import { floorPos } from './c8r-floor.js?v=8433acec5263';
+import { T } from '../tiles.js?v=36007aad9f1d';
+import { npc } from './npc.js?v=36007aad9f1d';
+import { parseRows16 } from './past.js?v=36007aad9f1d';
+import { C8R, WING_MARK, GATE_DUE8R, WIN_GATE8R, CORE8R, WIN_SOL8R, HALL_ID, CORE_ID, NOW_FIELD_ID, lastMapId } from './c8r-flags.js?v=36007aad9f1d';
+import { CORE_ARRIVE, belowUp } from './c8r-wings.js?v=36007aad9f1d';
+import { LAST1, LAST3, MOON1, FIRE1, IRON1, ICE1 } from './c8r-rows.js?v=36007aad9f1d';
+import { floorPos } from './c8r-floor.js?v=36007aad9f1d';
 
 export const HALL_ROWS = [
   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',

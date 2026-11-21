@@ -3,12 +3,12 @@
 //   魔力で 強く なる 呪文・技: 今の 魔力で どれくらいの ダメージか（相手の 耐性・守りは 考えない）
 //   回復: 今の 回復魔力で どれくらい 回復するか
 // しきは shared/battle.js の calcPhys・calcMagic・heal・healAmountOf と おなじ（ふりはばは 両はし、会心・耐性は 入れない）
-import { abilityFor } from './ability-label.js?v=8433acec5263';
-import { computeStats, penaltyFor } from './stats.js?v=8433acec5263';
+import { abilityFor } from './ability-label.js?v=36007aad9f1d';
+import { computeStats, penaltyFor } from './stats.js?v=36007aad9f1d';
 // 第72回: 元気玉（みんなの HPを 10%ずつ 集める。battle-genki.js）
-import { genkiTotal } from './battle-genki.js?v=8433acec5263';
+import { genkiTotal } from './battle-genki.js?v=36007aad9f1d';
 // 第87回 A班: 呪文・回復の 魔力の 伸び（battle.js と おなじ 式）
-import { powScaleOf } from './pow-scale.js?v=8433acec5263';
+import { powScaleOf } from './pow-scale.js?v=36007aad9f1d';
 
 // 倍率の 数（1.0・1.8 の ように 小数 1けた。1より 小さい ときは 0.55 の ように 2けたまで）
 export const fmtMult = (x) => (x < 0.995 ? (Math.round(x * 100) / 100).toString() : (Math.round(x * 10) / 10).toFixed(1));

@@ -13,16 +13,16 @@
 import {
   C10A, C10A_ACT4, C10A_RED, C10A_GREEN, C10A_BUDS, C10A_LEVERS, C10A_BONUS, C10A_PED, C10A_MAP, C10A_BATTLE, C10A_BOSS_MON,
   C10A_RED_BOSS_NAME, C10A_RED_MECHA_NAME, C10A_GREEN_BOSS_NAME, C10A_GREEN_SHORT, C10A_GREEN_MECHA_NAME, C10A_TRACKS, NOTE_RE, NOTE_FA,
-} from '../maps/c10a-flags.js?v=8433acec5263';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=8433acec5263';
-import { ALGOL_NAME } from '../maps/c9c-flags.js?v=8433acec5263';
-import { C9D_TRACKS } from '../maps/c9d-flags.js?v=8433acec5263';
-import { C10A_POS, CRATER_STAIRS10A, UNDER_ROOT10A, STUMP10A, PED_RE10A, PED_FA10A } from '../maps/c10a-rows.js?v=8433acec5263';
-import { PEDESTALS9C } from '../maps/c9c.js?v=8433acec5263';
-import { MONSTERS } from './monsters.js?v=8433acec5263';
-import { mergeBossHints } from './boss-hints.js?v=8433acec5263';
-import { SHOPS } from './shops.js?v=8433acec5263';
-import { C10A_SHOP_ADD } from './items-c10a.js?v=8433acec5263';
+} from '../maps/c10a-flags.js?v=36007aad9f1d';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=36007aad9f1d';
+import { ALGOL_NAME } from '../maps/c9c-flags.js?v=36007aad9f1d';
+import { C9D_TRACKS } from '../maps/c9d-flags.js?v=36007aad9f1d';
+import { C10A_POS, CRATER_STAIRS10A, UNDER_ROOT10A, STUMP10A, PED_RE10A, PED_FA10A } from '../maps/c10a-rows.js?v=36007aad9f1d';
+import { PEDESTALS9C } from '../maps/c9c.js?v=36007aad9f1d';
+import { MONSTERS } from './monsters.js?v=36007aad9f1d';
+import { mergeBossHints } from './boss-hints.js?v=36007aad9f1d';
+import { SHOPS } from './shops.js?v=36007aad9f1d';
+import { C10A_SHOP_ADD } from './items-c10a.js?v=36007aad9f1d';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -393,7 +393,8 @@ const iceBudSteps = (x) => (x.flag(C10A_BONUS.green) ? [] : x.flag(C10A_RED.note
   : N('こおった、つぼみだ。とても、つめたい。\n…あたたかい音が、あれば、さきそうだ。'));
 
 // ───── E くぼ地の 台に 音を 置く ─────
-function endScene() {
+// act1Obj … 幕の クリアの あとの 目標（第95回 A班: 第2幕が 開いた あとは story-c10.js の act1ClearObjective）
+function endScene(act1Obj) {
   const cx = (PR.x + PF.x) / 2 + 0.5, cy = PR.y + 1.6;
   return [
     ['bgm', null],
@@ -425,12 +426,12 @@ function endScene() {
     ['remove', 'spica_e'], ['guestHide', false],
     ['look'],
     ['flag', C10A.act1], ['unflag', C10A_PED.re], ['unflag', C10A_PED.fa], ['sync'],
-    ['objective', C10A_OBJ.act1],
+    ['objective', act1Obj || C10A_OBJ.act1],
     ['bgm', 'resume'],
   ];
 }
 // 台を しらべる（前の 台本 … 第3幕・第4幕の 音の 台）
-function pedSteps(color, old) {
+function pedSteps(color, old, act1Obj) {
   const re = color === 're';
   const note = re ? C10A_RED.note : C10A_GREEN.note;
   const placed = re ? C10A_PED.re : C10A_PED.fa;
@@ -441,7 +442,7 @@ function pedSteps(color, old) {
     if (x.flag(placed)) return N(`${name}の台が、光っている。\n（もうひとつの音を、まだ、待っている）`);
     if (!x.flag(C10A.start) || !x.flag(note)) return old ? old(x) : [];
     const put = [['sfx', 'sparkle'], ['flag', placed], ['sync'], ...N(`${name}の台に、星の音（${re ? 'レ' : 'ファ'}）を、置いた。\n${name}の台が、ぽうっと、光った！`)];
-    if (x.flag(other)) return [...put, ...endScene()];
+    if (x.flag(other)) return [...put, ...endScene(act1Obj)];
     return [...put, ...S(NO, 'もうひとつの音も、ここに置こう。')];
   };
 }
@@ -469,8 +470,8 @@ export function c10aScripts(title, open, old = {}) {
     c10g_boss_event: (x) => (x.flag(C10A_GREEN.root) && !x.flag(C10A_GREEN.boss) ? greenBossScene() : []),
     c10g_note_event: (x) => (x.flag(C10A_GREEN.boss) && !x.flag(C10A_GREEN.note) ? noteFaScene() : []),
     c10g_icebud: iceBudSteps,
-    c10_ped_re: pedSteps('re', old.ped),
-    c10_ped_fa: pedSteps('fa', old.ped),
+    c10_ped_re: pedSteps('re', old.ped, old.act1Obj),
+    c10_ped_fa: pedSteps('fa', old.ped, old.act1Obj),
   };
 }
 
@@ -528,8 +529,8 @@ export const CH10A_PROGRESS = [
 
 // ───── story-c10.js の applyCh10 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん（story-c10.js の c10TitleSteps）/ open … 幕が 開いて いるか（PART3_C10A_OPEN）
-export function applyCh10a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S10 = c10aScripts(title, open, { ped: SCRIPTS.c9c_ped });
+export function applyCh10a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act1Obj = null } = {}) {
+  const S10 = c10aScripts(title, open, { ped: SCRIPTS.c9c_ped, act1Obj });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10A_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   // くぼ地の 武具屋: 幕の クリア（c10_act1）の あと 品が 4つ ふえる（B班の C10A_SHOP_ADD）

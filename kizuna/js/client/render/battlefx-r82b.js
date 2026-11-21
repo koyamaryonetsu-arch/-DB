@@ -18,7 +18,7 @@
 //  r82b_kyodai   金色の 光の 柱と、大きく なる 人かげの わく（金色の玉・きょだい化）
 //  r82b_cloud    くろい 雲が わいて、ゴロゴロ いなずま（かみなり雲よ来い）
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R82B_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=8433acec5263';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=36007aad9f1d';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 
