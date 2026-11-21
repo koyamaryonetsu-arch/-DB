@@ -28,7 +28,7 @@ import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js';
 // 第44回（ポケモン P1）: 進化の ヒント
 import { EVOLVE_FROM, evolveNote } from '../../shared/data/companions.js';
-import { TACTICS } from '../../shared/ai.js';
+import { TACTICS, tacticsItemHtml } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { PAST_PLACES, pastVisited } from '../../shared/data/past-places.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
@@ -2181,7 +2181,8 @@ export class FieldMenu {
         if (what === 'skills') return this.pushView(() => this.autoSkillsView(v.key));
         if (what === 'cmd') return this.pushView(() => this.cmdSkillsView(v.key));
         if (what === 'tac') {
-          const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
+          // 第96回 T班: 作戦ごとの 1行の せつめいも 出す（tacticsItemHtml）
+          const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, html: tacticsItemHtml(x), value: k }));
           const t = await this.pick(v.key === 'self' ? 'オートのときの作戦' : `${v.name}の作戦`, [...list, { label: 'やめる', value: null }]);
           if (t) g.net.send({ t: 'menu', action: 'tactics', key: v.key, tactics: t, label: TACTICS[t].name });
           setTimeout(() => this.redraw(), t ? 250 : 0);
@@ -2190,7 +2191,7 @@ export class FieldMenu {
         this.redraw();
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: 攻撃中心 / いのちだいじに: 回復中心 / じゅもんせつやく: MPを使わない / めいれいさせろ: 自分でコマンドを選ぶ（仲間だけ）\n技の選び方は2つある。\n・「オートで使う技を選ぶ」…オートや作戦で戦う時に、使わない技を決める（技の一覧からは消えない）。\n・「命令で出す技を選ぶ」…自分で命令する時（主人公・「めいれいさせろ」の仲間）に、技の一覧に出さない技を決める（オートでは使うことがある）。\nどちらも、フィールドで使う時は出る。' }));
+    box.append(m.root, el('div', { class: 'detail', text: `${Object.values(TACTICS).map((x) => `${x.name}: ${x.desc}`).join('\n')}\n技の選び方は2つある。\n・「オートで使う技を選ぶ」…オートや作戦で戦う時に、使わない技を決める（技の一覧からは消えない）。\n・「命令で出す技を選ぶ」…自分で命令する時（主人公・「めいれいさせろ」の仲間）に、技の一覧に出さない技を決める（オートでは使うことがある）。\nどちらも、フィールドで使う時は出る。` }));
     return box;
   }
 

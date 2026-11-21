@@ -15,7 +15,7 @@
 //   おわり: 勝ち負けを 2人の c.monArena.live[相手の id] に のこす（はじめて 勝った 時だけ 小さなメダル 1まい）。経験値・お金は なし
 import { MonArenaBattle, monFighterChar, monAllyInit, MON_EVEN_LV } from '../battle-monarena.js';
 import { normBattleSettings, pub } from '../battle.js';
-import { TACTICS } from '../ai.js';
+import { TACTICS, isTactic } from '../ai.js';
 import { MONSTERS } from '../data/monsters.js';
 import { MONARENA_OPEN_FLAG, setMonArena, monArenaRecord, noteLiveResult, monLiveMedalId } from '../data/monarena.js';
 import { monEntries, pickTeam } from './monarena.js';
@@ -428,7 +428,7 @@ function liveTactics(world, s, ctx, msg) {
     world.send(s, { t: 'menuRes', ok: false, text });
     return { ok: false, reason: text };
   };
-  const t = TACTICS[msg.tactics] ? String(msg.tactics) : null;
+  const t = isTactic(msg.tactics) ? String(msg.tactics) : null;
   const who = ctx.actorMap[a.id];
   if (!t || a.fled || !who || b.over) return no('作戦は変えられない');
   if (who.owner !== s.char.id) return no(`${a.name}の作戦は変えられない`);

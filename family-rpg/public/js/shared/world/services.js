@@ -15,7 +15,7 @@ import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, 
 import { skillMods } from '../skill-tier.js';
 // 第87回 A班: 回復の 魔力の 伸び（戦いの 中の 味方と おなじ。頭打ちの あとも 3分の 1 で のびる。pow-scale.js）
 import { powScaleOf } from '../pow-scale.js';
-import { TACTICS } from '../ai.js';
+import { TACTICS, isTactic } from '../ai.js';
 import { cmdOffList, fixCmdOff, toggleOffList } from '../cmd-off.js';
 import { FAV_MAX, FAV_FULL_TEXT, favApply } from '../favorites.js';
 import { setMenuView } from '../menu-view.js';
@@ -635,7 +635,7 @@ export function menuAction(world, s, msg) {
       return reply(true, `${caster.name}は${a.name}を唱えた！\n${texts.filter(Boolean).slice(0, 3).join('\n')}`);
     }
     case 'tactics': {
-      const t = TACTICS[msg.tactics] ? msg.tactics : null;
+      const t = isTactic(msg.tactics) ? msg.tactics : null;
       if (!t) return reply(false, '');
       if (msg.key === 'self') {
         if (t === 'manual') return reply(false, '');
