@@ -98,17 +98,17 @@ export const MONSTERS_C9A = {
   //   aim … すいこみ口を 向けるまでの 行動 / suck … 守った 人への すいこみ（mult）/ lost … 光を とられた ときの メカの 回復（heal）と 強く なる ばい（up）/
   //   fix … すいこみ口を こわされてから 直るまでの 行動 / light … 星の子の 光の 数（0 で 負け）
   [C9A_SUITORU]: {
-    name: SUITORU_NAME, short: 'スイトール', lv: 96, hp: 56000, mp: 6000, str: 1890, def: 330, agi: 230, mag: 900, exp: 99000, gold: 33000,
+    name: SUITORU_NAME, short: 'スイトール', lv: 96, hp: 61600, mp: 6000, str: 1700, def: 330, agi: 230, mag: 900, exp: 99000, gold: 33000,
     race: 'material', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9b_trio_badge'], bonus: ['limit_stone'], rare: ['c9b_kirajo_fan', 1] },
     resist: { ...BOSS_STATUS, bolt: 1.2, fire: 1.0, ice: 1.0, wind: 0.9, light: 1.0, dark: 1.0 },
     c9a: {
-      kind: 'trio', aim: 3, suck: { mult: 2.1 }, lost: { heal: 0.06, up: 1.12 }, fix: 3, light: 3,
+      kind: 'trio', aim: 3, suck: { mult: 2.1 }, lost: { heal: 0.2, up: 1.4 }, fix: 3, light: 3,
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: guard … 家族の キャラが 受けとめる すいこみの ばい /
       //   nozzle … すいこみ口の HP の ばい / wait … すいこみ口を 向けてから すいこむまでに ふつうに 動く 回数
-      few: { guard: [0.55, 0.6, 0.8, 1, 1.3], nozzle: [0.7, 0.75, 0.9, 1, 1.3], wait: [2, 2, 1, 1, 1], hp: [0.8, 0.75, 0.95, 1, 1.05], atk: [1.2, 1.1, 0.97, 1, 1] },
-      solo: { hp: 0.1, atk: 0.22, guard: 0.4, nozzle: 0.3, wait: 3 },
-      monK: { atk: 0 },
+      few: { guard: [0.55, 0.6, 0.8, 1, 1.3], nozzle: [0.7, 0.75, 0.9, 1, 1.3], wait: [2, 2, 1, 1, 1], hp: [0.6, 0.75, 0.95, 1, 1.2], atk: [0.6, 1.25, 0.97, 1, 1.2] },
+      solo: { hp: 0.1, atk: 0.3, guard: 0.4, nozzle: 0.3, wait: 0, aim: 4 },
+      monK: { hp: 0.05, atk: 0.45 },
     },
     actions: [{ w: 3, id: 'm9t_punch' }, { w: 2, id: 'm9t_hose' }, { w: 2, id: 'm9t_bomb', cond: 'notRecent:m9t_bomb' }, { w: 1, id: 'm9t_pochi', cond: 'notRecent:m9t_pochi' }],
     desc: 'ホシドロ一味のキラジョ・ボヤッチ・ズラッカが乗る、そうじきの形の大きなメカ。星の光を、すいこもうとねらっている。',
@@ -121,20 +121,20 @@ export const MONSTERS_C9A = {
   //   two … めもりが この わりあいを こえると いぶきは 2人に / breath … やみの いぶきの 強さ
   //   ゆっくり（speed 0.55）だが、1つの 番に 2回 動く（turns: 2。めもりと いぶきは 番ごとに 1回。4〜6分で 夜明け）
   [C9A_HOSHIMORI]: {
-    name: HOSHIMORI_NAME, short: 'ホシモリ', lv: 98, hp: 120000, mp: 9999, str: 1850, def: 340, agi: 240, mag: 960, exp: 108000, gold: 36000,
+    name: HOSHIMORI_NAME, short: 'ホシモリ', lv: 98, hp: 120000, mp: 9999, str: 1665, def: 340, agi: 240, mag: 960, exp: 108000, gold: 36000,
     race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.55, hit: 'claw', artScale: 0.5,
     drops: { boss: ['c9b_dawn_feather'], bonus: ['limit_stone'], rare: ['c9b_owl_staff', 1] },
     resist: { ...BOSS_STATUS, light: 0.8, dark: 0.6, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0 },
     c9a: {
-      kind: 'trial', dawn: 16, every: 2, big: 9000, half: 0.5, spicaEvery: 3, two: 0.5, breath: [420, 450],
+      kind: 'trial', dawn: 16, every: 1, big: 9000, half: 0.5, spicaEvery: 6, two: 0.5, breath: [420, 450],
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: dawn … 夜明けまでの めもり / every … やみの いぶきまでの 行動 /
       //   two … いぶきが 2人に なる めもりの わりあい（5人は はじめから 2人）
       //   人が 少ない ときは めもりを みじかく・いぶきを 多く（いぶきの 番は ほかの 攻撃を しない ので、HP の けずりあいより しくみの 戦いに なる）
-      few: { dawn: [9, 11, 15, 16, 16], every: [1, 1, 2, 2, 2], two: [0.5, 0.5, 0.5, 0.5, 0.5], bwait: [0, 0, 0, 0, 0], atk: [1, 0.65, 0.97, 1, 1.05] },
+      few: { dawn: [9, 11, 15, 16, 16], every: [1, 1, 2, 1, 1], two: [0.5, 0.5, 0.5, 0.25, 0.25], bwait: [0, 0, 1, 1, 1], atk: [1, 1.1, 0.97, 1, 1.7] },
       solo: { atk: 0.45, dawn: 10, every: 2 },
-      monK: { atk: 0.1 },
+      monK: { atk: 0.15 },
     },
-    actions: [{ w: 3, id: 'm9h_wing' }, { w: 2, id: 'm9h_hoot' }, { w: 1, id: 'm9h_gaze', cond: 'notRecent:m9h_gaze' }, { w: 1, id: 'attack' }],
+    actions: [{ w: 3, id: 'm9h_wing' }, { w: 1, id: 'm9h_hoot' }, { w: 1, id: 'm9h_gaze', cond: 'notRecent:m9h_gaze' }, { w: 1, id: 'attack' }],
     desc: '千年のあいだ、星の石の根を守ってきた、石のふくろう。明かりを消さずに夜明けまでたえられるか、ためしてくる。',
   },
 };

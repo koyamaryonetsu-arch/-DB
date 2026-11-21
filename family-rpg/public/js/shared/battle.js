@@ -103,6 +103,8 @@ import { r85aLocked, r85aMagic, r85aEffect, r85aTurnStart, r85aAfter, r85aDamage
 import { c9aAfter, c9aPub, c9aSnap, c9aHealMul } from './battle-c9a.js';
 // 第3部 第1章 第2幕: 暗い 所の 魔物の「見えにくい」（スピカの てらすで 消える。battle-c9b.js）
 import { c9bEva } from './battle-c9b.js';
+// 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（battle-tell.js）
+import { tellHold } from './battle-tell.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
@@ -450,7 +452,9 @@ export class Battle {
     }
     // ウェイトモード: だれかが コマンドを えらんでいる あいだは とまる
     const choosing = this.wait && this.humans().some((h) => h.alive && h.ready);
-    if (!choosing) this.advance(dt);
+    // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（敵の ゲージだけ 止める。battle-tell.js）
+    const hold = tellHold(this, dtReal, choosing);
+    if (!choosing) this.advance(dt, hold);
     this.gaugeTimer += dtReal;
     if (this.gaugeTimer >= 200) {
       this.gaugeTimer = 0;
@@ -470,7 +474,7 @@ export class Battle {
     this.emit({ t: 'g', g });
   }
 
-  advance(dt) {
+  advance(dt, hold = false) {
     this.time += dt;
     // バフ・デバフ・かばう・じわじわ回復は 行動の 回数で 数える（第38回 C。executeNext の actStart・actEnd）
     // どく（4びょうごと）
@@ -497,6 +501,8 @@ export class Battle {
     for (const c of this.combatants) {
       // 合体技の よやくで まっている 人は ゲージが すすまない（ダメージで みだれて ためなおしている 間は すすむ。battle-dual.js）
       if (!c.alive || c.fled || c.ready || c.queued || (c.waitDual && !c.waitDual.slow) || c.dualHold) continue;
+      // 前ぶれの 間に 人が えらんで いる（battle-tell.js）
+      if (hold && c.side === 'enemy') continue;
       c.atb += atbRate(c) * dt;
       if (c.atb >= 100) {
         c.atb = 100;
