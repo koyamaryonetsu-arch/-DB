@@ -33,7 +33,7 @@ export const C10B_NEW_ART = ['c10b_fish', 'c10b_sand'];
 // 白の 中ボスの え と しかけ（本物と まぼろしで おなじ）
 const OWL_BASE = {
   name: OWL_NAME, short: 'シロフクロウ', lv: 113, mp: 9999, def: 380, agi: 260, mag: 1100,
-  race: 'beast', size: 'xl', boss: true, turns: 1, speed: 1.5, hit: 'slash', artScale: 0.5, flying: true,
+  race: 'beast', size: 'xl', boss: true, turns: 1, speed: 1.6, hit: 'slash', artScale: 0.5, flying: true,
   resist: { ...BOSS_STATUS, poison: 0, fire: 1.1, ice: 1.0, wind: 0.8, bolt: 1.0, light: 1.0, dark: 1.0 },
   actions: [{ w: 3, id: 'm10o_feather' }, { w: 2, id: 'm10o_wing', cond: 'notRecent:m10o_wing' }, { w: 2, id: 'm10o_moon' }],
   desc: '白い羽のマントに、フクロウの仮面。羽かざりのぼうしの、かいとう。いつも3人いて、本物は1人だけ。',
@@ -108,7 +108,7 @@ export const MONSTERS_C10B = {
   //   wet … めもり 2 いじょうの「ぬれた」で 受ける ダメージの ばい・bolt … ぬれた 時の 雷の さらに かける ばい
   //   big … 大かんそう（めもり 3。前ぶれ → 次の 番。mult・guardCut … 身を 守ると）
   [C10B_GECKO]: {
-    name: GECKO_NAME, short: 'ゲッコー', lv: 111, hp: 54000, mp: 9999, str: 5000, def: 380, agi: 240, mag: 1100, exp: 82000, gold: 28000,
+    name: GECKO_NAME, short: 'ゲッコー', lv: 111, hp: 50000, mp: 9999, str: 5200, def: 380, agi: 240, mag: 1100, exp: 82000, gold: 28000,
     race: 'dragon', size: 'xl', boss: true, turns: 1, speed: 0.9, hit: 'smash', artScale: 0.5,
     drops: { boss: ['c10bb_hourglass'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 1.0, water: 1, wind: 1.0, bolt: 1.2, light: 1.0, dark: 1.0 },
@@ -125,7 +125,7 @@ export const MONSTERS_C10B = {
       //   atk は 与える ダメージ（物理も 呪文も。battle-c10b.js の scale … dmgRate）。tools/sim-ch10.mjs で 合わせた（docs/plan-part3-c10b.md の 実装メモ）
       few: { hp: [0.55, 0.75, 1, 1, 1.1], atk: [0.62, 0.62, 1, 1, 1.3], bigK: [0.35, 0.4, 1, 1, 1], spd: [1, 1, 1, 1, 1] },
       solo: { hp: 0.12, atk: 0.25, bigK: 0.4, sand: 0.02 },
-      monK: { hp: -0.15, atk: 0.2 },
+      monK: { hp: -0.15, atk: 0.17 },
     },
     actions: [{ w: 3, id: 'm10x_cane' }, { w: 2, id: 'm10x_sand', cond: 'notRecent:m10x_sand' }, { w: 2, id: 'm10x_tail' }],
     desc: '砂色の長いコートを着た、トカゲのしんし。砂時計の形のステッキ。体から、さらさら砂がこぼれる。水が大のにがて。',
@@ -140,25 +140,25 @@ export const MONSTERS_C10B = {
   //   steal … 「ぬすむ」（every 回 動く ごとに 前ぶれ・ねらう 人 → 次の 番。防御で ふせげる）
   //   lit … スピカの てらすで 本物が 光る 番（てらすの lit と おなじ）
   [C10B_OWL]: {
-    ...OWL_BASE, hp: 22000, str: 6000, exp: 84000, gold: 29000,
+    ...OWL_BASE, hp: 14000, str: 6000, exp: 84000, gold: 29000,
     drops: { boss: ['c10bb_owl_plume'], bonus: ['limit_stone'] },
     c10b: {
       kind: 'owl',
       n: 3, half: 4,
       shuffle: 2, halfShuffle: 1,
       aoe: 0.5,
-      tease: { dmg: 0.15, delay: 80 },
-      steal: { every: 4 },
+      tease: { dmg: 0.3, delay: 100 },
+      steal: { every: 3 },
       // 人数で 合わせる（ゲッコーと おなじ 形）。solo … 仲間なしの ひとり
-      few: { hp: [0.7, 0.8, 1, 1, 1.2], atk: [0.9, 0.95, 1, 1, 1.05], spd: [0.9, 0.9, 1, 1, 1] },
+      few: { hp: [1.1, 0.8, 1, 1, 1.2], atk: [0.85, 1.0, 1, 1, 1.05], spd: [0.9, 0.9, 1, 1, 1] },
       solo: { hp: 0.12, atk: 0.28, spd: 0.75 },
-      monK: { hp: 0.05, atk: -0.04 },
+      monK: { hp: 0.15, atk: -0.01 },
     },
   },
   // まぼろし（本物と 見た目も 名前も おなじ。動かない・攻撃しても すりぬける・たおれない）
   //   どれが 本物かは 戦いの 中で 入れかわる（battle-c10b.js）。exp 0（たおした ことに ならない）。落とす 品は 本物と おなじ
   [C10B_OWL_FAKE]: {
-    ...OWL_BASE, hp: 22000, str: 6000, exp: 0, gold: 0, fake: true,
+    ...OWL_BASE, hp: 14000, str: 6000, exp: 0, gold: 0, fake: true,
     drops: { boss: ['c10bb_owl_plume'] },
     c10b: { kind: 'owlFake' },
   },
