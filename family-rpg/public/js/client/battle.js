@@ -776,6 +776,9 @@ export class BattleScene {
       start,
       fit: true,
       tapConfirm,
+      // 第96回: 呪文・特技・道具の 一覧は 一覧の まど（タップ 1回め … せつめい・同じ 行を もう1回 … 使う。設定で 1回にも できる）。
+      //   いちばん 上の コマンド・的を えらぶ 所は 1回で 決定
+      list: tapConfirm,
     });
     // スクロールの 場所を もどす 前に 入れる（あとで 入れかえると スクロールが 0に もどる）
     this.cmdEl.append(pager && this.touchUi() ? this.pagerWrap(m) : m.root);
