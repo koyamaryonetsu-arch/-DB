@@ -641,6 +641,9 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c10a.js', 'public/js/shared/data/abilities-c10a.js',
     'public/js/shared/data/encounters-c10a.js', 'public/js/shared/data/companions-c10a.js', 'public/js/shared/data/items-c10a.js', 'public/js/shared/data/boss-hints-c10a.js',
     'public/js/shared/battle-c10a.js', 'public/js/client/battle-c10a.js', 'public/js/client/render/c10a-art.js', 'public/js/client/render/c10a-bg.js', 'public/js/client/render/battlefx-c10a.js',
+    // 第95回 A班: 第3部 第2章 第2幕「青と白」（世界と 物語）
+    'public/js/shared/maps/c10b-flags.js', 'public/js/shared/data/story-c10b.js', 'public/js/shared/maps/c10b.js', 'public/js/shared/maps/c10b-rows.js',
+    'public/js/shared/world/c10b-steps.js', 'public/js/client/c10b-view.js', 'public/js/client/render/tiles-c10b.js', 'public/js/client/render/c10b-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

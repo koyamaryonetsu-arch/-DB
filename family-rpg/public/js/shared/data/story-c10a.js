@@ -393,7 +393,8 @@ const iceBudSteps = (x) => (x.flag(C10A_BONUS.green) ? [] : x.flag(C10A_RED.note
   : N('こおった、つぼみだ。とても、つめたい。\n…あたたかい音が、あれば、さきそうだ。'));
 
 // ───── E くぼ地の 台に 音を 置く ─────
-function endScene() {
+// act1Obj … 幕の クリアの あとの 目標（第95回 A班: 第2幕が 開いた あとは story-c10.js の act1ClearObjective）
+function endScene(act1Obj) {
   const cx = (PR.x + PF.x) / 2 + 0.5, cy = PR.y + 1.6;
   return [
     ['bgm', null],
@@ -425,12 +426,12 @@ function endScene() {
     ['remove', 'spica_e'], ['guestHide', false],
     ['look'],
     ['flag', C10A.act1], ['unflag', C10A_PED.re], ['unflag', C10A_PED.fa], ['sync'],
-    ['objective', C10A_OBJ.act1],
+    ['objective', act1Obj || C10A_OBJ.act1],
     ['bgm', 'resume'],
   ];
 }
 // 台を しらべる（前の 台本 … 第3幕・第4幕の 音の 台）
-function pedSteps(color, old) {
+function pedSteps(color, old, act1Obj) {
   const re = color === 're';
   const note = re ? C10A_RED.note : C10A_GREEN.note;
   const placed = re ? C10A_PED.re : C10A_PED.fa;
@@ -441,7 +442,7 @@ function pedSteps(color, old) {
     if (x.flag(placed)) return N(`${name}の台が、光っている。\n（もうひとつの音を、まだ、待っている）`);
     if (!x.flag(C10A.start) || !x.flag(note)) return old ? old(x) : [];
     const put = [['sfx', 'sparkle'], ['flag', placed], ['sync'], ...N(`${name}の台に、星の音（${re ? 'レ' : 'ファ'}）を、置いた。\n${name}の台が、ぽうっと、光った！`)];
-    if (x.flag(other)) return [...put, ...endScene()];
+    if (x.flag(other)) return [...put, ...endScene(act1Obj)];
     return [...put, ...S(NO, 'もうひとつの音も、ここに置こう。')];
   };
 }
@@ -469,8 +470,8 @@ export function c10aScripts(title, open, old = {}) {
     c10g_boss_event: (x) => (x.flag(C10A_GREEN.root) && !x.flag(C10A_GREEN.boss) ? greenBossScene() : []),
     c10g_note_event: (x) => (x.flag(C10A_GREEN.boss) && !x.flag(C10A_GREEN.note) ? noteFaScene() : []),
     c10g_icebud: iceBudSteps,
-    c10_ped_re: pedSteps('re', old.ped),
-    c10_ped_fa: pedSteps('fa', old.ped),
+    c10_ped_re: pedSteps('re', old.ped, old.act1Obj),
+    c10_ped_fa: pedSteps('fa', old.ped, old.act1Obj),
   };
 }
 
@@ -528,8 +529,8 @@ export const CH10A_PROGRESS = [
 
 // ───── story-c10.js の applyCh10 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん（story-c10.js の c10TitleSteps）/ open … 幕が 開いて いるか（PART3_C10A_OPEN）
-export function applyCh10a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S10 = c10aScripts(title, open, { ped: SCRIPTS.c9c_ped });
+export function applyCh10a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act1Obj = null } = {}) {
+  const S10 = c10aScripts(title, open, { ped: SCRIPTS.c9c_ped, act1Obj });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10A_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   // くぼ地の 武具屋: 幕の クリア（c10_act1）の あと 品が 4つ ふえる（B班の C10A_SHOP_ADD）

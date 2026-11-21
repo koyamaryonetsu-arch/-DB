@@ -64,7 +64,7 @@ export const C10B_BATTLE = {
 export const C10B_MON_PREFIX = 'c10b_';
 export const C10B_BOSS_MON = { blue: 'c10b_gecko', white: 'c10b_owl', fake: 'c10b_owl_fake' };
 export const C10B_BLUE_BOSS_NAME = 'サー・ゲッコー'; // 砂の しんし
-export const C10B_WHITE_BOSS_NAME = 'かい盗　シロフクロウ'; // 白い マントの かい盗
+export const C10B_WHITE_BOSS_NAME = 'かいとう　シロフクロウ'; // 白い マントの かいとう（「盗」は 漢字の きまりで 使えない）
 export const C10B_WHITE_SHORT = 'シロフクロウ';
 
 // ───── 魔物の 出る 表（B班）─────
