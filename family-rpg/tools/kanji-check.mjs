@@ -651,7 +651,8 @@ export function gameFiles() {
     // 第95回 F班: 第3部 第2章 第2幕の 曲
     'public/js/client/audio-c10b.js',
     // 第97回 A班: 第3部 第2章 第3幕「紫と、うばわれた音」（世界と 物語）
-    'public/js/shared/maps/c10c-flags.js',
+    'public/js/shared/maps/c10c-flags.js', 'public/js/shared/data/story-c10c.js', 'public/js/shared/maps/c10c.js', 'public/js/shared/maps/c10c-rows.js',
+    'public/js/shared/world/c10c-steps.js', 'public/js/client/c10c-view.js', 'public/js/client/render/tiles-c10c.js', 'public/js/client/render/c10c-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

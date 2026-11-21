@@ -439,7 +439,8 @@ const worbSteps = (x) => {
 };
 
 // ───── E くぼ地の 台に 音を 置く ─────
-function endScene() {
+// act2Obj … 幕の クリアの あとの 目標（第97回 A班: 第3幕が 開いた あとは story-c10.js の act2ClearObjective）
+function endScene(act2Obj) {
   const cx = (PS.x + PL.x) / 2 + 0.5, cy = PS.y + 1.6;
   const ax = cx, ay = PS.y - 1.2;
   return [
@@ -475,11 +476,11 @@ function endScene() {
     ['remove', 'spica_e'], ['guestHide', false],
     ['look'],
     ['flag', C10B.act2], ['unflag', C10B_PED.so], ['unflag', C10B_PED.la], ['sync'],
-    ['objective', C10B_OBJ.act2],
+    ['objective', act2Obj || C10B_OBJ.act2],
     ['bgm', 'resume'],
   ];
 }
-function pedSteps(color, old) {
+function pedSteps(color, old, act2Obj) {
   const so = color === 'so';
   const note = so ? C10B_BLUE.note : C10B_WHITE.note;
   const placed = so ? C10B_PED.so : C10B_PED.la;
@@ -490,7 +491,7 @@ function pedSteps(color, old) {
     if (x.flag(placed)) return N(`${name}の台が、光っている。\n（もうひとつの音を、まだ、待っている）`);
     if (!x.flag(C10B.start) || !x.flag(note)) return old ? old(x) : [];
     const put = [['sfx', 'sparkle'], ['flag', placed], ['sync'], ...N(`${name}の台に、星の音（${so ? 'ソ' : 'ラ'}）を、置いた。\n${name}の台が、ぽうっと、光った！`)];
-    if (x.flag(other)) return [...put, ...endScene()];
+    if (x.flag(other)) return [...put, ...endScene(act2Obj)];
     return [...put, ...S(NO, 'もうひとつの音も、ここに置こう。')];
   };
 }
@@ -517,8 +518,8 @@ export function c10bScripts(title, open, old = {}) {
     c10b_melt: meltSteps,
     c10b_owl_event: (x) => (x.flag(C10B_WHITE.two) && !x.flag(C10B_WHITE.boss) ? owlScene() : []),
     c10b_worb: worbSteps,
-    c10_ped_so: pedSteps('so', old.ped),
-    c10_ped_la: pedSteps('la', old.ped),
+    c10_ped_so: pedSteps('so', old.ped, old.act2Obj),
+    c10_ped_la: pedSteps('la', old.ped, old.act2Obj),
   };
 }
 
@@ -579,8 +580,8 @@ export const CH10B_PROGRESS = [
 // ───── story-c10.js の applyCh10 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん / open … 幕が 開いて いるか（PART3_C10B_OPEN）
 //   今の 台本に 足す 物（どれも フラグで 出る）: ピラミッドの 岸の いかだ乗り場（c10b_start）・水鏡の広間の 水鏡（c10_note_so）
-export function applyCh10b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S10 = c10bScripts(title, open, { ped: SCRIPTS.c9c_ped });
+export function applyCh10b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act2Obj = null } = {}) {
+  const S10 = c10bScripts(title, open, { ped: SCRIPTS.c9c_ped, act2Obj });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10B_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   if (!SCRIPTS.c9c_raftstop_shore?.c10b) SCRIPTS.c9c_raftstop_shore = Object.assign(addBlueStop(SCRIPTS.c9c_raftstop_shore), { c10b: true });

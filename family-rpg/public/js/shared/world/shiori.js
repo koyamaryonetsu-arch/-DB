@@ -98,6 +98,8 @@ export const CHAPTERS = [
       { n: 1, start: 'c10_start', title: '赤と緑', seen: 'c10_start', clear: 'c10_act1' },
       // 第95回 A班: 第2幕（くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと）
       { n: 2, start: 'c10b_start', title: '青と白', seen: 'c10b_start', clear: 'c10_act2' },
+      // 第97回 A班: 第3幕（くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと）
+      { n: 3, start: 'c10c_start', title: 'むらさきと、うばわれた音', seen: 'c10c_start', clear: 'c10_act3' },
     ],
   },
 ];
