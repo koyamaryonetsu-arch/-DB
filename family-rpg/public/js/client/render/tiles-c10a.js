@@ -11,7 +11,8 @@ import { THEME_PARTS } from './tiles-castle.js';
 
 const RD = { d: '#2a1a16', b: '#4a3430', l: '#6a5048', hl: '#8a6a5a' };
 const WL = { d: '#140806', b: '#2a1612', l: '#3e2018', hl: '#5a3020' };
-const GD = { d: '#3a5a2a', b: '#5a7a3a', l: '#7a9a4a', hl: '#a8c870' };
+// 根の国の こけ（青みどり。今までの 草原の 黄みどりと ちがう）
+const GD = { d: '#163a36', b: '#215248', l: '#2e6c5c', hl: '#6ad8b0' };
 const RT = { d: '#2a1a0e', b: '#4a3020', l: '#6a4a30', hl: '#8a6a44' };
 
 function road(p, v) {
@@ -54,14 +55,28 @@ function orb(p, v, f) {
 function ground(p, v) {
   p.rect(0, 0, 16, 16, GD.b);
   const r = prand(v * 13 + 1);
-  for (let i = 0; i < 6; i++) { const x = Math.floor(r() * 15), y = Math.floor(r() * 15); p.set(x, y, i % 2 ? GD.l : GD.d); p.set(x + 1, y, i % 3 ? GD.l : GD.hl); }
-  // 落ち葉
-  if (v % 4 === 0) { const x = Math.floor(r() * 12) + 2, y = Math.floor(r() * 12) + 2; p.set(x, y, '#c8a040'); p.set(x + 1, y, '#a88030'); }
+  // こけの もこもこ
+  for (let i = 0; i < 5; i++) { const x = Math.floor(r() * 14) + 1, y = Math.floor(r() * 14) + 1; p.ellipse(x, y, 2, 1.2, i % 2 ? GD.l : GD.d); }
+  for (let i = 0; i < 3; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), GD.hl);
+  // 地面を はう 太い 根（ところどころ）
+  if (v % 11 === 0) {
+    // 太い 根が 地面を はう（こけに うもれて、こぶが ある）
+    const y0 = 6 + (v % 5);
+    for (let x = 0; x < 16; x++) { const y = y0 + Math.round(Math.sin((x + v) / 3) * 1.2); p.vline(x, y - 2, y + 2, RT.b); p.set(x, y - 2, RT.hl); p.set(x, y - 1, RT.l); p.set(x, y + 2, RT.d); }
+    p.ellipse(4 + (v % 8), y0, 2.5, 3, RT.l);
+    p.set(3 + (v % 8), y0 - 3, '#4ac8a0'); p.set(9, y0 + 3, '#2e6c5c');
+  } else if (v % 13 === 5) {
+    // 小さな 光る きのこの むれ
+    for (const [x, y] of [[4, 10], [7, 12], [11, 9]]) { p.vline(x, y, y + 2, '#d8e8e0'); p.ellipse(x, y, 2, 1.2, '#3ac8d8'); p.set(x, y - 1, '#c8ffff'); }
+  }
+  // 光る ほうしの つぶ
+  if (v % 3 === 0) { const x = Math.floor(r() * 12) + 2, y = Math.floor(r() * 12) + 2; p.set(x, y, '#c8ffe8'); p.set(x + 1, y, '#7affd0'); }
 }
 function spore(p, v) {
   ground(p, v);
   const r = prand(v * 7 + 3);
-  for (let i = 0; i < 3; i++) { const x = Math.floor(r() * 14) + 1, y = Math.floor(r() * 12) + 3; p.vline(x, y, y + 2, '#3a6a2a'); p.set(x, y - 1, '#d8ffb0'); }
+  // 光る ほうしの くさ（先が 光る）
+  for (let i = 0; i < 4; i++) { const x = Math.floor(r() * 14) + 1, y = Math.floor(r() * 10) + 5; p.vline(x, y, y + 3, '#2a7a5a'); p.set(x, y - 1, '#d8fff0'); p.set(x - 1, y - 1, '#7affd0'); p.set(x + 1, y - 1, '#7affd0'); }
 }
 function rootWall(p, v) {
   p.rect(0, 0, 16, 16, RT.b);
@@ -70,12 +85,23 @@ function rootWall(p, v) {
     const a = 3 + Math.round(Math.sin((y + v) / 3) * 2), b = 11 + Math.round(Math.cos((y + v) / 3) * 2);
     p.hline(a - 1, a + 1, y, RT.l); p.set(a, y, RT.hl); p.hline(b - 1, b + 1, y, RT.d);
   }
-  if (v % 3 === 0) { p.set(7, 5, '#6a9a4a'); p.set(8, 5, '#8ac060'); }
+  if (v % 4 === 0) {
+    // 大きな きのこ（根に 生えた）
+    p.rect(6, 8, 4, 7, '#e8e0d0');
+    p.ellipse(8, 7, 7, 4, '#3aa8c8'); p.ellipse(8, 6, 6, 3, '#6ad8f0');
+    for (const [x, y] of [[5, 6], [10, 5], [8, 8]]) p.set(x, y, '#e8ffff');
+  } else if (v % 4 === 2) {
+    // 大きな 葉
+    for (let y = 2; y < 15; y++) { const w = Math.round(Math.sin(((y - 2) / 12) * Math.PI) * 6); p.hline(8 - w, 8 + w, y, y % 3 ? '#3a9a5a' : '#2a7a48'); }
+    p.vline(8, 2, 15, '#1e5a36'); p.set(6, 5, '#8ae8a8'); p.set(10, 9, '#8ae8a8');
+  } else if (v % 3 === 0) { p.set(7, 5, '#4ac8a0'); p.set(8, 5, '#8affd0'); }
 }
 function gap(p, v) {
-  p.rect(0, 0, 16, 16, '#0e1a10');
+  // 谷の 下は 大地の下の やみ（ずっと 下に 光る こけと 水しょうが かすかに 見える）
+  p.rect(0, 0, 16, 16, '#05040c');
   const r = prand(v * 19 + 9);
-  for (let i = 0; i < 2; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), i ? '#2a4a2a' : '#c8ffb0');
+  for (let i = 0; i < 3; i++) { const x = Math.floor(r() * 16), y = Math.floor(r() * 16); p.set(x, y, ['#1e3a4a', '#4a2a6a', '#6affd0'][i]); }
+  if (v % 4 === 0) p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#9ad8ff');
 }
 function cliff(p, v) {
   p.rect(0, 0, 16, 16, '#5a3e24');

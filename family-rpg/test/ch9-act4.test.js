@@ -14,7 +14,7 @@ import { C9D, C9D_MAP, C9D_BATTLE, C9D_CHEST_IDS } from '../public/js/shared/map
 import { C9D_POS, SHORE_DOOR9D } from '../public/js/shared/maps/c9d-rows.js';
 import { stoneFront9d } from '../public/js/shared/maps/c9d-lane.js';
 import { stoneSteps9d, spicaLeft9d, spicaAway9d } from '../public/js/shared/world/c9d-steps.js';
-import { act3ClearObjective, PART3_ACT4_OPEN } from '../public/js/shared/data/story-c9.js';
+import { act3ClearObjective, PART3_ACT4_OPEN, act4ClearObjective } from '../public/js/shared/data/story-c9.js';
 import { C9D_OBJ } from '../public/js/shared/data/story-c9d.js';
 import { C9D_TREASURE } from '../public/js/shared/data/items-c9d.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -214,7 +214,7 @@ test('通し（本当の 戦い）: 黄の 台 → ひびきの とびら → �
   await go(bot, 15, 7, opts);
   assert.ok(c.flags[C9D.hollow] && c.flags[C9D.act4]);
   assert.equal(bot.s.map, 'c9a_crater');
-  assert.equal(c.objective, C9D_OBJ.act4);
+  assert.equal(c.objective, act4ClearObjective()); // 第94回 A班: 第2章 第1幕が 開いたので 第2章の はじまりの 文
   assert.ok(storyPlace(c).cleared);
   // 宝箱 8こ・中みは B班の 表
   assert.deepEqual(C9D_CHEST_IDS.filter((id) => c.chests[id]), [...C9D_CHEST_IDS], '宝箱 8こ');

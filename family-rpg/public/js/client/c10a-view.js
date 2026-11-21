@@ -155,3 +155,32 @@ export class C10aLavaHud {
     }
   }
 }
+
+// ───── 根の国（map.c10Green）: ふわふわ 上がる 光る ほうし・まわりの やみ（2D と 2.5D の 上に かさねる。画面の 場所で かく）─────
+export function drawC10aSpores(field, ctx) {
+  const t = field.time / 1000;
+  const W = field.vw, H = field.vh;
+  // まわりの やみ（ここは 大地の下。上も 下も 根と やみ）
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+  vg.addColorStop(0, 'rgba(4, 10, 14, 0)');
+  vg.addColorStop(1, 'rgba(4, 10, 14, 0.55)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const n = Math.round((W * H) / 9000) + 18;
+  for (let i = 0; i < n; i++) {
+    const a = (i * 0.618034) % 1, b = (i * 0.414214) % 1;
+    const sp = 10 + b * 16;
+    const y = H + 10 - ((t * sp + a * (H + 20)) % (H + 20));
+    const x = (a * W + Math.sin(t * (0.6 + b) + i) * 14 + W) % W;
+    const r = 1 + (i % 3) * 0.6;
+    const k = 0.45 + 0.35 * Math.sin(t * 2 + i);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
+    g.addColorStop(0, `rgba(170, 255, 220, ${k})`);
+    g.addColorStop(1, 'rgba(120, 255, 200, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r * 4, y - r * 4, r * 8, r * 8);
+  }
+  ctx.restore();
+}

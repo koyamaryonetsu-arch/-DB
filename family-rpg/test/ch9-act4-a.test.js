@@ -19,7 +19,7 @@ import { C9D_POS, SHORE_DOOR9D, SHORE_STONES9D } from '../public/js/shared/maps/
 import { stoneFront9d, laneCenters9d, laneBright9d, apartStage9d, FORK_MS9D } from '../public/js/shared/maps/c9d-lane.js';
 import { stoneSteps9d, laneState9d, spicaAway9d, spicaLeft9d, spicaHelpHidden9d, c9dSnap, pruneC9d } from '../public/js/shared/world/c9d-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
-import { CH9_STEPS, PART3_ACT4_OPEN, act3ClearObjective, ACT3_END_OLD, c9dTitleSteps, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS } from '../public/js/shared/data/story-c9.js';
+import { CH9_STEPS, PART3_ACT4_OPEN, act3ClearObjective, ACT3_END_OLD, c9dTitleSteps, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, act4ClearObjective } from '../public/js/shared/data/story-c9.js';
 import { C9C_OBJ } from '../public/js/shared/data/story-c9c.js';
 import { C9D_OBJ, CH9D_STORY_SCRIPTS, CH9D_PROGRESS, CH9D_OBJECTIVE_TARGETS, CH9D_OBJECTIVE_TALK, c9dScripts, applyCh9d } from '../public/js/shared/data/story-c9d.js';
 import { objectiveFromFlags, repairObjective, KNOWN_OBJECTIVES } from '../public/js/shared/data/progress.js';
@@ -156,7 +156,8 @@ test('幕を 開けた（PART3_ACT4_OPEN）: 第3幕 クリアの 目標・前�
   const old = { flags: a3, objective: ACT3_END_OLD };
   repairObjective(old);
   assert.equal(old.objective, C9D_OBJ.start, '前の 文は なおる');
-  for (const [f, t] of CH9D_PROGRESS) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), t, f);
+  // 第94回 A班: 第2章 第1幕が 開いたので、第1章 クリア（c9_act4）の 目標は 第2章の はじまり（story-c9.js の act4ClearObjective）
+  for (const [f, t] of CH9D_PROGRESS) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), f === 'c9_act4' ? act4ClearObjective() : t, f);
   assert.ok(CH9_PROGRESS.some(([f]) => f === 'c9_act4'));
   assert.ok(KNOWN_OBJECTIVES.has(C9D_OBJ.start) && CH9_OBJECTIVE_TARGETS[C9D_OBJ.start]);
   // 閉じた 形（open false）は 何も 始まらない

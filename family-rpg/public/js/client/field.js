@@ -37,7 +37,7 @@ import { noteC9cTheme, c9cOtherAlpha, c9cChestAlpha, raftAt9c, drawRaft2D, raftE
 // 第93回 A班: 第3部 第1章 第4幕の スピカと ふた手に（くらやみ・歌って いる スピカ・ひびきの石）（client/c9d-view.js）
 import { noteC9dSnap, noteC9dStage, c9dSpicaLeft, c9dSingingSpica, drawC9dDark2D, drawC9dDark3D, drawC9dRing2D, drawC9dRing3D } from './c9d-view.js';
 // 第94回 A班: 第3部 第2章 第1幕の 溶岩に 追われる・見はらし台（client/c10a-view.js）
-import { noteC10aSnap, noteC10aStage, drawC10aLava2D, drawC10aLava3D, lavaShake10a, wideScale10a } from './c10a-view.js';
+import { noteC10aSnap, noteC10aStage, drawC10aLava2D, drawC10aLava3D, lavaShake10a, wideScale10a, drawC10aSpores } from './c10a-view.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -1129,6 +1129,7 @@ export class Field {
     if (m.c9cPyr) drawC9cFlip2D(this); // 第92回 A班: さかさの 時の 画面
     if (m.c9dStones) drawC9dRing2D(this, camX, camY); // 第93回 A班: ピラミッドの 岸の ひびきの石
     if (m.c10Red) drawC10aLava2D(this, camX, camY); // 第94回 A班: 溶岩に 追われる
+    if (m.c10Green) drawC10aSpores(this, ctx); // 第94回 A班: 根の国の 光る ほうし
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1289,6 +1290,7 @@ export class Field {
     if (m.c9cPyr) drawC9cFlip3D(this, ctx); // 第92回 A班: さかさの 時の 画面
     if (m.c9dStones) drawC9dRing3D(this, ctx, P); // 第93回 A班: ピラミッドの 岸の ひびきの石
     if (m.c10Red) drawC10aLava3D(this, ctx, P); // 第94回 A班: 溶岩に 追われる
+    if (m.c10Green) drawC10aSpores(this, ctx); // 第94回 A班: 根の国の 光る ほうし
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();

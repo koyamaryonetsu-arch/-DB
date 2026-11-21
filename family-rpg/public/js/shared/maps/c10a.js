@@ -124,7 +124,7 @@ export const budScript10a = (n) => `c10g_bud${n}`;
 function greenMap(id, name, rows, P, chests, table, lookN) {
   const t = parseRows16(rows, GREEN_LEGEND);
   const m = base(id, name, t, {
-    bgm: C10A_TRACKS.roots, bg2d: '#0a160c', sky3d: { bg: '#0e2414', fog: 0x16301c }, dark: false,
+    bgm: C10A_TRACKS.roots, bg2d: '#05040c', sky3d: { bg: '#0a1c22', fog: 0x0e2a2c }, dark: false,
     c10Green: true, spawnCounts: { [table]: 10 },
   });
   // 音の つぼみ（星の音さで さく）と のびる 草木（つる・大きな 葉・きのこ）
