@@ -7,6 +7,7 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
+import { kizunaMap } from './data/kizuna.js';
 import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js';
 import { ABILITIES } from './data/abilities.js';
 import { strengthenEnemy } from './data/difficulty.js';
@@ -85,6 +86,8 @@ Object.assign(PHANTOM_ADJ, { lina: [1.6, 1.57, 1.51], doramata: [2.59, 2.41, 3.3
 Object.assign(PHANTOM_ADJ, { tenkaichi_king: [0.99, 0.84, 0.91], chaos_gunshi: [1.89, 1.67, 1.86] });
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士（幻の職業。tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
 Object.assign(PHANTOM_ADJ, { yokai_bridge: [0.7, 0.46, 0.51], ryujin_kenshi: [0.89, 0.91, 1.2] });
+// 第98回: きずなの職業（data/jobs-r98-*.js の trialAdj。一覧は data/kizuna.js）
+Object.assign(PHANTOM_ADJ, kizunaMap('trialAdj'));
 // 第87回 C班: 看板の 技に 追いうちが ついて まぼろしも 強く なった 試練だけ さがし直した
 //   （tools/sim-trial-tune.mjs 10 0.75 HI=4・TRIAL=その 試練。ゆれの 大きい ゴム人間 一・三／ブラック 三／達人 一・二／社長 三 は 20回・SEED 1000 で もう一度。会長 三 は sim-trial 20回で 合わせた）
 Object.assign(PHANTOM_ADJ, {

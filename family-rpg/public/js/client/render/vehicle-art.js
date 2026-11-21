@@ -39,6 +39,8 @@ import { addR85aVehicleArt } from './vehicle-r85a.js';
 import { addR86bVehicleArt } from './vehicle-r86b.js';
 // 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（幻の職業 2つ。vehicle-r86a.js）
 import { addR86aVehicleArt } from './vehicle-r86a.js';
+// 第98回: きずなの職業の 幻の 乗り物（kizuna-art.js。職業ごとの 絵の ファイルの vehicle）
+import { addKizunaVehicleArt } from './kizuna-art.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1642,6 +1644,8 @@ addR85aVehicleArt(ART, { seg, poly, shade, seat });
 addR86bVehicleArt(ART, { box, seg, poly, rgba, shade, twinkle, seat });
 // 第86回 A班: 大きな白い犬・雷と炎の二ひきの竜（render/vehicle-r86a.js）
 addR86aVehicleArt(ART, { seg, poly, shade, seat, rgba, twinkle });
+// 第98回: きずなの職業の 幻の 乗り物（render/kizuna-*.js）
+addKizunaVehicleArt(ART, { box, seg, poly, shade, seat, rgba, twinkle });
 
 export const VEHICLE_ART = ART;
 

@@ -274,6 +274,9 @@ Object.assign(TRIAL_WORDS, {
   yokai_bridge: '守った思いは、力になる。仲間はおまえの風だ。',
   ryujin_kenshi: '雷と炎、どちらも大切にする者が竜にえらばれる。',
 });
+// 第98回: きずなの職業（data/jobs-r98-*.js の trial。一覧は kizuna.js。32字 以内）
+import { kizunaMap } from './kizuna.js';
+Object.assign(TRIAL_WORDS, kizunaMap('trial'));
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',

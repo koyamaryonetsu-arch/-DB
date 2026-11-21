@@ -126,6 +126,8 @@ import { R85A_ABILITIES } from './abilities-r85a.js';
 import { R86B_ABILITIES } from './abilities-r86b.js';
 // 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士の 技（abilities-r86a.js）
 import { R86A_ABILITIES } from './abilities-r86a.js';
+// 第98回: きずなの職業の 技（1つ 1ファイル。一覧は kizuna.js）
+import { KIZUNA_ABILITIES } from './kizuna.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -809,6 +811,8 @@ Object.assign(ABILITIES, R85A_ABILITIES);
 Object.assign(ABILITIES, R86B_ABILITIES);
 // 第86回 A班: 幻の職業 2つ（abilities-r86a.js）
 Object.assign(ABILITIES, R86A_ABILITIES);
+// 第98回: きずなの職業（kizuna.js の 一覧の ぜんぶ）
+Object.assign(ABILITIES, KIZUNA_ABILITIES);
 // 第88回: 装備を「使う」と 出る かくし技（abilities-r88.js。hidden）
 import { R88_ABILITIES } from './abilities-r88.js';
 Object.assign(ABILITIES, R88_ABILITIES);
