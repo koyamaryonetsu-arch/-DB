@@ -48,7 +48,7 @@ import { MONSTER_ART, monsterSize, monsterFine } from '../public/js/client/rende
 import { playC10cFx } from '../public/js/client/render/battlefx-c10c.js';
 import { playC8cFx } from '../public/js/client/render/battlefx-c8c.js';
 import { battleBgSpec } from '../public/js/client/render/battlefx.js';
-import { C10C_SCREEN_ANIMS, C10C_ALLY_FX, C10C_SFX, C10C_OWN_TELE, c10cDraw, c10cPresent, c10cSprite, c10cCmdItems, c10cCmdPick, c10cHtml, stonesHtml } from '../public/js/client/battle-c10c.js';
+import { C10C_SCREEN_ANIMS, C10C_ALLY_FX, C10C_SFX, C10C_OWN_TELE, c10cDraw, c10cPresent, c10cSprite, c10cCmdItems, c10cCmdPick, c10cHtml, stonesHtml, refreshInfo } from '../public/js/client/battle-c10c.js';
 import { CH4_ALLY_FX } from '../public/js/client/battle-ch4.js';
 import { CH6_OWN_TELE } from '../public/js/client/battle-ch6.js';
 import { firstSentence } from '../public/js/client/ui/skillinfo.js';
@@ -663,6 +663,18 @@ test('がめん: 画面の 上の まど・うき石の まど（3つの 石と 
   onSelect(items[1]);
   assert.deepEqual(sent, [{ type: 'ability', id: UTSURU, choice: 1 }]);
   assert.equal(c10cCmdPick(sc3, me, 'c9bteru'), false);
+  // まどを 開いた あとに 石が 光った: せつめいを 今の ようすで 出し直す（ほかの せつめいは さわらない）
+  const calmCol = { ...col, stones: col.stones.map((x) => ({ ...x, lit: 0 })) };
+  let now = calmCol;
+  const sc4 = { enemies: () => [now], allies: () => allies, myActor: me, infoEl: { textContent: '' }, info(t) { this.infoEl.textContent = t; } };
+  sc4.infoEl.textContent = c10cCmdItems(sc4, me).info;
+  assert.equal(refreshInfo(sc4), false);
+  now = col;
+  assert.equal(refreshInfo(sc4), true);
+  assert.ok(sc4.infoEl.textContent.includes('光っている'));
+  sc4.infoEl.textContent = 'ほかの 技の せつめい';
+  now = calmCol;
+  assert.equal(refreshInfo(sc4), false);
   // コマンドの 行き先（battle.js → c8r → c9a → c9b）: 第2幕の「水の音を鳴らす」も とどく
   const route = readFileSync(new URL('../public/js/client/battle.js', import.meta.url), 'utf8');
   assert.ok(route.includes("case 'c10bring': case 'c10cmove': return c8rCmdPick"));

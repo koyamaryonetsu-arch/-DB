@@ -189,6 +189,7 @@ export function c10cDraw(scene, x, m, c, px, py, w, h, base) {
   const top = c10cHtml(c, { allies, me: myId(scene) });
   showTop(scene, top.html, top.cls);
   if (isColonel(c)) showStones(scene, stonesHtml(c, allies, myId(scene)));
+  refreshInfo(scene);
   if (c.c10Down) return;
   const ty = portrait() ? py + h * 0.55 : py + h + 4;
   if (isColonel(c)) {
@@ -274,11 +275,24 @@ export function c10cCmdItems(scene, a) {
   }
   const alg = bossOf(scene, isAlgol);
   if (alg) {
-    info = alg.ring ? '星の音が来る！スピカの「星のうた」で止めよう（「防御」でもそなえられる）。'
+    info = alg.ring ?'星の音が来る！スピカの「星のうた」で止めよう（「防御」でもそなえられる）。'
       : alg.veil ? 'やみのとばりで、こうげきが半分…。スピカの「てらす」で、はらおう。'
         : '強くなる技（守りや力を上げる技）は、アルゴルに食べられてしまう。こうげきで戦おう。';
   }
+  if (info) scene.c10cInfoText = info;
   return { items, info };
+}
+// コマンドの まどを 開いた あとに ようすが かわったら（石が 光った・とばり など）、せつめいを 今の ようすで 出し直す
+//   出して いる せつめいが この 幕の せつめいの まま の 時だけ（ほかの 技の せつめいを 見て いる 時は さわらない）
+export function refreshInfo(scene) {
+  const old = scene.c10cInfoText;
+  const a = scene.myActor;
+  if (!old || !a || !scene.infoEl || scene.infoEl.textContent !== old) return false;
+  const now = c10cCmdItems({ enemies: () => scene.enemies?.() || [], allies: () => scene.allies?.() || [] }, a).info;
+  if (!now || now === old) return false;
+  scene.info(now);
+  scene.c10cInfoText = now;
+  return true;
 }
 // うつる: 行き先の まど（左・まん中・右。的えらびと おなじ 形 … 1回 えらぶと 決まる）
 export function c10cMoveMenu(scene, a) {
