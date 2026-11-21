@@ -15,7 +15,7 @@ import { C10A_BATTLE, C10A_B as C10A } from '../public/js/shared/maps/c10a-flags
 import { c10State, c10Boss, c10Conf, wallUp } from '../public/js/shared/battle-c10a.js';
 import { C10R_TAMAGON } from '../public/js/shared/data/monsters-c10a.js';
 // 第95回 B班: 第2章 第2幕
-import { C10B_BATTLE_B as C10B_BATTLE, C10B_B as C10B } from '../public/js/shared/data/c10b-names-b.js';
+import { C10B_BATTLE_B as C10B_BATTLE, C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
 import { c10bState, geckoOf, litNow10b } from '../public/js/shared/battle-c10b.js';
 import { dualPlan } from './sim-ch6.mjs';
 

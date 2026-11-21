@@ -152,6 +152,7 @@ export function c10bDraw(scene, x, m, c, px, py, w, h, base) {
   if (isGecko(c)) {
     const top = c10bHtml(c);
     showTop(scene, top.html, top.cls);
+    refreshWaterInfo(scene, c);
     if (c.c10Down) return;
     const ty = portrait() ? py + h * 0.55 : py + h + 4;
     if (c.big) {
@@ -233,6 +234,26 @@ export function c10bPresent(scene, ev) {
 }
 
 // ───────────── コマンド（client/battle-c9b.js の c9bCmdItems・c9bCmdPick）─────────────
+// コマンドの せつめい（今の 水の 数。テストからも 見る）
+export function waterInfo(m) {
+  const w = m.water ?? 2;
+  return m.big ? '大かんそうが来る！雷か氷の技を当てると止まる（「防御」でもそなえられる）。'
+    : w <= 0 ? '水がない！「水の音を鳴らす」で水を2つよぼう。'
+      : w === 1 ? `水 ${w}つ。もう少しで、かわいてしまう。水や氷の技でも、ぬらせる。`
+        : w >= (m.waterMax || 3) ? '水がいっぱい。入れすぎると、大かんそうが来る。'
+          : '水が2つ、ちょうどいい！雷の技がよく効く。';
+}
+// コマンドの まどを 開いた あとに 水が かわったら（自動の 仲間が 鳴らした・かわいた など）、せつめいを 今の 水の 数で 出し直す
+//   出して いる せつめいが 水の せつめいの まま の 時だけ（ほかの 技の せつめいを 見て いる 時は さわらない）
+export function refreshWaterInfo(scene, m) {
+  const old = scene.c10bInfoText;
+  if (!old || !m || m.c10Down || !scene.infoEl || scene.infoEl.textContent !== old) return false;
+  const now = waterInfo(m);
+  if (now === old) return false;
+  scene.info(now);
+  scene.c10bInfoText = now;
+  return true;
+}
 const geckoOf = (scene) => (scene.enemies?.() || []).find((e) => isGecko(e) && e.alive && !e.c10Down) || null;
 export function c10bCmdItems(scene, a) {
   const items = [];
@@ -242,12 +263,8 @@ export function c10bCmdItems(scene, a) {
   if (m && (a.abilities || []).includes(MIZUOTO)) {
     const now = (m.water ?? 2) <= 0;
     items.push({ html: `<span class="dual-cmd">水の音を鳴らす</span>${now ? '<span class="tag">今だ！</span>' : ''}`, value: 'c10bring', cls: 'k-dual' });
-    const w = m.water ?? 2;
-    info = m.big ? '大かんそうが来る！雷か氷の技を当てると止まる（「防御」でもそなえられる）。'
-      : w <= 0 ? '水がない！「水の音を鳴らす」で水を2つよぼう。'
-        : w === 1 ? `水 ${w}つ。もう少しで、かわいてしまう。水や氷の技でも、ぬらせる。`
-          : w >= (m.waterMax || 3) ? '水がいっぱい。入れすぎると、大かんそうが来る。'
-            : '水が2つ、ちょうどいい！雷の技がよく効く。';
+    info = waterInfo(m);
+    scene.c10bInfoText = info;
   }
   const owl = (scene.enemies?.() || []).find((e) => isOwl(e) && e.alive && !e.c10Down);
   if (owl) {
