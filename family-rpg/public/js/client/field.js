@@ -42,6 +42,8 @@ import { noteC10aSnap, noteC10aStage, drawC10aLava2D, drawC10aLava3D, lavaShake1
 import { noteC10bSnap, noteC10bStage, c10bFieldFlag, drawC10bSneak2D, drawC10bSneak3D, drawC10bWater } from './c10b-view.js';
 // 第97回 A班: 第3部 第2章 第3幕の 音の 橋・空の 小島（client/c10c-view.js）
 import { noteC10cSnap, noteC10cStage, c10cFieldFlag, drawC10cSky } from './c10c-view.js';
+// 第99回 A班: 第3部 第2章 第4幕の 星の 階段（雲の すき間の 小さな 世界・曲の gateStage。client/c10d-view.js）
+import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -1028,6 +1030,7 @@ export class Field {
     noteC10aStage(this); // 第94回 A班: 曲の lavaStage
     noteC10bStage(this); // 第95回 A班: 曲の waterStage・alertStage
     noteC10cStage(this); // 第97回 A班: 曲の bridgeStage
+    noteC10dStage(this); // 第99回 A班: 曲の gateStage
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;
@@ -1145,6 +1148,7 @@ export class Field {
     if (m.c10bSneak) drawC10bSneak2D(this, camX, camY); // 第95回 A班: 見はりの フクロウと 見て いる マス
     if (m.c10bBlue) drawC10bWater(this, ctx); // 第95回 A班: 水鏡の うらの 光・水が かわる 時の 波
     if (m.c10cSky) drawC10cSky(this, ctx); // 第97回 A班: 空の 小島の 光・とおくの 影の城
+    if (m.c10dSky) drawC10dSky2D(this, camX, camY); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1309,6 +1313,7 @@ export class Field {
     if (m.c10bSneak) drawC10bSneak3D(this, ctx, P); // 第95回 A班: 見はりの フクロウと 見て いる マス
     if (m.c10bBlue) drawC10bWater(this, ctx); // 第95回 A班: 水鏡の うらの 光・水が かわる 時の 波
     if (m.c10cSky) drawC10cSky(this, ctx); // 第97回 A班: 空の 小島の 光・とおくの 影の城
+    if (m.c10dSky) drawC10dSky3D(this, ctx, P); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();

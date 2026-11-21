@@ -85,6 +85,8 @@ import { tickC10a, noteC10aMove, c10aSnap, c10aHold } from './c10a-steps.js';
 import { c10bFlag, stepC10b, noteC10bMove, c10bOnPlay, tickC10b, c10bSnap, C10B_API } from './c10b-steps.js';
 // 第97回 A班: 第3部 第2章 第3幕の 音の 橋・おし出される 箱（world/c10c-steps.js）
 import { c10cFlag, stepC10c, c10cOnPlay, tickC10c, c10cSnap, C10C_API } from './c10c-steps.js';
+// 第99回 A班: 第3部 第2章 第4幕の 星の 階段（門・いずみ・おどり場で 目を 覚ます。world/c10d-steps.js）
+import { c10dRespawn, c10dOnPlay, C10D_API } from './c10d-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -116,6 +118,8 @@ export class GameWorld {
     this.c10b = C10B_API;
     // 第97回 A班: 台本（data/story-c10c.js）から つかう 音の 橋の しくみ（world/c10c-steps.js）
     this.c10c = C10C_API;
+    // 第99回 A班: 台本（data/story-c10d.js）から つかう 星の いずみ・門の しくみ（world/c10d-steps.js）
+    this.c10d = C10D_API;
     this.runs = new Map();
     this.byConn = new Map(); // つなぎ → セッション（つなぎなおしで いれかわる）
     this.mapStates = new Map();
@@ -243,6 +247,8 @@ export class GameWorld {
     if (!t.busy) c10bOnPlay(this, t);
     // 第97回 A班: 空の 小島で 回線が 切れて もどった → 階の 入口（world/c10c-steps.js）
     if (!t.busy) c10cOnPlay(this, t);
+    // 第99回 A班: 星の 階段で 回線が 切れて もどった → 次の 門の 前の おどり場（world/c10d-steps.js）
+    if (!t.busy) c10dOnPlay(this, t);
     this.sessions.delete(s.id);
     const ctx = t.battleId && this.battles.get(t.battleId);
     if (ctx) {
@@ -531,6 +537,8 @@ export class GameWorld {
     c10bOnPlay(this, s);
     // 第97回 A班: 空の 小島で 回線が 切れて もどった → 階の 入口（world/c10c-steps.js）
     c10cOnPlay(this, s);
+    // 第99回 A班: 星の 階段で 回線が 切れて もどった → 次の 門の 前の おどり場（world/c10d-steps.js）
+    c10dOnPlay(this, s);
     s.busy = null;
     s.level = c.level;
     // 第44回: 前に 進化を まっていた 仲間が いれば、フィールドに 出た あとで たずねる
@@ -847,6 +855,8 @@ export class GameWorld {
   respawn(s, note = '') {
     // ひみつのダンジョンの 階で 全滅: 入口の 広間で 目を覚ます（world/secret.js）
     if (secretRespawn(this, s, note)) return;
+    // 第99回 A班: 星の 階段・いただきで 全滅: その 門の 前の おどり場で 目を 覚ます（world/c10d-steps.js）
+    if (c10dRespawn(this, s, note)) return;
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
     const sp = own && MAPS[own.map] ? layoutFix(own) : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };

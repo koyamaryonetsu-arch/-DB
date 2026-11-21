@@ -100,6 +100,8 @@ export const CHAPTERS = [
       { n: 2, start: 'c10b_start', title: '青と白', seen: 'c10b_start', clear: 'c10_act2' },
       // 第97回 A班: 第3幕（くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと）
       { n: 3, start: 'c10c_start', title: 'むらさきと、うばわれた音', seen: 'c10c_start', clear: 'c10_act3' },
+      // 第99回 A班: 第4幕（くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと）
+      { n: 4, start: 'c10d_start', title: '金の音と、星の橋', seen: 'c10d_start', clear: 'c10_act4' },
     ],
   },
 ];
