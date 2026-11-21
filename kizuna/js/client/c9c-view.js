@@ -7,11 +7,11 @@
 //   ⑤ 画面の 上に「さかさ」の しるし。主人公の 絵は さかさに しない（見やすさ）
 //   ちがう 向きの 家族は うすく 見える（snap の fp）。天じょうの 宝箱は ふつうの 時は うすく 上に 見える
 // 2D も 2.5D も 同じ 計算
-import { TILE_INFO } from '../shared/tiles.js?v=50d3a1823967';
-import { tileAt } from '../shared/maps/index.js?v=50d3a1823967';
-import { TS } from './render/tiles.js?v=50d3a1823967';
-import { ctxOf } from './render/pixel.js?v=50d3a1823967';
-import { paintRaft } from './render/c9c-npc-art.js?v=50d3a1823967';
+import { TILE_INFO } from '../shared/tiles.js?v=10a0240c2bf8';
+import { tileAt } from '../shared/maps/index.js?v=10a0240c2bf8';
+import { TS } from './render/tiles.js?v=10a0240c2bf8';
+import { ctxOf } from './render/pixel.js?v=10a0240c2bf8';
+import { paintRaft } from './render/c9c-npc-art.js?v=10a0240c2bf8';
 
 // ───── 向き ─────
 export const myFlip9c = (field) => !!field.map?.c9cPyr && !!field.game?.me?.c9cFlip;

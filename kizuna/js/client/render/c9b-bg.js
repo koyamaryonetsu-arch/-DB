@@ -3,7 +3,7 @@
 //   遠くに 小さな 明かり・すいしょうの 柱・光る こけ（たてあな・大地の下・暗い 所の 大ミミズ）
 // ・c9b_feast（deco 'c9b_feast'）… 大王の やしきの ごちそうの 間: 赤い たれまく・明かりの つぼ・長い テーブル（手下・大王の 戦い）
 // 第3部 第1章 第3幕（地下の川・さかさのピラミッド・音の間。c9c-bg.js）もここから
-import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js?v=50d3a1823967';
+import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js?v=10a0240c2bf8';
 
 const BW = 256, BH = 144;
 

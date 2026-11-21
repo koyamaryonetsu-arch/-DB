@@ -8,7 +8,7 @@
 //   ・今 ある 熱血先生のジャージ・指し棒 は こわさず、作品の 品として 数える（R88_TAG_JIDAI。チョークは 鋼のれん金術師の まま）
 //   ・入れない 品: 「くさったミカン」（品に すると 子どもに つたわりにくい）
 //   作品の 字は 使える 字に 直した（葵 → あおい／扇 → おうぎ／纏 → まとい／贈る → おくる／譜 → ふ／簿 → ぼ など）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=50d3a1823967';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=10a0240c2bf8';
 
 const A = { work: 'abarenbo' };
 const B = { work: 'class3b' };
