@@ -41,7 +41,7 @@ const showMon = (id) => (MONSTERS[id] ? [['showMon', id]] : []);
 // ───── 目標の 文（ネタバレしない。場所と しくみだけ）─────
 export const C10C_OBJ = {
   start: 'ながれ星のくぼ地で、星の音さを鳴らそう',
-  sky: 'クモイ地方の、影の城の北の空の、光のうずをしらべよう',
+  sky: 'クモイ地方の、影の城の北の光のうずから、空の小島のおくへ',
   isles: '空の小島のおくの、うかぶいせきへ。橋の石で、光の橋をかけよう',
   trio: '大地の下の、東のはしの、とりでのうら口へ',
   fort: '少年のとりで：レバーでベルトの向きをかえて、おくへ',
@@ -489,7 +489,7 @@ export function c10cScripts(title, open, old = {}) {
 const at = (map, p) => ({ map, x: p.x, y: p.y });
 export const CH10C_OBJECTIVE_TARGETS = {
   [C10C_OBJ.start]: [at('c9a_crater', PS)],
-  [C10C_OBJ.sky]: [at(KUMOI_VORTEX10C.map, KUMOI_VORTEX10C)],
+  [C10C_OBJ.sky]: [at(KUMOI_VORTEX10C.map, KUMOI_VORTEX10C), at(C10C_MAP.isles1, ISLES1_POS.up)],
   [C10C_OBJ.isles]: [at(C10C_MAP.isles2, ISLES2_POS.up), at(C10C_MAP.isles3, ISLES3_POS.orb)],
   [C10C_OBJ.trio]: [at(UNDER_BACKDOOR10C.map, UNDER_BACKDOOR10C)],
   [C10C_OBJ.fort]: [at(C10C_MAP.fort1, FORT1_POS.down), at(C10C_MAP.fort2, FORT2_POS.down)],

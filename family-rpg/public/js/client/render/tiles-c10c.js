@@ -75,14 +75,20 @@ function orb(p, v, f) {
 }
 export const VORTEX_FRAMES10C = 4;
 function vortex(p, v, f) {
+  // 雲の 上に 回る むらさきの 光の うず（遠くからも 見える こい 色）
   p.rect(0, 0, 16, 16, '#e4ecf8');
+  p.ellipse(8, 8, 7.5, 7.5, '#6a3ab8');
+  p.ellipse(8, 8, 5.5, 5.5, '#8a5ad8');
   for (let i = 0; i < 3; i++) {
     const a0 = (f * Math.PI) / 2 + (i * 2 * Math.PI) / 3;
-    for (let k = 0; k < 10; k++) {
-      const a = a0 + k * 0.35, rr = 1 + k * 0.6;
-      p.set(Math.round(8 + Math.cos(a) * rr), Math.round(8 + Math.sin(a) * rr), k < 4 ? '#ffffff' : k < 7 ? '#d8c8ff' : '#a890f0');
+    for (let k = 0; k < 11; k++) {
+      const a = a0 + k * 0.38, rr = 0.8 + k * 0.62;
+      const x = Math.round(8 + Math.cos(a) * rr), y = Math.round(8 + Math.sin(a) * rr);
+      p.set(x, y, k < 4 ? '#ffffff' : k < 8 ? '#f0e0ff' : '#c8a8ff');
+      if (k >= 3 && k < 8) p.set(x + 1, y, '#d8c0ff');
     }
   }
+  p.ellipse(8, 8, 1.6, 1.6, '#ffffff');
   p.set(8, 8, '#ffffff');
 }
 function fwall(p, v) {
@@ -216,7 +222,8 @@ export const C10C_FLOOR_H = { ...Object.fromEntries(Object.keys(BRIDGE).map((id)
 export function c10cBlockSpec(id, v) {
   const t = (k = 0) => ['t', id, v, k];
   switch (id) {
-    case T.C10C_FWALL: return { h: 1.6 + (v % 3) * 0.12, top: t(), side: t() };
+    // とりでの かべは ひくめ（1マスの はばの ベルトの 道が 2.5D でも 見える ように）
+    case T.C10C_FWALL: return { h: 1.05 + (v % 3) * 0.08, top: t(), side: t() };
     case T.C10C_RUINWALL: return { h: 1.3 + (v % 2) * 0.3, top: ['t', T.C10C_RUIN, v, 0], side: t() };
     case T.C10C_CRATES: return { h: 0.9, top: t(), side: t() };
     case T.C10C_JARS: return { h: 1.5, top: ['t', T.C10C_FWALL, v, 0], side: ['t', T.C10C_FWALL, v, 0], south: t() };
