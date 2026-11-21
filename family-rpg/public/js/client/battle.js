@@ -14,7 +14,7 @@ import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbil
 import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
 import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js';
-import { TACTICS } from '../shared/ai.js';
+import { TACTICS, tacticsItemHtml } from '../shared/ai.js';
 import { faceURL } from './field.js';
 import { monsterCanvas, monsterFine } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
@@ -779,6 +779,9 @@ export class BattleScene {
       start,
       fit: true,
       tapConfirm,
+      // 第96回: 呪文・特技・道具の 一覧は 一覧の まど（タップ 1回め … せつめい・同じ 行を もう1回 … 使う。設定で 1回にも できる）。
+      //   いちばん 上の コマンド・的を えらぶ 所は 1回で 決定
+      list: tapConfirm,
     });
     // スクロールの 場所を もどす 前に 入れる（あとで 入れかえると スクロールが 0に もどる）
     this.cmdEl.append(pager && this.touchUi() ? this.pagerWrap(m) : m.root);
@@ -1684,7 +1687,7 @@ export class BattleScene {
     const now = a.tactics || 'balanced';
     // じぶんは「めいれいさせろ」なし（いつも じぶんで えらぶ）
     const items = Object.entries(TACTICS).filter(([k]) => !self || k !== 'manual')
-      .map(([k, x]) => ({ label: x.name, value: k, right: k === now ? '今' : '', cls: k === now ? 'tac-now' : '' }));
+      .map(([k, x]) => ({ label: x.name, html: tacticsItemHtml(x), value: k, right: k === now ? '今' : '', cls: k === now ? 'tac-now' : '' }));
     const m = new ListMenu(this.game.input, {
       items,
       sound: (x) => this.game.audio.sfx(x),
@@ -1696,7 +1699,7 @@ export class BattleScene {
       },
       onCancel: () => this.closeTactics(),
     });
-    const box = el('div', { class: 'win b-tactics' },
+    const box = el('div', { class: 'win b-tactics b-tacsel' },
       el('div', { class: 'bt-t', text: self ? `${a.name}の作戦（オートのとき）` : `${a.name}の作戦` }), m.root);
     box.addEventListener('click', (e) => e.stopPropagation());
     // 戦いの がめん ぜんたいの まんなか（えの ところが せまい スマホでも ぜんぶ 見える）

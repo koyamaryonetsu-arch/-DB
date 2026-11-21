@@ -94,6 +94,7 @@ export function openSoundTest(g) {
     };
     const m = new ListMenu(g.input, {
       items: rows(),
+      list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
       back: '閉じる',
       sound: sfx,
       onSelect: (it) => act(it.value),

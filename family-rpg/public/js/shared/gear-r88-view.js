@@ -63,6 +63,40 @@ export function r88DetailLines(id, who = null) {
   return out;
 }
 
+// 第96回: 道具の まどの 紹介の いちばん 上に 出す「効果」（1つ 1行・短く）と、その 下に 出す くわしい 行に 分ける。
+//   中みは r88DetailLines と おなじ（ならびだけ かえる）。もどりち: { fx: [文], more: [文] }
+export function r88Parts(id, who = null) {
+  const it = workIt(id);
+  if (!it) return { fx: [], more: [] };
+  const fx = [];
+  const more = [];
+  const g = GRADES[it.grade];
+  if (WORKS[it.work]) more.push(`作品：${WORKS[it.work].name}${g && it.grade !== 'shop' ? `（${g.name}）` : ''}`);
+  const inn = innateFx(id);
+  if (inn.length) fx.push(`作品の力：${inn.map((x) => fxText(x.k, x.v)).join('・')}`);
+  if (it.orb?.el) fx.push(`玉：ふつうの攻撃が${EL[it.orb.el] || ''}になる`);
+  if (it.orb?.el) more.push('玉：武器に属性があれば、そちらが先');
+  const a = ABILITIES[it.use?.ability];
+  if (a) {
+    fx.push(`使う：${a.name}（1つの戦いで1回）`);
+    more.push(`使う：${a.name}（1つの戦いで1回・MPなし）${a.desc ? `\n　${a.desc}` : ''}`);
+    if (it.use.hpCost) more.push(`　使うと、HPが少しへる（最大HPの${Math.round(it.use.hpCost * 100)}%）`);
+  }
+  if (it.shape && it.form) {
+    fx.push(`形：${it.form}`);
+    more.push(`形：${it.form}（装備のまどの「形をかえる」で、持てる形にかえられる）`);
+  }
+  const set = GEAR_SETS[it.set];
+  if (set) {
+    fx.push(`そろい：${setLine(id, who)}`);
+    more.push(`そろい：${set.name}`);
+    for (const t of set.tiers) more.push(`　${t.text}`);
+  }
+  const rb = REBIRTH[baseItemId(id)];
+  if (rb && ITEMS[rb.to] && rb.need) fx.push(`生まれ変わる条件：${rebirthNeedText(rb.need)}`);
+  return { fx, more };
+}
+
 // とどく 広さの 文（info.js の ムチ・ブーメランの 行の かわり。ない ときは ''）
 export function r88ReachText(id) {
   const r = itemReach(id);

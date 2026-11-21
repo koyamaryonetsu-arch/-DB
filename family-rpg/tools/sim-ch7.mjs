@@ -199,7 +199,7 @@ function dual7(b, a, boss, skip) {
 //   'focus' のり上げで 大きい 攻撃を しない・'reach' 板の 人を 先に 助けない・'dualtime' 板わたりの 前でも 合体技・'dual' 合体技・'trick' ぜんぶ〈合体技は する〉）
 export function ch7Run(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = ACT3.has(boss) ? act3Guest() : process.env.GUEST !== '0' } = {}) {
   const party = ch7Party(boss, lv, kit);
-  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
+  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: process.env.TAC || 'balanced' })); // TAC … 作戦を えらんで はかる（第96回 T班）
   let gk = 1;
   if (guest) {
     // 第3幕の 酒場の カイ（GUEST=kai）は ゲストで ない ので きまりを 通さない

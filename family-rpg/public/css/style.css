@@ -1711,6 +1711,7 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
   width: min(92%, 18em); max-height: calc(100% - 16px); overflow-y: auto; display: flex; flex-direction: column; gap: 0.2em;
   background: var(--win-solid); font-size: var(--fs);
 }
+.b-tactics.b-tacsel { width: min(94%, 24em); } /* 第96回 T班: 作戦ごとの せつめい（.tac-desc）が 入るので 少し 広く */
 .b-tactics .bt-t { color: var(--accent); font-size: var(--fs-small); }
 .b-tactics .menu .item { min-height: 2.1em; }
 .b-tactics .menu .item.tac-now .l { color: var(--accent); }
@@ -1915,6 +1916,33 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 @media (orientation: landscape) and (max-height: 520px) {
   .items-view > .item-detail { max-height: 40%; line-height: 1.32; }
 }
+/* ───── 第96回: 道具の まど（.inv-view）の せつめいは 高さを きめて 中だけ スクロール（一覧は いつも 広く）。
+   装備品は いちばん 上に 強さと 効果（client/ui/info.js の gearDetailHtml）。つづきが ある 時は 下に ▼（dom.js の moreMark） */
+.fmenu .main > .items-view.inv-view > .menu { min-height: 6em; }
+.fmenu .main > .items-view.inv-view > .item-detail { height: 24%; max-height: 24%; min-height: 3.6em; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .fmenu .main > .items-view.inv-view > .item-detail { height: 30%; max-height: 30%; }
+}
+.item-detail.more::after, .ct-info.more::after { content: '▼'; position: sticky; bottom: -0.35em; display: block; height: 1.3em; margin-top: -0.2em; text-align: center; font-size: 0.8em; line-height: 1.3em; color: var(--accent); background: linear-gradient(to bottom, transparent, var(--win-solid) 55%); pointer-events: none; }
+.gd-sum { padding-bottom: 0.2em; margin-bottom: 0.25em; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); white-space: normal; }
+.gd-k { flex: none; margin-right: 0.45em; padding: 0 0.35em; font-size: 0.82em; color: #1a1830; background: var(--accent); border-radius: 3px; line-height: 1.35; }
+.gd-stats { display: flex; align-items: baseline; flex-wrap: wrap; row-gap: 0.1em; }
+.gd-stats .gd-v { display: flex; flex-wrap: wrap; column-gap: 0.7em; min-width: 0; flex: 1 1 0; }
+.gd-stats .sc { white-space: nowrap; color: #fff; }
+.gd-stats .eq-d { margin-left: 0.2em; }
+.gd-stats .eq-d.up { color: #7ee08a; }
+.gd-stats .eq-d.down { color: #ff8a7a; }
+.gd-meta { display: flex; flex-wrap: wrap; gap: 0.15em 0.35em; margin: 0.15em 0; font-size: 0.86em; }
+.gd-tag { padding: 0 0.4em; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 4px; white-space: nowrap; }
+.gd-fx { display: flex; align-items: baseline; }
+.gd-fx ul { margin: 0; padding: 0; list-style: none; min-width: 0; flex: 1 1 0; }
+.gd-fx li { color: #ffe9a8; }
+.gd-more { white-space: pre-line; color: var(--muted); }
+.gd-tail { margin-top: 0.2em; color: var(--muted); font-size: 0.9em; }
+.ct-item .gd-fx { margin: 0.15em 0; font-size: 0.92em; }
+/* 第96回: 一覧を タップした 時の「もう一度タップで決定」（dom.js の showTapHint） */
+.tap-hint { position: fixed; z-index: 60; transform: translate(-50%, -50%); padding: 0.12em 0.8em; font-size: 0.8rem; color: #fff; background: rgba(18, 16, 40, 0.9); border: 1px solid var(--accent); border-radius: 999px; pointer-events: none; opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
+.tap-hint.on { opacity: 1; }
 
 /* ───── レア度（第31回 C）: 名前の 色と ★の 数（★1 緑・★2 青・★3 紫・★4 オレンジ・★5 金と にじ）。client/ui/rarity.js ───── */
 .rar { font-weight: bold; }

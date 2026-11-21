@@ -13,7 +13,7 @@
 //   addMonFoe(battle, char, { controller, auto, tactics, owner, name }) … 敵の がわに 1ぴき 入れる（controller を わたすと その 人が コマンドを えらぶ）
 //   monSnapshot(entry) / snapChar(snap, ownerId) … 登録チームの 写し（もちぬしが 遊んで いなくても 戦える）
 import { Battle, allyFromCharacter, enemyFixedScale, agiFactor, effAgi, ATB, attackReach, reachFalloff } from './battle.js';
-import { decideAlly, TACTICS } from './ai.js';
+import { decideAlly, isTactic } from './ai.js';
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { fullHeal, mpCost, computeStats } from './stats.js';
@@ -54,7 +54,7 @@ export function monAllyInit(char, { controller = null, auto = true, owner = null
 
 // 敵の がわに 魔物の 仲間を 1ぴき 入れる（Battle の 中みを 直接 足す。戦いが はじまる 前に）
 export function addMonFoe(b, char, { controller = null, auto = true, owner = null, name = null } = {}) {
-  const tac = char.tactics && TACTICS[char.tactics] && char.tactics !== 'manual' ? char.tactics : 'balanced';
+  const tac = isTactic(char.tactics) && char.tactics !== 'manual' ? char.tactics : 'balanced';
   const c = allyFromCharacter(char, { kind: 'monster', controller, auto: controller ? !!auto : true, tactics: tac, tacBy: owner });
   const sp = c.mon || char.species;
   Object.assign(c, {

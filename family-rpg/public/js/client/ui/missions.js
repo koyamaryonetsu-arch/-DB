@@ -83,7 +83,7 @@ export function openMissions(menu) {
     function makeList(items, start, onSelect) {
       list?.blur();
       body.innerHTML = '';
-      list = new ListMenu(g.input, { items, className: 'ms-list', sound: sfx, back: null, start, onSelect, onCancel: () => onBack() });
+      list = new ListMenu(g.input, { items, list: true, className: 'ms-list', sound: sfx, back: null, start, onSelect, onCancel: () => onBack() });
       body.append(list.root);
       list.focus();
       list.scrollToSel?.();

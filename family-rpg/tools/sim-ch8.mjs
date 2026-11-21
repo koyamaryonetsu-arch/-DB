@@ -246,7 +246,7 @@ function dual8(b, a, boss, skip) {
 //   'dual' 合体技・'trick' ぜんぶ〈合体技は する〉）
 export function ch8Run(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = process.env.GUEST !== '0' } = {}) {
   const party = ch8Party(boss, lv, kit);
-  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
+  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: process.env.TAC || 'balanced' })); // TAC … 作戦を えらんで はかる（第96回 T班）
   let gk = 1;
   if (guest) {
     // 第1幕は カリム・第2幕は カイ（kai8）・第3幕は リオン（rion8）。第78回: 強さは きまり（shared/guest-rule.js。GRULE=0 で 前の 作り方）
@@ -493,7 +493,7 @@ function dual8r(b, a, boss, skip) {
 export function ch8rRun(boss, lv, know, seed, { log = false, kit = true, skip = null, guest = process.env.GUEST !== '0', solo = null } = {}) {
   let party = ch8Party(boss, lv, kit);
   if (solo) party = party.filter((c) => c.job === solo);
-  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' }));
+  const allies = party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: process.env.TAC || 'balanced' })); // TAC … 作戦を えらんで はかる（第96回 T班）
   let gk = 1;
   const withGuest = guest && R_GUEST[boss] && !solo;
   if (withGuest) {
