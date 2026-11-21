@@ -10,6 +10,8 @@ import { C9D_BG, C9D_DECOS, drawC9dBg, drawC9dFloorBg } from './c9d-bg.js';
 import { C10A_BG, C10A_DECOS, drawC10aBg, drawC10aFloorBg } from './c10a-bg.js';
 // 第3部 第2章 第2幕（水鏡の うら・かれた間・氷の下の道・月の間。c10b-bg.js）
 import { C10B_BG, C10B_DECOS, drawC10bBg, drawC10bFloorBg } from './c10b-bg.js';
+// 第3部 第2章 第3幕（空の 小島・うかぶ いせき・ベルトの 工場・少年の 間。c10c-bg.js）
+import { C10C_BG, C10C_DECOS, drawC10cBg, drawC10cFloorBg } from './c10c-bg.js';
 
 const BW = 256, BH = 144;
 
@@ -20,6 +22,7 @@ export const C9B_BG = {
   ...C9D_BG,
   ...C10A_BG,
   ...C10B_BG,
+  ...C10C_BG,
 };
 export const C9B_DECOS = new Set(Object.keys(C9B_BG));
 
@@ -155,6 +158,7 @@ export function drawC9bBg(x, d, hor) {
   if (C9D_DECOS.has(d.deco)) return drawC9dBg(x, d, hor);
   if (C10A_DECOS.has(d.deco)) return drawC10aBg(x, d, hor);
   if (C10B_DECOS.has(d.deco)) return drawC10bBg(x, d, hor);
+  if (C10C_DECOS.has(d.deco)) return drawC10cBg(x, d, hor);
   if (d.deco === 'c9b_feast') drawFeast(x, hor);
   else drawUnder(x, hor);
 }
@@ -165,6 +169,7 @@ export function drawC9bFloorBg(x, d, hor) {
   if (C9D_DECOS.has(d.deco)) return drawC9dFloorBg(x, d, hor);
   if (C10A_DECOS.has(d.deco)) return drawC10aFloorBg(x, d, hor);
   if (C10B_DECOS.has(d.deco)) return drawC10bFloorBg(x, d, hor);
+  if (C10C_DECOS.has(d.deco)) return drawC10cFloorBg(x, d, hor);
   if (d.deco === 'c9b_feast') {
     x.fillStyle = 'rgba(0,0,0,0.2)';
     for (let y = hor + 6; y < BH; y += 8) x.fillRect(0, y, BW, 1);
