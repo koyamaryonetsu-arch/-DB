@@ -533,7 +533,7 @@ test('目標と 行き先・仲間の ひとこと・すすみぐあい・しお
     assert.ok(C9C_LINE.includes(f), f);
     assert.ok(CH9C_OBJECTIVE_TARGETS[t]?.length, `行き先 ${t}`);
     const talk = CH9C_OBJECTIVE_TALK[t];
-    assert.ok(talk && ['self', 'bold', 'kind', 'kid'].every((k) => talk[k]?.length >= 9 || k === 'kid'), `ひとこと ${t}`);
+    assert.ok(talk && ['self', 'bold', 'kind', 'kid'].every((k) => talk[k]?.length > 8), `ひとこと ${t}`);
   }
   assert.ok(CH9C_OBJECTIVE_TARGETS[C9C_OBJ.start] && CH9C_OBJECTIVE_TALK[C9C_OBJ.start]);
   const { CHAPTERS } = await import('../public/js/shared/world/shiori.js').catch(() => ({}));
