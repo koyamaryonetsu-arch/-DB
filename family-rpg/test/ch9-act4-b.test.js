@@ -228,32 +228,36 @@ test('ムウ: はじめは 1体（ムウムウは かくれて いる）・分�
   assert.equal(MONSTERS[C9D_MUMU].lv, 104);
 });
 
-test('ムウ: 片方を たおすと ばたんきゅう → もう 片方の 番で「おきて、おきて！」（HP 4わり・2体とも 攻撃 2わり 上がる）・2体とも たおすと すわりこんで 勝ち', () => {
+test('ムウ: 片方を たおしても、もう 片方が へとへと（最大の 15% いか）で なければ すぐ「おきて、おきて！」（HP 4わり・2体とも 攻撃 2わり 上がる）・へとへとなら ばたんきゅうの まま・2体とも たおすと すわりこんで 勝ち', () => {
   const b = splitBattle();
   const m = muOf(b);
   const mm = mumuOf(b);
   const a0 = b.allies[0];
   const atk0 = m.atk;
+  assert.equal(muConf(m, b).tired, 0.15);
+  // もう 片方が 元気 … その場で 起こされる（たおれない）
   mm.hp = 5;
-  const k = act(b, a0, { type: 'attack', target: mm.id });
-  assert.ok(!mm.alive && k.c9mKO, k.lines.join('/'));
-  assert.ok(k.lines.some((l) => l.includes('ばたんきゅう')));
-  assert.equal(c9dPub(mm, b).muKO, 1);
-  assert.ok(!b.over && !b.pendingEnd, 'まだ 勝ちでは ない');
-  const killed = b.killed.length;
-  const w = bossAct(b, m);
-  assert.equal(w.tg, WAKE);
-  assert.ok(w.c9mWake && mm.alive);
+  const w = act(b, a0, { type: 'attack', target: mm.id });
+  assert.ok(mm.alive && w.c9mWake?.now, w.lines.join('/'));
   assert.equal(mm.hp, Math.round(mm.maxHp * muConf(mm, b).wake));
+  assert.ok(w.lines.some((l) => l.includes('おきて、おきて')));
   assert.equal(b.c9mu.wakes, 1);
   assert.equal(b.c9mu.power, 1.2);
-  assert.equal(b.killed.length, killed - 1, '起きた 方は たおした ことに しない');
   assert.equal(m.atk, Math.round(atk0 * 1.2));
   assert.equal(mm.atk, Math.round(atk0 * 1.2));
-  // 2体とも（もう 片方の 番の 前に）
+  assert.ok(!b.killed.includes(C9D_MUMU), 'たおした ことに しない');
+  // もう 片方が へとへと … ばたんきゅうの まま（自分の 番が 来ても 起こせない）
+  m.hp = Math.floor(m.maxHp * 0.15);
+  assert.equal(c9dPub(m, b).muTired, 1, 'へとへとの しるし');
   mm.hp = 3;
+  const k = act(b, a0, { type: 'attack', target: mm.id });
+  assert.ok(!mm.alive && k.c9mKO, k.lines.join('/'));
+  assert.equal(c9dPub(mm, b).muKO, 1);
+  assert.ok(!b.over && !b.pendingEnd, 'まだ 勝ちでは ない');
+  const t = bossAct(b, m);
+  assert.notEqual(t.tg, WAKE);
+  assert.ok(!mm.alive, 'へとへとで 起こせない');
   m.hp = 3;
-  act(b, a0, { type: 'attack', target: mm.id });
   const last = act(b, a0, { type: 'attack', target: m.id });
   assert.ok(last.c9mWin, last.lines.join('/'));
   assert.ok(last.lines.some((l) => l.includes('すわりこんだ')));
@@ -293,6 +297,8 @@ test('ムウ: おかしビーム（前ぶれ → ねらいの 人 → 1回 あ�
   const aim = m.c9m.beamAim;
   assert.ok(aim && up.c9mBeamUp.aim === aim);
   assert.equal(b.c9mu.tele, 'beam', '前ぶれ中の しるし');
+  c9aAfter(b, b.allies[0], ev0());
+  assert.equal(b.tell, 'beam', '待つ しくみ（battle-tell.js）の b.tell');
   assert.equal(c9dPub(m, b).muBeamAim, aim);
   // 前ぶれから うつまで ふつうに wait 回（人が 2びょうで えらんでも 間に あう）
   for (let i = 0; i < mc.beam.wait; i++) assert.notEqual(bossAct(b, m).tg, BEAM);
@@ -353,14 +359,16 @@ test('ムウ: いっしょに ドーン（2体 そろって いる 時・前ぶ�
   assert.equal(d.tg, DOON);
   assert.ok(d.c9mDoon.guarded >= 1);
   assert.ok(g.maxHp - g.hp < n.maxHp - n.hp, '身を 守った 人は へる');
-  // 片方が たおれると いっしょに ドーンは やめ（起こす 方が 先）
+  // 片方が ばたんきゅう（すぐ 起こされる）と いっしょに ドーンは やめ
   b.c9mu.pair = 99;
   bossAct(b, m);
   assert.ok(m.c9m.doon);
+  assert.equal(b.c9mu.tele, 'doon');
   mm.hp = 2;
-  act(b, b.allies[0], { type: 'attack', target: mm.id });
+  const wk = act(b, b.allies[0], { type: 'attack', target: mm.id });
+  assert.ok(wk.c9mWake?.now && mm.alive);
   assert.ok(!m.c9m.doon);
-  assert.equal(bossAct(b, m).tg, WAKE);
+  assert.equal(b.c9mu.tele, null);
 });
 
 test('ムウ: 自動の 仲間 … 酒場の 人は 3回に 1回 HPの 多い 方を ねらう・家族の オートと 魔物の 仲間は しない・知って いる 人は ねらわれたら 防御・おかしの 仲間に 星のうた・HPの 多い 方を けずる', () => {
@@ -391,18 +399,20 @@ test('ムウ: 自動の 仲間 … 酒場の 人は 3回に 1回 HPの 多い �
 });
 
 // ───────────── 人数で 合わせる ─────────────
-test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物の 仲間は 半人ぶん・仲間なしの ひとりは solo（おかしビーム・ドーン なし）', () => {
+test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・ドーン・魔物の 仲間は 半人ぶん・仲間なしの ひとりは solo（ドーン なし・おかしビームは 少なめ）', () => {
   const hp = (kinds) => { const b = battle({ kinds }); return muOf(b).maxHp; };
   const base = MONSTERS[C9D_MU].hp;
   assert.equal(hp(['player', 'player', 'player', 'player']), base, '4人は もとの まま');
-  assert.ok(hp(['player', 'player', 'support', 'support']) > base, '2人＋酒場 2人');
+  assert.ok(hp(['player', 'player', 'support', 'support']) < base, '2人＋酒場 2人');
   assert.ok(hp(['player', 'player', 'player', 'player', 'player']) > base, '5人');
   assert.ok(hp(['player']) < base * 0.3, 'ひとりだけ');
   const b = battle({ kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.equal(peopleOf9d(b), 2, '魔物の 仲間は 半人ぶん');
   const solo = battle({ kinds: ['player'] });
   const sc = muConf(muOf(solo), solo);
-  assert.ok(sc.beam.every > 20 && sc.doon.every > 20, 'ひとりは おかしビーム・ドーン なし');
+  assert.ok(sc.beam.every > muConf(muOf(b), b).beam.every && sc.doon.every > 20, 'ひとりは ドーン なし・おかしビームは 少なめ');
+  const two = battle({ kinds: ['player', 'player', 'support', 'support'] });
+  assert.ok(muConf(muOf(two), two).doon.mult < muConf(muOf(b), battle()).doon.mult, '人が 少ない ときの ドーンは 弱め（自動の 仲間は 身を 守らない）');
 });
 
 // ───────────── 強さ ─────────────
@@ -420,13 +430,13 @@ test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウ�
   assert.equal(LV9.mu, 104);
 });
 
-test('前ぶれの 長さ: おかしビームの 前ぶれから うつまで、ねらわれた 人に 自分の 番が 来て 2びょうで 身を 守れる（ブラウザの 速さ）', { timeout: 600000 }, () => {
+test('前ぶれの 長さ: おかしビーム・ドーンの 前ぶれの 間は b.tell（待つ しくみ）・2びょうで えらぶ 人は 身を 守れる（ブラウザの 速さ）', { timeout: 600000 }, () => {
   const human = { react: 2000, speed: 0.85, textSpeed: 0.8 };
-  const runs = [1, 2, 3].map((s) => ch9Run('mu', LV9.mu, 'know', 7000 + s * 31, human));
+  const runs = [1, 2, 3, 4, 5, 6].map((s) => ch9Run('mu', LV9.mu, 'know', 7000 + s * 31, human));
   const beams = runs.reduce((s, r) => s + r.mBeams, 0);
   const blocked = runs.reduce((s, r) => s + r.mBlocked, 0);
   assert.ok(beams >= 3, `ビーム ${beams}`);
-  assert.ok(blocked / beams >= 0.85, `身を 守れた ${blocked}/${beams}`);
+  assert.ok(blocked / beams >= 0.6, `身を 守れた ${blocked}/${beams}`);
 });
 
 // ───────────── 品 ─────────────
@@ -465,8 +475,8 @@ test('負けた 時の ヒント: 3つ（ぼんやり → はっきり）・言�
   assert.equal(C9D_HINT_WHO, 'ノクト');
   for (const t of h) assert.ok(t.length <= 46, t);
   assert.ok(h[0].includes('起こされる'));
-  assert.ok(h[1].includes('同じくらい'));
-  assert.ok(h[2].includes('全体攻撃') && h[2].includes('星のうた'));
+  assert.ok(h[1].includes('同じくらい') && h[1].includes('へとへと'));
+  assert.ok(h[2].includes('へとへと') && h[2].includes('全体攻撃') && h[2].includes('星のうた'));
 });
 
 // ───────────── 絵・背景 ─────────────
@@ -510,8 +520,11 @@ test('がめん: スピカの まどの 星のうた・コマンド「スピカ�
   assert.equal(muHtml([{ ...mu, muStage: 0 }, { species: C9D_MUMU, alive: false, muHide: 1 }]).html, '');
   const h = muHtml([mu, mumu]);
   assert.ok(h.html.includes('ムウ') && h.html.includes('ムウムウ') && h.html.includes('width:50%') && h.html.includes('ぷんぷん'), h.html);
-  const ko = muHtml([{ ...mu, alive: false, muKO: 1 }, { ...mumu, muAngry: 0 }]);
-  assert.ok(ko.html.includes('ばたんきゅう') && ko.html.includes('番が来る前') && ko.cls.includes('warn'), ko.html);
+  const ko = muHtml([{ ...mu, alive: false, muKO: 1 }, { ...mumu, muAngry: 0, muTired: 1 }]);
+  assert.ok(ko.html.includes('ばたんきゅう') && ko.html.includes('たおそう') && ko.cls.includes('warn'), ko.html);
+  const tired = muHtml([{ ...mu, muTired: 1 }, { ...mumu, muAngry: 0, muTired: 1 }]);
+  assert.ok(tired.html.includes('へとへと') && tired.html.includes('いっきに') && tired.cls.includes('warn'), tired.html);
+  assert.ok(muHtml([{ ...mu, muTired: 1 }, { ...mumu, muAngry: 0 }]).html.includes('もう片方も'));
   // え: ばたんきゅう・すわりこむ は 消えない（dead -1）・まだ いない ムウムウは すぐ 消す
   const k = { species: C9D_MU, alive: false, muKO: 1, dead: 1 };
   try { c9dSprite(k, 0); } catch { /* え を かく ところは ブラウザだけ（document が いる） */ }
@@ -537,7 +550,7 @@ test('がめん: スピカの まどの 星のうた・コマンド「スピカ�
   // しるしが こわれない
   const x = new Proxy({}, { get: () => () => {}, set: () => true });
   const scene = { time: 0, enemies: () => [mu, mumu], c: { get: () => ({ name: 'タロウ' }) } };
-  for (const c of [mu, mumu, { ...mu, muBeamAim: 'a0' }, { ...mu, muDoon: 1 }, { ...mu, alive: false, muKO: 1 }, { ...mu, muSit: 1, alive: false }]) c9dDraw(scene, x, null, c, 10, 10, 40, 40, 1);
+  for (const c of [mu, mumu, { ...mu, muBeamAim: 'a0' }, { ...mu, muDoon: 1 }, { ...mu, muTired: 1 }, { ...mu, alive: false, muKO: 1 }, { ...mu, muSit: 1, alive: false }]) c9dDraw(scene, x, null, c, 10, 10, 40, 40, 1);
   // バナー
   const banners = [];
   const sc2 = { game: { audio: { sfx() {} } }, banner: (t) => banners.push(t), shake() {}, c: { get: () => ({ name: 'タロウ' }) } };

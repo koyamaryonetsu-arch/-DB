@@ -20,9 +20,9 @@ import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js';
 import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js';
 import { canUse } from './ai.js';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js）
-import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy } from './battle-c9c.js';
+import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js';
 // 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
-import { setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js';
+import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -543,6 +543,19 @@ export function c9bBusy(b) {
   if (k.watch && kingVisible(b) && b.get(k.watch)?.alive) return true;
   if (k.dark && (k.watch || b.allies.length > 1) && !litNow(b) && teruReady(b)) return true;
   return false;
+}
+
+// 第92回 第3便: 今、こたえが いる 前ぶれが 出て いるか（battle-tell.js の b.tell。battle-c9a.js の c9Tell から）
+//   大王 … 皿を 見て いる（見える とき）・大ジャンプの 前ぶれ。第3幕（battle-c9c.js の c9cTell）
+export function c9bTell(b) {
+  const king = kingOf(b);
+  const k = king?.alive ? king.c9k : null;
+  if (k && !k.down) {
+    if (k.jumpReady) return 'jump';
+    if (k.watch && kingVisible(b) && b.get(k.watch)?.alive) return 'watch';
+  }
+  // 第3部 第1章 第4幕: おかしビームの ねらい（beam）・いっしょに ドーン（doon）… battle-c9d.js の c9dTele
+  return c9dTele(b) || c9cTell(b);
 }
 
 // ───────────── がめんへ（battle-c9a.js の c9aPub から。敵だけ）─────────────

@@ -478,7 +478,11 @@ export class BattleScene {
     const foe = this.enemyRate > 1
       ? el('div', { class: `b-foe r${String(this.enemyRate).replace('.', '')}`, text: ENEMY_RATE_NAMES[this.enemyRate], title: `敵の強さ：${this.enemyRate}倍` })
       : null;
-    this.stage = el('div', { class: 'b-stage' }, this.canvas, this.floatEl, tools, foe);
+    // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（サーバーの { t: 'hold' }。shared/battle-tell.js）
+    this.holdEl = el('div', { class: 'b-hold', text: 'えらぶまで、待っているよ' });
+    this.holdEl.hidden = true;
+    this.tellHold = false;
+    this.stage = el('div', { class: 'b-stage' }, this.canvas, this.floatEl, tools, foe, this.holdEl);
     this.canvas.addEventListener('click', (e) => this.onCanvasClick(e));
     this.cmdEl = el('div', { class: 'win b-cmd' });
     this.msgEl = el('div', { class: 'win b-msg' });
@@ -1282,6 +1286,11 @@ export class BattleScene {
             if (c) c.atb = v;
           }
           break;
+        // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（敵の ゲージが 止まる。shared/battle-tell.js）
+        case 'hold':
+          this.tellHold = !!ev.on;
+          if (this.holdEl) this.holdEl.hidden = !this.tellHold;
+          break;
         case 'ready': {
           const c = this.c.get(ev.id);
           if (c) { c.ready = true; c.atb = 100; c.waitDual = null; c.dualHold = false; }
@@ -1954,6 +1963,8 @@ export class BattleScene {
     const locked = !!this.showing || this.choosingPause();
     for (const c of this.c.values()) {
       if (!c.alive || c.ready || locked) continue;
+      // 前ぶれの 間に 人が えらんで いる: 敵の ゲージは 止まる（サーバーと おなじ。shared/battle-tell.js）
+      if (this.tellHold && c.side === 'enemy') continue;
       if (c.rate && c.atb < 100) c.atb = Math.min(99.5, c.atb + c.rate * dt * (this.fxSpeed || 1) * 0.6);
       if (c.flash > 0) c.flash -= dt;
       if (c.lunge > 0) c.lunge -= dt;

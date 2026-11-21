@@ -1142,6 +1142,14 @@ img.face { image-rendering: pixelated; }
   font-size: calc(var(--fs) * 0.72); line-height: 1.3; padding: 0.05em 0.55em; letter-spacing: 0.04em; white-space: nowrap;
   color: #ffc06a; border: 2px solid currentColor; border-radius: 5px; background: rgba(10, 12, 40, 0.8); box-shadow: 0 0 0 1px #000;
 }
+/* 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（敵の ゲージが 止まって いる 間）: え の 右下に 小さな しるし
+   （左下は 星の子の 光・敵の 強さの しるし） */
+.b-hold {
+  position: absolute; right: 6px; bottom: 5px; z-index: 3; pointer-events: none;
+  font-size: calc(var(--fs) * 0.72); line-height: 1.3; padding: 0.05em 0.6em; white-space: nowrap;
+  color: #9fe8ff; border: 2px solid currentColor; border-radius: 5px; background: rgba(10, 12, 40, 0.8); box-shadow: 0 0 0 1px #000;
+}
+.b-hold[hidden] { display: none; }
 .b-foe.r15 { color: #ff8a5a; }
 .b-foe.r2 { color: #ff6a8a; }
 /* 第4章 Step 7: 水の守りの歌（モルガナ 真の姿。大波が 軽く なる あいだ）: え の 右下に 小さな しるし */

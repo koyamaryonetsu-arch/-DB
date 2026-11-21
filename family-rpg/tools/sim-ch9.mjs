@@ -23,14 +23,14 @@ import { ITEMS } from '../public/js/shared/data/items.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { C9A_BATTLE } from '../public/js/shared/maps/c9a-flags.js';
-import { addSpica, mechaOf, hoshimoriOf } from '../public/js/shared/battle-c9a.js';
-import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
+import { addSpica, mechaOf, hoshimoriOf, nozzleOf, guardOf, unlitAllies } from '../public/js/shared/battle-c9a.js';
+import { kingOf, c9bBusy, kingVisible, litNow, teruReady } from '../public/js/shared/battle-c9b.js';
 import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
 import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from '../public/js/shared/data/items-c9b.js';
-import { nazoOf, mechaOf9c } from '../public/js/shared/battle-c9c.js';
+import { nazoOf, mechaOf9c, sandConf } from '../public/js/shared/battle-c9c.js';
 import { C9C_BATTLE } from '../public/js/shared/maps/c9c-flags.js';
 // 第93回 B班: 第4幕の ボス（下の「第4幕」の かたまり）
-import { muState } from '../public/js/shared/battle-c9d.js';
+import { muState, okashiOf, songReady } from '../public/js/shared/battle-c9d.js';
 import { C9D_BATTLE } from '../public/js/shared/data/c9d-names-b.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
@@ -186,6 +186,18 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   }
   return out;
 }
+// ためし用: PATCH='{"c9a_suitoru":{"c9a":{"few":{"wait":[0,0,0,0,0]}}}}' … 魔物の 数を かえて はかる（配列は おきかえ）
+function deepMerge(t, p) {
+  for (const [k, v] of Object.entries(p)) {
+    if (v && typeof v === 'object' && !Array.isArray(v) && t[k] && typeof t[k] === 'object') deepMerge(t[k], v);
+    else t[k] = v;
+  }
+}
+if (process.env.PATCH) deepMerge(MONSTERS, JSON.parse(process.env.PATCH));
+if (process.env.PATCHF) {
+  const { readFileSync } = await import('node:fs');
+  deepMerge(MONSTERS, JSON.parse(readFileSync(process.env.PATCHF, 'utf8')));
+}
 const group = (boss) => FIXED_ENCOUNTERS[CH9_IDS[boss]].group.flatMap(([sp, n]) => Array(n).fill(sp));
 
 // ───── 3つの やり方 ─────
@@ -204,7 +216,7 @@ export const MODES9 = {
   //   合体技は しくみの 用が ない 時だけ（前ぶれの 間・消えた 仲間が いる 間は しない）
   know: {
     label: '知っている　', know: true,
-    act: (b, a, boss) => (busy9(b) ? false : dualPlan(b, a, muTarget9(b) || bossSpecies(b, boss), null)),
+    act: (b, a, boss) => (need9(b, a) ? false : dualPlan(b, a, muTarget9(b) || bossSpecies(b, boss), null)),
   },
 };
 function bossSpecies(b, boss) {
@@ -220,6 +232,60 @@ function busy9(b) {
   if (h?.c9h && (h.c9h.aim.length || b.aliveAllies().some((x) => !x.c9torch))) return true;
   return c9bBusy(b);
 }
+
+// 第92回 第3便: この 人の 番に しくみの 用が あるか（知っている 人は、自分の 用が ない ときは 前ぶれの 間でも 合体技を する）
+//   前ぶれ 1つに つき、しくみの 役は 先に 番が 来た 人が 受けもつ（b.simClaim。こわす 的は NEEDHITS 人）。のこりの 人は ふだん どおり
+//   自分が ねらわれて いる（いぶき・ポチッとね・大ジャンプ）ときは 自分で 身を 守る
+const needHits = () => envNum('NEEDHITS', 1);
+function claim(b, key, n = 1) {
+  const m = (b.simClaim = b.simClaim || new Map());
+  const k = m.get(key) || 0;
+  if (k >= n) return false;
+  m.set(key, k + 1);
+  return true;
+}
+function need9(b, a) {
+  const m = mechaOf(b);
+  if (m?.alive && m.c9t) {
+    const t = m.c9t;
+    const nz = nozzleOf(b);
+    if (t.aim && !guardOf(b) && claim(b, `guard${t.sucks}`)) return true;
+    if (nz?.alive && (t.aim || t.aimLeft <= 1) && claim(b, `nozzle${t.sucks}.${t.breaks}`, needHits())) return true;
+  }
+  const h = hoshimoriOf(b);
+  if (h?.alive && h.c9h && !h.c9h.won) {
+    if (h.c9h.aim.includes(a.id) && !a.defending) return true;
+    const un = unlitAllies(b);
+    if (a.c9torch && un.length && claim(b, `share${h.c9h.outs}.${un.map((x) => x.id).join()}`, un.length)) return true;
+  }
+  const kg = kingOf(b);
+  const k = kg?.alive ? kg.c9k : null;
+  if (k && !k.down) {
+    if (k.jumpReady && !a.defending) return true;
+    if (k.watch && kingVisible(b) && b.get(k.watch)?.alive && claim(b, `dish${k.watch}.${k.eats}.${k.breaks}`, needHits())) return true;
+    if (k.dark && !litNow(b) && teruReady(b) && claim(b, `teru${teruOfUses(b)}`)) return true;
+  }
+  const n = nazoOf(b);
+  if (n?.alive && n.c9z?.riddle && claim(b, `riddle${n.c9z.asks}.${n.c9z.wrongs}.${n.c9z.timeouts}`)) return true;
+  const mc = mechaOf9c(b);
+  const s = mc?.alive ? mc.c9s : null;
+  if (s) {
+    if (s.grains <= sandConf(mc, b).dizzyAt && !(s.dizzy > 0) && claim(b, `flip${s.flips}.${s.booms}`)) return true;
+    if (s.pochiAim === a.id && !a.defending) return true;
+  }
+  // 第93回 B班: 魔人ムウ … おかしビームの ねらいは 自分で 身を 守る・ドーンの 前は みんな 身を 守る・おかしの 仲間には 1人が 星のうた
+  if (b.c9mu && !b.c9mu.won) {
+    const mus = b.enemies.filter((e) => e.c9m && e.alive);
+    const soon = (w) => !(w > 0) || b.allies.length > 1;
+    if (mus.some((x) => x.c9m.beamAim === a.id && soon(x.c9m.beamWait)) && !a.defending) return true;
+    if (mus.some((x) => x.c9m.doon && soon(x.c9m.doonWait)) && !a.defending) return true;
+    const ok = b.aliveAllies().filter((x) => okashiOf(x));
+    if (ok.length && songReady(b) && claim(b, `song${b.c9mu.okashi}.${b.c9sp?.song?.uses || 0}`)) return true;
+  }
+  return false;
+}
+const teruOfUses = (b) => b.c9sp?.teru?.uses || 0;
+void busy9;
 
 // 星の子（戦いの わくを 使わない 味方。shared/battle-c9a.js）: 戦いを 作った すぐ あとに よぶ（3人組・ためしは 戦いが 自分で 入れる）
 export function addSpica9(b, boss) {

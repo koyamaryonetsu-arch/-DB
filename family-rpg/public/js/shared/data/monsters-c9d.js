@@ -16,7 +16,7 @@
 //   おかしビーム（前ぶれ → wait 回 あとの 番に その 人を「おかし」に。turns 回 動けない・受ける ダメージ taken ばい。「ぼうぎょ」で ふせげる・「星のうた」で なおる）
 //   いっしょに ドーン（2体が そろって いる 時、2体で every 回 動く ごとに 前ぶれ → 全体に 大きな ダメージ。「ぼうぎょ」で へらせる）
 //   勝つと 2体は ならんで すわりこむ（たおれない。え の コマ 4・5）。ばたんきゅうは コマ 2・3
-// ・ボスの え は 2倍の こまかさ（size は 2倍・artScale: 0.5）。2体 ならんでも 見分けが つく（ムウ … うす紫・黄色い 星の ぼうし／ムウムウ … ピンク・水色の 月の ぼうし）
+// ・ボスの え は 2倍の こまかさ（size は 2倍・artScale: 0.5）。2体 ならんでも 見分けが つく（ムウ … うす紫・黄色い 星の ぼうし／ムウムウ … ミント色・こい みどり青の 月の ぼうし）
 // ・もとの 作品の 絵・名前・せりふは 使わない（丸くて うす紫、ねむそうな 目、星の ついた ナイトキャップ）
 
 const BOSS_STATUS = { sleep: 0, poison: 0.3, confuse: 0, blind: 0.3, silence: 0.2, paralyze: 0 };
@@ -89,29 +89,29 @@ export const MONSTERS_C9D = {
   //   beam … おかしビーム（every … 前ぶれまでの 行動・wait … 前ぶれから うつまでに ふつうに 動く 回数・turns … おかしの 回数・taken … おかしの 人が 受ける ダメージ）/
   //   doon … いっしょに ドーン（every … 2体で 合わせて 動く 回数・wait・mult … 全体の 強さ・guardCut … 身を 守った 人の ばい）
   [C9D_MU]: {
-    name: MU_NAME, short: 'ムウ', lv: 104, hp: 21000, mp: 9999, str: 1715, def: 360, agi: 230, mag: 1000, exp: 70000, gold: 23000,
+    name: MU_NAME, short: 'ムウ', lv: 104, hp: 48000, mp: 9999, str: 2900, def: 360, agi: 230, mag: 1000, exp: 70000, gold: 23000,
     race: 'demon', size: 'xl', boss: true, turns: 1, speed: 0.6, hit: 'smash', artScale: 0.5,
     drops: { boss: ['c9db_star_brooch'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, light: 1.0, dark: 0.9, fire: 1.0, ice: 1.0, wind: 1.1, bolt: 1.0 },
     c9d: {
       kind: 'mu', split: 0.75, part: 0.6, wake: 0.4, wakeUp: 0.2, apart: 0.25, angry: 1.5,
       beam: { every: 3, wait: 1, turns: 2, taken: 1.5 },
-      doon: { every: 4, wait: 1, mult: 2.4, guardCut: 0.25 },
+      doon: { every: 3, wait: 1, mult: 3.6, guardCut: 0.15 },
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk … ムウの HP・攻撃力の ばい
       //   solo … 仲間なしの ひとり（戦う 人が 1人だけ）の とき。few より 先に 見る（おかしビーム・ドーンは なし ＝ beamEvery・doonEvery 99。
       //     ひとりでは 身を 守る 番が 足りない。かわりに 起こされた 時の HP と 攻撃の 上がり方を 大きく … 同じくらいに けずる 戦いに する）
       //   monK … 魔物の 仲間 1体ごとの HP・攻撃（魔物の 仲間は 半人ぶん。2人の 表が 強めな ので 少し 下げる）
       // tools/sim-ch9.mjs の「人が 画面で できる 動き」（REACT=2000・ブラウザの 速さ）で 合わせた（docs/plan-part3-c9d.md の 実装メモ）
-      few: { hp: [0.88, 1.15, 1, 1, 1.1], atk: [1, 1.1, 1, 1, 1.05] },
-      solo: { hp: 0.22, atk: 0.42, beamEvery: 99, doonEvery: 99, wake: 0.6, wakeUp: 0.5 },
-      monK: { hp: -0.03, atk: -0.02 },
+      few: { hp: [0.45, 0.85, 1, 1, 1.2], atk: [0.8, 0.95, 1, 1, 1.1], doonK: [0.4, 0.5, 1, 1, 1] },
+      solo: { hp: 0.15, atk: 0.35, beamEvery: 5, doonEvery: 99, wake: 0.6, wakeUp: 0.5 },
+      monK: { hp: -0.12, atk: -0.03 },
     },
     actions: [{ w: 3, id: 'm9m_pat' }, { w: 2, id: 'm9m_bounce' }, { w: 1, id: 'm9m_yawn', cond: 'notRecent:m9m_yawn' }, { w: 1, id: 'm9m_spin', cond: 'notRecent:m9m_spin' }],
     desc: '星のはかばで、ひとりで遊んでいた魔人。丸くて、ねむそうな目をしている。ねむる星たちの夢から生まれたらしい。',
   },
   // 分かれた 方（はじめは いない。ムウが 分かれると 出る）
   [C9D_MUMU]: {
-    name: MUMU_NAME, short: 'ムウムウ', lv: 104, hp: 12600, mp: 9999, str: 1715, def: 360, agi: 230, mag: 1000, exp: 64000, gold: 21000,
+    name: MUMU_NAME, short: 'ムウムウ', lv: 104, hp: 28800, mp: 9999, str: 2900, def: 360, agi: 230, mag: 1000, exp: 64000, gold: 21000,
     race: 'demon', size: 'xl', boss: true, turns: 1, speed: 0.6, hit: 'smash', artScale: 0.5,
     drops: {},
     resist: { ...BOSS_STATUS, light: 1.0, dark: 0.9, fire: 1.0, ice: 1.0, wind: 1.1, bolt: 1.0 },

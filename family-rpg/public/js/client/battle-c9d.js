@@ -44,7 +44,7 @@ const CSS = `
 .c9d-top .bar { display: inline-block; width: 64px; height: 7px; border-radius: 4px; background: #2a2040; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.35); }
 .c9d-top .bar i { display: block; height: 100%; }
 .c9d-top .mu .bar i { background: #c8b0f0; }
-.c9d-top .mumu .bar i { background: #ffb8d8; }
+.c9d-top .mumu .bar i { background: #8ee8c8; }
 .c9d-top .row.ko { opacity: 0.75; }
 .c9d-top .row.ko .bar i { background: #6a6a7a; }
 .c9d-top .mad { color: #ff8a8a; font-weight: bold; }
@@ -52,6 +52,9 @@ const CSS = `
 .c9d-top.warn { border-color: #ffd040; box-shadow: 0 0 14px rgba(255, 208, 64, 0.85); }
 .c9d-top.warn .tx { color: #ffe060; animation: c9d-pulse 0.9s infinite; }
 .c9d-top.win { border-color: #8affc8; }
+.c9d-top .tired { color: #ffe060; font-weight: bold; }
+.c9d-top.c9d-flow { position: relative; left: auto; right: auto; top: auto; margin: 3px auto 0; max-width: 98%; box-sizing: border-box; text-align: center; }
+.c9d-top.c9d-flow .rows { flex-direction: row; justify-content: center; gap: 10px; }
 .b-mem.c9d-okashi { background: linear-gradient(180deg, rgba(255, 154, 192, 0.35), rgba(255, 240, 200, 0.2)) !important; }
 @media (max-aspect-ratio: 1/1) { .c9d-top { top: 2px; left: 2px; right: auto; max-width: 58%; padding: 1px 5px 2px; } .c9d-top .row { font-size: 10px; } .c9d-top .bar { width: 44px; height: 6px; } .c9d-top .tx { font-size: 10px; margin-top: 0; }
   .c9a-hud .c9d-song { margin-left: 4px; } .c9a-hud .c9b-teru { margin-left: 4px; letter-spacing: 0; } }
@@ -103,25 +106,34 @@ export function muHtml(list) {
   const mad = up.find((c) => c.muAngry);
   const rows = mus.map((c) => {
     const r = c.alive ? Math.max(0, Math.min(1, (c.hp || 0) / (c.maxHp || 1))) : 0;
-    const st = c.muKO ? '<span class="mad">ばたんきゅう</span>' : c.muAngry ? '<span class="mad">ぷんぷん！</span>' : '';
+    const st = c.muKO ? '<span class="mad">ばたんきゅう</span>' : c.muTired ? '<span class="tired">へとへと</span>' : c.muAngry ? '<span class="mad">ぷんぷん！</span>' : '';
     return `<span class="row ${c.species === C9D_MU ? 'mu' : 'mumu'}${c.alive ? '' : ' ko'}"><span class="nm">${MU_LABEL[c.species]}</span><span class="bar"><i style="width:${Math.round(r * 100)}%"></i></span>${st}</span>`;
   }).join('');
   let tx;
   let cls = 'c9d-top';
   if (win) { tx = 'ふたりとも、すわりこんだ！'; cls += ' win'; } else if (ko && up.length) {
-    tx = `今だ！${MU_LABEL[up[0].species]}の番が来る前に、たおそう！`;
+    tx = `今だ！${MU_LABEL[up[0].species]}もたおそう！`;
     cls += ' warn';
-  } else if (mad) tx = `${MU_LABEL[mad.species]}がおこっている！HPの多い方をけずろう`;
-  else tx = '同じくらいにけずって、最後は2体いっしょに！';
+  } else if (up.length === 2 && up.every((c) => c.muTired)) {
+    tx = '2体ともへとへと！今だ、いっきにたおそう！';
+    cls += ' warn';
+  } else if (up.some((c) => c.muTired)) tx = `${MU_LABEL[up.find((c) => c.muTired).species]}はへとへと。もう片方も、へとへとにしよう`;
+  else if (mad) tx = `${MU_LABEL[mad.species]}がおこっている！HPの多い方をけずろう`;
+  else tx = '同じくらいにけずって、2体ともへとへとにしよう！';
   return { html: `<div class="rows">${rows}</div><div class="tx">${esc(tx)}</div>`, cls };
 }
+// スマホの たてでは、まどは 戦いの 絵の すぐ 下に ならべる（client/battle-c9c.js の なぞの まどと おなじ。絵・名前・スピカの まどに かさならない）
+const portrait = () => typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
 function showTop(scene, html, cls) {
   const el = topEl(scene);
   if (!el) return;
-  const key = cls + '|' + html;
+  const flow = portrait() && !!scene.stage.parentElement;
+  if (flow && el.parentElement !== scene.stage.parentElement) scene.stage.after(el);
+  else if (!flow && el.parentElement !== scene.stage) scene.stage.append(el);
+  const key = cls + '|' + html + '|' + flow;
   if (el.dataset.k === key) return;
   el.dataset.k = key;
-  el.className = cls;
+  el.className = cls + (flow ? ' c9d-flow' : '');
   el.innerHTML = html;
   el.style.display = html ? '' : 'none';
 }
@@ -168,6 +180,8 @@ export function c9dDraw(scene, x, m, c, px, py, w, h, base) {
     return;
   }
   if (!c.alive) return;
+  // スマホの たてでは しるしを 頭の 上に（足もとは スピカの まどと かさなる）
+  const ty = portrait() ? Math.max(8, py + 6) : py + h + 4;
   if (c.muBeamAim) {
     const nm = scene.c?.get?.(c.muBeamAim)?.name || '';
     x.globalAlpha = base * (0.45 + Math.sin(T / 70) * 0.35);
@@ -177,7 +191,7 @@ export function c9dDraw(scene, x, m, c, px, py, w, h, base) {
     x.arc(px + w / 2, py + h * 0.22, Math.min(w, h) * 0.2, 0, Math.PI * 2);
     x.stroke();
     x.globalAlpha = base;
-    tag(x, px + w / 2, py + h + 4, `おかしビーム！ねらい：${nm}`, base, '#3a0a2a', '#ffd0e8', Math.min(150, 70 + nm.length * 7));
+    tag(x, px + w / 2, ty, `おかしビーム！ねらい：${nm}`, base, '#3a0a2a', '#ffd0e8', Math.min(150, 70 + nm.length * 7));
   } else if (c.muDoon) {
     x.globalAlpha = base * (0.5 + Math.sin(T / 70) * 0.4);
     x.strokeStyle = '#ffd040';
@@ -186,9 +200,11 @@ export function c9dDraw(scene, x, m, c, px, py, w, h, base) {
     x.ellipse(px + w / 2, py + h, w * 0.6, 8, 0, 0, Math.PI * 2);
     x.stroke();
     x.globalAlpha = base;
-    tag(x, px + w / 2, py + h + 4, 'いっしょにドーンが来る！防御！', base, '#3a0a1a', '#ffd06a', 112);
+    tag(x, px + w / 2, ty, 'いっしょにドーンが来る！防御！', base, '#3a0a1a', '#ffd06a', 112);
+  } else if (c.muTired) {
+    tag(x, px + w / 2, ty, 'へとへと（もう起こせない）', base, '#2a2a10', '#ffe060', 96);
   } else if (c.muAngry) {
-    tag(x, px + w / 2, py + h + 4, 'ぷんぷん！（攻撃が強い）', base, '#3a0a1a', '#ff9a9a', 90);
+    tag(x, px + w / 2, ty, 'ぷんぷん！（攻撃が強い）', base, '#3a0a1a', '#ff9a9a', 90);
   }
 }
 
@@ -206,8 +222,8 @@ export function c9dPresent(scene, ev) {
   if (ev.c9Spica?.songReady) good('スピカの歌がたまった！「星のうた」が使える！', 'sparkle');
   if (ev.c9dSong) good('スピカの星のうた！みんな元気になった！', 'sparkle');
   if (ev.c9mSplit) { scene.shake?.(400, 4); warn('ムウが2体に分かれた！同じくらいにけずろう！'); }
-  if (ev.c9mKO) good(`${nm(ev.c9mKO.id)}がばたんきゅう！${nm(ev.c9mKO.by)}の番の前にたおせ！`);
-  if (ev.c9mWake) warn('起こされた…！2体とも、攻撃力が上がった！');
+  if (ev.c9mKO) good(`${nm(ev.c9mKO.id)}がばたんきゅう！${nm(ev.c9mKO.by)}はへとへとで起こせない！`);
+  if (ev.c9mWake) warn('すぐ起こされた…！2体とも、へとへとにしてから、たおそう！');
   if (ev.c9mAngry) warn('仲間はずれは、いやだ！HPの多い方がおこった！');
   if (ev.c9mBeamUp) warn(`！おかしビームが来る…ねらいは${nm(ev.c9mBeamUp.aim)}！防御で守ろう！`);
   if (ev.c9mBeam) {

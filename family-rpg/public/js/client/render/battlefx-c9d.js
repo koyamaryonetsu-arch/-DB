@@ -7,7 +7,7 @@ const WEB = ['#e8eef8', '#c8d0e0', '#ffffff'];
 const STAR = ['#fff4a0', '#bfe8ff', '#ffffff'];
 const BELL = ['#ffd040', '#fff0b0', '#c8901a'];
 const SHADOW = ['#1c1a2e', '#34304e', '#ffe060'];
-const MU = ['#c8b0f0', '#ffb8d8', '#ffe040', '#ffffff'];
+const MU = ['#c8b0f0', '#b4ecd8', '#ffe040', '#ffffff'];
 const CANDY = ['#ff9ac0', '#fff0c8', '#ffd0e8', '#a8e8ff'];
 const SONG = ['#fff6c8', '#bff4ff', '#ffe066', '#ffffff'];
 
@@ -58,7 +58,7 @@ export function playC9dFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
       // ぽんっ！ 2つに 分かれる
       fx.flashAt(0, 'rgba(255,240,255,0.55)', 500);
       const c = first || mid;
-      fx.shock(c.x, c.y, { r0: 6, r1: 90, color: '#ffb8d8', w: 3, life: 700 });
+      fx.shock(c.x, c.y, { r0: 6, r1: 90, color: '#b4ecd8', w: 3, life: 700 });
       fx.burst(c.x, c.y - 10, MU, 24, 70, { delay: 80 });
       for (let i = 0; i < 6; i++) fx.twinkle(W * (0.25 + i * 0.1), H * 0.25, { color: MU[i % 4], size: 5, life: 800, delay: 150 + i * 60, spin: 1 });
       return true;
@@ -82,7 +82,7 @@ export function playC9dFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
       }
       return true;
     }
-    case 'c9m_doonup': fx.tintAt('rgba(200,120,200,0.25)', 1000); for (const t of targets) fx.glow(t.x, t.y - 8, { color: '#ffb8d8', r: 34, life: 1000, alpha: 0.5 }); return true;
+    case 'c9m_doonup': fx.tintAt('rgba(200,120,200,0.25)', 1000); for (const t of targets) fx.glow(t.x, t.y - 8, { color: '#b4ecd8', r: 34, life: 1000, alpha: 0.5 }); return true;
     case 'c9m_doon': {
       fx.flashAt(0, 'rgba(255,240,255,0.7)', 500);
       fx.tintAt('rgba(160,80,180,0.4)', 1400);

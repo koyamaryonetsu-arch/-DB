@@ -58,6 +58,8 @@ export function muConf(m, b = null) {
   const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
+    tired: pick('tired', c.tired ?? 0.15),
+    spd: pick('spd', 1),
     split: c.split ?? 0.75, part: c.part ?? 0.6, wake: pick('wake', c.wake ?? 0.4), wakeUp: pick('wakeUp', c.wakeUp ?? 0.2), apart: c.apart ?? 0.25, angry: c.angry ?? 1.5,
     beam: { every: 4, wait: 1, turns: 2, taken: 1.5, ...(c.beam || {}), every: pick('beamEvery', c.beam?.every ?? 4), wait: pick('beamWait', c.beam?.wait ?? 1) },
     doon: { every: 4, wait: 1, mult: 1.3, guardCut: 0.45, ...(c.doon || {}), every: pick('doonEvery', c.doon?.every ?? 4), wait: pick('doonWait', c.doon?.wait ?? 1), mult: (c.doon?.mult ?? 1.3) * pick('doonK', 1) },
@@ -106,6 +108,8 @@ function setupMu(b, m, lines) {
   if (mc.hp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * mc.hp));
   if (mc.atk !== 1) m.atk = Math.max(1, Math.round(m.atk * mc.atk));
   const mm = b.enemies.find((e) => e.species === C9D_MUMU);
+  // はやさ（人数で。ひとりは ゆっくり … spd）
+  if (mc.spd !== 1) for (const e of [m, mm].filter(Boolean)) e.speed = (e.speed || 1) * mc.spd;
   b.c9mu = { mu: m.id, mumu: mm?.id || null, split: false, won: false, H0: null, atk0: null, power: 1, wakes: 0, pair: 0, splits: 0, kos: 0, angers: 0, beams: 0, blocked: 0, okashi: 0, doons: 0, doonGuards: 0 };
   // 前ぶれ中の しるし（1つの 値）: b.c9mu.tele … 'beam'（おかしビームの ねらい あり）・'doon'（いっしょに ドーンの 前ぶれ）・null
   //   第3幕 B班の「前ぶれの 間は 人が えらぶまで 敵の 時間を 止める」しくみに あとで つなぐ（c9dTele(b) も おなじ）
@@ -168,10 +172,12 @@ export function c9dTurnStart(b, c, ev, stuck) {
       return;
     }
   } else if (p && !p.alive) {
-    // ばたんきゅうした 方を 起こす（前ぶれの ドーンは やめ）
+    // ばたんきゅうした 方は、へとへとの 自分では 起こせない（すぐ 起こすのは c9dDamage。ここでは ことばだけ 1回）
     k.doon = false;
-    c.telegraph = WAKE;
-    return;
+    if (!k.tiredSaid) {
+      k.tiredSaid = true;
+      ev.lines.push(`${c.name}「…おきてよぉ…。でも、もう、へとへと…」`);
+    }
   }
   // おかしビーム（前ぶれの あと）
   if (k.beamAim) {
@@ -300,9 +306,12 @@ function beamUp(b, c, ev) {
   const aimed = musOf(b).map((x) => x.c9m?.beamAim).filter(Boolean);
   const all = b.aliveAllies();
   const pool = all.filter((x) => !okashiOf(x) && !aimed.includes(x.id));
-  const list = pool.length ? pool : all;
-  const t = list[b.rng.int(0, list.length - 1)];
-  if (!t) return;
+  // みんな もう ねらわれて いる・おかし … ことばだけ（ひとりの 時に 2体が 同じ 人を ねらい続けない）
+  if (!pool.length) {
+    ev.lines.push(`${c.name}「…みんな、もう、ねらわれてるや。」`);
+    return;
+  }
+  const t = pool[b.rng.int(0, pool.length - 1)];
   k.beamAim = t.id;
   k.beamWait = mc.beam.wait;
   ev.lines.push(`${c.name}が、${t.name}を、じーっと見ている…！`, `${c.name}「ねえ、おかしになってよ〜」`, `（ねらいは${t.name}…！「防御」で身を守ろう！）`);
@@ -429,11 +438,45 @@ function song(b, c, ev) {
 
 // ───────────── ダメージ（battle-c9b.js の c9bDamage の はじめ。味方 → 敵）─────────────
 // 分かれる 前の ムウは HP 1 より 下がらない（分かれる 前に たおれない）
+// 分かれた あと: たおされそうな 方は、もう 片方が へとへと（最大の tired いか）で なければ その場で 起こされる
+//   （ばたんきゅう → すぐ「おきて、おきて！」。HP wake で もどる・2体とも 攻撃 wakeUp アップ）。2体とも へとへとに してから たおす
 export function c9dDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0) || !t?.c9m || !b.c9mu) return dmg;
-  if (!b.c9mu.split && t.species === C9D_MU) dmg = Math.max(0, Math.min(dmg, t.hp - 1));
-  void c; void info; void ev;
+  const st = b.c9mu;
+  if (!st.split && t.species === C9D_MU) return Math.max(0, Math.min(dmg, t.hp - 1));
+  if (st.split && !st.won && dmg >= t.hp) {
+    const p = partnerOf(b, t);
+    if (p?.alive && !tiredOf(p, b)) {
+      wakeNow(b, t, p, ev);
+      // 受けた ダメージは そのまま 見せて、HPは 起こされた 値に（hp − dmg ＝ 起こされた HP）
+      t.hp += dmg;
+      void c; void info;
+      return dmg;
+    }
+  }
   return dmg;
+}
+// へとへと（HPが 最大の tired いか）… この 体は 相手を 起こせない
+export const tiredOf = (x, b) => !!x?.alive && !!b?.c9mu?.split && x.hp <= x.maxHp * muConf(x, b).tired;
+function wakeNow(b, t, p, ev) {
+  const st = b.c9mu;
+  const mc = muConf(t, b);
+  t.hp = Math.max(1, Math.round(t.maxHp * mc.wake));
+  t.status = {};
+  t.telegraph = null;
+  Object.assign(t.c9m, { beamAim: null, beamWait: 0, doon: false, doonWait: 0 });
+  if (p.c9m?.doon) p.c9m.doon = false;
+  st.kos++;
+  st.wakes++;
+  st.power = Math.round((st.power + mc.wakeUp) * 100) / 100;
+  for (const x of musOf(b)) x.atk = Math.max(1, Math.round(st.atk0 * st.power * (x.c9m.angry ? mc.angry : 1)));
+  if (ev) {
+    post(ev).push(`${t.name}「ばたんきゅう〜…」`, `${p.name}「おきて、おきて！」`, `${t.name}は、すぐに目をさました！（2体とも、攻撃力が上がった！）`,
+      `（${p.name}が元気なうちは、すぐ起こされる…！2体とも、へとへとにしてから、たおそう！）`);
+    ev.c9mWake = { id: p.id, to: t.id, wakes: st.wakes, now: true };
+    ev.warn = true;
+    ev.upd.push(t, p);
+  }
 }
 // 受ける ダメージ（battle.js の damage。敵 → 味方）: おかしの 人は beam.taken ばい
 export function c9dTaken(b, c, t, dmg, ev) {
@@ -469,13 +512,13 @@ export function c9dKill(b, t, ev) {
   const p = partnerOf(b, t);
   Object.assign(t.c9m, { beamAim: null, beamWait: 0, doon: false, doonWait: 0 });
   if (p?.alive && st.split) {
-    // ばたんきゅう（もう 片方が 起こしに くる）
+    // ばたんきゅう（もう 片方は へとへとで 起こせない。元気な ときは c9dDamage で すぐ 起こされる ので ここには 来ない）
     t.c9m.ko = true;
     st.kos++;
     if (p.c9m) p.c9m.doon = false;
     if (p.telegraph === DOON || p.telegraph === DOONUP) p.telegraph = null;
     if (ev) {
-      post(ev).push(`${t.name}「ばたんきゅう〜…」`, `（${p.name}の番が来ると、起こされてしまう…！今のうちに${p.name}もたおそう！）`);
+      post(ev).push(`${t.name}「ばたんきゅう〜…」`, `${p.name}「お、おきて…。…へとへとで、起こせないよぉ…」`, `（今のうちに、${p.name}もたおそう！）`);
       ev.c9mKO = { id: t.id, by: p.id };
       ev.warn = true;
       ev.upd.push(p);
@@ -507,6 +550,7 @@ export function c9dPlan(b, c, decide, bestHit) {
   const up = musOf(b).filter((x) => x.alive);
   if (!up.length) return null;
   const high = up.slice().sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp || y.hp - x.hp)[0];
+  void FINISH;
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: 3回に 1回、HPの 多い 方を ねらう（家族の キャラの オート・魔物の 仲間は ねらい分けない）
     if (c.kind === 'player' || c.kind === 'monster' || up.length < 2) return null;
@@ -514,8 +558,11 @@ export function c9dPlan(b, c, decide, bestHit) {
     if (b.c9mAuto % AUTO_EVERY) return null;
     return bestHit(b, c, high);
   }
-  const aimed = up.some((x) => x.c9m?.beamAim === c.id);
-  const doonSoon = up.some((x) => x.c9m?.doon);
+  // ひとりの 時は、前ぶれの あと ふつうに 動く 回数が のこって いる 間は まだ 身を 守らない（番を むだに しない。
+  //   仲間が いる 時は すぐ 守る … ムウの 番が 先に 来て 間に あわない ことが ある）
+  const soon = (w) => !(w > 0) || b.allies.length > 1;
+  const aimed = up.some((x) => x.c9m?.beamAim === c.id && soon(x.c9m.beamWait));
+  const doonSoon = up.some((x) => x.c9m?.doon && soon(x.c9m.doonWait));
   const stuckMates = b.aliveAllies().filter((x) => okashiOf(x) || x.status?.sleep || x.status?.paralyze);
   const canSong = songReady(b) && canUse(b, c, SONG) && !b.queue.some((q) => q.cmd?.id === SONG);
   if (mode === 'blind') {
@@ -533,8 +580,8 @@ export function c9dPlan(b, c, decide, bestHit) {
   if (a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type) && b.allies.some((x) => !x.fled && (!x.alive || x.hp / x.maxHp < 0.4))) return cmd;
   // 片方が ばたんきゅう: もう 片方を、番が 来る 前に いちばん 大きい 1回で
   if (st.split && up.length === 1) return bestHit(b, c, up[0]) || cmd;
-  // 2体とも のこり 少ない: 全体こうげきで いっきに
-  if (up.length === 2 && up.every((x) => x.hp / x.maxHp <= FINISH)) {
+  // 2体とも へとへと: 全体こうげきで いっきに
+  if (up.length === 2 && up.every((x) => tiredOf(x, b))) {
     const all = bestAll(b, c, up);
     if (all) return all;
   }
@@ -601,6 +648,7 @@ export function c9dPub(c, b = c?._b9) {
   o.muWakes = st.wakes;
   o.muPower = st.power;
   o.muTele = c9dTele(b);
+  o.muTired = tiredOf(c, b) ? 1 : 0;
   return o;
 }
 void C9D_MUMU;

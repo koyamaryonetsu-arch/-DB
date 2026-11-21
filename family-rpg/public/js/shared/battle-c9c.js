@@ -576,6 +576,19 @@ export function c9cBusy(b) {
   if (s && ((s.grains <= sandConf(m, b).dizzyAt && !(s.dizzy > 0)) || s.pochiAim)) return true;
   return false;
 }
+// 第92回 第3便: 今、こたえが いる 前ぶれが 出て いるか（battle-tell.js の b.tell。battle-c9b.js の c9bTell から）
+//   なぞが 出て いる・砂が dizzyAt いか〜落ちきった・ポチッとねの ねらい
+export function c9cTell(b) {
+  const n = nazoOf(b);
+  if (n?.alive && n.c9z?.riddle) return 'riddle';
+  const m = mechaOf9c(b);
+  const s = m?.alive ? m.c9s : null;
+  if (s) {
+    if (s.boomReady || (s.grains <= sandConf(m, b).dizzyAt && !(s.dizzy > 0))) return 'sand';
+    if (s.pochiAim) return 'pochi';
+  }
+  return null;
+}
 void prim; void ABILITIES; void C9C_NAZOKAKE; void C9C_HIKKURI;
 
 // ───────────── がめんへ（battle-c9b.js の c9bPub から。敵だけ）─────────────
