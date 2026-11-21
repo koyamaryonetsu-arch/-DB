@@ -4,9 +4,11 @@
 //   かけら買いの スズ・村の 子ども ラン
 // とくべつな え（paintC9aSpecial）: 星の子 スピカ（小さな 光る 子。フィールドの 連れと くぼ地の 子。コマで 光が またたく）・
 //   石の ふくろう ホシモリ（ためしの 場面。24×24）・光る 道しるべ（ささやきの森の 入口）
-import { Painter } from './pixel.js?v=ff854d15a612';
+import { Painter } from './pixel.js?v=50d3a1823967';
 // 第91回 A班: 第3部 第1章 第2幕の 人の え（render/c9b-npc-art.js。ここで まぜる）
-import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=ff854d15a612';
+import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=50d3a1823967';
+// 第92回 A班: 第3部 第1章 第3幕の とくべつな え（render/c9c-npc-art.js。ここで まぜる）
+import { paintC9cSpecial, C9C_SPECIALS } from './c9c-npc-art.js?v=50d3a1823967';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },
@@ -99,7 +101,7 @@ export function paintC9aSpecial(kind, dir, f) {
     case 'c9a_spica': return paintSpica(dir, f);
     case 'c9a_owl': return paintOwl(f);
     case 'c9a_signpost': return paintSignpost(f);
-    default: return paintC9bSpecial(kind, dir, f);
+    default: return paintC9bSpecial(kind, dir, f) || paintC9cSpecial(kind, dir, f);
   }
 }
-export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS];
+export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS, ...C9C_SPECIALS];

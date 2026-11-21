@@ -13,17 +13,20 @@
 //     （今は 知らない 文に なるので、progress.js の repairObjective が すすみぐあいから 新しい 文に なおす）
 //   → 仲間の ひとこと（C9_START_TALK）・行き先（C9_START_TARGETS）も 新しい 文の 物に かわる
 // ほかの ファイルは 読まない（maps/c9a-flags.js だけ）。story-c8r.js から 読まれるので、story.js や story-c8*.js を import しない こと
-import { C9A_LINE } from '../maps/c9a-flags.js?v=ff854d15a612';
+import { C9A_LINE } from '../maps/c9a-flags.js?v=50d3a1823967';
 // 第1幕「星ふるえの夜」（第90回 A班。data/story-c9a.js。story-c9a.js は ここを import しない）
-import { applyCh9a, CH9A_PROGRESS, CH9A_OBJECTIVE_TARGETS, CH9A_OBJECTIVE_TALK, C9A_OBJ } from './story-c9a.js?v=ff854d15a612';
+import { applyCh9a, CH9A_PROGRESS, CH9A_OBJECTIVE_TARGETS, CH9A_OBJECTIVE_TALK, C9A_OBJ } from './story-c9a.js?v=50d3a1823967';
 // 第2幕「鉱山の底の先」（第91回 A班。data/story-c9b.js。story-c9b.js は ここを import しない）
-import { C9B_LINE } from '../maps/c9b-flags.js?v=ff854d15a612';
-import { applyCh9b, CH9B_PROGRESS, CH9B_OBJECTIVE_TARGETS, CH9B_OBJECTIVE_TALK, C9B_OBJ } from './story-c9b.js?v=ff854d15a612';
+import { C9B_LINE } from '../maps/c9b-flags.js?v=50d3a1823967';
+import { applyCh9b, CH9B_PROGRESS, CH9B_OBJECTIVE_TARGETS, CH9B_OBJECTIVE_TALK, C9B_OBJ } from './story-c9b.js?v=50d3a1823967';
+// 第3幕「さかさのピラミッド」（第92回 A班。data/story-c9c.js。story-c9c.js は ここを import しない）
+import { C9C_LINE } from '../maps/c9c-flags.js?v=50d3a1823967';
+import { applyCh9c, CH9C_PROGRESS, CH9C_OBJECTIVE_TARGETS, CH9C_OBJECTIVE_TALK, C9C_OBJ } from './story-c9c.js?v=50d3a1823967';
 
 // ───── 第3部の 章の すすみかた（STORY_STEPS の c8_solitus の うしろ。plan-part3.md の 9-4 の 名前の 約束）─────
 // 第1幕: c9_festival → c9_night → c9_starfall → c9_child → c9_trio → c9_stairs → c9_b1 → c9_b2 → c9_b3 → c9_trial → c9_fork → c9_act1
 // 第2幕からは うしろに 足す（CH9_STEPS.push(...)）
-export const CH9_STEPS = [...C9A_LINE, ...C9B_LINE];
+export const CH9_STEPS = [...C9A_LINE, ...C9B_LINE, ...C9C_LINE];
 
 // ───── 題の 画面（9-1 の 場面 1。村に 入って ルカが かけて きた あと）─────
 // 題「ほしのね」は 家族が きめた 名前（ひらがなの まま。kanji-check の ひらがなの 目安に 出るが それで よい）
@@ -42,6 +45,9 @@ export function c9TitleSteps() {
 // 第2幕の 題の 画面（10-1 の 場面 1）
 export const C9B_TITLE = { chapter: C9_TITLE.chapter, act: '第2幕　鉱山の底の先' };
 export const c9bTitleSteps = () => [['chapter', C9B_TITLE.chapter, C9B_TITLE.act]];
+// 第3幕の 題の 画面（11-1 の 場面 1）
+export const C9C_TITLE = { chapter: C9_TITLE.chapter, act: '第3幕　さかさのピラミッド' };
+export const c9cTitleSteps = () => [['chapter', C9C_TITLE.chapter, C9C_TITLE.act]];
 
 // ───── 第2部 クリアの 目標の 文の 入れかえ（plan-part3.md の 8-1・9-5 の 0）─────
 // ★ 幕を つなぐ 時に かえるのは ここだけ（false … 今の まま「第2部　完！…」/ true … 第3部の はじまり）
@@ -74,20 +80,38 @@ export const ACT1_END_OLD = C9A_OBJ.act1;
 const ACT1_END = act1ClearObjective();
 const swapAct1 = (k) => (k === C9A_OBJ.act1 ? ACT1_END : k);
 
+// ───── 第3幕「さかさのピラミッド」を 開ける 切りかえ（plan-part3.md の 11-5・11-6。第92回 A班）─────
+// ★ B班（戦い）・D班を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第2幕 クリアの 目標は「第3幕へ（続きはアップデートで！）」・
+//   船着き場の 番人に 話しても 幕は 始まらない / true … 目標が「ヒカリゴケの里の船着き場から、いかだで川を下ろう」に かわる）
+export const PART3_ACT3_OPEN = true;
+// 第2幕 クリア（c9_act2）の 目標の 文（開いた あとは「ヒカリゴケの里の船着き場から、いかだで川を下ろう」。前の 文は 古い 文 ACT2_END_OLD）
+export const act2ClearObjective = (open = PART3_ACT3_OPEN) => (open ? C9C_OBJ.start : C9B_OBJ.act2);
+export const ACT2_END_OLD = C9B_OBJ.act2;
+const ACT2_END = act2ClearObjective();
+const swapAct2 = (k) => (k === C9B_OBJ.act2 ? ACT2_END : k);
+
 // ───── 目標の 文の 表（幕ごとに 足す。第1幕 … story-c9a.js）─────
 // すすみぐあい（progress.js の PROGRESS の さいご）: [フラグ か (c) => 真偽, 目標の 文]
 // 第2幕は 幕が 開いて から（PART3_ACT2_OPEN）。開くと 第1幕の さいごの 文が 第2幕の はじまりの 文に かわる
-const swapKeys = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [swapAct1(k), v]));
-export const CH9_PROGRESS = [...CH9A_PROGRESS.map(([f, t]) => [f, swapAct1(t)]), ...(PART3_ACT2_OPEN ? CH9B_PROGRESS : [])];
+// 第3幕も 同じ（PART3_ACT3_OPEN。開くと 第2幕の さいごの 文が 第3幕の はじまりの 文に かわる）
+const swapKeys = (o, sw = swapAct1) => Object.fromEntries(Object.entries(o).map(([k, v]) => [sw(k), v]));
+const CH9B_PROGRESS2 = CH9B_PROGRESS.map(([f, t]) => [f, swapAct2(t)]);
+export const CH9_PROGRESS = [...CH9A_PROGRESS.map(([f, t]) => [f, swapAct1(t)]), ...(PART3_ACT2_OPEN ? CH9B_PROGRESS2 : []), ...(PART3_ACT3_OPEN ? CH9C_PROGRESS : [])];
 // 行き先（quest-targets.js）: { [目標の 文]: [{ npc } か { map, x, y }] }
-export const CH9_OBJECTIVE_TARGETS = { ...swapKeys(CH9A_OBJECTIVE_TARGETS), ...(PART3_ACT2_OPEN ? CH9B_OBJECTIVE_TARGETS : {}) };
+export const CH9_OBJECTIVE_TARGETS = {
+  ...swapKeys(CH9A_OBJECTIVE_TARGETS), ...(PART3_ACT2_OPEN ? swapKeys(CH9B_OBJECTIVE_TARGETS, swapAct2) : {}), ...(PART3_ACT3_OPEN ? CH9C_OBJECTIVE_TARGETS : {}),
+};
 // 仲間の ひとこと（party-talk.js）: { [目標の 文]: { self, bold, kind, kid } }
-export const CH9_OBJECTIVE_TALK = { ...swapKeys(CH9A_OBJECTIVE_TALK), ...(PART3_ACT2_OPEN ? CH9B_OBJECTIVE_TALK : {}) };
+export const CH9_OBJECTIVE_TALK = {
+  ...swapKeys(CH9A_OBJECTIVE_TALK), ...(PART3_ACT2_OPEN ? swapKeys(CH9B_OBJECTIVE_TALK, swapAct2) : {}), ...(PART3_ACT3_OPEN ? CH9C_OBJECTIVE_TALK : {}),
+};
 
 // ───── story.js から: だいほんを まぜる ─────
 // 第1幕の だいほん（data/story-c9a.js の applyCh9a）。パーティー全員で 見る イベントは STORY_SCRIPTS に 足す。題の 画面は c9TitleSteps
 export function applyCh9(SCRIPTS, STORY_SCRIPTS) {
   applyCh9a(SCRIPTS, STORY_SCRIPTS, { title: c9TitleSteps, act1End: ACT1_END });
   // 第2幕（幕が 開いて いない 間は、くぼ地で 音さを 鳴らしても 始まらない）
-  applyCh9b(SCRIPTS, STORY_SCRIPTS, { title: c9bTitleSteps, open: PART3_ACT2_OPEN });
+  applyCh9b(SCRIPTS, STORY_SCRIPTS, { title: c9bTitleSteps, open: PART3_ACT2_OPEN, act2End: ACT2_END });
+  // 第3幕（幕が 開いて いない 間は、船着き場の 番人に 話しても 始まらない）
+  applyCh9c(SCRIPTS, STORY_SCRIPTS, { title: c9cTitleSteps, open: PART3_ACT3_OPEN });
 }
