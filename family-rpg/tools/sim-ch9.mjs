@@ -159,6 +159,7 @@ export const PARTIES9 = {
 //   PARTY=all には 入れない（PARTY=k1tav で えらぶ）
 export const EXTRA_PARTIES9 = {
   k1tav: { label: '1人＋酒場3人(本物)', humans: 1, npc: 3, mon: 0, tavern: true },
+  k1fam: { label: '1人＋家族の仲間3', humans: 1, npc: 3, mon: 0, fam: true },
 };
 const partyOf9 = (k) => PARTIES9[k] || EXTRA_PARTIES9[k];
 function npcChar(id, job, lv, boss = null) {
@@ -177,7 +178,9 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   const humans = four.filter((c) => pick.includes(c.job));
   if (P.humans >= 5) humans.push(jobChar('guardian', lv, 10, 'ガーディアン'));
   const out = humans.map((c) => ({ char: c, know: true }));
-  if (P.tavern) for (const [id] of NPC9.slice(0, P.npc)) out.push({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false });
+  // 第94回: 家族の 仲間（家族の キャラを 仲間に 入れた もの。超級職 ＋ ★装備。戦いでは 自動の 仲間 kind 'support'）
+  if (P.fam) for (const c of four.filter((x) => !pick.includes(x.job)).slice(0, P.npc)) out.push({ char: c, know: false });
+  else if (P.tavern) for (const [id] of NPC9.slice(0, P.npc)) out.push({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false });
   else for (const [id, job] of NPC9.filter(([, j]) => !pick.includes(j)).slice(0, P.npc)) out.push({ char: npcChar(id, job, lv, boss), know: false });
   for (const [sp, tac] of MON9.slice(0, P.mon)) {
     const c = monsterChar(sp, lv, 15, 10);

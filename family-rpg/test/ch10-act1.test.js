@@ -169,9 +169,12 @@ async function redRoad(bot, opts, log) {
   await openChests(bot, C10A_MAP.r2, opts);
   await go(bot, C10A_POS.c10r_2.down.x, C10A_POS.c10r_2.down.y, opts);
   assert.equal(bot.s.map, C10A_MAP.r3);
-  await openChests(bot, C10A_MAP.r3, opts);
+  // 第94回 B班: 熱の 間の 宝箱へ 歩くと 中ボスの 前を 通る（すぐ 勝たせる 戦いに なって いた）ので、宝箱は 中ボスの あとで
+  assert.ok(!c.flags[C10A_RED.boss], 'まだ 科学者と 戦って いない');
   const r = await bossUntilWin(bot, 'red', opts);
   log.push(`tamagon:${r.join(',')}`);
+  assert.equal(r[0], 'lose', '完全オートでは 科学者に 勝てない');
+  await openChests(bot, C10A_MAP.r3, opts);
   assert.ok(c.flags[C10A_RED.boss], `科学者に 勝つ（${r.join(',')}）`);
   assert.ok(c.flags[C10A_RED.run] && (c.keyItems || []).includes('note_re'));
   // かけ上がる（溶岩。魔物は 出ない）
@@ -202,6 +205,7 @@ async function greenRoad(bot, opts, log) {
   for (const b of C10A_POS.c10g_2.buds) await goExamine(bot, b, 0, opts);
   await openChests(bot, C10A_MAP.g2, opts);
   const r = await bossUntilWin(bot, 'green', opts);
+  assert.equal(r[0], 'lose', '完全オートでは だんしゃくに 勝てない');
   log.push(`mold:${r.join(',')}`);
   assert.ok(c.flags[C10A_GREEN.boss], `だんしゃくに 勝つ（${r.join(',')}）`);
   const H = C10A_POS.c10g_2.hollow[0];

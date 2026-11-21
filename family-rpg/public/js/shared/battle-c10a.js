@@ -11,7 +11,7 @@
 //   HPが coolAt を 切ると「冷きゃく水」（m10t_cool。1回だけ）: メカの めもりが 0 に・ドリルの 全体攻撃が ふえる（drill.half）
 //   ドリルの 全体攻撃: drill.every 回 動く ごとに 前ぶれ（m10t_drillup。b.tell 'drill'）→ drill.wait 回 ふつうに 動いた あとに 全体（m10t_drill。身を 守ると guardCut）
 //   勝つと メカは けむりを はいて 止まる（たおれない。HP 1 で すわりこむ … b.killed に 入れて 経験値・落とし物は ふつう）
-//   自動の 仲間（酒場の 人）は あつさが 4 いじょうの 番の 3回に 1回 休む（防御）。家族の キャラの オート・魔物の 仲間は 休まない
+//   自動の 仲間（酒場の 人・家族の 仲間）は あつさが 4 いじょうの 番の 3回に 1回 休む（防御）。ただし 人が 自分で えらんで いる 時だけ（みんな オートなら 休まない）。家族の キャラの オート・魔物の 仲間は 休まない
 // ・緑の 中ボス「カビだんしゃく モルド と カビカビ号」（c10.kind 'mold'）… カビを てらす
 //   メカは 番の はじめに「カビの きり」（前ぶれ なし）: 味方 mist.n 人（HP 半分 いかは mist.half 人）に カビ ＋1（a.c10kabi。さい大 kabi.max）
 //     カビ 1つに つき 受ける 回復 −kabi.heal・攻撃 −kabi.atk。max で「きのこに なった！」（status.kinoko … 1回 動けない。カビは 0 に）
@@ -583,7 +583,7 @@ function tamagonPlan(b, c, m, mode, decide, bestHit) {
   const heat = c.c10heat || 0;
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: あつさが 4 いじょうの 番の 3回に 1回 休む（数は 自動の 仲間 みんなで 1つ）
-    if (c.kind === 'player' || c.kind === 'monster' || heat < cf.heat.max - 1) return null;
+    if (c.kind === 'player' || c.kind === 'monster' || heat < cf.heat.max - 1 || !someoneChooses(b)) return null;
     b.c10auto = (b.c10auto || 0) + 1;
     return b.c10auto % AUTO_EVERY ? null : { type: 'defend' };
   }
@@ -618,7 +618,7 @@ function moldPlan(b, c, m, mode, decide, bestHit) {
   const canTeru = teruReady(b) && canUse(b, c, TERU) && !queued(TERU);
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: スピカの 技が たまって いて 役に 立つ 番の 3回に 1回 使う
-    if (c.kind === 'player' || c.kind === 'monster') return null;
+    if (c.kind === 'player' || c.kind === 'monster' || !someoneChooses(b)) return null;
     const useSong = canSong && kabi1;
     const useTeru = canTeru && (kabi1 || wallUp(b));
     if (!useSong && !useTeru) return null;
@@ -641,6 +641,8 @@ function moldPlan(b, c, m, mode, decide, bestHit) {
   void bestHit;
   return cmd;
 }
+// 人が 自分で えらんで いる 家族の キャラが いるか（みんな オート〈完全オート〉の 時は、自動の 仲間も しくみを 使わない … 13-5「完全オートは 勝てない」）
+export const someoneChooses = (b) => b.allies.some((x) => x.alive && x.kind === 'player' && x.controller && !x.auto);
 // その 属性の 技で いちばん 大きい 1回（あつさの 上がりが lim いかの 技だけ。なければ null）
 function bestElem(b, c, t, el, lim) {
   let best = null;

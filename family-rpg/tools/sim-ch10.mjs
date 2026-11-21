@@ -10,7 +10,7 @@
 //   めやす（13-5）: 2秒と 5秒の 両方で 人4人の 知って いる 人 6〜7わり（5秒でも 6わり 近く）・知らない 人 3わり いか・完全オート 5% いか・
 //     1人＋酒場3人 5わり いじょう・1人＋魔物3 5わり 近く・2人＋自動 2人 5〜7わり・ひとり 3わり いじょう（ひとりの 完全オートより 高い）・
 //     5人 9わりを こえない・勝った 時 8分 いない。赤 → 緑 と 緑 → 赤 の 差が 1わりを こえない
-import { CH9_IDS, LV9, CH9_KIT, NEED9_HOOKS, STATS9_HOOKS, ch9Run, PARTIES9, MODES9, summary9 } from './sim-ch9.mjs';
+import { CH9_IDS, LV9, CH9_KIT, NEED9_HOOKS, STATS9_HOOKS, ch9Run, PARTIES9, EXTRA_PARTIES9, MODES9, summary9 } from './sim-ch9.mjs';
 import { C10A_BATTLE, C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { c10State, c10Boss, c10Conf, wallUp } from '../public/js/shared/battle-c10a.js';
 import { C10R_TAMAGON } from '../public/js/shared/data/monsters-c10a.js';
@@ -107,7 +107,7 @@ if (process.argv[1]?.endsWith('sim-ch10.mjs')) {
           for (const order of orders) {
             for (const react of mode === 'auto' ? [reacts[0]] : reacts) {
               const r = c10Batch(boss, mode, N, { party, react, order });
-              console.log(`  ${PARTIES9[party].label} ${MODES9[mode].label} ${order === 'red' ? '赤→緑' : '緑→赤'} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c10Text(r.res)}`);
+              console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label} ${order === 'red' ? '赤→緑' : '緑→赤'} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c10Text(r.res)}`);
             }
           }
         }

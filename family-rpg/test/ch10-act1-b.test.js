@@ -378,6 +378,10 @@ test('自動の 仲間: タマゴン … 酒場の 人は あつさ 4 いじょ�
   const b = battle({ kinds: ['player', 'support', 'monster', 'support'] });
   const [p, s1, mon, s2] = b.allies;
   for (const a of b.allies) a.c10heat = 4;
+  // 人が みんな オート（完全オート）の 時は、自動の 仲間も 休まない
+  for (let i = 0; i < 6; i++) assert.equal(c10aPlan(b, i % 2 ? s2 : s1, decideAlly, bestHit), null, '完全オートでは 休まない');
+  p.auto = false;
+  b.c10auto = 0;
   const plans = [];
   for (let i = 0; i < 6; i++) plans.push(c10aPlan(b, i % 2 ? s2 : s1, decideAlly, bestHit));
   assert.equal(plans.filter((x) => x?.type === 'defend').length, 2, '6回で 2回');
@@ -394,6 +398,9 @@ test('自動の 仲間: タマゴン … 酒場の 人は あつさ 4 いじょ�
   const [gp, g1, gm, g2] = g.allies;
   g.c9sp.song.charge = g.c9sp.song.max;
   g1.c10kabi = 1;
+  assert.equal(c10aPlan(g, g1, decideAlly, bestHit), null, '完全オートでは スピカの 技を 使わない');
+  gp.auto = false;
+  g.c10auto = 0;
   const gp2 = [];
   for (let i = 0; i < 6; i++) gp2.push(c10aPlan(g, i % 2 ? g2 : g1, decideAlly, bestHit));
   assert.equal(gp2.filter((x) => x?.id === SONG).length, 2, '6回で 2回 星のうた');
