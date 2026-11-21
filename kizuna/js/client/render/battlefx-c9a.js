@@ -4,7 +4,7 @@
 // c9t_suck（すいこみ）は 星の 光の つぶが すいこみ口へ すいよせられる（とくべつな つぶ c9aflame は ともしびの 火）。
 // すいこみ・やみの いぶき・夜明け・ホウホウのこえは がめんの まん中に 大きく（client/battle-c9a.js の C9A_SCREEN_ANIMS）
 // 第3部 第1章 第2幕（battlefx-c9b.js）
-import { playC9bFx } from './battlefx-c9b.js?v=2a0885f3a643';
+import { playC9bFx } from './battlefx-c9b.js?v=7f0a6eee2a0c';
 
 const STAR = ['#ffffff', '#bff4ff', '#fff2a8', '#8ad8ff'];
 const MOSS = ['#8aff9a', '#c8ffb0', '#4a9a4a'];

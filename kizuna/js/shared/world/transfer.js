@@ -18,12 +18,12 @@
 //   LINE の 1通（LINE_MAX）を こえる ときは 2通、3通…に 分ける（splitCode）:
 //     KIZUNA-5-P1/2-<まとめの しるし 8もじ>-<きれはしの 文字数 36進>-<きれはし>  … どの じゅんで はりつけても、そろえば 読める
 // KIZUNA-1〜4 も ずっと 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=2a0885f3a643';
-import { dropGoneFamily } from '../data/wagon.js?v=2a0885f3a643';
-import { packFeats, unpackFeats } from './phantom.js?v=2a0885f3a643';
-import { MAPS } from '../maps/index.js?v=2a0885f3a643';
-import { cmPack, cmUnpack, toB64u, fromB64u, crc32, packExplored, unpackExplored } from './transfer-pack.js?v=2a0885f3a643';
-import { PRIME_5 } from './transfer-prime.js?v=2a0885f3a643';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=7f0a6eee2a0c';
+import { dropGoneFamily } from '../data/wagon.js?v=7f0a6eee2a0c';
+import { packFeats, unpackFeats } from './phantom.js?v=7f0a6eee2a0c';
+import { MAPS } from '../maps/index.js?v=7f0a6eee2a0c';
+import { cmPack, cmUnpack, toB64u, fromB64u, crc32, packExplored, unpackExplored } from './transfer-pack.js?v=7f0a6eee2a0c';
+import { PRIME_5 } from './transfer-prime.js?v=7f0a6eee2a0c';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';

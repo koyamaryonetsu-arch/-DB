@@ -16,7 +16,7 @@
 //   outfit41a(O, S)            … 服の つけたし（outfit26 の つけたしから よぶ。白い 手ぶくろ・メダル・時計の くさり）
 //   drawR41a(cv, P, O, layer)  … むねの かざり（drawR26 から よぶ。メダル・時計の くさり）
 //   drawProp41a(cv, P, A, O)   … たての ない 手の もちもの（drawProp26 から よぶ。電車の もけい・ボール。かいたら true）
-import { mat, ramp, TH } from './hero-raster.js?v=2a0885f3a643';
+import { mat, ramp, TH } from './hero-raster.js?v=7f0a6eee2a0c';
 
 export const R41A_JOBS = ['keikyu_president', 'hall_of_fame'];
 

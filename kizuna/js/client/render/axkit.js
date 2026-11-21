@@ -5,9 +5,9 @@
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かけるので、ここでは 気に しない）
 // ・へんじ（return）は「あたる 時間（ms）」。つぎの えんしゅつを その 時間に あわせて ならべられる
 // つかいかたは docs/plan-r48-fx-engine.md の「エンジンの使い方」。
-import { makeCanvas, hexToRgb } from './pixel.js?v=2a0885f3a643';
+import { makeCanvas, hexToRgb } from './pixel.js?v=7f0a6eee2a0c';
 // 第72回: 竜の紋章の かたち（ためる オーラ crest）
-import { drawDragonCrest, crestSimple } from './crest-shapes.js?v=2a0885f3a643';
+import { drawDragonCrest, crestSimple } from './crest-shapes.js?v=7f0a6eee2a0c';
 
 const TAU = Math.PI * 2;
 export const rnd = (a, b) => a + Math.random() * (b - a);
