@@ -45,6 +45,8 @@ import { r85aPlan, r85aLocked } from './battle-r85a.js';
 import { r86bPlan } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
 import { r86aPlan } from './battle-r86a.js';
+// 第98回: きずなの職業の オート（職業ごとの 計画の 一覧は battle-kizuna.js）
+import { kizunaPlan } from './battle-kizuna.js';
 // 第88回 M1班: 魔王の 天地魔闘の構え（敵の 大技の 前ぶれが ある 時に ときどき。battle-r88m.js）
 import { r88mPlan } from './battle-r88m.js';
 // 第96回 T班 第2便: 人が 自分で えらんで いるか（第2章 第1幕と 同じ 見分け。battle-c10a.js）
@@ -298,6 +300,9 @@ export function decideAlly(b, c) {
     if (mc) return mc;
   }
 
+  // 4.78) 第98回: きずなの職業（熱と風の空調マスター・八竜の火影 など。その 職業の 技を 持つ 人だけ。親の 伝説の オート〈4.79〜4.96〉より 先に 見る）
+  const kz = only(kizunaPlan(b, c, foes, mine, allies, fightWeight(b)));
+  if (kz) return kz;
   // 4.79) 第86回 A班: 前ぶれに 人とようかいのきずな・ためた力を うつ・きずなの力／玉と 炎の よい 方の 玉に かえる・火竜・二重の太刀（battle-r86a.js）
   //   この 2つの 職業の 技を もつ 人だけ（もとの 伝説の 技も 覚えて いるので、その オート〈4.8〜4.96〉より 先に 見る。ほかの 職業は 何も かわらない）
   const r86a = only(r86aPlan(b, c, foes, mine, allies, fightWeight(b)));

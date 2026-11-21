@@ -130,6 +130,11 @@ VEHICLES.twin_cat.jobs.push('yokai_bridge');
 VEHICLES.teacher_bike.jobs.push('yokai_bridge');
 VEHICLES.big_tiger.jobs.push('ryujin_kenshi');
 VEHICLES.fire_dragon.jobs.push('ryujin_kenshi');
+// 第98回: きずなの職業の 幻の 乗り物（data/jobs-r98-*.js の vehicle。絵は client/render/kizuna-*.js）と、もとの 2つの 職業の 乗り物
+import { KIZUNA_VEHICLES } from './kizuna.js'; Object.assign(VEHICLES, KIZUNA_VEHICLES);
+VEHICLES.fire_dragon.jobs.push('kuuchou_master', 'hachiryu_hokage');
+VEHICLES.kei_truck.jobs.push('kuuchou_master');
+VEHICLES.ninja_dash.jobs.push('hachiryu_hokage');
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

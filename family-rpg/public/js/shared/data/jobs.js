@@ -61,6 +61,8 @@ import { JOBS_R85A, R85A_ORDERS, HINTS_R85A } from './jobs-r85a.js';
 import { JOBS_R86B, R86B_JOBS, HINTS_R86B } from './jobs-r86b.js';
 // 第86回 A班: 幻の職業 人とようかいのかけ橋・竜神の剣士（jobs-r86a.js）
 import { JOBS_R86A, R86A_PHANTOM, HINTS_R86A } from './jobs-r86a.js';
+// 第98回: きずなの職業（1つ 1ファイル。一覧は kizuna.js。docs/plan-kizuna-jobs.md）
+import { KIZUNA, KIZUNA_IDS, kizunaMap } from './kizuna.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1344,6 +1346,8 @@ Object.assign(JOBS, JOBS_R85A);
 Object.assign(JOBS, JOBS_R86B);
 // 第86回 A班: 幻の職業 2つ（jobs-r86a.js）
 Object.assign(JOBS, JOBS_R86A);
+// 第98回: きずなの職業（kizuna.js の 一覧の ぜんぶ。足す ときは kizuna.js に 1行）
+for (const k of KIZUNA) JOBS[k.job.id] = k.job;
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
@@ -1420,6 +1424,8 @@ export const PHANTOM_ORDER = ['pirate_king', 'super_hero', 'sun_hokage', 'facili
 PHANTOM_ORDER.push(...R86B_JOBS);
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士（jobs-r86a.js。おわりに 足す ので 前の 12この 掲示板の しるし〈ビット〉は かわらない）
 PHANTOM_ORDER.push(...R86A_PHANTOM);
+// 第98回: きずなの職業（kizuna.js の ならびの じゅん。おわりに 足す ので 前の 16この 掲示板の しるし〈ビット〉は かわらない）
+PHANTOM_ORDER.push(...KIZUNA_IDS);
 export const PHANTOM_LIVE = PHANTOM_ORDER.filter((id) => JOBS[id]);
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER, ...PHANTOM_LIVE];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業', '幻の職業'];
@@ -1609,3 +1615,5 @@ Object.assign(JOB_HINTS, HINTS_R85A);
 Object.assign(JOB_HINTS, HINTS_R86B);
 // 第86回 A班: 人とようかいのかけ橋・竜神の剣士の うわさ（jobs-r86a.js）
 Object.assign(JOB_HINTS, HINTS_R86A);
+// 第98回: きずなの職業の うわさ（kizuna.js）
+Object.assign(JOB_HINTS, kizunaMap('hint'));

@@ -547,7 +547,8 @@ test('G5: スレイヤーズ・烈火の炎の とびら（5人ずつ・弱い �
   const ds = RIVAL_DOORS.find((d) => d.work === 'slayers');
   const dr = RIVAL_DOORS.find((d) => d.work === 'rekka');
   assert.deepEqual(ds.jobs, ['tabi_madoshi', 'lina', 'doramata']);
-  assert.deepEqual(dr.jobs, ['enjutsushi', 'rekka']);
+  // 第98回: きずなの職業 2つ（烈火 ＋ 天才しせつ管理者・烈火 ＋ 七代目火影）は 新しい 系統の 方の 作品（烈火の炎）に 数える
+  assert.deepEqual(dr.jobs, ['enjutsushi', 'rekka', 'kuuchou_master', 'hachiryu_hokage']);
   for (const d of [ds, dr]) for (const j of d.jobs) assert.ok(JOBS[j], j);
   assert.equal(FIXED_ENCOUNTERS[rivalEnc('s_naga')].bg, 'tower');
   assert.equal(FIXED_ENCOUNTERS[rivalEnc('r_kai')].bg, 'volcano');

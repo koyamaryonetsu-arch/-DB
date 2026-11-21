@@ -47,6 +47,8 @@ import { playR85aFx } from '../public/js/client/render/battlefx-r85a.js';
 import { playR86bFx } from '../public/js/client/render/battlefx-r86b.js';
 // 第86回 A班: 幻の職業 2つ（battlefx-r86a.js）
 import { playR86aFx } from '../public/js/client/render/battlefx-r86a.js';
+// 第98回: きずなの職業（render/kizuna-art.js）
+import { playKizunaFx } from '../public/js/client/render/kizuna-art.js';
 // 第88回: 作品の 品を「使う」えんしゅつ（battlefx-r88.js）
 import { playR88Fx } from '../public/js/client/render/battlefx-r88.js';
 // 第88回 M1班: 魔王の 天地魔闘の構え（battlefx-r88m.js）
@@ -138,6 +140,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     || playR85aFx(fake, anim, ONE, null, {})
     || playR86bFx(fake, anim, ONE, null, {})
     || playR86aFx(fake, anim, ONE, null, {})
+    || playKizunaFx(fake, anim, ONE, null, {})
     || playR88Fx(fake, anim, ONE, null, {})
     || playR88mFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {

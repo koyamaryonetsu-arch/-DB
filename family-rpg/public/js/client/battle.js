@@ -78,6 +78,8 @@ import { R86B_SFX, R86B_HIT } from './render/battlefx-r86b.js';
 import { r86bPresent } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
 import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
+// 第98回: きずなの職業の 技の 当たる 時間と 音（render/kizuna-art.js）
+import { KIZUNA_SFX, KIZUNA_HIT } from './render/kizuna-art.js';
 // 第88回: 作品の 品を「使う」えんしゅつ（render/battlefx-r88.js）
 import { R88_SFX, R88_HIT } from './render/battlefx-r88.js';
 import { r86aPresent } from './battle-r86a.js';
@@ -137,6 +139,8 @@ import { C10A_SFX } from './battle-c10a.js';
 import { C10B_SFX } from './battle-c10b.js';
 // 第3部 第2章 第3幕: たいさ・アルゴルの 音（battle-c10c.js）
 import { C10C_SFX } from './battle-c10c.js';
+// 第3部 第2章 第4幕: 門の 番人・ミラーレ・音を鳴らすの 音（battle-c10d.js）
+import { C10D_SFX } from './battle-c10d.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -206,6 +210,7 @@ Object.assign(HIT_DELAY, R85B_HIT);
 Object.assign(HIT_DELAY, R85A_HIT);
 Object.assign(HIT_DELAY, R86B_HIT);
 Object.assign(HIT_DELAY, R86A_HIT);
+Object.assign(HIT_DELAY, KIZUNA_HIT);
 Object.assign(HIT_DELAY, R88_HIT);
 Object.assign(HIT_DELAY, R88M_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
@@ -327,6 +332,7 @@ const ANIM_SFX = {
   ...C10A_SFX,
   ...C10B_SFX,
   ...C10C_SFX,
+  ...C10D_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -344,6 +350,7 @@ Object.assign(ANIM_SFX, R85B_SFX);
 Object.assign(ANIM_SFX, R85A_SFX);
 Object.assign(ANIM_SFX, R86B_SFX);
 Object.assign(ANIM_SFX, R86A_SFX);
+Object.assign(ANIM_SFX, KIZUNA_SFX);
 Object.assign(ANIM_SFX, R88_SFX);
 Object.assign(ANIM_SFX, R88M_SFX);
 
@@ -705,7 +712,8 @@ export class BattleScene {
     //   作戦の「オートで使う技を選ぶ」（autoOff）は オートの AIだけ（一覧からは 消さない）。第69回は autoOff で 消していた
     const off = new Set(a.cmdOff || []);
     // 第69回: ならびは ダメージ・回復の 弱い じゅん（職業の ほせい なしの ふつうの 強さ。shared/skill-sort.js）。★お気に入りは その ならび
-    const learned = sortByStdPower((a.abilities || []).filter((id) => !off.has(id) && battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells))));
+    // 第99回: cmdOnly の 技（音を鳴らす）は 一覧に 出さない（いちばん 上の コマンドから 色を えらぶ。battle-c10d.js）
+    const learned = sortByStdPower((a.abilities || []).filter((id) => !off.has(id) && !ABILITIES[id]?.cmdOnly && battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells))));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
     const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
     const duals = this.myDualOptions(a);
@@ -747,7 +755,7 @@ export class BattleScene {
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
         case 'reach': return earthReachPick(this, a);
-        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': case 'c10bring': case 'c10cmove': return c8rCmdPick(this, a, it.value);
+        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': case 'c10dring': case 'c10bring': case 'c10cmove': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);

@@ -52,6 +52,8 @@ import { playR85aFx, R85A_FINE } from './battlefx-r85a.js';
 import { playR86bFx, R86B_FINE } from './battlefx-r86b.js';
 // 第86回 A班: 幻の職業 2つの 技（battlefx-r86a.js。竜は 第85回 B班の r85bDragon を 色を かえて 使う）
 import { playR86aFx } from './battlefx-r86a.js';
+// 第98回: きずなの職業の 技（kizuna-art.js。職業ごとの 絵の ファイルの fx）
+import { playKizunaFx } from './kizuna-art.js';
 // 第88回: 作品の 品を「使う」えんしゅつ（雷公べんの 大いかずち。battlefx-r88.js）
 import { playR88Fx } from './battlefx-r88.js';
 // 第88回 M1班: 魔王の 天地魔闘の構え・手刀の 反撃・火の 鳥（battlefx-r88m.js）
@@ -314,6 +316,7 @@ export function battleBackground(id) {
       case 'c10r_road': case 'c10r_heat': case 'c10g_roots': case 'c10g_tree': h = 0; break; // 古い道・熱の間・根の国・大木の前は あとで（c10a-bg.js）
       case 'c10b_mirror': case 'c10b_dry': case 'c10b_ice': case 'c10b_moon': h = 0; break; // 水鏡のうら・かれた間・氷の下の道・月の間は あとで（c10b-bg.js）
       case 'c10c_sky': case 'c10c_ruin': case 'c10c_belt': case 'c10c_room': h = 0; break; // 空の小島・うかぶいせき・ベルトの工場・少年の間は あとで（c10c-bg.js）
+      case 'c10d_stair': case 'c10d_summit': h = 0; break; // 星の階段・いただきは あとで（c10d-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -1659,6 +1662,8 @@ export class Effects {
     if (playR86bFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第86回 A班: 人とようかいのかけ橋・竜神の剣士の 技（battlefx-r86a.js。anim は 'r86a_…' と 看板の 技）
     if (playR86aFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第98回: きずなの職業の 技（kizuna-art.js。anim は 看板の 技と 'kizuna_…'）
+    if (playKizunaFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第88回: 作品の 品を「使う」えんしゅつ（battlefx-r88.js。anim は 'r88_…'）
     if (playR88Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第88回 M1班: 天地魔闘の構え・カラミティエンド・カイザーフェニックス（battlefx-r88m.js。anim は 'r88m_…'）

@@ -5,6 +5,7 @@
 //   ki: 0.45    … 伝説の超勇者。ためた 気（c.ki。0〜KI_MAX）1つごとに 威力 +45%。使うと 気は 0 に もどる
 //   dance: 1    … 日の火影。影分身（c.clones）1人ごとに 当たる 回数が dance 回 ふえる。
 //                 make … 分身が これより 少なければ この 人数まで 出す・consume … まい終わると 分身は 消える（ほかは のこりの 回数が 1 へる）
+//   will: 0.25  … 第98回 八竜の火影の 火の意志。たおれた 仲間 1人ごとに 威力 +25%（crew の 反対。にげた 仲間は 数えない）
 // 物理で ない こうか（battle-ch5.js の towerEffect から よぶ）
 //   kiCharge { add, max }   … 気を ためる（c.ki）
 //   clones { n, uses }      … 影分身を 出す（c.clones = { n, left }。分身の 技を uses 回 使うと 消える）
@@ -22,11 +23,21 @@ export const OPT_STATS = ['atk', 'def', 'agi', 'mag'];
 const STAT_NAMES = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力' };
 
 const aliveAllies = (b, c) => b.sideOf(c, true).filter((x) => x.alive);
+// たおれた 仲間（にげた 人は 数えない）
+export const fallenAllies = (b, c) => b.sideOf(c, true).filter((x) => !x.alive && !x.fled).length;
 
 // 物理の 技の 強さを かえて、ふつうの phys として 出す
 export function phantomAPhys(b, c, a, cmd, ev, powMult, targets) {
-  const { crew, ki, dance, make, consume, ...rest } = a.effect;
+  const { crew, ki, dance, make, consume, will, ...rest } = a.effect;
   const eff = { ...rest };
+  if (will) {
+    const n = fallenAllies(b, c);
+    if (n) {
+      eff.mult = (eff.mult || 1) * (1 + will * n);
+      ev.lines.push(`たおれた仲間${n}人の火の意志が、${c.name}にやどる！`);
+    }
+    ev.will = n;
+  }
   if (crew) {
     const n = aliveAllies(b, c).length;
     eff.mult = (eff.mult || 1) * (1 + crew * Math.max(0, n - 1));

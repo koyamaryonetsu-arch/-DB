@@ -6,7 +6,7 @@
 //   node tools/kanji-check.mjs            … ゲームの文字をぜんぶ調べる
 //   node tools/kanji-check.mjs a.js b.js  … 指定したファイルだけ
 //   node tools/kanji-check.mjs --foreign  … 小学校で習わない漢字の一覧
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { KANJI_BY_GRADE } from './kanji-grades.mjs';
@@ -150,6 +150,12 @@ export function checkText(s) {
 }
 
 // ゲームの画面に出る文字が入っているファイル
+// 第98回: きずなの職業の 1つ 1ファイル（あとの 組が 足しても ここは かえなくて よい）
+function kizunaFiles() {
+  const pick = (dir, re) => readdirSync(join(ROOT, dir)).filter((f) => re.test(f)).sort().map((f) => `${dir}/${f}`);
+  return [...pick('public/js/shared/data', /^jobs-r98-.+\.js$/), ...pick('public/js/client/render', /^kizuna-.+\.js$/)];
+}
+
 export function gameFiles() {
   const list = [
     'public/index.html',
@@ -366,6 +372,9 @@ export function gameFiles() {
     'public/js/shared/data/jobs-r86a.js', 'public/js/shared/data/abilities-r86a.js', 'public/js/shared/data/hirameki-r86a.js', 'public/js/shared/battle-r86a.js', 'public/js/client/battle-r86a.js',
     // 第88回 M1班: 魔王の ひらめき技（天地魔闘の構え）・戦いの しかけ・札と えんしゅつの ことば
     'public/js/shared/data/hirameki-r88m.js', 'public/js/shared/battle-r88m.js', 'public/js/client/battle-r88m.js',
+    // 第98回: きずなの職業（一覧・オートの まとめ。1つ 1ファイルの データと 絵〈data/jobs-r98-*.js・client/render/kizuna-*.js〉は kizunaFiles〈gameFiles の 上〉で ぜんぶ 入る）
+    'public/js/shared/data/kizuna.js', 'public/js/shared/battle-kizuna.js',
+    ...kizunaFiles(),
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',
@@ -662,6 +671,14 @@ export function gameFiles() {
     // 第99回 A班: 第3部 第2章 第4幕「金の音と、星の橋」（世界と 物語）
     'public/js/shared/maps/c10d-flags.js', 'public/js/shared/data/story-c10d.js', 'public/js/shared/maps/c10d.js', 'public/js/shared/maps/c10d-rows.js',
     'public/js/shared/world/c10d-steps.js', 'public/js/client/c10d-view.js', 'public/js/client/render/tiles-c10d.js', 'public/js/client/render/c10d-npc-art.js',
+    // 第99回 B班: 第3部 第2章 第4幕（門の 番人・ミラーレ・品・ヒント・絵・背景・えんしゅつ。c10d-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/c10d-names-b.js', 'public/js/shared/data/monsters-c10d.js', 'public/js/shared/data/abilities-c10d.js',
+    'public/js/shared/data/encounters-c10d.js', 'public/js/shared/data/items-c10d.js', 'public/js/shared/data/boss-hints-c10d.js',
+    'public/js/shared/battle-c10d.js', 'public/js/client/battle-c10d.js', 'public/js/client/render/c10d-art.js', 'public/js/client/render/c10d-bg.js', 'public/js/client/render/battlefx-c10d.js',
+    // 第99回 F班: 第3部 第2章 第4幕の 曲
+    'public/js/client/audio-c10d.js',
+    // 第101回 F班: 第3部 第3章 第1幕の 曲
+    'public/js/client/audio-c11a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

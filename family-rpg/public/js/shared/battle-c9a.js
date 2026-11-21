@@ -36,6 +36,8 @@ import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js';
 import { c10bAfter } from './battle-c10b.js';
 // 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
 import { c10cAfter, c10cAllyPub } from './battle-c10c.js';
+// 第3部 第2章 第4幕: てらす（うつし身が 消える）・星のうた（まくが 1色 へる）・まくを まとい直す・しるし・金の 音の ごほうび（battle-c10d.js）
+import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -131,6 +133,8 @@ export function setupC9a(b) {
     addTeru(b);
   }
   if (on) addSpica(b);
+  // 第3部 第2章 第4幕: 金の 音の ごほうび … 戦いの はじめにも ほのかな光（battle-c10d.js）
+  if (b.c9sp && c10GlowStart(b)) glowNow(b, lines);
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1500, c9Spica: spicaPub(b) });
 }
 
@@ -185,7 +189,8 @@ export function c9aAfter(b, c, ev) {
   if (b.c10) c10aAfter(b, c, ev);
   if (b.c10b) c10bAfter(b, c, ev);
   if (b.c10c) c10cAfter(b, c, ev);
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c) b.tell = c9Tell(b);
+  if (b.c10d) c10dAfter(b, c, ev);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
@@ -203,6 +208,14 @@ export function c9Tell(b) {
   const h = hoshimoriOf(b);
   if (h?.alive && h.c9h && !h.c9h.won && h.c9h.aim.length) return 'breath';
   return c9bTell(b);
+}
+// 戦いの はじめの ほのかな光（第3部 第2章 第4幕の 金の 音の ごほうび。いつもの ほのかな光と おなじ 中み）
+export function glowNow(b, lines = []) {
+  const ev = { lines: [], upd: [], results: [] };
+  glow(b, ev);
+  lines.push(...(ev.postLines || []));
+  b.c10dGlow0 = ev.c9Spica || true;
+  return ev;
 }
 function glow(b, ev) {
   const s = b.c9sp;
@@ -700,7 +713,8 @@ export function c9aPub(c) {
     if (c.c9torch !== undefined) o.torch9 = c.c9torch ? 1 : 0;
     // 第3部 第2章 第1幕: あつさ・カビ（battle-c10a.js）
     // 第3部 第2章 第3幕: うき石・せまい（battle-c10c.js）
-    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c));
+    // 第3部 第2章 第4幕: 色の しるし（battle-c10d.js）
+    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c), c10dAllyPub(c));
   }
   if (c.c9t) {
     const t = c.c9t;

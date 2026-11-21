@@ -39,6 +39,7 @@
 import { ABILITIES, abilityRole } from './abilities.js';
 import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js';
 import { jobLabel } from '../job-label.js';
+import { kizunaMap } from './kizuna.js';
 
 export const PHANTOM_TAGS = ['gomu', 'thunderSpell', 'kame', 'hinokami', 'ninjutsu', 'support', 'deduce', 'healSpell', 'attackSpell',
   'sword', 'debuff', 'train', 'pitch', 'sun', 'rain', 'thunder',
@@ -127,6 +128,9 @@ export const PHANTOM_JOBS = {
     conds: [{ use: ['bolt'], goal: 300, text: '雷の技を300回使う' }, { use: ['karyu'], goal: 300, text: '火竜の技を300回使う' }, { stat: 'dmg', goal: 300000, text: 'あたえたダメージの合計30万' }],
   },
 };
+
+// 第98回: きずなの職業の 条件（data/jobs-r98-*.js の phantom。一覧は kizuna.js。今 ある タグと 数だけ ＝ タグは 足して いない）
+Object.assign(PHANTOM_JOBS, kizunaMap('phantom'));
 
 // ───── 技の タグ ─────
 // 剣の えんしゅつ（slash_* は 剣で ない 技にも 使うので 入れない。剣の 職業か 名前で 入る）
