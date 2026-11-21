@@ -90,6 +90,11 @@ export const ACT2_END_OLD = C9B_OBJ.act2;
 const ACT2_END = act2ClearObjective();
 const swapAct2 = (k) => (k === C9B_OBJ.act2 ? ACT2_END : k);
 
+// ───── 第4幕「星のはかば」を 開ける 切りかえ（plan-part3-c9d.md の 12-4・12-5。第93回 A班）─────
+// ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第3幕 クリアの 目標は「第4幕へ（続きはアップデートで！）」・
+//   くぼ地の 黄の 台を 見ても 幕は 始まらない / true … 目標が「ながれ星のくぼ地の、黄色い音の台を見に行こう」に かわる）
+export const PART3_ACT4_OPEN = false;
+
 // ───── 目標の 文の 表（幕ごとに 足す。第1幕 … story-c9a.js）─────
 // すすみぐあい（progress.js の PROGRESS の さいご）: [フラグ か (c) => 真偽, 目標の 文]
 // 第2幕は 幕が 開いて から（PART3_ACT2_OPEN）。開くと 第1幕の さいごの 文が 第2幕の はじまりの 文に かわる
