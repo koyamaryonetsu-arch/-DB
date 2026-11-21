@@ -105,6 +105,10 @@ export const T = {
   C9B_GROUND: 427, C9B_ROCK: 428, C9B_PILLAR: 429, C9B_PILLAR_ON: 430, C9B_MOSS: 431, C9B_VOID: 432, C9B_CLIFF: 433, C9B_SHAFT: 434,
   C9B_RIVER: 435, C9B_DOCK: 436, C9B_HUT: 437, C9B_LUMP: 438, C9B_LUMP_ON: 439, C9B_HALL: 440, C9B_HALLWALL: 441, C9B_TABLE: 442,
   C9B_BOX: 443, C9B_GATE: 444, C9B_CRATE: 445, C9B_LAMP: 446,
+  // 第3部 第1章 第3幕「さかさのピラミッド」（第92回 A班。447〜470。maps/c9c*.js・render/tiles-c9c.js）
+  C9C_CAVE: 447, C9C_BANK: 448, C9C_RIV_N: 449, C9C_RIV_E: 450, C9C_RIV_S: 451, C9C_RIV_W: 452, C9C_POOL: 453, C9C_RIVROCK: 454,
+  C9C_DOCK: 455, C9C_WALL: 456, C9C_FLOOR: 457, C9C_HOLE: 458, C9C_HOLE_C: 459, C9C_STONE: 460, C9C_STONE_LOW: 461, C9C_PAD: 462,
+  C9C_SHAFT: 463, C9C_SHAFT_UP: 464, C9C_FENCE: 465, C9C_FOUNT: 466, C9C_TABLET: 467,
 };
 
 export const TILE_INFO = {};
@@ -572,6 +576,31 @@ def(T.C9B_BOX, 'c9b_box', { solid: true, talkThrough: true, mapColor: '#d8a84a' 
 def(T.C9B_GATE, 'c9b_gate', { solid: true, mapColor: '#a87a3a' }); // 大王のやしきの 門
 def(T.C9B_CRATE, 'c9b_crate', { solid: true, mapColor: '#6a4a2a' }); // 食料庫の たる・からの はこ
 def(T.C9B_LAMP, 'c9b_lamp', { solid: true, talkThrough: true, light: true, mapColor: '#b8f0a0' }); // 村の 小さな こけの 明かり
+// 第3部 第1章 第3幕「さかさのピラミッド」（第92回 A班）
+// 地下の川: 川の 流れ（flow。のると その むきへ 流される。いかだに 乗った 絵）・ゆるい 所（止まって 行き先を えらぶ）
+// さかさのピラミッド: ゆかの あな（ふつうの 時は 通れない。さかさの 時は 天じょう … gate '@flip' で 459）・ぶら下がる 石（さかさの 時は かべ。ふつうの 時は 下を 通れる 461）・
+//   さかさの 台（ふむと 向きが かわる）・ふきぬけ（砂の たき。ふつうは 下の 階・さかさは 上の 階へ。さかさの 時は 464）・ふちの さく（2階。番人に 勝つまで さかさの 人を とおさない）
+def(T.C9C_CAVE, 'c9c_cave', { solid: true, mapColor: '#14121c' }); // 地下の川の 岩かべ
+def(T.C9C_BANK, 'c9c_bank', { mapColor: '#3a3446' }); // 川岸（岩の 岸）
+def(T.C9C_RIV_N, 'c9c_riv_n', { flow: [0, -1], anim: true, river: true, mapColor: '#1a3a5a' }); // 川の 流れ（北へ）
+def(T.C9C_RIV_E, 'c9c_riv_e', { flow: [1, 0], anim: true, river: true, mapColor: '#1a3a5a' }); // 川の 流れ（東へ）
+def(T.C9C_RIV_S, 'c9c_riv_s', { flow: [0, 1], anim: true, river: true, mapColor: '#1a3a5a' }); // 川の 流れ（南へ）
+def(T.C9C_RIV_W, 'c9c_riv_w', { flow: [-1, 0], anim: true, river: true, mapColor: '#1a3a5a' }); // 川の 流れ（西へ）
+def(T.C9C_POOL, 'c9c_pool', { anim: true, river: true, mapColor: '#24486a' }); // 流れが ゆるい 広い 所（いかだが 止まる）
+def(T.C9C_RIVROCK, 'c9c_rivrock', { solid: true, mapColor: '#2a2834' }); // 川の 中の 岩（ぶつかると 止まる）
+def(T.C9C_DOCK, 'c9c_dock', { mapColor: '#7a5a3a' }); // いかだ乗り場（木の さんばし）
+def(T.C9C_WALL, 'c9c_wall', { solid: true, mapColor: '#6a5430' }); // さかさのピラミッドの かべ
+def(T.C9C_FLOOR, 'c9c_floor', { mapColor: '#b89a5a' }); // ゆか（さかさの 時は 天じょう。色は テーマ）
+def(T.C9C_HOLE, 'c9c_hole', { solid: true, mapColor: '#1a1208' }); // ゆかの あな（ふつうの 時は 通れない）
+def(T.C9C_HOLE_C, 'c9c_hole_c', { mapColor: '#8a7a9a' }); // あなの 上の 天じょう（さかさの 時は 歩ける）
+def(T.C9C_STONE, 'c9c_stone', { solid: true, mapColor: '#5a4a6a' }); // ぶら下がる 石（さかさの 時は かべ）
+def(T.C9C_STONE_LOW, 'c9c_stone_low', { mapColor: '#a8905a' }); // ぶら下がる 石の 下（ふつうの 時は 通れる）
+def(T.C9C_PAD, 'c9c_pad', { anim: true, mapColor: '#d8b0ff' }); // さかさの 台（ふむと 向きが かわる）
+def(T.C9C_SHAFT, 'c9c_shaft', { anim: true, mapColor: '#e8c878' }); // ふきぬけ（砂の たき。ふつうの 時は 下の 階へ）
+def(T.C9C_SHAFT_UP, 'c9c_shaft_up', { anim: true, mapColor: '#c8a8f0' }); // ふきぬけ（さかさの 時。砂が 上へ のぼる。上の 階へ）
+def(T.C9C_FENCE, 'c9c_fence', { solid: true, mapColor: '#8a6a3a' }); // ふきぬけの ふちの さく（2階。さかさの 人だけ とおさない）
+def(T.C9C_FOUNT, 'c9c_fount', { solid: true, talkThrough: true, anim: true, mapColor: '#6ac8f0' }); // 回復の いずみ（3階）
+def(T.C9C_TABLET, 'c9c_tablet', { solid: true, talkThrough: true, mapColor: '#c8b078' }); // わらべ歌の 石の 板（3階）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

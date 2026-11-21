@@ -6,7 +6,7 @@ import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { ch9Allies } from './sim-ch9.mjs';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
-import { C9C_BATTLE } from '../public/js/shared/data/c9c-names-b.js';
+import { C9C_BATTLE } from '../public/js/shared/maps/c9c-flags.js';
 import { addSpica } from '../public/js/shared/battle-c9a.js';
 
 export function riddleTimes(seed, party = 'p4', { speed = 0.85, textSpeed = 0.8 } = {}) {
