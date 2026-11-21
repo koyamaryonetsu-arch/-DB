@@ -55,7 +55,7 @@ const CSS = `
 .c10d-top.c10d-flow { position: relative; left: auto; right: auto; top: auto; bottom: auto; transform: none; margin: 3px auto 0; max-width: 98%; box-sizing: border-box; text-align: center; }
 @media (max-aspect-ratio: 1/1) { .c10d-top { top: 2px; left: 2px; right: auto; max-width: 60%; padding: 1px 5px 2px; } .c10d-top .row { font-size: 11px; } .c10d-top .tx { font-size: 10px; margin-top: 0; } }
 .menu.c10d-notes { display: grid !important; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; }
-.menu.c10d-notes > li.item { min-height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin: 0;
+.menu.c10d-notes > li.item { min-height: 50px !important; height: auto !important; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin: 0;
   border: 3px solid rgba(0, 0, 0, 0.45); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.4) inset; }
 .menu.c10d-notes > li.item .l { display: flex; flex-direction: column; align-items: center; line-height: 1.15; font-weight: bold; }
 .menu.c10d-notes > li.item .nt { font-size: 18px; }
@@ -63,7 +63,7 @@ const CSS = `
 .menu.c10d-notes > li.item .tg { font-size: 10px; margin-top: 1px; padding: 0 4px; border-radius: 6px; background: rgba(0, 0, 0, 0.55); color: #ffe860; }
 .menu.c10d-notes > li.item.sel { outline: 3px solid #ffffff; outline-offset: 1px; transform: scale(1.03); }
 .menu.c10d-notes > li.backchip { grid-column: 1 / -1; }
-${NOTE_COLORS.map((n, i) => `.menu.c10d-notes > li.c10d-n${i} { background: ${n.css}; color: ${inkOf(i)}; }`).join('\n')}
+${NOTE_COLORS.map((n, i) => `.menu.c10d-notes > li.c10d-n${i}, .menu.c10d-notes > li.c10d-n${i}.sel { background: ${n.css} !important; color: ${inkOf(i)} !important; }`).join('\n')}
 `;
 function addCss() {
   if (typeof document === 'undefined' || document.getElementById('c10d-css')) return;
