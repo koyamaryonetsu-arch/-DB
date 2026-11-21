@@ -16,12 +16,12 @@
 //   いっしょに ドーン: 2体が そろって いる 時、2体で doon.every 回 動く ごとに 前ぶれ（m9m_doonup）→ doon.wait 回 あとの その 体の 番に 全体へ（m9m_doon）
 // ・自動の 仲間（酒場の 人）は 3回に 1回、HPの 多い 方を ねらう（AUTO_EVERY。数は みんなで 1つ）。家族の キャラの「オート」と 魔物の 仲間は ねらい分けない
 // ・人数で 合わせる（few・solo・monK）は 第2幕・第3幕と おなじ 数え方（魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=ef73a8deb070';
-import { ABILITIES } from './data/abilities.js?v=ef73a8deb070';
-import { SONG } from './data/abilities-c9d.js?v=ef73a8deb070';
-import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=ef73a8deb070';
-import { C9D } from './maps/c9d-flags.js?v=ef73a8deb070';
-import { canUse } from './ai.js?v=ef73a8deb070';
+import { MONSTERS } from './data/monsters.js?v=2a0885f3a643';
+import { ABILITIES } from './data/abilities.js?v=2a0885f3a643';
+import { SONG } from './data/abilities-c9d.js?v=2a0885f3a643';
+import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=2a0885f3a643';
+import { C9D } from './maps/c9d-flags.js?v=2a0885f3a643';
+import { canUse } from './ai.js?v=2a0885f3a643';
 
 export { SONG };
 export const SPLIT = 'm9m_split';

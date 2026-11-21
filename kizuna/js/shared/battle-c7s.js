@@ -19,18 +19,18 @@
 // ・知っている 人（シミュレーター tools/sim-ch7.mjs。b.knowsCh6）: いっせいほうげきの 前に 身を 守る（b.c6NoGuard … しない）／
 //   のり上げて いる 間は いちばん ダメージの 大きい 攻撃（b.c7sNoFocus … しない）／板の 上の 人を 回復より 先に 助ける（b.c7sNoReach … ふつうと おなじ）／
 //   合体技は 板わたりの号令の すぐ 前と、板の 上に 人が いる 間は しない（シミュレーターの dual7）
-import { MONSTERS } from './data/monsters.js?v=ef73a8deb070';
-import { ABILITIES } from './data/abilities.js?v=ef73a8deb070';
-import { C7_REEF, C7_LIGHT } from './data/monsters-c7s.js?v=ef73a8deb070';
+import { MONSTERS } from './data/monsters.js?v=2a0885f3a643';
+import { ABILITIES } from './data/abilities.js?v=2a0885f3a643';
+import { C7_REEF, C7_LIGHT } from './data/monsters-c7s.js?v=2a0885f3a643';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=ef73a8deb070';
-import { canUse } from './ai.js?v=ef73a8deb070';
-import { AUTO_GUARD } from './battle-ch6.js?v=ef73a8deb070';
-import { TRAP_KINDS, REACH } from './battle-earth.js?v=ef73a8deb070';
+import { atbRate } from './battle.js?v=2a0885f3a643';
+import { canUse } from './ai.js?v=2a0885f3a643';
+import { AUTO_GUARD } from './battle-ch6.js?v=2a0885f3a643';
+import { TRAP_KINDS, REACH } from './battle-earth.js?v=2a0885f3a643';
 // 合体技の よやくの 組（ノクトの 地われと おなじ。板わたりは 組の 人を ねらって、手を ひきはなす）
-import { bondTeams, breakTeam } from './battle-nocto.js?v=ef73a8deb070';
+import { bondTeams, breakTeam } from './battle-nocto.js?v=2a0885f3a643';
 // 第2部 第7章 第3幕: いばらの魔女マレフィナ（いばらのかべ・黒い 竜）・カイの影（かげブーメラン）。battle-c7i.js
-import { setupC7i, c7iTurnStart, c7iEffect, c7iPlan, c7iPub, c7iDamage, c7iKill } from './battle-c7i.js?v=ef73a8deb070';
+import { setupC7i, c7iTurnStart, c7iEffect, c7iPlan, c7iPub, c7iDamage, c7iKill } from './battle-c7i.js?v=2a0885f3a643';
 
 export { C7_REEF, C7_LIGHT };
 export const BROADSIDE = 'm7r_broadside';

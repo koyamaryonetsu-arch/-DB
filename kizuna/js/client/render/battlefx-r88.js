@@ -9,7 +9,7 @@
 //  r88_fujin   風神・風魂（G2班）… 緑と 白の つむじ風が うずを まいて ふくらみ、風の やいばが 何本も 敵の グループを 切りさく
 //  r88_raijin  雷神・いかずち（G2班）… こての 雷が 青白く ばちばち 光り、敵 みんなの 上から 青い いなずまが ジグザグに 落ちる
 // G12班: 味方に かける えんしゅつ（もしもボックス・ムーン・ヒーリング）を PARTY_ANIMS に まぜる（client/battle.js が 画面の 下に 出す）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=ef73a8deb070';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=2a0885f3a643';
 const BOLT = ['#ffffff', '#fff6b0', '#ffd23a', '#c890ff'];
 const LIGHT = ['#ffffff', '#fffbe0', '#ffe680', '#ffd23a'];
 const WIND = ['#ffffff', '#e8fff0', '#9ef0c0', '#4ad890'];
