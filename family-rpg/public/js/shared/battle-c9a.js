@@ -30,6 +30,8 @@ import { pub, atbRate } from './battle.js';
 import { canUse } from './ai.js';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
 import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js';
+// 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
+import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -175,7 +177,9 @@ function setupTrial(b, h, lines) {
 // ───────────── 味方が 1回 動いた あと（battle.js の executeNext・防御の さいご）: 星の子の ほのかな光 ─────────────
 export function c9aAfter(b, c, ev) {
   // 第92回 第3便: 前ぶれの しるし（battle-tell.js。敵・味方の どの 行動の あとも 入れ直す）
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu) b.tell = c9Tell(b);
+  // 第3部 第2章 第1幕: あつさ・メカの あつさ・カビが 消える（battle-c10a.js。b.tell より 先）
+  if (b.c10) c10aAfter(b, c, ev);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
@@ -202,7 +206,8 @@ function glow(b, ev) {
   const lines = post(ev);
   const out = { glow: true, light: s.light, max: s.max, glows: s.glows };
   if (t) {
-    const real = Math.min(t.maxHp - t.hp, Math.max(1, Math.round(t.maxHp * SPICA_HEAL)));
+    // 第3部 第2章 第1幕: 赤の 音の ごほうび … 9%（battle-c10a.js）
+    const real = Math.min(t.maxHp - t.hp, Math.max(1, Math.round(t.maxHp * c10GlowHeal(b, SPICA_HEAL))));
     if (real > 0) {
       t.hp += real;
       s.heals += real;
@@ -687,7 +692,8 @@ export function c9aPub(c) {
   const o = {};
   if (c.side === 'ally') {
     if (c.c9torch !== undefined) o.torch9 = c.c9torch ? 1 : 0;
-    return o;
+    // 第3部 第2章 第1幕: あつさ・カビ（battle-c10a.js）
+    return Object.assign(o, c10aAllyPub(c));
   }
   if (c.c9t) {
     const t = c.c9t;

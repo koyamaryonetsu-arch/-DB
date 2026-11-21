@@ -30,6 +30,7 @@ import { ENCOUNTERS_C9A, FIXED_C9A, ZONE_BG_C9A } from './encounters-c9a.js';
 import { ENCOUNTERS_C9B, FIXED_C9B, ZONE_BG_C9B } from './encounters-c9b.js';
 import { ENCOUNTERS_C9C, FIXED_C9C, ZONE_BG_C9C } from './encounters-c9c.js';
 import { ENCOUNTERS_C9D, FIXED_C9D, ZONE_BG_C9D } from './encounters-c9d.js';
+import { ENCOUNTERS_C10A, FIXED_C10A, ZONE_BG_C10A } from './encounters-c10a.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -221,6 +222,10 @@ Object.assign(ZONE_BG, ZONE_BG_C9C);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C9D);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C9D);
 Object.assign(ZONE_BG, ZONE_BG_C9D);
+// 第3部 第2章 第1幕「赤と緑」・2人の 中ボス（encounters-c10a.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C10A);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C10A);
+Object.assign(ZONE_BG, ZONE_BG_C10A);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';

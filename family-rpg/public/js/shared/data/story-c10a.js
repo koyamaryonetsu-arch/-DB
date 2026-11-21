@@ -21,6 +21,8 @@ import { C10A_POS, CRATER_STAIRS10A, UNDER_ROOT10A, STUMP10A, PED_RE10A, PED_FA1
 import { PEDESTALS9C } from '../maps/c9c.js';
 import { MONSTERS } from './monsters.js';
 import { mergeBossHints } from './boss-hints.js';
+import { SHOPS } from './shops.js';
+import { C10A_SHOP_ADD } from './items-c10a.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -530,6 +532,18 @@ export function applyCh10a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = fa
   const S10 = c10aScripts(title, open, { ped: SCRIPTS.c9c_ped });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10A_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
+  // くぼ地の 武具屋: 幕の クリア（c10_act1）の あと 品が 4つ ふえる（B班の C10A_SHOP_ADD）
+  if (!SCRIPTS.c9b_armorer?.c10a) {
+    const armOld = SCRIPTS.c9b_armorer;
+    SCRIPTS.c9b_armorer = Object.assign((x) => (x.flag(C10A.act1) ? [['shop', SHOP10A_CRATER]] : armOld ? armOld(x) : []), { c10a: true });
+  }
+}
+
+// ───── くぼ地の 武具屋（第3幕の 店 c9c_crater に、B班の C10A_SHOP_ADD を 足した 店）─────
+export const SHOP10A_CRATER = 'c10a_crater';
+if (!SHOPS[SHOP10A_CRATER] && SHOPS.c9c_crater) {
+  const base9 = SHOPS.c9c_crater;
+  SHOPS[SHOP10A_CRATER] = { ...base9, hello: 'いらっしゃい！\n赤と緑の星の音の、ふた色の品が入ったぜ。', items: [...base9.items, ...C10A_SHOP_ADD.filter((id) => !base9.items.includes(id))] };
 }
 
 // ───── 負けた 時の ヒント（E班の しくみ。ヒントの 文は B班。言う 人は ノクト）─────

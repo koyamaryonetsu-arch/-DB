@@ -112,3 +112,12 @@ export const C10A_LV = { red: 105, green: 107 };
 
 // ───── 幕の 切りかえ ─────
 export const C10A_OPEN = 'PART3_C10A_OPEN'; // data/story-c10.js
+
+// ───── B班の かりの 置き場（data/c10a-names-b.js。合わせた 時に 消した）に あった 形（同じ 名前・同じ 値。B の ファイルは as で よぶ）─────
+export const C10A_B = {
+  start: C10A.start, rStairs: C10A_RED.stairs, rBoss: C10A_RED.boss, redRun: C10A_RED.run, noteRe: C10A_RED.note,
+  gRoot: C10A_GREEN.root, gBoss: C10A_GREEN.boss, noteFa: C10A_GREEN.note, act1: C10A.act1,
+};
+export const C10A_BONUS_B = { r: C10A_BONUS.red, g: C10A_BONUS.green };
+export const C10A_CHEST_IDS_B = { red: C10A_CHEST_IDS.red, green: C10A_CHEST_IDS.green, bonus: [C10A_CHEST_IDS.bonus.red, C10A_CHEST_IDS.bonus.green] };
+export const C10A_NOTES = { re: NOTE_RE, fa: NOTE_FA };

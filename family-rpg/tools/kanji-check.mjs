@@ -634,6 +634,10 @@ export function gameFiles() {
     'public/js/shared/maps/c10a-flags.js', 'public/js/shared/data/story-c10.js', 'public/js/shared/data/story-c10a.js',
     'public/js/shared/maps/c10a.js', 'public/js/shared/maps/c10a-rows.js', 'public/js/shared/world/c10a-steps.js',
     'public/js/client/c10a-view.js', 'public/js/client/render/tiles-c10a.js', 'public/js/client/render/c10a-npc-art.js',
+    // 第94回 B班: 第3部 第2章 第1幕（魔物・2人の 中ボス・品・ヒント・絵・背景・えんしゅつ。c10a-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/monsters-c10a.js', 'public/js/shared/data/abilities-c10a.js',
+    'public/js/shared/data/encounters-c10a.js', 'public/js/shared/data/companions-c10a.js', 'public/js/shared/data/items-c10a.js', 'public/js/shared/data/boss-hints-c10a.js',
+    'public/js/shared/battle-c10a.js', 'public/js/client/battle-c10a.js', 'public/js/client/render/c10a-art.js', 'public/js/client/render/c10a-bg.js', 'public/js/client/render/battlefx-c10a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

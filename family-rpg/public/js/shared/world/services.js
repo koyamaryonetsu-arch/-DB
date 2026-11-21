@@ -72,6 +72,8 @@ import { monLiveAction } from './monarena-live.js';
 import { gachaAction } from './gacha-r88.js';
 // 第93回 A班: ふたごの道で スピカを よぶ（world/c9d-steps.js）
 import { c9dCallMenu } from './c9d-steps.js';
+// 第94回 A班: 溶岩から にげて いる 間は ルーラも 使えない（world/c10a-steps.js）
+import { runningHere10a } from './c10a-steps.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -612,6 +614,7 @@ export function menuAction(world, s, msg) {
       // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文は 使えない（MPは へらない。特技は 使える）
       if (MAPS[s.map]?.noSpells && spellSealed(a)) return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし呪文の力が、すいこまれてしまった…\n（ここでは呪文が使えない。特技や道具を使おう）`);
       // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
+      if (a.effect?.type === 'warp' && runningHere10a(world, s)) return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし、ようがんの熱で、うまく飛べない！\n（走って、上へ、にげよう）`);
       if (a.effect?.type === 'warp') return castRura(world, s, caster, msg.id, msg, reply);
       // リレミト・トヘロス・マモノヨセ（world/field27.js）
       if (FIELD27_EFFECTS.has(a.effect?.type)) return castField27(world, s, caster, msg.id, reply);

@@ -3,11 +3,11 @@
 //   赤 … 火口（c10_r_stairs）→ 古い 道 1〜2階（レバー）→ 熱の 間（c10r_boss）→ 赤の 音（c10_red_run）→ 溶岩に 追われて 火口へ（c10_note_re）
 //   緑 … 大地の下の 根（c10_g_root）→ 根の国（音の つぼみ）→ 大木（c10g_boss）→ 緑の 音（c10_note_fa）→ ささやきの森の 切りかぶ
 // → くぼ地の 赤と 緑の 台（c10_act1）
-// 戦いの 中みは B班。ここでは かり（data/c10a-stub.js）で 決まった 戦いを すぐ 勝たせる（本当の 戦いは test/ch10-act1.test.js）
+// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当の 戦いは test/ch10-act1.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import '../public/js/shared/data/c10a-stub.js';
+import { existsSync } from 'node:fs';
 import { MAPS, isBlocked, canStand, effectiveTile, condOk } from '../public/js/shared/maps/index.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
 import {
@@ -26,6 +26,10 @@ import {
   C10A_OBJ, C10A_OBJ_ALL, CH10A_STORY_SCRIPTS, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, c10aScripts, applyCh10a, objective10a,
 } from '../public/js/shared/data/story-c10a.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
+import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { SHOPS } from '../public/js/shared/data/shops.js';
+import { C10A_SHOP_ADD } from '../public/js/shared/data/items-c10a.js';
 import { storyPlace, storyNext } from '../public/js/shared/world/shiori.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
@@ -196,12 +200,21 @@ test('名前の 約束: マップ 5まい・タイル 491〜・宝箱の id・�
     const g = gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f));
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場（data/c10a-stub.js）は ゲームの 本体から 読まない
-  const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : d.name.endsWith('.js') ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/')]) {
+  // かりの 置き場（A の c10a-stub.js・B の c10a-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['../public/js/shared/data/c10a-stub.js', '../public/js/shared/data/c10a-names-b.js']) assert.ok(!existsSync(new URL(f, import.meta.url)), `${f} は 消した`);
+  const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!src.includes('c10a-stub'), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c10a-stub|c10a-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // B班の 本物（宝箱 14こ・魔物の 表・決まった 戦い・だいじな 物）
+  for (const id of C10A_CHEST_ALL) {
+    const ch = C10A_MAP_IDS.flatMap((m) => MAPS[m].chests).find((c) => c.id === id);
+    assert.ok(ch && (ch.item || ch.gold), `宝箱 ${id} の 中み`);
+  }
+  for (const t of ['t10r_1', 't10r_2', 't10g_1', 't10g_2']) assert.ok(ENCOUNTER_TABLES[t], t);
+  for (const b of ['c10r_boss', 'c10g_boss']) assert.ok(FIXED_ENCOUNTERS[b]?.boss, b);
+  for (const k of ['note_re', 'note_fa']) assert.equal(ITEMS[k]?.type, 'key', k);
 });
 
 test('閉じた 幕（PART3_C10A_OPEN）: くぼ地で 音さを 鳴らしても 始まらない・第1章 クリアの 目標は 今の まま・幕を 開けた 形も ためす', () => {
@@ -544,6 +557,10 @@ for (const order of ['red', 'green']) {
     assert.ok(!c.flags[C10A_PED.re] && !c.flags[C10A_PED.fa], '小さな フラグは 消す');
     assert.ok(said(bot, '光の町'), 'スピカの 記おく');
     assert.equal(c.objective, C10A_OBJ.act1);
+    // くぼ地の 武具屋に 品が 4つ ふえた
+    const shop = JSON.stringify(SCRIPTS.c9b_armorer(ctx(c.flags)));
+    assert.ok(shop.includes('c10a_crater') && C10A_SHOP_ADD.every((id) => SHOPS.c10a_crater.items.includes(id)));
+    assert.ok(!JSON.stringify(SCRIPTS.c9b_armorer(ctx({ ...c.flags, c10_act1: false }))).includes('c10a_crater'), 'クリアの 前は 今の 店');
     // 「行った 所」は 取らない
     assert.ok(!C10A_MAP_IDS.some((id) => c.explored?.[id]));
   });

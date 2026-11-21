@@ -21,13 +21,12 @@ import {
   C10A_TRACKS, C10A_RED_BOSS_NAME, C10A_GREEN_BOSS_NAME,
 } from './c10a-flags.js';
 import { PEDESTALS9C } from './c9c.js';
+import { c10aChest } from '../data/items-c10a.js';
 
 export const CH10A_MAPS = [...C10A_MAP_IDS];
 
-// 宝箱の 中み（B班の data/items-c10a.js。入るまでは かりの お金。setChestOf10a で 入れかえる）
-let chestFn = null;
-export const setChestOf10a = (fn) => { chestFn = fn; };
-export const chestOf10a = (id) => (chestFn && chestFn(id)) || { gold: 500 };
+// 宝箱の 中み（B班の data/items-c10a.js の c10aChest。14この id）
+export const chestOf10a = (id) => c10aChest(id) || {};
 
 const base = (id, name, t, extra) => ({
   id, name, kind: 'dungeon', w: t.w, h: t.h, tiles: t.tiles, gates: [],
@@ -35,7 +34,7 @@ const base = (id, name, t, extra) => ({
   areaName: () => name, spawnCounts: {}, noExplore: true, c9dShowAll: true, ...extra,
 });
 export const finishGates10a = (m) => { m.gateAt = new Map(m.gates.map((g) => [g.y * m.w + g.x, g])); };
-// 魔物の 出る 表（B班が 入れるまでは 出さない）
+// 魔物の 出る 表（B班の data/encounters-c10a.js。ない 時は 出さない）
 const tableOr = (t, safe) => (ENCOUNTER_TABLES[t] ? t : safe);
 const warp = (m, from, map, to, dir, show) => {
   m.warps.push({ x: from.x, y: from.y, to: { map, x: to.x + 0.5, y: to.y + 0.5, dir }, ...(show ? { show } : {}) });
