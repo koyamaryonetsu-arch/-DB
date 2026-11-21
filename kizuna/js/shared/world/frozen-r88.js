@@ -4,10 +4,10 @@
 //   しるしは なくならない（引きかえ では ない）。1人 1回（もらった 記録は キャラの flags の FIFTH_FLAG。売っても もう もらえない）
 //   「持って いる」は そろいの 数え方と 同じ（ふくろ・預かり所・装備。shared/gear-r88.js の ownedIds）
 //   聖はいの 水しょうの台（world/grail-r88.js）と 同じ 形
-import { ITEMS } from '../data/items.js?v=10a0240c2bf8';
-import { addItem } from '../stats.js?v=10a0240c2bf8';
-import { ownedIds } from '../gear-r88.js?v=10a0240c2bf8';
-import { SPIRIT_MARKS, FIFTH_DRESS, FIFTH_FLAG } from '../data/items-r88-frozen.js?v=10a0240c2bf8';
+import { ITEMS } from '../data/items.js?v=93a310251ce7';
+import { addItem } from '../stats.js?v=93a310251ce7';
+import { ownedIds } from '../gear-r88.js?v=93a310251ce7';
+import { SPIRIT_MARKS, FIFTH_DRESS, FIFTH_FLAG } from '../data/items-r88-frozen.js?v=93a310251ce7';
 
 export const marksOf = (c) => {
   const own = ownedIds(c);

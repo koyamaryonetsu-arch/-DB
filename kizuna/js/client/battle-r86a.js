@@ -6,8 +6,8 @@
 //   ・竜神の剣士の 玉がえ・火竜をよぶ は YAIBA・烈火と おなじ メニュー（client/battle-r82b.js の tamaMenu・battle-r85b.js の ryuMenu）。
 //     shared/battle-r86a.js を 読みこむと 竜神の剣士の 玉（雷・水・氷・風・竜神）が tamaSet に 入る
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { R86A_JOBS } from '../shared/battle-r86a.js?v=10a0240c2bf8';
-import { ELEMENT_NAMES } from '../shared/data/abilities.js?v=10a0240c2bf8';
+import { R86A_JOBS } from '../shared/battle-r86a.js?v=93a310251ce7';
+import { ELEMENT_NAMES } from '../shared/data/abilities.js?v=93a310251ce7';
 
 const CSS = `
 .b-mem .sts .bm.tame86 { color: #fff4f0; background: rgba(220, 40, 40, 0.35); font-weight: bold; }

@@ -6,9 +6,9 @@
 //          つかった 人の まわりだけ（画面ぜんたいの くらさ・帯・ゆれ は なし）
 //   どの 段でも カットインの 帯・かげ・はなつ 前の スローの ひかり・白い ひかりは なし
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かける）
-import { aura, gather, bolt, shapes, rnd } from './axkit.js?v=10a0240c2bf8';
+import { aura, gather, bolt, shapes, rnd } from './axkit.js?v=93a310251ce7';
 // 段階・ためかたの なまえ・ためる 時間は サーバーと おなじ 表（shared/ax-time.js）
-import { AX_CHARGE_KINDS, AX_TIERS, AX_TIER_CHARGE_MS, AX_KI_CHARGE_MS, axTierOf, axKindOf, axChargeMs } from '../../shared/ax-time.js?v=10a0240c2bf8';
+import { AX_CHARGE_KINDS, AX_TIERS, AX_TIER_CHARGE_MS, AX_KI_CHARGE_MS, axTierOf, axKindOf, axChargeMs } from '../../shared/ax-time.js?v=93a310251ce7';
 
 export const CHARGE_KINDS = AX_CHARGE_KINDS;
 export const TIERS = AX_TIERS;
