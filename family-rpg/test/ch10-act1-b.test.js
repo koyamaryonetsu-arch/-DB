@@ -424,6 +424,10 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物
     assert.equal(c.few.hp[3], 1);
     assert.equal(c.few.atk[3], 1);
   }
+  // モルドの ひとりは カビの かべが とても かたい（スピカの てらすを 使わないと 勝てない）
+  const solo = battle({ boss: 'mold', kinds: ['player'] });
+  assert.ok(c10Conf(C10G_MOLD, solo).wall <= 0.1);
+  assert.equal(c10Conf(C10G_MOLD, battle({ boss: 'mold' })).wall, 0.5);
 });
 
 // ───────────── 強さ ─────────────

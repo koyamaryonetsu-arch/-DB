@@ -135,7 +135,7 @@ export function c10Html(c, allies = []) {
     else tx = 'あつくなったら休もう。メカは、炎であつくしよう';
   } else {
     cls += ' mold';
-    row = c.wall ? 'カビのかべ：あり（ダメージ半分）' : c.c10Down ? 'カビのかべ：なし' : `カビのかべ：消えている！（あと${c.wallLit || 0}）`;
+    row = c.wall ? 'カビのかべ：あり（ダメージがへる）' : c.c10Down ? 'カビのかべ：なし' : `カビのかべ：消えている！（あと${c.wallLit || 0}）`;
     const k2 = allies.filter((a) => a.alive && a.kabi10 >= (a.kabiMax10 || 3) - 1);
     if (c.c10Down) { tx = 'メカが、止まった！'; cls += ' good'; } else if (c.bomb) { tx = '大カビばくだんが来る！「防御」で守ろう'; cls += ' warn'; } else if (k2.length) {
       tx = `${k2.map((a) => a.name).join('と')}のカビが多い！スピカの星のうたか、てらすで消そう`;
