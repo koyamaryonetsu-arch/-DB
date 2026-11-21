@@ -5,7 +5,7 @@
 //   白の 道（氷の 下の 道）は ふつうの 魔物が 出ない（こっそりの じゃまを しない）。見はりに 見つかった 時だけ 決まった 戦い
 // ふつうの 戦いの 長さ（14-3）: 勇者 ＋ ゲームと おなじ 作りの 酒場の 仲間 3人で 90秒 いない・見はりの 戦いは 120秒 いない（tools/sim-ch9-field.mjs）
 import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE } from './monsters-c10b.js';
-import { C10B_BATTLE_B as C10B_BATTLE, C10B_TRACKS_B as C10B_TRACKS } from './c10b-names-b.js';
+import { C10B_BATTLE_B as C10B_BATTLE, C10B_TRACKS_B as C10B_TRACKS } from '../maps/c10b-flags.js';
 // 負けた 時の ヒントの 文（boss-hints-c10b.js が mergeBossHints を よぶ）
 import './boss-hints-c10b.js';
 

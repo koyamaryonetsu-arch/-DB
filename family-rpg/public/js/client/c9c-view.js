@@ -15,6 +15,7 @@ import { paintRaft } from './render/c9c-npc-art.js';
 // 第93回 A班: 岸の ひびきの石で 歌って いる スピカの まわりも ふたごの道と 同じ 明かり（client/c9d-view.js）
 import { c9dSingingSpica } from './c9d-view.js';
 import { LIGHT_SPICA9D } from '../shared/maps/c9d-lane.js';
+import { raftAt10b } from './c10b-view.js';
 
 // ───── 向き ─────
 export const myFlip9c = (field) => !!field.map?.c9cPyr && !!field.game?.me?.c9cFlip;
@@ -40,6 +41,8 @@ export function c9cChestAlpha(field, ch) {
 // ───── いかだ ─────
 export function raftAt9c(field, x, y) {
   const m = field.map;
+  // 第95回 A班: 水鏡の うらの 水の 上も いかだ（client/c10b-view.js）
+  if (m?.c10bBlue) return raftAt10b(field, x, y);
   if (!m?.c9cRaft) return false;
   return !!TILE_INFO[tileAt(m, Math.floor(x), Math.floor(y))]?.river;
 }

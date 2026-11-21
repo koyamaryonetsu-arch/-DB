@@ -117,6 +117,12 @@ export const T = {
   C10A_GROUND: 497, C10A_ROOTWALL: 498, C10A_GAP: 499, C10A_CLIFF: 500, C10A_BUD: 501, C10A_BUD_OPEN: 502, C10A_VINE: 503,
   C10A_LEAF: 504, C10A_SPROUT: 505, C10A_SHROOM: 506, C10A_LOOKOUT: 507, C10A_TREE: 508, C10A_HOLLOW: 509, C10A_ICEBUD: 510,
   C10A_FIREBLOOM: 511, C10A_HANGROOT: 512, C10A_STUMP: 513, C10A_SPORE: 514, C10A_ROOT_H: 515, C10A_ROOT_V: 516,
+  // 第3部 第2章 第2幕「青と白」（第95回 A班。521〜550。maps/c10b*.js・render/tiles-c10b.js）
+  C10B_WALL: 521, C10B_FLOOR0: 522, C10B_FLOOR1: 523, C10B_FLOOR2: 524, C10B_CLIFF: 525, C10B_WATER: 526, C10B_RAMP: 527,
+  C10B_DIVE: 528, C10B_BELL: 529, C10B_FLOW_E: 530, C10B_FLOW_W: 531, C10B_TRENCH: 532, C10B_KEYSTONE: 533, C10B_DOOR: 534,
+  C10B_WHIRL: 535, C10B_ICEBRIDGE: 536, C10B_ORB: 537, C10B_SAND: 538, C10B_SPRING: 539, C10B_ICEFLOOR: 540, C10B_ICEWALL: 541,
+  C10B_SLIDE: 542, C10B_SNOWPILE: 543, C10B_THIN: 544, C10B_PILLAR: 545, C10B_MELTWALL: 546, C10B_MOONFLOOR: 547,
+  C10B_LIGHTSTAIRS: 548, C10B_ICESTAIRS: 549, C10B_DEEP: 550,
 };
 
 export const TILE_INFO = {};
@@ -651,6 +657,39 @@ def(T.C10A_STUMP, 'c10a_stump', { mapColor: '#8a6a42' }); // 切りかぶの 近
 def(T.C10A_SPORE, 'c10a_spore', { mapColor: '#2e6c5c' }); // 光る 胞子の 草（根の国の 地面）
 def(T.C10A_ROOT_H, 'c10a_root_h', { mapColor: '#4a3020' }); // 地面を はう 太い 根（よこ。上を 歩ける）
 def(T.C10A_ROOT_V, 'c10a_root_v', { mapColor: '#4a3020' }); // 地面を はう 太い 根（たて。上を 歩ける）
+// 第3部 第2章 第2幕「青と白」（第95回 A班）
+// 青: 水鏡の うら（c10bRaft … 水の 上は いかだ。水の 高さで かわる すがたは maps/c10b.js の c10bCell）
+def(T.C10B_WALL, 'c10b_wall', { solid: true, mapColor: '#1a3048' }); // 青い 石の かべ
+def(T.C10B_FLOOR0, 'c10b_floor0', { mapColor: '#6a7a78' }); // 湖の 底（水が ぬけた 低い 所。ぬれた 石）
+def(T.C10B_FLOOR1, 'c10b_floor1', { mapColor: '#7a96a8' }); // 中の 段（青い 石だたみ）
+def(T.C10B_FLOOR2, 'c10b_floor2', { mapColor: '#a8c0cc' }); // 高い 岸（白っぽい 石）
+def(T.C10B_CLIFF, 'c10b_cliff', { solid: true, mapColor: '#3a5068' }); // 高い 所の ふちの がけ（下からは 上れない）
+def(T.C10B_WATER, 'c10b_water', { anim: true, c10bRaft: true, mapColor: '#2a7ac0' }); // 水（いかだで 進む）
+def(T.C10B_RAMP, 'c10b_ramp', { mapColor: '#8aa0b0' }); // 坂（いつでも 上り下り できる）
+def(T.C10B_DIVE, 'c10b_dive', { mapColor: '#c8e0f0' }); // 飛びこめる ふち（下が 水の 時だけ）
+def(T.C10B_BELL, 'c10b_bell', { solid: true, talkThrough: true, light: true, mapColor: '#e0c060' }); // 音の 鐘（星の音で 水の 高さが かわる）
+def(T.C10B_FLOW_E, 'c10b_flow_e', { flow: [1, 0], anim: true, c10bRaft: true, mapColor: '#3a9ad8' }); // 流れる 水路（東へ。中の 時だけ）
+def(T.C10B_FLOW_W, 'c10b_flow_w', { flow: [-1, 0], anim: true, c10bRaft: true, mapColor: '#3a9ad8' }); // 流れる 水路（西へ。中の 時だけ）
+def(T.C10B_TRENCH, 'c10b_trench', { solid: true, mapColor: '#14202c' }); // 水路の 穴（水が ない・天じょうまで 水の 時は 通れない）
+def(T.C10B_KEYSTONE, 'c10b_keystone', { solid: true, talkThrough: true, light: true, mapColor: '#6ae0ff' }); // かぎの 石（湖の 底）
+def(T.C10B_DOOR, 'c10b_door', { solid: true, talkThrough: true, mapColor: '#3a6a9a' }); // おくへの とびら（かぎの 石で 開く）
+def(T.C10B_WHIRL, 'c10b_whirl', { solid: true, anim: true, talkThrough: true, mapColor: '#1a5a9a' }); // うず（白の 音で こおる。おまけ）
+def(T.C10B_ICEBRIDGE, 'c10b_icebridge', { mapColor: '#d0f0ff' }); // こおった うずの 橋
+def(T.C10B_ORB, 'c10b_orb', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#3a8aff' }); // 青い 光の 玉（かれた 間）
+def(T.C10B_SAND, 'c10b_sand', { mapColor: '#c8b080' }); // かれた 間の ゆか（水が 砂に なった）
+def(T.C10B_SPRING, 'c10b_spring', { anim: true, light: true, mapColor: '#6ac0ff' }); // わき水（水鏡の 広間への 近道）
+// 白: 白銀の湖の 氷の 下（こっそり）
+def(T.C10B_ICEFLOOR, 'c10b_icefloor', { mapColor: '#9ab8d0' }); // 氷の 下の ゆか（すべらない）
+def(T.C10B_ICEWALL, 'c10b_icewall', { solid: true, mapColor: '#4a6a90' }); // 氷の かべ
+def(T.C10B_SLIDE, 'c10b_slide', { slide: true, mapColor: '#c8e8ff' }); // すべる 氷（見はりの 目の 前を 一気に ぬけられる）
+def(T.C10B_SNOWPILE, 'c10b_snowpile', { mapColor: '#f4f8ff' }); // 雪の 山（中に 入ると 見はりに 見えない）
+def(T.C10B_THIN, 'c10b_thin', { mapColor: '#b0d0e8' }); // うすい 氷（ふむと 大きな 音）
+def(T.C10B_PILLAR, 'c10b_pillar', { solid: true, mapColor: '#6a9ac8' }); // 氷の 柱（見はりの フクロウが とまる・かげに かくれる）
+def(T.C10B_MELTWALL, 'c10b_meltwall', { solid: true, talkThrough: true, mapColor: '#8ac8f0' }); // 青の 音で とける 氷の かべ（おまけ）
+def(T.C10B_MOONFLOOR, 'c10b_moonfloor', { mapColor: '#b8c8e0' }); // 月の 間の ゆか（月の 光）
+def(T.C10B_LIGHTSTAIRS, 'c10b_lightstairs', { light: true, anim: true, mapColor: '#d8f0ff' }); // 夜の 湖の 光の 階段（氷の 下へ）
+def(T.C10B_ICESTAIRS, 'c10b_icestairs', { mapColor: '#c0e8ff' }); // 岸への 氷の 階段（月の 間へ）
+def(T.C10B_DEEP, 'c10b_deep', { anim: true, c10bRaft: true, mapColor: '#1a5aa0' }); // ふかい 水（いかだで 進む）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

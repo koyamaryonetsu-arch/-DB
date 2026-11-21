@@ -14,7 +14,7 @@ import { C10A, C10A_RED, C10A_GREEN, C10A_MAP, C10A_BATTLE, C10A_CHEST_ALL, C10A
 import { C10A_POS, CRATER_STAIRS10A, UNDER_ROOT10A } from '../public/js/shared/maps/c10a-rows.js';
 import { runEntrance10a, c10aSnap } from '../public/js/shared/world/c10a-steps.js';
 import { act4ClearObjective, PART3_ACT4_OPEN } from '../public/js/shared/data/story-c9.js';
-import { PART3_C10A_OPEN } from '../public/js/shared/data/story-c10.js';
+import { PART3_C10A_OPEN, act1ClearObjective } from '../public/js/shared/data/story-c10.js';
 import { C10A_OBJ } from '../public/js/shared/data/story-c10a.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
@@ -234,7 +234,8 @@ async function bonusAndEnd(bot, opts) {
   await talkTo(bot, 'c9a_crater', 'c9c_ped1', 0, opts);
   await talkTo(bot, 'c9a_crater', 'c9c_ped4', 0, opts);
   assert.ok(c.flags[C10A.act1], '幕の クリア');
-  assert.equal(c.objective, C10A_OBJ.act1);
+  // 第95回 A班: 第2幕が 開いた ので、幕の クリアの あとの 目標は 第2幕の はじまり（story-c10.js の act1ClearObjective）
+  assert.equal(c.objective, act1ClearObjective());
   assert.equal(storyPlace(c).label, '第3部 第2章 第1幕');
   assert.ok(storyPlace(c).cleared);
   assert.ok(C10A_SHOP_ADD.every((id) => SHOPS.c10a_crater.items.includes(id)), 'くぼ地の 武具屋に 品が ふえた');

@@ -23,14 +23,14 @@
 //   HPが 半分を 切ると、まぼろしが 1人 ふえて 4人に。シャッフルは 毎回（halfShuffle）
 //   「ぬすむ」（steal.every 回 動く ごとに ふつうに 動きながら 前ぶれ・ねらう 人 → 次の 番 m10o_steal）: その 人の よい 効果（バフ）を ぜんぶ 自分に。身を 守ると ふせげる
 //   勝つと 3人は 1人に もどり、ぼうしを 取って おじぎ（たおれない）
-//   自動の 仲間（酒場の 人・家族の 仲間・魔物の 仲間）は、人が えらんで いる 時だけ、3回に 1回 本物を ねらう（のこりは でたらめ）。完全オートは みんな でたらめ（まぼろしを たたき続ける）
+//   自動の 仲間（酒場の 人・家族の 仲間）は、人が えらんで いる 時だけ、3回に 1回 本物を ねらう（魔物の 仲間は 毎回 … AUTO_EVERY_MON。のこりは でたらめ）。完全オートは みんな でたらめ（まぼろしを たたき続ける）
 // ・人数で 合わせる（few・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { DUAL_TECHS } from './data/dual.js';
 import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, OWL_NAME } from './data/monsters-c10b.js';
 import { MIZUOTO } from './data/abilities-c10b.js';
-import { C10B_B as C10B } from './data/c10b-names-b.js';
+import { C10B_B as C10B } from './maps/c10b-flags.js';
 import { TERU } from './data/abilities-c9b.js';
 import { canUse } from './ai.js';
 import { peopleOf10, someoneChooses } from './battle-c10a.js';
@@ -44,6 +44,7 @@ export const STEAL = 'm10o_steal';
 // スピカの ごほうび
 export const REWARD_SONG = 4;
 export const AUTO_EVERY = 3;
+export const AUTO_EVERY_MON = 1;
 // 場所の 名前（左から）
 export const OWL_POS = { 3: ['左', 'まん中', '右'], 4: ['左はし', '左から2', '右から2', '右はし'] };
 
@@ -720,11 +721,13 @@ function owlPlan(b, c, mode, decide, bestHit) {
   const know = mode === 'know';
   if (!know) {
     const cmd = base(b, c, decide);
-    // 自動の 人の 仲間（人が えらんで いる 時）: 3回に 1回 本物を ねらう
+    // 自動の 仲間（人が えらんで いる 時）: 3回に 1回 本物を ねらう（魔物の 仲間は AUTO_EVERY_MON 回に 1回 … 今は 毎回。数は それぞれ みんなで 1つ）
     let to = null;
     if (mode !== 'blind' && c.kind !== 'player' && someoneChooses(b)) {
-      b.c10bAuto = (b.c10bAuto || 0) + 1;
-      if (b.c10bAuto % AUTO_EVERY === 0) to = real;
+      const mon = c.kind === 'monster';
+      const key = mon ? 'c10bAutoMon' : 'c10bAuto';
+      b[key] = (b[key] || 0) + 1;
+      if (b[key] % (mon ? AUTO_EVERY_MON : AUTO_EVERY) === 0) to = real;
     }
     // 知らない 人: たまに 動いた 本物に 気づく
     if (mode === 'blind' && st.seen === real.id && b.rng.chance(0.15)) to = real;

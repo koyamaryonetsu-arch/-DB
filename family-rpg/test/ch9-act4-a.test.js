@@ -106,8 +106,9 @@ test('名前の 約束: マップ 3まい・タイル 471〜・宝箱の id・�
   assert.deepEqual(C9D_LINE, ['c9_song1', 'c9_door', 'c9_g2', 'c9_grave', 'c9_mu', 'c9_hollow', 'c9_act4']);
   assert.deepEqual(CH9_STEPS.slice(-8), ['c9_act3', ...C9D_LINE]);
   // 第94回 A班: その うしろに 第3部 第2章の 一本の 線（c10_start・c10_act1）
-  assert.deepEqual(STORY_STEPS.slice(-10, -2), ['c9_act3', ...C9D_LINE]);
-  assert.deepEqual(STORY_STEPS.slice(-2), ['c10_start', 'c10_act1']);
+  // 第95回 A班: さらに その うしろに 第2幕の はじめと おわり（c10b_start・c10_act2）
+  assert.deepEqual(STORY_STEPS.slice(-12, -4), ['c9_act3', ...C9D_LINE]);
+  assert.deepEqual(STORY_STEPS.slice(-4), ['c10_start', 'c10_act1', 'c10b_start', 'c10_act2']);
   assert.deepEqual(C9D_ECHO, ['c9_echo1', 'c9_echo2', 'c9_echo3', 'c9_echo4', 'c9_echo5']);
   for (const f of C9D_ECHO) assert.ok(!STORY_STEPS.includes(f), `${f} は 一本の 線に 入らない`);
   // 宝箱 8こ（1階 3・2階 3・はかば 2）

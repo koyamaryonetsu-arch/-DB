@@ -38,6 +38,8 @@ import { noteC9cTheme, c9cOtherAlpha, c9cChestAlpha, raftAt9c, drawRaft2D, raftE
 import { noteC9dSnap, noteC9dStage, c9dSpicaLeft, c9dSingingSpica, drawC9dDark2D, drawC9dDark3D, drawC9dRing2D, drawC9dRing3D } from './c9d-view.js';
 // 第94回 A班: 第3部 第2章 第1幕の 溶岩に 追われる・見はらし台（client/c10a-view.js）
 import { noteC10aSnap, noteC10aStage, drawC10aLava2D, drawC10aLava3D, lavaShake10a, wideScale10a, drawC10aSpores } from './c10a-view.js';
+// 第95回 A班: 第3部 第2章 第2幕の 水の 高さ・こっそり（client/c10b-view.js）
+import { noteC10bSnap, noteC10bStage, c10bFieldFlag, drawC10bSneak2D, drawC10bSneak3D, drawC10bWater } from './c10b-view.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -338,6 +340,8 @@ export class Field {
     // 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人）・お日さまの むき（'@noon' など。第4章の オベリスクの 影）
     // 第92回 A班: '@flip' … 自分の 向きが さかさ（さかさのピラミッド。人ごと）
     if (f === '@flip') return !!this.game.me?.c9cFlip;
+    // 第95回 A班: '@w0'〜'@w2' … パーティーの 水の 高さ（水鏡の うら）・'@&a&b' … a と b の 両方（client/c10b-view.js）
+    if (f[0] === '@') { const r = c10bFieldFlag(this, f, (x) => this.hasFlag(x)); if (r !== undefined) return r; }
     if (f[0] === '@') return this.game.sky ? timeFlag(f, this.game.sky.frac()) : false;
     const world = this.game.worldFlagSet;
     if (world && this.game.visitingLeader()) return world.has(f);
@@ -845,6 +849,7 @@ export class Field {
     noteC9aSnap(this, msg.c9a); // 第90回 A班: 光の輪（パーティーの 明かり）
     noteC9dSnap(this, msg.c9d); // 第93回 A班: スピカと ふた手に
     noteC10aSnap(this, msg.c10); // 第94回 A班: 溶岩に 追われる
+    noteC10bSnap(this, msg.c10b); // 第95回 A班: 水の 高さ・こっそり
     if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
@@ -1016,6 +1021,7 @@ export class Field {
     noteC9cTheme(this); // 第92回 A班: さかさの 時は 天じょうの 色・曲の flipStage
     noteC9dStage(this); // 第93回 A班: 曲の apartStage・songStage
     noteC10aStage(this); // 第94回 A班: 曲の lavaStage
+    noteC10bStage(this); // 第95回 A班: 曲の waterStage・alertStage
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;
@@ -1130,6 +1136,8 @@ export class Field {
     if (m.c9dStones) drawC9dRing2D(this, camX, camY); // 第93回 A班: ピラミッドの 岸の ひびきの石
     if (m.c10Red) drawC10aLava2D(this, camX, camY); // 第94回 A班: 溶岩に 追われる
     if (m.c10Green) drawC10aSpores(this, ctx); // 第94回 A班: 根の国の 光る ほうし
+    if (m.c10bSneak) drawC10bSneak2D(this, camX, camY); // 第95回 A班: 見はりの フクロウと 見て いる マス
+    if (m.c10bBlue) drawC10bWater(this, ctx); // 第95回 A班: 水鏡の うらの 光・水が かわる 時の 波
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1291,6 +1299,8 @@ export class Field {
     if (m.c9dStones) drawC9dRing3D(this, ctx, P); // 第93回 A班: ピラミッドの 岸の ひびきの石
     if (m.c10Red) drawC10aLava3D(this, ctx, P); // 第94回 A班: 溶岩に 追われる
     if (m.c10Green) drawC10aSpores(this, ctx); // 第94回 A班: 根の国の 光る ほうし
+    if (m.c10bSneak) drawC10bSneak3D(this, ctx, P); // 第95回 A班: 見はりの フクロウと 見て いる マス
+    if (m.c10bBlue) drawC10bWater(this, ctx); // 第95回 A班: 水鏡の うらの 光・水が かわる 時の 波
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();

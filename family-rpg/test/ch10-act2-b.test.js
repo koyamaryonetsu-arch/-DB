@@ -19,7 +19,7 @@ import { canEquip } from '../public/js/shared/stats.js';
 import {
   C10B_B as C10B, C10B_BONUS_B, C10B_PED_B, C10B_MAP_B, C10B_BATTLE_B as C10B_BATTLE, C10B_MON_PREFIX_B, C10B_BOSS_MON_B, C10B_TABLE_B,
   C10B_CHEST_IDS_B as C10B_CHEST_IDS, C10B_NOTES_B, C10B_TRACKS_B, C10B_OPEN_B,
-} from '../public/js/shared/data/c10b-names-b.js';
+} from '../public/js/shared/maps/c10b-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import {
   MONSTERS_C10B, C10B_MINIONS, C10B_BLUE_MON, C10B_WHITE_MON, C10B_RECOLOR_BASE, C10B_NEW_ART, C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, C10B_MAT_DROPS, GECKO_NAME, OWL_NAME,
@@ -30,7 +30,7 @@ import { ENCOUNTERS_C10B, FIXED_C10B, ZONE_BG_C10B, C10B_WATCH } from '../public
 import { ITEMS_C10B, C10B_TREASURE, C10B_K, C10B_SHOP_K, C10B_GEAR_CHESTS, C10B_SHOP_ADD, C10B_DROPS, NOTE_SO, NOTE_LA, c10bChest } from '../public/js/shared/data/items-c10b.js';
 import { C10B_BOSS_HINTS, C10B_HINT_WHO } from '../public/js/shared/data/boss-hints-c10b.js';
 import {
-  c10bConf, c10bTell, c10bPlan, c10bPub, geckoOf, owlReal, owlsOf, owlVisible, OWL_POS, STORM, DRY, SHUFFLE, STEAL, REWARD_SONG, AUTO_EVERY, aimedAt,
+  c10bConf, c10bTell, c10bPlan, c10bPub, geckoOf, owlReal, owlsOf, owlVisible, OWL_POS, STORM, DRY, SHUFFLE, STEAL, REWARD_SONG, AUTO_EVERY, AUTO_EVERY_MON, aimedAt,
 } from '../public/js/shared/battle-c10b.js';
 import { TERU, TERU_MAX, teruOf } from '../public/js/shared/battle-c9b.js';
 import { SONG, SONG_MAX } from '../public/js/shared/battle-c9d.js';
@@ -44,7 +44,7 @@ import { MONSTER_ART, monsterSize, monsterFine } from '../public/js/client/rende
 import { playC10bFx } from '../public/js/client/render/battlefx-c10b.js';
 import { playC8cFx } from '../public/js/client/render/battlefx-c8c.js';
 import { battleBgSpec } from '../public/js/client/render/battlefx.js';
-import { C10B_SCREEN_ANIMS, C10B_ALLY_FX, C10B_SFX, C10B_OWN_TELE, c10bDraw, c10bPresent, c10bSprite, c10bCmdItems, c10bCmdPick, c10bHtml, waterMeter, posName } from '../public/js/client/battle-c10b.js';
+import { C10B_SCREEN_ANIMS, C10B_ALLY_FX, C10B_SFX, C10B_OWN_TELE, c10bDraw, c10bPresent, c10bSprite, c10bCmdItems, c10bCmdPick, c10bHtml, waterMeter, posName, waterInfo, refreshWaterInfo } from '../public/js/client/battle-c10b.js';
 import { CH4_ALLY_FX } from '../public/js/client/battle-ch4.js';
 import { CH6_OWN_TELE } from '../public/js/client/battle-ch6.js';
 import { C10B_TRACKS as AUDIO_C10B } from '../public/js/client/audio-c10b.js';
@@ -404,8 +404,9 @@ test('シロフクロウ: 2回 動く ごとに シャッフル（前ぶれ → 
 });
 
 // ───────────── 自動の 仲間 ─────────────
-test('自動の 仲間: ゲッコー … 水 1 いかの 番の 3回に 1回 鳴らす／シロフクロウ … 3回に 1回 本物を ねらう（どちらも 人が えらんで いる 時だけ。完全オートでは しない）', () => {
+test('自動の 仲間: ゲッコー … 水 1 いかの 番の 3回に 1回 鳴らす／シロフクロウ … 3回に 1回（魔物の 仲間は 毎回）本物を ねらう（どちらも 人が えらんで いる 時だけ。完全オートでは しない）', () => {
   assert.equal(AUTO_EVERY, 3);
+  assert.equal(AUTO_EVERY_MON, 1);
   const b = battle({ kinds: ['player', 'support', 'monster', 'support'] });
   const [p, s1, mon, s2] = b.allies;
   const m = geckoOf(b);
@@ -443,6 +444,13 @@ test('自動の 仲間: ゲッコー … 水 1 いかの 番の 3回に 1回 鳴
   o.c10bAuto = 0;
   const helped = [...Array(30)].map(tgt).filter(Boolean);
   assert.ok(helped.filter((t) => t === real.id).length >= 10, `人が えらんで いる 時は 3回に 1回 本物 ${helped.filter((t) => t === real.id).length}`);
+  // 魔物の 仲間は 毎回
+  const om = battle({ boss: 'owl', kinds: ['player', 'monster', 'monster', 'monster'] });
+  om.allies[0].auto = false;
+  const rm = owlReal(om);
+  const hm = () => ({ type: 'attack', target: owlVisible(om)[0].id });
+  const mt = [...Array(30)].map(() => c10bPlan(om, om.allies[1], hm, bestHit)?.target);
+  assert.equal(mt.filter((t) => t === rm.id).length, 30, '魔物の 仲間は 毎回 本物');
   // 知って いる 人: 本物が わかって いれば 本物・わからなければ てらすか 全体の 技か 防御
   op.knows9 = 'know';
   o.c10b.seen = real.id;
@@ -467,7 +475,7 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
     // 与える ダメージ（呪文も）は dmgRate
     const two = battle({ boss, kinds: ['player', 'player', 'support', 'support'] });
     const e = boss === 'gecko' ? geckoOf(two) : owlReal(two);
-    assert.equal(e.dmgRate, c.few.atk[1]);
+    assert.equal(e.dmgRate ?? 1, c.few.atk[1]);  // 1 の 時は つけない
   }
   // シロフクロウは みんな おなじ HP（まぼろしも）
   const o = battle({ boss: 'owl', kinds: ['player', 'support'] });
@@ -626,6 +634,17 @@ test('がめん: 画面の 上の まど（水の めもり・本物の 場所�
   const ci = c10bCmdItems({ enemies: () => [gk] }, me);
   assert.ok(ci.items[0].html.includes('水の音を鳴らす') && ci.items[0].html.includes('今だ') && ci.info.includes('水'));
   assert.equal(c10bCmdItems({ enemies: () => [ow] }, me).items.length, 0);
+  // まどを 開いた あとに 水が かわった（自動の 仲間が 鳴らした など）: せつめいを 今の 水の 数で 出し直す
+  const shown = [];
+  const sc3 = { enemies: () => [gk], infoEl: { textContent: '' }, info(t) { shown.push(t); this.infoEl.textContent = t; } };
+  const first = c10bCmdItems(sc3, me).info;
+  sc3.infoEl.textContent = first;
+  assert.equal(first, waterInfo(gk));
+  assert.equal(refreshWaterInfo(sc3, gk), false, 'かわらなければ そのまま');
+  assert.equal(refreshWaterInfo(sc3, { ...gk, water: 2 }), true);
+  assert.ok(shown.pop().includes('ちょうどいい'));
+  sc3.infoEl.textContent = 'ほかの 技の せつめい';
+  assert.equal(refreshWaterInfo(sc3, { ...gk, water: 0 }), false, 'ほかの せつめいは さわらない');
   const sent = [];
   assert.equal(c10bCmdPick({ send: (m) => sent.push(m) }, me, 'c10bring'), true);
   assert.deepEqual(sent, [{ type: 'ability', id: MIZUOTO }]);
@@ -645,7 +664,6 @@ test('がめん: 画面の 上の まど（水の めもり・本物の 場所�
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c10b-names-b.js',
     'public/js/shared/data/monsters-c10b.js', 'public/js/shared/data/abilities-c10b.js',
     'public/js/shared/data/encounters-c10b.js', 'public/js/shared/data/companions-c10b.js', 'public/js/shared/data/items-c10b.js', 'public/js/shared/data/boss-hints-c10b.js',
     'public/js/shared/battle-c10b.js', 'public/js/client/battle-c10b.js', 'public/js/client/render/c10b-art.js', 'public/js/client/render/c10b-bg.js', 'public/js/client/render/battlefx-c10b.js',
