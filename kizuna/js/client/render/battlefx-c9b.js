@@ -3,7 +3,9 @@
 // 色: すいしょう＝水色と 白、こけ＝みどりの 光、くらやみ＝むらさき、もぐら＝茶色と 鉄、大王＝赤い マントと 木の 茶色・金、ごちそう＝だいだい
 // じっと 見る・食べる・明かりを 食べる・大ジャンプ・からからほのお・てらすは がめんの まん中に 大きく（client/battle-c9b.js の C9B_SCREEN_ANIMS）
 // 第3部 第1章 第3幕（battlefx-c9c.js）
-import { playC9cFx } from './battlefx-c9c.js?v=93a310251ce7';
+import { playC9cFx } from './battlefx-c9c.js?v=7eefef6c1f45';
+// 第3部 第1章 第4幕（battlefx-c9d.js）
+import { playC9dFx } from './battlefx-c9d.js?v=7eefef6c1f45';
 
 const CRYSTAL = ['#c8f4ff', '#7ad8f0', '#ffffff'];
 const MOSS = ['#8aff9a', '#c8ffb0', '#4a9a4a'];
@@ -122,6 +124,6 @@ export function playC9bFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
     default:
       void CRYSTAL;
       // 第3部 第1章 第3幕（battlefx-c9c.js）
-      return playC9cFx(fx, anim, targets, element, opts, W, H);
+      return playC9cFx(fx, anim, targets, element, opts, W, H) || playC9dFx(fx, anim, targets, element, opts, W, H);
   }
 }

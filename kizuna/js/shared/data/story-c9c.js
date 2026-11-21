@@ -14,18 +14,18 @@
 // ※ 第1部・第2部の ひみつに ふれる せりふは 書かない。カイは 出さない。少年の わけは まだ 書かない。もとの 作品の 名前・せりふは 使わない
 import {
   C9C, C9C_ACT2, C9C_MAP, C9C_BATTLE, C9C_BOSS_MON, C9C_RIDDLE_NAME, C9C_MECHA_NAME, C9C_TRACKS, NOTE_MI, ALGOL_NAME, C9C_SONG_REVERSED,
-} from '../maps/c9c-flags.js?v=93a310251ce7';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=93a310251ce7';
-import { UNDER_RAFT } from '../maps/c9b-flags.js?v=93a310251ce7';
-import { UNDER_POS } from '../maps/c9b-rows.js?v=93a310251ce7';
-import { RIVER_POS, PYR_C_POS } from '../maps/c9c-rows.js?v=93a310251ce7';
-import { C9C_SEEN, C9C_BUTTONS, C9C_BUTTON_FLAGS, PEDESTALS9C, PED_MI, PYR_B1_STAIRS9C } from '../maps/c9c.js?v=93a310251ce7';
-import { TRIO9A } from './story-c9a.js?v=93a310251ce7';
-import { MONSTERS } from './monsters.js?v=93a310251ce7';
-import { SHOPS } from './shops.js?v=93a310251ce7';
-import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js?v=93a310251ce7';
-import { C9C_SHOP_ADD } from './items-c9c.js?v=93a310251ce7';
-import { mergeBossHints } from './boss-hints.js?v=93a310251ce7';
+} from '../maps/c9c-flags.js?v=7eefef6c1f45';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=7eefef6c1f45';
+import { UNDER_RAFT } from '../maps/c9b-flags.js?v=7eefef6c1f45';
+import { UNDER_POS } from '../maps/c9b-rows.js?v=7eefef6c1f45';
+import { RIVER_POS, PYR_C_POS } from '../maps/c9c-rows.js?v=7eefef6c1f45';
+import { C9C_SEEN, C9C_BUTTONS, C9C_BUTTON_FLAGS, PEDESTALS9C, PED_MI, PYR_B1_STAIRS9C } from '../maps/c9c.js?v=7eefef6c1f45';
+import { TRIO9A } from './story-c9a.js?v=7eefef6c1f45';
+import { MONSTERS } from './monsters.js?v=7eefef6c1f45';
+import { SHOPS } from './shops.js?v=7eefef6c1f45';
+import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js?v=7eefef6c1f45';
+import { C9C_SHOP_ADD } from './items-c9c.js?v=7eefef6c1f45';
+import { mergeBossHints } from './boss-hints.js?v=7eefef6c1f45';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -366,7 +366,7 @@ const orbSteps = (x) => (x.flag(C9C.trio2) && !x.flag(C9C.note1)
   : N('黄色い光の玉が、うかんでいる…。'));
 
 // ───── 12 ながれ星のくぼ地（7つの 音の 台）─────
-function craterScene() {
+function craterScene(act3End = C9C_OBJ.act3) {
   const P = PEDESTALS9C[PED_MI];
   return [
     ['bgm', null],
@@ -387,7 +387,7 @@ function craterScene() {
     ...S('ノクト', '星の音は、あと6つ。\n…アルゴルも、ねらっている。'),
     ...S(SP, '…{name}と、いっしょなら、だいじょうぶ。'),
     ['unflag', C9C_SEEN.p1],
-    ['objective', C9C_OBJ.act3],
+    ['objective', act3End],
     ['bgm', 'resume'],
   ];
 }
@@ -404,7 +404,7 @@ export const C9C_SHOPS = { crater: SHOP9C_CRATER };
 
 // ───── だいほん ─────
 //   open … 幕が 開いて いるか（story-c9.js の PART3_ACT3_OPEN）。false の 間は 船着き場の 番人に 話しても 始まらない
-export function c9cScripts(title, open) {
+export function c9cScripts(title, open, act3End = C9C_OBJ.act3) {
   return {
     c9c_ferry: (x) => (open && x.flag(C9C_ACT2) && !x.flag(C9C.raftGo) && x.has(UNDER_RAFT) ? ferryStart(title) : []),
     c9c_raftstop_start: (x) => ferryMenu(x, 'start'),
@@ -424,7 +424,7 @@ export function c9cScripts(title, open) {
     c9c_slab: (x) => slabSteps(x),
     c9c_trio2_event: (x) => (x.flag(C9C.song) && !x.flag(C9C.trio2) ? trio2Scene() : []),
     c9c_orb: (x) => orbSteps(x),
-    c9c_crater: (x) => (x.flag(C9C.note1) && !x.flag(C9C.act3) ? craterScene() : []),
+    c9c_crater: (x) => (x.flag(C9C.note1) && !x.flag(C9C.act3) ? craterScene(act3End) : []),
     c9c_ped: (x) => pedSteps(x),
   };
 }
@@ -490,8 +490,8 @@ export const CH9C_PROGRESS = [
 // ───── story-c9.js の applyCh9 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん（story-c9.js の c9cTitleSteps）/ open … 幕が 開いて いるか（PART3_ACT3_OPEN）
 //   船着き場の 番人（第2幕の c9b_folk6）と 船着き場の さんばし（c9b_dock_end）は、幕が 開いて いる 時だけ いかだの 話に かわる
-export function applyCh9c(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S9 = c9cScripts(title, open);
+export function applyCh9c(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act3End = C9C_OBJ.act3 } = {}) {
+  const S9 = c9cScripts(title, open, act3End);
   Object.assign(SCRIPTS, S9);
   for (const id of CH9C_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   if (!open) return;

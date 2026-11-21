@@ -1,7 +1,7 @@
 // 第48回 G4: ダイの大冒険（アバン流・竜の騎士・竜魔人・大魔道士）の 大技の え。この ファイルは G4 だけが さわる
 // 時間は shared/data/ax-time-g4.js。play の 時間は はなつ しゅんかんが 0
-import { pal, rnd } from './axkit.js?v=93a310251ce7';
-import { add, obj, bg, darken, hands, ground, per } from './axfx-g4-kit.js?v=93a310251ce7';
+import { pal, rnd } from './axkit.js?v=7eefef6c1f45';
+import { add, obj, bg, darken, hands, ground, per } from './axfx-g4-kit.js?v=7eefef6c1f45';
 
 const FIRE = pal('fire');
 // 竜闘気（青白）・竜魔人（むらさき）・アバンの 金

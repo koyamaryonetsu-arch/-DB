@@ -13,8 +13,8 @@
 // ・敵1体・敵全体・味方（がめんの した。playAllyR27）・味方全体の どれでも 形が くずれない
 // ・ダメージの 数字が 出る じかん（r27Hit）と、エフェクトが あたる じかんを そろえる
 // ・スマホで おもく ならない ように、つぶの かずは 1技 だいたい 250こ まで（ひばなは まとめて かかれるので かるい）
-import { makeCanvas, hexToRgb } from './pixel.js?v=93a310251ce7';
-import { ABILITIES } from '../../shared/data/abilities.js?v=93a310251ce7';
+import { makeCanvas, hexToRgb } from './pixel.js?v=7eefef6c1f45';
+import { ABILITIES } from '../../shared/data/abilities.js?v=7eefef6c1f45';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -1488,6 +1488,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c9bTeru')) return 'buff';
   // 第92回: 第3部 第3幕の「こたえる」（c9zAnswer）・「ひっくり返す」（c9sFlip）… 答えた 人・とびついた 人の 下に 光（技の 絵は render/battlefx-c9c.js）
   if (types.includes('c9zAnswer') || types.includes('c9sFlip')) return 'buff';
+  // 第93回: 第3部 第4幕の「スピカ：星のうた」（c9dSong）… みんなの 下に 回復の 光（技の 絵は render/battlefx-c9d.js）
+  if (types.includes('c9dSong')) return 'heal2';
   return null;
 }
 

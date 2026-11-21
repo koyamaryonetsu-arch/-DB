@@ -13,14 +13,16 @@
 //   はこ（c9_box1〜3）1つに つき、はじめの 皿が 1つ へる（late 回 動くと 持って くる）
 //   たおれない: HPが 1 に なると、おなかを 鳴らして すわりこむ（勝ち。b.killed に 入れて 経験値・落とし物は ふつう）
 // ・自動の 仲間（酒場の 人）は、見えて いる 皿を 3回に 1回 ねらう（AUTO_DISH_EVERY。家族の キャラの「オート」と 魔物の 仲間は ねらわない）
-import { MONSTERS } from './data/monsters.js?v=93a310251ce7';
-import { ABILITIES } from './data/abilities.js?v=93a310251ce7';
-import { TERU } from './data/abilities-c9b.js?v=93a310251ce7';
-import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=93a310251ce7';
-import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=93a310251ce7';
-import { canUse } from './ai.js?v=93a310251ce7';
+import { MONSTERS } from './data/monsters.js?v=7eefef6c1f45';
+import { ABILITIES } from './data/abilities.js?v=7eefef6c1f45';
+import { TERU } from './data/abilities-c9b.js?v=7eefef6c1f45';
+import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=7eefef6c1f45';
+import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=7eefef6c1f45';
+import { canUse } from './ai.js?v=7eefef6c1f45';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js）
-import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js?v=93a310251ce7';
+import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js?v=7eefef6c1f45';
+// 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
+import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js?v=7eefef6c1f45';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -97,12 +99,16 @@ export function setupC9b(b, lines) {
   }
   // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（スピカは かならず 出る。battle-c9c.js）
   if (setupC9c(b, lines)) teru = true;
+  // 第3部 第1章 第4幕: 魔人ムウ（スピカは かならず 出る）・星のうた（リーダーが c9_song1。battle-c9d.js）
+  if (setupC9d(b, lines)) teru = true;
   b.c9teruOn = teru;
   return teru;
 }
 // スピカが 入った あと（てらすの たまりぐあい。何回 よんでも おなじ。シミュレーター・テストからも よぶ）
 export function addTeru(b) {
   const s = b.c9sp;
+  // 第3部 第1章 第4幕: 星のうた（battle-c9d.js）
+  if (s && b.c9songOn) addSong(b);
   if (!s || s.teru) return s?.teru || null;
   s.teru = { charge: 0, max: TERU_MAX, lit: 0, uses: 0 };
   for (const a of b.allies) if (!a.abilities.includes(TERU)) a.abilities = [TERU, ...a.abilities];
@@ -110,7 +116,8 @@ export function addTeru(b) {
 }
 export function teruPub(b) {
   const t = teruOf(b);
-  return t ? { charge: t.charge, max: t.max, lit: t.lit } : null;
+  const song = songPub(b);
+  return t ? { charge: t.charge, max: t.max, lit: t.lit, ...(song ? { song } : {}) } : null;
 }
 
 function setupKing(b, m, lines) {
@@ -166,6 +173,8 @@ export function c9bGlow(b, out, lines) {
       out.teruReady = true;
     }
   }
+  // 第3部 第1章 第4幕: 星のうたが たまる（battle-c9d.js）
+  c9dGlow(b, out, lines);
   out.teru = teruPub(b);
 }
 
@@ -173,7 +182,11 @@ export function c9bGlow(b, out, lines) {
 export function c9bTurnStart(b, c, ev, stuck) {
   if (c.side === 'ally') return;
   // 第3部 第1章 第3幕（battle-c9c.js）
-  if (!c.c9k) return c9cTurnStart(b, c, ev, stuck);
+  if (!c.c9k) {
+    // 第3部 第1章 第4幕（battle-c9d.js）
+    c9dTurnStart(b, c, ev, stuck);
+    return c9cTurnStart(b, c, ev, stuck);
+  }
   const k = c.c9k;
   const kc = kingConf(c, b);
   if (c.telegraph || k.down) return;
@@ -245,7 +258,8 @@ export function c9bEffect(b, c, a, eff, ev) {
     case 'c9kJump': jump(b, c, ev); return true;
     case 'c9bTeru': teru(b, c, ev); return true;
     // 第3部 第1章 第3幕（battle-c9c.js）
-    default: return c9cEffect(b, c, a, eff, ev);
+    // 第3部 第1章 第4幕（battle-c9d.js）
+    default: return c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
   }
 }
 
@@ -398,7 +412,8 @@ function teru(b, c, ev) {
 export function c9bDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0)) return dmg;
   // 第3部 第1章 第3幕: なぞの守り・目が回る（battle-c9c.js）
-  if (!t?.c9k) return c9cDamage(b, c, t, dmg, info, ev);
+  // 第3部 第1章 第4幕: 分かれる 前の ムウは たおれない（battle-c9d.js）
+  if (!t?.c9k) return c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev);
   const k = t.c9k;
   if (k.down) return 0;
   if (dmg >= t.hp) {
@@ -432,6 +447,8 @@ function kingDown(b, c, ev) {
 export function c9bKill(b, t, ev) {
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
   c9cKill(b, t, ev);
+  // 第3部 第1章 第4幕: ばたんきゅう・すわりこむ（battle-c9d.js）
+  c9dKill(b, t, ev);
   if (!t?.c9d || b.c9kEating) return;
   const king = kingOf(b);
   const k = king?.c9k;
@@ -464,6 +481,9 @@ export function c9bKill(b, t, ev) {
 // 大王の 戦いで なければ undefined（c9a の 考えへ）。ふつうの オート（家族の キャラ）は null
 export function c9bPlan(b, c, decide, bestHit) {
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
+  // 第3部 第1章 第4幕: 魔人ムウ（battle-c9d.js）
+  const p9d = c9dPlan(b, c, decide, bestHit);
+  if (p9d !== undefined) return p9d;
   const p9c = c9cPlan(b, c, decide, bestHit);
   if (p9c !== undefined) return p9c;
   const king = kingOf(b);
@@ -516,7 +536,7 @@ function autoDish(b, c, watched, bestHit) {
 // しくみの 用が ある 間（シミュレーターの 知って いる 人は 合体技を しない）
 export function c9bBusy(b) {
   // 第3部 第1章 第3幕（battle-c9c.js）
-  if (c9cBusy(b)) return true;
+  if (c9cBusy(b) || c9dBusy(b)) return true;
   const k = kingOf(b)?.c9k;
   if (!k || k.down) return false;
   if (k.jumpReady) return true;
@@ -534,7 +554,8 @@ export function c9bTell(b) {
     if (k.jumpReady) return 'jump';
     if (k.watch && kingVisible(b) && b.get(k.watch)?.alive) return 'watch';
   }
-  return c9cTell(b);
+  // 第3部 第1章 第4幕: おかしビームの ねらい（beam）・いっしょに ドーン（doon）… battle-c9d.js の c9dTele
+  return c9dTele(b) || c9cTell(b);
 }
 
 // ───────────── がめんへ（battle-c9a.js の c9aPub から。敵だけ）─────────────
@@ -571,5 +592,6 @@ export function c9bPub(c, b = c?._b9) {
   }
   if (b && MONSTERS[c.species]?.c9b?.hide) o.hide9 = litNow(b) ? 0 : 1;
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
-  return Object.assign(o, c9cPub(c, b));
+  // 第3部 第1章 第4幕: ムウ・ムウムウ（battle-c9d.js）
+  return Object.assign(o, c9cPub(c, b), c9dPub(c, b));
 }

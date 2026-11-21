@@ -7,11 +7,14 @@
 //   ⑤ 画面の 上に「さかさ」の しるし。主人公の 絵は さかさに しない（見やすさ）
 //   ちがう 向きの 家族は うすく 見える（snap の fp）。天じょうの 宝箱は ふつうの 時は うすく 上に 見える
 // 2D も 2.5D も 同じ 計算
-import { TILE_INFO } from '../shared/tiles.js?v=93a310251ce7';
-import { tileAt } from '../shared/maps/index.js?v=93a310251ce7';
-import { TS } from './render/tiles.js?v=93a310251ce7';
-import { ctxOf } from './render/pixel.js?v=93a310251ce7';
-import { paintRaft } from './render/c9c-npc-art.js?v=93a310251ce7';
+import { TILE_INFO } from '../shared/tiles.js?v=7eefef6c1f45';
+import { tileAt } from '../shared/maps/index.js?v=7eefef6c1f45';
+import { TS } from './render/tiles.js?v=7eefef6c1f45';
+import { ctxOf } from './render/pixel.js?v=7eefef6c1f45';
+import { paintRaft } from './render/c9c-npc-art.js?v=7eefef6c1f45';
+// 第93回 A班: 岸の ひびきの石で 歌って いる スピカの まわりも ふたごの道と 同じ 明かり（client/c9d-view.js）
+import { c9dSingingSpica } from './c9d-view.js?v=7eefef6c1f45';
+import { LIGHT_SPICA9D } from '../shared/maps/c9d-lane.js?v=7eefef6c1f45';
 
 // ───── 向き ─────
 export const myFlip9c = (field) => !!field.map?.c9cPyr && !!field.game?.me?.c9cFlip;
@@ -82,6 +85,8 @@ export function drawC9cDark2D(field, camX, camY) {
   };
   const flick = 1 + Math.sin(t / 110) * 0.03;
   for (const [px, py] of people(field)) hole(px * TS - camX, py * TS - camY, (D.spica + 0.5) * TS * flick);
+  const sing = c9dSingingSpica(field);
+  if (sing) hole(sing.x * TS - camX, (sing.y - 0.4) * TS - camY, (LIGHT_SPICA9D + 0.5) * TS * flick);
   for (const [cx, cy, r] of D.lights) hole((cx + 0.5) * TS - camX, (cy + 0.5) * TS - camY, (r + 0.5) * TS);
   g.globalCompositeOperation = 'source-over';
   ctx.drawImage(d, 0, 0);
@@ -118,6 +123,8 @@ export function drawC9cDark3D(field, ctx, P) {
   };
   const flick = 1 + Math.sin(t / 110) * 0.03;
   for (const [px, py] of people(field)) { const p = P(px, py + 0.4, 0.5); hole(p, (D.spica + 0.5) * p.k * flick); }
+  const sing = c9dSingingSpica(field);
+  if (sing) { const p = P(sing.x, sing.y, 0.5); hole(p, (LIGHT_SPICA9D + 0.5) * p.k * flick); }
   for (const [cx, cy, r] of D.lights) {
     if (Math.abs(cx - field.me.x) > 30 || Math.abs(cy - field.me.y) > 30) continue;
     const p = P(cx + 0.5, cy + 0.5, 0.3);
