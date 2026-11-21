@@ -282,8 +282,14 @@ function need9(b, a) {
     const ok = b.aliveAllies().filter((x) => okashiOf(x));
     if (ok.length && songReady(b) && claim(b, `song${b.c9mu.okashi}.${b.c9sp?.song?.uses || 0}`)) return true;
   }
+  // 第94回 B班: 第3部 第2章（tools/sim-ch10.mjs が 足す）
+  for (const f of NEED9_HOOKS) if (f(b, a, claim)) return true;
   return false;
 }
+// あとの 章の しくみの 用（(b, a, claim) → true … この 人は しくみの 役。合体技を しない）
+export const NEED9_HOOKS = [];
+// あとの 章の 1回の 戦いの ようす（(b) → { … }。ch9Run の かえす 値に まぜる）
+export const STATS9_HOOKS = [];
 const teruOfUses = (b) => b.c9sp?.teru?.uses || 0;
 void busy9;
 
@@ -302,7 +308,8 @@ export const SPEED9 = [0.85, 0.8];
 const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' ? Number(process.env[k]) : d);
 // react … 人が 動かす キャラが 番に なってから えらぶまでの ミリびょう（0 … すぐ。ブラウザの 人に 近づける とき 3000 など）
 // speed・textSpeed … 戦いの 速さ（ない ときは 1。ブラウザの はじめの 設定は 0.85・0.8）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]) } = {}) {
+// flags … リーダーの フラグ（第94回: 先に 取った 音の スピカの ごほうび など。FLAGS=a,b でも）
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean) } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   const list = ch9Allies(boss, lv, party, kit);
@@ -310,7 +317,8 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   const allies = list.map((x) => (x.know
     ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics: 'balanced' }
     : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: x.char.tactics || 'balanced' }));
-  const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed });
+  const hooks = flags.length ? { leaderFlag: (f) => flags.includes(f) } : undefined;
+  const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed, hooks });
   addSpica9(b, boss);
   // 人が 動かす キャラだけ しくみを 知って いる（自動の 仲間は ふつうの オート）
   if (M.know) b.allies.forEach((a, i) => { if (list[i]?.know) a.knows9 = mode; });
@@ -379,6 +387,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
     kDark: kg?.c9k?.dark ? 1 : 0, timeoutMs: riddleAt.length ? Math.min(...riddleAt) : null, nazoLeft: nazoOf(b)?.alive ? 1 : 0, mechaLeft: mechaOf9c(b)?.alive ? 1 : 0,
     light: b.c9sp?.light ?? 0, dawn: h?.c9h?.dawn ?? 0, dark: h?.c9h?.dark ? 1 : 0, bigs: h?.c9h?.bigs ?? 0,
     ...muStats9(b),
+    ...Object.assign({}, ...STATS9_HOOKS.map((f) => f(b))),
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
     hpLeft: al.reduce((s, x) => s + x.hp, 0) / al.reduce((s, x) => s + x.maxHp, 0), deaths: al.filter((x) => !x.alive).length,
     bossLeft: foes.reduce((s, e) => s + Math.max(0, e.hp), 0) / Math.max(1, foes.reduce((s, e) => s + e.maxHp, 0)), ...n,

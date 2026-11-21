@@ -13,6 +13,8 @@ import { sparkled } from './c9a-art.js';
 import { addC9cArt } from './c9c-art.js';
 // 第3部 第1章 第4幕（c9d-art.js）
 import { addC9dArt } from './c9d-art.js';
+// 第3部 第2章 第1幕（c10a-art.js）
+import { addC10aArt } from './c10a-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
@@ -323,4 +325,6 @@ export function addC9bArt(ART) {
   addC9cArt(ART);
   // 第3部 第1章 第4幕（c9d-art.js）
   addC9dArt(ART);
+  // 第3部 第2章 第1幕（c10a-art.js）
+  addC10aArt(ART);
 }

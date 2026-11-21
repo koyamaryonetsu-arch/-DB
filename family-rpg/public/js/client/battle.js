@@ -131,6 +131,8 @@ import { C9B_SFX } from './battle-c9b.js';
 import { C9C_SFX } from './battle-c9c.js';
 // 第3部 第1章 第4幕: ムウ・星のうたの 音（battle-c9d.js）
 import { C9D_SFX } from './battle-c9d.js';
+// 第3部 第2章 第1幕: タマゴン・モルドの 音（battle-c10a.js）
+import { C10A_SFX } from './battle-c10a.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -318,6 +320,7 @@ const ANIM_SFX = {
   ...C9B_SFX,
   ...C9C_SFX,
   ...C9D_SFX,
+  ...C10A_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -426,7 +429,7 @@ export class BattleScene {
     while (this.readyQ.length) {
       const id = this.readyQ[0];
       const a = this.c.get(id);
-      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift' || x === 'okashi');
+      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift' || x === 'okashi' || x === 'nobose' || x === 'kinoko');
       if (a && a.alive && a.ready && !a.auto && !stuck && !this.ended) {
         this.cur = id;
         this.openCommand();
@@ -1654,7 +1657,7 @@ export class BattleScene {
     if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
-    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift' || x === 'okashi') || !cur.ready)) this.dropReady(cur.id);
+    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift' || x === 'okashi' || x === 'nobose' || x === 'kinoko') || !cur.ready)) this.dropReady(cur.id);
     else if (!this.cur && this.menu && !this.targeting) this.renderCmdIdle();
     this.renderStatus();
     this.updateAutoBtn();

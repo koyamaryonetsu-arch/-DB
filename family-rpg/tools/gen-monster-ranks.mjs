@@ -40,6 +40,7 @@ import { ENCOUNTERS_C9A } from '../public/js/shared/data/encounters-c9a.js';
 import { ENCOUNTERS_C9B } from '../public/js/shared/data/encounters-c9b.js';
 import { ENCOUNTERS_C9C } from '../public/js/shared/data/encounters-c9c.js';
 import { ENCOUNTERS_C9D } from '../public/js/shared/data/encounters-c9d.js';
+import { ENCOUNTERS_C10A } from '../public/js/shared/data/encounters-c10a.js';
 import { MONSTER_FRIENDS, JOIN_TIERS, joinTier, RANKS } from '../public/js/shared/data/companions.js';
 
 // 章の まとまり（どの 章の 出現表か。テストの「どの 章にも F〜C」にも 使う）
@@ -53,8 +54,10 @@ const CHAPTER_SRC = [
   ['第8章', [ENCOUNTERS_C8A, ENCOUNTERS_C8B, ENCOUNTERS_C8C, ENCOUNTERS_C8R]],
   // 第3部 第1章（第1幕 星ふるえの森・星の石の地下道・第2幕 大地の下・大王の やしき・第3幕 地下の川・さかさのピラミッド・第4幕 ふたごの道）
   ['第3部 第1章', [ENCOUNTERS_C9A, ENCOUNTERS_C9B, ENCOUNTERS_C9C, ENCOUNTERS_C9D]],
+  // 第3部 第2章（第1幕 炎の山の 下の 古い 道・大地の下の 根の国）
+  ['第3部 第2章', [ENCOUNTERS_C10A]],
 ];
-export const BANDS = ['第1・2章', '第3・4章', '第5章', '第6章', '第7章', '第8章', '第3部 第1章'];
+export const BANDS = ['第1・2章', '第3・4章', '第5章', '第6章', '第7章', '第8章', '第3部 第1章', '第3部 第2章'];
 export function zoneBand(zone) {
   for (const [band, list] of CHAPTER_SRC) if (list.some((t) => Object.prototype.hasOwnProperty.call(t, zone))) return band;
   return BANDS[0]; // はじめの 地方・第2章・夜の 出現表（night.js）

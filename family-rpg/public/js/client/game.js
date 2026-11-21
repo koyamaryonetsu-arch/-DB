@@ -658,7 +658,7 @@ export class Game {
     const b = this.battle;
     const lost = !!b && !b.ended && !b.destroyed && !this.battleClosing && !b.menu && !b.invite && b.readyQ.some((id) => {
       const a = b.c.get(id);
-      return a && a.alive && a.ready && !a.auto && !(a.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'okashi');
+      return a && a.alive && a.ready && !a.auto && !(a.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'okashi' || x === 'nobose' || x === 'kinoko');
     });
     if (!lost) {
       this.cmdLostAt = 0;
