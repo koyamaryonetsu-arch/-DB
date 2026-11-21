@@ -4,7 +4,7 @@
 // とくべつな え（paintC9bSpecial）: 地下の 民（小さな 体・大きな 目・頭に 光る こけの ランタン。村長・村の 人 4色・子ども）・
 //   もぐら兵（大王の 手下。かぶとと やり。にくめない）・デデドン大王（大きな もぐらの 王さま。赤い マント・王かん・木の 大づち。32×32）
 // もとの 作品の 絵は 使わない（大王は もぐら）
-import { Painter } from './pixel.js?v=c53292a2af59';
+import { Painter } from './pixel.js?v=d4d473d565e8';
 
 export const C9B_NPC_LOOKS = {
   c9b_armorer: { hair: 2, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#7a4a2a', beard: true },

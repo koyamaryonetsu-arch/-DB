@@ -2,11 +2,11 @@
 //   曲を えらぶと 鳴る。強さ・ピンチ・だん・昼と夜・まわりの音は 新しい音で 次の 小節から かわる
 //   タッチ・マウス・キーボード・コントローラー どれでも（ListMenu。左右で 強さ・だんを かえる）
 //   とじると ためした 場面の 音楽を もとに もどして、今の 場所の 曲に もどる
-import { el, ListMenu } from './dom.js?v=c53292a2af59';
-import { TRACK_IDS } from '../audio.js?v=c53292a2af59';
-import { trackName, AMBIENCE_NAMES } from '../audio-names.js?v=c53292a2af59';
-import { AMBIENCES } from '../music-amb.js?v=c53292a2af59';
-import { songStage9 } from '../../shared/maps/c9d-flags.js?v=c53292a2af59';
+import { el, ListMenu } from './dom.js?v=d4d473d565e8';
+import { TRACK_IDS } from '../audio.js?v=d4d473d565e8';
+import { trackName, AMBIENCE_NAMES } from '../audio-names.js?v=d4d473d565e8';
+import { AMBIENCES } from '../music-amb.js?v=d4d473d565e8';
+import { songStage9 } from '../../shared/maps/c9d-flags.js?v=d4d473d565e8';
 
 // だんの 上限（0 から 数える）。第93回 A班: スピカの歌（c9d_song）は くぼ地の 台に 置いた 星の音の 数の ふしまで（まだ 集めて いない ふしは 聞けない）
 export const SONG_TRACK9D = 'c9d_song';
@@ -94,6 +94,7 @@ export function openSoundTest(g) {
     };
     const m = new ListMenu(g.input, {
       items: rows(),
+      list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
       back: '閉じる',
       sound: sfx,
       onSelect: (it) => act(it.value),

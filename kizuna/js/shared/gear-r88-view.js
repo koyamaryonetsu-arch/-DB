@@ -1,13 +1,13 @@
 // 第88回: 作品を 思い出す 装備の せつめいの 文（装備の まど・くらべる まど・道具の せつめい。client/ui/info.js・equip-compare.js・menu.js）
 //   「作品の力：風の力+5（…）」「使う：…（1つの戦いで1回）」「そろい：七つの玉 3/7」
-import { ITEMS, baseItemId } from './data/items.js?v=c53292a2af59';
-import { ABILITIES } from './data/abilities.js?v=c53292a2af59';
-import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=c53292a2af59';
-import { WORKS } from './data/works.js?v=c53292a2af59';
-import { GRADES } from './data/items-r88-kit.js?v=c53292a2af59';
-import { REBIRTH } from './data/items-alchemy.js?v=c53292a2af59';
-import { fxText, fxShort } from './data/gear-fx.js?v=c53292a2af59';
-import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=c53292a2af59';
+import { ITEMS, baseItemId } from './data/items.js?v=d4d473d565e8';
+import { ABILITIES } from './data/abilities.js?v=d4d473d565e8';
+import { GEAR_SETS, tierRule } from './data/gear-sets.js?v=d4d473d565e8';
+import { WORKS } from './data/works.js?v=d4d473d565e8';
+import { GRADES } from './data/items-r88-kit.js?v=d4d473d565e8';
+import { REBIRTH } from './data/items-alchemy.js?v=d4d473d565e8';
+import { fxText, fxShort } from './data/gear-fx.js?v=d4d473d565e8';
+import { innateFx, ownedSetIds, wornSetIds, itemReach, rebirthNeedText } from './gear-r88.js?v=d4d473d565e8';
 
 const EL = { fire: '炎', ice: '氷', bolt: '雷', wind: '風', light: '光', dark: '闇' };
 const workIt = (id) => {
@@ -61,6 +61,40 @@ export function r88DetailLines(id, who = null) {
   const rb = REBIRTH[baseItemId(id)];
   if (rb && ITEMS[rb.to] && rb.need) out.push(`生まれ変わる条件：${rebirthNeedText(rb.need)}`);
   return out;
+}
+
+// 第96回: 道具の まどの 紹介の いちばん 上に 出す「効果」（1つ 1行・短く）と、その 下に 出す くわしい 行に 分ける。
+//   中みは r88DetailLines と おなじ（ならびだけ かえる）。もどりち: { fx: [文], more: [文] }
+export function r88Parts(id, who = null) {
+  const it = workIt(id);
+  if (!it) return { fx: [], more: [] };
+  const fx = [];
+  const more = [];
+  const g = GRADES[it.grade];
+  if (WORKS[it.work]) more.push(`作品：${WORKS[it.work].name}${g && it.grade !== 'shop' ? `（${g.name}）` : ''}`);
+  const inn = innateFx(id);
+  if (inn.length) fx.push(`作品の力：${inn.map((x) => fxText(x.k, x.v)).join('・')}`);
+  if (it.orb?.el) fx.push(`玉：ふつうの攻撃が${EL[it.orb.el] || ''}になる`);
+  if (it.orb?.el) more.push('玉：武器に属性があれば、そちらが先');
+  const a = ABILITIES[it.use?.ability];
+  if (a) {
+    fx.push(`使う：${a.name}（1つの戦いで1回）`);
+    more.push(`使う：${a.name}（1つの戦いで1回・MPなし）${a.desc ? `\n　${a.desc}` : ''}`);
+    if (it.use.hpCost) more.push(`　使うと、HPが少しへる（最大HPの${Math.round(it.use.hpCost * 100)}%）`);
+  }
+  if (it.shape && it.form) {
+    fx.push(`形：${it.form}`);
+    more.push(`形：${it.form}（装備のまどの「形をかえる」で、持てる形にかえられる）`);
+  }
+  const set = GEAR_SETS[it.set];
+  if (set) {
+    fx.push(`そろい：${setLine(id, who)}`);
+    more.push(`そろい：${set.name}`);
+    for (const t of set.tiers) more.push(`　${t.text}`);
+  }
+  const rb = REBIRTH[baseItemId(id)];
+  if (rb && ITEMS[rb.to] && rb.need) fx.push(`生まれ変わる条件：${rebirthNeedText(rb.need)}`);
+  return { fx, more };
 }
 
 // とどく 広さの 文（info.js の ムチ・ブーメランの 行の かわり。ない ときは ''）

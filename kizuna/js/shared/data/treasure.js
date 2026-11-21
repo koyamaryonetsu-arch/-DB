@@ -7,15 +7,15 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=c53292a2af59';
-import { ITEMS, SLOTS } from './items.js?v=c53292a2af59';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=c53292a2af59';
-import { makeRng } from '../rng.js?v=c53292a2af59';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=c53292a2af59';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=c53292a2af59';
-import { curveK } from './tm-curve.js?v=c53292a2af59';
+import { MONSTERS } from './monsters.js?v=d4d473d565e8';
+import { ITEMS, SLOTS } from './items.js?v=d4d473d565e8';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=d4d473d565e8';
+import { makeRng } from '../rng.js?v=d4d473d565e8';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=d4d473d565e8';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES, TM_RARE_LV_CAP } from './rare-loot.js?v=d4d473d565e8';
+import { curveK } from './tm-curve.js?v=d4d473d565e8';
 // 第88回 G4班: 作品の 名品が まれに（data/gacha-r88.js）
-import { r88TmLoot } from './gacha-r88.js?v=c53292a2af59';
+import { r88TmLoot } from './gacha-r88.js?v=d4d473d565e8';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 // 第75回: 地図が いっぱいの ときに 手に入れた 地図は「あずかり」（c.tmPending）に 入れて、どれを 捨てるか 家族に 聞く。

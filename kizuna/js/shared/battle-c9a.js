@@ -20,20 +20,22 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=c53292a2af59';
-import { ABILITIES } from './data/abilities.js?v=c53292a2af59';
-import { SHARE } from './data/abilities-c9a.js?v=c53292a2af59';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=c53292a2af59';
-import { C9A } from './maps/c9a-flags.js?v=c53292a2af59';
+import { MONSTERS } from './data/monsters.js?v=d4d473d565e8';
+import { ABILITIES } from './data/abilities.js?v=d4d473d565e8';
+import { SHARE } from './data/abilities-c9a.js?v=d4d473d565e8';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=d4d473d565e8';
+import { C9A } from './maps/c9a-flags.js?v=d4d473d565e8';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=c53292a2af59';
-import { canUse } from './ai.js?v=c53292a2af59';
+import { pub, atbRate } from './battle.js?v=d4d473d565e8';
+import { canUse } from './ai.js?v=d4d473d565e8';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=c53292a2af59';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=d4d473d565e8';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=c53292a2af59';
+import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=d4d473d565e8';
 // 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
-import { c10bAfter } from './battle-c10b.js?v=c53292a2af59';
+import { c10bAfter } from './battle-c10b.js?v=d4d473d565e8';
+// 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
+import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=d4d473d565e8';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -182,7 +184,8 @@ export function c9aAfter(b, c, ev) {
   // 第3部 第2章 第1幕: あつさ・メカの あつさ・カビが 消える（battle-c10a.js。b.tell より 先）
   if (b.c10) c10aAfter(b, c, ev);
   if (b.c10b) c10bAfter(b, c, ev);
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b) b.tell = c9Tell(b);
+  if (b.c10c) c10cAfter(b, c, ev);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
@@ -696,7 +699,8 @@ export function c9aPub(c) {
   if (c.side === 'ally') {
     if (c.c9torch !== undefined) o.torch9 = c.c9torch ? 1 : 0;
     // 第3部 第2章 第1幕: あつさ・カビ（battle-c10a.js）
-    return Object.assign(o, c10aAllyPub(c));
+    // 第3部 第2章 第3幕: うき石・せまい（battle-c10c.js）
+    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c));
   }
   if (c.c9t) {
     const t = c.c9t;

@@ -6,19 +6,19 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
-import { sourcesFlow } from './sources.js?v=c53292a2af59';
-import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js?v=c53292a2af59';
-import { el, esc } from './dom.js?v=c53292a2af59';
-import { Counter, itemInfo, myTeam } from './counter.js?v=c53292a2af59';
-import { request } from './shop.js?v=c53292a2af59';
-import { itemCount } from '../../shared/stats.js?v=c53292a2af59';
-import { rareNameHtml } from './rarity.js?v=c53292a2af59';
-import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=c53292a2af59';
-import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=c53292a2af59';
-import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=c53292a2af59';
+import { sourcesFlow } from './sources.js?v=d4d473d565e8';
+import { GEAR_FX, fxBlock, fxText, fxShort, fxListOf, fxRange, fxStars, fxSlots, fxMatsOf } from '../../shared/data/gear-fx.js?v=d4d473d565e8';
+import { el, esc } from './dom.js?v=d4d473d565e8';
+import { Counter, itemInfo, myTeam } from './counter.js?v=d4d473d565e8';
+import { request } from './shop.js?v=d4d473d565e8';
+import { itemCount } from '../../shared/stats.js?v=d4d473d565e8';
+import { rareNameHtml } from './rarity.js?v=d4d473d565e8';
+import { ITEMS, baseItemId, sortItemIds, SLOT_NAMES } from '../../shared/data/items.js?v=d4d473d565e8';
+import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=d4d473d565e8';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=d4d473d565e8';
 import {
   ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, LB_MAX, limitMerge, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
-} from '../../shared/data/alchemy.js?v=c53292a2af59';
+} from '../../shared/data/alchemy.js?v=d4d473d565e8';
 
 // きたえる 回数を 見る 人を 自分の キャラに（道具の 説明・かじ屋の 画面。data/forge.js）
 export function bindAlchemy(game) {
@@ -210,7 +210,7 @@ async function enchantLoop(game, ct) {
     const now = res.fxNow || [];
     await ct.say(`生まれた力：${fxText(res.fxRoll.k, res.fxRoll.v)}\nどうする？`, { narr: true });
     const rows = [...now.map((x, i) => ({ label: `${GEAR_FX[x.k]?.name || ''}+${x.v}と入れかえる`, value: i })), { label: '前のままにする', value: -1 }];
-    const p = await ct.pick(rows, { back: null, onMove: (x) => ct.info(el('div', { class: 'detail', text: x && x.value >= 0 ? `今：${fxText(now[x.value].k, now[x.value].v)}\n→ ${fxText(res.fxRoll.k, res.fxRoll.v)}` : '生まれた力は消えて、今の効果のまま' })) });
+    const p = await ct.pick(rows, { back: null, list: false, onMove: (x) => ct.info(el('div', { class: 'detail', text: x && x.value >= 0 ? `今：${fxText(now[x.value].k, now[x.value].v)}\n→ ${fxText(res.fxRoll.k, res.fxRoll.v)}` : '生まれた力は消えて、今の効果のまま' })) });
     const r2 = await request(game, { kind: 'alchemy', action: 'enchantPick', replace: p ? p.value : -1 });
     if (ct.closed) return;
     await ct.say(r2.text || '', { narr: true });

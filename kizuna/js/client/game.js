@@ -1,43 +1,43 @@
 // ゲーム ぜんたいの しんこう
-import { applyHand } from './ui/hand.js?v=c53292a2af59';
-import { bindLayout } from './ui/layout.js?v=c53292a2af59';
-import { Input } from './input.js?v=c53292a2af59';
-import { GameAudio, _TRACKS } from './audio.js?v=c53292a2af59';
+import { applyHand } from './ui/hand.js?v=d4d473d565e8';
+import { bindLayout } from './ui/layout.js?v=d4d473d565e8';
+import { Input } from './input.js?v=d4d473d565e8';
+import { GameAudio, _TRACKS } from './audio.js?v=d4d473d565e8';
 // 第77回 C: 場面で かわる 音楽（戦いの 曲・ピンチ・だん・ダンジョンの 深さ・昼夜・まわりの音）
-import { SceneAudio } from './audio-scene.js?v=c53292a2af59';
-import { MONSTERS } from '../shared/data/monsters.js?v=c53292a2af59';
-import { Field } from './field.js?v=c53292a2af59';
-import { Hud, STAMPS } from './ui/hud.js?v=c53292a2af59';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=c53292a2af59';
-import { ScriptPlayer, wait } from './ui/script.js?v=c53292a2af59';
-import { BattleScene } from './battle.js?v=c53292a2af59';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=c53292a2af59';
-import { showServerDown } from './ui/syncui.js?v=c53292a2af59';
-import { toast, confirmBox, el } from './ui/dom.js?v=c53292a2af59';
-import { MAPS } from '../shared/maps/index.js?v=c53292a2af59';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=c53292a2af59';
-import { SkyClient } from './sky.js?v=c53292a2af59';
+import { SceneAudio } from './audio-scene.js?v=d4d473d565e8';
+import { MONSTERS } from '../shared/data/monsters.js?v=d4d473d565e8';
+import { Field } from './field.js?v=d4d473d565e8';
+import { Hud, STAMPS } from './ui/hud.js?v=d4d473d565e8';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=d4d473d565e8';
+import { ScriptPlayer, wait } from './ui/script.js?v=d4d473d565e8';
+import { BattleScene } from './battle.js?v=d4d473d565e8';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=d4d473d565e8';
+import { showServerDown } from './ui/syncui.js?v=d4d473d565e8';
+import { toast, confirmBox, el } from './ui/dom.js?v=d4d473d565e8';
+import { MAPS } from '../shared/maps/index.js?v=d4d473d565e8';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=d4d473d565e8';
+import { SkyClient } from './sky.js?v=d4d473d565e8';
 // 第50回 N3: 大事な物の すぐ使う ボタン
-import { QuickButton } from './ui/quick-item.js?v=c53292a2af59';
+import { QuickButton } from './ui/quick-item.js?v=d4d473d565e8';
 // 第58回: マルチプレイの 自動追跡（リーダーに ついていく）の ボタン
-import { FollowButton } from './ui/follow-btn.js?v=c53292a2af59';
+import { FollowButton } from './ui/follow-btn.js?v=d4d473d565e8';
 // 第93回 A班: ふたごの道の「スピカをよぶ」ボタン（client/c9d-view.js）
-import { C9dCallButton } from './c9d-view.js?v=c53292a2af59';
+import { C9dCallButton } from './c9d-view.js?v=d4d473d565e8';
 // 第94回 A班: 溶岩に 追われる 時の「ようがんまで、あと○だん」（client/c10a-view.js）
-import { C10aLavaHud } from './c10a-view.js?v=c53292a2af59';
+import { C10aLavaHud } from './c10a-view.js?v=d4d473d565e8';
 // 第95回 A班: 水鏡の うらの「水：下／中／上」・氷の 下の「もの音」（client/c10b-view.js）
-import { C10bHud } from './c10b-view.js?v=c53292a2af59';
-import { HuntButton } from './ui/sources.js?v=c53292a2af59';
-import { reportError } from './errlog.js?v=c53292a2af59';
+import { C10bHud } from './c10b-view.js?v=d4d473d565e8';
+import { HuntButton } from './ui/sources.js?v=d4d473d565e8';
+import { reportError } from './errlog.js?v=d4d473d565e8';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
-import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=c53292a2af59';
+import { onBoardMsg, boardOnEnter } from './ui/family-board.js?v=d4d473d565e8';
 // 第67回 C班: モンスター闘技場の その場の 対戦（申しこみの まど・受付の 選びしにも 足す）
-import { onMonLive } from './ui/monarena-live.js?v=c53292a2af59';
+import { onMonLive } from './ui/monarena-live.js?v=d4d473d565e8';
 // 第75回: 宝の地図が いっぱいの ときに どれを 捨てるか 聞く（ui/treasure.js）
 // 第89回: もらった その 場で 聞く（戦いの けっかの 中・サーバーの 'tmAsk'）。戦いが 始まったら 画面だけの まどを 片づける
-import { askTreasureList, onTmAsk, dropTreasureFull } from './ui/treasure.js?v=c53292a2af59';
+import { askTreasureList, onTmAsk, dropTreasureFull } from './ui/treasure.js?v=d4d473d565e8';
 // 第89回: 家族の ボス・物語の 戦いに「戦いに入る」ボタン
-import { JoinButton } from './ui/join-btn.js?v=c53292a2af59';
+import { JoinButton } from './ui/join-btn.js?v=d4d473d565e8';
 
 export class Game {
   constructor(net) {
@@ -819,7 +819,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=c53292a2af59').then(({ offlineStorage }) => {
+      import('./offline.js?v=d4d473d565e8').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

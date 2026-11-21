@@ -6,17 +6,19 @@
 // ・皿: 見られて いる 皿に 金の わと「ねらわれている！こわせ！」・まっ暗の 間は「？」
 // ・まっ暗: がめん ぜんたいを 暗い 青で おおう（こわく しない。スピカの 光の まわりは 少し 明るい）。てらすと うすく なる
 // ・見えにくい 魔物（大ミミズ）: 暗い かげで おおう（てらすと 消える）
-import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=c53292a2af59';
-import { TERU } from '../shared/data/abilities-c9b.js?v=c53292a2af59';
-import { monsterCanvas } from './render/monsters.js?v=c53292a2af59';
+import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=d4d473d565e8';
+import { TERU } from '../shared/data/abilities-c9b.js?v=d4d473d565e8';
+import { monsterCanvas } from './render/monsters.js?v=d4d473d565e8';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js。C9C_OWN_TELE・C9C_SCREEN_ANIMS・C9C_ALLY_FX・C9C_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js?v=c53292a2af59';
+import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js?v=d4d473d565e8';
 // 第3部 第1章 第4幕: 星のうた・あそびたい魔人 ムウ（battle-c9d.js。C9D_OWN_TELE・C9D_SCREEN_ANIMS・C9D_ALLY_FX・C9D_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9dHud, c9dSprite, c9dDraw, c9dPresent, c9dCmdItems, c9dCmdPick } from './battle-c9d.js?v=c53292a2af59';
+import { c9dHud, c9dSprite, c9dDraw, c9dPresent, c9dCmdItems, c9dCmdPick } from './battle-c9d.js?v=d4d473d565e8';
 // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js。C10A_OWN_TELE・C10A_SCREEN_ANIMS・C10A_ALLY_FX・C10A_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c10aSprite, c10aDraw, c10aPresent, c10aCmdInfo } from './battle-c10a.js?v=c53292a2af59';
+import { c10aSprite, c10aDraw, c10aPresent, c10aCmdInfo } from './battle-c10a.js?v=d4d473d565e8';
 // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js。C10B_OWN_TELE・C10B_SCREEN_ANIMS・C10B_ALLY_FX・C10B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c10bSprite, c10bDraw, c10bPresent, c10bCmdItems, c10bCmdPick } from './battle-c10b.js?v=c53292a2af59';
+import { c10bSprite, c10bDraw, c10bPresent, c10bCmdItems, c10bCmdPick } from './battle-c10b.js?v=d4d473d565e8';
+// 第3部 第2章 第3幕: たいさ・アルゴル（battle-c10c.js。C10C_OWN_TELE・C10C_SCREEN_ANIMS・C10C_ALLY_FX・C10C_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
+import { c10cSprite, c10cDraw, c10cPresent, c10cCmdItems, c10cCmdPick } from './battle-c10c.js?v=d4d473d565e8';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];
@@ -99,6 +101,9 @@ export function c9bSprite(c, frame) {
   // 第3部 第2章 第2幕: びしょぬれ・おじぎ（battle-c10b.js）
   const d10b = c10bSprite(c, frame);
   if (d10b) return d10b;
+  // 第3部 第2章 第3幕: しょんぼり・ひざを つく（battle-c10c.js）
+  const d10c = c10cSprite(c, frame);
+  if (d10c) return d10c;
   if (c?.species === C9B_DEDEDON && c.kDown) return monsterCanvas(C9B_DEDEDON, (frame ? 1 : 0) + 2);
   // 第3部 第1章 第3幕: 目を 回した メカ（battle-c9c.js）
   return c9cSprite(c, frame);
@@ -147,6 +152,8 @@ export function c9bDraw(scene, x, m, c, px, py, w, h, base) {
   c10aDraw(scene, x, m, c, px, py, w, h, base);
   // 第3部 第2章 第2幕: 中ボスの まど・場所の 名前・しるし（battle-c10b.js）
   c10bDraw(scene, x, m, c, px, py, w, h, base);
+  // 第3部 第2章 第3幕: ボスの まど・うき石の まど・しるし（battle-c10c.js）
+  c10cDraw(scene, x, m, c, px, py, w, h, base);
   // 大王
   if (c?.species === C9B_DEDEDON) {
     darkLayer(scene, c.alive && c.kDark, c.alive && c.kLit);
@@ -232,6 +239,8 @@ export function c9bPresent(scene, ev) {
   c10aPresent(scene, ev);
   // 第3部 第2章 第2幕（battle-c10b.js）
   c10bPresent(scene, ev);
+  // 第3部 第2章 第3幕（battle-c10c.js）
+  c10cPresent(scene, ev);
 }
 
 // ───────────── コマンド（client/battle-c9a.js の c9aCmdItems・c9aCmdPick）─────────────
@@ -240,7 +249,8 @@ function teruUseful(scene) {
   const en = scene.enemies?.() || [];
   // 第3部 第2章 第1幕: モルドの カビの かべ・カビの ある 仲間（battle-c10a.js）
   // 第3部 第2章 第2幕: シロフクロウ（てらすと 本物が 光る。battle-c10b.js）
-  return en.some((e) => e.alive && (e.kDark || e.hide9 || e.wall || (e.c10Kind === 'owl' && !e.c10Down && !en.some((o) => o.owlLit)))) || (scene.allies?.() || []).some((x) => x.alive && x.kabi10 > 0);
+  // 第3部 第2章 第3幕: たいさの 雷の 前ぶれ（まぶしく して 外す）・アルゴルの やみの とばり（battle-c10c.js）
+  return en.some((e) => e.alive && (e.kDark || e.hide9 || e.wall || (e.c10Kind === 'owl' && !e.c10Down && !en.some((o) => o.owlLit)) || (e.c10Kind === 'colonel' && !e.c10Down && !e.dazzle && (e.stones || []).some((s) => s.lit)) || (e.c10Kind === 'algol' && !e.c10Down && e.veil > 0))) || (scene.allies?.() || []).some((x) => x.alive && x.kabi10 > 0);
 }
 export function c9bCmdItems(scene, a) {
   // 第3部 第1章 第3幕: こたえる・ひっくり返す（battle-c9c.js。てらすより 先）
@@ -249,8 +259,10 @@ export function c9bCmdItems(scene, a) {
   const cd = c9dCmdItems(scene, a);
   // 第3部 第2章 第2幕: 水の音を鳴らす（battle-c10b.js。てらすより 先）
   const cx = c10bCmdItems(scene, a);
-  const items = [...cx.items, ...cc.items, ...cd.items];
-  let info = cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
+  // 第3部 第2章 第3幕: うつる（battle-c10c.js。いちばん 上）
+  const ck = c10cCmdItems(scene, a);
+  const items = [...ck.items, ...cx.items, ...cc.items, ...cd.items];
+  let info = ck.info || cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
   const t = scene.c9spica?.teru;
   if (!a || !t || t.charge < t.max || !(a.abilities || []).includes(TERU) || !teruUseful(scene)) return { items, info };
   items.push({ html: '<span class="dual-cmd">スピカ：てらす</span>', value: 'c9bteru', cls: 'k-dual' });
@@ -261,6 +273,7 @@ export function c9bCmdPick(scene, a, value) {
   if (value === 'c9canswer' || value === 'c9cflip') return c9cCmdPick(scene, a, value);
   if (value === 'c9dsong') return c9dCmdPick(scene, a, value);
   if (value === 'c10bring') return c10bCmdPick(scene, a, value);
+  if (value === 'c10cmove') return c10cCmdPick(scene, a, value);
   if (value !== 'c9bteru') return false;
   scene.send({ type: 'ability', id: TERU });
   return true;

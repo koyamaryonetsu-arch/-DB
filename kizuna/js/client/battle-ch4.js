@@ -3,64 +3,66 @@
 // ・まぼろしの 分身: 本物の 足もとの 小さな 影・分身が 消える ときの えんしゅつ・まぼろしが もどる 前ぶれ
 // ・ボスの 大技（砂嵐・砂の大うず・砂しぶき・大ジャンプ）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
 // ・砂に もぐる（Step 6 の 砂クジラ）: もぐった 敵は 砂の 山に なって ねらえない。砂が もり上がると 山が ゆれて 前ぶれ
-import { ABILITIES } from '../shared/data/abilities.js?v=c53292a2af59';
-import { ITEMS } from '../shared/data/items.js?v=c53292a2af59';
-import { BW, BH } from './render/battlefx.js?v=c53292a2af59';
+import { ABILITIES } from '../shared/data/abilities.js?v=d4d473d565e8';
+import { ITEMS } from '../shared/data/items.js?v=d4d473d565e8';
+import { BW, BH } from './render/battlefx.js?v=d4d473d565e8';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js?v=c53292a2af59';
+import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js?v=d4d473d565e8';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { TOWER_SCREEN_ANIMS, TOWER_ALLY_FX, towerPresent } from './battle-ch5.js?v=c53292a2af59';
+import { TOWER_SCREEN_ANIMS, TOWER_ALLY_FX, towerPresent } from './battle-ch5.js?v=d4d473d565e8';
 // 第5章 Step 3・4 の クモイ地方・古い神殿の 魔物と ガイアイーター（battle-gaia.js）
-import { GAIA_SCREEN_ANIMS, GAIA_ALLY_FX } from './battle-gaia.js?v=c53292a2af59';
+import { GAIA_SCREEN_ANIMS, GAIA_ALLY_FX } from './battle-gaia.js?v=d4d473d565e8';
 // 第5章 Step 5 の 星読みの里・思い出の迷宮の 魔物と ノクトの影（battle-nocto.js）
-import { NOCTO_SCREEN_ANIMS, NOCTO_ALLY_FX } from './battle-nocto.js?v=c53292a2af59';
+import { NOCTO_SCREEN_ANIMS, NOCTO_ALLY_FX } from './battle-nocto.js?v=d4d473d565e8';
 // 第5章 Step 6・7 の 根の島・大地の神殿の 魔物と ノクト（1回目。battle-earth.js）
-import { EARTH_SCREEN_ANIMS, EARTH_ALLY_FX } from './battle-earth.js?v=c53292a2af59';
+import { EARTH_SCREEN_ANIMS, EARTH_ALLY_FX } from './battle-earth.js?v=d4d473d565e8';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（battle-final.js）
-import { FINAL_SCREEN_ANIMS, FINAL_ALLY_FX } from './battle-final.js?v=c53292a2af59';
+import { FINAL_SCREEN_ANIMS, FINAL_ALLY_FX } from './battle-final.js?v=d4d473d565e8';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（battle-phantom.js）
-import { PHANTOM_SCREEN_ANIMS, PHANTOM_ALLY_FX } from './battle-phantom.js?v=c53292a2af59';
+import { PHANTOM_SCREEN_ANIMS, PHANTOM_ALLY_FX } from './battle-phantom.js?v=d4d473d565e8';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（battle-ch6.js）
-import { CH6_SCREEN_ANIMS, CH6_ALLY_FX } from './battle-ch6.js?v=c53292a2af59';
+import { CH6_SCREEN_ANIMS, CH6_ALLY_FX } from './battle-ch6.js?v=d4d473d565e8';
 // 第2部 第6章 Step 3・4 の 魔物と 星くいのよる鳥・ペンデュラ（battle-road.js）
-import { ROAD_SCREEN_ANIMS, ROAD_ALLY_FX } from './battle-road.js?v=c53292a2af59';
+import { ROAD_SCREEN_ANIMS, ROAD_ALLY_FX } from './battle-road.js?v=d4d473d565e8';
 // 第2部 第6章 Step 5 の 時計塔の 魔物と カリヨン（battle-tokei.js）
-import { TOKEI_SCREEN_ANIMS, TOKEI_ALLY_FX } from './battle-tokei.js?v=c53292a2af59';
-import { TOKEI6_SCREEN_ANIMS, TOKEI6_ALLY_FX } from './battle-tokei6.js?v=c53292a2af59';
+import { TOKEI_SCREEN_ANIMS, TOKEI_ALLY_FX } from './battle-tokei.js?v=d4d473d565e8';
+import { TOKEI6_SCREEN_ANIMS, TOKEI6_ALLY_FX } from './battle-tokei6.js?v=d4d473d565e8';
 // 第2部 第7章 第1幕 の 魔物・ウツボきょうだい・オクタリア（battle-c7.js）
-import { C7_SCREEN_ANIMS, C7_ALLY_FX } from './battle-c7.js?v=c53292a2af59';
+import { C7_SCREEN_ANIMS, C7_ALLY_FX } from './battle-c7.js?v=d4d473d565e8';
 // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長（battle-c7s.js）
-import { C7S_SCREEN_ANIMS, C7S_ALLY_FX } from './battle-c7s.js?v=c53292a2af59';
+import { C7S_SCREEN_ANIMS, C7S_ALLY_FX } from './battle-c7s.js?v=d4d473d565e8';
 // 第2部 第7章 第3幕 の 魔物・マレフィナ（黒い 竜）・カイの影（battle-c7i.js）
-import { C7I_SCREEN_ANIMS, C7I_ALLY_FX } from './battle-c7i.js?v=c53292a2af59';
+import { C7I_SCREEN_ANIMS, C7I_ALLY_FX } from './battle-c7i.js?v=d4d473d565e8';
 // 第2部 第8章 第1幕 の 魔物・オウムのイアゴン・大臣ジャハール（battle-c8a.js）
-import { C8A_SCREEN_ANIMS, C8A_ALLY_FX } from './battle-c8a.js?v=c53292a2af59';
+import { C8A_SCREEN_ANIMS, C8A_ALLY_FX } from './battle-c8a.js?v=d4d473d565e8';
 // 第2部 第8章 第2幕 の 魔物・ペイニックと パニクル・よみの王ハデロス（battle-c8b.js）
-import { C8B_SCREEN_ANIMS, C8B_ALLY_FX } from './battle-c8b.js?v=c53292a2af59';
+import { C8B_SCREEN_ANIMS, C8B_ALLY_FX } from './battle-c8b.js?v=d4d473d565e8';
 // 第2部 第8章 第3幕 の 魔物・マジカメック・初代大魔王クッパード（battle-c8c.js）
-import { C8C_SCREEN_ANIMS, C8C_ALLY_FX } from './battle-c8c.js?v=c53292a2af59';
+import { C8C_SCREEN_ANIMS, C8C_ALLY_FX } from './battle-c8c.js?v=d4d473d565e8';
 // 第2部 第8章 第4幕 の 魔物・時の門番フリーゾン・心の ためし・ソリトゥス（battle-c8r.js）
-import { C8R_SCREEN_ANIMS, C8R_ALLY_FX } from './battle-c8r.js?v=c53292a2af59';
+import { C8R_SCREEN_ANIMS, C8R_ALLY_FX } from './battle-c8r.js?v=d4d473d565e8';
 // 第3部 第1章 第1幕 の 魔物・スイトール1号・ホシモリ（battle-c9a.js）
-import { C9A_SCREEN_ANIMS, C9A_ALLY_FX } from './battle-c9a.js?v=c53292a2af59';
+import { C9A_SCREEN_ANIMS, C9A_ALLY_FX } from './battle-c9a.js?v=d4d473d565e8';
 // 第3部 第1章 第2幕 の 魔物・デデドン大王・てらす（battle-c9b.js）
-import { C9B_SCREEN_ANIMS, C9B_ALLY_FX } from './battle-c9b.js?v=c53292a2af59';
+import { C9B_SCREEN_ANIMS, C9B_ALLY_FX } from './battle-c9b.js?v=d4d473d565e8';
 // 第3部 第1章 第3幕 の 魔物・ナゾカケ・ヒックリカエール2号（battle-c9c.js）
-import { C9C_SCREEN_ANIMS, C9C_ALLY_FX } from './battle-c9c.js?v=c53292a2af59';
+import { C9C_SCREEN_ANIMS, C9C_ALLY_FX } from './battle-c9c.js?v=d4d473d565e8';
 // 第3部 第1章 第4幕 の 魔物・あそびたい魔人 ムウ・星のうた（battle-c9d.js）
-import { C9D_SCREEN_ANIMS, C9D_ALLY_FX } from './battle-c9d.js?v=c53292a2af59';
+import { C9D_SCREEN_ANIMS, C9D_ALLY_FX } from './battle-c9d.js?v=d4d473d565e8';
 // 第3部 第2章 第1幕 の 魔物・タマゴン・モルド（battle-c10a.js）
-import { C10A_SCREEN_ANIMS, C10A_ALLY_FX } from './battle-c10a.js?v=c53292a2af59';
+import { C10A_SCREEN_ANIMS, C10A_ALLY_FX } from './battle-c10a.js?v=d4d473d565e8';
 // 第3部 第2章 第2幕 の 魔物・ゲッコー・シロフクロウ（battle-c10b.js）
-import { C10B_SCREEN_ANIMS, C10B_ALLY_FX } from './battle-c10b.js?v=c53292a2af59';
+import { C10B_SCREEN_ANIMS, C10B_ALLY_FX } from './battle-c10b.js?v=d4d473d565e8';
+// 第3部 第2章 第3幕 の 魔物・たいさ・アルゴル（battle-c10c.js）
+import { C10C_SCREEN_ANIMS, C10C_ALLY_FX } from './battle-c10c.js?v=d4d473d565e8';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS, ...CH6_SCREEN_ANIMS, ...ROAD_SCREEN_ANIMS, ...TOKEI_SCREEN_ANIMS, ...TOKEI6_SCREEN_ANIMS, ...C7_SCREEN_ANIMS, ...C7S_SCREEN_ANIMS, ...C7I_SCREEN_ANIMS, ...C8A_SCREEN_ANIMS, ...C8B_SCREEN_ANIMS, ...C8C_SCREEN_ANIMS, ...C8R_SCREEN_ANIMS, ...C9A_SCREEN_ANIMS, ...C9B_SCREEN_ANIMS, ...C9C_SCREEN_ANIMS, ...C9D_SCREEN_ANIMS, ...C10A_SCREEN_ANIMS, ...C10B_SCREEN_ANIMS]);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS, ...CH6_SCREEN_ANIMS, ...ROAD_SCREEN_ANIMS, ...TOKEI_SCREEN_ANIMS, ...TOKEI6_SCREEN_ANIMS, ...C7_SCREEN_ANIMS, ...C7S_SCREEN_ANIMS, ...C7I_SCREEN_ANIMS, ...C8A_SCREEN_ANIMS, ...C8B_SCREEN_ANIMS, ...C8C_SCREEN_ANIMS, ...C8R_SCREEN_ANIMS, ...C9A_SCREEN_ANIMS, ...C9B_SCREEN_ANIMS, ...C9C_SCREEN_ANIMS, ...C9D_SCREEN_ANIMS, ...C10A_SCREEN_ANIMS, ...C10B_SCREEN_ANIMS, ...C10C_SCREEN_ANIMS]);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX, ...C8C_ALLY_FX, ...C8R_ALLY_FX, ...C9A_ALLY_FX, ...C9B_ALLY_FX, ...C9C_ALLY_FX, ...C9D_ALLY_FX, ...C10A_ALLY_FX, ...C10B_ALLY_FX };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX, ...C8C_ALLY_FX, ...C8R_ALLY_FX, ...C9A_ALLY_FX, ...C9B_ALLY_FX, ...C9C_ALLY_FX, ...C9D_ALLY_FX, ...C10A_ALLY_FX, ...C10B_ALLY_FX, ...C10C_ALLY_FX };
 
 // 第88回: 作品の 品の「使う」の せつめい（ch4ItemEntries が 入れて、ch4ItemInfo が 出す）
 const USE_INFO = new Map();

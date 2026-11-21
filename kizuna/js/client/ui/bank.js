@@ -4,15 +4,15 @@
 //   お金: 100・1000・10000ゴールド・全部・金額を入れる → 「〇〇ゴールドですね。よろしいですか？」
 //   道具: ふくろ（預かり所）の 品物を えらぶ → いくつ？ → 預ける（引き出す）
 // 全滅すると 持っている お金は 半分に なるが、預けた お金は へらない
-import { el, esc, askText } from './dom.js?v=c53292a2af59';
-import { Counter } from './counter.js?v=c53292a2af59';
-import { request } from './shop.js?v=c53292a2af59';
-import { itemStats, rankText } from './info.js?v=c53292a2af59';
-import { ITEMS } from '../../shared/data/items.js?v=c53292a2af59';
-import { itemCount } from '../../shared/stats.js?v=c53292a2af59';
-import { BANK_KINDS, BANK_STACK, BANK_GOLD_MAX } from '../../shared/data/facilities.js?v=c53292a2af59';
-import { bankGold, bankCount, BAG_STACK } from '../../shared/world/bank.js?v=c53292a2af59';
-import { boardIconURL } from '../render/boards.js?v=c53292a2af59';
+import { el, esc, askText } from './dom.js?v=d4d473d565e8';
+import { Counter } from './counter.js?v=d4d473d565e8';
+import { request } from './shop.js?v=d4d473d565e8';
+import { itemStats, rankText } from './info.js?v=d4d473d565e8';
+import { ITEMS } from '../../shared/data/items.js?v=d4d473d565e8';
+import { itemCount } from '../../shared/stats.js?v=d4d473d565e8';
+import { BANK_KINDS, BANK_STACK, BANK_GOLD_MAX } from '../../shared/data/facilities.js?v=d4d473d565e8';
+import { bankGold, bankCount, BAG_STACK } from '../../shared/world/bank.js?v=d4d473d565e8';
+import { boardIconURL } from '../render/boards.js?v=d4d473d565e8';
 
 const AGAIN = 'ほかにもご用はありますか？';
 
@@ -86,7 +86,7 @@ async function goldFlow(game, ct, deposit) {
   await ct.say(deposit ? `いくら預けますか？\n（持っているお金: ${me.gold}ゴールド）` : `いくら引き出しますか？\n（預けているお金: ${bankGold(me)}ゴールド）`);
   const opts = [100, 1000, 10000].filter((v) => v < max).map((v) => ({ label: `${v}ゴールド`, value: v }));
   opts.push({ label: `全部（${max}ゴールド）`, value: max }, { label: '金額を入れる', value: 'input' });
-  const pick = await ct.pick(opts, { back: 'もどる', onMove: () => ct.info(summary(game, HINTS[deposit ? 'depositGold' : 'withdrawGold'])) });
+  const pick = await ct.pick(opts, { back: 'もどる', list: false, onMove: () => ct.info(summary(game, HINTS[deposit ? 'depositGold' : 'withdrawGold'])) });
   if (ct.closed || !pick) return;
   let amt = pick.value;
   if (amt === 'input') {

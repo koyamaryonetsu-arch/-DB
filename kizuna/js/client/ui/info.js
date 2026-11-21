@@ -1,22 +1,24 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=c53292a2af59';
-import { abilityTypeText } from '../../shared/data/abilities.js?v=c53292a2af59';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=c53292a2af59';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=c53292a2af59';
-import { jobLabel } from '../../shared/job-label.js?v=c53292a2af59';
-import { MONSTERS } from '../../shared/data/monsters.js?v=c53292a2af59';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=c53292a2af59';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=c53292a2af59';
-import { attackReach } from '../../shared/battle.js?v=c53292a2af59';
-import { maxPlus } from '../../shared/data/forge.js?v=c53292a2af59';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=c53292a2af59';
-import { perkText } from '../../shared/data/items-r31.js?v=c53292a2af59';
-import { BUFF_MARKS } from '../../shared/buff-acts.js?v=c53292a2af59';
-import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=c53292a2af59';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=d4d473d565e8';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=d4d473d565e8';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=d4d473d565e8';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=d4d473d565e8';
+import { jobLabel } from '../../shared/job-label.js?v=d4d473d565e8';
+import { MONSTERS } from '../../shared/data/monsters.js?v=d4d473d565e8';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=d4d473d565e8';
+import { computeStats, canEquip, canEquipChar, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=d4d473d565e8';
+import { attackReach } from '../../shared/battle.js?v=d4d473d565e8';
+import { maxPlus } from '../../shared/data/forge.js?v=d4d473d565e8';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=d4d473d565e8';
+import { perkText } from '../../shared/data/items-r31.js?v=d4d473d565e8';
+import { BUFF_MARKS } from '../../shared/buff-acts.js?v=d4d473d565e8';
+import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=d4d473d565e8';
 // 第76回: もとの 強さ（きたえる 前の 装備。shared/gear-base.js）
-import { GEAR_STAT_LABELS, gearOwn, gearBaseId } from '../../shared/gear-base.js?v=c53292a2af59';
+import { GEAR_STAT_LABELS, gearOwn, gearBaseId } from '../../shared/gear-base.js?v=d4d473d565e8';
 // 第88回: 作品の 品の せつめい（作品の力・使う・そろい・玉・とどく 広さ。shared/gear-r88-view.js）
-import { r88DetailLines, r88ReachText } from '../../shared/gear-r88-view.js?v=c53292a2af59';
+import { r88DetailLines, r88ReachText, r88Parts } from '../../shared/gear-r88-view.js?v=d4d473d565e8';
+// 第96回: れん金の 効果（装備の 紹介の「効果」）
+import { fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=d4d473d565e8';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -125,6 +127,76 @@ export function itemDetail(id, mons = null, who = null) {
   else if (!top && isShopItem(id) && ['weapon', 'armor', 'shield', 'head'].includes(it.type)) lines.push('店の品（★1）なので、きたえられない');
   if (it.type === 'mat') lines.push('ふしぎなかじの素材（ルミナの町・カモメ港のかじ屋で使う）');
   return lines.filter(Boolean).join('\n');
+}
+
+// ───── 第96回: 装備品の 紹介（道具の まど・お店）─────
+// 家族の 声:「装備品の紹介で欲しいのは、強さと効果」。いちばん 上に 強さ・効果を 短く、その 下に 今までの 文。
+// opts … char: くらべる 人（今 つけて いる 物との 差を 装備の まどと おなじ 色で）・mons・who（職業の 名前の 見かた）・
+//   can: [{ name, can }]（パーティーで だれが 装備できるか。ない ときは char だけで 見る）
+// もどりち: { stats: 強さの HTML, rank: ★と ランク, cat: 種類, can: だれが 装備できるか, fx: [効果の 文], more: [くわしい 文] }。
+//   装備で ない 物は null
+const GEAR_TYPES = ['weapon', 'armor', 'shield', 'head', 'acc'];
+const escHtml = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const REACH_TAIL = '（2体目から少しずつ弱くなる）';
+export function gearSummary(id, { char = null, mons = null, who = null, can = null } = {}) {
+  const it = ITEMS[id];
+  if (!it || !GEAR_TYPES.includes(it.type)) return null;
+  const slot = it.type;
+  let stats;
+  if (char) {
+    const own = gearOwn(char, slot, id);
+    const ok = canEquipChar(char, id);
+    const cur = char.equip?.[slot] || null;
+    const diffs = ok && cur !== id ? statChanges(computeStats(char), computeStats({ ...char, equip: { ...(char.equip || {}), [slot]: id } })) : null;
+    stats = own.length ? gearRowHtml(own, diffs) : '<span class="sc muted">強さなし</span>';
+  } else stats = itemStats(id) ? `<span class="sc">${escHtml(itemStats(id))}</span>` : '<span class="sc muted">強さなし</span>';
+  const rank = rankText(id);
+  const cat = it.type === 'weapon' ? WEAPON_CAT_NAMES[it.cat] || '' : SLOT_NAMES[slot] || '';
+  let canText = '';
+  if (can?.length) {
+    const ok = can.filter((r) => r.can).map((r) => r.name);
+    canText = ok.length === can.length && can.length > 1 ? 'みんな装備できる' : ok.length ? `装備できる：${ok.join('・')}` : '装備できる人がいない';
+  } else if (char) canText = canEquipChar(char, id) ? '装備できる' : '装備できない';
+  // 効果（1つ 1行）
+  const fx = [];
+  if (perkText(it)) fx.push(`★ ${perkText(it)}`);
+  const tr = traitText(id);
+  if (tr) fx.push(tr);
+  const r88Reach = r88ReachText(id);
+  const reach = r88Reach ? r88Reach.replace(REACH_TAIL, '')
+    : it.type === 'weapon' && attackReach(it.cat) !== 'enemy' ? (attackReach(it.cat) === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる') : '';
+  if (reach) fx.push(reach);
+  const r88 = r88Parts(id, who || char);
+  fx.push(...r88.fx);
+  const alc = char ? fxShort(fxListOf(char, id)) : '';
+  if (alc) fx.push(`れん金：${alc}`);
+  // くわしい 文（今までの 紹介。ものがたりの 文が 先）
+  const more = [it.desc || ''];
+  const b = gearBaseId(id);
+  if (b !== id && ITEMS[b]) more.push(`もと：${itemStats(b) || '強さなし'}（きたえる前）`);
+  const where = rareWhereText(id);
+  if (where) more.push(where);
+  if (reach) more.push(`${reach}${REACH_TAIL}`);
+  more.push(...r88.more);
+  const w = whoCanEquip(id, mons, who);
+  if (w) more.push(w);
+  if (it.plus) more.push(`ふしぎなかじで${it.plus}回きたえてある（+${it.plus}）`);
+  const top = maxPlus(id);
+  if (top && (it.plus || 0) < top) more.push(`ふしぎなかじで+${top}まできたえられる`);
+  else if (!top && isShopItem(id) && ['weapon', 'armor', 'shield', 'head'].includes(it.type)) more.push('店の品（★1）なので、きたえられない');
+  return { stats, rank, cat, can: canText, fx, more: more.filter(Boolean) };
+}
+
+// 第96回: 装備品の 紹介の HTML（.gd-sum … 強さ・効果、.gd-more … くわしい 文、.gd-tail … さいごの ひとこと）。
+//   装備で ない 物は ''。opts は gearSummary と おなじ ＋ tail
+export function gearDetailHtml(id, opts = {}) {
+  const s = gearSummary(id, opts);
+  if (!s) return '';
+  const meta = [s.cat, s.rank, s.can].filter(Boolean).map((t) => `<span class="gd-tag">${escHtml(t)}</span>`).join('');
+  const fx = s.fx.length ? `<div class="gd-fx"><span class="gd-k">効果</span><ul>${s.fx.map((t) => `<li>${escHtml(t)}</li>`).join('')}</ul></div>` : '';
+  const tail = opts.tail ? `<div class="gd-tail">${escHtml(opts.tail)}</div>` : '';
+  return `<div class="gd-sum"><div class="gd-stats"><span class="gd-k">強さ</span><span class="gd-v">${s.stats}</span></div>`
+    + `${meta ? `<div class="gd-meta">${meta}</div>` : ''}${fx}</div><div class="gd-more">${escHtml(s.more.join('\n'))}</div>${tail}`;
 }
 
 // 装備で 変わる 強さ（お店の くらべ counter.js と おなじ ならび）

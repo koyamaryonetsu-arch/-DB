@@ -1,6 +1,6 @@
 // がめんの パーツを つくる どうぐ
 
-import { kanaPad } from './kana-pad.js?v=c53292a2af59';
+import { kanaPad } from './kana-pad.js?v=d4d473d565e8';
 
 export function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
@@ -41,8 +41,15 @@ export class ListMenu {
   //   長おしでは その 行は 決まらない（はなした あとの クリックは すてる）
   // onY: Y（キーボードの Y・ゲームパッドの Y）を おした とき（長おしでは よばない。第35回 道具の ならべかえ）
   // onLR: L・R（キーボードの Q・E／PageUp・PageDown、ゲームパッドの L・R）を おした とき。-1 か 1（第69回 戦いの 技の タブ）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, onLong = null, onY = null, onLR = null } = {}) {
+  // list: 第96回 一覧の まど（行が ならんで スクロール できる 物）。タップ・クリックは
+  //   1回め … その 行に カーソルを 合わせる（決定しない）・同じ 行を もう1回 … 決定（2回で 決定）。
+  //   設定「タップ1回で決定：ON」（ListMenu.tapOnce）の 時は 今までどおり（tapConfirm の きまり）。
+  //   はい・いいえ・コマンド・的を えらぶ まど などは list なし（1回で 決定）。
+  //   どちらでも、スクロールが 動いて いる 時の タップ（指で 止める）と なぞった 時は、カーソルも 決定も しない
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, list = false, onLong = null, onY = null, onLR = null } = {}) {
     this.input = input;
+    this.list = list;
+    this.armed = -1;
     this.onLR = onLR;
     this.onY = onY;
     this.tapConfirm = tapConfirm;
@@ -73,6 +80,7 @@ export class ListMenu {
 
   setItems(items, keepIdx = true) {
     this.items = items;
+    this.disarm();
     if (!keepIdx || this.idx >= items.length || items[this.idx]?.header) this.idx = Math.max(0, items.findIndex((i) => !i.disabled && !i.header));
     this.render();
   }
@@ -90,16 +98,7 @@ export class ListMenu {
         title: it.title || null,
         onclick: (e) => {
           e.stopPropagation();
-          const moved = this.idx !== i;
-          this.idx = i;
-          this.render();
-          // タッチでは ホバーが ないので、タップで せつめいも かえる
-          if (moved) this.onMove?.(this.items[i], i);
-          if (moved && this.tapConfirm) {
-            this.sound?.('cursor');
-            return;
-          }
-          this.choose();
+          this.tap(i, e);
         },
         // 長おし（onLong の ある メニューだけ）
         // （あとから menu.onLong を 入れても 効く）
@@ -147,6 +146,45 @@ export class ListMenu {
       requestAnimationFrame(() => this.fit());
       document.fonts?.ready?.then(() => this.fit());
     }
+  }
+
+  // 第96回: 行を タップ（クリック）した とき。e … click の イベント（テストでは なし）
+  tap(i, e = null) {
+    const it = this.items[i];
+    if (!it || it.header) return;
+    // スクロールを 指で 止めた タップ・なぞった あとの タップは なにも しない
+    if (tapStopped(this.root, e)) return;
+    const moved = this.idx !== i;
+    if (this.list && !ListMenu.tapOnce) {
+      // 同じ 行を もう1回 → 決定。1回め（ちがう 行）→ カーソルを 合わせる だけ
+      if (this.armed === i && !moved) {
+        this.disarm();
+        this.choose();
+        return;
+      }
+      this.idx = i;
+      this.armed = i;
+      this.updateSel();
+      if (moved) this.onMove?.(it, i);
+      this.sound?.('cursor');
+      if (!it.disabled) showTapHint(this);
+      return;
+    }
+    this.idx = i;
+    this.render();
+    // タッチでは ホバーが ないので、タップで せつめいも かえる
+    if (moved) this.onMove?.(this.items[i], i);
+    if (moved && this.tapConfirm) {
+      this.sound?.('cursor');
+      return;
+    }
+    this.choose();
+  }
+
+  // 「もう一度タップで決定」を けす（決定した・キーで うごかした・まどを とじた）
+  disarm() {
+    this.armed = -1;
+    hideTapHint(this);
   }
 
   // 入りきらない なまえの 文字を 小さく（いちばん 小さくて 0.6 ばい）。
@@ -224,6 +262,7 @@ export class ListMenu {
   scrollToSel() {
     const li = this.root.children[this.idx];
     if (!li || !li.scrollIntoView) return;
+    markProgScroll();
     // 上に 固定した 見出し（タブなど）が ある ときは、CSS の scroll-margin-top の ぶん 下に 出す
     // （ブラウザの nearest は 見出しの 下に かくれた 行を「見えている」と みなして うごかない）
     let mt = parseFloat(getComputedStyle(li).scrollMarginTop) || 0;
@@ -263,6 +302,7 @@ export class ListMenu {
   }
 
   blur() {
+    this.disarm();
     if (this.active) {
       this.input.pop(this.handler);
       this.active = false;
@@ -368,7 +408,9 @@ export class ListMenu {
     const li0 = box.children[this.idx];
     const li1 = box.children[to];
     // まどを おなじ 行の かず ぶん うごかす（えらんだ 技が まどの おなじ 高さに 来る）
+    markProgScroll();
     if (li0 && li1) box.scrollTop += li1.offsetTop - li0.offsetTop;
+    this.disarm();
     this.idx = to;
     this.sound?.('cursor');
     this.updateSel();
@@ -388,6 +430,7 @@ export class ListMenu {
     const hdr = arrow && this.items.some((it) => it.header);
     const cols = arrow && !hdr ? this.visualCols() : this.cols;
     const go = (i) => {
+      this.disarm();
       this.idx = i;
       this.sound?.('cursor');
       this.updateSel();
@@ -433,6 +476,7 @@ export class ListMenu {
   choose() {
     const it = this.current;
     if (!it || this.pressing) return;
+    this.disarm();
     if (it.disabled) {
       this.sound?.('buzz');
       return;
@@ -458,6 +502,75 @@ export class ListMenu {
 // 長おしの 時間（ミリ秒）
 ListMenu.LONG_MS = 500;
 
+// ───────────── 第96回: タップの きまり ─────────────
+// 設定「タップ1回で決定」（この 端末だけ。localStorage の kizuna_tap1。はじめは OFF ＝ 一覧は 2回で 決定）
+export function tapOncePref() {
+  try { return localStorage.getItem('kizuna_tap1') === '1'; } catch { return false; }
+}
+export function setTapOncePref(on) {
+  ListMenu.tapOnce = !!on;
+  try { localStorage.setItem('kizuna_tap1', on ? '1' : ''); } catch { /* */ }
+}
+ListMenu.tapOnce = tapOncePref();
+
+// スクロールの ようす（どの まどが いつ スクロールしたか・指を おいた 場所）。
+//   SCROLL_STOP_MS … スクロールが この ミリ秒 いないに 動いて いたら「動いて いる」（指で 止める タップ）
+//   DRAG_PX … 指を おいてから はなすまでに これより 動いたら「なぞった」
+export const TAP = { SCROLL_STOP_MS: 160, DRAG_PX: 12, PROG_MS: 120, last: new WeakMap(), prog: 0, down: null };
+const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+// プログラムで スクロールした（カーソルの 行を 見せる など）。この あと すこしの スクロールは 数えない
+export function markProgScroll() { TAP.prog = now(); }
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('scroll', (ev) => {
+    if (now() - TAP.prog < TAP.PROG_MS) return;
+    if (ev.target && ev.target !== document) TAP.last.set(ev.target, now());
+  }, { capture: true, passive: true });
+  document.addEventListener('pointerdown', (ev) => {
+    TAP.down = { x: ev.clientX, y: ev.clientY, t: now(), target: ev.target };
+  }, { capture: true, passive: true });
+}
+
+// この タップは「スクロールを 止めた」か「なぞった」か（true なら 行は えらばない）。
+//   root … 一覧の ul（root か その 上の まどが スクロールして いた か を 見る）
+export function tapStopped(root, e) {
+  const d = TAP.down;
+  if (!d || !e || !root) return false;
+  if (typeof e.clientX === 'number' && e.detail !== 0 && Math.hypot(e.clientX - d.x, e.clientY - d.y) > TAP.DRAG_PX) return true;
+  for (let n = root; n && n.nodeType === 1; n = n.parentElement) {
+    const t = TAP.last.get(n);
+    if (t === undefined) continue;
+    // 指を おく すこし 前まで 動いて いた（止める タップ）・おいて いる 間に 動いた（なぞった）
+    if (t > d.t - TAP.SCROLL_STOP_MS) return true;
+  }
+  return false;
+}
+
+// 「もう一度タップで決定」（えらんだ 一覧の まどの 下の はしに 小さく）
+let hintEl = null;
+let hintOwner = null;
+let hintTimer = 0;
+export const TAP_HINT = 'もう一度タップで決定';
+function showTapHint(menu) {
+  if (typeof document === 'undefined' || !document.body || !menu.root?.getBoundingClientRect) return;
+  if (!hintEl) hintEl = el('div', { class: 'tap-hint', role: 'status', 'aria-live': 'polite', text: TAP_HINT });
+  if (!hintEl.isConnected) document.body.append(hintEl);
+  hintOwner = menu;
+  const box = scrollerOf(menu.root) || menu.root;
+  const r = box.getBoundingClientRect();
+  const vh = innerHeight || r.bottom;
+  hintEl.style.left = `${Math.round(r.left + r.width / 2)}px`;
+  // 一覧の まどの 下の ふち（まどの 線の 上に のせる）
+  hintEl.style.top = `${Math.round(Math.min(r.bottom, vh - 14))}px`;
+  hintEl.classList.add('on');
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => hideTapHint(menu), 2600);
+}
+function hideTapHint(menu) {
+  if (!hintEl || (menu && hintOwner && hintOwner !== menu)) return;
+  hintEl.classList.remove('on');
+  hintOwner = null;
+}
+
 // ───────────── 十字キーで スクロール（第50回） ─────────────
 // えらぶ 行が「もどる」だけの 長い 画面（強さの くわしい 画面・全員の 強さ）を、コントローラーの 上下・左右で 動かす。
 // menu の 上下 → ys（たての まど）、左右 → xs（よこに はみ出す 表）。関数でも よい（その ときの まどを かえす）。
@@ -480,9 +593,23 @@ export function scrollStep(box, tate, d, rep = false) {
   const max = tate ? box.scrollHeight - box.clientHeight : box.scrollWidth - box.clientWidth;
   if (!(max > 1)) return false;
   const k = tate ? 'scrollTop' : 'scrollLeft';
+  markProgScroll();
   const step = Math.max(40, (tate ? box.clientHeight : box.clientWidth) * (rep ? 0.25 : 0.4));
   box[k] = Math.max(0, Math.min(max, (box[k] || 0) + d * step));
   return true;
+}
+
+// 第96回: せつめいの らん（高さが きまって いて 中だけ スクロール）に つづきが ある 時は「▼」（CSS の .more）。
+//   中みを かえた あと・スクロールした 時に よぶ（はじめの 1回で スクロールの 見はりも つける）
+export function moreMark(box) {
+  if (!box?.classList) return;
+  const f = () => box.classList.toggle('more', box.scrollHeight - box.clientHeight - box.scrollTop > 2);
+  if (!box.moreBound && box.addEventListener) {
+    box.moreBound = true;
+    box.addEventListener('scroll', f, { passive: true });
+  }
+  f();
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(f);
 }
 
 // el を ふくむ いちばん ちかい たてに スクロールする まど（なければ null）

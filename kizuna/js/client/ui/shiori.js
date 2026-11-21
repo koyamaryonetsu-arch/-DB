@@ -4,9 +4,9 @@
 //   ・物語（今の 部・章・幕と つぎの 目標）／おすすめ（3つまで）／のこって いる こと（しくみごとの 数と 棒）
 //   ・えらぶと くわしい 一覧（のこって いる 物の 名前と 場所）。もどるで もとの 場所に もどる
 //   ・キーボード・ゲームパッド（上下左右・決定・もどる）・タップの どれでも（dom.js の ListMenu）
-import { el, ListMenu, esc } from './dom.js?v=c53292a2af59';
-import './r78-shiori-css.js?v=c53292a2af59';
-import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=c53292a2af59';
+import { el, ListMenu, esc } from './dom.js?v=d4d473d565e8';
+import './r78-shiori-css.js?v=d4d473d565e8';
+import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=d4d473d565e8';
 
 const NL = (s) => esc(s).replace(/\n/g, '<br>');
 const whereHtml = (w) => (w ? `<div class="sh-where">${esc(w)}</div>` : '');
@@ -101,6 +101,7 @@ export function openShiori(menu) {
       for (const t of data.tracks) items.push({ html: trackHtml(t), value: { go: t.id }, cls: `sh-track ${isFull(t) ? 'full' : ''}` });
       list = new ListMenu(g.input, {
         items,
+        list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
         className: 'sh-list',
         sound: sfx,
         back: null,
@@ -158,6 +159,7 @@ export function openShiori(menu) {
       const first = items.findIndex((it) => it.value?.state && it.value.state !== 'done');
       list = new ListMenu(g.input, {
         items,
+        list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
         className: 'sh-dlist',
         sound: sfx,
         back: null,

@@ -4,7 +4,7 @@
 // ・c10g_mold … カビの だんしゃく（きのこの かさの ぼうし・しめった マント）と 小さな まるい 飛ぶ メカ
 // ・c10a_ped0_on・c10a_ped3_on … 星の音を 置いた 赤・緑の 台（光る）
 // もとの 作品の 絵は 使わない（形・色を かえて ある）
-import { Painter } from './pixel.js?v=c53292a2af59';
+import { Painter } from './pixel.js?v=d4d473d565e8';
 
 function paintTamagon(dir, f) {
   const p = new Painter(24, 24);

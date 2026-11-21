@@ -10,12 +10,12 @@
 //   入らない 物: 作品の 品で ない・伝説（den）・はじめの 品（shop）・生まれ変わりの 先（REBIRTH の to）・
 //   ライバルが くれる 品（7-1。data/rivals-r88.js の RIVALS の reward・addRivalGifts・品の rival: true）・そろいで もらう 品（R88_SET_GIFTS）・
 //   七つの玉（ORB_PLACES）・試練の ごほうび（trialGift）・品に gacha: false
-import { ITEMS } from './items.js?v=c53292a2af59';
-import { REBIRTH } from './items-alchemy.js?v=c53292a2af59';
-import { WORKS } from './works.js?v=c53292a2af59';
-import { RIVALS } from './rivals-r88.js?v=c53292a2af59';
-import { GEAR_SETS } from './gear-sets.js?v=c53292a2af59'; // G15班
-import { ownedIds } from '../gear-r88.js?v=c53292a2af59';
+import { ITEMS } from './items.js?v=d4d473d565e8';
+import { REBIRTH } from './items-alchemy.js?v=d4d473d565e8';
+import { WORKS } from './works.js?v=d4d473d565e8';
+import { RIVALS } from './rivals-r88.js?v=d4d473d565e8';
+import { GEAR_SETS } from './gear-sets.js?v=d4d473d565e8'; // G15班
+import { ownedIds } from '../gear-r88.js?v=d4d473d565e8';
 
 // ───────────── ねだん・わりあい ─────────────
 // 1回の ねだん（ゴールド。どの 作品も 同じ）。わけは 設計書の「実装メモ（G4班）」
