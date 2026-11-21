@@ -25,7 +25,7 @@ export const RIVAL_GOLD_PER_LV = 30;
 // bg … 戦いの 背景（今 ある 背景）/ room … とびらの 中の 部屋の ゆか（maps/rivals-r88.js の ROOM_STYLES）/
 // jobs … その 作品の 職業（家族に いると まぼろしの ひとことが かわる）
 export const RIVAL_DOORS = [
-  { work: 'houshin', mark: 'r88_houshin', bg: 'kumoi', room: 'cloud', jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi', 'chaos_gunshi'] },
+  { work: 'houshin', mark: 'r88_houshin', bg: 'kumoi', room: 'cloud', jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi', 'chaos_gunshi', 'kuni_saishou'] }, // 第98回 K3班: 国を動かす名さいしょう
   { work: 'yaiba', mark: 'r88_yaiba', bg: 'hoshiyomi', room: 'wood', jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai', 'ryujin_kenshi'] },
   // G5班: スレイヤーズ（石の 広間・塔の 中）・烈火の炎（火山）
   { work: 'slayers', mark: 'r88_slayers', bg: 'tower', room: 'stone', jobs: ['tabi_madoshi', 'lina', 'doramata'] },
@@ -429,7 +429,7 @@ export function addRivalHidden(table) {
 function g8Doors() {
   return [
     { work: 'ranma', mark: 'r88_ranma', bg: 'grass', room: 'onsen', jobs: ['musabetsu_student', 'ranma', 'hiryu_master'] },
-    { work: 'nube', mark: 'r88_nube', bg: 'village_night', room: 'school', jobs: ['elem_teacher', 'nube', 'jigoku_sensei'] },
+    { work: 'nube', mark: 'r88_nube', bg: 'village_night', room: 'school', jobs: ['elem_teacher', 'nube', 'jigoku_sensei', 'pta_kaichou'] }, // 第98回 K3班: 伝説のPTA会長
   ];
 }
 function g8Rivals() {

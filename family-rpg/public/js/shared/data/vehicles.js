@@ -135,6 +135,8 @@ import { KIZUNA_VEHICLES } from './kizuna.js'; Object.assign(VEHICLES, KIZUNA_VE
 VEHICLES.fire_dragon.jobs.push('kuuchou_master', 'hachiryu_hokage');
 VEHICLES.kei_truck.jobs.push('kuuchou_master');
 VEHICLES.ninja_dash.jobs.push('hachiryu_hokage');
+VEHICLES.limo.jobs.push('kuni_saishou'); // 第98回 K3班（空飛ぶカバは 大軍師の 系統だけ〈test/jobs-r83a〉。混とんの大軍師と おなじ）
+VEHICLES.teacher_bike.jobs.push('pta_kaichou'); VEHICLES.mamachari.jobs.push('pta_kaichou'); // 第98回 K3班
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

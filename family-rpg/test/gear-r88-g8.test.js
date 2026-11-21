@@ -155,7 +155,7 @@ test('G8: とびら 2まいと ライバル（5人ずつ・弱い 順・らん�
   const dn = RIVAL_DOORS.find((d) => d.work === 'nube');
   assert.ok(dr && dn);
   assert.deepEqual(dr.jobs, ['musabetsu_student', 'ranma', 'hiryu_master']);
-  assert.deepEqual(dn.jobs, ['elem_teacher', 'nube', 'jigoku_sensei']);
+  assert.deepEqual(dn.jobs, ['elem_teacher', 'nube', 'jigoku_sensei', 'pta_kaichou'], '第98回 K3班: 伝説のPTA会長（きずなの職業は 新しい 系統の 方の 作品）');
   for (const d of [dr, dn]) {
     assert.ok(R88_BOARD_ICONS[d.mark], d.mark);
     assert.ok(ROOM_STYLES[d.room], d.room);

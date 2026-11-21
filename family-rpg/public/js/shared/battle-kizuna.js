@@ -4,10 +4,14 @@
 // ★ あとの 組へ: shared/battle-r98-<名前>.js に <名前>Plan を 作って、下の PLANS の おわりに 1行 足す（import も 1行）
 import { kuuchouPlan } from './battle-r98-kuuchou.js';
 import { hokagePlan } from './battle-r98-hokage.js';
+import { saishouPlan } from './battle-r98-saishou.js';
+import { ptaPlan } from './battle-r98-pta.js';
 
 const PLANS = [
   kuuchouPlan, // 熱と風の空調マスター
   hokagePlan, // 八竜の火影
+  saishouPlan, // 国を動かす名さいしょう
+  ptaPlan, // 伝説のPTA会長
 ];
 
 // 1つ 答えが 出たら それを かえす（その 職業の 技を 持たない 人は どれも null。運も 使わない）
