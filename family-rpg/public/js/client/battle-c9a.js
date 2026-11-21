@@ -15,6 +15,8 @@ import { monsterCanvas } from './render/monsters.js';
 import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js';
 // 第3部 第1章 第4幕: おかしの 仲間の まど（battle-c9d.js）
 import { c9dStatus } from './battle-c9d.js';
+// 第3部 第2章 第1幕: あつさ・カビの めもり（battle-c10a.js）
+import { c10aStatus } from './battle-c10a.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];
@@ -122,6 +124,7 @@ export function c9aHud(scene, flash = null) {
 export function c9aStatus(s, a) {
   if (!s?.name) return;
   c9dStatus(s, a);
+  c10aStatus(s, a);
   const parent = s.name.parentNode;
   let f = parent?.querySelector?.('.c9a-fire');
   if (a.torch9 === undefined) {

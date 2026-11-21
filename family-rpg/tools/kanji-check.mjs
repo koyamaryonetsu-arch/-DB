@@ -626,6 +626,10 @@ export function gameFiles() {
     'public/js/shared/battle-c9d.js', 'public/js/client/battle-c9d.js', 'public/js/client/render/c9d-art.js', 'public/js/client/render/c9d-bg.js', 'public/js/client/render/battlefx-c9d.js',
     // 第94回 F班: 第3部 第2章 第1幕の 曲
     'public/js/client/audio-c10a.js',
+    // 第94回 B班: 第3部 第2章 第1幕（魔物・2人の 中ボス・品・ヒント・絵・背景・えんしゅつ。c10a-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/c10a-names-b.js', 'public/js/shared/data/monsters-c10a.js', 'public/js/shared/data/abilities-c10a.js',
+    'public/js/shared/data/encounters-c10a.js', 'public/js/shared/data/companions-c10a.js', 'public/js/shared/data/items-c10a.js', 'public/js/shared/data/boss-hints-c10a.js',
+    'public/js/shared/battle-c10a.js', 'public/js/client/battle-c10a.js', 'public/js/client/render/c10a-art.js', 'public/js/client/render/c10a-bg.js', 'public/js/client/render/battlefx-c10a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

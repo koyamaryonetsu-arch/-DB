@@ -12,6 +12,8 @@ import { ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { addSpica } from '../public/js/shared/battle-c9a.js';
 import { ch9Allies, ch9Party } from './sim-ch9.mjs';
+// 第94回: 第2章の ★装備（CH9_KIT.tamagon・mold）を 入れる
+import './sim-ch10.mjs';
 import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
 import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
 
@@ -22,9 +24,11 @@ export const FIELD_TABLES = {
   c9c: ['t9c_river', 't9c_pyr', 't9c_pyr2'],
   // 第93回 B班: 第4幕 ふたごの道（勇者 Lv102・その ころの ★装備 CH9_KIT.mu・酒場の 仲間 Lv101）
   c9d: ['t9d_lane', 't9d_lane2'],
+  // 第94回 B班: 第3部 第2章 第1幕 赤（古い 道。勇者 Lv105・CH9_KIT.tamagon）・緑（根の国。勇者 Lv107・CH9_KIT.mold）。tools/sim-ch10.mjs を 読む
+  c10a: ['t10r_1', 't10r_2', 't10g_1', 't10g_2'],
 };
 // 表ごとの 勇者の ★装備と レベル（ない 表は 第2幕の ころ … king・Lv100）
-export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102] };
+export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107] };
 export const FIELD_SKIP = new Set(['c9a_yamimushi', 'c9b_mimizu', 'c9b_mole_spear', 'c9b_mole_pot', 'c9d_kage']);
 
 function roll(rng, table) {
@@ -76,7 +80,8 @@ if (process.argv[1]?.endsWith('sim-ch9-field.mjs')) {
   const N = Number(process.argv[2] || 20);
   if (process.env.ONLY) {
     const sp = process.env.ONLY;
-    const res = [...Array(N).keys()].map((i) => fieldRun(sp.startsWith('c9d_') ? [sp, ...(sp === 'c9d_twins' ? [sp] : [])] : [sp], 100 + i * 13, { spica: !sp.startsWith('toki'), hero: sp.startsWith('c9d_') ? ['mu', 102] : undefined }));
+    const hero = sp.startsWith('c9d_') ? ['mu', 102] : sp.startsWith('c10r_') ? ['tamagon', 105] : sp.startsWith('c10g_') ? ['mold', 107] : undefined;
+    const res = [...Array(N).keys()].map((i) => fieldRun(sp.startsWith('c9d_') ? [sp, ...(sp === 'c9d_twins' ? [sp] : [])] : [sp], 100 + i * 13, { spica: !sp.startsWith('toki'), hero }));
     const w = res.filter((r) => r.win);
     console.log(`${MONSTERS[sp]?.name || sp} 1ぴき: 平均 ${(w.reduce((s, r) => s + r.sec, 0) / Math.max(1, w.length)).toFixed(0)}秒（勝ち ${w.length}/${N}）`);
   } else {

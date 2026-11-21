@@ -105,6 +105,8 @@ import { c9aAfter, c9aPub, c9aSnap, c9aHealMul } from './battle-c9a.js';
 import { c9bEva } from './battle-c9b.js';
 // 第3部 第1章 第4幕: おかし（動けない・受ける ダメージが ふえる。魔人ムウの おかしビーム。battle-c9d.js）
 import { c9dTaken, c9dIncap } from './battle-c9d.js';
+// 第3部 第2章 第1幕: のぼせた・きのこ・炎で あつく なる・カビで 回復が へる（battle-c10a.js）
+import { c10Stuck, c10aIncap, c10aTaken, c10aHealTo } from './battle-c10a.js';
 // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（battle-tell.js）
 import { tellHold } from './battle-tell.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
@@ -257,7 +259,7 @@ export function reachFalloff(weaponCat, i) {
 }
 
 const STATUS_NAMES = {
-  sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒', okashi: 'おかし',
+  sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒', okashi: 'おかし', nobose: 'のぼせ', kinoko: 'きのこ',
 };
 
 export class Battle {
@@ -456,7 +458,8 @@ export class Battle {
     const choosing = this.wait && this.humans().some((h) => h.alive && h.ready);
     // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（敵の ゲージだけ 止める。battle-tell.js）
     const hold = tellHold(this, dtReal, choosing);
-    if (!choosing) this.advance(dt, hold);
+    // 第3部 第2章 第1幕の 中ボス（tellAll）: 人が えらんで いる 間は 味方の ゲージも 止める（時間に 追われない。battle-c10a.js）
+    if (!choosing && !(hold && this.tellAll)) this.advance(dt, hold);
     this.gaugeTimer += dtReal;
     if (this.gaugeTimer >= 200) {
       this.gaugeTimer = 0;
@@ -522,7 +525,7 @@ export class Battle {
 
   onReady(c) {
     // ねむり・まひ・水のろう・地われ（のみこまれ）・おかし（battle-c9d.js）は じゅんばんが とばされる
-    if (c.status.sleep || c.status.paralyze || c.status.prison || c.status.rift || c.status.okashi) {
+    if (c.status.sleep || c.status.paralyze || c.status.prison || c.status.rift || c.status.okashi || c10Stuck(c)) {
       this.enqueue(c, { type: 'incapacitated' });
       return;
     }
@@ -602,6 +605,7 @@ export class Battle {
       r88mTurnStart(this, c, ev);
       ev.lines.push(`${c.name}は身を守っている。`);
       r85aAfter(this, c, ev);
+      this.lastCmd = cmd; // 第3部 第2章 第1幕: あつさ（battle-c10a.js）
       c9aAfter(this, c, ev); // 第3部 第1章 第1幕: 星の子の ほのかな光
       if (ev.postLines) ev.lines.push(...ev.postLines);
       delete ev.postLines;
@@ -699,7 +703,7 @@ export class Battle {
     }
     let cmd = q.cmd;
     // ねむりが ダメージで さめていたら ふつうに こうどうできる
-    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison && !c.status.rift && !c.status.okashi) {
+    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison && !c.status.rift && !c.status.okashi && !c10Stuck(c)) {
       if (c.controller && !c.auto) {
         c.queued = false;
         c.ready = true;
@@ -799,6 +803,7 @@ export class Battle {
     }
     // 第85回 A班: 3回 動いたら となえた 力が 消える（battle-r85a.js）
     r85aAfter(this, c, ev);
+    this.lastCmd = cmd; // 第3部 第2章 第1幕: あつさ（battle-c10a.js）
     c9aAfter(this, c, ev); // 第3部 第1章 第1幕: 星の子の ほのかな光（battle-c9a.js）
     if (ev.postLines) ev.lines.push(...ev.postLines);
     delete ev.postLines;
@@ -837,6 +842,8 @@ export class Battle {
     if (c.status.rift) return riftTurn(this, c, ev);
     // おかし（魔人ムウの おかしビーム。battle-c9d.js）
     if (c.status.okashi && c9dIncap(this, c, ev)) return;
+    // のぼせた・きのこ（battle-c10a.js）
+    if (c10Stuck(c) && c10aIncap(this, c, ev)) return;
     if (c.status.sleep) {
       const s = c.status.sleep;
       s.turns--;
@@ -1076,7 +1083,7 @@ export class Battle {
 
   coverRedirect(t) {
     const cover = this.allies.find((x) => x.alive && x !== t && x.cover && (x.cover.target === 'all' || x.cover.target === t.id)
-      && !x.status.sleep && !x.status.paralyze && !x.status.rift && !x.status.okashi);
+      && !x.status.sleep && !x.status.paralyze && !x.status.rift && !x.status.okashi && !c10Stuck(x));
     if (cover) {
       if (this.cur) this.cur.coverMsg = `${cover.name}が${t.name}をかばった！`;
       return cover;
@@ -1740,7 +1747,7 @@ export class Battle {
     delete ev.counters;
     for (const { by, on, gear } of list || []) {
       const t = this.get(by), a = this.get(on);
-      if (!t?.alive || (!gear && t.stance?.kind !== 'counter') || !a?.alive || t.status.sleep || t.status.paralyze || t.status.okashi) continue;
+      if (!t?.alive || (!gear && t.stance?.kind !== 'counter') || !a?.alive || t.status.sleep || t.status.paralyze || t.status.okashi || c10Stuck(t)) continue;
       ev.lines.push(`${t.name}の反撃！`);
       ev.counter = (ev.counter || []).concat({ actor: t.id, target: a.id });
       const res = this.calcPhys(t, a, gear ? { mult: gear } : { mult: t.stance.mult, ignoreDef: t.stance.ignoreDef });
@@ -1884,6 +1891,8 @@ export class Battle {
     dmg = r85bDamage(this, c, t, dmg, info, ev);
     // 第3部 第1章 第4幕: おかしの 人は 受ける ダメージが ふえる（battle-c9d.js）
     dmg = c9dTaken(this, c, t, dmg, ev);
+    // 第3部 第2章 第1幕: 炎の 攻撃を 受けると あつさ ＋1（battle-c10a.js）
+    dmg = c10aTaken(this, c, t, dmg, info, ev);
     // 第38回 B: 与える ダメージの 倍率（職業の試練の 師しょうのまぼろし。プレイヤーの 技を 使う ので 弱める。battle-trial.js）
     if (c?.dmgRate > 0 && c.side !== t.side && dmg > 0) dmg = Math.max(1, Math.round(dmg * c.dmgRate));
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
@@ -2063,7 +2072,7 @@ export class Battle {
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= powScaleFor(c, c.healPow, eff);
     // 第51回 C3: 雨の 天気は かけた 側の 回復が 強い（battle-weather.js）
-    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c) * weatherMult(this, c.side, 'heal') * c9aHealMul(this, c));
+    amt = Math.round(amt * powMult * evMods(c, ev).healMul * enemyFixedScale(c) * weatherMult(this, c.side, 'heal') * c9aHealMul(this, c) * c10aHealTo(this, t));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     // 第51回 F: 自分の 技・呪文で 回復した ぶん（道具は ev.ability が ない ので 入らない）

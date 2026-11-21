@@ -23,6 +23,8 @@ import { canUse } from './ai.js';
 import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js';
 // 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
 import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js';
+// 第3部 第2章 第1幕: スピカの ごほうび・ドクター・タマゴン・カビだんしゃく モルド（battle-c10a.js）
+import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -101,6 +103,8 @@ export function setupC9b(b, lines) {
   if (setupC9c(b, lines)) teru = true;
   // 第3部 第1章 第4幕: 魔人ムウ（スピカは かならず 出る）・星のうた（リーダーが c9_song1。battle-c9d.js）
   if (setupC9d(b, lines)) teru = true;
+  // 第3部 第2章 第1幕: 2人の 中ボス（スピカは かならず 出る）・スピカの ごほうび（battle-c10a.js）
+  if (setupC10a(b, lines)) teru = true;
   b.c9teruOn = teru;
   return teru;
 }
@@ -110,7 +114,8 @@ export function addTeru(b) {
   // 第3部 第1章 第4幕: 星のうた（battle-c9d.js）
   if (s && b.c9songOn) addSong(b);
   if (!s || s.teru) return s?.teru || null;
-  s.teru = { charge: 0, max: TERU_MAX, lit: 0, uses: 0 };
+  // 第3部 第2章 第1幕: 緑の 音の ごほうび … 3回で たまる（battle-c10a.js）
+  s.teru = { charge: 0, max: c10TeruMax(b, TERU_MAX), lit: 0, uses: 0 };
   for (const a of b.allies) if (!a.abilities.includes(TERU)) a.abilities = [TERU, ...a.abilities];
   return s.teru;
 }
@@ -183,6 +188,8 @@ export function c9bTurnStart(b, c, ev, stuck) {
   if (c.side === 'ally') return;
   // 第3部 第1章 第3幕（battle-c9c.js）
   if (!c.c9k) {
+    // 第3部 第2章 第1幕（battle-c10a.js）
+    c10aTurnStart(b, c, ev, stuck);
     // 第3部 第1章 第4幕（battle-c9d.js）
     c9dTurnStart(b, c, ev, stuck);
     return c9cTurnStart(b, c, ev, stuck);
@@ -259,7 +266,8 @@ export function c9bEffect(b, c, a, eff, ev) {
     case 'c9bTeru': teru(b, c, ev); return true;
     // 第3部 第1章 第3幕（battle-c9c.js）
     // 第3部 第1章 第4幕（battle-c9d.js）
-    default: return c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
+    // 第3部 第2章 第1幕（battle-c10a.js）
+    default: return c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
   }
 }
 
@@ -413,7 +421,8 @@ export function c9bDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0)) return dmg;
   // 第3部 第1章 第3幕: なぞの守り・目が回る（battle-c9c.js）
   // 第3部 第1章 第4幕: 分かれる 前の ムウは たおれない（battle-c9d.js）
-  if (!t?.c9k) return c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev);
+  // 第3部 第2章 第1幕: カビ・かべ・オーバーヒート・メカの あつさ・HP 1 で 止まる（battle-c10a.js）
+  if (!t?.c9k) return c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev);
   const k = t.c9k;
   if (k.down) return 0;
   if (dmg >= t.hp) {
@@ -482,6 +491,9 @@ export function c9bKill(b, t, ev) {
 export function c9bPlan(b, c, decide, bestHit) {
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
   // 第3部 第1章 第4幕: 魔人ムウ（battle-c9d.js）
+  // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
+  const p10 = c10aPlan(b, c, decide, bestHit);
+  if (p10 !== undefined) return p10;
   const p9d = c9dPlan(b, c, decide, bestHit);
   if (p9d !== undefined) return p9d;
   const p9c = c9cPlan(b, c, decide, bestHit);
@@ -536,7 +548,7 @@ function autoDish(b, c, watched, bestHit) {
 // しくみの 用が ある 間（シミュレーターの 知って いる 人は 合体技を しない）
 export function c9bBusy(b) {
   // 第3部 第1章 第3幕（battle-c9c.js）
-  if (c9cBusy(b) || c9dBusy(b)) return true;
+  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b)) return true;
   const k = kingOf(b)?.c9k;
   if (!k || k.down) return false;
   if (k.jumpReady) return true;
@@ -555,7 +567,8 @@ export function c9bTell(b) {
     if (k.watch && kingVisible(b) && b.get(k.watch)?.alive) return 'watch';
   }
   // 第3部 第1章 第4幕: おかしビームの ねらい（beam）・いっしょに ドーン（doon）… battle-c9d.js の c9dTele
-  return c9dTele(b) || c9cTell(b);
+  // 第3部 第2章 第1幕: ドリル（drill）・大カビばくだん（bomb）… battle-c10a.js の c10aTell
+  return c10aTell(b) || c9dTele(b) || c9cTell(b);
 }
 
 // ───────────── がめんへ（battle-c9a.js の c9aPub から。敵だけ）─────────────
@@ -593,5 +606,6 @@ export function c9bPub(c, b = c?._b9) {
   if (b && MONSTERS[c.species]?.c9b?.hide) o.hide9 = litNow(b) ? 0 : 1;
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
   // 第3部 第1章 第4幕: ムウ・ムウムウ（battle-c9d.js）
-  return Object.assign(o, c9cPub(c, b), c9dPub(c, b));
+  // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
+  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c));
 }

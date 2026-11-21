@@ -15,10 +15,12 @@ import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick }
 import { C9B_OWN_TELE } from './battle-c9b.js';
 import { C9C_OWN_TELE } from './battle-c9c.js';
 import { C9D_OWN_TELE } from './battle-c9d.js';
+// 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
+import { C10A_OWN_TELE } from './battle-c10a.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
 // 第3部 第1章 第2幕（battle-c9b.js）
-export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE, ...C9B_OWN_TELE, ...C9C_OWN_TELE, ...C9D_OWN_TELE];
+export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE, ...C9B_OWN_TELE, ...C9C_OWN_TELE, ...C9D_OWN_TELE, ...C10A_OWN_TELE];
 export const C8R_SCREEN_ANIMS = ['c8g_orb', 'c8g_final', 'c8t_gust', 'c8d_big', 'c8s_big', 'c8s_harden', 'c8s_tear', 'c8s_crack', 'c8s_hoard'];
 export const C8R_ALLY_FX = {
   c8rn_flame: 'fire', c8rn_drain: 'down', c8rn_bite: 'claw', c8rn_sand: 'wind', c8rn_gnaw: 'claw', c8rn_flutter: 'wind', c8rn_chomp: 'claw', c8rn_tail: 'quake',
