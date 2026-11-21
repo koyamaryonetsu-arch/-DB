@@ -1,10 +1,10 @@
 // 第88回 G4班: 作品の ガチャガチャの 画面（サーバーは shared/world/gacha-r88.js。svc kind:'gacha'）
 //   作品を えらぶ（今 品が ある 作品だけ）→「1回 〇〇ゴールド。回す？」→ カプセルが 出て 開く（短い えんしゅつ）→ 品 →
 //   「もう1回 回す？」。第88回 G6班: まだ 持って いない 品だけが 出る（まどに「のこり △こ」）。ぜんぶ そろった 作品は 回せない
-import { el } from './dom.js?v=e423b0b228a9';
-import { Counter, itemInfo } from './counter.js?v=e423b0b228a9';
-import { request } from './shop.js?v=e423b0b228a9';
-import { rareNameHtml } from './rarity.js?v=e423b0b228a9';
+import { el } from './dom.js?v=c53292a2af59';
+import { Counter, itemInfo } from './counter.js?v=c53292a2af59';
+import { request } from './shop.js?v=c53292a2af59';
+import { rareNameHtml } from './rarity.js?v=c53292a2af59';
 
 const CSS = `
 .gacha-panel .gc-sum { display: flex; flex-direction: column; gap: 0.35em; }

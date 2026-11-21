@@ -17,13 +17,13 @@
 // ・3回 見つかる（か 起こす）と 見はりが 1ぴき へる（その 階ごと。ease の だん）
 // ・おくの レバーで、パーティーの みんなの 見はりが ねむる（world.c10bSleep。セーブしない）
 // ・回線が 切れて もどった 時: その 部屋の 入口
-import { MAPS, effectiveTile, isBlocked, canStand, standSpot } from '../maps/index.js?v=e423b0b228a9';
-import { T } from '../tiles.js?v=e423b0b228a9';
-import { C10B_MAP, C10B_SNEAK_MAPS, C10B_WATER_START, C10B_NOISE_MAX, C10B_CAUGHT_EASE, C10B_BATTLE } from '../maps/c10b-flags.js?v=e423b0b228a9';
-import { owlDir10b, activeOwls10b, owlView10b, watchedCells10b, hidden10b, roomAt10b } from '../maps/c10b-sneak.js?v=e423b0b228a9';
-import { BLUE1_POS } from '../maps/c10b-rows.js?v=e423b0b228a9';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e423b0b228a9';
-import { runSteps } from './scripts.js?v=e423b0b228a9';
+import { MAPS, effectiveTile, isBlocked, canStand, standSpot } from '../maps/index.js?v=c53292a2af59';
+import { T } from '../tiles.js?v=c53292a2af59';
+import { C10B_MAP, C10B_SNEAK_MAPS, C10B_WATER_START, C10B_NOISE_MAX, C10B_CAUGHT_EASE, C10B_BATTLE } from '../maps/c10b-flags.js?v=c53292a2af59';
+import { owlDir10b, activeOwls10b, owlView10b, watchedCells10b, hidden10b, roomAt10b } from '../maps/c10b-sneak.js?v=c53292a2af59';
+import { BLUE1_POS } from '../maps/c10b-rows.js?v=c53292a2af59';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=c53292a2af59';
+import { runSteps } from './scripts.js?v=c53292a2af59';
 
 const BLUE1 = C10B_MAP.blue1;
 const partyKey = (s) => s?.partyId || s?.id;

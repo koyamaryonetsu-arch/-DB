@@ -25,15 +25,15 @@
 //   勝つと 3人は 1人に もどり、ぼうしを 取って おじぎ（たおれない）
 //   自動の 仲間（酒場の 人・家族の 仲間）は、人が えらんで いる 時だけ、3回に 1回 本物を ねらう（魔物の 仲間は 毎回 … AUTO_EVERY_MON。のこりは でたらめ）。完全オートは みんな でたらめ（まぼろしを たたき続ける）
 // ・人数で 合わせる（few・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=e423b0b228a9';
-import { ABILITIES } from './data/abilities.js?v=e423b0b228a9';
-import { DUAL_TECHS } from './data/dual.js?v=e423b0b228a9';
-import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, OWL_NAME } from './data/monsters-c10b.js?v=e423b0b228a9';
-import { MIZUOTO } from './data/abilities-c10b.js?v=e423b0b228a9';
-import { C10B_B as C10B } from './maps/c10b-flags.js?v=e423b0b228a9';
-import { TERU } from './data/abilities-c9b.js?v=e423b0b228a9';
-import { canUse } from './ai.js?v=e423b0b228a9';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=e423b0b228a9';
+import { MONSTERS } from './data/monsters.js?v=c53292a2af59';
+import { ABILITIES } from './data/abilities.js?v=c53292a2af59';
+import { DUAL_TECHS } from './data/dual.js?v=c53292a2af59';
+import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, OWL_NAME } from './data/monsters-c10b.js?v=c53292a2af59';
+import { MIZUOTO } from './data/abilities-c10b.js?v=c53292a2af59';
+import { C10B_B as C10B } from './maps/c10b-flags.js?v=c53292a2af59';
+import { TERU } from './data/abilities-c9b.js?v=c53292a2af59';
+import { canUse } from './ai.js?v=c53292a2af59';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=c53292a2af59';
 
 export { MIZUOTO };
 export const STORM = 'm10x_storm';

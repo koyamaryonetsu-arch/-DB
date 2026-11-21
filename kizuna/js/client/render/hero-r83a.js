@@ -13,7 +13,7 @@
 //   R83A_HAT      … 布の服の ときの ぼうし（hero-gear.js の JOB_HAT に まぜる）
 //   R83A_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
 //   drawProp83a(cv, P, A, O) … 手に もつ つりざお・打神べん（hero-r26.js の drawProp26 から）
-import { mat, ramp, TH } from './hero-raster.js?v=e423b0b228a9';
+import { mat, ramp, TH } from './hero-raster.js?v=c53292a2af59';
 
 export const R83A_JOBS = ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'];
 
