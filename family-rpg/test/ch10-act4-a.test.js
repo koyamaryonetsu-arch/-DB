@@ -124,7 +124,8 @@ test('名前の 約束: マップ 4まい・タイル 591〜620・宝箱の id�
   for (const v of ids) assert.ok(TILE_INFO[v], String(v));
   assert.deepEqual(C10D_LINE, ['c10d_start', 'c10d_top', 'c10d_gate1', 'c10d_gate2', 'c10d_gate3', 'c10d_gate4', 'c10d_mirror', 'c10_note_do', 'c10d_bridge', 'c10_act4']);
   assert.deepEqual(CH10_STEPS.slice(-C10D_LINE.length), C10D_LINE);
-  assert.deepEqual(STORY_STEPS.slice(-C10D_LINE.length - 1), ['c10_act3', ...C10D_LINE]);
+  const j3 = STORY_STEPS.indexOf('c10_act3'); // 第100回 A班: うしろに 第3章が つづく
+  assert.deepEqual(STORY_STEPS.slice(j3, j3 + C10D_LINE.length + 1), ['c10_act3', ...C10D_LINE]);
   // セーブに 足す 線の ほかの フラグは いずみ 4つ（門 4つと 合わせて 8こ）と 台の 小さな フラグ（クリアで 消す）だけ
   assert.deepEqual(C10D_WELLS, ['c10d_well1', 'c10d_well2', 'c10d_well3', 'c10d_well4']);
   for (const f of [...C10D_WELLS, C10D_PED.do]) assert.ok(!STORY_STEPS.includes(f), `${f} は 線に 入らない`);

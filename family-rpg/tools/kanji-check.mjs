@@ -673,6 +673,10 @@ export function gameFiles() {
     // 第99回 A班: 第3部 第2章 第4幕「金の音と、星の橋」（世界と 物語）
     'public/js/shared/maps/c10d-flags.js', 'public/js/shared/data/story-c10d.js', 'public/js/shared/maps/c10d.js', 'public/js/shared/maps/c10d-rows.js',
     'public/js/shared/world/c10d-steps.js', 'public/js/client/c10d-view.js', 'public/js/client/render/tiles-c10d.js', 'public/js/client/render/c10d-npc-art.js',
+    // 第100回 A班: 第3部 第3章 第1幕「星の船と、星座の島」（世界と 物語）
+    'public/js/shared/maps/c11a-flags.js', 'public/js/shared/data/story-c11.js', 'public/js/shared/data/story-c11a.js', 'public/js/shared/data/constellations-c11a.js',
+    'public/js/shared/maps/c11a.js', 'public/js/shared/maps/c11a-rows.js', 'public/js/shared/world/c11a-steps.js', 'public/js/client/c11a-view.js',
+    'public/js/client/render/tiles-c11a.js', 'public/js/client/render/c11a-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -276,7 +276,7 @@ test('名前の 約束: マップ 5まい・タイル 521〜550・宝箱の id�
   assert.deepEqual(C10B_LINE, ['c10b_start', 'c10_act2']);
   assert.deepEqual(CH10_STEPS.slice(-22, -20), C10B_LINE); // 第97回 A班: うしろに 第3幕の 線（10こ）。第99回 A班: 第4幕の 線（10こ）
   // 第97回 A班: うしろに 第3幕の 線（10こ。maps/c10c-flags.js の C10C_LINE）
-  assert.deepEqual(STORY_STEPS.slice(-25, -20), ['c9_act4', 'c10_start', 'c10_act1', 'c10b_start', 'c10_act2']);
+  assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c9_act4'), STORY_STEPS.indexOf('c9_act4') + 5) /* 第100回 A班: うしろに 第3章が つづくので 名前で さがす */, ['c9_act4', 'c10_start', 'c10_act1', 'c10b_start', 'c10_act2']);
   for (const f of [...Object.values(C10B_BLUE), ...Object.values(C10B_WHITE), ...Object.values(C10B_BONUS), ...Object.values(C10B_PED)]) {
     assert.ok(!STORY_STEPS.includes(f), `${f} は 一本の 線に 入らない（すきな じゅん）`);
   }
