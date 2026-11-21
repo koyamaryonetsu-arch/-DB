@@ -5,6 +5,7 @@
 // ブラウザの はじめの 設定（戦いの 速さ 0.85・文字の 速さ 0.8）で、出る 表の 重みの とおりに むれを えらんで 戦う。長さは えんしゅつの 時間も ふくむ
 // 第3部（第1幕から）の 表は スピカが いる（ほのかな光。リーダーが c9_child を 持つ ころ）。てらすは オートでは 使わない
 // つかいかた: node tools/sim-ch9-field.mjs [回数] [表,…]   ONLY=sp … その 魔物 1ぴきだけ
+//   TAC=… 勇者の 作戦・SUPTAC=… 酒場の 仲間 みんなの 作戦（第96回 T班。ない 時は バッチリがんばれ・その 仲間の 作戦）
 // のぞく 魔物（11-4 の 合わせ直しに 入れない）: ボス・くらやみ虫・大ミミズ・大王の 手下（もぐら兵）
 import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -50,8 +51,8 @@ export function fieldRun(enemies, seed, { spica = true, speed = 0.85, textSpeed 
     ...['npc_poporo', 'npc_rin', 'npc_mina'].map((id) => ({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false })),
   ];
   const allies = list.map((x) => (x.know
-    ? { char: x.char, kind: 'player', controller: 'sim', auto: true, tactics: 'balanced' }
-    : { char: x.char, kind: 'support', auto: true, tactics: x.char.tactics || 'balanced' }));
+    ? { char: x.char, kind: 'player', controller: 'sim', auto: true, tactics: process.env.TAC || 'balanced' }
+    : { char: x.char, kind: 'support', auto: true, tactics: process.env.SUPTAC || x.char.tactics || 'balanced' }));
   const b = new Battle({ rng: makeRng(seed), allies, enemies, speed, textSpeed });
   if (spica) addSpica(b);
   let real = 0;
