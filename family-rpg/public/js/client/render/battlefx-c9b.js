@@ -8,6 +8,8 @@ import { playC9cFx } from './battlefx-c9c.js';
 import { playC9dFx } from './battlefx-c9d.js';
 // 第3部 第2章 第1幕（battlefx-c10a.js）
 import { playC10aFx } from './battlefx-c10a.js';
+// 第3部 第2章 第2幕（battlefx-c10b.js）
+import { playC10bFx } from './battlefx-c10b.js';
 
 const CRYSTAL = ['#c8f4ff', '#7ad8f0', '#ffffff'];
 const MOSS = ['#8aff9a', '#c8ffb0', '#4a9a4a'];
@@ -126,6 +128,6 @@ export function playC9bFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
     default:
       void CRYSTAL;
       // 第3部 第1章 第3幕（battlefx-c9c.js）
-      return playC9cFx(fx, anim, targets, element, opts, W, H) || playC9dFx(fx, anim, targets, element, opts, W, H) || playC10aFx(fx, anim, targets, element, opts, W, H);
+      return playC9cFx(fx, anim, targets, element, opts, W, H) || playC9dFx(fx, anim, targets, element, opts, W, H) || playC10aFx(fx, anim, targets, element, opts, W, H) || playC10bFx(fx, anim, targets, element, opts, W, H);
   }
 }

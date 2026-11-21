@@ -94,7 +94,8 @@ export function setupC9d(b, lines) {
 export function addSong(b) {
   const s = b.c9sp;
   if (!s || s.song) return s?.song || null;
-  s.song = { charge: 0, max: SONG_MAX, uses: 0 };
+  // 第3部 第2章 第2幕: 青の 音の ごほうび … 4回で たまる（battle-c10b.js の setupC10b が b.c10rew.songMax）
+  s.song = { charge: 0, max: b.c10rew?.songMax || SONG_MAX, uses: 0 };
   for (const a of b.allies) if (!a.abilities.includes(SONG)) a.abilities = [SONG, ...a.abilities];
   return s.song;
 }

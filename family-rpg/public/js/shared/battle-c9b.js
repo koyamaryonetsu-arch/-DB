@@ -25,6 +25,8 @@ import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub,
 import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js';
 // 第3部 第2章 第1幕: スピカの ごほうび・ドクター・タマゴン・カビだんしゃく モルド（battle-c10a.js）
 import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js';
+// 第3部 第2章 第2幕: スピカの ごほうび・サー・ゲッコー・かいとう シロフクロウ（battle-c10b.js）
+import { setupC10b, c10TeruFull, c10bTurnStart, c10bEffect, c10bDamage, c10bKill, c10bPlan, c10bPub, c10bBusy, c10bTell } from './battle-c10b.js';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -105,6 +107,8 @@ export function setupC9b(b, lines) {
   if (setupC9d(b, lines)) teru = true;
   // 第3部 第2章 第1幕: 2人の 中ボス（スピカは かならず 出る）・スピカの ごほうび（battle-c10a.js）
   if (setupC10a(b, lines)) teru = true;
+  // 第3部 第2章 第2幕: 2人の 中ボス（スピカは かならず 出る）・スピカの ごほうび（battle-c10b.js）
+  if (setupC10b(b, lines)) teru = true;
   b.c9teruOn = teru;
   return teru;
 }
@@ -115,7 +119,9 @@ export function addTeru(b) {
   if (s && b.c9songOn) addSong(b);
   if (!s || s.teru) return s?.teru || null;
   // 第3部 第2章 第1幕: 緑の 音の ごほうび … 3回で たまる（battle-c10a.js）
-  s.teru = { charge: 0, max: c10TeruMax(b, TERU_MAX), lit: 0, uses: 0 };
+  // 第3部 第2章 第2幕: 白の 音の ごほうび … はじめから たまって いる（battle-c10b.js）
+  const max = c10TeruMax(b, TERU_MAX);
+  s.teru = { charge: c10TeruFull(b) ? max : 0, max, lit: 0, uses: 0 };
   for (const a of b.allies) if (!a.abilities.includes(TERU)) a.abilities = [TERU, ...a.abilities];
   return s.teru;
 }
@@ -190,6 +196,8 @@ export function c9bTurnStart(b, c, ev, stuck) {
   if (!c.c9k) {
     // 第3部 第2章 第1幕（battle-c10a.js）
     c10aTurnStart(b, c, ev, stuck);
+    // 第3部 第2章 第2幕（battle-c10b.js）
+    c10bTurnStart(b, c, ev, stuck);
     // 第3部 第1章 第4幕（battle-c9d.js）
     c9dTurnStart(b, c, ev, stuck);
     return c9cTurnStart(b, c, ev, stuck);
@@ -267,7 +275,8 @@ export function c9bEffect(b, c, a, eff, ev) {
     // 第3部 第1章 第3幕（battle-c9c.js）
     // 第3部 第1章 第4幕（battle-c9d.js）
     // 第3部 第2章 第1幕（battle-c10a.js）
-    default: return c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
+    // 第3部 第2章 第2幕（battle-c10b.js）
+    default: return c10bEffect(b, c, a, eff, ev) || c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
   }
 }
 
@@ -422,7 +431,8 @@ export function c9bDamage(b, c, t, dmg, info, ev) {
   // 第3部 第1章 第3幕: なぞの守り・目が回る（battle-c9c.js）
   // 第3部 第1章 第4幕: 分かれる 前の ムウは たおれない（battle-c9d.js）
   // 第3部 第2章 第1幕: カビ・かべ・オーバーヒート・メカの あつさ・HP 1 で 止まる（battle-c10a.js）
-  if (!t?.c9k) return c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev);
+  // 第3部 第2章 第2幕: 砂の体・ぬれた・大かんそうを 止める・まぼろし・HP 1 で 止まる（battle-c10b.js）
+  if (!t?.c9k) return c10bDamage(b, c, t, c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev), info, ev);
   const k = t.c9k;
   if (k.down) return 0;
   if (dmg >= t.hp) {
@@ -458,6 +468,8 @@ export function c9bKill(b, t, ev) {
   c9cKill(b, t, ev);
   // 第3部 第1章 第4幕: ばたんきゅう・すわりこむ（battle-c9d.js）
   c9dKill(b, t, ev);
+  // 第3部 第2章 第2幕: 本物の シロフクロウ（battle-c10b.js）
+  c10bKill(b, t, ev);
   if (!t?.c9d || b.c9kEating) return;
   const king = kingOf(b);
   const k = king?.c9k;
@@ -492,6 +504,9 @@ export function c9bPlan(b, c, decide, bestHit) {
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
   // 第3部 第1章 第4幕: 魔人ムウ（battle-c9d.js）
   // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
+  // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js）
+  const p10b = c10bPlan(b, c, decide, bestHit);
+  if (p10b !== undefined) return p10b;
   const p10 = c10aPlan(b, c, decide, bestHit);
   if (p10 !== undefined) return p10;
   const p9d = c9dPlan(b, c, decide, bestHit);
@@ -548,7 +563,7 @@ function autoDish(b, c, watched, bestHit) {
 // しくみの 用が ある 間（シミュレーターの 知って いる 人は 合体技を しない）
 export function c9bBusy(b) {
   // 第3部 第1章 第3幕（battle-c9c.js）
-  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b)) return true;
+  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b) || c10bBusy(b)) return true;
   const k = kingOf(b)?.c9k;
   if (!k || k.down) return false;
   if (k.jumpReady) return true;
@@ -568,7 +583,8 @@ export function c9bTell(b) {
   }
   // 第3部 第1章 第4幕: おかしビームの ねらい（beam）・いっしょに ドーン（doon）… battle-c9d.js の c9dTele
   // 第3部 第2章 第1幕: ドリル（drill）・大カビばくだん（bomb）… battle-c10a.js の c10aTell
-  return c10aTell(b) || c9dTele(b) || c9cTell(b);
+  // 第3部 第2章 第2幕: 大かんそう（dry）・ぬすむ（steal）… battle-c10b.js の c10bTell
+  return c10bTell(b) || c10aTell(b) || c9dTele(b) || c9cTell(b);
 }
 
 // ───────────── がめんへ（battle-c9a.js の c9aPub から。敵だけ）─────────────
@@ -607,5 +623,6 @@ export function c9bPub(c, b = c?._b9) {
   // 第3部 第1章 第3幕: ナゾカケ・メカ（battle-c9c.js）
   // 第3部 第1章 第4幕: ムウ・ムウムウ（battle-c9d.js）
   // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
-  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c));
+  // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js）
+  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c), c10bPub(c));
 }

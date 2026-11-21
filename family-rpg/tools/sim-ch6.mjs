@@ -143,7 +143,8 @@ const group = (boss) => (FIXED_ENCOUNTERS[CH6_IDS[boss]]?.group || [[CH6_IDS[bos
 // 合体技を えらぶ（知っている 人）: ダメージの 合体技。仲間の HPが へっている・前ぶれ・まきもどしの 間・MPが のこり 少なく なる ときは 使わない
 const hurts = (t) => t.parts.some((p) => p.type === 'power');
 export function dualPlan(b, a, bossId, skip = null) {
-  const boss = b.aliveEnemies().find((e) => e.species === bossId);
+  // 第95回: bossId に 魔物（戦いの 中の 1体）を わたすと その 1体を ねらう（かい盗 シロフクロウの 本物）
+  const boss = typeof bossId === 'object' ? (bossId?.alive ? bossId : null) : b.aliveEnemies().find((e) => e.species === bossId);
   // ペンデュラ: 知っている 人は ふりこが 右の 間（自分たちが おそい）は 合体技を しない
   if (boss?.pend && boss.pend.pos > 0 && skip !== 'trick') return false;
   // カリヨン: 知っている 人は かねが 近い（しるし 2つ いか）ときは 合体技を しない（守りを かためる）
