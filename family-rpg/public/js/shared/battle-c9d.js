@@ -107,6 +107,9 @@ function setupMu(b, m, lines) {
   if (mc.atk !== 1) m.atk = Math.max(1, Math.round(m.atk * mc.atk));
   const mm = b.enemies.find((e) => e.species === C9D_MUMU);
   b.c9mu = { mu: m.id, mumu: mm?.id || null, split: false, won: false, H0: null, atk0: null, power: 1, wakes: 0, pair: 0, splits: 0, kos: 0, angers: 0, beams: 0, blocked: 0, okashi: 0, doons: 0, doonGuards: 0 };
+  // 前ぶれ中の しるし（1つの 値）: b.c9mu.tele … 'beam'（おかしビームの ねらい あり）・'doon'（いっしょに ドーンの 前ぶれ）・null
+  //   第3幕 B班の「前ぶれの 間は 人が えらぶまで 敵の 時間を 止める」しくみに あとで つなぐ（c9dTele(b) も おなじ）
+  Object.defineProperty(b.c9mu, 'tele', { enumerable: false, get: () => c9dTele(b) });
   for (const e of [m, mm].filter(Boolean)) {
     Object.defineProperty(e, '_b9', { value: b, enumerable: false, configurable: true, writable: true });
     e.c9m = { acts: 0, beamLeft: mc.beam.every + (e === mm ? 2 : 0), beamAim: null, beamWait: 0, doon: false, doonWait: 0, angry: false, ko: false, sit: false };
@@ -121,6 +124,16 @@ function setupMu(b, m, lines) {
     `${m.name}「ここの星たち、ずーっとねてるんだもん。つまんないの。」`,
     '（ムウが2体になったら、同じくらいにけずって、2体いっしょにたおそう…！）',
   );
+}
+
+// 今 前ぶれ中か（'beam' … おかしビームの ねらいが 出て いる・'doon' … いっしょに ドーンの 前ぶれ・null … なし）
+export function c9dTele(b) {
+  const st = b?.c9mu;
+  if (!st || st.won) return null;
+  const up = musOf(b).filter((x) => x.alive && x.c9m);
+  if (up.some((x) => x.c9m.beamAim)) return 'beam';
+  if (up.some((x) => x.c9m.doon)) return 'doon';
+  return null;
 }
 
 // ───────────── スピカの ほのかな光の あと（battle-c9b.js の c9bGlow から。1つの 番）─────────────
@@ -587,6 +600,7 @@ export function c9dPub(c, b = c?._b9) {
   o.muDoonLeft = k.doon ? k.doonWait : null;
   o.muWakes = st.wakes;
   o.muPower = st.power;
+  o.muTele = c9dTele(b);
   return o;
 }
 void C9D_MUMU;

@@ -53,7 +53,7 @@ const CSS = `
 .c9d-top.warn .tx { color: #ffe060; animation: c9d-pulse 0.9s infinite; }
 .c9d-top.win { border-color: #8affc8; }
 .b-mem.c9d-okashi { background: linear-gradient(180deg, rgba(255, 154, 192, 0.35), rgba(255, 240, 200, 0.2)) !important; }
-@media (max-aspect-ratio: 1/1) { .c9d-top { top: 2px; right: 2px; max-width: 62%; padding: 1px 5px 2px; } .c9d-top .row { font-size: 10px; } .c9d-top .bar { width: 44px; height: 6px; } .c9d-top .tx { font-size: 10px; margin-top: 0; }
+@media (max-aspect-ratio: 1/1) { .c9d-top { top: 2px; left: 2px; right: auto; max-width: 58%; padding: 1px 5px 2px; } .c9d-top .row { font-size: 10px; } .c9d-top .bar { width: 44px; height: 6px; } .c9d-top .tx { font-size: 10px; margin-top: 0; }
   .c9a-hud .c9d-song { margin-left: 4px; } .c9a-hud .c9b-teru { margin-left: 4px; letter-spacing: 0; } }
 `;
 function addCss() {
@@ -216,7 +216,13 @@ export function c9dPresent(scene, ev) {
   }
   if (ev.c9mDoonUp) warn('！いっしょにドーンが来る！「防御」でそなえよう！');
   if (ev.c9mDoon) scene.shake?.(900, 10);
-  if (ev.c9mWin) { scene.shake?.(400, 3); good('ムウとムウムウは、すわりこんだ！', 'sparkle'); }
+  if (ev.c9mWin) {
+    scene.shake?.(400, 3);
+    good('ムウとムウムウは、すわりこんだ！', 'sparkle');
+    // たおれた 魔物の しるしは かかれない（client/battle.js）ので、上の まども ここで 勝った 形に
+    const t = muHtml((scene.enemies?.() || []).map((c) => (isMu(c) && !c.muHide ? { ...c, alive: false, hp: 0, muSit: 1, muKO: 0, muStage: 1 } : c)));
+    showTop(scene, t.html, t.cls);
+  }
 }
 
 // ───────────── コマンド（client/battle-c9b.js の c9bCmdItems・c9bCmdPick）─────────────

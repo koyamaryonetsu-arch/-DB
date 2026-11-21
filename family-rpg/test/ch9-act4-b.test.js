@@ -203,6 +203,7 @@ test('ムウ: はじめは 1体（ムウムウは かくれて いる）・分�
   const m = muOf(b);
   const mm = mumuOf(b);
   assert.ok(m.alive && !mm.alive, 'はじめは 1体');
+  assert.equal(b.c9mu.tele, null, '前ぶれ なし');
   assert.ok(b.c9sp && songOf(b), 'スピカと 星のうたは かならず');
   assert.equal(c9dPub(m, b).muStage, 0);
   assert.equal(c9dPub(mm, b).muHide, 1);
@@ -291,6 +292,7 @@ test('ムウ: おかしビーム（前ぶれ → ねらいの 人 → 1回 あ�
   assert.equal(up.tg, BEAMUP);
   const aim = m.c9m.beamAim;
   assert.ok(aim && up.c9mBeamUp.aim === aim);
+  assert.equal(b.c9mu.tele, 'beam', '前ぶれ中の しるし');
   assert.equal(c9dPub(m, b).muBeamAim, aim);
   // 前ぶれから うつまで ふつうに wait 回（人が 2びょうで えらんでも 間に あう）
   for (let i = 0; i < mc.beam.wait; i++) assert.notEqual(bossAct(b, m).tg, BEAM);
@@ -341,6 +343,7 @@ test('ムウ: いっしょに ドーン（2体 そろって いる 時・前ぶ�
   const up = bossAct(b, m);
   assert.equal(up.tg, DOONUP);
   assert.equal(c9dPub(m, b).muDoon, 1);
+  assert.equal(b.c9mu.tele, 'doon', '前ぶれ中の しるし');
   for (let i = 0; i < muConf(m, b).doon.wait; i++) assert.notEqual(bossAct(b, m).tg, DOON);
   const [g, n] = b.allies;
   g.defending = true;
