@@ -15,6 +15,7 @@
 //    （真・ばくりゅうはは 物理の 技も）を 受けると、その ダメージは 半分に なり、行動の あとで 風の 属性で 敵全体へ 返す（r82aResolve）
 //    ・返す ダメージ = 受ける はずだった ダメージ × ret。ただし 1体ごとに「自分の 物理の cap 倍（守りも 入れた みつもり）」まで（強すぎない ように）
 //    ・返すのは かまえ 1回に つき 1回。受けなかった ときは 次の 自分の 番の はじめに 風の 一ふり（敵全体・物理の swing 倍）
+//    ・share（第98回 K2班 百きの大将）… 返した 時に 仲間全員の 攻撃力を その 倍に（返した 力が 仲間にも のる）
 // battle.js から よぶ: r82aTurnStart（executeNext の 行動の はじめ）・youkaiAuto（onReady）・youkaiCmd（行動を きめる 前）・
 //   r82aEffect（applyAbility の こうか）・r82aPhysMult（calcPhys）・r82aDamage（damage）・r82aResolve（行動の あと）・r82aPub（pub）
 // ai.js から よぶ: r82aPlan（オートの 動き）
@@ -174,7 +175,7 @@ export function r82aEffect(b, c, a, eff, ev, targets, powMult = 1) {
       return true;
     }
     case 'bakuryu': {
-      c.stance = { kind: 'bakuryu', ret: eff.ret ?? 1, cap: eff.cap ?? 3, swing: eff.swing ?? 0.8, phys: !!eff.phys, name: a.name, pow: Math.min(1, powMult || 1) };
+      c.stance = { kind: 'bakuryu', ret: eff.ret ?? 1, cap: eff.cap ?? 3, swing: eff.swing ?? 0.8, phys: !!eff.phys, share: eff.share || 0, name: a.name, pow: Math.min(1, powMult || 1) };
       ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: [c.id], side: c.side };
       ev.lines.push(eff.phys ? '（敵の大技も、物理の大技も、待ちかまえている…！）' : '（敵の呪文・ブレス・大技を、待ちかまえている…！）');
       ev.bakuryuSet = c.id;
@@ -265,6 +266,12 @@ export function r82aResolve(b, ev) {
       b.damage(t, f, d, ev, { element: 'wind' });
     }
     (ev.bakuryuRet = ev.bakuryuRet || []).push(ret);
+    // 第98回 K2班（百きの大将）: share … 返した 力が 仲間全員に のる（攻撃力が その 倍）
+    if (st.share > 1) {
+      ev.lines.push('受けとめた力が、仲間みんなにものった！');
+      for (const x of b.sideOf(t, true).filter((y) => y.alive)) b.applyBuff(t, x, { stat: 'atk', mult: st.share, dur: 40 }, ev, st.pow || 1);
+      ev.bakuryuShare = t.id;
+    }
   }
 }
 
