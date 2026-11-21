@@ -630,6 +630,8 @@ export function gameFiles() {
     'public/js/shared/battle-c9d.js', 'public/js/client/battle-c9d.js', 'public/js/client/render/c9d-art.js', 'public/js/client/render/c9d-bg.js', 'public/js/client/render/battlefx-c9d.js',
     // 第94回 F班: 第3部 第2章 第1幕の 曲
     'public/js/client/audio-c10a.js',
+    // 第94回 A班: 第3部 第2章 第1幕「赤と緑」（名前の 約束・章の まとめ）
+    'public/js/shared/maps/c10a-flags.js', 'public/js/shared/data/story-c10.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
