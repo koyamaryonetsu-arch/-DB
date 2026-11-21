@@ -2,8 +2,8 @@
 // ・フィールドでは input.dir（いどう）と A/B を つかう
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
 // ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
-import { inStickZone as stickZone } from './ui/hand.js?v=47b84e63567e';
-import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=47b84e63567e';
+import { inStickZone as stickZone } from './ui/hand.js?v=f50199a8ea3a';
+import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=f50199a8ea3a';
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',

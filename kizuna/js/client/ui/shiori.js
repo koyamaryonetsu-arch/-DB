@@ -4,9 +4,9 @@
 //   ・物語（今の 部・章・幕と つぎの 目標）／おすすめ（3つまで）／のこって いる こと（しくみごとの 数と 棒）
 //   ・えらぶと くわしい 一覧（のこって いる 物の 名前と 場所）。もどるで もとの 場所に もどる
 //   ・キーボード・ゲームパッド（上下左右・決定・もどる）・タップの どれでも（dom.js の ListMenu）
-import { el, ListMenu, esc } from './dom.js?v=47b84e63567e';
-import './r78-shiori-css.js?v=47b84e63567e';
-import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=47b84e63567e';
+import { el, ListMenu, esc } from './dom.js?v=f50199a8ea3a';
+import './r78-shiori-css.js?v=f50199a8ea3a';
+import { shioriOf, trackCount, trackRate } from '../../shared/world/shiori.js?v=f50199a8ea3a';
 
 const NL = (s) => esc(s).replace(/\n/g, '<br>');
 const whereHtml = (w) => (w ? `<div class="sh-where">${esc(w)}</div>` : '');

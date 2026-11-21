@@ -3,27 +3,27 @@
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
 // 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
-import { STAR_TRADES_R50 } from './prizes-r50.js?v=47b84e63567e';
-import { SHOPS_CH2 } from './items-ch2.js?v=47b84e63567e';
-import { NIGHT_SHOPS } from './night.js?v=47b84e63567e';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=47b84e63567e';
-import { SHOPS_CH4 } from './items-ch4.js?v=47b84e63567e';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=47b84e63567e';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=47b84e63567e';
-import { R33_SHOP_ADD } from './items-r33.js?v=47b84e63567e';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=47b84e63567e';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=47b84e63567e';
-import { SHOPS_EARTH } from './shops-earth.js?v=47b84e63567e';
+import { STAR_TRADES_R50 } from './prizes-r50.js?v=f50199a8ea3a';
+import { SHOPS_CH2 } from './items-ch2.js?v=f50199a8ea3a';
+import { NIGHT_SHOPS } from './night.js?v=f50199a8ea3a';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=f50199a8ea3a';
+import { SHOPS_CH4 } from './items-ch4.js?v=f50199a8ea3a';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=f50199a8ea3a';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=f50199a8ea3a';
+import { R33_SHOP_ADD } from './items-r33.js?v=f50199a8ea3a';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=f50199a8ea3a';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=f50199a8ea3a';
+import { SHOPS_EARTH } from './shops-earth.js?v=f50199a8ea3a';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=47b84e63567e';
+import { SHOPS_PAST } from './shops-past.js?v=f50199a8ea3a';
 // 第81回: 全滅で へる お金が 少なく なる アクセサリー（items-r81.js）
-import { addR81Shops } from './items-r81.js?v=47b84e63567e';
+import { addR81Shops } from './items-r81.js?v=f50199a8ea3a';
 // 第88回 G4班: 作品の はじめの 品（data/gacha-r88.js）
-import { addR88Shops } from './gacha-r88.js?v=47b84e63567e';
-import { MINAMO_GUEST } from './companions-past.js?v=47b84e63567e';
-import { RION_GUEST } from './companions-tokei.js?v=47b84e63567e';
-import { KARIM_GUEST } from './companions-c7.js?v=47b84e63567e';
-import { KAI_GUEST } from './companions-c7s.js?v=47b84e63567e';
+import { addR88Shops } from './gacha-r88.js?v=f50199a8ea3a';
+import { MINAMO_GUEST } from './companions-past.js?v=f50199a8ea3a';
+import { RION_GUEST } from './companions-tokei.js?v=f50199a8ea3a';
+import { KARIM_GUEST } from './companions-c7.js?v=f50199a8ea3a';
+import { KAI_GUEST } from './companions-c7s.js?v=f50199a8ea3a';
 
 export const SHOPS = {
   village: {

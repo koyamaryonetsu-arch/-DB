@@ -6,9 +6,9 @@
 //   aura … オーラ（hero-aura の AURA に まぜる）/ emblems … むねの しるし（hero-outfit の emblem。{ 名前: (cv, x, y, z, m, { cloth, metal }) }）
 //   vehicle … { id, art(kit) }（vehicle-art の ART。kit は 乗り物の 絵の どうぐ）
 //   fx … { anims, party〈みかたに かける えんしゅつ〉, hit〈当たる 時間〉, sfx〈音〉, play(fx, anim, targets, element, opts, W, H) }
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=47b84e63567e';
-import { KUUCHOU_ART } from './kizuna-kuuchou.js?v=47b84e63567e';
-import { HOKAGE_ART } from './kizuna-hokage.js?v=47b84e63567e';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=f50199a8ea3a';
+import { KUUCHOU_ART } from './kizuna-kuuchou.js?v=f50199a8ea3a';
+import { HOKAGE_ART } from './kizuna-hokage.js?v=f50199a8ea3a';
 
 export const KIZUNA_ART = [
   KUUCHOU_ART, // 熱と風の空調マスター

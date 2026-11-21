@@ -13,11 +13,11 @@
 // 36. ルミナの、星をこわがる子どもたち（先生の 流れ。目の 高さで 聞く・黒板で お話・「先生がついてる」）
 // 37. 鏡の湖の、こおったかがり火（炎術士の 流れ。火の玉を ばらまく・炎の やいば・小さな 火を そっと うつす）
 // 38. 星ふるえで、通れなくなった道（軍師の 流れ。作戦を 立てる・丸太の「ころ」・急ぐ 物から 通す）
-import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=47b84e63567e';
-import { rewardSteps } from './sidequests-work2.js?v=47b84e63567e';
+import { S, N, proOf, need, cnt, firstMissing } from './fq-common.js?v=f50199a8ea3a';
+import { rewardSteps } from './sidequests-work2.js?v=f50199a8ea3a';
 import {
   WQ8, WQ8_OPEN, KIDS_VOICES, KIDS_STEPS, GLOW_VOICES, GLOW_STEPS, ROAD_VOICES, ROAD_STEPS,
-} from '../maps/work-quests8.js?v=47b84e63567e';
+} from '../maps/work-quests8.js?v=f50199a8ea3a';
 
 const all = (x, list) => list.every((k) => x.flag(k));
 const nOf = (x, list) => list.filter((k) => x.flag(k)).length;

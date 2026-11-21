@@ -6,8 +6,8 @@
 //
 // みんなが 使う ファイル（jobs.js・abilities.js・hirameki.js・phantom.js・job-tags.js・job-talk.js・job-trials.js・vehicles.js・
 // rivals-r88.js・battle-trial.js）は この 一覧を 1回ずつ 読む だけ。きずなの職業が ふえても 行を 足さなくて よい
-import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js?v=47b84e63567e';
-import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js?v=47b84e63567e';
+import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js?v=f50199a8ea3a';
+import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js?v=f50199a8ea3a';
 
 export const KIZUNA = [
   KIZUNA_KUUCHOU, // 第98回 K1班: 熱と風の空調マスター（烈火 ＋ 天才しせつ管理者）
