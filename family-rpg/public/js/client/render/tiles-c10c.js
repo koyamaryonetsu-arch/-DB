@@ -31,13 +31,13 @@ function isle(p, v) {
 }
 export const BRIDGE_FRAMES10C = 2;
 function bridge(p, v, f, [d, b, l]) {
-  // すきとおった 光の 板（下に 雲が すける）・ふちの 光の すじ
-  p.rect(0, 0, 16, 16, '#e8f0fa');
-  p.rect(0, 2, 16, 12, b);
-  p.hline(0, 15, 2, l); p.hline(0, 15, 13, d);
-  for (let x = (f ? 2 : 0); x < 16; x += 4) { p.set(x, 7, l); p.set(x + 1, 8, l); }
+  // 光の 板（マスいっぱいに ぬる ＝ 横の 橋も たての 橋も すき間なく つながる）。まん中は 明るく・きらきらが 流れる
+  p.rect(0, 0, 16, 16, b);
+  p.rect(3, 3, 10, 10, l);
+  p.rect(5, 5, 6, 6, b);
+  for (let k = 0; k < 16; k += 4) { p.set((k + (f ? 2 : 0)) % 16, k, l); p.set(k, (k + 8 + (f ? 2 : 0)) % 16, d); }
   const r = prand(v * 7 + f);
-  p.set(Math.floor(r() * 16), 4 + Math.floor(r() * 8), '#ffffff');
+  for (let i = 0; i < 2; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#ffffff');
 }
 function stone(p) {
   p.rect(0, 0, 16, 16, GR.b);

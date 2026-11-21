@@ -95,3 +95,20 @@ export const C10C_LV = { isles: 113, fort: 114, colonel: 114, algol: 116 };
 
 // ───── 幕の 切りかえ ─────
 export const C10C_OPEN = 'PART3_C10C_OPEN'; // data/story-c10.js
+
+// ───── B班の かりの 置き場（data/c10c-names-b.js。合わせた 時に 消した）に あった 形（同じ 名前・同じ 値。B の ファイルは as で よぶ）─────
+export const C10C_B = {
+  act2: C10C_ACT2, start: C10C.start, isles2: C10C.isles2, colonel: C10C.colonel, stolen: C10C.stolen, trio: C10C.trio,
+  fortIn: C10C.fortIn, fort2: C10C.fort2, algol: C10C.algol, noteSi: C10C.note, act3: C10C.act3,
+};
+export const C10C_LEVER_B = C10C_LEVER;
+export const C10C_PED_B = C10C_PED;
+export const C10C_MAP_B = { i1: C10C_MAP.isles1, i2: C10C_MAP.isles2, i3: C10C_MAP.isles3, f1: C10C_MAP.fort1, f2: C10C_MAP.fort2, f3: C10C_MAP.fort3 };
+export const C10C_BATTLE_B = C10C_BATTLE;
+export const C10C_MON_PREFIX_B = C10C_MON_PREFIX;
+export const C10C_BOSS_MON_B = C10C_BOSS_MON;
+export const C10C_TABLE_B = C10C_TABLE;
+export const C10C_CHEST_IDS_B = C10C_CHEST_IDS;
+export const C10C_NOTES_B = { si: NOTE_SI };
+export const C10C_TRACKS_B = C10C_TRACKS;
+export const C10C_OPEN_B = C10C_OPEN;

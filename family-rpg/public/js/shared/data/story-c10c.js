@@ -25,6 +25,9 @@ import { spanStones10c, stoneScript10c } from '../maps/c10c.js';
 import { TRIO9A } from './story-c9a.js';
 import { MONSTERS } from './monsters.js';
 import { mergeBossHints } from './boss-hints.js';
+import { SHOPS } from './shops.js';
+import { C10C_SHOP_ADD } from './items-c10c.js';
+import { SHOP10B_CRATER } from './story-c10b.js';
 // 音の 橋の しくみは world.c10c（world/c10c-steps.js の C10C_API。data から world を 読まない）
 const setBridge10c = (world, s, i, c) => world.c10c.setBridge(world, s, i, c);
 const bridgesOf10c = (world, s) => world.c10c.bridgesOf(world, s);
@@ -538,7 +541,23 @@ export function applyCh10c(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = fa
   const S10 = c10cScripts(title, open, { ped: SCRIPTS.c9c_ped });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10C_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
+  // くぼ地の 武具屋: 幕の クリア（c10_act3）の あと 品が 4つ ふえる（B班の C10C_SHOP_ADD。第2幕の 店の あと）
+  makeShop10c();
+  if (!SCRIPTS.c9b_armorer?.c10c) {
+    const armOld = SCRIPTS.c9b_armorer;
+    SCRIPTS.c9b_armorer = Object.assign((x) => (x.flag(C10C.act3) ? [['shop', SHOP10C_CRATER]] : armOld ? armOld(x) : []), { c10c: true });
+  }
 }
+
+// ───── くぼ地の 武具屋（第2幕の 店 c10b_crater に、B班の C10C_SHOP_ADD を 足した 店）─────
+export const SHOP10C_CRATER = 'c10c_crater';
+// 第2幕の 店（story-c10b.js）が できて から 作る（読みこむ じゅんに よらない ように、applyCh10c でも よぶ）
+function makeShop10c() {
+  if (SHOPS[SHOP10C_CRATER] || !SHOPS[SHOP10B_CRATER]) return;
+  const base10 = SHOPS[SHOP10B_CRATER];
+  SHOPS[SHOP10C_CRATER] = { ...base10, hello: 'いらっしゃい！\nむらさきの星の音の、ふしぎな品が入ったぜ。', items: [...base10.items, ...C10C_SHOP_ADD.filter((id) => !base10.items.includes(id))] };
+}
+makeShop10c();
 
 // ───── 負けた 時の ヒント（E班の しくみ。ヒントの 文は B班。言う 人は ノクト）─────
 mergeBossHints({}, {

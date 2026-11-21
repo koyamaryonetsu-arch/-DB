@@ -20,7 +20,7 @@ import { TACTICS } from '../public/js/shared/ai.js';
 import {
   C10C_B as C10C, C10C_LEVER_B, C10C_PED_B, C10C_MAP_B, C10C_BATTLE_B as C10C_BATTLE, C10C_MON_PREFIX_B, C10C_BOSS_MON_B, C10C_TABLE_B,
   C10C_CHEST_IDS_B as C10C_CHEST_IDS, C10C_NOTES_B, C10C_TRACKS_B, C10C_OPEN_B,
-} from '../public/js/shared/data/c10c-names-b.js';
+} from '../public/js/shared/maps/c10c-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
 import {
@@ -83,7 +83,7 @@ const quiet = (m) => { m.actions = [{ w: 1, id: 'm_nothing' }]; };
 const big = (b) => { for (const a of b.allies) { a.hp = a.maxHp = 99999; } };
 
 // ───────────── 名前の 約束 ─────────────
-test('名前の 約束（15-4）: フラグ・レバー・台・マップ・決まった 戦い・魔物の id・出る 表・宝箱・だいじな 物・曲・幕の 切りかえ（かりの 置き場 c10c-names-b.js）', () => {
+test('名前の 約束（15-4）: フラグ・レバー・台・マップ・決まった 戦い・魔物の id・出る 表・宝箱・だいじな 物・曲・幕の 切りかえ（maps/c10c-flags.js。かりの 置き場 c10c-names-b.js は A班が 合わせる 時に 消した）', () => {
   assert.deepEqual(C10C, {
     act2: 'c10_act2', start: 'c10c_start', isles2: 'c10c_isles2', colonel: 'c10c_colonel', stolen: 'c10c_stolen', trio: 'c10c_trio',
     fortIn: 'c10c_fort_in', fort2: 'c10c_fort2', algol: 'c10c_algol', noteSi: 'c10_note_si', act3: 'c10_act3',
@@ -699,7 +699,7 @@ test('がめん: 画面の 上の まど・うき石の まど（3つの 石と 
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c10c-names-b.js', 'public/js/shared/data/monsters-c10c.js', 'public/js/shared/data/abilities-c10c.js',
+    'public/js/shared/data/monsters-c10c.js', 'public/js/shared/data/abilities-c10c.js',
     'public/js/shared/data/encounters-c10c.js', 'public/js/shared/data/companions-c10c.js', 'public/js/shared/data/items-c10c.js', 'public/js/shared/data/boss-hints-c10c.js',
     'public/js/shared/battle-c10c.js', 'public/js/client/battle-c10c.js', 'public/js/client/render/c10c-art.js', 'public/js/client/render/c10c-bg.js', 'public/js/client/render/battlefx-c10c.js',
   ];

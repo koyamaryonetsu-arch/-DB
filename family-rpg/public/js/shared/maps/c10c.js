@@ -24,13 +24,12 @@ import {
 import { PEDESTALS9C } from './c9c.js';
 import { CRATER_FORK10A } from './c10a-rows.js';
 import { ALGOL } from './c9c-flags.js';
+import { c10cChest } from '../data/items-c10c.js';
 
 export const CH10C_MAPS = [...C10C_MAP_IDS];
 
-// 宝箱の 中み（B班が 入るまで かりの お金。合わせる 時に B班の 物に かえる）
-let chestOf = () => ({ gold: 500 });
-export const setChestOf10c = (fn) => { chestOf = fn; };
-export const chestOf10c = (id) => chestOf(id) || {};
+// 宝箱の 中み（B班の data/items-c10c.js の c10cChest。12この id）
+export const chestOf10c = (id) => c10cChest(id) || {};
 
 const base = (id, name, t, extra) => ({
   id, name, kind: 'dungeon', w: t.w, h: t.h, tiles: t.tiles, gates: [],

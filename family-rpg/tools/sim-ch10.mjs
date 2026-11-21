@@ -19,7 +19,7 @@ import { C10B_BATTLE_B as C10B_BATTLE, C10B_B as C10B } from '../public/js/share
 import { c10bState, geckoOf, litNow10b } from '../public/js/shared/battle-c10b.js';
 import { dualPlan } from './sim-ch6.mjs';
 // 第97回 B班: 第2章 第3幕
-import { C10C_BATTLE_B as C10C_BATTLE } from '../public/js/shared/data/c10c-names-b.js';
+import { C10C_BATTLE_B as C10C_BATTLE } from '../public/js/shared/maps/c10c-flags.js';
 import { c10cState, c10cBoss, onLit, litStones, tightOf } from '../public/js/shared/battle-c10c.js';
 import { TACTICS } from '../public/js/shared/ai.js';
 

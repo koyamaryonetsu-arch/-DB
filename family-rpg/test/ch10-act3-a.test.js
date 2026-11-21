@@ -3,7 +3,7 @@
 //   → 少年が むらさきの 音を うばう（c10c_stolen）→ くぼ地の 3人組（c10c_trio）→ 大地の下の うら口 → ベルトの 工場（c10c_fort_in → c10c_fort2）
 //   → 少年の 間（c10c_algol）→ むらさきの 音（c10_note_si）→ くぼ地の むらさきの 台（c10_act3）
 // 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当の 戦いは test/ch10-act3.test.js）
-// B班が 入るまでは かりの 戦い（data/c10c-stub.js。合わせる 時に 消す）
+// B班の 戦い・品は 合わせた（かりの data/c10c-stub.js・data/c10c-names-b.js は 消した）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -27,14 +27,17 @@ import {
   C10C_OBJ, C10C_OBJ_ALL, CH10C_STORY_SCRIPTS, CH10C_PROGRESS, CH10C_OBJECTIVE_TARGETS, CH10C_OBJECTIVE_TALK, c10cScripts, applyCh10c, objective10c,
 } from '../public/js/shared/data/story-c10c.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
-import { installC10cStub } from '../public/js/shared/data/c10c-stub.js';
+import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { SHOPS } from '../public/js/shared/data/shops.js';
+import { C10C_SHOP_ADD } from '../public/js/shared/data/items-c10c.js';
+import { existsSync } from 'node:fs';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
 import { bridgeHudText10c } from '../public/js/client/c10c-view.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN, Bot } from './helpers.js';
 import { UPTO, flagsOf, said, D4, addPlayer, play, place, stepOn, examine, talkTo, fixedWorld, pathTo } from './c9a-play.js';
 
-installC10cStub();
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
 const FILES10C = ['public/js/shared/maps/c10c-flags.js', 'public/js/shared/data/story-c10c.js', 'public/js/shared/maps/c10c.js', 'public/js/shared/maps/c10c-rows.js',
   'public/js/shared/world/c10c-steps.js', 'public/js/client/c10c-view.js', 'public/js/client/render/tiles-c10c.js', 'public/js/client/render/c10c-npc-art.js'];
@@ -252,12 +255,28 @@ test('名前の 約束: マップ 6まい・タイル 551〜590・宝箱の id�
     const g = gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f));
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場（data/c10c-stub.js）は テストと 道具だけが 読む
+  // かりの 置き場（A の c10c-stub.js・B の c10c-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['../public/js/shared/data/c10c-stub.js', '../public/js/shared/data/c10c-names-b.js']) assert.ok(!existsSync(new URL(f, import.meta.url)), `${f} は 消した`);
   const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/')]) {
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!/from '[^']*c10c-stub/.test(src), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c10c-stub|c10c-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // B班の 本物（宝箱 12こ・魔物の 表・決まった 戦い・だいじな 物・店）
+  for (const id of C10C_CHEST_ALL) {
+    const ch = C10C_MAP_IDS.flatMap((m) => MAPS[m].chests).find((c) => c.id === id);
+    assert.ok(ch && ch.item && !ch.gold, `宝箱 ${id} の 中み（かりの お金では ない）`);
+  }
+  for (const t of ['t10c_isles', 't10c_fort']) assert.ok(ENCOUNTER_TABLES[t], t);
+  assert.ok(MAPS.c10c_isles1.spawnCounts.t10c_isles && MAPS.c10c_fort1.spawnCounts.t10c_fort, '魔物が 出る');
+  assert.equal(MAPS.c10c_isles1.zoneAt(18, 25), 't10c_isles');
+  for (const b of ['c10c_colonel', 'c10c_algol']) assert.ok(FIXED_ENCOUNTERS[b]?.boss && FIXED_ENCOUNTERS[b].canFlee === false, b);
+  assert.equal(FIXED_ENCOUNTERS.c10c_algol.bgm, 'c10c_rival', '少年の 戦いの 曲');
+  assert.equal(ITEMS.note_si?.type, 'key');
+  assert.ok(C10C_SHOP_ADD.every((id) => SHOPS.c10c_crater.items.includes(id)));
+  assert.ok(SHOPS.c10b_crater.items.every((id) => SHOPS.c10c_crater.items.includes(id)), '第2幕の 店の 品も ある');
+  assert.ok(JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act1', 'c10_act2', 'c10_act3')))).includes('c10c_crater'), '幕の クリアの あとの 店');
+  assert.ok(!JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act1', 'c10_act2')))).includes('c10c_crater'), 'クリアの 前は 今の 店');
   assert.equal(bridgeHudText10c({ red: 0, green: 2 }), '橋 ●○●○○');
 });
 
