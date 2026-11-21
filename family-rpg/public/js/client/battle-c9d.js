@@ -180,8 +180,8 @@ export function c9dDraw(scene, x, m, c, px, py, w, h, base) {
     return;
   }
   if (!c.alive) return;
-  // スマホの たてでは しるしを 頭の 上に（足もとは スピカの まどと かさなる）
-  const ty = portrait() ? Math.max(8, py + 6) : py + h + 4;
+  // スマホの たてでは しるしを おなかの あたりに（足もとは スピカの まど・頭の 上は 名前の 帯と かさなる）
+  const ty = portrait() ? py + h * 0.55 : py + h + 4;
   if (c.muBeamAim) {
     const nm = scene.c?.get?.(c.muBeamAim)?.name || '';
     x.globalAlpha = base * (0.45 + Math.sin(T / 70) * 0.35);
