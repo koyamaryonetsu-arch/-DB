@@ -8,7 +8,7 @@
 //
 // ほかの ファイルの 表を まぜる: mergeBossHints(ヒントの 表, { retry, who })
 //   例（第8章 第4幕。B班の data/boss-hints-c8r.js）:
-//     import { mergeBossHints } from './boss-hints.js?v=f7068908c0e8';
+//     import { mergeBossHints } from './boss-hints.js?v=27b736e61284';
 //     export const C8R_BOSS_HINTS = { c8_gatekeeper: ['…', '…', '…'] };
 //     mergeBossHints(C8R_BOSS_HINTS, { retry: { c8_gatekeeper: '台本の id' } });
 //   その ファイルは 自分の 戦いの ファイル（encounters-c8r.js など）から import する。ない 時は 何も まざらない（この ファイルは 読まない）

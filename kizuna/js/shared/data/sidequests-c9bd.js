@@ -12,8 +12,8 @@
 // 2. まいごの、もぐら兵（もぐら兵の 隊長ドドン。大王のやしきの 門の 東）
 //    大王の さわぎの 時に にげて、南東の 暗い 所で まいごに なった 小さな もぐら兵ポコ。明かりが つながって いないと こわくて 歩けない。
 //    → 帰り道の こけ石 3つを、ポコに 近い 方から じゅんばんに ともす（ちがう じゅんだと「ポコから 見えない」）→ ポコと 話すと 帰る
-import { C9B_KING_NAME } from '../maps/c9b-flags.js?v=f7068908c0e8';
-import { C9BD_OPEN, LAMP9, LAMP9_GOT, MOLE9, MOLE9_LIT } from '../maps/c9bd-side.js?v=f7068908c0e8';
+import { C9B_KING_NAME } from '../maps/c9b-flags.js?v=27b736e61284';
+import { C9BD_OPEN, LAMP9, LAMP9_GOT, MOLE9, MOLE9_LIT } from '../maps/c9bd-side.js?v=27b736e61284';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -8,46 +8,48 @@
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 // rarity: レア度 0〜5（★の 数。items-rare.js の assignRarity が つける。店の 品は 0）
 
-import { ITEMS_CH2 } from './items-ch2.js?v=f7068908c0e8';
-import { ITEMS_TM } from './items-tm.js?v=f7068908c0e8';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=f7068908c0e8';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=f7068908c0e8';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=f7068908c0e8';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=f7068908c0e8';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=f7068908c0e8';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=f7068908c0e8';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=f7068908c0e8';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=f7068908c0e8';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=f7068908c0e8';
-import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=f7068908c0e8';
-import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=f7068908c0e8';
-import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js?v=f7068908c0e8';
-import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js?v=f7068908c0e8';
-import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js?v=f7068908c0e8';
-import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js?v=f7068908c0e8';
-import { ITEMS_PAST, PAST_ITEM_KANA } from './items-past.js?v=f7068908c0e8';
-import { ITEMS_ROAD, ROAD_ITEM_KANA } from './items-road.js?v=f7068908c0e8';
-import { ITEMS_TOKEI, TOKEI_ITEM_KANA } from './items-tokei.js?v=f7068908c0e8';
-import { ITEMS_TOKEI6, TOKEI6_ITEM_KANA } from './items-tokei6.js?v=f7068908c0e8';
-import { ITEMS_C7, C7_ITEM_KANA } from './items-c7.js?v=f7068908c0e8';
-import { ITEMS_C7S, C7S_ITEM_KANA } from './items-c7s.js?v=f7068908c0e8';
-import { ITEMS_C7I, C7I_ITEM_KANA } from './items-c7i.js?v=f7068908c0e8';
-import { ITEMS_C8A, C8A_ITEM_KANA } from './items-c8a.js?v=f7068908c0e8';
-import { ITEMS_C8B, C8B_ITEM_KANA } from './items-c8b.js?v=f7068908c0e8';
-import { ITEMS_C8C, C8C_ITEM_KANA } from './items-c8c.js?v=f7068908c0e8';
-import { ITEMS_C8R, C8R_ITEM_KANA } from './items-c8r.js?v=f7068908c0e8';
-import { ITEMS_C9A, C9A_ITEM_KANA } from './items-c9a.js?v=f7068908c0e8';
-import { ITEMS_C9B, C9B_ITEM_KANA } from './items-c9b.js?v=f7068908c0e8';
-import { ITEMS_C9C, C9C_ITEM_KANA } from './items-c9c.js?v=f7068908c0e8';
-import { ITEMS_C9D, C9D_ITEM_KANA } from './items-c9d.js?v=f7068908c0e8';
-import { ITEMS_C10A, C10A_ITEM_KANA } from './items-c10a.js?v=f7068908c0e8';
-import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js?v=f7068908c0e8';
+import { ITEMS_CH2 } from './items-ch2.js?v=27b736e61284';
+import { ITEMS_TM } from './items-tm.js?v=27b736e61284';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=27b736e61284';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=27b736e61284';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=27b736e61284';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=27b736e61284';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=27b736e61284';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=27b736e61284';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=27b736e61284';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=27b736e61284';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=27b736e61284';
+import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=27b736e61284';
+import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=27b736e61284';
+import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js?v=27b736e61284';
+import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js?v=27b736e61284';
+import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js?v=27b736e61284';
+import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js?v=27b736e61284';
+import { ITEMS_PAST, PAST_ITEM_KANA } from './items-past.js?v=27b736e61284';
+import { ITEMS_ROAD, ROAD_ITEM_KANA } from './items-road.js?v=27b736e61284';
+import { ITEMS_TOKEI, TOKEI_ITEM_KANA } from './items-tokei.js?v=27b736e61284';
+import { ITEMS_TOKEI6, TOKEI6_ITEM_KANA } from './items-tokei6.js?v=27b736e61284';
+import { ITEMS_C7, C7_ITEM_KANA } from './items-c7.js?v=27b736e61284';
+import { ITEMS_C7S, C7S_ITEM_KANA } from './items-c7s.js?v=27b736e61284';
+import { ITEMS_C7I, C7I_ITEM_KANA } from './items-c7i.js?v=27b736e61284';
+import { ITEMS_C8A, C8A_ITEM_KANA } from './items-c8a.js?v=27b736e61284';
+import { ITEMS_C8B, C8B_ITEM_KANA } from './items-c8b.js?v=27b736e61284';
+import { ITEMS_C8C, C8C_ITEM_KANA } from './items-c8c.js?v=27b736e61284';
+import { ITEMS_C8R, C8R_ITEM_KANA } from './items-c8r.js?v=27b736e61284';
+import { ITEMS_C9A, C9A_ITEM_KANA } from './items-c9a.js?v=27b736e61284';
+import { ITEMS_C9B, C9B_ITEM_KANA } from './items-c9b.js?v=27b736e61284';
+import { ITEMS_C9C, C9C_ITEM_KANA } from './items-c9c.js?v=27b736e61284';
+import { ITEMS_C9D, C9D_ITEM_KANA } from './items-c9d.js?v=27b736e61284';
+import { ITEMS_C10A, C10A_ITEM_KANA } from './items-c10a.js?v=27b736e61284';
+// 第95回 B班: 第3部 第2章 第2幕（items-c10b.js）
+import { ITEMS_C10B, C10B_ITEM_KANA } from './items-c10b.js?v=27b736e61284';
+import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js?v=27b736e61284';
 // 第37回 A: サファラ闘技場の ごほうび
-import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js?v=f7068908c0e8';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=f7068908c0e8';
-import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=f7068908c0e8';
-import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=f7068908c0e8';
-import { applyGearLooks } from './gear-looks.js?v=f7068908c0e8';
+import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js?v=27b736e61284';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=27b736e61284';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=27b736e61284';
+import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=27b736e61284';
+import { applyGearLooks } from './gear-looks.js?v=27b736e61284';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -244,7 +246,7 @@ Object.assign(ITEMS, ITEMS_CH2, ITEMS_TM);
 // 夜の 品物（night.js）・空の 旅（sky.js）
 Object.assign(ITEMS, NIGHT_ITEMS, SKY_ITEMS);
 // 第6章 Step 1・2（A）の 大事な物: 時の砂時計・星の木のなえ・星のしずく（items-ch6-key.js）
-import { CH6_KEY_ITEMS, CH6_KEY_KANA } from './items-ch6-key.js?v=f7068908c0e8'; Object.assign(ITEMS, CH6_KEY_ITEMS);
+import { CH6_KEY_ITEMS, CH6_KEY_KANA } from './items-ch6-key.js?v=27b736e61284'; Object.assign(ITEMS, CH6_KEY_ITEMS);
 // ふしぎなかじの 素材と 作れる 装備（items-forge.js）
 Object.assign(ITEMS, ITEMS_FORGE);
 // カジノの 景品・メダル王の ごほうび（items-casino.js）
@@ -305,40 +307,42 @@ Object.assign(ITEMS, ITEMS_C9C);
 Object.assign(ITEMS, ITEMS_C9D);
 // 第3部 第2章 第1幕: 古い 道・根の国の 宝箱・くぼ地の 武具屋に 足す 品・中ボスの 品・星の音（items-c10a.js）
 Object.assign(ITEMS, ITEMS_C10A);
+// 第3部 第2章 第2幕: 水鏡の うら・氷の 下の 道の 宝箱・くぼ地の 武具屋に 足す 品・中ボスの 品・星の音（items-c10b.js）
+Object.assign(ITEMS, ITEMS_C10B);
 // 第3部の 2幕めから あとの 品（くぼ地の 武具屋〈ランク10・k 2.06〜〉・宝箱・ボスの 品）。前の 章の「店の いちばん よい 品」・
 //   職業の はかりの もとに まぜない ため（tools/sim-jobs.mjs・test/craft-trial-r65・test/ch5-castle-battle）。幕を 足す ときは ここに 足す
-export const PART3_LATE_ITEMS = new Set([...Object.keys(ITEMS_C9B), ...Object.keys(ITEMS_C9C), ...Object.keys(ITEMS_C9D), ...Object.keys(ITEMS_C10A)]);
+export const PART3_LATE_ITEMS = new Set([...Object.keys(ITEMS_C9B), ...Object.keys(ITEMS_C9C), ...Object.keys(ITEMS_C9D), ...Object.keys(ITEMS_C10A), ...Object.keys(ITEMS_C10B)]);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
 Object.assign(ITEMS, FIELD27_ITEMS);
 // 第31回: しあわせのぼうし・こうふくのくつ（items-r31.js）
-import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=f7068908c0e8'; Object.assign(ITEMS, ITEMS_R31);
+import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=27b736e61284'; Object.assign(ITEMS, ITEMS_R31);
 // 第32回: ひみつのダンジョンの お店だけの 回復薬（items-secret.js）
-import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js?v=f7068908c0e8'; Object.assign(ITEMS, SD_POTIONS);
+import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js?v=27b736e61284'; Object.assign(ITEMS, SD_POTIONS);
 // 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
 Object.assign(ITEMS, RARE_GEAR);
 // 第32回: れん金がまの 品・生まれ変わりの 武器（items-alchemy.js）
-import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js?v=f7068908c0e8'; Object.assign(ITEMS, ALCHEMY_ITEMS);
+import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js?v=27b736e61284'; Object.assign(ITEMS, ALCHEMY_ITEMS);
 // 第33回: 11の 職業の 装備（items-r33.js。店の 品と レア装備）
-import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js?v=f7068908c0e8'; Object.assign(ITEMS, ITEMS_R33);
+import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js?v=27b736e61284'; Object.assign(ITEMS, ITEMS_R33);
 // 第39回 C・第41回: お仕事いらい板の たのまれごとの ★5の アクセサリーと 大事な物（items-family.js）
-import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js?v=f7068908c0e8'; Object.assign(ITEMS, FAMILY_ITEMS);
+import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js?v=27b736e61284'; Object.assign(ITEMS, FAMILY_ITEMS);
 // 第44回（ポケモン P1）: 進化の 石・かわらずのいし・ふしぎないでんし（items-pokemon.js）
-import { POKEMON_ITEMS, POKEMON_ITEM_KANA } from './items-pokemon.js?v=f7068908c0e8'; Object.assign(ITEMS, POKEMON_ITEMS);
+import { POKEMON_ITEMS, POKEMON_ITEM_KANA } from './items-pokemon.js?v=27b736e61284'; Object.assign(ITEMS, POKEMON_ITEMS);
 // 第45回（ドラクエふう D1）: 四季のこよみ・竜王のしるし（素材配合の 大事な物。items-dqm.js）
-import { DQM_ITEMS, DQM_ITEM_KANA } from './items-dqm.js?v=f7068908c0e8'; Object.assign(ITEMS, DQM_ITEMS);
+import { DQM_ITEMS, DQM_ITEM_KANA } from './items-dqm.js?v=27b736e61284'; Object.assign(ITEMS, DQM_ITEMS);
 // 第53回 D: 色の石（配合で 色ちがいの 子。breed-mix.js）
-import { MIX_ITEMS, MIX_ITEM_KANA } from './breed-mix.js?v=f7068908c0e8'; Object.assign(ITEMS, MIX_ITEMS);
+import { MIX_ITEMS, MIX_ITEM_KANA } from './breed-mix.js?v=27b736e61284'; Object.assign(ITEMS, MIX_ITEMS);
 // 第50回 D3: 景品の 品（カジノ・小さなメダル・星のかけら。items-prize-r50.js）
-import { ITEMS_PRIZE_R50, PRIZE_R50_KANA } from './items-prize-r50.js?v=f7068908c0e8'; Object.assign(ITEMS, ITEMS_PRIZE_R50);
+import { ITEMS_PRIZE_R50, PRIZE_R50_KANA } from './items-prize-r50.js?v=27b736e61284'; Object.assign(ITEMS, ITEMS_PRIZE_R50);
 // 第65回 D1: かじ屋の ランク6〜10の 装備・れん金の 第6章・第7章の 品（items-craft-r65.js）
-import { ITEMS_CRAFT_R65, CRAFT_R65_KANA } from './items-craft-r65.js?v=f7068908c0e8'; Object.assign(ITEMS, ITEMS_CRAFT_R65);
+import { ITEMS_CRAFT_R65, CRAFT_R65_KANA } from './items-craft-r65.js?v=27b736e61284'; Object.assign(ITEMS, ITEMS_CRAFT_R65);
 // 第81回: 全滅で へる お金が 少なく なる アクセサリー（items-r81.js）
-import { ITEMS_R81, R81_ITEM_KANA } from './items-r81.js?v=f7068908c0e8'; Object.assign(ITEMS, ITEMS_R81);
+import { ITEMS_R81, R81_ITEM_KANA } from './items-r81.js?v=27b736e61284'; Object.assign(ITEMS, ITEMS_R81);
 // 第88回: 作品を 思い出す 装備（items-r88.js）。伝説の 数字は その 種類の いちばん 強い 品に 合わせる（fitR88Legends。新しい 品は この 行より 上に）
-import { ITEMS_R88, R88_ITEM_KANA, fitR88Legends } from './items-r88.js?v=f7068908c0e8'; Object.assign(ITEMS, ITEMS_R88); fitR88Legends(ITEMS);
+import { ITEMS_R88, R88_ITEM_KANA, fitR88Legends } from './items-r88.js?v=27b736e61284'; Object.assign(ITEMS, ITEMS_R88); fitR88Legends(ITEMS);
 assignRarity(ITEMS);
 // 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
 applyGearLooks(ITEMS);
@@ -448,6 +452,7 @@ Object.assign(ITEM_KANA, C9B_ITEM_KANA);
 Object.assign(ITEM_KANA, C9C_ITEM_KANA);
 Object.assign(ITEM_KANA, C9D_ITEM_KANA);
 Object.assign(ITEM_KANA, C10A_ITEM_KANA);
+Object.assign(ITEM_KANA, C10B_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

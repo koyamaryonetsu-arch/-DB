@@ -8,8 +8,8 @@
 //   ・applyCh10 … だいほんを まぜる 入口（story.js が よぶ）
 //   ・題の 画面（c10TitleSteps）・第1章 クリアの 目標の 文の 入れかえ（act4ClearObjective。story-c9.js が 使う）
 // story-c9.js から 読まれるので、story.js・story-c9*.js を import しない こと
-import { C10A_LINE } from '../maps/c10a-flags.js?v=f7068908c0e8';
-import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js?v=f7068908c0e8';
+import { C10A_LINE } from '../maps/c10a-flags.js?v=27b736e61284';
+import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js?v=27b736e61284';
 
 // ───── 第1幕「赤と緑」を 開ける 切りかえ（13-6・13-7。第94回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第1章 クリアの 目標は「第3部　第2章へ（続きはアップデートで！）」・

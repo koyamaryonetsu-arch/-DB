@@ -55,6 +55,8 @@ export const WATER_FIRE = ['lantern_ghost', 'ryuou_grandson'];
 export const WATER_SAND = [
   'sand_slime', 'sand_golem', 'sand_sprite', 'sandstorm_spirit', 'sandstone_golem', 'haniwa_soldier',
   'sand_worm', 'sand_shark', 'ar_shark', 'ar_sharkking', 'sand_whale',
+  // 第3部 第2章 第2幕（monsters-c10b.js）: 水が ぬけた 所に できる 砂の 山
+  'c10b_sand',
 ];
 
 // 5. 岩・石の 体（かたいので 少しだけ。いちばんの 弱点は 今までの 爆発など）→ 1.25

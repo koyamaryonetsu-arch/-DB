@@ -9,7 +9,7 @@
 //   ・今 ある 麦わらぼうしにも 作品を つけた（R88_TAG_ONEPIECE。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（鬼 → おに・閻魔 → えんま・衝撃 → しょうげき・海楼石 → 海ろう石 など。設計書の「実装メモ（G9班）」）
 //   入れない 品: 古代兵器・フランキーの 武器（設計書 3-2）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=f7068908c0e8';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=27b736e61284';
 
 const O = { work: 'onepiece' };
 const Z = { work: 'onepiece', set: 'santoryu' };

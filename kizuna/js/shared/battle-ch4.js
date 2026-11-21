@@ -15,12 +15,12 @@
 // ・砂に もぐる（Step 6 の 砂クジラ）: 技の 効果 { type: 'burrow', next: '<とび出す 技>' }。
 //   「砂の中に もぐった！」→ つぎの 自分の 番まで ねらえない（味方の 攻撃・呪文・特技の 的に ならない。全体の 呪文も 当たらない）。
 //   ゲージが たまってくると「砂が もり上がった…！」（前ぶれ。身を 守る じかん）→ つぎの 番に 出てきて とび出す 技（ai.js の telegraph）
-import { MONSTERS } from './data/monsters.js?v=f7068908c0e8';
-import { ITEMS } from './data/items.js?v=f7068908c0e8';
-import { ABILITIES } from './data/abilities.js?v=f7068908c0e8';
-import { DUAL_TECHS } from './data/dual.js?v=f7068908c0e8';
+import { MONSTERS } from './data/monsters.js?v=27b736e61284';
+import { ITEMS } from './data/items.js?v=27b736e61284';
+import { ABILITIES } from './data/abilities.js?v=27b736e61284';
+import { DUAL_TECHS } from './data/dual.js?v=27b736e61284';
 // こうどうゲージの はやさ（battle.js。たがいに よびあうが、つかうのは たたかいの 中だけ）
-import { atbRate } from './battle.js?v=f7068908c0e8';
+import { atbRate } from './battle.js?v=27b736e61284';
 
 export const MIRROR_ID = 'moon_mirror';
 const LETTERS = 'ABCDEFGH';
@@ -67,6 +67,8 @@ function vanish(b, t) {
 // 分身に 当たった（c … 当てた 人）。消えたら true（その 当たりは そこで おしまい）
 // battle.js の physHit・magicHit・damage・tryStatus・applyDebuff・trySteal・banish・drainMp の はじめで よぶ
 export function mirageHit(b, c, t, ev) {
+  // 第3部 第2章 第2幕: かいとう シロフクロウの まぼろし（すりぬける・からかいの羽。battle-c10b.js の owlFakeHit）
+  if (t?.c10oFake && b.c10oHit) return b.c10oHit(c, t, ev);
   if (!t?.clone || !t.alive || !b.mirage || !c || c.side === t.side) return false;
   vanish(b, t);
   ev.lines.push(`まぼろしだった！${t.name}は、すうっと消えた…！`);

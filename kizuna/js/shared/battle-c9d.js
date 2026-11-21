@@ -16,12 +16,12 @@
 //   いっしょに ドーン: 2体が そろって いる 時、2体で doon.every 回 動く ごとに 前ぶれ（m9m_doonup）→ doon.wait 回 あとの その 体の 番に 全体へ（m9m_doon）
 // ・自動の 仲間（酒場の 人）は 3回に 1回、HPの 多い 方を ねらう（AUTO_EVERY。数は みんなで 1つ）。家族の キャラの「オート」と 魔物の 仲間は ねらい分けない
 // ・人数で 合わせる（few・solo・monK）は 第2幕・第3幕と おなじ 数え方（魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=f7068908c0e8';
-import { ABILITIES } from './data/abilities.js?v=f7068908c0e8';
-import { SONG } from './data/abilities-c9d.js?v=f7068908c0e8';
-import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=f7068908c0e8';
-import { C9D } from './maps/c9d-flags.js?v=f7068908c0e8';
-import { canUse } from './ai.js?v=f7068908c0e8';
+import { MONSTERS } from './data/monsters.js?v=27b736e61284';
+import { ABILITIES } from './data/abilities.js?v=27b736e61284';
+import { SONG } from './data/abilities-c9d.js?v=27b736e61284';
+import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=27b736e61284';
+import { C9D } from './maps/c9d-flags.js?v=27b736e61284';
+import { canUse } from './ai.js?v=27b736e61284';
 
 export { SONG };
 export const SPLIT = 'm9m_split';
@@ -94,7 +94,8 @@ export function setupC9d(b, lines) {
 export function addSong(b) {
   const s = b.c9sp;
   if (!s || s.song) return s?.song || null;
-  s.song = { charge: 0, max: SONG_MAX, uses: 0 };
+  // 第3部 第2章 第2幕: 青の 音の ごほうび … 4回で たまる（battle-c10b.js の setupC10b が b.c10rew.songMax）
+  s.song = { charge: 0, max: b.c10rew?.songMax || SONG_MAX, uses: 0 };
   for (const a of b.allies) if (!a.abilities.includes(SONG)) a.abilities = [SONG, ...a.abilities];
   return s.song;
 }

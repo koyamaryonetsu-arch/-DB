@@ -1,7 +1,7 @@
 // 第48回 G1: ドラゴンボール（サイヤ人・スーパーサイヤ人・2・3）＋ はかい神 ＋ 合体技 ゴムゴムのかめはめ波 の え
 // 時間は shared/data/ax-time-g1.js。c の 時間は はなつ しゅんかんが 0
-import { org, selfAt, N, darken, bg, ball, kbeam, dome, mark, prop, fist, boom, path, ghost, hakaiFilm, dragon, disk, monkey, wind, fan, TAU, hash, lerp, clamp01 } from './axfx-g1-lib.js?v=f7068908c0e8';
-import { softGlow, disc } from './axkit.js?v=f7068908c0e8';
+import { org, selfAt, N, darken, bg, ball, kbeam, dome, mark, prop, fist, boom, path, ghost, hakaiFilm, dragon, disk, monkey, wind, fan, TAU, hash, lerp, clamp01 } from './axfx-g1-lib.js?v=27b736e61284';
+import { softGlow, disc } from './axkit.js?v=27b736e61284';
 
 // 気の 色
 const BLUE = { main: '#3aa8ff', glow: '#a8e4ff', core: '#ffffff', list: ['#ffffff', '#a8e4ff', '#3aa8ff'] };

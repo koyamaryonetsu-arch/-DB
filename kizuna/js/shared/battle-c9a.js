@@ -20,18 +20,20 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=f7068908c0e8';
-import { ABILITIES } from './data/abilities.js?v=f7068908c0e8';
-import { SHARE } from './data/abilities-c9a.js?v=f7068908c0e8';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=f7068908c0e8';
-import { C9A } from './maps/c9a-flags.js?v=f7068908c0e8';
+import { MONSTERS } from './data/monsters.js?v=27b736e61284';
+import { ABILITIES } from './data/abilities.js?v=27b736e61284';
+import { SHARE } from './data/abilities-c9a.js?v=27b736e61284';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=27b736e61284';
+import { C9A } from './maps/c9a-flags.js?v=27b736e61284';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=f7068908c0e8';
-import { canUse } from './ai.js?v=f7068908c0e8';
+import { pub, atbRate } from './battle.js?v=27b736e61284';
+import { canUse } from './ai.js?v=27b736e61284';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=f7068908c0e8';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=27b736e61284';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=f7068908c0e8';
+import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=27b736e61284';
+// 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
+import { c10bAfter } from './battle-c10b.js?v=27b736e61284';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -179,7 +181,8 @@ export function c9aAfter(b, c, ev) {
   // 第92回 第3便: 前ぶれの しるし（battle-tell.js。敵・味方の どの 行動の あとも 入れ直す）
   // 第3部 第2章 第1幕: あつさ・メカの あつさ・カビが 消える（battle-c10a.js。b.tell より 先）
   if (b.c10) c10aAfter(b, c, ev);
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10) b.tell = c9Tell(b);
+  if (b.c10b) c10bAfter(b, c, ev);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);

@@ -4,10 +4,10 @@
 //   その 階（千年前と 今は おなじ 階）を 出ても 消える。消えた 時に 見えない 道の 上に いた 人は となりへ よける（world/hazards.js の unstickAll）
 //   とちゅうで 切れた などで のこった 火は、だれも ともして いない とき、その 階を 歩くと 消える
 // ・時の砂の 浅せ（わたると 時代が 入れかわる）は だいほん c8r_ford（data/story-c8r.js）
-import { MAPS } from '../maps/index.js?v=f7068908c0e8';
-import { FIRE_STEPS } from '../maps/c8r-floor.js?v=f7068908c0e8';
-import { unstickAll } from './hazards.js?v=f7068908c0e8';
-import { partyOf } from './party.js?v=f7068908c0e8';
+import { MAPS } from '../maps/index.js?v=27b736e61284';
+import { FIRE_STEPS } from '../maps/c8r-floor.js?v=27b736e61284';
+import { unstickAll } from './hazards.js?v=27b736e61284';
+import { partyOf } from './party.js?v=27b736e61284';
 
 const fireFloor = (flag) => /^c8r_([a-z]+\d)_f\d+$/.exec(flag)?.[1] || null;
 

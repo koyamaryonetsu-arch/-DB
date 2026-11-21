@@ -9,7 +9,7 @@
 // ・4人の 勇者と 時の 女の人は 出さない。物語の 中み（さいごの 戦い・ふういん・わかれ）には ふれない
 // クエストの 画面・地図の しるしは data/sidequests-c7.js の c7SubQuests・c7DoneQuests から、だいほんは applyC7Side から まぜる
 // （第3幕の data/sidequests-c8cd.js と おなじ 形）
-import { C8RD_OPEN, LAST9, LAST9_KIDS, LAST9_STEPS } from '../maps/c8rd-side.js?v=f7068908c0e8';
+import { C8RD_OPEN, LAST9, LAST9_KIDS, LAST9_STEPS } from '../maps/c8rd-side.js?v=27b736e61284';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

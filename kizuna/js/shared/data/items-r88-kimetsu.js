@@ -4,7 +4,7 @@
 //   ・柱 9人の 刀（そろい hashira9。持って いる 数で しょう号）。日輪刀は 持ち主の 呼吸で 色が かわる
 //   ・今 ある 日輪刀・炎の羽織 は こわさず、作品の 品として 数える（R88_TAG_KIMETSU。強さ・手に入れ方は かえない）
 //   ・入れない 品: 鬼の 血鬼術・本物の 銃（設計書 3-4）。こわい 名前は やさしく した
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=f7068908c0e8';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=27b736e61284';
 
 const K = { work: 'kimetsu' };
 const H = { work: 'kimetsu', set: 'hashira9' };
