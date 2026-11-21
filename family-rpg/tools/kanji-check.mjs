@@ -670,6 +670,8 @@ export function gameFiles() {
     'public/js/client/audio-c10c.js',
     // 第99回 F班: 第3部 第2章 第4幕の 曲
     'public/js/client/audio-c10d.js',
+    // 第101回 F班: 第3部 第3章 第1幕の 曲
+    'public/js/client/audio-c11a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
