@@ -6,7 +6,7 @@ import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { mpCost } from '../public/js/shared/stats.js';
-import { decideAlly, TACTICS, LEGACY_TACTICS, tacticsOf, mpReserve, saveFloor, prim, tacticsItemHtml } from '../public/js/shared/ai.js';
+import { decideAlly, TACTICS, LEGACY_TACTICS, tacticsOf, mpReserve, saveFloor, prim, tacticsItemHtml, mechBoss, isAttackCmd } from '../public/js/shared/ai.js';
 import { exportCode, parseCode } from '../public/js/shared/world/transfer.js';
 import { checkText } from '../tools/kanji-check.mjs';
 import { jobChar } from '../tools/sim-jobs.mjs';
@@ -70,10 +70,30 @@ test('ガンガンいこうぜ: いちばん 強い 技（中くらいの 技を
   // バフ・デバフは 使わない（ボスでも）
   const boss = pick({ tac: 'aggressive', abilities: ['merazoma', 'rukani', 'baikiruto', 'piorimu'], boss: true }, 40);
   assert.equal(boss.merazoma, 40, JSON.stringify(boss));
-  // 回復は だれかが 3わり いか の 時だけ
-  const hurt = (r) => ({ prep: (b, c) => { c.hp = Math.floor(c.maxHp * r); } });
-  assert.ok(!pick({ tac: 'aggressive', abilities: ['merazoma', 'behoimi'], ...hurt(0.4) }).behoimi, '4わりでは 回復しない');
-  assert.equal(pick({ tac: 'aggressive', abilities: ['merazoma', 'behoimi'], ...hurt(0.25) }).behoimi, 20, '3わり いかで 回復');
+});
+
+test('ガンガンいこうぜ: 回復しない・攻撃だけ（HP が 少なくても）・すい取る 攻撃は えらべる', () => {
+  const rev = Object.keys(ABILITIES).find((id) => ABILITIES[id].effect?.type === 'revive' && ABILITIES[id].target === 'deadAlly' && !ABILITIES[id].hidden && (ABILITIES[id].mp || 0) <= 20);
+  for (const r of [0.4, 0.1, 0.02]) {
+    const got = pick({ tac: 'aggressive', abilities: ['merazoma', 'behoimi', 'behomara', rev], mates: ['god_hand'], prep: (b, c) => { c.hp = Math.max(1, Math.floor(c.maxHp * r)); const m = b.allies[1]; m.hp = 0; m.alive = false; } });
+    assert.equal(got.merazoma, 20, `HP ${r}: ${JSON.stringify(got)}`);
+  }
+  // 毒・ねむりの 仲間も 治さない・MP を ためる 技も 使わない
+  const cure = Object.keys(ABILITIES).find((id) => ABILITIES[id].effect?.type === 'cure' && ABILITIES[id].target === 'ally' && ABILITIES[id].effect.statuses?.includes('sleep'));
+  const st = pick({ tac: 'aggressive', abilities: ['merazoma', cure], mates: ['god_hand'], prep: (b) => { b.allies[1].status.sleep = { turns: 3 }; } });
+  assert.equal(st.merazoma, 20, JSON.stringify(st));
+  // すい取る 攻撃（drainHp）は ダメージで くらべて えらべる
+  const drain = Object.keys(ABILITIES).filter((id) => ABILITIES[id].effect?.type === 'drainHp' && ABILITIES[id].target === 'enemy' && !ABILITIES[id].hidden && !ABILITIES[id].weapon);
+  assert.ok(drain.length, 'すい取る 攻撃が ある');
+  //   （ゴッドハンド: ふつうの 攻撃より 強い すい取る 攻撃を、HP 2わりでも 回復の かわりに えらぶ）
+  const best = drain.map((id) => [id, ABILITIES[id].effect.mult || 0]).sort((x, y) => y[1] - x[1])[0][0];
+  const d = pick({ job: 'god_hand', tac: 'aggressive', abilities: [best, 'behoimi'], prep: (b, c) => { c.hp = Math.floor(c.maxHp * 0.2); c.mp = c.maxMp = 999; } });
+  assert.equal(d[best], 20, `${best} ${JSON.stringify(d)}`);
+  // 攻撃の 技が 使えない（MP 0）: ふつうの 攻撃
+  const z = pick({ tac: 'aggressive', abilities: ['merazoma', 'behoimi'], prep: (b, c) => { c.mp = 0; c.hp = Math.floor(c.maxHp * 0.1); } });
+  assert.equal(z.attack, 20, JSON.stringify(z));
+  // ほかの 作戦は 前の とおり 回復する
+  assert.equal(pick({ tac: 'balanced', abilities: ['merazoma', 'behoimi'], prep: (b, c) => { c.hp = Math.floor(c.maxHp * 0.25); } }).behoimi, 20);
 });
 
 test('ガンガンいこうぜ: MP が 足りなく なったら、使える 中で いちばん 強い 物', () => {
@@ -248,4 +268,24 @@ test('1回の 行動を きめる 計算は 重くない（2ミリ秒 いない�
     }
     assert.ok(ms < 2, `${tac}: ${ms.toFixed(3)}ms`);
   }
+});
+
+test('しくみの ある ボスで みんな オート: どの 作戦でも 前の バッチリ（人が 1人でも えらんで いれば 新しい 作戦）', () => {
+  const me = { side: 'ally', tactics: 'aggressive' };
+  const auto = { kind: 'player', alive: true, controller: 's1', auto: true };
+  const human = { kind: 'player', alive: true, controller: 's1', auto: false };
+  const mk2 = (flags, allies, enemies = []) => ({ boss: true, allies, enemies, ...flags });
+  // 第3部の ボスの しるし・前ぶれを 全員に 出す ボス・ヒントの ある ボス（第7章 c7_gate など）
+  for (const b of [mk2({ c9king: {} }, [auto]), mk2({ tellAll: true }, [auto]), mk2({ c10b: {} }, [auto]), mk2({ mechBoss: true }, [auto]), mk2({}, [auto], [{ species: 'c7_gate', boss: true }]), mk2({}, [auto], [{ species: 'c9b_dededon', boss: true }])]) {
+    assert.equal(mechBoss(b), true);
+    for (const t of Object.keys(TACTICS)) assert.equal(tacticsOf({ ...me, tactics: t }, b), LEGACY_TACTICS.balanced, t);
+    // 人が 自分で えらんで いる
+    b.allies = [human, auto];
+    assert.equal(tacticsOf(me, b), TACTICS.aggressive);
+  }
+  // ふつうの 戦い・しくみの ない ボス: いつも 新しい 動き
+  assert.equal(mechBoss({ boss: false, c9king: {}, allies: [], enemies: [] }), false);
+  assert.equal(mechBoss(mk2({}, [auto], [{ species: 'rockman', boss: true }])), false);
+  assert.equal(tacticsOf(me, mk2({}, [auto], [{ species: 'rockman', boss: true }])), TACTICS.aggressive);
+  assert.ok(isAttackCmd({ type: 'attack' }) && !isAttackCmd({ type: 'ability', id: 'behoimi' }) && isAttackCmd({ type: 'ability', id: 'merazoma' }));
 });

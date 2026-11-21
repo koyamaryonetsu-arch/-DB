@@ -78,7 +78,8 @@ const REAL = (mode) => (id) => (id === C9B_BATTLE.king ? mode : /^c9b_guard/.tes
 
 test('通し（本当の 戦い）: 第1幕 クリア → くぼ地 → 鉱山 → たてあな → 大地の下（柱 6本）→ 村 → やしき（手下）→ 大王（負けて ヒント → もう一度）→ 同じ テーブル → 船着き場。宝箱 10こ', { timeout: 900000 }, async () => {
   assert.equal(PART3_ACT2_OPEN, true, '幕は 開いた');
-  const { world, bot, c } = await family(9191);
+  // 第96回 T班: たね 9191 → 9192（9191 は 手下戦の あと HP まんたんで 大王に 着き、完全オートの 勝ちやすさ 1わりの 当たりを 引いた。9192〜9195 は どれも 負ける）
+  const { world, bot, c } = await family(9192);
   assert.equal(c.objective, act1ClearObjective(), '第1幕 クリアの 目標は 第2幕の はじまり');
   assert.equal(c.objective, C9B_OBJ.start);
   const fought = [];

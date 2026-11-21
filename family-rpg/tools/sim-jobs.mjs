@@ -70,6 +70,8 @@ function soloDamage(job, lv, R, seed, ms = SOLO_MS) {
   const c = jobChar(job, lv, R);
   const b = new Battle({ rng: makeRng(seed), allies: [{ char: c, auto: true, kind: 'support', tactics: 'balanced' }], enemies: ['rockman', 'rockman', 'rockman'], canFlee: false });
   for (const e of b.enemies) { e.actions = [{ w: 1, id: 'm_nothing' }]; e.hp = e.maxHp = 999999; e.resist = {}; }
+  // 第96回 T班: かかしには 敵を 弱く する 技を 使わない（HP が 多いので「強い 敵」あつかい。職業の 強さの 物さしを 前と そろえる）
+  b.noAutoDebuff = true;
   let dmg = 0;
   for (let t = 0; t < ms && !b.over; t += 50) {
     for (const e of b.tick(50)) if (e.t === 'act' && e.id === b.allies[0].id) for (const r of e.results || []) if (r.dmg > 0 && r.dmg < 100000 && b.enemies.some((x) => x.id === r.id)) dmg += r.dmg;
