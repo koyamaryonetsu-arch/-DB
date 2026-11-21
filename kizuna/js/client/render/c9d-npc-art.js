@@ -4,7 +4,7 @@
 // ・c9d_mu_sit・c9d_mumu_sit … 勝った あと すわりこむ 2人（ムウムウは 少し 小さく 色が うすい）
 // ・c9d_candy … おかしに された 星（場面の 役者）
 // もとの 作品の 絵は 使わない
-import { Painter } from './pixel.js?v=7eefef6c1f45';
+import { Painter } from './pixel.js?v=4646ff086801';
 
 const MU = { d: '#6a4a9a', b: '#a888d8', l: '#c8b0f0', hl: '#eee0ff' };
 const MUMU = { d: '#8a6ab0', b: '#c0a8e8', l: '#dccaf6', hl: '#f8f0ff' };

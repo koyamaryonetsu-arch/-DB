@@ -5,9 +5,9 @@
 //
 // ざひょう: F（hero-gear.js の frame）… a: 手から ぶきの さきへ、b: よこ。o: からだの そとがわの b の むき
 //   ムチは 手もとの 絵なので A.hand から（hero-gear-looks.js の drawWhipLook と おなじ）
-import { mat, ramp, TH } from './hero-raster.js?v=7eefef6c1f45';
-import { metal, cloth, leather, gem, glow } from './hero-outfit.js?v=7eefef6c1f45';
-import { ornate, sparkleList, FX_COL } from './hero-gear-looks.js?v=7eefef6c1f45';
+import { mat, ramp, TH } from './hero-raster.js?v=4646ff086801';
+import { metal, cloth, leather, gem, glow } from './hero-outfit.js?v=4646ff086801';
+import { ornate, sparkleList, FX_COL } from './hero-gear-looks.js?v=4646ff086801';
 
 // 品ごとの 色・長さ（形の 名前は 品の データの look と おなじ）
 //   ボール: top … 上の 色、pat … もよう（stripes: 2本線・h: H の 形・master: 丸 2つと M の 字）、patc … もようの 色
