@@ -48,6 +48,8 @@ import { MONSTERS_C9B, addC9bHidden } from './monsters-c9b.js';
 import { MONSTERS_C9C } from './monsters-c9c.js';
 import { MONSTERS_C9D } from './monsters-c9d.js';
 import { MONSTERS_C10A } from './monsters-c10a.js';
+// 第95回 B班: 第3部 第2章 第2幕「青と白」（monsters-c10b.js）
+import { MONSTERS_C10B } from './monsters-c10b.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -326,6 +328,8 @@ Object.assign(MONSTERS, MONSTERS_C9C);
 Object.assign(MONSTERS, MONSTERS_C9D);
 // 第3部 第2章 第1幕「赤と緑」の 魔物・中ボス 2人（monsters-c10a.js）
 Object.assign(MONSTERS, MONSTERS_C10A);
+// 第3部 第2章 第2幕「青と白」の 魔物・中ボス 2人・まぼろし（monsters-c10b.js）
+Object.assign(MONSTERS, MONSTERS_C10B);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);

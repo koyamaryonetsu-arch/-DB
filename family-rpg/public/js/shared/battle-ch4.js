@@ -67,6 +67,8 @@ function vanish(b, t) {
 // 分身に 当たった（c … 当てた 人）。消えたら true（その 当たりは そこで おしまい）
 // battle.js の physHit・magicHit・damage・tryStatus・applyDebuff・trySteal・banish・drainMp の はじめで よぶ
 export function mirageHit(b, c, t, ev) {
+  // 第3部 第2章 第2幕: かいとう シロフクロウの まぼろし（すりぬける・からかいの羽。battle-c10b.js の owlFakeHit）
+  if (t?.c10oFake && b.c10oHit) return b.c10oHit(c, t, ev);
   if (!t?.clone || !t.alive || !b.mirage || !c || c.side === t.side) return false;
   vanish(b, t);
   ev.lines.push(`まぼろしだった！${t.name}は、すうっと消えた…！`);

@@ -8,7 +8,7 @@
 // のぞく 魔物（11-4 の 合わせ直しに 入れない）: ボス・くらやみ虫・大ミミズ・大王の 手下（もぐら兵）
 import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
-import { ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
+import { ENCOUNTER_TABLES, FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { addSpica } from '../public/js/shared/battle-c9a.js';
 import { ch9Allies, ch9Party } from './sim-ch9.mjs';
@@ -26,9 +26,13 @@ export const FIELD_TABLES = {
   c9d: ['t9d_lane', 't9d_lane2'],
   // 第94回 B班: 第3部 第2章 第1幕 赤（古い 道。勇者 Lv105・CH9_KIT.tamagon）・緑（根の国。勇者 Lv107・CH9_KIT.mold）。tools/sim-ch10.mjs を 読む
   c10a: ['t10r_1', 't10r_2', 't10g_1', 't10g_2'],
+  // 第95回 B班: 第3部 第2章 第2幕 青（水鏡の うら。勇者 Lv109・CH9_KIT.gecko）
+  c10b: ['t10b_blue_wet', 't10b_blue_dry'],
 };
+// 決まった 戦い（見はりに 見つかった 時。白の 道。勇者 Lv111・CH9_KIT.owl。めやす 120秒 いない）。node tools/sim-ch9-field.mjs 20 c10b_watch1,…
+export const FIELD_FIXED = { c10b_watch1: ['owl', 111], c10b_watch2: ['owl', 111], c10b_watch3: ['owl', 111] };
 // 表ごとの 勇者の ★装備と レベル（ない 表は 第2幕の ころ … king・Lv100）
-export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107] };
+export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107], t10b_blue_wet: ['gecko', 109], t10b_blue_dry: ['gecko', 109] };
 export const FIELD_SKIP = new Set(['c9a_yamimushi', 'c9b_mimizu', 'c9b_mole_spear', 'c9b_mole_pot', 'c9d_kage']);
 
 function roll(rng, table) {
@@ -76,18 +80,27 @@ export function tableLength(table, N = 30, seed0 = 1) {
   return { table, n: res.length, win: wins.length / Math.max(1, res.length), avg, p90: sorted[Math.floor(sorted.length * 0.9)] || 0, max: sorted[sorted.length - 1] || 0 };
 }
 
+// 決まった 戦いの 長さ（FIELD_FIXED。むれは 決まって いる）
+export function fixedLength(id, N = 30, seed0 = 1) {
+  const g = FIXED_ENCOUNTERS[id].group.flatMap(([sp, lo, hi]) => Array(hi ?? lo).fill(sp));
+  const res = [...Array(N).keys()].map((i) => fieldRun(g, seed0 * 7919 + i * 13, { hero: FIELD_FIXED[id] }));
+  const wins = res.filter((r) => r.win);
+  const sorted = wins.map((r) => r.sec).sort((a, b) => a - b);
+  return { table: id, n: res.length, win: wins.length / Math.max(1, res.length), avg: wins.reduce((s, r) => s + r.sec, 0) / Math.max(1, wins.length), p90: sorted[Math.floor(sorted.length * 0.9)] || 0, max: sorted[sorted.length - 1] || 0 };
+}
+
 if (process.argv[1]?.endsWith('sim-ch9-field.mjs')) {
   const N = Number(process.argv[2] || 20);
   if (process.env.ONLY) {
     const sp = process.env.ONLY;
-    const hero = sp.startsWith('c9d_') ? ['mu', 102] : sp.startsWith('c10r_') ? ['tamagon', 105] : sp.startsWith('c10g_') ? ['mold', 107] : undefined;
+    const hero = sp.startsWith('c9d_') ? ['mu', 102] : sp.startsWith('c10r_') ? ['tamagon', 105] : sp.startsWith('c10g_') ? ['mold', 107] : sp.startsWith('c10b_') ? (['c10b_iceowl', 'c10b_wolf', 'c10b_armor'].includes(sp) ? ['owl', 111] : ['gecko', 109]) : undefined;
     const res = [...Array(N).keys()].map((i) => fieldRun(sp.startsWith('c9d_') ? [sp, ...(sp === 'c9d_twins' ? [sp] : [])] : [sp], 100 + i * 13, { spica: !sp.startsWith('toki'), hero }));
     const w = res.filter((r) => r.win);
     console.log(`${MONSTERS[sp]?.name || sp} 1ぴき: 平均 ${(w.reduce((s, r) => s + r.sec, 0) / Math.max(1, w.length)).toFixed(0)}秒（勝ち ${w.length}/${N}）`);
   } else {
     const tables = process.argv[3] ? process.argv[3].split(',') : Object.values(FIELD_TABLES).flat();
     for (const t of tables) {
-      const r = tableLength(t, N);
+      const r = FIELD_FIXED[t] ? fixedLength(t, N) : tableLength(t, N);
       console.log(`${t.padEnd(11)} ${String(r.n).padStart(3)}回  勝ち ${(r.win * 100).toFixed(0).padStart(3)}%  平均 ${r.avg.toFixed(0).padStart(4)}秒  9わりが ${r.p90.toFixed(0).padStart(4)}秒まで  いちばん長い ${r.max.toFixed(0)}秒`);
     }
   }

@@ -867,7 +867,7 @@ const battle3 = {
 // 新しい id の 曲の ch: 古い テスト（tr.ch を 前の 書き方で 見る）と「前の音」用に、自分の 楽譜を 前の 書き方へ うつした もの
 // （しるしを とる・和音は いちばん 上の 音・ふえた たいこは k/s/h。form の じゅんに つなぐ）。audio-c8r.js の oldView と 同じ 考え方
 //   c9a_festival の「前の音」は お祭りの 曲（legacyOf: 'festival'）
-const OLD_DRUM = { k: 'k', s: 's', h: 'h', o: 'h', c: 'h', p: 's', R: 's', t: 'k', th: 'k', tl: 'k', r: 'r' };
+const OLD_DRUM = { k: 'k', s: 's', h: 'h', o: 'h', c: 'h', p: 's', R: 's', t: 'k', th: 'k', tl: 'k', sh: 'h', r: 'r' };
 const toks = (x) => String(x).trim().match(/\[[^\]]*\](?::\S*)?|\S+/g) || [];
 const tokLen = (t) => Number(/:(\d+)/.exec(t.slice(t.lastIndexOf(']') + 1))[1]);
 function oldView(tr) {

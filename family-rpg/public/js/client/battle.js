@@ -133,6 +133,8 @@ import { C9C_SFX } from './battle-c9c.js';
 import { C9D_SFX } from './battle-c9d.js';
 // 第3部 第2章 第1幕: タマゴン・モルドの 音（battle-c10a.js）
 import { C10A_SFX } from './battle-c10a.js';
+// 第3部 第2章 第2幕: ゲッコー・シロフクロウの 音（battle-c10b.js）
+import { C10B_SFX } from './battle-c10b.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -321,6 +323,7 @@ const ANIM_SFX = {
   ...C9C_SFX,
   ...C9D_SFX,
   ...C10A_SFX,
+  ...C10B_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);

@@ -786,7 +786,10 @@ export class Battle {
         ev.goof = true;
         ev.lines.push(`${c.name}は遊んでいる！`);
         this.applyAbility(c, ABILITIES.js_asobu, {}, ev, 1);
-      } else this.perform(c, cmd, ev);
+      } else {
+        this.actCmd = cmd; // 第3部 第2章 第2幕: ねらった 相手（まぼろしの シロフクロウ。battle-c10b.js）
+        this.perform(c, cmd, ev);
+      }
       this.resolveCounters(ev);
       // 第88回 M1班: 天地魔闘の構えの 手刀の 反撃（battle-r88m.js）
       r88mResolve(this, ev);
