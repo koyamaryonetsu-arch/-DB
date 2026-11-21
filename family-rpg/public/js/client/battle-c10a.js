@@ -58,7 +58,8 @@ const CSS = `
 @keyframes c10-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 .c10-top.c10-flow { position: relative; left: auto; right: auto; top: auto; margin: 3px auto 0; max-width: 98%; box-sizing: border-box; text-align: center; }
 @media (max-aspect-ratio: 1/1) { .c10-top { top: 2px; left: 2px; right: auto; max-width: 58%; padding: 1px 5px 2px; } .c10-top .row { font-size: 10px; } .c10-top .tx { font-size: 10px; margin-top: 0; }
-  .b-mem .c10-meter { font-size: 9px; } .b-mem .c10-meter i { width: 6px; height: 6px; } }
+  .b-mem .c10-meter { font-size: 9px; } .b-mem .c10-meter i { width: 6px; height: 6px; }
+  .c10-stage .b-hold { bottom: auto; top: 4px; right: auto; left: 6px; } }
 `;
 function addCss() {
   if (typeof document === 'undefined' || document.getElementById('c10a-css')) return;
@@ -185,6 +186,8 @@ export function c10aDraw(scene, x, m, c, px, py, w, h, base) {
   const T = scene.time || 0;
   const top = c10Html(c, scene.allies?.() || []);
   showTop(scene, top.html, top.cls);
+  // スマホの たてでは「えらぶまで、待っているよ」を え の 左上に（右下は スピカの まど・右上は オートの ボタンと かさなる。いつも 出る 戦いなので 左上）
+  scene.stage?.classList?.add?.('c10-stage');
   if (c.c10Down) return;
   const ty = portrait() ? py + h * 0.55 : py + h + 4;
   // カビの かべ（みどりの まく）
@@ -222,17 +225,21 @@ export function c10aPresent(scene, ev) {
   const warn = (t) => { g.audio.sfx('warn'); scene.banner(t, 'danger'); };
   const good = (t, s = 'crit') => { g.audio.sfx(s); scene.banner(t, 'combo'); };
   const nm = (id) => scene.c?.get?.(id)?.name || '';
-  if (ev.c10Nobose?.length) warn(`${ev.c10Nobose.map(nm).join('と')}がのぼせた！あつくなったら「防御」で休もう！`);
-  if (ev.c10OverHeat) { scene.shake?.(300, 3); good('オーバーヒート！メカが止まった！今だ！', 'sparkle'); }
-  if (ev.c10Iced) warn('氷で、メカがひえてしまった…');
-  if (ev.c10DrillUp) warn('！ドリルが来る！「防御」で身を守ろう！');
-  if (ev.c10Drill) scene.shake?.(900, 10);
-  if (ev.c10Cool) { scene.shake?.(400, 3); warn('冷きゃく水！メカのあつさが0に…ドリルがふえる！'); }
-  if (ev.c10Mist?.kinoko?.length) warn(`${ev.c10Mist.kinoko.map(nm).join('と')}がきのこになった！カビは、スピカの技で消そう！`);
-  if (ev.c10Clean) good(ev.c10Clean.teru ? 'スピカの光で、カビとかべが消えた！' : 'スピカの歌で、みんなのカビが消えた！', 'sparkle');
-  if (ev.c10Half) warn('カビのきりが、ふえた！大カビばくだんに気をつけよう！');
-  if (ev.c10BombUp) warn('！大カビばくだんが来る！「防御」で身を守ろう！');
-  if (ev.c10Bomb) scene.shake?.(900, 10);
+  if (ev.c10Drill || ev.c10Bomb) scene.shake?.(900, 10);
+  if (ev.c10OverHeat || ev.c10Cool) scene.shake?.(400, 3);
+  // バナーは 1つの できごとに 1つだけ（大事な じゅん。かさなって 読めなく ならない ように）
+  const say = [
+    !ev.c10Down && ev.c10DrillUp && [warn, '！ドリルが来る！「防御」で身を守ろう！'],
+    !ev.c10Down && ev.c10BombUp && [warn, '！大カビばくだんが来る！「防御」で守ろう！'],
+    ev.c10Cool && [warn, '冷きゃく水！メカのあつさが0に…ドリルがふえる！'],
+    ev.c10Half && [warn, 'カビのきりが、ふえた！大カビばくだんに気をつけよう！'],
+    ev.c10Mist?.kinoko?.length && [warn, `${ev.c10Mist.kinoko.map(nm).join('と')}がきのこになった！カビは、スピカの技で消そう！`],
+    ev.c10Nobose?.length && [warn, `${ev.c10Nobose.map(nm).join('と')}がのぼせた！あつくなったら「防御」で休もう！`],
+    ev.c10OverHeat && [(t) => good(t, 'sparkle'), 'オーバーヒート！メカが止まった！今だ！'],
+    ev.c10Clean && [(t) => good(t, 'sparkle'), ev.c10Clean.teru ? 'スピカの光で、カビとかべが消えた！' : 'スピカの歌で、みんなのカビが消えた！'],
+    ev.c10Iced && [warn, '氷で、メカがひえてしまった…'],
+  ].find(Boolean);
+  if (say && !ev.c10Down) say[0](say[1]);
   if (ev.c10Down) {
     scene.shake?.(400, 3);
     good('メカが、止まった！', 'sparkle');
