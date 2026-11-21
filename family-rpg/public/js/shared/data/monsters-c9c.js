@@ -105,9 +105,9 @@ export const MONSTERS_C9C = {
       // 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk … ナゾカケの HP・攻撃力の ばい
       //   limit … 時間切れまでの 行動（人が 少ない ときは 答える 人の 番が 来る まで 長く）
       //   solo … 仲間なしの ひとり（戦う 人が 1人だけ）の とき。few より 先に 見る
-      few: { hp: [0.82, 0.9, 0.95, 1, 1.1], atk: [0.95, 0.92, 0.96, 1, 1.06], limit: [2, 2, 2, 2, 2] },
-      solo: { hp: 0.2, atk: 0.3, limit: 2, timeoutK: 2.6 },
-      monK: { hp: 0.03, atk: 0.02 },
+      few: { hp: [0.6, 0.6, 0.95, 1, 1.1], atk: [0.95, 0.98, 0.96, 1, 1.06], limit: [2, 2, 2, 2, 2], timeoutK: [3.5, 3.5, 1, 1, 1] },
+      solo: { hp: 0.12, atk: 0.3, limit: 2, timeoutK: 4 },
+      monK: { hp: 0, atk: 0.08 },
     },
     actions: [{ w: 3, id: 'm9z_claw' }, { w: 2, id: 'm9z_tail' }, { w: 1, id: 'm9z_gaze', cond: 'notRecent:m9z_gaze' }, { w: 1, id: 'm9z_roar', cond: 'notRecent:m9z_roar' }],
     desc: 'さかさのピラミッドの、なぞの番人。天じょうから、さかさにすわっている石のけもの。なぞを出して、答えられない者を通さない。',
@@ -127,8 +127,8 @@ export const MONSTERS_C9C = {
       kind: 'sand', sand: 6, dizzyAt: 2, dizzyMult: 1.5, boom: { mult: 1.25, guardCut: 0.5 }, counter: { mult: 1.5 }, addAt: 0.5,
       pochi: { every: 5, mult: 2.2 },
       // 人数で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk … メカの HP・攻撃力の ばい / boom … 大ばくはつの ばい
-      few: { hp: [0.85, 0.83, 0.95, 1, 1.08], atk: [0.92, 0.9, 0.97, 1, 1.03], boom: [1, 1, 1, 1, 1] },
-      solo: { hp: 0.14, atk: 0.3, boom: 4 },
+      few: { hp: [0.62, 0.65, 0.95, 1, 1.08], atk: [0.95, 0.9, 0.97, 1, 1.03], boom: [3.5, 3.5, 1, 1, 1] },
+      solo: { hp: 0.1, atk: 0.3, boom: 4 },
       monK: { hp: 0, atk: 0 },
     },
     actions: [{ w: 3, id: 'm9s_punch' }, { w: 2, id: 'm9s_sandgun' }, { w: 1, id: 'm9s_drill', cond: 'notRecent:m9s_drill' }],

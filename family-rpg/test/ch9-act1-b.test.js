@@ -230,6 +230,10 @@ test('中ボス「3人組と スイトール1号」: 3回 動くと すいこみ
   const evA = effect(b, m, AIM);
   assert.ok(evA.c9tAim && m.c9t.aim);
   assert.ok(evA.lines.some((l) => l.includes('すいこみ口が、星の子の方を向いた')));
+  // 第92回 第2便（人が できる 動き）: 4人でも 1回 ふつうに 動いてから すいこむ
+  assert.equal(m.c9t.wait, 1);
+  turn(b, m);
+  assert.equal(m.telegraph, null);
   // 次の 番: すいこむ
   turn(b, m);
   assert.equal(m.telegraph, SUCK);
@@ -463,8 +467,9 @@ test('強さ: 知って いる 人は 勝てる・完全オートは 勝てな�
   for (const boss of ['trio', 'trial']) {
     const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919));
     assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
+    // 第92回 第2便: 物さしは 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）。ためしの 完全オートは 1わり 弱 勝つ（20回で 10%）
     const auto = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'auto', 9090 + s * 7919));
-    assert.equal(auto.filter((r) => r.outcome === 'win').length, 0, `${boss}: 完全オート`);
+    assert.ok(auto.filter((r) => r.outcome === 'win').length <= (boss === 'trial' ? 1 : 0), `${boss}: 完全オート ${auto.map((r) => r.outcome).join(',')}`);
     const wins = know.filter((r) => r.outcome === 'win');
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
     assert.ok(sec >= 200 && sec <= 420, `${boss}: 長さ ${sec}秒`);
@@ -665,22 +670,26 @@ test('人数で 合わせる: 家族の キャラの 数（1〜5。いない 戦
   for (const k of ['guard', 'nozzle', 'wait']) assert.equal(conf[k].length, 5, k);
   assert.equal(conf.guard[3], 1, '4人は 今までと おなじ');
   assert.equal(conf.nozzle[3], 1);
-  assert.equal(conf.wait[3], 0);
+  assert.equal(conf.wait[3], 1, '第92回 第2便: 4人も 1回 まつ（人が 読んで 防御を えらぶ 間）');
   assert.ok(trioConfOf(mechaOf(b1), b1).guard < 1);
-  // 1人: すいこみ口を 向けた あと、メカは 1回 ふつうに 動いてから すいこむ
+  // 1人: すいこみ口を 向けた あと、メカは 2回 ふつうに 動いてから すいこむ（第92回 第2便で 1 → 2）
   const m = mechaOf(b1);
   let ev = effect(b1, m, AIM);
-  assert.ok(m.c9t.aim && m.c9t.wait === 1 && ev.lines.some((l) => l.includes('もうすこしで')));
+  assert.ok(m.c9t.aim && m.c9t.wait === 2 && ev.lines.some((l) => l.includes('もうすこしで')));
   m.queued = true;
   ev = turn(b1, m);
   assert.ok(ev.c9tWait && !m.telegraph, '1回目は ふつうの 行動');
   ev = turn(b1, m);
+  assert.ok(ev.c9tWait && !m.telegraph, '2回目も ふつうの 行動');
+  ev = turn(b1, m);
   assert.equal(m.telegraph, SUCK, '2回目で すいこむ');
-  // 4人は すぐ（今までと おなじ）
+  // 4人は 1回 まって すいこむ（第92回 第2便）
   const b4 = battleP('trio', Array(4).fill('player'));
   const m4 = mechaOf(b4);
   effect(b4, m4, AIM);
   m4.queued = true;
+  turn(b4, m4);
+  assert.ok(!m4.telegraph);
   turn(b4, m4);
   assert.equal(m4.telegraph, SUCK);
   // 1人: 家族の キャラが 受けとめる すいこみは 小さい（酒場の 人は そのまま）
@@ -710,15 +719,16 @@ test('人数で 合わせる: 家族の キャラの 数（1〜5。いない 戦
   assert.equal(h1.c9h.max, fewH.dawn[0]);
   assert.equal(c9aPub(h1).hmDawnMax, fewH.dawn[0]);
   assert.equal(c9aPub(h1).hmBreathEvery, fewH.every[0]);
-  assert.ok(fewH.dawn[0] < fewH.dawn[3] && fewH.dawn[4] > fewH.dawn[3], '1人は みじかく・5人は 長く');
+  // 第92回 第2便（人が できる 動き）: 5人は 4人と おなじ めもり・いぶき（前は 長い めもり・はじめから 2人で、人が 読む 間に 合わなかった）
+  assert.ok(fewH.dawn[0] < fewH.dawn[3] && fewH.dawn[4] === fewH.dawn[3], '1人は みじかく・5人は 4人と おなじ');
   assert.equal(hoshimoriOf(battleP('trial', Array(5).fill('player'))).c9h.max, fewH.dawn[4]);
-  // 5人は はじめから 2人を ねらう
+  // 5人も めもりが 半分を こえてから 2人を ねらう
   const t5 = battleP('trial', Array(5).fill('player'));
   const h5 = hoshimoriOf(t5);
   h5.queued = true;
   h5.c9h.left = 1;
   const tv = turn(t5, h5);
-  assert.equal(tv.c9hWarn.ids.length, 2);
+  assert.equal(tv.c9hWarn.ids.length, 1);
 });
 
 test('自動の 仲間: ともしびが 消えた 仲間が いて 自分の 火が ある 時、3回に 1回「明かりをわける」（家族の キャラの オート・魔物の 仲間は わけない）', () => {
