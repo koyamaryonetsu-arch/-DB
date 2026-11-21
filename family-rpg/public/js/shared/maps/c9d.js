@@ -85,7 +85,7 @@ function buildG1() {
   const S = P.stairs;
   m.tiles[S.y * m.w + S.x] = T.STAIRS_UP;
   const S2 = C9D_POS.c9d_g2.stairs;
-  m.warps.push({ x: S.x, y: S.y, to: { map: C9D_MAP.g2, x: S2.x + 0.5, y: S2.y + 0.5, dir: 'up' } });
+  m.warps.push({ x: S.x, y: S.y, to: { map: C9D_MAP.g2, x: S2.x + 0.5, y: S2.y - 0.5, dir: 'up' } }); // 階段の となり（ワープの 上には 着かない）
   m.links.push({ x: S.x, y: S.y, to: C9D_MAP.g2 });
   const A = P.arrive;
   m.triggers.push({ id: 'c9d_g1_in', x: A.x, y: A.y, w: A.w, h: A.h, script: 'c9d_g1_in', show: { not: [C9D_SEEN.g1, C9D.g2] } });
@@ -98,7 +98,7 @@ function buildG2() {
   const S = P.stairs;
   m.tiles[S.y * m.w + S.x] = T.STAIRS_DOWN;
   const S1 = C9D_POS.c9d_g1.stairs;
-  m.warps.push({ x: S.x, y: S.y, to: { map: C9D_MAP.g1, x: S1.x + 0.5, y: S1.y + 0.5, dir: 'down' } });
+  m.warps.push({ x: S.x, y: S.y, to: { map: C9D_MAP.g1, x: S1.x + 0.5, y: S1.y + 1.5, dir: 'down' } });
   m.links.push({ x: S.x, y: S.y, to: C9D_MAP.g1 });
   const E = P.exit, GE = C9D_POS.c9d_grave.enter;
   m.warps.push({ x: E.x, y: E.y, to: { map: C9D_MAP.grave, x: GE.x + 0.5, y: GE.y + 1.5, dir: 'up' } });
