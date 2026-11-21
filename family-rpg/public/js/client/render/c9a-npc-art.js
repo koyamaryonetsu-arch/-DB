@@ -16,6 +16,8 @@ import { paintC10aSpecial, C10A_SPECIALS } from './c10a-npc-art.js';
 // 第95回 A班: 第3部 第2章 第2幕の とくべつな え（render/c10b-npc-art.js）
 import { paintC10bSpecial, C10B_SPECIALS } from './c10b-npc-art.js';
 import { paintC10cSpecial, C10C_SPECIALS } from './c10c-npc-art.js';
+// 第99回 A班: 第3部 第2章 第4幕（render/c10d-npc-art.js）
+import { paintC10dSpecial, C10D_SPECIALS } from './c10d-npc-art.js';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },
@@ -108,7 +110,7 @@ export function paintC9aSpecial(kind, dir, f) {
     case 'c9a_spica': return paintSpica(dir, f);
     case 'c9a_owl': return paintOwl(f);
     case 'c9a_signpost': return paintSignpost(f);
-    default: return paintC9bSpecial(kind, dir, f) || paintC9cSpecial(kind, dir, f) || paintC9dSpecial(kind, dir, f) || paintC10aSpecial(kind, dir, f) || paintC10bSpecial(kind, dir, f) || paintC10cSpecial(kind, dir, f);
+    default: return paintC9bSpecial(kind, dir, f) || paintC9cSpecial(kind, dir, f) || paintC9dSpecial(kind, dir, f) || paintC10aSpecial(kind, dir, f) || paintC10bSpecial(kind, dir, f) || paintC10cSpecial(kind, dir, f) || paintC10dSpecial(kind, dir, f);
   }
 }
-export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS, ...C9C_SPECIALS, ...C9D_SPECIALS, ...C10A_SPECIALS, ...C10B_SPECIALS, ...C10C_SPECIALS];
+export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS, ...C9C_SPECIALS, ...C9D_SPECIALS, ...C10A_SPECIALS, ...C10B_SPECIALS, ...C10C_SPECIALS, ...C10D_SPECIALS];

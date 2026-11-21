@@ -130,6 +130,9 @@ export const T = {
   C10C_BELT_BN: 569, C10C_BELT_BE: 570, C10C_BELT_BS: 571, C10C_BELT_BW: 572, C10C_LEVER_R: 573, C10C_LEVER_R_ON: 574,
   C10C_LEVER_B: 575, C10C_LEVER_B_ON: 576, C10C_CRATES: 577, C10C_PUSHER: 578, C10C_JARS: 579, C10C_HALL: 580,
   C10C_BACKDOOR: 581, C10C_PORTAL: 582,
+  // 第3部 第2章 第4幕「金の音と、星の橋」（第99回 A班。591〜620。maps/c10d*.js・render/tiles-c10d.js）
+  C10D_STEP: 591, C10D_LANDING: 592, C10D_GATE: 593, C10D_GATE_OPEN: 594, C10D_WELL: 595, C10D_WELL_DRY: 596,
+  C10D_SUMMIT: 597, C10D_ORB: 598, C10D_STARROCK: 599, C10D_GOLD: 600, C10D_SKYSTAIR: 601, C10D_PORTAL: 602,
 };
 
 export const TILE_INFO = {};
@@ -732,6 +735,19 @@ def(T.C10C_JARS, 'c10c_jars', { solid: true, light: true, mapColor: '#8a7ab8' })
 def(T.C10C_HALL, 'c10c_hall', { mapColor: '#3a3050' }); // 少年の 間の ゆか
 def(T.C10C_BACKDOOR, 'c10c_backdoor', { mapColor: '#4a3a2a' }); // とりでの うら口（大地の下の 東の はし）
 def(T.C10C_PORTAL, 'c10c_portal', { anim: true, light: true, mapColor: '#d0b0ff' }); // 光の 出口（少年の 間 → うら口）
+// 第3部 第2章 第4幕「金の音と、星の橋」（第99回 A班。maps/c10d*.js・render/tiles-c10d.js。下の 雲の 海は 第5章の T.CLOUD_SEA）
+def(T.C10D_STEP, 'c10d_step', { anim: true, light: true, mapColor: '#e8e0b0' }); // 星の 階段の 段（光の 板）
+def(T.C10D_LANDING, 'c10d_landing', { light: true, mapColor: '#c8c0e0' }); // おどり場（星の 石の ゆか）
+def(T.C10D_GATE, 'c10d_gate', { solid: true, talkThrough: true, light: true, mapColor: '#d8c060' }); // 門（番人に 勝つと 開く）
+def(T.C10D_GATE_OPEN, 'c10d_gate_open', { light: true, mapColor: '#f0e0a0' }); // 開いた 門（開いた まま）
+def(T.C10D_WELL, 'c10d_well', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#9ad8ff' }); // 星の いずみ（3つの めぐみから 1つ）
+def(T.C10D_WELL_DRY, 'c10d_well_dry', { solid: true, talkThrough: true, mapColor: '#8a88a8' }); // えらんだ あとの 星の いずみ（しずか）
+def(T.C10D_SUMMIT, 'c10d_summit', { light: true, mapColor: '#d8d0f0' }); // いただきの ゆか
+def(T.C10D_ORB, 'c10d_orb', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffd84a' }); // 金色の 光の 玉
+def(T.C10D_STARROCK, 'c10d_starrock', { solid: true, light: true, mapColor: '#a8a0d0' }); // いただきの ふちの 光る 石
+def(T.C10D_GOLD, 'c10d_gold', { anim: true, light: true, mapColor: '#ffd84a' }); // 金色に 光る 星の ゆか（星の塔 1階 ⇔ てっぺん）
+def(T.C10D_SKYSTAIR, 'c10d_skystair', { anim: true, light: true, mapColor: '#fff0a0' }); // 空へ のびる 光の 階段（てっぺん → 星の 階段）
+def(T.C10D_PORTAL, 'c10d_portal', { anim: true, light: true, mapColor: '#ffe8a0' }); // 光の 出口（いただき → 星の塔の てっぺん）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

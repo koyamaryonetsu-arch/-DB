@@ -659,6 +659,9 @@ export function gameFiles() {
     'public/js/shared/battle-c10c.js', 'public/js/client/battle-c10c.js', 'public/js/client/render/c10c-art.js', 'public/js/client/render/c10c-bg.js', 'public/js/client/render/battlefx-c10c.js',
     // 第97回 F班: 第3部 第2章 第3幕の 曲
     'public/js/client/audio-c10c.js',
+    // 第99回 A班: 第3部 第2章 第4幕「金の音と、星の橋」（世界と 物語）
+    'public/js/shared/maps/c10d-flags.js', 'public/js/shared/data/story-c10d.js', 'public/js/shared/maps/c10d.js', 'public/js/shared/maps/c10d-rows.js',
+    'public/js/shared/world/c10d-steps.js', 'public/js/client/c10d-view.js', 'public/js/client/render/tiles-c10d.js', 'public/js/client/render/c10d-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
