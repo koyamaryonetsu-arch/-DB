@@ -19,7 +19,7 @@
 //  r85b_kemuri   忍びのかくれ身（みかた。けむり）              r85b_kaina   炎のうで・火影の目ざめ（みかた。炎が ふき上がる）
 //  r85b_kiba     火竜のきば（炎の きばが かみつく）             r85b_hime    姫を守る忍び（みかた。赤い たての 光）
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R85B_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=36007aad9f1d';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=e423b0b228a9';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const ease = (t) => t * t * (3 - 2 * t);

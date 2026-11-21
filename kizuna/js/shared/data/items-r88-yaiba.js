@@ -1,7 +1,7 @@
 // 第88回 G1班: YAIBA の 品（docs/plan-r88-anime-gear.md の 2-2。26こ）
 //   刃の 剣（木刀 → 雷神剣 → 竜神剣 → は王剣 の 生まれ変わり。R88_REBIRTH_YAIBA）・おに丸の 剣・七つの玉 ＋ 竜神の玉・ほかの 人の 品
 //   品の 形は items-r88-kit.js。作品の しくみ（fx・use・reach・orb・set）は shared/gear-r88.js
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=36007aad9f1d';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=e423b0b228a9';
 
 const Y = { work: 'yaiba' };
 
