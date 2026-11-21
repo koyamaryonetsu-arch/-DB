@@ -90,6 +90,6 @@ export const KIZUNA_TOUKA = {
   trial: '何かを得るなら、同じだけはらえ。',
   vehicle: { id: 'rensei_gochisou', v: { name: 'れん成ごちそう車', price: 28500, jobs: ['touka_madoushi'], phantom: true, desc: '地面の石をれん成して作った、ごちそうをつんだ車。車りんには、れん成じんが光る。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1.2, 1.2, 1.4],
+  trialAdj: [1.66, 1.6, 1.95],
   work: 'slayers',
 };

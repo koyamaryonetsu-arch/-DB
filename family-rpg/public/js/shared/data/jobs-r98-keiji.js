@@ -106,6 +106,6 @@ export const KIZUNA_KEIJI = {
   trial: '力は、守るためにふるえ。',
   vehicle: { id: 'patolamp_bird', v: { name: 'パトランプのれい界鳥', price: 27500, jobs: ['motoyan_keiji'], phantom: true, desc: '頭に赤いパトランプをつけた、青いれい界の鳥。「ぷう！」と鳴くと、サイレンが鳴る。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1.2, 1.2, 1.4],
+  trialAdj: [1.82, 1.47, 1.56],
   work: 'yuhaku',
 };
