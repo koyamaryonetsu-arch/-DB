@@ -16,7 +16,7 @@ import { MONSTER_RANKS } from '../public/js/shared/data/monster-ranks.js';
 import { rareWhereText } from '../public/js/shared/data/rare-loot.js';
 import { BOSS_HINTS, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
 import { canEquip } from '../public/js/shared/stats.js';
-import { C9C, C9C_BATTLE, C9C_BOSS_MON, C9C_MON_PREFIX, C9C_TABLE, C9C_TRACKS, C9C_CHEST_IDS, NOTE_MI as NOTE_NAME, C9C_MAP } from '../public/js/shared/data/c9c-names-b.js';
+import { C9C, C9C_BATTLE, C9C_BOSS_MON, C9C_MON_PREFIX, C9C_TABLE, C9C_TRACKS, C9C_CHEST_IDS, NOTE_MI as NOTE_NAME, C9C_MAP } from '../public/js/shared/maps/c9c-flags.js';
 import { MONSTERS_C9C, C9C_MINIONS, C9C_RIVER_MON, C9C_PYR_MON, C9C_RECOLOR_BASE, C9C_NEW_ART, C9C_NAZOKAKE, C9C_HIKKURI, C9C_MAT_DROPS } from '../public/js/shared/data/monsters-c9c.js';
 import { C9C_ABILITIES, ANSWER, FLIP } from '../public/js/shared/data/abilities-c9c.js';
 import { REVERSE, PUZZLE, EASY, HARD, reverseKana, riddleText } from '../public/js/shared/data/riddles-c9c.js';
@@ -88,9 +88,9 @@ test('名前の 約束（11-5）: 決まった 戦い c9c_riddle・c9c_trio2・�
     assert.ok(Object.values(C9C_TRACKS).includes(f.bgm), id);
   }
   for (const sp of Object.keys(MONSTERS_C9C)) assert.ok(sp.startsWith(C9C_MON_PREFIX), sp);
-  assert.deepEqual([...C9C_CHEST_IDS.river, ...C9C_CHEST_IDS.pyramid], Object.keys(C9C_TREASURE));
+  assert.deepEqual([...C9C_CHEST_IDS.river, ...C9C_CHEST_IDS.pyr], Object.keys(C9C_TREASURE));
   assert.deepEqual(C9C_CHEST_IDS.river, ['c9c_r1', 'c9c_r2', 'c9c_r3']);
-  assert.equal(C9C_CHEST_IDS.pyramid.length, 8);
+  assert.equal(C9C_CHEST_IDS.pyr.length, 8);
   assert.equal(NOTE_NAME, 'note_mi');
   assert.equal(NOTE_MI, 'note_mi');
   assert.deepEqual(Object.values(C9C), ['c9_raft_go', 'c9_river', 'c9_p2', 'c9_riddle', 'c9_p3', 'c9_p4', 'c9_song', 'c9_trio2', 'c9_note1', 'c9_act3']);
@@ -575,7 +575,7 @@ test('がめん: なぞの まど（文・3つの 答え・時間切れまで）
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c9c-names-b.js', 'public/js/shared/data/monsters-c9c.js', 'public/js/shared/data/abilities-c9c.js', 'public/js/shared/data/riddles-c9c.js',
+    'public/js/shared/data/monsters-c9c.js', 'public/js/shared/data/abilities-c9c.js', 'public/js/shared/data/riddles-c9c.js',
     'public/js/shared/data/encounters-c9c.js', 'public/js/shared/data/companions-c9c.js', 'public/js/shared/data/items-c9c.js', 'public/js/shared/data/boss-hints-c9c.js',
     'public/js/shared/battle-c9c.js', 'public/js/client/battle-c9c.js', 'public/js/client/render/c9c-art.js', 'public/js/client/render/c9c-bg.js', 'public/js/client/render/battlefx-c9c.js',
   ];

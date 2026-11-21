@@ -85,6 +85,8 @@ export const CHAPTERS = [
       { n: 1, start: 'c9_festival', title: '星ふるえの夜', seen: 'c9_festival', clear: 'c9_act1' },
       // 第91回 A班: 第2幕（くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと）
       { n: 2, start: 'c9_ring2', title: '鉱山の底の先', seen: 'c9_ring2', clear: 'c9_act2' },
+      // 第92回 A班: 第3幕（船着き場で いかだに 乗って 題の 画面を 見た あと）
+      { n: 3, start: 'c9_raft_go', title: 'さかさのピラミッド', seen: 'c9_raft_go', clear: 'c9_act3' },
     ],
   },
 ];

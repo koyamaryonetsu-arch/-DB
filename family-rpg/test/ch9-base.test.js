@@ -44,11 +44,13 @@ test('名前の 約束: 一本の 線の フラグの 順・STORY_STEPS の さ�
   assert.deepEqual(C9A_LINE, line);
   // 第91回 A班: 第2幕の 一本の 線（maps/c9b-flags.js の C9B_LINE）が 第1幕の うしろに
   const line2 = ['c9_ring2', 'c9_mine', 'c9_under', 'c9_village', 'c9_gate', 'c9_king', 'c9_raft', 'c9_act2'];
-  assert.deepEqual(CH9_STEPS, [...line, ...line2]);
+  // 第92回 A班: 第3幕の 一本の 線（maps/c9c-flags.js の C9C_LINE）が 第2幕の うしろに
+  const line3 = ['c9_raft_go', 'c9_river', 'c9_p2', 'c9_riddle', 'c9_p3', 'c9_p4', 'c9_song', 'c9_trio2', 'c9_note1', 'c9_act3'];
+  assert.deepEqual(CH9_STEPS, [...line, ...line2, ...line3]);
   assert.deepEqual(Object.values(C9A), line);
   const i = STORY_STEPS.indexOf('c8_solitus');
   assert.ok(i > 0);
-  assert.deepEqual(STORY_STEPS.slice(i + 1), [...line, ...line2], 'c8_solitus の すぐ うしろが 第3部で、それで おわり');
+  assert.deepEqual(STORY_STEPS.slice(i + 1), [...line, ...line2, ...line3], 'c8_solitus の すぐ うしろが 第3部で、それで おわり');
   assert.equal(new Set(STORY_STEPS).size, STORY_STEPS.length, 'フラグは 1回ずつ');
 });
 
@@ -70,12 +72,13 @@ test('名前の 約束: 小さな フラグ・マップ・決まった 戦い・
   assert.equal(C9A_TILE_FIRST, 407);
   assert.equal(C9A_TILE_LAST, 426);
   const used = Object.values(T);
-  // 第91回 A班: 第2幕の タイル 427〜446（C9B_）が うしろに
-  assert.ok(Math.max(...used) <= 446, '今の さいごの タイルは 第3部 第1章 第2幕の わくの 中（第91回 A班が 427〜446 を 足した）');
+  // 第91回 A班: 第2幕の タイル 427〜446（C9B_）が うしろに。第92回 A班: 第3幕の タイル 447〜470（C9C_）が その うしろに
+  assert.ok(Math.max(...used) <= 470, '今の さいごの タイルは 第3部 第1章 第3幕の わくの 中（第92回 A班が 447〜470 を とった）');
+  for (let n = 447; n <= Math.max(...used); n++) assert.ok(!used.includes(n) || Object.keys(T).find((k) => T[k] === n).startsWith('C9C_'), `タイル ${n}`);
   for (let n = C9A_TILE_FIRST; n <= C9A_TILE_LAST; n++) assert.ok(!used.includes(n) || Object.keys(T).find((k) => T[k] === n).startsWith('C9A_'), `タイル ${n}`);
   // 第3部の マップは A班が 作った（maps/c9a.js）。ほかの 第3部の マップは まだ ない。ボスの 魔物は B班が 作った（data/monsters-c9a.js）
   for (const id of C9A_MAP_IDS) assert.ok(id in MAPS, `${id} は A班が 作った`);
-  assert.deepEqual(Object.keys(MAPS).filter((id) => isPart3Map(id)).sort(), [...C9A_MAP_IDS, 'c9b_shaft', 'c9b_under', 'c9b_hall'].sort(), '第3部の マップは 第1幕の 6まいと 第2幕の 3まい（第91回 A班）だけ');
+  assert.deepEqual(Object.keys(MAPS).filter((id) => isPart3Map(id)).sort(), [...C9A_MAP_IDS, 'c9b_shaft', 'c9b_under', 'c9b_hall', 'c9c_river', 'c9c_p1', 'c9c_p2', 'c9c_p3', 'c9c_p4'].sort(), '第3部の マップは 第1幕の 6まいと 第2幕の 3まい（第91回 A班）と 第3幕の 5まい（第92回 A班）だけ');
   for (const id of Object.values(C9A_BOSS_MON)) assert.ok(MONSTERS[id]?.boss, `${id} は B班の ボス`);
 });
 
@@ -189,7 +192,7 @@ test('曲の わく: 第3部の マップ（c9〜c11）は battle3（ない 間�
   }
   // 今の マップは 第3部 第1章 第1幕の 6まい（第90回 A班）の ほかは 第3部 あつかいに ならない
   for (const id of Object.keys(MAPS)) {
-    if (C9A_MAP_IDS.includes(id) || /^c9b_/.test(id)) continue; // 第91回 A班: 第2幕の 3まいも 第3部
+    if (C9A_MAP_IDS.includes(id) || /^c9[bc]_/.test(id)) continue; // 第91回 A班: 第2幕の 3まいも 第3部。第92回 A班: 第3幕の 5まいも
     assert.ok(!isPart3Map(id, MAPS[id]), `${id}`);
   }
   assert.equal(battleBgm({ snapBgm: 'battle', mapId: 'c8r_hall', has: () => true }), 'battle2');

@@ -28,7 +28,7 @@ import { kingOf, c9bBusy, kingVisible, litNow, teruReady } from '../public/js/sh
 import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
 import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from '../public/js/shared/data/items-c9b.js';
 import { nazoOf, mechaOf9c, sandConf } from '../public/js/shared/battle-c9c.js';
-import { C9C_BATTLE } from '../public/js/shared/data/c9c-names-b.js';
+import { C9C_BATTLE } from '../public/js/shared/maps/c9c-flags.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';

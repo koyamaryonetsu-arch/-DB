@@ -605,8 +605,12 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c9b.js', 'public/js/shared/data/abilities-c9b.js', 'public/js/shared/data/encounters-c9b.js',
     'public/js/shared/data/companions-c9b.js', 'public/js/shared/data/items-c9b.js', 'public/js/shared/data/boss-hints-c9b.js', 'public/js/shared/battle-c9b.js',
     'public/js/client/battle-c9b.js', 'public/js/client/render/c9b-art.js', 'public/js/client/render/c9b-bg.js', 'public/js/client/render/battlefx-c9b.js',
-    // 第92回 B班: 第3部 第1章 第3幕（魔物・ナゾカケと なぞの たね・ヒックリカエール2号・品・ヒント・絵・背景・えんしゅつ。c9c-names-b.js は A班が 消す かりの 置き場）
-    'public/js/shared/data/c9c-names-b.js', 'public/js/shared/data/monsters-c9c.js', 'public/js/shared/data/abilities-c9c.js', 'public/js/shared/data/riddles-c9c.js',
+    // 第92回 A班: 第3部 第1章 第3幕「さかさのピラミッド」（名前の 約束・台本・マップ・川下り・さかさの 台と ふきぬけ・絵）
+    'public/js/shared/maps/c9c-flags.js', 'public/js/shared/data/story-c9c.js', 'public/js/shared/maps/c9c.js', 'public/js/shared/maps/c9c-rows.js',
+    'public/js/shared/maps/c9c-flip.js', 'public/js/shared/world/c9c-steps.js',
+    'public/js/client/c9c-view.js', 'public/js/client/render/tiles-c9c.js', 'public/js/client/render/c9c-npc-art.js',
+    // 第92回 B班: 第3部 第1章 第3幕（魔物・ナゾカケと なぞの たね・ヒックリカエール2号・品・ヒント・絵・背景・えんしゅつ）
+    'public/js/shared/data/monsters-c9c.js', 'public/js/shared/data/abilities-c9c.js', 'public/js/shared/data/riddles-c9c.js',
     'public/js/shared/data/encounters-c9c.js', 'public/js/shared/data/companions-c9c.js', 'public/js/shared/data/items-c9c.js', 'public/js/shared/data/boss-hints-c9c.js',
     'public/js/shared/battle-c9c.js', 'public/js/client/battle-c9c.js', 'public/js/client/render/c9c-art.js', 'public/js/client/render/c9c-bg.js', 'public/js/client/render/battlefx-c9c.js',
     // 第92回 D班: お仕事いらい 39〜41・より道「大王の、大きなランタン」「まいごの、もぐら兵」
@@ -616,6 +620,8 @@ export function gameFiles() {
     'public/js/client/audio-c9c.js',
     // 第93回 F班: 第3部 第1章 第4幕の 曲
     'public/js/client/audio-c9d.js',
+    // 第94回 F班: 第3部 第2章 第1幕の 曲
+    'public/js/client/audio-c10a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

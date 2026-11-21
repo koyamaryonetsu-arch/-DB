@@ -21,7 +21,7 @@ import { litByFlags, brightCells9b, mapCells9b, pillarStage, underCenters } from
 import { lightFor, c9aSnap, pruneC9a } from '../public/js/shared/world/c9a-steps.js';
 import { underBlocked, underBrightAt } from '../public/js/shared/world/c9b-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
-import { CH9_STEPS, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, CH9_OBJECTIVE_TALK, PART3_ACT2_OPEN, act1ClearObjective, ACT1_END_OLD, c9bTitleSteps } from '../public/js/shared/data/story-c9.js';
+import { CH9_STEPS, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, CH9_OBJECTIVE_TALK, PART3_ACT2_OPEN, act1ClearObjective, ACT1_END_OLD, c9bTitleSteps, act2ClearObjective, PART3_ACT3_OPEN } from '../public/js/shared/data/story-c9.js';
 import { C9B_OBJ, CH9B_STORY_SCRIPTS, CH9B_PROGRESS, CH9B_OBJECTIVE_TARGETS, CH9B_OBJECTIVE_TALK, c9bScripts, C9B_SHOPS } from '../public/js/shared/data/story-c9b.js';
 import { C9A_OBJ } from '../public/js/shared/data/story-c9a.js';
 import { objectiveFromFlags, KNOWN_OBJECTIVES, repairObjective } from '../public/js/shared/data/progress.js';
@@ -79,8 +79,10 @@ test('名前の 約束: マップ 3まい・タイル 427〜446・宝箱の id�
   for (const v of ids) assert.ok(TILE_INFO[v], String(v));
   // 一本の 線（第1幕の うしろ）
   assert.deepEqual(C9B_LINE, ['c9_ring2', 'c9_mine', 'c9_under', 'c9_village', 'c9_gate', 'c9_king', 'c9_raft', 'c9_act2']);
-  assert.deepEqual(CH9_STEPS.slice(-9), ['c9_act1', ...C9B_LINE]);
-  assert.deepEqual(STORY_STEPS.slice(-9), ['c9_act1', ...C9B_LINE]);
+  // 第92回 A班: うしろに 第3幕が ある（test/ch9-act3-a.test.js）
+  const a1 = CH9_STEPS.indexOf('c9_act1');
+  assert.deepEqual(CH9_STEPS.slice(a1, a1 + 9), ['c9_act1', ...C9B_LINE]);
+  assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c9_act1'), STORY_STEPS.indexOf('c9_act1') + 9), ['c9_act1', ...C9B_LINE]);
   // 宝箱（10こ。大地の下 6・村 1・やしき 3）
   const chests = C9B_MAP_IDS.flatMap((id) => MAPS[id].chests.map((c) => c.id));
   assert.deepEqual(chests.sort(), [...C9B_CHEST_ALL].sort());
@@ -442,9 +444,10 @@ test('通し: 第1幕を クリアした セーブから くぼ地・鉱山・�
     await walkTo(bot, UNDER_POS.dockScene.x + 2, UNDER_POS.dockScene.y);
     assert.ok(c.flags[C9B.act2]);
     assert.ok(said(bot, 'ピラミッドの底'));
-    assert.equal(c.objective, C9B_OBJ.act2);
+    // 第92回 A班: 第3幕が 開いた ので、第2幕 クリアの 目標は 第3幕の はじまり（act2ClearObjective）
+    assert.equal(c.objective, act2ClearObjective());
     assert.ok(storyPlace(c).cleared);
-    assert.ok(storyNext(c).end, '続きはアップデート');
+    assert.equal(!!storyNext(c).end, !PART3_ACT3_OPEN, '第3幕が 開いて いなければ 続きはアップデート');
     // 宝箱（柱の 明かりで 見える）・村の 人の ことばが 明るく
     C9B_CHEST_IDS.under.forEach((id, i) => assert.equal(condOk(MAPS.c9b_under.chests.find((x) => x.id === id).show, (f) => !!c.flags[f]), !!c.flags[C9B_PILLARS[i]], id));
     assert.ok(JSON.stringify(SCRIPTS.c9b_folk1(ctx(c.flags))).includes('ぴかぴか'));
@@ -468,8 +471,9 @@ test('目標・行き先・仲間の ひとこと・しおり（第3部 第1章 
   for (const [f, t] of CH9B_PROGRESS) if (typeof f === 'string') assert.ok(C9B_LINE.includes(f), f);
   assert.equal(CH9B_PROGRESS.at(-1)[1], C9B_OBJ.act2);
   if (PART3_ACT2_OPEN) {
-    for (const f of C9B_LINE) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), CH9B_PROGRESS.find(([k]) => k === f)[1], f);
-    for (const t of Object.values(C9B_OBJ)) assert.ok(CH9_OBJECTIVE_TARGETS[t] && CH9_OBJECTIVE_TALK[t] && KNOWN_OBJECTIVES.has(t), t);
+    for (const f of C9B_LINE) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), ((t) => (t === C9B_OBJ.act2 ? act2ClearObjective() : t))(CH9B_PROGRESS.find(([k]) => k === f)[1]), f);
+    // 第92回 A班: 第3幕が 開くと、第2幕 クリアの 文は 第3幕の はじまりの 文に かわる
+    for (const t0 of Object.values(C9B_OBJ)) { const t = t0 === C9B_OBJ.act2 ? act2ClearObjective() : t0; assert.ok(CH9_OBJECTIVE_TARGETS[t] && CH9_OBJECTIVE_TALK[t] && KNOWN_OBJECTIVES.has(t), t); }
   }
   // しおり
   const cAt = (f) => ({ flags: flagsOf(...UPTO(f)) });

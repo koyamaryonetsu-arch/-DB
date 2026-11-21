@@ -13,7 +13,7 @@ import { STAR_FORK } from '../public/js/shared/maps/c9a-flags.js';
 import { UNDER_POS, HALL_POS, SHAFT_POS } from '../public/js/shared/maps/c9b-rows.js';
 import { MINE_STAIRS9B } from '../public/js/shared/maps/c9b.js';
 import { lightFor } from '../public/js/shared/world/c9a-steps.js';
-import { act1ClearObjective, PART3_ACT2_OPEN } from '../public/js/shared/data/story-c9.js';
+import { act1ClearObjective, act2ClearObjective, PART3_ACT2_OPEN } from '../public/js/shared/data/story-c9.js';
 import { C9B_OBJ } from '../public/js/shared/data/story-c9b.js';
 import { C9B_TREASURE } from '../public/js/shared/data/items-c9b.js';
 import { BOSS_HINTS, BOSS_RETRY } from '../public/js/shared/data/boss-hints.js';
@@ -155,7 +155,7 @@ test('通し（本当の 戦い）: 第1幕 クリア → くぼ地 → 鉱山 �
   // 8・9 船着き場
   await walkTo(bot, UNDER_POS.dockScene.x + 2, UNDER_POS.dockScene.y);
   assert.ok(c.flags[C9B.act2]);
-  assert.equal(c.objective, C9B_OBJ.act2);
+  assert.equal(c.objective, act2ClearObjective()); // 第92回 A班: 第3幕が 開いた
   assert.ok(storyPlace(c).cleared);
   // 宝箱 10こ 全部・中みは B班の 表
   const ids = Object.keys(C9B_TREASURE);
