@@ -12,7 +12,7 @@ import { MAPS, canStand, isBlocked, condOk } from '../public/js/shared/maps/inde
 import { C10B, C10B_BLUE, C10B_WHITE, C10B_BONUS, C10B_MAP, C10B_BATTLE, C10B_CHEST_ALL, C10B_OWL_TURN_STEPS } from '../public/js/shared/maps/c10b-flags.js';
 import { BLUE1_POS, BLUE2_POS, WHITE1_POS, WHITE2_POS, WHITE3_POS, LAKE_STAIRS10B } from '../public/js/shared/maps/c10b-rows.js';
 import { waterOf10b, caughtOf10b, owlView10b, owlDir10b, watchedCells10b, hidden10b } from '../public/js/shared/world/c10b-steps.js';
-import { act1ClearObjective, PART3_C10B_OPEN } from '../public/js/shared/data/story-c10.js';
+import { act1ClearObjective, act2ClearObjective, PART3_C10B_OPEN } from '../public/js/shared/data/story-c10.js';
 import { C10B_OBJ } from '../public/js/shared/data/story-c10b.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
@@ -325,7 +325,7 @@ async function bonusAndEnd(bot, opts) {
   await talkTo(bot, 'c9a_crater', 'c9c_ped5', 0, opts);
   await talkTo(bot, 'c9a_crater', 'c9c_ped6', 0, opts);
   assert.ok(c.flags[C10B.act2], '幕の クリア');
-  assert.equal(c.objective, C10B_OBJ.act2);
+  assert.equal(c.objective, act2ClearObjective(), '第2幕 クリアの あとの 目標（第97回: 第3幕が 開いた あとは「くぼ地で 音さを」）');
   assert.equal(storyPlace(c).label, '第3部 第2章 第2幕');
   assert.ok(storyPlace(c).cleared);
   assert.ok(C10B_SHOP_ADD.every((id) => SHOPS.c10b_crater.items.includes(id)), 'くぼ地の 武具屋に 品が ふえた');

@@ -30,7 +30,7 @@ import { ABILITIES } from './data/abilities.js';
 import { DUAL_TECHS } from './data/dual.js';
 import { C10C_COLONEL, C10C_ALGOL, COLONEL_NAME, ALGOL_NAME } from './data/monsters-c10c.js';
 import { UTSURU } from './data/abilities-c10c.js';
-import { C10C_B as C10C } from './data/c10c-names-b.js';
+import { C10C_B as C10C } from './maps/c10c-flags.js';
 import { TERU } from './data/abilities-c9b.js';
 import { SONG } from './data/abilities-c9d.js';
 import { canUse } from './ai.js';

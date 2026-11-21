@@ -83,6 +83,8 @@ import { c9dSnap, spicaWalks9d } from './c9d-steps.js';
 import { tickC10a, noteC10aMove, c10aSnap, c10aHold } from './c10a-steps.js';
 // 第95回 A班: 第3部 第2章 第2幕の 水の 高さ・こっそり（world/c10b-steps.js）
 import { c10bFlag, stepC10b, noteC10bMove, c10bOnPlay, tickC10b, c10bSnap, C10B_API } from './c10b-steps.js';
+// 第97回 A班: 第3部 第2章 第3幕の 音の 橋・おし出される 箱（world/c10c-steps.js）
+import { c10cFlag, stepC10c, c10cOnPlay, tickC10c, c10cSnap, C10C_API } from './c10c-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -112,6 +114,8 @@ export class GameWorld {
     this.battles = new Map();
     // 第95回 A班: 台本（data/story-c10b.js）から つかう 水の 高さ・見はりの しくみ（world/c10b-steps.js。data から world を 読まない ため）
     this.c10b = C10B_API;
+    // 第97回 A班: 台本（data/story-c10c.js）から つかう 音の 橋の しくみ（world/c10c-steps.js）
+    this.c10c = C10C_API;
     this.runs = new Map();
     this.byConn = new Map(); // つなぎ → セッション（つなぎなおしで いれかわる）
     this.mapStates = new Map();
@@ -237,6 +241,8 @@ export class GameWorld {
     t.posSeq++;
     // 第95回 A班: 水鏡の うら・氷の 下の 道で 回線が 切れて もどった → 階の 入口・部屋の 入口（world/c10b-steps.js）
     if (!t.busy) c10bOnPlay(this, t);
+    // 第97回 A班: 空の 小島で 回線が 切れて もどった → 階の 入口（world/c10c-steps.js）
+    if (!t.busy) c10cOnPlay(this, t);
     this.sessions.delete(s.id);
     const ctx = t.battleId && this.battles.get(t.battleId);
     if (ctx) {
@@ -523,6 +529,8 @@ export class GameWorld {
     c9cOnPlay(this, s);
     // 第95回 A班: 水鏡の うら・氷の 下の 道で 回線が 切れて もどった → 階の 入口・部屋の 入口（world/c10b-steps.js）
     c10bOnPlay(this, s);
+    // 第97回 A班: 空の 小島で 回線が 切れて もどった → 階の 入口（world/c10c-steps.js）
+    c10cOnPlay(this, s);
     s.busy = null;
     s.level = c.level;
     // 第44回: 前に 進化を まっていた 仲間が いれば、フィールドに 出た あとで たずねる
@@ -663,7 +671,8 @@ export class GameWorld {
     const flags = this.worldFlags(s);
     // 第92回 A班: '@flip' … その 人の 向きが さかさ（さかさのピラミッド。人ごと。world/c9c-steps.js）
     // 第95回 A班: '@w0'〜'@w2' … パーティーの 水の 高さ（水鏡の うら）・'@&a&b' … a と b の 両方（world/c10b-steps.js）
-    const has = (f) => (f === '@flip' ? !!s.char?.c9cFlip : f[0] === '@' ? (c10bFlag(this, s, f, has) ?? timeFlag(f, fracFor(this, s))) : !!flags[f]);
+    // 第97回 A班: '@br<すき間>:<色>' … パーティーの 音の 橋（空の 小島。world/c10c-steps.js）
+    const has = (f) => (f === '@flip' ? !!s.char?.c9cFlip : f[0] === '@' ? (c10bFlag(this, s, f, has) ?? c10cFlag(this, s, f) ?? timeFlag(f, fracFor(this, s))) : !!flags[f]);
     return has;
   }
 
@@ -706,6 +715,8 @@ export class GameWorld {
     if (stepC9c(this, s, tx, ty)) return;
     // 第3部 第2章 第2幕: 氷の 下の こっそり（見はり・うすい 氷。world/c10b-steps.js）
     if (stepC10b(this, s, tx, ty)) return;
+    // 第3部 第2章 第3幕: ベルトの 工場の おし出される 箱（world/c10c-steps.js）
+    if (stepC10c(this, s, tx, ty)) return;
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);
@@ -1216,6 +1227,8 @@ export class GameWorld {
     tickC10a(this, dt);
     // 第95回 A班: だれも いなく なった パーティーの 水・ねむった 見はりを わすれる（world/c10b-steps.js）
     tickC10b(this);
+    // 第97回 A班: だれも いなく なった パーティーの 音の 橋を わすれる（world/c10c-steps.js）
+    tickC10c(this);
     // モンスター（とぎれている 人は おいかけない）
     for (const [mapId, players] of byMap) {
       const ms = mapState(this, mapId);
@@ -1253,7 +1266,8 @@ export class GameWorld {
           const c9d = c9dSnap(this, p); // 第93回 A班: スピカと ふた手に（スピカの いる 石・鳴って いる 石・ランプ）
           const c10 = c10aSnap(this, p); // 第94回 A班: 溶岩に 追われる（その 人の 溶岩）
           const c10b = c10bSnap(this, p); // 第95回 A班: 水の 高さ・こっそり（その 人の 見はり）
-          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}), ...(c10b ? { c10b } : {}) });
+          const c10c = c10cSnap(this, p); // 第97回 A班: 音の 橋（パーティーの 橋）
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}), ...(c10b ? { c10b } : {}), ...(c10c ? { c10c } : {}) });
         }
       }
     }

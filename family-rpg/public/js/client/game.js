@@ -27,6 +27,7 @@ import { C9dCallButton } from './c9d-view.js';
 import { C10aLavaHud } from './c10a-view.js';
 // 第95回 A班: 水鏡の うらの「水：下／中／上」・氷の 下の「もの音」（client/c10b-view.js）
 import { C10bHud } from './c10b-view.js';
+import { C10cHud } from './c10c-view.js';
 import { HuntButton } from './ui/sources.js';
 import { reportError } from './errlog.js';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
@@ -57,6 +58,7 @@ export class Game {
     this.c9dCallBtn = new C9dCallButton(this);
     this.c10LavaHud = new C10aLavaHud(this);
     this.c10bHud = new C10bHud(this);
+    this.c10cHud = new C10cHud(this); // 第97回 A班: 音の 橋の 色（●●○○○）
     this.joinBtn = new JoinButton(this);
     this.huntBtn = new HuntButton(this); // 第64回 ⑥a: 素材を 落とす 魔物を さがす
     this.menu = new FieldMenu(this);
@@ -226,6 +228,7 @@ export class Game {
     touchEl.hidden = hideTouch;
     // 第95回 A班: 水・もの音の 表示（戦いの 間は かくす ので フィールドの 外でも よぶ）
     this.c10bHud.update();
+    this.c10cHud.update();
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);

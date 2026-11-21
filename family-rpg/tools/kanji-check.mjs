@@ -659,8 +659,11 @@ export function gameFiles() {
     'public/js/shared/battle-c10b.js', 'public/js/client/battle-c10b.js', 'public/js/client/render/c10b-art.js', 'public/js/client/render/c10b-bg.js', 'public/js/client/render/battlefx-c10b.js',
     // 第95回 F班: 第3部 第2章 第2幕の 曲
     'public/js/client/audio-c10b.js',
+    // 第97回 A班: 第3部 第2章 第3幕「紫と、うばわれた音」（世界と 物語）
+    'public/js/shared/maps/c10c-flags.js', 'public/js/shared/data/story-c10c.js', 'public/js/shared/maps/c10c.js', 'public/js/shared/maps/c10c-rows.js',
+    'public/js/shared/world/c10c-steps.js', 'public/js/client/c10c-view.js', 'public/js/client/render/tiles-c10c.js', 'public/js/client/render/c10c-npc-art.js',
     // 第97回 B班: 第3部 第2章 第3幕（魔物・たいさ・アルゴル・品・ヒント・絵・背景・えんしゅつ。c10c-names-b.js は A班が 消す かりの 置き場）
-    'public/js/shared/data/c10c-names-b.js', 'public/js/shared/data/monsters-c10c.js', 'public/js/shared/data/abilities-c10c.js',
+    'public/js/shared/data/monsters-c10c.js', 'public/js/shared/data/abilities-c10c.js',
     'public/js/shared/data/encounters-c10c.js', 'public/js/shared/data/companions-c10c.js', 'public/js/shared/data/items-c10c.js', 'public/js/shared/data/boss-hints-c10c.js',
     'public/js/shared/battle-c10c.js', 'public/js/client/battle-c10c.js', 'public/js/client/render/c10c-art.js', 'public/js/client/render/c10c-bg.js', 'public/js/client/render/battlefx-c10c.js',
     // 第97回 F班: 第3部 第2章 第3幕の 曲

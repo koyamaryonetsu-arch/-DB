@@ -123,6 +123,13 @@ export const T = {
   C10B_WHIRL: 535, C10B_ICEBRIDGE: 536, C10B_ORB: 537, C10B_SAND: 538, C10B_SPRING: 539, C10B_ICEFLOOR: 540, C10B_ICEWALL: 541,
   C10B_SLIDE: 542, C10B_SNOWPILE: 543, C10B_THIN: 544, C10B_PILLAR: 545, C10B_MELTWALL: 546, C10B_MOONFLOOR: 547,
   C10B_LIGHTSTAIRS: 548, C10B_ICESTAIRS: 549, C10B_DEEP: 550,
+  // 第3部 第2章 第3幕「紫と、うばわれた音」（第97回 A班。551〜590。maps/c10c*.js・render/tiles-c10c.js）
+  C10C_ISLE: 551, C10C_BRIDGE_R: 552, C10C_BRIDGE_Y: 553, C10C_BRIDGE_G: 554, C10C_BRIDGE_B: 555, C10C_BRIDGE_W: 556,
+  C10C_STONE: 557, C10C_RUIN: 558, C10C_RUINWALL: 559, C10C_FLOAT: 560, C10C_ORB: 561, C10C_VORTEX: 562,
+  C10C_FWALL: 563, C10C_FFLOOR: 564, C10C_BELT_RN: 565, C10C_BELT_RE: 566, C10C_BELT_RS: 567, C10C_BELT_RW: 568,
+  C10C_BELT_BN: 569, C10C_BELT_BE: 570, C10C_BELT_BS: 571, C10C_BELT_BW: 572, C10C_LEVER_R: 573, C10C_LEVER_R_ON: 574,
+  C10C_LEVER_B: 575, C10C_LEVER_B_ON: 576, C10C_CRATES: 577, C10C_PUSHER: 578, C10C_JARS: 579, C10C_HALL: 580,
+  C10C_BACKDOOR: 581, C10C_PORTAL: 582,
 };
 
 export const TILE_INFO = {};
@@ -690,6 +697,41 @@ def(T.C10B_MOONFLOOR, 'c10b_moonfloor', { mapColor: '#b8c8e0' }); // 月の 間�
 def(T.C10B_LIGHTSTAIRS, 'c10b_lightstairs', { light: true, anim: true, mapColor: '#d8f0ff' }); // 夜の 湖の 光の 階段（氷の 下へ）
 def(T.C10B_ICESTAIRS, 'c10b_icestairs', { mapColor: '#c0e8ff' }); // 岸への 氷の 階段（月の 間へ）
 def(T.C10B_DEEP, 'c10b_deep', { anim: true, c10bRaft: true, mapColor: '#1a5aa0' }); // ふかい 水（いかだで 進む）
+// 第3部 第2章 第3幕「紫と、うばわれた音」（第97回 A班）
+// 空の 小島（下は 雲の 海 T.CLOUD_SEA。小島の ふちは かべと 同じで 落ちない）
+def(T.C10C_ISLE, 'c10c_isle', { mapColor: '#9ac87a' }); // 空の 小島の 地面
+def(T.C10C_BRIDGE_R, 'c10c_bridge_r', { anim: true, light: true, mapColor: '#ff7a7a' }); // 光の 橋（赤・レ）
+def(T.C10C_BRIDGE_Y, 'c10c_bridge_y', { anim: true, light: true, mapColor: '#ffe070' }); // 光の 橋（黄・ミ）
+def(T.C10C_BRIDGE_G, 'c10c_bridge_g', { anim: true, light: true, mapColor: '#7ae08a' }); // 光の 橋（緑・ファ）
+def(T.C10C_BRIDGE_B, 'c10c_bridge_b', { anim: true, light: true, mapColor: '#7ab8ff' }); // 光の 橋（青・ソ）
+def(T.C10C_BRIDGE_W, 'c10c_bridge_w', { anim: true, light: true, mapColor: '#f4f8ff' }); // 光の 橋（白・ラ）
+def(T.C10C_STONE, 'c10c_stone', { solid: true, talkThrough: true, light: true, mapColor: '#c8b8e8' }); // 橋の 石（星の音を 鳴らすと 光の 橋）
+def(T.C10C_RUIN, 'c10c_ruin', { mapColor: '#b8b0c8' }); // うかぶ いせきの 石だたみ
+def(T.C10C_RUINWALL, 'c10c_ruinwall', { solid: true, mapColor: '#6a6080' }); // くずれた 柱
+def(T.C10C_FLOAT, 'c10c_float', { solid: true, mapColor: '#8a80a8' }); // うき石（かざり）
+def(T.C10C_ORB, 'c10c_orb', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#a86ae0' }); // 紫の 光の 玉
+def(T.C10C_VORTEX, 'c10c_vortex', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#c8a8ff' }); // 光の うず（しらべると 竜が 乗せて くれる）
+// 少年の とりで（ベルトの 工場）
+def(T.C10C_FWALL, 'c10c_fwall', { solid: true, mapColor: '#2a2438' }); // とりでの かべ
+def(T.C10C_FFLOOR, 'c10c_ffloor', { mapColor: '#5a5468' }); // とりでの ゆか（鉄の 板）
+def(T.C10C_BELT_RN, 'c10c_belt_rn', { flow: [0, -1], anim: true, c10cBelt: 'red', mapColor: '#8a4a4a' }); // 流れる ベルト（赤の しるし・北へ）
+def(T.C10C_BELT_RE, 'c10c_belt_re', { flow: [1, 0], anim: true, c10cBelt: 'red', mapColor: '#8a4a4a' }); // （東へ）
+def(T.C10C_BELT_RS, 'c10c_belt_rs', { flow: [0, 1], anim: true, c10cBelt: 'red', mapColor: '#8a4a4a' }); // （南へ）
+def(T.C10C_BELT_RW, 'c10c_belt_rw', { flow: [-1, 0], anim: true, c10cBelt: 'red', mapColor: '#8a4a4a' }); // （西へ）
+def(T.C10C_BELT_BN, 'c10c_belt_bn', { flow: [0, -1], anim: true, c10cBelt: 'blue', mapColor: '#4a5a8a' }); // 流れる ベルト（青の しるし・北へ）
+def(T.C10C_BELT_BE, 'c10c_belt_be', { flow: [1, 0], anim: true, c10cBelt: 'blue', mapColor: '#4a5a8a' }); // （東へ）
+def(T.C10C_BELT_BS, 'c10c_belt_bs', { flow: [0, 1], anim: true, c10cBelt: 'blue', mapColor: '#4a5a8a' }); // （南へ）
+def(T.C10C_BELT_BW, 'c10c_belt_bw', { flow: [-1, 0], anim: true, c10cBelt: 'blue', mapColor: '#4a5a8a' }); // （西へ）
+def(T.C10C_LEVER_R, 'c10c_lever_r', { solid: true, talkThrough: true, mapColor: '#d05a4a' }); // 赤の レバー
+def(T.C10C_LEVER_R_ON, 'c10c_lever_r_on', { solid: true, talkThrough: true, mapColor: '#d05a4a' }); // 赤の レバー（引いた）
+def(T.C10C_LEVER_B, 'c10c_lever_b', { solid: true, talkThrough: true, mapColor: '#4a7ad0' }); // 青の レバー
+def(T.C10C_LEVER_B_ON, 'c10c_lever_b_on', { solid: true, talkThrough: true, mapColor: '#4a7ad0' }); // 青の レバー（引いた）
+def(T.C10C_CRATES, 'c10c_crates', { solid: true, mapColor: '#8a6a4a' }); // 星の かけらの 箱の 山
+def(T.C10C_PUSHER, 'c10c_pusher', { anim: true, c10cPush: true, mapColor: '#b08a5a' }); // おし出される 箱（ふれると 1マス もどされる だけ）
+def(T.C10C_JARS, 'c10c_jars', { solid: true, light: true, mapColor: '#8a7ab8' }); // 光の びんの たな（少年の 間）
+def(T.C10C_HALL, 'c10c_hall', { mapColor: '#3a3050' }); // 少年の 間の ゆか
+def(T.C10C_BACKDOOR, 'c10c_backdoor', { mapColor: '#4a3a2a' }); // とりでの うら口（大地の下の 東の はし）
+def(T.C10C_PORTAL, 'c10c_portal', { anim: true, light: true, mapColor: '#d0b0ff' }); // 光の 出口（少年の 間 → うら口）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

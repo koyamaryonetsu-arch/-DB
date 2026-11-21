@@ -4,7 +4,7 @@
 //   t10c_fort  … 少年の とりで・ベルトの 工場（c10c_fort1・c10c_fort2。Lv114〜115。ベルトの 上では 出さない … A班）。少年の 間（c10c_fort3）は 出ない
 // ふつうの 戦いの 長さ（15-3）: 勇者 ＋ ゲームと おなじ 作りの 酒場の 仲間 3人で 90秒 いない（tools/sim-ch9-field.mjs）
 import { C10C_COLONEL, C10C_ALGOL } from './monsters-c10c.js';
-import { C10C_BATTLE_B as C10C_BATTLE, C10C_TRACKS_B as C10C_TRACKS } from './c10c-names-b.js';
+import { C10C_BATTLE_B as C10C_BATTLE, C10C_TRACKS_B as C10C_TRACKS } from '../maps/c10c-flags.js';
 // 負けた 時の ヒントの 文（boss-hints-c10c.js が mergeBossHints を よぶ）
 import './boss-hints-c10c.js';
 
