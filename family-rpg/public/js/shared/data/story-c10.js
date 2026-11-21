@@ -3,10 +3,13 @@
 //
 // ここに ある もの:
 //   ・PART3_C10A_OPEN … 第1幕「赤と緑」を 開ける 切りかえ（B班を 取りこんで つなぐ 時に true に する）
-//   ・CH10_STEPS … 第3部 第2章の 一本の 線（STORY_STEPS の さいご。c9_act4 の うしろ）
-//   ・題の 画面（c10TitleSteps）
-// ほかの ファイルは 読まない（maps/c10a-flags.js だけ）。story-c9.js から 読まれるので、story.js・story-c9*.js を import しない こと
+//   ・CH10_STEPS … 第3部 第2章の 一本の 線（STORY_STEPS の さいご。c9_act4 の うしろ。すきな じゅんの 赤・緑は 入れない）
+//   ・CH10_PROGRESS・CH10_OBJECTIVE_TARGETS・CH10_OBJECTIVE_TALK … 目標の 文の 表（progress.js・quest-targets.js・party-talk.js）
+//   ・applyCh10 … だいほんを まぜる 入口（story.js が よぶ）
+//   ・題の 画面（c10TitleSteps）・第1章 クリアの 目標の 文の 入れかえ（act4ClearObjective。story-c9.js が 使う）
+// story-c9.js から 読まれるので、story.js・story-c9*.js を import しない こと
 import { C10A_LINE } from '../maps/c10a-flags.js';
+import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js';
 
 // ───── 第1幕「赤と緑」を 開ける 切りかえ（13-6・13-7。第94回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第1章 クリアの 目標は「第3部　第2章へ（続きはアップデートで！）」・
@@ -23,3 +26,16 @@ export const C10_TITLE = {
   act: '第1幕　赤と緑',
 };
 export const c10TitleSteps = () => [['chapter', C10_TITLE.chapter, C10_TITLE.act]];
+
+// ───── 第1章 クリア（c9_act4）の 目標の 文（story-c9.js が 使う。開いた あとは「ながれ星のくぼ地で、星の音さを鳴らそう」）─────
+export const C10A_START_OBJ = C10A_OBJ.start;
+
+// ───── 目標の 文の 表（幕が 開いて いる 時だけ まぜる）─────
+export const CH10_PROGRESS = [...(PART3_C10A_OPEN ? CH10A_PROGRESS : [])];
+export const CH10_OBJECTIVE_TARGETS = { ...(PART3_C10A_OPEN ? CH10A_OBJECTIVE_TARGETS : {}) };
+export const CH10_OBJECTIVE_TALK = { ...(PART3_C10A_OPEN ? CH10A_OBJECTIVE_TALK : {}) };
+
+// ───── story.js から: だいほんを まぜる（幕が 開いて いない 間は、くぼ地で 音さを 鳴らしても 始まらない）─────
+export function applyCh10(SCRIPTS, STORY_SCRIPTS) {
+  applyCh10a(SCRIPTS, STORY_SCRIPTS, { title: c10TitleSteps, open: PART3_C10A_OPEN });
+}

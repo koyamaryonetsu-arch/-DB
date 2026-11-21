@@ -37,6 +37,8 @@ import { attachC9b } from './c9b.js';
 import { attachC9c } from './c9c.js';
 // 第93回 A班: 第3部 第1章 第4幕「星のはかば」（maps/c9d.js）
 import { attachC9d } from './c9d.js';
+// 第94回 A班: 第3部 第2章 第1幕「赤と緑」（maps/c10a.js）
+import { attachC10a } from './c10a.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -353,6 +355,8 @@ function buildMaps() {
   attachC9c(maps);
   // 第3部 第1章 第4幕: ふたごの道 2階・星のはかば・ピラミッドの 岸の ひびきの とびら・くぼ地の 黄の 台の 場面（maps/c9d.js。第3幕の あと）
   attachC9d(maps);
+  // 第3部 第2章 第1幕: 炎の山の 下の 古い 道・熱の 間・根の国・火口の 階段と 黒い 石・大地の下の 根・ささやきの森の 切りかぶ・くぼ地の 赤と 緑の 台（maps/c10a.js。第1章の あと）
+  attachC10a(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   // 第92回 D班: 第2幕の あとの より道と お仕事いらい 39〜41（大地の下が できた あと。maps/c9bd-side.js）

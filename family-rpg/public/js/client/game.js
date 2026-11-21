@@ -23,6 +23,8 @@ import { QuickButton } from './ui/quick-item.js';
 import { FollowButton } from './ui/follow-btn.js';
 // 第93回 A班: ふたごの道の「スピカをよぶ」ボタン（client/c9d-view.js）
 import { C9dCallButton } from './c9d-view.js';
+// 第94回 A班: 溶岩に 追われる 時の「ようがんまで、あと○だん」（client/c10a-view.js）
+import { C10aLavaHud } from './c10a-view.js';
 import { HuntButton } from './ui/sources.js';
 import { reportError } from './errlog.js';
 // 第51回 B: 家族のけいじ板（ui/family-board.js）
@@ -51,6 +53,7 @@ export class Game {
     this.quick = new QuickButton(this);
     this.followBtn = new FollowButton(this);
     this.c9dCallBtn = new C9dCallButton(this);
+    this.c10LavaHud = new C10aLavaHud(this);
     this.joinBtn = new JoinButton(this);
     this.huntBtn = new HuntButton(this); // 第64回 ⑥a: 素材を 落とす 魔物を さがす
     this.menu = new FieldMenu(this);
@@ -225,6 +228,7 @@ export class Game {
       this.quick.update();
       this.followBtn.update();
       this.c9dCallBtn.update();
+      this.c10LavaHud.update();
       this.joinBtn.update();
       this.huntBtn.update();
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });

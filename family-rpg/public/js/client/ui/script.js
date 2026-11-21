@@ -14,6 +14,8 @@ import { rivalPop } from './rivals-r88.js';
 import { timeShiftFx, clearTimeShift } from '../time-shift.js';
 // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
 import { askTreasureList } from './treasure.js';
+// 第94回 A班: 見はらし台で 画面を 広く 引く（client/c10a-view.js）
+import { setWide10a } from '../c10a-view.js';
 
 const TYPE_MS = 28;
 
@@ -177,6 +179,10 @@ export class ScriptPlayer {
         g.field.weatherOverride = a[0] === undefined ? null : a[0];
         return null;
       // カメラを その 場所へ ゆっくり 向ける（大きな 竜が 画面に 入るように）。['look'] で 自分に もどす
+      // 第94回 A班: 見はらし台で 画面を 広く 引く（client/c10a-view.js）
+      case 'c10Wide':
+        setWide10a(g.field, !!a[0]);
+        return wait(a[0] ? 400 : 100);
       case 'look':
         g.field.lookAt = a.length >= 2 ? { x: a[0], y: a[1] } : null;
         return wait(a.length >= 2 ? 650 : 250);

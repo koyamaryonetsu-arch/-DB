@@ -79,6 +79,8 @@ import './c9b-steps.js';
 import { stepC9c, noteC9cMove, c9cOnPlay, c9cChestSteps, c9cFlipSnap } from './c9c-steps.js';
 // 第93回 A班: 第3部 第1章 第4幕の スピカと ふた手に（ひびきの石・スピカの 明かり。world/c9d-steps.js）
 import { c9dSnap, spicaWalks9d } from './c9d-steps.js';
+// 第94回 A班: 第3部 第2章 第1幕の 溶岩に 追われる（world/c10a-steps.js）
+import { tickC10a, noteC10aMove, c10aSnap, c10aHold } from './c10a-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -769,6 +771,8 @@ export class GameWorld {
     notePyramidMove(this, s, mapId);
     // 第92回 A班: さかさのピラミッドの 向きは 階を かわると ふつうに もどる（world/c9c-steps.js）
     noteC9cMove(this, s, mapId);
+    // 第94回 A班: 溶岩に 追われる 階に 入った（つなぎなおしと 見分ける。world/c10a-steps.js）
+    noteC10aMove(this, s, mapId);
     // ひみつのダンジョンの ちょうせん（つづきか・とちゅうから 来たか・外へ 出たか。world/secret.js）
     noteSecretMove(this, s, mapId);
     // 第88回 G3班: まぼろしの回廊へ 入る 時、とびらの 光を 持ち物に 合わせる（world/rivals-r88.js）
@@ -1000,6 +1004,8 @@ export class GameWorld {
   // ───────────── メニュー ─────────────
   onMenu(s, msg) {
     if (msg.action === 'tmap') return treasureMenu(this, s, msg);
+    // 第94回 A班: メニューを 開いて いる 間は 溶岩が 止まる（world/c10a-steps.js）
+    if (msg.action === 'c10Hold') return c10aHold(this, s, msg.on);
     menuAction(this, s, msg);
   }
 
@@ -1192,6 +1198,8 @@ export class GameWorld {
       if (!byMap.has(s.map)) byMap.set(s.map, []);
       byMap.get(s.map).push(s);
     }
+    // 第94回 A班: 溶岩に 追われる（人ごと。world/c10a-steps.js）
+    tickC10a(this, dt);
     // モンスター（とぎれている 人は おいかけない）
     for (const [mapId, players] of byMap) {
       const ms = mapState(this, mapId);
@@ -1227,7 +1235,8 @@ export class GameWorld {
           const fc = fieldChestSnap(p, ms);
           const c9a = c9aSnap(this, p); // 第90回 A班: 光の輪（パーティーの 明かり）
           const c9d = c9dSnap(this, p); // 第93回 A班: スピカと ふた手に（スピカの いる 石・鳴って いる 石・ランプ）
-          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}) });
+          const c10 = c10aSnap(this, p); // 第94回 A班: 溶岩に 追われる（その 人の 溶岩）
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}) });
         }
       }
     }

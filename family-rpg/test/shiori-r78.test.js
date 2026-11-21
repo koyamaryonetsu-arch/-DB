@@ -199,7 +199,8 @@ test('ネタバレ: 幕の 名前は その 幕の はじまりを 見た あと
   assert.equal(storyPlace(e).label, '第1部 第4章');
   assert.equal(storyPlace(e).cleared, true);
   // 章の 表は 序章から 第8章まで ＋ 第3部 第1章（中の 番号 9。第90回 Z班。表示は「第3部 第1章」・test/ch9-base.test.js）
-  assert.deepEqual(CHAPTERS.map((x) => x.n), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  // ＋ 第3部 第2章（中の 番号 10。第94回 A班。表示は「第3部 第2章」・test/ch10-act1-a.test.js）
+  assert.deepEqual(CHAPTERS.map((x) => x.n), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 });
 
 test('ネタバレ: 幻の職業は 知って いる 物だけ 名前・ほかは ？？？。職業は ついた 物だけ', () => {

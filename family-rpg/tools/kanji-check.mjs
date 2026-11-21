@@ -631,7 +631,9 @@ export function gameFiles() {
     // 第94回 F班: 第3部 第2章 第1幕の 曲
     'public/js/client/audio-c10a.js',
     // 第94回 A班: 第3部 第2章 第1幕「赤と緑」（名前の 約束・章の まとめ）
-    'public/js/shared/maps/c10a-flags.js', 'public/js/shared/data/story-c10.js',
+    'public/js/shared/maps/c10a-flags.js', 'public/js/shared/data/story-c10.js', 'public/js/shared/data/story-c10a.js',
+    'public/js/shared/maps/c10a.js', 'public/js/shared/maps/c10a-rows.js', 'public/js/shared/world/c10a-steps.js',
+    'public/js/client/c10a-view.js', 'public/js/client/render/tiles-c10a.js', 'public/js/client/render/c10a-npc-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

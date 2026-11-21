@@ -91,6 +91,13 @@ export const CHAPTERS = [
       { n: 4, start: 'c9_song1', title: '星のはかば', seen: 'c9_song1', clear: 'c9_act4' },
     ],
   },
+  {
+    // 第94回 A班: 第3部 第2章（中の 番号は 10。表示は chapterLabel で「第2章」）。くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと
+    n: 10, part: 3, start: 'c10_start', clear: null, title: '七つの星の音',
+    acts: [
+      { n: 1, start: 'c10_start', title: '赤と緑', seen: 'c10_start', clear: 'c10_act1' },
+    ],
+  },
 ];
 const PART_NAMES = { 1: '第1部', 2: '第2部', 3: '第3部' };
 // 部の はじめの 章の 中の 番号（第3部だけ 部の 中の 番号で 出す。第1・2部は 通しの 番号「第8章」の まま）
@@ -123,7 +130,9 @@ export function storyPlace(c) {
 export function storyNext(c) {
   const obj = String(c?.objective || '');
   const specs = OBJECTIVE_TARGETS[obj];
-  const where = specs ? liveTargets(c, specs).map((s) => whereName(s)).find(Boolean) || '' : '';
+  // 第94回 A班: すきな じゅんの 幕（目標が 2行）は 2つの 行き先を ならべる（赤・緑）
+  const names = specs ? liveTargets(c, specs).map((s) => whereName(s)).filter(Boolean) : [];
+  const where = obj.includes('\n') ? [...new Set(names)].join('／') : names[0] || '';
   const talk = OBJECTIVE_TALK[obj];
   const hint = talk ? talk.kind || '' : '';
   // 「続きはアップデートで！」… 今は 物語の 先が ない

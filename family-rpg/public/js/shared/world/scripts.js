@@ -522,6 +522,8 @@ export class ScriptRun {
         case 'timeShift':
         // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く（['tmAsk', sid, 新しい 地図]。world/treasure.js）
         case 'tmAsk':
+        // 第94回 A班: 見はらし台で 画面を 広く 引く（['c10Wide', true/false]。client/c10a-view.js）
+        case 'c10Wide':
           this.batch.push(step);
           break;
         default:
