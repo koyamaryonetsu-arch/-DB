@@ -13,6 +13,8 @@ import { monsterCanvas } from './render/monsters.js';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王・皿（battle-c9b.js）
 // （C9B_OWN_TELE・C9B_SCREEN_ANIMS・C9B_ALLY_FX・C9B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
 import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js';
+// 第3部 第1章 第4幕: おかしの 仲間の まど（battle-c9d.js）
+import { c9dStatus } from './battle-c9d.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];
@@ -119,6 +121,7 @@ export function c9aHud(scene, flash = null) {
 // ───────────── 仲間の まど（client/battle.js の renderStatus）: 名前の 横に ともしびの しるし ─────────────
 export function c9aStatus(s, a) {
   if (!s?.name) return;
+  c9dStatus(s, a);
   const parent = s.name.parentNode;
   let f = parent?.querySelector?.('.c9a-fire');
   if (a.torch9 === undefined) {
@@ -304,7 +307,7 @@ export function c9aCmdItems(scene, a) {
   return { items, info };
 }
 export function c9aCmdPick(scene, a, value) {
-  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip') return c9bCmdPick(scene, a, value);
+  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

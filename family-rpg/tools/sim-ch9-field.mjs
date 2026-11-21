@@ -20,8 +20,12 @@ export const FIELD_TABLES = {
   c9a: ['t9a_forest', 't9a_b1', 't9a_b2', 't9a_b3', 't9a_b4'],
   c9b: ['t9b_shaft', 't9b_light', 't9b_hall'],
   c9c: ['t9c_river', 't9c_pyr', 't9c_pyr2'],
+  // 第93回 B班: 第4幕 ふたごの道（勇者 Lv102・その ころの ★装備 CH9_KIT.mu・酒場の 仲間 Lv101）
+  c9d: ['t9d_lane', 't9d_lane2'],
 };
-export const FIELD_SKIP = new Set(['c9a_yamimushi', 'c9b_mimizu', 'c9b_mole_spear', 'c9b_mole_pot']);
+// 表ごとの 勇者の ★装備と レベル（ない 表は 第2幕の ころ … king・Lv100）
+export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102] };
+export const FIELD_SKIP = new Set(['c9a_yamimushi', 'c9b_mimizu', 'c9b_mole_spear', 'c9b_mole_pot', 'c9d_kage']);
 
 function roll(rng, table) {
   const rows = ENCOUNTER_TABLES[table];
@@ -31,10 +35,11 @@ function roll(rng, table) {
   return row.group.flatMap(([sp, lo, hi]) => Array(rng.int(lo, hi)).fill(sp));
 }
 
-export function fieldRun(enemies, seed, { spica = true, speed = 0.85, textSpeed = 0.8 } = {}) {
-  const list = process.env.SUPER ? ch9Allies('king', 100, 'k1npc') : [
-    { char: ch9Party('king', 100).find((c) => c.job === 'hero'), know: true },
-    ...['npc_poporo', 'npc_rin', 'npc_mina'].map((id) => ({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), 99), know: false })),
+export function fieldRun(enemies, seed, { spica = true, speed = 0.85, textSpeed = 0.8, hero = ['king', 100] } = {}) {
+  const [kit, lv] = hero;
+  const list = process.env.SUPER ? ch9Allies(kit, lv, 'k1npc') : [
+    { char: ch9Party(kit, lv).find((c) => c.job === 'hero'), know: true },
+    ...['npc_poporo', 'npc_rin', 'npc_mina'].map((id) => ({ char: makeNpcSupportChar(NPC_SUPPORTS.find((n) => n.id === id), lv - 1), know: false })),
   ];
   const allies = list.map((x) => (x.know
     ? { char: x.char, kind: 'player', controller: 'sim', auto: true, tactics: 'balanced' }
@@ -58,7 +63,7 @@ export function tableLength(table, N = 30, seed0 = 1) {
     tries++;
     const g = roll(rng, table);
     if (!g.length || g.some((sp) => FIELD_SKIP.has(sp))) continue;
-    const r = fieldRun(g, seed0 * 7919 + tries, { spica: !table.startsWith('t8r') });
+    const r = fieldRun(g, seed0 * 7919 + tries, { spica: !table.startsWith('t8r'), hero: FIELD_HERO[table] });
     res.push({ ...r, n: g.length, g });
   }
   const wins = res.filter((r) => r.win);
@@ -71,7 +76,7 @@ if (process.argv[1]?.endsWith('sim-ch9-field.mjs')) {
   const N = Number(process.argv[2] || 20);
   if (process.env.ONLY) {
     const sp = process.env.ONLY;
-    const res = [...Array(N).keys()].map((i) => fieldRun([sp], 100 + i * 13, { spica: !sp.startsWith('toki') }));
+    const res = [...Array(N).keys()].map((i) => fieldRun(sp.startsWith('c9d_') ? [sp, ...(sp === 'c9d_twins' ? [sp] : [])] : [sp], 100 + i * 13, { spica: !sp.startsWith('toki'), hero: sp.startsWith('c9d_') ? ['mu', 102] : undefined }));
     const w = res.filter((r) => r.win);
     console.log(`${MONSTERS[sp]?.name || sp} 1ぴき: 平均 ${(w.reduce((s, r) => s + r.sec, 0) / Math.max(1, w.length)).toFixed(0)}秒（勝ち ${w.length}/${N}）`);
   } else {

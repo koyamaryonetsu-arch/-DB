@@ -4,6 +4,8 @@
 // ・c9b_feast（deco 'c9b_feast'）… 大王の やしきの ごちそうの 間: 赤い たれまく・明かりの つぼ・長い テーブル（手下・大王の 戦い）
 // 第3部 第1章 第3幕（地下の川・さかさのピラミッド・音の間。c9c-bg.js）もここから
 import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js';
+// 第3部 第1章 第4幕（ふたごの道・星のはかば。c9d-bg.js）
+import { C9D_BG, C9D_DECOS, drawC9dBg, drawC9dFloorBg } from './c9d-bg.js';
 
 const BW = 256, BH = 144;
 
@@ -11,6 +13,7 @@ export const C9B_BG = {
   c9b_under: { sky: ['#04040c', '#080816', '#0e0e22', '#16162e'], far: '#10101e', near: '#0c0c18', ground: ['#24222e', '#1c1a26'], deco: 'c9b_under' },
   c9b_feast: { sky: ['#1a0e10', '#2a1416', '#3a1c1c', '#4a2622'], far: '#3a1e18', near: '#2a1612', ground: ['#5a3a26', '#4a2e1e'], deco: 'c9b_feast' },
   ...C9C_BG,
+  ...C9D_BG,
 };
 export const C9B_DECOS = new Set(Object.keys(C9B_BG));
 
@@ -143,6 +146,7 @@ function drawFeast(x, hor) {
 
 export function drawC9bBg(x, d, hor) {
   if (C9C_DECOS.has(d.deco)) return drawC9cBg(x, d, hor);
+  if (C9D_DECOS.has(d.deco)) return drawC9dBg(x, d, hor);
   if (d.deco === 'c9b_feast') drawFeast(x, hor);
   else drawUnder(x, hor);
 }
@@ -150,6 +154,7 @@ export function drawC9bBg(x, d, hor) {
 // ゆか: 大地の下 … 黒い すなと 光る こけ ／ ごちそうの 間 … 赤い じゅうたんと 木の ゆか
 export function drawC9bFloorBg(x, d, hor) {
   if (C9C_DECOS.has(d.deco)) return drawC9cFloorBg(x, d, hor);
+  if (C9D_DECOS.has(d.deco)) return drawC9dFloorBg(x, d, hor);
   if (d.deco === 'c9b_feast') {
     x.fillStyle = 'rgba(0,0,0,0.2)';
     for (let y = hor + 6; y < BH; y += 8) x.fillRect(0, y, BW, 1);

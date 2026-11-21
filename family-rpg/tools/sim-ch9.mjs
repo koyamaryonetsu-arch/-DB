@@ -28,6 +28,9 @@ import { kingOf, c9bBusy } from '../public/js/shared/battle-c9b.js';
 import { C9B_BATTLE } from '../public/js/shared/maps/c9b-flags.js';
 import { nazoOf, mechaOf9c } from '../public/js/shared/battle-c9c.js';
 import { C9C_BATTLE } from '../public/js/shared/data/c9c-names-b.js';
+// 第93回 B班: 第4幕の ボス（下の「第4幕」の かたまり）
+import { muState } from '../public/js/shared/battle-c9d.js';
+import { C9D_BATTLE } from '../public/js/shared/data/c9d-names-b.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';
@@ -81,6 +84,38 @@ export const CH9_KIT = {
     high_priest: ['c9b_owl_staff', 'c9ct_star_robe', 'c9at_stone_shield', 'c7l_kingdom_crown', 'c9cb_riddle_charm'],
   },
 };
+// ───── 第93回 B班: 第4幕の ボス「あそびたい魔人 ムウ」（c9d_mu。Lv104。mu）─────
+//   2体を 同じくらいに けずる（HPの 多い 方を ねらう）・おかしビームの ねらいは 身を 守る・いっしょに ドーンの 前は 身を 守る・
+//   おかしの 仲間が いれば 星のうた（shared/battle-c9d.js の c9dPlan）。node tools/sim-ch9.mjs 20 mu
+//   ★装備 … ＋ ヒックリカエール2号の 品（ゴーグル）・ふたごの道の 宝箱（こだまのぼうし・ふたご星のたて・谷かぜの道着・ねむり星のよろい）
+CH9_IDS.mu = C9D_BATTLE.mu;
+export const CH9D_LV = { mu: 104 };
+Object.assign(LV9, CH9D_LV);
+CH9_KIT.mu = {
+  hero: ['c8s_star_sword', 'c9dt_sleep_mail', 'c9dt_twin_shield', 'c9ct_upside_helm', 'c9cb_trio_goggles'],
+  daikenja: ['c9b_owl_staff', 'c9ct_star_robe', null, 'c9dt_echo_hat', 'c9cb_trio_goggles'],
+  god_hand: ['c9at_star_claw', 'c9dt_valley_gi', null, 'c7it_bear_hat', 'c9cb_trio_goggles'],
+  high_priest: ['c9b_owl_staff', 'c9ct_star_robe', 'c9dt_twin_shield', 'c7l_kingdom_crown', 'c9cb_trio_goggles'],
+};
+// 1回の 戦いの ムウの ようす（ch9Run の かえす 値に まぜる）
+function muStats9(b) {
+  const s = muState(b);
+  if (!s) return {};
+  return { mSplit: s.split ? 1 : 0, mWakes: s.wakes, mKos: s.kos, mAngers: s.angers, mBeams: s.beams, mBlocked: s.blocked, mOkashi: s.okashi, mDoons: s.doons, mDoonG: s.doonGuards, mSongs: b.c9sp?.song?.uses || 0 };
+}
+// 知って いる 人の 合体技の ねらい: 2体の うち HPの 多い 方（同じくらいに けずる）
+function muTarget9(b) {
+  const s = muState(b);
+  if (!s) return null;
+  const up = b.aliveEnemies().filter((e) => e.c9m);
+  return up.sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp)[0]?.species || null;
+}
+function muText9(res) {
+  if (!res.some((r) => r.mSplit !== undefined)) return '';
+  const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
+  return `  分かれ${avg('mSplit').toFixed(2)} ばたん${avg('mKos').toFixed(1)} 起こす${avg('mWakes').toFixed(1)} おこる${avg('mAngers').toFixed(1)} ビーム${avg('mBeams').toFixed(1)}(守${avg('mBlocked').toFixed(1)}/おかし${avg('mOkashi').toFixed(1)}) ドーン${avg('mDoons').toFixed(1)}(守${avg('mDoonG').toFixed(1)}) うた${avg('mSongs').toFixed(1)}`;
+}
+
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
 
 export function ch9Party(boss, lv, kit = true) {
@@ -164,7 +199,7 @@ export const MODES9 = {
   //   合体技は しくみの 用が ない 時だけ（前ぶれの 間・消えた 仲間が いる 間は しない）
   know: {
     label: '知っている　', know: true,
-    act: (b, a, boss) => (busy9(b) ? false : dualPlan(b, a, bossSpecies(b, boss), null)),
+    act: (b, a, boss) => (busy9(b) ? false : dualPlan(b, a, muTarget9(b) || bossSpecies(b, boss), null)),
   },
 };
 function bossSpecies(b, boss) {
@@ -267,6 +302,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   return {
     kDark: kg?.c9k?.dark ? 1 : 0, timeoutMs: riddleAt.length ? Math.min(...riddleAt) : null, nazoLeft: nazoOf(b)?.alive ? 1 : 0, mechaLeft: mechaOf9c(b)?.alive ? 1 : 0,
     light: b.c9sp?.light ?? 0, dawn: h?.c9h?.dawn ?? 0, dark: h?.c9h?.dark ? 1 : 0, bigs: h?.c9h?.bigs ?? 0,
+    ...muStats9(b),
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
     hpLeft: al.reduce((s, x) => s + x.hp, 0) / al.reduce((s, x) => s + x.maxHp, 0), deaths: al.filter((x) => !x.alive).length,
     bossLeft: foes.reduce((s, e) => s + Math.max(0, e.hp), 0) / Math.max(1, foes.reduce((s, e) => s + e.maxHp, 0)), ...n,
@@ -284,7 +320,8 @@ export function summary9(res) {
     text: `勝率 ${pct(w, res.length)}  平均${avg('seconds').toFixed(0).padStart(4)}秒（勝ち${wsec.toFixed(0).padStart(4)}秒）  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  ボスの残${(avg('bossLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  合体技${avg('duals').toFixed(1)}`
       + `  光${avg('light').toFixed(1)} 守${avg('guards').toFixed(1)} こわす${avg('breaks').toFixed(1)}  夜明け${avg('dawn').toFixed(1)} いぶき${avg('breaths').toFixed(1)}(消${avg('outs').toFixed(1)}/守${avg('kept').toFixed(1)}) わける${avg('shares').toFixed(1)} 大${avg('bigs').toFixed(1)} まっくら${avg('dark').toFixed(2)}`
       + `  食べ${avg('eats').toFixed(1)} 止め${avg('stops').toFixed(1)} ジャンプ${avg('jumps').toFixed(1)} てらす${avg('teru').toFixed(1)} まっ暗${avg('kDark').toFixed(2)}`
-      + `  なぞ${avg('asks').toFixed(1)}(正${avg('rights').toFixed(1)}/ちがう${avg('wrongs').toFixed(1)}/時間切れ${avg('timeouts').toFixed(1)})  ばくはつ${avg('booms').toFixed(1)} ひっくり${avg('flips').toFixed(1)}(目回し${avg('dizzies').toFixed(1)}/早い${avg('early').toFixed(1)}) ポチッ${avg('pochis').toFixed(1)}`,
+      + `  なぞ${avg('asks').toFixed(1)}(正${avg('rights').toFixed(1)}/ちがう${avg('wrongs').toFixed(1)}/時間切れ${avg('timeouts').toFixed(1)})  ばくはつ${avg('booms').toFixed(1)} ひっくり${avg('flips').toFixed(1)}(目回し${avg('dizzies').toFixed(1)}/早い${avg('early').toFixed(1)}) ポチッ${avg('pochis').toFixed(1)}`
+      + muText9(res),
   };
 }
 

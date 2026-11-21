@@ -616,6 +616,10 @@ export function gameFiles() {
     'public/js/client/audio-c9c.js',
     // 第93回 F班: 第3部 第1章 第4幕の 曲
     'public/js/client/audio-c9d.js',
+    // 第93回 B班: 第3部 第1章 第4幕（魔物・スピカの 星のうた・あそびたい魔人 ムウ・品・ヒント・絵・背景・えんしゅつ。c9d-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/c9d-names-b.js', 'public/js/shared/data/monsters-c9d.js', 'public/js/shared/data/abilities-c9d.js',
+    'public/js/shared/data/encounters-c9d.js', 'public/js/shared/data/companions-c9d.js', 'public/js/shared/data/items-c9d.js', 'public/js/shared/data/boss-hints-c9d.js',
+    'public/js/shared/battle-c9d.js', 'public/js/client/battle-c9d.js', 'public/js/client/render/c9d-art.js', 'public/js/client/render/c9d-bg.js', 'public/js/client/render/battlefx-c9d.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
