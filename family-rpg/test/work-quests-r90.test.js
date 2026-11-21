@@ -62,7 +62,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（新しい 流れの 職業）・今の 時代の 場所（A班の c9a_* には 置かない）・c9_starfall の あとだけ', () => {
   assert.equal(WORK8_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 41); // 第92回: 39〜41 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 43); // 第92回: 39〜41・第94回: 42・43 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(35, 38), WORK8_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(32, 35), WORK7_QUESTS);
   assert.deepEqual(WORK8_QUESTS.map((x) => x.roots), [['elem_teacher'], ['enjutsushi'], ['fishing_doshi']]);
@@ -288,7 +288,7 @@ test('お仕事いらい板: c9_starfall の 前は 35まい（6ページ）・�
   assert.equal(boardPages(before), 6);
   assert.equal(boardList(after).length, 38);
   assert.equal(boardPages(after), 7);
-  assert.equal(boardPages(), 7); // 第92回: 41まいでも 7ページ
+  assert.equal(boardPages(), 8); // 第92回: 41まいでも 7ページ・第94回: 43まいで 8ページ
   const { bot, c } = await setup(904, { flags: OPEN });
   const qd = W.road;
   const map = npcAnywhere(qd.npc).map;

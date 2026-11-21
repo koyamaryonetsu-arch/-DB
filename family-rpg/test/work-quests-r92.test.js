@@ -71,8 +71,8 @@ async function rewarded(c, qd, talk, again) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（まだ いらいの ない 新しい 流れ）・大地の下だけ（船着き場の まわりには 置かない）・c9_act2 の あとだけ・フラグは 1つに 2こ', () => {
   assert.equal(WORK9_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 41);
-  assert.deepEqual(FAMILY_QUESTS.slice(38), WORK9_QUESTS);
+  assert.equal(FAMILY_QUESTS.length, 43); // 第94回: 42・43 が うしろに ふえた
+  assert.deepEqual(FAMILY_QUESTS.slice(38, 41), WORK9_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(35, 38), WORK8_QUESTS);
   assert.deepEqual(WORK9_QUESTS.map((x) => x.roots), [['hanyo_boy'], ['tabi_madoshi'], ['furyo']]);
   assert.deepEqual(WORK9_QUESTS.map((x) => x.legend), ['bakuryuha', 'doramata', 'makai_prince']);
@@ -278,7 +278,7 @@ test('お仕事いらい板: c9_act2 の 前は 38まい（7ページ）・あ�
   assert.equal(boardPages(before), 7);
   assert.equal(boardList(after).length, 41);
   assert.equal(boardPages(after), 7);
-  assert.equal(boardPages(), 7);
+  assert.equal(boardPages(), 8); // 第94回: 43まいで 8ページ（42 は c9_act3・43 は c9_act4 から）
   const { bot, c } = await setup(925, { flags: OPEN });
   const qd = W.ghost;
   const marked = () => questMarks(c, 'c9b_under', '').some((m) => m.label === qd.name);
@@ -288,7 +288,7 @@ test('お仕事いらい板: c9_act2 の 前は 38まい（7ページ）・あ�
   const menus = msgs.filter((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice').map((m) => m.steps.at(-1));
   assert.ok(said(msgs, /はり紙は41まい/));
   assert.match(menus[6][1], /7\/7ページ/);
-  assert.deepEqual(menus[6][2], [...FAMILY_QUESTS.slice(36).map((x) => x.name), '前のページへ', 'やめる']);
+  assert.deepEqual(menus[6][2], [...FAMILY_QUESTS.slice(36, 41).map((x) => x.name), '前のページへ', 'やめる']); // 第94回の 42・43 は c9_act3・c9_act4 の あとから
   assert.equal(menus[6][3].length, menus[6][2].length, 'カーソルの せつめいも 同じ 数');
   assert.match(menus[6][3][4], /^必要な職業：ふりょうの系統（×いない）/);
   assert.ok(said(msgs, /ゆうれいの声がします/) && said(msgs, /このいらいを、うける？/) && said(msgs, /を受けた！/));

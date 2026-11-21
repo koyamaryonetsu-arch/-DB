@@ -206,9 +206,9 @@ function attachCrater3(maps) {
   const S = CRATER_STAIRS10A;
   for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
     const t = m.tiles[y * m.w + x];
-    if (t === T.LAVA || t === T.LAVA_FLOOR) m.gates.push({ x, y, closed: t, levels: [[C10A.start, T.OBSIDIAN]] });
+    if (t === T.LAVA || t === T.LAVA_FLOOR) m.gates.push({ x, y, closed: t, open: T.OBSIDIAN, levels: [[C10A.start, T.OBSIDIAN]] });
   }
-  m.gates.push({ x: S.x, y: S.y, closed: m.tiles[S.y * m.w + S.x], levels: [[C10A.start, T.STAIRS_DOWN]] });
+  m.gates.push({ x: S.x, y: S.y, closed: m.tiles[S.y * m.w + S.x], open: T.STAIRS_DOWN, levels: [[C10A.start, T.STAIRS_DOWN]] });
   warp(m, S, C10A_MAP.r1, below(C10A_POS.c10r_1.up), 'down', { all: [C10A.start] });
   const E = CRATER_SCENE10A;
   m.triggers.push({ id: 'c10r_crater', x: E.x, y: E.y, w: E.w, h: E.h, script: 'c10r_crater', show: { all: [C10A.start], not: [C10A_RED.stairs] } });
@@ -218,7 +218,7 @@ function attachCrater3(maps) {
 function attachUnder(maps) {
   const R = UNDER_ROOT10A;
   const m = maps[R.map];
-  m.gates.push({ x: R.x, y: R.y, closed: m.tiles[R.y * m.w + R.x], levels: [[C10A.start, T.C10A_HANGROOT]] });
+  m.gates.push({ x: R.x, y: R.y, closed: m.tiles[R.y * m.w + R.x], open: T.C10A_HANGROOT, levels: [[C10A.start, T.C10A_HANGROOT]] });
   m.actions.push({ x: R.x, y: R.y, script: 'c10g_root', show: { all: [C10A.start] } });
   (m.links = m.links || []).push({ x: R.x, y: R.y, to: C10A_MAP.g1 });
   finishGates10a(m);
@@ -227,7 +227,7 @@ function attachUnder(maps) {
 function attachStump(maps) {
   const S = STUMP10A;
   const m = maps[S.map];
-  m.gates.push({ x: S.x, y: S.y, closed: m.tiles[S.y * m.w + S.x], levels: [[C10A_GREEN.note, T.C10A_STUMP]] });
+  m.gates.push({ x: S.x, y: S.y, closed: m.tiles[S.y * m.w + S.x], open: T.C10A_STUMP, levels: [[C10A_GREEN.note, T.C10A_STUMP]] });
   const H = C10A_POS.c10g_2.hollow[0];
   m.warps.push({ x: S.x, y: S.y, to: { map: C10A_MAP.g2, x: H.x + 0.5, y: H.y + 2.5, dir: 'down' }, show: { all: [C10A_GREEN.note] } });
   finishGates10a(m);

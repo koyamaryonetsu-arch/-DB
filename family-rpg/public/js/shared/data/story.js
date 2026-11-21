@@ -29,6 +29,7 @@ import { CH7_STEPS, applyCh7 } from './story-c7.js';
 import { CH8_STEPS, applyCh8 } from './story-c8.js';
 // 第3部 第1章「おちてきた星の子」（story-c9.js。第90回 Z班の 下じき。今は 何も つながない）
 import { CH9_STEPS, applyCh9 } from './story-c9.js';
+import { wrapC9cdGrave } from './sidequests-c9cd.js';
 // 第94回 A班: 第3部 第2章「七つの星の音」（story-c10.js）
 import { CH10_STEPS, applyCh10 } from './story-c10.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
@@ -667,6 +668,8 @@ applyCh7(SCRIPTS, STORY_SCRIPTS);
 applyCh8(SCRIPTS, STORY_SCRIPTS);
 // 第3部 第1章（story-c9.js）: 今は から（A班が 第1幕の だいほんを つなぐ）
 applyCh9(SCRIPTS, STORY_SCRIPTS);
+// 第94回 D班: より道「ムウとムウムウの、あそび道具」の さいごの 場面（はかばに すわる 2人の だいほんを つつむ。sidequests-c9cd.js）
+wrapC9cdGrave(SCRIPTS);
 // 第3部 第2章（story-c10.js）: 第1幕「赤と緑」（PART3_C10A_OPEN が false の 間は 始まらない）
 applyCh10(SCRIPTS, STORY_SCRIPTS);
 

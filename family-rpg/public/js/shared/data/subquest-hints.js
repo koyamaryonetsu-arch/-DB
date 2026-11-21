@@ -30,6 +30,7 @@ import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js';
 import { C9AD_OPEN, LOST9 } from '../maps/c9ad-side.js';
 // 第92回 D班: 第3部 第1章 第2幕の あとの より道（大地の下・ヒカリゴケの里）
 import { C9BD_OPEN, LAMP9, MOLE9 } from '../maps/c9bd-side.js';
+import { TOY9, BALL9 } from '../maps/c9cd-side.js';
 import { FAMILY_QUESTS } from './sidequests-family.js';
 import { jobLine } from './fq-common.js';
 
@@ -108,6 +109,9 @@ const build = () => [
   // 第3部 第1章 第2幕の あと（第92回 D班。大地の下の より道。sidequests-c9bd.js）
   { id: 'c9bd_lamp', name: '大王の、大きなランタン', open: [C9BD_OPEN], start: LAMP9.start, done: LAMP9.done, place: 'ヒカリゴケの里', who: 'ヒカリゴケの子どもコロン', npc: 'c9bd_l_host', hint: '大王さまのために、何かを作りたいらしい。' },
   { id: 'c9bd_mole', name: 'まいごの、もぐら兵', open: [C9BD_OPEN], start: MOLE9.start, done: MOLE9.done, place: '大地の下', who: 'もぐら兵の隊長ドドン', npc: 'c9bd_m_host', hint: 'いちばん小さなもぐら兵が、帰ってこないらしい。' },
+  // 第3部 第1章 第3幕・第4幕の あと（第94回 D班。地下の川・くぼ地の より道。sidequests-c9cd.js）
+  { id: 'c9cd_toy', name: 'ながされた、おもちゃのいかだ', open: [TOY9.open], start: TOY9.start, done: TOY9.done, place: 'ヒカリゴケの里', who: 'ヒカリゴケの子どもプカ', npc: 'c9cd_t_host', hint: '大事なおもちゃが、川にながされてしまったらしい。' },
+  { id: 'c9cd_ball', name: 'ムウとムウムウの、あそび道具', open: [BALL9.open], start: BALL9.start, done: BALL9.done, place: 'ながれ星のくぼ地', who: 'おもちゃ職人のコロ', npc: 'c9cd_b_host', hint: 'だれかのために、あそび道具を作りたいらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

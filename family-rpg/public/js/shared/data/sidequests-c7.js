@@ -31,6 +31,8 @@ import { c8rdSubQuests, c8rdDoneQuests, applyC8rdSide } from './sidequests-c8rd.
 import { c9adSubQuests, c9adDoneQuests, applyC9adSide } from './sidequests-c9ad.js';
 // 第92回 D班: 第3部 第1章 第2幕の あとの より道「大王の、大きなランタン」「まいごの、もぐら兵」（sidequests-c9bd.js。大地の下）も ここから
 import { c9bdSubQuests, c9bdDoneQuests, applyC9bdSide } from './sidequests-c9bd.js';
+// 第94回 D班: 第3部 第1章 第3幕・第4幕の あとの より道「ながされた、おもちゃのいかだ」「ムウとムウムウの、あそび道具」（sidequests-c9cd.js。地下の川・くぼ地）も ここから
+import { c9cdSubQuests, c9cdDoneQuests, applyC9cdSide } from './sidequests-c9cd.js';
 // 第8章 第3幕の 時をこえる手紙（千年前の ミドリナ地方。sidequests-c8c.js）も ここから
 import { c8cSubQuests, c8cDoneQuests } from './sidequests-c8c.js';
 
@@ -144,6 +146,7 @@ export function c7SubQuests(c, f) {
   out.push(...c8rdSubQuests(c, f));
   out.push(...c9adSubQuests(c, f));
   out.push(...c9bdSubQuests(c, f));
+  out.push(...c9cdSubQuests(c, f));
   out.push(...c8cSubQuests(c, f));
   for (const k of LETTER_SIDE) {
     if (!f(LETTER.start(k)) || f(LETTER.found(k))) continue;
@@ -153,7 +156,7 @@ export function c7SubQuests(c, f) {
   return out;
 }
 export function c7DoneQuests(c) {
-  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c), ...c8dDoneQuests(c), ...c8aDoneQuests(c), ...c8bdDoneQuests(c), ...c8bDoneQuests(c), ...c8cdDoneQuests(c), ...c8cDoneQuests(c), ...c8rdDoneQuests(c), ...c9adDoneQuests(c), ...c9bdDoneQuests(c)];
+  return [...C7_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...c7sDoneQuests(c), ...c7iDoneQuests(c), ...c8dDoneQuests(c), ...c8aDoneQuests(c), ...c8bdDoneQuests(c), ...c8bDoneQuests(c), ...c8cdDoneQuests(c), ...c8cDoneQuests(c), ...c8rdDoneQuests(c), ...c9adDoneQuests(c), ...c9bdDoneQuests(c), ...c9cdDoneQuests(c)];
 }
 
 // ───── だいほんを まぜる（story-c7.js の applyCh7 から）─────
@@ -175,4 +178,5 @@ export function applyC7Side(SCRIPTS) {
   applyC8rdSide(SCRIPTS);
   applyC9adSide(SCRIPTS);
   applyC9bdSide(SCRIPTS);
+  applyC9cdSide(SCRIPTS);
 }

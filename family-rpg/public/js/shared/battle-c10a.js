@@ -76,7 +76,7 @@ export function c10Conf(species, b = null) {
     coolAt: c.coolAt ?? 0.5,
     kabi: { max: 3, heal: 0.25, atk: 0.1, ...(c.kabi || {}), turns: pick('kinokoTurns', c.kabi?.turns ?? 1) },
     mist: { n: pick('mistN', c.mist?.n ?? 2), half: pick('mistHalf', c.mist?.half ?? 3) },
-    wall: c.wall ?? 0.5,
+    wall: pick('wall', c.wall ?? 0.5),
     bomb: { every: 4, wait: 1, mult: 2, guardCut: 0.4, ...(c.bomb || {}), mult: (c.bomb?.mult ?? 2) * pick('bombK', 1) },
     hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
@@ -494,7 +494,7 @@ export function c10aDamage(b, c, t, dmg, info, ev) {
     dmg = Math.max(1, Math.round(dmg * c10Conf(C10G_MOLD, b).wall));
     if (ev && !ev.c10Wall) {
       ev.c10Wall = true;
-      post(ev).push('（カビのかべで、ダメージが半分になった…）');
+      post(ev).push(c10Conf(C10G_MOLD, b).wall < 0.5 ? '（カビのかべで、ダメージがほとんど通らない…！）' : '（カビのかべで、ダメージが半分になった…）');
     }
   }
   if (dmg >= t.hp) {
@@ -636,8 +636,7 @@ function moldPlan(b, c, m, mode, decide, bestHit) {
   // 知って いる 人: 大カビばくだんの 前は 身を 守る・カビが 2つ たまった 人が いれば 星のうた（なければ てらす）・かべが ある 間に てらす が たまれば てらす
   if (bombSoon && !c.defending) return { type: 'defend' };
   if (kabi2 && canSong) return { type: 'ability', id: SONG };
-  // ひとりの 時は、かべだけの ために てらさない（番が 少ない）
-  if (canTeru && ((wallUp(b) && !alone) || kabi2)) return { type: 'ability', id: TERU };
+  if (canTeru && (wallUp(b) || kabi2)) return { type: 'ability', id: TERU };
   const cmd = base(b, c, decide);
   void bestHit;
   return cmd;

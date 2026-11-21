@@ -62,7 +62,7 @@ async function rewarded(c, qd, talk) {
 // ───── しくみ ─────
 test('しくみ: 3つの 新しい たのまれごと（伝説の 職業に つながる 系統・1〜29 の どれとも かさならない）・今の 時代の まだ いらいの ない 場所・c8_spring の あとだけ', () => {
   assert.equal(WORK6_QUESTS.length, 3);
-  assert.equal(FAMILY_QUESTS.length, 41); // 第80回: 33〜35・第90回: 36〜38・第92回: 39〜41 が うしろに ふえた
+  assert.equal(FAMILY_QUESTS.length, 43); // 第80回: 33〜35・第90回: 36〜38・第92回: 39〜41・第94回: 42・43 が うしろに ふえた
   assert.deepEqual(FAMILY_QUESTS.slice(29, 32), WORK6_QUESTS);
   assert.deepEqual(FAMILY_QUESTS.slice(26, 29), WORK5_QUESTS);
   assert.deepEqual(WORK6_QUESTS.map((x) => x.roots), [['rubber'], ['dragon_knight'], ['konoha']]);
@@ -263,7 +263,7 @@ test('お仕事いらい板: c8_spring の 前は 29まい（5ページ）・あ
   assert.equal(boardPages(before), 5);
   assert.equal(boardList(after).length, 32);
   assert.equal(boardPages(after), 6);
-  assert.equal(boardPages(), 7); // 第80回: 35まいでも 6ページ・第90回: 38まいで 7ページ
+  assert.equal(boardPages(), 8); // 第80回: 35まいでも 6ページ・第90回: 38まいで 7ページ・第94回: 43まいで 8ページ
   const { bot, c } = await setup(754, { flags: OPEN });
   const qd = W.rmn;
   const map = npcAnywhere(qd.npc).map;

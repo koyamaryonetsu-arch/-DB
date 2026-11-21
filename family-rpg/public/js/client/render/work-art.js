@@ -22,6 +22,7 @@ import { WORK7_NPC_LOOKS, addWork7Art } from './work7-art.js';
 import { WORK8_NPC_LOOKS, addWork8Art } from './work8-art.js';
 // 第92回 D班: たのまれごと 39〜41 と より道「大王の、大きなランタン」「まいごの、もぐら兵」の 物の 絵（render/work9-art.js）
 import { addWork9Art } from './work9-art.js';
+import { addWork10Art } from './work10-art.js';
 
 // ───────────── 人の みため ─────────────
 export const WORK_NPC_LOOKS = {
@@ -196,6 +197,7 @@ export function addWorkArt(ART) {
   addWork7Art(ART);
   addWork8Art(ART);
   addWork9Art(ART);
+  addWork10Art(ART);
 }
 
 // ───────────── もらう 乗り物 ─────────────
