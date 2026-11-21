@@ -10,18 +10,18 @@
 // より道「時をこえる手紙」（雪の 地方）は data/sidequests-c7i.js。魔物・きまった 戦い・品は B（plan-ch7.md の 8-2）。ゲストは いない
 import {
   C7I, ARRIVE7I, CF7, KAI4, SHADOW7, WIN7I, DRAGON7I, LETTER7I, LETTER7I_CASTLE, SPIRIT_LETTER, C7I_SNOW, PRESENT_SNOW, CASTLE_DOOR, WITCH_POS, c7icMapId,
-} from '../maps/c7i-flags.js?v=26d09a2ba259';
-import { C7S } from '../maps/c7s-flags.js?v=26d09a2ba259';
-import { C7I_POS } from '../maps/c7i-snow.js?v=26d09a2ba259';
-import { C7IC_POS } from '../maps/c7i-castle.js?v=26d09a2ba259';
-import { MAPS } from '../maps/index.js?v=26d09a2ba259';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=26d09a2ba259';
-import { MONSTERS } from './monsters.js?v=26d09a2ba259';
-import { SHOPS } from './shops.js?v=26d09a2ba259';
-import { SHOPS_C7I } from './shops-c7i.js?v=26d09a2ba259';
-import { GLASS_TEXT } from '../world/time-glass.js?v=26d09a2ba259';
-import { applyC7iSide } from './sidequests-c7i.js?v=26d09a2ba259';
-import { innSteps } from './inn.js?v=26d09a2ba259';
+} from '../maps/c7i-flags.js?v=ff854d15a612';
+import { C7S } from '../maps/c7s-flags.js?v=ff854d15a612';
+import { C7I_POS } from '../maps/c7i-snow.js?v=ff854d15a612';
+import { C7IC_POS } from '../maps/c7i-castle.js?v=ff854d15a612';
+import { MAPS } from '../maps/index.js?v=ff854d15a612';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=ff854d15a612';
+import { MONSTERS } from './monsters.js?v=ff854d15a612';
+import { SHOPS } from './shops.js?v=ff854d15a612';
+import { SHOPS_C7I } from './shops-c7i.js?v=ff854d15a612';
+import { GLASS_TEXT } from '../world/time-glass.js?v=ff854d15a612';
+import { applyC7iSide } from './sidequests-c7i.js?v=ff854d15a612';
+import { innSteps } from './inn.js?v=ff854d15a612';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -6,7 +6,7 @@
 //   ・鏡れん華の指輪と 鏡れん華のうでわ … そろい kagami_renge（2人が 1つずつ つけると、2人とも 最大HPが 少し 上がる。battle-r88-fr.js）
 //   入れない 物: 子どもに 合わない 名前の 魔法・黄金郷（4-6 の とおり）
 //   名前の 直し（使える 字・かぶり）は 設計書の「実装メモ（G17班）」
-import { weapon, shield, acc, priceUp } from './items-r88-kit.js?v=26d09a2ba259';
+import { weapon, shield, acc, priceUp } from './items-r88-kit.js?v=ff854d15a612';
 
 const F = { work: 'frieren' };
 const KR = { work: 'frieren', set: 'kagami_renge' };

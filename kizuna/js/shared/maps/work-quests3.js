@@ -13,8 +13,8 @@
 // 21. 竜守りの村の、くしゃみ火事（消防士の 系統。竜守りの村の 南の 門の 近くの 広場）
 // 22. ホシフル村の、思い出の花畑（大賢者の 系統。ホシフル村の 南西）
 // 23. 鏡の湖のかっぱずもう（カッパの 系統。鏡の湖の 南の ほとり）
-import { npc } from './npc.js?v=26d09a2ba259';
-import { openSpot } from './labyrinth.js?v=26d09a2ba259';
+import { npc } from './npc.js?v=ff854d15a612';
+import { openSpot } from './labyrinth.js?v=ff854d15a612';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ3_OPEN = 'c7_karim';

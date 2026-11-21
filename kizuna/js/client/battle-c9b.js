@@ -6,11 +6,11 @@
 // ・皿: 見られて いる 皿に 金の わと「ねらわれている！こわせ！」・まっ暗の 間は「？」
 // ・まっ暗: がめん ぜんたいを 暗い 青で おおう（こわく しない。スピカの 光の まわりは 少し 明るい）。てらすと うすく なる
 // ・見えにくい 魔物（大ミミズ）: 暗い かげで おおう（てらすと 消える）
-import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=26d09a2ba259';
-import { TERU } from '../shared/data/abilities-c9b.js?v=26d09a2ba259';
-import { monsterCanvas } from './render/monsters.js?v=26d09a2ba259';
+import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=ff854d15a612';
+import { TERU } from '../shared/data/abilities-c9b.js?v=ff854d15a612';
+import { monsterCanvas } from './render/monsters.js?v=ff854d15a612';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js。C9C_OWN_TELE・C9C_SCREEN_ANIMS・C9C_ALLY_FX・C9C_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js?v=26d09a2ba259';
+import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js?v=ff854d15a612';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];
