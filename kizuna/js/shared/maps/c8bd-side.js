@@ -7,9 +7,9 @@
 //
 // 1. 赤ちゃんウミガメの、初めての海 … ナギの島の 南の はま（ウミガメ見守りの 女の子・おばあさん・漁師の 男の子）→ すな山
 // 2. ナギの村の、かくれんぼ … 村の 大通り（おにの 子ども）→ 村の 3か所に かくれた 子ども
-import { npc } from './npc.js?v=d8756ad5e62e';
-import { openSpot } from './labyrinth.js?v=d8756ad5e62e';
-import { VILLAGE } from './c7s-flags.js?v=d8756ad5e62e';
+import { npc } from './npc.js?v=52527b10ae8b';
+import { openSpot } from './labyrinth.js?v=52527b10ae8b';
+import { VILLAGE } from './c7s-flags.js?v=52527b10ae8b';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第2幕の「千年前の 海に 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 6-2）

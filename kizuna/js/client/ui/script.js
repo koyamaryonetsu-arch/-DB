@@ -1,19 +1,21 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=d8756ad5e62e';
-import { paintRare } from './rarity.js?v=d8756ad5e62e';
-import { ListMenu } from './dom.js?v=d8756ad5e62e';
-import { openServiceUI } from './services.js?v=d8756ad5e62e';
-import { monsterCanvas } from '../render/monsters.js?v=d8756ad5e62e';
-import { npcSprite } from '../field.js?v=d8756ad5e62e';
-import { reportError } from '../errlog.js?v=d8756ad5e62e';
+import { el } from './dom.js?v=52527b10ae8b';
+import { paintRare } from './rarity.js?v=52527b10ae8b';
+import { ListMenu } from './dom.js?v=52527b10ae8b';
+import { openServiceUI } from './services.js?v=52527b10ae8b';
+import { monsterCanvas } from '../render/monsters.js?v=52527b10ae8b';
+import { npcSprite } from '../field.js?v=52527b10ae8b';
+import { reportError } from '../errlog.js?v=52527b10ae8b';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=d8756ad5e62e';
+import { paperPop } from './paper-pop.js?v=52527b10ae8b';
 // 第88回 G3班: まぼろしの回廊の とびらの まど（rivals-r88.js）
-import { rivalPop } from './rivals-r88.js?v=d8756ad5e62e';
+import { rivalPop } from './rivals-r88.js?v=52527b10ae8b';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=d8756ad5e62e';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=52527b10ae8b';
 // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
-import { askTreasureList } from './treasure.js?v=d8756ad5e62e';
+import { askTreasureList } from './treasure.js?v=52527b10ae8b';
+// 第94回 A班: 見はらし台で 画面を 広く 引く（client/c10a-view.js）
+import { setWide10a } from '../c10a-view.js?v=52527b10ae8b';
 
 const TYPE_MS = 28;
 
@@ -177,6 +179,10 @@ export class ScriptPlayer {
         g.field.weatherOverride = a[0] === undefined ? null : a[0];
         return null;
       // カメラを その 場所へ ゆっくり 向ける（大きな 竜が 画面に 入るように）。['look'] で 自分に もどす
+      // 第94回 A班: 見はらし台で 画面を 広く 引く（client/c10a-view.js）
+      case 'c10Wide':
+        setWide10a(g.field, !!a[0]);
+        return wait(a[0] ? 400 : 100);
       case 'look':
         g.field.lookAt = a.length >= 2 ? { x: a[0], y: a[1] } : null;
         return wait(a.length >= 2 ? 650 : 250);

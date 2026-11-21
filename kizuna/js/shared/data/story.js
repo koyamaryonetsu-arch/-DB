@@ -12,45 +12,47 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=d8756ad5e62e';
-import { PLACES } from '../maps/overworld.js?v=d8756ad5e62e';
-import { abilityLabel } from '../ability-label.js?v=d8756ad5e62e';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=d8756ad5e62e';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=d8756ad5e62e';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=d8756ad5e62e';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=d8756ad5e62e';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=d8756ad5e62e';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=d8756ad5e62e';
+import { POS } from '../maps/index.js?v=52527b10ae8b';
+import { PLACES } from '../maps/overworld.js?v=52527b10ae8b';
+import { abilityLabel } from '../ability-label.js?v=52527b10ae8b';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=52527b10ae8b';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=52527b10ae8b';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=52527b10ae8b';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=52527b10ae8b';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=52527b10ae8b';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=52527b10ae8b';
 // 第2部 第6章「時の砂時計」Step 1・2（story-ch6.js）
-import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=d8756ad5e62e';
+import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=52527b10ae8b';
 // 第2部 第7章 第1幕「緑の王国」Step 1・2（story-c7.js）
-import { CH7_STEPS, applyCh7 } from './story-c7.js?v=d8756ad5e62e';
+import { CH7_STEPS, applyCh7 } from './story-c7.js?v=52527b10ae8b';
 // 第2部 第8章 第1幕「月の王宮のうらぎり」Step 1・2（story-c8.js）
-import { CH8_STEPS, applyCh8 } from './story-c8.js?v=d8756ad5e62e';
+import { CH8_STEPS, applyCh8 } from './story-c8.js?v=52527b10ae8b';
 // 第3部 第1章「おちてきた星の子」（story-c9.js。第90回 Z班の 下じき。今は 何も つながない）
-import { CH9_STEPS, applyCh9 } from './story-c9.js?v=d8756ad5e62e';
-import { wrapC9cdGrave } from './sidequests-c9cd.js?v=d8756ad5e62e';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=d8756ad5e62e';
-import { SD_SCRIPTS } from './story-secret.js?v=d8756ad5e62e';
-import { CASINO_SCRIPTS } from './story-casino.js?v=d8756ad5e62e';
-import { innSteps } from './inn.js?v=d8756ad5e62e';
-import { NIGHT_SCRIPTS } from './night.js?v=d8756ad5e62e';
-import { skyScripts } from './sky.js?v=d8756ad5e62e';
-import { FACILITY_SCRIPTS } from './facilities.js?v=d8756ad5e62e';
-import { wagonEventSteps } from './wagon.js?v=d8756ad5e62e';
-import { JOB_GREET } from './job-talk.js?v=d8756ad5e62e';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=d8756ad5e62e';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=d8756ad5e62e';
+import { CH9_STEPS, applyCh9 } from './story-c9.js?v=52527b10ae8b';
+import { wrapC9cdGrave } from './sidequests-c9cd.js?v=52527b10ae8b';
+// 第94回 A班: 第3部 第2章「七つの星の音」（story-c10.js）
+import { CH10_STEPS, applyCh10 } from './story-c10.js?v=52527b10ae8b';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=52527b10ae8b';
+import { SD_SCRIPTS } from './story-secret.js?v=52527b10ae8b';
+import { CASINO_SCRIPTS } from './story-casino.js?v=52527b10ae8b';
+import { innSteps } from './inn.js?v=52527b10ae8b';
+import { NIGHT_SCRIPTS } from './night.js?v=52527b10ae8b';
+import { skyScripts } from './sky.js?v=52527b10ae8b';
+import { FACILITY_SCRIPTS } from './facilities.js?v=52527b10ae8b';
+import { wagonEventSteps } from './wagon.js?v=52527b10ae8b';
+import { JOB_GREET } from './job-talk.js?v=52527b10ae8b';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=52527b10ae8b';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=52527b10ae8b';
 // 第37回 A: サファラ闘技場（しょりは world/arena.js）
-import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=d8756ad5e62e';
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=52527b10ae8b';
 // 第67回 A班: モンスター闘技場の 人（story-monarena-a.js）
-import { MONARENA_A_SCRIPTS } from './story-monarena-a.js?v=d8756ad5e62e';
-import { TRIAL_SCRIPTS } from './story-trials.js?v=d8756ad5e62e';
+import { MONARENA_A_SCRIPTS } from './story-monarena-a.js?v=52527b10ae8b';
+import { TRIAL_SCRIPTS } from './story-trials.js?v=52527b10ae8b';
 // 第88回 G4班: 作品の ガチャガチャ・竜神の ほこら
-import { GACHA_R88_SCRIPTS } from '../world/gacha-r88.js?v=d8756ad5e62e';
+import { GACHA_R88_SCRIPTS } from '../world/gacha-r88.js?v=52527b10ae8b';
 // 第88回 G3班: まぼろしの回廊の とびら（story-rivals-r88.js）
-import { RIVAL_SCRIPTS } from './story-rivals-r88.js?v=d8756ad5e62e';
-import { applyTownHints } from './secret-hints.js?v=d8756ad5e62e';
+import { RIVAL_SCRIPTS } from './story-rivals-r88.js?v=52527b10ae8b';
+import { applyTownHints } from './secret-hints.js?v=52527b10ae8b';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -68,6 +70,7 @@ export const STORY_STEPS = [
   ...CH7_STEPS,
   ...CH8_STEPS,
   ...CH9_STEPS,
+  ...CH10_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
@@ -667,6 +670,8 @@ applyCh8(SCRIPTS, STORY_SCRIPTS);
 applyCh9(SCRIPTS, STORY_SCRIPTS);
 // 第94回 D班: より道「ムウとムウムウの、あそび道具」の さいごの 場面（はかばに すわる 2人の だいほんを つつむ。sidequests-c9cd.js）
 wrapC9cdGrave(SCRIPTS);
+// 第3部 第2章（story-c10.js）: 第1幕「赤と緑」（PART3_C10A_OPEN が false の 間は 始まらない）
+applyCh10(SCRIPTS, STORY_SCRIPTS);
 
 // 第35回: かくし要素の ヒント（町の 人の さいごに 1行。secret-hints.js）
 applyTownHints(SCRIPTS);

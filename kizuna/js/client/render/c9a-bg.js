@@ -2,7 +2,7 @@
 // ・c9a_forest（deco 'c9a_forest'）… 星ふるえの森: 星の 夜空と ながれ星の すじ・たおれた 木・光る かけらが ちらばる 森（3人組の 戦いも ここ）
 // ・c9a_cave（deco 'c9a_cave'）… 星の石の地下道: 暗い 石の 道・光る こけ・星の石の 根・大きな 光の 水しょう（ホシモリの ためしも ここ）
 // 第3部 第1章 第2幕（大地の下・ごちそうの 間。c9b-bg.js）もここから
-import { C9B_BG, C9B_DECOS, drawC9bBg, drawC9bFloorBg } from './c9b-bg.js?v=d8756ad5e62e';
+import { C9B_BG, C9B_DECOS, drawC9bBg, drawC9bFloorBg } from './c9b-bg.js?v=52527b10ae8b';
 
 const BW = 256, BH = 144;
 

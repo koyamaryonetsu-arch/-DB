@@ -11,14 +11,14 @@
 // ※ 大きな くぼみに おちた 星の 名前は 出さない・だれの くぼみかも 書かない。「ながされた」は スピカの 問いと 石の 文字だけ（だれが・なぜは 書かない）。
 //   第1部・第2部の ひみつに ふれる せりふは 書かない。カイは 出さない。少年の わけは 書かない。もとの 作品の 名前・せりふは 使わない
 // ※ しずかな 山: はかばの 場面は せりふを 少なく、間を 取る（['wait', …]）。こわがりすぎない・かなしすぎない
-import { C9D, C9D_ACT3, C9D_MAP, C9D_BATTLE, C9D_BOSS_MON, C9D_MU_NAME, C9D_MUMU_NAME, C9D_TRACKS } from '../maps/c9d-flags.js?v=d8756ad5e62e';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=d8756ad5e62e';
-import { ALGOL_NAME, C9C_MAP } from '../maps/c9c-flags.js?v=d8756ad5e62e';
-import { C9D_POS, SHORE_DOOR9D } from '../maps/c9d-rows.js?v=d8756ad5e62e';
-import { C9D_SEEN } from '../maps/c9d.js?v=d8756ad5e62e';
-import { PEDESTALS9C, PED_MI } from '../maps/c9c.js?v=d8756ad5e62e';
-import { MONSTERS } from './monsters.js?v=d8756ad5e62e';
-import { mergeBossHints } from './boss-hints.js?v=d8756ad5e62e';
+import { C9D, C9D_ACT3, C9D_MAP, C9D_BATTLE, C9D_BOSS_MON, C9D_MU_NAME, C9D_MUMU_NAME, C9D_TRACKS } from '../maps/c9d-flags.js?v=52527b10ae8b';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=52527b10ae8b';
+import { ALGOL_NAME, C9C_MAP } from '../maps/c9c-flags.js?v=52527b10ae8b';
+import { C9D_POS, SHORE_DOOR9D } from '../maps/c9d-rows.js?v=52527b10ae8b';
+import { C9D_SEEN } from '../maps/c9d.js?v=52527b10ae8b';
+import { PEDESTALS9C, PED_MI } from '../maps/c9c.js?v=52527b10ae8b';
+import { MONSTERS } from './monsters.js?v=52527b10ae8b';
+import { mergeBossHints } from './boss-hints.js?v=52527b10ae8b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -243,7 +243,7 @@ const muTalk = (x) => (x.flag(C9D.mu)
   : S('あそびたい魔人', 'あそぼう！　あそぼう！'));
 
 // ───── 8・9 大きな くぼみ → 第1章 おわり ─────
-function hollowScene() {
+function hollowScene(act4End = C9D_OBJ.act4) {
   const H = GP.hollow, R = GP.rock;
   const hx = H.x + 0.5, hy = H.y + 0.5;
   return [
@@ -290,14 +290,15 @@ function hollowScene() {
     ['flag', C9D.act4],
     ['unflag', C9D_SEEN.g1],
     ['sync'],
-    ['objective', C9D_OBJ.act4],
+    ['objective', act4End],
     ['bgm', 'resume'],
   ];
 }
 
 // ───── だいほん ─────
 //   open … 幕が 開いて いるか（story-c9.js の PART3_ACT4_OPEN）。false の 間は 黄の 台の 前に 来ても 始まらない
-export function c9dScripts(title, open) {
+//   act4End … 第1章 クリアの 目標の 文（第94回: story-c9.js の act4ClearObjective。第2章 第1幕が 開くと かわる）
+export function c9dScripts(title, open, act4End = C9D_OBJ.act4) {
   const song = (x) => (open && x.flag(C9D_ACT3) && !x.flag(C9D.song1) ? songScene(title) : []);
   return {
     c9d_song_event: song,
@@ -317,7 +318,7 @@ export function c9dScripts(title, open) {
     c9d_hollow: (x) => hollowSteps(x),
     c9d_mu_event: (x) => (x.flag(C9D.grave) && !x.flag(C9D.mu) ? muScene() : []),
     c9d_mu_talk: (x) => (x.flag(C9D.grave) && !x.flag(C9D.mu) ? muScene() : muTalk(x)),
-    c9d_hollow_event: (x) => (x.flag(C9D.mu) && !x.flag(C9D.act4) ? hollowScene() : []),
+    c9d_hollow_event: (x) => (x.flag(C9D.mu) && !x.flag(C9D.act4) ? hollowScene(act4End) : []),
   };
 }
 
@@ -366,8 +367,8 @@ export const CH9D_PROGRESS = [
 // ───── story-c9.js の applyCh9 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん（story-c9.js の c9dTitleSteps）/ open … 幕が 開いて いるか（PART3_ACT4_OPEN）
 //   くぼ地の 音の 台（第3幕の c9c_ped）は、幕が 開いて いる 時だけ 黄の 台で 歌の 場面に なる
-export function applyCh9d(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S9 = c9dScripts(title, open);
+export function applyCh9d(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act4End = C9D_OBJ.act4 } = {}) {
+  const S9 = c9dScripts(title, open, act4End);
   Object.assign(SCRIPTS, S9);
   for (const id of CH9D_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   if (!open) return;

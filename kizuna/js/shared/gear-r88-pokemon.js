@@ -4,8 +4,8 @@
 //     いちばん 大きい 1つ分だけ（重ねても ふえない）
 //   ・ボール（武器の befriend）… 戦いの あと、たおした 魔物が 仲間に なりたがる わりあいに かける（world/battles.js。職業の 力に かけ合わせる）
 //     いっしょに 戦った 人の うち いちばん 大きい ボール 1つ分
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=d8756ad5e62e';
-import { JOBS } from './data/jobs.js?v=d8756ad5e62e';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=52527b10ae8b';
+import { JOBS } from './data/jobs.js?v=52527b10ae8b';
 
 const worn = (char) => SLOTS.map((sl) => ITEMS[baseItemId(char?.equip?.[sl])]).filter(Boolean);
 // 進化の まえ（基本職・上級職）。魔物の 仲間は 職業が ないので 効かない

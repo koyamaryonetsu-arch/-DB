@@ -3,7 +3,7 @@
 //   ・オボンのみ（品の pkBerry）… HPが 半分を 切ると、行動の おわりに 自分で 食べて 最大HPの pkBerry 回復（1つの 戦いで 1回。だれの 行動の あとでも）
 //   ・いのちのたま（品の pkRecoil）… つけた 人が 敵に ダメージを あたえた 行動の おわりに、最大HPの pkRecoil へる（HPは 1より 下がらない）
 //   どれも 戦いの 中だけ（セーブしない）
-import { ITEMS, baseItemId } from './data/items.js?v=d8756ad5e62e';
+import { ITEMS, baseItemId } from './data/items.js?v=52527b10ae8b';
 
 const accOf = (a) => (a?.side === 'ally' ? ITEMS[baseItemId(a.acc)] : null);
 const touch = (ev, a) => { if (!ev.upd.includes(a)) ev.upd.push(a); };

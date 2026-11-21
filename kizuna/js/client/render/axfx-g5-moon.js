@@ -2,8 +2,8 @@
 // ・男の子の 版（タキシード仮面ふう）は 赤い バラ・黒い マント・白い 仮面・満月。キング・エンディミオンふうは 金
 // ・時間は shared/data/ax-time-g5.js（ここには 見た目だけ）。c の 時間は はなつ しゅんかんが 0
 // ・画面の 文字は かかない（文字の 中に 漢字を 入れない。コメントは よい）
-import { rnd, lerp, clamp01, easeOut, softGlow, disc, mixHex } from './axkit.js?v=d8756ad5e62e';
-import { wrapPlay, sparkleFill, crescentPath, arrows } from './axfx-g5-kit.js?v=d8756ad5e62e';
+import { rnd, lerp, clamp01, easeOut, softGlow, disc, mixHex } from './axkit.js?v=52527b10ae8b';
+import { wrapPlay, sparkleFill, crescentPath, arrows } from './axfx-g5-kit.js?v=52527b10ae8b';
 
 const TAU = Math.PI * 2;
 // 色

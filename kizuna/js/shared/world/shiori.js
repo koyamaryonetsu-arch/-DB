@@ -7,36 +7,36 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=d8756ad5e62e';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=d8756ad5e62e';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=d8756ad5e62e';
-import { jobLine } from '../data/fq-common.js?v=d8756ad5e62e';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=d8756ad5e62e';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=d8756ad5e62e';
-import { tmLvCap, tmTitle } from '../data/treasure.js?v=d8756ad5e62e';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=d8756ad5e62e';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=d8756ad5e62e';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=d8756ad5e62e';
-import { phantomBook } from '../data/phantom.js?v=d8756ad5e62e';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=d8756ad5e62e';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=d8756ad5e62e';
-import { bestiaryOrder } from '../data/companions.js?v=d8756ad5e62e';
-import { MONSTERS } from '../data/monsters.js?v=d8756ad5e62e';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=d8756ad5e62e';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=d8756ad5e62e';
-import { LB_MAX } from '../data/items-forge.js?v=d8756ad5e62e';
-import { ITEMS } from '../data/items.js?v=d8756ad5e62e';
-import { MAPS, condOk } from '../maps/index.js?v=d8756ad5e62e';
-import { jobLabel } from '../job-label.js?v=d8756ad5e62e';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=52527b10ae8b';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=52527b10ae8b';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=52527b10ae8b';
+import { jobLine } from '../data/fq-common.js?v=52527b10ae8b';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=52527b10ae8b';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=52527b10ae8b';
+import { tmLvCap, tmTitle } from '../data/treasure.js?v=52527b10ae8b';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=52527b10ae8b';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=52527b10ae8b';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=52527b10ae8b';
+import { phantomBook } from '../data/phantom.js?v=52527b10ae8b';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=52527b10ae8b';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=52527b10ae8b';
+import { bestiaryOrder } from '../data/companions.js?v=52527b10ae8b';
+import { MONSTERS } from '../data/monsters.js?v=52527b10ae8b';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=52527b10ae8b';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=52527b10ae8b';
+import { LB_MAX } from '../data/items-forge.js?v=52527b10ae8b';
+import { ITEMS } from '../data/items.js?v=52527b10ae8b';
+import { MAPS, condOk } from '../maps/index.js?v=52527b10ae8b';
+import { jobLabel } from '../job-label.js?v=52527b10ae8b';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
-import { bossHintsSeen } from '../data/boss-hints.js?v=d8756ad5e62e';
+import { bossHintsSeen } from '../data/boss-hints.js?v=52527b10ae8b';
 // 第88回 G4班: 作品の ガチャガチャ・七つの玉
-import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=d8756ad5e62e';
-import { workName } from '../data/works.js?v=d8756ad5e62e';
+import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=52527b10ae8b';
+import { workName } from '../data/works.js?v=52527b10ae8b';
 // 第88回 G9班: ドラゴンボール（data/shenron-r88.js）
-import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=d8756ad5e62e';
+import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=52527b10ae8b';
 // 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
-import { rivalTrack, rivalRec } from '../rivals-r88.js?v=d8756ad5e62e';
+import { rivalTrack, rivalRec } from '../rivals-r88.js?v=52527b10ae8b';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -91,6 +91,13 @@ export const CHAPTERS = [
       { n: 4, start: 'c9_song1', title: '星のはかば', seen: 'c9_song1', clear: 'c9_act4' },
     ],
   },
+  {
+    // 第94回 A班: 第3部 第2章（中の 番号は 10。表示は chapterLabel で「第2章」）。くぼ地で 星の音さを 鳴らして 題の 画面を 見た あと
+    n: 10, part: 3, start: 'c10_start', clear: null, title: '七つの星の音',
+    acts: [
+      { n: 1, start: 'c10_start', title: '赤と緑', seen: 'c10_start', clear: 'c10_act1' },
+    ],
+  },
 ];
 const PART_NAMES = { 1: '第1部', 2: '第2部', 3: '第3部' };
 // 部の はじめの 章の 中の 番号（第3部だけ 部の 中の 番号で 出す。第1・2部は 通しの 番号「第8章」の まま）
@@ -123,7 +130,9 @@ export function storyPlace(c) {
 export function storyNext(c) {
   const obj = String(c?.objective || '');
   const specs = OBJECTIVE_TARGETS[obj];
-  const where = specs ? liveTargets(c, specs).map((s) => whereName(s)).find(Boolean) || '' : '';
+  // 第94回 A班: すきな じゅんの 幕（目標が 2行）は 2つの 行き先を ならべる（赤・緑）
+  const names = specs ? liveTargets(c, specs).map((s) => whereName(s)).filter(Boolean) : [];
+  const where = obj.includes('\n') ? [...new Set(names)].join('／') : names[0] || '';
   const talk = OBJECTIVE_TALK[obj];
   const hint = talk ? talk.kind || '' : '';
   // 「続きはアップデートで！」… 今は 物語の 先が ない
