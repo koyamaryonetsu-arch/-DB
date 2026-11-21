@@ -8,10 +8,16 @@
 // rivals-r88.js・battle-trial.js）は この 一覧を 1回ずつ 読む だけ。きずなの職業が ふえても 行を 足さなくて よい
 import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js';
 import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js';
+import { KIZUNA_KEIJI } from './jobs-r98-keiji.js';
+import { KIZUNA_OTENKI } from './jobs-r98-otenki.js';
+import { KIZUNA_TOUKA } from './jobs-r98-touka.js';
 
 export const KIZUNA = [
   KIZUNA_KUUCHOU, // 第98回 K1班: 熱と風の空調マスター（烈火 ＋ 天才しせつ管理者）
   KIZUNA_HOKAGE, // 第98回 K1班: 八竜の火影（烈火 ＋ 七代目火影）
+  KIZUNA_KEIJI, // 第98回 K4班: 元ヤンのけいじ（魔界の王の子 ＋ トリプルフェイス）
+  KIZUNA_OTENKI, // 第98回 K4班: おてんき格闘流の師はん（飛竜しょう天はの達人 ＋ 天候をあやつる者）
+  KIZUNA_TOUKA, // 第98回 K4班: 等価交かんの大魔道士（ドラまた ＋ 真理のとびらをひらく者）
 ];
 
 // 職業の id（ならびの じゅん）

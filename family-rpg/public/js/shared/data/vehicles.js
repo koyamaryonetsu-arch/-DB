@@ -135,6 +135,7 @@ import { KIZUNA_VEHICLES } from './kizuna.js'; Object.assign(VEHICLES, KIZUNA_VE
 VEHICLES.fire_dragon.jobs.push('kuuchou_master', 'hachiryu_hokage');
 VEHICLES.kei_truck.jobs.push('kuuchou_master');
 VEHICLES.ninja_dash.jobs.push('hachiryu_hokage');
+VEHICLES.rei_bird.jobs.push('motoyan_keiji'); VEHICLES.police_bike.jobs.push('motoyan_keiji'); VEHICLES.spy_car.jobs.push('motoyan_keiji'); VEHICLES.panda.jobs.push('otenki_shihan'); VEHICLES.cloud.jobs.push('otenki_shihan'); VEHICLES.feast_cart.jobs.push('touka_madoushi'); VEHICLES.rock_cart.jobs.push('touka_madoushi'); // 第98回 K4班
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
