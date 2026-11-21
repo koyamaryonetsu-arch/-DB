@@ -5,8 +5,8 @@
 // ・o3Line … のびる 線（レーザー・注意の テープ・根っこ・つながる 光・飛行機雲）
 // ・o3Bg … 発射の あと 一しゅんの 背景（夜の ビル・朝日・海）。うすく（0.35 まで）。画面を 暗く する ものでは ない
 // ・どれも 1つの つぶで 大きな 絵を かく。毎フレーム グラデーションを 作らない（softGlow の キャッシュ）
-import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash, rnd } from './axkit.js?v=7f0a6eee2a0c';
-import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=7f0a6eee2a0c';
+import { softGlow, disc, clamp01, lerp, easeOut, easeIn, easeInOut, hash, rnd } from './axkit.js?v=786b3cdacd05';
+import { AX_BUDGET_ORIG } from '../../shared/ax-time.js?v=786b3cdacd05';
 
 const TAU = Math.PI * 2;
 const OUT = '#2a1a10';

@@ -2,7 +2,7 @@
 // ・どの つぶも p.age（ms）で かく。うごく ものは p.keys（[[ms, x, y, …], …]）で いちを きめる（p.x・p.y は 画面の 中の めじるし）
 // ・大きな 形（らせん丸・ゴムの うで・赤い 電車・バット…）は 1つの つぶで パスを かく（つぶの かずを ふやさない）
 // ・画面の 文字は ここの 線の 字（ハ・K・5・0・!・Z・オ・ー）だけ
-import { softGlow, disc, rgba, clamp01, lerp, easeOut, easeIn, hash, rnd } from './axkit.js?v=7f0a6eee2a0c';
+import { softGlow, disc, rgba, clamp01, lerp, easeOut, easeIn, hash, rnd } from './axkit.js?v=786b3cdacd05';
 
 const TAU = Math.PI * 2;
 

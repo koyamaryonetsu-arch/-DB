@@ -7,9 +7,9 @@
 // ・大王のやしき: ゆか（440 赤い じゅうたん）/ かべ（441）/ ごちそうの テーブル（442）/ 村の ごちそうの はこ（443）/ 門（444）/ たる（445）
 // どれも その 場所の 色で かいて あるので、テーマで 色を かえない（render/tiles-castle.js の THEME_PARTS）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=7f0a6eee2a0c';
-import { prand } from './pixel.js?v=7f0a6eee2a0c';
-import { THEME_PARTS } from './tiles-castle.js?v=7f0a6eee2a0c';
+import { T } from '../../shared/tiles.js?v=786b3cdacd05';
+import { prand } from './pixel.js?v=786b3cdacd05';
+import { THEME_PARTS } from './tiles-castle.js?v=786b3cdacd05';
 
 const GR = { d: '#16121e', b: '#241e30', l: '#342c44', hl: '#4a405e' }; // 大地の下の 土
 const RK = { d: '#08070c', b: '#14121c', l: '#22202e', hl: '#363248' }; // 岩

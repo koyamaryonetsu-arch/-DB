@@ -6,19 +6,19 @@
 // ・皿: 見られて いる 皿に 金の わと「ねらわれている！こわせ！」・まっ暗の 間は「？」
 // ・まっ暗: がめん ぜんたいを 暗い 青で おおう（こわく しない。スピカの 光の まわりは 少し 明るい）。てらすと うすく なる
 // ・見えにくい 魔物（大ミミズ）: 暗い かげで おおう（てらすと 消える）
-import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=7f0a6eee2a0c';
-import { TERU } from '../shared/data/abilities-c9b.js?v=7f0a6eee2a0c';
-import { monsterCanvas } from './render/monsters.js?v=7f0a6eee2a0c';
+import { C9B_DEDEDON, C9B_DISH_IDS } from '../shared/data/monsters-c9b.js?v=786b3cdacd05';
+import { TERU } from '../shared/data/abilities-c9b.js?v=786b3cdacd05';
+import { monsterCanvas } from './render/monsters.js?v=786b3cdacd05';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js。C9C_OWN_TELE・C9C_SCREEN_ANIMS・C9C_ALLY_FX・C9C_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js?v=7f0a6eee2a0c';
+import { c9cSprite, c9cDraw, c9cPresent, c9cCmdItems, c9cCmdPick } from './battle-c9c.js?v=786b3cdacd05';
 // 第3部 第1章 第4幕: 星のうた・あそびたい魔人 ムウ（battle-c9d.js。C9D_OWN_TELE・C9D_SCREEN_ANIMS・C9D_ALLY_FX・C9D_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9dHud, c9dSprite, c9dDraw, c9dPresent, c9dCmdItems, c9dCmdPick } from './battle-c9d.js?v=7f0a6eee2a0c';
+import { c9dHud, c9dSprite, c9dDraw, c9dPresent, c9dCmdItems, c9dCmdPick } from './battle-c9d.js?v=786b3cdacd05';
 // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js。C10A_OWN_TELE・C10A_SCREEN_ANIMS・C10A_ALLY_FX・C10A_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c10aSprite, c10aDraw, c10aPresent, c10aCmdInfo } from './battle-c10a.js?v=7f0a6eee2a0c';
+import { c10aSprite, c10aDraw, c10aPresent, c10aCmdInfo } from './battle-c10a.js?v=786b3cdacd05';
 // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js。C10B_OWN_TELE・C10B_SCREEN_ANIMS・C10B_ALLY_FX・C10B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c10bSprite, c10bDraw, c10bPresent, c10bCmdItems, c10bCmdPick } from './battle-c10b.js?v=7f0a6eee2a0c';
+import { c10bSprite, c10bDraw, c10bPresent, c10bCmdItems, c10bCmdPick } from './battle-c10b.js?v=786b3cdacd05';
 // 第3部 第2章 第3幕: たいさ・アルゴル（battle-c10c.js。C10C_OWN_TELE・C10C_SCREEN_ANIMS・C10C_ALLY_FX・C10C_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c10cSprite, c10cDraw, c10cPresent, c10cCmdItems, c10cCmdPick } from './battle-c10c.js?v=7f0a6eee2a0c';
+import { c10cSprite, c10cDraw, c10cPresent, c10cCmdItems, c10cCmdPick } from './battle-c10c.js?v=786b3cdacd05';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];

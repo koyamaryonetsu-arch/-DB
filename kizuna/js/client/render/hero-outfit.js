@@ -1,64 +1,66 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=7f0a6eee2a0c';
-import { ITEMS } from '../../shared/data/items.js?v=7f0a6eee2a0c';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=786b3cdacd05';
+import { ITEMS } from '../../shared/data/items.js?v=786b3cdacd05';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=7f0a6eee2a0c';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=786b3cdacd05';
 // 第27回の 暴れんぼう将軍（はかまと 羽織・ちょんまげ・せんす）
-import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=7f0a6eee2a0c';
+import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=786b3cdacd05';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
-import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=7f0a6eee2a0c';
+import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=786b3cdacd05';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
-import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=7f0a6eee2a0c';
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=786b3cdacd05';
 // 第40回の 伝説の 職業 2つ（竜魔人・ネオ・クイーン・セレニティ）
-import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=7f0a6eee2a0c';
+import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=786b3cdacd05';
 // 第72回: ロトの紋章の かたち（むねの しるし）
-import { ROTO_SIL, ROTO_PARTS, ROTO_GEM } from './crest-shapes.js?v=7f0a6eee2a0c';
+import { ROTO_SIL, ROTO_PARTS, ROTO_GEM } from './crest-shapes.js?v=786b3cdacd05';
 // 第41回 B の 2つの 職業（雪の女王・第5のせいれい）
-import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js?v=7f0a6eee2a0c';
+import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js?v=786b3cdacd05';
 // 第41回 A の 伝説の 職業 2つ（京急の社長・野球界の殿堂入り）
-import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js?v=7f0a6eee2a0c';
+import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js?v=786b3cdacd05';
 // 第43回の 配管工の 系統（女の子の ももの姫・おてんば姫・ピーチ。男の子は hero-r43j.js の R43J_MASC）
-import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js?v=7f0a6eee2a0c';
+import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js?v=786b3cdacd05';
 // 第51回 W の 天気の 職業（気象予報士・お天気キャスター・天候をあやつる者）
-import { WEATHER_OUTFIT, WEATHER_BODY } from './hero-weather.js?v=7f0a6eee2a0c';
+import { WEATHER_OUTFIT, WEATHER_BODY } from './hero-weather.js?v=786b3cdacd05';
 // 第66回 B班の 伝説の 職業 4つ（ニューカワイイ・SMAP・大御所・五つ星シェフ）
-import { R66B_OUTFIT, R66B_BODY } from './hero-r66b.js?v=7f0a6eee2a0c';
+import { R66B_OUTFIT, R66B_BODY } from './hero-r66b.js?v=786b3cdacd05';
 // 第66回 A の 伝説の 職業 4つ（守りの神・光と闇の剣神・ポケモンマスター・千年の大魔法使い）
-import { R66A_OUTFIT, R66A_BODY } from './hero-r66a.js?v=7f0a6eee2a0c';
+import { R66A_OUTFIT, R66A_BODY } from './hero-r66a.js?v=786b3cdacd05';
 // 第66回 C班の 伝説の職業（総理大臣・会長・働き方改革の星・あの方）
-import { R66C_OUTFIT, R66C_BODY } from './hero-r66c.js?v=7f0a6eee2a0c';
+import { R66C_OUTFIT, R66C_BODY } from './hero-r66c.js?v=786b3cdacd05';
 // 第66回 D班の 伝説の 職業（月下のき術師・のぶドラ・かっぱの大王・真理のとびらをひらく者・ロゼッタ。hero-r66d.js）
-import { R66D_OUTFIT, R66D_BODY } from './hero-r66d.js?v=7f0a6eee2a0c';
+import { R66D_OUTFIT, R66D_BODY } from './hero-r66d.js?v=786b3cdacd05';
 // 第66回 E1班の 6つの 職業（公安ゼロ〜世界一の配信者。hero-r66e1.js）
-import { R66E1_OUTFIT, R66E1_BODY } from './hero-r66e1.js?v=7f0a6eee2a0c';
+import { R66E1_OUTFIT, R66E1_BODY } from './hero-r66e1.js?v=786b3cdacd05';
 // 第66回 E2 の 6つの 職業（eスポーツ世界王者・ゲームの神・楽天ゴールド／ブラックカードマン・サイキッカー・さいきくすお）
-import { R66E2_OUTFIT, R66E2_BODY } from './hero-r66e2.js?v=7f0a6eee2a0c';
+import { R66E2_OUTFIT, R66E2_BODY } from './hero-r66e2.js?v=786b3cdacd05';
 // 第79回: 幻の職業 12この 服・からだ（hero-r79.js）
-import { R79_OUTFIT, R79_BODY } from './hero-r79.js?v=7f0a6eee2a0c';
+import { R79_OUTFIT, R79_BODY } from './hero-r79.js?v=786b3cdacd05';
 // 第82回 A: 犬夜叉の 系統 4つの 服・からだ（hero-r82a.js）
-import { R82A_OUTFIT, R82A_BODY } from './hero-r82a.js?v=7f0a6eee2a0c';
+import { R82A_OUTFIT, R82A_BODY } from './hero-r82a.js?v=786b3cdacd05';
 // 第82回 B班: YAIBA の 系統（hero-r82b.js）
-import { R82B_OUTFIT, R82B_BODY } from './hero-r82b.js?v=7f0a6eee2a0c';
+import { R82B_OUTFIT, R82B_BODY } from './hero-r82b.js?v=786b3cdacd05';
 // 第83回 B班: ぬ〜べ〜の 系統（hero-r83b.js）
-import { R83B_OUTFIT, R83B_BODY } from './hero-r83b.js?v=7f0a6eee2a0c';
+import { R83B_OUTFIT, R83B_BODY } from './hero-r83b.js?v=786b3cdacd05';
 // 第83回 A班: 封神演義の 系統（hero-r83a.js）
-import { R83A_OUTFIT, R83A_BODY } from './hero-r83a.js?v=7f0a6eee2a0c';
+import { R83A_OUTFIT, R83A_BODY } from './hero-r83a.js?v=786b3cdacd05';
 // 第84回 B班: らんま1/2 の 系統（hero-r84b.js）
-import { R84B_OUTFIT, R84B_BODY } from './hero-r84b.js?v=7f0a6eee2a0c';
+import { R84B_OUTFIT, R84B_BODY } from './hero-r84b.js?v=786b3cdacd05';
 // 第84回 A班: 幽☆遊☆白書の 系統（hero-r84a.js）
-import { R84A_OUTFIT, R84A_BODY } from './hero-r84a.js?v=7f0a6eee2a0c';
+import { R84A_OUTFIT, R84A_BODY } from './hero-r84a.js?v=786b3cdacd05';
 // 第85回 B班: 烈火の炎の 系統（hero-r85b.js）
-import { R85B_OUTFIT, R85B_BODY } from './hero-r85b.js?v=7f0a6eee2a0c';
+import { R85B_OUTFIT, R85B_BODY } from './hero-r85b.js?v=786b3cdacd05';
 // 第85回 A班: スレイヤーズの 系統（hero-r85a.js。黄色い かたあては outfit85a）
-import { R85A_OUTFIT, R85A_BODY, outfit85a } from './hero-r85a.js?v=7f0a6eee2a0c';
+import { R85A_OUTFIT, R85A_BODY, outfit85a } from './hero-r85a.js?v=786b3cdacd05';
 // 第86回 B班: 幻の職業 天下一の格闘王・混とんの大軍師（hero-r86b.js。金の ベルト・金の かたあては outfit86b）
-import { R86B_OUTFIT, R86B_BODY, outfit86b } from './hero-r86b.js?v=7f0a6eee2a0c';
+import { R86B_OUTFIT, R86B_BODY, outfit86b } from './hero-r86b.js?v=786b3cdacd05';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋・竜神の剣士。hero-r86a.js）
-import { R86A_OUTFIT, R86A_BODY } from './hero-r86a.js?v=7f0a6eee2a0c';
+import { R86A_OUTFIT, R86A_BODY } from './hero-r86a.js?v=786b3cdacd05';
+// 第98回: きずなの職業の 服・からだ・むねの しるし（kizuna-art.js）
+import { KIZUNA_OUTFIT, KIZUNA_BODY, KIZUNA_EMBLEM } from './kizuna-art.js?v=786b3cdacd05';
 // 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
-import { PRIZE_ARMOR_LOOK } from './prize-looks.js?v=7f0a6eee2a0c';
+import { PRIZE_ARMOR_LOOK } from './prize-looks.js?v=786b3cdacd05';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -264,6 +266,7 @@ Object.assign(JOB_OUTFIT, R85B_OUTFIT);
 Object.assign(JOB_OUTFIT, R85A_OUTFIT);
 Object.assign(JOB_OUTFIT, R86B_OUTFIT);
 Object.assign(JOB_OUTFIT, R86A_OUTFIT);
+Object.assign(JOB_OUTFIT, KIZUNA_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -315,6 +318,7 @@ Object.assign(JOB_BODY, R85B_BODY);
 Object.assign(JOB_BODY, R85A_BODY);
 Object.assign(JOB_BODY, R86B_BODY);
 Object.assign(JOB_BODY, R86A_BODY);
+Object.assign(JOB_BODY, KIZUNA_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 
@@ -1312,6 +1316,7 @@ export function drawTorsoFront(cv, P, O) {
         }
         if (T.mark === 'diamond') emblem(cv, 18.5, 25.25, 'diamond', O, false, null, T.piping);
         else if (T.mark === 'chip') emblem(cv, 18.5, 25.15, 'chip', O, false, null, T.piping);
+        else if (KIZUNA_EMBLEM[T.mark]) emblem(cv, 18.5, 25.2, T.mark, O, false, null, T.piping);
       }
       if (T.band) {
         for (const y of [27.0, 29.4]) { cv.part({ ol: 'none', clip: base }); cv.rect(9, y, 14, 0.85, T.band, { n: [0, -0.2] }); }
@@ -1674,6 +1679,9 @@ function plateFront(cv, P, O, T) {
 
 function emblem(cv, x, y, kind, O, small = false, color = null, m = null) {
   const k = cv.k;
+  // 第98回: きずなの職業の しるし（kizuna-art.js。'…big' は 大きい 方）
+  const kz = KIZUNA_EMBLEM[kind] || KIZUNA_EMBLEM[kind.replace(/big$/, '')];
+  if (kz) return kz(cv, x, y, kind.endsWith('big') && !KIZUNA_EMBLEM[kind] ? 1.7 : 1, m, { cloth, metal });
   if (kind === 'chip' || kind === 'chipbig') {
     // AIの チップ（こんの しかくに 水色の あしと、まんなかで ひかる まる）
     const z = kind === 'chipbig' ? 1.7 : 1;
@@ -2408,6 +2416,7 @@ export function drawTorsoBack(cv, P, O) {
         cv.stroke([[10.0, 23.0], [22.0, 23.0]], 0.17, T.piping, { n: [0, 0] });
         if (T.mark === 'diamond') emblem(cv, 16, 26.0, 'diamondbig', O, false, null, T.piping);
         else if (T.mark === 'chip') emblem(cv, 16, 26.0, 'chipbig', O, false, null, T.piping);
+        else if (KIZUNA_EMBLEM[T.mark]) emblem(cv, 16, 26.0, `${T.mark}big`, O, false, null, T.piping);
       }
       break;
     }
@@ -2564,6 +2573,7 @@ export function drawTorsoSide(cv, P, O) {
         cv.stroke([[X(2.05), 23.0 + b], [X(2.05), 31.0 + b]], 0.15, T.piping, { n: [0, 0] });
         if (T.mark === 'diamond') emblem(cv, X(0.5), 25.0 + b, 'diamond', O, false, null, T.piping);
         else if (T.mark === 'chip') emblem(cv, X(0.5), 25.0 + b, 'chip', O, false, null, T.piping);
+        else if (KIZUNA_EMBLEM[T.mark]) emblem(cv, X(0.5), 25.0 + b, T.mark, O, false, null, T.piping);
       }
       break;
     }

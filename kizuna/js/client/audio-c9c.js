@@ -12,7 +12,7 @@
 // ・c9c_note … ひとつめの星の音（ハ長調 96。10 秒の よろこびの 曲。くり返さない。ミの 音から 始まり ミで おわる）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS, C9A_TRIO_THEME, C9A_SEVEN } from './audio-c9a.js?v=7f0a6eee2a0c';
+import { C9A_TOOLS, C9A_TRIO_THEME, C9A_SEVEN } from './audio-c9a.js?v=786b3cdacd05';
 
 const { FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL } = C9A_TOOLS;
 

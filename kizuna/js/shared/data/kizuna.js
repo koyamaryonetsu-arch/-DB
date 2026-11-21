@@ -1,0 +1,32 @@
+// 第98回: きずなの職業（新しい 系統の 伝説 ＋ もとからの 流れの いちばん 上 を かけ合わせた 幻の職業。docs/plan-kizuna-jobs.md）
+//
+// ★ きずなの職業を 足す とき（あとの 組へ）: 1つ 1ファイル（data/jobs-r98-<名前>.js。形は jobs-r98-kuuchou.js）を 作って、
+//   下の KIZUNA の おわりに 1行 足す（import も 1行）。ならびの じゅんが 幻の職業の じゅん（PHANTOM_ORDER の おわり・幻の書の しるし）。
+//   まん中に 入れない・じゅんを かえない（掲示板の しるし〈ビット〉と 引っこしコードの 番号が ずれる）
+//
+// みんなが 使う ファイル（jobs.js・abilities.js・hirameki.js・phantom.js・job-tags.js・job-talk.js・job-trials.js・vehicles.js・
+// rivals-r88.js・battle-trial.js）は この 一覧を 1回ずつ 読む だけ。きずなの職業が ふえても 行を 足さなくて よい
+import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js?v=786b3cdacd05';
+import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js?v=786b3cdacd05';
+
+export const KIZUNA = [
+  KIZUNA_KUUCHOU, // 第98回 K1班: 熱と風の空調マスター（烈火 ＋ 天才しせつ管理者）
+  KIZUNA_HOKAGE, // 第98回 K1班: 八竜の火影（烈火 ＋ 七代目火影）
+];
+
+// 職業の id（ならびの じゅん）
+export const KIZUNA_IDS = KIZUNA.map((k) => k.job.id);
+export const isKizuna = (id) => KIZUNA_IDS.includes(id);
+// id → その 職業の まとまり
+export const kizunaOf = (id) => KIZUNA.find((k) => k.job.id === id) || null;
+// 1つの 表に まとめる（{ id: k[key] }。key が ない 職業は 入れない）
+export function kizunaMap(key) {
+  const out = {};
+  for (const k of KIZUNA) if (k[key] !== undefined) out[k.job.id] = k[key];
+  return out;
+}
+// 技・ひらめき技・乗り物を 1つの 表に
+export const KIZUNA_ABILITIES = Object.assign({}, ...KIZUNA.map((k) => k.abilities));
+export const KIZUNA_HIRA_ABILITIES = Object.assign({}, ...KIZUNA.map((k) => k.hira?.abilities || {}));
+export const KIZUNA_HIRAMEKI = Object.assign({}, ...KIZUNA.map((k) => k.hira?.conds || {}));
+export const KIZUNA_VEHICLES = Object.fromEntries(KIZUNA.filter((k) => k.vehicle).map((k) => [k.vehicle.id, k.vehicle.v]));

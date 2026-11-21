@@ -10,10 +10,10 @@
 //    大地の下の 3か所で ざいりょう（大きなキノコのかさ・水しょうのかけら・光るこけのたね）を 集める → みんなで 作って 大王に わたす
 // 2. まいごの、もぐら兵 … 大王の さわぎの 時、にげて まいごに なった 小さな もぐら兵。暗くて 動けない →
 //    帰り道の こけ石を、もぐら兵に 近い 方から じゅんばんに ともす（明かりが つながると 歩ける）→ 隊長の もとへ
-import { npc } from './npc.js?v=7f0a6eee2a0c';
-import { openSpot } from './labyrinth.js?v=7f0a6eee2a0c';
-import { C9B, C9B_MAP } from './c9b-flags.js?v=7f0a6eee2a0c';
-import { attachWorkQuests9 } from './work-quests9.js?v=7f0a6eee2a0c';
+import { npc } from './npc.js?v=786b3cdacd05';
+import { openSpot } from './labyrinth.js?v=786b3cdacd05';
+import { C9B, C9B_MAP } from './c9b-flags.js?v=786b3cdacd05';
+import { attachWorkQuests9 } from './work-quests9.js?v=786b3cdacd05';
 
 // ───────────── フラグ（セーブに のこるので かえない。引っこしコードの ため 短く）─────────────
 export const C9BD_OPEN = C9B.act2;
