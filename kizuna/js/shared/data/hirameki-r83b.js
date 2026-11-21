@@ -6,7 +6,7 @@
 //   from … その 職業の 技を 使った 回数
 //   強さは その 職業の 同じくらいの MPの 技と おなじくらい。anim は 前から ある エフェクト か battlefx-r83b.js
 // ・id は hi_ で はじめる
-import { GHOST } from './abilities-r83b.js?v=786b3cdacd05';
+import { GHOST } from './abilities-r83b.js?v=47b84e63567e';
 
 const sk = (job, o) => ({ kind: 'skill', job, hirameki: true, ...o });
 

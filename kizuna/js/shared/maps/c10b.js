@@ -9,22 +9,22 @@
 //   ながれ星のくぼ地 … 場面 0 の マス（c10_act1 から。幕が 開いて いる 時だけ 動く）・青と 白の 音の 台
 // ・水の 高さ（0 下・1 中・2 上）は とびらの しるし '@w0'・'@w1'・'@w2'（world.js の hasFlagFn・client/field.js の hasFlag）
 // ・「行った 所」の 記録は 5まいとも 取らない（map.noExplore）
-import { T } from '../tiles.js?v=786b3cdacd05';
-import { npc } from './npc.js?v=786b3cdacd05';
-import { parseRows16 } from './past.js?v=786b3cdacd05';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=786b3cdacd05';
+import { T } from '../tiles.js?v=47b84e63567e';
+import { npc } from './npc.js?v=47b84e63567e';
+import { parseRows16 } from './past.js?v=47b84e63567e';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=47b84e63567e';
 import {
   BLUE1_ROWS, BLUE1_POS, BLUE2_ROWS, BLUE2_POS, WHITE1_ROWS, WHITE2_ROWS, WHITE3_ROWS, WHITE1_POS, WHITE2_POS, WHITE3_POS,
   WHITE1_OWLS, WHITE2_OWLS, WHITE1_ROOMS, WHITE2_ROOMS, cells10b, heightAt10b, HALL_ARRIVE10B, LAKE_STAIRS10B, LAKE_SIGN10B, LAKE_LAND10B,
   LAKE_SCENE10B, SHORE_STAIRS10B, PED_SO10B, PED_LA10B,
-} from './c10b-rows.js?v=786b3cdacd05';
+} from './c10b-rows.js?v=47b84e63567e';
 import {
   C10B, C10B_ACT1, C10B_BLUE, C10B_WHITE, C10B_BONUS, C10B_PED, C10B_MAP, C10B_MAP_IDS, C10B_TABLE, C10B_CHEST_IDS, C10B_TRACKS,
   C10B_BLUE_BOSS_NAME, C10B_WHITE_BOSS_NAME,
-} from './c10b-flags.js?v=786b3cdacd05';
-import { PEDESTALS9C } from './c9c.js?v=786b3cdacd05';
-import { CRATER_FORK10A } from './c10a-rows.js?v=786b3cdacd05';
-import { c10bChest } from '../data/items-c10b.js?v=786b3cdacd05';
+} from './c10b-flags.js?v=47b84e63567e';
+import { PEDESTALS9C } from './c9c.js?v=47b84e63567e';
+import { CRATER_FORK10A } from './c10a-rows.js?v=47b84e63567e';
+import { c10bChest } from '../data/items-c10b.js?v=47b84e63567e';
 
 export const CH10B_MAPS = [...C10B_MAP_IDS];
 

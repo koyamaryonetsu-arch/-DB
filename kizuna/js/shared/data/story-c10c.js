@@ -12,22 +12,22 @@
 import {
   C10C, C10C_ACT2, C10C_LEVER, C10C_PED, C10C_MAP, C10C_BATTLE, C10C_BOSS_MON, C10C_COLONEL_NAME, C10C_COLONEL_SHORT,
   C10C_TRACKS, C10C_BRIDGE_NOTES, C10C_BRIDGE_COLOR_NAMES, NOTE_SI,
-} from '../maps/c10c-flags.js?v=786b3cdacd05';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=786b3cdacd05';
-import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=786b3cdacd05';
-import { C9D_TRACKS } from '../maps/c9d-flags.js?v=786b3cdacd05';
+} from '../maps/c10c-flags.js?v=47b84e63567e';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=47b84e63567e';
+import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=47b84e63567e';
+import { C9D_TRACKS } from '../maps/c9d-flags.js?v=47b84e63567e';
 import {
   ISLES1_POS, ISLES1_SPANS, ISLES2_POS, ISLES2_SPANS, ISLES3_POS, FORT1_POS, FORT2_POS, FORT3_POS,
   KUMOI_VORTEX10C, KUMOI_BACK10C, UNDER_BACKDOOR10C, UNDER_LAND10C, PED_SI10C,
-} from '../maps/c10c-rows.js?v=786b3cdacd05';
-import { PEDESTALS9C } from '../maps/c9c.js?v=786b3cdacd05';
-import { spanStones10c, stoneScript10c } from '../maps/c10c.js?v=786b3cdacd05';
-import { TRIO9A } from './story-c9a.js?v=786b3cdacd05';
-import { MONSTERS } from './monsters.js?v=786b3cdacd05';
-import { mergeBossHints } from './boss-hints.js?v=786b3cdacd05';
-import { SHOPS } from './shops.js?v=786b3cdacd05';
-import { C10C_SHOP_ADD } from './items-c10c.js?v=786b3cdacd05';
-import { SHOP10B_CRATER } from './story-c10b.js?v=786b3cdacd05';
+} from '../maps/c10c-rows.js?v=47b84e63567e';
+import { PEDESTALS9C } from '../maps/c9c.js?v=47b84e63567e';
+import { spanStones10c, stoneScript10c } from '../maps/c10c.js?v=47b84e63567e';
+import { TRIO9A } from './story-c9a.js?v=47b84e63567e';
+import { MONSTERS } from './monsters.js?v=47b84e63567e';
+import { mergeBossHints } from './boss-hints.js?v=47b84e63567e';
+import { SHOPS } from './shops.js?v=47b84e63567e';
+import { C10C_SHOP_ADD } from './items-c10c.js?v=47b84e63567e';
+import { SHOP10B_CRATER } from './story-c10b.js?v=47b84e63567e';
 // 音の 橋の しくみは world.c10c（world/c10c-steps.js の C10C_API。data から world を 読まない）
 const setBridge10c = (world, s, i, c) => world.c10c.setBridge(world, s, i, c);
 const bridgesOf10c = (world, s) => world.c10c.bridgesOf(world, s);

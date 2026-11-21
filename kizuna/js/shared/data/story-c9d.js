@@ -11,14 +11,14 @@
 // ※ 大きな くぼみに おちた 星の 名前は 出さない・だれの くぼみかも 書かない。「ながされた」は スピカの 問いと 石の 文字だけ（だれが・なぜは 書かない）。
 //   第1部・第2部の ひみつに ふれる せりふは 書かない。カイは 出さない。少年の わけは 書かない。もとの 作品の 名前・せりふは 使わない
 // ※ しずかな 山: はかばの 場面は せりふを 少なく、間を 取る（['wait', …]）。こわがりすぎない・かなしすぎない
-import { C9D, C9D_ACT3, C9D_MAP, C9D_BATTLE, C9D_BOSS_MON, C9D_MU_NAME, C9D_MUMU_NAME, C9D_TRACKS } from '../maps/c9d-flags.js?v=786b3cdacd05';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=786b3cdacd05';
-import { ALGOL_NAME, C9C_MAP } from '../maps/c9c-flags.js?v=786b3cdacd05';
-import { C9D_POS, SHORE_DOOR9D } from '../maps/c9d-rows.js?v=786b3cdacd05';
-import { C9D_SEEN } from '../maps/c9d.js?v=786b3cdacd05';
-import { PEDESTALS9C, PED_MI } from '../maps/c9c.js?v=786b3cdacd05';
-import { MONSTERS } from './monsters.js?v=786b3cdacd05';
-import { mergeBossHints } from './boss-hints.js?v=786b3cdacd05';
+import { C9D, C9D_ACT3, C9D_MAP, C9D_BATTLE, C9D_BOSS_MON, C9D_MU_NAME, C9D_MUMU_NAME, C9D_TRACKS } from '../maps/c9d-flags.js?v=47b84e63567e';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=47b84e63567e';
+import { ALGOL_NAME, C9C_MAP } from '../maps/c9c-flags.js?v=47b84e63567e';
+import { C9D_POS, SHORE_DOOR9D } from '../maps/c9d-rows.js?v=47b84e63567e';
+import { C9D_SEEN } from '../maps/c9d.js?v=47b84e63567e';
+import { PEDESTALS9C, PED_MI } from '../maps/c9c.js?v=47b84e63567e';
+import { MONSTERS } from './monsters.js?v=47b84e63567e';
+import { mergeBossHints } from './boss-hints.js?v=47b84e63567e';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -20,22 +20,22 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=786b3cdacd05';
-import { ABILITIES } from './data/abilities.js?v=786b3cdacd05';
-import { SHARE } from './data/abilities-c9a.js?v=786b3cdacd05';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=786b3cdacd05';
-import { C9A } from './maps/c9a-flags.js?v=786b3cdacd05';
+import { MONSTERS } from './data/monsters.js?v=47b84e63567e';
+import { ABILITIES } from './data/abilities.js?v=47b84e63567e';
+import { SHARE } from './data/abilities-c9a.js?v=47b84e63567e';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=47b84e63567e';
+import { C9A } from './maps/c9a-flags.js?v=47b84e63567e';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=786b3cdacd05';
-import { canUse } from './ai.js?v=786b3cdacd05';
+import { pub, atbRate } from './battle.js?v=47b84e63567e';
+import { canUse } from './ai.js?v=47b84e63567e';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=786b3cdacd05';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=47b84e63567e';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=786b3cdacd05';
+import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=47b84e63567e';
 // 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
-import { c10bAfter } from './battle-c10b.js?v=786b3cdacd05';
+import { c10bAfter } from './battle-c10b.js?v=47b84e63567e';
 // 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
-import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=786b3cdacd05';
+import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=47b84e63567e';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
