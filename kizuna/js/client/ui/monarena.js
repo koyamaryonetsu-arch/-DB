@@ -10,17 +10,17 @@
 //
 // サーバーの 窓口は B班の svc kind:'monarena'（action: status / setTeam / register / rank / family）。A班は 戦いの しょりを 書かない。
 // 戦いを はじめる 'rank' / 'family' は、この 画面を とじて だいほんが おわってから 送る（受付の だいほんの 間に 戦いが はじまらない ように）
-import { el, esc, toast } from './dom.js?v=5845e0f225ba';
-import { Counter } from './counter.js?v=5845e0f225ba';
-import { request } from './shop.js?v=5845e0f225ba';
-import { faceURL } from '../field.js?v=5845e0f225ba';
-import { boardIconURL } from '../render/boards.js?v=5845e0f225ba';
-import { monsterCanvas } from '../render/monsters.js?v=5845e0f225ba';
-import { MONSTERS } from '../../shared/data/monsters.js?v=5845e0f225ba';
+import { el, esc, toast } from './dom.js?v=ef73a8deb070';
+import { Counter } from './counter.js?v=ef73a8deb070';
+import { request } from './shop.js?v=ef73a8deb070';
+import { faceURL } from '../field.js?v=ef73a8deb070';
+import { boardIconURL } from '../render/boards.js?v=ef73a8deb070';
+import { monsterCanvas } from '../render/monsters.js?v=ef73a8deb070';
+import { MONSTERS } from '../../shared/data/monsters.js?v=ef73a8deb070';
 import {
   TEAM_MAX, whereLabel, normTeam, sortStrong, presetTeam, initialTeam, placeInSlot, removeAt, moveUp,
   rankState, rankName, familyRows, teamStats, avgLevel,
-} from './monarena-team.js?v=5845e0f225ba';
+} from './monarena-team.js?v=ef73a8deb070';
 
 // C班（その場の 対戦）など、受付の はじめの えらびしを 足す ところ。
 //   { value, label, hint, show?: (ctx) => bool, run: async (ctx) => 'started' | void }

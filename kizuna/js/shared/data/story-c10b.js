@@ -14,24 +14,24 @@
 import {
   C10B, C10B_ACT1, C10B_BLUE, C10B_WHITE, C10B_BONUS, C10B_PED, C10B_MAP, C10B_BATTLE, C10B_BOSS_MON, C10B_BLUE_BOSS_NAME,
   C10B_WHITE_BOSS_NAME, C10B_WHITE_SHORT, C10B_TRACKS, C10B_WATER_NAMES, NOTE_SO, NOTE_LA,
-} from '../maps/c10b-flags.js?v=5845e0f225ba';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=5845e0f225ba';
-import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=5845e0f225ba';
-import { C9D_TRACKS } from '../maps/c9d-flags.js?v=5845e0f225ba';
-import { RIVER_POS } from '../maps/c9c-rows.js?v=5845e0f225ba';
-import { C9C_MAP } from '../maps/c9c-flags.js?v=5845e0f225ba';
+} from '../maps/c10b-flags.js?v=ef73a8deb070';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=ef73a8deb070';
+import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=ef73a8deb070';
+import { C9D_TRACKS } from '../maps/c9d-flags.js?v=ef73a8deb070';
+import { RIVER_POS } from '../maps/c9c-rows.js?v=ef73a8deb070';
+import { C9C_MAP } from '../maps/c9c-flags.js?v=ef73a8deb070';
 import {
   BLUE1_POS, BLUE2_POS, WHITE1_POS, WHITE3_POS, HALL_ARRIVE10B, LAKE_STAIRS10B, SHORE_STAIRS10B, PED_SO10B, PED_LA10B,
-} from '../maps/c10b-rows.js?v=5845e0f225ba';
-import { PEDESTALS9C } from '../maps/c9c.js?v=5845e0f225ba';
+} from '../maps/c10b-rows.js?v=ef73a8deb070';
+import { PEDESTALS9C } from '../maps/c9c.js?v=ef73a8deb070';
 // 水の 高さ・見はりの しくみは world.c10b（world/c10b-steps.js の C10B_API。data から world を 読まない）
 const waterOf10b = (world, s) => world.c10b.waterOf(world, s);
 const setWater10b = (world, s, L) => world.c10b.setWater(world, s, L);
 const sleepOwls10b = (world, s) => world.c10b.sleepOwls(world, s);
-import { MONSTERS } from './monsters.js?v=5845e0f225ba';
-import { mergeBossHints } from './boss-hints.js?v=5845e0f225ba';
-import { SHOPS } from './shops.js?v=5845e0f225ba';
-import { C10B_SHOP_ADD } from './items-c10b.js?v=5845e0f225ba';
+import { MONSTERS } from './monsters.js?v=ef73a8deb070';
+import { mergeBossHints } from './boss-hints.js?v=ef73a8deb070';
+import { SHOPS } from './shops.js?v=ef73a8deb070';
+import { C10B_SHOP_ADD } from './items-c10b.js?v=ef73a8deb070';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -439,7 +439,8 @@ const worbSteps = (x) => {
 };
 
 // ───── E くぼ地の 台に 音を 置く ─────
-function endScene() {
+// act2Obj … 幕の クリアの あとの 目標（第97回 A班: 第3幕が 開いた あとは story-c10.js の act2ClearObjective）
+function endScene(act2Obj) {
   const cx = (PS.x + PL.x) / 2 + 0.5, cy = PS.y + 1.6;
   const ax = cx, ay = PS.y - 1.2;
   return [
@@ -475,11 +476,11 @@ function endScene() {
     ['remove', 'spica_e'], ['guestHide', false],
     ['look'],
     ['flag', C10B.act2], ['unflag', C10B_PED.so], ['unflag', C10B_PED.la], ['sync'],
-    ['objective', C10B_OBJ.act2],
+    ['objective', act2Obj || C10B_OBJ.act2],
     ['bgm', 'resume'],
   ];
 }
-function pedSteps(color, old) {
+function pedSteps(color, old, act2Obj) {
   const so = color === 'so';
   const note = so ? C10B_BLUE.note : C10B_WHITE.note;
   const placed = so ? C10B_PED.so : C10B_PED.la;
@@ -490,7 +491,7 @@ function pedSteps(color, old) {
     if (x.flag(placed)) return N(`${name}の台が、光っている。\n（もうひとつの音を、まだ、待っている）`);
     if (!x.flag(C10B.start) || !x.flag(note)) return old ? old(x) : [];
     const put = [['sfx', 'sparkle'], ['flag', placed], ['sync'], ...N(`${name}の台に、星の音（${so ? 'ソ' : 'ラ'}）を、置いた。\n${name}の台が、ぽうっと、光った！`)];
-    if (x.flag(other)) return [...put, ...endScene()];
+    if (x.flag(other)) return [...put, ...endScene(act2Obj)];
     return [...put, ...S(NO, 'もうひとつの音も、ここに置こう。')];
   };
 }
@@ -517,8 +518,8 @@ export function c10bScripts(title, open, old = {}) {
     c10b_melt: meltSteps,
     c10b_owl_event: (x) => (x.flag(C10B_WHITE.two) && !x.flag(C10B_WHITE.boss) ? owlScene() : []),
     c10b_worb: worbSteps,
-    c10_ped_so: pedSteps('so', old.ped),
-    c10_ped_la: pedSteps('la', old.ped),
+    c10_ped_so: pedSteps('so', old.ped, old.act2Obj),
+    c10_ped_la: pedSteps('la', old.ped, old.act2Obj),
   };
 }
 
@@ -579,8 +580,8 @@ export const CH10B_PROGRESS = [
 // ───── story-c10.js の applyCh10 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん / open … 幕が 開いて いるか（PART3_C10B_OPEN）
 //   今の 台本に 足す 物（どれも フラグで 出る）: ピラミッドの 岸の いかだ乗り場（c10b_start）・水鏡の広間の 水鏡（c10_note_so）
-export function applyCh10b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S10 = c10bScripts(title, open, { ped: SCRIPTS.c9c_ped });
+export function applyCh10b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act2Obj = null } = {}) {
+  const S10 = c10bScripts(title, open, { ped: SCRIPTS.c9c_ped, act2Obj });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10B_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   if (!SCRIPTS.c9c_raftstop_shore?.c10b) SCRIPTS.c9c_raftstop_shore = Object.assign(addBlueStop(SCRIPTS.c9c_raftstop_shore), { c10b: true });
