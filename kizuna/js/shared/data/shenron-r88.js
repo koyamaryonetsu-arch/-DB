@@ -10,10 +10,10 @@
 //   セーブ: c.chests.r88db_<n>（ふつうの 宝箱と 同じ）・c.flags.r88_wish_at（さいごに ねがった 時こく。ミリ秒）・c.flags.r88_wish_n（ねがった 回数）。
 //   どれも 今の 形の まま 引っこしコードで 運べる（transfer-prime.js は かえない）
 //   この ファイルは データと きまりだけ（だいほんは world/shenron-r88.js）
-import { ITEMS, SLOTS, baseItemId } from './items.js?v=d4d473d565e8';
-import { WORKS } from './works.js?v=d4d473d565e8';
-import { gachaWorks, gachaPool } from './gacha-r88.js?v=d4d473d565e8';
-import { DRAGON_BALLS } from './items-r88-dragonball.js?v=d4d473d565e8';
+import { ITEMS, SLOTS, baseItemId } from './items.js?v=5845e0f225ba';
+import { WORKS } from './works.js?v=5845e0f225ba';
+import { gachaWorks, gachaPool } from './gacha-r88.js?v=5845e0f225ba';
+import { DRAGON_BALLS } from './items-r88-dragonball.js?v=5845e0f225ba';
 
 export { DRAGON_BALLS };
 export const DRAGON_RADAR = 'r88_db_radar';

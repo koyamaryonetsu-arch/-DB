@@ -3,8 +3,8 @@
 //   かえられるのは じぶん（オートの ときの さくせん。めいれいさせろ は なし）と じぶんの なかま だけ。
 //   家族の キャラ（ほかの 人が うごかす）・ほかの 人の なかま・ゲストは かえられない。
 //   かえた さくせんは すぐ たたかいに つかい、キャラにも のこす（メニューの「作戦」と おなじ）
-import { TACTICS } from '../ai.js?v=d4d473d565e8';
-import { partyOf, companionOf, ensureCompanions } from './party.js?v=d4d473d565e8';
+import { TACTICS, isTactic } from '../ai.js?v=5845e0f225ba';
+import { partyOf, companionOf, ensureCompanions } from './party.js?v=5845e0f225ba';
 
 export function battleTactics(world, s, ctx, msg) {
   const b = ctx.battle;
@@ -12,7 +12,7 @@ export function battleTactics(world, s, ctx, msg) {
     world.send(s, { t: 'menuRes', ok: false, text });
     return { ok: false, reason: text };
   };
-  const t = TACTICS[msg.tactics] ? String(msg.tactics) : null;
+  const t = isTactic(msg.tactics) ? String(msg.tactics) : null;
   const a = b.get(String(msg.actor || ''));
   const who = a && ctx.actorMap[a.id];
   if (!t || !a || a.side !== 'ally' || a.fled || !who || b.over) return no('作戦は変えられない');

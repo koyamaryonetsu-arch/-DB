@@ -1711,6 +1711,7 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
   width: min(92%, 18em); max-height: calc(100% - 16px); overflow-y: auto; display: flex; flex-direction: column; gap: 0.2em;
   background: var(--win-solid); font-size: var(--fs);
 }
+.b-tactics.b-tacsel { width: min(94%, 24em); } /* 第96回 T班: 作戦ごとの せつめい（.tac-desc）が 入るので 少し 広く */
 .b-tactics .bt-t { color: var(--accent); font-size: var(--fs-small); }
 .b-tactics .menu .item { min-height: 2.1em; }
 .b-tactics .menu .item.tac-now .l { color: var(--accent); }

@@ -1,12 +1,12 @@
 // 第88回 G3班: まぼろしの回ろうの きまり（持ち物で とびらが 開くか・とびらの まどの 中み・冒険のしおり）
 //   データは data/rivals-r88.js。サーバー（world/rivals-r88.js）・冒険のしおり（world/shiori.js）・画面（client/ui/rivals-r88.js）が 使う
 //   持ち物の 数え方は G1 の そろいの own と おなじ（shared/gear-r88.js の ownedIds: ふくろ・預かり所・装備。同じ 品は 1つ）
-import { ITEMS } from './data/items.js?v=d4d473d565e8';
-import { ownedIds } from './gear-r88.js?v=d4d473d565e8';
-import { workName } from './data/works.js?v=d4d473d565e8';
-import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag, doorWorks } from './data/rivals-r88.js?v=d4d473d565e8';
-import { rivalToday, dailyRivalOf, weekdayOf, WEEKDAY_NAMES } from './data/rivals-r88.js?v=d4d473d565e8'; // G16班: 曜日で かわる ジムリーダー
-import { GEAR_SETS } from './data/gear-sets.js?v=d4d473d565e8'; // G15班: 竜王のひ孫の じょうけん（ロトの装備 5つ）
+import { ITEMS } from './data/items.js?v=5845e0f225ba';
+import { ownedIds } from './gear-r88.js?v=5845e0f225ba';
+import { workName } from './data/works.js?v=5845e0f225ba';
+import { RIVAL_DOORS, DOOR_NEED, rivalsOf, rivalWon, rivalOpen, rivalMembers, doorOf, doorFlag, doorWorks } from './data/rivals-r88.js?v=5845e0f225ba';
+import { rivalToday, dailyRivalOf, weekdayOf, WEEKDAY_NAMES } from './data/rivals-r88.js?v=5845e0f225ba'; // G16班: 曜日で かわる ジムリーダー
+import { GEAR_SETS } from './data/gear-sets.js?v=5845e0f225ba'; // G15班: 竜王のひ孫の じょうけん（ロトの装備 5つ）
 
 export const HALL_NAME = 'まぼろしの回ろう';
 

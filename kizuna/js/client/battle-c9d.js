@@ -6,9 +6,9 @@
 // ・ムウ: 画面の 上の まどに 2体の HPの 線（同じくらいに けずる ため）と 今 どう すると よいか。分かれる 前は 出さない
 //   ばたんきゅう（え の コマ 2・3。たおれても 消えない）・勝つと すわりこむ（コマ 4・5）・おかしビームの ねらい・いっしょに ドーン・ぷんぷん
 // ・おかし: 仲間の まどを ピンクに（c9dStatus。client/battle-c9a.js の c9aStatus から）
-import { C9D_MU, C9D_MUMU } from '../shared/data/monsters-c9d.js?v=d4d473d565e8';
-import { SONG } from '../shared/data/abilities-c9d.js?v=d4d473d565e8';
-import { monsterCanvas } from './render/monsters.js?v=d4d473d565e8';
+import { C9D_MU, C9D_MUMU } from '../shared/data/monsters-c9d.js?v=5845e0f225ba';
+import { SONG } from '../shared/data/abilities-c9d.js?v=5845e0f225ba';
+import { monsterCanvas } from './render/monsters.js?v=5845e0f225ba';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9D_OWN_TELE = [C9D_MU, C9D_MUMU];

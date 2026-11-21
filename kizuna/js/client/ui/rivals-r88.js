@@ -3,9 +3,9 @@
 //     { kind: 'rival', work, workName, mark, own, need, rivals: [{ id, name, members, lv, state, use, rewards: [{ id, name }], words, miss }], ask }
 //   下の 大きな ボタン（「○○とたたかう」／やめる）で えらぶ。キーボード・ゲームパッド・タッチで うごく。
 //   見ている だけの 人（spectator）は 少しの 間 見せて とじる
-import { el, ListMenu, esc } from './dom.js?v=d4d473d565e8';
-import { rareNameHtml } from './rarity.js?v=d4d473d565e8';
-import { boardIconURL } from '../render/boards.js?v=d4d473d565e8';
+import { el, ListMenu, esc } from './dom.js?v=5845e0f225ba';
+import { rareNameHtml } from './rarity.js?v=5845e0f225ba';
+import { boardIconURL } from '../render/boards.js?v=5845e0f225ba';
 
 const STATE_TEXT = { won: '○勝った', next: 'つぎの相手', lock: 'まだ', need: 'じょうけん' }; // G15班: need … じょうけんが たりない（竜王のひ孫）
 

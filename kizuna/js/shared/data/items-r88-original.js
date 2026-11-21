@@ -9,7 +9,7 @@
 //   ・大きなかさ・天気図の指しぼう・じゃ気眼のがんたいの 使う は、職業の 技より 弱い
 //   ナミの 天候棒（ワンピース）は G9班が 作った ので ここには ない
 //   名前は 技と かぶらない ように した（設定ノート → 黒い設定ノート・黒いつばさ → ダ天使の黒いつばさ）
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=d4d473d565e8';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=5845e0f225ba';
 
 const O = { work: 'original' };
 

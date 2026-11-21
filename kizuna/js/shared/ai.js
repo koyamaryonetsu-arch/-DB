@@ -1,62 +1,129 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=d4d473d565e8';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=5845e0f225ba';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=d4d473d565e8';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=d4d473d565e8';
-import { skillMods } from './skill-tier.js?v=d4d473d565e8';
+import { deduceElement } from './data/abilities-jobs6.js?v=5845e0f225ba';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=5845e0f225ba';
+import { skillMods } from './skill-tier.js?v=5845e0f225ba';
 // 第87回 A班: 回復の 魔力の 伸び（battle.js の heal と おなじ。pow-scale.js）
-import { powScaleFor } from './pow-scale.js?v=d4d473d565e8';
+import { powScaleFor } from './pow-scale.js?v=5845e0f225ba';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=d4d473d565e8';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=5845e0f225ba';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=d4d473d565e8';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=5845e0f225ba';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=d4d473d565e8';
-import { labPlan, labIgnored } from './battle-lab.js?v=d4d473d565e8';
+import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=5845e0f225ba';
+import { labPlan, labIgnored } from './battle-lab.js?v=5845e0f225ba';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerCond, towerPlan } from './battle-ch5.js?v=d4d473d565e8';
+import { towerCond, towerPlan } from './battle-ch5.js?v=5845e0f225ba';
 // 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
-import { noctoAction } from './battle-nocto.js?v=d4d473d565e8';
+import { noctoAction } from './battle-nocto.js?v=5845e0f225ba';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
-import { earthAction, reachPlan } from './battle-earth.js?v=d4d473d565e8';
+import { earthAction, reachPlan } from './battle-earth.js?v=5845e0f225ba';
 // 第5章 Step 9 の 魔王ソリトゥス（きずなを食べる・終わらない夜の 前ぶれ。battle-final.js）
-import { finalAction } from './battle-final.js?v=d4d473d565e8';
+import { finalAction } from './battle-final.js?v=5845e0f225ba';
 // 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
-import { arenaPlan, arenaAdjust } from './battle-arena.js?v=d4d473d565e8';
+import { arenaPlan, arenaAdjust } from './battle-arena.js?v=5845e0f225ba';
 // 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
-import { tokeiQuiet } from './battle-tokei.js?v=d4d473d565e8';
+import { tokeiQuiet } from './battle-tokei.js?v=5845e0f225ba';
 // 第82回 A: 犬夜叉の 系統の オート（おすわり！・ばくりゅうはの かまえ・風の技。battle-r82a.js）
-import { r82aPlan } from './battle-r82a.js?v=d4d473d565e8';
+import { r82aPlan } from './battle-r82a.js?v=5845e0f225ba';
 // 第82回 B班: YAIBA の 系統の 玉がえ・かみなり雲・きょだい化（battle-r82b.js）
-import { r82bPlan } from './battle-r82b.js?v=d4d473d565e8';
+import { r82bPlan } from './battle-r82b.js?v=5845e0f225ba';
 // 第83回 B班: ぬ〜べ〜の 系統の オート（おにの手を 出す・ふういんしなおす・かんのんきょう・おふだ。battle-r83b.js）
-import { r83bPlan, r83bSeal } from './battle-r83b.js?v=d4d473d565e8';
+import { r83bPlan, r83bSeal } from './battle-r83b.js?v=5845e0f225ba';
 // 第83回 A班: 封神演義の 系統の 作戦・先読みの策・強化ふうじ・太極図・軍師の号令・ほう神計画（battle-r83a.js）
-import { r83aPlan } from './battle-r83a.js?v=d4d473d565e8';
+import { r83aPlan } from './battle-r83a.js?v=5845e0f225ba';
 // 第84回 B班: らんま1/2 の 系統の すがた・飛竜しょう天は・かけひき・心の水・敵前だい逃亡・手数の 技（battle-r84b.js）
-import { r84bPlan } from './battle-r84b.js?v=d4d473d565e8';
+import { r84bPlan } from './battle-r84b.js?v=5845e0f225ba';
 // 第84回 A班: 幽☆遊☆白書の 系統の れい丸（ざこに 使わない・ぜんぶ うつ 技は まんたんの 時・0 なら ためる）・仲間のために（battle-r84a.js）
-import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js?v=d4d473d565e8';
+import { r84aPlan, r84aAdjust, reiOk } from './battle-r84a.js?v=5845e0f225ba';
 // 第85回 B班: 烈火の炎の 系統の 火竜をよぶ（たおれた 仲間 ＝ れっしん・前ぶれ ＝ まどか・ボス ＝ こくう／さいは・敵が 多い ＝ なだれ・強い 敵 1体 ＝ ほむら）・姫を守る忍び（battle-r85b.js）
-import { r85bPlan } from './battle-r85b.js?v=d4d473d565e8';
+import { r85bPlan } from './battle-r85b.js?v=5845e0f225ba';
 // 第85回 A班: スレイヤーズの 系統の となえる・大砲の 呪文・定食（battle-r85a.js）
-import { r85aPlan, r85aLocked } from './battle-r85a.js?v=d4d473d565e8';
+import { r85aPlan, r85aLocked } from './battle-r85a.js?v=5845e0f225ba';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・かけひき・見切りのかまえ）・混とんの大軍師（大魔法の時間・太極・ギガ・スレイブ・みんなでとなえる。battle-r86b.js）
-import { r86bPlan } from './battle-r86b.js?v=d4d473d565e8';
+import { r86bPlan } from './battle-r86b.js?v=5845e0f225ba';
 // 第86回 A班: 幻の職業 2つの オート（この 2つの 職業の 技だけを 見る。battle-r86a.js）
-import { r86aPlan } from './battle-r86a.js?v=d4d473d565e8';
+import { r86aPlan } from './battle-r86a.js?v=5845e0f225ba';
 // 第88回 M1班: 魔王の 天地魔闘の構え（敵の 大技の 前ぶれが ある 時に ときどき。battle-r88m.js）
-import { r88mPlan } from './battle-r88m.js?v=d4d473d565e8';
+import { r88mPlan } from './battle-r88m.js?v=5845e0f225ba';
+// 第96回 T班 第2便: 人が 自分で えらんで いるか（第2章 第1幕と 同じ 見分け。battle-c10a.js）
+import { someoneChooses } from './battle-c10a.js?v=5845e0f225ba';
+// 第96回 T班 第2便: ヒントの 3だんが ある ボス（第6〜8章 など。data/boss-hints.js の キー ＝ 決まった 戦いの id）
+import { BOSS_HINTS } from './data/boss-hints.js?v=5845e0f225ba';
+import { FIXED_ENCOUNTERS } from './data/encounters.js?v=5845e0f225ba';
 
 // さくせん
+// 第96回 T班（家族の 声）: 作戦ごとに 技の えらび方（mode）を 分けた。キーと 名前は かえない（セーブに 入って いる）。
+//   mode … 'aggressive' いちばん 大きな ダメージ（MPは 見ない）／'balanced' よく きく 技 ＋ バフ・デバフ・回復／
+//          'heal' HP 8わり いかの 仲間が いたら 回復を 先に（ほかは balanced と 同じ）／'savemp' とって おく MP を 切らさない／
+//          'legacy' 前の えらび方（mpWeight で MP を 重く 見る。じゅもんせつやく・敵の がわの うつし身）
+//   healAt … HP の わりあいが これ いか の 仲間を 回復する
+//   costK … ふつうの 戦いで ダメージ ÷ MP を 見る 強さ（MP は 最大MP との わりあい）
+//   hardMp … ボスなど 長い 戦い（fightWeight の hard）では MP を 前と 同じ 重さ（mpWeight）で 見る。
+//            （第3部の ボスは「完全オートでは 勝てない」ように 作って ある。ボスでも MP を どんどん 使うと 完全オートの 勝ちやすさが
+//             大きく 上がった〈docs/plan-r96-tactics.md〉ので、長い 戦いでは MP を 切らさない 前の 重さに した）
+//   buffs … バフ・ねむり などを 使う／debuffs … 敵を 弱く する 技も 使う
+//   desc … 作戦を えらぶ 画面の 1行の せつめい（menu.js・battle.js）
 export const TACTICS = {
-  balanced: { name: 'バッチリがんばれ', healAt: 0.5, mpWeight: 0.04, buffs: true },
-  aggressive: { name: 'ガンガンいこうぜ', healAt: 0.33, mpWeight: 0.015, buffs: false },
-  heal: { name: 'いのちだいじに', healAt: 0.68, mpWeight: 0.05, buffs: true },
-  nomp: { name: 'じゅもんせつやく', healAt: 0.4, mpWeight: 0.5, buffs: false },
+  balanced: { name: 'バッチリがんばれ', desc: 'よく効く技を使いながら、強くする技・弱くする技・回復もする', mode: 'balanced', healAt: 0.5, mpWeight: 0.04, costK: 3, hardMp: true, buffs: true, debuffs: true },
+  aggressive: { name: 'ガンガンいこうぜ', desc: '回復しない。いちばん大きなダメージの攻撃だけ（弱点もねらう）。MPは気にしない', mode: 'aggressive', healAt: 0, mpWeight: 0, buffs: false },
+  heal: { name: 'いのちだいじに', desc: 'HPが8わり以下の仲間がいたら回復を先にする。ほかはバッチリがんばれと同じ', mode: 'heal', healAt: 0.8, mpWeight: 0.04, costK: 3, hardMp: true, buffs: true, debuffs: true, healFirst: true },
+  // 第96回 T班: 新しい 作戦（MP を 切らさない）
+  savemp: { name: 'MPせつやく', desc: '回復の分のMPをのこして、少ないMPでよく効く技を使う。長い戦いでもMPを切らさない', mode: 'savemp', healAt: 0.5, mpWeight: 0.04, buffs: true, debuffs: true },
+  nomp: { name: 'じゅもんせつやく', desc: 'MPをほとんど使わない', mode: 'legacy', healAt: 0.4, mpWeight: 0.5, buffs: false },
   // なかま だけ: じぶんで コマンドを えらぶ（オートの ときは バッチリがんばれ）
-  manual: { name: 'めいれいさせろ', healAt: 0.5, mpWeight: 0.04, buffs: true, manual: true },
+  manual: { name: 'めいれいさせろ', desc: '自分でコマンドを選ぶ（仲間だけ）', mode: 'balanced', healAt: 0.5, mpWeight: 0.04, costK: 3, hardMp: true, buffs: true, debuffs: true, manual: true },
 };
+// 第96回 T班: 前の 作戦（敵の がわで 仲間の AI を 使う うつし身〈鏡のうつし身・ノクトの影・ライバル・職業の 試練〉は 前の まま。ボスの 強さを かえない）
+export const LEGACY_TACTICS = {
+  balanced: { mode: 'legacy', healAt: 0.5, mpWeight: 0.04, buffs: true },
+  aggressive: { mode: 'legacy', healAt: 0.33, mpWeight: 0.015, buffs: false },
+  heal: { mode: 'legacy', healAt: 0.68, mpWeight: 0.05, buffs: true },
+  nomp: { mode: 'legacy', healAt: 0.4, mpWeight: 0.5, buffs: false },
+};
+// 第96回 T班: MPせつやく の きまり
+//   reserveRate … とって おく MP は 最大MP の この わりあい か、いちばん だいじな 回復・生き返らせる 技の 分の 大きい 方（reserveCap まで）
+//   pace … ボスなど 長い 戦いでは、のこす MP を 敵の のこりの HP に 合わせて ふやす（はじめは 使える 分の この わりあいを のこす）
+//   costK … ダメージ ÷ MP を 見る 強さ（ほかの 作戦は TACTICS の costK）
+export const SAVEMP = { reserveRate: 0.25, reserveCap: 0.5, pace: 0.7, costK: 8, easyCostK: 14 };
+// 作戦を えらぶ 一覧の 1行（名前 ＋ 小さな せつめい。menu.js・battle.js の ListMenu の html）
+const escHtml = (t) => String(t ?? '').replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+export function tacticsItemHtml(x) {
+  return `${escHtml(x.name)}<span class="tac-desc" style="display:block;font-size:0.72em;line-height:1.35;opacity:0.82;white-space:normal">${escHtml(x.desc)}</span>`;
+}
+// 知らない キー（古い セーブ・新しい サーバーで 足した キー）は バッチリがんばれ
+export const isTactic = (k) => typeof k === 'string' && Object.hasOwn(TACTICS, k);
+export function tacticsOf(c, b = null) {
+  if (c?.mirrorOf || c?.mimic) return (typeof c.tactics === 'string' && Object.hasOwn(LEGACY_TACTICS, c.tactics)) ? LEGACY_TACTICS[c.tactics] : LEGACY_TACTICS.balanced;
+  // 第96回 T班 第2便: しくみの ある ボスで みんな オート（人が 1人も 自分で えらんで いない）の 時は、どの 作戦でも 前の バッチリがんばれ
+  if (b && c?.side === 'ally' && mechBoss(b) && !someoneChooses(b)) return LEGACY_TACTICS.balanced;
+  return isTactic(c?.tactics) ? TACTICS[c.tactics] : TACTICS.balanced;
+}
+// 第96回 T班 第2便: しくみの ある ボスの 戦いか（「しくみを 知らないと 勝てない」ように 強さを 合わせた ボス）
+//   第3部の ボスの 状態（battle-c9a.js の c9aAfter が 見る しるしと 同じ）・前ぶれの しるしを 全員に 出す ボス（b.tellAll）・
+//   これから 作る ボスは b.mechBoss = true を 立てるか、MECH_BOSS_KEYS に その ボスの 状態の キーを 足す
+//   ヒントの 3だんが ある ボス（BOSS_HINTS。第6〜8章の ボスは その 戦いの はじめの 魔物の しゅるいで 見る）も 入れる
+//   （第7・8章の ボスは MPせつやく・ガンガンの 完全オートで 勝てる ように なって いた。docs/plan-r96-tactics.md）
+export const MECH_BOSS_KEYS = ['c9trio', 'c9trial', 'c9king', 'c9nazo', 'c9sand', 'c9mu', 'c10', 'c10b', 'c10c'];
+let hintBossSp = null;
+const hintBossSpecies = () => {
+  if (!hintBossSp) {
+    hintBossSp = new Set();
+    for (const id of Object.keys(BOSS_HINTS)) {
+      hintBossSp.add(id);
+      const sp = FIXED_ENCOUNTERS[id]?.group?.[0]?.[0];
+      if (sp) hintBossSp.add(sp);
+    }
+  }
+  return hintBossSp;
+};
+export function mechBoss(b) {
+  if (!b?.boss) return false;
+  if (b.mechBoss || b.tellAll || MECH_BOSS_KEYS.some((k) => !!b[k])) return true;
+  const sp = hintBossSpecies();
+  return b.enemies.some((e) => e.boss !== false && sp.has(e.species));
+}
 
 // ───────────── モンスター ─────────────
 export function decideMonster(b, m) {
@@ -151,7 +218,7 @@ function pickFoe(b, foes) {
 
 // ───────────── サポートなかま・オート ─────────────
 export function decideAlly(b, c) {
-  const tac = TACTICS[c.tactics] || TACTICS.balanced;
+  const tac = tacticsOf(c, b);
   const allies = b.aliveAllies();
   const dead = b.allies.filter((x) => !x.alive && !x.fled);
   // b.knowsMirage … まぼろしの 分身を 見ぬける 人（足もとの 影を 見る。tools/sim.js の「知っている人」）
@@ -173,14 +240,23 @@ export function decideAlly(b, c) {
   const fp = towerPlan(b, c, decideAlly);
   if (fp) return fp;
   if (!foes.length) return { type: 'defend' };
-  const mine = usable(b, c);
+  // 第96回 T班: MPせつやく … とって おく MP を 切る 技（回復・生き返らせる・治す・MPを ためる いがい）は えらばない
+  const paced = tac.mode === 'savemp';
+  // （のこす MP は この 番の 間 かわらないので 1回だけ 出す。saveOk）
+  c._r96floor = paced ? saveFloor(b, c) : null;
+  const mine = paced ? usable(b, c).filter((x) => saveOk(b, c, x.id)) : usable(b, c);
+  // 第96回 T班 第3便（家族の 声「ガンガンいこうぜは 回復しない。攻撃オンリー」）: ガンガンは 攻撃だけ
+  //   回復・生き返らせる・治す・守る・MP を ためる・消す 技は えらばない。職業ごとの 計画（…Plan）も 攻撃の 答えだけ 通す（isAttackCmd）
+  //   （しくみの ある ボスで みんな オートの 時は tacticsOf が 前の バッチリを かえす ので、ここには 来ない）
+  const atkOnly = tac.mode === 'aggressive';
+  const only = (cmd) => (atkOnly && cmd && !isAttackCmd(cmd) ? null : cmd);
 
   // 1) 水の衣を まとった 敵に 雷の 技（しかけを 知っている 人。battle-temple.js。第31回: 前の きずな技の かわり）
   const vb = veilBolt(b, c, foes, mine);
   if (vb) return vb;
 
   // 2) しんだ なかまを いきかえらせる（ふたり いじょうなら みんなを いきかえらせる わざ）
-  if (dead.length) {
+  if (dead.length && !atkOnly) {
     const revs = mine.filter(({ a }) => a.effect.type === 'revive');
     const all = revs.find(({ a }) => a.target === 'deadAllies');
     if (all && dead.length >= 2) return { type: 'ability', id: all.id };
@@ -189,20 +265,20 @@ export function decideAlly(b, c) {
   }
 
   // 2.9) 第83回 B班: おにの手を 出して HP が 4わりを 切ったら、回復の 前に ふういんしなおす（battle-r83b.js）
-  const oniSeal = r83bSeal(b, c, mine);
+  const oniSeal = only(r83bSeal(b, c, mine));
   if (oniSeal) return oniSeal;
   // 3) かいふく（地われ・のみこまれ の 人は 回復を 受けられない。battle-earth.js）
-  const healCmd = chooseHeal(b, c, tac, allies.filter((x) => !x.status?.rift), mine);
+  const healCmd = atkOnly ? null : chooseHeal(b, c, tac, allies.filter((x) => !x.status?.rift), mine);
   if (healCmd) return healCmd;
   // 3.5) 地われ・のみこまれ の 仲間に「手をのばす」（第5章 Step 6・7。battle-earth.js）
-  const rp = reachPlan(b, c);
+  const rp = only(reachPlan(b, c));
   if (rp) return rp;
 
   // 4) じょうたい いじょうを なおす
   const cures = mine.filter(({ a }) => a.effect.type === 'cure');
   const needs = (a, st) => a.effect.statuses.includes(st);
   const stuck = allies.filter((a) => a !== c && (a.status.sleep || a.status.paralyze || a.status.confuse));
-  if (stuck.length) {
+  if (stuck.length && !atkOnly) {
     const st = (x) => (x.status.sleep ? 'sleep' : x.status.paralyze ? 'paralyze' : 'confuse');
     const allCure = cures.find(({ a }) => a.target === 'allies' && stuck.every((x) => needs(a, st(x))));
     if (allCure && stuck.length >= 2) return { type: 'ability', id: allCure.id };
@@ -210,7 +286,7 @@ export function decideAlly(b, c) {
     if (one) return { type: 'ability', id: one.id, target: stuck[0].id };
     if (allCure) return { type: 'ability', id: allCure.id };
   }
-  const poisoned = allies.find((a) => a.status.poison && a.hp / a.maxHp < 0.8);
+  const poisoned = atkOnly ? null : allies.find((a) => a.status.poison && a.hp / a.maxHp < 0.8);
   if (poisoned && b.rng.chance(0.5)) {
     const cure = cures.find(({ a }) => a.target === 'ally' && needs(a, 'poison'));
     if (cure) return { type: 'ability', id: cure.id, target: poisoned.id };
@@ -224,40 +300,40 @@ export function decideAlly(b, c) {
 
   // 4.79) 第86回 A班: 前ぶれに 人とようかいのきずな・ためた力を うつ・きずなの力／玉と 炎の よい 方の 玉に かえる・火竜・二重の太刀（battle-r86a.js）
   //   この 2つの 職業の 技を もつ 人だけ（もとの 伝説の 技も 覚えて いるので、その オート〈4.8〜4.96〉より 先に 見る。ほかの 職業は 何も かわらない）
-  const r86a = r86aPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r86a = only(r86aPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r86a) return r86a;
   // 4.795) 第88回 M1班: 敵の 大技の 前ぶれに 天地魔闘の構え（この 技を ひらめいた 人だけ。battle-r88m.js）
-  const r88m = r88mPlan(b, c, foes, mine);
+  const r88m = only(r88mPlan(b, c, foes, mine));
   if (r88m) return r88m;
   // 4.8) 第82回 A: 前ぶれに ばくりゅうはの かまえ・敵が 多ければ 風の技・つめで HP が へったら おすわり！（battle-r82a.js）
-  const r82 = r82aPlan(b, c, foes, mine, allies);
+  const r82 = only(r82aPlan(b, c, foes, mine, allies));
   if (r82) return r82;
   // 4.85) 第86回 B班: 格闘王の れい丸・しょう天は・混とんの大軍師の 作戦（大魔法の時間）と 太極・ギガ・スレイブ（この 2つの 職業の 技だけを 見る。battle-r86b.js）
-  const r86b = r86bPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r86b = only(r86bPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r86b) return r86b;
   // 4.9) 第83回 B班: ボスで おにの手を 出す・HP 4わりで ふういんしなおす・状態異常に かんのんきょう・ゆうれいに おふだ（battle-r83b.js）
-  const r83b = r83bPlan(b, c, foes, mine, allies, fightWeight(b).hard);
+  const r83b = only(r83bPlan(b, c, foes, mine, allies, fightWeight(b).hard));
   if (r83b) return r83b;
   // 4.9) 第83回 A班: 前ぶれに 先読みの策・作戦を 立てる・敵の 強化に 太極図や 強化ふうじ・ボスで ほう神計画と 号令（battle-r83a.js）
-  const r83 = r83aPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r83 = only(r83aPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r83) return r83;
   // 4.95) 第84回 B班: はじめに すがたを えらぶ・前ぶれや 敵の 強化に 飛竜しょう天は・ボスに かけひき・敵が 多ければ 手数の 技（battle-r84b.js）
-  const r84b = r84bPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r84b = only(r84bPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r84b) return r84b;
   // 4.95) 第84回 A班: れい丸が 0 なら ためる・たおれた 仲間が いれば 仲間のために（battle-r84a.js）
-  const r84 = r84aPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r84 = only(r84aPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r84) return r84;
   // 4.96) 第85回 B班: 火竜を えらんで よぶ・弱った 仲間を かばう（この 系統の 技だけを 見る。battle-r85b.js）
-  const r85b = r85bPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r85b = only(r85bPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r85b) return r85b;
   // 4.97) 第85回 A班: となえて いれば 大砲・MP が 少なければ 定食・ボスや 強い 敵には となえる（前ぶれの 時は 下の 5 に まかせる。battle-r85a.js）
-  const r85a = r85aPlan(b, c, foes, mine, allies, fightWeight(b));
+  const r85a = only(r85aPlan(b, c, foes, mine, allies, fightWeight(b)));
   if (r85a) return r85a;
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
   const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f) && !labIgnored(b, f));
-  if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
+  if (telegraphing && !atkOnly && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
   // 第38回 C: バフは 3回行動の あいだだけ。大わざの 前に、みんなの 守備力を 上げる 技（切れている・あと1回 の 人が 半分 いじょう）
   const quiet = tokeiQuiet(b);
   if (telegraphing && tac.buffs && !quiet) {
@@ -267,25 +343,25 @@ export function decideAlly(b, c) {
   }
 
   // MPが へってきたら まりょくを あつめる
-  if (c.maxMp && c.mp / c.maxMp < 0.25) {
+  if (c.maxMp && c.mp / c.maxMp < 0.25 && !atkOnly) {
     const mpUp = mine.find(({ a }) => a.effect.type === 'mpHeal' && a.target === 'self');
     if (mpUp && b.rng.chance(0.6)) return { type: 'ability', id: mpUp.id };
   }
 
   // 敵が つよく なっている（バイキルト・力ため）: 消す 技が あれば 消す（ツッコミ など）
   const pumped = foes.filter((f) => Object.keys(f.buffs || {}).some((k) => k !== 'eva') || f.charge > 1);
-  if (pumped.length && b.rng.chance(0.6)) {
+  if (pumped.length && !atkOnly && b.rng.chance(0.6)) {
     const dis = mine.find(({ a }) => (a.effect.type === 'dispel' || a.effect.dispel) && ['enemy', 'group', 'enemies'].includes(a.target));
     if (dis) return { type: 'ability', id: dis.id, target: pumped.sort((x, y) => (y.boss - x.boss))[0].id };
   }
   // 仲間が よわく されている（ルカナン など）: 元に もどす 技
-  if (allies.some((x) => Object.keys(x.debuffs || {}).length) && b.rng.chance(0.4)) {
+  if (!atkOnly && allies.some((x) => Object.keys(x.debuffs || {}).length) && b.rng.chance(0.4)) {
     const fix = mine.find(({ a }) => a.effect.type === 'dispel' && ['ally', 'allies'].includes(a.target));
     if (fix) return { type: 'ability', id: fix.id, target: allies.find((x) => Object.keys(x.debuffs || {}).length)?.id };
   }
 
   // 5.5) 第82回 B班: 弱点の 玉に かえる・かみなり雲・きょだい化（battle-r82b.js）
-  const ybp = r82bPlan(b, c, foes, mine, fightWeight(b).hard);
+  const ybp = only(r82bPlan(b, c, foes, mine, fightWeight(b).hard));
   if (ybp) return ybp;
   // 6) ほじょ（つよい てきの とき）
   // 第41回: 敵と 味方の 強さを くらべて きめる（前は 敵の HPの 合計 180 より 多いと いつも 補助を していた）
@@ -293,13 +369,20 @@ export function decideAlly(b, c) {
   if (tac.buffs && fw.hard) {
     const buff = chooseBuff(b, c, allies, mine, quiet);
     if (buff) return buff;
+    // 第96回 T班: 敵を 弱く する 技（まだ かかって いない・きく 敵だけ。バッチリがんばれ・いのちだいじに・MPせつやく）
+    //   強い 敵・長い 戦い（hard）の 時。ボス戦では 使わない（前と 同じ。第3部の ボスの 完全オートの 勝ちやすさが 上がった ため。docs/plan-r96-tactics.md）
+    //   b.noAutoDebuff … 計算の かかし（tools/sim-jobs.mjs。職業の 強さの 物さしを 前と そろえる）
+    const deb = tac.debuffs && !quiet && !b.boss && !b.noAutoDebuff ? chooseDebuff(b, c, foes, mine) : null;
+    if (deb) return deb;
   }
   // てきが おおい ときは ねむらせたり こんらんさせたり
   if (tac.buffs && !b.boss && foes.length >= 3 && fw.hard && fw.rounds >= FIGHT_STATUS_ROUNDS && b.rng.chance(0.2)) {
     const st = mine.filter(({ a }) => a.effect.type === 'status' && ['enemies', 'group', 'enemy'].includes(a.target) && a.effect.status !== 'poison');
+    // 第96回 T班: きかない 敵（その 状態の 耐性 0）には 使わない（前の えらび方は そのまま）
+    const st2 = tac.mode === 'legacy' ? st : st.filter(({ a }) => foes.some((f) => (f.resist?.[a.effect.status] ?? 1) > 0));
     const t = foes.find((f) => !f.status.sleep && !f.status.confuse && !f.status.blind && !f.status.paralyze);
-    if (st.length && t) {
-      const pick = st.sort((x, y) => (y.a.target === 'enemies') - (x.a.target === 'enemies'))[0];
+    if (st2.length && t) {
+      const pick = st2.sort((x, y) => (y.a.target === 'enemies') - (x.a.target === 'enemies'))[0];
       return { type: 'ability', id: pick.id, target: t.id };
     }
   }
@@ -331,6 +414,19 @@ const autoOk = (c, id) => !c.autoOff?.includes(id) && !ABILITIES[id]?.noAuto;
 // 技の おもな こうか（いくつかの こうかを もつ 技〈multi〉は さいしょの こうかで えらぶ）
 export const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 
+// 第96回 T班 第3便: 攻撃の 行動か（ガンガンいこうぜ が えらんで よい 物。ふつうの 攻撃・魔法剣・ダメージを あたえる 技。
+//   すい取る 攻撃〈drainHp〉・当てると 回復する 技〈multi の はじめが 攻撃〉も ふくむ。chooseAttack が くらべる 物と 同じ しゅるい）
+const ATTACK_TYPES = new Set(['phys', 'magic', 'drainHp', 'destroy', 'deduce']);
+export function isAttackCmd(cmd) {
+  if (!cmd) return false;
+  if (cmd.type === 'attack' || cmd.type === 'mahouken') return true;
+  if (cmd.type !== 'ability') return false;
+  const a = ABILITIES[cmd.id];
+  if (!a) return false;
+  const t = prim(a).type;
+  return ATTACK_TYPES.has(t) || (t === 'random' && !!a.autoRandom);
+}
+
 // いま つかえる わざ（{ id, a }）
 function usable(b, c) {
   const out = [];
@@ -349,7 +445,8 @@ function healAmount(c, x) {
 }
 
 function chooseHeal(b, c, tac, allies, mine) {
-  const hurt = allies.filter((a) => a.hp / a.maxHp < tac.healAt);
+  // 第96回 T班: 「いのちだいじに」は HP 8わり「いか」（前の えらび方は 今までどおり より 少ない 時）
+  const hurt = allies.filter((a) => (tac.mode === 'legacy' ? a.hp / a.maxHp < tac.healAt : a.hp / a.maxHp <= tac.healAt));
   if (!hurt.length) return null;
   const heals = mine.filter(({ a }) => prim(a).type === 'heal');
   if (!heals.length) return null;
@@ -371,7 +468,71 @@ function chooseHeal(b, c, tac, allies, mine) {
     const pick = pool.slice().sort((x, y) => (enough.length ? mpCost(c.penChar, x.id) - mpCost(c.penChar, y.id) : healAmount(c, y) - healAmount(c, x)))[0];
     return { type: 'ability', id: pick.id, target: t.id };
   }
-  if (partyHeals.length && t.hp / t.maxHp < 0.35) return { type: 'ability', id: partyHeals[0].id };
+  // いのちだいじに: 1人を 回復する 技が 無ければ、みんなを 回復する 技で（回復を 先に）
+  if (partyHeals.length && (t.hp / t.maxHp < 0.35 || tac.healFirst)) return { type: 'ability', id: partyHeals[0].id };
+  return null;
+}
+
+// ───── 第96回 T班: MPせつやく ─────
+// とって おく MP: いちばん だいじな 回復・生き返らせる 技（1人を 生き返らせる 技 と いちばん よく 回復する 技）の 分 か、最大MP の 4分の1 の 大きい 方
+export function mpReserve(c) {
+  if (!c?.maxMp) return 0;
+  const key = `${c.maxMp}:${(c.abilities || []).length}:${(c.autoOff || []).length}`;
+  if (c._r96res?.key === key) return c._r96res.v;
+  let rev = 0, heal = 0, healAmt = -1;
+  for (const id of c.abilities || []) {
+    const a = ABILITIES[id];
+    if (!a || a.hidden || !autoOk(c, id)) continue;
+    const cost = mpCost(c.penChar, id);
+    if (a.effect?.type === 'revive' && a.target === 'deadAlly') rev = Math.max(rev, cost);
+    else if (prim(a).type === 'heal' && ['ally', 'allies'].includes(a.target)) {
+      const amt = healAmount(c, { id, a });
+      if (amt > healAmt) { healAmt = amt; heal = cost; }
+    }
+  }
+  const v = Math.min(c.maxMp * SAVEMP.reserveCap, Math.max(rev, heal, c.maxMp * SAVEMP.reserveRate));
+  c._r96res = { key, v };
+  return v;
+}
+// 敵の のこりの HP の わりあい（ボスが いれば ボスだけ）
+function foeLeft(b) {
+  const foes = b.aliveEnemies();
+  const bosses = foes.filter((f) => f.boss);
+  const pool = bosses.length ? bosses : foes;
+  const max = pool.reduce((s, f) => s + (f.maxHp || 0), 0);
+  return max > 0 ? pool.reduce((s, f) => s + Math.max(0, f.hp), 0) / max : 0;
+}
+// のこす MP（この 行動の あとに これ いじょう のこる こと）。とって おく MP。ボスなど 長い 戦いでは、敵の のこりの HP に 合わせて 多めに のこす
+export function saveFloor(b, c) {
+  const R = mpReserve(c);
+  if (!c.maxMp || !fightWeight(b).hard) return R;
+  return R + Math.max(0, c.maxMp - R) * SAVEMP.pace * foeLeft(b);
+}
+// MP を とって おく 分を 切らない 技か（回復・生き返らせる・治す・MP を ためる 技は とって おいた 分を 使って よい）
+const SAVE_FREE = new Set(['heal', 'revive', 'reviveAll', 'cure', 'mpHeal']);
+function saveOk(b, c, id, extra = 0) {
+  const a = ABILITIES[id];
+  if (!a) return false;
+  if (SAVE_FREE.has(prim(a).type) || SAVE_FREE.has(a.effect?.type)) return true;
+  const cost = mpCost(c.penChar, id) + extra;
+  if (!cost) return true;
+  return c.mp - cost >= (c._r96floor ?? saveFloor(b, c)) - 1e-9;
+}
+
+// 第96回 T班: 敵を 弱く する 技（守り・攻撃・魔力・すばやさを 下げる）。まだ かかって いない・きく（耐性 0 で ない）敵に。ボス・HP の 多い 敵から
+//   1回の 番で 1つだけ ためす（DEBUFF_CHANCE。弱く する 技を たくさん 持って いても 攻撃の 番が へりすぎない ように）
+export const DEBUFF_CHANCE = 0.06;
+function chooseDebuff(b, c, foes, mine) {
+  const ok = (f, st) => !f.debuffs?.[st] && (f.resist?.debuff ?? 1) > 0 && f.hp / f.maxHp > 0.25;
+  for (const { id, a } of mine) {
+    if (prim(a).type !== 'debuff' || !['enemy', 'group', 'enemies'].includes(a.target)) continue;
+    const st = prim(a).stat;
+    const pool = foes.filter((f) => ok(f, st));
+    if (!pool.length) continue;
+    if (a.target === 'enemies' && pool.length < Math.ceil(foes.length / 2)) continue;
+    const t = pool.slice().sort((x, y) => (y.boss - x.boss) || (y.hp - x.hp))[0];
+    return b.rng.chance(DEBUFF_CHANCE) ? { type: 'ability', id, target: t.id } : null;
+  }
   return null;
 }
 
@@ -485,15 +646,20 @@ function chooseAttack(b, c, tac, foes) {
   // ふつうの こうげき（ムチは グループ、ブーメランは 全体に とどく。battle.js の attackPlan）
   for (const t of foes) {
     const plan = b.attackPlan ? b.attackPlan(c, t.id) : [{ t, mult: 1 }];
+    let kills = false;
     const score = plan.reduce((s, p) => {
       const r = b.calcPhys(c, p.t, { mult: p.mult }, 1, 'phys', true);
+      if (r.dmg * r.hit >= p.t.hp) kills = true;
       return s + value(p.t, r.dmg * r.hit);
     }, 0);
-    opts.push({ cmd: { type: 'attack', target: t.id }, score, mp: 0, risky: plan.some((p) => countering(p.t, b)) });
+    opts.push({ cmd: { type: 'attack', target: t.id }, score, mp: 0, risky: plan.some((p) => countering(p.t, b)), plain: true, kills });
   }
+  const save = tac.mode === 'savemp';
   for (const id of c.abilities) {
     const a = ABILITIES[id];
     if (!a || !autoOk(c, id) || !canUse(b, c, id)) continue;
+    // 第96回 T班: MPせつやく … とって おく MP を 切る 技は 使わない
+    if (save && !saveOk(b, c, id)) continue;
     const eff = prim(a);
     if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp' && eff.type !== 'destroy' && eff.type !== 'deduce' && !(eff.type === 'random' && a.autoRandom)) continue;
     if (eff.recoil && c.hp / c.maxHp < 0.5) continue; // もろばぎりは HPが すくない ときは つかわない
@@ -567,6 +733,7 @@ function chooseAttack(b, c, tac, foes) {
       for (const sk of c.abilities.filter((id) => isSwordSkill(id) && autoOk(c, id))) {
         const mp = mpCost(c.penChar, sp) + mpCost(c.penChar, sk);
         if (mp > c.mp) continue;
+        if (save && !saveOk(b, c, sk, mpCost(c.penChar, sp))) continue;
         const spA = ABILITIES[sp], skA = ABILITIES[sk];
         const spPow = penaltyFor(c.penChar, sp).powMult, skPow = penaltyFor(c.penChar, sk).powMult;
         for (const t of foes) {
@@ -577,11 +744,28 @@ function chooseAttack(b, c, tac, foes) {
       }
     }
   }
+  const mpRatio = c.maxMp ? c.mp / c.maxMp : 0;
+  const easy = save && !fightWeight(b).hard;
+  // MPせつやく: ふつうの 攻撃で たおせる 敵が いる 弱い 戦いでは ふつうの 攻撃
+  const easyKill = easy && opts.some((o) => o.plain && o.kills && !o.risky);
+  // hardMp … ボスなど 長い 戦い（fightWeight の hard）では、MP を 前と 同じ 重さで 見る（tac.mpWeight。長い 戦いで MP を 切らさない）
+  const oldWay = tac.mode === 'legacy' || (tac.hardMp && fightWeight(b).hard);
   for (const o of opts) {
-    const mpRatio = c.maxMp ? c.mp / c.maxMp : 0;
-    // MPが すくない ときは より せつやく
-    const w = tac.mpWeight * (mpRatio < 0.3 ? 3 : 1);
-    o.final = o.score / (1 + o.mp * w * 10) * b.rng.float(0.9, 1.1) * (o.risky ? 0.05 : 1);
+    let w;
+    if (oldWay) {
+      // 前の えらび方: MPが すくない ときは より せつやく
+      w = tac.mpWeight * (mpRatio < 0.3 ? 3 : 1);
+      o.final = o.score / (1 + o.mp * w * 10) * b.rng.float(0.9, 1.1) * (o.risky ? 0.05 : 1);
+      continue;
+    }
+    // 第96回 T班: MP は 最大MP との わりあいで 見る（レベルが 上がっても 同じ 見方）
+    const frac = c.maxMp ? o.mp / c.maxMp : 0;
+    if (tac.mode === 'aggressive') w = 0; // いちばん 大きな ダメージ（MP は 見ない）
+    else if (save) w = easy ? SAVEMP.easyCostK : SAVEMP.costK;
+    else w = (tac.costK ?? 3) * (mpRatio < 0.3 ? 3 : 1); // バッチリがんばれ・いのちだいじに: ダメージ ÷ MP も 少し 見る
+    // ガンガンいこうぜ は ゆらぎを 小さく（中くらいの 技を なんとなく えらばない）
+    const jit = tac.mode === 'aggressive' ? b.rng.float(0.98, 1.02) : b.rng.float(0.9, 1.1);
+    o.final = o.score / (1 + frac * w) * jit * (o.risky ? 0.05 : 1) * (easyKill && o.plain && o.kills ? 3 : 1);
   }
   // 光っている 敵に 呪文を 使わない など（battle-temple.js）
   templeAdjust(b, c, opts);
@@ -590,6 +774,7 @@ function chooseAttack(b, c, tac, foes) {
   r84aAdjust(b, c, opts, fightWeight(b));
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
-  if (opts[0]?.risky) return { type: 'defend' };
+  //   （ガンガンいこうぜ は 守らずに 攻撃。第96回 T班 第3便）
+  if (opts[0]?.risky && tac.mode !== 'aggressive') return { type: 'defend' };
   return opts[0]?.cmd || { type: 'attack', target: foes[0].id };
 }

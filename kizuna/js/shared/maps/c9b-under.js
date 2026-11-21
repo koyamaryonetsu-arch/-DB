@@ -6,13 +6,13 @@
 // ・ヒカリゴケの里（村長・宿・道具屋・村の 人 6人・村の 明かりの 台・船着き場）・大王のやしきの 門（5・6本めの 柱で 開く）
 // ・天じょうから ぶら下がる 今までの ダンジョンの 底の かざり（map.c9bDecor。絵は client/c9b-light.js）
 // ・大地の下の「行った 所」は 取らない（map.noExplore。地図は 柱の 明るさで かく … maps/c9b-light.js の mapCells9b）
-import { T } from '../tiles.js?v=d4d473d565e8';
-import { npc } from './npc.js?v=d4d473d565e8';
-import { lightInfo } from './c9a-light.js?v=d4d473d565e8';
-import { UNDER_POS, UNDER_W, UNDER_H, UNDER_DECOR, HALL_POS, SHAFT_POS } from './c9b-rows.js?v=d4d473d565e8';
-import { LAMPS9B } from './c9b-light.js?v=d4d473d565e8';
-import { c9bChest } from '../data/items-c9b.js?v=d4d473d565e8';
-import { C9B, C9B_MAP, C9B_PILLARS, C9B_CHEST_IDS, C9B_TABLE, C9B_TRACKS, C9B_MOSS_STEPS } from './c9b-flags.js?v=d4d473d565e8';
+import { T } from '../tiles.js?v=5845e0f225ba';
+import { npc } from './npc.js?v=5845e0f225ba';
+import { lightInfo } from './c9a-light.js?v=5845e0f225ba';
+import { UNDER_POS, UNDER_W, UNDER_H, UNDER_DECOR, HALL_POS, SHAFT_POS } from './c9b-rows.js?v=5845e0f225ba';
+import { LAMPS9B } from './c9b-light.js?v=5845e0f225ba';
+import { c9bChest } from '../data/items-c9b.js?v=5845e0f225ba';
+import { C9B, C9B_MAP, C9B_PILLARS, C9B_CHEST_IDS, C9B_TABLE, C9B_TRACKS, C9B_MOSS_STEPS } from './c9b-flags.js?v=5845e0f225ba';
 
 const W = UNDER_W, H = UNDER_H;
 const P = UNDER_POS;

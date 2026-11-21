@@ -13,10 +13,10 @@
 //
 // 42. 地下の川の、大なまず（サムライ小ぞうの 流れ。むしゃぶるい・ハラへった・めん！ → 大なまずと 子分の ガマと 戦う）
 // 43. ピラミッドの岸の、夜なかのゴーン（無差別格闘流の 流れ。水をかぶる・かわしてける → つりばしヤギと 戦う → どげざ）
-import { S, N, proOf, need } from './fq-common.js?v=d4d473d565e8';
-import { rewardSteps } from './sidequests-work2.js?v=d4d473d565e8';
-import { quiz } from './sidequests-work9.js?v=d4d473d565e8';
-import { WQ10, WQ10_OPEN } from '../maps/work-quests10.js?v=d4d473d565e8';
+import { S, N, proOf, need } from './fq-common.js?v=5845e0f225ba';
+import { rewardSteps } from './sidequests-work2.js?v=5845e0f225ba';
+import { quiz } from './sidequests-work9.js?v=5845e0f225ba';
+import { WQ10, WQ10_OPEN } from '../maps/work-quests10.js?v=5845e0f225ba';
 
 const accept = (ask, yes, no, flag) => [['choice', ask, ['引き受ける', 'またこんど'], [[...yes, ['flag', flag], ['sync']], no]]];
 // 戦い（パーティー全員で 見る。WORK10_STORY_SCRIPTS）

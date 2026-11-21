@@ -1,18 +1,18 @@
 // ストーリーの すすみぐあい（フラグ）から「今の目標」を きめる
 // 古い 版の セーブで 目標の 文が 今と ちがう ときに、正しい 文に なおす ため（world.js の normalizeChar）
-import { CH1_CLEAR_OBJECTIVE } from './story.js?v=d4d473d565e8';
-import { SKY_FLAG, SKY_HINT_OBJECTIVE, SKY_OBJECTIVE } from './sky.js?v=d4d473d565e8';
-import { OBJECTIVE_TARGETS } from './quest-targets.js?v=d4d473d565e8';
-import { OBJECTIVE_TALK } from './party-talk.js?v=d4d473d565e8';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=d4d473d565e8';
-import { CH3_PROGRESS } from './story-ch3.js?v=d4d473d565e8';
-import { CH4_PROGRESS } from './story-ch4.js?v=d4d473d565e8';
-import { CH5_PROGRESS } from './story-ch5.js?v=d4d473d565e8';
-import { CH6_PROGRESS, ch6StaleObjective } from './story-ch6.js?v=d4d473d565e8';
-import { CH7_PROGRESS } from './story-c7.js?v=d4d473d565e8';
-import { CH8_PROGRESS } from './story-c8.js?v=d4d473d565e8';
-import { CH9_PROGRESS } from './story-c9.js?v=d4d473d565e8';
-import { CH10_PROGRESS } from './story-c10.js?v=d4d473d565e8';
+import { CH1_CLEAR_OBJECTIVE } from './story.js?v=5845e0f225ba';
+import { SKY_FLAG, SKY_HINT_OBJECTIVE, SKY_OBJECTIVE } from './sky.js?v=5845e0f225ba';
+import { OBJECTIVE_TARGETS } from './quest-targets.js?v=5845e0f225ba';
+import { OBJECTIVE_TALK } from './party-talk.js?v=5845e0f225ba';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=5845e0f225ba';
+import { CH3_PROGRESS } from './story-ch3.js?v=5845e0f225ba';
+import { CH4_PROGRESS } from './story-ch4.js?v=5845e0f225ba';
+import { CH5_PROGRESS } from './story-ch5.js?v=5845e0f225ba';
+import { CH6_PROGRESS, ch6StaleObjective } from './story-ch6.js?v=5845e0f225ba';
+import { CH7_PROGRESS } from './story-c7.js?v=5845e0f225ba';
+import { CH8_PROGRESS } from './story-c8.js?v=5845e0f225ba';
+import { CH9_PROGRESS } from './story-c9.js?v=5845e0f225ba';
+import { CH10_PROGRESS } from './story-c10.js?v=5845e0f225ba';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [

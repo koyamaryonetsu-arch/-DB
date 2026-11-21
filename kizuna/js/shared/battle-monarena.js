@@ -12,13 +12,13 @@
 //   monAllyInit(char, { controller, auto, tactics, owner }) … みかたの がわの 入れ方（Battle の allies に わたす）
 //   addMonFoe(battle, char, { controller, auto, tactics, owner, name }) … 敵の がわに 1ぴき 入れる（controller を わたすと その 人が コマンドを えらぶ）
 //   monSnapshot(entry) / snapChar(snap, ownerId) … 登録チームの 写し（もちぬしが 遊んで いなくても 戦える）
-import { Battle, allyFromCharacter, enemyFixedScale, agiFactor, effAgi, ATB, attackReach, reachFalloff } from './battle.js?v=d4d473d565e8';
-import { decideAlly, TACTICS } from './ai.js?v=d4d473d565e8';
-import { MONSTERS } from './data/monsters.js?v=d4d473d565e8';
-import { ABILITIES } from './data/abilities.js?v=d4d473d565e8';
-import { fullHeal, mpCost, computeStats } from './stats.js?v=d4d473d565e8';
-import { SNAP_KEYS } from './data/monarena.js?v=d4d473d565e8';
-import { scaleEnemy } from './data/treasure.js?v=d4d473d565e8';
+import { Battle, allyFromCharacter, enemyFixedScale, agiFactor, effAgi, ATB, attackReach, reachFalloff } from './battle.js?v=5845e0f225ba';
+import { decideAlly, isTactic } from './ai.js?v=5845e0f225ba';
+import { MONSTERS } from './data/monsters.js?v=5845e0f225ba';
+import { ABILITIES } from './data/abilities.js?v=5845e0f225ba';
+import { fullHeal, mpCost, computeStats } from './stats.js?v=5845e0f225ba';
+import { SNAP_KEYS } from './data/monarena.js?v=5845e0f225ba';
+import { scaleEnemy } from './data/treasure.js?v=5845e0f225ba';
 
 export { SNAP_KEYS };
 
@@ -54,7 +54,7 @@ export function monAllyInit(char, { controller = null, auto = true, owner = null
 
 // 敵の がわに 魔物の 仲間を 1ぴき 入れる（Battle の 中みを 直接 足す。戦いが はじまる 前に）
 export function addMonFoe(b, char, { controller = null, auto = true, owner = null, name = null } = {}) {
-  const tac = char.tactics && TACTICS[char.tactics] && char.tactics !== 'manual' ? char.tactics : 'balanced';
+  const tac = isTactic(char.tactics) && char.tactics !== 'manual' ? char.tactics : 'balanced';
   const c = allyFromCharacter(char, { kind: 'monster', controller, auto: controller ? !!auto : true, tactics: tac, tacBy: owner });
   const sp = c.mon || char.species;
   Object.assign(c, {
