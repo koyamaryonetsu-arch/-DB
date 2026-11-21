@@ -13,18 +13,18 @@
 //   はこ（c9_box1〜3）1つに つき、はじめの 皿が 1つ へる（late 回 動くと 持って くる）
 //   たおれない: HPが 1 に なると、おなかを 鳴らして すわりこむ（勝ち。b.killed に 入れて 経験値・落とし物は ふつう）
 // ・自動の 仲間（酒場の 人）は、見えて いる 皿を 3回に 1回 ねらう（AUTO_DISH_EVERY。家族の キャラの「オート」と 魔物の 仲間は ねらわない）
-import { MONSTERS } from './data/monsters.js?v=4646ff086801';
-import { ABILITIES } from './data/abilities.js?v=4646ff086801';
-import { TERU } from './data/abilities-c9b.js?v=4646ff086801';
-import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=4646ff086801';
-import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=4646ff086801';
-import { canUse } from './ai.js?v=4646ff086801';
+import { MONSTERS } from './data/monsters.js?v=d8756ad5e62e';
+import { ABILITIES } from './data/abilities.js?v=d8756ad5e62e';
+import { TERU } from './data/abilities-c9b.js?v=d8756ad5e62e';
+import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=d8756ad5e62e';
+import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=d8756ad5e62e';
+import { canUse } from './ai.js?v=d8756ad5e62e';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js）
-import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js?v=4646ff086801';
+import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js?v=d8756ad5e62e';
 // 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
-import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js?v=4646ff086801';
+import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js?v=d8756ad5e62e';
 // 第3部 第2章 第1幕: スピカの ごほうび・ドクター・タマゴン・カビだんしゃく モルド（battle-c10a.js）
-import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js?v=4646ff086801';
+import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js?v=d8756ad5e62e';
 
 export { TERU };
 export const WATCH = 'm9k_watch';

@@ -6,13 +6,13 @@
 //   いっしょに 歩いて いる 家族（ついて いく 人）も つれて いく（ふきぬけ・台・あなの 上には 置かない）
 // ・階を かわると 向きは ふつうに もどる（placeSession。だいほん・全めつ・ワープ でも）
 // ・回線が 切れて もどった 時: 場所と 向きが 食いちがったら（その 向きでは 立てない 所）、その 階で さいごに ふんだ 台（なければ 階の 着いた 所）へ
-import { MAPS, effectiveTile, isBlocked, canStand } from '../maps/index.js?v=4646ff086801';
-import { T } from '../tiles.js?v=4646ff086801';
-import { PYR_C_POS, RIVER_POS } from '../maps/c9c-rows.js?v=4646ff086801';
-import { isPyrC, isShaftTile, isPadTile, shaftDest, flipOf } from '../maps/c9c-flip.js?v=4646ff086801';
-import { C9C, C9C_MAP } from '../maps/c9c-flags.js?v=4646ff086801';
-import { partyOf } from './party.js?v=4646ff086801';
-import { runScript } from './scripts.js?v=4646ff086801';
+import { MAPS, effectiveTile, isBlocked, canStand } from '../maps/index.js?v=d8756ad5e62e';
+import { T } from '../tiles.js?v=d8756ad5e62e';
+import { PYR_C_POS, RIVER_POS } from '../maps/c9c-rows.js?v=d8756ad5e62e';
+import { isPyrC, isShaftTile, isPadTile, shaftDest, flipOf } from '../maps/c9c-flip.js?v=d8756ad5e62e';
+import { C9C, C9C_MAP } from '../maps/c9c-flags.js?v=d8756ad5e62e';
+import { partyOf } from './party.js?v=d8756ad5e62e';
+import { runScript } from './scripts.js?v=d8756ad5e62e';
 
 // 着いた 時の 場面（その 階に はじめて 来た）
 const ARRIVE = { [C9C_MAP.p2]: [C9C.p2, 'c9c_p2_in'], [C9C_MAP.p3]: [C9C.p3, 'c9c_p3_in'], [C9C_MAP.p4]: [C9C.p4, 'c9c_p4_in'] };

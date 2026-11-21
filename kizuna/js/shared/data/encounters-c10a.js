@@ -6,10 +6,10 @@
 //   t10g_2 … 根の国 2まいめ（c10g_2。Lv106〜107）
 // ふつうの 魔物 8しゅ（どれも 仲間に なる）
 // ふつうの 戦いの 長さ（13-5）: 勇者 ＋ ゲームと おなじ 作りの 酒場の 仲間 3人で 90秒 いない（tools/sim-ch9-field.mjs）
-import { C10R_TAMAGON, C10G_MOLD } from './monsters-c10a.js?v=4646ff086801';
-import { C10A_BATTLE, C10A_TRACKS } from './c10a-names-b.js?v=4646ff086801';
+import { C10R_TAMAGON, C10G_MOLD } from './monsters-c10a.js?v=d8756ad5e62e';
+import { C10A_BATTLE, C10A_TRACKS } from './c10a-names-b.js?v=d8756ad5e62e';
 // 負けた 時の ヒントの 文（boss-hints-c10a.js が mergeBossHints を よぶ）
-import './boss-hints-c10a.js?v=4646ff086801';
+import './boss-hints-c10a.js?v=d8756ad5e62e';
 
 export const ENCOUNTERS_C10A = {
   t10r_1: [

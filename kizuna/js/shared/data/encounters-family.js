@@ -55,4 +55,9 @@ export const FIXED_FAMILY = {
   fq_springcrab: { group: [['c9b_crab', 2, 2]], bg: 'c9b_under', bgm: 'battle', canFlee: false, enemyLv: 98, enemyPow: 0.25 },
   // 40. キノコ畑の どろぼう（おなかを すかせた どうくつコウモリ）
   fq_batthief: { group: [['c9b_bat', 3, 3]], bg: 'c9b_under', bgm: 'battle', canFlee: false, enemyLv: 98, enemyPow: 0.2 },
+  // ───── 第94回 D班（data/sidequests-work10.js）。第3部 第1章 第3幕の あと（Lv100 の ころ）・第4幕の あと（Lv102 の ころ）。完全オートで 勝てる 軽さ ─────
+  // 42. 川の はじめの よどみの ヌシ（大なまず）と 子分の ガマ
+  fq_namazu: { group: [['c9c_namazu', 1, 1], ['c9c_gama', 1, 1]], bg: 'c9c_river', bgm: 'battle', canFlee: false, enemyLv: 100, enemyPow: 0.25 },
+  // 43. ひびきの石を 鳴らしに 来る つりばしヤギ（音が 好きなだけ）
+  fq_goatgong: { group: [['c9d_goat', 2, 2]], bg: 'c9c_river', bgm: 'battle', canFlee: false, enemyLv: 102, enemyPow: 0.25 },
 };

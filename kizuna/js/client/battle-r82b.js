@@ -3,8 +3,8 @@
 //   ・r82bMarks … 仲間の まどの 小さな 札（今の 玉「雷玉」・きょだい化「きょだい3」・雷神の守り「雷守3」。battle-buffs.js の unitMarks）
 //     家族 みんなの 画面に 出る（pub の tama・kyodai・raiGuard）
 // css/style.css は ほかの 人も かえるので、CSS は ここで 入れる（battle-buffs.js と おなじ やりかた）
-import { TAMA, tamaSet, tamaOf } from '../shared/battle-r82b.js?v=4646ff086801';
-import { ELEMENT_NAMES } from '../shared/data/abilities.js?v=4646ff086801';
+import { TAMA, tamaSet, tamaOf } from '../shared/battle-r82b.js?v=d8756ad5e62e';
+import { ELEMENT_NAMES } from '../shared/data/abilities.js?v=d8756ad5e62e';
 
 const CSS = `
 .b-mem .sts .bm.tm { color: var(--tm, #ffe040); background: rgba(20, 20, 40, 0.55); font-weight: bold; }

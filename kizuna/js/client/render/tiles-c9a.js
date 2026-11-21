@@ -5,14 +5,14 @@
 // ・黒板（418）/ 黒板の とびら（419）/ こおった とびら（420）/ 井戸の ひも（421）/ ためしの とびら（422）/ 星の音さの 台（423）
 // ・祭りの ちょうちん（424 火が ない・425 火が ともった。2コマ）/ くぼ地の ふち（426。焼けた 土の もり上がり）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=4646ff086801';
-import { prand } from './pixel.js?v=4646ff086801';
+import { T } from '../../shared/tiles.js?v=d8756ad5e62e';
+import { prand } from './pixel.js?v=d8756ad5e62e';
 // 第91回 A班: 第3部 第1章 第2幕の タイル（render/tiles-c9b.js。ここで まぜる）
-import { C9B_PAINTERS, C9B_FRAMES, C9B_SPEED, C9B_FLOOR_H, c9bBlockSpec, C9B_PROPS, C9B_PROPS_KEEP, C9B_THEMES } from './tiles-c9b.js?v=4646ff086801';
+import { C9B_PAINTERS, C9B_FRAMES, C9B_SPEED, C9B_FLOOR_H, c9bBlockSpec, C9B_PROPS, C9B_PROPS_KEEP, C9B_THEMES } from './tiles-c9b.js?v=d8756ad5e62e';
 // 第92回 A班: 第3部 第1章 第3幕の タイル（render/tiles-c9c.js。ここで まぜる）
-import { C9C_PAINTERS, C9C_FRAMES, C9C_SPEED, C9C_FLOOR_H, c9cBlockSpec, C9C_PROPS, C9C_PROPS_KEEP, C9C_THEMES } from './tiles-c9c.js?v=4646ff086801';
+import { C9C_PAINTERS, C9C_FRAMES, C9C_SPEED, C9C_FLOOR_H, c9cBlockSpec, C9C_PROPS, C9C_PROPS_KEEP, C9C_THEMES } from './tiles-c9c.js?v=d8756ad5e62e';
 // 第93回 A班: 第3部 第1章 第4幕の タイル（render/tiles-c9d.js。ここで まぜる）
-import { C9D_PAINTERS, C9D_FRAMES, C9D_SPEED, C9D_FLOOR_H, c9dBlockSpec, C9D_PROPS, C9D_PROPS_KEEP, C9D_THEMES } from './tiles-c9d.js?v=4646ff086801';
+import { C9D_PAINTERS, C9D_FRAMES, C9D_SPEED, C9D_FLOOR_H, c9dBlockSpec, C9D_PROPS, C9D_PROPS_KEEP, C9D_THEMES } from './tiles-c9d.js?v=d8756ad5e62e';
 
 const ST = { d: '#1a1a2a', b: '#2c2c44', l: '#44466a', hl: '#6a6c98', ln: '#10101c' }; // 地下道の 石
 const MS = { d: '#1c3a2c', b: '#2e5a40', l: '#4a8a5a', hl: '#7ac08a' }; // こけ

@@ -3,32 +3,32 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=4646ff086801';
-import { T } from '../../shared/tiles.js?v=4646ff086801';
-import { effectiveTile } from '../../shared/maps/index.js?v=4646ff086801';
-import { pyramidLevel } from '../../shared/maps/south.js?v=4646ff086801';
-import { hash2, valueNoise } from '../../shared/rng.js?v=4646ff086801';
+import * as THREE from '../../../vendor/three.min.js?v=d8756ad5e62e';
+import { T } from '../../shared/tiles.js?v=d8756ad5e62e';
+import { effectiveTile } from '../../shared/maps/index.js?v=d8756ad5e62e';
+import { pyramidLevel } from '../../shared/maps/south.js?v=d8756ad5e62e';
+import { hash2, valueNoise } from '../../shared/rng.js?v=d8756ad5e62e';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=4646ff086801';
-import { tileCanvas } from './tiles.js?v=4646ff086801';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=4646ff086801';
+} from './tex3d.js?v=d8756ad5e62e';
+import { tileCanvas } from './tiles.js?v=d8756ad5e62e';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=d8756ad5e62e';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=4646ff086801';
+import { whirlCanvas } from './tiles-duna.js?v=d8756ad5e62e';
 // 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
-import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=4646ff086801';
-import { labBlockSpec } from './tiles-lab.js?v=4646ff086801';
-import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=4646ff086801';
-import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=4646ff086801';
-import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=4646ff086801';
-import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=4646ff086801';
-import { CASTLE_FLOOR_H } from './tiles-castle.js?v=4646ff086801';
-import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js?v=4646ff086801';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=4646ff086801';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=4646ff086801';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=4646ff086801';
+import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=d8756ad5e62e';
+import { labBlockSpec } from './tiles-lab.js?v=d8756ad5e62e';
+import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=d8756ad5e62e';
+import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=d8756ad5e62e';
+import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=d8756ad5e62e';
+import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=d8756ad5e62e';
+import { CASTLE_FLOOR_H } from './tiles-castle.js?v=d8756ad5e62e';
+import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js?v=d8756ad5e62e';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=d8756ad5e62e';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=d8756ad5e62e';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=d8756ad5e62e';
 // 第78回: 階段・くさりの 立体・手前の かべを ひくく（render/mark3d.js。▲▼ の 目じるしは 第82回で やめた）
-import { stairCuts, chainCanvas3d, CHAIN_GHOST, CHAIN_STRETCH } from './mark3d.js?v=4646ff086801';
+import { stairCuts, chainCanvas3d, CHAIN_GHOST, CHAIN_STRETCH } from './mark3d.js?v=d8756ad5e62e';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);

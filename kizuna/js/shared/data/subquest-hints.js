@@ -8,30 +8,31 @@
 // ・知らせた・見た 印は キャラの subAsk（{ told: [...], seen: [...] }）。今 出ている id だけ のこす。
 //   新しい 項目なので 版は 上げない（world/save.js の repairChar で 形を ととのえる）。引っこしの コードには 入れない（引っこし先で もう1回 知らせる）
 // 新しい たのまれごとを 作ったら、ここにも 1行 足す（test/subquest-hints-r50.test.js が 調べる）
-import { C6 } from '../maps/past.js?v=4646ff086801';
-import { TC, RC, CT } from '../maps/ch6-side.js?v=4646ff086801';
-import { ORN } from '../maps/ch6c-side.js?v=4646ff086801';
-import { RS } from './sidequests-ch6d.js?v=4646ff086801';
-import { C7, LETTER } from '../maps/c7-flags.js?v=4646ff086801';
-import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=4646ff086801';
-import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=4646ff086801';
+import { C6 } from '../maps/past.js?v=d8756ad5e62e';
+import { TC, RC, CT } from '../maps/ch6-side.js?v=d8756ad5e62e';
+import { ORN } from '../maps/ch6c-side.js?v=d8756ad5e62e';
+import { RS } from './sidequests-ch6d.js?v=d8756ad5e62e';
+import { C7, LETTER } from '../maps/c7-flags.js?v=d8756ad5e62e';
+import { C7S, LETTER7S } from '../maps/c7s-flags.js?v=d8756ad5e62e';
+import { C7I, LETTER7I } from '../maps/c7i-flags.js?v=d8756ad5e62e';
 // 第73回 D班: 第8章 第1幕の より道（千年前の 緑の王国）
-import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=4646ff086801';
-import { C8, LETTER8 } from '../maps/c8a-flags.js?v=4646ff086801';
+import { C8D_OPEN, CAMEL8, MARKET8 } from '../maps/c8d-side.js?v=d8756ad5e62e';
+import { C8, LETTER8 } from '../maps/c8a-flags.js?v=d8756ad5e62e';
 // 第74回 D班: 第8章 第2幕の より道（千年前の クモイの 海）
-import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=4646ff086801';
-import { C8B, LETTER8B } from '../maps/c8b-flags.js?v=4646ff086801';
+import { C8BD_OPEN, TURTLE8, HIDE8 } from '../maps/c8bd-side.js?v=d8756ad5e62e';
+import { C8B, LETTER8B } from '../maps/c8b-flags.js?v=d8756ad5e62e';
 // 第75回 D班: 第8章 第3幕の より道（千年前の ミドリナ）
-import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js?v=4646ff086801';
-import { C8C, LETTER8C } from '../maps/c8c-flags.js?v=4646ff086801';
+import { C8CD_OPEN, IMO8, BUB8 } from '../maps/c8cd-side.js?v=d8756ad5e62e';
+import { C8C, LETTER8C } from '../maps/c8c-flags.js?v=d8756ad5e62e';
 // 第80回 D班: 第8章 第4幕の より道（今の ホシフル村）
-import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js?v=4646ff086801';
+import { C8RD_OPEN, LAST9 } from '../maps/c8rd-side.js?v=d8756ad5e62e';
 // 第90回 D班: 第3部 第1章 第1幕の より道（今の ルミナ・ホシフル村）
-import { C9AD_OPEN, LOST9 } from '../maps/c9ad-side.js?v=4646ff086801';
+import { C9AD_OPEN, LOST9 } from '../maps/c9ad-side.js?v=d8756ad5e62e';
 // 第92回 D班: 第3部 第1章 第2幕の あとの より道（大地の下・ヒカリゴケの里）
-import { C9BD_OPEN, LAMP9, MOLE9 } from '../maps/c9bd-side.js?v=4646ff086801';
-import { FAMILY_QUESTS } from './sidequests-family.js?v=4646ff086801';
-import { jobLine } from './fq-common.js?v=4646ff086801';
+import { C9BD_OPEN, LAMP9, MOLE9 } from '../maps/c9bd-side.js?v=d8756ad5e62e';
+import { TOY9, BALL9 } from '../maps/c9cd-side.js?v=d8756ad5e62e';
+import { FAMILY_QUESTS } from './sidequests-family.js?v=d8756ad5e62e';
+import { jobLine } from './fq-common.js?v=d8756ad5e62e';
 
 const has = (c, id) => (c?.keyItems || []).includes(id) || (c?.items || []).some((e) => e.id === id && e.n > 0);
 
@@ -108,6 +109,9 @@ const build = () => [
   // 第3部 第1章 第2幕の あと（第92回 D班。大地の下の より道。sidequests-c9bd.js）
   { id: 'c9bd_lamp', name: '大王の、大きなランタン', open: [C9BD_OPEN], start: LAMP9.start, done: LAMP9.done, place: 'ヒカリゴケの里', who: 'ヒカリゴケの子どもコロン', npc: 'c9bd_l_host', hint: '大王さまのために、何かを作りたいらしい。' },
   { id: 'c9bd_mole', name: 'まいごの、もぐら兵', open: [C9BD_OPEN], start: MOLE9.start, done: MOLE9.done, place: '大地の下', who: 'もぐら兵の隊長ドドン', npc: 'c9bd_m_host', hint: 'いちばん小さなもぐら兵が、帰ってこないらしい。' },
+  // 第3部 第1章 第3幕・第4幕の あと（第94回 D班。地下の川・くぼ地の より道。sidequests-c9cd.js）
+  { id: 'c9cd_toy', name: 'ながされた、おもちゃのいかだ', open: [TOY9.open], start: TOY9.start, done: TOY9.done, place: 'ヒカリゴケの里', who: 'ヒカリゴケの子どもプカ', npc: 'c9cd_t_host', hint: '大事なおもちゃが、川にながされてしまったらしい。' },
+  { id: 'c9cd_ball', name: 'ムウとムウムウの、あそび道具', open: [BALL9.open], start: BALL9.start, done: BALL9.done, place: 'ながれ星のくぼ地', who: 'おもちゃ職人のコロ', npc: 'c9cd_b_host', hint: 'だれかのために、あそび道具を作りたいらしい。' },
 ];
 
 // お仕事いらい板の たのみごと（第1部クリアの あと。はり紙の 1行目を ひとことに）。地図の 人は 一らんの npc（第65回 D2 で 一らんに 入れた）

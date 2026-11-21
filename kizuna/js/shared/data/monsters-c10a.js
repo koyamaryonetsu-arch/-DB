@@ -147,10 +147,10 @@ export const MONSTERS_C10A = {
       mist: { n: 2, half: 3 },
       wall: 0.5,
       bomb: { every: 4, wait: 1, mult: 2.2, guardCut: 0.35 },
-      // 人数で 合わせる（タマゴンと おなじ 形。spd … はやさの ばい）。solo … mistN・mistHalf … きりは 1人・kinokoTurns … きのこの 番の 数（ひとりの オートとの 差）
-      few: { hp: [0.75, 0.75, 1, 1, 1.1], atk: [0.95, 1.25, 1, 1, 2.2], bombK: [0.6, 0.8, 1, 1, 1], spd: [0.875, 0.875, 1, 1, 0.875] },
-      solo: { hp: 0.14, atk: 0.26, bombK: 0.6, mistN: 1, mistHalf: 1, kinokoTurns: 2, spd: 0.875 },
-      monK: { hp: -0.15, atk: -0.08 },
+      // 人数で 合わせる（タマゴンと おなじ 形。spd … はやさの ばい）。solo … mistN・mistHalf … きりは 1人・kinokoTurns … きのこの 番の 数・wall … カビの かべが とても かたい（てらさないと ほとんど 通らない … スピカの 技を 使わないと 勝てない）
+      few: { hp: [0.75, 0.9, 1, 1, 1.1], atk: [0.95, 1.3, 1, 1, 2.2], bombK: [0.6, 0.8, 1, 1, 1], spd: [0.875, 0.875, 1, 1, 0.875] },
+      solo: { hp: 0.07, atk: 0.28, wall: 0.05, bombK: 0.6, mistN: 1, mistHalf: 1, kinokoTurns: 2, spd: 0.875 },
+      monK: { hp: -0.17, atk: -0.09 },
     },
     actions: [{ w: 3, id: 'm10m_cane' }, { w: 2, id: 'm10m_prop', cond: 'notRecent:m10m_prop' }, { w: 2, id: 'm10m_damp' }],
     desc: 'きのこのかさのぼうしに、しめったマント。小さな丸い空とぶメカで、根の国の大木をカビだらけにしていた。',
