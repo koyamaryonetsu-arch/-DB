@@ -437,6 +437,7 @@ export function askTreasureFull(game, { menu = null, nw = null } = {}) {
     };
     const lm = new ListMenu(g.input, {
       items,
+      list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
       sound: sfx,
       back: null,
       start,

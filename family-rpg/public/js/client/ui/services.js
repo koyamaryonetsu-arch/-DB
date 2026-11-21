@@ -191,6 +191,7 @@ function jobUI(game) {
     };
     const menu = new ListMenu(game.input, {
       items: render(),
+      list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
       sound: (x) => game.audio.sfx(x),
       onMove: (it) => showJob(it.value === '__who' ? target().job : it.value),
       // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）。だれの 行では 人を かえる
@@ -750,6 +751,7 @@ function tavernUI(game, data) {
     };
     const menu = new ListMenu(game.input, {
       items: items(),
+      list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
       sound: sfx,
       onMove: (it) => show(it?.value),
       onSelect: (it) => act(it.value),
@@ -953,6 +955,7 @@ function tavernUI(game, data) {
       };
       const m = new ListMenu(game.input, {
         items: rows(),
+        list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
         cols: 2,
         fit: true,
         sound: sfx,
@@ -1432,6 +1435,7 @@ function starUI(game, data) {
     };
     const menu = new ListMenu(game.input, {
       items: rows(),
+      list: true, // 第96回: 一覧の まど（タップ 1回め … カーソル・同じ 行を もう1回 … 決定。dom.js）
       sound: (x) => game.audio.sfx(x),
       onMove: (it) => show(it),
       onSelect: async (it) => {

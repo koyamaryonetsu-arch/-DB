@@ -210,7 +210,7 @@ async function enchantLoop(game, ct) {
     const now = res.fxNow || [];
     await ct.say(`生まれた力：${fxText(res.fxRoll.k, res.fxRoll.v)}\nどうする？`, { narr: true });
     const rows = [...now.map((x, i) => ({ label: `${GEAR_FX[x.k]?.name || ''}+${x.v}と入れかえる`, value: i })), { label: '前のままにする', value: -1 }];
-    const p = await ct.pick(rows, { back: null, onMove: (x) => ct.info(el('div', { class: 'detail', text: x && x.value >= 0 ? `今：${fxText(now[x.value].k, now[x.value].v)}\n→ ${fxText(res.fxRoll.k, res.fxRoll.v)}` : '生まれた力は消えて、今の効果のまま' })) });
+    const p = await ct.pick(rows, { back: null, list: false, onMove: (x) => ct.info(el('div', { class: 'detail', text: x && x.value >= 0 ? `今：${fxText(now[x.value].k, now[x.value].v)}\n→ ${fxText(res.fxRoll.k, res.fxRoll.v)}` : '生まれた力は消えて、今の効果のまま' })) });
     const r2 = await request(game, { kind: 'alchemy', action: 'enchantPick', replace: p ? p.value : -1 });
     if (ct.closed) return;
     await ct.say(r2.text || '', { narr: true });

@@ -4,14 +4,14 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js';
+import { el, ListMenu, esc, moreMark } from './dom.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 // 第53回 D: 色ちがいの 仲間の 絵
 import { colorMon } from '../../shared/data/variants.js';
 import { jobLabel } from '../../shared/job-label.js';
 import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js';
-import { itemStats, whoCanEquip, rankText } from './info.js';
+import { itemStats, whoCanEquip, rankText, gearSummary } from './info.js';
 import { faceURL } from '../field.js';
 import { boardIconURL } from '../render/boards.js';
 import { partyRows } from './hud.js';
@@ -139,13 +139,16 @@ export class Counter {
   }
 
   // えらぶ（box: 'list' か 'info'）。もどる・B・とじる は null
-  pick(items, { box = 'list', onMove, back = 'もどる', start = null } = {}) {
+  // list: 第96回 一覧の まど（タップ 1回め … カーソルと せつめい・同じ 行を もう1回 … 決定）。
+  //   はじめは「せつめいの ある 品物の 一覧」（onMove が ある 左の まど）。「買いにきた・売りにきた」などは 1回で 決定
+  pick(items, { box = 'list', onMove, back = 'もどる', start = null, list = !!onMove && box === 'list' } = {}) {
     return this.wait((done) => {
       if (!done) return null;
       const target = box === 'info' ? this.infoBox : this.listBox;
       const m = new ListMenu(this.game.input, {
         items,
         back,
+        list,
         sound: (x) => this.game.audio.sfx(x),
         onMove: (it) => onMove?.(it),
         onSelect: (it) => finish(it),
@@ -251,6 +254,9 @@ export class Counter {
   info(node) {
     this.infoBox.innerHTML = '';
     if (node) this.infoBox.append(node);
+    // 第96回: 中みを かえたら 上から。つづきが ある 時は 下に ▼（dom.js の moreMark）
+    this.infoBox.scrollTop = 0;
+    moreMark(this.infoBox);
   }
 
   list(node) {
@@ -386,6 +392,9 @@ export function itemInfo(game, id, { sell = false } = {}) {
   cmpStyles();
   const box = el('div', { class: 'ct-item' });
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', html: rareNameHtml(id) }), el('span', { class: 'st', text: itemStats(id) }), el('span', { class: 'rk', text: rankText(id) })));
+  // 第96回: 装備品は 強さの すぐ 下に「効果」（道具の まどと おなじ。info.js の gearSummary）。その 下に 紹介の 文
+  const fx = gearSummary(id, { who: game.me })?.fx || [];
+  if (fx.length) box.append(el('div', { class: 'gd-fx' }, el('span', { class: 'gd-k', text: '効果' }), el('ul', {}, ...fx.map((t) => el('li', { text: t })))));
   box.append(el('div', { class: 'detail', text: it.desc || '' }));
   if (EQUIP_TYPES.includes(it.type) && !sell) {
     // パーティー 全員を ならびの じゅんに（装備できない 人も「変化なし」で 出す）
