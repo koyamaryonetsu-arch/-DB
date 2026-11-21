@@ -20,7 +20,7 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { SONG } from './data/abilities-c9d.js';
 import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js';
-import { C9D } from './data/c9d-names-b.js';
+import { C9D } from './maps/c9d-flags.js';
 import { canUse } from './ai.js';
 
 export { SONG };

@@ -113,7 +113,8 @@ export const MONSTERS_C9D = {
   [C9D_MUMU]: {
     name: MUMU_NAME, short: 'ムウムウ', lv: 104, hp: 27360, mp: 9999, str: 2900, def: 360, agi: 230, mag: 1000, exp: 64000, gold: 21000,
     race: 'demon', size: 'xl', boss: true, turns: 1, speed: 0.6, hit: 'smash', artScale: 0.5,
-    drops: {},
+    // 第93回 A班: ボスは かならず 1つ 落とす きまり（test/loot.test.js）。ムウと 同じ 1人 1つの 品
+    drops: { boss: 'c9db_star_brooch' },
     resist: { ...BOSS_STATUS, light: 1.0, dark: 0.9, fire: 1.0, ice: 1.0, wind: 1.1, bolt: 1.0 },
     c9d: { kind: 'mumu' },
     actions: [{ w: 3, id: 'm9m_pat' }, { w: 2, id: 'm9m_bounce' }, { w: 1, id: 'm9m_yawn', cond: 'notRecent:m9m_yawn' }, { w: 1, id: 'm9m_spin', cond: 'notRecent:m9m_spin' }],

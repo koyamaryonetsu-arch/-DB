@@ -77,6 +77,8 @@ import { stepC9a, c9aSnap, spicaFollows, spicaLook } from './c9a-steps.js';
 import './c9b-steps.js';
 // 第92回 A班: 第3部 第1章 第3幕の さかさの 台と ふきぬけ（world/c9c-steps.js）
 import { stepC9c, noteC9cMove, c9cOnPlay, c9cChestSteps, c9cFlipSnap } from './c9c-steps.js';
+// 第93回 A班: 第3部 第1章 第4幕の スピカと ふた手に（ひびきの石・スピカの 明かり。world/c9d-steps.js）
+import { c9dSnap, spicaWalks9d } from './c9d-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -1224,7 +1226,8 @@ export class GameWorld {
         for (const p of players) {
           const fc = fieldChestSnap(p, ms);
           const c9a = c9aSnap(this, p); // 第90回 A班: 光の輪（パーティーの 明かり）
-          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}) });
+          const c9d = c9dSnap(this, p); // 第93回 A班: スピカと ふた手に（スピカの いる 石・鳴って いる 石・ランプ）
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}) });
         }
       }
     }
@@ -1242,7 +1245,8 @@ export class GameWorld {
       ...p.supports.map((x) => ({ look: x.char.look, job: x.char.job, eq: equipLook(x.char), mon: colorMon(x.char.species, x.char.color), name: x.char.name })),
       ...p.guests.map((g) => ({ look: g.char.look, job: g.char.job, eq: equipLook(g.char), name: g.char.name, guest: g.id })),
       // 第90回 A班: 星の子（フィールドだけの 連れ。world/c9a-steps.js）
-      ...(spicaFollows(s) ? [spicaLook()] : []),
+      // 第93回 A班: ひびきの石に のこって 歌って いる 間は ついて 来ない（world/c9d-steps.js）
+      ...(spicaFollows(s) && spicaWalks9d(this, s) ? [spicaLook()] : []),
     ];
   }
 

@@ -214,27 +214,29 @@ export function c9dPresent(scene, ev) {
   const warn = (t) => { g.audio.sfx('warn'); scene.banner(t, 'danger'); };
   const good = (t, s = 'crit') => { g.audio.sfx(s); scene.banner(t, 'combo'); };
   const nm = (id) => scene.c?.get?.(id)?.name || '';
+  // 第93回 A班: スマホの たてでは バナーの 文を 短く（左右に はみ出して 切れない ように）
+  const pt = (long, short) => (portrait() ? short : long);
   const sg = ev.c9Spica?.song || ev.c9Spica?.teru?.song;
   if (sg && scene.c9spica) {
     scene.c9spica.song = { ...sg };
     c9dHud(scene);
   }
-  if (ev.c9Spica?.songReady) good('スピカの歌がたまった！「星のうた」が使える！', 'sparkle');
-  if (ev.c9dSong) good('スピカの星のうた！みんな元気になった！', 'sparkle');
-  if (ev.c9mSplit) { scene.shake?.(400, 4); warn('ムウが2体に分かれた！同じくらいにけずろう！'); }
-  if (ev.c9mKO) good(`${nm(ev.c9mKO.id)}がばたんきゅう！${nm(ev.c9mKO.by)}はへとへとで起こせない！`);
-  if (ev.c9mWake) warn('すぐ起こされた…！2体とも、へとへとにしてから、たおそう！');
-  if (ev.c9mAngry) warn('仲間はずれは、いやだ！HPの多い方がおこった！');
-  if (ev.c9mBeamUp) warn(`！おかしビームが来る…ねらいは${nm(ev.c9mBeamUp.aim)}！防御で守ろう！`);
+  if (ev.c9Spica?.songReady) good(pt('スピカの歌がたまった！「星のうた」が使える！', '「星のうた」が使える！'), 'sparkle');
+  if (ev.c9dSong) good(pt('スピカの星のうた！みんな元気になった！', '星のうた！みんな元気に！'), 'sparkle');
+  if (ev.c9mSplit) { scene.shake?.(400, 4); warn(pt('ムウが2体に分かれた！同じくらいにけずろう！', 'ムウが2体に分かれた！')); }
+  if (ev.c9mKO) good(pt(`${nm(ev.c9mKO.id)}がばたんきゅう！${nm(ev.c9mKO.by)}はへとへとで起こせない！`, `${nm(ev.c9mKO.id)}がばたんきゅう！`));
+  if (ev.c9mWake) warn(pt('すぐ起こされた…！2体とも、へとへとにしてから、たおそう！', 'すぐ起こされた…！'));
+  if (ev.c9mAngry) warn(pt('仲間はずれは、いやだ！HPの多い方がおこった！', '仲間はずれは、いやだ！'));
+  if (ev.c9mBeamUp) warn(pt(`！おかしビームが来る…ねらいは${nm(ev.c9mBeamUp.aim)}！防御で守ろう！`, `ねらいは${nm(ev.c9mBeamUp.aim)}！防御！`));
   if (ev.c9mBeam) {
-    if (ev.c9mBeam.blocked) good('防御で、おかしビームをはね返した！', 'sparkle');
-    else warn(`${nm(ev.c9mBeam.to)}がおかしにされた！スピカの星のうたでなおそう！`);
+    if (ev.c9mBeam.blocked) good(pt('防御で、おかしビームをはね返した！', 'はね返した！'), 'sparkle');
+    else warn(pt(`${nm(ev.c9mBeam.to)}がおかしにされた！スピカの星のうたでなおそう！`, `${nm(ev.c9mBeam.to)}がおかしに！`));
   }
-  if (ev.c9mDoonUp) warn('！いっしょにドーンが来る！「防御」でそなえよう！');
+  if (ev.c9mDoonUp) warn(pt('！いっしょにドーンが来る！「防御」でそなえよう！', 'ドーンが来る！防御！'));
   if (ev.c9mDoon) scene.shake?.(900, 10);
   if (ev.c9mWin) {
     scene.shake?.(400, 3);
-    good('ムウとムウムウは、すわりこんだ！', 'sparkle');
+    good(pt('ムウとムウムウは、すわりこんだ！', '2人は、すわりこんだ！'), 'sparkle');
     // たおれた 魔物の しるしは かかれない（client/battle.js）ので、上の まども ここで 勝った 形に
     const t = muHtml((scene.enemies?.() || []).map((c) => (isMu(c) && !c.muHide ? { ...c, alive: false, hp: 0, muSit: 1, muKO: 0, muStage: 1 } : c)));
     showTop(scene, t.html, t.cls);

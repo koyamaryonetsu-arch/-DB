@@ -15,7 +15,7 @@ import { UNDER_RAFT } from '../public/js/shared/maps/c9b-flags.js';
 import { RIVER_POS, PYR_C_POS } from '../public/js/shared/maps/c9c-rows.js';
 import { C9C_BUTTONS, CRATER_EVENT9C } from '../public/js/shared/maps/c9c.js';
 import { isPadTile, isShaftTile } from '../public/js/shared/maps/c9c-flip.js';
-import { act2ClearObjective, PART3_ACT3_OPEN } from '../public/js/shared/data/story-c9.js';
+import { act2ClearObjective, act3ClearObjective, PART3_ACT3_OPEN } from '../public/js/shared/data/story-c9.js';
 import { C9C_OBJ, C9C_SHOPS } from '../public/js/shared/data/story-c9c.js';
 import { C9C_TREASURE, C9C_SHOP_ADD } from '../public/js/shared/data/items-c9c.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -263,7 +263,8 @@ test('通し（本当の 戦い）: 船着き場 → 川下り → ピラミッ�
   await place(bot, 'c9a_crater', 12, 15, 'up', real);
   await stepOn(bot, 12, CRATER_EVENT9C.y + 1, real);
   assert.ok(c.flags[C9C.act3]);
-  assert.equal(c.objective, C9C_OBJ.act3);
+  // 第93回 A班: 第4幕が 開いたので、第3幕 クリアの 目標は 第4幕の はじまり（act3ClearObjective）
+  assert.equal(c.objective, act3ClearObjective());
   assert.ok(storyPlace(c).cleared);
   // くぼ地の 武具屋に 4つ ふえる
   const shop = SHOPS[C9C_SHOPS.crater];

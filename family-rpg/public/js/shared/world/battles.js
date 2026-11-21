@@ -44,6 +44,8 @@ import { bossHintAfter } from './boss-hints.js';
 import { JOIN_NEAR, JOIN_LAG } from '../join-rule.js';
 import { tmHold } from './tm-ask.js';
 import { c9aMossWin } from './c9a-steps.js';
+// 第93回 A班: スピカと はなれて いる 間の 戦い（world/c9d-steps.js）
+import { spicaHelpHidden9d } from './c9d-steps.js';
 
 let battleSeq = 1;
 
@@ -242,7 +244,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
       // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
-      leaderFlag: (id) => !!leader?.char?.flags?.[id],
+      // 第93回 A班: スピカと はなれて いる 人が いる 戦いでは、スピカの 助け（ほのかな光・てらす・星のうた）が ない（world/c9d-steps.js）
+      leaderFlag: (id) => !spicaHelpHidden9d(world, sessions, id) && !!leader?.char?.flags?.[id],
       // 第2部 第8章 第4幕: ソリトゥスの 段ごとの 記録（しるし c8s_p2・c8s_p3。いっしょに 戦った 人 みんなに。次は その 段から。battle-c8r.js）
       markFlag: (id) => {
         for (const m of sessions) if (m.char) m.char.flags = { ...(m.char.flags || {}), [id]: true };

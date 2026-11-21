@@ -3,7 +3,7 @@
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c9d.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
 import { mergeBossHints } from './boss-hints.js';
-import { C9D_BATTLE } from './c9d-names-b.js';
+import { C9D_BATTLE } from '../maps/c9d-flags.js';
 
 export const C9D_HINT_WHO = 'ノクト';
 export const C9D_BOSS_HINTS = {

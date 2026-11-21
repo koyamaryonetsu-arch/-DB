@@ -22,7 +22,7 @@ import { RIVER_POS, PYR_C_POS, RIVER_W, RIVER_H } from '../public/js/shared/maps
 import { flipReach, withFlip, FLIP_FLAG, isPadTile, isShaftTile } from '../public/js/shared/maps/c9c-flip.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import {
-  CH9_STEPS, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, PART3_ACT3_OPEN, act2ClearObjective, ACT2_END_OLD, c9cTitleSteps,
+  CH9_STEPS, CH9_PROGRESS, CH9_OBJECTIVE_TARGETS, PART3_ACT3_OPEN, act2ClearObjective, ACT2_END_OLD, c9cTitleSteps, act3ClearObjective,
 } from '../public/js/shared/data/story-c9.js';
 import { C9C_OBJ, CH9C_STORY_SCRIPTS, CH9C_PROGRESS, CH9C_OBJECTIVE_TARGETS, CH9C_OBJECTIVE_TALK, c9cScripts, applyCh9c } from '../public/js/shared/data/story-c9c.js';
 import { C9B_OBJ } from '../public/js/shared/data/story-c9b.js';
@@ -119,8 +119,11 @@ test('名前の 約束: マップ 5まい・タイル 447〜・宝箱の id・�
   for (const v of ids) assert.ok(TILE_INFO[v], String(v));
   // 一本の 線（第2幕の うしろ）
   assert.deepEqual(C9C_LINE, ['c9_raft_go', 'c9_river', 'c9_p2', 'c9_riddle', 'c9_p3', 'c9_p4', 'c9_song', 'c9_trio2', 'c9_note1', 'c9_act3']);
-  assert.deepEqual(CH9_STEPS.slice(-11), ['c9_act2', ...C9C_LINE]);
-  assert.deepEqual(STORY_STEPS.slice(-11), ['c9_act2', ...C9C_LINE]);
+  // 第93回 A班: うしろに 第4幕の 一本の 線（c9_song1〜）が 続く。第3幕の 線は 第2幕の すぐ うしろ
+  const at2 = (L) => L.slice(L.indexOf('c9_act2'), L.indexOf('c9_act2') + 11);
+  assert.deepEqual(at2(CH9_STEPS), ['c9_act2', ...C9C_LINE]);
+  assert.deepEqual(at2(STORY_STEPS), ['c9_act2', ...C9C_LINE]);
+  assert.equal(STORY_STEPS[STORY_STEPS.indexOf('c9_act3') + 1], 'c9_song1');
   // 宝箱（11こ。川 3・ピラミッド 8。天じょうの 宝箱が ある）
   const chests = C9C_MAP_IDS.flatMap((id) => MAPS[id].chests.map((c) => c.id));
   assert.deepEqual(chests.sort(), [...C9C_CHEST_ALL].sort());
@@ -173,7 +176,8 @@ test('幕を 開けた（PART3_ACT3_OPEN）: 第2幕 クリアの 目標・前�
   const old = { flags: a2, objective: ACT2_END_OLD };
   repairObjective(old);
   assert.equal(old.objective, C9C_OBJ.start, '前の 文は なおる');
-  for (const [f, t] of CH9C_PROGRESS) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), t, f);
+  // 第93回 A班: 第4幕が 開くと、第3幕 クリアの 文は 第4幕の はじまりの 文に かわる（act3ClearObjective）
+  for (const [f, t] of CH9C_PROGRESS) assert.equal(objectiveFromFlags({ flags: flagsOf(...UPTO(f)) }), t === C9C_OBJ.act3 ? act3ClearObjective() : t, f);
   assert.ok(CH9_OBJECTIVE_TARGETS[C9C_OBJ.start] && KNOWN_OBJECTIVES.has(C9C_OBJ.start));
   // 船着き場の 番人: いかだを 持って いれば 幕が 始まる（パーティー みんなで 乗る）
   const x = ctx(a2, { has: (id) => id === UNDER_RAFT });
@@ -518,7 +522,7 @@ test('通し: 船着き場 → 川下り → ピラミッド 1〜4階（ひと�
   await stepOn(bot, 12, E.y + 1, opts);
   assert.ok(c.flags[C9C.act3]);
   assert.ok(said(bot, 'さかさのピラミッド'));
-  assert.equal(c.objective, C9C_OBJ.act3);
+  assert.equal(c.objective, act3ClearObjective(), '第3幕 クリアの 目標（第4幕が 開いて いれば 第4幕の はじまり）');
   assert.ok(!c.flags[C9C_SEEN.p1], '小さな フラグは 消える');
   const C = MAPS.c9a_crater;
   assert.ok(condOk(C.npcById.c9c_ped_mi.show, (f) => !!c.flags[f]) && !condOk(C.npcById.c9c_ped3.show, (f) => !!c.flags[f]), '黄の 台が 光る');

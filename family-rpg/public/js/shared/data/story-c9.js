@@ -22,11 +22,14 @@ import { applyCh9b, CH9B_PROGRESS, CH9B_OBJECTIVE_TARGETS, CH9B_OBJECTIVE_TALK, 
 // 第3幕「さかさのピラミッド」（第92回 A班。data/story-c9c.js。story-c9c.js は ここを import しない）
 import { C9C_LINE } from '../maps/c9c-flags.js';
 import { applyCh9c, CH9C_PROGRESS, CH9C_OBJECTIVE_TARGETS, CH9C_OBJECTIVE_TALK, C9C_OBJ } from './story-c9c.js';
+// 第4幕「星のはかば」（第93回 A班。data/story-c9d.js。story-c9d.js は ここを import しない）
+import { C9D_LINE } from '../maps/c9d-flags.js';
+import { applyCh9d, CH9D_PROGRESS, CH9D_OBJECTIVE_TARGETS, CH9D_OBJECTIVE_TALK, C9D_OBJ } from './story-c9d.js';
 
 // ───── 第3部の 章の すすみかた（STORY_STEPS の c8_solitus の うしろ。plan-part3.md の 9-4 の 名前の 約束）─────
 // 第1幕: c9_festival → c9_night → c9_starfall → c9_child → c9_trio → c9_stairs → c9_b1 → c9_b2 → c9_b3 → c9_trial → c9_fork → c9_act1
 // 第2幕からは うしろに 足す（CH9_STEPS.push(...)）
-export const CH9_STEPS = [...C9A_LINE, ...C9B_LINE, ...C9C_LINE];
+export const CH9_STEPS = [...C9A_LINE, ...C9B_LINE, ...C9C_LINE, ...C9D_LINE];
 
 // ───── 題の 画面（9-1 の 場面 1。村に 入って ルカが かけて きた あと）─────
 // 題「ほしのね」は 家族が きめた 名前（ひらがなの まま。kanji-check の ひらがなの 目安に 出るが それで よい）
@@ -48,6 +51,9 @@ export const c9bTitleSteps = () => [['chapter', C9B_TITLE.chapter, C9B_TITLE.act
 // 第3幕の 題の 画面（11-1 の 場面 1）
 export const C9C_TITLE = { chapter: C9_TITLE.chapter, act: '第3幕　さかさのピラミッド' };
 export const c9cTitleSteps = () => [['chapter', C9C_TITLE.chapter, C9C_TITLE.act]];
+// 第4幕の 題の 画面（12-1 の 場面 1）
+export const C9D_TITLE = { chapter: C9_TITLE.chapter, act: '第4幕　星のはかば' };
+export const c9dTitleSteps = () => [['chapter', C9D_TITLE.chapter, C9D_TITLE.act]];
 
 // ───── 第2部 クリアの 目標の 文の 入れかえ（plan-part3.md の 8-1・9-5 の 0）─────
 // ★ 幕を つなぐ 時に かえるのは ここだけ（false … 今の まま「第2部　完！…」/ true … 第3部の はじまり）
@@ -90,20 +96,30 @@ export const ACT2_END_OLD = C9B_OBJ.act2;
 const ACT2_END = act2ClearObjective();
 const swapAct2 = (k) => (k === C9B_OBJ.act2 ? ACT2_END : k);
 
+// ───── 第4幕「星のはかば」を 開ける 切りかえ（plan-part3-c9d.md の 12-4・12-5。第93回 A班）─────
+// ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第3幕 クリアの 目標は「第4幕へ（続きはアップデートで！）」・
+//   くぼ地の 黄の 台を 見ても 幕は 始まらない / true … 目標が「ながれ星のくぼ地の、黄色い音の台を見に行こう」に かわる）
+export const PART3_ACT4_OPEN = true;
+// 第3幕 クリア（c9_act3）の 目標の 文（開いた あとは「ながれ星のくぼ地の、黄色い音の台を見に行こう」。前の 文は 古い 文 ACT3_END_OLD）
+export const act3ClearObjective = (open = PART3_ACT4_OPEN) => (open ? C9D_OBJ.start : C9C_OBJ.act3);
+export const ACT3_END_OLD = C9C_OBJ.act3;
+const ACT3_END = act3ClearObjective();
+const swapAct3 = (k) => (k === C9C_OBJ.act3 ? ACT3_END : k);
+
 // ───── 目標の 文の 表（幕ごとに 足す。第1幕 … story-c9a.js）─────
 // すすみぐあい（progress.js の PROGRESS の さいご）: [フラグ か (c) => 真偽, 目標の 文]
 // 第2幕は 幕が 開いて から（PART3_ACT2_OPEN）。開くと 第1幕の さいごの 文が 第2幕の はじまりの 文に かわる
 // 第3幕も 同じ（PART3_ACT3_OPEN。開くと 第2幕の さいごの 文が 第3幕の はじまりの 文に かわる）
 const swapKeys = (o, sw = swapAct1) => Object.fromEntries(Object.entries(o).map(([k, v]) => [sw(k), v]));
 const CH9B_PROGRESS2 = CH9B_PROGRESS.map(([f, t]) => [f, swapAct2(t)]);
-export const CH9_PROGRESS = [...CH9A_PROGRESS.map(([f, t]) => [f, swapAct1(t)]), ...(PART3_ACT2_OPEN ? CH9B_PROGRESS2 : []), ...(PART3_ACT3_OPEN ? CH9C_PROGRESS : [])];
+export const CH9_PROGRESS = [...CH9A_PROGRESS.map(([f, t]) => [f, swapAct1(t)]), ...(PART3_ACT2_OPEN ? CH9B_PROGRESS2 : []), ...(PART3_ACT3_OPEN ? CH9C_PROGRESS.map(([f, t]) => [f, swapAct3(t)]) : []), ...(PART3_ACT4_OPEN ? CH9D_PROGRESS : [])];
 // 行き先（quest-targets.js）: { [目標の 文]: [{ npc } か { map, x, y }] }
 export const CH9_OBJECTIVE_TARGETS = {
-  ...swapKeys(CH9A_OBJECTIVE_TARGETS), ...(PART3_ACT2_OPEN ? swapKeys(CH9B_OBJECTIVE_TARGETS, swapAct2) : {}), ...(PART3_ACT3_OPEN ? CH9C_OBJECTIVE_TARGETS : {}),
+  ...swapKeys(CH9A_OBJECTIVE_TARGETS), ...(PART3_ACT2_OPEN ? swapKeys(CH9B_OBJECTIVE_TARGETS, swapAct2) : {}), ...(PART3_ACT3_OPEN ? swapKeys(CH9C_OBJECTIVE_TARGETS, swapAct3) : {}), ...(PART3_ACT4_OPEN ? CH9D_OBJECTIVE_TARGETS : {}),
 };
 // 仲間の ひとこと（party-talk.js）: { [目標の 文]: { self, bold, kind, kid } }
 export const CH9_OBJECTIVE_TALK = {
-  ...swapKeys(CH9A_OBJECTIVE_TALK), ...(PART3_ACT2_OPEN ? swapKeys(CH9B_OBJECTIVE_TALK, swapAct2) : {}), ...(PART3_ACT3_OPEN ? CH9C_OBJECTIVE_TALK : {}),
+  ...swapKeys(CH9A_OBJECTIVE_TALK), ...(PART3_ACT2_OPEN ? swapKeys(CH9B_OBJECTIVE_TALK, swapAct2) : {}), ...(PART3_ACT3_OPEN ? swapKeys(CH9C_OBJECTIVE_TALK, swapAct3) : {}), ...(PART3_ACT4_OPEN ? CH9D_OBJECTIVE_TALK : {}),
 };
 
 // ───── story.js から: だいほんを まぜる ─────
@@ -113,5 +129,7 @@ export function applyCh9(SCRIPTS, STORY_SCRIPTS) {
   // 第2幕（幕が 開いて いない 間は、くぼ地で 音さを 鳴らしても 始まらない）
   applyCh9b(SCRIPTS, STORY_SCRIPTS, { title: c9bTitleSteps, open: PART3_ACT2_OPEN, act2End: ACT2_END });
   // 第3幕（幕が 開いて いない 間は、船着き場の 番人に 話しても 始まらない）
-  applyCh9c(SCRIPTS, STORY_SCRIPTS, { title: c9cTitleSteps, open: PART3_ACT3_OPEN });
+  applyCh9c(SCRIPTS, STORY_SCRIPTS, { title: c9cTitleSteps, open: PART3_ACT3_OPEN, act3End: ACT3_END });
+  // 第4幕（幕が 開いて いない 間は、くぼ地の 黄の 台の 前に 来ても 始まらない）
+  applyCh9d(SCRIPTS, STORY_SCRIPTS, { title: c9dTitleSteps, open: PART3_ACT4_OPEN });
 }

@@ -16,7 +16,7 @@ import { MONSTER_RANKS } from '../public/js/shared/data/monster-ranks.js';
 import { rareWhereText } from '../public/js/shared/data/rare-loot.js';
 import { BOSS_HINTS, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
 import { canEquip } from '../public/js/shared/stats.js';
-import { C9D, C9D_ACT3, C9D_ECHOES, C9D_MAP, C9D_BATTLE, C9D_MON_PREFIX, C9D_BOSS_MON, C9D_TABLE, C9D_CHEST_IDS, C9D_TRACKS } from '../public/js/shared/data/c9d-names-b.js';
+import { C9D, C9D_ACT3, C9D_ECHOES, C9D_MAP, C9D_BATTLE, C9D_MON_PREFIX, C9D_BOSS_MON, C9D_TABLE, C9D_CHEST_IDS, C9D_TRACKS } from '../public/js/shared/maps/c9d-flags.js';
 import { MONSTERS_C9D, C9D_MINIONS, C9D_LANE_MON, C9D_DARK_MON, C9D_RECOLOR_BASE, C9D_NEW_ART, C9D_MU, C9D_MUMU, C9D_TWIN, C9D_KAGE, C9D_MAT_DROPS } from '../public/js/shared/data/monsters-c9d.js';
 import { C9D_ABILITIES, SONG } from '../public/js/shared/data/abilities-c9d.js';
 import { FRIENDS_C9D } from '../public/js/shared/data/companions-c9d.js';
@@ -572,7 +572,7 @@ test('がめん: スピカの まどの 星のうた・コマンド「スピカ�
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c9d-names-b.js', 'public/js/shared/data/monsters-c9d.js', 'public/js/shared/data/abilities-c9d.js',
+    'public/js/shared/data/monsters-c9d.js', 'public/js/shared/data/abilities-c9d.js',
     'public/js/shared/data/encounters-c9d.js', 'public/js/shared/data/companions-c9d.js', 'public/js/shared/data/items-c9d.js', 'public/js/shared/data/boss-hints-c9d.js',
     'public/js/shared/battle-c9d.js', 'public/js/client/battle-c9d.js', 'public/js/client/render/c9d-art.js', 'public/js/client/render/c9d-bg.js', 'public/js/client/render/battlefx-c9d.js',
   ];

@@ -87,6 +87,8 @@ export const CHAPTERS = [
       { n: 2, start: 'c9_ring2', title: '鉱山の底の先', seen: 'c9_ring2', clear: 'c9_act2' },
       // 第92回 A班: 第3幕（船着き場で いかだに 乗って 題の 画面を 見た あと）
       { n: 3, start: 'c9_raft_go', title: 'さかさのピラミッド', seen: 'c9_raft_go', clear: 'c9_act3' },
+      // 第93回 A班: 第4幕（くぼ地の 黄の 台で スピカが 歌って 題の 画面を 見た あと）
+      { n: 4, start: 'c9_song1', title: '星のはかば', seen: 'c9_song1', clear: 'c9_act4' },
     ],
   },
 ];

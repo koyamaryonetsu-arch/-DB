@@ -620,8 +620,12 @@ export function gameFiles() {
     'public/js/client/audio-c9c.js',
     // 第93回 F班: 第3部 第1章 第4幕の 曲
     'public/js/client/audio-c9d.js',
-    // 第93回 B班: 第3部 第1章 第4幕（魔物・スピカの 星のうた・あそびたい魔人 ムウ・品・ヒント・絵・背景・えんしゅつ。c9d-names-b.js は A班が 消す かりの 置き場）
-    'public/js/shared/data/c9d-names-b.js', 'public/js/shared/data/monsters-c9d.js', 'public/js/shared/data/abilities-c9d.js',
+    // 第93回 A班: 第3部 第1章 第4幕「星のはかば」（名前の 約束・台本・マップ・スピカと ふた手に）
+    'public/js/shared/maps/c9d-flags.js', 'public/js/shared/data/story-c9d.js', 'public/js/shared/maps/c9d.js', 'public/js/shared/maps/c9d-rows.js',
+    'public/js/shared/maps/c9d-lane.js', 'public/js/shared/world/c9d-steps.js',
+    'public/js/client/c9d-view.js', 'public/js/client/render/tiles-c9d.js', 'public/js/client/render/c9d-npc-art.js',
+    // 第93回 B班: 第3部 第1章 第4幕（魔物・スピカの 星のうた・あそびたい魔人 ムウ・品・ヒント・絵・背景・えんしゅつ）
+    'public/js/shared/data/monsters-c9d.js', 'public/js/shared/data/abilities-c9d.js',
     'public/js/shared/data/encounters-c9d.js', 'public/js/shared/data/companions-c9d.js', 'public/js/shared/data/items-c9d.js', 'public/js/shared/data/boss-hints-c9d.js',
     'public/js/shared/battle-c9d.js', 'public/js/client/battle-c9d.js', 'public/js/client/render/c9d-art.js', 'public/js/client/render/c9d-bg.js', 'public/js/client/render/battlefx-c9d.js',
     // 第94回 F班: 第3部 第2章 第1幕の 曲

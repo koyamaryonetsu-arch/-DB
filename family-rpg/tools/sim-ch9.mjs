@@ -31,7 +31,7 @@ import { nazoOf, mechaOf9c, sandConf } from '../public/js/shared/battle-c9c.js';
 import { C9C_BATTLE } from '../public/js/shared/maps/c9c-flags.js';
 // 第93回 B班: 第4幕の ボス（下の「第4幕」の かたまり）
 import { muState, okashiOf, songReady } from '../public/js/shared/battle-c9d.js';
-import { C9D_BATTLE } from '../public/js/shared/data/c9d-names-b.js';
+import { C9D_BATTLE } from '../public/js/shared/maps/c9d-flags.js';
 import { jobChar } from './sim-jobs.mjs';
 import { dualPlan, CH6_JOBS } from './sim-ch6.mjs';
 import { monsterChar } from './sim-monster-party.mjs';
