@@ -8,8 +8,8 @@
 //
 // 曲の データの 書き方・楽器・場面で かわる 音楽の つかい方は docs/plan-r77-audio.md（チーム B・C との やくそく）。
 // このファイルは 画面（window）を さわらない。node の テストでも 読みこめる（AudioContext が なければ 何も 鳴らさない）。
-import { INSTRUMENTS, defaultInstrument, ROLE_PAN, HARMONY_PANS, ROLE_SEND, DEFAULT_NIGHT, WAVE_LEVEL } from './music-inst.js?v=52527b10ae8b';
-import { startAmbience } from './music-amb.js?v=52527b10ae8b';
+import { INSTRUMENTS, defaultInstrument, ROLE_PAN, HARMONY_PANS, ROLE_SEND, DEFAULT_NIGHT, WAVE_LEVEL } from './music-inst.js?v=f7068908c0e8';
+import { startAmbience } from './music-amb.js?v=f7068908c0e8';
 
 export const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -34,15 +34,15 @@ export function legacyParse(str) {
   });
 }
 
-// たいこの 名前（rim は R と 同じ）
-export const DRUMS = ['k', 's', 'h', 'o', 'c', 'p', 't', 'th', 'tl', 'R'];
+// たいこの 名前（rim は R と 同じ）。第95回 F: sh（シェイカー。さらさら した 砂の 音）
+export const DRUMS = ['k', 's', 'h', 'o', 'c', 'p', 't', 'th', 'tl', 'R', 'sh'];
 const DRUM_SET = new Set([...DRUMS, 'rim']);
 const ACCENT = 1.35;
 const GHOST = 0.5;
 
 // 新しい 読み方（前の 書き方は 同じ 結果。ふえた 書き方:
 //   C5:4!  アクセント（強く）   C5:4?  ゴースト（弱く）   C5:4~  タイ（次が 同じ 音なら つなぐ・ちがう 音なら レガート）
-//   C5:4.  スタッカート（短く）  [C4 E4 G4]:8  和音   たいこ: k s h o（オープン） c（シンバル） p（クラップ） t th tl（タム） R（リム）
+//   C5:4.  スタッカート（短く）  [C4 E4 G4]:8  和音   たいこ: k s h o（オープン） c（シンバル） p（クラップ） t th tl（タム） R（リム） sh（シェイカー）
 export function parseNotes(str) {
   const toks = String(str ?? '').trim().match(/\[[^\]]*\](?::\S*)?|\S+/g) || [];
   const out = [];
@@ -565,7 +565,7 @@ export function createBus(ctx, dest, quality = 'fine') {
 // ───────────── 新しい音の 曲 ─────────────
 const DRUM_GAIN = 1;
 // たいこごとの 大きさ（前の 音より 少し 大きく。--calib で はかった）
-const DRUM_LEVEL = { k: 0.6, s: 0.45, h: 0.5, o: 0.45, c: 0.45, p: 0.5, t: 0.6, th: 0.6, tl: 0.6, R: 0.6 };
+const DRUM_LEVEL = { k: 0.6, s: 0.45, h: 0.5, o: 0.45, c: 0.45, p: 0.5, t: 0.6, th: 0.6, tl: 0.6, R: 0.6, sh: 0.5 };
 
 class NewPlayer {
   constructor(eng, id, tr, at) {
@@ -776,7 +776,7 @@ function nightInst(c, p, inst) {
 
 // ───────────── 前の音（第76回までの 鳴らし方を そのまま） ─────────────
 const OLD_TOKEN = /^(r|[kshr]|[A-G][#b]?-?\d)(:\d+)?$/;
-const LEGACY_DRUM = { k: 'k', s: 's', h: 'h', o: 'h', c: 'h', p: 's', R: 's', t: 'k', th: 'k', tl: 'k' };
+const LEGACY_DRUM = { k: 'k', s: 's', h: 'h', o: 'h', c: 'h', p: 's', R: 's', t: 'k', th: 'k', tl: 'k', sh: 'h' };
 
 // 前の音で 鳴らす チャンネル: tr.legacy（チーム B が 作りなおした 曲の 前の データ）→ tr.ch → 区切りを つなげた もの
 export function legacyChannels(tr) {
@@ -1125,6 +1125,10 @@ export class MusicEngine {
         g.connect(dest);
         break;
       }
+      // 第95回 F: シェイカー（さらさら。少し おそく 立ち上がる 高い ノイズ）
+      case 'sh':
+        env(this.noise(t, 0.1, { type: 'bandpass', f: 6200, q: 0.9 }), vel * 0.4, 0.075, 0.012);
+        break;
       case 't': tone('sine', 150, 96, 0.12, vel * 0.95, 0.28); break;
       case 'th': tone('sine', 215, 140, 0.11, vel * 0.9, 0.24); break;
       case 'tl': tone('sine', 108, 68, 0.13, vel * 1, 0.32); break;

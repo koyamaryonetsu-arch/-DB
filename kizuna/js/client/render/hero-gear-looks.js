@@ -4,9 +4,9 @@
 //   ★4・★5 の 品は ornate() で 宝石・光の すじ・きらめき（あるく コマで きらめきの 場所が かわる = ゆらめき）
 //
 // ざひょう: F（hero-gear.js の frame）… a: 手から ぶきの さきへ、b: よこ。o / outward: からだの そとがわの b の むき
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=52527b10ae8b';
-import { metal, cloth, leather, gem, glow } from './hero-outfit.js?v=52527b10ae8b';
-import { R88C_STAFF, drawStaffR88c } from './hero-gear-looks-r88c.js?v=52527b10ae8b'; // 第88回 絵C班の つえ
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=f7068908c0e8';
+import { metal, cloth, leather, gem, glow } from './hero-outfit.js?v=f7068908c0e8';
+import { R88C_STAFF, drawStaffR88c } from './hero-gear-looks-r88c.js?v=f7068908c0e8'; // 第88回 絵C班の つえ
 
 const D = Math.PI / 180;
 export const FX_COL = { fire: '#ff8a3a', bolt: '#ffe46a', star: '#9ad8ff', poison: '#b07ae0', wind: '#7af0c0', ice: '#9ae6ff', dark: '#8a4ae0', holy: '#fff0a0', shine: '#fff6b0' };

@@ -1,19 +1,19 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=52527b10ae8b';
-import { makeCanvas, ctxOf } from './pixel.js?v=52527b10ae8b';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=52527b10ae8b';
-import { TEMPLE_TILES } from './tiles-temple.js?v=52527b10ae8b';
-import { LAB_TILES } from './tiles-lab.js?v=52527b10ae8b';
-import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=52527b10ae8b';
-import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=52527b10ae8b';
-import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=52527b10ae8b';
-import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=52527b10ae8b';
-import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=52527b10ae8b';
-import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=52527b10ae8b';
-import { CH6_KEEP_COLOR, CH6_THEMES } from './tiles-ch6.js?v=52527b10ae8b';
+import { T } from '../../shared/tiles.js?v=f7068908c0e8';
+import { makeCanvas, ctxOf } from './pixel.js?v=f7068908c0e8';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=f7068908c0e8';
+import { TEMPLE_TILES } from './tiles-temple.js?v=f7068908c0e8';
+import { LAB_TILES } from './tiles-lab.js?v=f7068908c0e8';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=f7068908c0e8';
+import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=f7068908c0e8';
+import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=f7068908c0e8';
+import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=f7068908c0e8';
+import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=f7068908c0e8';
+import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=f7068908c0e8';
+import { CH6_KEEP_COLOR, CH6_THEMES } from './tiles-ch6.js?v=f7068908c0e8';
 // 第6章 Step 5: 時計塔の レバー・ドッスン・かねの たてた ものは もとの 色の まま（render/tiles-tokei.js）
-import { TK_PROPS_KEEP } from './tiles-tokei.js?v=52527b10ae8b';
+import { TK_PROPS_KEEP } from './tiles-tokei.js?v=f7068908c0e8';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {

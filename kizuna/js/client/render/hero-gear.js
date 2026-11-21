@@ -1,52 +1,52 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=52527b10ae8b';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=52527b10ae8b';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=52527b10ae8b';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=f7068908c0e8';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=f7068908c0e8';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=f7068908c0e8';
 // 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
-import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=52527b10ae8b';
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=f7068908c0e8';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ぼうし
-import { R41A_HAT } from './hero-r41a.js?v=52527b10ae8b';
+import { R41A_HAT } from './hero-r41a.js?v=f7068908c0e8';
 // 第66回 E2 の 職業の ぼうし（hero-r66e2.js）
-import { R66E2_HAT } from './hero-r66e2.js?v=52527b10ae8b';
+import { R66E2_HAT } from './hero-r66e2.js?v=f7068908c0e8';
 // 第82回 B班: YAIBA の 系統の はちまき（hero-r82b.js）
-import { R82B_HAT } from './hero-r82b.js?v=52527b10ae8b';
+import { R82B_HAT } from './hero-r82b.js?v=f7068908c0e8';
 // 第83回 A班: 封神演義の 系統の むぎわらぼうし・頭の ぬの・金の わ（hero-r83a.js）
-import { R83A_HAT } from './hero-r83a.js?v=52527b10ae8b';
+import { R83A_HAT } from './hero-r83a.js?v=f7068908c0e8';
 // 第84回 A班: 幽☆遊☆白書の 系統の 中おれぼうし（れい界探てい。hero-r84a.js）
-import { R84A_HAT } from './hero-r84a.js?v=52527b10ae8b';
+import { R84A_HAT } from './hero-r84a.js?v=f7068908c0e8';
 // 第85回 A班: スレイヤーズの 系統の はちまき（hero-r85a.js）
-import { R85A_HAT } from './hero-r85a.js?v=52527b10ae8b';
+import { R85A_HAT } from './hero-r85a.js?v=f7068908c0e8';
 // 第86回 B班: 天下一の格闘王の はちまき・混とんの大軍師の かんむり（hero-r86b.js）
-import { R86B_HAT } from './hero-r86b.js?v=52527b10ae8b';
+import { R86B_HAT } from './hero-r86b.js?v=f7068908c0e8';
 // 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
-import { R43J_HAT } from './hero-r43j.js?v=52527b10ae8b';
+import { R43J_HAT } from './hero-r43j.js?v=f7068908c0e8';
 // 第66回 B班: ニューカワイイの リボン・SMAPの ヘッドセット・五つ星シェフの コック帽
-import { R66B_HAT } from './hero-r66b.js?v=52527b10ae8b';
+import { R66B_HAT } from './hero-r66b.js?v=f7068908c0e8';
 // 第66回 A の 伝説の 職業 4つの ぼうし（hero-r66a.js）
-import { R66A_HAT } from './hero-r66a.js?v=52527b10ae8b';
+import { R66A_HAT } from './hero-r66a.js?v=f7068908c0e8';
 // 第66回 C班: 会長の シルクハット・あの方の 黒い ぼうし
-import { R66C_HAT } from './hero-r66c.js?v=52527b10ae8b';
+import { R66C_HAT } from './hero-r66c.js?v=f7068908c0e8';
 // 第66回 D班の 伝説の 職業の ぼうし・フード・頭の 花（hero-r66d.js）
-import { R66D_HAT, R66D_BODY_HAT } from './hero-r66d.js?v=52527b10ae8b';
+import { R66D_HAT, R66D_BODY_HAT } from './hero-r66d.js?v=f7068908c0e8';
 // 第79回: 幻の職業の ぼうし（hero-r79.js）
-import { R79_HAT } from './hero-r79.js?v=52527b10ae8b';
+import { R79_HAT } from './hero-r79.js?v=f7068908c0e8';
 // 第86回 A班: 竜神の剣士の 金の サークレット（hero-r86a.js）
-import { R86A_HAT } from './hero-r86a.js?v=52527b10ae8b';
+import { R86A_HAT } from './hero-r86a.js?v=f7068908c0e8';
 // 第66回 E1班の ヘルメット・ヘッドセット（hero-r66e1.js）
-import { R66E1_HAT } from './hero-r66e1.js?v=52527b10ae8b';
+import { R66E1_HAT } from './hero-r66e1.js?v=f7068908c0e8';
 
 const D = Math.PI / 180;
 // 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
-import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=52527b10ae8b';
+import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=f7068908c0e8';
 import {
   drawSwordLook, drawDaggerLook, drawAxeLook, drawSpearLook, drawClawLook, drawWhipLook, drawStaffLook, drawFanLook, drawBatLook, drawBoomerangLook,
   ornate, shieldOutline2, shieldFace2, shieldOrnate, shieldBackOrnate, shieldTint,
-} from './hero-gear-looks.js?v=52527b10ae8b';
+} from './hero-gear-looks.js?v=f7068908c0e8';
 // 第88回 絵A班: 作品の 顔に なる 剣の 新しい 形と 日輪刀の 色（hero-gear-looks-r88a.js）
-import { R88A_WEAPON_LOOK, R88A_LEN, R88A_SWORD, R88A_AXE, drawR88aLook, katanaR88a } from './hero-gear-looks-r88a.js?v=52527b10ae8b';
-import { R88B_WEAPON_LOOK, drawR88bLook } from './hero-gear-looks-r88b.js?v=52527b10ae8b';
-import { R88C_WEAPON_LOOK, R88C_STAFF, R88C_STAFF_LEN } from './hero-gear-looks-r88c.js?v=52527b10ae8b';
+import { R88A_WEAPON_LOOK, R88A_LEN, R88A_SWORD, R88A_AXE, drawR88aLook, katanaR88a } from './hero-gear-looks-r88a.js?v=f7068908c0e8';
+import { R88B_WEAPON_LOOK, drawR88bLook } from './hero-gear-looks-r88b.js?v=f7068908c0e8';
+import { R88C_WEAPON_LOOK, R88C_STAFF, R88C_STAFF_LEN } from './hero-gear-looks-r88c.js?v=f7068908c0e8';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };

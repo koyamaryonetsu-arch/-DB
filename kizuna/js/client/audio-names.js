@@ -126,6 +126,13 @@ export const TRACK_NAMES = {
   c10r_boss: 'ガタゴト大発明',
   c10g_roots: '大地の下の根の国',
   c10g_boss: 'いたずらスウィング',
+  // 第95回 F: 第3部 第2章 第2幕（audio-c10b.js。中ボスの 名前は 出さない）
+  c10b_blue: '水鏡のうらがわ',
+  c10b_gecko: 'さらさら砂のタンゴ',
+  c10b_night: 'すきとおる夜の湖',
+  c10b_white: '氷の下のしのび足',
+  c10b_owl: '月夜の手品ワルツ',
+  c10b_five: 'そろった五つの音',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）

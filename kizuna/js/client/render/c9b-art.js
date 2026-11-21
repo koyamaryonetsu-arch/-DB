@@ -7,14 +7,14 @@
 //   コマ 0・1 … 戦い（大づちを かつぐ）/ 2・3 … すわりこんで おなかが 鳴る（client/battle-c9b.js の c9bSprite が pub の kDown で えらぶ）
 //   もとの 作品（星のカービィ）の 絵は 使わない（ペンギンでは なく もぐら・青い ぼうしでは なく 小さな 金の かんむり）
 // ・皿 3つ … にく・ケーキ・からいスープ（ボスの しかけの 部ひん。ふつうの こまかさ）
-import { fit, spark, bez } from './ch3-draw.js?v=52527b10ae8b';
-import { sparkled } from './c9a-art.js?v=52527b10ae8b';
+import { fit, spark, bez } from './ch3-draw.js?v=f7068908c0e8';
+import { sparkled } from './c9a-art.js?v=f7068908c0e8';
 // 第3部 第1章 第3幕（c9c-art.js）
-import { addC9cArt } from './c9c-art.js?v=52527b10ae8b';
+import { addC9cArt } from './c9c-art.js?v=f7068908c0e8';
 // 第3部 第1章 第4幕（c9d-art.js）
-import { addC9dArt } from './c9d-art.js?v=52527b10ae8b';
+import { addC9dArt } from './c9d-art.js?v=f7068908c0e8';
 // 第3部 第2章 第1幕（c10a-art.js）
-import { addC10aArt } from './c10a-art.js?v=52527b10ae8b';
+import { addC10aArt } from './c10a-art.js?v=f7068908c0e8';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
