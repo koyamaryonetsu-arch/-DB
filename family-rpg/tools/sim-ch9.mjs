@@ -312,13 +312,14 @@ const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' 
 // react … 人が 動かす キャラが 番に なってから えらぶまでの ミリびょう（0 … すぐ。ブラウザの 人に 近づける とき 3000 など）
 // speed・textSpeed … 戦いの 速さ（ない ときは 1。ブラウザの はじめの 設定は 0.85・0.8）
 // flags … リーダーの フラグ（第94回: 先に 取った 音の スピカの ごほうび など。FLAGS=a,b でも）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean) } = {}) {
+// tactics … 人が 動かす キャラの 作戦（第97回: 完全オートの 作戦を えらべる ように。ない ときは バッチリがんばれ）
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = 'balanced' } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   const list = ch9Allies(boss, lv, party, kit);
   // 人が 動かす キャラは 家族の キャラ（kind 'player'。完全オートの ときは その 人の「オート」）・のこりは 自動の 仲間
   const allies = list.map((x) => (x.know
-    ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics: 'balanced' }
+    ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics }
     : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: x.char.tactics || 'balanced' }));
   const hooks = flags.length ? { leaderFlag: (f) => flags.includes(f) } : undefined;
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed, hooks });

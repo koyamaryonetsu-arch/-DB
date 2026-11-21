@@ -19,10 +19,12 @@ import { C9D_OWN_TELE } from './battle-c9d.js';
 import { C10A_OWN_TELE } from './battle-c10a.js';
 // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js）
 import { C10B_OWN_TELE } from './battle-c10b.js';
+// 第3部 第2章 第3幕: たいさ・アルゴル（battle-c10c.js）
+import { C10C_OWN_TELE } from './battle-c10c.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
 // 第3部 第1章 第2幕（battle-c9b.js）
-export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE, ...C9B_OWN_TELE, ...C9C_OWN_TELE, ...C9D_OWN_TELE, ...C10A_OWN_TELE, ...C10B_OWN_TELE];
+export const C8R_OWN_TELE = [C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW, ...C9A_OWN_TELE, ...C9B_OWN_TELE, ...C9C_OWN_TELE, ...C9D_OWN_TELE, ...C10A_OWN_TELE, ...C10B_OWN_TELE, ...C10C_OWN_TELE];
 export const C8R_SCREEN_ANIMS = ['c8g_orb', 'c8g_final', 'c8t_gust', 'c8d_big', 'c8s_big', 'c8s_harden', 'c8s_tear', 'c8s_crack', 'c8s_hoard'];
 export const C8R_ALLY_FX = {
   c8rn_flame: 'fire', c8rn_drain: 'down', c8rn_bite: 'claw', c8rn_sand: 'wind', c8rn_gnaw: 'claw', c8rn_flutter: 'wind', c8rn_chomp: 'claw', c8rn_tail: 'quake',
@@ -305,7 +307,8 @@ export function c8rCmdItems(scene, a) {
   return { items, info };
 }
 export function c8rCmdPick(scene, a, value) {
-  if (value === 'c9ashare' || value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong') return c9aCmdPick(scene, a, value);
+  // 第97回: 水の音を鳴らす（第2幕）・うつる（第3幕）も c9aCmdPick へ
+  if (value === 'c9ashare' || value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove') return c9aCmdPick(scene, a, value);
   const s = solOf(scene);
   if (value === 'c8rcall') return scene.send({ type: 'ability', id: CALL, target: s?.id });
   if (value === 'c8rpromise') return scene.send({ type: 'ability', id: PROMISE, target: s?.id });

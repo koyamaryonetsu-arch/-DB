@@ -1492,6 +1492,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c9dSong')) return 'heal2';
   // 第95回: 第3部 第2章 第2幕の「水の音を鳴らす」（c10xRing）… 鳴らした 人の 下に 光（技の 絵は render/battlefx-c10b.js）
   if (types.includes('c10xRing')) return 'buff';
+  // 第97回: 第3部 第2章 第3幕の「うつる」（c10kMove）… とびうつった 人の 下に 光（技の 絵は render/battlefx-c10c.js）
+  if (types.includes('c10kMove')) return 'buff';
   return null;
 }
 

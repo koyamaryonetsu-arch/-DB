@@ -28,11 +28,13 @@ export const FIELD_TABLES = {
   c10a: ['t10r_1', 't10r_2', 't10g_1', 't10g_2'],
   // 第95回 B班: 第3部 第2章 第2幕 青（水鏡の うら。勇者 Lv109・CH9_KIT.gecko）
   c10b: ['t10b_blue_wet', 't10b_blue_dry'],
+  // 第97回 B班: 第3部 第2章 第3幕 空の 小島（勇者 Lv113・CH9_KIT.colonel）・少年の とりで（勇者 Lv115・CH9_KIT.algol）
+  c10c: ['t10c_isles', 't10c_fort'],
 };
 // 決まった 戦い（見はりに 見つかった 時。白の 道。勇者 Lv111・CH9_KIT.owl。めやす 120秒 いない）。node tools/sim-ch9-field.mjs 20 c10b_watch1,…
 export const FIELD_FIXED = { c10b_watch1: ['owl', 111], c10b_watch2: ['owl', 111], c10b_watch3: ['owl', 111] };
 // 表ごとの 勇者の ★装備と レベル（ない 表は 第2幕の ころ … king・Lv100）
-export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107], t10b_blue_wet: ['gecko', 109], t10b_blue_dry: ['gecko', 109] };
+export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107], t10b_blue_wet: ['gecko', 109], t10b_blue_dry: ['gecko', 109], t10c_isles: ['colonel', 113], t10c_fort: ['algol', 115] };
 export const FIELD_SKIP = new Set(['c9a_yamimushi', 'c9b_mimizu', 'c9b_mole_spear', 'c9b_mole_pot', 'c9d_kage']);
 
 function roll(rng, table) {
@@ -93,7 +95,7 @@ if (process.argv[1]?.endsWith('sim-ch9-field.mjs')) {
   const N = Number(process.argv[2] || 20);
   if (process.env.ONLY) {
     const sp = process.env.ONLY;
-    const hero = sp.startsWith('c9d_') ? ['mu', 102] : sp.startsWith('c10r_') ? ['tamagon', 105] : sp.startsWith('c10g_') ? ['mold', 107] : sp.startsWith('c10b_') ? (['c10b_iceowl', 'c10b_wolf', 'c10b_armor'].includes(sp) ? ['owl', 111] : ['gecko', 109]) : undefined;
+    const hero = sp.startsWith('c9d_') ? ['mu', 102] : sp.startsWith('c10r_') ? ['tamagon', 105] : sp.startsWith('c10g_') ? ['mold', 107] : sp.startsWith('c10b_') ? (['c10b_iceowl', 'c10b_wolf', 'c10b_armor'].includes(sp) ? ['owl', 111] : ['gecko', 109]) : sp.startsWith('c10c_') ? (['c10c_carrier', 'c10c_mole', 'c10c_lamp', 'c10c_haniwa'].includes(sp) ? ['algol', 115] : ['colonel', 113]) : undefined;
     const res = [...Array(N).keys()].map((i) => fieldRun(sp.startsWith('c9d_') ? [sp, ...(sp === 'c9d_twins' ? [sp] : [])] : [sp], 100 + i * 13, { spica: !sp.startsWith('toki'), hero }));
     const w = res.filter((r) => r.win);
     console.log(`${MONSTERS[sp]?.name || sp} 1ぴき: 平均 ${(w.reduce((s, r) => s + r.sec, 0) / Math.max(1, w.length)).toFixed(0)}秒（勝ち ${w.length}/${N}）`);
