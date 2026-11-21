@@ -47,6 +47,7 @@ import { battleBgSpec } from '../public/js/client/render/battlefx.js';
 import { C10B_SCREEN_ANIMS, C10B_ALLY_FX, C10B_SFX, C10B_OWN_TELE, c10bDraw, c10bPresent, c10bSprite, c10bCmdItems, c10bCmdPick, c10bHtml, waterMeter, posName } from '../public/js/client/battle-c10b.js';
 import { CH4_ALLY_FX } from '../public/js/client/battle-ch4.js';
 import { CH6_OWN_TELE } from '../public/js/client/battle-ch6.js';
+import { C10B_TRACKS as AUDIO_C10B } from '../public/js/client/audio-c10b.js';
 import { firstSentence } from '../public/js/client/ui/skillinfo.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 
@@ -99,6 +100,7 @@ test('名前の 約束（14-4）: フラグ・おまけ・台・マップ・決�
   assert.deepEqual([NOTE_SO, NOTE_LA], ['note_so', 'note_la']);
   assert.equal(C10B_OPEN_B, 'PART3_C10B_OPEN');
   assert.deepEqual(Object.values(C10B_TRACKS_B), ['c10b_blue', 'c10b_gecko', 'c10b_night', 'c10b_white', 'c10b_owl', 'c10b_five']);
+  for (const id of Object.values(C10B_TRACKS_B)) assert.ok(AUDIO_C10B[id], `曲 ${id}（F班）`);
   // 決まった 戦い: 中ボスは にげられない・曲は F班の id（先に つないだ）。見はりは にげられる・負けても お金が へらない
   assert.equal(FIXED_ENCOUNTERS.c10b_gecko.bgm, 'c10b_gecko');
   assert.equal(FIXED_ENCOUNTERS.c10b_owl.bgm, 'c10b_owl');

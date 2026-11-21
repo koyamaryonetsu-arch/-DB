@@ -646,6 +646,8 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c10b.js', 'public/js/shared/data/abilities-c10b.js',
     'public/js/shared/data/encounters-c10b.js', 'public/js/shared/data/companions-c10b.js', 'public/js/shared/data/items-c10b.js', 'public/js/shared/data/boss-hints-c10b.js',
     'public/js/shared/battle-c10b.js', 'public/js/client/battle-c10b.js', 'public/js/client/render/c10b-art.js', 'public/js/client/render/c10b-bg.js', 'public/js/client/render/battlefx-c10b.js',
+    // 第95回 F班: 第3部 第2章 第2幕の 曲
+    'public/js/client/audio-c10b.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

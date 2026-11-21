@@ -186,6 +186,35 @@ export function lavaIntensity(stage) {
   return Math.round((DEPTH_MIN + ((1 - DEPTH_MIN) * n) / (LAVA_STAGES - 1)) * 1000) / 1000;
 }
 
+// 第95回 F: 水鏡のうらがわ（c10b_blue）は 画面の 状態 waterStage（0 水なし・1 中・2 上）で だん 0〜2（楽器と 調が かわる。
+//   だんが かわると 次の 小節から その だんの イントロへ）。A班が 画面の 状態 waterStage を 出す
+//   （field.waterStage・game.waterStage。数・関数 どれでも よい）。出て いない 間は 1（階に 入った 時と 同じ「中」）。
+//   氷の下のしのび足（c10b_white）は 画面の 状態 alertStage（0 見はりが 遠い・1 近い・2 見つかった）で 強さ 0.4・0.7・1 と だん 0〜2
+//   （1 は 低い 音が ふえる だけ ＝ ふしの とちゅうから 止まらない。2 は「見つかった！」の 形）。出て いない 間は 0。
+//   どちらも イベントの 曲でも よい（鳴って いる 曲が それなら、その 場所の 曲で なくても 送る）。
+//   0 から 数える しるし なので addFormKey0 にも 入れて おく（戦いの pub に 出ても こまらない 段の 名前）
+addFormKey0('waterStage', 'alertStage');
+export const C10B_BLUE_TRACK = 'c10b_blue';
+export const C10B_WHITE_TRACK = 'c10b_white';
+export const WATER_STAGES = 3;
+export const ALERT_STAGES = 3;
+function stageOf(game, key, n, dflt) {
+  for (const src of [game?.field, game]) {
+    let v = src?.[key];
+    try { if (typeof v === 'function') v = v.call(src); } catch { v = null; }
+    if (v === true) return n - 1;
+    if (v === false) return 0;
+    if (v !== null && v !== undefined && Number.isFinite(Number(v))) return Math.max(0, Math.min(n - 1, Math.floor(Number(v))));
+  }
+  return dflt;
+}
+export const waterStageOf = (game) => stageOf(game, 'waterStage', WATER_STAGES, 1);
+export const alertStageOf = (game) => stageOf(game, 'alertStage', ALERT_STAGES, 0);
+export function alertIntensity(stage) {
+  const n = Math.max(0, Math.min(ALERT_STAGES - 1, Math.floor(Number(stage) || 0)));
+  return [0.4, 0.7, 1][n];
+}
+
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
   let n = null;
@@ -425,11 +454,16 @@ export class SceneAudio {
     if (id && id === st.areaTrack) this.send('intensity', st.intensity, (v) => this.audio.setIntensity(v));
     // 第94回 F: かけ上がる帰り道は イベントの 曲でも ようがんの 近さで 強さを 送る
     else if (id === C10R_RUN_TRACK && st.lavaIntensity !== null && st.lavaIntensity !== undefined) this.send('intensity', st.lavaIntensity, (v) => this.audio.setIntensity(v));
+    // 第95回 F: 氷の下のしのび足は イベントの 曲でも 見はりの 近さで 強さを 送る
+    else if (id === C10B_WHITE_TRACK && st.alertIntensity !== null && st.alertIntensity !== undefined) this.send('intensity', st.alertIntensity, (v) => this.audio.setIntensity(v));
     // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド・第93回 ふたごの道）
     if (id && id === st.areaTrack && st.phase !== null && st.phase !== undefined) this.send('phase', st.phase, (v) => this.audio.setPhase(v));
     // 第93回 F: スピカの歌は イベントの 曲でも 歌える ふしの 数を 送る
     else if (id === C9D_SONG_TRACK && st.songPhase !== null && st.songPhase !== undefined) this.send('phase', st.songPhase, (v) => this.audio.setPhase(v));
     else if (id === C10R_RUN_TRACK && st.lavaPhase !== null && st.lavaPhase !== undefined) this.send('phase', st.lavaPhase, (v) => this.audio.setPhase(v));
+    // 第95回 F: 水鏡のうらがわ・氷の下のしのび足（イベントの 曲でも）
+    else if (id === C10B_BLUE_TRACK && st.waterPhase !== null && st.waterPhase !== undefined) this.send('phase', st.waterPhase, (v) => this.audio.setPhase(v));
+    else if (id === C10B_WHITE_TRACK && st.alertPhase !== null && st.alertPhase !== undefined) this.send('phase', st.alertPhase, (v) => this.audio.setPhase(v));
     this.send('tod', st.tod, (v) => this.audio.setTimeOfDay(v));
     // まわりの音は その 場所の 曲が 鳴って いる 間だけ（イベントの 曲・ジングルの 間は 止める）
     this.setAmbience(id && id === st.areaTrack ? st.ambience : null);
@@ -453,6 +487,7 @@ export class SceneAudio {
     if (areaTrack === HALL_TRACK) intensity = hallIntensity(hasFlag);
     else if (areaTrack === C9B_UNDER_TRACK) intensity = pillarIntensity(pillarStageOf(game, hasFlag));
     else if (areaTrack === C10R_RUN_TRACK) intensity = lavaIntensity(lavaStageOf(game));
+    else if (areaTrack === C10B_WHITE_TRACK) intensity = alertIntensity(alertStageOf(game));
     else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
@@ -463,9 +498,14 @@ export class SceneAudio {
     if (areaTrack === C9D_LANE_TRACK) phase = apartStageOf(game);
     else if (areaTrack === C9D_SONG_TRACK) phase = songStageOf(game) - 1;
     else if (areaTrack === C10R_RUN_TRACK) phase = lavaStageOf(game);
+    else if (areaTrack === C10B_BLUE_TRACK) phase = waterStageOf(game);
+    else if (areaTrack === C10B_WHITE_TRACK) phase = alertStageOf(game);
     const songPhase = songStageOf(game) - 1;
     // 第94回 F: かけ上がる帰り道（イベントの 曲の 時も 使う）
     const lavaPhase = lavaStageOf(game);
+    // 第95回 F: 水の 高さ・見はりの 近さ（イベントの 曲の 時も 使う）
+    const waterPhase = waterStageOf(game);
+    const alertPhase = alertStageOf(game);
     let area = '';
     try { area = f.areaName(); } catch { /* */ }
     let weather = null;
@@ -478,6 +518,9 @@ export class SceneAudio {
       songPhase,
       lavaPhase,
       lavaIntensity: lavaIntensity(lavaPhase),
+      waterPhase,
+      alertPhase,
+      alertIntensity: alertIntensity(alertPhase),
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };

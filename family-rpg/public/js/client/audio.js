@@ -26,6 +26,7 @@ import { C9B_TRACKS } from './audio-c9b.js';
 import { C9C_TRACKS } from './audio-c9c.js';
 import { C9D_TRACKS } from './audio-c9d.js';
 import { C10A_TRACKS } from './audio-c10a.js';
+import { C10B_TRACKS } from './audio-c10b.js';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
 import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js';
@@ -895,6 +896,8 @@ overlayTracks(TRACKS, C9C_TRACKS);
 overlayTracks(TRACKS, C9D_TRACKS);
 // 第94回 F: 第3部 第2章 第1幕「赤と緑」の 曲（audio-c10a.js。新しい id だけ）
 overlayTracks(TRACKS, C10A_TRACKS);
+// 第95回 F: 第3部 第2章 第2幕「青と白」の 曲（audio-c10b.js。新しい id だけ）
+overlayTracks(TRACKS, C10B_TRACKS);
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

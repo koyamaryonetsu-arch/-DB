@@ -110,8 +110,8 @@ test('第77回: 新しい 書き方（アクセント・ゴースト・タイ・
   // 長さの 合計は かわらない（タイで まとめても）
   assert.equal(ev.reduce((a, e) => a + e.len, 0), 4 + 2 + 2 + 8 + 2 + 2 + 8 + 4 + 2 + 4);
   // たいこ
-  const d = parseNotes('k:2! s:2? h:1 o:1 c:4 p:2 t:1 th:1 tl:2 R:1 rim:1 r:2');
-  assert.deepEqual(d.map((e) => e.drum || 'rest'), ['k', 's', 'h', 'o', 'c', 'p', 't', 'th', 'tl', 'R', 'R', 'rest']);
+  const d = parseNotes('k:2! s:2? h:1 o:1 c:4 p:2 t:1 th:1 tl:2 R:1 rim:1 sh:1 r:2');
+  assert.deepEqual(d.map((e) => e.drum || 'rest'), ['k', 's', 'h', 'o', 'c', 'p', 't', 'th', 'tl', 'R', 'R', 'sh', 'rest']);
   for (const x of DRUMS) assert.ok(d.some((e) => e.drum === x), x);
   assert.equal(d[0].acc, 1.35);
   // さいごの ~ は レガート（くりかえしで つながる）
