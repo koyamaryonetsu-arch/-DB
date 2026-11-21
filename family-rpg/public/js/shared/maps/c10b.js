@@ -24,13 +24,12 @@ import {
 } from './c10b-flags.js';
 import { PEDESTALS9C } from './c9c.js';
 import { CRATER_FORK10A } from './c10a-rows.js';
+import { c10bChest } from '../data/items-c10b.js';
 
 export const CH10B_MAPS = [...C10B_MAP_IDS];
 
-// 宝箱の 中み（B班が 入るまで かりの お金。合わせる 時に B班の 物に かえる）
-let chestOf = () => ({ gold: 500 });
-export const setChestOf10b = (fn) => { chestOf = fn; };
-export const chestOf10b = (id) => chestOf(id) || {};
+// 宝箱の 中み（B班の data/items-c10b.js の c10bChest。14この id）
+export const chestOf10b = (id) => c10bChest(id) || {};
 
 const base = (id, name, t, extra) => ({
   id, name, kind: 'dungeon', w: t.w, h: t.h, tiles: t.tiles, gates: [],
@@ -238,6 +237,11 @@ function attachLake(maps) {
   const S = LAKE_STAIRS10B;
   const t0 = m.tiles[S.y * m.w + S.x];
   m.gates.push({ x: S.x, y: S.y, closed: t0, open: T.C10B_LIGHTSTAIRS, levels: [[NIGHT_STAIRS_FLAG, T.C10B_LIGHTSTAIRS]] });
+  // 夜の 湖: 小島の まわりの 氷が すきとおる（すべる 氷の まま。絵だけ かわる。幕が 始まった 人の 夜だけ）
+  for (let y = S.y - 6; y <= S.y + 4; y++) for (let x = S.x - 7; x <= S.x + 7; x++) {
+    if (m.tiles[y * m.w + x] !== T.ICE || Math.hypot((x - S.x) / 7, (y - S.y + 1) / 5) > 1) continue;
+    m.gates.push({ x, y, closed: T.ICE, open: T.C10B_SLIDE, levels: [[NIGHT_STAIRS_FLAG, T.C10B_SLIDE]] });
+  }
   const A = WHITE1_POS.up;
   m.warps.push({ x: S.x, y: S.y, to: { map: C10B_MAP.white1, x: A.x + 0.5, y: A.y - 0.5, dir: 'up' }, show: { all: [C10B.start, '@night'] } });
   (m.links = m.links || []).push({ x: S.x, y: S.y, to: C10B_MAP.white1 });

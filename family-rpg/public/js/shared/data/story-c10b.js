@@ -30,6 +30,8 @@ const setWater10b = (world, s, L) => world.c10b.setWater(world, s, L);
 const sleepOwls10b = (world, s) => world.c10b.sleepOwls(world, s);
 import { MONSTERS } from './monsters.js';
 import { mergeBossHints } from './boss-hints.js';
+import { SHOPS } from './shops.js';
+import { C10B_SHOP_ADD } from './items-c10b.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -583,6 +585,18 @@ export function applyCh10b(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = fa
   for (const id of CH10B_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   if (!SCRIPTS.c9c_raftstop_shore?.c10b) SCRIPTS.c9c_raftstop_shore = Object.assign(addBlueStop(SCRIPTS.c9c_raftstop_shore), { c10b: true });
   if (!SCRIPTS.c4_water_mirror?.c10b) SCRIPTS.c4_water_mirror = Object.assign(addMirrorDive(SCRIPTS.c4_water_mirror), { c10b: true });
+  // くぼ地の 武具屋: 幕の クリア（c10_act2）の あと 品が 4つ ふえる（B班の C10B_SHOP_ADD。第1幕の 店の あと）
+  if (!SCRIPTS.c9b_armorer?.c10b) {
+    const armOld = SCRIPTS.c9b_armorer;
+    SCRIPTS.c9b_armorer = Object.assign((x) => (x.flag(C10B.act2) ? [['shop', SHOP10B_CRATER]] : armOld ? armOld(x) : []), { c10b: true });
+  }
+}
+
+// ───── くぼ地の 武具屋（第1幕の 店 c10a_crater に、B班の C10B_SHOP_ADD を 足した 店）─────
+export const SHOP10B_CRATER = 'c10b_crater';
+if (!SHOPS[SHOP10B_CRATER] && SHOPS.c10a_crater) {
+  const base10 = SHOPS.c10a_crater;
+  SHOPS[SHOP10B_CRATER] = { ...base10, hello: 'いらっしゃい！\n青と白の星の音の、すずしい品が入ったぜ。', items: [...base10.items, ...C10B_SHOP_ADD.filter((id) => !base10.items.includes(id))] };
 }
 
 // ───── 負けた 時の ヒント（E班の しくみ。ヒントの 文は B班。言う 人は ノクト）─────

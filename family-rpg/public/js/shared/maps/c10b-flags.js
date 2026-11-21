@@ -117,3 +117,20 @@ export const C10B_LV = { blue: 109, white: 111 };
 
 // ───── 幕の 切りかえ ─────
 export const C10B_OPEN = 'PART3_C10B_OPEN'; // data/story-c10.js
+
+// ───── B班の かりの 置き場（data/c10b-names-b.js。合わせた 時に 消した）に あった 形（同じ 名前・同じ 値。B の ファイルは as で よぶ）─────
+export const C10B_B = {
+  start: C10B.start, blueIn: C10B_BLUE.in, blueKey: C10B_BLUE.key, blueBoss: C10B_BLUE.boss, noteSo: C10B_BLUE.note,
+  whiteIn: C10B_WHITE.in, white2: C10B_WHITE.two, whiteBoss: C10B_WHITE.boss, noteLa: C10B_WHITE.note, act2: C10B.act2,
+};
+export const C10B_BONUS_B = { b: C10B_BONUS.blue, w: C10B_BONUS.white };
+export const C10B_PED_B = { so: C10B_PED.so, la: C10B_PED.la };
+export const C10B_MAP_B = { b1: C10B_MAP.blue1, b2: C10B_MAP.blue2, w1: C10B_MAP.white1, w2: C10B_MAP.white2, w3: C10B_MAP.white3 };
+export const C10B_BATTLE_B = C10B_BATTLE;
+export const C10B_MON_PREFIX_B = C10B_MON_PREFIX;
+export const C10B_BOSS_MON_B = C10B_BOSS_MON;
+export const C10B_TABLE_B = C10B_TABLE;
+export const C10B_CHEST_IDS_B = { blue: C10B_CHEST_IDS.blue, white: C10B_CHEST_IDS.white, bonus: [C10B_CHEST_IDS.bonus.blue, C10B_CHEST_IDS.bonus.white] };
+export const C10B_NOTES_B = { so: NOTE_SO, la: NOTE_LA };
+export const C10B_TRACKS_B = C10B_TRACKS;
+export const C10B_OPEN_B = C10B_OPEN;

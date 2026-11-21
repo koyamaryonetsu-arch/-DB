@@ -29,14 +29,16 @@ import {
   C10B_OBJ, C10B_OBJ_ALL, CH10B_STORY_SCRIPTS, CH10B_PROGRESS, CH10B_OBJECTIVE_TARGETS, CH10B_OBJECTIVE_TALK, c10bScripts, applyCh10b, objective10b,
 } from '../public/js/shared/data/story-c10b.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
-import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
-import { installC10bStub } from '../public/js/shared/data/c10b-stub.js';
+import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { SHOPS } from '../public/js/shared/data/shops.js';
+import { C10B_SHOP_ADD } from '../public/js/shared/data/items-c10b.js';
+import { existsSync } from 'node:fs';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN } from './helpers.js';
 import { UPTO, flagsOf, said, D4, addPlayer, play, place, stepOn, examine, talkTo, fixedWorld, pathTo } from './c9a-play.js';
 
-installC10bStub();
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
 const FILES10B = ['public/js/shared/maps/c10b-flags.js', 'public/js/shared/data/story-c10b.js', 'public/js/shared/maps/c10b.js', 'public/js/shared/maps/c10b-rows.js',
   'public/js/shared/world/c10b-steps.js', 'public/js/shared/maps/c10b-sneak.js', 'public/js/client/c10b-view.js', 'public/js/client/render/tiles-c10b.js', 'public/js/client/render/c10b-npc-art.js'];
@@ -304,12 +306,25 @@ test('名前の 約束: マップ 5まい・タイル 521〜550・宝箱の id�
     const g = gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f));
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場（c10b-stub.js）は 本体から 読まない
+  // かりの 置き場（A の c10b-stub.js・B の c10b-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['../public/js/shared/data/c10b-stub.js', '../public/js/shared/data/c10b-names-b.js']) assert.ok(!existsSync(new URL(f, import.meta.url)), `${f} は 消した`);
   const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/')]) {
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!/from '[^']*c10b-stub/.test(src), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c10b-stub|c10b-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // B班の 本物（宝箱 14こ・魔物の 表・決まった 戦い・だいじな 物・店）
+  for (const id of C10B_CHEST_ALL) {
+    const ch = C10B_MAP_IDS.flatMap((m) => MAPS[m].chests).find((c) => c.id === id);
+    assert.ok(ch && (ch.item || ch.gold), `宝箱 ${id} の 中み`);
+  }
+  for (const t of ['t10b_blue_wet', 't10b_blue_dry']) assert.ok(ENCOUNTER_TABLES[t], t);
+  for (const b of ['c10b_gecko', 'c10b_owl']) assert.ok(FIXED_ENCOUNTERS[b]?.boss && FIXED_ENCOUNTERS[b].canFlee === false, b);
+  for (const b of C10B_BATTLE.watch) assert.ok(FIXED_ENCOUNTERS[b]?.loseOk && FIXED_ENCOUNTERS[b].canFlee !== false, `${b} は にげられる・負けても よい`);
+  for (const k of ['note_so', 'note_la']) assert.equal(ITEMS[k]?.type, 'key', k);
+  assert.ok(C10B_SHOP_ADD.every((id) => SHOPS.c10b_crater.items.includes(id)));
+  assert.ok(JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act1', 'c10_act2')))).includes('c10b_crater'), '幕の クリアの あとの 店');
+  assert.ok(!JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act1')))).includes('c10b_crater'), 'クリアの 前は 今の 店');
 });
 
 test('台本の きまり: 第1部・第2部の ひみつ・カイ・ソリトゥス・竜シラネ・少年の わけ・中ボスの もとの 作品の 名前と せりふを 書かない', () => {

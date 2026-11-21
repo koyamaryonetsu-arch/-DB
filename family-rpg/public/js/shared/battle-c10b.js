@@ -30,7 +30,7 @@ import { ABILITIES } from './data/abilities.js';
 import { DUAL_TECHS } from './data/dual.js';
 import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, OWL_NAME } from './data/monsters-c10b.js';
 import { MIZUOTO } from './data/abilities-c10b.js';
-import { C10B_B as C10B } from './data/c10b-names-b.js';
+import { C10B_B as C10B } from './maps/c10b-flags.js';
 import { TERU } from './data/abilities-c9b.js';
 import { canUse } from './ai.js';
 import { peopleOf10, someoneChooses } from './battle-c10a.js';

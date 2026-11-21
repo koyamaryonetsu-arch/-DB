@@ -19,7 +19,7 @@ import { canEquip } from '../public/js/shared/stats.js';
 import {
   C10B_B as C10B, C10B_BONUS_B, C10B_PED_B, C10B_MAP_B, C10B_BATTLE_B as C10B_BATTLE, C10B_MON_PREFIX_B, C10B_BOSS_MON_B, C10B_TABLE_B,
   C10B_CHEST_IDS_B as C10B_CHEST_IDS, C10B_NOTES_B, C10B_TRACKS_B, C10B_OPEN_B,
-} from '../public/js/shared/data/c10b-names-b.js';
+} from '../public/js/shared/maps/c10b-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import {
   MONSTERS_C10B, C10B_MINIONS, C10B_BLUE_MON, C10B_WHITE_MON, C10B_RECOLOR_BASE, C10B_NEW_ART, C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, C10B_MAT_DROPS, GECKO_NAME, OWL_NAME,
@@ -645,7 +645,6 @@ test('がめん: 画面の 上の まど（水の めもり・本物の 場所�
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c10b-names-b.js',
     'public/js/shared/data/monsters-c10b.js', 'public/js/shared/data/abilities-c10b.js',
     'public/js/shared/data/encounters-c10b.js', 'public/js/shared/data/companions-c10b.js', 'public/js/shared/data/items-c10b.js', 'public/js/shared/data/boss-hints-c10b.js',
     'public/js/shared/battle-c10b.js', 'public/js/client/battle-c10b.js', 'public/js/client/render/c10b-art.js', 'public/js/client/render/c10b-bg.js', 'public/js/client/render/battlefx-c10b.js',

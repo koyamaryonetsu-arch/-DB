@@ -82,6 +82,8 @@ function sneakState(s) {
 // 階を かわった（placeSession の はじめ）
 export function noteC10bMove(world, s, mapId) {
   if (s.c10bSn && s.c10bSn.map !== mapId) s.c10bSn = null;
+  // 同じ 階の 中で 動かされた（見つかって 入口へ・だいほん）: 次の 1歩は 1
+  else if (s.c10bSn) s.c10bSn.last = null;
 }
 
 // onEnterTile から（true … 見つかって もどされた）

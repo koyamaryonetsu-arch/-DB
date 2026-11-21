@@ -235,6 +235,8 @@ export class GameWorld {
     t.away = false;
     t.awayAt = 0;
     t.posSeq++;
+    // 第95回 A班: 水鏡の うら・氷の 下の 道で 回線が 切れて もどった → 階の 入口・部屋の 入口（world/c10b-steps.js）
+    if (!t.busy) c10bOnPlay(this, t);
     this.sessions.delete(s.id);
     const ctx = t.battleId && this.battles.get(t.battleId);
     if (ctx) {
