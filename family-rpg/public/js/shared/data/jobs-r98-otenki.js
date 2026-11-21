@@ -11,7 +11,7 @@ export const KIZUNA_OTENKI = {
   job: {
     id: 'otenki_shihan', name: 'おてんき格闘流の師はん', kana: 'おてんきかくとうりゅうのしはん', short: 'おてんき', tier: 4, req: ['hiryu_master', 'tenkou_tsukai'], family: 'phys', color: '#2a8ad8',
     desc: '天気をあやつる格闘流の師はん。雨をよぶと自分で水のすがたに、晴れをよぶとお湯のすがたにもどる。雨の中では、水のこぶしがもっと強くなる。飛竜しょう天はの達人と天候をあやつる者をきわめ、素手の技と、雨と晴れの技をたくさん使った者だけがなれる。',
-    mods: { hp: 1.8, mp: 1.6, str: 1.9, def: 1.35, agi: 1.95, mag: 1.0, heal: 1.4 },
+    mods: { hp: 1.8, mp: 2.0, str: 1.85, def: 1.4, agi: 1.8, mag: 1.0, heal: 1.2 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 1.5, mp: 0.5 },
     // formPct … 水と お湯の すがたの 効き目（battle-r84b.js の formPct が 見る。伝説と おなじ 25%。幻だからと 上げない）
@@ -33,7 +33,7 @@ export const KIZUNA_OTENKI = {
       desc: 'じょうろの水をかぶると、素早くよけやすい水のすがたに。やかんのお湯をかぶると、力と守りの強いお湯のすがたになる。すぐに次の番が来る。', cast: '{a}は、頭からざぶんとかぶった！', anim: 'r84b_form',
     },
     ot_amatsubu: {
-      name: '雨つぶけん', kana: 'あまつぶけん', kind: 'skill', job: 'otenki_shihan', mp: 10, target: 'enemy',
+      name: '雨つぶけん', kana: 'あまつぶけん', kind: 'skill', job: 'otenki_shihan', mp: 7, target: 'enemy',
       effect: { type: 'phys', mult: 0.42, hits: 8, element: 'water', r84b: 'te' },
       desc: '雨つぶのような速さで、敵1体を8回なぐる。水のダメージ。水のすがたなら、もっと手数がふえる。雨の中では、もっと強い。', cast: '{a}の雨つぶけん！ぱらぱらぱらっ！', anim: 'r84b_amaguri',
     },
@@ -59,7 +59,7 @@ export const KIZUNA_OTENKI = {
       desc: '「あしたも、あさっても晴れ！」空を晴れにかえる。晴れの間は炎の力が強くなり、自分はお湯のすがたにもどる。仲間全員の攻撃力も上がる。', cast: '{a}「あしたも、あさっても晴れです！」', anim: 'buff',
     },
     ot_inazuma: {
-      name: 'いなずまかかと落とし', kana: 'いなずまかかとおとし', kind: 'skill', job: 'otenki_shihan', mp: 12, target: 'enemy', weather: 'thunder',
+      name: 'いなずまかかと落とし', kana: 'いなずまかかとおとし', kind: 'skill', job: 'otenki_shihan', mp: 9, target: 'enemy', weather: 'thunder',
       effect: { type: 'phys', mult: 3.4, element: 'bolt' },
       desc: 'かみなりといっしょに、高くふり上げたかかとを落とす。敵1体に雷の大ダメージ。', cast: '{a}のいなずまかかと落とし！ゴロゴロ…ドーン！', anim: 'r84b_kick',
     },
@@ -76,11 +76,11 @@ export const KIZUNA_OTENKI = {
     },
     // ── かけ合わせの 技（看板）: 雨を よんで（自分は 水の すがたへ）、竜巻 ＋ 雨つぶの 水の 追いうち ──
     otenki_shihan_sig: {
-      name: '雨ふり飛竜しょう天は', kana: 'あめふりひりゅうしょうてんは', kind: 'skill', job: 'otenki_shihan', mp: 36, target: 'enemies', role: 'dmg', weather: 'rain',
+      name: '雨ふり飛竜しょう天は', kana: 'あめふりひりゅうしょうてんは', kind: 'skill', job: 'otenki_shihan', mp: 30, target: 'enemies', role: 'dmg', weather: 'rain',
       effect: {
         type: 'multi',
         parts: [
-          { type: 'weather', kind: 'rain', target: 'self', turns: 8 },
+          { type: 'weather', kind: 'rain', target: 'self', turns: 12 },
           { type: 'phys', mult: 2.1, element: 'wind', vsBuff84: 0.2 },
           { type: 'phys', mult: 0.6, hits: 4, random: true, element: 'water' },
         ],

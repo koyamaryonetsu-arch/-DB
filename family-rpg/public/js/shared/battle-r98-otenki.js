@@ -6,7 +6,9 @@
 const myRain = (b, c) => b.weather?.kind === 'rain' && b.weather.side === c.side;
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた）
-export const OTENKI_AI = { sig: 0.7, niwaka: 0.5, amatsubu: 0.6, inazuma: 0.4, many: 0.5 };
+// sig … ボスの 時・sigFoe … ほかの 強い 敵の 時（雨が ない 時に 看板を えらぶ わりあい）。amatsubu・inazuma … ボスの 時・foe … ほかの 強い 敵の 時
+//   （ボスでは MP が たりなく なりやすい ので、MP の 多い 看板より 雨つぶけん・いなずまかかと落とし を 多く）
+export const OTENKI_AI = { sig: 0.2, sigFoe: 0.15, niwaka: 0.5, amatsubu: 0.95, inazuma: 0.95, foe: 0.3, many: 0.2 };
 
 export function otenkiPlan(b, c, foes, mine, allies, fw) {
   const my = mine.filter(({ a }) => a.job === 'otenki_shihan');
@@ -20,19 +22,25 @@ export function otenkiPlan(b, c, foes, mine, allies, fw) {
   const rain = myRain(b, c);
   // 1) 強い 敵で 味方の 雨が ない ＝ 看板（雨を よんで 竜巻）／ MP が たりなければ にわか雨よほう
   if (hard && !rain) {
-    if (sig && b.rng.chance(OTENKI_AI.sig)) return { type: 'ability', id: sig.id };
+    if (sig && b.rng.chance(boss ? OTENKI_AI.sig : OTENKI_AI.sigFoe)) return { type: 'ability', id: sig.id };
+    // （にわか雨よほうは 回復も する ので、仲間の HP が へって いる 時だけ）
     const niwaka = find('ot_niwaka');
-    if (niwaka && b.rng.chance(OTENKI_AI.niwaka)) return { type: 'ability', id: niwaka.id };
+    const hurt = allies.filter((x) => x.alive && x.hp < x.maxHp * 0.6).length >= 2;
+    if (niwaka && hurt && b.rng.chance(OTENKI_AI.niwaka)) return { type: 'ability', id: niwaka.id };
   }
-  // 2) 敵が 多い ＝ 看板（雨の 中なら 水の 追いうちも 強い）
-  if (foes.length >= 3 && sig && b.rng.chance(OTENKI_AI.many) && (hard || rain)) return { type: 'ability', id: sig.id };
+  // 2) 敵が 多い ＝ 看板（雨の 中なら 水の 追いうちも 強い）・台風のまわしげり
+  if (foes.length >= 3 && b.rng.chance(OTENKI_AI.many)) {
+    if (sig && boss) return { type: 'ability', id: sig.id };
+    const tai = find('ot_taifuu');
+    if (tai) return { type: 'ability', id: tai.id };
+  }
   // 3) 強い 敵 1体 ＝ 雨なら 雨つぶけん・ちがえば いなずまかかと落とし
   if (hard) {
     const t = boss || foes.slice().sort((x, y) => y.hp - x.hp)[0];
     const ama = find('ot_amatsubu');
-    if (rain && ama && b.rng.chance(OTENKI_AI.amatsubu)) return { type: 'ability', id: ama.id, target: t.id };
+    if (rain && ama && b.rng.chance(boss ? OTENKI_AI.amatsubu : OTENKI_AI.foe)) return { type: 'ability', id: ama.id, target: t.id };
     const ina = find('ot_inazuma');
-    if (ina && b.rng.chance(OTENKI_AI.inazuma)) return { type: 'ability', id: ina.id, target: t.id };
+    if (ina && b.rng.chance(boss ? OTENKI_AI.inazuma : OTENKI_AI.foe)) return { type: 'ability', id: ina.id, target: t.id };
   }
   return null;
 }

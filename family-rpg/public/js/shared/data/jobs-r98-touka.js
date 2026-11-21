@@ -50,7 +50,7 @@ export const KIZUNA_TOUKA = {
     // ── 真理のとびらをひらく者から（とうか交かん・とりで・やり・めぐり）──
     tk_touka: {
       name: 'とうか交かん', kana: 'とうかこうかん', kind: 'skill', spellLike: true, job: 'touka_madoushi', mp: 4, target: 'self', role: 'sup',
-      effect: { type: 'multi', parts: [{ type: 'r85aChant' }, { type: 'overtime', hpCost: 0.12, msg: '{a}は、HPとひきかえに、あっというまにとなえ終わった！' }] },
+      effect: { type: 'multi', parts: [{ type: 'r85aChant' }, { type: 'overtime', hpCost: 0.15, msg: '{a}は、HPとひきかえに、あっというまにとなえ終わった！' }] },
       desc: '手を合わせて、自分のHPを少しはらう。そのかわりに、一しゅんで呪文をとなえて、すぐにもう一度動ける。となえていると、真理のやいばなどの、いちばん強い呪文がうてる。ふつうの呪文なら強くなる。', cast: '{a}は、両手をパン！と合わせた…「とうか交かん！」', anim: 'r85a_chant',
     },
     tk_toride: {

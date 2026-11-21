@@ -243,10 +243,10 @@ test('第98回 K4: 元ヤンのけいじ（れい丸 6発・のこりが 少な�
   const { b, u, e } = solo('motoyan_keiji');
   assert.equal(reiMax(u), 6);
   assert.equal(reiLeft(u), 6);
-  // のこりが 少ないほど 強い（まんたん ×1・のこり 1発で ×1.8）
+  // のこりが 少ないほど 強い（まんたん ×1・のこり 1発で ×1.5）
   const low = ABILITIES.motoyan_keiji_sig.effect.parts[0].rei;
   assert.equal(reiLowMult(u, low, 6), 1);
-  assert.ok(Math.abs(reiLowMult(u, low, 1) - 1.8) < 1e-9);
+  assert.ok(Math.abs(reiLowMult(u, low, 1) - 1.5) < 1e-9);
   assert.ok(reiLowMult(u, low, 3) > 1 && reiLowMult(u, low, 3) < reiLowMult(u, low, 1));
   const shoot = (left) => {
     let dmg = 0, stop = 0;
@@ -261,7 +261,7 @@ test('第98回 K4: 元ヤンのけいじ（れい丸 6発・のこりが 少な�
     return { dmg, stop };
   };
   const full = shoot(6), last = shoot(1);
-  assert.ok(last.dmg > full.dmg * 1.5, `${full.dmg} → ${last.dmg}`);
+  assert.ok(last.dmg > full.dmg * 1.3, `${full.dmg} → ${last.dmg}`);
   assert.ok(full.stop >= 20 && last.stop >= 20, `たいほ ${full.stop}・${last.stop}`);
   // れい丸が ない ＝ えらべない（今 ある きまり）
   u.r84aRei = 0;
@@ -305,7 +305,7 @@ test('第98回 K4: 等価交かんの大魔道士（HP を はらって とな�
   let ev = newEv();
   b.applyAbility(u, ABILITIES.tk_touka, { type: 'ability', id: 'tk_touka' }, ev, 1);
   assert.ok(u.hp < hp0, 'HP を はらう');
-  assert.equal(hp0 - u.hp, Math.round(u.maxHp * 0.12));
+  assert.equal(hp0 - u.hp, Math.round(u.maxHp * 0.15));
   assert.ok(chanting(u));
   assert.equal(ev.atbAfter, 100, 'すぐ もう 1回 動ける');
   assert.equal(r85aLocked(u, ABILITIES.touka_madoushi_sig), false);
@@ -346,9 +346,11 @@ test('第98回 K4: オート（その 職業の 技を 持つ 人だけ・ボス
   // 元ヤンのけいじ: のこりが 少ない 時に 最後の一発
   const k = count('motoyan_keiji', 'balanced', (b, u) => { u.mp = 999; u.r84aRei = 1; });
   assert.ok((k.motoyan_keiji_sig || 0) > 20, JSON.stringify(k));
-  // おてんき格闘流の師はん: 雨が ない 時に 看板（雨を よぶ）
+  // おてんき格闘流の師はん: 雨が ない 時に ときどき 看板（雨を よぶ。ボスでは MP の 少ない 技を 多く）・雨の 中は 雨つぶけん
   const o = count('otenki_shihan', 'balanced', (b, u) => { u.mp = 999; b.weather = null; });
-  assert.ok((o.otenki_shihan_sig || 0) > 20, JSON.stringify(o));
+  assert.ok((o.otenki_shihan_sig || 0) >= 5 && (o.ot_inazuma || 0) > 20, JSON.stringify(o));
+  const or = count('otenki_shihan', 'balanced', (b, u) => { u.mp = 999; b.weather = { kind: 'rain', side: 'ally', left: 9 }; });
+  assert.ok((or.ot_amatsubu || 0) > 30 && !or.otenki_shihan_sig, JSON.stringify(or));
   // 等価交かんの大魔道士: となえて いない 時に とうか交かん・ガンガンでは 補助なので えらばない（第96回の きまり）
   const t = count('touka_madoushi', 'balanced', (b, u) => { u.mp = 999; u.hp = u.maxHp; delete u.r85aChant; });
   assert.ok((t.tk_touka || 0) > 20, JSON.stringify(t));

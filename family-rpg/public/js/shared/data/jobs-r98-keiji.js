@@ -30,7 +30,7 @@ export const KIZUNA_KEIJI = {
     // ── 魔界の王の子から（れい丸・とう気・けんか）──
     ky_reigan: {
       name: 'けいじのれい丸', kana: 'けいじのれいがん', kind: 'skill', job: 'motoyan_keiji', mp: 10, target: 'enemy', role: 'dmg',
-      effect: { type: 'phys', mult: 4.4, rei: { use: 1 } },
+      effect: { type: 'phys', mult: 4.0, rei: { use: 1 } },
       desc: '指先に力を集めて、青い光の玉をうつ。れい丸を1発使う。敵1体にとても大きなダメージ。', cast: '{a}「止まれ！…止まらねえなら、くらえ！」', anim: 'r84a_reigan',
     },
     ky_harikomi: {
@@ -40,7 +40,7 @@ export const KIZUNA_KEIJI = {
     },
     ky_siren: {
       name: 'れい丸・サイレン', kana: 'れいがんさいれん', kind: 'skill', job: 'motoyan_keiji', mp: 20, target: 'enemies', role: 'dmg',
-      effect: { type: 'phys', mult: 2.3, rei: { use: 2 } },
+      effect: { type: 'phys', mult: 1.8, rei: { use: 2 } },
       desc: 'れい丸を空中ではじけさせて、サイレンのように光るつぶを、ふらせる。れい丸を2発使う。敵全体に大ダメージ。', cast: '{a}「ウーーーッ！れい丸・サイレン！」', anim: 'r84a_shotgun',
     },
     ky_kiai: {
@@ -83,7 +83,7 @@ export const KIZUNA_KEIJI = {
         type: 'multi',
         parts: [
           // low … のこりの れい丸が 少ないほど 強い（まんたんで ×1・のこり 1発で ×（1＋low）。battle-r84a.js の r84aPhys）
-          { type: 'phys', mult: 5.0, ignoreDef: 0.3, rei: { use: 1, low: 0.8 } },
+          { type: 'phys', mult: 4.5, ignoreDef: 0.3, rei: { use: 1, low: 0.5 } },
           { type: 'atbSet', sub: 70, chance: 0.9, msg: '{t}に、れい丸のてじょうがかかった！動けない！', failMsg: '{t}は、てじょうをふりほどいた！' },
           { type: 'status', status: 'paralyze', chance: 0.3, turns: [1, 1] },
         ],
