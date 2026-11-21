@@ -78,6 +78,8 @@ import { R86B_SFX, R86B_HIT } from './render/battlefx-r86b.js';
 import { r86bPresent } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つの 技（render/battlefx-r86a.js。みかたに かける えんしゅつは PARTY_ANIMS に まぜて ある）・ためた力の 風・かばう（battle-r86a.js）
 import { R86A_SFX, R86A_HIT } from './render/battlefx-r86a.js';
+// 第98回: きずなの職業の 技の 当たる 時間と 音（render/kizuna-art.js）
+import { KIZUNA_SFX, KIZUNA_HIT } from './render/kizuna-art.js';
 // 第88回: 作品の 品を「使う」えんしゅつ（render/battlefx-r88.js）
 import { R88_SFX, R88_HIT } from './render/battlefx-r88.js';
 import { r86aPresent } from './battle-r86a.js';
@@ -206,6 +208,7 @@ Object.assign(HIT_DELAY, R85B_HIT);
 Object.assign(HIT_DELAY, R85A_HIT);
 Object.assign(HIT_DELAY, R86B_HIT);
 Object.assign(HIT_DELAY, R86A_HIT);
+Object.assign(HIT_DELAY, KIZUNA_HIT);
 Object.assign(HIT_DELAY, R88_HIT);
 Object.assign(HIT_DELAY, R88M_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
@@ -344,6 +347,7 @@ Object.assign(ANIM_SFX, R85B_SFX);
 Object.assign(ANIM_SFX, R85A_SFX);
 Object.assign(ANIM_SFX, R86B_SFX);
 Object.assign(ANIM_SFX, R86A_SFX);
+Object.assign(ANIM_SFX, KIZUNA_SFX);
 Object.assign(ANIM_SFX, R88_SFX);
 Object.assign(ANIM_SFX, R88M_SFX);
 

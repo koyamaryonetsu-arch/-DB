@@ -63,6 +63,8 @@ import { HIRA_R85A_ABILITIES, HIRAMEKI_R85A } from './hirameki-r85a.js';
 import { HIRA_R86B_ABILITIES, HIRAMEKI_R86B } from './hirameki-r86b.js';
 // 第86回 A班: 幻の職業 2つの ひらめき技（hirameki-r86a.js）
 import { HIRA_R86A_ABILITIES, HIRAMEKI_R86A } from './hirameki-r86a.js';
+// 第98回: きずなの職業の ひらめき技（1つ 1ファイル。一覧は kizuna.js）
+import { KIZUNA_HIRA_ABILITIES, KIZUNA_HIRAMEKI } from './kizuna.js';
 // 第88回 M1班: 魔王の ひらめき技 天地魔闘の構え（hirameki-r88m.js）
 import { HIRA_R88M_ABILITIES, HIRAMEKI_R88M } from './hirameki-r88m.js';
 
@@ -365,6 +367,9 @@ Object.assign(HIRAMEKI, HIRAMEKI_R86B);
 // 第86回 A班の ひらめき技（hirameki-r86a.js）
 Object.assign(HIRA_ABILITIES, HIRA_R86A_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R86A);
+// 第98回: きずなの職業の ひらめき技（kizuna.js）
+Object.assign(HIRA_ABILITIES, KIZUNA_HIRA_ABILITIES);
+Object.assign(HIRAMEKI, KIZUNA_HIRAMEKI);
 // 第88回 M1班の ひらめき技（hirameki-r88m.js）
 Object.assign(HIRA_ABILITIES, HIRA_R88M_ABILITIES);
 Object.assign(HIRAMEKI, HIRAMEKI_R88M);

@@ -20,6 +20,8 @@ import { AURA85A } from './hero-r85a.js';
 import { AURA86B } from './hero-r86b.js';
 // 第86回 A班: 人とようかいのかけ橋（白と 赤）・竜神の剣士（青い 雷と 赤い 炎）の オーラ（hero-r86a.js）
 import { AURA86A } from './hero-r86a.js';
+// 第98回: きずなの職業の オーラ（kizuna-art.js）
+import { KIZUNA_AURA } from './kizuna-art.js';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -50,6 +52,7 @@ Object.assign(AURA, AURA85B);
 Object.assign(AURA, AURA85A);
 Object.assign(AURA, AURA86B);
 Object.assign(AURA, AURA86A);
+Object.assign(AURA, KIZUNA_AURA);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;

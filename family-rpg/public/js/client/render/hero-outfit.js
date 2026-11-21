@@ -57,6 +57,8 @@ import { R85A_OUTFIT, R85A_BODY, outfit85a } from './hero-r85a.js';
 import { R86B_OUTFIT, R86B_BODY, outfit86b } from './hero-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋・竜神の剣士。hero-r86a.js）
 import { R86A_OUTFIT, R86A_BODY } from './hero-r86a.js';
+// 第98回: きずなの職業の 服・からだ・むねの しるし（kizuna-art.js）
+import { KIZUNA_OUTFIT, KIZUNA_BODY, KIZUNA_EMBLEM } from './kizuna-art.js';
 // 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
 import { PRIZE_ARMOR_LOOK } from './prize-looks.js';
 
@@ -264,6 +266,7 @@ Object.assign(JOB_OUTFIT, R85B_OUTFIT);
 Object.assign(JOB_OUTFIT, R85A_OUTFIT);
 Object.assign(JOB_OUTFIT, R86B_OUTFIT);
 Object.assign(JOB_OUTFIT, R86A_OUTFIT);
+Object.assign(JOB_OUTFIT, KIZUNA_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -315,6 +318,7 @@ Object.assign(JOB_BODY, R85B_BODY);
 Object.assign(JOB_BODY, R85A_BODY);
 Object.assign(JOB_BODY, R86B_BODY);
 Object.assign(JOB_BODY, R86A_BODY);
+Object.assign(JOB_BODY, KIZUNA_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 
@@ -1312,6 +1316,7 @@ export function drawTorsoFront(cv, P, O) {
         }
         if (T.mark === 'diamond') emblem(cv, 18.5, 25.25, 'diamond', O, false, null, T.piping);
         else if (T.mark === 'chip') emblem(cv, 18.5, 25.15, 'chip', O, false, null, T.piping);
+        else if (KIZUNA_EMBLEM[T.mark]) emblem(cv, 18.5, 25.2, T.mark, O, false, null, T.piping);
       }
       if (T.band) {
         for (const y of [27.0, 29.4]) { cv.part({ ol: 'none', clip: base }); cv.rect(9, y, 14, 0.85, T.band, { n: [0, -0.2] }); }
@@ -1674,6 +1679,9 @@ function plateFront(cv, P, O, T) {
 
 function emblem(cv, x, y, kind, O, small = false, color = null, m = null) {
   const k = cv.k;
+  // 第98回: きずなの職業の しるし（kizuna-art.js。'…big' は 大きい 方）
+  const kz = KIZUNA_EMBLEM[kind] || KIZUNA_EMBLEM[kind.replace(/big$/, '')];
+  if (kz) return kz(cv, x, y, kind.endsWith('big') && !KIZUNA_EMBLEM[kind] ? 1.7 : 1, m, { cloth, metal });
   if (kind === 'chip' || kind === 'chipbig') {
     // AIの チップ（こんの しかくに 水色の あしと、まんなかで ひかる まる）
     const z = kind === 'chipbig' ? 1.7 : 1;
@@ -2408,6 +2416,7 @@ export function drawTorsoBack(cv, P, O) {
         cv.stroke([[10.0, 23.0], [22.0, 23.0]], 0.17, T.piping, { n: [0, 0] });
         if (T.mark === 'diamond') emblem(cv, 16, 26.0, 'diamondbig', O, false, null, T.piping);
         else if (T.mark === 'chip') emblem(cv, 16, 26.0, 'chipbig', O, false, null, T.piping);
+        else if (KIZUNA_EMBLEM[T.mark]) emblem(cv, 16, 26.0, `${T.mark}big`, O, false, null, T.piping);
       }
       break;
     }
@@ -2564,6 +2573,7 @@ export function drawTorsoSide(cv, P, O) {
         cv.stroke([[X(2.05), 23.0 + b], [X(2.05), 31.0 + b]], 0.15, T.piping, { n: [0, 0] });
         if (T.mark === 'diamond') emblem(cv, X(0.5), 25.0 + b, 'diamond', O, false, null, T.piping);
         else if (T.mark === 'chip') emblem(cv, X(0.5), 25.0 + b, 'chip', O, false, null, T.piping);
+        else if (KIZUNA_EMBLEM[T.mark]) emblem(cv, X(0.5), 25.0 + b, T.mark, O, false, null, T.piping);
       }
       break;
     }
