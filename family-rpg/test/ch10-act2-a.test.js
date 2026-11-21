@@ -39,7 +39,7 @@ import { UPTO, flagsOf, said, D4, addPlayer, play, place, stepOn, examine, talkT
 installC10bStub();
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
 const FILES10B = ['public/js/shared/maps/c10b-flags.js', 'public/js/shared/data/story-c10b.js', 'public/js/shared/maps/c10b.js', 'public/js/shared/maps/c10b-rows.js',
-  'public/js/shared/world/c10b-steps.js', 'public/js/client/c10b-view.js', 'public/js/client/render/tiles-c10b.js', 'public/js/client/render/c10b-npc-art.js'];
+  'public/js/shared/world/c10b-steps.js', 'public/js/shared/maps/c10b-sneak.js', 'public/js/client/c10b-view.js', 'public/js/client/render/tiles-c10b.js', 'public/js/client/render/c10b-npc-art.js'];
 const openScripts = () => c10bScripts(c10bTitleSteps, true, { ped: SCRIPTS.c9c_ped });
 let opened = false;
 function openAct() {

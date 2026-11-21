@@ -85,7 +85,7 @@ function buildBlue1() {
     const kind = sp?.kind || '';
     const i = y * W + x;
     if (kind === 'bell') { tiles[i] = T.C10B_BELL; continue; }
-    if (kind === 'stone') { tiles[i] = T.SIGN; continue; }
+    if (kind === 'stone') { tiles[i] = T.C10B_FLOOR1; continue; }
     if (kind === 'plinth') { tiles[i] = T.C10B_FLOOR1; continue; }
     if (kind === 'down') { tiles[i] = T.STAIRS_DOWN; continue; }
     if (kind === 'whirl') {
@@ -124,7 +124,7 @@ function buildBlue1() {
   }
   // 音の かね・石の 文字・かぎの 石・とびら・うず
   for (const b of P.bells) m.actions.push({ x: b.x, y: b.y, script: 'c10b_bell' });
-  m.signs.push({ x: P.stone.x, y: P.stone.y, text: '石に、古い文字が、ほってある。\n「かねに、星の音を、ひびかせよ。\nひくき音は、ひくき水。たかき音は、たかき水。\nレは下、ミは中、ファは上」' });
+  m.npcs.push(npc('c10b_stone', '石の文字', [P.stone.x, P.stone.y], 'c9a_signpost', 'c10b_stone', { dir: 'down' }));
   m.actions.push({ x: P.key.x, y: P.key.y, script: 'c10b_keystone' });
   m.actions.push({ x: P.door.x, y: P.door.y, script: 'c10b_door', show: { not: [C10B_BLUE.key] } });
   m.actions.push({ x: P.freeze.x, y: P.freeze.y, script: 'c10b_whirl', show: { not: [C10B_BONUS.blue] } });

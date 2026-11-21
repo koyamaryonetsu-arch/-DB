@@ -500,6 +500,7 @@ export function c10bScripts(title, open, old = {}) {
     c10b_fork_event: (x) => (open && x.flag(C10B_ACT1) && !x.flag(C10B.start) ? forkScene(title) : []),
     c10b_dock: () => dockSteps(),
     c10b_bell: bellSteps,
+    c10b_stone: () => N('石に、古い文字が、ほってある。\n「かねに、星の音を、ひびかせよ。\nひくき音は、ひくき水。たかき音は、たかき水。\nレは下、ミは中、ファは上」'),
     c10b_keystone: keyStoneSteps,
     c10b_door: (x) => (x.flag(C10B_BLUE.key) ? [] : doorSteps()),
     c10b_whirl: whirlSteps,

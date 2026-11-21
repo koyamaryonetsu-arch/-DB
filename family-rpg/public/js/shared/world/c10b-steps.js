@@ -18,8 +18,9 @@
 // ・おくの レバーで、パーティーの みんなの 見はりが ねむる（world.c10bSleep。セーブしない）
 // ・回線が 切れて もどった 時: その 部屋の 入口
 import { MAPS, effectiveTile, isBlocked, canStand, standSpot } from '../maps/index.js';
-import { T, TILE_INFO } from '../tiles.js';
-import { C10B_MAP, C10B_SNEAK_MAPS, C10B_WATER_START, C10B_OWL_TURN_STEPS, C10B_OWL_RANGE, C10B_NOISE_MAX, C10B_CAUGHT_EASE, C10B_BATTLE } from '../maps/c10b-flags.js';
+import { T } from '../tiles.js';
+import { C10B_MAP, C10B_SNEAK_MAPS, C10B_WATER_START, C10B_NOISE_MAX, C10B_CAUGHT_EASE, C10B_BATTLE } from '../maps/c10b-flags.js';
+import { owlDir10b, activeOwls10b, owlView10b, watchedCells10b, hidden10b, roomAt10b } from '../maps/c10b-sneak.js';
 import { BLUE1_POS } from '../maps/c10b-rows.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { runSteps } from './scripts.js';
@@ -66,46 +67,12 @@ export function setWater10b(world, s, L) {
 
 // ───────────── こっそり ─────────────
 const isSneak = (mapId) => C10B_SNEAK_MAPS.includes(mapId);
-const DV = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 const caughtMap = (world) => world.c10bCaught || (world.c10bCaught = new Map());
 const sleepSet = (world) => world.c10bSleep || (world.c10bSleep = new Set());
 export const caughtOf10b = (world, s, mapId = s.map) => caughtMap(world).get(`${s.char?.id}|${mapId}`) || 0;
 export const sleeping10b = (world, s, mapId = s.map) => sleepSet(world).has(`${partyKey(s)}|${mapId}`);
-// 見はりの 向き（steps … その 人の 歩数）
-export const owlDir10b = (owl, steps) => owl.dirs[Math.floor(steps / C10B_OWL_TURN_STEPS) % owl.dirs.length];
-// まだ いる 見はり（n … 見つかった 回数。ease の だんの 見はりは 3回ごとに 1ぴき いなく なる）
-export const activeOwls10b = (map, n) => (map.c10bOwls || []).filter((o) => !o.ease || n < C10B_CAUGHT_EASE * o.ease);
-// 見て いる マス（前の 3マス。1つ目は 1マス・2つ目と 3つ目は 3マスの 扇。かべ・柱が あると その うしろは 見えない）
-const opaque = (t) => TILE_INFO[t]?.solid ?? true;
-export function owlView10b(map, owl, dir, has = () => false) {
-  const [dx, dy] = DV[dir];
-  const px = -dy, py = dx; // よこ
-  const out = [];
-  for (let k = 1; k <= C10B_OWL_RANGE; k++) {
-    const half = k >= 2 ? 1 : 0;
-    for (let o = -half; o <= half; o++) {
-      // その マスまでの 道すじ（まっすぐ k-1 マス → よこへ）が 見とおせるか
-      let ok = true;
-      for (let j = 1; j <= k && ok; j++) {
-        const oo = j >= 2 ? o : 0;
-        const x = owl.x + dx * j + px * oo, y = owl.y + dy * j + py * oo;
-        if (x < 0 || y < 0 || x >= map.w || y >= map.h || opaque(effectiveTile(map, x, y, has))) ok = false;
-      }
-      if (ok) out.push([owl.x + dx * k + px * o, owl.y + dy * k + py * o]);
-    }
-  }
-  return out;
-}
-// その 人に とって 今 見はりに 見られて いる マス（Set 'x,y'）
-export function watchedCells10b(map, steps, n, asleep, has) {
-  const out = new Set();
-  if (asleep) return out;
-  for (const o of activeOwls10b(map, n)) for (const [x, y] of owlView10b(map, o, owlDir10b(o, steps), has)) out.add(`${x},${y}`);
-  return out;
-}
-// 見つからない マス（雪の 山の 中・すべる 氷の 上）
-export const hidden10b = (t) => t === T.C10B_SNOWPILE || t === T.C10B_SLIDE;
-export const roomAt10b = (map, x, y) => (map.c10bRooms || []).find((r) => x >= r.x0 && y >= r.y0 && x <= r.x1 && y <= r.y1) || map.c10bRooms?.[0] || null;
+// 見はりの きまり（maps/c10b-sneak.js。画面と 同じ 計算）
+export { owlDir10b, activeOwls10b, owlView10b, watchedCells10b, hidden10b, roomAt10b };
 
 function sneakState(s) {
   if (!s.c10bSn || s.c10bSn.map !== s.map) s.c10bSn = { map: s.map, steps: 0, noise: 0, last: null };
