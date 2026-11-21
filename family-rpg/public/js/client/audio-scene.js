@@ -215,6 +215,20 @@ export function alertIntensity(stage) {
   return [0.4, 0.7, 1][n];
 }
 
+// 第97回 F: 空にかかる音の橋（c10c_isles）は 画面の 状態 bridgeStage（かかって いる 音の 橋の 数 0〜5）で 強さ 0・0.2・0.4・0.6・0.8・1
+//   （橋が 1本 ふえる ごとに 楽器が 1つ ふえる。形・調・テンポは かえない ＝ ふしの とちゅうから 止まらない。かわるのは 次の 小節の 頭から）。
+//   A班が 画面の 状態 bridgeStage を 出す（field.bridgeStage・game.bridgeStage。数・関数 どれでも よい。true は 5）。出て いない 間は 0。
+//   イベントの 曲でも よい（鳴って いる 曲が c10c_isles なら、その 場所の 曲で なくても 送る）。
+//   ダンジョン（kind: 'dungeon'）の 階でも 深さの 強さより bridgeStage が 先。0 から 数える しるし なので addFormKey0 にも 入れて おく
+addFormKey0('bridgeStage');
+export const C10C_ISLES_TRACK = 'c10c_isles';
+export const BRIDGE_STAGES = 6;
+export const bridgeStageOf = (game) => stageOf(game, 'bridgeStage', BRIDGE_STAGES, 0);
+export function bridgeIntensity(stage) {
+  const n = Math.max(0, Math.min(BRIDGE_STAGES - 1, Math.floor(Number(stage) || 0)));
+  return Math.round((n / (BRIDGE_STAGES - 1)) * 1000) / 1000;
+}
+
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
   let n = null;
@@ -456,6 +470,8 @@ export class SceneAudio {
     else if (id === C10R_RUN_TRACK && st.lavaIntensity !== null && st.lavaIntensity !== undefined) this.send('intensity', st.lavaIntensity, (v) => this.audio.setIntensity(v));
     // 第95回 F: 氷の下のしのび足は イベントの 曲でも 見はりの 近さで 強さを 送る
     else if (id === C10B_WHITE_TRACK && st.alertIntensity !== null && st.alertIntensity !== undefined) this.send('intensity', st.alertIntensity, (v) => this.audio.setIntensity(v));
+    // 第97回 F: 空にかかる音の橋は イベントの 曲でも 橋の 数で 強さを 送る
+    else if (id === C10C_ISLES_TRACK && st.bridgeIntensity !== null && st.bridgeIntensity !== undefined) this.send('intensity', st.bridgeIntensity, (v) => this.audio.setIntensity(v));
     // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド・第93回 ふたごの道）
     if (id && id === st.areaTrack && st.phase !== null && st.phase !== undefined) this.send('phase', st.phase, (v) => this.audio.setPhase(v));
     // 第93回 F: スピカの歌は イベントの 曲でも 歌える ふしの 数を 送る
@@ -488,6 +504,7 @@ export class SceneAudio {
     else if (areaTrack === C9B_UNDER_TRACK) intensity = pillarIntensity(pillarStageOf(game, hasFlag));
     else if (areaTrack === C10R_RUN_TRACK) intensity = lavaIntensity(lavaStageOf(game));
     else if (areaTrack === C10B_WHITE_TRACK) intensity = alertIntensity(alertStageOf(game));
+    else if (areaTrack === C10C_ISLES_TRACK) intensity = bridgeIntensity(bridgeStageOf(game));
     else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
@@ -506,6 +523,8 @@ export class SceneAudio {
     // 第95回 F: 水の 高さ・見はりの 近さ（イベントの 曲の 時も 使う）
     const waterPhase = waterStageOf(game);
     const alertPhase = alertStageOf(game);
+    // 第97回 F: かかって いる 音の 橋の 数（イベントの 曲の 時も 使う）
+    const bridgePhase = bridgeStageOf(game);
     let area = '';
     try { area = f.areaName(); } catch { /* */ }
     let weather = null;
@@ -521,6 +540,7 @@ export class SceneAudio {
       waterPhase,
       alertPhase,
       alertIntensity: alertIntensity(alertPhase),
+      bridgeIntensity: bridgeIntensity(bridgePhase),
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };

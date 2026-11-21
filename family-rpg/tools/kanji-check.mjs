@@ -654,6 +654,8 @@ export function gameFiles() {
     'public/js/shared/data/c10c-names-b.js', 'public/js/shared/data/monsters-c10c.js', 'public/js/shared/data/abilities-c10c.js',
     'public/js/shared/data/encounters-c10c.js', 'public/js/shared/data/companions-c10c.js', 'public/js/shared/data/items-c10c.js', 'public/js/shared/data/boss-hints-c10c.js',
     'public/js/shared/battle-c10c.js', 'public/js/client/battle-c10c.js', 'public/js/client/render/c10c-art.js', 'public/js/client/render/c10c-bg.js', 'public/js/client/render/battlefx-c10c.js',
+    // 第97回 F班: 第3部 第2章 第3幕の 曲
+    'public/js/client/audio-c10c.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
