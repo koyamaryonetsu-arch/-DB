@@ -242,7 +242,9 @@ export const FORT3_POS = {
 // ───── 今の マップに 足す 物（フラグで 出る 物だけ）─────
 // クモイ地方（kumoi）: 影の城（40,37）の 北東の 空に 光の うず（c10c_start から）。影の城の前の小島の 北の はし（43,37）から しらべる
 export const KUMOI_VORTEX10C = { map: 'kumoi', x: 43, y: 36 };
-export const KUMOI_LAND10C = { x: 43, y: 37 }; // 空から もどった 時に 着く 所
+export const KUMOI_LAND10C = { x: 43, y: 37 }; // 光の うずを しらべる 所（影の城の前の小島。c5_castle の あと）
+// 空から もどった 時に 着く 所（影の城の 東の 島。どの すすみぐあいでも 立てる 所 … test/stuck.test.js）
+export const KUMOI_BACK10C = { x: 48, y: 37 };
 // 大地の下（c9b_under）の 東の はし: 3人組が あけた うら口（c10c_trio から）
 export const UNDER_BACKDOOR10C = { map: 'c9b_under', x: 76, y: 38 };
 export const UNDER_LAND10C = { x: 75, y: 38 }; // とりでから 出た 時に 着く 所

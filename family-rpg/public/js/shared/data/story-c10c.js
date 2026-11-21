@@ -18,7 +18,7 @@ import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js';
 import { C9D_TRACKS } from '../maps/c9d-flags.js';
 import {
   ISLES1_POS, ISLES1_SPANS, ISLES2_POS, ISLES2_SPANS, ISLES3_POS, FORT1_POS, FORT2_POS, FORT3_POS,
-  KUMOI_VORTEX10C, KUMOI_LAND10C, UNDER_BACKDOOR10C, UNDER_LAND10C, PED_SI10C,
+  KUMOI_VORTEX10C, KUMOI_BACK10C, UNDER_BACKDOOR10C, UNDER_LAND10C, PED_SI10C,
 } from '../maps/c10c-rows.js';
 import { PEDESTALS9C } from '../maps/c9c.js';
 import { spanStones10c, stoneScript10c } from '../maps/c10c.js';
@@ -132,7 +132,7 @@ function vortexSteps(x) {
   ];
 }
 function vortexBackSteps() {
-  const L = KUMOI_LAND10C;
+  const L = KUMOI_BACK10C;
   return [['choice', '光のうずだ。アステルに乗って、クモイ地方へもどる？', ['もどる', 'やめる'], [
     [['sfx', 'wind'], ['fade', 'out'], ['teleport', KUMOI_VORTEX10C.map, L.x + 0.5, L.y + 0.5, 'down'], ['fade', 'in'], ...N('アステルにのって、クモイ地方へもどった。\n（光のうずを、しらべると、また来られる）')],
     [],
@@ -252,7 +252,7 @@ const orbSteps = (x) => {
   if (x.flag(C10C.colonel)) return stolenScene();
   return N('むらさきの光の玉だ。\nそばに、だれかが、立っている…。');
 };
-const toCrater = () => [['fade', 'out'], ['teleport', 'c9a_crater', 12.5, 9.5, 'up'], ['fade', 'in']];
+const toCrater = () => [['fade', 'out'], ['teleport', 'c9a_crater', 12.5, 10.5, 'up'], ['fade', 'in']];
 
 // ───── S5 くぼ地の 3人組（うら口を 教えて くれる）─────
 function trioScene() {
