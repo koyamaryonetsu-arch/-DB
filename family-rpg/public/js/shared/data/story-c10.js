@@ -16,6 +16,11 @@ import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TA
 //   くぼ地で 星の音さを 鳴らしても 幕は 始まらない / true … 目標が「ながれ星のくぼ地で、星の音さを鳴らそう」に かわる）
 export const PART3_C10A_OPEN = true;
 
+// ───── 第2幕「青と白」を 開ける 切りかえ（14-4・14-5。第95回 A班）─────
+// ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第1幕 クリアの 目標は 今の 文・
+//   くぼ地で 星の音さを 鳴らしても 第2幕は 始まらない）
+export const PART3_C10B_OPEN = false;
+
 // ───── 第3部 第2章の 一本の 線（STORY_STEPS の c9_act4 の うしろ）─────
 // 赤・緑の フラグは 線に 入れない（すきな じゅん。maps/c10a-flags.js）
 export const CH10_STEPS = [...C10A_LINE];
