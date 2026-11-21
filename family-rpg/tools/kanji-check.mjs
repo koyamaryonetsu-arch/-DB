@@ -628,6 +628,9 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c9d.js', 'public/js/shared/data/abilities-c9d.js',
     'public/js/shared/data/encounters-c9d.js', 'public/js/shared/data/companions-c9d.js', 'public/js/shared/data/items-c9d.js', 'public/js/shared/data/boss-hints-c9d.js',
     'public/js/shared/battle-c9d.js', 'public/js/client/battle-c9d.js', 'public/js/client/render/c9d-art.js', 'public/js/client/render/c9d-bg.js', 'public/js/client/render/battlefx-c9d.js',
+    // 第94回 D班: お仕事いらい 42・43・より道「ながされた、おもちゃのいかだ」「ムウとムウムウの、あそび道具」
+    'public/js/shared/data/sidequests-work10.js', 'public/js/shared/maps/work-quests10.js', 'public/js/client/render/work10-art.js',
+    'public/js/shared/data/sidequests-c9cd.js', 'public/js/shared/maps/c9cd-side.js',
     // 第94回 F班: 第3部 第2章 第1幕の 曲
     'public/js/client/audio-c10a.js',
   ];

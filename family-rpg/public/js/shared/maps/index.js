@@ -10,6 +10,8 @@ import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_D
 import { addNightNpcs } from './night-npcs.js';
 // 第92回 D班: 第3部 第1章 第2幕の あとの より道と お仕事いらい 39〜41（大地の下に 人を 足す。maps/c9bd-side.js・maps/work-quests9.js）
 import { attachC9bdSide } from './c9bd-side.js';
+// 第94回 D班: 第3部 第1章 第3幕・第4幕の あとの より道と お仕事いらい 42・43（大地の下・地下の川・くぼ地に 人を 足す。maps/c9cd-side.js・maps/work-quests10.js）
+import { attachC9cdSide } from './c9cd-side.js';
 import { attachCasino } from './casino.js';
 import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js';
 import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js';
@@ -357,6 +359,8 @@ function buildMaps() {
   addNightNpcs(maps);
   // 第92回 D班: 第2幕の あとの より道と お仕事いらい 39〜41（大地の下が できた あと。maps/c9bd-side.js）
   attachC9bdSide(maps);
+  // 第94回 D班: 第3幕・第4幕の あとの より道と お仕事いらい 42・43（地下の川・くぼ地が できた あと。maps/c9cd-side.js）
+  attachC9cdSide(maps);
   for (const m of Object.values(maps)) finishMap(m);
   return maps;
 }

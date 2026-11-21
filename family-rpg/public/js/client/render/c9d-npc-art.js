@@ -1,13 +1,15 @@
 // 第3部 第1章 第4幕「星のはかば」の とくべつな え（render/c9a-npc-art.js が まぜる）
 // ※ ネタバレ注意（docs/plan-part3-c9d.md の 12）
 // ・c9d_mu … あそびたい魔人（丸くて うす紫・ねむそうな 目・星の ついた ナイトキャップ。フィールドの 絵。戦いの 絵は B班）
-// ・c9d_mu_sit・c9d_mumu_sit … 勝った あと すわりこむ 2人（ムウムウは 少し 小さく 色が うすい）
+// ・c9d_mu_sit・c9d_mumu_sit … 勝った あと すわりこむ 2人（ムウムウは 少し 小さく、戦いの 絵〈render/c9d-art.js の MM〉と 同じ ミント色・
+//   こい みどり青の ぼうしに 三日月。第94回 D班で うす紫から なおした）
 // ・c9d_candy … おかしに された 星（場面の 役者）
 // もとの 作品の 絵は 使わない
 import { Painter } from './pixel.js';
 
-const MU = { d: '#6a4a9a', b: '#a888d8', l: '#c8b0f0', hl: '#eee0ff' };
-const MUMU = { d: '#8a6ab0', b: '#c0a8e8', l: '#dccaf6', hl: '#f8f0ff' };
+const MU = { d: '#6a4a9a', b: '#a888d8', l: '#c8b0f0', hl: '#eee0ff', cap: '#4a5ac8', capD: '#3a4aa8' };
+// ムウムウ: 戦いの 絵（render/c9d-art.js の MM）の 体 #b4ecd8・#78c8ac・#e4fff4・#4a9a80 と ぼうし #2a9a8a・#1a6a60 に 合わせる
+const MUMU = { d: '#4a9a80', b: '#78c8ac', l: '#b4ecd8', hl: '#e4fff4', cap: '#2a9a8a', capD: '#1a6a60', moon: true };
 
 function paintMu(dir, f, sit, C, small) {
   const p = new Painter(16, 18);
@@ -19,9 +21,11 @@ function paintMu(dir, f, sit, C, small) {
   p.ellipse(7, 9 + oy, rx - 2, ry - 2.4, C.l);
   p.set(5, 8 + oy, C.hl);
   // ナイトキャップ（青い ぼうし・先に 星）
-  p.ellipse(8, 6 + oy, 4.5, 1.6, '#3a4aa8');
-  for (let y = 0; y < 5; y++) p.hline(6 + Math.floor(y / 2), 10, 1 + y + oy, '#4a5ac8');
-  p.set(12, 1 + oy, '#fff4a0'); p.set(13, 1 + oy, '#ffe060'); p.set(12, 0 + oy, '#ffe060'); p.set(12, 2 + oy, '#ffe060'); p.set(11, 1 + oy, '#ffe060');
+  p.ellipse(8, 6 + oy, 4.5, 1.6, C.capD);
+  for (let y = 0; y < 5; y++) p.hline(6 + Math.floor(y / 2), 10, 1 + y + oy, C.cap);
+  // さきの しるし（ムウ … 星・ムウムウ … 三日月。戦いの 絵と 同じ）
+  if (C.moon) { p.set(12, 0 + oy, '#fff4a0'); p.set(11, 1 + oy, '#fff4a0'); p.set(11, 2 + oy, '#e0c050'); p.set(12, 3 + oy, '#e0c050'); }
+  else { p.set(12, 1 + oy, '#fff4a0'); p.set(13, 1 + oy, '#ffe060'); p.set(12, 0 + oy, '#ffe060'); p.set(12, 2 + oy, '#ffe060'); p.set(11, 1 + oy, '#ffe060'); }
   // ねむそうな 目
   if (dir !== 'up') {
     const ex = dir === 'left' ? -1 : dir === 'right' ? 1 : 0;
