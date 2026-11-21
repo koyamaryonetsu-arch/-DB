@@ -386,7 +386,7 @@ test('自動の 仲間: 酒場の 人は 見えて いる 皿を 3回に 1回 �
 });
 
 // ───────────── 強さ ─────────────
-test('強さ: 知って いる 人は 勝てる・完全オートは 勝てない（大王。少しの 回数）', { timeout: 900000 }, () => {
+test('強さ: 知って いる 人は 勝てる（えらぶのに 5びょう でも）・完全オートは 勝てない（大王。少しの 回数）', { timeout: 1500000 }, () => {
   const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run('king', LV9.king, 'know', 9090 + s * 7919));
   assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
   const auto = [1, 2, 3, 4].map((s) => ch9Run('king', LV9.king, 'auto', 9090 + s * 7919));
@@ -395,6 +395,9 @@ test('強さ: 知って いる 人は 勝てる・完全オートは 勝てな�
   const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
   assert.ok(sec >= 220 && sec <= 420, `長さ ${sec}秒`);
   assert.ok(know.some((r) => r.teru > 0), 'まっ暗で てらす');
+  // 第92回 第3便: 前ぶれ（皿を 見る・大ジャンプ）の 間は えらぶ 人を 待つ ので、えらぶのに 5びょう かかる 人も 勝てる
+  const slow = [1, 2, 3, 4].map((s) => ch9Run('king', LV9.king, 'know', 9090 + s * 7919, { react: 5000 }));
+  assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `5びょう ${slow.map((r) => r.outcome).join(',')}`);
   for (const [job, kit] of Object.entries(CH9_KIT.king)) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
 });
 

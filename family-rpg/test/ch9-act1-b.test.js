@@ -471,7 +471,7 @@ test('オート: 完全オートは 防御も 明かりを わけるも えら�
 });
 
 // ───────────── 強さ ─────────────
-test('強さ: 知って いる 人は 勝てる・完全オートは 勝てない（3人組・ためし。少しの 回数）', { timeout: 600000 }, () => {
+test('強さ: 知って いる 人は 勝てる（えらぶのに 5びょう でも）・完全オートは 勝てない（3人組・ためし。少しの 回数）', { timeout: 1200000 }, () => {
   for (const boss of ['trio', 'trial']) {
     const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919));
     assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
@@ -481,6 +481,9 @@ test('強さ: 知って いる 人は 勝てる・完全オートは 勝てな�
     const wins = know.filter((r) => r.outcome === 'win');
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
     assert.ok(sec >= 200 && sec <= 420, `${boss}: 長さ ${sec}秒`);
+    // 第92回 第3便: 前ぶれの 間は えらぶ 人を 待つ（battle-tell.js）ので、えらぶのに 5びょう かかる 人も 勝てる
+    const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { react: 5000 }));
+    assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `${boss}: 5びょう ${slow.map((r) => r.outcome).join(',')}`);
   }
   // その ころの ★装備は だれでも つけられる
   for (const boss of ['trio', 'trial']) for (const [job, kit] of Object.entries(CH9_KIT[boss])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
