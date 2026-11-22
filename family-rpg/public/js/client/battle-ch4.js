@@ -57,14 +57,16 @@ import { C10B_SCREEN_ANIMS, C10B_ALLY_FX } from './battle-c10b.js';
 import { C10C_SCREEN_ANIMS, C10C_ALLY_FX } from './battle-c10c.js';
 // 第3部 第2章 第4幕 の 門の 番人・ミラーレ（battle-c10d.js）
 import { C10D_SCREEN_ANIMS, C10D_ALLY_FX } from './battle-c10d.js';
+// 第3部 第3章 第1幕 の 星座のけもの・いかり船長（battle-c11a.js）
+import { C11A_SCREEN_ANIMS, C11A_ALLY_FX } from './battle-c11a.js';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS, ...CH6_SCREEN_ANIMS, ...ROAD_SCREEN_ANIMS, ...TOKEI_SCREEN_ANIMS, ...TOKEI6_SCREEN_ANIMS, ...C7_SCREEN_ANIMS, ...C7S_SCREEN_ANIMS, ...C7I_SCREEN_ANIMS, ...C8A_SCREEN_ANIMS, ...C8B_SCREEN_ANIMS, ...C8C_SCREEN_ANIMS, ...C8R_SCREEN_ANIMS, ...C9A_SCREEN_ANIMS, ...C9B_SCREEN_ANIMS, ...C9C_SCREEN_ANIMS, ...C9D_SCREEN_ANIMS, ...C10A_SCREEN_ANIMS, ...C10B_SCREEN_ANIMS, ...C10C_SCREEN_ANIMS, ...C10D_SCREEN_ANIMS]);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS, ...CH6_SCREEN_ANIMS, ...ROAD_SCREEN_ANIMS, ...TOKEI_SCREEN_ANIMS, ...TOKEI6_SCREEN_ANIMS, ...C7_SCREEN_ANIMS, ...C7S_SCREEN_ANIMS, ...C7I_SCREEN_ANIMS, ...C8A_SCREEN_ANIMS, ...C8B_SCREEN_ANIMS, ...C8C_SCREEN_ANIMS, ...C8R_SCREEN_ANIMS, ...C9A_SCREEN_ANIMS, ...C9B_SCREEN_ANIMS, ...C9C_SCREEN_ANIMS, ...C9D_SCREEN_ANIMS, ...C10A_SCREEN_ANIMS, ...C10B_SCREEN_ANIMS, ...C10C_SCREEN_ANIMS, ...C10D_SCREEN_ANIMS, ...C11A_SCREEN_ANIMS]);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX, ...C8C_ALLY_FX, ...C8R_ALLY_FX, ...C9A_ALLY_FX, ...C9B_ALLY_FX, ...C9C_ALLY_FX, ...C9D_ALLY_FX, ...C10A_ALLY_FX, ...C10B_ALLY_FX, ...C10C_ALLY_FX, ...C10D_ALLY_FX };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX, ...CH6_ALLY_FX, ...ROAD_ALLY_FX, ...TOKEI_ALLY_FX, ...TOKEI6_ALLY_FX, ...C7_ALLY_FX, ...C7S_ALLY_FX, ...C7I_ALLY_FX, ...C8A_ALLY_FX, ...C8B_ALLY_FX, ...C8C_ALLY_FX, ...C8R_ALLY_FX, ...C9A_ALLY_FX, ...C9B_ALLY_FX, ...C9C_ALLY_FX, ...C9D_ALLY_FX, ...C10A_ALLY_FX, ...C10B_ALLY_FX, ...C10C_ALLY_FX, ...C10D_ALLY_FX, ...C11A_ALLY_FX };
 
 // 第88回: 作品の 品の「使う」の せつめい（ch4ItemEntries が 入れて、ch4ItemInfo が 出す）
 const USE_INFO = new Map();

@@ -15,6 +15,8 @@ import { addSpica } from '../public/js/shared/battle-c9a.js';
 import { ch9Allies, ch9Party } from './sim-ch9.mjs';
 // 第94回: 第2章の ★装備（CH9_KIT.tamagon・mold）を 入れる
 import './sim-ch10.mjs';
+// 第101回 B班: 第3部 第3章 第1幕の ★装備（CH9_KIT.beast）
+import './sim-ch11.mjs';
 import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
 import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
 
@@ -31,11 +33,13 @@ export const FIELD_TABLES = {
   c10b: ['t10b_blue_wet', 't10b_blue_dry'],
   // 第97回 B班: 第3部 第2章 第3幕 空の 小島（勇者 Lv113・CH9_KIT.colonel）・少年の とりで（勇者 Lv115・CH9_KIT.algol）
   c10c: ['t10c_isles', 't10c_fort'],
+  // 第101回 B班: 第3部 第3章 第1幕 星の海（勇者 Lv118）・星座の 島（Lv119〜120）。CH9_KIT.beast。めやす（17-4）… 超級職 4人で 30〜50秒（SUPER=1）
+  c11a: ['t11a_sea', 't11a_isle1', 't11a_isle2', 't11a_isle3'],
 };
 // 決まった 戦い（見はりに 見つかった 時。白の 道。勇者 Lv111・CH9_KIT.owl。めやす 120秒 いない）。node tools/sim-ch9-field.mjs 20 c10b_watch1,…
 export const FIELD_FIXED = { c10b_watch1: ['owl', 111], c10b_watch2: ['owl', 111], c10b_watch3: ['owl', 111] };
 // 表ごとの 勇者の ★装備と レベル（ない 表は 第2幕の ころ … king・Lv100）
-export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107], t10b_blue_wet: ['gecko', 109], t10b_blue_dry: ['gecko', 109], t10c_isles: ['colonel', 113], t10c_fort: ['algol', 115] };
+export const FIELD_HERO = { t9d_lane: ['mu', 102], t9d_lane2: ['mu', 102], t10r_1: ['tamagon', 105], t10r_2: ['tamagon', 105], t10g_1: ['mold', 107], t10g_2: ['mold', 107], t10b_blue_wet: ['gecko', 109], t10b_blue_dry: ['gecko', 109], t10c_isles: ['colonel', 113], t10c_fort: ['algol', 115], t11a_sea: ['beast', 118], t11a_isle1: ['beast', 119], t11a_isle2: ['beast', 119], t11a_isle3: ['beast', 120] };
 export const FIELD_SKIP = new Set(['c9a_yamimushi', 'c9b_mimizu', 'c9b_mole_spear', 'c9b_mole_pot', 'c9d_kage']);
 
 function roll(rng, table) {
