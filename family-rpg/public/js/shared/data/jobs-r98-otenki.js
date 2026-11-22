@@ -11,7 +11,7 @@ export const KIZUNA_OTENKI = {
   job: {
     id: 'otenki_shihan', name: 'おてんき格闘流の師はん', kana: 'おてんきかくとうりゅうのしはん', short: 'おてんき', tier: 4, req: ['hiryu_master', 'tenkou_tsukai'], family: 'phys', color: '#2a8ad8',
     desc: '天気をあやつる格闘流の師はん。雨をよぶと自分で水のすがたに、晴れをよぶとお湯のすがたにもどる。雨の中では、水のこぶしがもっと強くなる。飛竜しょう天はの達人と天候をあやつる者をきわめ、素手の技と、雨と晴れの技をたくさん使った者だけがなれる。',
-    mods: { hp: 1.8, mp: 2.0, str: 1.85, def: 1.4, agi: 1.8, mag: 1.0, heal: 1.2 },
+    mods: { hp: 1.8, mp: 2.0, str: 1.8, def: 1.45, agi: 1.8, mag: 1.0, heal: 1.2 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 1.5, mp: 0.5 },
     // formPct … 水と お湯の すがたの 効き目（battle-r84b.js の formPct が 見る。伝説と おなじ 25%。幻だからと 上げない）
