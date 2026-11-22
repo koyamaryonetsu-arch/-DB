@@ -13,18 +13,20 @@
 //   trialAdj  … 職業の試練の まぼろしの 強さ（battle-trial.js の PHANTOM_ADJ）
 //   work      … まぼろしの回ろうで 数える 作品（新しい 系統の 方。rivals-r88.js の とびら）
 // この 職業だけの 新しい 戦いの しくみは 作らない（親の しくみ: 火竜をよぶ〈r85bRyu〉・予兆保全〈passive.foresee〉・補助・回復）
-import { RYU_SET } from './abilities-r85b.js?v=f50199a8ea3a';
+import { RYU_SET } from './abilities-r85b.js?v=92b65651df0b';
 
 const STATUS_ALL = ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'];
 
-// 火竜をよぶ・冷暖 で よべる 4ひき（なだれ〈攻め〉・ほむら〈しばる〉・まどか〈けっかい〉・れっしん〈生き返り〉。烈火と おなじ メニュー）
-RYU_SET.kuuchou = ['nadare', 'homura', 'madoka', 'resshin'];
+// 火竜をよぶ・冷暖 で よべる 5ひき（なだれ〈攻め〉・ほむら〈しばる〉・まどか〈けっかい〉・こくう〈青白い 光線〉・れっしん〈生き返り〉。烈火と おなじ メニュー）
+//   第98回 K3班: こくう（7の竜。青白い 光線 ＝ 冷ぼうの 色）を 足した。合体技の 組（炎・剣・こぶし）に 入れない ぶん、ボスへの 一げきを 親の 烈火と おなじ 火竜で（docs の 10）
+RYU_SET.kuuchou = ['nadare', 'homura', 'madoka', 'kokuu', 'resshin'];
 
 export const KIZUNA_KUUCHOU = {
   job: {
     id: 'kuuchou_master', name: '熱と風の空調マスター', kana: 'ねつとかぜのくうちょうますたー', short: '空調', tier: 4, req: ['rekka', 'facility_genius'], family: 'tech', color: '#e8603a',
     desc: '火竜であたため、冷ぼうでひやし、かん気で悪いものをふきとばす。戦いの温度をあやつる、空調のプロ。八竜の炎術士・烈火と天才しせつ管理者をきわめ、火竜と補助の技をたくさん使った者だけがなれる。',
-    mods: { hp: 1.7, mp: 1.85, str: 1.85, def: 1.5, agi: 1.45, mag: 1.7, heal: 1.4 },
+    // 第98回 K3班: MP 1.85 → 2.1・回復 1.4 → 1.15（合計は 11.45 の まま。ボスで MP が 切れて コーヒーブレイクが 多かった）
+    mods: { hp: 1.7, mp: 2.1, str: 1.85, def: 1.5, agi: 1.45, mag: 1.7, heal: 1.15 },
     weapons: ['axe', 'dagger', 'staff', 'claw', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { hp: 1.5, str: 0.5, mag: 1, heal: 0.5 },
     // foresee … 天才しせつ管理者と おなじ 予兆保全（敵の 大技の ダメージを へらす。battle.js の foreseeCut）
@@ -44,7 +46,7 @@ export const KIZUNA_KUUCHOU = {
     km_ryu: {
       name: '火竜をよぶ・冷暖', kana: 'かりゅうをよぶれいだん', kind: 'skill', job: 'kuuchou_master', mp: 7, target: 'self', role: 'dmg',
       effect: { type: 'r85bRyu', set: 'kuuchou', pow: 1.15 },
-      desc: '火竜を1ぴきよび出す。なだれ・ほむら・まどか・れっしんの4ひきから、自分で選ぶ。火竜ごとに、やくめとMPがちがう。', cast: '{a}の右うでで、竜の印が赤くかがやいた…！', anim: 'r85b_call',
+      desc: '火竜を1ぴきよび出す。なだれ・ほむら・まどか・こくう・れっしんの5ひきから、自分で選ぶ。火竜ごとに、やくめとMPがちがう。', cast: '{a}の右うでで、竜の印が赤くかがやいた…！', anim: 'r85b_call',
     },
     km_kiba: {
       name: '火竜の熱風きば', kana: 'かりゅうのねっぷうきば', kind: 'skill', job: 'kuuchou_master', mp: 10, target: 'enemy',
@@ -106,7 +108,9 @@ export const KIZUNA_KUUCHOU = {
     },
     conds: { hi_ondosa: { from: { km_kiba: 10, km_reibou: 6 } } },
   },
-  tags: ['ice', 'machine', 'work', 'heal'], // 冷ぼう・空調の 機械・お仕事・かん気の 回復（炎の 組は 職業 20 まで〈test/jobs-r27 の 日輪〉なので つけない）
+  // 冷ぼう・空調の 機械・お仕事・建物を 守る（予兆保全）。炎の 組は 職業 20 まで〈test/jobs-r27 の 日輪〉なので つけない
+  //   第98回 K3班: いやし（heal）→ 守り（guard）。いやしの 組の 合体技（光のシャワー など）より、自分の 火竜・きばの 方が ボスに きく（docs の 10）
+  tags: ['ice', 'machine', 'work', 'guard'],
   say: '「温度も風も、まかせてください！」',
   trial: '熱も風も、人のためにあやつるものだ。',
   vehicle: { id: 'netsukikyu', v: { name: '火竜の熱気球', price: 27000, jobs: ['kuuchou_master'], phantom: true, desc: '小さな火竜が、ふくろの中に熱い風をおくる熱気球。空のうえは、いつもちょうどよい温度。' } },

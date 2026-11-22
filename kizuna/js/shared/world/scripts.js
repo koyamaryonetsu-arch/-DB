@@ -1,27 +1,27 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=f50199a8ea3a';
-import { ITEMS } from '../data/items.js?v=f50199a8ea3a';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=f50199a8ea3a';
-import { startFixedBattle } from './battles.js?v=f50199a8ea3a';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=f50199a8ea3a';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=f50199a8ea3a';
-import { sayFarewell } from './farewell.js?v=f50199a8ea3a';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=92b65651df0b';
+import { ITEMS } from '../data/items.js?v=92b65651df0b';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=92b65651df0b';
+import { startFixedBattle } from './battles.js?v=92b65651df0b';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=92b65651df0b';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=92b65651df0b';
+import { sayFarewell } from './farewell.js?v=92b65651df0b';
 // 第43回 C: 仲間が いっぱいの 時の えらぶ文・配合して あける・あずかり所へ 送る（world/farewell.js・world/storage.js）
-import { befriendFullSteps, rosterIsFull } from './farewell.js?v=f50199a8ea3a';
-import { depositMonster, storeText } from './storage.js?v=f50199a8ea3a';
-import { tavernInfo, ensureStorage } from './party.js?v=f50199a8ea3a';
-import { MONSTERS } from '../data/monsters.js?v=f50199a8ea3a';
-import { shareBefriend } from './recruit-share.js?v=f50199a8ea3a';
-import { openService } from './services.js?v=f50199a8ea3a';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=f50199a8ea3a';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=f50199a8ea3a';
-import { GUESTS } from '../data/shops.js?v=f50199a8ea3a';
-import { unstickAll } from './hazards.js?v=f50199a8ea3a';
-import { MAPS, isBlocked } from '../maps/index.js?v=f50199a8ea3a';
+import { befriendFullSteps, rosterIsFull } from './farewell.js?v=92b65651df0b';
+import { depositMonster, storeText } from './storage.js?v=92b65651df0b';
+import { tavernInfo, ensureStorage } from './party.js?v=92b65651df0b';
+import { MONSTERS } from '../data/monsters.js?v=92b65651df0b';
+import { shareBefriend } from './recruit-share.js?v=92b65651df0b';
+import { openService } from './services.js?v=92b65651df0b';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=92b65651df0b';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=92b65651df0b';
+import { GUESTS } from '../data/shops.js?v=92b65651df0b';
+import { unstickAll } from './hazards.js?v=92b65651df0b';
+import { MAPS, isBlocked } from '../maps/index.js?v=92b65651df0b';
 // 第44回（ポケモン P1）: 魔物の 進化（world/evolve.js）
-import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js?v=f50199a8ea3a';
+import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js?v=92b65651df0b';
 // 第89回: 宝の地図を えらんで いる 人（だいほんが 終わっても えらび おわるまで「えらんで いる」。world/tm-ask.js）
-import { tmHold } from './tm-ask.js?v=f50199a8ea3a';
+import { tmHold } from './tm-ask.js?v=92b65651df0b';
 
 let runSeq = 1;
 

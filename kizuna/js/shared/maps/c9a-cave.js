@@ -4,12 +4,12 @@
 // ・地下1階の 上り 階段 … ホシフル村の 守り星の石の 南（maps/c9a-field.js の STAIRS9A）。階段は どれも 行き先の 階段の 真上に 着く（第71回）
 // ・とびら（d）… その 階の 水しょうが 全部 光ると 開く（フラグ c9_b1〜c9_b3。一度 開くと 開いた まま）
 // ・地下4階 … 井戸の ひも（W。c9_rope の あと 村の 井戸へ）・回復の いずみ（F）・ためしの とびら（T。c9_trial で 開く）・星の音さの 台（P）
-import { T } from '../tiles.js?v=f50199a8ea3a';
-import { parseRows16 } from './past.js?v=f50199a8ea3a';
-import { lightInfo } from './c9a-light.js?v=f50199a8ea3a';
-import { CAVE_ROWS, B4_TRIAL } from './c9a-rows.js?v=f50199a8ea3a';
-import { c9aChest } from '../data/items-c9a.js?v=f50199a8ea3a';
-import { C9A, C9A_MAP, c9aCaveId, C9A_CAVE_FLOORS, C9A_SECRETS, C9A_ROPE, c9aSeen, C9A_TABLE, C9A_CHEST_IDS, C9A_TRACKS } from './c9a-flags.js?v=f50199a8ea3a';
+import { T } from '../tiles.js?v=92b65651df0b';
+import { parseRows16 } from './past.js?v=92b65651df0b';
+import { lightInfo } from './c9a-light.js?v=92b65651df0b';
+import { CAVE_ROWS, B4_TRIAL } from './c9a-rows.js?v=92b65651df0b';
+import { c9aChest } from '../data/items-c9a.js?v=92b65651df0b';
+import { C9A, C9A_MAP, c9aCaveId, C9A_CAVE_FLOORS, C9A_SECRETS, C9A_ROPE, c9aSeen, C9A_TABLE, C9A_CHEST_IDS, C9A_TRACKS } from './c9a-flags.js?v=92b65651df0b';
 
 // 村の 井戸の となり（地下4階の ひもから 出る 所）・守り星の石の 南の 階段（maps/c9a-field.js と おなじ）
 export const WELL9A = { x: 26, y: 106 };

@@ -79,11 +79,11 @@ export const VEHICLES = {
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=f50199a8ea3a'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=92b65651df0b'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 // 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
-import { PRIZE_VEHICLES } from './vehicles-prize.js?v=f50199a8ea3a'; Object.assign(VEHICLES, PRIZE_VEHICLES);
+import { PRIZE_VEHICLES } from './vehicles-prize.js?v=92b65651df0b'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 // 第2部 第6章 Step 6: 千年前でも 乗れる ぜんまい馬（data/vehicles-tokei.js。past: true）
-import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=f50199a8ea3a'; Object.assign(VEHICLES, TOKEI_VEHICLES);
+import { TOKEI_VEHICLES } from './vehicles-tokei.js?v=92b65651df0b'; Object.assign(VEHICLES, TOKEI_VEHICLES);
 // 第66回 B班: 伝説の職業も もとの 職業の 乗り物に（オープンカー・スワンボート・屋台）
 VEHICLES.open_car.jobs.push('new_kawaii', 'smap'); VEHICLES.swan_boat.jobs.push('oogosho'); VEHICLES.food_cart.jobs.push('five_star_chef');
 // 第66回 A: 伝説の職業（jobs-legend-r66a.js）も もとの 超級職の 乗り物に 乗れる
@@ -105,7 +105,7 @@ VEHICLES.psy_float.jobs.push('psychicer', 'saiki');
 // 第82回 B班: YAIBA の 系統の 乗り物（大きな トラ。絵は client/render/vehicle-r82b.js）
 VEHICLES.big_tiger = { name: '大きなトラ', price: 4200, jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai'], desc: 'しまもようの大きなトラ。せなかに乗せて、山道もぐんぐん走る。' };
 // 第79回: 幻の職業の 乗り物（data/vehicles-phantom.js。その 幻の職業に なった 人の たなに だけ。20000〜30000G）
-import { PHANTOM_VEHICLES } from './vehicles-phantom.js?v=f50199a8ea3a'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
+import { PHANTOM_VEHICLES } from './vehicles-phantom.js?v=92b65651df0b'; Object.assign(VEHICLES, PHANTOM_VEHICLES);
 // 第82回 A: 犬夜叉の 系統の 乗り物（しっぽが 2本の 大きな ねこ。足もとに ほのお。絵は client/render/vehicle-r82a.js）
 VEHICLES.twin_cat = { name: '二またの大ねこ', price: 5200, jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'], desc: 'しっぽが2本ある、大きなねこ。足もとのほのおで、空もかける。' };
 // 第83回 B班: ぬ〜べ〜の 系統の 乗り物（古い 先生の 自転車。絵は client/render/vehicle-r83b.js）
@@ -124,17 +124,22 @@ VEHICLES.feast_cart = { name: 'ごちそうの荷車', price: 4400, jobs: ['tabi
 VEHICLES.tenka_ring = { name: '武術会のリング', price: 26000, jobs: ['tenkaichi_king'], phantom: true, desc: '4人の力もちがかつぐ、武術会のリング。4すみのはたが、風でゆれる。' };
 VEHICLES.hippo_stage = { name: '空飛ぶカバの軍師台', price: 27000, jobs: ['chaos_gunshi'], phantom: true, desc: '空飛ぶカバがせおう、軍師の台。白と黒のはたと、作戦の地図がのっている。' };
 // 第86回 A班: 幻の職業 2つの 乗り物（大きな白い犬・雷と炎の二ひきの竜。その 幻の職業に なった 人の たなに だけ。絵は client/render/vehicle-r86a.js）
-import { R86A_VEHICLES } from './jobs-r86a.js?v=f50199a8ea3a'; Object.assign(VEHICLES, R86A_VEHICLES);
+import { R86A_VEHICLES } from './jobs-r86a.js?v=92b65651df0b'; Object.assign(VEHICLES, R86A_VEHICLES);
 //   もとの 2つの 職業の 乗り物にも 乗れる（ほかの 幻の職業と おなじ。二またの大ねこ・先生の自転車／大きなトラ・火竜）
 VEHICLES.twin_cat.jobs.push('yokai_bridge');
 VEHICLES.teacher_bike.jobs.push('yokai_bridge');
 VEHICLES.big_tiger.jobs.push('ryujin_kenshi');
 VEHICLES.fire_dragon.jobs.push('ryujin_kenshi');
 // 第98回: きずなの職業の 幻の 乗り物（data/jobs-r98-*.js の vehicle。絵は client/render/kizuna-*.js）と、もとの 2つの 職業の 乗り物
-import { KIZUNA_VEHICLES } from './kizuna.js?v=f50199a8ea3a'; Object.assign(VEHICLES, KIZUNA_VEHICLES);
+import { KIZUNA_VEHICLES } from './kizuna.js?v=92b65651df0b'; Object.assign(VEHICLES, KIZUNA_VEHICLES);
 VEHICLES.fire_dragon.jobs.push('kuuchou_master', 'hachiryu_hokage');
 VEHICLES.kei_truck.jobs.push('kuuchou_master');
 VEHICLES.ninja_dash.jobs.push('hachiryu_hokage');
+VEHICLES.twin_cat.jobs.push('hyakki_taishou'); VEHICLES.lotus.jobs.push('hyakki_taishou'); // 第98回 K2班: 百きの大将
+VEHICLES.big_tiger.jobs.push('tenka_kengou'); VEHICLES.sakura_dash.jobs.push('tenka_kengou'); // 第98回 K2班: 天下無そうの剣ごう
+VEHICLES.limo.jobs.push('kuni_saishou'); // 第98回 K3班（空飛ぶカバは 大軍師の 系統だけ〈test/jobs-r83a〉。混とんの大軍師と おなじ）
+VEHICLES.teacher_bike.jobs.push('pta_kaichou'); VEHICLES.mamachari.jobs.push('pta_kaichou'); // 第98回 K3班
+VEHICLES.rei_bird.jobs.push('motoyan_keiji'); VEHICLES.police_bike.jobs.push('motoyan_keiji'); VEHICLES.spy_car.jobs.push('motoyan_keiji'); VEHICLES.panda.jobs.push('otenki_shihan'); VEHICLES.cloud.jobs.push('otenki_shihan'); VEHICLES.feast_cart.jobs.push('touka_madoushi'); VEHICLES.rock_cart.jobs.push('touka_madoushi'); // 第98回 K4班
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

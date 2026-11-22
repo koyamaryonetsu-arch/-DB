@@ -1,12 +1,12 @@
 // 宝の地図（メニューの「道具」に ならぶ・地図の 絵・ほる・見つけた 穴）
-import { el, ListMenu, confirmBox, esc, toast } from './dom.js?v=f50199a8ea3a';
-import { MAPS, tileAt } from '../../shared/maps/index.js?v=f50199a8ea3a';
-import { T } from '../../shared/tiles.js?v=f50199a8ea3a';
-import { hash2 } from '../../shared/rng.js?v=f50199a8ea3a';
-import { caveInfo, tmTitle, foundFlag, TM_THEMES, TM_MAX } from '../../shared/data/treasure.js?v=f50199a8ea3a';
-import { treasureHintLines, fromHereLine, tmPlaceShort } from '../../shared/data/treasure-hint.js?v=f50199a8ea3a';
-import { MONSTERS } from '../../shared/data/monsters.js?v=f50199a8ea3a';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=f50199a8ea3a';
+import { el, ListMenu, confirmBox, esc, toast } from './dom.js?v=92b65651df0b';
+import { MAPS, tileAt } from '../../shared/maps/index.js?v=92b65651df0b';
+import { T } from '../../shared/tiles.js?v=92b65651df0b';
+import { hash2 } from '../../shared/rng.js?v=92b65651df0b';
+import { caveInfo, tmTitle, foundFlag, TM_THEMES, TM_MAX } from '../../shared/data/treasure.js?v=92b65651df0b';
+import { treasureHintLines, fromHereLine, tmPlaceShort } from '../../shared/data/treasure-hint.js?v=92b65651df0b';
+import { MONSTERS } from '../../shared/data/monsters.js?v=92b65651df0b';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=92b65651df0b';
 
 // 第75回: .tmfull-view … 地図が いっぱいの ときに どれを 捨てるか えらぶ まど（askTreasureFull）
 const CSS = `

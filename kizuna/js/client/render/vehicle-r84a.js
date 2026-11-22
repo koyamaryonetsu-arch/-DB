@@ -7,7 +7,7 @@ export function addR84aVehicleArt(ART, kit) {
   ART.rei_bird = birdArt(kit);
 }
 
-function birdArt({ seg, poly, shade, seat }) {
+export function birdArt({ seg, poly, shade, seat }) {
   const B = '#3a8ae8', BD = shade(B, -0.22), BL = '#7ac0ff';
   const BELLY = '#eef6ff', BEAK = '#f2a03a', EYE = '#1b1330', TUFT = '#a8dcff';
   // はばたき（f … 0〜2）: つばさの 角度・からだの 上下

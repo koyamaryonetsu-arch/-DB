@@ -8,6 +8,7 @@
 //   ・ほかの 職業に 転職した あと（覚えた 技は どの 職業でも 使える）: れい丸の 技を 1つでも 覚えて いれば 2発（OTHER_REI）。
 //     この 系統の ふりょうに もどった 時も 2発（覚えて いれば）
 //   ・「れい力をためる」で 1発・「とう気をねる」で 2発 もどる（上限まで。type 'r84aCharge'）
+//   ・のこりが 少ないほど 強い 技（rei.low。第98回 K4班 元ヤンのけいじ）: 威力が ×（1 ＋ low ×（最大 − のこり）÷（最大 − 1））。まんたんで ×1・のこり 1発で ×（1＋low）
 //   ・のこりを ぜんぶ うつ 技（rei.all）: うった 数で 強さが かわる（base ＋ per × 数 ／ hitsPer … 数 × hitsPer 回 当てる。upTo … うつ 数の 上限）。
 //     min 発 いじょう ないと えらべない（超・れい丸は 2）
 //   ・家族 みんなの 画面: 仲間の まどに「れい丸3」の 札（pub の r84aRei）
@@ -27,9 +28,9 @@
 //   ・れい丸が 0 に なったら、強い 敵なら れい力をためる（とう気をねる）・ほかは こぶしの 技
 //   ・たおれた 仲間が いれば 仲間のために
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=f50199a8ea3a';
-import { ABILITIES } from './data/abilities.js?v=f50199a8ea3a';
-import { mpCost } from './stats.js?v=f50199a8ea3a';
+import { JOBS } from './data/jobs.js?v=92b65651df0b';
+import { ABILITIES } from './data/abilities.js?v=92b65651df0b';
+import { mpCost } from './stats.js?v=92b65651df0b';
 
 export const R84A_LINE = ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'];
 // 段ごとの れい丸の 数（[基本職, 上級職, 超級職, 伝説]）・ほかの 職業に 転職した あと
@@ -99,10 +100,19 @@ export function r84aPhys(b, c, a, cmd, ev, powMult, targets) {
     if (rei.hitsPer) rest.hits = shots * rei.hitsPer;
     if (rei.per) rest.mult = (rei.base || 0) + rei.per * shots;
   }
+  // 第98回 K4班: のこりが 少ないほど 強い 一発（rei.low。元ヤンのけいじ。うつ 前の のこりで きめる）
+  if (rei.low) rest.mult = (rest.mult ?? 1) * reiLowMult(c, rei, have);
   b.applyAbility(c, { ...a, effect: rest }, cmd, ev, powMult, targets);
   if (ev.fx) ev.fx.rei = shots;
   ev.lines.push(`（れい丸を${shots}発うった。のこり${c.r84aRei}発）`);
   ev.upd.push(c);
+}
+
+// 第98回 K4班: のこりが 少ないほど 強い 倍（まんたんで 1・のこり 1発で 1 ＋ low。have … うつ 前の のこり）
+export function reiLowMult(c, rei, have = reiLeft(c)) {
+  const max = reiMax(c);
+  if (!rei?.low || max <= 1) return 1;
+  return 1 + rei.low * Math.max(0, Math.min(1, (max - have) / (max - 1)));
 }
 
 // 物理の 力の 倍（battle.js の calcPhys）: 仲間のために・立ち上がった あとの 力・オートの みつもり（のこりを ぜんぶ うつ 技）
@@ -119,6 +129,7 @@ export function r84aPhysMult(b, c, t, eff, estimate = false) {
   const R = own(c, 'r84aRise');
   if (R?.left > 0) m *= R.pow || 1;
   const r = eff?.rei;
+  if (estimate && r?.low) m *= reiLowMult(c, r);
   if (estimate && r?.all) {
     const n = Math.min(reiLeft(c), r.upTo || Infinity);
     if (n < (r.min || 1)) return 0;

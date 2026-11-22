@@ -1,15 +1,15 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=f50199a8ea3a';
-import { FORGES } from '../data/facilities.js?v=f50199a8ea3a';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=f50199a8ea3a';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=f50199a8ea3a';
-import { partyOf } from './party.js?v=f50199a8ea3a';
-import { BAG_STACK } from './bank.js?v=f50199a8ea3a';
-import { forgePotGift } from './alchemy.js?v=f50199a8ea3a';
-import { salvageOf, salvageBlock } from '../data/salvage.js?v=f50199a8ea3a';
-import { LB_MAX } from '../data/items-forge.js?v=f50199a8ea3a';
+import { ITEMS } from '../data/items.js?v=92b65651df0b';
+import { FORGES } from '../data/facilities.js?v=92b65651df0b';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=92b65651df0b';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=92b65651df0b';
+import { partyOf } from './party.js?v=92b65651df0b';
+import { BAG_STACK } from './bank.js?v=92b65651df0b';
+import { forgePotGift } from './alchemy.js?v=92b65651df0b';
+import { salvageOf, salvageBlock } from '../data/salvage.js?v=92b65651df0b';
+import { LB_MAX } from '../data/items-forge.js?v=92b65651df0b';
 // 第88回: 生まれ変わりの 条件（shared/gear-r88.js）
-import { rebirthNeedLack } from '../gear-r88.js?v=f50199a8ea3a';
+import { rebirthNeedLack } from '../gear-r88.js?v=92b65651df0b';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;

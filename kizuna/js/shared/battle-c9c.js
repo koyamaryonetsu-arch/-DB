@@ -20,11 +20,11 @@
 // ・自動の 仲間（酒場の 人）は、なぞ 3つの うち 1つに 正しく 答える・砂が 少なく なる 3回の うち 1回 ひっくり返す（AUTO_EVERY。番ごとでは なく できごとごと）
 //   家族の キャラの「オート」と 魔物の 仲間は しない（完全オートは 勝てない まま）
 // ・人数で 合わせる（few・solo・monK）は 第2幕の 大王と おなじ 数え方（battle-c9b.js の kingPeople。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=f50199a8ea3a';
-import { ABILITIES } from './data/abilities.js?v=f50199a8ea3a';
-import { ANSWER, FLIP } from './data/abilities-c9c.js?v=f50199a8ea3a';
-import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js?v=f50199a8ea3a';
-import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js?v=f50199a8ea3a';
+import { MONSTERS } from './data/monsters.js?v=92b65651df0b';
+import { ABILITIES } from './data/abilities.js?v=92b65651df0b';
+import { ANSWER, FLIP } from './data/abilities-c9c.js?v=92b65651df0b';
+import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js?v=92b65651df0b';
+import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js?v=92b65651df0b';
 
 export { ANSWER, FLIP };
 export const RIDDLE = 'm9z_riddle';

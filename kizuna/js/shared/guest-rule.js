@@ -20,8 +20,8 @@
 //   5. 床: その ゲストの minLevel・きまった 装備・倍率 1 の 力は 下回らない（床は てんじょうより 先。ゲストは いつも 助けに なる）
 //   ・装備は いつも minLevel で 作った ときの もの（def.gear と、ない 所は その レベルの ふつうの 装備）。職業・技・見た目は かえない
 //   ・同じ 入力なら 同じ 結果（乱数を 使わない）。サーバーと ひとりモードは どちらも world/battles.js の makeBattle を 通る
-import { computeStats, baseStats } from './stats.js?v=f50199a8ea3a';
-import { makeNpcSupportChar } from './world/party.js?v=f50199a8ea3a';
+import { computeStats, baseStats } from './stats.js?v=92b65651df0b';
+import { makeNpcSupportChar } from './world/party.js?v=92b65651df0b';
 
 export const GUEST_RATIO = 0.94;
 export const GUEST_BAND = [0.90, 0.97];
@@ -29,7 +29,8 @@ export const GUEST_K = [0.85, 1.15];
 // レベルの 上限（def.maxLevel が ない ゲスト）: minLevel ＋ これ
 export const GUEST_LV_SPAN = 8;
 // 第90回 Z班: 第3部で 99 → 110（plan-part3.md の 8-5。今 いる ゲストは どれも minLevel ＋ 8 か maxLevel が 99 より 下なので かわらない）
-export const GUEST_MAX_LEVEL = 110;
+// 第101回 B班: 第3部 第3章 第1幕の 強さ（Lv118〜120）に 合わせて 110 → 120（docs/plan-part3-c11a.md の 17-4。今 いる ゲストは かわらない）
+export const GUEST_MAX_LEVEL = 120;
 
 // そのままの 戦う 力（computeStats の 形か、戦いの 中の 人〈atk・dfn・mag・healPow・agi・maxHp〉）
 export function fightPower(st) {
