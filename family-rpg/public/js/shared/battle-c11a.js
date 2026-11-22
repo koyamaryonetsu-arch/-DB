@@ -34,7 +34,7 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C11A_STARS, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN, SHARK_NAME, CAPTAIN_SHORT } from './data/monsters-c11a.js';
 import { TOKEI_NAGE } from './data/abilities-c11a.js';
-import { C11A_B as C11A } from './data/c11a-names-b.js';
+import { C11A_B as C11A } from './maps/c11a-flags.js';
 import { SONG } from './data/abilities-c9d.js';
 import { canUse } from './ai.js';
 import { atbRate } from './battle.js';

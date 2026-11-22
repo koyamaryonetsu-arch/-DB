@@ -14,6 +14,7 @@ import { CH7_OBJECTIVE_TARGETS } from './story-c7.js';
 import { CH8_OBJECTIVE_TARGETS } from './story-c8.js';
 import { CH9_OBJECTIVE_TARGETS } from './story-c9.js';
 import { CH10_OBJECTIVE_TARGETS } from './story-c10.js';
+import { CH11_OBJECTIVE_TARGETS } from './story-c11.js';
 import { labSubQuests } from './sidequests.js';
 // 第50回 N4: 困っている人（クエストの 画面で えらんだ 人に しるし）
 import { askPinQuest } from './subquest-hints.js';
@@ -60,6 +61,8 @@ Object.assign(OBJECTIVE_TARGETS, CH8_OBJECTIVE_TARGETS);
 Object.assign(OBJECTIVE_TARGETS, CH9_OBJECTIVE_TARGETS);
 // 第3部 第2章（story-c10.js）
 Object.assign(OBJECTIVE_TARGETS, CH10_OBJECTIVE_TARGETS);
+// 第3部 第3章（story-c11.js）
+Object.assign(OBJECTIVE_TARGETS, CH11_OBJECTIVE_TARGETS);
 
 // たのまれごと（name … クエストの 名前、who … 報告する 人、ready … もう 報告できる）
 export function subQuests(c) {

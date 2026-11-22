@@ -31,6 +31,8 @@ import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { computeStats, learnedAbilities, mpCost } from '../public/js/shared/stats.js';
 import { powScaleOf } from '../public/js/shared/pow-scale.js';
 
+// 第101回 R2班: 3人＋酒場 1人（few の 3人目。めやす 5〜7わり）
+EXTRA_PARTIES9.k3npc = { label: '3人＋酒場1人', humans: 3, npc: 1, mon: 0 };
 CH9_IDS.tamagon = C10A_BATTLE.red;
 CH9_IDS.mold = C10A_BATTLE.green;
 export const CH10A_LV = { tamagon: 107, mold: 108 };

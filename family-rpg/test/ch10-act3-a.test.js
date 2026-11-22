@@ -223,7 +223,7 @@ test('名前の 約束: マップ 6まい・タイル 551〜590・宝箱の id�
   assert.deepEqual(C10C_LINE, ['c10c_start', 'c10c_isles2', 'c10c_colonel', 'c10c_stolen', 'c10c_trio', 'c10c_fort_in', 'c10c_fort2', 'c10c_algol', 'c10_note_si', 'c10_act3']);
   // 第99回 A班: うしろに 第4幕の 線（10こ。maps/c10d-flags.js の C10D_LINE）
   assert.deepEqual(CH10_STEPS.slice(-C10C_LINE.length - 10, -10), C10C_LINE);
-  assert.deepEqual(STORY_STEPS.slice(-C10C_LINE.length - 11, -10), ['c10_act2', ...C10C_LINE]);
+  assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c10_act2'), STORY_STEPS.indexOf('c10_act2') + C10C_LINE.length + 1) /* 第100回 A班 */, ['c10_act2', ...C10C_LINE]);
   for (const f of [...Object.values(C10C_LEVER), C10C_PED.si]) assert.ok(!STORY_STEPS.includes(f), `${f} は 線に 入らない`);
   // 宝箱 12こ（空 6・とりで 6）
   const chests = C10C_MAP_IDS.flatMap((id) => MAPS[id].chests.map((c) => c.id));

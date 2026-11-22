@@ -44,6 +44,9 @@ import { noteC10bSnap, noteC10bStage, c10bFieldFlag, drawC10bSneak2D, drawC10bSn
 import { noteC10cSnap, noteC10cStage, c10cFieldFlag, drawC10cSky } from './c10c-view.js';
 // 第99回 A班: 第3部 第2章 第4幕の 星の 階段（雲の すき間の 小さな 世界・曲の gateStage。client/c10d-view.js）
 import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js';
+// 第100回 A班: 第3部 第3章 第1幕の ひとふで書きの 星座・星の海（client/c11a-view.js）・星の船の 絵
+import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from './c11a-view.js';
+import { paintStarShip } from './render/c11a-npc-art.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -81,7 +84,7 @@ function specialSprite(kind, dir, frame) {
 export function shipSprite(dir, frame, kind = null) {
   const k = `ship|${kind || ''}|${dir}|${frame}`;
   if (spriteCache.has(k)) return spriteCache.get(k);
-  const paint = kind === 'sand_ship' ? paintSandShip : paintShip;
+  const paint = kind === 'sand_ship' ? paintSandShip : kind === 'star_ship' ? paintStarShip : paintShip;
   let c = paint(dir === 'right' ? 'left' : dir, frame).toCanvas();
   if (dir === 'right') c = flipCanvas(c);
   spriteCache.set(k, c);
@@ -438,6 +441,8 @@ export class Field {
     const flying = !!sky?.flying;
     const canMove = controls.canMove && !sky?.blocksMove();
     if (!canMove || this.riding) { ix = 0; iy = 0; }
+    // 第100回 A班: 星座の 星の 上で 線の 向きを 入れた → うかんで 進む（client/c11a-view.js）
+    if (c11aInput(this, ix, iy, canMove)) { ix = 0; iy = 0; }
     // ついていく（リーダーの とおった みちを たどる。はなれたら はしって おいつく）
     let run = !!controls.run;
     // 第71回: ついていく あいだは 出入り口（階だん など）を ふまない（リーダーは 階だんの 上に つく ように なった。
@@ -857,6 +862,7 @@ export class Field {
     noteC10aSnap(this, msg.c10); // 第94回 A班: 溶岩に 追われる
     noteC10bSnap(this, msg.c10b); // 第95回 A班: 水の 高さ・こっそり
     noteC10cSnap(this, msg.c10c); // 第97回 A班: 音の 橋
+    noteC11aSnap(this, msg.c11a); // 第100回 A班: ひとふで書きの 星座
     if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
@@ -1031,6 +1037,7 @@ export class Field {
     noteC10bStage(this); // 第95回 A班: 曲の waterStage・alertStage
     noteC10cStage(this); // 第97回 A班: 曲の bridgeStage
     noteC10dStage(this); // 第99回 A班: 曲の gateStage
+    noteC11aStage(this); // 第100回 A班: 曲の conStage
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;
@@ -1149,6 +1156,7 @@ export class Field {
     if (m.c10bBlue) drawC10bWater(this, ctx); // 第95回 A班: 水鏡の うらの 光・水が かわる 時の 波
     if (m.c10cSky) drawC10cSky(this, ctx); // 第97回 A班: 空の 小島の 光・とおくの 影の城
     if (m.c10dSky) drawC10dSky2D(this, camX, camY); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
+    if (m.c11aCons || m.c11aSea) drawC11a2D(this, camX, camY); // 第100回 A班: ひとふで書きの 星座・星の海の 下の 小さな 地上
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1314,6 +1322,7 @@ export class Field {
     if (m.c10bBlue) drawC10bWater(this, ctx); // 第95回 A班: 水鏡の うらの 光・水が かわる 時の 波
     if (m.c10cSky) drawC10cSky(this, ctx); // 第97回 A班: 空の 小島の 光・とおくの 影の城
     if (m.c10dSky) drawC10dSky3D(this, ctx, P); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
+    if (m.c11aCons || m.c11aSea) drawC11a3D(this, ctx, P); // 第100回 A班: ひとふで書きの 星座・星の海の 下の 小さな 地上
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();
@@ -1437,7 +1446,8 @@ export class Field {
       if (raftAt9c(this, this.me.x, this.me.y)) out.push(raftEntity9c(this, 'raft:me', this.me.x, this.me.y)); // 第92回 A班: いかだ
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}), ...(myVeh && !ship ? { shadowScale: vehicleShadow(myVeh) } : {}) });
       // トロッコに のっている（第3章）
-      if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
+      // 第100回 A班: 星座の 線の 上で うかぶ 時は トロッコに 乗らない（client/c11a-view.js が 光を かく）
+      if (this.riding && !this.map?.c11aCons) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
     }
     return out;
   }
@@ -1565,7 +1575,7 @@ export class Field {
     this.drawAt(c, o.x, o.y + (ship ? 0.2 : 0), camX, camY, !ship);
     ctx.globalAlpha = 1;
     // トロッコに のっている（第3章）: 足もとを トロッコで かくす
-    if (mine && this.riding) this.drawAt(npcSprite('minecart', o.dir || 'down', this.walkFrame(true)), o.x, o.y + 0.06, camX, camY, false);
+    if (mine && this.riding && !this.map?.c11aCons) this.drawAt(npcSprite('minecart', o.dir || 'down', this.walkFrame(true)), o.x, o.y + 0.06, camX, camY, false);
     if (o.battle) {
       // ⚔ の しるし
       const px = Math.round(o.x * TS - camX), py = Math.round(o.y * TS - 27 - camY);

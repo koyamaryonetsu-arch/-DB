@@ -677,10 +677,14 @@ export function gameFiles() {
     'public/js/shared/battle-c10d.js', 'public/js/client/battle-c10d.js', 'public/js/client/render/c10d-art.js', 'public/js/client/render/c10d-bg.js', 'public/js/client/render/battlefx-c10d.js',
     // 第99回 F班: 第3部 第2章 第4幕の 曲
     'public/js/client/audio-c10d.js',
+    // 第100回 A班: 第3部 第3章 第1幕「星の船と、星座の島」（世界と 物語）
+    'public/js/shared/maps/c11a-flags.js', 'public/js/shared/data/story-c11.js', 'public/js/shared/data/story-c11a.js', 'public/js/shared/data/constellations-c11a.js',
+    'public/js/shared/maps/c11a.js', 'public/js/shared/maps/c11a-rows.js', 'public/js/shared/world/c11a-steps.js', 'public/js/client/c11a-view.js',
+    'public/js/client/render/tiles-c11a.js', 'public/js/client/render/c11a-npc-art.js',
     // 第101回 F班: 第3部 第3章 第1幕の 曲
     'public/js/client/audio-c11a.js',
-    // 第101回 B班: 第3部 第3章 第1幕（魔物・星座のけもの・いかり船長・品・ヒント・絵・背景・えんしゅつ。c11a-names-b.js は A班が 消す かりの 置き場）
-    'public/js/shared/data/c11a-names-b.js', 'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
+    // 第101回 B班: 第3部 第3章 第1幕（魔物・星座のけもの・いかり船長・品・ヒント・絵・背景・えんしゅつ。かりの 置き場 c11a-names-b.js は A班が 消した）
+    'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
     'public/js/shared/data/encounters-c11a.js', 'public/js/shared/data/companions-c11a.js', 'public/js/shared/data/items-c11a.js', 'public/js/shared/data/boss-hints-c11a.js',
     'public/js/shared/battle-c11a.js', 'public/js/client/battle-c11a.js', 'public/js/client/render/c11a-art.js', 'public/js/client/render/c11a-bg.js', 'public/js/client/render/battlefx-c11a.js',
   ];

@@ -38,6 +38,7 @@ export const C10D_NEW_ART = [C10D_SHARD, C10D_SHARD_S];
 //   mark … この 回数 動く ごとに「色を うつす」（0 … しない）・markK … しるしの ついた 人の 番の 速さ
 //   regen … まくが ある 間、動く たびに 最大HPの この わりあい 回復（鏡の ひびが なおる。鳴らさずに たたき続けても 勝ちにくい）
 //   few … 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk）。solo … 仲間なしの ひとり。monK … 魔物の 仲間 1体ごと
+//   bare … 仲間なしの 家族 2人・3人だけ [2人, 3人]（few より 先に きく。battle-c10a.js の c10Pick）
 const GATE = (o) => ({ kind: 'gate', open: 3, veilK: 0.2, regen: 0.04, shift: 0, mark: 0, markK: 0.6, ...o });
 
 export const MONSTERS_C10D = {
@@ -47,7 +48,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'l', speed: 1.0, hit: 'slash', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['magic_water', 8], rare: ['c7i_snow_mail', 64] },
     actions: [{ w: 3, id: 'm10d_sd_slash' }, { w: 2, id: 'm10d_sd_flash', cond: 'notRecent:m10d_sd_flash' }, { w: 1, id: 'attack' }],
-    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.18, atk: 0.3, open: 6, regen: 0.1 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, bare: { hp: [0.4, 0.8], atk: [0.55, 0.8] }, solo: { hp: 0.18, atk: 0.3, open: 6, regen: 0.1 }, monK: { hp: 0.03, atk: 0 } }),
     desc: '鏡のかけらを、よろいのようにまとった兵。色のまくをまとって、こうげきをはじく。同じ色の音で、まくがわれる。',
   },
   // ── 門 2: かがみの門番（2体・色が ちがう）──
@@ -56,7 +57,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'l', speed: 0.8, hit: 'slash', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['elf_drink', 10], rare: ['c7i_snow_shield', 64] },
     actions: [{ w: 3, id: 'm10d_sd_slash' }, { w: 2, id: 'm10d_sw_cross', cond: 'notRecent:m10d_sw_cross' }, { w: 1, id: 'm10d_sd_flash', cond: 'notRecent:m10d_sd_flash' }],
-    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.12, atk: 0.3, open: 6, regen: 0.14 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, bare: { hp: [0.5, 0.8], atk: [0.55, 0.8] }, solo: { hp: 0.12, atk: 0.3, open: 6, regen: 0.14 }, monK: { hp: 0.03, atk: 0 } }),
     desc: '門を守る、鏡の兵。2人で、ちがう色のまくをまとう。どちらのまくから、わるか考えよう。',
   },
   // ── 門 3: まどいの門番（2体・まとい直す たびに 色が かわる・色を うつす）──
@@ -65,7 +66,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'l', speed: 0.8, hit: 'slash', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['moon_drop', 10], rare: ['c7i_snow_helm', 64] },
     actions: [{ w: 3, id: 'm10d_sd_slash' }, { w: 2, id: 'm10d_sm_wave', cond: 'notRecent:m10d_sm_wave' }, { w: 1, id: 'attack' }],
-    c10d: GATE({ shift: 3, mark: 3, few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.12, atk: 0.3, open: 6, regen: 0.1, mark: 0 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ shift: 3, mark: 3, few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, bare: { hp: [0.5, 0.8], atk: [0.55, 0.8] }, solo: { hp: 0.12, atk: 0.3, open: 6, regen: 0.1, mark: 0 }, monK: { hp: 0.03, atk: 0 } }),
     desc: 'まくの色を、くるくるかえる鏡の兵。仲間に色のしるしをつけて、動きをおそくする。しるしと同じ色の音で、消える。',
   },
   // ── 門 4: かがみのかけら（小さい 3体・全体攻撃が 強い）──
@@ -74,7 +75,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'm', speed: 0.7, flying: true, hit: 'magic', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.1, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['star_sand', 8], rare: ['c7i_snow_gi', 64] },
     actions: [{ w: 2, id: 'm10d_ss_rain' }, { w: 2, id: 'm10d_ss_poke' }, { w: 1, id: 'attack' }],
-    c10d: GATE({ regen: 0.07, few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.8, 0.85, 1, 1, 1] }, solo: { hp: 0.17, atk: 0.3, open: 6, regen: 0.1 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ regen: 0.07, few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.8, 0.85, 1, 1, 1] }, bare: { hp: [0.5, 0.8], atk: [0.55, 0.8] }, solo: { hp: 0.17, atk: 0.3, open: 6, regen: 0.1 }, monK: { hp: 0.03, atk: 0 } }),
     desc: '星の階段のいちばん上を守る、小さな鏡のかけら。3つで、光の雨をふらせる。早くわって、数をへらそう。',
   },
 
@@ -96,9 +97,13 @@ export const MONSTERS_C10D = {
       copy: { at: 0.5, hp: 0.4, atk: 0.55 },
       // 人数で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk・colors（まくの 色の 数）・window（2色めまでの ミラーレの 動く 回数）・measureK（光を はかるの 強さ）
       //   1人 … まくが 1色。2人 … 2色だが もどるまで 4回
-      few: { hp: [0.82, 0.7, 1, 1, 0.6], atk: [0.81, 0.74, 1, 1, 1.15], colors: [1, 2, 2, 2, 2], window: [2, 4, 2, 2, 2], measureK: [1, 1, 1, 1, 1] },
+      //   第101回 R2班: 2人〜5人を 合わせ直し（人が 1人ずつ べつの 手で はかる 道具）。4人・5人は まくが われて いる 間（open）を のばして 短く
+      few: { hp: [0.82, 0.62, 0.65, 0.6, 0.32], atk: [0.81, 0.66, 0.8, 1, 1.1], colors: [1, 2, 2, 2, 2], window: [2, 4, 2, 2, 2], measureK: [1, 1, 1, 1, 1], open: [4, 4, 4, 6, 7] },
+      // bare … 仲間なしの [2人, 3人]（第101回 R2班。few より 先に きく）: 2人は 1色・まくが われて いる 間 5回。光を はかるも 弱い
+      bare: { hp: [0.27, 0.52], atk: [0.43, 0.67], colors: [1, 2], open: [5, 4], measureK: [0.6, 0.8] },
       solo: { hp: 0.06, atk: 0.2, colors: 1, measureK: 2 },
-      monK: { hp: 0, atk: 0.08 },
+      // monK … 1人＋魔物3 は few の 2人目を 引く（魔物は 半人ぶん）ので、few の 2人目を かえた ぶん ここで もどす（hp 0.7・atk 0.92 の まま）
+      monK: { hp: 0.043, atk: 0.13 },
     },
     actions: [{ w: 3, id: 'm10d_mr_glare' }, { w: 2, id: 'm10d_mr_hands', cond: 'notRecent:m10d_mr_hands' }, { w: 2, id: 'm10d_mr_frame' }],
     desc: '金のふちの、大きな鏡。いつもねむそうで、いばっている。光の強さをはかって、弱い光をばかにする。',

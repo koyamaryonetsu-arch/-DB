@@ -21,7 +21,7 @@ import { TACTICS, mechBoss, decideAlly } from '../public/js/shared/ai.js';
 import { GUEST_MAX_LEVEL } from '../public/js/shared/guest-rule.js';
 import {
   C11A_B as C11A, C11A_CON_B, C11A_MAP_B, C11A_BATTLE_B as C11A_BATTLE, C11A_MON_PREFIX_B, C11A_CHEST_IDS_B, C11A_KEYS_B, C11A_CMD_B, C11A_TRACKS_B, C11A_OPEN_B,
-} from '../public/js/shared/data/c11a-names-b.js';
+} from '../public/js/shared/maps/c11a-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
 import { C10C_B as C10C } from '../public/js/shared/maps/c10c-flags.js';
@@ -100,7 +100,7 @@ const holderOf = (b, i = 0) => b.c11a.clocks[i].holder;
 const allText = (ev) => [...(ev?.lines || []), ...(ev?.postLines || [])].join('\n');
 
 // ───────────── 名前の 約束 ─────────────
-test('名前の 約束（17-5）: フラグ・星座の しるし・マップ・決まった 戦い・魔物の id・宝箱・だいじな 物・コマンド・曲・幕の 切りかえ（かりの 置き場 data/c11a-names-b.js）', () => {
+test('名前の 約束（17-5）: フラグ・星座の しるし・マップ・決まった 戦い・魔物の id・宝箱・だいじな 物・コマンド・曲・幕の 切りかえ（maps/c11a-flags.js。B の 形の 名前）', () => {
   assert.deepEqual(C11A, {
     act4: 'c10_act4', start: 'c11a_start', chart: 'c11a_chart', launch: 'c11a_launch', perch: 'c11a_perch',
     light1: 'c11a_light1', light2: 'c11a_light2', light3: 'c11a_light3', beast: 'c11a_beast', pirate: 'c11a_pirate', act1: 'c11_act1',
@@ -829,7 +829,7 @@ test('がめん: 上の まど（大きく「チク・タク　あと ○」・�
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c11a-names-b.js', 'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
+    'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
     'public/js/shared/data/encounters-c11a.js', 'public/js/shared/data/companions-c11a.js', 'public/js/shared/data/items-c11a.js', 'public/js/shared/data/boss-hints-c11a.js',
     'public/js/shared/battle-c11a.js', 'public/js/client/battle-c11a.js', 'public/js/client/render/c11a-art.js', 'public/js/client/render/c11a-bg.js', 'public/js/client/render/battlefx-c11a.js',
   ];

@@ -133,6 +133,11 @@ export const T = {
   // 第3部 第2章 第4幕「金の音と、星の橋」（第99回 A班。591〜620。maps/c10d*.js・render/tiles-c10d.js）
   C10D_STEP: 591, C10D_LANDING: 592, C10D_GATE: 593, C10D_GATE_OPEN: 594, C10D_WELL: 595, C10D_WELL_DRY: 596,
   C10D_SUMMIT: 597, C10D_ORB: 598, C10D_STARROCK: 599, C10D_GOLD: 600, C10D_SKYSTAIR: 601, C10D_PORTAL: 602,
+  // 第3部 第3章 第1幕「星の船と、星座の島」（第100回 A班。621〜660。maps/c11a*.js・render/tiles-c11a.js）
+  C11A_SEA: 621, C11A_CUR_N: 622, C11A_CUR_E: 623, C11A_CUR_S: 624, C11A_CUR_W: 625, C11A_SHOAL: 626, C11A_CLOUD: 627,
+  C11A_ISLE: 628, C11A_PIER: 629, C11A_BRIDGE: 630, C11A_GATE: 631, C11A_GATE_OPEN: 632, C11A_GATEROCK: 633, C11A_MIST: 634,
+  C11A_GROUND: 635, C11A_GRASS: 636, C11A_RIM: 637, C11A_SKY: 638, C11A_STAR: 639, C11A_LIGHT: 640, C11A_LIGHT_ON: 641,
+  C11A_DOCK: 642, C11A_TREE: 643, C11A_TABLET: 644, C11A_HUT: 645, C11A_SPRING: 646, C11A_PATH: 647, C11A_LENS: 648, C11A_LENS_STAR: 649,
 };
 
 export const TILE_INFO = {};
@@ -748,6 +753,39 @@ def(T.C10D_STARROCK, 'c10d_starrock', { solid: true, light: true, mapColor: '#a8
 def(T.C10D_GOLD, 'c10d_gold', { anim: true, light: true, mapColor: '#ffd84a' }); // 金色に 光る 星の ゆか（星の塔 1階 ⇔ てっぺん）
 def(T.C10D_SKYSTAIR, 'c10d_skystair', { anim: true, light: true, mapColor: '#fff0a0' }); // 空へ のびる 光の 階段（てっぺん → 星の 階段）
 def(T.C10D_PORTAL, 'c10d_portal', { anim: true, light: true, mapColor: '#ffe8a0' }); // 光の 出口（いただき → 星の塔の てっぺん）
+// 第3部 第3章 第1幕「星の船と、星座の島」（第100回 A班。maps/c11a*.js・render/tiles-c11a.js）
+// 星の海: 船で すすむ（sail）。星の 流れ（flow。のると 止まる 所まで 運ばれる）・あさせ（星の すな。通れない）・雲（通れない）
+def(T.C11A_SEA, 'c11a_sea', { solid: true, sail: true, anim: true, mapColor: '#2a3478' }); // 星の海（しずかな 海）
+def(T.C11A_CUR_N, 'c11a_cur_n', { solid: true, sail: true, flow: [0, -1], anim: true, mapColor: '#5a70d0' }); // 星の 流れ（北へ）
+def(T.C11A_CUR_E, 'c11a_cur_e', { solid: true, sail: true, flow: [1, 0], anim: true, mapColor: '#5a70d0' }); // 星の 流れ（東へ）
+def(T.C11A_CUR_S, 'c11a_cur_s', { solid: true, sail: true, flow: [0, 1], anim: true, mapColor: '#5a70d0' }); // 星の 流れ（南へ）
+def(T.C11A_CUR_W, 'c11a_cur_w', { solid: true, sail: true, flow: [-1, 0], anim: true, mapColor: '#5a70d0' }); // 星の 流れ（西へ）
+def(T.C11A_SHOAL, 'c11a_shoal', { solid: true, anim: true, mapColor: '#c8c0e8' }); // あさせ（星の すな。船では 通れない）
+def(T.C11A_CLOUD, 'c11a_cloud', { solid: true, anim: true, mapColor: '#9aa4d0' }); // 雲（星の海の 下の 雲。すき間に 小さな 地上）
+def(T.C11A_ISLE, 'c11a_isle', { solid: true, mapColor: '#6a6aa0' }); // 島（星の海から 見た 島の 岩）
+def(T.C11A_PIER, 'c11a_pier', { mapColor: '#c8a070' }); // はとば（ふむと 島へ）
+def(T.C11A_BRIDGE, 'c11a_bridge', { anim: true, light: true, mapColor: '#fff0a0' }); // 光の 橋の 先（ふむと 星見の丘へ）
+def(T.C11A_GATE, 'c11a_gate', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#e8d890' }); // 星座の門（とじて いる）
+def(T.C11A_GATE_OPEN, 'c11a_gate_open', { solid: true, sail: true, anim: true, light: true, mapColor: '#fff4c0' }); // 開いた 星座の門（むこうは まだ 星の きり）
+def(T.C11A_GATEROCK, 'c11a_gaterock', { solid: true, light: true, mapColor: '#7a74b0' }); // 門の 岩（星の 柱）
+def(T.C11A_MIST, 'c11a_mist', { solid: true, anim: true, mapColor: '#b8b8d8' }); // 星の きり（門の むこう。この 幕では 通れない）
+// 星座の 島・とまり木の島: 地面・星の 草・ふち・空（星座の 線は 空の 上）・星（ひとふで書きの 星。ここだけ 立てる）
+def(T.C11A_GROUND, 'c11a_ground', { mapColor: '#8a86b8' }); // 島の 地面（うかぶ 岩）
+def(T.C11A_GRASS, 'c11a_grass', { mapColor: '#6a9a9a' }); // 星の 草
+def(T.C11A_RIM, 'c11a_rim', { solid: true, mapColor: '#4a4878' }); // 島の ふち（岩の かべ）
+def(T.C11A_SKY, 'c11a_sky', { solid: true, anim: true, mapColor: '#141a44' }); // 空（通れない。星座の 線は この 上）
+def(T.C11A_STAR, 'c11a_star', { anim: true, light: true, mapColor: '#fff0a0' }); // 星座の 星（うかぶ 星の 石）
+def(T.C11A_LIGHT, 'c11a_light', { solid: true, talkThrough: true, mapColor: '#8a88a8' }); // 島の 明かり（まだ ともって いない）
+def(T.C11A_LIGHT_ON, 'c11a_light_on', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffe070' }); // ともった 島の 明かり
+def(T.C11A_DOCK, 'c11a_dock', { mapColor: '#b88a5a' }); // 船着き場（ふむと 星の海へ）
+def(T.C11A_TREE, 'c11a_tree', { solid: true, mapColor: '#4a7a8a' }); // 星の 木
+def(T.C11A_TABLET, 'c11a_tablet', { solid: true, talkThrough: true, mapColor: '#9a98c0' }); // 石ぶみ（島の きまり）
+def(T.C11A_HUT, 'c11a_hut', { solid: true, mapColor: '#7a6a9a' }); // とまり木の島の 小さな 家
+def(T.C11A_SPRING, 'c11a_spring', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#9ad8ff' }); // いのりの いずみ（教会の かわり）
+def(T.C11A_PATH, 'c11a_path', { mapColor: '#a8a0c8' }); // とまり木の島の 道
+// 灯台島（風の海）: レンズが ゆかに うつした 星座（光の ゆか。通れない）と その 星
+def(T.C11A_LENS, 'c11a_lens', { solid: true, anim: true, light: true, mapColor: '#9ab8e8' }); // うつった 星座の 光の ゆか
+def(T.C11A_LENS_STAR, 'c11a_lens_star', { anim: true, light: true, mapColor: '#fff0a0' }); // うつった 星座の 星（立てる）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
