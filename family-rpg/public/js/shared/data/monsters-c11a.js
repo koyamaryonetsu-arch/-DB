@@ -45,10 +45,12 @@ export const C11A_BOSSES = [...C11A_STARS, C11A_CAPTAIN];
 //   reviveUp … よみがえる たびに 3つの 星の 与える ダメージが この わりあい 上がる（ばらばらに たおし続けると 苦しく なる。設計に ない 足し物）
 //   roar … あたまの 前ぶれ（every 回 動く ごとに → 次の あたまの 番に かみつき。mult・guardCut … 身を 守ると）
 //   mend … むねの 回復（仲間の 星の 最大HPの この わりあい）
+//   linkK … 星が 1つ 消えて いる 間（よみがえる 前）、のこりの 星が 受ける ダメージの ばい（光の 線で まもられる。人数で 合わせる）
+//   linkAuto … だれも えらんで いない（完全オート・人が みんな たおれた）時の linkK … そろえて たおさないと 勝てない
 //   few … 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・revive）。solo … 仲間なしの ひとり。monK … 魔物の 仲間 1体ごと
 const BEAST = (o) => ({
-  kind: 'beast', revive: 5, reviveBy: 'all', reviveHp: 0.5, reviveUp: 0.35, roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35 }, mend: 0.05,
-  few: { hp: [0.8, 0.85, 1, 1, 1.25], atk: [0.82, 0.88, 1, 1, 1.08], revive: [6, 6, 5, 5, 5] },
+  kind: 'beast', revive: 5, reviveBy: 'all', reviveHp: 0.5, reviveUp: 0.35, linkK: 0.55, linkAuto: 0.12, roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35 }, mend: 0.05,
+  few: { hp: [0.75, 0.8, 1, 1, 1.1], atk: [0.75, 0.85, 1, 1, 1.05], revive: [7, 6, 5, 4, 4], linkK: [0.55, 0.55, 0.55, 0.45, 0.35] },
   solo: { hp: 0.32, atk: 0.42, revive: 8 },
   monK: { hp: 0.08, atk: 0.05 },
   ...o,
@@ -128,21 +130,21 @@ export const MONSTERS_C11A = {
   // ── 中ボス: 星座のけもの（3つの 星。Lv119）──
   // c11a … しかけ（battle-c11a.js の beast）。あたま … 強い 1人攻撃（前ぶれ）・むね … 仲間の 星を 回復・しっぽ … 全体攻撃
   [C11A_HEAD]: {
-    ...STAR, name: 'あたまの星', lv: 119, hp: 7200, mp: 9999, str: 1770, def: 400, agi: 250, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
+    ...STAR, name: 'あたまの星', lv: 119, hp: 3000, mp: 9999, str: 2000, def: 400, agi: 250, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
     drops: { boss: ['c11ab_star_collar'], bonus: ['limit_stone'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'head' }),
     actions: [{ w: 3, id: 'm11b_claw' }, { w: 2, id: 'm11b_pulse' }],
     desc: '星座のけものの、あたまの星。うなったあとに、大きくかみつく。',
   },
   [C11A_CHEST]: {
-    ...STAR, name: 'むねの星', lv: 119, hp: 7200, mp: 9999, str: 1515, def: 420, agi: 230, mag: 1100, exp: 30000, gold: 11000, speed: 0.62,
+    ...STAR, name: 'むねの星', lv: 119, hp: 3000, mp: 9999, str: 1710, def: 420, agi: 230, mag: 1100, exp: 30000, gold: 11000, speed: 0.62,
     drops: { boss: ['c11ab_star_collar'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'chest' }),
     actions: [{ w: 2, id: 'm11b_pulse' }, { w: 2, id: 'm11b_mend', cond: 'notRecent:m11b_mend' }, { w: 1, id: 'm11b_claw' }],
     desc: '星座のけものの、むねの星。光の線で、仲間の星を回復する。',
   },
   [C11A_TAIL]: {
-    ...STAR, name: 'しっぽの星', lv: 119, hp: 7200, mp: 9999, str: 1610, def: 400, agi: 260, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
+    ...STAR, name: 'しっぽの星', lv: 119, hp: 3000, mp: 9999, str: 1820, def: 400, agi: 260, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
     drops: { boss: ['c11ab_star_collar'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'tail' }),
     actions: [{ w: 3, id: 'm11b_sweep' }, { w: 2, id: 'm11b_dust', cond: 'notRecent:m11b_dust' }, { w: 1, id: 'm11b_claw' }],
@@ -158,7 +160,7 @@ export const MONSTERS_C11A = {
   //   song … スピカの 星のうた で 数が へらない 回数（歌った 番の あと）
   //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・plus・spd）。solo … 仲間なしの ひとり（時計は 1つ）。monK … 魔物の 仲間 1体ごと
   [C11A_CAPTAIN]: {
-    name: CAPTAIN_NAME, short: CAPTAIN_SHORT, lv: 120, hp: 37000, mp: 9999, str: 7300, def: 420, agi: 260, mag: 1180, exp: 98000, gold: 34000,
+    name: CAPTAIN_NAME, short: CAPTAIN_SHORT, lv: 120, hp: 31000, mp: 9999, str: 8000, def: 420, agi: 260, mag: 1180, exp: 98000, gold: 34000,
     race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.22, hit: 'smash', artScale: 0.5,
     drops: { boss: ['c11ab_anchor_badge'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 0.8, ice: 1.0, wind: 1.0, bolt: 1.1, light: 1.0, dark: 1.0 },
@@ -169,10 +171,10 @@ export const MONSTERS_C11A = {
       hard: 0.3,
       anchor: { every: 3, first: 2, mult: 0.85, holder: 0.7, atb: 0 },
       song: 1,
-      few: { hp: [0.6, 0.58, 1, 1, 1.2], atk: [0.7, 0.66, 1, 1, 1.08], plus: [2, 2, 2, 2, 2], spd: [1, 1, 1, 1, 1] },
-      solo: { hp: 0.2, atk: 0.24, spd: 0.75, two: 0 },
+      few: { hp: [0.85, 0.75, 1, 1, 0.75], atk: [0.85, 0.78, 1, 1, 1.15], plus: [2, 2, 2, 2, 0], spd: [1, 1, 1, 1, 1] },
+      solo: { hp: 0.18, atk: 0.22, spd: 0.75, two: 0 },
       // 魔物の 仲間は 時計を 投げない（3回に 1回だけ）・生き返らせない ので、1体ごとに 船長を 弱く する
-      monK: { hp: -0.13, atk: -0.11 },
+      monK: { hp: -0.14, atk: -0.11 },
     },
     actions: [{ w: 3, id: 'm11p_saber' }, { w: 2, id: 'm11p_cannon', cond: 'notRecent:m11p_cannon' }, { w: 1, id: 'm11p_brag', cond: 'notRecent:m11p_brag' }],
     desc: '片手が、大きないかりの船長。いつもいばっているが、時計の音が大の苦手。',
