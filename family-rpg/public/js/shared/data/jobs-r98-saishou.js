@@ -112,6 +112,6 @@ export const KIZUNA_SAISHOU = {
   trial: '作戦は、みんなのために長く使え。',
   vehicle: { id: 'kin_kaba', v: { name: '金の空飛ぶ大カバ', price: 27500, jobs: ['kuni_saishou'], phantom: true, desc: '金のふさかざりをつけた、大きな空飛ぶカバ。せなかに会議のつくえと、作戦の旗がのっている。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1, 1, 1],
+  trialAdj: [1.0, 1.05, 1.1],
   work: 'houshin',
 };

@@ -101,6 +101,6 @@ export const KIZUNA_PTA = {
   trial: 'しかるのも守るのも、子どもを思う心からだ。',
   vehicle: { id: 'pta_sanrinsha', v: { name: 'PTA会長の大三輪車', price: 28500, jobs: ['pta_kaichou'], phantom: true, desc: 'たすきをかけた、大きな三輪の自転車。前のかごにお弁当、うしろに見守りの黄色い旗。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1, 1, 1],
+  trialAdj: [3.18, 2.12, 2.93],
   work: 'nube',
 };
