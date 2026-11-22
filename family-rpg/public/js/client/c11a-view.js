@@ -28,7 +28,8 @@ export function consShown11a(field) {
   const m = field.map;
   if (!m?.c11aCons) return [];
   const has = (f) => !!field.hasFlag?.(f);
-  return m.c11aCons.filter((C) => (C.show ? has(C.show) && !has(C.id) : true));
+  // レンズの 星座は サーバーの 知らせ（snap の c11a）が ある 間だけ（できた あと 一しゅん のこらない）
+  return m.c11aCons.filter((C) => (C.show ? has(C.show) && !has(C.id) && !!stateOf(field, C.id) : true));
 }
 // 画面の 状態（まいフレーム。F班の 曲）: field.conStage … その 島で できた 星座の 数（0〜2）
 export function noteC11aStage(field) {
@@ -180,6 +181,22 @@ export function drawC11a2D(field, camX, camY) {
     }
   }
   for (const con of consShown11a(field)) drawCon(field, ctx, con, (x, y) => ({ x: x * TS - camX, y: y * TS - camY }), TS);
+  if (field.riding && m?.c11aCons) drawFloat(field, ctx, field.me.x * TS - camX, (field.me.y + 0.1) * TS - camY, TS);
+}
+// うかんで 進む 人の 足もとの 光
+function drawFloat(field, ctx, x, y, k) {
+  ctx.save();
+  const g = ctx.createRadialGradient(x, y, 0, x, y, k * 0.6);
+  g.addColorStop(0, 'rgba(255, 248, 200, 0.85)');
+  g.addColorStop(1, 'rgba(255, 224, 112, 0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.ellipse(x, y, k * 0.6, k * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+  for (let i = 0; i < 4; i++) {
+    const a = field.time / 200 + i * 1.6;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x + Math.cos(a) * k * 0.4, y - k * 0.2 + Math.sin(a) * k * 0.2, Math.max(1, k * 0.06), Math.max(1, k * 0.06));
+  }
+  ctx.restore();
 }
 // ───── 2.5D（render3d の 上に かさねる 2D。P(x, y, up) … 画面の 場所と 1マスの 大きさ）─────
 export function drawC11a3D(field, ctx, P) {
@@ -199,4 +216,5 @@ export function drawC11a3D(field, ctx, P) {
     const k = P(con.stars[0][0] + 0.5, con.stars[0][1] + 0.5, 0.05).k;
     drawCon(field, ctx, con, (x, y) => P(x, y, 0.05), k);
   }
+  if (field.riding && m?.c11aCons) { const p = P(field.me.x, field.me.y + 0.1, 0.02); drawFloat(field, ctx, p.x, p.y, p.k); }
 }

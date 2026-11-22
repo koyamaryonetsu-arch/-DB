@@ -1446,7 +1446,8 @@ export class Field {
       if (raftAt9c(this, this.me.x, this.me.y)) out.push(raftEntity9c(this, 'raft:me', this.me.x, this.me.y)); // 第92回 A班: いかだ
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}), ...(myVeh && !ship ? { shadowScale: vehicleShadow(myVeh) } : {}) });
       // トロッコに のっている（第3章）
-      if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
+      // 第100回 A班: 星座の 線の 上で うかぶ 時は トロッコに 乗らない（client/c11a-view.js が 光を かく）
+      if (this.riding && !this.map?.c11aCons) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
     }
     return out;
   }
@@ -1574,7 +1575,7 @@ export class Field {
     this.drawAt(c, o.x, o.y + (ship ? 0.2 : 0), camX, camY, !ship);
     ctx.globalAlpha = 1;
     // トロッコに のっている（第3章）: 足もとを トロッコで かくす
-    if (mine && this.riding) this.drawAt(npcSprite('minecart', o.dir || 'down', this.walkFrame(true)), o.x, o.y + 0.06, camX, camY, false);
+    if (mine && this.riding && !this.map?.c11aCons) this.drawAt(npcSprite('minecart', o.dir || 'down', this.walkFrame(true)), o.x, o.y + 0.06, camX, camY, false);
     if (o.battle) {
       // ⚔ の しるし
       const px = Math.round(o.x * TS - camX), py = Math.round(o.y * TS - 27 - camY);

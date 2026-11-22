@@ -134,11 +134,12 @@ function keeperSteps(old) {
   };
 }
 // 灯台の 星座が できた（星図）
-function chartSteps() {
+function chartSteps(id) {
   return [
     ['look', L.ox + 2.5, L.oy + 1],
     ...S(KEEPER, 'みごとじゃ！\n…ほれ、レンズの光が、紙に、うつっていく。'),
-    ['unflag', C11A_LENS], ['sync'],
+    ['flag', id], ['unflag', C11A_LENS], ['sync'],
+    ['call', async (run) => { run.world.c11a.landAll(run.world, run.init, id); }],
     ['sfx', 'sparkle'],
     ['item', STAR_CHART, 1],
     ...N('「星図」を、手に入れた！\n空の海の、星座の島の、場所が、かいてある。'),
@@ -259,12 +260,12 @@ function conDoneSteps(id) {
     return [
       ['bgm', null],
       ['sfx', 'sparkle'], ['flash'],
-      ['flag', id], ['sync'],
+      // 灯台の レンズの 星座は できた 絵を 見せてから（しるしを 立てると ゆかの 星座が 消える）
+      ...(isle ? [['flag', id], ['sync']] : []),
       ['bgm', C11A_TRACKS.const],
       ...N(`星と星が、光の線で、むすばれて…\n星座「${C.name}」が、できた！`),
       ['wait', 600],
-      ['call', async (run) => { run.world.c11a.landAll(run.world, run.init, id); }],
-      ...(isle === 0 ? chartSteps() : []),
+      ...(isle ? [['call', async (run) => { run.world.c11a.landAll(run.world, run.init, id); }]] : chartSteps(id)),
       ...(isle && !light ? S(SP, '…あと、ひとつ。\nこの島の、もうひとつの星座も、つなごう。') : []),
       ...(light ? islandLightSteps(isle, lightsAfter) : []),
       ...(light && lightsAfter >= 3 ? beastSteps() : []),
