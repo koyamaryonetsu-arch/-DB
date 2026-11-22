@@ -20,26 +20,26 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=8604ab7ba7a1';
-import { ABILITIES } from './data/abilities.js?v=8604ab7ba7a1';
-import { SHARE } from './data/abilities-c9a.js?v=8604ab7ba7a1';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=8604ab7ba7a1';
-import { C9A } from './maps/c9a-flags.js?v=8604ab7ba7a1';
+import { MONSTERS } from './data/monsters.js?v=6a6b763889f6';
+import { ABILITIES } from './data/abilities.js?v=6a6b763889f6';
+import { SHARE } from './data/abilities-c9a.js?v=6a6b763889f6';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=6a6b763889f6';
+import { C9A } from './maps/c9a-flags.js?v=6a6b763889f6';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=8604ab7ba7a1';
-import { canUse } from './ai.js?v=8604ab7ba7a1';
+import { pub, atbRate } from './battle.js?v=6a6b763889f6';
+import { canUse } from './ai.js?v=6a6b763889f6';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=8604ab7ba7a1';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=6a6b763889f6';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=8604ab7ba7a1';
+import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=6a6b763889f6';
 // 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
-import { c10bAfter } from './battle-c10b.js?v=8604ab7ba7a1';
+import { c10bAfter } from './battle-c10b.js?v=6a6b763889f6';
 // 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
-import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=8604ab7ba7a1';
+import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=6a6b763889f6';
 // 第3部 第2章 第4幕: てらす（うつし身が 消える）・星のうた（まくが 1色 へる）・まくを まとい直す・しるし・金の 音の ごほうび（battle-c10d.js）
-import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js?v=8604ab7ba7a1';
+import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js?v=6a6b763889f6';
 // 第3部 第3章 第1幕: 時計の 数・サメ・星が よみがえる・スピカの ながれ星（battle-c11a.js）
-import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js?v=8604ab7ba7a1';
+import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js?v=6a6b763889f6';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -151,6 +151,14 @@ export function setupC9a(b) {
     addTeru(b);
   }
   if (on) addSpica(b);
+  // 第101回 R1班: 第1章の しくみの ある ボス（3人組・ためし・大王・ナゾカケ・ヒックリカエール2号・ムウ）も、
+  //   人が えらぶ 間 ずっと 待つ 形（b.tellAll。第2章・第3章と 同じ。battle.js の tick・battle-tell.js の tellHold）。
+  //   前ぶれの ない 間も c9Tell が 'wait' を かえす（ボスが 生きて いる 間）。オートの 人・自動の 仲間は 待たない・1つの まど 20秒まで
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu) {
+    b.c9wait = true;
+    b.tellAll = true;
+    b.tell = c9Tell(b);
+  }
   // 第3部 第2章 第4幕: 金の 音の ごほうび … 戦いの はじめにも ほのかな光（battle-c10d.js）
   if (b.c9sp && c10GlowStart(b)) glowNow(b, lines);
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1500, c9Spica: spicaPub(b) });
@@ -226,7 +234,8 @@ export function c9Tell(b) {
   if (m?.alive && m.c9t?.aim) return 'suck';
   const h = hoshimoriOf(b);
   if (h?.alive && h.c9h && !h.c9h.won && h.c9h.aim.length) return 'breath';
-  return c9bTell(b);
+  // 第101回 R1班: 第1章の ボスは 前ぶれが ない 間も 待つ（'wait'。setupC9a の b.c9wait）
+  return c9bTell(b) || (b.c9wait && !h?.c9h?.won && !b.c9mu?.won && b.enemies.some((e) => e.boss && e.alive) ? 'wait' : null);
 }
 // 戦いの はじめの ほのかな光（第3部 第2章 第4幕の 金の 音の ごほうび。いつもの ほのかな光と おなじ 中み）
 export function glowNow(b, lines = []) {

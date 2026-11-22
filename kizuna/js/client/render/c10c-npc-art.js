@@ -3,7 +3,7 @@
 // ・c10c_colonel … むらさきの 軍服・丸い ゴーグル・花の しるしの ぼうし・雷の 石ばんを もった たいさ（フィールドの 絵。戦いの 絵は B班）
 // ・c10c_ped6_on … 星の音を 置いた 紫の 台（光る）
 // もとの 作品の 絵の しるし（サングラス・茶色の スーツ・小さな 銃・光る 石の ペンダント など）は 使わない
-import { Painter } from './pixel.js?v=8604ab7ba7a1';
+import { Painter } from './pixel.js?v=6a6b763889f6';
 
 function paintColonel(dir, f) {
   const p = new Painter(20, 24);

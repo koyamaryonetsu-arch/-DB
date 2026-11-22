@@ -1,7 +1,7 @@
 // 第88回 G1班: ほう神演義の スーパー宝貝 7つ（docs/plan-r88-anime-gear.md の 2-1。ぜんぶ 伝説・そろいの 組 super_paopei）
 //   G2班: のこりの 宝貝（崑崙 26 ＋ 太極の打神べん・金鰲 11）を 足した
 //   宝貝は「使う」物: use.ability … 戦いの 道具から 1つの 戦いで 1回（data/abilities-r88.js の かくし技）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=8604ab7ba7a1';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=6a6b763889f6';
 
 const P = { work: 'houshin', set: 'super_paopei' };
 const H = { work: 'houshin' };

@@ -8,7 +8,7 @@
 //   7つの 玉           … オーラは 雷の 金 と 竜神の 青みどり（tama98）
 // 乗り物: 七つ玉の天かける竜（白と 青の 竜。まわりを 7色の 玉が 回る・さくらの 花びら）
 // えんしゅつ: tenka_kengou_sig（7色の 玉の 切りつけ → 白い もう 一太刀）・kizuna_issen（ひらめき技。神速の 白い 風）
-import { dragonArt } from './vehicle-r85b.js?v=8604ab7ba7a1';
+import { dragonArt } from './vehicle-r85b.js?v=6a6b763889f6';
 
 const ID = 'tenka_kengou';
 

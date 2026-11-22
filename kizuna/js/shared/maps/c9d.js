@@ -5,16 +5,16 @@
 // ・今の マップに 足す 物: 第3幕の 地下の川の 終わりの 岸に ひびきの とびらと ひびきの石 2つ（c9_song1 から。れんしゅう）・
 //   ながれ星のくぼ地の 黄の 台の 前の 場面（c9_act3 から。幕が 開いて いる 時だけ 始まる）
 // ・「行った 所」の 記録は 3まいとも 取らない（map.noExplore。引っこしコードを のばさない）。地図は 全部 見える（c9dShowAll）
-import { T } from '../tiles.js?v=8604ab7ba7a1';
-import { npc } from './npc.js?v=8604ab7ba7a1';
-import { parseRows16 } from './past.js?v=8604ab7ba7a1';
-import { lightInfo } from './c9a-light.js?v=8604ab7ba7a1';
-import { G1_ROWS, G2_ROWS, GRAVE_ROWS, C9D_POS, SHORE_DOOR9D, SHORE_STONES9D, SHORE_SCENE9D } from './c9d-rows.js?v=8604ab7ba7a1';
+import { T } from '../tiles.js?v=6a6b763889f6';
+import { npc } from './npc.js?v=6a6b763889f6';
+import { parseRows16 } from './past.js?v=6a6b763889f6';
+import { lightInfo } from './c9a-light.js?v=6a6b763889f6';
+import { G1_ROWS, G2_ROWS, GRAVE_ROWS, C9D_POS, SHORE_DOOR9D, SHORE_STONES9D, SHORE_SCENE9D } from './c9d-rows.js?v=6a6b763889f6';
 import {
   C9D, C9D_ACT3, C9D_MAP, C9D_MAP_IDS, C9D_ECHO, C9D_CHEST_IDS, C9D_TABLE, C9D_TRACKS, C9D_SPICA_LIGHT, C9D_APART_LIGHT, C9D_MOSS_STEPS,
-} from './c9d-flags.js?v=8604ab7ba7a1';
-import { C9C_MAP } from './c9c-flags.js?v=8604ab7ba7a1';
-import { c9dChest } from '../data/items-c9d.js?v=8604ab7ba7a1';
+} from './c9d-flags.js?v=6a6b763889f6';
+import { C9C_MAP } from './c9c-flags.js?v=6a6b763889f6';
+import { c9dChest } from '../data/items-c9d.js?v=6a6b763889f6';
 
 // 第3部 第1章 第4幕の マップの ID（セーブに のこるので かえない）
 export const CH9D_MAPS = [...C9D_MAP_IDS];
