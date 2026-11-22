@@ -151,6 +151,14 @@ export function setupC9a(b) {
     addTeru(b);
   }
   if (on) addSpica(b);
+  // 第101回 R1班: 第1章の しくみの ある ボス（3人組・ためし・大王・ナゾカケ・ヒックリカエール2号・ムウ）も、
+  //   人が えらぶ 間 ずっと 待つ 形（b.tellAll。第2章・第3章と 同じ。battle.js の tick・battle-tell.js の tellHold）。
+  //   前ぶれの ない 間も c9Tell が 'wait' を かえす（ボスが 生きて いる 間）。オートの 人・自動の 仲間は 待たない・1つの まど 20秒まで
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu) {
+    b.c9wait = true;
+    b.tellAll = true;
+    b.tell = c9Tell(b);
+  }
   // 第3部 第2章 第4幕: 金の 音の ごほうび … 戦いの はじめにも ほのかな光（battle-c10d.js）
   if (b.c9sp && c10GlowStart(b)) glowNow(b, lines);
   if (lines.length) b.emit({ t: 'msg', lines, dur: 1500, c9Spica: spicaPub(b) });
@@ -226,7 +234,8 @@ export function c9Tell(b) {
   if (m?.alive && m.c9t?.aim) return 'suck';
   const h = hoshimoriOf(b);
   if (h?.alive && h.c9h && !h.c9h.won && h.c9h.aim.length) return 'breath';
-  return c9bTell(b);
+  // 第101回 R1班: 第1章の ボスは 前ぶれが ない 間も 待つ（'wait'。setupC9a の b.c9wait）
+  return c9bTell(b) || (b.c9wait && !h?.c9h?.won && !b.c9mu?.won && b.enemies.some((e) => e.boss && e.alive) ? 'wait' : null);
 }
 // 戦いの はじめの ほのかな光（第3部 第2章 第4幕の 金の 音の ごほうび。いつもの ほのかな光と おなじ 中み）
 export function glowNow(b, lines = []) {
