@@ -254,20 +254,24 @@ if (process.argv[1]?.endsWith('real-boss.mjs')) {
         continue;
       }
       const res = [];
-      for (let i = 0; i < N; i++) {
+      // SIMONLY=1 … 道具だけ（SIMN=… 回）
+      for (let i = 0; i < (process.env.SIMONLY ? 0 : N); i++) {
         const r = await realRun(boss, party, SEED0 + i * 7919, { react });
         r.stats = await r.stats;
         res.push(r);
         if (process.env.EACH) console.log(`    ${i}: ${r.outcome} ${r.seconds}秒 ボス残${Math.round(r.bossLeft * 100)}% 死${r.deaths} ${JSON.stringify(r.stats)} ${JSON.stringify(r.tally)} ${JSON.stringify(r.sent)}`);
       }
+      if (res.length) {
       const s = summary9(res);
       const avg = (f) => res.reduce((t, r) => t + f(r), 0) / res.length;
       console.log(`■ 本物 ${boss} ${party} ${react / 1000}秒 ${N}回 勝率 ${Math.round(s.rate * 100)}%（勝ち${s.sec.toFixed(0)}秒） 平均${avg((r) => r.seconds).toFixed(0)}秒 ボス残${(avg((r) => r.bossLeft) * 100).toFixed(0)}% 死者${avg((r) => r.deaths).toFixed(2)} はねかえり${avg((r) => r.rej).toFixed(1)} ${JSON.stringify(Object.fromEntries(Object.keys(res[0].stats).map((k) => [k, +avg((r) => r.stats[k] || 0).toFixed(1)])))}`);
-      if (process.env.SIM) {
+      }
+      if (process.env.SIM || process.env.SIMONLY) {
         const simParty = party;
-        const sr = [...Array(N).keys()].map((i) => ch9Run(boss, LV9[boss], 'know', SEED0 + i * 7919, { party: simParty, react, flags: flagsOf(boss) }));
+        const SN = envNum('SIMN', N);
+        const sr = [...Array(SN).keys()].map((i) => ch9Run(boss, LV9[boss], 'know', SEED0 + i * 7919, { party: simParty, react, flags: flagsOf(boss) }));
         const ss = summary9(sr);
-        console.log(`■ 道具 ${boss} ${party} ${react / 1000}秒 ${N}回 勝率 ${Math.round(ss.rate * 100)}%（勝ち${ss.sec.toFixed(0)}秒）${c10Text(sr)}${c10bText(sr)}${c10cText(sr)}${c10dText(sr)}`);
+        console.log(`■ 道具 ${boss} ${party} ${react / 1000}秒 ${SN}回 勝率 ${Math.round(ss.rate * 100)}%（勝ち${ss.sec.toFixed(0)}秒）${c10Text(sr)}${c10bText(sr)}${c10cText(sr)}${c10dText(sr)}`);
       }
     }
   }
