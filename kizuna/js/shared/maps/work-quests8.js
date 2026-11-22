@@ -12,9 +12,9 @@
 // 36. ルミナの、星をこわがる子どもたち（先生の 流れ。ルミナの町）
 // 37. 鏡の湖の、こおったかがり火（炎術士の 流れ。鏡の湖の 北の ほとり）
 // 38. 星ふるえで、通れなくなった道（軍師の 流れ。ミドリナ平原の、ルミナと ホシフル村の 間）
-import { npc } from './npc.js?v=c20c6ea76166';
-import { openSpot } from './labyrinth.js?v=c20c6ea76166';
-import { C9A } from './c9a-flags.js?v=c20c6ea76166';
+import { npc } from './npc.js?v=cbd3e0b1870d';
+import { openSpot } from './labyrinth.js?v=cbd3e0b1870d';
+import { C9A } from './c9a-flags.js?v=cbd3e0b1870d';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第3部 第1章 第1幕の「星ふるえ」（A班の 物語の フラグ。docs/plan-part3.md の 9-4）

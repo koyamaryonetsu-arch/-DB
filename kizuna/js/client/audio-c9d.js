@@ -12,8 +12,8 @@
 // ・c9d_end … おちてきた星の子（ハ長調 72。第1章の おわり。53 秒。くり返さない。スピカの歌の 1ふしめ → あたたかく 広がる → シで 止まる ＝ 問いを のこす）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS } from './audio-c9a.js?v=c20c6ea76166';
-import { C9C_TOOLS } from './audio-c9c.js?v=c20c6ea76166';
+import { C9A_TOOLS } from './audio-c9a.js?v=cbd3e0b1870d';
+import { C9C_TOOLS } from './audio-c9c.js?v=cbd3e0b1870d';
 
 const { FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL } = C9A_TOOLS;
 const { shift, midiOfName } = C9C_TOOLS;

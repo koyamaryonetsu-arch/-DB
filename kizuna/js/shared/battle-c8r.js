@@ -38,21 +38,21 @@
 //   守りぬく … 小おにを 先に たおす・ともしびの HP が へったら 回復・大風の 前に 身を 守る（b.c8rNoPuff）
 //   一騎うち … おうえんを 使いわける・大剣の 前に リオンは 身を 守る
 //   ソリトゥス … 心が ゆらいだら すぐ よびかける（b.c8rNoCall）・ひとりの 仲間に よびかける・大技の 前に 身を 守る・千年の約束を 使う
-import { MONSTERS } from './data/monsters.js?v=c20c6ea76166';
-import { ABILITIES } from './data/abilities.js?v=c20c6ea76166';
-import { GUESTS } from './data/shops.js?v=c20c6ea76166';
+import { MONSTERS } from './data/monsters.js?v=cbd3e0b1870d';
+import { ABILITIES } from './data/abilities.js?v=cbd3e0b1870d';
+import { GUESTS } from './data/shops.js?v=cbd3e0b1870d';
 import {
   C8_WIND, C8_PUFF, GATE_FINAL_ACTIONS, FINAL_NAME, HEARTS, HEART_ACTIONS, STAR_ACTIONS, PROMISE_ACTIONS,
-} from './data/monsters-c8r.js?v=c20c6ea76166';
+} from './data/monsters-c8r.js?v=cbd3e0b1870d';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub, allyFromCharacter } from './battle.js?v=c20c6ea76166';
-import { canUse } from './ai.js?v=c20c6ea76166';
-import { AUTO_GUARD } from './battle-ch6.js?v=c20c6ea76166';
-import { trap } from './battle-earth.js?v=c20c6ea76166';
-import { fightPower, scaleGuestActor } from './guest-rule.js?v=c20c6ea76166';
-import { makeNpcSupportChar } from './world/party.js?v=c20c6ea76166';
+import { atbRate, pub, allyFromCharacter } from './battle.js?v=cbd3e0b1870d';
+import { canUse } from './ai.js?v=cbd3e0b1870d';
+import { AUTO_GUARD } from './battle-ch6.js?v=cbd3e0b1870d';
+import { trap } from './battle-earth.js?v=cbd3e0b1870d';
+import { fightPower, scaleGuestActor } from './guest-rule.js?v=cbd3e0b1870d';
+import { makeNpcSupportChar } from './world/party.js?v=cbd3e0b1870d';
 // 第3部 第1章 第1幕: 星の子・3人組と スイトール1号・ホシモリの ともしびの ためし（battle-c9a.js）
-import { setupC9a, c9aTurnStart, c9aEffect, c9aPlan, c9aDamage, c9aKill } from './battle-c9a.js?v=c20c6ea76166';
+import { setupC9a, c9aTurnStart, c9aEffect, c9aPlan, c9aDamage, c9aKill } from './battle-c9a.js?v=cbd3e0b1870d';
 
 export const ORB = 'm8g_orb';
 export const ORBFAIL = 'm8g_orbfail';

@@ -14,7 +14,7 @@
 //   R82A_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
 //   outfit82(O, S)          … 服の つけたし（hero-r26.js の outfit26 から。数珠）
 //   drawR82(cv, P, O, layer) … 首の 数珠（hero-r26.js の drawR26 から）
-import { mat, ramp, TH } from './hero-raster.js?v=c20c6ea76166';
+import { mat, ramp, TH } from './hero-raster.js?v=cbd3e0b1870d';
 
 export const R82A_JOBS = ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'];
 

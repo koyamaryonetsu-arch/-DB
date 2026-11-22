@@ -16,16 +16,16 @@
 //   （battle-ch6.js の AUTO_GUARD。ほかの ボスと おなじ。b.c6Naive … しない 人）
 // ・知っている 人（シミュレーター tools/sim-ch7.mjs。b.knowsCh6）: 大うずしお・大合唱の 前に 身を 守る（b.c6NoGuard … しない）／
 //   ウツボは HP の 多い ほうを ねらって 2ひきを いっしょに へらす（b.c7NoSplit … しない）／声が 貝に 入ったら 貝を こわす（b.c7NoShell … しない）
-import { MONSTERS } from './data/monsters.js?v=c20c6ea76166';
-import { ABILITIES } from './data/abilities.js?v=c20c6ea76166';
-import { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL } from './data/monsters-c7.js?v=c20c6ea76166';
-import { BUFF_ACTS } from './buff-acts.js?v=c20c6ea76166';
+import { MONSTERS } from './data/monsters.js?v=cbd3e0b1870d';
+import { ABILITIES } from './data/abilities.js?v=cbd3e0b1870d';
+import { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL } from './data/monsters-c7.js?v=cbd3e0b1870d';
+import { BUFF_ACTS } from './buff-acts.js?v=cbd3e0b1870d';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=c20c6ea76166';
-import { canUse } from './ai.js?v=c20c6ea76166';
-import { AUTO_GUARD } from './battle-ch6.js?v=c20c6ea76166';
+import { atbRate } from './battle.js?v=cbd3e0b1870d';
+import { canUse } from './ai.js?v=cbd3e0b1870d';
+import { AUTO_GUARD } from './battle-ch6.js?v=cbd3e0b1870d';
 // 第2部 第7章 第2幕: ジョリーホック号（しおの満ち引き）・ホック船長（板わたり）。battle-c7s.js
-import { setupC7s, c7sTurnStart, c7sEffect, c7sPlan, c7sPub, c7sDamage, c7sKill } from './battle-c7s.js?v=c20c6ea76166';
+import { setupC7s, c7sTurnStart, c7sEffect, c7sPlan, c7sPub, c7sDamage, c7sKill } from './battle-c7s.js?v=cbd3e0b1870d';
 
 export { C7_GATE, C7_GATE_B, C7_TEMPLE, C7_SHELL };
 export const SWIRL = 'm7g_swirl';

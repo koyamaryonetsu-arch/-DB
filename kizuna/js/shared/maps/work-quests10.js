@@ -14,9 +14,9 @@
 // 43. ピラミッドの岸の、夜なかのゴーン（無差別格闘流の 流れ。第4幕の クリア c9_act4 から。ピラミッドの 岸）
 //
 // フラグは いらい 1つに 2こだけ（受けた・すんだ。引っこしコードを のばさない）
-import { npc } from './npc.js?v=c20c6ea76166';
-import { C9C, C9C_MAP } from './c9c-flags.js?v=c20c6ea76166';
-import { C9D } from './c9d-flags.js?v=c20c6ea76166';
+import { npc } from './npc.js?v=cbd3e0b1870d';
+import { C9C, C9C_MAP } from './c9c-flags.js?v=cbd3e0b1870d';
+import { C9D } from './c9d-flags.js?v=cbd3e0b1870d';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 42 は 第3幕の クリア・43 は 第4幕の クリア（第1章の クリア）から

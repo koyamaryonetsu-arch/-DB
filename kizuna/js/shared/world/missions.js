@@ -12,12 +12,12 @@
 import {
   MISSIONS, WEEK_PICK, weekNo, weekStart, daysLeft, missionText, openKinds, pickWeek, weekReward,
   MILESTONES, milestoneOf, nextMilestone, earnedOf, wornTitle, DAY_MS,
-} from '../data/missions.js?v=c20c6ea76166';
-import { MONSTERS } from '../data/monsters.js?v=c20c6ea76166';
-import { ITEMS } from '../data/items.js?v=c20c6ea76166';
-import { MAPS } from '../maps/index.js?v=c20c6ea76166';
-import { addItem } from '../stats.js?v=c20c6ea76166';
-import { partyOf } from './party.js?v=c20c6ea76166';
+} from '../data/missions.js?v=cbd3e0b1870d';
+import { MONSTERS } from '../data/monsters.js?v=cbd3e0b1870d';
+import { ITEMS } from '../data/items.js?v=cbd3e0b1870d';
+import { MAPS } from '../maps/index.js?v=cbd3e0b1870d';
+import { addItem } from '../stats.js?v=cbd3e0b1870d';
+import { partyOf } from './party.js?v=cbd3e0b1870d';
 
 const HIST_MAX = 12;
 const FLOOR_MAX = 300;

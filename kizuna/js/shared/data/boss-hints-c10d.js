@@ -3,8 +3,8 @@
 //   門の 番人は 1だんの ひとこと（何回 負けても おなじ）
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c10d.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=c20c6ea76166';
-import { C10D_BATTLE_B as C10D_BATTLE } from '../maps/c10d-flags.js?v=c20c6ea76166';
+import { mergeBossHints } from './boss-hints.js?v=cbd3e0b1870d';
+import { C10D_BATTLE_B as C10D_BATTLE } from '../maps/c10d-flags.js?v=cbd3e0b1870d';
 
 export const C10D_HINT_WHO = 'ノクト';
 export const C10D_BOSS_HINTS = {

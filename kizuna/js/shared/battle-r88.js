@@ -4,12 +4,12 @@
 //   ・使う（品の use）… 1つの 戦いで その 品 1回（battle-gearfx.js の gearUseCheck・gearUse。u.once・u.used）
 //   ・そろい rule 'party' … 戦いの はじめの 仲間で 数えて、全員に その 段の 強さ（applyPartySets。battle.js の constructor）
 //   どれも 戦いの 中だけ（セーブしない）
-import { GEAR_SETS } from './data/gear-sets.js?v=c20c6ea76166';
-import { fxPower, GEAR_FX } from './data/gear-fx.js?v=c20c6ea76166';
-import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=c20c6ea76166';
-import { ITEMS, baseItemId } from './data/items.js?v=c20c6ea76166';
+import { GEAR_SETS } from './data/gear-sets.js?v=cbd3e0b1870d';
+import { fxPower, GEAR_FX } from './data/gear-fx.js?v=cbd3e0b1870d';
+import { reachOf, orbOf, wornSetIds, powerTier, addTier } from './gear-r88.js?v=cbd3e0b1870d';
+import { ITEMS, baseItemId } from './data/items.js?v=cbd3e0b1870d';
 // G13班: 百味ビーンズの 味
-import { BEANS } from './data/items-r88-harrypotter.js?v=c20c6ea76166';
+import { BEANS } from './data/items-r88-harrypotter.js?v=cbd3e0b1870d';
 
 // 味方に もたせる もの（battle-gearfx.js の gearFxActor が まぜる）
 export function r88Actor(char) {

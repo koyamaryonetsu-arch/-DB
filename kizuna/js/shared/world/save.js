@@ -5,29 +5,29 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { repairGearFx } from '../data/gear-fx.js?v=c20c6ea76166';
-import { ITEMS, SLOTS } from '../data/items.js?v=c20c6ea76166';
-import { JOBS } from '../data/jobs.js?v=c20c6ea76166';
-import { MONSTERS } from '../data/monsters.js?v=c20c6ea76166';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=c20c6ea76166';
-import { repairTreasureMaps } from '../data/treasure.js?v=c20c6ea76166';
-import { ensureTmClears } from '../data/casino-tier.js?v=c20c6ea76166';
-import { repairSecret } from '../data/secret.js?v=c20c6ea76166';
-import { repairAlchemy } from './alchemy.js?v=c20c6ea76166';
-import { normBank } from './bank.js?v=c20c6ea76166';
-import { cleanWagon } from '../data/wagon.js?v=c20c6ea76166';
-import { cleanLookEquip } from '../look-equip.js?v=c20c6ea76166';
-import { cleanVehicles } from '../data/vehicles.js?v=c20c6ea76166';
-import { repairTrialInfo } from '../data/job-trials.js?v=c20c6ea76166';
-import { cleanQuick } from '../data/quick-item.js?v=c20c6ea76166';
-import { repairSubAsk } from '../data/subquest-hints.js?v=c20c6ea76166';
-import { cleanStamps } from '../data/stamps.js?v=c20c6ea76166';
-import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=c20c6ea76166';
-import { repairFeats } from './phantom.js?v=c20c6ea76166';
+import { repairGearFx } from '../data/gear-fx.js?v=cbd3e0b1870d';
+import { ITEMS, SLOTS } from '../data/items.js?v=cbd3e0b1870d';
+import { JOBS } from '../data/jobs.js?v=cbd3e0b1870d';
+import { MONSTERS } from '../data/monsters.js?v=cbd3e0b1870d';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=cbd3e0b1870d';
+import { repairTreasureMaps } from '../data/treasure.js?v=cbd3e0b1870d';
+import { ensureTmClears } from '../data/casino-tier.js?v=cbd3e0b1870d';
+import { repairSecret } from '../data/secret.js?v=cbd3e0b1870d';
+import { repairAlchemy } from './alchemy.js?v=cbd3e0b1870d';
+import { normBank } from './bank.js?v=cbd3e0b1870d';
+import { cleanWagon } from '../data/wagon.js?v=cbd3e0b1870d';
+import { cleanLookEquip } from '../look-equip.js?v=cbd3e0b1870d';
+import { cleanVehicles } from '../data/vehicles.js?v=cbd3e0b1870d';
+import { repairTrialInfo } from '../data/job-trials.js?v=cbd3e0b1870d';
+import { cleanQuick } from '../data/quick-item.js?v=cbd3e0b1870d';
+import { repairSubAsk } from '../data/subquest-hints.js?v=cbd3e0b1870d';
+import { cleanStamps } from '../data/stamps.js?v=cbd3e0b1870d';
+import { cleanFamilyBoard, cleanBoardSeen } from './family-board.js?v=cbd3e0b1870d';
+import { repairFeats } from './phantom.js?v=cbd3e0b1870d';
 // 第67回 B: モンスター闘技場の 記録
-import { repairMonArena } from '../data/monarena.js?v=c20c6ea76166';
+import { repairMonArena } from '../data/monarena.js?v=cbd3e0b1870d';
 // 第88回 G3班: まぼろしの回廊の 勝った 記録（data/rivals-r88.js）
-import { repairRivals } from '../data/rivals-r88.js?v=c20c6ea76166';
+import { repairRivals } from '../data/rivals-r88.js?v=cbd3e0b1870d';
 
 export const SAVE_VERSION = 4;
 
