@@ -172,7 +172,7 @@ export const MONSTERS_C11A = {
       few: { hp: [0.6, 0.58, 1, 1, 1.2], atk: [0.7, 0.66, 1, 1, 1.08], plus: [2, 2, 2, 2, 2], spd: [1, 1, 1, 1, 1] },
       solo: { hp: 0.2, atk: 0.24, spd: 0.75, two: 0 },
       // 魔物の 仲間は 時計を 投げない（3回に 1回だけ）・生き返らせない ので、1体ごとに 船長を 弱く する
-      monK: { hp: -0.12, atk: -0.1 },
+      monK: { hp: -0.13, atk: -0.11 },
     },
     actions: [{ w: 3, id: 'm11p_saber' }, { w: 2, id: 'm11p_cannon', cond: 'notRecent:m11p_cannon' }, { w: 1, id: 'm11p_brag', cond: 'notRecent:m11p_brag' }],
     desc: '片手が、大きないかりの船長。いつもいばっているが、時計の音が大の苦手。',

@@ -278,7 +278,7 @@ test('いかり船長: はじめに 時計を 味方の 1人へ（数は 動く 
   assert.ok(b.allies.every((a) => a.abilities[0] === TOKEI_NAGE || a.abilities.includes(TOKEI_NAGE)), '時計を投げる');
   // 名前の 横の しるし（がめんへ: 味方の pub）
   assert.equal(c11aAllyPub(holder, b).clock11, 7);
-  assert.equal(c11aAllyPub(b.allies.find((a) => a !== holder), b).clock11, undefined);
+  assert.equal(c11aAllyPub(b.allies.find((a) => a !== holder), b).clock11, null, '持って いない 時は null（がめんの しるしが 消える）');
   // 1回 動くたびに 1 へる（だれでも）
   const other = b.allies.find((a) => a !== holder);
   nop(b, other);

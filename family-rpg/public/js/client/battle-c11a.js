@@ -203,6 +203,7 @@ export function c11aDraw(scene, x, m, c, px, py, w, h, base) {
   const foes = foesOf(scene).filter((e) => e.alive || isStar(e)).concat(isCap(c) && c.c11Down && !c.alive ? [c] : []);
   const top = c11aHtml(foes, allies, myId(scene));
   showTop(scene, top.html, top.cls);
+  if (isCap(c)) refreshCmd(scene);
   if (!c.alive || c.c11Down) return;
   const ty = portrait() ? py + h * 0.6 : py + h + 4;
   if (isCap(c)) {
@@ -287,6 +288,8 @@ export function c11aCmdItems(scene, a) {
   let info = '';
   if (!a || !(a.abilities || []).includes(TOKEI_NAGE)) return { items, info };
   const me = (scene.allies?.() || []).find((x) => x.id === a.id) || a;
+  // コマンドの まどを 出した 時に 時計を 持って いたか（refreshCmd が 見る）
+  scene.c11aShown = { id: a.id, n: Number.isInteger(me.clock11) ? me.clock11 : null };
   if (!Number.isInteger(me.clock11)) return { items, info };
   const n = me.clock11;
   items.push({ html: `<span class="dual-cmd">時計を投げる</span><span class="tag">あと${n}</span>`, value: 'c11apass', cls: 'k-dual' });
@@ -296,6 +299,19 @@ export function c11aCmdItems(scene, a) {
       ? `時計は、あと${n}！そろそろ「時計を投げる」で、船長に投げ返そう。`
       : `時計は、あと${n}。早く投げると、投げ返されるかも…。自分の番が、もう1回来るかな？`;
   return { items, info };
+}
+// コマンドの まどを 開いて いる 間に 時計が とんで きた（投げられた・投げた）ら、いちばん 上の まどを 開き直す
+//   （人が えらんで いる 間も、もう えらんだ 人の 行動は 進む。まどの 中の「時計を投げる」と あと ○ を 今の ようすに）
+export function refreshCmd(scene) {
+  const me = scene.myActor;
+  const shown = scene.c11aShown;
+  if (!me || !shown || shown.id !== me.id || !scene.menu || typeof scene.openCommand !== 'function') return false;
+  const title = scene.cmdEl?.querySelector?.('.who')?.textContent || '';
+  if (!title.includes('はどうする？')) return false;
+  const n = Number.isInteger(me.clock11) ? me.clock11 : null;
+  if (n === shown.n) return false;
+  scene.openCommand();
+  return true;
 }
 export function c11aCmdPick(scene, a, value) {
   if (value !== 'c11apass') return false;

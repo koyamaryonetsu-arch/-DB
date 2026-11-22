@@ -842,17 +842,16 @@ export function c11aPub(c, b = c?._b11) {
   }
   return o;
 }
-// 味方（battle-c9a.js の c9aPub から）: pass11（時計を投げる が ある 戦い）・clock11（持って いる 時計の いちばん 少ない 数）・clockN11（持って いる 数）
+// 味方（battle-c9a.js の c9aPub から）: pass11（時計を投げる が ある 戦い）・clock11（持って いる 時計の いちばん 少ない 数。持って いない 時は null）・clockN11（持って いる 数）
 export function c11aAllyPub(c, b = c?._b11) {
   const o = {};
   const st = b?.c11a;
   if (!st || st.kind !== 'pirate') return o;
   o.pass11 = 1;
+  // 持って いない 時も null を 出す（がめんは 前の 値に 足して いく ので、消さないと しるしが のこる）
   const mine = clocksOf(b, c);
-  if (mine.length) {
-    o.clock11 = mine[0].n;
-    o.clockN11 = mine.length;
-  }
+  o.clock11 = mine.length ? mine[0].n : null;
+  o.clockN11 = mine.length;
   return o;
 }
 void C11A_STARS;
