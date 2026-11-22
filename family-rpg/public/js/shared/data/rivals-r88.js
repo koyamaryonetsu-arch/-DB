@@ -26,11 +26,11 @@ export const RIVAL_GOLD_PER_LV = 30;
 // jobs … その 作品の 職業（家族に いると まぼろしの ひとことが かわる）
 export const RIVAL_DOORS = [
   { work: 'houshin', mark: 'r88_houshin', bg: 'kumoi', room: 'cloud', jobs: ['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi', 'chaos_gunshi'] },
-  { work: 'yaiba', mark: 'r88_yaiba', bg: 'hoshiyomi', room: 'wood', jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai', 'ryujin_kenshi'] },
+  { work: 'yaiba', mark: 'r88_yaiba', bg: 'hoshiyomi', room: 'wood', jobs: ['samurai_kid', 'raijin_sword', 'yaiba', 'ryujin_samurai', 'ryujin_kenshi', 'tenka_kengou'] }, // 第98回 K2班: きずなの職業（新しい 系統の 方の 作品）
   // G5班: スレイヤーズ（石の 広間・塔の 中）・烈火の炎（火山）
   { work: 'slayers', mark: 'r88_slayers', bg: 'tower', room: 'stone', jobs: ['tabi_madoshi', 'lina', 'doramata'] },
   { work: 'rekka', mark: 'r88_rekka', bg: 'volcano', room: 'volcano', jobs: ['enjutsushi', 'rekka', 'kuuchou_master', 'hachiryu_hokage'] }, // 第98回: きずなの職業は 新しい 系統の 方の 作品（data/jobs-r98-*.js の work）  // G7班: 犬夜しゃ（森の 部屋・森）・ゆう☆遊☆白書（石の 広間・闘技場）
-  { work: 'inuyasha', mark: 'r88_inuyasha', bg: 'forest', room: 'forest', jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha'] },
+  { work: 'inuyasha', mark: 'r88_inuyasha', bg: 'forest', room: 'forest', jobs: ['hanyo_boy', 'tessaiga_user', 'inuyasha', 'bakuryuha', 'hyakki_taishou'] }, // 第98回 K2班: きずなの職業（新しい 系統の 方の 作品）
   { work: 'yuhaku', mark: 'r88_yuhaku', bg: 'arena', room: 'stone', jobs: ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'] },
   ...g8Doors(), // G8班: らんま1/2・じごく先生ぬ〜べ〜（ファイルの さいご）
   ...g10Doors(), // G10班: ナルト・きめつのやいば（ファイルの さいご）

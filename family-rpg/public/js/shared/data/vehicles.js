@@ -135,6 +135,8 @@ import { KIZUNA_VEHICLES } from './kizuna.js'; Object.assign(VEHICLES, KIZUNA_VE
 VEHICLES.fire_dragon.jobs.push('kuuchou_master', 'hachiryu_hokage');
 VEHICLES.kei_truck.jobs.push('kuuchou_master');
 VEHICLES.ninja_dash.jobs.push('hachiryu_hokage');
+VEHICLES.twin_cat.jobs.push('hyakki_taishou'); VEHICLES.lotus.jobs.push('hyakki_taishou'); // 第98回 K2班: 百きの大将
+VEHICLES.big_tiger.jobs.push('tenka_kengou'); VEHICLES.sakura_dash.jobs.push('tenka_kengou'); // 第98回 K2班: 天下無そうの剣ごう
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;
