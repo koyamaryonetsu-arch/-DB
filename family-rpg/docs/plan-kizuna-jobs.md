@@ -196,7 +196,7 @@ hero-outfit.js・hero-gear.js・hero-aura.js・chars.js・vehicle-art.js・battl
 一覧に 1行ずつ: kizuna.js・battle-kizuna.js・kizuna-art.js・rivals-r88.js（封神演義・ぬ〜べ〜の とびら）・vehicles.js（limo／teacher_bike・mamachari）。
 - 空飛ぶカバ（sky_hippo）には 足して いない（test/jobs-r83a が 大軍師の 系統だけを 見る。混とんの大軍師と おなじ）。
 - 直した テスト: phantom-r51（18 → 20）・jobs-r98a（K1班の 2つは はじめの 2つ／幻の書の 行は PHANTOM_ORDER の 数）・gear-r88-g8（ぬ〜べ〜の とびらに PTA会長）。
-- お仕事いらいの テスト（work-quests-*）は 直さず 通った。
+- お仕事いらいの テスト: work-quests-r90（小学校の先生の 流れの 中み）だけ、8-3 の とおり `isKizuna` を のぞいて くらべ、PTA会長が 入って いる ことを べつに 見る 形に した。
 - 8-4 に 足す はまり所: **学校（school）タグは せーのでジャンプの 組が 13職業 まで**（test/dual-r31）で いっぱい。合体技の タグを ためす 時は、data/kizuna.js を 読む **前に** タグを かえないと 組に 入らない（dual.js が 読みこみの 時に 組を 作る）。
 
 ### 10-3. 強さ（前と あと）
