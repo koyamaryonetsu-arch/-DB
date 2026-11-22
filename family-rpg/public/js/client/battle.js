@@ -104,7 +104,7 @@ import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js';
 import { sortByStdPower } from '../shared/skill-sort.js';
 import './ui/r69-css.js';
 import './ui/r35-css.js';
-import { bindBattlePad } from './battle-pad.js';
+import { bindBattlePad, battlePadMenu, TACTICS_CMD, tacticsToast } from './battle-pad.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultSheet } from './ui/result.js';
@@ -733,6 +733,7 @@ export class BattleScene {
     // 馬車の 仲間と いれかえ（馬車が いっしょの とき。ui/wagon.js）
     const wagon = battleWagon(this);
     if (wagon) items.splice(items.length - 1, 0, { label: 'いれかえ', value: 'wagon', disabled: !wagon.outs.length || !wagon.ins.some((x) => x.hp > 0) });
+    items.push(TACTICS_CMD); // 第100回 U1: 作戦（戦いのメニューを 開く。番は 使わない。battle-pad.js）
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
     // 地われ・のみこまれ の 仲間が いる 時だけ「手をのばす」（いちばん 上。battle-earth.js）
     const reach = earthReachItem(this, a);
@@ -757,6 +758,7 @@ export class BattleScene {
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
+        case 'tactics': return battlePadMenu(this);
         case 'reach': return earthReachPick(this, a);
         case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': case 'c10dring': case 'c11apass': case 'c10bring': case 'c10cmove': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
@@ -1707,6 +1709,7 @@ export class BattleScene {
       onSelect: (it) => {
         this.closeTactics();
         if (it.value !== now) this.game.net.send({ t: 'battle', actor: id, tactics: it.value });
+        tacticsToast(a, it.value, now);
       },
       onCancel: () => this.closeTactics(),
     });

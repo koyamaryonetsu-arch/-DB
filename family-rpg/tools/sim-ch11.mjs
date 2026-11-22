@@ -4,6 +4,7 @@
 //   前の 幕の 道具（tools/sim-ch10.mjs）と おなじ 使い方:
 //   node tools/sim-ch11.mjs [回数] [beast|pirate|act1]
 //     PARTY=p4,k1npc,k1fam,k1mon,k2npc,solo,p5 … 人数の やり方（sim-ch9.mjs の PARTIES9・EXTRA_PARTIES9）・REACT=2000,5000 … えらぶ 時間
+//     PARTY=p2,p3 … 人2人だけ・人3人だけ（仲間なし。ボスの 表は bare）。道具は 直した ch9Run（人ごとに べつの 手）。前の 物さしは LEGACY=1
 //     MODES=know,blind,auto … やり方・TACTICS=balanced,… … 完全オートの 作戦（ない ときは shared/ai.js の TACTICS の ぜんぶ。めいれいさせろ は のぞく）
 //     TAC=… 人が 動かす キャラの 作戦・SUPTAC=… 自動の 仲間 みんなの 作戦（sim-ch9.mjs の ch9Run）
 //     LOG=1 BOSS=pirate MODE=know SEED=1 PARTY=p4 … 1回だけ ようすを 出す

@@ -1716,6 +1716,17 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .b-tactics .menu .item { min-height: 2.1em; }
 .b-tactics .menu .item.tac-now .l { color: var(--accent); }
 .b-tactics .menu .item .r { color: var(--accent); font-size: 0.8em; }
+/* 第100回 U1: コントローラーで 作戦（client/battle-pad.js）
+   ・「オート」の 下の 小さな ヒント（コントローラーが つながって いる 時だけ）
+   ・コマンドの まどの「作戦」（番を 使わない ので 文字を 水色に。点線は えらべない 物の しるしなので 使わない） */
+.b-tools .b-padhint {
+  font: inherit; font-size: calc(var(--fs-small) * 0.78); line-height: 1.2; color: var(--muted);
+  background: rgba(10, 12, 40, 0.7); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 6px;
+  padding: 0.1em 0.4em; white-space: nowrap; cursor: pointer;
+}
+.b-tools .b-padhint[hidden] { display: none; }
+.b-cmd .menu .item.k-tac .l { color: #b8d6ff; }
+.b-padmenu .menu .item .r { color: var(--muted); font-size: 0.75em; }
 
 /* ───── よこむきの スマホ（たかさが みじかい）: たたかいの え を 大きく ───── */
 /* ひだりに え（はばいっぱい。のこりの たかさが メッセージ）、みぎの ほそい れつに つよさ（1人 1行）と コマンド。
