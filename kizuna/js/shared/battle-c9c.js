@@ -20,11 +20,13 @@
 // ・自動の 仲間（酒場の 人）は、なぞ 3つの うち 1つに 正しく 答える・砂が 少なく なる 3回の うち 1回 ひっくり返す（AUTO_EVERY。番ごとでは なく できごとごと）
 //   家族の キャラの「オート」と 魔物の 仲間は しない（完全オートは 勝てない まま）
 // ・人数で 合わせる（few・solo・monK）は 第2幕の 大王と おなじ 数え方（battle-c9b.js の kingPeople。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=10ad7ced5cfe';
-import { ABILITIES } from './data/abilities.js?v=10ad7ced5cfe';
-import { ANSWER, FLIP } from './data/abilities-c9c.js?v=10ad7ced5cfe';
-import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js?v=10ad7ced5cfe';
-import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js?v=10ad7ced5cfe';
+import { MONSTERS } from './data/monsters.js?v=e3ea39586b77';
+import { ABILITIES } from './data/abilities.js?v=e3ea39586b77';
+import { ANSWER, FLIP } from './data/abilities-c9c.js?v=e3ea39586b77';
+import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js?v=e3ea39586b77';
+import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js?v=e3ea39586b77';
+// 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
+import { pickPeople } from './battle-c9a.js?v=e3ea39586b77';
 
 export { ANSWER, FLIP };
 export const RIDDLE = 'm9z_riddle';
@@ -51,13 +53,8 @@ export function peopleOf9c(b) {
   const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf9c(b) - 1] ?? d : d);
-// 人数で 合わせた 数（仲間なしの ひとりは solo を 先に）
-function picker(c, b) {
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  return (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
-}
+// 人数で 合わせた 数（仲間なしの ひとりは solo を 先に。第101回 R1班: 仲間なしの 2人・3人は bare を few より 先に … battle-c9a.js の pickPeople）
+const picker = (c, b) => pickPeople(c, b, peopleOf9c);
 function monMul(c, b) {
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return { hp: 1 + (c.monK?.hp || 0) * mons, atk: 1 + (c.monK?.atk || 0) * mons };

@@ -13,26 +13,28 @@
 //   はこ（c9_box1〜3）1つに つき、はじめの 皿が 1つ へる（late 回 動くと 持って くる）
 //   たおれない: HPが 1 に なると、おなかを 鳴らして すわりこむ（勝ち。b.killed に 入れて 経験値・落とし物は ふつう）
 // ・自動の 仲間（酒場の 人）は、見えて いる 皿を 3回に 1回 ねらう（AUTO_DISH_EVERY。家族の キャラの「オート」と 魔物の 仲間は ねらわない）
-import { MONSTERS } from './data/monsters.js?v=10ad7ced5cfe';
-import { ABILITIES } from './data/abilities.js?v=10ad7ced5cfe';
-import { TERU } from './data/abilities-c9b.js?v=10ad7ced5cfe';
-import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=10ad7ced5cfe';
-import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=10ad7ced5cfe';
-import { canUse } from './ai.js?v=10ad7ced5cfe';
+import { MONSTERS } from './data/monsters.js?v=e3ea39586b77';
+import { ABILITIES } from './data/abilities.js?v=e3ea39586b77';
+import { TERU } from './data/abilities-c9b.js?v=e3ea39586b77';
+import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js?v=e3ea39586b77';
+import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js?v=e3ea39586b77';
+import { canUse } from './ai.js?v=e3ea39586b77';
+// 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
+import { pickPeople } from './battle-c9a.js?v=e3ea39586b77';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js）
-import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js?v=10ad7ced5cfe';
+import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js?v=e3ea39586b77';
 // 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
-import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js?v=10ad7ced5cfe';
+import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js?v=e3ea39586b77';
 // 第3部 第2章 第1幕: スピカの ごほうび・ドクター・タマゴン・カビだんしゃく モルド（battle-c10a.js）
-import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js?v=10ad7ced5cfe';
+import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js?v=e3ea39586b77';
 // 第3部 第2章 第2幕: スピカの ごほうび・サー・ゲッコー・かいとう シロフクロウ（battle-c10b.js）
-import { setupC10b, c10TeruFull, c10bTurnStart, c10bEffect, c10bDamage, c10bKill, c10bPlan, c10bPub, c10bBusy, c10bTell } from './battle-c10b.js?v=10ad7ced5cfe';
+import { setupC10b, c10TeruFull, c10bTurnStart, c10bEffect, c10bDamage, c10bKill, c10bPlan, c10bPub, c10bBusy, c10bTell } from './battle-c10b.js?v=e3ea39586b77';
 // 第3部 第2章 第3幕: スピカの ごほうび・たいさムスカリ・アルゴル（battle-c10c.js）
-import { setupC10c, c10TeruLit, c10cTurnStart, c10cEffect, c10cDamage, c10cPlan, c10cPub, c10cBusy, c10cTell } from './battle-c10c.js?v=10ad7ced5cfe';
+import { setupC10c, c10TeruLit, c10cTurnStart, c10cEffect, c10cDamage, c10cPlan, c10cPub, c10cBusy, c10cTell } from './battle-c10c.js?v=e3ea39586b77';
 // 第3部 第2章 第4幕: スピカの ごほうび・ちからの 水・音を鳴らす・門の 番人・ミラーレ（battle-c10d.js）
-import { setupC10d, c10dTurnStart, c10dEffect, c10dDamage, c10dPlan, c10dPub, c10dBusy, c10dTell } from './battle-c10d.js?v=10ad7ced5cfe';
+import { setupC10d, c10dTurnStart, c10dEffect, c10dDamage, c10dPlan, c10dPub, c10dBusy, c10dTell } from './battle-c10d.js?v=e3ea39586b77';
 // 第3部 第3章 第1幕: スピカの ごほうび（ながれ星）・星座のけもの・いかり船長・時計を投げる（battle-c11a.js）
-import { setupC11a, setStarDamage, c11aTurnStart, c11aEffect, c11aDamage, c11aPlan, c11aPub, c11aBusy, c11aTell } from './battle-c11a.js?v=10ad7ced5cfe';
+import { setupC11a, setStarDamage, c11aTurnStart, c11aEffect, c11aDamage, c11aPlan, c11aPub, c11aBusy, c11aTell } from './battle-c11a.js?v=e3ea39586b77';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -59,13 +61,11 @@ export function kingPeople(b) {
   const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[kingPeople(b) - 1] ?? d : d);
 // 仲間なしの ひとり（戦う 人が 1人だけ）は c9b.solo の 数を 先に 見る（人数の 表 few は 家族の キャラの 数。1人 ＋ 自動の 仲間と 分ける）
+//   第101回 R1班: 仲間なしの 2人・3人は c9b.bare を few より 先に（battle-c9a.js の pickPeople）
 export function kingConf(m, b = null) {
   const c = confOf(m) || {};
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const pick = pickPeople(c, b, kingPeople);
   // 魔物の 仲間 1体ごとに 大王を 少し 強く（monK。魔物の 仲間は かたい）
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {

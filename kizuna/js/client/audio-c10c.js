@@ -19,9 +19,9 @@
 // ・c10c_six … そろった六つの音（ハ長調 124。13.5 秒。くり返さない。スピカの歌の 1〜6ふしめの 頭 → ベルが レ・ミ・ファ・ソ・ラ・シ〈集めた 6つの 星の音〉→ シで 止まる〈あと 1つ〉）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS, C9A_TRIO_THEME } from './audio-c9a.js?v=10ad7ced5cfe';
-import { C9C_TOOLS } from './audio-c9c.js?v=10ad7ced5cfe';
-import { C9D_SONG } from './audio-c9d.js?v=10ad7ced5cfe';
+import { C9A_TOOLS, C9A_TRIO_THEME } from './audio-c9a.js?v=e3ea39586b77';
+import { C9C_TOOLS } from './audio-c9c.js?v=e3ea39586b77';
+import { C9D_SONG } from './audio-c9d.js?v=e3ea39586b77';
 
 const { FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView } = C9A_TOOLS;
 const { shift } = C9C_TOOLS;

@@ -8,14 +8,14 @@
 // ・くらやみ虫（B班の 魔物。MONSTERS[種].darkOnly）は 光って いる マスに 入らない（map.symBlock。world/monsters.js から）
 // ・こけ玉（B班の 魔物。MONSTERS[種].mossGlow）に 勝つと、たおした 所の まわりの こけが 光る（world/battles.js から）
 // ・星の子の フィールドの 連れ（戦いの わくには 入らない）: c9_child の あと、リーダーの うしろを 歩く（world.js の followerLooks）
-import { MAPS } from '../maps/index.js?v=10ad7ced5cfe';
-import { MONSTERS } from '../data/monsters.js?v=10ad7ced5cfe';
-import { newLight, stepLight, glowMoss, doorOpen, packLit, litCells } from '../maps/c9a-light.js?v=10ad7ced5cfe';
-import { C9A, SPICA, SPICA_NAME } from '../maps/c9a-flags.js?v=10ad7ced5cfe';
-import { C9A_CAVE_IDS } from '../maps/c9a-cave.js?v=10ad7ced5cfe';
-import { partyOf } from './party.js?v=10ad7ced5cfe';
-import { setStoryFlag } from './scripts.js?v=10ad7ced5cfe';
-import { C9A_OBJ } from '../data/story-c9a.js?v=10ad7ced5cfe';
+import { MAPS } from '../maps/index.js?v=e3ea39586b77';
+import { MONSTERS } from '../data/monsters.js?v=e3ea39586b77';
+import { newLight, stepLight, glowMoss, doorOpen, packLit, litCells } from '../maps/c9a-light.js?v=e3ea39586b77';
+import { C9A, SPICA, SPICA_NAME } from '../maps/c9a-flags.js?v=e3ea39586b77';
+import { C9A_CAVE_IDS } from '../maps/c9a-cave.js?v=e3ea39586b77';
+import { partyOf } from './party.js?v=e3ea39586b77';
+import { setStoryFlag } from './scripts.js?v=e3ea39586b77';
+import { C9A_OBJ } from '../data/story-c9a.js?v=e3ea39586b77';
 
 const lights = (world) => world.c9aLight || (world.c9aLight = new Map());
 const partyKey = (world, s) => partyOf(world, s)?.id ?? `s:${s.id}`;

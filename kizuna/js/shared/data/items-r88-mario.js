@@ -6,7 +6,7 @@
 //   ・ファイアフラワー・アイスフラワーは 玉（ふつうの 攻撃が 炎・氷）
 //   ・名前が ひげの 職業の 技（スーパーキノコ・1UPキノコ・ファイアフラワー・POWブロック・ヨッシーのたまご）・ひらめき技（グランドスター）・
 //     今 ある 品（フライパン）と かぶる 品は 少し かえた（設計書の「実装メモ（G13班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=10ad7ced5cfe';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=e3ea39586b77';
 
 const M = { work: 'mario' };
 

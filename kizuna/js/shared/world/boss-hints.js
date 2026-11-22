@@ -10,10 +10,11 @@
 //   3. リーダー（ひとりの 時は 自分）は「もう一度いどむ／あとにする」を えらぶ。もう一度 … ボスの 台本が 始まる マスの 手前へ
 //      （いっしょに 戦って、同じ 所で 目を 覚ました 家族も いっしょに）。行き先が 分からない 戦いは えらぶ 文を 出さない
 //   全滅の 決まり（お金が 半分・いのりの場所で 回復）は かえない
-import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt } from '../data/boss-hints.js?v=10ad7ced5cfe';
-import { MAPS, canStand, isBlocked } from '../maps/index.js?v=10ad7ced5cfe';
-import { runSteps } from './scripts.js?v=10ad7ced5cfe';
-import { partyOf } from './party.js?v=10ad7ced5cfe';
+import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE } from '../data/boss-hints.js?v=e3ea39586b77';
+import { JOBS } from '../data/jobs.js?v=e3ea39586b77';
+import { MAPS, canStand, isBlocked } from '../maps/index.js?v=e3ea39586b77';
+import { runSteps } from './scripts.js?v=e3ea39586b77';
+import { partyOf } from './party.js?v=e3ea39586b77';
 
 const LOSS_MAX = 9;
 
@@ -47,6 +48,20 @@ function speakerOf(ctx) {
   return g ? g.char.name : HINT_SPEAKER;
 }
 
+// 第101回 R1班: 第3部の ボスに 負けた 時、ヒントの あとに 足す ひとこと（あてはまらない 時は ''。data/boss-hints.js の PARTY_NOTE）
+//   allies … 戦いの 味方（battle.allies。kind 'player'・'support'・'monster'・'guest'）
+//   ① 味方（ゲストを のぞく）が 3人 いかで 自動の 仲間が いない → 4人で いどもう
+//   ② 自動の 仲間（酒場・家族の 仲間。魔物は 職業が ない）に Lv95 いじょうで 基本職の 人 → 転職と 装備
+export function partyNote(fixed, allies = []) {
+  if (!PART3_BATTLE.test(String(fixed || ''))) return '';
+  const al = (allies || []).filter((a) => a && a.kind !== 'guest');
+  const sups = al.filter((a) => a.kind === 'support' || a.kind === 'monster');
+  if (!sups.length) return al.length && al.length <= 3 ? PARTY_NOTE.few : '';
+  // 戦いの キャラ（battle.js の allyFromCharacter）の job・lv・name
+  const basic = sups.filter((a) => a.kind === 'support' && (a.lv || 0) >= BASIC_JOB_LV && JOBS[a.job]?.tier === 0).map((a) => a.name).filter(Boolean);
+  return basic.length ? PARTY_NOTE.basic([...new Set(basic)]) : '';
+}
+
 // finishBattle から（勝った → 数を 消す・全滅 → 数を 足して ヒントの よやく）
 export function bossHintAfter(world, ctx, sessions, outcome) {
   if (!hintBattle(ctx.opts)) return;
@@ -60,9 +75,11 @@ export function bossHintAfter(world, ctx, sessions, outcome) {
   const chooser = sessions.find((m) => m.id === party?.leader) || sessions[0];
   const who = speakerOf(ctx);
   const sids = sessions.map((m) => m.id);
+  // 第101回 R1班: 第3部の ボスは、パーティーの ようすで ひとこと 足す（ない 時は つけない）
+  const note = partyNote(id, ctx.battle?.allies);
   for (const m of sessions) {
     const n = addLoss(m.char, id);
-    m.bossHint = { id, n, who, map: ctx.map, choose: m === chooser, sids };
+    m.bossHint = { id, n, who, map: ctx.map, choose: m === chooser, sids, ...(note ? { note } : {}) };
   }
 }
 
@@ -152,6 +169,8 @@ export function bossHintSteps(h, dest) {
   const steps = [
     ['say', h.who, LEADS[Math.min(h.n, LEADS.length) - 1]],
     ['say', h.who, hint],
+    // 第101回 R1班: パーティーの ひとこと（partyNote）
+    ...(h.note ? [['say', h.who, h.note]] : []),
   ];
   if (!dest) return steps;
   if (!h.choose) {

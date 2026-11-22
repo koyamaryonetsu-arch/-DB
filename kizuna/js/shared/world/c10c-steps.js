@@ -10,10 +10,10 @@
 // ・ベルトの 向きは レバーの フラグ（c10c_lv_red・c10c_lv_blue）。台本の ['toggle'] は リーダーの フラグを かえる ＝ パーティーで 同じ・セーブする
 // ・ベルトで 運ばれるのは 画面（client/field.js の flow）。サーバーは 歩いた 所を 見るだけ
 // ・おし出される 箱（T.C10C_PUSHER）に ふれると 1マス もどされる（ダメージ なし）
-import { MAPS, effectiveTile, canStand, standSpot } from '../maps/index.js?v=10ad7ced5cfe';
-import { T, TILE_INFO } from '../tiles.js?v=10ad7ced5cfe';
-import { C10C_BRIDGE_MAPS, C10C_FORT_MAPS, C10C_BRIDGE_COLORS, C10C_MAP } from '../maps/c10c-flags.js?v=10ad7ced5cfe';
-import { ISLES1_POS, ISLES2_POS } from '../maps/c10c-rows.js?v=10ad7ced5cfe';
+import { MAPS, effectiveTile, canStand, standSpot } from '../maps/index.js?v=e3ea39586b77';
+import { T, TILE_INFO } from '../tiles.js?v=e3ea39586b77';
+import { C10C_BRIDGE_MAPS, C10C_FORT_MAPS, C10C_BRIDGE_COLORS, C10C_MAP } from '../maps/c10c-flags.js?v=e3ea39586b77';
+import { ISLES1_POS, ISLES2_POS } from '../maps/c10c-rows.js?v=e3ea39586b77';
 
 const partyKey = (s) => s?.partyId || s?.id;
 const isBridgeMap = (id) => C10C_BRIDGE_MAPS.includes(id);

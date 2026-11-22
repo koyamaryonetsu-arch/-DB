@@ -16,12 +16,14 @@
 //   いっしょに ドーン: 2体が そろって いる 時、2体で doon.every 回 動く ごとに 前ぶれ（m9m_doonup）→ doon.wait 回 あとの その 体の 番に 全体へ（m9m_doon）
 // ・自動の 仲間（酒場の 人）は 3回に 1回、HPの 多い 方を ねらう（AUTO_EVERY。数は みんなで 1つ）。家族の キャラの「オート」と 魔物の 仲間は ねらい分けない
 // ・人数で 合わせる（few・solo・monK）は 第2幕・第3幕と おなじ 数え方（魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=10ad7ced5cfe';
-import { ABILITIES } from './data/abilities.js?v=10ad7ced5cfe';
-import { SONG } from './data/abilities-c9d.js?v=10ad7ced5cfe';
-import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=10ad7ced5cfe';
-import { C9D } from './maps/c9d-flags.js?v=10ad7ced5cfe';
-import { canUse } from './ai.js?v=10ad7ced5cfe';
+import { MONSTERS } from './data/monsters.js?v=e3ea39586b77';
+import { ABILITIES } from './data/abilities.js?v=e3ea39586b77';
+import { SONG } from './data/abilities-c9d.js?v=e3ea39586b77';
+import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=e3ea39586b77';
+import { C9D } from './maps/c9d-flags.js?v=e3ea39586b77';
+import { canUse } from './ai.js?v=e3ea39586b77';
+// 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
+import { pickPeople } from './battle-c9a.js?v=e3ea39586b77';
 
 export { SONG };
 export const SPLIT = 'm9m_split';
@@ -49,13 +51,11 @@ export function peopleOf9d(b) {
   const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf9d(b) - 1] ?? d : d);
 export function muConf(m, b = null) {
   const c = MONSTERS[C9D_MU].c9d;
   void m;
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  // 仲間なしの ひとりは solo・仲間なしの 2人・3人は bare（第101回 R1班）を few より 先に（battle-c9a.js の pickPeople）
+  const pick = pickPeople(c, b, peopleOf9d);
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
     tired: pick('tired', c.tired ?? 0.15),

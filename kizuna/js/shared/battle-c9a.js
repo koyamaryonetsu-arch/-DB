@@ -20,26 +20,26 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=10ad7ced5cfe';
-import { ABILITIES } from './data/abilities.js?v=10ad7ced5cfe';
-import { SHARE } from './data/abilities-c9a.js?v=10ad7ced5cfe';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=10ad7ced5cfe';
-import { C9A } from './maps/c9a-flags.js?v=10ad7ced5cfe';
+import { MONSTERS } from './data/monsters.js?v=e3ea39586b77';
+import { ABILITIES } from './data/abilities.js?v=e3ea39586b77';
+import { SHARE } from './data/abilities-c9a.js?v=e3ea39586b77';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=e3ea39586b77';
+import { C9A } from './maps/c9a-flags.js?v=e3ea39586b77';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=10ad7ced5cfe';
-import { canUse } from './ai.js?v=10ad7ced5cfe';
+import { pub, atbRate } from './battle.js?v=e3ea39586b77';
+import { canUse } from './ai.js?v=e3ea39586b77';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=10ad7ced5cfe';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=e3ea39586b77';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=10ad7ced5cfe';
+import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=e3ea39586b77';
 // 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
-import { c10bAfter } from './battle-c10b.js?v=10ad7ced5cfe';
+import { c10bAfter } from './battle-c10b.js?v=e3ea39586b77';
 // 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
-import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=10ad7ced5cfe';
+import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=e3ea39586b77';
 // 第3部 第2章 第4幕: てらす（うつし身が 消える）・星のうた（まくが 1色 へる）・まくを まとい直す・しるし・金の 音の ごほうび（battle-c10d.js）
-import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js?v=10ad7ced5cfe';
+import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js?v=e3ea39586b77';
 // 第3部 第3章 第1幕: 時計の 数・サメ・星が よみがえる・スピカの ながれ星（battle-c11a.js）
-import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js?v=10ad7ced5cfe';
+import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js?v=e3ea39586b77';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -64,13 +64,29 @@ export function peopleOf(b) {
   const n = (b?.allies || []).filter((a) => a.kind === 'player').length;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf(b) - 1] ?? d : d);
-// 第92回 第2便: 人数の 表（few）・仲間なしの ひとり（solo … 戦う 人が 1人だけ。few より 先）から えらぶ
-function pick9(c, b) {
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  return (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+// 第101回 R1班: 仲間なしの 少ない パーティー … 味方（ゲストを のぞく）が みんな 家族の キャラ（kind 'player'）で 2人か 3人。
+//   その 時は 人数の 表 few と ならべた bare（[2人, 3人]）を 先に 見る（few は 家族の キャラの 数で 引くので、
+//   「人2人だけ」が「2人＋自動2人」と、「人3人だけ」が「3人＋自動1人」と 同じ 強さに なって いた … docs/plan-sim-vs-real.md の 7-2）
+//   ひとりだけ（solo）・自動の 仲間が いる 時は 0（今の まま）
+export function bareOf(b) {
+  const al = (b?.allies || []).filter((a) => a.kind !== 'guest');
+  if (al.length < 2 || al.length > 3) return 0;
+  return al.every((a) => a.kind === 'player') ? al.length : 0;
 }
+// 人数で 合わせた 数を えらぶ（第1章 みんなで 使う）: solo（仲間なしの ひとり）→ bare（仲間なしの 2人・3人）→ few（people(b) 人め）
+//   people … その 幕の 人数の 数え方（peopleOf・kingPeople など。魔物の 仲間の 数え方が ちがう）
+export function pickPeople(c, b, people = peopleOf) {
+  if (!b) return (k, d) => d;
+  const f = c.few || {};
+  const alone = b.allies.length === 1 ? c.solo || {} : {};
+  const n = bareOf(b);
+  const bare = n ? c.bare || {} : {};
+  const at = (arr, i) => (Array.isArray(arr) ? arr[i] : undefined);
+  return (k, d) => alone[k] ?? at(bare[k], n - 2) ?? at(f[k], people(b) - 1) ?? d;
+}
+// 第92回 第2便: 人数の 表（few）・仲間なしの ひとり（solo … 戦う 人が 1人だけ。few より 先）から えらぶ
+//   第101回 R1班: 仲間なしの 2人・3人（bare）も（pickPeople）
+const pick9 = (c, b) => pickPeople(c, b, peopleOf);
 // ボスの HP・攻撃力を 人数で 合わせる（few.hp・few.atk・solo）
 function scale9(b, m, conf) {
   const pick = pick9(conf, b);

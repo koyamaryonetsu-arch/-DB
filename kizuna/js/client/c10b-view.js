@@ -6,12 +6,12 @@
 //   見はりの フクロウ（氷の 柱の 上。向きと 目）と 見て いる マス（うすく 光る）・画面の 上に「もの音 ●●○」。
 //   曲へ field.alertStage（0 … 見はりが 遠い・1 … 近い・2 … 見つかった）
 // ・'@&a&b' … a と b の 両方（夜だけの 光の 階段）
-import { TILE_INFO, T } from '../shared/tiles.js?v=10ad7ced5cfe';
-import { effectiveTile } from '../shared/maps/index.js?v=10ad7ced5cfe';
-import { C10B_WATER_NAMES, C10B_WATER_START, C10B_NOISE_MAX, C10B_ALERT_NEAR } from '../shared/maps/c10b-flags.js?v=10ad7ced5cfe';
-import { watchedCells10b, activeOwls10b, owlDir10b } from '../shared/maps/c10b-sneak.js?v=10ad7ced5cfe';
-import { TS } from './render/tiles.js?v=10ad7ced5cfe';
-import { el } from './ui/dom.js?v=10ad7ced5cfe';
+import { TILE_INFO, T } from '../shared/tiles.js?v=e3ea39586b77';
+import { effectiveTile } from '../shared/maps/index.js?v=e3ea39586b77';
+import { C10B_WATER_NAMES, C10B_WATER_START, C10B_NOISE_MAX, C10B_ALERT_NEAR } from '../shared/maps/c10b-flags.js?v=e3ea39586b77';
+import { watchedCells10b, activeOwls10b, owlDir10b } from '../shared/maps/c10b-sneak.js?v=e3ea39586b77';
+import { TS } from './render/tiles.js?v=e3ea39586b77';
+import { el } from './ui/dom.js?v=e3ea39586b77';
 
 // ───── サーバーの snap ─────
 export function noteC10bSnap(field, d) {
