@@ -146,6 +146,14 @@ export const TRACK_NAMES = {
   c10d_mirror: 'さかさまメヌエット',
   c10d_bridge: 'のびてゆく星の橋',
   c10d_seven: 'そろった七つの音',
+  // 第101回 F: 第3部 第3章 第1幕（audio-c11a.js。ボスの 名前・もとの お話・海の ボスの しかけは 出さない）
+  c11a_sea: '星の海のふな歌',
+  c11a_isle: 'ひとふでの星座',
+  c11a_perch: 'とまり木のランプ',
+  c11a_const: 'つながる星',
+  c11a_launch: '空へこぎ出せ',
+  c11a_beast: 'またたく三つの星',
+  c11a_pirate: '大波どたばたマーチ',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）

@@ -57,6 +57,8 @@ import { C10A_ABILITIES } from './abilities-c10a.js';
 import { C10B_ABILITIES } from './abilities-c10b.js';
 // 第97回 B班: 第3部 第2章 第3幕（abilities-c10c.js）
 import { C10C_ABILITIES } from './abilities-c10c.js';
+// 第99回 B班: 第3部 第2章 第4幕（abilities-c10d.js）
+import { C10D_ABILITIES } from './abilities-c10d.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -738,6 +740,8 @@ Object.assign(ABILITIES, C10A_ABILITIES);
 Object.assign(ABILITIES, C10B_ABILITIES);
 // 第3部 第2章 第3幕 の 魔物・たいさムスカリ・アルゴル・うつる（abilities-c10c.js）
 Object.assign(ABILITIES, C10C_ABILITIES);
+// 第3部 第2章 第4幕 の 門の 番人・ミラーレ・音を鳴らす（abilities-c10d.js）
+Object.assign(ABILITIES, C10D_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）
