@@ -47,7 +47,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'l', speed: 1.0, hit: 'slash', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['magic_water', 8], rare: ['c7i_snow_mail', 64] },
     actions: [{ w: 3, id: 'm10d_sd_slash' }, { w: 2, id: 'm10d_sd_flash', cond: 'notRecent:m10d_sd_flash' }, { w: 1, id: 'attack' }],
-    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.18, atk: 0.4 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.18, atk: 0.3, open: 6, regen: 0.1 }, monK: { hp: 0.03, atk: 0 } }),
     desc: '鏡のかけらを、よろいのようにまとった兵。色のまくをまとって、こうげきをはじく。同じ色の音で、まくがわれる。',
   },
   // ── 門 2: かがみの門番（2体・色が ちがう）──
@@ -56,7 +56,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'l', speed: 0.8, hit: 'slash', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['elf_drink', 10], rare: ['c7i_snow_shield', 64] },
     actions: [{ w: 3, id: 'm10d_sd_slash' }, { w: 2, id: 'm10d_sw_cross', cond: 'notRecent:m10d_sw_cross' }, { w: 1, id: 'm10d_sd_flash', cond: 'notRecent:m10d_sd_flash' }],
-    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.12, atk: 0.36, open: 5 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.12, atk: 0.3, open: 6, regen: 0.14 }, monK: { hp: 0.03, atk: 0 } }),
     desc: '門を守る、鏡の兵。2人で、ちがう色のまくをまとう。どちらのまくから、わるか考えよう。',
   },
   // ── 門 3: まどいの門番（2体・まとい直す たびに 色が かわる・色を うつす）──
@@ -65,7 +65,7 @@ export const MONSTERS_C10D = {
     race: 'material', size: 'l', speed: 0.8, hit: 'slash', region: 6,
     resist: { ...GATE_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 1.2 }, drops: { common: ['moon_drop', 10], rare: ['c7i_snow_helm', 64] },
     actions: [{ w: 3, id: 'm10d_sd_slash' }, { w: 2, id: 'm10d_sm_wave', cond: 'notRecent:m10d_sm_wave' }, { w: 1, id: 'attack' }],
-    c10d: GATE({ shift: 3, mark: 3, few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.12, atk: 0.36, open: 5, mark: 0 }, monK: { hp: 0.03, atk: 0 } }),
+    c10d: GATE({ shift: 3, mark: 3, few: { hp: [0.7, 0.8, 1, 1, 1.1], atk: [0.85, 0.9, 1, 1, 1] }, solo: { hp: 0.12, atk: 0.3, open: 6, regen: 0.1, mark: 0 }, monK: { hp: 0.03, atk: 0 } }),
     desc: 'まくの色を、くるくるかえる鏡の兵。仲間に色のしるしをつけて、動きをおそくする。しるしと同じ色の音で、消える。',
   },
   // ── 門 4: かがみのかけら（小さい 3体・全体攻撃が 強い）──
@@ -85,7 +85,7 @@ export const MONSTERS_C10D = {
   //   measure … 光を はかる（every 回 動く ごとに 前ぶれ → 次の 番に いちばん HPが 多い 人へ。mult・guardCut … 身を 守ると）
   //   copy … うつし身（HPが at を 切ると 1体。hp・atk … うつした 人の 強さの ばい）
   [C10D_MIRARE]: {
-    name: MIRARE_NAME, short: 'ミラーレ', lv: 118, hp: 31000, mp: 9999, str: 7300, def: 410, agi: 260, mag: 1160, exp: 94000, gold: 32000,
+    name: MIRARE_NAME, short: 'ミラーレ', lv: 118, hp: 28000, mp: 9999, str: 7300, def: 410, agi: 260, mag: 1160, exp: 94000, gold: 32000,
     race: 'material', size: 'xl', boss: true, turns: 1, speed: 1.2, hit: 'magic', artScale: 0.5, flying: true,
     drops: { boss: ['c10db_hand_mirror'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.6, dark: 1.1 },
@@ -96,9 +96,9 @@ export const MONSTERS_C10D = {
       copy: { at: 0.5, hp: 0.4, atk: 0.55 },
       // 人数で 合わせる [1人, 2人, 3人, 4人, 5人]: hp・atk・colors（まくの 色の 数）・window（2色めまでの ミラーレの 動く 回数）・measureK（光を はかるの 強さ）
       //   1人 … まくが 1色。2人 … 2色だが もどるまで 4回
-      few: { hp: [0.82, 0.7, 1, 1, 1.15], atk: [0.81, 0.74, 1, 1, 1.03], colors: [1, 2, 2, 2, 2], window: [2, 4, 2, 2, 2], measureK: [1, 1, 1, 1, 1] },
+      few: { hp: [0.82, 0.7, 1, 1, 0.6], atk: [0.81, 0.74, 1, 1, 1.15], colors: [1, 2, 2, 2, 2], window: [2, 4, 2, 2, 2], measureK: [1, 1, 1, 1, 1] },
       solo: { hp: 0.06, atk: 0.2, colors: 1, measureK: 2 },
-      monK: { hp: 0.04, atk: 0.04 },
+      monK: { hp: 0, atk: 0.08 },
     },
     actions: [{ w: 3, id: 'm10d_mr_glare' }, { w: 2, id: 'm10d_mr_hands', cond: 'notRecent:m10d_mr_hands' }, { w: 2, id: 'm10d_mr_frame' }],
     desc: '金のふちの、大きな鏡。いつもねむそうで、いばっている。光の強さをはかって、弱い光をばかにする。',
