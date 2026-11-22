@@ -24,7 +24,7 @@
 //   「ぬすむ」（steal.every 回 動く ごとに ふつうに 動きながら 前ぶれ・ねらう 人 → 次の 番 m10o_steal）: その 人の よい 効果（バフ）を ぜんぶ 自分に。身を 守ると ふせげる
 //   勝つと 3人は 1人に もどり、ぼうしを 取って おじぎ（たおれない）
 //   自動の 仲間（酒場の 人・家族の 仲間）は、人が えらんで いる 時だけ、3回に 1回 本物を ねらう（魔物の 仲間は 毎回 … AUTO_EVERY_MON。のこりは でたらめ）。完全オートは みんな でたらめ（まぼろしを たたき続ける）
-// ・人数で 合わせる（few・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
+// ・人数で 合わせる（few・bare・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の c10Pick。魔物の 仲間は 半人ぶん・仲間なしの 2人／3人は bare）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { DUAL_TECHS } from './data/dual.js';
@@ -33,7 +33,7 @@ import { MIZUOTO } from './data/abilities-c10b.js';
 import { C10B_B as C10B } from './maps/c10b-flags.js';
 import { TERU } from './data/abilities-c9b.js';
 import { canUse } from './ai.js';
-import { peopleOf10, someoneChooses } from './battle-c10a.js';
+import { c10Pick, someoneChooses } from './battle-c10a.js';
 
 export { MIZUOTO };
 export const STORM = 'm10x_storm';
@@ -57,14 +57,11 @@ const flag = (b, f) => {
     return false;
   }
 };
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf10(b) - 1] ?? d : d);
 
 // 中ボスの しかけの 数（人数で 合わせた もの）
 export function c10bConf(species, b = null) {
   const c = MONSTERS[species]?.c10b || {};
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const pick = c10Pick(c, b);
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
     kind: c.kind,

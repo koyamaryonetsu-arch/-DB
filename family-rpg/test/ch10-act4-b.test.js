@@ -35,7 +35,7 @@ import {
 } from '../public/js/shared/battle-c10d.js';
 import { TERU, teruOf } from '../public/js/shared/battle-c9b.js';
 import { SONG } from '../public/js/shared/battle-c9d.js';
-import { REWARD_HEAL, REWARD_TERU } from '../public/js/shared/battle-c10a.js';
+import { REWARD_HEAL, REWARD_TERU, bareOf10, c10Pick } from '../public/js/shared/battle-c10a.js';
 import { REWARD_SONG } from '../public/js/shared/battle-c10b.js';
 import { REWARD_LIT } from '../public/js/shared/battle-c10c.js';
 import { bestHit } from '../public/js/shared/battle-c9a.js';
@@ -439,6 +439,40 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
   assert.equal(mirrorOf10d(battle({ id: C10D_BATTLE.mirror, kinds: ['player'] })).c10v.colors.length, 1, 'ひとりも 1色');
   // ひとりの 門 3 は しるしを つけない
   assert.equal(c10dConf(C10D_SHARD_M, battle({ id: C10D_BATTLE.gate3, kinds: ['player'] })).mark, 0);
+});
+
+// 第101回 R2班: 仲間なしの 家族 2人・3人だけ（bare）
+test('人数で 合わせる: 仲間なしの 家族 2人・3人だけは bare（自動の 仲間が いる 時・ひとり・4人は きかない。ゲストは 数えない）', () => {
+  const al = (...kinds) => ({ allies: kinds.map((kind) => ({ kind })) });
+  assert.equal(bareOf10(al('player', 'player')), 2);
+  assert.equal(bareOf10(al('player', 'player', 'player')), 3);
+  assert.equal(bareOf10(al('player', 'player', 'guest')), 2, 'ゲストは 数えない');
+  assert.equal(bareOf10(al('player')), 0, 'ひとりは solo');
+  assert.equal(bareOf10(al('player', 'player', 'player', 'player')), 0);
+  assert.equal(bareOf10(al('player', 'player', 'support')), 0, '酒場の 仲間が いる');
+  assert.equal(bareOf10(al('player', 'monster')), 0, '魔物の 仲間が いる');
+  const c = { few: { hp: [0.1, 0.2, 0.3, 0.4, 0.5], open: [1, 2, 3, 4, 5] }, bare: { hp: [0.7, 0.8] }, solo: { hp: 0.05 } };
+  assert.equal(c10Pick(c, al('player', 'player'))('hp', 1), 0.7);
+  assert.equal(c10Pick(c, al('player', 'player', 'player'))('hp', 1), 0.8);
+  assert.equal(c10Pick(c, al('player', 'player'))('open', 9), 2, 'bare に ない キーは few');
+  assert.equal(c10Pick(c, al('player', 'player', 'support', 'support'))('hp', 1), 0.2, '2人＋自動 2人は few');
+  assert.equal(c10Pick(c, al('player', 'player', 'support'))('hp', 1), 0.2, '2人＋自動 1人も few');
+  assert.equal(c10Pick(c, al('player'))('hp', 1), 0.05, 'ひとりは solo');
+  assert.equal(c10Pick(c, al('player', 'support', 'support', 'support'))('hp', 1), 0.1);
+  // 本物の 戦い: 門 1〜4 と ミラーレ
+  const hp = (id, kinds) => battle({ id, kinds }).enemies[0].maxHp;
+  for (const id of [...C10D_GATE_ORDER, C10D_BATTLE.mirror]) {
+    const sp = groupOf(id)[0];
+    const cf = MONSTERS[sp].c10d;
+    assert.equal(hp(id, ['player', 'player']), Math.round(MONSTERS[sp].hp * cf.bare.hp[0]), `${id}: 2人だけ`);
+    assert.equal(hp(id, ['player', 'player', 'player']), Math.round(MONSTERS[sp].hp * cf.bare.hp[1]), `${id}: 3人だけ`);
+    assert.equal(hp(id, ['player', 'player', 'support', 'support']), Math.round(MONSTERS[sp].hp * cf.few.hp[1]), `${id}: 2人＋自動 2人`);
+    assert.equal(hp(id, ['player', 'player', 'player', 'support']), Math.round(MONSTERS[sp].hp * cf.few.hp[2]), `${id}: 3人＋自動 1人`);
+  }
+  const two = battle({ id: C10D_BATTLE.mirror, kinds: ['player', 'player'] });
+  assert.equal(mirrorOf10d(two).c10v.colors.length, 1, 'ミラーレ: 2人だけは 1色');
+  assert.equal(c10dConf(C10D_MIRARE, two).open, 5);
+  assert.equal(mirrorOf10d(battle({ id: C10D_BATTLE.mirror, kinds: ['player', 'player', 'player'] })).c10v.colors.length, 2);
 });
 
 // ───────────── 強さ ─────────────

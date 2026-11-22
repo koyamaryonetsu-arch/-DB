@@ -25,7 +25,7 @@
 //   勝つと ミラーレに ひびが 入る（たおれない。HP 1 … b.killed に 入れて 経験値・落とし物は ふつう）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。しくみの ある ボスの しるし（b.mechBoss）も 立てる（shared/ai.js の mechBoss）
 // ・自動の 仲間（酒場の 人・家族の 仲間・魔物の 仲間）は、人が えらんで いる 時だけ、3回に 1回 正しい 色を 鳴らす。完全オートは 鳴らさない
-// ・人数で 合わせる（few・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
+// ・人数で 合わせる（few・bare・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の c10Pick。魔物の 仲間は 半人ぶん・仲間なしの 2人／3人は bare）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C10D_MIRARE, C10D_COPY } from './data/monsters-c10d.js';
@@ -34,7 +34,7 @@ import { C10D_B as C10D, C10D_POWER_B as C10D_POWER } from './maps/c10d-flags.js
 import { TERU } from './data/abilities-c9b.js';
 import { SONG } from './data/abilities-c9d.js';
 import { canUse } from './ai.js';
-import { peopleOf10, someoneChooses } from './battle-c10a.js';
+import { c10Pick, someoneChooses } from './battle-c10a.js';
 import { mirrorCopy, mirrorSkillOk } from './battle-temple.js';
 
 export { NARASU };
@@ -68,15 +68,12 @@ const flag = (b, f) => {
     return false;
   }
 };
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf10(b) - 1] ?? d : d);
 const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, enumerable: false, configurable: true, writable: true });
 
 // しかけの 数（人数で 合わせた もの）
 export function c10dConf(species, b = null) {
   const c = MONSTERS[species]?.c10d || {};
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const pick = c10Pick(c, b);
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
     kind: c.kind,

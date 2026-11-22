@@ -24,7 +24,7 @@
 //     前ぶれの 間に スピカの「星のうた」を 使うと、音が スピカに こたえて 止まる（アルゴルは 1回 動けない … m10y_still）
 //   HPが end（3わり）に なると 戦いが 終わる（ひざを つく。たおれない。経験値と 品は もらえる）
 //   自動の 仲間は、人が えらんで いる 時は 味方を 強く する 技を ひかえる（完全オートは ふだん どおり 使って 食べられる）
-// ・人数で 合わせる（few・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
+// ・人数で 合わせる（few・bare・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の c10Pick。魔物の 仲間は 半人ぶん・仲間なしの 2人／3人は bare）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { DUAL_TECHS } from './data/dual.js';
@@ -34,7 +34,7 @@ import { C10C_B as C10C } from './maps/c10c-flags.js';
 import { TERU } from './data/abilities-c9b.js';
 import { SONG } from './data/abilities-c9d.js';
 import { canUse } from './ai.js';
-import { peopleOf10, someoneChooses } from './battle-c10a.js';
+import { c10Pick, someoneChooses } from './battle-c10a.js';
 
 export { UTSURU };
 export const BOLT = 'm10k_bolt';
@@ -60,15 +60,12 @@ const flag = (b, f) => {
     return false;
   }
 };
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf10(b) - 1] ?? d : d);
 const stoneName = (i) => `${STONE_NAMES[i] || ''}の石`;
 
 // ボスの しかけの 数（人数で 合わせた もの）
 export function c10cConf(species, b = null) {
   const c = MONSTERS[species]?.c10c || {};
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const pick = c10Pick(c, b);
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
     kind: c.kind,
