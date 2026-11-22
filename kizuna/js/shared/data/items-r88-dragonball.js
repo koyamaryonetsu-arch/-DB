@@ -6,7 +6,7 @@
 //   ・今 ある 品（サイヤ人の戦闘服・にょいぼう・きんと雲のかけら）にも 作品を つけた（R88_TAG_DRAGONBALL。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（亀仙流 → かめせん流・封 → ふう・仙豆 → せん豆・緊急 → きん急 など。設計書の「実装メモ（G9班）」）
 //   入れない 品: 超神水・ニセの 超聖水（設計書 3-1）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=c5f1443d1cb0';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=9619c3d748be';
 
 const D = { work: 'dragonball' };
 const B = { work: 'dragonball', set: 'dragon_balls' };

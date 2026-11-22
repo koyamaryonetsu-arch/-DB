@@ -4,10 +4,10 @@
 //   タリスマンは なくならない（引きかえ では ない）。聖はいを 持って いない 時だけ もらえる（売ったら また もらえる）
 //   「持って いる」は そろいの 数え方と 同じ（ふくろ・預かり所・装備。shared/gear-r88.js の ownedIds）
 //   セーブの 形は かえない（持ち物から いつでも 数える）
-import { ITEMS } from '../data/items.js?v=c5f1443d1cb0';
-import { addItem } from '../stats.js?v=c5f1443d1cb0';
-import { ownedIds } from '../gear-r88.js?v=c5f1443d1cb0';
-import { TALISMANS, HOLY_GRAIL } from '../data/items-r88-sailormoon.js?v=c5f1443d1cb0';
+import { ITEMS } from '../data/items.js?v=9619c3d748be';
+import { addItem } from '../stats.js?v=9619c3d748be';
+import { ownedIds } from '../gear-r88.js?v=9619c3d748be';
+import { TALISMANS, HOLY_GRAIL } from '../data/items-r88-sailormoon.js?v=9619c3d748be';
 
 export const talismansOf = (c) => {
   const own = ownedIds(c);

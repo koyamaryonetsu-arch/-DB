@@ -9,7 +9,7 @@
 //   ・星の 上で 向きを 入れると、その 向きの 線の 上を 次の 星まで うかんで 進む（とちゅうで 止まれない）
 //   ・同じ 線は 1回だけ。全部の 線を 光らせると 星座が できる
 //   ・地面に ふれて いる 星（入口の 星）なら どこからでも 入れる。入った 星では 何も おきない（ふたご星でも とばない）
-import { C11A_CON } from '../maps/c11a-flags.js?v=c5f1443d1cb0';
+import { C11A_CON } from '../maps/c11a-flags.js?v=9619c3d748be';
 
 export const CON_RULE = { basic: 'basic', arrow: 'arrow', twin: 'twin' };
 

@@ -5,10 +5,10 @@
 // ・星の 上で 向きを 入れると、その 向きの 線の マスを しらべる（サーバーが うかんで 進む 台本を 送る。world/c11a-steps.js）
 // ・星の海（map.c11aSea）: 雲の すき間に 小さな 地上（2D・2.5D）
 // ・曲へ field.conStage（星座の 島で、その 島で できた 星座の 数 0〜2。ほかの マップでは 0）
-import { C11A_LENS, C11A_ISLE_CONS, C11A_CON_MAX } from '../shared/maps/c11a-flags.js?v=c5f1443d1cb0';
-import { CON_DIRS, lineFrom11a, fullMask11a } from '../shared/data/constellations-c11a.js?v=c5f1443d1cb0';
-import { T } from '../shared/tiles.js?v=c5f1443d1cb0';
-import { TS } from './render/tiles.js?v=c5f1443d1cb0';
+import { C11A_LENS, C11A_ISLE_CONS, C11A_CON_MAX } from '../shared/maps/c11a-flags.js?v=9619c3d748be';
+import { CON_DIRS, lineFrom11a, fullMask11a } from '../shared/data/constellations-c11a.js?v=9619c3d748be';
+import { T } from '../shared/tiles.js?v=9619c3d748be';
+import { TS } from './render/tiles.js?v=9619c3d748be';
 
 // ───── サーバーの snap ─────
 export function noteC11aSnap(field, d) {

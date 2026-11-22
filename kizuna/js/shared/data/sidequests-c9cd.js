@@ -13,8 +13,8 @@
 // 2. ムウとムウムウの、あそび道具（おもちゃ職人のコロ。c9_act4 から）
 //    はかばの 番を して いる 2人は、しずかに すわって いるだけ。しずかに 2人で 遊べる 物を 作りたい。
 //    → くぼ地の まわりで 星わたを 2つ → どんな 物か・ムウムウの 色（なぞ）→ ふわふわの ボール → はかばの 2人に わたす（さいごの 場面だけ はかば）
-import { C9D_MU_NAME, C9D_MUMU_NAME, C9D } from '../maps/c9d-flags.js?v=c5f1443d1cb0';
-import { TOY9, BALL9, BALL9_WATA } from '../maps/c9cd-side.js?v=c5f1443d1cb0';
+import { C9D_MU_NAME, C9D_MUMU_NAME, C9D } from '../maps/c9d-flags.js?v=9619c3d748be';
+import { TOY9, BALL9, BALL9_WATA } from '../maps/c9cd-side.js?v=9619c3d748be';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

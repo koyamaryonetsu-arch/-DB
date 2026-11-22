@@ -10,8 +10,8 @@
 //   コマ 0・1 … 戦い ／ 2・3 … 勝った あと（メカが 止まって けむり・2人は たおれない。タマゴンは あせ・モルドは しょんぼり）
 //   もとの 作品の 絵は 使わない（赤い 上着・黒い ズボン・ちゃ色の もじゃもじゃの ひげ・空とぶ 丸い 船 ／ 黒い 体・2本の つの・こうもりの はね・
 //     まるい 屋根の 空とぶ 円ばん は かかない。色も 近づけない）
-import { fit, spark, bez } from './ch3-draw.js?v=c5f1443d1cb0';
-import { sparkled } from './c9a-art.js?v=c5f1443d1cb0';
+import { fit, spark, bez } from './ch3-draw.js?v=9619c3d748be';
+import { sparkled } from './c9a-art.js?v=9619c3d748be';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

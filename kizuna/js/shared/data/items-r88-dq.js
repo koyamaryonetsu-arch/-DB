@@ -9,7 +9,7 @@
 //   ・いのりの指輪 … 使うと 自分の MPを 回復（こわれる 所は 作らない。1つの 戦いで 1回）
 //   ・今 ある はやぶさの剣・天空の剣・天空のよろい・ドラゴンスレイヤーにも 作品を つけた（R88_TAG_DQ。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（設計書の「実装メモ（G15班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=c5f1443d1cb0';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=9619c3d748be';
 
 const Q = { work: 'dq' };
 const R = { work: 'dq', set: 'roto' };
