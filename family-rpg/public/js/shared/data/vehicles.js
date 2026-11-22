@@ -137,6 +137,8 @@ VEHICLES.kei_truck.jobs.push('kuuchou_master');
 VEHICLES.ninja_dash.jobs.push('hachiryu_hokage');
 VEHICLES.twin_cat.jobs.push('hyakki_taishou'); VEHICLES.lotus.jobs.push('hyakki_taishou'); // 第98回 K2班: 百きの大将
 VEHICLES.big_tiger.jobs.push('tenka_kengou'); VEHICLES.sakura_dash.jobs.push('tenka_kengou'); // 第98回 K2班: 天下無そうの剣ごう
+VEHICLES.limo.jobs.push('kuni_saishou'); // 第98回 K3班（空飛ぶカバは 大軍師の 系統だけ〈test/jobs-r83a〉。混とんの大軍師と おなじ）
+VEHICLES.teacher_bike.jobs.push('pta_kaichou'); VEHICLES.mamachari.jobs.push('pta_kaichou'); // 第98回 K3班
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

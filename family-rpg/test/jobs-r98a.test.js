@@ -285,13 +285,13 @@ test('第98回 K1: 両方の 流れ（お仕事いらい・ひみつの 部屋�
     assert.equal(kizunaOf(id).work, 'rekka');
     assert.ok(door.jobs.includes(id));
   }
-  // 幻の書: 18この 行。烈火を きわめると 2つとも 名前と 条件が 見える・うわさ
+  // 幻の書: 幻の職業 ぜんぶの 行。烈火を きわめると 2つとも 名前と 条件が 見える・うわさ
   const c = newCharacter({ id: 'y', name: 'y', job: 'warrior' });
   c.jobs.rekka = { lv: 3 };
   assert.ok(phantomRumors(c).includes(JOB_HINTS.kuuchou_master));
   master(c, 'rekka');
   const rows = phantomBook(c);
-  assert.equal(rows.length, 20); // 第98回 K2班で 2つ ふえた（jobs-r98b）
+  assert.equal(rows.length, PHANTOM_ORDER.length, '幻の職業 ぜんぶ（数は test/phantom-r51）');
   for (const id of NEW) {
     const r = rows.find((x) => x.id === id);
     assert.ok(r.known && r.live && r.conds.length === 3 && !r.ready, id);
@@ -311,6 +311,7 @@ test('第98回 K1: 両方の 流れ（お仕事いらい・ひみつの 部屋�
 });
 
 test('第98回 K1: 見た目（親の 2つの とくちょう）・漢字チェックの 対象', () => {
+  assert.deepEqual(KIZUNA_ART.map((k) => k.id), KIZUNA_IDS, '絵の 一覧も データと おなじ じゅん');
   assert.deepEqual(KIZUNA_ART.map((k) => k.id).slice(0, 2), NEW);
   // 空調マスター: 作業服 ＋ 温度計 ＋ 竜の こて ／ 八竜の火影: はおり（炎の もよう）＋ 竜の こて
   assert.equal(JOB_OUTFIT.kuuchou_master.kind, 'work');

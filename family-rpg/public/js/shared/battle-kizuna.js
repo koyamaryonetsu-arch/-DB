@@ -6,12 +6,16 @@ import { kuuchouPlan } from './battle-r98-kuuchou.js';
 import { hokagePlan } from './battle-r98-hokage.js';
 import { hyakkiPlan } from './battle-r98-hyakki.js';
 import { kengouPlan } from './battle-r98-kengou.js';
+import { saishouPlan } from './battle-r98-saishou.js';
+import { ptaPlan } from './battle-r98-pta.js';
 
 const PLANS = [
   kuuchouPlan, // 熱と風の空調マスター
   hokagePlan, // 八竜の火影
   hyakkiPlan, // 百きの大将
   kengouPlan, // 天下無そうの剣ごう
+  saishouPlan, // 国を動かす名さいしょう
+  ptaPlan, // 伝説のPTA会長
 ];
 
 // 1つ 答えが 出たら それを かえす（その 職業の 技を 持たない 人は どれも null。運も 使わない）
