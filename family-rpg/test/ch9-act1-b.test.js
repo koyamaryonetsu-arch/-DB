@@ -231,7 +231,10 @@ test('中ボス「3人組と スイトール1号」: 3回 動くと すいこみ
   assert.ok(evA.c9tAim && m.c9t.aim);
   assert.ok(evA.lines.some((l) => l.includes('すいこみ口が、星の子の方を向いた')));
   // 第92回 第2便（人が できる 動き）: 4人でも 1回 ふつうに 動いてから すいこむ
-  assert.equal(m.c9t.wait, 1);
+  //   第101回 R1班: 4人は 2回（人 1人ずつ べつの 手の 物さしで 合わせ直した。monsters-c9a.js の few.wait[3]）
+  assert.equal(m.c9t.wait, 2);
+  turn(b, m);
+  assert.equal(m.telegraph, null);
   turn(b, m);
   assert.equal(m.telegraph, null);
   // 次の 番: すいこむ
@@ -673,15 +676,19 @@ test('人数で 合わせる: 家族の キャラの 数（1〜5。いない 戦
   assert.equal(peopleOf(battleP('trio', Array(5).fill('player'))), 5);
   // 中ボス: すいこみ口の HP（1人は 小さく・5人は 大きく）
   const nz4 = nozzleOf(battleP('trio', Array(4).fill('player'))).maxHp;
-  assert.equal(nz4, C9A_HIDDEN[C9A_NOZZLE].hp ?? nz4);
+  // 第101回 R1班: 4人も 人数の 表で 合わせ直した（人 1人ずつ べつの 手の 物さし。docs/plan-sim-vs-real.md の 10）
+  assert.equal(nz4, Math.round(C9A_HIDDEN[C9A_NOZZLE].hp * MONSTERS[C9A_SUITORU].c9a.few.nozzle[3]));
   const b1 = battleP('trio', [...P, S, S, S]);
   assert.ok(nozzleOf(b1).maxHp < nz4 && nozzleOf(b1).hp === nozzleOf(b1).maxHp);
   assert.ok(nozzleOf(battleP('trio', Array(5).fill('player'))).maxHp > nz4);
   const conf = MONSTERS[C9A_SUITORU].c9a.few;
   for (const k of ['guard', 'nozzle', 'wait']) assert.equal(conf[k].length, 5, k);
-  assert.equal(conf.guard[3], 1, '4人は 今までと おなじ');
-  assert.equal(conf.nozzle[3], 1);
-  assert.equal(conf.wait[3], 1, '第92回 第2便: 4人も 1回 まつ（人が 読んで 防御を えらぶ 間）');
+  // 第101回 R1班: 人 1人ずつ べつの 手の 物さしで 4人も 合わせ直した（前は guard・nozzle 1・wait 1。人4人 知って いる 人 33% → 6わり）
+  assert.equal(conf.guard[3], 0.85, '4人');
+  assert.equal(conf.nozzle[3], 0.85);
+  assert.equal(conf.wait[3], 2, '第101回: 4人は 2回 まつ（第92回 第2便は 1回）');
+  // 1人めは もとの まま（1人＋自動の 仲間3 は 道具と 本物が 合って いる ので 動かさない）
+  assert.deepEqual([conf.guard[0], conf.nozzle[0], conf.wait[0], conf.hp[0], conf.atk[0]], [0.55, 0.7, 2, 0.6, 0.6]);
   assert.ok(trioConfOf(mechaOf(b1), b1).guard < 1);
   // 1人: すいこみ口を 向けた あと、メカは 2回 ふつうに 動いてから すいこむ（第92回 第2便で 1 → 2）
   const m = mechaOf(b1);
@@ -694,11 +701,13 @@ test('人数で 合わせる: 家族の キャラの 数（1〜5。いない 戦
   assert.ok(ev.c9tWait && !m.telegraph, '2回目も ふつうの 行動');
   ev = turn(b1, m);
   assert.equal(m.telegraph, SUCK, '2回目で すいこむ');
-  // 4人は 1回 まって すいこむ（第92回 第2便）
+  // 4人は 2回 まって すいこむ（第92回 第2便は 1回・第101回 R1班で 2回）
   const b4 = battleP('trio', Array(4).fill('player'));
   const m4 = mechaOf(b4);
   effect(b4, m4, AIM);
   m4.queued = true;
+  turn(b4, m4);
+  assert.ok(!m4.telegraph);
   turn(b4, m4);
   assert.ok(!m4.telegraph);
   turn(b4, m4);

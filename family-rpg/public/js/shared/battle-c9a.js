@@ -64,13 +64,29 @@ export function peopleOf(b) {
   const n = (b?.allies || []).filter((a) => a.kind === 'player').length;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf(b) - 1] ?? d : d);
-// 第92回 第2便: 人数の 表（few）・仲間なしの ひとり（solo … 戦う 人が 1人だけ。few より 先）から えらぶ
-function pick9(c, b) {
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  return (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+// 第101回 R1班: 仲間なしの 少ない パーティー … 味方（ゲストを のぞく）が みんな 家族の キャラ（kind 'player'）で 2人か 3人。
+//   その 時は 人数の 表 few と ならべた bare（[2人, 3人]）を 先に 見る（few は 家族の キャラの 数で 引くので、
+//   「人2人だけ」が「2人＋自動2人」と、「人3人だけ」が「3人＋自動1人」と 同じ 強さに なって いた … docs/plan-sim-vs-real.md の 7-2）
+//   ひとりだけ（solo）・自動の 仲間が いる 時は 0（今の まま）
+export function bareOf(b) {
+  const al = (b?.allies || []).filter((a) => a.kind !== 'guest');
+  if (al.length < 2 || al.length > 3) return 0;
+  return al.every((a) => a.kind === 'player') ? al.length : 0;
 }
+// 人数で 合わせた 数を えらぶ（第1章 みんなで 使う）: solo（仲間なしの ひとり）→ bare（仲間なしの 2人・3人）→ few（people(b) 人め）
+//   people … その 幕の 人数の 数え方（peopleOf・kingPeople など。魔物の 仲間の 数え方が ちがう）
+export function pickPeople(c, b, people = peopleOf) {
+  if (!b) return (k, d) => d;
+  const f = c.few || {};
+  const alone = b.allies.length === 1 ? c.solo || {} : {};
+  const n = bareOf(b);
+  const bare = n ? c.bare || {} : {};
+  const at = (arr, i) => (Array.isArray(arr) ? arr[i] : undefined);
+  return (k, d) => alone[k] ?? at(bare[k], n - 2) ?? at(f[k], people(b) - 1) ?? d;
+}
+// 第92回 第2便: 人数の 表（few）・仲間なしの ひとり（solo … 戦う 人が 1人だけ。few より 先）から えらぶ
+//   第101回 R1班: 仲間なしの 2人・3人（bare）も（pickPeople）
+const pick9 = (c, b) => pickPeople(c, b, peopleOf);
 // ボスの HP・攻撃力を 人数で 合わせる（few.hp・few.atk・solo）
 function scale9(b, m, conf) {
   const pick = pick9(conf, b);
