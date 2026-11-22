@@ -27,6 +27,7 @@ import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js';
 import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js';
 // 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
 import { pickPeople } from './battle-c9a.js';
+import { someoneChooses } from './battle-c10a.js';
 
 export { ANSWER, FLIP };
 export const RIDDLE = 'm9z_riddle';
@@ -519,7 +520,8 @@ function riddlePlan(b, c, n, mode, decide, bestHit) {
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: なぞが 出て いる 番の 3回に 1回 正しく 答える（家族の キャラの オート・魔物の 仲間は 答えない）
     //   第92回 第2便: 3回に 1回 ＝ なぞ 3つの うち 1つ（番ごとに 数えると 3人の 酒場の 人で ほぼ 毎回 答えて しまい、完全オートが 勝つ ため）
-    if (c.kind === 'player' || c.kind === 'monster' || !r || queued(b, ANSWER)) return null;
+    // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+    if (c.kind === 'player' || c.kind === 'monster' || !r || queued(b, ANSWER) || !someoneChooses(b)) return null;
     if (z.asks % AUTO_EVERY) return null;
     return answerCmd(r);
   }
@@ -539,7 +541,8 @@ function sandPlan(b, c, m, mode, decide, bestHit) {
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: めもりが dizzyAt いかの 番の 3回に 1回 ひっくり返す
     //   第92回 第2便: 3回に 1回 ＝ 砂が 少なく なる 3回の うち 1回（番ごとでは ない）
-    if (c.kind === 'player' || c.kind === 'monster' || !low || queued(b, FLIP)) return null;
+    // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+    if (c.kind === 'player' || c.kind === 'monster' || !low || queued(b, FLIP) || !someoneChooses(b)) return null;
     if ((s.lows || 0) % AUTO_EVERY) return null;
     return { type: 'ability', id: FLIP };
   }

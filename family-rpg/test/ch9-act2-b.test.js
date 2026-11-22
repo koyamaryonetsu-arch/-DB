@@ -390,6 +390,10 @@ test('自動の 仲間: 酒場の 人は 見えて いる 皿を 3回に 1回 �
   const [pl, s1, s2, mon] = b.allies;
   assert.equal(c9bPlan(b, pl, decide, bestHit), null, '家族の キャラの オート');
   assert.equal(c9bPlan(b, mon, decide, bestHit), null, '魔物の 仲間');
+  // 第101回 R3班: 自動の 仲間が 皿を ねらうのは、人が えらんで いる 時だけ（battle-c10a.js の someoneChooses。完全オートでは ねらわない）
+  for (let i = 0; i < AUTO_DISH_EVERY * 2; i++) assert.equal(c9bPlan(b, i % 2 ? s1 : s2, decide, bestHit), null, '完全オート');
+  pl.controller ??= 'sim';
+  pl.auto = false;
   const outs = [];
   for (let i = 0; i < AUTO_DISH_EVERY * 2; i++) outs.push(c9bPlan(b, i % 2 ? s1 : s2, decide, bestHit));
   const hits = outs.filter((c) => c && c.target === d.id);

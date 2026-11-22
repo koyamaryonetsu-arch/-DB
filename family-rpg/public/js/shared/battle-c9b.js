@@ -26,7 +26,7 @@ import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub,
 // 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
 import { c9dTele, setupC9d, addSong, songPub, c9dGlow, c9dTurnStart, c9dEffect, c9dDamage, c9dKill, c9dPlan, c9dPub, c9dBusy } from './battle-c9d.js';
 // 第3部 第2章 第1幕: スピカの ごほうび・ドクター・タマゴン・カビだんしゃく モルド（battle-c10a.js）
-import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell } from './battle-c10a.js';
+import { setupC10a, c10TeruMax, c10aTurnStart, c10aEffect, c10aDamage, c10aPlan, c10aPub, c10aBusy, c10aTell, someoneChooses } from './battle-c10a.js';
 // 第3部 第2章 第2幕: スピカの ごほうび・サー・ゲッコー・かいとう シロフクロウ（battle-c10b.js）
 import { setupC10b, c10TeruFull, c10bTurnStart, c10bEffect, c10bDamage, c10bKill, c10bPlan, c10bPub, c10bBusy, c10bTell } from './battle-c10b.js';
 // 第3部 第2章 第3幕: スピカの ごほうび・たいさムスカリ・アルゴル（battle-c10c.js）
@@ -589,7 +589,8 @@ function base(b, c, decide) {
 }
 // 自動の 人の 仲間（酒場の 人。魔物の 仲間は かたいので ねらわない）: 見えて いる 皿を 3回に 1回 ねらう（数は 自動の 仲間 みんなで 1つ）
 function autoDish(b, c, watched, bestHit) {
-  if (c.kind === 'player' || c.kind === 'monster' || !watched?.alive) return null;
+  // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+  if (c.kind === 'player' || c.kind === 'monster' || !watched?.alive || !someoneChooses(b)) return null;
   b.c9kAuto = (b.c9kAuto || 0) + 1;
   if (b.c9kAuto % AUTO_DISH_EVERY) return null;
   return bestHit(b, c, watched);

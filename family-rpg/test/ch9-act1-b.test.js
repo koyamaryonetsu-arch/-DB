@@ -764,6 +764,9 @@ test('自動の 仲間: ともしびが 消えた 仲間が いて 自分の 火
   const b = battleP('trial', ['player', 'support', 'support', 'monster']);
   const [p, s1, s2, mon] = b.allies;
   p.c9torch = false;
+  // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（battle-c10a.js の someoneChooses。完全オートでは わけない）
+  for (let i = 0; i < 6; i++) assert.equal(c9aPlan(b, i % 2 ? s2 : s1, decide), null, '完全オート');
+  p.auto = false;
   const got = [];
   for (let i = 0; i < 6; i++) got.push(c9aPlan(b, i % 2 ? s2 : s1, decide));
   assert.deepEqual(got.map((x) => !!x), [false, false, true, false, false, true], '自動の 仲間 みんなで 3回に 1回');

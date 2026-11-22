@@ -24,6 +24,7 @@ import { C9D } from './maps/c9d-flags.js';
 import { canUse } from './ai.js';
 // 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
 import { pickPeople } from './battle-c9a.js';
+import { someoneChooses } from './battle-c10a.js';
 
 export { SONG };
 export const SPLIT = 'm9m_split';
@@ -554,7 +555,8 @@ export function c9dPlan(b, c, decide, bestHit) {
   void FINISH;
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: 3回に 1回、HPの 多い 方を ねらう（家族の キャラの オート・魔物の 仲間は ねらい分けない）
-    if (c.kind === 'player' || c.kind === 'monster' || up.length < 2) return null;
+    // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+    if (c.kind === 'player' || c.kind === 'monster' || up.length < 2 || !someoneChooses(b)) return null;
     b.c9mAuto = (b.c9mAuto || 0) + 1;
     if (b.c9mAuto % AUTO_EVERY) return null;
     return bestHit(b, c, high);

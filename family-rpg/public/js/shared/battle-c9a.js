@@ -31,7 +31,7 @@ import { canUse } from './ai.js';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
 import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js';
+import { c10aAfter, c10GlowHeal, c10aAllyPub, someoneChooses } from './battle-c10a.js';
 // 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
 import { c10bAfter } from './battle-c10b.js';
 // 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
@@ -209,7 +209,24 @@ function setupTrial(b, h, lines) {
 }
 
 // ───────────── 味方が 1回 動いた あと（battle.js の executeNext・防御の さいご）: 星の子の ほのかな光 ─────────────
+// 第101回 R3班: 第3部の ボス戦の たおれた・生き返った 数（負けた 時の ひとこと … world/boss-hints.js の partyNote が 見る）
+//   b.c9life = { down: たおれて いる 味方の id, died: 1回 いじょう たおれた 味方の id, revives: 生き返った 回数 }。ゲストは 数えない
+export function c9Life(b) {
+  const L = (b.c9life ??= { down: new Set(), died: new Set(), revives: 0 });
+  for (const a of b.allies) {
+    if (a.kind === 'guest' || a.fled) continue;
+    if (!a.alive) {
+      L.down.add(a.id);
+      L.died.add(a.id);
+    } else if (L.down.has(a.id)) {
+      L.down.delete(a.id);
+      L.revives++;
+    }
+  }
+  return L;
+}
 export function c9aAfter(b, c, ev) {
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a) c9Life(b);
   // 第92回 第3便: 前ぶれの しるし（battle-tell.js。敵・味方の どの 行動の あとも 入れ直す）
   // 第3部 第2章 第1幕: あつさ・メカの あつさ・カビが 消える（battle-c10a.js。b.tell より 先）
   if (b.c10) c10aAfter(b, c, ev);
@@ -699,7 +716,8 @@ function trialPlan(b, c, h, mode, decide) {
 //   魔物の 仲間は わけない（魔物の 仲間は かたくて、わけまで すると 完全オートでも 5わり 勝って しまう。tools/sim-ch9.mjs の k1mon）
 function autoShare(b, c) {
   // 家族の キャラ（kind 'player'）の「オート」は 今までどおり（完全オートは 勝てない まま）
-  if (c.kind === 'player' || c.kind === 'monster' || !c.c9torch || !canUse(b, c, SHARE)) return null;
+  // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+  if (c.kind === 'player' || c.kind === 'monster' || !c.c9torch || !canUse(b, c, SHARE) || !someoneChooses(b)) return null;
   const t = unlitAllies(b).find((x) => !b.queue.some((q) => q.cmd?.id === SHARE && q.cmd.target === x.id));
   if (!t) return null;
   b.c9autoShare = (b.c9autoShare || 0) + 1;

@@ -255,6 +255,11 @@ test('ナゾカケ: 自動の 仲間 … 酒場の 人は なぞ 3つに 1つ �
   const [pl, s1, s2, mon] = b.allies;
   assert.equal(c9cPlan(b, pl, decide, bestHit), null, '家族の キャラの オート');
   assert.equal(c9cPlan(b, mon, decide, bestHit), null, '魔物の 仲間');
+  // 第101回 R3班: 自動の 仲間が 答えるのは、人が えらんで いる 時だけ（battle-c10a.js の someoneChooses。完全オートでは 答えない）
+  n.c9z.asks = 3;
+  assert.deepEqual([s1, s2].map((x) => c9cPlan(b, x, decide, bestHit)), [null, null], '完全オート');
+  pl.controller ??= 'sim';
+  pl.auto = false;
   // 第92回 第2便: 番ごとでは なく なぞ 3つの うち 1つ（3つめ・6つめ…）。その なぞの 間は 番が 来れば 答える
   const ask = (k) => { n.c9z.asks = k; return [s1, s2].map((x) => c9cPlan(b, x, decide, bestHit)); };
   assert.deepEqual(ask(1).map((x) => x?.id ?? null), [null, null], '1つめの なぞ');
@@ -372,6 +377,11 @@ test('メカ: 自動の 仲間 … 酒場の 人は 砂が 2つぶ いかに な
   m.c9s.grains = 2;
   assert.equal(c9cPlan(b, pl, decide, bestHit), null);
   assert.equal(c9cPlan(b, mon, decide, bestHit), null);
+  // 第101回 R3班: 自動の 仲間が ひっくり返すのは、人が えらんで いる 時だけ（battle-c10a.js の someoneChooses。完全オートでは しない）
+  m.c9s.lows = AUTO_EVERY;
+  assert.deepEqual([s1, s2].map((x) => c9cPlan(b, x, decide, bestHit)), [null, null], '完全オート');
+  pl.controller ??= 'sim';
+  pl.auto = false;
   // 第92回 第2便: 番ごとでは なく 砂が 少なく なった 3回の うち 1回（lows … dropSand が 数える）
   const low = (k) => { m.c9s.lows = k; return [s1, s2].map((x) => c9cPlan(b, x, decide, bestHit)?.id ?? null); };
   assert.deepEqual(low(1), [null, null]);

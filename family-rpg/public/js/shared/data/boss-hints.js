@@ -133,7 +133,11 @@ export const BASIC_JOB_LV = 95;
 export const PARTY_NOTE = {
   few: 'もっと仲間をさそって、4人でいどむと、戦いやすいぞ。',
   basic: (names) => `${names.join('と')}は、まだ初めの職業のままだ。神殿で転職させて、装備も見直そう。`,
+  // 第101回 R3班: 戦いの 中で だれも 生き返らせなかった（生き返った 回数 0・たおれた 人 2人 いじょう。battle-c9a.js の c9Life）
+  revive: 'たおれた仲間は、ザオリクや道具で、すぐに生き返らせよう。',
 };
+// いちどに 出す ひとことは 2つまで（few か basic ＋ revive）
+export const PARTY_NOTE_MAX = 2;
 
 // ほかの ファイルの 表を まぜる（同じ id は あとの 物）
 export function mergeBossHints(hints = {}, { retry = {}, who = {} } = {}) {

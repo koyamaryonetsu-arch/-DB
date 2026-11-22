@@ -381,6 +381,10 @@ test('ムウ: 自動の 仲間 … 酒場の 人は 3回に 1回 HPの 多い �
   const [pl, s1, s2, mon] = b.allies;
   assert.equal(c9dPlan(b, pl, decide, bestHit), null, '家族の キャラの オート');
   assert.equal(c9dPlan(b, mon, decide, bestHit), null, '魔物の 仲間');
+  // 第101回 R3班: 自動の 仲間が ねらい分けるのは、人が えらんで いる 時だけ（battle-c10a.js の someoneChooses。完全オートでは しない）
+  for (let i = 0; i < AUTO_EVERY * 2; i++) assert.equal(c9dPlan(b, i % 2 ? s1 : s2, decide, bestHit), null, '完全オート');
+  pl.controller ??= 'sim';
+  pl.auto = false;
   const picks = [];
   for (let i = 0; i < AUTO_EVERY * 2; i++) picks.push(c9dPlan(b, i % 2 ? s1 : s2, decide, bestHit));
   const hits = picks.filter(Boolean);

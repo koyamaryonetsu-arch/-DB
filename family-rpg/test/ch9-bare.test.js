@@ -98,7 +98,8 @@ test('1人＋自動の 仲間3・ひとりだけ の 数は もとの まま（f
   assert.deepEqual(first(MONSTERS[C9A_HOSHIMORI].c9a), { dawn: 9, every: 1, two: 0.5, bwait: 0, atk: 1 });
   assert.deepEqual(first(MONSTERS[C9B_DEDEDON].c9b), { dish: 0.45, watch: 5, wait: 3, jump: 7, hp: 0.55, atk: 0.9 });
   assert.deepEqual(first(MONSTERS[C9C_NAZOKAKE].c9c), { hp: 0.45, atk: 1.6, limit: 2, timeoutK: 3.5 });
-  assert.deepEqual(first(MONSTERS[C9C_HIKKURI].c9c), { hp: 0.55, atk: 1.35, boom: 3.5 });
+  // 第101回 R3班: ヒックリカエール2号の 1人めの 攻撃だけ 1.35 → 1.25（かんたんな 人の 1人＋酒場3 が 20% だった。docs/plan-sim-vs-real.md の 12）
+  assert.deepEqual(first(MONSTERS[C9C_HIKKURI].c9c), { hp: 0.55, atk: 1.25, boom: 3.5 });
   assert.deepEqual(first(MONSTERS[C9D_MU].c9d), { hp: 0.4, atk: 0.72, doonK: 0.5 });
   for (const [sp, hp, str] of [[C9A_SUITORU, 61600, 1700], [C9A_HOSHIMORI, 120000, 1665], [C9B_DEDEDON, 77000, 1800], [C9C_NAZOKAKE, 92500, 1940], [C9C_HIKKURI, 109000, 2240]]) {
     assert.equal(MONSTERS[sp].hp, hp, sp);
