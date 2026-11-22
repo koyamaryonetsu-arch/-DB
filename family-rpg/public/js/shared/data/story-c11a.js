@@ -138,6 +138,7 @@ function chartSteps(id) {
   return [
     ['look', L.ox + 2.5, L.oy + 1],
     ...S(KEEPER, 'みごとじゃ！\n…ほれ、レンズの光が、紙に、うつっていく。'),
+    ['sync'], // できた 星座の 絵を 見せて から（しるしを 立てると ゆかの 星座が 消える）
     ['flag', id], ['unflag', C11A_LENS], ['sync'],
     ['call', async (run) => { run.world.c11a.landAll(run.world, run.init, id); }],
     ['sfx', 'sparkle'],

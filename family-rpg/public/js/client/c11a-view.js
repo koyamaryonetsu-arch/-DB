@@ -153,7 +153,7 @@ function landOf(map, x, y) {
   if (map.tiles[y * map.w + x] !== T.C11A_CLOUD) return null;
   const h = hash(x, y);
   if (h % 13 !== 0) return null;
-  return { land: LANDS[(h >> 4) % LANDS.length], r: 0.3 + ((h >> 16) % 4) * 0.05 };
+  return { land: LANDS[(h >>> 4) % LANDS.length], r: 0.3 + ((h >>> 16) % 4) * 0.05 };
 }
 function drawLand(ctx, x, y, k, L, t) {
   const r = k * L.r;

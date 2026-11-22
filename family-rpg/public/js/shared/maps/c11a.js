@@ -78,7 +78,7 @@ const ISLE_OF = { isle1: 1, isle2: 2, isle3: 3 };
 function buildSea() {
   const t = parseRows16(SEA_ROWS, SEA_LEGEND);
   const m = base(C11A_MAP.sea, '星の海', 'field', t, {
-    sailable: true, ship: 'star_ship', bgm: C11A_TRACKS.sea, c11aSea: true, bg2d: '#0a0e2a', sky3d: { bg: '#10143a', fog: 0x202a5a },
+    sailable: true, ship: 'star_ship', bgm: C11A_TRACKS.sea, c11aSea: true, outside: 'cloud', bg2d: '#0a0e2a', sky3d: { bg: '#10143a', fog: 0x202a5a },
   });
   const piers = [];
   // 島の はとば（ふむと 島へ）
