@@ -61,7 +61,9 @@ test('前ぶれの 間は 人の まどが 開いて いると 敵の ゲージ�
   const before = foeAtb(b);
   const evs = run(b, 3000);
   assert.deepEqual(foeAtb(b), before, '敵の ゲージは 止まる');
-  assert.ok(helper.atb > 0, '自動の 味方の ゲージは 進む');
+  // 第101回 R1班: 第1章の ボスも ずっと 待つ 形（b.tellAll）なので、味方の ゲージも 止まる（前は 自動の 味方は 進んだ）
+  assert.equal(b.tellAll, true);
+  assert.equal(helper.atb, 0, '待つ 間は 自動の 味方の ゲージも 止まる（tellAll）');
   assert.ok(evs.some((e) => e.t === 'hold' && e.on === true), '画面に「待っているよ」');
   assert.equal(b.holding, true);
   // 人が えらぶと 時は 流れる
@@ -103,14 +105,14 @@ test('ふつうの 戦い（前ぶれの しるしが ない）では 待たな�
   assert.ok(foeAtb(b)[0] > 0, '敵の ゲージは 進む');
   assert.ok(!evs.some((e) => e.t === 'hold'));
   assert.equal(tellHold(b, 100), false);
-  // 第3部の ボスでも 前ぶれが ない 間は 待たない
+  // 第101回 R1班: 第1章の ボスは 前ぶれが ない 間も 待つ（'wait'。第2章・第3章と 同じ ずっと 待つ 形）
   const b2 = battle('trio');
   c9aAfter(b2, mechaOf(b2), { lines: [], upd: [] });
-  assert.equal(b2.tell, null);
+  assert.equal(b2.tell, 'wait');
   lowFoes(b2);
   openWindow(b2);
   run(b2, 500);
-  assert.ok(foeAtb(b2).some((v) => v > 0));
+  assert.ok(foeAtb(b2).every((v) => v === 0), '第1章の ボスは 前ぶれが なくても 待つ');
 });
 
 test('オートの 味方・自動の 仲間だけの ときは 待たない・ウェイトの 設定とは べつ', () => {
@@ -137,38 +139,39 @@ test('オートの 味方・自動の 仲間だけの ときは 待たない・�
 
 test('第3部 第1章の ボス 5体の 前ぶれの しるし（c9Tell）: 出て いる 間だけ', () => {
   // 3人組: すいこみ口が 星の子を 向いた 間
+  // 第101回 R1班: 前ぶれが ない 間は 'wait'（ずっと 待つ 形。ボスが 生きて いる 間）
   const t = battle('trio');
-  assert.equal(c9Tell(t), null);
+  assert.equal(c9Tell(t), 'wait');
   mechaOf(t).c9t.aim = true;
   assert.equal(c9Tell(t), 'suck');
   // ためし: やみの いぶきの ねらいが ある 間
   const h = battle('trial');
-  assert.equal(c9Tell(h), null);
+  assert.equal(c9Tell(h), 'wait');
   hoshimoriOf(h).c9h.aim = [h.allies[0].id];
   assert.equal(c9Tell(h), 'breath');
   // 大王: 皿を 見て いる（見える とき）・大ジャンプの 前ぶれ
   const k = battle('king');
   const kg = kingOf(k);
-  assert.equal(c9Tell(k), null);
+  assert.equal(c9Tell(k), 'wait');
   kg.c9k.watch = aliveDishes(k)[0].id;
   assert.equal(c9Tell(k), 'watch');
   kg.c9k.dark = true;
-  assert.equal(c9Tell(k), null, 'まっ暗で 見えない 皿は 前ぶれに ならない（答えが わからない）');
+  assert.equal(c9Tell(k), 'wait', 'まっ暗で 見えない 皿は 前ぶれに ならない（答えが わからない。待つ のは ふだんと 同じ）');
   kg.c9k.jumpReady = true;
   assert.equal(c9Tell(k), 'jump');
   // ナゾカケ: なぞが 出て いる 間
   const r = battle('riddle');
-  assert.equal(c9Tell(r), null);
+  assert.equal(c9Tell(r), 'wait');
   nazoOf(r).c9z.riddle = { text: 'x', choices: ['a', 'b', 'c'], correct: 0 };
   assert.equal(c9Tell(r), 'riddle');
   // メカ: 砂が dizzyAt いか〜落ちきった・ポチッとねの ねらい
   const s = battle('trio2');
   const mc = mechaOf9c(s);
-  assert.equal(c9Tell(s), null);
+  assert.equal(c9Tell(s), 'wait');
   mc.c9s.grains = sandConf(mc, s).dizzyAt;
   assert.equal(c9Tell(s), 'sand');
   mc.c9s.dizzy = 2;
-  assert.equal(c9Tell(s), null, '目を 回して いる 間は ちがう');
+  assert.equal(c9Tell(s), 'wait', '目を 回して いる 間は 前ぶれで ない（待つ のは ふだんと 同じ）');
   mc.c9s.dizzy = 0;
   mc.c9s.grains = 6;
   mc.c9s.pochiAim = s.allies[0].id;
@@ -183,4 +186,36 @@ test('戦いの 中で しるしが 立って 消える（行動の あとに �
   assert.ok(!/tellHold|holding/.test(src), '計算は battle.js の 待ち方を そのまま 使う');
   const bt = readFileSync(new URL('../public/js/shared/battle.js', import.meta.url), 'utf8');
   assert.ok(bt.includes('tellHold(this, dtReal, choosing)'));
+});
+
+// 第101回 R1班: 第1章の しくみの ある ボス 6つも、人が えらぶ 間 ずっと 待つ（b.tellAll。第2章・第3章と 同じ）
+test('第1章の ボス 6つ: 人が えらんで いる 間は 敵の ゲージも 味方の ゲージも 進まない（前ぶれが なくても）・完全オートは 待たない', () => {
+  for (const boss of ['trio', 'trial', 'king', 'riddle', 'trio2', 'mu']) {
+    const b = battle(boss);
+    assert.equal(b.tellAll, true, `${boss}: tellAll`);
+    assert.equal(b.c9wait, true, boss);
+    assert.equal(b.tell, 'wait', `${boss}: はじめから 待つ しるし`);
+    lowFoes(b);
+    openWindow(b);
+    const helper = b.allies[1];
+    helper.atb = 0;
+    const evs = run(b, 3000);
+    assert.ok(foeAtb(b).every((v) => v === 0), `${boss}: 敵の ゲージは 止まる`);
+    assert.equal(helper.atb, 0, `${boss}: 味方の ゲージも 止まる`);
+    assert.ok(evs.some((e) => e.t === 'hold' && e.on === true), `${boss}: 「えらぶまで、待っているよ」`);
+    // えらぶと 時は 流れる
+    b.allies[0].ready = false;
+    run(b, 500);
+    assert.ok(foeAtb(b).some((v) => v > 0) || helper.atb > 0, `${boss}: えらんだ あとは 進む`);
+    // 完全オート（人の キャラが オート）は 待たない
+    const a = battle(boss, { human: false });
+    assert.equal(a.tellAll, true);
+    lowFoes(a);
+    run(a, 500);
+    assert.ok(foeAtb(a).some((v) => v > 0), `${boss}: 完全オートは 待たない`);
+    assert.ok(!a.holding);
+  }
+  // ふつうの 戦いは 待たない
+  const n = battle('trio', { enemies: ['c9a_star_wolf'] });
+  assert.ok(!n.tellAll && !n.tell);
 });

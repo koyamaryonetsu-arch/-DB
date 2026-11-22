@@ -439,7 +439,8 @@ test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウ�
     assert.ok(sec >= 150 && sec <= 420, `${boss} 長さ ${sec}秒`);
     // 第92回 第3便: なぞ・砂・ポチッとねの 間は えらぶ 人を 待つ ので、えらぶのに 5びょう かかる 人も 勝てる
     const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, { ...human, react: 5000 }));
-    assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `${boss} 5びょう ${slow.map((r) => r.outcome).join(',')}`);
+    // 第101回 R1班 2便: ずっと 待つ 形（b.tellAll）なので 5秒の 人も 2秒と 同じ ように 勝てる（2/4 → 3/4）
+    assert.ok(slow.filter((r) => r.outcome === 'win').length >= 3, `${boss} 5びょう ${slow.map((r) => r.outcome).join(',')}`);
     for (const [job, kit] of Object.entries(CH9_KIT[boss])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
   }
   assert.equal(LV9.riddle, 101);

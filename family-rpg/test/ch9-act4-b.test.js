@@ -402,9 +402,14 @@ test('ムウ: 自動の 仲間 … 酒場の 人は 3回に 1回 HPの 多い �
 test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・ドーン・魔物の 仲間は 半人ぶん・仲間なしの ひとりは solo（ドーン なし・おかしビームは 少なめ）', () => {
   const hp = (kinds) => { const b = battle({ kinds }); return muOf(b).maxHp; };
   const base = MONSTERS[C9D_MU].hp;
-  assert.equal(hp(['player', 'player', 'player', 'player']), base, '4人は もとの まま');
-  assert.ok(hp(['player', 'player', 'support', 'support']) < base, '2人＋酒場 2人');
-  assert.ok(hp(['player', 'player', 'player', 'player', 'player']) > base, '5人');
+  // 第101回 R1班 2便: 人が えらぶ 間 ずっと 待つ 形（b.tellAll）で 人4人 9.8分・5人 13.6分に なった ので 4人・5人も HP を 下げた（前は 4人 もとの まま・5人 大きく）
+  const few = MONSTERS[C9D_MU].c9d.few;
+  assert.equal(hp(['player', 'player', 'player', 'player']), Math.round(base * few.hp[3]), '4人');
+  assert.ok(few.hp[3] < 1);
+  assert.equal(hp(['player', 'player', 'support', 'support']), Math.round(base * few.hp[1]), '2人＋酒場 2人');
+  assert.equal(hp(['player', 'player', 'player', 'player', 'player']), Math.round(base * few.hp[4]), '5人');
+  // 1人＋魔物3（2人めの 表を 使う）の HP は もとの まま（monK で もどす。0.68 × 0.64）
+  assert.equal(hp(['player', 'monster', 'monster', 'monster']), Math.round(base * 0.68 * (1 - 0.12 * 3)));
   assert.ok(hp(['player']) < base * 0.3, 'ひとりだけ');
   const b = battle({ kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.equal(peopleOf9d(b), 2, '魔物の 仲間は 半人ぶん');
