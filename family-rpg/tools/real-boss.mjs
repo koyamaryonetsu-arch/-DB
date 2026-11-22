@@ -20,6 +20,12 @@ import { fullHeal } from '../public/js/shared/stats.js';
 import { CH9_IDS, LV9, MODES9, ch9Party, ch9Run, summary9 } from './sim-ch9.mjs';
 import { ORDER_FLAGS, ORDERS_OF, c10cText, c10dText, c10Text, c10bText } from './sim-ch10.mjs';
 import { jobChar } from './sim-jobs.mjs';
+// 第101回 B班: 第3部 第3章 第1幕の 星座のけもの（beast）・いかり船長（pirate）も（CH9_IDS・ORDER_FLAGS・知って いる 人の しくみの 役を 足す）
+import './sim-ch11.mjs';
+import { c11aState, starsOf, captainOf, clocksOf, TOKEI_NAGE } from '../public/js/shared/battle-c11a.js';
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
+import { mpCost } from '../public/js/shared/stats.js';
+import { canUse } from '../public/js/shared/ai.js';
 import { Bot, tickN } from '../test/helpers.js';
 import { fixedWorld, addPlayer } from '../test/c9a-play.js';
 
@@ -29,6 +35,7 @@ const UPTO = {
   trio: 'c9_child', trial: 'c9_b3', king: 'c9_gate', riddle: 'c9_p2', trio2: 'c9_song', mu: 'c9_grave',
   tamagon: 'c10_start', mold: 'c10_start', gecko: 'c10b_start', owl: 'c10b_start', colonel: 'c10c_isles2', algol: 'c10c_fort2',
   gate1: 'c10_act3', gate2: 'c10_act3', gate3: 'c10_act3', gate4: 'c10_act3', mirror: 'c10_act3',
+  beast: 'c10_act4', pirate: 'c10_act4',
 };
 const flagsOf = (boss) => ORDER_FLAGS[ORDERS_OF[boss]?.[0]]?.[boss] || [];
 // 道具の ならび（sim-ch9.mjs の HUMAN_ORDER / NPC9）
@@ -74,6 +81,7 @@ export async function realSetup(boss, party, seed, { lv = LV9[boss] } = {}) {
       if (m.t === 'battleEv') {
         for (const e of m.evs) if (e.t === 'dualInvite') bot.invites.push({ ...e });
         if (i === 0) for (const e of m.evs) tallyEv(e);
+        if (i === 0 && process.env.LOGEV) for (const e of m.evs) if (e.t === 'act') console.log('   ', [...(e.lines || []), ...(e.postLines || [])].join(' / ').slice(0, 160));
         return;
       }
       bot.onMsg(JSON.parse(JSON.stringify(m)));
@@ -141,8 +149,42 @@ export async function realSetup(boss, party, seed, { lv = LV9[boss] } = {}) {
 //   mech … しくみの コマンド（うつる・てらす・星のうた・鳴らす・身を 守る）だけ。ほかの 番は「戦う」でボスを たたく
 //          （前の ブラウザの しらべ方の 勇者と 同じ えらび方）
 //   idle … 何も えらばない（番が 来ても まどを 開いた まま）
+//   easy … かんたんな 人（第101回 B班。第3章 第1幕）: 時計を 持って いて あと 2 いか なら「時計を投げる」・前ぶれで ねらわれたら 防御・
+//          味方の HPが 少ない（4わり いか）時は 回復の 技・ほかは いちばん 強い こうげきの 技（全体攻撃が あれば それ）か「戦う」。
+//          ねらいは HPが いちばん 多い 敵（けもの … 星を そろえて けずる）。合体技・番の 読みは しない
+const isDmg = (ab) => ['phys', 'magic', 'multi'].includes(ab?.effect?.type);
+const power = (ab) => (ab.effect?.mult || 0) * 100 + (Array.isArray(ab.effect?.base) ? (ab.effect.base[0] + ab.effect.base[1]) / 2 : ab.effect?.base || 0);
+//   plain … もっと かんたんな 人（ブラウザで A班が ためした 形）: 時計（あと 2 いか）・前ぶれで 防御・ほかは「戦う」で HPの 多い 敵だけ（技も 回復も 使わない）
+function easyPick(b, a, plain = false) {
+  const st = c11aState(b);
+  const foes = b.aliveEnemies();
+  const top = foes.slice().sort((x, y) => y.hp - x.hp)[0];
+  const can = (id) => canUse(b, a, id) && a.mp >= mpCost(a.penChar, id);
+  if (st?.kind === 'pirate') {
+    const k = clocksOf(b, a).filter((x) => x.wound).sort((x, y) => x.n - y.n)[0];
+    if (k && k.n <= 2) return { type: 'ability', id: TOKEI_NAGE };
+    if (st.anchorReady && st.anchorAim === a.id) return { type: 'defend' };
+  }
+  if (st?.kind === 'beast' && starsOf(b).some((e) => e.alive && e.c11s?.roarReady && e.c11s.aim === a.id)) return { type: 'defend' };
+  if (plain) return { type: 'attack', target: top?.id };
+  const low = b.aliveAllies().filter((x) => x.hp < x.maxHp * 0.4);
+  if (low.length) {
+    const heals = a.abilities.filter((id) => ABILITIES[id]?.effect?.type === 'heal' && can(id));
+    const all = heals.find((id) => ABILITIES[id].target === 'allies');
+    if (all && low.length > 1) return { type: 'ability', id: all };
+    const one = heals.sort((x, y) => power(ABILITIES[y]) - power(ABILITIES[x]))[0];
+    if (one) return { type: 'ability', id: one, target: ABILITIES[one].target === 'allies' ? undefined : low.sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0].id };
+  }
+  const atk = a.abilities.filter((id) => isDmg(ABILITIES[id]) && ['enemy', 'enemies'].includes(ABILITIES[id].target) && ABILITIES[id].kind !== 'combo' && can(id));
+  const wide = foes.length > 1 ? atk.filter((id) => ABILITIES[id].target === 'enemies').sort((x, y) => power(ABILITIES[y]) - power(ABILITIES[x]))[0] : null;
+  if (wide) return { type: 'ability', id: wide };
+  const one = atk.filter((id) => ABILITIES[id].target === 'enemy').sort((x, y) => power(ABILITIES[y]) - power(ABILITIES[x]))[0];
+  if (one) return { type: 'ability', id: one, target: top?.id };
+  return { type: 'attack', target: top?.id };
+}
 const MECH_IDS = new Set(['m10_utsuru', 'm9_teru', 'm9_hoshiuta', 'm10_narasu']);
 function humanPick(b, a, boss, how = process.env.HUMAN || 'know') {
+  if (how === 'easy' || how === 'plain') return easyPick(b, a, how === 'plain');
   if (how === 'mech') {
     a.knows9 = 'know';
     try {
@@ -232,12 +274,13 @@ export async function realRun(boss, party, seed, { react = envNum('REACT', 2000)
     bossLeft: foes.reduce((s, e) => s + Math.max(0, e.hp), 0) / Math.max(1, foes.reduce((s, e) => s + e.maxHp, 0)),
     sent, rej: n.rej, result, tally: { ...TALLY },
     allies: al.map((x) => ({ name: x.name, kind: x.kind, job: x.job, lv: x.lv, maxHp: x.maxHp, tactics: x.tactics, auto: x.auto, controller: x.controller ? 'h' : null })),
-    stats: boss === 'colonel' || boss === 'algol' ? statsC10c(b) : boss === 'mirror' ? statsC10d(b) : {},
+    stats: boss === 'colonel' || boss === 'algol' ? statsC10c(b) : boss === 'mirror' ? statsC10d(b) : boss === 'beast' || boss === 'pirate' ? statsC11a(b) : {},
   };
   for (const h of humans) h.send({ t: 'quit' });
   return res;
 }
 async function statsC10c(b) { return b.c10c ? { kBolt: b.c10c.bolts, kHit: b.c10c.hits, kMiss: b.c10c.misses, kMove: b.c10c.moves, kTight: b.c10c.tightHits, kDazzle: b.c10c.dazzles } : {}; }
+async function statsC11a(b) { const st = b.c11a; if (!st) return {}; return st.kind === 'beast' ? { bKill: st.kills, bRev: st.revives, bFang: st.fangs, bFangG: st.fangGuards } : { pPass: st.passes, pCap: st.capBites, pAlly: st.allyBites, pAnchor: st.anchors, pAnchorG: st.anchorGuards }; }
 async function statsC10d(b) { return b.c10d ? { mRing: b.c10d.rings, mMiss: b.c10d.misses, mAuto: b.c10d.autoRings, mMeas: b.c10d.measures, mMeasG: b.c10d.measureGuards } : {}; }
 
 export const SEED0 = 9090;

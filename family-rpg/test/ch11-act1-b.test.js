@@ -59,7 +59,7 @@ import { playC8cFx } from '../public/js/client/render/battlefx-c8c.js';
 import { battleBgSpec } from '../public/js/client/render/battlefx.js';
 import { C11A_BG } from '../public/js/client/render/c11a-bg.js';
 import {
-  C11A_SCREEN_ANIMS, C11A_ALLY_FX, C11A_SFX, C11A_OWN_TELE, c11aHtml, c11aSprite, c11aDraw, c11aPresent, c11aCmdItems, c11aCmdPick, c11aStatus,
+  C11A_SCREEN_ANIMS, C11A_ALLY_FX, C11A_SFX, C11A_OWN_TELE, c11aHtml, c11aSprite, c11aDraw, c11aPresent, c11aCmdItems, c11aCmdPick, c11aStatus, c11aBannerOne,
 } from '../public/js/client/battle-c11a.js';
 import { c9bCmdItems } from '../public/js/client/battle-c9b.js';
 import { CH4_ALLY_FX } from '../public/js/client/battle-ch4.js';
@@ -738,6 +738,37 @@ test('もとの お話の 名前・絵・せりふを 使わない（ピータ�
 });
 
 // ───────────── がめん ─────────────
+test('がめん: 大きな 知らせは 1つずつ（前の 知らせを 消す・はばに おさめて 折り返す … スマホで 2つ かさなった）', () => {
+  const removed = [];
+  const shown = [];
+  const olds = [{ remove: () => removed.push(1) }, { remove: () => removed.push(2) }];
+  const scene = { stage: { querySelectorAll: (q) => (q === '.b-banner' ? olds.splice(0) : []) }, banner(t, c) { shown.push([t, c]); } };
+  c11aBannerOne(scene);
+  c11aBannerOne(scene);
+  scene.banner('ガブッ！', 'combo');
+  assert.deepEqual(removed, [1, 2], '前の 知らせを 消す');
+  assert.equal(shown.length, 1);
+  assert.ok(shown[0][1].includes('combo') && shown[0][1].includes('c11a-bn'), shown[0][1]);
+  const src = readFileSync(new URL('../public/js/client/battle-c11a.js', import.meta.url), 'utf8');
+  assert.ok(/\.b-banner\.c11a-bn \{ white-space: normal; width: 94%/.test(src), '折り返す');
+});
+
+test('本物の 流れ（tools/real-boss.mjs）: けもの・船長も 回る（かんたんな 人 … 時計を投げる・前ぶれで 防御・回復・強い こうげき）', { timeout: 600000 }, async () => {
+  const { realRun } = await import('../tools/real-boss.mjs');
+  const prev = process.env.HUMAN;
+  process.env.HUMAN = 'easy';
+  try {
+    const r = await realRun('beast', 'k1fam', 9090);
+    assert.ok(['win', 'lose'].includes(r.outcome), r.outcome);
+    assert.equal(r.rej, 0, 'はねかえされた コマンドが ない');
+    const p = await realRun('pirate', 'p2', 9090);
+    assert.ok(['win', 'lose'].includes(p.outcome) && p.rej === 0);
+    assert.ok((p.sent[TOKEI_NAGE] || 0) >= 1, JSON.stringify(p.sent));
+  } finally {
+    if (prev === undefined) delete process.env.HUMAN; else process.env.HUMAN = prev;
+  }
+});
+
 test('がめん: 上の まど（大きく「チク・タク　あと ○」・持って いる 人・目を 回して いる・いかりなげ・星の ようす）・仲間の まどの 時計の しるし・バナー・コマンド「時計を投げる」・コマンドの 行き先・曲の ピンチ', () => {
   for (const id of C11A_OWN_TELE) assert.ok(CH6_OWN_TELE.has(id), id);
   const allies = [{ id: 'a0', name: 'タロウ', alive: true, clock11: 2 }, { id: 'a1', name: 'ハナ', alive: true }];
