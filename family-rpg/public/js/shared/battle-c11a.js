@@ -64,6 +64,12 @@ const flag = (b, f) => {
   }
 };
 const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf10(b) - 1] ?? d : d);
+// 第101回 3回め: 仲間なしの 少ない パーティー（味方が みんな 家族の キャラで 2人か 3人。ゲストの スピカは 味方に 入らない）
+//   bare: { hp: [2人, 3人], … } … ある キーは few より 先に きく（第1章 battle-c9a.js・第2章 battle-c10a.js と 同じ 考え）
+export function bareOf(b) {
+  const al = (b?.allies || []).filter((a) => a.kind !== 'guest');
+  return al.length >= 2 && al.length <= 3 && al.every((a) => a.kind === 'player') ? al.length : 0;
+}
 const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, enumerable: false, configurable: true, writable: true });
 
 // しかけの 数（人数で 合わせた もの）
@@ -71,23 +77,25 @@ export function c11aConf(species, b = null) {
   const c = MONSTERS[species]?.c11a || {};
   const f = c.few || {};
   const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const n = bareOf(b);
+  const bare = n && c.bare ? Object.fromEntries(Object.entries(c.bare).map(([k, v]) => [k, Array.isArray(v) ? v[n - 2] : v]).filter(([, v]) => v !== undefined)) : {};
+  const pick = (k, d) => (alone[k] ?? bare[k] ?? (b ? few(f[k], b, d) : d));
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   const out = {
-    kind: c.kind,
+    kind: c.kind, bare: n,
     hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
   if (c.kind === 'beast') {
     Object.assign(out, {
-      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: c.reviveUp ?? 0, mend: c.mend ?? 0.05,
+      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: pick('reviveUp', c.reviveUp ?? 0), linkK: pick('linkK', c.linkK ?? 1), linkAuto: c.linkAuto ?? c.linkK ?? 1, mend: c.mend ?? 0.05,
       roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35, ...(c.roar || {}) },
     });
   }
   if (c.kind === 'pirate') {
     Object.assign(out, {
       plus: pick('plus', c.clock?.plus ?? 2), two: pick('two', c.clock?.two ?? 0.5), twoPlus: c.clock?.twoPlus ?? 2,
-      bite: { ally: 0.8, guardCut: 0.5, cap: 0.06, dizzy: 2, dizzyK: 1.25, ...(c.bite || {}) },
-      hard: c.hard ?? 0.3,
+      bite: { ally: 0.8, guardCut: 0.5, cap: 0.06, dizzy: 2, dizzyK: 1.25, ...(c.bite || {}), ...(bare.dizzy !== undefined ? { dizzy: bare.dizzy } : {}) },
+      hard: pick('hard', c.hard ?? 0.3),
       anchor: { every: 3, first: 2, mult: 1, holder: 0.7, atb: 0, ...(c.anchor || {}) },
       song: c.song ?? 1,
     });
@@ -154,8 +162,7 @@ function setupPirate(b, cap, lines) {
     if (!a.abilities.includes(TOKEI_NAGE)) a.abilities = [TOKEI_NAGE, ...a.abilities];
   }
   // はじめの 時計（船長が 味方の 1人に 投げる）
-  const al = b.aliveAllies();
-  const t = al[b.rng.int(0, al.length - 1)];
+  const t = b.get(pickAim(b));
   const k = { no: 0, holder: t.id, n: startCount(b), wound: true, aim: null };
   b.c11a.clocks.push(k);
   lines.push(
@@ -391,18 +398,27 @@ function bite(b, k, ev, but = null) {
   lines.push(`${SHARK_NAME}は、時計をぺっとはき出した。${CAPTAIN_SHORT}が、それを拾った…！${aim ? `（つぎは、${aim.name}に投げるつもりだ！）` : ''}`);
 }
 // 船長が 時計を 投げる 相手（つぎの 番が いちばん 遠い 人を ねらう ことが 多い。時計を 持って いない 人から）
+//   第101回 見直し: 時計は「えらんで いる 人」（人が 動かす 仲間 … b.humans()）に 投げる。人が みんな たおれて いる・
+//   だれも えらんで いない（完全オート）時だけ、ほかの 仲間へ。人が 2人 いじょうなら 同じ 人に つづけて 行きすぎない ように
+export function choosersOf(b) {
+  return (b.humans?.() || []).filter((a) => a.alive && !a.fled);
+}
 function pickAim(b, but = null) {
   const st = b.c11a;
-  const al = b.aliveAllies();
+  const hs = choosersOf(b);
+  const al = hs.length ? hs : b.aliveAllies();
   if (!al.length) return null;
   const free = al.filter((a) => !st.clocks.some((k) => k.holder === a.id));
-  const pool = free.length ? free : al;
+  let pool = free.length ? free : al;
+  if (pool.length > 1 && st.lastAim) pool = pool.filter((a) => a.id !== st.lastAim);
+  let id;
   if (pool.length > 1 && b.rng.chance(0.7)) {
     const ord = turnOrder(b, but, 3);
     const idx = (a) => { const i = ord.indexOf(a.id); return i < 0 ? 99 : i; };
-    return pool.slice().sort((x, y) => idx(y) - idx(x))[0].id;
-  }
-  return pool[b.rng.int(0, pool.length - 1)].id;
+    id = pool.slice().sort((x, y) => idx(y) - idx(x))[0].id;
+  } else id = pool[b.rng.int(0, pool.length - 1)].id;
+  st.lastAim = id;
+  return id;
 }
 
 // これから 動く じゅん（id の ならび。but … 今 動いて いる 人〈次の 番は 1まわり あと〉。loops … 1人 なん回ぶん）
@@ -491,7 +507,9 @@ function pirateTurn(b, c, ev, stuck) {
   }
   if (stuck) return;
   // HPが 半分を 切ると 時計が 2つ（ひとりの 時は 1つ の まま）
-  if (!st.two && cf.two > 0 && c.hp <= c.maxHp * cf.two && b.allies.length > 1) {
+  // 時計の 数は「人の 数」まで（2つめは えらんで いる 人が 2人 いじょうの 時だけ。完全オートは 今までと おなじ 数え方）
+  const hs = choosersOf(b).length;
+  if (!st.two && cf.two > 0 && c.hp <= c.maxHp * cf.two && b.allies.length > 1 && (hs >= 2 || (!hs && !someoneChooses(b)))) {
     st.two = true;
     const k = { no: 1, holder: 'cap', n: startCount(b) + cf.twoPlus, wound: false, aim: pickAim(b) };
     st.clocks.push(k);
@@ -672,7 +690,24 @@ function anchor(b, c, ev) {
 export function c11aDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0) || c?.side !== 'ally' || t?.side !== 'enemy') return dmg;
   const st = b.c11a;
-  if (!st || st.won || st.kind !== 'pirate' || t.id !== st.id) return dmg;
+  if (!st || st.won) return dmg;
+  // 星座のけもの: 星が 1つ 消えて いる 間（よみがえる 前）は、のこりの 星が 光の 線で まもられる（受ける ダメージ linkK ばい）
+  //   … 1つずつ たおして いくと 苦しい。3つを 同じくらいに けずって、近い 番で そろえて たおす
+  if (st.kind === 'beast') {
+    if (!t.c11s) return dmg;
+    // だれも えらんで いない（完全オート・人が みんな たおれた）時は、線が もっと つよい（linkAuto）… そろえて たおさないと 勝てない
+    const cf = c11aConf(t.species, b);
+    const k = someoneChooses(b) ? cf.linkK : cf.linkAuto;
+    if (k < 1 && starsOf(b).some((e) => !e.alive && e.c11s?.dead && e.c11s.left > 0)) {
+      dmg = Math.max(1, Math.round(dmg * k));
+      if (ev && !ev.c11aLink) {
+        ev.c11aLink = true;
+        post(ev).push(`（消えた星から、光の線がのびて、${t.name}をまもっている…！）`);
+      }
+    }
+    return dmg;
+  }
+  if (st.kind !== 'pirate' || t.id !== st.id) return dmg;
   const cf = c11aConf(C11A_CAPTAIN, b);
   // ふだんは かたい（3わり）。目を 回して いる 間は よく 通る
   dmg = Math.max(1, Math.round(dmg * (st.dizzy > 0 ? cf.bite.dizzyK : cf.hard)));

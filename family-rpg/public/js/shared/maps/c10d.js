@@ -15,21 +15,20 @@ import {
   HILL_SCENE10D, HILL_BRIDGE10D, PED_DO10D, PED8_10D,
 } from './c10d-rows.js';
 import {
-  C10D, C10D_ACT3, C10D_GATES, C10D_WELLS, C10D_PED, C10D_MAP, C10D_MAP_IDS, C10D_CHEST_IDS, C10D_TRACKS, C10D_MON,
+  C10D, C10D_ACT3, C10D_GATES, C10D_WELLS, C10D_PED, C10D_MAP, C10D_MAP_IDS, C10D_CHEST_IDS, C10D_TRACKS,
 } from './c10d-flags.js';
 import { PEDESTALS9C } from './c9c.js';
 import { CRATER_FORK10A } from './c10a-rows.js';
 import { ALGOL, ALGOL_NAME } from './c9c-flags.js';
 import { towerMapId } from './tower.js';
+import { c10dChest } from '../data/items-c10d.js';
 
 export const CH10D_MAPS = [...C10D_MAP_IDS];
 export const TOWER_TOP10D = towerMapId(9);
 export const TOWER_1F10D = towerMapId(1);
 
-// 宝箱の 中み（B班が 入るまでは かりの お金。合わせる 時に B班の data/items-c10d.js の c10dChest に かえる）
-let chestFn10d = () => ({ gold: 500 });
-export const setChestOf10d = (fn) => { chestFn10d = fn; };
-export const chestOf10d = (id) => chestFn10d(id) || {};
+// 宝箱の 中み（B班の data/items-c10d.js の c10dChest。6この id）
+export const chestOf10d = (id) => c10dChest(id) || {};
 
 const base = (id, name, t, extra) => ({
   id, name, kind: 'dungeon', w: t.w, h: t.h, tiles: t.tiles, gates: [],

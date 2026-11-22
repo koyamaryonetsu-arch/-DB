@@ -25,7 +25,7 @@ import {
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
 import { C10C_B as C10C } from '../public/js/shared/maps/c10c-flags.js';
-import { C10D_B as C10D } from '../public/js/shared/data/c10d-names-b.js';
+import { C10D_B as C10D } from '../public/js/shared/maps/c10d-flags.js'; // 第99回 A班: c10d-names-b.js は 消した（同じ 名前は maps/c10d-flags.js に）
 import {
   MONSTERS_C11A, C11A_SEA_MON, C11A_ISLE_MON, C11A_MINIONS, C11A_RECOLOR_BASE, C11A_NEW_ART, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_STARS, C11A_CAPTAIN,
   CAPTAIN_NAME, CAPTAIN_SHORT, SHARK_NAME, BEAST_NAME, C11A_MAT_DROPS,
@@ -259,6 +259,36 @@ test('星座のけもの: 星ごとの 役わり … あたま（前ぶれ → �
   assert.equal(p.role11, 'tail');
 });
 
+test('星座のけもの: 星が 1つ 消えて いる 間は のこりの 星が 光の 線で まもられる（linkK）・だれも えらんで いない（完全オート）時は もっと つよい（linkAuto）', () => {
+  const hit = (auto, down) => {
+    const b = battle({ id: C11A_BATTLE.beast, auto, seed: 5 });
+    big(b);
+    const [head, , tail] = starsOf(b);
+    for (const e of starsOf(b)) quiet(e);
+    if (down) { tail.hp = 1; act(b, b.allies[1], { type: 'attack', target: tail.id }); assert.equal(tail.alive, false); }
+    let sum = 0;
+    let said = false;
+    // よみがえる 前（revive 回 より 少ない 回数）だけ はかる
+    for (let i = 0; i < 3; i++) {
+      head.hp = head.maxHp;
+      const ev = act(b, b.allies[0], { type: 'attack', target: head.id });
+      sum += head.maxHp - head.hp;
+      if (allText(ev).includes('光の線がのびて')) said = true;
+    }
+    return { sum, said, cf: c11aConf(C11A_HEAD, b) };
+  };
+  const base = hit(false, false);
+  const link = hit(false, true);
+  assert.ok(!base.said && link.said, '文');
+  assert.ok(base.cf.linkK < 1 && base.cf.linkAuto < base.cf.linkK, JSON.stringify(base.cf));
+  const r = link.sum / base.sum;
+  assert.ok(r < base.cf.linkK + 0.15 && r > base.cf.linkK - 0.15, `人 ${r}`);
+  const autoBase = hit(true, false);
+  const autoLink = hit(true, true);
+  const ra = autoLink.sum / autoBase.sum;
+  assert.ok(ra < base.cf.linkAuto + 0.1 && ra < r, `完全オート ${ra}`);
+});
+
 // ───────────── いかり船長と 時計 ─────────────
 test('いかり船長: はじめに 時計を 味方の 1人へ（数は 動く 人の 数 ＋ 2）・だれかが 動くたびに 1 へる・0 で 持って いる 人を サメが かむ（防御で 半分）・時計は 船長へ もどる', () => {
   assert.ok(CAPTAIN_NAME.startsWith('いかり船長') && !CAPTAIN_NAME.includes(' ') && CAPTAIN_SHORT === 'イバリー');
@@ -428,6 +458,43 @@ test('いかり船長: いかりなげ（前ぶれ → 次の 番。時計を �
   assert.equal(c11aPub(c6, b6).pirateStage, 4);
 });
 
+test('いかり船長: 時計は えらんで いる 人に 来る（人が 2人 いじょうなら 同じ 人に つづけて 行きすぎない）・時計の 数は 人の 数まで・人が みんな たおれたら 自動の 仲間へ', () => {
+  const half = (b) => {
+    const cap = captainOf(b);
+    quiet(cap);
+    cap.hp = Math.floor(cap.maxHp * 0.49);
+    foe(b, cap);
+  };
+  // 1人＋酒場3人: はじめの 時計は 人へ・HP 半分でも 時計は 1つ
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const b = battle({ kinds: ['player', 'support', 'support', 'support'], auto: false, seed });
+    big(b);
+    assert.equal(holderOf(b), b.allies[0].id, `seed ${seed}`);
+    half(b);
+    assert.equal(b.c11a.clocks.length, 1, '人が 1人 … 時計 1つ');
+  }
+  // 2人＋酒場2人: 時計は 2人の どちらかへ・HP 半分で 2つ（2人が 1つずつ）
+  const b2 = battle({ kinds: ['player', 'player', 'support', 'support'], auto: false });
+  big(b2);
+  const hs = [b2.allies[0].id, b2.allies[1].id];
+  assert.ok(hs.includes(holderOf(b2)));
+  half(b2);
+  assert.equal(b2.c11a.clocks.length, 2);
+  for (const k of b2.c11a.clocks) if (k.holder) assert.ok(hs.includes(k.holder), '時計は 人へ');
+  // 人が みんな たおれたら 自動の 仲間へ
+  const b3 = battle({ kinds: ['player', 'support', 'support', 'support'], auto: false, seed: 2 });
+  big(b3);
+  b3.c11a.clocks[0].holder = null;
+  b3.allies[0].hp = 0;
+  b3.allies[0].alive = false;
+  const cap3 = captainOf(b3);
+  quiet(cap3);
+  b3.c11a.clocks[0].holder = cap3.id;
+  for (let i = 0; i < 4 && b3.c11a.clocks[0].holder === cap3.id; i++) foe(b3, cap3);
+  const h3 = b3.c11a.clocks[0].holder;
+  assert.ok(h3 && h3 !== b3.allies[0].id, `${h3}`);
+});
+
 // ───────────── 自動の 仲間・知って いる 人の 読み ─────────────
 test('自動の 仲間: 人が えらんで いる 時だけ、ちょうど よい 時の 3回に 1回 時計を 投げる（完全オートは 投げない）・知って いる 人は 行動ゲージで ちょうど よい 時を 読む', () => {
   const b = battle({ kinds: ['player', 'support', 'support', 'support'], auto: false });
@@ -475,13 +542,17 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
   const hp = (id, kinds) => battle({ id, kinds }).enemies[0].maxHp;
   for (const id of Object.values(C11A_BATTLE)) {
     const sp = groupOf(id)[0];
-    assert.equal(hp(id, ['player', 'player', 'player', 'player']), MONSTERS[sp].hp, `${id}: 4人は もとの まま`);
+    assert.equal(hp(id, ['player', 'player', 'player', 'player']), Math.round(MONSTERS[sp].hp * MONSTERS[sp].c11a.few.hp[3]), `${id}: 4人は few の 4人め`);
     assert.ok(hp(id, ['player', 'player', 'support', 'support']) < MONSTERS[sp].hp, `${id}: 2人`);
     assert.ok(hp(id, ['player']) < MONSTERS[sp].hp * 0.35, `${id}: ひとりだけ`);
     for (const k of ['hp', 'atk']) assert.equal(MONSTERS[sp].c11a.few[k].length, 5);
   }
-  assert.equal(startCount(battle({ kinds: ['player', 'player'] })), 2 + 1 + 2);
-  assert.equal(startCount(battle({ kinds: ['player', 'player', 'player', 'player', 'player'] })), 5 + 1 + 2);
+  assert.equal(startCount(battle({ kinds: ['player', 'player', 'support', 'support'] })), 4 + 1 + 2);
+  assert.equal(startCount(battle({ kinds: ['player', 'player'] })), 2 + 1 + MONSTERS[C11A_CAPTAIN].c11a.bare.plus[0], '仲間なしの 2人は bare');
+  // 5人は 時計の ひまを 足さない（plus 0 … 人が 多いと 投げ合いが らく すぎる）
+  const five = battle({ kinds: ['player', 'player', 'player', 'player', 'player'] });
+  assert.equal(startCount(five), 5 + 1 + c11aConf(C11A_CAPTAIN, five).plus);
+  assert.equal(c11aConf(C11A_CAPTAIN, five).plus, 0);
   assert.equal(c11aConf(C11A_CAPTAIN, battle({ kinds: ['player'] })).two, 0, 'ひとりは 時計 1つ');
   const mon = battle({ kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.ok(captainOf(mon).maxHp < captainOf(battle({ kinds: ['player', 'player', 'support', 'support'] })).maxHp, '魔物の 仲間は 時計を 投げない ぶん やさしく');
@@ -490,6 +561,30 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
 });
 
 // ───────────── スピカの ごほうび ─────────────
+test('人数で 合わせる: 仲間なしの 少ない パーティー（味方が みんな 家族の キャラで 2人・3人）は bare の 表が few より 先', () => {
+  for (const sp of [C11A_HEAD, C11A_CAPTAIN]) {
+    const bare = MONSTERS[sp].c11a.bare;
+    assert.ok(bare && Array.isArray(bare.hp) && bare.hp.length === 2 && bare.atk.length === 2, sp);
+    const id = sp === C11A_HEAD ? C11A_BATTLE.beast : C11A_BATTLE.pirate;
+    for (const [n, kinds] of [[2, ['player', 'player']], [3, ['player', 'player', 'player']]]) {
+      const b = battle({ id, kinds });
+      const cf = c11aConf(sp, b);
+      assert.equal(cf.bare, n, `${sp} ${n}人だけ`);
+      assert.equal(cf.hp, bare.hp[n - 2]);
+      assert.equal(cf.atk, bare.atk[n - 2]);
+      assert.equal(b.enemies[0].maxHp, Math.round(MONSTERS[b.enemies[0].species].hp * bare.hp[n - 2]), 'HP に きく');
+    }
+    // 自動の 仲間が いる・4人・ひとり・魔物の 仲間 … bare は きかない（few か solo）
+    for (const kinds of [['player', 'player', 'support', 'support'], ['player', 'player', 'player', 'support'], ['player', 'player', 'player', 'player'], ['player'], ['player', 'monster']]) {
+      const b = battle({ id, kinds });
+      const cf = c11aConf(sp, b);
+      assert.equal(cf.bare, 0, kinds.join(','));
+    }
+    const two = c11aConf(sp, battle({ id, kinds: ['player', 'player', 'support', 'support'] }));
+    assert.equal(two.hp, MONSTERS[sp].c11a.few.hp[1], '2人＋自動2 は few');
+  }
+});
+
 test('スピカの ごほうび: この 幕の クリア（c11_act1）で 技「ながれ星」… ほのかな光 2回に 1回、いちばん HPが 多い 敵に 小さな ながれ星（前の 6つの ごほうびと 合わせて きく）', () => {
   const ALL7 = { ...ALL6, [C11A.act1]: true };
   const plain = battle({ enemies: ['c11a_crab', 'c11a_ram'], flags: ALL6 });

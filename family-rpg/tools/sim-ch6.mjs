@@ -163,7 +163,8 @@ export function dualPlan(b, a, bossId, skip = null) {
   const rank = (o) => (o.id === 'dt_minadein' ? 3 : o.size >= 4 ? 2 : o.size);
   const best = opts.sort((x, y) => rank(y) - rank(x))[0];
   if (!best) return false;
-  const r = b.command(a.id, { type: 'dual', id: best.id, partner: best.partner, partners: best.partners, target: boss.id }, 'sim');
+  // 第100回 V1班: 人ごとに べつの 手（sim-ch9.mjs の ch9Run）でも 出せる ように、その キャラの 手で
+  const r = b.command(a.id, { type: 'dual', id: best.id, partner: best.partner, partners: best.partners, target: boss.id }, a.controller || 'sim');
   return r.ok;
 }
 

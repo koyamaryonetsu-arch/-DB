@@ -19,7 +19,7 @@ import { TACTICS, mechBoss, decideAlly } from '../public/js/shared/ai.js';
 import {
   C10D_B as C10D, C10D_WELL_B, C10D_PED_B, C10D_POWER_B, C10D_MAP_B, C10D_BATTLE_B as C10D_BATTLE, C10D_GATES_B, C10D_MON_PREFIX_B, C10D_BOSS_MON_B,
   C10D_CHEST_IDS_B, C10D_NOTES_B, C10D_TRACKS_B, C10D_OPEN_B,
-} from '../public/js/shared/data/c10d-names-b.js';
+} from '../public/js/shared/maps/c10d-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
 import { C10C_B as C10C } from '../public/js/shared/maps/c10c-flags.js';
@@ -84,7 +84,7 @@ const ring = (b, a, color) => act(b, a, { type: 'ability', id: NARASU, choice: c
 const hitOnce = (b, a, t) => { const hp = t.hp; act(b, a, { type: 'attack', target: t.id }); return hp - t.hp; };
 
 // ───────────── 名前の 約束 ─────────────
-test('名前の 約束（16-4）: フラグ・いずみ・台・ちからの 水・マップ・決まった 戦い・魔物の id・宝箱・だいじな 物・曲・幕の 切りかえ（かりの 置き場 data/c10d-names-b.js）', () => {
+test('名前の 約束（16-4）: フラグ・いずみ・台・ちからの 水・マップ・決まった 戦い・魔物の id・宝箱・だいじな 物・曲・幕の 切りかえ（maps/c10d-flags.js。かりの 置き場は 消した）', () => {
   assert.deepEqual(C10D, {
     act3: 'c10_act3', start: 'c10d_start', top: 'c10d_top', gate1: 'c10d_gate1', gate2: 'c10d_gate2', gate3: 'c10d_gate3', gate4: 'c10d_gate4',
     mirror: 'c10d_mirror', noteDo: 'c10_note_do', bridge: 'c10d_bridge', act4: 'c10_act4',
@@ -446,7 +446,7 @@ test('強さ: 人が できる 動き（2秒・5秒）で 知って いる 人�
   assert.deepEqual(CH10D_LV, { gate1: 115, gate2: 116, gate3: 116, gate4: 117, mirror: 118 });
   for (const key of ['gate1', 'gate2', 'gate3', 'gate4', 'mirror']) {
     for (const react of [2000, 5000]) {
-      const know = [1, 2, 3, 4].map((s) => ch9Run(key, LV9[key], 'know', 9090 + s * 7919, { react, flags: ORDER_FLAGS.act4[key] }));
+      const know = [1, 2, 3, 4].map((s) => ch9Run(key, LV9[key], 'know', 9090 + s * 7919, { legacy: true, react, flags: ORDER_FLAGS.act4[key] }));
       const w = know.filter((r) => r.outcome === 'win');
       assert.ok(w.length >= (key === 'mirror' ? 2 : 3), `${key} ${react}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
       const sec = w.reduce((s, r) => s + r.seconds, 0) / w.length;
@@ -458,7 +458,7 @@ test('強さ: 人が できる 動き（2秒・5秒）で 知って いる 人�
     }
     for (const [job, kit] of Object.entries(CH9_KIT[key])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
   }
-  const blind = [1, 2, 3, 4].map((s) => ch9Run('mirror', LV9.mirror, 'blind', 9090 + s * 7919, { flags: ORDER_FLAGS.act4.mirror }));
+  const blind = [1, 2, 3, 4].map((s) => ch9Run('mirror', LV9.mirror, 'blind', 9090 + s * 7919, { legacy: true, flags: ORDER_FLAGS.act4.mirror }));
   assert.ok(blind.filter((r) => r.outcome === 'win').length <= 1, 'ボス: 知らない 人');
   assert.deepEqual(ORDER_FLAGS.act4.mirror, [C10A.noteRe, C10A.noteFa, C10B.noteSo, C10B.noteLa, C10C.noteSi]);
 });
@@ -687,7 +687,7 @@ test('がめん: 上の まど（色の 丸 ＋ 色の 名前の 文字・あと
 // ───────────── 字 ─────────────
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c10d-names-b.js', 'public/js/shared/data/monsters-c10d.js', 'public/js/shared/data/abilities-c10d.js',
+    'public/js/shared/data/monsters-c10d.js', 'public/js/shared/data/abilities-c10d.js',
     'public/js/shared/data/encounters-c10d.js', 'public/js/shared/data/items-c10d.js', 'public/js/shared/data/boss-hints-c10d.js',
     'public/js/shared/battle-c10d.js', 'public/js/client/battle-c10d.js', 'public/js/client/render/c10d-art.js', 'public/js/client/render/c10d-bg.js', 'public/js/client/render/battlefx-c10d.js',
   ];

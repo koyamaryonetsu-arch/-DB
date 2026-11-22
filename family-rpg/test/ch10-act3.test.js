@@ -18,7 +18,7 @@ import { T, TILE_INFO } from '../public/js/shared/tiles.js';
 import { C10C, C10C_LEVER, C10C_MAP, C10C_BATTLE, C10C_CHEST_ALL, C10C_BRIDGE_COLORS } from '../public/js/shared/maps/c10c-flags.js';
 import { ISLES1_POS, ISLES2_POS, ISLES3_POS, FORT1_POS, FORT2_POS, FORT3_POS, KUMOI_VORTEX10C, KUMOI_LAND10C, UNDER_BACKDOOR10C, UNDER_LAND10C } from '../public/js/shared/maps/c10c-rows.js';
 import { bridgesOf10c } from '../public/js/shared/world/c10c-steps.js';
-import { act2ClearObjective, PART3_C10C_OPEN, CH10_PROGRESS } from '../public/js/shared/data/story-c10.js';
+import { act2ClearObjective, act3ClearObjective, PART3_C10C_OPEN, CH10_PROGRESS } from '../public/js/shared/data/story-c10.js';
 import { C10B_OBJ } from '../public/js/shared/data/story-c10b.js';
 import { C10C_OBJ } from '../public/js/shared/data/story-c10c.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -393,7 +393,8 @@ test('幕が 開いて いる（PART3_C10C_OPEN）: 第2幕 クリアの 目標�
   assert.equal(PART3_C10C_OPEN, true);
   assert.equal(act2ClearObjective(), C10C_OBJ.start);
   assert.ok(!CH10_PROGRESS.some(([, t]) => t === C10B_OBJ.act2), '「第3幕へ（続きは…）」は 知らない 文に なり なおる');
-  assert.ok(CH10_PROGRESS.some(([, t]) => t === C10C_OBJ.act3));
+  // 第99回 A班: 第4幕が 開いた あとは 第3幕 クリアの 目標も「ながれ星のくぼ地で、星の音さを鳴らそう」（act3ClearObjective。前の 文は 表から ぬいた）
+  assert.ok(CH10_PROGRESS.some(([, t]) => t === act3ClearObjective()));
 });
 
 test('通し（本当の 戦い・家族の 仲間 3人）: くぼ地 → 空 → たいさ（はじめは 完全オートで 負ける）→ うばわれる → 3人組 → とりで → 少年（同じ）→ 台（c10_act3）。宝箱 12こ', { timeout: 1700000 }, async () => {
@@ -425,7 +426,7 @@ test('通し（本当の 戦い・家族の 仲間 3人）: くぼ地 → 空 �
   await talkTo(bot, 'c9a_crater', 'c9c_ped7', 0, R(opts));
   await playReal(bot, R(opts));
   assert.ok(c.flags[C10C.act3], '幕の クリア');
-  assert.equal(c.objective, C10C_OBJ.act3);
+  assert.equal(c.objective, act3ClearObjective()); // 第99回 A班: 第4幕が 開いた ので 第4幕の はじまり
   assert.equal(storyPlace(c).label, '第3部 第2章 第3幕');
   assert.ok(storyPlace(c).cleared);
   assert.ok(C10C_SHOP_ADD.every((id) => SHOPS.c10c_crater.items.includes(id)), 'くぼ地の 武具屋に 品が ふえた');

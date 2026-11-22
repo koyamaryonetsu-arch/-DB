@@ -40,7 +40,7 @@ export const PART3_C10C_OPEN = true;
 // ───── 第4幕「金の音と、星の橋」を 開ける 切りかえ（16-4・16-5。第99回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第3幕 クリアの 目標は 今の 文・
 //   くぼ地で 星の音さを 鳴らしても 第4幕は 始まらない）
-export const PART3_C10D_OPEN = false;
+export const PART3_C10D_OPEN = true;
 
 // ───── 第3部 第2章の 一本の 線（STORY_STEPS の c9_act4 の うしろ）─────
 // 赤・緑の フラグは 線に 入れない（すきな じゅん。maps/c10a-flags.js）

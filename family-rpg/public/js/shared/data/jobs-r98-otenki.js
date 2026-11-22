@@ -11,7 +11,7 @@ export const KIZUNA_OTENKI = {
   job: {
     id: 'otenki_shihan', name: 'おてんき格闘流の師はん', kana: 'おてんきかくとうりゅうのしはん', short: 'おてんき', tier: 4, req: ['hiryu_master', 'tenkou_tsukai'], family: 'phys', color: '#2a8ad8',
     desc: '天気をあやつる格闘流の師はん。雨をよぶと自分で水のすがたに、晴れをよぶとお湯のすがたにもどる。雨の中では、水のこぶしがもっと強くなる。飛竜しょう天はの達人と天候をあやつる者をきわめ、素手の技と、雨と晴れの技をたくさん使った者だけがなれる。',
-    mods: { hp: 1.8, mp: 2.0, str: 1.8, def: 1.45, agi: 1.8, mag: 1.0, heal: 1.2 },
+    mods: { hp: 1.8, mp: 2.5, str: 1.75, def: 1.45, agi: 1.8, mag: 1.0, heal: 1.2 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { str: 1, agi: 1.5, mp: 0.5 },
     // formPct … 水と お湯の すがたの 効き目（battle-r84b.js の formPct が 見る。伝説と おなじ 25%。幻だからと 上げない）
@@ -98,11 +98,14 @@ export const KIZUNA_OTENKI = {
     },
     conds: { hi_niji: { from: { ot_amatsubu: 10, ot_niwaka: 6 } } },
   },
-  tags: ['henshin', 'wind', 'ice', 'bolt'], // 水と お湯で すがたを かえる・竜巻と 台風・雨〈水〉・かみなり（剣・こぶしの 組は いっぱい〈test/dual-r31〉なので つけない。炎も つけない）
+  // 黒い 雨雲〈闇〉・竜巻と 台風・雨〈水〉・かみなり（剣・こぶしの 組は いっぱい〈test/dual-r31〉なので つけない。炎も つけない）
+  // 第98回 K5班: 変身 → 闇（変身の 合体技は 3人 いる ので 出にくい。闇なら 光の 仲間〈大神官など〉と「光と闇」が 出せて、ボスで 親の 伝説に 追いつく）
+  tags: ['dark', 'wind', 'ice', 'bolt'],
   say: '「本日の天気は、雨のち竜巻！」',
   trial: '空も心も、自分でかえてみせよ。',
   vehicle: { id: 'panda_amagumo', v: { name: 'パンダの雨雲', price: 27000, jobs: ['otenki_shihan'], phantom: true, desc: '雨雲にのった、大きなパンダ。かさをさして、空の上をのっしのっしと歩く。雨のあとには、にじが出る。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1.27, 1.0, 1.15],
+  //   K5班: タグと MP を かえた あとに はかり直した
+  trialAdj: [1.27, 1.12, 1.36],
   work: 'ranma',
 };

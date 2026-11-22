@@ -488,7 +488,7 @@ test('強さ: 人が できる 動き（えらぶ 時間 2秒・5秒）で 知�
   for (const boss of ['gecko', 'owl']) {
     for (const react of [2000, 5000]) {
       const order = react === 2000 ? 'blue' : 'white';
-      const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, { react, flags: ORDER_FLAGS[order][boss] }));
+      const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, { legacy: true, react, flags: ORDER_FLAGS[order][boss] }));
       const w = know.filter((r) => r.outcome === 'win');
       assert.ok(w.length >= 2, `${boss} ${react}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
       const sec = w.reduce((s, r) => s + r.seconds, 0) / w.length;

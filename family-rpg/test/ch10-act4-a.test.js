@@ -2,7 +2,8 @@
 // c10_act3 → くぼ地で 星の音さ（c10d_start）→ 星の塔 1階の 金色の ゆか → てっぺんの さいだん（c10d_top。光の 階段）
 //   → 星の 階段（門の 番人 4つ c10d_gate1〜4・星の いずみ）→ いただきの 鏡（c10d_mirror）→ 金の 音（c10_note_do）
 //   → 星見の丘の 星の橋（c10d_bridge）→ くぼ地の 金の 台・8つめの 台（c10_act4）
-// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（かりの 戦いは data/c10d-stub.js。B班を 取りこむ 時に 消す）
+// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当の 戦いは test/ch10-act4.test.js）
+// B班の 戦い・品は 合わせた（かりの data/c10d-stub.js・data/c10d-names-b.js は 消した）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -26,14 +27,17 @@ import {
   C10D_OBJ, C10D_OBJ_ALL, CH10D_STORY_SCRIPTS, CH10D_PROGRESS, CH10D_OBJECTIVE_TARGETS, CH10D_OBJECTIVE_TALK, c10dScripts, applyCh10d, objective10d,
 } from '../public/js/shared/data/story-c10d.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
-import { installC10dStub } from '../public/js/shared/data/c10d-stub.js';
+import { existsSync } from 'node:fs';
+import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { SHOPS } from '../public/js/shared/data/shops.js';
+import { C10D_SHOP_ADD } from '../public/js/shared/data/items-c10d.js';
 import { computeStats } from '../public/js/shared/stats.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN, Bot } from './helpers.js';
 import { UPTO, flagsOf, said, D4, addPlayer, play, place, stepOn, examine, talkTo, fixedWorld, pathTo } from './c9a-play.js';
 
-installC10dStub();
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
 const FILES10D = ['public/js/shared/maps/c10d-flags.js', 'public/js/shared/data/story-c10d.js', 'public/js/shared/maps/c10d.js', 'public/js/shared/maps/c10d-rows.js',
   'public/js/shared/world/c10d-steps.js', 'public/js/client/c10d-view.js', 'public/js/client/render/tiles-c10d.js', 'public/js/client/render/c10d-npc-art.js'];
@@ -162,12 +166,26 @@ test('名前の 約束: マップ 4まい・タイル 591〜620・宝箱の id�
     const g = gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f));
     assert.deepEqual(checkFile(g).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場（data/c10d-stub.js）は テストと ブラウザの 道具だけが 読む
+  // かりの 置き場（A の c10d-stub.js・B の c10d-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['../public/js/shared/data/c10d-stub.js', '../public/js/shared/data/c10d-names-b.js']) assert.ok(!existsSync(new URL(f, import.meta.url)), `${f} は 消した`);
   const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/')]) {
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!/from '[^']*c10d-stub/.test(src), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c10d-stub|c10d-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // B班の 本物（宝箱 6こ・決まった 戦い 5つ・だいじな 物・店）
+  for (const id of C10D_CHEST_IDS) {
+    const ch = C10D_MAP_IDS.flatMap((m) => MAPS[m].chests).find((c) => c.id === id);
+    assert.ok(ch && ch.item && !ch.gold, `宝箱 ${id} の 中み（かりの お金では ない）`);
+  }
+  for (const b of Object.values(C10D_BATTLE)) assert.ok(FIXED_ENCOUNTERS[b]?.boss && FIXED_ENCOUNTERS[b].canFlee === false, b);
+  assert.equal(FIXED_ENCOUNTERS.c10d_mirror.bgm, 'c10d_mirror');
+  assert.equal(FIXED_ENCOUNTERS.c10d_gate1.bgm, 'c10d_gate');
+  assert.equal(ITEMS.note_do?.type, 'key');
+  assert.ok(C10D_SHOP_ADD.every((id) => SHOPS.c10d_crater.items.includes(id)));
+  assert.ok(SHOPS.c10c_crater.items.every((id) => SHOPS.c10d_crater.items.includes(id)), '第3幕の 店の 品も ある');
+  assert.ok(JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act3', 'c10_act4')))).includes('c10d_crater'), '幕の クリアの あとの 店');
+  assert.ok(!JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act3')))).includes('c10d_crater'), 'クリアの 前は 今の 店');
 });
 
 test('台本の きまり: 第1部・第2部の ひみつ・カイ・ソリトゥス・像の 名前と ことば・女王・少年の わけ・8つめの 音・鏡の もとの 作品を 書かない', () => {
@@ -406,7 +424,10 @@ test('サーバー: 門の 番人に 負けると その 門の 前の おどり
   for (let n = 1; n <= 6; n++) {
     await place(bot, C10D_MAP.stair2, front(2).x, front(2).y + 1, 'up', lose);
     c.hp = 5;
+    bot.choice = 1; // 負けた あとの ヒントの「あとにする」（もう一度いどむ は 門の 手前へ … 下で ためす）
     await stepOn(bot, front(2).x, front(2).y, lose);
+    bot.choice = 0;
+    assert.ok(said(bot, 'まくの色がちがう'), `${n}回め: ノクトの ヒント`);
     assert.equal(bot.s.map, C10D_MAP.stair2);
     assert.deepEqual([Math.floor(bot.s.x), Math.floor(bot.s.y)], [G2.landing.x, G2.landing.y], `${n}回め: おどり場で 目を 覚ます`);
     assert.equal(c.hp, computeStats(c).maxHp, 'HP は 全滅の きまり（全部 回復）');
@@ -419,6 +440,12 @@ test('サーバー: 門の 番人に 負けると その 門の 前の おどり
     }
     if (n > 3) assert.ok(c.flags.c10d_well2, 'わくのは 1回だけ');
   }
+  // もう一度いどむ: 門の 手前へ（立てる・門の 前の マスへ 歩ける）
+  await place(bot, C10D_MAP.stair2, front(2).x, front(2).y + 1, 'up', lose);
+  bot.choice = 0;
+  await stepOn(bot, front(2).x, front(2).y, lose);
+  assert.equal(bot.s.map, C10D_MAP.stair2);
+  assert.ok(pathTo(MAPS[C10D_MAP.stair2], Math.floor(bot.s.x), Math.floor(bot.s.y), front(2).x, front(2).y, world.hasFlagFn(bot.s)), 'もう一度いどむ: 門の 前へ 歩ける');
   // 勝つと 門は 開いた まま
   await place(bot, C10D_MAP.stair2, front(2).x, front(2).y + 1, 'up');
   await stepOn(bot, front(2).x, front(2).y);
@@ -429,7 +456,9 @@ test('サーバー: 門の 番人に 負けると その 門の 前の おどり
   // いただき（鏡）で 負けると いただきの 入口
   Object.assign(c.flags, flagsOf(...C10D_GATES));
   await place(bot, C10D_MAP.summit, SUMMIT_POS.entry.x, SUMMIT_POS.entry.y, 'up', lose);
+  bot.choice = 1;
   await goTo(bot, SUMMIT_POS.bossScene.x + 4, SUMMIT_POS.bossScene.y + 1, lose);
+  bot.choice = 0;
   assert.equal(bot.s.map, C10D_MAP.summit);
   assert.deepEqual([Math.floor(bot.s.x), Math.floor(bot.s.y)], [SUMMIT_POS.entry.x, SUMMIT_POS.entry.y]);
   assert.ok(!c.flags.c10d_mirror);
@@ -551,4 +580,35 @@ test('家族 2人: いっしょに 門の 番人と 戦う・いずみは リー
   assert.ok(A.c.flags.c10d_gate1, 'リーダーの フラグ');
   assert.ok(!isBlocked(MAPS[C10D_MAP.stair1], GATE_INFO10D[1].x, GATE_INFO10D[1].y, world.hasFlagFn(B.bot.s)), 'なかまにも 開いた 門');
   assert.ok(said(B.bot, '鏡のかけらでできた兵'), 'なかまも 同じ 場面を 見た');
+});
+
+test('見え方: 雲の すき間の 小さな 世界は どの マスでも 4つの 土地の どれか（マイナスで 配列の 外を 読まない）・曲の gateStage', async () => {
+  const { landOf, noteC10dStage } = await import('../public/js/client/c10d-view.js');
+  let n = 0;
+  for (const id of C10D_MAP_IDS) {
+    const m = MAPS[id];
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+      const L = landOf(m, x, y);
+      if (!L) continue;
+      n++;
+      assert.ok(L.land && L.land.g && L.land.l && L.land.dot, `${id} ${x},${y}`);
+      for (const v of [L.ox, L.oy, L.r]) assert.ok(Number.isFinite(v) && v >= 0, `${id} ${x},${y}`);
+    }
+  }
+  assert.ok(n > 10, `小さな 世界 ${n}こ`);
+  // 大きな 座標（ハッシュが 2^31 を こえる 所）でも
+  const big = { w: 4000, h: 4000, tiles: {} };
+  let nb = 0;
+  for (let y = 3900; y < 4000; y++) for (let x = 3900; x < 4000; x++) {
+    big.tiles[y * 4000 + x] = T.CLOUD_SEA;
+    const L = landOf(big, x, y);
+    if (L) { nb++; assert.ok(L.land && L.ox >= 0 && L.oy >= 0, `${x},${y}`); }
+  }
+  assert.ok(nb > 0);
+  const f = { map: MAPS[C10D_MAP.stair2], hasFlag: hasOf(['c10d_gate1', 'c10d_gate2']) };
+  noteC10dStage(f);
+  assert.equal(f.gateStage, 2);
+  f.map = MAPS.c9a_crater;
+  noteC10dStage(f);
+  assert.equal(f.gateStage, 0, 'ほかの マップでは 0');
 });

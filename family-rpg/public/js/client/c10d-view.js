@@ -20,11 +20,12 @@ const LANDS = [
   { g: '#b8c8e8', l: '#e8f0ff', dot: '#9a8ad0' }, // クモイ（雲の 上の 島）
 ];
 const hash = (x, y) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
-function landOf(map, x, y) {
+// h は 0 いじょう（>>> 0）。ずらす のも >>>（>> だと 2^31 いじょうで マイナスに なり、配列の 外を 読む）
+export function landOf(map, x, y) {
   if (map.tiles[y * map.w + x] !== T.CLOUD_SEA) return null;
   const h = hash(x, y);
   if (h % 11 !== 0) return null;
-  return { land: LANDS[(h >> 4) % LANDS.length], ox: ((h >> 8) % 5) / 10, oy: ((h >> 12) % 5) / 10, r: 0.32 + ((h >> 16) % 4) * 0.06 };
+  return { land: LANDS[(h >>> 4) % LANDS.length], ox: ((h >>> 8) % 5) / 10, oy: ((h >>> 12) % 5) / 10, r: 0.32 + ((h >>> 16) % 4) * 0.06 };
 }
 function drawLand(ctx, x, y, k, L, t) {
   const r = k * L.r;
@@ -56,7 +57,7 @@ function drawStars(field, ctx) {
   ctx.fillRect(0, 0, W, H * 0.28);
   for (let i = 0; i < 28; i++) {
     const h = hash(i * 7 + 3, i * 13 + 1);
-    const x = (h % 1000) / 1000 * W, y = ((h >> 10) % 1000) / 1000 * H * 0.24;
+    const x = (h % 1000) / 1000 * W, y = ((h >>> 10) % 1000) / 1000 * H * 0.24;
     const a = 0.35 + 0.35 * Math.sin(t / 600 + i);
     ctx.fillStyle = `rgba(255, 248, 210, ${a})`;
     ctx.fillRect(x, y, i % 5 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
