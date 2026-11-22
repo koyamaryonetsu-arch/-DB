@@ -446,7 +446,7 @@ test('強さ: 人が できる 動き（2秒・5秒）で 知って いる 人�
   assert.deepEqual(CH10D_LV, { gate1: 115, gate2: 116, gate3: 116, gate4: 117, mirror: 118 });
   for (const key of ['gate1', 'gate2', 'gate3', 'gate4', 'mirror']) {
     for (const react of [2000, 5000]) {
-      const know = [1, 2, 3, 4].map((s) => ch9Run(key, LV9[key], 'know', 9090 + s * 7919, { react, flags: ORDER_FLAGS.act4[key] }));
+      const know = [1, 2, 3, 4].map((s) => ch9Run(key, LV9[key], 'know', 9090 + s * 7919, { legacy: true, react, flags: ORDER_FLAGS.act4[key] }));
       const w = know.filter((r) => r.outcome === 'win');
       assert.ok(w.length >= (key === 'mirror' ? 2 : 3), `${key} ${react}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
       const sec = w.reduce((s, r) => s + r.seconds, 0) / w.length;
@@ -458,7 +458,7 @@ test('強さ: 人が できる 動き（2秒・5秒）で 知って いる 人�
     }
     for (const [job, kit] of Object.entries(CH9_KIT[key])) for (const id of kit) if (id) assert.ok(canEquip(job, id), `${job}: ${id}`);
   }
-  const blind = [1, 2, 3, 4].map((s) => ch9Run('mirror', LV9.mirror, 'blind', 9090 + s * 7919, { flags: ORDER_FLAGS.act4.mirror }));
+  const blind = [1, 2, 3, 4].map((s) => ch9Run('mirror', LV9.mirror, 'blind', 9090 + s * 7919, { legacy: true, flags: ORDER_FLAGS.act4.mirror }));
   assert.ok(blind.filter((r) => r.outcome === 'win').length <= 1, 'ボス: 知らない 人');
   assert.deepEqual(ORDER_FLAGS.act4.mirror, [C10A.noteRe, C10A.noteFa, C10B.noteSo, C10B.noteLa, C10C.noteSi]);
 });

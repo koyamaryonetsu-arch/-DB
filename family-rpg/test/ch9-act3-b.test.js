@@ -411,7 +411,7 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物
 
 // ───────────── 強さ ─────────────
 test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）で 知って いる 人は 勝てる・完全オートは 勝てない（少しの 回数）', { timeout: 2400000 }, () => {
-  const human = { react: 2000, speed: 0.85, textSpeed: 0.8 };
+  const human = { legacy: true, react: 2000, speed: 0.85, textSpeed: 0.8 };
   for (const boss of ['riddle', 'trio2']) {
     const know = [1, 2, 3, 4, 5].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, human));
     assert.ok(know.filter((r) => r.outcome === 'win').length >= 2, `${boss} 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);

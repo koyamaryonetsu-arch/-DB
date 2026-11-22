@@ -473,7 +473,7 @@ test('オート: 完全オートは 防御も 明かりを わけるも えら�
 // ───────────── 強さ ─────────────
 test('強さ: 知って いる 人は 勝てる（えらぶのに 5びょう でも）・完全オートは 勝てない（3人組・ためし。少しの 回数）', { timeout: 1200000 }, () => {
   for (const boss of ['trio', 'trial']) {
-    const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919));
+    const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { legacy: true }));
     assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss}: 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
     // 第92回 第2便: 物さしは 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）。ためしの 完全オートは 1わり 弱 勝つ（20回で 10%）
     const auto = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'auto', 9090 + s * 7919));
@@ -482,7 +482,7 @@ test('強さ: 知って いる 人は 勝てる（えらぶのに 5びょう で
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
     assert.ok(sec >= 200 && sec <= 420, `${boss}: 長さ ${sec}秒`);
     // 第92回 第3便: 前ぶれの 間は えらぶ 人を 待つ（battle-tell.js）ので、えらぶのに 5びょう かかる 人も 勝てる
-    const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { react: 5000 }));
+    const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { legacy: true, react: 5000 }));
     assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `${boss}: 5びょう ${slow.map((r) => r.outcome).join(',')}`);
   }
   // その ころの ★装備は だれでも つけられる
@@ -782,7 +782,7 @@ test('強さ（人数）: 1人が 知って いる ＋ 自動の 仲間 3人で�
   assert.equal(ch9Allies('trial', 98, 'solo').length, 1);
   assert.ok(ch9Allies('trial', 98, 'k1mon').slice(1).every((x) => x.monster));
   for (const boss of ['trio', 'trial']) {
-    const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { party: 'k1npc' }));
+    const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run(boss, CH9_LV[boss], 'know', 9090 + s * 7919, { legacy: true, party: 'k1npc' }));
     assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss}: 1人＋酒場3人 ${know.map((r) => r.outcome).join(',')}`);
     const auto = [1, 2, 3, 4].map((s) => ch9Run(boss, CH9_LV[boss], 'auto', 9090 + s * 7919, { party: 'k1npc' }));
     assert.ok(auto.filter((r) => r.outcome === 'win').length <= 1, `${boss}: 全員 自動 ${auto.map((r) => r.outcome).join(',')}`);

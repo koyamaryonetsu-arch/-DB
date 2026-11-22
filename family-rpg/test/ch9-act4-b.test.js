@@ -417,7 +417,7 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・ドー
 
 // ───────────── 強さ ─────────────
 test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）で 知って いる 人は 勝てる・完全オートは 勝てない（少しの 回数）', { timeout: 1200000 }, () => {
-  const human = { react: 2000, speed: 0.85, textSpeed: 0.8 };
+  const human = { legacy: true, react: 2000, speed: 0.85, textSpeed: 0.8 };
   const know = [1, 2, 3, 4, 5, 6].map((s) => ch9Run('mu', LV9.mu, 'know', 9090 + s * 7919, human));
   assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
   const auto = [1, 2, 3, 4].map((s) => ch9Run('mu', LV9.mu, 'auto', 9090 + s * 7919, human));
@@ -431,7 +431,7 @@ test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウ�
 });
 
 test('前ぶれの 長さ: おかしビーム・ドーンの 前ぶれの 間は b.tell（待つ しくみ）・2びょうで えらぶ 人は 身を 守れる（ブラウザの 速さ）', { timeout: 600000 }, () => {
-  const human = { react: 2000, speed: 0.85, textSpeed: 0.8 };
+  const human = { legacy: true, react: 2000, speed: 0.85, textSpeed: 0.8 };
   const runs = [1, 2, 3, 4, 5, 6].map((s) => ch9Run('mu', LV9.mu, 'know', 7000 + s * 31, human));
   const beams = runs.reduce((s, r) => s + r.mBeams, 0);
   const blocked = runs.reduce((s, r) => s + r.mBlocked, 0);

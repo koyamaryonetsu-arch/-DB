@@ -312,13 +312,13 @@ export function addSpica9(b, boss) {
 
 // 第100回 V1班: 人が 画面で えらぶ コマンド（知って いる 人の オートの えらび方 … decideAlly。a.knows9 が あるので しくみの 動きも 入る）
 //   'ai' や えらべない 時は null（そのときは 前と 同じく 動く 時に オートで 決める）
-const pickLate = !!process.env.PICKLATE;
 function pickNow(b, a) {
   const cmd = decideAlly(b, a);
   if (!cmd || cmd.type === 'ai') return null;
   return b.validate(a, cmd).ok ? cmd : null;
 }
 // 1回 戦う。mode … 'auto' | 'blind' | 'know'
+//   第100回 V1班: 人 1人ずつ べつの 手・さそいに REACT で 答える・えらんだ 時に コマンドを 決める（本物の 流れと 合わせた。docs/plan-sim-vs-real.md）
 // party … PARTIES9 の キー（人数の やり方。ない ときは 人4人）
 // 第92回 第2便: 第3部の ボスの 物さしは「人が 画面で できる 動き」… 人が 動かす キャラは 番が 来てから 2びょうで えらぶ・ブラウザの はじめの 速さ
 //   （前の 数字と くらべる ときは REACT=0 BSPEED=1 TSPEED=1）
@@ -330,7 +330,8 @@ const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' 
 // flags … リーダーの フラグ（第94回: 先に 取った 音の スピカの ごほうび など。FLAGS=a,b でも）
 // tactics … 人が 動かす キャラの 作戦（第97回: 完全オートの 作戦を えらべる ように。ない ときは バッチリがんばれ）
 //   （第96回 T班: TAC=… でも。SUPTAC=… / supTac … 自動の 仲間 みんなの 作戦）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null, list: preList = null, moreHooks = null, onEnd = null, sameHand = !!process.env.SAMEHAND } = {}) {
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null, list: preList = null, moreHooks = null, onEnd = null, legacy = !!process.env.LEGACY, sameHand = legacy || !!process.env.SAMEHAND, pickLate = legacy || !!process.env.PICKLATE } = {}) {
+  // 第100回 V1班: legacy … 前の 物さし（1つの 手で 人 みんなを 動かす・動く 時に オートで 決める）。LEGACY=1 でも。前の 数字の テストが 使う
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   // 第99回 B班: list … 前の 戦いから 引きつぐ 味方（連戦。HP・MPは char の まま）・moreHooks … 戦いの hooks に 足す・onEnd(b) … おわった 戦い
