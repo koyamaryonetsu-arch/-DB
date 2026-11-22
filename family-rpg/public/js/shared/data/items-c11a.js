@@ -47,7 +47,7 @@ const SHOP = {
 const TD = { src: 'c11a' };
 const TREASURE = {
   // 星座の 島 2
-  c11at_isle_mail: { ...A('heavy', 4, K.c4), ...TD, name: '星座のよろい', bonus: { hp: 62, def: 12 }, resist: { light: 0.85, ice: 0.9 }, desc: '星座の線のもようが光る、よろい。HPと守りが上がる。光に少し強い。' },
+  c11at_isle_mail: { ...A('heavy', 4, K.c4), ...TD, name: '星座の島のよろい', bonus: { hp: 62, def: 12 }, resist: { light: 0.85, ice: 0.9 }, desc: '星座の線のもようが光る、よろい。HPと守りが上がる。光に少し強い。' },
   // 星座の 島 3
   c11at_isle_robe: { ...A('robe', 4, K.c6), ...TD, name: 'ひとふでのローブ', bonus: { mag: 23, heal: 15 }, resist: { light: 0.85, dark: 0.9 }, desc: '1本の光の糸で、ひとふでにおったローブ。魔力と回復の力が上がる。光に少し強い。' },
   // 星座の門の 前
@@ -119,7 +119,7 @@ export const C11A_PERCH_TOOLS = [...C7_SHOP_TOOLS];
 // 読みがな（あいうえお順の ならびかえ）
 export const C11A_ITEM_KANA = {
   c11as_mail: 'ほしのうみのよろい', c11as_robe: 'ほしのうみのろーぶ', c11as_gi: 'ほしのうみのどうぎ', c11as_shield: 'とまりぎのたて', c11as_helm: 'ほしのうみのかぶと',
-  c11at_isle_mail: 'せいざのよろい', c11at_isle_robe: 'ひとふでのろーぶ', c11at_gate_shield: 'せいざのもんのたて',
+  c11at_isle_mail: 'せいざのしまのよろい', c11at_isle_robe: 'ひとふでのろーぶ', c11at_gate_shield: 'せいざのもんのたて',
   c11ab_star_collar: 'せいざのくびわ', c11ab_anchor_badge: 'いかりのばっじ',
   [STAR_CHART]: 'せいず', [STAR_SHIP]: 'ほしのふね',
 };
