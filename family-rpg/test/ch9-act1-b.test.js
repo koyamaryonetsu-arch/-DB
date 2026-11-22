@@ -742,13 +742,14 @@ test('人数で 合わせる: 家族の キャラの 数（1〜5。いない 戦
   // 第92回 第2便（人が できる 動き）: 5人は 4人と おなじ めもり・いぶき（前は 長い めもり・はじめから 2人で、人が 読む 間に 合わなかった）
   assert.ok(fewH.dawn[0] < fewH.dawn[3] && fewH.dawn[4] === fewH.dawn[3], '1人は みじかく・5人は 4人と おなじ');
   assert.equal(hoshimoriOf(battleP('trial', Array(5).fill('player'))).c9h.max, fewH.dawn[4]);
-  // 5人も めもりが 半分を こえてから 2人を ねらう
+  // 5人は はじめから 2人を ねらう（第101回 R1班: 人 1人ずつ べつの 手の 物さしで 5人が 97% … 9わりを こえた ので two 0.25 → 0）
+  assert.equal(fewH.two[4], 0);
   const t5 = battleP('trial', Array(5).fill('player'));
   const h5 = hoshimoriOf(t5);
   h5.queued = true;
   h5.c9h.left = 1;
   const tv = turn(t5, h5);
-  assert.equal(tv.c9hWarn.ids.length, 1);
+  assert.equal(tv.c9hWarn.ids.length, 2);
 });
 
 test('自動の 仲間: ともしびが 消えた 仲間が いて 自分の 火が ある 時、3回に 1回「明かりをわける」（家族の キャラの オート・魔物の 仲間は わけない）', () => {
