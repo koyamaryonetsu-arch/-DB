@@ -109,7 +109,7 @@ export const C11A_ABILITIES = {
   },
   m11b_pulse: {
     name: '星のこどう', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'magic', base: [900, 960], thr: 99, element: 'light' }, cast: '{a}が、どくん、と光って、{t}に光をぶつけた！', anim: 'c11b_pulse',
+    effect: { type: 'magic', base: [420, 450], thr: 99, element: 'light' }, cast: '{a}が、どくん、と光って、{t}に光をぶつけた！', anim: 'c11b_pulse',
     desc: '光をぶつけて、1人に光のダメージ。',
   },
   m11b_mend: {
@@ -119,12 +119,12 @@ export const C11A_ABILITIES = {
   },
   m11b_sweep: {
     name: '星のしっぽはらい', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'phys', mult: 0.62 }, cast: '{a}が、光のしっぽを、ぶうんとふりまわした！', anim: 'c11b_sweep',
+    effect: { type: 'phys', mult: 0.5 }, cast: '{a}が、光のしっぽを、ぶうんとふりまわした！', anim: 'c11b_sweep',
     desc: 'しっぽをふりまわして、敵みんなにダメージ。',
   },
   m11b_dust: {
     name: '星くずのふぶき', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'magic', base: [560, 600], thr: 99, element: 'light' }, cast: '{a}から、星くずが、ふぶきのようにふきつけた！', anim: 'c11b_dust',
+    effect: { type: 'magic', base: [260, 280], thr: 99, element: 'light' }, cast: '{a}から、星くずが、ふぶきのようにふきつけた！', anim: 'c11b_dust',
     desc: '星くずのふぶきで、敵みんなに光のダメージ。',
   },
 

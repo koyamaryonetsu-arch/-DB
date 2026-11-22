@@ -79,7 +79,7 @@ export function c11aConf(species, b = null) {
   };
   if (c.kind === 'beast') {
     Object.assign(out, {
-      role: c.role, revive: pick('revive', c.revive ?? 2), reviveHp: c.reviveHp ?? 0.5, mend: c.mend ?? 0.05,
+      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: c.reviveUp ?? 0, mend: c.mend ?? 0.05,
       roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35, ...(c.roar || {}) },
     });
   }
@@ -242,8 +242,10 @@ function beastAfter(b, c, ev) {
     post(ev).push(`${e.name}の光が、すうっと消えた…。（でも、ほかの星と、光の線でつながったまま…）`);
     ev.c11aOut = { id: e.id };
   }
-  if (st.won || c.side !== 'enemy' || !c.c11s) return;
-  // けもの（のこって いる 星）が 動いた: たおれた 星の よみがえりまでの 数
+  if (st.won) return;
+  // reviveBy 'beast' … けもの（のこって いる 星）が 動いた 回数・'all' … だれかが 動いた 回数で 数える
+  if (c11aConf(C11A_HEAD, b).reviveBy !== 'all' && (c.side !== 'enemy' || !c.c11s)) return;
+  // たおれた 星の よみがえりまでの 数
   st.acts++;
   for (const e of stars) {
     const s = e.c11s;
@@ -276,10 +278,18 @@ function revive(b, e, ev) {
   e.c11s.left = 0;
   e.c11s.roarLeft = cf.roar.first;
   st.revives++;
+  // よみがえる たびに、けものの 光が 強く なる（3つの 星 みんなの 与える ダメージ ＋reviveUp。ばらばらに たおし続けると 苦しく なる）
+  if (cf.reviveUp) {
+    for (const x of starsOf(b)) {
+      if (x._atk11 === undefined) hide(x, '_atk11', x.dmgRate > 0 ? x.dmgRate : 1);
+      x.dmgRate = x._atk11 * (1 + cf.reviveUp * st.revives);
+    }
+  }
   // 経験値は 1回ぶんだけ（よみがえった 星を また たおしても ふえない）
   const i = b.killed.lastIndexOf(e.species);
   if (i >= 0) b.killed.splice(i, 1);
   post(ev).push(`となりの星から光がながれこんで…${e.name}が、よみがえった！（3つの星を、そろえてたおそう！）`);
+  if (cf.reviveUp) post(ev).push('けものの光が、少し強くなった…！');
   ev.c11aRevive = { id: e.id, hp: e.hp };
   ev.warn = true;
   ev.upd.push(e);
