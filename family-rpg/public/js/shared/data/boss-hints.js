@@ -124,6 +124,17 @@ export const BOSS_HINT_WHO = {};
 
 export const HINT_SPEAKER = 'トキネ';
 
+// 第101回 R1班: 第3部の ボスに 負けた 時、ヒントの あとに 足す ひとこと（あてはまる 時だけ 1行。world/boss-hints.js の partyNote）
+//   few … 味方（ゲストを のぞく）が 3人 いかで、自動の 仲間（酒場・家族の 仲間・魔物）が いない
+//   basic(名前) … 自動の 仲間に、Lv95 いじょうなのに はじめの 職業（基本職）の ままの 人が いる
+//   第3部の 戦い … きまった 戦いの id が c9〜c19 で 始まる（c9a_trio・c10c_colonel・c11a_… など）
+export const PART3_BATTLE = /^c(9|1\d)[a-z]*_/;
+export const BASIC_JOB_LV = 95;
+export const PARTY_NOTE = {
+  few: 'もっと仲間をさそって、4人でいどむと、戦いやすいぞ。',
+  basic: (names) => `${names.join('と')}は、まだ初めの職業のままだ。神殿で転職させて、装備も見直そう。`,
+};
+
 // ほかの ファイルの 表を まぜる（同じ id は あとの 物）
 export function mergeBossHints(hints = {}, { retry = {}, who = {} } = {}) {
   for (const [id, list] of Object.entries(hints || {})) {

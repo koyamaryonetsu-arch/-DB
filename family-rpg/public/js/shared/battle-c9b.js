@@ -19,6 +19,8 @@ import { TERU } from './data/abilities-c9b.js';
 import { C9B_DEDEDON, C9B_DISH_IDS, DISH_NAME } from './data/monsters-c9b.js';
 import { C9B_ACT1, C9B_BOXES } from './maps/c9b-flags.js';
 import { canUse } from './ai.js';
+// 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
+import { pickPeople } from './battle-c9a.js';
 // 第3部 第1章 第3幕: ナゾカケ・ヒックリカエール2号（battle-c9c.js）
 import { setupC9c, c9cTurnStart, c9cEffect, c9cDamage, c9cKill, c9cPlan, c9cPub, c9cBusy, c9cTell } from './battle-c9c.js';
 // 第3部 第1章 第4幕: あそびたい魔人 ムウ・スピカの 星のうた（battle-c9d.js）
@@ -59,13 +61,11 @@ export function kingPeople(b) {
   const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[kingPeople(b) - 1] ?? d : d);
 // 仲間なしの ひとり（戦う 人が 1人だけ）は c9b.solo の 数を 先に 見る（人数の 表 few は 家族の キャラの 数。1人 ＋ 自動の 仲間と 分ける）
+//   第101回 R1班: 仲間なしの 2人・3人は c9b.bare を few より 先に（battle-c9a.js の pickPeople）
 export function kingConf(m, b = null) {
   const c = confOf(m) || {};
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const pick = pickPeople(c, b, kingPeople);
   // 魔物の 仲間 1体ごとに 大王を 少し 強く（monK。魔物の 仲間は かたい）
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
