@@ -61,7 +61,7 @@ MODES9.know.act = (b, a, boss) => {
     const up = starsOf(b).filter((e) => e.alive);
     if (!up.length) return false;
     const down = starsOf(b).some((e) => !e.alive && e.c11s?.dead && e.c11s.left > 0);
-    const t = down ? up.slice().sort((x, y) => x.hp - y.hp)[0] : up.slice().sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp)[0];
+    const t = down || b.allies.length === 1 ? up.slice().sort((x, y) => x.hp - y.hp)[0] : up.slice().sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp)[0];
     return dualPlan(b, a, t.species, null);
   }
   return knowAct11(b, a, boss);

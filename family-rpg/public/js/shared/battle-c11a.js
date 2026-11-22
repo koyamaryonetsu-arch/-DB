@@ -123,6 +123,9 @@ function scale(e, cf) {
 }
 
 function setupBeast(b, stars, lines) {
+  // 人が えらんで いる 間は、敵も 味方も 時間を 止める（前の 幕の 中ボスと おなじ。前ぶれの 間だけ 待つ 形だと、人が えらぶ 2秒・5秒の 間に
+  //   星が たくさん 動いて、完全オートの 方が 勝ちやすく なった … 人の 少ない 時ほど）
+  b.tellAll = true;
   b.c11a = { kind: 'beast', ids: stars.map((e) => e.id), won: false, acts: 0, kills: 0, revives: 0, stayDead: 0, warns: 0, roars: 0, fangs: 0, fangGuards: 0, mends: 0 };
   for (const e of stars) {
     const cf = c11aConf(e.species, b);
@@ -717,7 +720,7 @@ function beastPlan(b, c, decide, bestHit, mode) {
     return null;
   }
   // 知って いる 人: かみつきの ねらい … 防御。ふだんは 3つの 星を 同じくらいに けずる（いちばん HPの わりあいが 多い 星）。
-  //   星が たおれて いる 間は、のこりの 星を はやく（HPの 少ない じゅん）
+  //   星が たおれて いる 間は、のこりの 星を はやく（HPの 少ない じゅん）。仲間なしの ひとりは じゅんに たおす（よみがえるまでが 長い）
   if (aimed && !c.defending) return { type: 'defend' };
   const cmd = base(b, c, decide);
   const a = cmd?.type === 'ability' ? ABILITIES[cmd.id] : null;
@@ -726,7 +729,9 @@ function beastPlan(b, c, decide, bestHit, mode) {
   const up = stars.filter((e) => e.alive);
   if (!up.length) return cmd;
   const down = stars.some((e) => !e.alive && e.c11s?.dead && e.c11s.left > 0);
-  const pick = down ? up.slice().sort((x, y) => x.hp - y.hp)[0] : up.slice().sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp)[0];
+  const pick = down || b.allies.length === 1 ? up.slice().sort((x, y) => x.hp - y.hp)[0] : up.slice().sort((x, y) => y.hp / y.maxHp - x.hp / x.maxHp)[0];
+  // ひとり: 強く する 技より こうげき（HPが 少ない 時は ふだんの 考え）
+  if (b.allies.length === 1 && c.hp / c.maxHp >= 0.45 && !(a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type))) return bestHit(b, c, pick) || cmd;
   if (cmd?.type === 'attack') return { type: 'attack', target: pick.id };
   if (a && a.target === 'enemy') return { ...cmd, target: pick.id };
   if (cmd?.type === 'defend' || (a && ['enemies', 'group'].includes(a.target))) return cmd;
