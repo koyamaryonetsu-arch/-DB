@@ -4,19 +4,20 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=379ca0afcef1';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=379ca0afcef1';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=379ca0afcef1';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=379ca0afcef1';
-import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=379ca0afcef1';
-import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=379ca0afcef1';
-import { CH7_OBJECTIVE_TARGETS } from './story-c7.js?v=379ca0afcef1';
-import { CH8_OBJECTIVE_TARGETS } from './story-c8.js?v=379ca0afcef1';
-import { CH9_OBJECTIVE_TARGETS } from './story-c9.js?v=379ca0afcef1';
-import { CH10_OBJECTIVE_TARGETS } from './story-c10.js?v=379ca0afcef1';
-import { labSubQuests } from './sidequests.js?v=379ca0afcef1';
+import { MAPS } from '../maps/index.js?v=8604ab7ba7a1';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=8604ab7ba7a1';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=8604ab7ba7a1';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=8604ab7ba7a1';
+import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=8604ab7ba7a1';
+import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=8604ab7ba7a1';
+import { CH7_OBJECTIVE_TARGETS } from './story-c7.js?v=8604ab7ba7a1';
+import { CH8_OBJECTIVE_TARGETS } from './story-c8.js?v=8604ab7ba7a1';
+import { CH9_OBJECTIVE_TARGETS } from './story-c9.js?v=8604ab7ba7a1';
+import { CH10_OBJECTIVE_TARGETS } from './story-c10.js?v=8604ab7ba7a1';
+import { CH11_OBJECTIVE_TARGETS } from './story-c11.js?v=8604ab7ba7a1';
+import { labSubQuests } from './sidequests.js?v=8604ab7ba7a1';
 // 第50回 N4: 困っている人（クエストの 画面で えらんだ 人に しるし）
-import { askPinQuest } from './subquest-hints.js?v=379ca0afcef1';
+import { askPinQuest } from './subquest-hints.js?v=8604ab7ba7a1';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -60,6 +61,8 @@ Object.assign(OBJECTIVE_TARGETS, CH8_OBJECTIVE_TARGETS);
 Object.assign(OBJECTIVE_TARGETS, CH9_OBJECTIVE_TARGETS);
 // 第3部 第2章（story-c10.js）
 Object.assign(OBJECTIVE_TARGETS, CH10_OBJECTIVE_TARGETS);
+// 第3部 第3章（story-c11.js）
+Object.assign(OBJECTIVE_TARGETS, CH11_OBJECTIVE_TARGETS);
 
 // たのまれごと（name … クエストの 名前、who … 報告する 人、ready … もう 報告できる）
 export function subQuests(c) {

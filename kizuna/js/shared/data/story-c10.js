@@ -8,17 +8,19 @@
 //   ・applyCh10 … だいほんを まぜる 入口（story.js が よぶ）
 //   ・題の 画面（c10TitleSteps）・第1章 クリアの 目標の 文の 入れかえ（act4ClearObjective。story-c9.js が 使う）
 // story-c9.js から 読まれるので、story.js・story-c9*.js を import しない こと
-import { C10A_LINE } from '../maps/c10a-flags.js?v=379ca0afcef1';
-import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js?v=379ca0afcef1';
+import { C10A_LINE } from '../maps/c10a-flags.js?v=8604ab7ba7a1';
+import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js?v=8604ab7ba7a1';
 // 第95回 A班: 第2幕「青と白」（story-c10b.js）
-import { C10B_LINE } from '../maps/c10b-flags.js?v=379ca0afcef1';
-import { applyCh10b, CH10B_PROGRESS, CH10B_OBJECTIVE_TARGETS, CH10B_OBJECTIVE_TALK, C10B_OBJ } from './story-c10b.js?v=379ca0afcef1';
+import { C10B_LINE } from '../maps/c10b-flags.js?v=8604ab7ba7a1';
+import { applyCh10b, CH10B_PROGRESS, CH10B_OBJECTIVE_TARGETS, CH10B_OBJECTIVE_TALK, C10B_OBJ } from './story-c10b.js?v=8604ab7ba7a1';
 // 第97回 A班: 第3幕「紫と、うばわれた音」（story-c10c.js）
-import { C10C_LINE } from '../maps/c10c-flags.js?v=379ca0afcef1';
-import { applyCh10c, CH10C_PROGRESS, CH10C_OBJECTIVE_TARGETS, CH10C_OBJECTIVE_TALK, C10C_OBJ } from './story-c10c.js?v=379ca0afcef1';
+import { C10C_LINE } from '../maps/c10c-flags.js?v=8604ab7ba7a1';
+import { applyCh10c, CH10C_PROGRESS, CH10C_OBJECTIVE_TARGETS, CH10C_OBJECTIVE_TALK, C10C_OBJ } from './story-c10c.js?v=8604ab7ba7a1';
 // 第99回 A班: 第4幕「金の音と、星の橋」（story-c10d.js）
-import { C10D_LINE } from '../maps/c10d-flags.js?v=379ca0afcef1';
-import { applyCh10d, CH10D_PROGRESS, CH10D_OBJECTIVE_TARGETS, CH10D_OBJECTIVE_TALK, C10D_OBJ } from './story-c10d.js?v=379ca0afcef1';
+import { C10D_LINE } from '../maps/c10d-flags.js?v=8604ab7ba7a1';
+import { applyCh10d, CH10D_PROGRESS, CH10D_OBJECTIVE_TARGETS, CH10D_OBJECTIVE_TALK, C10D_OBJ } from './story-c10d.js?v=8604ab7ba7a1';
+// 第100回 A班: 第3章 第1幕が 開くと、第2章 クリアの 目標が「ながれ星のくぼ地で、ガンツと話そう」（story-c11.js）
+import { PART3_C11A_OPEN, C11A_START_OBJ } from './story-c11.js?v=8604ab7ba7a1';
 
 // ───── 第1幕「赤と緑」を 開ける 切りかえ（13-6・13-7。第94回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第1章 クリアの 目標は「第3部　第2章へ（続きはアップデートで！）」・
@@ -79,25 +81,29 @@ const dropOld2 = (open) => (t) => !(open && t === C10B_OBJ.act2);
 //   開いた あとは 前の 文「第3部　第2章　第4幕へ（続きはアップデートで！）」を 表から ぬく（第99回 A班）
 export const act3ClearObjective = (open = PART3_C10D_OPEN) => (open ? C10D_OBJ.start : C10C_OBJ.act3);
 const dropOld3 = (open) => (t) => !(open && t === C10C_OBJ.act3);
+// 第2章 クリア（c10_act4）の 目標の 文（第3章 第1幕が 開いた あとは「ながれ星のくぼ地で、ガンツと話そう」）。
+//   開いた あとは 前の 文「第3部　第3章へ（続きはアップデートで！）」を 表から ぬく（第100回 A班）
+export const act4ClearObjective = (open = PART3_C11A_OPEN) => (open ? C11A_START_OBJ : C10D_OBJ.act4);
+const dropOld4 = (open) => (t) => !(open && t === C10D_OBJ.act4);
 const OPEN_A = PART3_C10A_OPEN, OPEN_B = OPEN_A && PART3_C10B_OPEN, OPEN_C = OPEN_B && PART3_C10C_OPEN, OPEN_D = OPEN_C && PART3_C10D_OPEN;
 const pick = (obj, keep) => Object.fromEntries(Object.entries(obj).filter(([k]) => keep(k)));
 export const CH10_PROGRESS = [
   ...(OPEN_A ? CH10A_PROGRESS.filter(([, t]) => dropOld(PART3_C10B_OPEN)(t)) : []),
   ...(OPEN_B ? CH10B_PROGRESS.filter(([, t]) => dropOld2(OPEN_C)(t)) : []),
   ...(OPEN_C ? CH10C_PROGRESS.filter(([, t]) => dropOld3(OPEN_D)(t)) : []),
-  ...(OPEN_D ? CH10D_PROGRESS : []),
+  ...(OPEN_D ? CH10D_PROGRESS.filter(([, t]) => dropOld4(OPEN_D && PART3_C11A_OPEN)(t)) : []),
 ];
 export const CH10_OBJECTIVE_TARGETS = {
   ...(OPEN_A ? pick(CH10A_OBJECTIVE_TARGETS, dropOld(PART3_C10B_OPEN)) : {}),
   ...(OPEN_B ? pick(CH10B_OBJECTIVE_TARGETS, dropOld2(OPEN_C)) : {}),
   ...(OPEN_C ? pick(CH10C_OBJECTIVE_TARGETS, dropOld3(OPEN_D)) : {}),
-  ...(OPEN_D ? CH10D_OBJECTIVE_TARGETS : {}),
+  ...(OPEN_D ? pick(CH10D_OBJECTIVE_TARGETS, dropOld4(OPEN_D && PART3_C11A_OPEN)) : {}),
 };
 export const CH10_OBJECTIVE_TALK = {
   ...(OPEN_A ? pick(CH10A_OBJECTIVE_TALK, dropOld(PART3_C10B_OPEN)) : {}),
   ...(OPEN_B ? pick(CH10B_OBJECTIVE_TALK, dropOld2(OPEN_C)) : {}),
   ...(OPEN_C ? pick(CH10C_OBJECTIVE_TALK, dropOld3(OPEN_D)) : {}),
-  ...(OPEN_D ? CH10D_OBJECTIVE_TALK : {}),
+  ...(OPEN_D ? pick(CH10D_OBJECTIVE_TALK, dropOld4(OPEN_D && PART3_C11A_OPEN)) : {}),
 };
 
 // ───── story.js から: だいほんを まぜる（幕が 開いて いない 間は、くぼ地で 音さを 鳴らしても 始まらない）─────
@@ -105,5 +111,5 @@ export function applyCh10(SCRIPTS, STORY_SCRIPTS) {
   applyCh10a(SCRIPTS, STORY_SCRIPTS, { title: c10TitleSteps, open: PART3_C10A_OPEN, act1Obj: act1ClearObjective() });
   applyCh10b(SCRIPTS, STORY_SCRIPTS, { title: c10bTitleSteps, open: OPEN_B, act2Obj: act2ClearObjective() });
   applyCh10c(SCRIPTS, STORY_SCRIPTS, { title: c10cTitleSteps, open: OPEN_C, act3Obj: act3ClearObjective() });
-  applyCh10d(SCRIPTS, STORY_SCRIPTS, { title: c10dTitleSteps, open: OPEN_D });
+  applyCh10d(SCRIPTS, STORY_SCRIPTS, { title: c10dTitleSteps, open: OPEN_D, act4Obj: act4ClearObjective() });
 }

@@ -5,17 +5,18 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=379ca0afcef1';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=379ca0afcef1';
-import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=379ca0afcef1';
-import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=379ca0afcef1';
-import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=379ca0afcef1';
-import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=379ca0afcef1';
-import { CH7_OBJECTIVE_TALK } from './story-c7.js?v=379ca0afcef1';
-import { CH8_OBJECTIVE_TALK } from './story-c8.js?v=379ca0afcef1';
-import { CH9_OBJECTIVE_TALK } from './story-c9.js?v=379ca0afcef1';
-import { CH10_OBJECTIVE_TALK } from './story-c10.js?v=379ca0afcef1';
-import { nextPartyHint } from './secret-hints.js?v=379ca0afcef1';
+import { MONSTERS } from './monsters.js?v=8604ab7ba7a1';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=8604ab7ba7a1';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=8604ab7ba7a1';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=8604ab7ba7a1';
+import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=8604ab7ba7a1';
+import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=8604ab7ba7a1';
+import { CH7_OBJECTIVE_TALK } from './story-c7.js?v=8604ab7ba7a1';
+import { CH8_OBJECTIVE_TALK } from './story-c8.js?v=8604ab7ba7a1';
+import { CH9_OBJECTIVE_TALK } from './story-c9.js?v=8604ab7ba7a1';
+import { CH10_OBJECTIVE_TALK } from './story-c10.js?v=8604ab7ba7a1';
+import { CH11_OBJECTIVE_TALK } from './story-c11.js?v=8604ab7ba7a1';
+import { nextPartyHint } from './secret-hints.js?v=8604ab7ba7a1';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
@@ -199,6 +200,8 @@ Object.assign(OBJECTIVE_TALK, CH8_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH9_OBJECTIVE_TALK);
 // 第3部 第2章（story-c10.js）
 Object.assign(OBJECTIVE_TALK, CH10_OBJECTIVE_TALK);
+// 第3部 第3章（story-c11.js）
+Object.assign(OBJECTIVE_TALK, CH11_OBJECTIVE_TALK);
 
 // 目標の 文の 章（第3〜5章の 表に あれば その章。ほかは 第2章まで あつかい）
 export function objectiveChapter(objective) {

@@ -2,9 +2,9 @@
 // ※ ネタバレ注意（docs/plan-part3-c10d.md の 16-2）
 // ・星の 階段・いただき（map.c10dSky）: 雲の すき間に 小さな 世界（ミドリナの 緑・シロガネの 白・コガネの 金・クモイの 雲の 島）が 見える。
 //   上の 空には 星。曲へ field.gateStage（開けた 門の 数 0〜4。ほかの マップでは 0）
-import { C10D_GATES } from '../shared/maps/c10d-flags.js?v=379ca0afcef1';
-import { T } from '../shared/tiles.js?v=379ca0afcef1';
-import { TS } from './render/tiles.js?v=379ca0afcef1';
+import { C10D_GATES } from '../shared/maps/c10d-flags.js?v=8604ab7ba7a1';
+import { T } from '../shared/tiles.js?v=8604ab7ba7a1';
+import { TS } from './render/tiles.js?v=8604ab7ba7a1';
 
 // 画面の 状態（まいフレーム。F班の 曲）: field.gateStage … 開けた 門の 数（0〜4）
 export function noteC10dStage(field) {
