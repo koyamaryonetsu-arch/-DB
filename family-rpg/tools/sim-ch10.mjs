@@ -23,6 +23,13 @@ import { dualPlan } from './sim-ch6.mjs';
 import { C10C_BATTLE_B as C10C_BATTLE } from '../public/js/shared/maps/c10c-flags.js';
 import { c10cState, c10cBoss, onLit, litStones, tightOf } from '../public/js/shared/battle-c10c.js';
 import { TACTICS } from '../public/js/shared/ai.js';
+// 第99回 B班: 第2章 第4幕
+import { C10D_BATTLE_B as C10D_BATTLE } from '../public/js/shared/data/c10d-names-b.js';
+import { c10dState, mirrorOf10d, copyOf10d, neededColors } from '../public/js/shared/battle-c10d.js';
+import { ch9Allies } from './sim-ch9.mjs';
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
+import { computeStats, learnedAbilities, mpCost } from '../public/js/shared/stats.js';
+import { powScaleOf } from '../public/js/shared/pow-scale.js';
 
 CH9_IDS.tamagon = C10A_BATTLE.red;
 CH9_IDS.mold = C10A_BATTLE.green;
@@ -219,6 +226,159 @@ export function c10cText(res) {
   return '';
 }
 
+// ───── 第99回 B班: 第3部 第2章 第4幕「金の音と、星の橋」の 門の 番人 4つと 幕の ボス（docs/plan-part3-c10d.md の 16-3）─────
+//   門の 番人（c10d_gate1〜4。Lv115〜117。gate1〜gate4）・光をはかる鏡 ミラーレ（c10d_mirror。Lv118。mirror）。一本道 … ORDER=act4（第1幕〜第3幕の 5つの 音は いつも 入れる）
+//   node tools/sim-ch10.mjs 30 act4（gates … 門だけ）
+//   めやす（16-3）: 門 … 知って いる 人 9わり・完全オート 2わり いか・1回 2〜3分／ボス … 2秒と 5秒の 両方で 人4人の 知って いる 人 6〜7わり・
+//     知らない 人 3わり いか・完全オート 5% いか（どの 作戦でも）・5〜7分／人が 少ない 時は 前の 幕と おなじ 表（勝った 時 8分 いない）
+//   連戦 ぜんたい（node tools/sim-ch10.mjs 30 chain）: 門 4つと ボスを HP と MP を 引きついで 1回の のぼりで。いずみ（WELL=smart,same,none）
+//     smart … うまく えらぶ（たおれた 人が いる・HPが へって いる → いやし・MPが 少ない → ちえ・ほかは ちから）／same … いつも いやし／none … えらばない
+//     戦いの あとは「まんたん」と おなじく 呪文で 回復する（MPを 使う。たおれた 人は 生き返らせる 呪文で）
+//     めやす: 超級職 4人・いずみを うまく えらぶ … 6〜7わり（えらばない … 3わり いか）
+Object.assign(CH9_IDS, { gate1: C10D_BATTLE.gate1, gate2: C10D_BATTLE.gate2, gate3: C10D_BATTLE.gate3, gate4: C10D_BATTLE.gate4, mirror: C10D_BATTLE.mirror });
+export const CH10D_LV = { gate1: 115, gate2: 116, gate3: 116, gate4: 117, mirror: 118 };
+Object.assign(LV9, CH10D_LV);
+export const C10D_GATE_KEYS = ['gate1', 'gate2', 'gate3', 'gate4'];
+// その ころの ★装備（前の 幕までの ★5 と ボスの 品 ＋ ボスは この 幕の ★5〈おどり場 2つと いただきの たて〉）
+const GATE_KIT = {
+  hero: ['c8s_star_sword', 'c10ft_belt_mail', 'c10ft_star_shield', 'c10it_cloud_helm', 'c10cb_gray_star'],
+  daikenja: ['c9b_owl_staff', 'c10bt_ripple_robe', null, 'c10gt_flower_hat', 'c10cb_badge'],
+  god_hand: ['c9at_star_claw', 'c10it_bridge_gi', null, 'c10wt_quiet_helm', 'c10bb_hourglass'],
+  high_priest: ['c9b_owl_staff', 'c10gt_root_robe', 'c10wt_melt_shield', 'c7l_kingdom_crown', 'c10gb_monocle'],
+};
+for (const k of ['gate1', 'gate2', 'gate3', 'gate4']) CH9_KIT[k] = GATE_KIT;
+CH9_KIT.mirror = {
+  hero: ['c8s_star_sword', 'c10dt_stair_mail', 'c10dt_summit_shield', 'c10it_cloud_helm', 'c10cb_gray_star'],
+  daikenja: ['c9b_owl_staff', 'c10dt_cloud_robe', null, 'c10gt_flower_hat', 'c10cb_badge'],
+  god_hand: ['c9at_star_claw', 'c10it_bridge_gi', null, 'c10wt_quiet_helm', 'c10bb_hourglass'],
+  high_priest: ['c9b_owl_staff', 'c10gt_root_robe', 'c10wt_melt_shield', 'c7l_kingdom_crown', 'c10gb_monocle'],
+};
+const ACT3_NOTES = [...ACT2_NOTES, 'c10_note_si'];
+Object.assign(ORDER_FLAGS, { act4: Object.fromEntries([...C10D_GATE_KEYS, 'mirror'].map((k) => [k, [...ACT3_NOTES]])) });
+ORDER_LABEL.act4 = '一本道';
+for (const k of [...C10D_GATE_KEYS, 'mirror']) ORDERS_OF[k] = ['act4'];
+// 知って いる 人の しくみの 役（合体技を しない）: 鳴らすと よい 色が ある（まだ だれも 鳴らそうと して いない）・光を はかるの ねらい・
+//   うつし身に てらす（1人）・ミラーレの 2色に 星のうた（1人）
+NEED9_HOOKS.push((b, a, claim) => {
+  const st = c10dState(b);
+  if (!st || st.won) return false;
+  const m = mirrorOf10d(b);
+  const v = m?.alive ? m.c10v : null;
+  if (v?.measureReady && v.measureAim === a.id && !a.defending) return true;
+  const sp = b.c9sp || {};
+  if (copyOf10d(b)?.alive && sp.teru?.charge >= sp.teru?.max && claim(b, `teru10d.${sp.teru.uses}`)) return true;
+  if (v && v.colors.length >= 2 && !v.rung.length && sp.song?.charge >= sp.song?.max && claim(b, `song10d.${sp.song.uses}`)) return true;
+  if (neededColors(b, a.id).length) return true;
+  return false;
+});
+STATS9_HOOKS.push((b) => {
+  const st = c10dState(b);
+  if (!st) return {};
+  if (st.kind === 'gate') return { dRing: st.rings, dHit: st.hits, dMiss: st.misses, dBreak: st.breaks, dShift: st.shifts, dMark: st.marks, dAuto: st.autoRings };
+  return { mRing: st.rings, mMiss: st.misses, mBreak: st.breaks, mBack: st.backs, mSong: st.songs, mMeas: st.measures, mMeasG: st.measureGuards, mCopy: st.copies, mCopyGone: st.copyGone, mAuto: st.autoRings };
+});
+export function c10dText(res) {
+  const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
+  if (res.some((r) => r.dRing !== undefined)) return `  鳴らす${avg('dRing').toFixed(1)}(当たり${avg('dHit').toFixed(1)}・外れ${avg('dMiss').toFixed(1)}・自動${avg('dAuto').toFixed(1)}) われた${avg('dBreak').toFixed(1)} かわる${avg('dShift').toFixed(1)} しるし${avg('dMark').toFixed(1)}`;
+  if (res.some((r) => r.mRing !== undefined)) return `  鳴らす${avg('mRing').toFixed(1)}(外れ${avg('mMiss').toFixed(1)}・自動${avg('mAuto').toFixed(1)}) われた${avg('mBreak').toFixed(1)} もどる${avg('mBack').toFixed(1)} うた${avg('mSong').toFixed(1)} はかる${avg('mMeas').toFixed(1)}(守${avg('mMeasG').toFixed(1)}) うつし身${avg('mCopy').toFixed(2)}(消${avg('mCopyGone').toFixed(2)})`;
+  return '';
+}
+
+// ───── 連戦 ぜんたい ─────
+// 戦いの あとの「まんたん」（呪文で。MPを 使う）: たおれた 人を 生き返らせる 呪文 → 回復の 呪文（MPの むだが 少ない じゅん）
+const fieldSpells = (ch, type) => learnedAbilities(ch).filter((id) => ABILITIES[id]?.field && ABILITIES[id].effect?.type === type).map((id) => ({ id, a: ABILITIES[id], cost: mpCost(ch, id) }));
+const maxHpOf = (ch) => computeStats(ch).maxHp;
+const maxMpOf = (ch) => computeStats(ch).maxMp;
+export function fieldHeal10d(chars) {
+  let mp = 0;
+  for (let guard = 0; guard < 20; guard++) {
+    const dead = chars.find((c) => !(c.hp > 0));
+    if (!dead) break;
+    let best = null;
+    for (const ch of chars.filter((c) => c.hp > 0)) for (const s of fieldSpells(ch, 'revive')) if (ch.mp >= s.cost && (!best || s.cost < best.cost || (s.cost === best.cost && (s.a.effect.hpRatio ?? 0.5) > (best.a.effect.hpRatio ?? 0.5)))) best = { ch, ...s };
+    if (!best) break;
+    best.ch.mp -= best.cost;
+    mp += best.cost;
+    dead.hp = Math.max(1, Math.round(maxHpOf(dead) * (best.a.effect.hpRatio ?? 0.5)));
+  }
+  for (let guard = 0; guard < 80; guard++) {
+    const hurt = chars.filter((c) => c.hp > 0 && c.hp < maxHpOf(c)).sort((x, y) => (maxHpOf(y) - y.hp) - (maxHpOf(x) - x.hp));
+    if (!hurt.length) break;
+    const need = maxHpOf(hurt[0]) - hurt[0].hp;
+    const total = hurt.reduce((t, h) => t + maxHpOf(h) - h.hp, 0);
+    let best = null;
+    for (const ch of chars.filter((c) => c.hp > 0)) {
+      for (const s of fieldSpells(ch, 'heal')) {
+        if (ch.mp < s.cost || !['ally', 'allies'].includes(s.a.target) || !s.a.effect.base) continue;
+        if (s.a.target === 'allies' && hurt.length < 2) continue;
+        let amt = (s.a.effect.base[0] + s.a.effect.base[1]) / 2;
+        if (!s.a.effect.fixed) amt *= powScaleOf(computeStats(ch).heal, s.a.effect, true);
+        const useful = s.a.target === 'allies' ? hurt.reduce((t, h) => t + Math.min(maxHpOf(h) - h.hp, amt), 0) : Math.min(need, amt);
+        const enough = s.a.target === 'allies' ? useful >= total * 0.8 : amt >= need;
+        const score = useful / Math.max(1, s.cost) + (enough ? 1000 / Math.max(1, s.cost) : 0);
+        if (!best || score > best.score) best = { ch, ...s, amt, score };
+      }
+    }
+    if (!best) break;
+    best.ch.mp -= best.cost;
+    mp += best.cost;
+    for (const t of best.a.target === 'allies' ? hurt : [hurt[0]]) t.hp = Math.min(maxHpOf(t), Math.round(t.hp + best.amt));
+  }
+  return mp;
+}
+// 星の いずみの えらび方（smart … うまく・same … いつも いやし・none … えらばない）
+export const WELL_LABEL = { smart: 'うまく えらぶ', same: 'いつも いやし', none: 'えらばない　' };
+//   うまく えらぶ: たおれた 人が 2人 いじょう・HPが 半分 いか → いやし／MPが へって いる → ちえ（ボスの 前は 6わり、門の 間は 8わり）／
+//   ほかは ちから（いずみは 戦いの 前。この あと 呪文で HPを もどす ので、のこりの MPを 見る）
+export function pickWell10d(chars, how, beforeBoss = false) {
+  if (how === 'none') return null;
+  if (how === 'same') return 'heal';
+  const dead = chars.filter((c) => !(c.hp > 0)).length;
+  const hp = chars.reduce((t, c) => t + Math.max(0, c.hp), 0) / chars.reduce((t, c) => t + maxHpOf(c), 0);
+  const mp = chars.reduce((t, c) => t + c.mp, 0) / Math.max(1, chars.reduce((t, c) => t + maxMpOf(c), 0));
+  if (dead >= 2 || hp < 0.5) return 'heal';
+  if (mp < (beforeBoss ? 0.6 : 0.8)) return 'mana';
+  return 'power';
+}
+// 門 4つと ボスを 1回の のぼりで（HP と MP を 引きつぐ）。かえす 値: { outcome, at〈負けた 戦い〉, seconds, wells: [...] }
+export function c10dChain(mode, seed, { party = 'p4', react, well = 'smart', tactics, log = false, lv = LV9.mirror } = {}) {
+  // レベルは ボスの すすめ Lv（118。のぼる 前に ボスに 合わせて 来る）
+  const list = ch9Allies('gate1', lv, party, true);
+  const chars = list.map((x) => x.char);
+  const wells = [];
+  let seconds = 0;
+  let power = false;
+  const steps = [...C10D_GATE_KEYS, 'mirror'];
+  for (let i = 0; i < steps.length; i++) {
+    const key = steps[i];
+    // 見つけた ★装備に つけかえる（いただきの 前に この 幕の ★5 … CH9_KIT.mirror）
+    list.forEach((x) => {
+      const k = x.know !== false && !x.monster ? CH9_KIT[key]?.[x.char.job] : null;
+      if (k) ['weapon', 'armor', 'shield', 'head', 'acc'].forEach((sl, j) => { if (k[j]) x.char.equip[sl] = k[j]; });
+    });
+    for (const c of chars) { c.hp = Math.min(c.hp, maxHpOf(c)); c.mp = Math.min(c.mp, maxMpOf(c)); }
+    const r = ch9Run(key, lv, mode, seed + i * 104729, {
+      party, list, flags: ORDER_FLAGS.act4[key], ...(react !== undefined ? { react } : {}), ...(tactics ? { tactics } : {}),
+      moreHooks: power ? { c10dPower: true } : null,
+      onEnd: (b) => b.allies.forEach((a, j) => { chars[j].hp = a.alive ? a.hp : 0; chars[j].mp = a.mp; }),
+    });
+    power = false;
+    seconds += r.seconds;
+    if (log) console.log(`  ${key}: ${r.outcome} ${r.seconds}秒 HP ${chars.map((c) => c.hp).join('/')} MP ${chars.map((c) => c.mp).join('/')}`);
+    if (r.outcome !== 'win') return { outcome: 'lose', at: key, seconds, wells, reached: i };
+    if (i === steps.length - 1) break;
+    // おどり場: いずみ → まんたん（呪文）
+    const w = pickWell10d(chars, well, steps[i + 1] === 'mirror');
+    wells.push(w || '-');
+    if (w === 'heal') for (const c of chars) c.hp = maxHpOf(c);
+    if (w === 'mana') for (const c of chars) c.mp = maxMpOf(c);
+    if (w === 'power') power = true;
+    fieldHeal10d(chars);
+    if (log) console.log(`    いずみ ${w || 'なし'} → HP ${chars.map((c) => c.hp).join('/')} MP ${chars.map((c) => c.mp).join('/')}`);
+  }
+  return { outcome: 'win', at: null, seconds, wells, reached: steps.length };
+}
+
 // 1つの 遊び方を N回（order … 'red'・'green'・'blue'・'white'）
 export function c10Batch(boss, mode, N, { party = 'p4', react, order = 'red', lv = LV9[boss], tactics } = {}) {
   const flags = ORDER_FLAGS[order][boss];
@@ -228,8 +388,28 @@ export function c10Batch(boss, mode, N, { party = 'p4', react, order = 'red', lv
 
 if (process.argv[1]?.endsWith('sim-ch10.mjs')) {
   const N = Number(process.argv[2] || 30);
-  const which = !process.argv[3] || process.argv[3] === 'all' ? ['tamagon', 'mold'] : process.argv[3] === 'act2' ? ['gecko', 'owl'] : process.argv[3] === 'act3' ? ['colonel', 'algol'] : process.argv[3].split(',');
-  if (process.env.LOG) {
+  const which = !process.argv[3] || process.argv[3] === 'all' ? ['tamagon', 'mold'] : process.argv[3] === 'act2' ? ['gecko', 'owl'] : process.argv[3] === 'act3' ? ['colonel', 'algol'] : process.argv[3] === 'act4' ? [...C10D_GATE_KEYS, 'mirror'] : process.argv[3] === 'gates' ? C10D_GATE_KEYS : process.argv[3].split(',');
+  if (process.argv[3] === 'chain') {
+    // 第99回 B班: 連戦 ぜんたい（門 4つ ＋ ボス）。WELL=smart,same,none・MODES=know,blind,auto・PARTY・REACT
+    const parties = (process.env.PARTY || 'p4').split(',');
+    const reacts = (process.env.REACT || '2000,5000').split(',').map(Number);
+    const modes = (process.env.MODES || 'know').split(',');
+    const wellsOf = (process.env.WELL || 'smart,same,none').split(',');
+    if (process.env.LOG) console.log(c10dChain(process.env.MODE || 'know', Number(process.env.SEED || 1), { party: parties[0], react: reacts[0], well: wellsOf[0], log: true, tactics: process.env.TACTICS?.split(',')[0] }));
+    else {
+      console.log(`■ 連戦 ぜんたい（門 4つ ＋ ミラーレ。HP と MP を 引きつぐ・${N}回）`);
+      for (const party of parties) for (const mode of modes) for (const react of mode === 'auto' ? [reacts[0]] : reacts) for (const well of wellsOf) {
+        const res = [...Array(N).keys()].map((i) => c10dChain(mode, 9090 + i * 7919, { party, react, well }));
+        const w = res.filter((r) => r.outcome === 'win');
+        const at = {};
+        for (const r of res) if (r.at) at[r.at] = (at[r.at] || 0) + 1;
+        const sec = w.length ? w.reduce((t, r) => t + r.seconds, 0) / w.length : 0;
+        const ws = {};
+        for (const r of w) for (const x of r.wells) ws[x] = (ws[x] || 0) + 1;
+        console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} いずみ ${WELL_LABEL[well]} 通せた ${String(Math.round((w.length / N) * 100)).padStart(3)}%（${(sec / 60).toFixed(1)}分）  負けた所 ${JSON.stringify(at)}  いずみ ${JSON.stringify(ws)}`);
+      }
+    }
+  } else if (process.env.LOG) {
     const boss = process.env.BOSS || 'tamagon';
     const order = process.env.ORDER || ORDERS_OF[boss][0];
     console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4', flags: ORDER_FLAGS[order][boss], tactics: tacticsOf()[0] }));
@@ -245,12 +425,12 @@ if (process.argv[1]?.endsWith('sim-ch10.mjs')) {
           if (party !== 'p4' && mode === 'blind') continue;
           for (const order of orders) {
             // 完全オートは 作戦ごと（第3幕から。前の 幕は バッチリがんばれ だけ … 前の 数字と おなじ）
-            const tacs = mode === 'auto' && ORDERS_OF[boss]?.[0] === 'act3' ? tacticsOf() : [null];
+            const tacs = mode === 'auto' && ['act3', 'act4'].includes(ORDERS_OF[boss]?.[0]) ? tacticsOf() : [null];
             for (const tactics of tacs) {
               for (const react of mode === 'auto' ? [reacts[0]] : reacts) {
                 const r = c10Batch(boss, mode, N, { party, react, order, ...(tactics ? { tactics } : {}) });
                 const tl = tactics ? `（${TACTICS[tactics].name}）` : '';
-                console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label}${tl} ${ORDER_LABEL[order]} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c10Text(r.res)}${c10bText(r.res)}${c10cText(r.res)}`);
+                console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label}${tl} ${ORDER_LABEL[order]} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c10Text(r.res)}${c10bText(r.res)}${c10cText(r.res)}${c10dText(r.res)}`);
               }
             }
           }
