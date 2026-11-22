@@ -7,8 +7,8 @@
 //   ムウムウ … おなじ 形で ミント色、こい みどり青の 三日月の ついた ナイトキャップ（2体 ならんでも 見分けが つく。ピンクには しない）
 //   コマ 0・1 … 戦い ／ 2・3 … ばたんきゅう（たおれて 目が うずまき・星が まわる）／ 4・5 … すわりこむ（勝った あと。にこにこ）
 //   もとの 作品の 絵は 使わない（頭の 上の 角・ベスト・マントは かかない。ぼうしと 星が しるし）
-import { fit, spark, bez } from './ch3-draw.js?v=7362a49921c1';
-import { sparkled } from './c9a-art.js?v=7362a49921c1';
+import { fit, spark, bez } from './ch3-draw.js?v=10ad7ced5cfe';
+import { sparkled } from './c9a-art.js?v=10ad7ced5cfe';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

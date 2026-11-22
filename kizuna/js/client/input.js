@@ -2,8 +2,8 @@
 // ・フィールドでは input.dir（いどう）と A/B を つかう
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
 // ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
-import { inStickZone as stickZone } from './ui/hand.js?v=7362a49921c1';
-import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=7362a49921c1';
+import { inStickZone as stickZone } from './ui/hand.js?v=10ad7ced5cfe';
+import { homeStickLayout, floatStickLayout, stickSideOf } from './ui/layout.js?v=10ad7ced5cfe';
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
@@ -381,7 +381,9 @@ export class Input {
     const top = edge('top', b(3));
     const left = edge('left', b(2));
     if (yKey && (top || left)) this.emit('y');
-    if (start || (!yKey && top)) this.emit('b');
+    // 第100回 U1: 戦いの 中では START を 先に hot へ（まどが ない 時・コマンドの まどの 時は 戦いのメニュー。battle-pad.js）。
+    //   うけとらなかった 時と ほかの 場面（フィールドの メニュー など）は 今までどおり B
+    if ((start && !this.hot?.('start')) || (!yKey && top && !start)) this.emit('b');
     if (edge('map', b(8))) this.emit('map');
     // 第35回: L（4）… 大鳥・竜を 呼ぶ／空の 上では 別の地方へ（えらぶ まど）。降りるのは A（sky.js の padButton）
     // 第69回: 戦いの 技えらび（L・R を つかう まど。ListMenu の onLR）の 間は L・R で 種類（タブ）を かえる

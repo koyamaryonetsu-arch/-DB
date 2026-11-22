@@ -5,7 +5,7 @@
 //   もとの 作品の 絵の しるし（緑の 顔だけが うかぶ 鏡・仮面の 顔）は 使わない
 // ・c10d_ped1_on … 星の音を 置いた 金の 台（光る）/ c10d_ped8 … 8つめの、何も ない 台
 // ・c10d_bridge … 星見の丘から 空へ のびて、とちゅうで 止まった 光の 橋 / c10d_glow … 像が しずかに 光る（光だけ。像の 前に かさねる）
-import { Painter } from './pixel.js?v=7362a49921c1';
+import { Painter } from './pixel.js?v=10ad7ced5cfe';
 
 function paintGuard(dir, f, small) {
   const W = small ? 14 : 18, H = small ? 18 : 24;

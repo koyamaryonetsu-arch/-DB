@@ -6,8 +6,8 @@
 //   なぞの番人 ナゾカケ … 天じょうの 石から さかさに ぶら下がって すわる、石の けもの（スフィンクスの 形。顔は こちらを 向く）
 //   ヒックリカエール2号 … 大きな 砂時計の メカ。上の まどに 3人組。コマ 0・1 … 戦い ／ 2・3 … ひっくり返って 目を 回す（client/battle-c9c.js の c9cSprite）
 //   もとの 作品の 絵は 使わない（どくろの しるし なし。ホシドロ一味の 星の しるし）
-import { fit, spark, bez } from './ch3-draw.js?v=7362a49921c1';
-import { sparkled } from './c9a-art.js?v=7362a49921c1';
+import { fit, spark, bez } from './ch3-draw.js?v=10ad7ced5cfe';
+import { sparkled } from './c9a-art.js?v=10ad7ced5cfe';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

@@ -3,8 +3,8 @@
 //   定食（大ぐい定食）は ドラまたと おなじ r85aPlan に まかせる。ここでは「とうか交かん」（HP を はらって となえ、すぐ もう 1回 動く）を いつ 使うかと、
 //   となえて いる 時に この 職業の 大砲（真理のやいば・真理のとびら・大呪文）を えらぶ こと
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only。とうか交かんは 補助なので 通らない ＝ ガンガンでは となえない）
-import { chanting } from './battle-r85a.js?v=7362a49921c1';
-import { mpCost } from './stats.js?v=7362a49921c1';
+import { chanting } from './battle-r85a.js?v=10ad7ced5cfe';
+import { mpCost } from './stats.js?v=10ad7ced5cfe';
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた）。touka … ボスの 時・many … ほかの 強い 敵・敵が 多い 時。hp … この HP の わりあい いじょうの 時だけ はらう
 export const TOUKA_AI = { touka: 0.35, hp: 0.6, many: 0.16, blade: 0.6 };

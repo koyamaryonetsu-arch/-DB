@@ -8,7 +8,7 @@
 //   アルゴル … 銀の かみ・こい 紺の マント・ひたいに 小さな 灰色の 星・むらさきの ひとみ。手に 紫の 音（光の 玉）。こわすぎない 顔。
 //     第1章 第3幕の フィールドの 少年（render/c9c-npc-art.js の algol）と 同じ 人。コマ 2・3 … ひざを つく（紫の 音が 手の 中で ちいさく 光る）
 //   もとの 作品の 絵は 使わない（サングラス・茶色の スーツ・小さな 銃・光る 石の ペンダントは かかない。色も 近づけない）
-import { fit, spark, bez } from './ch3-draw.js?v=7362a49921c1';
+import { fit, spark, bez } from './ch3-draw.js?v=10ad7ced5cfe';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
