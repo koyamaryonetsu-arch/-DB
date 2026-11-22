@@ -21,6 +21,8 @@ import { addC10bArt } from './c10b-art.js';
 import { addC10cArt } from './c10c-art.js';
 // 第3部 第2章 第4幕（c10d-art.js）
 import { addC10dArt } from './c10d-art.js';
+// 第3部 第3章 第1幕（c11a-art.js）
+import { addC11aArt } from './c11a-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
@@ -339,4 +341,6 @@ export function addC9bArt(ART) {
   addC10cArt(ART);
   // 第3部 第2章 第4幕（c10d-art.js）
   addC10dArt(ART);
+  // 第3部 第3章 第1幕（c11a-art.js）
+  addC11aArt(ART);
 }

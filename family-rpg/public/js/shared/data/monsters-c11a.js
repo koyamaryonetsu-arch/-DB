@@ -33,7 +33,7 @@ export const C11A_STARS = [C11A_HEAD, C11A_CHEST, C11A_TAIL];
 export const BEAST_NAME = '星座のけもの';
 // 船長
 export const C11A_CAPTAIN = 'c11a_captain';
-export const CAPTAIN_NAME = 'いかり船長 イバリー';
+export const CAPTAIN_NAME = 'いかり船長イバリー';
 export const CAPTAIN_SHORT = 'イバリー';
 export const SHARK_NAME = 'チクタクザメ';
 export const C11A_BOSSES = [...C11A_STARS, C11A_CAPTAIN];
@@ -59,7 +59,7 @@ export const MONSTERS_C11A = {
   // ── 星の海（船の 上の 戦い。Lv118〜119）──
   // ほしのうみクラゲ: 星くらげの 色ちがい（夜の 海の こい 青に 金の 星）
   c11a_jelly: {
-    name: 'ほしのうみクラゲ', lv: 118, hp: 1940, mp: 160, str: 500, def: 400, agi: 230, mag: 340, exp: 9400, gold: 3180,
+    name: 'ほしのうみクラゲ', lv: 118, hp: 3690, mp: 160, str: 550, def: 400, agi: 230, mag: 340, exp: 9400, gold: 3180,
     race: 'beast', size: 'm', flying: true, hit: 'slash', region: 6,
     resist: { fire: 1.3, ice: 0.8, wind: 1.0, bolt: 1.25, light: 0.9, dark: 1.0, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['moonherb', 10], rare: ['c7i_snow_robe', 80] },
     actions: [{ w: 3, id: 'm11a_jl_sting' }, { w: 1, id: 'm11a_jl_flash', cond: 'notRecent:m11a_jl_flash' }, { w: 2, id: 'attack' }],
@@ -67,7 +67,7 @@ export const MONSTERS_C11A = {
   },
   // ほうきぼしウオ: 光の しっぽを 引く 魚（新しい 絵）
   c11a_comet: {
-    name: 'ほうきぼしウオ', lv: 118, hp: 1860, mp: 160, str: 530, def: 380, agi: 300, mag: 340, exp: 9440, gold: 3200,
+    name: 'ほうきぼしウオ', lv: 118, hp: 3530, mp: 160, str: 580, def: 380, agi: 300, mag: 340, exp: 9440, gold: 3200,
     race: 'beast', size: 'm', flying: true, hit: 'slash', region: 6,
     resist: { fire: 1.0, ice: 1.3, wind: 1.1, bolt: 1.0, light: 0.6, dark: 1.2, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['c7i_snow_boomerang', 80] },
     actions: [{ w: 3, id: 'm11a_cm_dash' }, { w: 2, id: 'm11a_cm_trail', cond: 'notRecent:m11a_cm_trail' }, { w: 1, id: 'attack' }],
@@ -75,7 +75,7 @@ export const MONSTERS_C11A = {
   },
   // あまのがわエイ: 空とびエイの 色ちがい（白っぽい 天の川の もよう）
   c11a_ray: {
-    name: 'あまのがわエイ', lv: 119, hp: 2000, mp: 160, str: 520, def: 390, agi: 270, mag: 360, exp: 9500, gold: 3220,
+    name: 'あまのがわエイ', lv: 119, hp: 3800, mp: 160, str: 570, def: 390, agi: 270, mag: 360, exp: 9500, gold: 3220,
     race: 'beast', size: 'm', flying: true, hit: 'slash', region: 6,
     resist: { bolt: 1.3, ice: 0.6, wind: 0.9, fire: 1.1, light: 1.0, dark: 1.0, poison: 0.6, sleep: 0.4, confuse: 0.5 }, drops: { common: ['magic_water', 12], rare: ['c7i_snow_shield', 80] },
     actions: [{ w: 3, id: 'm11a_ry_glide' }, { w: 2, id: 'm11a_ry_wave', cond: 'notRecent:m11a_ry_wave' }, { w: 1, id: 'attack' }],
@@ -83,7 +83,7 @@ export const MONSTERS_C11A = {
   },
   // ながれぼしトビウオ: トビウオンの 色ちがい（金と むらさき）
   c11a_tobi: {
-    name: 'ながれぼしトビウオ', lv: 119, hp: 1900, mp: 140, str: 540, def: 370, agi: 290, mag: 320, exp: 9520, gold: 3240,
+    name: 'ながれぼしトビウオ', lv: 119, hp: 3610, mp: 140, str: 590, def: 370, agi: 290, mag: 320, exp: 9520, gold: 3240,
     race: 'beast', size: 's', flying: true, hit: 'slash', region: 6,
     resist: { fire: 1.0, ice: 0.7, wind: 1.3, bolt: 1.2, light: 1.0, dark: 1.0, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 12], rare: ['c7i_snow_dagger', 80] },
     actions: [{ w: 3, id: 'm11a_tb_jump' }, { w: 2, id: 'm11a_tb_splash', cond: 'notRecent:m11a_tb_splash' }, { w: 1, id: 'attack' }],
@@ -93,7 +93,7 @@ export const MONSTERS_C11A = {
   // ── 星座の 島（Lv119〜120）──
   // ほしもりガニ: 星座ガニの 色ちがい（青白い こうら）
   c11a_crab: {
-    name: 'ほしもりガニ', lv: 119, hp: 2080, mp: 120, str: 530, def: 470, agi: 200, mag: 240, exp: 9560, gold: 3260,
+    name: 'ほしもりガニ', lv: 119, hp: 3950, mp: 120, str: 580, def: 470, agi: 200, mag: 240, exp: 9560, gold: 3260,
     race: 'beast', size: 'm', hit: 'slash', region: 6,
     resist: { bolt: 1.35, ice: 0.8, fire: 1.0, wind: 1.0, blast: 0.8, light: 1.0, dark: 1.0, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['silver_shard', 12], rare: ['c7i_snow_mail', 80] },
     actions: [{ w: 3, id: 'm11a_cr_pinch' }, { w: 1, id: 'm11a_cr_shell', cond: 'notRecent:m11a_cr_shell' }, { w: 2, id: 'attack' }],
@@ -101,7 +101,7 @@ export const MONSTERS_C11A = {
   },
   // ほしのこひつじ: ひなたの星ひつじの 色ちがい（夜の 青い 毛）
   c11a_ram: {
-    name: 'ほしのこひつじ', lv: 119, hp: 1980, mp: 160, str: 510, def: 400, agi: 220, mag: 330, exp: 9580, gold: 3280,
+    name: 'ほしのこひつじ', lv: 119, hp: 3760, mp: 160, str: 560, def: 400, agi: 220, mag: 330, exp: 9580, gold: 3280,
     race: 'beast', size: 'm', hit: 'bite', region: 6,
     resist: { fire: 1.3, ice: 0.8, wind: 1.1, bolt: 1.0, light: 1.0, dark: 1.0, poison: 0.5, sleep: 0.2, confuse: 0.6 }, drops: { common: ['moonherb', 10], rare: ['c7i_snow_helm', 80] },
     actions: [{ w: 3, id: 'm11a_rm_horn' }, { w: 1, id: 'm11a_rm_lull', cond: 'notRecent:m11a_rm_lull' }, { w: 2, id: 'attack' }],
@@ -109,7 +109,7 @@ export const MONSTERS_C11A = {
   },
   // ほしつなぎ: 光の 糸を もつ 小さな 星の 子（新しい 絵）
   c11a_wisp: {
-    name: 'ほしつなぎ', lv: 120, hp: 1820, mp: 240, str: 460, def: 380, agi: 260, mag: 400, exp: 9640, gold: 3300,
+    name: 'ほしつなぎ', lv: 120, hp: 3460, mp: 240, str: 510, def: 380, agi: 260, mag: 400, exp: 9640, gold: 3300,
     race: 'spirit', size: 's', flying: true, hit: 'magic', region: 6,
     resist: { fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.4, dark: 1.4, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['c7i_snow_staff', 80] },
     actions: [{ w: 3, id: 'm11a_ws_thread' }, { w: 2, id: 'm11a_ws_tie', cond: 'notRecent:m11a_ws_tie' }, { w: 1, id: 'attack' }],
@@ -117,7 +117,7 @@ export const MONSTERS_C11A = {
   },
   // しまのよるフクロウ: 星読みフクロウの 色ちがい（こい むらさき）
   c11a_owl: {
-    name: 'しまのよるフクロウ', lv: 120, hp: 1960, mp: 200, str: 500, def: 390, agi: 280, mag: 380, exp: 9660, gold: 3320,
+    name: 'しまのよるフクロウ', lv: 120, hp: 3720, mp: 200, str: 550, def: 390, agi: 280, mag: 380, exp: 9660, gold: 3320,
     race: 'beast', size: 'm', flying: true, hit: 'slash', region: 6,
     resist: { fire: 1.0, ice: 1.0, wind: 0.7, bolt: 1.3, light: 1.2, dark: 0.6, poison: 0.5, sleep: 0, confuse: 0.4 }, drops: { common: ['star_sand', 12], rare: ['c7i_snow_gi', 80] },
     actions: [{ w: 3, id: 'm11a_ow_swoop' }, { w: 2, id: 'm11a_ow_gaze', cond: 'notRecent:m11a_ow_gaze' }, { w: 1, id: 'attack' }],

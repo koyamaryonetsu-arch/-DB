@@ -180,8 +180,8 @@ test('しおり: 第1・2部の 表示は かわらない（章の はじめ・�
 });
 
 // ───────────── ゲスト ─────────────
-test('ゲストの レベルの 上限 99 → 110: 今 いる ゲストの 強さは かわらない', () => {
-  assert.equal(GUEST_MAX_LEVEL, 110);
+test('ゲストの レベルの 上限 99 → 110（第3部 第3章 第1幕で 120）: 今 いる ゲストの 強さは かわらない', () => {
+  assert.equal(GUEST_MAX_LEVEL, 120);
   const old = (def) => Math.max(def.minLevel || 1, Math.min(99, def.maxLevel || (def.minLevel || 1) + GUEST_LV_SPAN));
   for (const [id, def] of Object.entries(GUESTS)) {
     assert.equal(guestLevelCap(def), old(def), `${id} の 上限`);
