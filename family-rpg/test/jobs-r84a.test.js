@@ -548,7 +548,8 @@ test('第84回 A の 職業: タグで 合体技（3つ いじょう）・職業
     textOk(masterName(j), j);
   }
   const v = VEHICLES.rei_bird;
-  assert.deepEqual(v.jobs, NEW);
+  // 第98回 K4班: きずなの職業（motoyan_keiji）も 親の 乗り物に 乗れる（data/vehicles.js の おわり）
+  assert.deepEqual(v.jobs, [...NEW, 'motoyan_keiji']);
   textOk(v.name, 'rei_bird');
   textOk(v.desc, 'rei_bird');
   assert.ok(v.price > 0 && v.price <= 10000);

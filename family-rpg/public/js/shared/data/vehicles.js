@@ -139,6 +139,7 @@ VEHICLES.twin_cat.jobs.push('hyakki_taishou'); VEHICLES.lotus.jobs.push('hyakki_
 VEHICLES.big_tiger.jobs.push('tenka_kengou'); VEHICLES.sakura_dash.jobs.push('tenka_kengou'); // 第98回 K2班: 天下無そうの剣ごう
 VEHICLES.limo.jobs.push('kuni_saishou'); // 第98回 K3班（空飛ぶカバは 大軍師の 系統だけ〈test/jobs-r83a〉。混とんの大軍師と おなじ）
 VEHICLES.teacher_bike.jobs.push('pta_kaichou'); VEHICLES.mamachari.jobs.push('pta_kaichou'); // 第98回 K3班
+VEHICLES.rei_bird.jobs.push('motoyan_keiji'); VEHICLES.police_bike.jobs.push('motoyan_keiji'); VEHICLES.spy_car.jobs.push('motoyan_keiji'); VEHICLES.panda.jobs.push('otenki_shihan'); VEHICLES.cloud.jobs.push('otenki_shihan'); VEHICLES.feast_cart.jobs.push('touka_madoushi'); VEHICLES.rock_cart.jobs.push('touka_madoushi'); // 第98回 K4班
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

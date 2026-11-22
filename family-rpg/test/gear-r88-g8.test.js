@@ -154,7 +154,8 @@ test('G8: とびら 2まいと ライバル（5人ずつ・弱い 順・らん�
   const dr = RIVAL_DOORS.find((d) => d.work === 'ranma');
   const dn = RIVAL_DOORS.find((d) => d.work === 'nube');
   assert.ok(dr && dn);
-  assert.deepEqual(dr.jobs, ['musabetsu_student', 'ranma', 'hiryu_master']);
+  // 第98回 K4班: きずなの職業「おてんき格闘流の師はん」は 新しい 系統の 方の 作品（らんま1/2）
+  assert.deepEqual(dr.jobs, ['musabetsu_student', 'ranma', 'hiryu_master', 'otenki_shihan']);
   assert.deepEqual(dn.jobs, ['elem_teacher', 'nube', 'jigoku_sensei', 'pta_kaichou'], '第98回 K3班: 伝説のPTA会長（きずなの職業は 新しい 系統の 方の 作品）');
   for (const d of [dr, dn]) {
     assert.ok(R88_BOARD_ICONS[d.mark], d.mark);

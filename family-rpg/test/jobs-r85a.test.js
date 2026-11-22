@@ -611,7 +611,8 @@ test('第85回 A の 職業: タグで 合体技（3つ いじょう）・職業
   }
   // 乗り物: ごちそうの荷車（3つの 職業）
   const v = VEHICLES.feast_cart;
-  assert.deepEqual(v.jobs, NEW);
+  // 第98回 K4班: きずなの職業（touka_madoushi）も 親の 乗り物に 乗れる（data/vehicles.js の おわり）
+  assert.deepEqual(v.jobs, [...NEW, 'touka_madoushi']);
   textOk(v.name, 'feast_cart');
   textOk(v.desc, 'feast_cart');
   assert.ok(v.price > 0 && v.price <= 10000);

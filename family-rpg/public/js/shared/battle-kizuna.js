@@ -8,6 +8,9 @@ import { hyakkiPlan } from './battle-r98-hyakki.js';
 import { kengouPlan } from './battle-r98-kengou.js';
 import { saishouPlan } from './battle-r98-saishou.js';
 import { ptaPlan } from './battle-r98-pta.js';
+import { keijiPlan } from './battle-r98-keiji.js';
+import { otenkiPlan } from './battle-r98-otenki.js';
+import { toukaPlan } from './battle-r98-touka.js';
 
 const PLANS = [
   kuuchouPlan, // 熱と風の空調マスター
@@ -16,6 +19,9 @@ const PLANS = [
   kengouPlan, // 天下無そうの剣ごう
   saishouPlan, // 国を動かす名さいしょう
   ptaPlan, // 伝説のPTA会長
+  keijiPlan, // 元ヤンのけいじ
+  otenkiPlan, // おてんき格闘流の師はん
+  toukaPlan, // 等価交かんの大魔道士
 ];
 
 // 1つ 答えが 出たら それを かえす（その 職業の 技を 持たない 人は どれも null。運も 使わない）

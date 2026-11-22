@@ -12,6 +12,9 @@ import { KIZUNA_HYAKKI } from './jobs-r98-hyakki.js';
 import { KIZUNA_KENGOU } from './jobs-r98-kengou.js';
 import { KIZUNA_SAISHOU } from './jobs-r98-saishou.js';
 import { KIZUNA_PTA } from './jobs-r98-pta.js';
+import { KIZUNA_KEIJI } from './jobs-r98-keiji.js';
+import { KIZUNA_OTENKI } from './jobs-r98-otenki.js';
+import { KIZUNA_TOUKA } from './jobs-r98-touka.js';
 
 export const KIZUNA = [
   KIZUNA_KUUCHOU, // 第98回 K1班: 熱と風の空調マスター（烈火 ＋ 天才しせつ管理者）
@@ -20,6 +23,9 @@ export const KIZUNA = [
   KIZUNA_KENGOU, // 第98回 K2班: 天下無そうの剣ごう（竜神けんのサムライ ＋ 飛天御剣流けい承者）
   KIZUNA_SAISHOU, // 第98回 K3班: 国を動かす名さいしょう（ほう神の大軍師 ＋ 総理大臣）
   KIZUNA_PTA, // 第98回 K3班: 伝説のPTA会長（おにの手のじごく先生 ＋ 最強のおかん）
+  KIZUNA_KEIJI, // 第98回 K4班: 元ヤンのけいじ（魔界の王の子 ＋ トリプルフェイス）
+  KIZUNA_OTENKI, // 第98回 K4班: おてんき格闘流の師はん（飛竜しょう天はの達人 ＋ 天候をあやつる者）
+  KIZUNA_TOUKA, // 第98回 K4班: 等価交かんの大魔道士（ドラまた ＋ 真理のとびらをひらく者）
 ];
 
 // 職業の id（ならびの じゅん）
