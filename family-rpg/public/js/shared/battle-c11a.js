@@ -79,7 +79,7 @@ export function c11aConf(species, b = null) {
   };
   if (c.kind === 'beast') {
     Object.assign(out, {
-      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: c.reviveUp ?? 0, mend: c.mend ?? 0.05,
+      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: c.reviveUp ?? 0, linkK: pick('linkK', c.linkK ?? 1), linkAuto: c.linkAuto ?? c.linkK ?? 1, mend: c.mend ?? 0.05,
       roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35, ...(c.roar || {}) },
     });
   }
@@ -682,7 +682,24 @@ function anchor(b, c, ev) {
 export function c11aDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0) || c?.side !== 'ally' || t?.side !== 'enemy') return dmg;
   const st = b.c11a;
-  if (!st || st.won || st.kind !== 'pirate' || t.id !== st.id) return dmg;
+  if (!st || st.won) return dmg;
+  // 星座のけもの: 星が 1つ 消えて いる 間（よみがえる 前）は、のこりの 星が 光の 線で まもられる（受ける ダメージ linkK ばい）
+  //   … 1つずつ たおして いくと 苦しい。3つを 同じくらいに けずって、近い 番で そろえて たおす
+  if (st.kind === 'beast') {
+    if (!t.c11s) return dmg;
+    // だれも えらんで いない（完全オート・人が みんな たおれた）時は、線が もっと つよい（linkAuto）… そろえて たおさないと 勝てない
+    const cf = c11aConf(t.species, b);
+    const k = someoneChooses(b) ? cf.linkK : cf.linkAuto;
+    if (k < 1 && starsOf(b).some((e) => !e.alive && e.c11s?.dead && e.c11s.left > 0)) {
+      dmg = Math.max(1, Math.round(dmg * k));
+      if (ev && !ev.c11aLink) {
+        ev.c11aLink = true;
+        post(ev).push(`（消えた星から、光の線がのびて、${t.name}をまもっている…！）`);
+      }
+    }
+    return dmg;
+  }
+  if (st.kind !== 'pirate' || t.id !== st.id) return dmg;
   const cf = c11aConf(C11A_CAPTAIN, b);
   // ふだんは かたい（3わり）。目を 回して いる 間は よく 通る
   dmg = Math.max(1, Math.round(dmg * (st.dizzy > 0 ? cf.bite.dizzyK : cf.hard)));

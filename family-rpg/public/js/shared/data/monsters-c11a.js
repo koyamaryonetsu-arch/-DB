@@ -45,10 +45,12 @@ export const C11A_BOSSES = [...C11A_STARS, C11A_CAPTAIN];
 //   reviveUp … よみがえる たびに 3つの 星の 与える ダメージが この わりあい 上がる（ばらばらに たおし続けると 苦しく なる。設計に ない 足し物）
 //   roar … あたまの 前ぶれ（every 回 動く ごとに → 次の あたまの 番に かみつき。mult・guardCut … 身を 守ると）
 //   mend … むねの 回復（仲間の 星の 最大HPの この わりあい）
+//   linkK … 星が 1つ 消えて いる 間（よみがえる 前）、のこりの 星が 受ける ダメージの ばい（光の 線で まもられる。人数で 合わせる）
+//   linkAuto … だれも えらんで いない（完全オート・人が みんな たおれた）時の linkK … そろえて たおさないと 勝てない
 //   few … 人数（家族の キャラの 数）で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・revive）。solo … 仲間なしの ひとり。monK … 魔物の 仲間 1体ごと
 const BEAST = (o) => ({
-  kind: 'beast', revive: 5, reviveBy: 'all', reviveHp: 0.5, reviveUp: 0.35, roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35 }, mend: 0.05,
-  few: { hp: [0.8, 0.85, 1, 1, 1.25], atk: [0.82, 0.88, 1, 1, 1.08], revive: [6, 6, 5, 5, 5] },
+  kind: 'beast', revive: 5, reviveBy: 'all', reviveHp: 0.5, reviveUp: 0.35, linkK: 0.55, linkAuto: 0.12, roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35 }, mend: 0.05,
+  few: { hp: [0.75, 0.8, 1, 1, 1.1], atk: [0.75, 0.85, 1, 1, 1.05], revive: [7, 6, 5, 4, 4], linkK: [0.55, 0.55, 0.55, 0.45, 0.35] },
   solo: { hp: 0.32, atk: 0.42, revive: 8 },
   monK: { hp: 0.08, atk: 0.05 },
   ...o,
@@ -128,21 +130,21 @@ export const MONSTERS_C11A = {
   // ── 中ボス: 星座のけもの（3つの 星。Lv119）──
   // c11a … しかけ（battle-c11a.js の beast）。あたま … 強い 1人攻撃（前ぶれ）・むね … 仲間の 星を 回復・しっぽ … 全体攻撃
   [C11A_HEAD]: {
-    ...STAR, name: 'あたまの星', lv: 119, hp: 7200, mp: 9999, str: 1770, def: 400, agi: 250, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
+    ...STAR, name: 'あたまの星', lv: 119, hp: 3000, mp: 9999, str: 2000, def: 400, agi: 250, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
     drops: { boss: ['c11ab_star_collar'], bonus: ['limit_stone'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'head' }),
     actions: [{ w: 3, id: 'm11b_claw' }, { w: 2, id: 'm11b_pulse' }],
     desc: '星座のけものの、あたまの星。うなったあとに、大きくかみつく。',
   },
   [C11A_CHEST]: {
-    ...STAR, name: 'むねの星', lv: 119, hp: 7200, mp: 9999, str: 1515, def: 420, agi: 230, mag: 1100, exp: 30000, gold: 11000, speed: 0.62,
+    ...STAR, name: 'むねの星', lv: 119, hp: 3000, mp: 9999, str: 1710, def: 420, agi: 230, mag: 1100, exp: 30000, gold: 11000, speed: 0.62,
     drops: { boss: ['c11ab_star_collar'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'chest' }),
     actions: [{ w: 2, id: 'm11b_pulse' }, { w: 2, id: 'm11b_mend', cond: 'notRecent:m11b_mend' }, { w: 1, id: 'm11b_claw' }],
     desc: '星座のけものの、むねの星。光の線で、仲間の星を回復する。',
   },
   [C11A_TAIL]: {
-    ...STAR, name: 'しっぽの星', lv: 119, hp: 7200, mp: 9999, str: 1610, def: 400, agi: 260, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
+    ...STAR, name: 'しっぽの星', lv: 119, hp: 3000, mp: 9999, str: 1820, def: 400, agi: 260, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
     drops: { boss: ['c11ab_star_collar'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'tail' }),
     actions: [{ w: 3, id: 'm11b_sweep' }, { w: 2, id: 'm11b_dust', cond: 'notRecent:m11b_dust' }, { w: 1, id: 'm11b_claw' }],
