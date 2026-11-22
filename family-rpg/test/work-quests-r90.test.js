@@ -6,6 +6,7 @@
 // 星ふるえ（c9_starfall）の あとから（はり紙も 人も。持たない 人には 見えない ＝ 今の ゲームは かわらない）・地図の しるし・
 // 困っている人・漢字・軽い 戦い（敵Lv96）・お仕事いらい板: 38まい・7ページ（c9_starfall の 前は 35まい・6ページの まま）
 import { test } from 'node:test';
+import { isKizuna } from '../public/js/shared/data/kizuna.js';
 import assert from 'node:assert/strict';
 import { MAPS, isBlocked, condOk } from '../public/js/shared/maps/index.js';
 import { SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
@@ -78,7 +79,9 @@ test('しくみ: 3つの 新しい たのまれごと（新しい 流れの 職�
     assert.ok(npcAnywhere(qd.npc), `${qd.id}: ${qd.npc}`);
   }
   // 流れの 中みと、前の たのまれごとと かさなる 所（前の 系統の 先に ある 職業だけ。新しい 流れの 職業は どれも はじめて）
-  assert.deepEqual([...jobLine(['elem_teacher'])].sort(), ['elem_teacher', 'jigoku_sensei', 'nube', 'yokai_bridge']);
+  // 第98回 K3班: きずなの職業（伝説のPTA会長）は 両方の 流れに 入る ので のぞいて くらべ、べつに 入って いる ことを 見る（docs/plan-kizuna-jobs.md の 8-3）
+  assert.deepEqual([...jobLine(['elem_teacher'])].filter((j) => !isKizuna(j)).sort(), ['elem_teacher', 'jigoku_sensei', 'nube', 'yokai_bridge']);
+  assert.ok(jobLine(['elem_teacher']).has('pta_kaichou'));
   assert.ok([...jobLine(['enjutsushi'])].includes('rekka'));
   assert.ok(['fishing_doshi', 'sennin_doshi', 'taikobo', 'hoshin_gunshi'].every((j) => jobLine(['fishing_doshi']).has(j)));
   const older = FAMILY_QUESTS.slice(0, 35);

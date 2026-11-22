@@ -546,7 +546,8 @@ test('G5: スレイヤーズ・烈火の炎の とびら（5人ずつ・弱い �
   // とびら: しるし・部屋・背景・作品の 職業
   const ds = RIVAL_DOORS.find((d) => d.work === 'slayers');
   const dr = RIVAL_DOORS.find((d) => d.work === 'rekka');
-  assert.deepEqual(ds.jobs, ['tabi_madoshi', 'lina', 'doramata']);
+  // 第98回 K4班: きずなの職業「等価交かんの大魔道士」（ドラまた ＋ 真理のとびら）は 新しい 系統の 方の 作品（スレイヤーズ）
+  assert.deepEqual(ds.jobs, ['tabi_madoshi', 'lina', 'doramata', 'touka_madoushi']);
   // 第98回: きずなの職業 2つ（烈火 ＋ 天才しせつ管理者・烈火 ＋ 七代目火影）は 新しい 系統の 方の 作品（烈火の炎）に 数える
   assert.deepEqual(dr.jobs, ['enjutsushi', 'rekka', 'kuuchou_master', 'hachiryu_hokage']);
   for (const d of [ds, dr]) for (const j of d.jobs) assert.ok(JOBS[j], j);

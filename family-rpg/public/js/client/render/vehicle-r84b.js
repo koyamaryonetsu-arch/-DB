@@ -8,7 +8,7 @@ export function addR84bVehicleArt(ART, kit) {
   ART.panda = pandaArt(kit);
 }
 
-function pandaArt({ seg, poly, shade, seat }) {
+export function pandaArt({ seg, poly, shade, seat }) {
   const W = '#f6f4ee', WD = shade(W, -0.12), K = '#26222c', KL = shade(K, 0.25), EYE = '#ffffff', NOSE = '#1a1620';
   const SIGN = '#f2d060', POST = '#8a5a2a', SADDLE = '#c8202a';
   // 足先の いち（よこ。f … 0〜2）: [前てまえ, 前おく, 後ろてまえ, 後ろおく]（トラより ゆっくり・はばが せまい）

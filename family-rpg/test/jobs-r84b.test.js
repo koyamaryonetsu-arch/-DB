@@ -626,7 +626,8 @@ test('第84回 B の 職業: タグで 合体技（3つ いじょう）・職業
   }
   // 乗り物: パンダ（3つの 職業）
   const v = VEHICLES.panda;
-  assert.deepEqual(v.jobs, NEW);
+  // 第98回 K4班: きずなの職業（otenki_shihan）も 親の 乗り物に 乗れる（data/vehicles.js の おわり）
+  assert.deepEqual(v.jobs, [...NEW, 'otenki_shihan']);
   textOk(v.name, 'panda');
   textOk(v.desc, 'panda');
   assert.ok(v.price > 0 && v.price <= 10000);

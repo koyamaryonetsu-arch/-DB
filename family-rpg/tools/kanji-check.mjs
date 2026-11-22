@@ -44,7 +44,7 @@ export const MUST_WORDS = [
   ['つかえ', '使え'], ['つかっ', '使っ'], ['おぼえ', '覚え'], ['えらぶ', '選ぶ'], ['えらん', '選ん'],
   ['えらべ', '選べ'], ['しらべ', '調べ'], ['あがった', '上がった'], ['さがった', '下がった'], ['うけた', '受けた'],
   ['(?<![あ-ん])まって', '待って'], ['もって', '持って'], ['つづき', '続き'], ['はじめ', '始め／初め'], ['おわり', '終わり'],
-  ['おわる', '終わる'], ['ひつよう', '必要'], ['さいご', '最後'], ['さいしょ', '最初'], ['ぜんぶ', '全部'],
+  ['おわる', '終わる'], ['ひつよう', '必要'], ['さいご', '最後'], ['さいしょ(?!う)', '最初'], ['ぜんぶ', '全部'],
   ['すこし', '少し'], ['つよい', '強い'], ['つよく', '強く'], ['よわい', '弱い'], ['よわく', '弱く'],
   ['おおきい', '大きい'], ['おおきな', '大きな'], ['ちいさい', '小さい'], ['ちいさな', '小さな'], ['ひかり', '光'],
   ['こころ', '心'], ['ひがし', '東'], ['みなみ', '南'], ['みぎ', '右'], ['ひだり', '左'],
@@ -668,6 +668,10 @@ export function gameFiles() {
     'public/js/shared/battle-c10c.js', 'public/js/client/battle-c10c.js', 'public/js/client/render/c10c-art.js', 'public/js/client/render/c10c-bg.js', 'public/js/client/render/battlefx-c10c.js',
     // 第97回 F班: 第3部 第2章 第3幕の 曲
     'public/js/client/audio-c10c.js',
+    // 第99回 B班: 第3部 第2章 第4幕（門の 番人・ミラーレ・品・ヒント・絵・背景・えんしゅつ。c10d-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/c10d-names-b.js', 'public/js/shared/data/monsters-c10d.js', 'public/js/shared/data/abilities-c10d.js',
+    'public/js/shared/data/encounters-c10d.js', 'public/js/shared/data/items-c10d.js', 'public/js/shared/data/boss-hints-c10d.js',
+    'public/js/shared/battle-c10d.js', 'public/js/client/battle-c10d.js', 'public/js/client/render/c10d-art.js', 'public/js/client/render/c10d-bg.js', 'public/js/client/render/battlefx-c10d.js',
     // 第99回 F班: 第3部 第2章 第4幕の 曲
     'public/js/client/audio-c10d.js',
     // 第99回 A班: 第3部 第2章 第4幕「金の音と、星の橋」（世界と 物語）
@@ -677,6 +681,12 @@ export function gameFiles() {
     'public/js/shared/maps/c11a-flags.js', 'public/js/shared/data/story-c11.js', 'public/js/shared/data/story-c11a.js', 'public/js/shared/data/constellations-c11a.js',
     'public/js/shared/maps/c11a.js', 'public/js/shared/maps/c11a-rows.js', 'public/js/shared/world/c11a-steps.js', 'public/js/client/c11a-view.js',
     'public/js/client/render/tiles-c11a.js', 'public/js/client/render/c11a-npc-art.js',
+    // 第101回 F班: 第3部 第3章 第1幕の 曲
+    'public/js/client/audio-c11a.js',
+    // 第101回 B班: 第3部 第3章 第1幕（魔物・星座のけもの・いかり船長・品・ヒント・絵・背景・えんしゅつ。c11a-names-b.js は A班が 消す かりの 置き場）
+    'public/js/shared/data/c11a-names-b.js', 'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
+    'public/js/shared/data/encounters-c11a.js', 'public/js/shared/data/companions-c11a.js', 'public/js/shared/data/items-c11a.js', 'public/js/shared/data/boss-hints-c11a.js',
+    'public/js/shared/battle-c11a.js', 'public/js/client/battle-c11a.js', 'public/js/client/render/c11a-art.js', 'public/js/client/render/c11a-bg.js', 'public/js/client/render/battlefx-c11a.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
