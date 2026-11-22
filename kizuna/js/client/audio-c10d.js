@@ -18,9 +18,9 @@
 //     ベルが レ・ミ・ファ・ソ・ラ・シ・ド〈集めた 7つの 星の音〉→ ドで 止まり、その 上に 高い レを 1つ〈8つめ。問い〉）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS } from './audio-c9a.js?v=92b65651df0b';
-import { C9C_TOOLS } from './audio-c9c.js?v=92b65651df0b';
-import { C9D_SONG } from './audio-c9d.js?v=92b65651df0b';
+import { C9A_TOOLS } from './audio-c9a.js?v=8f07681fe7a2';
+import { C9C_TOOLS } from './audio-c9c.js?v=8f07681fe7a2';
+import { C9D_SONG } from './audio-c9d.js?v=8f07681fe7a2';
 
 const { SHARP, FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView } = C9A_TOOLS;
 const { shift, midiOfName } = C9C_TOOLS;

@@ -8,10 +8,10 @@
 //   { type: 'crowd', add, spend }                        … 観客（夢のスタジアム鉄道）: 使った 人の 観客を ふやす（5まで）・spend で 使いきる
 //        技に crowd: 0.1 … 観客 1つに つき ダメージ ＋10%（phantomCDamage）
 //   天気（weather・weatherStrike）は battle-weather.js
-import { mirageHit } from './battle-ch4.js?v=92b65651df0b';
-import { ABILITIES } from './data/abilities.js?v=92b65651df0b';
-import { weatherEffect, weatherDamage } from './battle-weather.js?v=92b65651df0b';
-import { stackBuff } from './battle.js?v=92b65651df0b';
+import { mirageHit } from './battle-ch4.js?v=8f07681fe7a2';
+import { ABILITIES } from './data/abilities.js?v=8f07681fe7a2';
+import { weatherEffect, weatherDamage } from './battle-weather.js?v=8f07681fe7a2';
+import { stackBuff } from './battle.js?v=8f07681fe7a2';
 
 export const CROWD_MAX = 5;
 // 作りかえる 装備（え らぶのは 運しだい）

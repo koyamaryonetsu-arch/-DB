@@ -1,8 +1,8 @@
 // 第7章 Step 1・2（A: 世界と物語）「緑の王国」の お店（data/story-c7.js が SHOPS に まぜる。data/shops.js は かえない）
 // 品ぞろえは 今 ある いちばん 上の 店の 品（千年前の ホシフルの里と おなじ ランク10。おすすめ Lv68〜72 の 家族の そなえ）。
 // B が 第7章の 店の 品（ランク11 など）を 作ったら、ここの items を かえる。千年前は キメラのつばさが 使えないので 道具屋では 売らない
-import { PAST_SHOP_WEAPONS, PAST_SHOP_ARMOR, PAST_SHOP_TOOLS } from './items-past.js?v=92b65651df0b';
-import { addR81Shops } from './items-r81.js?v=92b65651df0b';
+import { PAST_SHOP_WEAPONS, PAST_SHOP_ARMOR, PAST_SHOP_TOOLS } from './items-past.js?v=8f07681fe7a2';
+import { addR81Shops } from './items-r81.js?v=8f07681fe7a2';
 
 export const SHOPS_C7 = {
   c7_weapon: {

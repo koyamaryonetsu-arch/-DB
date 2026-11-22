@@ -3,7 +3,7 @@
 //   れい丸が 0 の 時に ためる（ねばりの張りこみ）・ざこに れい丸を 使わない きまりは 魔界の王の子と おなじ r84aPlan・r84aAdjust に まかせる
 //   ここでは かけ合わせの 技（最後の一発・たいほれい丸）: ボス・強い 敵に、のこりの れい丸が 少ない 時（強い 一発）か、敵が 前ぶれの 大技を ためて いる 時（止める）
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only）
-import { reiLeft, reiMax } from './battle-r84a.js?v=92b65651df0b';
+import { reiLeft, reiMax } from './battle-r84a.js?v=8f07681fe7a2';
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた）
 export const KEIJI_AI = { last: 0.85, stop: 0.6, reigan: 0.5, siren: 0.5, kikikomi: 0.25, low: 2 };

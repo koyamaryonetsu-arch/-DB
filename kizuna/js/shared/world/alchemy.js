@@ -6,15 +6,15 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=92b65651df0b';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=92b65651df0b';
+import { ITEMS, baseItemId } from '../data/items.js?v=8f07681fe7a2';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=8f07681fe7a2';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, LB_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
-} from '../data/alchemy.js?v=92b65651df0b';
-import { partyOf } from './party.js?v=92b65651df0b';
-import { GEAR_FX, fxBlock, fxMatsOf, rollFx, fxListOf, mergeFx, fxSlots, fxText } from '../data/gear-fx.js?v=92b65651df0b';
-import { bossRareOf } from '../data/rare-loot.js?v=92b65651df0b';
+} from '../data/alchemy.js?v=8f07681fe7a2';
+import { partyOf } from './party.js?v=8f07681fe7a2';
+import { GEAR_FX, fxBlock, fxMatsOf, rollFx, fxListOf, mergeFx, fxSlots, fxText } from '../data/gear-fx.js?v=8f07681fe7a2';
+import { bossRareOf } from '../data/rare-loot.js?v=8f07681fe7a2';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;

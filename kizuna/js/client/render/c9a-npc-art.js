@@ -4,18 +4,18 @@
 //   かけら買いの スズ・村の 子ども ラン
 // とくべつな え（paintC9aSpecial）: 星の子 スピカ（小さな 光る 子。フィールドの 連れと くぼ地の 子。コマで 光が またたく）・
 //   石の ふくろう ホシモリ（ためしの 場面。24×24）・光る 道しるべ（ささやきの森の 入口）
-import { Painter } from './pixel.js?v=92b65651df0b';
+import { Painter } from './pixel.js?v=8f07681fe7a2';
 // 第91回 A班: 第3部 第1章 第2幕の 人の え（render/c9b-npc-art.js。ここで まぜる）
-import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=92b65651df0b';
+import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=8f07681fe7a2';
 // 第92回 A班: 第3部 第1章 第3幕の とくべつな え（render/c9c-npc-art.js。ここで まぜる）
-import { paintC9cSpecial, C9C_SPECIALS } from './c9c-npc-art.js?v=92b65651df0b';
+import { paintC9cSpecial, C9C_SPECIALS } from './c9c-npc-art.js?v=8f07681fe7a2';
 // 第93回 A班: 第3部 第1章 第4幕の とくべつな え（render/c9d-npc-art.js）
-import { paintC9dSpecial, C9D_SPECIALS } from './c9d-npc-art.js?v=92b65651df0b';
+import { paintC9dSpecial, C9D_SPECIALS } from './c9d-npc-art.js?v=8f07681fe7a2';
 // 第94回 A班: 第3部 第2章 第1幕の とくべつな え（render/c10a-npc-art.js）
-import { paintC10aSpecial, C10A_SPECIALS } from './c10a-npc-art.js?v=92b65651df0b';
+import { paintC10aSpecial, C10A_SPECIALS } from './c10a-npc-art.js?v=8f07681fe7a2';
 // 第95回 A班: 第3部 第2章 第2幕の とくべつな え（render/c10b-npc-art.js）
-import { paintC10bSpecial, C10B_SPECIALS } from './c10b-npc-art.js?v=92b65651df0b';
-import { paintC10cSpecial, C10C_SPECIALS } from './c10c-npc-art.js?v=92b65651df0b';
+import { paintC10bSpecial, C10B_SPECIALS } from './c10b-npc-art.js?v=8f07681fe7a2';
+import { paintC10cSpecial, C10C_SPECIALS } from './c10c-npc-art.js?v=8f07681fe7a2';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },

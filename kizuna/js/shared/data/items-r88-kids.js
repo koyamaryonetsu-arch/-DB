@@ -7,7 +7,7 @@
 //   ・名探ていのスーツとちょうネクタイ … 使う:「しつれい、こかせていただきます」で 敵1グループを ねむらせる
 //   ・風のみちしるべ（伝説）… 満月の 夜の かいとうUの まぼろしに 勝つと もらえる
 //   作品の 字は 使える 字に 直した（蘭 → ラン／蝶 → ちょう／紳 → しん／錠 → じょう／筋肉ニンニクの にんにく → ムキムキにんにく など）
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=92b65651df0b';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=8f07681fe7a2';
 
 const K = { work: 'hanakappa' };
 const O = { work: 'oshiri' };

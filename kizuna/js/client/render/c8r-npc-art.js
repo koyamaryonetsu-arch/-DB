@@ -4,9 +4,9 @@
 // とくべつな え（paintC8rSpecial）: 時の門番フリーゾン（時の広間の 大とびらの 前で 待つ 大きな すがた 40×40。
 //   白く つやつやした 体・頭と かたの むらさきの まるい よろい・長い しっぽ。コマで しっぽが ゆれて、うでを くむ）
 // 戦いの え（第2・第3・最終形態）は B の もの
-import { Painter } from './pixel.js?v=92b65651df0b';
+import { Painter } from './pixel.js?v=8f07681fe7a2';
 // 第3部 第1章 第1幕: 星の子・3人組・第1部の 仲間 など（render/c9a-npc-art.js。ここで まぜる）
-import { C9A_NPC_LOOKS, paintC9aSpecial, C9A_SPECIALS } from './c9a-npc-art.js?v=92b65651df0b';
+import { C9A_NPC_LOOKS, paintC9aSpecial, C9A_SPECIALS } from './c9a-npc-art.js?v=8f07681fe7a2';
 
 export const C8R_NPC_LOOKS = {
   c8r_gate: {

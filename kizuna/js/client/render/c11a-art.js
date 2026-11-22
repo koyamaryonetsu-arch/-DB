@@ -10,7 +10,7 @@
 //     （チクタクザメは ねらえない ので 船長の え の 下に かく。おなかの 中で 時計の 光）
 //     コマ 2・3 … にげる（帽子が とぶ・あせ・サメが 大きな 口を あけて 追う）
 //   もとの お話の 絵は 使わない（かぎの 手・ワニは かかない。手は いかり・サメ）
-import { fit, spark, bez } from './ch3-draw.js?v=92b65651df0b';
+import { fit, spark, bez } from './ch3-draw.js?v=8f07681fe7a2';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

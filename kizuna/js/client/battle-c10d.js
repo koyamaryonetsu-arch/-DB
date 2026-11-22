@@ -7,11 +7,11 @@
 // ・コマンド: いちばん 上に「音を鳴らす」（色を 合わせると われる 時は「今だ！」）→ 6つの 音の ボタン（レ赤・ミ黄・ファ緑・ソ青・ラ白・シむらさき。
 //   色の ついた 大きな ボタン・1回で 決定。まくや しるしと 同じ 色の ボタンには「まく」「しるし」の 小さな 文字）
 //   色の 見分けが つきにくい 人の ために、どこにも 色の 名前の 文字を 出す
-import { C10D_MIRARE, C10D_GUARDS, C10D_COPY } from '../shared/data/monsters-c10d.js?v=92b65651df0b';
-import { NARASU } from '../shared/data/abilities-c10d.js?v=92b65651df0b';
-import { NOTE_COLORS } from '../shared/battle-c10d.js?v=92b65651df0b';
-import { monsterCanvas } from './render/monsters.js?v=92b65651df0b';
-import { playC10dBreak, playC10dNote, playC10dCrack } from './render/battlefx-c10d.js?v=92b65651df0b';
+import { C10D_MIRARE, C10D_GUARDS, C10D_COPY } from '../shared/data/monsters-c10d.js?v=8f07681fe7a2';
+import { NARASU } from '../shared/data/abilities-c10d.js?v=8f07681fe7a2';
+import { NOTE_COLORS } from '../shared/battle-c10d.js?v=8f07681fe7a2';
+import { monsterCanvas } from './render/monsters.js?v=8f07681fe7a2';
+import { playC10dBreak, playC10dNote, playC10dCrack } from './render/battlefx-c10d.js?v=8f07681fe7a2';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C10D_OWN_TELE = [C10D_MIRARE, ...C10D_GUARDS, C10D_COPY];

@@ -6,7 +6,7 @@
 //   ・今 ある タケコプター・ネコのすず・ふしぎなポケットにも 作品を つけた（R88_TAG_DORAEMON。強さ・手に入れ方は かえない）
 //   ・名前が 今 ある 技（ドラえもんの 職業の ひみつ道具）と かぶる 品は 少し かえた（設計書の「実装メモ（G12班）」）
 //   ・入れない 品: 熱線銃の ような あぶない 道具・出木杉の 品（設計書 3-8）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=92b65651df0b';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=8f07681fe7a2';
 
 const D = { work: 'doraemon' };
 // もしもボックスの 天気（use.pick の じゅん）
