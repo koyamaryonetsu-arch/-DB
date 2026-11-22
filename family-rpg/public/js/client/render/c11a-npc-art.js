@@ -97,15 +97,25 @@ function paintShark(f) {
 }
 // 月の 形の 都（とおくの かげ。三日月の 上に 小さな 塔）
 function paintMoonCity(f) {
-  const p = new Painter(48, 32);
-  p.ellipse(24, 18, 18, 11, '#e8e0a8');
-  for (let y = 0; y < 32; y++) for (let x = 0; x < 48; x++) {
-    const a = ((x - 24) / 18) ** 2 + ((y - 18) / 11) ** 2 <= 1;
-    const b = ((x - 29) / 16) ** 2 + ((y - 13) / 10) ** 2 <= 1;
-    if (a && !b) p.set(x, y, '#f0e8b8');
+  // 三日月（左に ふくらむ 形）の 内がわの 下の ふちに、白い 塔の 町
+  const p = new Painter(48, 40);
+  const inO = (x, y) => ((x - 22) / 17) ** 2 + ((y - 20) / 17) ** 2 <= 1;
+  const inI = (x, y) => ((x - 30) / 15) ** 2 + ((y - 16) / 15) ** 2 <= 1;
+  for (let y = 0; y < 40; y++) for (let x = 0; x < 48; x++) {
+    if (!inO(x, y) || inI(x, y)) continue;
+    const edge = !inO(x - 1, y) || !inO(x, y + 1);
+    p.set(x, y, edge ? '#c8b870' : inI(x - 2, y + 1) ? '#fff8d0' : '#f0e0a0');
   }
-  for (const [x, h] of [[12, 8], [16, 12], [20, 9], [9, 6]]) { p.rect(x, 22 - h, 2, h, '#c8c0e0'); p.set(x, 21 - h, '#fff8c8'); }
-  p.set(30 + (f % 2), 4, '#ffffff');
+  // 塔（三日月の 下の ふちに 立つ）
+  for (const [x, h, c] of [[19, 6, '#d8d4f0'], [22, 9, '#e8e4ff'], [25, 13, '#ffffff'], [28, 8, '#e8e4ff'], [31, 5, '#d8d4f0']]) {
+    let base = 39;
+    while (base > 0 && !(inO(x, base) && !inI(x, base))) base--;
+    for (; base > 0 && inO(x, base - 1) && !inI(x, base - 1); base--);
+    p.rect(x, base - h, 2, h, c);
+    p.set(x, base - h - 1, '#ffe070'); p.set(x + 1, base - h - 1, '#ffe070');
+    if (h > 6) p.set(x, base - Math.floor(h / 2), '#a8a0d0');
+  }
+  p.set(40 + (f % 2), 5, '#ffffff'); p.set(6, 30 - (f % 2), '#fff8c8');
   return { p, oc: null };
 }
 // 星の船の 乗り場（光の 柱と 小さな 船）
