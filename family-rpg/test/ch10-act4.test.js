@@ -360,9 +360,9 @@ test('ひとり（仲間なし）: 門 1 と ミラーレに 知って いる �
 
 test('家族 2人（パーティー）: いずみは リーダーが えらんで 2人に きく・2人で 門と ミラーレ（どちらも 画面と 同じ 形の コマンド）・戦いの 中で 回線が 切れて もどる', { timeout: 1700000 }, async () => {
   const world = fixedWorld(9923, { offline: false, checkPassword: () => true });
-  // 2人 ＋ それぞれの 家族の 仲間 1人（B班の めやす「2人 ＋ 自動 2人」）
-  const A = await player(world, 'ソラ', ['パパ']);
-  const B = await player(world, 'ミナ', ['ユイ']);
+  // 第101回 R2班: 仲間を つれない 家族 2人だけ（人数合わせの bare … 2人だけでも 門 1 と ミラーレに 勝てる）
+  const A = await player(world, 'ソラ');
+  const B = await player(world, 'ミナ');
   for (const P of [A, B]) Object.assign(P.c.flags, { c10d_start: true, c10d_top: true });
   A.bot.send({ t: 'party', action: 'invite', sid: B.bot.s.id });
   await tickN(world, 2);

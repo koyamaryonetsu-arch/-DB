@@ -448,13 +448,13 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
     const sp = boss === 'colonel' ? C10C_COLONEL : C10C_ALGOL;
     const hp = (kinds) => { const b = battle({ boss, kinds }); return (boss === 'colonel' ? colonelOf(b) : algolOf(b)).maxHp; };
     const base = MONSTERS[sp].hp;
-    assert.equal(hp(['player', 'player', 'player', 'player']), base, `${boss}: 4人は もとの まま`);
+    // 第101回 R2班: 4人も 合わせ直した（人が 1人ずつ べつの 手で はかる 道具で 長く なった ぶん。4人は few の 4人目）
+    assert.equal(hp(['player', 'player', 'player', 'player']), Math.round(base * MONSTERS[sp].c10c.few.hp[3]), `${boss}: 4人は few の 4人目`);
     assert.ok(hp(['player', 'player', 'support', 'support']) < base, `${boss}: 2人`);
     assert.ok(hp(['player']) < base * 0.2, `${boss}: ひとりだけ`);
     const c = MONSTERS[sp].c10c;
     for (const k of ['hp', 'atk']) assert.equal(c.few[k].length, 5);
-    assert.equal(c.few.hp[3], 1);
-    assert.equal(c.few.atk[3], 1);
+    assert.ok(c.few.hp[3] < 1, '4人は HPを 下げて 短く');
     const two = battle({ boss, kinds: ['player', 'player', 'support', 'support'] });
     const e = boss === 'colonel' ? colonelOf(two) : algolOf(two);
     assert.equal(e.dmgRate ?? 1, c.few.atk[1]);
