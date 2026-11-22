@@ -7,11 +7,11 @@
 // ・コマンド: いちばん 上に「音を鳴らす」（色を 合わせると われる 時は「今だ！」）→ 6つの 音の ボタン（レ赤・ミ黄・ファ緑・ソ青・ラ白・シむらさき。
 //   色の ついた 大きな ボタン・1回で 決定。まくや しるしと 同じ 色の ボタンには「まく」「しるし」の 小さな 文字）
 //   色の 見分けが つきにくい 人の ために、どこにも 色の 名前の 文字を 出す
-import { C10D_MIRARE, C10D_GUARDS, C10D_COPY } from '../shared/data/monsters-c10d.js?v=8f07681fe7a2';
-import { NARASU } from '../shared/data/abilities-c10d.js?v=8f07681fe7a2';
-import { NOTE_COLORS } from '../shared/battle-c10d.js?v=8f07681fe7a2';
-import { monsterCanvas } from './render/monsters.js?v=8f07681fe7a2';
-import { playC10dBreak, playC10dNote, playC10dCrack } from './render/battlefx-c10d.js?v=8f07681fe7a2';
+import { C10D_MIRARE, C10D_GUARDS, C10D_COPY } from '../shared/data/monsters-c10d.js?v=a3f1dc027cbc';
+import { NARASU } from '../shared/data/abilities-c10d.js?v=a3f1dc027cbc';
+import { NOTE_COLORS } from '../shared/battle-c10d.js?v=a3f1dc027cbc';
+import { monsterCanvas } from './render/monsters.js?v=a3f1dc027cbc';
+import { playC10dBreak, playC10dNote, playC10dCrack } from './render/battlefx-c10d.js?v=a3f1dc027cbc';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C10D_OWN_TELE = [C10D_MIRARE, ...C10D_GUARDS, C10D_COPY];
@@ -247,6 +247,14 @@ export function c10dPresent(scene, ev) {
   if (r && scene.fx) { const a = who(r.id); if (a) playC10dNote(scene.fx, scene.allyPt?.(a), cssOf(r.color)); }
   for (const id of ev.c10dBreak || []) { const e = who(id); if (e && scene.fx) playC10dBreak(scene.fx, scene.center?.(e), r ? cssOf(r.color) : '#ffffff'); }
   if (ev.c10dDown && scene.fx) { const e = who(ev.c10dDown.id); if (e) playC10dCrack(scene.fx, scene.center?.(e)); }
+  // 第99回 A班: うつし身が 出る 前に 開いて いた いちばん 上の コマンドの まどに「スピカ：てらす」を 出す（まどを 開き直す。
+  //   下の まど〈特技・色の ボタン など〉を 開いて いる 時は そのまま。敵の 一覧が かわった あとで 見る）
+  if (ev.c10dCopy && typeof scene.openCommand === 'function') {
+    setTimeout(() => {
+      const t = scene.cmdEl?.textContent || '';
+      if (!scene.ended && scene.myActor?.alive && /戦う/.test(t) && /防御/.test(t) && !/スピカ：てらす/.test(t)) scene.openCommand();
+    }, 60);
+  }
   const say = [
     ev.c10dBreak?.length && [(t) => good(t, 'sparkle'), 'パリーン！まくがわれた！今なら、こうげきが通る！'],
     ev.c10dBack && [warn, `まに合わなかった…${ev.c10dBack.colors.map(nameOf).join('と')}の色が、もどった！`],

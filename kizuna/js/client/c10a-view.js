@@ -4,9 +4,9 @@
 //   画面の 状態 lavaStage（0〜3。F班の 曲 c10r_run）: 溶岩まで 10だん いじょう → 0・7〜9 → 1・4〜6 → 2・3 いか → 3
 // ・メニューを 開いて いる 間は サーバーに 知らせて 溶岩を 止める（{ t:'menu', action:'c10Hold', on }）
 // ・見はらし台（台本の ['c10Wide', true]）: 画面を 広く 引く（2D は 1マスを 小さく かく）
-import { lavaStageOfGap } from '../shared/maps/c10a-flags.js?v=8f07681fe7a2';
-import { TS } from './render/tiles.js?v=8f07681fe7a2';
-import { el } from './ui/dom.js?v=8f07681fe7a2';
+import { lavaStageOfGap } from '../shared/maps/c10a-flags.js?v=a3f1dc027cbc';
+import { TS } from './render/tiles.js?v=a3f1dc027cbc';
+import { el } from './ui/dom.js?v=a3f1dc027cbc';
 
 // ───── サーバーの snap ─────
 export function noteC10aSnap(field, d) {

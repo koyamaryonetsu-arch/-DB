@@ -4,10 +4,10 @@
 // ・maps/c9a-cave.js … 星の石の地下道 c9a_b1〜c9a_b4（光の輪。形は maps/c9a-rows.js、光の 計算は maps/c9a-light.js）
 // ・maps/c9a-field.js … 今の ミドリナ地方の ホシフル村・星見の丘・ささやきの森の 入口に たす もの
 // ・maps/c9a-flags.js … フラグ・マップの ID（9-4 の 名前の 約束。Z班）
-import { buildC9aCaves, C9A_CAVE_IDS } from './c9a-cave.js?v=8f07681fe7a2';
-import { buildC9aForest, buildC9aCrater } from './c9a-forest.js?v=8f07681fe7a2';
-import { attachC9aField } from './c9a-field.js?v=8f07681fe7a2';
-import { C9A_MAP, C9A_MAP_IDS } from './c9a-flags.js?v=8f07681fe7a2';
+import { buildC9aCaves, C9A_CAVE_IDS } from './c9a-cave.js?v=a3f1dc027cbc';
+import { buildC9aForest, buildC9aCrater } from './c9a-forest.js?v=a3f1dc027cbc';
+import { attachC9aField } from './c9a-field.js?v=a3f1dc027cbc';
+import { C9A_MAP, C9A_MAP_IDS } from './c9a-flags.js?v=a3f1dc027cbc';
 
 // 第3部 第1章 第1幕の マップの ID（セーブに のこるので かえない）
 export const CH9A_MAPS = [...C9A_MAP_IDS];

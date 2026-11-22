@@ -11,7 +11,7 @@
 // ・gear: 装備（companions.js の RACE_GEAR を うわがき）
 // companions.js が まぜる。ここは ポケモンの ほのおの魔物（companions-pokemon.js）だけ import する
 
-import { FIRE_KIN } from './companions-pokemon.js?v=8f07681fe7a2';
+import { FIRE_KIN } from './companions-pokemon.js?v=a3f1dc027cbc';
 
 const Q = (o) => ({ rate: 0, breedOnly: true, recipeOnly: true, ...o });
 

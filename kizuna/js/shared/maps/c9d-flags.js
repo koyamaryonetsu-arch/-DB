@@ -70,7 +70,7 @@ export const C9D_SONG_STAGE_MAX = 7; // スピカの歌の ふしの 数
 // ───── スピカの歌の 歌える ふし（songStage。F班の 曲 c9d_song）─────
 // くぼ地の 音の 台に 置いた 星の音の 数。置いた しるしの フラグを ここに 足して いく（第2章・第3章で ふえる）
 // 第94回 A班: 第2章 第1幕の 赤（レ）・緑（ファ）は 手に 入れた 時に ふえる（13-3 の R6・G4。台に 置くのは その あと。maps/c10a-flags.js の C10A_RED.note・C10A_GREEN.note）
-export const C9D_NOTES_PLACED = ['c9_act3', 'c10_note_re', 'c10_note_fa', 'c10_note_so', 'c10_note_la', 'c10_note_si']; // c9_act3 … 黄の 台に ミを 置いた（第95回 A班: 青の ソ・白の ラ。第97回 A班: 紫の シ）
+export const C9D_NOTES_PLACED = ['c9_act3', 'c10_note_re', 'c10_note_fa', 'c10_note_so', 'c10_note_la', 'c10_note_si', 'c10_note_do']; // c9_act3 … 黄の 台に ミを 置いた（第95回 A班: 青の ソ・白の ラ。第97回 A班: 紫の シ。第99回 A班: 金の ド … 7ふし）
 export const songStage9 = (has) => Math.max(1, Math.min(C9D_SONG_STAGE_MAX, C9D_NOTES_PLACED.filter((f) => has(f)).length));
 
 // ───── B班の かりの 置き場（data/c9d-names-b.js。合わせた 時に 消した）に あった 名前（同じ 物）─────

@@ -1,21 +1,21 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=8f07681fe7a2';
-import { paintRare } from './rarity.js?v=8f07681fe7a2';
-import { ListMenu } from './dom.js?v=8f07681fe7a2';
-import { openServiceUI } from './services.js?v=8f07681fe7a2';
-import { monsterCanvas } from '../render/monsters.js?v=8f07681fe7a2';
-import { npcSprite } from '../field.js?v=8f07681fe7a2';
-import { reportError } from '../errlog.js?v=8f07681fe7a2';
+import { el } from './dom.js?v=a3f1dc027cbc';
+import { paintRare } from './rarity.js?v=a3f1dc027cbc';
+import { ListMenu } from './dom.js?v=a3f1dc027cbc';
+import { openServiceUI } from './services.js?v=a3f1dc027cbc';
+import { monsterCanvas } from '../render/monsters.js?v=a3f1dc027cbc';
+import { npcSprite } from '../field.js?v=a3f1dc027cbc';
+import { reportError } from '../errlog.js?v=a3f1dc027cbc';
 // 第76回: お仕事いらい板の 大きな はり紙
-import { paperPop } from './paper-pop.js?v=8f07681fe7a2';
+import { paperPop } from './paper-pop.js?v=a3f1dc027cbc';
 // 第88回 G3班: まぼろしの回廊の とびらの まど（rivals-r88.js）
-import { rivalPop } from './rivals-r88.js?v=8f07681fe7a2';
+import { rivalPop } from './rivals-r88.js?v=a3f1dc027cbc';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=8f07681fe7a2';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=a3f1dc027cbc';
 // 第89回: 宝の地図が いっぱいの 時に その 場で どれを 捨てるか 聞く
-import { askTreasureList } from './treasure.js?v=8f07681fe7a2';
+import { askTreasureList } from './treasure.js?v=a3f1dc027cbc';
 // 第94回 A班: 見はらし台で 画面を 広く 引く（client/c10a-view.js）
-import { setWide10a } from '../c10a-view.js?v=8f07681fe7a2';
+import { setWide10a } from '../c10a-view.js?v=a3f1dc027cbc';
 
 const TYPE_MS = 28;
 

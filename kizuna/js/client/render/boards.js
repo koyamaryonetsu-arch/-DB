@@ -1,7 +1,7 @@
 // お店の かんばん（たてものに かける）と、地図の しるし
-import { Painter, makeCanvas, ctxOf } from './pixel.js?v=8f07681fe7a2';
+import { Painter, makeCanvas, ctxOf } from './pixel.js?v=a3f1dc027cbc';
 // 第88回 G3班: まぼろしの回廊の 作品の しるし（boards-r88.js）
-import { R88_BOARD_ICONS, R88_BOARD_COLORS } from './boards-r88.js?v=8f07681fe7a2';
+import { R88_BOARD_ICONS, R88_BOARD_COLORS } from './boards-r88.js?v=a3f1dc027cbc';
 
 // しるしの え（9×9。'.' は とうめい）
 const ICONS = {

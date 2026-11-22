@@ -8,12 +8,12 @@
 // ・小さな 地図・大きな 地図: 大地の下は「行った 所」を 取らない。柱の 明るさで かく（mapLit9b）
 // ・pillarStage（ともした 柱の 数 0〜6）: F班の 曲が もりあがる（field.pillarStage）
 // 2D も 2.5D も 同じ 計算（shared/maps/c9b-light.js・shared/maps/c9a-light.js）。こけの 光は サーバーの snap の c9a（パーティーで 同じ）
-import { MONSTERS } from '../shared/data/monsters.js?v=8f07681fe7a2';
-import { lightCenters } from '../shared/maps/c9a-light.js?v=8f07681fe7a2';
-import { LIGHT_SPICA9B, underCenters, flagKey9b, mapCells9b, pillarStage } from '../shared/maps/c9b-light.js?v=8f07681fe7a2';
-import { TS } from './render/tiles.js?v=8f07681fe7a2';
-import { ctxOf } from './render/pixel.js?v=8f07681fe7a2';
-import { Painter } from './render/pixel.js?v=8f07681fe7a2';
+import { MONSTERS } from '../shared/data/monsters.js?v=a3f1dc027cbc';
+import { lightCenters } from '../shared/maps/c9a-light.js?v=a3f1dc027cbc';
+import { LIGHT_SPICA9B, underCenters, flagKey9b, mapCells9b, pillarStage } from '../shared/maps/c9b-light.js?v=a3f1dc027cbc';
+import { TS } from './render/tiles.js?v=a3f1dc027cbc';
+import { ctxOf } from './render/pixel.js?v=a3f1dc027cbc';
+import { Painter } from './render/pixel.js?v=a3f1dc027cbc';
 
 const DARK = 'rgba(2, 2, 8, 0.96)';
 const has9b = (field) => (f) => field.hasFlag(f);

@@ -6,9 +6,9 @@
 // ・星のはかば: 地面（480）/ 小さな くぼみと ねむる 星（481。2コマ。かすかに またたく）/ 大きな くぼみ（482）/ まわりの 岩（483）/ 古い 石の 文字（484）
 // どれも テーマで 色を かえない（暗い ので もとの 色の まま）
 // (p, v, f) … Painter / ちがい / アニメの コマ
-import { T } from '../../shared/tiles.js?v=8f07681fe7a2';
-import { prand } from './pixel.js?v=8f07681fe7a2';
-import { THEME_PARTS } from './tiles-castle.js?v=8f07681fe7a2';
+import { T } from '../../shared/tiles.js?v=a3f1dc027cbc';
+import { prand } from './pixel.js?v=a3f1dc027cbc';
+import { THEME_PARTS } from './tiles-castle.js?v=a3f1dc027cbc';
 
 const RK = { d: '#08060e', b: '#16121f', l: '#262036', hl: '#3c3456' };
 const FL = { d: '#221e30', b: '#302a42', l: '#3e3856', hl: '#5a5276' };

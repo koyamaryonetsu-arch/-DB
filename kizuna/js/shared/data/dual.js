@@ -24,10 +24,10 @@
 //   今の 職業が その タグを 持つ 人が うけもてる（今の 職業で 判定は そのまま）。
 //   作品の ネタの 技（おかん・カッパ・魔王と はかい神 など）は、前と おなじ「特別な 組」（職業しばり）の まま。
 //   合体技の id・名前・えんしゅつは そのまま（古い セーブ・お気に入り・dualSeen は こわれない）。作品を またぐ 新しい 技を 13こ 足した
-import { ABILITIES } from './abilities.js?v=8f07681fe7a2';
-import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=8f07681fe7a2';
-import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=8f07681fe7a2';
-import { isMasc, jobLabel } from '../job-label.js?v=8f07681fe7a2';
+import { ABILITIES } from './abilities.js?v=a3f1dc027cbc';
+import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=a3f1dc027cbc';
+import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=a3f1dc027cbc';
+import { isMasc, jobLabel } from '../job-label.js?v=a3f1dc027cbc';
 
 // その 職業の 技（ひらめき技も）
 const byJob = (...jobs) => Object.keys(ABILITIES).filter((id) => {
