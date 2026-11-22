@@ -105,6 +105,7 @@ export const KIZUNA_OTENKI = {
   trial: '空も心も、自分でかえてみせよ。',
   vehicle: { id: 'panda_amagumo', v: { name: 'パンダの雨雲', price: 27000, jobs: ['otenki_shihan'], phantom: true, desc: '雨雲にのった、大きなパンダ。かさをさして、空の上をのっしのっしと歩く。雨のあとには、にじが出る。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1.27, 1.0, 1.15],
+  //   K5班: タグと MP を かえた あとに はかり直した
+  trialAdj: [1.27, 1.12, 1.36],
   work: 'ranma',
 };
