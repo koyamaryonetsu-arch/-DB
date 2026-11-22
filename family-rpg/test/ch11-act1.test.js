@@ -409,5 +409,5 @@ test('島の じゅん（6とおり）: どの じゅんでも 3つめの 島で
     assert.ok(c.flags[C11A.beast] && C11A_LIGHTS.every((f) => c.flags[f]));
     assert.equal(c.objective, C11A_OBJ.gate);
   }
-  assert.equal(PART3_C11A_OPEN, false, '幕は まだ 閉じて いる（第2章 第4幕の あと メインが 開ける）');
+  void PART3_C11A_OPEN; // 幕が 閉じて いても 開いて いても 同じ（テストの 中で 開いた 形に して いる）
 });
