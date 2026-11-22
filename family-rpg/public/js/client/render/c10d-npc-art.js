@@ -88,20 +88,28 @@ function paintPed8() {
 }
 
 // 星の橋（80×96。左下の 丘から 右上の 空へ。とちゅうで 光の つぶに なって 止まる）
-function paintBridge(f) {
+// part … のびて いる とちゅう（1/3・2/3。先は 光の つぶ）/ 1 … とちゅうで 止まった 橋
+function paintBridge(f, part = 1) {
   const W = 80, H = 96, p = new Painter(W, H);
   const k = f % 2;
   const C = ['#ff7a7a', '#ffb060', '#ffe070', '#7ae08a', '#7ab8ff', '#f4f8ff', '#c890ff'];
   // 弓なりの 光の 道（x 0→62 で y 95→18）
   const yOf = (x) => Math.round(95 - (x / 62) * 70 - Math.sin((x / 62) * Math.PI) * 10);
-  for (let x = 0; x <= 62; x++) {
+  const end = Math.round(62 * part);
+  for (let x = 0; x <= end; x++) {
     const y = yOf(x);
-    const fade = x > 50 ? (62 - x) / 12 : 1;
+    const fade = part === 1 && x > 50 ? (62 - x) / 12 : 1;
     for (let i = 0; i < 7; i++) {
       if (fade < 1 && (x + i + k) % 2 === 0) continue;
       p.set(x, y - 3 + i, C[i]);
     }
     if (x % 6 === k * 3) p.set(x, y - 4, '#ffffff');
+  }
+  // のびて いる 先（まだ とちゅう）: 光の つぶ
+  if (part < 1) {
+    const ex = end, ey = yOf(end);
+    for (let i = 0; i < 5; i++) p.set(ex + 1 + i, ey - 1 - ((i + k) % 3), i % 2 ? '#ffffff' : '#fff0a0');
+    return { p, oc: null };
   }
   // とぎれた 先: 光の つぶが 空へ（「まだ 先が ある」）
   const ex = 62, ey = yOf(62);
@@ -135,8 +143,10 @@ export function paintC10dSpecial(kind, dir, f) {
     case 'c10d_ped1_on': return paintPedOn(f);
     case 'c10d_ped8': return paintPed8();
     case 'c10d_bridge': return paintBridge(f);
+    case 'c10d_bridge1': return paintBridge(f, 1 / 3);
+    case 'c10d_bridge2': return paintBridge(f, 2 / 3);
     case 'c10d_glow': return paintGlow(f);
     default: return null;
   }
 }
-export const C10D_SPECIALS = ['c10d_guard', 'c10d_guard_s', 'c10d_mirror_f', 'c10d_mirror_c', 'c10d_ped1_on', 'c10d_ped8', 'c10d_bridge', 'c10d_glow'];
+export const C10D_SPECIALS = ['c10d_guard', 'c10d_guard_s', 'c10d_mirror_f', 'c10d_mirror_c', 'c10d_ped1_on', 'c10d_ped8', 'c10d_bridge', 'c10d_bridge1', 'c10d_bridge2', 'c10d_glow'];

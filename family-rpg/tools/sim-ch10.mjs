@@ -24,7 +24,7 @@ import { C10C_BATTLE_B as C10C_BATTLE } from '../public/js/shared/maps/c10c-flag
 import { c10cState, c10cBoss, onLit, litStones, tightOf } from '../public/js/shared/battle-c10c.js';
 import { TACTICS } from '../public/js/shared/ai.js';
 // 第99回 B班: 第2章 第4幕
-import { C10D_BATTLE_B as C10D_BATTLE } from '../public/js/shared/data/c10d-names-b.js';
+import { C10D_BATTLE_B as C10D_BATTLE } from '../public/js/shared/maps/c10d-flags.js';
 import { c10dState, mirrorOf10d, copyOf10d, neededColors } from '../public/js/shared/battle-c10d.js';
 import { ch9Allies } from './sim-ch9.mjs';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';

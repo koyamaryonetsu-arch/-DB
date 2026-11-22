@@ -7,7 +7,7 @@
 //   c10d_mirror … 光をはかる鏡 ミラーレ（いただき。Lv118）＋ うつし身（はじめは 見えない。HP 半分で 出る）
 //   にげられない。スピカは かならず 出る（てらす・星のうた も）。曲は F班の c10d_gate・c10d_mirror（id だけ 先に つないだ）
 import { C10D_SHARD, C10D_SHARD_W, C10D_SHARD_M, C10D_SHARD_S, C10D_MIRARE, C10D_COPY } from './monsters-c10d.js';
-import { C10D_BATTLE_B as C10D_BATTLE, C10D_TRACKS_B as C10D_TRACKS } from './c10d-names-b.js';
+import { C10D_BATTLE_B as C10D_BATTLE, C10D_TRACKS_B as C10D_TRACKS } from '../maps/c10d-flags.js';
 // 負けた 時の ヒントの 文（boss-hints-c10d.js が mergeBossHints を よぶ）
 import './boss-hints-c10d.js';
 

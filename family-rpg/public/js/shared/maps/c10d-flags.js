@@ -91,3 +91,23 @@ export const C10D_LV = { gate1: 115, gate2: 116, gate3: 116, gate4: 117, mirror:
 
 // ───── 幕の 切りかえ ─────
 export const C10D_OPEN = 'PART3_C10D_OPEN'; // data/story-c10.js
+
+// ───── B班の かりの 置き場（data/c10d-names-b.js。合わせた 時に 消した）に あった 形（同じ 名前・同じ 値。B の ファイルは as で よぶ）─────
+export const C10D_B = {
+  act3: C10D_ACT3, start: C10D.start, top: C10D.top, gate1: C10D.gate1, gate2: C10D.gate2, gate3: C10D.gate3, gate4: C10D.gate4,
+  mirror: C10D.mirror, noteDo: C10D.note, bridge: C10D.bridge, act4: C10D.act4,
+};
+export const C10D_WELL_B = C10D_WELLS;
+export const C10D_PED_B = C10D_PED;
+// ちからの 水: 戦いの hooks.c10dPower（world/battles.js が world/c10d-steps.js の takePower10d を よぶ）で わたす。
+//   この リーダーの フラグは B班の かりの 形の まま のこす（だれも 立てない。セーブに のこる しるしは 作らない）
+export const C10D_POWER_B = 'c10d_power';
+export const C10D_MAP_B = { s1: C10D_MAP.stair1, s2: C10D_MAP.stair2, s3: C10D_MAP.stair3, top: C10D_MAP.summit };
+export const C10D_BATTLE_B = C10D_BATTLE;
+export const C10D_GATES_B = C10D_GATE_BATTLES;
+export const C10D_MON_PREFIX_B = C10D_MON_PREFIX;
+export const C10D_BOSS_MON_B = { mirror: C10D_MON.mirare, copy: C10D_MON.copy };
+export const C10D_CHEST_IDS_B = C10D_CHEST_IDS;
+export const C10D_NOTES_B = { do: NOTE_DO };
+export const C10D_TRACKS_B = C10D_TRACKS;
+export const C10D_OPEN_B = C10D_OPEN;

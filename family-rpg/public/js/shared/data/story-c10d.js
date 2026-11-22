@@ -23,6 +23,9 @@ import {
 import { PEDESTALS9C } from '../maps/c9c.js';
 import { MONSTERS } from './monsters.js';
 import { mergeBossHints } from './boss-hints.js';
+import { SHOPS } from './shops.js';
+import { C10D_SHOP_ADD } from './items-c10d.js';
+import { SHOP10C_CRATER } from './story-c10c.js';
 // 星の いずみ・門の しくみは world.c10d（world/c10d-steps.js の C10D_API。data から world を 読まない）
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -295,22 +298,31 @@ function bridgeScene() {
     ['wait', 1000],
     ['sfx', 'sparkle'],
     ...N('スピカの手の中で、7つの星の音が、\nふわりと、うかび上がった。'),
+    // 曲（F班の c10d_bridge。54.5 秒・くり返さない）は はじまって 51.8 秒で ふしが 止まる。
+    //   ここから スピカの ひとことまでの 間（wait）を 合わせて 52 秒 いじょうに して、ふしが 止まった あとに 言う（読む 時間の ぶん さらに おそく なる）
     ['bgm', C10D_TRACKS.bridge],
-    ['wait', 1200],
+    ['wait', 3000],
     ...N('7つの光が、ひとつずつ、空へ、のぼっていく…。'),
-    ['wait', 1400],
+    ['wait', 5000],
     ...HILL_STATUES10D.map((p, i) => ['actor', `glow_b${i}`, { sprite: 'c10d_glow', x: p.x + 0.5, y: p.y + 0.55, dir: 'down' }]),
     ...N('丘の、4つの像が、しずかに、光った。'),
-    ['wait', 1400],
+    ['wait', 5000],
     ['flash'],
-    ['actor', 'bridge_b', { sprite: 'c10d_bridge', x: Q.x + 0.5, y: Q.y + 0.5, dir: 'down' }],
+    ['actor', 'bridge_b', { sprite: 'c10d_bridge1', x: Q.x + 0.5, y: Q.y + 0.5, dir: 'down' }],
     ['look', Q.x + 0.5, Q.y - 2],
-    ...N('丘から、光の橋が、のびていく。\n空の、ずっと、ずっと、上へ――'),
-    ['wait', 2000],
+    ...N('丘から、光の橋が、のびていく。'),
+    ['wait', 7000],
+    ['remove', 'bridge_b'],
+    ['actor', 'bridge_b', { sprite: 'c10d_bridge2', x: Q.x + 0.5, y: Q.y + 0.5, dir: 'down' }],
+    ['wait', 7000],
+    ['remove', 'bridge_b'],
+    ['actor', 'bridge_b', { sprite: 'c10d_bridge', x: Q.x + 0.5, y: Q.y + 0.5, dir: 'down' }],
+    ...N('空の、ずっと、ずっと、上へ――'),
+    ['wait', 8000],
     ...N('……。'),
-    ['wait', 1400],
+    ['wait', 6000],
     ...N('橋は、空の、とちゅうで、止まった。'),
-    ['wait', 1600],
+    ['wait', 11000],
     ['look', P.x + 0.5, P.y - 1.5],
     ...S(SP, '…足りない。\nもうひとつ、音が、ある。'),
     ['wait', 1200],
@@ -441,11 +453,26 @@ export function applyCh10d(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = fa
   const S10 = c10dScripts(title, open, { ped: SCRIPTS.c9c_ped });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10D_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
+  // くぼ地の 武具屋: 幕の クリア（c10_act4）の あと 品が 4つ ふえる（B班の C10D_SHOP_ADD。第3幕の 店の あと）
+  makeShop10d();
+  if (!SCRIPTS.c9b_armorer?.c10d) {
+    const armOld = SCRIPTS.c9b_armorer;
+    SCRIPTS.c9b_armorer = Object.assign((x) => (x.flag(C10D.act4) ? [['shop', SHOP10D_CRATER]] : armOld ? armOld(x) : []), { c10d: true, c10c: true });
+  }
   if (!SCRIPTS.c5_altar?.c10d) {
     const altarOld = SCRIPTS.c5_altar;
     SCRIPTS.c5_altar = Object.assign((x) => (x.flag(C10D.start) && !x.flag(C10D.top) ? topScene() : altarOld ? altarOld(x) : []), { c10d: true });
   }
 }
+
+// ───── くぼ地の 武具屋（第3幕の 店 c10c_crater に、B班の C10D_SHOP_ADD を 足した 店）─────
+export const SHOP10D_CRATER = 'c10d_crater';
+function makeShop10d() {
+  if (SHOPS[SHOP10D_CRATER] || !SHOPS[SHOP10C_CRATER]) return;
+  const base10 = SHOPS[SHOP10C_CRATER];
+  SHOPS[SHOP10D_CRATER] = { ...base10, hello: 'いらっしゃい！\n金の星の音の、ふしぎな品が入ったぜ。', items: [...base10.items, ...C10D_SHOP_ADD.filter((id) => !base10.items.includes(id))] };
+}
+makeShop10d();
 
 // ───── 負けた 時の やり直し（E班の しくみ。ヒントの 文は B班。言う 人は ノクト）─────
 mergeBossHints({}, {

@@ -30,7 +30,7 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C10D_MIRARE, C10D_COPY } from './data/monsters-c10d.js';
 import { NARASU } from './data/abilities-c10d.js';
-import { C10D_B as C10D, C10D_POWER_B as C10D_POWER } from './data/c10d-names-b.js';
+import { C10D_B as C10D, C10D_POWER_B as C10D_POWER } from './maps/c10d-flags.js';
 import { TERU } from './data/abilities-c9b.js';
 import { SONG } from './data/abilities-c9d.js';
 import { canUse } from './ai.js';
