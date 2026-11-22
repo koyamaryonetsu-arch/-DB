@@ -3,7 +3,7 @@
 //   火竜を よぶ（火竜をよぶ・冷暖）は 烈火と おなじ r85bPlan に まかせる（4.96）。ここでは かけ合わせの 技（熱と風の全館運転）と 冷ぼう・かん気
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only）。しくみの ある ボスで みんな オートの 時は tacticsOf が 前の えらび方に する
 // 第98回 K3班: ボスに こくう（火竜をよぶ・冷暖）。MP の 計算は 烈火と おなじ（battle-r85b.js の ryuMp）
-import { ryuMp, ryuSetOf } from './battle-r85b.js?v=068632fa6d51';
+import { ryuMp, ryuSetOf } from './battle-r85b.js?v=c5f1443d1cb0';
 
 const badStatus = (x) => ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'].some((s) => x.status?.[s]);
 

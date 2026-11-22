@@ -6,11 +6,11 @@
 // ・くらやみ虫（darkOnly の 魔物）: 暗い 所では 目だけが 光って 見える
 // 2D も 2.5D も 同じ 計算（shared/maps/c9a-light.js）。光の ようすは サーバーの snap の c9a（パーティーで 同じ）
 // ・ながれ星のくぼ地（明るい マップ）: まん中が しずんだ かげ・光る かけら・星の子の まわりの 光（map.c9aCrater）
-import { T } from '../shared/tiles.js?v=068632fa6d51';
-import { MONSTERS } from '../shared/data/monsters.js?v=068632fa6d51';
-import { LIGHT_ME, lightCenters, litCells, unpackLit } from '../shared/maps/c9a-light.js?v=068632fa6d51';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=068632fa6d51';
-import { ctxOf } from './render/pixel.js?v=068632fa6d51';
+import { T } from '../shared/tiles.js?v=c5f1443d1cb0';
+import { MONSTERS } from '../shared/data/monsters.js?v=c5f1443d1cb0';
+import { LIGHT_ME, lightCenters, litCells, unpackLit } from '../shared/maps/c9a-light.js?v=c5f1443d1cb0';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=c5f1443d1cb0';
+import { ctxOf } from './render/pixel.js?v=c5f1443d1cb0';
 
 const DARK = 'rgba(2, 2, 8, 0.97)';
 

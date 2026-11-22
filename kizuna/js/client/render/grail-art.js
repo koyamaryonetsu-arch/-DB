@@ -1,6 +1,6 @@
 // 第88回 G12班: 聖はいの 水しょうの台（render/gacha-art.js の paintGachaSpecial から よぶ。{ p, oc } を かえす）
 //   r88_grail_altar … すきとおった 水色の 台。上に 3つの くぼみ（剣・鏡・玉の 色）。光が ゆらめく
-import { Painter } from './pixel.js?v=068632fa6d51';
+import { Painter } from './pixel.js?v=c5f1443d1cb0';
 
 function paintAltar(f) {
   const p = new Painter(16, 21);

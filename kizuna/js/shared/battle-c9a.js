@@ -20,26 +20,26 @@
 // ・ふつうの オート（家族が「オート」に した とき）: しくみを 使わない（防御も 明かりを わけるも えらばない ＝ 今の 自動の 動き）
 // ・知っている 人（シミュレーター tools/sim-ch9.mjs。b.knowsCh9 'know'）: 3人組 … 前ぶれで 1人が 防御・のこりは すいこみ口／
 //   ためし … ともしびが 消えた 仲間に 明かりを わける・いぶきで ねらわれた 人は 身を 守る。'blind'（知らない 人）は たまに 気づく だけ
-import { MONSTERS } from './data/monsters.js?v=068632fa6d51';
-import { ABILITIES } from './data/abilities.js?v=068632fa6d51';
-import { SHARE } from './data/abilities-c9a.js?v=068632fa6d51';
-import { C9A_NOZZLE } from './data/monsters-c9a.js?v=068632fa6d51';
-import { C9A } from './maps/c9a-flags.js?v=068632fa6d51';
+import { MONSTERS } from './data/monsters.js?v=c5f1443d1cb0';
+import { ABILITIES } from './data/abilities.js?v=c5f1443d1cb0';
+import { SHARE } from './data/abilities-c9a.js?v=c5f1443d1cb0';
+import { C9A_NOZZLE } from './data/monsters-c9a.js?v=c5f1443d1cb0';
+import { C9A } from './maps/c9a-flags.js?v=c5f1443d1cb0';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { pub, atbRate } from './battle.js?v=068632fa6d51';
-import { canUse } from './ai.js?v=068632fa6d51';
+import { pub, atbRate } from './battle.js?v=c5f1443d1cb0';
+import { canUse } from './ai.js?v=c5f1443d1cb0';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王（battle-c9b.js）
-import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=068632fa6d51';
+import { setupC9b, addTeru, teruPub, c9bGlow, c9bTurnStart, c9bEffect, c9bDamage, c9bKill, c9bPlan, c9bPub, c9bTell } from './battle-c9b.js?v=c5f1443d1cb0';
 // 第3部 第2章 第1幕: あつさ・カビ・スピカの ごほうび（battle-c10a.js）
-import { c10aAfter, c10GlowHeal, c10aAllyPub } from './battle-c10a.js?v=068632fa6d51';
+import { c10aAfter, c10GlowHeal, c10aAllyPub, someoneChooses } from './battle-c10a.js?v=c5f1443d1cb0';
 // 第3部 第2章 第2幕: 水の めもり・本物が 動いた・てらす（battle-c10b.js）
-import { c10bAfter } from './battle-c10b.js?v=068632fa6d51';
+import { c10bAfter } from './battle-c10b.js?v=c5f1443d1cb0';
 // 第3部 第2章 第3幕: てらす（まぶしい・とばりが 消える）・星のうた（音が 止まる）・うき石（battle-c10c.js）
-import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=068632fa6d51';
+import { c10cAfter, c10cAllyPub } from './battle-c10c.js?v=c5f1443d1cb0';
 // 第3部 第2章 第4幕: てらす（うつし身が 消える）・星のうた（まくが 1色 へる）・まくを まとい直す・しるし・金の 音の ごほうび（battle-c10d.js）
-import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js?v=068632fa6d51';
+import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js?v=c5f1443d1cb0';
 // 第3部 第3章 第1幕: 時計の 数・サメ・星が よみがえる・スピカの ながれ星（battle-c11a.js）
-import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js?v=068632fa6d51';
+import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js?v=c5f1443d1cb0';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -209,7 +209,24 @@ function setupTrial(b, h, lines) {
 }
 
 // ───────────── 味方が 1回 動いた あと（battle.js の executeNext・防御の さいご）: 星の子の ほのかな光 ─────────────
+// 第101回 R3班: 第3部の ボス戦の たおれた・生き返った 数（負けた 時の ひとこと … world/boss-hints.js の partyNote が 見る）
+//   b.c9life = { down: たおれて いる 味方の id, died: 1回 いじょう たおれた 味方の id, revives: 生き返った 回数 }。ゲストは 数えない
+export function c9Life(b) {
+  const L = (b.c9life ??= { down: new Set(), died: new Set(), revives: 0 });
+  for (const a of b.allies) {
+    if (a.kind === 'guest' || a.fled) continue;
+    if (!a.alive) {
+      L.down.add(a.id);
+      L.died.add(a.id);
+    } else if (L.down.has(a.id)) {
+      L.down.delete(a.id);
+      L.revives++;
+    }
+  }
+  return L;
+}
 export function c9aAfter(b, c, ev) {
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a) c9Life(b);
   // 第92回 第3便: 前ぶれの しるし（battle-tell.js。敵・味方の どの 行動の あとも 入れ直す）
   // 第3部 第2章 第1幕: あつさ・メカの あつさ・カビが 消える（battle-c10a.js。b.tell より 先）
   if (b.c10) c10aAfter(b, c, ev);
@@ -699,7 +716,8 @@ function trialPlan(b, c, h, mode, decide) {
 //   魔物の 仲間は わけない（魔物の 仲間は かたくて、わけまで すると 完全オートでも 5わり 勝って しまう。tools/sim-ch9.mjs の k1mon）
 function autoShare(b, c) {
   // 家族の キャラ（kind 'player'）の「オート」は 今までどおり（完全オートは 勝てない まま）
-  if (c.kind === 'player' || c.kind === 'monster' || !c.c9torch || !canUse(b, c, SHARE)) return null;
+  // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+  if (c.kind === 'player' || c.kind === 'monster' || !c.c9torch || !canUse(b, c, SHARE) || !someoneChooses(b)) return null;
   const t = unlitAllies(b).find((x) => !b.queue.some((q) => q.cmd?.id === SHARE && q.cmd.target === x.id));
   if (!t) return null;
   b.c9autoShare = (b.c9autoShare || 0) + 1;

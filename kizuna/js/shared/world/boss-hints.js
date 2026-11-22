@@ -10,11 +10,12 @@
 //   3. リーダー（ひとりの 時は 自分）は「もう一度いどむ／あとにする」を えらぶ。もう一度 … ボスの 台本が 始まる マスの 手前へ
 //      （いっしょに 戦って、同じ 所で 目を 覚ました 家族も いっしょに）。行き先が 分からない 戦いは えらぶ 文を 出さない
 //   全滅の 決まり（お金が 半分・いのりの場所で 回復）は かえない
-import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE } from '../data/boss-hints.js?v=068632fa6d51';
-import { JOBS } from '../data/jobs.js?v=068632fa6d51';
-import { MAPS, canStand, isBlocked } from '../maps/index.js?v=068632fa6d51';
-import { runSteps } from './scripts.js?v=068632fa6d51';
-import { partyOf } from './party.js?v=068632fa6d51';
+import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE, PARTY_NOTE_MAX } from '../data/boss-hints.js?v=c5f1443d1cb0';
+import { c9Life } from '../battle-c9a.js?v=c5f1443d1cb0';
+import { JOBS } from '../data/jobs.js?v=c5f1443d1cb0';
+import { MAPS, canStand, isBlocked } from '../maps/index.js?v=c5f1443d1cb0';
+import { runSteps } from './scripts.js?v=c5f1443d1cb0';
+import { partyOf } from './party.js?v=c5f1443d1cb0';
 
 const LOSS_MAX = 9;
 
@@ -52,14 +53,26 @@ function speakerOf(ctx) {
 //   allies … 戦いの 味方（battle.allies。kind 'player'・'support'・'monster'・'guest'）
 //   ① 味方（ゲストを のぞく）が 3人 いかで 自動の 仲間が いない → 4人で いどもう
 //   ② 自動の 仲間（酒場・家族の 仲間。魔物は 職業が ない）に Lv95 いじょうで 基本職の 人 → 転職と 装備
-export function partyNote(fixed, allies = []) {
+//   ③ 第101回 R3班: battle（戦い）を わたすと、戦いの 中で だれも 生き返らせて いない（生き返った 回数 0・たおれた 人 2人 いじょう）→ すぐ 生き返らせよう
+//   いちどに 出すのは PARTY_NOTE_MAX（2つ）まで。2つの 時は 1つの ことばの 中で 行を わける
+export function partyNote(fixed, allies = [], battle = null) {
   if (!PART3_BATTLE.test(String(fixed || ''))) return '';
+  const notes = [];
   const al = (allies || []).filter((a) => a && a.kind !== 'guest');
   const sups = al.filter((a) => a.kind === 'support' || a.kind === 'monster');
-  if (!sups.length) return al.length && al.length <= 3 ? PARTY_NOTE.few : '';
-  // 戦いの キャラ（battle.js の allyFromCharacter）の job・lv・name
-  const basic = sups.filter((a) => a.kind === 'support' && (a.lv || 0) >= BASIC_JOB_LV && JOBS[a.job]?.tier === 0).map((a) => a.name).filter(Boolean);
-  return basic.length ? PARTY_NOTE.basic([...new Set(basic)]) : '';
+  if (!sups.length) {
+    if (al.length && al.length <= 3) notes.push(PARTY_NOTE.few);
+  } else {
+    // 戦いの キャラ（battle.js の allyFromCharacter）の job・lv・name
+    const basic = sups.filter((a) => a.kind === 'support' && (a.lv || 0) >= BASIC_JOB_LV && JOBS[a.job]?.tier === 0).map((a) => a.name).filter(Boolean);
+    if (basic.length) notes.push(PARTY_NOTE.basic([...new Set(basic)]));
+  }
+  // （数えて いる 戦い〈battle-c9a.js の c9aAfter が b.c9life を 作る〉だけ。さいごの 1回も 数える）
+  if (battle?.c9life && battle.allies) {
+    const L = c9Life(battle);
+    if (L.revives === 0 && L.died.size >= 2) notes.push(PARTY_NOTE.revive);
+  }
+  return notes.slice(0, PARTY_NOTE_MAX).join('\n');
 }
 
 // finishBattle から（勝った → 数を 消す・全滅 → 数を 足して ヒントの よやく）
@@ -76,7 +89,7 @@ export function bossHintAfter(world, ctx, sessions, outcome) {
   const who = speakerOf(ctx);
   const sids = sessions.map((m) => m.id);
   // 第101回 R1班: 第3部の ボスは、パーティーの ようすで ひとこと 足す（ない 時は つけない）
-  const note = partyNote(id, ctx.battle?.allies);
+  const note = partyNote(id, ctx.battle?.allies, ctx.battle);
   for (const m of sessions) {
     const n = addLoss(m.char, id);
     m.bossHint = { id, n, who, map: ctx.map, choose: m === chooser, sids, ...(note ? { note } : {}) };

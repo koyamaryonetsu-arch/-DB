@@ -8,23 +8,23 @@
 //   あらし・なみだ・くずれ までの しるし・千年の約束の 光の ゲージ・こうら・へび
 // ・コマンド: 心が ゆらいだ 時の「よびかける」・光が たまった 時の「千年の約束」・一騎うちの「おうえん」を いちばん 上に（c8rCmdItems・c8rCmdPick）
 // ・バナー・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js に まぜる）
-import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=068632fa6d51';
-import { monsterCanvas } from './render/monsters.js?v=068632fa6d51';
+import { C8_GATE1, C8_GATE2, C8_GATEKEEPER, C8_SOLITUS, C8_WIND, C8_SHADOW } from '../shared/data/monsters-c8r.js?v=c5f1443d1cb0';
+import { monsterCanvas } from './render/monsters.js?v=c5f1443d1cb0';
 // 第3部 第1章 第1幕（battle-c9a.js）
-import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js?v=068632fa6d51';
-import { C9B_OWN_TELE } from './battle-c9b.js?v=068632fa6d51';
-import { C9C_OWN_TELE } from './battle-c9c.js?v=068632fa6d51';
-import { C9D_OWN_TELE } from './battle-c9d.js?v=068632fa6d51';
+import { C9A_OWN_TELE, c9aSprite, c9aDraw, c9aPresent, c9aCmdItems, c9aCmdPick } from './battle-c9a.js?v=c5f1443d1cb0';
+import { C9B_OWN_TELE } from './battle-c9b.js?v=c5f1443d1cb0';
+import { C9C_OWN_TELE } from './battle-c9c.js?v=c5f1443d1cb0';
+import { C9D_OWN_TELE } from './battle-c9d.js?v=c5f1443d1cb0';
 // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
-import { C10A_OWN_TELE } from './battle-c10a.js?v=068632fa6d51';
+import { C10A_OWN_TELE } from './battle-c10a.js?v=c5f1443d1cb0';
 // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js）
-import { C10B_OWN_TELE } from './battle-c10b.js?v=068632fa6d51';
+import { C10B_OWN_TELE } from './battle-c10b.js?v=c5f1443d1cb0';
 // 第3部 第2章 第3幕: たいさ・アルゴル（battle-c10c.js）
-import { C10C_OWN_TELE } from './battle-c10c.js?v=068632fa6d51';
+import { C10C_OWN_TELE } from './battle-c10c.js?v=c5f1443d1cb0';
 // 第3部 第2章 第4幕: 門の 番人・ミラーレ（battle-c10d.js）
-import { C10D_OWN_TELE } from './battle-c10d.js?v=068632fa6d51';
+import { C10D_OWN_TELE } from './battle-c10d.js?v=c5f1443d1cb0';
 // 第3部 第3章 第1幕: 星座のけもの・いかり船長（battle-c11a.js）
-import { C11A_OWN_TELE } from './battle-c11a.js?v=068632fa6d51';
+import { C11A_OWN_TELE } from './battle-c11a.js?v=c5f1443d1cb0';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8c.js の C8C_OWN_TELE に まぜる）
 // 第3部 第1章 第2幕（battle-c9b.js）

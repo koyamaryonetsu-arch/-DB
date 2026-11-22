@@ -16,14 +16,15 @@
 //   いっしょに ドーン: 2体が そろって いる 時、2体で doon.every 回 動く ごとに 前ぶれ（m9m_doonup）→ doon.wait 回 あとの その 体の 番に 全体へ（m9m_doon）
 // ・自動の 仲間（酒場の 人）は 3回に 1回、HPの 多い 方を ねらう（AUTO_EVERY。数は みんなで 1つ）。家族の キャラの「オート」と 魔物の 仲間は ねらい分けない
 // ・人数で 合わせる（few・solo・monK）は 第2幕・第3幕と おなじ 数え方（魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=068632fa6d51';
-import { ABILITIES } from './data/abilities.js?v=068632fa6d51';
-import { SONG } from './data/abilities-c9d.js?v=068632fa6d51';
-import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=068632fa6d51';
-import { C9D } from './maps/c9d-flags.js?v=068632fa6d51';
-import { canUse } from './ai.js?v=068632fa6d51';
+import { MONSTERS } from './data/monsters.js?v=c5f1443d1cb0';
+import { ABILITIES } from './data/abilities.js?v=c5f1443d1cb0';
+import { SONG } from './data/abilities-c9d.js?v=c5f1443d1cb0';
+import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js?v=c5f1443d1cb0';
+import { C9D } from './maps/c9d-flags.js?v=c5f1443d1cb0';
+import { canUse } from './ai.js?v=c5f1443d1cb0';
 // 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
-import { pickPeople } from './battle-c9a.js?v=068632fa6d51';
+import { pickPeople } from './battle-c9a.js?v=c5f1443d1cb0';
+import { someoneChooses } from './battle-c10a.js?v=c5f1443d1cb0';
 
 export { SONG };
 export const SPLIT = 'm9m_split';
@@ -554,7 +555,8 @@ export function c9dPlan(b, c, decide, bestHit) {
   void FINISH;
   if (mode !== 'know' && mode !== 'blind') {
     // 自動の 人の 仲間（酒場の 人）: 3回に 1回、HPの 多い 方を ねらう（家族の キャラの オート・魔物の 仲間は ねらい分けない）
-    if (c.kind === 'player' || c.kind === 'monster' || up.length < 2) return null;
+    // 第101回 R3班: 自動の 仲間が しくみを 使うのは、人が えらんで いる 時だけ（第2章と 同じ きまり。battle-c10a.js の someoneChooses。完全オートは 勝てない）
+    if (c.kind === 'player' || c.kind === 'monster' || up.length < 2 || !someoneChooses(b)) return null;
     b.c9mAuto = (b.c9mAuto || 0) + 1;
     if (b.c9mAuto % AUTO_EVERY) return null;
     return bestHit(b, c, high);

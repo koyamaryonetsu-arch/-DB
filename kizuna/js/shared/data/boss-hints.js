@@ -8,7 +8,7 @@
 //
 // ほかの ファイルの 表を まぜる: mergeBossHints(ヒントの 表, { retry, who })
 //   例（第8章 第4幕。B班の data/boss-hints-c8r.js）:
-//     import { mergeBossHints } from './boss-hints.js?v=068632fa6d51';
+//     import { mergeBossHints } from './boss-hints.js?v=c5f1443d1cb0';
 //     export const C8R_BOSS_HINTS = { c8_gatekeeper: ['…', '…', '…'] };
 //     mergeBossHints(C8R_BOSS_HINTS, { retry: { c8_gatekeeper: '台本の id' } });
 //   その ファイルは 自分の 戦いの ファイル（encounters-c8r.js など）から import する。ない 時は 何も まざらない（この ファイルは 読まない）
@@ -133,7 +133,11 @@ export const BASIC_JOB_LV = 95;
 export const PARTY_NOTE = {
   few: 'もっと仲間をさそって、4人でいどむと、戦いやすいぞ。',
   basic: (names) => `${names.join('と')}は、まだ初めの職業のままだ。神殿で転職させて、装備も見直そう。`,
+  // 第101回 R3班: 戦いの 中で だれも 生き返らせなかった（生き返った 回数 0・たおれた 人 2人 いじょう。battle-c9a.js の c9Life）
+  revive: 'たおれた仲間は、ザオリクや道具で、すぐに生き返らせよう。',
 };
+// いちどに 出す ひとことは 2つまで（few か basic ＋ revive）
+export const PARTY_NOTE_MAX = 2;
 
 // ほかの ファイルの 表を まぜる（同じ id は あとの 物）
 export function mergeBossHints(hints = {}, { retry = {}, who = {} } = {}) {
