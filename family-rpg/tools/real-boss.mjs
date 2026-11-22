@@ -17,7 +17,7 @@ import { companionJoin, recruitNpc, companionOf } from '../public/js/shared/worl
 import { decideAlly } from '../public/js/shared/ai.js';
 import { NPC_SUPPORTS } from '../public/js/shared/data/shops.js';
 import { fullHeal } from '../public/js/shared/stats.js';
-import { CH9_IDS, LV9, MODES9, ch9Party, ch9Run, summary9 } from './sim-ch9.mjs';
+import { CH9_IDS, LV9, MODES9, ch9Party, ch9Run, summary9, STATS9_HOOKS } from './sim-ch9.mjs';
 import { ORDER_FLAGS, ORDERS_OF, c10cText, c10dText, c10Text, c10bText } from './sim-ch10.mjs';
 import { jobChar } from './sim-jobs.mjs';
 // 第101回 B班: 第3部 第3章 第1幕の 星座のけもの（beast）・いかり船長（pirate）も（CH9_IDS・ORDER_FLAGS・知って いる 人の しくみの 役を 足す）
@@ -27,6 +27,8 @@ import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { mpCost } from '../public/js/shared/stats.js';
 import { canUse } from '../public/js/shared/ai.js';
 import { Bot, tickN } from '../test/helpers.js';
+// 第101回 R3班: かんたんな 人（第3部の ボス 全部。tools/sim-easy.mjs）
+import { easyCmd } from './sim-easy.mjs';
 import { fixedWorld, addPlayer } from '../test/c9a-play.js';
 
 const COPY = ['level', 'exp', 'job', 'jobs', 'jobSys', 'skillUse', 'hirameki', 'equip', 'hp', 'mp', 'status'];
@@ -149,7 +151,11 @@ export async function realSetup(boss, party, seed, { lv = LV9[boss] } = {}) {
 //   mech … しくみの コマンド（うつる・てらす・星のうた・鳴らす・身を 守る）だけ。ほかの 番は「戦う」でボスを たたく
 //          （前の ブラウザの しらべ方の 勇者と 同じ えらび方）
 //   idle … 何も えらばない（番が 来ても まどを 開いた まま）
-//   easy … かんたんな 人（第101回 B班。第3章 第1幕）: 時計を 持って いて あと 2 いか なら「時計を投げる」・前ぶれで ねらわれたら 防御・
+//   easy … かんたんな 人（第101回 R3班。第3部の ボス 全部。tools/sim-easy.mjs の easyCmd）: しくみの コマンドは 知って いる 人と 同じ
+//          （そのボスの しくみの 役 … 前ぶれで 防御・鳴らす・時計・うつる・てらす・皿・なぞ など）・たおれた 仲間が いれば 生き返らせる 技か 道具・
+//          HP 4わり いかの 仲間が いれば 回復の 技（全体が あれば それ）か 道具・ほかは いちばん 強い こうげきの 技か「戦う」（HPの 多い 敵）
+//   easy0 … easy から「生き返らせる」を ぬいた 物
+//   easy11 … 前の かんたんな 人（第101回 B班。第3章 第1幕 だけの しくみ）: 時計を 持って いて あと 2 いか なら「時計を投げる」・前ぶれで ねらわれたら 防御・
 //          味方の HPが 少ない（4わり いか）時は 回復の 技・ほかは いちばん 強い こうげきの 技（全体攻撃が あれば それ）か「戦う」。
 //          ねらいは HPが いちばん 多い 敵（けもの … 星を そろえて けずる）。合体技・番の 読みは しない
 const isDmg = (ab) => ['phys', 'magic', 'multi'].includes(ab?.effect?.type);
@@ -184,7 +190,8 @@ function easyPick(b, a, plain = false) {
 }
 const MECH_IDS = new Set(['m10_utsuru', 'm9_teru', 'm9_hoshiuta', 'm10_narasu']);
 function humanPick(b, a, boss, how = process.env.HUMAN || 'know') {
-  if (how === 'easy' || how === 'plain') return easyPick(b, a, how === 'plain');
+  if (how === 'easy' || how === 'easy0') return easyCmd(b, a, { revive: how === 'easy' });
+  if (how === 'easy11' || how === 'plain') return easyPick(b, a, how === 'plain');
   if (how === 'mech') {
     a.knows9 = 'know';
     try {
@@ -214,7 +221,7 @@ function knowPick(b, a, boss) {
   }
 }
 
-export async function realRun(boss, party, seed, { react = envNum('REACT', 2000), log = false } = {}) {
+export async function realRun(boss, party, seed, { react = envNum('REACT', 2000), log = false, human = process.env.HUMAN || 'know' } = {}) {
   for (const k of Object.keys(TALLY)) delete TALLY[k];
   const { world, humans, lead } = await realSetup(boss, party, seed);
   let result = null;
@@ -230,6 +237,7 @@ export async function realRun(boss, party, seed, { react = envNum('REACT', 2000)
   const sent = {};
   const n = { rej: 0 };
   let lastLog = 0;
+  const dm = { maxHit: 0, big: 0, aoe: 0, deaths: 0, oneShot: 0, revived: 0, firstDeath: null };
   while (!b.over && real < 30 * 60 * 1000) {
     for (const h of humans) {
       // 合体技の さそい（画面の「参加する？」）: 人は REACT ミリびょうで「はい」（道具と 同じ）
@@ -245,9 +253,9 @@ export async function realRun(boss, party, seed, { react = envNum('REACT', 2000)
         if (a.controller !== h.s.id || a.invited || a.inviting) continue; // さそって いる・さそわれて いる 間は 返事を 待つ
         if (!a.ready || !a.alive || b.pendingEnd) { readyAt.delete(a.id); continue; }
         if (!readyAt.has(a.id)) readyAt.set(a.id, real);
-        if (real - readyAt.get(a.id) < react || process.env.HUMAN === 'idle') continue;
+        if (real - readyAt.get(a.id) < react || human === 'idle') continue;
         readyAt.delete(a.id);
-        const cmd = humanPick(b, a, boss);
+        const cmd = humanPick(b, a, boss, human);
         const n0 = h.msgs.length;
         h.send({ t: 'battle', actor: a.id, cmd });
         if (h.msgs.slice(n0).some((m) => m.t === 'battleRej')) {
@@ -259,8 +267,24 @@ export async function realRun(boss, party, seed, { react = envNum('REACT', 2000)
         }
       }
     }
+    // 第101回 R3班: 負け方を 見る（1回の tick で へった HP … ふつうの 攻撃 1回の 大きさ・何人 同時に へったか〈全体攻撃〉・たおれた／生き返った）
+    const hp0 = b.allies.map((x) => [x, x.hp, x.alive]);
     await tickN(world, 1);
     real += 50;
+    {
+      let hitN = 0;
+      for (const [x, h, al] of hp0) {
+        const d = h - Math.max(0, x.hp);
+        if (d > 0 && al) {
+          hitN++;
+          dm.maxHit = Math.max(dm.maxHit, d / x.maxHp);
+          if (d >= x.maxHp * 0.5) dm.big++;
+        }
+        if (al && !x.alive) { dm.deaths++; dm.firstDeath ??= real / 1000; if (h >= x.maxHp * 0.6) dm.oneShot++; }
+        if (!al && x.alive) dm.revived++;
+      }
+      if (hitN >= 3) dm.aoe++;
+    }
     if (log && real - lastLog >= 10000) {
       lastLog = real;
       console.log(`  ${real / 1000}s 味方 ${b.allies.map((x) => `${x.name}${x.hp}`).join(' ')} 敵 ${b.enemies.map((x) => `${x.name}${x.hp}`).join(' ')}`);
@@ -272,9 +296,10 @@ export async function realRun(boss, party, seed, { react = envNum('REACT', 2000)
     outcome: b.result?.outcome || 'timeout', seconds: Math.round(real / 1000),
     hpLeft: al.reduce((s, x) => s + x.hp, 0) / al.reduce((s, x) => s + x.maxHp, 0), deaths: al.filter((x) => !x.alive).length,
     bossLeft: foes.reduce((s, e) => s + Math.max(0, e.hp), 0) / Math.max(1, foes.reduce((s, e) => s + e.maxHp, 0)),
-    sent, rej: n.rej, result, tally: { ...TALLY },
+    sent, rej: n.rej, result, tally: { ...TALLY }, dm,
+    mpLeft: al.filter((x) => x.controller).reduce((t, x) => t + x.mp, 0) / Math.max(1, al.filter((x) => x.controller).reduce((t, x) => t + x.maxMp, 0)),
     allies: al.map((x) => ({ name: x.name, kind: x.kind, job: x.job, lv: x.lv, maxHp: x.maxHp, tactics: x.tactics, auto: x.auto, controller: x.controller ? 'h' : null })),
-    stats: boss === 'colonel' || boss === 'algol' ? statsC10c(b) : boss === 'mirror' ? statsC10d(b) : boss === 'beast' || boss === 'pirate' ? statsC11a(b) : {},
+    stats: boss === 'colonel' || boss === 'algol' ? statsC10c(b) : boss === 'mirror' ? statsC10d(b) : boss === 'beast' || boss === 'pirate' ? statsC11a(b) : Object.assign({}, ...STATS9_HOOKS.map((f) => f(b))),
   };
   for (const h of humans) h.send({ t: 'quit' });
   return res;
@@ -307,12 +332,14 @@ if (process.argv[1]?.endsWith('real-boss.mjs')) {
       if (res.length) {
       const s = summary9(res);
       const avg = (f) => res.reduce((t, r) => t + f(r), 0) / res.length;
-      console.log(`■ 本物 ${boss} ${party} ${react / 1000}秒 ${N}回 勝率 ${Math.round(s.rate * 100)}%（勝ち${s.sec.toFixed(0)}秒） 平均${avg((r) => r.seconds).toFixed(0)}秒 ボス残${(avg((r) => r.bossLeft) * 100).toFixed(0)}% 死者${avg((r) => r.deaths).toFixed(2)} はねかえり${avg((r) => r.rej).toFixed(1)} ${JSON.stringify(Object.fromEntries(Object.keys(res[0].stats).map((k) => [k, +avg((r) => r.stats[k] || 0).toFixed(1)])))}`);
+      console.log(`■ 本物 ${boss} ${party} ${react / 1000}秒 ${N}回 勝率 ${Math.round(s.rate * 100)}%（勝ち${s.sec.toFixed(0)}秒） 平均${avg((r) => r.seconds).toFixed(0)}秒 ボス残${(avg((r) => r.bossLeft) * 100).toFixed(0)}% 死者${avg((r) => r.deaths).toFixed(2)} はねかえり${avg((r) => r.rej).toFixed(1)} ${JSON.stringify(Object.fromEntries(Object.keys(res[0].stats).map((k) => [k, +avg((r) => r.stats[k] || 0).toFixed(1)])))}`
+          + `\n    負け方: 1回の 最大 ${(avg((r) => r.dm.maxHit) * 100).toFixed(0)}%HP・半分いじょう ${avg((r) => r.dm.big).toFixed(1)}回・3人いじょう同時 ${avg((r) => r.dm.aoe).toFixed(1)}回・たおれた ${avg((r) => r.dm.deaths).toFixed(1)}（6わり いじょうから 1回で ${avg((r) => r.dm.oneShot).toFixed(1)}）・生き返った ${avg((r) => r.dm.revived).toFixed(1)}・はじめて たおれた ${(res.filter((r) => r.dm.firstDeath != null).reduce((t, r) => t + r.dm.firstDeath, 0) / Math.max(1, res.filter((r) => r.dm.firstDeath != null).length)).toFixed(0)}秒・人の MP のこり ${(avg((r) => r.mpLeft) * 100).toFixed(0)}%・時間切れ ${res.filter((r) => r.outcome === 'timeout').length}`
+          + `\n    えらんだ: ${JSON.stringify(Object.fromEntries([...new Set(res.flatMap((r) => Object.keys(r.sent)))].map((k) => [k, +avg((r) => r.sent[k] || 0).toFixed(1)]).sort((x, y) => y[1] - x[1]).slice(0, 14)))}`);
       }
       if (process.env.SIM || process.env.SIMONLY) {
         const simParty = party;
         const SN = envNum('SIMN', N);
-        const sr = [...Array(SN).keys()].map((i) => ch9Run(boss, LV9[boss], 'know', SEED0 + i * 7919, { party: simParty, react, flags: flagsOf(boss) }));
+        const sr = [...Array(SN).keys()].map((i) => ch9Run(boss, LV9[boss], ['easy', 'easy0'].includes(process.env.HUMAN) ? process.env.HUMAN : 'know', SEED0 + i * 7919, { party: simParty, react, flags: flagsOf(boss) }));
         const ss = summary9(sr);
         console.log(`■ 道具 ${boss} ${party} ${react / 1000}秒 ${SN}回 勝率 ${Math.round(ss.rate * 100)}%（勝ち${ss.sec.toFixed(0)}秒）${c10Text(sr)}${c10bText(sr)}${c10cText(sr)}${c10dText(sr)}`);
       }
