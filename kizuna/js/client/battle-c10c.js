@@ -7,10 +7,10 @@
 // ・コマンド: たいさの 戦いは いちばん 上に「うつる」（自分の 石が 光って いる 時は「にげろ！」）。行き先は 3つの 石から えらぶ（的えらびと おなじ 1回で 決まる まど）
 //   アルゴルの 戦いは コマンドの せつめいで「強くなる技は、食べられる」「星の音が来る … 星のうた」「暗い … てらす」
 // ・勝った あと: たいさは しょんぼり・アルゴルは ひざを つく（え の コマ 2・3。たおれても 消えない）
-import { C10C_COLONEL, C10C_ALGOL } from '../shared/data/monsters-c10c.js?v=6a6b763889f6';
-import { UTSURU } from '../shared/data/abilities-c10c.js?v=6a6b763889f6';
-import { STONE_NAMES } from '../shared/battle-c10c.js?v=6a6b763889f6';
-import { monsterCanvas } from './render/monsters.js?v=6a6b763889f6';
+import { C10C_COLONEL, C10C_ALGOL } from '../shared/data/monsters-c10c.js?v=98a59fb17475';
+import { UTSURU } from '../shared/data/abilities-c10c.js?v=98a59fb17475';
+import { STONE_NAMES } from '../shared/battle-c10c.js?v=98a59fb17475';
+import { monsterCanvas } from './render/monsters.js?v=98a59fb17475';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C10C_OWN_TELE = [C10C_COLONEL, C10C_ALGOL];

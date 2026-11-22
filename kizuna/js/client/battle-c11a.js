@@ -5,10 +5,10 @@
 // ・仲間の まど: 時計を 持って いる 人の 名前の 横に「時計 5」の しるし（あと 2 いかは 赤）
 // ・え: 船長が にげる え（コマ 2・3）・船長の 頭の 上に 時計の しるし（船長が 持って いる 時）・目を 回して いる 星
 // ・コマンド: 時計を 持って いる 人に だけ、いちばん 上に「時計を投げる」（あと ○ の 文字）。1回で 決定（えらぶ まどは ない）
-import { C11A_CAPTAIN, C11A_STARS, CAPTAIN_SHORT } from '../shared/data/monsters-c11a.js?v=6a6b763889f6';
-import { TOKEI_NAGE } from '../shared/data/abilities-c11a.js?v=6a6b763889f6';
-import { monsterCanvas } from './render/monsters.js?v=6a6b763889f6';
-import { playC11aBite, playC11aClock } from './render/battlefx-c11a.js?v=6a6b763889f6';
+import { C11A_CAPTAIN, C11A_STARS, CAPTAIN_SHORT } from '../shared/data/monsters-c11a.js?v=98a59fb17475';
+import { TOKEI_NAGE } from '../shared/data/abilities-c11a.js?v=98a59fb17475';
+import { monsterCanvas } from './render/monsters.js?v=98a59fb17475';
+import { playC11aBite, playC11aClock } from './render/battlefx-c11a.js?v=98a59fb17475';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C11A_OWN_TELE = [C11A_CAPTAIN, ...C11A_STARS];
@@ -30,6 +30,7 @@ const isStar = (c) => C11A_STARS.includes(c?.species);
 const ROLE = { head: 'あたま', chest: 'むね', tail: 'しっぽ' };
 const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
+// .b-banner.c11a-bn … 大きな 知らせ: この 幕の 戦いでは 1つずつ（前の 知らせを 消す）・はばに おさめて 折り返す（スマホで 2つ かさなって 読めなかった）
 const CSS = `
 .c11a-top { position: absolute; right: 4px; top: 4px; z-index: 4; max-width: 52%; pointer-events: none;
   padding: 3px 8px 4px; border-radius: 10px; text-align: left; line-height: 1.35; color: #eaf2ff;
@@ -58,6 +59,8 @@ const CSS = `
 .c11a-badge { display: inline-block; margin-left: 3px; padding: 0 4px; border-radius: 7px; font-size: 10px; font-weight: bold; line-height: 1.4;
   background: #ffd040; color: #3a1a00; vertical-align: middle; }
 .c11a-badge.hot { background: #ff4a3a; color: #ffffff; animation: c11a-shake 0.35s infinite; }
+.b-banner.c11a-bn { white-space: normal; width: 94%; max-width: 94%; text-align: center; line-height: 1.25; box-sizing: border-box; }
+@media (max-aspect-ratio: 1/1) { .b-banner.c11a-bn { font-size: min(var(--fs-big), 5.4vw); top: 18%; } }
 `;
 function addCss() {
   if (typeof document === 'undefined' || document.getElementById('c11a-css')) return;
@@ -198,6 +201,7 @@ function clockMark(x, cx, cy, n, base, T) {
 // ───────────── たたかいの え（client/battle-c9b.js の c9bDraw の さいご）─────────────
 export function c11aDraw(scene, x, m, c, px, py, w, h, base) {
   if (!isCap(c) && !isStar(c)) return;
+  c11aBannerOne(scene);
   const T = scene.time || 0;
   const allies = scene.allies?.() || [];
   const foes = foesOf(scene).filter((e) => e.alive || isStar(e)).concat(isCap(c) && c.c11Down && !c.alive ? [c] : []);
@@ -227,7 +231,19 @@ export function c11aDraw(scene, x, m, c, px, py, w, h, base) {
 }
 
 // ───────────── イベントを 見せる とき（client/battle-c9b.js の c9bPresent の さいご）─────────────
+// この 幕の 戦いの 間は、大きな 知らせを 1つずつ 出す（ほかの 章の 知らせも ふくめて、前の 物を 消す）
+export function c11aBannerOne(scene) {
+  if (!scene || scene._c11aBn || typeof scene.banner !== 'function') return;
+  const orig = scene.banner.bind(scene);
+  scene._c11aBn = true;
+  scene.banner = (text, cls = '') => {
+    scene.stage?.querySelectorAll?.('.b-banner')?.forEach((x) => x.remove());
+    addCss();
+    return orig(text, `${cls} c11a-bn`);
+  };
+}
 export function c11aPresent(scene, ev) {
+  if (foesOf(scene).length) c11aBannerOne(scene);
   const g = scene.game;
   const warn = (t) => { g.audio.sfx('warn'); scene.banner(t, 'danger'); };
   const good = (t, s = 'crit') => { g.audio.sfx(s); scene.banner(t, 'combo'); };

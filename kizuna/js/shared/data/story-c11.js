@@ -8,8 +8,8 @@
 //   ・applyCh11 … だいほんを まぜる 入口（story.js が よぶ）
 //   ・題の 画面（c11aTitleSteps）・第2章 クリアの 目標の 文（C11A_START_OBJ。story-c10.js が 使う）
 // story-c10.js から 読まれるので、story.js・story-c9*.js・story-c10*.js を import しない こと
-import { C11A_LINE } from '../maps/c11a-flags.js?v=6a6b763889f6';
-import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=6a6b763889f6';
+import { C11A_LINE } from '../maps/c11a-flags.js?v=98a59fb17475';
+import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=98a59fb17475';
 
 // ───── 第1幕「星の船と、星座の島」を 開ける 切りかえ（17-5・17-6。第100回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第2章 クリアの 目標は「第3部　第3章へ（続きはアップデートで！）」・

@@ -12,18 +12,18 @@
 import {
   C9A, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_PREP_ASK, C9A_SHARD_N, c9aShard, C9A_FOREST_IN, c9aSeen, C9A_ROPE, C9A_FORK_RING,
   C9A_MAP, C9A_BATTLE, C9A_BOSS_MON, SPICA_NAME, STAR_FORK, C9A_TRACKS, C9A_SECRETS, C9A_SECRET_ROOTS, c9aCaveId,
-} from '../maps/c9a-flags.js?v=6a6b763889f6';
-import { CRATER_POS } from '../maps/c9a-rows.js?v=6a6b763889f6';
-import { FOREST_POS9A } from '../maps/c9a-forest.js?v=6a6b763889f6';
-import { cavePos, caveEntry, STAIRS9A } from '../maps/c9a-cave.js?v=6a6b763889f6';
-import { LAMPS9A, KIDS9A } from '../maps/c9a-field.js?v=6a6b763889f6';
-import { PLACES } from '../maps/overworld.js?v=6a6b763889f6';
-import { SUITORU_NAME, HOSHIMORI_NAME } from './monsters-c9a.js?v=6a6b763889f6';
-import { SHOPS } from './shops.js?v=6a6b763889f6';
-import { C7_SHOP_TOOLS } from './items-c7.js?v=6a6b763889f6';
-import { innSteps } from './inn.js?v=6a6b763889f6';
-import { lineMember, jobLineNames } from './fq-common.js?v=6a6b763889f6';
-import { mergeBossHints } from './boss-hints.js?v=6a6b763889f6';
+} from '../maps/c9a-flags.js?v=98a59fb17475';
+import { CRATER_POS } from '../maps/c9a-rows.js?v=98a59fb17475';
+import { FOREST_POS9A } from '../maps/c9a-forest.js?v=98a59fb17475';
+import { cavePos, caveEntry, STAIRS9A } from '../maps/c9a-cave.js?v=98a59fb17475';
+import { LAMPS9A, KIDS9A } from '../maps/c9a-field.js?v=98a59fb17475';
+import { PLACES } from '../maps/overworld.js?v=98a59fb17475';
+import { SUITORU_NAME, HOSHIMORI_NAME } from './monsters-c9a.js?v=98a59fb17475';
+import { SHOPS } from './shops.js?v=98a59fb17475';
+import { C7_SHOP_TOOLS } from './items-c7.js?v=98a59fb17475';
+import { innSteps } from './inn.js?v=98a59fb17475';
+import { lineMember, jobLineNames } from './fq-common.js?v=98a59fb17475';
+import { mergeBossHints } from './boss-hints.js?v=98a59fb17475';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

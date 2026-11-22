@@ -8,10 +8,10 @@
 // ・中ボスの しるし: 大かんそうの 前ぶれ・砂の体・ぬすむの ねらい・シャッフルの 前ぶれ
 // ・勝った あと: ゲッコーは びしょぬれで しょんぼり・シロフクロウは おじぎ（え の コマ 2・3。たおれても 消えない）
 // ・コマンド: ゲッコーの 戦いは いちばん 上に「水の音を鳴らす」（水が 0 の 時は「今だ！」）
-import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, OWL_NAME } from '../shared/data/monsters-c10b.js?v=6a6b763889f6';
-import { MIZUOTO } from '../shared/data/abilities-c10b.js?v=6a6b763889f6';
-import { OWL_POS } from '../shared/battle-c10b.js?v=6a6b763889f6';
-import { monsterCanvas } from './render/monsters.js?v=6a6b763889f6';
+import { C10B_GECKO, C10B_OWL, C10B_OWL_FAKE, OWL_NAME } from '../shared/data/monsters-c10b.js?v=98a59fb17475';
+import { MIZUOTO } from '../shared/data/abilities-c10b.js?v=98a59fb17475';
+import { OWL_POS } from '../shared/battle-c10b.js?v=98a59fb17475';
+import { monsterCanvas } from './render/monsters.js?v=98a59fb17475';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C10B_OWN_TELE = [C10B_GECKO, C10B_OWL, C10B_OWL_FAKE];
