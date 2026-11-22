@@ -41,7 +41,7 @@ export function noteC11aStage(field) {
 export function c11aInput(field, ix, iy, canMove) {
   const m = field.map;
   if (!m?.c11aCons || field.riding || !canMove) { field.c11aLastDir = null; return false; }
-  if (Math.abs(ix) < 0.3 && Math.abs(iy) < 0.3) { field.c11aLastDir = null; return false; }
+  if (Math.abs(ix) < 0.3 && Math.abs(iy) < 0.3) { field.c11aLastDir = null; field.c11aWalkDir = null; return false; }
   const dir = Math.abs(ix) > Math.abs(iy) ? (ix > 0 ? 'right' : 'left') : (iy > 0 ? 'down' : 'up');
   const me = field.me;
   const tx = Math.floor(me.x), ty = Math.floor(me.y);
@@ -51,6 +51,9 @@ export function c11aInput(field, ix, iy, canMove) {
     const L = lineFrom11a(con, i, dir);
     if (!L) return false; // その 向きに 線は ない（地面へ おりる など ふつうに 歩く）
     me.dir = dir;
+    // 地面から 歩いて 星に 入った 時は、その 向きを いちど はなすまで とばない（入った 星では 何も おきない）
+    if (field.c11aWalkDir === dir) return true;
+    field.c11aWalkDir = null;
     const now = field.time;
     // 同じ 向きを おしっぱなしの 時は 少し 待つ（着いて すぐ 次の 線へ とばない）
     if (field.c11aLastDir === dir && now - (field.c11aSentAt || -1e9) < 900) return true;
@@ -61,6 +64,7 @@ export function c11aInput(field, ix, iy, canMove) {
     return true;
   }
   field.c11aLastDir = null;
+  field.c11aWalkDir = dir;
   return false;
 }
 
