@@ -174,9 +174,9 @@ export function startCount(b) {
 
 // ───────────── スピカの ごほうび「ながれ星」（battle-c9a.js の glow から。ほのかな光の あと）─────────────
 const SPICA_ACTOR = { id: 'spica', side: 'ally', kind: 'guest', name: 'スピカ', alive: true, status: {}, buffs: {}, debuffs: {} };
-let damageHook = null;
+let starDamageFn = null;
 // battle-c9b.js の c9bDamage（しかけの ダメージの くさり）を わたして もらう（じゅんかんを さける）
-export function setStarDamage(f) { damageHook = f; }
+export function setStarDamage(f) { starDamageFn = f; }
 export function c11GlowStar(b, ev) {
   if (!b?.c11rew?.star || !b.c9sp || b.pendingEnd || b.over) return null;
   const s = b.c9sp;
@@ -186,7 +186,7 @@ export function c11GlowStar(b, ev) {
   const t = foes.slice().sort((x, y) => y.hp - x.hp)[0];
   if (!t) return null;
   let dmg = Math.max(1, Math.round(Math.min(t.maxHp * STAR_RATE, STAR_MAX)));
-  if (damageHook) dmg = damageHook(b, SPICA_ACTOR, t, dmg, { element: 'light', c11Star: true }, ev);
+  if (starDamageFn) dmg = starDamageFn(b, SPICA_ACTOR, t, dmg, { element: 'light', c11Star: true }, ev);
   if (!(dmg > 0) || !t.alive) return null;
   t.hp = Math.max(0, t.hp - dmg);
   const lines = post(ev);
@@ -235,6 +235,8 @@ function beastAfter(b, c, ev) {
     const cf = c11aConf(e.species, b);
     s.dead = true;
     s.left = cf.revive;
+    // たおれた その 行動は 数えない
+    s.fresh = true;
     s.roarReady = false;
     s.aim = null;
     st.kills++;
@@ -253,6 +255,10 @@ function beastAfter(b, c, ev) {
   for (const e of stars) {
     const s = e.c11s;
     if (e.alive || !s.dead || !(s.left > 0)) continue;
+    if (s.fresh) {
+      s.fresh = false;
+      continue;
+    }
     s.left--;
     const nb = NEIGHBORS[e.species].map((sp) => stars.find((x) => x.species === sp)).filter((x) => x?.alive);
     if (s.left === 1) {
