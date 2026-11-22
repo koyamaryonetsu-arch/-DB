@@ -154,8 +154,7 @@ function setupPirate(b, cap, lines) {
     if (!a.abilities.includes(TOKEI_NAGE)) a.abilities = [TOKEI_NAGE, ...a.abilities];
   }
   // はじめの 時計（船長が 味方の 1人に 投げる）
-  const al = b.aliveAllies();
-  const t = al[b.rng.int(0, al.length - 1)];
+  const t = b.get(pickAim(b));
   const k = { no: 0, holder: t.id, n: startCount(b), wound: true, aim: null };
   b.c11a.clocks.push(k);
   lines.push(
@@ -391,18 +390,27 @@ function bite(b, k, ev, but = null) {
   lines.push(`${SHARK_NAME}は、時計をぺっとはき出した。${CAPTAIN_SHORT}が、それを拾った…！${aim ? `（つぎは、${aim.name}に投げるつもりだ！）` : ''}`);
 }
 // 船長が 時計を 投げる 相手（つぎの 番が いちばん 遠い 人を ねらう ことが 多い。時計を 持って いない 人から）
+//   第101回 見直し: 時計は「えらんで いる 人」（人が 動かす 仲間 … b.humans()）に 投げる。人が みんな たおれて いる・
+//   だれも えらんで いない（完全オート）時だけ、ほかの 仲間へ。人が 2人 いじょうなら 同じ 人に つづけて 行きすぎない ように
+export function choosersOf(b) {
+  return (b.humans?.() || []).filter((a) => a.alive && !a.fled);
+}
 function pickAim(b, but = null) {
   const st = b.c11a;
-  const al = b.aliveAllies();
+  const hs = choosersOf(b);
+  const al = hs.length ? hs : b.aliveAllies();
   if (!al.length) return null;
   const free = al.filter((a) => !st.clocks.some((k) => k.holder === a.id));
-  const pool = free.length ? free : al;
+  let pool = free.length ? free : al;
+  if (pool.length > 1 && st.lastAim) pool = pool.filter((a) => a.id !== st.lastAim);
+  let id;
   if (pool.length > 1 && b.rng.chance(0.7)) {
     const ord = turnOrder(b, but, 3);
     const idx = (a) => { const i = ord.indexOf(a.id); return i < 0 ? 99 : i; };
-    return pool.slice().sort((x, y) => idx(y) - idx(x))[0].id;
-  }
-  return pool[b.rng.int(0, pool.length - 1)].id;
+    id = pool.slice().sort((x, y) => idx(y) - idx(x))[0].id;
+  } else id = pool[b.rng.int(0, pool.length - 1)].id;
+  st.lastAim = id;
+  return id;
 }
 
 // これから 動く じゅん（id の ならび。but … 今 動いて いる 人〈次の 番は 1まわり あと〉。loops … 1人 なん回ぶん）
@@ -491,7 +499,9 @@ function pirateTurn(b, c, ev, stuck) {
   }
   if (stuck) return;
   // HPが 半分を 切ると 時計が 2つ（ひとりの 時は 1つ の まま）
-  if (!st.two && cf.two > 0 && c.hp <= c.maxHp * cf.two && b.allies.length > 1) {
+  // 時計の 数は「人の 数」まで（2つめは えらんで いる 人が 2人 いじょうの 時だけ。完全オートは 今までと おなじ 数え方）
+  const hs = choosersOf(b).length;
+  if (!st.two && cf.two > 0 && c.hp <= c.maxHp * cf.two && b.allies.length > 1 && (hs >= 2 || (!hs && !someoneChooses(b)))) {
     st.two = true;
     const k = { no: 1, holder: 'cap', n: startCount(b) + cf.twoPlus, wound: false, aim: pickAim(b) };
     st.clocks.push(k);

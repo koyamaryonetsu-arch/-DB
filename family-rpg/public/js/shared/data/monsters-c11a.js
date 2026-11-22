@@ -158,7 +158,7 @@ export const MONSTERS_C11A = {
   //   song … スピカの 星のうた で 数が へらない 回数（歌った 番の あと）
   //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・plus・spd）。solo … 仲間なしの ひとり（時計は 1つ）。monK … 魔物の 仲間 1体ごと
   [C11A_CAPTAIN]: {
-    name: CAPTAIN_NAME, short: CAPTAIN_SHORT, lv: 120, hp: 37000, mp: 9999, str: 7300, def: 420, agi: 260, mag: 1180, exp: 98000, gold: 34000,
+    name: CAPTAIN_NAME, short: CAPTAIN_SHORT, lv: 120, hp: 31000, mp: 9999, str: 8000, def: 420, agi: 260, mag: 1180, exp: 98000, gold: 34000,
     race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.22, hit: 'smash', artScale: 0.5,
     drops: { boss: ['c11ab_anchor_badge'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 0.8, ice: 1.0, wind: 1.0, bolt: 1.1, light: 1.0, dark: 1.0 },
@@ -169,10 +169,10 @@ export const MONSTERS_C11A = {
       hard: 0.3,
       anchor: { every: 3, first: 2, mult: 0.85, holder: 0.7, atb: 0 },
       song: 1,
-      few: { hp: [0.6, 0.58, 1, 1, 1.2], atk: [0.7, 0.66, 1, 1, 1.08], plus: [2, 2, 2, 2, 2], spd: [1, 1, 1, 1, 1] },
-      solo: { hp: 0.2, atk: 0.24, spd: 0.75, two: 0 },
+      few: { hp: [0.85, 0.75, 1, 1, 0.75], atk: [0.85, 0.78, 1, 1, 1.15], plus: [2, 2, 2, 2, 0], spd: [1, 1, 1, 1, 1] },
+      solo: { hp: 0.18, atk: 0.22, spd: 0.75, two: 0 },
       // 魔物の 仲間は 時計を 投げない（3回に 1回だけ）・生き返らせない ので、1体ごとに 船長を 弱く する
-      monK: { hp: -0.13, atk: -0.11 },
+      monK: { hp: -0.14, atk: -0.11 },
     },
     actions: [{ w: 3, id: 'm11p_saber' }, { w: 2, id: 'm11p_cannon', cond: 'notRecent:m11p_cannon' }, { w: 1, id: 'm11p_brag', cond: 'notRecent:m11p_brag' }],
     desc: '片手が、大きないかりの船長。いつもいばっているが、時計の音が大の苦手。',
