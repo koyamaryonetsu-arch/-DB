@@ -38,6 +38,8 @@ import { c10bAfter } from './battle-c10b.js';
 import { c10cAfter, c10cAllyPub } from './battle-c10c.js';
 // 第3部 第2章 第4幕: てらす（うつし身が 消える）・星のうた（まくが 1色 へる）・まくを まとい直す・しるし・金の 音の ごほうび（battle-c10d.js）
 import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js';
+// 第3部 第3章 第1幕: 時計の 数・サメ・星が よみがえる・スピカの ながれ星（battle-c11a.js）
+import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -190,7 +192,8 @@ export function c9aAfter(b, c, ev) {
   if (b.c10b) c10bAfter(b, c, ev);
   if (b.c10c) c10cAfter(b, c, ev);
   if (b.c10d) c10dAfter(b, c, ev);
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d) b.tell = c9Tell(b);
+  if (b.c11a) c11aAfter(b, c, ev);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
@@ -253,6 +256,9 @@ function glow(b, ev) {
   }
   // 第3部 第1章 第2幕: てらすが たまる・明るい 番が へる（battle-c9b.js）
   c9bGlow(b, out, lines);
+  // 第3部 第3章 第1幕: スピカの ごほうび「ながれ星」（battle-c11a.js）
+  const star = c11GlowStar(b, ev);
+  if (star) out.star = star;
   ev.c9Spica = out;
 }
 
@@ -714,7 +720,7 @@ export function c9aPub(c) {
     // 第3部 第2章 第1幕: あつさ・カビ（battle-c10a.js）
     // 第3部 第2章 第3幕: うき石・せまい（battle-c10c.js）
     // 第3部 第2章 第4幕: 色の しるし（battle-c10d.js）
-    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c), c10dAllyPub(c));
+    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c), c10dAllyPub(c), c11aAllyPub(c));
   }
   if (c.c9t) {
     const t = c.c9t;
