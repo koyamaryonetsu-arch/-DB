@@ -221,7 +221,8 @@ test('家族サーバー: 圧縮・ETag／304・版つきの キャッシュ・�
     const pk = await raw(`${srv.base}/pack.json?v=${v}`, br);
     assert.equal(pk.status, 200);
     assert.match(pk.headers['content-encoding'], /^(br|gzip)$/, 'br が まだ なら gzip');
-    assert.ok(pk.body.length < 6e6, `ちぢんだ パック ${pk.body.length}`);
+    // 見はり: gzip の 時の 大きさ（br なら もっと 小さい）。第99回（第3部 第2章 第4幕）で 6.03MB に なったので 6MB → 7MB に 上げた（もとの 22.7MB）
+    assert.ok(pk.body.length < 7e6, `ちぢんだ パック ${pk.body.length}`);
     const p = JSON.parse(unzip(pk));
     assert.equal(p.v, v);
     assert.deepEqual(Object.keys(p.files), Object.keys(m.files));

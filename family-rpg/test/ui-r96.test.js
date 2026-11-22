@@ -220,7 +220,9 @@ test('装備品の 紹介: いちばん 上に 強さと 効果（作品の力�
   const id = 'r88_keisei+2';
   assert.ok(ITEMS[id]);
   const s = gearSummary(id);
-  assert.match(s.stats, /守備\+184/);
+  // 伝説の 品の 数字は、その 種類の 今 いちばん 強い 品に 合わせて 上がる（fitR88Legends）。数を 書かずに 今の 守備と くらべる
+  assert.ok(ITEMS[id].def >= 184, `守備 ${ITEMS[id].def}`);
+  assert.match(s.stats, new RegExp(`守備\\+${ITEMS[id].def}(?!\\d)`));
   assert.match(s.rank, /★★★★★（ランク10）/);
   assert.ok(s.fx.some((t) => /^作品の力：みかわし\+8/.test(t)), s.fx.join('|'));
   assert.ok(s.fx.some((t) => /^使う：けい世元じょうのまどわし（1つの戦いで1回）$/.test(t)), '使う は 1行で');

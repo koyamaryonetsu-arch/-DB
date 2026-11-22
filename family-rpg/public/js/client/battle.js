@@ -716,7 +716,7 @@ export class BattleScene {
     const off = new Set(a.cmdOff || []);
     // 第69回: ならびは ダメージ・回復の 弱い じゅん（職業の ほせい なしの ふつうの 強さ。shared/skill-sort.js）。★お気に入りは その ならび
     // 第99回: cmdOnly の 技（音を鳴らす）は 一覧に 出さない（いちばん 上の コマンドから 色を えらぶ。battle-c10d.js）
-    const learned = sortByStdPower((a.abilities || []).filter((id) => !off.has(id) && !ABILITIES[id]?.cmdOnly && battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells))));
+    const learned = sortByStdPower((a.abilities || []).filter((id) => !off.has(id) && battleAbilityOk(pc, id, a.weaponCat) && !ABILITIES[id]?.cmdOnly && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells))));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
     const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
     const duals = this.myDualOptions(a);
