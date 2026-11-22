@@ -54,6 +54,8 @@ import { MONSTERS_C10B } from './monsters-c10b.js';
 import { MONSTERS_C10C } from './monsters-c10c.js';
 // 第99回 B班: 第3部 第2章 第4幕「金の音と、星の橋」（monsters-c10d.js）
 import { MONSTERS_C10D } from './monsters-c10d.js';
+// 第101回 B班: 第3部 第3章 第1幕「星の船と、星座の島」（monsters-c11a.js）
+import { MONSTERS_C11A } from './monsters-c11a.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -338,6 +340,8 @@ Object.assign(MONSTERS, MONSTERS_C10B);
 Object.assign(MONSTERS, MONSTERS_C10C);
 // 第3部 第2章 第4幕「金の音と、星の橋」の 門の 番人・ミラーレ・うつし身（monsters-c10d.js）
 Object.assign(MONSTERS, MONSTERS_C10D);
+// 第3部 第3章 第1幕「星の船と、星座の島」の 魔物・星座のけもの・いかり船長（monsters-c11a.js）
+Object.assign(MONSTERS, MONSTERS_C11A);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
