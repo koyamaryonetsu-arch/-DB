@@ -25,7 +25,7 @@ import {
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
 import { C10C_B as C10C } from '../public/js/shared/maps/c10c-flags.js';
-import { C10D_B as C10D } from '../public/js/shared/data/c10d-names-b.js';
+import { C10D_B as C10D } from '../public/js/shared/maps/c10d-flags.js'; // 第99回 A班: c10d-names-b.js は 消した（同じ 名前は maps/c10d-flags.js に）
 import {
   MONSTERS_C11A, C11A_SEA_MON, C11A_ISLE_MON, C11A_MINIONS, C11A_RECOLOR_BASE, C11A_NEW_ART, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_STARS, C11A_CAPTAIN,
   CAPTAIN_NAME, CAPTAIN_SHORT, SHARK_NAME, BEAST_NAME, C11A_MAT_DROPS,
