@@ -376,7 +376,9 @@ test('人数で 合わせる: 家族の キャラの 数で 皿の HP・見る �
   // 魔物の 仲間（半人ぶん。第92回 第2便で 1体ごとの 上げは 0 … 人が できる 動きでは 魔物の 仲間の 方が 長く かかる ため）
   const mon = battle({ kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.equal(kingPeople(mon), 2);
-  assert.equal(kingOf(mon).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.few.hp[1]));
+  // 第101回 R1班 2便: ずっと 待つ 形で 1人＋魔物3 が 下がった ので、1体ごとに HP −5%（monK。上げる のは よい）
+  assert.equal(conf.monK.hp, -0.05);
+  assert.equal(kingOf(mon).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.few.hp[1] * (1 + conf.monK.hp * 3)));
 });
 
 test('自動の 仲間: 酒場の 人は 見えて いる 皿を 3回に 1回 ねらう（家族の キャラの オート・魔物の 仲間は ねらわない）', () => {

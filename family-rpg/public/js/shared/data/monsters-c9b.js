@@ -115,7 +115,8 @@ export const MONSTERS_C9B = {
       bare: { hp: [0.25, 0.38], atk: [1.1, 1.2], watch: [4, 3], wait: [3, 3], jump: [7, 5], dish: [0.5, 0.7] },
       solo: { hp: 0.12, atk: 0.45, dish: 0.25, watch: 3, jump: 8, wait: 2 },
       // 魔物の 仲間 1体ごとの 大王の HP・攻撃力の 上げ（人数は 魔物の 仲間を 半人ぶんに 数えた うえで）
-      monK: { hp: 0, atk: 0 },
+      //   第101回 R1班 2便: ずっと 待つ 形（b.tellAll）で 1人＋魔物3 が 83% → 57%（10.5分）に 下がった ので、魔物の 仲間 1体ごとに HP −5%・攻撃 −2%（→ 90%）
+      monK: { hp: -0.05, atk: -0.02 },
     },
     actions: [{ w: 3, id: 'm9k_mallet' }, { w: 2, id: 'm9k_belly' }, { w: 1, id: 'm9k_ehhen', cond: 'notRecent:m9k_ehhen' }, { w: 1, id: 'm9k_spin', cond: 'notRecent:m9k_spin' }],
     desc: '大地の下の、大きなもぐらの王さま。赤いマントに、小さなかんむり。明かりとごちそうを、ひとりじめしている。',
