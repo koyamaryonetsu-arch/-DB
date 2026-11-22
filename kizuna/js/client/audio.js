@@ -1,39 +1,39 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=e3ea39586b77';
-import { SFX_R27 } from './sfx-r27.js?v=e3ea39586b77';
-import { SFX_R29 } from './sfx-r29.js?v=e3ea39586b77';
-import { SFX_R33 } from './sfx-r33.js?v=e3ea39586b77';
-import { SFX_PK } from './sfx-pokemon.js?v=e3ea39586b77';
-import { SFX_DQ } from './sfx-dqm.js?v=e3ea39586b77';
+import { SFX_R26 } from './sfx-r26.js?v=379ca0afcef1';
+import { SFX_R27 } from './sfx-r27.js?v=379ca0afcef1';
+import { SFX_R29 } from './sfx-r29.js?v=379ca0afcef1';
+import { SFX_R33 } from './sfx-r33.js?v=379ca0afcef1';
+import { SFX_PK } from './sfx-pokemon.js?v=379ca0afcef1';
+import { SFX_DQ } from './sfx-dqm.js?v=379ca0afcef1';
 // 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
-import { SFX_AX } from './sfx-ax.js?v=e3ea39586b77';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=e3ea39586b77';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=e3ea39586b77';
-import { EARTH_TRACKS } from './audio-earth.js?v=e3ea39586b77';
-import { CASTLE_TRACKS } from './audio-castle.js?v=e3ea39586b77';
-import { TOP_TRACKS } from './audio-top.js?v=e3ea39586b77';
-import { CH6_TRACKS } from './audio-ch6.js?v=e3ea39586b77';
+import { SFX_AX } from './sfx-ax.js?v=379ca0afcef1';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=379ca0afcef1';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=379ca0afcef1';
+import { EARTH_TRACKS } from './audio-earth.js?v=379ca0afcef1';
+import { CASTLE_TRACKS } from './audio-castle.js?v=379ca0afcef1';
+import { TOP_TRACKS } from './audio-top.js?v=379ca0afcef1';
+import { CH6_TRACKS } from './audio-ch6.js?v=379ca0afcef1';
 // 第2部 第8章 第2幕: ペイニックと パニクル・よみの王ハデロスの 曲（audio-c8b.js）
-import { C8B_TRACKS } from './audio-c8b.js?v=e3ea39586b77';
+import { C8B_TRACKS } from './audio-c8b.js?v=379ca0afcef1';
 // 第2部 第8章 第3幕: マジカメック・初代大魔王クッパードの 曲（audio-c8c.js）
-import { C8C_TRACKS } from './audio-c8c.js?v=e3ea39586b77';
+import { C8C_TRACKS } from './audio-c8c.js?v=379ca0afcef1';
 // 第77回 B: 作りなおした 曲（下で 前の 曲の 上に かぶせる）
-import { R77A_TRACKS } from './audio-r77a.js?v=e3ea39586b77';
-import { R77B_TRACKS } from './audio-r77b.js?v=e3ea39586b77';
-import { C8R_TRACKS } from './audio-c8r.js?v=e3ea39586b77';
-import { C9A_TRACKS } from './audio-c9a.js?v=e3ea39586b77';
-import { C9B_TRACKS } from './audio-c9b.js?v=e3ea39586b77';
-import { C9C_TRACKS } from './audio-c9c.js?v=e3ea39586b77';
-import { C9D_TRACKS } from './audio-c9d.js?v=e3ea39586b77';
-import { C10A_TRACKS } from './audio-c10a.js?v=e3ea39586b77';
-import { C10B_TRACKS } from './audio-c10b.js?v=e3ea39586b77';
-import { C10C_TRACKS } from './audio-c10c.js?v=e3ea39586b77';
-import { C10D_TRACKS } from './audio-c10d.js?v=e3ea39586b77';
-import { C11A_TRACKS } from './audio-c11a.js?v=e3ea39586b77';
+import { R77A_TRACKS } from './audio-r77a.js?v=379ca0afcef1';
+import { R77B_TRACKS } from './audio-r77b.js?v=379ca0afcef1';
+import { C8R_TRACKS } from './audio-c8r.js?v=379ca0afcef1';
+import { C9A_TRACKS } from './audio-c9a.js?v=379ca0afcef1';
+import { C9B_TRACKS } from './audio-c9b.js?v=379ca0afcef1';
+import { C9C_TRACKS } from './audio-c9c.js?v=379ca0afcef1';
+import { C9D_TRACKS } from './audio-c9d.js?v=379ca0afcef1';
+import { C10A_TRACKS } from './audio-c10a.js?v=379ca0afcef1';
+import { C10B_TRACKS } from './audio-c10b.js?v=379ca0afcef1';
+import { C10C_TRACKS } from './audio-c10c.js?v=379ca0afcef1';
+import { C10D_TRACKS } from './audio-c10d.js?v=379ca0afcef1';
+import { C11A_TRACKS } from './audio-c11a.js?v=379ca0afcef1';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
-import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=e3ea39586b77';
-import { TRACK_TRIM } from './audio-trim.js?v=e3ea39586b77';
+import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js?v=379ca0afcef1';
+import { TRACK_TRIM } from './audio-trim.js?v=379ca0afcef1';
 
 // 'C5:4 D5:2 r:2' → [{f, len}]（第76回までの 読み方。テストが つかう）
 const parse = legacyParse;

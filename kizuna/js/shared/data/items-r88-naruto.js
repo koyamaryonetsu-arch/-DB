@@ -5,7 +5,7 @@
 //   ・イタチの 2つ（とつかの剣 ＋ スサノオのやたの鏡。そろい totsuka_yata。1人が 両方 つけると 反撃）
 //   ・今 ある クナイ・草なぎの剣 は こわさず、作品の 品として 数える（R88_TAG_NARUTO。強さ・手に入れ方は かえない）
 //   ・名前は 使える 字に 直した（首斬り包丁 → 大包丁・鮫肌 → さめはだ・八咫鏡 → スサノオのやたの鏡〈今の「やたの鏡のたて」と べつ〉 など）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=e3ea39586b77';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=379ca0afcef1';
 
 const N = { work: 'naruto' };
 const S7 = { work: 'naruto', set: 'shinobi7' };

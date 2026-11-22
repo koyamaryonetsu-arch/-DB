@@ -13,8 +13,8 @@
 // ・c10g_boss … いたずらスウィング（イ短調 126。はねる 8分。ピチカートの ふしが 半音で しのびより、ブラスが「ぶっ」と こたえる。にくめない）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS } from './audio-c9a.js?v=e3ea39586b77';
-import { C9D_SONG } from './audio-c9d.js?v=e3ea39586b77';
+import { C9A_TOOLS } from './audio-c9a.js?v=379ca0afcef1';
+import { C9D_SONG } from './audio-c9d.js?v=379ca0afcef1';
 
 const { FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL } = C9A_TOOLS;
 
