@@ -14,11 +14,12 @@ import { TACTICS } from '../shared/ai.js';
 // コマンドの まどの「作戦」（battle.js の openCommand が 一覧の さいごに 入れる）
 export const TACTICS_CMD = Object.freeze({ label: '作戦', value: 'tactics', cls: 'k-tac', title: '作戦をかえる（ターンは使わない）' });
 
-// えらんだ あとの 知らせ（battle.js の tacticsMenu）
+// えらんだ あとの 知らせ（battle.js の tacticsMenu）。かえた 時は サーバーが「〇〇の作戦を「…」にした。」を 送る
+//   （world/tactics.js の menuRes）ので、ここは 同じ 作戦を えらんだ 時だけ（何も 出ないと 決まったか わからない）
 export function tacticsToast(a, value, now) {
   const name = TACTICS[value]?.name;
-  if (!a || !name) return;
-  toast(value === now ? `${a.name}の作戦は「${name}」のまま` : `${a.name}の作戦を「${name}」にした！`, 2400);
+  if (!a || !name || value !== now) return;
+  toast(`${a.name}の作戦は「${name}」のまま`, 2400);
 }
 
 // コマンドの まど（戦う・呪文…）が いちばん 上か

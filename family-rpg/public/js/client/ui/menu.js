@@ -2165,10 +2165,10 @@ export class FieldMenu {
       const t = [offN(x) ? `オートで使わない ${offN(x)}` : '', cmdN(x) ? `命令に出さない ${cmdN(x)}` : ''].filter(Boolean);
       return t.length ? `（${t.join('・')}）` : '';
     };
-    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name } }];
+    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name, tac: c.tactics || 'balanced' } }];
     // 自分の 仲間（パーティー・馬車）
     for (const s of this.myMates()) {
-      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) }) });
+      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name, tac: s.tactics }, face: faceURL({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
     if (!active) {
@@ -2199,7 +2199,7 @@ export class FieldMenu {
         if (what === 'cmd') return this.pushView(() => this.cmdSkillsView(v.key));
         if (what === 'tac') {
           // 第96回 T班: 作戦ごとの 1行の せつめいも 出す（tacticsItemHtml）
-          const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, html: tacticsItemHtml(x), value: k }));
+          const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, html: tacticsItemHtml(x), value: k, right: k === v.tac ? '今' : '' })); // 第100回 U1: 今の 作戦に「今」
           const t = await this.pick(v.key === 'self' ? 'オートのときの作戦' : `${v.name}の作戦`, [...list, { label: 'やめる', value: null }]);
           if (t) g.net.send({ t: 'menu', action: 'tactics', key: v.key, tactics: t, label: TACTICS[t].name });
           setTimeout(() => this.redraw(), t ? 250 : 0);
