@@ -9,10 +9,24 @@
 import { PARTY_ANIMS } from './battlefx-jobs2.js';
 import { KUUCHOU_ART } from './kizuna-kuuchou.js';
 import { HOKAGE_ART } from './kizuna-hokage.js';
+import { HYAKKI_ART } from './kizuna-hyakki.js';
+import { KENGOU_ART } from './kizuna-kengou.js';
+import { SAISHOU_ART } from './kizuna-saishou.js';
+import { PTA_ART } from './kizuna-pta.js';
+import { KEIJI_ART } from './kizuna-keiji.js';
+import { OTENKI_ART } from './kizuna-otenki.js';
+import { TOUKA_ART } from './kizuna-touka.js';
 
 export const KIZUNA_ART = [
   KUUCHOU_ART, // 熱と風の空調マスター
   HOKAGE_ART, // 八竜の火影
+  HYAKKI_ART, // 百きの大将
+  KENGOU_ART, // 天下無そうの剣ごう
+  SAISHOU_ART, // 国を動かす名さいしょう
+  PTA_ART, // 伝説のPTA会長
+  KEIJI_ART, // 元ヤンのけいじ
+  OTENKI_ART, // おてんき格闘流の師はん
+  TOUKA_ART, // 等価交かんの大魔道士
 ];
 
 const byId = (key) => Object.fromEntries(KIZUNA_ART.filter((k) => k[key]).map((k) => [k.id, k[key]]));

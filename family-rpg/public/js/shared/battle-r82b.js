@@ -48,6 +48,8 @@ const knows = (c, re) => (c?.abilities || []).some((id) => re.test(id));
 export function tamaSet(c) {
   if (!c || c.mon) return [];
   if (TAMA_BY_JOB[c.job]) return TAMA_BY_JOB[c.job];
+  // 第98回 K2班: 天下無そうの剣ごうの 玉がえを 覚えた 人は 6つ（転職した あとも）
+  if (knows(c, /^kg_tamagae$/)) return TAMA_ORDER;
   if (knows(c, /^yb_tamagae$/)) return knows(c, /^ry_|^ryujin_samurai_sig$/) ? TAMA_ORDER : FOUR;
   if (knows(c, /^(rj_|yb_|ry_|raijin_sword_sig$|yaiba_sig$|ryujin_samurai_sig$)/)) return ['bolt'];
   return [];
@@ -68,7 +70,8 @@ const thunderOn = (b, c) => b?.weather?.kind === 'thunder' && b.weather.side ===
 
 // ───────────── 剣の 技（battle.js の applyAbility の 'phys' の はじめ） ─────────────
 export function r82bPhys(b, c, a, cmd, ev, powMult, targets) {
-  const { yb, balls, weakBonus, thunderMult, ...rest } = a.effect;
+  const { yb, balls, weakBonus, thunderMult, weakSlash, weakAtb, ...rest } = a.effect;
+  const again = weakSlash ? { mult: weakSlash, atb: weakAtb || 0, critBonus: rest.critBonus, ignoreDef: rest.ignoreDef } : null;
   let ts = targets;
   let target = a.target;
   // 金色の玉・きょだい化: 敵全体に とどく
@@ -81,7 +84,7 @@ export function r82bPhys(b, c, a, cmd, ev, powMult, targets) {
       ev.lines.push('きょだい化した大きな刀が、敵全体にとどいた！');
     }
   }
-  if (yb === 'strike') return strike(b, c, { ...a, target }, rest, balls || [], weakBonus || 1, ev, powMult, ts);
+  if (yb === 'strike') return strike(b, c, { ...a, target }, rest, balls || [], weakBonus || 1, ev, powMult, ts, again);
   if (yb === 'tama') {
     const el = tamaOf(c);
     if (el) rest.element = el;
@@ -92,13 +95,26 @@ export function r82bPhys(b, c, a, cmd, ev, powMult, targets) {
     ev.lines.push('雷の天気で、雷神のいかりが大きくなった！');
   }
   b.applyAbility(c, { ...a, target, effect: rest }, cmd, ev, powMult, ts);
+  if (again && rest.element && rest.element !== 'phys') {
+    const t = ts.find((x) => x.alive && isWeak(x, rest.element));
+    if (t) slashAgain(b, c, t, rest.element, again, ev, powMult);
+  }
+}
+
+// 第98回 K2班（天下無そうの剣ごう）: 弱点を ついた 時の はやい もう 一太刀（effect.weakSlash … その 一太刀の 物理の 倍・weakAtb … 次の 番が 早く 来る）
+const isWeak = (t, el) => (t.resist?.[el] ?? 1) >= 1.2 && ballOk(t, el);
+function slashAgain(b, c, t, el, again, ev, powMult) {
+  ev.lines.push('すかさず、はやいもう一太刀！');
+  b.physHit(c, t, { mult: again.mult, critBonus: again.critBonus, ignoreDef: again.ignoreDef }, ev, el, powMult);
+  if (again.atb) ev.atbAfter = Math.max(ev.atbAfter ?? 0, again.atb);
+  ev.weakSlash = c.id;
 }
 
 // 玉が その 敵に つかえるか（0倍・すいこむ よろいは つかわない）
 const ballOk = (t, el) => (t.resist?.[el] ?? 1) !== 0 && t.arArmor !== el;
 
 // 四つ玉斬り・七つ玉: 玉の 属性で 1回ずつ
-function strike(b, c, a, eff, balls, weakBonus, ev, powMult, ts) {
+function strike(b, c, a, eff, balls, weakBonus, ev, powMult, ts, again = null) {
   ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: ts.map((t) => t.id), side: c.side, element: balls[0], balls };
   ev.lines.push(`${balls.map((el) => TAMA[el]?.mark || '').join('・')}の玉を、つぎつぎにはめかえて切りつけた！`);
   const { hits, ...one } = eff;
@@ -118,6 +134,16 @@ function strike(b, c, a, eff, balls, weakBonus, ev, powMult, ts) {
   }
   if (skipped.size) ev.lines.push(`（${[...skipped].map((el) => TAMA[el]?.mark).join('・')}の玉は、効かないので使わなかった）`);
   if (weak) ev.lines.push(`弱点に${weak}回当たった！`);
+  // 弱点に 当たった ＝ はやい もう 一太刀（いちばん よく 効く 玉で。第98回 K2班）
+  if (weak && again) {
+    for (const t of ts) {
+      const el = balls.filter((x) => t.alive && isWeak(t, x)).sort((x, y) => (t.resist?.[y] ?? 1) - (t.resist?.[x] ?? 1))[0];
+      if (el) {
+        slashAgain(b, c, t, el, again, ev, powMult);
+        break;
+      }
+    }
+  }
   b.afterDamage(c, ev, 'phys');
 }
 

@@ -15,6 +15,8 @@ import { monsterCanvas } from './render/monsters.js';
 import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js';
 // 第3部 第1章 第4幕: おかしの 仲間の まど（battle-c9d.js）
 import { c9dStatus } from './battle-c9d.js';
+// 第3部 第3章 第1幕: 時計の しるし（battle-c11a.js）
+import { c11aStatus } from './battle-c11a.js';
 // 第3部 第2章 第1幕: あつさ・カビの めもり（battle-c10a.js）
 import { c10aStatus } from './battle-c10a.js';
 
@@ -125,6 +127,8 @@ export function c9aStatus(s, a) {
   if (!s?.name) return;
   c9dStatus(s, a);
   c10aStatus(s, a);
+  // 第3部 第3章 第1幕: 時計を 持って いる 人（battle-c11a.js）
+  c11aStatus(s, a);
   const parent = s.name.parentNode;
   let f = parent?.querySelector?.('.c9a-fire');
   if (a.torch9 === undefined) {
@@ -311,7 +315,7 @@ export function c9aCmdItems(scene, a) {
 }
 export function c9aCmdPick(scene, a, value) {
   // 第97回: 水の音を鳴らす（第2幕）・うつる（第3幕）も c9bCmdPick へ。第99回: 音を鳴らす（第4幕）も
-  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove' || value === 'c10dring') return c9bCmdPick(scene, a, value);
+  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove' || value === 'c10dring' || value === 'c11apass') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

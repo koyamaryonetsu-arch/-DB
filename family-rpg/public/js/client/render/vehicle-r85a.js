@@ -8,7 +8,7 @@ export function addR85aVehicleArt(ART, kit) {
   ART.feast_cart = feastCartArt(kit);
 }
 
-function feastCartArt({ seg, poly, shade, seat }) {
+export function feastCartArt({ seg, poly, shade, seat }) {
   const DG = '#5ab84a', DGD = shade(DG, -0.25), DGL = shade(DG, 0.25), BELLY = '#f2e6a0', EYE = '#1a1620', WING = '#e86a4a';
   const WOOD = '#9a6a3a', WOODD = shade(WOOD, -0.3), WOODL = shade(WOOD, 0.2), WHEEL = '#6a4422', HUB = '#f2c14e';
   const MEAT = '#c8603a', BONE = '#f6f0e0', BREAD = '#e8b060', FRUIT = '#e8282a', LEAF = '#3a9a3a', CLOTH = '#f6f2e6', RED = '#d42a2a';
