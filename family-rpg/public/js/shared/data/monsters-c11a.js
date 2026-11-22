@@ -26,7 +26,7 @@ export const C11A_RECOLOR_BASE = { c11a_jelly: 'star_jelly', c11a_ray: 'sky_ray'
 export const C11A_NEW_ART = ['c11a_comet', 'c11a_wisp'];
 
 // 星座のけもの（3つの 星。ならびは あたま・むね・しっぽ。となりは あたま−むね−しっぽ）
-//   ボスの 品は あたまの 星だけ（1人 1つ）。むね・しっぽは boss: false（ボスの 品が ない ため。強さは おなじ）
+//   3つとも おなじ ボスの 品（星座のくびわ。1人 1つ … 2つめからは 落ちない）。けいけんちの おまけ（限界の石）は あたまだけ
 export const C11A_HEAD = 'c11a_beast_head';
 export const C11A_CHEST = 'c11a_beast_chest';
 export const C11A_TAIL = 'c11a_beast_tail';
@@ -128,22 +128,22 @@ export const MONSTERS_C11A = {
   // ── 中ボス: 星座のけもの（3つの 星。Lv119）──
   // c11a … しかけ（battle-c11a.js の beast）。あたま … 強い 1人攻撃（前ぶれ）・むね … 仲間の 星を 回復・しっぽ … 全体攻撃
   [C11A_HEAD]: {
-    ...STAR, name: 'あたまの星', lv: 119, hp: 7400, mp: 9999, str: 1700, def: 400, agi: 250, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
+    ...STAR, name: 'あたまの星', lv: 119, hp: 7000, mp: 9999, str: 1780, def: 400, agi: 250, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
     drops: { boss: ['c11ab_star_collar'], bonus: ['limit_stone'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'head' }),
     actions: [{ w: 3, id: 'm11b_claw' }, { w: 2, id: 'm11b_pulse' }],
     desc: '星座のけものの、あたまの星。うなったあとに、大きくかみつく。',
   },
   [C11A_CHEST]: {
-    ...STAR, boss: false, name: 'むねの星', lv: 119, hp: 7400, mp: 9999, str: 1450, def: 420, agi: 230, mag: 1100, exp: 30000, gold: 11000, speed: 0.62,
-    drops: { common: ['star_sand', 8], rare: ['c7i_snow_robe', 64] }, resist: STAR_RES,
+    ...STAR, name: 'むねの星', lv: 119, hp: 7000, mp: 9999, str: 1520, def: 420, agi: 230, mag: 1100, exp: 30000, gold: 11000, speed: 0.62,
+    drops: { boss: ['c11ab_star_collar'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'chest' }),
     actions: [{ w: 2, id: 'm11b_pulse' }, { w: 2, id: 'm11b_mend', cond: 'notRecent:m11b_mend' }, { w: 1, id: 'm11b_claw' }],
     desc: '星座のけものの、むねの星。光の線で、仲間の星を回復する。',
   },
   [C11A_TAIL]: {
-    ...STAR, boss: false, name: 'しっぽの星', lv: 119, hp: 7400, mp: 9999, str: 1550, def: 400, agi: 260, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
-    drops: { common: ['magic_water', 8], rare: ['c7i_snow_gi', 64] }, resist: STAR_RES,
+    ...STAR, name: 'しっぽの星', lv: 119, hp: 7000, mp: 9999, str: 1610, def: 400, agi: 260, mag: 1100, exp: 30000, gold: 11000, speed: 0.65,
+    drops: { boss: ['c11ab_star_collar'] }, resist: STAR_RES,
     c11a: BEAST({ role: 'tail' }),
     actions: [{ w: 3, id: 'm11b_sweep' }, { w: 2, id: 'm11b_dust', cond: 'notRecent:m11b_dust' }, { w: 1, id: 'm11b_claw' }],
     desc: '星座のけものの、しっぽの星。しっぽをふりまわして、みんなをおそう。',
