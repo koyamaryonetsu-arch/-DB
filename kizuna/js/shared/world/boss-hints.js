@@ -10,11 +10,11 @@
 //   3. リーダー（ひとりの 時は 自分）は「もう一度いどむ／あとにする」を えらぶ。もう一度 … ボスの 台本が 始まる マスの 手前へ
 //      （いっしょに 戦って、同じ 所で 目を 覚ました 家族も いっしょに）。行き先が 分からない 戦いは えらぶ 文を 出さない
 //   全滅の 決まり（お金が 半分・いのりの場所で 回復）は かえない
-import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE } from '../data/boss-hints.js?v=8db07833986d';
-import { JOBS } from '../data/jobs.js?v=8db07833986d';
-import { MAPS, canStand, isBlocked } from '../maps/index.js?v=8db07833986d';
-import { runSteps } from './scripts.js?v=8db07833986d';
-import { partyOf } from './party.js?v=8db07833986d';
+import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE } from '../data/boss-hints.js?v=068632fa6d51';
+import { JOBS } from '../data/jobs.js?v=068632fa6d51';
+import { MAPS, canStand, isBlocked } from '../maps/index.js?v=068632fa6d51';
+import { runSteps } from './scripts.js?v=068632fa6d51';
+import { partyOf } from './party.js?v=068632fa6d51';
 
 const LOSS_MAX = 9;
 

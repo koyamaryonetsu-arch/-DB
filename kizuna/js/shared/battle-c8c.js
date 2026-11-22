@@ -21,15 +21,15 @@
 // ・知っている 人（シミュレーター tools/sim-ch8.mjs。b.knowsCh6）:
 //   マジカメック … 魔法じんの 子分を いちばん 大きい 1回の 攻撃で たおしに いく（b.c8cNoAim … しない）
 //   クッパード … 橋のオノが ある 間は ぶきで たたく（たたく 人が 足りて いれば ほかは ふつう。b.c8cNoAxe … しない）・大技の 前に 身を 守る（b.c6NoGuard）
-import { MONSTERS } from './data/monsters.js?v=8db07833986d';
-import { ABILITIES } from './data/abilities.js?v=8db07833986d';
-import { C8_KAMEK, C8_BOWSER, C8_AXE, KAMEK_KIDS, GIGA_ACTIONS, BOWSER_ACTIONS, GIGA_KID_ACTION, GIGA_NAME } from './data/monsters-c8c.js?v=8db07833986d';
+import { MONSTERS } from './data/monsters.js?v=068632fa6d51';
+import { ABILITIES } from './data/abilities.js?v=068632fa6d51';
+import { C8_KAMEK, C8_BOWSER, C8_AXE, KAMEK_KIDS, GIGA_ACTIONS, BOWSER_ACTIONS, GIGA_KID_ACTION, GIGA_NAME } from './data/monsters-c8c.js?v=068632fa6d51';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=8db07833986d';
-import { canUse } from './ai.js?v=8db07833986d';
-import { AUTO_GUARD } from './battle-ch6.js?v=8db07833986d';
+import { atbRate, pub } from './battle.js?v=068632fa6d51';
+import { canUse } from './ai.js?v=068632fa6d51';
+import { AUTO_GUARD } from './battle-ch6.js?v=068632fa6d51';
 // 第2部 第8章 第4幕: 時の門番フリーゾン・心の ためし・ソリトゥスの 本当の すがた・かけつけ。battle-c8r.js
-import { setupC8r, c8rTurnStart, c8rEffect, c8rPlan, c8rPub, c8rDamage, c8rKill } from './battle-c8r.js?v=8db07833986d';
+import { setupC8r, c8rTurnStart, c8rEffect, c8rPlan, c8rPub, c8rDamage, c8rKill } from './battle-c8r.js?v=068632fa6d51';
 
 export { C8_KAMEK, C8_BOWSER, C8_AXE };
 export const GROW = 'm8k_grow';

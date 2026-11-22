@@ -1,7 +1,7 @@
 // 第49回 O2: 海と 魔物の 技（海賊・魔物使い・モンスターマスター）の え。この ファイルは O2 だけが さわる
 // 時間は shared/data/ax-time-o2.js。play の 時間は はなつ しゅんかんが 0。ドクロは まるい コミカルな 形・魔物は かわいめ
-import { rnd } from './axkit.js?v=8db07833986d';
-import { add, obj, txt, bg, claw, whirl, rays, hands, ground, above, per, upMark, downMark, fist } from './axfx-o2-kit.js?v=8db07833986d';
+import { rnd } from './axkit.js?v=068632fa6d51';
+import { add, obj, txt, bg, claw, whirl, rays, hands, ground, above, per, upMark, downMark, fist } from './axfx-o2-kit.js?v=068632fa6d51';
 
 const WOOD = ['#a0703a', '#6a4020', '#d8a868'];
 const WATER = ['#2a78d8', '#6ac8ff', '#eaf8ff'];
