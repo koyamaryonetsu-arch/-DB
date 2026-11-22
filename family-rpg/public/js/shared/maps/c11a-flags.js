@@ -58,15 +58,15 @@ export const C11A_BATTLE = { beast: 'c11a_beast', pirate: 'c11a_pirate' };
 // 魔物の id（先頭 c11a_）・ボスの id（名前は B班が 決める。下は かりの 名前 … 台本は ここを 読む）
 export const C11A_MON_PREFIX = 'c11a_';
 export const C11A_BOSS_MON = { beast: 'c11a_beast', pirate: 'c11a_captain', shark: 'c11a_shark' };
-// ★ かりの 名前（B班が 決めたら ここを かえる。台本・目標・ヒントは ここを 読む）
-export const C11A_CAPTAIN_NAME = 'いかり船長';
-export const C11A_CAPTAIN_SHORT = '船長';
+// 名前（B班が 決めた。台本・目標・ヒントは ここを 読む）
+export const C11A_CAPTAIN_NAME = 'いかり船長イバリー';
+export const C11A_CAPTAIN_SHORT = 'イバリー';
 export const C11A_SHARK_NAME = 'チクタクザメ';
 export const C11A_BEAST_NAME = '星座のけもの';
-// 魔物の 表（B班。data/encounters-c11a.js）。表が ない 間は 魔物が 出ない（'safe:wait'）
-export const C11A_TABLE = { sea: 't11a_sea', isle: 't11a_isle' };
-// 船の 上の 戦いの 背景（B班の 背景の id。海の 戦い・船長の 戦い）
-export const C11A_BG = { sea: 'c11a_sea', isle: 'c11a_isle', pirate: 'c11a_pirate' };
+// 魔物の 表（B班。data/encounters-c11a.js）。島ごとに べつの 表。表が ない 間は 魔物が 出ない（'safe:wait'）
+export const C11A_TABLE = { sea: 't11a_sea', isle1: 't11a_isle1', isle2: 't11a_isle2', isle3: 't11a_isle3' };
+// 戦いの 背景（B班の 背景の id。海 … 星の船の 上・島・船長 … 星座の門の 前）
+export const C11A_BG = { sea: 'c11a_deck', isle: 'c11a_isle', pirate: 'c11a_gate' };
 
 // ───── 宝箱の id（B班が 中みを 決める。★5 は 3つ）─────
 export const C11A_CHEST_IDS = ['c11a_c1', 'c11a_c2', 'c11a_c3', 'c11a_c4', 'c11a_c5', 'c11a_c6', 'c11a_c7', 'c11a_c8'];
@@ -101,3 +101,18 @@ export const C11A_LV = { sea: 118, beast: 119, pirate: 120 };
 
 // ───── 幕の 切りかえ ─────
 export const C11A_OPEN = 'PART3_C11A_OPEN'; // data/story-c11.js
+
+// ───── B班の かりの 置き場（data/c11a-names-b.js。合わせた 時に 消した）に あった 名前（同じ 物。B の ファイルが as で 読む）─────
+export const C11A_B = {
+  act4: C11A_ACT0, start: C11A.start, chart: C11A.chart, launch: C11A.launch, perch: C11A.perch,
+  light1: C11A.light1, light2: C11A.light2, light3: C11A.light3, beast: C11A.beast, pirate: C11A.pirate, act1: C11A.act1,
+};
+export const C11A_CON_B = [...C11A_CON_IDS];
+export const C11A_MAP_B = { ...C11A_MAP };
+export const C11A_BATTLE_B = { ...C11A_BATTLE };
+export const C11A_MON_PREFIX_B = C11A_MON_PREFIX;
+export const C11A_CHEST_IDS_B = [...C11A_CHEST_IDS];
+export const C11A_KEYS_B = { chart: STAR_CHART, ship: STAR_SHIP };
+export const C11A_CMD_B = C11A_CMD_PASS;
+export const C11A_TRACKS_B = { sea: C11A_TRACKS.sea, isle: C11A_TRACKS.isle, perch: C11A_TRACKS.perch, con: C11A_TRACKS.const, launch: C11A_TRACKS.launch, beast: C11A_TRACKS.beast, pirate: C11A_TRACKS.pirate };
+export const C11A_OPEN_B = C11A_OPEN;

@@ -15,7 +15,7 @@
 import { CH9_IDS, LV9, CH9_KIT, NEED9_HOOKS, STATS9_HOOKS, MODES9, PARTIES9, EXTRA_PARTIES9, ch9Run } from './sim-ch9.mjs';
 import { ORDER_FLAGS, ORDER_LABEL, ORDERS_OF, c10Batch, tacticsOf } from './sim-ch10.mjs';
 import { dualPlan } from './sim-ch6.mjs';
-import { C11A_BATTLE_B as C11A_BATTLE } from '../public/js/shared/data/c11a-names-b.js';
+import { C11A_BATTLE_B as C11A_BATTLE } from '../public/js/shared/maps/c11a-flags.js';
 import { c11aState, captainOf, starsOf, clocksOf } from '../public/js/shared/battle-c11a.js';
 import { TACTICS } from '../public/js/shared/ai.js';
 

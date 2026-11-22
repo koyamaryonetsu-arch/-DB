@@ -21,15 +21,20 @@ import {
 } from './c11a-rows.js';
 import { CONSTELLATIONS11A } from '../data/constellations-c11a.js';
 import { SEA_PLACES } from './ch2.js';
+import { c11aChest, C11A_PERCH_ARMS, C11A_PERCH_TOOLS } from '../data/items-c11a.js';
+import { SHOPS } from '../data/shops.js';
 
 export const CH11A_MAPS = [...C11A_MAP_IDS];
 
-// 宝箱の 中み（B班が 入るまでは かりの お金。合わせる 時に B班の data/items-c11a.js の c11aChest に かえる）
-let chestFn11a = () => ({ gold: 600 });
+// 宝箱の 中み（B班の data/items-c11a.js の c11aChest）
+let chestFn11a = c11aChest;
 export const setChestOf11a = (fn) => { chestFn11a = fn; };
 export const chestOf11a = (id) => chestFn11a(id) || {};
-// とまり木の島の 店（B班が 入るまでは くぼ地の 武具屋。合わせる 時に B班の 店の id に かえる）
-let perchShop11a = 'c10c_crater';
+// とまり木の島の 店（B班の 品の ならび C11A_PERCH_ARMS・C11A_PERCH_TOOLS で 2つ 作る。武具屋 c11a_perch_arms・道具屋 c11a_perch_tools）
+export const SHOP11A = { arms: 'c11a_perch_arms', tools: 'c11a_perch_tools' };
+if (!SHOPS[SHOP11A.arms]) SHOPS[SHOP11A.arms] = { name: 'とまり木の島の武具屋', kind: 'armor', keeper: '星のかけら屋', hello: 'いらっしゃい。\n星の海の、かるくて、じょうぶな防具だよ。', items: [...C11A_PERCH_ARMS] };
+if (!SHOPS[SHOP11A.tools]) SHOPS[SHOP11A.tools] = { name: 'とまり木の島の道具屋', kind: 'item', keeper: '星のかけら屋', hello: 'いらっしゃい。\n旅の道具も、そろえておくれ。', items: [...C11A_PERCH_TOOLS] };
+let perchShop11a = SHOP11A.arms;
 export const setPerchShop11a = (id) => { perchShop11a = id; };
 export const perchShopOf11a = () => perchShop11a;
 
@@ -152,9 +157,9 @@ function buildIsle(n) {
   m.zoneAt = (x, y) => {
     const ch = rows[y]?.[x];
     if (!'.:'.includes(ch) || ch === ' ' || near(quiet, x, y, 2)) return 'safe:c11a_isle';
-    return tableOr(C11A_TABLE.isle, 'safe:wait');
+    return tableOr(C11A_TABLE[`isle${n}`], 'safe:wait');
   };
-  if (ENCOUNTER_TABLES[C11A_TABLE.isle]) m.spawnCounts = { [C11A_TABLE.isle]: 5 };
+  if (ENCOUNTER_TABLES[C11A_TABLE[`isle${n}`]]) m.spawnCounts = { [C11A_TABLE[`isle${n}`]]: 5 };
   return m;
 }
 
@@ -170,7 +175,8 @@ function buildPerch() {
   warp(m, P.dock, C11A_MAP.sea, ISLES11A.perch.sea, 'down');
   m.npcs.push(npc('c11a_yoi', 'おばあさん星のヨイ', [P.yoi.x, P.yoi.y], 'c11a_yoi', 'c11a_yoi', { dir: 'down' }));
   m.npcs.push(npc('c11a_inn', '宿屋のホタル', [P.inn.x, P.inn.y], 'c11a_folk1', 'c11a_inn', { dir: 'down' }));
-  m.npcs.push(npc('c11a_shop', '星のかけら屋', [P.shop.x, P.shop.y], 'c11a_folk2', 'c11a_shop', { dir: 'down' }));
+  m.npcs.push(npc('c11a_shop', '星のかけら屋（防具）', [P.shop.x, P.shop.y], 'c11a_folk2', 'c11a_shop', { dir: 'down' }));
+  m.npcs.push(npc('c11a_tools', '星のかけら屋（道具）', [P.shop.x - 2, P.shop.y], 'c11a_folk1', 'c11a_tools', { dir: 'down' }));
   P.folks.forEach((f, i) => m.npcs.push(npc(`c11a_folk${i + 1}`, ['星の子ども', '光の弱い星', 'ねむそうな星', 'しずかな星'][i], [f.x, f.y], `c11a_folk${(i % 3) + 1}`, `c11a_folk${i + 1}`, { dir: 'down', wander: i === 0 ? 2 : 0 })));
   m.actions.push({ x: P.spring.x, y: P.spring.y, script: 'c11a_spring' });
   const S = P.scene;

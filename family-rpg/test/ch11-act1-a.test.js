@@ -2,7 +2,7 @@
 // c10_act4 → くぼ地で ガンツ（c11a_start）→ 灯台島の レンズの 星座（c11a_con0・星図 c11a_chart）→ 星見の丘から こぎ出す（c11a_launch）
 //   → 星の海 → とまり木の島の ヨイ（c11a_perch）→ 星座の 島 3つ（すきな じゅん。星座 2つずつ → 明かり c11a_light1〜3）
 //   → 3つめの 明かりの 島で 星座の けもの（c11a_beast）→ 星座の門の 船長（c11a_pirate）→ 門が 開く（c11_act1）
-// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（かりの 戦いは data/c11a-stub.js。B班を 取りこむ 時に 消す）
+// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当に 戦う 通しは test/ch11-act1.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -27,7 +27,7 @@ import {
   C11A_OBJ, C11A_OBJ_ALL, CH11A_STORY_SCRIPTS, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, c11aScripts, applyCh11a, objective11a,
 } from '../public/js/shared/data/story-c11a.js';
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
-import { installC11aStub } from '../public/js/shared/data/c11a-stub.js';
+import { existsSync } from 'node:fs';
 import { storyPlace } from '../public/js/shared/world/shiori.js';
 import { warpPlaces } from '../public/js/shared/world/travel.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
@@ -35,7 +35,6 @@ import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN, Bot } from './helpers.js';
 import { UPTO, flagsOf, said, addPlayer, play, place, stepOn, examine, talkTo, fixedWorld } from './c9a-play.js';
 
-installC11aStub();
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
 const FILES11A = ['public/js/shared/maps/c11a-flags.js', 'public/js/shared/data/story-c11.js', 'public/js/shared/data/story-c11a.js', 'public/js/shared/data/constellations-c11a.js',
   'public/js/shared/maps/c11a.js', 'public/js/shared/maps/c11a-rows.js', 'public/js/shared/world/c11a-steps.js', 'public/js/client/c11a-view.js',
@@ -141,12 +140,17 @@ test('名前の 約束: マップ 5まい・タイル 621〜660・宝箱の id�
     assert.ok(g, `gameFiles に ${f}`);
     assert.deepEqual(checkFile(gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f))).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場（data/c11a-stub.js）は テストと ブラウザの 道具だけが 読む
+  // かりの 置き場（A の data/c11a-stub.js・B の data/c11a-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['c11a-stub.js', 'c11a-names-b.js']) assert.ok(!existsSync(new URL(`../public/js/shared/data/${f}`, import.meta.url)), `${f} は ない`);
   const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/')]) {
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!/from '[^']*c11a-stub/.test(src), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c11a-stub|c11a-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // 本物に つないだ: 宝箱（B班の 中み）・店・魔物の 表・背景・ボスの 名前
+  for (const id of C11A_MAP_IDS) for (const ch of MAPS[id].chests) assert.ok(ch.item, `${ch.id} は B班の 品`);
+  assert.deepEqual(MAPS.c11_sea.spawnCounts, { t11a_sea: 8 });
+  for (const n of [1, 2, 3]) assert.deepEqual(Object.keys(MAPS[`c11a_isle${n}`].spawnCounts), [`t11a_isle${n}`]);
 });
 
 test('台本の きまり: 明かす じゅん（女王・きまり・ながす を 出さない）・カイ・ソリトゥス・第1部と 第2部の ひみつ・少年は ヨイの ひとこと だけ・もとの お話の 名前を 書かない', () => {

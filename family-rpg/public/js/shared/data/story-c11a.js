@@ -23,7 +23,7 @@ import { MONSTERS } from './monsters.js';
 import { mergeBossHints } from './boss-hints.js';
 import { innSteps } from './inn.js';
 import { SEA_POS } from '../maps/sea.js';
-import { perchShopOf11a } from '../maps/c11a.js';
+import { perchShopOf11a, SHOP11A } from '../maps/c11a.js';
 // 星座の しくみは world.c11a（world/c11a-steps.js の C11A_API。data から world を 読まない）
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -176,7 +176,6 @@ function launchScene() {
     ['flag', C11A.launch], ['sync'],
     ['teleport', SEA, SEA_ARRIVE11A.x + 0.5, SEA_ARRIVE11A.y + 0.5, 'up'],
     ['fade', 'in'],
-    ['bgm', C11A_TRACKS.sea],
     ['look', SEA_ARRIVE11A.x + 0.5, SEA_ARRIVE11A.y - 3],
     ...N('見わたすかぎりの、星の海…。\n足の下には、雲と、小さな地上が、見える。'),
     ['actor', 'spica_b2', { sprite: 'c9a_spica', x: SEA_DOCK11A.x + 0.5, y: SEA_DOCK11A.y + 0.5, dir: 'up' }],
@@ -187,6 +186,8 @@ function launchScene() {
     ...S(NO, '見ろ、海の中に、光の流れがある。\n乗ると、止まる所まで、運ばれそうだ。'),
     ...S(NO, '星のすなの、あさい所は、船では、通れないな。\nまずは、まん中の、小さな島へ行ってみよう。'),
     ['look'],
+    // こぎ出す 曲の さいごの 和音（22 秒から）と 星の海の 曲の はじめの 和音は 同じ（変ホ長調）
+    ['bgm', C11A_TRACKS.sea],
     objStep(),
   ];
 }
@@ -259,11 +260,13 @@ function conDoneSteps(id) {
     const light = isle && x.flag(other) && !x.flag(C11A_LIGHTS[isle - 1]);
     const lightsAfter = C11A_LIGHTS.filter((f) => x.flag(f)).length + (light ? 1 : 0);
     return [
-      ['bgm', null],
-      ['sfx', 'sparkle'], ['flash'],
+      // ジングル「つながる星」: 星が ともる → 線が つながる → 3.6 秒ごろ 光る（その 時に 星座の 絵と 名前）
+      ['bgm', C11A_TRACKS.const],
+      ['sfx', 'sparkle'],
+      ['wait', 3500],
+      ['flash'],
       // 灯台の レンズの 星座は できた 絵を 見せてから（しるしを 立てると ゆかの 星座が 消える）
       ...(isle ? [['flag', id], ['sync']] : []),
-      ['bgm', C11A_TRACKS.const],
       ...N(`星と星が、光の線で、むすばれて…\n星座「${C.name}」が、できた！`),
       ['wait', 600],
       ...(isle ? [['call', async (run) => { run.world.c11a.landAll(run.world, run.init, id); }]] : chartSteps(id)),
@@ -408,6 +411,7 @@ export function c11aScripts(title, open, old = {}, act1Obj = C11A_OBJ.act1) {
     c11a_yoi: (x) => (x.flag(C11A.perch) ? YOI_TALK(x) : perchScene()),
     c11a_inn: (x) => innSteps('宿屋のホタル', 300, x),
     c11a_shop: () => [['shop', perchShopOf11a()]],
+    c11a_tools: () => [['shop', SHOP11A.tools]],
     c11a_spring: () => [...N('いのりのいずみだ。\nすんだ水が、星の光を、うつしている…。'), ['church']],
     lighthouse_keeper: keeperSteps(old.keeper),
   };
