@@ -422,7 +422,8 @@ export function c11aScripts(title, open, old = {}, act1Obj = C11A_OBJ.act1) {
   }
   for (const id of C11A_CON_IDS) out[`c11a_done_${id}`] = conDoneSteps(id);
   // くぼ地の ガンツ（場面 0 の あいだは 場面。ひとりでも 見られる）
-  if (old.gantz) out.c9b_armorer = Object.assign((x) => (open && x.flag(C11A_ACT0) && !x.flag(C11A.start) ? shipScene(title) : old.gantz(x)), { c11a: true });
+  //   前の 幕の しるし（c10c・c10d）も のこす（あとから 前の 幕の 台本を まぜなおしても、店が 場面より 先に ならない）
+  if (old.gantz) out.c9b_armorer = Object.assign((x) => (open && x.flag(C11A_ACT0) && !x.flag(C11A.start) ? shipScene(title) : old.gantz(x)), { ...old.gantz, c11a: true });
   return out;
 }
 export const conDoneScript11a = (id) => `c11a_done_${id}`;

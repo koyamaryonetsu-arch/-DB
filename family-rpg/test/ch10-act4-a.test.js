@@ -21,7 +21,8 @@ import {
 } from '../public/js/shared/maps/c10d-rows.js';
 import { GATE_INFO10D, c10dOnPlay, lossOf10d } from '../public/js/shared/world/c10d-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
-import { CH10_STEPS, PART3_C10D_OPEN, c10dTitleSteps, CH10_PROGRESS, act3ClearObjective } from '../public/js/shared/data/story-c10.js';
+import { CH10_STEPS, PART3_C10D_OPEN, c10dTitleSteps, CH10_PROGRESS, act3ClearObjective, act4ClearObjective } from '../public/js/shared/data/story-c10.js';
+import { PART3_C11A_OPEN, C11A_START_OBJ } from '../public/js/shared/data/story-c11.js';
 import { C10C_OBJ } from '../public/js/shared/data/story-c10c.js';
 import {
   C10D_OBJ, C10D_OBJ_ALL, CH10D_STORY_SCRIPTS, CH10D_PROGRESS, CH10D_OBJECTIVE_TARGETS, CH10D_OBJECTIVE_TALK, c10dScripts, applyCh10d, objective10d,
@@ -46,7 +47,8 @@ let opened = false;
 function openAct() {
   if (opened) return;
   opened = true;
-  applyCh10d(SCRIPTS, STORY_SCRIPTS, { title: c10dTitleSteps, open: true });
+  // 第2章 クリアの 目標は 本体と 同じ（第3章 第1幕が 開いて いれば「ながれ星のくぼ地で、ガンツと話そう」）
+  applyCh10d(SCRIPTS, STORY_SCRIPTS, { title: c10dTitleSteps, open: true, act4Obj: act4ClearObjective() });
 }
 const hasOf = (list) => (f) => list.includes(f);
 const NOTES6 = ['note_re', 'note_mi', 'note_fa', 'note_so', 'note_la', 'note_si'];
@@ -184,7 +186,11 @@ test('名前の 約束: マップ 4まい・タイル 591〜620・宝箱の id�
   assert.equal(ITEMS.note_do?.type, 'key');
   assert.ok(C10D_SHOP_ADD.every((id) => SHOPS.c10d_crater.items.includes(id)));
   assert.ok(SHOPS.c10c_crater.items.every((id) => SHOPS.c10d_crater.items.includes(id)), '第3幕の 店の 品も ある');
-  assert.ok(JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act3', 'c10_act4')))).includes('c10d_crater'), '幕の クリアの あとの 店');
+  // 第3章 第1幕が 開いて いると、クリアの あと はじめは 星の船の 場面（c11a_start の あとは 店）
+  assert.equal(PART3_C11A_OPEN, true);
+  const arm4 = JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act3', 'c10_act4'))));
+  assert.ok(arm4.includes('c11a_starship') && !arm4.includes('c10d_crater'), '幕の クリアの あとは 星の船の 場面');
+  assert.ok(JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act3', 'c10_act4', 'c11a_start')))).includes('c10d_crater'), '星の船の あとは 幕の クリアの あとの 店');
   assert.ok(!JSON.stringify(SCRIPTS.c9b_armorer(ctx(flagsOf('c10_act3')))).includes('c10d_crater'), 'クリアの 前は 今の 店');
 });
 
@@ -554,7 +560,8 @@ test('通し（ひとり）: くぼ地 → 星の塔の 金色の ゆか → て
   assert.ok(!c.flags[C10D_PED.do], '小さな フラグは 消す');
   assert.ok(said(bot, '7つの台が、全部、光った'));
   assert.ok(said(bot, '台は、7つ、作ったはず'));
-  assert.equal(c.objective, C10D_OBJ.act4);
+  assert.equal(c.objective, act4ClearObjective());
+  assert.equal(c.objective, C11A_START_OBJ, '第3章 第1幕が 開いて いる: ながれ星のくぼ地で、ガンツと話そう');
   const has = (f) => !!c.flags[f];
   assert.ok(MAPS.c9a_crater.npcs.find((n) => n.id === 'c10_ped_do_on2' && condOk(n.show, has)), '光った 金の 台');
   assert.ok(MAPS.c9a_crater.npcs.find((n) => n.id === 'c10d_ped8' && condOk(n.show, has)), '8つめの 台');
