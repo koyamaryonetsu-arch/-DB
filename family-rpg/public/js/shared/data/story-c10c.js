@@ -420,7 +420,8 @@ const vorbSteps = (x) => {
 };
 
 // ───── E くぼ地の むらさきの 台に 音を 置く ─────
-function endScene() {
+// act3Obj … 幕の クリアの あとの 目標（第99回 A班: 第4幕が 開いた あとは story-c10.js の act3ClearObjective）
+function endScene(act3Obj) {
   const cx = PS.x + 0.5, cy = PS.y + 1.6;
   return [
     ['bgm', null],
@@ -447,15 +448,15 @@ function endScene() {
     ['remove', 'spica_e'], ['guestHide', false],
     ['look'],
     ['flag', C10C.act3], ['unflag', C10C_PED.si], ['sync'],
-    ['objective', C10C_OBJ.act3],
+    ['objective', act3Obj || C10C_OBJ.act3],
     ['bgm', 'resume'],
   ];
 }
-function pedSteps(old) {
+function pedSteps(old, act3Obj) {
   return (x) => {
     if (x.flag(C10C.act3)) return N('むらさきの台が、やさしく光っている。');
     if (!x.flag(C10C.start) || !x.flag(C10C.note)) return old ? old(x) : [];
-    return [['sfx', 'sparkle'], ['flag', C10C_PED.si], ['sync'], ...N('むらさきの台に、星の音（シ）を、置いた。\nむらさきの台が、ぽうっと、光った！'), ...endScene()];
+    return [['sfx', 'sparkle'], ['flag', C10C_PED.si], ['sync'], ...N('むらさきの台に、星の音（シ）を、置いた。\nむらさきの台が、ぽうっと、光った！'), ...endScene(act3Obj)];
   };
 }
 
@@ -478,7 +479,7 @@ export function c10cScripts(title, open, old = {}) {
     ...HINTS,
     c10c_algol_event: (x) => (x.flag(C10C.fort2) && !x.flag(C10C.algol) ? algolScene() : []),
     c10c_vorb: vorbSteps,
-    c10_ped_si: pedSteps(old.ped),
+    c10_ped_si: pedSteps(old.ped, old.act3Obj),
   };
   // 橋の 石（石ごとに 台本。maps/c10c.js の stoneScript10c と 同じ 名前）
   for (const [mapId, spans] of [[C10C_MAP.isles1, ISLES1_SPANS], [C10C_MAP.isles2, ISLES2_SPANS]]) {
@@ -537,8 +538,8 @@ export const CH10C_PROGRESS = [
 
 // ───── story-c10.js の applyCh10 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん / open … 幕が 開いて いるか（PART3_C10C_OPEN）
-export function applyCh10c(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false } = {}) {
-  const S10 = c10cScripts(title, open, { ped: SCRIPTS.c9c_ped });
+export function applyCh10c(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act3Obj = null } = {}) {
+  const S10 = c10cScripts(title, open, { ped: SCRIPTS.c9c_ped, act3Obj });
   Object.assign(SCRIPTS, S10);
   for (const id of CH10C_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
   // くぼ地の 武具屋: 幕の クリア（c10_act3）の あと 品が 4つ ふえる（B班の C10C_SHOP_ADD。第2幕の 店の あと）

@@ -247,6 +247,14 @@ export function c10dPresent(scene, ev) {
   if (r && scene.fx) { const a = who(r.id); if (a) playC10dNote(scene.fx, scene.allyPt?.(a), cssOf(r.color)); }
   for (const id of ev.c10dBreak || []) { const e = who(id); if (e && scene.fx) playC10dBreak(scene.fx, scene.center?.(e), r ? cssOf(r.color) : '#ffffff'); }
   if (ev.c10dDown && scene.fx) { const e = who(ev.c10dDown.id); if (e) playC10dCrack(scene.fx, scene.center?.(e)); }
+  // 第99回 A班: うつし身が 出る 前に 開いて いた いちばん 上の コマンドの まどに「スピカ：てらす」を 出す（まどを 開き直す。
+  //   下の まど〈特技・色の ボタン など〉を 開いて いる 時は そのまま。敵の 一覧が かわった あとで 見る）
+  if (ev.c10dCopy && typeof scene.openCommand === 'function') {
+    setTimeout(() => {
+      const t = scene.cmdEl?.textContent || '';
+      if (!scene.ended && scene.myActor?.alive && /戦う/.test(t) && /防御/.test(t) && !/スピカ：てらす/.test(t)) scene.openCommand();
+    }, 60);
+  }
   const say = [
     ev.c10dBreak?.length && [(t) => good(t, 'sparkle'), 'パリーン！まくがわれた！今なら、こうげきが通る！'],
     ev.c10dBack && [warn, `まに合わなかった…${ev.c10dBack.colors.map(nameOf).join('と')}の色が、もどった！`],

@@ -46,6 +46,8 @@ import { tmHold } from './tm-ask.js';
 import { c9aMossWin } from './c9a-steps.js';
 // 第93回 A班: スピカと はなれて いる 間の 戦い（world/c9d-steps.js）
 import { spicaHelpHidden9d } from './c9d-steps.js';
+// 第99回 A班: 星の いずみの ちからの水（次の 戦い 1回だけ。world/c10d-steps.js。戦いの 側は battle-c10d.js の setupC10d が hooks.c10dPower を よむ）
+import { takePower10d } from './c10d-steps.js';
 
 let battleSeq = 1;
 
@@ -246,6 +248,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
       // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
       // 第93回 A班: スピカと はなれて いる 人が いる 戦いでは、スピカの 助け（ほのかな光・てらす・星のうた）が ない（world/c9d-steps.js）
       leaderFlag: (id) => !spicaHelpHidden9d(world, sessions, id) && !!leader?.char?.flags?.[id],
+      // 第99回 A班: ちからの水の しるし（いっしょに 戦う 人の だれかに あれば この 戦いの 間 1.2倍。読むと 消える ＝ 勝っても 負けても 1回だけ）
+      c10dPower: () => takePower10d(world, sessions),
       // 第2部 第8章 第4幕: ソリトゥスの 段ごとの 記録（しるし c8s_p2・c8s_p3。いっしょに 戦った 人 みんなに。次は その 段から。battle-c8r.js）
       markFlag: (id) => {
         for (const m of sessions) if (m.char) m.char.flags = { ...(m.char.flags || {}), [id]: true };
