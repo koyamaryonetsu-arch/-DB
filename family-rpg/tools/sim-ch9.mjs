@@ -21,6 +21,7 @@
 //     ch9Run(…, { tactics, supTac }) でも えらべる
 //   HPK・ATKK・MAGK・SPD … 敵の 強さを かけて ためす
 import { Battle } from '../public/js/shared/battle.js';
+import { decideAlly } from '../public/js/shared/ai.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { fullHeal, computeStats, canEquip } from '../public/js/shared/stats.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
@@ -164,6 +165,9 @@ export const PARTIES9 = {
 export const EXTRA_PARTIES9 = {
   k1tav: { label: '1人＋酒場3人(本物)', humans: 1, npc: 3, mon: 0, tavern: true },
   k1fam: { label: '1人＋家族の仲間3', humans: 1, npc: 3, mon: 0, fam: true },
+  // 第100回 V1班: 家族 2人・3人だけ（仲間を 入れない）
+  p2: { label: '人2人だけ　　', humans: 2, npc: 0, mon: 0 },
+  p3: { label: '人3人だけ　　', humans: 3, npc: 0, mon: 0 },
 };
 const partyOf9 = (k) => PARTIES9[k] || EXTRA_PARTIES9[k];
 function npcChar(id, job, lv, boss = null) {
@@ -306,6 +310,14 @@ export function addSpica9(b, boss) {
   return addSpica(b);
 }
 
+// 第100回 V1班: 人が 画面で えらぶ コマンド（知って いる 人の オートの えらび方 … decideAlly。a.knows9 が あるので しくみの 動きも 入る）
+//   'ai' や えらべない 時は null（そのときは 前と 同じく 動く 時に オートで 決める）
+const pickLate = !!process.env.PICKLATE;
+function pickNow(b, a) {
+  const cmd = decideAlly(b, a);
+  if (!cmd || cmd.type === 'ai') return null;
+  return b.validate(a, cmd).ok ? cmd : null;
+}
 // 1回 戦う。mode … 'auto' | 'blind' | 'know'
 // party … PARTIES9 の キー（人数の やり方。ない ときは 人4人）
 // 第92回 第2便: 第3部の ボスの 物さしは「人が 画面で できる 動き」… 人が 動かす キャラは 番が 来てから 2びょうで えらぶ・ブラウザの はじめの 速さ
@@ -318,14 +330,18 @@ const envNum = (k, d) => (process.env[k] !== undefined && process.env[k] !== '' 
 // flags … リーダーの フラグ（第94回: 先に 取った 音の スピカの ごほうび など。FLAGS=a,b でも）
 // tactics … 人が 動かす キャラの 作戦（第97回: 完全オートの 作戦を えらべる ように。ない ときは バッチリがんばれ）
 //   （第96回 T班: TAC=… でも。SUPTAC=… / supTac … 自動の 仲間 みんなの 作戦）
-export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null, list: preList = null, moreHooks = null, onEnd = null } = {}) {
+export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 'p4', react = envNum('REACT', REACT9), speed = envNum('BSPEED', SPEED9[0]), textSpeed = envNum('TSPEED', SPEED9[1]), flags = (process.env.FLAGS || '').split(',').filter(Boolean), tactics = process.env.TAC || 'balanced', supTac = process.env.SUPTAC || null, list: preList = null, moreHooks = null, onEnd = null, sameHand = !!process.env.SAMEHAND } = {}) {
   const M = MODES9[mode];
   if (!M) throw new Error(`mode: ${mode}`);
   // 第99回 B班: list … 前の 戦いから 引きつぐ 味方（連戦。HP・MPは char の まま）・moreHooks … 戦いの hooks に 足す・onEnd(b) … おわった 戦い
   const list = preList || ch9Allies(boss, lv, party, kit);
   // 人が 動かす キャラは 家族の キャラ（kind 'player'。完全オートの ときは その 人の「オート」）・のこりは 自動の 仲間
+  // 第100回 V1班: 人が 動かす キャラは 1人ずつ べつの 人（本当の ゲームと 同じ。ほかの 人の 合体技は「さそい」に 答える・
+  //   よやくで 自動では 待たない … battle-dual.js の needsAsk）。前の 数字（1つの 手で 4人 ぶんを 動かす）は SAMEHAND=1
+  let hi = 0;
+  const handOf = () => (sameHand || hi === 0 ? (hi++, 'sim') : `sim${hi++}`);
   const allies = list.map((x) => (x.know
-    ? { char: x.char, kind: 'player', controller: 'sim', auto: !M.know, tactics }
+    ? { char: x.char, kind: 'player', controller: handOf(), auto: !M.know, tactics }
     : { char: x.char, kind: x.monster ? 'monster' : 'support', auto: true, tactics: supTac || x.char.tactics || 'balanced' }));
   const hooks = flags.length || moreHooks ? { ...(flags.length ? { leaderFlag: (f) => flags.includes(f) } : {}), ...(moreHooks || {}) } : undefined;
   const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies, enemies: group(boss), speed, textSpeed, hooks });
@@ -345,6 +361,7 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
   const riddleAt = [];
   let riddleT0 = null;
   const readyAt = new Map();
+  const inviteAt = new Map();
   while (!b.over && real < 30 * 60 * 1000) {
     const evs = b.tick(50);
     real += 50;
@@ -375,8 +392,20 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
       if (e.c9sPochi) n.pochis++;
     }
     if (!M.know) continue;
+    // 第100回 V1班: ほかの 人から 合体技に さそわれた … 人は REACT で「はい」（さそわれて いる 間は 自分の コマンドを えらばない）
+    for (const inv of [...b.invites.values()]) {
+      for (const pid of [...inv.pending]) {
+        const p = b.get(pid);
+        if (!p?.knows9 || !p.alive) continue;
+        const k = `${inv.id}:${pid}`;
+        if (!inviteAt.has(k)) inviteAt.set(k, real);
+        if (real - inviteAt.get(k) < react) continue;
+        b.command(pid, { type: 'dualAnswer', invite: inv.id, ok: true }, p.controller);
+      }
+    }
     for (const a of b.allies) {
       if (!a.ready || !a.alive || a.kind === 'guest' || !a.knows9) { readyAt.delete(a.id); continue; }
+      if (a.invited || a.inviting) continue;
       // 人が えらぶ 時間（REACT）
       if (react > 0) {
         if (!readyAt.has(a.id)) readyAt.set(a.id, real);
@@ -384,8 +413,13 @@ export function ch9Run(boss, lv, mode, seed, { log = false, kit = true, party = 
         readyAt.delete(a.id);
       }
       if (!M.act || !M.act(b, a, boss)) {
-        a.ready = false;
-        b.enqueue(a, { type: 'ai' });
+        // 第100回 V1班: 人は えらんだ 時に コマンドを 決める（画面と 同じ。前は 動く 時に オートで 決めて いた … PICKLATE=1）
+        const cmd = pickLate ? null : pickNow(b, a);
+        if (cmd) b.command(a.id, cmd, a.controller);
+        if (a.ready) {
+          a.ready = false;
+          b.enqueue(a, { type: 'ai' });
+        }
       }
     }
   }
