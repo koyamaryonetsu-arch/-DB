@@ -177,9 +177,9 @@ test('大王: 3回 動くと 皿を じっと 見る（前ぶれに 皿の 名�
   assert.equal(dishesOf(b).length, 3);
   assert.ok(b.c9sp && b.c9sp.teru, '大王の 戦いは スピカと てらすが かならず 出る');
   assert.ok(b.snapshot().spica.teru);
-  // 2回は ふつう・3回目で 見る
+  // watch 回目で 見る（第101回 R1班: 4人は 3 → 2。人 1人ずつ べつの 手の 物さしで 合わせ直した。monsters-c9b.js の few.watch[3]）
+  assert.equal(kingConf(k, b).watch, 2);
   assert.equal(kingAct(b).tg, undefined);
-  kingAct(b);
   k.c9k.jumpLeft = 99;
   const w = kingAct(b);
   assert.equal(w.tg, WATCH);
@@ -353,9 +353,20 @@ test('人数で 合わせる: 家族の キャラの 数で 皿の HP・見る �
     assert.equal(kingOf(b).c9k.watchLeft, conf.few.watch[n - 1], `${n}人: 見る 間`);
     assert.equal(kingOf(b).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.few.hp[n - 1]), `${n}人: 大王の HP`);
   }
-  // 4人は もとの まま
-  assert.equal(conf.few.dish[3], 1);
-  assert.equal(conf.few.hp[3], 1);
+  // 第101回 R1班: 仲間なしの 2人・3人（味方が みんな 家族の キャラ）は bare の 表（few より 先）
+  for (const n of [2, 3]) {
+    const b = battle({ kinds: Array(n).fill('player') });
+    assert.equal(kingPeople(b), n);
+    assert.equal(dishHp(b), Math.round(base * conf.bare.dish[n - 2]), `${n}人だけ: 皿の HP`);
+    assert.equal(kingOf(b).c9k.watchLeft, conf.bare.watch[n - 2], `${n}人だけ: 見る 間`);
+    assert.equal(kingOf(b).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.bare.hp[n - 2]), `${n}人だけ: 大王の HP`);
+  }
+  // 4人も 合わせ直した（第101回 R1班。前は dish・hp 1 … 人4人 知って いる 人 50%・勝つまで 9分）。1人めは もとの まま
+  assert.equal(conf.few.dish[3], 0.8);
+  assert.equal(conf.few.hp[3], 0.9);
+  assert.deepEqual([conf.few.dish[0], conf.few.watch[0], conf.few.wait[0], conf.few.jump[0], conf.few.hp[0], conf.few.atk[0]], [0.45, 5, 3, 7, 0.55, 0.9]);
+  // 2人めも もとの まま（1人＋魔物3 が 使う）
+  assert.deepEqual([conf.few.dish[1], conf.few.watch[1], conf.few.wait[1], conf.few.jump[1], conf.few.hp[1], conf.few.atk[1]], [0.6, 4, 3, 6, 0.5, 1.2]);
   // 仲間なしの ひとり
   const solo = battle({ kinds: ['player'] });
   assert.equal(kingOf(solo).maxHp, Math.round(MONSTERS[C9B_DEDEDON].hp * conf.solo.hp));

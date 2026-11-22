@@ -300,7 +300,8 @@ test('モルド: カビの きり（毎回 2人・半分から 3人）・カビ 
   assert.equal(m.species, C10G_MOLD);
   quiet(m);
   const cf = c10Conf(C10G_MOLD, b);
-  assert.deepEqual([cf.kabi.max, cf.kabi.heal, cf.kabi.atk, cf.mist.n, cf.mist.half, cf.wall], [3, 0.25, 0.1, 2, 3, 0.5]);
+  // 第101回 R2班: 4人の かべは 0.6（4人を 短く する ため。1人〜3人は 0.5 の まま）
+  assert.deepEqual([cf.kabi.max, cf.kabi.heal, cf.kabi.atk, cf.mist.n, cf.mist.half, cf.wall], [3, 0.25, 0.1, 2, 3, 0.6]);
   const e = foe(b, m);
   assert.equal(e.c10Mist.ids.length, 2, 'きりは 2人');
   assert.equal(b.allies.reduce((s, a) => s + a.c10kabi, 0), 2);
@@ -326,11 +327,11 @@ test('モルド: カビの きり（毎回 2人・半分から 3人）・カビ 
   assert.ok(wallUp(b));
   let hp = m.hp;
   b.damage(a0, m, 1000, ev0(), {});
-  assert.equal(hp - m.hp, 500, 'かべで 半分');
+  assert.equal(hp - m.hp, 1000 * cf.wall, 'かべで 半分（4人は 0.6）');
   a0.c10kabi = 2;
   hp = m.hp;
   b.damage(a0, m, 1000, ev0(), {});
-  assert.equal(hp - m.hp, 400, 'カビ 2つで 攻撃 −20%');
+  assert.equal(hp - m.hp, Math.round(1000 * cf.wall * 0.8), 'カビ 2つで 攻撃 −20%');
   // てらす: カビと かべが 消える
   a0.c10kabi = 2;
   a1.c10kabi = 1;
@@ -421,20 +422,21 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物
     const sp = boss === 'tamagon' ? C10R_TAMAGON : C10G_MOLD;
     const hp = (kinds) => c10Boss(battle({ boss, kinds })).maxHp;
     const base = MONSTERS[sp].hp;
-    assert.equal(hp(['player', 'player', 'player', 'player']), base, `${boss}: 4人は もとの まま`);
+    // 第101回 R2班: 4人も 合わせ直した（人が 1人ずつ べつの 手で はかる 道具で 長く なった ぶん。4人は few の 4人目）
+    assert.equal(hp(['player', 'player', 'player', 'player']), Math.round(base * MONSTERS[sp].c10.few.hp[3]), `${boss}: 4人は few の 4人目`);
     assert.ok(hp(['player', 'player', 'support', 'support']) < base, `${boss}: 2人`);
     assert.ok(hp(['player']) < base * 0.2, `${boss}: ひとりだけ`);
     const b = battle({ boss, kinds: ['player', 'monster', 'monster', 'monster'] });
     assert.equal(peopleOf10(b), 2, '魔物の 仲間は 半人ぶん');
     const c = MONSTERS[sp].c10;
     for (const k of ['hp', 'atk']) assert.equal(c.few[k].length, 5);
-    assert.equal(c.few.hp[3], 1);
-    assert.equal(c.few.atk[3], 1);
+    assert.ok(c.few.hp[3] < 1, '4人は HPを 下げて 短く');
   }
   // モルドの ひとりは カビの かべが とても かたい（スピカの てらすを 使わないと 勝てない）
   const solo = battle({ boss: 'mold', kinds: ['player'] });
   assert.ok(c10Conf(C10G_MOLD, solo).wall <= 0.1);
-  assert.equal(c10Conf(C10G_MOLD, battle({ boss: 'mold' })).wall, 0.5);
+  assert.equal(c10Conf(C10G_MOLD, battle({ boss: 'mold' })).wall, 0.6);
+  assert.equal(c10Conf(C10G_MOLD, battle({ boss: 'mold', kinds: ['player', 'player', 'support', 'support'] })).wall, 0.5);
 });
 
 // ───────────── 強さ ─────────────

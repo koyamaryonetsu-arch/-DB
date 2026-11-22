@@ -112,7 +112,8 @@ test('長おしの お気に入り: ListMenu の onLong（0.5秒・はなした 
   assert.match(input, /KeyY: 'y'/);
   // 第79回: yKey の まどでは 左（2）・上（3）の どちらも Y（ほかでは 上は B。test/skill-menu-pad-r79.test.js）
   assert.match(input, /if \(yKey && \(top \|\| left\)\) this\.emit\('y'\);/);
-  assert.match(input, /if \(start \|\| \(!yKey && top\)\) this\.emit\('b'\);/);
+  // 第100回 U1: START は 戦いの 中では 先に hot（戦いのメニュー。test/pad-tactics-r100.test.js）。うけとらなければ 今までどおり B
+  assert.match(input, /if \(\(start && !this\.hot\?\.\('start'\)\) \|\| \(!yKey && top && !start\)\) this\.emit\('b'\);/);
   const bsrc = src('js/client/battle.js');
   assert.match(bsrc, /this\.menu\.onLong = \(it\) =>/);
   assert.match(bsrc, /favPopup\(a, id, toggle\)/);

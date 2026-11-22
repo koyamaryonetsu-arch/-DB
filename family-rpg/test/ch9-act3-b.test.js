@@ -396,10 +396,24 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物
   const hp = (id, kinds) => { const b = battle(id, { kinds }); return (nazoOf(b) || mechaOf9c(b)).maxHp; };
   for (const id of Object.values(C9C_BATTLE)) {
     const base = MONSTERS[groupOf(id)[0]].hp;
-    assert.equal(hp(id, ['player', 'player', 'player', 'player']), base, '4人は もとの まま');
-    assert.ok(hp(id, ['player', 'support', 'support', 'support']) < base, '1人＋酒場');
-    assert.ok(hp(id, ['player', 'player', 'player', 'player', 'player']) > base, '5人');
+    const c = MONSTERS[groupOf(id)[0]].c9c;
+    // 第101回 R1班: 4人も 人数の 表で 合わせ直した（前は 4人 もとの まま・5人 大きく。人 1人ずつ べつの 手の 物さしで 時間が のびすぎた）
+    assert.equal(hp(id, ['player', 'player', 'player', 'player']), Math.round(base * c.few.hp[3]), '4人');
+    assert.ok(c.few.hp[3] < 1);
+    assert.equal(hp(id, ['player', 'support', 'support', 'support']), Math.round(base * c.few.hp[0]), '1人＋酒場（もとの まま）');
+    assert.equal(hp(id, ['player', 'player', 'player', 'player', 'player']), Math.round(base * c.few.hp[4]), '5人');
     assert.ok(hp(id, ['player']) < base * 0.3, 'ひとりだけ');
+    // 仲間なしの 2人・3人は bare
+    assert.equal(hp(id, ['player', 'player']), Math.round(base * c.bare.hp[0]), '2人だけ');
+    assert.equal(hp(id, ['player', 'player', 'player']), Math.round(base * c.bare.hp[1]), '3人だけ');
+    assert.equal(hp(id, ['player', 'player', 'support']), Math.round(base * c.few.hp[1]), '2人＋酒場は few');
+    // 1人＋魔物3（2人めの 表を 使う）の HP・攻撃は もとの まま（monK で もどす）
+    const mon = battle(id, { kinds: ['player', 'monster', 'monster', 'monster'] });
+    const m = nazoOf(mon) || mechaOf9c(mon);
+    const old = id === C9C_BATTLE.riddle ? { hp: 0.5, atk: 1.75 * 1.09 } : { hp: 0.5, atk: 1.5 };
+    assert.equal(m.maxHp, Math.round(base * old.hp), '1人＋魔物3 の HP');
+    const conf = id === C9C_BATTLE.riddle ? riddleConf(m, mon) : sandConf(m, mon);
+    assert.ok(Math.abs(conf.atk - old.atk) < 1e-4, `1人＋魔物3 の 攻撃 ${conf.atk}`);
   }
   const b = battle(C9C_BATTLE.riddle, { kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.equal(peopleOf9c(b), 2, '魔物の 仲間は 半人ぶん');
@@ -411,15 +425,18 @@ test('人数で 合わせる: 家族の キャラの 数で HP・攻撃・魔物
 
 // ───────────── 強さ ─────────────
 test('強さ: 人が できる 動き（えらぶ 時間 2びょう・ブラウザの 速さ）で 知って いる 人は 勝てる・完全オートは 勝てない（少しの 回数）', { timeout: 2400000 }, () => {
-  const human = { legacy: true, react: 2000, speed: 0.85, textSpeed: 0.8 };
+  // 第101回 R1班: 人数の 表を 合わせ直した ので、新しい 物さし（人 1人ずつ べつの 手。legacy なし）で 見る（docs/plan-sim-vs-real.md の 10）
+  //   知って いる 人は 3/5 いじょう（前は 2/5）・勝つまで 7分 いない（前は 520秒 まで）。
+  //   長さの 下は 150秒（ナゾカケは 5秒の 人が 9分 いないに おさまる ように HP を 下げた ので、2秒の 人は 3分 くらいで 勝つ）
+  const human = { react: 2000, speed: 0.85, textSpeed: 0.8 };
   for (const boss of ['riddle', 'trio2']) {
     const know = [1, 2, 3, 4, 5].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, human));
-    assert.ok(know.filter((r) => r.outcome === 'win').length >= 2, `${boss} 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
+    assert.ok(know.filter((r) => r.outcome === 'win').length >= 3, `${boss} 知って いる 人 ${know.map((r) => r.outcome).join(',')}`);
     const auto = [1, 2, 3].map((s) => ch9Run(boss, LV9[boss], 'auto', 9090 + s * 7919, human));
     assert.equal(auto.filter((r) => r.outcome === 'win').length, 0, `${boss} 完全オート`);
     const wins = know.filter((r) => r.outcome === 'win');
     const sec = wins.reduce((s, r) => s + r.seconds, 0) / wins.length;
-    assert.ok(sec >= 200 && sec <= 520, `${boss} 長さ ${sec}秒`);
+    assert.ok(sec >= 150 && sec <= 420, `${boss} 長さ ${sec}秒`);
     // 第92回 第3便: なぞ・砂・ポチッとねの 間は えらぶ 人を 待つ ので、えらぶのに 5びょう かかる 人も 勝てる
     const slow = [1, 2, 3, 4].map((s) => ch9Run(boss, LV9[boss], 'know', 9090 + s * 7919, { ...human, react: 5000 }));
     assert.ok(slow.filter((r) => r.outcome === 'win').length >= 2, `${boss} 5びょう ${slow.map((r) => r.outcome).join(',')}`);

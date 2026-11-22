@@ -20,7 +20,7 @@
 //   HPが 半分を 切ると、きりが mist.half 人に・「大カビばくだん」（bomb.every 回 動く ごとに 前ぶれ m10m_bombup。b.tell 'bomb' → 全体 m10m_bomb。身を 守ると へる）
 //   勝つと メカは 止まり、だんしゃくは たおれない（しょんぼり）
 //   自動の 仲間（酒場の 人）は、スピカの 技が たまって いて 役に 立つ 番の 3回に 1回 使う（星のうた … カビが ある・てらす … かべが ある）
-// ・人数で 合わせる（few・solo・monK）は 第1章 第4幕と おなじ 数え方（魔物の 仲間は 半人ぶん）
+// ・人数で 合わせる（few・solo・monK）は 第1章 第4幕と おなじ 数え方（魔物の 仲間は 半人ぶん）。仲間なしの 2人／3人は bare（c10Pick）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C10R_TAMAGON, C10G_MOLD, DRILL_NAME, KABI_NAME } from './data/monsters-c10a.js';
@@ -61,12 +61,28 @@ export function peopleOf10(b) {
   return Math.max(1, Math.min(5, n || 4));
 }
 const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf10(b) - 1] ?? d : d);
+// 第101回 R2班: 仲間なしの 少ない パーティー（味方〈ゲストを のぞく〉が みんな 家族の キャラで 2人か 3人）→ 2 か 3。ほかは 0
+//   自動の 仲間（酒場・家族の 仲間・魔物）が いる 時と ひとりだけ（solo）は 0（今の まま）
+export function bareOf10(b) {
+  const al = (b?.allies || []).filter((a) => a.kind !== 'guest');
+  return (al.length === 2 || al.length === 3) && al.every((a) => a.kind === 'player') ? al.length : 0;
+}
+// 人数で 合わせた 数を 引く（solo → bare〈[2人, 3人]〉→ few〈[1人〜5人]〉の じゅんに きく）。第2章の 4つの 幕で 同じ 物を 使う
+export function c10Pick(c, b) {
+  const f = c.few || {};
+  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
+  const n = b ? bareOf10(b) : 0;
+  const bare = n ? c.bare || {} : {};
+  return (k, d) => {
+    if (alone[k] !== undefined) return alone[k];
+    if (Array.isArray(bare[k]) && bare[k][n - 2] != null) return bare[k][n - 2];
+    return b ? few(f[k], b, d) : d;
+  };
+}
 // 中ボスの しかけの 数（人数で 合わせた もの）
 export function c10Conf(species, b = null) {
   const c = MONSTERS[species]?.c10 || {};
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const pick = c10Pick(c, b);
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
     kind: c.kind,

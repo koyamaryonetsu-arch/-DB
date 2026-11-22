@@ -25,6 +25,8 @@ import { ABILITIES } from './data/abilities.js';
 import { ANSWER, FLIP } from './data/abilities-c9c.js';
 import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js';
 import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js';
+// 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
+import { pickPeople } from './battle-c9a.js';
 
 export { ANSWER, FLIP };
 export const RIDDLE = 'm9z_riddle';
@@ -51,13 +53,8 @@ export function peopleOf9c(b) {
   const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf9c(b) - 1] ?? d : d);
-// 人数で 合わせた 数（仲間なしの ひとりは solo を 先に）
-function picker(c, b) {
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  return (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
-}
+// 人数で 合わせた 数（仲間なしの ひとりは solo を 先に。第101回 R1班: 仲間なしの 2人・3人は bare を few より 先に … battle-c9a.js の pickPeople）
+const picker = (c, b) => pickPeople(c, b, peopleOf9c);
 function monMul(c, b) {
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return { hp: 1 + (c.monK?.hp || 0) * mons, atk: 1 + (c.monK?.atk || 0) * mons };

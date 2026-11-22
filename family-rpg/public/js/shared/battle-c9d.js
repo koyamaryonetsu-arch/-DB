@@ -22,6 +22,8 @@ import { SONG } from './data/abilities-c9d.js';
 import { C9D_MU, C9D_MUMU } from './data/monsters-c9d.js';
 import { C9D } from './maps/c9d-flags.js';
 import { canUse } from './ai.js';
+// 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
+import { pickPeople } from './battle-c9a.js';
 
 export { SONG };
 export const SPLIT = 'm9m_split';
@@ -49,13 +51,11 @@ export function peopleOf9d(b) {
   const n = p ? Math.floor(p + al.filter((a) => a.kind === 'monster').length * 0.5) : 0;
   return Math.max(1, Math.min(5, n || 4));
 }
-const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf9d(b) - 1] ?? d : d);
 export function muConf(m, b = null) {
   const c = MONSTERS[C9D_MU].c9d;
   void m;
-  const f = c.few || {};
-  const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  // 仲間なしの ひとりは solo・仲間なしの 2人・3人は bare（第101回 R1班）を few より 先に（battle-c9a.js の pickPeople）
+  const pick = pickPeople(c, b, peopleOf9d);
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   return {
     tired: pick('tired', c.tired ?? 0.15),
