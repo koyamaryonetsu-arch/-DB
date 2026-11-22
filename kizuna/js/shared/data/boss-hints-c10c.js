@@ -2,8 +2,8 @@
 // C10C_BOSS_HINTS[戦いの id] = [1回目（ぼんやり）, 2回目（もう 少し）, 3回目（はっきり）]。言う 人は ノクト
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c10c.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=cbd3e0b1870d';
-import { C10C_BATTLE_B as C10C_BATTLE } from '../maps/c10c-flags.js?v=cbd3e0b1870d';
+import { mergeBossHints } from './boss-hints.js?v=7362a49921c1';
+import { C10C_BATTLE_B as C10C_BATTLE } from '../maps/c10c-flags.js?v=7362a49921c1';
 
 export const C10C_HINT_WHO = 'ノクト';
 export const C10C_BOSS_HINTS = {

@@ -12,20 +12,20 @@
 import {
   C10D, C10D_ACT3, C10D_GATES, C10D_WELLS, C10D_BLESS, C10D_BLESS_NAMES, C10D_PED, C10D_MAP, C10D_BATTLE, C10D_GATE_BATTLES,
   C10D_BOSS_MON, C10D_MON, C10D_MIRROR_NAME, C10D_MIRROR_SHORT, C10D_TRACKS, NOTE_DO,
-} from '../maps/c10d-flags.js?v=cbd3e0b1870d';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=cbd3e0b1870d';
-import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=cbd3e0b1870d';
-import { C9D_TRACKS } from '../maps/c9d-flags.js?v=cbd3e0b1870d';
+} from '../maps/c10d-flags.js?v=7362a49921c1';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=7362a49921c1';
+import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=7362a49921c1';
+import { C9D_TRACKS } from '../maps/c9d-flags.js?v=7362a49921c1';
 import {
   STAIR1_POS, STAIR2_POS, STAIR3_POS, SUMMIT_POS, TOWER1_GOLD10D, TOP_SKYSTAIR10D, HILL_SPOT10D, HILL_BRIDGE10D, HILL_STATUES10D,
   PED_DO10D, PED8_10D,
-} from '../maps/c10d-rows.js?v=cbd3e0b1870d';
-import { PEDESTALS9C } from '../maps/c9c.js?v=cbd3e0b1870d';
-import { MONSTERS } from './monsters.js?v=cbd3e0b1870d';
-import { mergeBossHints } from './boss-hints.js?v=cbd3e0b1870d';
-import { SHOPS } from './shops.js?v=cbd3e0b1870d';
-import { C10D_SHOP_ADD } from './items-c10d.js?v=cbd3e0b1870d';
-import { SHOP10C_CRATER } from './story-c10c.js?v=cbd3e0b1870d';
+} from '../maps/c10d-rows.js?v=7362a49921c1';
+import { PEDESTALS9C } from '../maps/c9c.js?v=7362a49921c1';
+import { MONSTERS } from './monsters.js?v=7362a49921c1';
+import { mergeBossHints } from './boss-hints.js?v=7362a49921c1';
+import { SHOPS } from './shops.js?v=7362a49921c1';
+import { C10D_SHOP_ADD } from './items-c10d.js?v=7362a49921c1';
+import { SHOP10C_CRATER } from './story-c10c.js?v=7362a49921c1';
 // 星の いずみ・門の しくみは world.c10d（world/c10d-steps.js の C10D_API。data から world を 読まない）
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

@@ -1,16 +1,16 @@
 // 乗り物屋（カウンター）と メニューの「乗り物」（第37回。きまりは shared/data/vehicles.js）
 //   乗り物屋: たなの 乗り物を えらぶと みぎに 見本（自分が 乗って くるくる 回る）→ 買う → 「さっそく乗る？」
 //   メニュー: 持っている 乗り物 と「乗らない」から えらぶ（走ると 乗る。速さは 同じ）
-import { el, esc } from './dom.js?v=cbd3e0b1870d';
-import { Counter } from './counter.js?v=cbd3e0b1870d';
-import { request } from './shop.js?v=cbd3e0b1870d';
-import { boardIconURL } from '../render/boards.js?v=cbd3e0b1870d';
-import { vehicleCanvas } from '../render/vehicle-art.js?v=cbd3e0b1870d';
-import { heroLookKey } from '../render/hero.js?v=cbd3e0b1870d';
-import { equipKey } from '../render/chars.js?v=cbd3e0b1870d';
-import { playerSprite } from '../field.js?v=cbd3e0b1870d';
-import { shownEquip } from '../../shared/look-equip.js?v=cbd3e0b1870d';
-import { VEHICLES, vehicleShelf, ownedVehicles, chosenVehicle } from '../../shared/data/vehicles.js?v=cbd3e0b1870d';
+import { el, esc } from './dom.js?v=7362a49921c1';
+import { Counter } from './counter.js?v=7362a49921c1';
+import { request } from './shop.js?v=7362a49921c1';
+import { boardIconURL } from '../render/boards.js?v=7362a49921c1';
+import { vehicleCanvas } from '../render/vehicle-art.js?v=7362a49921c1';
+import { heroLookKey } from '../render/hero.js?v=7362a49921c1';
+import { equipKey } from '../render/chars.js?v=7362a49921c1';
+import { playerSprite } from '../field.js?v=7362a49921c1';
+import { shownEquip } from '../../shared/look-equip.js?v=7362a49921c1';
+import { VEHICLES, vehicleShelf, ownedVehicles, chosenVehicle } from '../../shared/data/vehicles.js?v=7362a49921c1';
 
 const DIRS = ['down', 'left', 'up', 'right'];
 const RIDE_NOTE = '走っている時だけ乗る（歩く時はいつもの絵）。速さは同じ。\n乗っている間は、仲間もいっしょに乗っている。';

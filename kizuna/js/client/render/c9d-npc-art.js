@@ -5,7 +5,7 @@
 //   こい みどり青の ぼうしに 三日月。第94回 D班で うす紫から なおした）
 // ・c9d_candy … おかしに された 星（場面の 役者）
 // もとの 作品の 絵は 使わない
-import { Painter } from './pixel.js?v=cbd3e0b1870d';
+import { Painter } from './pixel.js?v=7362a49921c1';
 
 const MU = { d: '#6a4a9a', b: '#a888d8', l: '#c8b0f0', hl: '#eee0ff', cap: '#4a5ac8', capD: '#3a4aa8' };
 // ムウムウ: 戦いの 絵（render/c9d-art.js の MM）の 体 #b4ecd8・#78c8ac・#e4fff4・#4a9a80 と ぼうし #2a9a8a・#1a6a60 に 合わせる

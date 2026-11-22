@@ -18,15 +18,15 @@
 // ・オートの 仲間（ふつう）: だれかが 地われ・のみこまれて いたら、回復の あとで「手をのばす」（reachPlan。かんたんで あぶなくない ので）。
 //   ほかは かわらない。シミュレーター（tools/sim-nocto1.mjs）の 知っている 人（b.knowsNocto1）は、影を 先に たおす・
 //   前ぶれで 間に 合わない ときは 身を 守る（earthPlan）
-import { MONSTERS } from './data/monsters.js?v=cbd3e0b1870d';
-import { ABILITIES } from './data/abilities.js?v=cbd3e0b1870d';
-import { NOCTO1, NOCTO_CLONE } from './data/monsters-earth.js?v=cbd3e0b1870d';
+import { MONSTERS } from './data/monsters.js?v=7362a49921c1';
+import { ABILITIES } from './data/abilities.js?v=7362a49921c1';
+import { NOCTO1, NOCTO_CLONE } from './data/monsters-earth.js?v=7362a49921c1';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=cbd3e0b1870d';
-import { BUFF_ACTS } from './buff-acts.js?v=cbd3e0b1870d';
-import { canUse } from './ai.js?v=cbd3e0b1870d';
+import { atbRate, pub } from './battle.js?v=7362a49921c1';
+import { BUFF_ACTS } from './buff-acts.js?v=7362a49921c1';
+import { canUse } from './ai.js?v=7362a49921c1';
 // 合体技の よやくの 組（ノクトの影と おなじ。battle-nocto.js）
-import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js?v=cbd3e0b1870d';
+import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js?v=7362a49921c1';
 
 export { NOCTO1, NOCTO_CLONE };
 export const REACH = 'reach';

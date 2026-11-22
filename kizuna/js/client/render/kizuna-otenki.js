@@ -8,7 +8,7 @@
 //   オーラ               … 左半分 青い 雨・右半分 だいだいの 日ざし
 // 乗り物: パンダの雨雲（らんま1/2 の パンダが、雨雲に のって かさを さす。もとの パンダより こまかい。うしろに にじ）
 // えんしゅつ: otenki_shihan_sig（雨が ふりだす → 竜巻 → 雨つぶの 追いうち）・kizuna_niji（ひらめき技。にじの けり）
-import { pandaArt } from './vehicle-r84b.js?v=cbd3e0b1870d';
+import { pandaArt } from './vehicle-r84b.js?v=7362a49921c1';
 
 const ID = 'otenki_shihan';
 

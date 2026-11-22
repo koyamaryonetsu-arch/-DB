@@ -30,15 +30,15 @@
 //   完全オートは 投げない（かまれ つづけて 勝てない）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数で 合わせる（few・solo・monK）は 第2章 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=cbd3e0b1870d';
-import { ABILITIES } from './data/abilities.js?v=cbd3e0b1870d';
-import { C11A_STARS, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN, SHARK_NAME, CAPTAIN_SHORT } from './data/monsters-c11a.js?v=cbd3e0b1870d';
-import { TOKEI_NAGE } from './data/abilities-c11a.js?v=cbd3e0b1870d';
-import { C11A_B as C11A } from './data/c11a-names-b.js?v=cbd3e0b1870d';
-import { SONG } from './data/abilities-c9d.js?v=cbd3e0b1870d';
-import { canUse } from './ai.js?v=cbd3e0b1870d';
-import { atbRate } from './battle.js?v=cbd3e0b1870d';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=cbd3e0b1870d';
+import { MONSTERS } from './data/monsters.js?v=7362a49921c1';
+import { ABILITIES } from './data/abilities.js?v=7362a49921c1';
+import { C11A_STARS, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN, SHARK_NAME, CAPTAIN_SHORT } from './data/monsters-c11a.js?v=7362a49921c1';
+import { TOKEI_NAGE } from './data/abilities-c11a.js?v=7362a49921c1';
+import { C11A_B as C11A } from './data/c11a-names-b.js?v=7362a49921c1';
+import { SONG } from './data/abilities-c9d.js?v=7362a49921c1';
+import { canUse } from './ai.js?v=7362a49921c1';
+import { atbRate } from './battle.js?v=7362a49921c1';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=7362a49921c1';
 
 export { TOKEI_NAGE };
 export const FANG = 'm11b_fang';
@@ -64,6 +64,12 @@ const flag = (b, f) => {
   }
 };
 const few = (arr, b, d) => (Array.isArray(arr) ? arr[peopleOf10(b) - 1] ?? d : d);
+// 第101回 3回め: 仲間なしの 少ない パーティー（味方が みんな 家族の キャラで 2人か 3人。ゲストの スピカは 味方に 入らない）
+//   bare: { hp: [2人, 3人], … } … ある キーは few より 先に きく（第1章 battle-c9a.js・第2章 battle-c10a.js と 同じ 考え）
+export function bareOf(b) {
+  const al = (b?.allies || []).filter((a) => a.kind !== 'guest');
+  return al.length >= 2 && al.length <= 3 && al.every((a) => a.kind === 'player') ? al.length : 0;
+}
 const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, enumerable: false, configurable: true, writable: true });
 
 // しかけの 数（人数で 合わせた もの）
@@ -71,23 +77,25 @@ export function c11aConf(species, b = null) {
   const c = MONSTERS[species]?.c11a || {};
   const f = c.few || {};
   const alone = b && b.allies.length === 1 ? c.solo || {} : {};
-  const pick = (k, d) => (alone[k] ?? (b ? few(f[k], b, d) : d));
+  const n = bareOf(b);
+  const bare = n && c.bare ? Object.fromEntries(Object.entries(c.bare).map(([k, v]) => [k, Array.isArray(v) ? v[n - 2] : v]).filter(([, v]) => v !== undefined)) : {};
+  const pick = (k, d) => (alone[k] ?? bare[k] ?? (b ? few(f[k], b, d) : d));
   const mons = b && (b.allies || []).some((a) => a.kind === 'player') ? b.allies.filter((a) => a.kind === 'monster').length : 0;
   const out = {
-    kind: c.kind,
+    kind: c.kind, bare: n,
     hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
   if (c.kind === 'beast') {
     Object.assign(out, {
-      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: c.reviveUp ?? 0, linkK: pick('linkK', c.linkK ?? 1), linkAuto: c.linkAuto ?? c.linkK ?? 1, mend: c.mend ?? 0.05,
+      role: c.role, revive: pick('revive', c.revive ?? 2), reviveBy: c.reviveBy || 'beast', reviveHp: c.reviveHp ?? 0.5, reviveUp: pick('reviveUp', c.reviveUp ?? 0), linkK: pick('linkK', c.linkK ?? 1), linkAuto: c.linkAuto ?? c.linkK ?? 1, mend: c.mend ?? 0.05,
       roar: { every: 3, first: 2, mult: 2.3, guardCut: 0.35, ...(c.roar || {}) },
     });
   }
   if (c.kind === 'pirate') {
     Object.assign(out, {
       plus: pick('plus', c.clock?.plus ?? 2), two: pick('two', c.clock?.two ?? 0.5), twoPlus: c.clock?.twoPlus ?? 2,
-      bite: { ally: 0.8, guardCut: 0.5, cap: 0.06, dizzy: 2, dizzyK: 1.25, ...(c.bite || {}) },
-      hard: c.hard ?? 0.3,
+      bite: { ally: 0.8, guardCut: 0.5, cap: 0.06, dizzy: 2, dizzyK: 1.25, ...(c.bite || {}), ...(bare.dizzy !== undefined ? { dizzy: bare.dizzy } : {}) },
+      hard: pick('hard', c.hard ?? 0.3),
       anchor: { every: 3, first: 2, mult: 1, holder: 0.7, atb: 0, ...(c.anchor || {}) },
       song: c.song ?? 1,
     });

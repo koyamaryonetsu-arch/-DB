@@ -13,7 +13,7 @@
 //   trialAdj  … 職業の試練の まぼろしの 強さ（battle-trial.js の PHANTOM_ADJ）
 //   work      … まぼろしの回ろうで 数える 作品（新しい 系統の 方。rivals-r88.js の とびら）
 // この 職業だけの 新しい 戦いの しくみは 作らない（親の しくみ: 火竜をよぶ〈r85bRyu〉・予兆保全〈passive.foresee〉・補助・回復）
-import { RYU_SET } from './abilities-r85b.js?v=cbd3e0b1870d';
+import { RYU_SET } from './abilities-r85b.js?v=7362a49921c1';
 
 const STATUS_ALL = ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'];
 

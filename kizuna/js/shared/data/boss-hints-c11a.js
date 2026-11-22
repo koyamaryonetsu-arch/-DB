@@ -3,8 +3,8 @@
 //   中ボス（星座のけもの）は 2だん・幕の ボス（いかり船長）は 3だん
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c11a.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=cbd3e0b1870d';
-import { C11A_BATTLE_B as C11A_BATTLE } from './c11a-names-b.js?v=cbd3e0b1870d';
+import { mergeBossHints } from './boss-hints.js?v=7362a49921c1';
+import { C11A_BATTLE_B as C11A_BATTLE } from './c11a-names-b.js?v=7362a49921c1';
 
 export const C11A_HINT_WHO = 'ノクト';
 export const C11A_BOSS_HINTS = {

@@ -5,9 +5,9 @@
 // ・コマンド: なぞが 出て いる 間は いちばん 上に「こたえる」（えらぶと 3つの 答え）・メカの 戦いでは「ひっくり返す」
 // ・ナゾカケ: なぞの守り（青い まく）・休み（うーむ）。メカ: 目が回る（え の コマ 2・3。ぐるぐる）・ポチッとねの ねらい
 // スマホの たて（390×844）でも 読める（文字は 2行まで おりかえす）
-import { C9C_NAZOKAKE, C9C_HIKKURI } from '../shared/data/monsters-c9c.js?v=cbd3e0b1870d';
-import { ANSWER, FLIP } from '../shared/data/abilities-c9c.js?v=cbd3e0b1870d';
-import { monsterCanvas } from './render/monsters.js?v=cbd3e0b1870d';
+import { C9C_NAZOKAKE, C9C_HIKKURI } from '../shared/data/monsters-c9c.js?v=7362a49921c1';
+import { ANSWER, FLIP } from '../shared/data/abilities-c9c.js?v=7362a49921c1';
+import { monsterCanvas } from './render/monsters.js?v=7362a49921c1';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9C_OWN_TELE = [C9C_NAZOKAKE, C9C_HIKKURI];
