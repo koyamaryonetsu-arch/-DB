@@ -201,7 +201,7 @@ export function c11GlowStar(b, ev) {
 }
 
 // ───────────── 今 前ぶれ中か（battle-tell.js の b.tell。battle-c9b.js の c9bTell から）─────────────
-// けもの: 'fang' … かみつきの 前ぶれ・'revive' … 星が また 光りはじめた ／ 船長: 'anchor' … いかりなげの 前ぶれ・'pirate' … いつも 待つ
+// けもの: 'fang' … かみつきの 前ぶれ・'revive' … 星が また 光りはじめた・'beast' … いつも 待つ（b.tellAll は b.tell が ある 間だけ きく） ／ 船長: 'anchor' … いかりなげの 前ぶれ・'pirate' … いつも 待つ
 export function c11aTell(b) {
   const st = b?.c11a;
   if (!st || st.won) return null;
@@ -213,7 +213,7 @@ export function c11aTell(b) {
   const stars = starsOf(b);
   if (stars.some((e) => e.alive && e.c11s?.roarReady)) return 'fang';
   if (stars.some((e) => !e.alive && e.c11s?.dead && e.c11s.left === 1)) return 'revive';
-  return null;
+  return starsOf(b).some((e) => e.alive) ? 'beast' : null;
 }
 
 // ───────────── 1回 動いた あと（battle-c9a.js の c9aAfter の はじめ。味方・敵 どちらも）─────────────
