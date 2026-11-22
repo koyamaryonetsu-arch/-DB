@@ -580,3 +580,34 @@ test('家族 2人: いっしょに 門の 番人と 戦う・いずみは リー
   assert.ok(!isBlocked(MAPS[C10D_MAP.stair1], GATE_INFO10D[1].x, GATE_INFO10D[1].y, world.hasFlagFn(B.bot.s)), 'なかまにも 開いた 門');
   assert.ok(said(B.bot, '鏡のかけらでできた兵'), 'なかまも 同じ 場面を 見た');
 });
+
+test('見え方: 雲の すき間の 小さな 世界は どの マスでも 4つの 土地の どれか（マイナスで 配列の 外を 読まない）・曲の gateStage', async () => {
+  const { landOf, noteC10dStage } = await import('../public/js/client/c10d-view.js');
+  let n = 0;
+  for (const id of C10D_MAP_IDS) {
+    const m = MAPS[id];
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+      const L = landOf(m, x, y);
+      if (!L) continue;
+      n++;
+      assert.ok(L.land && L.land.g && L.land.l && L.land.dot, `${id} ${x},${y}`);
+      for (const v of [L.ox, L.oy, L.r]) assert.ok(Number.isFinite(v) && v >= 0, `${id} ${x},${y}`);
+    }
+  }
+  assert.ok(n > 10, `小さな 世界 ${n}こ`);
+  // 大きな 座標（ハッシュが 2^31 を こえる 所）でも
+  const big = { w: 4000, h: 4000, tiles: {} };
+  let nb = 0;
+  for (let y = 3900; y < 4000; y++) for (let x = 3900; x < 4000; x++) {
+    big.tiles[y * 4000 + x] = T.CLOUD_SEA;
+    const L = landOf(big, x, y);
+    if (L) { nb++; assert.ok(L.land && L.ox >= 0 && L.oy >= 0, `${x},${y}`); }
+  }
+  assert.ok(nb > 0);
+  const f = { map: MAPS[C10D_MAP.stair2], hasFlag: hasOf(['c10d_gate1', 'c10d_gate2']) };
+  noteC10dStage(f);
+  assert.equal(f.gateStage, 2);
+  f.map = MAPS.c9a_crater;
+  noteC10dStage(f);
+  assert.equal(f.gateStage, 0, 'ほかの マップでは 0');
+});
