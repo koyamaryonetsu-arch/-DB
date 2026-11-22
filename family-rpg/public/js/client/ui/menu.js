@@ -2165,10 +2165,10 @@ export class FieldMenu {
       const t = [offN(x) ? `オートで使わない ${offN(x)}` : '', cmdN(x) ? `命令に出さない ${cmdN(x)}` : ''].filter(Boolean);
       return t.length ? `（${t.join('・')}）` : '';
     };
-    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name } }];
+    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name, tac: c.tactics || 'balanced' } }];
     // 自分の 仲間（パーティー・馬車）
     for (const s of this.myMates()) {
-      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) }) });
+      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name, tac: s.tactics }, face: faceURL({ look: s.look, job: s.job, eq: shownEquip(s), mon: colorMon(s.species, s.color) }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
     if (!active) {
@@ -2199,7 +2199,7 @@ export class FieldMenu {
         if (what === 'cmd') return this.pushView(() => this.cmdSkillsView(v.key));
         if (what === 'tac') {
           // 第96回 T班: 作戦ごとの 1行の せつめいも 出す（tacticsItemHtml）
-          const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, html: tacticsItemHtml(x), value: k }));
+          const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, html: tacticsItemHtml(x), value: k, right: k === v.tac ? '今' : '' })); // 第100回 U1: 今の 作戦に「今」
           const t = await this.pick(v.key === 'self' ? 'オートのときの作戦' : `${v.name}の作戦`, [...list, { label: 'やめる', value: null }]);
           if (t) g.net.send({ t: 'menu', action: 'tactics', key: v.key, tactics: t, label: TACTICS[t].name });
           setTimeout(() => this.redraw(), t ? 250 : 0);
@@ -2404,8 +2404,8 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? '操作: 画面の左側（左手用は右側、片手は下の半分）をさわるとそこにスティックが出る（指を動かして移動）。「ボタンのならび」で、たて持ちの時のボタンの場所を変えられる。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）\n戦いの呪文・特技は、上の札をタップで種類を切りかえ。技の一覧の左右のはしの◀▶で、次の（前の）技のまとまりへ'
-          : `操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット${quickList(c).length ? `、Tで${quickLabel(quickItemOf(c)) || '大事な物'}（すぐ使う）` : ''}\n戦いの呪文・特技: Q・E（コントローラーのL・R）で種類を切りかえ。左右は、列のはしでおすと次の（前の）技のまとまりへ`,
+          ? '操作: 画面の左側（左手用は右側、片手は下の半分）をさわるとそこにスティックが出る（指を動かして移動）。「ボタンのならび」で、たて持ちの時のボタンの場所を変えられる。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）\n戦いの呪文・特技は、上の札をタップで種類を切りかえ。技の一覧の左右のはしの◀▶で、次の（前の）技のまとまりへ\n戦いの作戦は、コマンドの「作戦」か、味方のつよさのまどをタップで変えられる（ターンは使わない。コントローラーはSELECT・STARTでも）'
+          : `操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット${quickList(c).length ? `、Tで${quickLabel(quickItemOf(c)) || '大事な物'}（すぐ使う）` : ''}\n戦いの呪文・特技: Q・E（コントローラーのL・R）で種類を切りかえ。左右は、列のはしでおすと次の（前の）技のまとまりへ\n戦いの作戦: コマンドの「作戦」・Mキー（コントローラーはSELECT・START）・味方のつよさのまどをクリックで変えられる（ターンは使わない）`,
       }));
       return box;
     }

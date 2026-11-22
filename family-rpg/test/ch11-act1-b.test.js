@@ -542,12 +542,13 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
   const hp = (id, kinds) => battle({ id, kinds }).enemies[0].maxHp;
   for (const id of Object.values(C11A_BATTLE)) {
     const sp = groupOf(id)[0];
-    assert.equal(hp(id, ['player', 'player', 'player', 'player']), MONSTERS[sp].hp, `${id}: 4人は もとの まま`);
+    assert.equal(hp(id, ['player', 'player', 'player', 'player']), Math.round(MONSTERS[sp].hp * MONSTERS[sp].c11a.few.hp[3]), `${id}: 4人は few の 4人め`);
     assert.ok(hp(id, ['player', 'player', 'support', 'support']) < MONSTERS[sp].hp, `${id}: 2人`);
     assert.ok(hp(id, ['player']) < MONSTERS[sp].hp * 0.35, `${id}: ひとりだけ`);
     for (const k of ['hp', 'atk']) assert.equal(MONSTERS[sp].c11a.few[k].length, 5);
   }
-  assert.equal(startCount(battle({ kinds: ['player', 'player'] })), 2 + 1 + 2);
+  assert.equal(startCount(battle({ kinds: ['player', 'player', 'support', 'support'] })), 4 + 1 + 2);
+  assert.equal(startCount(battle({ kinds: ['player', 'player'] })), 2 + 1 + MONSTERS[C11A_CAPTAIN].c11a.bare.plus[0], '仲間なしの 2人は bare');
   // 5人は 時計の ひまを 足さない（plus 0 … 人が 多いと 投げ合いが らく すぎる）
   const five = battle({ kinds: ['player', 'player', 'player', 'player', 'player'] });
   assert.equal(startCount(five), 5 + 1 + c11aConf(C11A_CAPTAIN, five).plus);
@@ -560,6 +561,30 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
 });
 
 // ───────────── スピカの ごほうび ─────────────
+test('人数で 合わせる: 仲間なしの 少ない パーティー（味方が みんな 家族の キャラで 2人・3人）は bare の 表が few より 先', () => {
+  for (const sp of [C11A_HEAD, C11A_CAPTAIN]) {
+    const bare = MONSTERS[sp].c11a.bare;
+    assert.ok(bare && Array.isArray(bare.hp) && bare.hp.length === 2 && bare.atk.length === 2, sp);
+    const id = sp === C11A_HEAD ? C11A_BATTLE.beast : C11A_BATTLE.pirate;
+    for (const [n, kinds] of [[2, ['player', 'player']], [3, ['player', 'player', 'player']]]) {
+      const b = battle({ id, kinds });
+      const cf = c11aConf(sp, b);
+      assert.equal(cf.bare, n, `${sp} ${n}人だけ`);
+      assert.equal(cf.hp, bare.hp[n - 2]);
+      assert.equal(cf.atk, bare.atk[n - 2]);
+      assert.equal(b.enemies[0].maxHp, Math.round(MONSTERS[b.enemies[0].species].hp * bare.hp[n - 2]), 'HP に きく');
+    }
+    // 自動の 仲間が いる・4人・ひとり・魔物の 仲間 … bare は きかない（few か solo）
+    for (const kinds of [['player', 'player', 'support', 'support'], ['player', 'player', 'player', 'support'], ['player', 'player', 'player', 'player'], ['player'], ['player', 'monster']]) {
+      const b = battle({ id, kinds });
+      const cf = c11aConf(sp, b);
+      assert.equal(cf.bare, 0, kinds.join(','));
+    }
+    const two = c11aConf(sp, battle({ id, kinds: ['player', 'player', 'support', 'support'] }));
+    assert.equal(two.hp, MONSTERS[sp].c11a.few.hp[1], '2人＋自動2 は few');
+  }
+});
+
 test('スピカの ごほうび: この 幕の クリア（c11_act1）で 技「ながれ星」… ほのかな光 2回に 1回、いちばん HPが 多い 敵に 小さな ながれ星（前の 6つの ごほうびと 合わせて きく）', () => {
   const ALL7 = { ...ALL6, [C11A.act1]: true };
   const plain = battle({ enemies: ['c11a_crab', 'c11a_ram'], flags: ALL6 });
