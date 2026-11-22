@@ -4,8 +4,8 @@
 //   画面の 上に 今 かかって いる 橋の 色（●●○○○）。曲へ field.bridgeStage（かかって いる 橋の 数 0〜5）
 // ・空の 小島: とおくに 影の城の かげと 雲の 海（2D の 上の 光・2.5D の 空の 色）
 // ・ベルトの 工場: ベルトの 矢じるしは タイルの コマで 動く（render/tiles-c10c.js）
-import { C10C_BRIDGE_COLORS, C10C_BRIDGE_MAX } from '../shared/maps/c10c-flags.js?v=a3f1dc027cbc';
-import { el } from './ui/dom.js?v=a3f1dc027cbc';
+import { C10C_BRIDGE_COLORS, C10C_BRIDGE_MAX } from '../shared/maps/c10c-flags.js?v=c20c6ea76166';
+import { el } from './ui/dom.js?v=c20c6ea76166';
 
 // ───── サーバーの snap ─────
 export function noteC10cSnap(field, d) {

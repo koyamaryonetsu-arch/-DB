@@ -12,14 +12,14 @@
 // ・ちからの水 … 次の 戦いの 間、全員の 与える ダメージ 1.2倍（★ 戦いの 側は B班。A班は しるし s.c10dPower を 立てて わたす。
 //   B班は 戦いの はじめに takePower10d(world, sessions) で 読んで 消す）
 // ■ 回線が 切れて もどった 時: 星の 階段は その 階の 次の 門の 前の おどり場（開いた 門は 開いた まま）
-import { MAPS, canStand, standSpot } from '../maps/index.js?v=a3f1dc027cbc';
-import { computeStats, fullHeal } from '../stats.js?v=a3f1dc027cbc';
-import { partyOf } from './party.js?v=a3f1dc027cbc';
-import { wagonChars } from './wagon.js?v=a3f1dc027cbc';
+import { MAPS, canStand, standSpot } from '../maps/index.js?v=c20c6ea76166';
+import { computeStats, fullHeal } from '../stats.js?v=c20c6ea76166';
+import { partyOf } from './party.js?v=c20c6ea76166';
+import { wagonChars } from './wagon.js?v=c20c6ea76166';
 import {
   C10D_GATES, C10D_WELLS, C10D_MAP, C10D_MAP_IDS, C10D_STAIR_MAPS, C10D_BLESS, C10D_BLESS_NAMES, C10D_REFILL_LOSSES, C10D_POWER_KEY,
-} from '../maps/c10d-flags.js?v=a3f1dc027cbc';
-import { STAIR1_POS, STAIR2_POS, STAIR3_POS, SUMMIT_POS } from '../maps/c10d-rows.js?v=a3f1dc027cbc';
+} from '../maps/c10d-flags.js?v=c20c6ea76166';
+import { STAIR1_POS, STAIR2_POS, STAIR3_POS, SUMMIT_POS } from '../maps/c10d-rows.js?v=c20c6ea76166';
 
 // 門ごとの マップと おどり場（g … 1〜4）
 const POS = { [C10D_MAP.stair1]: STAIR1_POS, [C10D_MAP.stair2]: STAIR2_POS, [C10D_MAP.stair3]: STAIR3_POS };

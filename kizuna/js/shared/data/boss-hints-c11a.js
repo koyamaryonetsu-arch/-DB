@@ -3,14 +3,14 @@
 //   中ボス（星座のけもの）は 2だん・幕の ボス（いかり船長）は 3だん
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c11a.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=a3f1dc027cbc';
-import { C11A_BATTLE_B as C11A_BATTLE } from './c11a-names-b.js?v=a3f1dc027cbc';
+import { mergeBossHints } from './boss-hints.js?v=c20c6ea76166';
+import { C11A_BATTLE_B as C11A_BATTLE } from './c11a-names-b.js?v=c20c6ea76166';
 
 export const C11A_HINT_WHO = 'ノクト';
 export const C11A_BOSS_HINTS = {
   [C11A_BATTLE.beast]: [
     '1つだけたおしても、となりの星がのこっていると、よみがえるぞ。',
-    'みんなをまとめてけずって、3つの星を、近い番でいっしょにたおせ。',
+    'ばらばらにたおすと、のこりの星がかたくなる。3つを近い番で、いっしょにたおせ。',
   ],
   [C11A_BATTLE.pirate]: [
     'あの時計が0になった時、持っているやつが、かまれるぞ。',

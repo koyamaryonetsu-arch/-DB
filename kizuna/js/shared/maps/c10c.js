@@ -8,23 +8,23 @@
 // ・音の 橋は とびらの しるし '@br<すき間の 番号>:<色>'（world.js の hasFlagFn・client/field.js の hasFlag。パーティーで 同じ・セーブしない）
 // ・ベルトの 向きは レバーの フラグ（c10c_lv_red・c10c_lv_blue。リーダーの フラグ ＝ パーティーで 同じ・セーブする）
 // ・「行った 所」の 記録は 6まいとも 取らない（map.noExplore）
-import { T } from '../tiles.js?v=a3f1dc027cbc';
-import { npc } from './npc.js?v=a3f1dc027cbc';
-import { parseRows16 } from './past.js?v=a3f1dc027cbc';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=a3f1dc027cbc';
+import { T } from '../tiles.js?v=c20c6ea76166';
+import { npc } from './npc.js?v=c20c6ea76166';
+import { parseRows16 } from './past.js?v=c20c6ea76166';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=c20c6ea76166';
 import {
   ISLES1_ROWS, ISLES1_POS, ISLES1_SPANS, ISLES2_ROWS, ISLES2_POS, ISLES2_SPANS, ISLES3_ROWS, ISLES3_POS,
   FORT1_ROWS, FORT1_POS, FORT2_ROWS, FORT2_POS, FORT3_ROWS, FORT3_POS, cells10c,
   KUMOI_VORTEX10C, KUMOI_LAND10C, UNDER_BACKDOOR10C, UNDER_LAND10C, PED_SI10C,
-} from './c10c-rows.js?v=a3f1dc027cbc';
+} from './c10c-rows.js?v=c20c6ea76166';
 import {
   C10C, C10C_ACT2, C10C_LEVER, C10C_PED, C10C_MAP, C10C_MAP_IDS, C10C_TABLE, C10C_CHEST_IDS, C10C_TRACKS, C10C_BRIDGE_COLORS,
   C10C_COLONEL_NAME, C10C_ALGOL_NAME,
-} from './c10c-flags.js?v=a3f1dc027cbc';
-import { PEDESTALS9C } from './c9c.js?v=a3f1dc027cbc';
-import { CRATER_FORK10A } from './c10a-rows.js?v=a3f1dc027cbc';
-import { ALGOL } from './c9c-flags.js?v=a3f1dc027cbc';
-import { c10cChest } from '../data/items-c10c.js?v=a3f1dc027cbc';
+} from './c10c-flags.js?v=c20c6ea76166';
+import { PEDESTALS9C } from './c9c.js?v=c20c6ea76166';
+import { CRATER_FORK10A } from './c10a-rows.js?v=c20c6ea76166';
+import { ALGOL } from './c9c-flags.js?v=c20c6ea76166';
+import { c10cChest } from '../data/items-c10c.js?v=c20c6ea76166';
 
 export const CH10C_MAPS = [...C10C_MAP_IDS];
 

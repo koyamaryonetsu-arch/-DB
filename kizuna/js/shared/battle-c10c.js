@@ -25,16 +25,16 @@
 //   HPが end（3わり）に なると 戦いが 終わる（ひざを つく。たおれない。経験値と 品は もらえる）
 //   自動の 仲間は、人が えらんで いる 時は 味方を 強く する 技を ひかえる（完全オートは ふだん どおり 使って 食べられる）
 // ・人数で 合わせる（few・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=a3f1dc027cbc';
-import { ABILITIES } from './data/abilities.js?v=a3f1dc027cbc';
-import { DUAL_TECHS } from './data/dual.js?v=a3f1dc027cbc';
-import { C10C_COLONEL, C10C_ALGOL, COLONEL_NAME, ALGOL_NAME } from './data/monsters-c10c.js?v=a3f1dc027cbc';
-import { UTSURU } from './data/abilities-c10c.js?v=a3f1dc027cbc';
-import { C10C_B as C10C } from './maps/c10c-flags.js?v=a3f1dc027cbc';
-import { TERU } from './data/abilities-c9b.js?v=a3f1dc027cbc';
-import { SONG } from './data/abilities-c9d.js?v=a3f1dc027cbc';
-import { canUse } from './ai.js?v=a3f1dc027cbc';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=a3f1dc027cbc';
+import { MONSTERS } from './data/monsters.js?v=c20c6ea76166';
+import { ABILITIES } from './data/abilities.js?v=c20c6ea76166';
+import { DUAL_TECHS } from './data/dual.js?v=c20c6ea76166';
+import { C10C_COLONEL, C10C_ALGOL, COLONEL_NAME, ALGOL_NAME } from './data/monsters-c10c.js?v=c20c6ea76166';
+import { UTSURU } from './data/abilities-c10c.js?v=c20c6ea76166';
+import { C10C_B as C10C } from './maps/c10c-flags.js?v=c20c6ea76166';
+import { TERU } from './data/abilities-c9b.js?v=c20c6ea76166';
+import { SONG } from './data/abilities-c9d.js?v=c20c6ea76166';
+import { canUse } from './ai.js?v=c20c6ea76166';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=c20c6ea76166';
 
 export { UTSURU };
 export const BOLT = 'm10k_bolt';

@@ -1,8 +1,8 @@
 // 第50回 N4: 困っている人（まだ 受けていない たのまれごと。shared/data/subquest-hints.js）
 //   ・クエストの 画面に「困っている人」の 一らん（場所と 人と ひとこと）。「クエスト」を えらぶと 1人ずつ 見られて、地図に 黄色の しるし
 //   ・新しく 困っている人が 出たら 知らせ（1回だけ）。クエストの 画面を 見るまで メニューに ●
-import { el, toast } from './dom.js?v=a3f1dc027cbc';
-import { availableSubQuests, newAsks, askLine, askJobNote, askToastText, setAskPin, askPin } from '../../shared/data/subquest-hints.js?v=a3f1dc027cbc';
+import { el, toast } from './dom.js?v=c20c6ea76166';
+import { availableSubQuests, newAsks, askLine, askJobNote, askToastText, setAskPin, askPin } from '../../shared/data/subquest-hints.js?v=c20c6ea76166';
 
 const CSS = `
 .qdot.ask { background: #ffd84a; }

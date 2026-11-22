@@ -6,9 +6,9 @@
 //   赤・青の レバー（573〜576）/ 箱の 山（577）/ おし出される 箱（578。2コマ）/ 光の びんの たな（579）/ 少年の 間の ゆか（580）/
 //   うら口（581）/ 光の 出口（582。2コマ）
 // どれも テーマで 色を かえない
-import { T } from '../../shared/tiles.js?v=a3f1dc027cbc';
-import { prand } from './pixel.js?v=a3f1dc027cbc';
-import { THEME_PARTS } from './tiles-castle.js?v=a3f1dc027cbc';
+import { T } from '../../shared/tiles.js?v=c20c6ea76166';
+import { prand } from './pixel.js?v=c20c6ea76166';
+import { THEME_PARTS } from './tiles-castle.js?v=c20c6ea76166';
 
 const GR = { d: '#4a7a3a', b: '#7ab05a', l: '#9ac87a', hl: '#d0f0a8' }; // 小島の 草
 const RU = { d: '#7a7090', b: '#b8b0c8', l: '#d0c8dc', hl: '#f0ecf8' }; // いせきの 石

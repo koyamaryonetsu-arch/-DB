@@ -10,26 +10,26 @@
 //  9. ハネノの町の名物動画（ユーチューバーの 系統。ハネノの町の 見晴らし台・広場）
 // 10. 湯けむり宿の大そうじ（おかんの 系統。ユノハの 宿屋の 2階。べつの 小さな マップ）
 // 11. 王都のお祭りの手品ショー（手品師の 系統。王都サファラの 南の 広場・宿屋）
-import { T } from '../tiles.js?v=a3f1dc027cbc';
-import { npc } from './npc.js?v=a3f1dc027cbc';
-import { NORTH_PLACES } from './north.js?v=a3f1dc027cbc';
-import { SOUTH_PLACES } from './south.js?v=a3f1dc027cbc';
-import { PORT } from './sea.js?v=a3f1dc027cbc';
-import { openSpot } from './labyrinth.js?v=a3f1dc027cbc';
-import { room } from './fq-kit.js?v=a3f1dc027cbc';
+import { T } from '../tiles.js?v=c20c6ea76166';
+import { npc } from './npc.js?v=c20c6ea76166';
+import { NORTH_PLACES } from './north.js?v=c20c6ea76166';
+import { SOUTH_PLACES } from './south.js?v=c20c6ea76166';
+import { PORT } from './sea.js?v=c20c6ea76166';
+import { openSpot } from './labyrinth.js?v=c20c6ea76166';
+import { room } from './fq-kit.js?v=c20c6ea76166';
 // 第65回 D2: たのまれごと 12〜17 の 人（maps/work-quests2.js）
-import { attachWorkQuests2 } from './work-quests2.js?v=a3f1dc027cbc';
+import { attachWorkQuests2 } from './work-quests2.js?v=c20c6ea76166';
 // 第68回 D班: たのまれごと 18〜23 の 人（maps/work-quests3.js）
-import { attachWorkQuests3 } from './work-quests3.js?v=a3f1dc027cbc';
+import { attachWorkQuests3 } from './work-quests3.js?v=c20c6ea76166';
 // 第73回 D班: たのまれごと 24〜26 の 人（maps/work-quests4.js）
-import { attachWorkQuests4 } from './work-quests4.js?v=a3f1dc027cbc';
-import { attachWorkQuests5 } from './work-quests5.js?v=a3f1dc027cbc';
+import { attachWorkQuests4 } from './work-quests4.js?v=c20c6ea76166';
+import { attachWorkQuests5 } from './work-quests5.js?v=c20c6ea76166';
 // 第75回 D班: たのまれごと 30〜32 の 人（maps/work-quests6.js）
-import { attachWorkQuests6 } from './work-quests6.js?v=a3f1dc027cbc';
+import { attachWorkQuests6 } from './work-quests6.js?v=c20c6ea76166';
 // 第80回 D班: たのまれごと 33〜35 の 人（maps/work-quests7.js）
-import { attachWorkQuests7 } from './work-quests7.js?v=a3f1dc027cbc';
+import { attachWorkQuests7 } from './work-quests7.js?v=c20c6ea76166';
 // 第90回 D班: たのまれごと 36〜38 の 人（maps/work-quests8.js）
-import { attachWorkQuests8 } from './work-quests8.js?v=a3f1dc027cbc';
+import { attachWorkQuests8 } from './work-quests8.js?v=c20c6ea76166';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ（maps/family-quests.js の FQ_OPEN と おなじ）

@@ -8,17 +8,17 @@
 //   ・applyCh10 … だいほんを まぜる 入口（story.js が よぶ）
 //   ・題の 画面（c10TitleSteps）・第1章 クリアの 目標の 文の 入れかえ（act4ClearObjective。story-c9.js が 使う）
 // story-c9.js から 読まれるので、story.js・story-c9*.js を import しない こと
-import { C10A_LINE } from '../maps/c10a-flags.js?v=a3f1dc027cbc';
-import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js?v=a3f1dc027cbc';
+import { C10A_LINE } from '../maps/c10a-flags.js?v=c20c6ea76166';
+import { applyCh10a, CH10A_PROGRESS, CH10A_OBJECTIVE_TARGETS, CH10A_OBJECTIVE_TALK, C10A_OBJ } from './story-c10a.js?v=c20c6ea76166';
 // 第95回 A班: 第2幕「青と白」（story-c10b.js）
-import { C10B_LINE } from '../maps/c10b-flags.js?v=a3f1dc027cbc';
-import { applyCh10b, CH10B_PROGRESS, CH10B_OBJECTIVE_TARGETS, CH10B_OBJECTIVE_TALK, C10B_OBJ } from './story-c10b.js?v=a3f1dc027cbc';
+import { C10B_LINE } from '../maps/c10b-flags.js?v=c20c6ea76166';
+import { applyCh10b, CH10B_PROGRESS, CH10B_OBJECTIVE_TARGETS, CH10B_OBJECTIVE_TALK, C10B_OBJ } from './story-c10b.js?v=c20c6ea76166';
 // 第97回 A班: 第3幕「紫と、うばわれた音」（story-c10c.js）
-import { C10C_LINE } from '../maps/c10c-flags.js?v=a3f1dc027cbc';
-import { applyCh10c, CH10C_PROGRESS, CH10C_OBJECTIVE_TARGETS, CH10C_OBJECTIVE_TALK, C10C_OBJ } from './story-c10c.js?v=a3f1dc027cbc';
+import { C10C_LINE } from '../maps/c10c-flags.js?v=c20c6ea76166';
+import { applyCh10c, CH10C_PROGRESS, CH10C_OBJECTIVE_TARGETS, CH10C_OBJECTIVE_TALK, C10C_OBJ } from './story-c10c.js?v=c20c6ea76166';
 // 第99回 A班: 第4幕「金の音と、星の橋」（story-c10d.js）
-import { C10D_LINE } from '../maps/c10d-flags.js?v=a3f1dc027cbc';
-import { applyCh10d, CH10D_PROGRESS, CH10D_OBJECTIVE_TARGETS, CH10D_OBJECTIVE_TALK, C10D_OBJ } from './story-c10d.js?v=a3f1dc027cbc';
+import { C10D_LINE } from '../maps/c10d-flags.js?v=c20c6ea76166';
+import { applyCh10d, CH10D_PROGRESS, CH10D_OBJECTIVE_TARGETS, CH10D_OBJECTIVE_TALK, C10D_OBJ } from './story-c10d.js?v=c20c6ea76166';
 
 // ───── 第1幕「赤と緑」を 開ける 切りかえ（13-6・13-7。第94回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に かえるのは ここだけ（false … 今の まま。第1章 クリアの 目標は「第3部　第2章へ（続きはアップデートで！）」・

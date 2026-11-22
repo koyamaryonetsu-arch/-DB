@@ -16,9 +16,9 @@
 //
 // フラグは いらい 1つに 2こだけ（受けた・すんだ。引っこしコードを のばさない）。
 // 話を 聞くのは ヒント（フラグなし）・決める なぞは 1回の 話の 中で やり直せる（まちがえた まま 終わったら、また はじめから）
-import { npc } from './npc.js?v=a3f1dc027cbc';
-import { openSpot } from './labyrinth.js?v=a3f1dc027cbc';
-import { C9B, C9B_MAP } from './c9b-flags.js?v=a3f1dc027cbc';
+import { npc } from './npc.js?v=c20c6ea76166';
+import { openSpot } from './labyrinth.js?v=c20c6ea76166';
+import { C9B, C9B_MAP } from './c9b-flags.js?v=c20c6ea76166';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第3部 第1章 第2幕の クリア（A班の 物語の フラグ。docs/plan-part3.md の 10-4）

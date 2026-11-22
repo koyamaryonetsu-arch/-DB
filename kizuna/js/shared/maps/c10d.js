@@ -6,22 +6,22 @@
 //   星見の丘（overworld）… 星の橋の 場面の マス（c10_note_do から）・とちゅうで 止まった 星の橋の 絵（c10d_bridge）/
 //   ながれ星のくぼ地 … 場面 0 の マス（c10_act3 から。幕が 開いて いる 時だけ 動く）・金の 台・8つめの 台（c10_act4）
 // ・魔物は 出ない（門の 番人と ボスだけ）。「行った 所」の 記録は 4まいとも 取らない（map.noExplore）
-import { T } from '../tiles.js?v=a3f1dc027cbc';
-import { npc } from './npc.js?v=a3f1dc027cbc';
-import { parseRows16 } from './past.js?v=a3f1dc027cbc';
+import { T } from '../tiles.js?v=c20c6ea76166';
+import { npc } from './npc.js?v=c20c6ea76166';
+import { parseRows16 } from './past.js?v=c20c6ea76166';
 import {
   STAIR1_ROWS, STAIR1_POS, STAIR2_ROWS, STAIR2_POS, STAIR3_ROWS, STAIR3_POS, SUMMIT_ROWS, SUMMIT_POS, cells10d,
   TOWER1_GOLD10D, TOWER1_BACK10D, TOP_GOLD10D, TOP_ARRIVE10D, TOP_SKYSTAIR10D, TOP_BACK10D, TOP_SCENE10D,
   HILL_SCENE10D, HILL_BRIDGE10D, PED_DO10D, PED8_10D,
-} from './c10d-rows.js?v=a3f1dc027cbc';
+} from './c10d-rows.js?v=c20c6ea76166';
 import {
   C10D, C10D_ACT3, C10D_GATES, C10D_WELLS, C10D_PED, C10D_MAP, C10D_MAP_IDS, C10D_CHEST_IDS, C10D_TRACKS,
-} from './c10d-flags.js?v=a3f1dc027cbc';
-import { PEDESTALS9C } from './c9c.js?v=a3f1dc027cbc';
-import { CRATER_FORK10A } from './c10a-rows.js?v=a3f1dc027cbc';
-import { ALGOL, ALGOL_NAME } from './c9c-flags.js?v=a3f1dc027cbc';
-import { towerMapId } from './tower.js?v=a3f1dc027cbc';
-import { c10dChest } from '../data/items-c10d.js?v=a3f1dc027cbc';
+} from './c10d-flags.js?v=c20c6ea76166';
+import { PEDESTALS9C } from './c9c.js?v=c20c6ea76166';
+import { CRATER_FORK10A } from './c10a-rows.js?v=c20c6ea76166';
+import { ALGOL, ALGOL_NAME } from './c9c-flags.js?v=c20c6ea76166';
+import { towerMapId } from './tower.js?v=c20c6ea76166';
+import { c10dChest } from '../data/items-c10d.js?v=c20c6ea76166';
 
 export const CH10D_MAPS = [...C10D_MAP_IDS];
 export const TOWER_TOP10D = towerMapId(9);

@@ -5,12 +5,12 @@
 // ・大王のやしき c9b_hall … 食料庫（はこ 3つ・手下の もぐら兵 3組）→ ごちそうの 間（デデドン大王）
 // ・今の マップに 足す 物: カナトコ鉱山 さいおく（mine3）の 下り 階段と 鉱山の 人（c9_ring2 から。第3章を 遊んで いる 人には 見えない）・
 //   ながれ星のくぼ地の 4つめの テントと 武具屋（c9_ring2 から）
-import { T } from '../tiles.js?v=a3f1dc027cbc';
-import { npc } from './npc.js?v=a3f1dc027cbc';
-import { parseRows16 } from './past.js?v=a3f1dc027cbc';
-import { SHAFT, SHAFT_POS, HALL, HALL_POS, UNDER_POS, SHAFT_DECOR } from './c9b-rows.js?v=a3f1dc027cbc';
-import { buildC9bUnder, chestOf9b } from './c9b-under.js?v=a3f1dc027cbc';
-import { C9B, C9B_MAP, C9B_MAP_IDS, C9B_BOXES, C9B_CHEST_IDS, C9B_TABLE, C9B_TRACKS } from './c9b-flags.js?v=a3f1dc027cbc';
+import { T } from '../tiles.js?v=c20c6ea76166';
+import { npc } from './npc.js?v=c20c6ea76166';
+import { parseRows16 } from './past.js?v=c20c6ea76166';
+import { SHAFT, SHAFT_POS, HALL, HALL_POS, UNDER_POS, SHAFT_DECOR } from './c9b-rows.js?v=c20c6ea76166';
+import { buildC9bUnder, chestOf9b } from './c9b-under.js?v=c20c6ea76166';
+import { C9B, C9B_MAP, C9B_MAP_IDS, C9B_BOXES, C9B_CHEST_IDS, C9B_TABLE, C9B_TRACKS } from './c9b-flags.js?v=c20c6ea76166';
 
 // 第3部 第1章 第2幕の マップの ID（セーブに のこるので かえない）
 export const CH9B_MAPS = [...C9B_MAP_IDS];
