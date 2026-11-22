@@ -112,6 +112,7 @@ export const KIZUNA_HYAKKI = {
   trial: '大将は、仲間のぶんまで受けとめる者だ。',
   vehicle: { id: 'hyakki_mikoshi', v: { name: '百きの大みこし', price: 27500, jobs: ['hyakki_taishou'], phantom: true, desc: 'カッパや犬のようかいたちが、わっしょいとかついで走る、赤い大きなみこし。まわりに、青白いおに火がゆれる。' } },
   // 職業の試練の まぼろしの 強さ（tools/sim-trial-tune.mjs 10 0.75 HI=4 を SEED 500・900 で さがした 平均）
-  trialAdj: [1.12, 0.9, 1.05],
+  //   K5班: 一の試練は 1.05〜1.12 で 勝ちが 90% → 55% と 大きく かわる ので、sim-trial 20回で 6〜9わりに 入る 1.08 に した
+  trialAdj: [1.08, 0.9, 1.05],
   work: 'inuyasha',
 };
