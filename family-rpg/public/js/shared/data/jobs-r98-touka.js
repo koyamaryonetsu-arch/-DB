@@ -32,8 +32,10 @@ export const KIZUNA_TOUKA = {
       effect: { type: 'magic', element: 'fire', base: [170, 196], thr: 85 },
       desc: '炎のやりを放つ。敵1体に炎のダメージ。となえていると、もっと強くなる。', cast: '{a}「フレア・ランス！」', anim: 'r85a_lance',
     },
+    // 真理のやいば（1体）は 看板（全体）より 1体あたり 弱い ので、MP を 看板の 半分 いか に した
+    //   （test/reach の「おなじ くらいの MP の 技なら 全体の ほうが 1体あたり 弱い」と、看板が いちばん 強い きまりの 両方を みたす）
     tk_blade: {
-      name: '真理のやいば', kana: 'しんりのやいば', kind: 'spell', job: 'touka_madoushi', mp: 30, target: 'enemy',
+      name: '真理のやいば', kana: 'しんりのやいば', kind: 'spell', job: 'touka_madoushi', mp: 18, target: 'enemy',
       effect: { type: 'magic', element: 'dark', base: [270, 310], thr: 90, r85aBig: true, r85aPierce: true },
       desc: '先に「とうか交かん」でとなえると使える、闇のやいば。敵1体に、闇の特大のダメージ。敵の守りをむしする。うつと、となえた力は消える。', cast: '{a}「真理のやいばよ…すべてを切りさけ！」', anim: 'r85a_ragna',
     },
