@@ -4,12 +4,12 @@
 //   （世界地図の 森は かえない。第1章を 遊んで いる 子の 森は 今の まま）。光る かけら（拾える）の ならびが おちた 所への 道しるべ
 //   南の はし … 世界地図の 森の 入口へ / 北の 広場（トレントの いた 所）の 北 … ながれ星のくぼ地へ
 // ・ながれ星のくぼ地 … まん中に ながれ星の 石と 星の子。幕の あとは 職人の テント 3つ
-import { T, TILE_INFO } from '../tiles.js?v=98a59fb17475';
-import { npc } from './npc.js?v=98a59fb17475';
-import { parseRows16 } from './past.js?v=98a59fb17475';
-import { CRATER, CRATER_POS } from './c9a-rows.js?v=98a59fb17475';
-import { C9A, C9A_MAP, C9A_SHARD_N, c9aShard, C9A_FOREST_IN, C9A_FORK_RING, C9A_TABLE, C9A_CHEST_IDS, C9A_TRACKS } from './c9a-flags.js?v=98a59fb17475';
-import { chestItem9a } from './c9a-cave.js?v=98a59fb17475';
+import { T, TILE_INFO } from '../tiles.js?v=8db07833986d';
+import { npc } from './npc.js?v=8db07833986d';
+import { parseRows16 } from './past.js?v=8db07833986d';
+import { CRATER, CRATER_POS } from './c9a-rows.js?v=8db07833986d';
+import { C9A, C9A_MAP, C9A_SHARD_N, c9aShard, C9A_FOREST_IN, C9A_FORK_RING, C9A_TABLE, C9A_CHEST_IDS, C9A_TRACKS } from './c9a-flags.js?v=8db07833986d';
+import { chestItem9a } from './c9a-cave.js?v=8db07833986d';
 
 // 世界地図の どこを うつすか（左上と 大きさ）
 export const FOREST9A = { x: 88, y: 6, w: 36, h: 44 };

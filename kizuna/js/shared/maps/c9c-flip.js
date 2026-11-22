@@ -5,8 +5,8 @@
 // ・さかさの 台（ふむと 向きが かわる）・ふきぬけ（ふつうは 1つ 下の 階へ・さかさは 1つ 上の 階へ「落ちる」）
 // ・階を かわると 向きは ふつうに もどる（着いた 所で もう 一度 落ちない。上へ 行くには、その 階の 台で また さかさに なる）
 // ほかの ファイルを ほとんど 読まない（maps・world・client・test の どこからでも 読める）
-import { T, TILE_INFO } from '../tiles.js?v=98a59fb17475';
-import { C9C_PYR_MAPS, C9C_MAP } from './c9c-flags.js?v=98a59fb17475';
+import { T, TILE_INFO } from '../tiles.js?v=8db07833986d';
+import { C9C_PYR_MAPS, C9C_MAP } from './c9c-flags.js?v=8db07833986d';
 
 export const FLIP_FLAG = '@flip'; // その 人の 向きが さかさ（world.js の hasFlagFn・client/field.js の hasFlag）
 export const isPyrC = (mapId) => C9C_PYR_MAPS.includes(mapId);

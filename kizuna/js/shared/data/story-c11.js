@@ -8,13 +8,14 @@
 //   ・applyCh11 … だいほんを まぜる 入口（story.js が よぶ）
 //   ・題の 画面（c11aTitleSteps）・第2章 クリアの 目標の 文（C11A_START_OBJ。story-c10.js が 使う）
 // story-c10.js から 読まれるので、story.js・story-c9*.js・story-c10*.js を import しない こと
-import { C11A_LINE } from '../maps/c11a-flags.js?v=98a59fb17475';
-import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=98a59fb17475';
+import { C11A_LINE } from '../maps/c11a-flags.js?v=8db07833986d';
+import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=8db07833986d';
 
 // ───── 第1幕「星の船と、星座の島」を 開ける 切りかえ（17-5・17-6。第100回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第2章 クリアの 目標は「第3部　第3章へ（続きはアップデートで！）」・
 //   くぼ地で ガンツと 話しても 幕は 始まらない / true … 目標が「ながれ星のくぼ地で、ガンツと話そう」に かわる）
-export const PART3_C11A_OPEN = false;
+// 第101回: 開けた（もう 第2章を クリアした 人の 前の 文は 表から ぬいたので、ログインの 時に progress.js の repairObjective が なおす）
+export const PART3_C11A_OPEN = true;
 
 // ───── 第3部 第3章の 一本の 線（STORY_STEPS の c10_act4 の うしろ）─────
 // 島の 明かり（すきな じゅん）・星座の しるしは 線に 入れない。幕が 閉じて いる 間も 線には 入れて おく（フラグが ない ので かわらない）

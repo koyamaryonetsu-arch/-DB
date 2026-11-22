@@ -2,7 +2,7 @@
 //   ai.js の decideAlly が battle-kizuna.js の kizunaPlan から よぶ（この 職業の 技〈a.job〉を 持つ 人だけ）
 //   火竜を よぶ（火竜をよぶ・火影。れっしんで 生き返らせる など）・里を守る忍び は 烈火と おなじ r85bPlan に まかせる（4.96）
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only）。しくみの ある ボスで みんな オートの 時は tacticsOf が 前の えらび方に する
-import { fallenAllies } from './battle-phantom-a.js?v=98a59fb17475';
+import { fallenAllies } from './battle-phantom-a.js?v=8db07833986d';
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた）
 export const HOKAGE_AI = { bunshin: 0.5, sig: 0.4, rendan: 0.6, rasen: 0.4, many: 0.4, will: 0.8 };

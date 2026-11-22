@@ -20,7 +20,7 @@
 //  r84a_aura     青い 気が 体から 立ちのぼる（修行・仲間のために・魔族の血）
 //  r84a_cheer    オレンジの 気が 仲間 全員に 広がる（楽しいけんか）
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R84A_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=98a59fb17475';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=8db07833986d';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 

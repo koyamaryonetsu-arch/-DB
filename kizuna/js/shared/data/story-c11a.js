@@ -13,17 +13,17 @@
 import {
   C11A, C11A_ACT0, C11A_LIGHTS, C11A_LENS, C11A_CON, C11A_CON_IDS, C11A_ISLE_CONS, C11A_MAP, C11A_BATTLE, C11A_BOSS_MON, C11A_TRACKS,
   C11A_CAPTAIN_NAME, C11A_CAPTAIN_SHORT, C11A_SHARK_NAME, C11A_BEAST_NAME, STAR_CHART, STAR_SHIP,
-} from '../maps/c11a-flags.js?v=98a59fb17475';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=98a59fb17475';
+} from '../maps/c11a-flags.js?v=8db07833986d';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=8db07833986d';
 import {
   SEA_ARRIVE11A, SEA_GATE11A, SEA_GATE_SCENE11A, ISLES11A, ISLE_POS11A, PERCH_POS11A, LENS11A, HILL_DOCK11A, SEA_DOCK11A,
-} from '../maps/c11a-rows.js?v=98a59fb17475';
-import { CONSTELLATIONS11A } from './constellations-c11a.js?v=98a59fb17475';
-import { MONSTERS } from './monsters.js?v=98a59fb17475';
-import { mergeBossHints } from './boss-hints.js?v=98a59fb17475';
-import { innSteps } from './inn.js?v=98a59fb17475';
-import { SEA_POS } from '../maps/sea.js?v=98a59fb17475';
-import { perchShopOf11a, SHOP11A } from '../maps/c11a.js?v=98a59fb17475';
+} from '../maps/c11a-rows.js?v=8db07833986d';
+import { CONSTELLATIONS11A } from './constellations-c11a.js?v=8db07833986d';
+import { MONSTERS } from './monsters.js?v=8db07833986d';
+import { mergeBossHints } from './boss-hints.js?v=8db07833986d';
+import { innSteps } from './inn.js?v=8db07833986d';
+import { SEA_POS } from '../maps/sea.js?v=8db07833986d';
+import { perchShopOf11a, SHOP11A } from '../maps/c11a.js?v=8db07833986d';
 // 星座の しくみは world.c11a（world/c11a-steps.js の C11A_API。data から world を 読まない）
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -422,7 +422,8 @@ export function c11aScripts(title, open, old = {}, act1Obj = C11A_OBJ.act1) {
   }
   for (const id of C11A_CON_IDS) out[`c11a_done_${id}`] = conDoneSteps(id);
   // くぼ地の ガンツ（場面 0 の あいだは 場面。ひとりでも 見られる）
-  if (old.gantz) out.c9b_armorer = Object.assign((x) => (open && x.flag(C11A_ACT0) && !x.flag(C11A.start) ? shipScene(title) : old.gantz(x)), { c11a: true });
+  //   前の 幕の しるし（c10c・c10d）も のこす（あとから 前の 幕の 台本を まぜなおしても、店が 場面より 先に ならない）
+  if (old.gantz) out.c9b_armorer = Object.assign((x) => (open && x.flag(C11A_ACT0) && !x.flag(C11A.start) ? shipScene(title) : old.gantz(x)), { ...old.gantz, c11a: true });
   return out;
 }
 export const conDoneScript11a = (id) => `c11a_done_${id}`;
