@@ -196,6 +196,14 @@ test('閉じた 幕（PART3_C11A_OPEN）: くぼ地で ガンツと 話しても
     if (PART3_C10D_OPEN) assert.ok(CH10_PROGRESS.some(([, t]) => t === C10D_OBJ.act4));
     const ped = JSON.stringify(SCRIPTS.c10_ped_do(ctx(flagsOf('c10d_start', 'c10_note_do', 'c10d_bridge'))));
     assert.ok(ped.includes(C10D_OBJ.act4), '第2章の さいごの 場面の 目標も 今の まま');
+  } else {
+    // 開いた（第101回）: 第2章の さいごの 場面の 目標は「ながれ星のくぼ地で、ガンツと話そう」。前の 文は 表から ぬいた
+    assert.equal(act4ClearObjective(), C11A_OBJ.start);
+    assert.ok(CH11_PROGRESS.length > 0);
+    assert.ok(!CH10_PROGRESS.some(([, t]) => t === C10D_OBJ.act4), '前の 文は 知らない 文に なり なおる');
+    const ped = JSON.stringify(SCRIPTS.c10_ped_do(ctx(flagsOf('c10d_start', 'c10_note_do', 'c10d_bridge'))));
+    assert.ok(ped.includes(C11A_OBJ.start) && !ped.includes(C10D_OBJ.act4), '第2章の さいごの 場面の 目標');
+    assert.ok(JSON.stringify(SCRIPTS.c9b_armorer(ctx(a4))).includes('星の船'), '本体の ガンツも 場面');
   }
   assert.equal(act4ClearObjective(true), C11A_OBJ.start);
   const open = openScripts();

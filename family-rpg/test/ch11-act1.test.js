@@ -4,7 +4,8 @@
 // ・人が 動かす キャラ（このテストの ボット）は **画面と 同じ 形の コマンド**（{ t: 'battle', actor, cmd }）を 送る。
 //   「時計を投げる」は { type: 'ability', id: 'm11_tokeinage' }（画面の c11aCmdPick と 同じ）。何を 送るかは 知って いる 人の えらび方（decideAlly）
 //   家族の 仲間は tools/sim-ch9.mjs の 知って いる 手
-// ・幕は まだ 閉じて いる（PART3_C11A_OPEN = false。第2章 第4幕を 公開した あとで 開ける）ので、テストの 中で 開いた 形に して ためす
+// ・幕は 開いた（第101回: PART3_C11A_OPEN = true）。通しの テストは 前の まま openAct で まぜなおす（しるしが あるので 同じ 台本に なる）
+//   もう 第2章を クリアして いる 人の セーブが なおる テストは 本体の 台本の まま ためす
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import '../public/js/shared/data/story.js';
@@ -31,7 +32,11 @@ import { decideAlly } from '../public/js/shared/ai.js';
 import { ch9Party, MODES9 } from '../tools/sim-ch9.mjs';
 import '../tools/sim-ch11.mjs';
 import { Bot, tickN } from './helpers.js';
-import { fixedWorld, said, D4, addPlayer, UPTO } from './c9a-play.js';
+import { fixedWorld, said, D4, addPlayer, UPTO, talkTo } from './c9a-play.js';
+import { GameWorld } from '../public/js/shared/world/world.js';
+import { makeRng } from '../public/js/shared/rng.js';
+import { C10D_OBJ } from '../public/js/shared/data/story-c10d.js';
+import { SKY_FLAG } from '../public/js/shared/data/sky.js';
 
 const COPY = ['level', 'exp', 'job', 'jobs', 'jobSys', 'skillUse', 'hirameki', 'equip', 'hp', 'mp', 'status'];
 const NOTES7 = ['note_re', 'note_mi', 'note_fa', 'note_so', 'note_la', 'note_si', 'note_do'];
@@ -293,6 +298,49 @@ async function opening(bot, opts) {
   assert.ok(c.visited?.[C11A_PLACE], 'ルーラで とまり木の島へ 行ける');
   await openChests(bot, C11A_MAP.perch, opts);
 }
+
+// 第101回（幕を 開けた 時）: 本体の 台本の まま（openAct を よばない）で、もう 第2章を クリアして いる 人の セーブが なおる
+test('幕が 開いた: もう 第2章を クリアした 人の セーブ（古い 目標の 文）は ログインで「ながれ星のくぼ地で、ガンツと話そう」に なおり、くぼ地の ガンツで 始まる・前の 人は かわらない', async () => {
+  assert.equal(PART3_C11A_OPEN, true);
+  assert.equal(act4ClearObjective(), C11A_OBJ.start);
+  assert.equal(C11A_OBJ.start, 'ながれ星のくぼ地で、ガンツと話そう');
+  const world = fixedWorld(11131);
+  // 本当の セーブと 同じく 風の笛（線の 外の フラグ）も 持って いる
+  const done = await addPlayer(world, 'ソラ', 'c10_act4', [SKY_FLAG]);
+  done.c.objective = C10D_OBJ.act4; // 幕を 開ける 前に クリアした 人の セーブ
+  assert.equal(done.c.objective, '第3部　第3章へ（続きはアップデートで！）');
+  const mid = await addPlayer(world, 'ミナ', 'c10d_bridge', [SKY_FLAG]);
+  const act3 = await addPlayer(world, 'リン', 'c10_act3', [SKY_FLAG]);
+  const part1 = await addPlayer(world, 'ガル', 'c1_boss');
+  const part2 = await addPlayer(world, 'ポポ', 'c8_solitus', [SKY_FLAG]);
+  const keep = [[mid, C10D_OBJ.place], [act3, C10D_OBJ.start], [part1, part1.c.objective], [part2, part2.c.objective]];
+  // サーバーを 立て直す（セーブから 読む）→ ログイン
+  const w2 = new GameWorld({ offline: true, rng: makeRng(11132), rateLimit: false, data: JSON.parse(JSON.stringify(world.data)) });
+  const enter = async (P) => {
+    const b = new Bot(w2, P.c.name);
+    await b.login();
+    b.send({ t: 'play', id: P.c.id });
+    await b.settle();
+    return { bot: b, c: w2.data.characters[P.c.id] };
+  };
+  const A = await enter(done);
+  assert.equal(A.c.objective, C11A_OBJ.start, '古い 文は なおる');
+  for (const [P, want] of keep) {
+    const B = await enter(P);
+    assert.equal(B.c.objective, want, `${P.c.name} は かわらない`);
+  }
+  assert.equal(storyPlace(A.c).label, '第3部 第2章 第4幕', '始まる 前は 第2章 の まま');
+  // くぼ地で ガンツと 話す → 星の船の 場面・題の 画面 → 第3部 第3章 第1幕
+  A.bot.s.repelUntil = 1e15;
+  await talkTo(A.bot, 'c9a_crater', 'c9b_armorer');
+  assert.ok(A.c.flags[C11A.start] && said(A.bot, '星の船') && said(A.bot, '第1幕　星の船と、星座の島'), '場面 0 と 題の 画面');
+  assert.equal(A.c.objective, C11A_OBJ.lens);
+  assert.equal(storyPlace(A.c).label, '第3部 第3章 第1幕');
+  // 場面の あとの ガンツは 店
+  const n0 = A.bot.msgs.length;
+  await talkTo(A.bot, 'c9a_crater', 'c9b_armorer');
+  assert.ok(A.bot.msgs.slice(n0).some((m) => m.t === 'script' && JSON.stringify(m.steps).includes('c10d_crater')), 'ガンツの 店');
+});
 
 test('通し（家族の 仲間 3人）: 第2章の クリアから → 灯台 → 星の海 → 島 3つ（けもの を 本当に）→ 船長（はじめ 完全オートで 負け → ヒント → 時計を投げる で 勝ち）→ c11_act1', async () => {
   const world = fixedWorld(11101);

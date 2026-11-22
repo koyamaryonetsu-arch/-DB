@@ -15,7 +15,9 @@ import { T } from '../public/js/shared/tiles.js';
 import { C10D, C10D_MAP, C10D_BATTLE, C10D_GATES, C10D_CHEST_IDS, C10D_POWER_KEY } from '../public/js/shared/maps/c10d-flags.js';
 import { STAIR1_POS, STAIR2_POS, STAIR3_POS, SUMMIT_POS, TOWER1_GOLD10D, TOWER1_BACK10D } from '../public/js/shared/maps/c10d-rows.js';
 import { GATE_INFO10D } from '../public/js/shared/world/c10d-steps.js';
-import { act3ClearObjective, PART3_C10D_OPEN, CH10_PROGRESS, CH10_OBJECTIVE_TARGETS } from '../public/js/shared/data/story-c10.js';
+import { act3ClearObjective, act4ClearObjective, PART3_C10D_OPEN, CH10_PROGRESS, CH10_OBJECTIVE_TARGETS, CH10_OBJECTIVE_TALK } from '../public/js/shared/data/story-c10.js';
+import { PART3_C11A_OPEN, C11A_START_OBJ, CH11_PROGRESS } from '../public/js/shared/data/story-c11.js';
+import { KNOWN_OBJECTIVES } from '../public/js/shared/data/progress.js';
 import { C10C_OBJ } from '../public/js/shared/data/story-c10c.js';
 import { C10D_OBJ } from '../public/js/shared/data/story-c10d.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -248,8 +250,15 @@ test('幕が 開いて いる（PART3_C10D_OPEN）: 第3幕 クリアの 目標�
   assert.equal(act3ClearObjective(), C10D_OBJ.start);
   assert.ok(!CH10_PROGRESS.some(([, t]) => t === C10C_OBJ.act3), '「第4幕へ（続きは…）」は 知らない 文に なり なおる');
   assert.ok(!(C10C_OBJ.act3 in CH10_OBJECTIVE_TARGETS));
-  assert.ok(CH10_PROGRESS.some(([k, t]) => k === C10D.act4 && t === C10D_OBJ.act4), '第2章 クリアの 目標');
+  // 第3章 第1幕が 開いた: 第2章 クリアの 目標は 第3章の 表（CH11_PROGRESS）の 1か所だけ。前の 文は 表から ぬいた（知らない 文に なり なおる）
+  assert.equal(PART3_C11A_OPEN, true);
+  assert.equal(act4ClearObjective(), C11A_START_OBJ);
+  assert.equal(C11A_START_OBJ, 'ながれ星のくぼ地で、ガンツと話そう');
   assert.equal(C10D_OBJ.act4, '第3部　第3章へ（続きはアップデートで！）');
+  assert.ok(!CH10_PROGRESS.some(([, t]) => t === C10D_OBJ.act4), '前の 文は 第2章の 表に ない');
+  assert.ok(!(C10D_OBJ.act4 in CH10_OBJECTIVE_TARGETS) && !(C10D_OBJ.act4 in CH10_OBJECTIVE_TALK));
+  assert.ok(!KNOWN_OBJECTIVES.has(C10D_OBJ.act4), '前の 文は 知らない 文');
+  assert.deepEqual([...CH10_PROGRESS, ...CH11_PROGRESS].filter(([k]) => k === C10D.act4), [[C10D.act4, C11A_START_OBJ]], '第2章 クリアの 目標');
 });
 
 test('通し（本当の 戦い・家族の 仲間 3人）: くぼ地 → 星の塔 → 星の 階段（はじめは 完全オートで 門に 負ける・3回 負けて いずみが わく）→ 門 4つ → ミラーレ（同じ）→ 星の橋 → 金の 台（c10_act4）。宝箱 6こ・いずみ 3しゅ・帰って もどる', { timeout: 1700000 }, async () => {
@@ -335,7 +344,8 @@ test('通し（本当の 戦い・家族の 仲間 3人）: くぼ地 → 星の
   bot.send({ t: 'interact', kind: 'npc', id: 'c9c_ped2' });
   await playReal(bot, R(opts));
   assert.ok(c.flags[C10D.act4], '幕と 第2章の クリア');
-  assert.equal(c.objective, C10D_OBJ.act4);
+  assert.equal(c.objective, act4ClearObjective());
+  assert.equal(c.objective, C11A_START_OBJ);
   assert.equal(storyPlace(c).label, '第3部 第2章 第4幕');
   assert.ok(storyPlace(c).cleared);
   assert.ok(C10D_SHOP_ADD.every((id) => SHOPS.c10d_crater.items.includes(id)), 'くぼ地の 武具屋に 品が ふえた');
