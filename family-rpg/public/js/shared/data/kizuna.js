@@ -10,12 +10,16 @@ import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js';
 import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js';
 import { KIZUNA_HYAKKI } from './jobs-r98-hyakki.js';
 import { KIZUNA_KENGOU } from './jobs-r98-kengou.js';
+import { KIZUNA_SAISHOU } from './jobs-r98-saishou.js';
+import { KIZUNA_PTA } from './jobs-r98-pta.js';
 
 export const KIZUNA = [
   KIZUNA_KUUCHOU, // 第98回 K1班: 熱と風の空調マスター（烈火 ＋ 天才しせつ管理者）
   KIZUNA_HOKAGE, // 第98回 K1班: 八竜の火影（烈火 ＋ 七代目火影）
   KIZUNA_HYAKKI, // 第98回 K2班: 百きの大将（ばくりゅうはの大よう ＋ かっぱの大王）
   KIZUNA_KENGOU, // 第98回 K2班: 天下無そうの剣ごう（竜神けんのサムライ ＋ 飛天御剣流けい承者）
+  KIZUNA_SAISHOU, // 第98回 K3班: 国を動かす名さいしょう（ほう神の大軍師 ＋ 総理大臣）
+  KIZUNA_PTA, // 第98回 K3班: 伝説のPTA会長（おにの手のじごく先生 ＋ 最強のおかん）
 ];
 
 // 職業の id（ならびの じゅん）

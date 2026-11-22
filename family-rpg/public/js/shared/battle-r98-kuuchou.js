@@ -2,10 +2,13 @@
 //   ai.js の decideAlly が battle-kizuna.js の kizunaPlan から よぶ（この 職業の 技〈a.job〉を 持つ 人だけ）
 //   火竜を よぶ（火竜をよぶ・冷暖）は 烈火と おなじ r85bPlan に まかせる（4.96）。ここでは かけ合わせの 技（熱と風の全館運転）と 冷ぼう・かん気
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only）。しくみの ある ボスで みんな オートの 時は tacticsOf が 前の えらび方に する
+// 第98回 K3班: ボスに こくう（火竜をよぶ・冷暖）。MP の 計算は 烈火と おなじ（battle-r85b.js の ryuMp）
+import { ryuMp, ryuSetOf } from './battle-r85b.js';
+
 const badStatus = (x) => ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'].some((s) => x.status?.[s]);
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた。R98_AI=k_sig:0.5 などで ためせる）
-export const KUUCHOU_AI = { cure: 0.85, many: 0.12, boss: 0.5, kiba: 0.85, guard: 0.35 };
+export const KUUCHOU_AI = { cure: 0.85, many: 0.12, boss: 0.5, kiba: 0.85, guard: 0.35, kokuu: 0.6 };
 
 // mine … 使える 技 [{ id, a }]、fw … ai.js の fightWeight
 export function kuuchouPlan(b, c, foes, mine, allies, fw) {
@@ -31,6 +34,9 @@ export function kuuchouPlan(b, c, foes, mine, allies, fw) {
   if (boss) {
     if (c.hp < c.maxHp * 0.35) return null;
     if (sig && foes.length >= 2 && b.rng.chance(KUUCHOU_AI.boss)) return { type: 'ability', id: sig.id };
+    // 第98回 K3班: こくう（守りを むしする 光線）を 火竜をよぶ・冷暖 で（MP が たりる 時）
+    const ryu = find('km_ryu');
+    if (ryu && ryuSetOf(ryu.id).includes('kokuu') && c.mp >= ryuMp(c.penChar || c, ryu.id, 'kokuu') && b.rng.chance(KUUCHOU_AI.kokuu)) return { type: 'ability', id: ryu.id, ryu: 'kokuu', target: boss.id };
     const kiba = find('km_kiba');
     if (kiba && b.rng.chance(KUUCHOU_AI.kiba)) return { type: 'ability', id: kiba.id, target: boss.id };
     return null;
