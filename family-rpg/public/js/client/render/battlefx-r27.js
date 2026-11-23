@@ -1502,6 +1502,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c11bCall')) return 'buff';
   // 第103回: 第3部 第3章 第3幕の「アルゴルにたのむ」（c11cEat）… たのんだ 人の 下に 光（食べる えんしゅつは client/battle-c11c.js）
   if (types.includes('c11cEat')) return 'buff';
+  // 第104回: 第3部 第3章 第4幕の「手をつなぐ」（c11dHold）・「八つの音」（c11dEight）… 使った 人の 下に 光（光の 線は client/battle-c11d.js）
+  if (types.includes('c11dHold') || types.includes('c11dEight')) return 'buff';
   return null;
 }
 

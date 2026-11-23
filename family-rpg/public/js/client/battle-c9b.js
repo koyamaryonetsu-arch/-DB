@@ -27,6 +27,8 @@ import { c11aSprite, c11aDraw, c11aPresent, c11aCmdItems, c11aCmdPick } from './
 import { c11bSprite, c11bDraw, c11bPresent, c11bCmdItems, c11bCmdPick } from './battle-c11b.js';
 // 第3部 第3章 第3幕: バラバラン3号・近衛の隊長エース・アルゴルにたのむ（battle-c11c.js。C11C_OWN_TELE・C11C_SCREEN_ANIMS・C11C_ALLY_FX・C11C_SFX は client/battle-c8r・ch4・battle.js）
 import { c11cSprite, c11cDraw, c11cPresent, c11cCmdItems, c11cCmdPick } from './battle-c11c.js';
+// 第3部 第3章 第4幕: 鏡と月の使い・かがやきの女王ポラリス・手をつなぐ・八つの音（battle-c11d.js。C11D_OWN_TELE・C11D_SCREEN_ANIMS・C11D_ALLY_FX・C11D_SFX は client/battle-c8r・ch4・battle.js）
+import { c11dSprite, c11dDraw, c11dPresent, c11dCmdItems, c11dCmdPick } from './battle-c11d.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];
@@ -124,6 +126,9 @@ export function c9bSprite(c, frame) {
   // 第3部 第3章 第3幕: カードに もどる 隊長（battle-c11c.js）
   const d11c = c11cSprite(c, frame);
   if (d11c) return d11c;
+  // 第3部 第3章 第4幕: ひざを つく 中ボス・手を 下ろす 女王（battle-c11d.js）
+  const d11d = c11dSprite(c, frame);
+  if (d11d) return d11d;
   if (c?.species === C9B_DEDEDON && c.kDown) return monsterCanvas(C9B_DEDEDON, (frame ? 1 : 0) + 2);
   // 第3部 第1章 第3幕: 目を 回した メカ（battle-c9c.js）
   return c9cSprite(c, frame);
@@ -182,6 +187,8 @@ export function c9bDraw(scene, x, m, c, px, py, w, h, base) {
   c11bDraw(scene, x, m, c, px, py, w, h, base);
   // 第3部 第3章 第3幕: 上の まど（カード・メカの 体）・しるし（battle-c11c.js）
   c11cDraw(scene, x, m, c, px, py, w, h, base);
+  // 第3部 第3章 第4幕: 上の まど（前に いる 方・まく・思い出／輪・はかり）・しるし（battle-c11d.js）
+  c11dDraw(scene, x, m, c, px, py, w, h, base);
   // 大王
   if (c?.species === C9B_DEDEDON) {
     darkLayer(scene, c.alive && c.kDark, c.alive && c.kLit);
@@ -277,6 +284,8 @@ export function c9bPresent(scene, ev) {
   c11bPresent(scene, ev);
   // 第3部 第3章 第3幕（battle-c11c.js）
   c11cPresent(scene, ev);
+  // 第3部 第3章 第4幕（battle-c11d.js）
+  c11dPresent(scene, ev);
 }
 
 // ───────────── コマンド（client/battle-c9a.js の c9aCmdItems・c9aCmdPick）─────────────
@@ -286,7 +295,7 @@ function teruUseful(scene) {
   // 第3部 第2章 第1幕: モルドの カビの かべ・カビの ある 仲間（battle-c10a.js）
   // 第3部 第2章 第2幕: シロフクロウ（てらすと 本物が 光る。battle-c10b.js）
   // 第3部 第2章 第3幕: たいさの 雷の 前ぶれ（まぶしく して 外す）・アルゴルの やみの とばり（battle-c10c.js）
-  return en.some((e) => e.alive && (e.kDark || e.hide9 || e.wall || (e.c10Kind === 'owl' && !e.c10Down && !en.some((o) => o.owlLit)) || (e.c10Kind === 'colonel' && !e.c10Down && !e.dazzle && (e.stones || []).some((s) => s.lit)) || (e.c10Kind === 'algol' && !e.c10Down && e.veil > 0) || (e.species === 'c10d_copy' && e.mirror) || (e.c11cKind === 'ace' && !e.c11cDown && (e.cards11c || []).some((k) => !k.up && !k.used && !k.eaten)))) || (scene.allies?.() || []).some((x) => x.alive && x.kabi10 > 0);
+  return en.some((e) => e.alive && (e.kDark || e.hide9 || e.wall || (e.c10Kind === 'owl' && !e.c10Down && !en.some((o) => o.owlLit)) || (e.c10Kind === 'colonel' && !e.c10Down && !e.dazzle && (e.stones || []).some((s) => s.lit)) || (e.c10Kind === 'algol' && !e.c10Down && e.veil > 0) || (e.species === 'c10d_copy' && e.mirror) || (e.c11cKind === 'ace' && !e.c11cDown && (e.cards11c || []).some((k) => !k.up && !k.used && !k.eaten)) || (e.c11dKind === 'queen' && !e.c11dDown && (e.rings11d || []).some((r) => r.m.includes('spica'))))) || (scene.allies?.() || []).some((x) => x.alive && x.kabi10 > 0);
 }
 export function c9bCmdItems(scene, a) {
   // 第3部 第1章 第3幕: こたえる・ひっくり返す（battle-c9c.js。てらすより 先）
@@ -305,8 +314,10 @@ export function c9bCmdItems(scene, a) {
   const cy = c11bCmdItems(scene, a);
   // 第3部 第3章 第3幕: アルゴルにたのむ（battle-c11c.js。いちばん 上）
   const ce = c11cCmdItems(scene, a);
-  const items = [...ce.items, ...cy.items, ...cp.items, ...cn.items, ...ck.items, ...cx.items, ...cc.items, ...cd.items];
-  let info = ce.info || cy.info || cp.info || cn.info || ck.info || cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
+  // 第3部 第3章 第4幕: 手をつなぐ・八つの音・中ボスの 音を鳴らす／よびかける（battle-c11d.js。いちばん 上）
+  const c4 = c11dCmdItems(scene, a);
+  const items = [...c4.items, ...ce.items, ...cy.items, ...cp.items, ...cn.items, ...ck.items, ...cx.items, ...cc.items, ...cd.items];
+  let info = c4.info || ce.info || cy.info || cp.info || cn.info || ck.info || cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
   const t = scene.c9spica?.teru;
   if (!a || !t || t.charge < t.max || !(a.abilities || []).includes(TERU) || !teruUseful(scene)) return { items, info };
   items.push({ html: '<span class="dual-cmd">スピカ：てらす</span>', value: 'c9bteru', cls: 'k-dual' });
@@ -314,6 +325,8 @@ export function c9bCmdItems(scene, a) {
   return { items, info };
 }
 export function c9bCmdPick(scene, a, value) {
+  // 第3部 第3章 第4幕: 手をつなぐ・八つの音・中ボスの 戦いの 音を鳴らす／よびかける（battle-c11d.js。先に 受ける）
+  if (c11dCmdPick(scene, a, value)) return true;
   if (value === 'c9canswer' || value === 'c9cflip') return c9cCmdPick(scene, a, value);
   if (value === 'c9dsong') return c9dCmdPick(scene, a, value);
   if (value === 'c10bring') return c10bCmdPick(scene, a, value);

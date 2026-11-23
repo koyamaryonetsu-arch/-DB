@@ -98,22 +98,22 @@ export const C11D_ABILITIES = {
 
   // ── 中ボス: 鏡と月の使い（ミラーレ・オボロ）──
   m11u_glare: {
-    name: 'ねむたいにらみ', kind: 'monster', mp: 0, target: 'enemy',
+    name: 'ねむけのにらみ', kind: 'monster', mp: 0, target: 'enemy',
     effect: { type: 'phys', mult: 0.85 }, cast: '{a}が、ねむそうな目で、{t}をじろりとにらんだ！', anim: 'c10m_glare',
     desc: 'ねむそうににらんで、1人にダメージ。',
   },
   m11u_hands: {
-    name: '手鏡のきらめき', kind: 'monster', mp: 0, target: 'enemies',
+    name: '手鏡のきらきら', kind: 'monster', mp: 0, target: 'enemies',
     effect: { type: 'magic', base: [700, 740], thr: 99, element: 'light' }, cast: '{a}のまわりの手鏡が、いっせいに光をはね返した！', anim: 'c10m_hands',
     desc: '手鏡の光で、敵みんなに光のダメージ。',
   },
   m11u_whip: {
-    name: '雲のむち', kind: 'monster', mp: 0, target: 'enemy',
+    name: '雲のしなり', kind: 'monster', mp: 0, target: 'enemy',
     effect: { type: 'phys', mult: 0.85 }, cast: '{a}が、雲のむちを、{t}にしならせた。', anim: 'c11o_whip',
     desc: '雲のむちで、1人にダメージ。',
   },
   m11u_moon: {
-    name: 'つめたい月光', kind: 'monster', mp: 0, target: 'enemies',
+    name: '月のしずく光', kind: 'monster', mp: 0, target: 'enemies',
     effect: { type: 'magic', base: [700, 740], thr: 99, element: 'ice' }, cast: '{a}「月の光は、つめとうございます」', anim: 'c11o_moon',
     desc: 'つめたい月の光で、敵みんなに氷のダメージ。',
   },

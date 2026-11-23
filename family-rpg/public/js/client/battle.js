@@ -147,6 +147,8 @@ import { C11A_SFX } from './battle-c11a.js';
 import { C11B_SFX } from './battle-c11b.js';
 // 第3部 第3章 第3幕: バラバラン3号・近衛の隊長エース・アルゴルにたのむの 音（battle-c11c.js）
 import { C11C_SFX } from './battle-c11c.js';
+// 第3部 第3章 第4幕: 鏡と月の使い・かがやきの女王ポラリス・手をつなぐ・八つの音の 音（battle-c11d.js）
+import { C11D_SFX } from './battle-c11d.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
@@ -342,6 +344,7 @@ const ANIM_SFX = {
   ...C11A_SFX,
   ...C11B_SFX,
   ...C11C_SFX,
+  ...C11D_SFX,
 };
 // 第66回 C班の 技の 音（render/battlefx-r66c.js）
 Object.assign(ANIM_SFX, R66C_SFX);
@@ -766,7 +769,7 @@ export class BattleScene {
         case 'wagon': return battleSwapMenu(this);
         case 'tactics': return battlePadMenu(this);
         case 'reach': return earthReachPick(this, a);
-        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': case 'c10dring': case 'c11apass': case 'c11bcall': case 'c11ceat': case 'c10bring': case 'c10cmove': return c8rCmdPick(this, a, it.value);
+        case 'c8rcall': case 'c8rpromise': case 'c8rcheer0': case 'c8rcheer1': case 'c8rcheer2': case 'c9ashare': case 'c9bteru': case 'c9canswer': case 'c9cflip': case 'c9dsong': case 'c10dring': case 'c11apass': case 'c11bcall': case 'c11ceat': case 'c11dhold': case 'c11deight': case 'c10bring': case 'c10cmove': return c8rCmdPick(this, a, it.value);
         default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
