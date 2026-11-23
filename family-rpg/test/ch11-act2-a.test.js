@@ -22,7 +22,7 @@ import { flowReach } from '../public/js/shared/maps/flow.js';
 import { solve11b, reachable11b, nextHint11b, pairOf11b } from '../public/js/shared/world/c11b-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import {
-  CH11_STEPS, PART3_C11B_OPEN, c11bTitleSteps, CH11_PROGRESS, CH11_OBJECTIVE_TARGETS, act1ClearObjective, C11B_TITLE,
+  CH11_STEPS, PART3_C11B_OPEN, c11bTitleSteps, CH11_PROGRESS, CH11_OBJECTIVE_TARGETS, act1ClearObjective, act2ClearObjective, C11B_TITLE,
 } from '../public/js/shared/data/story-c11.js';
 import { C11A_OBJ } from '../public/js/shared/data/story-c11a.js';
 import {
@@ -51,7 +51,8 @@ let opened = false;
 function openAct() {
   if (opened) return;
   opened = true;
-  applyCh11b(SCRIPTS, STORY_SCRIPTS, { title: c11bTitleSteps, open: true });
+  // 第103回 A班: 第3幕が 開いても 前の 文に もどらない ように、幕の クリアの 目標は act2ClearObjective（本体の 台本と 同じ）
+  applyCh11b(SCRIPTS, STORY_SCRIPTS, { title: c11bTitleSteps, open: true, act2Obj: act2ClearObjective() });
 }
 const hasOf = (list) => (f) => list.includes(f);
 const tile = (s) => [Math.floor(s.x), Math.floor(s.y)];
@@ -579,7 +580,7 @@ test('通し（ひとり）: 星座の門の むこう → 月の都（おもて
   assert.ok(fought.includes(C11B_BATTLE.oboro));
   assert.ok(spica, 'ボス戦に スピカが いる');
   assert.ok(c.flags[C11B.oboro] && c.flags[C11B.act2]);
-  assert.equal(c.objective, C11B_OBJ.act2);
+  assert.equal(c.objective, act2ClearObjective()); // 第103回 A班: 第3幕が 開くと 第3幕の はじめの 目標
   assert.equal(storyPlace(c).label, '第3部 第3章 第2幕');
   assert.ok(storyPlace(c).cleared);
   // 使った しるしは 12こ まで（セーブに のこる 物）

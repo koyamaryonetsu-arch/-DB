@@ -16,7 +16,7 @@ import { C11A } from '../public/js/shared/maps/c11a-flags.js';
 import { CITY_POS11B, TOWER_POS11B, C11B_SECTIONS, SEA_MOON_PIER11B, SEA_MOON_OUT11B, SEA_SCENE0_11B } from '../public/js/shared/maps/c11b-rows.js';
 import { SEA_GATE11A } from '../public/js/shared/maps/c11a-rows.js';
 import { solve11b } from '../public/js/shared/world/c11b-steps.js';
-import { PART3_C11B_OPEN, act1ClearObjective } from '../public/js/shared/data/story-c11.js';
+import { PART3_C11B_OPEN, act1ClearObjective, act2ClearObjective } from '../public/js/shared/data/story-c11.js';
 import { C11A_OBJ } from '../public/js/shared/data/story-c11a.js';
 import { C11B_OBJ } from '../public/js/shared/data/story-c11b.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -346,7 +346,7 @@ test('通し（家族の 仲間 3人）: 第1幕の クリアから → 月の�
   assert.ok((sent.get(YOBIKAKE) || 0) > 0, `「よびかける」を 画面と 同じ 形で 送った（${sent.get(YOBIKAKE)}）`);
   assert.ok(c.flags[C11B.oboro] && c.flags[C11B.act2]);
   assert.ok(said(bot, 'わたし、お母さまに、会いにいく') && said(bot, '第2幕　クリア！'));
-  assert.equal(c.objective, C11B_OBJ.act2);
+  assert.equal(c.objective, act2ClearObjective()); // 第103回 A班: 第3幕が 開くと 第3幕の はじめの 目標
   assert.ok(storyPlace(c).cleared);
   // 店（B班の 品）・宝箱の 中み
   assert.deepEqual(SHOPS.c11b_arms.items, C11B_FRONT_ARMS);
