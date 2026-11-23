@@ -154,6 +154,15 @@
 - スピカの ごほうびの フラグ: `c11_act2`。だいじな 物 `name_lamp`（ITEMS に 作る）
 - 宝箱: `setChestOf11b(fn)`（c1〜c3 町の うら道・c4 c5 塔 1階・c6 c7 2階・c8 3階）。店: `SHOP11B`（`c11b_arms`・`c11b_tools` … おもて／`c11b_back_shop` … うら）を `setShopItems11b(id, items)`
 
+**まとめた 時・幕を 開けた 時**（2だんめ。メインの ブランチ〈B班・F班〉を 取りこんだ あと）
+- かりを 外した: A の `data/c11b-stub.js` と B の `data/c11b-names-b.js` を 消した。B の 形の 名前（`C11B_B`・`C11B_DOORS_B` ほか）は `maps/c11b-flags.js` に 足し、`battle-c11b.js`・`encounters-c11b.js`・`boss-hints-c11b.js`・`client/battle-c11b.js`・`tools/sim-ch11.mjs`・`test/ch11-act2-b.test.js`・`kanji-check.mjs` は そこから 読む（import の 行だけ）
+- 名前: 中ボス「ランプの番人カンテラ」・ボス「月のむかえオボロ」（B班の monsters-c11b.js と 同じ 字）。魔物の 表 `t11b_alley`（うらの 町の 北の うら道 だけ。うらの 町の 店の ある 所と おもては 出さない）・`t11b_tower`・`t11b_towerb`。背景 `c11b_alley`・`c11b_tower`・`c11b_towerb`
+- 宝箱 `c11bChest`・店（おもて 武具屋 `C11B_FRONT_ARMS`・道具屋 `C11B_BACK_TOOLS`／うら `C11B_BACK_TOOLS` ＋ `C11B_BACK_FINDS`）・だいじな 物 `NAME_LAMP`（B班の ITEMS）
+- 曲: 町と 塔の `bgm` は F班の id（塔 6つは `c11b_tower`・`field.sideStage` は うらで 1）。広場の 曲は 広場を 見せた すぐ あと（2.7 秒 まって から 文。スピカの ひとことが 12〜13 秒ごろに なる ように）
+- **`PART3_C11B_OPEN` を true に した**。第1幕を クリアした 人の 前の 文「第3部　第3章　第2幕へ（続きはアップデートで！）」は 目標の 表から ぬいたので、ログインで「星の船で、星座の門のむこうへ。月の都をめざそう」に なおる（テストと ブラウザで たしかめた）。前の 幕の テストは 1だんめで 台本を まぜなおす 時に `act1ClearObjective()`・`act2Open` を わたす 形に して あったので、開けても 落ちなかった
+- 通しの テスト `test/ch11-act2.test.js`（4こ）: 幕が 開いた（古い 目標の セーブ → なおる → 門の むこう → 都 → うら）・家族の 仲間 3人（うら道と 塔の 魔物・番人・オボロは はじめ 完全オートで スピカが つれて いかれて 負け → ノクトの ヒント → よびかける で 勝ち・スピカは いつも いる）・ひとり・家族 2人（塔で おもてと うらに 分かれる・2人で ボス）。人の ボットは 画面と 同じ 形の コマンド（よびかける ＝ `{ type: 'ability', id: 'm11_yobikake', choice: 'spica' }`）
+- 引っこしコード（まとめた あと）: いちばん 大きい セーブ 32813字（4通。見はり 36000）・ふつうの セーブ 6973字
+
 ### 実装メモ（第3章 第2幕 F班 … 第3部 第3章 第2幕の 曲。第102回・2026-11-23）
 データ: `public/js/client/audio-c11b.js`（`C11B_TRACKS`）。テスト: `test/audio-c11b.test.js`（13こ）。曲は すべて オリジナル（もとの 昔話や ほかの 作品の 曲を 借りて いない。和の ひびきは 楽器の 色〈はじく 音 ＝ 琴・オルガンの のばし ＝ 笙〉と、ボスの ニ短調に ミb〈ナポリの 和音〉を まぜた 色だけ。古い 曲の ふしは 使って いない）。書き方の 小さな 道具は `C9A_TOOLS`・`C9C_TOOLS`（`mirror`）。よびかけの 音は `C9D_SONG` の はじめの 3つの 音と 同じ（テストで くらべる）。
 
