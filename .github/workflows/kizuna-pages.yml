@@ -40,12 +40,17 @@ jobs:
           REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for i in 1 2 3; do
+          # GitHub がわの 一時的な エラー（403 など）で 止まらない ように、取りこみも やり直す
+          for i in 1 2 3 4 5; do
             rm -rf pages
-            if git ls-remote --exit-code --heads "$REPO" gh-pages > /dev/null; then
-              git clone --depth 1 --branch gh-pages "$REPO" pages
-            else
+            rc=0
+            git ls-remote --exit-code --heads "$REPO" gh-pages > /dev/null || rc=$?
+            if [ "$rc" = 0 ]; then
+              if ! git clone --depth 1 --branch gh-pages "$REPO" pages; then sleep 15; continue; fi
+            elif [ "$rc" = 2 ]; then
               git init -b gh-pages pages
+            else
+              sleep 15; continue
             fi
             rm -rf pages/kizuna
             cp -r _site pages/kizuna
