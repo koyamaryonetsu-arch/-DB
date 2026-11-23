@@ -37,6 +37,8 @@ import { setupC10d, c10dTurnStart, c10dEffect, c10dDamage, c10dPlan, c10dPub, c1
 import { setupC11a, setStarDamage, c11aTurnStart, c11aEffect, c11aDamage, c11aPlan, c11aPub, c11aBusy, c11aTell } from './battle-c11a.js';
 // 第3部 第3章 第2幕: スピカの ごほうび（名前をよぶ声）・ランプの番人・月のむかえ オボロ・よびかける（battle-c11b.js）
 import { setupC11b, c11bTurnStart, c11bEffect, c11bDamage, c11bPlan, c11bPub, c11bBusy, c11bTell } from './battle-c11b.js';
+// 第3部 第3章 第3幕: スピカの ごほうび（ふたりの光）・バラバラン3号・近衛の隊長エース・アルゴルにたのむ（battle-c11c.js）
+import { setupC11c, c11cTurnStart, c11cEffect, c11cDamage, c11cPlan, c11cPub, c11cBusy, c11cTell } from './battle-c11c.js';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -125,6 +127,8 @@ export function setupC9b(b, lines) {
   if (setupC11a(b, lines)) teru = true;
   // 第3部 第3章 第2幕: ランプの番人・月のむかえ オボロ（スピカは かならず 出る）・スピカの ごほうび（battle-c11b.js）
   if (setupC11b(b, lines)) teru = true;
+  // 第3部 第3章 第3幕: バラバラン3号・近衛の隊長エース（スピカは かならず 出る）・スピカの ごほうび（battle-c11c.js）
+  if (setupC11c(b, lines)) teru = true;
   b.c9teruOn = teru;
   return teru;
 }
@@ -222,6 +226,8 @@ export function c9bTurnStart(b, c, ev, stuck) {
     c11aTurnStart(b, c, ev, stuck);
     // 第3部 第3章 第2幕（battle-c11b.js）
     c11bTurnStart(b, c, ev, stuck);
+    // 第3部 第3章 第3幕（battle-c11c.js）
+    c11cTurnStart(b, c, ev, stuck);
     // 第3部 第1章 第4幕（battle-c9d.js）
     c9dTurnStart(b, c, ev, stuck);
     return c9cTurnStart(b, c, ev, stuck);
@@ -304,7 +310,8 @@ export function c9bEffect(b, c, a, eff, ev) {
     // 第3部 第2章 第4幕（battle-c10d.js）
     // 第3部 第3章 第1幕（battle-c11a.js）
     // 第3部 第3章 第2幕（battle-c11b.js）
-    default: return c11bEffect(b, c, a, eff, ev) || c11aEffect(b, c, a, eff, ev) || c10dEffect(b, c, a, eff, ev) || c10cEffect(b, c, a, eff, ev) || c10bEffect(b, c, a, eff, ev) || c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
+    // 第3部 第3章 第3幕（battle-c11c.js）
+    default: return c11cEffect(b, c, a, eff, ev) || c11bEffect(b, c, a, eff, ev) || c11aEffect(b, c, a, eff, ev) || c10dEffect(b, c, a, eff, ev) || c10cEffect(b, c, a, eff, ev) || c10bEffect(b, c, a, eff, ev) || c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
   }
 }
 
@@ -465,7 +472,8 @@ export function c9bDamage(b, c, t, dmg, info, ev) {
   // 第3部 第2章 第4幕: ちからの 水・色の まく・ミラーレは HP 1 で 止まる（battle-c10d.js）
   // 第3部 第3章 第1幕: 船長は ふだん かたい・目を 回すと よく 通る・HP 1 で にげる（battle-c11a.js）
   // 第3部 第3章 第2幕: 番人の 明かり・天人が いる 間の オボロは かたい・HP 1 で 引く（battle-c11b.js）
-  if (!t?.c9k) return c11bDamage(b, c, t, c11aDamage(b, c, t, c10dDamage(b, c, t, c10cDamage(b, c, t, c10bDamage(b, c, t, c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev);
+  // 第3部 第3章 第3幕: メカの あたまは かたい・へいたいは 全体の 技を 受けにくい・隊長は HP 1 で ちらばる（battle-c11c.js）
+  if (!t?.c9k) return c11cDamage(b, c, t, c11bDamage(b, c, t, c11aDamage(b, c, t, c10dDamage(b, c, t, c10cDamage(b, c, t, c10bDamage(b, c, t, c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev);
   const k = t.c9k;
   if (k.down) return 0;
   if (dmg >= t.hp) {
@@ -542,6 +550,9 @@ export function c9bPlan(b, c, decide, bestHit) {
   // 第3部 第2章 第4幕: 門の 番人・ミラーレ（battle-c10d.js）
   // 第3部 第3章 第1幕: 星座のけもの・いかり船長（battle-c11a.js）
   // 第3部 第3章 第2幕: ランプの番人・月のむかえ オボロ（battle-c11b.js）
+  // 第3部 第3章 第3幕: バラバラン3号・近衛の隊長エース（battle-c11c.js）
+  const p11c = c11cPlan(b, c, decide, bestHit);
+  if (p11c !== undefined) return p11c;
   const p11b = c11bPlan(b, c, decide, bestHit);
   if (p11b !== undefined) return p11b;
   const p11a = c11aPlan(b, c, decide, bestHit);
@@ -609,7 +620,7 @@ function autoDish(b, c, watched, bestHit) {
 // しくみの 用が ある 間（シミュレーターの 知って いる 人は 合体技を しない）
 export function c9bBusy(b) {
   // 第3部 第1章 第3幕（battle-c9c.js）
-  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b) || c10bBusy(b) || c10cBusy(b) || c10dBusy(b) || c11aBusy(b) || c11bBusy(b)) return true;
+  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b) || c10bBusy(b) || c10cBusy(b) || c10dBusy(b) || c11aBusy(b) || c11bBusy(b) || c11cBusy(b)) return true;
   const k = kingOf(b)?.c9k;
   if (!k || k.down) return false;
   if (k.jumpReady) return true;
@@ -634,7 +645,8 @@ export function c9bTell(b) {
   // 第3部 第2章 第4幕: 光を はかる（measure）… battle-c10d.js の c10dTell
   // 第3部 第3章 第1幕: かみつき（fang）・よみがえる 前（revive）・いかりなげ（anchor）… battle-c11a.js の c11aTell
   // 第3部 第3章 第2幕: 明かりが かわる（lamp）・わすれの衣（robe）・わすれの光（flash）… battle-c11b.js の c11bTell
-  return c11bTell(b) || c11aTell(b) || c10dTell(b) || c10cTell(b) || c10bTell(b) || c10aTell(b) || c9dTele(b) || c9cTell(b);
+  // 第3部 第3章 第3幕: ロケットパンチ（rocket）・直す（fix）・カード（cards）… battle-c11c.js の c11cTell
+  return c11cTell(b) || c11bTell(b) || c11aTell(b) || c10dTell(b) || c10cTell(b) || c10bTell(b) || c10aTell(b) || c9dTele(b) || c9cTell(b);
 }
 
 // ───────────── がめんへ（battle-c9a.js の c9aPub から。敵だけ）─────────────
@@ -675,7 +687,7 @@ export function c9bPub(c, b = c?._b9) {
   // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
   // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js）
   // 第3部 第2章 第3幕: たいさ・アルゴル（battle-c10c.js）
-  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c), c10bPub(c), c10cPub(c), c10dPub(c), c11aPub(c), c11bPub(c));
+  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c), c10bPub(c), c10cPub(c), c10dPub(c), c11aPub(c), c11bPub(c), c11cPub(c));
 }
 
 // 第3部 第3章 第1幕: スピカの「ながれ星」も しかけの ダメージを 通す（battle-c11a.js）

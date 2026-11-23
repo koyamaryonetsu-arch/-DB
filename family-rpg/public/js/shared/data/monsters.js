@@ -58,6 +58,8 @@ import { MONSTERS_C10D } from './monsters-c10d.js';
 import { MONSTERS_C11A } from './monsters-c11a.js';
 // 第102回 B班: 第3部 第3章 第2幕「月の都と、名前のランプ」（monsters-c11b.js）
 import { MONSTERS_C11B } from './monsters-c11b.js';
+// 第103回 B班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（monsters-c11c.js）
+import { MONSTERS_C11C } from './monsters-c11c.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -346,6 +348,8 @@ Object.assign(MONSTERS, MONSTERS_C10D);
 Object.assign(MONSTERS, MONSTERS_C11A);
 // 第3部 第3章 第2幕「月の都と、名前のランプ」の 魔物・ランプの番人・月のむかえ オボロ・天人（monsters-c11b.js）
 Object.assign(MONSTERS, MONSTERS_C11B);
+// 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の 魔物・バラバラン3号・近衛の隊長エース・へいたい（monsters-c11c.js）
+Object.assign(MONSTERS, MONSTERS_C11C);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);

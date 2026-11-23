@@ -41,6 +41,8 @@ const UPTO = {
   beast: 'c10_act4', pirate: 'c10_act4',
   // 第102回 B班: 第3部 第3章 第2幕の ランプの番人（keeper）・月のむかえ オボロ（oboro）… 第1幕 クリア（ながれ星）の あと
   keeper: 'c11_act1', oboro: 'c11_act1',
+  // 第103回 B班: 第3部 第3章 第3幕の バラバラン3号（mecha）・近衛の隊長エース（ace）… 第2幕 クリア（名前をよぶ声）の あと
+  mecha: 'c11_act2', ace: 'c11_act2',
 };
 const flagsOf = (boss) => ORDER_FLAGS[ORDERS_OF[boss]?.[0]]?.[boss] || [];
 // 道具の ならび（sim-ch9.mjs の HUMAN_ORDER / NPC9）

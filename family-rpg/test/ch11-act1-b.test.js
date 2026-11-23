@@ -557,7 +557,7 @@ test('人数で 合わせる: 家族の キャラの 数で HP・与える ダ�
   const mon = battle({ kinds: ['player', 'monster', 'monster', 'monster'] });
   assert.ok(captainOf(mon).maxHp < captainOf(battle({ kinds: ['player', 'player', 'support', 'support'] })).maxHp, '魔物の 仲間は 時計を 投げない ぶん やさしく');
   // ゲストの Lv の 上限（この 幕の 強さ）
-  assert.equal(GUEST_MAX_LEVEL, 122); // 第102回 B班: 第3部 第3章 第2幕で 120 → 122
+  assert.equal(GUEST_MAX_LEVEL, 124); // 第102回 B班: 第3部 第3章 第2幕で 120 → 122・第103回 B班: 第3幕で 122 → 124
 });
 
 // ───────────── スピカの ごほうび ─────────────
