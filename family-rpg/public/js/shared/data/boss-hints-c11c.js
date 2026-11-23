@@ -4,7 +4,7 @@
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c11c.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
 import { mergeBossHints } from './boss-hints.js';
-import { C11C_BATTLE_B as C11C_BATTLE } from './c11c-names-b.js';
+import { C11C_BATTLE_B as C11C_BATTLE } from '../maps/c11c-flags.js';
 
 export const C11C_HINT_WHO = 'ノクト';
 export const C11C_BOSS_HINTS = {

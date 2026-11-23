@@ -23,7 +23,7 @@ import { TACTICS } from '../public/js/shared/ai.js';
 import { C11B_BATTLE_B as C11B_BATTLE, C11B_B as C11B } from '../public/js/shared/maps/c11b-flags.js';
 import { c11bState, keeperOf, oboroOf, tenninUp } from '../public/js/shared/battle-c11b.js';
 // 第103回 B班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の バラバラン3号（mecha。Lv123）・近衛の隊長エース（ace。Lv124）
-import { C11C_BATTLE_B as C11C_BATTLE, C11C_B as C11C } from '../public/js/shared/data/c11c-names-b.js';
+import { C11C_BATTLE_B as C11C_BATTLE, C11C_B as C11C } from '../public/js/shared/maps/c11c-flags.js';
 import { c11cState, partsOf, aceOf, guardsUp, cardsLeft, canEat, TANOMU as C11C_TANOMU } from '../public/js/shared/battle-c11c.js';
 // かんたんな 人（MODES9.easy・easy0。HUMAN=easy の 道具 … ch9Run(…, 'easy')）
 import './sim-easy.mjs';

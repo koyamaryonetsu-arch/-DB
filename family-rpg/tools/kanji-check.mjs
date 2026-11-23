@@ -701,8 +701,8 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c11b.js', 'public/js/shared/data/abilities-c11b.js',
     'public/js/shared/data/encounters-c11b.js', 'public/js/shared/data/companions-c11b.js', 'public/js/shared/data/items-c11b.js', 'public/js/shared/data/boss-hints-c11b.js',
     'public/js/shared/battle-c11b.js', 'public/js/client/battle-c11b.js', 'public/js/client/render/c11b-art.js', 'public/js/client/render/c11b-bg.js', 'public/js/client/render/battlefx-c11b.js',
-    // 第103回 B班: 第3部 第3章 第3幕（魔物・バラバラン3号・近衛の隊長エース・アルゴルにたのむ・品・ヒント・絵・背景・えんしゅつ。c11c-names-b.js は かりの 置き場 … A班が 消す）
-    'public/js/shared/data/c11c-names-b.js', 'public/js/shared/data/monsters-c11c.js', 'public/js/shared/data/abilities-c11c.js',
+    // 第103回 B班: 第3部 第3章 第3幕（魔物・バラバラン3号・近衛の隊長エース・アルゴルにたのむ・品・ヒント・絵・背景・えんしゅつ。かりの 置き場 c11c-names-b.js は 合わせた 時に 消した）
+    'public/js/shared/data/monsters-c11c.js', 'public/js/shared/data/abilities-c11c.js',
     'public/js/shared/data/encounters-c11c.js', 'public/js/shared/data/companions-c11c.js', 'public/js/shared/data/items-c11c.js', 'public/js/shared/data/boss-hints-c11c.js',
     'public/js/shared/battle-c11c.js', 'public/js/client/battle-c11c.js', 'public/js/client/render/c11c-art.js', 'public/js/client/render/c11c-bg.js', 'public/js/client/render/battlefx-c11c.js',
   ];

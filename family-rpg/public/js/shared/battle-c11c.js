@@ -35,7 +35,7 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_PARTS, C11C_ACE, C11C_GUARD, MECHA_NAME, ACE_SHORT } from './data/monsters-c11c.js';
 import { TANOMU, LAY, CARD_IDS, FIX, ROCKET } from './data/abilities-c11c.js';
-import { C11C_B as C11C } from './data/c11c-names-b.js';
+import { C11C_B as C11C } from './maps/c11c-flags.js';
 import { TERU as TERU_ID } from './data/abilities-c9b.js';
 import { canUse } from './ai.js';
 import { peopleOf10, someoneChooses } from './battle-c10a.js';

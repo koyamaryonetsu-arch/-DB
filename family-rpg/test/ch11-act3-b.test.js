@@ -19,7 +19,7 @@ import { rareWhereText } from '../public/js/shared/data/rare-loot.js';
 import { BOSS_HINTS, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
 import { mechBoss } from '../public/js/shared/ai.js';
 import { GUEST_MAX_LEVEL } from '../public/js/shared/guest-rule.js';
-import { C11C_B as C11C, C11C_MAP_B, C11C_BATTLE_B as C11C_BATTLE, C11C_MON_PREFIX_B, C11C_CHEST_IDS_B, C11C_CMD_B, C11C_TRACKS_B, C11C_OPEN_B } from '../public/js/shared/data/c11c-names-b.js';
+import { C11C_B as C11C, C11C_MAP_B, C11C_BATTLE_B as C11C_BATTLE, C11C_MON_PREFIX_B, C11C_CHEST_IDS_B, C11C_CMD_B, C11C_TRACKS_B, C11C_OPEN_B } from '../public/js/shared/maps/c11c-flags.js';
 import { C11B_B as C11B } from '../public/js/shared/maps/c11b-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
 import { C10B_B as C10B } from '../public/js/shared/maps/c10b-flags.js';
@@ -711,7 +711,7 @@ test('がめん: 上の まど（カード: うら向き・おもて・次・食
 
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c11c-names-b.js', 'public/js/shared/data/monsters-c11c.js', 'public/js/shared/data/abilities-c11c.js',
+    'public/js/shared/data/monsters-c11c.js', 'public/js/shared/data/abilities-c11c.js',
     'public/js/shared/data/encounters-c11c.js', 'public/js/shared/data/companions-c11c.js', 'public/js/shared/data/items-c11c.js', 'public/js/shared/data/boss-hints-c11c.js',
     'public/js/shared/battle-c11c.js', 'public/js/client/battle-c11c.js', 'public/js/client/render/c11c-art.js', 'public/js/client/render/c11c-bg.js', 'public/js/client/render/battlefx-c11c.js',
   ];

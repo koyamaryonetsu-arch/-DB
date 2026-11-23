@@ -43,15 +43,15 @@ export const C11C_BACK = 'c11b_back'; // 月の都・うら（おくに 回ろ�
 export const C11C_BATTLE = { mecha: 'c11c_mecha', ace: 'c11c_ace' };
 // 魔物の id（先頭 c11c_）・ボスの id（B班が 決める。下は かりの id … 台本は ここを 読む）
 export const C11C_MON_PREFIX = 'c11c_';
-export const C11C_BOSS_MON = { mecha: 'c11c_mecha', ace: 'c11c_ace' };
-// 名前（台本・目標・ヒントは ここを 読む。B班が 決めた 名前に あとで さしかえる）
-export const C11C_MECHA_NAME = 'メカ3号'; // 中ボス（3人組の メカ 3号。かりの 名前）
-export const C11C_ACE_NAME = '近衛の隊長'; // 幕の ボス（カードの よろいの 隊長。かりの 名前）
-export const C11C_ACE_SHORT = '隊長';
-// 魔物の 表（B班。data/encounters-c11c.js）。表が ない 間は 魔物が 出ない（'safe:wait'）。回ろうの 1〜3階で 出る
-export const C11C_TABLE = { hall: 't11c_hall' };
-// 戦いの 背景（B班の 背景の id。回ろう・大とびらの 前）
-export const C11C_BG = { hall: 'c11c_hall', door: 'c11c_door' };
+export const C11C_BOSS_MON = { mecha: 'c11c_mhead', arm: 'c11c_marm', leg: 'c11c_mleg', ace: 'c11c_ace', guard: 'c11c_guard' };
+// 名前（台本・目標・ヒントは ここを 読む。B班の monsters-c11c.js と 同じ 字）
+export const C11C_MECHA_NAME = 'バラバラン3号'; // 中ボス（3人組の メカ 3号）
+export const C11C_ACE_NAME = '近衛の隊長エース'; // 幕の ボス（カードの よろいの 隊長）
+export const C11C_ACE_SHORT = 'エース';
+// 魔物の 表（B班。data/encounters-c11c.js）。表が ない 間は 魔物が 出ない（'safe:wait'）。回ろうの 1〜3階で 階ごとに 出る
+export const C11C_TABLE = { 1: 't11c_hall1', 2: 't11c_hall2', 3: 't11c_hall3' };
+// 戦いの 背景（B班の 背景の id。回ろう・名前の 塔の 前・大とびらの 前）
+export const C11C_BG = { hall: 'c11c_hall', tower: 'c11c_tower', door: 'c11c_door' };
 
 // ───── 宝箱の id（B班が 中みを 決める。★5 は 3つ）─────
 export const C11C_CHEST_IDS = ['c11c_c1', 'c11c_c2', 'c11c_c3', 'c11c_c4', 'c11c_c5', 'c11c_c6', 'c11c_c7', 'c11c_c8'];
@@ -92,3 +92,16 @@ export const C11C_LV = { hall: 123, mecha: 123, ace: 124 };
 
 // ───── 幕の 切りかえ ─────
 export const C11C_OPEN = 'PART3_C11C_OPEN'; // data/story-c11.js
+
+// ───── B班の かりの 置き場（data/c11c-names-b.js。合わせた 時に 消した）に あった 名前（同じ 物。B の ファイルが as で 読む）─────
+export const C11C_B = {
+  act2: C11C_ACT0, start: C11C.start, mecha: C11C.mecha, join: C11C.join, h1: C11C.h1, h2: C11C.h2, rest: C11C.rest, h3: C11C.h3,
+  ace: C11C.ace, act3: C11C.act3,
+};
+export const C11C_MAP_B = { hall1: C11C_MAP.hall1, hall2: C11C_MAP.hall2, hall3: C11C_MAP.hall3, rest: C11C_MAP.rest, door: C11C_MAP.door };
+export const C11C_BATTLE_B = { ...C11C_BATTLE };
+export const C11C_MON_PREFIX_B = C11C_MON_PREFIX;
+export const C11C_CHEST_IDS_B = [...C11C_CHEST_IDS];
+export const C11C_CMD_B = C11C_CMD_EAT;
+export const C11C_TRACKS_B = { ...C11C_TRACKS };
+export const C11C_OPEN_B = C11C_OPEN;

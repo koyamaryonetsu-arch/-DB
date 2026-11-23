@@ -8,7 +8,7 @@
 // ・えんしゅつ: アルゴルの 絵（今 ある 少年の 絵 c10c_algol）が カードの 上に 出て、ぱくっと 食べる
 import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_ACE, C11C_GUARD, ACE_SHORT, MECHA_NAME } from '../shared/data/monsters-c11c.js';
 import { TANOMU } from '../shared/data/abilities-c11c.js';
-import { C11C_CMD_B } from '../shared/data/c11c-names-b.js';
+import { C11C_CMD_B } from '../shared/maps/c11c-flags.js';
 import { monsterCanvas } from './render/monsters.js';
 
 export const C11C_CMD = C11C_CMD_B;

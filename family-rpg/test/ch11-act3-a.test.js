@@ -4,7 +4,7 @@
 // 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当に 戦う 通しは test/ch11-act3.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { MAPS, isBlocked, effectiveTile, condOk } from '../public/js/shared/maps/index.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
 import {
@@ -26,12 +26,15 @@ import {
 import { BOSS_RETRY, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.js';
 import { storyPlace } from '../public/js/shared/world/shiori.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
-import { installC11cStub } from '../public/js/shared/data/c11c-stub.js';
+import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
+import { MONSTERS } from '../public/js/shared/data/monsters.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { SHOPS, shopItems } from '../public/js/shared/data/shops.js';
+import { C11C_BACK_ADD } from '../public/js/shared/data/items-c11c.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN, Bot } from './helpers.js';
 import { UPTO, flagsOf, said, addPlayer, play, place, stepOn, examine, talkTo, walkTo, fixedWorld } from './c9a-play.js';
 
-installC11cStub();
 // 本体の 台本（テストが 幕を 開けた 形を まぜる 前）
 const BODY = { start: SCRIPTS.c11c_start_event, oboro: SCRIPTS.c11b_oboro_event };
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
@@ -139,12 +142,24 @@ test('名前の 約束: マップ 5まい・タイル 701〜740・宝箱の id�
     assert.ok(g, `gameFiles に ${f}`);
     assert.deepEqual(checkFile(gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f))).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 戦い（data/c11c-stub.js）は テストと 道具だけが 読む
+  // かりの 置き場（A の data/c11c-stub.js・B の data/c11c-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['c11c-stub.js', 'c11c-names-b.js']) assert.ok(!existsSync(new URL(`../public/js/shared/data/${f}`, import.meta.url)), `${f} は ない`);
   const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/')]) {
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!/from '[^']*c11c-stub/.test(src), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c11c-stub|c11c-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // 本物に つないだ: 宝箱（B班の 中み）・魔物の 表（階ごと）・戦い・ボスの 名前・うらの 町の 店（幕の クリアで 4つ）
+  for (const id of C11C_MAP_IDS) for (const ch of MAPS[id].chests) assert.ok(ch.item && ITEMS[ch.item], `${ch.id} は B班の 品`);
+  for (const n of [1, 2, 3]) assert.deepEqual(Object.keys(MAPS[`c11c_hall${n}`].spawnCounts), [`t11c_hall${n}`]);
+  for (const id of ['c11c_rest', 'c11c_door']) assert.deepEqual(MAPS[id].spawnCounts, {}, `${id} では 出ない`);
+  for (const id of Object.values(C11C_BATTLE)) assert.ok(FIXED_ENCOUNTERS[id]?.boss && FIXED_ENCOUNTERS[id].bgm === id, id);
+  assert.equal(C11C_MECHA_NAME, 'バラバラン3号');
+  assert.equal(C11C_ACE_NAME, '近衛の隊長エース');
+  assert.equal(MONSTERS.c11c_ace.name, C11C_ACE_NAME);
+  const shop = SHOPS.c11b_back_shop;
+  assert.ok(!C11C_BACK_ADD.some((i) => shopItems(shop, () => false).includes(i)), 'クリアの 前は ない');
+  assert.ok(C11C_BACK_ADD.every((i) => ITEMS[i] && shopItems(shop, (f) => f === C11C.act3).includes(i)), 'クリアで 4つ');
 });
 
 test('台本の きまり: 明かすのは アルゴルの わけ まで・女王は 声だけ・鏡と オボロは 立つ だけ・カイ・ソリトゥス・8つめの 音・もとの お話の 言葉を 書かない', () => {

@@ -10,6 +10,8 @@ import { T } from '../tiles.js';
 import { npc } from './npc.js';
 import { parseRows16 } from './past.js';
 import { ENCOUNTER_TABLES } from '../data/encounters.js';
+import { SHOPS } from '../data/shops.js';
+import { c11cChest, C11C_BACK_ADD } from '../data/items-c11c.js';
 import { finishGates11a } from './c11a.js';
 import {
   C11C, C11C_ACT0, C11C_MAP, C11C_MAP_IDS, C11C_TRACKS, C11C_TABLE, C11C_FRONT, C11C_BACK, C11C_ALGOL_SPRITE, C11C_ALGOL_NAME,
@@ -21,8 +23,8 @@ import {
 
 export const CH11C_MAPS = [...C11C_MAP_IDS];
 
-// ───── 宝箱の 中み（B班の data/items-c11c.js が 入るまでの かり）─────
-let chestFn11c = () => ({ gold: 3000 });
+// ───── 宝箱の 中み（B班の data/items-c11c.js の c11cChest）─────
+let chestFn11c = c11cChest;
 export const setChestOf11c = (fn) => { chestFn11c = fn; };
 export const chestOf11c = (id) => chestFn11c(id) || {};
 
@@ -156,9 +158,9 @@ function buildHall(n) {
   const quiet = [...c11c.peds, ...c11c.fences.flatMap((F) => F.cells), ...c11c.bridges.flatMap((B) => B.cells), ...c11c.cards.flatMap((K) => K.cells), ...m.warps, P.arrive];
   m.zoneAt = (x, y) => {
     if (m.tiles[y * m.w + x] !== T.C11C_FLOOR || quiet.some((q) => Math.abs(q.x - x) <= 1 && Math.abs(q.y - y) <= 1)) return 'safe:c11c_hall';
-    return tableOr(C11C_TABLE.hall, 'safe:wait');
+    return tableOr(C11C_TABLE[n], 'safe:wait');
   };
-  if (ENCOUNTER_TABLES[C11C_TABLE.hall]) m.spawnCounts = { [C11C_TABLE.hall]: 3 };
+  if (ENCOUNTER_TABLES[C11C_TABLE[n]]) m.spawnCounts = { [C11C_TABLE[n]]: 3 };
   return m;
 }
 
@@ -211,6 +213,11 @@ function attachCity(maps) {
   const keys = ['boss', 'mecha', 'power'];
   C.trio.forEach((p, i) => B.npcs.push(npc(`c11c_trio${i + 1}`, C11C_TRIO[keys[i]], [p.x, p.y], C11C_TRIO_SPRITES[keys[i]], `c11c_trio${i + 1}`, { dir: 'left', show: { all: [C11C.join] } })));
   finishGates11a(B);
+  // うらの 町の 小さな 店: 幕の クリア（c11_act3）で 品が 4つ ふえる（B班の C11C_BACK_ADD）
+  const shop = SHOPS.c11b_back_shop;
+  if (shop && !(shop.more || []).some((x) => x.show?.all?.[0] === C11C.act3)) {
+    shop.more = [...(shop.more || []), { show: { all: [C11C.act3] }, items: [...C11C_BACK_ADD], hello: 'いらっしゃい！\n王宮の下から、めずらしい品が、とどいたよ。' }];
+  }
 }
 
 export function attachC11c(maps) {

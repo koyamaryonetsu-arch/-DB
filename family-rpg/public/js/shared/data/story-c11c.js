@@ -81,7 +81,7 @@ function mechaSteps(again) {
     ['actor', 'mecha_m', { sprite: 'c11c_mecha', x: tx + 0.5, y: ty + 4.2, dir: 'up' }],
     ...trioIn('trio_m', [[tx - 1.2, ty + 5.4], [tx + 0.5, ty + 5.6], [tx + 2.2, ty + 5.4]]),
     ...(again
-      ? [...S(KI, 'まだまだ、これからよ！\nメカ3号、もう一回！'), ...S(BO, 'ポチッとな、でまんねん！')]
+      ? [...S(KI, 'まだまだ、これからよ！\nメカ3号、もう一回！'), ...S(BO, 'ポチッとね、でまんねん！')]
       : [...S(KI, 'アルゴルさまを、かえせ〜！'), ...S(BO, `わてらの、${C11C_MECHA_NAME}で、助けに来たでまんねん！`), ...S(ZU, '…かえせ…ぜ！'),
         ...S(AL, '…おい。ちがう。'), ...S(KI, '話は、あとよ！\nいくわよ、メカ3号！')]),
     ['remove', 'mecha_m'], ...trioOut('trio_m'),
