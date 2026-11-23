@@ -9,7 +9,7 @@ import { _TRACKS, TRACK_IDS } from '../public/js/client/audio.js';
 import {
   C11D_TRACKS, C11D_IDS, C11D_LINES, C11D_CHORDS, splitBars, TOWER_ISLE, TOWER_ISLE_SHIFT, TOWER_MOON, TOWER_MOON_SHIFT, TOWER_HALL_DR,
   TOWER_SONG, TOWER_INTENSITY, DUO_BLOCK, DUO_BLOCKS, DUO_MIRROR_SHIFT, QUEEN_STAR, QUEEN_TEMPOS, ENDING5_HEAD, EIGHT_LAST_CHORD, EIGHT_RUN,
-  SONG8, SONG8_CHORDS, SONG_ALL, END_BPM,
+  SONG8, SONG8_CHORDS, SONG_ALL, END_BPM, LAMP_INTRO_FRONT, LAMP_INTRO_BACK,
 } from '../public/js/client/audio-c11d.js';
 import { C11C_TRACKS } from '../public/js/client/audio-c11c.js';
 import { C11B_LINES, MIRROR_SUM } from '../public/js/client/audio-c11b.js';
@@ -547,12 +547,15 @@ test('第104回 F: お祭りは おもて通りの ふしと うら通りの ふ
   assert.equal(c.parts[0].inst, 'pluck', 'おもての 楽器（琴）');
   assert.equal(compileTrack(_TRACKS.c11b_front).parts[0].inst, 'pluck');
   assert.equal(compileTrack(_TRACKS.c11b_back).parts[0].inst, 'flute', 'うらの 楽器（笛）');
-  const pairs = { intro: ['frontIntro', 'backIntro'], A: ['frontA', 'backA'], B: ['frontB', 'backB'], A2: ['frontA2', 'backA2'] };
+  // イントロは お祭りだけの よびこみ（おもての 頭とは ちがう）。A・B・A2 は おもて通り・うら通りの ふし そのまま
+  const lines = { ...C11B_LINES, lampF: LAMP_INTRO_FRONT, lampB: LAMP_INTRO_BACK };
+  assert.notDeepEqual(lineNotes(LAMP_INTRO_FRONT), lineNotes(C11B_LINES.frontIntro));
+  const pairs = { intro: ['lampF', 'lampB'], A: ['frontA', 'backA'], B: ['frontB', 'backB'], A2: ['frontA2', 'backA2'] };
   for (const [nm, [fk, bk]] of Object.entries(pairs)) {
     const fT = timeline(c.segs[nm].parts[0]);
     const bT = timeline(c.segs[nm].parts[fl]);
-    assert.deepEqual(fT.filter((e) => e.m !== null).map((e) => e.m), lineNotes(C11B_LINES[fk]), `${nm}: おもて`);
-    assert.deepEqual(bT.filter((e) => e.m !== null).map((e) => e.m), lineNotes(C11B_LINES[bk]), `${nm}: うら`);
+    assert.deepEqual(fT.filter((e) => e.m !== null).map((e) => e.m), lineNotes(lines[fk]), `${nm}: おもて`);
+    assert.deepEqual(bT.filter((e) => e.m !== null).map((e) => e.m), lineNotes(lines[bk]), `${nm}: うら`);
     // 同じ 時に 鳴り、どの 音も 2つ 足すと MIRROR_SUM（うら返し）
     assert.deepEqual(fT.map((e) => [e.t, e.len]), bT.map((e) => [e.t, e.len]), `${nm}: いっしょに`);
     fT.forEach((e, i) => { if (e.m !== null) assert.equal(e.m + bT[i].m, MIRROR_SUM, `${nm} ${e.t}: うら返し`); });
@@ -622,6 +625,9 @@ test('第104回 F: 前の音 用の ch・今まで の 曲は かわって い�
     assert.ok(!(id in C11D_TRACKS), id);
     if (C11C_TRACKS[id]) assert.equal(_TRACKS[id].parts, C11C_TRACKS[id].parts, id);
   }
+  // 前からの きまり（ch4-duna.test.js など）: どの 曲も 1つめの チャンネルの 音の 列が ほかの 曲と ちがう
+  const mel = Object.entries(_TRACKS).map(([, tr]) => tr.ch[0].n);
+  assert.equal(new Set(mel).size, mel.length, 'メロディーは ほかの 曲と ちがう');
   // splitBars は 小節を またぐ 音を ゆるさない
   assert.throws(() => splitBars('C5:12 D5:8'));
   assert.deepEqual(splitBars('C5:8 D5:8 E5:16'), ['C5:8 D5:8', 'E5:16']);
