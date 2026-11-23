@@ -88,6 +88,8 @@ const eat = (b, a, choice) => act(b, a, { type: 'ability', id: TANOMU, choice })
 const allText = (ev) => [...(ev?.lines || []), ...(ev?.postLines || [])].join('\n');
 // 隊長に カードを ならべさせる（へいたいの 数で まい数が かわる）
 const lay = (b) => foe(b, aceOf(b));
+// 2回めからの ならび（はじめの 1回めの ならびは おもて〈アルゴルが のぞく〉ので、うら向きを 見る テストは こちら）
+const layBack = (b) => { b.c11c.lays = Math.max(1, b.c11c.lays); return lay(b); };
 
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（19-5）: フラグ・マップ・決まった 戦い・魔物の id・宝箱・コマンド・曲・幕の 切りかえ（かりの data/c11c-names-b.js）', () => {
@@ -242,7 +244,7 @@ test('近衛の隊長エース: カードを ならべる（うら向き・へ�
   for (const g of guardsOf(b)) quiet(g);
   const ace = aceOf(b);
   assert.equal(c11cTell(b), 'ace');
-  const ev = lay(b);
+  const ev = layBack(b);
   assert.ok(ev.c11cLay, 'ならべた');
   assert.equal(b.c11c.cards.length, 4, '3まい ＋ へいたいの 1まい');
   assert.ok(b.c11c.cards.every((k) => !k.up), 'うら向き');
@@ -269,12 +271,47 @@ test('近衛の隊長エース: カードを ならべる（うら向き・へ�
   assert.equal(b.c11c.cards.length, 3);
 });
 
+test('はじめの 1回めの ならびだけ おもて（アルゴルが のぞく。しくみを はじめて 見る 所）→ 2回めからは うら向き・ひとりの 時は いつも おもて（文が ぶつからない）', () => {
+  const b = battle();
+  big(b);
+  for (const g of guardsOf(b)) quiet(g);
+  const ace = aceOf(b);
+  const ev = lay(b);
+  assert.ok(ev.c11cLay?.up, 'はじめの ならびは おもて');
+  assert.ok(b.c11c.cards.every((k) => k.up), 'ぜんぶ おもて');
+  assert.ok(c11cPub(ace).cards11c.every((k) => k.s), '画面にも マーク');
+  const tx = allText(ev);
+  assert.ok(tx.includes('さいしょのカードは、のぞいてきた') && tx.includes('てらす'), tx);
+  // 知って いる 人: 見えて いる ほうき星を すぐ たのめる
+  const hero = b.allies[0];
+  hero.knows9 = 'know';
+  const p = c11cPlan(b, hero, () => ({ type: 'attack', target: ace.id }), bestHit);
+  assert.ok(p?.id === TANOMU && b.c11c.cards.find((k) => k.no === p.choice).suit === 'comet', JSON.stringify(p));
+  // 使いきると、2回めの ならびは うら向き
+  while (cardsLeft(b).length) foe(b, ace);
+  const ev2 = foe(b, ace);
+  assert.ok(ev2.c11cLay && !ev2.c11cLay.up, '2回めは うら向き');
+  assert.ok(b.c11c.cards.every((k) => !k.up));
+  assert.ok(!allText(ev2).includes('のぞいてきた'), allText(ev2));
+  // 3回めも うら向き
+  while (cardsLeft(b).length) foe(b, ace);
+  assert.ok(!foe(b, ace).c11cLay.up, '3回めも うら向き');
+  // ひとり: いつも おもて（いつもの「…のぞいてきた。」だけ。はじめの 文は 出ない）
+  const solo = battle({ kinds: ['player'] });
+  big(solo);
+  for (const g of guardsUp(solo)) quiet(g);
+  const s1 = lay(solo);
+  assert.ok(s1.c11cLay.up && allText(s1).includes('のぞいてきた') && !allText(s1).includes('さいしょ'), allText(s1));
+  while (cardsLeft(solo).length) foe(solo, aceOf(solo));
+  assert.ok(foe(solo, aceOf(solo)).c11cLay.up, 'ひとりは 2回めも おもて');
+});
+
 test('てらす で 全部 おもて・アルゴルにたのむ で えらんだ 1まいを 食べて もらう（その 技は 出ない）・ならびに つき 1まい・ほうき星は 防御で へる・月は 身を 守ると ねむらない・太陽は 回復', () => {
   const b = battle();
   big(b);
   for (const g of guardsOf(b)) quiet(g);
   const ace = aceOf(b);
-  lay(b);
+  layBack(b);
   // スピカの てらす
   b.c9sp.teru.charge = b.c9sp.teru.max;
   const ev = act(b, b.allies[0], { type: 'ability', id: TERU });
@@ -376,7 +413,7 @@ test('自動の 仲間: 人が えらんで いる 時だけ、まだ だれも 
   // 知って いる 人: うら向きが 3まい いじょう … てらす ／ 見える … ほうき星を たのむ
   const k = battle();
   big(k);
-  lay(k);
+  layBack(k);
   const hero = k.allies[0];
   hero.knows9 = 'know';
   k.c9sp.teru.charge = k.c9sp.teru.max;
@@ -705,7 +742,7 @@ test('がめん: 上の まど（カード: うら向き・おもて・次・食
   // 画面へ: うら向きの マークは 出さない
   const b = battle();
   big(b);
-  lay(b);
+  layBack(b);
   assert.ok(cardPub(b).every((k) => k.s === null));
 });
 

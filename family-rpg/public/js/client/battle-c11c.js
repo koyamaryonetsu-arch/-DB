@@ -47,6 +47,10 @@ export function suitSvg(s, px = 26) {
   return `<svg viewBox="0 0 32 32" width="${px}" height="${px}" aria-hidden="true">${body}</svg>`;
 }
 
+// CSS の おわりの ほう（C2班）:
+//   .c11c-stage .b-hold … スマホの たてでは「えらぶまで、待っているよ」を え の 左上に（下の はしは 星の子の光・てらすの 帯と かさなる。
+//     右上は オートの ボタン。上の まどは え の 下に 出る ので 左上は あいて いる）。この 幕の 戦いの 画面だけ
+//   .c11c-pk … どの カードを 食べて もらう？ の ボタン: 1行め マークの 名前・2行め ほうき星の ねらい（字が 切れない）
 const CSS = `
 .c11c-top { position: absolute; right: 4px; top: 4px; z-index: 4; max-width: 60%; pointer-events: none;
   padding: 3px 8px 5px; border-radius: 10px; text-align: left; line-height: 1.35; color: #f2f0ff;
@@ -87,6 +91,11 @@ const CSS = `
 .c11c-chomp { position: fixed; z-index: 61; pointer-events: none; font-weight: bold; font-size: 16px; color: #ffe9a0; text-shadow: 0 0 4px #000;
   animation: c11c-chomp 1.1s ease-out forwards; }
 @keyframes c11c-chomp { 0% { opacity: 0; transform: scale(0.5); } 40% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1) translateY(-16px); } }
+@media (max-aspect-ratio: 1/1) { .c11c-stage .b-hold { bottom: auto; top: 4px; right: auto; left: 6px; } }
+.c11c-pk { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; vertical-align: middle; }
+.c11c-pk .t { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; min-width: 0; }
+.c11c-pk .t > span { white-space: nowrap; }
+.c11c-pk .aim { font-size: 0.78em; color: #ff9aa8; }
 .b-banner.c11c-bn { white-space: normal; width: 94%; max-width: 94%; text-align: center; line-height: 1.25; box-sizing: border-box; }
 @media (max-aspect-ratio: 1/1) { .b-banner.c11c-bn { font-size: min(var(--fs-big), 5.4vw); top: 18%; } }
 `;
@@ -231,6 +240,8 @@ export function c11cDraw(scene, x, m, c, px, py, w, h, base) {
   const foes = foesOf(scene).concat(isAce(c) && c.c11cDown && !c.alive ? [c] : []).filter((e, i, a) => a.indexOf(e) === i);
   const top = c11cHtml(foes, allies, myId(scene));
   showTop(scene, top.html, top.cls);
+  // スマホの たてで「えらぶまで、待っているよ」を うごかす しるし（この 幕の 戦いの 画面だけ）
+  scene.stage?.classList?.add?.('c11c-stage');
   if (isAce(c)) refreshCmd(scene, c);
   if (!c.alive || c.c11cDown) return;
   const ty = portrait() ? py + h * 0.6 : py + h + 4;
@@ -385,15 +396,21 @@ export function refreshCmd(scene, ace) {
 // どの カードを 食べて もらうか えらぶ まど（1回で 決定）
 export function c11cCmdPick(scene, a, value) {
   if (value !== C11C_CMD) return false;
+  addCss();
   const ace = acePub(scene);
   const cards = (ace?.cards11c || []).filter((k) => !k.used && !k.eaten);
   const send = (choice) => scene.send({ type: 'ability', id: TANOMU, choice });
   const nameOf = (id) => (scene.allies?.() || []).find((x) => x.id === id)?.name || '？';
-  const list = cards.map((k, i) => ({
-    html: `${k.up ? suitSvg(k.s, 18) : ''}<span>${i === 0 ? '次にめくる' : `${i + 1}ばんめ`}：${k.up ? SUIT_NAME[k.s] : 'うら向き'}${k.up && k.s === 'comet' && k.aim ? `（ねらい：${esc(nameOf(k.aim))}）` : ''}</span>`,
-    label: `${i === 0 ? '次にめくる' : `${i + 1}ばんめ`}：${k.up ? SUIT_NAME[k.s] : 'うら向き'}`,
-    value: k.no,
-  }));
+  // 1行め「次にめくる：ほうき星」・2行め「ねらい：ミナ」（ほうき星の ねらいが 見えて いる 時だけ。スマホでも 名前まで 読める）
+  const list = cards.map((k, i) => {
+    const head = `${i === 0 ? '次にめくる' : `${i + 1}ばんめ`}：${k.up ? SUIT_NAME[k.s] : 'うら向き'}`;
+    const aim = k.up && k.s === 'comet' && k.aim ? nameOf(k.aim) : '';
+    return {
+      html: `<span class="c11c-pk">${k.up ? suitSvg(k.s, 18) : ''}<span class="t"><span>${esc(head)}</span>${aim ? `<span class="aim">ねらい：${esc(aim)}</span>` : ''}</span></span>`,
+      label: aim ? `${head}（ねらい：${aim}）` : head,
+      value: k.no,
+    };
+  });
   if (!list.length) list.push({ label: '場に、カードがない（それでも、たのむ）', value: -1 });
   scene.showMenu(list, (it) => send(it.value), () => scene.openCommand(), 'どのカードを、アルゴルに食べてもらう？');
   return true;

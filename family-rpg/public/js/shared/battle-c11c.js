@@ -162,8 +162,8 @@ function setupMecha(b, parts, lines) {
   };
   lines.push(
     `${TRIO.boss}「オーッホッホ！アルゴルさまを、かえしなさーい！」`,
-    `${TRIO.mecha}「ばらばらメカ、${MECHA_NAME}でございマス！」`,
-    `${TRIO.power}「あたまも、うでも、あしも、ぜんぶ強いだっぺ！」`,
+    `${TRIO.mecha}「ばらばらメカ、${MECHA_NAME}でまんねん！」`,
+    `${TRIO.power}「…あたまも、うでも、あしも…ぜんぶ、強い…ぜ！」`,
     '（あたま・うで・あしは、べつべつにこわせる！こわした所のわざは、出なくなる。あたまは、こわれた所をなおしてしまう…！）',
   );
 }
@@ -260,19 +260,19 @@ function mechaAfter(b, c, ev) {
       post(ev).push(
         `${MECHA_NAME}は、ガラガラガッシャーン！と、ばらばらになった！`,
         `${TRIO.boss}「ちょっとー！また、こわれちゃったじゃないのよー！」`,
-        `${TRIO.mecha}「4号は、もっとじょうぶに作るでございマス〜」`,
-        `${TRIO.power}「おぼえてろだっぺ〜！」`,
+        `${TRIO.mecha}「4号は、もっとじょうぶに作りまっせ〜」`,
+        `${TRIO.power}「…おぼえてろ…ぜ〜！」`,
       );
       ev.c11cMechaDown = { id: e.id };
       return;
     }
     const say = {
-      head: [`${TRIO.mecha}「あたまが、こわれたでございマス〜！もう、なおせないでございマス！」`, '（もう、こわれた所はなおらない！）'],
-      arm: [`${TRIO.power}「うでが、とれちゃっただっぺ〜！」`, '（ロケットパンチが、出なくなった！）'],
+      head: [`${TRIO.mecha}「あたまが、こわれたでまんねん〜！もう、なおせないでっせ！」`, '（もう、こわれた所はなおらない！）'],
+      arm: [`${TRIO.power}「…うでが…とれた…ぜ〜！」`, '（ロケットパンチが、出なくなった！）'],
       leg: [`${TRIO.boss}「あしが、ぽろっと…！もう、じだんだがふめないじゃないの！」`, '（じだんだが、出なくなった！）'],
     }[s.role];
     post(ev).push(...say);
-    if (s.role !== 'head' && partOf(b, 'head')?.alive) post(ev).push(`${TRIO.mecha}「でも、あたまがあれば、なおせるでございマスよ〜！」`);
+    if (s.role !== 'head' && partOf(b, 'head')?.alive) post(ev).push(`${TRIO.mecha}「でも、あたまがあれば、なおせまっせ〜！」`);
     ev.c11cBreak = { id: e.id, role: s.role };
     ev.warn = true;
   }
@@ -313,7 +313,7 @@ function mechaTurn(b, c, ev, stuck) {
     if (!broken.length) return;
     st.fixReady = true;
     st.fixWarns++;
-    ev.lines.push(`${TRIO.mecha}「おっと、こわれた所を、なおすでございマスよ〜！」`, `${c.name}から、ねじとスパナが、にょきっと出てきた…！`, `（次に、こわれた${broken.map((e) => ROLE_NAME[e.c11m.role]).join('と')}がなおってしまう！あたまをこわせば、なおせない！）`);
+    ev.lines.push(`${TRIO.mecha}「おっと、こわれた所を、なおしまっせ〜！」`, `${c.name}から、ねじとスパナが、にょきっと出てきた…！`, `（次に、こわれた${broken.map((e) => ROLE_NAME[e.c11m.role]).join('と')}がなおってしまう！あたまをこわせば、なおせない！）`);
     ev.c11cFixUp = { id: c.id, broken: broken.map((e) => e.c11m.role) };
     ev.warn = true;
     return;
@@ -331,7 +331,7 @@ function mechaTurn(b, c, ev, stuck) {
     if (!t) return;
     st.rocketReady = true;
     st.rocketAim = t.id;
-    ev.lines.push(`${c.name}が、ぐるぐるぐる…と、回りはじめた！`, `${TRIO.power}「ねらいは、${t.name}だっぺ！」`, `（次に、${t.name}にロケットパンチが来る！「防御」で身を守ろう！）`);
+    ev.lines.push(`${c.name}が、ぐるぐるぐる…と、回りはじめた！`, `${TRIO.power}「…ねらいは…${t.name}…ぜ！」`, `（次に、${t.name}にロケットパンチが来る！「防御」で身を守ろう！）`);
     ev.c11cRocketUp = { id: c.id, aim: t.id };
     ev.warn = true;
     ev.upd.push(t);
@@ -410,7 +410,7 @@ function fixPart(b, c, ev) {
   const cf = c11cConf(C11C_HEAD, b);
   const broken = partsOf(b).filter((e) => !e.alive && e.c11m.dead);
   if (!broken.length) {
-    ev.lines.push(`${TRIO.mecha}「…あれ？なおす所が、ないでございマス。」`);
+    ev.lines.push(`${TRIO.mecha}「…あれ？なおす所が、ないでまんねん。」`);
     return;
   }
   ev.fx = { type: 'ability', anim: 'c11h_fix', actor: c.id, targets: broken.map((e) => e.id), side: 'enemy' };
@@ -465,15 +465,18 @@ function lay(b, c, ev) {
     const j = b.rng.int(0, i);
     [suits[i], suits[j]] = [suits[j], suits[i]];
   }
-  // てらして いる 間・ひとりの 時（open … アルゴルが のぞいて 教えて くれる）は おもて
-  const up = litNow(b) || !!cf.open;
+  // てらして いる 間・ひとりの 時（open … アルゴルが のぞいて 教えて くれる）は おもて。
+  // 戦いの はじめの 1回めの ならびも おもて（first … てらすの ゲージが まだ ない ので、アルゴルが のぞく。2回めからは うら向き）
+  const first = st.lays === 0 && !cf.open && !litNow(b);
+  const up = litNow(b) || !!cf.open || first;
   st.set++;
   st.lays++;
   st.eaten = 0;
   st.cards = suits.map((suit, i) => ({ no: i, suit, up, eaten: false, used: false, aim: suit === 'comet' ? pickAim(b)?.id ?? null : null }));
   ev.fx = { type: 'ability', anim: 'c11e_lay', actor: c.id, targets: [c.id], side: 'enemy' };
   ev.lines.push(`${c.name}は、カードを${n}まい、しゅっしゅっと、ならべた。`);
-  if (up && !litNow(b)) post(ev).push(`アルゴル「…のぞいてきた。${suits.map((s) => SUIT_NAME[s]).join('と')}だ。」`);
+  if (first) post(ev).push(`アルゴル「…さいしょのカードは、のぞいてきた。${suits.map((s) => SUIT_NAME[s]).join('と')}だ。」`, '（次からのカードは、うら向き。スピカの「てらす」で見よう！）');
+  else if (up && !litNow(b)) post(ev).push(`アルゴル「…のぞいてきた。${suits.map((s) => SUIT_NAME[s]).join('と')}だ。」`);
   else if (up) post(ev).push(`スピカの光で、カードが見えている！（${suits.map((s) => SUIT_NAME[s]).join('・')}）`);
   else post(ev).push('（カードは、うら向き…。スピカの「てらす」で見える！）');
   ev.c11cLay = { id: c.id, n, up };

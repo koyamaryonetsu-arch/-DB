@@ -101,7 +101,7 @@ export const C11C_ABILITIES = {
     desc: '大きな音で、敵みんなにダメージ。',
   },
   [FIX]: {
-    name: 'なおすでございマス', kind: 'monster', target: 'self',
+    name: 'なおしまっせ', kind: 'monster', target: 'self',
     effect: { type: 'c11cFix' }, cast: '{a}から、ねじとスパナが、にょきっと出た！', anim: 'c11h_fix',
     desc: 'こわれた体を、なおしてしまう。',
   },
