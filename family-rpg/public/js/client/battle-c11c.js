@@ -80,10 +80,10 @@ const CSS = `
   .c11c-card { width: 56px; height: 72px; } }
 .c11c-badge { display: inline-block; margin-left: 3px; padding: 0 4px; border-radius: 7px; font-size: 10px; font-weight: bold; line-height: 1.4;
   background: #ff8a6a; color: #2a0a00; vertical-align: middle; }
-.c11c-eat { position: fixed; z-index: 60; pointer-events: none; animation: c11c-eat 1.3s ease-out forwards; }
+.c11c-eat { position: fixed; z-index: 60; pointer-events: none; animation: c11c-eat 1.8s ease-out forwards; filter: drop-shadow(0 0 6px rgba(200, 190, 255, 0.95)); }
 .c11c-eat canvas { width: 100%; height: 100%; image-rendering: pixelated; }
-@keyframes c11c-eat { 0% { opacity: 0; transform: translateY(-30px) scale(0.6); } 25% { opacity: 1; transform: translateY(0) scale(1); }
-  45% { transform: translateY(2px) scale(1.12, 0.9); } 60% { transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-14px) scale(0.9); } }
+@keyframes c11c-eat { 0% { opacity: 0; transform: translateY(-30px) scale(0.6); } 15% { opacity: 1; transform: translateY(0) scale(1); }
+  40% { transform: translateY(4px) scale(1.12, 0.9); } 55% { transform: translateY(0) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-14px) scale(0.9); } }
 .c11c-chomp { position: fixed; z-index: 61; pointer-events: none; font-weight: bold; font-size: 16px; color: #ffe9a0; text-shadow: 0 0 4px #000;
   animation: c11c-chomp 1.1s ease-out forwards; }
 @keyframes c11c-chomp { 0% { opacity: 0; transform: scale(0.5); } 40% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1) translateY(-16px); } }
@@ -253,7 +253,7 @@ export function playEatFx(scene, no) {
   addCss();
   const box = document.createElement('div');
   box.className = 'c11c-eat';
-  const hgt = Math.max(64, r.height * 1.2);
+  const hgt = Math.max(96, r.height * 1.7);
   const wd = hgt * (192 / 224);
   Object.assign(box.style, { left: `${Math.round(r.left + r.width / 2 - wd / 2)}px`, top: `${Math.round(r.top - hgt * 0.35)}px`, width: `${Math.round(wd)}px`, height: `${Math.round(hgt)}px` });
   try {
@@ -271,7 +271,7 @@ export function playEatFx(scene, no) {
   chomp.textContent = 'ぱくっ！';
   Object.assign(chomp.style, { left: `${Math.round(r.left + r.width / 2 - 24)}px`, top: `${Math.round(r.top + r.height * 0.3)}px` });
   document.body.append(box, chomp);
-  setTimeout(() => { box.remove(); chomp.remove(); }, 1400);
+  setTimeout(() => { box.remove(); chomp.remove(); }, 1900);
   return true;
 }
 

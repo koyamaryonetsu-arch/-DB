@@ -69,6 +69,8 @@ export function bareOf(b) {
 }
 const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, enumerable: false, configurable: true, writable: true });
 const foesOfAlly = (b) => b.aliveAllies().filter((a) => a.kind !== 'guest');
+// カードが かわった 時は 味方の「ねらわれ」の しるしも 新しく
+const updAllies = (b, ev) => { for (const a of b.allies) ev.upd.push(a); };
 
 // しかけの 数（人数で 合わせた もの）
 export function c11cConf(species, b = null) {
@@ -227,6 +229,7 @@ export function c11cAfter(b, c, ev) {
     ev.c11cCards = cardPub(b);
     const ace = aceOf(b);
     if (ace) ev.upd.push(ace);
+    updAllies(b, ev);
   }
   // へいたい: たおれた（もどるのは 隊長が back 回 動いた あと … aceTurn の guardBack）
   for (const e of guardsOf(b)) {
@@ -475,6 +478,7 @@ function lay(b, c, ev) {
   else post(ev).push('（カードは、うら向き…。スピカの「てらす」で見える！）');
   ev.c11cLay = { id: c.id, n, up };
   ev.c11cCards = cardPub(b);
+  updAllies(b, ev);
   ev.warn = true;
 }
 // 隊長: カードを めくって 使う
@@ -570,6 +574,7 @@ function card(b, c, eff, ev) {
   }
   if (!cardsLeft(b).length) post(ev).push('（カードを、ぜんぶ使った。次は、また新しくならべる…）');
   ev.c11cCards = cardPub(b);
+  updAllies(b, ev);
   ev.warn = true;
   ev.upd.push(c);
 }
@@ -612,6 +617,7 @@ function eat(b, c, ev) {
   if (k.suit === 'comet') ev.lines.push('アルゴル「…にがい。でも、へいき。」');
   ev.c11cEat = { id: c.id, ok: true, no: k.no, suit: k.suit };
   ev.c11cCards = cardPub(b);
+  updAllies(b, ev);
 }
 
 // ───────────── ダメージ（battle-c9b.js の c9bDamage の さいご。味方 → 敵）─────────────

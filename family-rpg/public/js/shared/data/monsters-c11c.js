@@ -54,7 +54,7 @@ const MECHA = {
   rocket: { every: 3, first: 2, mult: 2.4, guardCut: 0.35 },
   few: { hp: [0.8, 0.85, 0.9, 0.7, 0.85], atk: [0.75, 0.85, 0.9, 1.23, 1.25], fix: [3, 3, 3, 3, 3] },
   bare: { hp: [0.55, 0.75], atk: [0.7, 0.85] },
-  solo: { hp: 0.43, atk: 0.5, spd: 0.7, fix: 5, rocketMult: 1.6 },
+  solo: { hp: 0.5, atk: 0.51, spd: 0.7, fix: 5, rocketMult: 1.6 },
   monK: { hp: 0.1, atk: 0.02 },
 };
 const PART_RES = { ...BOSS_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.3, light: 1.0, dark: 1.0 };
@@ -171,8 +171,8 @@ export const MONSTERS_C11C = {
       moon: { base: [260, 300], turns: 2, slow: 0.5 },
       sun: { heal: 0.08 },
       two: 0.5, back: 5, aoeK: 0.3, aoeBoss: 0.6, autoK: 0.3,
-      few: { hp: [0.72, 0.72, 0.95, 0.88, 1.0], atk: [0.7, 0.74, 0.95, 0.88, 0.92], back: [5, 5, 5, 5, 4] },
-      bare: { hp: [0.27, 0.6], atk: [0.42, 0.6], autoK: [0.18, 0.3] },
+      few: { hp: [0.72, 0.72, 0.95, 0.85, 1.0], atk: [0.7, 0.74, 0.95, 0.88, 0.92], back: [5, 5, 5, 5, 4] },
+      bare: { hp: [0.27, 0.6], atk: [0.42, 0.62], autoK: [0.18, 0.3] },
       solo: { hp: 0.65, atk: 0.45, cards: 2, guards: 1, back: 8, comet: 3.2, open: 1, two: 0.15 },
       monK: { hp: 0.1, atk: 0 },
     },
