@@ -535,6 +535,55 @@ test('強さ: 知って いる 人は 勝てる（2秒と 5秒で 勝率が 同�
   assert.ok(p2.filter((r) => r.outcome === 'win').length >= 1, `人2人だけ ${p2.map((r) => r.outcome)}`);
 });
 
+// ───────────── 見直し（3回め・ひとりだけ）─────────────
+test('見直し（3回め）: ひとりだけの 表（solo）… 番人は 合わない 方も 6わり・明かりが 早く かわる・前ぶれを 見ないと 波が 重い・ほかの 組の 数は かわらない・ひとりでも 勝てる', { timeout: 1200000 }, () => {
+  const kp = MONSTERS[C11B_KEEPER].c11b;
+  const ob = MONSTERS[C11B_OBORO].c11b;
+  assert.deepEqual(kp.solo, { hp: 0.75, atk: 0.61, spd: 0.75, every: 4, cut: 0.6, wave: 2.1 });
+  assert.deepEqual(ob.solo, { hp: 0.65, atk: 0.48, robe: 6, back: 8, tennin: 1 });
+  // ほかの 組（人2人 いじょう・1人＋自動の 仲間）は 前の まま
+  assert.deepEqual(kp.few, { hp: [0.85, 0.95, 0.95, 1.1, 1.25], atk: [0.8, 0.9, 0.95, 1.05, 1.05], every: [5, 4, 4, 4, 4] });
+  assert.deepEqual(kp.bare, { hp: [0.8, 0.9], atk: [0.85, 0.9] });
+  assert.deepEqual(ob.few, { hp: [0.8, 0.97, 0.95, 1, 1.25], atk: [0.75, 0.92, 0.95, 1, 1.08], robe: [4, 3, 3, 3, 3], back: [5, 4, 5, 4, 3] });
+  assert.deepEqual(ob.bare, { hp: [0.4, 0.68], atk: [0.53, 0.74], robe: [5, 4] });
+  assert.equal(MONSTERS[C11B_KEEPER].hp, 13000);
+  assert.equal(MONSTERS[C11B_KEEPER].str, 2450);
+  assert.equal(MONSTERS[C11B_OBORO].hp, 10500);
+  assert.equal(MONSTERS[C11B_OBORO].str, 2400);
+  for (const kinds of [['player', 'player'], ['player', 'player', 'player', 'player'], ['player', 'support', 'support', 'support']]) {
+    const cf = c11bConf(C11B_KEEPER, battle({ id: C11B_BATTLE.keeper, kinds }));
+    assert.equal(cf.cut, 0.3, `${kinds}`);
+    assert.equal(cf.wave.mult, 1.6, `${kinds}`);
+    assert.equal(cf.spd, 1, `${kinds}`);
+  }
+  // ひとり: 表が きく（スピカは 味方に 数えない）
+  const solo = battle({ id: C11B_BATTLE.keeper, kinds: ['player'] });
+  const scf = c11bConf(C11B_KEEPER, solo);
+  assert.equal(scf.cut, 0.6);
+  assert.equal(scf.every, 4);
+  assert.equal(scf.wave.mult, 2.1);
+  assert.equal(scf.wave.guardCut, kp.wave.guardCut);
+  const k = keeperOf(solo);
+  assert.equal(k.maxHp, Math.round(MONSTERS[C11B_KEEPER].hp * 0.75));
+  assert.equal(k.dmgRate, 0.61);
+  // 明るい 間の 物理（合わない 方）も 6わり 通る … 片方しか 持たない 職業でも 手づまりに ならない
+  big(solo);
+  quiet(k);
+  k.hp = k.maxHp = 1e7;
+  const [hero] = solo.allies;
+  const hit = (cmd) => { const h0 = k.hp; act(solo, hero, cmd); return h0 - k.hp; };
+  const cut0 = solo.c11b.cutHits;
+  const d = hit({ type: 'attack', target: k.id });
+  assert.ok(d > 0 && solo.c11b.cutHits > cut0, 'はじかれた');
+  // 強さ（少しの 回数）: ひとりの 知って いる 人は 番人にも オボロにも 勝てる・完全オートは 勝てない
+  for (const key of ['keeper', 'oboro']) {
+    const know = [0, 1, 2, 3].map((s) => ch9Run(key, LV9[key], 'know', 9090 + s * 7919, { party: 'solo', flags: ORDER_FLAGS.c11b[key] }));
+    assert.ok(know.filter((r) => r.outcome === 'win').length >= 2, `${key} ひとり 知って いる ${know.map((r) => r.outcome)}`);
+    const auto = [0, 1].map((s) => ch9Run(key, LV9[key], 'auto', 9090 + s * 7919, { party: 'solo', flags: ORDER_FLAGS.c11b[key] }));
+    assert.equal(auto.filter((r) => r.outcome === 'win').length, 0, `${key} ひとり 完全オート`);
+  }
+});
+
 test('本物の 流れ（tools/real-boss.mjs）: 番人・オボロも 回る・画面と 同じ 形の コマンド（よびかける … choice つき）が はねかえされない・スピカが つれて いかれて 負け → ヒント → もう一度 いどめる', { timeout: 600000 }, async () => {
   const { realRun, realSetup } = await import('../tools/real-boss.mjs');
   const prev = process.env.HUMAN;

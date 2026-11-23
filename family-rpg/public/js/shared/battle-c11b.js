@@ -80,7 +80,7 @@ export function c11bConf(species, b = null) {
     hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
   if (c.kind === 'keeper') {
-    Object.assign(out, { every: pick('every', c.every ?? 3), cut: pick('cut', c.cut ?? 0.3), cutAuto: c.cutAuto ?? c.cut ?? 0.3, wave: { mult: 0.8, guardCut: 0.4, ...(c.wave || {}) } });
+    Object.assign(out, { every: pick('every', c.every ?? 3), cut: pick('cut', c.cut ?? 0.3), cutAuto: c.cutAuto ?? c.cut ?? 0.3, wave: { mult: 0.8, guardCut: 0.4, ...(c.wave || {}), mult: pick('wave', c.wave?.mult ?? 0.8) } });
   }
   if (c.kind === 'oboro') {
     Object.assign(out, {
