@@ -3,8 +3,8 @@
 //   中ボス（ランプの番人）は 2だん・幕の ボス（月のむかえ オボロ）は 3だん（文は 設計 18-4 の まま）
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c11b.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=f8927db0fd05';
-import { C11B_BATTLE_B as C11B_BATTLE } from '../maps/c11b-flags.js?v=f8927db0fd05';
+import { mergeBossHints } from './boss-hints.js?v=28060a38724e';
+import { C11B_BATTLE_B as C11B_BATTLE } from '../maps/c11b-flags.js?v=28060a38724e';
 
 export const C11B_HINT_WHO = 'ノクト';
 export const C11B_BOSS_HINTS = {

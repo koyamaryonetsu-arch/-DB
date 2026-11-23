@@ -5,10 +5,10 @@
 //   t11b_tower  … 名前の 塔の おもて（c11b_tower1〜3。Lv121）
 //   t11b_towerb … 名前の 塔の うら（c11b_towerb1〜3。Lv121〜122）
 // ふつうの 戦いの 長さ（18-4）: 超級職 4人で 1回 30〜50秒（tools/sim-ch9-field.mjs の SUPER=1）
-import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN } from './monsters-c11b.js?v=f8927db0fd05';
-import { C11B_BATTLE_B as C11B_BATTLE, C11B_TRACKS_B as C11B_TRACKS } from '../maps/c11b-flags.js?v=f8927db0fd05';
+import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN } from './monsters-c11b.js?v=28060a38724e';
+import { C11B_BATTLE_B as C11B_BATTLE, C11B_TRACKS_B as C11B_TRACKS } from '../maps/c11b-flags.js?v=28060a38724e';
 // 負けた 時の ヒントの 文（boss-hints-c11b.js が mergeBossHints を よぶ）
-import './boss-hints-c11b.js?v=f8927db0fd05';
+import './boss-hints-c11b.js?v=28060a38724e';
 
 export const ENCOUNTERS_C11B = {
   t11b_alley: [

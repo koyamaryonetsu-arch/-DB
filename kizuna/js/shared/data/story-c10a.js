@@ -13,16 +13,16 @@
 import {
   C10A, C10A_ACT4, C10A_RED, C10A_GREEN, C10A_BUDS, C10A_LEVERS, C10A_BONUS, C10A_PED, C10A_MAP, C10A_BATTLE, C10A_BOSS_MON,
   C10A_RED_BOSS_NAME, C10A_RED_MECHA_NAME, C10A_GREEN_BOSS_NAME, C10A_GREEN_SHORT, C10A_GREEN_MECHA_NAME, C10A_TRACKS, NOTE_RE, NOTE_FA,
-} from '../maps/c10a-flags.js?v=f8927db0fd05';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=f8927db0fd05';
-import { ALGOL_NAME } from '../maps/c9c-flags.js?v=f8927db0fd05';
-import { C9D_TRACKS } from '../maps/c9d-flags.js?v=f8927db0fd05';
-import { C10A_POS, CRATER_STAIRS10A, UNDER_ROOT10A, STUMP10A, PED_RE10A, PED_FA10A } from '../maps/c10a-rows.js?v=f8927db0fd05';
-import { PEDESTALS9C } from '../maps/c9c.js?v=f8927db0fd05';
-import { MONSTERS } from './monsters.js?v=f8927db0fd05';
-import { mergeBossHints } from './boss-hints.js?v=f8927db0fd05';
-import { SHOPS } from './shops.js?v=f8927db0fd05';
-import { C10A_SHOP_ADD } from './items-c10a.js?v=f8927db0fd05';
+} from '../maps/c10a-flags.js?v=28060a38724e';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=28060a38724e';
+import { ALGOL_NAME } from '../maps/c9c-flags.js?v=28060a38724e';
+import { C9D_TRACKS } from '../maps/c9d-flags.js?v=28060a38724e';
+import { C10A_POS, CRATER_STAIRS10A, UNDER_ROOT10A, STUMP10A, PED_RE10A, PED_FA10A } from '../maps/c10a-rows.js?v=28060a38724e';
+import { PEDESTALS9C } from '../maps/c9c.js?v=28060a38724e';
+import { MONSTERS } from './monsters.js?v=28060a38724e';
+import { mergeBossHints } from './boss-hints.js?v=28060a38724e';
+import { SHOPS } from './shops.js?v=28060a38724e';
+import { C10A_SHOP_ADD } from './items-c10a.js?v=28060a38724e';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

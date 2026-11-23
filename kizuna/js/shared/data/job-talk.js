@@ -154,7 +154,7 @@ Object.assign(JOB_SAY, {
   ryujin_kenshi: '「雷の竜、火の竜、力をかしてくれ！」',
 });
 // 第98回: きずなの職業（data/jobs-r98-*.js の say。一覧は kizuna.js）
-import { kizunaMap } from './kizuna.js?v=f8927db0fd05';
+import { kizunaMap } from './kizuna.js?v=28060a38724e';
 Object.assign(JOB_SAY, kizunaMap('say'));
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {

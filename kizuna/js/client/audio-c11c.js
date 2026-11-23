@@ -20,9 +20,9 @@
 //     ゆっくり 開く〉→ シンバルと オルゴールの まぶしい 光。おわりは Asus4〈ラ・レ・ミ〉＝ とじきらない 和音）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS, C9A_TRIO_THEME } from './audio-c9a.js?v=f8927db0fd05';
-import { C9C_TOOLS } from './audio-c9c.js?v=f8927db0fd05';
-import { ALGOL_HEAD } from './audio-c10c.js?v=f8927db0fd05';
+import { C9A_TOOLS, C9A_TRIO_THEME } from './audio-c9a.js?v=28060a38724e';
+import { C9C_TOOLS } from './audio-c9c.js?v=28060a38724e';
+import { ALGOL_HEAD } from './audio-c10c.js?v=28060a38724e';
 
 const { SHARP, FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL } = C9A_TOOLS;
 const { shift } = C9C_TOOLS;

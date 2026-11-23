@@ -5,10 +5,10 @@
 // ・仲間の まど: 時計を 持って いる 人の 名前の 横に「時計 5」の しるし（あと 2 いかは 赤）
 // ・え: 船長が にげる え（コマ 2・3）・船長の 頭の 上に 時計の しるし（船長が 持って いる 時）・目を 回して いる 星
 // ・コマンド: 時計を 持って いる 人に だけ、いちばん 上に「時計を投げる」（あと ○ の 文字）。1回で 決定（えらぶ まどは ない）
-import { C11A_CAPTAIN, C11A_STARS, CAPTAIN_SHORT } from '../shared/data/monsters-c11a.js?v=f8927db0fd05';
-import { TOKEI_NAGE } from '../shared/data/abilities-c11a.js?v=f8927db0fd05';
-import { monsterCanvas } from './render/monsters.js?v=f8927db0fd05';
-import { playC11aBite, playC11aClock } from './render/battlefx-c11a.js?v=f8927db0fd05';
+import { C11A_CAPTAIN, C11A_STARS, CAPTAIN_SHORT } from '../shared/data/monsters-c11a.js?v=28060a38724e';
+import { TOKEI_NAGE } from '../shared/data/abilities-c11a.js?v=28060a38724e';
+import { monsterCanvas } from './render/monsters.js?v=28060a38724e';
+import { playC11aBite, playC11aClock } from './render/battlefx-c11a.js?v=28060a38724e';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C11A_OWN_TELE = [C11A_CAPTAIN, ...C11A_STARS];

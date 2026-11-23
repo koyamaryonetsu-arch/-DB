@@ -3,8 +3,8 @@
 //   中ボス（バラバラン3号）は 2だん・幕の ボス（近衛の隊長エース）は 3だん（文は 設計 19-4 の まま）
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ
 //   ここで mergeBossHints を よぶ（encounters-c11c.js が import する）。もう一度 いどむ 行き先（retry）は A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=f8927db0fd05';
-import { C11C_BATTLE_B as C11C_BATTLE } from '../maps/c11c-flags.js?v=f8927db0fd05';
+import { mergeBossHints } from './boss-hints.js?v=28060a38724e';
+import { C11C_BATTLE_B as C11C_BATTLE } from '../maps/c11c-flags.js?v=28060a38724e';
 
 export const C11C_HINT_WHO = 'ノクト';
 export const C11C_BOSS_HINTS = {

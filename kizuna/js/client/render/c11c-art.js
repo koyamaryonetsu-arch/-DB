@@ -8,7 +8,7 @@
 //   近衛の隊長エース … カードの よろいの 背の 高い 隊長（羽の ついた かぶと・長い やり・むねに 太陽の マーク）。コマ 2・3 … カードに もどって ちらばる
 //   トランプの へいたい（ボスの まわり）… へいたいの 2倍の こまかさ
 //   もとの お話の ハート・スペード・ダイヤ・クラブの マークは かかない（月・星・ほうき星・太陽だけ）
-import { fit, spark, bez } from './ch3-draw.js?v=f8927db0fd05';
+import { fit, spark, bez } from './ch3-draw.js?v=28060a38724e';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

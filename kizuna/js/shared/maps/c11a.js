@@ -7,22 +7,22 @@
 //   風の海の 灯台島 … レンズが うつした 星座（c11a_lens の 間だけ）/
 //   星見の丘（overworld）… こぎ出す 場面の マス（c11a_chart から）・橋の たもとの 乗り場（c11a_launch から）
 // ・星座の 星と 線は map.c11aCons（world/c11a-steps.js・client/c11a-view.js が 読む）。線は 空の 上（通れない マス）に 画面が かく
-import { T, TILE_INFO } from '../tiles.js?v=f8927db0fd05';
-import { npc } from './npc.js?v=f8927db0fd05';
-import { parseRows16 } from './past.js?v=f8927db0fd05';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=f8927db0fd05';
+import { T, TILE_INFO } from '../tiles.js?v=28060a38724e';
+import { npc } from './npc.js?v=28060a38724e';
+import { parseRows16 } from './past.js?v=28060a38724e';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=28060a38724e';
 import {
   C11A, C11A_ACT0, C11A_LIGHTS, C11A_LENS, C11A_CON, C11A_MAP, C11A_MAP_IDS, C11A_CHEST_IDS, C11A_TRACKS, C11A_TABLE, C11A_PLACE,
-} from './c11a-flags.js?v=f8927db0fd05';
+} from './c11a-flags.js?v=28060a38724e';
 import {
   SEA_ROWS, SEA_Y0, ISLES11A, SEA_DOCK11A, SEA_BRIDGE11A, SEA_ARRIVE11A, SEA_GATE11A, SEA_GATE_SCENE11A, CURRENTS11A,
   isleRows11a, ISLE1_CONS, ISLE2_CONS, ISLE3_CONS, ISLE_POS11A, PERCH_ROWS, PERCH_POS11A, LENS11A, LENS_LAND11A,
   HILL_SCENE11A, HILL_DOCK11A, HILL_BACK11A, CRATER_SCENE11A, cells11a,
-} from './c11a-rows.js?v=f8927db0fd05';
-import { CONSTELLATIONS11A } from '../data/constellations-c11a.js?v=f8927db0fd05';
-import { SEA_PLACES } from './ch2.js?v=f8927db0fd05';
-import { c11aChest, C11A_PERCH_ARMS, C11A_PERCH_TOOLS } from '../data/items-c11a.js?v=f8927db0fd05';
-import { SHOPS } from '../data/shops.js?v=f8927db0fd05';
+} from './c11a-rows.js?v=28060a38724e';
+import { CONSTELLATIONS11A } from '../data/constellations-c11a.js?v=28060a38724e';
+import { SEA_PLACES } from './ch2.js?v=28060a38724e';
+import { c11aChest, C11A_PERCH_ARMS, C11A_PERCH_TOOLS } from '../data/items-c11a.js?v=28060a38724e';
+import { SHOPS } from '../data/shops.js?v=28060a38724e';
 
 export const CH11A_MAPS = [...C11A_MAP_IDS];
 
@@ -55,8 +55,9 @@ const base = (id, name, kind, t, extra) => ({
 // ───── 星座（map.c11aCons）─────
 // { id, name, rule, ox, oy, stars: [[x, y]（マップの マス）], lines, twins, entries: [星の 番号]（地面に ふれて いる 星）, land: 地面の マス }
 const D4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-export function placeCon11a(m, id, ox, oy, walk) {
-  const C = CONSTELLATIONS11A[id];
+// 第104回 A班: data … 星座の 形（ない 時は この 幕の 星座の 表。第4幕の 星座の 間は 自分の 形を わたす）
+export function placeCon11a(m, id, ox, oy, walk, data = CONSTELLATIONS11A[id]) {
+  const C = data;
   const stars = C.stars.map(([x, y]) => [ox + x, oy + y]);
   const isStar = (x, y) => stars.some(([sx, sy]) => sx === x && sy === y);
   const entries = [];

@@ -5,8 +5,8 @@
 // ・みぞ（712。2コマ）・スピカの 光の 橋（713。2コマ）・見はりの カードの 通り道（714）・階段（上 715・下 716）
 // ・うらの 町の 古い 戸（717。2コマ）・ひと休みの いずみ（718。2コマ）・ゆか（723）・王宮の 大とびら（719・開いた 720。2コマ）・じゅうたん（721）
 // どれも テーマで 色を かえない
-import { T } from '../../shared/tiles.js?v=f8927db0fd05';
-import { prand } from './pixel.js?v=f8927db0fd05';
+import { T } from '../../shared/tiles.js?v=28060a38724e';
+import { prand } from './pixel.js?v=28060a38724e';
 
 const GOLD = { d: '#a8801e', b: '#e8c040', l: '#ffe070', hl: '#fff8c8' };
 const PED = { a: ['#5a8aff', '#c8d8ff'], b: ['#5ad870', '#c8f8d0'], c: ['#ff6a6a', '#ffd0d0'], d: ['#ffd84a', '#fff4c0'] };

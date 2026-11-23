@@ -14,11 +14,11 @@
 // ■ 助け（3人組の 声）: 同じ 階で アルゴルの 台が かわらない まま C11C_HELP_STEPS 歩 歩くと、次の 台（か よびもどす・出口）を 光らせる（snap の c11c.h）
 // ■ 回線が 切れて もどった 時: 回ろうの 階なら その 階の 入口（アルゴルは その 階に パーティーが のこって いれば そのまま）
 // ■ 道さがし（solve11c）: 階の 入口から 出口まで（テスト・助け・よびもどす 時の たしかめ）。人は 1人と して さがす
-import { MAPS, isBlocked } from '../maps/index.js?v=f8927db0fd05';
-import { C11C, C11C_HELP_STEPS, C11C_TRIO, C11C_ALGOL_NAME, C11C_FLOOR_FLAGS } from '../maps/c11c-flags.js?v=f8927db0fd05';
-import { c11cMapFlag, pedAt11c, laneAt11c, cardFrozen11c, C11C_COLOR_NAME } from '../maps/c11c.js?v=f8927db0fd05';
-import { nearestFree } from './hazards.js?v=f8927db0fd05';
-import { runSteps } from './scripts.js?v=f8927db0fd05';
+import { MAPS, isBlocked } from '../maps/index.js?v=28060a38724e';
+import { C11C, C11C_HELP_STEPS, C11C_TRIO, C11C_ALGOL_NAME, C11C_FLOOR_FLAGS } from '../maps/c11c-flags.js?v=28060a38724e';
+import { c11cMapFlag, pedAt11c, laneAt11c, cardFrozen11c, C11C_COLOR_NAME } from '../maps/c11c.js?v=28060a38724e';
+import { nearestFree } from './hazards.js?v=28060a38724e';
+import { runSteps } from './scripts.js?v=28060a38724e';
 
 const partyKey = (s) => s?.partyId || s?.id;
 const tileOf = (s) => [Math.floor(s.x), Math.floor(s.y)];
@@ -295,7 +295,8 @@ export function stepC11c(world, s, tx, ty) {
   unstick(world, s);
   if (cardCheck(world, s, st)) return true;
   // 助け（その 階を まだ 通って いない 時）
-  const passed = has(C11C_FLOOR_FLAGS[map.c11c.floor]);
+  // 第104回 A班: 第4幕の かげの 間は map.c11c.passFlag（3階を 通った しるし）
+  const passed = has(map.c11c.passFlag || C11C_FLOOR_FLAGS[map.c11c.floor]);
   if (passed) { s.c11cHelp = null; return false; }
   const key = `${s.map}|${st.a}`;
   if (!s.c11cHelp || s.c11cHelp.key !== key) s.c11cHelp = { key, n: 0, hint: null };

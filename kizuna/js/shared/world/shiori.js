@@ -7,36 +7,36 @@
 //   ・まだ 開いて いない しくみは 出さない（数にも 入れない）。先の 章で 開く 物も 入れない
 //   ・ボスの 名前・物語の 先・かくれた 職業の じょうけんは 書かない。名前を 知らない 物は「？？？」
 //   ・物語の 幕の 名前は、その 幕の はじまりの 文字（ゲームの 中の chapter）を 見た あとだけ
-import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=f8927db0fd05';
-import { OBJECTIVE_TALK } from '../data/party-talk.js?v=f8927db0fd05';
-import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=f8927db0fd05';
-import { jobLine } from '../data/fq-common.js?v=f8927db0fd05';
-import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=f8927db0fd05';
-import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=f8927db0fd05';
-import { tmLvCap, tmTitle } from '../data/treasure.js?v=f8927db0fd05';
-import { tmPlaceShort } from '../data/treasure-hint.js?v=f8927db0fd05';
-import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=f8927db0fd05';
-import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=f8927db0fd05';
-import { phantomBook } from '../data/phantom.js?v=f8927db0fd05';
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=f8927db0fd05';
-import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=f8927db0fd05';
-import { bestiaryOrder } from '../data/companions.js?v=f8927db0fd05';
-import { MONSTERS } from '../data/monsters.js?v=f8927db0fd05';
-import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=f8927db0fd05';
-import { canLimitBreak, lbOf } from '../data/forge.js?v=f8927db0fd05';
-import { LB_MAX } from '../data/items-forge.js?v=f8927db0fd05';
-import { ITEMS } from '../data/items.js?v=f8927db0fd05';
-import { MAPS, condOk } from '../maps/index.js?v=f8927db0fd05';
-import { jobLabel } from '../job-label.js?v=f8927db0fd05';
+import { OBJECTIVE_TARGETS, liveTargets, whereName, subQuests } from '../data/quest-targets.js?v=28060a38724e';
+import { OBJECTIVE_TALK } from '../data/party-talk.js?v=28060a38724e';
+import { subQuestHints, availableSubQuests, subQuestStarted } from '../data/subquest-hints.js?v=28060a38724e';
+import { jobLine } from '../data/fq-common.js?v=28060a38724e';
+import { ARENA_RANKS, rankOpen, rankCleared, rankLabel, arenaOpen } from '../data/arena.js?v=28060a38724e';
+import { MONARENA_RANKS, MONARENA_OPEN_FLAG, monRankOpen, monRankCleared } from '../data/monarena.js?v=28060a38724e';
+import { tmLvCap, tmTitle } from '../data/treasure.js?v=28060a38724e';
+import { tmPlaceShort } from '../data/treasure-hint.js?v=28060a38724e';
+import { tierInfo, TIER_MAX, tmClearCount } from '../data/casino-tier.js?v=28060a38724e';
+import { sdRecordOf, SD_OPEN_FLAG, SD_GUARD_EVERY } from '../data/secret.js?v=28060a38724e';
+import { phantomBook } from '../data/phantom.js?v=28060a38724e';
+import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js?v=28060a38724e';
+import { TRIALS, trialJob, trialsCleared, trialState } from '../data/job-trials.js?v=28060a38724e';
+import { bestiaryOrder } from '../data/companions.js?v=28060a38724e';
+import { MONSTERS } from '../data/monsters.js?v=28060a38724e';
+import { medalsFound, medalsGiven, medalsHeld, nextMedalReward } from '../data/casino.js?v=28060a38724e';
+import { canLimitBreak, lbOf } from '../data/forge.js?v=28060a38724e';
+import { LB_MAX } from '../data/items-forge.js?v=28060a38724e';
+import { ITEMS } from '../data/items.js?v=28060a38724e';
+import { MAPS, condOk } from '../maps/index.js?v=28060a38724e';
+import { jobLabel } from '../job-label.js?v=28060a38724e';
 // 第80回 E班: ボスに 負けた 時の ヒント（今までに 出た 物。物語の だんに 出す）
-import { bossHintsSeen } from '../data/boss-hints.js?v=f8927db0fd05';
+import { bossHintsSeen } from '../data/boss-hints.js?v=28060a38724e';
 // 第88回 G4班: 作品の ガチャガチャ・七つの玉
-import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=f8927db0fd05';
-import { workName } from '../data/works.js?v=f8927db0fd05';
+import { GACHA_PRICE, GACHA_PITY, gachaWorks, gachaPool, gachaGot, ORB_PLACES, orbChestId, orbsFound, SEVEN_ORBS, ownsR88 } from '../data/gacha-r88.js?v=28060a38724e';
+import { workName } from '../data/works.js?v=28060a38724e';
 // 第88回 G9班: ドラゴンボール（data/shenron-r88.js）
-import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=f8927db0fd05';
+import { DB_PLACES, dbChestId, ballsAll, ballsFound, hasRadar, wishWaitLeft, wishWaitDays, WISH_AT_FLAG, WISH_N_FLAG } from '../data/shenron-r88.js?v=28060a38724e';
 // 第88回 G3班: まぼろしの回廊（shared/rivals-r88.js）
-import { rivalTrack, rivalRec } from '../rivals-r88.js?v=f8927db0fd05';
+import { rivalTrack, rivalRec } from '../rivals-r88.js?v=28060a38724e';
 
 const flagFn = (c) => (k) => !!c?.flags?.[k];
 const npcWhere = (id) => whereName({ npc: id }) || '';
@@ -113,6 +113,8 @@ export const CHAPTERS = [
       { n: 2, start: 'c11b_start', title: '月の都と、名前のランプ', seen: 'c11b_start', clear: 'c11_act2' },
       // 第103回 A班: 第3幕（名前の 塔の 前で アルゴルが 下りて 来て、題の 画面を 見た あと）
       { n: 3, start: 'c11c_start', title: 'はかりの回ろうと、ふたつの光', seen: 'c11c_start', clear: 'c11_act3' },
+      // 第104回 A班: 第4幕（大とびらの 中・光の はかりの 広間で 女王に 会って、題の 画面を 見た あと）。第3部の さいごの 幕（クリアで「第3部」の クリア）
+      { n: 4, start: 'c11d_start', title: 'かがやきの女王と、八つめの音', seen: 'c11d_start', clear: 'c11_act4', partClear: true },
     ],
   },
 ];
@@ -140,7 +142,9 @@ export function storyPlace(c) {
   const title = !ch.titleSeen || f(ch.titleSeen) ? ch.title : '';
   const actTitle = act?.title && f(act.seen) ? act.title : '';
   const parts = [ch.n === 0 ? '' : PART_NAMES[ch.part], chName, act ? `第${act.n}幕` : ''].filter(Boolean);
-  return { part: ch.n === 0 ? 0 : ch.part, chapter: ch.n, act: act?.n || 0, label: parts.join(' '), title, actTitle, cleared };
+  // 第104回 A班: 部の さいごの 幕を クリアした 後は「第3部」の クリア
+  const label = act?.partClear && cleared ? PART_NAMES[ch.part] : parts.join(' ');
+  return { part: ch.n === 0 ? 0 : ch.part, chapter: ch.n, act: act?.n || 0, label, title, actTitle, cleared, ...(act?.partClear && cleared ? { partClear: true } : {}) };
 }
 
 // 物語の つぎ（目標の 文・仲間の ひとこと・場所）

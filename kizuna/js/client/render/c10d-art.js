@@ -9,7 +9,7 @@
 //     ふちの 上に 小さな 王かんの かざり。まわりに 小さな 手鏡が 3つ うかぶ。コマ 2・3 … 鏡に ひびが 入る（目を まるく する）
 //   もとの 作品の 絵は 使わない（緑の 顔だけが うかぶ 鏡・仮面の 顔は かかない。顔は 鏡の ガラスに うすく うつる 形）
 // ・うつし身 … ふつうは 味方の 人の 絵を 鏡の 色に した もの（client/battle-temple.js の templeSprite）。ここの え は 人の 形の 鏡の かげ（予備）
-import { fit, spark, bez } from './ch3-draw.js?v=f8927db0fd05';
+import { fit, spark, bez } from './ch3-draw.js?v=28060a38724e';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
