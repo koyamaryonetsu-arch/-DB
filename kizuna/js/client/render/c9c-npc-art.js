@@ -6,7 +6,7 @@
 // ・c9c_post … いかだ乗り場の 立てふだ（いかだの 絵）
 // ・c9c_ped0〜6 … くぼ地の 7つの 音の 台（赤・だいだい・黄・緑・青・あい・むらさき）/ c9c_ped_on … 星の音を おいた 黄の 台（光る）
 // もとの 作品の 絵は 使わない
-import { Painter } from './pixel.js?v=b3f22aad5877';
+import { Painter } from './pixel.js?v=34af8e641519';
 
 // 少年（暗い 三日月に 乗って うかぶ）
 function paintAlgol(dir, f) {

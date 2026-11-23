@@ -27,16 +27,16 @@
 //   完全オートは よびかけない（スピカを つれて いかれて 勝てない）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数の 数え方は 第2章 第1幕と おなじ（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）。bare … 味方が みんな 家族の キャラで 2人・3人
-import { MONSTERS } from './data/monsters.js?v=b3f22aad5877';
-import { ABILITIES } from './data/abilities.js?v=b3f22aad5877';
-import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, KEEPER_SHORT, OBORO_SHORT } from './data/monsters-c11b.js?v=b3f22aad5877';
-import { YOBIKAKE } from './data/abilities-c11b.js?v=b3f22aad5877';
-import { C11B_B as C11B } from './maps/c11b-flags.js?v=b3f22aad5877';
-import { SONG } from './data/abilities-c9d.js?v=b3f22aad5877';
-import { TERU as TERU_ID } from './data/abilities-c9b.js?v=b3f22aad5877';
-import { TOKEI_NAGE as TOKEI_ID } from './data/abilities-c11a.js?v=b3f22aad5877';
-import { canUse } from './ai.js?v=b3f22aad5877';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=b3f22aad5877';
+import { MONSTERS } from './data/monsters.js?v=34af8e641519';
+import { ABILITIES } from './data/abilities.js?v=34af8e641519';
+import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, KEEPER_SHORT, OBORO_SHORT } from './data/monsters-c11b.js?v=34af8e641519';
+import { YOBIKAKE } from './data/abilities-c11b.js?v=34af8e641519';
+import { C11B_B as C11B } from './maps/c11b-flags.js?v=34af8e641519';
+import { SONG } from './data/abilities-c9d.js?v=34af8e641519';
+import { TERU as TERU_ID } from './data/abilities-c9b.js?v=34af8e641519';
+import { TOKEI_NAGE as TOKEI_ID } from './data/abilities-c11a.js?v=34af8e641519';
+import { canUse } from './ai.js?v=34af8e641519';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=34af8e641519';
 
 export { YOBIKAKE };
 export const SWITCH = 'm11k_switch';
@@ -80,7 +80,7 @@ export function c11bConf(species, b = null) {
     hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
   if (c.kind === 'keeper') {
-    Object.assign(out, { every: pick('every', c.every ?? 3), cut: pick('cut', c.cut ?? 0.3), cutAuto: c.cutAuto ?? c.cut ?? 0.3, wave: { mult: 0.8, guardCut: 0.4, ...(c.wave || {}) } });
+    Object.assign(out, { every: pick('every', c.every ?? 3), cut: pick('cut', c.cut ?? 0.3), cutAuto: c.cutAuto ?? c.cut ?? 0.3, wave: { mult: 0.8, guardCut: 0.4, ...(c.wave || {}), mult: pick('wave', c.wave?.mult ?? 0.8) } });
   }
   if (c.kind === 'oboro') {
     Object.assign(out, {

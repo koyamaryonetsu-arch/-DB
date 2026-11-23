@@ -12,19 +12,19 @@
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
 //   第36回: かくさない。本だな・れん金のメモ・かじ屋の 親方で わかる（親方は 生まれ変わりの レシピを 先に 教える）。
 //   町の 人・本だな・宝箱・はなす にも ヒント（secret-hints.js）
-import { ITEMS, baseItemId } from './items.js?v=b3f22aad5877';
-import { UPGRADE_TYPES, CAP_UP_MAX, LB_MAX, lbId, upgradeLimit } from './items-forge.js?v=b3f22aad5877';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START, REBIRTH } from './items-alchemy.js?v=b3f22aad5877';
-import { isShopGear } from './items-rare.js?v=b3f22aad5877';
+import { ITEMS, baseItemId } from './items.js?v=34af8e641519';
+import { UPGRADE_TYPES, CAP_UP_MAX, LB_MAX, lbId, upgradeLimit } from './items-forge.js?v=34af8e641519';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START, REBIRTH } from './items-alchemy.js?v=34af8e641519';
+import { isShopGear } from './items-rare.js?v=34af8e641519';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=b3f22aad5877';
-import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=b3f22aad5877';
-import { EARTH_RECIPES } from './items-earth.js?v=b3f22aad5877';
-import { CASTLE_RECIPES } from './items-castle.js?v=b3f22aad5877';
-import { PAST_RECIPES } from './items-past.js?v=b3f22aad5877';
-import { TOKEI6_RECIPES } from './items-tokei6.js?v=b3f22aad5877';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=34af8e641519';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=34af8e641519';
+import { EARTH_RECIPES } from './items-earth.js?v=34af8e641519';
+import { CASTLE_RECIPES } from './items-castle.js?v=34af8e641519';
+import { PAST_RECIPES } from './items-past.js?v=34af8e641519';
+import { TOKEI6_RECIPES } from './items-tokei6.js?v=34af8e641519';
 // 第65回 D1: 第6章（tier 6）・第7章（tier 7）の レシピ（items-craft-r65.js）
-import { ALCH_R65_RECIPES, ALCH_R65_TIER_FLAG, ALCH_R65_KEEPER } from './items-craft-r65.js?v=b3f22aad5877';
+import { ALCH_R65_RECIPES, ALCH_R65_TIER_FLAG, ALCH_R65_KEEPER } from './items-craft-r65.js?v=34af8e641519';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX, LB_MAX };
 

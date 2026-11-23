@@ -5,9 +5,9 @@
 //   画面の すみに「おもて」「うら」の しるし（月の 形。うらは 欠けた 月）
 // ・ホタルの 助け（snap の c11b … { h: [x, y, 'door' | 'floor' | 'lamp'] }）: その マスの 上で 小さな 光が くるくる まわる
 // ・曲へ field.sideStage（0 おもて・1 うら。この 幕の マップの 外では 0）
-import { T } from '../shared/tiles.js?v=b3f22aad5877';
-import { effectiveTile } from '../shared/maps/index.js?v=b3f22aad5877';
-import { TS } from './render/tiles.js?v=b3f22aad5877';
+import { T } from '../shared/tiles.js?v=34af8e641519';
+import { effectiveTile } from '../shared/maps/index.js?v=34af8e641519';
+import { TS } from './render/tiles.js?v=34af8e641519';
 
 // ───── サーバーの snap ─────
 export function noteC11bSnap(field, d) {
@@ -19,6 +19,25 @@ export function noteC11bStage(field) {
   sideBadge(field.map?.c11b ? field.map.c11b.side : null);
 }
 const hintOf = (field) => (field.c11b && field.c11b.map === field.mapId ? field.c11b.h || null : null);
+
+// ───── かどで すべる（第102回 C1班。この 幕の マップ〈map.c11b〉だけ）─────
+// みんなの 歩き方（client/field.js）は、進む 向きが かべで 止まった 時に「かどを すりぬける（nudge）」が、
+//   ・横の ずれが 0.3 より 小さい 時だけ（スマホの スティックは 少し ななめに 入る ことが 多い）
+//   ・左右へ 進む 時は、その あとの たての いどう（ny は nudge の 前の いち）で もとに もどって しまう（上から 来て 右へ まがる かど など）
+// ので、1マス はばの 道の かどで かべに はりついて 止まる ことが あった（少し 横に よせると 通れる）。
+// この 幕の マップでは、進む 向きが ふさがって いて すぐ 横に すりぬけられる 道が ある 時（ななめ 4わり 近く まで）、ここで すりぬけ、
+// この フレームの いどうは しない（{ ix: 0, iy: 0 } を かえす）。ほかの 時は null（いつもの 歩き方）
+export function c11bCornerSlide(field, me, ix, iy, sp) {
+  if (!field.map?.c11b) return null;
+  const ax = Math.abs(ix), ay = Math.abs(iy);
+  const horiz = ax >= ay;
+  const major = horiz ? ax : ay, minor = horiz ? ay : ax;
+  if (major < 0.05 || minor > major * 0.85) return null;
+  const sx = horiz ? Math.sign(ix) : 0, sy = horiz ? 0 : Math.sign(iy);
+  if (field.boxFree(me.x + sx * sp, me.y + sy * sp)) return null;
+  if (!field.nudge(horiz ? 'y' : 'x', me, horiz ? sx : sy, sp)) return null;
+  return { ix: 0, iy: 0 };
+}
 
 // うらで 明るい マス（あたたかい 光）
 const WARM = new Set([T.C11B_B_LANTERN, T.C11B_LANTERNWELL, T.C11B_DOOR, T.C11B_OPENDOOR, T.C11B_T_STAIRS_B, T.C11B_SHADOWBRIDGE]);

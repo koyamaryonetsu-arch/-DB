@@ -7,8 +7,8 @@
 // ・中ボスの しるし: ドリルの 前ぶれ・オーバーヒート・大カビばくだんの 前ぶれ・カビの かべ（みどりの まく）
 // ・勝った あと: メカが 止まって けむり（え の コマ 2・3。たおれても 消えない）
 // ・コマンドの せつめい: あつい 人には「防御で 休もう」・カビが たまって いれば「スピカの 技」（新しい コマンドは ない）
-import { C10R_TAMAGON, C10G_MOLD } from '../shared/data/monsters-c10a.js?v=b3f22aad5877';
-import { monsterCanvas } from './render/monsters.js?v=b3f22aad5877';
+import { C10R_TAMAGON, C10G_MOLD } from '../shared/data/monsters-c10a.js?v=34af8e641519';
+import { monsterCanvas } from './render/monsters.js?v=34af8e641519';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C10A_OWN_TELE = [C10R_TAMAGON, C10G_MOLD];

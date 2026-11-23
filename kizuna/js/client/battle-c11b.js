@@ -6,11 +6,11 @@
 // ・え: 番人の ランプが 暗い（コマ 2・3）・オボロが 引いていく（コマ 2・3）・番人の 上に 明るい／暗い の しるし
 // ・コマンド: いちばん 上に「よびかける」（思い出 あと ○）→ だれに よびかける？（スピカ・味方）。ゲストの スピカも えらべる
 // ・音: よびかけた 時の 短い 音 c11b_call（F班の 曲の はじめの 3つの 音を 効果音の 道で。audio に cue が あれば その 曲）
-import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, OBORO_SHORT, KEEPER_SHORT } from '../shared/data/monsters-c11b.js?v=b3f22aad5877';
-import { YOBIKAKE } from '../shared/data/abilities-c11b.js?v=b3f22aad5877';
-import { C11B_TRACKS_B as C11B_TRACKS, C11B_CMD_B } from '../shared/maps/c11b-flags.js?v=b3f22aad5877';
-import { monsterCanvas } from './render/monsters.js?v=b3f22aad5877';
-import { playC11bCall } from './render/battlefx-c11b.js?v=b3f22aad5877';
+import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, OBORO_SHORT, KEEPER_SHORT } from '../shared/data/monsters-c11b.js?v=34af8e641519';
+import { YOBIKAKE } from '../shared/data/abilities-c11b.js?v=34af8e641519';
+import { C11B_TRACKS_B as C11B_TRACKS, C11B_CMD_B } from '../shared/maps/c11b-flags.js?v=34af8e641519';
+import { monsterCanvas } from './render/monsters.js?v=34af8e641519';
+import { playC11bCall } from './render/battlefx-c11b.js?v=34af8e641519';
 
 export const C11B_CMD = C11B_CMD_B;
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）

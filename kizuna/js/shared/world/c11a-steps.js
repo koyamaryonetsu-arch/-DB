@@ -12,11 +12,11 @@
 //   線を 引いた まま だれも いなく なっても（地面へ おりた）、線は 消える
 // ・やり直した 回数: 3回 … スピカが 始める 星を 光らせる / 6回 … 次に 進む 線を 1本ずつ 光らせる（snap の c11a）
 // ■ 回線が 切れて もどった 時: 星座の 上（星・線の 上）なら その 星座の 地面へ
-import { MAPS, canStand, standSpot } from '../maps/index.js?v=b3f22aad5877';
-import { C11A_HELP_START, C11A_HELP_LINE } from '../maps/c11a-flags.js?v=b3f22aad5877';
-import { CON_DIRS, lineFrom11a, landOf11a, movesFrom11a, fullMask11a, solveFrom11a, solve11a, lineCells11a } from '../data/constellations-c11a.js?v=b3f22aad5877';
-import { SCRIPTS } from '../data/story.js?v=b3f22aad5877';
-import { ScriptRun, scriptCtx, runSteps } from './scripts.js?v=b3f22aad5877';
+import { MAPS, canStand, standSpot } from '../maps/index.js?v=34af8e641519';
+import { C11A_HELP_START, C11A_HELP_LINE } from '../maps/c11a-flags.js?v=34af8e641519';
+import { CON_DIRS, lineFrom11a, landOf11a, movesFrom11a, fullMask11a, solveFrom11a, solve11a, lineCells11a } from '../data/constellations-c11a.js?v=34af8e641519';
+import { SCRIPTS } from '../data/story.js?v=34af8e641519';
+import { ScriptRun, scriptCtx, runSteps } from './scripts.js?v=34af8e641519';
 
 const SP = 'スピカ';
 const RIDE_SPEED = 3.4; // うかんで 進む はやさ（マス/びょう）

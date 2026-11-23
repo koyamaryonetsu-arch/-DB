@@ -4,9 +4,9 @@
 // ・いただき: ゆか（597）/ 金色の 光の 玉（598。2コマ）/ ふちの 光る 石（599）
 // ・星の塔に 足す 物: 金色に 光る 星の ゆか（600。2コマ）/ 空へ のびる 光の 階段（601。2コマ）/ いただきの 光の 出口（602。2コマ）
 // 下の 雲の 海は 第5章の T.CLOUD_SEA（雲の すき間の 小さな 世界は client/c10d-view.js）。どれも テーマで 色を かえない
-import { T } from '../../shared/tiles.js?v=b3f22aad5877';
-import { prand } from './pixel.js?v=b3f22aad5877';
-import { THEME_PARTS } from './tiles-castle.js?v=b3f22aad5877';
+import { T } from '../../shared/tiles.js?v=34af8e641519';
+import { prand } from './pixel.js?v=34af8e641519';
+import { THEME_PARTS } from './tiles-castle.js?v=34af8e641519';
 
 const GOLD = { d: '#a8801e', b: '#e8c040', l: '#ffe070', hl: '#fff8c8' };
 const STONE = { d: '#6a6490', b: '#a8a0c8', l: '#c8c0e0', hl: '#eae6f8' };

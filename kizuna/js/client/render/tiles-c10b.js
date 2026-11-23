@@ -7,9 +7,9 @@
 // ・氷の 下: ゆか（540）/ かべ（541）/ すべる 氷（542）/ 雪の 山（543）/ うすい 氷（544）/ 氷の 柱（545）/ とける 氷の かべ（546）/ 月の 光の ゆか（547）
 // ・今の マップに フラグで 出る 物: 光の 階段（548。白銀の湖の 小島。2コマ）/ 氷の 階段（549。湖の 岸）
 // どれも テーマで 色を かえない
-import { T } from '../../shared/tiles.js?v=b3f22aad5877';
-import { prand } from './pixel.js?v=b3f22aad5877';
-import { THEME_PARTS } from './tiles-castle.js?v=b3f22aad5877';
+import { T } from '../../shared/tiles.js?v=34af8e641519';
+import { prand } from './pixel.js?v=34af8e641519';
+import { THEME_PARTS } from './tiles-castle.js?v=34af8e641519';
 
 const BS = { d: '#18222e', b: '#3a4a5c', l: '#52667a', hl: '#7a90a6' }; // 青い 石の かべ
 const F0 = { d: '#4a5856', b: '#6a7a78', l: '#86968e', hl: '#a8b8b0' }; // 湖の 底（ぬれた 石・もの すじ）
