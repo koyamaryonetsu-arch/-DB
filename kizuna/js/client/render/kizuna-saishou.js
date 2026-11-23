@@ -8,7 +8,7 @@
 //   （総理大臣の こんの スーツ・紫の マント、大軍師の 青い ローブ とは、金の ネクタイと メダルで 見分ける）
 // 乗り物: 金の空飛ぶ大カバ（空飛ぶカバに 金の ふさかざり・会議の つくえ・作戦の 旗）
 // えんしゅつ: kuni_saishou_sig（大会議の つくえが ならび、光の 書類が 敵に ふりそそぐ → 時計の わで 番が おくれる）・kizuna_gorei（ひらめき技。号令の 大風）
-import { addR83aVehicleArt } from './vehicle-r83a.js?v=9619c3d748be';
+import { addR83aVehicleArt } from './vehicle-r83a.js?v=9315c53e5c23';
 
 const ID = 'kuni_saishou';
 

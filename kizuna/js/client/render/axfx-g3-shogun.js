@@ -3,7 +3,7 @@
 //         白馬の かげ・お庭番（黒い かげ）・桜の 花びら
 // 合体技 … せんたく日和（たらい・あわ・ものほし・お日さま）・三剣士（白・金・赤の 3方向）・め組（まとい・火の粉）
 // 時間は shared/data/ax-time-g3.js（ここは 見た目だけ）。画面の 文字は ひらがな・記号だけ
-import { ribbon, line, bg, prop, text, embers, arcPts, per, hitBurst, blast, glitter, rich } from './axfx-g3-kit.js?v=9619c3d748be';
+import { ribbon, line, bg, prop, text, embers, arcPts, per, hitBurst, blast, glitter, rich } from './axfx-g3-kit.js?v=9315c53e5c23';
 
 const WHITE = ['#ffffff', '#e8f4ff', '#bfe4ff'];
 const GOLD = ['#ffffff', '#fff0a0', '#ffd23a'];

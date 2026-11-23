@@ -5,7 +5,7 @@
 // ・c10b_worb … 白い 光の 玉（月の 間）/ c10b_beast … ねむる けもの（氷の 下）/ c10b_sign … 光る 立てふだ（白銀の湖の 小島）
 // ・c10b_ped4_on・c10b_ped5_on … 星の音を 置いた 青・白の 台（光る）
 // もとの 作品の 絵の しるし（かぎ手・葉巻・顔の きず・片めがね・白い スーツと 赤い ネクタイ など）は 使わない
-import { Painter } from './pixel.js?v=9619c3d748be';
+import { Painter } from './pixel.js?v=9315c53e5c23';
 
 function paintGecko(dir, f) {
   const p = new Painter(20, 24);

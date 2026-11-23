@@ -3,7 +3,7 @@
 //   弱った 仲間を かばうのは 親の しくみ（passive.protect。battle-r83b.js）が 自分で する。HP が へった 時の おにの手の ふういんは r83bSeal（ai.js）
 //   ここでは かけ合わせの 技（おにの手・PTA総出動）・子どもたちを守るたて・おしかり・お弁当・おにの手・げんこつ
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only）
-import { oniPct } from './battle-r83b.js?v=9619c3d748be';
+import { oniPct } from './battle-r83b.js?v=9315c53e5c23';
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた）
 export const PTA_AI = { tate: 0.6, shikaru: 0.5, bentou: 0.6, onite: 0.7, sig: 0.5, genkotsu: 0.95, many: 0.3 };

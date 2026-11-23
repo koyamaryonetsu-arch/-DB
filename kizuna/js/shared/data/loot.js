@@ -16,42 +16,42 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 //   ・第31回: ボスは ちなんだ レア装備も（kind 'brare'。第32回から かならず: BOSS_RARE_N = 1）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=9619c3d748be';
-import { MONSTERS } from './monsters.js?v=9619c3d748be';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=9619c3d748be';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=9619c3d748be';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=9619c3d748be';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=9619c3d748be';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=9619c3d748be';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=9619c3d748be';
-import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=9619c3d748be';
-import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=9619c3d748be';
-import { EARTH_MAT_DROPS } from './monsters-earth.js?v=9619c3d748be';
-import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=9619c3d748be';
-import { PAST_MAT_DROPS } from './monsters-past.js?v=9619c3d748be';
-import { ROAD_MAT_DROPS } from './monsters-road.js?v=9619c3d748be';
-import { TOKEI_MAT_DROPS } from './monsters-tokei.js?v=9619c3d748be';
-import { TOKEI6_MAT_DROPS } from './monsters-tokei6.js?v=9619c3d748be';
-import { C7_MAT_DROPS } from './monsters-c7.js?v=9619c3d748be';
-import { C7S_MAT_DROPS } from './monsters-c7s.js?v=9619c3d748be';
-import { C7I_MAT_DROPS } from './monsters-c7i.js?v=9619c3d748be';
-import { C8A_MAT_DROPS } from './monsters-c8a.js?v=9619c3d748be';
-import { C8B_MAT_DROPS } from './monsters-c8b.js?v=9619c3d748be';
-import { C8C_MAT_DROPS } from './monsters-c8c.js?v=9619c3d748be';
-import { C8R_MAT_DROPS } from './monsters-c8r.js?v=9619c3d748be';
-import { C9A_MAT_DROPS } from './monsters-c9a.js?v=9619c3d748be';
-import { C9B_MAT_DROPS } from './monsters-c9b.js?v=9619c3d748be';
-import { C9C_MAT_DROPS } from './monsters-c9c.js?v=9619c3d748be';
-import { C9D_MAT_DROPS } from './monsters-c9d.js?v=9619c3d748be';
-import { C10A_MAT_DROPS } from './monsters-c10a.js?v=9619c3d748be';
+import { ITEMS } from './items.js?v=9315c53e5c23';
+import { MONSTERS } from './monsters.js?v=9315c53e5c23';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=9315c53e5c23';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=9315c53e5c23';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=9315c53e5c23';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=9315c53e5c23';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=9315c53e5c23';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=9315c53e5c23';
+import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=9315c53e5c23';
+import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=9315c53e5c23';
+import { EARTH_MAT_DROPS } from './monsters-earth.js?v=9315c53e5c23';
+import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=9315c53e5c23';
+import { PAST_MAT_DROPS } from './monsters-past.js?v=9315c53e5c23';
+import { ROAD_MAT_DROPS } from './monsters-road.js?v=9315c53e5c23';
+import { TOKEI_MAT_DROPS } from './monsters-tokei.js?v=9315c53e5c23';
+import { TOKEI6_MAT_DROPS } from './monsters-tokei6.js?v=9315c53e5c23';
+import { C7_MAT_DROPS } from './monsters-c7.js?v=9315c53e5c23';
+import { C7S_MAT_DROPS } from './monsters-c7s.js?v=9315c53e5c23';
+import { C7I_MAT_DROPS } from './monsters-c7i.js?v=9315c53e5c23';
+import { C8A_MAT_DROPS } from './monsters-c8a.js?v=9315c53e5c23';
+import { C8B_MAT_DROPS } from './monsters-c8b.js?v=9315c53e5c23';
+import { C8C_MAT_DROPS } from './monsters-c8c.js?v=9315c53e5c23';
+import { C8R_MAT_DROPS } from './monsters-c8r.js?v=9315c53e5c23';
+import { C9A_MAT_DROPS } from './monsters-c9a.js?v=9315c53e5c23';
+import { C9B_MAT_DROPS } from './monsters-c9b.js?v=9315c53e5c23';
+import { C9C_MAT_DROPS } from './monsters-c9c.js?v=9315c53e5c23';
+import { C9D_MAT_DROPS } from './monsters-c9d.js?v=9315c53e5c23';
+import { C10A_MAT_DROPS } from './monsters-c10a.js?v=9315c53e5c23';
 // 第95回 B班: 第3部 第2章 第2幕（monsters-c10b.js）
-import { C10B_MAT_DROPS } from './monsters-c10b.js?v=9619c3d748be';
+import { C10B_MAT_DROPS } from './monsters-c10b.js?v=9315c53e5c23';
 // 第97回 B班: 第3部 第2章 第3幕（monsters-c10c.js）
-import { C10C_MAT_DROPS } from './monsters-c10c.js?v=9619c3d748be';
+import { C10C_MAT_DROPS } from './monsters-c10c.js?v=9315c53e5c23';
 // 第101回 B班: 第3部 第3章 第1幕（monsters-c11a.js）
-import { C11A_MAT_DROPS } from './monsters-c11a.js?v=9619c3d748be';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=9619c3d748be';
-import { sdFloorOf } from './secret.js?v=9619c3d748be';
+import { C11A_MAT_DROPS } from './monsters-c11a.js?v=9315c53e5c23';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=9315c53e5c23';
+import { sdFloorOf } from './secret.js?v=9315c53e5c23';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 

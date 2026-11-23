@@ -6,15 +6,15 @@
 //
 // みんなが 使う ファイル（jobs.js・abilities.js・hirameki.js・phantom.js・job-tags.js・job-talk.js・job-trials.js・vehicles.js・
 // rivals-r88.js・battle-trial.js）は この 一覧を 1回ずつ 読む だけ。きずなの職業が ふえても 行を 足さなくて よい
-import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js?v=9619c3d748be';
-import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js?v=9619c3d748be';
-import { KIZUNA_HYAKKI } from './jobs-r98-hyakki.js?v=9619c3d748be';
-import { KIZUNA_KENGOU } from './jobs-r98-kengou.js?v=9619c3d748be';
-import { KIZUNA_SAISHOU } from './jobs-r98-saishou.js?v=9619c3d748be';
-import { KIZUNA_PTA } from './jobs-r98-pta.js?v=9619c3d748be';
-import { KIZUNA_KEIJI } from './jobs-r98-keiji.js?v=9619c3d748be';
-import { KIZUNA_OTENKI } from './jobs-r98-otenki.js?v=9619c3d748be';
-import { KIZUNA_TOUKA } from './jobs-r98-touka.js?v=9619c3d748be';
+import { KIZUNA_KUUCHOU } from './jobs-r98-kuuchou.js?v=9315c53e5c23';
+import { KIZUNA_HOKAGE } from './jobs-r98-hokage.js?v=9315c53e5c23';
+import { KIZUNA_HYAKKI } from './jobs-r98-hyakki.js?v=9315c53e5c23';
+import { KIZUNA_KENGOU } from './jobs-r98-kengou.js?v=9315c53e5c23';
+import { KIZUNA_SAISHOU } from './jobs-r98-saishou.js?v=9315c53e5c23';
+import { KIZUNA_PTA } from './jobs-r98-pta.js?v=9315c53e5c23';
+import { KIZUNA_KEIJI } from './jobs-r98-keiji.js?v=9315c53e5c23';
+import { KIZUNA_OTENKI } from './jobs-r98-otenki.js?v=9315c53e5c23';
+import { KIZUNA_TOUKA } from './jobs-r98-touka.js?v=9315c53e5c23';
 
 export const KIZUNA = [
   KIZUNA_KUUCHOU, // 第98回 K1班: 熱と風の空調マスター（烈火 ＋ 天才しせつ管理者）
