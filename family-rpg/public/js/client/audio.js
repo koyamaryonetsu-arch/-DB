@@ -32,6 +32,7 @@ import { C10D_TRACKS } from './audio-c10d.js';
 import { C11A_TRACKS } from './audio-c11a.js';
 import { C11B_TRACKS } from './audio-c11b.js';
 import { C11C_TRACKS } from './audio-c11c.js';
+import { C11D_TRACKS } from './audio-c11d.js';
 
 // 第77回: 音を 作る ところは music-engine.js（新しい音・前の音）。ここは 曲の データと こうかおん
 import { MusicEngine, AdaptiveState, legacyParse, blipFreq } from './music-engine.js';
@@ -913,6 +914,8 @@ overlayTracks(TRACKS, C11A_TRACKS);
 overlayTracks(TRACKS, C11B_TRACKS);
 // 第103回 F: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の 曲（audio-c11c.js。新しい id だけ）
 overlayTracks(TRACKS, C11C_TRACKS);
+// 第104回 F: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」の 曲（audio-c11d.js。新しい id だけ）
+overlayTracks(TRACKS, C11D_TRACKS);
 export const TRACK_IDS = Object.keys(TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

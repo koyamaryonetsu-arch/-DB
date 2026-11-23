@@ -193,7 +193,7 @@ const THRONE_LEGEND = { '#': T.C11D_WALL, '.': T.C11D_FLOOR, $: T.C11D_FLOOR, ':
 function buildThrone() {
   const t = parseRows16(THRONE_ROWS11D, THRONE_LEGEND);
   const P = THRONE_POS11D;
-  const m = base(C11D_MAP.throne, 'かがやきの塔　玉座の間', 'dungeon', t, { bgm: C11D_TRACKS.tower, indoor: false, c11dThrone: true, bg2d: '#0a0c24', sky3d: { bg: '#0c1030', fog: 0x1a2050 } });
+  const m = base(C11D_MAP.throne, 'かがやきの塔　玉座の間', 'dungeon', t, { bgm: C11D_TRACKS.scale, indoor: false, c11dThrone: true, bg2d: '#0a0c24', sky3d: { bg: '#0c1030', fog: 0x1a2050 } });
   putChests(m, CHESTS11D.throne);
   warp(m, P.down, C11D_MAP.tower4, TOWER4_POS11D.back, 'down');
   for (let x = 3; x <= 18; x++) m.actions.push({ x, y: 1, script: 'c11d_window' });

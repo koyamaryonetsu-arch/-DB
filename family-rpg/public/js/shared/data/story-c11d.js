@@ -404,7 +404,7 @@ const STATUES = [54, 56, 58, 60].map((x) => ({ x, y: 79 }));
 function e3Steps() {
   const B = HILL_POS11D.bridge, P = HILL_POS11D.spot;
   return [
-    ['bgm', null],
+    ['bgm', C11D_TRACKS.end], // E3〜E4 は 第3部 完の 曲（くり返さない。F班の メモ）
     ['fade', 'out'],
     ['teleport', C11D_HILL, P.x + 0.5, P.y + 0.5, 'up'],
     ['fade', 'in'],
@@ -424,10 +424,10 @@ function e3Steps() {
 }
 // ───── E4 えらぶ 道（星の橋の 上）→ 第3部 完 ─────
 export const C11D_END_TITLE = '第3部　ほしのね ― 七つの星の音　完';
-function e4Steps() {
+function e4Steps(alone = false) {
   const T0 = HILL_POS11D.top, B = HILL_POS11D.bridge;
   return [
-    ['bgm', C11D_TRACKS.end],
+    ...(alone ? [['bgm', C11D_TRACKS.end]] : []),
     ['look', T0.x + 0.5, T0.y + 1.5],
     ['guestHide', true],
     ['actor', 'spica_b', { sprite: SPICA, x: B.x + 0.5, y: B.y + 0.2, dir: 'down' }],
@@ -449,7 +449,7 @@ function e4Steps() {
 // E1〜E4（とちゅうで 回線が 切れても、玉座の 間の マスから つづきを 見られる）
 function endSteps(x) {
   if (x.flag(C11D.act4)) return [];
-  if (x.flag(C11D.bridge)) return e4Steps();
+  if (x.flag(C11D.bridge)) return e4Steps(true);
   if (x.flag(C11D.lamp)) return [...e3Steps(), ...e4Steps()];
   if (x.flag(C11D.queen)) return [...e2Steps(), ...e3Steps(), ...e4Steps()];
   return [...e1Steps(), ...e2Steps(), ...e3Steps(), ...e4Steps()];
