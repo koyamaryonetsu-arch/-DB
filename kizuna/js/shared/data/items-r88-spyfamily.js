@@ -7,7 +7,7 @@
 //   ・ステラの そろい（data/gear-sets.js の imperial_scholar）… 星（ステラ）を 持って いて、SPY×FAMILYの 品を 合わせて 8つ いじょう
 //     持つと しょう号「こうていの学徒」（同じ 品は 8こ 持てないので、表の「8つ」を この 形に した。メインの 設計）
 //   作品の 字は 使える 字に 直した（梟 → ふくろう・骨格 → こっかく・警察 → けいさつ。設計書の「実装メモ（G19班）」）
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=34af8e641519';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=96e031897dcd';
 
 const S = { work: 'spyfamily', set: 'imperial_scholar' };
 

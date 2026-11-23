@@ -9,10 +9,10 @@
 // ・正しい じゅん … しっぽ → 体 → 頭（がめんに「ねらいめ」の しるし。client/battle-gaia.js）
 // ・オートの 仲間（ふつう）は 何も かわらない（いつもの ように ダメージの 多い 部位を ねらう。こうらや まもりは 見つもりに 入れない）。
 //   シミュレーター（tools/sim-gaia.mjs）の 知っている 人（b.knowsGaia）は、しっぽ → 体 → 頭の じゅんに ねらい、大技が 自分の 番より 先に 来る ときは 身を 守る
-import { MONSTERS } from './data/monsters.js?v=34af8e641519';
-import { GAIA, GAIA_BODY, GAIA_TAIL } from './data/monsters-kumoi.js?v=34af8e641519';
+import { MONSTERS } from './data/monsters.js?v=96e031897dcd';
+import { GAIA, GAIA_BODY, GAIA_TAIL } from './data/monsters-kumoi.js?v=96e031897dcd';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=34af8e641519';
+import { atbRate } from './battle.js?v=96e031897dcd';
 
 export { GAIA, GAIA_BODY, GAIA_TAIL };
 // 前ぶれの ある 大技（つぎの 番に 出る）

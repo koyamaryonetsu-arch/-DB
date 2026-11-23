@@ -3,8 +3,8 @@
 //   40字 くらいまで・子どもに わかる 言葉・しかけの 話だけ（ボスの 正体・先の 場面は 書かない）
 //   3回目は「仲間もつれて来い」… ひとりだけ（仲間 なし）では どちらも 勝てない 強さ（tools/sim-ch9.mjs の PARTY=solo）
 //   ここで mergeBossHints を よぶ（encounters-c9a.js が import する）。もう一度 いどむ 行き先（retry）は A班の 台本の id を A班が 足す
-import { mergeBossHints } from './boss-hints.js?v=34af8e641519';
-import { C9A_BATTLE } from '../maps/c9a-flags.js?v=34af8e641519';
+import { mergeBossHints } from './boss-hints.js?v=96e031897dcd';
+import { C9A_BATTLE } from '../maps/c9a-flags.js?v=96e031897dcd';
 
 export const C9A_HINT_WHO = 'ノクト';
 export const C9A_BOSS_HINTS = {

@@ -1,11 +1,11 @@
 // 馬車（ほろ馬車と 馬）の ドット絵と、パーティーの うしろを ついてくる うごき
 //   よこむきは left を かく（right は はんてん）。down は 馬が てまえ、up は 馬車の うしろが てまえ
-import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=34af8e641519';
-import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=34af8e641519';
-import { PLACES } from '../../shared/maps/overworld.js?v=34af8e641519';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=34af8e641519';
-import { T } from '../../shared/tiles.js?v=34af8e641519';
-import { wagonMapOk } from '../../shared/data/wagon.js?v=34af8e641519';
+import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=96e031897dcd';
+import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=96e031897dcd';
+import { PLACES } from '../../shared/maps/overworld.js?v=96e031897dcd';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=96e031897dcd';
+import { T } from '../../shared/tiles.js?v=96e031897dcd';
+import { wagonMapOk } from '../../shared/data/wagon.js?v=96e031897dcd';
 
 const OUT = '#1b1330';
 const C = {

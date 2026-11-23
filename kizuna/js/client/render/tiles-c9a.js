@@ -5,25 +5,25 @@
 // ・黒板（418）/ 黒板の とびら（419）/ こおった とびら（420）/ 井戸の ひも（421）/ ためしの とびら（422）/ 星の音さの 台（423）
 // ・祭りの ちょうちん（424 火が ない・425 火が ともった。2コマ）/ くぼ地の ふち（426。焼けた 土の もり上がり）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=34af8e641519';
-import { prand } from './pixel.js?v=34af8e641519';
+import { T } from '../../shared/tiles.js?v=96e031897dcd';
+import { prand } from './pixel.js?v=96e031897dcd';
 // 第91回 A班: 第3部 第1章 第2幕の タイル（render/tiles-c9b.js。ここで まぜる）
-import { C9B_PAINTERS, C9B_FRAMES, C9B_SPEED, C9B_FLOOR_H, c9bBlockSpec, C9B_PROPS, C9B_PROPS_KEEP, C9B_THEMES } from './tiles-c9b.js?v=34af8e641519';
+import { C9B_PAINTERS, C9B_FRAMES, C9B_SPEED, C9B_FLOOR_H, c9bBlockSpec, C9B_PROPS, C9B_PROPS_KEEP, C9B_THEMES } from './tiles-c9b.js?v=96e031897dcd';
 // 第92回 A班: 第3部 第1章 第3幕の タイル（render/tiles-c9c.js。ここで まぜる）
-import { C9C_PAINTERS, C9C_FRAMES, C9C_SPEED, C9C_FLOOR_H, c9cBlockSpec, C9C_PROPS, C9C_PROPS_KEEP, C9C_THEMES } from './tiles-c9c.js?v=34af8e641519';
+import { C9C_PAINTERS, C9C_FRAMES, C9C_SPEED, C9C_FLOOR_H, c9cBlockSpec, C9C_PROPS, C9C_PROPS_KEEP, C9C_THEMES } from './tiles-c9c.js?v=96e031897dcd';
 // 第93回 A班: 第3部 第1章 第4幕の タイル（render/tiles-c9d.js。ここで まぜる）
-import { C9D_PAINTERS, C9D_FRAMES, C9D_SPEED, C9D_FLOOR_H, c9dBlockSpec, C9D_PROPS, C9D_PROPS_KEEP, C9D_THEMES } from './tiles-c9d.js?v=34af8e641519';
+import { C9D_PAINTERS, C9D_FRAMES, C9D_SPEED, C9D_FLOOR_H, c9dBlockSpec, C9D_PROPS, C9D_PROPS_KEEP, C9D_THEMES } from './tiles-c9d.js?v=96e031897dcd';
 // 第94回 A班: 第3部 第2章 第1幕の タイル（render/tiles-c10a.js。ここで まぜる）
-import { C10A_PAINTERS, C10A_FRAMES, C10A_SPEED, C10A_FLOOR_H, c10aBlockSpec, C10A_PROPS, C10A_PROPS_KEEP, C10A_THEMES } from './tiles-c10a.js?v=34af8e641519';
+import { C10A_PAINTERS, C10A_FRAMES, C10A_SPEED, C10A_FLOOR_H, c10aBlockSpec, C10A_PROPS, C10A_PROPS_KEEP, C10A_THEMES } from './tiles-c10a.js?v=96e031897dcd';
 // 第95回 A班: 第3部 第2章 第2幕の タイル（render/tiles-c10b.js。ここで まぜる）
-import { C10B_PAINTERS, C10B_FRAMES, C10B_SPEED, C10B_FLOOR_H, c10bBlockSpec, C10B_PROPS, C10B_PROPS_KEEP, C10B_THEMES } from './tiles-c10b.js?v=34af8e641519';
-import { C10C_PAINTERS, C10C_FRAMES, C10C_SPEED, C10C_FLOOR_H, c10cBlockSpec, C10C_PROPS, C10C_PROPS_KEEP, C10C_THEMES } from './tiles-c10c.js?v=34af8e641519';
+import { C10B_PAINTERS, C10B_FRAMES, C10B_SPEED, C10B_FLOOR_H, c10bBlockSpec, C10B_PROPS, C10B_PROPS_KEEP, C10B_THEMES } from './tiles-c10b.js?v=96e031897dcd';
+import { C10C_PAINTERS, C10C_FRAMES, C10C_SPEED, C10C_FLOOR_H, c10cBlockSpec, C10C_PROPS, C10C_PROPS_KEEP, C10C_THEMES } from './tiles-c10c.js?v=96e031897dcd';
 // 第99回 A班: 第3部 第2章 第4幕（render/tiles-c10d.js）
-import { C10D_PAINTERS, C10D_FRAMES, C10D_SPEED, C10D_FLOOR_H, c10dBlockSpec, C10D_PROPS, C10D_PROPS_KEEP, C10D_THEMES } from './tiles-c10d.js?v=34af8e641519';
+import { C10D_PAINTERS, C10D_FRAMES, C10D_SPEED, C10D_FLOOR_H, c10dBlockSpec, C10D_PROPS, C10D_PROPS_KEEP, C10D_THEMES } from './tiles-c10d.js?v=96e031897dcd';
 // 第100回 A班: 第3部 第3章 第1幕（render/tiles-c11a.js）
-import { C11A_PAINTERS, C11A_FRAMES, C11A_SPEED, C11A_FLOOR_H, c11aBlockSpec, C11A_PROPS, C11A_PROPS_KEEP, C11A_THEMES } from './tiles-c11a.js?v=34af8e641519';
+import { C11A_PAINTERS, C11A_FRAMES, C11A_SPEED, C11A_FLOOR_H, c11aBlockSpec, C11A_PROPS, C11A_PROPS_KEEP, C11A_THEMES } from './tiles-c11a.js?v=96e031897dcd';
 // 第102回 A班: 第3部 第3章 第2幕（render/tiles-c11b.js）
-import { C11B_PAINTERS, C11B_FRAMES, C11B_SPEED, C11B_FLOOR_H, c11bBlockSpec, C11B_PROPS, C11B_PROPS_KEEP, C11B_THEMES } from './tiles-c11b.js?v=34af8e641519';
+import { C11B_PAINTERS, C11B_FRAMES, C11B_SPEED, C11B_FLOOR_H, c11bBlockSpec, C11B_PROPS, C11B_PROPS_KEEP, C11B_THEMES } from './tiles-c11b.js?v=96e031897dcd';
 
 const ST = { d: '#1a1a2a', b: '#2c2c44', l: '#44466a', hl: '#6a6c98', ln: '#10101c' }; // 地下道の 石
 const MS = { d: '#1c3a2c', b: '#2e5a40', l: '#4a8a5a', hl: '#7ac08a' }; // こけ

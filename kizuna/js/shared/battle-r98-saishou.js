@@ -3,7 +3,7 @@
 //   作戦を 立てる・前ぶれに 先読みの答弁・敵の 強化に ふうじの太極図 は、大軍師と おなじ r83aPlan（4.9。技の こうかで 見る）に まかせる。
 //   ここでは かけ合わせの 技（国を動かす大会議）・ながーい会議（敵の 番を おくらせる）・打神べん・国
 //   第96回の 作戦の きまり: ガンガンは 攻撃の 答えだけ 通る（ai.js の only）
-import { activePlan } from './battle-r83a.js?v=34af8e641519';
+import { activePlan } from './battle-r83a.js?v=96e031897dcd';
 
 // オートの わりあい（tools/sim-r86a.mjs で 合わせた）
 export const SAISHOU_AI = { sig: 0.55, kaigi: 0.35, ten: 0.85, many: 0.15, seme: 1 };

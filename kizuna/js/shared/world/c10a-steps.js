@@ -8,13 +8,13 @@
 // ・家族で 遊ぶと 1人ずつ にげる（追いつかれた 人だけ もどる）。全員が 古い 道から 出て、もちぬしが 火口に いると 終わり（台本 c10r_out）
 // ・回線が 切れた 時: その 階の 入口から やり直し（つなぎなおすと 入口へ）
 // ・にげて いる 間は 魔物が 出ない（map.symBlock）。みちびきの糸・帰り道の羽は 使えない（map.noEscape）
-import { MAPS } from '../maps/index.js?v=34af8e641519';
+import { MAPS } from '../maps/index.js?v=96e031897dcd';
 import {
   C10A_RED, C10A_MAP, C10A_RED_MAPS, C10A_RUN_MAPS, C10A_LAVA_MS, C10A_LAVA_SLOW_MS, C10A_LAVA_SLOW_AFTER, lavaStageOfGap,
-} from '../maps/c10a-flags.js?v=34af8e641519';
-import { C10A_POS, CRATER_STAIRS10A } from '../maps/c10a-rows.js?v=34af8e641519';
-import { partyOf } from './party.js?v=34af8e641519';
-import { runScript } from './scripts.js?v=34af8e641519';
+} from '../maps/c10a-flags.js?v=96e031897dcd';
+import { C10A_POS, CRATER_STAIRS10A } from '../maps/c10a-rows.js?v=96e031897dcd';
+import { partyOf } from './party.js?v=96e031897dcd';
+import { runScript } from './scripts.js?v=96e031897dcd';
 
 const RUN = C10A_RED.run;
 // 階の 入口（下から 上がって 来た 所。下り 階段の 1つ 上）

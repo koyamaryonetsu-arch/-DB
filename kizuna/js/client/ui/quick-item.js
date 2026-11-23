@@ -2,9 +2,9 @@
 // ・スマホ: 大鳥・竜の ボタンと おなじ 列に「砂時計」など（使える 場所に いる ときだけ）
 // ・コントローラー: 設定で えらんだ ボタン（ZL・L3・R3）、キーボード: T（client/input.js の 'quick'）
 // ・おすと メニューの「道具」→「使う」と おなじ（サーバーの { t: 'menu', action: 'quickUse' }）
-import { el } from './dom.js?v=34af8e641519';
-import { MAPS } from '../../shared/maps/index.js?v=34af8e641519';
-import { quickItemOf, quickLabel, quickHere, quickPadOf } from '../../shared/data/quick-item.js?v=34af8e641519';
+import { el } from './dom.js?v=96e031897dcd';
+import { MAPS } from '../../shared/maps/index.js?v=96e031897dcd';
+import { quickItemOf, quickLabel, quickHere, quickPadOf } from '../../shared/data/quick-item.js?v=96e031897dcd';
 
 const CSS = `
 /* 大事な物の すぐ使う ボタン（client/ui/quick-item.js） */

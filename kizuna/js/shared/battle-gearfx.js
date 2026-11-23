@@ -7,16 +7,16 @@
 //   反撃 … ふつうの 攻撃を された とき（gearCounterNote。反撃の構えと 同じ しくみ）
 //   みかわし … 物理の 当たりやすさ（calcPhys の eva に gearEva）
 //   イオの 力 … 「道具」の コマンドで id 'gear:weapon'（何回でも。MP は いらない）
-import { ABILITIES } from './data/abilities.js?v=34af8e641519';
-import { ITEMS } from './data/items.js?v=34af8e641519';
-import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=34af8e641519';
+import { ABILITIES } from './data/abilities.js?v=96e031897dcd';
+import { ITEMS } from './data/items.js?v=96e031897dcd';
+import { gearFxTotals, gearUses, fxPower } from './data/gear-fx.js?v=96e031897dcd';
 // 第88回: 作品の 品の とどく 広さ・玉・1回だけの「使う」（battle-r88.js）
-import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js?v=34af8e641519';
-import { r88dqAtkMult } from './battle-r88-dq.js?v=34af8e641519'; // 第88回 G15班
+import { r88Actor, orbMods, onceBlock, useHpCost, useAbilityOf, useWet } from './battle-r88.js?v=96e031897dcd';
+import { r88dqAtkMult } from './battle-r88-dq.js?v=96e031897dcd'; // 第88回 G15班
 // 第88回 G13班: 使った あと（スーパースター）
-import { r88AfterUse } from './battle-r88.js?v=34af8e641519';
+import { r88AfterUse } from './battle-r88.js?v=96e031897dcd';
 // 第88回 G19班: 変装のマスク（battle-r88-g19.js）
-import { r88g19AfterUse } from './battle-r88-g19.js?v=34af8e641519';
+import { r88g19AfterUse } from './battle-r88-g19.js?v=96e031897dcd';
 
 export const GEAR_USE_PREFIX = 'gear:';
 

@@ -11,62 +11,62 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=34af8e641519';
-import { MONSTERS_TM } from './monsters-tm.js?v=34af8e641519';
-import { NIGHT_MONSTERS } from './night.js?v=34af8e641519';
-import { MONSTERS_RARE } from './monsters-rare.js?v=34af8e641519';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=34af8e641519';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=34af8e641519';
-import { MONSTERS_R23 } from './monsters-r23.js?v=34af8e641519';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=96e031897dcd';
+import { MONSTERS_TM } from './monsters-tm.js?v=96e031897dcd';
+import { NIGHT_MONSTERS } from './night.js?v=96e031897dcd';
+import { MONSTERS_RARE } from './monsters-rare.js?v=96e031897dcd';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=96e031897dcd';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=96e031897dcd';
+import { MONSTERS_R23 } from './monsters-r23.js?v=96e031897dcd';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=34af8e641519';
-import { MONSTERS_LAB } from './monsters-lab.js?v=34af8e641519';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=96e031897dcd';
+import { MONSTERS_LAB } from './monsters-lab.js?v=96e031897dcd';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
-import { addArenaHidden } from './monsters-arena.js?v=34af8e641519';
+import { addArenaHidden } from './monsters-arena.js?v=96e031897dcd';
 // 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
-import { addTrialHidden } from './monsters-trial.js?v=34af8e641519';
-import { addRivalHidden } from './rivals-r88.js?v=34af8e641519';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=34af8e641519';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=34af8e641519';
-import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=34af8e641519';
-import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=34af8e641519';
-import { MONSTERS_FINAL } from './monsters-final.js?v=34af8e641519';
-import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=34af8e641519';
-import { MONSTERS_PAST } from './monsters-past.js?v=34af8e641519';
-import { MONSTERS_ROAD } from './monsters-road.js?v=34af8e641519';
-import { MONSTERS_TOKEI } from './monsters-tokei.js?v=34af8e641519';
-import { MONSTERS_TOKEI6, addTokei6Hidden } from './monsters-tokei6.js?v=34af8e641519';
-import { MONSTERS_C7, addC7Hidden } from './monsters-c7.js?v=34af8e641519';
-import { MONSTERS_C7S } from './monsters-c7s.js?v=34af8e641519';
-import { MONSTERS_C7I, addC7iHidden } from './monsters-c7i.js?v=34af8e641519';
-import { MONSTERS_C8A, addC8aHidden } from './monsters-c8a.js?v=34af8e641519';
-import { MONSTERS_C8B } from './monsters-c8b.js?v=34af8e641519';
-import { MONSTERS_C8C, addC8cHidden } from './monsters-c8c.js?v=34af8e641519';
-import { MONSTERS_C8R, addC8rHidden } from './monsters-c8r.js?v=34af8e641519';
-import { MONSTERS_C9A, addC9aHidden } from './monsters-c9a.js?v=34af8e641519';
-import { MONSTERS_C9B, addC9bHidden } from './monsters-c9b.js?v=34af8e641519';
-import { MONSTERS_C9C } from './monsters-c9c.js?v=34af8e641519';
-import { MONSTERS_C9D } from './monsters-c9d.js?v=34af8e641519';
-import { MONSTERS_C10A } from './monsters-c10a.js?v=34af8e641519';
+import { addTrialHidden } from './monsters-trial.js?v=96e031897dcd';
+import { addRivalHidden } from './rivals-r88.js?v=96e031897dcd';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=96e031897dcd';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=96e031897dcd';
+import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=96e031897dcd';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=96e031897dcd';
+import { MONSTERS_FINAL } from './monsters-final.js?v=96e031897dcd';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=96e031897dcd';
+import { MONSTERS_PAST } from './monsters-past.js?v=96e031897dcd';
+import { MONSTERS_ROAD } from './monsters-road.js?v=96e031897dcd';
+import { MONSTERS_TOKEI } from './monsters-tokei.js?v=96e031897dcd';
+import { MONSTERS_TOKEI6, addTokei6Hidden } from './monsters-tokei6.js?v=96e031897dcd';
+import { MONSTERS_C7, addC7Hidden } from './monsters-c7.js?v=96e031897dcd';
+import { MONSTERS_C7S } from './monsters-c7s.js?v=96e031897dcd';
+import { MONSTERS_C7I, addC7iHidden } from './monsters-c7i.js?v=96e031897dcd';
+import { MONSTERS_C8A, addC8aHidden } from './monsters-c8a.js?v=96e031897dcd';
+import { MONSTERS_C8B } from './monsters-c8b.js?v=96e031897dcd';
+import { MONSTERS_C8C, addC8cHidden } from './monsters-c8c.js?v=96e031897dcd';
+import { MONSTERS_C8R, addC8rHidden } from './monsters-c8r.js?v=96e031897dcd';
+import { MONSTERS_C9A, addC9aHidden } from './monsters-c9a.js?v=96e031897dcd';
+import { MONSTERS_C9B, addC9bHidden } from './monsters-c9b.js?v=96e031897dcd';
+import { MONSTERS_C9C } from './monsters-c9c.js?v=96e031897dcd';
+import { MONSTERS_C9D } from './monsters-c9d.js?v=96e031897dcd';
+import { MONSTERS_C10A } from './monsters-c10a.js?v=96e031897dcd';
 // 第95回 B班: 第3部 第2章 第2幕「青と白」（monsters-c10b.js）
-import { MONSTERS_C10B } from './monsters-c10b.js?v=34af8e641519';
+import { MONSTERS_C10B } from './monsters-c10b.js?v=96e031897dcd';
 // 第97回 B班: 第3部 第2章 第3幕「紫と、うばわれた音」（monsters-c10c.js）
-import { MONSTERS_C10C } from './monsters-c10c.js?v=34af8e641519';
+import { MONSTERS_C10C } from './monsters-c10c.js?v=96e031897dcd';
 // 第99回 B班: 第3部 第2章 第4幕「金の音と、星の橋」（monsters-c10d.js）
-import { MONSTERS_C10D } from './monsters-c10d.js?v=34af8e641519';
+import { MONSTERS_C10D } from './monsters-c10d.js?v=96e031897dcd';
 // 第101回 B班: 第3部 第3章 第1幕「星の船と、星座の島」（monsters-c11a.js）
-import { MONSTERS_C11A } from './monsters-c11a.js?v=34af8e641519';
+import { MONSTERS_C11A } from './monsters-c11a.js?v=96e031897dcd';
 // 第102回 B班: 第3部 第3章 第2幕「月の都と、名前のランプ」（monsters-c11b.js）
-import { MONSTERS_C11B } from './monsters-c11b.js?v=34af8e641519';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=34af8e641519';
+import { MONSTERS_C11B } from './monsters-c11b.js?v=96e031897dcd';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=96e031897dcd';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
-import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=34af8e641519';
+import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=96e031897dcd';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物（配合で 生まれる。monsters-dqm.js）
-import { MONSTERS_DQM } from './monsters-dqm.js?v=34af8e641519';
+import { MONSTERS_DQM } from './monsters-dqm.js?v=96e031897dcd';
 // 第50回 D3: 景品で しか 会えない 魔物（monsters-prize.js）
-import { MONSTERS_PRIZE } from './monsters-prize.js?v=34af8e641519';
+import { MONSTERS_PRIZE } from './monsters-prize.js?v=96e031897dcd';
 // 第47回: 水の 属性（きまりで つける。data/water.js）
-import { applyWater } from './water.js?v=34af8e641519';
+import { applyWater } from './water.js?v=96e031897dcd';
 
 export const MONSTERS = {
   pururin: {
