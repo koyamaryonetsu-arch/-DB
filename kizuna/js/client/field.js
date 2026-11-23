@@ -1,56 +1,56 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=efa1b5f542af';
-import { T, TILE_INFO } from '../shared/tiles.js?v=efa1b5f542af';
-import { PLACES } from '../shared/maps/overworld.js?v=efa1b5f542af';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=efa1b5f542af';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=efa1b5f542af';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=efa1b5f542af';
-import { shownEquip } from '../shared/look-equip.js?v=efa1b5f542af';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=efa1b5f542af';
-import { MONSTERS } from '../shared/data/monsters.js?v=efa1b5f542af';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=ae1035a9a013';
+import { T, TILE_INFO } from '../shared/tiles.js?v=ae1035a9a013';
+import { PLACES } from '../shared/maps/overworld.js?v=ae1035a9a013';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=ae1035a9a013';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=ae1035a9a013';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=ae1035a9a013';
+import { shownEquip } from '../shared/look-equip.js?v=ae1035a9a013';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=ae1035a9a013';
+import { MONSTERS } from '../shared/data/monsters.js?v=ae1035a9a013';
 // 第53回 D: 色ちがいの 仲間の 絵
-import { colorMon } from '../shared/data/variants.js?v=efa1b5f542af';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=efa1b5f542af';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=efa1b5f542af';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=efa1b5f542af';
-import { boardCanvas } from './render/boards.js?v=efa1b5f542af';
-import { el } from './ui/dom.js?v=efa1b5f542af';
-import { syncTreasureGates } from './ui/treasure.js?v=efa1b5f542af';
-import { skyNpcSprite } from './render/sky-art.js?v=efa1b5f542af';
-import { wagonDraws } from './render/wagon.js?v=efa1b5f542af';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=efa1b5f542af';
-import { Weather } from './render/weather.js?v=efa1b5f542af';
-import { flySpeed } from '../shared/data/sky.js?v=efa1b5f542af';
-import { timeFlag } from '../shared/world/clock.js?v=efa1b5f542af';
-import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=efa1b5f542af';
-import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=efa1b5f542af';
-import { huntMatch } from './ui/sources.js?v=efa1b5f542af';
+import { colorMon } from '../shared/data/variants.js?v=ae1035a9a013';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=ae1035a9a013';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=ae1035a9a013';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=ae1035a9a013';
+import { boardCanvas } from './render/boards.js?v=ae1035a9a013';
+import { el } from './ui/dom.js?v=ae1035a9a013';
+import { syncTreasureGates } from './ui/treasure.js?v=ae1035a9a013';
+import { skyNpcSprite } from './render/sky-art.js?v=ae1035a9a013';
+import { wagonDraws } from './render/wagon.js?v=ae1035a9a013';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=ae1035a9a013';
+import { Weather } from './render/weather.js?v=ae1035a9a013';
+import { flySpeed } from '../shared/data/sky.js?v=ae1035a9a013';
+import { timeFlag } from '../shared/world/clock.js?v=ae1035a9a013';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js?v=ae1035a9a013';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js?v=ae1035a9a013';
+import { huntMatch } from './ui/sources.js?v=ae1035a9a013';
 // 第89回: とちゅうから 戦いに 入る きょり・自動追跡で 止まる きょり（サーバーと おなじ 数。shared/join-rule.js）
-import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js?v=efa1b5f542af';
+import { JOIN_NEAR, FOLLOW_STOP, JOIN_COOLDOWN_MS } from '../shared/join-rule.js?v=ae1035a9a013';
 // 第90回 A班: 第3部 第1章 第1幕の 光の輪の 絵・星の子の 連れ（client/c9a-light.js）
-import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap, drawC9aCraterFloor2D, drawC9aCraterGlow2D, drawC9aCrater3D } from './c9a-light.js?v=efa1b5f542af';
-import { C9A } from '../shared/maps/c9a-flags.js?v=efa1b5f542af';
+import { drawC9aDark2D, drawC9aDark3D, noteC9aSnap, drawC9aCraterFloor2D, drawC9aCraterGlow2D, drawC9aCrater3D } from './c9a-light.js?v=ae1035a9a013';
+import { C9A } from '../shared/maps/c9a-flags.js?v=ae1035a9a013';
 // 第91回 A班: 第3部 第1章 第2幕の 明かりを 広げる 探検・天じょうの かざり（client/c9b-light.js）
-import { drawC9bDark2D, drawC9bDark3D, drawC9bShade2D, drawC9bDecor2D, drawC9bDecor3D, mapLit9b } from './c9b-light.js?v=efa1b5f542af';
+import { drawC9bDark2D, drawC9bDark3D, drawC9bShade2D, drawC9bDecor2D, drawC9bDecor3D, mapLit9b } from './c9b-light.js?v=ae1035a9a013';
 // 第92回 A班: 第3部 第1章 第3幕の 地下の川（くらやみ・いかだ）・さかさのピラミッド（向きの 見え方）（client/c9c-view.js）
-import { noteC9cTheme, c9cOtherAlpha, c9cChestAlpha, raftAt9c, drawRaft2D, raftEntity9c, drawC9cDark2D, drawC9cDark3D, drawC9cFlip2D, drawC9cFlip3D } from './c9c-view.js?v=efa1b5f542af';
+import { noteC9cTheme, c9cOtherAlpha, c9cChestAlpha, raftAt9c, drawRaft2D, raftEntity9c, drawC9cDark2D, drawC9cDark3D, drawC9cFlip2D, drawC9cFlip3D } from './c9c-view.js?v=ae1035a9a013';
 // 第93回 A班: 第3部 第1章 第4幕の スピカと ふた手に（くらやみ・歌って いる スピカ・ひびきの石）（client/c9d-view.js）
-import { noteC9dSnap, noteC9dStage, c9dSpicaLeft, c9dSingingSpica, drawC9dDark2D, drawC9dDark3D, drawC9dRing2D, drawC9dRing3D } from './c9d-view.js?v=efa1b5f542af';
+import { noteC9dSnap, noteC9dStage, c9dSpicaLeft, c9dSingingSpica, drawC9dDark2D, drawC9dDark3D, drawC9dRing2D, drawC9dRing3D } from './c9d-view.js?v=ae1035a9a013';
 // 第94回 A班: 第3部 第2章 第1幕の 溶岩に 追われる・見はらし台（client/c10a-view.js）
-import { noteC10aSnap, noteC10aStage, drawC10aLava2D, drawC10aLava3D, lavaShake10a, wideScale10a, drawC10aSpores } from './c10a-view.js?v=efa1b5f542af';
+import { noteC10aSnap, noteC10aStage, drawC10aLava2D, drawC10aLava3D, lavaShake10a, wideScale10a, drawC10aSpores } from './c10a-view.js?v=ae1035a9a013';
 // 第95回 A班: 第3部 第2章 第2幕の 水の 高さ・こっそり（client/c10b-view.js）
-import { noteC10bSnap, noteC10bStage, c10bFieldFlag, drawC10bSneak2D, drawC10bSneak3D, drawC10bWater } from './c10b-view.js?v=efa1b5f542af';
+import { noteC10bSnap, noteC10bStage, c10bFieldFlag, drawC10bSneak2D, drawC10bSneak3D, drawC10bWater } from './c10b-view.js?v=ae1035a9a013';
 // 第97回 A班: 第3部 第2章 第3幕の 音の 橋・空の 小島（client/c10c-view.js）
-import { noteC10cSnap, noteC10cStage, c10cFieldFlag, drawC10cSky } from './c10c-view.js?v=efa1b5f542af';
+import { noteC10cSnap, noteC10cStage, c10cFieldFlag, drawC10cSky } from './c10c-view.js?v=ae1035a9a013';
 // 第99回 A班: 第3部 第2章 第4幕の 星の 階段（雲の すき間の 小さな 世界・曲の gateStage。client/c10d-view.js）
-import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js?v=efa1b5f542af';
+import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js?v=ae1035a9a013';
 // 第100回 A班: 第3部 第3章 第1幕の ひとふで書きの 星座・星の海（client/c11a-view.js）・星の船の 絵
-import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from './c11a-view.js?v=efa1b5f542af';
-import { paintStarShip } from './render/c11a-npc-art.js?v=efa1b5f542af';
+import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from './c11a-view.js?v=ae1035a9a013';
+import { paintStarShip } from './render/c11a-npc-art.js?v=ae1035a9a013';
 // 第102回 A班: 第3部 第3章 第2幕の おもてと うら（しるし・色と 明かり・ホタルの 助け・曲の sideStage。client/c11b-view.js）
-import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D } from './c11b-view.js?v=efa1b5f542af';
+import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D } from './c11b-view.js?v=ae1035a9a013';
 // 第102回 M1班: 歩く 1フレーム・かどを すりぬける（Node の テストでも 回せる 形）
-import { walkStep, nudgeStep } from './walk.js?v=efa1b5f542af';
+import { walkStep, nudgeStep } from './walk.js?v=ae1035a9a013';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -260,7 +260,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=efa1b5f542af');
+          const { Field3D } = await import('./render/field3d.js?v=ae1035a9a013');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);

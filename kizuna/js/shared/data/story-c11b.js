@@ -12,14 +12,14 @@
 //   もとの 昔話の 言葉（かぐや姫・竹・おじいさん おばあさん）は 使わない。ボスの 名前は maps/c11b-flags.js を 読む
 import {
   C11B, C11B_ACT0, C11B_MAP, C11B_BATTLE, C11B_BOSS_MON, C11B_TRACKS, C11B_OBORO_NAME, C11B_OBORO_SHORT, C11B_KEEPER_NAME, NAME_LAMP,
-} from '../maps/c11b-flags.js?v=efa1b5f542af';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=efa1b5f542af';
-import { SEA_GATE11A } from '../maps/c11a-rows.js?v=efa1b5f542af';
-import { CITY_POS11B, TOWER_POS11B, SEA_MOON_PIER11B } from '../maps/c11b-rows.js?v=efa1b5f542af';
-import { MONSTERS } from './monsters.js?v=efa1b5f542af';
-import { mergeBossHints } from './boss-hints.js?v=efa1b5f542af';
-import { innSteps } from './inn.js?v=efa1b5f542af';
-import { SHOP11B } from '../maps/c11b.js?v=efa1b5f542af';
+} from '../maps/c11b-flags.js?v=ae1035a9a013';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=ae1035a9a013';
+import { SEA_GATE11A } from '../maps/c11a-rows.js?v=ae1035a9a013';
+import { CITY_POS11B, TOWER_POS11B, SEA_MOON_PIER11B } from '../maps/c11b-rows.js?v=ae1035a9a013';
+import { MONSTERS } from './monsters.js?v=ae1035a9a013';
+import { mergeBossHints } from './boss-hints.js?v=ae1035a9a013';
+import { innSteps } from './inn.js?v=ae1035a9a013';
+import { SHOP11B } from '../maps/c11b.js?v=ae1035a9a013';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

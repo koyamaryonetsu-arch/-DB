@@ -13,17 +13,17 @@
 import {
   C11A, C11A_ACT0, C11A_LIGHTS, C11A_LENS, C11A_CON, C11A_CON_IDS, C11A_ISLE_CONS, C11A_MAP, C11A_BATTLE, C11A_BOSS_MON, C11A_TRACKS,
   C11A_CAPTAIN_NAME, C11A_CAPTAIN_SHORT, C11A_SHARK_NAME, C11A_BEAST_NAME, STAR_CHART, STAR_SHIP,
-} from '../maps/c11a-flags.js?v=efa1b5f542af';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=efa1b5f542af';
+} from '../maps/c11a-flags.js?v=ae1035a9a013';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=ae1035a9a013';
 import {
   SEA_ARRIVE11A, SEA_GATE11A, SEA_GATE_SCENE11A, ISLES11A, ISLE_POS11A, PERCH_POS11A, LENS11A, HILL_DOCK11A, SEA_DOCK11A,
-} from '../maps/c11a-rows.js?v=efa1b5f542af';
-import { CONSTELLATIONS11A } from './constellations-c11a.js?v=efa1b5f542af';
-import { MONSTERS } from './monsters.js?v=efa1b5f542af';
-import { mergeBossHints } from './boss-hints.js?v=efa1b5f542af';
-import { innSteps } from './inn.js?v=efa1b5f542af';
-import { SEA_POS } from '../maps/sea.js?v=efa1b5f542af';
-import { perchShopOf11a, SHOP11A } from '../maps/c11a.js?v=efa1b5f542af';
+} from '../maps/c11a-rows.js?v=ae1035a9a013';
+import { CONSTELLATIONS11A } from './constellations-c11a.js?v=ae1035a9a013';
+import { MONSTERS } from './monsters.js?v=ae1035a9a013';
+import { mergeBossHints } from './boss-hints.js?v=ae1035a9a013';
+import { innSteps } from './inn.js?v=ae1035a9a013';
+import { SEA_POS } from '../maps/sea.js?v=ae1035a9a013';
+import { perchShopOf11a, SHOP11A } from '../maps/c11a.js?v=ae1035a9a013';
 // 星座の しくみは world.c11a（world/c11a-steps.js の C11A_API。data から world を 読まない）
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

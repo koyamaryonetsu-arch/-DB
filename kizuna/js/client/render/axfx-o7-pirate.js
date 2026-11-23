@@ -1,8 +1,8 @@
 // 第51回 C1（o7）: 海賊王の 技の え（麦わらぼうし・海賊旗・海賊船・ゴムの こぶし・肉・太陽・笑い顔）
 // ・時間は shared/data/ax-time-o7.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
 // ・「自由の技」は 敵の 上に 笑い顔と ワハハ（笑いころげて 動けない）。大船団は 画面の 上を 船が わたる
-import { obj, fly, text, bg, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow, zap } from './axfx-o7-kit.js?v=efa1b5f542af';
-import { rnd } from './axkit.js?v=efa1b5f542af';
+import { obj, fly, text, bg, hands, ground, above, per, partyTop, hitFx, allyGlow, upArrow, zap } from './axfx-o7-kit.js?v=ae1035a9a013';
+import { rnd } from './axkit.js?v=ae1035a9a013';
 
 const GOLD = ['#ffffff', '#ffe45a', '#ffb02a'];
 const WHITE = ['#ffffff', '#fff6dc', '#e8e8ff'];

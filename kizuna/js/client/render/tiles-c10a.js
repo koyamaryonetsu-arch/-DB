@@ -5,9 +5,9 @@
 //   きのこの め（505）/ きのこ（506）/ 見はらし台（507）/ 大木の みき（508）/ うろ（509）/ こおった つぼみ（510）/ 火の 花（511。2コマ）/ 光る 胞子の 草（514）
 // ・今の マップに フラグで 出る 物: たれ下がる 根（512。大地の下）/ 切りかぶ（513。ささやきの森）
 // どれも テーマで 色を かえない（古い 道は 炎の山の テーマ lava の 中でも もとの 色）
-import { T } from '../../shared/tiles.js?v=efa1b5f542af';
-import { prand } from './pixel.js?v=efa1b5f542af';
-import { THEME_PARTS } from './tiles-castle.js?v=efa1b5f542af';
+import { T } from '../../shared/tiles.js?v=ae1035a9a013';
+import { prand } from './pixel.js?v=ae1035a9a013';
+import { THEME_PARTS } from './tiles-castle.js?v=ae1035a9a013';
 
 const RD = { d: '#2a1a16', b: '#4a3430', l: '#6a5048', hl: '#8a6a5a' };
 const WL = { d: '#140806', b: '#2a1612', l: '#3e2018', hl: '#5a3020' };

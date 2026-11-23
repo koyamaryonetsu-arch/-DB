@@ -8,7 +8,7 @@
 //     水しょうの台へ 行くと 聖はい（伝説）が あらわれる（タリスマンは なくならない。world/grail-r88.js）
 //   ・今 ある ティアラ・銀水しょうにも 作品を つけた（R88_TAG_SAILORMOON。強さ・手に入れ方は かえない）
 //   作品の 字は 使える 字に 直した（水晶 → 水しょう・杖 → つえ・邪 → じゃ・聖杯 → 聖はい など。設計書の「実装メモ（G12班）」）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=efa1b5f542af';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=ae1035a9a013';
 
 const S = { work: 'sailormoon' };
 const P = { work: 'sailormoon', set: 'henshin_pen' };

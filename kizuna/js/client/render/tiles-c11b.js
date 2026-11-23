@@ -9,8 +9,8 @@
 //   階段（おもて 697・うら 698）
 // ・星の海: 月の都（三日月の 岩と 白い 塔。694）
 // どれも テーマで 色を かえない（おもてと うらの 色は タイルが 持つ）
-import { T } from '../../shared/tiles.js?v=efa1b5f542af';
-import { prand } from './pixel.js?v=efa1b5f542af';
+import { T } from '../../shared/tiles.js?v=ae1035a9a013';
+import { prand } from './pixel.js?v=ae1035a9a013';
 
 const GOLD = { d: '#a8801e', b: '#e8c040', l: '#ffe070', hl: '#fff8c8' };
 const SILVER = { d: '#8a86b8', b: '#b8b4d8', l: '#e0dcf8', hl: '#ffffff' };

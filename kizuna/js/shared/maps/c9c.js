@@ -5,17 +5,17 @@
 // ・今の マップに 足す 物: 第4章の ピラミッドの 地下（pyramid_b1）の すみの 上り 階段（c9_note1 から。第4章を 遊んで いる 人には 見えない）・
 //   ながれ星のくぼ地の 7つの 音の 台（c9_note1 から）・くぼ地の 場面（c9_act3）
 // ・「行った 所」の 記録は 5まいとも 取らない（map.noExplore。引っこしコードを のばさない）
-import { T } from '../tiles.js?v=efa1b5f542af';
-import { npc } from './npc.js?v=efa1b5f542af';
-import { parseRows16 } from './past.js?v=efa1b5f542af';
-import { RIVER_ROWS, RIVER_POS, RIVER_LIGHTS, RIVER_DECOR, PYR_C1, PYR_C2, PYR_C3, PYR_C4, PYR_C_POS } from './c9c-rows.js?v=efa1b5f542af';
-import { FLIP_FLAG } from './c9c-flip.js?v=efa1b5f542af';
-import { UNDER_POS } from './c9b-rows.js?v=efa1b5f542af';
-import { CRATER_POS } from './c9a-rows.js?v=efa1b5f542af';
-import { c9cChest } from '../data/items-c9c.js?v=efa1b5f542af';
+import { T } from '../tiles.js?v=ae1035a9a013';
+import { npc } from './npc.js?v=ae1035a9a013';
+import { parseRows16 } from './past.js?v=ae1035a9a013';
+import { RIVER_ROWS, RIVER_POS, RIVER_LIGHTS, RIVER_DECOR, PYR_C1, PYR_C2, PYR_C3, PYR_C4, PYR_C_POS } from './c9c-rows.js?v=ae1035a9a013';
+import { FLIP_FLAG } from './c9c-flip.js?v=ae1035a9a013';
+import { UNDER_POS } from './c9b-rows.js?v=ae1035a9a013';
+import { CRATER_POS } from './c9a-rows.js?v=ae1035a9a013';
+import { c9cChest } from '../data/items-c9c.js?v=ae1035a9a013';
 import {
   C9C, C9C_MAP, C9C_MAP_IDS, C9C_CHEST_IDS, C9C_TABLE, C9C_TRACKS, C9C_SPICA_LIGHT, C9C_SONG, ALGOL,
-} from './c9c-flags.js?v=efa1b5f542af';
+} from './c9c-flags.js?v=ae1035a9a013';
 
 // 第3部 第1章 第3幕の マップの ID（セーブに のこるので かえない）
 export const CH9C_MAPS = [...C9C_MAP_IDS];

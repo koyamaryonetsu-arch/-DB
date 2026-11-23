@@ -2,13 +2,13 @@
 //   expHat … しあわせのぼうし: 戦いの 経験値が 2倍（その 戦いの パーティーで いちばん レベルが 高い 人には 効かない）
 //   walkMp … こうふくのくつ: 10歩 歩くと MPが 1 回復（フィールドと ダンジョン。つけた 人ごとに 数える）
 //   wipeQuarter・wipeTenth … 第81回 へそくりのさいふ・金庫番のお守り: 全滅で へる お金が 少なく なる（data/items-r81.js の wipeDiv）
-import { ITEMS, baseItemId } from '../data/items.js?v=efa1b5f542af';
-import { HAT_EXP_MULT, SHOE_STEPS, SHOE_MP } from '../data/items-r31.js?v=efa1b5f542af';
-import { WIPE_DIV } from '../data/items-r81.js?v=efa1b5f542af';
-import { MAPS } from '../maps/index.js?v=efa1b5f542af';
-import { computeStats } from '../stats.js?v=efa1b5f542af';
-import { partyOf } from './party.js?v=efa1b5f542af';
-import { wagonEntries, wagonHere } from './wagon.js?v=efa1b5f542af';
+import { ITEMS, baseItemId } from '../data/items.js?v=ae1035a9a013';
+import { HAT_EXP_MULT, SHOE_STEPS, SHOE_MP } from '../data/items-r31.js?v=ae1035a9a013';
+import { WIPE_DIV } from '../data/items-r81.js?v=ae1035a9a013';
+import { MAPS } from '../maps/index.js?v=ae1035a9a013';
+import { computeStats } from '../stats.js?v=ae1035a9a013';
+import { partyOf } from './party.js?v=ae1035a9a013';
+import { wagonEntries, wagonHere } from './wagon.js?v=ae1035a9a013';
 
 // その 人が つけている 装備の 力（perk）が あるか
 export function hasPerk(ch, perk) {

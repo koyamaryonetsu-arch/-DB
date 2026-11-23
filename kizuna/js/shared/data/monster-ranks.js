@@ -255,7 +255,7 @@ export const MONSTER_RANKS = {
   c10c_mole: 'F', // 出1＋仲0
   c10c_lamp: 'D', // 出2＋仲1
   c10c_haniwa: 'D', // 出2＋仲1
-  // 第3部 第3章（F10 E2 D2 C1 B0 A0 S0）
+  // 第3部 第3章（F15 E2 D4 C1 B0 A0 S0）
   c11a_jelly: 'F', // 出0＋仲0
   c11a_comet: 'F', // 出1＋仲0
   c11a_ray: 'E', // 出2＋仲0
@@ -271,4 +271,11 @@ export const MONSTER_RANKS = {
   c11b_guard: 'F', // 出0＋仲1
   c11b_dim: 'F', // 出0＋仲0
   c11b_cloud: 'D', // 出0＋仲3
+  c11c_tmoon: 'F', // 出0＋仲0
+  c11c_tstar: 'F', // 出0＋仲0
+  c11c_bird: 'D', // 出2＋仲1
+  c11c_tcomet: 'F', // 出0＋仲1
+  c11c_lamp: 'F', // 出0＋仲1
+  c11c_tsun: 'F', // 出0＋仲1
+  c11c_moth: 'D', // 出0＋仲3
 };

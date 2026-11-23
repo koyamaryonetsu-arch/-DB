@@ -13,8 +13,8 @@
 // ・敵1体・敵全体・味方（がめんの した。playAllyR27）・味方全体の どれでも 形が くずれない
 // ・ダメージの 数字が 出る じかん（r27Hit）と、エフェクトが あたる じかんを そろえる
 // ・スマホで おもく ならない ように、つぶの かずは 1技 だいたい 250こ まで（ひばなは まとめて かかれるので かるい）
-import { makeCanvas, hexToRgb } from './pixel.js?v=efa1b5f542af';
-import { ABILITIES } from '../../shared/data/abilities.js?v=efa1b5f542af';
+import { makeCanvas, hexToRgb } from './pixel.js?v=ae1035a9a013';
+import { ABILITIES } from '../../shared/data/abilities.js?v=ae1035a9a013';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -1500,6 +1500,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c11aPass')) return 'buff';
   // 第102回: 第3部 第3章 第2幕の「よびかける」（c11bCall）… よんだ 人の 下に 光（技の 絵は render/battlefx-c11b.js）
   if (types.includes('c11bCall')) return 'buff';
+  // 第103回: 第3部 第3章 第3幕の「アルゴルにたのむ」（c11cEat）… たのんだ 人の 下に 光（食べる えんしゅつは client/battle-c11c.js）
+  if (types.includes('c11cEat')) return 'buff';
   return null;
 }
 

@@ -24,7 +24,7 @@
 //  r83a_saki   まきものが ひらいて 目の しるし（先読みの策）
 //  r83a_catch  つり糸の 先に 長ぐつ・宝箱（大物がつれた！の はずれ・お金）
 // ・どれも 2.2びょう いないで おわる。あたる じかんは R83A_HIT（battle.js の HIT_DELAY に まぜる）
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=efa1b5f542af';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=ae1035a9a013';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 

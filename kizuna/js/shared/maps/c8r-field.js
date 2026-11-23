@@ -2,10 +2,10 @@
 // ※ ネタバレ注意（docs/plan-ch8.md の 7-3・9）
 // ・時の さけめ（トキネの 話 c8_rift の あと。入ると 時の広間）
 // ・エンディングの あと（c8_solitus）: ほしみの丘に もどった 4人の 勇者の 像
-import { T, TILE_INFO } from '../tiles.js?v=efa1b5f542af';
-import { npc } from './npc.js?v=efa1b5f542af';
-import { C8R, HALL_ID, NOW_FIELD_ID } from './c8r-flags.js?v=efa1b5f542af';
-import { HALL_POS } from './c8r-hall.js?v=efa1b5f542af';
+import { T, TILE_INFO } from '../tiles.js?v=ae1035a9a013';
+import { npc } from './npc.js?v=ae1035a9a013';
+import { C8R, HALL_ID, NOW_FIELD_ID } from './c8r-flags.js?v=ae1035a9a013';
+import { HALL_POS } from './c8r-hall.js?v=ae1035a9a013';
 
 // 今の ほしみの丘（トキネの そば 57,84）。広間に 着く 所は HALL_ENTER8R
 export const HALL_ENTER8R = { map: HALL_ID, x: HALL_POS.enter.x + 0.5, y: HALL_POS.enter.y + 0.5, dir: 'up' };

@@ -1,26 +1,26 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう。第35回で 作りなおし）
 //   生まれる 子の 候補・＋・ランクは data/companions.js の breedOutcome、能力の 受けつぎ・めやす・血統は shared/breed-calc.js
 //   どちらも 酒場の 画面（client/ui/services.js）と 同じ 計算
-import { MONSTERS } from '../data/monsters.js?v=efa1b5f542af';
-import { ABILITIES } from '../data/abilities.js?v=efa1b5f542af';
-import { ITEMS, SLOTS } from '../data/items.js?v=efa1b5f542af';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=efa1b5f542af';
-import { ougiLearn } from '../data/abilities-ougi.js?v=efa1b5f542af';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=efa1b5f542af';
+import { MONSTERS } from '../data/monsters.js?v=ae1035a9a013';
+import { ABILITIES } from '../data/abilities.js?v=ae1035a9a013';
+import { ITEMS, SLOTS } from '../data/items.js?v=ae1035a9a013';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=ae1035a9a013';
+import { ougiLearn } from '../data/abilities-ougi.js?v=ae1035a9a013';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=ae1035a9a013';
 // 第43回 A: 配合の あとの 追いつき
-import { catchUpLevel } from '../stats.js?v=efa1b5f542af';
+import { catchUpLevel } from '../stats.js?v=ae1035a9a013';
 // 第44回: 大事な物を 使う 素材配合（ミュウ）
-import { hasKeyItem } from '../stats.js?v=efa1b5f542af';
-import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=efa1b5f542af';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=efa1b5f542af';
+import { hasKeyItem } from '../stats.js?v=ae1035a9a013';
+import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=ae1035a9a013';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=ae1035a9a013';
 // 第43回 C: あずかり中の 魔物も 親に なれる（world/party.js の breedEntry・world/storage.js）
-import { breedEntry, storedOf } from './party.js?v=efa1b5f542af';
+import { breedEntry, storedOf } from './party.js?v=ae1035a9a013';
 // 第53回 D: 色の石で 色ちがいの 子（data/variants.js・data/breed-mix.js）
-import { VARIANT_KINDS, colorKinds } from '../data/variants.js?v=efa1b5f542af';
-import { COLOR_STONE } from '../data/breed-mix.js?v=efa1b5f542af';
+import { VARIANT_KINDS, colorKinds } from '../data/variants.js?v=ae1035a9a013';
+import { COLOR_STONE } from '../data/breed-mix.js?v=ae1035a9a013';
 // 第70回: 作れる 魔物から 選ぶ（shared/breed-finder.js）
-import { MATERIAL_RECIPES } from '../data/companions.js?v=efa1b5f542af';
-import { breedParents, breedMatrix, kidList, kidSummary, kidPairs } from '../breed-finder.js?v=efa1b5f542af';
+import { MATERIAL_RECIPES } from '../data/companions.js?v=ae1035a9a013';
+import { breedParents, breedMatrix, kidList, kidSummary, kidPairs } from '../breed-finder.js?v=ae1035a9a013';
 
 // おやから うけつげる わざ（第43回 B: 親ごとに 4つずつ・あわせて 8つ。docs/plan-monsters.md の 2-4）
 //   { a: [親A の 技], b: [親B の 技] }。両方の 親が 知っている 技は a に だけ 入れる（1つと 数える。b の あいた ぶんは ほかの 技から えらべる）
