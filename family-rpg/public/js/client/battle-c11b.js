@@ -24,7 +24,7 @@ export const C11B_ALLY_FX = {
 export const C11B_SFX = {
   c11m_powder: 'sparkle', c11m_glow: 'sparkle', c11m_trip: 'hit', c11m_hide: 'buff', c11m_claw: 'hit', c11m_moon: 'sleep', c11m_flame: 'fire', c11m_name: 'hit',
   c11m_spear: 'hit', c11m_scale: 'debuff', c11m_bump: 'hit', c11m_dim: 'sparkle', c11m_mist: 'ice', c11m_rain: 'ice',
-  c11k_bash: 'smash', c11k_beam: 'bolt', c11k_ring: 'sparkle', c11k_light: 'blast', c11k_dark: 'dark',
+  c11k_bash: 'smash', c11k_beam: 'bolt', c11k_ring: 'sparkle', c11k_switch: 'blast', c11k_light: 'blast', c11k_dark: 'dark',
   c11o_whip: 'hit', c11o_moon: 'ice', c11o_bow: 'buff', c11o_robe: 'void', c11o_flash: 'bolt', c11t_sleeve: 'hit', c11t_drop: 'heal', c11b_call: 'sparkle',
 };
 const isKeeper = (c) => c?.species === C11B_KEEPER;
