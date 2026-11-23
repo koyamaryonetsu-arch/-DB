@@ -72,13 +72,13 @@ function muralNote(ctx, x, y, k, col, n) {
   ctx.fillText(String(n), x, y + k * 0.45);
   ctx.restore();
 }
-function drawRoom(field, ctx, at) {
+function drawRoom(field, ctx, at, wallY = 7.45) {
   const m = field.map;
   const st = stateOf(field);
   const t = field.time;
   // かべの 歌の 絵
   C11D_SONG_ORDER.forEach((i, n) => {
-    const p = at(MURAL_X[n], 7.45, 0.9);
+    const p = at(MURAL_X[n], wallY, 0.8); // かべの 南の 面
     muralNote(ctx, p.x, p.y, p.k, PAD_COLORS11D[i][0], n + 1);
   });
   if (!st || st.d) return;
@@ -109,5 +109,5 @@ export function drawC11d2D(field, camX, camY) {
 // ───── 2.5D（render3d の 上に かさねる 2D。P(x, y, up) … 画面の 場所と 1マスの 大きさ）─────
 export function drawC11d3D(field, ctx, P) {
   if (!field.map?.c11dPads) return;
-  drawRoom(field, ctx, (x, y, up) => P(x, y, up));
+  drawRoom(field, ctx, (x, y, up) => P(x, y, up), 8.02);
 }
