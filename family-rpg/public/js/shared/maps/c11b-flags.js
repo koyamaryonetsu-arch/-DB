@@ -64,12 +64,12 @@ export const C11B_BOSS_MON = { keeper: 'c11b_keeper', oboro: 'c11b_oboro', tenni
 // 名前（台本・目標・ヒントは ここを 読む）
 export const C11B_OBORO_NAME = '月のむかえオボロ'; // 幕の ボス（18-4。メインが 決めた）
 export const C11B_OBORO_SHORT = 'オボロ';
-export const C11B_KEEPER_NAME = 'ランプの番人'; // 中ボス（かりの 名前。B班が 決める）
+export const C11B_KEEPER_NAME = 'ランプの番人カンテラ'; // 中ボス（B班が 決めた）
 // 魔物の 表（B班。data/encounters-c11b.js）。表が ない 間は 魔物が 出ない（'safe:wait'）
 //   うら道（月の都・うら の 北）・塔の おもて・塔の うら（おもてと うらで 表を かえる）。おもての 町では 出ない
-export const C11B_TABLE = { back: 't11b_back', towerFront: 't11b_tower_f', towerBack: 't11b_tower_b' };
+export const C11B_TABLE = { back: 't11b_alley', towerFront: 't11b_tower', towerBack: 't11b_towerb' };
 // 戦いの 背景（B班の 背景の id。うら道・塔・テラス）
-export const C11B_BG = { back: 'c11b_alley', tower: 'c11b_tower', terrace: 'c11b_terrace' };
+export const C11B_BG = { back: 'c11b_alley', tower: 'c11b_tower', towerBack: 'c11b_towerb' };
 
 // ───── 宝箱の id（B班が 中みを 決める。★5 は 3つ）─────
 export const C11B_CHEST_IDS = ['c11b_c1', 'c11b_c2', 'c11b_c3', 'c11b_c4', 'c11b_c5', 'c11b_c6', 'c11b_c7', 'c11b_c8'];
@@ -106,3 +106,19 @@ export const C11B_LV = { back: 120, tower: 121, keeper: 121, oboro: 122 };
 
 // ───── 幕の 切りかえ ─────
 export const C11B_OPEN = 'PART3_C11B_OPEN'; // data/story-c11.js
+
+// ───── B班の かりの 置き場（data/c11b-names-b.js。合わせた 時に 消した）に あった 名前（同じ 物。B の ファイルが as で 読む）─────
+export const C11B_B = {
+  act1: C11B_ACT0, start: C11B.start, plaza: C11B.plaza, back: C11B.back, rule: C11B.rule, tower: C11B.tower,
+  keeper: C11B.keeper, lamp: C11B.lamp, oboro: C11B.oboro, act2: C11B.act2,
+};
+// とびら・ランプの しるしの わく（12こ まで。A班が 使うのは C11B_MARKS の 7こ）
+export const C11B_DOORS_B = Array.from({ length: C11B_MARK_MAX }, (_, i) => `c11b_d${i + 1}`);
+export const C11B_MAP_B = { sea: 'c11_sea', ...C11B_MAP };
+export const C11B_BATTLE_B = { ...C11B_BATTLE };
+export const C11B_MON_PREFIX_B = C11B_MON_PREFIX;
+export const C11B_CHEST_IDS_B = [...C11B_CHEST_IDS];
+export const C11B_KEYS_B = { lamp: NAME_LAMP };
+export const C11B_CMD_B = C11B_CMD_CALL;
+export const C11B_TRACKS_B = { ...C11B_TRACKS };
+export const C11B_OPEN_B = C11B_OPEN;

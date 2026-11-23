@@ -23,6 +23,8 @@ import { c10cSprite, c10cDraw, c10cPresent, c10cCmdItems, c10cCmdPick } from './
 import { c10dSprite, c10dDraw, c10dPresent, c10dCmdItems, c10dCmdPick } from './battle-c10d.js';
 // 第3部 第3章 第1幕: 星座のけもの・いかり船長・時計を投げる（battle-c11a.js。C11A_OWN_TELE・C11A_SCREEN_ANIMS・C11A_ALLY_FX・C11A_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
 import { c11aSprite, c11aDraw, c11aPresent, c11aCmdItems, c11aCmdPick } from './battle-c11a.js';
+// 第3部 第3章 第2幕: ランプの番人・月のむかえ オボロ・よびかける（battle-c11b.js。C11B_OWN_TELE・C11B_SCREEN_ANIMS・C11B_ALLY_FX・C11B_SFX は client/battle-c8r・ch4・battle.js）
+import { c11bSprite, c11bDraw, c11bPresent, c11bCmdItems, c11bCmdPick } from './battle-c11b.js';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c9a.js の C9A_OWN_TELE に まぜる）
 export const C9B_OWN_TELE = [C9B_DEDEDON];
@@ -114,6 +116,9 @@ export function c9bSprite(c, frame) {
   // 第3部 第3章 第1幕: にげる 船長（battle-c11a.js）
   const d11a = c11aSprite(c, frame);
   if (d11a) return d11a;
+  // 第3部 第3章 第2幕: 暗い ランプ・引いていく オボロ（battle-c11b.js）
+  const d11b = c11bSprite(c, frame);
+  if (d11b) return d11b;
   if (c?.species === C9B_DEDEDON && c.kDown) return monsterCanvas(C9B_DEDEDON, (frame ? 1 : 0) + 2);
   // 第3部 第1章 第3幕: 目を 回した メカ（battle-c9c.js）
   return c9cSprite(c, frame);
@@ -168,6 +173,8 @@ export function c9bDraw(scene, x, m, c, px, py, w, h, base) {
   c10dDraw(scene, x, m, c, px, py, w, h, base);
   // 第3部 第3章 第1幕: 上の まど・時計の しるし（battle-c11a.js）
   c11aDraw(scene, x, m, c, px, py, w, h, base);
+  // 第3部 第3章 第2幕: 上の まど・明るい／暗い の しるし（battle-c11b.js）
+  c11bDraw(scene, x, m, c, px, py, w, h, base);
   // 大王
   if (c?.species === C9B_DEDEDON) {
     darkLayer(scene, c.alive && c.kDark, c.alive && c.kLit);
@@ -259,6 +266,8 @@ export function c9bPresent(scene, ev) {
   c10dPresent(scene, ev);
   // 第3部 第3章 第1幕（battle-c11a.js）
   c11aPresent(scene, ev);
+  // 第3部 第3章 第2幕（battle-c11b.js）
+  c11bPresent(scene, ev);
 }
 
 // ───────────── コマンド（client/battle-c9a.js の c9aCmdItems・c9aCmdPick）─────────────
@@ -283,8 +292,10 @@ export function c9bCmdItems(scene, a) {
   const cn = c10dCmdItems(scene, a);
   // 第3部 第3章 第1幕: 時計を投げる（battle-c11a.js。いちばん 上）
   const cp = c11aCmdItems(scene, a);
-  const items = [...cp.items, ...cn.items, ...ck.items, ...cx.items, ...cc.items, ...cd.items];
-  let info = cp.info || cn.info || ck.info || cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
+  // 第3部 第3章 第2幕: よびかける（battle-c11b.js。いちばん 上）
+  const cy = c11bCmdItems(scene, a);
+  const items = [...cy.items, ...cp.items, ...cn.items, ...ck.items, ...cx.items, ...cc.items, ...cd.items];
+  let info = cy.info || cp.info || cn.info || ck.info || cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
   const t = scene.c9spica?.teru;
   if (!a || !t || t.charge < t.max || !(a.abilities || []).includes(TERU) || !teruUseful(scene)) return { items, info };
   items.push({ html: '<span class="dual-cmd">スピカ：てらす</span>', value: 'c9bteru', cls: 'k-dual' });
@@ -298,6 +309,7 @@ export function c9bCmdPick(scene, a, value) {
   if (value === 'c10cmove') return c10cCmdPick(scene, a, value);
   if (value === 'c10dring') return c10dCmdPick(scene, a, value);
   if (value === 'c11apass') return c11aCmdPick(scene, a, value);
+  if (value === 'c11bcall') return c11bCmdPick(scene, a, value);
   if (value !== 'c9bteru') return false;
   scene.send({ type: 'ability', id: TERU });
   return true;

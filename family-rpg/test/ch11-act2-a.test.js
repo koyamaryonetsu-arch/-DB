@@ -2,10 +2,10 @@
 // c11_act1 → 星座の門の むこう（きりが 晴れる c11b_start）→ 月の都の おもて・名前の 広場（c11b_plaza）→ ホタル・月かげの 戸
 //   → うらの 町・トモシビ（c11b_back・きまり c11b_rule）→ うら道（おもてと うら）→ 名前の 塔（c11b_tower）→ 番人（c11b_keeper）
 //   → スピカの ランプ（c11b_lamp）→ テラスの オボロ（c11b_oboro）→ c11_act2
-// 戦いの 中みは B班。ここでは かりの 戦い（data/c11b-stub.js。B班を 取りこむ 時に 消す）を テストの 中で すぐ 勝たせる
+// 戦いの 中みは B班。ここでは 決まった 戦いを テストの 中で すぐ 勝たせる（本当に 戦う 通しは test/ch11-act2.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { MAPS, isBlocked, effectiveTile, condOk } from '../public/js/shared/maps/index.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
 import {
@@ -33,12 +33,14 @@ import { storyPlace } from '../public/js/shared/world/shiori.js';
 import { warpPlaces } from '../public/js/shared/world/travel.js';
 import { isPart3Map } from '../public/js/client/audio-scene.js';
 import { spicaOf } from '../public/js/shared/battle-c9a.js';
-import { installC11bStub } from '../public/js/shared/data/c11b-stub.js';
+import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
+import { MONSTERS } from '../public/js/shared/data/monsters.js';
+import { ITEMS } from '../public/js/shared/data/items.js';
+import { SHOPS } from '../public/js/shared/data/shops.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { tickN, Bot } from './helpers.js';
 import { UPTO, flagsOf, said, addPlayer, play, place, stepOn, examine, talkTo, walkTo, fixedWorld } from './c9a-play.js';
 
-installC11bStub();
 // 本体の 台本（テストが 幕を 開けた 形を まぜる 前）
 const BODY = { start: SCRIPTS.c11b_start_event, gate: SCRIPTS.c11a_gate };
 const ctx = (flags, extra = {}) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => true, count: () => 0, ...extra });
@@ -150,12 +152,28 @@ test('名前の 約束: マップ 8まい・タイル 661〜700・宝箱の id�
     assert.ok(g, `gameFiles に ${f}`);
     assert.deepEqual(checkFile(gameFiles().find((x) => x.replace(/\\/g, '/').endsWith(f))).filter((p) => p.kind !== 'kana'), [], f);
   }
-  // かりの 置き場（data/c11b-stub.js）は テストと ブラウザの 道具だけが 読む
+  // かりの 置き場（A の data/c11b-stub.js・B の data/c11b-names-b.js）は 合わせた 時に 消した。だれも 読まない
+  for (const f of ['c11b-stub.js', 'c11b-names-b.js']) assert.ok(!existsSync(new URL(`../public/js/shared/data/${f}`, import.meta.url)), `${f} は ない`);
   const walk = (dir) => readdirSync(new URL(dir, import.meta.url), { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(`${dir}${d.name}/`) : /\.m?js$/.test(d.name) ? [`${dir}${d.name}`] : []));
-  for (const f of [...walk('../public/js/'), ...walk('../server/')]) {
+  for (const f of [...walk('../public/js/'), ...walk('../server/'), ...walk('../tools/'), ...walk('./')]) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8');
-    assert.ok(!/from '[^']*c11b-stub/.test(src), `${f} は かりを 読まない`);
+    assert.ok(!/from '[^']*(c11b-stub|c11b-names-b)/.test(src), `${f} は かりを 読まない`);
   }
+  // 本物に つないだ: 宝箱（B班の 中み）・店・魔物の 表・戦い・ボスの 名前・だいじな 物
+  for (const id of C11B_MAP_IDS) for (const ch of MAPS[id].chests) assert.ok(ch.item, `${ch.id} は B班の 品`);
+  assert.deepEqual(MAPS.c11b_back.spawnCounts, { t11b_alley: 4 });
+  assert.deepEqual(MAPS.c11b_front.spawnCounts, {}, 'おもての 町では 出ない');
+  for (const n of [1, 2, 3]) {
+    assert.deepEqual(Object.keys(MAPS[`c11b_tower${n}`].spawnCounts), ['t11b_tower']);
+    assert.deepEqual(Object.keys(MAPS[`c11b_towerb${n}`].spawnCounts), ['t11b_towerb']);
+  }
+  for (const y of [10, 20, 30]) for (let x = 1; x < 35; x++) assert.ok(String(MAPS.c11b_front.zoneAt(x, y)).startsWith('safe'), 'おもては 出ない');
+  for (let y = 27; y < 39; y++) for (let x = 1; x < 35; x++) assert.ok(String(MAPS.c11b_back.zoneAt(x, y)).startsWith('safe'), 'うらの 町（店の ある 所）は 出ない');
+  for (const id of Object.values(C11B_BATTLE)) assert.ok(FIXED_ENCOUNTERS[id]?.boss, id);
+  assert.equal(MONSTERS.c11b_keeper.name, C11B_KEEPER_NAME);
+  assert.equal(MONSTERS.c11b_oboro.name, C11B_OBORO_NAME);
+  assert.equal(ITEMS[NAME_LAMP]?.type, 'key');
+  assert.ok(SHOPS.c11b_arms.items.length && SHOPS.c11b_back_shop.items.length && SHOPS.c11b_back_shop.items.every((i) => ITEMS[i]));
 });
 
 test('台本の きまり: 明かすのは きまりと スピカが だれか まで・女王は 出ない・少年は ひとこと だけ・カイ・ソリトゥス・鏡・8つめの 音・もとの 昔話の 言葉を 書かない', () => {

@@ -56,6 +56,8 @@ import { MONSTERS_C10C } from './monsters-c10c.js';
 import { MONSTERS_C10D } from './monsters-c10d.js';
 // 第101回 B班: 第3部 第3章 第1幕「星の船と、星座の島」（monsters-c11a.js）
 import { MONSTERS_C11A } from './monsters-c11a.js';
+// 第102回 B班: 第3部 第3章 第2幕「月の都と、名前のランプ」（monsters-c11b.js）
+import { MONSTERS_C11B } from './monsters-c11b.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -342,6 +344,8 @@ Object.assign(MONSTERS, MONSTERS_C10C);
 Object.assign(MONSTERS, MONSTERS_C10D);
 // 第3部 第3章 第1幕「星の船と、星座の島」の 魔物・星座のけもの・いかり船長（monsters-c11a.js）
 Object.assign(MONSTERS, MONSTERS_C11A);
+// 第3部 第3章 第2幕「月の都と、名前のランプ」の 魔物・ランプの番人・月のむかえ オボロ・天人（monsters-c11b.js）
+Object.assign(MONSTERS, MONSTERS_C11B);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);

@@ -69,6 +69,10 @@ export const CLOCK_PINCH = 2;
 export function clockPinch(list) {
   return (list || []).some((c) => c && c.side === 'ally' && c.alive !== false && Number.isInteger(c.clock11) && c.clock11 <= CLOCK_PINCH);
 }
+// 第102回 B班: わすれの 衣（battle-c11b.js）… スピカの 思い出が あと 1（オボロの pub の forget11b・forgetMax11b）
+export function forgetPinch(list) {
+  return (list || []).some((c) => c && c.side === 'enemy' && c.alive !== false && Number.isInteger(c.forget11b) && !c.c11bDown && (c.forgetMax11b || 3) - c.forget11b <= 1);
+}
 export function nextPinch(prev, allies) {
   const rates = (allies || []).filter((c) => c && c.alive !== false && !c.dead && !c.fled).map(hpRate).filter((r) => r !== null);
   if (!rates.length) return false;
@@ -262,6 +266,17 @@ export function conIntensity(stage) {
   const n = Math.max(0, Math.min(CON_STAGES - 1, Math.floor(Number(stage) || 0)));
   return Math.round((n / (CON_STAGES - 1)) * 1000) / 1000;
 }
+
+// 第102回 F: おもてとうらの塔（c11b_tower）は 画面の 状態 sideStage（0 おもて・1 うら）で 楽器が かわる（曲の だん 0・1。
+//   だん 0 … マリンバ・ベル・リム（かたい 音）／ だん 1 … 笛・弦・シェイカー（やわらかい 音）。ふし・ベース・形・調・テンポは 同じ。
+//   かわるのは 次の 小節の 頭から、その 方の イントロへ〈flipStage と 同じ〉）。
+//   A班が 画面の 状態 sideStage を 出す（field.sideStage・game.sideStage。数・true/false・関数 どれでも よい。true は 1）。出て いない 間は 0。
+//   イベントの 曲でも よい（鳴って いる 曲が c11b_tower なら、その 場所の 曲で なくても 送る）。
+//   塔の 階が ダンジョン（kind: 'dungeon'）でも 強さは 1（深さで 楽器を へらさない）。0 から 数える しるし なので addFormKey0 にも 入れて おく
+addFormKey0('sideStage');
+export const C11B_TOWER_TRACK = 'c11b_tower';
+export const SIDE_STAGES = 2;
+export const sideStageOf = (game) => stageOf(game, 'sideStage', SIDE_STAGES, 0);
 
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
@@ -484,7 +499,8 @@ export class SceneAudio {
     const list = [...combatants];
     this.pinch = nextPinch(this.pinch, list.filter((c) => c.side === 'ally'));
     // 第101回 B班: 第3部 第3章 第1幕の いかり船長 … 味方が 持って いる 時計の 数が 2 いかの 時も ピンチと おなじ きざみ（pub の clock11）
-    const hot = clockPinch(list);
+    // 第102回 B班: 第3部 第3章 第2幕の オボロ … スピカの 思い出が あと 1 の 時も ピンチと おなじ きざみ
+    const hot = clockPinch(list) || forgetPinch(list);
     this.phase = battlePhase({ boss, enemies: list.filter((c) => c.side === 'enemy'), monsters: this.monsters, prev: this.phase });
     this.send('pinch', this.pinch || hot, (v) => this.audio.setPinch(v));
     if (boss) this.send('phase', this.phase, (v) => this.audio.setPhase(v));
@@ -522,6 +538,8 @@ export class SceneAudio {
     else if (id === C10B_WHITE_TRACK && st.alertPhase !== null && st.alertPhase !== undefined) this.send('phase', st.alertPhase, (v) => this.audio.setPhase(v));
     // 第99回 F: 空への星の階段（イベントの 曲でも）
     else if (id === C10D_STAIRS_TRACK && st.gatePhase !== null && st.gatePhase !== undefined) this.send('phase', st.gatePhase, (v) => this.audio.setPhase(v));
+    // 第102回 F: おもてとうらの塔（イベントの 曲でも）
+    else if (id === C11B_TOWER_TRACK && st.sidePhase !== null && st.sidePhase !== undefined) this.send('phase', st.sidePhase, (v) => this.audio.setPhase(v));
     this.send('tod', st.tod, (v) => this.audio.setTimeOfDay(v));
     // まわりの音は その 場所の 曲が 鳴って いる 間だけ（イベントの 曲・ジングルの 間は 止める）
     this.setAmbience(id && id === st.areaTrack ? st.ambience : null);
@@ -549,6 +567,8 @@ export class SceneAudio {
     else if (areaTrack === C10C_ISLES_TRACK) intensity = bridgeIntensity(bridgeStageOf(game));
     else if (areaTrack === C10D_STAIRS_TRACK) intensity = gateIntensity(gateStageOf(game));
     else if (areaTrack === C11A_ISLE_TRACK) intensity = conIntensity(conStageOf(game));
+    // 第102回 F: おもてとうらの塔は 階の 深さで 楽器を へらさない（おもて／うらで かわる）
+    else if (areaTrack === C11B_TOWER_TRACK) intensity = 1;
     else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
@@ -562,6 +582,7 @@ export class SceneAudio {
     else if (areaTrack === C10B_BLUE_TRACK) phase = waterStageOf(game);
     else if (areaTrack === C10B_WHITE_TRACK) phase = alertStageOf(game);
     else if (areaTrack === C10D_STAIRS_TRACK) phase = gateStageOf(game);
+    else if (areaTrack === C11B_TOWER_TRACK) phase = sideStageOf(game);
     const songPhase = songStageOf(game) - 1;
     // 第94回 F: かけ上がる帰り道（イベントの 曲の 時も 使う）
     const lavaPhase = lavaStageOf(game);
@@ -592,6 +613,8 @@ export class SceneAudio {
       gateIntensity: gateIntensity(gatePhase),
       // 第101回 F: その 島で できた 星座の 数（イベントの 曲の 時も 使う）
       conIntensity: conIntensity(conStageOf(game)),
+      // 第102回 F: おもて（0）・うら（1）（イベントの 曲の 時も 使う）
+      sidePhase: sideStageOf(game),
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };

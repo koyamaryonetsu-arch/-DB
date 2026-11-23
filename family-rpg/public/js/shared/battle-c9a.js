@@ -40,6 +40,8 @@ import { c10cAfter, c10cAllyPub } from './battle-c10c.js';
 import { c10dAfter, c10dAllyPub, c10GlowStart } from './battle-c10d.js';
 // 第3部 第3章 第1幕: 時計の 数・サメ・星が よみがえる・スピカの ながれ星（battle-c11a.js）
 import { c11aAfter, c11aAllyPub, c11GlowStar } from './battle-c11a.js';
+// 第3部 第3章 第2幕: スピカの わすれ・天人・わすれの じょうたい・スピカの 名前をよぶ声（battle-c11b.js）
+import { c11bAfter, c11bAllyPub, c11bGlowCall } from './battle-c11b.js';
 
 export { SHARE };
 export const AIM = 'm9t_aim';
@@ -226,7 +228,7 @@ export function c9Life(b) {
   return L;
 }
 export function c9aAfter(b, c, ev) {
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a) c9Life(b);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a || b.c11b) c9Life(b);
   // 第92回 第3便: 前ぶれの しるし（battle-tell.js。敵・味方の どの 行動の あとも 入れ直す）
   // 第3部 第2章 第1幕: あつさ・メカの あつさ・カビが 消える（battle-c10a.js。b.tell より 先）
   if (b.c10) c10aAfter(b, c, ev);
@@ -234,7 +236,8 @@ export function c9aAfter(b, c, ev) {
   if (b.c10c) c10cAfter(b, c, ev);
   if (b.c10d) c10dAfter(b, c, ev);
   if (b.c11a) c11aAfter(b, c, ev);
-  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a) b.tell = c9Tell(b);
+  if (b.c11b) c11bAfter(b, c, ev);
+  if (b.c9trio || b.c9trial || b.c9king || b.c9nazo || b.c9sand || b.c9mu || b.c10 || b.c10b || b.c10c || b.c10d || b.c11a || b.c11b) b.tell = c9Tell(b);
   const s = b.c9sp;
   if (!s || b.pendingEnd || b.over || c?.side !== 'ally') return;
   for (const id of [c.id, ...(ev?.dual?.m || [])]) if (!s.acted.includes(id)) s.acted.push(id);
@@ -301,6 +304,9 @@ function glow(b, ev) {
   // 第3部 第3章 第1幕: スピカの ごほうび「ながれ星」（battle-c11a.js）
   const star = c11GlowStar(b, ev);
   if (star) out.star = star;
+  // 第3部 第3章 第2幕: スピカの ごほうび「名前をよぶ声」（battle-c11b.js）
+  const named = c11bGlowCall(b, ev);
+  if (named) out.named = named;
   ev.c9Spica = out;
 }
 
@@ -763,7 +769,7 @@ export function c9aPub(c) {
     // 第3部 第2章 第1幕: あつさ・カビ（battle-c10a.js）
     // 第3部 第2章 第3幕: うき石・せまい（battle-c10c.js）
     // 第3部 第2章 第4幕: 色の しるし（battle-c10d.js）
-    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c), c10dAllyPub(c), c11aAllyPub(c));
+    return Object.assign(o, c10aAllyPub(c), c10cAllyPub(c), c10dAllyPub(c), c11aAllyPub(c), c11bAllyPub(c));
   }
   if (c.c9t) {
     const t = c.c9t;

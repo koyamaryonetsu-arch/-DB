@@ -318,6 +318,7 @@ export function battleBackground(id) {
       case 'c10c_sky': case 'c10c_ruin': case 'c10c_belt': case 'c10c_room': h = 0; break; // 空の小島・うかぶいせき・ベルトの工場・少年の間は あとで（c10c-bg.js）
       case 'c10d_stair': case 'c10d_summit': h = 0; break; // 星の階段・いただきは あとで（c10d-bg.js）
       case 'c11a_deck': case 'c11a_isle': case 'c11a_gate': h = 0; break; // 星の船の上・星座の島・星座の門の前は あとで（c11a-bg.js）
+      case 'c11b_alley': case 'c11b_tower': case 'c11b_towerb': case 'c11b_terrace': h = 0; break; // うらの町の道・名前の塔・塔の上のテラスは あとで（c11b-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {

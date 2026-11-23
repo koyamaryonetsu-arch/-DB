@@ -11,7 +11,7 @@ import { npc } from './npc.js';
 import { parseRows16 } from './past.js';
 import { ENCOUNTER_TABLES } from '../data/encounters.js';
 import { SHOPS } from '../data/shops.js';
-import { C11A_PERCH_ARMS, C11A_PERCH_TOOLS } from '../data/items-c11a.js';
+import { c11bChest, C11B_FRONT_ARMS, C11B_BACK_TOOLS, C11B_BACK_FINDS } from '../data/items-c11b.js';
 import { SEA_PLACES } from './ch2.js';
 import { finishGates11a } from './c11a.js';
 import {
@@ -24,15 +24,15 @@ import {
 
 export const CH11B_MAPS = [...C11B_MAP_IDS];
 
-// ───── 宝箱の 中み（B班の data/items-c11b.js が 入るまで から。setChestOf11b で さしかえる）─────
-let chestFn11b = () => null;
+// ───── 宝箱の 中み（B班の data/items-c11b.js の c11bChest）─────
+let chestFn11b = c11bChest;
 export const setChestOf11b = (fn) => { chestFn11b = fn; };
 export const chestOf11b = (id) => chestFn11b(id) || {};
-// ───── 店（おもての 武具屋・道具屋 / うらの 小さな 店。品の ならびは B班。setShopItems11b で さしかえる）─────
+// ───── 店（おもての 武具屋・道具屋 / うらの 小さな 店〈道具と ほり出し物〉。品の ならびは B班の data/items-c11b.js）─────
 export const SHOP11B = { arms: 'c11b_arms', tools: 'c11b_tools', back: 'c11b_back_shop' };
-if (!SHOPS[SHOP11B.arms]) SHOPS[SHOP11B.arms] = { name: '月の都の武具屋', kind: 'armor', keeper: '武具屋', hello: 'いらっしゃいませ。\n月の都の、上等な品でございます。', items: [...C11A_PERCH_ARMS] };
-if (!SHOPS[SHOP11B.tools]) SHOPS[SHOP11B.tools] = { name: '月の都の道具屋', kind: 'item', keeper: '道具屋', hello: 'いらっしゃいませ。\nお代は、きちんと、いただきます。', items: [...C11A_PERCH_TOOLS] };
-if (!SHOPS[SHOP11B.back]) SHOPS[SHOP11B.back] = { name: 'うらの町の小さな店', kind: 'item', keeper: 'うらの店主', hello: 'いらっしゃい！\nうらの町の、ほり出し物だよ。', items: [...C11A_PERCH_TOOLS] };
+if (!SHOPS[SHOP11B.arms]) SHOPS[SHOP11B.arms] = { name: '月の都の武具屋', kind: 'armor', keeper: '武具屋', hello: 'いらっしゃいませ。\n月の都の、上等な品でございます。', items: [...C11B_FRONT_ARMS] };
+if (!SHOPS[SHOP11B.tools]) SHOPS[SHOP11B.tools] = { name: '月の都の道具屋', kind: 'item', keeper: '道具屋', hello: 'いらっしゃいませ。\nお代は、きちんと、いただきます。', items: [...C11B_BACK_TOOLS] };
+if (!SHOPS[SHOP11B.back]) SHOPS[SHOP11B.back] = { name: 'うらの町の小さな店', kind: 'item', keeper: 'うらの店主', hello: 'いらっしゃい！\nうらの町の、ほり出し物だよ。', items: [...C11B_BACK_TOOLS, ...C11B_BACK_FINDS] };
 export function setShopItems11b(id, items) { if (SHOPS[id]) SHOPS[id].items = [...items]; }
 
 const tableOr = (t, safe) => (ENCOUNTER_TABLES[t] ? t : safe);

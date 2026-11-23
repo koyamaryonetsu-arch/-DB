@@ -50,6 +50,8 @@ import { C10B_MAT_DROPS } from './monsters-c10b.js';
 import { C10C_MAT_DROPS } from './monsters-c10c.js';
 // 第101回 B班: 第3部 第3章 第1幕（monsters-c11a.js）
 import { C11A_MAT_DROPS } from './monsters-c11a.js';
+// 第102回 B班: 第3部 第3章 第2幕（monsters-c11b.js）
+import { C11B_MAT_DROPS } from './monsters-c11b.js';
 import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js';
 import { sdFloorOf } from './secret.js';
 
@@ -143,6 +145,8 @@ export const MAT_DROPS = {
   ...C10C_MAT_DROPS,
   // 第3部 第3章 第1幕（monsters-c11a.js）
   ...C11A_MAT_DROPS,
+  // 第3部 第3章 第2幕（monsters-c11b.js）
+  ...C11B_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

@@ -686,10 +686,16 @@ export function gameFiles() {
     'public/js/shared/world/c11b-steps.js', 'public/js/client/c11b-view.js', 'public/js/client/render/tiles-c11b.js', 'public/js/client/render/c11b-npc-art.js',
     // 第101回 F班: 第3部 第3章 第1幕の 曲
     'public/js/client/audio-c11a.js',
+    // 第102回 F班: 第3部 第3章 第2幕の 曲
+    'public/js/client/audio-c11b.js',
     // 第101回 B班: 第3部 第3章 第1幕（魔物・星座のけもの・いかり船長・品・ヒント・絵・背景・えんしゅつ。かりの 置き場 c11a-names-b.js は A班が 消した）
     'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
     'public/js/shared/data/encounters-c11a.js', 'public/js/shared/data/companions-c11a.js', 'public/js/shared/data/items-c11a.js', 'public/js/shared/data/boss-hints-c11a.js',
     'public/js/shared/battle-c11a.js', 'public/js/client/battle-c11a.js', 'public/js/client/render/c11a-art.js', 'public/js/client/render/c11a-bg.js', 'public/js/client/render/battlefx-c11a.js',
+    // 第102回 B班: 第3部 第3章 第2幕（魔物・ランプの番人・月のむかえ オボロ・よびかける・品・ヒント・絵・背景・えんしゅつ。かりの c11b-names-b.js は 合わせた 時に 消した）
+    'public/js/shared/data/monsters-c11b.js', 'public/js/shared/data/abilities-c11b.js',
+    'public/js/shared/data/encounters-c11b.js', 'public/js/shared/data/companions-c11b.js', 'public/js/shared/data/items-c11b.js', 'public/js/shared/data/boss-hints-c11b.js',
+    'public/js/shared/battle-c11b.js', 'public/js/client/battle-c11b.js', 'public/js/client/render/c11b-art.js', 'public/js/client/render/c11b-bg.js', 'public/js/client/render/battlefx-c11b.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
