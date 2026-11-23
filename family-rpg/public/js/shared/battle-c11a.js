@@ -204,6 +204,9 @@ export function c11GlowStar(b, ev) {
   ev.c11Star = { to: t.id, dmg };
   s.starHits = (s.starHits || 0) + dmg;
   if (t.hp <= 0) lines.push(...b.kill(t, 'light', ev));
+  // 第102回 B班: 「身を守る」の 行動（battle.js の command の 防御。checkEnd を よばない）の ほのかな光で さいごの 敵を たおした 時も 戦いを おえる
+  //   （前は 勝ちが きまらず、身を 守り つづける オートの 人で 戦いが 止まった。tools/sim-ch11.mjs の ランプの番人 ひとりで 見つけた）
+  if (!t.alive && !b.aliveEnemies().length) b.checkEnd?.();
   return ev.c11Star;
 }
 

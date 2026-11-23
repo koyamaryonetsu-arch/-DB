@@ -49,6 +49,8 @@ import { ITEMS_C10C, C10C_ITEM_KANA } from './items-c10c.js';
 import { ITEMS_C10D, C10D_ITEM_KANA } from './items-c10d.js';
 // 第101回 B班: 第3部 第3章 第1幕（items-c11a.js）
 import { ITEMS_C11A, C11A_ITEM_KANA } from './items-c11a.js';
+// 第102回 B班: 第3部 第3章 第2幕（items-c11b.js）
+import { ITEMS_C11B, C11B_ITEM_KANA } from './items-c11b.js';
 import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js';
 // 第37回 A: サファラ闘技場の ごほうび
 import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
@@ -321,9 +323,11 @@ Object.assign(ITEMS, ITEMS_C10C);
 Object.assign(ITEMS, ITEMS_C10D);
 // 第3部 第3章 第1幕: 星の海・星座の 島の 宝箱・とまり木の島の 店・ボスの 品・星図・星の船（items-c11a.js）
 Object.assign(ITEMS, ITEMS_C11A);
+// 第3部 第3章 第2幕: 月の都・名前の 塔の 宝箱・おもての 店・うらの ほり出し物・ボスの 品・名前のランプ（items-c11b.js）
+Object.assign(ITEMS, ITEMS_C11B);
 // 第3部の 2幕めから あとの 品（くぼ地の 武具屋〈ランク10・k 2.06〜〉・宝箱・ボスの 品）。前の 章の「店の いちばん よい 品」・
 //   職業の はかりの もとに まぜない ため（tools/sim-jobs.mjs・test/craft-trial-r65・test/ch5-castle-battle）。幕を 足す ときは ここに 足す
-export const PART3_LATE_ITEMS = new Set([...Object.keys(ITEMS_C9B), ...Object.keys(ITEMS_C9C), ...Object.keys(ITEMS_C9D), ...Object.keys(ITEMS_C10A), ...Object.keys(ITEMS_C10B), ...Object.keys(ITEMS_C10C), ...Object.keys(ITEMS_C10D), ...Object.keys(ITEMS_C11A)]);
+export const PART3_LATE_ITEMS = new Set([...Object.keys(ITEMS_C9B), ...Object.keys(ITEMS_C9C), ...Object.keys(ITEMS_C9D), ...Object.keys(ITEMS_C10A), ...Object.keys(ITEMS_C10B), ...Object.keys(ITEMS_C10C), ...Object.keys(ITEMS_C10D), ...Object.keys(ITEMS_C11A), ...Object.keys(ITEMS_C11B)]);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
@@ -468,6 +472,7 @@ Object.assign(ITEM_KANA, C10B_ITEM_KANA);
 Object.assign(ITEM_KANA, C10C_ITEM_KANA);
 Object.assign(ITEM_KANA, C10D_ITEM_KANA);
 Object.assign(ITEM_KANA, C11A_ITEM_KANA);
+Object.assign(ITEM_KANA, C11B_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

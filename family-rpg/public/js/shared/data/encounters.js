@@ -39,6 +39,8 @@ import { ENCOUNTERS_C10C, FIXED_C10C, ZONE_BG_C10C } from './encounters-c10c.js'
 import { FIXED_C10D } from './encounters-c10d.js';
 // 第101回 B班: 第3部 第3章 第1幕（encounters-c11a.js）
 import { ENCOUNTERS_C11A, FIXED_C11A, ZONE_BG_C11A } from './encounters-c11a.js';
+// 第102回 B班: 第3部 第3章 第2幕（encounters-c11b.js）
+import { ENCOUNTERS_C11B, FIXED_C11B, ZONE_BG_C11B } from './encounters-c11b.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -248,6 +250,10 @@ Object.assign(FIXED_ENCOUNTERS, FIXED_C10D);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C11A);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C11A);
 Object.assign(ZONE_BG, ZONE_BG_C11A);
+// 第3部 第3章 第2幕「月の都と、名前のランプ」の 魔物・ランプの番人・月のむかえ オボロ（encounters-c11b.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C11B);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C11B);
+Object.assign(ZONE_BG, ZONE_BG_C11B);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';
