@@ -687,6 +687,10 @@ export function gameFiles() {
     'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
     'public/js/shared/data/encounters-c11a.js', 'public/js/shared/data/companions-c11a.js', 'public/js/shared/data/items-c11a.js', 'public/js/shared/data/boss-hints-c11a.js',
     'public/js/shared/battle-c11a.js', 'public/js/client/battle-c11a.js', 'public/js/client/render/c11a-art.js', 'public/js/client/render/c11a-bg.js', 'public/js/client/render/battlefx-c11a.js',
+    // 第102回 B班: 第3部 第3章 第2幕（魔物・ランプの番人・月のむかえ オボロ・よびかける・品・ヒント・絵・背景・えんしゅつ。c11b-names-b.js は かりの 置き場 … A班が 消す）
+    'public/js/shared/data/c11b-names-b.js', 'public/js/shared/data/monsters-c11b.js', 'public/js/shared/data/abilities-c11b.js',
+    'public/js/shared/data/encounters-c11b.js', 'public/js/shared/data/companions-c11b.js', 'public/js/shared/data/items-c11b.js', 'public/js/shared/data/boss-hints-c11b.js',
+    'public/js/shared/battle-c11b.js', 'public/js/client/battle-c11b.js', 'public/js/client/render/c11b-art.js', 'public/js/client/render/c11b-bg.js', 'public/js/client/render/battlefx-c11b.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

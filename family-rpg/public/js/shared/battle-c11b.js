@@ -23,6 +23,7 @@
 //   人数で 合わせる（few・bare・solo・monK）。ひとりの 時は 衣が おそい・天人 1体
 //   勝つと オボロは たおれず 引く（HP 1 で 止まる。b.killed に 入れて 経験値・落とし物は ふつう）
 // ・自動の 仲間（酒場の 人・家族の 仲間・魔物の 仲間）は、人が えらんで いる 時だけ（someoneChooses）、わすれが 2 いじょうの 時の 3回に 1回 よびかける。
+//   番人の 戦いでは、人が えらんで いる 時だけ、明かりが かわる 前ぶれで 2回に 1回 身を 守る
 //   完全オートは よびかけない（スピカを つれて いかれて 勝てない）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数の 数え方は 第2章 第1幕と おなじ（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）。bare … 味方が みんな 家族の キャラで 2人・3人
@@ -79,7 +80,7 @@ export function c11bConf(species, b = null) {
     hp: pick('hp', 1) * (1 + (c.monK?.hp || 0) * mons), atk: pick('atk', 1) * (1 + (c.monK?.atk || 0) * mons), spd: pick('spd', 1),
   };
   if (c.kind === 'keeper') {
-    Object.assign(out, { every: pick('every', c.every ?? 3), cut: pick('cut', c.cut ?? 0.3), wave: { mult: 0.8, guardCut: 0.4, ...(c.wave || {}) } });
+    Object.assign(out, { every: pick('every', c.every ?? 3), cut: pick('cut', c.cut ?? 0.3), cutAuto: c.cutAuto ?? c.cut ?? 0.3, wave: { mult: 0.8, guardCut: 0.4, ...(c.wave || {}) } });
   }
   if (c.kind === 'oboro') {
     Object.assign(out, {
@@ -225,7 +226,7 @@ function tenninBack(b, ev) {
     // 経験値は 1回ぶんだけ
     const i = b.killed.lastIndexOf(e.species);
     if (i >= 0) b.killed.splice(i, 1);
-    ev.lines.push(`${e.name}が、雲の中から、もどってきた！（${OBORO_SHORT}が、また まもられている…）`);
+    ev.lines.push(`${e.name}が、雲の中から、もどってきた！（${OBORO_SHORT}が、また、まもられている…）`);
     ev.c11bBack = { id: e.id };
     ev.warn = true;
     ev.upd.push(e);
@@ -518,7 +519,8 @@ export function c11bDamage(b, c, t, dmg, info, ev) {
     const weak = st.phase === 'light' ? phys : !phys;
     if (weak) {
       st.cutHits++;
-      dmg = Math.max(1, Math.round(dmg * cf.cut));
+      // だれも えらんで いない（完全オート・人が みんな たおれた）時は、もっと ききにくい（cutAuto。設計に ない 足し物 … 前の 幕の けものの linkAuto と 同じ 考え）
+      dmg = Math.max(1, Math.round(dmg * (someoneChooses(b) ? cf.cut : cf.cutAuto)));
       if (ev && !ev.c11bCut) {
         ev.c11bCut = true;
         post(ev).push(st.phase === 'light' ? '（まぶしいランプの光で、物理がはじかれた…！）' : '（暗やみに、呪文がすいこまれた…！）');
@@ -615,7 +617,12 @@ export function phaseBest(b, c, t) {
 }
 function keeperPlan(b, c, decide, mode) {
   const st = b.c11b;
-  if (mode !== 'know' && mode !== 'blind') return null;
+  if (mode !== 'know' && mode !== 'blind') {
+    // 自動の 仲間: 人が えらんで いる 時だけ、明かりが かわる 前ぶれで 2回に 1回 身を 守る（完全オートは 守らない）
+    if (c.kind === 'player' || !st.warn || c.defending || !someoneChooses(b)) return null;
+    b.c11bKAuto = (b.c11bKAuto || 0) + 1;
+    return b.c11bKAuto % 2 ? { type: 'defend' } : null;
+  }
   if (mode === 'blind') {
     if (st.warn && !c.defending && b.rng.chance(0.15)) return { type: 'defend' };
     return null;

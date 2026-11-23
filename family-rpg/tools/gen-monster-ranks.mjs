@@ -44,6 +44,8 @@ import { ENCOUNTERS_C10A } from '../public/js/shared/data/encounters-c10a.js';
 import { ENCOUNTERS_C10B } from '../public/js/shared/data/encounters-c10b.js';
 import { ENCOUNTERS_C10C } from '../public/js/shared/data/encounters-c10c.js';
 import { ENCOUNTERS_C11A } from '../public/js/shared/data/encounters-c11a.js';
+// 第102回 B班: 第3部 第3章 第2幕（うらの 町の 道・名前の 塔の おもて／うら）
+import { ENCOUNTERS_C11B } from '../public/js/shared/data/encounters-c11b.js';
 import { MONSTER_FRIENDS, JOIN_TIERS, joinTier, RANKS } from '../public/js/shared/data/companions.js';
 
 // 章の まとまり（どの 章の 出現表か。テストの「どの 章にも F〜C」にも 使う）
@@ -60,8 +62,8 @@ const CHAPTER_SRC = [
   // 第3部 第2章（第1幕 炎の山の 下の 古い 道・大地の下の 根の国／第2幕 水鏡の うら。白の 見はりの 魔物は 手で きめた ランク）
   //   第3幕 空の 小島・少年の とりで）
   ['第3部 第2章', [ENCOUNTERS_C10A, ENCOUNTERS_C10B, ENCOUNTERS_C10C]],
-  // 第3部 第3章（第1幕 星の海・星座の 島）
-  ['第3部 第3章', [ENCOUNTERS_C11A]],
+  // 第3部 第3章（第1幕 星の海・星座の 島／第2幕 うらの 町の 道・名前の 塔）
+  ['第3部 第3章', [ENCOUNTERS_C11A, ENCOUNTERS_C11B]],
 ];
 export const BANDS = ['第1・2章', '第3・4章', '第5章', '第6章', '第7章', '第8章', '第3部 第1章', '第3部 第2章', '第3部 第3章'];
 export function zoneBand(zone) {

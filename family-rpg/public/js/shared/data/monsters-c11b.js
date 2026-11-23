@@ -104,20 +104,20 @@ export const MONSTERS_C11B = {
   // ── 中ボス: ランプの番人カンテラ（名前の 塔の いちばん 上。Lv121）──
   // c11b … しかけ（battle-c11b.js の keeper）
   //   every … 明かりが かわるまでの 番人の 番の 数（その 1回 前に 前ぶれ「ランプが、ちらちら…」）
-  //   cut … 明るい 間の 物理・暗い 間の 呪文の 受ける ダメージ（3わり）
+  //   cut … 明るい 間の 物理・暗い 間の 呪文の 受ける ダメージ（3わり）・cutAuto … だれも えらんで いない 時の cut（設計に ない 足し物）
   //   wave … 明かりが かわる 時の 全体攻撃（物理の mult・身を 守ると guardCut）
   //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・every）。bare … 仲間なしの 2人・3人。solo … 仲間なしの ひとり。monK … 魔物の 仲間 1体ごと
   [C11B_KEEPER]: {
-    name: KEEPER_NAME, short: KEEPER_SHORT, lv: 121, hp: 20000, mp: 9999, str: 2450, def: 420, agi: 250, mag: 1150, exp: 34000, gold: 12000,
-    race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'smash', artScale: 0.5,
+    name: KEEPER_NAME, short: KEEPER_SHORT, lv: 121, hp: 13000, mp: 9999, str: 2450, def: 420, agi: 250, mag: 1150, exp: 34000, gold: 12000,
+    race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.15, hit: 'smash', artScale: 0.5,
     drops: { boss: ['c11bb_lamp_chain'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 0.9, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.8, dark: 0.8 },
     c11b: {
-      kind: 'keeper', every: 3, cut: 0.3, wave: { mult: 1.5, guardCut: 0.3 },
-      few: { hp: [0.8, 0.85, 0.95, 1, 1.15], atk: [0.8, 0.85, 0.95, 1, 1.05], every: [4, 3, 3, 3, 3] },
-      bare: { hp: [0.7, 0.85], atk: [0.75, 0.85] },
-      solo: { hp: 0.35, atk: 0.4, every: 4 },
-      monK: { hp: -0.05, atk: -0.03 },
+      kind: 'keeper', every: 4, cut: 0.3, cutAuto: 0.12, wave: { mult: 1.6, guardCut: 0.5 },
+      few: { hp: [0.85, 0.95, 0.95, 1.1, 1.25], atk: [0.8, 0.9, 0.95, 1.05, 1.05], every: [5, 4, 4, 4, 4] },
+      bare: { hp: [0.8, 0.9], atk: [0.85, 0.9] },
+      solo: { hp: 0.6, atk: 0.65, every: 5 },
+      monK: { hp: 0.15, atk: 0.03 },
     },
     actions: [{ w: 3, id: 'm11k_bash' }, { w: 2, id: 'm11k_beam' }, { w: 1, id: 'm11k_ring', cond: 'notRecent:m11k_ring' }],
     desc: '名前の塔のいちばん上で、大きなランプを守る番人。ランプが明るいと物理が、暗いと呪文が効きにくい。',
@@ -132,8 +132,8 @@ export const MONSTERS_C11B = {
   //   hard … 天人が いる 間の オボロの 受ける ダメージ（5わり）・autoK … だれも えらんで いない 時の オボロの 受ける ダメージ・back … たおした 天人が もどるまでの オボロの 番の 数
   //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・robe・back）。bare … 仲間なしの 2人・3人。solo … 仲間なしの ひとり（衣が おそい・天人 1体）。monK … 魔物の 仲間 1体ごと
   [C11B_OBORO]: {
-    name: OBORO_NAME, short: OBORO_SHORT, lv: 122, hp: 8000, mp: 9999, str: 2400, def: 430, agi: 260, mag: 1200, exp: 104000, gold: 36000,
-    race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.15, hit: 'magic', artScale: 0.5,
+    name: OBORO_NAME, short: OBORO_SHORT, lv: 122, hp: 11000, mp: 9999, str: 2400, def: 430, agi: 260, mag: 1200, exp: 104000, gold: 36000,
+    race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'magic', artScale: 0.5,
     drops: { boss: ['c11bb_oboro_sash'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 0.9, wind: 1.0, bolt: 1.0, light: 0.6, dark: 1.2 },
     c11b: {
@@ -141,12 +141,12 @@ export const MONSTERS_C11B = {
       robe: { every: 3, first: 2, twice: 0.5, auto: 1 },
       flash: { every: 6, first: 5, base: [520, 560], turns: 2 },
       hard: 0.5, autoK: 0.5, back: 5,
-      few: { hp: [0.8, 1.1, 0.95, 1, 1.4], atk: [0.75, 1.0, 0.95, 1, 1.08], robe: [4, 3, 3, 3, 3], back: [5, 5, 5, 5, 4] },
-      bare: { hp: [0.45, 0.68], atk: [0.5, 0.66], robe: [5, 4] },
+      few: { hp: [0.8, 1.1, 0.95, 1, 1.25], atk: [0.75, 1.0, 0.95, 1, 1.08], robe: [4, 3, 3, 3, 3], back: [5, 5, 5, 5, 3] },
+      bare: { hp: [0.45, 0.68], atk: [0.56, 0.74], robe: [5, 4] },
       solo: { hp: 0.7, atk: 0.5, robe: 6, back: 5, tennin: 1 },
       monK: { hp: 0.1, atk: 0 },
     },
-    actions: [{ w: 3, id: 'm11o_whip' }, { w: 2, id: 'm11o_moon', cond: 'notRecent:m11o_moon' }, { w: 1, id: 'm11o_bow', cond: 'notRecent:m11o_bow' }],
+    actions: [{ w: 3, id: 'm11o_whip' }, { w: 3, id: 'm11o_moon', cond: 'notRecent:m11o_moon' }, { w: 1, id: 'm11o_bow', cond: 'notRecent:m11o_bow' }],
     desc: '雲の車に乗った、月のむかえの使い。ていねいだが、つめたい。わすれの衣で、思い出を消そうとする。',
   },
   // 小さな 天人（オボロの まわりに 2体。たおしても しばらくすると もどる）

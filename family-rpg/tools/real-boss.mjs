@@ -21,6 +21,7 @@ import { CH9_IDS, LV9, MODES9, ch9Party, ch9Run, summary9, STATS9_HOOKS } from '
 import { ORDER_FLAGS, ORDERS_OF, c10cText, c10dText, c10Text, c10bText } from './sim-ch10.mjs';
 import { jobChar } from './sim-jobs.mjs';
 // 第101回 B班: 第3部 第3章 第1幕の 星座のけもの（beast）・いかり船長（pirate）も（CH9_IDS・ORDER_FLAGS・知って いる 人の しくみの 役を 足す）
+// 第102回 B班: 第2幕の ランプの番人（keeper）・月のむかえ オボロ（oboro）も（同じ sim-ch11.mjs が 足す。まとめの しくみの 数は STATS9_HOOKS）
 import './sim-ch11.mjs';
 import { c11aState, starsOf, captainOf, clocksOf, TOKEI_NAGE } from '../public/js/shared/battle-c11a.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
@@ -38,6 +39,8 @@ const UPTO = {
   tamagon: 'c10_start', mold: 'c10_start', gecko: 'c10b_start', owl: 'c10b_start', colonel: 'c10c_isles2', algol: 'c10c_fort2',
   gate1: 'c10_act3', gate2: 'c10_act3', gate3: 'c10_act3', gate4: 'c10_act3', mirror: 'c10_act3',
   beast: 'c10_act4', pirate: 'c10_act4',
+  // 第102回 B班: 第3部 第3章 第2幕の ランプの番人（keeper）・月のむかえ オボロ（oboro）… 第1幕 クリア（ながれ星）の あと
+  keeper: 'c11_act1', oboro: 'c11_act1',
 };
 const flagsOf = (boss) => ORDER_FLAGS[ORDERS_OF[boss]?.[0]]?.[boss] || [];
 // 道具の ならび（sim-ch9.mjs の HUMAN_ORDER / NPC9）

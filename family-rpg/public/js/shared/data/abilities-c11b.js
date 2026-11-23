@@ -92,12 +92,12 @@ export const C11B_ABILITIES = {
   },
   m11k_beam: {
     name: 'ランプの光線', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'magic', base: [560, 600], thr: 99, element: 'light' }, cast: '{a}のランプから、まっすぐな光が、{t}にのびた！', anim: 'c11k_beam',
+    effect: { type: 'magic', base: [800, 860], thr: 99, element: 'light' }, cast: '{a}のランプから、まっすぐな光が、{t}にのびた！', anim: 'c11k_beam',
     desc: 'まっすぐな光で、1人に光のダメージ。',
   },
   m11k_ring: {
     name: 'ランプのわ', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'magic', base: [300, 330], thr: 99, element: 'light' }, cast: '{a}のランプから、光のわが、ひろがった！', anim: 'c11k_ring',
+    effect: { type: 'magic', base: [680, 720], thr: 99, element: 'light' }, cast: '{a}のランプから、光のわが、ひろがった！', anim: 'c11k_ring',
     desc: '光のわで、敵みんなに光のダメージ。',
   },
   m11k_switch: {
@@ -114,7 +114,7 @@ export const C11B_ABILITIES = {
   },
   m11o_moon: {
     name: 'つめたい月光', kind: 'monster', mp: 0, target: 'enemies',
-    effect: { type: 'magic', base: [600, 640], thr: 99, element: 'ice' }, cast: '{a}「月の光は、つめとうございます」', anim: 'c11o_moon',
+    effect: { type: 'magic', base: [720, 760], thr: 99, element: 'ice' }, cast: '{a}「月の光は、つめとうございます」', anim: 'c11o_moon',
     desc: 'つめたい月の光で、敵みんなに氷のダメージ。',
   },
   m11o_bow: {

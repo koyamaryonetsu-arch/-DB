@@ -69,6 +69,10 @@ export const CLOCK_PINCH = 2;
 export function clockPinch(list) {
   return (list || []).some((c) => c && c.side === 'ally' && c.alive !== false && Number.isInteger(c.clock11) && c.clock11 <= CLOCK_PINCH);
 }
+// 第102回 B班: わすれの 衣（battle-c11b.js）… スピカの 思い出が あと 1（オボロの pub の forget11b・forgetMax11b）
+export function forgetPinch(list) {
+  return (list || []).some((c) => c && c.side === 'enemy' && c.alive !== false && Number.isInteger(c.forget11b) && !c.c11bDown && (c.forgetMax11b || 3) - c.forget11b <= 1);
+}
 export function nextPinch(prev, allies) {
   const rates = (allies || []).filter((c) => c && c.alive !== false && !c.dead && !c.fled).map(hpRate).filter((r) => r !== null);
   if (!rates.length) return false;
@@ -484,7 +488,8 @@ export class SceneAudio {
     const list = [...combatants];
     this.pinch = nextPinch(this.pinch, list.filter((c) => c.side === 'ally'));
     // 第101回 B班: 第3部 第3章 第1幕の いかり船長 … 味方が 持って いる 時計の 数が 2 いかの 時も ピンチと おなじ きざみ（pub の clock11）
-    const hot = clockPinch(list);
+    // 第102回 B班: 第3部 第3章 第2幕の オボロ … スピカの 思い出が あと 1 の 時も ピンチと おなじ きざみ
+    const hot = clockPinch(list) || forgetPinch(list);
     this.phase = battlePhase({ boss, enemies: list.filter((c) => c.side === 'enemy'), monsters: this.monsters, prev: this.phase });
     this.send('pinch', this.pinch || hot, (v) => this.audio.setPinch(v));
     if (boss) this.send('phase', this.phase, (v) => this.audio.setPhase(v));

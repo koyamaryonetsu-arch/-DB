@@ -1498,6 +1498,8 @@ export function allyAnimFor(anim, abilityId) {
   if (types.includes('c10dRing')) return 'buff';
   // 第101回: 第3部 第3章 第1幕の「時計を投げる」（c11aPass）… 投げた 人の 下に 光（技の 絵は render/battlefx-c11a.js）
   if (types.includes('c11aPass')) return 'buff';
+  // 第102回: 第3部 第3章 第2幕の「よびかける」（c11bCall）… よんだ 人の 下に 光（技の 絵は render/battlefx-c11b.js）
+  if (types.includes('c11bCall')) return 'buff';
   return null;
 }
 

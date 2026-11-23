@@ -30,7 +30,8 @@ export const GUEST_K = [0.85, 1.15];
 export const GUEST_LV_SPAN = 8;
 // 第90回 Z班: 第3部で 99 → 110（plan-part3.md の 8-5。今 いる ゲストは どれも minLevel ＋ 8 か maxLevel が 99 より 下なので かわらない）
 // 第101回 B班: 第3部 第3章 第1幕の 強さ（Lv118〜120）に 合わせて 110 → 120（docs/plan-part3-c11a.md の 17-4。今 いる ゲストは かわらない）
-export const GUEST_MAX_LEVEL = 120;
+// 第102回 B班: 第3部 第3章 第2幕の 強さ（Lv120〜122）に 合わせて 120 → 122（docs/plan-part3-c11b.md の 18-4。今 いる ゲストは かわらない）
+export const GUEST_MAX_LEVEL = 122;
 
 // そのままの 戦う 力（computeStats の 形か、戦いの 中の 人〈atk・dfn・mag・healPow・agi・maxHp〉）
 export function fightPower(st) {
