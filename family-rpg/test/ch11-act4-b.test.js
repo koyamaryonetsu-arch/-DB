@@ -43,6 +43,8 @@ import {
   EIGHT_SONG_HP, EIGHT_SONG_AT,
 } from '../public/js/shared/battle-c11d.js';
 import { NARASU } from '../public/js/shared/data/abilities-c10d.js';
+import { EIGHT_SCENE } from '../public/js/shared/battle-c11d.js';
+import { C11D_EIGHT_SCENE } from '../public/js/shared/data/story-c11d.js';
 import { YOBIKAKE } from '../public/js/shared/data/abilities-c11b.js';
 import { bestHit } from '../public/js/shared/battle-c9a.js';
 import { ch9Run, ch9Party, CH9_KIT } from '../tools/sim-ch9.mjs';
@@ -434,8 +436,9 @@ test('八つめの 音: HPが 半分に なると 1度だけ … まぶしすぎ
     const evs = drain(b);
     const sc = evs.find((e) => e.c11dEight);
     assert.ok(sc, '場面');
-    assert.deepEqual(sc.c11dEight.lines, C11D_EIGHT_SCENE_B.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text)), 'A班の 文（かり）を そのまま');
-    assert.ok(sc.dur >= C11D_EIGHT_SCENE_B.lines.length * C11D_EIGHT_SCENE_B.ms * 0.9, `場面の 長さ ${sc.dur}`);
+    assert.deepEqual(sc.c11dEight.lines, C11D_EIGHT_SCENE.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text)), 'A班の 台本（data/story-c11d.js）の 文を そのまま');
+    assert.deepEqual(EIGHT_SCENE.lines, sc.c11dEight.lines);
+    assert.ok(sc.dur >= EIGHT_SCENE.lines.length * EIGHT_SCENE.ms * 0.9, `場面の 長さ ${sc.dur}`);
     assert.ok(evs.findIndex((e) => e.c11dEightAfter) > evs.findIndex((e) => e.c11dEight), '回復は 場面の あと');
     assert.ok(!allText(sc).includes('回復'), '場面の 間は まだ 回復しない（文の じゅん）');
     assert.ok(b.allies.every((a) => a.hp === a.maxHp), 'みんな 回復');
@@ -734,9 +737,11 @@ test('物語の きまり（20-1）: 戦いの 文に カイ・ソリトゥス�
     ...Object.values(ITEMS_C11D).flatMap((i) => [i.name, i.desc]), ...Object.values(C11D_BOSS_HINTS).flat(), ...C11D_EIGHT_SCENE_B.lines.map((x) => `${x.who || ''}${x.text}`)];
   for (const t of texts) for (const w of BAD) assert.ok(!String(t).includes(w), `${t}: ${w}`);
   // 八つめの 音の 場面は 小さな 光と ノクトの ひとことだけ（名前も 正体も 言わない）
-  const scene = C11D_EIGHT_SCENE_B.lines;
-  assert.ok(scene.some((x) => x.who === 'ノクト' && x.text === '……おまえ、なのか。'));
-  assert.ok(scene.filter((x) => x.who).every((x) => ['スピカ', 'ノクト'].includes(x.who)));
+  for (const scene of [C11D_EIGHT_SCENE_B.lines, C11D_EIGHT_SCENE.lines]) {
+    assert.ok(scene.some((x) => x.who === 'ノクト' && x.text === '……おまえ、なのか。'));
+    assert.ok(scene.filter((x) => x.who).every((x) => ['スピカ', 'ノクト'].includes(x.who)));
+    for (const x of scene) for (const w of BAD) assert.ok(!x.text.includes(w), `${x.text}: ${w}`);
+  }
   // 「ひとりぼっち」は 戦いの 文で 使わない（スピカ・アルゴル・女王の ことだけ … 台本）
   for (const f of files) assert.ok(!code(f).includes('ひとりぼっち'), f);
 });
@@ -758,11 +763,11 @@ test('絵: 塔の 魔物（新しい 4つ・色ちがい 3つ）・女王（2倍
   for (let f = 0; f < 4; f++) MONSTER_ART[C11D_QUEEN].draw(g, f);
   assert.ok(pts.length > 100 && pts.every(([x, y]) => x > -0.05 && x < 1.05 && y > -0.05 && y < 1.05), 'はみださない');
   assert.equal(c11dSprite({ species: C11D_QUEEN, alive: true }, 0), null, 'ふだんは ふつうの え');
-  for (const bg of ['c11d_tower', 'c11d_hall', 'c11d_throne']) {
+  for (const bg of ['c11d_tower', 'c11d_sound', 'c11d_throne']) {
     assert.ok(C11D_BG[bg], bg);
     assert.ok(battleBgSpec(bg)?.deco === bg, `${bg}: battlefx から とどく`);
   }
-  assert.equal(FIXED_C11D[C11D_BATTLE.duo].bg, 'c11d_hall');
+  assert.equal(FIXED_C11D[C11D_BATTLE.duo].bg, 'c11d_sound');
   assert.equal(FIXED_C11D[C11D_BATTLE.queen].bg, 'c11d_throne');
   const fx = new Proxy({}, { get: () => () => {} });
   const anims = [...new Set(Object.values(C11D_ABILITIES).map((a) => a.anim))].filter((a) => !/^c10[a-z]_|^c11o_|^c11b_/.test(a));

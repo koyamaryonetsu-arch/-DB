@@ -37,7 +37,7 @@ export const C11D_ZONES = Object.keys(ENCOUNTERS_C11D);
 //   c11d_queen … かがやきの女王ポラリス（いただき 玉座の 間。Lv126）
 //   にげられない。スピカは かならず 出る（てらす・星のうた も）。曲は F班の c11d_duo・c11d_queen（後半は c11d_queen2 … 画面の 状態 queenStage）
 export const FIXED_C11D = {
-  [C11D_BATTLE.duo]: { group: [[C11D_MIRROR, 1, 1], [C11D_MOON, 1, 1]], bg: 'c11d_hall', bgm: C11D_TRACKS.duo, canFlee: false, boss: true },
+  [C11D_BATTLE.duo]: { group: [[C11D_MIRROR, 1, 1], [C11D_MOON, 1, 1]], bg: 'c11d_sound', bgm: C11D_TRACKS.duo, canFlee: false, boss: true },
   [C11D_BATTLE.queen]: { group: [[C11D_QUEEN, 1, 1]], bg: 'c11d_throne', bgm: C11D_TRACKS.queen, canFlee: false, boss: true },
 };
 

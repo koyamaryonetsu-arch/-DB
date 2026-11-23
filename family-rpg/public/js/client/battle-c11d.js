@@ -18,6 +18,8 @@ import { c10dCmdItems, c10dNoteMenu } from './battle-c10d.js';
 import { c11bCmdItems, c11bCmdPick } from './battle-c11b.js';
 import { TRAP_LABEL } from './battle-earth.js';
 import { EIGHT_CSS } from './render/battlefx-c11d.js';
+// 八つめの 音の 場面の 絵（A班の 小さな 光・8つめの 台。render/c11d-npc-art.js）
+import { paintC11dSpecial } from './render/c11d-npc-art.js';
 
 export const C11D_CMD = C11D_CMD_B;
 // ながされた 人の 名前の 下の しるし（client/battle-earth.js の 地われと おなじ data-trap）
@@ -96,7 +98,9 @@ const CSS = `
 .c11d-scene .notes i { display: block; width: 12px; height: 12px; border-radius: 50%; opacity: 0.25; transition: opacity 0.5s; box-shadow: 0 0 6px currentColor; }
 .c11d-scene .notes i.on { opacity: 1; }
 .c11d-scene .say { position: relative; z-index: 2; max-width: 88%; margin-top: 12%; padding: 6px 12px; border-radius: 10px; background: rgba(10, 12, 40, 0.75);
-  color: #f6f4ff; font-size: 16px; line-height: 1.5; text-align: center; min-height: 3em; box-sizing: border-box; }
+  color: #f6f4ff; font-size: 16px; line-height: 1.5; text-align: center; min-height: 3em; box-sizing: border-box; white-space: pre-line; }
+.c11d-scene .pic { position: relative; z-index: 2; height: 72px; display: flex; align-items: flex-end; justify-content: center; }
+.c11d-scene .pic canvas { height: 64px; width: auto; image-rendering: pixelated; filter: drop-shadow(0 0 8px rgba(191, 239, 255, 0.9)); }
 .c11d-scene .say b { color: #ffe9a0; }
 @media (max-aspect-ratio: 1/1) { .c11d-scene .say { font-size: 14px; max-width: 94%; } }
 `;
@@ -298,10 +302,20 @@ export function playEightScene(scene, e) {
   const el = document.createElement('div');
   el.className = 'c11d-scene';
   el.style.setProperty('--rise', `${Math.round((e.lines.length * ms) / 1000 * 0.6)}s`);
-  el.innerHTML = `<div class="notes">${EIGHT_CSS.map((c, i) => `<i style="background:${c};color:${c}" data-i="${i}"></i>`).join('')}</div><div class="lt"></div><div class="say"></div>`;
+  el.innerHTML = `<div class="notes">${EIGHT_CSS.map((c, i) => `<i style="background:${c};color:${c}" data-i="${i}"></i>`).join('')}</div><div class="lt"></div><div class="pic"></div><div class="say"></div>`;
   scene.stage.append(el);
   scene.c11dScene = el;
   const say = el.querySelector('.say');
+  const pic = el.querySelector('.pic');
+  const draw = (art) => {
+    pic.innerHTML = '';
+    if (!art) return;
+    try {
+      const r = paintC11dSpecial(art, 'down', 0);
+      const cv = r?.p?.toCanvas?.(4);
+      if (cv) pic.append(cv);
+    } catch { /* 絵が ない 時は 文字だけ */ }
+  };
   const dots = [...el.querySelectorAll('.notes i')];
   const fmt = (t) => {
     const m = /^(.+?)「(.*)」$/.exec(t);
@@ -310,6 +324,7 @@ export function playEightScene(scene, e) {
   e.lines.forEach((t, i) => setTimeout(() => {
     if (!el.isConnected) return;
     say.innerHTML = fmt(t);
+    draw(e.arts?.[i] || null);
     // 7つの 音の 丸は はじめから、8つめは さいごの 2行で 光る
     const on = i >= e.lines.length - 2 ? 8 : 7;
     dots.forEach((d, k) => d.classList.toggle('on', k < on));

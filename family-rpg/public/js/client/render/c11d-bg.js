@@ -1,12 +1,12 @@
 // 第3部 第3章 第4幕「かがやきの女王と、八つめの音」の 戦いの 背景（c9b-bg.js の drawC9bBg から よぶ。BW×BH の まま かく。hor … 地面の たかさ）
 // ・c11d_tower（deco 'c11d_tower'）… かがやきの 塔の 中: 白い 石の かべ・高い まど・光の すじ・らせん階段（塔の 魔物）
-// ・c11d_hall（deco 'c11d_hall'）… 4階 音の 間: 7つの 色の 台・かべに 歌の 絵（音の しるし）・天井の 星（鏡と月の使い）
+// ・c11d_sound（deco 'c11d_sound'）… 4階 音の 間: 7つの 色の 台・かべに 歌の 絵（音の しるし）・天井の 星（鏡と月の使い）
 // ・c11d_throne（deco 'c11d_throne'）… いただきの 玉座の 間: 白い 柱・大きな まどの 外に 星の海 ぜんぶ・まん中に 光の 玉座（かがやきの女王ポラリス）
 const BW = 256, BH = 144;
 
 export const C11D_BG = {
   c11d_tower: { sky: ['#dcdcf0', '#d0d0ea', '#c4c4e2', '#b8b8da'], far: '#c4c4e2', near: '#b0b0d4', ground: ['#e8e6f4', '#c8c6dc'], deco: 'c11d_tower' },
-  c11d_hall: { sky: ['#14183a', '#1c2248', '#262c58', '#303868'], far: '#262c58', near: '#1c2248', ground: ['#3a3a68', '#2a2a52'], deco: 'c11d_hall' },
+  c11d_sound: { sky: ['#14183a', '#1c2248', '#262c58', '#303868'], far: '#262c58', near: '#1c2248', ground: ['#3a3a68', '#2a2a52'], deco: 'c11d_sound' },
   c11d_throne: { sky: ['#060820', '#0c1030', '#141a44', '#1e2658'], far: '#141a44', near: '#0c1030', ground: ['#ecebf6', '#cfcde4'], deco: 'c11d_throne' },
 };
 export const C11D_DECOS = new Set(Object.keys(C11D_BG));
@@ -120,11 +120,11 @@ function throneFloor(x, hor) {
 
 export function drawC11dBg(x, d, hor) {
   if (d.deco === 'c11d_tower') return drawTower(x, hor);
-  if (d.deco === 'c11d_hall') return drawHall(x, hor);
+  if (d.deco === 'c11d_sound') return drawHall(x, hor);
   return drawThrone(x, hor);
 }
 export function drawC11dFloorBg(x, d, hor) {
   if (d.deco === 'c11d_tower') return towerFloor(x, hor);
-  if (d.deco === 'c11d_hall') return hallFloor(x, hor);
+  if (d.deco === 'c11d_sound') return hallFloor(x, hor);
   return throneFloor(x, hor);
 }

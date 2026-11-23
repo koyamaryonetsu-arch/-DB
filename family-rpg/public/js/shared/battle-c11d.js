@@ -38,7 +38,9 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from './data/monsters-c11d.js';
 import { HOLD, EIGHT, ROBE, BACK_HIT, STRIKE, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER, EIGHT_SONG_NAME } from './data/abilities-c11d.js';
-import { C11D_B as C11D, C11D_EIGHT_SCENE_B as EIGHT_SCENE } from './data/c11d-names-b.js';
+import { C11D_B as C11D, C11D_EIGHT_SCENE_B } from './data/c11d-names-b.js';
+// 八つめの 音の 場面の 文と 絵（A班の 台本。ない 時は かりの 文 C11D_EIGHT_SCENE_B）
+import { C11D_EIGHT_SCENE } from './data/story-c11d.js';
 import { NARASU } from './data/abilities-c10d.js';
 import { YOBIKAKE } from './data/abilities-c11b.js';
 import { TERU as TERU_ID } from './data/abilities-c9b.js';
@@ -47,7 +49,16 @@ import { TRAP_KINDS } from './battle-earth.js';
 import { canUse } from './ai.js';
 import { peopleOf10, someoneChooses } from './battle-c10a.js';
 
-export { HOLD, EIGHT, ROBE, STRIKE, MEASURE, SHINE, NAMES, SCENE, NARASU, YOBIKAKE, EIGHT_SCENE };
+export { HOLD, EIGHT, ROBE, STRIKE, MEASURE, SHINE, NAMES, SCENE, NARASU, YOBIKAKE };
+// 場面の 文（{ lines: ['名前「文」' か 地の 文], arts: [絵の 名前 か null], ms: 1行の 長さ }。だれの 画面でも 同じ じゅん）
+const SCENE_SRC = C11D_EIGHT_SCENE?.lines?.length ? C11D_EIGHT_SCENE : C11D_EIGHT_SCENE_B;
+export const EIGHT_SCENE = {
+  lines: SCENE_SRC.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text)),
+  arts: SCENE_SRC.lines.map((x) => x.art || null),
+  ms: SCENE_SRC.ms || 1500,
+  bgm: SCENE_SRC.bgm || null,
+  after: SCENE_SRC.after || null,
+};
 export const AUTO_EVERY = 3;
 export const SPICA = 'spica';
 export const ALGOL = 'algol';
@@ -789,9 +800,9 @@ function eightScene(b, c, ev) {
   ev.lines.length = 0;
   ev.fx = { type: 'ability', anim: 'c11q_eight', actor: c.id, targets: [c.id], side: 'enemy' };
   // 場面（文は 画面の まん中に じゅんに 出す）の あいだ 戦いは 止まる。回復は 場面の あと（つぎの 女王の 番の 動き AFTER）
-  const lines = EIGHT_SCENE.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text));
+  const lines = EIGHT_SCENE.lines.slice();
   ev.lines.push('……。');
-  ev.c11dEight = { id: c.id, lines, art: EIGHT_SCENE.art, ms: EIGHT_SCENE.ms };
+  ev.c11dEight = { id: c.id, lines, arts: EIGHT_SCENE.arts.slice(), ms: EIGHT_SCENE.ms };
   ev.extraLock = (ev.extraLock || 0) + lines.length * EIGHT_SCENE.ms;
   ev.warn = true;
   ev.upd.push(c);
