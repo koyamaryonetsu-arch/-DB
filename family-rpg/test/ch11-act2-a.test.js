@@ -584,3 +584,85 @@ test('通し（ひとり）: 星座の門の むこう → 月の都（おもて
   // 使った しるしは 12こ まで（セーブに のこる 物）
   assert.ok(Object.keys(c.flags).filter((f) => /^c11b_d/.test(f)).length <= C11B_MARK_MAX);
 });
+
+// ───────────── 第102回 C1班: 1マス はばの 道の 曲がりかど（スマホの スティック）─────────────
+test('かど: うら道・塔への 道・塔の 中の 1マス はばの 曲がりかどは 内がわを 広げた（同じ 形の きまりの まま）・この 幕の マップ だけ かどで すべる（スティックが ななめでも まがれる）', async () => {
+  const { Field } = await import('../public/js/client/field.js');
+  const { c11bCornerSlide } = await import('../public/js/client/c11b-view.js');
+  const ALL = () => true;
+  const IDS = ['c11b_front', 'c11b_back', 'c11b_tower1', 'c11b_towerb1', 'c11b_tower2', 'c11b_towerb2', 'c11b_tower3', 'c11b_towerb3'];
+  for (const id of IDS) assert.ok(MAPS[id]?.c11b, id);
+  // 1) 広げた マス（もとの 形の 文字。道と 同じ 文字 … おもて／うらの どちらで 通れるかは かわらない）
+  const city = CITY_ROWS11B;
+  for (const [x, y] of [[18, 3], [11, 9], [19, 16], [9, 23], [17, 15], [19, 15]]) assert.equal(city[y][x], 'b', `おもての 細道 ${x},${y}`);
+  for (const [x, y] of [[25, 5], [26, 13], [29, 18], [29, 21], [27, 25]]) assert.equal(city[y][x], 'f', `うら道 ${x},${y}`);
+  assert.equal(TOWER_ROWS11B[1][14][3], '.');
+  assert.equal(TOWER_ROWS11B[1][7][19], 'f');
+  assert.equal(TOWER_ROWS11B[3][20][4], '.');
+  // 宝箱・戸・ゆか・ランプ・階段の 場所は そのまま
+  for (const [x, y, ch] of [[29, 8, 'c'], [14, 14, 'c'], [8, 21, 'c'], [20, 4, 'D'], [16, 8, 'D'], [10, 12, 'D'], [27, 14, 'D'], [24, 17, 'D'], [14, 22, 'D'], [21, 24, 'D'], [17, 1, 'T'], [28, 26, 'R']]) assert.equal(city[y][x], ch, `${x},${y}`);
+  for (const [f, x, y, ch] of [[1, 4, 15, 'L'], [1, 11, 8, 'L'], [1, 7, 6, 'L'], [1, 20, 15, 'D'], [1, 9, 9, 'D'], [1, 20, 2, 'u'], [1, 7, 4, 'c'], [3, 4, 21, 'L'], [3, 12, 21, 'D'], [3, 19, 13, 'P'], [3, 20, 14, 'c']]) assert.equal(TOWER_ROWS11B[f][y][x], ch, `${f}階 ${x},${y}`);
+  // 2) 町の 外・塔の 中に「1マス はばの 道の L の かど（内がわも かべ）」が のこって いない（宝箱の 前・階段の となりの くぼみは のぞく）
+  const left = [];
+  for (const id of IDS) {
+    const m = MAPS[id];
+    const ok = (x, y) => x >= 0 && y >= 0 && x < m.w && y < m.h && !isBlocked(m, x, y, ALL);
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+      if (!ok(x, y) || (m.c11bCity && y >= 27)) continue;
+      const n = [[0, -1], [1, 0], [0, 1], [-1, 0]].filter(([dx, dy]) => ok(x + dx, y + dy));
+      if (n.length !== 2 || n[0][0] + n[1][0] === 0) continue;
+      if (!ok(x + n[0][0] + n[1][0], y + n[0][1] + n[1][1])) left.push(`${id} ${x},${y}`);
+    }
+  }
+  assert.deepEqual(left, ['c11b_tower2 21,17', 'c11b_towerb3 20,14'], '階段の となりの くぼみ・宝箱の 前 だけ');
+  // 3) かどで すべる: field.js の いどうの 行に、この 幕の マップ だけ つないで ある
+  const src = readFileSync(new URL('../public/js/client/field.js', import.meta.url), 'utf8');
+  assert.match(src, /if \(!flying\) \{ const cs = c11bCornerSlide\(this, me, ix, iy, sp\); if \(cs\) \(\{ ix, iy \} = cs\); \}\n {8}const nx = me\.x/);
+  const fieldOf = (m, me = { x: 0, y: 0 }) => Object.assign(Object.create(Field.prototype), {
+    map: m, me, npcState: new Map(), scriptHidden: new Set(), followAuto: false, game: { me: { flags: {}, chests: {} } }, hasFlag: () => true,
+  });
+  // ほかの 章の マップでは なにも しない
+  assert.equal(c11bCornerSlide(fieldOf(MAPS.overworld), { x: 10.5, y: 10.5 }, 1, 0.4, 0.07), null);
+  // 4) まがれるか（field.js の いどうの 行と 同じ 形。かどの マスに 入りぐあい f で 入って、ななめ ±25° まで ずらして 1.2 秒）
+  const fails = [];
+  let turns = 0;
+  for (const id of IDS) {
+    const m = MAPS[id];
+    const f0 = fieldOf(m);
+    const ok = (x, y) => !f0.solidAt(x, y);
+    const run = (me, ix, iy) => {
+      const fld = fieldOf(m, me);
+      const sp = 4.6 * 0.016;
+      const cs = c11bCornerSlide(fld, me, ix, iy, sp);
+      if (cs) ({ ix, iy } = cs);
+      const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp, ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
+      if (fld.boxFree(nx, me.y)) me.x = nx;
+      else if (Math.abs(iy) < 0.3) fld.nudge('y', me, ix > 0 ? 1 : -1, sp);
+      if (fld.boxFree(me.x, ny)) me.y = ny;
+      else if (Math.abs(ix) < 0.3) fld.nudge('x', me, iy > 0 ? 1 : -1, sp);
+    };
+    for (let y = 1; y < m.h - 1; y++) for (let x = 1; x < m.w - 1; x++) {
+      if (!ok(x, y) || (m.c11bCity && y >= 27)) continue;
+      const nb = [[0, -1], [1, 0], [0, 1], [-1, 0]].filter(([dx, dy]) => ok(x + dx, y + dy));
+      for (const a of nb) for (const b of nb) {
+        if (a[0] * b[0] + a[1] * b[1] !== 0) continue;
+        const narrow = (d) => !ok(x + d[0] - d[1], y + d[1] + d[0]) && !ok(x + d[0] + d[1], y + d[1] - d[0]);
+        if (!narrow(a) || !narrow(b)) continue;
+        turns++;
+        for (const f of [0.05, 0.3, 0.6, 0.97]) for (const deg of [-25, -15, 0, 15, 25]) {
+          const me = { x: x + a[0] + 0.5, y: y + a[1] + 0.5 };
+          for (let k = 0; k < 200; k++) {
+            const fr = a[0] ? (a[0] < 0 ? me.x - x : x + 1 - me.x) : (a[1] < 0 ? me.y - y : y + 1 - me.y);
+            if (Math.floor(me.x) === x && Math.floor(me.y) === y && fr >= f) break;
+            run(me, -a[0], -a[1]);
+          }
+          const r = (deg * Math.PI) / 180;
+          for (let k = 0; k < 75; k++) run(me, b[0] * Math.cos(r) - b[1] * Math.sin(r), b[0] * Math.sin(r) + b[1] * Math.cos(r));
+          if ((Math.floor(me.x) - x) * b[0] + (Math.floor(me.y) - y) * b[1] < 1) fails.push(`${id} ${x},${y} ${a}→${b} f${f} ${deg}°`);
+        }
+      }
+    }
+  }
+  assert.ok(turns >= 10, `かどの 数 ${turns}`);
+  assert.deepEqual(fails, []);
+});

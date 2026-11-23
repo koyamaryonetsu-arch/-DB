@@ -48,7 +48,7 @@ import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js';
 import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from './c11a-view.js';
 import { paintStarShip } from './render/c11a-npc-art.js';
 // 第102回 A班: 第3部 第3章 第2幕の おもてと うら（しるし・色と 明かり・ホタルの 助け・曲の sideStage。client/c11b-view.js）
-import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D } from './c11b-view.js';
+import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D, c11bCornerSlide } from './c11b-view.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -487,6 +487,8 @@ export class Field {
         me.moving = false;
       } else {
         const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (flying ? flySpeed(this.game.me?.flags) : this.isOnWater(me.x, me.y) ? SHIP : 1);
+        // 第102回 C1班: 第3部 第3章 第2幕の マップ だけ、1マス はばの 道の かどで すべる（スティックの ななめ。client/c11b-view.js）
+        if (!flying) { const cs = c11bCornerSlide(this, me, ix, iy, sp); if (cs) ({ ix, iy } = cs); }
         const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
         const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
         let moved = false;
