@@ -154,6 +154,14 @@ export const TRACK_NAMES = {
   c11a_launch: '空へこぎ出せ',
   c11a_beast: 'またたく三つの星',
   c11a_pirate: '大波どたばたマーチ',
+  // 第102回 F: 第3部 第3章 第2幕（audio-c11b.js。ボスの 名前・もとの 昔話・物語の ひみつは 出さない）
+  c11b_front: '月の都のおもて通り',
+  c11b_back: 'うら通りのランプ',
+  c11b_tower: 'おもてとうらの塔',
+  c11b_plaza: '名前のランプの広場',
+  c11b_call: '名前をよぶ声',
+  c11b_keeper: 'ひかってかげって',
+  c11b_oboro: 'しずかな月の雲',
 };
 
 // 曲の 名前（heard … 聞いた 曲の { id: 場所の 名前 }）
