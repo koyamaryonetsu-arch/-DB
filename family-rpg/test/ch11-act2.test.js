@@ -83,7 +83,7 @@ function driveReal(ctx2, mode, humans, sent) {
       if (cmd.type === 'ai') cmd = { type: 'attack', target: b.aliveEnemies()[0]?.id };
       // 知って いる 人: スピカの 思い出が へって いて、まだ だれも よびかけて いなければ よびかける（画面の c11bCmdPick と 同じ 形）
       const st = b.c11b;
-      if (st?.kind === 'oboro' && st.forget >= 1 && !b.queue.some((q) => q.cmd?.id === YOBIKAKE)) cmd = { type: 'ability', id: YOBIKAKE, choice: 'spica' };
+      if (st?.kind === 'oboro' && (st.forget >= 1 || st.robeReady) && !b.queue.some((q) => q.cmd?.id === YOBIKAKE && humans.some((x) => x.s.id === b.combatants.find((m) => m.id === q.id)?.controller))) cmd = { type: 'ability', id: YOBIKAKE, choice: 'spica' };
       const n0 = h.msgs.length;
       h.send({ t: 'battle', actor: a.id, cmd });
       const rej = h.msgs.slice(n0).some((m) => m.t === 'battleRej');
