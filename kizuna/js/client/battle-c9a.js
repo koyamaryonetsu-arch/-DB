@@ -7,18 +7,20 @@
 // ・仲間の まど: 名前の 横に ともしびの 火の しるし（消えると 黒い しるし。c9aStatus）
 // ・コマンド: ともしびが 消えた 仲間が いる ときの「明かりをわける」を いちばん 上に（c9aCmdItems・c9aCmdPick。スマホでも 大きな ボタン）
 // ・バナー・大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-c8r.js に まぜる）
-import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=9315c53e5c23';
-import { SHARE } from '../shared/data/abilities-c9a.js?v=9315c53e5c23';
-import { monsterCanvas } from './render/monsters.js?v=9315c53e5c23';
+import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from '../shared/data/monsters-c9a.js?v=6a7817ffa6c0';
+import { SHARE } from '../shared/data/abilities-c9a.js?v=6a7817ffa6c0';
+import { monsterCanvas } from './render/monsters.js?v=6a7817ffa6c0';
 // 第3部 第1章 第2幕: スピカの てらす・デデドン大王・皿（battle-c9b.js）
 // （C9B_OWN_TELE・C9B_SCREEN_ANIMS・C9B_ALLY_FX・C9B_SFX は client/battle-c8r.js・battle-ch4.js・battle.js が じかに まぜる）
-import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js?v=9315c53e5c23';
+import { c9bHud, c9bSprite, c9bDraw, c9bPresent, c9bCmdItems, c9bCmdPick } from './battle-c9b.js?v=6a7817ffa6c0';
 // 第3部 第1章 第4幕: おかしの 仲間の まど（battle-c9d.js）
-import { c9dStatus } from './battle-c9d.js?v=9315c53e5c23';
+import { c9dStatus } from './battle-c9d.js?v=6a7817ffa6c0';
 // 第3部 第3章 第1幕: 時計の しるし（battle-c11a.js）
-import { c11aStatus } from './battle-c11a.js?v=9315c53e5c23';
+import { c11aStatus } from './battle-c11a.js?v=6a7817ffa6c0';
+// 第3部 第3章 第2幕: わすれの しるし（battle-c11b.js）
+import { c11bStatus } from './battle-c11b.js?v=6a7817ffa6c0';
 // 第3部 第2章 第1幕: あつさ・カビの めもり（battle-c10a.js）
-import { c10aStatus } from './battle-c10a.js?v=9315c53e5c23';
+import { c10aStatus } from './battle-c10a.js?v=6a7817ffa6c0';
 
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）
 export const C9A_OWN_TELE = [C9A_SUITORU, C9A_HOSHIMORI];
@@ -129,6 +131,8 @@ export function c9aStatus(s, a) {
   c10aStatus(s, a);
   // 第3部 第3章 第1幕: 時計を 持って いる 人（battle-c11a.js）
   c11aStatus(s, a);
+  // 第3部 第3章 第2幕: わすれて いる 人（battle-c11b.js）
+  c11bStatus(s, a);
   const parent = s.name.parentNode;
   let f = parent?.querySelector?.('.c9a-fire');
   if (a.torch9 === undefined) {
@@ -315,7 +319,7 @@ export function c9aCmdItems(scene, a) {
 }
 export function c9aCmdPick(scene, a, value) {
   // 第97回: 水の音を鳴らす（第2幕）・うつる（第3幕）も c9bCmdPick へ。第99回: 音を鳴らす（第4幕）も
-  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove' || value === 'c10dring' || value === 'c11apass') return c9bCmdPick(scene, a, value);
+  if (value === 'c9bteru' || value === 'c9canswer' || value === 'c9cflip' || value === 'c9dsong' || value === 'c10bring' || value === 'c10cmove' || value === 'c10dring' || value === 'c11apass' || value === 'c11bcall') return c9bCmdPick(scene, a, value);
   if (value !== 'c9ashare') return false;
   const u = unlit(scene);
   if (!u.length) return scene.openCommand();

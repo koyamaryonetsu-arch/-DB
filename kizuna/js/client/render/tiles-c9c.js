@@ -6,9 +6,9 @@
 //   ふきぬけ（463 砂が 下へ・464 さかさの 時 砂が 上へ。3コマ）/ ふちの さく（465）/ 回復の いずみ（466）/ わらべ歌の 石の 板（467）
 // かべ・ゆか・石は テーマの 色（c9c_pyr … 金の 砂岩 / c9c_flip … さかさの 時の 天じょう。うす紫）。ほかは もとの 色の まま
 // (p, v, f) … Painter / ちがい / アニメの コマ
-import { T } from '../../shared/tiles.js?v=9315c53e5c23';
-import { prand } from './pixel.js?v=9315c53e5c23';
-import { THEME_PARTS } from './tiles-castle.js?v=9315c53e5c23';
+import { T } from '../../shared/tiles.js?v=6a7817ffa6c0';
+import { prand } from './pixel.js?v=6a7817ffa6c0';
+import { THEME_PARTS } from './tiles-castle.js?v=6a7817ffa6c0';
 
 const RK = { d: '#06060c', b: '#12121e', l: '#20203a', hl: '#34345a' }; // 川の 岩かべ
 const BK = { d: '#1a1824', b: '#2a2836', l: '#3c3a4c', hl: '#5a5870' }; // 川岸

@@ -6,10 +6,10 @@
 //   星のはかば（c9d_grave）は 魔物が 出ない（表は ない）
 // ふつうの 魔物 5しゅ（どれも 仲間に なる）。こだまのふたごは かならず 2ひき 1組で 出る
 // ふつうの 戦いの 長さ（12-3）: 勇者 Lv102 ＋ 酒場の 仲間 3人で 90秒 いない（tools/sim-ch9-field.mjs）
-import { C9D_MU, C9D_MUMU, C9D_TWIN, C9D_KAGE } from './monsters-c9d.js?v=9315c53e5c23';
-import { C9D_BATTLE, C9D_TRACKS } from '../maps/c9d-flags.js?v=9315c53e5c23';
+import { C9D_MU, C9D_MUMU, C9D_TWIN, C9D_KAGE } from './monsters-c9d.js?v=6a7817ffa6c0';
+import { C9D_BATTLE, C9D_TRACKS } from '../maps/c9d-flags.js?v=6a7817ffa6c0';
 // 負けた 時の ヒントの 文（boss-hints-c9d.js が mergeBossHints を よぶ）
-import './boss-hints-c9d.js?v=9315c53e5c23';
+import './boss-hints-c9d.js?v=6a7817ffa6c0';
 
 export const ENCOUNTERS_C9D = {
   t9d_lane: [

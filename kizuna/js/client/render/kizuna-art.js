@@ -6,16 +6,16 @@
 //   aura … オーラ（hero-aura の AURA に まぜる）/ emblems … むねの しるし（hero-outfit の emblem。{ 名前: (cv, x, y, z, m, { cloth, metal }) }）
 //   vehicle … { id, art(kit) }（vehicle-art の ART。kit は 乗り物の 絵の どうぐ）
 //   fx … { anims, party〈みかたに かける えんしゅつ〉, hit〈当たる 時間〉, sfx〈音〉, play(fx, anim, targets, element, opts, W, H) }
-import { PARTY_ANIMS } from './battlefx-jobs2.js?v=9315c53e5c23';
-import { KUUCHOU_ART } from './kizuna-kuuchou.js?v=9315c53e5c23';
-import { HOKAGE_ART } from './kizuna-hokage.js?v=9315c53e5c23';
-import { HYAKKI_ART } from './kizuna-hyakki.js?v=9315c53e5c23';
-import { KENGOU_ART } from './kizuna-kengou.js?v=9315c53e5c23';
-import { SAISHOU_ART } from './kizuna-saishou.js?v=9315c53e5c23';
-import { PTA_ART } from './kizuna-pta.js?v=9315c53e5c23';
-import { KEIJI_ART } from './kizuna-keiji.js?v=9315c53e5c23';
-import { OTENKI_ART } from './kizuna-otenki.js?v=9315c53e5c23';
-import { TOUKA_ART } from './kizuna-touka.js?v=9315c53e5c23';
+import { PARTY_ANIMS } from './battlefx-jobs2.js?v=6a7817ffa6c0';
+import { KUUCHOU_ART } from './kizuna-kuuchou.js?v=6a7817ffa6c0';
+import { HOKAGE_ART } from './kizuna-hokage.js?v=6a7817ffa6c0';
+import { HYAKKI_ART } from './kizuna-hyakki.js?v=6a7817ffa6c0';
+import { KENGOU_ART } from './kizuna-kengou.js?v=6a7817ffa6c0';
+import { SAISHOU_ART } from './kizuna-saishou.js?v=6a7817ffa6c0';
+import { PTA_ART } from './kizuna-pta.js?v=6a7817ffa6c0';
+import { KEIJI_ART } from './kizuna-keiji.js?v=6a7817ffa6c0';
+import { OTENKI_ART } from './kizuna-otenki.js?v=6a7817ffa6c0';
+import { TOUKA_ART } from './kizuna-touka.js?v=6a7817ffa6c0';
 
 export const KIZUNA_ART = [
   KUUCHOU_ART, // 熱と風の空調マスター
