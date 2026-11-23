@@ -6,10 +6,10 @@
 // ふつうの 魔物 6しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、ランクが ちらばる ように する（tools/gen-monster-ranks.mjs）
 //   めやす: 星くずウルフ（森）・こけ玉（地下道）… 30%いじょう（F）／星くずキノコ … 20〜30%（E）／星くずランプの精 … 12〜20%（D）／
 //     くらやみ虫 … 6〜12%（C）／石の子ども … 6〜12%（A）。第3部 第1章の B〜S は 石の子どもだけ
-import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from './monsters-c9a.js?v=47b761b2972a';
-import { C9A_BATTLE, C9A_TRACKS } from '../maps/c9a-flags.js?v=47b761b2972a';
+import { C9A_SUITORU, C9A_HOSHIMORI, C9A_NOZZLE } from './monsters-c9a.js?v=b3f22aad5877';
+import { C9A_BATTLE, C9A_TRACKS } from '../maps/c9a-flags.js?v=b3f22aad5877';
 // 負けた 時の ヒントの 文（E班の しくみに まぜる。boss-hints-c9a.js が mergeBossHints を よぶ）
-import './boss-hints-c9a.js?v=47b761b2972a';
+import './boss-hints-c9a.js?v=b3f22aad5877';
 
 export const ENCOUNTERS_C9A = {
   t9a_forest: [

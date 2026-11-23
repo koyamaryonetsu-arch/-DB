@@ -8,7 +8,7 @@
 // ・c9b_king … デデドン大王（ハ短調 132。いばった 行進。どっしり した 低い 音。C は にくめない おどけた 区切り）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS } from './audio-c9a.js?v=47b761b2972a';
+import { C9A_TOOLS } from './audio-c9a.js?v=b3f22aad5877';
 
 const { FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL } = C9A_TOOLS;
 

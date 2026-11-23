@@ -4,22 +4,24 @@
 //   かけら買いの スズ・村の 子ども ラン
 // とくべつな え（paintC9aSpecial）: 星の子 スピカ（小さな 光る 子。フィールドの 連れと くぼ地の 子。コマで 光が またたく）・
 //   石の ふくろう ホシモリ（ためしの 場面。24×24）・光る 道しるべ（ささやきの森の 入口）
-import { Painter } from './pixel.js?v=47b761b2972a';
+import { Painter } from './pixel.js?v=b3f22aad5877';
 // 第91回 A班: 第3部 第1章 第2幕の 人の え（render/c9b-npc-art.js。ここで まぜる）
-import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=47b761b2972a';
+import { C9B_NPC_LOOKS, paintC9bSpecial, C9B_SPECIALS } from './c9b-npc-art.js?v=b3f22aad5877';
 // 第92回 A班: 第3部 第1章 第3幕の とくべつな え（render/c9c-npc-art.js。ここで まぜる）
-import { paintC9cSpecial, C9C_SPECIALS } from './c9c-npc-art.js?v=47b761b2972a';
+import { paintC9cSpecial, C9C_SPECIALS } from './c9c-npc-art.js?v=b3f22aad5877';
 // 第93回 A班: 第3部 第1章 第4幕の とくべつな え（render/c9d-npc-art.js）
-import { paintC9dSpecial, C9D_SPECIALS } from './c9d-npc-art.js?v=47b761b2972a';
+import { paintC9dSpecial, C9D_SPECIALS } from './c9d-npc-art.js?v=b3f22aad5877';
 // 第94回 A班: 第3部 第2章 第1幕の とくべつな え（render/c10a-npc-art.js）
-import { paintC10aSpecial, C10A_SPECIALS } from './c10a-npc-art.js?v=47b761b2972a';
+import { paintC10aSpecial, C10A_SPECIALS } from './c10a-npc-art.js?v=b3f22aad5877';
 // 第95回 A班: 第3部 第2章 第2幕の とくべつな え（render/c10b-npc-art.js）
-import { paintC10bSpecial, C10B_SPECIALS } from './c10b-npc-art.js?v=47b761b2972a';
-import { paintC10cSpecial, C10C_SPECIALS } from './c10c-npc-art.js?v=47b761b2972a';
+import { paintC10bSpecial, C10B_SPECIALS } from './c10b-npc-art.js?v=b3f22aad5877';
+import { paintC10cSpecial, C10C_SPECIALS } from './c10c-npc-art.js?v=b3f22aad5877';
 // 第99回 A班: 第3部 第2章 第4幕（render/c10d-npc-art.js）
-import { paintC10dSpecial, C10D_SPECIALS } from './c10d-npc-art.js?v=47b761b2972a';
+import { paintC10dSpecial, C10D_SPECIALS } from './c10d-npc-art.js?v=b3f22aad5877';
 // 第100回 A班: 第3部 第3章 第1幕（render/c11a-npc-art.js）
-import { paintC11aSpecial, C11A_SPECIALS, C11A_NPC_LOOKS } from './c11a-npc-art.js?v=47b761b2972a';
+import { paintC11aSpecial, C11A_SPECIALS, C11A_NPC_LOOKS } from './c11a-npc-art.js?v=b3f22aad5877';
+// 第102回 A班: 第3部 第3章 第2幕（render/c11b-npc-art.js）
+import { paintC11bSpecial, C11B_SPECIALS, C11B_NPC_LOOKS } from './c11b-npc-art.js?v=b3f22aad5877';
 
 export const C9A_NPC_LOOKS = {
   c9a_gard: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#7a5a3a' },
@@ -34,6 +36,7 @@ export const C9A_NPC_LOOKS = {
   c9a_kid: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#3fa35a', small: true },
   ...C9B_NPC_LOOKS,
   ...C11A_NPC_LOOKS,
+  ...C11B_NPC_LOOKS,
 };
 
 // 星の子 スピカ（16×21。白い ワンピース・金の 星の かみかざり・体の まわりに 光の つぶ）
@@ -113,7 +116,7 @@ export function paintC9aSpecial(kind, dir, f) {
     case 'c9a_spica': return paintSpica(dir, f);
     case 'c9a_owl': return paintOwl(f);
     case 'c9a_signpost': return paintSignpost(f);
-    default: return paintC9bSpecial(kind, dir, f) || paintC9cSpecial(kind, dir, f) || paintC9dSpecial(kind, dir, f) || paintC10aSpecial(kind, dir, f) || paintC10bSpecial(kind, dir, f) || paintC10cSpecial(kind, dir, f) || paintC10dSpecial(kind, dir, f) || paintC11aSpecial(kind, dir, f);
+    default: return paintC9bSpecial(kind, dir, f) || paintC9cSpecial(kind, dir, f) || paintC9dSpecial(kind, dir, f) || paintC10aSpecial(kind, dir, f) || paintC10bSpecial(kind, dir, f) || paintC10cSpecial(kind, dir, f) || paintC10dSpecial(kind, dir, f) || paintC11aSpecial(kind, dir, f) || paintC11bSpecial(kind, dir, f);
   }
 }
-export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS, ...C9C_SPECIALS, ...C9D_SPECIALS, ...C10A_SPECIALS, ...C10B_SPECIALS, ...C10C_SPECIALS, ...C10D_SPECIALS, ...C11A_SPECIALS];
+export const C9A_SPECIALS = ['c9a_spica', 'c9a_owl', 'c9a_signpost', ...C9B_SPECIALS, ...C9C_SPECIALS, ...C9D_SPECIALS, ...C10A_SPECIALS, ...C10B_SPECIALS, ...C10C_SPECIALS, ...C10D_SPECIALS, ...C11A_SPECIALS, ...C11B_SPECIALS];

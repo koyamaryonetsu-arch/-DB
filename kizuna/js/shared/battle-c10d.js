@@ -26,16 +26,16 @@
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。しくみの ある ボスの しるし（b.mechBoss）も 立てる（shared/ai.js の mechBoss）
 // ・自動の 仲間（酒場の 人・家族の 仲間・魔物の 仲間）は、人が えらんで いる 時だけ、3回に 1回 正しい 色を 鳴らす。完全オートは 鳴らさない
 // ・人数で 合わせる（few・bare・solo・monK）は 第1幕と おなじ 数え方（battle-c10a.js の c10Pick。魔物の 仲間は 半人ぶん・仲間なしの 2人／3人は bare）
-import { MONSTERS } from './data/monsters.js?v=47b761b2972a';
-import { ABILITIES } from './data/abilities.js?v=47b761b2972a';
-import { C10D_MIRARE, C10D_COPY } from './data/monsters-c10d.js?v=47b761b2972a';
-import { NARASU } from './data/abilities-c10d.js?v=47b761b2972a';
-import { C10D_B as C10D, C10D_POWER_B as C10D_POWER } from './maps/c10d-flags.js?v=47b761b2972a';
-import { TERU } from './data/abilities-c9b.js?v=47b761b2972a';
-import { SONG } from './data/abilities-c9d.js?v=47b761b2972a';
-import { canUse } from './ai.js?v=47b761b2972a';
-import { c10Pick, someoneChooses } from './battle-c10a.js?v=47b761b2972a';
-import { mirrorCopy, mirrorSkillOk } from './battle-temple.js?v=47b761b2972a';
+import { MONSTERS } from './data/monsters.js?v=b3f22aad5877';
+import { ABILITIES } from './data/abilities.js?v=b3f22aad5877';
+import { C10D_MIRARE, C10D_COPY } from './data/monsters-c10d.js?v=b3f22aad5877';
+import { NARASU } from './data/abilities-c10d.js?v=b3f22aad5877';
+import { C10D_B as C10D, C10D_POWER_B as C10D_POWER } from './maps/c10d-flags.js?v=b3f22aad5877';
+import { TERU } from './data/abilities-c9b.js?v=b3f22aad5877';
+import { SONG } from './data/abilities-c9d.js?v=b3f22aad5877';
+import { canUse } from './ai.js?v=b3f22aad5877';
+import { c10Pick, someoneChooses } from './battle-c10a.js?v=b3f22aad5877';
+import { mirrorCopy, mirrorSkillOk } from './battle-temple.js?v=b3f22aad5877';
 
 export { NARASU };
 export const MARK = 'm10d_mark';

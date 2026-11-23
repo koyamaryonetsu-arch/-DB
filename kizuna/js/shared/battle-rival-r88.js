@@ -7,12 +7,12 @@
 // ・名前・見た目は ライバル（見た目は 今 ある 職業の 絵と 色。鏡の 色）。何人かで 戦う ライバルは 1人ずつ 職業が ちがう
 // ・1人め（大技を 持つ 人）は、HPが へるか 何回か 動くと、自分の 品の 大技の 前ぶれ（telegraph）→ つぎの 番に 大技（1つの 戦いで 1回）。
 //   大技は 敵全体・守りを むしする 物理（身を 守ると 半分）。ai.js の decideMonster が m.decideHook を 先に 見る
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=47b761b2972a';
-import { ABILITIES } from './data/abilities.js?v=47b761b2972a';
-import { strengthenEnemy } from './data/difficulty.js?v=47b761b2972a';
-import { MONSTERS } from './data/monsters.js?v=47b761b2972a';
-import { phantomStats, phantomSkills, HEAL_BELOW, HEAL_CAP } from './battle-trial.js?v=47b761b2972a';
-import { rivalMembers, sigId, sigChargeId, SIG_AT, SIG_AFTER, SAME_WORDS, doorOf } from './data/rivals-r88.js?v=47b761b2972a';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=b3f22aad5877';
+import { ABILITIES } from './data/abilities.js?v=b3f22aad5877';
+import { strengthenEnemy } from './data/difficulty.js?v=b3f22aad5877';
+import { MONSTERS } from './data/monsters.js?v=b3f22aad5877';
+import { phantomStats, phantomSkills, HEAL_BELOW, HEAL_CAP } from './battle-trial.js?v=b3f22aad5877';
+import { rivalMembers, sigId, sigChargeId, SIG_AT, SIG_AFTER, SAME_WORDS, doorOf } from './data/rivals-r88.js?v=b3f22aad5877';
 
 // 何人かで 戦う ライバルの 1人ぶんの 強さ（HP・与える ダメージ）
 export const GROUP_HP = { 2: 0.6, 3: 0.45 };

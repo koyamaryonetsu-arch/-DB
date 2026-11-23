@@ -5,9 +5,9 @@
 // ・雪の 山の 中・すべる 氷の 上は 見つからない
 // ・ease の だんの 見はりは、その 階で 3回 見つかる ごとに 1ぴき いなく なる
 // ほかの しくみ（world・台本）を 読まない
-import { effectiveTile } from './index.js?v=47b761b2972a';
-import { T, TILE_INFO } from '../tiles.js?v=47b761b2972a';
-import { C10B_OWL_TURN_STEPS, C10B_OWL_RANGE, C10B_CAUGHT_EASE } from './c10b-flags.js?v=47b761b2972a';
+import { effectiveTile } from './index.js?v=b3f22aad5877';
+import { T, TILE_INFO } from '../tiles.js?v=b3f22aad5877';
+import { C10B_OWL_TURN_STEPS, C10B_OWL_RANGE, C10B_CAUGHT_EASE } from './c10b-flags.js?v=b3f22aad5877';
 
 const DV = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 // 見はりの 向き（steps … その 人の 歩数）

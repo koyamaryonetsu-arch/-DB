@@ -7,15 +7,15 @@
 //   ⑤ 画面の 上に「さかさ」の しるし。主人公の 絵は さかさに しない（見やすさ）
 //   ちがう 向きの 家族は うすく 見える（snap の fp）。天じょうの 宝箱は ふつうの 時は うすく 上に 見える
 // 2D も 2.5D も 同じ 計算
-import { TILE_INFO } from '../shared/tiles.js?v=47b761b2972a';
-import { tileAt } from '../shared/maps/index.js?v=47b761b2972a';
-import { TS } from './render/tiles.js?v=47b761b2972a';
-import { ctxOf } from './render/pixel.js?v=47b761b2972a';
-import { paintRaft } from './render/c9c-npc-art.js?v=47b761b2972a';
+import { TILE_INFO } from '../shared/tiles.js?v=b3f22aad5877';
+import { tileAt } from '../shared/maps/index.js?v=b3f22aad5877';
+import { TS } from './render/tiles.js?v=b3f22aad5877';
+import { ctxOf } from './render/pixel.js?v=b3f22aad5877';
+import { paintRaft } from './render/c9c-npc-art.js?v=b3f22aad5877';
 // 第93回 A班: 岸の ひびきの石で 歌って いる スピカの まわりも ふたごの道と 同じ 明かり（client/c9d-view.js）
-import { c9dSingingSpica } from './c9d-view.js?v=47b761b2972a';
-import { LIGHT_SPICA9D } from '../shared/maps/c9d-lane.js?v=47b761b2972a';
-import { raftAt10b } from './c10b-view.js?v=47b761b2972a';
+import { c9dSingingSpica } from './c9d-view.js?v=b3f22aad5877';
+import { LIGHT_SPICA9D } from '../shared/maps/c9d-lane.js?v=b3f22aad5877';
+import { raftAt10b } from './c10b-view.js?v=b3f22aad5877';
 
 // ───── 向き ─────
 export const myFlip9c = (field) => !!field.map?.c9cPyr && !!field.game?.me?.c9cFlip;

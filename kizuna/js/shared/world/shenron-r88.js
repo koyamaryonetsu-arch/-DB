@@ -4,14 +4,14 @@
 // ・さいだん … 7つ ない 時は 光る 数と、ドラゴンレーダーを 持って いれば まだの 地方。7つ ある 時は「シェンロンを よぶ？」
 //   → 空が くらく なり シェンロンが 出る → 作品を えらぶ → 品を えらぶ（もどれる）→ ねがいが かなう → 玉は 空へ とびちる
 //   作品・品の まどで「やめる」を えらぶと、何も かわらない（玉は なくならない）
-import { ITEMS } from '../data/items.js?v=47b761b2972a';
-import { workName } from '../data/works.js?v=47b761b2972a';
-import { addItem, removeItem } from '../stats.js?v=47b761b2972a';
+import { ITEMS } from '../data/items.js?v=b3f22aad5877';
+import { workName } from '../data/works.js?v=b3f22aad5877';
+import { addItem, removeItem } from '../stats.js?v=b3f22aad5877';
 import {
   DB_PLACES, dbChestId, dbChestScript, SHENRON, DRAGON_BALLS, ballsHeld, ballsAll, hasRadar, radarAreas,
   wishWaitLeft, wishWaitDays, wishWorks, wishItems, grantWish, WISH_WAIT_DAYS,
-} from '../data/shenron-r88.js?v=47b761b2972a';
-import { gachaOwned } from '../data/gacha-r88.js?v=47b761b2972a';
+} from '../data/shenron-r88.js?v=b3f22aad5877';
+import { gachaOwned } from '../data/gacha-r88.js?v=b3f22aad5877';
 
 const SHENRON_NAME = 'シェンロン';
 const note = (t) => ['say', null, t];

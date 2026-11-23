@@ -2,13 +2,13 @@
 //   家族の ねがい: きたえると もともとの 武器の 強さが わからなくなる。きたえた 武具を 装備していても、
 //   ほかの 武具を もとの 強さで くらべて「きたえたら どっちが 強いか」を 考えられるように。
 //   数字は shared/gear-base.js の gearCompare（今＝きたえ・★・れん金を ふくむ・もと＝きたえる 前）
-import { ITEMS } from '../../shared/data/items.js?v=47b761b2972a';
-import { fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=47b761b2972a';
-import { gearCompare, forgeLabel } from '../../shared/gear-base.js?v=47b761b2972a';
-import { esc } from './dom.js?v=47b761b2972a';
-import { rareNameHtml } from './rarity.js?v=47b761b2972a';
+import { ITEMS } from '../../shared/data/items.js?v=b3f22aad5877';
+import { fxListOf, fxShort } from '../../shared/data/gear-fx.js?v=b3f22aad5877';
+import { gearCompare, forgeLabel } from '../../shared/gear-base.js?v=b3f22aad5877';
+import { esc } from './dom.js?v=b3f22aad5877';
+import { rareNameHtml } from './rarity.js?v=b3f22aad5877';
 // 第88回: 作品の 品（作品の力・使う・そろい。shared/gear-r88-view.js）
-import { r88Short, setLine } from '../../shared/gear-r88-view.js?v=47b761b2972a';
+import { r88Short, setLine } from '../../shared/gear-r88-view.js?v=b3f22aad5877';
 
 const signed = (v) => (v > 0 ? `+${v}` : `${v}`);
 const arrow = (d) => (d > 0 ? `<span class="eqc-d up">↑${d}</span>` : d < 0 ? `<span class="eqc-d down">↓${-d}</span>` : '<span class="eqc-d same">＝</span>');
