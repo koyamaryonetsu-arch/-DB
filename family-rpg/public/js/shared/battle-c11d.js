@@ -68,7 +68,8 @@ export const EIGHT_SONG_AT = 8;
 export const EIGHT_SONG_HP = 0.2;
 export const EIGHT_SONG_MP = 0.1;
 // 女王が よぶ 星の 名前（ながした 星。こうげきでは ない）
-export const STAR_NAMES = ['ミラ', 'カペラ', 'ベガ', 'デネブ', 'リゲル', 'レグルス', 'アンタレス', 'ポルックス', 'カストル', 'アルデバラン'];
+// はじめの 4つは 台本（story-c11d.js）で 女王が よぶ 名前と 同じ。ゲームに 出て いる 人の 名前（ミラ・ベガ・リゲル・レグルス など）は 入れない
+export const STAR_NAMES = ['アケボシ', 'ユウヅツ', 'ホクト', 'スバル', 'カペラ', 'デネブ', 'アンタレス', 'ポルックス', 'カストル', 'アルデバラン'];
 // 輪の 色（名前の 横の しるし。client/battle-c11d.js と 同じ ならび）
 export const RING_COLORS = 4;
 
