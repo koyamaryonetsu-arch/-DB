@@ -630,6 +630,12 @@ test('絵: トランプの へいたい（マークちがい）・てんびん�
   assert.equal(ABILITIES[TANOMU].name, 'アルゴルにたのむ');
   assert.ok(ABILITIES[TANOMU].cmdOnly && ABILITIES[TANOMU].noAuto);
   for (const id of [LAY, FIX, ROCKET, ...Object.values(CARD_IDS)]) assert.ok(ABILITIES[id], id);
+  // 技の 名前は ほかの 技と かぶらない
+  const others = Object.entries(ABILITIES).filter(([id]) => !C11C_ABILITIES[id]).map(([, a]) => a.name);
+  for (const [id, a] of Object.entries(C11C_ABILITIES)) {
+    if (Object.values(CARD_IDS).includes(id)) continue;
+    assert.ok(!others.includes(a.name), `${id}: ${a.name}`);
+  }
 });
 
 // ───────────── がめん ─────────────

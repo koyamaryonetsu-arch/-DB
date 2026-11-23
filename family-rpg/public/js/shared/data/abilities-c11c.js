@@ -40,7 +40,7 @@ export const C11C_ABILITIES = {
     desc: '重い方の人をつついて、1人に大きなダメージ。',
   },
   m11c_bd_weigh: {
-    name: '光をはかる', kind: 'monster', mp: 3, target: 'enemy',
+    name: 'てんびんではかる', kind: 'monster', mp: 3, target: 'enemy',
     effect: { type: 'debuff', stat: 'def', mult: 0.8, chance: 0.6 }, cast: '{a}が、{t}の光をはかって「…かるい」と首をかしげた。', anim: 'c11v_weigh',
     desc: '光をはかって、1人の守りを下げる。',
   },
@@ -106,7 +106,7 @@ export const C11C_ABILITIES = {
     desc: 'こわれた体を、なおしてしまう。',
   },
   m11r_punch: {
-    name: 'メカパンチ', kind: 'monster', mp: 0, target: 'enemy',
+    name: 'バラバラパンチ', kind: 'monster', mp: 0, target: 'enemy',
     effect: { type: 'phys', mult: 0.88 }, cast: '{a}が、ガシーンと、{t}をなぐった！', anim: 'c11r_punch',
     desc: 'メカのうでで、1人にダメージ。',
   },
