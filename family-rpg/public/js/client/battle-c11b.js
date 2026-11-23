@@ -104,7 +104,11 @@ export function c11bHtml(foes = [], allies = [], me = null) {
     } else if (left <= 1) {
       tx = '思い出が、あと1！だれかが「よびかける」で、スピカの名前をよぼう！';
       cls += ' warn';
-    } else if (ob.tennin11b) tx = '天人をたおすと、オボロにこうげきが通る';
+    } else if (left < max) {
+      // 第102回 見直し（2回め）: わすれが 1 いじょうの 間は オボロも かたい
+      tx = 'わすれの衣が、オボロもつつんでいる。「よびかける」で、スピカの名前をよぼう';
+      cls += ' warn';
+    } else if (ob.tennin11b) tx = '天人は、1体ずつねらってたおそう。たおすと、オボロにこうげきが通る';
     else tx = '今だ！オボロにこうげき！';
     return { html: `${rows}<div class="tx">${esc(tx)}</div>`, cls };
   }
