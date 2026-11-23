@@ -60,6 +60,8 @@ export function objective11c(has) {
 }
 export const C11C_OBJ_ALL = Object.values(C11C_OBJ).filter((t, i, a) => a.indexOf(t) === i);
 const objStep = () => ['call', async (run) => { await run.runSteps([['objective', objective11c((f) => !!run.owner.char.flags?.[f])]]); }];
+// その 人が <n>階の 説明を 見た（'@cs<n>'。この 回の あそびの 間だけ。セーブしない。world/c11c-steps.js の c11cFlag）
+const seenIntro = (n) => ['call', async (run) => { for (const m of [run.init, ...run.everyone]) m.c11cSeen = { ...(m.c11cSeen || {}), [n]: true }; }];
 
 // パーティー全員で 見る イベント（回ろうの 1階・3階に 着いた 時の 説明は ひとりずつ）
 export const CH11C_STORY_SCRIPTS = ['c11c_start_event', 'c11c_mecha_event', 'c11c_join_event', 'c11c_hall2_event', 'c11c_rest_event', 'c11c_door_event', 'c11c_ace_event', 'c11c_end_event'];
@@ -74,7 +76,7 @@ const tx = T0.x + 1, ty = T0.y + 1; // 塔の 前の まん中（18, 3）
 function mechaSteps(again) {
   return [
     ['bgm', null],
-    ['look', tx + 0.5, ty + 2],
+    ['look', tx + 0.5, ty + 3.5],
     ...(again ? N('ガシャン、ガシャン…！\nメカ3号が、また、もどって来た！') : []),
     ['actor', 'mecha_m', { sprite: 'c11c_mecha', x: tx + 0.5, y: ty + 4.2, dir: 'up' }],
     ...trioIn('trio_m', [[tx - 1.2, ty + 5.4], [tx + 0.5, ty + 5.6], [tx + 2.2, ty + 5.4]]),
@@ -95,11 +97,11 @@ function mechaSteps(again) {
 }
 function joinSteps() {
   return [
-    ['look', tx + 0.5, ty + 2],
+    ['look', tx + 0.5, ty + 3],
     ['actor', 'algol_j', { sprite: ALS, x: tx + 0.5, y: ty + 0.6, dir: 'down' }],
     ...trioIn('trio_j', [[tx - 1.2, ty + 4.4], [tx + 0.5, ty + 4.8], [tx + 2.2, ty + 4.4]], 'down'),
     ['guestHide', true],
-    ['actor', 'spica_j', { sprite: 'c9a_spica', x: tx - 0.6, y: ty + 2.2, dir: 'up' }],
+    ['actor', 'spica_j', { sprite: 'c9a_spica', x: tx + 1.5, y: ty + 1.6, dir: 'up' }],
     ...N('3人組は、目を、回して、のびている。'),
     ...S(KI, 'う、うう…。\nアルゴルさま…ぶじで…。'),
     ...S(AL, '…ばか。'),
@@ -145,7 +147,7 @@ function startScene(title) {
     ['move', 'algol_0', [[tx + 0.5, ty + 0.6]]],
     ['flag', C11C.start], ['sync'],
     ['guestHide', true],
-    ['actor', 'spica_0', { sprite: 'c9a_spica', x: tx - 0.6, y: ty + 2.2, dir: 'up' }],
+    ['actor', 'spica_0', { sprite: 'c9a_spica', x: tx + 1.5, y: ty + 1.6, dir: 'up' }],
     ...S(AL, '…待ってた。'),
     ...S(SP, '…アルゴル。'),
     ...S(NO, '屋根の上に、いたのは、おまえか。'),
@@ -181,12 +183,14 @@ const TRIO_TALK = [
 function hall1Steps() {
   const A = HALL_POS11C[1].arrive;
   return [
+    seenIntro(1),
     ['look', A.x + 0.5, A.y - 3],
     ...N('はかりの回ろう。\n光のはかりの日に、はかられる星が、通る道。'),
     ...N('ゆかの、ところどころに、黒い、かげの台。\nその先を、光のさくが、ふさいでいる。'),
     ...S(AL, '…ぼくは、光を、食べる。\nかげの台に、立って、ぼくを、よべ。'),
     ...S(AL, '台と、同じ色の、光のさくなら、\nまわりの輪の中だけ、食べてやる。'),
-    ...S(AL, 'ぼくが、台を、はなれたら、さくは、もどる。\n立てる台は、1つだけだ。…どの台に、どのじゅんで、立たせるか、考えろ。'),
+    ...S(AL, 'ぼくが、台を、はなれたら、さくは、もどる。\n立てる台は、1つだけだ。'),
+    ...S(AL, '…どの台に、どのじゅんで、立たせるか。\nよく、考えろ。'),
     ...S(NO, 'よびもどす時は？'),
     ...S(AL, '台のない所で、ぼくに、話しかけろ。'),
     ['look'],
@@ -214,6 +218,7 @@ function hall2Steps() {
 function hall3Steps() {
   const A = HALL_POS11C[3].arrive;
   return [
+    seenIntro(3),
     ['look', A.x + 0.5, A.y - 8],
     ...N('3階の、まん中を、細い、光の通り道が、通っている。'),
     ...N('トランプのような、大きなカードが、通り道を、行ったり来たり…。'),
@@ -248,8 +253,9 @@ function restSteps() {
     ...S(AL, 'でも、食べた光は、すぐに、消える。\nだから…もっと強い光が、ほしかった。'),
     ...S(NO, 'それで、星の音を…。'),
     ['wait', 700],
-    ...N(`${AL}が、手のひらを、ひらいた。\n小さな、小さな、光が、ひとつ。`),
+    ['actor', 'light_r', { sprite: 'c11c_light', x: W.x + 2.1, y: W.y + 0.7, dir: 'down' }],
     ['sfx', 'sparkle'],
+    ...N(`${AL}が、手のひらを、ひらいた。\n小さな、小さな、光が、ひとつ。`),
     ...S(AL, '…これが、ほんとうの、ぼくの光だ。\n小さいだろ。'),
     ['wait', 800],
     ...S(SP, '…きれい。'),
@@ -263,7 +269,7 @@ function restSteps() {
     ...S(SP, '…うん。\nいっしょに、立とう。'),
     ...S(NO, 'ああ。…行こう。'),
     ['flag', C11C.rest], ['sync'],
-    ['remove', 'algol_r'], ['remove', 'spica_r'], ['guestHide', false],
+    ['remove', 'light_r'], ['remove', 'algol_r'], ['remove', 'spica_r'], ['guestHide', false],
     ['look'],
     objStep(),
     ['bgm', 'resume'],
@@ -384,7 +390,7 @@ export const CH11C_OBJECTIVE_TARGETS = {
   [C11C_OBJ.talk]: [at(C11C_FRONT, TOWER)],
   [C11C_OBJ.hall]: [at(C11C_BACK, C.hallDoor), at(C11C_MAP.hall1, HALL_POS11C[1].up)],
   [C11C_OBJ.bridge]: [at(C11C_MAP.hall2, HALL_POS11C[2].up)],
-  [C11C_OBJ.rest]: [at(C11C_MAP.rest, REST_POS11C.spring)],
+  [C11C_OBJ.rest]: [at(C11C_MAP.rest, { x: REST_POS11C.spring.x, y: REST_POS11C.spring.y + 1 })],
   [C11C_OBJ.card]: [at(C11C_MAP.hall3, HALL_POS11C[3].up)],
   [C11C_OBJ.ace]: [at(C11C_MAP.door, { x: 9, y: 9 })],
   [C11C_OBJ.door]: [at(C11C_MAP.door, { x: 9, y: 9 })],

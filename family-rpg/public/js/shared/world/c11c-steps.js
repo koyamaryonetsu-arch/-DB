@@ -57,7 +57,9 @@ export function heldBy11c(world, s) {
   return out;
 }
 // '@cf<g>'・'@lb<g>' … その 人の パーティーの アルゴルと 家族の 台（world.js の hasFlagFn。わからない しるしは undefined）
+//   '@cs<n>' … その 人が この 回の あそびで <n>階の 説明を 見た（説明の 場面が 何度も 出ない ように。セーブしない）
 export function c11cFlag(world, s, f) {
+  if (f.startsWith('@cs')) return !!s?.c11cSeen?.[f.slice(3)];
   if (!f.startsWith('@cf') && !f.startsWith('@lb')) return undefined;
   const map = MAPS[s?.map];
   if (!map?.c11c) return undefined;

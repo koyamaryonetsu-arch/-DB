@@ -137,8 +137,10 @@ export function drawC11cFloor2D(field, camX, camY) {
   const m = field.map;
   if (!m?.c11c) return;
   const ctx = field.ctx, t = field.time, a = algolPedOf11c(field);
-  m.c11c.peds.forEach((P, i) => ring(ctx, (P.x + 0.5) * TS - camX, (P.y + 0.5) * TS - camY, TS, 1, PED_COLOR[P.c], i === a, t));
+  m.c11c.peds.forEach((P, i) => { if (i === a || near(field, P)) ring(ctx, (P.x + 0.5) * TS - camX, (P.y + 0.5) * TS - camY, TS, 1, PED_COLOR[P.c], i === a, t); });
 }
+// 近くの 台だけ 輪を 見せる（はなれた 台の 輪で 画面が ごちゃごちゃ しない ように）
+const near = (field, P) => Math.hypot(field.me.x - (P.x + 0.5), field.me.y - (P.y + 0.5)) <= C11C_RANGE + 2.5;
 // 上（人の 絵の 上）: カード・アルゴルの うずまき・助けの 光
 export function drawC11c2D(field, camX, camY) {
   const m = field.map;
@@ -156,6 +158,7 @@ export function drawC11c3D(field, ctx, P) {
   if (!m?.c11c) return;
   const t = field.time, a = algolPedOf11c(field);
   m.c11c.peds.forEach((Q, i) => {
+    if (i !== a && !near(field, Q)) return;
     const c = P(Q.x + 0.5, Q.y + 0.5, 0.02);
     const e = P(Q.x + 0.5, Q.y + 0.5 + C11C_RANGE, 0.02);
     const sy = Math.max(0.3, Math.min(1, Math.abs(e.y - c.y) / Math.max(1, (C11C_RANGE + 0.5) * c.k)));

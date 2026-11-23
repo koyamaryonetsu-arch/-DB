@@ -4,6 +4,7 @@
 // ・c11c_ace … 近衛の 隊長（場面の 絵。カードの よろいの、きちんと した 隊長。マークは 月・星・ほうき星・太陽）
 // ・c11c_soldier … トランプの 兵隊（場面の 絵。カードの 体に 手足）
 // ・c11c_cards … ちらばった カード（隊長が カードに もどった あと）
+// ・c11c_light … アルゴルの 手のひらの、小さな 光
 //   もとの お話の しるし（ハートなど）は 使わない
 import { Painter } from './pixel.js';
 
@@ -76,13 +77,25 @@ function paintCards(dir, f) {
   return { p, oc: null };
 }
 
+// アルゴルの 手のひらの、小さな 光（10×12。うかんで ゆれる）
+function paintSmallLight(dir, f) {
+  const p = new Painter(10, 12);
+  const k = f % 2;
+  p.ellipse(5, 6 - k, 3, 3, '#b8a0ff');
+  p.ellipse(5, 6 - k, 2, 2, '#e8dcff');
+  p.set(5, 6 - k, '#ffffff');
+  p.set(1, 3 + k, '#d8c8ff'); p.set(9, 4 - k, '#d8c8ff');
+  return { p, oc: null };
+}
+
 export function paintC11cSpecial(kind, dir, f) {
   switch (kind) {
     case 'c11c_mecha': return paintMecha(dir, f);
     case 'c11c_ace': return paintAce(dir, f);
     case 'c11c_soldier': return paintSoldier(dir, f);
     case 'c11c_cards': return paintCards(dir, f);
+    case 'c11c_light': return paintSmallLight(dir, f);
     default: return null;
   }
 }
-export const C11C_SPECIALS = ['c11c_mecha', 'c11c_ace', 'c11c_soldier', 'c11c_cards'];
+export const C11C_SPECIALS = ['c11c_mecha', 'c11c_ace', 'c11c_soldier', 'c11c_cards', 'c11c_light'];

@@ -148,9 +148,10 @@ function buildHall(n) {
   if (n === 2) warp(m, P.up, C11C_MAP.rest, REST_POS11C.arrive, 'up');
   if (n === 3) warp(m, P.up, C11C_MAP.door, DOOR_POS11C.arrive, 'up');
   // 場面（着いた 所）
-  if (n === 1) trig(m, 'c11c_hall1_event', SCENES11C.hall1, { all: [C11C.join], not: [C11C.h1] });
+  // 1階・3階の 説明は その 人が この 回の あそびで 1回（'@cs<n>'。world/c11c-steps.js）
+  if (n === 1) trig(m, 'c11c_hall1_event', SCENES11C.hall1, { all: [C11C.join], not: [C11C.h1, '@cs1'] });
   if (n === 2) trig(m, 'c11c_hall2_event', SCENES11C.hall2, { all: [C11C.join], not: [C11C.h1] });
-  if (n === 3) trig(m, 'c11c_hall3_event', SCENES11C.hall3, { all: [C11C.rest], not: [C11C.h3] });
+  if (n === 3) trig(m, 'c11c_hall3_event', SCENES11C.hall3, { all: [C11C.rest], not: [C11C.h3, '@cs3'] });
   // 魔物: ゆかの 上だけ（台・さく・橋・みぞ・カードの 通り道・出入り口の まわり 1マスは 出ない）
   const quiet = [...c11c.peds, ...c11c.fences.flatMap((F) => F.cells), ...c11c.bridges.flatMap((B) => B.cells), ...c11c.cards.flatMap((K) => K.cells), ...m.warps, P.arrive];
   m.zoneAt = (x, y) => {

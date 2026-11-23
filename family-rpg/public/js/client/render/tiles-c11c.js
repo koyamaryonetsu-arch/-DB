@@ -29,10 +29,13 @@ function wall(p, v) {
 function ped(p, v, c) {
   floor(p, 1);
   const [col, hl] = PED[c];
-  p.ellipse(8, 9, 7, 5, '#14101e');
-  p.ellipse(8, 8, 6, 4, '#2a2238');
-  p.ellipse(8, 8, 4, 2.5, '#0a0812');
-  for (let a = 0; a < 16; a++) { const t = (a / 16) * Math.PI * 2; p.set(8 + Math.cos(t) * 6.5, 8.5 + Math.sin(t) * 4.5, a % 2 ? col : hl); }
+  // 台の 色の ふち（太く）→ 黒い かげの まん中・小さな 三日月
+  p.ellipse(8, 9, 7.5, 6, '#14101e');
+  p.ellipse(8, 8.5, 7, 5.5, col);
+  p.ellipse(8, 8.5, 5.5, 4, '#1a1428');
+  p.ellipse(8, 8.5, 4, 3, '#06040c');
+  for (let a = 0; a < 12; a++) { const t = (a / 12) * Math.PI * 2; p.set(8 + Math.cos(t) * 6.3, 8.5 + Math.sin(t) * 4.8, hl); }
+  p.set(7, 7, '#6a5a9a'); p.set(6, 8, '#6a5a9a'); p.set(6, 9, '#6a5a9a'); p.set(7, 10, '#6a5a9a');
 }
 export const FENCE_FRAMES11C = 2;
 function fence(p, v, f, c) {
