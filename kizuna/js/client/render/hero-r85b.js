@@ -11,7 +11,7 @@
 //   R85B_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
 //   AURA85B       … 炎の オーラ（hero-aura.js の AURA に まぜる）
 //   koteMark85(cv, A, P, O) … 右うでの こて（hero.js の 手の あと）
-import { mat, TH } from './hero-raster.js?v=cb02a9b15ddb';
+import { mat, TH } from './hero-raster.js?v=efa1b5f542af';
 
 export const R85B_JOBS = ['enjutsushi', 'rekka'];
 

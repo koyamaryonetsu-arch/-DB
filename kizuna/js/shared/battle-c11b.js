@@ -27,16 +27,16 @@
 //   完全オートは よびかけない（スピカを つれて いかれて 勝てない）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数の 数え方は 第2章 第1幕と おなじ（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）。bare … 味方が みんな 家族の キャラで 2人・3人
-import { MONSTERS } from './data/monsters.js?v=cb02a9b15ddb';
-import { ABILITIES } from './data/abilities.js?v=cb02a9b15ddb';
-import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, KEEPER_SHORT, OBORO_SHORT } from './data/monsters-c11b.js?v=cb02a9b15ddb';
-import { YOBIKAKE } from './data/abilities-c11b.js?v=cb02a9b15ddb';
-import { C11B_B as C11B } from './maps/c11b-flags.js?v=cb02a9b15ddb';
-import { SONG } from './data/abilities-c9d.js?v=cb02a9b15ddb';
-import { TERU as TERU_ID } from './data/abilities-c9b.js?v=cb02a9b15ddb';
-import { TOKEI_NAGE as TOKEI_ID } from './data/abilities-c11a.js?v=cb02a9b15ddb';
-import { canUse } from './ai.js?v=cb02a9b15ddb';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=cb02a9b15ddb';
+import { MONSTERS } from './data/monsters.js?v=efa1b5f542af';
+import { ABILITIES } from './data/abilities.js?v=efa1b5f542af';
+import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, KEEPER_SHORT, OBORO_SHORT } from './data/monsters-c11b.js?v=efa1b5f542af';
+import { YOBIKAKE } from './data/abilities-c11b.js?v=efa1b5f542af';
+import { C11B_B as C11B } from './maps/c11b-flags.js?v=efa1b5f542af';
+import { SONG } from './data/abilities-c9d.js?v=efa1b5f542af';
+import { TERU as TERU_ID } from './data/abilities-c9b.js?v=efa1b5f542af';
+import { TOKEI_NAGE as TOKEI_ID } from './data/abilities-c11a.js?v=efa1b5f542af';
+import { canUse } from './ai.js?v=efa1b5f542af';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=efa1b5f542af';
 
 export { YOBIKAKE };
 export const SWITCH = 'm11k_switch';

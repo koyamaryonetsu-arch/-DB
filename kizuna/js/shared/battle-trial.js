@@ -7,13 +7,13 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { kizunaMap } from './data/kizuna.js?v=cb02a9b15ddb';
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=cb02a9b15ddb';
-import { ABILITIES } from './data/abilities.js?v=cb02a9b15ddb';
-import { strengthenEnemy } from './data/difficulty.js?v=cb02a9b15ddb';
-import { MONSTERS } from './data/monsters.js?v=cb02a9b15ddb';
-import { mirrorSkillOk } from './battle-temple.js?v=cb02a9b15ddb';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=cb02a9b15ddb';
+import { kizunaMap } from './data/kizuna.js?v=efa1b5f542af';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=efa1b5f542af';
+import { ABILITIES } from './data/abilities.js?v=efa1b5f542af';
+import { strengthenEnemy } from './data/difficulty.js?v=efa1b5f542af';
+import { MONSTERS } from './data/monsters.js?v=efa1b5f542af';
+import { mirrorSkillOk } from './battle-temple.js?v=efa1b5f542af';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=efa1b5f542af';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };

@@ -2,15 +2,15 @@
 //   きずなの職業は 新しい 戦いの しくみを 作らず、親の しくみ（火竜・予兆保全・影分身 など）を 使う。ここは 職業ごとの オートの 計画だけ
 //   ai.js の decideAlly が 4.78 で kizunaPlan を 1回 よぶ（ここに 足しても ai.js は かえなくて よい）
 // ★ あとの 組へ: shared/battle-r98-<名前>.js に <名前>Plan を 作って、下の PLANS の おわりに 1行 足す（import も 1行）
-import { kuuchouPlan } from './battle-r98-kuuchou.js?v=cb02a9b15ddb';
-import { hokagePlan } from './battle-r98-hokage.js?v=cb02a9b15ddb';
-import { hyakkiPlan } from './battle-r98-hyakki.js?v=cb02a9b15ddb';
-import { kengouPlan } from './battle-r98-kengou.js?v=cb02a9b15ddb';
-import { saishouPlan } from './battle-r98-saishou.js?v=cb02a9b15ddb';
-import { ptaPlan } from './battle-r98-pta.js?v=cb02a9b15ddb';
-import { keijiPlan } from './battle-r98-keiji.js?v=cb02a9b15ddb';
-import { otenkiPlan } from './battle-r98-otenki.js?v=cb02a9b15ddb';
-import { toukaPlan } from './battle-r98-touka.js?v=cb02a9b15ddb';
+import { kuuchouPlan } from './battle-r98-kuuchou.js?v=efa1b5f542af';
+import { hokagePlan } from './battle-r98-hokage.js?v=efa1b5f542af';
+import { hyakkiPlan } from './battle-r98-hyakki.js?v=efa1b5f542af';
+import { kengouPlan } from './battle-r98-kengou.js?v=efa1b5f542af';
+import { saishouPlan } from './battle-r98-saishou.js?v=efa1b5f542af';
+import { ptaPlan } from './battle-r98-pta.js?v=efa1b5f542af';
+import { keijiPlan } from './battle-r98-keiji.js?v=efa1b5f542af';
+import { otenkiPlan } from './battle-r98-otenki.js?v=efa1b5f542af';
+import { toukaPlan } from './battle-r98-touka.js?v=efa1b5f542af';
 
 const PLANS = [
   kuuchouPlan, // 熱と風の空調マスター

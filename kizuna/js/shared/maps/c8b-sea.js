@@ -6,16 +6,16 @@
 // ・今: 雲から出てきた島（海の 底が 空へ うかんだ 所）の 貝の もようの 石の とびら（c8_temple の あと 開く → 海底神殿のあと）
 //   時をこえる手紙を 見つける 所（今の 西の風見の小島・根の島）
 // だいほんは data/story-c8b.js・data/sidequests-c8b.js
-import { T, TILE_INFO } from '../tiles.js?v=cb02a9b15ddb';
-import { hash2 } from '../rng.js?v=cb02a9b15ddb';
-import { npc } from './npc.js?v=cb02a9b15ddb';
-import { K5 } from './kumoi.js?v=cb02a9b15ddb';
-import { VILLAGE } from './c7s-flags.js?v=cb02a9b15ddb';
-import { C7S_POS } from './c7s-sea.js?v=cb02a9b15ddb';
+import { T, TILE_INFO } from '../tiles.js?v=efa1b5f542af';
+import { hash2 } from '../rng.js?v=efa1b5f542af';
+import { npc } from './npc.js?v=efa1b5f542af';
+import { K5 } from './kumoi.js?v=efa1b5f542af';
+import { VILLAGE } from './c7s-flags.js?v=efa1b5f542af';
+import { C7S_POS } from './c7s-sea.js?v=efa1b5f542af';
 import {
   C8B, ARRIVE8B, ENTRY8B, CALM8B, LETTER8B, LETTER8B_SIDE, C7S_SEA_ID, KUMOI_ID, SHOAL8B, ENTRANCE8B, SHOAL_CUR_IN, SHOAL_CUR_OUT,
-} from './c8b-flags.js?v=cb02a9b15ddb';
-import { c8bArrive, c8bMapId } from './c8b-temple.js?v=cb02a9b15ddb';
+} from './c8b-flags.js?v=efa1b5f542af';
+import { c8bArrive, c8bMapId } from './c8b-temple.js?v=efa1b5f542af';
 
 const inRect = (x, y, r, pad = 0) => x >= r.x - pad && y >= r.y - pad && x < r.x + r.w + pad && y < r.y + r.h + pad;
 const shoalD = (x, y) => ((x + 0.5 - SHOAL8B.cx) / SHOAL8B.rx) ** 2 + ((y + 0.5 - SHOAL8B.cy) / SHOAL8B.ry) ** 2;

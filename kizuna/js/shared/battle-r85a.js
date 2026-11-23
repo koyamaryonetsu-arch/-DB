@@ -26,9 +26,9 @@
 //   r85aAfter（行動の あと・身を 守る）・r85aDamage（damage）・r85aPub（pub）
 // ai.js から よぶ: r85aLocked（canUse）・r85aPlan（オートの 動き）
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=cb02a9b15ddb';
-import { ABILITIES } from './data/abilities.js?v=cb02a9b15ddb';
-import { mpCost, weaponOk } from './stats.js?v=cb02a9b15ddb';
+import { JOBS } from './data/jobs.js?v=efa1b5f542af';
+import { ABILITIES } from './data/abilities.js?v=efa1b5f542af';
+import { mpCost, weaponOk } from './stats.js?v=efa1b5f542af';
 
 export const R85A_LINE = ['tabi_madoshi', 'lina', 'doramata'];
 // となえて いられる 行動の 回数・ふつうの 呪文の 倍・早口の 行動ゲージ

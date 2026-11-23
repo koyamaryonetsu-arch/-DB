@@ -28,9 +28,9 @@
 //   ・れい丸が 0 に なったら、強い 敵なら れい力をためる（とう気をねる）・ほかは こぶしの 技
 //   ・たおれた 仲間が いれば 仲間のために
 // サーバーでも ブラウザでも 使う（canvas・DOM なし）
-import { JOBS } from './data/jobs.js?v=cb02a9b15ddb';
-import { ABILITIES } from './data/abilities.js?v=cb02a9b15ddb';
-import { mpCost } from './stats.js?v=cb02a9b15ddb';
+import { JOBS } from './data/jobs.js?v=efa1b5f542af';
+import { ABILITIES } from './data/abilities.js?v=efa1b5f542af';
+import { mpCost } from './stats.js?v=efa1b5f542af';
 
 export const R84A_LINE = ['furyo', 'reikai_tantei', 'yusuke', 'makai_prince'];
 // 段ごとの れい丸の 数（[基本職, 上級職, 超級職, 伝説]）・ほかの 職業に 転職した あと

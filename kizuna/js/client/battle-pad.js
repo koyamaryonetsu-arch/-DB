@@ -8,8 +8,8 @@
 //   ・START（9）でも 開く（まどが 何も ない 時・コマンドの まどが いちばん 上の 時。ほかの まどでは 今までどおり もどる）
 //   ・コントローラーが つながって いる 時は「オート」の 下に 小さく「SELECT／START：作戦」
 //   ・作戦を えらんだら、だれの 作戦を かえたかを 知らせる
-import { el, ListMenu, toast } from './ui/dom.js?v=cb02a9b15ddb';
-import { TACTICS } from '../shared/ai.js?v=cb02a9b15ddb';
+import { el, ListMenu, toast } from './ui/dom.js?v=efa1b5f542af';
+import { TACTICS } from '../shared/ai.js?v=efa1b5f542af';
 
 // コマンドの まどの「作戦」（battle.js の openCommand が 一覧の さいごに 入れる）
 export const TACTICS_CMD = Object.freeze({ label: '作戦', value: 'tactics', cls: 'k-tac', title: '作戦をかえる（ターンは使わない）' });

@@ -6,14 +6,14 @@
 // ・画面の 状態: apartStage（0 いっしょ・1 はなれて いる。F班の 曲）・songStage（くぼ地の 台に 置いた 星の音の 数。スピカの歌）
 // ・HUD の「スピカをよぶ」ボタン（スピカが 石に のこって いる 間だけ。サーバーの menu c9dCall）
 // 2D も 2.5D も 同じ 計算（shared/maps/c9d-lane.js）
-import { lightCenters } from '../shared/maps/c9a-light.js?v=cb02a9b15ddb';
-import { songStage9 } from '../shared/maps/c9d-flags.js?v=cb02a9b15ddb';
+import { lightCenters } from '../shared/maps/c9a-light.js?v=efa1b5f542af';
+import { songStage9 } from '../shared/maps/c9d-flags.js?v=efa1b5f542af';
 import {
   stoneById9d, stoneFront9d, laneCenters9d, apartStage9d, LIGHT_SPICA9D,
-} from '../shared/maps/c9d-lane.js?v=cb02a9b15ddb';
-import { TS } from './render/tiles.js?v=cb02a9b15ddb';
-import { ctxOf } from './render/pixel.js?v=cb02a9b15ddb';
-import { el } from './ui/dom.js?v=cb02a9b15ddb';
+} from '../shared/maps/c9d-lane.js?v=efa1b5f542af';
+import { TS } from './render/tiles.js?v=efa1b5f542af';
+import { ctxOf } from './render/pixel.js?v=efa1b5f542af';
+import { el } from './ui/dom.js?v=efa1b5f542af';
 
 const DARK = 'rgba(2, 2, 8, 0.97)';
 

@@ -10,14 +10,14 @@
 // ・10階: 時計塔の心臓（かべ一面の 大時計・影の時計師ゼンマイ zenmai。B）→ c6_zenmai → 大時計の 下の とびら → てっぺんの 小べや
 // ・てっぺん: ★5の 武器の 宝箱（C6_CLEAR_WEAPONS。B）・止まった からくりの 馬（ぜんまい馬）→ さいごの 場面 → c6_clear
 // ・魔物: 6〜10階 t6_tower_high（B）。休み所・しかけの まわり・ボスの 広間・てっぺんは 出ない
-import { T } from '../tiles.js?v=cb02a9b15ddb';
-import { npc } from './npc.js?v=cb02a9b15ddb';
-import { TH_ROWS, TH_W, TH_H, TH6_W, TH6_H, TOP_W, TOP_H } from './tokei-high-rows.js?v=cb02a9b15ddb';
-import { parseRows16, PAST_ID, PAST_POS } from './past.js?v=cb02a9b15ddb';
-import { towerMapId } from './tower.js?v=cb02a9b15ddb';
-import { C6C, TF, TK_POS, tkMapId, handGates, CLOCKS, MURAL_NEW_AT } from './tokei.js?v=cb02a9b15ddb';
+import { T } from '../tiles.js?v=efa1b5f542af';
+import { npc } from './npc.js?v=efa1b5f542af';
+import { TH_ROWS, TH_W, TH_H, TH6_W, TH6_H, TOP_W, TOP_H } from './tokei-high-rows.js?v=efa1b5f542af';
+import { parseRows16, PAST_ID, PAST_POS } from './past.js?v=efa1b5f542af';
+import { towerMapId } from './tower.js?v=efa1b5f542af';
+import { C6C, TF, TK_POS, tkMapId, handGates, CLOCKS, MURAL_NEW_AT } from './tokei.js?v=efa1b5f542af';
 // 宝箱の 中み（B の data/items-tokei.js の TOKEI_TREASURE_HIGH。まとめる 時に '../data/items-tokei.js' から）
-import { TOKEI_TREASURE_HIGH } from '../data/items-tokei.js?v=cb02a9b15ddb';
+import { TOKEI_TREASURE_HIGH } from '../data/items-tokei.js?v=efa1b5f542af';
 
 export const TH_FLOORS = [6, 7, 8, 9, 10];
 export const TH_REST = [6, 9];

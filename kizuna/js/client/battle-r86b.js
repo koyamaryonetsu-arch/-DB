@@ -2,7 +2,7 @@
 //   札（れい丸の 数・水と お湯の すがた・作戦・となえる）は もとの 系統の 札を そのまま 使う（battle-r84a.js・r84b.js・r83a.js・r85a.js）
 //   ・r86bPresent … れい丸が もどった 人の まどが 青く 光る・れい丸・しょう天は（竜巻に れい丸の 青い 光）・
 //                   みんなでとなえる（全員の まどが 金色に 光る）・太極・ギガ・スレイブ（「太極・ギガ・スレイブ！（MP…）」）
-import { CHANT_COLOR } from './battle-r85a.js?v=cb02a9b15ddb';
+import { CHANT_COLOR } from './battle-r85a.js?v=efa1b5f542af';
 
 export const REI_COLOR = '#8ad8ff';
 

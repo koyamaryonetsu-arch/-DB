@@ -6,10 +6,10 @@
 // ・時をこえる手紙（data/sidequests-c8a.js）: 千年前で うめる 所と、今の おなじ 座標で 見つける 所
 //   1 … 騎士の 訓練場（騎士の 見習い）→ 今の 闘技場の 前 / 2 … 王家の森（森の 番人）→ 今の 王家のピラミッドの 前の 広場
 // だいほんは data/story-c8.js
-import { T, TILE_INFO } from '../tiles.js?v=cb02a9b15ddb';
-import { npc } from './npc.js?v=cb02a9b15ddb';
-import { C8, ARRIVE8, ENTRY8, KING8, LETTER8, LETTER8_SIDE, C7_FIELD_ID, SOUTH_ID, STAIR8 } from './c8a-flags.js?v=cb02a9b15ddb';
-import { c8aArrive, c8aMapId } from './c8a-palace.js?v=cb02a9b15ddb';
+import { T, TILE_INFO } from '../tiles.js?v=efa1b5f542af';
+import { npc } from './npc.js?v=efa1b5f542af';
+import { C8, ARRIVE8, ENTRY8, KING8, LETTER8, LETTER8_SIDE, C7_FIELD_ID, SOUTH_ID, STAIR8 } from './c8a-flags.js?v=efa1b5f542af';
+import { c8aArrive, c8aMapId } from './c8a-palace.js?v=efa1b5f542af';
 
 const KX = 15, KY = 84;
 const K = (x, y) => ({ x: KX + x, y: KY + y });

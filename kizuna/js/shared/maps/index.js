@@ -1,56 +1,56 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=cb02a9b15ddb';
-import { makeRng, hash2 } from '../rng.js?v=cb02a9b15ddb';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=cb02a9b15ddb';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=cb02a9b15ddb';
-import { npc } from './npc.js?v=cb02a9b15ddb';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=cb02a9b15ddb';
-import { buildTreasureFloor } from './treasure-cave.js?v=cb02a9b15ddb';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=cb02a9b15ddb';
-import { addNightNpcs } from './night-npcs.js?v=cb02a9b15ddb';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=efa1b5f542af';
+import { makeRng, hash2 } from '../rng.js?v=efa1b5f542af';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=efa1b5f542af';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=efa1b5f542af';
+import { npc } from './npc.js?v=efa1b5f542af';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=efa1b5f542af';
+import { buildTreasureFloor } from './treasure-cave.js?v=efa1b5f542af';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=efa1b5f542af';
+import { addNightNpcs } from './night-npcs.js?v=efa1b5f542af';
 // 第92回 D班: 第3部 第1章 第2幕の あとの より道と お仕事いらい 39〜41（大地の下に 人を 足す。maps/c9bd-side.js・maps/work-quests9.js）
-import { attachC9bdSide } from './c9bd-side.js?v=cb02a9b15ddb';
+import { attachC9bdSide } from './c9bd-side.js?v=efa1b5f542af';
 // 第94回 D班: 第3部 第1章 第3幕・第4幕の あとの より道と お仕事いらい 42・43（大地の下・地下の川・くぼ地に 人を 足す。maps/c9cd-side.js・maps/work-quests10.js）
-import { attachC9cdSide } from './c9cd-side.js?v=cb02a9b15ddb';
-import { attachCasino } from './casino.js?v=cb02a9b15ddb';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=cb02a9b15ddb';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=cb02a9b15ddb';
-import { attachLab } from './labyrinth.js?v=cb02a9b15ddb';
-import { attachTower } from './tower.js?v=cb02a9b15ddb';
-import { attachKumoi } from './kumoi.js?v=cb02a9b15ddb';
-import { attachHoshiyomi } from './hoshiyomi.js?v=cb02a9b15ddb';
-import { attachEarth } from './earth.js?v=cb02a9b15ddb';
-import { attachCastle } from './castle.js?v=cb02a9b15ddb';
-import { attachCastleTop } from './castle-top.js?v=cb02a9b15ddb';
-import { attachFamilyQuests } from './family-quests.js?v=cb02a9b15ddb';
+import { attachC9cdSide } from './c9cd-side.js?v=efa1b5f542af';
+import { attachCasino } from './casino.js?v=efa1b5f542af';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=efa1b5f542af';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=efa1b5f542af';
+import { attachLab } from './labyrinth.js?v=efa1b5f542af';
+import { attachTower } from './tower.js?v=efa1b5f542af';
+import { attachKumoi } from './kumoi.js?v=efa1b5f542af';
+import { attachHoshiyomi } from './hoshiyomi.js?v=efa1b5f542af';
+import { attachEarth } from './earth.js?v=efa1b5f542af';
+import { attachCastle } from './castle.js?v=efa1b5f542af';
+import { attachCastleTop } from './castle-top.js?v=efa1b5f542af';
+import { attachFamilyQuests } from './family-quests.js?v=efa1b5f542af';
 // 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
-import { attachCh6 } from './ch6.js?v=cb02a9b15ddb';
+import { attachCh6 } from './ch6.js?v=efa1b5f542af';
 // 第67回 A班: モンスター闘技場（ルミナの町の 東門の 外。maps/monarena-a.js）
-import { attachMonArena } from './monarena-a.js?v=cb02a9b15ddb';
+import { attachMonArena } from './monarena-a.js?v=efa1b5f542af';
 // 第88回 G4班: 作品の ガチャガチャ（maps/gacha-r88.js）
-import { attachGachaR88 } from './gacha-r88.js?v=cb02a9b15ddb';
+import { attachGachaR88 } from './gacha-r88.js?v=efa1b5f542af';
 // 第88回 G3班: まぼろしの回廊（ルミナの町の 星の神殿の 下。maps/rivals-r88.js）
-import { attachRivalHall } from './rivals-r88.js?v=cb02a9b15ddb';
+import { attachRivalHall } from './rivals-r88.js?v=efa1b5f542af';
 // 第90回 A班: 第3部 第1章 第1幕「星ふるえの夜」（maps/c9a.js）
-import { attachC9a } from './c9a.js?v=cb02a9b15ddb';
+import { attachC9a } from './c9a.js?v=efa1b5f542af';
 // 第91回 A班: 第3部 第1章 第2幕「鉱山の底の先」（maps/c9b.js）
-import { attachC9b } from './c9b.js?v=cb02a9b15ddb';
+import { attachC9b } from './c9b.js?v=efa1b5f542af';
 // 第92回 A班: 第3部 第1章 第3幕「さかさのピラミッド」（maps/c9c.js）
-import { attachC9c } from './c9c.js?v=cb02a9b15ddb';
+import { attachC9c } from './c9c.js?v=efa1b5f542af';
 // 第93回 A班: 第3部 第1章 第4幕「星のはかば」（maps/c9d.js）
-import { attachC9d } from './c9d.js?v=cb02a9b15ddb';
+import { attachC9d } from './c9d.js?v=efa1b5f542af';
 // 第94回 A班: 第3部 第2章 第1幕「赤と緑」（maps/c10a.js）
-import { attachC10a } from './c10a.js?v=cb02a9b15ddb';
+import { attachC10a } from './c10a.js?v=efa1b5f542af';
 // 第95回 A班: 第3部 第2章 第2幕「青と白」（maps/c10b.js）
-import { attachC10b } from './c10b.js?v=cb02a9b15ddb';
+import { attachC10b } from './c10b.js?v=efa1b5f542af';
 // 第97回 A班: 第3部 第2章 第3幕「紫と、うばわれた音」（maps/c10c.js）
-import { attachC10c } from './c10c.js?v=cb02a9b15ddb';
+import { attachC10c } from './c10c.js?v=efa1b5f542af';
 // 第99回 A班: 第3部 第2章 第4幕「金の音と、星の橋」（maps/c10d.js）
-import { attachC10d } from './c10d.js?v=cb02a9b15ddb';
+import { attachC10d } from './c10d.js?v=efa1b5f542af';
 // 第100回 A班: 第3部 第3章 第1幕「星の船と、星座の島」（maps/c11a.js）
-import { attachC11a } from './c11a.js?v=cb02a9b15ddb';
+import { attachC11a } from './c11a.js?v=efa1b5f542af';
 // 第102回 A班: 第3部 第3章 第2幕「月の都と、名前のランプ」（maps/c11b.js）
-import { attachC11b } from './c11b.js?v=cb02a9b15ddb';
+import { attachC11b } from './c11b.js?v=efa1b5f542af';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

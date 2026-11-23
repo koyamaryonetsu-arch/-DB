@@ -16,9 +16,9 @@
 //     チク・タクを ずっと きざむ〈マリンバの 高い 音と 低い 音 ＋ リムの 4分〉。ピンチは マリンバの 16分 ＝ きざみが 倍に 速く 聞こえる）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS } from './audio-c9a.js?v=cb02a9b15ddb';
-import { C9C_TOOLS } from './audio-c9c.js?v=cb02a9b15ddb';
-import { C9D_SONG } from './audio-c9d.js?v=cb02a9b15ddb';
+import { C9A_TOOLS } from './audio-c9a.js?v=efa1b5f542af';
+import { C9C_TOOLS } from './audio-c9c.js?v=efa1b5f542af';
+import { C9D_SONG } from './audio-c9d.js?v=efa1b5f542af';
 
 const { SHARP, FLAT, bassLine, comp, arp, pad, drums, rest, bars, oldView } = C9A_TOOLS;
 const { shift } = C9C_TOOLS;

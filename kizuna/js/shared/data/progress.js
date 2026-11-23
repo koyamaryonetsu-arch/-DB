@@ -1,19 +1,19 @@
 // ストーリーの すすみぐあい（フラグ）から「今の目標」を きめる
 // 古い 版の セーブで 目標の 文が 今と ちがう ときに、正しい 文に なおす ため（world.js の normalizeChar）
-import { CH1_CLEAR_OBJECTIVE } from './story.js?v=cb02a9b15ddb';
-import { SKY_FLAG, SKY_HINT_OBJECTIVE, SKY_OBJECTIVE } from './sky.js?v=cb02a9b15ddb';
-import { OBJECTIVE_TARGETS } from './quest-targets.js?v=cb02a9b15ddb';
-import { OBJECTIVE_TALK } from './party-talk.js?v=cb02a9b15ddb';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=cb02a9b15ddb';
-import { CH3_PROGRESS } from './story-ch3.js?v=cb02a9b15ddb';
-import { CH4_PROGRESS } from './story-ch4.js?v=cb02a9b15ddb';
-import { CH5_PROGRESS } from './story-ch5.js?v=cb02a9b15ddb';
-import { CH6_PROGRESS, ch6StaleObjective } from './story-ch6.js?v=cb02a9b15ddb';
-import { CH7_PROGRESS } from './story-c7.js?v=cb02a9b15ddb';
-import { CH8_PROGRESS } from './story-c8.js?v=cb02a9b15ddb';
-import { CH9_PROGRESS } from './story-c9.js?v=cb02a9b15ddb';
-import { CH10_PROGRESS } from './story-c10.js?v=cb02a9b15ddb';
-import { CH11_PROGRESS } from './story-c11.js?v=cb02a9b15ddb';
+import { CH1_CLEAR_OBJECTIVE } from './story.js?v=efa1b5f542af';
+import { SKY_FLAG, SKY_HINT_OBJECTIVE, SKY_OBJECTIVE } from './sky.js?v=efa1b5f542af';
+import { OBJECTIVE_TARGETS } from './quest-targets.js?v=efa1b5f542af';
+import { OBJECTIVE_TALK } from './party-talk.js?v=efa1b5f542af';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=efa1b5f542af';
+import { CH3_PROGRESS } from './story-ch3.js?v=efa1b5f542af';
+import { CH4_PROGRESS } from './story-ch4.js?v=efa1b5f542af';
+import { CH5_PROGRESS } from './story-ch5.js?v=efa1b5f542af';
+import { CH6_PROGRESS, ch6StaleObjective } from './story-ch6.js?v=efa1b5f542af';
+import { CH7_PROGRESS } from './story-c7.js?v=efa1b5f542af';
+import { CH8_PROGRESS } from './story-c8.js?v=efa1b5f542af';
+import { CH9_PROGRESS } from './story-c9.js?v=efa1b5f542af';
+import { CH10_PROGRESS } from './story-c10.js?v=efa1b5f542af';
+import { CH11_PROGRESS } from './story-c11.js?v=efa1b5f542af';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [
