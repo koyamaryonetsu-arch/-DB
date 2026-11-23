@@ -25,6 +25,9 @@ import { c11bState, keeperOf, oboroOf, tenninUp } from '../public/js/shared/batt
 // 第103回 B班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の バラバラン3号（mecha。Lv123）・近衛の隊長エース（ace。Lv124）
 import { C11C_BATTLE_B as C11C_BATTLE, C11C_B as C11C } from '../public/js/shared/maps/c11c-flags.js';
 import { c11cState, partsOf, aceOf, guardsUp, cardsLeft, canEat, TANOMU as C11C_TANOMU } from '../public/js/shared/battle-c11c.js';
+// 第104回 B班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」の 鏡と月の使い（duo。Lv125）・かがやきの女王ポラリス（queen。Lv126）
+import { C11D_BATTLE_B as C11D_BATTLE, C11D_B as C11D } from '../public/js/shared/data/c11d-names-b.js';
+import { c11dState, duoOf, queenOf, duoNeed, queenNeed } from '../public/js/shared/battle-c11d.js';
 // かんたんな 人（MODES9.easy・easy0。HUMAN=easy の 道具 … ch9Run(…, 'easy')）
 import './sim-easy.mjs';
 
@@ -147,6 +150,56 @@ export function c11cText(res) {
   return '';
 }
 
+
+// ───── 第104回 B班: 第4幕「かがやきの女王と、八つめの音」の 鏡と月の使い（duo。Lv125）・かがやきの女王ポラリス（queen。Lv126）─────
+Object.assign(CH9_IDS, { duo: C11D_BATTLE.duo, queen: C11D_BATTLE.queen });
+export const CH11D_LV = { duo: 125, queen: 126 };
+Object.assign(LV9, CH11D_LV);
+// その ころの ★装備（前の 幕までの ★5 と ボスの 品 ＋ この 幕の ★5〈中ボスは 塔 1〜3階の 道着・ローブ・たて。女王は ＋玉座の 前の よろい・中ボスの 品〉）
+CH9_KIT.duo = {
+  hero: ['c8s_star_sword', 'c11ct_door_mail', 'c11bt_moon_shield', 'c10it_cloud_helm', 'c11cb_ace_cape'],
+  daikenja: ['c9b_owl_staff', 'c11dt_moon_robe', null, 'c10gt_flower_hat', 'c11cb_gear_badge'],
+  god_hand: ['c9at_star_claw', 'c11dt_prism_gi', null, 'c10wt_quiet_helm', 'c11bb_oboro_sash'],
+  high_priest: ['c9b_owl_staff', 'c11ct_hall_robe', 'c11dt_shadow_shield', 'c7l_kingdom_crown', 'c11bb_lamp_chain'],
+};
+CH9_KIT.queen = {
+  hero: ['c8s_star_sword', 'c11dt_eight_mail', 'c11dt_shadow_shield', 'c10it_cloud_helm', 'c11db_duo_ribbon'],
+  daikenja: ['c9b_owl_staff', 'c11dt_moon_robe', null, 'c10gt_flower_hat', 'c11cb_ace_cape'],
+  god_hand: ['c9at_star_claw', 'c11dt_prism_gi', null, 'c10wt_quiet_helm', 'c11cb_gear_badge'],
+  high_priest: ['c9b_owl_staff', 'c11ct_hall_robe', 'c11bt_moon_shield', 'c7l_kingdom_crown', 'c11bb_oboro_sash'],
+};
+// 一本道 … 第2章の 7つの 音 ＋ 第1幕の ながれ星（c11_act1）＋ 第2幕の 名前をよぶ声（c11_act2）＋ 第3幕の ふたりの光（c11_act3）。この 幕の ごほうび（c11_act4）は まだ ない
+Object.assign(ORDER_FLAGS, { c11d: { duo: [...CH10_NOTES, C11B.act1, C11C.act2, C11D.act3], queen: [...CH10_NOTES, C11B.act1, C11C.act2, C11D.act3] } });
+ORDER_LABEL.c11d = '一本道';
+Object.assign(ORDERS_OF, { duo: ['c11d'], queen: ['c11d'] });
+// 知って いる 人の しくみの 役（合体技を しない）: 中ボス … 鳴らす・よびかける ／ 女王 … 手をつなぐ・八つの音
+NEED9_HOOKS.push((b, a) => {
+  const st = c11dState(b);
+  if (!st || st.won || st.lost) return false;
+  if (st.kind === 'duo') return !!duoNeed(b);
+  return !!queenNeed(b, a);
+});
+STATS9_HOOKS.push((b) => {
+  const st = c11dState(b);
+  if (!st) return {};
+  if (st.kind === 'duo') {
+    const hp = duoOf(b).reduce((t, e) => t + Math.max(0, e.hp), 0) / Math.max(1, duoOf(b).reduce((t, e) => t + e.maxHp, 0));
+    return { dSwap: st.swaps, dRing: st.rings, dHit: st.hits, dMiss: st.misses, dAutoR: st.autoRings, dRobe: st.robes, dCall: st.calls, dAutoC: st.autoCalls, dWaste: st.wasted, dPeak: st.peak, dLost: st.lost ? 1 : 0, dBack: st.backHits, dHp: hp };
+  }
+  const q = queenOf(b);
+  return {
+    qHold: st.holds, qAuto: st.autoHolds, qMerge: st.merges, qOff: st.breaksUp, qMeas: st.measures, qHeld: st.measureHeld, qLock: st.measureLock, qSweep: st.sweeps,
+    qShine: st.shines, qLoose: st.shineLoose, qEight: st.eights, qScene: st.eightDone ? 1 : 0, qSceneT: st.sceneAt != null ? st.sceneAt / 1000 : 0, qHold1: st.eightDone ? st.holdsBefore : st.holds,
+    qRingMax: st.ringMax, qNames: st.names, qHp: q ? q.hp / q.maxHp : 0,
+  };
+});
+export function c11dText(res) {
+  const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
+  if (res.some((r) => r.dSwap !== undefined)) return `  入れかわる${avg('dSwap').toFixed(1)} 鳴らす${avg('dRing').toFixed(1)}(われた${avg('dHit').toFixed(1)}・むだ${avg('dMiss').toFixed(1)}・自動${avg('dAutoR').toFixed(1)}) 衣${avg('dRobe').toFixed(1)} よぶ${avg('dCall').toFixed(1)}(自動${avg('dAutoC').toFixed(1)}・むだ${avg('dWaste').toFixed(1)}) 最大わすれ${avg('dPeak').toFixed(1)} つれていかれ${avg('dLost').toFixed(2)} うしろ${avg('dBack').toFixed(0)} のこり${(avg('dHp') * 100).toFixed(0)}%`;
+  if (res.some((r) => r.qHold !== undefined)) return `  つなぐ${avg('qHold').toFixed(1)}(前半${avg('qHold1').toFixed(1)}・自動${avg('qAuto').toFixed(1)}・輪に${avg('qMerge').toFixed(1)}・最大${avg('qRingMax').toFixed(1)}人・ほどけ${avg('qOff').toFixed(1)}) はかり${avg('qMeas').toFixed(1)}(もちこたえ${avg('qHeld').toFixed(1)}・八つ${avg('qLock').toFixed(1)}・ながされ${avg('qSweep').toFixed(1)}) かがやき${avg('qShine').toFixed(1)}(ひとり${avg('qLoose').toFixed(1)}) 八つめ${avg('qScene').toFixed(2)}(${avg('qSceneT').toFixed(0)}秒) 八つの音${avg('qEight').toFixed(1)} 名前${avg('qNames').toFixed(1)} 女王のこり${(avg('qHp') * 100).toFixed(0)}%`;
+  return '';
+}
+
 // 知って いる 人の しくみの 役（合体技を しない）: 船長 … 時計を 持って いる・いかりなげの ねらい／けもの … かみつきの ねらい
 NEED9_HOOKS.push((b, a) => {
   const st = c11aState(b);
@@ -190,10 +243,10 @@ export function c11aText(res) {
 
 if (process.argv[1]?.endsWith('sim-ch11.mjs')) {
   const N = Number(process.argv[2] || 30);
-  const which = !process.argv[3] || process.argv[3] === 'act1' || process.argv[3] === 'all' ? ['beast', 'pirate'] : process.argv[3] === 'act2' ? ['keeper', 'oboro'] : process.argv[3] === 'act3' ? ['mecha', 'ace'] : process.argv[3].split(',');
+  const which = !process.argv[3] || process.argv[3] === 'act1' || process.argv[3] === 'all' ? ['beast', 'pirate'] : process.argv[3] === 'act2' ? ['keeper', 'oboro'] : process.argv[3] === 'act3' ? ['mecha', 'ace'] : process.argv[3] === 'act4' ? ['duo', 'queen'] : process.argv[3].split(',');
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'pirate';
-    console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4', flags: (ORDER_FLAGS.c11a[boss] || ORDER_FLAGS.c11b[boss] || ORDER_FLAGS.c11c[boss]), tactics: tacticsOf()[0], ...(process.env.REACT ? { react: Number(process.env.REACT.split(',')[0]) } : {}) }));
+    console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4', flags: (ORDER_FLAGS.c11a[boss] || ORDER_FLAGS.c11b[boss] || ORDER_FLAGS.c11c[boss] || ORDER_FLAGS.c11d[boss]), tactics: tacticsOf()[0], ...(process.env.REACT ? { react: Number(process.env.REACT.split(',')[0]) } : {}) }));
   } else {
     const parties = !process.env.PARTY ? ['p4'] : process.env.PARTY === 'all' ? Object.keys(PARTIES9) : process.env.PARTY.split(',');
     const reacts = (process.env.REACT || '2000,5000').split(',').map(Number);
@@ -210,7 +263,7 @@ if (process.argv[1]?.endsWith('sim-ch11.mjs')) {
             for (const react of mode === 'auto' ? [reacts[0]] : reacts) {
               const r = c10Batch(boss, mode, N, { party, react, order: ORDERS_OF[boss][0], ...(tactics ? { tactics } : {}) });
               const tl = tactics ? `（${TACTICS[tactics].name}）` : '';
-              console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label}${tl} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c11aText(r.res)}${c11bText(r.res)}${c11cText(r.res)}`);
+              console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label}${tl} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c11aText(r.res)}${c11bText(r.res)}${c11cText(r.res)}${c11dText(r.res)}`);
             }
           }
         }

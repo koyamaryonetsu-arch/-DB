@@ -53,6 +53,8 @@ import { ITEMS_C11A, C11A_ITEM_KANA } from './items-c11a.js';
 import { ITEMS_C11B, C11B_ITEM_KANA } from './items-c11b.js';
 // 第103回 B班: 第3部 第3章 第3幕（items-c11c.js）
 import { ITEMS_C11C, C11C_ITEM_KANA } from './items-c11c.js';
+// 第104回 B班: 第3部 第3章 第4幕（items-c11d.js）
+import { ITEMS_C11D, C11D_ITEM_KANA } from './items-c11d.js';
 import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js';
 // 第37回 A: サファラ闘技場の ごほうび
 import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
@@ -329,9 +331,11 @@ Object.assign(ITEMS, ITEMS_C11A);
 Object.assign(ITEMS, ITEMS_C11B);
 // 第3部 第3章 第3幕: はかりの 回ろうの 宝箱・うらの 町の 店（幕の クリアで ふえる）・ボスの 品（items-c11c.js）
 Object.assign(ITEMS, ITEMS_C11C);
+// 第3部 第3章 第4幕: かがやきの 塔の 宝箱・月の都の おもての 店（第3部の クリアで ふえる）・ボスの 品・八つめの音（items-c11d.js）
+Object.assign(ITEMS, ITEMS_C11D);
 // 第3部の 2幕めから あとの 品（くぼ地の 武具屋〈ランク10・k 2.06〜〉・宝箱・ボスの 品）。前の 章の「店の いちばん よい 品」・
 //   職業の はかりの もとに まぜない ため（tools/sim-jobs.mjs・test/craft-trial-r65・test/ch5-castle-battle）。幕を 足す ときは ここに 足す
-export const PART3_LATE_ITEMS = new Set([...Object.keys(ITEMS_C9B), ...Object.keys(ITEMS_C9C), ...Object.keys(ITEMS_C9D), ...Object.keys(ITEMS_C10A), ...Object.keys(ITEMS_C10B), ...Object.keys(ITEMS_C10C), ...Object.keys(ITEMS_C10D), ...Object.keys(ITEMS_C11A), ...Object.keys(ITEMS_C11B), ...Object.keys(ITEMS_C11C)]);
+export const PART3_LATE_ITEMS = new Set([...Object.keys(ITEMS_C9B), ...Object.keys(ITEMS_C9C), ...Object.keys(ITEMS_C9D), ...Object.keys(ITEMS_C10A), ...Object.keys(ITEMS_C10B), ...Object.keys(ITEMS_C10C), ...Object.keys(ITEMS_C10D), ...Object.keys(ITEMS_C11A), ...Object.keys(ITEMS_C11B), ...Object.keys(ITEMS_C11C), ...Object.keys(ITEMS_C11D)]);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
@@ -478,6 +482,7 @@ Object.assign(ITEM_KANA, C10D_ITEM_KANA);
 Object.assign(ITEM_KANA, C11A_ITEM_KANA);
 Object.assign(ITEM_KANA, C11B_ITEM_KANA);
 Object.assign(ITEM_KANA, C11C_ITEM_KANA);
+Object.assign(ITEM_KANA, C11D_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

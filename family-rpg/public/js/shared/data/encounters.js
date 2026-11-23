@@ -43,6 +43,8 @@ import { ENCOUNTERS_C11A, FIXED_C11A, ZONE_BG_C11A } from './encounters-c11a.js'
 import { ENCOUNTERS_C11B, FIXED_C11B, ZONE_BG_C11B } from './encounters-c11b.js';
 // 第103回 B班: 第3部 第3章 第3幕（encounters-c11c.js）
 import { ENCOUNTERS_C11C, FIXED_C11C, ZONE_BG_C11C } from './encounters-c11c.js';
+// 第104回 B班: 第3部 第3章 第4幕（encounters-c11d.js）
+import { ENCOUNTERS_C11D, FIXED_C11D, ZONE_BG_C11D } from './encounters-c11d.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -260,6 +262,10 @@ Object.assign(ZONE_BG, ZONE_BG_C11B);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C11C);
 Object.assign(FIXED_ENCOUNTERS, FIXED_C11C);
 Object.assign(ZONE_BG, ZONE_BG_C11C);
+// 第3部 第3章 第4幕「かがやきの女王と、八つめの音」の 魔物・鏡と月の使い・かがやきの女王ポラリス（encounters-c11d.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_C11D);
+Object.assign(FIXED_ENCOUNTERS, FIXED_C11D);
+Object.assign(ZONE_BG, ZONE_BG_C11D);
 
 // 第67回 B: モンスター闘技場の 王者（色ちがい）を とうろく（画面でも 名前と 絵が 引けるように。data/monarena.js）
 import './monarena.js';

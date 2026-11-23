@@ -39,6 +39,8 @@ import { setupC11a, setStarDamage, c11aTurnStart, c11aEffect, c11aDamage, c11aPl
 import { setupC11b, c11bTurnStart, c11bEffect, c11bDamage, c11bPlan, c11bPub, c11bBusy, c11bTell } from './battle-c11b.js';
 // 第3部 第3章 第3幕: スピカの ごほうび（ふたりの光）・バラバラン3号・近衛の隊長エース・アルゴルにたのむ（battle-c11c.js）
 import { setupC11c, c11cTurnStart, c11cEffect, c11cDamage, c11cPlan, c11cPub, c11cBusy, c11cTell } from './battle-c11c.js';
+// 第3部 第3章 第4幕: スピカの さいごの ごほうび（八つの音のうた）・鏡と月の使い・かがやきの女王ポラリス・手をつなぐ・八つの音（battle-c11d.js）
+import { setupC11d, c11dTurnStart, c11dEffect, c11dDamage, c11dPlan, c11dPub, c11dBusy, c11dTell } from './battle-c11d.js';
 
 export { TERU };
 export const WATCH = 'm9k_watch';
@@ -129,6 +131,8 @@ export function setupC9b(b, lines) {
   if (setupC11b(b, lines)) teru = true;
   // 第3部 第3章 第3幕: バラバラン3号・近衛の隊長エース（スピカは かならず 出る）・スピカの ごほうび（battle-c11c.js）
   if (setupC11c(b, lines)) teru = true;
+  // 第3部 第3章 第4幕: 鏡と月の使い・かがやきの女王ポラリス（スピカは かならず 出る）・スピカの ごほうび（battle-c11d.js）
+  if (setupC11d(b, lines)) teru = true;
   b.c9teruOn = teru;
   return teru;
 }
@@ -228,6 +232,8 @@ export function c9bTurnStart(b, c, ev, stuck) {
     c11bTurnStart(b, c, ev, stuck);
     // 第3部 第3章 第3幕（battle-c11c.js）
     c11cTurnStart(b, c, ev, stuck);
+    // 第3部 第3章 第4幕（battle-c11d.js）
+    c11dTurnStart(b, c, ev, stuck);
     // 第3部 第1章 第4幕（battle-c9d.js）
     c9dTurnStart(b, c, ev, stuck);
     return c9cTurnStart(b, c, ev, stuck);
@@ -311,7 +317,8 @@ export function c9bEffect(b, c, a, eff, ev) {
     // 第3部 第3章 第1幕（battle-c11a.js）
     // 第3部 第3章 第2幕（battle-c11b.js）
     // 第3部 第3章 第3幕（battle-c11c.js）
-    default: return c11cEffect(b, c, a, eff, ev) || c11bEffect(b, c, a, eff, ev) || c11aEffect(b, c, a, eff, ev) || c10dEffect(b, c, a, eff, ev) || c10cEffect(b, c, a, eff, ev) || c10bEffect(b, c, a, eff, ev) || c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
+    // 第3部 第3章 第4幕（battle-c11d.js。中ボスの 戦いでは「音を鳴らす」「よびかける」も 先に 受ける）
+    default: return c11dEffect(b, c, a, eff, ev) || c11cEffect(b, c, a, eff, ev) || c11bEffect(b, c, a, eff, ev) || c11aEffect(b, c, a, eff, ev) || c10dEffect(b, c, a, eff, ev) || c10cEffect(b, c, a, eff, ev) || c10bEffect(b, c, a, eff, ev) || c10aEffect(b, c, a, eff, ev) || c9dEffect(b, c, a, eff, ev) || c9cEffect(b, c, a, eff, ev);
   }
 }
 
@@ -473,7 +480,8 @@ export function c9bDamage(b, c, t, dmg, info, ev) {
   // 第3部 第3章 第1幕: 船長は ふだん かたい・目を 回すと よく 通る・HP 1 で にげる（battle-c11a.js）
   // 第3部 第3章 第2幕: 番人の 明かり・天人が いる 間の オボロは かたい・HP 1 で 引く（battle-c11b.js）
   // 第3部 第3章 第3幕: メカの あたまは かたい・へいたいは 全体の 技を 受けにくい・隊長は HP 1 で ちらばる（battle-c11c.js）
-  if (!t?.c9k) return c11cDamage(b, c, t, c11bDamage(b, c, t, c11aDamage(b, c, t, c10dDamage(b, c, t, c10cDamage(b, c, t, c10bDamage(b, c, t, c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev);
+  // 第3部 第3章 第4幕: 中ボスの うしろ・まく・衣・女王の 八つめの 音・HP 1 で 引く（battle-c11d.js）
+  if (!t?.c9k) return c11dDamage(b, c, t, c11cDamage(b, c, t, c11bDamage(b, c, t, c11aDamage(b, c, t, c10dDamage(b, c, t, c10cDamage(b, c, t, c10bDamage(b, c, t, c10aDamage(b, c, t, c9cDamage(b, c, t, c9dDamage(b, c, t, dmg, info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev), info, ev);
   const k = t.c9k;
   if (k.down) return 0;
   if (dmg >= t.hp) {
@@ -551,6 +559,9 @@ export function c9bPlan(b, c, decide, bestHit) {
   // 第3部 第3章 第1幕: 星座のけもの・いかり船長（battle-c11a.js）
   // 第3部 第3章 第2幕: ランプの番人・月のむかえ オボロ（battle-c11b.js）
   // 第3部 第3章 第3幕: バラバラン3号・近衛の隊長エース（battle-c11c.js）
+  // 第3部 第3章 第4幕: 鏡と月の使い・かがやきの女王ポラリス（battle-c11d.js）
+  const p11d = c11dPlan(b, c, decide, bestHit);
+  if (p11d !== undefined) return p11d;
   const p11c = c11cPlan(b, c, decide, bestHit);
   if (p11c !== undefined) return p11c;
   const p11b = c11bPlan(b, c, decide, bestHit);
@@ -620,7 +631,7 @@ function autoDish(b, c, watched, bestHit) {
 // しくみの 用が ある 間（シミュレーターの 知って いる 人は 合体技を しない）
 export function c9bBusy(b) {
   // 第3部 第1章 第3幕（battle-c9c.js）
-  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b) || c10bBusy(b) || c10cBusy(b) || c10dBusy(b) || c11aBusy(b) || c11bBusy(b) || c11cBusy(b)) return true;
+  if (c9cBusy(b) || c9dBusy(b) || c10aBusy(b) || c10bBusy(b) || c10cBusy(b) || c10dBusy(b) || c11aBusy(b) || c11bBusy(b) || c11cBusy(b) || c11dBusy(b)) return true;
   const k = kingOf(b)?.c9k;
   if (!k || k.down) return false;
   if (k.jumpReady) return true;
@@ -646,7 +657,8 @@ export function c9bTell(b) {
   // 第3部 第3章 第1幕: かみつき（fang）・よみがえる 前（revive）・いかりなげ（anchor）… battle-c11a.js の c11aTell
   // 第3部 第3章 第2幕: 明かりが かわる（lamp）・わすれの衣（robe）・わすれの光（flash）… battle-c11b.js の c11bTell
   // 第3部 第3章 第3幕: ロケットパンチ（rocket）・直す（fix）・カード（cards）… battle-c11c.js の c11cTell
-  return c11cTell(b) || c11bTell(b) || c11aTell(b) || c10dTell(b) || c10cTell(b) || c10bTell(b) || c10aTell(b) || c9dTele(b) || c9cTell(b);
+  // 第3部 第3章 第4幕: 入れかわる（swap）・わすれの衣（robe）・八つめの 音（eight）・光の はかり（measure）・かがやき（shine）… battle-c11d.js の c11dTell
+  return c11dTell(b) || c11cTell(b) || c11bTell(b) || c11aTell(b) || c10dTell(b) || c10cTell(b) || c10bTell(b) || c10aTell(b) || c9dTele(b) || c9cTell(b);
 }
 
 // ───────────── がめんへ（battle-c9a.js の c9aPub から。敵だけ）─────────────
@@ -687,7 +699,7 @@ export function c9bPub(c, b = c?._b9) {
   // 第3部 第2章 第1幕: タマゴン・モルド（battle-c10a.js）
   // 第3部 第2章 第2幕: ゲッコー・シロフクロウ（battle-c10b.js）
   // 第3部 第2章 第3幕: たいさ・アルゴル（battle-c10c.js）
-  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c), c10bPub(c), c10cPub(c), c10dPub(c), c11aPub(c), c11bPub(c), c11cPub(c));
+  return Object.assign(o, c9cPub(c, b), c9dPub(c, b), c10aPub(c), c10bPub(c), c10cPub(c), c10dPub(c), c11aPub(c), c11bPub(c), c11cPub(c), c11dPub(c));
 }
 
 // 第3部 第3章 第1幕: スピカの「ながれ星」も しかけの ダメージを 通す（battle-c11a.js）

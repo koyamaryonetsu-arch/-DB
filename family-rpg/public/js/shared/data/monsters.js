@@ -60,6 +60,8 @@ import { MONSTERS_C11A } from './monsters-c11a.js';
 import { MONSTERS_C11B } from './monsters-c11b.js';
 // 第103回 B班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（monsters-c11c.js）
 import { MONSTERS_C11C } from './monsters-c11c.js';
+// 第104回 B班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」（monsters-c11d.js）
+import { MONSTERS_C11D } from './monsters-c11d.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -350,6 +352,8 @@ Object.assign(MONSTERS, MONSTERS_C11A);
 Object.assign(MONSTERS, MONSTERS_C11B);
 // 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の 魔物・バラバラン3号・近衛の隊長エース・へいたい（monsters-c11c.js）
 Object.assign(MONSTERS, MONSTERS_C11C);
+// 第3部 第3章 第4幕「かがやきの女王と、八つめの音」の 魔物・鏡と月の使い・かがやきの女王ポラリス（monsters-c11d.js）
+Object.assign(MONSTERS, MONSTERS_C11D);
 addC8aHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
