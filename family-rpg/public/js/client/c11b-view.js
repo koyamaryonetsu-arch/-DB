@@ -20,24 +20,8 @@ export function noteC11bStage(field) {
 }
 const hintOf = (field) => (field.c11b && field.c11b.map === field.mapId ? field.c11b.h || null : null);
 
-// ───── かどで すべる（第102回 C1班。この 幕の マップ〈map.c11b〉だけ）─────
-// みんなの 歩き方（client/field.js）は、進む 向きが かべで 止まった 時に「かどを すりぬける（nudge）」が、
-//   ・横の ずれが 0.3 より 小さい 時だけ（スマホの スティックは 少し ななめに 入る ことが 多い）
-//   ・左右へ 進む 時は、その あとの たての いどう（ny は nudge の 前の いち）で もとに もどって しまう（上から 来て 右へ まがる かど など）
-// ので、1マス はばの 道の かどで かべに はりついて 止まる ことが あった（少し 横に よせると 通れる）。
-// この 幕の マップでは、進む 向きが ふさがって いて すぐ 横に すりぬけられる 道が ある 時（ななめ 4わり 近く まで）、ここで すりぬけ、
-// この フレームの いどうは しない（{ ix: 0, iy: 0 } を かえす）。ほかの 時は null（いつもの 歩き方）
-export function c11bCornerSlide(field, me, ix, iy, sp) {
-  if (!field.map?.c11b) return null;
-  const ax = Math.abs(ix), ay = Math.abs(iy);
-  const horiz = ax >= ay;
-  const major = horiz ? ax : ay, minor = horiz ? ay : ax;
-  if (major < 0.05 || minor > major * 0.85) return null;
-  const sx = horiz ? Math.sign(ix) : 0, sy = horiz ? 0 : Math.sign(iy);
-  if (field.boxFree(me.x + sx * sp, me.y + sy * sp)) return null;
-  if (!field.nudge(horiz ? 'y' : 'x', me, horiz ? sx : sy, sp)) return null;
-  return { ix: 0, iy: 0 };
-}
+// ───── かどで すべる（第102回 C1班）は、第102回 M1班で みんなの 歩き方（client/walk.js）に うつした ─────
+// 左右へ 進む 時も 上下と 同じに・スティックが ななめ 30° くらい まで かどを すりぬける（docs/plan-r102-corner-slide.md）
 
 // うらで 明るい マス（あたたかい 光）
 const WARM = new Set([T.C11B_B_LANTERN, T.C11B_LANTERNWELL, T.C11B_DOOR, T.C11B_OPENDOOR, T.C11B_T_STAIRS_B, T.C11B_SHADOWBRIDGE]);

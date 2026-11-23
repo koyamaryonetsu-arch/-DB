@@ -586,9 +586,9 @@ test('通し（ひとり）: 星座の門の むこう → 月の都（おもて
 });
 
 // ───────────── 第102回 C1班: 1マス はばの 道の 曲がりかど（スマホの スティック）─────────────
-test('かど: うら道・塔への 道・塔の 中の 1マス はばの 曲がりかどは 内がわを 広げた（同じ 形の きまりの まま）・この 幕の マップ だけ かどで すべる（スティックが ななめでも まがれる）', async () => {
+test('かど: うら道・塔への 道・塔の 中の 1マス はばの 曲がりかどは 内がわを 広げた（同じ 形の きまりの まま）・かどで すべる（スティックが ななめでも まがれる。第102回 M1班から みんなの 歩き方）', async () => {
   const { Field } = await import('../public/js/client/field.js');
-  const { c11bCornerSlide } = await import('../public/js/client/c11b-view.js');
+  const { walkStep } = await import('../public/js/client/walk.js');
   const ALL = () => true;
   const IDS = ['c11b_front', 'c11b_back', 'c11b_tower1', 'c11b_towerb1', 'c11b_tower2', 'c11b_towerb2', 'c11b_tower3', 'c11b_towerb3'];
   for (const id of IDS) assert.ok(MAPS[id]?.c11b, id);
@@ -615,14 +615,13 @@ test('かど: うら道・塔への 道・塔の 中の 1マス はばの 曲が
     }
   }
   assert.deepEqual(left, ['c11b_tower2 21,17', 'c11b_towerb3 20,14'], '階段の となりの くぼみ・宝箱の 前 だけ');
-  // 3) かどで すべる: field.js の いどうの 行に、この 幕の マップ だけ つないで ある
+  // 3) かどで すべる: 第102回 M1班で みんなの 歩き方（client/walk.js の walkStep）に うつした（この 幕だけの しくみは 外した）
   const src = readFileSync(new URL('../public/js/client/field.js', import.meta.url), 'utf8');
-  assert.match(src, /if \(!flying\) \{ const cs = c11bCornerSlide\(this, me, ix, iy, sp\); if \(cs\) \(\{ ix, iy \} = cs\); \}\n {8}const nx = me\.x/);
+  assert.match(src, /else moved = walkStep\(\(x, y\) => this\.boxFree\(x, y\), me, ix, iy, sp\);/);
+  assert.doesNotMatch(src, /c11bCornerSlide/);
   const fieldOf = (m, me = { x: 0, y: 0 }) => Object.assign(Object.create(Field.prototype), {
     map: m, me, npcState: new Map(), scriptHidden: new Set(), followAuto: false, game: { me: { flags: {}, chests: {} } }, hasFlag: () => true,
   });
-  // ほかの 章の マップでは なにも しない
-  assert.equal(c11bCornerSlide(fieldOf(MAPS.overworld), { x: 10.5, y: 10.5 }, 1, 0.4, 0.07), null);
   // 4) まがれるか（field.js の いどうの 行と 同じ 形。かどの マスに 入りぐあい f で 入って、ななめ ±25° まで ずらして 1.2 秒）
   const fails = [];
   let turns = 0;
@@ -633,13 +632,7 @@ test('かど: うら道・塔への 道・塔の 中の 1マス はばの 曲が
     const run = (me, ix, iy) => {
       const fld = fieldOf(m, me);
       const sp = 4.6 * 0.016;
-      const cs = c11bCornerSlide(fld, me, ix, iy, sp);
-      if (cs) ({ ix, iy } = cs);
-      const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp, ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
-      if (fld.boxFree(nx, me.y)) me.x = nx;
-      else if (Math.abs(iy) < 0.3) fld.nudge('y', me, ix > 0 ? 1 : -1, sp);
-      if (fld.boxFree(me.x, ny)) me.y = ny;
-      else if (Math.abs(ix) < 0.3) fld.nudge('x', me, iy > 0 ? 1 : -1, sp);
+      walkStep((x, y) => fld.boxFree(x, y), me, ix, iy, sp);
     };
     for (let y = 1; y < m.h - 1; y++) for (let x = 1; x < m.w - 1; x++) {
       if (!ok(x, y) || (m.c11bCity && y >= 27)) continue;

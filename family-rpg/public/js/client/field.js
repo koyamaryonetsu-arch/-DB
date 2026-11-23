@@ -48,7 +48,9 @@ import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js';
 import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from './c11a-view.js';
 import { paintStarShip } from './render/c11a-npc-art.js';
 // 第102回 A班: 第3部 第3章 第2幕の おもてと うら（しるし・色と 明かり・ホタルの 助け・曲の sideStage。client/c11b-view.js）
-import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D, c11bCornerSlide } from './c11b-view.js';
+import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D } from './c11b-view.js';
+// 第102回 M1班: 歩く 1フレーム・かどを すりぬける（Node の テストでも 回せる 形）
+import { walkStep, nudgeStep } from './walk.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -487,19 +489,15 @@ export class Field {
         me.moving = false;
       } else {
         const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (flying ? flySpeed(this.game.me?.flags) : this.isOnWater(me.x, me.y) ? SHIP : 1);
-        // 第102回 C1班: 第3部 第3章 第2幕の マップ だけ、1マス はばの 道の かどで すべる（スティックの ななめ。client/c11b-view.js）
-        if (!flying) { const cs = c11bCornerSlide(this, me, ix, iy, sp); if (cs) ({ ix, iy } = cs); }
-        const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
-        const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
         let moved = false;
         // 大鳥で とんでいる ときは マップの はし まで どこでも（sky.js）
-        if (flying) moved = sky.flyStep(me, nx, ny, iy, dt);
-        else {
-          if (this.boxFree(nx, me.y)) { me.x = nx; moved = true; }
-          else if (Math.abs(iy) < 0.3) moved = this.nudge('y', me, ix > 0 ? 1 : -1, sp) || moved;
-          if (this.boxFree(me.x, ny)) { me.y = ny; moved = true; }
-          else if (Math.abs(ix) < 0.3) moved = this.nudge('x', me, iy > 0 ? 1 : -1, sp) || moved;
+        if (flying) {
+          const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
+          const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
+          moved = sky.flyStep(me, nx, ny, iy, dt);
         }
+        // 横 → たての じゅんに 歩く・かどを すりぬける（第102回 M1班: 左右も 上下と 同じに・ななめ 30° くらい まで。client/walk.js）
+        else moved = walkStep((x, y) => this.boxFree(x, y), me, ix, iy, sp);
         if (moved) this.pushTrail(me);
         // 氷に 足を のせた: その まま すべりだす
         if (moved && iceOn && this.isIce(Math.floor(me.x), Math.floor(me.y))) this.startSlide(d[0], d[1]);
@@ -543,31 +541,9 @@ export class Field {
     if (this.shakeT > 0) this.shakeT -= dt;
   }
 
-  // かどを すりぬけやすくする
-  nudge(axis, me, dirSign, sp) {
-    if (axis === 'y') {
-      const cy = Math.floor(me.y) + 0.6;
-      for (const off of [0.2, 0.35]) {
-        for (const s of [1, -1]) {
-          const ty = me.y + s * off;
-          if (this.boxFree(me.x + dirSign * 0.1, ty) && Math.abs(ty - cy) <= Math.abs(me.y - cy) + 0.36) {
-            const step = Math.min(sp, off) * s;
-            if (this.boxFree(me.x, me.y + step)) { me.y += step; return true; }
-          }
-        }
-      }
-    } else {
-      for (const off of [0.2, 0.35]) {
-        for (const s of [1, -1]) {
-          const tx = me.x + s * off;
-          if (this.boxFree(tx, me.y + dirSign * 0.1)) {
-            const step = Math.min(sp, off) * s;
-            if (this.boxFree(me.x + step, me.y)) { me.x += step; return true; }
-          }
-        }
-      }
-    }
-    return false;
+  // かどを すりぬけやすくする（client/walk.js の nudgeStep。pref … 先に ためす ずれの 向き）
+  nudge(axis, me, dirSign, sp, pref = 0) {
+    return nudgeStep((x, y) => this.boxFree(x, y), axis, me, dirSign, sp, pref);
   }
 
   // ───────────── 氷（第3章）─────────────
