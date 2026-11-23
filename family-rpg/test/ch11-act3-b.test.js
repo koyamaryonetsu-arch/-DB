@@ -554,7 +554,7 @@ test('スピカの ごほうび: この 幕の クリア（c11_act3）で 技「
   // 1回だけ
   a0.hp = 1; a1.hp = 1;
   for (let i = 0; i < 3; i++) for (const a of twin.aliveAllies()) assert.ok(!act(twin, a, { type: 'defend' })?.c11cTwin, '2回めは ない');
-  assert.equal(GUEST_MAX_LEVEL, 124);
+  assert.equal(GUEST_MAX_LEVEL, 126); // 第104回 B班: 第4幕で 124 → 126
 });
 
 // ───────────── 品 ─────────────

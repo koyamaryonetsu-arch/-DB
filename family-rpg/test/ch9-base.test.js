@@ -201,7 +201,7 @@ test('しおり: 第1・2部の 表示は かわらない（章の はじめ・�
 
 // ───────────── ゲスト ─────────────
 test('ゲストの レベルの 上限 99 → 110（第3部 第3章 第1幕で 120）: 今 いる ゲストの 強さは かわらない', () => {
-  assert.equal(GUEST_MAX_LEVEL, 124); // 第102回 B班: 第3部 第3章 第2幕で 120 → 122・第103回 B班: 第3幕で 122 → 124
+  assert.equal(GUEST_MAX_LEVEL, 126); // 第102回 B班: 第3部 第3章 第2幕で 120 → 122・第103回 B班: 第3幕で 122 → 124・第104回 B班: 第4幕で 124 → 126
   const old = (def) => Math.max(def.minLevel || 1, Math.min(99, def.maxLevel || (def.minLevel || 1) + GUEST_LV_SPAN));
   for (const [id, def] of Object.entries(GUESTS)) {
     assert.equal(guestLevelCap(def), old(def), `${id} の 上限`);
@@ -217,7 +217,7 @@ test('ゲストの レベルの 上限 99 → 110（第3部 第3章 第1幕で 1
   // 上限を 上げた ぶんは maxLevel が 99 より 上の ゲスト（第3部で 作る）だけに きく
   // 第101回 B班: 第3部 第3章 第1幕で 120 に（Lv118〜120）
   assert.equal(guestLevelCap({ minLevel: 100, maxLevel: 120 }), 120);
-  assert.equal(guestLevelCap({ minLevel: 100, maxLevel: 130 }), 124); // 第102回 B班: 第3部 第3章 第2幕で 122・第103回 B班: 第3幕で 124
+  assert.equal(guestLevelCap({ minLevel: 100, maxLevel: 130 }), 126); // 第102回 B班: 第3部 第3章 第2幕で 122・第103回 B班: 第3幕で 124・第104回 B班: 第4幕で 126
   assert.equal(guestLevelCap({ minLevel: 96 }), 104);
 });
 

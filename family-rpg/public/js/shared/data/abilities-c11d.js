@@ -128,7 +128,7 @@ export const C11D_ABILITIES = {
     desc: 'うしろから、1人に小さなダメージ。',
   },
   [ROBE]: {
-    name: 'わすれの衣', kind: 'monster', target: 'self',
+    name: 'わすれの衣をかける', kind: 'monster', target: 'self',
     effect: { type: 'c11dRobe' }, cast: '{a}が、わすれの衣を、スピカのほうへ、ふわりとなびかせた…！', anim: 'c11o_robe',
     desc: 'スピカの思い出を1つ消す。思い出が消えている間、オボロは衣につつまれて、こうげきが通りにくい。',
   },

@@ -164,7 +164,7 @@ function queen(g0, f) {
   if (!down) {
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2 + (fr ? 0.13 : 0);
-      g.poly([[0.5, 0.24], [0.5 + Math.cos(a - 0.05) * 0.46, 0.24 + Math.sin(a - 0.05) * 0.46 * k], [0.5 + Math.cos(a + 0.05) * 0.46, 0.24 + Math.sin(a + 0.05) * 0.46 * k]], i % 2 ? C.BL : C.B);
+      g.poly([[0.5, 0.3], [0.5 + Math.cos(a - 0.05) * 0.44, 0.3 + Math.sin(a - 0.05) * 0.32], [0.5 + Math.cos(a + 0.05) * 0.44, 0.3 + Math.sin(a + 0.05) * 0.32]], i % 2 ? C.BL : C.B);
     }
   } else {
     g.ell(0.5, 0.3, 0.3, 0.26, C.BL);
