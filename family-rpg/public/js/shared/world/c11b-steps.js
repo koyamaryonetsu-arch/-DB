@@ -23,8 +23,18 @@ const tileOf = (s) => [Math.floor(s.x), Math.floor(s.y)];
 const leaderOf = (world, s) => world.hostOf?.(s) || s;
 
 // ───── くみ（おもてと うら）─────
+// 第104回 A班: 第4幕の 月かげの 間の くみ（番号は 'c11d'。map.c11b.other で さがす。前の 幕の くみは 今の まま）
+const morePairs = new Map();
+function pairIds(n) {
+  if (C11B_PAIRS[n]) return C11B_PAIRS[n];
+  if (!morePairs.has(n)) {
+    const F = Object.values(MAPS).find((m) => m?.c11b?.pair === n && m.c11b.side === 0);
+    morePairs.set(n, F ? [F.id, F.c11b.other] : null);
+  }
+  return morePairs.get(n);
+}
 export function pairOf11b(n) {
-  const maps = C11B_PAIRS[n].map((id) => MAPS[id]);
+  const maps = pairIds(n).map((id) => MAPS[id]);
   const F = maps[0].c11b;
   const floors = F.floors, lamps = F.lamps;
   const flags = [...new Set([...floors, ...lamps].map((q) => q.f))];
@@ -34,7 +44,8 @@ export function pairOf11b(n) {
 export function sectionAt11b(map, x, y) {
   const c = map?.c11b;
   if (!c) return null;
-  return C11B_SECTIONS.find((S) => S.pair === c.pair && S.at(c.side, x, y)) || null;
+  // 第104回 A班: 第4幕の 月かげの 間は マップの 区切り（c.sections）
+  return [...C11B_SECTIONS, ...(c.sections || [])].find((S) => S.pair === c.pair && S.at(c.side, x, y)) || null;
 }
 // 助けを 出す 区切りか（町の 区切りは きまりを 聞いた あと。塔は いつでも）
 const helpOn = (S, has) => (S.pair === 0 ? has(C11B.rule) : true);
@@ -241,7 +252,8 @@ export function stepC11b(world, s, tx, ty) {
   if (H.n >= C11B_HELP_STEPS) {
     const was = H.hint;
     H.hint = nextHint11b(S, { side: map.c11b.side, x: tx, y: ty }, has);
-    if (H.hint && !was) world.send(s, { t: 'toast', text: 'ホタル「…こっち、こっち！」\n（小さな光が、次の場所を、てらしている）' });
+    // 第104回 A班: 第4幕の 月かげの 間は スピカの 声（map.c11b.helpText）
+    if (H.hint && !was) world.send(s, { t: 'toast', text: map.c11b.helpText || 'ホタル「…こっち、こっち！」\n（小さな光が、次の場所を、てらしている）' });
   }
   return false;
 }

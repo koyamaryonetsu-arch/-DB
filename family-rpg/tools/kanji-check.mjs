@@ -687,6 +687,9 @@ export function gameFiles() {
     // 第103回 A班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（世界と 物語）
     'public/js/shared/maps/c11c-flags.js', 'public/js/shared/data/story-c11c.js', 'public/js/shared/maps/c11c.js', 'public/js/shared/maps/c11c-rows.js',
     'public/js/shared/world/c11c-steps.js', 'public/js/client/c11c-view.js', 'public/js/client/render/tiles-c11c.js', 'public/js/client/render/c11c-npc-art.js',
+    // 第104回 A班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」（世界と 物語）
+    'public/js/shared/maps/c11d-flags.js', 'public/js/shared/data/story-c11d.js', 'public/js/shared/maps/c11d.js', 'public/js/shared/maps/c11d-rows.js',
+    'public/js/shared/world/c11d-steps.js', 'public/js/client/c11d-view.js', 'public/js/client/render/tiles-c11d.js', 'public/js/client/render/c11d-npc-art.js',
     // 第101回 F班: 第3部 第3章 第1幕の 曲
     'public/js/client/audio-c11a.js',
     // 第102回 F班: 第3部 第3章 第2幕の 曲

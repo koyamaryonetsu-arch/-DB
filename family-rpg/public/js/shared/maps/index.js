@@ -53,6 +53,8 @@ import { attachC11a } from './c11a.js';
 import { attachC11b } from './c11b.js';
 // 第103回 A班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（maps/c11c.js）
 import { attachC11c } from './c11c.js';
+// 第104回 A班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」（maps/c11d.js）
+import { attachC11d } from './c11d.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -383,6 +385,8 @@ function buildMaps() {
   attachC11b(maps);
   // 第3部 第3章 第3幕: はかりの 回ろう 1〜3階・ひと休みの 部屋・大とびらの 前・月の都の 塔の 前と うらの 町の 古い 戸（maps/c11c.js。第2幕の あと）
   attachC11c(maps);
+  // 第3部 第3章 第4幕: 光の はかりの 広間・かがやきの 塔 1〜4階・玉座の 間・大とびらの 中へ・月の都と 星見の丘と くぼ地の クリアの あと（maps/c11d.js。第3幕の あと）
+  attachC11d(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   // 第92回 D班: 第2幕の あとの より道と お仕事いらい 39〜41（大地の下が できた あと。maps/c9bd-side.js）
