@@ -207,7 +207,7 @@ test('ゲストの レベルの 上限 99 → 110（第3部 第3章 第1幕で 1
   // 上限を 上げた ぶんは maxLevel が 99 より 上の ゲスト（第3部で 作る）だけに きく
   // 第101回 B班: 第3部 第3章 第1幕で 120 に（Lv118〜120）
   assert.equal(guestLevelCap({ minLevel: 100, maxLevel: 120 }), 120);
-  assert.equal(guestLevelCap({ minLevel: 100, maxLevel: 130 }), 120);
+  assert.equal(guestLevelCap({ minLevel: 100, maxLevel: 130 }), 122); // 第102回 B班: 第3部 第3章 第2幕で 122
   assert.equal(guestLevelCap({ minLevel: 96 }), 104);
 });
 

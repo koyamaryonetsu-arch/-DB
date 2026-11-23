@@ -722,7 +722,8 @@ test('がめん: 上の まど（スピカの思い出・天人・前ぶれ／�
   const cued = [];
   playCallCue({ cue: (id) => cued.push(id), sfx: () => cued.push('sfx') });
   playCallCue({ sfx: (id) => cued.push(id) });
-  assert.deepEqual(cued, ['c11b_call', 'sparkle']);
+  playCallCue({ tone: (f) => cued.push(f), sfx: () => cued.push('x') });
+  assert.deepEqual(cued, ['c11b_call', 'sparkle', 659, 784, 880, 1760], 'ミ・ソ・ラ ＋ こだま');
   // 仲間の まど: わすれて いる 人の 名前の 横に しるし
   const kids = [];
   const parent = { querySelector: () => kids[0] || null };

@@ -39,7 +39,7 @@ const SHOP = {
   c11bs_mail: { ...A('heavy', 0, SK.lo), name: '月の都のよろい', price: 54800, bonus: { hp: 30 }, desc: '月の光のように、白くみがかれたよろい。HPが少し上がる。' },
   c11bs_robe: { ...A('robe', 0, SK.mid), name: '月の都のローブ', price: 53200, bonus: { mag: 11 }, desc: '三日月のししゅうが入った、ローブ。魔力が少し上がる。' },
   c11bs_gi: { ...A('gi', 0, SK.mid), name: '月の都の道着', price: 52600, bonus: { agi: 12 }, desc: '月の夜風のように、かるい道着。素早さが少し上がる。' },
-  c11bs_shield: { ...S(0, SK.mid), name: '三日月のたて', price: 51400, desc: '三日月の形をした、銀のたて。' },
+  c11bs_shield: { ...S(0, SK.mid), name: '月の都のたて', price: 51400, desc: '三日月の形をした、銀のたて。' },
   c11bs_helm: { ...H(true, 0, SK.hi), name: '月の都のかぶと', price: 52000, desc: '月の形のかざりがついた、白いかぶと。' },
 };
 // ───── うらの 町の ほり出し物（おもての 品と 同じ 強さ。少し 安い）─────
@@ -118,7 +118,7 @@ export const C11B_BACK_FINDS = ['c11bf_coat', 'c11bf_hood'];
 
 // 読みがな（あいうえお順の ならびかえ）
 export const C11B_ITEM_KANA = {
-  c11bs_mail: 'つきのみやこのよろい', c11bs_robe: 'つきのみやこのろーぶ', c11bs_gi: 'つきのみやこのどうぎ', c11bs_shield: 'みかづきのたて', c11bs_helm: 'つきのみやこのかぶと',
+  c11bs_mail: 'つきのみやこのよろい', c11bs_robe: 'つきのみやこのろーぶ', c11bs_gi: 'つきのみやこのどうぎ', c11bs_shield: 'つきのみやこのたて', c11bs_helm: 'つきのみやこのかぶと',
   c11bf_coat: 'らんぷもりのこーと', c11bf_hood: 'うらまちのずきん',
   c11bt_back_robe: 'うらまちのろーぶ', c11bt_tower_mail: 'なまえのとうのよろい', c11bt_moon_shield: 'つきかげのたて',
   c11bb_lamp_chain: 'らんぷもりのくさり', c11bb_oboro_sash: 'おぼろづきのおび',

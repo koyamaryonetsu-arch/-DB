@@ -5,7 +5,7 @@
 // ・仲間の まど: わすれの じょうたいの 人の 名前の 横に「わすれ：呪文」の しるし
 // ・え: 番人の ランプが 暗い（コマ 2・3）・オボロが 引いていく（コマ 2・3）・番人の 上に 明るい／暗い の しるし
 // ・コマンド: いちばん 上に「よびかける」（思い出 あと ○）→ だれに よびかける？（スピカ・味方）。ゲストの スピカも えらべる
-// ・音: よびかけた 時の 短い 音 c11b_call（F班の 曲。audio に cue が なければ きらきら）
+// ・音: よびかけた 時の 短い 音 c11b_call（F班の 曲の はじめの 3つの 音を 効果音の 道で。audio に cue が あれば その 曲）
 import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, OBORO_SHORT, KEEPER_SHORT } from '../shared/data/monsters-c11b.js';
 import { YOBIKAKE } from '../shared/data/abilities-c11b.js';
 import { C11B_TRACKS_B as C11B_TRACKS, C11B_CMD_B } from '../shared/data/c11b-names-b.js';
@@ -201,6 +201,12 @@ export function playCallCue(audio) {
   if (!audio) return;
   if (typeof audio.cue === 'function') return audio.cue(C11B_TRACKS.call);
   if (typeof audio.playCue === 'function') return audio.playCue(C11B_TRACKS.call);
+  // 戦いの 曲を 止めない ように、効果音の 道で F班の 曲の はじめの 3つの 音（ミ・ソ・ラ。0〜0.7・0.7〜0.9・0.9〜1.8 秒）を 鳴らす
+  if (typeof audio.tone === 'function') {
+    for (const [f, d, at] of [[659, 0.62, 0], [784, 0.18, 0.7], [880, 0.9, 0.9]]) audio.tone(f, d, { type: 'triangle', vol: 0.08, delay: at });
+    audio.tone(1760, 0.5, { type: 'sine', vol: 0.03, delay: 1.0 });
+    return;
+  }
   audio.sfx?.('sparkle');
 }
 

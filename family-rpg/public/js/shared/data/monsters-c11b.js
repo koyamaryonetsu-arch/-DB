@@ -153,7 +153,8 @@ export const MONSTERS_C11B = {
   [C11B_TENNIN]: {
     name: TENNIN_NAME, lv: 122, hp: 1400, mp: 9999, str: 2700, def: 380, agi: 280, mag: 900, exp: 8000, gold: 2000, speed: 0.7,
     race: 'spirit', size: 'm', boss: true, turns: 1, flying: true, hit: 'magic', artScale: 0.5, region: 6,
-    drops: {},
+    // オボロと おなじ ボスの 品（1人 1つ … 2つめからは 落ちない。前の 幕の けものの 3つの 星と 同じ）
+    drops: { boss: ['c11bb_oboro_sash'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 1.0, wind: 1.1, bolt: 1.0, light: 0.6, dark: 1.2 },
     c11b: { kind: 'tennin' },
     actions: [{ w: 3, id: 'm11t_sleeve' }, { w: 1, id: 'm11t_drop', cond: 'notRecent:m11t_drop' }],
