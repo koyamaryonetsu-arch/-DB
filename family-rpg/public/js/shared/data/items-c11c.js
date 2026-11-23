@@ -54,7 +54,7 @@ const PB = { src: 'pastboss' };
 const BOSS = {
   // バラバラン3号: はぐるまの バッジ
   c11cb_gear_badge: {
-    ...C(3), ...PB, boss: 'c11c_mecha', unique: true, name: 'はぐるまバッジ', bonus: { hp: 129, str: 33, def: 32, mag: 32, agi: 31, heal: 30 }, resist: { bolt: 0.85, blast: 0.85 },
+    ...C(3), ...PB, boss: 'c11c_mhead', unique: true, name: 'はぐるまバッジ', bonus: { hp: 129, str: 33, def: 32, mag: 32, agi: 31, heal: 30 }, resist: { bolt: 0.85, blast: 0.85 },
     desc: 'ばらばらになったメカから、ころがってきたはぐるま。だれでも装備でき、すべての力が大きく上がる。雷とばくはつに強い。',
   },
   // 近衛の隊長エース: カードもようの マント
@@ -90,8 +90,8 @@ export function c11cChest(id) {
   return e ? { item: e[0], n: e[1] || 1 } : null;
 }
 
-// ボスが かならず 落とす 品（決まった 戦いの id → [1人 1つの アクセサリー]）
-export const C11C_DROPS = { c11c_mecha: ['c11cb_gear_badge'], c11c_ace: ['c11cb_ace_cape'] };
+// ボスが かならず 落とす 品（ボスの ID → [1人 1つの アクセサリー]。メカは あたま・うで・あし の どれも 同じ 品〈1人 1つ〉）
+export const C11C_DROPS = { c11c_mhead: ['c11cb_gear_badge'], c11c_ace: ['c11cb_ace_cape'] };
 
 // うらの 町の 店に、幕の クリア（c11_act3）で 足す 品（A班が 店の ならびに 足す）
 export const C11C_BACK_ADD = ['c11cs_mail', 'c11cs_robe', 'c11cs_shield', 'c11cs_helm'];

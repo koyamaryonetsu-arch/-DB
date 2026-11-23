@@ -172,7 +172,7 @@ export const MONSTERS_C11C = {
       sun: { heal: 0.08 },
       two: 0.5, back: 5, aoeK: 0.3, aoeBoss: 0.6, autoK: 0.3,
       few: { hp: [0.72, 0.72, 0.95, 0.85, 1.0], atk: [0.7, 0.74, 0.95, 0.88, 0.92], back: [5, 5, 5, 5, 4] },
-      bare: { hp: [0.27, 0.6], atk: [0.42, 0.62], autoK: [0.18, 0.3] },
+      bare: { hp: [0.27, 0.6], atk: [0.42, 0.6], autoK: [0.18, 0.3] },
       solo: { hp: 0.65, atk: 0.45, cards: 2, guards: 1, back: 8, comet: 3.2, open: 1, two: 0.15 },
       monK: { hp: 0.1, atk: 0 },
     },
