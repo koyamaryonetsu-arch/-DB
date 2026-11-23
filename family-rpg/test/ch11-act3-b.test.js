@@ -51,7 +51,7 @@ import { playC8cFx } from '../public/js/client/render/battlefx-c8c.js';
 import { battleBgSpec } from '../public/js/client/render/battlefx.js';
 import { C11C_BG } from '../public/js/client/render/c11c-bg.js';
 import {
-  C11C_SCREEN_ANIMS, C11C_ALLY_FX, C11C_SFX, C11C_OWN_TELE, c11cHtml, c11cSprite, c11cPresent, c11cCmdItems, c11cCmdPick, c11cStatus, suitSvg,
+  C11C_SCREEN_ANIMS, C11C_ALLY_FX, C11C_SFX, C11C_OWN_TELE, c11cHtml, c11cSprite, c11cPresent, c11cCmdItems, c11cCmdPick, c11cStatus, suitSvg, playCardSound,
 } from '../public/js/client/battle-c11c.js';
 import { c9bCmdItems } from '../public/js/client/battle-c9b.js';
 import { CH4_ALLY_FX } from '../public/js/client/battle-ch4.js';
@@ -626,6 +626,11 @@ test('絵: トランプの へいたい（マークちがい）・てんびん�
   for (const sp of C11C_OWN_TELE) assert.ok(CH6_OWN_TELE.has(sp), `${sp}: 前ぶれの バナーを 自分で 出す`);
   assert.equal(allyAnimFor({ type: 'ability', types: ['c11cEat'] }) ?? 'buff', 'buff');
   for (const s of ['moon', 'star', 'comet', 'sun']) assert.ok(suitSvg(s).startsWith('<svg'), s);
+  // カードを めくる 音（効果音の 道。tone が ない 時は cursor）
+  const snd = [];
+  playCardSound({ tone: (f) => snd.push(f) }, 2);
+  playCardSound({ sfx: (id) => snd.push(id) }, 1);
+  assert.deepEqual(snd, [1320, 990, 1320, 990, 'cursor']);
   // 技の 名前（カード・コマンド）
   assert.equal(ABILITIES[TANOMU].name, 'アルゴルにたのむ');
   assert.ok(ABILITIES[TANOMU].cmdOnly && ABILITIES[TANOMU].noAuto);

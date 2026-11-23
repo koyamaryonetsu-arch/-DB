@@ -286,6 +286,16 @@ export function c11cBannerOne(scene) {
     return orig(text, `${cls} c11c-bn`);
   };
 }
+// カードを めくる・ならべる 音（効果音の 道。戦いの 曲〈F班の c11c_ace〉は 止めない。tone が ない 時は cursor）
+export function playCardSound(audio, n = 1) {
+  if (!audio) return;
+  for (let i = 0; i < n; i++) {
+    if (typeof audio.tone === 'function') {
+      audio.tone(1320, 0.03, { type: 'triangle', vol: 0.06, delay: i * 0.12 });
+      audio.tone(990, 0.05, { type: 'triangle', vol: 0.05, delay: i * 0.12 + 0.035 });
+    } else audio.sfx?.('cursor');
+  }
+}
 export function c11cPresent(scene, ev) {
   if (foesOf(scene).length) c11cBannerOne(scene);
   const g = scene.game;
@@ -297,6 +307,8 @@ export function c11cPresent(scene, ev) {
     // カードの まどを 先に 新しく しない（食べる 前の カードの 場所で 見せる）
     playEatFx(scene, ev.c11cEat.no);
   }
+  if (ev.c11cFlip) playCardSound(g?.audio, 1);
+  if (ev.c11cLay) playCardSound(g?.audio, Math.min(4, ev.c11cLay.n || 3));
   if (ev.c11cFlip?.suit === 'comet' || ev.c11cRocket) scene.shake?.(500, 5);
   if (ev.c11cMechaDown || ev.c11cDown) scene.shake?.(500, 4);
   const say = [
