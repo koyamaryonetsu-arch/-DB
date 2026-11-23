@@ -15,6 +15,7 @@ export const MEASURE = 'm11q_measure';
 export const SHINE = 'm11q_shine';
 export const NAMES = 'm11q_names';
 export const SCENE = 'm11q_eight';
+export const EIGHT_AFTER = 'm11q_eight2';
 // スピカの さいごの ごほうび（c11_act4）の 技の 名前（battle-c11d.js の c11dGlowEight）
 export const EIGHT_SONG_NAME = '八つの音のうた';
 export const C11D_ABILITIES = {
@@ -163,6 +164,11 @@ export const C11D_ABILITIES = {
     name: '八つめの音', kind: 'monster', target: 'self',
     effect: { type: 'c11dEightScene' }, cast: '……。', anim: 'c11q_eight',
     desc: '八つめの音が、やってくる。',
+  },
+  [EIGHT_AFTER]: {
+    name: '八つめの音がとどく', kind: 'monster', target: 'self',
+    effect: { type: 'c11dEightAfter' }, cast: '八つめの音が、ひびいた…！', anim: 'c11d_eight',
+    desc: 'みんなが回復して、1つの輪になる。',
   },
 
   // ── だれでも（女王の 戦いで。その 人の 番を 使う）──

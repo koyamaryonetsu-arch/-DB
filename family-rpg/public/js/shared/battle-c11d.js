@@ -37,7 +37,7 @@
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from './data/monsters-c11d.js';
-import { HOLD, EIGHT, ROBE, BACK_HIT, STRIKE, MEASURE, SHINE, NAMES, SCENE, EIGHT_SONG_NAME } from './data/abilities-c11d.js';
+import { HOLD, EIGHT, ROBE, BACK_HIT, STRIKE, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER, EIGHT_SONG_NAME } from './data/abilities-c11d.js';
 import { C11D_B as C11D, C11D_EIGHT_SCENE_B as EIGHT_SCENE } from './data/c11d-names-b.js';
 import { NARASU } from './data/abilities-c10d.js';
 import { YOBIKAKE } from './data/abilities-c11b.js';
@@ -296,7 +296,7 @@ export function c11dTell(b) {
     return st.robeReady ? 'robe' : st.swapReady ? 'swap' : 'duo';
   }
   if (!queenOf(b)?.alive) return null;
-  if (st.eightPending || st.sceneQueued) return 'eight';
+  if (st.eightPending || st.sceneQueued || st.afterQueued) return 'eight';
   return st.measureReady ? 'measure' : st.shineReady ? 'shine' : 'queen';
 }
 
@@ -355,7 +355,7 @@ export function c11dTurnStart(b, c, ev, stuck) {
     if (!c.c11u || c.telegraph) return;
     return duoTurn(b, c, ev, stuck);
   }
-  if (c.id !== st.id || c.telegraph || st.sceneQueued) return;
+  if (c.id !== st.id || c.telegraph || st.sceneQueued || st.afterQueued) return;
   return queenTurn(b, c, ev, stuck);
 }
 
@@ -544,6 +544,7 @@ export function c11dEffect(b, c, a, eff, ev) {
     case 'c11dShine': shine(b, c, ev); return true;
     case 'c11dNames': names(b, c, ev); return true;
     case 'c11dEightScene': eightScene(b, c, ev); return true;
+    case 'c11dEightAfter': eightAfter(b, c, ev); return true;
     case 'c11dHold': hold(b, c, ev); return true;
     case 'c11dEight': eight(b, c, ev); return true;
     default: return false;
@@ -787,6 +788,24 @@ function eightScene(b, c, ev) {
   st.namesLeft = cf.late.names;
   ev.lines.length = 0;
   ev.fx = { type: 'ability', anim: 'c11q_eight', actor: c.id, targets: [c.id], side: 'enemy' };
+  // 場面（文は 画面の まん中に じゅんに 出す）の あいだ 戦いは 止まる。回復は 場面の あと（つぎの 女王の 番の 動き AFTER）
+  const lines = EIGHT_SCENE.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text));
+  ev.lines.push('……。');
+  ev.c11dEight = { id: c.id, lines, art: EIGHT_SCENE.art, ms: EIGHT_SCENE.ms };
+  ev.extraLock = (ev.extraLock || 0) + lines.length * EIGHT_SCENE.ms;
+  ev.warn = true;
+  ev.upd.push(c);
+  st.afterQueued = true;
+  b.queue.unshift({ id: c.id, cmd: { type: 'ability', id: EIGHT_AFTER, target: c.id }, last: false });
+}
+// 八つめの 音が とどく（場面の あと。みんな 回復・1つの 輪・八つの音）
+function eightAfter(b, c, ev) {
+  const st = b.c11d;
+  if (!st || st.kind !== 'queen' || !st.afterQueued) return;
+  st.afterQueued = false;
+  const cf = c11dConf(C11D_QUEEN, b);
+  ev.lines.length = 0;
+  ev.fx = { type: 'ability', anim: 'c11d_eight', actor: c.id, targets: fighters(b).map((a) => a.id), side: 'ally' };
   // ながされた 人も もどる・たおれた 人も 起きあがる・みんな 回復
   ev.results = ev.results || [];
   for (const a of fighters(b)) {
@@ -803,11 +822,9 @@ function eightScene(b, c, ev) {
   st.rings = [{ id: st.nextRing++, m: members, left: cf.link, color: 0, lock: 0 }];
   st.ringMax = Math.max(st.ringMax, members.length);
   addCmd(b, EIGHT);
-  const lines = EIGHT_SCENE.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text));
   ev.lines.push('八つめの音が、とどいた！', 'みんなのHPが、ぜんぶ回復した！みんなが、1つの輪になった！');
   post(ev).push('（「八つの音」が、使えるようになった！苦しい時に、みんなで鳴らそう。戦いで2回まで）');
-  ev.c11dEight = { id: c.id, lines, art: EIGHT_SCENE.art, ms: EIGHT_SCENE.ms };
-  ev.extraLock = (ev.extraLock || 0) + lines.length * EIGHT_SCENE.ms;
+  ev.c11dEightAfter = { id: c.id, ring: members.slice() };
   ev.warn = true;
   ev.upd.push(c);
 }
@@ -1077,7 +1094,7 @@ export function c11dPlan(b, c, decide, bestHit) {
   if (c.side !== 'ally' || b.c9Inner || c.status?.rift || st.won || st.lost) return null;
   const mode = c.knows9 ?? b.knowsCh9;
   if (st.kind === 'duo') return duoPlan(b, c, decide, bestHit, mode);
-  if (st.sceneQueued || st.eightPending) return null;
+  if (st.sceneQueued || st.eightPending || st.afterQueued) return null;
   return queenPlan(b, c, decide, bestHit, mode);
 }
 function base(b, c, decide) {
@@ -1136,7 +1153,7 @@ function duoPlan(b, c, decide, bestHit, mode) {
 // 女王の 戦いで 今 する こと（'eight' … 八つの音・'hold' … 手をつなぐ〈to … えらぶ 相手〉・null）
 export function queenNeed(b, c) {
   const st = b.c11d;
-  if (!st || st.kind !== 'queen' || st.won || st.sceneQueued || st.eightPending) return null;
+  if (!st || st.kind !== 'queen' || st.won || st.sceneQueued || st.eightPending || st.afterQueued) return null;
   const loose = looseAllies(b);
   const big = st.rings.slice().sort((x, y) => y.m.length - x.m.length)[0] || null;
   const soon = st.measureReady || st.shineReady;
@@ -1201,7 +1218,7 @@ export function c11dBusy(b) {
   const st = b.c11d;
   if (!st || st.won || st.lost) return false;
   if (st.kind === 'duo') return !!duoNeed(b) || st.robeReady;
-  return st.measureReady || st.shineReady || looseAllies(b).length > 0 || st.sceneQueued;
+  return st.measureReady || st.shineReady || looseAllies(b).length > 0 || st.sceneQueued || st.afterQueued;
 }
 
 // ───────────── がめんへ（battle-c9b.js の c9bPub から。敵）─────────────
@@ -1243,10 +1260,10 @@ export function c11dPub(c, b = c?._b11d) {
   o.loose11d = looseAllies(b).map((a) => a.id);
   o.phase11d = st.phase;
   o.eight11d = { left: st.eightLeft, lock: st.lock, done: st.eightDone ? 1 : 0 };
-  o.scene11d = st.sceneQueued || st.eightPending ? 1 : 0;
+  o.scene11d = st.sceneQueued || st.eightPending || st.afterQueued ? 1 : 0;
   o.solo11d = isSolo(b) ? 1 : 0;
   o.c11dDown = st.won ? 1 : 0;
-  o.queenStage = st.won ? 4 : st.sceneQueued || st.eightPending ? 2 : st.phase === 2 ? 3 : 1;
+  o.queenStage = st.won ? 4 : st.sceneQueued || st.eightPending || st.afterQueued ? 2 : st.phase === 2 ? 3 : 1;
   return o;
 }
 // 味方（battle-c9a.js の c9aPub から）: hold11d（手をつなぐ が ある 戦い）・ring11d（{ c: 色, n: 輪の 人数, left, lock } か null）・

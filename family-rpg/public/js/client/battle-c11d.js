@@ -251,9 +251,10 @@ export function c11dDraw(scene, x, m, c, px, py, w, h, base) {
   if (!c.alive || c.c11dDown || c.down11d) return;
   const ty = portrait() ? py + h * 0.6 : py + h + 4;
   if (isDuo(c)) {
-    tag(x, px + w / 2, Math.max(6, py - 2), c.front11d ? (c.swap11d ? '前→入れかわる！' : '前') : 'うしろ', base, c.front11d ? '#3a1a00' : '#20184a', c.front11d ? '#ffd060' : '#c8c0e8', 56);
-    if (isMirror(c) && c.front11d && (c.veil10 || []).length) tag(x, px + w / 2, ty, `まく：${NOTE_COLORS[c.veil10[0]]?.name || ''}（${NOTE_COLORS[c.veil10[0]]?.note || ''}）`, base, NOTE_COLORS[c.veil10[0]]?.css || '#ccc', inkOf(c.veil10[0]), 64);
-    if (isMoon(c) && c.robe11b) tag(x, px + w / 2, ty, 'わすれの衣！よびかけよう', base, '#3a1a00', '#ffd060', 104);
+    // 前・うしろの しるしは え の 下（PC の 右上の まどと かさならない）
+    tag(x, px + w / 2, ty, c.front11d ? (c.swap11d ? '前→入れかわる！' : '前') : 'うしろ', base, c.front11d ? '#3a1a00' : '#20184a', c.front11d ? '#ffd060' : '#c8c0e8', 56);
+    if (isMirror(c) && c.front11d && (c.veil10 || []).length) tag(x, px + w / 2, ty + 11, `まく：${NOTE_COLORS[c.veil10[0]]?.name || ''}（${NOTE_COLORS[c.veil10[0]]?.note || ''}）`, base, NOTE_COLORS[c.veil10[0]]?.css || '#ccc', inkOf(c.veil10[0]), 64);
+    if (isMoon(c) && c.robe11b) tag(x, px + w / 2, ty + 11, 'わすれの衣！よびかけよう', base, '#3a1a00', '#ffd060', 104);
   } else if (isQueen(c)) {
     if (c.measure11d) tag(x, px + w / 2, ty, '光のはかり！', base, '#3a1a00', '#ffd060', 60);
     else if (c.shine11d) tag(x, px + w / 2, ty, 'かがやきが来る！', base, '#3a1a00', '#ffd060', 70);
@@ -352,7 +353,7 @@ export function c11dPresent(scene, ev) {
   if (ev.c11dDown || ev.c11dDuoDown) scene.shake?.(500, 4);
   const say = [
     ev.c11dDazzle && [warn, 'まぶしすぎる光！手が、ぜんぶほどけた…！'],
-    ev.c11dEight && [(t) => good(t, 'sparkle'), '八つめの音が、とどいた！みんなが1つの輪に！'],
+    ev.c11dEightAfter && [(t) => good(t, 'sparkle'), '八つめの音が、とどいた！みんなが1つの輪に！'],
     ev.c11dEightUse?.ok && [(t) => good(t, 'sparkle'), `八つの音！ほどけない輪になった！（のこり${ev.c11dEightUse.left}回）`],
     ev.c11dSweep && [warn, ev.c11dSweep.id === me ? 'あなたは、光の川にながされた…！' : `${nm(ev.c11dSweep.id)}が、光の川にながされた…！`],
     ev.c11dMeasure?.held && [(t) => good(t, 'sparkle'), '手が、はなれない！ながされなかった！'],
@@ -401,18 +402,20 @@ export function c11dStatus(s, a) {
   if (a.swept11d) {
     b.className = 'c11d-badge swept';
     b.style.background = '';
-    b.textContent = `ながされた・あと${a.swept11d}`;
+    b.textContent = `ながされ・${a.swept11d}`;
     b.title = '光の川にながされている（戦いの外）。もどると、HPは半分';
   } else if (a.aim11d && !r) {
     b.className = 'c11d-badge aim';
     b.style.background = '';
-    b.textContent = 'はかられる！';
+    b.textContent = 'はかられる';
     b.title = '光のはかりのねらい。だれかと手をつなぐと、ながされない';
   } else if (r) {
-    b.className = `c11d-badge${a.aim11d ? ' aim' : ''}`;
-    b.style.background = a.aim11d ? '' : RING_CSS[r.c % RING_CSS.length];
-    b.textContent = r.lock ? `輪${r.n}・ほどけない` : `輪${r.n}・あと${r.left}`;
-    b.title = `${RING_NAME[r.c % RING_NAME.length]}の輪（${r.n}人）。同じ色のしるしの人と、手をつないでいる`;
+    // スマホの たてでも 名前が 切れない ように みじかく（のこりの 番は 上の まど。はなれそうな 時だけ「!」）
+    const soon = !r.lock && r.left <= 1;
+    b.className = `c11d-badge${a.aim11d || soon ? ' aim' : ''}`;
+    b.style.background = a.aim11d || soon ? '' : RING_CSS[r.c % RING_CSS.length];
+    b.textContent = soon ? `輪${r.n}!` : `輪${r.n}`;
+    b.title = `${RING_NAME[r.c % RING_NAME.length]}の輪（${r.n}人）。同じ色のしるしの人と、手をつないでいる（${r.lock ? 'ほどけない' : `あと${r.left}回の番`}）`;
   } else {
     b.className = 'c11d-badge lone';
     b.style.background = '';
@@ -462,6 +465,7 @@ export function c11dCmdItems(scene, a) {
     else if (!r.lock && r.left <= 1) info = 'つないだ手が、はなれそう！もう一度「手をつなぐ」で、つなぎ直そう。';
     else if (q.shine11d && (q.loose11d || []).length) info = 'かがやきが来る！ひとりの人と「手をつなぐ」で、守ろう。';
     else if (q.phase11d === 2 && q.eight11d?.left && !q.eight11d.lock) info = '「八つの音」で、みんなが、ほどけない輪になる。苦しい時に！';
+    else info = 'みんなで1つの輪になろう。つないでいれば、光のはかりでながされない。';
     scene.c11dShown = { id: a.id, key: cmdKey(scene) };
     return { items, info };
   }

@@ -316,7 +316,8 @@ export function c9bCmdItems(scene, a) {
   const ce = c11cCmdItems(scene, a);
   // 第3部 第3章 第4幕: 手をつなぐ・八つの音・中ボスの 音を鳴らす／よびかける（battle-c11d.js。いちばん 上）
   const c4 = c11dCmdItems(scene, a);
-  const items = [...c4.items, ...ce.items, ...cy.items, ...cp.items, ...cn.items, ...ck.items, ...cx.items, ...cc.items, ...cd.items];
+  // 第3部 第3章 第4幕: 中ボスの 戦いでは「よびかける」を この 幕の 物（前に いる 方の じゅん）だけに する（同じ 行き先の コマンドは 1つ）
+  const items = [...c4.items, ...ce.items, ...cy.items, ...cp.items, ...cn.items, ...ck.items, ...cx.items, ...cc.items, ...cd.items].filter((it, i, arr) => arr.findIndex((x) => x.value === it.value) === i);
   let info = c4.info || ce.info || cy.info || cp.info || cn.info || ck.info || cx.info || cc.info || cd.info || c10aCmdInfo(scene, a);
   const t = scene.c9spica?.teru;
   if (!a || !t || t.charge < t.max || !(a.abilities || []).includes(TERU) || !teruUseful(scene)) return { items, info };

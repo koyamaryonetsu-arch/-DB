@@ -32,7 +32,7 @@ import {
   MONSTERS_C11D, C11D_TOWER1_MON, C11D_TOWER2_MON, C11D_TOWER3_MON, C11D_MINIONS, C11D_RECOLOR_BASE, C11D_NEW_ART, C11D_MIRROR, C11D_MOON, C11D_QUEEN,
   QUEEN_NAME, QUEEN_SHORT, MIRROR_SHORT, MOON_SHORT, DUO_NAME, C11D_MAT_DROPS, C11D_DUO_ART,
 } from '../public/js/shared/data/monsters-c11d.js';
-import { C11D_ABILITIES, HOLD, EIGHT, ROBE, STRIKE, RAIN, MEASURE, SHINE, NAMES, SCENE, EIGHT_SONG_NAME } from '../public/js/shared/data/abilities-c11d.js';
+import { C11D_ABILITIES, HOLD, EIGHT, ROBE, STRIKE, RAIN, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER, EIGHT_SONG_NAME } from '../public/js/shared/data/abilities-c11d.js';
 import { ENCOUNTERS_C11D, FIXED_C11D, ZONE_BG_C11D, C11D_ZONES } from '../public/js/shared/data/encounters-c11d.js';
 import { FRIENDS_C11D } from '../public/js/shared/data/companions-c11d.js';
 import { ITEMS_C11D, C11D_TREASURE, C11D_K, C11D_SHOP_K, C11D_GEAR_CHESTS, C11D_FRONT_ADD, C11D_DROPS, C11D_BEST, NOTE_EIGHT, c11dChest } from '../public/js/shared/data/items-c11d.js';
@@ -436,6 +436,8 @@ test('八つめの 音: HPが 半分に なると 1度だけ … まぶしすぎ
     assert.ok(sc, '場面');
     assert.deepEqual(sc.c11dEight.lines, C11D_EIGHT_SCENE_B.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text)), 'A班の 文（かり）を そのまま');
     assert.ok(sc.dur >= C11D_EIGHT_SCENE_B.lines.length * C11D_EIGHT_SCENE_B.ms * 0.9, `場面の 長さ ${sc.dur}`);
+    assert.ok(evs.findIndex((e) => e.c11dEightAfter) > evs.findIndex((e) => e.c11dEight), '回復は 場面の あと');
+    assert.ok(!allText(sc).includes('回復'), '場面の 間は まだ 回復しない（文の じゅん）');
     assert.ok(b.allies.every((a) => a.hp === a.maxHp), 'みんな 回復');
     const r = ringOf(b, hero.id);
     assert.ok(r && r.m.includes(SPICA) && b.allies.every((a) => r.m.includes(a.id)), 'みんなが 1つの 輪');
@@ -779,7 +781,7 @@ test('絵: 塔の 魔物（新しい 4つ・色ちがい 3つ）・女王（2倍
   assert.equal(ABILITIES[HOLD].name, '手をつなぐ');
   assert.equal(ABILITIES[EIGHT].name, '八つの音');
   for (const id of [HOLD, EIGHT]) assert.ok(ABILITIES[id].cmdOnly && ABILITIES[id].noAuto, id);
-  for (const id of [ROBE, STRIKE, RAIN, MEASURE, SHINE, NAMES, SCENE]) assert.ok(ABILITIES[id], id);
+  for (const id of [ROBE, STRIKE, RAIN, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER]) assert.ok(ABILITIES[id], id);
   // 技の 名前は ほかの 技と かぶらない
   const others = Object.entries(ABILITIES).filter(([id]) => !C11D_ABILITIES[id]).map(([, a]) => a.name);
   for (const [id, a] of Object.entries(C11D_ABILITIES)) assert.ok(!others.includes(a.name), `${id}: ${a.name}`);
@@ -803,7 +805,7 @@ test('がめん: 上の まど（女王 … 輪・ひとり・はかりの ね�
   // バナー（大きな 知らせを 1つずつ）
   const banners = [];
   const sc2 = { banner: (t) => banners.push(t), _c11dBn: true, enemies: () => [q], allies: () => allies, myActor: allies[0], game: { audio: { sfx() {}, play() {} } } };
-  for (const e of [{ c11dDazzle: {} }, { c11dEightUse: { ok: true, left: 1 } }, { c11dSweep: { id: 'a2' } }, { c11dMeasure: { held: true } }, { c11dHold: { ok: true, id: 'a0', to: 'spica', ring: ['a0', 'spica'], grew: true } }, { c11dMeasureUp: { aim: 'a0' } }, { c11dShine: { loose: ['a0'] } }, { c11dRingOff: {} }, { c11dSwap: { front: 'moon' } }, { c11dBreak: {} }, { c11dRobe: { left: 2 } }, { c11dDown: {} }, { c11dDuoDown: {} }]) c11dPresent(sc2, e);
+  for (const e of [{ c11dDazzle: {} }, { c11dEightUse: { ok: true, left: 1 } }, { c11dEightAfter: {} }, { c11dSweep: { id: 'a2' } }, { c11dMeasure: { held: true } }, { c11dHold: { ok: true, id: 'a0', to: 'spica', ring: ['a0', 'spica'], grew: true } }, { c11dMeasureUp: { aim: 'a0' } }, { c11dShine: { loose: ['a0'] } }, { c11dRingOff: {} }, { c11dSwap: { front: 'moon' } }, { c11dBreak: {} }, { c11dRobe: { left: 2 } }, { c11dDown: {} }, { c11dDuoDown: {} }]) c11dPresent(sc2, e);
   for (const w of ['まぶしすぎる', '八つの音', 'ながされた', 'はなれない', '手をつないだ', 'あなた', 'かがやき', 'はなれてしまった', 'オボロが前に', 'まくが、われた', 'わすれの衣', '手を下ろした', '引いていった']) assert.ok(banners.some((t) => t.includes(w)), w);
   // 名前の 横の しるし
   const kids = [];
@@ -813,11 +815,14 @@ test('がめん: 上の まど（女王 … 輪・ひとり・はかりの ね�
   globalThis.document = { createElement: () => ({ className: '', style: {}, classList: { toggle() {} }, remove() { kids.length = 0; } }), getElementById: () => true, head: { append() {} } };
   try {
     c11dStatus({ name }, { alive: true, hold11d: 1, ring11d: { c: 2, n: 3, left: 2, lock: 0 } });
-    assert.equal(kids[0].textContent, '輪3・あと2');
+    assert.equal(kids[0].textContent, '輪3');
+    assert.ok(kids[0].title.includes('あと2'));
+    c11dStatus({ name }, { alive: true, hold11d: 1, ring11d: { c: 2, n: 3, left: 1, lock: 0 } });
+    assert.equal(kids[0].textContent, '輪3!', 'はなれそう');
     c11dStatus({ name }, { alive: true, hold11d: 1, swept11d: 2 });
-    assert.equal(kids[0].textContent, 'ながされた・あと2');
+    assert.equal(kids[0].textContent, 'ながされ・2');
     c11dStatus({ name }, { alive: true, hold11d: 1, aim11d: 1 });
-    assert.equal(kids[0].textContent, 'はかられる！');
+    assert.equal(kids[0].textContent, 'はかられる');
     c11dStatus({ name }, { alive: true });
     assert.equal(kids.length, 0);
   } finally {
@@ -862,6 +867,9 @@ test('がめん: 上の まど（女王 … 輪・ひとり・はかりの ね�
   menu.pick(menu.list[0]);
   assert.deepEqual(sent, [{ type: 'ability', id: NARASU, choice: 3 }, { type: 'ability', id: YOBIKAKE, choice: 'spica' }]);
   assert.equal(c11dCmdPick({ enemies: () => [] }, dAllies[0], 'c10dring'), false, 'ほかの 戦いは もとの まど');
+  const c9d = c9bCmdItems({ ...dsc, c9spica: null }, dAllies[0]).items.map((x) => x.value);
+  assert.deepEqual(c9d.filter((v) => v === 'c11bcall').length, 1, '「よびかける」は 1つ');
+  assert.deepEqual(c9d.slice(0, 2), ['c10dring', 'c11bcall']);
   // コマンドの 行き先（battle.js → c8r → c9a → c9b → c11d）
   const route = readFileSync(new URL('../public/js/client/battle.js', import.meta.url), 'utf8');
   assert.ok(/case 'c11ceat': case 'c11dhold': case 'c11deight':[^\n]*return c8rCmdPick\(this, a, it\.value\)/.test(route), 'battle.js の 行き先（c11ceat の すぐ あと）');
