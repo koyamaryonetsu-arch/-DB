@@ -30,7 +30,7 @@ import { C9C_TOOLS } from './audio-c9c.js';
 import { C9D_SONG } from './audio-c9d.js';
 import { MIRROR_LINES, EIGHTH_NOTE, BRIDGE_LAST } from './audio-c10d.js';
 import { C11A_LINES } from './audio-c11a.js';
-import { C11B_LINES, C11B_TRACKS } from './audio-c11b.js';
+import { C11B_LINES, C11B_TRACKS, MIRROR_SUM } from './audio-c11b.js';
 import { TOP_TRACKS } from './audio-top.js';
 
 const { SHARP, FLAT, bassLine, comp, arp, guide, pad, drums, rest, bars, oldView, FILL } = C9A_TOOLS;
@@ -522,6 +522,9 @@ const LP = {
 const LAMPS6 = '0:2 1:2 2:2 3:2 4:2 5:2 r:4';
 const LAMP_DR = 'k:2! sh:2 R:2 sh:2 k:2 k:2 R:2 sh:2';
 const LAMP_PAIR = { A: ['frontA', 'backA'], B: ['frontB', 'backB'], A2: ['frontA2', 'backA2'] };
+// お祭りの よびこみ（イントロだけの 新しい ふし。2小節めで かけ上がる）。うらは その 鏡（MIRROR_SUM）で、ここでも いっしょに 鳴る
+export const LAMP_INTRO_FRONT = 'D6:4! A5:4 D6:4 r:4 A5:2! B5:2 C#6:2 D6:2 E6:4! C#6:4';
+export const LAMP_INTRO_BACK = C9C_TOOLS.mirror(LAMP_INTRO_FRONT, MIRROR_SUM);
 
 const c11dLamps = {
   bpm: 104, bar: 16, reverb: 0.38, fill: 0, night: {},
@@ -538,9 +541,9 @@ const c11dLamps = {
   ],
   sections: {
     intro: [
-      C11B_LINES.frontIntro,
+      LAMP_INTRO_FRONT,
       bassLine(LP.intro, '1:2! r:2 5:2 r:2 1:2! r:2 5:2 r:2', { lo: 38, ...S }),
-      C11B_LINES.backIntro,
+      LAMP_INTRO_BACK,
       pad(LP.intro, { center: 57, mods: '?', ...S }),
       arp(LP.intro, LAMPS6, { center: 80, ...S }),
       drums(2, 'k:2! r:6 R:2 sh:2 R:2 sh:2', { last: 'k:2! sh:2 R:2 sh:2 k:2 R:2 R:2 R:2' }),
