@@ -6,7 +6,7 @@
 //   t11d_tower3 … 塔 3階 かげの 間（c11d_tower3。Lv125〜126）
 // ふつうの 戦いの 長さ（20-5）: 超級職 4人で 1回 30〜50秒（tools/sim-ch9-field.mjs の SUPER=1）
 import { C11D_MIRROR, C11D_MOON, C11D_QUEEN } from './monsters-c11d.js';
-import { C11D_BATTLE_B as C11D_BATTLE, C11D_TRACKS_B as C11D_TRACKS } from './c11d-names-b.js';
+import { C11D_BATTLE_B as C11D_BATTLE, C11D_TRACKS_B as C11D_TRACKS } from '../maps/c11d-flags.js';
 // 負けた 時の ヒントの 文（boss-hints-c11d.js が mergeBossHints を よぶ）
 import './boss-hints-c11d.js';
 

@@ -9,7 +9,7 @@
 // ・えんしゅつ: 手を つなぐ 光の 線（味方の まどの 間）・八つめの 音の 場面（女王の 戦いの 中。サーバーの 文を じゅんに 出す。曲が かわる）
 import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from '../shared/data/monsters-c11d.js';
 import { HOLD, EIGHT } from '../shared/data/abilities-c11d.js';
-import { C11D_CMD_B, C11D_TRACKS_B } from '../shared/data/c11d-names-b.js';
+import { C11D_CMD_B, C11D_TRACKS_B } from '../shared/maps/c11d-flags.js';
 import { C10D_MIRARE } from '../shared/data/monsters-c10d.js';
 import { C11B_OBORO } from '../shared/data/monsters-c11b.js';
 import { NOTE_COLORS } from '../shared/battle-c10d.js';

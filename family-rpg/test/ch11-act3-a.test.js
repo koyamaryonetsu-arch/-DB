@@ -17,7 +17,7 @@ import { C11B_LINE, C11B_MAP_IDS } from '../public/js/shared/maps/c11b-flags.js'
 import { solve11c, reachable11c, nextHint11c, canRecall11c, algolPed11c } from '../public/js/shared/world/c11c-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import {
-  CH11_STEPS, PART3_C11C_OPEN, c11cTitleSteps, CH11_PROGRESS, CH11_OBJECTIVE_TARGETS, act2ClearObjective, C11C_TITLE,
+  CH11_STEPS, PART3_C11C_OPEN, c11cTitleSteps, CH11_PROGRESS, CH11_OBJECTIVE_TARGETS, act2ClearObjective, act3ClearObjective, C11C_TITLE,
 } from '../public/js/shared/data/story-c11.js';
 import { C11B_OBJ } from '../public/js/shared/data/story-c11b.js';
 import {
@@ -45,7 +45,8 @@ let opened = false;
 function openAct() {
   if (opened) return;
   opened = true;
-  applyCh11c(SCRIPTS, STORY_SCRIPTS, { title: c11cTitleSteps, open: true });
+  // 第104回 A班: 第4幕が 開いた ので、まぜなおす 時も 第3幕 クリアの 目標は act3ClearObjective
+  applyCh11c(SCRIPTS, STORY_SCRIPTS, { title: c11cTitleSteps, open: true, act3Obj: act3ClearObjective() });
 }
 const hasOf = (list) => (f) => list.includes(f);
 const tile = (s) => [Math.floor(s.x), Math.floor(s.y)];
@@ -636,7 +637,7 @@ test('通し（ひとり）: 名前の 塔の 前 → メカ 3号 → アルゴ�
   assert.ok(fought.includes(C11C_BATTLE.ace));
   assert.ok(c.flags[C11C.h3] && c.flags[C11C.ace] && c.flags[C11C.act3]);
   assert.ok(said(bot, '……スピカ。') && said(bot, '第3幕　クリア！'));
-  assert.equal(c.objective, C11C_OBJ.act3);
+  assert.equal(c.objective, act3ClearObjective(), '第4幕が 開いて いれば 第4幕の はじめの 目標');
   assert.equal(effectiveTile(MAPS.c11c_door, 9, 2, world.hasFlagFn(bot.s)), T.C11C_BIGDOOR_OPEN, '大とびらが 開いた');
   assert.ok(storyPlace({ flags: c.flags }).cleared || storyPlace({ flags: c.flags }).label === '第3部 第3章 第3幕');
   // 宝箱（回ろうの 8こ）は 開けられる

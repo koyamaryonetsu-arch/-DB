@@ -52,7 +52,7 @@ export const C11D_CRATER = 'c9a_crater'; // ながれ星のくぼ地（8つめ�
 export const C11D_BATTLE = { duo: 'c11d_duo', queen: 'c11d_queen' };
 // 魔物の id（先頭 c11d_）・ボスの id（B班が 決める。下は かりの id … 台本は ここを 読む）
 export const C11D_MON_PREFIX = 'c11d_';
-export const C11D_BOSS_MON = { mirror: 'c11d_mirror', oboro: 'c11d_oboro', queen: 'c11d_queen' };
+export const C11D_BOSS_MON = { mirror: 'c11d_mirror', oboro: 'c11d_moon', queen: 'c11d_queen' };
 // 名前（台本・目標・ヒントは ここを 読む。B班の monsters-c11d.js と 同じ 字）
 export const C11D_QUEEN_NAME = 'かがやきの女王ポラリス'; // さいごの ボス（20-5。北の 空で 動かない 星の 名前）
 export const C11D_QUEEN_SHORT = 'ポラリス';
@@ -127,3 +127,14 @@ export const C11D_LV = { tower: 125, duo: 125, queen: 126 };
 
 // ───── 幕の 切りかえ ─────
 export const C11D_OPEN = 'PART3_C11D_OPEN'; // data/story-c11.js
+
+// ───── B班の かりの 置き場（data/c11d-names-b.js。合わせた 時に 消した）に あった 名前（同じ 物。B の ファイルが as で 読む）─────
+export const C11D_B = { act3: C11D_ACT0, ...C11D };
+export const C11D_MAP_B = { ...C11D_MAP };
+export const C11D_BATTLE_B = { ...C11D_BATTLE };
+export const C11D_MON_PREFIX_B = C11D_MON_PREFIX;
+export const C11D_CHEST_IDS_B = [...C11D_CHEST_IDS];
+export const C11D_KEYS_B = { eight: NOTE_EIGHT };
+export const C11D_CMD_B = { hold: C11D_CMD_HOLD, eight: C11D_CMD_EIGHT };
+export const C11D_TRACKS_B = { ...C11D_TRACKS };
+export const C11D_OPEN_B = C11D_OPEN;

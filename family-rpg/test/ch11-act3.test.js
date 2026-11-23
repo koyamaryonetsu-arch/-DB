@@ -13,7 +13,7 @@ import { MAPS, canStand, isBlocked, condOk } from '../public/js/shared/maps/inde
 import { C11C, C11C_ACT0, C11C_MAP, C11C_BATTLE, C11C_CHEST_IDS, C11C_MAP_IDS } from '../public/js/shared/maps/c11c-flags.js';
 import { HALL_POS11C, CITY_POS11C, DOOR_POS11C, REST_POS11C } from '../public/js/shared/maps/c11c-rows.js';
 import { solve11c, algolPed11c } from '../public/js/shared/world/c11c-steps.js';
-import { PART3_C11C_OPEN, act2ClearObjective, CH11_PROGRESS, CH11_OBJECTIVE_TARGETS } from '../public/js/shared/data/story-c11.js';
+import { PART3_C11C_OPEN, act2ClearObjective, act3ClearObjective, CH11_PROGRESS, CH11_OBJECTIVE_TARGETS } from '../public/js/shared/data/story-c11.js';
 import { C11B_OBJ } from '../public/js/shared/data/story-c11b.js';
 import { C11C_OBJ } from '../public/js/shared/data/story-c11c.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
@@ -318,7 +318,7 @@ test('通し（家族の 仲間 3人）: 第2幕の クリアから → 塔の �
   assert.ok((sent.get(TANOMU) || 0) > 0, `「アルゴルにたのむ」を 画面と 同じ 形で 送った（${sent.get(TANOMU)}）`);
   assert.ok(c.flags[C11C.ace] && c.flags[C11C.act3]);
   assert.ok(said(bot, '……スピカ。') && said(bot, '第3幕　クリア！'));
-  assert.equal(c.objective, C11C_OBJ.act3);
+  assert.equal(c.objective, act3ClearObjective(), '第4幕が 開いて いれば 第4幕の はじめの 目標（第104回 A班）');
   assert.ok(storyPlace(c).cleared);
   // うらの 町の 店に 4つ・宝箱の 中み
   assert.ok(C11C_BACK_ADD.every((i) => shopItems(SHOPS.c11b_back_shop, (f) => !!c.flags[f]).includes(i)));

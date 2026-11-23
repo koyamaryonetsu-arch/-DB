@@ -38,8 +38,8 @@ import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
 import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from './data/monsters-c11d.js';
 import { HOLD, EIGHT, ROBE, BACK_HIT, STRIKE, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER, EIGHT_SONG_NAME } from './data/abilities-c11d.js';
-import { C11D_B as C11D, C11D_EIGHT_SCENE_B } from './data/c11d-names-b.js';
-// 八つめの 音の 場面の 文と 絵（A班の 台本。ない 時は かりの 文 C11D_EIGHT_SCENE_B）
+import { C11D_B as C11D } from './maps/c11d-flags.js';
+// 八つめの 音の 場面の 文と 絵（A班の 台本）
 import { C11D_EIGHT_SCENE } from './data/story-c11d.js';
 import { NARASU } from './data/abilities-c10d.js';
 import { YOBIKAKE } from './data/abilities-c11b.js';
@@ -51,7 +51,7 @@ import { peopleOf10, someoneChooses } from './battle-c10a.js';
 
 export { HOLD, EIGHT, ROBE, STRIKE, MEASURE, SHINE, NAMES, SCENE, NARASU, YOBIKAKE };
 // 場面の 文（{ lines: ['名前「文」' か 地の 文], arts: [絵の 名前 か null], ms: 1行の 長さ }。だれの 画面でも 同じ じゅん）
-const SCENE_SRC = C11D_EIGHT_SCENE?.lines?.length ? C11D_EIGHT_SCENE : C11D_EIGHT_SCENE_B;
+const SCENE_SRC = C11D_EIGHT_SCENE;
 export const EIGHT_SCENE = {
   lines: SCENE_SRC.lines.map((x) => (x.who ? `${x.who}「${x.text}」` : x.text)),
   arts: SCENE_SRC.lines.map((x) => x.art || null),

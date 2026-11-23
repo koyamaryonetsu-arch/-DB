@@ -20,8 +20,8 @@ import { BOSS_HINTS, BOSS_HINT_WHO } from '../public/js/shared/data/boss-hints.j
 import { mechBoss } from '../public/js/shared/ai.js';
 import { GUEST_MAX_LEVEL } from '../public/js/shared/guest-rule.js';
 import {
-  C11D_B as C11D, C11D_MAP_B, C11D_BATTLE_B as C11D_BATTLE, C11D_MON_PREFIX_B, C11D_CHEST_IDS_B, C11D_CMD_B, C11D_TRACKS_B, C11D_OPEN_B, C11D_KEYS_B, C11D_EIGHT_SCENE_B,
-} from '../public/js/shared/data/c11d-names-b.js';
+  C11D_B as C11D, C11D_MAP_B, C11D_BATTLE_B as C11D_BATTLE, C11D_MON_PREFIX_B, C11D_CHEST_IDS_B, C11D_CMD_B, C11D_TRACKS_B, C11D_OPEN_B, C11D_KEYS_B,
+} from '../public/js/shared/maps/c11d-flags.js';
 import { C11C_B as C11C } from '../public/js/shared/maps/c11c-flags.js';
 import { C11B_B as C11B } from '../public/js/shared/maps/c11b-flags.js';
 import { C10A_B as C10A } from '../public/js/shared/maps/c10a-flags.js';
@@ -105,7 +105,7 @@ const hold = (b, a, choice) => act(b, a, { type: 'ability', id: HOLD, choice });
 const allText = (ev) => [...(ev?.lines || []), ...(ev?.postLines || [])].join('\n');
 
 // ───────────── 名前の 約束 ─────────────
-test('名前の 約束（20-6）: フラグ・マップ・決まった 戦い・魔物の id・宝箱・だいじな 物・コマンド・曲・幕の 切りかえ（かりの data/c11d-names-b.js）', () => {
+test('名前の 約束（20-6）: フラグ・マップ・決まった 戦い・魔物の id・宝箱・だいじな 物・コマンド・曲・幕の 切りかえ（maps/c11d-flags.js。かりの c11d-names-b.js は 合わせた 時に 消した）', () => {
   assert.deepEqual(C11D, {
     act3: 'c11_act3', start: 'c11d_start', t1: 'c11d_t1', t2: 'c11d_t2', t3: 'c11d_t3', t4: 'c11d_t4', duo: 'c11d_duo', queen: 'c11d_queen', lamp: 'c11d_lamp', bridge: 'c11d_bridge', act4: 'c11_act4',
   });
@@ -727,17 +727,17 @@ test('負けた 時の ヒント: 女王は 3だん（文は 20-5 の まま）�
 // ───────────── 物語の きまり ─────────────
 test('物語の きまり（20-1）: 戦いの 文に カイ・ソリトゥスの 名前・第1部と 第2部の ひみつ・八つめの 光が だれの 物かの 説明を 書かない・女王を 悪者の ことばに しない', () => {
   const files = ['public/js/shared/data/monsters-c11d.js', 'public/js/shared/data/abilities-c11d.js', 'public/js/shared/data/items-c11d.js', 'public/js/shared/data/boss-hints-c11d.js',
-    'public/js/shared/data/companions-c11d.js', 'public/js/shared/data/encounters-c11d.js', 'public/js/shared/data/c11d-names-b.js', 'public/js/shared/battle-c11d.js', 'public/js/client/battle-c11d.js',
+    'public/js/shared/data/companions-c11d.js', 'public/js/shared/data/encounters-c11d.js', 'public/js/shared/battle-c11d.js', 'public/js/client/battle-c11d.js',
     'public/js/client/render/c11d-art.js', 'public/js/client/render/c11d-bg.js', 'public/js/client/render/battlefx-c11d.js'];
   // ことばの 中（コメントは のぞく。コメントの 中の「書かない」の 説明は よい）
   const code = (f) => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8').split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
   const BAD = ['カイ', 'ソリトゥス', 'トキネ', '魔王', '第1部', '第2部', '千年前', 'ひとりぼっちだった星', '悪者', 'わるもの', 'ざまあ', 'ふはは', 'フハハ', '愚か', 'おろかもの', '死ね'];
   for (const f of files) for (const w of BAD) assert.ok(!code(f).includes(w), `${f}: ${w}`);
   const texts = [QUEEN_NAME, ...Object.values(C11D_ABILITIES).flatMap((a) => [a.name, a.cast, a.desc]), ...Object.values(MONSTERS_C11D).flatMap((m) => [m.name, m.desc]),
-    ...Object.values(ITEMS_C11D).flatMap((i) => [i.name, i.desc]), ...Object.values(C11D_BOSS_HINTS).flat(), ...C11D_EIGHT_SCENE_B.lines.map((x) => `${x.who || ''}${x.text}`)];
+    ...Object.values(ITEMS_C11D).flatMap((i) => [i.name, i.desc]), ...Object.values(C11D_BOSS_HINTS).flat(), ...C11D_EIGHT_SCENE.lines.map((x) => `${x.who || ''}${x.text}`)];
   for (const t of texts) for (const w of BAD) assert.ok(!String(t).includes(w), `${t}: ${w}`);
   // 八つめの 音の 場面は 小さな 光と ノクトの ひとことだけ（名前も 正体も 言わない）
-  for (const scene of [C11D_EIGHT_SCENE_B.lines, C11D_EIGHT_SCENE.lines]) {
+  for (const scene of [C11D_EIGHT_SCENE.lines]) {
     assert.ok(scene.some((x) => x.who === 'ノクト' && x.text === '……おまえ、なのか。'));
     assert.ok(scene.filter((x) => x.who).every((x) => ['スピカ', 'ノクト'].includes(x.who)));
     for (const x of scene) for (const w of BAD) assert.ok(!x.text.includes(w), `${x.text}: ${w}`);
@@ -885,7 +885,7 @@ test('がめん: 上の まど（女王 … 輪・ひとり・はかりの ね�
 
 test('文字: 子ども向けの 漢字・文の 中に 空白なし（kanji-check の gameFiles に 入って いる）', () => {
   const mine = [
-    'public/js/shared/data/c11d-names-b.js', 'public/js/shared/data/monsters-c11d.js', 'public/js/shared/data/abilities-c11d.js',
+    'public/js/shared/data/monsters-c11d.js', 'public/js/shared/data/abilities-c11d.js',
     'public/js/shared/data/encounters-c11d.js', 'public/js/shared/data/companions-c11d.js', 'public/js/shared/data/items-c11d.js', 'public/js/shared/data/boss-hints-c11d.js',
     'public/js/shared/battle-c11d.js', 'public/js/client/battle-c11d.js', 'public/js/client/render/c11d-art.js', 'public/js/client/render/c11d-bg.js', 'public/js/client/render/battlefx-c11d.js',
   ];

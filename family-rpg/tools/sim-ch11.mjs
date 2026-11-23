@@ -26,7 +26,7 @@ import { c11bState, keeperOf, oboroOf, tenninUp } from '../public/js/shared/batt
 import { C11C_BATTLE_B as C11C_BATTLE, C11C_B as C11C } from '../public/js/shared/maps/c11c-flags.js';
 import { c11cState, partsOf, aceOf, guardsUp, cardsLeft, canEat, TANOMU as C11C_TANOMU } from '../public/js/shared/battle-c11c.js';
 // 第104回 B班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」の 鏡と月の使い（duo。Lv125）・かがやきの女王ポラリス（queen。Lv126）
-import { C11D_BATTLE_B as C11D_BATTLE, C11D_B as C11D } from '../public/js/shared/data/c11d-names-b.js';
+import { C11D_BATTLE_B as C11D_BATTLE, C11D_B as C11D } from '../public/js/shared/maps/c11d-flags.js';
 import { c11dState, duoOf, frontOf, queenOf, duoNeed, queenNeed } from '../public/js/shared/battle-c11d.js';
 // かんたんな 人（MODES9.easy・easy0。HUMAN=easy の 道具 … ch9Run(…, 'easy')）
 import './sim-easy.mjs';
