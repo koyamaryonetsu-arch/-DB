@@ -20,7 +20,7 @@ import { CONSTELLATIONS11A, CON_IDS11A, solve11a, solveFrom11a, goodStarts11a, l
 import { carry, flowReach } from '../public/js/shared/maps/flow.js';
 import { conState11a } from '../public/js/shared/world/c11a-steps.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
-import { CH11_STEPS, PART3_C11A_OPEN, c11aTitleSteps, CH11_PROGRESS } from '../public/js/shared/data/story-c11.js';
+import { CH11_STEPS, PART3_C11A_OPEN, PART3_C11B_OPEN, c11aTitleSteps, CH11_PROGRESS, act1ClearObjective } from '../public/js/shared/data/story-c11.js';
 import { CH10_PROGRESS, act4ClearObjective, PART3_C10D_OPEN } from '../public/js/shared/data/story-c10.js';
 import { C10D_OBJ } from '../public/js/shared/data/story-c10d.js';
 import {
@@ -44,7 +44,8 @@ let opened = false;
 function openAct() {
   if (opened) return;
   opened = true;
-  applyCh11a(SCRIPTS, STORY_SCRIPTS, { title: c11aTitleSteps, open: true });
+  // 第102回 A班: 第1幕 クリアの 目標は 本体と 同じ（第2幕が 開くと かわる。前の 文の まま まぜなおさない）
+  applyCh11a(SCRIPTS, STORY_SCRIPTS, { title: c11aTitleSteps, open: true, act1Obj: act1ClearObjective(), act2Open: PART3_C11B_OPEN });
 }
 const hasOf = (list) => (f) => list.includes(f);
 const key = (x, y) => `${x},${y}`;
@@ -111,8 +112,9 @@ test('名前の 約束: マップ 5まい・タイル 621〜660・宝箱の id�
   assert.deepEqual(chests, [...C11A_CHEST_IDS].sort());
   // 一本の 線（c10_act4 の うしろ）。明かり・星座の しるし・レンズの しるしは 線に 入れない
   const j = STORY_STEPS.indexOf('c10_act4');
-  assert.deepEqual(STORY_STEPS.slice(j + 1), C11A_LINE);
-  assert.deepEqual(CH11_STEPS, C11A_LINE);
+  // 第102回 A班: うしろに 第2幕の 線が つづく
+  assert.deepEqual(STORY_STEPS.slice(j + 1, j + 1 + C11A_LINE.length), C11A_LINE);
+  assert.deepEqual(CH11_STEPS.slice(0, C11A_LINE.length), C11A_LINE);
   for (const f of [...C11A_LIGHTS, ...C11A_CON_IDS, C11A_LENS]) assert.ok(!STORY_STEPS.includes(f), `${f} は 線に 入らない`);
   // 台本（パーティーで 見る）・やり直しの 行き先（ノクト）
   openAct();
@@ -551,7 +553,7 @@ test('通し（ひとり）: くぼ地 → 灯台島の レンズの 星座 → 
   await stepOn(bot, SEA_GATE11A.x + 1, SEA_GATE11A.y + 3, o);
   assert.ok(fought.includes(C11A_BATTLE.pirate));
   assert.ok(c.flags.c11a_pirate && c.flags.c11_act1);
-  assert.equal(c.objective, C11A_OBJ.act1);
+  assert.equal(c.objective, act1ClearObjective()); // 第102回 A班: 第2幕が 開くと 第2幕の はじめの 目標
   assert.ok(!isBlocked(MAPS.c11_sea, SEA_GATE11A.x, SEA_GATE11A.y, world.hasFlagFn(bot.s)) || true);
   assert.equal(effectiveTile(MAPS.c11_sea, SEA_GATE11A.x, SEA_GATE11A.y, world.hasFlagFn(bot.s)), T.C11A_GATE_OPEN, '門が 開いた');
   assert.equal(storyPlace(c).label, '第3部 第3章 第1幕');

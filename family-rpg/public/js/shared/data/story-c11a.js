@@ -390,7 +390,9 @@ function endSteps(act1Obj) {
     ['bgm', 'resume'],
   ];
 }
-const gateSteps = (x) => {
+// act2Open … 第2幕が 開いて いるか（第102回 A班。開いて いれば「続きは、アップデートで」を 言わない）
+const gateSteps = (act2Open) => (x) => {
+  if (x.flag(C11A.act1) && act2Open) return N('星座の門は、開いている。\nむこうの、星の海へ、進もう。');
   if (x.flag(C11A.act1)) return N('星座の門は、開いている。\n…でも、むこうは、まだ、星のきりが深い。（続きは、アップデートで）');
   const n = C11A_LIGHTS.filter((f) => x.flag(f)).length;
   return N(`大きな、星座の門だ。\n3つの星座の明かりが、そろわないと、開かないらしい。（今、${n}つ）`);
@@ -399,14 +401,15 @@ const gateSteps = (x) => {
 // ───── だいほん ─────
 //   open … 幕が 開いて いるか（story-c11.js の PART3_C11A_OPEN）。false の 間は くぼ地で ガンツと 話しても 始まらない
 //   act1Obj … 幕の クリアの あとの 目標（第2幕が 開くまでは「第3部　第3章　第2幕へ（続きは…）」）
-export function c11aScripts(title, open, old = {}, act1Obj = C11A_OBJ.act1) {
+//   act2Open … 第2幕が 開いて いるか（story-c11.js の PART3_C11B_OPEN。門を しらべた 時の 文）
+export function c11aScripts(title, open, old = {}, act1Obj = C11A_OBJ.act1, act2Open = false) {
   const out = {
     c11a_ship_event: (x) => (open && x.flag(C11A_ACT0) && !x.flag(C11A.start) ? shipScene(title) : []),
     c11a_launch_event: (x) => (x.flag(C11A.chart) && !x.flag(C11A.launch) ? launchScene() : []),
     c11a_perch_event: (x) => (x.flag(C11A.launch) && !x.flag(C11A.perch) ? perchScene() : []),
     c11a_beast_event: beastEvent,
     c11a_pirate_event: (x) => (C11A_LIGHTS.every((f) => x.flag(f)) && x.flag(C11A.beast) && !x.flag(C11A.pirate) ? pirateScene(act1Obj) : []),
-    c11a_gate: gateSteps,
+    c11a_gate: gateSteps(act2Open),
     c11a_dock: () => N('星の船の、乗り場だ。\n（ふむと、星の海の、橋の先へ）'),
     c11a_yoi: (x) => (x.flag(C11A.perch) ? YOI_TALK(x) : perchScene()),
     c11a_inn: (x) => innSteps('宿屋のホタル', 300, x),
@@ -490,11 +493,11 @@ export const CH11A_PROGRESS = [
 // ───── story-c11.js の applyCh11 から: だいほんを まぜる ─────
 //   title … 題の 画面の だいほん / open … 幕が 開いて いるか（PART3_C11A_OPEN）
 //   今の 台本に 足す 物（どれも フラグで 出る）: 灯台守（レンズの 星座）・くぼ地の ガンツ（場面 0）
-export function applyCh11a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act1Obj = C11A_OBJ.act1 } = {}) {
+export function applyCh11a(SCRIPTS, STORY_SCRIPTS, { title = () => [], open = false, act1Obj = C11A_OBJ.act1, act2Open = false } = {}) {
   const S11 = c11aScripts(title, open, {
     keeper: SCRIPTS.lighthouse_keeper?.c11a ? null : SCRIPTS.lighthouse_keeper,
     gantz: SCRIPTS.c9b_armorer?.c11a ? null : SCRIPTS.c9b_armorer,
-  }, act1Obj);
+  }, act1Obj, act2Open);
   if (SCRIPTS.lighthouse_keeper?.c11a) delete S11.lighthouse_keeper;
   else S11.lighthouse_keeper = Object.assign(S11.lighthouse_keeper, { c11a: true });
   if (!S11.c9b_armorer) delete S11.c9b_armorer;

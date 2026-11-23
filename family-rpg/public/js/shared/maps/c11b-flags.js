@@ -22,14 +22,14 @@ export const C11B_ACT0 = 'c11_act1';
 export const C11B_LINE = [C11B.start, C11B.plaza, C11B.back, C11B.rule, C11B.tower, C11B.keeper, C11B.lamp, C11B.oboro, C11B.act2];
 
 // ───── とびら・ランプの しるし（セーブする。使う 分だけ。12こ まで）─────
-//   d1〜d3 … 塔 1階の 月の 光の ゆか（ふむと うらの 同じ 場所の とびらが 開く。開いた まま）
-//   d4〜d6 … 塔 2階の ランプ（1つ ともすと ほかは 消える。うらの かげの 橋の 場所が かわる）
-//   d7 … 塔 3階の 月の 光の ゆか / d8・d9 … 塔 3階の ランプ
-export const C11B_MARKS = ['c11b_d1', 'c11b_d2', 'c11b_d3', 'c11b_d4', 'c11b_d5', 'c11b_d6', 'c11b_d7', 'c11b_d8', 'c11b_d9'];
+//   d1〜d3 … 塔 1階の 月の 光の ゆか（ふむと うらの 同じ 場所の とびらが 開く。開いた まま。d3 は 宝箱の 小部屋）
+//   d4・d5 … 塔 2階の ランプ（青・金。1つ ともすと ほかは 消える。うらの かげの 橋の 場所が かわる）
+//   d6 … 塔 3階の 月の 光の ゆか / d7 … 塔 3階の ランプ（青。ともした まま）
+export const C11B_MARKS = ['c11b_d1', 'c11b_d2', 'c11b_d3', 'c11b_d4', 'c11b_d5', 'c11b_d6', 'c11b_d7'];
 export const C11B_MARK_MAX = 12;
 // 光の ゆか（f: しるし）と ランプ（ひとくみの 中で 1つだけ ともる）
-export const C11B_FLOORS = { t1: ['c11b_d1', 'c11b_d2', 'c11b_d3'], t3: ['c11b_d7'] };
-export const C11B_LAMPS = { t2: ['c11b_d4', 'c11b_d5', 'c11b_d6'], t3: ['c11b_d8', 'c11b_d9'] };
+export const C11B_FLOORS = { t1: ['c11b_d1', 'c11b_d2', 'c11b_d3'], t3: ['c11b_d6'] };
+export const C11B_LAMPS = { t2: ['c11b_d4', 'c11b_d5'], t3: ['c11b_d7'] };
 
 // ───── マップの ID ─────
 export const C11B_MAP = {

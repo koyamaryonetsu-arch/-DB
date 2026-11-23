@@ -17,7 +17,7 @@ import { SHOP11A } from '../public/js/shared/maps/c11a.js';
 import { solve11a } from '../public/js/shared/data/constellations-c11a.js';
 import { SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import { act4ClearObjective } from '../public/js/shared/data/story-c10.js';
-import { PART3_C11A_OPEN, c11aTitleSteps } from '../public/js/shared/data/story-c11.js';
+import { PART3_C11A_OPEN, PART3_C11B_OPEN, c11aTitleSteps, act1ClearObjective } from '../public/js/shared/data/story-c11.js';
 import { C11A_OBJ, applyCh11a } from '../public/js/shared/data/story-c11a.js';
 import { BOSS_HINTS } from '../public/js/shared/data/boss-hints.js';
 import { SHOPS } from '../public/js/shared/data/shops.js';
@@ -45,7 +45,8 @@ let opened = false;
 function openAct() {
   if (opened) return;
   opened = true;
-  applyCh11a(SCRIPTS, STORY_SCRIPTS, { title: c11aTitleSteps, open: true });
+  // 第102回 A班: 第1幕 クリアの 目標は 本体と 同じ（第2幕が 開くと かわる。前の 文の まま まぜなおさない）
+  applyCh11a(SCRIPTS, STORY_SCRIPTS, { title: c11aTitleSteps, open: true, act1Obj: act1ClearObjective(), act2Open: PART3_C11B_OPEN });
 }
 function gear(chars, boss, lv) {
   const kit = ch9Party(boss, lv);
@@ -370,7 +371,7 @@ test('通し（家族の 仲間 3人）: 第2章の クリアから → 灯台 �
   assert.ok((sent.get(TOKEI_NAGE) || 0) > 0, `「時計を投げる」を 画面と 同じ 形で 送った（${sent.get(TOKEI_NAGE)}）`);
   assert.ok(c.flags[C11A.act1] && c.flags[C11A.pirate]);
   assert.ok(said(bot, '帰ってきた、のかな') && said(bot, '第1幕　クリア！'));
-  assert.equal(c.objective, C11A_OBJ.act1);
+  assert.equal(c.objective, act1ClearObjective()); // 第102回 A班: 第2幕が 開くと 第2幕の はじめの 目標
   assert.equal(effectiveTile(MAPS.c11_sea, SEA_GATE11A.x, SEA_GATE11A.y, world.hasFlagFn(bot.s)), T.C11A_GATE_OPEN, '門が 開いた');
   assert.ok(storyPlace(c).cleared);
   // 星座の しるし 7つ・明かり 3つ・宝箱 8こ（B班の 品）・店

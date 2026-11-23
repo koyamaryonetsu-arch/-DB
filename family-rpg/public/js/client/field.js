@@ -47,6 +47,8 @@ import { noteC10dStage, drawC10dSky2D, drawC10dSky3D } from './c10d-view.js';
 // 第100回 A班: 第3部 第3章 第1幕の ひとふで書きの 星座・星の海（client/c11a-view.js）・星の船の 絵
 import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from './c11a-view.js';
 import { paintStarShip } from './render/c11a-npc-art.js';
+// 第102回 A班: 第3部 第3章 第2幕の おもてと うら（しるし・色と 明かり・ホタルの 助け・曲の sideStage。client/c11b-view.js）
+import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D } from './c11b-view.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
 const huntTints = new WeakMap();
 
@@ -863,6 +865,7 @@ export class Field {
     noteC10bSnap(this, msg.c10b); // 第95回 A班: 水の 高さ・こっそり
     noteC10cSnap(this, msg.c10c); // 第97回 A班: 音の 橋
     noteC11aSnap(this, msg.c11a); // 第100回 A班: ひとふで書きの 星座
+    noteC11bSnap(this, msg.c11b); // 第102回 A班: ホタルの 助け
     if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
@@ -1038,6 +1041,7 @@ export class Field {
     noteC10cStage(this); // 第97回 A班: 曲の bridgeStage
     noteC10dStage(this); // 第99回 A班: 曲の gateStage
     noteC11aStage(this); // 第100回 A班: 曲の conStage
+    noteC11bStage(this); // 第102回 A班: 曲の sideStage
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;
@@ -1157,6 +1161,7 @@ export class Field {
     if (m.c10cSky) drawC10cSky(this, ctx); // 第97回 A班: 空の 小島の 光・とおくの 影の城
     if (m.c10dSky) drawC10dSky2D(this, camX, camY); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
     if (m.c11aCons || m.c11aSea) drawC11a2D(this, camX, camY); // 第100回 A班: ひとふで書きの 星座・星の海の 下の 小さな 地上
+    if (m.c11b) drawC11b2D(this, camX, camY); // 第102回 A班: おもて・うらの 色と 明かり・ホタルの 助け・しるし
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1323,6 +1328,7 @@ export class Field {
     if (m.c10cSky) drawC10cSky(this, ctx); // 第97回 A班: 空の 小島の 光・とおくの 影の城
     if (m.c10dSky) drawC10dSky3D(this, ctx, P); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
     if (m.c11aCons || m.c11aSea) drawC11a3D(this, ctx, P); // 第100回 A班: ひとふで書きの 星座・星の海の 下の 小さな 地上
+    if (m.c11b) drawC11b3D(this, ctx, P); // 第102回 A班: おもて・うらの 色と 明かり・ホタルの 助け・しるし
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();

@@ -89,6 +89,8 @@ import { c10cFlag, stepC10c, c10cOnPlay, tickC10c, c10cSnap, C10C_API } from './
 import { c10dRespawn, c10dOnPlay, C10D_API } from './c10d-steps.js';
 // 第100回 A班: 第3部 第3章 第1幕の ひとふで書きの 星座（world/c11a-steps.js）
 import { c11aInteract, stepC11a, tickC11a, c11aOnPlay, c11aSnap, C11A_API } from './c11a-steps.js';
+// 第102回 A班: 第3部 第3章 第2幕の おもてと うら（月かげの 戸・光の ゆか・ランプ・助け。world/c11b-steps.js）
+import { c11bInteract, stepC11b, c11bOnPlay, c11bSnap } from './c11b-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -255,6 +257,8 @@ export class GameWorld {
     if (!t.busy) c10dOnPlay(this, t);
     // 第100回 A班: 星座の 上で 回線が 切れて もどった → その 星座の 地面（world/c11a-steps.js）
     if (!t.busy) c11aOnPlay(this, t);
+    // 第102回 A班: おもて・うらで 回線が 切れて もどった → 立てない 所なら 近くの マス（world/c11b-steps.js）
+    if (!t.busy) c11bOnPlay(this, t);
     this.sessions.delete(s.id);
     const ctx = t.battleId && this.battles.get(t.battleId);
     if (ctx) {
@@ -547,6 +551,8 @@ export class GameWorld {
     c10dOnPlay(this, s);
     // 第100回 A班: 星座の 上で 回線が 切れて もどった → その 星座の 地面（world/c11a-steps.js）
     c11aOnPlay(this, s);
+    // 第102回 A班: おもて・うらで 回線が 切れて もどった（world/c11b-steps.js）
+    c11bOnPlay(this, s);
     s.busy = null;
     s.level = c.level;
     // 第44回: 前に 進化を まっていた 仲間が いれば、フィールドに 出た あとで たずねる
@@ -735,6 +741,8 @@ export class GameWorld {
     if (stepC10c(this, s, tx, ty)) return;
     // 第3部 第3章 第1幕: ひとふで書きの 星座（星に 入った・地面へ おりた。world/c11a-steps.js）
     stepC11a(this, s, tx, ty);
+    // 第3部 第3章 第2幕: 月の 光の ゆか・助けの 歩数（world/c11b-steps.js）
+    stepC11b(this, s, tx, ty);
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);
@@ -912,6 +920,8 @@ export class GameWorld {
     if (Math.hypot(tx + 0.5 - s.x, ty + 0.5 - s.y) > 3) return;
     // 第100回 A班: ひとふで書きの 星座（星の 上で 線の 向きを しらべる・星を しらべて やり直す。world/c11a-steps.js）
     if (c11aInteract(this, s, tx, ty)) return;
+    // 第102回 A班: 月かげの 戸（乗って A）・ランプ（world/c11b-steps.js）
+    if (c11bInteract(this, s, tx, ty)) return;
     const key = ty * map.w + tx;
     // たからばこ（フィールドの 宝箱は 開けると きえる）
     const chest = map.chestAt.get(key);
@@ -1292,7 +1302,8 @@ export class GameWorld {
           const c10b = c10bSnap(this, p); // 第95回 A班: 水の 高さ・こっそり（その 人の 見はり）
           const c10c = c10cSnap(this, p); // 第97回 A班: 音の 橋（パーティーの 橋）
           const c11a = c11aSnap(this, p); // 第100回 A班: ひとふで書きの 星座（パーティーの 光った 線・助け）
-          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}), ...(c10b ? { c10b } : {}), ...(c10c ? { c10c } : {}), ...(c11a ? { c11a } : {}) });
+          const c11b = c11bSnap(this, p); // 第102回 A班: おもてと うらの 助け（ホタルが 光らせる 所）
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}), ...(c10b ? { c10b } : {}), ...(c10c ? { c10c } : {}), ...(c11a ? { c11a } : {}), ...(c11b ? { c11b } : {}) });
         }
       }
     }

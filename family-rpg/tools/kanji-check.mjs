@@ -681,6 +681,9 @@ export function gameFiles() {
     'public/js/shared/maps/c11a-flags.js', 'public/js/shared/data/story-c11.js', 'public/js/shared/data/story-c11a.js', 'public/js/shared/data/constellations-c11a.js',
     'public/js/shared/maps/c11a.js', 'public/js/shared/maps/c11a-rows.js', 'public/js/shared/world/c11a-steps.js', 'public/js/client/c11a-view.js',
     'public/js/client/render/tiles-c11a.js', 'public/js/client/render/c11a-npc-art.js',
+    // 第102回 A班: 第3部 第3章 第2幕「月の都と、名前のランプ」（世界と 物語）
+    'public/js/shared/maps/c11b-flags.js', 'public/js/shared/data/story-c11b.js', 'public/js/shared/maps/c11b.js', 'public/js/shared/maps/c11b-rows.js',
+    'public/js/shared/world/c11b-steps.js', 'public/js/client/c11b-view.js', 'public/js/client/render/tiles-c11b.js', 'public/js/client/render/c11b-npc-art.js',
     // 第101回 F班: 第3部 第3章 第1幕の 曲
     'public/js/client/audio-c11a.js',
     // 第101回 B班: 第3部 第3章 第1幕（魔物・星座のけもの・いかり船長・品・ヒント・絵・背景・えんしゅつ。かりの 置き場 c11a-names-b.js は A班が 消した）

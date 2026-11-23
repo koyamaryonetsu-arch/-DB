@@ -138,6 +138,13 @@ export const T = {
   C11A_ISLE: 628, C11A_PIER: 629, C11A_BRIDGE: 630, C11A_GATE: 631, C11A_GATE_OPEN: 632, C11A_GATEROCK: 633, C11A_MIST: 634,
   C11A_GROUND: 635, C11A_GRASS: 636, C11A_RIM: 637, C11A_SKY: 638, C11A_STAR: 639, C11A_LIGHT: 640, C11A_LIGHT_ON: 641,
   C11A_DOCK: 642, C11A_TREE: 643, C11A_TABLET: 644, C11A_HUT: 645, C11A_SPRING: 646, C11A_PATH: 647, C11A_LENS: 648, C11A_LENS_STAR: 649,
+  // 第3部 第3章 第2幕「月の都と、名前のランプ」（第102回 A班。661〜700。maps/c11b*.js・render/tiles-c11b.js）
+  C11B_F_PAVE: 661, C11B_F_WALL: 662, C11B_F_HOUSE: 663, C11B_F_CANAL: 664, C11B_B_PAVE: 665, C11B_B_WALL: 666, C11B_B_HOUSE: 667,
+  C11B_B_RUBBLE: 668, C11B_DOOR: 669, C11B_SCALEGATE: 670, C11B_LAMPRACK: 671, C11B_LAMPHOOK: 672, C11B_FOUNT: 673, C11B_LANTERNWELL: 674,
+  C11B_DOCK: 675, C11B_TOWERDOOR: 676, C11B_T_FLOOR_F: 677, C11B_T_WALL_F: 678, C11B_T_FLOOR_B: 679, C11B_T_WALL_B: 680,
+  C11B_LIGHTFLOOR: 681, C11B_LIGHTFLOOR_ON: 682, C11B_SHUTDOOR: 683, C11B_OPENDOOR: 684, C11B_LAMP_A: 685, C11B_LAMP_A_ON: 686,
+  C11B_LAMP_B: 687, C11B_LAMP_B_ON: 688, C11B_CHASM: 689, C11B_SHADOWBRIDGE: 690, C11B_SHELF: 691, C11B_TERRACE: 692, C11B_RAIL: 693,
+  C11B_MOONROCK: 694, C11B_B_LANTERN: 695, C11B_F_FLOWER: 696, C11B_T_STAIRS_F: 697, C11B_T_STAIRS_B: 698,
 };
 
 export const TILE_INFO = {};
@@ -786,6 +793,47 @@ def(T.C11A_PATH, 'c11a_path', { mapColor: '#a8a0c8' }); // とまり木の島の
 // 灯台島（風の海）: レンズが ゆかに うつした 星座（光の ゆか。通れない）と その 星
 def(T.C11A_LENS, 'c11a_lens', { solid: true, anim: true, light: true, mapColor: '#9ab8e8' }); // うつった 星座の 光の ゆか
 def(T.C11A_LENS_STAR, 'c11a_lens_star', { anim: true, light: true, mapColor: '#fff0a0' }); // うつった 星座の 星（立てる）
+// 第3部 第3章 第2幕「月の都と、名前のランプ」（第102回 A班。maps/c11b*.js・render/tiles-c11b.js）
+// 月の都: おもて（明るい 白と 銀。水路は 通れない）と うら（暗くて あたたかい 明かり。がらくたは 通れない）。同じ 形の 町が 2まい
+def(T.C11B_F_PAVE, 'c11b_f_pave', { mapColor: '#e8e4f8' }); // おもての 石だたみ
+def(T.C11B_F_WALL, 'c11b_f_wall', { solid: true, mapColor: '#a8a4c8' }); // おもての 白い かべ
+def(T.C11B_F_HOUSE, 'c11b_f_house', { solid: true, mapColor: '#c8c0e8' }); // おもての 家
+def(T.C11B_F_CANAL, 'c11b_f_canal', { solid: true, anim: true, mapColor: '#7ab0e8' }); // おもての 水路（通れない。うらは 道）
+def(T.C11B_B_PAVE, 'c11b_b_pave', { mapColor: '#6a5048' }); // うらの 石だたみ
+def(T.C11B_B_WALL, 'c11b_b_wall', { solid: true, mapColor: '#2a2028' }); // うらの かべ
+def(T.C11B_B_HOUSE, 'c11b_b_house', { solid: true, mapColor: '#4a3438' }); // うらの 小屋
+def(T.C11B_B_RUBBLE, 'c11b_b_rubble', { solid: true, mapColor: '#3a2c28' }); // うらの がらくた（通れない。おもては 道）
+def(T.C11B_DOOR, 'c11b_door', { anim: true, light: true, mapColor: '#ffe890' }); // 月かげの 戸（乗って A で、同じ 場所の もう 片方へ）
+def(T.C11B_SCALEGATE, 'c11b_scalegate', { solid: true, talkThrough: true, light: true, mapColor: '#f0e0a0' }); // はかりの門（とじて いる）
+def(T.C11B_LAMPRACK, 'c11b_lamprack', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#fff0a0' }); // 名前の ランプの 台
+def(T.C11B_LAMPHOOK, 'c11b_lamphook', { solid: true, talkThrough: true, mapColor: '#b8b0d0' }); // ランプの ない かぎ
+def(T.C11B_FOUNT, 'c11b_fount', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#a8d8ff' }); // おもての 月の いずみ（回復）
+def(T.C11B_LANTERNWELL, 'c11b_lanternwell', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffb060' }); // うらの ともしびの 井戸（回復）
+def(T.C11B_DOCK, 'c11b_dock', { mapColor: '#c8b0e0' }); // 都の はとば（ふむと 星の海へ）
+def(T.C11B_TOWERDOOR, 'c11b_towerdoor', { anim: true, light: true, mapColor: '#fff8d0' }); // 名前の 塔の 入口
+// 名前の 塔: おもて（白い 石）・うら（暗い 石）。光の ゆか（おもて）→ うらの 同じ 場所の とびら。ランプ（おもて）→ うらの かげの 橋
+def(T.C11B_T_FLOOR_F, 'c11b_t_floor_f', { mapColor: '#d8d4f0' }); // 塔の ゆか（おもて）
+def(T.C11B_T_WALL_F, 'c11b_t_wall_f', { solid: true, mapColor: '#8a86b8' }); // 塔の かべ（おもて）
+def(T.C11B_T_FLOOR_B, 'c11b_t_floor_b', { mapColor: '#5a4458' }); // 塔の ゆか（うら）
+def(T.C11B_T_WALL_B, 'c11b_t_wall_b', { solid: true, mapColor: '#221822' }); // 塔の かべ（うら）
+def(T.C11B_LIGHTFLOOR, 'c11b_lightfloor', { anim: true, light: true, mapColor: '#b8e0ff' }); // 月の 光の ゆか（まだ ふんで いない）
+def(T.C11B_LIGHTFLOOR_ON, 'c11b_lightfloor_on', { anim: true, light: true, mapColor: '#fff8c0' }); // ふんだ 光の ゆか
+def(T.C11B_SHUTDOOR, 'c11b_shutdoor', { solid: true, mapColor: '#3a2a3a' }); // うらの とじた とびら
+def(T.C11B_OPENDOOR, 'c11b_opendoor', { light: true, mapColor: '#ffd890' }); // うらの 開いた とびら
+def(T.C11B_LAMP_A, 'c11b_lamp_a', { solid: true, talkThrough: true, mapColor: '#6a7ab8' }); // 青い ランプ（消えて いる）
+def(T.C11B_LAMP_A_ON, 'c11b_lamp_a_on', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#8ad0ff' }); // ともった 青い ランプ
+def(T.C11B_LAMP_B, 'c11b_lamp_b', { solid: true, talkThrough: true, mapColor: '#a88a5a' }); // 金の ランプ（消えて いる）
+def(T.C11B_LAMP_B_ON, 'c11b_lamp_b_on', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffd860' }); // ともった 金の ランプ
+def(T.C11B_CHASM, 'c11b_chasm', { solid: true, anim: true, mapColor: '#0a060e' }); // うらの かげの 谷（通れない）
+def(T.C11B_SHADOWBRIDGE, 'c11b_shadowbridge', { anim: true, mapColor: '#8a6a9a' }); // かげの 橋
+def(T.C11B_SHELF, 'c11b_shelf', { solid: true, talkThrough: true, mapColor: '#7a6a5a' }); // 消された ランプの たな
+def(T.C11B_TERRACE, 'c11b_terrace', { light: true, mapColor: '#e0dcf8' }); // 塔の 上の テラス
+def(T.C11B_RAIL, 'c11b_rail', { solid: true, mapColor: '#b8b4d8' }); // テラスの 手すり（空の 上）
+def(T.C11B_MOONROCK, 'c11b_moonrock', { solid: true, light: true, mapColor: '#f0e0a0' }); // 星の海から 見た 月の都（三日月の 岩と 白い 塔）
+def(T.C11B_B_LANTERN, 'c11b_b_lantern', { solid: true, anim: true, light: true, mapColor: '#ffa050' }); // うらの ちょうちん
+def(T.C11B_F_FLOWER, 'c11b_f_flower', { solid: true, mapColor: '#d8c8f0' }); // おもての 花だん
+def(T.C11B_T_STAIRS_F, 'c11b_t_stairs_f', { light: true, mapColor: '#ffffff' }); // 塔の 階段（おもて）
+def(T.C11B_T_STAIRS_B, 'c11b_t_stairs_b', { light: true, mapColor: '#c89a70' }); // 塔の 階段（うら）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
