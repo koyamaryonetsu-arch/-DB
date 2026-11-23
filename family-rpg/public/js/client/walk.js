@@ -18,14 +18,17 @@ export const NUDGE_MINOR = 0.3;
 // pref … 先に ためす ずれの 向き（+1 / -1。0 は +1 が 先）
 export function nudgeStep(boxFree, axis, me, dirSign, sp, pref = 0) {
   const order = pref < 0 ? [-1, 1] : [1, -1];
+  // ずれた 先で 進めるかを 見る 長さ: 0.1 か 1フレームの いどう（おそい スマホ〈1フレーム 33〜50ミリびょう〉では 0.1 より 長い。
+  // 0.1 だけ だと、まだ かべまで とどかない 所を「進める」と 見て、口を すぎて すべって いった）
+  const look = dirSign * Math.max(0.1, sp);
   for (const off of [0.2, 0.35]) {
     for (const s of order) {
       if (axis === 'y') {
-        if (boxFree(me.x + dirSign * 0.1, me.y + s * off)) {
+        if (boxFree(me.x + look, me.y + s * off)) {
           const step = Math.min(sp, off) * s;
           if (boxFree(me.x, me.y + step)) { me.y += step; return true; }
         }
-      } else if (boxFree(me.x + s * off, me.y + dirSign * 0.1)) {
+      } else if (boxFree(me.x + s * off, me.y + look)) {
         const step = Math.min(sp, off) * s;
         if (boxFree(me.x + step, me.y)) { me.x += step; return true; }
       }

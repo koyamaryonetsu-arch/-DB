@@ -160,6 +160,26 @@ test('nudgeStep: 左右 どちらにも ずれられる 時は スティック�
   const p2 = { x: 5, y: 5 }; nudgeStep(any, 'y', p2, 1, SP, 1); assert.ok(p2.y > 5 && p2.x === 5);
 });
 
+test('1マス はばの 口（戸・出入り口）: スティックが ±20° ずれて いても 入れる・おそい スマホ（1フレーム 33・50ミリびょう）でも 口を すぎて すべらない', () => {
+  // 下の かべに 1マスの 口（3,4）。2マス 上（3,2）から 下へ
+  const rows = ['#######', '#.....#', '#.....#', '#.....#', '###.###', '###.###', '#######'];
+  const { boxFree } = grid(rows);
+  const oldFail = [];
+  for (const dt of [0.016, 0.033, 0.05]) for (const deg of [-20, -10, 0, 10, 20]) {
+    const sp = 4.6 * dt;
+    const [ix, iy] = rot([0, 1], deg);
+    const run = (step) => {
+      const me = { x: 3.5, y: 2.5 };
+      for (let k = 0; k < Math.round(1.5 / dt); k++) { step(boxFree, me, ix, iy, sp); assert.ok(boxFree(me.x, me.y)); if (Math.floor(me.y) === 4) return true; }
+      return false;
+    };
+    assert.ok(run(walkStep), `dt ${dt} ${deg}°`);
+    if (!run(oldStep)) oldFail.push(`${dt} ${deg}`);
+  }
+  // 前の 歩き方は 20° ずれると 入れなかった
+  assert.ok(oldFail.includes('0.016 20') && oldFail.includes('0.016 -20'), oldFail.join(','));
+});
+
 test('ゲームの マップ ぜんぶ: 1マス はばの 道の L の かどで、ななめ ±25° まで まがれる（入りぐあい 0.3・0.6・0.97）', () => {
   const fails = [];
   let n = 0;
