@@ -312,7 +312,7 @@ Object.assign(JOB_TAGS, {
 });
 
 // 第98回: きずなの職業（data/jobs-r98-*.js の tags。一覧は kizuna.js。新しい タグは 作らない）
-import { kizunaMap } from './kizuna.js?v=31ca07498b9b';
+import { kizunaMap } from './kizuna.js?v=f8927db0fd05';
 Object.assign(JOB_TAGS, kizunaMap('tags'));
 
 // そのタグの 職業（JOB_TAGS の じゅん）

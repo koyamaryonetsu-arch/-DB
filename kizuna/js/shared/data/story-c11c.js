@@ -14,11 +14,11 @@
 import {
   C11C, C11C_ACT0, C11C_MAP, C11C_BATTLE, C11C_BOSS_MON, C11C_TRACKS, C11C_MECHA_NAME, C11C_ACE_NAME, C11C_ACE_SHORT,
   C11C_ALGOL_NAME, C11C_ALGOL_SPRITE, C11C_TRIO, C11C_TRIO_SPRITES, C11C_BACK, C11C_FRONT,
-} from '../maps/c11c-flags.js?v=31ca07498b9b';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=31ca07498b9b';
-import { HALL_POS11C, REST_POS11C, DOOR_POS11C, CITY_POS11C } from '../maps/c11c-rows.js?v=31ca07498b9b';
-import { MONSTERS } from './monsters.js?v=31ca07498b9b';
-import { mergeBossHints } from './boss-hints.js?v=31ca07498b9b';
+} from '../maps/c11c-flags.js?v=f8927db0fd05';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=f8927db0fd05';
+import { HALL_POS11C, REST_POS11C, DOOR_POS11C, CITY_POS11C } from '../maps/c11c-rows.js?v=f8927db0fd05';
+import { MONSTERS } from './monsters.js?v=f8927db0fd05';
+import { mergeBossHints } from './boss-hints.js?v=f8927db0fd05';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

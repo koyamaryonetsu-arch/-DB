@@ -8,20 +8,20 @@
 //   ささやきの森の ひらけた 所（overworld）… 切りかぶの 近道（c10_note_fa から）
 //   ながれ星のくぼ地 … 場面 0 の マス（c9_act4 から。幕が 開いて いる 時だけ 動く）・赤と 緑の 音の 台（音を 置くと 光る）
 // ・「行った 所」の 記録は 5まいとも 取らない（map.noExplore。引っこしコードを のばさない）。地図は 全部 見える（c9dShowAll）
-import { T } from '../tiles.js?v=31ca07498b9b';
-import { npc } from './npc.js?v=31ca07498b9b';
-import { parseRows16 } from './past.js?v=31ca07498b9b';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=31ca07498b9b';
+import { T } from '../tiles.js?v=f8927db0fd05';
+import { npc } from './npc.js?v=f8927db0fd05';
+import { parseRows16 } from './past.js?v=f8927db0fd05';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=f8927db0fd05';
 import {
   R1_ROWS, R2_ROWS, R3_ROWS, G1_ROWS, G2_ROWS, C10A_POS, cells10a, CRATER_STAIRS10A, CRATER_SCENE10A, UNDER_ROOT10A, STUMP10A,
   PED_RE10A, PED_FA10A, CRATER_FORK10A,
-} from './c10a-rows.js?v=31ca07498b9b';
+} from './c10a-rows.js?v=f8927db0fd05';
 import {
   C10A, C10A_ACT4, C10A_RED, C10A_GREEN, C10A_BUDS, C10A_LEVERS, C10A_BONUS, C10A_PED, C10A_MAP, C10A_MAP_IDS, C10A_TABLE, C10A_CHEST_IDS,
   C10A_TRACKS, C10A_RED_BOSS_NAME, C10A_GREEN_BOSS_NAME,
-} from './c10a-flags.js?v=31ca07498b9b';
-import { PEDESTALS9C } from './c9c.js?v=31ca07498b9b';
-import { c10aChest } from '../data/items-c10a.js?v=31ca07498b9b';
+} from './c10a-flags.js?v=f8927db0fd05';
+import { PEDESTALS9C } from './c9c.js?v=f8927db0fd05';
+import { c10aChest } from '../data/items-c10a.js?v=f8927db0fd05';
 
 export const CH10A_MAPS = [...C10A_MAP_IDS];
 

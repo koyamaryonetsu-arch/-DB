@@ -10,13 +10,13 @@
 //   （その 前に ゆか・ランプが あれば それ）を 光らせる（snap の c11b.h）。人ごと・セーブしない
 // ■ 回線が 切れて もどった 時: 立てない 所（消えた 橋の 上 など）なら 近くの 立てる マス
 // ■ 道さがし（solve11b）: 区切りの 入口から 出口まで（テスト・助け）。人は 1人と して さがす（戸・ゆか・ランプを 使う）
-import { MAPS, isBlocked } from '../maps/index.js?v=31ca07498b9b';
-import { T } from '../tiles.js?v=31ca07498b9b';
-import { C11B_PAIRS, C11B_HELP_STEPS, C11B } from '../maps/c11b-flags.js?v=31ca07498b9b';
-import { C11B_SECTIONS } from '../maps/c11b-rows.js?v=31ca07498b9b';
-import { partyOf } from './party.js?v=31ca07498b9b';
-import { unstickAll, nearestFree } from './hazards.js?v=31ca07498b9b';
-import { runSteps } from './scripts.js?v=31ca07498b9b';
+import { MAPS, isBlocked } from '../maps/index.js?v=f8927db0fd05';
+import { T } from '../tiles.js?v=f8927db0fd05';
+import { C11B_PAIRS, C11B_HELP_STEPS, C11B } from '../maps/c11b-flags.js?v=f8927db0fd05';
+import { C11B_SECTIONS } from '../maps/c11b-rows.js?v=f8927db0fd05';
+import { partyOf } from './party.js?v=f8927db0fd05';
+import { unstickAll, nearestFree } from './hazards.js?v=f8927db0fd05';
+import { runSteps } from './scripts.js?v=f8927db0fd05';
 
 const SIDE_NAME = ['おもて', 'うら'];
 const tileOf = (s) => [Math.floor(s.x), Math.floor(s.y)];

@@ -22,9 +22,9 @@
 //     ピンチは 琴の 16分）
 //
 // メロディは 手で 書く。ベース・きざみ・和音・アルペジオは audio-c9a.js と 同じ 小さな 道具（C9A_TOOLS）で 作る
-import { C9A_TOOLS } from './audio-c9a.js?v=31ca07498b9b';
-import { C9C_TOOLS } from './audio-c9c.js?v=31ca07498b9b';
-import { C9D_SONG } from './audio-c9d.js?v=31ca07498b9b';
+import { C9A_TOOLS } from './audio-c9a.js?v=f8927db0fd05';
+import { C9C_TOOLS } from './audio-c9c.js?v=f8927db0fd05';
+import { C9D_SONG } from './audio-c9d.js?v=f8927db0fd05';
 
 const { SHARP, FLAT, bassLine, comp, arp, pad, drums, rest, bars, oldView } = C9A_TOOLS;
 const { mirror } = C9C_TOOLS;

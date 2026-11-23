@@ -30,15 +30,15 @@
 //   完全オートは 投げない（かまれ つづけて 勝てない）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数で 合わせる（few・solo・monK）は 第2章 第1幕と おなじ 数え方（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=31ca07498b9b';
-import { ABILITIES } from './data/abilities.js?v=31ca07498b9b';
-import { C11A_STARS, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN, SHARK_NAME, CAPTAIN_SHORT } from './data/monsters-c11a.js?v=31ca07498b9b';
-import { TOKEI_NAGE } from './data/abilities-c11a.js?v=31ca07498b9b';
-import { C11A_B as C11A } from './maps/c11a-flags.js?v=31ca07498b9b';
-import { SONG } from './data/abilities-c9d.js?v=31ca07498b9b';
-import { canUse } from './ai.js?v=31ca07498b9b';
-import { atbRate } from './battle.js?v=31ca07498b9b';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=31ca07498b9b';
+import { MONSTERS } from './data/monsters.js?v=f8927db0fd05';
+import { ABILITIES } from './data/abilities.js?v=f8927db0fd05';
+import { C11A_STARS, C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN, SHARK_NAME, CAPTAIN_SHORT } from './data/monsters-c11a.js?v=f8927db0fd05';
+import { TOKEI_NAGE } from './data/abilities-c11a.js?v=f8927db0fd05';
+import { C11A_B as C11A } from './maps/c11a-flags.js?v=f8927db0fd05';
+import { SONG } from './data/abilities-c9d.js?v=f8927db0fd05';
+import { canUse } from './ai.js?v=f8927db0fd05';
+import { atbRate } from './battle.js?v=f8927db0fd05';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=f8927db0fd05';
 
 export { TOKEI_NAGE };
 export const FANG = 'm11b_fang';

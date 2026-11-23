@@ -5,12 +5,12 @@
 //   守り星の石の 南の 下り 階段（c9_stairs から）・村の 井戸（c9_rope から 地下4階への 近道）
 // ・星見の丘: 星の花 3本（1年前と 同じ 場所）
 // ・ささやきの森の 入口: 光る 道しるべ（c9_starfall から。話すと 星ふるえの森へ）
-import { T } from '../tiles.js?v=31ca07498b9b';
-import { npc } from './npc.js?v=31ca07498b9b';
-import { PLACES } from './overworld.js?v=31ca07498b9b';
-import { C9A, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_ROPE, C9A_TRACKS } from './c9a-flags.js?v=31ca07498b9b';
-import { STAIRS9A, WELL9A, caveEntry } from './c9a-cave.js?v=31ca07498b9b';
-import { SIGNPOST9A } from './c9a-forest.js?v=31ca07498b9b';
+import { T } from '../tiles.js?v=f8927db0fd05';
+import { npc } from './npc.js?v=f8927db0fd05';
+import { PLACES } from './overworld.js?v=f8927db0fd05';
+import { C9A, C9A_PREP, C9A_LAMPS, C9A_FLOWERS, C9A_KIDS, C9A_ROPE, C9A_TRACKS } from './c9a-flags.js?v=f8927db0fd05';
+import { STAIRS9A, WELL9A, caveEntry } from './c9a-cave.js?v=f8927db0fd05';
+import { SIGNPOST9A } from './c9a-forest.js?v=f8927db0fd05';
 
 // 祭りの ちょうちん（村を ひと回り）
 export const LAMPS9A = [{ x: 15, y: 97 }, { x: 40, y: 97 }, { x: 40, y: 111 }, { x: 15, y: 111 }];

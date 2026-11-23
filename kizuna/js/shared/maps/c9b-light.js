@@ -6,8 +6,8 @@
 // ・村の 小さな 明かり（いつも）・村の 明かりの 台（大王に 勝つと 大きく 光る）
 // ・「行った 所」の 記録は 取らない: 地図（小さな 地図も）は 明るさ ＝ 柱の フラグで かく（litByFlags）
 // ほかの ファイルを ほとんど 読まない（maps・world・client・test の どこからでも 読める）
-import { C9B, C9B_PILLARS, C9B_PILLAR_RADIUS, C9B_SPICA_LIGHT } from './c9b-flags.js?v=31ca07498b9b';
-import { UNDER_POS, UNDER_W, UNDER_H } from './c9b-rows.js?v=31ca07498b9b';
+import { C9B, C9B_PILLARS, C9B_PILLAR_RADIUS, C9B_SPICA_LIGHT } from './c9b-flags.js?v=f8927db0fd05';
+import { UNDER_POS, UNDER_W, UNDER_H } from './c9b-rows.js?v=f8927db0fd05';
 
 export const LIGHT_SPICA9B = C9B_SPICA_LIGHT; // スピカの 光（4マス）
 export const LIGHT_PILLAR9B = C9B_PILLAR_RADIUS; // ともった 柱（9マス）

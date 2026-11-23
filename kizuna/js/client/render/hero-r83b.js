@@ -11,7 +11,7 @@
 //   R83B_BODY     … よろいを かえても のこる からだの とくちょう（JOB_BODY に まぜる。hand83 … 左手の 手ぶくろ）
 //   R83B_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
 //   handMark83(cv, A, P, O) … 左手の 手ぶくろ（hero.js の 手の あと）
-import { mat, TH } from './hero-raster.js?v=31ca07498b9b';
+import { mat, TH } from './hero-raster.js?v=f8927db0fd05';
 
 export const R83B_JOBS = ['elem_teacher', 'nube', 'jigoku_sensei'];
 

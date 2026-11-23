@@ -17,7 +17,7 @@
 // ・水に 強い 装備は 作らない（第47回の 4つだけの きまり。test/water-r47.test.js）
 // ・前の 章の「店の いちばん よい 品」に まざらない ように、items.js の PART3_LATE_ITEMS に 入れる
 // id の 先頭: c11at_（宝箱）・c11as_（店）・c11ab_（ボス）
-import { C7_SHOP_TOOLS } from './items-c7.js?v=31ca07498b9b';
+import { C7_SHOP_TOOLS } from './items-c7.js?v=f8927db0fd05';
 
 // 強さの めやす（items-c10d.js と おなじ。ランク 0〜10）
 const CLOTH = [0, 5, 10, 14, 17, 22, 27, 33, 39, 46, 54];

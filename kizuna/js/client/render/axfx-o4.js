@@ -9,12 +9,12 @@
 //     axfx-o4-town.js  … 地方公務員・国家公務員・警察官・消防士
 //     axfx-o4-hvac.js  … 設備屋・ryonetsu・天才しせつ管理者（空調・チラー・換気扇・ダクト・メーター…）
 //     axfx-o4-dual.js  … 合体技
-import { AX_O4_KIT_FINE, finish } from './axfx-o4-kit.js?v=31ca07498b9b';
-import { AX_O4_RAIL } from './axfx-o4-rail.js?v=31ca07498b9b';
-import { AX_O4_BALL } from './axfx-o4-ball.js?v=31ca07498b9b';
-import { AX_O4_TOWN } from './axfx-o4-town.js?v=31ca07498b9b';
-import { AX_O4_HVAC } from './axfx-o4-hvac.js?v=31ca07498b9b';
-import { AX_O4_DUAL } from './axfx-o4-dual.js?v=31ca07498b9b';
+import { AX_O4_KIT_FINE, finish } from './axfx-o4-kit.js?v=f8927db0fd05';
+import { AX_O4_RAIL } from './axfx-o4-rail.js?v=f8927db0fd05';
+import { AX_O4_BALL } from './axfx-o4-ball.js?v=f8927db0fd05';
+import { AX_O4_TOWN } from './axfx-o4-town.js?v=f8927db0fd05';
+import { AX_O4_HVAC } from './axfx-o4-hvac.js?v=f8927db0fd05';
+import { AX_O4_DUAL } from './axfx-o4-dual.js?v=f8927db0fd05';
 
 export const AX_O4 = Object.fromEntries(Object.entries({
   ...AX_O4_RAIL,

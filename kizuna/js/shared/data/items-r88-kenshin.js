@@ -6,7 +6,7 @@
 //   ・今 ある 逆ば刀・名工の逆ば刀 は こわさず、作品の 品として 数える（R88_TAG_KENSHIN。強さ・手に入れ方は かえない）
 //   ・入れない 品: アームストロング砲・銃剣（本物の 大砲と 銃）・毒の 隠し武器（設計書 3-5）
 //   作品の 字は 使える 字に 直した（刃 → じん・ば／牙 → が／鎖 → くさり／翁 → おきな／倭 → わ／桔梗仙 → ききょうせん など）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=31ca07498b9b';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=f8927db0fd05';
 
 const K = { work: 'kenshin' };
 const TR = { work: 'kenshin', set: 'tinbe_rochin' };
