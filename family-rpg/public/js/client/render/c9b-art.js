@@ -25,6 +25,8 @@ import { addC10dArt } from './c10d-art.js';
 import { addC11aArt } from './c11a-art.js';
 // 第3部 第3章 第2幕（c11b-art.js）
 import { addC11bArt } from './c11b-art.js';
+// 第3部 第3章 第3幕（c11c-art.js）
+import { addC11cArt } from './c11c-art.js';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];
@@ -347,4 +349,6 @@ export function addC9bArt(ART) {
   addC11aArt(ART);
   // 第3部 第3章 第2幕（c11b-art.js）
   addC11bArt(ART);
+  // 第3部 第3章 第3幕（c11c-art.js。なふだランプの 色ちがいが ある ので c11b の あと）
+  addC11cArt(ART);
 }

@@ -63,6 +63,8 @@ import { MONSTERS_C10D } from '../public/js/shared/data/monsters-c10d.js';
 import { MONSTERS_C11A } from '../public/js/shared/data/monsters-c11a.js';
 // 第102回 B班: 第3部 第3章 第2幕「月の都と、名前のランプ」
 import { MONSTERS_C11B } from '../public/js/shared/data/monsters-c11b.js';
+// 第103回 B班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」
+import { MONSTERS_C11C } from '../public/js/shared/data/monsters-c11c.js';
 
 const NEW = Object.keys(MONSTERS_R23);
 const WILD = NEW.filter((sp) => !MONSTERS_R23[sp].breedOnly);
@@ -74,7 +76,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_TOKEI6).length + Object.keys(MONSTERS_C7).length + Object.keys(MONSTERS_C7S).length + Object.keys(MONSTERS_C7I).length + Object.keys(MONSTERS_C8A).length + Object.keys(MONSTERS_C8B).length + Object.keys(MONSTERS_C8C).length + Object.keys(MONSTERS_C8R).length + Object.keys(MONSTERS_C9A).length + Object.keys(MONSTERS_C9B).length + Object.keys(MONSTERS_C9C).length + Object.keys(MONSTERS_C9D).length + Object.keys(MONSTERS_C10A).length + Object.keys(MONSTERS_C10B).length + Object.keys(MONSTERS_C10C).length + Object.keys(MONSTERS_C10D).length + Object.keys(MONSTERS_C11A).length + Object.keys(MONSTERS_C11B).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length + Object.keys(MONSTERS_PRIZE).length);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_TOKEI6).length + Object.keys(MONSTERS_C7).length + Object.keys(MONSTERS_C7S).length + Object.keys(MONSTERS_C7I).length + Object.keys(MONSTERS_C8A).length + Object.keys(MONSTERS_C8B).length + Object.keys(MONSTERS_C8C).length + Object.keys(MONSTERS_C8R).length + Object.keys(MONSTERS_C9A).length + Object.keys(MONSTERS_C9B).length + Object.keys(MONSTERS_C9C).length + Object.keys(MONSTERS_C9D).length + Object.keys(MONSTERS_C10A).length + Object.keys(MONSTERS_C10B).length + Object.keys(MONSTERS_C10C).length + Object.keys(MONSTERS_C10D).length + Object.keys(MONSTERS_C11A).length + Object.keys(MONSTERS_C11B).length + Object.keys(MONSTERS_C11C).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length + Object.keys(MONSTERS_PRIZE).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);

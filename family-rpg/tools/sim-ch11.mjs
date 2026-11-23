@@ -22,6 +22,9 @@ import { TACTICS } from '../public/js/shared/ai.js';
 // 第102回 B班: 第3部 第3章 第2幕「月の都と、名前のランプ」の ランプの番人（keeper。Lv121）・月のむかえ オボロ（oboro。Lv122）
 import { C11B_BATTLE_B as C11B_BATTLE, C11B_B as C11B } from '../public/js/shared/maps/c11b-flags.js';
 import { c11bState, keeperOf, oboroOf, tenninUp } from '../public/js/shared/battle-c11b.js';
+// 第103回 B班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の バラバラン3号（mecha。Lv123）・近衛の隊長エース（ace。Lv124）
+import { C11C_BATTLE_B as C11C_BATTLE, C11C_B as C11C } from '../public/js/shared/data/c11c-names-b.js';
+import { c11cState, partsOf, aceOf, guardsUp, cardsLeft, canEat, TANOMU as C11C_TANOMU } from '../public/js/shared/battle-c11c.js';
 // かんたんな 人（MODES9.easy・easy0。HUMAN=easy の 道具 … ch9Run(…, 'easy')）
 import './sim-easy.mjs';
 
@@ -95,6 +98,55 @@ export function c11bText(res) {
   return '';
 }
 
+// ───── 第103回 B班: 第3幕 ─────
+Object.assign(CH9_IDS, { mecha: C11C_BATTLE.mecha, ace: C11C_BATTLE.ace });
+export const CH11C_LV = { mecha: 123, ace: 124 };
+Object.assign(LV9, CH11C_LV);
+// その ころの ★装備（前の 幕までの ★5 と ボスの 品 ＋ この 幕の ★5〈メカは まだ 回ろうの 前 … 前の 幕まで。ボスは 回ろうの 道着・ローブ・大とびらの よろい・メカの 品〉）
+CH9_KIT.mecha = {
+  hero: ['c8s_star_sword', 'c11bt_tower_mail', 'c11bt_moon_shield', 'c10it_cloud_helm', 'c11bb_oboro_sash'],
+  daikenja: ['c9b_owl_staff', 'c11bt_back_robe', null, 'c10gt_flower_hat', 'c11bb_lamp_chain'],
+  god_hand: ['c9at_star_claw', 'c10it_bridge_gi', null, 'c10wt_quiet_helm', 'c11ab_anchor_badge'],
+  high_priest: ['c9b_owl_staff', 'c11at_isle_robe', 'c11at_gate_shield', 'c7l_kingdom_crown', 'c11ab_star_collar'],
+};
+CH9_KIT.ace = {
+  hero: ['c8s_star_sword', 'c11ct_door_mail', 'c11bt_moon_shield', 'c10it_cloud_helm', 'c11cb_gear_badge'],
+  daikenja: ['c9b_owl_staff', 'c11ct_hall_robe', null, 'c10gt_flower_hat', 'c11bb_lamp_chain'],
+  god_hand: ['c9at_star_claw', 'c11ct_scale_gi', null, 'c10wt_quiet_helm', 'c11bb_oboro_sash'],
+  high_priest: ['c9b_owl_staff', 'c11bt_back_robe', 'c11at_gate_shield', 'c7l_kingdom_crown', 'c11ab_anchor_badge'],
+};
+// 一本道 … 第2章の 7つの 音 ＋ 第1幕の ながれ星（c11_act1）＋ 第2幕の 名前をよぶ声（c11_act2）。この 幕の ごほうび（c11_act3）は まだ ない
+Object.assign(ORDER_FLAGS, { c11c: { mecha: [...CH10_NOTES, C11B.act1, C11C.act2], ace: [...CH10_NOTES, C11B.act1, C11C.act2] } });
+ORDER_LABEL.c11c = '一本道';
+Object.assign(ORDERS_OF, { mecha: ['c11c'], ace: ['c11c'] });
+// 知って いる 人の しくみの 役（合体技を しない）: メカ … ロケットパンチで ねらわれた・直す 前ぶれ ／ 隊長 … カードを たのめる・へいたいが いる
+NEED9_HOOKS.push((b, a) => {
+  const st = c11cState(b);
+  if (!st || st.won) return false;
+  if (st.kind === 'mecha') return (st.rocketReady && st.rocketAim === a.id && !a.defending) || st.fixReady;
+  if (canEat(b) && !b.queue.some((q) => q.cmd?.id === C11C_TANOMU)) return true;
+  return guardsUp(b).length > 0;
+});
+STATS9_HOOKS.push((b) => {
+  const st = c11cState(b);
+  if (!st) return {};
+  if (st.kind === 'mecha') {
+    const ps = partsOf(b);
+    return { mBreak: st.breaks, mFix: st.fixes, mFixW: st.fixWarns, mRocket: st.rockets, mRocketG: st.rocketGuards, mHead1: st.headFirst ? 1 : 0, mUp: ps.filter((e) => e.alive).length, mHp: ps.reduce((t, e) => t + Math.max(0, e.hp), 0) / Math.max(1, ps.reduce((t, e) => t + e.maxHp, 0)) };
+  }
+  const ace = aceOf(b);
+  return {
+    aLay: st.lays, aEat: st.eats, aAutoEat: st.autoEats, aUpEat: st.upEats, aEatC: st.eatenBy.comet, aEatM: st.eatenBy.moon, aComet: st.comets, aCometG: st.cometGuards, aCometBig: st.cometBig,
+    aStar: st.stars, aMoon: st.moons, aSleep: st.sleeps, aSun: st.suns, aTeru: st.teruSets, aTKill: st.tKills, aTBack: st.tBacks, aWaste: st.wasted, aHp: ace ? ace.hp / ace.maxHp : 0,
+  };
+});
+export function c11cText(res) {
+  const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
+  if (res.some((r) => r.mBreak !== undefined)) return `  こわす${avg('mBreak').toFixed(1)}(あたま先${avg('mHead1').toFixed(2)}) なおす${avg('mFix').toFixed(1)}(前ぶれ${avg('mFixW').toFixed(1)}) ロケット${avg('mRocket').toFixed(1)}(守${avg('mRocketG').toFixed(1)}) のこり体${avg('mUp').toFixed(1)} HP${(avg('mHp') * 100).toFixed(0)}%`;
+  if (res.some((r) => r.aLay !== undefined)) return `  ならべ${avg('aLay').toFixed(1)} たのむ${avg('aEat').toFixed(1)}(自動${avg('aAutoEat').toFixed(1)}・見て${avg('aUpEat').toFixed(1)}・ほうき星${avg('aEatC').toFixed(1)}・月${avg('aEatM').toFixed(1)}・むだ${avg('aWaste').toFixed(1)}) てらす${avg('aTeru').toFixed(1)} ほうき星${avg('aComet').toFixed(1)}(守${avg('aCometG').toFixed(1)}・大${avg('aCometBig').toFixed(1)}) 星${avg('aStar').toFixed(1)} 月${avg('aMoon').toFixed(1)}(ねむり${avg('aSleep').toFixed(1)}) 太陽${avg('aSun').toFixed(1)} へいたい${avg('aTKill').toFixed(1)}/${avg('aTBack').toFixed(1)} 隊長のこり${(avg('aHp') * 100).toFixed(0)}%`;
+  return '';
+}
+
 // 知って いる 人の しくみの 役（合体技を しない）: 船長 … 時計を 持って いる・いかりなげの ねらい／けもの … かみつきの ねらい
 NEED9_HOOKS.push((b, a) => {
   const st = c11aState(b);
@@ -138,10 +190,10 @@ export function c11aText(res) {
 
 if (process.argv[1]?.endsWith('sim-ch11.mjs')) {
   const N = Number(process.argv[2] || 30);
-  const which = !process.argv[3] || process.argv[3] === 'act1' || process.argv[3] === 'all' ? ['beast', 'pirate'] : process.argv[3] === 'act2' ? ['keeper', 'oboro'] : process.argv[3].split(',');
+  const which = !process.argv[3] || process.argv[3] === 'act1' || process.argv[3] === 'all' ? ['beast', 'pirate'] : process.argv[3] === 'act2' ? ['keeper', 'oboro'] : process.argv[3] === 'act3' ? ['mecha', 'ace'] : process.argv[3].split(',');
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'pirate';
-    console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4', flags: (ORDER_FLAGS.c11a[boss] || ORDER_FLAGS.c11b[boss]), tactics: tacticsOf()[0], ...(process.env.REACT ? { react: Number(process.env.REACT.split(',')[0]) } : {}) }));
+    console.log(ch9Run(boss, Number(process.env.LV || LV9[boss]), process.env.MODE || 'know', Number(process.env.SEED || 1), { log: true, party: process.env.PARTY || 'p4', flags: (ORDER_FLAGS.c11a[boss] || ORDER_FLAGS.c11b[boss] || ORDER_FLAGS.c11c[boss]), tactics: tacticsOf()[0], ...(process.env.REACT ? { react: Number(process.env.REACT.split(',')[0]) } : {}) }));
   } else {
     const parties = !process.env.PARTY ? ['p4'] : process.env.PARTY === 'all' ? Object.keys(PARTIES9) : process.env.PARTY.split(',');
     const reacts = (process.env.REACT || '2000,5000').split(',').map(Number);
@@ -158,7 +210,7 @@ if (process.argv[1]?.endsWith('sim-ch11.mjs')) {
             for (const react of mode === 'auto' ? [reacts[0]] : reacts) {
               const r = c10Batch(boss, mode, N, { party, react, order: ORDERS_OF[boss][0], ...(tactics ? { tactics } : {}) });
               const tl = tactics ? `（${TACTICS[tactics].name}）` : '';
-              console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label}${tl} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c11aText(r.res)}${c11bText(r.res)}`);
+              console.log(`  ${(PARTIES9[party] || EXTRA_PARTIES9[party]).label} ${MODES9[mode].label}${tl} ${mode === 'auto' ? '　　' : `${react / 1000}秒`} 勝率 ${String(Math.round(r.rate * 100)).padStart(3)}%（勝ち${r.sec.toFixed(0).padStart(4)}秒）${c11aText(r.res)}${c11bText(r.res)}${c11cText(r.res)}`);
             }
           }
         }

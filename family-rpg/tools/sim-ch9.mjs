@@ -182,7 +182,8 @@ export function ch9Allies(boss, lv, partyKey = 'p4', kit = true) {
   if (!P) throw new Error(`party: ${partyKey}`);
   const four = ch9Party(boss, lv, kit);
   // ならびは 人4人の ときと おなじ（先頭ほど ねらわれやすい）
-  const pick = HUMAN_ORDER.slice(0, Math.min(4, P.humans));
+  // 第103回 B班: SOLOJOB=god_hand など … ひとりだけ・1人＋仲間の 人の 職業を かえて はかる（ない ときは 勇者）
+  const pick = process.env.SOLOJOB && P.humans === 1 ? [process.env.SOLOJOB] : HUMAN_ORDER.slice(0, Math.min(4, P.humans));
   const humans = four.filter((c) => pick.includes(c.job));
   if (P.humans >= 5) humans.push(jobChar('guardian', lv, 10, 'ガーディアン'));
   const out = humans.map((c) => ({ char: c, know: true }));

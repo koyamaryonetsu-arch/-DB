@@ -659,7 +659,7 @@ test('スピカの ごほうび: この 幕の クリア（c11_act2）で 技「
   for (let i = 0; i < 3; i++) for (const a of named.aliveAllies()) { ev = nop(named, a); assert.ok(!ev?.c11bName, '2回めは ない'); }
   assert.equal(fallen.alive, false);
   // ゲストの Lv の 上限を この 幕に 合わせる
-  assert.equal(GUEST_MAX_LEVEL, 122);
+  assert.equal(GUEST_MAX_LEVEL, 124); // 第103回 B班: 第3幕で 122 → 124
 });
 
 // ───────────── 品 ─────────────
