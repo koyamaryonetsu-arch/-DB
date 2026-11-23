@@ -6,8 +6,8 @@
 // render/tiles.js が まぜる。2.5D は render/field3d.js（towerBlockSpec・TOWER_FLOOR_H）と render/tex3d.js（TOWER_PROPS）
 // テーマ（star_tower … 1〜3階の 石・star_tower_mid … 4〜6階の あい色・star_tower_high … 7〜8階と てっぺんの 夜空の 色）は render/themes.js
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす（towerMask）
-import { T } from '../../shared/tiles.js?v=ae1035a9a013';
-import { prand, shade } from './pixel.js?v=ae1035a9a013';
+import { T } from '../../shared/tiles.js?v=dc7c9b067c89';
+import { prand, shade } from './pixel.js?v=dc7c9b067c89';
 
 // 塔の 石（あおみの ある 灰色）・夜空・星・金
 const ST = { base: '#6e7488', light: '#8e94aa', dark: '#525870', line: '#424760' };

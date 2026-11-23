@@ -20,14 +20,14 @@
 // ・自動の 仲間（酒場の 人）は、なぞ 3つの うち 1つに 正しく 答える・砂が 少なく なる 3回の うち 1回 ひっくり返す（AUTO_EVERY。番ごとでは なく できごとごと）
 //   家族の キャラの「オート」と 魔物の 仲間は しない（完全オートは 勝てない まま）
 // ・人数で 合わせる（few・solo・monK）は 第2幕の 大王と おなじ 数え方（battle-c9b.js の kingPeople。魔物の 仲間は 半人ぶん）
-import { MONSTERS } from './data/monsters.js?v=ae1035a9a013';
-import { ABILITIES } from './data/abilities.js?v=ae1035a9a013';
-import { ANSWER, FLIP } from './data/abilities-c9c.js?v=ae1035a9a013';
-import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js?v=ae1035a9a013';
-import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js?v=ae1035a9a013';
+import { MONSTERS } from './data/monsters.js?v=dc7c9b067c89';
+import { ABILITIES } from './data/abilities.js?v=dc7c9b067c89';
+import { ANSWER, FLIP } from './data/abilities-c9c.js?v=dc7c9b067c89';
+import { EASY, HARD, riddleText, answerText } from './data/riddles-c9c.js?v=dc7c9b067c89';
+import { C9C_NAZOKAKE, C9C_HIKKURI } from './data/monsters-c9c.js?v=dc7c9b067c89';
 // 第101回 R1班: 人数で 合わせる 数の えらび方（solo → bare → few）は 第1章 みんなで 同じ
-import { pickPeople } from './battle-c9a.js?v=ae1035a9a013';
-import { someoneChooses } from './battle-c10a.js?v=ae1035a9a013';
+import { pickPeople } from './battle-c9a.js?v=dc7c9b067c89';
+import { someoneChooses } from './battle-c10a.js?v=dc7c9b067c89';
 
 export { ANSWER, FLIP };
 export const RIDDLE = 'm9z_riddle';

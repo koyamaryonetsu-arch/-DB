@@ -5,10 +5,10 @@
 //   t11c_hall2 … 回ろう 2階（c11c_hall2。Lv122〜123）
 //   t11c_hall3 … 回ろう 3階（c11c_hall3。Lv123〜124）
 // ふつうの 戦いの 長さ（19-4）: 超級職 4人で 1回 30〜50秒（tools/sim-ch9-field.mjs の SUPER=1）
-import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_ACE, C11C_GUARD } from './monsters-c11c.js?v=ae1035a9a013';
-import { C11C_BATTLE_B as C11C_BATTLE, C11C_TRACKS_B as C11C_TRACKS } from './c11c-names-b.js?v=ae1035a9a013';
+import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_ACE, C11C_GUARD } from './monsters-c11c.js?v=dc7c9b067c89';
+import { C11C_BATTLE_B as C11C_BATTLE, C11C_TRACKS_B as C11C_TRACKS } from '../maps/c11c-flags.js?v=dc7c9b067c89';
 // 負けた 時の ヒントの 文（boss-hints-c11c.js が mergeBossHints を よぶ）
-import './boss-hints-c11c.js?v=ae1035a9a013';
+import './boss-hints-c11c.js?v=dc7c9b067c89';
 
 export const ENCOUNTERS_C11C = {
   t11c_hall1: [

@@ -5,7 +5,7 @@
 //   ・止水おけ ＋ 開水つぼ … ジャコウ王朝の 1組の 秘宝（そろい shisui_kaisui）
 //   ・すがたの 書き方は 職業と 同じ（jobs-r84b.js）: 水を かぶった すがたは「水のすがた」。男女が 入れかわる 話には しない
 //   ・入れない 品: のどかの 日本刀（設計書 2-7）
-import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=ae1035a9a013';
+import { weapon, armor, shield, head, acc, priceUp } from './items-r88-kit.js?v=dc7c9b067c89';
 
 const R = { work: 'ranma' };
 const J = { work: 'ranma', set: 'jusen' };

@@ -1,9 +1,9 @@
 // メニューの「お知らせ」（第35回。shared/data/news.js）
 //   一覧（日付・題。まだ 読んでいない 物に ●）と、下に えらんだ 物の 中み。
 //   開いた ときに 出ている 物は ぜんぶ 読んだ ことに する（1つずつ 開かなくて よい。● は この 画面の 間は 出した まま）
-import { el } from './dom.js?v=ae1035a9a013';
-import { NEWS, newsReadOf, newsDate } from '../../shared/data/news.js?v=ae1035a9a013';
-import './r35-css.js?v=ae1035a9a013';
+import { el } from './dom.js?v=dc7c9b067c89';
+import { NEWS, newsReadOf, newsDate } from '../../shared/data/news.js?v=dc7c9b067c89';
+import './r35-css.js?v=dc7c9b067c89';
 
 // menu: FieldMenu（mkSub・back を 使う）。active: えらべる 画面か（false は 右の 見本）
 export function newsView(menu, active) {

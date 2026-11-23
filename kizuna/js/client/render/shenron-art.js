@@ -1,7 +1,7 @@
 // 第88回 G9班: 神龍の さいだんと 神龍（render/gacha-art.js の paintGachaSpecial から よぶ。{ p, oc } を かえす）
 //   r88_shenron_altar … 小さな 石の さいだん（7つの くぼみ。竜の もよう）
 //   r88_shenron       … ねがいの 時だけ 出る 大きな 緑の 竜（だいほんの 役者。からだを うねらせて 空へ のびる）
-import { Painter } from './pixel.js?v=ae1035a9a013';
+import { Painter } from './pixel.js?v=dc7c9b067c89';
 
 function paintAltar(f) {
   const p = new Painter(16, 21);

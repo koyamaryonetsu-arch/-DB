@@ -12,13 +12,13 @@
 //    → いかだで 川を 下りながら、わき道の 小さな 岸 3つの どこに 流れ着いたかを 聞いた 道すじから 当てる（ほかの 岸には ちがう 物）
 // 2. ムウとムウムウの、あそび道具（c9_act4 から）… はかばの 番を して いる 2人に、くぼ地の おもちゃ職人と あそび道具を 作る。
 //    → くぼ地の まわりで 星わたを 2つ → どんな 物を・何色で（なぞ）→ ボール → はかばの 2人に わたす
-import { npc } from './npc.js?v=ae1035a9a013';
-import { openSpot } from './labyrinth.js?v=ae1035a9a013';
-import { C9B_MAP } from './c9b-flags.js?v=ae1035a9a013';
-import { C9C, C9C_MAP } from './c9c-flags.js?v=ae1035a9a013';
-import { C9D } from './c9d-flags.js?v=ae1035a9a013';
-import { C9A_MAP } from './c9a-flags.js?v=ae1035a9a013';
-import { attachWorkQuests10 } from './work-quests10.js?v=ae1035a9a013';
+import { npc } from './npc.js?v=dc7c9b067c89';
+import { openSpot } from './labyrinth.js?v=dc7c9b067c89';
+import { C9B_MAP } from './c9b-flags.js?v=dc7c9b067c89';
+import { C9C, C9C_MAP } from './c9c-flags.js?v=dc7c9b067c89';
+import { C9D } from './c9d-flags.js?v=dc7c9b067c89';
+import { C9A_MAP } from './c9a-flags.js?v=dc7c9b067c89';
+import { attachWorkQuests10 } from './work-quests10.js?v=dc7c9b067c89';
 
 // ───────────── フラグ（セーブに のこるので かえない。引っこしコードの ため 短く）─────────────
 // 1. おもちゃの いかだ: start … 引き受けた・got … 見つけた・done … 返した

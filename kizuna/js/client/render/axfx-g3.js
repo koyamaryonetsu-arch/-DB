@@ -6,10 +6,10 @@
 //   axfx-g3-kimetsu.js  … 鬼滅の刃（水の呼吸・炎の呼吸・日の呼吸）
 //   axfx-g3-rurouni.js  … るろうに剣心（飛天御剣流）
 //   axfx-g3-shogun.js   … 暴れん坊将軍 ＋ 合体技
-import { G3_FINE, capLife } from './axfx-g3-kit.js?v=ae1035a9a013';
-import { AX_G3_KIMETSU } from './axfx-g3-kimetsu.js?v=ae1035a9a013';
-import { AX_G3_RUROUNI } from './axfx-g3-rurouni.js?v=ae1035a9a013';
-import { AX_G3_SHOGUN } from './axfx-g3-shogun.js?v=ae1035a9a013';
+import { G3_FINE, capLife } from './axfx-g3-kit.js?v=dc7c9b067c89';
+import { AX_G3_KIMETSU } from './axfx-g3-kimetsu.js?v=dc7c9b067c89';
+import { AX_G3_RUROUNI } from './axfx-g3-rurouni.js?v=dc7c9b067c89';
+import { AX_G3_SHOGUN } from './axfx-g3-shogun.js?v=dc7c9b067c89';
 
 // どの え も「はなって から len ＋ 敵全体の ずらし ＋ 200ms」までに つぶが きえる（つぎの 行動に かぶらない）
 const guard = (defs) => Object.fromEntries(Object.entries(defs).map(([anim, d]) => [anim, {
