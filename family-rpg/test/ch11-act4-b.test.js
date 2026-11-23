@@ -820,7 +820,7 @@ test('がめん: 上の まど（女王 … 輪・ひとり・はかりの ね�
     c11dStatus({ name }, { alive: true, hold11d: 1, ring11d: { c: 2, n: 3, left: 1, lock: 0 } });
     assert.equal(kids[0].textContent, '輪3!', 'はなれそう');
     c11dStatus({ name }, { alive: true, hold11d: 1, swept11d: 2 });
-    assert.equal(kids[0].textContent, 'ながされ・2');
+    assert.equal(kids[0].textContent, 'もどるまで2');
     c11dStatus({ name }, { alive: true, hold11d: 1, aim11d: 1 });
     assert.equal(kids[0].textContent, 'はかられる');
     c11dStatus({ name }, { alive: true });

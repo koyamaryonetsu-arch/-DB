@@ -402,7 +402,7 @@ export function c11dStatus(s, a) {
   if (a.swept11d) {
     b.className = 'c11d-badge swept';
     b.style.background = '';
-    b.textContent = `ながされ・${a.swept11d}`;
+    b.textContent = `もどるまで${a.swept11d}`;
     b.title = '光の川にながされている（戦いの外）。もどると、HPは半分';
   } else if (a.aim11d && !r) {
     b.className = 'c11d-badge aim';
