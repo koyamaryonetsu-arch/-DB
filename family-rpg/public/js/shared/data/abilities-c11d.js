@@ -99,7 +99,7 @@ export const C11D_ABILITIES = {
   // ── 中ボス: 鏡と月の使い（ミラーレ・オボロ）──
   m11u_glare: {
     name: 'ねむたいにらみ', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'phys', mult: 0.9 }, cast: '{a}が、ねむそうな目で、{t}をじろりとにらんだ！', anim: 'c10m_glare',
+    effect: { type: 'phys', mult: 0.85 }, cast: '{a}が、ねむそうな目で、{t}をじろりとにらんだ！', anim: 'c10m_glare',
     desc: 'ねむそうににらんで、1人にダメージ。',
   },
   m11u_hands: {
@@ -109,7 +109,7 @@ export const C11D_ABILITIES = {
   },
   m11u_whip: {
     name: '雲のむち', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'phys', mult: 0.9 }, cast: '{a}が、雲のむちを、{t}にしならせた。', anim: 'c11o_whip',
+    effect: { type: 'phys', mult: 0.85 }, cast: '{a}が、雲のむちを、{t}にしならせた。', anim: 'c11o_whip',
     desc: '雲のむちで、1人にダメージ。',
   },
   m11u_moon: {
@@ -129,7 +129,7 @@ export const C11D_ABILITIES = {
   },
   [ROBE]: {
     name: 'わすれの衣', kind: 'monster', target: 'self',
-    effect: { type: 'c11dRobe' }, cast: '{a}が、うすい衣を、ふわりとひろげた…！', anim: 'c11o_robe',
+    effect: { type: 'c11dRobe' }, cast: '{a}が、わすれの衣を、スピカのほうへ、ふわりとなびかせた…！', anim: 'c11o_robe',
     desc: 'スピカの思い出を1つ消す。思い出が消えている間、オボロは衣につつまれて、こうげきが通りにくい。',
   },
 

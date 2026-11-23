@@ -47,9 +47,9 @@ export const C11D_BOSSES = [C11D_MIRROR, C11D_MOON, C11D_QUEEN];
 //   （設計に ない 足し物: autoK … だれも えらんで いない〈完全オート・人が みんな たおれた〉時の 受ける ダメージ）
 const DUO = {
   kind: 'duo', swap: 3, backK: 0.3, veilK: 0.2, forgetK: 0.25, max: 3, autoK: 0.4,
-  few: { hp: [0.8, 0.85, 0.9, 1, 1.15], atk: [0.75, 0.85, 0.92, 1, 1.05] },
-  bare: { hp: [0.5, 0.75], atk: [0.6, 0.8] },
-  solo: { hp: 0.5, atk: 0.5, spd: 0.8 },
+  few: { hp: [0.8, 0.85, 0.9, 0.75, 0.95], atk: [0.75, 0.85, 0.92, 1.3, 1.3] },
+  bare: { hp: [0.6, 0.85], atk: [0.9, 1.0] },
+  solo: { hp: 0.55, atk: 0.62, spd: 0.66 },
   monK: { hp: 0.1, atk: 0.02 },
 };
 // さいごの ボスの しかけ（battle-c11d.js の queen）
@@ -142,7 +142,7 @@ export const MONSTERS_C11D = {
   // c11d … しかけ（battle-c11d.js の duo）。role … mirror（色の まく ＋ 音を鳴らす）・moon（わすれの 衣 ＋ よびかける）
   [C11D_MIRROR]: {
     name: MIRROR_SHORT, short: MIRROR_SHORT, lv: 125, hp: 9200, mp: 9999, str: 2380, def: 430, agi: 260, mag: 1200, exp: 56000, gold: 19000,
-    race: 'material', size: 'xl', boss: true, turns: 1, speed: 0.8, hit: 'magic', artScale: 0.5, flying: true,
+    race: 'material', size: 'xl', boss: true, turns: 1, speed: 1.1, hit: 'magic', artScale: 0.5, flying: true,
     drops: { boss: ['c11db_duo_ribbon'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.0, light: 0.6, dark: 1.1 },
     c11d: { ...DUO, role: 'mirror' },
@@ -151,7 +151,7 @@ export const MONSTERS_C11D = {
   },
   [C11D_MOON]: {
     name: MOON_SHORT, short: MOON_SHORT, lv: 125, hp: 9200, mp: 9999, str: 2380, def: 430, agi: 260, mag: 1200, exp: 56000, gold: 19000,
-    race: 'human', size: 'xl', boss: true, turns: 1, speed: 0.8, hit: 'magic', artScale: 0.5,
+    race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.1, hit: 'magic', artScale: 0.5,
     drops: { boss: ['c11db_duo_ribbon'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 0.9, wind: 1.0, bolt: 1.0, light: 0.6, dark: 1.2 },
     c11d: { ...DUO, role: 'moon' },
