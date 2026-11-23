@@ -462,6 +462,9 @@ function drop(b, c, ev) {
 function call(b, c, ev) {
   const st = b.c11b;
   ev.lines.length = 0;
+  // がめんの「スピカの思い出」を すぐ 新しく（オボロの pub）
+  const ob = oboroOf(b);
+  if (ob) ev.upd.push(ob);
   const ch = b.curCmd?.choice ?? SPICA;
   ev.fx = { type: 'ability', anim: 'c11b_call', actor: c.id, targets: [c.id], side: 'ally' };
   if (!st || st.kind !== 'oboro' || st.won || st.lost) {

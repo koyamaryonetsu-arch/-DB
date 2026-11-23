@@ -180,7 +180,8 @@ export function c11bDraw(scene, x, m, c, px, py, w, h, base) {
   const foes = foesOf(scene).filter((e) => e.alive || isTennin(e)).concat(isOboro(c) && c.c11bDown && !c.alive ? [c] : []);
   const top = c11bHtml(foes, allies, myId(scene));
   showTop(scene, top.html, top.cls);
-  if (!c.alive || c.c11bDown) return;
+  if (isOboro(c)) refreshCmd(scene, c);
+  if (!c.alive || c.c11bDown || c.c11bTaken) return;
   const ty = portrait() ? py + h * 0.6 : py + h + 4;
   // 名前の 上の しるし（明るい／暗い・前ぶれ）
   if (isKeeper(c)) {
@@ -280,6 +281,8 @@ export function c11bCmdItems(scene, a) {
   const left = ob ? Math.max(0, (ob.forgetMax11b || 3) - (ob.forget11b || 0)) : null;
   items.push({ html: `<span class="dual-cmd">よびかける</span>${left !== null ? `<span class="tag">思い出・あと${left}</span>` : ''}`, value: C11B_CMD, cls: 'k-dual' });
   const me = (scene.allies?.() || []).find((x) => x.id === a.id) || a;
+  // コマンドの まどを 出した 時の ようす（refreshCmd が 見る）
+  scene.c11bShown = { id: a.id, left, forgot: me.forgot11b || null };
   const lost = (scene.allies?.() || []).filter((x) => x.alive && x.id !== a.id && x.forgot11b);
   if (me.forgot11b) info = `${KIND[me.forgot11b]}をわすれている…（あと${me.forgotLeft11b ?? '?'}回）。ほかの人に「よびかける」でよんでもらうと、すぐ思い出す。`;
   else if (left !== null && left <= 1) info = `スピカの思い出が、あと${left}！「よびかける」で、スピカの名前をよぼう！`;
@@ -287,6 +290,22 @@ export function c11bCmdItems(scene, a) {
   else if (lost.length) info = `${lost.map((x) => x.name).join('・')}が技をわすれている。「よびかける」でよぶと、すぐ思い出す。`;
   else if (ob?.flash11b) info = 'わすれの光が来る！「防御」でふせごう。';
   return { items, info };
+}
+// コマンドの まどを 開いて いる 間に スピカの 思い出・自分の わすれが かわったら、いちばん 上の まどを 開き直す
+//   （まどを 開いた 時の 知らせが、えんしゅつの 前の 古い ようすの ことが ある … 前の 幕の 時計と 同じ。ブラウザで 見つけた）
+export function refreshCmd(scene, ob) {
+  const me = scene.myActor;
+  const shown = scene.c11bShown;
+  if (!me || !shown || shown.id !== me.id || !scene.menu || typeof scene.openCommand !== 'function') return false;
+  const title = scene.cmdEl?.querySelector?.('.who')?.textContent || '';
+  if (!title.includes('はどうする？')) return false;
+  const left = Math.max(0, (ob.forgetMax11b || 3) - (ob.forget11b || 0));
+  const mine = (scene.allies?.() || []).find((x) => x.id === me.id) || me;
+  if (left === shown.left && (mine.forgot11b || null) === shown.forgot) return false;
+  // 先に おぼえる（開き直しが くり返さない ように）
+  scene.c11bShown = { id: me.id, left, forgot: mine.forgot11b || null };
+  scene.openCommand();
+  return true;
 }
 // よびかける 相手を えらぶ まど（スピカ ＝ ゲストも えらべる・味方は 自分 いがい。味方の 絵を タップしても えらべる）
 export function c11bCmdPick(scene, a, value) {
