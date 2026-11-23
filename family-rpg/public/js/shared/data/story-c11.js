@@ -9,6 +9,7 @@
 //   ・題の 画面（c11aTitleSteps）・第2章 クリアの 目標の 文（C11A_START_OBJ。story-c10.js が 使う）
 //   ・PART3_C11B_OPEN … 第2幕「月の都と、名前のランプ」を 開ける 切りかえ（第102回 A班）・第1幕 クリアの 目標の 文（act1ClearObjective）・題の 画面（c11bTitleSteps）
 //   ・PART3_C11C_OPEN … 第3幕「はかりの回ろうと、ふたつの光」を 開ける 切りかえ（第103回 A班）・第2幕 クリアの 目標の 文（act2ClearObjective）・題の 画面（c11cTitleSteps）
+//   ・PART3_C11D_OPEN … 第4幕「かがやきの女王と、八つめの音」を 開ける 切りかえ（第104回 A班）・第3幕 クリアの 目標の 文（act3ClearObjective）・題の 画面（c11dTitleSteps）
 // story-c10.js から 読まれるので、story.js・story-c9*.js・story-c10*.js を import しない こと
 import { C11A_LINE } from '../maps/c11a-flags.js';
 import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js';
@@ -18,6 +19,9 @@ import { applyCh11b, CH11B_PROGRESS, CH11B_OBJECTIVE_TARGETS, CH11B_OBJECTIVE_TA
 // 第103回 A班: 第3幕「はかりの回ろうと、ふたつの光」（story-c11c.js）
 import { C11C_LINE } from '../maps/c11c-flags.js';
 import { applyCh11c, CH11C_PROGRESS, CH11C_OBJECTIVE_TARGETS, CH11C_OBJECTIVE_TALK, C11C_OBJ } from './story-c11c.js';
+// 第104回 A班: 第4幕「かがやきの女王と、八つめの音」（story-c11d.js。第3部の さいごの 幕）
+import { C11D_LINE } from '../maps/c11d-flags.js';
+import { applyCh11d, CH11D_PROGRESS, CH11D_OBJECTIVE_TARGETS, CH11D_OBJECTIVE_TALK, C11D_OBJ } from './story-c11d.js';
 
 // ───── 第1幕「星の船と、星座の島」を 開ける 切りかえ（17-5・17-6。第100回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第2章 クリアの 目標は「第3部　第3章へ（続きはアップデートで！）」・
@@ -37,11 +41,17 @@ export const PART3_C11B_OPEN = true;
 // 第103回: 開けた（もう 第2幕を クリアした 人の 前の 文は 表から ぬいたので、ログインの 時に progress.js の repairObjective が なおす）
 export const PART3_C11C_OPEN = true;
 
+// ───── 第4幕「かがやきの女王と、八つめの音」を 開ける 切りかえ（20-6・20-7。第104回 A班）─────
+// ★ B班（戦い）・F班（曲）を 取りこんで つなぐ 時に true に する（false … 今の まま。第3幕 クリアの 目標は「第3部　第3章　第4幕へ（続きはアップデートで！）」・
+//   王宮の 大とびらの 中へは 入れない / true … 目標が「王宮の大とびらの中へ。光のはかりの広間へ進もう」に かわる）
+export const PART3_C11D_OPEN = false;
+
 // ───── 第3部 第3章の 一本の 線（STORY_STEPS の c10_act4 の うしろ）─────
 // 島の 明かり（すきな じゅん）・星座の しるしは 線に 入れない。幕が 閉じて いる 間も 線には 入れて おく（フラグが ない ので かわらない）
 // 第102回 A班: 第2幕の 線（とびら・ランプの しるしは 入れない）
 // 第103回 A班: 第3幕の 線（階を 通った しるし c11c_h1〜h3 も 線の 中）
-export const CH11_STEPS = [...C11A_LINE, ...C11B_LINE, ...C11C_LINE];
+// 第104回 A班: 第4幕の 線（階を 通った しるし c11d_t1〜t4 も 線の 中。c11_act4 で 第3部の クリア）
+export const CH11_STEPS = [...C11A_LINE, ...C11B_LINE, ...C11C_LINE, ...C11D_LINE];
 
 // ───── 題の 画面（17-2 の 場面 0）─────
 export const C11_TITLE = {
@@ -55,6 +65,9 @@ export const c11bTitleSteps = () => [['chapter', C11B_TITLE.chapter, C11B_TITLE.
 // 第3幕（19-2 の 場面 0）
 export const C11C_TITLE = { chapter: C11_TITLE.chapter, act: '第3幕　はかりの回ろうと、ふたつの光' };
 export const c11cTitleSteps = () => [['chapter', C11C_TITLE.chapter, C11C_TITLE.act]];
+// 第4幕（20-3 の 場面 0）
+export const C11D_TITLE = { chapter: C11_TITLE.chapter, act: '第4幕　かがやきの女王と、八つめの音' };
+export const c11dTitleSteps = () => [['chapter', C11D_TITLE.chapter, C11D_TITLE.act]];
 
 // ───── 第2章 クリア（c10_act4）の 目標の 文（story-c10.js が 使う。開いた あとは「ながれ星のくぼ地で、ガンツと話そう」）─────
 export const C11A_START_OBJ = C11A_OBJ.start;
@@ -66,20 +79,27 @@ const dropOld1 = (open) => (t) => !(open && t === C11A_OBJ.act1);
 //   開いた あとは 前の 文「第3部　第3章　第3幕へ（続きはアップデートで！）」を 表から ぬく（ログインの 時に repairObjective が なおす。第103回 A班）
 export const act2ClearObjective = (open = PART3_C11C_OPEN) => (open ? C11C_OBJ.start : C11B_OBJ.act2);
 const dropOld2 = (open) => (t) => !(open && t === C11B_OBJ.act2);
+// 第3幕 クリア（c11_act3）の 目標の 文（第4幕が 開いた あとは「王宮の大とびらの中へ。光のはかりの広間へ進もう」）。
+//   開いた あとは 前の 文「第3部　第3章　第4幕へ（続きはアップデートで！）」を 表から ぬく（ログインの 時に repairObjective が なおす。第104回 A班）
+export const act3ClearObjective = (open = PART3_C11D_OPEN) => (open ? C11D_OBJ.start : C11C_OBJ.act3);
+const dropOld3 = (open) => (t) => !(open && t === C11C_OBJ.act3);
 const pick = (obj, keep) => Object.fromEntries(Object.entries(obj).filter(([k]) => keep(k)));
 
 // ───── 目標の 文の 表（幕が 開いて いる 時だけ まぜる）─────
-const OPEN_A = PART3_C11A_OPEN, OPEN_B = OPEN_A && PART3_C11B_OPEN, OPEN_C = OPEN_B && PART3_C11C_OPEN;
+const OPEN_A = PART3_C11A_OPEN, OPEN_B = OPEN_A && PART3_C11B_OPEN, OPEN_C = OPEN_B && PART3_C11C_OPEN, OPEN_D = OPEN_C && PART3_C11D_OPEN;
 export const CH11_PROGRESS = [
   ...(OPEN_A ? CH11A_PROGRESS.filter(([, t]) => dropOld1(OPEN_B)(t)) : []),
   ...(OPEN_B ? CH11B_PROGRESS.filter(([, t]) => dropOld2(OPEN_C)(t)) : []),
-  ...(OPEN_C ? CH11C_PROGRESS : []),
+  ...(OPEN_C ? CH11C_PROGRESS.filter(([, t]) => dropOld3(OPEN_D)(t)) : []),
+  ...(OPEN_D ? CH11D_PROGRESS : []),
 ];
 export const CH11_OBJECTIVE_TARGETS = {
-  ...(OPEN_A ? pick(CH11A_OBJECTIVE_TARGETS, dropOld1(OPEN_B)) : {}), ...(OPEN_B ? pick(CH11B_OBJECTIVE_TARGETS, dropOld2(OPEN_C)) : {}), ...(OPEN_C ? CH11C_OBJECTIVE_TARGETS : {}),
+  ...(OPEN_A ? pick(CH11A_OBJECTIVE_TARGETS, dropOld1(OPEN_B)) : {}), ...(OPEN_B ? pick(CH11B_OBJECTIVE_TARGETS, dropOld2(OPEN_C)) : {}),
+  ...(OPEN_C ? pick(CH11C_OBJECTIVE_TARGETS, dropOld3(OPEN_D)) : {}), ...(OPEN_D ? CH11D_OBJECTIVE_TARGETS : {}),
 };
 export const CH11_OBJECTIVE_TALK = {
-  ...(OPEN_A ? pick(CH11A_OBJECTIVE_TALK, dropOld1(OPEN_B)) : {}), ...(OPEN_B ? pick(CH11B_OBJECTIVE_TALK, dropOld2(OPEN_C)) : {}), ...(OPEN_C ? CH11C_OBJECTIVE_TALK : {}),
+  ...(OPEN_A ? pick(CH11A_OBJECTIVE_TALK, dropOld1(OPEN_B)) : {}), ...(OPEN_B ? pick(CH11B_OBJECTIVE_TALK, dropOld2(OPEN_C)) : {}),
+  ...(OPEN_C ? pick(CH11C_OBJECTIVE_TALK, dropOld3(OPEN_D)) : {}), ...(OPEN_D ? CH11D_OBJECTIVE_TALK : {}),
 };
 
 // ───── story.js から: だいほんを まぜる（幕が 開いて いない 間は、くぼ地で ガンツと 話しても 始まらない）─────
@@ -88,5 +108,7 @@ export function applyCh11(SCRIPTS, STORY_SCRIPTS) {
   // 第102回 A班: 第2幕（PART3_C11B_OPEN が false の 間は、星座の門の むこうの きりが 晴れない）
   applyCh11b(SCRIPTS, STORY_SCRIPTS, { title: c11bTitleSteps, open: OPEN_B, act2Obj: act2ClearObjective(OPEN_C) });
   // 第103回 A班: 第3幕（PART3_C11C_OPEN が false の 間は、名前の 塔の 前に アルゴルは 来ない）
-  applyCh11c(SCRIPTS, STORY_SCRIPTS, { title: c11cTitleSteps, open: OPEN_C });
+  applyCh11c(SCRIPTS, STORY_SCRIPTS, { title: c11cTitleSteps, open: OPEN_C, act3Obj: act3ClearObjective(OPEN_D) });
+  // 第104回 A班: 第4幕（PART3_C11D_OPEN が false の 間は、王宮の 大とびらの 中へ 入れない）
+  applyCh11d(SCRIPTS, STORY_SCRIPTS, { title: c11dTitleSteps, open: OPEN_D });
 }

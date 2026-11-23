@@ -113,6 +113,8 @@ export const CHAPTERS = [
       { n: 2, start: 'c11b_start', title: '月の都と、名前のランプ', seen: 'c11b_start', clear: 'c11_act2' },
       // 第103回 A班: 第3幕（名前の 塔の 前で アルゴルが 下りて 来て、題の 画面を 見た あと）
       { n: 3, start: 'c11c_start', title: 'はかりの回ろうと、ふたつの光', seen: 'c11c_start', clear: 'c11_act3' },
+      // 第104回 A班: 第4幕（大とびらの 中・光の はかりの 広間で 女王に 会って、題の 画面を 見た あと）。第3部の さいごの 幕（クリアで「第3部」の クリア）
+      { n: 4, start: 'c11d_start', title: 'かがやきの女王と、八つめの音', seen: 'c11d_start', clear: 'c11_act4', partClear: true },
     ],
   },
 ];
@@ -140,7 +142,9 @@ export function storyPlace(c) {
   const title = !ch.titleSeen || f(ch.titleSeen) ? ch.title : '';
   const actTitle = act?.title && f(act.seen) ? act.title : '';
   const parts = [ch.n === 0 ? '' : PART_NAMES[ch.part], chName, act ? `第${act.n}幕` : ''].filter(Boolean);
-  return { part: ch.n === 0 ? 0 : ch.part, chapter: ch.n, act: act?.n || 0, label: parts.join(' '), title, actTitle, cleared };
+  // 第104回 A班: 部の さいごの 幕を クリアした 後は「第3部」の クリア
+  const label = act?.partClear && cleared ? PART_NAMES[ch.part] : parts.join(' ');
+  return { part: ch.n === 0 ? 0 : ch.part, chapter: ch.n, act: act?.n || 0, label, title, actTitle, cleared, ...(act?.partClear && cleared ? { partClear: true } : {}) };
 }
 
 // 物語の つぎ（目標の 文・仲間の ひとこと・場所）

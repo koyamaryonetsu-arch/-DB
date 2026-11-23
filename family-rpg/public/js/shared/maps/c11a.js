@@ -55,8 +55,9 @@ const base = (id, name, kind, t, extra) => ({
 // ───── 星座（map.c11aCons）─────
 // { id, name, rule, ox, oy, stars: [[x, y]（マップの マス）], lines, twins, entries: [星の 番号]（地面に ふれて いる 星）, land: 地面の マス }
 const D4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-export function placeCon11a(m, id, ox, oy, walk) {
-  const C = CONSTELLATIONS11A[id];
+// 第104回 A班: data … 星座の 形（ない 時は この 幕の 星座の 表。第4幕の 星座の 間は 自分の 形を わたす）
+export function placeCon11a(m, id, ox, oy, walk, data = CONSTELLATIONS11A[id]) {
+  const C = data;
   const stars = C.stars.map(([x, y]) => [ox + x, oy + y]);
   const isStar = (x, y) => stars.some(([sx, sy]) => sx === x && sy === y);
   const entries = [];

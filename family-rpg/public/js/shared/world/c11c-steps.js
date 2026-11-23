@@ -295,7 +295,8 @@ export function stepC11c(world, s, tx, ty) {
   unstick(world, s);
   if (cardCheck(world, s, st)) return true;
   // 助け（その 階を まだ 通って いない 時）
-  const passed = has(C11C_FLOOR_FLAGS[map.c11c.floor]);
+  // 第104回 A班: 第4幕の かげの 間は map.c11c.passFlag（3階を 通った しるし）
+  const passed = has(map.c11c.passFlag || C11C_FLOOR_FLAGS[map.c11c.floor]);
   if (passed) { s.c11cHelp = null; return false; }
   const key = `${s.map}|${st.a}`;
   if (!s.c11cHelp || s.c11cHelp.key !== key) s.c11cHelp = { key, n: 0, hint: null };

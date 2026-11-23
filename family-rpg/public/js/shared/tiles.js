@@ -150,6 +150,12 @@ export const T = {
   C11C_FENCE_A: 707, C11C_FENCE_B: 708, C11C_FENCE_C: 709, C11C_FENCE_D: 710, C11C_FENCE_OFF: 711, C11C_GROOVE: 712, C11C_BRIDGE: 713,
   C11C_LANE: 714, C11C_STAIRS_UP: 715, C11C_STAIRS_DOWN: 716, C11C_HALLDOOR: 717, C11C_SPRING: 718, C11C_BIGDOOR: 719, C11C_BIGDOOR_OPEN: 720,
   C11C_CARPET: 721, C11C_PILLAR: 722, C11C_REST_FLOOR: 723,
+  // 第3部 第3章 第4幕「かがやきの女王と、八つめの音」（第104回 A班。741〜780。maps/c11d*.js・render/tiles-c11d.js）
+  C11D_FLOOR: 741, C11D_WALL: 742, C11D_CARPET: 743, C11D_PILLAR: 744, C11D_STAIRS_UP: 745, C11D_STAIRS_DOWN: 746, C11D_SCALE: 747,
+  C11D_VOID: 748, C11D_STAR: 749, C11D_CONDOOR: 750, C11D_CONDOOR_OPEN: 751, C11D_MOON_F: 752, C11D_MOON_WALL_F: 753, C11D_MOON_B: 754,
+  C11D_MOON_WALL_B: 755, C11D_SHADOW_FLOOR: 756, C11D_SHADOW_WALL: 757, C11D_PAD_1: 758, C11D_PAD_2: 759, C11D_PAD_3: 760, C11D_PAD_4: 761,
+  C11D_PAD_5: 762, C11D_PAD_6: 763, C11D_PAD_7: 764, C11D_MURAL: 765, C11D_SPRING: 766, C11D_SOUNDDOOR: 767, C11D_SOUNDDOOR_OPEN: 768,
+  C11D_THRONE: 769, C11D_WINDOW: 770, C11D_LIFT: 771, C11D_HOOK_ON: 772, C11D_SCALEGATE_OPEN: 773, C11D_BRIDGE_END: 774,
 };
 
 export const TILE_INFO = {};
@@ -866,6 +872,41 @@ def(T.C11C_BIGDOOR_OPEN, 'c11c_bigdoor_open', { solid: true, talkThrough: true, 
 def(T.C11C_CARPET, 'c11c_carpet', { mapColor: '#6a5aa8' }); // 大とびらへの じゅうたん
 def(T.C11C_PILLAR, 'c11c_pillar', { solid: true, mapColor: '#2a2440' }); // 柱
 def(T.C11C_REST_FLOOR, 'c11c_rest_floor', { mapColor: '#6a5a50' }); // ひと休みの 部屋の ゆか
+// 第104回 A班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」（王宮の 中・かがやきの 塔・玉座の 間）
+def(T.C11D_FLOOR, 'c11d_floor', { mapColor: '#e8e0f0' }); // 王宮の 白い ゆか
+def(T.C11D_WALL, 'c11d_wall', { solid: true, mapColor: '#3a3458' }); // 王宮の かべ
+def(T.C11D_CARPET, 'c11d_carpet', { mapColor: '#c8a8e8' }); // 白と 金の じゅうたん
+def(T.C11D_PILLAR, 'c11d_pillar', { solid: true, mapColor: '#8a82a8' }); // 白い 柱
+def(T.C11D_STAIRS_UP, 'c11d_stairs_up', { light: true, mapColor: '#ffffff' }); // 上への 階段
+def(T.C11D_STAIRS_DOWN, 'c11d_stairs_down', { mapColor: '#9a92b8' }); // 下への 階段
+def(T.C11D_SCALE, 'c11d_scale', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffe890' }); // 光の はかり
+def(T.C11D_VOID, 'c11d_void', { solid: true, anim: true, mapColor: '#0c0a24' }); // 星座の 間の 夜の ガラス（通れない。星座の 線は ここ）
+def(T.C11D_STAR, 'c11d_star', { anim: true, light: true, mapColor: '#fff0a0' }); // 星座の 星（乗れる）
+def(T.C11D_CONDOOR, 'c11d_condoor', { solid: true, talkThrough: true, mapColor: '#4a4878' }); // 星座の とびら（とじて いる）
+def(T.C11D_CONDOOR_OPEN, 'c11d_condoor_open', { anim: true, light: true, mapColor: '#fff8c0' }); // 星座が できて 開いた とびら（上へ）
+def(T.C11D_MOON_F, 'c11d_moon_f', { mapColor: '#d8dcf8' }); // 月かげの 間（おもて）の ゆか
+def(T.C11D_MOON_WALL_F, 'c11d_moon_wall_f', { solid: true, mapColor: '#4a5088' }); // 月かげの 間（おもて）の かべ
+def(T.C11D_MOON_B, 'c11d_moon_b', { mapColor: '#5a3a4a' }); // 月かげの 間（うら）の ゆか
+def(T.C11D_MOON_WALL_B, 'c11d_moon_wall_b', { solid: true, mapColor: '#1a0c14' }); // 月かげの 間（うら）の かべ
+def(T.C11D_SHADOW_FLOOR, 'c11d_shadow_floor', { mapColor: '#8a7aa8' }); // かげの 間の ゆか
+def(T.C11D_SHADOW_WALL, 'c11d_shadow_wall', { solid: true, mapColor: '#2a2040' }); // かげの 間の かべ
+def(T.C11D_PAD_1, 'c11d_pad_1', { light: true, mapColor: '#ff7a7a' }); // 音の 台（赤・レ）
+def(T.C11D_PAD_2, 'c11d_pad_2', { light: true, mapColor: '#ffd040' }); // 音の 台（金・ド）
+def(T.C11D_PAD_3, 'c11d_pad_3', { light: true, mapColor: '#fff07a' }); // 音の 台（黄・ミ）
+def(T.C11D_PAD_4, 'c11d_pad_4', { light: true, mapColor: '#7ae08a' }); // 音の 台（緑・ファ）
+def(T.C11D_PAD_5, 'c11d_pad_5', { light: true, mapColor: '#7ab8ff' }); // 音の 台（青・ソ）
+def(T.C11D_PAD_6, 'c11d_pad_6', { light: true, mapColor: '#f4f8ff' }); // 音の 台（白・ラ）
+def(T.C11D_PAD_7, 'c11d_pad_7', { light: true, mapColor: '#c890ff' }); // 音の 台（むらさき・シ）
+def(T.C11D_MURAL, 'c11d_mural', { solid: true, talkThrough: true, light: true, mapColor: '#b8a8e0' }); // かべの 歌の 絵
+def(T.C11D_SPRING, 'c11d_spring', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#a8e0ff' }); // 回復の いずみ
+def(T.C11D_SOUNDDOOR, 'c11d_sounddoor', { solid: true, talkThrough: true, mapColor: '#6a5a98' }); // 音の とびら（とじて いる）
+def(T.C11D_SOUNDDOOR_OPEN, 'c11d_sounddoor_open', { anim: true, light: true, mapColor: '#fff8e0' }); // 開いた 音の とびら
+def(T.C11D_THRONE, 'c11d_throne', { solid: true, talkThrough: true, light: true, mapColor: '#ffe070' }); // 玉座
+def(T.C11D_WINDOW, 'c11d_window', { solid: true, anim: true, light: true, mapColor: '#1a2a6a' }); // 星の海が 見える まど
+def(T.C11D_LIFT, 'c11d_lift', { anim: true, light: true, mapColor: '#c8f0ff' }); // 光の のぼり台（4階への 近道）
+def(T.C11D_HOOK_ON, 'c11d_hook_on', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffd890' }); // かぎに ともった 名前の ランプ
+def(T.C11D_SCALEGATE_OPEN, 'c11d_scalegate_open', { solid: true, talkThrough: true, light: true, mapColor: '#fff8d0' }); // 開いた はかりの門
+def(T.C11D_BRIDGE_END, 'c11d_bridge_end', { anim: true, light: true, mapColor: '#fff0ff' }); // 月の都の 星の橋の はし（ふむと 星見の丘へ）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

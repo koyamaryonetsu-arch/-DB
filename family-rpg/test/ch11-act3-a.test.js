@@ -110,8 +110,10 @@ test('名前の 約束: マップ 5まい・タイル 701〜740・宝箱の id�
   assert.deepEqual(chests, [...C11C_CHEST_IDS].sort());
   // 一本の 線（c11_act2 の うしろ）。階を 通った しるしも 線の 中
   const j = STORY_STEPS.indexOf(C11C_ACT0);
-  assert.deepEqual(STORY_STEPS.slice(j + 1), C11C_LINE);
-  assert.deepEqual(CH11_STEPS.slice(-C11C_LINE.length - C11B_LINE.length), [...C11B_LINE, ...C11C_LINE]);
+  // 第104回 A班: うしろに 第4幕の 線が つづく（線の 場所は 名前で さがす）
+  assert.deepEqual(STORY_STEPS.slice(j + 1, j + 1 + C11C_LINE.length), C11C_LINE);
+  const k = CH11_STEPS.indexOf(C11B_LINE[0]);
+  assert.deepEqual(CH11_STEPS.slice(k, k + C11B_LINE.length + C11C_LINE.length), [...C11B_LINE, ...C11C_LINE]);
   assert.deepEqual(Object.values(C11C_FLOOR_FLAGS), [C11C.h1, C11C.h2, C11C.h3]);
   // 台本（パーティーで 見る）・やり直しの 行き先（ノクト）
   openAct();

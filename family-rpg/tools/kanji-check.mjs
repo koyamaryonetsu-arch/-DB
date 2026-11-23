@@ -687,12 +687,17 @@ export function gameFiles() {
     // 第103回 A班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（世界と 物語）
     'public/js/shared/maps/c11c-flags.js', 'public/js/shared/data/story-c11c.js', 'public/js/shared/maps/c11c.js', 'public/js/shared/maps/c11c-rows.js',
     'public/js/shared/world/c11c-steps.js', 'public/js/client/c11c-view.js', 'public/js/client/render/tiles-c11c.js', 'public/js/client/render/c11c-npc-art.js',
+    // 第104回 A班: 第3部 第3章 第4幕「かがやきの女王と、八つめの音」（世界と 物語）
+    'public/js/shared/maps/c11d-flags.js', 'public/js/shared/data/story-c11d.js', 'public/js/shared/maps/c11d.js', 'public/js/shared/maps/c11d-rows.js',
+    'public/js/shared/world/c11d-steps.js', 'public/js/client/c11d-view.js', 'public/js/client/render/tiles-c11d.js', 'public/js/client/render/c11d-npc-art.js',
     // 第101回 F班: 第3部 第3章 第1幕の 曲
     'public/js/client/audio-c11a.js',
     // 第102回 F班: 第3部 第3章 第2幕の 曲
     'public/js/client/audio-c11b.js',
     // 第103回 F班: 第3部 第3章 第3幕の 曲
     'public/js/client/audio-c11c.js',
+    // 第104回 F班: 第3部 第3章 第4幕の 曲
+    'public/js/client/audio-c11d.js',
     // 第101回 B班: 第3部 第3章 第1幕（魔物・星座のけもの・いかり船長・品・ヒント・絵・背景・えんしゅつ。かりの 置き場 c11a-names-b.js は A班が 消した）
     'public/js/shared/data/monsters-c11a.js', 'public/js/shared/data/abilities-c11a.js',
     'public/js/shared/data/encounters-c11a.js', 'public/js/shared/data/companions-c11a.js', 'public/js/shared/data/items-c11a.js', 'public/js/shared/data/boss-hints-c11a.js',

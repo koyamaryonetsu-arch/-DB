@@ -93,6 +93,8 @@ import { c11aInteract, stepC11a, tickC11a, c11aOnPlay, c11aSnap, C11A_API } from
 import { c11bInteract, stepC11b, c11bOnPlay, c11bSnap } from './c11b-steps.js';
 // 第103回 A班: 第3部 第3章 第3幕の 相ぼうを 立たせる（かげの 台・光の さく・光の 橋・見はりの カード・助け。world/c11c-steps.js）
 import { c11cFlag, c11cInteract, stepC11c, tickC11c, c11cOnPlay, c11cSnap, c11cAlgolFollows } from './c11c-steps.js';
+// 第104回 A班: 第3部 第3章 第4幕の 音の 間（7色の 音の 台。1〜3階は 前の 幕の しくみの まま。world/c11d-steps.js）
+import { stepC11d, tickC11d, c11dSnap, C11D_API } from './c11d-steps.js';
 import { bossHintCheck } from './boss-hints.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -128,6 +130,7 @@ export class GameWorld {
     this.c10d = C10D_API;
     // 第100回 A班: 台本（data/story-c11a.js）から つかう 星座の しくみ（world/c11a-steps.js）
     this.c11a = C11A_API;
+    this.c11d = C11D_API; // 第104回 A班: 音の 間（台本から）
     this.runs = new Map();
     this.byConn = new Map(); // つなぎ → セッション（つなぎなおしで いれかわる）
     this.mapStates = new Map();
@@ -752,6 +755,8 @@ export class GameWorld {
     stepC11b(this, s, tx, ty);
     // 第3部 第3章 第3幕: 家族の 台・見はりの カード・助けの 歩数（world/c11c-steps.js）
     if (stepC11c(this, s, tx, ty)) return;
+    // 第3部 第3章 第4幕: 音の 間の 7色の 台（world/c11d-steps.js）
+    if (stepC11d(this, s, tx, ty)) return;
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);
@@ -1276,6 +1281,8 @@ export class GameWorld {
     tickC11a(this);
     // 第103回 A班: 見はりの カード・だれも いなく なった パーティーの アルゴルを わすれる（world/c11c-steps.js）
     tickC11c(this, dt);
+    // 第104回 A班: だれも いなく なった パーティーの 音の 間を わすれる（world/c11d-steps.js）
+    tickC11d(this);
     // モンスター（とぎれている 人は おいかけない）
     for (const [mapId, players] of byMap) {
       const ms = mapState(this, mapId);
@@ -1317,7 +1324,8 @@ export class GameWorld {
           const c11a = c11aSnap(this, p); // 第100回 A班: ひとふで書きの 星座（パーティーの 光った 線・助け）
           const c11b = c11bSnap(this, p); // 第102回 A班: おもてと うらの 助け（ホタルが 光らせる 所）
           const c11c = c11cSnap(this, p); // 第103回 A班: アルゴルの 台・家族の 台・見はりの カード・助け
-          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}), ...(c10b ? { c10b } : {}), ...(c10c ? { c10c } : {}), ...(c11a ? { c11a } : {}), ...(c11b ? { c11b } : {}), ...(c11c ? { c11c } : {}) });
+          const c11d = c11dSnap(this, p); // 第104回 A班: 音の 間（鳴らした 数・次の 台・じゅんが 光る）
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}), ...(c9a ? { c9a } : {}), ...(c9d ? { c9d } : {}), ...(c10 ? { c10 } : {}), ...(c10b ? { c10b } : {}), ...(c10c ? { c10c } : {}), ...(c11a ? { c11a } : {}), ...(c11b ? { c11b } : {}), ...(c11c ? { c11c } : {}), ...(c11d ? { c11d } : {}) });
         }
       }
     }
