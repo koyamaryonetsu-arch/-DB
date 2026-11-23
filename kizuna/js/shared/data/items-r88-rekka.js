@@ -4,7 +4,7 @@
 //     装備の 画面の「形をかえる」で、その 職業が 持てる 形だけ えらべる。きたえた 回数・れん金の 効果は のこる（shared/gear-r88.js の shapeTarget・moveShapeFx）
 //   ・風のツメ → 風神（生まれ変わり）・雷神は 使うと HPが 少し へる（use.hpCost）
 //   ・天堂地獄・砲魔神・縛呪・血種・魂すいのつぼ などは 装備に しない（設計書 2-4）
-import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=dc7c9b067c89';
+import { weapon, armor, shield, acc, priceUp } from './items-r88-kit.js?v=31ca07498b9b';
 
 const R = { work: 'rekka' };
 

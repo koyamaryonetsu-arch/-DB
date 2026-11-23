@@ -2,38 +2,38 @@
 // みため（体・かみがた・かみの色・はだ・目もと）と、しょくぎょう・そうび（ぶき・よろい・たて・かぶと）から かく
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
-import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=dc7c9b067c89';
-import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js?v=dc7c9b067c89';
-import { drawHair } from './hero-hair.js?v=dc7c9b067c89';
-import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js?v=dc7c9b067c89';
-import { drawAura } from './hero-aura.js?v=dc7c9b067c89';
+import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=31ca07498b9b';
+import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js?v=31ca07498b9b';
+import { drawHair } from './hero-hair.js?v=31ca07498b9b';
+import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js?v=31ca07498b9b';
+import { drawAura } from './hero-aura.js?v=31ca07498b9b';
 // 第26回の 職業（羽織・こうら・ネコ型ロボットの おなか・もちもの・かおの しるし）
-import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js?v=dc7c9b067c89';
+import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js?v=31ca07498b9b';
 // 第29回の るろうに剣士の 道の 赤毛
-import { R29_HAIR } from './hero-r29.js?v=dc7c9b067c89';
+import { R29_HAIR } from './hero-r29.js?v=31ca07498b9b';
 // 第33回の 職業の かみの いろと、手ぶくろの れん金の 円
-import { R33_HAIR, handMark33 } from './hero-r33.js?v=dc7c9b067c89';
+import { R33_HAIR, handMark33 } from './hero-r33.js?v=31ca07498b9b';
 // 第40回の 職業の かみの いろと、両手の 竜の紋章
-import { R40_HAIR, handMark40 } from './hero-r40.js?v=dc7c9b067c89';
+import { R40_HAIR, handMark40 } from './hero-r40.js?v=31ca07498b9b';
 // 第41回 B の 職業の かみの いろ（白っぽい 金）
-import { R41B_HAIR } from './hero-r41b.js?v=dc7c9b067c89';
+import { R41B_HAIR } from './hero-r41b.js?v=31ca07498b9b';
 // 第43回の ももの姫・おてんば姫・ピーチの 金の かみ
-import { R43J_HAIR } from './hero-r43j.js?v=dc7c9b067c89';
+import { R43J_HAIR } from './hero-r43j.js?v=31ca07498b9b';
 // 第66回 E2: さいきくすおの ピンクの かみ（hero-r66e2.js）
-import { R66E2_HAIR } from './hero-r66e2.js?v=dc7c9b067c89';
+import { R66E2_HAIR } from './hero-r66e2.js?v=31ca07498b9b';
 // 第79回: 幻の職業の かみの いろと 両手の 光（hero-r79.js）
-import { R79_HAIR, handMark79 } from './hero-r79.js?v=dc7c9b067c89';
+import { R79_HAIR, handMark79 } from './hero-r79.js?v=31ca07498b9b';
 // 第82回 A: 犬夜叉の 系統の 銀色の かみ（hero-r82a.js）
-import { R82A_HAIR } from './hero-r82a.js?v=dc7c9b067c89';
+import { R82A_HAIR } from './hero-r82a.js?v=31ca07498b9b';
 // 第83回 B班: ぬ〜べ〜の 系統の 左手の 手ぶくろ（hero-r83b.js）
-import { handMark83 } from './hero-r83b.js?v=dc7c9b067c89';
+import { handMark83 } from './hero-r83b.js?v=31ca07498b9b';
 // 第85回 B班: 烈火の炎の 系統の 右うでの こて（伝説は 竜の 印。hero-r85b.js）
-import { koteMark85 } from './hero-r85b.js?v=dc7c9b067c89';
+import { koteMark85 } from './hero-r85b.js?v=31ca07498b9b';
 // 第86回 A班: 竜神の剣士の 左右の こて（右 ＝ 赤い 炎・左 ＝ 青い 雷。hero-r86a.js）
-import { koteMark86 } from './hero-r86a.js?v=dc7c9b067c89';
-import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=dc7c9b067c89';
-import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=dc7c9b067c89';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=dc7c9b067c89';
+import { koteMark86 } from './hero-r86a.js?v=31ca07498b9b';
+import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=31ca07498b9b';
+import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=31ca07498b9b';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=31ca07498b9b';
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }（ない ときは しょくぎょうの はじめの そうび）
 export function parseEquip(eq, job) {

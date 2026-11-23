@@ -10,14 +10,14 @@
 //   ・PART3_C11B_OPEN … 第2幕「月の都と、名前のランプ」を 開ける 切りかえ（第102回 A班）・第1幕 クリアの 目標の 文（act1ClearObjective）・題の 画面（c11bTitleSteps）
 //   ・PART3_C11C_OPEN … 第3幕「はかりの回ろうと、ふたつの光」を 開ける 切りかえ（第103回 A班）・第2幕 クリアの 目標の 文（act2ClearObjective）・題の 画面（c11cTitleSteps）
 // story-c10.js から 読まれるので、story.js・story-c9*.js・story-c10*.js を import しない こと
-import { C11A_LINE } from '../maps/c11a-flags.js?v=dc7c9b067c89';
-import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=dc7c9b067c89';
+import { C11A_LINE } from '../maps/c11a-flags.js?v=31ca07498b9b';
+import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=31ca07498b9b';
 // 第102回 A班: 第2幕「月の都と、名前のランプ」（story-c11b.js）
-import { C11B_LINE } from '../maps/c11b-flags.js?v=dc7c9b067c89';
-import { applyCh11b, CH11B_PROGRESS, CH11B_OBJECTIVE_TARGETS, CH11B_OBJECTIVE_TALK, C11B_OBJ } from './story-c11b.js?v=dc7c9b067c89';
+import { C11B_LINE } from '../maps/c11b-flags.js?v=31ca07498b9b';
+import { applyCh11b, CH11B_PROGRESS, CH11B_OBJECTIVE_TARGETS, CH11B_OBJECTIVE_TALK, C11B_OBJ } from './story-c11b.js?v=31ca07498b9b';
 // 第103回 A班: 第3幕「はかりの回ろうと、ふたつの光」（story-c11c.js）
-import { C11C_LINE } from '../maps/c11c-flags.js?v=dc7c9b067c89';
-import { applyCh11c, CH11C_PROGRESS, CH11C_OBJECTIVE_TARGETS, CH11C_OBJECTIVE_TALK, C11C_OBJ } from './story-c11c.js?v=dc7c9b067c89';
+import { C11C_LINE } from '../maps/c11c-flags.js?v=31ca07498b9b';
+import { applyCh11c, CH11C_PROGRESS, CH11C_OBJECTIVE_TARGETS, CH11C_OBJECTIVE_TALK, C11C_OBJ } from './story-c11c.js?v=31ca07498b9b';
 
 // ───── 第1幕「星の船と、星座の島」を 開ける 切りかえ（17-5・17-6。第100回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第2章 クリアの 目標は「第3部　第3章へ（続きはアップデートで！）」・

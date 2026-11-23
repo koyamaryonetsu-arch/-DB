@@ -5,10 +5,10 @@
 //   t9c_pyr2 … さかさのピラミッド 3〜4階（c9c_p3・c9c_p4。Lv100〜101）
 // ふつうの 魔物 6しゅ（どれも 仲間に なる）。重みで 出やすさを きめて、ランクが ちらばる ように する（tools/gen-monster-ranks.mjs）
 // ふつうの 戦いの 長さ（11-4）: 勇者 Lv100 ＋ 酒場の 仲間 3人で 90秒 いない（1〜2ひきの むれを 多めに）
-import { C9C_NAZOKAKE, C9C_HIKKURI } from './monsters-c9c.js?v=dc7c9b067c89';
-import { C9C_BATTLE, C9C_TRACKS } from '../maps/c9c-flags.js?v=dc7c9b067c89';
+import { C9C_NAZOKAKE, C9C_HIKKURI } from './monsters-c9c.js?v=31ca07498b9b';
+import { C9C_BATTLE, C9C_TRACKS } from '../maps/c9c-flags.js?v=31ca07498b9b';
 // 負けた 時の ヒントの 文（boss-hints-c9c.js が mergeBossHints を よぶ）
-import './boss-hints-c9c.js?v=dc7c9b067c89';
+import './boss-hints-c9c.js?v=31ca07498b9b';
 
 export const ENCOUNTERS_C9C = {
   t9c_river: [

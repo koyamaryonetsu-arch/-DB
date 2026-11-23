@@ -6,7 +6,7 @@
 // ・c11c_cards … ちらばった カード（隊長が カードに もどった あと）
 // ・c11c_light … アルゴルの 手のひらの、小さな 光
 //   もとの お話の しるし（ハートなど）は 使わない
-import { Painter } from './pixel.js?v=dc7c9b067c89';
+import { Painter } from './pixel.js?v=31ca07498b9b';
 
 // カードの マーク（月・星・ほうき星・太陽）
 function mark(p, x, y, kind, c) {

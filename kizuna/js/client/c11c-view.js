@@ -5,10 +5,10 @@
 // ・かげの 台の 輪（台の 色。アルゴルが 立つ 台は こく・食べて いる うずまき）・アルゴル（台の 上 ／ いっしょに 歩く）・見はりの カード・3人組の 助けの 光
 // ・ミニマップ: アルゴルが 今 いる 台（むらさきの 点）
 // ・曲へ field.pairStage（1 … アルゴルが 台に 立って いる。ほかは 0）
-import { C11C } from '../shared/maps/c11c-flags.js?v=dc7c9b067c89';
-import { C11C_RANGE } from '../shared/maps/c11c-rows.js?v=dc7c9b067c89';
-import { c11cMapFlag, cardFrozen11c } from '../shared/maps/c11c.js?v=dc7c9b067c89';
-import { TS } from './render/tiles.js?v=dc7c9b067c89';
+import { C11C } from '../shared/maps/c11c-flags.js?v=31ca07498b9b';
+import { C11C_RANGE } from '../shared/maps/c11c-rows.js?v=31ca07498b9b';
+import { c11cMapFlag, cardFrozen11c } from '../shared/maps/c11c.js?v=31ca07498b9b';
+import { TS } from './render/tiles.js?v=31ca07498b9b';
 
 const PED_COLOR = { a: [90, 138, 255], b: [90, 216, 112], c: [255, 106, 106], d: [255, 216, 74] };
 const rgba = ([r, g, b], a) => `rgba(${r}, ${g}, ${b}, ${a})`;
