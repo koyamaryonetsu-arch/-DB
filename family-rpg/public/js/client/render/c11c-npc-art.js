@@ -1,6 +1,6 @@
 // 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」の とくべつな え（render/c9a-npc-art.js が まぜる）
 // ※ ネタバレ注意（docs/plan-part3-c11c.md の 19）
-// ・c11c_mecha … 3人組の メカ 3号（場面の 絵。頭・うで・足の ある、ずんぐりした メカ。戦いの 絵は B班）
+// ・c11c_mecha … 3人組の メカ 3号 バラバラン3号（場面の 絵。戦いの 絵〈B班〉に 合わせた 赤い 箱・3人の 顔の まど）
 // ・c11c_ace … 近衛の 隊長（場面の 絵。カードの よろいの、きちんと した 隊長。マークは 月・星・ほうき星・太陽）
 // ・c11c_soldier … トランプの 兵隊（場面の 絵。カードの 体に 手足）
 // ・c11c_cards … ちらばった カード（隊長が カードに もどった あと）
@@ -8,7 +8,6 @@
 //   もとの お話の しるし（ハートなど）は 使わない
 import { Painter } from './pixel.js';
 
-const STEEL = { d: '#4a5068', b: '#7a84a8', l: '#b0b8d8', hl: '#e8ecff' };
 // カードの マーク（月・星・ほうき星・太陽）
 function mark(p, x, y, kind, c) {
   if (kind === 'moon') { p.set(x, y - 1, c); p.set(x - 1, y, c); p.set(x - 1, y + 1, c); p.set(x, y + 2, c); }
@@ -16,22 +15,26 @@ function mark(p, x, y, kind, c) {
   else if (kind === 'comet') { p.set(x + 1, y - 1, c); p.set(x, y, c); p.set(x - 1, y + 1, c); p.set(x + 1, y, '#ffffff'); }
   else { p.set(x, y, c); p.set(x - 1, y, c); p.set(x + 1, y, c); p.set(x, y - 1, c); p.set(x, y + 1, c); }
 }
-// メカ 3号（30×30。まるい 頭・大きな うで・2本の 足。3人組の しるしの ほし）
+// バラバラン3号（30×30。戦いの 絵〈B班〉に 合わせた 赤い 箱の 体・3人組の 顔の まど・ばねの うで・2本の 足）
 function paintMecha(dir, f) {
   const p = new Painter(30, 30);
   const k = f % 2;
+  const RED = '#d8403a', RD = '#8a2420', YEL = '#f0c040';
   p.ellipse(15, 29, 11, 1, '#1a1a2a');
-  // 足
-  for (const x of [9, 19]) { p.rect(x, 21 + (x === 9 ? k : 1 - k), 3, 7, STEEL.d); p.rect(x - 1, 27, 5, 2, '#2a2a3a'); }
-  // 体
-  p.rect(7, 11, 16, 11, STEEL.b); p.rect(8, 12, 14, 9, STEEL.l); p.hline(7, 22, 21, STEEL.d);
-  p.rect(13, 14, 4, 4, '#e83a8a'); p.set(15, 15, '#ffffff'); // 3人組の しるし
-  // うで
-  p.rect(2, 12 + k, 5, 9, STEEL.b); p.rect(1, 20 + k, 7, 3, STEEL.d);
-  p.rect(23, 13 - k, 5, 9, STEEL.b); p.rect(22, 21 - k, 7, 3, STEEL.d);
-  // 頭（まるい まど と アンテナ）
-  p.ellipse(15, 7, 6, 4, STEEL.l); p.ellipse(15, 7, 4, 2.5, '#5ac8ff'); p.set(14, 6, '#ffffff');
-  p.vline(15, 1, 3, STEEL.d); p.set(15, 0, k ? '#ff5a5a' : '#ffe070');
+  // 足（ばね と 赤い くつ）
+  for (const x of [10, 18]) { for (let y = 20; y < 26; y += 2) p.hline(x, x + 2, y + (x === 10 ? k : 1 - k), '#c8c8d8'); p.rect(x - 1, 26, 5, 2, RED); }
+  // 体（赤い 箱・まどに 3人の 顔）
+  p.rect(7, 8, 16, 12, RED); p.rect(7, 19, 16, 1, RD); p.vline(7, 8, 19, RD);
+  p.ellipse(15, 13, 6, 3.5, '#8ad8ff');
+  p.set(12, 13, '#e8a0d8'); p.set(15, 13, '#5a6a3a'); p.set(18, 13, '#8a6040');
+  p.set(12, 14, '#f0d0b0'); p.set(15, 14, '#f0d0b0'); p.set(18, 14, '#f0d0b0');
+  p.set(15, 18, YEL); p.set(14, 17, YEL); p.set(16, 18, YEL); // 「3」の しるし
+  // うで（ばねと 大きな 手）
+  for (let x = 1; x < 7; x += 2) p.vline(x, 12 + k, 14 + k, '#c8c8d8');
+  p.ellipse(2, 16 + k, 2.5, 2.5, RED);
+  p.set(24, 11, YEL); p.hline(23, 26, 12, YEL); p.set(26, 13, YEL); // ラッパの はな
+  // あたまの アンテナ
+  p.vline(15, 3, 7, '#8a8aa8'); p.set(15, 2, k ? '#ff5a5a' : YEL);
   return { p, oc: '#1a1a2a' };
 }
 // 近衛の 隊長（20×28。カードの よろい・ぼうし・つえ）
