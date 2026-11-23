@@ -14,18 +14,18 @@
 // ※ 第1部・第2部の ひみつに ふれる せりふは 書かない。カイは 出さない。少年の わけは まだ 書かない。もとの 作品の 名前・せりふは 使わない
 import {
   C9C, C9C_ACT2, C9C_MAP, C9C_BATTLE, C9C_BOSS_MON, C9C_RIDDLE_NAME, C9C_MECHA_NAME, C9C_TRACKS, NOTE_MI, ALGOL_NAME, C9C_SONG_REVERSED,
-} from '../maps/c9c-flags.js?v=6a7817ffa6c0';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=6a7817ffa6c0';
-import { UNDER_RAFT } from '../maps/c9b-flags.js?v=6a7817ffa6c0';
-import { UNDER_POS } from '../maps/c9b-rows.js?v=6a7817ffa6c0';
-import { RIVER_POS, PYR_C_POS } from '../maps/c9c-rows.js?v=6a7817ffa6c0';
-import { C9C_SEEN, C9C_BUTTONS, C9C_BUTTON_FLAGS, PEDESTALS9C, PED_MI, PYR_B1_STAIRS9C } from '../maps/c9c.js?v=6a7817ffa6c0';
-import { TRIO9A } from './story-c9a.js?v=6a7817ffa6c0';
-import { MONSTERS } from './monsters.js?v=6a7817ffa6c0';
-import { SHOPS } from './shops.js?v=6a7817ffa6c0';
-import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js?v=6a7817ffa6c0';
-import { C9C_SHOP_ADD } from './items-c9c.js?v=6a7817ffa6c0';
-import { mergeBossHints } from './boss-hints.js?v=6a7817ffa6c0';
+} from '../maps/c9c-flags.js?v=47b761b2972a';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=47b761b2972a';
+import { UNDER_RAFT } from '../maps/c9b-flags.js?v=47b761b2972a';
+import { UNDER_POS } from '../maps/c9b-rows.js?v=47b761b2972a';
+import { RIVER_POS, PYR_C_POS } from '../maps/c9c-rows.js?v=47b761b2972a';
+import { C9C_SEEN, C9C_BUTTONS, C9C_BUTTON_FLAGS, PEDESTALS9C, PED_MI, PYR_B1_STAIRS9C } from '../maps/c9c.js?v=47b761b2972a';
+import { TRIO9A } from './story-c9a.js?v=47b761b2972a';
+import { MONSTERS } from './monsters.js?v=47b761b2972a';
+import { SHOPS } from './shops.js?v=47b761b2972a';
+import { C9B_SHOP_WEAPONS, C9B_SHOP_ARMOR } from './items-c9b.js?v=47b761b2972a';
+import { C9C_SHOP_ADD } from './items-c9c.js?v=47b761b2972a';
+import { mergeBossHints } from './boss-hints.js?v=47b761b2972a';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

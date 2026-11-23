@@ -2,7 +2,7 @@
 //   弱点の もう 一太刀〈battle-r82b.js の weakSlash〉）
 //   ai.js の decideAlly が battle-kizuna.js の kizunaPlan から よぶ（この 職業の 技〈a.job〉を 持つ 人だけ）
 //   この ファイルは client/battle.js も ai.js 経由で 読む ので、玉がえの メニュー（client/battle-r82b.js の tamaMenu）にも 6つの 玉が 出る
-import { TAMA_BY_JOB, TAMA_ORDER, bestTama, tamaOf, tamaScore } from './battle-r82b.js?v=6a7817ffa6c0';
+import { TAMA_BY_JOB, TAMA_ORDER, bestTama, tamaOf, tamaScore } from './battle-r82b.js?v=47b761b2972a';
 
 // 持てる 玉: 竜神けんのサムライと おなじ 6つ（雷・火・水・氷・風・竜神）
 TAMA_BY_JOB.tenka_kengou = TAMA_ORDER;

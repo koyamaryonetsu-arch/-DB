@@ -3,10 +3,10 @@
 // ・時の広間の 紋章の 台（398 光って いない・399 月・400 青い 火・401 星・402 氷）/ 最後の 回廊の 大とびら（403）/ つばさの 入口の 光の アーチ（404。3コマ）
 // ・にげる 青い 火（405。3コマで ぴょこぴょこ）/ 時の さけめ（406。3コマで うずまく）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=6a7817ffa6c0';
-import { prand } from './pixel.js?v=6a7817ffa6c0';
+import { T } from '../../shared/tiles.js?v=47b761b2972a';
+import { prand } from './pixel.js?v=47b761b2972a';
 // 第3部 第1章 第1幕「星ふるえの夜」の タイル（render/tiles-c9a.js。ここで まぜる）
-import { C9A_PAINTERS, C9A_FRAMES, C9A_SPEED, C9A_FLOOR_H, c9aBlockSpec, C9A_PROPS, C9A_PROPS_KEEP, C9A_THEMES } from './tiles-c9a.js?v=6a7817ffa6c0';
+import { C9A_PAINTERS, C9A_FRAMES, C9A_SPEED, C9A_FLOOR_H, c9aBlockSpec, C9A_PROPS, C9A_PROPS_KEEP, C9A_THEMES } from './tiles-c9a.js?v=47b761b2972a';
 
 const VO = { d: '#120a26', b: '#21153e', l: '#3a2a66', s: '#f4ecff' }; // 時のはざまの 空
 const SA = { d: '#8a6420', b: '#c8a050', l: '#f0d890', w: '#fff8e0' }; // 時の砂

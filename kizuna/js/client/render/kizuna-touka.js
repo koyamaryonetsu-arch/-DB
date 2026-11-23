@@ -8,7 +8,7 @@
 //   オーラ                 … 赤い 魔力の 炎
 // 乗り物: れん成ごちそう車（ごちそうの 荷車の 車りんに れん成じん・足もとに 光る 大きな れん成じん）
 // えんしゅつ: touka_madoushi_sig（足もとに れん成じん → とびらが ひらく → 赤い 大ばくはつ）・kizuna_rensei（ひらめき技。炎の 柱）
-import { feastCartArt } from './vehicle-r85a.js?v=6a7817ffa6c0';
+import { feastCartArt } from './vehicle-r85a.js?v=47b761b2972a';
 
 const ID = 'touka_madoushi';
 

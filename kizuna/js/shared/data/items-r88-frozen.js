@@ -6,7 +6,7 @@
 //   ・トロールのいやしの光 … 使うと 仲間1人の 混乱と ねむりを 治して HPを 回復
 //   ・今 ある 雪の女王のローブ・雪の女王のたて・雪の女王の指輪にも 作品を つけた（R88_TAG_FROZEN。強さ・手に入れ方は かえない）
 //   名前の 直し（ありふれた 名前には 持ち主を つけた・使える 字）は 設計書の「実装メモ（G14班）」
-import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=6a7817ffa6c0';
+import { weapon, armor, head, acc, priceUp } from './items-r88-kit.js?v=47b761b2972a';
 
 const F = { work: 'frozen' };
 const SP = { work: 'frozen', set: 'frozen_spirits' };

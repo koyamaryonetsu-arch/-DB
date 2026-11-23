@@ -27,16 +27,16 @@
 //   完全オートは よびかけない（スピカを つれて いかれて 勝てない）
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数の 数え方は 第2章 第1幕と おなじ（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）。bare … 味方が みんな 家族の キャラで 2人・3人
-import { MONSTERS } from './data/monsters.js?v=6a7817ffa6c0';
-import { ABILITIES } from './data/abilities.js?v=6a7817ffa6c0';
-import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, KEEPER_SHORT, OBORO_SHORT } from './data/monsters-c11b.js?v=6a7817ffa6c0';
-import { YOBIKAKE } from './data/abilities-c11b.js?v=6a7817ffa6c0';
-import { C11B_B as C11B } from './data/c11b-names-b.js?v=6a7817ffa6c0';
-import { SONG } from './data/abilities-c9d.js?v=6a7817ffa6c0';
-import { TERU as TERU_ID } from './data/abilities-c9b.js?v=6a7817ffa6c0';
-import { TOKEI_NAGE as TOKEI_ID } from './data/abilities-c11a.js?v=6a7817ffa6c0';
-import { canUse } from './ai.js?v=6a7817ffa6c0';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=6a7817ffa6c0';
+import { MONSTERS } from './data/monsters.js?v=47b761b2972a';
+import { ABILITIES } from './data/abilities.js?v=47b761b2972a';
+import { C11B_KEEPER, C11B_OBORO, C11B_TENNIN, KEEPER_SHORT, OBORO_SHORT } from './data/monsters-c11b.js?v=47b761b2972a';
+import { YOBIKAKE } from './data/abilities-c11b.js?v=47b761b2972a';
+import { C11B_B as C11B } from './data/c11b-names-b.js?v=47b761b2972a';
+import { SONG } from './data/abilities-c9d.js?v=47b761b2972a';
+import { TERU as TERU_ID } from './data/abilities-c9b.js?v=47b761b2972a';
+import { TOKEI_NAGE as TOKEI_ID } from './data/abilities-c11a.js?v=47b761b2972a';
+import { canUse } from './ai.js?v=47b761b2972a';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=47b761b2972a';
 
 export { YOBIKAKE };
 export const SWITCH = 'm11k_switch';
@@ -87,7 +87,7 @@ export function c11bConf(species, b = null) {
       max: c.max ?? 3,
       robe: { every: 4, first: 3, twice: 0.5, auto: 2, ...(c.robe || {}), every: pick('robe', c.robe?.every ?? 4) },
       flash: { every: 5, first: 5, base: [520, 560], turns: 2, ...(c.flash || {}), every: pick('flash', c.flash?.every ?? 5) },
-      hard: pick('hard', c.hard ?? 0.4), autoK: c.autoK ?? 1, back: pick('back', c.back ?? 8), tennin: pick('tennin', 2),
+      hard: pick('hard', c.hard ?? 0.4), autoK: c.autoK ?? 1, aoeK: c.aoeK ?? 1, aoeBoss: c.aoeBoss ?? 1, forgetK: pick('forgetK', c.forgetK ?? 1), back: pick('back', c.back ?? 8), tennin: pick('tennin', 2),
     });
   }
   return out;
@@ -515,7 +515,25 @@ function call(b, c, ev) {
 export function c11bDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0) || c?.side !== 'ally' || t?.side !== 'enemy') return dmg;
   const st = b.c11b;
-  if (!st || st.won || st.lost || t.id !== st.id) return dmg;
+  if (!st || st.won || st.lost) return dmg;
+  // 第102回 見直し（2回め）: 天人は 全体の 技（いちどに 2体 いじょうを ねらう こうげき）を 受けにくい（aoeK）。1体を ねらった こうげきは ふつう
+  if (st.kind === 'oboro' && t.c11t && (ev?.fx?.targets?.length || 0) > 1) {
+    const ac = c11bConf(C11B_OBORO, b).aoeK;
+    if (ac < 1) {
+      dmg = Math.max(1, Math.round(dmg * ac));
+      if (ev && !ev.c11bAoe) {
+        ev.c11bAoe = true;
+        post(ev).push('（天人は、ひらりとそでをひるがえした…！1体ずつねらおう）');
+      }
+    }
+    return dmg;
+  }
+  if (t.id !== st.id) return dmg;
+  // オボロも 全体の 技は 少し 受けにくい（aoeBoss。雲の 車に 乗って いる）
+  if (st.kind === 'oboro' && (ev?.fx?.targets?.length || 0) > 1) {
+    const ab = c11bConf(C11B_OBORO, b).aoeBoss;
+    if (ab < 1) dmg = Math.max(1, Math.round(dmg * ab));
+  }
   if (st.kind === 'keeper') {
     const cf = c11bConf(C11B_KEEPER, b);
     const phys = !!info?.phys;
@@ -540,6 +558,14 @@ export function c11bDamage(b, c, t, dmg, info, ev) {
     if (ev && !ev.c11bHard) {
       ev.c11bHard = true;
       post(ev).push(`（天人が、${OBORO_SHORT}をまもっている…！）`);
+    }
+  }
+  // 第102回 見直し（2回め）: スピカの わすれが 1 いじょうの 間は、わすれの衣が オボロも つつむ（forgetK）。よびかけて 0 に すると 攻めの 時
+  if (st.forget > 0 && cf.forgetK < 1) {
+    dmg = Math.max(1, Math.round(dmg * cf.forgetK));
+    if (ev && !ev.c11bVeil) {
+      ev.c11bVeil = true;
+      post(ev).push(`（わすれの衣が、${OBORO_SHORT}をつつんでいる…！スピカの名前をよぼう）`);
     }
   }
   // オボロは たおれない（HP 1 で 止まる → 雲の 車で 引く）
@@ -640,9 +666,10 @@ function keeperPlan(b, c, decide, mode) {
   return phaseBest(b, c, k) || cmd;
 }
 // オボロの 戦いの 人: しくみの 役
+// 第102回 見直し（2回め）: わすれが 1 いじょうなら よびかける（わすれの 間は オボロが かたい）
 function needSpica(b) {
   const st = b.c11b;
-  return st.forget >= st.max - 1 || (st.forget >= 1 && st.robeReady);
+  return st.forget >= 1;
 }
 function oboroPlan(b, c, decide, bestHit, mode) {
   const st = b.c11b;

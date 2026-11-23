@@ -14,24 +14,24 @@
 import {
   C10B, C10B_ACT1, C10B_BLUE, C10B_WHITE, C10B_BONUS, C10B_PED, C10B_MAP, C10B_BATTLE, C10B_BOSS_MON, C10B_BLUE_BOSS_NAME,
   C10B_WHITE_BOSS_NAME, C10B_WHITE_SHORT, C10B_TRACKS, C10B_WATER_NAMES, NOTE_SO, NOTE_LA,
-} from '../maps/c10b-flags.js?v=6a7817ffa6c0';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=6a7817ffa6c0';
-import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=6a7817ffa6c0';
-import { C9D_TRACKS } from '../maps/c9d-flags.js?v=6a7817ffa6c0';
-import { RIVER_POS } from '../maps/c9c-rows.js?v=6a7817ffa6c0';
-import { C9C_MAP } from '../maps/c9c-flags.js?v=6a7817ffa6c0';
+} from '../maps/c10b-flags.js?v=47b761b2972a';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=47b761b2972a';
+import { ALGOL, ALGOL_NAME } from '../maps/c9c-flags.js?v=47b761b2972a';
+import { C9D_TRACKS } from '../maps/c9d-flags.js?v=47b761b2972a';
+import { RIVER_POS } from '../maps/c9c-rows.js?v=47b761b2972a';
+import { C9C_MAP } from '../maps/c9c-flags.js?v=47b761b2972a';
 import {
   BLUE1_POS, BLUE2_POS, WHITE1_POS, WHITE3_POS, HALL_ARRIVE10B, LAKE_STAIRS10B, SHORE_STAIRS10B, PED_SO10B, PED_LA10B,
-} from '../maps/c10b-rows.js?v=6a7817ffa6c0';
-import { PEDESTALS9C } from '../maps/c9c.js?v=6a7817ffa6c0';
+} from '../maps/c10b-rows.js?v=47b761b2972a';
+import { PEDESTALS9C } from '../maps/c9c.js?v=47b761b2972a';
 // 水の 高さ・見はりの しくみは world.c10b（world/c10b-steps.js の C10B_API。data から world を 読まない）
 const waterOf10b = (world, s) => world.c10b.waterOf(world, s);
 const setWater10b = (world, s, L) => world.c10b.setWater(world, s, L);
 const sleepOwls10b = (world, s) => world.c10b.sleepOwls(world, s);
-import { MONSTERS } from './monsters.js?v=6a7817ffa6c0';
-import { mergeBossHints } from './boss-hints.js?v=6a7817ffa6c0';
-import { SHOPS } from './shops.js?v=6a7817ffa6c0';
-import { C10B_SHOP_ADD } from './items-c10b.js?v=6a7817ffa6c0';
+import { MONSTERS } from './monsters.js?v=47b761b2972a';
+import { mergeBossHints } from './boss-hints.js?v=47b761b2972a';
+import { SHOPS } from './shops.js?v=47b761b2972a';
+import { C10B_SHOP_ADD } from './items-c10b.js?v=47b761b2972a';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

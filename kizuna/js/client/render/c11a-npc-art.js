@@ -6,7 +6,7 @@
 // ・c11a_dock_sign … 星見の丘の 星の船の 乗り場（光の 柱と 小さな 船）
 // ・人（C11A_NPC_LOOKS）: とまり木の島の 光の 弱い 星の 人たち（うすい 色）・おばあさん星の ヨイ
 //   もとの お話の 絵の しるし（海ぞくの かぎの 手・ワニ）は 使わない（手は いかり・ワニでは なく サメ）
-import { Painter } from './pixel.js?v=6a7817ffa6c0';
+import { Painter } from './pixel.js?v=47b761b2972a';
 
 export const C11A_NPC_LOOKS = {
   c11a_yoi: { hair: '#d8d8f0', hairStyle: 'bun', skin: 0, outfit: 'robe', robeMain: '#6a6a9a', robeTrim: '#c8c0f0', female: true, hat: 'cowl', hatColor: '#8a88b8' },

@@ -129,29 +129,31 @@ export const MONSTERS_C11B = {
   //   robe … わすれの 衣（every 回 動く ごとに 前ぶれ → 次の 番に わすれ ＋1。first … はじめの 数。twice … HPが 半分を 切ると、つづけて もう 1回 かける わりあい。
 //     auto … だれも えらんで いない 時の every）
   //   flash … わすれの 光（every 回 動く ごとに 前ぶれ → 次の 番に 全体の 光の ダメージ と わすれの じょうたい〈turns 回の 番〉。身を 守ると わすれない）
-  //   hard … 天人が いる 間の オボロの 受ける ダメージ（5わり）・autoK … だれも えらんで いない 時の オボロの 受ける ダメージ・back … たおした 天人が もどるまでの オボロの 番の 数
+  //   第102回 見直し（2回め）: aoeK … 天人が 全体の 技（2体 いじょうを ねらう こうげき）で 受ける ダメージ（3わり）・aoeBoss … オボロが 全体の 技で 受ける ダメージ・
+//     forgetK … スピカの わすれが 1 いじょうの 間 オボロが 受ける ダメージ（わすれの衣が オボロも つつむ）・robe.first 1 … はじめの 動きで 衣の 前ぶれ
+//   hard … 天人が いる 間の オボロの 受ける ダメージ（5わり）・autoK … だれも えらんで いない 時の オボロの 受ける ダメージ・back … たおした 天人が もどるまでの オボロの 番の 数
   //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・robe・back）。bare … 仲間なしの 2人・3人。solo … 仲間なしの ひとり（衣が おそい・天人 1体）。monK … 魔物の 仲間 1体ごと
   [C11B_OBORO]: {
-    name: OBORO_NAME, short: OBORO_SHORT, lv: 122, hp: 11000, mp: 9999, str: 2400, def: 430, agi: 260, mag: 1200, exp: 104000, gold: 36000,
+    name: OBORO_NAME, short: OBORO_SHORT, lv: 122, hp: 10500, mp: 9999, str: 2400, def: 430, agi: 260, mag: 1200, exp: 104000, gold: 36000,
     race: 'human', size: 'xl', boss: true, turns: 1, speed: 1.0, hit: 'magic', artScale: 0.5,
     drops: { boss: ['c11bb_oboro_sash'], bonus: ['limit_stone'] },
     resist: { ...BOSS_STATUS, fire: 1.0, ice: 0.9, wind: 1.0, bolt: 1.0, light: 0.6, dark: 1.2 },
     c11b: {
       kind: 'oboro', max: 3,
-      robe: { every: 3, first: 2, twice: 0.5, auto: 1 },
+      robe: { every: 3, first: 1, twice: 0.5, auto: 1 },
       flash: { every: 6, first: 5, base: [520, 560], turns: 2 },
-      hard: 0.5, autoK: 0.5, back: 5,
-      few: { hp: [0.8, 1.1, 0.95, 1, 1.25], atk: [0.75, 1.0, 0.95, 1, 1.08], robe: [4, 3, 3, 3, 3], back: [5, 5, 5, 5, 3] },
-      bare: { hp: [0.45, 0.68], atk: [0.56, 0.74], robe: [5, 4] },
+      hard: 0.5, autoK: 0.5, aoeK: 0.3, aoeBoss: 0.6, forgetK: 0.5, back: 5,
+      few: { hp: [0.8, 0.97, 0.95, 1, 1.25], atk: [0.75, 0.92, 0.95, 1, 1.08], robe: [4, 3, 3, 3, 3], back: [5, 4, 5, 4, 3] },
+      bare: { hp: [0.4, 0.68], atk: [0.53, 0.74], robe: [5, 4] },
       solo: { hp: 0.7, atk: 0.5, robe: 6, back: 5, tennin: 1 },
       monK: { hp: 0.1, atk: 0 },
     },
-    actions: [{ w: 3, id: 'm11o_whip' }, { w: 3, id: 'm11o_moon', cond: 'notRecent:m11o_moon' }, { w: 1, id: 'm11o_bow', cond: 'notRecent:m11o_bow' }],
+    actions: [{ w: 3, id: 'm11o_whip' }, { w: 4, id: 'm11o_moon', cond: 'notRecent:m11o_moon' }, { w: 1, id: 'm11o_bow', cond: 'notRecent:m11o_bow' }],
     desc: '雲の車に乗った、月のむかえの使い。ていねいだが、つめたい。わすれの衣で、思い出を消そうとする。',
   },
   // 小さな 天人（オボロの まわりに 2体。たおしても しばらくすると もどる）
   [C11B_TENNIN]: {
-    name: TENNIN_NAME, lv: 122, hp: 1400, mp: 9999, str: 2700, def: 380, agi: 280, mag: 900, exp: 8000, gold: 2000, speed: 0.7,
+    name: TENNIN_NAME, lv: 122, hp: 1400, mp: 9999, str: 2700, def: 380, agi: 280, mag: 900, exp: 8000, gold: 2000, speed: 0.95,
     race: 'spirit', size: 'm', boss: true, turns: 1, flying: true, hit: 'magic', artScale: 0.5, region: 6,
     // オボロと おなじ ボスの 品（1人 1つ … 2つめからは 落ちない。前の 幕の けものの 3つの 星と 同じ）
     drops: { boss: ['c11bb_oboro_sash'] },

@@ -6,7 +6,7 @@
 // ・スピカと いっしょの 人が 石を 鳴らすと、向こうの 道の ランプが しばらく 光る（LAMP_MS）
 // ・スピカの いる 所: 石に のこって いれば その 石の 前・いなければ リーダーの そば
 // ほかの ファイルを ほとんど 読まない（maps・world・client・test の どこからでも 読める）
-import { C9D_SPICA_LIGHT, C9D_APART_LIGHT, C9D_FORK_SECONDS } from './c9d-flags.js?v=6a7817ffa6c0';
+import { C9D_SPICA_LIGHT, C9D_APART_LIGHT, C9D_FORK_SECONDS } from './c9d-flags.js?v=47b761b2972a';
 
 export const FORK_MS9D = C9D_FORK_SECONDS * 1000; // 音さで 鳴らした 石が 鳴る 時間
 export const LAMP_MS9D = 30000; // 向こうの 道の ランプが 光る 時間
