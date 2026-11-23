@@ -38,7 +38,7 @@ import {
 import { C11A_K, C11A_SHOP_K } from '../public/js/shared/data/items-c11a.js';
 import { C11B_BOSS_HINTS, C11B_HINT_WHO } from '../public/js/shared/data/boss-hints-c11b.js';
 import {
-  c11bConf, c11bTell, c11bPlan, c11bPub, c11bAllyPub, keeperOf, oboroOf, tenninOf, tenninUp, phaseBest, SWITCH, ROBE, FLASH, AUTO_EVERY, SPICA, CALL_HP,
+  c11bConf, c11bTell, c11bPlan, c11bPub, c11bDamage, c11bAllyPub, keeperOf, oboroOf, tenninOf, tenninUp, phaseBest, SWITCH, ROBE, FLASH, AUTO_EVERY, SPICA, CALL_HP,
 } from '../public/js/shared/battle-c11b.js';
 import { SONG } from '../public/js/shared/battle-c9d.js';
 import { c9Life, bestHit } from '../public/js/shared/battle-c9a.js';
@@ -382,6 +382,43 @@ test('天人: いる 間は オボロが かたい（受ける ダメージ 5わ
   const solo = battle({ kinds: ['player'] });
   assert.equal(tenninUp(solo).length, 1, 'ひとりの 時は 天人 1体');
   assert.equal(c11bConf(C11B_OBORO, solo).robe.every, 6, 'ひとりの 時は 衣が おそい');
+});
+
+test('見直し（2回め）: 天人は 全体の 技を 受けにくい（3わり）・オボロも 全体の 技は 少し・スピカの わすれが 1 いじょうの 間は オボロが かたい・はじめの 動きで 衣の 前ぶれ・知って いる 人は わすれ 1 で よびかける', () => {
+  const cf = c11bConf(C11B_OBORO, battle());
+  assert.equal(cf.aoeK, 0.3);
+  assert.ok(cf.aoeBoss < 1 && cf.forgetK === 0.5);
+  assert.equal(cf.robe.first, 1, 'はじめの 動きで 前ぶれ');
+  // 全体の 技（的が 2つ いじょう）と 1体の 技で くらべる（同じ ダメージを 通す）
+  const b = battle({ auto: false });
+  const o = oboroOf(b);
+  const [t1] = tenninOf(b);
+  const hero = b.allies[0];
+  const one = { fx: { targets: [t1.id] } };
+  const all = { fx: { targets: [t1.id, o.id, 'x'] } };
+  assert.equal(c11bDamage(b, hero, t1, 1000, { phys: true }, one), 1000, '1体を ねらうと ふつう');
+  assert.equal(c11bDamage(b, hero, t1, 1000, { phys: true }, all), 300, '全体の 技は 3わり');
+  for (const t of tenninOf(b)) { t.alive = false; t.hp = 0; }
+  o.hp = o.maxHp = 1e7;
+  b.c11b.forget = 0;
+  const full = c11bDamage(b, hero, o, 1000, {}, { fx: { targets: [o.id] } });
+  b.c11b.forget = 1;
+  const veil = c11bDamage(b, hero, o, 1000, {}, { fx: { targets: [o.id] } });
+  assert.equal(full, 1000);
+  assert.equal(veil, 500, 'わすれ 1 いじょうの 間は かたい');
+  b.c11b.forget = 0;
+  assert.equal(c11bDamage(b, hero, o, 1000, {}, { fx: { targets: [o.id, 'x'] } }), Math.round(1000 * cf.aoeBoss));
+  // はじめの オボロの 番で 衣の 前ぶれ
+  const c = battle();
+  big(c);
+  const co = oboroOf(c);
+  for (const e of [co, ...tenninOf(c)]) quiet(e);
+  assert.ok(foe(c, co).c11bRobeUp, 'はじめの 番');
+  // 知って いる 人: わすれ 1 で よびかける
+  const k = battle({ auto: false });
+  k.allies[0].knows9 = 'know';
+  k.c11b.forget = 1;
+  assert.deepEqual(c11bPlan(k, k.allies[0], () => ({ type: 'attack' }), bestHit), { type: 'ability', id: YOBIKAKE, choice: SPICA });
 });
 
 test('オボロ: HPが 半分を 切ると、衣を かけた あと つづけて もう 1回（すぐ 次の 前ぶれ）・勝つと オボロは たおれず 引く（HP 1）', () => {

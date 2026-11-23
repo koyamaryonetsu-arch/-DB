@@ -87,7 +87,7 @@ export function c11bConf(species, b = null) {
       max: c.max ?? 3,
       robe: { every: 4, first: 3, twice: 0.5, auto: 2, ...(c.robe || {}), every: pick('robe', c.robe?.every ?? 4) },
       flash: { every: 5, first: 5, base: [520, 560], turns: 2, ...(c.flash || {}), every: pick('flash', c.flash?.every ?? 5) },
-      hard: pick('hard', c.hard ?? 0.4), autoK: c.autoK ?? 1, back: pick('back', c.back ?? 8), tennin: pick('tennin', 2),
+      hard: pick('hard', c.hard ?? 0.4), autoK: c.autoK ?? 1, aoeK: c.aoeK ?? 1, aoeBoss: c.aoeBoss ?? 1, forgetK: pick('forgetK', c.forgetK ?? 1), back: pick('back', c.back ?? 8), tennin: pick('tennin', 2),
     });
   }
   return out;
@@ -515,7 +515,25 @@ function call(b, c, ev) {
 export function c11bDamage(b, c, t, dmg, info, ev) {
   if (!(dmg > 0) || c?.side !== 'ally' || t?.side !== 'enemy') return dmg;
   const st = b.c11b;
-  if (!st || st.won || st.lost || t.id !== st.id) return dmg;
+  if (!st || st.won || st.lost) return dmg;
+  // 第102回 見直し（2回め）: 天人は 全体の 技（いちどに 2体 いじょうを ねらう こうげき）を 受けにくい（aoeK）。1体を ねらった こうげきは ふつう
+  if (st.kind === 'oboro' && t.c11t && (ev?.fx?.targets?.length || 0) > 1) {
+    const ac = c11bConf(C11B_OBORO, b).aoeK;
+    if (ac < 1) {
+      dmg = Math.max(1, Math.round(dmg * ac));
+      if (ev && !ev.c11bAoe) {
+        ev.c11bAoe = true;
+        post(ev).push('（天人は、ひらりとそでをひるがえした…！1体ずつねらおう）');
+      }
+    }
+    return dmg;
+  }
+  if (t.id !== st.id) return dmg;
+  // オボロも 全体の 技は 少し 受けにくい（aoeBoss。雲の 車に 乗って いる）
+  if (st.kind === 'oboro' && (ev?.fx?.targets?.length || 0) > 1) {
+    const ab = c11bConf(C11B_OBORO, b).aoeBoss;
+    if (ab < 1) dmg = Math.max(1, Math.round(dmg * ab));
+  }
   if (st.kind === 'keeper') {
     const cf = c11bConf(C11B_KEEPER, b);
     const phys = !!info?.phys;
@@ -540,6 +558,14 @@ export function c11bDamage(b, c, t, dmg, info, ev) {
     if (ev && !ev.c11bHard) {
       ev.c11bHard = true;
       post(ev).push(`（天人が、${OBORO_SHORT}をまもっている…！）`);
+    }
+  }
+  // 第102回 見直し（2回め）: スピカの わすれが 1 いじょうの 間は、わすれの衣が オボロも つつむ（forgetK）。よびかけて 0 に すると 攻めの 時
+  if (st.forget > 0 && cf.forgetK < 1) {
+    dmg = Math.max(1, Math.round(dmg * cf.forgetK));
+    if (ev && !ev.c11bVeil) {
+      ev.c11bVeil = true;
+      post(ev).push(`（わすれの衣が、${OBORO_SHORT}をつつんでいる…！スピカの名前をよぼう）`);
     }
   }
   // オボロは たおれない（HP 1 で 止まる → 雲の 車で 引く）
@@ -640,9 +666,10 @@ function keeperPlan(b, c, decide, mode) {
   return phaseBest(b, c, k) || cmd;
 }
 // オボロの 戦いの 人: しくみの 役
+// 第102回 見直し（2回め）: わすれが 1 いじょうなら よびかける（わすれの 間は オボロが かたい）
 function needSpica(b) {
   const st = b.c11b;
-  return st.forget >= st.max - 1 || (st.forget >= 1 && st.robeReady);
+  return st.forget >= 1;
 }
 function oboroPlan(b, c, decide, bestHit, mode) {
   const st = b.c11b;

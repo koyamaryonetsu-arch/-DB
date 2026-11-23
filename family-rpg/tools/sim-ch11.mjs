@@ -75,7 +75,9 @@ NEED9_HOOKS.push((b, a) => {
   if (!st || st.won || st.lost) return false;
   if (st.kind === 'keeper') return st.warn && !a.defending;
   if (st.flashReady && !a.defending) return true;
-  return (st.forget >= st.max - 1 || (st.forget >= 1 && st.robeReady)) && !b.queue.some((q) => q.cmd?.id === 'm11_yobikake');
+  if (st.forget >= 1 && !b.queue.some((q) => q.cmd?.id === 'm11_yobikake')) return true;
+  // 第102回 見直し（2回め）: 天人が いる 間は 合体技を しないで 天人を 1体ずつ たおす（天人は 全体の 技を 受けにくい）
+  return tenninUp(b).length > 0;
 });
 STATS9_HOOKS.push((b) => {
   const st = c11bState(b);
