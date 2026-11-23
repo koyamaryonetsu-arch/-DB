@@ -281,7 +281,7 @@ function aceSteps(first) {
   const B = D.boss;
   return [
     ['bgm', null],
-    ...(first ? [['flag', C11C.h3], ['sync']] : []),
+    ...(first ? [['flag', C11C.h3], ['sync'], objStep()] : []),
     ['look', B.x, B.y + 1],
     ...(first ? N('回ろうの、出口。\n目の前に、王宮の、大きなとびら。') : []),
     ['actor', 'ace_d', { sprite: 'c11c_ace', x: B.x, y: B.y, dir: 'down' }],
