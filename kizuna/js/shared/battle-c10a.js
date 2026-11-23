@@ -21,13 +21,13 @@
 //   勝つと メカは 止まり、だんしゃくは たおれない（しょんぼり）
 //   自動の 仲間（酒場の 人）は、スピカの 技が たまって いて 役に 立つ 番の 3回に 1回 使う（星のうた … カビが ある・てらす … かべが ある）
 // ・人数で 合わせる（few・solo・monK）は 第1章 第4幕と おなじ 数え方（魔物の 仲間は 半人ぶん）。仲間なしの 2人／3人は bare（c10Pick）
-import { MONSTERS } from './data/monsters.js?v=96e031897dcd';
-import { ABILITIES } from './data/abilities.js?v=96e031897dcd';
-import { C10R_TAMAGON, C10G_MOLD, DRILL_NAME, KABI_NAME } from './data/monsters-c10a.js?v=96e031897dcd';
-import { C10A_B as C10A } from './maps/c10a-flags.js?v=96e031897dcd';
-import { TERU } from './data/abilities-c9b.js?v=96e031897dcd';
-import { SONG } from './data/abilities-c9d.js?v=96e031897dcd';
-import { canUse } from './ai.js?v=96e031897dcd';
+import { MONSTERS } from './data/monsters.js?v=cb02a9b15ddb';
+import { ABILITIES } from './data/abilities.js?v=cb02a9b15ddb';
+import { C10R_TAMAGON, C10G_MOLD, DRILL_NAME, KABI_NAME } from './data/monsters-c10a.js?v=cb02a9b15ddb';
+import { C10A_B as C10A } from './maps/c10a-flags.js?v=cb02a9b15ddb';
+import { TERU } from './data/abilities-c9b.js?v=cb02a9b15ddb';
+import { SONG } from './data/abilities-c9d.js?v=cb02a9b15ddb';
+import { canUse } from './ai.js?v=cb02a9b15ddb';
 
 export const DRILLUP = 'm10t_drillup';
 export const DRILL = 'm10t_drill';

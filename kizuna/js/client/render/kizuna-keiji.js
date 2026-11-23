@@ -8,7 +8,7 @@
 //   元ヤン           … リーゼント（hair 'slick'。うら飯ゆう助と おなじ かみがた）
 // 乗り物: パトランプのれい界鳥（青い れい界の 鳥に、警察の ぼうしと 赤い パトランプ・はらに 白い すじ）
 // えんしゅつ: motoyan_keiji_sig（青い れい丸 → 当たると 光の わっか〈てじょう〉が しまる）・kizuna_seoi（ひらめき技。せおいなげ）
-import { birdArt } from './vehicle-r84a.js?v=96e031897dcd';
+import { birdArt } from './vehicle-r84a.js?v=cb02a9b15ddb';
 
 const ID = 'motoyan_keiji';
 

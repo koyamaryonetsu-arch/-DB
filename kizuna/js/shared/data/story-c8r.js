@@ -8,26 +8,26 @@
 //   → ソリトゥス（きまった 戦い c8_solitus。3だん。B）→ ふういんと 千年の約束 → 今の ほしみの丘（4人の 勇者の 像・トキネは 砂時計の 中へ）→ 第2部 完（c8_solitus）
 // 魔物・きまった 戦い・品・ゲストの 強さ・戦いの 中の えんしゅつは B（plan-ch8.md の 9-2）
 // 負けた 時の ヒント（B の 文・E の しくみ）。もう一度 いどむ 行き先は 台本の マス
-import { C8R_BOSS_HINTS } from './boss-hints-c8r.js?v=96e031897dcd';
-import { mergeBossHints } from './boss-hints.js?v=96e031897dcd';
-import { C8C } from '../maps/c8c-flags.js?v=96e031897dcd';
+import { C8R_BOSS_HINTS } from './boss-hints-c8r.js?v=cb02a9b15ddb';
+import { mergeBossHints } from './boss-hints.js?v=cb02a9b15ddb';
+import { C8C } from '../maps/c8c-flags.js?v=cb02a9b15ddb';
 import {
   C8R, WINGS, WING_MARK, WING_NAME, HERO_GUEST, wingCount, ARRIVE8R, GATE_DUE8R, WIN_GATE8R, CORE8R, WIN_SOL8R, SEAL8R, TRIAL_SEEN8R, FLOOR_SEEN8R,
   MIR8R, FIRE8R, DEV8R, CHASE8R, STAR8R, MISS8R, HALL_ID, NOW_FIELD_ID, lastMapId,
-} from '../maps/c8r-flags.js?v=96e031897dcd';
-import { FLOOR_SPECS } from '../maps/c8r-wings.js?v=96e031897dcd';
-import { floorPos } from '../maps/c8r-floor.js?v=96e031897dcd';
-import { FIRE2_CHASE, FIRE2_CATCH } from '../maps/c8r-rows.js?v=96e031897dcd';
-import { HALL_POS, HALL_DOORS, CORE_POS } from '../maps/c8r-hall.js?v=96e031897dcd';
-import { RIFT8R, STATUES8R, HALL_ENTER8R } from '../maps/c8r-field.js?v=96e031897dcd';
-import { TOKINE_SPOT } from '../maps/ch6c-side.js?v=96e031897dcd';
-import { MAPS } from '../maps/index.js?v=96e031897dcd';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=96e031897dcd';
-import { MONSTERS } from './monsters.js?v=96e031897dcd';
-import { shiftPeople } from '../world/time-glass.js?v=96e031897dcd';
-import { lightFire8r } from '../world/c8r-steps.js?v=96e031897dcd';
+} from '../maps/c8r-flags.js?v=cb02a9b15ddb';
+import { FLOOR_SPECS } from '../maps/c8r-wings.js?v=cb02a9b15ddb';
+import { floorPos } from '../maps/c8r-floor.js?v=cb02a9b15ddb';
+import { FIRE2_CHASE, FIRE2_CATCH } from '../maps/c8r-rows.js?v=cb02a9b15ddb';
+import { HALL_POS, HALL_DOORS, CORE_POS } from '../maps/c8r-hall.js?v=cb02a9b15ddb';
+import { RIFT8R, STATUES8R, HALL_ENTER8R } from '../maps/c8r-field.js?v=cb02a9b15ddb';
+import { TOKINE_SPOT } from '../maps/ch6c-side.js?v=cb02a9b15ddb';
+import { MAPS } from '../maps/index.js?v=cb02a9b15ddb';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=cb02a9b15ddb';
+import { MONSTERS } from './monsters.js?v=cb02a9b15ddb';
+import { shiftPeople } from '../world/time-glass.js?v=cb02a9b15ddb';
+import { lightFire8r } from '../world/c8r-steps.js?v=cb02a9b15ddb';
 // 第3部の はじまりの 目標（story-c9.js の PART3_OPEN で 入れかわる。第90回 Z班）
-import { part2ClearObjective, PART3_OPEN, C9_START_TALK, C9_START_TARGETS } from './story-c9.js?v=96e031897dcd';
+import { part2ClearObjective, PART3_OPEN, C9_START_TALK, C9_START_TARGETS } from './story-c9.js?v=cb02a9b15ddb';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

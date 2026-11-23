@@ -1,38 +1,38 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=96e031897dcd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=96e031897dcd';
-import { tintCanvas } from './themes.js?v=96e031897dcd';
-import { addNightArt } from './night-art.js?v=96e031897dcd';
-import { addRareArt } from './rare-art.js?v=96e031897dcd';
-import { addCh3Art } from './ch3-art.js?v=96e031897dcd';
-import { addCh4Art } from './ch4-art.js?v=96e031897dcd';
-import { addFamilyArt } from './family-art.js?v=96e031897dcd';
-import { addR23Art } from './r23-art.js?v=96e031897dcd';
-import { addCh5Art } from './ch5-tower-art.js?v=96e031897dcd';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=96e031897dcd';
-import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=96e031897dcd';
-import { addEarthArt } from './ch5-earth-mon-art.js?v=96e031897dcd';
-import { addPhantomArt } from './ch5-phantom-art.js?v=96e031897dcd';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=cb02a9b15ddb';
+import { MONSTERS } from '../../shared/data/monsters.js?v=cb02a9b15ddb';
+import { tintCanvas } from './themes.js?v=cb02a9b15ddb';
+import { addNightArt } from './night-art.js?v=cb02a9b15ddb';
+import { addRareArt } from './rare-art.js?v=cb02a9b15ddb';
+import { addCh3Art } from './ch3-art.js?v=cb02a9b15ddb';
+import { addCh4Art } from './ch4-art.js?v=cb02a9b15ddb';
+import { addFamilyArt } from './family-art.js?v=cb02a9b15ddb';
+import { addR23Art } from './r23-art.js?v=cb02a9b15ddb';
+import { addCh5Art } from './ch5-tower-art.js?v=cb02a9b15ddb';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=cb02a9b15ddb';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=cb02a9b15ddb';
+import { addEarthArt } from './ch5-earth-mon-art.js?v=cb02a9b15ddb';
+import { addPhantomArt } from './ch5-phantom-art.js?v=cb02a9b15ddb';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
-import { addArenaArt } from './arena-art.js?v=96e031897dcd';
+import { addArenaArt } from './arena-art.js?v=cb02a9b15ddb';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
-import { addFinalArt } from './ch5-final-mon-art.js?v=96e031897dcd';
+import { addFinalArt } from './ch5-final-mon-art.js?v=cb02a9b15ddb';
 // 第2部 第6章 Step 1・2: 千年前・時の祠・時の遺跡の 魔物と サンドクロック・ギアドン（ch6-past-art.js）
-import { addPastArt } from './ch6-past-art.js?v=96e031897dcd';
+import { addPastArt } from './ch6-past-art.js?v=cb02a9b15ddb';
 // 第2部 第6章 Step 3・4: 星めぐりの古道の 魔物と 星くいのよる鳥・ペンデュラ（ch6-road-art.js）
-import { addRoadArt } from './ch6-road-art.js?v=96e031897dcd';
+import { addRoadArt } from './ch6-road-art.js?v=cb02a9b15ddb';
 // 第2部 第6章 Step 5: 止まった時計塔の 魔物と カリヨン（ch6-tokei-art.js）
-import { addTokeiArt } from './ch6-tokei-art.js?v=96e031897dcd';
+import { addTokeiArt } from './ch6-tokei-art.js?v=cb02a9b15ddb';
 // 第2部 第6章 Step 6: 時計塔 6〜10階の 魔物・ゼンマイ・歯車（ch6-tokei6-art.js）
-import { addTokei6Art } from './ch6-tokei6-art.js?v=96e031897dcd';
+import { addTokei6Art } from './ch6-tokei6-art.js?v=cb02a9b15ddb';
 // 第2部 第7章 第1幕: 手下の 魔物・ウツボきょうだい・オクタリア・声の貝（c7-art.js）
-import { addC7Art } from './c7-art.js?v=96e031897dcd';
+import { addC7Art } from './c7-art.js?v=cb02a9b15ddb';
 // 第44回: ポケモン（第1だん 19しゅるい。pokemon-art.js）
-import { addPokemonArt } from './pokemon-art.js?v=96e031897dcd';
+import { addPokemonArt } from './pokemon-art.js?v=cb02a9b15ddb';
 // 第45回: ドラクエふう（配合だけの 第2だん 11しゅるい。dqm-art.js）
-import { addDqmArt } from './dqm-art.js?v=96e031897dcd';
+import { addDqmArt } from './dqm-art.js?v=cb02a9b15ddb';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';

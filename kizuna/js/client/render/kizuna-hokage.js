@@ -7,7 +7,7 @@
 //   （七代目火影の だいだい色・日の火影の みどりの はおり とは 色で 見分ける）
 // 乗り物: 火影の大火竜（黒い 体・白い たてがみの 火竜。うしろに 分身の 小さな 火竜の かげ）
 // えんしゅつ: hachiryu_hokage_sig（分身の かげ 6つが 火竜を 1ぴきずつ つれて とびこむ）・kizuna_rendan（火竜と いっしょの れんだ・らせん手裏剣）
-import { dragonArt } from './vehicle-r85b.js?v=96e031897dcd';
+import { dragonArt } from './vehicle-r85b.js?v=cb02a9b15ddb';
 
 const ID = 'hachiryu_hokage';
 
