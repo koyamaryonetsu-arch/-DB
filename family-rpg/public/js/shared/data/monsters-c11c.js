@@ -54,7 +54,7 @@ const MECHA = {
   rocket: { every: 3, first: 2, mult: 2.4, guardCut: 0.35 },
   few: { hp: [0.8, 0.85, 0.9, 0.7, 0.85], atk: [0.75, 0.85, 0.9, 1.23, 1.25], fix: [3, 3, 3, 3, 3] },
   bare: { hp: [0.55, 0.75], atk: [0.7, 0.85] },
-  solo: { hp: 0.43, atk: 0.49, spd: 0.7, fix: 5, rocketMult: 1.6 },
+  solo: { hp: 0.43, atk: 0.5, spd: 0.7, fix: 5, rocketMult: 1.6 },
   monK: { hp: 0.1, atk: 0.02 },
 };
 const PART_RES = { ...BOSS_STATUS, fire: 1.0, ice: 1.0, wind: 1.0, bolt: 1.3, light: 1.0, dark: 1.0 };

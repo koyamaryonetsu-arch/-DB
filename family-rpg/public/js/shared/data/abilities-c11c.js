@@ -107,12 +107,12 @@ export const C11C_ABILITIES = {
   },
   m11r_punch: {
     name: 'メカパンチ', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'phys', mult: 1.0 }, cast: '{a}が、ガシーンと、{t}をなぐった！', anim: 'c11r_punch',
+    effect: { type: 'phys', mult: 0.88 }, cast: '{a}が、ガシーンと、{t}をなぐった！', anim: 'c11r_punch',
     desc: 'メカのうでで、1人にダメージ。',
   },
   m11r_grab: {
     name: 'つかんでぶんぶん', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'phys', mult: 0.9 }, cast: '{a}が、{t}をつかんで、ぶんぶんふり回した！', anim: 'c11r_grab',
+    effect: { type: 'phys', mult: 0.8 }, cast: '{a}が、{t}をつかんで、ぶんぶんふり回した！', anim: 'c11r_grab',
     desc: 'つかんでふり回して、1人にダメージ。',
   },
   [ROCKET]: {
@@ -127,7 +127,7 @@ export const C11C_ABILITIES = {
   },
   m11l_kick: {
     name: 'メカキック', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'phys', mult: 0.95 }, cast: '{a}が、{t}を、けとばした！', anim: 'c11l_kick',
+    effect: { type: 'phys', mult: 0.86 }, cast: '{a}が、{t}を、けとばした！', anim: 'c11l_kick',
     desc: 'メカのあしでけって、1人にダメージ。',
   },
 
