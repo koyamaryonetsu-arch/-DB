@@ -115,8 +115,9 @@ test('名前の 約束: マップ 8まい・タイル 661〜700・宝箱の id�
   assert.deepEqual(chests, [...C11B_CHEST_IDS].sort());
   // 一本の 線（c11_act1 の うしろ）。とびら・ランプの しるしは 線に 入れない。12こ まで
   const j = STORY_STEPS.indexOf(C11B_ACT0);
-  assert.deepEqual(STORY_STEPS.slice(j + 1), C11B_LINE);
-  assert.deepEqual(CH11_STEPS, [...C11A_LINE, ...C11B_LINE]);
+  // 第103回 A班: うしろに 第3幕の 線が つづく（線の 場所は 名前で さがす）
+  assert.deepEqual(STORY_STEPS.slice(j + 1, j + 1 + C11B_LINE.length), C11B_LINE);
+  assert.deepEqual(CH11_STEPS.slice(0, C11A_LINE.length + C11B_LINE.length), [...C11A_LINE, ...C11B_LINE]);
   assert.ok(C11B_MARKS.length <= C11B_MARK_MAX);
   const used = new Set(C11B_MAP_IDS.flatMap((id) => MAPS[id].gates.map((g) => g.flag)).filter((f) => /^c11b_d/.test(f)));
   assert.ok([...used].every((f) => C11B_MARKS.includes(f)) && used.size === C11B_MARKS.length, `使う しるし ${[...used]}`);

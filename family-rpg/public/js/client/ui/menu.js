@@ -97,6 +97,8 @@ import { phantomBookView } from './phantom-book.js';
 import { shioriPreview, openShiori } from './shiori.js';
 // 第78回 3-10: 家族ミッション（ui/missions.js。入口は MAIN・open・preview・select の 4か所だけ）
 import { missionsPreview, openMissions, prefetchMissions } from './missions.js';
+// 第103回 A班: ミニマップに アルゴルが 今 いる 台（client/c11c-view.js）
+import { drawC11cMini } from '../c11c-view.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -2634,6 +2636,7 @@ export function renderMiniMap(game, canvas, full = false) {
     ctx.drawImage(ic, px, py);
   }
   drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full);
+  if (m.c11c) drawC11cMini(game, ctx, x0, y0, pxPer, full); // 第103回 A班: アルゴルが 今 いる 台
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);
   const blink = Math.floor(performance.now() / 300) % 2;
   dot(f.me.x, f.me.y, blink ? '#ff5a5a' : '#ffffff', full ? 3 : 2);

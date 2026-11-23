@@ -49,6 +49,8 @@ import { noteC11aSnap, noteC11aStage, c11aInput, drawC11a2D, drawC11a3D } from '
 import { paintStarShip } from './render/c11a-npc-art.js';
 // 第102回 A班: 第3部 第3章 第2幕の おもてと うら（しるし・色と 明かり・ホタルの 助け・曲の sideStage。client/c11b-view.js）
 import { noteC11bSnap, noteC11bStage, drawC11b2D, drawC11b3D } from './c11b-view.js';
+// 第103回 A班: 第3部 第3章 第3幕の 相ぼうを 立たせる（台の 輪・アルゴル・見はりの カード・助け・曲の pairStage。client/c11c-view.js）
+import { noteC11cSnap, noteC11cStage, c11cFieldFlag, c11cAlgolWalks, c11cAlgolOnPed, drawC11cFloor2D, drawC11c2D, drawC11c3D } from './c11c-view.js';
 // 第102回 M1班: 歩く 1フレーム・かどを すりぬける（Node の テストでも 回せる 形）
 import { walkStep, nudgeStep } from './walk.js';
 // 第64回 ⑥a: 赤く した 魔物の え（もとの え → 赤い え）
@@ -145,6 +147,7 @@ export function trailAt(o, want) {
 
 export function followerSprite(f, dir, frame) {
   if (f.spica) return npcSprite('c9a_spica', dir, frame); // 第90回 A班: 星の子（フィールドだけの 連れ）
+  if (f.algol) return npcSprite('algol', dir, frame); // 第103回 A班: アルゴル（はかりの 回ろうで いっしょに 歩く）
   if (f.mon) {
     const c = monsterCanvas(f.mon, frame, FOLLOW_MAX);
     if (dir !== 'right') return c;
@@ -355,6 +358,8 @@ export class Field {
     if (f[0] === '@') { const r = c10bFieldFlag(this, f, (x) => this.hasFlag(x)); if (r !== undefined) return r; }
     // 第97回 A班: '@br<すき間>:<色>' … パーティーの 音の 橋（空の 小島。client/c10c-view.js）
     if (f[0] === '@') { const r = c10cFieldFlag(this, f); if (r !== undefined) return r; }
+    // 第103回 A班: '@cf<g>'・'@lb<g>' … パーティーの アルゴルと 家族の 台（はかりの 回ろう。client/c11c-view.js）
+    if (f[0] === '@') { const r = c11cFieldFlag(this, f); if (r !== undefined) return r; }
     if (f[0] === '@') return this.game.sky ? timeFlag(f, this.game.sky.frac()) : false;
     const world = this.game.worldFlagSet;
     if (world && this.game.visitingLeader()) return world.has(f);
@@ -844,6 +849,7 @@ export class Field {
     noteC10cSnap(this, msg.c10c); // 第97回 A班: 音の 橋
     noteC11aSnap(this, msg.c11a); // 第100回 A班: ひとふで書きの 星座
     noteC11bSnap(this, msg.c11b); // 第102回 A班: ホタルの 助け
+    noteC11cSnap(this, msg.c11c); // 第103回 A班: アルゴルの 台・家族の 台・見はりの カード・助け
     if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
@@ -1020,6 +1026,7 @@ export class Field {
     noteC10dStage(this); // 第99回 A班: 曲の gateStage
     noteC11aStage(this); // 第100回 A班: 曲の conStage
     noteC11bStage(this); // 第102回 A班: 曲の sideStage
+    noteC11cStage(this); // 第103回 A班: 曲の pairStage
     if (this.r3d && this.map) return this.render3d();
     this.watchSpeed();
     const ctx = this.ctx;
@@ -1067,6 +1074,7 @@ export class Field {
     }
     if (m.c9aCrater) drawC9aCraterFloor2D(this, camX, camY); // 第90回 A班: ながれ星のくぼ地の ゆか
     if (m.c9bDecor) drawC9bShade2D(this, camX, camY); // 第91回 A班: 天じょうの かざりの かげ
+    if (m.c11c) drawC11cFloor2D(this, camX, camY); // 第103回 A班: かげの 台の 輪
     // 宝の地図の 場所（まだ ほっていない）: 赤むらさきの 光の 柱（きらきらと ちがう 色）
     for (const sp of this.treasureSpots()) {
       if (sp.x < x0 - 2 || sp.x > x1 + 2 || sp.y < y0 - 1 || sp.y > y1 + 4) continue;
@@ -1112,6 +1120,9 @@ export class Field {
     // 第93回 A班: ひびきの石の 前で 歌って いる スピカ
     const sing = c9dSingingSpica(this);
     if (sing) objs.push({ y: sing.y, draw: () => this.drawAt(npcSprite('c9a_spica', 'down', this.walkFrame(false)), sing.x, sing.y, camX, camY) });
+    // 第103回 A班: かげの 台の 上の アルゴル
+    const alg = c11cAlgolOnPed(this);
+    if (alg && !this.hideGuests) objs.push({ y: alg.y, draw: () => this.drawAt(npcSprite('algol', 'down', this.walkFrame(false)), alg.x, alg.y, camX, camY) });
     objs.sort((a, b) => a.y - b.y);
     for (const o of objs) o.draw();
     if (m.c9aCrater) drawC9aCraterGlow2D(this, camX, camY); // 第90回 A班: ながれ星の 石・星の子の 光
@@ -1140,6 +1151,7 @@ export class Field {
     if (m.c10dSky) drawC10dSky2D(this, camX, camY); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
     if (m.c11aCons || m.c11aSea) drawC11a2D(this, camX, camY); // 第100回 A班: ひとふで書きの 星座・星の海の 下の 小さな 地上
     if (m.c11b) drawC11b2D(this, camX, camY); // 第102回 A班: おもて・うらの 色と 明かり・ホタルの 助け・しるし
+    if (m.c11c) drawC11c2D(this, camX, camY); // 第103回 A班: 見はりの カード・アルゴルの うずまき・助けの 光
     this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
@@ -1307,6 +1319,7 @@ export class Field {
     if (m.c10dSky) drawC10dSky3D(this, ctx, P); // 第99回 A班: 星の 階段の 下の 小さな 世界・星
     if (m.c11aCons || m.c11aSea) drawC11a3D(this, ctx, P); // 第100回 A班: ひとふで書きの 星座・星の海の 下の 小さな 地上
     if (m.c11b) drawC11b3D(this, ctx, P); // 第102回 A班: おもて・うらの 色と 明かり・ホタルの 助け・しるし
+    if (m.c11c) drawC11c3D(this, ctx, P); // 第103回 A班: 台の 輪・見はりの カード・アルゴルの うずまき・助けの 光
     // 夕ぐれの 色（第5章 Step 7）・よる
     this.drawDusk(ctx);
     const na = this.nightAlpha();
@@ -1412,6 +1425,9 @@ export class Field {
     // 第93回 A班: ひびきの石の 前で 歌って いる スピカ
     const sing = c9dSingingSpica(this);
     if (sing) out.push({ key: 'c9d:spica', canvas: npcSprite('c9a_spica', 'down', this.walkFrame(false)), x: sing.x, y: sing.y });
+    // 第103回 A班: かげの 台の 上の アルゴル
+    const alg = c11cAlgolOnPed(this);
+    if (alg && !this.hideGuests) out.push({ key: 'c11c:algol', canvas: npcSprite('algol', 'down', this.walkFrame(false)), x: alg.x, y: alg.y });
     (myVeh ? [] : this.myFollowers()).forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
       if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y) && !raftAt9c(this, tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
@@ -1499,6 +1515,8 @@ export class Field {
     // 第90回 A班: 星の子（戦いの わくには 入らない フィールドだけの 連れ）
     // 第93回 A班: ひびきの石に のこって 歌って いる 間は ついて 来ない（client/c9d-view.js）
     if (!this.hideGuests && this.hasFlag(C9A.child) && !c9dSpicaLeft(this)) out.push({ spica: true, guest: true });
+    // 第103回 A班: アルゴル（回ろうで 台に 立って いない 間。client/c11c-view.js）
+    if (!this.hideGuests && c11cAlgolWalks(this)) out.push({ algol: true, guest: true });
     return out;
   }
 

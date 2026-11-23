@@ -684,6 +684,9 @@ export function gameFiles() {
     // 第102回 A班: 第3部 第3章 第2幕「月の都と、名前のランプ」（世界と 物語）
     'public/js/shared/maps/c11b-flags.js', 'public/js/shared/data/story-c11b.js', 'public/js/shared/maps/c11b.js', 'public/js/shared/maps/c11b-rows.js',
     'public/js/shared/world/c11b-steps.js', 'public/js/client/c11b-view.js', 'public/js/client/render/tiles-c11b.js', 'public/js/client/render/c11b-npc-art.js',
+    // 第103回 A班: 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（世界と 物語）
+    'public/js/shared/maps/c11c-flags.js', 'public/js/shared/data/story-c11c.js', 'public/js/shared/maps/c11c.js', 'public/js/shared/maps/c11c-rows.js',
+    'public/js/shared/world/c11c-steps.js', 'public/js/client/c11c-view.js', 'public/js/client/render/tiles-c11c.js', 'public/js/client/render/c11c-npc-art.js',
     // 第101回 F班: 第3部 第3章 第1幕の 曲
     'public/js/client/audio-c11a.js',
     // 第102回 F班: 第3部 第3章 第2幕の 曲

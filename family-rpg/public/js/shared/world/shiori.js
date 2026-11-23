@@ -111,6 +111,8 @@ export const CHAPTERS = [
       { n: 1, start: 'c11a_start', title: '星の船と、星座の島', seen: 'c11a_start', clear: 'c11_act1' },
       // 第102回 A班: 第2幕（星座の門の むこうで きりが 晴れて、題の 画面を 見た あと）
       { n: 2, start: 'c11b_start', title: '月の都と、名前のランプ', seen: 'c11b_start', clear: 'c11_act2' },
+      // 第103回 A班: 第3幕（名前の 塔の 前で アルゴルが 下りて 来て、題の 画面を 見た あと）
+      { n: 3, start: 'c11c_start', title: 'はかりの回ろうと、ふたつの光', seen: 'c11c_start', clear: 'c11_act3' },
     ],
   },
 ];

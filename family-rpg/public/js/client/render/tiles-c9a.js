@@ -24,6 +24,8 @@ import { C10D_PAINTERS, C10D_FRAMES, C10D_SPEED, C10D_FLOOR_H, c10dBlockSpec, C1
 import { C11A_PAINTERS, C11A_FRAMES, C11A_SPEED, C11A_FLOOR_H, c11aBlockSpec, C11A_PROPS, C11A_PROPS_KEEP, C11A_THEMES } from './tiles-c11a.js';
 // 第102回 A班: 第3部 第3章 第2幕（render/tiles-c11b.js）
 import { C11B_PAINTERS, C11B_FRAMES, C11B_SPEED, C11B_FLOOR_H, c11bBlockSpec, C11B_PROPS, C11B_PROPS_KEEP, C11B_THEMES } from './tiles-c11b.js';
+// 第103回 A班: 第3部 第3章 第3幕（render/tiles-c11c.js）
+import { C11C_PAINTERS, C11C_FRAMES, C11C_SPEED, C11C_FLOOR_H, c11cBlockSpec, C11C_PROPS, C11C_PROPS_KEEP, C11C_THEMES } from './tiles-c11c.js';
 
 const ST = { d: '#1a1a2a', b: '#2c2c44', l: '#44466a', hl: '#6a6c98', ln: '#10101c' }; // 地下道の 石
 const MS = { d: '#1c3a2c', b: '#2e5a40', l: '#4a8a5a', hl: '#7ac08a' }; // こけ
@@ -254,25 +256,26 @@ export const C9A_PAINTERS = {
   ...C10D_PAINTERS,
   ...C11A_PAINTERS,
   ...C11B_PAINTERS,
+  ...C11C_PAINTERS,
 };
 export const C9A_FRAMES = {
-  [T.C9A_SOURCE]: SOURCE_FRAMES9A, [T.C9A_CRYSTAL_ON]: 2, [T.C9A_SHARD]: SHARD_FRAMES9A, [T.C9A_STARROCK]: ROCK_FRAMES9A, [T.C9A_LANTERN_ON]: LANTERN_FRAMES9A, ...C9B_FRAMES, ...C9C_FRAMES, ...C9D_FRAMES, ...C10A_FRAMES, ...C10B_FRAMES, ...C10C_FRAMES, ...C10D_FRAMES, ...C11A_FRAMES, ...C11B_FRAMES,
+  [T.C9A_SOURCE]: SOURCE_FRAMES9A, [T.C9A_CRYSTAL_ON]: 2, [T.C9A_SHARD]: SHARD_FRAMES9A, [T.C9A_STARROCK]: ROCK_FRAMES9A, [T.C9A_LANTERN_ON]: LANTERN_FRAMES9A, ...C9B_FRAMES, ...C9C_FRAMES, ...C9D_FRAMES, ...C10A_FRAMES, ...C10B_FRAMES, ...C10C_FRAMES, ...C10D_FRAMES, ...C11A_FRAMES, ...C11B_FRAMES, ...C11C_FRAMES,
 };
 export const C9A_SPEED = {
-  [T.C9A_SOURCE]: 260, [T.C9A_CRYSTAL_ON]: 400, [T.C9A_SHARD]: 220, [T.C9A_STARROCK]: 320, [T.C9A_LANTERN_ON]: 300, ...C9B_SPEED, ...C9C_SPEED, ...C9D_SPEED, ...C10A_SPEED, ...C10B_SPEED, ...C10C_SPEED, ...C10D_SPEED, ...C11A_SPEED, ...C11B_SPEED,
+  [T.C9A_SOURCE]: 260, [T.C9A_CRYSTAL_ON]: 400, [T.C9A_SHARD]: 220, [T.C9A_STARROCK]: 320, [T.C9A_LANTERN_ON]: 300, ...C9B_SPEED, ...C9C_SPEED, ...C9D_SPEED, ...C10A_SPEED, ...C10B_SPEED, ...C10C_SPEED, ...C10D_SPEED, ...C11A_SPEED, ...C11B_SPEED, ...C11C_SPEED,
 };
 
 // ───── 2.5D ─────
 // くぼ地の ゆかは 少し ひくい。とびら 4つは かべ（洞窟の かべと おなじ 高さ）。たおれた 木は ひくい ブロック。
 // みなもと・水しょう・ながれ星の 石・テント・黒板・音さの 台・ちょうちんは たてた もの
-export const C9A_FLOOR_H = { [T.C9A_CRATER]: -0.16, [T.C9A_MOSS]: -0.01, ...C9B_FLOOR_H, ...C9C_FLOOR_H, ...C9D_FLOOR_H, ...C10A_FLOOR_H, ...C10B_FLOOR_H, ...C10C_FLOOR_H, ...C10D_FLOOR_H, ...C11A_FLOOR_H, ...C11B_FLOOR_H };
+export const C9A_FLOOR_H = { [T.C9A_CRATER]: -0.16, [T.C9A_MOSS]: -0.01, ...C9B_FLOOR_H, ...C9C_FLOOR_H, ...C9D_FLOOR_H, ...C10A_FLOOR_H, ...C10B_FLOOR_H, ...C10C_FLOOR_H, ...C10D_FLOOR_H, ...C11A_FLOOR_H, ...C11B_FLOOR_H, ...C11C_FLOOR_H };
 export function c9aBlockSpec(id, v) {
   switch (id) {
     case T.C9A_DOOR: case T.C9A_CHALKDOOR: case T.C9A_ICEDOOR: case T.C9A_TRIALDOOR:
       return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', id, 0, 0] };
     case T.C9A_LOG: return { h: 0.55, top: ['t', T.C9A_LOG, v, 0], side: ['t', T.C9A_LOG, v, 0] };
     case T.C9A_RIM: return { h: 0.42, top: ['t', T.C9A_RIM, v, 0], side: ['t', T.C9A_RIM, v, 0] }; // くぼ地の ふち（ひくい 土の もり上がり）
-    default: return c9bBlockSpec(id, v) || c9cBlockSpec(id, v) || c9dBlockSpec(id, v) || c10aBlockSpec(id, v) || c10bBlockSpec(id, v) || c10cBlockSpec(id, v) || c10dBlockSpec(id, v) || c11aBlockSpec(id, v) || c11bBlockSpec(id, v);
+    default: return c9bBlockSpec(id, v) || c9cBlockSpec(id, v) || c9dBlockSpec(id, v) || c10aBlockSpec(id, v) || c10bBlockSpec(id, v) || c10cBlockSpec(id, v) || c10dBlockSpec(id, v) || c11aBlockSpec(id, v) || c11bBlockSpec(id, v) || c11cBlockSpec(id, v);
   }
 }
 const crystalProp = (c, h = 24) => [16, h, (p) => {
@@ -328,9 +331,10 @@ export const C9A_PROPS = {
   ...C10D_PROPS,
   ...C11A_PROPS,
   ...C11B_PROPS,
+  ...C11C_PROPS,
 };
 // たてた ものでも 色を かえない
-export const C9A_PROPS_KEEP = new Set([T.C9A_SOURCE, T.C9A_CRYSTAL, T.C9A_CRYSTAL_ON, T.C9A_STARROCK, T.C9A_TENT, T.C9A_BOARD, T.C9A_PEDESTAL, T.C9A_LANTERN, T.C9A_LANTERN_ON, ...C9B_PROPS_KEEP, ...C9C_PROPS_KEEP, ...C9D_PROPS_KEEP, ...C10A_PROPS_KEEP, ...C10B_PROPS_KEEP, ...C10C_PROPS_KEEP, ...C10D_PROPS_KEEP, ...C11A_PROPS_KEEP, ...C11B_PROPS_KEEP]);
+export const C9A_PROPS_KEEP = new Set([T.C9A_SOURCE, T.C9A_CRYSTAL, T.C9A_CRYSTAL_ON, T.C9A_STARROCK, T.C9A_TENT, T.C9A_BOARD, T.C9A_PEDESTAL, T.C9A_LANTERN, T.C9A_LANTERN_ON, ...C9B_PROPS_KEEP, ...C9C_PROPS_KEEP, ...C9D_PROPS_KEEP, ...C10A_PROPS_KEEP, ...C10B_PROPS_KEEP, ...C10C_PROPS_KEEP, ...C10D_PROPS_KEEP, ...C11A_PROPS_KEEP, ...C11B_PROPS_KEEP, ...C11C_PROPS_KEEP]);
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -361,4 +365,5 @@ export const C9A_THEMES = {
   ...C10D_THEMES,
   ...C11A_THEMES,
   ...C11B_THEMES,
+  ...C11C_THEMES,
 };

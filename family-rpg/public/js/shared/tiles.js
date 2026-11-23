@@ -145,6 +145,11 @@ export const T = {
   C11B_LIGHTFLOOR: 681, C11B_LIGHTFLOOR_ON: 682, C11B_SHUTDOOR: 683, C11B_OPENDOOR: 684, C11B_LAMP_A: 685, C11B_LAMP_A_ON: 686,
   C11B_LAMP_B: 687, C11B_LAMP_B_ON: 688, C11B_CHASM: 689, C11B_SHADOWBRIDGE: 690, C11B_SHELF: 691, C11B_TERRACE: 692, C11B_RAIL: 693,
   C11B_MOONROCK: 694, C11B_B_LANTERN: 695, C11B_F_FLOWER: 696, C11B_T_STAIRS_F: 697, C11B_T_STAIRS_B: 698,
+  // 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（第103回 A班。701〜740。maps/c11c*.js・render/tiles-c11c.js）
+  C11C_FLOOR: 701, C11C_WALL: 702, C11C_PED_A: 703, C11C_PED_B: 704, C11C_PED_C: 705, C11C_PED_D: 706,
+  C11C_FENCE_A: 707, C11C_FENCE_B: 708, C11C_FENCE_C: 709, C11C_FENCE_D: 710, C11C_FENCE_OFF: 711, C11C_GROOVE: 712, C11C_BRIDGE: 713,
+  C11C_LANE: 714, C11C_STAIRS_UP: 715, C11C_STAIRS_DOWN: 716, C11C_HALLDOOR: 717, C11C_SPRING: 718, C11C_BIGDOOR: 719, C11C_BIGDOOR_OPEN: 720,
+  C11C_CARPET: 721, C11C_PILLAR: 722, C11C_REST_FLOOR: 723,
 };
 
 export const TILE_INFO = {};
@@ -834,6 +839,33 @@ def(T.C11B_B_LANTERN, 'c11b_b_lantern', { solid: true, anim: true, light: true, 
 def(T.C11B_F_FLOWER, 'c11b_f_flower', { solid: true, mapColor: '#d8c8f0' }); // おもての 花だん
 def(T.C11B_T_STAIRS_F, 'c11b_t_stairs_f', { light: true, mapColor: '#ffffff' }); // 塔の 階段（おもて）
 def(T.C11B_T_STAIRS_B, 'c11b_t_stairs_b', { light: true, mapColor: '#c89a70' }); // 塔の 階段（うら）
+
+// 第3部 第3章 第3幕「はかりの回ろうと、ふたつの光」（第103回 A班。maps/c11c*.js・render/tiles-c11c.js）
+// ・かげの 台（4色）: 立って A で アルゴルが 来る。同じ 色の 光の さくを、まわりの 輪の 中だけ 食べる
+// ・光の さく（4色。とおれない）は とびら（gates）で 食べられた さく（とおれる）に かわる。スピカの 光の 橋は みぞの 上に かかる
+def(T.C11C_FLOOR, 'c11c_floor', { mapColor: '#4a4060' }); // 回ろうの ゆか
+def(T.C11C_WALL, 'c11c_wall', { solid: true, mapColor: '#1a1428' }); // 回ろうの かべ
+def(T.C11C_PED_A, 'c11c_ped_a', { light: true, mapColor: '#5a8aff' }); // かげの 台（青）
+def(T.C11C_PED_B, 'c11c_ped_b', { light: true, mapColor: '#5ad870' }); // かげの 台（緑）
+def(T.C11C_PED_C, 'c11c_ped_c', { light: true, mapColor: '#ff6a6a' }); // かげの 台（赤）
+def(T.C11C_PED_D, 'c11c_ped_d', { light: true, mapColor: '#ffd84a' }); // かげの 台（黄）
+def(T.C11C_FENCE_A, 'c11c_fence_a', { solid: true, anim: true, light: true, mapColor: '#9ab8ff' }); // 光の さく（青）
+def(T.C11C_FENCE_B, 'c11c_fence_b', { solid: true, anim: true, light: true, mapColor: '#9af0a8' }); // 光の さく（緑）
+def(T.C11C_FENCE_C, 'c11c_fence_c', { solid: true, anim: true, light: true, mapColor: '#ffa8a8' }); // 光の さく（赤）
+def(T.C11C_FENCE_D, 'c11c_fence_d', { solid: true, anim: true, light: true, mapColor: '#fff0a0' }); // 光の さく（黄）
+def(T.C11C_FENCE_OFF, 'c11c_fence_off', { mapColor: '#3a3450' }); // 食べられた さく（とおれる）
+def(T.C11C_GROOVE, 'c11c_groove', { solid: true, anim: true, mapColor: '#06040c' }); // 回ろうの みぞ（とおれない）
+def(T.C11C_BRIDGE, 'c11c_bridge', { anim: true, light: true, mapColor: '#f0f0ff' }); // スピカの 光の 橋
+def(T.C11C_LANE, 'c11c_lane', { mapColor: '#6a4a5a' }); // 見はりの カードの 通り道
+def(T.C11C_STAIRS_UP, 'c11c_stairs_up', { light: true, mapColor: '#ffffff' }); // 上への 階段
+def(T.C11C_STAIRS_DOWN, 'c11c_stairs_down', { mapColor: '#8a80a8' }); // 下への 階段
+def(T.C11C_HALLDOOR, 'c11c_halldoor', { anim: true, light: true, mapColor: '#c8a0ff' }); // うらの 町の おくの 古い 戸（回ろうへ）
+def(T.C11C_SPRING, 'c11c_spring', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#a8e0ff' }); // ひと休みの いずみ（回復）
+def(T.C11C_BIGDOOR, 'c11c_bigdoor', { solid: true, talkThrough: true, light: true, mapColor: '#e8d080' }); // 王宮の 大とびら（とじて いる）
+def(T.C11C_BIGDOOR_OPEN, 'c11c_bigdoor_open', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffffff' }); // 開いた 大とびら（まぶしい）
+def(T.C11C_CARPET, 'c11c_carpet', { mapColor: '#6a5aa8' }); // 大とびらへの じゅうたん
+def(T.C11C_PILLAR, 'c11c_pillar', { solid: true, mapColor: '#2a2440' }); // 柱
+def(T.C11C_REST_FLOOR, 'c11c_rest_floor', { mapColor: '#6a5a50' }); // ひと休みの 部屋の ゆか
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
