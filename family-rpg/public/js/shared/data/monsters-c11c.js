@@ -156,7 +156,8 @@ export const MONSTERS_C11C = {
   //   sun … 太陽の カード（隊長と へいたいが 回復 … 隊長は 最大HPの heal・へいたいは ぜんぶ）
   //   two … HPが 半分を 切ると、ほうき星の カードが 2まい まざる わりあい
   //   back … たおした へいたいが もどるまでの 隊長の 番の 数・aoeK … へいたいが 全体の 技で 受ける ダメージ・aoeBoss … 隊長が 全体の 技で 受ける ダメージ
-  //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・cards・back）。bare … 仲間なしの 2人・3人。solo … ひとり（カード 2まい・へいたい 1体）。monK … 魔物の 仲間 1体ごと
+  //   few … 人数で 合わせる [1人, 2人, 3人, 4人, 5人]（hp・atk・cards・back）。bare … 仲間なしの 2人・3人。solo … ひとり（カード 2まい・へいたい 1体・
+//     open … ならべた カードが はじめから おもて〈ひとりの 時は アルゴルが のぞいて 教えて くれる。てらす 間に めくられて しまう ため〉）。monK … 魔物の 仲間 1体ごと
   //   （設計に ない 足し物: autoK … だれも えらんで いない 時の 隊長の 受ける ダメージ）
   [C11C_ACE]: {
     name: ACE_NAME, short: ACE_SHORT, lv: 124, hp: 12000, mp: 9999, str: 2450, def: 440, agi: 260, mag: 1200, exp: 108000, gold: 37000,
@@ -169,10 +170,10 @@ export const MONSTERS_C11C = {
       star: { base: [760, 800], guardCut: 0.5 },
       moon: { base: [260, 300], turns: 2, slow: 0.5 },
       sun: { heal: 0.08 },
-      two: 0.5, back: 5, aoeK: 0.3, aoeBoss: 0.6, autoK: 0.5,
-      few: { hp: [0.8, 0.95, 0.95, 1, 1.2], atk: [0.75, 0.9, 0.95, 1, 1.05], back: [5, 5, 5, 5, 4] },
-      bare: { hp: [0.5, 0.7], atk: [0.6, 0.75] },
-      solo: { hp: 0.6, atk: 0.5, cards: 2, guards: 1, back: 8 },
+      two: 0.5, back: 5, aoeK: 0.3, aoeBoss: 0.6, autoK: 0.3,
+      few: { hp: [0.72, 0.72, 0.95, 0.88, 1.0], atk: [0.7, 0.74, 0.95, 0.88, 0.92], back: [5, 5, 5, 5, 4] },
+      bare: { hp: [0.27, 0.6], atk: [0.42, 0.6], autoK: [0.18, 0.3] },
+      solo: { hp: 0.65, atk: 0.45, cards: 2, guards: 1, back: 8, comet: 3.2, open: 1, two: 0.15 },
       monK: { hp: 0.1, atk: 0 },
     },
     actions: [{ w: 1, id: 'm11a_lay' }],

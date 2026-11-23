@@ -91,13 +91,13 @@ export function c11cConf(species, b = null) {
   }
   if (c.kind === 'ace') {
     Object.assign(out, {
-      cards: pick('cards', c.cards ?? 3), plus: pick('plus', c.plus ?? 1), eats: c.eats ?? 1,
+      cards: pick('cards', c.cards ?? 3), plus: pick('plus', c.plus ?? 1), eats: c.eats ?? 1, open: pick('open', 0),
       comet: { mult: 2.6, guardCut: 0.35, ...(c.comet || {}), mult: pick('comet', c.comet?.mult ?? 2.6) },
       star: { base: [760, 800], guardCut: 0.5, ...(c.star || {}) },
       moon: { base: [260, 300], turns: 2, slow: 0.5, ...(c.moon || {}) },
       sun: { heal: 0.08, ...(c.sun || {}) },
       two: pick('two', c.two ?? 0.5), back: pick('back', c.back ?? 5), guards: pick('guards', 2),
-      aoeK: c.aoeK ?? 1, aoeBoss: c.aoeBoss ?? 1, autoK: c.autoK ?? 1,
+      aoeK: c.aoeK ?? 1, aoeBoss: c.aoeBoss ?? 1, autoK: pick('autoK', c.autoK ?? 1),
     });
   }
   return out;
@@ -462,14 +462,16 @@ function lay(b, c, ev) {
     const j = b.rng.int(0, i);
     [suits[i], suits[j]] = [suits[j], suits[i]];
   }
-  const up = litNow(b);
+  // てらして いる 間・ひとりの 時（open … アルゴルが のぞいて 教えて くれる）は おもて
+  const up = litNow(b) || !!cf.open;
   st.set++;
   st.lays++;
   st.eaten = 0;
   st.cards = suits.map((suit, i) => ({ no: i, suit, up, eaten: false, used: false, aim: suit === 'comet' ? pickAim(b)?.id ?? null : null }));
-  ev.fx = { type: 'ability', anim: 'c11a_lay', actor: c.id, targets: [c.id], side: 'enemy' };
+  ev.fx = { type: 'ability', anim: 'c11e_lay', actor: c.id, targets: [c.id], side: 'enemy' };
   ev.lines.push(`${c.name}は、カードを${n}まい、しゅっしゅっと、ならべた。`);
-  if (up) post(ev).push(`スピカの光で、カードが見えている！（${suits.map((s) => SUIT_NAME[s]).join('・')}）`);
+  if (up && !litNow(b)) post(ev).push(`アルゴル「…のぞいてきた。${suits.map((s) => SUIT_NAME[s]).join('と')}だ。」`);
+  else if (up) post(ev).push(`スピカの光で、カードが見えている！（${suits.map((s) => SUIT_NAME[s]).join('・')}）`);
   else post(ev).push('（カードは、うら向き…。スピカの「てらす」で見える！）');
   ev.c11cLay = { id: c.id, n, up };
   ev.c11cCards = cardPub(b);
@@ -500,7 +502,7 @@ function card(b, c, eff, ev) {
     if (!t) return;
     const guard = !!t.defending;
     if (guard) st.cometGuards++;
-    ev.fx = { type: 'ability', anim: 'c11a_comet', actor: c.id, targets: [t.id], side: 'enemy' };
+    ev.fx = { type: 'ability', anim: 'c11e_comet', actor: c.id, targets: [t.id], side: 'enemy' };
     ev.lines.push(`大きなほうき星が、${t.name}にむかって、ふってきた！`);
     const hp0 = t.hp;
     b.physHit(c, t, { mult: cf.comet.mult * (guard ? cf.comet.guardCut : 1), acc: 9 }, ev, 'phys');
@@ -512,7 +514,7 @@ function card(b, c, eff, ev) {
   } else if (suit === 'star') {
     st.stars++;
     const ts = b.aliveAllies();
-    ev.fx = { type: 'ability', anim: 'c11a_star', actor: c.id, targets: ts.map((x) => x.id), side: 'enemy', element: 'light' };
+    ev.fx = { type: 'ability', anim: 'c11e_star', actor: c.id, targets: ts.map((x) => x.id), side: 'enemy', element: 'light' };
     ev.lines.push('星が、ざあっと、ふりそそいだ！');
     for (const t of ts) {
       const r = b.calcMagic(c, t, { base: cf.star.base, thr: 99, element: 'light' }, 1);
@@ -521,7 +523,7 @@ function card(b, c, eff, ev) {
   } else if (suit === 'moon') {
     st.moons++;
     const ts = b.aliveAllies();
-    ev.fx = { type: 'ability', anim: 'c11a_moon', actor: c.id, targets: ts.map((x) => x.id), side: 'enemy', element: 'dark' };
+    ev.fx = { type: 'ability', anim: 'c11e_moon', actor: c.id, targets: ts.map((x) => x.id), side: 'enemy', element: 'dark' };
     ev.lines.push('しずかな月の光が、あたりをつつんだ…。');
     for (const t of ts) {
       const r = b.calcMagic(c, t, { base: cf.moon.base, thr: 99, element: 'dark' }, 1);
@@ -554,7 +556,7 @@ function card(b, c, eff, ev) {
   } else if (suit === 'sun') {
     st.suns++;
     const us = [c, ...guardsUp(b)];
-    ev.fx = { type: 'ability', anim: 'c11a_sun', actor: c.id, targets: us.map((x) => x.id), side: 'enemy' };
+    ev.fx = { type: 'ability', anim: 'c11e_sun', actor: c.id, targets: us.map((x) => x.id), side: 'enemy' };
     ev.lines.push('まぶしい太陽の光が、隊長とへいたいをてらした！');
     ev.results = ev.results || [];
     for (const u of us) {
@@ -789,7 +791,8 @@ function acePlan(b, c, decide, bestHit, mode) {
     const up = left.filter((k) => k.up && DANGER[k.suit] >= DANGER.moon).sort((x, y) => DANGER[y.suit] - DANGER[x.suit] || x.no - y.no);
     if (up.length) return { type: 'ability', id: TANOMU, choice: up[0].no };
     const hidden = left.filter((k) => !k.up);
-    if (hidden.length && teruReady(b) && !litNow(b) && canUse(b, c, TERU_ID) && !queued(b, TERU_ID)) return { type: 'ability', id: TERU_ID };
+    // うら向きが 3まい いじょう … てらして 見る（2まい いかなら、てらす 間に めくられる ので、次の カードを たのむ）
+    if (hidden.length >= 3 && teruReady(b) && !litNow(b) && canUse(b, c, TERU_ID) && !queued(b, TERU_ID)) return { type: 'ability', id: TERU_ID };
     // てらせない: 見えない まま、次に めくる カードを たのむ（ほうき星が 入って いる かも）
     if (hidden.length && !queued(b, TERU_ID) && left.every((k) => !k.up || DANGER[k.suit] < DANGER.moon)) {
       const k = left.find((x) => !x.up);
