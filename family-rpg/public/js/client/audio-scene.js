@@ -278,6 +278,21 @@ export const C11B_TOWER_TRACK = 'c11b_tower';
 export const SIDE_STAGES = 2;
 export const sideStageOf = (game) => stageOf(game, 'sideStage', SIDE_STAGES, 0);
 
+// 第103回 F: 光のさくの回ろう（c11c_hall）は 画面の 状態 pairStage（0 相ぼうが 台に いない・1 台に 立って いる）で 強さ 0・1
+//   （1 の 間は 低い のばしの 楽器が 1つ 足される だけ。ふし・形・調・テンポは かえない ＝ イントロへ もどらない。
+//   かわるのは 次の 小節の 頭から〈conStage と 同じ 強さの 形〉）。
+//   A班が 画面の 状態 pairStage を 出す（field.pairStage・game.pairStage。数・true/false・関数 どれでも よい。true は 1）。出て いない 間は 0。
+//   イベントの 曲でも よい（鳴って いる 曲が c11c_hall なら、その 場所の 曲で なくても 送る）。だんは 送らない。
+//   回ろうの 階が ダンジョン（kind: 'dungeon'）でも 深さの 強さより pairStage が 先。0 から 数える しるし なので addFormKey0 にも 入れて おく
+addFormKey0('pairStage');
+export const C11C_HALL_TRACK = 'c11c_hall';
+export const PAIR_STAGES = 2;
+export const pairStageOf = (game) => stageOf(game, 'pairStage', PAIR_STAGES, 0);
+export function pairIntensity(stage) {
+  const n = Math.max(0, Math.min(PAIR_STAGES - 1, Math.floor(Number(stage) || 0)));
+  return Math.round((n / (PAIR_STAGES - 1)) * 1000) / 1000;
+}
+
 // 形態の しるしが ない 魔物は null
 function formStage(c) {
   let n = null;
@@ -528,6 +543,8 @@ export class SceneAudio {
     else if (id === C10D_STAIRS_TRACK && st.gateIntensity !== null && st.gateIntensity !== undefined) this.send('intensity', st.gateIntensity, (v) => this.audio.setIntensity(v));
     // 第101回 F: ひとふでの星座は イベントの 曲でも できた 星座の 数で 強さを 送る
     else if (id === C11A_ISLE_TRACK && st.conIntensity !== null && st.conIntensity !== undefined) this.send('intensity', st.conIntensity, (v) => this.audio.setIntensity(v));
+    // 第103回 F: 光のさくの回ろうは イベントの 曲でも 相ぼうが 台に 立って いるかで 強さを 送る
+    else if (id === C11C_HALL_TRACK && st.pairIntensity !== null && st.pairIntensity !== undefined) this.send('intensity', st.pairIntensity, (v) => this.audio.setIntensity(v));
     // 第92回 F: 場所で だんが かわる 曲（さかさのピラミッド・第93回 ふたごの道）
     if (id && id === st.areaTrack && st.phase !== null && st.phase !== undefined) this.send('phase', st.phase, (v) => this.audio.setPhase(v));
     // 第93回 F: スピカの歌は イベントの 曲でも 歌える ふしの 数を 送る
@@ -569,6 +586,8 @@ export class SceneAudio {
     else if (areaTrack === C11A_ISLE_TRACK) intensity = conIntensity(conStageOf(game));
     // 第102回 F: おもてとうらの塔は 階の 深さで 楽器を へらさない（おもて／うらで かわる）
     else if (areaTrack === C11B_TOWER_TRACK) intensity = 1;
+    // 第103回 F: 光のさくの回ろうは 相ぼうが 台に 立って いる 間 1（低い 楽器が 足される）
+    else if (areaTrack === C11C_HALL_TRACK) intensity = pairIntensity(pairStageOf(game));
     else if (map.kind === 'dungeon' && areaTrack === map.bgm) {
       const fl = floorOf(mapId, map, this.floors());
       if (fl) intensity = depthIntensity(fl.floor, fl.floors);
@@ -615,6 +634,8 @@ export class SceneAudio {
       conIntensity: conIntensity(conStageOf(game)),
       // 第102回 F: おもて（0）・うら（1）（イベントの 曲の 時も 使う）
       sidePhase: sideStageOf(game),
+      // 第103回 F: 相ぼうが 台に 立って いるか（イベントの 曲の 時も 使う）
+      pairIntensity: pairIntensity(pairStageOf(game)),
       tod: timeOfDayFor({ kind: map.kind, indoor, night, hasNightTrack }),
       ambience: ambienceFor({ mapId, map, area, weather }),
     };
