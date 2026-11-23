@@ -25,10 +25,11 @@ function fPave(p, v) {
   if (v % 5 === 0) p.set(Math.floor(r() * 14) + 1, Math.floor(r() * 14) + 1, '#ffffff');
 }
 function fWall(p, v) {
-  p.rect(0, 0, 16, 16, SILVER.l);
-  p.rect(0, 0, 16, 3, SILVER.b); p.hline(0, 15, 0, SILVER.hl);
-  for (let y = 6; y < 16; y += 5) p.hline(0, 15, y, SILVER.b);
-  for (let y = 3; y < 16; y += 5) for (let x = (y % 2 ? 2 : 6) + (v % 2) * 4; x < 16; x += 8) p.vline(x, y, Math.min(15, y + 2), SILVER.b);
+  // 道（白）と 見分けやすい ように、少し 暗い 青むらさきの 石
+  p.rect(0, 0, 16, 16, '#a8a6d4');
+  p.rect(0, 0, 16, 3, '#c8c6ec'); p.hline(0, 15, 0, SILVER.hl);
+  for (let y = 6; y < 16; y += 5) p.hline(0, 15, y, '#8886b8');
+  for (let y = 3; y < 16; y += 5) for (let x = (y % 2 ? 2 : 6) + (v % 2) * 4; x < 16; x += 8) p.vline(x, y, Math.min(15, y + 2), '#8886b8');
 }
 function fHouse(p, v) {
   p.rect(0, 0, 16, 16, '#f4f2ff');

@@ -16,6 +16,7 @@ export function noteC11bSnap(field, d) {
 // 画面の 状態（まいフレーム。F班の 曲）: field.sideStage
 export function noteC11bStage(field) {
   field.sideStage = field.map?.c11b ? field.map.c11b.side : 0;
+  sideBadge(field.map?.c11b ? field.map.c11b.side : null);
 }
 const hintOf = (field) => (field.c11b && field.c11b.map === field.mapId ? field.c11b.h || null : null);
 
@@ -80,34 +81,38 @@ function drawHint(field, ctx, x, y, k) {
   ctx.fillRect(fx - k * 0.35, fy - k * 0.35, k * 0.7, k * 0.7);
   ctx.restore();
 }
-// 画面の すみの しるし（おもて ＝ まるい 月・うら ＝ 欠けた 月）
-export function drawSideBadge(field, ctx, side) {
-  const label = side ? 'うら' : 'おもて';
-  const W = field.vw;
-  const s = Math.max(1, Math.min(1.6, W / 640));
-  const w = Math.round(78 * s), h = Math.round(26 * s);
-  const x = Math.round(W - w - 8 * s), y = Math.round(field.c11bBadgeTop ?? 64 * s);
-  ctx.save();
-  ctx.fillStyle = side ? 'rgba(60, 26, 20, 0.82)' : 'rgba(232, 236, 255, 0.86)';
-  ctx.strokeStyle = side ? '#ffb060' : '#8a96d8';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.roundRect ? ctx.roundRect(x, y, w, h, h / 2) : ctx.rect(x, y, w, h);
-  ctx.fill(); ctx.stroke();
-  // 月
-  const mx = x + h * 0.55, my = y + h / 2, mr = h * 0.32;
-  ctx.fillStyle = side ? '#ffb060' : '#fff0a0';
-  ctx.beginPath(); ctx.arc(mx, my, mr, 0, Math.PI * 2); ctx.fill();
-  if (side) {
-    ctx.fillStyle = 'rgba(60, 26, 20, 1)';
-    ctx.beginPath(); ctx.arc(mx + mr * 0.55, my - mr * 0.25, mr * 0.85, 0, Math.PI * 2); ctx.fill();
+// 画面の すみの しるし（ミニマップの 右下に かさねる。おもて ＝ まるい 月・うら ＝ 欠けた 月）。DOM なので 2D・2.5D・スマホで 同じ 大きさ
+let badge = null, badgeSide = null;
+function sideBadge(side) {
+  if (typeof document === 'undefined') return;
+  const host = document.querySelector('#hud .hud-map');
+  if (side === null || !host) {
+    if (badge) badge.hidden = true;
+    badgeSide = null;
+    return;
   }
-  ctx.fillStyle = side ? '#ffe0b0' : '#2a2a60';
-  ctx.font = `bold ${Math.round(13 * s)}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(label, x + w / 2 + h * 0.3, my + 1);
-  ctx.restore();
+  if (!badge || !badge.isConnected) {
+    badge = document.createElement('div');
+    badge.className = 'hud-side';
+    Object.assign(badge.style, {
+      position: 'absolute', right: '-6px', bottom: '-10px', padding: '2px 9px 2px 6px', borderRadius: '999px', lineHeight: '1.25',
+      fontSize: 'clamp(11px, 1.8vmin + 4px, 15px)', fontWeight: 'bold', pointerEvents: 'none', whiteSpace: 'nowrap', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.6)',
+    });
+    host.appendChild(badge);
+    badgeSide = null;
+  }
+  badge.hidden = false;
+  if (badgeSide === side) return;
+  badgeSide = side;
+  const back = side === 1;
+  Object.assign(badge.style, back
+    ? { color: '#ffe0b0', background: 'rgba(70, 30, 22, 0.92)', border: '2px solid #ffb060' }
+    : { color: '#2a2a60', background: 'rgba(236, 240, 255, 0.94)', border: '2px solid #8a96d8' });
+  // 月の しるし（おもて ＝ まるい 月・うら ＝ 欠けた 月）と 字
+  const moon = back
+    ? 'display:inline-block;width:0.8em;height:0.8em;border-radius:50%;margin-right:0.3em;vertical-align:-0.05em;box-shadow:inset 0.22em -0.08em 0 0 #ffb060'
+    : 'display:inline-block;width:0.8em;height:0.8em;border-radius:50%;margin-right:0.3em;vertical-align:-0.05em;background:#ffd860;box-shadow:0 0 4px #fff0a0';
+  badge.innerHTML = `<i style="${moon}"></i>${back ? 'うら' : 'おもて'}`;
 }
 
 // ───── 2D ─────
@@ -123,7 +128,6 @@ export function drawC11b2D(field, camX, camY) {
   } else frontMotes(field, ctx);
   const h = hintOf(field);
   if (h) drawHint(field, ctx, (h[0] + 0.5) * TS - camX, (h[1] + 0.5) * TS - camY, TS);
-  drawSideBadge(field, ctx, side);
 }
 // ───── 2.5D（render3d の 上に かさねる 2D。P(x, y, up) … 画面の 場所と 1マスの 大きさ）─────
 export function drawC11b3D(field, ctx, P) {
@@ -137,5 +141,4 @@ export function drawC11b3D(field, ctx, P) {
   } else frontMotes(field, ctx);
   const h = hintOf(field);
   if (h) { const p = P(h[0] + 0.5, h[1] + 0.5, 0.4); drawHint(field, ctx, p.x, p.y, p.k); }
-  drawSideBadge(field, ctx, side);
 }
