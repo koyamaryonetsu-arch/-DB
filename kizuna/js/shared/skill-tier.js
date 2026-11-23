@@ -15,9 +15,9 @@
 //   stages … 1回で 上がる（下がる）だんかい（上限は battle.js の BUFF_STACK・stackMult の まま）
 //   healMul … 回復の 量（回復の 技・じわじわ回復・生き返らせる ときの HP）
 // サーバーでも ブラウザでも つかう（stats.js の mpCost・battle.js・client/ui/skillinfo.js）
-import { ABILITIES, abilityRole } from './data/abilities.js?v=28060a38724e';
-import { JOBS } from './data/jobs.js?v=28060a38724e';
-import { BUFF_ACTS } from './buff-acts.js?v=28060a38724e';
+import { ABILITIES, abilityRole } from './data/abilities.js?v=b63ba00e848c';
+import { JOBS } from './data/jobs.js?v=b63ba00e848c';
+import { BUFF_ACTS } from './buff-acts.js?v=b63ba00e848c';
 
 export const TIER_MODS = [
   { mpMul: 1, acts: BUFF_ACTS, stages: 1, healMul: 1 },

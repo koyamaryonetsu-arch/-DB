@@ -1,7 +1,7 @@
 // 第88回 G14班: 第5のせいれいのドレスの 氷の石の台（render/gacha-art.js の paintGachaSpecial から よぶ。{ p, oc } を かえす）
 //   r88_fifth_altar … 白く こおった 石の 台。上に 4つの しるし（風 ＝ 白・火 ＝ むらさき・水 ＝ 青・大地 ＝ 茶色）と、
 //   まん中の 雪の 結しょう（5つめの しるし）が 光る
-import { Painter } from './pixel.js?v=28060a38724e';
+import { Painter } from './pixel.js?v=b63ba00e848c';
 
 function paintAltar(f) {
   const p = new Painter(16, 21);

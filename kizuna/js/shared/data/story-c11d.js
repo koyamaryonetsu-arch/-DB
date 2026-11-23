@@ -16,17 +16,17 @@ import {
   C11D, C11D_ACT0, C11D_MAP, C11D_BATTLE, C11D_BOSS_MON, C11D_TRACKS, C11D_QUEEN_NAME, C11D_QUEEN_SHORT, C11D_QUEEN_TITLE, C11D_DUO_NAME,
   C11D_MIRROR_NAME, C11D_OBORO_NAME, C11D_ACE_NAME, C11D_DOOR, C11D_FRONT, C11D_HILL, C11D_CRATER, C11D_PADS, C11D_SONG_ORDER, NOTE_EIGHT,
   C11D_SKILL, C11D_EIGHT_ART,
-} from '../maps/c11d-flags.js?v=28060a38724e';
-import { C11C_ALGOL_NAME, C11C_ALGOL_SPRITE, C11C_TRIO, C11C_TRIO_SPRITES } from '../maps/c11c-flags.js?v=28060a38724e';
-import { C11A_TRACKS } from '../maps/c11a-flags.js?v=28060a38724e';
-import { SPICA_NAME } from '../maps/c9a-flags.js?v=28060a38724e';
+} from '../maps/c11d-flags.js?v=b63ba00e848c';
+import { C11C_ALGOL_NAME, C11C_ALGOL_SPRITE, C11C_TRIO, C11C_TRIO_SPRITES } from '../maps/c11c-flags.js?v=b63ba00e848c';
+import { C11A_TRACKS } from '../maps/c11a-flags.js?v=b63ba00e848c';
+import { SPICA_NAME } from '../maps/c9a-flags.js?v=b63ba00e848c';
 import {
   SCALE_POS11D, TOWER1_POS11D, TOWER2_POS11D, TOWER3_POS11D, TOWER4_POS11D, THRONE_POS11D, CON11D, CITY_POS11D, HILL_POS11D, PED8_11D,
   DOOR_IN11D, SCENES11D,
-} from '../maps/c11d-rows.js?v=28060a38724e';
-import { MONSTERS } from './monsters.js?v=28060a38724e';
-import { ITEMS } from './items.js?v=28060a38724e';
-import { mergeBossHints } from './boss-hints.js?v=28060a38724e';
+} from '../maps/c11d-rows.js?v=b63ba00e848c';
+import { MONSTERS } from './monsters.js?v=b63ba00e848c';
+import { ITEMS } from './items.js?v=b63ba00e848c';
+import { mergeBossHints } from './boss-hints.js?v=b63ba00e848c';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

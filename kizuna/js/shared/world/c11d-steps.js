@@ -7,11 +7,11 @@
 // ・まちがえたら はじめから（ばつ なし）。まちがえた 回数が C11D_PAD_HELP に なると、じゅんが 光る（スピカが 口ずさむ。snap の c11d.h）
 // ・パーティーの だれも 音の 間に いなく なると わすれる（入り直すと はじめから。まちがえた 回数も）
 // ■ 回線が 切れて もどった 時: 何も しない（音の 間は どこに 立っても よい）
-import { MAPS } from '../maps/index.js?v=28060a38724e';
-import { padAt11d } from '../maps/c11d.js?v=28060a38724e';
-import { C11D, C11D_PADS, C11D_SONG_ORDER, C11D_PAD_HELP } from '../maps/c11d-flags.js?v=28060a38724e';
-import { SCRIPTS } from '../data/story.js?v=28060a38724e';
-import { ScriptRun, scriptCtx } from './scripts.js?v=28060a38724e';
+import { MAPS } from '../maps/index.js?v=b63ba00e848c';
+import { padAt11d } from '../maps/c11d.js?v=b63ba00e848c';
+import { C11D, C11D_PADS, C11D_SONG_ORDER, C11D_PAD_HELP } from '../maps/c11d-flags.js?v=b63ba00e848c';
+import { SCRIPTS } from '../data/story.js?v=b63ba00e848c';
+import { ScriptRun, scriptCtx } from './scripts.js?v=b63ba00e848c';
 
 const SP = 'スピカ';
 const partyKey = (s) => s?.partyId || s?.id;

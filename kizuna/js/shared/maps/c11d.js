@@ -9,26 +9,28 @@
 //   王宮の 大とびらの 前 … 大とびらの 中へ（場面 0 の マスは c11_act3 から。幕が 閉じて いる 間は 台本が から）/
 //   月の都（おもて）… アルゴルの ランプ（c11d_lamp）・開いた はかりの門・星の橋の はし・女王 たち（c11_act4）/
 //   星見の丘 … さいごまで かかった 星の橋（c11d_bridge）・月の都への 出入り口（c11_act4）/ ながれ星のくぼ地 … 光る 8つめの 台（c11_act4）
-import { T } from '../tiles.js?v=28060a38724e';
-import { npc } from './npc.js?v=28060a38724e';
-import { parseRows16 } from './past.js?v=28060a38724e';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=28060a38724e';
-import { finishGates11a, placeCon11a } from './c11a.js?v=28060a38724e';
-import { hallData11c, fenceFlag11c, C11C_FENCE_TILES } from './c11c.js?v=28060a38724e';
+import { T } from '../tiles.js?v=b63ba00e848c';
+import { npc } from './npc.js?v=b63ba00e848c';
+import { parseRows16 } from './past.js?v=b63ba00e848c';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=b63ba00e848c';
+import { SHOPS } from '../data/shops.js?v=b63ba00e848c';
+import { c11dChest, C11D_FRONT_ADD } from '../data/items-c11d.js?v=b63ba00e848c';
+import { finishGates11a, placeCon11a } from './c11a.js?v=b63ba00e848c';
+import { hallData11c, fenceFlag11c, C11C_FENCE_TILES } from './c11c.js?v=b63ba00e848c';
 import {
   C11D, C11D_ACT0, C11D_MAP, C11D_MAP_IDS, C11D_TRACKS, C11D_TABLE, C11D_PAIR, C11D_DOOR, C11D_FRONT, C11D_HILL, C11D_CRATER,
   C11D_QUEEN_NAME, C11D_MIRROR_NAME, C11D_OBORO_NAME, C11D_ACE_NAME, C11D_TOWER_MAPS,
-} from './c11d-flags.js?v=28060a38724e';
+} from './c11d-flags.js?v=b63ba00e848c';
 import {
   SCALE_ROWS11D, SCALE_POS11D, CON11D, CON_AT11D, TOWER1_ROWS11D, TOWER1_POS11D, TOWER2_ROWS11D, TOWER2_CHESTS11D, TOWER2_FLOORS11D,
   TOWER2_POS11D, TOWER2_SECTIONS11D, TOWER3_ROWS11D, TOWER3_POS11D, TOWER4_ROWS11D, TOWER4_POS11D, THRONE_ROWS11D, THRONE_POS11D,
   CHESTS11D, SCENES11D, DOOR_IN11D, DOOR_BACK11D, CITY_POS11D, HILL_POS11D, PED8_11D,
-} from './c11d-rows.js?v=28060a38724e';
+} from './c11d-rows.js?v=b63ba00e848c';
 
 export const CH11D_MAPS = [...C11D_MAP_IDS];
 
-// ───── 宝箱の 中み（B班の data/items-c11d.js の c11dChest。入るまでは かりの 3000G）─────
-let chestFn11d = () => ({ gold: 3000 });
+// ───── 宝箱の 中み（B班の data/items-c11d.js の c11dChest）─────
+let chestFn11d = c11dChest;
 export const setChestOf11d = (fn) => { chestFn11d = fn; };
 export const chestOf11d = (id) => chestFn11d(id) || {};
 
@@ -227,6 +229,11 @@ function attachCity(maps) {
   F.npcs.push(npc('c11d_oboro', C11D_OBORO_NAME, [C.oboro.x, C.oboro.y], 'c11b_oboro', 'c11d_oboro_talk', { dir: 'down', show: after }));
   F.npcs.push(npc('c11d_ace', C11D_ACE_NAME, [C.ace.x, C.ace.y], 'c11c_ace', 'c11d_ace_talk', { dir: 'left', show: after }));
   finishGates11a(F);
+  // おもての 武具屋: 第3部の クリア（c11_act4）で 品が 4つ ふえる（B班の C11D_FRONT_ADD）
+  const shop = SHOPS.c11b_arms;
+  if (shop && !(shop.more || []).some((x) => x.show?.all?.[0] === C11D.act4)) {
+    shop.more = [...(shop.more || []), { show: { all: [C11D.act4] }, items: [...C11D_FRONT_ADD], hello: 'いらっしゃいませ。\nランプの日の、とくべつな品で、ございます。' }];
+  }
 }
 // 星見の丘: とちゅうで 止まった 橋の 絵 → さいごまで かかった 星の橋（c11d_bridge）・月の都への 出入り口（c11_act4）
 function attachHill(maps) {

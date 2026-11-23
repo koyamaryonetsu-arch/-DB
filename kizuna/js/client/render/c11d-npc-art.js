@@ -5,7 +5,7 @@
 // ・c11d_ped8_on … 光る 8つめの 台（くぼ地。前の 幕の c10d_ped8 と 同じ 形）
 // ・c11d_lamp … 名前の ランプ（火が ともった）
 // ・c11d_bridge … さいごまで かかった 星の橋（星見の丘から 空へ。8つの 色）
-import { Painter } from './pixel.js?v=28060a38724e';
+import { Painter } from './pixel.js?v=b63ba00e848c';
 
 // 女王（20×30）
 function paintQueen(dir, f) {

@@ -31,14 +31,14 @@
 //   バラバラン3号では、人が えらんで いる 時だけ、ロケットパンチで ねらわれたら 2回に 1回 身を 守る
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数の 数え方は 第2章 第1幕と おなじ（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）。bare … 味方が みんな 家族の キャラで 2人・3人
-import { MONSTERS } from './data/monsters.js?v=28060a38724e';
-import { ABILITIES } from './data/abilities.js?v=28060a38724e';
-import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_PARTS, C11C_ACE, C11C_GUARD, MECHA_NAME, ACE_SHORT } from './data/monsters-c11c.js?v=28060a38724e';
-import { TANOMU, LAY, CARD_IDS, FIX, ROCKET } from './data/abilities-c11c.js?v=28060a38724e';
-import { C11C_B as C11C } from './maps/c11c-flags.js?v=28060a38724e';
-import { TERU as TERU_ID } from './data/abilities-c9b.js?v=28060a38724e';
-import { canUse } from './ai.js?v=28060a38724e';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=28060a38724e';
+import { MONSTERS } from './data/monsters.js?v=b63ba00e848c';
+import { ABILITIES } from './data/abilities.js?v=b63ba00e848c';
+import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_PARTS, C11C_ACE, C11C_GUARD, MECHA_NAME, ACE_SHORT } from './data/monsters-c11c.js?v=b63ba00e848c';
+import { TANOMU, LAY, CARD_IDS, FIX, ROCKET } from './data/abilities-c11c.js?v=b63ba00e848c';
+import { C11C_B as C11C } from './maps/c11c-flags.js?v=b63ba00e848c';
+import { TERU as TERU_ID } from './data/abilities-c9b.js?v=b63ba00e848c';
+import { canUse } from './ai.js?v=b63ba00e848c';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=b63ba00e848c';
 
 export { TANOMU, LAY, CARD_IDS, FIX, ROCKET };
 export const AUTO_EVERY = 3;

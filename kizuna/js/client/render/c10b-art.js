@@ -9,7 +9,7 @@
 //     コマ 2・3 … ぼうしを 取って ていねいに おじぎ（3人は 1人に もどる）
 //   もとの 作品の 絵は 使わない（かぎ手・葉巻・顔の きず・毛皮の えり ／ 片めがね・白い スーツと 赤い ネクタイ・シルクハット・
 //     ハンググライダー・トランプの 銃 は かかない。色も 近づけない）
-import { fit, spark, bez } from './ch3-draw.js?v=28060a38724e';
+import { fit, spark, bez } from './ch3-draw.js?v=b63ba00e848c';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

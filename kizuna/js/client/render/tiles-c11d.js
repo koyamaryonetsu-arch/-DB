@@ -8,8 +8,8 @@
 // ・玉座の 間: 玉座（769）/ 星の海の まど（770。2コマ）
 // ・光の のぼり台（771。2コマ）/ 月の都: アルゴルの ランプ（772。2コマ）・開いた はかりの門（773）・星の橋の はし（774。2コマ）
 // どれも テーマで 色を かえない
-import { T } from '../../shared/tiles.js?v=28060a38724e';
-import { prand } from './pixel.js?v=28060a38724e';
+import { T } from '../../shared/tiles.js?v=b63ba00e848c';
+import { prand } from './pixel.js?v=b63ba00e848c';
 
 const GOLD = { d: '#a8801e', b: '#e8c040', l: '#ffe070', hl: '#fff8c8' };
 // 音の 台の 色（くぼ地の 台の ならび … 赤・金・黄・緑・青・白・むらさき）

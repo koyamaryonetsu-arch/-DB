@@ -6,8 +6,8 @@
 //   星の 木（643）/ 石ぶみ（644）/ 家（645）/ いのりの いずみ（646）/ 道（647）
 // ・灯台島: レンズが うつした 光の ゆか（648）・星（649）
 // 星座の 線・矢じるし・ふたご星の しるしは 画面が かく（client/c11a-view.js）。どれも テーマで 色を かえない
-import { T } from '../../shared/tiles.js?v=28060a38724e';
-import { prand } from './pixel.js?v=28060a38724e';
+import { T } from '../../shared/tiles.js?v=b63ba00e848c';
+import { prand } from './pixel.js?v=b63ba00e848c';
 
 const NAVY = { d: '#0c1030', b: '#1a2260', l: '#2a3478', hl: '#4a5aa8' };
 const STONE = { d: '#4a4878', b: '#7a76a8', l: '#9a96c8', hl: '#c8c4f0' };

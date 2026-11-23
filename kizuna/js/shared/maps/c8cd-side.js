@@ -8,9 +8,9 @@
 //
 // 1. ホシフルの里の、やきいも … たき火の 南（いも好きの 男の子・やきいも名人の おばあさん・里の かりゅうど）→ 灰の 山
 // 2. 泉の里の、しゃぼん玉 … 泉の里（しゃぼん玉の 好きな 女の子・せんたくの おばさん）・泉の里の 南の むくろじの 木・ホシフルの里の わらあみの おじいさん
-import { npc } from './npc.js?v=28060a38724e';
-import { openSpot } from './labyrinth.js?v=28060a38724e';
-import { PAST_ID, HAMLET, SPRING } from './past.js?v=28060a38724e';
+import { npc } from './npc.js?v=b63ba00e848c';
+import { openSpot } from './labyrinth.js?v=b63ba00e848c';
+import { PAST_ID, HAMLET, SPRING } from './past.js?v=b63ba00e848c';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 第8章 第3幕の「千年前の ミドリナに 着いた」（A班の 物語の フラグ。docs/plan-ch8.md の 8-2）

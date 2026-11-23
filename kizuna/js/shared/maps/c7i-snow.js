@@ -8,16 +8,16 @@
 // ・時の砂時計（world/time-glass.js）: north ⇔ c7i_snow（timePair）。カイが 仲間に なった あと、トキネの 話を 聞くと 使える（c7_snow。map.timeSpot）
 // ・時をこえる手紙（data/sidequests-c7i.js）: 千年前で うめる 所と、今の おなじ 座標で 見つける 所（白雪の里・白銀の湖の 岸・湯けむりの谷）
 // だいほんは data/story-c7i.js
-import { T, TILE_INFO } from '../tiles.js?v=28060a38724e';
-import { hash2 } from '../rng.js?v=28060a38724e';
-import { npc } from './npc.js?v=28060a38724e';
-import { parseRows16, wideTiles } from './past.js?v=28060a38724e';
-import { NORTH_PLACES, NORTH_POS, NORTH_ARRIVE, LAKE3, northWeatherAt } from './north.js?v=28060a38724e';
-import { VILLAGE7I_ROWS, VILLAGE7I_SPOTS, VILLAGE7I_ROOFS } from './c7i-village-rows.js?v=28060a38724e';
+import { T, TILE_INFO } from '../tiles.js?v=b63ba00e848c';
+import { hash2 } from '../rng.js?v=b63ba00e848c';
+import { npc } from './npc.js?v=b63ba00e848c';
+import { parseRows16, wideTiles } from './past.js?v=b63ba00e848c';
+import { NORTH_PLACES, NORTH_POS, NORTH_ARRIVE, LAKE3, northWeatherAt } from './north.js?v=b63ba00e848c';
+import { VILLAGE7I_ROWS, VILLAGE7I_SPOTS, VILLAGE7I_ROOFS } from './c7i-village-rows.js?v=b63ba00e848c';
 import {
   C7I, ARRIVE7I, C7I_SNOW, PRESENT_SNOW, VILLAGE7I, CASTLE_WALL, CASTLE_DOOR, THORNS, WITCH_ZONE, WITCH_POS, LETTER7I, LETTER7I_SIDE,
-} from './c7i-flags.js?v=28060a38724e';
-import { c7icArrive } from './c7i-castle.js?v=28060a38724e';
+} from './c7i-flags.js?v=b63ba00e848c';
+import { c7icArrive } from './c7i-castle.js?v=b63ba00e848c';
 
 export const C7I_SNOW_NAME = '千年前のシロガネ地方';
 const VIL = NORTH_PLACES.dragon_village, KAN = NORTH_PLACES.kanatoko, YUN = NORTH_PLACES.yunoha;

@@ -7,19 +7,19 @@
 // ・コマンド: 女王 … いちばん 上に「手をつなぐ」→ だれと つなぐ？（スピカ・味方・ひとりの 時は アルゴル）／「八つの音」（八つめの 音の あと。のこりの 回数）
 //   中ボス … 今 ある「音を鳴らす」（第2章 第4幕の 6つの 音の まど）と「よびかける」（第2幕の まど）を そのまま 出す（前に いる 方の コマンドが 上）
 // ・えんしゅつ: 手を つなぐ 光の 線（味方の まどの 間）・八つめの 音の 場面（女王の 戦いの 中。サーバーの 文を じゅんに 出す。曲が かわる）
-import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from '../shared/data/monsters-c11d.js?v=28060a38724e';
-import { HOLD, EIGHT } from '../shared/data/abilities-c11d.js?v=28060a38724e';
-import { C11D_CMD_B, C11D_TRACKS_B } from '../shared/data/c11d-names-b.js?v=28060a38724e';
-import { C10D_MIRARE } from '../shared/data/monsters-c10d.js?v=28060a38724e';
-import { C11B_OBORO } from '../shared/data/monsters-c11b.js?v=28060a38724e';
-import { NOTE_COLORS } from '../shared/battle-c10d.js?v=28060a38724e';
-import { monsterCanvas } from './render/monsters.js?v=28060a38724e';
-import { c10dCmdItems, c10dNoteMenu } from './battle-c10d.js?v=28060a38724e';
-import { c11bCmdItems, c11bCmdPick } from './battle-c11b.js?v=28060a38724e';
-import { TRAP_LABEL } from './battle-earth.js?v=28060a38724e';
-import { EIGHT_CSS } from './render/battlefx-c11d.js?v=28060a38724e';
+import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from '../shared/data/monsters-c11d.js?v=b63ba00e848c';
+import { HOLD, EIGHT } from '../shared/data/abilities-c11d.js?v=b63ba00e848c';
+import { C11D_CMD_B, C11D_TRACKS_B } from '../shared/maps/c11d-flags.js?v=b63ba00e848c';
+import { C10D_MIRARE } from '../shared/data/monsters-c10d.js?v=b63ba00e848c';
+import { C11B_OBORO } from '../shared/data/monsters-c11b.js?v=b63ba00e848c';
+import { NOTE_COLORS } from '../shared/battle-c10d.js?v=b63ba00e848c';
+import { monsterCanvas } from './render/monsters.js?v=b63ba00e848c';
+import { c10dCmdItems, c10dNoteMenu } from './battle-c10d.js?v=b63ba00e848c';
+import { c11bCmdItems, c11bCmdPick } from './battle-c11b.js?v=b63ba00e848c';
+import { TRAP_LABEL } from './battle-earth.js?v=b63ba00e848c';
+import { EIGHT_CSS } from './render/battlefx-c11d.js?v=b63ba00e848c';
 // 八つめの 音の 場面の 絵（A班の 小さな 光・8つめの 台。render/c11d-npc-art.js）
-import { paintC11dSpecial } from './render/c11d-npc-art.js?v=28060a38724e';
+import { paintC11dSpecial } from './render/c11d-npc-art.js?v=b63ba00e848c';
 
 export const C11D_CMD = C11D_CMD_B;
 // ながされた 人の 名前の 下の しるし（client/battle-earth.js の 地われと おなじ data-trap）

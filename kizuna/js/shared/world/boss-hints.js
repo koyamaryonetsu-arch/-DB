@@ -10,12 +10,12 @@
 //   3. リーダー（ひとりの 時は 自分）は「もう一度いどむ／あとにする」を えらぶ。もう一度 … ボスの 台本が 始まる マスの 手前へ
 //      （いっしょに 戦って、同じ 所で 目を 覚ました 家族も いっしょに）。行き先が 分からない 戦いは えらぶ 文を 出さない
 //   全滅の 決まり（お金が 半分・いのりの場所で 回復）は かえない
-import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE, PARTY_NOTE_MAX } from '../data/boss-hints.js?v=28060a38724e';
-import { c9Life } from '../battle-c9a.js?v=28060a38724e';
-import { JOBS } from '../data/jobs.js?v=28060a38724e';
-import { MAPS, canStand, isBlocked } from '../maps/index.js?v=28060a38724e';
-import { runSteps } from './scripts.js?v=28060a38724e';
-import { partyOf } from './party.js?v=28060a38724e';
+import { BOSS_HINTS, BOSS_RETRY, BOSS_HINT_WHO, HINT_SPEAKER, bossHintAt, PART3_BATTLE, BASIC_JOB_LV, PARTY_NOTE, PARTY_NOTE_MAX } from '../data/boss-hints.js?v=b63ba00e848c';
+import { c9Life } from '../battle-c9a.js?v=b63ba00e848c';
+import { JOBS } from '../data/jobs.js?v=b63ba00e848c';
+import { MAPS, canStand, isBlocked } from '../maps/index.js?v=b63ba00e848c';
+import { runSteps } from './scripts.js?v=b63ba00e848c';
+import { partyOf } from './party.js?v=b63ba00e848c';
 
 const LOSS_MAX = 9;
 

@@ -4,9 +4,9 @@
 // ・音の 間（map.c11dPads。サーバーの snap の c11d … { n: 鳴らした 数, nx: 次の 台, h: 1（じゅんが 光る）, d: 1（とびらが 開いた）}）:
 //   かべの 歌の 絵（7色の 音ぷが 歌の じゅんに ならぶ）・鳴らした 台の 光・じゅんが 光る（台の 上に 1〜7 の 数）・台を ふむと その 音
 // ・曲へ field.towerStage（今 いる かがやきの 塔の 階 1〜4。塔の 外では 0。前の 幕の pairStage と 同じ 形）
-import { C11D_SONG_ORDER } from '../shared/maps/c11d-flags.js?v=28060a38724e';
-import { PAD_COLORS11D } from './render/tiles-c11d.js?v=28060a38724e';
-import { TS } from './render/tiles.js?v=28060a38724e';
+import { C11D_SONG_ORDER } from '../shared/maps/c11d-flags.js?v=b63ba00e848c';
+import { PAD_COLORS11D } from './render/tiles-c11d.js?v=b63ba00e848c';
+import { TS } from './render/tiles.js?v=b63ba00e848c';
 
 // 音の 高さ（台の ならび … レ・ド・ミ・ファ・ソ・ラ・シ。ドは 歌の さいごの 音なので 高い ド）
 const PAD_HZ = [587.3, 1046.5, 659.3, 698.5, 784.0, 880.0, 987.8];
