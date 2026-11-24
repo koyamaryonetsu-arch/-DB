@@ -606,6 +606,7 @@
       lastUpdateSourceSupported = true;
     }
     c.fieldSources = (r.field_sources && typeof r.field_sources === 'object') ? r.field_sources : {};   // 欄ごとの最後の入れ手（菱熱の画面の印）
+    MAIL_BASE.set(String(c.id), { content: c.content || '', workStartDate: c.workStartDate || '' });   // 通知メールを聞く時の「前に保存した値」
     return c;
   }
 
@@ -1176,7 +1177,82 @@
     if (c && c.theater) { const t = canonTheaterName(c.theater, c.company); if (t && t !== c.theater) c.theater = t; }
     return c;
   }
-  function persistCase(c, sourceOverride) { fixCaseTheater(c); notifyCasesChanged(); return Promise.resolve(store.upsertCase(c, sourceOverride)).catch(onPersistError); }
+  function persistCase(c, sourceOverride) {
+    fixCaseTheater(c); notifyCasesChanged();
+    // 菱熱が手で「内容」「作業開始日」を直した・新しく登録した時は、通知メールの予定を積まずに保存し、送るか聞く（2026-11-24）
+    const ask = !sourceOverride ? mailAskKinds(c) : null;
+    const p = Promise.resolve(store.upsertCase(c, ask ? 'ryo_quiet' : sourceOverride)).catch(onPersistError);
+    if (!ask) MAIL_BASE.set(String(c.id), { content: c.content || '', workStartDate: c.workStartDate || '' });
+    else p.then(() => mailAskAfterSave(c, ask));
+    return p;
+  }
+  // ===== 通知メールを送るか聞く（2026-11-24 小山さん: 1つずつ直すたびに通知が行くのを防ぐ） =====
+  //  ・菱熱が手で「内容」「作業開始日」を直した時・新しく登録した時だけ聞く（AI・メール取り込みは今まで通り送らない）
+  //  ・「通知する」で通知の予定（case_mail_events）を積む（5分後にまとめて送る）。「通知しない」は積まない
+  //  ・「ほかの項目も直す」は編集パネルを開き、次に保存した時（またはパネルを閉じた時）にもう一度聞く
+  const MAIL_BASE = new Map();      // 案件 id → 前に保存した（客先が知っている）内容・作業開始日
+  const MAIL_PENDING = new Map();   // 案件 id → { old, isNew, kinds: Set, asking }
+  function mailAskOn() {
+    return store.mode === 'supabase' && caseMailSupported && realPrivileged(currentUser) && !meetingActive(currentUser)
+      && String(caseMailSettings.mode || 'test') !== 'off';
+  }
+  function mailAskKinds(c) {
+    if (!mailAskOn()) return null;
+    const id = String(c.id), base = MAIL_BASE.get(id), pend = MAIL_PENDING.get(id);
+    const kinds = new Set(pend ? pend.kinds : []);
+    if (!base) { if (c.content || c.workStartDate) kinds.add(c.content ? 'content' : 'work_start'); if (c.workStartDate) kinds.add('work_start'); }
+    else {
+      if ((c.content || '') && (c.content || '') !== base.content) kinds.add('content');
+      if ((c.workStartDate || '') && (c.workStartDate || '') !== base.workStartDate) kinds.add('work_start');
+    }
+    if (!kinds.size) return null;
+    const next = pend || { old: base ? base.content : '', isNew: !base, kinds: new Set(), asking: false };
+    kinds.forEach((k) => next.kinds.add(k));
+    MAIL_PENDING.set(id, next);
+    MAIL_BASE.set(id, { content: c.content || '', workStartDate: c.workStartDate || '' });
+    return next;
+  }
+  function mailAskDialog(msg, allowEdit) {
+    return new Promise((resolve) => {
+      const ov = document.createElement('div'); ov.className = 'kt-ask-ov mail-ask-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+      ov.innerHTML = `<div class="kt-ask"><div class="kt-ask-msg">${escapeHtml(msg)}</div><div class="kt-ask-btns mail-ask-btns">
+        <button type="button" data-mail="skip">通知しない</button>
+        ${allowEdit ? '<button type="button" data-mail="edit">ほかの項目も直す（あとで聞く）</button>' : ''}
+        <button type="button" class="kt-ask-yes primary" data-mail="send">📨 通知する</button></div></div>`;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => { const b = e.target.closest('[data-mail]'); if (b) { ov.remove(); resolve(b.dataset.mail); } });
+      const y = ov.querySelector('[data-mail="send"]'); if (y) y.focus();
+    });
+  }
+  async function mailAskAfterSave(c, pend, fromClose) {
+    if (!pend || pend.asking) return;
+    pend.asking = true;
+    // 「作業申請書を作りますか？」などの画面が出ている間は待って、閉じてから聞く（2つの画面を重ねない）
+    await new Promise((r) => setTimeout(r, 900));   // 保存の後に出る画面（作業申請書を作りますか？など）が先に出るのを待つ
+    for (let i = 0; i < 1800 && document.querySelector('#waDecide, #waDlg, #dgSafety, #dgBudget, .kt-ask-ov:not(.mail-ask-ov)'); i++) await new Promise((r) => setTimeout(r, 500));
+    if (!MAIL_PENDING.has(String(c.id))) { pend.asking = false; return; }
+    const what = [pend.isNew ? '新しい案件の登録' : (pend.kinds.has('content') ? '「内容」' : ''), pend.kinds.has('work_start') ? '「作業開始日」' : ''].filter(Boolean).join('と');
+    const test = String(caseMailSettings.mode || 'test') !== 'live';
+    const panelOpen = !$('modal').classList.contains('hidden') && cmCaseId === String(c.id);
+    const msg = `${shortTheaterName(c.theater) || c.theater || ''}　${c.title || ''}\n${what}を保存しました。客先に通知メールを送りますか？\n` +
+      `（「通知する」と5分後にまとめて送ります。${test ? 'いまはテスト中なので、テストの宛先にだけ届きます。' : ''}）`;
+    const ans = await mailAskDialog(msg, !fromClose);
+    pend.asking = false;
+    if (ans === 'edit') {
+      if (!panelOpen) openModal(c, 'full');
+      showToastLite('直し終わって保存すると、もう一度「通知しますか？」と聞きます');
+      return;
+    }
+    MAIL_PENDING.delete(String(c.id));
+    if (ans !== 'send') { showToastLite('通知メールは送りません'); return; }
+    const rows = [];
+    if (pend.kinds.has('content') || pend.isNew) rows.push({ case_id: String(c.id), kind: 'content', detail: pend.isNew ? 'new' : '', old_content: pend.isNew ? '' : (pend.old || '') });
+    if (pend.kinds.has('work_start') && c.workStartDate) rows.push({ case_id: String(c.id), kind: 'work_start', detail: '' });
+    let { error } = await sb.from('case_mail_events').insert(rows);
+    if (error && /old_content/.test(error.message || '')) ({ error } = await sb.from('case_mail_events').insert(rows.map((r) => { const x = Object.assign({}, r); delete x.old_content; return x; })));
+    if (error) { window.KARTE.say('通知の予定を積めませんでした: ' + error.message); return; }
+    showToastLite(test ? '通知メールを送ります（5分後・テストの宛先だけ）' : '通知メールを送ります（5分後にまとめて）');
+  }
   function persistCases(arr) { (arr || []).forEach(fixCaseTheater); notifyCasesChanged(); return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
   function removeCaseRemote(id) { return Promise.resolve(store.deleteCase(id)).catch(onPersistError); }
 
@@ -1883,7 +1959,7 @@
     '他社': '既存の保守会社様にて対応いただく案件と判断いたしました。'
   };
   const irKubunLabel = (k) => k === '他社' ? '他社案件' : k + '工事';
-  function irSubject(c) { return `【菱熱工業】${shortTheaterName(c.theater) || c.theater} ${c.title || c.category || 'ご依頼の件'} 初動対応・区分判定のご報告 [案件#${String(c.id).replace(/-/g, '').slice(0, 8)}]`; }
+  function irSubject(c) { return `【菱熱工業】${shortTheaterName(c.theater) || c.theater} ${c.title || c.category || 'ご依頼の件'} 初動対応・区分判定のご報告`; }
   function irBody(c, k) {
     const lines = [`${c.company} ご担当者様`, '', 'いつもお世話になっております。菱熱工業です。', '下記のご依頼について、初動対応・区分判定をご報告いたします。', '',
       `■ 劇場: ${c.theater || ''}`];
@@ -4193,6 +4269,11 @@
     }
   });
   function closeModal() {
+    const pendId = cmCaseId;
+    if (pendId && MAIL_PENDING.has(pendId)) {   // 「ほかの項目も直す」のあと、保存せずに閉じた時も聞く
+      const pc = cases.find((x) => String(x.id) === pendId);
+      setTimeout(() => { const pd = MAIL_PENDING.get(pendId); if (pc && pd) mailAskAfterSave(pc, pd, true); }, 0);
+    }
     cmCaseId = null;
     $('modal').classList.add('hidden');
     document.body.classList.remove('drawer-open');
@@ -8326,7 +8407,7 @@
       cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, title: c.title || '', estimateName: c.estimateName || '', content: c.content || '', receivedDate: c.receivedDate || '', category: c.category || '', status: deriveStatus(c), surveyDate: c.surveyDate || '', workEndDate: c.workEndDate || '', tcPerson: c.tcPerson || '', rPerson: c.rPerson || '' })); } catch (e) { return []; } },
       // 工事予定表(plan.js)用: 案件の一覧（見えている分）と、案件を直す（予定表で直した項目を案件にも入れる）
       casesFull: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '', estimateAmount: c.estimateAmount, marginRate: c.marginRate, rPerson: c.rPerson || '', workStartDate: c.workStartDate || '', workEndDate: c.workEndDate || '', receivedDate: c.receivedDate || '', status: deriveStatus(c) })); } catch (e) { return []; } },
-      updateCase: (id, patch) => {
+      updateCase: (id, patch, opts) => {
         const c = cases.find((x) => String(x.id) === String(id));
         if (!c || !isPrivileged(currentUser)) return false;
         const ok = ['estimateName', 'estimateAmount', 'marginRate', 'rPerson', 'surveyDate', 'workStartDate', 'workEndDate'];
@@ -8338,7 +8419,7 @@
           if (clean) modalSnapshot = caseFormSnapshot();
         }
         if (store.mode === 'local') saveCases();
-        persistCase(c);
+        persistCase(c, opts && opts.quiet ? 'ryo_quiet' : undefined);   // 作業申請書から入れた日付は、申請書の通知で知らせるので聞かない
         if (!planMode) refresh();
         return true;
       },

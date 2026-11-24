@@ -896,7 +896,7 @@
     const f = S.form; if (S.caseDate || !f.start_date || !DB().updateCase) return;
     const patch = S.purpose === 'survey' ? { surveyDate: f.start_date } : { workStartDate: f.start_date };
     if (S.purpose !== 'survey' && f.end_date && !S.c.workEndDate) patch.workEndDate = f.end_date;
-    if (!DB().updateCase(S.caseId, patch)) return;
+    if (!DB().updateCase(S.caseId, patch, { quiet: true })) return;
     S.caseDate = f.start_date;
     const nc = DB().caseInfo ? DB().caseInfo(S.caseId) : null; if (nc) S.c = nc;
     const t = document.getElementById('waTitle'); if (t) t.textContent = `📝 作業申請書を作る（${PURPOSE_LABEL[S.purpose]} ${mdw(S.caseDate)}）— ${S.c.theater}`;
