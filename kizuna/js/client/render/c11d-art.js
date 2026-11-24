@@ -6,8 +6,8 @@
 // ・中ボス（ミラーレ・オボロ）は 今 ある え（c10d_mirare・c11b_oboro）を そのまま 写す（コマ 2・3 … ひびの 入った 鏡・引いていく オボロ）
 // ・さいごの ボス「かがやきの女王ポラリス」（2倍の こまかさ。224×256）: まっすぐ 立つ、まぶしい 女王。白と 金の ドレス・北の 星の かんむり・
 //   光の しゃく・ねむって いない 目（こわく しない。まじめな 顔）。コマ 2・3 … 手を 下ろす（光が やわらかい）
-import { fit, spark } from './ch3-draw.js?v=b63ba00e848c';
-import { C11D_DUO_ART } from '../../shared/data/monsters-c11d.js?v=b63ba00e848c';
+import { fit, spark } from './ch3-draw.js?v=71ec2a6ff6b8';
+import { C11D_DUO_ART } from '../../shared/data/monsters-c11d.js?v=71ec2a6ff6b8';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

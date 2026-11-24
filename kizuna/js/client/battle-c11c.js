@@ -6,10 +6,10 @@
 // ・え: 隊長が カードに もどって ちらばる（コマ 2・3）
 // ・コマンド: いちばん 上に「アルゴルにたのむ」（食べられる・おなかいっぱい）→ どのカード？（1回で 決定）
 // ・えんしゅつ: アルゴルの 絵（今 ある 少年の 絵 c10c_algol）が カードの 上に 出て、ぱくっと 食べる
-import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_ACE, C11C_GUARD, ACE_SHORT, MECHA_NAME } from '../shared/data/monsters-c11c.js?v=b63ba00e848c';
-import { TANOMU } from '../shared/data/abilities-c11c.js?v=b63ba00e848c';
-import { C11C_CMD_B } from '../shared/maps/c11c-flags.js?v=b63ba00e848c';
-import { monsterCanvas } from './render/monsters.js?v=b63ba00e848c';
+import { C11C_HEAD, C11C_ARM, C11C_LEG, C11C_ACE, C11C_GUARD, ACE_SHORT, MECHA_NAME } from '../shared/data/monsters-c11c.js?v=71ec2a6ff6b8';
+import { TANOMU } from '../shared/data/abilities-c11c.js?v=71ec2a6ff6b8';
+import { C11C_CMD_B } from '../shared/maps/c11c-flags.js?v=71ec2a6ff6b8';
+import { monsterCanvas } from './render/monsters.js?v=71ec2a6ff6b8';
 
 export const C11C_CMD = C11C_CMD_B;
 // 前ぶれの バナーを 自分で 出す（client/battle-c8r.js の C8R_OWN_TELE に まぜる）

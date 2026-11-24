@@ -6,7 +6,7 @@
 // 形は jobs-r98-kuuchou.js と おなじ（1つ 1ファイル。data/kizuna.js の 一覧に 1行）
 // 新しい 戦いの しくみは 作らない（親の しくみ: 火竜をよぶ〈r85bRyu〉・姫を守る忍び〈r85bHime〉・影分身〈clones・dance。battle-phantom-a.js〉）
 //   火の意志（will）だけ、海賊王の 仲間の 力（crew）と おなじ 所に 1つ 足した（たおれた 仲間 1人ごとに 威力 ＋。battle-phantom-a.js）
-import { RYU_SET } from './abilities-r85b.js?v=b63ba00e848c';
+import { RYU_SET } from './abilities-r85b.js?v=71ec2a6ff6b8';
 
 const STATUS_ALL = ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'];
 

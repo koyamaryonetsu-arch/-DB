@@ -3,25 +3,25 @@
 //   遠くに 小さな 明かり・すいしょうの 柱・光る こけ（たてあな・大地の下・暗い 所の 大ミミズ）
 // ・c9b_feast（deco 'c9b_feast'）… 大王の やしきの ごちそうの 間: 赤い たれまく・明かりの つぼ・長い テーブル（手下・大王の 戦い）
 // 第3部 第1章 第3幕（地下の川・さかさのピラミッド・音の間。c9c-bg.js）もここから
-import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js?v=b63ba00e848c';
+import { C9C_BG, C9C_DECOS, drawC9cBg, drawC9cFloorBg } from './c9c-bg.js?v=71ec2a6ff6b8';
 // 第3部 第1章 第4幕（ふたごの道・星のはかば。c9d-bg.js）
-import { C9D_BG, C9D_DECOS, drawC9dBg, drawC9dFloorBg } from './c9d-bg.js?v=b63ba00e848c';
+import { C9D_BG, C9D_DECOS, drawC9dBg, drawC9dFloorBg } from './c9d-bg.js?v=71ec2a6ff6b8';
 // 第3部 第2章 第1幕（古い道・熱の間・根の国・大木の前。c10a-bg.js）
-import { C10A_BG, C10A_DECOS, drawC10aBg, drawC10aFloorBg } from './c10a-bg.js?v=b63ba00e848c';
+import { C10A_BG, C10A_DECOS, drawC10aBg, drawC10aFloorBg } from './c10a-bg.js?v=71ec2a6ff6b8';
 // 第3部 第2章 第2幕（水鏡の うら・かれた間・氷の下の道・月の間。c10b-bg.js）
-import { C10B_BG, C10B_DECOS, drawC10bBg, drawC10bFloorBg } from './c10b-bg.js?v=b63ba00e848c';
+import { C10B_BG, C10B_DECOS, drawC10bBg, drawC10bFloorBg } from './c10b-bg.js?v=71ec2a6ff6b8';
 // 第3部 第2章 第3幕（空の 小島・うかぶ いせき・ベルトの 工場・少年の 間。c10c-bg.js）
-import { C10C_BG, C10C_DECOS, drawC10cBg, drawC10cFloorBg } from './c10c-bg.js?v=b63ba00e848c';
+import { C10C_BG, C10C_DECOS, drawC10cBg, drawC10cFloorBg } from './c10c-bg.js?v=71ec2a6ff6b8';
 // 第3部 第2章 第4幕（星の 階段・いただき。c10d-bg.js）
-import { C10D_BG, C10D_DECOS, drawC10dBg, drawC10dFloorBg } from './c10d-bg.js?v=b63ba00e848c';
+import { C10D_BG, C10D_DECOS, drawC10dBg, drawC10dFloorBg } from './c10d-bg.js?v=71ec2a6ff6b8';
 // 第3部 第3章 第1幕（星の船の 上・星座の 島・星座の門の 前。c11a-bg.js）
-import { C11A_BG, C11A_DECOS, drawC11aBg, drawC11aFloorBg } from './c11a-bg.js?v=b63ba00e848c';
+import { C11A_BG, C11A_DECOS, drawC11aBg, drawC11aFloorBg } from './c11a-bg.js?v=71ec2a6ff6b8';
 // 第3部 第3章 第2幕（うらの 町の 道・名前の 塔の おもて／うら・塔の 上の テラス。c11b-bg.js）
-import { C11B_BG, C11B_DECOS, drawC11bBg, drawC11bFloorBg } from './c11b-bg.js?v=b63ba00e848c';
+import { C11B_BG, C11B_DECOS, drawC11bBg, drawC11bFloorBg } from './c11b-bg.js?v=71ec2a6ff6b8';
 // 第3部 第3章 第3幕（はかりの 回ろう・名前の 塔の 前・大とびらの 前。c11c-bg.js）
-import { C11C_BG, C11C_DECOS, drawC11cBg, drawC11cFloorBg } from './c11c-bg.js?v=b63ba00e848c';
+import { C11C_BG, C11C_DECOS, drawC11cBg, drawC11cFloorBg } from './c11c-bg.js?v=71ec2a6ff6b8';
 // 第3部 第3章 第4幕（かがやきの 塔・音の 間・玉座の 間。c11d-bg.js）
-import { C11D_BG, C11D_DECOS, drawC11dBg, drawC11dFloorBg } from './c11d-bg.js?v=b63ba00e848c';
+import { C11D_BG, C11D_DECOS, drawC11dBg, drawC11dFloorBg } from './c11d-bg.js?v=71ec2a6ff6b8';
 
 const BW = 256, BH = 144;
 

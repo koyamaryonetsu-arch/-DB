@@ -5,9 +5,9 @@
 //   画面の すみに「おもて」「うら」の しるし（月の 形。うらは 欠けた 月）
 // ・ホタルの 助け（snap の c11b … { h: [x, y, 'door' | 'floor' | 'lamp'] }）: その マスの 上で 小さな 光が くるくる まわる
 // ・曲へ field.sideStage（0 おもて・1 うら。この 幕の マップの 外では 0）
-import { T } from '../shared/tiles.js?v=b63ba00e848c';
-import { effectiveTile } from '../shared/maps/index.js?v=b63ba00e848c';
-import { TS } from './render/tiles.js?v=b63ba00e848c';
+import { T } from '../shared/tiles.js?v=71ec2a6ff6b8';
+import { effectiveTile } from '../shared/maps/index.js?v=71ec2a6ff6b8';
+import { TS } from './render/tiles.js?v=71ec2a6ff6b8';
 
 // ───── サーバーの snap ─────
 export function noteC11bSnap(field, d) {

@@ -9,7 +9,7 @@
 //     コマ 2・3 … 雲の 車が 空へ 引いていく（すがたが 小さく 上へ）
 //   天人 … 小さな 天の 使い（白い 長い そで・うすい 衣が ひらひら・光の わ）
 //   もとの 昔話の 絵は 使わない（竹・おじいさん おばあさん は かかない）
-import { fit, spark, bez } from './ch3-draw.js?v=b63ba00e848c';
+import { fit, spark, bez } from './ch3-draw.js?v=71ec2a6ff6b8';
 
 const EYE = ['#ffffff', '#1a1026'];
 const pal = (P) => [...new Set([...Object.values(P), ...EYE])];

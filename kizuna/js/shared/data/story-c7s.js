@@ -9,21 +9,21 @@
 // より道「時をこえる手紙」（海の 地方）は data/sidequests-c7s.js。魔物・きまった 戦い・品・カイの 強さは B（plan-ch7.md の 4-3）
 import {
   C7S, ARRIVE7S, LF7, EBB3, OPEN6S, WAIT6S, WIN7S, LETTER7S, LETTER7S_LIGHT, KEEPER_LETTER, C7S_SEA, PRESENT_SEA, LIGHT_DOOR, c7slMapId,
-} from '../maps/c7s-flags.js?v=b63ba00e848c';
-import { C7 } from '../maps/c7-flags.js?v=b63ba00e848c';
-import { C7S_POS } from '../maps/c7s-sea.js?v=b63ba00e848c';
-import { C7SL_POS } from '../maps/c7s-light.js?v=b63ba00e848c';
-import { MAPS } from '../maps/index.js?v=b63ba00e848c';
-import { FIXED_ENCOUNTERS } from './encounters.js?v=b63ba00e848c';
-import { MONSTERS } from './monsters.js?v=b63ba00e848c';
-import { SHOPS, NPC_SUPPORTS } from './shops.js?v=b63ba00e848c';
-import { SHOPS_C7S } from './shops-c7s.js?v=b63ba00e848c';
-import { GLASS_TEXT } from '../world/time-glass.js?v=b63ba00e848c';
-import { partyOf } from '../world/party.js?v=b63ba00e848c';
-import { applyC7sSide } from './sidequests-c7s.js?v=b63ba00e848c';
-import { innSteps } from './inn.js?v=b63ba00e848c';
+} from '../maps/c7s-flags.js?v=71ec2a6ff6b8';
+import { C7 } from '../maps/c7-flags.js?v=71ec2a6ff6b8';
+import { C7S_POS } from '../maps/c7s-sea.js?v=71ec2a6ff6b8';
+import { C7SL_POS } from '../maps/c7s-light.js?v=71ec2a6ff6b8';
+import { MAPS } from '../maps/index.js?v=71ec2a6ff6b8';
+import { FIXED_ENCOUNTERS } from './encounters.js?v=71ec2a6ff6b8';
+import { MONSTERS } from './monsters.js?v=71ec2a6ff6b8';
+import { SHOPS, NPC_SUPPORTS } from './shops.js?v=71ec2a6ff6b8';
+import { SHOPS_C7S } from './shops-c7s.js?v=71ec2a6ff6b8';
+import { GLASS_TEXT } from '../world/time-glass.js?v=71ec2a6ff6b8';
+import { partyOf } from '../world/party.js?v=71ec2a6ff6b8';
+import { applyC7sSide } from './sidequests-c7s.js?v=71ec2a6ff6b8';
+import { innSteps } from './inn.js?v=71ec2a6ff6b8';
 // 酒場の カイ（B の 酒場の カイ。まとめる 時に B の ファイル〈companions-c7s.js など〉から）
-import { KAI_SUPPORT } from './companions-c7s.js?v=b63ba00e848c';
+import { KAI_SUPPORT } from './companions-c7s.js?v=71ec2a6ff6b8';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

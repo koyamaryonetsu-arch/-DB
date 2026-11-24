@@ -1,8 +1,8 @@
 // ひとりモード: ブラウザの なかで サーバーを うごかす
 // セーブは このブラウザ（localStorage）と、claude.ai の アーティファクトの 中なら クラウド（cloudsave.js）の 両方に
-import { GameWorld } from '../shared/world/world.js?v=b63ba00e848c';
-import { pruneEntries } from '../shared/world/sync.js?v=b63ba00e848c';
-import { openCloud, adoptCloud } from './cloudsave.js?v=b63ba00e848c';
+import { GameWorld } from '../shared/world/world.js?v=71ec2a6ff6b8';
+import { pruneEntries } from '../shared/world/sync.js?v=71ec2a6ff6b8';
+import { openCloud, adoptCloud } from './cloudsave.js?v=71ec2a6ff6b8';
 
 const KEY = 'kizuna_offline_save_v1';
 const SYNC_KEY = 'kizuna_sync_v1';
@@ -177,7 +177,7 @@ export async function attachCloud(world, storage, status, claude) {
 }
 
 export function startOffline(deliver) {
-  const world = new GameWorld({ storage: offlineStorage, syncStore: localSyncStore(), offline: true, familyName: 'このブラウザ' });
+  const world = new GameWorld({ storage: offlineStorage, syncStore: localSyncStore(), offline: true, familyName: 'このブラウザ', talkWait: true }); // 第105回: talkWait … 戦いの 会話を 読み終わるまで 待つ
   offlineStorage.prime(world.data);
   const status = cloudStatus();
   // クラウドの セーブを 読みおわるまで、遊ぶ ための メッセージは まつ

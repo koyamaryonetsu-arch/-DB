@@ -5,10 +5,10 @@
 //   t11d_tower2 … 塔 2階 月かげの 間（c11d_tower2・c11d_tower2b。Lv124〜125）
 //   t11d_tower3 … 塔 3階 かげの 間（c11d_tower3。Lv125〜126）
 // ふつうの 戦いの 長さ（20-5）: 超級職 4人で 1回 30〜50秒（tools/sim-ch9-field.mjs の SUPER=1）
-import { C11D_MIRROR, C11D_MOON, C11D_QUEEN } from './monsters-c11d.js?v=b63ba00e848c';
-import { C11D_BATTLE_B as C11D_BATTLE, C11D_TRACKS_B as C11D_TRACKS } from '../maps/c11d-flags.js?v=b63ba00e848c';
+import { C11D_MIRROR, C11D_MOON, C11D_QUEEN } from './monsters-c11d.js?v=71ec2a6ff6b8';
+import { C11D_BATTLE_B as C11D_BATTLE, C11D_TRACKS_B as C11D_TRACKS } from '../maps/c11d-flags.js?v=71ec2a6ff6b8';
 // 負けた 時の ヒントの 文（boss-hints-c11d.js が mergeBossHints を よぶ）
-import './boss-hints-c11d.js?v=b63ba00e848c';
+import './boss-hints-c11d.js?v=71ec2a6ff6b8';
 
 export const ENCOUNTERS_C11D = {
   t11d_tower1: [

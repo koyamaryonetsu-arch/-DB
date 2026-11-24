@@ -6,7 +6,7 @@
 // ・c11b_oboro … 月の むかえ（場面の 絵。雲の 車に 乗った、白い 衣の 使い）
 // ・c11b_shadow … 屋根の 上の 小さな かげ（すがたは 見せない。黒い かげと 三日月だけ）
 //   もとの 昔話の 絵の しるし（竹・おじいさん おばあさん）は 使わない
-import { Painter } from './pixel.js?v=b63ba00e848c';
+import { Painter } from './pixel.js?v=71ec2a6ff6b8';
 
 export const C11B_NPC_LOOKS = {
   c11b_folkF1: { hair: '#f0f0ff', hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#e8e8ff', robeTrim: '#b8c0f0', female: true },

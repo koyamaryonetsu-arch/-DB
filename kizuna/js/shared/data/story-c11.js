@@ -11,17 +11,17 @@
 //   ・PART3_C11C_OPEN … 第3幕「はかりの回ろうと、ふたつの光」を 開ける 切りかえ（第103回 A班）・第2幕 クリアの 目標の 文（act2ClearObjective）・題の 画面（c11cTitleSteps）
 //   ・PART3_C11D_OPEN … 第4幕「かがやきの女王と、八つめの音」を 開ける 切りかえ（第104回 A班）・第3幕 クリアの 目標の 文（act3ClearObjective）・題の 画面（c11dTitleSteps）
 // story-c10.js から 読まれるので、story.js・story-c9*.js・story-c10*.js を import しない こと
-import { C11A_LINE } from '../maps/c11a-flags.js?v=b63ba00e848c';
-import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=b63ba00e848c';
+import { C11A_LINE } from '../maps/c11a-flags.js?v=71ec2a6ff6b8';
+import { applyCh11a, CH11A_PROGRESS, CH11A_OBJECTIVE_TARGETS, CH11A_OBJECTIVE_TALK, C11A_OBJ } from './story-c11a.js?v=71ec2a6ff6b8';
 // 第102回 A班: 第2幕「月の都と、名前のランプ」（story-c11b.js）
-import { C11B_LINE } from '../maps/c11b-flags.js?v=b63ba00e848c';
-import { applyCh11b, CH11B_PROGRESS, CH11B_OBJECTIVE_TARGETS, CH11B_OBJECTIVE_TALK, C11B_OBJ } from './story-c11b.js?v=b63ba00e848c';
+import { C11B_LINE } from '../maps/c11b-flags.js?v=71ec2a6ff6b8';
+import { applyCh11b, CH11B_PROGRESS, CH11B_OBJECTIVE_TARGETS, CH11B_OBJECTIVE_TALK, C11B_OBJ } from './story-c11b.js?v=71ec2a6ff6b8';
 // 第103回 A班: 第3幕「はかりの回ろうと、ふたつの光」（story-c11c.js）
-import { C11C_LINE } from '../maps/c11c-flags.js?v=b63ba00e848c';
-import { applyCh11c, CH11C_PROGRESS, CH11C_OBJECTIVE_TARGETS, CH11C_OBJECTIVE_TALK, C11C_OBJ } from './story-c11c.js?v=b63ba00e848c';
+import { C11C_LINE } from '../maps/c11c-flags.js?v=71ec2a6ff6b8';
+import { applyCh11c, CH11C_PROGRESS, CH11C_OBJECTIVE_TARGETS, CH11C_OBJECTIVE_TALK, C11C_OBJ } from './story-c11c.js?v=71ec2a6ff6b8';
 // 第104回 A班: 第4幕「かがやきの女王と、八つめの音」（story-c11d.js。第3部の さいごの 幕）
-import { C11D_LINE } from '../maps/c11d-flags.js?v=b63ba00e848c';
-import { applyCh11d, CH11D_PROGRESS, CH11D_OBJECTIVE_TARGETS, CH11D_OBJECTIVE_TALK, C11D_OBJ } from './story-c11d.js?v=b63ba00e848c';
+import { C11D_LINE } from '../maps/c11d-flags.js?v=71ec2a6ff6b8';
+import { applyCh11d, CH11D_PROGRESS, CH11D_OBJECTIVE_TARGETS, CH11D_OBJECTIVE_TALK, C11D_OBJ } from './story-c11d.js?v=71ec2a6ff6b8';
 
 // ───── 第1幕「星の船と、星座の島」を 開ける 切りかえ（17-5・17-6。第100回 A班）─────
 // ★ B班（戦い）を 取りこんで つなぐ 時に true に する（false … 今の まま。第2章 クリアの 目標は「第3部　第3章へ（続きはアップデートで！）」・

@@ -36,10 +36,10 @@
 //   counter     … カウンターの かまえの 技（今 ある 反撃の 構え stance・飛竜しょう天は・れい丸・しょう天は）
 //                 （かまえを 使った 回数。カウンターが 決まった 回数では ない ＝ 自分が 使った 技の 回数だけで 数える きまりの まま）
 //   sakusen     … 作戦の 技（軍師の 技: 作戦を立てる・強化ふうじ・太極図・守りの旗・軍師の号令・先読みの策・ほう神計画・みんなでとなえる）
-import { ABILITIES, abilityRole } from './abilities.js?v=b63ba00e848c';
-import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js?v=b63ba00e848c';
-import { jobLabel } from '../job-label.js?v=b63ba00e848c';
-import { kizunaMap } from './kizuna.js?v=b63ba00e848c';
+import { ABILITIES, abilityRole } from './abilities.js?v=71ec2a6ff6b8';
+import { JOBS, JOB_MAX_LEVEL, PHANTOM_ORDER, JOB_HINTS } from './jobs.js?v=71ec2a6ff6b8';
+import { jobLabel } from '../job-label.js?v=71ec2a6ff6b8';
+import { kizunaMap } from './kizuna.js?v=71ec2a6ff6b8';
 
 export const PHANTOM_TAGS = ['gomu', 'thunderSpell', 'kame', 'hinokami', 'ninjutsu', 'support', 'deduce', 'healSpell', 'attackSpell',
   'sword', 'debuff', 'train', 'pitch', 'sun', 'rain', 'thunder',

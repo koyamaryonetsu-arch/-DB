@@ -1130,6 +1130,19 @@ img.face { image-rendering: pixelated; }
 .b-msg { flex: 1 1 0; min-width: 0; font-size: var(--fs-small); line-height: 1.5; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
 .b-msg .ln { white-space: pre-wrap; }
 .b-msg .ln.old { color: var(--muted); }
+/* 第105回: 戦いの 中の 会話（1行ずつ。▼ … タップ・決定で 次へ。client/battle-talk.js） */
+.b-msg.talk { position: relative; padding-right: 1.6em; }
+.b-msg.talk .ln { color: var(--muted); }
+.b-msg.talk .ln.now { color: inherit; }
+.b-msg .talk-mark { position: absolute; right: 0.45em; bottom: 0.2em; font-size: 0.9em; color: #ffe27a; animation: talk-mark 0.9s ease-in-out infinite; pointer-events: none; }
+.b-msg.talk-auto .talk-mark { display: none; }
+.b-msg .ln.talk-wait { color: #9fd8ff; font-size: 0.92em; }
+@keyframes talk-mark { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(3px); opacity: 0.55; } }
+#battle.b-talking .b-cmd { position: relative; }
+#battle.b-talking .b-cmd > * { opacity: 0.45; pointer-events: none; }
+#battle.b-talking .b-backbar { pointer-events: none; opacity: 0.45; }
+#battle.b-talking .b-msg { cursor: pointer; }
+#battle.b-talking .b-hold { display: none; }
 /* 技の せつめいは 別の まど（.b-info。第27回）。上から（はみ出したら スクロール）。せつめいが ない ときは 出さない */
 .b-info { display: none; flex: 1.3 1 0; min-width: 0; font-size: var(--fs-small); line-height: 1.5; overflow-y: auto; overscroll-behavior: contain; }
 #battle.has-info .b-info { display: block; }
@@ -2136,4 +2149,8 @@ body.big-choice #ui .dialog { visibility: hidden; }
   .pp-need { display: flex; }
   .pp-body { grid-template-columns: minmax(0, 1fr); grid-template-areas: "ask" "where" "reward" "job"; }
   .pp-chip { font-size: calc(var(--fs-small) * 0.92); }
+}
+/* 第105回: スマホの たてむきで 会話を 読む 間は、メッセージの まどを 高く（前の 行も 読める。client/battle-talk.js） */
+@media (max-aspect-ratio: 1/1) {
+  #battle.b-talking .b-msg { height: 9.4em; }
 }

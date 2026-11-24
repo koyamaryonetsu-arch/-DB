@@ -34,20 +34,20 @@
 // ・戦いは、人が えらぶ 間 ずっと 待つ 形（b.tellAll）。b.mechBoss も 立てる（shared/ai.js の mechBoss）
 // ・人数の 数え方は 第2章 第1幕と おなじ（battle-c10a.js の peopleOf10。魔物の 仲間は 半人ぶん）。bare … 味方が みんな 家族の キャラで 2人・3人
 // ※ 戦いの 文に カイ・ソリトゥスの 名前・第1部と 第2部の ひみつ・八つめの 光が だれの 物かの 説明を 書かない（20-1。テストで 見る）。女王を 悪者の ことばに しない
-import { MONSTERS } from './data/monsters.js?v=b63ba00e848c';
-import { ABILITIES } from './data/abilities.js?v=b63ba00e848c';
-import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from './data/monsters-c11d.js?v=b63ba00e848c';
-import { HOLD, EIGHT, ROBE, BACK_HIT, STRIKE, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER, EIGHT_SONG_NAME } from './data/abilities-c11d.js?v=b63ba00e848c';
-import { C11D_B as C11D } from './maps/c11d-flags.js?v=b63ba00e848c';
+import { MONSTERS } from './data/monsters.js?v=71ec2a6ff6b8';
+import { ABILITIES } from './data/abilities.js?v=71ec2a6ff6b8';
+import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from './data/monsters-c11d.js?v=71ec2a6ff6b8';
+import { HOLD, EIGHT, ROBE, BACK_HIT, STRIKE, MEASURE, SHINE, NAMES, SCENE, EIGHT_AFTER, EIGHT_SONG_NAME } from './data/abilities-c11d.js?v=71ec2a6ff6b8';
+import { C11D_B as C11D } from './maps/c11d-flags.js?v=71ec2a6ff6b8';
 // 八つめの 音の 場面の 文と 絵（A班の 台本）
-import { C11D_EIGHT_SCENE } from './data/story-c11d.js?v=b63ba00e848c';
-import { NARASU } from './data/abilities-c10d.js?v=b63ba00e848c';
-import { YOBIKAKE } from './data/abilities-c11b.js?v=b63ba00e848c';
-import { TERU as TERU_ID } from './data/abilities-c9b.js?v=b63ba00e848c';
-import { COLOR_N, colorName, colorLabel, noteName } from './battle-c10d.js?v=b63ba00e848c';
-import { TRAP_KINDS } from './battle-earth.js?v=b63ba00e848c';
-import { canUse } from './ai.js?v=b63ba00e848c';
-import { peopleOf10, someoneChooses } from './battle-c10a.js?v=b63ba00e848c';
+import { C11D_EIGHT_SCENE } from './data/story-c11d.js?v=71ec2a6ff6b8';
+import { NARASU } from './data/abilities-c10d.js?v=71ec2a6ff6b8';
+import { YOBIKAKE } from './data/abilities-c11b.js?v=71ec2a6ff6b8';
+import { TERU as TERU_ID } from './data/abilities-c9b.js?v=71ec2a6ff6b8';
+import { COLOR_N, colorName, colorLabel, noteName } from './battle-c10d.js?v=71ec2a6ff6b8';
+import { TRAP_KINDS } from './battle-earth.js?v=71ec2a6ff6b8';
+import { canUse } from './ai.js?v=71ec2a6ff6b8';
+import { peopleOf10, someoneChooses } from './battle-c10a.js?v=71ec2a6ff6b8';
 
 export { HOLD, EIGHT, ROBE, STRIKE, MEASURE, SHINE, NAMES, SCENE, NARASU, YOBIKAKE };
 // 場面の 文（{ lines: ['名前「文」' か 地の 文], arts: [絵の 名前 か null], ms: 1行の 長さ }。だれの 画面でも 同じ じゅん）
@@ -783,6 +783,8 @@ function names(b, c, ev) {
   }
   ev.fx = { type: 'ability', anim: 'c11q_names', actor: c.id, targets: [c.id], side: 'enemy' };
   ev.c11dNames = { id: c.id, name: nm, heal: h };
+  // 第105回: 名前を よぶ 番は 会話（回復が ついて いても 1行ずつ 読む。shared/battle-talk.js）
+  ev.talk = true;
   ev.upd.push(c);
 }
 // 八つめの 音の 場面（まぶしすぎる 光の あと。女王の 番の 動き … 1回の 戦いで 1度だけ）

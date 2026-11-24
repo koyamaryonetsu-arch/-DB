@@ -5,10 +5,10 @@
 //   t11a_isle2 … 星座の 島 2（c11a_isle2。Lv119〜120）
 //   t11a_isle3 … 星座の 島 3（c11a_isle3。Lv120）
 // ふつうの 戦いの 長さ（17-4）: 超級職 4人で 1回 30〜50秒（tools/sim-ch9-field.mjs の SUPER=1）
-import { C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN } from './monsters-c11a.js?v=b63ba00e848c';
-import { C11A_BATTLE_B as C11A_BATTLE, C11A_TRACKS_B as C11A_TRACKS } from '../maps/c11a-flags.js?v=b63ba00e848c';
+import { C11A_HEAD, C11A_CHEST, C11A_TAIL, C11A_CAPTAIN } from './monsters-c11a.js?v=71ec2a6ff6b8';
+import { C11A_BATTLE_B as C11A_BATTLE, C11A_TRACKS_B as C11A_TRACKS } from '../maps/c11a-flags.js?v=71ec2a6ff6b8';
 // 負けた 時の ヒントの 文（boss-hints-c11a.js が mergeBossHints を よぶ）
-import './boss-hints-c11a.js?v=b63ba00e848c';
+import './boss-hints-c11a.js?v=71ec2a6ff6b8';
 
 export const ENCOUNTERS_C11A = {
   t11a_sea: [

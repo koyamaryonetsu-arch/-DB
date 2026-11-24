@@ -7,19 +7,19 @@
 // ・コマンド: 女王 … いちばん 上に「手をつなぐ」→ だれと つなぐ？（スピカ・味方・ひとりの 時は アルゴル）／「八つの音」（八つめの 音の あと。のこりの 回数）
 //   中ボス … 今 ある「音を鳴らす」（第2章 第4幕の 6つの 音の まど）と「よびかける」（第2幕の まど）を そのまま 出す（前に いる 方の コマンドが 上）
 // ・えんしゅつ: 手を つなぐ 光の 線（味方の まどの 間）・八つめの 音の 場面（女王の 戦いの 中。サーバーの 文を じゅんに 出す。曲が かわる）
-import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from '../shared/data/monsters-c11d.js?v=b63ba00e848c';
-import { HOLD, EIGHT } from '../shared/data/abilities-c11d.js?v=b63ba00e848c';
-import { C11D_CMD_B, C11D_TRACKS_B } from '../shared/maps/c11d-flags.js?v=b63ba00e848c';
-import { C10D_MIRARE } from '../shared/data/monsters-c10d.js?v=b63ba00e848c';
-import { C11B_OBORO } from '../shared/data/monsters-c11b.js?v=b63ba00e848c';
-import { NOTE_COLORS } from '../shared/battle-c10d.js?v=b63ba00e848c';
-import { monsterCanvas } from './render/monsters.js?v=b63ba00e848c';
-import { c10dCmdItems, c10dNoteMenu } from './battle-c10d.js?v=b63ba00e848c';
-import { c11bCmdItems, c11bCmdPick } from './battle-c11b.js?v=b63ba00e848c';
-import { TRAP_LABEL } from './battle-earth.js?v=b63ba00e848c';
-import { EIGHT_CSS } from './render/battlefx-c11d.js?v=b63ba00e848c';
+import { C11D_MIRROR, C11D_MOON, C11D_QUEEN, MIRROR_SHORT, MOON_SHORT, QUEEN_SHORT } from '../shared/data/monsters-c11d.js?v=71ec2a6ff6b8';
+import { HOLD, EIGHT } from '../shared/data/abilities-c11d.js?v=71ec2a6ff6b8';
+import { C11D_CMD_B, C11D_TRACKS_B } from '../shared/maps/c11d-flags.js?v=71ec2a6ff6b8';
+import { C10D_MIRARE } from '../shared/data/monsters-c10d.js?v=71ec2a6ff6b8';
+import { C11B_OBORO } from '../shared/data/monsters-c11b.js?v=71ec2a6ff6b8';
+import { NOTE_COLORS } from '../shared/battle-c10d.js?v=71ec2a6ff6b8';
+import { monsterCanvas } from './render/monsters.js?v=71ec2a6ff6b8';
+import { c10dCmdItems, c10dNoteMenu } from './battle-c10d.js?v=71ec2a6ff6b8';
+import { c11bCmdItems, c11bCmdPick } from './battle-c11b.js?v=71ec2a6ff6b8';
+import { TRAP_LABEL } from './battle-earth.js?v=71ec2a6ff6b8';
+import { EIGHT_CSS } from './render/battlefx-c11d.js?v=71ec2a6ff6b8';
 // 八つめの 音の 場面の 絵（A班の 小さな 光・8つめの 台。render/c11d-npc-art.js）
-import { paintC11dSpecial } from './render/c11d-npc-art.js?v=b63ba00e848c';
+import { paintC11dSpecial } from './render/c11d-npc-art.js?v=71ec2a6ff6b8';
 
 export const C11D_CMD = C11D_CMD_B;
 // ながされた 人の 名前の 下の しるし（client/battle-earth.js の 地われと おなじ data-trap）
@@ -294,7 +294,8 @@ export function playHoldLine(scene, fromId, toId, color = 0) {
 }
 
 // ───────────── 八つめの 音の 場面（サーバーの 文を じゅんに 出す。ev.dur の 間。だれの 画面でも 同じ）─────────────
-export function playEightScene(scene, e) {
+// 第105回: manual … 1行ずつ タップで 進む（client/battle-talk.js が show(i)・end() を よぶ。オートの 時も 読める 速さで）
+export function playEightScene(scene, e, { manual = false } = {}) {
   if (typeof document === 'undefined' || !scene?.stage || !e?.lines?.length) return false;
   addCss();
   scene.c11dScene?.remove?.();
@@ -321,19 +322,22 @@ export function playEightScene(scene, e) {
     const m = /^(.+?)「(.*)」$/.exec(t);
     return m ? `<b>${esc(m[1])}</b>「${esc(m[2])}」` : esc(t);
   };
-  e.lines.forEach((t, i) => setTimeout(() => {
-    if (!el.isConnected) return;
-    say.innerHTML = fmt(t);
+  const show = (i) => {
+    if (!el.isConnected || i < 0 || i >= e.lines.length) return;
+    say.innerHTML = fmt(e.lines[i]);
     draw(e.arts?.[i] || null);
     // 7つの 音の 丸は はじめから、8つめは さいごの 2行で 光る
     const on = i >= e.lines.length - 2 ? 8 : 7;
     dots.forEach((d, k) => d.classList.toggle('on', k < on));
-  }, i * ms));
-  setTimeout(() => {
+  };
+  const end = () => {
     el.remove();
     if (scene.c11dScene === el) scene.c11dScene = null;
     playTrack(scene, C11D_TRACKS_B.queen2);
-  }, e.lines.length * ms + 300);
+  };
+  if (manual) return { show, end };
+  e.lines.forEach((t, i) => setTimeout(() => show(i), i * ms));
+  setTimeout(end, e.lines.length * ms + 300);
   return true;
 }
 
@@ -361,7 +365,9 @@ export function c11dPresent(scene, ev) {
   }
   if (ev.c11dEight) {
     playTrack(scene, C11D_TRACKS_B.eight);
-    playEightScene(scene, ev.c11dEight);
+    // 第105回: 会話として 1行ずつ（client/battle-talk.js が この 場面の 文を 進める）
+    if (ev.talk && scene.isTalk?.(ev)) scene.talkScene = playEightScene(scene, ev.c11dEight, { manual: true }) || null;
+    else playEightScene(scene, ev.c11dEight);
   }
   if (ev.c11dDazzle) scene.shake?.(700, 5);
   if (ev.c11dShine || ev.c11dSweep) scene.shake?.(500, 5);
