@@ -127,7 +127,44 @@
   //  iPhone の日本語キーボードの数字は、予測変換・ライブ変換で「2」→「2021年」のように勝手に変わる（覚えた言葉が出る）。
   //  inputmode="decimal" は数字と「.」だけの端末のキーボードで、変換も予測も出ない。「12.9」「1209」「20261209」と打てる
   const COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  // iPhone で、打った「2」が「2021年」のように別の文字に置き換わる（2026-11-24 小山さんの iPhone。キーボードを数字だけにしても起きた）。
+  //  打った時に「数字・.・/・-」以外が入ってきたら、それは止めて、押したキーの数字だけ入れる（貼り付けは今まで通り）
+  const DATE_OK = /^[0-9０-９.．/／\-－]*$/;
+  const DBG = /[?&]datedebug=1/.test(location.search);
+  function dbg(msg) {
+    if (!DBG) return;
+    let box = document.getElementById('diDebug');
+    if (!box) { box = document.createElement('pre'); box.id = 'diDebug'; box.style.cssText = 'position:fixed;left:4px;right:4px;top:4px;max-height:40vh;overflow:auto;z-index:5000;background:rgba(15,23,42,.88);color:#e2e8f0;font-size:11px;padding:6px;border-radius:6px;white-space:pre-wrap;margin:0;pointer-events:none'; document.body.appendChild(box); }
+    box.textContent = (msg + '\n' + box.textContent).slice(0, 3000);
+  }
+  function guardTyping(el) {
+    let lastKey = '', before = '', selS = 0, selE = 0, have = false;
+    el.addEventListener('keydown', (e) => { lastKey = /^[0-9.\/-]$/.test(e.key || '') ? e.key : ''; dbg(`keydown key=${JSON.stringify(e.key)} code=${e.keyCode}`); });
+    el.addEventListener('beforeinput', (e) => {
+      before = el.value; selS = el.selectionStart || 0; selE = el.selectionEnd || 0; have = true;
+      const data = e.data != null ? e.data : (e.dataTransfer ? e.dataTransfer.getData('text/plain') : '');
+      dbg(`beforeinput type=${e.inputType} data=${JSON.stringify(data)} value=${JSON.stringify(el.value)} cancelable=${e.cancelable}`);
+      if (/^insertFrom(Paste|Drop)/.test(e.inputType || '') || !data || DATE_OK.test(data)) return;
+      if (e.cancelable) {
+        e.preventDefault();
+        if (lastKey) { const v = before.slice(0, selS) + lastKey + before.slice(selE); VALUE.set.call(el, v); try { el.setSelectionRange(selS + 1, selS + 1); } catch (err) {} fire(el, 'input'); }
+        dbg('  → 止めて ' + JSON.stringify(lastKey) + ' だけ入れた');
+      }
+    });
+    el.addEventListener('input', (e) => {
+      dbg(`input type=${e.inputType || ''} data=${JSON.stringify(e.data)} value=${JSON.stringify(el.value)}`);
+      // 止められない時の予備: 打った後に「年」などが入っていたら、打つ前の値＋押したキーに戻す
+      if (/^insertFrom(Paste|Drop)/.test(e.inputType || '') || !e.inputType || !have) { lastKey = ''; have = false; return; }
+      if (!DATE_OK.test(el.value.replace(/[（(][日月火水木金土][)）]/g, '').replace(/[年月日]/g, (c) => (before.indexOf(c) !== -1 ? '' : c)))) {
+        const v = before.slice(0, selS) + (lastKey || '') + before.slice(selE);
+        VALUE.set.call(el, v); try { el.setSelectionRange(selS + (lastKey ? 1 : 0), selS + (lastKey ? 1 : 0)); } catch (err) {}
+        dbg('  → 戻して ' + JSON.stringify(v));
+      }
+      lastKey = ''; have = false;
+    });
+  }
   function noIme(el) {
+    guardTyping(el);
     el.inputMode = 'decimal';
     el.setAttribute('autocomplete', 'off'); el.setAttribute('autocorrect', 'off'); el.setAttribute('autocapitalize', 'off');
     el.setAttribute('spellcheck', 'false'); el.setAttribute('enterkeyhint', 'done');
