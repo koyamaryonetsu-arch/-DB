@@ -1033,6 +1033,13 @@
       intakePendingSupported = true;
       return data || [];
     },
+    // 登録確認を別の人に回す（assignee が空なら自動に戻す）。SETUP_INTAKE_ASSIGN.sql が要る（2026-11-24）
+    async assignIntakePending(id, name, by) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('case_intake_pending')
+        .update({ assignee: name || '', assigned_by: by || '', assigned_at: new Date().toISOString() }).eq('id', id);
+      if (error) { if (/assignee|assigned_/.test(error.message || '')) throw new Error('データベースの準備がまだです（SETUP_INTAKE_ASSIGN.sql を Supabase で1回実行してください）'); throw error; }
+    },
     // 確認済みにする（registered / updated / discarded）
     async decideIntakePending(id, status, caseId) {
       if (this.mode !== 'supabase') return;
@@ -3410,7 +3417,21 @@
     const shown = isPrivileged(currentUser) ? companyAbbr(c.company) : c.company;
     return `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(shown)}</span>`;
   }
+  // 横スクロールで左に残す列（編集・ステータス・会社・劇場名。2026-11-24）。列を並べ替えた時も、左から順に詰めて固定する
+  const STICKY_KEYS = ['edit', 'status', 'company', 'theater'];
+  function syncStickyCols() {
+    const tbl = $('casesTable'); if (!tbl) return;
+    let left = 0;
+    tbl.querySelectorAll('thead th').forEach((th) => {
+      const k = th.dataset.colkey; if (STICKY_KEYS.indexOf(k) === -1) return;
+      if (!th.getClientRects().length) return;   // 隠している列は詰める
+      tbl.style.setProperty('--stk-' + k, left + 'px');
+      left += th.getBoundingClientRect().width;
+    });
+  }
+  window.addEventListener('resize', () => requestAnimationFrame(syncStickyCols));
   function render() {
+    setTimeout(syncStickyCols, 0);
     if (!isPrivileged(currentUser) && showTax) { showTax = false; document.body.classList.remove('show-tax'); }   // 客先は税抜きだけ
     applyAcctCols();
     // 🚩（✎ の横）の分だけ、編集の列を広げる。ベルは廃止（2026-11-19）
@@ -4352,10 +4373,36 @@
     const hintEl = $('contentModal').querySelector('.modal-hint');
     if (hintEl) hintEl.textContent = readOnly ? '（閲覧のみ）' : 'Ctrl+Enter / ⌘+Enter で保存';
     $('contentCancelBtn').textContent = readOnly ? '閉じる' : 'キャンセル';
+    applyContentModalSize();
     $('contentModal').classList.remove('hidden');
     setTimeout(() => $('contentEditor').focus(), 50);
   }
-  function closeContentModal() { $('contentModal').classList.add('hidden'); contentEditCaseId = null; }
+  // 内容・アドバイスなどのポップアップの大きさ（2026-11-24）: 右下の角で好きな大きさに。大きさは人ごと（このブラウザ）に覚える
+  const CM_SIZE_KEY = 'contentModalSizeV1';
+  function applyContentModalSize() {
+    const box = $('contentModal').querySelector('.modal-content'); let v = null;
+    try { v = JSON.parse(localStorage.getItem(CM_SIZE_KEY) || 'null'); } catch (e) { v = null; }
+    $('contentModal').classList.toggle('cm-max', !!(v && v.max));
+    box.style.width = v && v.w ? Math.min(v.w, window.innerWidth - 16) + 'px' : '';
+    box.style.height = v && v.h ? Math.min(v.h, window.innerHeight - 16) + 'px' : '';
+    if ($('contentMaxBtn')) $('contentMaxBtn').textContent = v && v.max ? '⧉ 元の大きさ' : '⛶ 大きく';
+  }
+  function saveContentModalSize() {
+    const box = $('contentModal').querySelector('.modal-content');
+    const max = $('contentModal').classList.contains('cm-max');
+    const v = { max };
+    if (box.style.width) v.w = Math.round(box.getBoundingClientRect().width);
+    if (box.style.height) v.h = Math.round(box.getBoundingClientRect().height);
+    if (max) { let old = null; try { old = JSON.parse(localStorage.getItem(CM_SIZE_KEY) || 'null'); } catch (e) { old = null; } if (old) { v.w = old.w; v.h = old.h; } }
+    try { localStorage.setItem(CM_SIZE_KEY, JSON.stringify(v)); } catch (e) { /* 覚えられない時はそのまま */ }
+  }
+  if ($('contentMaxBtn')) $('contentMaxBtn').addEventListener('click', () => {
+    const on = !$('contentModal').classList.contains('cm-max');
+    $('contentModal').classList.toggle('cm-max', on);
+    $('contentMaxBtn').textContent = on ? '⧉ 元の大きさ' : '⛶ 大きく';
+    saveContentModalSize();
+  });
+  function closeContentModal() { if (!$('contentModal').classList.contains('hidden')) saveContentModalSize(); $('contentModal').classList.add('hidden'); contentEditCaseId = null; }
   function saveContentFromModal() {
     if (!contentEditCaseId) return;
     const cfgSave = EDITABLE_FIELDS[popupEditField] || {};
@@ -6268,8 +6315,81 @@
         </div>`;
       }).join('') + '</div>';
   }
+  // 登録確認: 候補以外の案件も探す（言葉・会社・劇場・受付日の期間）・案件のR担当者を選び直す（2026-11-24）
+  const ikUi = {};
+  function ikState(it) {
+    const k = String(it.id);
+    if (!ikUi[k]) ikUi[k] = { open: false, q: '', company: it.company || '', theater: shortTheaterName(canonTheaterName(it.theater || '', it.company || '')) || '', from: '', to: '', r: '' };
+    return ikUi[k];
+  }
+  function ikSearchHits(it) {
+    const st = ikState(it); const q = st.q.trim().toLowerCase(); const th = st.theater.trim();
+    return cases.filter((c) => (!st.company || c.company === st.company)
+      && (!th || String(c.theater || '').indexOf(th) !== -1 || String(shortTheaterName(c.theater) || '').indexOf(th) !== -1)
+      && (!st.from || String(c.receivedDate || '') >= st.from) && (!st.to || String(c.receivedDate || '') <= st.to)
+      && (!q || [c.theater, c.title, c.content, c.estimateName, c.memo, c.rPerson].some((v) => String(v || '').toLowerCase().indexOf(q) !== -1)))
+      .sort((a, b) => String(b.receivedDate || '').localeCompare(String(a.receivedDate || '')));
+  }
+  function ikResultsHtml(it) {
+    const hits = ikSearchHits(it); const id = escapeHtml(String(it.id));
+    if (!hits.length) return '<p class="ik-nocand">条件に合う案件がありません。条件をゆるめてください（会社・劇場を空にすると全部から探します）。</p>';
+    return `<div class="ik-cands-title">${hits.length} 件${hits.length > 30 ? '（新しい 30 件を出しています。言葉や期間で絞ってください）' : ''}</div>` + hits.slice(0, 30).map((c) => `<div class="ik-cand">
+        <div class="ik-cand-info">
+          <span class="ik-cand-date">${escapeHtml(c.receivedDate || '日付不明')}</span>
+          <span class="ik-cand-status">${escapeHtml(statusOf(c) || '')}</span>
+          <span class="ik-cand-cat">${escapeHtml(shortTheaterName(c.theater) || c.theater || '')}</span>
+          <span class="ik-cand-name">${escapeHtml(c.title || c.estimateName || String(c.content || '').slice(0, 40) || '(内容なし)')}</span>
+          <span class="ik-cand-cat">R: ${escapeHtml(c.rPerson || '—')}</span>
+        </div>
+        <div class="ik-cand-actions">
+          <button type="button" class="mini-btn" data-ik="open" data-case="${escapeHtml(String(c.id))}">案件を見る</button>
+          <button type="button" class="mini-btn primary" data-ik="update" data-id="${id}" data-case="${escapeHtml(String(c.id))}">この案件に更新</button>
+        </div></div>`).join('');
+  }
+  function ikSearchHtml(it) {
+    const st = ikState(it); const id = escapeHtml(String(it.id));
+    if (!st.open) return `<button type="button" class="mini-btn ik-search-btn" data-ik="search" data-id="${id}">🔎 ほかの案件を探す（候補に無い時）</button>`;
+    return `<div class="ik-search" data-iksearch="${id}">
+      <div class="ik-search-h">🔎 ほかの案件を探す <button type="button" class="link-btn" data-ik="search" data-id="${id}">閉じる</button></div>
+      <div class="ik-search-f">
+        <input type="search" class="tm-input" data-iksf="q" data-id="${id}" value="${escapeHtml(st.q)}" placeholder="言葉（案件名・内容・見積り名・劇場名・社内メモ）">
+        <select data-iksf="company" data-id="${id}"><option value="">会社: すべて</option>${companies.map((co) => `<option value="${escapeHtml(co.name)}"${st.company === co.name ? ' selected' : ''}>${escapeHtml(co.name)}</option>`).join('')}</select>
+        <input type="text" class="tm-input ik-sf-th" data-iksf="theater" data-id="${id}" value="${escapeHtml(st.theater)}" placeholder="劇場（空ならすべて）">
+        <label class="ik-sf-d">受付日 <input type="date" data-iksf="from" data-id="${id}" value="${escapeHtml(st.from)}"> 〜 <input type="date" data-iksf="to" data-id="${id}" value="${escapeHtml(st.to)}"></label>
+      </div>
+      <div class="ik-search-res" data-ikres="${id}">${ikResultsHtml(it)}</div></div>`;
+  }
+  function handleIntakeInput(e) {
+    const f = e.target.closest('[data-iksf]');
+    if (f) {
+      const it = ikFind(f.dataset.id); if (!it) return;
+      // 欄から出た時の change でも描き直すと、押そうとした「この案件に更新」が消えて押せないので、変わった時だけ描き直す
+      if (ikState(it)[f.dataset.iksf] === f.value) return;
+      ikState(it)[f.dataset.iksf] = f.value;
+      document.querySelectorAll(`[data-ikres="${CSS.escape(String(it.id))}"]`).forEach((box) => { box.innerHTML = ikResultsHtml(it); });
+      return;
+    }
+    if (e.type !== 'change') return;
+    const r = e.target.closest('[data-ikr]');
+    if (r) { const it = ikFind(r.dataset.ikr); if (it) ikState(it).r = r.value; return; }
+    const a = e.target.closest('[data-ikassign]');
+    if (a && a.value) intakeAssign(a.dataset.ikassign, a.value === '__auto' ? '' : a.value, a);
+  }
+  async function intakeAssign(id, name, sel) {
+    const it = ikFind(id); if (!it) return;
+    const K = window.KARTE;
+    const msg = name ? `この登録確認を「${name}」さんに回します。${name} さんがログインした時に出ます。よろしいですか？` : 'この登録確認を、自動で決める人（似ている案件のR担当者など）に戻します。よろしいですか？';
+    if (!(await K.ask(msg, { ok: name ? '回す' : '戻す', cancel: 'やめる' }))) { sel.value = ''; return; }
+    try {
+      await store.assignIntakePending(it.id, name, myStaffName() || currentUserName());
+      it.assignee = name; it.assigned_by = myStaffName() || currentUserName();
+      showToastLite(name ? `${name} さんに回しました` : '自動で決める人に戻しました');
+      renderIntakeList();
+    } catch (err) { sel.value = ''; K.say('回せませんでした: ' + (err && err.message ? err.message : err)); }
+  }
   // 登録確認を決める人（2026-11-20）: 似ている案件のR担当者 → 無ければその劇場で一番新しい案件のR担当者 → だれもいなければ小山
   function intakeOwners(it) {
+    if (it.assignee) return { names: [it.assignee], why: it.assigned_by ? it.assigned_by + ' さんが回しました' : '回されました', assigned: true };
     const team = loadTeam();
     const pick = (rp) => team.filter((n) => String(rp || '').includes(n));
     const out = new Set();
@@ -6307,7 +6427,7 @@
       if (ov) { ov.remove(); if (ikForceOn) showToastLite('登録確認が終わりました'); }
       ikForceOn = false; return;
     }
-    if (!ov) { ov = document.createElement('div'); ov.id = 'ikForce'; ov.className = 'ik-force'; ov.addEventListener('click', handleIntakeClick); document.body.appendChild(ov); }
+    if (!ov) { ov = document.createElement('div'); ov.id = 'ikForce'; ov.className = 'ik-force'; ov.addEventListener('click', handleIntakeClick); ov.addEventListener('input', handleIntakeInput); ov.addEventListener('change', handleIntakeInput); document.body.appendChild(ov); }
     ov.innerHTML = `<div class="ik-force-panel" role="dialog" aria-modal="true" aria-labelledby="ikForceTitle">
       <div class="ik-force-head"><h2 id="ikForceTitle">🆕 登録確認（${escapeHtml(me)} さんの分 ${mine.length} 件）</h2>
         <p>メール・LINE から来た案件で、新規か更新か AI が迷ったものです。<b>全部「新規」「更新」「破棄」のどれかに決めると、一覧に進めます。</b>「案件を見る」で、似ている案件を開いて確かめられます。</p></div>
@@ -6337,9 +6457,20 @@
         </div>
         <div class="ik-title">${escapeHtml(it.title || '(件名なし)')}${it.thread_url ? ` <a class="ik-src" href="${escapeHtml(it.thread_url)}" target="_blank" rel="noopener">${/^【LINE】/.test(it.title || '') ? '元のLINEを開く' : /^【Plaud】/.test(it.title || '') ? '元の会議・電話の記録を開く' : '元のメールを開く'}</a>` : ''}</div>
         <div class="ik-content">${escapeHtml(String(it.content || '').slice(0, 500))}</div>
-        <div class="ik-owner">👤 確認する人: <b>${escapeHtml(ow.names.join('・'))}</b>（${escapeHtml(ow.why)}）</div>
+        <div class="ik-owner">👤 確認する人: <b>${escapeHtml(ow.names.join('・'))}</b>（${escapeHtml(ow.why)}）
+          <select class="ik-assign" data-ikassign="${escapeHtml(String(it.id))}" title="この登録確認を別の人に回します（その人がログインした時に出ます）">
+            <option value="">↪ 別の人に回す…</option>
+            ${loadTeam().filter((n) => !(ow.assigned && ow.names.indexOf(n) !== -1)).map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('')}
+            ${ow.assigned ? '<option value="__auto">（自動で決める人に戻す）</option>' : ''}
+          </select></div>
+        <div class="ik-rline">🧑‍🔧 案件のR担当者:
+          <select data-ikr="${escapeHtml(String(it.id))}" title="新規で登録する時・更新する時に、案件のR担当者をこの人にします">
+            <option value="">変えない（新規なら ${escapeHtml(it.r_person || '空欄')}）</option>
+            ${loadTeam().map((n) => `<option value="${escapeHtml(n)}"${ikState(it).r === n ? ' selected' : ''}>${escapeHtml(n)}</option>`).join('')}
+          </select></div>
         ${it.reason ? `<div class="ik-reason">迷った理由: ${escapeHtml(it.reason)}</div>` : ''}
         ${intakeCandHtml(it)}
+        ${ikSearchHtml(it)}
         <div class="ik-actions">
           <button type="button" class="primary" data-ik="new" data-id="${escapeHtml(String(it.id))}">＋ 新規として登録</button>
           <button type="button" class="danger" data-ik="discard" data-id="${escapeHtml(String(it.id))}">破棄（登録しない）</button>
@@ -6381,7 +6512,7 @@
       company: it.company || '', theater: it.theater || '',
       title: it.title || '',
       receivedDate: it.received_date || today,
-      tcPerson: it.tc_person || '', rPerson: it.r_person || '',
+      tcPerson: it.tc_person || '', rPerson: ikState(it).r || it.r_person || '',
       category: it.category || '',
       content: '',
       memo: '【AI自動登録 ' + today + '】（登録確認で「新規」を選択）\n' + String(it.content || ''),
@@ -6406,7 +6537,7 @@
   // 「この案件に更新」: 選んだ既存案件の社内メモへ追記し、空の日程だけ埋める
   async function intakeApplyUpdate(it, caseId) {
     const c = cases.find((x) => String(x.id) === String(caseId));
-    if (!c) { alert('対象の案件が見つかりませんでした。画面を再読み込みしてください。'); return; }
+    if (!c) { window.KARTE.say('対象の案件が見つかりませんでした。画面を再読み込みしてください。'); return; }
     const today = todayStr();
     const note = String(it.progress_note || it.content || '').trim();
     const conv = /^【(LINE|Plaud)】/.test(it.title || '');
@@ -6419,6 +6550,7 @@
     if (it.quote_date && !c.quoteDate) c.quoteDate = it.quote_date;
     if (it.work_start_date && !c.workStartDate) c.workStartDate = it.work_start_date;
     if (it.work_end_date && !c.workEndDate) c.workEndDate = it.work_end_date;
+    if (ikState(it).r) c.rPerson = ikState(it).r;   // 登録確認で選び直したR担当者（2026-11-24）
     c.updatedAt = new Date().toISOString();
     await persistCase(c, 'auto');
     await store.decideIntakePending(it.id, 'updated', c.id);
@@ -7370,31 +7502,35 @@
   if ($('intakeBtn')) $('intakeBtn').addEventListener('click', toggleIntakeMode);
   if ($('closeIntakeView')) $('closeIntakeView').addEventListener('click', exitIntakeMode);
   if ($('ikCloseBtn')) $('ikCloseBtn').addEventListener('click', exitIntakeMode);
-  if ($('intakeView')) $('intakeView').addEventListener('click', handleIntakeClick);
+  if ($('intakeView')) { $('intakeView').addEventListener('click', handleIntakeClick); $('intakeView').addEventListener('input', handleIntakeInput); $('intakeView').addEventListener('change', handleIntakeInput); }
   async function handleIntakeClick(e) {
     const btn = e.target.closest('[data-ik]'); if (!btn) return;
-    const act = btn.dataset.ik;
+    const act = btn.dataset.ik; const K = window.KARTE;
     if (act === 'open') {
       const c = cases.find((x) => String(x.id) === String(btn.dataset.case));
-      if (c) openModal(c, 'full'); else alert('その案件は見つかりませんでした（削除された可能性があります）。');
+      if (c) openModal(c, 'full'); else K.say('その案件は見つかりませんでした（削除された可能性があります）。');
       return;
     }
     const it = ikFind(btn.dataset.id); if (!it) return;
+    if (act === 'search') { ikState(it).open = !ikState(it).open; renderIntakeList(); return; }
+    const rp = ikState(it).r;
     btn.disabled = true;
     try {
       if (act === 'new') {
-        if (confirm('この内容で「新規案件」として登録します。よろしいですか？')) await intakeRegisterNew(it);
+        if (await K.ask('この内容で「新規案件」として登録します。' + (rp ? `\nR担当者は「${rp}」にします。` : '') + 'よろしいですか？', { ok: '新規で登録', cancel: 'やめる' })) await intakeRegisterNew(it);
       } else if (act === 'update') {
-        if (confirm('選んだ既存案件に「更新」として反映します。よろしいですか？')) await intakeApplyUpdate(it, btn.dataset.case);
+        const tc = cases.find((x) => String(x.id) === String(btn.dataset.case));
+        const nm = tc ? `「${shortTheaterName(tc.theater) || tc.theater}　${tc.title || tc.estimateName || ''}」` : '選んだ既存案件';
+        if (await K.ask(`${nm}に「更新」として反映します。` + (rp ? `\nR担当者は「${rp}」にします。` : '') + 'よろしいですか？', { ok: '更新する', cancel: 'やめる' })) await intakeApplyUpdate(it, btn.dataset.case);
       } else if (act === 'discard') {
-        if (confirm('この確認待ちを破棄します（案件は登録されません）。よろしいですか？')) {
+        if (await K.ask('この確認待ちを破棄します（案件は登録されません）。よろしいですか？', { ok: '破棄する', cancel: 'やめる' })) {
           await store.decideIntakePending(it.id, 'discarded', null);
           intakePending = intakePending.filter((x) => String(x.id) !== String(it.id));
           renderIntakeList(); refreshIntakeBadge();
         }
       }
     } catch (err) {
-      alert('処理に失敗しました: ' + (err && err.message ? err.message : err));
+      K.say('処理に失敗しました: ' + (err && err.message ? err.message : err));
     } finally { btn.disabled = false; }
   }
   $('closeTheaterPendingModal').addEventListener('click', closeTheaterPendingModal);
@@ -8193,8 +8329,14 @@
       updateCase: (id, patch) => {
         const c = cases.find((x) => String(x.id) === String(id));
         if (!c || !isPrivileged(currentUser)) return false;
-        const ok = ['estimateName', 'estimateAmount', 'marginRate', 'rPerson', 'workStartDate', 'workEndDate'];
+        const ok = ['estimateName', 'estimateAmount', 'marginRate', 'rPerson', 'surveyDate', 'workStartDate', 'workEndDate'];
         Object.keys(patch || {}).forEach((k) => { if (ok.indexOf(k) !== -1) c[k] = patch[k] == null ? '' : patch[k]; });
+        // 編集パネルでこの案件を開いている時は、パネルの日付の欄も合わせる（あとで保存しても消えないように）
+        if (cmCaseId === String(id) && !$('modal').classList.contains('hidden')) {
+          const clean = caseFormSnapshot() === modalSnapshot;
+          ['surveyDate', 'workStartDate', 'workEndDate'].forEach((k) => { if (k in (patch || {}) && $(k)) setDateField(k, c[k]); });
+          if (clean) modalSnapshot = caseFormSnapshot();
+        }
         if (store.mode === 'local') saveCases();
         persistCase(c);
         if (!planMode) refresh();

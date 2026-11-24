@@ -669,12 +669,12 @@
     if (!c.theater) { K().say('先に案件の「劇場名」を入れて保存してください'); return; }
     if (c.company !== 'TOHOシネマズ') { K().say('作業申請書の自動作成は、今は TOHO シネマズの案件だけです（ほかの会社は追々）'); return; }
     const pp = purpose === 'survey' ? 'survey' : 'work';
-    const caseDate = pp === 'survey' ? c.surveyDate : c.workStartDate;
-    if (!caseDate) { K().say(`先に案件の「${pp === 'survey' ? '調査日' : '作業開始日'}」を入れて保存してください`); return; }
+    // 調査日・作業開始日が無くても作れる（2026-11-24）。申請書の画面で日付を入れると、案件の日程にも入れる
+    const caseDate = (pp === 'survey' ? c.surveyDate : c.workStartDate) || '';
     S = { caseId: String(caseId), c, busy: false, purpose: pp, caseDate };
     const my = S;
     overlay();
-    document.getElementById('waTitle').textContent = `📝 作業申請書を作る（${PURPOSE_LABEL[pp]} ${mdw(caseDate)}）— ${c.theater}`;
+    document.getElementById('waTitle').textContent = `📝 作業申請書を作る（${PURPOSE_LABEL[pp]} ${caseDate ? mdw(caseDate) : '日付未定'}）— ${c.theater}`;
     busy('書類棚で、この劇場の書式を探しています…');
     try {
       const [forms, last, , to] = await Promise.all([findForms(c.theater), lastAnswers(c.theater, c.rPerson), loadPartners(), DB().mailTo ? DB().mailTo(caseId) : '']);
@@ -761,7 +761,7 @@
     const st = staff.find((x) => x.name === c.rPerson) || {};
     const lead = last.leader || {};
     S.form = {
-      start_date: S.caseDate, end_date: S.purpose === 'survey' ? S.caseDate : (c.workEndDate && c.workEndDate >= S.caseDate ? c.workEndDate : S.caseDate),
+      start_date: S.caseDate, end_date: S.purpose === 'survey' ? S.caseDate : (c.workEndDate && (!S.caseDate || c.workEndDate >= S.caseDate) ? c.workEndDate : S.caseDate),
       start_time: (prev.work && prev.work.start_time) || '09:00', end_time: (prev.work && prev.work.end_time) || '18:00',
       place: '', content: S.purpose === 'survey' ? '現地調査（' + (c.title || c.estimateName || c.category || '') + '）' : (c.title || c.estimateName || ''), kubun: '',
       leader_name: lead.name || c.rPerson || '', leader_phone: st.phone || lead.phone || '',
@@ -810,7 +810,8 @@
         : '<div class="wa-ai"><span class="wa-spin sm"></span> 🤖 AI が書式と記入例を読んでいます（30秒ほど）。その間に下を入れてください。</div>';
     const exN = S.forms.examples.length;
     body().innerHTML = `<div id="waAsk" class="wa-ask">
-      <div class="wa-pp-h">${S.purpose === 'survey' ? '🔍 調査' : '🛠 作業'}の作業申請書（${esc(mdw(S.caseDate))}）</div>
+      <div class="wa-pp-h">${S.purpose === 'survey' ? '🔍 調査' : '🛠 作業'}の作業申請書（${S.caseDate ? esc(mdw(S.caseDate)) : '日付未定'}）</div>
+      ${S.caseDate ? '' : `<div class="wa-nodate">📅 案件の${S.purpose === 'survey' ? '調査日' : '作業開始日'}がまだ入っていません。決まっていれば下の「作業日」に入れてください（作る時に、案件の日程にも入れます）。空欄のままでも作れます（日付の欄は空欄になります）。</div>`}
       <div class="wa-src">📄 書式: <b>${esc(S.tpl.data.file_name || S.tpl.name)}</b>　📑 記入例: ${exN ? exN + ' 件（新しい ' + Math.min(exN, 2) + ' 件に合わせます）' : 'なし（記入例を書類棚に入れると、書き方を合わせます）'}</div>
       ${aiBox}
       <div class="wa-grid">
@@ -881,7 +882,8 @@
       apply_date: isoDay(new Date()), applicant: APPLICANT,
       purpose: S.purpose === 'survey' ? '調査（現場調査・現地確認）' : '作業（工事・点検・メンテナンス・修理）',
       leader: { staff: S.c.rPerson || '', name: f.leader_name, phone: f.leader_phone },
-      work: { start_date: f.start_date, start_time: f.start_time, end_date: f.end_date, end_time: f.end_time, place: f.place, content: f.content, kubun: f.kubun },
+      work: Object.assign({ start_date: f.start_date, start_time: f.start_time, end_date: f.end_date, end_time: f.end_time, place: f.place, content: f.content, kubun: f.kubun },
+        f.start_date ? {} : { date_note: '作業日は未定。日付の欄は空欄のままにする（日付を作らない・案件の他の日付も使わない）' }),
       partners, workers: groups, headcount: f.headcount ? Number(f.headcount) : countWorkers(),
       vehicle: { use: f.vehicle, detail: f.vehicle === '有' ? f.vehicle_detail : '' },
       fire: { use: f.fire, detail: f.fire === '有' ? f.fire_detail : '' }, noise: f.noise, odor_dust: f.odor, equipment: f.equipment,
@@ -889,10 +891,21 @@
     };
   }
 
+  // 案件の調査日・作業開始日が空の時、申請書の画面で入れた日付を案件の日程にも入れる（2026-11-24）
+  async function fillCaseDates() {
+    const f = S.form; if (S.caseDate || !f.start_date || !DB().updateCase) return;
+    const patch = S.purpose === 'survey' ? { surveyDate: f.start_date } : { workStartDate: f.start_date };
+    if (S.purpose !== 'survey' && f.end_date && !S.c.workEndDate) patch.workEndDate = f.end_date;
+    if (!DB().updateCase(S.caseId, patch)) return;
+    S.caseDate = f.start_date;
+    const nc = DB().caseInfo ? DB().caseInfo(S.caseId) : null; if (nc) S.c = nc;
+    const t = document.getElementById('waTitle'); if (t) t.textContent = `📝 作業申請書を作る（${PURPOSE_LABEL[S.purpose]} ${mdw(S.caseDate)}）— ${S.c.theater}`;
+    toast(`案件の${S.purpose === 'survey' ? '調査日' : '作業開始日'}に ${mdw(S.caseDate)} を入れました`);
+  }
   // ---------- 2) 作る ----------
   async function make(instruction) {
     const my = S;
-    if (!S.form.start_date) { K().say('作業日を入れてください'); return; }
+    await fillCaseDates();
     S.answers = collect();
     S.busy = true;
     busy('🤖 AI が書式に書き込んでいます…', '1〜2分かかります。この画面のまま待ってください。');
@@ -925,7 +938,7 @@
   }
   function fileName() {
     const short = cleanName((DB().shortTheater ? DB().shortTheater(S.c.theater) : '') || S.c.theater);
-    const label = String(S.form.start_date || S.caseDate || '').slice(5, 10).replace('-', '') || '0000';
+    const label = String(S.form.start_date || S.caseDate || '').slice(5, 10).replace('-', '') || '日付未定';
     return `【${short}】${yymmdd()}_作業申請書_${label}_菱熱工業`;
   }
   async function saveDraft() {
@@ -1133,7 +1146,7 @@
       if (!live.length) { ov.remove(); return; }
       ov.innerHTML = `<div class="kt-dialog kt-dialog-mid wa-dec"><div class="kt-dlg-head">📝 作業申請書${queue ? ` — まだ決めていない予定（${live.length} 件）` : ' — ' + esc(live[0].c.theater)}<button type="button" class="close-btn" data-dx>×</button></div>
         <div class="kt-dlg-body">
-          <p class="ms-note">${queue ? 'メール・LINE の取り込みなどで調査日・作業開始日が入った予定のうち、作業申請書をまだ決めていないものです' + (opts.allCases ? '（R担当者のメールアドレスがマスターに無いので、全部の案件を出しています。☰ その他 →「🗂 マスター編集」で入れると、自分の案件だけになります）。' : '（あなたが R担当者の案件）。') : '調査日・作業開始日が入りました。作業申請書を作りますか？'}
+          <p class="ms-note">${queue ? 'メール・LINE の取り込みなどで調査日・作業開始日が入った予定のうち、作業申請書をまだ決めていないものです' + (opts.allCases ? '（R担当者のメールアドレスがマスターに無いので、全部の案件を出しています。☰ その他 →「🗂 マスター編集」で入れると、自分の案件だけになります）。' : '（あなたが R担当者の案件）。') : (live.some((r) => r.date) ? '調査日・作業開始日が入りました。作業申請書を作りますか？' : '作業申請書を作りますか？日程がまだでも作れます（作る画面で日付を入れると、案件の日程にも入ります）。')}
             「申請不要」を選ぶと、理由を付けて客先に通知メールで知らせます（5分後にまとめて）。</p>
           ${live.map((r) => {
             const i = rows.indexOf(r); const lab = PURPOSE_LABEL[r.purpose];
@@ -1141,7 +1154,8 @@
             return `<div class="wa-dec-row" data-di="${i}">
               <div class="wa-dec-h"><b>${r.purpose === 'survey' ? '🔍' : '🛠'} ${lab} ${r.date ? esc(mdw(r.date)) : '（日付なし）'}</b>${queue ? `　${esc(r.c.theater)}${r.c.title ? '　' + esc(r.c.title) : ''}` : ''}
                 <span class="wa-dec-st">${changed ? `⚠ ${lab}日が ${esc(mdw(r.from))} → ${esc(mdw(r.date))} に変わりました。作り直しますか？` : esc(STATE_TEXT[r.state] || '')}</span></div>
-              ${!r.date ? `<div class="ms-note">${lab === '調査' ? '調査日' : '作業開始日'}が入っていません。入れて保存すると作れます。</div>` : r.skipping ? `<div class="wa-skip">
+              ${!r.date ? `<div class="ms-note">${lab === '調査' ? '調査日' : '作業開始日'}がまだ入っていません。作る画面で日付を入れると、案件の日程にも入ります（空欄のままでも作れます）。</div>
+                <div class="wa-dec-btns"><button type="button" class="primary" data-dmake="${i}">📝 ${r.state === 'draft' ? '続きを直す' : '日付なしで作り始める'}</button></div>` : r.skipping ? `<div class="wa-skip">
                 <label>申請不要の理由</label>
                 <select data-dsel="${i}"><option value="">（理由を選ぶ）</option>${reasons.map((x) => `<option${r.reason === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}<option value="__new"${r.reason === '__new' ? ' selected' : ''}>＋ 新しい理由を入れる</option></select>
                 ${r.reason === '__new' || !reasons.length ? `<input type="text" class="tm-input" data-dnew="${i}" placeholder="例: 目視の確認だけで工具を使わないため" value="${esc(r.newReason || '')}">` : ''}

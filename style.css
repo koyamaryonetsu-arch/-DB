@@ -229,11 +229,7 @@ body.hscroll-bottom #hScrollTop { display: none; }  /* 「下のみ」＝上バ�
 #casesTable thead th[data-colkey] { cursor: grab; }
 #casesTable thead th.col-dragging { opacity: 0.5; }
 #casesTable thead th.col-drop-target { box-shadow: inset 3px 0 0 #2563eb; }
-/* 個人設定の列並びが有効な時は「横方向の固定」だけ解除（縦のヘッダー固定は維持）して重なりを防ぐ */
-#casesTable.custom-col-order th { left: auto !important; }
-#casesTable.custom-col-order td.col-status,
-#casesTable.custom-col-order td[data-field="theater"],
-#casesTable.custom-col-order td.col-edit { position: static !important; left: auto !important; }
+/* 個人設定の列並びの時も、左に残す列（編集・ステータス・会社・劇場名）は固定する。位置は app.js の syncStickyCols が並び順から計算（2026-11-24） */
 
 /* 行の左端「編集」ボタン列 */
 .col-edit { width: var(--col-edit-w, 34px); min-width: var(--col-edit-w, 34px); max-width: var(--col-edit-w, 34px); padding: 6px 2px 6px 7px !important; text-align: center; white-space: nowrap; }
@@ -2925,3 +2921,50 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
 .cm-group{ border:1px solid #e2e8f0; border-radius:8px; padding:4px 8px; margin:4px 0; background:#fff; }
 .cm-group summary{ cursor:pointer; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
 .cm-sub{ margin-left:14px; }
+
+/* ===== 横スクロールで左に残す列: 編集・ステータス・会社・劇場名（2026-11-24） =====
+   位置（left）は app.js の syncStickyCols が列の幅から計算して --stk-○○ に入れる（列を並べ替えても詰めて固定） */
+@media (min-width: 601px) {
+  #casesTable th[data-colkey="company"],
+  #casesTable td[data-colkey="company"] {
+    position: sticky; left: var(--stk-company, 154px) !important; z-index: 1; background: #fff;
+    width: 84px; min-width: 84px; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #casesTable thead th[data-colkey="company"] { z-index: 3; background: #eef2f7; }
+  #casesTable th[data-colkey="status"], #casesTable td.col-status { left: var(--stk-status, 34px) !important; }
+  #casesTable th[data-colkey="theater"], #casesTable td[data-field="theater"] { left: var(--stk-theater, 218px) !important; }
+  #casesTable th[data-colkey="edit"], #casesTable td.col-edit { left: var(--stk-edit, 0px) !important; }
+}
+
+/* ===== 内容・アドバイスなどのポップアップ: 大きく・右下の角で大きさを変えられる（2026-11-24） ===== */
+#contentModal .modal-content {
+  width: min(1100px, 94vw); height: min(820px, 86vh);
+  max-width: 98vw; max-height: 96vh; min-width: 360px; min-height: 280px;
+  resize: both; overflow: hidden;
+}
+#contentModal .modal-header { gap: 8px; }
+#contentModal .modal-header h2 { flex: 1; }
+.cm-size-btn { font-size: 12px; padding: 4px 10px; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.cm-size-btn:hover { background: #f1f5f9; }
+#contentModal .content-modal-body { flex: 1; min-height: 0; flex-direction: column; }
+#contentModal .content-modal-body textarea { flex: 1; min-height: 0; resize: none; font-size: 15px; line-height: 1.7; }
+#contentModal.cm-max .modal-content { width: 98vw !important; height: 96vh !important; resize: none; }
+#contentModal.cm-max { padding: 1vh 1vw; }
+@media (max-width: 600px) {
+  #contentModal .modal-content { width: 100% !important; height: 92vh !important; resize: none; min-width: 0; }
+  .cm-size-btn { display: none; }
+}
+/* 作業申請書: 日付がまだ無い時の案内（2026-11-24） */
+.wa-nodate { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; border-radius: 8px; padding: 8px 12px; margin: 6px 0 10px; font-size: 13px; line-height: 1.6; }
+/* 登録確認: ほかの案件を探す・別の人に回す・R担当者（2026-11-24） */
+.ik-assign { margin-left: 8px; font-size: 12px; padding: 2px 4px; }
+.ik-rline { font-size: 12px; color: #334155; margin: 4px 0; }
+.ik-rline select { font-size: 12px; padding: 2px 4px; margin-left: 4px; }
+.ik-search-btn { margin-top: 8px; }
+.ik-search { margin-top: 10px; border: 1px solid #c7d2fe; background: #f8faff; border-radius: 8px; padding: 8px 10px; }
+.ik-search-h { font-size: 12px; font-weight: 700; color: #1e3a8a; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.ik-search-f { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.ik-search-f input[type="search"] { flex: 1 1 260px; }
+.ik-search-f .ik-sf-th { width: 140px; }
+.ik-sf-d { font-size: 12px; color: #475569; white-space: nowrap; }
+.ik-search-res { max-height: 320px; overflow: auto; }
