@@ -171,6 +171,8 @@ import { C8C_SFX } from './battle-c8c.js';
 import { C7_SFX } from './battle-c7.js';
 // 第2部 第7章 第2幕 の 魔物・ジョリーホック号・ホック船長・カイの 音（battle-c7s.js）
 import { C7S_SFX } from './battle-c7s.js';
+// 第105回: 戦いの 中の 会話を 1行ずつ 読む（タップ・決定で 次へ）
+import { talkBind, talkUnbind, talkSnap, talkDoneEv, talkStart, talkUpdate, talkBusy } from './battle-talk.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -403,6 +405,8 @@ export class BattleScene {
     this.textSpeed = msg.snap.textSpeed || 1;
     // ウェイト: だれか（人）が コマンドを えらんでいる 間は ゲージが 止まる（サーバーと おなじ きまり）
     this.waitMode = !!msg.snap.wait;
+    // 第105回: 会話で サーバーが 読み終わりを 待つ 戦いか（client/battle-talk.js）
+    this.talkWait = !!msg.snap.talkWait;
     this.fx = new Effects();
     this.bg = battleBackground(msg.snap.bg);
     this.queue = [];
@@ -411,6 +415,9 @@ export class BattleScene {
     this.ended = false;
     this.lock = false;
     this.build();
+    talkBind(this);
+    // とちゅうから 入った・つなぎ直した 時は、もう 出て いた 会話を 見て いない（読んだ ことに する）
+    if (msg.resume || msg.joined) talkSnap(this, msg.snap);
     // 水の守りの歌の しるし（battle-temple.js）
     templeStart(this, msg.snap);
     // 第3部 第1章 第1幕: 星の子の光（battle-c9a.js）
@@ -451,6 +458,8 @@ export class BattleScene {
 
   // つぎに コマンドを えらぶ キャラへ
   nextCommand() {
+    // 第105回: 会話の 間は コマンドを 開かない（会話が 終わったら client/battle-talk.js の talkUi が もう一度 よぶ）
+    if (talkBusy(this)) return;
     while (this.readyQ.length) {
       const id = this.readyQ[0];
       const a = this.c.get(id);
@@ -1397,6 +1406,10 @@ export class BattleScene {
         case 'end':
           this.endPending = ev.outcome;
           break;
+        // 第105回: みんな 会話を 読み終わった（client/battle-talk.js）
+        case 'talkDone':
+          talkDoneEv(this, ev);
+          break;
         default:
       }
     }
@@ -1425,6 +1438,13 @@ export class BattleScene {
       return;
     }
     this.presentBody(ev);
+    // 第105回: 会話は 1行ずつ（タップ・決定で 次へ。オートの 時は 読める 速さで）
+    if (this.isTalk(ev)) talkStart(this, ev);
+  }
+
+  // 第105回: 1行ずつ 読む 会話か（サーバーが 待つ 戦いだけ。待たない 戦いは 今までどおり 時間で 流れる）
+  isTalk(ev) {
+    return !!ev?.talk && this.talkWait;
   }
 
   presentBody(ev) {
@@ -1445,7 +1465,7 @@ export class BattleScene {
       } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
     }
     for (const j of ev.joined || []) if (!this.c.has(j.id)) this.c.set(j.id, { ...j, flash: 0, dead: 0, lunge: 0, appear: 1 });
-    this.say(ev.lines || [], ev.dur || 1000);
+    if (!this.isTalk(ev)) this.say(ev.lines || [], ev.dur || 1000);
     // 行動の はじめの じわじわ回復（第38回 C）: 回復した 人に みどりの 数
     for (const r of ev.regenHeal || []) {
       const t = this.c.get(r.id);
@@ -1739,7 +1759,7 @@ export class BattleScene {
     this.tac = null;
     t.menu.blur();
     t.box.remove();
-    if (!this.invite) this.menu?.focus();
+    if (!this.invite && !talkBusy(this)) this.menu?.focus();
   }
 
   // さくせんが かわった（サーバーから）。めいれいさせろ に なった なかまは じぶんが うごかす
@@ -1777,7 +1797,7 @@ export class BattleScene {
     this.invite = null;
     iv.menu.blur();
     iv.box.remove();
-    this.menu?.focus();
+    if (!talkBusy(this)) this.menu?.focus();
   }
 
   // ───────────── だれが 何を したか ─────────────
@@ -1981,21 +2001,25 @@ export class BattleScene {
     this.fx.tempo = this.fxTempo();
     this.checkQuality(dt);
     // メッセージの じゅんばん
-    if (this.showing) {
+    // 第105回: 会話は 読み終わるまで（client/battle-talk.js の talkFinish が showing を けす）
+    talkUpdate(this, dt);
+    if (this.showing && !this.showing.talk) {
       this.showing.left -= dt;
       if (this.showing.left <= 0 || this.queue.length > 2) this.showing = null;
     }
     if (!this.showing && this.queue.length) {
       const ev = this.queue.shift();
+      const talk = this.isTalk(ev);
+      this.showing = { left: Math.max(350, (ev.dur || 900) * 0.75, ev.axHold || 0), talk };
       this.present(ev);
-      this.showing = { left: Math.max(350, (ev.dur || 900) * 0.75, ev.axHold || 0) };
+      if (talk && !this.talk) this.showing = null;
     }
     if (!this.showing && !this.queue.length && this.endPending && !this.ended) {
       this.ended = true;
       this.closeMenus();
     }
     // ゲージを なめらかに（ウェイトで だれかが えらんでいる 間は 1ミリも うごかさない）
-    const locked = !!this.showing || this.choosingPause();
+    const locked = !!this.showing || this.choosingPause() || talkBusy(this);
     for (const c of this.c.values()) {
       if (!c.alive || c.ready || locked) continue;
       // 前ぶれの 間に 人が えらんで いる: 敵の ゲージは 止まる（サーバーと おなじ。shared/battle-tell.js）
@@ -2330,6 +2354,7 @@ export class BattleScene {
     this.destroyed = true;
     this.game.sceneAudio?.battleEnd();
     this.unbindPad?.();
+    talkUnbind(this);
     this.closeTactics();
     this.closeResult?.();
     this.closeMenus();

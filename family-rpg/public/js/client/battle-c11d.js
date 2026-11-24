@@ -294,7 +294,8 @@ export function playHoldLine(scene, fromId, toId, color = 0) {
 }
 
 // ───────────── 八つめの 音の 場面（サーバーの 文を じゅんに 出す。ev.dur の 間。だれの 画面でも 同じ）─────────────
-export function playEightScene(scene, e) {
+// 第105回: manual … 1行ずつ タップで 進む（client/battle-talk.js が show(i)・end() を よぶ。オートの 時も 読める 速さで）
+export function playEightScene(scene, e, { manual = false } = {}) {
   if (typeof document === 'undefined' || !scene?.stage || !e?.lines?.length) return false;
   addCss();
   scene.c11dScene?.remove?.();
@@ -321,19 +322,22 @@ export function playEightScene(scene, e) {
     const m = /^(.+?)「(.*)」$/.exec(t);
     return m ? `<b>${esc(m[1])}</b>「${esc(m[2])}」` : esc(t);
   };
-  e.lines.forEach((t, i) => setTimeout(() => {
-    if (!el.isConnected) return;
-    say.innerHTML = fmt(t);
+  const show = (i) => {
+    if (!el.isConnected || i < 0 || i >= e.lines.length) return;
+    say.innerHTML = fmt(e.lines[i]);
     draw(e.arts?.[i] || null);
     // 7つの 音の 丸は はじめから、8つめは さいごの 2行で 光る
     const on = i >= e.lines.length - 2 ? 8 : 7;
     dots.forEach((d, k) => d.classList.toggle('on', k < on));
-  }, i * ms));
-  setTimeout(() => {
+  };
+  const end = () => {
     el.remove();
     if (scene.c11dScene === el) scene.c11dScene = null;
     playTrack(scene, C11D_TRACKS_B.queen2);
-  }, e.lines.length * ms + 300);
+  };
+  if (manual) return { show, end };
+  e.lines.forEach((t, i) => setTimeout(() => show(i), i * ms));
+  setTimeout(end, e.lines.length * ms + 300);
   return true;
 }
 
@@ -361,7 +365,9 @@ export function c11dPresent(scene, ev) {
   }
   if (ev.c11dEight) {
     playTrack(scene, C11D_TRACKS_B.eight);
-    playEightScene(scene, ev.c11dEight);
+    // 第105回: 会話として 1行ずつ（client/battle-talk.js が この 場面の 文を 進める）
+    if (ev.talk && scene.isTalk?.(ev)) scene.talkScene = playEightScene(scene, ev.c11dEight, { manual: true }) || null;
+    else playEightScene(scene, ev.c11dEight);
   }
   if (ev.c11dDazzle) scene.shake?.(700, 5);
   if (ev.c11dShine || ev.c11dSweep) scene.shake?.(500, 5);

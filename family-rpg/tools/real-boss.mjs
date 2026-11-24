@@ -11,6 +11,8 @@
 //   TAVLV=113 … k1tav の 仲間の レベル（ない ときは 勇者の 1つ下 … 道具の k1tav と 同じ）
 //   TAVJOB=1 … k1tav の 仲間を 超級職に 転職させる（装備は そのまま）・TAVGEAR=1 … 装備だけ 店の いちばん よい 品に
 //   SUPTAC=heal … 自動の 仲間の 作戦を みんな これに（ない ときは その 仲間の 作戦）
+// 第105回: 戦いの 会話の 読み終わり 待ち（shared/battle-talk.js）は しない。世界（test/c9a-play.js の fixedWorld）に talkWait を わたさない ので、
+//   会話は 今までどおり 時間で 流れる（はかる 数は かわらない。docs/plan-r105-battle-talk.md の 5）
 import '../public/js/shared/data/story.js';
 import { startFixedBattle } from '../public/js/shared/world/battles.js';
 import { companionJoin, recruitNpc, companionOf } from '../public/js/shared/world/party.js';

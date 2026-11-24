@@ -85,6 +85,8 @@ const world = new GameWorld({
   // スマホと キャラを 合わせる ときの 版（kizuna-save/sync/）
   syncStore: fileSyncStore(path.join(DATA_DIR, 'sync')),
   offline: false,
+  // 第105回: 戦いの 会話は 家族が 読み終わるまで 待つ（shared/battle-talk.js）
+  talkWait: true,
   familyName: config.familyName,
   checkPassword: (pw) => safeEqual(pw.normalize('NFKC').trim(), PASSWORD.normalize('NFKC').trim()),
   log: (...a) => console.log(...a),

@@ -783,6 +783,8 @@ function names(b, c, ev) {
   }
   ev.fx = { type: 'ability', anim: 'c11q_names', actor: c.id, targets: [c.id], side: 'enemy' };
   ev.c11dNames = { id: c.id, name: nm, heal: h };
+  // 第105回: 名前を よぶ 番は 会話（回復が ついて いても 1行ずつ 読む。shared/battle-talk.js）
+  ev.talk = true;
   ev.upd.push(c);
 }
 // 八つめの 音の 場面（まぶしすぎる 光の あと。女王の 番の 動き … 1回の 戦いで 1度だけ）

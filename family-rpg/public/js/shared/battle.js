@@ -109,6 +109,7 @@ import { c9dTaken, c9dIncap } from './battle-c9d.js';
 import { c10Stuck, c10aIncap, c10aTaken, c10aHealTo } from './battle-c10a.js';
 // 第92回 第3便: 前ぶれの 間は、えらぶ 人を 待つ（battle-tell.js）
 import { tellHold } from './battle-tell.js';
+import { isTalkEvent, talkBegin, talkAfter, talkHold, talkRead, talkJoin } from './battle-talk.js';
 // 第86回 B班: 幻の職業 天下一の格闘王（れい丸・しょう天は・カウンターで れい丸が もどる）・混とんの大軍師（みんなでとなえる・太極・ギガ・スレイブ。battle-r86b.js）
 import { r86bEffect, r86bMagic, r86bResolve, r86bPub } from './battle-r86b.js';
 // 第86回 A班: 幻の職業 2つ（人とようかいのかけ橋〈ためた力・自動で かばう・きずなの力・人とようかいのきずな〉・竜神の剣士〈2つの 属性の 剣〉。battle-r86a.js）
@@ -280,6 +281,10 @@ export class Battle {
     this.speed = opts.speed || 1;
     this.textSpeed = opts.textSpeed || 1;
     this.wait = !!opts.wait;
+    // 第105回: 会話の イベントで 読み終わりを 待つ（家族が 遊ぶ 戦いだけ。テスト・はかる 道具は 待たない。shared/battle-talk.js）
+    this.talkWait = !!opts.talkWait;
+    this.talk = null;
+    this.talkSeq = 0;
     this.canFlee = opts.canFlee !== false;
     this.boss = !!opts.boss;
     // 呪文が ふうじられた 場所（第4章 Step 4 の 王家のピラミッド 2階）: みかたも 敵も 呪文が 使えない（特技・道具は 使える）
@@ -341,6 +346,7 @@ export class Battle {
   joinAlly(init) {
     const c = this.addAlly(init);
     c.atb = this.rng.float(0, 40);
+    talkJoin(this, c.controller); // 第105回: とちゅうから 来た 人は 今の 会話を 見て いない（待たない）
     this.emit({ t: 'msg', lines: [`${c.name}がかけつけた！`], joined: [pub(c)], dur: 900 });
     return c;
   }
@@ -423,7 +429,19 @@ export class Battle {
   }
 
   // ───────────── イベント ─────────────
-  emit(ev) { this.events.push(ev); }
+  emit(ev) {
+    // 第105回: 会話の イベント（せりふ・場面）に しるし（ev.talk … 番号）。talkWait の 戦いは 読み終わりを 待つ（shared/battle-talk.js）
+    if (ev.t === 'act' || ev.t === 'msg') {
+      if (isTalkEvent(ev, this)) talkBegin(this, ev);
+      else {
+        if (ev.talk === false) delete ev.talk;
+        talkAfter(this);
+      }
+    }
+    this.events.push(ev);
+  }
+  // 第105回: 読み終わった（その 人。seq … 読んだ 会話の 番号）
+  talkRead(who, seq) { talkRead(this, who, seq); }
   flush() {
     const e = this.events;
     this.events = [];
@@ -433,6 +451,8 @@ export class Battle {
   // ───────────── じかんを すすめる ─────────────
   tick(dtReal) {
     if (this.over) return this.flush();
+    // 第105回: 会話の 読み終わりを 待って いる 間は 何も すすめない（ゲージ・どく・前ぶれ・合体技の さそい・時間。battle-talk.js）
+    if (this.talk && talkHold(this)) return this.flush();
     const dt = dtReal * this.speed;
     // 合体技の さそいは リアル時間で まつ（えんしゅつ中も へる）
     if (this.invites.size) {
@@ -2601,6 +2621,9 @@ export class Battle {
       speed: this.speed,
       textSpeed: this.textSpeed,
       wait: this.wait,
+      // 第105回: 会話で 読み終わりを 待つ 戦いか・今 待って いる 会話の 番号（とちゅうから 入った 画面は 読んだ ことに する）
+      talkWait: this.talkWait,
+      talkSeq: this.talk?.seq || 0,
       combatants: this.combatants.filter((c) => !c.fled).map(pub),
     };
   }

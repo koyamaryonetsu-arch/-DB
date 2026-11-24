@@ -110,6 +110,8 @@ export class GameWorld {
     this.storage = opts.storage;
     this.rng = opts.rng || makeRng();
     this.offline = !!opts.offline;
+    // 第105回: 戦いの 会話は 読み終わるまで 待つ（server/main.js・client/offline.js が true。テストの 世界は 待たない）
+    this.talkWait = !!opts.talkWait;
     this.checkPassword = opts.checkPassword || (() => true);
     this.familyName = opts.familyName || 'わが家';
     this.now = opts.now || (() => Date.now());

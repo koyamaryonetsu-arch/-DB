@@ -177,7 +177,7 @@ export async function attachCloud(world, storage, status, claude) {
 }
 
 export function startOffline(deliver) {
-  const world = new GameWorld({ storage: offlineStorage, syncStore: localSyncStore(), offline: true, familyName: 'このブラウザ' });
+  const world = new GameWorld({ storage: offlineStorage, syncStore: localSyncStore(), offline: true, familyName: 'このブラウザ', talkWait: true }); // 第105回: talkWait … 戦いの 会話を 読み終わるまで 待つ
   offlineStorage.prime(world.data);
   const status = cloudStatus();
   // クラウドの セーブを 読みおわるまで、遊ぶ ための メッセージは まつ

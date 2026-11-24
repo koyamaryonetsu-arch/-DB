@@ -232,6 +232,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     enemies,
     ...normBattleSettings(settings),
     wait: !!settings.wait,
+    // 第105回: 会話は 家族が 読み終わるまで 待つ（サーバー・ひとりで 遊ぶ サイトの 世界だけ。テストの 世界は 待たない。shared/battle-talk.js）
+    talkWait: !!world.talkWait,
     canFlee: opts.canFlee !== false,
     boss: !!opts.boss,
     // 呪文が ふうじられた マップ（王家のピラミッド 2階）
@@ -438,6 +440,8 @@ export function battleCommand(world, s, msg) {
   const ctx = world.battles.get(s.battleId);
   if (!ctx) return;
   const b = ctx.battle;
+  // 第105回: 会話を 読み終わった（client/battle-talk.js）
+  if (msg.talk !== undefined) return b.talkRead?.(s.id, Number(msg.talk));
   if (msg.auto !== undefined) {
     const a = b.get(msg.actor);
     if (a && a.controller === s.id) {
