@@ -62,6 +62,10 @@
     const hid = document.createElement('input'); hid.type = 'date'; hid.className = 'di-hidden'; hid.tabIndex = -1; hid.setAttribute('aria-hidden', 'true'); hid.dataset.diSkip = '1';
     wrap.appendChild(btn); wrap.appendChild(hid);
     btn.addEventListener('mousedown', (e) => e.preventDefault());   // 欄から離れない（表の中で直している時に閉じない）
+    // スマホ（指で押す画面）は、隠した日付の欄を 📅 の上に透明で重ね、指が直接その欄を押すようにする（2026-11-24）
+    //  iPhone・Android は、小さく隠した欄を JS で開いてもカレンダーが出ないため。押す直前に今の日付を入れておく
+    const prep = () => { VALUE.set.call(hid, getIso() || ''); };
+    hid.addEventListener('pointerdown', prep); hid.addEventListener('touchstart', prep, { passive: true }); hid.addEventListener('focus', prep);
     btn.addEventListener('click', (e) => {
       e.preventDefault(); e.stopPropagation();
       VALUE.set.call(hid, getIso() || '');

@@ -4086,7 +4086,8 @@
     document.body.classList.add('drawer-open');
     modalSnapshot = caseFormSnapshot();
     // 内容・メモは全文が見えるよう、開いた直後に高さを中身に合わせて拡張
-    requestAnimationFrame(() => { autoGrowTextarea($('content')); autoGrowTextarea($('memo')); if ($('customerMemo')) autoGrowTextarea($('customerMemo')); });
+    // 社内アドバイスも、社内メモと同じく開いた時に中身に合わせて広げる（2026-11-24 スマホで小さく見づらかった）
+    requestAnimationFrame(() => { ['content', 'memo', 'customerMemo', 'adviceNote'].forEach((id) => { if ($(id)) autoGrowTextarea($(id)); }); });
     // 客先（TOHO などのアカウント）は「自社のメモ」だけ直せる。ほかの欄は見るだけ・削除と複製は出さない
     const cust = !isPrivileged(currentUser);
     form.querySelectorAll('input, select, textarea').forEach((el) => {
@@ -7363,7 +7364,7 @@
   $('quickCaseBtn').addEventListener('click', () => { if (isPrivileged(currentUser)) openModal(null, 'simple'); });
   $('closeModal').addEventListener('click', closeModal);
   // 内容・メモ: 入力に合わせて全文が見えるよう自動拡張
-  ['content', 'memo', 'adviceNote'].forEach((id) => {
+  ['content', 'memo', 'adviceNote', 'customerMemo'].forEach((id) => {
     const el = $(id);
     if (el) el.addEventListener('input', () => autoGrowTextarea(el));
   });
