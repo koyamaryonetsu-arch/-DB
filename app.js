@@ -4103,6 +4103,7 @@
   const CM_KIND = { quote: '見積書', workapp: '作業申請書', safety: '🦺 安全書類', budget: '💰 大口予算書', other: '書類' };
   function cmDate(s) { const d = new Date(s); return isNaN(d) ? '' : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
   // 通知メールの宛先（GAS の CaseMail.gs と同じ決まり）を、画面に出すために数える
+  let cmLastToCount = -1;   // 本番の宛先の数（0 なら「宛先なし」の欄を出す）
   async function caseMailRecipientsText(c) {
     const { data: accs } = await sb.from('customer_accounts').select('email,company,theater,person');
     const out = [], seen = new Set();
@@ -4116,6 +4117,7 @@
       if (ap.enabled !== false && !muted) add(ap.email, '本社の決裁者・3万円以上');
     }
     const mode = caseMailSettings.mode;
+    cmLastToCount = out.length;
     const real = out.length ? out.join('、') : 'なし（劇場・担当者のアドレスが未登録）';
     if (mode === 'off') return '通知メールは止めています（本番の宛先: ' + real + '）';
     if (mode === 'test') {
@@ -4123,6 +4125,40 @@
     }
     return '通知メールの宛先: ' + real;
   }
+  // 本番の宛先が無い時（2026-11-24）: 案件の画面で分かるようにして、その場で客先アカウントにアドレスを足せる
+  function renderCmNoTo(c) {
+    let box = $('cmNoTo');
+    if (cmLastToCount !== 0 || !c || String(caseMailSettings.mode || 'test') === 'off') { if (box) box.remove(); return; }
+    if (!box) { box = document.createElement('div'); box.id = 'cmNoTo'; box.className = 'cm-noto'; $('cmTo').after(box); }
+    const th = shortTheaterName(c.theater) || c.theater || '';
+    const person = stripHonorific(c.tcPerson || '');
+    box.innerHTML = `<div class="cm-noto-h">⚠ この案件は、本番の通知メールの宛先がありません（${escapeHtml(th || '劇場なし')}${person ? '・担当者 ' + escapeHtml(person) : ''} のアドレスが未登録）。本番にしても届きません。</div>
+      <div class="cm-noto-f">
+        <select id="cmNoToKind">${c.theater ? `<option value="theater">劇場（${escapeHtml(th)}）のアドレス</option>` : ''}${person ? `<option value="person">担当者（${escapeHtml(person)}）のアドレス</option>` : ''}</select>
+        <input type="email" id="cmNoToEmail" class="tm-input" placeholder="例: ${c.theater ? 'gekijo' : 'tanto'}@example.co.jp" autocomplete="off">
+        <button type="button" id="cmNoToAdd" class="primary">＋ 宛先に足す</button>
+      </div>
+      <div class="ms-note">客先アカウント（「🗂 マスター編集」→ 客先アカウント）に入ります。そのアドレスでログインすると、${c.theater ? 'この劇場の案件' : 'この担当者の案件'}が見られるようになります。</div>`;
+    if (!c.theater && !person) box.querySelector('.cm-noto-f').innerHTML = '<span class="ms-note">劇場名か客先担当者を入れて保存すると、ここから宛先を足せます。</span>';
+  }
+  async function addCmRecipient() {
+    const K = window.KARTE; const c = cases.find((x) => String(x.id) === cmCaseId); if (!c) return;
+    const email = String(($('cmNoToEmail') || {}).value || '').trim().toLowerCase();
+    const kind = ($('cmNoToKind') || {}).value || 'theater';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { K.say('メールアドレスを入れてください'); return; }
+    if (/@ryonetsu(-ai)?\.com$/.test(email)) { K.say('菱熱のアドレスには通知メールを送りません（LINE の通知があるため）。客先のアドレスを入れてください'); return; }
+    const row = kind === 'person' ? { email, company: c.company || '', theater: '', person: stripHonorific(c.tcPerson || '') } : { email, company: c.company || '', theater: c.theater || '', person: '' };
+    try {
+      const { data: ex } = await sb.from('customer_accounts').select('email,company,theater,person').eq('email', email).limit(1);
+      const old = ex && ex[0];
+      if (old && !(await K.ask(`このアドレスは、もう客先アカウントに入っています（${old.company || ''} ${old.theater ? shortTheaterName(old.theater) : ''}${old.person ? ' 担当者 ' + old.person : ''}）。\nこの案件の${kind === 'person' ? '担当者' : '劇場'}のアドレスに変えますか？`, { ok: '変える', cancel: 'やめる' }))) return;
+      if (!old && !(await K.ask(`${email} を、${kind === 'person' ? '担当者（' + row.person + '）' : '劇場（' + shortTheaterName(c.theater) + '）'}のアドレスとして客先アカウントに入れます。\nこのアドレスでログインすると、${kind === 'person' ? 'この担当者' : 'この劇場'}の案件が見られるようになります。よろしいですか？`, { ok: '入れる', cancel: 'やめる' }))) return;
+      await store.saveAccounts([row]);
+      showToastLite('宛先に足しました');
+      renderCaseMailSec(c);
+    } catch (e) { K.say('入れられませんでした: ' + (e.message || e)); }
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest('#cmNoToAdd')) addCmRecipient(); });
   async function renderCaseMailSec(c) {
     const sec = $('caseMailSec'); if (!sec) return;
     const show = !!(c && c.id && caseMailSupported && isPrivileged(currentUser) && store.mode === 'supabase');
@@ -4140,6 +4176,7 @@
       ]);
       if (cmCaseId !== id) return;
       $('cmTo').textContent = to;
+      renderCmNoTo(c);
       const files0 = fr.data || [];
       // 安全書類・予算書は1回分（同じ時に作った書類）をまとめて、たためる箱に（2026-11-20）
       const groups = new Map(); const files = [];

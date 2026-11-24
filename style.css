@@ -2971,3 +2971,8 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
 /* 通知メールを送るか聞く（2026-11-24） */
 .mail-ask-btns { flex-wrap: wrap; gap: 8px; }
 .mail-ask-ov .kt-ask-msg { white-space: pre-wrap; }
+/* 通知メールの宛先が無い時（2026-11-24） */
+.cm-noto { border: 1px solid #fca5a5; background: #fef2f2; border-radius: 8px; padding: 8px 10px; margin: 6px 0 10px; }
+.cm-noto-h { font-size: 13px; color: #991b1b; font-weight: 600; margin-bottom: 6px; }
+.cm-noto-f { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 4px; }
+.cm-noto-f input[type="email"] { flex: 1 1 220px; }
