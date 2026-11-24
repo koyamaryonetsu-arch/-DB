@@ -26,8 +26,8 @@
 var CASE_MAIL_QUIET_MS = 5 * 60 * 1000;       // 最後の予定から5分たったら送る（続けて直した分をまとめる）
 var CASE_MAIL_MAX_WAIT_MS = 30 * 60 * 1000;   // 直し続けていても、最初の予定から30分たったら送る
 var CASE_MAIL_MAX_ATTACH = 20 * 1024 * 1024;  // 添付の合計の上限（Gmail は 25MB まで）
-var CASE_MAIL_TAG_RE = /\[案件#([0-9a-f]{8})\]/i;
-var CASE_MAIL_FOOTER = '※ このメールは菱熱工業の案件管理から自動でお送りしています。';
+var CASE_MAIL_TAG_RE = /\[案件#([0-9a-f]{8})\]/i;   // 2026-11-24 までの件名の印（前に送ったメールへの返信を読むために残す）
+var CASE_MAIL_FOOTER = '※ このメールは菱熱工業の案件管理から自動でお送りしています。';   // 2026-11-24 までの最後の一文（同上）
 var CASE_MAIL_SENDER_NAME = '菱熱工業';
 var CASE_MAIL_MINE_UNKNOWN = 'このスクリプトを動かしている Gmail（最初の通知メールを送ると、アドレスが出ます）';   // 通知メールの差出人の名前（自分の通知メールを見分ける印にも使う）
 // ※ 自分のアドレスは、送った通知メールの差出人から読む（ほかの取り方は Google の許可を新しく取り直す必要があるため）。
@@ -75,7 +75,7 @@ function caseMailSettings_() {
 // まだ一度も送っていなければ ''（画面には「まだ確認できていません」と出る）
 function cmMyAddressFromSent_() {
   try {
-    var threads = GmailApp.search('in:sent subject:(菱熱工業 お知らせ 案件) newer_than:60d', 0, 5);
+    var threads = GmailApp.search('in:sent subject:(菱熱工業) newer_than:60d', 0, 10);
     for (var i = 0; i < threads.length; i++) {
       var ms = threads[i].getMessages();
       for (var j = ms.length - 1; j >= 0; j--) if (caseMailIsOurNotice_(ms[j])) return cmAddrOf_(ms[j].getFrom());
@@ -175,7 +175,7 @@ function cmFmtDate_(d) {
 }
 function caseMailSubject_(c, shortName) {
   var what = String(c.title || '').trim() || String(c.category || '').trim() || 'ご依頼の件';
-  return '【菱熱工業】' + shortName + ' ' + what + ' のお知らせ [案件#' + String(c.id).replace(/-/g, '').slice(0, 8) + ']';
+  return '【菱熱工業】' + shortName + ' ' + what + ' のお知らせ';   // 2026-11-24〜 [案件#…] は付けない（返信は送ったスレッドで案件を見分ける）
 }
 // 作業申請書の行: 調査・作業ごとに、日時・場所・内容・人数を細かく書く。申請不要の時は理由を書く
 function cmWorkappLines_(f) {
@@ -286,9 +286,65 @@ function caseMailBody_(c, events, files, ai) {
   lines.push('ご不明な点やご質問は、このメールにそのままご返信ください（案件の記録に残ります）。');
   lines.push('');
   lines.push('菱熱工業株式会社');
-  lines.push('');
-  lines.push(CASE_MAIL_FOOTER);
   return lines.join('\n');
+}
+
+// 送る（下書きを作って送る＝送ったメールとスレッドの id が分かる。返信がどの案件か、送ったスレッドで見分けるため。2026-11-24）
+function cmSend_(addrs, subject, body, opt) {
+  var msg = GmailApp.createDraft(addrs, subject, body, opt).send();
+  var r = { messageId: '', threadId: '', from: '' };
+  try { r.messageId = msg.getId(); r.threadId = msg.getThread().getId(); r.from = cmAddrOf_(msg.getFrom()); } catch (e) { Logger.log('送ったメールの id を読めない: ' + e); }
+  return r;
+}
+// 送った通知メールの記録（case_mail_log）。thread_id 列が無い時（SETUP_CASE_MAIL_THREAD.sql の前）は、その列を外して残す
+function cmLogOut_(row) {
+  try { cmReq_('post', 'case_mail_log', row, 'return=minimal'); }
+  catch (e) {
+    if (/thread_id/.test(String(e))) { var r2 = Object.assign({}, row); delete r2.thread_id; try { cmReq_('post', 'case_mail_log', r2, 'return=minimal'); return; } catch (e2) { e = e2; } }
+    Logger.log('メールの記録に失敗: ' + e);
+  }
+}
+
+// ===== 試し: 通知メールの見本を、テストの宛先だけに1通ずつ送る（2026-11-24） =====
+// GAS のエディタで1回だけ実行する。案件のデータは変えない・メールの記録にも残さない・客先には送らない。
+// 見本に使う案件: CASE_MAIL_SAMPLE_CASE_ID があればその案件、無ければ TOHO の案件で、内容が2行以上あって新しく直したもの
+var CASE_MAIL_SAMPLE_CASE_ID = '';
+function sendCaseMailSamples() {
+  var settings = caseMailSettings_();
+  if (!settings.testTo.length) { Logger.log('テストの宛先が未設定です（アプリの「マスター編集 → メール通知」で入れてください）'); return; }
+  var sel = 'select=id,company,theater,title,category,content,tc_person,work_start_date,work_start_time,estimate_amount';
+  var rows = CASE_MAIL_SAMPLE_CASE_ID ? cmGet_('cases?id=eq.' + cmEnc_(CASE_MAIL_SAMPLE_CASE_ID) + '&' + sel)
+    : cmGet_('cases?company=eq.' + cmEnc_('TOHOシネマズ') + '&content=not.is.null&' + sel + '&order=updated_at.desc&limit=30');
+  var c = rows.filter(function (r) { return r.title && String(r.content || '').split(/\r?\n/).filter(function (l) { return l.trim(); }).length >= 2; })[0] || rows[0];
+  if (!c) { Logger.log('見本に使う案件がありません'); return; }
+  var tz = 'Asia/Tokyo', day = function (n) { return Utilities.formatDate(new Date(Date.now() + n * 86400000), tz, 'yyyy-MM-dd'); };
+  var ws = c.work_start_date || day(14);
+  var cs = Object.assign({}, c, { work_start_date: ws });
+  var lines = String(c.content || '').split(/\r?\n/);
+  var before = lines.slice(0, Math.max(1, lines.length - 1)).join('\n');   // 最後の1行を足した、という見立て
+  var short = cmShortTheater_(c.theater);
+  var yy = Utilities.formatDate(new Date(), tz, 'yyMMdd'), md = String(ws).slice(5, 7) + String(ws).slice(8, 10);
+  var S = [
+    ['①新しく登録した時', [{ kind: 'content', detail: 'new' }], [], true, ''],
+    ['②内容を更新した時', [{ kind: 'content', detail: '' }], [], false, before],
+    ['③作業開始日を入れた時', [{ kind: 'work_start' }], [], false, null],
+    ['④見積書を付けた時', [{ kind: 'quote' }], [{ kind: 'quote', name: '【' + short + '】' + yy + '_御見積書_菱熱工業.pdf', attached: true }], false, null],
+    ['⑤作業申請書を付けた時', [{ kind: 'workapp' }], [{ kind: 'workapp', name: '【' + short + '】' + yy + '_作業申請書_' + md + '_菱熱工業.pdf', attached: true, status: 'final',
+      meta: { purpose: 'work', for_date: ws, answers: { work: { start_date: ws, start_time: '22:00', end_date: ws, end_time: '23:30', place: '屋上 機械置場', content: c.title || '' }, headcount: 3 } } }], false, null],
+    ['⑥作業申請書は申請不要の時', [{ kind: 'workapp' }], [{ kind: 'workapp', name: '', status: 'skip', meta: { purpose: 'survey', for_date: ws, skip_reason: '目視の確認だけで工具を使わないため' } }], false, null]
+  ];
+  var realTo = caseMailRecipients_(c, cmGet_('customer_accounts?select=email,company,theater,person'), cmApprover_());
+  var addrs = settings.testTo.join(','), snd = cmSender_(settings, ''), n = 0;
+  S.forEach(function (x) {
+    var ai = cmAiNotice_(cs, x[3], x[4] || '', x[1][0].kind === 'content' && !x[3]);
+    var body = '【テスト】通知メールの見本です（' + x[0] + '）。客先には送っていません。見本のため、書類は付けていません。\n本番なら、次の宛先に届きます: ' +
+      (realTo.length ? realTo.map(function (r) { return r.email + '（' + r.why + '）'; }).join('、') : '（まだ登録されていません）') +
+      '\n────────────────\n\n' + caseMailBody_(cs, x[1], x[2], ai);
+    var opt = { name: CASE_MAIL_SENDER_NAME }; if (snd.from) opt.from = snd.from;
+    GmailApp.sendEmail(addrs, '【テスト・見本' + x[0].slice(0, 1) + '】' + caseMailSubject_(c, short), body, opt);
+    n++; Utilities.sleep(1500);
+  });
+  Logger.log('通知メールの見本を ' + n + ' 通、テストの宛先（' + addrs + '）に送りました。見本の案件: ' + short + ' ' + (c.title || '') + '（' + c.id + '）');
 }
 
 // ===== 送る（5分ごと） =====
@@ -344,23 +400,21 @@ function sendInitialReport_(ev, settings) {
     if (!settings.testTo.length) { cmMarkEvents_([ev], 'テスト中: テストの宛先が未設定のため送らず'); return 'skip'; }
     to = settings.testTo.map(function (e) { return { email: e, why: 'テストの宛先' }; });
   } else if (!to.length) { cmMarkEvents_([ev], '宛先なし（劇場・担当者・決裁者のアドレスが未登録）'); return 'skip'; }
-  var subject = (isTrial ? '【テスト】' : '') + String(d.subject || '【菱熱工業】初動対応・区分判定のご報告');
-  var body = String(d.body || '') + '\n\n' + CASE_MAIL_FOOTER;
+  var subject = (isTrial ? '【テスト】' : '') + String(d.subject || '【菱熱工業】初動対応・区分判定のご報告').replace(/\s*\[案件#[0-9a-f]{8}\]/i, '');   // 2026-11-24〜 [案件#…] は付けない
+  var body = String(d.body || '');
   if (isTrial) body = '【テスト】これは初動報告のテストの送信です（客先には送っていません）。\n本番なら、次の宛先に届きます: ' +
     (realTo.length ? realTo.map(function (x) { return x.email + '（' + x.why + '）'; }).join('、') : '（まだ登録されていません）') + '\n────────────────\n\n' + body;
   var addrs = to.map(function (x) { return x.email; }).join(',');
   var snd = cmSender_(settings, '');
   var opt = { name: CASE_MAIL_SENDER_NAME };
   if (snd.from) opt.from = snd.from;
-  GmailApp.sendEmail(addrs, subject, body, opt);
-  var mine = cmMyAddressFromSent_();
+  var sent = cmSend_(addrs, subject, body, opt);
+  var mine = sent.from || cmMyAddressFromSent_();
   cmMarkEvents_([ev], '初動報告を送った: ' + addrs);
   cmSaveStatus_({ sender_used: snd.from || mine || CASE_MAIL_MINE_UNKNOWN, sender_want: snd.want, alias_ok: snd.aliasOk, mode: settings.mode, my_address: mine,
     last_sent_at: new Date().toISOString(), last_to: addrs, last_subject: subject });
-  try {
-    cmReq_('post', 'case_mail_log', { case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.from || mine || '') + '>',
-      subject: subject, body: body, attachments: '', test: isTrial }, 'return=minimal');
-  } catch (e) { Logger.log('メールの記録に失敗: ' + e); }
+  cmLogOut_({ case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.from || mine || '') + '>',
+    subject: subject, body: body, attachments: '', test: isTrial, message_id: sent.messageId || null, thread_id: sent.threadId || null });
   return 'sent';
 }
 
@@ -427,19 +481,17 @@ function sendOneCaseMail_(caseId, evs, settings) {
   var snd = cmSender_(settings, '');
   var opt = { name: CASE_MAIL_SENDER_NAME, attachments: blobs };
   if (snd.from) opt.from = snd.from;
-  GmailApp.sendEmail(addrs, subject, body, opt);
-  var mine = cmMyAddressFromSent_();   // 送ったばかりの通知メールから、この Gmail のアドレスを読む
+  var sent = cmSend_(addrs, subject, body, opt);
+  var mine = sent.from || cmMyAddressFromSent_();   // 送ったばかりの通知メールから、この Gmail のアドレスを読む
   snd.used = snd.from || mine || CASE_MAIL_MINE_UNKNOWN;
   cmSaveStatus_({ sender_used: snd.used, sender_want: snd.want, alias_ok: snd.aliasOk, mode: settings.mode, my_address: mine,
     last_sent_at: new Date().toISOString(), last_to: addrs, last_subject: subject });
   cmMarkEvents_(evs, '送った: ' + to.map(function (x) { return x.email + '（' + x.why + '）'; }).join(' / '));
-  try {
-    cmReq_('post', 'case_mail_log', {
-      case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.from || mine || '') + '>',
-      subject: subject, body: body, attachments: files.filter(function (f) { return f.attached; }).map(function (f) { return f.name; }).join(' / '),
-      test: settings.mode !== 'live'
-    }, 'return=minimal');
-  } catch (e) { Logger.log('メールの記録に失敗: ' + e); }
+  cmLogOut_({
+    case_id: String(c.id), direction: 'out', to_addrs: addrs, from_addr: CASE_MAIL_SENDER_NAME + ' <' + (snd.from || mine || '') + '>',
+    subject: subject, body: body, attachments: files.filter(function (f) { return f.attached; }).map(function (f) { return f.name; }).join(' / '),
+    test: settings.mode !== 'live', message_id: sent.messageId || null, thread_id: sent.threadId || null
+  });
   return 'sent';
 }
 
@@ -455,6 +507,14 @@ function cmDownload_(bucket, path) {
 // ===== 客先からの返信（Code.gs の取り込みから呼ぶ） =====
 // 件名の [案件#xxxxxxxx] から案件を探す。見つかれば案件の行を返す
 function caseMailCaseOfThread_(th) {
+  // 2026-11-24〜: 送った通知メールのスレッドの記録から案件を探す（件名に印が無い）
+  try {
+    var tid = th.getId && th.getId();
+    if (tid) {
+      var lr = cmGet_('case_mail_log?thread_id=eq.' + cmEnc_(tid) + '&direction=eq.out&select=case_id&limit=1');
+      if (lr.length) return String(lr[0].case_id);
+    }
+  } catch (e) { /* thread_id 列がまだ無い時は、前の印で探す */ }
   var m = String(th.getFirstMessageSubject() || '').match(CASE_MAIL_TAG_RE);
   if (!m) return null;
   var head = m[1].toLowerCase();
@@ -465,11 +525,20 @@ function caseMailCaseOfThread_(th) {
   } catch (e) { Logger.log('通知メールの案件を探せない: ' + e); return null; }
 }
 function cmAddrOf_(from) { var m = String(from || '').match(/<([^>]+)>/); return (m ? m[1] : String(from || '')).trim().toLowerCase(); }
-// このメールは、こちらが送った通知メールそのものか（差出人の名前が「菱熱工業」で、決まりの一文が入っている）
+// このメールは、こちらが送った通知メールそのものか
+//  （差出人の名前が「菱熱工業」で、送った記録に同じメールの id がある。2026-11-24 までのメールは最後の決まりの一文）
+var CM_OUT_IDS_ = {};
 function caseMailIsOurNotice_(msg) {
   var from = String(msg.getFrom() || '').trim().replace(/^"/, '');
-  return from.indexOf(CASE_MAIL_SENDER_NAME + ' <') === 0 || from.indexOf(CASE_MAIL_SENDER_NAME + '" <') === 0
-    ? String(msg.getPlainBody() || '').indexOf(CASE_MAIL_FOOTER) !== -1 : false;
+  if (!(from.indexOf(CASE_MAIL_SENDER_NAME + ' <') === 0 || from.indexOf(CASE_MAIL_SENDER_NAME + '" <') === 0)) return false;
+  if (String(msg.getPlainBody() || '').indexOf(CASE_MAIL_FOOTER) !== -1) return true;
+  var id = ''; try { id = msg.getId(); } catch (e) { id = ''; }
+  if (!id) return false;
+  if (!(id in CM_OUT_IDS_)) {
+    try { CM_OUT_IDS_[id] = cmGet_('case_mail_log?message_id=eq.' + cmEnc_(id) + '&direction=eq.out&select=id&limit=1').length > 0; }
+    catch (e) { CM_OUT_IDS_[id] = false; }
+  }
+  return CM_OUT_IDS_[id];
 }
 // 返ってきたメール（自分以外から）を案件の記録に残す（同じメールは2回残さない）
 function caseMailLogReplies_(th, caseId) {
@@ -494,11 +563,11 @@ function caseMailLogReplies_(th, caseId) {
 // 通知メールへの返信に「案件登録」のラベルを付ける（Gmail のフィルタに合わない差出人＝テスト用のアドレスなどの返信も取り込むため）
 function caseMailLabelReplies_() {
   try {
-    var threads = GmailApp.search('subject:(菱熱工業 お知らせ 案件) newer_than:2d -label:' + SRC_LABEL, 0, 20);
+    var threads = GmailApp.search('subject:(菱熱工業 お知らせ) newer_than:2d -label:' + SRC_LABEL, 0, 20);
     if (!threads.length) return;
     var lbl = getOrCreateLabel_(SRC_LABEL);
     threads.forEach(function (th) {
-      if (!CASE_MAIL_TAG_RE.test(String(th.getFirstMessageSubject() || ''))) return;
+      if (!caseMailCaseOfThread_(th)) return;   // 送った通知メールのスレッドだけ
       var msgs = th.getMessages();
       if (caseMailIsOurNotice_(msgs[msgs.length - 1])) return;   // まだ返信が無い
       th.addLabel(lbl);
