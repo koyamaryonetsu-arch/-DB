@@ -123,9 +123,20 @@
     ['input', 'change'].forEach((t) => hid.addEventListener(t, (e) => { e.stopPropagation(); if (t === 'change' || hid.value) onPick(hid.value); }));
     return wrap;
   }
+  // 日付を打つ欄は、端末の「数字だけ」のキーボードにする（2026-11-24 iPhone）
+  //  iPhone の日本語キーボードの数字は、予測変換・ライブ変換で「2」→「2021年」のように勝手に変わる（覚えた言葉が出る）。
+  //  inputmode="decimal" は数字と「.」だけの端末のキーボードで、変換も予測も出ない。「12.9」「1209」「20261209」と打てる
+  const COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  function noIme(el) {
+    el.inputMode = 'decimal';
+    el.setAttribute('autocomplete', 'off'); el.setAttribute('autocorrect', 'off'); el.setAttribute('autocapitalize', 'off');
+    el.setAttribute('spellcheck', 'false'); el.setAttribute('enterkeyhint', 'done');
+    if (COARSE && /^例 ?9\/12$/.test(el.placeholder || '')) el.placeholder = '例 12.9・1209';
+  }
   // 打つ欄（.smart-date）
   function enhanceSmart(el) {
     if (el.dataset.diDone) return; el.dataset.diDone = '1';
+    noIme(el);
     const tidy = () => { const iso = parse(el.value); if (iso) VALUE.set.call(el, fmt(iso)); };
     el.addEventListener('blur', tidy);
     el.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) tidy(); });
@@ -144,7 +155,7 @@
   // 選ぶだけの欄（type=date）: 前に打てる欄を出す。値の出し入れは今までどおり type=date の欄で
   function enhanceNative(el) {
     if (el.dataset.diDone || el.dataset.diSkip) return; el.dataset.diDone = '1';
-    const tx = document.createElement('input'); tx.type = 'text'; tx.inputMode = 'numeric';
+    const tx = document.createElement('input'); tx.type = 'text'; noIme(tx);
     tx.className = 'di-text ' + String(el.className || '').replace(/\btask-due-input\b/, '').trim();
     tx.placeholder = el.getAttribute('placeholder') || '例 1/9';
     tx.title = el.title || '日付（打つか 📅 で選ぶ）'; tx.disabled = el.disabled; tx.readOnly = el.readOnly;
