@@ -15,6 +15,8 @@
  *               そのアドレスで送る。まだなら、このスクリプトを動かしている Gmail のアドレスで送る。
  *    実際に使ったアドレス・別名が使えるか・最後に送った時刻は app_settings の case_mail_status に残す（アプリの画面に出す）。
  *    送らなかった予定は「送らない」と記録して消化する（あとで本番にした時にまとめて飛ばないように）。
+ *  ・本文（2026-11-24〜）: 内容の全文は載せない。AI（Sonnet 5.5）が「どんな案件か」と「今回変わったこと」（直す前の内容と比べる）を書き、
+ *    案件のページの URL（?case=）と「返信はこのメールで」を付ける。AI が使えない時は短い形で送る。直す前の内容は SETUP_CASE_MAIL_DIFF.sql で残す。
  *  ・送ったメールは案件の「メールの記録」(case_mail_log) に残す。客先の返信は Code.gs の取り込みが記録に残し、案件の更新にも使う。
  *
  * 有効にする: Supabase で SETUP_CASE_MAIL.sql → このファイルを貼る → setupCaseMailTrigger() を1回だけ実行（5分ごとのトリガーを作る）。
@@ -32,6 +34,8 @@ var CASE_MAIL_MINE_UNKNOWN = 'このスクリプトを動かしている Gmail�
 //    差出人の名前「菱熱工業」と、決まりの一文で、自分の通知メールを見分ける。
 var CASE_MAIL_APP_URL = 'https://cinema-cases.vercel.app';
 var CASE_MAIL_KIND_ORDER = { content: 1, work_start: 2, quote: 3, workapp: 4 };
+// 通知メールの「案件の内容」「今回変わったこと」を書く AI（2026-11-24 小山さんの決め: Sonnet。Haiku は使わない）
+var CASE_MAIL_AI_MODEL = 'claude-sonnet-5-5';
 
 // ===== Supabase（サービスキー） =====
 function cmReq_(method, path, body, prefer) {
@@ -204,7 +208,53 @@ function cmFmtWhen_(sd, st, ed, et) {
   var e = sameDay ? tm(et) : cmFmtDateW_(ed).replace(/^\d+年/, '') + (tm(et) ? tm(et) : '');
   return s + (e ? '〜' + e : '');
 }
-function caseMailBody_(c, events, files) {
+// 案件のページ（ログインすると、その案件が開く）
+function caseMailCaseUrl_(c) { return CASE_MAIL_APP_URL + '/?case=' + encodeURIComponent(String(c.id)); }
+
+// AI（Sonnet）に「どんな案件か」と「今回変わったこと」を書いてもらう（2026-11-24）。
+// 使えない時（キーが無い・失敗・断られた）は null を返し、AI なしの短い形で送る（Haiku などほかのモデルではやり直さない）
+function cmAiNotice_(c, isNew, oldContent, contentChanged) {
+  var key = '';
+  try { key = cfg_('ANTHROPIC_API_KEY'); } catch (e) { key = ''; }
+  if (!key) return null;
+  var system = [
+    'あなたは菱熱工業（映画館の空調設備の修理・点検・工事をする会社）の担当です。映画館の客先へ送る「案件のお知らせメール」の一部を書きます。',
+    '答えは JSON で、次の2つです。',
+    '・about: この案件で何をするのか（どこの何の不具合・ご依頼に対して、何をする案件か）を1〜2文で。',
+    '・changes: 今回のお知らせで新しく分かったこと・変わったこと。「前の内容」と「今の内容」を比べて、増えた所・変わった所だけを、客先に分かる言葉で1〜3項目（各1文）。' +
+      '新しく登録した案件の時、内容が変わっていない時（日付・書類のお知らせだけの時）は空の配列。',
+    '決まり: です・ます調で、簡潔に。内容に書かれていないことは書かない（推測で足さない）。日付・数・場所は内容のとおりに書く。' +
+      '金額、社内の事情、協力会社や業者の名前は書かない。あいさつ・「ご返信ください」・URL はこちらで足すので書かない。'
+  ].join('\n');
+  var user = JSON.stringify({
+    劇場: c.theater || '', 案件名: c.title || '', 種別: c.category || '',
+    お知らせの種類: isNew ? '新しく登録した案件' : (contentChanged ? '内容を更新した' : '日付・書類のお知らせ（内容は変わっていない）'),
+    前の内容: isNew ? '' : String(oldContent || ''), 今の内容: String(c.content || '')
+  });
+  var schema = { type: 'object', additionalProperties: false, required: ['about', 'changes'],
+    properties: { about: { type: 'string' }, changes: { type: 'array', items: { type: 'string' } } } };
+  var body = { model: CASE_MAIL_AI_MODEL, max_tokens: 3000, system: system, messages: [{ role: 'user', content: user }],
+    output_config: { effort: 'low', format: { type: 'json_schema', schema: schema } }, fallbacks: 'default' };
+  try {
+    var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'server-side-fallback-2026-07-01' },
+      payload: JSON.stringify(body)
+    });
+    if (res.getResponseCode() >= 300) { Logger.log('通知メールの AI に失敗（' + res.getResponseCode() + '）: ' + res.getContentText().slice(0, 300)); return null; }
+    var data = JSON.parse(res.getContentText());
+    if (data.stop_reason === 'refusal') { Logger.log('通知メールの AI が応答を断りました'); return null; }
+    var txt = ''; (data.content || []).forEach(function (b) { if (b && b.type === 'text' && !txt) txt = b.text || ''; });
+    var j = JSON.parse(txt);
+    var about = String(j.about || '').trim();
+    var changes = (Array.isArray(j.changes) ? j.changes : []).map(function (x) { return String(x || '').trim(); }).filter(Boolean).slice(0, 3);
+    if (!about && !changes.length) return null;
+    return { about: about, changes: changes };
+  } catch (e) { Logger.log('通知メールの AI でエラー: ' + e); return null; }
+}
+
+// 本文（2026-11-24〜）: 内容の全文は載せない。どんな案件か・今回変わったこと・案件のページの URL・返信はこのメールで
+function caseMailBody_(c, events, files, ai) {
   var lines = [];
   lines.push((c.company || '') + ' ご担当者様');
   lines.push('');
@@ -213,26 +263,27 @@ function caseMailBody_(c, events, files) {
   lines.push('');
   lines.push('■ 劇場: ' + (c.theater || ''));
   if (c.title) lines.push('■ 案件名: ' + c.title);
-  lines.push('■ お知らせ:');
+  if (ai && ai.about) lines.push('■ 案件の内容: ' + ai.about);
+  lines.push('');
+  lines.push('■ 今回のお知らせ:');
   var kinds = {};
   events.forEach(function (e) { kinds[e.kind] = kinds[e.kind] || []; kinds[e.kind].push(e); });
   if (kinds.content) {
     var isNew = kinds.content.some(function (e) { return e.detail === 'new'; });
-    lines.push('　・' + (isNew ? '案件を登録しました。' : '内容を更新しました。'));
+    if (isNew) lines.push('　・案件を登録しました。');
+    else if (ai && ai.changes.length) ai.changes.forEach(function (x) { lines.push('　・' + x); });
+    else lines.push('　・案件の内容を更新しました。');
   }
   if (kinds.work_start && c.work_start_date) lines.push('　・作業開始日: ' + cmFmtDate_(c.work_start_date) + (c.work_start_time ? ' ' + String(c.work_start_time).slice(0, 5) : ''));
   files.forEach(function (f) {
     if (f.kind === 'workapp') { cmWorkappLines_(f).forEach(function (l) { lines.push(l); }); return; }
     lines.push('　・見積書を添付します（' + f.name + '）' + (f.attached ? '' : ' ※大きいため添付できませんでした。担当よりお送りします。'));
   });
-  if (c.content) {
-    lines.push('');
-    lines.push('■ 内容:');
-    String(c.content).split(/\r?\n/).forEach(function (l) { lines.push('　' + l); });
-  }
   lines.push('');
-  lines.push('ご不明な点は、このメールにそのままご返信ください（案件の記録に残ります）。');
-  lines.push('案件の一覧: ' + CASE_MAIL_APP_URL);
+  lines.push('詳しい内容は、案件のページでご確認いただけます（ログインが必要です）。');
+  lines.push(caseMailCaseUrl_(c));
+  lines.push('');
+  lines.push('ご不明な点やご質問は、このメールにそのままご返信ください（案件の記録に残ります）。');
   lines.push('');
   lines.push('菱熱工業株式会社');
   lines.push('');
@@ -247,7 +298,9 @@ function sendCaseMails() {
   try {
     var settings = caseMailSettings_();
     cmRefreshStatus_(settings);
-    var open = cmGet_('case_mail_events?sent_at=is.null&select=id,case_id,kind,detail,created_at&order=created_at.asc&limit=500');
+    var open;
+    try { open = cmGet_('case_mail_events?sent_at=is.null&select=id,case_id,kind,detail,old_content,created_at&order=created_at.asc&limit=500'); }
+    catch (e) { open = cmGet_('case_mail_events?sent_at=is.null&select=id,case_id,kind,detail,created_at&order=created_at.asc&limit=500'); }   // SETUP_CASE_MAIL_DIFF.sql の前
     if (!open.length) return;
     // 初動報告（アプリの「📣 初動報告」で書いた文）は、まとめずにすぐ送る
     var reports = open.filter(function (e) { return e.kind === 'initial_report'; });
@@ -359,7 +412,12 @@ function sendOneCaseMail_(caseId, evs, settings) {
   //   （残りの数を調べる方法は、Google の許可を新しく取り直す必要があるので使わない）
 
   var subject = (isTrial ? '【テスト】' : '') + caseMailSubject_(c, cmShortTheater_(c.theater));
-  var body = caseMailBody_(c, evsShown, files);
+  // どんな案件か・今回変わったこと（AI）。直す前の内容は、いちばん古い「内容を直した」予定のもの（5分の間に何回直しても、送る前と比べる）
+  var cEvs = evs.filter(function (e) { return e.kind === 'content'; });
+  var isNewCase = cEvs.some(function (e) { return e.detail === 'new'; });
+  var firstEdit = cEvs.filter(function (e) { return e.detail !== 'new' && e.old_content != null; })[0];
+  var ai = cmAiNotice_(c, isNewCase, firstEdit ? firstEdit.old_content : '', cEvs.length > 0 && !isNewCase);
+  var body = caseMailBody_(c, evsShown, files, ai);
   if (isTrial) {
     body = '【テスト】これは通知メールのテストの送信です（客先には送っていません）。\n本番なら、次の宛先に届きます: ' +
       (realTo.length ? realTo.map(function (x) { return x.email + '（' + x.why + '）'; }).join('、') : '（まだ登録されていません）') +
