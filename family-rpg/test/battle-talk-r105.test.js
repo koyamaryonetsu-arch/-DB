@@ -252,4 +252,7 @@ test('サーバー・ひとりで 遊ぶ サイトの 世界は talkWait（テ�
   const battles = readFileSync(new URL('../public/js/shared/world/battles.js', import.meta.url), 'utf8');
   assert.match(battles, /talkWait: !!world\.talkWait/);
   assert.match(battles, /msg\.talk !== undefined/);
+  // 画面の 見張り（自分の 番なのに コマンドの まどが ない → 立てなおす）は、会話の 間は 見ない
+  const game = readFileSync(new URL('../public/js/client/game.js', import.meta.url), 'utf8');
+  assert.match(game, /!b\.talkBusy\?\.\(\)/);
 });

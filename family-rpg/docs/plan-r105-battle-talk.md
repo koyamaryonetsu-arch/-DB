@@ -12,7 +12,7 @@
 | 戦いの 中み | `shared/battle.js` | `emit` で 会話に しるし（`ev.talk` … 番号）。`tick` の はじめで 待つ。`joinAlly` で とちゅうから 来た 人は 待たない。`snapshot` に `talkWait`・`talkSeq` |
 | 戦いを 作る 所 | `shared/world/battles.js` | `makeBattle` が `talkWait: !!world.talkWait` を わたす。`battleCommand` が `{ t: 'battle', talk: 番号 }` を うける |
 | 世界 | `shared/world/world.js`・`server/main.js`・`client/offline.js` | 家族サーバーと ひとりで 遊ぶ サイトの 世界だけ `talkWait: true`。テストの 世界（`new GameWorld()`）は 待たない |
-| 画面 | `client/battle-talk.js`（新）・`client/battle.js`・`css/style.css` | 1行ずつ・▼・タップ／キー／コントローラー・オート・ほかの 人を 待つ 文・コマンドの おおい |
+| 画面 | `client/battle-talk.js`（新）・`client/battle.js`・`client/game.js`（見張り）・`css/style.css` | 1行ずつ・▼・タップ／キー／コントローラー・オート・ほかの 人を 待つ 文・コマンドの おおい |
 | ボス | `shared/battle-c11d.js`・`client/battle-c11d.js` | 女王の 名前を よぶ 番に `ev.talk = true`。八つめの 音の 場面を 1行ずつ（`playEightScene` の `manual`） |
 | テスト | `test/battle-talk-r105.test.js`（新） | 12本 |
 
@@ -401,6 +401,7 @@
 - 自分の キャラが ぜんいん オート … 行は 自動で 流れ（▼ なし）、さいごに 自動で 読み終わりを 送る。会話の とちゅうで オートを 切ると、その 行から ▼ が 出て タップで 進む（オートに すると その 行から 流れる）。
 - 会話の 間（ほかの 人を 待つ 間も）は コマンドを えらべない: コマンドの まどに おおい（うすく・おせない）、キーと コントローラーは 会話が うける（コマンドの まどは `blur`）。番が 来ても コマンドの まどは 開かない。会話が 終わったら 前の まど（開いて いた コマンド）に もどし、えらぶ 番の キャラが いれば 開く。「えらぶまで、待っているよ」（前ぶれの 待ち）は 会話の 間 かくす。
 - ゲージの 見た目は 会話の 間（ほかの 人を 待つ 間も）のびない（画面の 中の 予想の のびも 止める）。
+- 画面の 見張り（`game.js` の `watchBattle` … 自分の 番なのに コマンドの まどが ない まま 2.5秒 → 出しなおし、8秒 → 立てなおし）は、会話の 間は 見ない（家族を 待つ 間に 立てなおしが 走って いた。ブラウザの 家族 2人で 見つけた）。
 - 八つめの 音の 場面 … 場面の 絵の 上の 文も 1行ずつ（`playEightScene(scene, e, { manual: true })` の `show(i)`・`end()`）。メッセージの まどにも 同じ 行。オートの 時は 1行 `max(場面の ms, 1.5秒 ÷ 文字の 速さ)`。
 - `talkWait` で ない 戦い（テストで 作った 画面）は 今までどおり 時間で 流れる。
 

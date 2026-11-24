@@ -668,7 +668,8 @@ export class Game {
   // 戦いの 見張り: 自分の 番なのに コマンドの まどが 出ない まま → 出しなおす。それでも だめなら 立てなおす
   watchBattle() {
     const b = this.battle;
-    const lost = !!b && !b.ended && !b.destroyed && !this.battleClosing && !b.menu && !b.invite && b.readyQ.some((id) => {
+    // 第105回: 会話を 読んで いる・ほかの 人を 待って いる 間は コマンドの まどを 出さない（client/battle-talk.js）
+    const lost = !!b && !b.ended && !b.destroyed && !this.battleClosing && !b.menu && !b.invite && !b.talkBusy?.() && b.readyQ.some((id) => {
       const a = b.c.get(id);
       return a && a.alive && a.ready && !a.auto && !(a.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'okashi' || x === 'nobose' || x === 'kinoko');
     });

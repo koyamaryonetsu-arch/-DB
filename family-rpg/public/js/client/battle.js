@@ -1442,6 +1442,11 @@ export class BattleScene {
     if (this.isTalk(ev)) talkStart(this, ev);
   }
 
+  // 第105回: 会話を 読んで いる・ほかの 人を 待って いる（コマンドを 出さない。game.js の watchBattle も 見る）
+  talkBusy() {
+    return talkBusy(this);
+  }
+
   // 第105回: 1行ずつ 読む 会話か（サーバーが 待つ 戦いだけ。待たない 戦いは 今までどおり 時間で 流れる）
   isTalk(ev) {
     return !!ev?.talk && this.talkWait;
