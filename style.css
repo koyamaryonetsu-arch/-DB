@@ -2976,3 +2976,7 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
 .cm-noto-h { font-size: 13px; color: #991b1b; font-weight: 600; margin-bottom: 6px; }
 .cm-noto-f { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 4px; }
 .cm-noto-f input[type="email"] { flex: 1 1 220px; }
+/* スマホ: 📅 の上に本物の日付の欄を透明で重ねる（押すと端末のカレンダーが出る。2026-11-24） */
+@media (pointer: coarse), (max-width: 600px) {
+  .di-pick .di-hidden { left: 0; top: 0; bottom: auto; width: 100%; height: 100%; opacity: 0; pointer-events: auto; z-index: 2; font-size: 16px; -webkit-appearance: none; appearance: none; background: transparent; color: transparent; cursor: pointer; }
+}
