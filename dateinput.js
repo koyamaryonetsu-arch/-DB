@@ -55,22 +55,70 @@
 
   const VALUE = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
   const fire = (el, type) => el.dispatchEvent(new Event(type, { bubbles: true }));
-  // 📅 を押した時に出すカレンダー（隠した type=date の欄を使う）
+  // 📅 を押した時に出すカレンダー（2026-11-24〜 アプリの中のカレンダー。iPhone などで端末の日付の欄が開かない・数字が崩れるため、端末の欄は使わない）
+  let CAL = null;
+  function closeCal() {
+    if (!CAL) return;
+    CAL.box.remove(); document.removeEventListener('pointerdown', CAL.outside, true); document.removeEventListener('keydown', CAL.key, true);
+    window.removeEventListener('resize', CAL.place); CAL = null;
+  }
+  function isoOf(dt) { return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`; }
+  function openCal(anchor, iso, onPick) {
+    closeCal();
+    const sel = /^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? iso : '';
+    const base = sel ? new Date(+sel.slice(0, 4), +sel.slice(5, 7) - 1, 1) : new Date(today0().getFullYear(), today0().getMonth(), 1);
+    let y = base.getFullYear(), m = base.getMonth();
+    const box = document.createElement('div'); box.className = 'di-cal-pop'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'カレンダー');
+    const tIso = isoOf(today0());
+    const draw = () => {
+      const first = new Date(y, m, 1), start = new Date(y, m, 1 - first.getDay());
+      let cells = '';
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), di = isoOf(d);
+        if (i === 35 && d.getMonth() !== m) break;   // 5週で足りる月は6週目を出さない
+        cells += `<button type="button" class="di-day${d.getMonth() !== m ? ' out' : ''}${di === tIso ? ' today' : ''}${di === sel ? ' sel' : ''}${d.getDay() === 0 ? ' sun' : d.getDay() === 6 ? ' sat' : ''}" data-d="${di}">${d.getDate()}</button>`;
+      }
+      box.innerHTML = `<div class="di-cal-h"><button type="button" data-nav="-12" title="前の年">«</button><button type="button" data-nav="-1" title="前の月">‹</button>
+        <b>${y}年${m + 1}月</b><button type="button" data-nav="1" title="次の月">›</button><button type="button" data-nav="12" title="次の年">»</button></div>
+        <div class="di-cal-w">${[...DOW].map((w, i) => `<span class="${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}">${w}</span>`).join('')}</div>
+        <div class="di-cal-g">${cells}</div>
+        <div class="di-cal-f"><button type="button" data-act="today">今日</button><button type="button" data-act="clear">消す</button><button type="button" data-act="close">閉じる</button></div>`;
+    };
+    draw();
+    document.body.appendChild(box);
+    const place = () => {
+      const r = anchor.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight, w = box.offsetWidth, h = box.offsetHeight;
+      let left = Math.min(Math.max(8, r.right - w), vw - w - 8), top = r.bottom + 6;
+      if (top + h > vh - 8) top = Math.max(8, r.top - h - 6);
+      box.style.left = Math.max(8, left) + 'px'; box.style.top = top + 'px';
+    };
+    place();
+    box.addEventListener('pointerdown', (e) => e.preventDefault());   // 押しても、打つ欄から離れない
+    box.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.nav) { const k = +b.dataset.nav; const d = new Date(y, m + k, 1); y = d.getFullYear(); m = d.getMonth(); draw(); place(); return; }
+      if (b.dataset.d) { closeCal(); onPick(b.dataset.d); return; }
+      if (b.dataset.act === 'today') { closeCal(); onPick(tIso); return; }
+      if (b.dataset.act === 'clear') { closeCal(); onPick(''); return; }
+      closeCal();
+    });
+    const outside = (e) => { if (!box.contains(e.target) && e.target !== anchor) closeCal(); };
+    const key = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeCal(); } };
+    document.addEventListener('pointerdown', outside, true); document.addEventListener('keydown', key, true); window.addEventListener('resize', place);
+    CAL = { box, outside, key, place };
+  }
   function pickerFor(onPick, getIso) {
     const wrap = document.createElement('span'); wrap.className = 'di-pick';
     const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'di-cal'; btn.textContent = '📅'; btn.title = 'カレンダーで選ぶ'; btn.tabIndex = -1;
+    // 前の作り（隠した type=date の欄）は、値を入れる時の受け口として残す（押しても開かない・見えない）
     const hid = document.createElement('input'); hid.type = 'date'; hid.className = 'di-hidden'; hid.tabIndex = -1; hid.setAttribute('aria-hidden', 'true'); hid.dataset.diSkip = '1';
     wrap.appendChild(btn); wrap.appendChild(hid);
     btn.addEventListener('mousedown', (e) => e.preventDefault());   // 欄から離れない（表の中で直している時に閉じない）
-    // スマホ（指で押す画面）は、隠した日付の欄を 📅 の上に透明で重ね、指が直接その欄を押すようにする（2026-11-24）
-    //  iPhone・Android は、小さく隠した欄を JS で開いてもカレンダーが出ないため。押す直前に今の日付を入れておく
-    const prep = () => { VALUE.set.call(hid, getIso() || ''); };
-    hid.addEventListener('pointerdown', prep); hid.addEventListener('touchstart', prep, { passive: true }); hid.addEventListener('focus', prep);
     btn.addEventListener('click', (e) => {
       e.preventDefault(); e.stopPropagation();
-      VALUE.set.call(hid, getIso() || '');
-      try { if (hid.showPicker) { hid.showPicker(); return; } } catch (err) {}
-      hid.focus(); hid.click();
+      if (CAL && CAL.anchor === btn) { closeCal(); return; }
+      openCal(btn, getIso() || '', onPick); if (CAL) CAL.anchor = btn;
     });
     ['input', 'change'].forEach((t) => hid.addEventListener(t, (e) => { e.stopPropagation(); if (t === 'change' || hid.value) onPick(hid.value); }));
     return wrap;

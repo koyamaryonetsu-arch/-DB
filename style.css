@@ -2976,7 +2976,22 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
 .cm-noto-h { font-size: 13px; color: #991b1b; font-weight: 600; margin-bottom: 6px; }
 .cm-noto-f { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 4px; }
 .cm-noto-f input[type="email"] { flex: 1 1 220px; }
-/* スマホ: 📅 の上に本物の日付の欄を透明で重ねる（押すと端末のカレンダーが出る。2026-11-24） */
-@media (pointer: coarse), (max-width: 600px) {
-  .di-pick .di-hidden { left: 0; top: 0; bottom: auto; width: 100%; height: 100%; opacity: 0; pointer-events: auto; z-index: 2; font-size: 16px; -webkit-appearance: none; appearance: none; background: transparent; color: transparent; cursor: pointer; }
-}
+
+/* 📅 のカレンダー（アプリの中で出す。iPhone の端末の日付の欄は使わない。2026-11-24） */
+.di-cal-pop{ position:fixed; z-index:4000; background:#fff; border:1px solid #cbd5e1; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,.25); padding:8px; width:280px; max-width:calc(100vw - 16px); font-size:14px; user-select:none; -webkit-user-select:none; }
+.di-cal-h{ display:flex; align-items:center; gap:4px; margin-bottom:6px; }
+.di-cal-h b{ flex:1; text-align:center; font-size:15px; }
+.di-cal-pop .di-cal-h button, .di-cal-pop .di-cal-f button{ padding:0 !important; margin:0; min-width:0; }
+.di-cal-h button{ width:34px; flex:none; border:1px solid #e2e8f0; background:#f8fafc; border-radius:6px; min-width:34px; height:34px; font-size:16px; cursor:pointer; }
+.di-cal-pop, .di-cal-pop *{ box-sizing:border-box; }
+.di-cal-w, .di-cal-g{ display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:2px; }
+.di-cal-w span{ text-align:center; font-size:12px; color:#64748b; padding:2px 0; }
+.di-cal-w .sun, .di-day.sun{ color:#dc2626; } .di-cal-w .sat, .di-day.sat{ color:#2563eb; }
+.di-cal-pop .di-day{ min-width:0 !important; width:100%; padding:0 !important; margin:0; }
+.di-day{ border:0; background:#fff; height:36px; border-radius:6px; font-size:15px; cursor:pointer; font-variant-numeric:tabular-nums; touch-action:manipulation; }
+.di-day:hover{ background:#eef2ff; }
+.di-day.out{ opacity:.35; }
+.di-day.today{ outline:2px solid #93c5fd; outline-offset:-2px; }
+.di-day.sel{ background:#2563eb; color:#fff !important; }
+.di-cal-f{ display:flex; gap:6px; margin-top:6px; }
+.di-cal-f button{ flex:1; border:1px solid #cbd5e1; background:#fff; border-radius:6px; height:34px; font-size:14px; cursor:pointer; }
