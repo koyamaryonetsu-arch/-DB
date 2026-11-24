@@ -184,7 +184,7 @@ function cmWorkappLines_(f) {
   if (f.status === 'skip') {
     return ['　・' + (m.for_date ? cmFmtDateW_(m.for_date) + 'の' : '') + pp + 'は、作業申請書の提出は不要です' + (m.skip_reason ? '（理由: ' + m.skip_reason + '）' : '') + '。'];
   }
-  var out = ['　・' + (m.purpose ? pp + 'の' : '') + '作業申請書を添付します（' + f.name + '）' + (f.attached ? '' : ' ※大きいため添付できませんでした。担当よりお送りします。')];
+  var out = ['　・' + (m.purpose === 'survey' ? '調査の' : '') + '作業申請書を添付します（' + f.name + '）' + (f.attached ? '' : ' ※大きいため添付できませんでした。担当よりお送りします。')];
   var when = cmFmtWhen_(w.start_date || m.for_date, w.start_time, w.end_date, w.end_time);
   if (when) out.push('　　' + pp + '日時: ' + when);
   if (w.place) out.push('　　作業場所: ' + w.place);
