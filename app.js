@@ -753,9 +753,12 @@
       if (error) throw error;
     },
     async saveCustomerMemo(c) {
-      if (!customerMemoSupported || !c || !c.id) return;
-      const patch = { customer_memo: c.customerMemo ? c.customerMemo : null };
-      if (lastUpdateSourceSupported) patch.last_update_source = realPrivileged(currentUser) ? 'ryo' : 'customer';
+      if (!c || !c.id || (!customerMemoSupported && !meetingActive(currentUser))) return;
+      const patch = customerMemoSupported ? { customer_memo: c.customerMemo ? c.customerMemo : null } : {};
+      // 打合せモード（菱熱）は「内容」も保存する。客先と一緒に直しているので、通知メールは送らない（ryo_quiet）。ほかの社内の欄は送らない（消さない）
+      const meeting = meetingActive(currentUser);
+      if (meeting) patch.content = c.content || '';
+      if (lastUpdateSourceSupported) patch.last_update_source = meeting ? 'ryo_quiet' : (realPrivileged(currentUser) ? 'ryo' : 'customer');
       const { error } = await sb.from('cases').update(patch).eq('id', c.id);
       if (error) throw error;
     },
@@ -1663,6 +1666,8 @@
   function realPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
   function meetingActive(user) { return !!(meetingCompany && realPrivileged(user) && currentUser && user.email === currentUser.email); }
   function isPrivileged(user) { if (meetingActive(user)) return false; return realPrivileged(user); }
+  // 打合せモード（菱熱のアカウント）では「内容」も書ける（2026-11-25）。客先のアカウントは今まで通り見るだけ
+  function meetingContentOk(field) { return field === 'content' && meetingActive(currentUser); }
   // 打合せモードでは、選んだ会社の案件だけを残し、社内情報は消しておく（念のため。保存では送らない）
   function meetingScrub(list) {
     if (!meetingActive(currentUser)) return list;
@@ -3396,9 +3401,9 @@
   function editableTd(c, field, displayHtml, extraClass) {
     const cfg = EDITABLE_FIELDS[field];
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser))
-                  && !(cfg.readonlyForCustomer && !isPrivileged(currentUser))
+                  && !(cfg.readonlyForCustomer && !isPrivileged(currentUser) && !meetingContentOk(field))
                   && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ')
-                  && (isPrivileged(currentUser) || field === 'customerMemo');   // 客先は「自社のメモ」だけ直せる
+                  && (isPrivileged(currentUser) || field === 'customerMemo' || meetingContentOk(field));   // 客先は「自社のメモ」だけ直せる（打合せモードは内容も）
     // 編集はできないが、ポップアップで全文を見られる項目（客先の「内容」など）
     const viewOnlyPopup = !canEdit && cfg.type === 'popup' && !cfg.privilegedOnly;
     const cls = (canEdit ? 'editable' : (viewOnlyPopup ? 'viewable' : ''))
@@ -4092,7 +4097,7 @@
     const cust = !isPrivileged(currentUser);
     form.querySelectorAll('input, select, textarea').forEach((el) => {
       if (el.id === 'caseId' || el.type === 'hidden') return;
-      if (cust && el.id !== 'customerMemo') { el.dataset.custLocked = '1'; el.disabled = true; }
+      if (cust && el.id !== 'customerMemo' && !(el.id === 'content' && meetingActive(currentUser))) { el.dataset.custLocked = '1'; el.disabled = true; }
       else if (el.dataset.custLocked) { delete el.dataset.custLocked; el.disabled = false; }
     });
     ['modalDeleteBtn', 'modalDuplicateBtn'].forEach((id) => { if ($(id)) $(id).classList.toggle('hidden', cust); });
@@ -4483,7 +4488,7 @@
       : (field === 'customerMemo' ? customerMemoLabel() + 'を記入' : '案件の詳細を記入');
     // 閲覧のみ（客先の「内容」）は編集不可にして保存ボタンを隠す
     const cfgPopup = EDITABLE_FIELDS[field] || {};
-    const readOnly = !!(cfgPopup.readonlyForCustomer && !isPrivileged(currentUser));
+    const readOnly = !!(cfgPopup.readonlyForCustomer && !isPrivileged(currentUser) && !meetingContentOk(field));
     const ta = $('contentEditor');
     ta.readOnly = readOnly;
     ta.classList.toggle('readonly', readOnly);
@@ -4525,7 +4530,7 @@
   function saveContentFromModal() {
     if (!contentEditCaseId) return;
     const cfgSave = EDITABLE_FIELDS[popupEditField] || {};
-    if (cfgSave.readonlyForCustomer && !isPrivileged(currentUser)) { closeContentModal(); return; }
+    if (cfgSave.readonlyForCustomer && !isPrivileged(currentUser) && !meetingContentOk(popupEditField)) { closeContentModal(); return; }
     const c = cases.find((x) => x.id === contentEditCaseId);
     if (c) {
       const newVal = $('contentEditor').value.trim();
@@ -7185,7 +7190,7 @@
       const tcLabel = customerLabel('担当者');
       document.querySelectorAll('.tc-label').forEach((el) => { el.textContent = tcLabel; });
       // 内容(content)は客先は閲覧のみ（AI要約の結果）。フォームでも編集不可に
-      const contentTa = $('content'); if (contentTa) { contentTa.readOnly = true; }
+      const contentTa = $('content'); if (contentTa) { contentTa.readOnly = !meetingActive(currentUser); }   // 打合せモード（菱熱）は書ける
       // 客先には 登録/編集フォームの入力例（プレースホルダ）を出さない
       document.querySelectorAll('#caseForm input, #caseForm textarea').forEach((el) => { el.placeholder = ''; });
       // 客先には 担当者の入力履歴（サジェスト）を出さない
@@ -7898,6 +7903,7 @@
       const c0 = cases.find((x) => String(x.id) === String($('caseId').value));
       if (!c0) { closeModal(); return; }
       c0.customerMemo = $('customerMemo') ? $('customerMemo').value.trim() : c0.customerMemo;
+      if (meetingActive(currentUser) && $('content')) c0.content = $('content').value.trim();   // 打合せモード（菱熱）は内容も
       persistCase(c0); render(); closeModal();
       return;
     }
