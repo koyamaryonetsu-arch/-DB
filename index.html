@@ -863,6 +863,19 @@
           <div class="cm-log" id="cmLog"></div>
         </div>
       </section>
+      <section class="form-sec col-ryo hidden" data-sec="tasks" id="caseTaskSec">
+        <h3 class="form-sec-h">📋 タスク <span class="lock-tag">🔒 菱熱だけ</span></h3>
+        <div class="form-row form-row-wide">
+          <ul class="cp-task-list" id="cpTaskList"></ul>
+          <div class="cp-task-add">
+            <select id="cpTaskPrio" class="task-prio-select" title="優先度（高＝赤 / 中＝オレンジ / 低＝黒）" aria-label="優先度"><option value="high">高</option><option value="mid">中</option><option value="low" selected>低</option></select>
+            <input type="text" id="cpTaskText" placeholder="タスクを入れて「＋ 足す」（Enter でも）" aria-label="新しいタスク">
+            <input type="date" id="cpTaskDue" class="task-due-input" title="期限（空欄でもOK）" aria-label="期限">
+            <button type="button" id="cpTaskAdd">＋ 足す</button>
+          </div>
+          <span class="field-hint">チェックで完了。直すとすぐ保存します（パネルの「保存」を押さなくても残ります）。完了にしても、パネルを開いている間は並びを変えません。</span>
+        </div>
+      </section>
       <section class="form-sec form-sec-inner col-ryo" data-sec="inner">
         <h3 class="form-sec-h">社内だけ <span class="lock-tag">🔒 顧客には見えません</span></h3>
         <div class="form-stack">

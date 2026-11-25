@@ -2995,3 +2995,23 @@ body.cal-full .cal-weekhead span{ font-size:14px; }
 .di-day.sel{ background:#2563eb; color:#fff !important; }
 .di-cal-f{ display:flex; gap:6px; margin-top:6px; }
 .di-cal-f button{ flex:1; border:1px solid #cbd5e1; background:#fff; border-radius:6px; height:34px; font-size:14px; cursor:pointer; }
+/* 編集パネルのタスク（2026-11-25） */
+.cp-task-list { list-style: none; margin: 0 0 6px; padding: 0; width: 100%; }
+.cp-task { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #e2e8f0; }
+.cp-task.done .cp-task-text { text-decoration: line-through; color: #94a3b8; }
+.cp-task .cp-task-text { flex: 1 1 auto; min-width: 0; border: 1px solid transparent; background: transparent; padding: 4px 6px; border-radius: 4px; font-size: 14px; }
+.cp-task .cp-task-text:focus { border-color: #93c5fd; background: #fff; outline: none; }
+.cp-task .task-prio-select { flex: none; }
+.cp-task .di-box { flex: none; }
+.cp-task .di-box .di-text { width: 8.5em; }
+.cp-task .task-del { flex: none; border: 0; background: transparent; color: #94a3b8; font-size: 18px; cursor: pointer; padding: 0 6px; }
+.cp-task-none { color: #94a3b8; font-size: 13px; padding: 4px 0; }
+.cp-task-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; width: 100%; margin-bottom: 4px; }
+.cp-task-add #cpTaskText { flex: 1 1 220px; min-width: 0; }
+@media (max-width: 600px) {
+  .cp-task { flex-wrap: wrap; }
+  .cp-task .cp-task-text { flex: 1 1 calc(100% - 90px); order: 1; }
+  .cp-task .ti-check { order: 0; width: 22px; height: 22px; }
+  .cp-task .task-prio-select, .cp-task .di-box, .cp-task .task-del { order: 2; }
+  .cp-task-add #cpTaskText { flex: 1 1 100%; }
+}
