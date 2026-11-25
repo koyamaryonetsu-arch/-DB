@@ -3693,6 +3693,7 @@
   // その列で 昇順 → 降順 → 解除 と切り替える
   function toggleColumnSort(field) {
     if (!field) return;
+    TASK_CASE_FREEZE = null;   // 並べ替えを押した時は並べ直す
     if (sortState.field === field) {
       if (sortState.direction === 'asc') sortState.direction = 'desc';
       else { sortState.field = null; sortState.direction = 'asc'; }
@@ -4023,6 +4024,8 @@
     if ($('modalSafetyBtn')) $('modalSafetyBtn').classList.toggle('hidden', !caseObj || isCalEdit || !realPrivileged(currentUser) || !window.DOCGEN);
     if ($('modalBudgetBtn')) $('modalBudgetBtn').classList.toggle('hidden', !caseObj || isCalEdit || !realPrivileged(currentUser) || !window.DOCGEN || !window.DOCGEN.isLarge(caseObj));
     renderCaseMailSec(caseObj && !isCalEdit ? caseObj : null);
+    if (caseObj && caseObj.tasks) TASK_FREEZE.delete(caseObj.tasks);   // 開いた時に並べ直す
+    renderCaseTaskSec(caseObj && !isCalEdit ? caseObj : null);
     // 期日免除・初動報告の欄（菱熱・列がある時だけ）
     document.querySelectorAll('.due-exempt-row').forEach((el) => el.classList.toggle('hidden', !(initialReportSupported && isPrivileged(currentUser) && !isCalEdit)));
     renderIrRow(caseObj && !isCalEdit ? caseObj : null);
@@ -4165,6 +4168,70 @@
     } catch (e) { K.say('入れられませんでした: ' + (e.message || e)); }
   }
   document.addEventListener('click', (e) => { if (e.target.closest('#cmNoToAdd')) addCmRecipient(); });
+  // ===== 編集パネルのタスク（2026-11-25）: 菱熱だけ（客先・打合せモードには出さない）。直すとすぐ保存 =====
+  let cpTaskCaseId = null;
+  function cpTaskCase() { return cpTaskCaseId ? cases.find((x) => String(x.id) === cpTaskCaseId) : null; }
+  function renderCaseTaskSec(c) {
+    const sec = $('caseTaskSec'); if (!sec) return;
+    const show = !!(c && c.id && isPrivileged(currentUser) && tasksAvailable() && cases.some((x) => String(x.id) === String(c.id)));
+    sec.classList.toggle('hidden', !show);
+    cpTaskCaseId = show ? String(c.id) : null;
+    if (!show) return;
+    drawCaseTaskList();
+  }
+  function drawCaseTaskList() {
+    const c = cpTaskCase(); const ul = $('cpTaskList'); if (!c || !ul) return;
+    if (!Array.isArray(c.tasks)) c.tasks = [];
+    const tasks = c.tasks;
+    const order = stableTaskOrder(tasks);
+    ul.innerHTML = order.length ? order.map((i) => {
+      const t = tasks[i], p = taskPrio(t), due = taskDue(t);
+      const left = (due && !t.done) ? daysBetween(todayStr(), due) : null;
+      const dueCls = left === null ? '' : (left < 0 ? ' due-over' : (left <= 3 ? ' due-soon' : ''));
+      const sel = ['high', 'mid', 'low'].map((v) => `<option value="${v}"${v === p ? ' selected' : ''}>${v === 'high' ? '高' : v === 'mid' ? '中' : '低'}</option>`).join('');
+      return `<li class="cp-task${t.done ? ' done' : ''}" data-cpt="${i}">
+        <input type="checkbox" class="ti-check" data-cpdone="${i}"${t.done ? ' checked' : ''} title="チェックすると完了" aria-label="完了">
+        <select class="task-prio-select" data-cpprio="${i}" title="優先度" aria-label="優先度">${sel}</select>
+        <input type="text" class="cp-task-text ${taskPrioClass(t)}" data-cptext="${i}" value="${escapeHtml(t.text)}" aria-label="タスク">
+        <input type="date" class="task-due-input${dueCls}" data-cpdue="${i}" value="${escapeHtml(due)}" title="期限" aria-label="期限">
+        <button type="button" class="task-del" data-cpdel="${i}" title="このタスクを消す" aria-label="消す">×</button></li>`;
+    }).join('') : '<li class="cp-task-none">タスクはまだありません</li>';
+  }
+  function saveCaseTasks(c) {
+    c.updatedAt = new Date().toISOString();
+    if (store.mode === 'local') saveCases();
+    persistCase(c);
+    if (taskMode) renderTaskTable(); else render();
+  }
+  function cpAddTask() {
+    const c = cpTaskCase(); if (!c) return;
+    const v = $('cpTaskText').value.trim(); if (!v) { $('cpTaskText').focus(); return; }
+    if (!Array.isArray(c.tasks)) c.tasks = [];
+    c.tasks.push({ text: v, done: false, priority: $('cpTaskPrio').value || 'low', due: $('cpTaskDue').value || '' });
+    $('cpTaskText').value = ''; $('cpTaskDue').value = '';
+    saveCaseTasks(c); drawCaseTaskList(); $('cpTaskText').focus();
+  }
+  if ($('cpTaskAdd')) {
+    $('cpTaskAdd').addEventListener('click', cpAddTask);
+    $('cpTaskText').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); cpAddTask(); } });
+    $('cpTaskList').addEventListener('change', (e) => {
+      const c = cpTaskCase(); if (!c) return; const el = e.target; const tasks = c.tasks || [];
+      const k = ['cpdone', 'cpprio', 'cptext', 'cpdue'].find((x) => el.dataset[x] !== undefined); if (!k) return;
+      const t = tasks[Number(el.dataset[k])]; if (!t) return;
+      if (k === 'cpdone') t.done = el.checked;
+      if (k === 'cpprio') t.priority = el.value;
+      if (k === 'cptext') { const v = el.value.trim(); if (!v) { el.value = t.text; return; } t.text = v; }
+      if (k === 'cpdue') t.due = el.value || '';
+      saveCaseTasks(c); drawCaseTaskList();
+    });
+    $('cpTaskList').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset.cptext !== undefined && !e.isComposing) { e.preventDefault(); e.target.blur(); } });
+    $('cpTaskList').addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-cpdel]'); if (!b) return;
+      const c = cpTaskCase(); if (!c) return; const i = Number(b.dataset.cpdel); const t = (c.tasks || [])[i]; if (!t) return;
+      if (!(await window.KARTE.ask(`タスク「${t.text}」を消します。よろしいですか？`, { ok: '消す', cancel: 'やめる' }))) return;
+      c.tasks.splice(i, 1); saveCaseTasks(c); drawCaseTaskList();
+    });
+  }
   async function renderCaseMailSec(c) {
     const sec = $('caseMailSec'); if (!sec) return;
     const show = !!(c && c.id && caseMailSupported && isPrivileged(currentUser) && store.mode === 'supabase');
@@ -5010,11 +5077,24 @@
     if (from < 0 || to < 0 || from >= tasks.length || to >= tasks.length) return false;
     const [t] = tasks.splice(from, 1);
     tasks.splice(to, 0, t);
+    TASK_FREEZE.delete(tasks);   // 手で並べ替えた時は、その並びにする
     return true;
   }
+  // タスクの並びを止めておく（2026-11-25）: 完了にしても・直しても、開いている間は並びを変えない。
+  //  開いた時（タスク管理・タスクのポップアップ・編集パネル）に「未完了が上」で並べ、閉じるまでその並び。足したタスクは下に
+  let TASK_FREEZE = new WeakMap();
+  function stableTaskOrder(tasks) {
+    const refs = TASK_FREEZE.get(tasks) || taskDisplayOrder(tasks).map((i) => tasks[i]);
+    const out = [], seen = new Set();
+    refs.forEach((t) => { const i = tasks.indexOf(t); if (i !== -1 && !seen.has(t)) { out.push(i); seen.add(t); } });
+    tasks.forEach((t, i) => { if (!seen.has(t)) out.push(i); });
+    TASK_FREEZE.set(tasks, out.map((i) => tasks[i]));
+    return out;
+  }
+  let TASK_CASE_FREEZE = null;   // タスク管理を開いている間の、案件の並び（id の順）
   // 一覧セルの中のタスク行（案件・個人で共通）
   function taskCellHtml(tasks, attr) {
-    const order = taskDisplayOrder(tasks).filter((i) => showDoneTasks || !tasks[i].done);
+    const order = stableTaskOrder(tasks).filter((i) => showDoneTasks || !tasks[i].done);
     if (!order.length) return '<span class="task-empty">（なし）</span>';
     // チェックボックス=完了 / 文字クリック=その場で書き直し / 文字をつかんで動かす=並べ替え
     return '<ul class="cell-task-list">' + order.map((i) => {
@@ -5152,6 +5232,7 @@
     if (calMode) exitCalMode();
     if (koteiMode) exitKoteiMode();
     exitAuxModes();
+    TASK_FREEZE = new WeakMap(); TASK_CASE_FREEZE = null;   // 開く時に並べ直す
     taskMode = true;
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
@@ -5172,6 +5253,7 @@
   }
   function exitTaskMode() {
     taskMode = false;
+    TASK_FREEZE = new WeakMap(); TASK_CASE_FREEZE = null;
     $('casesTable').classList.remove('task-mode');
     $('taskBtnLabel').innerHTML = '<span class="tb-ic">📋</span><span class="tb-tx"> タスク管理</span>';
     $('taskDoneToggleBtn').classList.add('hidden');
@@ -5677,7 +5759,10 @@
     addResizers(thead);
     const tbody = $('casesBody');
     tbody.innerHTML = '';
-    const rows = getFilteredCases();
+    let rows = getFilteredCases();
+    // タスク管理を開いている間は、案件の並びを変えない（直しても・完了にしても行が動かない。並べ替えボタンを押した時は並べ直す）
+    if (!TASK_CASE_FREEZE) TASK_CASE_FREEZE = rows.map((c) => String(c.id));
+    else { const pos = new Map(TASK_CASE_FREEZE.map((id, i) => [id, i])); rows = rows.slice().sort((a, b) => (pos.has(String(a.id)) ? pos.get(String(a.id)) : 1e9) - (pos.has(String(b.id)) ? pos.get(String(b.id)) : 1e9)); TASK_CASE_FREEZE = TASK_CASE_FREEZE.concat(rows.map((c) => String(c.id)).filter((id) => !pos.has(id))); }
     rows.forEach((c) => {
       const tr = document.createElement('tr');
       tr.dataset.caseId = c.id;
@@ -5733,7 +5818,7 @@
       const dup = isDupSuspect(c) ? '<span class="m-dup">⚠️二重の可能性</span>' : '';
       let body;
       if (taskMode) {
-        const open = caseTasks(c).map((t, i) => i).filter((i) => !caseTasks(c)[i].done || showDoneTasks);
+        const open = stableTaskOrder(caseTasks(c)).filter((i) => !caseTasks(c)[i].done || showDoneTasks);
         body = open.length
           ? '<ul class="m-tasks">' + open.map((i) => { const t = caseTasks(c)[i]; return `<li class="${t.done ? 'task-done' : ''}"><span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span>${taskDueHtml(t)}</li>`; }).join('') + '</ul>'
           : '<div class="m-none">タスクなし（タップで追加）</div>';
@@ -5782,6 +5867,7 @@
     openTaskModalCommon();
   }
   function openTaskModalCommon() {
+    if (!taskMode) { const tl = activeTaskList(); if (tl) TASK_FREEZE.delete(tl); }   // タスク管理の外で開いた時は、開いた時に並べ直す
     renderTaskModalList();
     $('taskNewInput').value = '';
     $('taskNewDue').value = '';
@@ -5793,8 +5879,8 @@
   function taskPrioClass(t) { return 'task-prio-' + taskPrio(t); }
   function renderTaskModalList() {
     const tasks = activeTaskList(); if (!tasks) return;
-    // 未完了を上に、期限が近い順（元のindexは保持）
-    const order = taskDisplayOrder(tasks);
+    // 開いた時に未完了を上に並べ、閉じるまで並びを変えない（元のindexは保持）
+    const order = stableTaskOrder(tasks);
     const ul = $('taskList');
     ul.innerHTML = order.map((i) => {
       const t = tasks[i];
@@ -7707,6 +7793,7 @@
   });
   // 並び替えボタン（受付日順・調査日順・客先順・ステータス順）
   function toggleSortField(field) {
+    TASK_CASE_FREEZE = null;   // 並べ替えボタンを押した時は並べ直す
     if (sortState.field === field) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
     else { sortState.field = field; sortState.direction = 'asc'; }
     render();
@@ -7824,7 +7911,7 @@
   });
   $('taskSortDueBtn').addEventListener('click', () => {
     const tasks = activeTaskList(); if (!tasks || tasks.length < 2) return;
-    sortTasksByDue(tasks);
+    sortTasksByDue(tasks); TASK_FREEZE.delete(tasks);
     persistTaskModal();
     renderTaskModalList();
     if (taskMode) renderTaskTable();
